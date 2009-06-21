@@ -37,12 +37,12 @@
 
 // Linden library includes
 #include "v4color.h"
+#include "llwindow.h"	// setCursor()
 
 // Project includes
 #include "llui.h"
 #include "llrender.h"
 #include "lluiconstants.h"
-#include "llviewerwindow.h"
 #include "llviewercontrol.h"
 #include "llbutton.h"
 #include "lltextbox.h"
@@ -51,60 +51,55 @@
 #include "llviewerimagelist.h"
 #include "llfocusmgr.h"
 
-static LLRegisterWidget<LLColorSwatchCtrl> r("color_swatch");
+static LLDefaultWidgetRegistry::Register<LLColorSwatchCtrl> r("color_swatch");
 
-LLColorSwatchCtrl::LLColorSwatchCtrl(const std::string& name, const LLRect& rect, const LLColor4& color,
-		void (*commit_callback)(LLUICtrl* ctrl, void* userdata),
-		void* userdata )
-:	LLUICtrl(name, rect, TRUE, commit_callback, userdata, FOLLOWS_LEFT | FOLLOWS_TOP),
-	mValid( TRUE ),
-	mColor( color ),
-	mBorderColor( gColors.getColor("DefaultHighlightLight") ),
-	mCanApplyImmediately(FALSE),
-	mOnCancelCallback(NULL),
-	mOnSelectCallback(NULL)
+LLColorSwatchCtrl::Params::Params()
+:	color("color", LLColor4::white),
+	can_apply_immediately("can_apply_immediately", false),
+	alpha_background_image("alpha_background_image"),
+	border_color("border_color"),
+    label_width("label_width", -1),
+	caption_text("caption_text"),
+	border("border")
 {
-	mCaption = new LLTextBox( name,
-		LLRect( 0, BTN_HEIGHT_SMALL, getRect().getWidth(), 0 ),
-		name,
-		LLFontGL::getFontSansSerifSmall() );
-	mCaption->setFollows( FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM );
-	addChild( mCaption );
-
-	// Scalable UI made this off-by-one, I don't know why. JC
-	LLRect border_rect(0, getRect().getHeight()-1, getRect().getWidth()-1, 0);
-	border_rect.mBottom += BTN_HEIGHT_SMALL;
-	mBorder = new LLViewBorder(std::string("border"), border_rect, LLViewBorder::BEVEL_IN);
-	addChild(mBorder);
-
-	mAlphaGradientImage = LLUI::getUIImage("color_swatch_alpha.tga");
+	name = "colorswatch";
 }
 
-LLColorSwatchCtrl::LLColorSwatchCtrl(const std::string& name, const LLRect& rect, const std::string& label, const LLColor4& color,
-		void (*commit_callback)(LLUICtrl* ctrl, void* userdata),
-		void* userdata )
-:	LLUICtrl(name, rect, TRUE, commit_callback, userdata, FOLLOWS_LEFT | FOLLOWS_TOP),
+LLColorSwatchCtrl::LLColorSwatchCtrl(const Params& p)
+:	LLUICtrl(p),
 	mValid( TRUE ),
-	mColor( color ),
-	mBorderColor( gColors.getColor("DefaultHighlightLight") ),
-	mCanApplyImmediately(FALSE),
-	mOnCancelCallback(NULL),
-	mOnSelectCallback(NULL)
-{
-	mCaption = new LLTextBox( label,
-		LLRect( 0, BTN_HEIGHT_SMALL, getRect().getWidth(), 0 ),
-		label,
-		LLFontGL::getFontSansSerifSmall() );
-	mCaption->setFollows( FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM );
+	mColor(p.color),
+	mCanApplyImmediately(p.can_apply_immediately),
+	mAlphaGradientImage(p.alpha_background_image),
+	mOnCancelCallback(p.cancel_callback()),
+	mOnSelectCallback(p.select_callback()),
+	mBorderColor(p.border_color()),
+	mLabelWidth(p.label_width)
+{	
+	LLTextBox::Params tp = p.caption_text;
+	// label_width is specified, not -1
+	if(mLabelWidth!= -1)
+	{
+		tp.rect(LLRect( 0, BTN_HEIGHT_SMALL, mLabelWidth, 0 ));
+	}
+	else
+	{
+		tp.rect(LLRect( 0, BTN_HEIGHT_SMALL, getRect().getWidth(), 0 ));
+	}
+	
+	tp.text(p.label);
+	mCaption = LLUICtrlFactory::create<LLTextBox>(tp);
 	addChild( mCaption );
 
-	// Scalable UI made this off-by-one, I don't know why. JC
-	LLRect border_rect(0, getRect().getHeight()-1, getRect().getWidth()-1, 0);
+	LLRect border_rect = getLocalRect();
+	border_rect.mTop -= 1;
+	border_rect.mRight -=1;
 	border_rect.mBottom += BTN_HEIGHT_SMALL;
-	mBorder = new LLViewBorder(std::string("border"), border_rect, LLViewBorder::BEVEL_IN);
-	addChild(mBorder);
 
-	mAlphaGradientImage = LLUI::getUIImage("color_swatch_alpha.tga");
+	LLViewBorder::Params params = p.border;
+	params.rect(border_rect);
+	mBorder = LLUICtrlFactory::create<LLViewBorder> (params);
+	addChild(mBorder);
 }
 
 LLColorSwatchCtrl::~LLColorSwatchCtrl ()
@@ -114,9 +109,8 @@ LLColorSwatchCtrl::~LLColorSwatchCtrl ()
 	if (pickerp)
 	{
 		pickerp->cancelSelection();
-		pickerp->close();
+		pickerp->closeFloater();
 	}
-	mAlphaGradientImage = NULL;
 }
 
 BOOL LLColorSwatchCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
@@ -206,7 +200,7 @@ void LLColorSwatchCtrl::draw()
 	mBorder->setKeyboardFocusHighlight(hasFocus());
 	// Draw border
 	LLRect border( 0, getRect().getHeight(), getRect().getWidth(), BTN_HEIGHT_SMALL );
-	gl_rect_2d( border, mBorderColor, FALSE );
+	gl_rect_2d( border, mBorderColor.get(), FALSE );
 
 	LLRect interior = border;
 	interior.stretch( -1 );
@@ -264,7 +258,7 @@ void LLColorSwatchCtrl::setEnabled( BOOL enabled )
 		if (pickerp)
 		{
 			pickerp->cancelSelection();
-			pickerp->close();
+			pickerp->closeFloater();
 		}
 	}
 }
@@ -295,11 +289,11 @@ void LLColorSwatchCtrl::onColorChanged ( void* data, EColorPickOp pick_op )
 
 			if (pick_op == COLOR_CANCEL && subject->mOnCancelCallback)
 			{
-				subject->mOnCancelCallback(subject, subject->mCallbackUserData);
+				subject->mOnCancelCallback( subject, LLSD());
 			}
 			else if (pick_op == COLOR_SELECT && subject->mOnSelectCallback)
 			{
-				subject->mOnSelectCallback(subject, subject->mCallbackUserData);
+				subject->mOnSelectCallback( subject, LLSD() );
 			}
 			else
 			{
@@ -343,59 +337,3 @@ void LLColorSwatchCtrl::showPicker(BOOL take_focus)
 	}
 }
 
-// virtual
-LLXMLNodePtr LLColorSwatchCtrl::getXML(bool save_children) const
-{
-	LLXMLNodePtr node = LLUICtrl::getXML();
-
-	node->createChild("color", TRUE)->setFloatValue(4, mColor.mV);
-
-	node->createChild("border_color", TRUE)->setFloatValue(4, mBorderColor.mV);
-
-	if (mCaption)
-	{
-		node->createChild("label", TRUE)->setStringValue(mCaption->getText());
-	}
-
-	node->createChild("can_apply_immediately", TRUE)->setBoolValue(mCanApplyImmediately);
-
-	return node;
-}
-
-LLView* LLColorSwatchCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
-{
-	std::string name("colorswatch");
-	node->getAttributeString("name", name);
-
-	std::string label;
-	node->getAttributeString("label", label);
-
-	LLColor4 color(1.f, 1.f, 1.f, 1.f);
-	node->getAttributeColor("initial_color", color);
-
-	LLRect rect;
-	createRect(node, rect, parent, LLRect());
-
-	BOOL can_apply_immediately = FALSE;
-	node->getAttributeBOOL("can_apply_immediately", can_apply_immediately);
-
-	LLUICtrlCallback callback = NULL;
-
-	if (label.empty())
-	{
-		label.assign(node->getValue());
-	}
-
-	LLColorSwatchCtrl* color_swatch = new LLColorSwatchCtrl(
-		name, 
-		rect,
-		label,
-		color,
-		callback,
-		NULL );
-
-	color_swatch->setCanApplyImmediately(can_apply_immediately);
-	color_swatch->initFromXML(node, parent);
-
-	return color_swatch;
-}

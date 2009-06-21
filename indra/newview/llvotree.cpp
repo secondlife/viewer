@@ -55,7 +55,7 @@
 #include "noise.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
-#include "llviewerwindow.h"
+#include "llnotifications.h"
 
 extern LLPipeline gPipeline;
 

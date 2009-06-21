@@ -48,6 +48,9 @@
 #include "lltoolmgr.h"
 #include "lltoolgrab.h"
 
+// Linden library includes
+#include "llwindow.h"			// setMouseClipping()
+
 LLToolGun::LLToolGun( LLToolComposite* composite )
 :	LLTool( std::string("gun"), composite )
 {
@@ -132,7 +135,7 @@ void LLToolGun::draw()
 {
 	if( gSavedSettings.getBOOL("ShowCrosshairs") )
 	{
-		LLUIImagePtr crosshair = LLUI::getUIImage("UIImgCrosshairsUUID");
+		LLUIImagePtr crosshair = LLUI::getUIImage("crosshairs.tga");
 		crosshair->draw(
 			( gViewerWindow->getWindowWidth() - crosshair->getWidth() ) / 2,
 			( gViewerWindow->getWindowHeight() - crosshair->getHeight() ) / 2);

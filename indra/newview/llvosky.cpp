@@ -368,7 +368,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 		initSunDirection(mSunDefaultPosition, LLVector3(0, 0, 0));
 	}
 	mAmbientScale = gSavedSettings.getF32("SkyAmbientScale");
-	mNightColorShift = gSavedSettings.getColor3("SkyNightColorShift");
+	mNightColorShift = gSavedSkinSettings.getColor3("SkyNightColorShift");
 	mFogColor.mV[VRED] = mFogColor.mV[VGREEN] = mFogColor.mV[VBLUE] = 0.5f;
 	mFogColor.mV[VALPHA] = 0.0f;
 	mFogRatio = 1.2f;
@@ -1197,8 +1197,6 @@ LLDrawable *LLVOSky::createDrawable(LLPipeline *pipeline)
 
 	LLDrawPoolSky *poolp = (LLDrawPoolSky*) gPipeline.getPool(LLDrawPool::POOL_SKY);
 	poolp->setSkyTex(mSkyTex);
-	poolp->setSun(&mSun);
-	poolp->setMoon(&mMoon);
 	mDrawable->setRenderType(LLPipeline::RENDER_TYPE_SKY);
 	
 	for (S32 i = 0; i < 6; ++i)
@@ -1215,7 +1213,7 @@ LLDrawable *LLVOSky::createDrawable(LLPipeline *pipeline)
 
 //by bao
 //fake vertex buffer updating
-//to guaranttee at least updating one VBO buffer every frame
+//to guarantee at least updating one VBO buffer every frame
 //to walk around the bug caused by ATI card --> DEV-3855
 //
 void LLVOSky::createDummyVertexBuffer()

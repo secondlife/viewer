@@ -53,7 +53,6 @@ class LLSlider;
 class LLSliderCtrl;
 class LLSpinCtrl;
 class LLTabContainer;
-class LLTabContainerVertical;
 class LLTextBox;
 class LLTextEditor;
 class LLTextureCtrl;

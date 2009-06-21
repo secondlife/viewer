@@ -69,18 +69,20 @@
 
 // Library headers from llcommon project:
 #include "bitpack.h"
+#include "lldeleteutils.h"
 #include "imageids.h"
 #include "indra_constants.h"
 //#include "linden_common.h"
 //#include "llpreprocessor.h"
+#include "llallocator.h"
 #include "llapp.h"
 #include "llapr.h"
 #include "llcriticaldamp.h"
-#include "lldarray.h"
-#include "lldarrayptr.h"
+//#include "lldarray.h"
+//#include "lldarrayptr.h"
 #include "lldefs.h"
 #include "lldepthstack.h"
-#include "lldqueueptr.h"
+//#include "lldqueueptr.h"
 #include "llendianswizzle.h"
 #include "llerror.h"
 #include "llfasttimer.h"
@@ -89,11 +91,16 @@
 #include "llhash.h"
 #include "lllocalidhashmap.h"
 #include "llmap.h"
-#include "llmemory.h"
+//#include "llmemory.h"
 #include "llnametable.h"
+#include "llpointer.h"
 #include "llpriqueuemap.h"
 #include "llprocessor.h"
+#include "llrefcount.h"
+#include "llsafehandle.h"
 //#include "llsecondlifeurls.h"
+#include "llsd.h"
+#include "llsingleton.h"
 #include "llstack.h"
 #include "llstat.h"
 #include "llstl.h"
@@ -114,20 +121,13 @@
 #include "u64.h"
 
 // Library includes from llimage
-//#include "kdc_flow_control.h"
-//#include "kde_flow_control.h"
-//#include "kdu_image.h"
-//#include "kdu_image_local.h"
 //#include "llblockdata.h"
-//#include "llblockdecoder.h"
-//#include "llblockencoder.h"
 #include "llimage.h"
 #include "llimagebmp.h"
 #include "llimagepng.h"
 #include "llimagej2c.h"
 #include "llimagejpeg.h"
 #include "llimagetga.h"
-//#include "llkdumem.h"
 #include "llmapimagetype.h"
 
 // Library includes from llmath project
@@ -220,9 +220,6 @@
 #include "llvolumemgr.h"
 #include "material_codes.h"
 
-// Library includes from llxml
-#include "llxmlnode.h"
-
 // Library includes from llvfs
 #include "llassettype.h"
 #include "lldir.h"
@@ -231,5 +228,9 @@
 //#include "lldir_win32.h"
 #include "llvfile.h"
 #include "llvfs.h"
+
+// Library includes from llui
+// In skinning-7, llui.h dependencies are changing too often.
+//#include "llui.h"
 
 #endif

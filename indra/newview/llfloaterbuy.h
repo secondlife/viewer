@@ -57,7 +57,7 @@ public:
 protected:
 	LLFloaterBuy();
 	~LLFloaterBuy();
-
+	/*virtual*/	BOOL	postBuild();
 	/*virtual*/ void onClose(bool app_quitting);
 	void reset();
 

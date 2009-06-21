@@ -34,6 +34,7 @@
 
 #include "lltoolcomp.h"
 
+#include "llfloaterreg.h"
 #include "llgl.h"
 #include "indra_constants.h"
 
@@ -64,6 +65,9 @@ const S32 HPAD = 4;
 extern LLControlGroup gSavedSettings;
 
 
+// we use this in various places instead of NULL
+static LLTool* sNullTool = new LLTool(std::string("null"), NULL); 
+
 //-----------------------------------------------------------------------
 // LLToolComposite
 
@@ -87,7 +91,9 @@ void LLToolComposite::setCurrentTool( LLTool* new_tool )
 
 LLToolComposite::LLToolComposite(const std::string& name)
 	: LLTool(name),
-	  mCur(NULL), mDefault(NULL), mSelected(FALSE),
+	  mCur(sNullTool), 
+	  mDefault(sNullTool), 
+	  mSelected(FALSE),
 	  mMouseDown(FALSE), mManip(NULL), mSelectRect(NULL)
 {
 }
@@ -290,7 +296,7 @@ BOOL LLToolCompTranslate::handleDoubleClick(S32 x, S32 y, MASK mask)
 	{
 		// You should already have an object selected from the mousedown.
 		// If so, show its properties
-		gFloaterTools->showPanel(LLFloaterTools::PANEL_CONTENTS);
+		LLFloaterReg::showInstance("build", "Content");
 		return TRUE;
 	}
 	// Nothing selected means the first mouse click was probably
@@ -407,8 +413,7 @@ BOOL LLToolCompScale::handleDoubleClick(S32 x, S32 y, MASK mask)
 	{
 		// You should already have an object selected from the mousedown.
 		// If so, show its properties
-		gFloaterTools->showPanel(LLFloaterTools::PANEL_CONTENTS);
-		//gBuildView->setPropertiesPanelOpen(TRUE);
+		LLFloaterReg::showInstance("build", "Content");
 		return TRUE;
 	}
 	else
@@ -605,8 +610,7 @@ BOOL LLToolCompRotate::handleDoubleClick(S32 x, S32 y, MASK mask)
 	{
 		// You should already have an object selected from the mousedown.
 		// If so, show its properties
-		gFloaterTools->showPanel(LLFloaterTools::PANEL_CONTENTS);
-		//gBuildView->setPropertiesPanelOpen(TRUE);
+		LLFloaterReg::showInstance("build", "Content");
 		return TRUE;
 	}
 	else
@@ -638,7 +642,7 @@ LLToolCompGun::LLToolCompGun()
 {
 	mGun = new LLToolGun(this);
 	mGrab = new LLToolGrab(this);
-	mNull = new LLTool(std::string("null"), this);
+	mNull = sNullTool;
 
 	setCurrentTool(mGun);
 	mDefault = mGun;
@@ -653,7 +657,8 @@ LLToolCompGun::~LLToolCompGun()
 	delete mGrab;
 	mGrab = NULL;
 
-	delete mNull;
+	// don't delete a static object
+	// delete mNull;
 	mNull = NULL;
 }
 

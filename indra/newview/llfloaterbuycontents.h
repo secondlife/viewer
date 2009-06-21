@@ -55,7 +55,7 @@ public:
 protected:
 	LLFloaterBuyContents();
 	~LLFloaterBuyContents();
-
+	/*virtual*/	BOOL	postBuild();
 	void requestObjectInventories();
 	/*virtual*/ void inventoryChanged(LLViewerObject* obj,
 								 InventoryObjectList* inv,

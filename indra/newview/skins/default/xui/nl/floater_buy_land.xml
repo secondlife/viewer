@@ -36,10 +36,11 @@
 	<text name="covenant_text">
 		U moet instemmen met het estate convenant:
 	</text>
+	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
 		Laden...
 	</text_editor>
-	<check_box label="Ik ga akkoord met het hierboven beschreven convenant." name="agree_covenant"/>
+	<check_box label="Ik ga akkoord met het hierboven &#10;beschreven convenant." name="agree_covenant"/>
 	<text name="info_parcel_label">
 		Perceel:
 	</text>
@@ -74,15 +75,9 @@ verkocht met objecten
 		Alleen premiumleden kunnen land bezitten.
 	</text>
 	<combo_box name="account_level">
-		<combo_item name="US$9.95/month,billedmonthly">
-			US$9.95/maand, gefactureerd per maand
-		</combo_item>
-		<combo_item name="US$7.50/month,billedquarterly">
-			US$7.50/maand, gefactureerd per kwartaal
-		</combo_item>
-		<combo_item name="US$6.00/month,billedannually">
-			US$6.00/maand, gefactureerd per jaar
-		</combo_item>
+		<combo_box.item name="US$9.95/month,billedmonthly" label="US$9.95/maand, gefactureerd per maand"/>
+		<combo_box.item name="US$7.50/month,billedquarterly" label="US$7.50/maand, gefactureerd per kwartaal"/>
+		<combo_box.item name="US$6.00/month,billedannually" label="US$6.00/maand, gefactureerd per jaar"/>
 	</combo_box>
 	<text name="land_use_action">
 		Verhoog uw maandelijkse landgebruikskosten tot US$ 40/maand

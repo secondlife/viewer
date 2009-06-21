@@ -40,7 +40,7 @@
 #include "llhudtext.h"
 #include "llhudicon.h"
 #include "llinventory.h"
-#include "llmemory.h"
+#include "llrefcount.h"
 #include "llmemtype.h"
 #include "llprimitive.h"
 #include "lluuid.h"
@@ -305,6 +305,7 @@ public:
 	/*virtual*/ S32		setTERotation(const U8 te, const F32 r);
 	/*virtual*/	S32		setTEBumpmap(const U8 te, const U8 bump );
 	/*virtual*/	S32		setTETexGen(const U8 te, const U8 texgen );
+	/*virtual*/	S32		setTEMediaTexGen(const U8 te, const U8 media ); // *FIXME: this confusingly acts upon a superset of setTETexGen's flags without absorbing its semantics
 	/*virtual*/	S32		setTEShiny(const U8 te, const U8 shiny );
 	/*virtual*/	S32		setTEFullbright(const U8 te, const U8 fullbright );
 	/*virtual*/	S32		setTEMediaFlags(const U8 te, const U8 media_flags );

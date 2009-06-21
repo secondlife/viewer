@@ -10,36 +10,16 @@
 		Wyświetl obraz jako:
 	</text>
 	<combo_box label="Rodzaj Ubrania" name="clothing_type_combo">
-		<combo_item name="Image">
-			Obraz
-		</combo_item>
-		<combo_item name="Hair">
-			Włosy
-		</combo_item>
-		<combo_item name="FemaleHead">
-			Damska Głowa
-		</combo_item>
-		<combo_item name="FemaleUpperBody">
-			Damska Górna Część Ciała
-		</combo_item>
-		<combo_item name="FemaleLowerBody">
-			Damska Górna Część Ciała
-		</combo_item>
-		<combo_item name="MaleHead">
-			Męska Głowa
-		</combo_item>
-		<combo_item name="MaleUpperBody">
-			Męska Górna Część Ciała
-		</combo_item>
-		<combo_item name="MaleLowerBody">
-			Męska Dolna Część Ciała
-		</combo_item>
-		<combo_item name="Skirt">
-			Spódnica
-		</combo_item>
-		<combo_item name="SculptedPrim">
-			Sculpt
-		</combo_item>
+		<combo_box.item name="Image" label="Obraz" />
+		<combo_box.item name="Hair" label="Włosy" />
+		<combo_box.item name="FemaleHead" label="Damska Głowa" />
+		<combo_box.item name="FemaleUpperBody" label="Damska Górna Część Ciała" />
+		<combo_box.item name="FemaleLowerBody" label="Damska Górna Część Ciała" />
+		<combo_box.item name="MaleHead" label="Męska Głowa" />
+		<combo_box.item name="MaleUpperBody" label="Męska Górna Część Ciała" />
+		<combo_box.item name="MaleLowerBody" label="Męska Dolna Część Ciała" />
+		<combo_box.item name="Skirt" label="Spódnica" />
+		<combo_box.item name="SculptedPrim" label="Sculpt" />
 	</combo_box>
 	<text name="bad_image_text">
 		Nie można wczytać obrazu.

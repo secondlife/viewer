@@ -33,15 +33,24 @@
 #ifndef LL_LLIMVIEW_H
 #define LL_LLIMVIEW_H
 
-#include "llfloater.h"
+#include "llmodaldialog.h"
 #include "llinstantmessage.h"
 #include "lluuid.h"
+#include "llmultifloater.h"
 
 class LLFloaterChatterBox;
 class LLUUID;
 class LLFloaterIMPanel;
 class LLFriendObserver;
 class LLFloaterIM;
+
+class LLIMSessionObserver
+{
+public:
+	virtual ~LLIMSessionObserver() {}
+	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) = 0;
+	virtual void sessionRemoved(const LLUUID& session_id) = 0;
+};
 
 class LLIMMgr : public LLSingleton<LLIMMgr>
 {
@@ -134,18 +143,11 @@ public:
 	// IM received that you haven't seen yet
 	BOOL getIMReceived() const;
 
-	void		setFloaterOpen(BOOL open);		/*Flawfinder: ignore*/
-	BOOL		getFloaterOpen();
-
-	LLFloaterChatterBox* getFloater();
-
 	// This method is used to go through all active sessions and
 	// disable all of them. This method is usally called when you are
 	// forced to log out or similar situations where you do not have a
 	// good connection.
 	void disconnectAllSessions();
-
-	static void	toggle(void*);
 
 	// This is a helper function to determine what kind of im session
 	// should be used for the given agent.
@@ -170,6 +172,9 @@ public:
 
 	//HACK: need a better way of enumerating existing session, or listening to session create/destroy events
 	const std::set<LLHandle<LLFloater> >& getIMFloaterHandles() { return mFloaters; }
+
+	void addSessionObserver(LLIMSessionObserver *);
+	void removeSessionObserver(LLIMSessionObserver *);
 
 private:
 	// create a panel and update internal representation for
@@ -198,11 +203,17 @@ private:
 
 	void processIMTypingCore(const LLIMInfo* im_info, BOOL typing);
 
-	static void onInviteNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* userdata);
+	static void onInviteNameLookup(LLSD payload, const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
+
+	void notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
+	void notifyObserverSessionRemoved(const LLUUID& session_id);
 
 private:
 	std::set<LLHandle<LLFloater> > mFloaters;
 	LLFriendObserver* mFriendObserver;
+
+	typedef std::list <LLIMSessionObserver *> session_observers_list_t;
+	session_observers_list_t mSessionObservers;
 
 	// An IM has been received that you haven't seen yet.
 	BOOL mIMReceived;
@@ -221,6 +232,23 @@ public:
 	static std::map<std::string,std::string> sEventStringsMap;
 	static std::map<std::string,std::string> sErrorStringsMap;
 	static std::map<std::string,std::string> sForceCloseSessionMap;
+};
+
+class LLIncomingCallDialog : public LLModalDialog
+{
+public:
+	LLIncomingCallDialog(const LLSD& payload);
+
+	/*virtual*/ BOOL postBuild();
+
+	static void onAccept(void* user_data);
+	static void onReject(void* user_data);
+	static void onStartIM(void* user_data);
+
+private:
+	void processCallResponse(S32 response);
+
+	LLSD mPayload;
 };
 
 // Globals

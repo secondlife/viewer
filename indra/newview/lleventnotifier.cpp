@@ -38,6 +38,7 @@
 
 #include "llnotify.h"
 #include "lleventinfo.h"
+#include "llfloaterreg.h"
 #include "llfloaterdirectory.h"
 #include "llfloaterworldmap.h"
 #include "llagent.h"
@@ -192,11 +193,11 @@ bool LLEventNotification::handleResponse(const LLSD& notification, const LLSD& r
 	{
 	case 0:
 		gAgent.teleportViaLocation(getEventPosGlobal());
-		gFloaterWorldMap->trackLocation(getEventPosGlobal());
+		LLFloaterWorldMap::getInstance()->trackLocation(getEventPosGlobal());
 		break;
 	case 1:
 		gDisplayEventHack = TRUE;
-		LLFloaterDirectory::showEvents(getEventID());
+		LLFloaterReg::showInstance("search", LLSD().insert("panel", "event").insert("id", S32(getEventID())));
 		break;
 	case 2:
 		break;

@@ -51,7 +51,7 @@ const std::string LAG_WARNING_IMAGE_NAME  = "lag_status_warning.tga";
 const std::string LAG_GOOD_IMAGE_NAME     = "lag_status_good.tga";
 
 LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
-	:	LLFloater(std::string("floater_lagmeter"))
+	:	LLFloater()
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_lagmeter.xml");
 
@@ -59,6 +59,15 @@ LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
 	// lose arrow-key driving when testing lag.
 	setIsChrome(TRUE);
 
+	// were we shrunk last time?
+	if (gSavedSettings.getBOOL("LagMeterShrunk"))
+	{
+		onClickShrink(this);
+	}
+}
+
+BOOL LLFloaterLagMeter::postBuild()
+{
 	mClientButton = getChild<LLButton>("client_lagmeter");
 	mClientText = getChild<LLTextBox>("client_text");
 	mClientCause = getChild<LLTextBox>("client_lag_cause");
@@ -113,13 +122,8 @@ LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
 
 	childSetAction("minimize", onClickShrink, this);
 
-	// were we shrunk last time?
-	if (gSavedSettings.getBOOL("LagMeterShrunk"))
-	{
-		onClickShrink(this);
-	}
+	return TRUE;
 }
-
 LLFloaterLagMeter::~LLFloaterLagMeter()
 {
 	// save shrunk status for next time
@@ -180,7 +184,7 @@ void LLFloaterLagMeter::determineClient()
 		{
 			mClientCause->setText( getString("client_texture_loading_cause_msg", mStringArgs) );
 		}
-		else if((LLViewerImage::sBoundTextureMemory >> 20) > LLViewerImage::sMaxBoundTextureMem)
+		else if((BYTES_TO_MEGA_BYTES(LLViewerImage::sBoundTextureMemoryInBytes)) > LLViewerImage::sMaxBoundTextureMemInMegaBytes)
 		{
 			mClientCause->setText( getString("client_texture_memory_cause_msg", mStringArgs) );
 		}

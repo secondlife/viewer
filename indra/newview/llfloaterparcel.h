@@ -43,7 +43,7 @@ class LLFloaterParcelInfo
 public:
 	static	void*	createPanelPlace(void*	data);
 
-	LLFloaterParcelInfo(const std::string& name, const LLUUID &parcel_id );
+	LLFloaterParcelInfo( const LLUUID &parcel_id );
 	/*virtual*/ ~LLFloaterParcelInfo();
 
 	void displayParcelInfo(const LLUUID& parcel_id);

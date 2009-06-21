@@ -55,8 +55,6 @@ LLToolPipette::LLToolPipette()
 :	LLTool(std::string("Pipette")),
 	mSuccess(TRUE)
 { 
-	mSelectCallback = NULL;
-	mUserData = NULL;
 }
 
 
@@ -106,6 +104,15 @@ BOOL LLToolPipette::handleToolTip(S32 x, S32 y, std::string& msg, LLRect *sticky
 	return TRUE;
 }
 
+void LLToolPipette::setTextureEntry(const LLTextureEntry* entry)
+{
+	if (entry)
+	{
+		mTextureEntry = *entry;
+		mSignal(mTextureEntry);
+	}
+}
+
 void LLToolPipette::pickCallback(const LLPickInfo& pick_info)
 {
 	LLViewerObject* hit_obj	= pick_info.getObject();
@@ -118,18 +125,9 @@ void LLToolPipette::pickCallback(const LLPickInfo& pick_info)
 	{
 		//TODO: this should highlight the selected face only
 		LLSelectMgr::getInstance()->highlightObjectOnly(hit_obj);
-		LLToolPipette::getInstance()->mTextureEntry = *hit_obj->getTE(pick_info.mObjectFace);
-		if (LLToolPipette::getInstance()->mSelectCallback)
-		{
-			LLToolPipette::getInstance()->mSelectCallback(LLToolPipette::getInstance()->mTextureEntry, LLToolPipette::getInstance()->mUserData);
-		}
+		const LLTextureEntry* entry = hit_obj->getTE(pick_info.mObjectFace);
+		LLToolPipette::getInstance()->setTextureEntry(entry);
 	}
-}
-
-void LLToolPipette::setSelectCallback(select_callback callback, void* user_data)
-{
-	mSelectCallback = callback;
-	mUserData = user_data;
 }
 
 void LLToolPipette::setResult(BOOL success, const std::string& msg)

@@ -52,7 +52,7 @@ LLFloaterHUD* LLFloaterHUD::sInstance = 0;
 
 // Default constructor
 LLFloaterHUD::LLFloaterHUD()
-:	LLFloater(std::string("floater_hud")),
+:	LLFloater(),
 	mWebBrowser(0)
 {
 	// Create floater from its XML definition
@@ -69,11 +69,6 @@ LLFloaterHUD::LLFloaterHUD()
 	// Opaque background since we never get the focus
 	setBackgroundOpaque(TRUE);
 
-	// Position floater based on saved location
-	LLRect saved_position_rect = gSavedSettings.getRect("FloaterHUDRect2");
-	reshape(saved_position_rect.getWidth(), saved_position_rect.getHeight(), FALSE);
-	setRect(saved_position_rect);
-	
 	mWebBrowser = getChild<LLWebBrowserCtrl>("floater_hud_browser" );
 	if (mWebBrowser)
 	{
@@ -91,9 +86,6 @@ LLFloaterHUD::LLFloaterHUD()
 		std::string url = base_url + language + "/";
 		mWebBrowser->navigateTo(url);
 	}
-
-	// Remember the one instance
-	sInstance = this;
 }
 
 // Get the instance
@@ -101,7 +93,7 @@ LLFloaterHUD* LLFloaterHUD::getInstance()
 {
 	if (!sInstance)
 	{
-		new LLFloaterHUD();
+		sInstance = new LLFloaterHUD();
 	}
 	return sInstance;
 }
@@ -109,9 +101,6 @@ LLFloaterHUD* LLFloaterHUD::getInstance()
 // Destructor
 LLFloaterHUD::~LLFloaterHUD()
 {
-	// Save floater position
-	gSavedSettings.setRect("FloaterHUDRect2", getRect() );
-
 	// Clear out the one instance if it's ours
 	if (sInstance == this)
 	{
@@ -131,7 +120,7 @@ void LLFloaterHUD::showHUD()
 
 	// Create the instance if necessary
 	LLFloaterHUD* hud = getInstance();
-	hud->open();
+	hud->openFloater();
 	hud->setFrontmost(FALSE);
 }
 

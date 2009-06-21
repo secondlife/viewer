@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<scroll_bar thumb_image="rounded_square.tga"
+            track_image="rounded_square.tga"
+            track_color="ScrollbarTrackColor"
+            thumb_color="ScrollbarThumbColor"
+            thickness="16">
+  <up_button image_unselected="scrollbutton_up_out_blue.tga"
+             image_selected="scrollbutton_up_in_blue.tga"
+             scale_image="true"/>
+  <down_button image_unselected="scrollbutton_down_out_blue.tga"
+               image_selected="scrollbutton_down_in_blue.tga"
+               scale_image="true"/>
+  <left_button image_unselected="scrollbutton_left_out_blue.tga"
+               image_selected="scrollbutton_left_in_blue.tga"
+               scale_image="true"/>
+  <right_button image_unselected="scrollbutton_right_out_blue.tga"
+               image_selected="scrollbutton_right_in_blue.tga"
+               scale_image="true"/>
+</scroll_bar>

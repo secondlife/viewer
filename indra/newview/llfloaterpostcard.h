@@ -36,12 +36,13 @@
 #include "llfloater.h"
 #include "llcheckboxctrl.h"
 
-#include "llmemory.h"
-#include "llimagegl.h"
+#include "llpointer.h"
 
 class LLTextEditor;
 class LLLineEditor;
 class LLButton;
+class LLImageGL;
+class LLImageJPEG;
 
 class LLFloaterPostcard 
 : public LLFloater
@@ -50,7 +51,6 @@ public:
 	LLFloaterPostcard(LLImageJPEG* jpeg, LLImageGL *img, const LLVector2& img_scale, const LLVector3d& pos_taken_global);
 	virtual ~LLFloaterPostcard();
 
-	virtual void init();
 	virtual BOOL postBuild();
 	virtual void draw();
 

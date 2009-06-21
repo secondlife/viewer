@@ -105,13 +105,9 @@ namespace {
 //-----------------------------------------------------------------------------
 // Member functions
 //-----------------------------------------------------------------------------
-LLFloaterReporter::LLFloaterReporter(
-	const std::string& name,
-	const LLRect& rect, 
-	const std::string& title, 
-	EReportType report_type)
-	:	
-	LLFloater(name, rect, title),
+								 
+LLFloaterReporter::LLFloaterReporter(EReportType report_type)
+:	LLFloater(),
 	mReportType(report_type),
 	mObjectID(),
 	mScreenID(),
@@ -122,37 +118,11 @@ LLFloaterReporter::LLFloaterReporter(
 	mCopyrightWarningSeen( FALSE ),
 	mResourceDatap(new LLResourceData())
 {
-	if (report_type == BUG_REPORT)
-	{
-		LLUICtrlFactory::getInstance()->buildFloater(this, "floater_report_bug.xml");
-	}
-	else
-	{
-		LLUICtrlFactory::getInstance()->buildFloater(this, "floater_report_abuse.xml");
-	}
+
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_report_abuse.xml");
+	
 
 	childSetText("abuse_location_edit", gAgent.getSLURL() );
-
-	LLButton* pick_btn = getChild<LLButton>("pick_btn");
-	if (pick_btn)
-	{
-		// XUI: Why aren't these in viewerart.ini?
-		pick_btn->setImages( std::string("UIImgFaceUUID"),
-							std::string("UIImgFaceSelectedUUID") );
-		childSetAction("pick_btn", onClickObjPicker, this);
-	}
-
-	if (report_type != BUG_REPORT)
-	{
-		// abuser name is selected from a list
-		LLLineEditor* le = getChild<LLLineEditor>("abuser_name_edit");
-		le->setEnabled( FALSE );
-	}
-
-	childSetAction("select_abuser", onClickSelectAbuser, this);
-
-	childSetAction("send_btn", onClickSend, this);
-	childSetAction("cancel_btn", onClickCancel, this);
 
 	enableControls(TRUE);
 
@@ -182,18 +152,16 @@ LLFloaterReporter::LLFloaterReporter(
 
 	gDialogVisible = TRUE;
 
-	// only request details for abuse reports (not BUG reports)
-	if (report_type != BUG_REPORT)
-	{
-		// send a message and ask for information about this region - 
-		// result comes back in processRegionInfo(..)
-		LLMessageSystem* msg = gMessageSystem;
-		msg->newMessage("RequestRegionInfo");
-		msg->nextBlock("AgentData");
-		msg->addUUID("AgentID", gAgent.getID());
-		msg->addUUID("SessionID", gAgent.getSessionID());
-		gAgent.sendReliableMessage();
-	};
+
+	// send a message and ask for information about this region - 
+	// result comes back in processRegionInfo(..)
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessage("RequestRegionInfo");
+	msg->nextBlock("AgentData");
+	msg->addUUID("AgentID", gAgent.getID());
+	msg->addUUID("SessionID", gAgent.getSessionID());
+	gAgent.sendReliableMessage();
+
 }
 
 // static
@@ -213,7 +181,25 @@ void LLFloaterReporter::processRegionInfo(LLMessageSystem* msg)
 			LLNotifications::instance().add("HelpReportAbuseEmailLL");
 	};
 }
+// virtual
+BOOL LLFloaterReporter::postBuild()
+{
+	// abuser name is selected from a list
+	LLLineEditor* le = getChild<LLLineEditor>("abuser_name_edit");
+	le->setEnabled( FALSE );
 
+	setPosBox(mPosition.getValue());
+	LLButton* pick_btn = getChild<LLButton>("pick_btn");
+	pick_btn->setImages(std::string("tool_face.tga"),
+						std::string("tool_face_active.tga") );
+	childSetAction("pick_btn", onClickObjPicker, this);
+
+	childSetAction("select_abuser", onClickSelectAbuser, this);
+
+	childSetAction("send_btn", onClickSend, this);
+	childSetAction("cancel_btn", onClickCancel, this);
+	return TRUE;
+}
 // virtual
 LLFloaterReporter::~LLFloaterReporter()
 {
@@ -241,7 +227,7 @@ void LLFloaterReporter::draw()
 	// this is set by a static callback sometime after the dialog is created.
 	// Only disable screenshot for abuse reports to estate owners - bug reports always
 	// allow screenshots to be taken.
-	if ( gEmailToEstateOwner && ( mReportType != BUG_REPORT ) )
+	if ( gEmailToEstateOwner )
 	{
 		childSetValue("screen_check", FALSE );
 		childSetEnabled("screen_check", FALSE );
@@ -257,11 +243,7 @@ void LLFloaterReporter::draw()
 void LLFloaterReporter::enableControls(BOOL enable)
 {
 	childSetEnabled("category_combo", enable);
-	// bug reports never include the chat history
-	if (mReportType != BUG_REPORT)
-	{
-		childSetEnabled("chat_check", enable);
-	}
+	childSetEnabled("chat_check", enable);
 	childSetEnabled("screen_check",	enable);
 	childDisable("screenshot");
 	childSetEnabled("pick_btn",		enable);
@@ -332,7 +314,7 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 				// we have to query the simulator for information 
 				// about this object
 				LLMessageSystem* msg = gMessageSystem;
-				U32 request_flags = (mReportType == BUG_REPORT) ? BUG_REPORT_REQUEST : COMPLAINT_REPORT_REQUEST;
+				U32 request_flags = COMPLAINT_REPORT_REQUEST;
 				msg->newMessageFast(_PREHASH_RequestObjectPropertiesFamily);
 				msg->nextBlockFast(_PREHASH_AgentData);
 				msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -363,15 +345,12 @@ void LLFloaterReporter::callbackAvatarID(const std::vector<std::string>& names, 
 
 	if (ids.empty() || names.empty()) return;
 
-	// this should never be called in a bug report but here for safety.
-	if ( self->mReportType != BUG_REPORT )
-	{
-		self->childSetText("abuser_name_edit", names[0] );
-		
-		self->mAbuserID = ids[0];
+	self->childSetText("abuser_name_edit", names[0] );
 
-		self->refresh();
-	};
+	self->mAbuserID = ids[0];
+
+	self->refresh();
+
 }
 
 // static
@@ -386,9 +365,7 @@ void LLFloaterReporter::onClickSend(void *userdata)
 
 	if(self->validateReport())
 	{
-		// only show copyright alert for abuse reports
-		if ( self->mReportType != BUG_REPORT )
-		{
+
 			const int IP_CONTENT_REMOVAL = 66;
 			const int IP_PERMISSONS_EXPLOIT = 37;
 			LLComboBox* combo = self->getChild<LLComboBox>( "category_combo");
@@ -418,7 +395,7 @@ void LLFloaterReporter::onClickSend(void *userdata)
 				LLNotifications::instance().add("HelpReportAbuseContainsCopyright");
 				return;
 			}
-		}
+
 
 		LLUploadDialog::modalUploadDialog("Uploading...\n\nReport");
 		// *TODO don't upload image if checkbox isn't checked
@@ -427,7 +404,7 @@ void LLFloaterReporter::onClickSend(void *userdata)
 		if(!url.empty() || !sshot_url.empty())
 		{
 			self->sendReportViaCaps(url, sshot_url, self->gatherReport());
-			self->close();
+			self->closeFloater();
 		}
 		else
 		{
@@ -442,7 +419,7 @@ void LLFloaterReporter::onClickSend(void *userdata)
 			{
 				self->sendReportViaLegacy(self->gatherReport());
 				LLUploadDialog::modalUploadFinished();
-				self->close();
+				self->closeFloater();
 			}
 		}
 	}
@@ -461,7 +438,7 @@ void LLFloaterReporter::onClickCancel(void *userdata)
 	{
 		closePickTool(self);
 	}
-	self->close();
+	self->closeFloater();
 }
 
 
@@ -501,16 +478,13 @@ void LLFloaterReporter::showFromMenu(EReportType report_type)
 	{
 		// ...bring that window to front
 		LLFloaterReporter *f = gReporterInstances.getData(report_type);
-		f->open();		/* Flawfinder: ignore */
+		f->openFloater();
 	}
 	else
 	{
 		LLFloaterReporter *f;
-		if (BUG_REPORT == report_type)
-		{
-			f = LLFloaterReporter::createNewBugReporter();
-		}
-		else if (COMPLAINT_REPORT == report_type)
+
+		if (COMPLAINT_REPORT == report_type)
 		{
 			f = LLFloaterReporter::createNewAbuseReporter();
 		}
@@ -557,7 +531,7 @@ void LLFloaterReporter::showFromObject(const LLUUID& object_id)
 	// Need to deselect on close
 	f->mDeselectOnClose = TRUE;
 
-	f->open();		/* Flawfinder: ignore */
+	f->openFloater();
 }
 
 
@@ -575,21 +549,8 @@ LLFloaterReporter* LLFloaterReporter::getReporter(EReportType report_type)
 
 LLFloaterReporter* LLFloaterReporter::createNewAbuseReporter()
 {
-	return new LLFloaterReporter("complaint_reporter",
-						         LLRect(),
-								 "Report Abuse",
-								 COMPLAINT_REPORT);
+	return new LLFloaterReporter(COMPLAINT_REPORT);
 }
-
-//static
-LLFloaterReporter* LLFloaterReporter::createNewBugReporter()
-{
-	return new LLFloaterReporter("bug_reporter",
-				                 LLRect(),
- 					             "Report Bug",
-                     			 BUG_REPORT);
-}
-	
 
 
 void LLFloaterReporter::setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID owner_id)
@@ -619,20 +580,25 @@ bool LLFloaterReporter::validateReport()
 		return false;
 	}
 
-	if ( mReportType != BUG_REPORT )
+
+	if ( childGetText("abuser_name_edit").empty() )
 	{
-	  if ( childGetText("abuser_name_edit").empty() )
-	  {
-		  LLNotifications::instance().add("HelpReportAbuseAbuserNameEmpty");
-		  return false;
-	  };
-  
-	  if ( childGetText("abuse_location_edit").empty() )
-	  {
-		  LLNotifications::instance().add("HelpReportAbuseAbuserLocationEmpty");
-		  return false;
-	  };
+		LLNotifications::instance().add("HelpReportAbuseAbuserNameEmpty");
+		return false;
 	};
+
+	if ( childGetText("abuse_location_edit").empty() )
+	{
+		LLNotifications::instance().add("HelpReportAbuseAbuserLocationEmpty");
+		return false;
+	};
+
+	if ( childGetText("abuse_location_edit").empty() )
+	{
+		LLNotifications::instance().add("HelpReportAbuseAbuserLocationEmpty");
+		return false;
+	};
+
 
 	if ( childGetText("summary_edit").empty() )
 	{
@@ -685,50 +651,34 @@ LLSD LLFloaterReporter::gatherReport()
 
 #if LL_WINDOWS
 	const char* platform = "Win";
-	const char* short_platform = "O:W";
 #elif LL_DARWIN
 	const char* platform = "Mac";
-	const char* short_platform = "O:M";
 #elif LL_LINUX
 	const char* platform = "Lnx";
-	const char* short_platform = "O:L";
 #elif LL_SOLARIS
 	const char* platform = "Sol";
 	const char* short_platform = "O:S";
 #else
 	const char* platform = "???";
-	const char* short_platform = "O:?";
 #endif
 
 
-	if ( mReportType == BUG_REPORT)
-	{
-		summary << short_platform << " V" << LL_VERSION_MAJOR << "."
-			<< LL_VERSION_MINOR << "."
-			<< LL_VERSION_PATCH << "."
-			<< LL_VIEWER_BUILD
-			<< " (" << regionp->getName() << ")"
-			<< "[" << category_name << "] "
-			<< "\"" << childGetValue("summary_edit").asString() << "\"";
-	}
-	else
-	{
-		summary << ""
-			<< " |" << regionp->getName() << "|"								// region reporter is currently in.
-			<< " (" << childGetText("abuse_location_edit") << ")"				// region abuse occured in (freeform text - no LLRegionPicker tool)
-			<< " [" << category_name << "] "									// updated category
-			<< " {" << childGetText("abuser_name_edit") << "} "					// name of abuse entered in report (chosen using LLAvatarPicker)
-			<< " \"" << childGetValue("summary_edit").asString() << "\"";		// summary as entered
-	};
+
+	summary << ""
+		<< " |" << regionp->getName() << "|"								// region reporter is currently in.
+		<< " (" << childGetText("abuse_location_edit") << ")"				// region abuse occured in (freeform text - no LLRegionPicker tool)
+		<< " [" << category_name << "] "									// updated category
+		<< " {" << childGetText("abuser_name_edit") << "} "					// name of abuse entered in report (chosen using LLAvatarPicker)
+		<< " \"" << childGetValue("summary_edit").asString() << "\"";		// summary as entered
+
 
 	std::ostringstream details;
-	if (mReportType != BUG_REPORT)
-	{
-		details << "V" << LL_VERSION_MAJOR << "."								// client version moved to body of email for abuse reports
-			<< LL_VERSION_MINOR << "."
-			<< LL_VERSION_PATCH << "."
-			<< LL_VIEWER_BUILD << std::endl << std::endl;
-	}
+
+	details << "V" << LL_VERSION_MAJOR << "."								// client version moved to body of email for abuse reports
+		<< LL_VERSION_MINOR << "."
+		<< LL_VERSION_PATCH << "."
+		<< LL_VIEWER_BUILD << std::endl << std::endl;
+
 	std::string object_name = childGetText("object_name");
 	std::string owner_name = childGetText("owner_name");
 	if (!object_name.empty() && !owner_name.empty())
@@ -737,11 +687,9 @@ LLSD LLFloaterReporter::gatherReport()
 		details << "Owner: " << owner_name << "\n";
 	}
 
-	if ( mReportType != BUG_REPORT )
-	{
-		details << "Abuser name: " << childGetText("abuser_name_edit") << " \n";
-		details << "Abuser location: " << childGetText("abuse_location_edit") << " \n";
-	};
+
+	details << "Abuser name: " << childGetText("abuser_name_edit") << " \n";
+	details << "Abuser location: " << childGetText("abuse_location_edit") << " \n";
 
 	details << childGetValue("details_edit").asString();
 
@@ -761,17 +709,11 @@ LLSD LLFloaterReporter::gatherReport()
 	LLUUID screenshot_id = LLUUID::null;
 	if (childGetValue("screen_check"))
 	{
-		if ( mReportType != BUG_REPORT )
-		{
-			if ( gEmailToEstateOwner == FALSE )
-			{
-				screenshot_id = childGetValue("screenshot");
-			}
-		}
-		else
+
+		if ( gEmailToEstateOwner == FALSE )
 		{
 			screenshot_id = childGetValue("screenshot");
-		};
+		}
 	};
 
 	LLSD report = LLSD::emptyMap();
@@ -891,12 +833,8 @@ void LLFloaterReporter::takeScreenshot()
 	mResourceDatap->mExpectedUploadCost = 0; // we expect that abuse screenshots are free
 	mResourceDatap->mAssetInfo.mTransactionID.generate();
 	mResourceDatap->mAssetInfo.mUuid = mResourceDatap->mAssetInfo.mTransactionID.makeAssetID(gAgent.getSecureSessionID());
-	if (BUG_REPORT == mReportType)
-	{
-		mResourceDatap->mAssetInfo.mType = LLAssetType::AT_TEXTURE;
-		mResourceDatap->mPreferredLocation = LLAssetType::EType(-1);
-	}
-	else if (COMPLAINT_REPORT == mReportType)
+
+	if (COMPLAINT_REPORT == mReportType)
 	{
 		mResourceDatap->mAssetInfo.mType = LLAssetType::AT_TEXTURE;
 		mResourceDatap->mPreferredLocation = LLAssetType::EType(-2);
@@ -927,7 +865,7 @@ void LLFloaterReporter::takeScreenshot()
 	{
 		texture->setImageAssetID(mResourceDatap->mAssetInfo.mUuid);
 		texture->setDefaultImageAssetID(mResourceDatap->mAssetInfo.mUuid);
-		texture->setCaption(std::string("Screenshot"));
+		texture->setCaption(getString("Screenshot"));
 	}
 
 }
@@ -967,11 +905,7 @@ void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, 
 	}
 
 	EReportType report_type = UNKNOWN_REPORT;
-	if (data->mPreferredLocation == -1)
-	{
-		report_type = BUG_REPORT;
-	}
-	else if (data->mPreferredLocation == -2)
+	if (data->mPreferredLocation == -2)
 	{
 		report_type = COMPLAINT_REPORT;
 	}
@@ -986,7 +920,7 @@ void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, 
 		self->mScreenID = uuid;
 		llinfos << "Got screen shot " << uuid << llendl;
 		self->sendReportViaLegacy(self->gatherReport());
-		self->close();
+		self->closeFloater();
 	}
 }
 

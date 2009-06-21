@@ -35,9 +35,10 @@
 
 #define SG_MIN_DIST_RATIO 0.00001f
 
-#include "llmemory.h"
 #include "lldrawable.h"
 #include "lloctree.h"
+#include "llpointer.h"
+#include "llrefcount.h"
 #include "llvertexbuffer.h"
 #include "llgltypes.h"
 #include "llcubemap.h"
@@ -399,7 +400,7 @@ public:
 	virtual void updateSpatialExtents();
 	virtual void updateBinRadius();
 	virtual void setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* results = NULL, BOOL for_select = FALSE);
-	virtual void updateDistance(LLCamera& camera_in);
+	virtual void updateDistance(LLCamera& camera_in, bool force_update);
 	virtual void makeActive();
 	virtual void move(LLDrawable *drawablep, LLSpatialGroup *curp, BOOL immediate = FALSE);
 	virtual BOOL updateMove();

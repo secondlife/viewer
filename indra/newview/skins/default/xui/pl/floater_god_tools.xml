@@ -80,29 +80,17 @@
 				Cel:
 			</text>
 			<combo_box name="destination">
-				<combo_item name="Selection">
-					Selekcja
-				</combo_item>
-				<combo_item name="AgentRegion">
-					Agent Regionu
-				</combo_item>
+				<combo_box.item name="Selection" label="Selekcja" />
+				<combo_box.item name="AgentRegion" label="Agent Regionu" />
 			</combo_box>
 			<text name="Request:">
 				Żądanie:
 			</text>
 			<combo_box name="request">
-				<combo_item name="colliders&lt;steps&gt;">
-					kolidery &lt;kroki&gt;
-				</combo_item>
-				<combo_item name="scripts&lt;count&gt;,&lt;optionalpattern&gt;">
-					skrypty &lt;policz&gt;,&lt;opcjonalnie powtórzenie&gt;
-				</combo_item>
-				<combo_item name="objects&lt;pattern&gt;">
-					obiekty &lt;powtórzenia&gt;
-				</combo_item>
-				<combo_item name="rez&lt;asset_id&gt;">
-					rez &lt;asset_id&gt;
-				</combo_item>
+				<combo_box.item name="colliders&lt;steps&gt;" label="kolidery &lt;kroki&gt;" />
+				<combo_box.item name="scripts&lt;count&gt;,&lt;optionalpattern&gt;" label="skrypty &lt;policz&gt;,&lt;opcjonalnie powtórzenie&gt;" />
+				<combo_box.item name="objects&lt;pattern&gt;" label="obiekty &lt;powtórzenia&gt;" />
+				<combo_box.item name="rez&lt;asset_id&gt;" label="rez &lt;asset_id&gt;" />
 			</combo_box>
 			<text name="Parameter:">
 				Parameter:

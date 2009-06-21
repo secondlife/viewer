@@ -50,6 +50,7 @@ namespace tut
     template<> template<>
     void httpdate_object::test<1>()
     {
+
         static std::string epoch_expected = "Thursday, 01 Jan 1970 00:00:00 GMT" ;
         ensure("Check Epoch in RFC 1123", ( epoch_expected == some_date.asRFC1123()));
     }
@@ -57,6 +58,7 @@ namespace tut
     template<> template<>
     void httpdate_object::test<2>()
     {
+
         static std::string expected = "Wednesday, 18 Jul 2007 22:17:24 GMT" ;
         some_date = LLDate(1184797044.037586);
         ensure("Check some timestamp in RFC 1123", ( expected == some_date.asRFC1123()));
@@ -66,6 +68,7 @@ namespace tut
     template<> template<>
     void httpdate_object::test<3>()
     {
+
         //F64 sometime = LLFrameTimer::getTotalSeconds();
         time_t sometime;
         time(&sometime);

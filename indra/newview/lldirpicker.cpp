@@ -40,6 +40,7 @@
 #include "lldir.h"
 #include "llframetimer.h"
 #include "lltrans.h"
+#include "llwindow.h"	// beforeDialog()
 
 #if LL_LINUX || LL_SOLARIS
 # include "llfilepicker.h"

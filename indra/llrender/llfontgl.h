@@ -34,16 +34,15 @@
 #ifndef LL_LLFONTGL_H
 #define LL_LLFONTGL_H
 
-#include "llfont.h"
-#include "llimagegl.h"
-#include "v2math.h"
 #include "llcoord.h"
-#include "llrect.h"
-
+#include "llfont.h"
 #include "llfontregistry.h"
+#include "llpointer.h"
+#include "llrect.h"
+#include "v2math.h"
 
 class LLColor4;
-
+class LLImageGL;
 // Key used to request a font.
 class LLFontDescriptor;
 
@@ -73,12 +72,18 @@ public:
 	enum StyleFlags
 	{
 		// text style to render.  May be combined (these are bit flags)
+		// TODO:: Maybe change the value to  0x01 << 0 for 1   0x01 << 1 for 2,  0x01 << 2 for 4
 		NORMAL = 0,	
 		BOLD = 1,
 		ITALIC = 2,
-		UNDERLINE = 4,
-		DROP_SHADOW = 8,
-		DROP_SHADOW_SOFT = 16
+		UNDERLINE = 4
+	};
+
+	enum ShadowType
+	{
+		NO_SHADOW,
+		DROP_SHADOW,
+		DROP_SHADOW_SOFT
 	};
 	
 	// Takes a string with potentially several flags, i.e. "NORMAL|BOLD|ITALIC"
@@ -93,10 +98,14 @@ public:
 
 	LLFontGL &operator=(const LLFontGL &source);
 
-	static BOOL initDefaultFonts(F32 screen_dpi, F32 x_scale, F32 y_scale,
+	static void initClass(F32 screen_dpi, F32 x_scale, F32 y_scale,
 								 const std::string& app_dir,
-								 const std::vector<std::string>& xui_paths);
+								 const std::vector<std::string>& xui_paths,
+								 bool create_gl_textures = true);
 
+	// Load sans-serif, sans-serif-small, etc.
+	// Slow, requires multiple seconds to load fonts.
+	static bool loadDefaultFonts();
 	static void	destroyDefaultFonts();
 	static void destroyAllGL();
 	void destroyGL();
@@ -111,17 +120,17 @@ public:
 				   const LLColor4 &color) const
 	{
 		return renderUTF8(text, begin_offset, (F32)x, (F32)y, color,
-						  LEFT, BASELINE, NORMAL,
-						  S32_MAX, S32_MAX, NULL, FALSE);
+							LEFT, BASELINE, NORMAL, NO_SHADOW,
+							S32_MAX, S32_MAX, NULL, FALSE);
 	}
 	
 	S32 renderUTF8(const std::string &text, const S32 begin_offset,
 				   S32 x, S32 y,
 				   const LLColor4 &color,
-				   HAlign halign, VAlign valign, U8 style = NORMAL) const
+				   HAlign halign, VAlign valign, U8 style = NORMAL, ShadowType shadow = NO_SHADOW) const
 	{
 		return renderUTF8(text, begin_offset, (F32)x, (F32)y, color,
-						  halign, valign, style,
+						  halign, valign, style, shadow,
 						  S32_MAX, S32_MAX, NULL, FALSE);
 	}
 	
@@ -133,6 +142,7 @@ public:
 		HAlign halign, 
 		VAlign valign,
 		U8 style,
+		ShadowType shadow,
 		S32 max_chars,
 		S32 max_pixels, 
 		F32* right_x,
@@ -143,7 +153,7 @@ public:
 			   const LLColor4 &color) const
 	{
 		return render(text, begin_offset, x, y, color,
-					  LEFT, BASELINE, NORMAL,
+					  LEFT, BASELINE, NORMAL, NO_SHADOW,
 					  S32_MAX, S32_MAX, NULL, FALSE, FALSE);
 	}
 	
@@ -155,6 +165,7 @@ public:
 		HAlign halign = LEFT, 
 		VAlign valign = BASELINE,
 		U8 style = NORMAL,
+		ShadowType shadow = NO_SHADOW,
 		S32 max_chars = S32_MAX,
 		S32 max_pixels = S32_MAX, 
 		F32* right_x=NULL,
@@ -220,7 +231,7 @@ protected:
 	F32 getEmbeddedCharAdvance(const embedded_data_t* ext_data) const;
 	void clearEmbeddedChars();
 	void renderQuad(const LLRectf& screen_rect, const LLRectf& uv_rect, F32 slant_amt) const;
-	void drawGlyph(const LLRectf& screen_rect, const LLRectf& uv_rect, const LLColor4& color, U8 style, F32 drop_shadow_fade) const;
+	void drawGlyph(const LLRectf& screen_rect, const LLRectf& uv_rect, const LLColor4& color, U8 style, ShadowType shadow, F32 drop_shadow_fade) const;
 
 public:
 	static F32 sVertDPI;
@@ -238,6 +249,8 @@ public:
 	static LLFontGL* getFontSansSerifBold();
 	static LLFontGL* getFontExtChar();
 	static LLFontGL* getFont(const LLFontDescriptor& desc);
+	// Use with legacy names like "SANSSERIF_SMALL" or "OCRA"
+	static LLFontGL* getFontByName(const std::string& name);
 
 	static LLColor4 sShadowColor;
 

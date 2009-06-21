@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_minimize="false"
+ height="440"
+ layout="topleft"
+ name="Image Preview"
+ width="300">
+    <text
+     type="string"
+     length="1"
+     bottom_delta="40"
+     follows="top|left"
+     height="15"
+     layout="topleft"
+     left="10"
+     name="name_label">
+        Name:
+    </text>
+    <line_editor
+     follows="top|left|right"
+     height="19"
+     layout="topleft"
+     left_delta="0"
+     name="name_form"
+     top_pad="5"
+     width="280" />
+    <text
+     type="string"
+     length="1"
+     bottom_delta="20"
+     follows="top|left"
+     height="15"
+     layout="topleft"
+     name="description_label">
+        Description:
+    </text>
+    <line_editor
+     follows="top|left|right"
+     height="19"
+     layout="topleft"
+     left_delta="0"
+     name="description_form"
+     top_pad="5"
+     width="280" />
+    <text
+     type="string"
+     length="1"
+     bottom_delta="20"
+     follows="top|left"
+     height="15"
+     layout="topleft"
+     name="preview_label">
+        Preview image as:
+    </text>
+    <combo_box
+     height="18"
+     label="Clothing Type"
+     layout="topleft"
+     left_delta="110"
+     name="clothing_type_combo"
+     top_delta="3"
+     width="160">
+        <combo_box.item
+         label="Image" />
+        <combo_box.item
+         label="Hair" />
+        <combo_box.item
+         label="Female Head" />
+        <combo_box.item
+         label="Female Upper Body" />
+        <combo_box.item
+         label="Female Lower Body" />
+        <combo_box.item
+         label="Male Head" />
+        <combo_box.item
+         label="Male Upper Body" />
+        <combo_box.item
+         label="Male Lower Body" />
+        <combo_box.item
+         label="Skirt" />
+        <combo_box.item
+         label="Sculpted Prim" />
+    </combo_box>
+    <text
+     type="string"
+     length="1"
+     bottom="190"
+     follows="top|left"
+     layout="topleft"
+     left="10"
+     name="bad_image_text">
+        Unable to read image.
+
+Try saving image as 24 bit Targa (.tga).
+    </text>
+    <check_box
+     control_name="LosslessJ2CUpload"
+     enabled="false"
+     follows="bottom|left"
+     height="16"
+     label="Use lossless compression"
+     layout="topleft"
+     left_delta="2"
+     name="lossless_check"
+     top_pad="197"
+     width="280" />
+    <button
+     follows="bottom|right"
+     height="20"
+     label="Cancel"
+     layout="topleft"
+     left="165"
+     name="cancel_btn"
+     top="410"
+     width="125" />
+    <button
+     follows="bottom|left"
+     height="20"
+     label="Upload (L$[AMOUNT])"
+     layout="topleft"
+     left_delta="-150"
+     name="ok_btn"
+     top_delta="0"
+     width="125" />
+</floater>

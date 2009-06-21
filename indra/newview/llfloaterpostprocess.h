@@ -53,7 +53,7 @@ public:
 
 	LLFloaterPostProcess();
 	virtual ~LLFloaterPostProcess();
-
+	/*virtual*/	BOOL	postBuild();
 	/// one and one instance only
 	static LLFloaterPostProcess* instance();
 
@@ -66,7 +66,7 @@ public:
 	static void onColorControlIMoved(LLUICtrl* ctrl, void* userData);
 	static void onLoadEffect(void* userData);
 	static void onSaveEffect(void* userData);
-	static void onChangeEffectName(LLUICtrl* ctrl, void * userData);
+	void onChangeEffectName(LLUICtrl* ctrl);
 
 	/// prompts a user when overwriting an effect
 	static bool saveAlertCallback(const LLSD& notification, const LLSD& response);

@@ -40,7 +40,7 @@
 #include <boost/function.hpp>
 
 #include "llsd.h"
-#include "llmemory.h"
+#include "llsingleton.h"
 
 /**
  * @class LLFunctorRegistry

@@ -172,8 +172,14 @@ LLDir_Solaris::~LLDir_Solaris()
 // Implementation
 
 
-void LLDir_Solaris::initAppDirs(const std::string &app_name)
+void LLDir_Solaris::initAppDirs(const std::string &app_name,
+								const std::string& app_read_only_data_dir)
 {
+	// Allow override so test apps can read newview directory
+	if (!app_read_only_data_dir.empty())
+	{
+		mAppRODataDir = app_read_only_data_dir;
+	}
 	mAppName = app_name;
 
 	std::string upper_app_name(app_name);

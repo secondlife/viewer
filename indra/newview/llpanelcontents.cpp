@@ -36,37 +36,33 @@
 #include "llpanelcontents.h"
 
 // linden library includes
+#include "lleconomy.h"
 #include "llerror.h"
+#include "llfloaterreg.h"
+#include "llfontgl.h"
+#include "llmaterialtable.h"
+#include "llpermissionsflags.h"
 #include "llrect.h"
 #include "llstring.h"
-#include "llmaterialtable.h"
-#include "llfontgl.h"
+#include "llui.h"
 #include "m3math.h"
-#include "llpermissionsflags.h"
-#include "lleconomy.h"
 #include "material_codes.h"
 
 // project includes
-#include "llui.h"
-#include "llspinctrl.h"
-#include "llcheckboxctrl.h"
-#include "lltextbox.h"
-#include "llbutton.h"
-#include "llcombobox.h"
-#include "llfloaterbulkpermission.h"
-
 #include "llagent.h"
-#include "llviewerwindow.h"
-#include "llworld.h"
-#include "llviewerobject.h"
-#include "llviewerregion.h"
+#include "llfloaterbulkpermission.h"
+#include "llpanelinventory.h"
+#include "llpreviewscript.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
-#include "llpreviewscript.h"
 #include "lltool.h"
-#include "lltoolmgr.h"
 #include "lltoolcomp.h"
-#include "llpanelinventory.h"
+#include "lltoolmgr.h"
+#include "lltrans.h"
+#include "llviewerobject.h"
+#include "llviewerregion.h"
+#include "llviewerwindow.h"
+#include "llworld.h"
 
 //
 // Imported globals
@@ -86,11 +82,13 @@ BOOL LLPanelContents::postBuild()
 	childSetAction("button new script",&LLPanelContents::onClickNewScript, this);
 	childSetAction("button permissions",&LLPanelContents::onClickPermissions, this);
 
+	mPanelInventory = getChild<LLPanelInventory>("contents_inventory");
+	
 	return TRUE;
 }
 
-LLPanelContents::LLPanelContents(const std::string& name)
-	:	LLPanel(name),
+LLPanelContents::LLPanelContents()
+	:	LLPanel(),
 		mPanelInventory(NULL)
 {
 }
@@ -171,7 +169,7 @@ void LLPanelContents::onClickNewScript(void *userdata)
 				LLUUID::null,
 				LLAssetType::AT_LSL_TEXT,
 				LLInventoryType::IT_LSL,
-				std::string("New Script"),
+				LLTrans::getString("PanelContentsNewScript"),
 				desc,
 				LLSaleInfo::DEFAULT,
 				LLViewerInventoryItem::II_FLAGS_NONE,
@@ -185,21 +183,7 @@ void LLPanelContents::onClickNewScript(void *userdata)
 		// viewer so the viewer can auto-open the script and start
 		// editing ASAP.
 #if 0
-		S32 left, top;
-		gFloaterView->getNewFloaterPosition(&left, &top);
-		LLRect rect = gSavedSettings.getRect("PreviewScriptRect");
-		rect.translate( left - rect.mLeft, top - rect.mTop );
-
-		LLLiveLSLEditor* editor;
-		editor = new LLLiveLSLEditor("script ed",
-									   rect,
-									   "Script: New Script",
-									   object->mID,
-									   LLUUID::null);
-		editor->open();	/*Flawfinder: ignore*/
-
-		// keep onscreen
-		gFloaterView->adjustToFitScreen(editor, FALSE);
+		LLFloaterReg::showInstance("preview_scriptedit", LLSD(inv_item->getUUID()), TAKE_FOCUS_YES);
 #endif
 	}
 }

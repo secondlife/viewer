@@ -49,96 +49,118 @@
 #include "llcontrol.h"
 #include "llfocusmgr.h"
 #include "llresmgr.h"
+#include "lluictrlfactory.h"
 
 const U32 MAX_STRING_LENGTH = 32;
 
-static LLRegisterWidget<LLSpinCtrl> r2("spinner");
- 
-LLSpinCtrl::LLSpinCtrl(	const std::string& name, const LLRect& rect, const std::string& label, const LLFontGL* font,
-	void (*commit_callback)(LLUICtrl*, void*),
-	void* callback_user_data,
-	F32 initial_value, F32 min_value, F32 max_value, F32 increment,
-	const std::string& control_name,
-	S32 label_width)
-	:
-	LLUICtrl(name, rect, TRUE, commit_callback, callback_user_data, FOLLOWS_LEFT | FOLLOWS_TOP ),
-	mValue( initial_value ),
-	mInitialValue( initial_value ),
-	mMaxValue( max_value ),
-	mMinValue( min_value ),
-	mIncrement( increment ),
-	mPrecision( 3 ),
-	mLabelBox( NULL ),
-	mTextEnabledColor( LLUI::sColorsGroup->getColor( "LabelTextColor" ) ),
-	mTextDisabledColor( LLUI::sColorsGroup->getColor( "LabelDisabledColor" ) ),
-	mbHasBeenSet( FALSE )
+static LLDefaultWidgetRegistry::Register<LLSpinCtrl> r2("spinner");
+
+LLSpinCtrl::Params::Params()
+:	label_width("label_width"),
+	decimal_digits("decimal_digits"),
+	allow_text_entry("allow_text_entry", true),
+	text_enabled_color("text_enabled_color"),
+	text_disabled_color("text_disabled_color")
+{}
+
+LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
+:	LLF32UICtrl(p),
+	mLabelBox(NULL),
+	mbHasBeenSet( FALSE ),
+	mPrecision(p.decimal_digits),
+	mTextEnabledColor(p.text_enabled_color()),
+	mTextDisabledColor(p.text_disabled_color())
 {
+	static LLUICachedControl<S32> spinctrl_spacing ("UISpinctrlSpacing", 0);
+	static LLUICachedControl<S32> spinctrl_btn_width ("UISpinctrlBtnWidth", 0);
+	static LLUICachedControl<S32> spinctrl_btn_height ("UISpinctrlBtnHeight", 0);
 	S32 top = getRect().getHeight();
-	S32 bottom = top - 2 * SPINCTRL_BTN_HEIGHT;
+	S32 bottom = top - 2 * spinctrl_btn_height;
 	S32 centered_top = top;
 	S32 centered_bottom = bottom;
 	S32 btn_left = 0;
+	// reserve space for spinner
+	S32 label_width = llclamp(p.label_width(), 0, llmax(0, getRect().getWidth() - 40));
 
 	// Label
-	if( !label.empty() )
+	if( !p.label().empty() )
 	{
 		LLRect label_rect( 0, centered_top, label_width, centered_bottom );
-		mLabelBox = new LLTextBox( std::string("SpinCtrl Label"), label_rect, label, font );
+		LLTextBox::Params params;
+		params.name("SpinCtrl Label");
+		params.rect(label_rect);
+		params.text(p.label);
+		if (p.font.isProvided())
+		{
+			params.font(p.font);
+		}
+		mLabelBox = LLUICtrlFactory::create<LLTextBox> (params);
 		addChild(mLabelBox);
 
-		btn_left += label_rect.mRight + SPINCTRL_SPACING;
+		btn_left += label_rect.mRight + spinctrl_spacing;
 	}
 
-	S32 btn_right = btn_left + SPINCTRL_BTN_WIDTH;
+	S32 btn_right = btn_left + spinctrl_btn_width;
 	
 	// Spin buttons
-	LLRect up_rect( btn_left, top, btn_right, top - SPINCTRL_BTN_HEIGHT );
-	std::string out_id = "UIImgBtnSpinUpOutUUID";
-	std::string in_id = "UIImgBtnSpinUpInUUID";
-	mUpBtn = new LLButton(std::string("SpinCtrl Up"), up_rect,
-								   out_id,
-								   in_id,
-								   LLStringUtil::null,
-								   &LLSpinCtrl::onUpBtn, this, LLFontGL::getFontSansSerif() );
-	mUpBtn->setFollowsLeft();
-	mUpBtn->setFollowsBottom();
-	mUpBtn->setHeldDownCallback( &LLSpinCtrl::onUpBtn );
-	mUpBtn->setTabStop(FALSE);
+	LLButton::Params up_button_params;
+	up_button_params.name(std::string("SpinCtrl Up"));
+	up_button_params.rect
+					.left(btn_left)
+					.top(top)
+					.right(btn_right)
+					.height(spinctrl_btn_height);
+	up_button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM);
+	up_button_params.image_unselected.name("spin_up_out_blue.tga");
+	up_button_params.image_selected.name("spin_up_in_blue.tga");
+	up_button_params.click_callback.function(boost::bind(&LLSpinCtrl::onUpBtn, this, _2));
+	up_button_params.mouse_held_callback.function(boost::bind(&LLSpinCtrl::onUpBtn, this, _2));
+	up_button_params.tab_stop(false);
+
+	mUpBtn = LLUICtrlFactory::create<LLButton>(up_button_params);
 	addChild(mUpBtn);
 
-	LLRect down_rect( btn_left, top - SPINCTRL_BTN_HEIGHT, btn_right, bottom );
-	out_id = "UIImgBtnSpinDownOutUUID";
-	in_id = "UIImgBtnSpinDownInUUID";
-	mDownBtn = new LLButton(std::string("SpinCtrl Down"), down_rect,
-							out_id,
-							in_id,
-							LLStringUtil::null,
-							&LLSpinCtrl::onDownBtn, this, LLFontGL::getFontSansSerif() );
-	mDownBtn->setFollowsLeft();
-	mDownBtn->setFollowsBottom();
-	mDownBtn->setHeldDownCallback( &LLSpinCtrl::onDownBtn );
-	mDownBtn->setTabStop(FALSE);
+	LLRect down_rect( btn_left, top - spinctrl_btn_height, btn_right, bottom );
+
+	LLButton::Params down_button_params;
+	down_button_params.name(std::string("SpinCtrl Down"));
+	down_button_params.rect
+					.left(btn_left)
+					.right(btn_right)
+					.bottom(bottom)
+					.height(spinctrl_btn_height);
+	down_button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM);
+	down_button_params.image_unselected.name("spin_down_out_blue.tga");
+	down_button_params.image_selected.name("spin_down_in_blue.tga");
+	down_button_params.click_callback.function(boost::bind(&LLSpinCtrl::onDownBtn, this, _2));
+	down_button_params.mouse_held_callback.function(boost::bind(&LLSpinCtrl::onDownBtn, this, _2));
+	down_button_params.tab_stop(false);
+	mDownBtn = LLUICtrlFactory::create<LLButton>(down_button_params);
 	addChild(mDownBtn);
 
 	LLRect editor_rect( btn_right + 1, centered_top, getRect().getWidth(), centered_bottom );
-	mEditor = new LLLineEditor( std::string("SpinCtrl Editor"), editor_rect, LLStringUtil::null, font,
-								MAX_STRING_LENGTH,
-								&LLSpinCtrl::onEditorCommit, NULL, NULL, this,
-								&LLLineEditor::prevalidateFloat );
-	mEditor->setFollowsLeft();
-	mEditor->setFollowsBottom();
+	LLLineEditor::Params params;
+	params.name("SpinCtrl Editor");
+	params.rect(editor_rect);
+	if (p.font.isProvided())
+	{
+		params.font(p.font);
+	}
+	params.max_length_bytes(MAX_STRING_LENGTH);
+	params.commit_callback.function((boost::bind(&LLSpinCtrl::onEditorCommit, this, _2)));
+	params.prevalidate_callback(&LLLineEditor::prevalidateFloat);
+	params.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
+	mEditor = LLUICtrlFactory::create<LLLineEditor> (params);
 	mEditor->setFocusReceivedCallback( &LLSpinCtrl::onEditorGainFocus, this );
 	//RN: this seems to be a BAD IDEA, as it makes the editor behavior different when it has focus
 	// than when it doesn't.  Instead, if you always have to double click to select all the text, 
 	// it's easier to understand
 	//mEditor->setSelectAllonFocusReceived(TRUE);
-	mEditor->setIgnoreTab(TRUE);
 	addChild(mEditor);
 
 	updateEditor();
 	setUseBoundingRect( TRUE );
 }
-
 
 F32 clamp_precision(F32 value, S32 decimal_precision)
 {
@@ -157,69 +179,50 @@ F32 clamp_precision(F32 value, S32 decimal_precision)
 }
 
 
-// static
-void LLSpinCtrl::onUpBtn( void *userdata )
+void LLSpinCtrl::onUpBtn( const LLSD& data )
 {
-	LLSpinCtrl* self = (LLSpinCtrl*) userdata;
-	if( self->getEnabled() )
+	if( getEnabled() )
 	{
 		// use getValue()/setValue() to force reload from/to control
-		F32 val = (F32)self->getValue().asReal() + self->mIncrement;
-		val = clamp_precision(val, self->mPrecision);
-		val = llmin( val, self->mMaxValue );
+		F32 val = (F32)getValue().asReal() + mIncrement;
+		val = clamp_precision(val, mPrecision);
+		val = llmin( val, mMaxValue );
 		
-		if( self->mValidateCallback )
+		F32 saved_val = (F32)getValue().asReal();
+		setValue(val);
+		if( !mValidateSignal( this, val ) )
 		{
-			F32 saved_val = (F32)self->getValue().asReal();
-			self->setValue(val);
-			if( !self->mValidateCallback( self, self->mCallbackUserData ) )
-			{
-				self->setValue( saved_val );
-				self->reportInvalidData();
-				self->updateEditor();
-				return;
-			}
-		}
-		else
-		{
-			self->setValue(val);
+			setValue( saved_val );
+			reportInvalidData();
+			updateEditor();
+			return;
 		}
 
-		self->updateEditor();
-		self->onCommit();
+		updateEditor();
+		onCommit();
 	}
 }
 
-// static
-void LLSpinCtrl::onDownBtn( void *userdata )
+void LLSpinCtrl::onDownBtn( const LLSD& data )
 {
-	LLSpinCtrl* self = (LLSpinCtrl*) userdata;
-
-	if( self->getEnabled() )
+	if( getEnabled() )
 	{
-		F32 val = (F32)self->getValue().asReal() - self->mIncrement;
-		val = clamp_precision(val, self->mPrecision);
-		val = llmax( val, self->mMinValue );
+		F32 val = (F32)getValue().asReal() - mIncrement;
+		val = clamp_precision(val, mPrecision);
+		val = llmax( val, mMinValue );
 
-		if( self->mValidateCallback )
+		F32 saved_val = (F32)getValue().asReal();
+		setValue(val);
+		if( !mValidateSignal( this, val ) )
 		{
-			F32 saved_val = (F32)self->getValue().asReal();
-			self->setValue(val);
-			if( !self->mValidateCallback( self, self->mCallbackUserData ) )
-			{
-				self->setValue( saved_val );
-				self->reportInvalidData();
-				self->updateEditor();
-				return;
-			}
-		}
-		else
-		{
-			self->setValue(val);
+			setValue( saved_val );
+			reportInvalidData();
+			updateEditor();
+			return;
 		}
 		
-		self->updateEditor();
-		self->onCommit();
+		updateEditor();
+		onCommit();
 	}
 }
 
@@ -235,10 +238,10 @@ void LLSpinCtrl::onEditorGainFocus( LLFocusableElement* caller, void *userdata )
 void LLSpinCtrl::setValue(const LLSD& value )
 {
 	F32 v = (F32)value.asReal();
-	if (mValue != v || !mbHasBeenSet)
+	if (getValueF32() != v || !mbHasBeenSet)
 	{
 		mbHasBeenSet = TRUE;
-		mValue = v;
+        LLF32UICtrl::setValue(value);
 		
 		if (!mEditor->hasFocus())
 		{
@@ -251,10 +254,10 @@ void LLSpinCtrl::setValue(const LLSD& value )
 void LLSpinCtrl::forceSetValue(const LLSD& value )
 {
 	F32 v = (F32)value.asReal();
-	if (mValue != v || !mbHasBeenSet)
+	if (getValueF32() != v || !mbHasBeenSet)
 	{
 		mbHasBeenSet = TRUE;
-		mValue = v;
+        LLF32UICtrl::setValue(value);
 		
 		updateEditor();
 	}
@@ -286,55 +289,43 @@ void LLSpinCtrl::updateEditor()
 	mEditor->setText( text );
 }
 
-void LLSpinCtrl::onEditorCommit( LLUICtrl* caller, void *userdata )
+void LLSpinCtrl::onEditorCommit( const LLSD& data )
 {
 	BOOL success = FALSE;
 	
-	LLSpinCtrl* self = (LLSpinCtrl*) userdata;
-	llassert( caller == self->mEditor );
-
-	std::string text = self->mEditor->getText();
+	std::string text = mEditor->getText();
 	if( LLLineEditor::postvalidateFloat( text ) )
 	{
 		LLLocale locale(LLLocale::USER_LOCALE);
 		F32 val = (F32) atof(text.c_str());
 
-		if (val < self->mMinValue) val = self->mMinValue;
-		if (val > self->mMaxValue) val = self->mMaxValue;
+		if (val < mMinValue) val = mMinValue;
+		if (val > mMaxValue) val = mMaxValue;
 
-		if( self->mValidateCallback )
+		F32 saved_val = getValueF32();
+		setValue(val);
+		if( mValidateSignal( this, val ) )
 		{
-			F32 saved_val = self->mValue;
-			self->mValue = val;
-			if( self->mValidateCallback( self, self->mCallbackUserData ) )
-			{
-				success = TRUE;
-				self->onCommit();
-			}
-			else
-			{
-				self->mValue = saved_val;
-			}
+			success = TRUE;
+			onCommit();
 		}
 		else
 		{
-			self->mValue = val;
-			self->onCommit();
-			success = TRUE;
+			setValue(saved_val);
 		}
 	}
-	self->updateEditor();
+	updateEditor();
 
 	if( !success )
 	{
-		self->reportInvalidData();		
+		reportInvalidData();		
 	}
 }
 
 
 void LLSpinCtrl::forceEditorCommit()
 {
-	onEditorCommit(mEditor, this);
+	onEditorCommit( LLSD() );
 }
 
 
@@ -348,6 +339,10 @@ void LLSpinCtrl::setEnabled(BOOL b)
 {
 	LLView::setEnabled( b );
 	mEditor->setEnabled( b );
+	if( mLabelBox )
+	{
+		mLabelBox->setColor( b ? mTextEnabledColor.get() : mTextDisabledColor.get() );
+	}
 }
 
 
@@ -368,8 +363,8 @@ BOOL LLSpinCtrl::isMouseHeldDown() const
 void LLSpinCtrl::onCommit()
 {
 	setTentative(FALSE);
-	setControlValue(mValue);
-	LLUICtrl::onCommit();
+	setControlValue(getValueF32());
+	LLF32UICtrl::onCommit();
 }
 
 
@@ -414,29 +409,19 @@ void LLSpinCtrl::reportInvalidData()
 	make_ui_sound("UISndBadKeystroke");
 }
 
-void LLSpinCtrl::draw()
-{
-	if( mLabelBox )
-	{
-		mLabelBox->setColor( getEnabled() ? mTextEnabledColor : mTextDisabledColor );
-	}
-	LLUICtrl::draw();
-}
-
-
 BOOL LLSpinCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	if( clicks > 0 )
 	{
 		while( clicks-- )
 		{
-			LLSpinCtrl::onDownBtn(this);
+			onDownBtn(getValue());
 		}
 	}
 	else
 	while( clicks++ )
 	{
-		LLSpinCtrl::onUpBtn(this);
+		onUpBtn(getValue());
 	}
 
 	return TRUE;
@@ -456,105 +441,15 @@ BOOL LLSpinCtrl::handleKeyHere(KEY key, MASK mask)
 		}
 		if(key == KEY_UP)
 		{
-			LLSpinCtrl::onUpBtn(this);
+			onUpBtn(getValue());
 			return TRUE;
 		}
 		if(key == KEY_DOWN)
 		{
-			LLSpinCtrl::onDownBtn(this);
+			onDownBtn(getValue());
 			return TRUE;
 		}
 	}
 	return FALSE;
-}
-
-// virtual
-LLXMLNodePtr LLSpinCtrl::getXML(bool save_children) const
-{
-	LLXMLNodePtr node = LLUICtrl::getXML();
-
-	node->createChild("decimal_digits", TRUE)->setIntValue(mPrecision);
-
-	if (mLabelBox)
-	{
-		node->createChild("label", TRUE)->setStringValue(mLabelBox->getText());
-
-		node->createChild("label_width", TRUE)->setIntValue(mLabelBox->getRect().getWidth());
-	}
-
-	node->createChild("initial_val", TRUE)->setFloatValue(mInitialValue);
-
-	node->createChild("min_val", TRUE)->setFloatValue(mMinValue);
-
-	node->createChild("max_val", TRUE)->setFloatValue(mMaxValue);
-
-	node->createChild("increment", TRUE)->setFloatValue(mIncrement);
-	
-	addColorXML(node, mTextEnabledColor, "text_enabled_color", "LabelTextColor");
-	addColorXML(node, mTextDisabledColor, "text_disabled_color", "LabelDisabledColor");
-
-	return node;
-}
-
-LLView* LLSpinCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
-{
-	std::string name("spinner");
-	node->getAttributeString("name", name);
-
-	std::string label;
-	node->getAttributeString("label", label);
-
-	LLRect rect;
-	createRect(node, rect, parent, LLRect());
-
-	LLFontGL* font = LLView::selectFont(node);
-
-	F32 initial_value = 0.f;
-	node->getAttributeF32("initial_val", initial_value);
-
-	F32 min_value = 0.f;
-	node->getAttributeF32("min_val", min_value);
-
-	F32 max_value = 1.f; 
-	node->getAttributeF32("max_val", max_value);
-
-	F32 increment = 0.1f;
-	node->getAttributeF32("increment", increment);
-
-	U32 precision = 3;
-	node->getAttributeU32("decimal_digits", precision);
-	
-	S32 label_width = llmin(40, rect.getWidth() - 40);
-	node->getAttributeS32("label_width", label_width);
-
-	BOOL allow_text_entry = TRUE;
-	node->getAttributeBOOL("allow_text_entry", allow_text_entry);
-
-	LLUICtrlCallback callback = NULL;
-
-	if(label.empty())
-	{
-		label.assign( node->getValue() );
-	}
-
-	LLSpinCtrl* spinner = new LLSpinCtrl(name,
-							rect,
-							label,
-							font,
-							callback,
-							NULL,
-							initial_value, 
-							min_value, 
-							max_value, 
-							increment,
-							LLStringUtil::null,
-							label_width);
-
-	spinner->setPrecision(precision);
-
-	spinner->initFromXML(node, parent);
-	spinner->setAllowEdit(allow_text_entry);
-
-	return spinner;
 }
 

@@ -42,6 +42,7 @@ class LLPanelGroupRolesSubTab;
 class LLPanelGroupActionsSubTab;
 class LLScrollListCtrl;
 class LLScrollListItem;
+class LLTextEditor;
 
 // Forward declare for friend usage.
 //virtual BOOL LLPanelGroupSubTab::postBuildSubTab(LLView*);
@@ -52,7 +53,7 @@ class LLPanelGroupRoles : public LLPanelGroupTab,
 						  public LLPanelGroupTabObserver
 {
 public:
-	LLPanelGroupRoles(const std::string& name, const LLUUID& group_id);
+	LLPanelGroupRoles(const LLUUID& group_id);
 	virtual ~LLPanelGroupRoles();
 
 	// Allow sub tabs to ask for sibling controls.
@@ -64,7 +65,6 @@ public:
 	virtual BOOL isVisibleByAgent(LLAgent* agentp);
 
 	static void* createTab(void* data);
-	static void onClickSubTab(void*,bool);
 	void handleClickSubTab();
 
 	// Checks if the current tab needs to be applied, and tries to switch to the requested tab.
@@ -104,7 +104,7 @@ protected:
 class LLPanelGroupSubTab : public LLPanelGroupTab
 {
 public:
-	LLPanelGroupSubTab(const std::string& name, const LLUUID& group_id);
+	LLPanelGroupSubTab(const LLUUID& group_id);
 	virtual ~LLPanelGroupSubTab();
 
 	virtual BOOL postBuild();
@@ -131,7 +131,7 @@ public:
 								 U64 allowed_by_some,
 								 U64 allowed_by_all,
 								 icon_map_t& icons,
-								 void (*commit_callback)(LLUICtrl*,void*),
+						  		 LLUICtrl::commit_callback_t commit_callback,
 								 BOOL show_all,
 								 BOOL filter,
 								 BOOL is_owner_role);
@@ -140,7 +140,7 @@ public:
 									U64 allowed_by_all,
 									LLRoleActionSet* action_set,
 									icon_map_t& icons,
-									void (*commit_callback)(LLUICtrl*,void*),
+									LLUICtrl::commit_callback_t commit_callback,
 									BOOL show_all,
 									BOOL filter,
 									BOOL is_owner_role);
@@ -164,7 +164,7 @@ protected:
 class LLPanelGroupMembersSubTab : public LLPanelGroupSubTab
 {
 public:
-	LLPanelGroupMembersSubTab(const std::string& name, const LLUUID& group_id);
+	LLPanelGroupMembersSubTab(const LLUUID& group_id);
 	virtual ~LLPanelGroupMembersSubTab();
 
 	virtual BOOL postBuildSubTab(LLView* root);
@@ -229,7 +229,7 @@ protected:
 class LLPanelGroupRolesSubTab : public LLPanelGroupSubTab
 {
 public:
-	LLPanelGroupRolesSubTab(const std::string& name, const LLUUID& group_id);
+	LLPanelGroupRolesSubTab(const LLUUID& group_id);
 	virtual ~LLPanelGroupRolesSubTab();
 
 	virtual BOOL postBuildSubTab(LLView* root);
@@ -249,7 +249,6 @@ public:
 	void buildMembersList();
 
 	static void onActionCheck(LLUICtrl*, void*);
-	void handleActionCheck(LLCheckBoxCtrl*, bool force=false);
 	bool addActionCB(const LLSD& notification, const LLSD& response, LLCheckBoxCtrl* check);
 
 	static void onPropertiesKey(LLLineEditor*, void*);
@@ -268,10 +267,8 @@ public:
 
 	void saveRoleChanges();
 protected:
-	LLSD createRoleItem(const LLUUID& role_id, 
-								 std::string name, 
-								 std::string title, 
-								 S32 members);
+	void handleActionCheck(LLUICtrl* ctrl, bool force);
+	LLSD createRoleItem(const LLUUID& role_id, std::string name, std::string title, S32 members);
 
 	LLScrollListCtrl* mRolesList;
 	LLNameListCtrl* mAssignedMembersList;
@@ -293,7 +290,7 @@ protected:
 class LLPanelGroupActionsSubTab : public LLPanelGroupSubTab
 {
 public:
-	LLPanelGroupActionsSubTab(const std::string& name, const LLUUID& group_id);
+	LLPanelGroupActionsSubTab(const LLUUID& group_id);
 	virtual ~LLPanelGroupActionsSubTab();
 
 	virtual BOOL postBuildSubTab(LLView* root);
@@ -306,7 +303,6 @@ public:
 	virtual bool apply(std::string& mesg);
 	virtual void update(LLGroupChange gc);
 
-	static void onActionSelect(LLUICtrl*, void*);
 	void handleActionSelect();
 protected:
 	LLScrollListCtrl*	mActionList;

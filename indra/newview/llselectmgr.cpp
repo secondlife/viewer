@@ -79,7 +79,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llvovolume.h"
 #include "pipeline.h"
 
@@ -100,10 +100,10 @@ const S32 MAX_OBJECTS_PER_PACKET = 254;
 // Globals
 //
 
-BOOL gDebugSelectMgr = FALSE;
+//BOOL gDebugSelectMgr = FALSE;
 
-BOOL gHideSelectedObjects = FALSE;
-BOOL gAllowSelectAvatar = FALSE;
+//BOOL gHideSelectedObjects = FALSE;
+//BOOL gAllowSelectAvatar = FALSE;
 
 BOOL LLSelectMgr::sRectSelectInclusive = TRUE;
 BOOL LLSelectMgr::sRenderHiddenSelections = TRUE;
@@ -172,6 +172,9 @@ LLObjectSelection *get_null_object_selection()
 // LLSelectMgr()
 //-----------------------------------------------------------------------------
 LLSelectMgr::LLSelectMgr()
+ : mHideSelectedObjects(LLCachedControl<bool>(gSavedSettings, "HideSelectedObjects", FALSE)),
+   mAllowSelectAvatar( LLCachedControl<bool>(gSavedSettings, "AllowSelectAvatar", FALSE)),
+   mDebugSelectMgr(LLCachedControl<bool>(gSavedSettings, "DebugSelectMgr", FALSE))
 {
 	mTEMode = FALSE;
 	mLastCameraPos.clearVec();
@@ -184,12 +187,12 @@ LLSelectMgr::LLSelectMgr()
 	sHighlightUAnim		= gSavedSettings.getF32("SelectionHighlightUAnim");
 	sHighlightVAnim		= gSavedSettings.getF32("SelectionHighlightVAnim");
 
-	sSilhouetteParentColor = gColors.getColor("SilhouetteParentColor");
-	sSilhouetteChildColor = gColors.getColor("SilhouetteChildColor");
-	sHighlightParentColor = gColors.getColor("HighlightParentColor");
-	sHighlightChildColor = gColors.getColor("HighlightChildColor");
-	sHighlightInspectColor = gColors.getColor("HighlightInspectColor");
-	sContextSilhouetteColor = gColors.getColor("ContextSilhouetteColor")*0.5f;
+	sSilhouetteParentColor =gSavedSkinSettings.getColor("SilhouetteParentColor");
+	sSilhouetteChildColor = gSavedSkinSettings.getColor("SilhouetteChildColor");
+	sHighlightParentColor = gSavedSkinSettings.getColor("HighlightParentColor");
+	sHighlightChildColor = gSavedSkinSettings.getColor("HighlightChildColor");
+	sHighlightInspectColor = gSavedSkinSettings.getColor("HighlightInspectColor");
+	sContextSilhouetteColor = gSavedSkinSettings.getColor("ContextSilhouetteColor")*0.5f;
 
 	sRenderLightRadius = gSavedSettings.getBOOL("RenderLightRadius");
 	
@@ -202,6 +205,8 @@ LLSelectMgr::LLSelectMgr()
 	mSelectedObjects = new LLObjectSelection();
 	mHoverObjects = new LLObjectSelection();
 	mHighlightedObjects = new LLObjectSelection();
+
+
 }
 
 
@@ -673,7 +678,7 @@ void LLSelectMgr::addAsFamily(std::vector<LLViewerObject*>& objects, BOOL add_to
 		
 		// Can't select yourself
 		if (objectp->mID == gAgentID
-			&& !gAllowSelectAvatar)
+			&& !LLSelectMgr::getInstance()->mAllowSelectAvatar)
 		{
 			continue;
 		}
@@ -2691,7 +2696,7 @@ void LLSelectMgr::selectDelete()
 	}
 
 	LLNotification::Params params("ConfirmObjectDeleteLock");
-	params.functor(boost::bind(&LLSelectMgr::confirmDelete, _1, _2, getSelection()));
+	params.functor.function(boost::bind(&LLSelectMgr::confirmDelete, _1, _2, getSelection()));
 
 	if(locked_but_deleteable_object ||
 	   no_copy_but_deleteable_object ||
@@ -3443,7 +3448,7 @@ void LLSelectMgr::deselectAllIfTooFar()
 
 		if (select_dist_sq > deselect_dist_sq)
 		{
-			if (gDebugSelectMgr)
+			if (mDebugSelectMgr)
 			{
 				llinfos << "Selection manager: auto-deselecting, select_dist = " << fsqrtf(select_dist_sq) << llendl;
 				llinfos << "agent pos global = " << gAgent.getPositionGlobal() << llendl;
@@ -4444,9 +4449,9 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
 	msg->getStringFast(_PREHASH_ObjectData, _PREHASH_Description, desc);
 
 	// the reporter widget askes the server for info about picked objects
-	if (request_flags & (COMPLAINT_REPORT_REQUEST | BUG_REPORT_REQUEST))
+	if (request_flags & COMPLAINT_REPORT_REQUEST )
 	{
-		EReportType report_type = (COMPLAINT_REPORT_REQUEST & request_flags) ? COMPLAINT_REPORT : BUG_REPORT;
+		EReportType report_type =  COMPLAINT_REPORT ;
 		LLFloaterReporter *reporterp = LLFloaterReporter::getReporter(report_type);
 		if (reporterp)
 		{
@@ -5387,10 +5392,7 @@ void dialog_refresh_all()
 
 	gFloaterTools->dirty();
 
-	if( gPieObject->getVisible() )
-	{
-		gPieObject->arrange();
-	}
+	gPieObject->needsArrange();
 
 	if( gPieAttachment->getVisible() )
 	{

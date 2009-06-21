@@ -33,7 +33,12 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lldynamictexture.h"
+
+// Linden library includes
 #include "llglheaders.h"
+#include "llwindow.h"			// getPosition()
+
+// Viewer includes
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
@@ -174,7 +179,7 @@ void LLDynamicTexture::postRender(BOOL success)
 	}
 
 	// restore viewport
-	gViewerWindow->setupViewport();
+	gViewerWindow->setup2DViewport();
 
 	// restore camera
 	LLViewerCamera::getInstance()->setOrigin(mCamera);

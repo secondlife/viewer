@@ -68,7 +68,6 @@ LLColor4U MAX_WATER_COLOR(0, 48, 96, 240);
 S32 LLSurface::sTextureSize = 256;
 S32 LLSurface::sTexelsUpdated = 0;
 F32 LLSurface::sTextureUpdateTime = 0.f;
-LLStat LLSurface::sTexelsUpdatedPerSecStat;
 
 // ---------------- LLSurface:: Public Members ---------------
 
@@ -629,6 +628,7 @@ void LLSurface::updatePatchVisibilities(LLAgent &agent)
 
 BOOL LLSurface::idleUpdate(F32 max_update_time)
 {
+	LLMemType mt_ius(LLMemType::MTYPE_IDLE_UPDATE_SURFACE);
 	if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_TERRAIN))
 	{
 		return FALSE;

@@ -35,13 +35,15 @@
 
 #include "llfloater.h"
 
+class LLTextBox;
+
 class LLFloaterLagMeter : public LLFloater, public LLFloaterSingleton<LLFloaterLagMeter>
 {
 	friend class LLUISingleton<LLFloaterLagMeter, VisibilityPolicy<LLFloater> >;
 	
 public:
 	/*virtual*/ void draw();
-
+	/*virtual*/ BOOL postBuild();	
 private:
 	LLFloaterLagMeter(const LLSD& key);
 	/*virtual*/ ~LLFloaterLagMeter();

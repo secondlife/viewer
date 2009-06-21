@@ -4,15 +4,9 @@
 		Chat skriftstørrelse:
 	</text>
 	<radio_group name="chat_font_size">
-		<radio_item type="string" length="1" name="radio">
-			Lille
-		</radio_item>
-		<radio_item type="string" length="1" name="radio2">
-			Mellem
-		</radio_item>
-		<radio_item type="string" length="1" name="radio3">
-			Stor
-		</radio_item>
+		<radio_item type="string" length="1" name="radio" label="Lille" />
+		<radio_item type="string" length="1" name="radio2" label="Mellem" />
+		<radio_item type="string" length="1" name="radio3" label="Stor" />
 	</radio_group>
 	<text type="string" length="1" name="text_box2">
 		Chat farve:

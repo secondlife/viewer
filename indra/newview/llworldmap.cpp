@@ -46,6 +46,7 @@
 #include "llviewerimagelist.h"
 #include "llviewerregion.h"
 #include "llregionflags.h"
+#include "lltrans.h"
 
 const F32 REQUEST_ITEMS_TIMER =  10.f * 60.f; // 10 minutes
 
@@ -757,18 +758,13 @@ void LLWorldMap::processMapItemReply(LLMessageSystem* msg, void**)
 			case MAP_ITEM_MATURE_EVENT:
 			case MAP_ITEM_ADULT_EVENT:
 			{
-				struct tm* timep;
-				// Convert to Pacific, based on server's opinion of whether
-				// it's daylight savings time there.
-				timep = utc_to_pacific_time(extra, gPacificDaylightTime);
-
-				S32 display_hour = timep->tm_hour % 12;
-				if (display_hour == 0) display_hour = 12;
-
-				new_item.mToolTip = llformat( "%d:%02d %s",
-											  display_hour,
-											  timep->tm_min,
-											  (timep->tm_hour < 12 ? "AM" : "PM") );
+				std::string timeStr = "["+ LLTrans::getString ("TimeHour")+"]:["
+					                   +LLTrans::getString ("TimeMin")+"] ["
+									   +LLTrans::getString ("TimeAMPM")+"]";
+				LLSD substitution;
+				substitution["datetime"] = (S32) extra;
+				LLStringUtil::format (timeStr, substitution);
+				new_item.mToolTip = timeStr;
 
 				// HACK: store Z in extra2
 				new_item.mPosGlobal.mdV[VZ] = (F64)extra2;

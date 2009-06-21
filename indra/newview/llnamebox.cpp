@@ -46,20 +46,15 @@
 // statics
 std::set<LLNameBox*> LLNameBox::sInstances;
 
+static LLDefaultWidgetRegistry::Register<LLNameBox> r("name_box");
 
-LLNameBox::LLNameBox(const std::string& name, const LLRect& rect, const LLUUID& name_id, BOOL is_group, const LLFontGL* font, BOOL mouse_opaque)
-:	LLTextBox(name, rect, std::string("(retrieving)"), font, mouse_opaque),
-	mNameID(name_id)
+
+LLNameBox::LLNameBox(const Params& p)
+:	LLTextBox(p)
 {
+	mNameID = LLUUID::null;
 	LLNameBox::sInstances.insert(this);
-	if(!name_id.isNull())
-	{
-		setNameID(name_id, is_group);
-	}
-	else
-	{
-		setText(LLStringUtil::null);
-	}
+	setText(LLStringUtil::null);
 }
 
 LLNameBox::~LLNameBox()

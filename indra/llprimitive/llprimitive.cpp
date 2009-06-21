@@ -132,7 +132,7 @@ void LLPrimitive::setVolumeManager( LLVolumeMgr* volume_manager )
 {
 	if ( !volume_manager || sVolumeManager )
 	{
-		llerrs << "Unable to set LLPrimitive::sVolumeManager to NULL" << llendl;
+		llerrs << "LLPrimitive::sVolumeManager attempting to be set to NULL or it already has been set." << llendl;
 	}
 	sVolumeManager = volume_manager;
 }

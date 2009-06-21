@@ -49,19 +49,20 @@
 #include "llviewercontrol.h"	// gSavedSettings
 #include "llviewerimagelist.h"
 #include "lluictrlfactory.h"
+#include "llviewerinventory.h"
 #include "llviewermenu.h"	// gMenuHolder
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
 #include "llappviewer.h"
 #include "lluploaddialog.h"
+#include "lltrans.h"
 
 
 // linden libraries
 #include "llassetuploadresponders.h"
 #include "lleconomy.h"
 #include "llhttpclient.h"
-#include "llmemberlistener.h"
 #include "llsdserialize.h"
 #include "llstring.h"
 #include "lltransactiontypes.h"
@@ -71,28 +72,21 @@
 // system libraries
 #include <boost/tokenizer.hpp>
 
-using namespace LLOldEvents;
-
-typedef LLMemberListener<LLView> view_listener_t;
-
-
 class LLFileEnableSaveAs : public view_listener_t
 {
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	bool handleEvent(const LLSD& userdata)
 	{
 		bool new_value = gFloaterView->getFrontmost() && gFloaterView->getFrontmost()->canSaveAs();
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
-		return true;
+		return new_value;
 	}
 };
 
 class LLFileEnableUpload : public view_listener_t
 {
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	bool handleEvent(const LLSD& userdata)
 	{
 		bool new_value = gStatusBar && LLGlobalEconomy::Singleton::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
-		return true;
+		return new_value;
 	}
 };
 
@@ -255,7 +249,7 @@ const std::string upload_pick(void* data)
 
 class LLFileUploadImage : public view_listener_t
 {
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	bool handleEvent(const LLSD& userdata)
 	{
 		std::string filename = upload_pick((void *)LLFilePicker::FFLOAD_IMAGE);
 		if (!filename.empty())
@@ -269,7 +263,7 @@ class LLFileUploadImage : public view_listener_t
 
 class LLFileUploadSound : public view_listener_t
 {
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	bool handleEvent(const LLSD& userdata)
 	{
 		std::string filename = upload_pick((void*)LLFilePicker::FFLOAD_WAV);
 		if (!filename.empty())
@@ -284,7 +278,7 @@ class LLFileUploadSound : public view_listener_t
 
 class LLFileUploadAnim : public view_listener_t
 {
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	bool handleEvent(const LLSD& userdata)
 	{
 		const std::string filename = upload_pick((void*)LLFilePicker::FFLOAD_ANIM);
 		if (!filename.empty())
@@ -298,7 +292,7 @@ class LLFileUploadAnim : public view_listener_t
 
 class LLFileUploadBulk : public view_listener_t
 {
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	bool handleEvent(const LLSD& userdata)
 	{
 		if( gAgent.cameraMouselook() )
 		{
@@ -360,19 +354,16 @@ void upload_error(const std::string& error_message, const std::string& label, co
 
 class LLFileEnableCloseWindow : public view_listener_t
 {
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	bool handleEvent(const LLSD& userdata)
 	{
 		bool new_value = NULL != LLFloater::getClosableFloaterFromFocus();
-
-		// horrendously opaque, this code
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
-		return true;
+		return new_value;
 	}
 };
 
 class LLFileCloseWindow : public view_listener_t
 {
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloater::closeFocusedFloater();
 
@@ -382,17 +373,16 @@ class LLFileCloseWindow : public view_listener_t
 
 class LLFileEnableCloseAllWindows : public view_listener_t
 {
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	bool handleEvent(const LLSD& userdata)
 	{
 		bool open_children = gFloaterView->allChildrenClosed();
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(!open_children);
-		return true;
+		return !open_children;
 	}
 };
 
 class LLFileCloseAllWindows : public view_listener_t
 {
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	bool handleEvent(const LLSD& userdata)
 	{
 		bool app_quitting = false;
 		gFloaterView->closeAllChildren(app_quitting);
@@ -403,7 +393,7 @@ class LLFileCloseAllWindows : public view_listener_t
 
 class LLFileSaveTexture : public view_listener_t
 {
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloater* top = gFloaterView->getFrontmost();
 		if (top)
@@ -414,18 +404,9 @@ class LLFileSaveTexture : public view_listener_t
 	}
 };
 
-class LLFileTakeSnapshot : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		LLFloaterSnapshot::show(NULL);
-		return true;
-	}
-};
-
 class LLFileTakeSnapshotToDisk : public view_listener_t
 {
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	bool handleEvent(const LLSD& userdata)
 	{
 		LLPointer<LLImageRaw> raw = new LLImageRaw;
 
@@ -477,23 +458,13 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 
 class LLFileQuit : public view_listener_t
 {
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	bool handleEvent(const LLSD& userdata)
 	{
 		LLAppViewer::instance()->userQuit();
 		return true;
 	}
 };
 
-void handle_upload(void* data)
-{
-	const std::string filename = upload_pick(data);
-	if (!filename.empty())
-	{
-		LLFloaterNameDesc* floaterp = new LLFloaterNameDesc(filename);
-		LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_name_description.xml");
-		floaterp->childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload() ));
-	}
-}
 
 void handle_compress_image(void*)
 {
@@ -777,8 +748,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 	else
 	{
 		// Unknown extension
-		// *TODO: Translate?
-		error_message = llformat("Unknown file extension .%s\nExpected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh", exten.c_str());
+		error_message = llformat(LLTrans::getString("UnknownFileExtension").c_str(), exten.c_str());
 		error = TRUE;;
 	}
 
@@ -858,9 +828,9 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 			if(!(can_afford_transaction(expected_upload_cost)))
 			{
 				LLFloaterBuyCurrency::buyCurrency(
-					llformat("Uploading %s costs",
-							 data->mAssetInfo.getName().c_str()), // *TODO: Translate
-					expected_upload_cost);
+					llformat(LLTrans::getString("UploadingCosts").c_str(),
+							 data->mAssetInfo.getName().c_str()),
+					         expected_upload_cost);
 				is_balance_sufficient = FALSE;
 			}
 			else if(region)
@@ -1075,22 +1045,20 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 	}
 }
 
-
 void init_menu_file()
 {
-	(new LLFileUploadImage())->registerListener(gMenuHolder, "File.UploadImage");
-	(new LLFileUploadSound())->registerListener(gMenuHolder, "File.UploadSound");
-	(new LLFileUploadAnim())->registerListener(gMenuHolder, "File.UploadAnim");
-	(new LLFileUploadBulk())->registerListener(gMenuHolder, "File.UploadBulk");
-	(new LLFileCloseWindow())->registerListener(gMenuHolder, "File.CloseWindow");
-	(new LLFileCloseAllWindows())->registerListener(gMenuHolder, "File.CloseAllWindows");
-	(new LLFileEnableCloseWindow())->registerListener(gMenuHolder, "File.EnableCloseWindow");
-	(new LLFileEnableCloseAllWindows())->registerListener(gMenuHolder, "File.EnableCloseAllWindows");
-	(new LLFileSaveTexture())->registerListener(gMenuHolder, "File.SaveTexture");
-	(new LLFileTakeSnapshot())->registerListener(gMenuHolder, "File.TakeSnapshot");
-	(new LLFileTakeSnapshotToDisk())->registerListener(gMenuHolder, "File.TakeSnapshotToDisk");
-	(new LLFileQuit())->registerListener(gMenuHolder, "File.Quit");
+	view_listener_t::addCommit(new LLFileUploadImage(), "File.UploadImage");
+	view_listener_t::addCommit(new LLFileUploadSound(), "File.UploadSound");
+	view_listener_t::addCommit(new LLFileUploadAnim(), "File.UploadAnim");
+	view_listener_t::addCommit(new LLFileUploadBulk(), "File.UploadBulk");
+	view_listener_t::addCommit(new LLFileCloseWindow(), "File.CloseWindow");
+	view_listener_t::addCommit(new LLFileCloseAllWindows(), "File.CloseAllWindows");
+	view_listener_t::addEnable(new LLFileEnableCloseWindow(), "File.EnableCloseWindow");
+	view_listener_t::addEnable(new LLFileEnableCloseAllWindows(), "File.EnableCloseAllWindows");
+	view_listener_t::addCommit(new LLFileSaveTexture(), "File.SaveTexture");
+	view_listener_t::addCommit(new LLFileTakeSnapshotToDisk(), "File.TakeSnapshotToDisk");
+	view_listener_t::addCommit(new LLFileQuit(), "File.Quit");
 
-	(new LLFileEnableUpload())->registerListener(gMenuHolder, "File.EnableUpload");
-	(new LLFileEnableSaveAs())->registerListener(gMenuHolder, "File.EnableSaveAs");
+	view_listener_t::addEnable(new LLFileEnableUpload(), "File.EnableUpload");
+	view_listener_t::addEnable(new LLFileEnableSaveAs(), "File.EnableSaveAs");
 }

@@ -31,10 +31,12 @@
 
 #include "linden_common.h"
 
-#include "lldir.h"
 #include "llimagetga.h"
+
+#include "lldir.h"
 #include "llerror.h"
 #include "llmath.h"
+#include "llpointer.h"
 
 // For expanding 5-bit pixel values to 8-bit with best rounding
 // static

@@ -107,8 +107,8 @@ BOOL	LLPanelVolume::postBuild()
 		childSetCommitCallback("Light Checkbox Ctrl",onCommitIsLight,this);
 		LLColorSwatchCtrl*	LightColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
 		if(LightColorSwatch){
-			LightColorSwatch->setOnCancelCallback(onLightCancelColor);
-			LightColorSwatch->setOnSelectCallback(onLightSelectColor);
+			LightColorSwatch->setOnCancelCallback(boost::bind(&LLPanelVolume::onLightCancelColor, this, _2));
+			LightColorSwatch->setOnSelectCallback(boost::bind(&LLPanelVolume::onLightSelectColor, this, _2));
 			childSetCommitCallback("colorswatch",onCommitLight,this);
 		}
 		childSetCommitCallback("Light Intensity",onCommitLight,this);
@@ -125,8 +125,8 @@ BOOL	LLPanelVolume::postBuild()
 	return TRUE;
 }
 
-LLPanelVolume::LLPanelVolume(const std::string& name)
-	:	LLPanel(name)
+LLPanelVolume::LLPanelVolume()
+	: LLPanel()
 {
 	setMouseOpaque(FALSE);
 
@@ -317,7 +317,7 @@ void LLPanelVolume::getState( )
 }
 
 // static
-BOOL LLPanelVolume::precommitValidate( LLUICtrl* ctrl, void* userdata )
+bool LLPanelVolume::precommitValidate( const LLSD& data )
 {
 	// TODO: Richard will fill this in later.  
 	return TRUE; // FALSE means that validation failed and new value should not be commited.
@@ -427,21 +427,19 @@ void LLPanelVolume::sendIsFlexible()
 	llinfos << "update flexible sent" << llendl;
 }
 
-void LLPanelVolume::onLightCancelColor(LLUICtrl* ctrl, void* userdata)
+void LLPanelVolume::onLightCancelColor(const LLSD& data)
 {
-	LLPanelVolume* self = (LLPanelVolume*) userdata;
-	LLColorSwatchCtrl*	LightColorSwatch = self->getChild<LLColorSwatchCtrl>("colorswatch");
+	LLColorSwatchCtrl*	LightColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
 	if(LightColorSwatch)
 	{
-		LightColorSwatch->setColor(self->mLightSavedColor);
+		LightColorSwatch->setColor(mLightSavedColor);
 	}
-	onLightSelectColor(NULL, userdata);
+	onLightSelectColor(data);
 }
 
-void LLPanelVolume::onLightSelectColor(LLUICtrl* ctrl, void* userdata)
+void LLPanelVolume::onLightSelectColor(const LLSD& data)
 {
-	LLPanelVolume* self = (LLPanelVolume*) userdata;
-	LLViewerObject* objectp = self->mObject;
+	LLViewerObject* objectp = mObject;
 	if (!objectp || (objectp->getPCode() != LL_PCODE_VOLUME))
 	{
 		return;
@@ -449,13 +447,13 @@ void LLPanelVolume::onLightSelectColor(LLUICtrl* ctrl, void* userdata)
 	LLVOVolume *volobjp = (LLVOVolume *)objectp;
 
 
-	LLColorSwatchCtrl*	LightColorSwatch = self->getChild<LLColorSwatchCtrl>("colorswatch");
+	LLColorSwatchCtrl*	LightColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
 	if(LightColorSwatch)
 	{
 		LLColor4	clr = LightColorSwatch->get();
 		LLColor3	clr3( clr );
 		volobjp->setLightColor(clr3);
-		self->mLightSavedColor = clr;
+		mLightSavedColor = clr;
 	}
 }
 

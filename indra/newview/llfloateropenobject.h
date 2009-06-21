@@ -59,7 +59,7 @@ public:
 protected:
 	LLFloaterOpenObject();
 	~LLFloaterOpenObject();
-
+	/*virtual*/	BOOL	postBuild();
 	void refresh();
 	void draw();
 
@@ -68,7 +68,6 @@ protected:
 	static void onClickMoveToInventory(void* data);
 	static void onClickMoveAndWear(void* data);
 	static void callbackMoveInventory(S32 result, void* data);
-	static void* createPanelInventory(void* data);
 
 protected:
 	static LLFloaterOpenObject* sInstance;

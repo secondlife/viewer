@@ -34,7 +34,7 @@
 
 #include "linden_common.h"
 #include "llkeyboardsdl.h"
-#include "llwindow.h"
+#include "llwindowcallbacks.h"
 #include "SDL/SDL.h"
 
 LLKeyboardSDL::LLKeyboardSDL()

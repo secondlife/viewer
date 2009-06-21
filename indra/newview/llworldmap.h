@@ -36,13 +36,15 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <boost/function.hpp>
 
 #include "v3math.h"
 #include "v3dmath.h"
 #include "llframetimer.h"
 #include "llmapimagetype.h"
 #include "lluuid.h"
-#include "llmemory.h"
+#include "llpointer.h"
+#include "llsingleton.h"
 #include "llviewerimage.h"
 #include "lleventinfo.h"
 #include "v3color.h"
@@ -114,7 +116,8 @@ struct LLWorldMapLayer
 class LLWorldMap : public LLSingleton<LLWorldMap>
 {
 public:
-	typedef void(*url_callback_t)(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport);
+	typedef boost::function<void(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport)>
+		url_callback_t;
 
 	LLWorldMap();
 	~LLWorldMap();

@@ -39,22 +39,36 @@
 
 
 /*
- * A checkbox control with use_radio_style == true.
+ * An invisible view containing multiple mutually exclusive toggling 
+ * buttons (usually radio buttons).  Automatically handles the mutex
+ * condition by highlighting only one button at a time.
  */
 class LLRadioCtrl : public LLCheckBoxCtrl 
 {
 public:
-	LLRadioCtrl(const std::string& name, const LLRect& rect, const std::string& label, const LLFontGL* font = NULL,
-		void (*commit_callback)(LLUICtrl*, void*) = NULL, void* callback_userdata = NULL) :
-				LLCheckBoxCtrl(name, rect, label, font, commit_callback, callback_userdata, FALSE, RADIO_STYLE)
+	struct Params : public LLInitParam::Block<Params, LLCheckBoxCtrl::Params>
 	{
-		setTabStop(FALSE);
-	}
+		Deprecated length;
+		Deprecated type;
+
+		Params() 
+		:	length("length"),
+			type("type")
+		{}
+	};
+
 	/*virtual*/ ~LLRadioCtrl();
-
 	/*virtual*/ void setValue(const LLSD& value);
-};
 
+	/*virtual*/ BOOL postBuild();
+
+	// Ensure label is in an attribute, not the contents
+	static void setupParamsForExport(Params& p, LLView* parent);
+
+protected:
+	LLRadioCtrl(const Params& p);
+	friend class LLUICtrlFactory;
+};
 
 /*
  * An invisible view containing multiple mutually exclusive toggling 
@@ -65,30 +79,27 @@ class LLRadioGroup
 :	public LLUICtrl, public LLCtrlSelectionInterface
 {
 public:
-	// Build a radio group.  The number (0...n-1) of the currently selected
-	// element will be stored in the named control.  After the control is
-	// changed the callback will be called.
-	LLRadioGroup(const std::string& name, const LLRect& rect, 
-		const std::string& control_name, 
-		LLUICtrlCallback callback = NULL,
-		void* userdata = NULL,
-		BOOL border = TRUE);
 
-	// Another radio group constructor, but this one doesn't rely on
-	// needing a control
-	LLRadioGroup(const std::string& name, const LLRect& rect,
-				 S32 initial_index,
-				 LLUICtrlCallback callback = NULL,
-				 void* userdata = NULL,
-				 BOOL border = TRUE);
+	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Optional<bool> has_border;
+		Params();
+	};
 
+protected:
+	LLRadioGroup(const Params&);
+	friend class LLUICtrlFactory;
+
+public:
 	virtual ~LLRadioGroup();
-
+	
+	virtual BOOL postBuild();
+	
+	virtual bool addChild(LLView* view, S32 tab_group = 0);
+	
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
 	virtual void setEnabled(BOOL enabled);
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 	void setIndexEnabled(S32 index, BOOL enabled);
 	
 	// return the index value of the selected item
@@ -104,14 +115,11 @@ public:
 	// Draw the group, but also fix the highlighting based on the control.
 	void draw();
 
-	// You must use this method to add buttons to a radio group.
-	// Don't use addChild -- it won't set the callback function
-	// correctly.
-	LLRadioCtrl* addRadioButton(const std::string& name, const std::string& label, const LLRect& rect, const LLFontGL* font);
-	LLRadioCtrl* getRadioButton(const S32& index) { return mRadioButtons[index]; }
 	// Update the control as needed.  Userdata must be a pointer to the button.
-	static void onClickButton(LLUICtrl* radio, void* userdata);
+	void onClickButton(LLUICtrl* clicked_radio);
 	
+	virtual const widget_registry_t& getChildRegistry() const;
+
 	//========================================================================
 	LLCtrlSelectionInterface* getSelectionInterface()	{ return (LLCtrlSelectionInterface*)this; };
 
@@ -131,15 +139,12 @@ public:
 	/*virtual*/ BOOL	operateOnAll(EOperation op);
 
 private:
-	// protected function shared by the two constructors.
-	void init(BOOL border);
-
+	const LLFontGL* mFont;
 	S32 mSelectedIndex;
 	typedef std::vector<LLRadioCtrl*> button_list_t;
 	button_list_t mRadioButtons;
 
 	BOOL mHasBorder;
 };
-
 
 #endif

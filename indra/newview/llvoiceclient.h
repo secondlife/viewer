@@ -178,6 +178,7 @@ static	void updatePosition(void);
 
 		
 		void setMuteMic(bool muted);		// Use this to mute the local mic (for when the client is minimized, etc), ignoring user PTT state.
+		bool getMuteMic() const;
 		void setUserPTTState(bool ptt);
 		bool getUserPTTState();
 		void toggleUserPTTState(void);
@@ -461,7 +462,7 @@ static	void updatePosition(void);
 		void removeObserver(LLFriendObserver* observer);
 		
 		void lookupName(const LLUUID &id);
-		static void onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* user_data);
+		static void onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
 		void avatarNameResolved(const LLUUID &id, const std::string &name);
 		
 		typedef std::vector<std::string> deviceList;
@@ -727,7 +728,6 @@ static	std::string nameFromsipURI(const std::string &uri);
 		bool		mVoiceEnabled;
 		bool		mWriteInProgress;
 		std::string mWriteString;
-		size_t		mWriteOffset;
 		
 		LLTimer		mUpdateTimer;
 		

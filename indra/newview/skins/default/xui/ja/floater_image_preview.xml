@@ -10,36 +10,16 @@
 		ｲﾒｰｼﾞのﾌﾟﾚﾋﾞｭｰ：
 	</text>
 	<combo_box label="服の種類" name="clothing_type_combo">
-		<combo_item name="Image">
-			画像
-		</combo_item>
-		<combo_item name="Hair">
-			髪
-		</combo_item>
-		<combo_item name="FemaleHead">
-			女性の頭
-		</combo_item>
-		<combo_item name="FemaleUpperBody">
-			女性の上半身
-		</combo_item>
-		<combo_item name="FemaleLowerBody">
-			女性の下半身
-		</combo_item>
-		<combo_item name="MaleHead">
-			男性の頭
-		</combo_item>
-		<combo_item name="MaleUpperBody">
-			男性の上半身
-		</combo_item>
-		<combo_item name="MaleLowerBody">
-			男性の下半身
-		</combo_item>
-		<combo_item name="Skirt">
-			スカート
-		</combo_item>
-		<combo_item name="SculptedPrim">
-			変形されたプリム
-		</combo_item>
+		<combo_box.item name="Image" label="画像" />
+		<combo_box.item name="Hair" label="髪" />
+		<combo_box.item name="FemaleHead" label="女性の頭" />
+		<combo_box.item name="FemaleUpperBody" label="女性の上半身" />
+		<combo_box.item name="FemaleLowerBody" label="女性の下半身" />
+		<combo_box.item name="MaleHead" label="男性の頭" />
+		<combo_box.item name="MaleUpperBody" label="男性の上半身" />
+		<combo_box.item name="MaleLowerBody" label="男性の下半身" />
+		<combo_box.item name="Skirt" label="スカート" />
+		<combo_box.item name="SculptedPrim" label="変形されたプリム" />
 	</combo_box>
 	<text name="bad_image_text">
 		イメージを読み取れません。

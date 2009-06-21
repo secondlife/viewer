@@ -147,6 +147,8 @@ public:
 
 	void initBasicTable();
 
+	void initTableTransNames(std::map<std::string, std::string> namemap);
+	
 	BOOL add(U8 mcode, const std::string& name, const LLUUID &uuid);	                 
 	BOOL addCollisionSound(U8 mcode, U8 mcode2, const LLUUID &uuid);
 	BOOL addSlidingSound(U8 mcode, U8 mcode2, const LLUUID &uuid);

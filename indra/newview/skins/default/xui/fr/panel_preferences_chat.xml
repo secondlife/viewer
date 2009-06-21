@@ -5,15 +5,9 @@
 du chat :
 	</text>
 	<radio_group name="chat_font_size">
-		<radio_item length="1" name="radio" type="string">
-			Petite
-		</radio_item>
-		<radio_item length="1" name="radio2" type="string">
-			Moyenne
-		</radio_item>
-		<radio_item length="1" name="radio3" type="string">
-			Grande
-		</radio_item>
+		<radio_item length="1" name="radio" type="string" label="Petite" />
+		<radio_item length="1" name="radio2" type="string" label="Moyenne" />
+		<radio_item length="1" name="radio3" type="string" label="Grande" />
 	</radio_group>
 	<text length="1" name="text_box2" type="string">
 		Couleur du chat :

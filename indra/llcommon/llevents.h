@@ -38,7 +38,7 @@
 #include <boost/function.hpp>
 #include <boost/static_assert.hpp>
 #include "llsd.h"
-#include "llmemory.h"
+#include "llsingleton.h"
 #include "lldependencies.h"
 
 // override this to allow binding free functions with more parameters

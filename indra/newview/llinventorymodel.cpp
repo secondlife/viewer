@@ -42,8 +42,10 @@
 #include "message.h"
 
 #include "llagent.h"
+#include "llagentwearables.h"
 #include "llfloater.h"
 #include "llfocusmgr.h"
+#include "llinventorybridge.h"
 #include "llinventoryview.h"
 #include "llviewerinventory.h"
 #include "llviewermessage.h"
@@ -53,11 +55,11 @@
 #include "lldbstrings.h"
 #include "llviewerstats.h"
 #include "llmutelist.h"
-#include "llnotify.h"
+#include "llnotifications.h"
 #include "llcallbacklist.h"
 #include "llpreview.h"
 #include "llviewercontrol.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llsdutil.h"
 #include <deque>
 
@@ -87,33 +89,6 @@ static std::deque<LLUUID> sFetchQueue;
 const F32 MAX_TIME_FOR_SINGLE_FETCH = 10.f;
 const S32 MAX_FETCH_RETRIES = 10;
 const char CACHE_FORMAT_STRING[] = "%s.inv"; 
-const char* NEW_CATEGORY_NAME = "New Folder";
-const char* NEW_CATEGORY_NAMES[LLAssetType::AT_COUNT] =
-{
-	"Textures",			// AT_TEXTURE
-	"Sounds",			// AT_SOUND
-	"Calling Cards",	// AT_CALLINGCARD
-	"Landmarks",		// AT_LANDMARK
-	"Scripts",			// AT_SCRIPT (deprecated?)
-	"Clothing",			// AT_CLOTHING
-	"Objects",			// AT_OBJECT
-	"Notecards",		// AT_NOTECARD
-	"New Folder",		// AT_CATEGORY
-	"Inventory",		// AT_ROOT_CATEGORY
-	"Scripts",			// AT_LSL_TEXT
-	"Scripts",			// AT_LSL_BYTECODE
-	"Uncompressed Images",	// AT_TEXTURE_TGA
-	"Body Parts",		// AT_BODYPART
-	"Trash",			// AT_TRASH
-	"Photo Album",		// AT_SNAPSHOT_CATEGORY
-	"Lost And Found",	// AT_LOST_AND_FOUND
-	"Uncompressed Sounds",	// AT_SOUND_WAV
-	"Uncompressed Images",	// AT_IMAGE_TGA
-	"Uncompressed Images",	// AT_IMAGE_JPEG
-	"Animations",		// AT_ANIMATION
-	"Gestures",			// AT_GESTURE
-	"New Folder"		// AT_SIMSTATE
-};
 
 struct InventoryIDPtrLess
 {
@@ -388,14 +363,9 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	{
 		name.assign(pname);
 	}
-	else if((preferred_type >= LLAssetType::AT_TEXTURE) &&
-			(preferred_type < LLAssetType::AT_SIMSTATE))
-	{
-		name.assign(NEW_CATEGORY_NAMES[preferred_type]);
-	}
 	else
 	{
-		name.assign(NEW_CATEGORY_NAME);
+		name.assign(LLAssetType::lookupCategoryName(preferred_type));
 	}
 
 	// Add the category to the internal representation
@@ -545,7 +515,7 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 	LLViewerInventoryItem* old_item = getItem(item->getUUID());
 	if(old_item)
 	{
-		// We already have an old item, modify it's values
+		// We already have an old item, modify its values
 		LLUUID old_parent_id = old_item->getParentUUID();
 		LLUUID new_parent_id = item->getParentUUID();
 		if(old_parent_id != new_parent_id)
@@ -1042,7 +1012,7 @@ void LLInventoryModel::mock(const LLUUID& root_id)
 		root_id,
 		LLUUID::null,
 		LLAssetType::AT_CATEGORY,
-		NEW_CATEGORY_NAMES[LLAssetType::AT_ROOT_CATEGORY],
+		LLAssetType::lookupCategoryName(LLAssetType::AT_ROOT_CATEGORY),
 		gAgent.getID());
 	addCategory(cat);
 	gInventory.buildParentChildMap();
@@ -3158,6 +3128,63 @@ void LLInventoryModel::processMoveInventoryItem(LLMessageSystem* msg, void**)
 	}
 }
 
+//----------------------------------------------------------------------------
+
+// Trash: LLAssetType::AT_TRASH, "ConfirmEmptyTrash"
+// Lost&Found: LLAssetType::AT_LOST_AND_FOUND, "ConfirmEmptyLostAndFound"
+
+bool LLInventoryModel::callbackEmptyFolderType(const LLSD& notification, const LLSD& response, LLAssetType::EType folder_type)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	if (option == 0) // YES
+	{
+		LLUUID folder_id = findCategoryUUIDForType(folder_type);
+		purgeDescendentsOf(folder_id);
+		notifyObservers();
+	}
+	return false;
+}
+
+void LLInventoryModel::emptyFolderType(const std::string notification, LLAssetType::EType folder_type)
+{
+	if (!notification.empty())
+	{
+		LLNotifications::instance().add(notification, LLSD(), LLSD(),
+										boost::bind(&LLInventoryModel::callbackEmptyFolderType, this, _1, _2, folder_type));
+	}
+	else
+	{
+		LLUUID folder_id = findCategoryUUIDForType(folder_type);
+		purgeDescendentsOf(folder_id);
+		notifyObservers();
+	}
+}
+
+//----------------------------------------------------------------------------
+
+void LLInventoryModel::removeItem(const LLUUID& item_id)
+{
+	LLViewerInventoryItem* item = getItem(item_id);
+	const LLUUID& new_parent = findCategoryUUIDForType(LLAssetType::AT_TRASH);
+	if (item && item->getParentUUID() != new_parent)
+	{
+		LLInventoryModel::update_list_t update;
+		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
+		update.push_back(old_folder);
+		LLInventoryModel::LLCategoryUpdate new_folder(new_parent, 1);
+		update.push_back(new_folder);
+		accountForUpdate(update);
+
+		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+		new_item->setParent(new_parent);
+		new_item->updateParentOnServer(TRUE);
+		updateItem(new_item);
+		notifyObservers();
+	}
+}
+
+//----------------------------------------------------------------------------
+
 // *NOTE: DEBUG functionality
 void LLInventoryModel::dumpInventory()
 {
@@ -3205,7 +3232,7 @@ bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(LLInventoryItem* ite
 		return false;
 
 	bool allowed = false;
-	LLVOAvatar* my_avatar = NULL;
+	LLVOAvatarSelf* my_avatar = NULL;
 
 	switch(item->getType())
 	{
@@ -3223,7 +3250,7 @@ bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(LLInventoryItem* ite
 		
 	case LLAssetType::AT_BODYPART:
 	case LLAssetType::AT_CLOTHING:
-		if(!gAgent.isWearingItem(item->getUUID()))
+		if(!gAgentWearables.isWearingItem(item->getUUID()))
 		{
 			allowed = true;
 		}

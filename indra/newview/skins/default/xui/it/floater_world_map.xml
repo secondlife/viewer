@@ -30,14 +30,10 @@
 	<check_box label="Adult" name="event_adult_chk"/>
 	<icon bottom="-200" name="avatar_icon" />
 	<combo_box label="Amici Online" name="friend combo" tool_tip="Amici da mostrare sulla mappa">
-		<combo_item name="none_selected">
-			Amici Online
-		</combo_item>
+		<combo_box.item name="none_selected" label="Amici Online"/>
 	</combo_box>
 	<combo_box label="Landmark" name="landmark combo" tool_tip="Landmarks da mostrare sulla mappa">
-		<combo_item name="none_selected">
-			Landmark
-		</combo_item>
+		<combo_box.item name="none_selected" label="Landmark"/>
 	</combo_box>
 	<line_editor label="Cerca per nome di regione" name="location" tool_tip="Scrivi il nome di una regione"/>
 	<button label="Cerca" name="DoSearch" tool_tip="Cerca regione"/>

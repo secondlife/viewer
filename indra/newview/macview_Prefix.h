@@ -69,7 +69,6 @@
 #include "llfloatercustomize.h"
 #include "llfloaterdirectory.h"
 #include "llfloatergroups.h"
-#include "llfloatermap.h"
 #include "llfloaterworldmap.h"
 #include "llfloatermute.h"
 #include "llconversation.h"
@@ -92,7 +91,6 @@
 #include "lltoolgrab.h"
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
-#include "lltoolview.h"
 #include "llui.h"			// for make_ui_sound
 #include "llviewercamera.h"
 #include "llviewermenu.h"

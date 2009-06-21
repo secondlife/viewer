@@ -173,7 +173,6 @@ public:
 
 	static F32 sTextureUpdateTime;
 	static S32 sTexelsUpdated;
-	static LLStat sTexelsUpdatedPerSecStat;
 
 protected:
 	void createSTexture();

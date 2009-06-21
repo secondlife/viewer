@@ -33,7 +33,7 @@
 #ifndef LL_LLHUDTEXT_H
 #define LL_LLHUDTEXT_H
 
-#include "llmemory.h"
+#include "llpointer.h"
 #include "lldarrayptr.h"
 
 #include "llhudobject.h"

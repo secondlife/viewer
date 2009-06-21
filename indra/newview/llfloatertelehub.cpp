@@ -81,7 +81,7 @@ void LLFloaterTelehub::show()
 }
 
 LLFloaterTelehub::LLFloaterTelehub()
-:	LLFloater(std::string("telehub")),
+:	LLFloater(),
 	mTelehubObjectID(),
 	mTelehubObjectName(),
 	mTelehubPos(),
@@ -93,6 +93,11 @@ LLFloaterTelehub::LLFloaterTelehub()
 	gMessageSystem->setHandlerFunc("TelehubInfo", processTelehubInfo);
 
 	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_telehub.xml");
+
+	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
+}
+BOOL LLFloaterTelehub::postBuild()
+{
 
 	childSetAction("connect_btn", onClickConnect, this);
 	childSetAction("disconnect_btn", onClickDisconnect, this);
@@ -106,9 +111,8 @@ LLFloaterTelehub::LLFloaterTelehub()
 		list->setAllowKeyboardMovement(FALSE);
 	}
 
-	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
+	return TRUE;
 }
-
 LLFloaterTelehub::~LLFloaterTelehub()
 {
 	sInstance = NULL;

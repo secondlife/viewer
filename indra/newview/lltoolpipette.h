@@ -40,6 +40,8 @@
 
 #include "lltool.h"
 #include "lltextureentry.h"
+#include <boost/function.hpp>
+#include <boost/signal.hpp>
 
 class LLViewerObject;
 class LLPickInfo;
@@ -56,18 +58,19 @@ public:
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect *sticky_rect_screen);
 
-	typedef void (*select_callback)(const LLTextureEntry& te, void *data);
-	void setSelectCallback(select_callback callback, void* user_data);
+	// Note: Don't return connection; use boost::bind + boost::signal::trackable to disconnect slots
+	typedef boost::signal<void (const LLTextureEntry& te)> signal_t;
+	void setToolSelectCallback(const signal_t::slot_type& cb) { mSignal.connect(cb); }
 	void setResult(BOOL success, const std::string& msg);
-
+	
+	void setTextureEntry(const LLTextureEntry* entry);
 	static void pickCallback(const LLPickInfo& pick_info);
 
 protected:
 	LLTextureEntry	mTextureEntry;
-	select_callback mSelectCallback;
+	signal_t		mSignal;
 	BOOL			mSuccess;
 	std::string		mTooltipMsg;
-	void*			mUserData;
 };
 
 #endif //LL_LLTOOLPIPETTE_H

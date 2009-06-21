@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ follows="left|top|right|bottom"
+ height="600"
+ layout="topleft"
+ left="0"
+ name="panel_login"
+ top="600"
+ width="800">
+    <panel.string
+     name="create_account_url">
+        http://secondlife.com/registration/
+    </panel.string>
+    <panel.string
+     name="real_url">
+        http://secondlife.com/app/login/
+    </panel.string>
+    <panel.string
+     name="forgot_password_url">
+        http://secondlife.com/account/request.php
+    </panel.string>
+    <web_browser
+     border_visible="false"
+     bottom="600"
+     follows="top|left|bottom|right"
+     layout="topleft"
+     left="0"
+     name="login_html"
+     right="-1"
+     start_url="data:text/html,%3Chtml%3E%3Chead%3E%3C/head%3E%3Cbody bgcolor=%22#000000%22 text=%22ffffff%22%3E%3Ch1%3E%3Ctt%3Eloading...%3C/tt%3E%3C/h1%3E %3C/body%3E %3C/html%3E"
+     top="1" />
+    <text
+     type="string"
+     length="1"
+     follows="left|bottom"
+     font="SansSerif"
+     height="16"
+     layout="topleft"
+     left="32"
+     name="first_name_text"
+     top="530"
+     width="120">
+        First Name:
+    </text>
+    <line_editor
+     border_style="line"
+     border_thickness="1"
+     follows="left|bottom"
+     font="SansSerif"
+     handle_edit_keys_directly="true"
+     height="20"
+     layout="topleft"
+     left_delta="0"
+     max_length="31"
+     name="first_name_edit"
+     select_on_focus="true"
+     top_pad="4"
+     width="120" />
+    <text
+     type="string"
+     length="1"
+     follows="left|bottom"
+     font="SansSerif"
+     height="16"
+     layout="topleft"
+     left="164"
+     name="last_name_text"
+     top="530"
+     width="120">
+        Last Name:
+    </text>
+    <line_editor
+     border_style="line"
+     border_thickness="1"
+     follows="left|bottom"
+     font="SansSerif"
+     handle_edit_keys_directly="true"
+     height="20"
+     layout="topleft"
+     left_delta="0"
+     max_length="31"
+     name="last_name_edit"
+     select_on_focus="true"
+     top_pad="4"
+     width="120" />
+    <text
+     type="string"
+     length="1"
+     follows="left|bottom"
+     font="SansSerif"
+     height="16"
+     layout="topleft"
+     left="296"
+     name="password_text"
+     top="530"
+     width="120">
+        Password:
+    </text>
+    <line_editor
+     border_style="line"
+     border_thickness="1"
+     follows="left|bottom"
+     font="SansSerif"
+     handle_edit_keys_directly="true"
+     height="20"
+     layout="topleft"
+     left_delta="0"
+     max_length="16"
+     name="password_edit"
+     select_on_focus="true"
+     top_pad="4"
+     width="120" />
+    <text
+     type="string"
+     length="1"
+     follows="left|bottom"
+     font="SansSerif"
+     height="16"
+     layout="topleft"
+     left="32"
+     name="start_location_text"
+     top="574"
+     width="95">
+        Start Location:
+    </text>
+    <combo_box
+     allow_text_entry="true"
+     control_name="LoginLocation"
+     follows="left|bottom"
+     height="18"
+     layout="topleft"
+     left_pad="2"
+     max_chars="128"
+     name="start_location_combo"
+     top_delta="0"
+     width="155">
+        <combo_box.item
+         label="My Last Location"
+         value="last" />
+        <combo_box.item
+         label="My Home"
+         value="home" />
+        <combo_box.item
+         label="&lt;Type region name&gt;"
+         value="" />
+    </combo_box>
+    <check_box
+     control_name="RememberPassword"
+     follows="left|bottom"
+     height="16"
+     label="Remember password"
+     layout="topleft"
+     left_pad="8"
+     name="remember_check"
+     top_delta="0"
+     width="138" />
+    <button
+     follows="left|bottom"
+     height="24"
+     label="Log In"
+     label_selected="Log In"
+     layout="topleft"
+     left="435"
+     name="connect_btn"
+     top="548"
+     width="120" />
+    <combo_box
+     allow_text_entry="true"
+     follows="left|bottom"
+     height="18"
+     layout="topleft"
+     left_pad="15"
+     name="server_combo"
+     top_delta="2"
+     width="120" />
+    <text
+     type="string"
+     length="1"
+     follows="right|bottom"
+     halign="right"
+     height="16"
+     hover="true"
+     hover_color="0.2 0.45 0.72 1"
+     layout="topleft"
+     left="-210"
+     name="create_new_account_text"
+     top="539"
+     width="200">
+        Sign up for account
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="right|bottom"
+     halign="right"
+     height="16"
+     hover="true"
+     hover_color="0.2 0.45 0.72 1"
+     layout="topleft"
+     left_delta="0"
+     name="forgot_password_text"
+     top_pad="4"
+     width="200">
+        Forgot your name or password?
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="right|bottom"
+     halign="right"
+     height="16"
+     hover="true"
+     hover_color="0.2 0.45 0.72 1"
+     layout="topleft"
+     left="-310"
+     name="channel_text"
+     top="579"
+     width="300">
+        [VERSION]
+    </text>
+</panel>

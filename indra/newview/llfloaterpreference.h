@@ -40,94 +40,99 @@
 #define LL_LLFLOATERPREFERENCE_H
 
 #include "llfloater.h"
-#include "lltabcontainervertical.h"
 
-class LLPanelGeneral;
-class LLPanelInput;
+class LLPanelPreference;
 class LLPanelLCD;
 class LLPanelDisplay;
-class LLPanelAudioPrefs;
 class LLPanelDebug;
-class LLPanelNetwork;
-class LLPanelWeb;
 class LLMessageSystem;
-class LLPrefsChat;
-class LLPrefsVoice;
-class LLPrefsIM;
-class LLPanelMsgs;
-class LLPanelSkins;
 class LLScrollListCtrl;
 
-class LLPreferenceCore
-{
-
-public:
-	LLPreferenceCore(LLTabContainer* tab_container, LLButton * default_btn);
-	~LLPreferenceCore();
-
-	void apply();
-	void cancel();
-
-	LLTabContainer* getTabContainer() { return mTabContainer; }
-
-	void setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string&  email);
-
-	static void onTabChanged(void* user_data, bool from_click);
-	
-	// refresh all the graphics preferences menus
-	void refreshEnabledGraphics();
-
-private:
-	LLTabContainer	*mTabContainer;
-	LLPanelGeneral	        *mGeneralPanel;
-	LLPanelSkins			*mSkinsPanel;
-	LLPanelInput			*mInputPanel;
-	LLPanelNetwork	        *mNetworkPanel;
-	LLPanelDisplay	        *mDisplayPanel;
-	LLPanelAudioPrefs		*mAudioPanel;
-//	LLPanelDebug			*mDebugPanel;
-	LLPrefsChat				*mPrefsChat;
-	LLPrefsVoice			*mPrefsVoice;
-	LLPrefsIM				*mPrefsIM;
-	LLPanelWeb				*mWebPanel;
-	LLPanelMsgs				*mMsgPanel;
-	LLPanelLCD				*mLCDPanel;
-};
+class LLSD;
 
 // Floater to control preferences (display, audio, bandwidth, general.
 class LLFloaterPreference : public LLFloater
 {
 public: 
-	LLFloaterPreference();
+	LLFloaterPreference(const LLSD& key);
 	~LLFloaterPreference();
 
 	void apply();
 	void cancel();
+	/*virtual*/ void draw();
 	virtual BOOL postBuild();
-	static void show(void*);
+	virtual void onOpen(const LLSD& key);
+	virtual void onClose(bool app_quitting);
 
 	// static data update, called from message handler
 	static void updateUserInfo(const std::string& visibility, bool im_via_email, const std::string& email);
 
 	// refresh all the graphics preferences menus
 	static void refreshEnabledGraphics();
-
+	
 protected:
-	LLPreferenceCore		*mPreferenceCore;
+	
+	void		onBtnOK();
+	void		onBtnCancel();
+	void		onBtnApply();
+	void		onOpenHelp();
 
-	/*virtual*/ void		onClose(bool app_quitting);
+	static void		onClickClearCache(void*);
+	static void		onClickBrowserClearCache(void*);
 
-	LLButton*	mAboutBtn;
-	LLButton	*mOKBtn;
-	LLButton	*mCancelBtn;
-	LLButton	*mApplyBtn;
+	// if the custom settings box is clicked
+	void onChangeCustom();
+	void updateMeterText(LLUICtrl* ctrl);
+	void onOpenHardwareSettings();
+	/// callback for defaults
+	void setHardwareDefaults();
+	// callback for when client turns on shaders
+	void onVertexShaderEnable();
+public:
 
-	static void		onClickAbout(void*);
-	static void		onBtnOK(void*);
-	static void		onBtnCancel(void*);
-	static void		onBtnApply(void*);
+	void onClickSetCache();
+	void onClickResetCache();
+	void onClickSkin(LLUICtrl* ctrl,const LLSD& userdata);
+	void onSelectSkin();
+	void onClickSetKey();
+	void setKey(KEY key);
+	void onClickSetMiddleMouse();
+	void onClickSkipDialogs();
+	void onClickResetDialogs();
+	void onClickEnablePopup();
+	void resetAllIgnored();
+	void setAllIgnored();
+	void onClickLogPath();	
+	void enableHistory();
+	void onCommitLogging();
+	void setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string& email);
+	
+	static void buildLists(void* data);
+	static void refreshSkin(void* data);
+	static void cleanupBadSetting();
+	
+private:
+	static std::string sSkin;
+	bool mGotPersonalInfo;
+	bool mOriginalIMViaEmail;
+	
+	bool mOriginalHideOnlineStatus;
+	std::string mDirectoryVisibility;
 
-	static LLFloaterPreference* sInstance;
+};
+
+class LLPanelPreference : public LLPanel
+{
+public:
+	LLPanelPreference();
+	/*virtual*/ BOOL postBuild();
+	
+	virtual void apply();
+	virtual void cancel();
+	void setControlFalse(const LLSD& user_data);
+private:
+	typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
+	control_values_map_t mSavedValues;
 };
 
 #endif  // LL_LLPREFERENCEFLOATER_H

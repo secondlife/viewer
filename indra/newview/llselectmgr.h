@@ -38,7 +38,8 @@
 #include "llstring.h"
 #include "llundo.h"
 #include "lluuid.h"
-#include "llmemory.h"
+#include "llpointer.h"
+#include "llsafehandle.h"
 #include "llsaleinfo.h"
 #include "llcategory.h"
 #include "v3dmath.h"
@@ -48,7 +49,7 @@
 #include "llbbox.h"
 #include "llpermissions.h"
 #include "llviewerobject.h"
-
+#include "llcontrol.h"
 #include <deque>
 #include "boost/iterator/filter_iterator.hpp"
 
@@ -338,6 +339,7 @@ public:
 	static BOOL					sRectSelectInclusive;	// do we need to surround an object to pick it?
 	static BOOL					sRenderHiddenSelections;	// do we show selection silhouettes that are occluded?
 	static BOOL					sRenderLightRadius;	// do we show the radius of selected lights?
+
 	static F32					sHighlightThickness;
 	static F32					sHighlightUScale;
 	static F32					sHighlightVScale;
@@ -351,6 +353,10 @@ public:
 	static LLColor4				sHighlightChildColor;
 	static LLColor4				sHighlightInspectColor;
 	static LLColor4				sContextSilhouetteColor;
+
+	LLCachedControl<bool>					mHideSelectedObjects;
+	LLCachedControl<bool>					mAllowSelectAvatar;
+	LLCachedControl<bool>					mDebugSelectMgr;
 
 public:
 	LLSelectMgr();

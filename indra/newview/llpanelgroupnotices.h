@@ -34,7 +34,7 @@
 #define LL_LLPANELGROUPNOTICES_H
 
 #include "llpanelgroup.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llinventory.h"
 
 class LLLineEditor;
@@ -47,7 +47,7 @@ class LLScrollListCtrl;
 class LLPanelGroupNotices : public LLPanelGroupTab
 {
 public:
-	LLPanelGroupNotices(const std::string& name, const LLUUID& group_id);
+	LLPanelGroupNotices(const LLUUID& group_id);
 	virtual ~LLPanelGroupNotices();
 
 	// LLPanelGroupTab

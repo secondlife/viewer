@@ -49,14 +49,19 @@
 #include "llviewerobject.h"
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
+#include "lltrans.h"
 
 LLFloaterBuy* LLFloaterBuy::sInstance = NULL;
 
 LLFloaterBuy::LLFloaterBuy()
-:	LLFloater(std::string("floater_buy_object"), std::string("FloaterBuyRect"), LLStringUtil::null)
+:	LLFloater()
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_buy_object.xml");
 
+}
+
+BOOL LLFloaterBuy::postBuild()
+{
 	childDisable("object_list");
 	childDisable("item_list");
 
@@ -64,6 +69,7 @@ LLFloaterBuy::LLFloaterBuy()
 	childSetAction("buy_btn", onClickBuy, this);
 
 	setDefaultBtn("cancel_btn"); // to avoid accidental buy (SL-43130)
+	return TRUE;
 }
 
 LLFloaterBuy::~LLFloaterBuy()
@@ -102,7 +108,7 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 		sInstance = new LLFloaterBuy();
 	}
 	
-	sInstance->open(); /*Flawfinder: ignore*/
+	sInstance->openFloater();
 	sInstance->setFocus(TRUE);
 	sInstance->mSaleInfo = sale_info;
 	sInstance->mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
@@ -270,15 +276,15 @@ void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
 		std::string text = obj->getName();
 		if (!(next_owner_mask & PERM_COPY))
 		{
-			text.append(" (no copy)");
+			text.append(getString("no_copy"));
 		}
 		if (!(next_owner_mask & PERM_MODIFY))
 		{
-			text.append(" (no modify)");
+			text.append(LLTrans::getString("no_modify"));
 		}
 		if (!(next_owner_mask & PERM_TRANSFER))
 		{
-			text.append(" (no transfer)");
+			text.append(LLTrans::getString("no_transfer"));
 		}
 
 		row["columns"][1]["column"] = "text";
@@ -289,7 +295,6 @@ void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
 	}
 	removeVOInventoryListener();
 }
-
 
 // static
 void LLFloaterBuy::onClickBuy(void*)
@@ -309,7 +314,7 @@ void LLFloaterBuy::onClickBuy(void*)
 	// it doesn't match region info then sale is canceled.
 	LLSelectMgr::getInstance()->sendBuy(gAgent.getID(), category_id, sInstance->mSaleInfo );
 
-	sInstance->close();
+	sInstance->closeFloater();
 }
 
 
@@ -318,7 +323,7 @@ void LLFloaterBuy::onClickCancel(void*)
 {
 	if (sInstance)
 	{
-		sInstance->close();
+		sInstance->closeFloater();
 	}
 }
 
@@ -326,5 +331,5 @@ void LLFloaterBuy::onClose(bool app_quitting)
 {
 	// drop reference to current selection so selection goes away
 	mObjectSelection = NULL;
-	LLFloater::onClose(app_quitting);
+	destroy();
 }

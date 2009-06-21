@@ -365,7 +365,15 @@ public:
 	// returns true iff category version is known and theoretical
 	// descendents == actual descendents.
 	bool isCategoryComplete(const LLUUID& cat_id) const;
+	
+	// callbacks
+	// Trigger a notification and empty the folder type (AT_TRASH or AT_LOST_AND_FOUND) if confirmed
+	void emptyFolderType(const std::string notification, LLAssetType::EType folder_type);
+	bool callbackEmptyFolderType(const LLSD& notification, const LLSD& response, LLAssetType::EType folder_type);
 
+	// Utility Functions
+	void removeItem(const LLUUID& item_id);
+	
 	// start and stop background breadth-first fetching of inventory contents
 	// this gets triggered when performing a filter-search
 	static void startBackgroundFetch(const LLUUID& cat_id = LLUUID::null); // start fetch process

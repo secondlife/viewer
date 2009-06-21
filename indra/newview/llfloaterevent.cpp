@@ -75,13 +75,13 @@ public:
 };
 LLEventHandler gEventHandler;
 
-LLFloaterEventInfo::LLFloaterEventInfo(const std::string& name, const U32 event_id)
-:	LLFloater(name),
+LLFloaterEventInfo::LLFloaterEventInfo(const U32 event_id)
+:	LLFloater(),
 	mEventID( event_id )
 {
 
 	mFactoryMap["event_details_panel"] = LLCallbackMap(LLFloaterEventInfo::createEventDetail, this);
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preview_event.xml", &getFactoryMap());
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preview_event.xml");
 	gEventInfoInstances.addData(event_id, this);
 }
 
@@ -115,14 +115,14 @@ LLFloaterEventInfo* LLFloaterEventInfo::show(const U32 event_id)
 	{
 		// ...bring that window to front
 		floater = gEventInfoInstances.getData(event_id);
-		floater->open();	/*Flawfinder: ignore*/
+		floater->openFloater();
 		floater->setFrontmost(true);
 	}
 	else
 	{
-		floater =  new LLFloaterEventInfo("eventinfo", event_id );
+		floater =  new LLFloaterEventInfo( event_id );
 		floater->center();
-		floater->open();	/*Flawfinder: ignore*/
+		floater->openFloater();
 		floater->displayEventInfo(event_id);
 		floater->setFrontmost(true);
 	}

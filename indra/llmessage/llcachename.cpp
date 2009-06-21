@@ -42,11 +42,7 @@
 #include "llsdserialize.h"
 #include "lluuid.h"
 #include "message.h"
-
-// Constants
-static const std::string CN_WAITING("(Loading...)"); // *TODO: translate
-static const std::string CN_NOBODY("(nobody)"); // *TODO: translate
-static const std::string CN_NONE("(none)"); // *TODO: translate
+#include "llmemtype.h"
 
 // llsd serialization constants
 static const std::string AGENTS("agents");
@@ -65,6 +61,7 @@ const S32 CN_FILE_VERSION = 2;
 
 // Globals
 LLCacheName* gCacheName = NULL;
+std::map<std::string, std::string> LLCacheName::sCacheName;
 
 /// ---------------------------------------------------------------------------
 /// class LLCacheNameEntry
@@ -92,17 +89,19 @@ class PendingReply
 {
 public:
 	LLUUID				mID;
-	LLCacheNameCallback mCallback;
+	LLCacheNameSignal	mSignal;
 	LLHost				mHost;
-	void*				mData;
-	PendingReply(const LLUUID& id, LLCacheNameCallback callback, void* data = NULL)
-		: mID(id), mCallback(callback), mData(data)
-	{ }
-
+	
 	PendingReply(const LLUUID& id, const LLHost& host)
-		: mID(id), mCallback(0), mHost(host)
-	{ }
-
+		: mID(id), mHost(host)
+	{
+	}
+	
+	boost::signals::connection setCallback(const LLCacheNameCallback& cb)
+	{
+		return mSignal.connect(cb);
+	}
+	
 	void done()			{ mID.setNull(); }
 	bool isDone() const	{ return mID.isNull() != FALSE; }
 };
@@ -187,10 +186,9 @@ void ReplySender::flush()
 
 
 typedef std::set<LLUUID>					AskQueue;
-typedef std::vector<PendingReply>			ReplyQueue;
+typedef std::list<PendingReply*>			ReplyQueue;
 typedef std::map<LLUUID,U32>				PendingQueue;
 typedef std::map<LLUUID, LLCacheNameEntry*> Cache;
-typedef std::vector<LLCacheNameCallback>	Observers;
 
 class LLCacheName::Impl
 {
@@ -211,13 +209,16 @@ public:
 	ReplyQueue			mReplyQueue;
 		// requests awaiting replies from us
 
-	Observers			mObservers;
+	LLCacheNameSignal	mSignal;
 
 	LLFrameTimer		mProcessTimer;
 
 	Impl(LLMessageSystem* msg);
 	~Impl();
-
+	
+	boost::signals::connection addPending(const LLUUID& id, const LLCacheNameCallback& callback);
+	void addPending(const LLUUID& id, const LLHost& host);
+	
 	void processPendingAsks();
 	void processPendingReplies();
 	void sendRequest(const char* msg_name, const AskQueue& queue);
@@ -231,8 +232,6 @@ public:
 	static void handleUUIDNameReply(LLMessageSystem* msg, void** userdata);
 	static void handleUUIDGroupNameRequest(LLMessageSystem* msg, void** userdata);
 	static void handleUUIDGroupNameReply(LLMessageSystem* msg, void** userdata);
-
-	void notifyObservers(const LLUUID& id, const std::string& first, const std::string& last, BOOL group);
 };
 
 
@@ -247,6 +246,9 @@ LLCacheName::LLCacheName(LLMessageSystem* msg)
 LLCacheName::LLCacheName(LLMessageSystem* msg, const LLHost& upstream_host)
 	: impl(* new Impl(msg))
 {
+	sCacheName["waiting"] = "(Loading...)";
+	sCacheName["nobody"] = "(nobody)";
+	sCacheName["none"] = "(none)";
 	setUpstream(upstream_host);
 }
 
@@ -272,52 +274,31 @@ LLCacheName::Impl::Impl(LLMessageSystem* msg)
 LLCacheName::Impl::~Impl()
 {
 	for_each(mCache.begin(), mCache.end(), DeletePairedPointer());
+	for_each(mReplyQueue.begin(), mReplyQueue.end(), DeletePointer());
 }
 
+boost::signals::connection LLCacheName::Impl::addPending(const LLUUID& id, const LLCacheNameCallback& callback)
+{
+	PendingReply* reply = new PendingReply(id, LLHost());
+	boost::signals::connection res = reply->setCallback(callback);
+	mReplyQueue.push_back(reply);
+	return res;
+}
+
+void LLCacheName::Impl::addPending(const LLUUID& id, const LLHost& host)
+{
+	PendingReply* reply = new PendingReply(id, host);
+	mReplyQueue.push_back(reply);
+}
 
 void LLCacheName::setUpstream(const LLHost& upstream_host)
 {
 	impl.mUpstreamHost = upstream_host;
 }
 
-void LLCacheName::addObserver(LLCacheNameCallback callback)
+boost::signals::connection LLCacheName::addObserver(const LLCacheNameCallback& callback)
 {
-	impl.mObservers.push_back(callback);
-}
-
-void LLCacheName::removeObserver(LLCacheNameCallback callback)
-{
-	Observers::iterator it = impl.mObservers.begin();
-	Observers::iterator end = impl.mObservers.end();
-
-	for ( ; it != end; ++it)
-	{
-		const LLCacheNameCallback& cb = (*it);
-		if (cb == callback)
-		{
-			impl.mObservers.erase(it);
-			return;
-		}
-	}
-}
-
-void LLCacheName::cancelCallback(const LLUUID& id, LLCacheNameCallback callback, void* user_data)
-{
-	ReplyQueue::iterator it = impl.mReplyQueue.begin();
-	ReplyQueue::iterator end = impl.mReplyQueue.end();
-	
-	for(; it != end; ++it)
-	{
-		const PendingReply& reply = (*it);
-
-		if ((callback == reply.mCallback)
-			&& (id == reply.mID)
-			&& (user_data == reply.mData) )
-		{
-			impl.mReplyQueue.erase(it);
-			return;
-		}
-	}
+	return impl.mSignal.connect(callback);
 }
 
 void LLCacheName::importFile(LLFILE* fp)
@@ -493,7 +474,7 @@ BOOL LLCacheName::getName(const LLUUID& id, std::string& first, std::string& las
 {
 	if(id.isNull())
 	{
-		first = CN_NOBODY;
+		first = sCacheName["nobody"];
 		last.clear();
 		return FALSE;
 	}
@@ -507,7 +488,7 @@ BOOL LLCacheName::getName(const LLUUID& id, std::string& first, std::string& las
 	}
 	else
 	{
-		first = CN_WAITING;
+		first = sCacheName["waiting"];
 		last.clear();
 		if (!impl.isRequestPending(id))
 		{
@@ -516,6 +497,14 @@ BOOL LLCacheName::getName(const LLUUID& id, std::string& first, std::string& las
 		return FALSE;
 	}
 
+}
+// static
+void LLCacheName::LocalizeCacheName(std::string key, std::string value)
+{
+	if (key!="" && value!= "" )
+		sCacheName[key]=value;
+	else
+		llwarns<< " Error localizing cache key " << key << " To "<< value<<llendl;
 }
 
 BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
@@ -530,7 +519,7 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 {
 	if(id.isNull())
 	{
-		group = CN_NONE;
+		group = sCacheName["none"];
 		return FALSE;
 	}
 
@@ -551,7 +540,7 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 	}
 	else 
 	{
-		group = CN_WAITING;
+		group = sCacheName["waiting"];
 		if (!impl.isRequestPending(id))
 		{
 			impl.mAskGroupQueue.insert(id);
@@ -559,28 +548,38 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 		return FALSE;
 	}
 }
-
-// TODO: Make the cache name callback take a SINGLE std::string,
-// not a separate first and last name.
-void LLCacheName::get(const LLUUID& id, BOOL is_group, LLCacheNameCallback callback, void* user_data)
+// This is a little bit kludgy. LLCacheNameCallback is a slot instead of a function pointer.
+//  The reason it is a slot is so that the legacy get() function below can bind an old callback
+//  and pass it as a slot. The reason it isn't a boost::function is so that trackable behavior
+//  deson't get lost. As a result, we have to bind the slot to a signal to call it, even when
+//  we call it immediately. -Steve
+// NOTE: Even though passing first and last name is a bit of extra overhead, it eliminates the
+//  potential need for any parsing should any code need to handle first and last name independently.
+boost::signals::connection LLCacheName::get(const LLUUID& id, BOOL is_group, const LLCacheNameCallback& callback)
 {
+	boost::signals::connection res;
+	
 	if(id.isNull())
 	{
-		callback(id, CN_NOBODY, "", is_group, user_data);
-		return;
+		LLCacheNameSignal signal;
+		signal.connect(callback);
+		signal(id, sCacheName["nobody"], "", is_group);
+		return res;
 	}
 
 	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache, id );
 	if (entry)
 	{
+		LLCacheNameSignal signal;
+		signal.connect(callback);
 		// id found in map therefore we can call the callback immediately.
 		if (entry->mIsGroup)
 		{
-			callback(id, entry->mGroupName, "", entry->mIsGroup, user_data);
+			signal(id, entry->mGroupName, "", entry->mIsGroup);
 		}
 		else
 		{
-			callback(id, entry->mFirstName, entry->mLastName, entry->mIsGroup, user_data);
+			signal(id, entry->mFirstName, entry->mLastName, entry->mIsGroup);
 		}
 	}
 	else
@@ -597,12 +596,19 @@ void LLCacheName::get(const LLUUID& id, BOOL is_group, LLCacheNameCallback callb
 				impl.mAskNameQueue.insert(id);
 			}
 		}
-		impl.mReplyQueue.push_back(PendingReply(id, callback, user_data));
+		res = impl.addPending(id, callback);
 	}
+	return res;
+}
+
+boost::signals::connection LLCacheName::get(const LLUUID& id, BOOL is_group, old_callback_t callback, void* user_data)
+{
+	return get(id, is_group, boost::bind(callback, _1, _2, _3, _4, user_data));
 }
 
 void LLCacheName::processPending()
 {
+	LLMemType mt_pp(LLMemType::MTYPE_CACHE_PROCESS_PENDING);
 	const F32 SECS_BETWEEN_PROCESS = 0.1f;
 	if(!impl.mProcessTimer.checkExpirationAndReset(SECS_BETWEEN_PROCESS))
 	{
@@ -684,18 +690,19 @@ void LLCacheName::dumpStats()
 			<< " AskGroup=" << impl.mAskGroupQueue.size()
 			<< " Pending=" << impl.mPendingQueue.size()
 			<< " Reply=" << impl.mReplyQueue.size()
-			<< " Observers=" << impl.mObservers.size()
+// 			<< " Observers=" << impl.mSignal.size()
 			<< llendl;
 }
 
 //static 
 std::string LLCacheName::getDefaultName()
 {
-	return CN_WAITING;
+	return sCacheName["waiting"];
 }
 
 void LLCacheName::Impl::processPendingAsks()
 {
+	LLMemType mt_ppa(LLMemType::MTYPE_CACHE_PROCESS_PENDING_ASKS);
 	sendRequest(_PREHASH_UUIDNameRequest, mAskNameQueue);
 	sendRequest(_PREHASH_UUIDGroupNameRequest, mAskGroupQueue);
 	mAskNameQueue.clear();
@@ -704,50 +711,50 @@ void LLCacheName::Impl::processPendingAsks()
 
 void LLCacheName::Impl::processPendingReplies()
 {
-	ReplyQueue::iterator it = mReplyQueue.begin();
-	ReplyQueue::iterator end = mReplyQueue.end();
-	
+	LLMemType mt_ppr(LLMemType::MTYPE_CACHE_PROCESS_PENDING_REPLIES);
 	// First call all the callbacks, because they might send messages.
-	for(; it != end; ++it)
+	for(ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); ++it)
 	{
-		LLCacheNameEntry* entry = get_ptr_in_map(mCache, it->mID);
+		PendingReply* reply = *it;
+		LLCacheNameEntry* entry = get_ptr_in_map(mCache, reply->mID);
 		if(!entry) continue;
 
-		if (it->mCallback)
+		if (!entry->mIsGroup)
 		{
-			if (!entry->mIsGroup)
-			{
-				(it->mCallback)(it->mID,
-					entry->mFirstName, entry->mLastName,
-					FALSE, it->mData);
-			}
-			else {
-				(it->mCallback)(it->mID,
-					entry->mGroupName, "",
-					TRUE, it->mData);
-			}
+			(reply->mSignal)(reply->mID, entry->mFirstName, entry->mLastName, FALSE);
+		}
+		else
+		{
+			(reply->mSignal)(reply->mID, entry->mGroupName, "", TRUE);
 		}
 	}
 
 	// Forward on all replies, if needed.
 	ReplySender sender(mMsg);
-	for (it = mReplyQueue.begin(); it != end; ++it)
+	for(ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); ++it)
 	{
-		LLCacheNameEntry* entry = get_ptr_in_map(mCache, it->mID);
+		PendingReply* reply = *it;
+		LLCacheNameEntry* entry = get_ptr_in_map(mCache, reply->mID);
 		if(!entry) continue;
 
-		if (it->mHost.isOk())
+		if (reply->mHost.isOk())
 		{
-			sender.send(it->mID, *entry, it->mHost);
+			sender.send(reply->mID, *entry, reply->mHost);
 		}
 
-		it->done();
+		reply->done();
 	}
-
-	mReplyQueue.erase(
-		remove_if(mReplyQueue.begin(), mReplyQueue.end(),
-			std::mem_fun_ref(&PendingReply::isDone)),
-		mReplyQueue.end());
+	
+	for(ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); )
+	{
+		ReplyQueue::iterator curit = it++;
+		PendingReply* reply = *curit;
+		if (reply->isDone())
+		{
+			delete reply;
+			mReplyQueue.erase(curit);
+		}
+	}
 }
 
 
@@ -782,18 +789,6 @@ void LLCacheName::Impl::sendRequest(
 	if(!start_new_message)
 	{
 		mMsg->sendReliable(mUpstreamHost);
-	}
-}
-
-void LLCacheName::Impl::notifyObservers(const LLUUID& id,
-	const std::string& first, const std::string& last, BOOL is_group)
-{
-	for (Observers::const_iterator i = mObservers.begin(),
-								   end = mObservers.end();
-		i != end;
-		++i)
-	{
-		(**i)(id, first, last, is_group, NULL);
 	}
 }
 
@@ -863,7 +858,7 @@ void LLCacheName::Impl::processUUIDRequest(LLMessageSystem* msg, bool isGroup)
 				}
 			}
 			
-			mReplyQueue.push_back(PendingReply(id, fromHost));
+			addPending(id, fromHost);
 		}
 	}
 }
@@ -901,11 +896,11 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 
 		if (!isGroup)
 		{
-			notifyObservers(id, entry->mFirstName, entry->mLastName, FALSE);
+			mSignal(id, entry->mFirstName, entry->mLastName, FALSE);
 		}
 		else
 		{
-			notifyObservers(id, entry->mGroupName, "", TRUE);
+			mSignal(id, entry->mGroupName, "", TRUE);
 		}
 	}
 }

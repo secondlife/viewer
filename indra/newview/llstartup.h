@@ -58,6 +58,7 @@ typedef enum {
 	STATE_LOGIN_PROCESS_RESPONSE,	// Check authentication reply
 	STATE_WORLD_INIT,				// Start building the world
 	STATE_MULTIMEDIA_INIT,			// Init the rest of multimedia library
+	STATE_FONT_INIT,				// Load default fonts
 	STATE_SEED_GRANTED_WAIT,		// Wait for seed cap grant
 	STATE_SEED_CAP_GRANTED,			// Have seed cap grant 
 	STATE_WORLD_WAIT,				// Waiting for simulator
@@ -91,6 +92,9 @@ public:
 
 	static void multimediaInit();
 		// Initialize LLViewerMedia multimedia engine.
+
+	// Load default fonts not already loaded at start screen
+	static void fontInit();
 
 	// outfit_folder_name can be a folder anywhere in your inventory, 
 	// but the name must be a case-sensitive exact match.

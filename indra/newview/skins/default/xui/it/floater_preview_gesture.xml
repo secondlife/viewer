@@ -15,15 +15,15 @@
 	<text name="trigger_label">
 		Parole chiave:
 	</text>
-	<text name="replace_text" tool_tip="Sostituisci le parole chiave con questi termini. Per esempio, sostituire la parola chiave &apos;salve&apos; con &apos;ciao&apos; modificherà la chat &apos;Volevo solo dire salve&apos; in &apos;Volevo solo dire ciao&apos; e avvierà la gesture!">
+	<text left="208" name="replace_text" tool_tip="Sostituisci le parole chiave con questi termini. Per esempio, sostituire la parola chiave &apos;salve&apos; con &apos;ciao&apos; modificherà la chat &apos;Volevo solo dire salve&apos; in &apos;Volevo solo dire ciao&apos; e avvierà la gesture!">
 		Sostituisci con:
 	</text>
 	<line_editor name="replace_editor" tool_tip="Sostituisci le parole chiave con questi termini. Per esempio, sostituire la parola chiave &apos;salve&apos; con &apos;ciao&apos; modificherà la chat &apos;Volevo solo dire salve&apos; in &apos;Volevo solo dire ciao&apos; e avvierà la gesture!"/>
 	<text name="key_label">
 		Scorciatoia da tastiera:
 	</text>
-	<combo_box label="Nessuno" name="modifier_combo"/>
-	<combo_box label="Nessuno" name="key_combo"/>
+	<combo_box label="Nessuno" name="modifier_combo" left="156" width="76"/>
+	<combo_box label="Nessuno" name="key_combo" width="76" left_delta="80"/>
 	<text name="library_label">
 		Libreria:
 	</text>
@@ -46,15 +46,12 @@ simultaneamente, a meno che tu
 non aggiunga pause.
 	</text>
 	<radio_group name="animation_trigger_type">
-		<radio_item name="start">
-			Avvio
-		</radio_item>
-		<radio_item name="stop">
-			Stop
-		</radio_item>
+		<radio_item name="start" label="Avvio" />
+		<radio_item name="stop" label="Stop" />
 	</radio_group>
-	<check_box label="finché le animazioni sono eseguite" name="wait_anim_check"/>
+	<check_box left="226" label="finché le animazioni sono eseguite" name="wait_anim_check"/>
 	<check_box label="tempo in secondi" name="wait_time_check"/>
+	<line_editor left_delta="114" name="wait_time_editor" />
 	<check_box label="Attiva" name="active_check" tool_tip="Le gesture attivate possono essere eseguite scrivendo in chat la parola chiave o premendo i tasti chiave. Le gesture generalmente si disattivano quando c&apos;è un conflitto nei relativi tasti."/>
 	<button label="Anteprima" name="preview_btn"/>
 	<button label="Salva" name="save_btn"/>

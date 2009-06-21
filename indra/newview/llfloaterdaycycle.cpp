@@ -63,15 +63,20 @@ LLFloaterDayCycle* LLFloaterDayCycle::sDayCycle = NULL;
 std::map<std::string, LLWLSkyKey> LLFloaterDayCycle::sSliderToKey;
 const F32 LLFloaterDayCycle::sHoursPerDay = 24.0f;
 
-LLFloaterDayCycle::LLFloaterDayCycle() : LLFloater(std::string("Day Cycle Floater"))
+LLFloaterDayCycle::LLFloaterDayCycle()	
+  : LLFloater()
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_day_cycle_options.xml");
-	
+}
+
+BOOL LLFloaterDayCycle::postBuild()
+{
 	// add the combo boxes
 	LLComboBox* keyCombo = getChild<LLComboBox>("WLKeyPresets");
 
 	if(keyCombo != NULL) 
 	{
+		keyCombo->removeall();
 		std::map<std::string, LLWLParamSet>::iterator mIt = 
 			LLWLParamManager::instance()->mParamList.begin();
 		for(; mIt != LLWLParamManager::instance()->mParamList.end(); mIt++) 
@@ -90,6 +95,7 @@ LLFloaterDayCycle::LLFloaterDayCycle() : LLFloater(std::string("Day Cycle Floate
 
 	// load it up
 	initCallbacks();
+	return TRUE;
 }
 
 LLFloaterDayCycle::~LLFloaterDayCycle()
@@ -231,7 +237,7 @@ LLFloaterDayCycle* LLFloaterDayCycle::instance()
 	if (!sDayCycle)
 	{
 		sDayCycle = new LLFloaterDayCycle();
-		sDayCycle->open();
+		sDayCycle->openFloater();
 		sDayCycle->setFocus(TRUE);
 	}
 	return sDayCycle;
@@ -256,7 +262,7 @@ void LLFloaterDayCycle::show()
 	//LLUICtrlFactory::getInstance()->buildFloater(dayCycle, "floater_day_cycle_options.xml");
 	//dayCycle->initCallbacks();
 
-	dayCycle->open();
+	dayCycle->openFloater();
 }
 
 // virtual

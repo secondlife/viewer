@@ -45,6 +45,9 @@ class LLFrameTimer;
 class LLChatBarGestureObserver;
 class LLComboBox;
 
+// legacy calllback glue
+void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
+
 class LLChatBar
 :	public LLPanel
 {
@@ -82,14 +85,14 @@ public:
 	LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
 
 	// callbacks
-	static void	onClickSay( LLUICtrl*, void* userdata );
+	void onClickSay(LLUICtrl* ctrl);
 
 	static void	onTabClick( void* userdata );
 	static void	onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
 	static void	onInputEditorFocusLost(LLFocusableElement* caller,void* userdata);
 	static void	onInputEditorGainFocus(LLFocusableElement* caller,void* userdata);
 
-	static void onCommitGesture(LLUICtrl* ctrl, void* data);
+	void onCommitGesture(LLUICtrl* ctrl);
 
 	static void startChat(const char* line);
 	static void stopChat();

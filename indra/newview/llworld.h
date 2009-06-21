@@ -42,7 +42,7 @@
 
 #include "llmath.h"
 #include "v3math.h"
-#include "llmemory.h"
+#include "llsingleton.h"
 #include "llstring.h"
 #include "llviewerpartsim.h"
 #include "llviewerimage.h"

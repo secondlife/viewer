@@ -77,6 +77,7 @@ public:
 	virtual void getChannelInfo();
 	virtual BOOL isActive();
 	virtual BOOL callStarted();
+	const std::string& getSessionName() const { return mSessionName; }
 
 	const LLUUID getSessionID() { return mSessionID; }
 	EState getState() { return mState; }
@@ -94,6 +95,7 @@ public:
 
 protected:
 	virtual void setState(EState state);
+	void toggleCallWindowIfNeeded(EState state);
 	void setURI(std::string uri);
 
 	std::string	mURI;
@@ -185,11 +187,7 @@ public:
 	LLFloaterIMPanel(const std::string& session_label,
 					 const LLUUID& session_id,
 					 const LLUUID& target_id,
-					 EInstantMessage dialog);
-	LLFloaterIMPanel(const std::string& session_label,
-					 const LLUUID& session_id,
-					 const LLUUID& target_id,
-					 const LLDynamicArray<LLUUID>& ids,
+					 const std::vector<LLUUID>& ids,
 					 EInstantMessage dialog);
 	virtual ~LLFloaterIMPanel();
 
@@ -202,7 +200,7 @@ public:
 
 	// add target ids to the session. 
 	// Return TRUE if successful, otherwise FALSE.
-	BOOL inviteToSession(const LLDynamicArray<LLUUID>& agent_ids);
+	BOOL inviteToSession(const std::vector<LLUUID>& agent_ids);
 
 	void addHistoryLine(const std::string &utf8msg, 
 						const LLColor4& color = LLColor4::white, 
@@ -246,6 +244,7 @@ public:
 
 	const LLUUID& getSessionID() const { return mSessionUUID; }
 	const LLUUID& getOtherParticipantID() const { return mOtherParticipantUUID; }
+	LLIMSpeakerMgr* getSpeakerManager() const { return mSpeakers; }
 	void updateSpeakersList(const LLSD& speaker_updates);
 	void processSessionUpdate(const LLSD& update);
 	void setSpeakers(const LLSD& speaker_list);
@@ -270,9 +269,6 @@ public:
 	static bool onConfirmForceCloseError(const LLSD& notification, const LLSD& response);
 
 private:
-	// called by constructors
-	void init(const std::string& session_label);
-
 	// Called by UI methods.
 	void sendMsg();
 
@@ -318,7 +314,7 @@ private:
 	//   inventory folder ==> first target id in list
 	//   911 ==> sender
 	LLUUID mOtherParticipantUUID;
-	LLDynamicArray<LLUUID> mSessionInitialTargetIDs;
+	std::vector<LLUUID> mSessionInitialTargetIDs;
 
 	EInstantMessage mDialog;
 

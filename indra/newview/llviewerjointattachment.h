@@ -71,20 +71,20 @@ public:
 
 	void setPieSlice(S32 pie_slice) { mPieSlice = pie_slice; }	
 	void setVisibleInFirstPerson(BOOL visibility) { mVisibleInFirst = visibility; }
-	BOOL getVisibleInFirstPerson() { return mVisibleInFirst; }
+	BOOL getVisibleInFirstPerson() const { return mVisibleInFirst; }
 	void setGroup(S32 group) { mGroup = group; }
 	void setOriginalPosition(LLVector3 &position);
 	void setAttachmentVisibility(BOOL visible);
 	void setIsHUDAttachment(BOOL is_hud) { mIsHUDAttachment = is_hud; }
-	BOOL getIsHUDAttachment() { return mIsHUDAttachment; }
+	BOOL getIsHUDAttachment() const { return mIsHUDAttachment; }
 
-	BOOL isAnimatable() { return FALSE; }
+	BOOL isAnimatable() const { return FALSE; }
 
-	S32 getGroup() { return mGroup; }
-	S32 getPieSlice() { return mPieSlice; }
-	LLViewerObject *getObject() { return mAttachedObject; }
-	S32	getNumObjects() { return (mAttachedObject ? 1 : 0); }
-	const LLUUID& getItemID() { return mItemID; }
+	S32 getGroup() const { return mGroup; }
+	S32 getPieSlice() const { return mPieSlice; }
+	LLViewerObject *getObject() const { return mAttachedObject; }
+	S32	getNumObjects() const { return (mAttachedObject ? 1 : 0); }
+	const LLUUID& getItemID() const { return mItemID; }
 
 	//
 	// unique methods

@@ -57,6 +57,7 @@ public:
 	LLStat mTexturePacketsStat;
 	LLStat mActualInKBitStat;	// From the packet ring (when faking a bad connection)
 	LLStat mActualOutKBitStat;	// From the packet ring (when faking a bad connection)
+	LLStat mTrianglesDrawnStat;
 
 	// Simulator stats
 	LLStat mSimTimeDilation;
@@ -98,14 +99,21 @@ public:
 	LLStat mPhysicsPinnedTasks;
 	LLStat mPhysicsLODTasks;
 	LLStat mPhysicsMemoryAllocated;
-	/*
-	LLStat mSimCPUUsageStat;
-	LLStat mSimMemTotalStat;
-	LLStat mSimMemRSSStat;
-	*/
-
 
 	LLStat mSimPingStat;
+
+	LLStat mNumImagesStat;
+	LLStat mNumRawImagesStat;
+	LLStat mGLTexMemStat;
+	LLStat mGLBoundMemStat;
+	LLStat mRawMemStat;
+	LLStat mFormattedMemStat;
+
+	LLStat mNumObjectsStat;
+	LLStat mNumActiveObjectsStat;
+	LLStat mNumNewObjectsStat;
+	LLStat mNumSizeCulledStat;
+	LLStat mNumVisCulledStat;
 
 	void resetStats();
 public:
@@ -171,9 +179,8 @@ public:
 		ST_WINDOW_HEIGHT = 55,
 		ST_TEX_BAKES = 56,
 		ST_TEX_REBAKES = 57,
-		ST_LOGITECH_LCD = 58,
 		
-		ST_COUNT = 59
+		ST_COUNT = 58
 	};
 
 

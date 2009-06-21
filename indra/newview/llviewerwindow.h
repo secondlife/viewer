@@ -44,12 +44,12 @@
 
 #include "v3dmath.h"
 #include "v2math.h"
-#include "llwindow.h"
+#include "llwindowcallbacks.h"
 #include "lltimer.h"
 #include "llstat.h"
-#include "llalertdialog.h"
 #include "llnotifications.h"
 #include "llmousehandler.h"
+#include "llcursortypes.h"
 
 class LLView;
 class LLViewerObject;
@@ -60,6 +60,8 @@ class LLVelocityBar;
 class LLTextBox;
 class LLImageRaw;
 class LLHUDIcon;
+class LLWindow;
+class LLRootView;
 
 #define PICK_HALF_WIDTH 5
 #define PICK_DIAMETER (2 * PICK_HALF_WIDTH + 1)
@@ -181,15 +183,22 @@ public:
 	/*virtual*/ void handlePingWatchdog(LLWindow *window, const char * msg);
 	/*virtual*/ void handlePauseWatchdog(LLWindow *window);
 	/*virtual*/ void handleResumeWatchdog(LLWindow *window);
-
+	/*virtual*/ std::string translateString(const char* tag);
+	/*virtual*/ std::string translateString(const char* tag,
+					const std::map<std::string, std::string>& args);
 
 	//
 	// ACCESSORS
 	//
-	LLView*			getRootView()		const	{ return mRootView; }
+	LLRootView*			getRootView()		const;
 
 	// Window in raw pixels as seen on screen.
 	const LLRect&	getWindowRect()		const	{ return mWindowRect; };
+	// portion of window that shows 3d world
+	const LLRect&	getWorldViewRect()		const	{ return mWorldViewRect; };
+	LLRect			getVirtualWorldViewRect()	const;
+	S32 			getWorldViewHeight() const;
+	S32 			getWorldViewWidth() const;
 	S32				getWindowDisplayHeight()	const;
 	S32				getWindowDisplayWidth()	const;
 
@@ -200,9 +209,9 @@ public:
 	S32				getWindowWidth()	const;
 
 	LLWindow*		getWindow()			const	{ return mWindow; }
-	void*			getPlatformWindow() const	{ return mWindow->getPlatformWindow(); }
-	void*			getMediaWindow() 	const	{ return mWindow->getMediaWindow(); }
-	void			focusClient()		const	{ return mWindow->focusClient(); };
+	void*			getPlatformWindow() const;
+	void*			getMediaWindow() 	const;
+	void			focusClient()		const;
 
 	LLCoordGL		getLastMouse()		const	{ return mLastMousePoint; }
 	S32				getLastMouseX()		const	{ return mLastMousePoint.mX; }
@@ -221,7 +230,8 @@ public:
 	const LLPickInfo&	getLastPick() const { return mLastPick; }
 	const LLPickInfo&	getHoverPick() const { return mHoverPick; }
 
-	void			setupViewport(S32 x_offset = 0, S32 y_offset = 0);
+	void			setup2DViewport(S32 x_offset = 0, S32 y_offset = 0);
+	void			setup3DViewport(S32 x_offset = 0, S32 y_offset = 0);
 	void			setup3DRender();
 	void			setup2DRender();
 
@@ -258,10 +268,17 @@ public:
 	void			setProgressMessage(const std::string& msg);
 	void			setProgressCancelButtonVisible( BOOL b, const std::string& label = LLStringUtil::null );
 	LLProgressView *getProgressView() const;
+	void			handleLoginComplete();
 
 	void			updateObjectUnderCursor();
 
-	BOOL			handlePerFrameHover();							// Once per frame, update UI based on mouse position
+	void			updateUI();		// Once per frame, update UI based on mouse position, calls following update* functions
+	void				updateLayout();						
+	void				updateMouseDelta();		
+	void				updateKeyboardFocus();		
+	void				updatePicking(S32 x, S32 y, MASK mask);
+
+	void			updateWorldViewRect();
 
 	BOOL			handleKey(KEY key, MASK mask);
 	void			handleScrollWheel	(S32 clicks);
@@ -349,11 +366,13 @@ public:
 
 	// handle shutting down GL and bringing it back up
 	void			requestResolutionUpdate(bool fullscreen_checked);
+	void			requestResolutionUpdate(); // doesn't affect fullscreen
 	BOOL			checkSettings();
 	void			restartDisplay(BOOL show_progress_bar);
 	BOOL			changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, BOOL disable_vsync, BOOL show_progress_bar);
 	BOOL			getIgnoreDestroyWindow() { return mIgnoreActivate; }
 	F32				getDisplayAspectRatio() const;
+	F32				getWorldViewAspectRatio() const;
 	const LLVector2& getDisplayScale() const { return mDisplayScale; }
 	void			calcDisplayScale();
 
@@ -382,7 +401,8 @@ protected:
 	BOOL			mShowFullscreenProgress;
 	LLRect			mWindowRect;
 	LLRect			mVirtualWindowRect;
-	LLView*			mRootView;					// a view of size mWindowRect, containing all child views
+	LLRect			mWorldViewRect;					// specifies area of screen where we render the 3D world
+	LLRootView*		mRootView;					// a view of size mWindowRect, containing all child views
 	LLVector2		mDisplayScale;
 
 	LLCoordGL		mCurrentMousePoint;			// last mouse position in GL coords
@@ -401,6 +421,8 @@ protected:
 
 	BOOL			mMouseInWindow;				// True if the mouse is over our window or if we have captured the mouse.
 	BOOL			mFocusCycleMode;
+	typedef std::set<LLHandle<LLView> > view_handle_set_t;
+	view_handle_set_t mMouseHoverViews;
 
 	// Variables used for tool override switching based on modifier keys.  JC
 	MASK			mLastMask;			// used to detect changes in modifier mask
@@ -435,36 +457,16 @@ protected:
 	static std::string sMovieBaseName;
 };	
 
-class LLBottomPanel : public LLPanel
-{
-public:
-	LLBottomPanel(const LLRect& rect);
-	void setFocusIndicator(LLView * indicator);
-	LLView * getFocusIndicator() { return mIndicator; }
-	/*virtual*/ void draw();
-
-	static void* createHUD(void* data);
-	static void* createOverlayBar(void* data);
-	static void* createToolBar(void* data);
-
-protected:
-	LLView * mIndicator;
-};
-extern LLBottomPanel * gBottomPanel;
-
 void toggle_flying(void*);
 void toggle_first_person();
 void toggle_build(void*);
 void reset_viewer_state_on_sim(void);
 void update_saved_window_size(const std::string& control,S32 delta_width, S32 delta_height);
 
-
-
 //
 // Globals
 //
 
-extern LLVelocityBar*	gVelocityBar;
 extern LLViewerWindow*	gViewerWindow;
 
 extern LLFrameTimer		gMouseIdleTimer;		// how long has it been since the mouse last moved?

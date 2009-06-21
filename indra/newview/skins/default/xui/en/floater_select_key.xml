@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ border="true"
+ can_close="false"
+ can_minimize="false"
+ height="100"
+ layout="topleft"
+ name="modal container"
+ width="240">
+    <button
+     height="20"
+     label="Cancel"
+     label_selected="Cancel"
+     layout="topleft"
+     left="138"
+     name="Cancel"
+     top="70"
+     width="82" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="16"
+     layout="topleft"
+     left="20"
+     name="Save item as:"
+     top="10"
+     width="200">
+        Press a key to select
+    </text>
+</floater>

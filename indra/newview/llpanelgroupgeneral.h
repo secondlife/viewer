@@ -49,7 +49,7 @@ class LLSpinCtrl;
 class LLPanelGroupGeneral : public LLPanelGroupTab
 {
 public:
-	LLPanelGroupGeneral(const std::string& name, const LLUUID& group_id);
+	LLPanelGroupGeneral(const LLUUID& group_id);
 	virtual ~LLPanelGroupGeneral();
 
 	// LLPanelGroupTab

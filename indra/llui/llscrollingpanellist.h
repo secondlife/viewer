@@ -29,6 +29,9 @@
  * $/LicenseInfo$
  */
 
+#ifndef LL_LLSCROLLINGPANELLIST_H
+#define LL_LLSCROLLINGPANELLIST_H
+
 #include <vector>
 
 #include "llui.h"
@@ -42,7 +45,7 @@
 class LLScrollingPanel : public LLPanel
 {
 public:
-	LLScrollingPanel(const std::string& name, const LLRect& rect) : LLPanel(name, rect) { }
+	LLScrollingPanel(const LLPanel::Params& params) : LLPanel(params) {}
 	virtual void updatePanel(BOOL allow_modify) = 0;
 };
 
@@ -53,23 +56,34 @@ public:
 class LLScrollingPanelList : public LLUICtrl
 {
 public:
-	LLScrollingPanelList(const std::string& name, const LLRect& rect)
-		:	LLUICtrl(name, rect, TRUE, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_BOTTOM ) {}
+	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Params()
+		{
+			name = "scrolling_panel_list";
+			follows.flags = FOLLOWS_LEFT | FOLLOWS_BOTTOM;
+		}
+	};
+	LLScrollingPanelList(const Params& p)
+	:	LLUICtrl(p) 
+	{}
+	
+	typedef std::deque<LLScrollingPanel*>	panel_list_t;
 
 	virtual void setValue(const LLSD& value) {};
 
-	virtual LLXMLNodePtr getXML(bool save_children) const { return LLUICtrl::getXML(); }
-	
 	virtual void		draw();
 
 	void				clearPanels();
 	void				addPanel( LLScrollingPanel* panel );
+	void				removePanel( U32 panel_index );
 	void				updatePanels(BOOL allow_modify);
+	const panel_list_t&	getPanelList() { return mPanelList; }
 
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
-	
 private:
 	void				updatePanelVisiblilty();
 
-	std::deque<LLScrollingPanel*> mPanelList;
+	panel_list_t		mPanelList;
 };
+
+#endif //LL_LLSCROLLINGPANELLIST_H

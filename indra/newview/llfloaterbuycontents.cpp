@@ -57,9 +57,13 @@
 LLFloaterBuyContents* LLFloaterBuyContents::sInstance = NULL;
 
 LLFloaterBuyContents::LLFloaterBuyContents()
-:	LLFloater(std::string("floater_buy_contents"), std::string("FloaterBuyContentsRect"), LLStringUtil::null)
+:	LLFloater()
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_buy_contents.xml");
+
+}
+BOOL LLFloaterBuyContents::postBuild()
+{
 
 	childSetAction("cancel_btn", onClickCancel, this);
 	childSetAction("buy_btn", onClickBuy, this);
@@ -69,6 +73,7 @@ LLFloaterBuyContents::LLFloaterBuyContents()
 	childDisable("wear_check");
 
 	setDefaultBtn("cancel_btn"); // to avoid accidental buy (SL-43130)
+	return TRUE;
 }
 
 LLFloaterBuyContents::~LLFloaterBuyContents()
@@ -99,7 +104,7 @@ void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 		sInstance = new LLFloaterBuyContents();
 	}
 
-	sInstance->open(); /*Flawfinder: ignore*/
+	sInstance->openFloater();
 	sInstance->setFocus(TRUE);
 	sInstance->mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 
@@ -275,7 +280,7 @@ void LLFloaterBuyContents::onClickBuy(void*)
 	if(!sInstance->childIsEnabled("buy_btn"))
 	{
 		// We shouldn't be enabled.  Just close.
-		sInstance->close();
+		sInstance->closeFloater();
 		return;
 	}
 
@@ -294,12 +299,12 @@ void LLFloaterBuyContents::onClickBuy(void*)
 	// it doesn't match region info then sale is canceled.
 	LLSelectMgr::getInstance()->sendBuy(gAgent.getID(), category_id, sInstance->mSaleInfo);
 
-	sInstance->close();
+	sInstance->closeFloater();
 }
 
 
 // static
 void LLFloaterBuyContents::onClickCancel(void*)
 {
-	sInstance->close();
+	sInstance->closeFloater();
 }

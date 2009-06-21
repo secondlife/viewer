@@ -54,7 +54,7 @@ LLLandmarkList::~LLLandmarkList()
 	std::for_each(mList.begin(), mList.end(), DeletePairedPointer());
 }
 
-LLLandmark* LLLandmarkList::getAsset( const LLUUID& asset_uuid )
+LLLandmark* LLLandmarkList::getAsset(const LLUUID& asset_uuid, loaded_callback_t cb)
 {
 	LLLandmark* landmark = get_ptr_in_map(mList, asset_uuid);
 	if(landmark)
@@ -65,6 +65,12 @@ LLLandmark* LLLandmarkList::getAsset( const LLUUID& asset_uuid )
 	{
 	    if ( gLandmarkList.mBadList.find(asset_uuid) == gLandmarkList.mBadList.end() )
 		{
+			if (cb)
+			{
+				loaded_callback_map_t::value_type vt(asset_uuid, cb);
+				mLoadedCallbackMap.insert(vt);
+			}
+
 			gAssetStorage->getAssetData(
 				asset_uuid,
 				LLAssetType::AT_LANDMARK,
@@ -96,6 +102,8 @@ void LLLandmarkList::processGetAssetReply(
 		LLLandmark* landmark = LLLandmark::constructFromString(&buffer[0]);
 		if (landmark)
 		{
+			gLandmarkList.mList[ uuid ] = landmark;
+
 			LLVector3d pos;
 			if(!landmark->getGlobalPos(pos))
 			{
@@ -106,10 +114,15 @@ void LLLandmarkList::processGetAssetReply(
 						gMessageSystem,
 						gAgent.getRegionHost(),
 						region_id,
-						NULL);
+						boost::bind(&LLLandmarkList::onRegionHandle, &gLandmarkList, uuid));
 				}
+
+				// the callback will be called when we get the region handle.
 			}
-			gLandmarkList.mList[ uuid ] = landmark;
+			else
+			{
+				gLandmarkList.makeCallbacks(uuid);
+			}
 		}
 	}
 	else
@@ -133,4 +146,46 @@ void LLLandmarkList::processGetAssetReply(
 BOOL LLLandmarkList::assetExists(const LLUUID& asset_uuid)
 {
 	return mList.count(asset_uuid) != 0 || mBadList.count(asset_uuid) != 0;
+}
+
+void LLLandmarkList::onRegionHandle(const LLUUID& landmark_id)
+{
+	LLLandmark* landmark = getAsset(landmark_id);
+
+	if (!landmark)
+	{
+		llwarns << "Got region handle but the landmark not found." << llendl;
+		return;
+	}
+
+	// Calculate landmark global position.
+	// This should succeed since the region handle is available.
+	LLVector3d pos;
+	if (!landmark->getGlobalPos(pos))
+	{
+		llwarns << "Got region handle but the landmark global position is still unknown." << llendl;
+		return;
+	}
+
+	makeCallbacks(landmark_id);
+}
+
+void LLLandmarkList::makeCallbacks(const LLUUID& landmark_id)
+{
+	LLLandmark* landmark = getAsset(landmark_id);
+
+	if (!landmark)
+	{
+		llwarns << "Landmark to make callbacks for not found." << llendl;
+	}
+
+	// make all the callbacks here.
+	loaded_callback_map_t::iterator it;
+	while((it = mLoadedCallbackMap.find(landmark_id)) != mLoadedCallbackMap.end())
+	{
+		if (landmark)
+			(*it).second(landmark);
+
+		mLoadedCallbackMap.erase(it);
+	}
 }

@@ -39,35 +39,68 @@
 
 
 class LLNameListCtrl
-:	public LLScrollListCtrl
+:	public LLScrollListCtrl, protected LLInstanceTracker<LLNameListCtrl>
 {
 public:
-	LLNameListCtrl(const std::string& name,
-				   const LLRect& rect,
-				   LLUICtrlCallback callback,
-				   void* userdata,
-				   BOOL allow_multiple_selection,
-				   BOOL draw_border = TRUE,
-				   S32 name_column_index = 0,
-				   const std::string& tooltip = LLStringUtil::null);
-	virtual ~LLNameListCtrl();
+	typedef enum e_name_type
+	{
+		INDIVIDUAL,
+		GROUP,
+		SPECIAL
+	} ENameType;
 
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
+	// provide names for enums
+	struct NameTypeNames : public LLInitParam::TypeValuesHelper<LLNameListCtrl::ENameType, NameTypeNames>
+	{
+		static void declareValues();
+	};
 
+	struct NameItem : public LLInitParam::Block<NameItem, LLScrollListItem::Params>
+	{
+		Optional<std::string>				display_name;
+		Optional<ENameType, NameTypeNames>	target;
+
+		NameItem()
+		:	display_name("name"),
+			target("target", INDIVIDUAL)
+		{}		
+	};
+
+	struct NameColumn : public LLInitParam::Choice<NameColumn>
+	{
+		Option<S32>				column_index;
+		Option<std::string>		column_name;
+		NameColumn()
+		:	column_name("name_column"),
+			column_index("name_column_index", 0)
+		{}
+	};
+
+	struct Params : public LLInitParam::Block<Params, LLScrollListCtrl::Params>
+	{
+		Optional<NameColumn>	name_column;
+		Optional<bool>	allow_calling_card_drop;
+		Params();
+	};
+
+protected:
+	LLNameListCtrl(const Params&);
+	friend class LLUICtrlFactory;
+public:
 	// Add a user to the list by name.  It will be added, the name 
 	// requested from the cache, and updated as necessary.
-	BOOL addNameItem(const LLUUID& agent_id, EAddPosition pos = ADD_BOTTOM,
+	void addNameItem(const LLUUID& agent_id, EAddPosition pos = ADD_BOTTOM,
 					 BOOL enabled = TRUE, std::string& suffix = LLStringUtil::null);
-	BOOL addNameItem(LLScrollListItem* item, EAddPosition pos = ADD_BOTTOM);
+	void addNameItem(NameItem& item, EAddPosition pos = ADD_BOTTOM);
 
-	virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
+	/*virtual*/ LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
+	LLScrollListItem* addRow(const NameItem& value, EAddPosition pos = ADD_BOTTOM);
 
 	// Add a user to the list by name.  It will be added, the name 
 	// requested from the cache, and updated as necessary.
 	void addGroupNameItem(const LLUUID& group_id, EAddPosition pos = ADD_BOTTOM,
 						  BOOL enabled = TRUE);
-	void addGroupNameItem(LLScrollListItem* item, EAddPosition pos = ADD_BOTTOM);
+	void addGroupNameItem(NameItem& item, EAddPosition pos = ADD_BOTTOM);
 
 
 	void removeNameItem(const LLUUID& agent_id);
@@ -84,10 +117,11 @@ public:
 
 	void setAllowCallingCardDrop(BOOL b) { mAllowCallingCardDrop = b; }
 
+	/*virtual*/ void updateColumns();
 private:
-	static std::set<LLNameListCtrl*> sInstances;
-	S32    	 mNameColumnIndex;
-	BOOL	 mAllowCallingCardDrop;
+	S32    			mNameColumnIndex;
+	std::string		mNameColumn;
+	BOOL			mAllowCallingCardDrop;
 };
 
 #endif

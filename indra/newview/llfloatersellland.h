@@ -31,7 +31,8 @@
 
 #ifndef LL_LLFLOATERSELLLAND_H
 #define LL_LLFLOATERSELLLAND_H
-#include "llmemory.h"
+
+#include "llsafehandle.h"
 
 class LLParcel;
 class LLViewerRegion;

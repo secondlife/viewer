@@ -40,7 +40,7 @@
 #define LL_LLTRACKER_H
 
 #include "lldarray.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llstring.h"
 #include "lluuid.h"
 #include "v3dmath.h"

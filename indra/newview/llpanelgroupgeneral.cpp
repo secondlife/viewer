@@ -37,7 +37,6 @@
 #include "lluictrlfactory.h"
 #include "llagent.h"
 #include "roles_constants.h"
-#include "llfloateravatarinfo.h"
 #include "llfloatergroupinfo.h"
 
 // UI elements
@@ -45,14 +44,17 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldbstrings.h"
+#include "llfriendactions.h"
 #include "lllineeditor.h"
 #include "llnamebox.h"
 #include "llnamelistctrl.h"
+#include "llscrolllistitem.h"
 #include "llspinctrl.h"
 #include "llstatusbar.h"	// can_afford_transaction()
 #include "lltextbox.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
+#include "lltrans.h"
 #include "llviewerwindow.h"
 
 // consts
@@ -64,13 +66,12 @@ const S32 DECLINE_TO_STATE = 0;
 void* LLPanelGroupGeneral::createTab(void* data)
 {
 	LLUUID* group_id = static_cast<LLUUID*>(data);
-	return new LLPanelGroupGeneral("panel group general", *group_id);
+	return new LLPanelGroupGeneral(*group_id);
 }
 
 
-LLPanelGroupGeneral::LLPanelGroupGeneral(const std::string& name, 
-										 const LLUUID& group_id)
-:	LLPanelGroupTab(name, group_id),
+LLPanelGroupGeneral::LLPanelGroupGeneral(const LLUUID& group_id)
+:	LLPanelGroupTab(group_id),
 	mPendingMemberUpdate(FALSE),
 	mChanged(FALSE),
 	mFirstUse(TRUE),
@@ -100,8 +101,6 @@ LLPanelGroupGeneral::~LLPanelGroupGeneral()
 
 BOOL LLPanelGroupGeneral::postBuild()
 {
-	llinfos << "LLPanelGroupGeneral::postBuild()" << llendl;
-
 	bool recurse = true;
 
 	// General info
@@ -111,63 +110,50 @@ BOOL LLPanelGroupGeneral::postBuild()
 	mInsignia = getChild<LLTextureCtrl>("insignia", recurse);
 	if (mInsignia)
 	{
-		mInsignia->setCommitCallback(onCommitAny);
-		mInsignia->setCallbackUserData(this);
+		mInsignia->setCommitCallback(onCommitAny, this);
 		mDefaultIconID = mInsignia->getImageAssetID();
 	}
 	
 	mEditCharter = getChild<LLTextEditor>("charter", recurse);
 	if(mEditCharter)
 	{
-		mEditCharter->setCommitCallback(onCommitAny);
+		mEditCharter->setCommitCallback(onCommitAny, this);
 		mEditCharter->setFocusReceivedCallback(onFocusEdit, this);
 		mEditCharter->setFocusChangedCallback(onFocusEdit, this);
-		mEditCharter->setCallbackUserData(this);
 	}
 
 	mBtnJoinGroup = getChild<LLButton>("join_button", recurse);
 	if ( mBtnJoinGroup )
 	{
-		mBtnJoinGroup->setClickedCallback(onClickJoin);
-		mBtnJoinGroup->setCallbackUserData(this);
+		mBtnJoinGroup->setClickedCallback(onClickJoin, this);
 	}
 
 	mBtnInfo = getChild<LLButton>("info_button", recurse);
 	if ( mBtnInfo )
 	{
-		mBtnInfo->setClickedCallback(onClickInfo);
-		mBtnInfo->setCallbackUserData(this);
+		mBtnInfo->setClickedCallback(onClickInfo, this);
 	}
 
-	LLTextBox* founder = getChild<LLTextBox>("founder_name");
-	if (founder)
-	{
-		mFounderName = new LLNameBox(founder->getName(),founder->getRect(),LLUUID::null,FALSE,founder->getFont(),founder->getMouseOpaque());
-		removeChild(founder, TRUE);
-		addChild(mFounderName);
-	}
+	mFounderName = getChild<LLNameBox>("founder_name");
 
 	mListVisibleMembers = getChild<LLNameListCtrl>("visible_members", recurse);
 	if (mListVisibleMembers)
 	{
-		mListVisibleMembers->setDoubleClickCallback(openProfile);
-		mListVisibleMembers->setCallbackUserData(this);
+		mListVisibleMembers->setDoubleClickCallback(openProfile, this);
 	}
 
 	// Options
 	mCtrlShowInGroupList = getChild<LLCheckBoxCtrl>("show_in_group_list", recurse);
 	if (mCtrlShowInGroupList)
 	{
-		mCtrlShowInGroupList->setCommitCallback(onCommitAny);
-		mCtrlShowInGroupList->setCallbackUserData(this);
+		mCtrlShowInGroupList->setCommitCallback(onCommitAny, this);
 	}
 
 	mComboMature = getChild<LLComboBox>("group_mature_check", recurse);	
 	if(mComboMature)
 	{
 		mComboMature->setCurrentByIndex(0);
-		mComboMature->setCommitCallback(onCommitAny);
-		mComboMature->setCallbackUserData(this);
+		mComboMature->setCommitCallback(onCommitAny, this);
 		if (gAgent.isTeen())
 		{
 			// Teens don't get to set mature flag. JC
@@ -178,22 +164,19 @@ BOOL LLPanelGroupGeneral::postBuild()
 	mCtrlOpenEnrollment = getChild<LLCheckBoxCtrl>("open_enrollement", recurse);
 	if (mCtrlOpenEnrollment)
 	{
-		mCtrlOpenEnrollment->setCommitCallback(onCommitAny);
-		mCtrlOpenEnrollment->setCallbackUserData(this);
+		mCtrlOpenEnrollment->setCommitCallback(onCommitAny, this);
 	}
 
 	mCtrlEnrollmentFee = getChild<LLCheckBoxCtrl>("check_enrollment_fee", recurse);
 	if (mCtrlEnrollmentFee)
 	{
-		mCtrlEnrollmentFee->setCommitCallback(onCommitEnrollment);
-		mCtrlEnrollmentFee->setCallbackUserData(this);
+		mCtrlEnrollmentFee->setCommitCallback(onCommitEnrollment, this);
 	}
 
 	mSpinEnrollmentFee = getChild<LLSpinCtrl>("spin_enrollment_fee", recurse);
 	if (mSpinEnrollmentFee)
 	{
-		mSpinEnrollmentFee->setCommitCallback(onCommitAny);
-		mSpinEnrollmentFee->setCallbackUserData(this);
+		mSpinEnrollmentFee->setCommitCallback(onCommitAny, this);
 		mSpinEnrollmentFee->setPrecision(0);
 		mSpinEnrollmentFee->resetDirty();
 	}
@@ -209,8 +192,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 	mCtrlReceiveNotices = getChild<LLCheckBoxCtrl>("receive_notices", recurse);
 	if (mCtrlReceiveNotices)
 	{
-		mCtrlReceiveNotices->setCommitCallback(onCommitUserOnly);
-		mCtrlReceiveNotices->setCallbackUserData(this);
+		mCtrlReceiveNotices->setCommitCallback(onCommitUserOnly, this);
 		mCtrlReceiveNotices->set(accept_notices);
 		mCtrlReceiveNotices->setEnabled(data.mID.notNull());
 	}
@@ -218,8 +200,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 	mCtrlListGroup = getChild<LLCheckBoxCtrl>("list_groups_in_profile", recurse);
 	if (mCtrlListGroup)
 	{
-		mCtrlListGroup->setCommitCallback(onCommitUserOnly);
-		mCtrlListGroup->setCallbackUserData(this);
+		mCtrlListGroup->setCommitCallback(onCommitUserOnly, this);
 		mCtrlListGroup->set(list_in_profile);
 		mCtrlListGroup->setEnabled(data.mID.notNull());
 		mCtrlListGroup->resetDirty();
@@ -230,8 +211,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 	mComboActiveTitle = getChild<LLComboBox>("active_title", recurse);
 	if (mComboActiveTitle)
 	{
-		mComboActiveTitle->setCommitCallback(onCommitTitle);
-		mComboActiveTitle->setCallbackUserData(this);
+		mComboActiveTitle->setCommitCallback(onCommitTitle, this);
 		mComboActiveTitle->resetDirty();
 	}
 
@@ -395,7 +375,7 @@ void LLPanelGroupGeneral::openProfile(void* data)
 		LLScrollListItem* selected = self->mListVisibleMembers->getFirstSelected();
 		if (selected)
 		{
-			LLFloaterAvatarInfo::showFromDirectory( selected->getUUID() );
+			LLFriendActions::showProfile(selected->getUUID());
 		}
 	}
 }
@@ -480,8 +460,7 @@ bool LLPanelGroupGeneral::apply(std::string& mesg)
 		LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 		if (!gdatap)
 		{
-			// *TODO: Translate
-			mesg = std::string("No group data found for group ");
+			mesg = LLTrans::getString("NoGroupDataFound");
 			mesg.append(mGroupID.asString());
 			return false;
 		}
@@ -730,7 +709,9 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 
 		if ( visible )
 		{
-			fee_buff = llformat( "Join (L$%d)", gdatap->mMembershipFee);
+			LLStringUtil::format_map_t string_args;
+			string_args["[AMOUNT]"] = llformat("%d", gdatap->mMembershipFee);
+			fee_buff = getString("group_join_btn", string_args);
 			mBtnJoinGroup->setLabelSelected(fee_buff);
 			mBtnJoinGroup->setLabelUnselected(fee_buff);
 		}
@@ -842,16 +823,16 @@ void LLPanelGroupGeneral::updateMembers()
 		row["id"] = member->getID();
 
 		row["columns"][0]["column"] = "name";
-		row["columns"][0]["font-style"] = style;
+		row["columns"][0]["font"]["style"] = style;
 		// value is filled in by name list control
 
 		row["columns"][1]["column"] = "title";
 		row["columns"][1]["value"] = member->getTitle();
-		row["columns"][1]["font-style"] = style;
+		row["columns"][1]["font"]["style"] = style;
 		
 		row["columns"][2]["column"] = "online";
 		row["columns"][2]["value"] = member->getOnlineStatus();
-		row["columns"][2]["font-style"] = style;
+		row["columns"][2]["font"]["style"] = style;
 
 		sSDTime += sd_timer.getElapsedTimeF32();
 

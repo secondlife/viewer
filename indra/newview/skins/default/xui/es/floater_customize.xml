@@ -14,12 +14,8 @@
 			<button label="Torso" label_selected="Torso" name="Torso"/>
 			<button label="Piernas" label_selected="Piernas" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item length="1" name="radio" type="string">
-					Mujer
-				</radio_item>
-				<radio_item length="1" name="radio2" type="string">
-					Varón
-				</radio_item>
+				<radio_item length="1" name="radio" type="string" label="Mujer" />
+				<radio_item length="1" name="radio2" type="string" label="Varón" />
 			</radio_group>
 			<text length="1" name="title" type="string">
 				[DESC]
@@ -188,7 +184,7 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 				No tiene permiso para modificar este ítem.
 			</text>
 			<text name="Item Action Label" right="107">
-				Camiseta:
+				Camisa:
 			</text>
 		</panel>
 		<panel label="Pantalones" name="Pants">
@@ -225,7 +221,7 @@ avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 				Pantalones:
 			</text>
 		</panel>
-		<panel label="Shoes" name="Shoes">
+		<panel label="Zapatos" name="Shoes">
 			<text length="1" name="title" type="string">
 				[DESC]
 			</text>
@@ -468,5 +464,5 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 	<scroll_container left="230" name="panel_container"/>
 	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>
-	<button label="Hacer un vestuario..." label_selected="Hacer un vestuario..." name="Make Outfit" width="125"/>
+	<button label="Hacer un vestuario..." label_selected="Hacer un vestuario..." name="Make Outfit" width="130"/>
 </floater>

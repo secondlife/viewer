@@ -42,13 +42,17 @@
 
 #include "llagent.h"
 #include "lliconctrl.h"
+#include "llfloaterreg.h"
 #include "lllineeditor.h"
 #include "llproductinforequest.h"
 #include "llscrolllistctrl.h"
+#include "llscrolllistitem.h"
+#include "llscrolllistcell.h"
 #include "lltextbox.h"
 #include "lltabcontainer.h"
 #include "lltrans.h"
 #include "lltransactiontypes.h"
+#include "lltrans.h"
 #include "lluictrlfactory.h"
 
 #include "llstatusbar.h"
@@ -80,7 +84,6 @@ public:
 
 	static void clickEarlierCallback(void* data);
 	static void clickLaterCallback(void* data);
-	static void clickTabCallback(void* user_data, bool from_click);
 
 	static LLMap<LLUUID, LLGroupMoneyTabEventHandler*> sInstanceIDs;
 	static std::map<LLPanel*, LLGroupMoneyTabEventHandler*> sTabsToHandlers;
@@ -244,9 +247,9 @@ void LLPanelGroupLandMoney::impl::onMapButton()
 	F64 global_z = gAgent.getPositionGlobal().mdV[VZ];
 
 	LLVector3d pos_global(global_x, global_y, global_z);
-	gFloaterWorldMap->trackLocation(pos_global);
+	LLFloaterWorldMap::getInstance()->trackLocation(pos_global);
 
-	LLFloaterWorldMap::show(NULL, TRUE);
+	LLFloaterReg::showInstance("world_map", "center");
 }
 
 bool LLPanelGroupLandMoney::impl::applyContribution()
@@ -399,12 +402,6 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 		//if ( !gAgent.hasPowerInGroup(mGroupID, GP_LAND_VIEW_OWNED) ) return;
 		if (!gAgent.isInGroup(mGroupID)) return;
 
-		//we updated more than just the available area special block
-		if ( count > 1)
-		{
-			mMapButtonp->setEnabled(TRUE);
-		}
-
 		std::string name;
 		std::string desc;
 		S32 actual_area;
@@ -460,15 +457,15 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 
 			row["columns"][0]["column"] = "name";
 			row["columns"][0]["value"] = name;
-			row["columns"][0]["font"] = "SANSSERIFSMALL";
+			row["columns"][0]["font"] = "SANSSERIF_SMALL";
 
 			row["columns"][1]["column"] = "location";
 			row["columns"][1]["value"] = location;
-			row["columns"][1]["font"] = "SANSSERIFSMALL";
+			row["columns"][1]["font"] = "SANSSERIF_SMALL";
 			
 			row["columns"][2]["column"] = "area";
 			row["columns"][2]["value"] = area;
-			row["columns"][2]["font"] = "SANSSERIFSMALL";
+			row["columns"][2]["font"] = "SANSSERIF_SMALL";
 			
 			row["columns"][3]["column"] = "type";
 			row["columns"][3]["value"] = land_type;
@@ -491,15 +488,14 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 void* LLPanelGroupLandMoney::createTab(void* data)
 {
 	LLUUID* group_id = static_cast<LLUUID*>(data);
-	return new LLPanelGroupLandMoney("panel group land money", *group_id);
+	return new LLPanelGroupLandMoney(*group_id);
 }
 
 //static
 LLMap<LLUUID, LLPanelGroupLandMoney*> LLPanelGroupLandMoney::sGroupIDs;
 
-LLPanelGroupLandMoney::LLPanelGroupLandMoney(const std::string& name, 
-											 const LLUUID& group_id) :
-	LLPanelGroupTab(name, group_id) 
+LLPanelGroupLandMoney::LLPanelGroupLandMoney(const LLUUID& group_id) :
+	LLPanelGroupTab(group_id) 
 {
 	mImplementationp = new impl(*this, group_id);
 
@@ -553,6 +549,7 @@ void LLPanelGroupLandMoney::activate()
 		mImplementationp->setYourMaxContributionTextBox(max_avail);
 	}
 
+	mImplementationp->mMapButtonp->setEnabled(false);
 	update(GC_ALL);
 }
 
@@ -634,15 +631,20 @@ BOOL LLPanelGroupLandMoney::postBuild()
 	{
 		LLLineEditor* editor = mImplementationp->mYourContributionEditorp;
 
-	    editor->setCommitCallback(mImplementationp->contributionCommitCallback);
-		editor->setKeystrokeCallback(mImplementationp->contributionKeystrokeCallback);
-		editor->setCallbackUserData(this);
+	    editor->setCommitCallback(mImplementationp->contributionCommitCallback, this);
+		editor->setKeystrokeCallback(mImplementationp->contributionKeystrokeCallback, this);
 	}
 
 	mImplementationp->mMapButtonp = getChild<LLButton>("map_button");
 
 	mImplementationp->mGroupParcelsp = 
 		getChild<LLScrollListCtrl>("group_parcel_list");
+
+	if ( mImplementationp->mGroupParcelsp )
+	{
+		mImplementationp->mGroupParcelsp->setCommitCallback(boost::bind(&LLButton::setEnabled, mImplementationp->mMapButtonp, true));
+		mImplementationp->mGroupParcelsp->setCommitOnSelectionChange(true);
+	}
 
 	mImplementationp->mCantViewParcelsText = getString("cant_view_group_land_text");
 	mImplementationp->mCantViewAccountsText = getString("cant_view_group_accounting_text");
@@ -662,16 +664,11 @@ BOOL LLPanelGroupLandMoney::postBuild()
 		mImplementationp->mGroupOverLimitIconp->setVisible(FALSE);
 	}
 
-	if ( mImplementationp->mMapButtonp )
-	{
-		mImplementationp->mMapButtonp->setEnabled(FALSE);
-	}
-
 	if ( !can_view )
 	{
 		if ( mImplementationp->mGroupParcelsp )
 		{
-			mImplementationp->mGroupParcelsp->addCommentText(
+			mImplementationp->mGroupParcelsp->setCommentText(
 							mImplementationp->mCantViewParcelsText);
 			mImplementationp->mGroupParcelsp->setEnabled(FALSE);
 		}
@@ -917,8 +914,7 @@ LLGroupMoneyTabEventHandler::LLGroupMoneyTabEventHandler(LLButton* earlier_butto
 
 	if ( tab_containerp && panelp )
 	{
-		tab_containerp->setTabChangeCallback(panelp, clickTabCallback);
-		tab_containerp->setTabUserData(panelp, this);
+		tab_containerp->setCommitCallback(boost::bind(&LLGroupMoneyTabEventHandler::onClickTab, this));
 	}
 
 	sInstanceIDs.addData(mImplementationp->mPanelID, this);
@@ -988,13 +984,6 @@ void LLGroupMoneyTabEventHandler::clickLaterCallback(void* data)
 {
 	LLGroupMoneyTabEventHandler* selfp = (LLGroupMoneyTabEventHandler*) data;
 	if ( selfp ) selfp->onClickLater();
-}
-
-//static
-void LLGroupMoneyTabEventHandler::clickTabCallback(void* data, bool from_click)
-{
-	LLGroupMoneyTabEventHandler* selfp = (LLGroupMoneyTabEventHandler*) data;
-	if ( selfp && from_click ) selfp->onClickTab();
 }
 
 //**************************************************
@@ -1100,7 +1089,7 @@ void LLGroupMoneyDetailsTabEventHandler::processReply(LLMessageSystem* msg,
 
 	text.append(1, '\n');
 
-	text.append(llformat("%-24s %6d\n", "Total", total_amount));
+	text.append(llformat("%-24s %6d\n", LLTrans::getString("GroupMoneyTotal").c_str(), total_amount));
 
 	if ( mImplementationp->mTextEditorp )
 	{
@@ -1220,7 +1209,7 @@ void LLGroupMoneySalesTabEventHandler::processReply(LLMessageSystem* msg,
 	S32 transactions = msg->getNumberOfBlocksFast(_PREHASH_HistoryData);
 	if (transactions == 0)
 	{
-		text.append("(none)");
+		text.append(LLTrans::getString("none_text")); 
 	}
 	else
 	{
@@ -1245,22 +1234,22 @@ void LLGroupMoneySalesTabEventHandler::processReply(LLMessageSystem* msg,
 				switch(type)
 				{
 				case TRANS_OBJECT_SALE:
-					verb = "bought";
+					verb = LLTrans::getString("GroupMoneyBought").c_str();
 					break;
 				case TRANS_GIFT:
-					verb = "paid you";
+					verb = LLTrans::getString("GroupMoneyPaidYou").c_str();
 					break;
 				case TRANS_PAY_OBJECT:
-					verb = "paid into";
+					verb = LLTrans::getString("GroupMoneyPaidInto").c_str();
 					break;
 				case TRANS_LAND_PASS_SALE:
-					verb = "bought pass to";
+					verb = LLTrans::getString("GroupMoneyBoughtPassTo").c_str();
 					break;
 				case TRANS_EVENT_FEE:
-					verb = "paid fee for event";
+					verb = LLTrans::getString("GroupMoneyPaidFeeForEvent").c_str();
 					break;
 				case TRANS_EVENT_PRIZE:
-					verb = "paid prize for event";
+					verb = LLTrans::getString("GroupMoneyPaidPrizeForEvent").c_str();
 					break;
 				default:
 					verb = "";
@@ -1420,24 +1409,24 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 		return;
 	}
 
-	text.append("Summary for this week, beginning on ");
+	text.append(LLTrans::getString("SummaryForTheWeek"));
 	text.append(start_date);
 
 	if (current_interval == 0)
 	{
-		text.append("The next stipend day is ");
+		text.append(LLTrans::getString("NextStipendDay"));
 		text.append(next_stipend_date);
 		text.append("\n\n");
-		text.append(llformat("%-24sL$%6d\n", "Balance", balance ));
+		text.append(llformat("%-24sL$%6d\n", LLTrans::getString("GroupMoneyBalance").c_str(), balance ));
 		text.append(1, '\n');
 	}
 
 	// [DEV-29503] Hide the individual info since
 	// non_exempt_member here is a wrong choice to calculate individual shares.
-	// text.append( "                      Group       Individual Share\n");
-	// text.append(llformat( "%-24s %6d      %6d \n", "Credits", total_credits, (S32)floor((F32)total_credits/(F32)non_exempt_members)));
-	// text.append(llformat( "%-24s %6d      %6d \n", "Debits", total_debits, (S32)floor((F32)total_debits/(F32)non_exempt_members)));
-	// text.append(llformat( "%-24s %6d      %6d \n", "Total", total_credits + total_debits,  (S32)floor((F32)(total_credits + total_debits)/(F32)non_exempt_members)));
+// 	text.append( LLTrans::getString("GroupIndividualShare"));
+// 	text.append(llformat( "%-24s %6d      %6d \n", LLTrans::getString("GroupMoneyCredits").c_str(), total_credits, (S32)floor((F32)total_credits/(F32)non_exempt_members)));
+// 	text.append(llformat( "%-24s %6d      %6d \n", LLTrans::getString("GroupMoneyDebits").c_str(), total_debits, (S32)floor((F32)total_debits/(F32)non_exempt_members)));
+// 	text.append(llformat( "%-24s %6d      %6d \n", LLTrans::getString("GroupMoneyTotal").c_str(), total_credits + total_debits,  (S32)floor((F32)(total_credits + total_debits)/(F32)non_exempt_members)));
 
 	text.append( "                      Group\n");
 	text.append(llformat( "%-24s %6d\n", "Credits", total_credits));

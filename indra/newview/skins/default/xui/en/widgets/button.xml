@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<button image_unselected="button_enabled_32x128.tga"
+        image_selected="button_enabled_selected_32x128.tga"
+        image_disabled_selected="button_disabled_32x128.tga"
+        image_disabled="button_disabled_32x128.tga"
+        label_color="ButtonLabelColor"
+        label_color_selected="ButtonLabelSelectedColor"
+        label_color_disabled="ButtonLabelDisabledColor"
+        label_color_disabled_selected="ButtonLabelSelectedDisabledColor"
+        highlight_color="ButtonUnselectedFgColor"
+        image_color="ButtonImageColor"
+        image_color_disabled="ButtonImageColor"
+        flash_color="ButtonFlashBgColor"
+        hover_glow_amount="0.15"
+        halign="center"
+        scale_image="true">
+</button>

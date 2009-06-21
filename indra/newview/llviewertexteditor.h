@@ -41,21 +41,27 @@
 //
 class LLViewerTextEditor : public LLTextEditor
 {
-	
 public:
-	LLViewerTextEditor(const std::string& name,
-					   const LLRect& rect,
-					   S32 max_length,
-					   const std::string& default_text = std::string(),
-					   const LLFontGL* glfont = NULL,
-					   BOOL allow_embedded_items = FALSE);
+	struct Params : public LLInitParam::Block<Params, LLTextEditor::Params>
+	{
+		Optional<bool>	allow_html;
 
+		Params()
+		:	allow_html("allow_html", false)
+		{
+			name = "text_editor";
+		}
+	};
+
+protected:
+	LLViewerTextEditor(const Params&);
+	friend class LLUICtrlFactory;
+
+public:
 	virtual ~LLViewerTextEditor();
 
 	virtual void makePristine();
 	
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
-
 	// mousehandler overrides
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
@@ -74,10 +80,11 @@ public:
 	virtual BOOL 	importBuffer(const char* buffer, S32 length);
 	virtual bool	importStream(std::istream& str);
 	virtual BOOL 	exportBuffer(std::string& buffer);
-	void setNotecardInfo(const LLUUID& notecard_item_id, const LLUUID& object_id)
+	void setNotecardInfo(const LLUUID& notecard_item_id, const LLUUID& object_id, const LLUUID& preview_id)
 	{
 		mNotecardInventoryID = notecard_item_id;
 		mObjectID = object_id;
+		mPreviewID = preview_id;
 	}
 	
 	void setASCIIEmbeddedText(const std::string& instr);
@@ -126,6 +133,7 @@ private:
 
 	LLUUID mObjectID;
 	LLUUID mNotecardInventoryID;
+	LLUUID mPreviewID;
 
 	LLPointer<class LLEmbeddedNotecardOpener> mInventoryCallback;
 

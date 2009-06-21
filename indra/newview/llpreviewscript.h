@@ -63,8 +63,6 @@ class LLScriptEdCore : public LLPanel
 
 public:
 	LLScriptEdCore(
-		const std::string& name,
-		const LLRect& rect,
 		const std::string& sample,
 		const std::string& help_url,
 		const LLHandle<LLFloater>& floater_handle,
@@ -78,45 +76,30 @@ public:
 	void			initMenu();
 
 	virtual void	draw();
-
+	/*virtual*/	BOOL	postBuild();
 	BOOL			canClose();
 
 	void            setScriptText(const std::string& text, BOOL is_valid);
+	
+	void			doSave( BOOL close_after_save );
 
 	bool			handleSaveChangesDialog(const LLSD& notification, const LLSD& response);
 	bool			handleReloadFromServerDialog(const LLSD& notification, const LLSD& response);
 
 	static bool		onHelpWebDialog(const LLSD& notification, const LLSD& response);
-	static void		onBtnHelp(void* userdata);
-	static void		onBtnDynamicHelp(void* userdata);
 	static void		onCheckLock(LLUICtrl*, void*);
 	static void		onHelpComboCommit(LLUICtrl* ctrl, void* userdata);
 	static void		onClickBack(void* userdata);
 	static void		onClickForward(void* userdata);
 	static void		onBtnInsertSample(void*);
 	static void		onBtnInsertFunction(LLUICtrl*, void*);
-	static void		doSave( void* userdata, BOOL close_after_save );
-	static void		onBtnSave(void*);
-	static void		onBtnUndoChanges(void*);
-	static void		onSearchMenu(void* userdata);
 
-	static void		onUndoMenu(void* userdata);
-	static void		onRedoMenu(void* userdata);
-	static void		onCutMenu(void* userdata);
-	static void		onCopyMenu(void* userdata);
-	static void		onPasteMenu(void* userdata);
-	static void		onSelectAllMenu(void* userdata);
-	static void		onDeselectMenu(void* userdata);
+private:
+	void		onBtnHelp();
+	void		onBtnDynamicHelp();
+	void		onBtnUndoChanges();
 
-	static BOOL		enableUndoMenu(void* userdata);
-	static BOOL		enableRedoMenu(void* userdata);
-	static BOOL		enableCutMenu(void* userdata);
-	static BOOL		enableCopyMenu(void* userdata);
-	static BOOL		enablePasteMenu(void* userdata);
-	static BOOL		enableSelectAllMenu(void* userdata);
-	static BOOL		enableDeselectMenu(void* userdata);
-
-	static BOOL		hasChanged(void* userdata);
+	bool		hasChanged();
 
 	void selectFirstError();
 
@@ -130,8 +113,6 @@ protected:
 	void updateDynamicHelp(BOOL immediate = FALSE);
 	void addHelpItemToHistory(const std::string& help_string);
 	static void onErrorList(LLUICtrl*, void* user_data);
-
- 	virtual const char *getTitleName() const { return "Script"; }
 
 private:
 	std::string		mSampleText;
@@ -160,17 +141,15 @@ private:
 class LLPreviewLSL : public LLPreview
 {
 public:
-	LLPreviewLSL(const std::string& name, const LLRect& rect, const std::string& title,
-				 const LLUUID& item_uuid );
+	LLPreviewLSL(const LLSD& key );
 	virtual void callbackLSLCompileSucceeded();
 	virtual void callbackLSLCompileFailed(const LLSD& compile_errors);
 
-	/*virtual*/ void open();		/*Flawfinder: ignore*/
+	/*virtual*/ BOOL postBuild();
 
 protected:
 	virtual BOOL canClose();
 	void closeIfNeeded();
-	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 	virtual void loadAsset();
 	void saveIfNeeded();
@@ -190,15 +169,13 @@ protected:
 							   void* user_data, S32 status, LLExtStat ext_status);
 	static void onSaveComplete(const LLUUID& uuid, void* user_data, S32 status, LLExtStat ext_status);
 	static void onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status);
-public:
-	static LLPreviewLSL* getInstance(const LLUUID& uuid);
+	
 protected:
 	static void* createScriptEdPanel(void* userdata);
 
 
 protected:
 
- 	virtual const char *getTitleName() const { return "Script"; }
 	LLScriptEdCore* mScriptEd;
 	// Can safely close only after both text and bytecode are uploaded
 	S32 mPendingUploads;
@@ -210,15 +187,9 @@ protected:
 class LLLiveLSLEditor : public LLPreview
 {
 public: 
-	LLLiveLSLEditor(const std::string& name, const LLRect& rect,
-					const std::string& title,
-					const LLUUID& object_id, const LLUUID& item_id);
+	LLLiveLSLEditor(const LLSD& key);
 	~LLLiveLSLEditor();
 
-
-	static LLLiveLSLEditor* show(const LLUUID& item_id, const LLUUID& object_id);
-	static void hide(const LLUUID& item_id, const LLUUID& object_id);
-	static LLLiveLSLEditor* find(const LLUUID& item_id, const LLUUID& object_id);
 
 	static void processScriptRunningReply(LLMessageSystem* msg, void**);
 
@@ -227,14 +198,14 @@ public:
 											bool is_script_running);
 	virtual void callbackLSLCompileFailed(const LLSD& compile_errors);
 
-	// Overide LLPreview::open() to avoid calling loadAsset twice.
-	/*virtual*/ void open();		/*Flawfinder: ignore*/
-
-protected:
+	/*virtual*/ BOOL postBuild();
+	
+	void setIsNew() { mIsNew = TRUE; }
+	
+private:
 	virtual BOOL canClose();
 	void closeIfNeeded();
 	virtual void draw();
-	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 	virtual void loadAsset();
 	void loadAsset(BOOL is_new);
@@ -248,6 +219,8 @@ protected:
 						   LLViewerObject* object,
 						   const LLTransactionID& tid,
 						   BOOL is_running);
+	BOOL monoChecked() const;
+
 
 	static void onSearchReplace(void* userdata);
 	static void onLoad(void* userdata);
@@ -268,30 +241,23 @@ protected:
 
 	static void* createScriptEdPanel(void* userdata);
 
+	static void	onMonoCheckboxClicked(LLUICtrl*, void* userdata);
 
-protected:
-	LLUUID mObjectID;
-	LLUUID mItemID; // The inventory item this script is associated with
-	BOOL mIsNew;
-	LLScriptEdCore* mScriptEd;
+private:
+	bool				mIsNew;
+	LLScriptEdCore*		mScriptEd;
 	//LLUUID mTransmitID;
-	LLCheckBoxCtrl	*mRunningCheckbox;
-	BOOL mAskedForRunningInfo;
-	BOOL mHaveRunningInfo;
-	LLButton		*mResetButton;
+	LLCheckBoxCtrl*		mRunningCheckbox;
+	BOOL				mAskedForRunningInfo;
+	BOOL				mHaveRunningInfo;
+	LLButton*			mResetButton;
 	LLPointer<LLViewerInventoryItem> mItem;
-	BOOL mCloseAfterSave;
+	BOOL				mCloseAfterSave;
 	// need to save both text and script, so need to decide when done
-	S32 mPendingUploads;
+	S32					mPendingUploads;
 
-	static LLMap<LLUUID, LLLiveLSLEditor*> sInstances;
 	BOOL getIsModifiable() const { return mIsModifiable; } // Evaluated on load assert
 	
-private:
-
-	static void	onMonoCheckboxClicked(LLUICtrl*, void* userdata);
-	BOOL monoChecked() const;
-
 	LLCheckBoxCtrl*	mMonoCheckbox;
 	BOOL mIsModifiable;
 };

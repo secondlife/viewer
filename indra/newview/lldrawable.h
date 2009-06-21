@@ -46,7 +46,6 @@
 #include "llmemtype.h"
 #include "llprimitive.h"
 #include "lldarray.h"
-#include "llstat.h"
 #include "llviewerobject.h"
 #include "llrect.h"
 #include "llappviewer.h" // for gFrameTimeSeconds
@@ -151,7 +150,7 @@ public:
 	
 	void updateTexture();
 	void updateMaterial();
-	virtual void updateDistance(LLCamera& camera);
+	virtual void updateDistance(LLCamera& camera, bool force_update);
 	BOOL updateGeometry(BOOL priority);
 	void updateFaceSize(S32 idx);
 		

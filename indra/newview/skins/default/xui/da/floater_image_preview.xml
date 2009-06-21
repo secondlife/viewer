@@ -10,36 +10,16 @@
 		Se billede som:
 	</text>
 	<combo_box label="Tøj type" name="clothing_type_combo">
-		<combo_item name="Image">
-			Billede
-		</combo_item>
-		<combo_item name="Hair">
-			Hår
-		</combo_item>
-		<combo_item name="FemaleHead">
-			Kvinde - hoved
-		</combo_item>
-		<combo_item name="FemaleUpperBody">
-			Kvinde - overkrop
-		</combo_item>
-		<combo_item name="FemaleLowerBody">
-			Kvinde - underkrop
-		</combo_item>
-		<combo_item name="MaleHead">
-			Mand - hoved
-		</combo_item>
-		<combo_item name="MaleUpperBody">
-			Mand - overkrop
-		</combo_item>
-		<combo_item name="MaleLowerBody">
-			Mand - underkrop
-		</combo_item>
-		<combo_item name="Skirt">
-			Nederdel
-		</combo_item>
-		<combo_item name="SculptedPrim">
-			Sculpted prim
-		</combo_item>
+		<combo_box.item name="Image" label="Billede"/>
+		<combo_box.item name="Hair" label="Hår"/>
+		<combo_box.item name="FemaleHead" label="Kvinde - hoved"/>
+		<combo_box.item name="FemaleUpperBody" label="Kvinde - overkrop"/>
+		<combo_box.item name="FemaleLowerBody" label="Kvinde - underkrop"/>
+		<combo_box.item name="MaleHead" label="Mand - hoved"/>
+		<combo_box.item name="MaleUpperBody" label="Mand - overkrop"/>
+		<combo_box.item name="MaleLowerBody" label="Mand - underkrop"/>
+		<combo_box.item name="Skirt" label="Nederdel"/>
+		<combo_box.item name="SculptedPrim" label="Sculpted prim"/>
 	</combo_box>
 	<text name="bad_image_text">
 		Kunne ikke læse billede.

@@ -35,7 +35,7 @@
 
 #include "v3math.h"
 #include "llpanel.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llvolume.h"
 
 class LLSpinCtrl;
@@ -54,7 +54,7 @@ class LLUUID;
 class LLPanelObject : public LLPanel
 {
 public:
-	LLPanelObject(const std::string& name);
+	LLPanelObject();
 	virtual ~LLPanelObject();
 
 	virtual BOOL	postBuild();
@@ -63,7 +63,7 @@ public:
 
 	void			refresh();
 
-	static BOOL		precommitValidate(LLUICtrl* ctrl,void* userdata);
+	static bool		precommitValidate(const LLSD& data);
 	
 	static void		onCommitLock(LLUICtrl *ctrl, void *data);
 	static void 	onCommitPosition(		LLUICtrl* ctrl, void* userdata);
@@ -78,10 +78,10 @@ public:
 
 	static void 	onCommitMaterial(		LLUICtrl* ctrl, void* userdata);
 
-	static void     onCommitSculpt(        LLUICtrl* ctrl, void* userdata);
-	static void     onCancelSculpt(        LLUICtrl* ctrl, void* userdata);
-	static void     onSelectSculpt(        LLUICtrl* ctrl, void* userdata);
-	static BOOL     onDropSculpt(          LLUICtrl* ctrl, LLInventoryItem* item, void* ud);
+	void     		onCommitSculpt(const LLSD& data);
+	void     		onCancelSculpt(const LLSD& data);
+	void     		onSelectSculpt(const LLSD& data);
+	BOOL     		onDropSculpt(LLInventoryItem* item);
 	static void     onCommitSculptType(    LLUICtrl *ctrl, void* userdata);
 		
 	

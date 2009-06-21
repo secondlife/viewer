@@ -34,9 +34,8 @@
 
 #include "llpanellogin.h"
 
-#include "llpanelgeneral.h"
-
 #include "indra_constants.h"		// for key and mask constants
+#include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llmd5.h"
 #include "llsecondlifeurls.h"
@@ -49,8 +48,6 @@
 #include "llcombobox.h"
 #include "llcurl.h"
 #include "llviewercontrol.h"
-#include "llfloaterabout.h"
-#include "llfloatertest.h"
 #include "llfloaterpreference.h"
 #include "llfocusmgr.h"
 #include "lllineeditor.h"
@@ -70,12 +67,12 @@
 #include "llhttpclient.h"
 #include "llweb.h"
 #include "llwebbrowserctrl.h"
-
 #include "llfloaterhtml.h"
+#include "llrootview.h"
 
 #include "llfloaterhtmlhelp.h"
 #include "llfloatertos.h"
-
+#include "lltrans.h"
 #include "llglheaders.h"
 
 #define USE_VIEWER_AUTH 0
@@ -166,7 +163,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 						 BOOL show_server,
 						 void (*callback)(S32 option, void* user_data),
 						 void *cb_data)
-:	LLPanel(std::string("panel_login"), LLRect(0,600,800,0), FALSE),		// not bordered
+:	LLPanel(),
 	mLogoImage(),
 	mCallback(callback),
 	mCallbackData(cb_data),
@@ -190,7 +187,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLPanelLogin::sInstance = this;
 
 	// add to front so we are the bottom-most child
-	gViewerWindow->getRootView()->addChildAtEnd(this);
+	gViewerWindow->getRootView()->addChildInBack(this);
 
 	// Logo
 	mLogoImage = LLUI::getUIImage("startup_logo.j2c");
@@ -207,9 +204,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	childSetPrevalidate("first_name_edit", LLLineEditor::prevalidatePrintableNoSpace);
 	childSetPrevalidate("last_name_edit", LLLineEditor::prevalidatePrintableNoSpace);
 
-	childSetCommitCallback("password_edit", mungePassword);
-	childSetKeystrokeCallback("password_edit", onPassKey, this);
-	childSetUserData("password_edit", this);
+	childSetCommitCallback("password_edit", mungePassword, this);
+	getChild<LLLineEditor>("password_edit")->setKeystrokeCallback(onPassKey, this);
 
 	// change z sort of clickable text to be behind buttons
 	sendChildToBack(getChildView("channel_text"));
@@ -219,14 +215,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	if (edit) edit->setDrawAsterixes(TRUE);
 
 	LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
-	combo->setAllowTextEntry(TRUE, 128, FALSE);
 
-	// The XML file loads the combo with the following labels:
-	// 0 - "My Home"
-	// 1 - "My Last Location"
-	// 2 - "<Type region name>"
-
-	BOOL login_last = gSavedSettings.getBOOL("LoginLastLocation");
 	std::string sim_string = LLURLSimString::sInstance.mSimString;
 	if (!sim_string.empty())
 	{
@@ -236,19 +225,11 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		combo->setTextEntry(sim_string);
 		combo->setCurrentByIndex( 2 );
 	}
-	else if (login_last)
-	{
-		combo->setCurrentByIndex( 1 );
-	}
-	else
-	{
-		combo->setCurrentByIndex( 0 );
-	}
 
-	combo->setCommitCallback( &set_start_location );
+	combo->setCommitCallback( &set_start_location, NULL );
 
 	LLComboBox* server_choice_combo = sInstance->getChild<LLComboBox>("server_combo");
-	server_choice_combo->setCommitCallback(onSelectServer);
+	server_choice_combo->setCommitCallback(onSelectServer, NULL);
 	server_choice_combo->setFocusLostCallback(onServerComboLostFocus);
 
 	childSetAction("connect_btn", onClickConnect, this);
@@ -266,14 +247,13 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLTextBox* channel_text = getChild<LLTextBox>("channel_text");
 	channel_text->setTextArg("[CHANNEL]", channel); // though not displayed
 	channel_text->setTextArg("[VERSION]", version);
-	channel_text->setClickedCallback(onClickVersion);
-	channel_text->setCallbackUserData(this);
+	channel_text->setClickedCallback(onClickVersion, this);
 	
 	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
-	forgot_password_text->setClickedCallback(onClickForgotPassword);
+	forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
 
 	LLTextBox* create_new_account_text = getChild<LLTextBox>("create_new_account_text");
-	create_new_account_text->setClickedCallback(onClickNewAccount);
+	create_new_account_text->setClickedCallback(onClickNewAccount, NULL);
 #endif    
 	
 	// get the web browser control
@@ -432,16 +412,13 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask)
 		return TRUE;
 	}
 
-	if (('P' == key) && (MASK_CONTROL == mask))
-	{
-		LLFloaterPreference::show(NULL);
-		return TRUE;
-	}
-
 	if (('T' == key) && (MASK_CONTROL == mask))
-	{
-		new LLFloaterSimple("floater_test.xml");
-		return TRUE;
+	{	// previously was "Test Floater"
+		if(gSavedSettings.getBOOL("QAMode"))
+		{
+			LLFloaterReg::showInstance("ui_preview", LLSD(), TRUE);
+			return TRUE;
+		}
 	}
 	
 	if ( KEY_F1 == key )
@@ -656,19 +633,6 @@ void LLPanelLogin::refreshLocation( bool force_visible )
 #if USE_VIEWER_AUTH
 	loadLoginPage();
 #else
-	LLComboBox* combo = sInstance->getChild<LLComboBox>("start_location_combo");
-
-	if (LLURLSimString::parse())
-	{
-		combo->setCurrentByIndex( 3 );		// BUG?  Maybe 2?
-		combo->setTextEntry(LLURLSimString::sInstance.mSimString);
-	}
-	else
-	{
-		BOOL login_last = gSavedSettings.getBOOL("LoginLastLocation");
-		combo->setCurrentByIndex( login_last ? 1 : 0 );
-	}
-
 	BOOL show_start = TRUE;
 
 	if ( ! force_visible )
@@ -688,7 +652,7 @@ void LLPanelLogin::refreshLocation( bool force_visible )
 }
 
 // static
-void LLPanelLogin::close()
+void LLPanelLogin::closePanel()
 {
 	if (sInstance)
 	{
@@ -787,14 +751,7 @@ void LLPanelLogin::loadLoginPage()
 	}
 	else
 	{
-		if (gSavedSettings.getBOOL("LoginLastLocation"))
-		{
-			location = "last";
-		}
-		else
-		{
-			location = "home";
-		}
+		location = gSavedSettings.getString("LoginLocation");
 	}
 	
 	std::string firstname, lastname;
@@ -899,13 +856,12 @@ void LLPanelLogin::onClickConnect(void *)
 		}
 		else
 		{
-			LLNotifications::instance().add("MustHaveAccountToLogIn", LLSD(), LLSD(),
-										LLPanelLogin::newAccountAlertCallback);
+			LLNotifications::instance().add("MustHaveAccountToLogIn");
 		}
 	}
 }
 
-
+/*
 // static
 bool LLPanelLogin::newAccountAlertCallback(const LLSD& notification, const LLSD& response)
 {
@@ -913,7 +869,7 @@ bool LLPanelLogin::newAccountAlertCallback(const LLSD& notification, const LLSD&
 	if (0 == option)
 	{
 		llinfos << "Going to account creation URL" << llendl;
-		LLWeb::loadURLExternal( CREATE_ACCOUNT_URL );
+		LLWeb::loadURLExternal( LLNotifications::instance().getGlobalString("CREATE_ACCOUNT_URL")); 
 	}
 	else
 	{
@@ -921,12 +877,12 @@ bool LLPanelLogin::newAccountAlertCallback(const LLSD& notification, const LLSD&
 	}
 	return false;
 }
-
+*/
 
 // static
 void LLPanelLogin::onClickNewAccount(void*)
 {
-	LLWeb::loadURLExternal( CREATE_ACCOUNT_URL );
+	LLWeb::loadURLExternal(sInstance->getString("create_account_url"));
 }
 
 
@@ -949,7 +905,7 @@ void LLPanelLogin::onClickQuit(void*)
 // static
 void LLPanelLogin::onClickVersion(void*)
 {
-	LLFloaterAbout::show(NULL);
+	LLFloaterReg::showInstance("sl_about"); 
 }
 
 //static
@@ -1023,6 +979,8 @@ void LLPanelLogin::onSelectServer(LLUICtrl*, void*)
 
 void LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe, void*)
 {
+	if (!sInstance) return;
+
 	LLComboBox* combo = sInstance->getChild<LLComboBox>("server_combo");
 	if(fe == combo)
 	{

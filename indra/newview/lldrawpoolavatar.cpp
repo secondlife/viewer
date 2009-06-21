@@ -95,11 +95,9 @@ static BOOL sRenderingSkinned = FALSE;
 S32 normal_channel = -1;
 S32 specular_channel = -1;
 
-LLDrawPoolAvatar::LLDrawPoolAvatar() :
-LLFacePool(POOL_AVATAR)
+LLDrawPoolAvatar::LLDrawPoolAvatar() : 
+	LLFacePool(POOL_AVATAR)	
 {
-	//LLDebugVarMessageBox::show("acceleration", &CLOTHING_ACCEL_FORCE_FACTOR, 10.f, 0.1f);
-	//LLDebugVarMessageBox::show("gravity", &CLOTHING_GRAVITY_EFFECT, 10.f, 0.1f);	
 }
 
 //-----------------------------------------------------------------------------
@@ -110,7 +108,6 @@ LLDrawPool *LLDrawPoolAvatar::instancePool()
 	return new LLDrawPoolAvatar();
 }
 
-BOOL gRenderAvatar = TRUE;
 
 S32 LLDrawPoolAvatar::getVertexShaderLevel() const
 {
@@ -288,10 +285,6 @@ void LLDrawPoolAvatar::endShadowPass(S32 pass)
 void LLDrawPoolAvatar::renderShadow(S32 pass)
 {
 	LLFastTimer t(LLFastTimer::FTM_SHADOW_AVATAR);
-	if (!gRenderAvatar)
-	{
-		return;
-	}
 
 	if (mDrawFace.empty())
 	{
@@ -609,13 +602,6 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		return;
 	}
 
-	
-
-	if (!gRenderAvatar)
-	{
-		return;
-	}
-
 	if (mDrawFace.empty() && !single_avatar)
 	{
 		return;
@@ -761,10 +747,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 //-----------------------------------------------------------------------------
 void LLDrawPoolAvatar::renderForSelect()
 {
-	if (!gRenderAvatar)
-	{
-		return;
-	}
+
 
 	if (mDrawFace.empty())
 	{

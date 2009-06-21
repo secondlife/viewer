@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_visible="true"
+ bevel_style="in"
+ bg_alpha_color="0.5 0.5 0.5 1"
+ height="690"
+ label="Picks"
+ layout="topleft"
+ left="0"
+ name="panel_picks"
+ top="0"
+ width="355">
+    <text
+     type="string"
+     length="1"
+     follows="top|left|right"
+     font="SansSerifHugeBold"
+     height="55"
+     layout="topleft"
+     left="10"
+     name="pick_title"
+     text_color="white"
+     top="10"
+     width="330"
+     word_wrap="true">
+        [NAME]&apos;s favorite places in Second Life...
+    </text>
+    <!-- below is a special title shown for the Agent on the "Picks" tab-->
+    <text
+     type="string"
+     length="1"
+     follows="top"
+     font="SansSerifHugeBold"
+     height="55"
+     layout="topleft"
+     left="10"
+     name="pick_title_agent"
+     text_color="white"
+     top="10"
+     visible="false" 
+     width="330"
+     word_wrap="true">
+        Tell everyone about your favorite Second Life places...
+    </text>
+    <scroll_container
+     follows="left|top|right|bottom"
+     height="550"
+     layout="topleft"
+     left="5"
+     reserve_scroll_corner="true"
+     width="345">
+        <panel
+         background_visible="true"
+         bevel_style="in"
+         bg_alpha_color="0.6 0.6 0.6 1"
+         follows="left|top|right|bottom"
+         height="600"
+         layout="topleft"
+         left="0"
+         name="back_panel"
+         top="0"
+         width="325" />
+    </scroll_container>
+    <panel
+     background_visible="true"
+     bevel_style="in"
+     bg_alpha_color="black"
+     enabled="false"
+     follows="left|right|bottom"
+     height="25"
+     label="bottom_panel"
+     layout="topleft"
+     left="5"
+     name="edit_panel"
+     visible="false"
+     width="345">
+        <button
+         enabled="false"
+         follows="bottom|left"
+         font="SansSerifBigBold"
+         height="16"
+         image_hover_selected="gear.tga"
+         image_selected="gear.tga"
+         image_unselected="gear.tga"
+         layout="topleft"
+         left="5"
+         name="gear_menu_btn"
+         picture_style="true"
+         top="5"
+         width="16" />
+        <button
+         follows="bottom|left"
+         font="SansSerifBigBold"
+         height="16"
+         image_disabled="add_btn.tga"
+         image_disabled_selected="add_btn.tga"
+         image_hover_selected="add_btn.tga"
+         image_selected="add_btn.tga"
+         image_unselected="add_btn.tga"
+         layout="topleft"
+         left="35"
+         name="new_btn"
+         picture_style="true"
+		 tool_tip="Create New Pick at Current Location"
+         top="5"
+         width="16" />
+        <button
+         follows="bottom|right"
+         font="SansSerifBigBold"
+         height="16"
+         image_disabled="del_btn.tga"
+         image_disabled_selected="del_btn.tga"
+         image_hover_selected="del_btn.tga"
+         image_selected="del_btn.tga"
+         image_unselected="del_btn.tga"
+         layout="topleft"
+         name="trash_btn"
+         picture_style="true"
+         right="-10"
+         top="5"
+         width="16" />
+    </panel>
+    <panel
+     follows="left|right"
+     height="25"
+     layout="topleft"
+     left="0"
+     name="buttons_cucks"
+     top_pad="10"
+     width="345">
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Info"
+         layout="topleft"
+         left="10"
+         name="info_btn"
+         top="0"
+         width="50" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Teleport"
+         layout="topleft"
+         left="65"
+         name="teleport_btn"
+         top="0"
+         width="70" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Show on Map"
+         layout="topleft"
+         left="140"
+         name="show_on_map_btn"
+         top="0"
+         width="90" />
+        <button
+         enabled="false"
+         follows="bottom|right"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Verb"
+         layout="topleft"
+         left="270"
+         name="verb_btn"
+         top="0"
+         width="50" />
+    </panel>
+</panel>

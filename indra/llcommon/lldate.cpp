@@ -38,10 +38,13 @@
 #include "apr_time.h"
 
 #include <time.h>
+#include <locale>
+#include <string>
 #include <iomanip>
 #include <sstream>
 
 #include "lltimer.h"
+#include "llstring.h"
 
 static const F64 DATE_EPOCH = 0.0;
 
@@ -88,45 +91,36 @@ std::string LLDate::asString() const
 //        is one of the standards used and the prefered format
 std::string LLDate::asRFC1123() const
 {
-    std::ostringstream stream;
-    toHTTPDateStream(stream);
-    return stream.str();
+	return toHTTPDateString (std::string ("%A, %d %b %Y %H:%M:%S GMT"));
 }
 
-void LLDate::toHTTPDateStream(std::ostream& s) const
+std::string LLDate::toHTTPDateString (std::string fmt) const
 {
-    // http://apr.apache.org/docs/apr/0.9/group__apr__time.html
-    apr_time_t time = (apr_time_t)(mSecondsSinceEpoch * LL_APR_USEC_PER_SEC);
+	std::ostringstream stream;
+	time_t locSeconds = (time_t) mSecondsSinceEpoch;
+	struct tm * gmt = gmtime (&locSeconds);
 
-    apr_time_exp_t exp_time ; //Apache time module
+	stream.imbue (std::locale(LLStringUtil::getLocale().c_str()));
+	toHTTPDateStream (stream, gmt, fmt);
+	return stream.str();
+}
 
-    if (apr_time_exp_gmt(&exp_time, time) != APR_SUCCESS)
-    {
-        // Return Epoch UTC date
-        s << "Thursday, 01 Jan 1970 00:00:00 GMT" ;
-        return;
-    }
+std::string LLDate::toHTTPDateString (tm * gmt, std::string fmt)
+{
+	std::ostringstream stream;
+	stream.imbue (std::locale(LLStringUtil::getLocale().c_str()));
+	toHTTPDateStream (stream, gmt, fmt);
+	return stream.str();
+}
 
-    s << std::dec << std::setfill('0');
-#if( LL_WINDOWS || __GNUC__ > 2)
-    s << std::right ;
-#else
-    s.setf(ios::right);
-#endif    
-    std::string day = weekdays[exp_time.tm_wday];
-    std::string month = months[exp_time.tm_mon];
+void LLDate::toHTTPDateStream(std::ostream& s, tm * gmt, std::string fmt)
+{
+	using namespace std;
 
-    s << std::setw(day.length()) << (day)
-      << ", " << std::setw(2) << (exp_time.tm_mday)
-      << ' ' << std::setw(month.length()) << (month)
-      << ' ' << std::setw(4) << (exp_time.tm_year + 1900)
-	  << ' ' << std::setw(2) << (exp_time.tm_hour)
-	  << ':' << std::setw(2) << (exp_time.tm_min)
-	  << ':' << std::setw(2) << (exp_time.tm_sec)
-      << " GMT";
-
-    // RFC 1123 date does not use microseconds
-    //llinfos << "Date in RFC 1123 format is " << s << llendl;
+	const char * pBeg = fmt.c_str();
+	const char * pEnd = pBeg + fmt.length();
+	const time_put<char>& tp = use_facet<time_put<char> >(s.getloc());
+	tp.put (s, s, s.fill(), gmt, pBeg, pEnd);
 }
 
 void LLDate::toStream(std::ostream& s) const

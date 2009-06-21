@@ -5542,6 +5542,14 @@
       <texture
        local_texture="hair_grain" />
     </layer>
+
+    <layer
+       name="hair alpha"
+       visibility_mask="TRUE">
+      <texture
+         local_texture="hair_alpha" />
+    </layer>
+
   </layer_set>
   <!-- =========================================================== -->
 
@@ -6451,8 +6459,6 @@
       <layer
        name="facialhair"
        global_color="hair_color">
-         <morph_mask
-          morph_name="Displace_Hair_Facial" />
 
          <texture
           tga_file="head_hair.tga"
@@ -6544,6 +6550,18 @@
          <texture
           local_texture="head_bodypaint" />
       </layer>
+   <layer
+      name="head alpha"
+      visibility_mask="TRUE">
+     <texture
+        local_texture="head_alpha" />
+   </layer>
+   <layer
+      name="head_tattoo">
+     <texture
+        local_texture="head_tattoo" />
+   </layer>
+
    </layer_set>
 
 <!-- =========================================================== -->
@@ -6658,6 +6676,13 @@
              domain="0.6" />
          </param>
       </layer>
+
+      <layer
+       name="upper_tattoo">
+        <texture
+           local_texture="upper_tattoo" />
+      </layer>
+
 
       <layer
        name="upper_undershirt bump"
@@ -7287,12 +7312,6 @@
          <texture
           local_texture="upper_shirt" />
 
-         <morph_mask
-          morph_name="Displace_Loose_Upperbody" />
-
-         <morph_mask
-          morph_name="Shirtsleeve_flair" />
-
          <param
           id="803"
           group="0"
@@ -7728,6 +7747,14 @@
              domain="0.01" />
          </param>
       </layer>
+
+      <layer
+       name="upper alpha"
+       visibility_mask="TRUE">
+       <texture
+        local_texture="upper_alpha" />
+     </layer>
+
    </layer_set>
 
 <!-- =========================================================== -->
@@ -7841,6 +7868,12 @@
              skip_if_zero="true"
              domain="0.6" />
          </param>
+      </layer>
+
+      <layer
+       name="lower_tattoo">
+         <texture
+          local_texture="lower_tattoo" />
       </layer>
 
       <layer
@@ -8313,18 +8346,6 @@
          <texture
           local_texture="lower_pants" />
 
-         <morph_mask
-          morph_name="Displace_Loose_Lowerbody" />
-
-         <morph_mask
-          morph_name="Leg_Pantflair" />
-
-         <morph_mask
-          morph_name="Low_Crotch" />
-
-         <morph_mask
-          morph_name="Leg_Longcuffs" />
-
          <param
           id="806"
           group="0"
@@ -8600,6 +8621,14 @@
              domain="0.01" />
          </param>
       </layer>
+
+      <layer
+         name="lower alpha"
+         visibility_mask="TRUE">
+        <texture
+           local_texture="lower_alpha" />
+      </layer>
+
    </layer_set>
 
 <!-- =========================================================== -->
@@ -8619,6 +8648,14 @@
          <texture
           local_texture="eyes_iris" />
       </layer>
+
+     <layer
+        name="eyes alpha"
+        visibility_mask="TRUE">
+       <texture
+          local_texture="eyes_alpha" />
+     </layer>
+
    </layer_set>
 
 <!-- =========================================================== -->
@@ -8798,6 +8835,7 @@
              domain="0" />
          </param>
       </layer>
+
    </layer_set>
 
 <!-- =========================================================== -->
@@ -11258,5 +11296,36 @@
       </param>
       
    </driver_parameters>
+
+  <morph_masks>
+    <mask
+     morph_name="Displace_Hair_Facial"
+     body_region="head"
+     layer="facialhair" />
+    <mask
+     morph_name="Displace_Loose_Upperbody"
+     body_region="upper_body"
+     layer="upper_clothes" />
+    <mask
+     morph_name="Shirtsleeve_flair"
+     body_region="upper_body"
+     layer="upper_clothes" />
+    <mask
+     morph_name="Displace_Loose_Lowerbody"
+     body_region="lower_body"
+     layer="lower_pants" />
+    <mask
+     morph_name="Leg_Pantflair"
+     body_region="lower_body"
+     layer="lower_pants" />
+    <mask
+     morph_name="Low_Crotch"
+     body_region="lower_body"
+     layer="lower_pants" />
+    <mask
+     morph_name="Leg_Longcuffs"
+     body_region="lower_body"
+     layer="lower_pants" />
+  </morph_masks>
 </linden_avatar>
 

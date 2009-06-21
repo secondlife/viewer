@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ follows="left|right|top|bottom"
+ height="768"
+ layout="topleft"
+ left="0"
+ mouse_opaque="false"
+ name="bottom_panel"
+ width="1024">
+    <panel
+     follows="left|right|top|bottom"
+     height="728"
+     layout="topleft"
+     left="0"
+     mouse_opaque="false"
+     name="status"
+     top="0"
+     width="1024" />
+    <layout_stack
+     border_size="0"
+     follows="left|right|bottom|top"
+     height="768"
+     layout="topleft"
+     left_delta="0"
+     mouse_opaque="false"
+     name="bar_stack"
+     top_delta="0"
+     use_bounding_rect="true"
+     width="1024">
+        <layout_panel
+         follows="left|right|top|bottom"
+         height="768"
+         layout="topleft"
+         left="0"
+         mouse_opaque="false"
+         name="spacer"
+         top="0"
+         user_resize="false"
+         width="1024" />
+        <layout_panel
+         auto_resize="false"
+         height="200"
+         layout="topleft"
+         min_height="200"
+         mouse_opaque="false"
+         name="overlay"
+         use_bounding_rect="true"
+         user_resize="false"
+         width="1024" />
+        <layout_panel
+         auto_resize="false"
+         filename="panel_toolbar.xml"
+         layout="topleft"
+         min_height="28"
+         name="toolbar"
+         use_bounding_rect="true"
+         user_resize="false"
+         width="1024" />
+    </layout_stack>
+    <panel
+     follows="left|right|top|bottom"
+     height="728"
+     layout="topleft"
+     left_delta="0"
+     mouse_opaque="false"
+     name="hud"
+     top_delta="-10"
+     width="1024" />
+</panel>

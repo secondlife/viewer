@@ -93,12 +93,12 @@ void*	LLFloaterParcelInfo::createPanelPlace(void*	data)
 //----------------------------------------------------------------------------
 
 
-LLFloaterParcelInfo::LLFloaterParcelInfo(const std::string& name, const LLUUID &parcel_id)
-:	LLFloater(name),
+LLFloaterParcelInfo::LLFloaterParcelInfo(const LLUUID &parcel_id)
+:	LLFloater(),
 	mParcelID( parcel_id )
 {
 	mFactoryMap["place_details_panel"] = LLCallbackMap(LLFloaterParcelInfo::createPanelPlace, this);
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preview_url.xml", &getFactoryMap());
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preview_url.xml");
 	gPlaceInfoInstances.addData(parcel_id, this);
 }
 
@@ -128,14 +128,14 @@ LLFloaterParcelInfo* LLFloaterParcelInfo::show(const LLUUID &parcel_id)
 	{
 		// ...bring that window to front
 		floater = gPlaceInfoInstances.getData(parcel_id);
-		floater->open();	/*Flawfinder: ignore*/
+		floater->openFloater();
 		floater->setFrontmost(true);
 	}
 	else
 	{
-		floater =  new LLFloaterParcelInfo("parcelinfo", parcel_id );
+		floater =  new LLFloaterParcelInfo( parcel_id );
 		floater->center();
-		floater->open();	/*Flawfinder: ignore*/
+		floater->openFloater();
 		floater->displayParcelInfo(parcel_id);
 		floater->setFrontmost(true);
 	}

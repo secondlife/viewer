@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<combo_box font="SansSerifSmall"
+           arrow_image="combobox_arrow.tga" 
+           list_position="below" 
+           max_chars="20" 
+           follows="left|top">
+  <combo_box.combo_button name="Combobox Button"
+                          hover_glow_amount="0.15"
+                          font="SansSerifSmall"
+                          halign="left" 
+                          scale_image="true"
+                          image_unselected="square_btn_32x128.tga"
+                          image_selected="square_btn_selected_32x128.tga"
+                          image_disabled="square_btn_32x128.tga"
+                          image_disabled_selected="square_btn_selected_32x128.tga"
+                          image_overlay="combobox_arrow.tga"
+                          image_overlay_alignment="right"/>
+  <combo_box.combo_list bg_writeable_color="white"/>
+  <combo_box.combo_editor name="Combo Text Entry"
+                          select_on_focus="true"
+                          font="SansSerifSmall"/>
+</combo_box>

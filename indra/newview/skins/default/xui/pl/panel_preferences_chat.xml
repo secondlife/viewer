@@ -4,15 +4,9 @@
 		Rozmiar Czcionki Czatu:
 	</text>
   <radio_group name="chat_font_size">
-    <radio_item type="string" length="1" name="radio">
-			Mała
-		</radio_item>
-    <radio_item type="string" length="1" name="radio2">
-			Średnia
-		</radio_item>
-    <radio_item type="string" length="1" name="radio3">
-			Duża
-		</radio_item>
+    <radio_item type="string" length="1" name="radio" label="Mała" />
+    <radio_item type="string" length="1" name="radio2" label="Średnia" />
+    <radio_item type="string" length="1" name="radio3" label="Duża" />
   </radio_group>
   <text type="string" length="1" name="text_box2">
 		Kolor Czatu:

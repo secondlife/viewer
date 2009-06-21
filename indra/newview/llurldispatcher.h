@@ -38,12 +38,6 @@ class LLWebBrowserCtrl;
 class LLURLDispatcher
 {
 public:
-	static bool isSLURL(const std::string& url);
-		// Is this any sort of secondlife:// or sl:// URL?
-
-	static bool isSLURLCommand(const std::string& url);
-		// Is this a special secondlife://app/ URL?
-
 	static bool dispatch(const std::string& url,
 						 LLWebBrowserCtrl* web,
 						 bool trusted_browser);
@@ -63,9 +57,6 @@ public:
 	static bool dispatchRightClick(const std::string& url);
 
 	static bool dispatchFromTextEditor(const std::string& url);
-
-	static std::string buildSLURL(const std::string& regionname, S32 x, S32 y, S32 z);
-		//   builds: http://slurl.com/secondlife/RegionName/x/y/z/
 };
 
 #endif

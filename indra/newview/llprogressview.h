@@ -43,7 +43,7 @@ class LLProgressBar;
 class LLProgressView : public LLPanel
 {
 public:
-	LLProgressView(const std::string& name, const LLRect& rect);
+	LLProgressView(const LLRect& rect);
 	virtual ~LLProgressView();
 	
 	BOOL postBuild();

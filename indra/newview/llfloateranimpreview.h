@@ -92,16 +92,16 @@ public:
 	static void onCommitLoop(LLUICtrl*, void*);
 	static void onCommitLoopIn(LLUICtrl*, void*);
 	static void onCommitLoopOut(LLUICtrl*, void*);
-	static BOOL validateLoopIn(LLUICtrl*, void*);
-	static BOOL validateLoopOut(LLUICtrl*, void*);
+	bool validateLoopIn(const LLSD& data);
+	bool validateLoopOut(const LLSD& data);
 	static void onCommitName(LLUICtrl*, void*);
 	static void onCommitHandPose(LLUICtrl*, void*);
 	static void onCommitEmote(LLUICtrl*, void*);
 	static void onCommitPriority(LLUICtrl*, void*);
 	static void onCommitEaseIn(LLUICtrl*, void*);
 	static void onCommitEaseOut(LLUICtrl*, void*);
-	static BOOL validateEaseIn(LLUICtrl*, void*);
-	static BOOL validateEaseOut(LLUICtrl*, void*);
+	bool validateEaseIn(const LLSD& data);
+	bool validateEaseOut(const LLSD& data);
 	static void	onBtnOK(void*);
 	static void onSaveComplete(const LLUUID& asset_uuid,
 									   LLAssetType::EType type,

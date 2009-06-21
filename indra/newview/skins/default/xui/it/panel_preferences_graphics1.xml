@@ -2,28 +2,18 @@
 <panel label="Grafica" name="Display panel">
 	<button label="?" name="GraphicsPreferencesHelpButton"/>
 	<check_box label="Esegui Second Life in una finestra" name="windowed mode"/>
-	<text_editor name="FullScreenInfo">
-		Se deselezionato, il viewer partirà a schermo intero all&apos;avvio.
+	<text_editor name="FullScreenInfo" width="480">
+		Se deselezionato, all&apos;avvio il programma partirà a schermo intero.
 	</text_editor>
 	<text name="WindowSizeLabel">
 		Dimensione della finestra:
 	</text>
 	<combo_box name="windowsize combo">
-		<combo_item name="640x480">
-			640x480
-		</combo_item>
-		<combo_item name="800x600">
-			800x600
-		</combo_item>
-		<combo_item name="720x480">
-			720x480 (NTSC)
-		</combo_item>
-		<combo_item name="768x576">
-			768x576 (PAL)
-		</combo_item>
-		<combo_item name="1024x768">
-			1024x768
-		</combo_item>
+		<combo_box.item name="640x480" label="640x480"/>
+		<combo_box.item name="800x600" label="800x600"/>
+		<combo_box.item name="720x480" label="720x480 (NTSC)"/>
+		<combo_box.item name="768x576" label="768x576 (PAL)"/>
+		<combo_box.item name="1024x768" label="1024x768"/>
 	</combo_box>
 	<text name="DisplayResLabel">
 		Risoluzione del monitor:
@@ -32,18 +22,10 @@
 		Rapporto di visualizzazione:
 	</text>
 	<combo_box name="aspect_ratio" tool_tip="larghezza/altezza">
-		<combo_item name="4:3(StandardCRT)">
-			4:3 (Monitor Standard)
-		</combo_item>
-		<combo_item name="5:4(1280x1024LCD)">
-			5:4 (1280x1024 LCD)
-		</combo_item>
-		<combo_item name="8:5(Widescreen)">
-			8:5 (Widescreen)
-		</combo_item>
-		<combo_item name="16:9(Widescreen)">
-			16:9 (Widescreen)
-		</combo_item>
+		<combo_box.item name="4:3(StandardCRT)" label="4:3 (Monitor Standard)"/>
+		<combo_box.item name="5:4(1280x1024LCD)" label="5:4 (1280x1024 LCD)"/>
+		<combo_box.item name="8:5(Widescreen)" label="8:5 (Widescreen)"/>
+		<combo_box.item name="16:9(Widescreen)" label="16:9 (Widescreen)"/>
 	</combo_box>
 	<check_box label="Autoconfigurazione" name="aspect_auto_detect"/>
 	<text name="HigherText">
@@ -68,7 +50,7 @@
 		Ultra
 	</text>
 	<text name="HigherText2">
-		più alto
+		Più alto
 	</text>
 	<text name="QualityText2">
 		Qualità
@@ -77,26 +59,18 @@
 	<text name="ShadersText">
 		Effetti grafici:
 	</text>
-	<check_box label="Bump Mapping (piccoli rilievi) e scintillii" name="BumpShiny"/>
-	<check_box label="Effetti grafici base" name="BasicShaders" tool_tip="Disabilite questa opzione può evitare che qualche scheda grafica vada in crash."/>
+	<check_box label="Piccoli rilievi e scintillii" name="BumpShiny"/>
+	<check_box label="Effetti grafici base" name="BasicShaders" tool_tip="Disabilitare questa opzione può evitare che qualche scheda grafica vada in crash."/>
 	<check_box label="Effetti grafici atmosferici" name="WindLightUseAtmosShaders"/>
 	<check_box label="Riflessi dell&apos;acqua" name="Reflections"/>
 	<text name="ReflectionDetailText">
 		Dettaglio dei riflessi
 	</text>
 	<radio_group name="ReflectionDetailRadio">
-		<radio_item name="0">
-			Terreno ed alberi
-		</radio_item>
-		<radio_item name="1">
-			Tutti gli aggetti statici
-		</radio_item>
-		<radio_item name="2">
-			Tutti gli avatar e gli oggetti
-		</radio_item>
-		<radio_item name="3">
-			Tutto
-		</radio_item>
+		<radio_item name="0" label="Terreno ed alberi" />
+		<radio_item name="1" label="Tutti gli aggetti statici" />
+		<radio_item name="2" label="Tutti gli avatar e gli oggetti" />
+		<radio_item name="3" label="Tutto" />
 	</radio_group>
 	<text name="AvatarRenderingText">
 		Rendering dell&apos;avatar:
@@ -110,18 +84,18 @@
 	<text name="DrawDistanceMeterText2">
 		m
 	</text>
-	<slider label="Distanza di disegno:" name="DrawDistance"/>
-	<slider label="Conteggio massimo particelle:" name="MaxParticleCount"/>
-	<slider label="Qualità in post-produzione:" name="RenderPostProcess"/>
+	<slider label="Distanza di disegno:" name="DrawDistance" label_width="158" width="255"/>
+	<slider label="Conteggio massimo particelle:" name="MaxParticleCount" label_width="158" width="262" />
+	<slider label="Qualità in post-produzione:" name="RenderPostProcess" label_width="158" width="223"/>
 	<text name="MeshDetailText">
 		Dettagli reticolo:
 	</text>
-	<slider label="Oggetti:" name="ObjectMeshDetail"/>
-	<slider label="Prims flessibili:" name="FlexibleMeshDetail"/>
-	<slider label="Alberi:" name="TreeMeshDetail"/>
-	<slider label="Avatar:" name="AvatarMeshDetail"/>
-	<slider label="Terreno:" name="TerrainMeshDetail"/>
-	<slider label="Cielo:" name="SkyMeshDetail"/>
+	<slider label="  Oggetti:" name="ObjectMeshDetail"/>
+	<slider label="  Prims flessibili:" name="FlexibleMeshDetail"/>
+	<slider label="  Alberi:" name="TreeMeshDetail"/>
+	<slider label="  Avatar:" name="AvatarMeshDetail"/>
+	<slider label="  Terreno:" name="TerrainMeshDetail"/>
+	<slider label="  Cielo:" name="SkyMeshDetail"/>
 	<text name="PostProcessText">
 		Basso
 	</text>
@@ -147,23 +121,15 @@
 		Dettagli illuminazione:
 	</text>
 	<radio_group name="LightingDetailRadio">
-		<radio_item name="SunMoon">
-			Sole e luna solamente
-		</radio_item>
-		<radio_item name="LocalLights">
-			Luci locali
-		</radio_item>
+		<radio_item name="SunMoon" label="Solo il sole e la luna" />
+		<radio_item name="LocalLights" label="Luci locali" />
 	</radio_group>
 	<text name="TerrainDetailText">
 		Dettagli terreno:
 	</text>
 	<radio_group name="TerrainDetailRadio">
-		<radio_item name="0">
-			Bassi
-		</radio_item>
-		<radio_item name="2">
-			Alti
-		</radio_item>
+		<radio_item name="0" label="Bassi" />
+		<radio_item name="2" label="Alti" />
 	</radio_group>
 	<button label="Configurazione raccomandata" name="Defaults" left="110" width="190" />
 	<button label="Opzioni hardware" label_selected="Opzioni hardware" name="GraphicsHardwareButton"/>

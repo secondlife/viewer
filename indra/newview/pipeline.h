@@ -36,11 +36,10 @@
 #include "llerror.h"
 #include "lldarrayptr.h"
 #include "lldqueueptr.h"
-#include "llstat.h"
 #include "lldrawpool.h"
 #include "llspatialpartition.h"
 #include "m4math.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "lldrawpool.h"
 #include "llgl.h"
 #include "lldrawable.h"
@@ -383,7 +382,6 @@ public:
 	S32						 mMeanBatchSize;
 	S32						 mTrianglesDrawn;
 	S32						 mNumVisibleNodes;
-	LLStat                   mTrianglesDrawnStat;
 	S32						 mVerticesRelit;
 
 	S32						 mLightingChanges;

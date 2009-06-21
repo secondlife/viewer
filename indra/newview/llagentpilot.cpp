@@ -38,13 +38,13 @@
 
 #include "llagentpilot.h"
 #include "llagent.h"
-#include "llframestats.h"
 #include "llappviewer.h"
 #include "llviewercontrol.h"
 
 LLAgentPilot gAgentPilot;
 
 BOOL LLAgentPilot::sLoop = TRUE;
+BOOL LLAgentPilot::sReplaySession = FALSE;
 
 LLAgentPilot::LLAgentPilot() :
 	mNumRuns(-1),
@@ -177,6 +177,11 @@ void LLAgentPilot::stopPlayback()
 		mTimer.reset();
 		gAgent.stopAutoPilot();
 	}
+
+	if (sReplaySession)
+	{
+		LLAppViewer::instance()->forceQuit();
+	}
 }
 
 void LLAgentPilot::updateTarget()
@@ -198,7 +203,6 @@ void LLAgentPilot::updateTarget()
 					{
 						llinfos << "At start, beginning playback" << llendl;
 						mTimer.reset();
-						LLFrameStats::startLogging(NULL);
 						mStarted = TRUE;
 					}
 				}
@@ -215,7 +219,6 @@ void LLAgentPilot::updateTarget()
 				else
 				{
 					stopPlayback();
-					LLFrameStats::stopLogging(NULL);
 					mNumRuns--;
 					if (sLoop)
 					{

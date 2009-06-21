@@ -37,7 +37,6 @@
 #include "llvertexbuffer.h"
 // #include "llrender.h"
 #include "llglheaders.h"
-#include "llmemory.h"
 #include "llmemtype.h"
 #include "llrender.h"
 
@@ -117,6 +116,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 			GL_COLOR_ARRAY,
 		};
 
+		BOOL error = FALSE;
 		for (U32 i = 0; i < 4; ++i)
 		{
 			if (sLastMask & mask[i])
@@ -129,7 +129,15 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 				{ //needs to be enabled, make sure it was (DEBUG TEMPORARY)
 					if (i > 0 && !glIsEnabled(array[i]))
 					{
-						llerrs << "Bad client state! " << array[i] << " disabled." << llendl;
+						if (gDebugSession)
+						{
+							error = TRUE;
+							gFailLog << "Bad client state! " << array[i] << " disabled." << std::endl;
+						}
+						else
+						{
+							llerrs << "Bad client state! " << array[i] << " disabled." << llendl;
+						}
 					}
 				}
 			}
@@ -141,9 +149,22 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 				}
 				else if (gDebugGL && glIsEnabled(array[i]))
 				{ //needs to be disabled, make sure it was (DEBUG TEMPORARY)
-					llerrs << "Bad client state! " << array[i] << " enabled." << llendl;
+					if (gDebugSession)
+					{
+						error = TRUE;
+						gFailLog << "Bad client state! " << array[i] << " enabled." << std::endl;
+					}
+					else
+					{
+						llerrs << "Bad client state! " << array[i] << " enabled." << llendl;
+					}
 				}
 			}
+		}
+
+		if (error)
+		{
+			ll_fail("LLVertexBuffer::setupClientArrays failed");
 		}
 
 		U32 map_tc[] = 
@@ -315,7 +336,7 @@ void LLVertexBuffer::unbind()
 //static
 void LLVertexBuffer::cleanupClass()
 {
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_CLEANUP_CLASS);
 	unbind();
 	clientCopy(); // deletes GL buffers
 }
@@ -342,7 +363,7 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 	mResized(FALSE),
 	mDynamicSize(FALSE)
 {
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_CONSTRUCTOR);
 	if (!sEnableVBOs)
 	{
 		mUsage = 0 ; 
@@ -379,7 +400,7 @@ S32 LLVertexBuffer::calcStride(const U32& typemask, S32* offsets)
 //virtual
 LLVertexBuffer::~LLVertexBuffer()
 {
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_DESTRUCTOR);
 	destroyGLBuffer();
 	destroyGLIndices();
 	sCount--;
@@ -459,8 +480,8 @@ void LLVertexBuffer::releaseIndices()
 
 void LLVertexBuffer::createGLBuffer()
 {
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
-
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_CREATE_VERTICES);
+	
 	U32 size = getSize();
 	if (mGLBuffer)
 	{
@@ -491,7 +512,7 @@ void LLVertexBuffer::createGLBuffer()
 
 void LLVertexBuffer::createGLIndices()
 {
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_CREATE_INDICES);
 	U32 size = getIndicesSize();
 
 	if (mGLIndices)
@@ -523,7 +544,7 @@ void LLVertexBuffer::createGLIndices()
 
 void LLVertexBuffer::destroyGLBuffer()
 {
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_DESTROY_BUFFER);
 	if (mGLBuffer)
 	{
 		if (useVBOs())
@@ -550,7 +571,7 @@ void LLVertexBuffer::destroyGLBuffer()
 
 void LLVertexBuffer::destroyGLIndices()
 {
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_DESTROY_INDICES);
 	if (mGLIndices)
 	{
 		if (useVBOs())
@@ -577,7 +598,7 @@ void LLVertexBuffer::destroyGLIndices()
 
 void LLVertexBuffer::updateNumVerts(S32 nverts)
 {
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_UPDATE_VERTS);
 
 	if (nverts >= 65535)
 	{
@@ -606,7 +627,7 @@ void LLVertexBuffer::updateNumVerts(S32 nverts)
 
 void LLVertexBuffer::updateNumIndices(S32 nindices)
 {
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_UPDATE_INDICES);
 	mRequestedNumIndices = nindices;
 	if (!mDynamicSize)
 	{
@@ -627,7 +648,7 @@ void LLVertexBuffer::updateNumIndices(S32 nindices)
 
 void LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 {
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_ALLOCATE_BUFFER);
 		
 	updateNumVerts(nverts);
 	updateNumIndices(nindices);
@@ -650,7 +671,7 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 	mRequestedNumVerts = newnverts;
 	mRequestedNumIndices = newnindices;
 
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_RESIZE_BUFFER);
 	mDynamicSize = TRUE;
 	if (mUsage == GL_STATIC_DRAW_ARB)
 	{ //always delete/allocate static buffers on resize
@@ -779,7 +800,7 @@ BOOL LLVertexBuffer::useVBOs() const
 // Map for data access
 U8* LLVertexBuffer::mapBuffer(S32 access)
 {
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_MAP_BUFFER);
 	if (mFinal)
 	{
 		llerrs << "LLVertexBuffer::mapBuffer() called on a finalized buffer." << llendl;
@@ -791,13 +812,19 @@ U8* LLVertexBuffer::mapBuffer(S32 access)
 		
 	if (!mLocked && useVBOs())
 	{
-		setBuffer(0);
-		mLocked = TRUE;
-		stop_glerror();
-		mMappedData = (U8*) glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
-		stop_glerror();
-		mMappedIndexData = (U8*) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
-		stop_glerror();
+		{
+			LLMemType mt_v(LLMemType::MTYPE_VERTEX_MAP_BUFFER_VERTICES);
+			setBuffer(0);
+			mLocked = TRUE;
+			stop_glerror();	
+			mMappedData = (U8*) glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+			stop_glerror();
+		}
+		{
+			LLMemType mt_v(LLMemType::MTYPE_VERTEX_MAP_BUFFER_INDICES);
+			mMappedIndexData = (U8*) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+			stop_glerror();
+		}
 
 		if (!mMappedData)
 		{
@@ -840,7 +867,7 @@ U8* LLVertexBuffer::mapBuffer(S32 access)
 
 void LLVertexBuffer::unmapBuffer()
 {
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_UNMAP_BUFFER);
 	if (mMappedData || mMappedIndexData)
 	{
 		if (useVBOs() && mLocked)
@@ -962,7 +989,7 @@ bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, S32 in
 
 void LLVertexBuffer::setStride(S32 type, S32 new_stride)
 {
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_SET_STRIDE);
 	if (mNumVerts)
 	{
 		llerrs << "LLVertexBuffer::setOffset called with mNumVerts = " << mNumVerts << llendl;
@@ -984,7 +1011,7 @@ void LLVertexBuffer::setStride(S32 type, S32 new_stride)
 // Set for rendering
 void LLVertexBuffer::setBuffer(U32 data_mask)
 {
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_SET_BUFFER);
 	//set up pointers if the data mask is different ...
 	BOOL setup = (sLastMask != data_mask);
 
@@ -1016,19 +1043,36 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 			sIBOActive = TRUE;
 		}
 		
+		BOOL error = FALSE;
 		if (gDebugGL)
 		{
 			GLint buff;
 			glGetIntegerv(GL_ARRAY_BUFFER_BINDING_ARB, &buff);
 			if ((GLuint)buff != mGLBuffer)
 			{
-				llerrs << "Invalid GL vertex buffer bound: " << buff << llendl;
+				if (gDebugSession)
+				{
+					error = TRUE;
+					gFailLog << "Invalid GL vertex buffer bound: " << buff << std::endl;
+				}
+				else
+				{
+					llerrs << "Invalid GL vertex buffer bound: " << buff << llendl;
+				}
 			}
 
 			glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &buff);
 			if ((GLuint)buff != mGLIndices)
 			{
-				llerrs << "Invalid GL index buffer bound: " << buff << llendl;
+				if (gDebugSession)
+				{
+					error = TRUE;
+					gFailLog << "Invalid GL index buffer bound: " << buff <<  std::endl;
+				}
+				else
+				{
+					llerrs << "Invalid GL index buffer bound: " << buff << llendl;
+				}
 			}
 		}
 
@@ -1040,13 +1084,29 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 				glGetIntegerv(GL_ARRAY_BUFFER_BINDING_ARB, &buff);
 				if ((GLuint)buff != mGLBuffer)
 				{
-					llerrs << "Invalid GL vertex buffer bound: " << buff << llendl;
+					if (gDebugSession)
+					{
+						error = TRUE;
+						gFailLog << "Invalid GL vertex buffer bound: " << std::endl;
+					}
+					else
+					{
+						llerrs << "Invalid GL vertex buffer bound: " << buff << llendl;
+					}
 				}
 
 				glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB, &buff);
 				if ((GLuint)buff != mGLIndices)
 				{
-					llerrs << "Invalid GL index buffer bound: " << buff << llendl;
+					if (gDebugSession)
+					{
+						error = TRUE;
+						gFailLog << "Invalid GL index buffer bound: "<< std::endl;
+					}
+					else
+					{
+						llerrs << "Invalid GL index buffer bound: " << buff << llendl;
+					}
 				}
 			}
 
@@ -1068,10 +1128,22 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 
 			if (data_mask != 0)
 			{
-				llerrs << "Buffer set for rendering before being filled after resize." << llendl;
+				if (gDebugSession)
+				{
+					error = TRUE;
+					gFailLog << "Buffer set for rendering before being filled after resize." << std::endl;
+				}
+				else
+				{
+					llerrs << "Buffer set for rendering before being filled after resize." << llendl;
+				}
 			}
 		}
 
+		if (error)
+		{
+			ll_fail("LLVertexBuffer::mapBuffer failed");
+		}
 		unmapBuffer();
 	}
 	else
@@ -1122,7 +1194,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 // virtual (default)
 void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 {
-	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_SETUP_VERTEX_BUFFER);
 	stop_glerror();
 	U8* base = useVBOs() ? NULL : mMappedData;
 	S32 stride = mStride;

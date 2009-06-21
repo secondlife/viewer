@@ -79,6 +79,7 @@
 #include "llviewertextureanim.h"
 #include "llviewerwindow.h" // For getSpinAxis
 #include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llvoclouds.h"
 #include "llvograss.h"
 #include "llvoground.h"
@@ -97,6 +98,7 @@
 #include "llviewernetwork.h"
 #include "llvowlsky.h"
 #include "llmanip.h"
+#include "lltrans.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -123,7 +125,18 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 	case LL_PCODE_VOLUME:
 	  res = new LLVOVolume(id, pcode, regionp); break;
 	case LL_PCODE_LEGACY_AVATAR:
-	  res = new LLVOAvatar(id, pcode, regionp); break;
+	{
+		if (id == gAgentID)
+		{
+			res = new LLVOAvatarSelf(id, pcode, regionp);
+		}
+		else
+		{
+			res = new LLVOAvatar(id, pcode, regionp); 
+		}
+		static_cast<LLVOAvatar*>(res)->initInstance();
+		break;
+	}
 	case LL_PCODE_LEGACY_GRASS:
 	  res = new LLVOGrass(id, pcode, regionp); break;
 	case LL_PCODE_LEGACY_PART_SYS:
@@ -2461,7 +2474,7 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 		LLPointer<LLInventoryObject> obj;
 		obj = new LLInventoryObject(object->mID, LLUUID::null,
 									LLAssetType::AT_CATEGORY,
-									std::string("Contents"));
+									LLTrans::getString("ViewerObjectContents").c_str());
 		object->mInventory->push_front(obj);
 		object->doInventoryCallback();
 		delete ft;
@@ -2528,6 +2541,7 @@ void LLViewerObject::loadTaskInvFile(const std::string& filename)
 			{
 				LLPointer<LLInventoryObject> inv = new LLInventoryObject;
 				inv->importLegacyStream(ifs);
+				inv->rename(LLTrans::getString("ViewerObjectContents").c_str());
 				mInventory->push_front(inv);
 			}
 			else
@@ -2587,11 +2601,6 @@ void LLViewerObject::removeInventory(const LLUUID& item_id)
 	msg->sendReliable(mRegionp->getHost());
 	deleteInventoryItem(item_id);
 	++mInventorySerialNum;
-
-	// The viewer object should not refresh UI since this is a utility
-	// function. The UI functionality that called this method should
-	// refresh the views if necessary.
-	//gBuildView->refresh();
 }
 
 void LLViewerObject::updateInventory(
@@ -2748,7 +2757,7 @@ void LLViewerObject::setPixelAreaAndAngle(LLAgent &agent)
 	F32 mid_scale = getMidScale();
 	F32 min_scale = getMinScale();
 
-	// IW: esitmate - when close to large objects, computing range based on distance from center is no good
+	// IW: estimate - when close to large objects, computing range based on distance from center is no good
 	// to try to get a min distance from face, subtract min_scale/2 from the range.
 	// This means we'll load too much detail sometimes, but that's better than not enough
 	// I don't think there's a better way to do this without calculating distance per-poly
@@ -3733,7 +3742,6 @@ S32 LLViewerObject::setTEColor(const U8 te, const LLColor4& color)
 	else if (color != tep->getColor())
 	{
 		retval = LLPrimitive::setTEColor(te, color);
-		//setChanged(TEXTURE);
 		if (mDrawable.notNull() && retval)
 		{
 			// These should only happen on updates which are not the initial update.
@@ -3775,6 +3783,22 @@ S32 LLViewerObject::setTETexGen(const U8 te, const U8 texgen)
 	else if (texgen != tep->getTexGen())
 	{
 		retval = LLPrimitive::setTETexGen(te, texgen);
+		setChanged(TEXTURE);
+	}
+	return retval;
+}
+
+S32 LLViewerObject::setTEMediaTexGen(const U8 te, const U8 media)
+{
+	S32 retval = 0;
+	const LLTextureEntry *tep = getTE(te);
+	if (!tep)
+	{
+		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+	}
+	else if (media != tep->getMediaTexGen())
+	{
+		retval = LLPrimitive::setTEMediaTexGen(te, media);
 		setChanged(TEXTURE);
 	}
 	return retval;

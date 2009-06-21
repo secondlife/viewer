@@ -50,28 +50,27 @@ class LLInventoryModel;
 class LLInventoryObserver;
 class LLItemInfo;
 class LLTabContainer;
-class LLWorldMapView;
 
 class LLFloaterWorldMap : public LLFloater
 {
 public:
-	LLFloaterWorldMap();
+	LLFloaterWorldMap(const LLSD& key);
 	virtual ~LLFloaterWorldMap();
+
+	// Prefer this to gFloaterWorldMap
+	static LLFloaterWorldMap* getInstance();
 
 	static void *createWorldMapView(void* data);
 	BOOL postBuild();
 
+	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
 
-	static void show(void*, BOOL center_on_target );
 	static void reloadIcons(void*);
-	static void toggle(void*);
-	static void hide(void*); 
 
 	/*virtual*/ void reshape( S32 width, S32 height, BOOL called_from_parent = TRUE );
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ void setVisible(BOOL visible);
 	/*virtual*/ void draw();
 
 	// methods for dealing with inventory. The observe() method is
@@ -117,16 +116,16 @@ protected:
 
 	static void		onGoHome(void* data);
 
-	static void		onLandmarkComboPrearrange( LLUICtrl* ctrl, void* data );
+	void			onLandmarkComboPrearrange( );
 	static void		onLandmarkComboCommit( LLUICtrl* ctrl, void* data );
 
-	static void		onAvatarComboPrearrange( LLUICtrl* ctrl, void* data );
+	void			onAvatarComboPrearrange( );
 	static void		onAvatarComboCommit( LLUICtrl* ctrl, void* data );
 
-	static void		onCommitBackground(void* data, bool from_click);
+	void			onCommitBackground();
 
-	static void		onComboTextEntry( LLLineEditor* ctrl, void* data );
-	static void		onSearchTextEntry( LLLineEditor* ctrl, void* data );
+	void			onComboTextEntry( );
+	void			onSearchTextEntry( LLLineEditor* ctrl );
 
 	static void		onClearBtn(void*);
 	static void		onFlyBtn(void*);
@@ -153,8 +152,8 @@ protected:
 	void			flyToAvatar();
 	void			teleportToAvatar();
 
-	static void		updateSearchEnabled( LLUICtrl* ctrl, void* userdata );
-	static void		onLocationFocusChanged( LLFocusableElement* ctrl, void* userdata );
+	void			updateSearchEnabled( );
+	void			onLocationFocusChanged( LLFocusableElement* ctrl );
 	static void		onLocationCommit( void* userdata );
 	static void		onCommitLocation( LLUICtrl* ctrl, void* userdata );
 	static void		onCommitSearchResult( LLUICtrl* ctrl, void* userdata );

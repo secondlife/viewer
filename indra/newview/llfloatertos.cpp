@@ -254,7 +254,7 @@ void LLFloaterTOS::onContinue( void* userdata )
 	#endif
 
 	LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );			// Go back and finish authentication
-	self->close(); // destroys this object
+	self->closeFloater(); // destroys this object
 }
 
 // static
@@ -265,7 +265,7 @@ void LLFloaterTOS::onCancel( void* userdata )
 	LLNotifications::instance().add("MustAgreeToLogIn", LLSD(), LLSD(), login_alert_done);
 	LLStartUp::setStartupState( STATE_LOGIN_SHOW );
 	self->mLoadCompleteCount = 0;  // reset counter for next time we come to TOS
-	self->close(); // destroys this object
+	self->closeFloater(); // destroys this object
 }
 
 //virtual 

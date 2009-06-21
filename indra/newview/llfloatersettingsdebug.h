@@ -37,10 +37,14 @@
 #include "llfloater.h"
 #include "lltexteditor.h"
 
-class LLFloaterSettingsDebug : public LLFloater
+class LLFloaterSettingsDebug 
+:	public LLFloater, 
+	public LLFloaterSingleton<LLFloaterSettingsDebug>
 {
 public:
-	LLFloaterSettingsDebug();
+	// key - selects which settings to show, one of:
+	// "all", "base", "account", "skin"
+	LLFloaterSettingsDebug(const LLSD& key);
 	virtual ~LLFloaterSettingsDebug();
 
 	virtual BOOL postBuild();
@@ -48,13 +52,11 @@ public:
 
 	void updateControl(LLControlVariable* control);
 
-	static void show(void*);
 	static void onSettingSelect(LLUICtrl* ctrl, void* user_data);
 	static void onCommitSettings(LLUICtrl* ctrl, void* user_data);
 	static void onClickDefault(void* user_data);
 
 protected:
-	static LLFloaterSettingsDebug* sInstance;
 	LLTextEditor* mComment;
 };
 

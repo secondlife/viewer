@@ -4,10 +4,10 @@
     <map>
       <!--
       The Locations LLSD block specifies the usage pattern of 
-      the settings file types listed above. 
+      the settings file types
       Each location is represented by a LLSD containing the following values:
       PathIndex = hard coded path indicies.
-      Files = map of files to load, from above 'Files' section. 
+      Files = map of files to load
         Each file can have:
         Requirement = level of necessity for loading. 
           0 ( or Req. no key) = do not load
@@ -50,6 +50,13 @@
               <key>Requirement</key>
               <integer>1</integer>
             </map>
+            <key>Warnings</key>
+            <map>
+              <key>Name</key>
+              <string>ignorable_dialogs.xml</string>
+              <key>Requirement</key>
+              <integer>1</integer>
+            </map>
           </map>
         </map>
         <key>User</key>
@@ -70,6 +77,13 @@
               <key>Name</key>
               <string>settings_crash_behavior.xml</string>
             </map>
+            <key>Warnings</key>
+            <map>
+              <key>Name</key>
+              <string>ignorable_dialogs.xml</string>
+              <key>NameFromSetting</key>
+              <string>WarningSettingsFile</string>
+            </map>
           </map>
         </map>
         <key>Account</key>
@@ -82,6 +96,49 @@
             <map>
               <key>Name</key>
               <string>settings_per_account.xml</string>
+              <key>NameFromSetting</key>
+              <string>PerAccountSettingsFile</string>
+            </map>
+          </map>
+        </map>
+        <key>DefaultSkin</key>
+        <map>
+          <key>PathIndex</key>
+          <integer>17</integer>
+          <key>Files</key>
+          <map>
+            <key>Skinning</key>
+            <map>
+              <key>Name</key>
+              <string>colors.xml</string>
+            </map>
+          </map>
+        </map>
+        <key>CurrentSkin</key>
+        <map>
+          <key>PathIndex</key>
+          <integer>10</integer>
+          <key>Files</key>
+          <map>
+            <key>Skinning</key>
+            <map>
+              <key>Name</key>
+              <string>colors.xml</string>
+            </map>
+          </map>
+        </map>
+        <key>UserSkin</key>
+        <map>
+          <key>PathIndex</key>
+          <integer>14</integer>
+          <key>Files</key>
+          <map>
+            <key>Skinning</key>
+            <map>
+              <key>Name</key>
+              <string>colors.xml</string>
+              <key>NameFromSetting</key>
+              <string>SkinningSettingsFile</string>
             </map>
           </map>
         </map>

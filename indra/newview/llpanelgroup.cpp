@@ -46,12 +46,21 @@
 #include "llviewerwindow.h"
 #include "llappviewer.h"
 #include "llnotifications.h"
+#include "llfloater.h"
 
 // static
 void* LLPanelGroupTab::createTab(void* data)
 {
 	LLUUID* group_id = static_cast<LLUUID*>(data);
-	return new LLPanelGroupTab("panel group tab", *group_id);
+	return new LLPanelGroupTab(*group_id);
+}
+
+LLPanelGroupTab::LLPanelGroupTab(const LLUUID& group_id)
+	: LLPanel(),
+	  mGroupID(group_id),
+	  mAllowEdit(TRUE),
+	  mHasModal(FALSE)
+{
 }
 
 LLPanelGroupTab::~LLPanelGroupTab()
@@ -68,13 +77,11 @@ BOOL LLPanelGroupTab::isVisibleByAgent(LLAgent* agentp)
 BOOL LLPanelGroupTab::postBuild()
 {
 	// Hook up the help button callback.
-	LLButton* button = getChild<LLButton>("help_button");
+	LLButton* button = findChild<LLButton>("help_button");
 	if (button)
 	{
-		button->setClickedCallback(onClickHelp);
-		button->setCallbackUserData(this);
+		button->setCommitCallback(boost::bind(&LLPanelGroupTab::handleClickHelp, this));
 	}
-
 	mHelpText = getString("help_text");
 	return TRUE;
 }
@@ -103,13 +110,6 @@ void LLPanelGroupTab::notifyObservers()
 	}
 }
 
-// static
-void LLPanelGroupTab::onClickHelp(void* user_data)
-{
-	LLPanelGroupTab* self = static_cast<LLPanelGroupTab*>(user_data);
-	self->handleClickHelp();
-}
-
 void LLPanelGroupTab::handleClickHelp()
 {
 	// Display the help text.
@@ -125,67 +125,48 @@ void LLPanelGroupTab::handleClickHelp()
 	}
 }
 
-LLPanelGroup::LLPanelGroup(const std::string& filename,
-						   const std::string& name,
-						   const LLUUID& group_id,
-						   const std::string& initial_tab_selected)
-:	LLPanel(name, LLRect(), FALSE),
+LLPanelGroup::LLPanelGroup(const LLUUID& group_id)
+:	LLPanel(),
 	LLGroupMgrObserver( group_id ),
 	mCurrentTab( NULL ),
 	mRequestedTab( NULL ),
 	mTabContainer( NULL ),
 	mIgnoreTransition( FALSE ),
+	mApplyBtn( NULL ),
 	mForceClose( FALSE ),
-	mInitialTab(initial_tab_selected),
 	mAllowEdit( TRUE ),
 	mShowingNotifyDialog( FALSE )
 {
 	// Set up the factory callbacks.
-	mFactoryMap["general_tab"]	= LLCallbackMap(LLPanelGroupGeneral::createTab,
-												&mID);
-	mFactoryMap["roles_tab"]	= LLCallbackMap(LLPanelGroupRoles::createTab,
-												&mID);
-	mFactoryMap["notices_tab"]	= LLCallbackMap(LLPanelGroupNotices::createTab,
-												&mID);
-	mFactoryMap["land_money_tab"]= LLCallbackMap(LLPanelGroupLandMoney::createTab,
-												 &mID);
+	mFactoryMap["general_tab"]	= LLCallbackMap(LLPanelGroupGeneral::createTab, &mID);
+	mFactoryMap["roles_tab"]	= LLCallbackMap(LLPanelGroupRoles::createTab, &mID);
+	mFactoryMap["notices_tab"]	= LLCallbackMap(LLPanelGroupNotices::createTab, &mID);
+	mFactoryMap["land_money_tab"]= LLCallbackMap(LLPanelGroupLandMoney::createTab, &mID);
 	// Roles sub tabs
 	mFactoryMap["members_sub_tab"] = LLCallbackMap(LLPanelGroupMembersSubTab::createTab, &mID);
 	mFactoryMap["roles_sub_tab"] = LLCallbackMap(LLPanelGroupRolesSubTab::createTab, &mID);
 	mFactoryMap["actions_sub_tab"] = LLCallbackMap(LLPanelGroupActionsSubTab::createTab, &mID);
 
 	LLGroupMgr::getInstance()->addObserver(this);
-
-	// Pass on construction of this panel to the control factory.
-	LLUICtrlFactory::getInstance()->buildPanel(this, filename, &getFactoryMap());
-	mFilename = filename;
 }
 
 LLPanelGroup::~LLPanelGroup()
 {
 	LLGroupMgr::getInstance()->removeObserver(this);
 
-	int i;
-	int tab_count = mTabContainer->getTabCount();
-
-	for (i = tab_count - 1; i >=0; --i)
+	for (S32 i=mTabContainer->getTabCount() - 1; i >=0; --i)
 	{
-		LLPanelGroupTab* panelp =
-			(LLPanelGroupTab*) mTabContainer->getPanelByIndex(i);
-
-		if ( panelp ) panelp->removeObserver(this);
+		LLPanelGroupTab* panelp = (LLPanelGroupTab*) mTabContainer->getPanelByIndex(i);
+		if ( panelp )
+			panelp->removeObserver(this);
 	}
 }
 
 void LLPanelGroup::updateTabVisibility()
 {
-	S32 i;
-	S32 tab_count = mTabContainer->getTabCount();
-
-	for (i = tab_count - 1; i >=0; --i)
+	for (S32 i = mTabContainer->getTabCount() - 1; i >=0; --i)
 	{
-		LLPanelGroupTab* panelp =
-			(LLPanelGroupTab*) mTabContainer->getPanelByIndex(i);
+		LLPanelGroupTab* panelp = (LLPanelGroupTab*) mTabContainer->getPanelByIndex(i);
 
 		BOOL visible = panelp->isVisibleByAgent(&gAgent) || gAgent.isGodlike();
 		mTabContainer->enableTabButton(i, visible);
@@ -195,8 +176,7 @@ void LLPanelGroup::updateTabVisibility()
 			//we are disabling the currently selected tab
 			//select the previous one
 			mTabContainer->selectPrevTab();
-			mCurrentTab = 
-				(LLPanelGroupTab*) mTabContainer->getCurrentPanel();
+			mCurrentTab = (LLPanelGroupTab*) mTabContainer->getCurrentPanel();
 		}
 	}
 }
@@ -209,48 +189,23 @@ BOOL LLPanelGroup::postBuild()
 
 	if (mTabContainer)
 	{
-		// Select the initial tab specified via constructor
-		const BOOL recurse = TRUE;
-		LLPanelGroupTab* tabp = 
-			getChild<LLPanelGroupTab>(mInitialTab, recurse);
-
-		if (!tabp)
-		{
-			//our initial tab selection was invalid, just select the
-			//first tab then or default to selecting the initial
-			//selected tab specified in the layout file
-			tabp = (LLPanelGroupTab*) mTabContainer->getCurrentPanel();
-
-			//no tab was initially selected through constructor
-			//or the XML, select the first tab
-			if (!tabp)
-			{
-				mTabContainer->selectFirstTab();
-				tabp = (LLPanelGroupTab*) mTabContainer->getCurrentPanel();
-			}
-		}
-		else
-		{
-			mTabContainer->selectTabPanel(tabp);
-		}
-
-		mCurrentTab = tabp;
-
-		// Add click callbacks.
-		S32 i;
-		S32 tab_count = mTabContainer->getTabCount();
-
-		for (i = tab_count - 1; i >=0; --i)
+		mCurrentTab = dynamic_cast<LLPanelGroupTab*>(mTabContainer->getCurrentPanel());
+		llassert_always(mCurrentTab);
+		
+		// Add click callback.
+		mTabContainer->setCommitCallback(boost::bind(&LLPanelGroup::handleClickTab, this));
+		
+		// Setup pabels
+		for (S32 i = mTabContainer->getTabCount() - 1; i >=0; --i)
 		{
 			LLPanel* tab_panel = mTabContainer->getPanelByIndex(i);
-			LLPanelGroupTab* panelp =(LLPanelGroupTab*)tab_panel; // bit of a hack
-
-			// Pass on whether or not to allow edit to tabs.
-			panelp->setAllowEdit(mAllowEdit);
-			panelp->addObserver(this);
-
-			mTabContainer->setTabChangeCallback(panelp, onClickTab);
-			mTabContainer->setTabUserData(panelp, this);
+			LLPanelGroupTab* panelp = dynamic_cast<LLPanelGroupTab*>(tab_panel);
+			if (panelp)
+			{
+				// Pass on whether or not to allow edit to tabs.
+				panelp->setAllowEdit(mAllowEdit);
+				panelp->addObserver(this);
+			}
 		}
 		updateTabVisibility();
 
@@ -262,38 +217,22 @@ BOOL LLPanelGroup::postBuild()
 	mWantApplyMesg = getString("want_apply_text");
 
 	LLButton* button = getChild<LLButton>("btn_ok");
-	if (button)
-	{
-		button->setClickedCallback(onBtnOK);
-		button->setCallbackUserData(this);
-		button->setVisible(mAllowEdit);
-	}
+	button->setClickedCallback(onBtnOK, this);
+	button->setVisible(mAllowEdit);
 	
 	button = getChild<LLButton>("btn_cancel");
-	if (button)
-	{
-		button->setClickedCallback(onBtnCancel);
-	   	button->setCallbackUserData(this);
-		button->setVisible(mAllowEdit);
-	}
+	button->setClickedCallback(onBtnCancel, this);
+	button->setVisible(mAllowEdit);
 
 	button = getChild<LLButton>("btn_apply");
-	if (button)
-	{
-		button->setClickedCallback(onBtnApply);
-		button->setVisible(mAllowEdit);
-		button->setEnabled(FALSE);
-
-		mApplyBtn = button;
-	}
+	button->setClickedCallback(onBtnApply, this);
+	button->setVisible(mAllowEdit);
+	button->setEnabled(FALSE);
+	mApplyBtn = button;
 
 	button = getChild<LLButton>("btn_refresh");
-	if (button)
-	{
-		button->setClickedCallback(onBtnRefresh);
-		button->setCallbackUserData(this);
-		button->setVisible(mAllowEdit);
-	}
+	button->setClickedCallback(onBtnRefresh, this);
+	button->setVisible(mAllowEdit);
 
 	return TRUE;
 }
@@ -320,13 +259,6 @@ void LLPanelGroup::tabChanged()
 		std::string mesg;
 		mApplyBtn->setEnabled(mCurrentTab->needsApply(mesg));
 	}
-}
-
-// static
-void LLPanelGroup::onClickTab(void* user_data, bool from_click)
-{
-	LLPanelGroup* self = static_cast<LLPanelGroup*>(user_data);
-	self->handleClickTab();
 }
 
 void LLPanelGroup::handleClickTab()
@@ -357,7 +289,8 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	LLGroupMgr::getInstance()->removeObserver(this);
 	mID = group_id;
 	LLGroupMgr::getInstance()->addObserver(this);
-	//TODO:  this is really bad, we should add a method
+
+	//*TODO:  this is really bad, we should add a method
 	// where the panels can just update themselves
 	// on a group id change.  Similar to update() but with a group
 	// id change.
@@ -365,20 +298,19 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	// For now, rebuild panel
 	//delete children and rebuild panel
 	deleteAllChildren();
-	LLUICtrlFactory::getInstance()->buildPanel(this, mFilename, &getFactoryMap());
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_group.xml");
 }
 
 void LLPanelGroup::selectTab(std::string tab_name)
 {
 	const BOOL recurse = TRUE;
 
-	LLPanelGroupTab* tabp = 
-		getChild<LLPanelGroupTab>(tab_name, recurse);
+	LLPanelGroupTab* tabp = findChild<LLPanelGroupTab>(tab_name, recurse);
 
 	if ( tabp && mTabContainer )
 	{
 		mTabContainer->selectTabPanel(tabp);
-		onClickTab(this, false);
+		handleClickTab();
 	}
 }
 
@@ -455,7 +387,7 @@ void LLPanelGroup::transitionToTab()
 	}
 	else // NULL requested indicates a close action.
 	{
-		close();
+		closePanel();
 	}
 }
 
@@ -507,7 +439,7 @@ void LLPanelGroup::onBtnOK(void* user_data)
 	// If we are able to apply changes, then close.
 	if(self->apply())
 	{
-		self->close();
+		self->closePanel();
 	}
 }
 
@@ -515,7 +447,7 @@ void LLPanelGroup::onBtnOK(void* user_data)
 void LLPanelGroup::onBtnCancel(void* user_data)
 {
 	LLPanelGroup* self = static_cast<LLPanelGroup*>(user_data);
-	self->close();
+	self->closePanel();
 }
 
 // static
@@ -528,10 +460,12 @@ void LLPanelGroup::onBtnApply(void* user_data)
 bool LLPanelGroup::apply()
 {
 	// Pass this along to the currently visible tab.
-	if (!mTabContainer) return false;
+	if (!mTabContainer)
+		return false;
 
-	LLPanelGroupTab* panelp = (LLPanelGroupTab*) mTabContainer->getCurrentPanel();
-	if (!panelp) return false;
+	LLPanelGroupTab* panelp = dynamic_cast<LLPanelGroupTab*>(mTabContainer->getCurrentPanel());
+	if (!panelp)
+		return false;
 	
 	std::string mesg;
 	if ( !panelp->needsApply(mesg) )
@@ -598,7 +532,7 @@ void LLPanelGroup::refreshData()
 	mRefreshTimer.setTimerExpirySec(5);
 }
 
-void LLPanelGroup::close()
+void LLPanelGroup::closePanel()
 {
 	// Pass this to the parent, if it is a floater.
 	LLView* viewp = getParent();
@@ -609,7 +543,7 @@ void LLPanelGroup::close()
 		// will be asking us whether it can close.
 		mForceClose = TRUE;
 		// Tell the parent floater to close.
-		floaterp->close();
+		floaterp->closeFloater();
 	}
 }
 

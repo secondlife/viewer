@@ -1877,6 +1877,21 @@ bool LLTextureFetch::receiveImagePacket(const LLHost& host, const LLUUID& id, U1
 }
 
 //////////////////////////////////////////////////////////////////////////////
+BOOL LLTextureFetch::isFromLocalCache(const LLUUID& id)
+{
+	BOOL from_cache = FALSE ;
+
+	LLMutexLock lock(&mQueueMutex);
+	LLTextureFetchWorker* worker = getWorker(id);
+	if (worker)
+	{
+		worker->lockWorkData();
+		from_cache = worker->mInLocalCache ;
+		worker->unlockWorkData();
+	}
+
+	return from_cache ;
+}
 
 S32 LLTextureFetch::getFetchState(const LLUUID& id, F32& data_progress_p, F32& requested_priority_p,
 								  U32& fetch_priority_p, F32& fetch_dtime_p, F32& request_dtime_p)

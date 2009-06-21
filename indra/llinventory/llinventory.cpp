@@ -705,8 +705,8 @@ BOOL LLInventoryItem::exportFile(LLFILE* fp, BOOL include_asset_key) const
 		fprintf(fp, "\t\tasset_id\t%s\n", uuid_str.c_str());
 	}
 	fprintf(fp, "\t\ttype\t%s\n", LLAssetType::lookup(mType));
-	const char* inv_type_str = LLInventoryType::lookup(mInventoryType);
-	if(inv_type_str) fprintf(fp, "\t\tinv_type\t%s\n", inv_type_str);
+	const std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
+	if(!inv_type_str.empty()) fprintf(fp, "\t\tinv_type\t%s\n", inv_type_str.c_str());
 	fprintf(fp, "\t\tflags\t%08x\n", mFlags);
 	mSaleInfo.exportFile(fp);
 	fprintf(fp, "\t\tname\t%s|\n", mName.c_str());
@@ -908,8 +908,8 @@ BOOL LLInventoryItem::exportLegacyStream(std::ostream& output_stream, BOOL inclu
 		output_stream << "\t\tasset_id\t" << uuid_str << "\n";
 	}
 	output_stream << "\t\ttype\t" << LLAssetType::lookup(mType) << "\n";
-	const char* inv_type_str = LLInventoryType::lookup(mInventoryType);
-	if(inv_type_str) 
+	const std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
+	if(!inv_type_str.empty()) 
 		output_stream << "\t\tinv_type\t" << inv_type_str << "\n";
 	std::string buffer;
 	buffer = llformat( "\t\tflags\t%08x\n", mFlags);
@@ -951,8 +951,8 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
 	}
 	sd[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
 	sd[INV_INVENTORY_TYPE_LABEL] = mInventoryType;
-	const char* inv_type_str = LLInventoryType::lookup(mInventoryType);
-	if(inv_type_str)
+	const std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
+	if(!inv_type_str.empty())
 	{
 		sd[INV_INVENTORY_TYPE_LABEL] = inv_type_str;
 	}
@@ -1097,109 +1097,8 @@ fail:
 
 }
 
-LLXMLNode *LLInventoryItem::exportFileXML(BOOL include_asset_key) const
-{
-	LLMemType m1(LLMemType::MTYPE_INVENTORY);
-	LLXMLNode *ret = new LLXMLNode("item", FALSE);
-
-	ret->createChild("uuid", TRUE)->setUUIDValue(1, &mUUID);
-	ret->createChild("parent_uuid", TRUE)->setUUIDValue(1, &mParentUUID);
-
-	mPermissions.exportFileXML()->setParent(ret);
-
-	// Check for permissions to see the asset id, and if so write it
-	// out as an asset id. Otherwise, apply our cheesy encryption.
-	if(include_asset_key)
-	{
-		U32 mask = mPermissions.getMaskBase();
-		if(((mask & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
-		   || (mAssetUUID.isNull()))
-		{
-			ret->createChild("asset_id", FALSE)->setUUIDValue(1, &mAssetUUID);
-		}
-		else
-		{
-			LLUUID shadow_id(mAssetUUID);
-			LLXORCipher cipher(MAGIC_ID.mData, UUID_BYTES);
-			cipher.encrypt(shadow_id.mData, UUID_BYTES);
-
-			ret->createChild("shadow_id", FALSE)->setUUIDValue(1, &shadow_id);
-		}
-	}
-
-	std::string type_str = LLAssetType::lookup(mType);
-	std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
-
-	ret->createChild("asset_type", FALSE)->setStringValue(type_str);
-	ret->createChild("inventory_type", FALSE)->setStringValue(inv_type_str);
-	S32 tmp_flags = (S32) mFlags;
-	ret->createChild("flags", FALSE)->setByteValue(4, (U8*)(&tmp_flags), LLXMLNode::ENCODING_HEX);
-
-	mSaleInfo.exportFileXML()->setParent(ret);
-
-	std::string temp;
-	temp.assign(mName);
-	ret->createChild("name", FALSE)->setStringValue(temp);
-	temp.assign(mDescription);
-	ret->createChild("description", FALSE)->setStringValue(temp);
-	S32 date = mCreationDate;
-	ret->createChild("creation_date", FALSE)->setIntValue(1, &date);
-
-	return ret;
-}
-
-BOOL LLInventoryItem::importXML(LLXMLNode* node)
-{
-	BOOL success = FALSE;
-	if (node)
-	{
-		success = TRUE;
-		LLXMLNodePtr sub_node;
-		if (node->getChild("uuid", sub_node))
-			success = (1 == sub_node->getUUIDValue(1, &mUUID));
-		if (node->getChild("parent_uuid", sub_node))
-			success = success && (1 == sub_node->getUUIDValue(1, &mParentUUID));
-		if (node->getChild("permissions", sub_node))
-			success = success && mPermissions.importXML(sub_node);
-		if (node->getChild("asset_id", sub_node))
-			success = success && (1 == sub_node->getUUIDValue(1, &mAssetUUID));
-		if (node->getChild("shadow_id", sub_node))
-		{
-			success = success && (1 == sub_node->getUUIDValue(1, &mAssetUUID));
-			LLXORCipher cipher(MAGIC_ID.mData, UUID_BYTES);
-			cipher.decrypt(mAssetUUID.mData, UUID_BYTES);
-		}
-		if (node->getChild("asset_type", sub_node))
-			mType = LLAssetType::lookup(sub_node->getValue());
-		if (node->getChild("inventory_type", sub_node))
-			mInventoryType = LLInventoryType::lookup(sub_node->getValue());
-		if (node->getChild("flags", sub_node))
-		{
-			S32 tmp_flags = 0;
-			success = success && (1 == sub_node->getIntValue(1, &tmp_flags));
-			mFlags = (U32) tmp_flags;
-		}
-		if (node->getChild("sale_info", sub_node))
-			success = success && mSaleInfo.importXML(sub_node);
-		if (node->getChild("name", sub_node))
-			mName = sub_node->getValue();
-		if (node->getChild("description", sub_node))
-			mDescription = sub_node->getValue();
-		if (node->getChild("creation_date", sub_node))
-		{
-			S32 date = 0;
-			success = success && (1 == sub_node->getIntValue(1, &date));
-			mCreationDate = date;
-		}
-		
-		if (!success)
-		{
-			lldebugs << "LLInventory::importXML() failed for node named '" 
-				<< node->getName() << "'" << llendl;
-		}
-	}
-	return success;
-}
+// Deleted LLInventoryItem::exportFileXML() and LLInventoryItem::importXML()
+// because I can't find any non-test code references to it. 2009-05-04 JC
 
 S32 LLInventoryItem::packBinaryBucket(U8* bin_bucket, LLPermissions* perm_override) const
 {

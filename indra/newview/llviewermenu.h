@@ -34,6 +34,7 @@
 #define LL_LLVIEWERMENU_H
 
 #include "llmenugl.h"
+#include "llsafehandle.h"
 
 //newview includes
 #include "llfilepicker.h"
@@ -44,7 +45,6 @@ class LLParcelSelection;
 class LLObjectSelection;
 
 
-void pre_init_menus();
 void init_menus();
 void cleanup_menus();
 
@@ -79,26 +79,22 @@ BOOL enable_redo(void*);
 BOOL is_agent_friend(const LLUUID& agent_id);
 BOOL is_agent_mappable(const LLUUID& agent_id);
 
-void menu_toggle_control( void* user_data );
 void confirm_replace_attachment(S32 option, void* user_data);
-void handle_detach_from_avatar(void* user_data);
-void attach_label(std::string& label, void* user_data);
-void detach_label(std::string& label, void* user_data);
-BOOL object_selected_and_point_valid(void* user_data);
-BOOL object_attached(void* user_data);
+void handle_detach_from_avatar(const LLSD& user_data);
+void attach_label(std::string& label, const LLSD&);
+void detach_label(std::string& label, const LLSD&);
+BOOL object_selected_and_point_valid(const LLSD&);
 void handle_detach(void*);
 BOOL enable_god_full(void* user_data);
 BOOL enable_god_liaison(void* user_data);
 BOOL enable_god_customer_service(void* user_data);
 BOOL enable_god_basic(void* user_data);
-void handle_show_newest_map(void*);
 void set_underclothes_menu_options();
 
 void exchange_callingcard(const LLUUID& dest_id);
 
 void handle_gestures(void*);
 void handle_sit_down(void*);
-bool toggle_build_mode();
 void handle_object_build(void*);
 void handle_save_snapshot(void *);
 void handle_toggle_flycam();
@@ -119,8 +115,6 @@ class LLPermissions;
 class LLViewerMenuHolderGL : public LLMenuHolderGL
 {
 public:
-	LLViewerMenuHolderGL();
-
 	virtual BOOL hideMenus();
 	
 	void setParcelSelection(LLSafeHandle<LLParcelSelection> selection);
@@ -142,30 +136,31 @@ extern LLViewerMenuHolderGL*	gMenuHolder;
 extern LLMenuBarGL*		gLoginMenuBarView;
 
 // Pie menus
-extern LLPieMenu	*gPieSelf;
-extern LLPieMenu	*gPieAvatar;
-extern LLPieMenu	*gPieObject;
-extern LLPieMenu	*gPieAttachment;
-extern LLPieMenu	*gPieLand;
-extern LLPieMenu*	gPieRate;
+extern LLContextMenu		*gPieSelf;
+extern LLContextMenu		*gPieAvatar;
+extern LLContextMenu		*gPieObject;
+extern LLContextMenu		*gPieAttachment;
+
+extern LLContextMenu		*gPieLand;
+extern LLContextMenu		*gPieRate;
 
 // Pie menus
-extern LLPieMenu	*gPieSelfSimple;
-extern LLPieMenu	*gPieAvatarSimple;
-extern LLPieMenu	*gPieObjectSimple;
-extern LLPieMenu	*gPieAttachmentSimple;
-extern LLPieMenu	*gPieLandSimple;
+extern LLContextMenu	*gPieSelfSimple;
+extern LLContextMenu	*gPieAvatarSimple;
+extern LLContextMenu	*gPieObjectSimple;
+extern LLContextMenu	*gPieAttachmentSimple;
+extern LLContextMenu	*gPieLandSimple;
 
 // Needed to build menus when attachment site list available
 extern LLMenuGL* gAttachSubMenu;
 extern LLMenuGL* gDetachSubMenu;
 extern LLMenuGL* gTakeOffClothes;
-extern LLPieMenu* gAttachScreenPieMenu;
-extern LLPieMenu* gDetachScreenPieMenu;
-extern LLPieMenu* gAttachPieMenu;
-extern LLPieMenu* gDetachPieMenu;
-extern LLPieMenu* gAttachBodyPartPieMenus[8];
-extern LLPieMenu* gDetachBodyPartPieMenus[8];
+extern LLContextMenu* gAttachScreenPieMenu;
+extern LLContextMenu* gDetachScreenPieMenu;
+extern LLContextMenu* gAttachPieMenu;
+extern LLContextMenu* gDetachPieMenu;
+extern LLContextMenu* gAttachBodyPartPieMenus[8];
+extern LLContextMenu* gDetachBodyPartPieMenus[8];
 
 extern LLMenuItemCallGL* gAFKMenu;
 extern LLMenuItemCallGL* gBusyMenu;

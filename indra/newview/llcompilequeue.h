@@ -59,20 +59,20 @@
 class LLFloaterScriptQueue : public LLFloater, public LLVOInventoryListener
 {
 public:
+	LLFloaterScriptQueue(const LLSD& key);
+	virtual ~LLFloaterScriptQueue();
+
+	/*virtual*/ BOOL postBuild();
+	
+	void setMono(bool mono) { mMono = mono; }
+	
 	// addObject() accepts an object id.
 	void addObject(const LLUUID& id);
 
 	// start() returns TRUE if the queue has started, otherwise FALSE.
 	BOOL start();
-
-	// find an instance by ID. Return NULL if it does not exist.
-	static LLFloaterScriptQueue* findInstance(const LLUUID& id);
-
+	
 protected:
-	LLFloaterScriptQueue(const std::string& name, const LLRect& rect,
-						 const std::string& title, const std::string& start_string);
-	virtual ~LLFloaterScriptQueue();
-
 	// This is the callback method for the viewer object currently
 	// being worked on.
 	/*virtual*/ void inventoryChanged(LLViewerObject* obj,
@@ -94,8 +94,7 @@ protected:
 	BOOL nextObject();
 	BOOL popNext();
 
-	// Get this instances ID.
-	const LLUUID& getID() const { return mID; } 
+	void setStartString(const std::string& s) { mStartString = s; }
 	
 protected:
 	// UI
@@ -107,10 +106,8 @@ protected:
 	LLUUID mCurrentObjectID;
 	BOOL mDone;
 
-	LLUUID mID;
-	static LLMap<LLUUID, LLFloaterScriptQueue*> sInstances;
-
 	std::string mStartString;
+	BOOL mMono;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -131,20 +128,19 @@ class LLAssetUploadQueue;
 
 class LLFloaterCompileQueue : public LLFloaterScriptQueue
 {
+	friend class LLFloaterReg;
 public:
-	// Use this method to create a compile queue. Once created, it
-	// will be responsible for it's own destruction.
-	static LLFloaterCompileQueue* create(BOOL mono);
-
 	static void onSaveBytecodeComplete(const LLUUID& asset_id,
 									void* user_data,
 									S32 status);
 									
 	// remove any object in mScriptScripts with the matching uuid.
 	void removeItemByItemID(const LLUUID& item_id);
+	
+	LLAssetUploadQueue* getUploadQueue() { return mUploadQueue; }
 
 protected:
-	LLFloaterCompileQueue(const std::string& name, const LLRect& rect);
+	LLFloaterCompileQueue(const LLSD& key);
 	virtual ~LLFloaterCompileQueue();
 	
 	// This is called by inventoryChanged
@@ -173,12 +169,11 @@ protected:
 
 	// find InventoryItem given item id.
 	const LLInventoryItem* findItemByItemID(const LLUUID& item_id) const;
-
+	
 protected:
 	LLViewerInventoryItem::item_array_t mCurrentScripts;
 
 private:
-	BOOL mMono; // Compile to mono.
 	LLAssetUploadQueue* mUploadQueue;
 };
 
@@ -190,20 +185,14 @@ private:
 
 class LLFloaterResetQueue : public LLFloaterScriptQueue
 {
-public:
-	// Use this method to create a reset queue. Once created, it
-	// will be responsible for it's own destruction.
-	static LLFloaterResetQueue* create();
-
+	friend class LLFloaterReg;
 protected:
-	LLFloaterResetQueue(const std::string& name, const LLRect& rect);
+	LLFloaterResetQueue(const LLSD& key);
 	virtual ~LLFloaterResetQueue();
 	
 	// This is called by inventoryChanged
 	virtual void handleInventory(LLViewerObject* viewer_obj,
 								InventoryObjectList* inv);
-
-protected:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -214,20 +203,14 @@ protected:
 
 class LLFloaterRunQueue : public LLFloaterScriptQueue
 {
-public:
-	// Use this method to create a run queue. Once created, it
-	// will be responsible for it's own destruction.
-	static LLFloaterRunQueue* create();
-
+	friend class LLFloaterReg;
 protected:
-	LLFloaterRunQueue(const std::string& name, const LLRect& rect);
+	LLFloaterRunQueue(const LLSD& key);
 	virtual ~LLFloaterRunQueue();
 	
 	// This is called by inventoryChanged
 	virtual void handleInventory(LLViewerObject* viewer_obj,
 								InventoryObjectList* inv);
-
-protected:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -238,20 +221,14 @@ protected:
 
 class LLFloaterNotRunQueue : public LLFloaterScriptQueue
 {
-public:
-	// Use this method to create a not run queue. Once created, it
-	// will be responsible for it's own destruction.
-	static LLFloaterNotRunQueue* create();
-
+	friend class LLFloaterReg;
 protected:
-	LLFloaterNotRunQueue(const std::string& name, const LLRect& rect);
+	LLFloaterNotRunQueue(const LLSD& key);
 	virtual ~LLFloaterNotRunQueue();
 	
 	// This is called by inventoryChanged
 	virtual void handleInventory(LLViewerObject* viewer_obj,
 								InventoryObjectList* inv);
-
-protected:
 };
 
 #endif // LL_LLCOMPILEQUEUE_H

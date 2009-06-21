@@ -38,6 +38,7 @@
 #include "lluuid.h"
 #include "llparcelflags.h"
 #include "llpermissions.h"
+#include "lltimer.h"
 #include "v3math.h"
 
 

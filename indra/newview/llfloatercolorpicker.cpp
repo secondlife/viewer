@@ -32,11 +32,15 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include <sstream>
-#include <iomanip>
-
 #include "llfloatercolorpicker.h"
 
+// Viewer project includes
+#include "lltoolmgr.h"
+#include "lltoolpipette.h"
+#include "llviewercontrol.h"
+#include "llworld.h"
+
+// Linden library includes
 #include "llfontgl.h"
 #include "llsys.h"
 #include "llgl.h"
@@ -47,23 +51,23 @@
 #include "lllineeditor.h"
 #include "v4coloru.h"
 #include "llbutton.h"
-#include "llviewercontrol.h"
 #include "lluictrlfactory.h"
-#include "llviewerwindow.h"
 #include "llgl.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llimage.h"
 #include "llmousehandler.h"
 #include "llimagegl.h"
 #include "llglheaders.h"
 #include "llcheckboxctrl.h"
-#include "llworld.h"
 #include "lltextbox.h"
 #include "lluiconstants.h"
 #include "llfocusmgr.h"
-#include "lltoolmgr.h"
-#include "lltoolpipette.h"
 #include "lldraghandle.h"
+#include "llwindow.h"
+
+// System includes
+#include <sstream>
+#include <iomanip>
 
 const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
 const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
@@ -75,11 +79,8 @@ const F32 CONTEXT_FADE_TIME = 0.08f;
 //
 //////////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////////////
-// default ctor
-LLFloaterColorPicker::
-LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show_apply_immediate )
-	: LLFloater (std::string("Color Picker Floater")),
+LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show_apply_immediate )
+	: LLFloater(),
 	  mComponents			( 3 ),
 	  mMouseDownInLumRegion	( FALSE ),
 	  mMouseDownInHueRegion	( FALSE ),
@@ -123,10 +124,7 @@ LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show_apply_immediate )
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// dtor
-LLFloaterColorPicker::
-~LLFloaterColorPicker()
+LLFloaterColorPicker::~LLFloaterColorPicker()
 {
 	// destroy the UI we created
 	destroyUI ();
@@ -134,9 +132,7 @@ LLFloaterColorPicker::
 
 //////////////////////////////////////////////////////////////////////////////
 //
-void
-LLFloaterColorPicker::
-createUI ()
+void LLFloaterColorPicker::createUI ()
 {
 	// build the majority of the gui using the factory builder
 	LLUICtrlFactory::getInstance()->buildFloater ( this, "floater_color_picker.xml" );
@@ -177,19 +173,17 @@ createUI ()
 
 		// argh!
 		const std::string s ( codec.str () );
-		mPalette.push_back ( new LLColor4 ( gSavedSettings.getColor4 ( s )  ) );
+		mPalette.push_back ( new LLColor4 ( gSavedSkinSettings.getColor4 ( s )  ) );
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //
-void
-LLFloaterColorPicker::
-showUI ()
+void LLFloaterColorPicker::showUI ()
 {
 	setVisible ( TRUE );
 	setFocus ( TRUE );
-	open();		/*Flawfinder: ignore*/
+	openFloater(getKey());
 
 	// HACK: if system color picker is required - close the SL one we made and use default system dialog
 	if ( gSavedSettings.getBOOL ( "UseDefaultColorPicker" ) )
@@ -203,7 +197,7 @@ showUI ()
 		{
 			LLColor4 curCol = swatch->get ();
 			send_agent_pause();
-			gViewerWindow->getWindow ()->dialog_color_picker ( &curCol [ 0 ], &curCol [ 1 ], &curCol [ 2 ] );
+			getWindow()->dialogColorPicker( &curCol [ 0 ], &curCol [ 1 ], &curCol [ 2 ] );
 			send_agent_resume();
 
 			setOrigRgb ( curCol [ 0 ], curCol [ 1 ], curCol [ 2 ] );
@@ -212,36 +206,30 @@ showUI ()
 			LLColorSwatchCtrl::onColorChanged ( swatch, LLColorSwatchCtrl::COLOR_CHANGE );
 		}
 
-		close();
+		closeFloater();
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // called after the dialog is rendered
-BOOL
-LLFloaterColorPicker::
-postBuild()
+BOOL LLFloaterColorPicker::postBuild()
 {
 	mCancelBtn = getChild<LLButton>( "cancel_btn" );
-    mCancelBtn->setClickedCallback ( onClickCancel );
-    mCancelBtn->setCallbackUserData ( this );
+    mCancelBtn->setClickedCallback ( onClickCancel, this );
 
 	mSelectBtn = getChild<LLButton>( "select_btn");
-    mSelectBtn->setClickedCallback ( onClickSelect );
-    mSelectBtn->setCallbackUserData ( this );
+    mSelectBtn->setClickedCallback ( onClickSelect, this );
 	mSelectBtn->setFocus ( TRUE );
 
 	mPipetteBtn = getChild<LLButton>("color_pipette" );
 
 	mPipetteBtn->setImages(std::string("eye_button_inactive.tga"), std::string("eye_button_active.tga"));
 
-	mPipetteBtn->setClickedCallback( onClickPipette );
-	mPipetteBtn->setCallbackUserData ( this );
+	mPipetteBtn->setCommitCallback( boost::bind(&LLFloaterColorPicker::onClickPipette, this ));
 
 	mApplyImmediateCheck = getChild<LLCheckBoxCtrl>("apply_immediate");
 	mApplyImmediateCheck->set(gSavedSettings.getBOOL("ApplyColorImmediately"));
-	mApplyImmediateCheck->setCommitCallback(onImmediateCheck);
-	mApplyImmediateCheck->setCallbackUserData(this);
+	mApplyImmediateCheck->setCommitCallback(onImmediateCheck, this);
 
 	childSetCommitCallback("rspin", onTextCommit, (void*)this );
 	childSetCommitCallback("gspin", onTextCommit, (void*)this );
@@ -250,18 +238,15 @@ postBuild()
 	childSetCommitCallback("sspin", onTextCommit, (void*)this );
 	childSetCommitCallback("lspin", onTextCommit, (void*)this );
 
+	LLToolPipette::getInstance()->setToolSelectCallback(boost::bind(&LLFloaterColorPicker::onColorSelect, this, _1));
+
     return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //
-void
-LLFloaterColorPicker::
-initUI ( F32 rValIn, F32 gValIn, F32 bValIn )
+void LLFloaterColorPicker::initUI ( F32 rValIn, F32 gValIn, F32 bValIn )
 {
-	// start catching lose-focus events from entry widgets
-	enableTextCallbacks ( TRUE );
-
 	// under some circumstances, we get rogue values that can be calmed by clamping...
 	rValIn = llclamp ( rValIn, 0.0f, 1.0f );
 	gValIn = llclamp ( gValIn, 0.0f, 1.0f );
@@ -279,9 +264,7 @@ initUI ( F32 rValIn, F32 gValIn, F32 bValIn )
 
 //////////////////////////////////////////////////////////////////////////////
 //
-void
-LLFloaterColorPicker::
-destroyUI ()
+void LLFloaterColorPicker::destroyUI ()
 {
 	// shut down pipette tool if active
 	stopUsingPipette();
@@ -305,9 +288,7 @@ destroyUI ()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-F32
-LLFloaterColorPicker::
-hueToRgb ( F32 val1In, F32 val2In, F32 valHUeIn )
+F32 LLFloaterColorPicker::hueToRgb ( F32 val1In, F32 val2In, F32 valHUeIn )
 {
 	if ( valHUeIn < 0.0f ) valHUeIn += 1.0f;
 	if ( valHUeIn > 1.0f ) valHUeIn -= 1.0f;
@@ -319,9 +300,7 @@ hueToRgb ( F32 val1In, F32 val2In, F32 valHUeIn )
 
 //////////////////////////////////////////////////////////////////////////////
 //
-void
-LLFloaterColorPicker::
-hslToRgb ( F32 hValIn, F32 sValIn, F32 lValIn, F32& rValOut, F32& gValOut, F32& bValOut )
+void LLFloaterColorPicker::hslToRgb ( F32 hValIn, F32 sValIn, F32 lValIn, F32& rValOut, F32& gValOut, F32& bValOut )
 {
 	if ( sValIn < 0.00001f )
 	{
@@ -349,9 +328,7 @@ hslToRgb ( F32 hValIn, F32 sValIn, F32 lValIn, F32& rValOut, F32& gValOut, F32& 
 
 //////////////////////////////////////////////////////////////////////////////
 // mutator for original RGB value
-void
-LLFloaterColorPicker::
-setOrigRgb ( F32 origRIn, F32 origGIn, F32 origBIn )
+void LLFloaterColorPicker::setOrigRgb ( F32 origRIn, F32 origGIn, F32 origBIn )
 {
 	origR = origRIn;
 	origG = origGIn;
@@ -360,9 +337,7 @@ setOrigRgb ( F32 origRIn, F32 origGIn, F32 origBIn )
 
 //////////////////////////////////////////////////////////////////////////////
 // accessor for original RGB value
-void
-LLFloaterColorPicker::
-getOrigRgb ( F32& origROut, F32& origGOut, F32& origBOut )
+void LLFloaterColorPicker::getOrigRgb ( F32& origROut, F32& origGOut, F32& origBOut )
 {
 	origROut = origR;
 	origGOut = origG;
@@ -371,9 +346,7 @@ getOrigRgb ( F32& origROut, F32& origGOut, F32& origBOut )
 
 //////////////////////////////////////////////////////////////////////////////
 // mutator for current RGB value
-void
-LLFloaterColorPicker::
-setCurRgb ( F32 curRIn, F32 curGIn, F32 curBIn )
+void LLFloaterColorPicker::setCurRgb ( F32 curRIn, F32 curGIn, F32 curBIn )
 {
 	// save current RGB
 	curR = curRIn;
@@ -383,19 +356,13 @@ setCurRgb ( F32 curRIn, F32 curGIn, F32 curBIn )
 	// update corresponding HSL values and
 	LLColor3(curRIn, curGIn, curBIn).calcHSL(&curH, &curS, &curL);
 
-	// color changed so update text fields (fixes SL-16968)
-    // HACK: turn off the call back wilst we update the text or we recurse ourselves into oblivion
-    // CP: this was required when I first wrote the code but this may not be necessary anymore - leaving it there just in case
-    enableTextCallbacks( FALSE );
+	// color changed so update text fields
     updateTextEntry();
-    enableTextCallbacks( TRUE );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // accessor for current RGB value
-void
-LLFloaterColorPicker::
-getCurRgb ( F32& curROut, F32& curGOut, F32& curBOut )
+void LLFloaterColorPicker::getCurRgb ( F32& curROut, F32& curGOut, F32& curBOut )
 {
 	curROut = curR;
 	curGOut = curG;
@@ -404,9 +371,7 @@ getCurRgb ( F32& curROut, F32& curGOut, F32& curBOut )
 
 //////////////////////////////////////////////////////////////////////////////
 // mutator for current HSL value
-void
-LLFloaterColorPicker::
-setCurHsl ( F32 curHIn, F32 curSIn, F32 curLIn )
+void LLFloaterColorPicker::setCurHsl ( F32 curHIn, F32 curSIn, F32 curLIn )
 {
 	// save current HSL
 	curH = curHIn;
@@ -419,9 +384,7 @@ setCurHsl ( F32 curHIn, F32 curSIn, F32 curLIn )
 
 //////////////////////////////////////////////////////////////////////////////
 // accessor for current HSL value
-void
-LLFloaterColorPicker::
-getCurHsl ( F32& curHOut, F32& curSOut, F32& curLOut )
+void LLFloaterColorPicker::getCurHsl ( F32& curHOut, F32& curSOut, F32& curLOut )
 {
 	curHOut = curH;
 	curSOut = curS;
@@ -430,9 +393,7 @@ getCurHsl ( F32& curHOut, F32& curSOut, F32& curLOut )
 
 //////////////////////////////////////////////////////////////////////////////
 // called when 'cancel' clicked
-void
-LLFloaterColorPicker::
-onClickCancel ( void* data )
+void LLFloaterColorPicker::onClickCancel ( void* data )
 {
 	if (data)
 	{
@@ -441,16 +402,14 @@ onClickCancel ( void* data )
 		if ( self )
 		{
 			self->cancelSelection ();
-			self->close();
+			self->closeFloater();
 		}
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // called when 'select' clicked
-void
-LLFloaterColorPicker::
-onClickSelect ( void* data )
+void LLFloaterColorPicker::onClickSelect ( void* data )
 {
 	if (data)
 	{
@@ -460,36 +419,28 @@ onClickSelect ( void* data )
 		{
 			// apply to selection
 			LLColorSwatchCtrl::onColorChanged ( self->getSwatch (), LLColorSwatchCtrl::COLOR_SELECT );
-			self->close();
+			self->closeFloater();
 		}
 	}
 }
 
-void LLFloaterColorPicker::onClickPipette( void* data )
+void LLFloaterColorPicker::onClickPipette( )
 {
-	LLFloaterColorPicker* self = ( LLFloaterColorPicker* )data;
-
-	if ( self)
+	BOOL pipette_active = mPipetteBtn->getToggleState();
+	pipette_active = !pipette_active;
+	if (pipette_active)
 	{
-		BOOL pipette_active = self->mPipetteBtn->getToggleState();
-		pipette_active = !pipette_active;
-		if (pipette_active)
-		{
-			LLToolPipette::getInstance()->setSelectCallback(onColorSelect, self);
-			LLToolMgr::getInstance()->setTransientTool(LLToolPipette::getInstance());
-		}
-		else
-		{
-			LLToolMgr::getInstance()->clearTransientTool();
-		}
+		LLToolMgr::getInstance()->setTransientTool(LLToolPipette::getInstance());
+	}
+	else
+	{
+		LLToolMgr::getInstance()->clearTransientTool();
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // called when 'text is committed' - i,e. focus moves from a text field
-void
-LLFloaterColorPicker::
-onTextCommit ( LLUICtrl* ctrl, void* data )
+void LLFloaterColorPicker::onTextCommit ( LLUICtrl* ctrl, void* data )
 {
 	if ( data )
 	{
@@ -515,16 +466,12 @@ void LLFloaterColorPicker::onImmediateCheck( LLUICtrl* ctrl, void* data)
 	}
 }
 
-void LLFloaterColorPicker::onColorSelect( const LLTextureEntry& te, void *data )
+void LLFloaterColorPicker::onColorSelect( const LLTextureEntry& te )
 {
-	LLFloaterColorPicker* self = (LLFloaterColorPicker*)data;
-	if (self)
+	setCurRgb(te.getColor().mV[VRED], te.getColor().mV[VGREEN], te.getColor().mV[VBLUE]);
+	if (mApplyImmediateCheck->get())
 	{
-		self->setCurRgb(te.getColor().mV[VRED], te.getColor().mV[VGREEN], te.getColor().mV[VBLUE]);
-		if (self->mApplyImmediateCheck->get())
-		{
-			LLColorSwatchCtrl::onColorChanged ( self->getSwatch (), LLColorSwatchCtrl::COLOR_CHANGE );
-		}
+		LLColorSwatchCtrl::onColorChanged ( getSwatch (), LLColorSwatchCtrl::COLOR_CHANGE );
 	}
 }
 
@@ -673,9 +620,7 @@ void LLFloaterColorPicker::draw()
 
 //////////////////////////////////////////////////////////////////////////////
 // find a complimentary color to the one passed in that can be used to highlight
-const LLColor4&
-LLFloaterColorPicker::
-getComplimentaryColor ( const LLColor4& backgroundColor )
+const LLColor4& LLFloaterColorPicker::getComplimentaryColor ( const LLColor4& backgroundColor )
 {
 	// going to base calculation on luminance
 	F32 hVal, sVal, lVal;
@@ -695,9 +640,7 @@ getComplimentaryColor ( const LLColor4& backgroundColor )
 
 //////////////////////////////////////////////////////////////////////////////
 // draw color palette
-void
-LLFloaterColorPicker::
-drawPalette ()
+void LLFloaterColorPicker::drawPalette ()
 {
 	S32 curEntry = 0;
 
@@ -748,9 +691,7 @@ drawPalette ()
 
 //////////////////////////////////////////////////////////////////////////////
 // update text entry values for RGB/HSL (can't be done in ::draw () since this overwrites input
-void
-LLFloaterColorPicker::
-updateTextEntry ()
+void LLFloaterColorPicker::updateTextEntry ()
 {
 	// set values in spinners
 	childSetValue("rspin", ( getCurR () * 255.0f ) );
@@ -762,37 +703,8 @@ updateTextEntry ()
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// turns on or off text entry commit call backs
-void
-LLFloaterColorPicker::
-enableTextCallbacks ( BOOL stateIn )
-{
-	if ( stateIn )
-	{
-		childSetCommitCallback("rspin", onTextCommit, (void*)this );
-		childSetCommitCallback("gspin", onTextCommit, (void*)this );
-		childSetCommitCallback("bspin", onTextCommit, (void*)this );
-		childSetCommitCallback("hspin", onTextCommit, (void*)this );
-		childSetCommitCallback("sspin", onTextCommit, (void*)this );
-		childSetCommitCallback("lspin", onTextCommit, (void*)this );
-	}
-	else
-	{
-		childSetCommitCallback("rspin", 0, (void*)this );
-		childSetCommitCallback("gspin", 0, (void*)this );
-		childSetCommitCallback("bspin", 0, (void*)this );
-		childSetCommitCallback("hspin", 0, (void*)this );
-		childSetCommitCallback("sspin", 0, (void*)this );
-		childSetCommitCallback("lspin", 0, (void*)this );
-	}
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
 //
-void
-LLFloaterColorPicker::
-onTextEntryChanged ( LLUICtrl* ctrl )
+void LLFloaterColorPicker::onTextEntryChanged ( LLUICtrl* ctrl )
 {
 	// value in RGB boxes changed
 	std::string name = ctrl->getName();
@@ -821,10 +733,7 @@ onTextEntryChanged ( LLUICtrl* ctrl )
 		// update current RGB (and implicitly HSL)
 		setCurRgb ( rVal, gVal, bVal );
 
-		// HACK: turn off the call back wilst we update the text or we recurse ourselves into oblivion
-		enableTextCallbacks ( FALSE );
 		updateTextEntry ();
-		enableTextCallbacks ( TRUE );
 	}
 	else
 	// value in HSL boxes changed
@@ -847,10 +756,7 @@ onTextEntryChanged ( LLUICtrl* ctrl )
 		// update current HSL (and implicitly RGB)
 		setCurHsl ( hVal, sVal, lVal );
 
-		// HACK: turn off the call back wilst we update the text or we recurse ourselves into oblivion
-		enableTextCallbacks ( FALSE );
 		updateTextEntry ();
-		enableTextCallbacks ( TRUE );
 	}
 
 	if (mApplyImmediateCheck->get())
@@ -861,9 +767,7 @@ onTextEntryChanged ( LLUICtrl* ctrl )
 
 //////////////////////////////////////////////////////////////////////////////
 //
-BOOL
-LLFloaterColorPicker::
-updateRgbHslFromPoint ( S32 xPosIn, S32 yPosIn )
+BOOL LLFloaterColorPicker::updateRgbHslFromPoint ( S32 xPosIn, S32 yPosIn )
 {
 	if ( xPosIn >= mRGBViewerImageLeft &&
 		 xPosIn <= mRGBViewerImageLeft + mRGBViewerImageWidth &&
@@ -899,9 +803,7 @@ updateRgbHslFromPoint ( S32 xPosIn, S32 yPosIn )
 
 //////////////////////////////////////////////////////////////////////////////
 //
-BOOL
-LLFloaterColorPicker::
-handleMouseDown ( S32 x, S32 y, MASK mask )
+BOOL LLFloaterColorPicker::handleMouseDown ( S32 x, S32 y, MASK mask )
 {
 	// make it the frontmost
 	gFloaterView->bringToFront(this);
@@ -987,10 +889,7 @@ handleMouseDown ( S32 x, S32 y, MASK mask )
 				LLColorSwatchCtrl::onColorChanged ( getSwatch (), LLColorSwatchCtrl::COLOR_CHANGE );
 			}
 
-			// HACK: turn off the call back wilst we update the text or we recurse ourselves into oblivion
-			enableTextCallbacks ( FALSE );
 			updateTextEntry ();
-			enableTextCallbacks ( TRUE );
 		}
 
 		return TRUE;
@@ -1003,9 +902,7 @@ handleMouseDown ( S32 x, S32 y, MASK mask )
 
 //////////////////////////////////////////////////////////////////////////////
 //
-BOOL
-LLFloaterColorPicker::
-handleHover ( S32 x, S32 y, MASK mask )
+BOOL LLFloaterColorPicker::handleHover ( S32 x, S32 y, MASK mask )
 {
 	// if we're the front most window
 	if ( isFrontmost () )
@@ -1071,19 +968,9 @@ handleHover ( S32 x, S32 y, MASK mask )
 	return LLFloater::handleHover ( x, y, mask );
 }
 
-void LLFloaterColorPicker::onClose(bool app_quitting)
-{
-	//RN: this is consistent with texture picker in that closing the window leaves the current selection
-	// to change this to "close to cancel", uncomment the following line
-	//cancelSelection();
-	LLFloater::onClose(app_quitting);
-}
-
 //////////////////////////////////////////////////////////////////////////////
 // reverts state once mouse button is released
-BOOL
-LLFloaterColorPicker::
-handleMouseUp ( S32 x, S32 y, MASK mask )
+BOOL LLFloaterColorPicker::handleMouseUp ( S32 x, S32 y, MASK mask )
 {
 	getWindow()->setCursor ( UI_CURSOR_ARROW );
 
@@ -1130,7 +1017,7 @@ handleMouseUp ( S32 x, S32 y, MASK mask )
 							std::ostringstream codec;
 							codec << "ColorPaletteEntry" << std::setfill ( '0' ) << std::setw ( 2 ) << curEntry + 1;
 							const std::string s ( codec.str () );
-							gSavedSettings.setColor4( s, *mPalette [ curEntry ] );
+							gSavedSkinSettings.setColor4( s, *mPalette [ curEntry ] );
 						}
 					}
 
@@ -1158,15 +1045,10 @@ handleMouseUp ( S32 x, S32 y, MASK mask )
 
 //////////////////////////////////////////////////////////////////////////////
 // cancel current color selection, revert to original and close picker
-void
-LLFloaterColorPicker::
-cancelSelection ()
+void LLFloaterColorPicker::cancelSelection ()
 {
 	// restore the previous color selection
 	setCurRgb ( getOrigR (), getOrigG (), getOrigB () );
-
-	// 	we're going away and when we do and the entry widgets lose focus, they do bad things so turn them off
-	enableTextCallbacks ( FALSE );
 
 	// update in world item with original color via current swatch
 	LLColorSwatchCtrl::onColorChanged( getSwatch(), LLColorSwatchCtrl::COLOR_CANCEL );

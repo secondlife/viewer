@@ -37,7 +37,7 @@ set(llwindow_SOURCE_FILES
     llwindowheadless.cpp
     )
 
-set(llwindows_HEADER_FILES
+set(llwindow_HEADER_FILES
     CMakeLists.txt
 
     llkeyboard.h
@@ -47,10 +47,12 @@ set(llwindows_HEADER_FILES
 set(viewer_SOURCE_FILES
     llwindow.cpp
     llmousehandler.cpp
+    llwindowcallbacks.cpp
     )
 
 set(viewer_HEADER_FILES
     llwindow.h
+    llwindowcallbacks.h
     llpreeditor.h
     llmousehandler.h
     )
@@ -143,7 +145,7 @@ if (SERVER AND NOT WINDOWS AND NOT DARWIN)
     ${llwindow_SOURCE_FILES}
     ${server_SOURCE_FILES}
     )
-  # *TODO: This should probably have target_link_libraries
+  target_link_libraries (llwindowheadless ${llwindow_LINK_LIBRARIES})
 endif (SERVER AND NOT WINDOWS AND NOT DARWIN)
 
 if (llwindow_HEADER_FILES)

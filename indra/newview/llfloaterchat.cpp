@@ -38,15 +38,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterchat.h"
-#include "llfloateractivespeakers.h"
-#include "llfloaterscriptdebug.h"
-
-#include "llchat.h"
-#include "llfontgl.h"
-#include "llrect.h"
-#include "llerror.h"
-#include "llstring.h"
-#include "message.h"
 
 // project include
 #include "llagent.h"
@@ -54,13 +45,17 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llconsole.h"
+#include "llfloateractivespeakers.h"
 #include "llfloaterchatterbox.h"
 #include "llfloatermute.h"
+#include "llfloaterreg.h"
+#include "llfloaterscriptdebug.h"
 #include "llkeyboard.h"
 //#include "lllineeditor.h"
 #include "llmutelist.h"
 //#include "llresizehandle.h"
 #include "llchatbar.h"
+#include "llrecentpeople.h"
 #include "llstatusbar.h"
 #include "llviewertexteditor.h"
 #include "llviewergesture.h"			// for triggering gestures
@@ -76,16 +71,21 @@
 #include "llweb.h"
 #include "llstylemap.h"
 
-// Used for LCD display
-extern void AddNewIMToLCD(const std::string &newLine);
-extern void AddNewChatToLCD(const std::string &newLine);
+// linden library includes
+#include "audioengine.h"
+#include "llchat.h"
+#include "llfontgl.h"
+#include "llrect.h"
+#include "llerror.h"
+#include "llstring.h"
+#include "llwindow.h"
+#include "message.h"
+
 //
 // Constants
 //
 const F32 INSTANT_MSG_SIZE = 8.0f;
 const F32 CHAT_MSG_SIZE = 8.0f;
-const LLColor4 MUTED_MSG_COLOR(0.5f, 0.5f, 0.5f, 1.f);
-const S32 MAX_CHATTER_COUNT = 16;
 
 //
 // Global statics
@@ -96,20 +96,13 @@ LLColor4 get_text_color(const LLChat& chat);
 // Member Functions
 //
 LLFloaterChat::LLFloaterChat(const LLSD& seed)
-:	LLFloater(std::string("chat floater"), std::string("FloaterChatRect"), LLStringUtil::null, 
-			  RESIZE_YES, 440, 100, DRAG_ON_TOP, MINIMIZE_NO, CLOSE_YES),
-	mPanel(NULL)
+	: LLFloater(),
+	  mPanel(NULL)
 {
 	mFactoryMap["chat_panel"] = LLCallbackMap(createChatPanel, NULL);
 	mFactoryMap["active_speakers_panel"] = LLCallbackMap(createSpeakersPanel, NULL);
-	// do not automatically open singleton floaters (as result of getInstance())
-	BOOL no_open = FALSE;
-	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_chat_history.xml",&getFactoryMap(),no_open);
+	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this,"floater_chat_history.xml");
 
-	childSetCommitCallback("show mutes",onClickToggleShowMute,this); //show mutes
-	childSetVisible("Chat History Editor with mute",FALSE);
-	childSetAction("toggle_active_speakers_btn", onClickToggleActiveSpeakers, this);
-	setDefaultBtn("Chat");
 }
 
 LLFloaterChat::~LLFloaterChat()
@@ -120,8 +113,6 @@ LLFloaterChat::~LLFloaterChat()
 void LLFloaterChat::setVisible(BOOL visible)
 {
 	LLFloater::setVisible( visible );
-
-	gSavedSettings.setBOOL("ShowChatHistory", visible);
 }
 
 void LLFloaterChat::draw()
@@ -130,7 +121,7 @@ void LLFloaterChat::draw()
 		
 	childSetValue("toggle_active_speakers_btn", childIsVisible("active_speakers_panel"));
 
-	LLChatBar* chat_barp = getChild<LLChatBar>("chat_panel", TRUE);
+	LLChatBar* chat_barp = findChild<LLChatBar>("chat_panel", TRUE);
 	if (chat_barp)
 	{
 		chat_barp->refresh();
@@ -144,34 +135,36 @@ BOOL LLFloaterChat::postBuild()
 {
 	mPanel = (LLPanelActiveSpeakers*)getChild<LLPanel>("active_speakers_panel");
 
-	LLChatBar* chat_barp = getChild<LLChatBar>("chat_panel", TRUE);
+	LLChatBar* chat_barp = findChild<LLChatBar>("chat_panel", TRUE);
 	if (chat_barp)
 	{
 		chat_barp->setGestureCombo(getChild<LLComboBox>( "Gesture"));
 	}
+
+	childSetCommitCallback("show mutes",onClickToggleShowMute,this); //show mutes
+	childSetVisible("Chat History Editor with mute",FALSE);
+	childSetAction("toggle_active_speakers_btn", onClickToggleActiveSpeakers, this);
+
 	return TRUE;
 }
 
 // public virtual
 void LLFloaterChat::onClose(bool app_quitting)
 {
-	if (!app_quitting)
+	if (getHost())
 	{
-		gSavedSettings.setBOOL("ShowChatHistory", FALSE);
+		getHost()->setVisible(FALSE);
 	}
-	setVisible(FALSE);
+	else
+	{
+		setVisible(FALSE);
+	}
 }
 
 void LLFloaterChat::onVisibilityChange(BOOL new_visibility)
 {
 	// Hide the chat overlay when our history is visible.
 	updateConsoleVisibility();
-
-	// stop chat history tab from flashing when it appears
-	if (new_visibility)
-	{
-		LLFloaterChatterBox::getInstance()->setFloaterFlashing(this, FALSE);
-	}
 
 	LLFloater::onVisibilityChange(new_visibility);
 }
@@ -257,7 +250,7 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 	}
 	
 	// could flash the chat button in the status bar here. JC
-	LLFloaterChat* chat_floater = LLFloaterChat::getInstance(LLSD());
+	LLFloaterChat* chat_floater = LLFloaterChat::getInstance();
 	LLViewerTextEditor*	history_editor = chat_floater->getChild<LLViewerTextEditor>("Chat History Editor");
 	LLViewerTextEditor*	history_editor_with_mute = chat_floater->getChild<LLViewerTextEditor>("Chat History Editor with mute");
 
@@ -295,8 +288,8 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 // static
 void LLFloaterChat::setHistoryCursorAndScrollToEnd()
 {
-	LLViewerTextEditor*	history_editor = LLFloaterChat::getInstance(LLSD())->getChild<LLViewerTextEditor>("Chat History Editor");
-	LLViewerTextEditor*	history_editor_with_mute = LLFloaterChat::getInstance(LLSD())->getChild<LLViewerTextEditor>("Chat History Editor with mute");
+	LLViewerTextEditor*	history_editor = LLFloaterChat::getInstance()->getChild<LLViewerTextEditor>("Chat History Editor");
+	LLViewerTextEditor*	history_editor_with_mute = LLFloaterChat::getInstance()->getChild<LLViewerTextEditor>("Chat History Editor with mute");
 	
 	if (history_editor) 
 	{
@@ -324,8 +317,7 @@ void LLFloaterChat::onClickMute(void *data)
 	LLMute mute(id);
 	mute.setFromDisplayName(name);
 	LLMuteList::getInstance()->add(mute);
-	
-	LLFloaterMute::showInstance();
+	LLFloaterReg::showInstance("mute");
 }
 
 //static
@@ -368,20 +360,6 @@ void LLFloaterChat::addChat(const LLChat& chat,
 			chat.mChatType == CHAT_TYPE_DEBUG_MSG
 			&& !gSavedSettings.getBOOL("ScriptErrorsAsChat");
 
-#if LL_LCD_COMPILE
-	// add into LCD displays
-	if (!invisible_script_debug_chat)
-	{
-		if (!from_instant_message)
-		{
-			AddNewChatToLCD(chat.mText);
-		}
-		else
-		{
-			AddNewIMToLCD(chat.mText);
-		}
-	}
-#endif
 	if (!invisible_script_debug_chat 
 		&& !chat.mMuted 
 		&& gConsole 
@@ -390,11 +368,11 @@ void LLFloaterChat::addChat(const LLChat& chat,
 		F32 size = CHAT_MSG_SIZE;
 		if (chat.mSourceType == CHAT_SOURCE_SYSTEM)
 		{
-			text_color = gSavedSettings.getColor("SystemChatColor");
+			text_color = gSavedSkinSettings.getColor("SystemChatColor");
 		}
 		else if(from_instant_message)
 		{
-			text_color = gSavedSettings.getColor("IMChatColor");
+			text_color = gSavedSkinSettings.getColor("IMChatColor");
 			size = INSTANT_MSG_SIZE;
 		}
 		// We display anything if it's not an IM. If it's an IM, check pref...
@@ -406,12 +384,60 @@ void LLFloaterChat::addChat(const LLChat& chat,
 
 	if(from_instant_message && gSavedPerAccountSettings.getBOOL("LogChatIM"))
 		log_chat_text(chat);
+	
+	if(from_instant_message && gSavedSettings.getBOOL("IMInChatHistory")) 	 
+		addChatHistory(chat,false);
 
-	LLTextParser* highlight = LLTextParser::getInstance();
-	highlight->triggerAlerts(gAgent.getID(), gAgent.getPositionGlobal(), chat.mText, gViewerWindow->getWindow());
+	triggerAlerts(chat.mText);
+
+	// Add the sender to the list of people with which we've recently interacted.
+	if(chat.mSourceType == CHAT_SOURCE_AGENT && chat.mFromID.notNull())
+		LLRecentPeople::instance().add(chat.mFromID);
 
 	if(!from_instant_message)
 		addChatHistory(chat);
+}
+
+// Moved from lltextparser.cpp to break llui/llaudio library dependency.
+//static
+void LLFloaterChat::triggerAlerts(const std::string& text)
+{
+	LLTextParser* parser = LLTextParser::getInstance();
+//    bool spoken=FALSE;
+	for (S32 i=0;i<parser->mHighlights.size();i++)
+	{
+		LLSD& highlight = parser->mHighlights[i];
+		if (parser->findPattern(text,highlight) >= 0 )
+		{
+			if(gAudiop)
+			{
+				if ((std::string)highlight["sound_lluuid"] != LLUUID::null.asString())
+				{
+					gAudiop->triggerSound(highlight["sound_lluuid"].asUUID(), 
+						gAgent.getID(),
+						1.f,
+						LLAudioEngine::AUDIO_TYPE_UI,
+						gAgent.getPositionGlobal() );
+				}
+/*				
+				if (!spoken) 
+				{
+					LLTextToSpeech* text_to_speech = NULL;
+					text_to_speech = LLTextToSpeech::getInstance();
+					spoken = text_to_speech->speak((LLString)highlight["voice"],text); 
+				}
+ */
+			}
+			if (highlight["flash"])
+			{
+				LLWindow* viewer_window = gViewerWindow->getWindow();
+				if (viewer_window && viewer_window->getMinimized())
+				{
+					viewer_window->flashIcon(5.f);
+				}
+			}
+		}
+	}
 }
 
 LLColor4 get_text_color(const LLChat& chat)
@@ -427,37 +453,37 @@ LLColor4 get_text_color(const LLChat& chat)
 		switch(chat.mSourceType)
 		{
 		case CHAT_SOURCE_SYSTEM:
-			text_color = gSavedSettings.getColor4("SystemChatColor");
+			text_color = gSavedSkinSettings.getColor4("SystemChatColor");
 			break;
 		case CHAT_SOURCE_AGENT:
 		    if (chat.mFromID.isNull())
 			{
-				text_color = gSavedSettings.getColor4("SystemChatColor");
+				text_color = gSavedSkinSettings.getColor4("SystemChatColor");
 			}
 			else
 			{
 				if(gAgent.getID() == chat.mFromID)
 				{
-					text_color = gSavedSettings.getColor4("UserChatColor");
+					text_color = gSavedSkinSettings.getColor4("UserChatColor");
 				}
 				else
 				{
-					text_color = gSavedSettings.getColor4("AgentChatColor");
+					text_color = gSavedSkinSettings.getColor4("AgentChatColor");
 				}
 			}
 			break;
 		case CHAT_SOURCE_OBJECT:
 			if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 			{
-				text_color = gSavedSettings.getColor4("ScriptErrorColor");
+				text_color = gSavedSkinSettings.getColor4("ScriptErrorColor");
 			}
 			else if ( chat.mChatType == CHAT_TYPE_OWNER )
 			{
-				text_color = gSavedSettings.getColor4("llOwnerSayChatColor");
+				text_color = gSavedSkinSettings.getColor4("llOwnerSayChatColor");
 			}
 			else
 			{
-				text_color = gSavedSettings.getColor4("ObjectChatColor");
+				text_color = gSavedSkinSettings.getColor4("ObjectChatColor");
 			}
 			break;
 		default:
@@ -482,7 +508,7 @@ LLColor4 get_text_color(const LLChat& chat)
 //static
 void LLFloaterChat::loadHistory()
 {
-	LLLogChat::loadHistory(std::string("chat"), &chatFromLogFile, (void *)LLFloaterChat::getInstance(LLSD())); 
+	LLLogChat::loadHistory(std::string("chat"), &chatFromLogFile, (void *)LLFloaterChat::getInstance()); 
 }
 
 //static
@@ -498,6 +524,7 @@ void LLFloaterChat::chatFromLogFile(LLLogChat::ELogLineType type , std::string l
 		{
 			LLChat chat;					
 			chat.mText = line;
+			get_text_color(chat);
 			addChatHistory(chat,  FALSE);
 		}
 		break;
@@ -528,27 +555,9 @@ void LLFloaterChat::onClickToggleActiveSpeakers(void* userdata)
 	self->childSetVisible("active_speakers_panel", !self->childIsVisible("active_speakers_panel"));
 }
 
-//static 
-bool LLFloaterChat::visible(LLFloater* instance, const LLSD& key)
-{
-	return VisibilityPolicy<LLFloater>::visible(instance, key);
-}
-
-//static 
-void LLFloaterChat::show(LLFloater* instance, const LLSD& key)
-{
-	VisibilityPolicy<LLFloater>::show(instance, key);
-}
-
-//static 
-void LLFloaterChat::hide(LLFloater* instance, const LLSD& key)
-{
-	if(instance->getHost())
-	{
-		LLFloaterChatterBox::hideInstance();
-	}
-	else
-	{
-		VisibilityPolicy<LLFloater>::hide(instance, key);
-	}
-}
+//static
+ LLFloaterChat* LLFloaterChat::getInstance()
+ {
+	 LLFloater* inst = LLFloaterReg::getInstance("chat", LLSD()) ;
+	 return dynamic_cast<LLFloaterChat*>(inst);
+ }

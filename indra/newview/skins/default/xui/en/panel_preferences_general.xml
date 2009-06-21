@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ border="true"
+ follows="left|top|right|bottom"
+ height="408"
+ label="General"
+ layout="topleft"
+ left="102"
+ name="general_panel"
+ top="1"
+ width="517">
+    <combo_box
+     control_name="LoginLocation"
+     follows="left|bottom"
+     height="18"
+     layout="topleft"
+     left_delta="151"
+     name="start_location_combo"
+     top="7"
+     width="155">
+        <combo_box.item
+         label="My Last Location"
+         value="last" />
+        <combo_box.item
+         label="My Home"
+         value="home" />
+    </combo_box>
+    <check_box
+     control_name="ShowStartLocation"
+     height="16"
+     initial_value="true"
+     label="Show Start Location on Login Screen"
+     layout="topleft"
+     left_delta="0"
+     name="show_location_checkbox"
+     top_pad="3"
+     width="256" />
+    <combo_box
+     control_name="RenderName"
+     height="18"
+     layout="topleft"
+     left_delta="4"
+     name="fade_out_combobox"
+     top_pad="7"
+     width="146">
+        <combo_box.item
+         label="Never"
+         value="0" />
+        <combo_box.item
+         label="Show Temporarily"
+         value="1" />
+        <combo_box.item
+         label="Always"
+         value="2" />
+    </combo_box>
+    <check_box
+     control_name="SmallAvatarNames"
+     height="16"
+     initial_value="true"
+     label="Small Avatar Names"
+     layout="topleft"
+     left_delta="-4"
+     name="small_avatar_names_checkbox"
+     top_pad="9"
+     width="200" />
+    <check_box
+     control_name="RenderNameHideSelf"
+     height="16"
+     label="Hide My Name On My Screen"
+     layout="topleft"
+     left_delta="0"
+     name="show_my_name_checkbox"
+     top_pad="2"
+     width="200" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="10"
+     name="group_titles_textbox"
+     top="120"
+     width="394">
+        Group Titles:
+    </text>
+    <check_box
+     control_name="RenderHideGroupTitleAll"
+     height="16"
+     label="Hide All Group Titles"
+     layout="topleft"
+     left_delta="141"
+     name="show_all_title_checkbox"
+     top_delta="0"
+     width="256" />
+    <check_box
+     control_name="RenderHideGroupTitle"
+     height="16"
+     label="Hide My Group Title"
+     layout="topleft"
+     left_delta="0"
+     name="show_my_title_checkbox"
+     top_pad="2"
+     width="256" />
+    <color_swatch
+     border_color="0.45098 0.517647 0.607843 1"
+     control_name="EffectColor"
+     follows="left|top"
+     height="48"
+     layout="topleft"
+     left_delta="2"
+     name="effect_color_swatch"
+     tool_tip="Click to open Color Picker"
+     top_pad="8"
+     width="32" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="12"
+     layout="topleft"
+     left="10"
+     name="UI Size:"
+     top="203"
+     width="128">
+        UI Size:
+    </text>
+    <spinner
+     control_name="UIScaleFactor"
+     height="16"
+     increment="0.025"
+     initial_value="1"
+     layout="topleft"
+     left_pad="16"
+     max_val="1.4"
+     min_val="0.75"
+     name="ui_scale_slider"
+     top_delta="-2"
+     width="58" />
+    <check_box
+     control_name="UIAutoScale"
+     height="16"
+     label="Use resolution independent scale"
+     layout="topleft"
+     left_delta="-3"
+     name="ui_auto_scale"
+     top_pad="3"
+     width="256" />
+    <spinner
+     control_name="AFKTimeout"
+     decimal_digits="0"
+     follows="left|top"
+     height="16"
+     increment="1"
+     initial_value="300"
+     label="Away Timeout:"
+     label_width="141"
+     layout="topleft"
+     left="10"
+     max_val="600"
+     min_val="30"
+     name="afk_timeout_spinner"
+     top="244"
+     width="202" />
+    <check_box
+     control_name="NotifyMoneyChange"
+     height="16"
+     label="Notify when Linden dollars (L$) spent or received"
+     layout="topleft"
+     left="151"
+     name="notify_money_change_checkbox"
+     top="270"
+     width="256" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="10"
+     name="maturity_desired_label"
+     top="312"
+     width="394">
+        Rating:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_delta="141"
+     name="maturity_desired_prompt"
+     top_delta="0"
+     width="394">
+        I want to access content rated:
+    </text>
+    <combo_box
+     control_name="PreferredMaturity"
+     height="18"
+     layout="topleft"
+     left_delta="164"
+     name="maturity_desired_combobox"
+     top_delta="-2"
+     width="150">
+        <combo_box.item
+         label="PG, Mature and Adult"
+         value="42" />
+        <combo_box.item
+         label="PG and Mature"
+         value="21" />
+        <combo_box.item
+         label="PG only"
+         value="13" />
+    </combo_box>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_delta="0"
+     name="maturity_desired_textbox"
+     top_delta="2"
+     width="150">
+        PG only
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="10"
+     name="start_location_textbox"
+     top="10"
+     width="394">
+        Start Location:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_delta="0"
+     name="show_names_textbox"
+     top_pad="34"
+     width="394">
+        Show Names:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_delta="0"
+     name="effects_color_textbox"
+     top_pad="110"
+     width="394">
+        Color For My Effects:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="220"
+     name="seconds_textbox"
+     top="244"
+     width="128">
+        seconds
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="18"
+     layout="topleft"
+     left="10"
+     name="crash_report_textbox"
+     top="344"
+     width="394">
+        Crash reports:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="18"
+     layout="topleft"
+     left_delta="0"
+     name="language_textbox"
+     top_pad="4"
+     width="394">
+        Language:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="18"
+     layout="topleft"
+     left_delta="293"
+     name="language_textbox2"
+     top_delta="1"
+     width="400">
+        (Requires restart for full effect)
+    </text>
+    <combo_box
+     control_name="CrashSubmitBehavior"
+     height="18"
+     layout="topleft"
+     left="153"
+     name="crash_behavior_combobox"
+     top="344"
+     width="146">
+        <combo_box.item
+         enabled="true"
+         label="Ask before sending"
+         value="Ask before sending" />
+        <combo_box.item
+         enabled="true"
+         label="Always send"
+         value="Always send" />
+        <combo_box.item
+         enabled="true"
+         label="Never send"
+         value="Never send" />
+    </combo_box>
+    <combo_box
+     allow_text_entry="true"
+     control_name="Language"
+     follows="left|bottom"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     max_chars="135"
+     name="language_combobox"
+     top_pad="4"
+     width="146">
+        <combo_box.item
+         enabled="true"
+         label="System Default"
+         value="default" />
+        <combo_box.item
+         enabled="true"
+         label="English"
+         value="en" />
+        <combo_box.item
+         enabled="true"
+         label="Dansk (Danish) - Beta"
+         value="da" />
+        <combo_box.item
+         enabled="true"
+         label="Deutsch (German) - Beta"
+         value="de" />
+        <combo_box.item
+         enabled="true"
+         label="Español (Spanish) - Beta"
+         value="es" />
+        <combo_box.item
+         enabled="true"
+         label="Français (French) - Beta"
+         value="fr" />
+        <combo_box.item
+         enabled="true"
+         label="Italiano (Italian) - Beta"
+         value="it" />
+        <combo_box.item
+         enabled="true"
+         label="Magyar (Hungarian) - Beta"
+         value="hu" />
+        <combo_box.item
+         enabled="true"
+         label="Nederlands (Dutch) - Beta"
+         value="nl" />
+        <combo_box.item
+         enabled="true"
+         label="Polski (Polish) - Beta"
+         value="pl" />
+        <combo_box.item
+         enabled="true"
+         label="Portugués (Portuguese) - Beta"
+         value="pt" />
+        <combo_box.item
+         enabled="true"
+         label="Русский (Russian) - Beta"
+         value="ru" />
+        <combo_box.item
+         enabled="true"
+         label="Türkçe (Turkish) - Beta"
+         value="tr" />
+        <combo_box.item
+         enabled="true"
+         label="Українська (Ukrainian) - Beta"
+         value="uk" />
+        <combo_box.item
+         enabled="true"
+         label="中文 (简体) (Chinese) - Beta"
+         value="zh" />
+        <combo_box.item
+         enabled="true"
+         label="日本語 (Japanese) - Beta"
+         value="ja" />
+        <combo_box.item
+         enabled="true"
+         label="한국어 (Korean) - Beta"
+         value="ko" />
+        <combo_box.item
+         enabled="true"
+         label="Test Language"
+         value="test" />
+    </combo_box>
+    <check_box
+     control_name="LanguageIsPublic"
+     height="16"
+     label="Share language with objects"
+     layout="topleft"
+     left_delta="-2"
+     name="language_is_public"
+     tool_tip="This lets in-world objects know your preferred language."
+     top_pad="2"
+     width="256" />
+</panel>

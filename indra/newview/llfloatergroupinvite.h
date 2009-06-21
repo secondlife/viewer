@@ -46,10 +46,7 @@ public:
 	static void showForGroup(const LLUUID &group_id, std::vector<LLUUID> *agent_ids = NULL);
 
 protected:
-	LLFloaterGroupInvite(const std::string& name,
-						 const LLRect &rect,
-						 const std::string& title,
-						 const LLUUID& group_id = LLUUID::null);
+	LLFloaterGroupInvite(const LLUUID& group_id = LLUUID::null);
 
 	class impl;
 	impl* mImpl;

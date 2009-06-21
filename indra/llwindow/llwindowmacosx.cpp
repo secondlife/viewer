@@ -32,19 +32,21 @@
 
 #include "linden_common.h"
 
-#include <Carbon/Carbon.h>
-#include <OpenGL/OpenGL.h>
-
 #include "llwindowmacosx.h"
+
 #include "llkeyboardmacosx.h"
+#include "llwindowcallbacks.h"
+#include "llwindowmacosx-objc.h"
+#include "llpreeditor.h"
+
 #include "llerror.h"
 #include "llgl.h"
 #include "llstring.h"
 #include "lldir.h"
 #include "indra_constants.h"
 
-#include "llwindowmacosx-objc.h"
-#include "llpreeditor.h"
+#include <Carbon/Carbon.h>
+#include <OpenGL/OpenGL.h>
 
 extern BOOL gDebugWindowProc;
 
@@ -214,19 +216,27 @@ static LLWindowMacOSX *gWindowImplementation = NULL;
 
 
 
-LLWindowMacOSX::LLWindowMacOSX(const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
+LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
+							   const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
 							   S32 height, U32 flags,
 							   BOOL fullscreen, BOOL clearBg,
 							   BOOL disable_vsync, BOOL use_gl,
 							   BOOL ignore_pixel_depth,
 							   U32 fsaa_samples)
-	: LLWindow(fullscreen, flags)
+	: LLWindow(NULL, fullscreen, flags)
 {
+	// *HACK: During window construction we get lots of OS events for window
+	// reshape, activate, etc. that the viewer isn't ready to handle.
+	// Route them to a dummy callback structure until the end of constructor.
+	LLWindowCallbacks null_callbacks;
+	mCallbacks = &null_callbacks;
+	
 	// Voodoo for calling cocoa from carbon (see llwindowmacosx-objc.mm).
 	setupCocoa();
 	
 	// Initialize the keyboard
 	gKeyboard = new LLKeyboardMacOSX();
+	gKeyboard->setCallbacks(callbacks);
 
 	// Ignore use_gl for now, only used for drones on PC
 	mWindow = NULL;
@@ -315,6 +325,7 @@ LLWindowMacOSX::LLWindowMacOSX(const std::string& title, const std::string& name
 		setCursor( UI_CURSOR_ARROW );
 	}
 
+	mCallbacks = callbacks;
 	stop_glerror();
 }
 
@@ -3202,7 +3213,7 @@ void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url)
 }
 
 
-BOOL LLWindowMacOSX::dialog_color_picker ( F32 *r, F32 *g, F32 *b)
+BOOL LLWindowMacOSX::dialogColorPicker( F32 *r, F32 *g, F32 *b)
 {
 	BOOL	retval = FALSE;
 	OSErr	error = noErr;

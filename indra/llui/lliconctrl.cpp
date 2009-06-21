@@ -40,36 +40,29 @@
 #include "llcontrol.h"
 #include "llui.h"
 #include "lluictrlfactory.h"
+#include "lluiimage.h"
 
-const F32 RESOLUTION_BUMP = 1.f;
+static LLDefaultWidgetRegistry::Register<LLIconCtrl> r("icon");
 
-static LLRegisterWidget<LLIconCtrl> r("icon");
-
-LLIconCtrl::LLIconCtrl(const std::string& name, const LLRect &rect, const LLUUID &image_id)
-:	LLUICtrl(name, 
-			 rect, 
-			 FALSE, // mouse opaque
-			 NULL, NULL, 
-			 FOLLOWS_LEFT | FOLLOWS_TOP),
-	mColor( LLColor4::white )
+LLIconCtrl::Params::Params()
+:	image("image_name"),
+	color("color"),
+	scale_image("scale_image")
 {
-	setImage( image_id );
-	setTabStop(FALSE);
+	tab_stop = false;
+	mouse_opaque = false;
 }
 
-LLIconCtrl::LLIconCtrl(const std::string& name, const LLRect &rect, const std::string &image_name)
-:	LLUICtrl(name, 
-			 rect, 
-			 FALSE, // mouse opaque
-			 NULL, NULL, 
-			 FOLLOWS_LEFT | FOLLOWS_TOP),
-	mColor( LLColor4::white ),
-	mImageName(image_name)
+LLIconCtrl::LLIconCtrl(const LLIconCtrl::Params& p)
+:	LLUICtrl(p),
+	mColor(p.color()),
+	mImagep(p.image)
 {
-	setImage( image_name );
-	setTabStop(FALSE);
+	if (mImagep.notNull())
+	{
+		LLUICtrl::setValue(mImagep->getName());
+	}
 }
-
 
 LLIconCtrl::~LLIconCtrl()
 {
@@ -77,98 +70,41 @@ LLIconCtrl::~LLIconCtrl()
 }
 
 
-void LLIconCtrl::setImage(const std::string& image_name)
-{
-	//RN: support UUIDs masquerading as strings
-	if (LLUUID::validate(image_name))
-	{
-		mImageID = LLUUID(image_name);
-
-		setImage(mImageID);
-	}
-	else
-	{
-		mImageName = image_name;
-		mImagep = LLUI::sImageProvider->getUIImage(image_name);
-		mImageID.setNull();
-	}
-}
-
-void LLIconCtrl::setImage(const LLUUID& image_id)
-{
-	mImageName.clear();
-	mImagep = LLUI::sImageProvider->getUIImageByID(image_id);
-	mImageID = image_id;
-}
-
-
 void LLIconCtrl::draw()
 {
 	if( mImagep.notNull() )
 	{
-		mImagep->draw(getLocalRect(), mColor );
+		mImagep->draw(getLocalRect(), mColor.get() );
 	}
 
 	LLUICtrl::draw();
 }
 
 // virtual
+// value might be a string or a UUID
 void LLIconCtrl::setValue(const LLSD& value )
 {
-	if (value.isUUID())
+	LLSD tvalue(value);
+	if (value.isString() && LLUUID::validate(value.asString()))
 	{
-		setImage(value.asUUID());
+		//RN: support UUIDs masquerading as strings
+		tvalue = LLSD(LLUUID(value.asString()));
+	}
+	LLUICtrl::setValue(tvalue);
+	if (tvalue.isUUID())
+	{
+		mImagep = LLUI::getUIImageByID(tvalue.asUUID());
 	}
 	else
 	{
-		setImage(value.asString());
+		mImagep = LLUI::getUIImage(tvalue.asString());
 	}
 }
 
-// virtual
-LLSD LLIconCtrl::getValue() const
+std::string LLIconCtrl::getImageName() const
 {
-	LLSD ret = getImage();
-	return ret;
-}
-
-// virtual
-LLXMLNodePtr LLIconCtrl::getXML(bool save_children) const
-{
-	LLXMLNodePtr node = LLUICtrl::getXML();
-
-	if (mImageName != "")
-	{
-		node->createChild("image_name", TRUE)->setStringValue(mImageName);
-	}
-
-	node->createChild("color", TRUE)->setFloatValue(4, mColor.mV);
-
-	return node;
-}
-
-LLView* LLIconCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
-{
-	std::string name("icon");
-	node->getAttributeString("name", name);
-
-	LLRect rect;
-	createRect(node, rect, parent, LLRect());
-
-	std::string image_name;
-	if (node->hasAttribute("image_name"))
-	{
-		node->getAttributeString("image_name", image_name);
-	}
-
-	LLColor4 color(LLColor4::white);
-	LLUICtrlFactory::getAttributeColor(node,"color", color);
-
-	LLIconCtrl* icon = new LLIconCtrl(name, rect, image_name);
-
-	icon->setColor(color);
-
-	icon->initFromXML(node, parent);
-
-	return icon;
+	if (getValue().isString())
+		return getValue().asString();
+	else
+		return std::string();
 }

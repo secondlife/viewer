@@ -44,7 +44,7 @@
 #include "v3math.h"
 #include "v4coloru.h"
 #include "llstrider.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llglheaders.h"
 
 class LLVertexBuffer;
@@ -252,6 +252,7 @@ public:
 		BT_ADD,
 		BT_ADD_WITH_ALPHA,	// Additive blend modulated by the fragment's alpha.
 		BT_MULT,
+		BT_MULT_ALPHA,
 		BT_MULT_X2,
 		BT_REPLACE
 	} eBlendType;

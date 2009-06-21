@@ -35,10 +35,12 @@
 #include "message.h"
 #include "lltooldraganddrop.h"
 
+#include "llfloaterreg.h"
 #include "llinstantmessage.h"
 #include "lldir.h"
 
 #include "llagent.h"
+#include "llagentwearables.h"
 #include "llviewercontrol.h"
 #include "llfirstuse.h"
 #include "llfloater.h"
@@ -47,6 +49,7 @@
 #include "llgesturemgr.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
+#include "llinventorybridge.h"
 #include "llinventorymodel.h"
 #include "llinventoryview.h"
 #include "llmutelist.h"
@@ -63,11 +66,12 @@
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llvolume.h"
 #include "llworld.h"
 #include "object_flags.h"
 #include "llimview.h"
+#include "llrootview.h"
 
 
 // MAX ITEMS is based on (sizeof(uuid)+2) * count must be < MTUBYTES
@@ -846,7 +850,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 	{
 		handled = TRUE;
 
-		LLView* root_view = gViewerWindow->getRootView();
+		LLRootView* root_view = gViewerWindow->getRootView();
 
 		for (mCurItemIndex = 0; mCurItemIndex < (S32)mCargoIDs.size(); mCurItemIndex++)
 		{
@@ -1461,10 +1465,10 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 		}
 	}
 	hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
-	if (gFloaterTools->getVisible())
+	if (LLFloaterReg::instanceVisible("build"))
 	{
 		// *FIX: only show this if panel not expanded?
-		gFloaterTools->showPanel(LLFloaterTools::PANEL_CONTENTS);
+		LLFloaterReg::showInstance("build", "Content");
 	}
 
 	// VEFFECT: AddToInventory
@@ -1827,7 +1831,7 @@ BOOL LLToolDragAndDrop::isInventoryGiveAcceptable(LLInventoryItem* item)
 	BOOL copyable = FALSE;
 	if(item->getPermissions().allowCopyBy(gAgent.getID())) copyable = TRUE;
 
-	LLVOAvatar* my_avatar = gAgent.getAvatarObject();
+	LLVOAvatarSelf* my_avatar = gAgent.getAvatarObject();
 	if(!my_avatar)
 	{
 		return FALSE;
@@ -1847,7 +1851,7 @@ BOOL LLToolDragAndDrop::isInventoryGiveAcceptable(LLInventoryItem* item)
 		break;
 	case LLAssetType::AT_BODYPART:
 	case LLAssetType::AT_CLOTHING:
-		if(!copyable && gAgent.isWearingItem(item->getUUID()))
+		if(!copyable && gAgentWearables.isWearingItem(item->getUUID()))
 		{
 			acceptable = FALSE;
 		}
@@ -1877,7 +1881,7 @@ BOOL LLToolDragAndDrop::isInventoryGroupGiveAcceptable(LLInventoryItem* item)
 		return FALSE;
 	}
 
-	LLVOAvatar* my_avatar = gAgent.getAvatarObject();
+	LLVOAvatarSelf* my_avatar = gAgent.getAvatarObject();
 	if(!my_avatar)
 	{
 		return FALSE;
@@ -1924,7 +1928,7 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 	//							  gAgent.getGroupID())
 	//			 && (obj->mPermModify || obj->mFlagAllowInventoryAdd));
 	BOOL worn = FALSE;
-	LLVOAvatar* my_avatar = NULL;
+	LLVOAvatarSelf* my_avatar = NULL;
 	switch(item->getType())
 	{
 	case LLAssetType::AT_OBJECT:
@@ -1936,7 +1940,7 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 		break;
 	case LLAssetType::AT_BODYPART:
 	case LLAssetType::AT_CLOTHING:
-		if(gAgent.isWearingItem(item->getUUID()))
+		if(gAgentWearables.isWearingItem(item->getUUID()))
 		{
 			worn = TRUE;
 		}
@@ -2080,7 +2084,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
 	}
 
 	// must not be already wearing it
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 	if( !avatar || avatar->isWearingAttachment(item->getUUID()) )
 	{
 		return ACCEPT_NO;
@@ -2122,7 +2126,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezObjectOnLand(
 	locateInventory(item, cat);
 	if(!item || !item->isComplete()) return ACCEPT_NO;
 
-	LLVOAvatar* my_avatar = gAgent.getAvatarObject();
+	LLVOAvatarSelf* my_avatar = gAgent.getAvatarObject();
 	if( !my_avatar || my_avatar->isWearingAttachment( item->getUUID() ) )
 	{
 		return ACCEPT_NO;
@@ -2185,7 +2189,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezObjectOnObject(
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
 	if(!item || !item->isComplete()) return ACCEPT_NO;
-	LLVOAvatar* my_avatar = gAgent.getAvatarObject();
+	LLVOAvatarSelf* my_avatar = gAgent.getAvatarObject();
 	if( !my_avatar || my_avatar->isWearingAttachment( item->getUUID() ) )
 	{
 		return ACCEPT_NO;
@@ -2383,7 +2387,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearItem(
 		{
 			// Don't wear anything until initial wearables are loaded, can
 			// destroy clothing items.
-			if (!gAgent.areWearablesLoaded()) 
+			if (!gAgentWearables.areWearablesLoaded()) 
 			{
 				LLNotifications::instance().add("CanNotChangeAppearanceUntilLoaded");
 				return ACCEPT_NO;
@@ -2478,7 +2482,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 	{
 		// Don't wear anything until initial wearables are loaded, can
 		// destroy clothing items.
-		if (!gAgent.areWearablesLoaded()) 
+		if (!gAgentWearables.areWearablesLoaded()) 
 		{
 			LLNotifications::instance().add("CanNotChangeAppearanceUntilLoaded");
 			return ACCEPT_NO;
@@ -2679,7 +2683,7 @@ EAcceptance LLToolDragAndDrop::dad3dGiveInventoryObject(
 		// cannot give away no-transfer objects
 		return ACCEPT_NO;
 	}
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 	if(avatar && avatar->isWearingAttachment( item->getUUID() ) )
 	{
 		// You can't give objects that are attached to you
@@ -2897,11 +2901,10 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 	}
 	else if(mSource == SOURCE_NOTECARD)
 	{
-		LLPreviewNotecard* card;
-		card = (LLPreviewNotecard*)LLPreview::find(mSourceID);
-		if(card)
+		LLPreviewNotecard* preview = LLFloaterReg::findTypedInstance<LLPreviewNotecard>("preview_notecard", mSourceID);
+		if(preview)
 		{
-			item = (LLViewerInventoryItem*)card->getDragItem();
+			item = (LLViewerInventoryItem*)preview->getDragItem();
 		}
 	}
 	if(item) return item;

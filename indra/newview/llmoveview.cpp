@@ -59,13 +59,28 @@ const F32 NUDGE_TIME = 0.25f;		// in seconds
 
 // protected
 LLFloaterMove::LLFloaterMove(const LLSD& key)
-:	LLFloater(std::string("move floater"))
+:	LLFloater()
 {
 	setIsChrome(TRUE);
 
 	const BOOL DONT_OPEN = FALSE;
-	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_moveview.xml", NULL, DONT_OPEN); 
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_moveview.xml", DONT_OPEN); 
 
+}
+
+// virtual
+void LLFloaterMove::onClose(bool app_quitting)
+{
+	destroy();
+	
+	if (!app_quitting)
+	{
+		gSavedSettings.setBOOL("ShowMovementControls", FALSE);
+	}
+}
+// virtual
+BOOL LLFloaterMove::postBuild()
+{
 	mForwardButton = getChild<LLJoystickAgentTurn>("forward btn"); 
 	mForwardButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
 
@@ -80,41 +95,29 @@ LLFloaterMove::LLFloaterMove(const LLSD& key)
 
 	mTurnLeftButton = getChild<LLButton>("turn left btn"); 
 	mTurnLeftButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
-	mTurnLeftButton->setHeldDownCallback( turnLeft );
+	mTurnLeftButton->setHeldDownCallback( turnLeft, NULL );
 
 	mTurnRightButton = getChild<LLButton>("turn right btn"); 
 	mTurnRightButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
-	mTurnRightButton->setHeldDownCallback( turnRight );
+	mTurnRightButton->setHeldDownCallback( turnRight, NULL );
 
 	mMoveUpButton = getChild<LLButton>("move up btn"); 
 	childSetAction("move up btn",moveUp,NULL);
 	mMoveUpButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
-	mMoveUpButton->setHeldDownCallback( moveUp );
+	mMoveUpButton->setHeldDownCallback( moveUp, NULL );
 
 	mMoveDownButton = getChild<LLButton>("move down btn"); 
 	childSetAction("move down btn",moveDown,NULL);	
 	mMoveDownButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
-	mMoveDownButton->setHeldDownCallback( moveDown );
+	mMoveDownButton->setHeldDownCallback( moveDown, NULL );
+	return TRUE;
 }
-
-// virtual
-void LLFloaterMove::onClose(bool app_quitting)
-{
-	LLFloater::onClose(app_quitting);
-	
-	if (!app_quitting)
-	{
-		gSavedSettings.setBOOL("ShowMovementControls", FALSE);
-	}
-}
-
 //
 // Static member functions
 //
 
-void LLFloaterMove::onOpen()
+void LLFloaterMove::onOpen(const LLSD& key)
 {
-	LLFloater::onOpen();
 	gSavedSettings.setBOOL("ShowMovementControls", TRUE);
 }
 

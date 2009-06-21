@@ -40,6 +40,7 @@
 
 #include "stdtypes.h"
 #include "lldate.h"
+#include "llinstancetracker.h"
 
 #include <string>
 #include <list>
@@ -171,13 +172,13 @@ void microsecondsToTimecodeString(U64 current_time, std::string& tcstring);
 void secondsToTimecodeString(F32 current_time, std::string& tcstring);
 
 // class for scheduling a function to be called at a given frequency (approximate, inprecise)
-class LLEventTimer 
+class LLEventTimer : protected LLInstanceTracker<LLEventTimer>
 {
 public:
 	LLEventTimer(F32 period);	// period is the amount of time between each call to tick() in seconds
 	LLEventTimer(const LLDate& time);
 	virtual ~LLEventTimer();
-
+	
 	//function to be called at the supplied frequency
 	// Normally return FALSE; TRUE will delete the timer after the function returns.
 	virtual BOOL tick() = 0;
@@ -187,10 +188,6 @@ public:
 protected:
 	LLTimer mEventTimer;
 	F32 mPeriod;
-
-private:
-	//list of active timers
-	static std::list<LLEventTimer*> sActiveList; // TODO should this be a vector
 };
 
 #endif

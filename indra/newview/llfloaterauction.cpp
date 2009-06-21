@@ -41,6 +41,7 @@
 #include "llparcel.h"
 #include "llvfile.h"
 #include "llvfs.h"
+#include "llwindow.h"
 
 #include "llagent.h"
 #include "llcombobox.h"
@@ -69,41 +70,32 @@ void auction_tga_upload_done(const LLUUID& asset_id,
 /// Class llfloaterauction
 ///----------------------------------------------------------------------------
 
-LLFloaterAuction* LLFloaterAuction::sInstance = NULL;
-
 // Default constructor
-LLFloaterAuction::LLFloaterAuction() :
-	LLFloater(std::string("floater_auction")),
+LLFloaterAuction::LLFloaterAuction(const LLSD& key)
+  : LLFloater(),
 	mParcelID(-1)
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_auction.xml");
-
-	childSetValue("fence_check",
-		LLSD( gSavedSettings.getBOOL("AuctionShowFence") ) );
-	childSetCommitCallback("fence_check",
-		LLSavedSettingsGlue::setBOOL, (void*)"AuctionShowFence");
-
-	childSetAction("snapshot_btn", onClickSnapshot, this);
-	childSetAction("ok_btn", onClickOK, this);
 }
 
 // Destroys the object
 LLFloaterAuction::~LLFloaterAuction()
 {
-	sInstance = NULL;
 }
 
-// static
-void LLFloaterAuction::show()
+BOOL LLFloaterAuction::postBuild()
 {
-	if(!sInstance)
-	{
-		sInstance = new LLFloaterAuction();
-		sInstance->center();
-		sInstance->setFocus(TRUE);
-	}
-	sInstance->initialize();
-	sInstance->open();	/*Flawfinder: ignore*/
+	childSetValue("fence_check", LLSD( gSavedSettings.getBOOL("AuctionShowFence") ) );
+	getChild<LLUICtrl>("fence_check")->setCommitCallback(boost::bind(LLSavedSettingsGlue::setBOOL, _1, "AuctionShowFence"));
+
+	childSetAction("snapshot_btn", onClickSnapshot, this);
+	childSetAction("ok_btn", onClickOK, this);
+	return TRUE;
+}
+
+void LLFloaterAuction::onOpen(const LLSD& key)
+{
+	initialize();
 }
 
 void LLFloaterAuction::initialize()
@@ -259,7 +251,7 @@ void LLFloaterAuction::onClickOK(void* data)
 	self->mImage = NULL;
 	self->mParcelID = -1;
 	self->mParcelHost.invalidate();
-	self->close();
+	self->closeFloater();
 }
 
 

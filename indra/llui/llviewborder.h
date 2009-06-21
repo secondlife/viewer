@@ -35,15 +35,41 @@
 
 #include "llview.h"
 
-
 class LLViewBorder : public LLView
 {
 public:
-	enum EBevel { BEVEL_IN, BEVEL_OUT, BEVEL_BRIGHT, BEVEL_NONE };
-	enum EStyle { STYLE_LINE, STYLE_TEXTURE };
+	typedef enum e_bevel { BEVEL_IN, BEVEL_OUT, BEVEL_BRIGHT, BEVEL_NONE } EBevel ;
+	typedef enum e_style { STYLE_LINE, STYLE_TEXTURE } EStyle;
 
-	LLViewBorder( const std::string& name, const LLRect& rect, EBevel bevel = BEVEL_OUT, EStyle style = STYLE_LINE, S32 width = 1 );
+	struct BevelValues
+	:	public LLInitParam::TypeValuesHelper<LLViewBorder::EBevel, BevelValues>
+	{
+		static void declareValues();
+	};
 
+	struct StyleValues
+	:	public LLInitParam::TypeValuesHelper<LLViewBorder::EStyle, StyleValues>
+	{
+		static void declareValues();
+	};
+
+	struct Params : public LLInitParam::Block<Params, LLView::Params>
+	{
+		Optional<EBevel, BevelValues>	bevel_type;
+		Optional<EStyle, StyleValues>	render_style;	
+		Optional<S32>					border_thickness;
+
+		Optional<LLUIColor>		highlight_light_color,
+								highlight_dark_color,
+								shadow_light_color,
+								shadow_dark_color;
+
+		Params();
+	};
+protected:
+	LLViewBorder(const Params&);
+	friend class LLUICtrlFactory;
+public:
 	virtual void setValue(const LLSD& val) { setRect(LLRect(val)); }
 
 	virtual BOOL isCtrl() const { return FALSE; }
@@ -51,7 +77,6 @@ public:
 	// llview functionality
 	virtual void draw();
 	
-	static  LLView* fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFactory *factory);
 	static BOOL getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel& bevel_style);
 
 	void		setBorderWidth(S32 width)			{ mBorderWidth = width; }
@@ -63,8 +88,8 @@ public:
 				  				   const LLColor4& highlight_light, const LLColor4& highlight_dark );
 	void		setTexture( const class LLUUID &image_id );
 
-	LLColor4	getHighlightLight() {return mHighlightLight;}
-	LLColor4	getShadowDark() {return mHighlightDark;}
+	LLColor4	getHighlightLight() {return mHighlightLight.get();}
+	LLColor4	getShadowDark() {return mHighlightDark.get();}
 
 	EStyle		getStyle() const { return mStyle; }
 
@@ -77,14 +102,14 @@ private:
 	void		drawTextureTrapezoid( F32 degrees, S32 width, S32 length, F32 start_x, F32 start_y );
 
 	EBevel		mBevel;
-	const EStyle mStyle;
-	LLColor4	mHighlightLight;
-	LLColor4	mHighlightDark;
-	LLColor4	mShadowLight;
-	LLColor4	mShadowDark;
-	LLColor4	mBackgroundColor;
+	EStyle		mStyle;
+	LLUIColor	mHighlightLight;
+	LLUIColor	mHighlightDark;
+	LLUIColor	mShadowLight;
+	LLUIColor	mShadowDark;
+	LLUIColor	mBackgroundColor;
 	S32			mBorderWidth;
-	LLUIImagePtr	mTexture;
+	LLPointer<LLUIImage>	mTexture;
 	BOOL		mHasKeyboardFocus;
 };
 

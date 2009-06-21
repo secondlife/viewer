@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu
+ height="101"
+ layout="topleft"
+ left="100"
+ mouse_opaque="false"
+ name="popup"
+ top="724"
+ width="128">
+    <menu_item_call
+     label="Zoom Close"
+     layout="topleft"
+     name="Zoom Close">
+        <menu_item_call.on_click
+         function="MiniMap.ZoomLevel"
+         parameter="2" />
+    </menu_item_call>
+    <menu_item_call
+     label="Zoom Medium"
+     layout="topleft"
+     name="Zoom Medium">
+        <menu_item_call.on_click
+         function="MiniMap.ZoomLevel"
+         parameter="1" />
+    </menu_item_call>
+    <menu_item_call
+     label="Zoom Far"
+     layout="topleft"
+     name="Zoom Far">
+        <menu_item_call.on_click
+         function="MiniMap.ZoomLevel"
+         parameter="0" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft" />
+    <menu_item_call
+     enabled="false"
+     label="Stop Tracking"
+     layout="topleft"
+     name="Stop Tracking">
+        <menu_item_call.on_click
+         function="MiniMap.StopTracking" />
+        <menu_item_call.on_enable
+         function="MiniMap.EnableTracking" />
+    </menu_item_call>
+    <menu_item_call
+     enabled="false"
+     label="Profile..."
+     layout="topleft"
+     name="Profile">
+        <menu_item_call.on_click
+         function="MiniMap.ShowProfile" />
+        <menu_item_call.on_enable
+         function="MiniMap.EnableProfile" />
+    </menu_item_call>
+</menu>

@@ -1,6 +1,6 @@
 /** 
  * @file llscrollcontainer.h
- * @brief LLScrollableContainerView class header file.
+ * @brief LLScrollContainer class header file.
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -53,24 +53,28 @@ class LLUICtrlFactory;
  * the width and height of the view you're scrolling.
  *
  *****************************************************************************/
-class LLScrollableContainerView : public LLUICtrl
+class LLScrollContainer : public LLUICtrl
 {
 public:
 	// Note: vertical comes before horizontal because vertical
 	// scrollbars have priority for mouse and keyboard events.
 	enum SCROLL_ORIENTATION { VERTICAL, HORIZONTAL, SCROLLBAR_COUNT };
 
-	LLScrollableContainerView( const std::string& name, const LLRect& rect,
-							   LLView* scrolled_view, BOOL is_opaque = FALSE,
-							   const LLColor4& bg_color = LLColor4(0,0,0,0) );
-	LLScrollableContainerView( const std::string& name, const LLRect& rect,
-							   LLUICtrl* scrolled_ctrl, BOOL is_opaque = FALSE,
-							   const LLColor4& bg_color = LLColor4(0,0,0,0) );
-	virtual ~LLScrollableContainerView( void );
+	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Optional<bool>		is_opaque;
+		Optional<LLUIColor>	bg_color;
+		Optional<bool>		reserve_scroll_corner;
+		
+		Params();
+	};
+protected:
+	LLScrollContainer(const Params&);
+	friend class LLUICtrlFactory;
+public:
+	virtual ~LLScrollContainer( void );
 
-	void setScrolledView(LLView* view) { mScrolledView = view; }
-
-	virtual void setValue(const LLSD& value) { mInnerRect.setValue(value); }
+	virtual void 	setValue(const LLSD& value) { mInnerRect.setValue(value); }
 
 	void			calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
 	void			calcVisibleSize( const LLRect& doc_rect, S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
@@ -99,13 +103,10 @@ public:
 
 	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect);
 	virtual void	draw();
-
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
+	virtual bool	addChild(LLView* view, S32 tab_group = 0);
+	virtual const widget_registry_t& getChildRegistry() const;
 
 private:
-	void init();
-
 	// internal scrollbar handlers
 	virtual void scrollHorizontal( S32 new_pos );
 	virtual void scrollVertical( S32 new_pos );
@@ -115,7 +116,7 @@ private:
 	LLView*		mScrolledView;
 	S32			mSize;
 	BOOL		mIsOpaque;
-	LLColor4	mBackgroundColor;
+	LLUIColor	mBackgroundColor;
 	LLRect		mInnerRect;
 	LLViewBorder* mBorder;
 	BOOL		mReserveScrollCorner;

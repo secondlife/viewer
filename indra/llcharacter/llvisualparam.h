@@ -112,7 +112,7 @@ public:
 	virtual void			stopAnimating(BOOL set_by_user);
 
 	// Interface methods
-	S32						getID() 			{ return mID; }
+	S32						getID() const		{ return mID; }
 	void					setID(S32 id) 		{ llassert(!mInfo); mID = id; }
 	
 	const std::string&		getName() const 			{ return mInfo->mName; }
@@ -124,22 +124,22 @@ public:
 	void					setMaxDisplayName(const std::string& s) { mInfo->mMaxName = s; }
 	void					setMinDisplayName(const std::string& s) { mInfo->mMinName = s; }
 
-	EVisualParamGroup		getGroup() 			{ return mInfo->mGroup; }
-	F32						getMinWeight() 		{ return mInfo->mMinWeight; }
-	F32						getMaxWeight() 		{ return mInfo->mMaxWeight; }
-	F32						getDefaultWeight() 	{ return mInfo->mDefaultWeight; }
-	ESex					getSex()			{ return mInfo->mSex; }
+	EVisualParamGroup		getGroup() const 			{ return mInfo->mGroup; }
+	F32						getMinWeight() const		{ return mInfo->mMinWeight; }
+	F32						getMaxWeight() const		{ return mInfo->mMaxWeight; }
+	F32						getDefaultWeight() const 	{ return mInfo->mDefaultWeight; }
+	ESex					getSex() const			{ return mInfo->mSex; }
 
-	F32						getWeight() 		{ return mIsAnimating ? mTargetWeight : mCurWeight; }
-	F32						getCurrentWeight() 	{ return mCurWeight; }
-	F32						getLastWeight() 	{ return mLastWeight; }
-	BOOL					isAnimating() 	{ return mIsAnimating; }
+	F32						getWeight() const		{ return mIsAnimating ? mTargetWeight : mCurWeight; }
+	F32						getCurrentWeight() const 	{ return mCurWeight; }
+	F32						getLastWeight() const	{ return mLastWeight; }
+	BOOL					isAnimating() const	{ return mIsAnimating; }
 
 	LLVisualParam*			getNextParam()		{ return mNext; }
 	void					setNextParam( LLVisualParam *next );
 	
 	virtual void			setAnimating(BOOL is_animating) { mIsAnimating = is_animating; }
-	BOOL					getAnimating() { return mIsAnimating; }
+	BOOL					getAnimating() const { return mIsAnimating; }
 
 protected:
 	F32					mCurWeight;			// current weight

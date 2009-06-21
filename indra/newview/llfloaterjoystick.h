@@ -84,9 +84,8 @@ private:
 	LLCheckBoxCtrl	*mCheckFlycamEnabled;
 
 	// stats view 
-	LLStatView*		mAxisStatsView;
-	LLStat*			mAxisStats[6];
-	LLStatBar*		mAxisStatsBar[6];
+	LLStat* mAxisStats[6];
+	LLStatBar* mAxisStatsBar[6];
 };
 
 #endif

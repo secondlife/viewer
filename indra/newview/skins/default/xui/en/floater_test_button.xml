@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="true"
+ height="500"
+ layout="topleft"
+ name="floater_test_button"
+ width="500">
+    <button
+     height="20"
+     label="Generic Button"
+     layout="topleft"
+     left="10"
+     name="generic_button"
+     top="20"
+     width="150" />
+    <button
+     bottom_delta="30"
+     height="20"
+     label="Bottom delta"
+     layout="topleft"
+     name="bottom_delta_button" />
+    <button
+     bottom_delta="30"
+     font="SansSerifSmall"
+     height="20"
+     label="SansSerifSmall"
+     layout="topleft"
+     name="sans_serif_small_button" />
+    <button
+     auto_resize="true"
+     bottom_delta="30"
+     height="20"
+     label="Auto Resize"
+     layout="topleft"
+     name="auto_resize_button" />
+    <button
+     bottom_delta="30"
+     height="20"
+     is_toggle="true"
+     label="Click Change Label"
+     label_selected="New Label"
+     layout="topleft"
+     name="label_selected_button" />
+    <button
+     bottom_delta="30"
+     height="20"
+     label="No Label Shadow"
+     label_shadow="false"
+     layout="topleft"
+     name="label_shadow_button" />
+    <button
+     bottom_delta="30"
+     height="20"
+     label="Red Label"
+     label_color="red"
+     layout="topleft"
+     name="label_color_button" />
+    <button
+     bottom_delta="30"
+     height="20"
+     is_toggle="true"
+     label="Red Label Selected"
+     label_color_selected="red"
+     label_selected="Red Label Selected"
+     layout="topleft"
+     name="label_color_selected_button" />
+    <button
+     bottom_delta="30"
+     enabled="false"
+     height="20"
+     label="Red Label Disabled"
+     label_color_disabled="red"
+     label_selected="Red Label Selected"
+     layout="topleft"
+     name="label_color_disabled_button" />
+    <button
+     bottom_delta="30"
+     height="20"
+     highlight_color="red"
+     label="Red Highlight"
+     layout="topleft"
+     name="highlight_color_button" />
+    <button
+     bottom_delta="30"
+     height="20"
+     hover_glow_amount="0"
+     label="No Hover Glow"
+     layout="topleft"
+     name="hover_glow_amount_button" />
+    <button
+     height="30"
+     image_selected="object_cube_active.tga"
+     image_unselected="object_cube.tga"
+     layout="topleft"
+     left="200"
+     name="image_button"
+     picture_style="true"
+     top="20"
+     width="30" />
+    <button
+     height="30"
+     image_color="red"
+     image_selected="object_cube_active.tga"
+     image_unselected="object_cube.tga"
+     layout="topleft"
+     left_delta="0"
+     name="image_color_button"
+     picture_style="true"
+     top_pad="10"
+     width="30" />
+</floater>

@@ -32,13 +32,14 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "audioengine.h"
 #include "llagent.h"
 #include "llinventory.h"
+#include "llinventorybridge.h"
 #include "llinventorymodel.h"
 #include "llinventoryview.h"
-#include "llinventorybridge.h"	// for landmark prefix string
 
 #include "llviewertexteditor.h"
 
@@ -51,6 +52,7 @@
 #include "llpreviewlandmark.h"
 #include "llscrollbar.h"
 #include "lltooldraganddrop.h"
+#include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewerimagelist.h"
 #include "llviewerwindow.h"
@@ -62,7 +64,7 @@
 
 #include "llappviewer.h" // for gPacificDaylightTime
 
-static LLRegisterWidget<LLViewerTextEditor> r("text_editor");
+static LLDefaultWidgetRegistry::Register<LLViewerTextEditor> r("text_editor");
 
 ///----------------------------------------------------------------------------
 /// Class LLEmbeddedNotecardOpener
@@ -96,31 +98,9 @@ public:
 		}
 		else
 		{
-			// See if we can bring an existing preview to the front
-			if(!LLPreview::show(item->getUUID(), true))
+			if(!gSavedSettings.getBOOL("ShowNewInventory"))
 			{
-				if(!gSavedSettings.getBOOL("ShowNewInventory"))
-				{
-					// There isn't one, so make a new preview
-					S32 left, top;
-					gFloaterView->getNewFloaterPosition(&left, &top);
-					LLRect rect = gSavedSettings.getRect("NotecardEditorRect");
-					rect.translate(left - rect.mLeft, top - rect.mTop);
-					LLPreviewNotecard* preview;
-					preview = new LLPreviewNotecard("preview notecard", 
-													rect, 
-													std::string("Embedded Note: ") + item->getName(),
-													item->getUUID(), 
-													LLUUID::null, 
-													item->getAssetUUID(),
-													true, 
-													(LLViewerInventoryItem*)item);
-					preview->setSourceID(LLUUID::null);
-					preview->setFocus(TRUE);
-
-					// Force to be entirely onscreen.
-					gFloaterView->adjustToFitScreen(preview, FALSE);
-				}
+				LLFloaterReg::showInstance("preview_notecard", LLSD(item->getUUID()), TAKE_FOCUS_YES);
 			}
 		}
 	}
@@ -430,6 +410,8 @@ void LLEmbeddedItems::bindEmbeddedChars( const LLFontGL* font ) const
 		  case LLAssetType::AT_BODYPART:		img_name = "inv_item_skin.tga";	break;
 		  case LLAssetType::AT_ANIMATION:		img_name = "inv_item_animation.tga";break;
 		  case LLAssetType::AT_GESTURE:			img_name = "inv_item_gesture.tga";	break;
+		  //TODO need img_name
+		  case LLAssetType::AT_FAVORITE:		img_name = "inv_item_landmark.tga";	 break;
 		  default: llassert(0); continue;
 		}
 
@@ -561,33 +543,15 @@ struct LLNotecardCopyInfo
 //
 // Member functions
 //
-
-LLViewerTextEditor::LLViewerTextEditor(const std::string& name, 
-									   const LLRect& rect, 
-									   S32 max_length, 
-									   const std::string& default_text, 
-									   const LLFontGL* font,
-									   BOOL allow_embedded_items)
-	: LLTextEditor(name, rect, max_length, default_text, font, allow_embedded_items),
-	  mDragItemChar(0),
-	  mDragItemSaved(FALSE),
-	  mInventoryCallback(new LLEmbeddedNotecardOpener)
+LLViewerTextEditor::LLViewerTextEditor(const LLViewerTextEditor::Params& p)
+:	LLTextEditor(p),
+	mDragItemChar(0),
+	mDragItemSaved(FALSE),
+	mInventoryCallback(new LLEmbeddedNotecardOpener)
 {
+	mParseHTML = p.allow_html;
 	mEmbeddedItemList = new LLEmbeddedItems(this);
 	mInventoryCallback->setEditor(this);
-
-	// *TODO: Add right click menus for SLURLs
-	// Build the right click menu
-	// make the popup menu available
-
-	//LLMenuGL* menu = LLUICtrlFactory::getInstance()->buildMenu("menu_slurl.xml", this);
-	//if (!menu)
-	//{
-	//	menu = new LLMenuGL(LLStringUtil::null);
-	//}
-	//menu->setBackgroundColor(gColors.getColor("MenuPopupBgColor"));
-	//// menu->setVisible(FALSE);
-	//mPopupMenuHandle = menu->getHandle();
 }
 
 LLViewerTextEditor::~LLViewerTextEditor()
@@ -781,6 +745,7 @@ BOOL LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 {
+	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
 	BOOL handled = FALSE;
 
 	if (!mDragItem)
@@ -825,7 +790,7 @@ BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 					LLAssetType::lookupDragAndDropType( mDragItem->getType() ),
 					mDragItem->getUUID(),
 					LLToolDragAndDrop::SOURCE_NOTECARD,
-					getSourceID(), mObjectID);
+					mPreviewID, mObjectID);
 
 				return LLToolDragAndDrop::getInstance()->handleHover( x, y, mask );
 			}
@@ -878,7 +843,7 @@ BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 		if( !handled )
 		{
 			lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (inactive)" << llendl;		
-			if (!mScrollbar->getVisible() || x < getRect().getWidth() - SCROLLBAR_SIZE)
+			if (!mScrollbar->getVisible() || x < getRect().getWidth() - scrollbar_size)
 			{
 				getWindow()->setCursor(UI_CURSOR_IBEAM);
 			}
@@ -1134,6 +1099,7 @@ BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 							*accept = ACCEPT_NO;
 							if (tooltip_msg.empty())
 							{
+								// *TODO: Translate
 								tooltip_msg.assign("Only items with unrestricted\n"
 													"'next owner' permissions \n"
 													"can be attached to notecards.");
@@ -1246,18 +1212,16 @@ std::string LLViewerTextEditor::appendTime(bool prepend_newline)
 {
 	time_t utc_time;
 	utc_time = time_corrected();
+	std::string timeStr ="[["+ LLTrans::getString("TimeHour")+"]:["
+		+LLTrans::getString("TimeMin")+"]] ";
 
-	// There's only one internal tm buffer.
-	struct tm* timep;
+	LLSD substitution;
 
-	// Convert to Pacific, based on server's opinion of whether
-	// it's daylight savings time there.
-	timep = utc_to_pacific_time(utc_time, gPacificDaylightTime);
+	substitution["datetime"] = (S32) utc_time;
+	LLStringUtil::format (timeStr, substitution);
+	appendColoredText(timeStr, false, prepend_newline, LLColor4::grey);
 
-	std::string text = llformat("[%d:%02d]  ", timep->tm_hour, timep->tm_min);
-	appendColoredText(text, false, prepend_newline, LLColor4::grey);
-
-	return text;
+	return timeStr;
 }
 
 //----------------------------------------------------------------------------
@@ -1370,29 +1334,16 @@ BOOL LLViewerTextEditor::openEmbeddedItem(LLInventoryItem* item, llwchar wc)
 
 void LLViewerTextEditor::openEmbeddedTexture( LLInventoryItem* item, llwchar wc )
 {
-	// See if we can bring an existing preview to the front
 	// *NOTE:  Just for embedded Texture , we should use getAssetUUID(), 
 	// not getUUID(), because LLPreviewTexture pass in AssetUUID into 
 	// LLPreview constructor ItemUUID parameter.
-
-	if( !LLPreview::show( item->getAssetUUID() ) )
+	if (!item)
+		return;
+	LLPreviewTexture* preview = LLFloaterReg::showTypedInstance<LLPreviewTexture>("preview_texture", LLSD(item->getAssetUUID()), TAKE_FOCUS_YES);
+	if (preview)
 	{
-		// There isn't one, so make a new preview
-		if(item)
-		{
-			S32 left, top;
-			gFloaterView->getNewFloaterPosition(&left, &top);
-			LLRect rect = gSavedSettings.getRect("PreviewTextureRect");
-			rect.translate( left - rect.mLeft, top - rect.mTop );
-
-			LLPreviewTexture* preview = new LLPreviewTexture("preview texture",
-				rect,
-				item->getName(),
-				item->getAssetUUID(),
-				TRUE);
-			preview->setAuxItem( item );
-			preview->setNotecardInfo(mNotecardInventoryID, mObjectID);
-		}
+		preview->setAuxItem( item );
+		preview->setNotecardInfo(mNotecardInventoryID, mObjectID);
 	}
 }
 
@@ -1411,9 +1362,13 @@ void LLViewerTextEditor::openEmbeddedSound( LLInventoryItem* item, llwchar wc )
 
 void LLViewerTextEditor::openEmbeddedLandmark( LLInventoryItem* item, llwchar wc )
 {
-	std::string title =
-		std::string("  ") + LLLandmarkBridge::prefix()	+ item->getName();
-	open_landmark((LLViewerInventoryItem*)item, title, FALSE, item->getUUID(), TRUE);
+	if (!item)
+		return;
+	LLPreviewLandmark* preview = LLFloaterReg::showTypedInstance<LLPreviewLandmark>("preview_landmark", LLSD(item->getUUID()), TAKE_FOCUS_YES);
+	if (preview)
+	{
+		preview->setItem( item );
+	}
 }
 
 void LLViewerTextEditor::openEmbeddedNotecard( LLInventoryItem* item, llwchar wc )
@@ -1435,9 +1390,11 @@ bool LLViewerTextEditor::onNotecardDialog(const LLSD& notification, const LLSD& 
 	S32 option = LLNotification::getSelectedOption(notification, response);
 	if( option == 0 )
 	{
-		// itemptr is deleted by LLPreview::save
-		LLPointer<LLInventoryItem>* itemptr = new LLPointer<LLInventoryItem>(gInventory.getItem(notification["payload"]["item_id"].asUUID()));
-		LLPreview::save( notification["payload"]["notecard_id"].asUUID() , itemptr);
+		LLPreviewNotecard* preview = LLFloaterReg::findTypedInstance<LLPreviewNotecard>("preview_notecard", notification["payload"]["notecard_id"]);;
+		if (preview)
+		{
+			preview->saveItem();
+		}
 	}
 	return false;
 }
@@ -1541,61 +1498,3 @@ BOOL LLViewerTextEditor::exportBuffer( std::string& buffer )
 	return TRUE;
 }
 
-LLView* LLViewerTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
-{
-	std::string name("text_editor");
-	node->getAttributeString("name", name);
-
-	LLRect rect;
-	createRect(node, rect, parent, LLRect());
-
-	U32 max_text_length = 255;
-	node->getAttributeU32("max_length", max_text_length);
-
-	BOOL allow_embedded_items = FALSE;
-	node->getAttributeBOOL("embedded_items", allow_embedded_items);
-
-	LLFontGL* font = LLView::selectFont(node);
-
-	// std::string text = node->getValue();
-	std::string text = node->getTextContents().substr(0, max_text_length - 1);
-
-	if (text.size() > max_text_length)
-	{
-		// Erase everything from max_text_length on.
-		text.erase(max_text_length);
-	}
-
-	LLViewerTextEditor* text_editor = new LLViewerTextEditor(name, 
-								rect,
-								max_text_length,
-								LLStringUtil::null,
-								font,
-								allow_embedded_items);
-
-	BOOL ignore_tabs = text_editor->tabsToNextField();
-	node->getAttributeBOOL("ignore_tab", ignore_tabs);
-	text_editor->setTabsToNextField(ignore_tabs);
-
-	text_editor->setTextEditorParameters(node);
-
-	BOOL hide_scrollbar = FALSE;
-	node->getAttributeBOOL("hide_scrollbar",hide_scrollbar);
-	text_editor->setHideScrollbarForShortDocs(hide_scrollbar);
-
-	BOOL hide_border = !text_editor->isBorderVisible();
-	node->getAttributeBOOL("hide_border", hide_border);
-	text_editor->setBorderVisible(!hide_border);
-
-	BOOL parse_html = text_editor->mParseHTML;
-	node->getAttributeBOOL("allow_html", parse_html);
-	text_editor->setParseHTML(parse_html);
-	text_editor->setParseHighlights(TRUE);
-
-	text_editor->initFromXML(node, parent);
-
-	// add text after all parameters have been set
-	text_editor->appendStyledText(text, FALSE, FALSE);
-
-	return text_editor;
-}

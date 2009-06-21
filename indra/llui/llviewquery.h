@@ -35,7 +35,7 @@
 
 #include <list>	
 
-#include "llmemory.h"
+#include "llsingleton.h"
 #include "llui.h"
 
 class LLView;

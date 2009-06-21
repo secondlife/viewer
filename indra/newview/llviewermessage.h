@@ -130,6 +130,7 @@ void container_inventory_arrived(LLViewerObject* object,
 // agent movement
 void send_complete_agent_movement(const LLHost& sim_host);
 void process_agent_movement_complete(LLMessageSystem* msg, void**);
+bool server_version_changed_callback(const LLSD& notification, const LLSD& response);
 void process_crossed_region(LLMessageSystem* msg, void**);
 void process_teleport_start(LLMessageSystem* msg, void**);
 void process_teleport_progress(LLMessageSystem* msg, void**);
@@ -151,7 +152,7 @@ void send_group_notice(const LLUUID& group_id,
 					   const LLInventoryItem* item);
 
 void handle_lure(const LLUUID& invitee);
-void handle_lure(LLDynamicArray<LLUUID>& ids);
+void handle_lure(const std::vector<LLUUID>& ids);
 
 // always from gAgent and 
 // routes through the gAgent's current simulator

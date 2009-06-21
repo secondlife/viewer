@@ -35,62 +35,46 @@
 
 
 #include "stdtypes.h"
-#include "lluictrl.h"
+#include "llf32uictrl.h"
 #include "v4color.h"
 #include "llrect.h"
 
-//
-// Constants
-//
-const S32	SPINCTRL_BTN_HEIGHT		=  8;
-const S32	SPINCTRL_BTN_WIDTH		= 16;
-const S32	SPINCTRL_SPACING		=  2;							// space between label right and button left
-const S32	SPINCTRL_HEIGHT			=  2 * SPINCTRL_BTN_HEIGHT;
-const S32	SPINCTRL_DEFAULT_LABEL_WIDTH = 10;
-
 
 class LLSpinCtrl
-: public LLUICtrl
+: public LLF32UICtrl
 {
 public:
-	LLSpinCtrl(const std::string& name, const LLRect& rect,
-		const std::string& label,
-		const LLFontGL* font,
-		void (*commit_callback)(LLUICtrl*, void*),
-		void* callback_userdata,
-		F32 initial_value, F32 min_value, F32 max_value, F32 increment,
-		const std::string& control_name = std::string(),
-		S32 label_width = SPINCTRL_DEFAULT_LABEL_WIDTH );
+	struct Params : public LLInitParam::Block<Params, LLF32UICtrl::Params>
+	{
+		Optional<S32> label_width;
+		Optional<U32> decimal_digits;
+		Optional<bool> allow_text_entry;
 
+		Optional<LLUIColor> text_enabled_color;
+		Optional<LLUIColor> text_disabled_color;
+
+		Params();
+	};
+protected:
+	LLSpinCtrl(const Params&);
+	friend class LLUICtrlFactory;
+public:
 	virtual ~LLSpinCtrl() {} // Children all cleaned up by default view destructor.
-
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFactory *factory);
 
 	virtual void    forceSetValue(const LLSD& value ) ;
 	virtual void	setValue(const LLSD& value );
-	virtual LLSD	getValue() const { return mValue; }
-			F32		get() const { return (F32)getValue().asReal(); }
+			F32		get() const { return getValueF32(); }
 			void	set(F32 value) { setValue(value); mInitialValue = value; }
-
-	virtual void	setMinValue(LLSD min_value)	{ setMinValue((F32)min_value.asReal()); }
-	virtual void	setMaxValue(LLSD max_value)	{ setMaxValue((F32)max_value.asReal());  }
 
 	BOOL			isMouseHeldDown() const;
 
 	virtual void    setEnabled( BOOL b );
 	virtual void	setFocus( BOOL b );
 	virtual void	clear();
-	virtual BOOL	isDirty() const { return( mValue != mInitialValue ); }
-	virtual void    resetDirty() { mInitialValue = mValue; }
+	virtual BOOL	isDirty() const { return( getValueF32() != mInitialValue ); }
+	virtual void    resetDirty() { mInitialValue = getValueF32(); }
 
 	virtual void	setPrecision(S32 precision);
-	virtual void	setMinValue(F32 min)			{ mMinValue = min; }
-	virtual void	setMaxValue(F32 max)			{ mMaxValue = max; }
-	virtual void	setIncrement(F32 inc)			{ mIncrement = inc; }
-	virtual F32		getMinValue()			{ return mMinValue ; }
-	virtual F32 	getMaxValue()			{ return mMaxValue ; }
-	virtual F32     getIncrement()          { return mIncrement ; }
 
 	void			setLabel(const LLStringExplicit& label);
 	void			setLabelColor(const LLColor4& c)			{ mTextEnabledColor = c; }
@@ -107,31 +91,23 @@ public:
 	virtual BOOL	handleScrollWheel(S32 x,S32 y,S32 clicks);
 	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 
-	virtual void	draw();
-
-	static void		onEditorCommit(LLUICtrl* caller, void* userdata);
+	void			onEditorCommit(const LLSD& data);
 	static void		onEditorGainFocus(LLFocusableElement* caller, void *userdata);
 	static void		onEditorChangeFocus(LLUICtrl* caller, S32 direction, void *userdata);
 
-	static void		onUpBtn(void *userdata);
-	static void		onDownBtn(void *userdata);
+	void			onUpBtn(const LLSD& data);
+	void			onDownBtn(const LLSD& data);
 
 private:
 	void			updateEditor();
 	void			reportInvalidData();
 
-	F32				mValue;
-	F32				mInitialValue;
-	F32				mMaxValue;
-	F32				mMinValue;
-	F32				mIncrement;
-
 	S32				mPrecision;
 	class LLTextBox*	mLabelBox;
 
 	class LLLineEditor*	mEditor;
-	LLColor4		mTextEnabledColor;
-	LLColor4		mTextDisabledColor;
+	LLUIColor	mTextEnabledColor;
+	LLUIColor	mTextDisabledColor;
 
 	class LLButton*		mUpBtn;
 	class LLButton*		mDownBtn;

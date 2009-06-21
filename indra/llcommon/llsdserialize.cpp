@@ -34,7 +34,7 @@
 
 #include "linden_common.h"
 #include "llsdserialize.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llstreamtools.h" // for fullread
 
 #include <iostream>

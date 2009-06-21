@@ -36,7 +36,7 @@
 #include "lltool.h"
 #include "v3math.h"
 #include "llquaternion.h"
-#include "llmemory.h"
+#include "llsingleton.h"
 #include "lluuid.h"
 #include "llviewerwindow.h" // for LLPickInfo
 

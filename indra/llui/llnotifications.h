@@ -101,6 +101,7 @@
 #include "llevents.h"
 #include "llfunctorregistry.h"
 #include "llui.h"
+#include "llmemory.h"
 
 class LLNotification;
 typedef boost::shared_ptr<LLNotification> LLNotificationPtr;
@@ -235,6 +236,11 @@ struct LLNotificationTemplate
     // that URL. Obsolete this and eliminate the buttons for affected
     // messages when we allow clickable URLs in the UI
     U32 mURLOption;
+	
+	U32 mURLOpenExternally;
+	//This is a flag that tells if the url needs to open externally dispite 
+	//what the user setting is.
+	
 	// does this notification persist across sessions? if so, it will be
 	// serialized to disk on first receipt and read on startup
 	bool mPersist;
@@ -277,42 +283,49 @@ friend class LLNotifications;
 
 public:
 	// parameter object used to instantiate a new notification
-	class Params : public LLParamBlock<Params>
+	struct Params : public LLInitParam::Block<Params>
 	{
 		friend class LLNotification;
-	public:
-		Params(const std::string& _name) 
-			:	name(_name),
-				mTemporaryResponder(false),
-				functor_name(_name),
-				priority(NOTIFICATION_PRIORITY_UNSPECIFIED),
-				timestamp(LLDate::now())
-		{
-		}
-
-		// pseudo-param
-		Params& functor(LLNotificationFunctorRegistry::ResponseFunctor f) 
-		{ 	
-			functor_name = LLUUID::generateNewID().asString();
-			LLNotificationFunctorRegistry::instance().registerFunctor(functor_name, f);
-
-			mTemporaryResponder = true;
-			return *this;
-		}
-
-		LLMandatoryParam<std::string>					name;
+	
+		Mandatory<std::string>					name;
 
 		// optional
-		LLOptionalParam<LLSD>							substitutions;
-		LLOptionalParam<LLSD>							payload;
-		LLOptionalParam<ENotificationPriority>			priority;
-		LLOptionalParam<LLSD>							form_elements;
-		LLOptionalParam<LLDate>							timestamp;
-		LLOptionalParam<LLNotificationContext*>			context;
-		LLOptionalParam<std::string>					functor_name;
+		Optional<LLSD>							substitutions;
+		Optional<LLSD>							payload;
+		Optional<ENotificationPriority>			priority;
+		Optional<LLSD>							form_elements;
+		Optional<LLDate>						timestamp;
+		Optional<LLNotificationContext*>		context;
 
-	private:
-		bool					mTemporaryResponder;
+		struct Functor : public LLInitParam::Choice<Functor>
+		{
+			Option<std::string>										name;
+			Option<LLNotificationFunctorRegistry::ResponseFunctor>	function;
+
+			Functor()
+			:	name("functor_name"),
+				function("functor")
+			{}
+		};
+		Optional<Functor>						functor;
+
+		Params()
+		:	name("name"),
+			priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
+			timestamp("time_stamp")
+		{
+			timestamp = LLDate::now();
+		}
+
+		Params(const std::string& _name) 
+			:	name("name"),
+				priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
+				timestamp("time_stamp")
+		{
+			functor.name = _name;
+			name = _name;
+			timestamp = LLDate::now();
+		}
 	};
 
 private:
@@ -364,10 +377,6 @@ public:
 
 	// constructor from a saved notification
 	LLNotification(const LLSD& sd);
-
-	// This is a string formatter for substituting into the message directly 
-	// from LLSD without going through the hopefully-to-be-obsoleted LLString
-	static std::string format(const std::string& text, const LLSD& substitutions);
 
 	void setResponseFunctor(std::string const &responseFunctorName);
 
@@ -460,16 +469,21 @@ public:
 	std::string getMessage() const;
 	std::string getLabel() const;
 
-	std::string getURL() const
-	{
-		return (mTemplatep ? mTemplatep->mURL : "");
-	}
+	std::string getURL() const;
+//	{
+//		return (mTemplatep ? mTemplatep->mURL : "");
+//	}
 
 	S32 getURLOption() const
 	{
 		return (mTemplatep ? mTemplatep->mURLOption : -1);
 	}
-
+    
+	S32 getURLOpenExternally() const
+	{
+		return(mTemplatep? mTemplatep->mURLOpenExternally : -1);
+	}
+	
 	const LLNotificationFormPtr getForm();
 
 	const LLDate getExpiration() const
@@ -798,7 +812,10 @@ public:
 	// OK to call more than once because it will reload
 	bool loadTemplates();  
 	LLXMLNodePtr checkForXMLTemplate(LLXMLNodePtr item);
-
+	
+	// Add a simple notification (from XUI)
+	void addFromCallback(const LLSD& name);
+	
 	// we provide a collection of simple add notification functions so that it's reasonable to create notifications in one line
 	LLNotificationPtr add(const std::string& name, 
 						const LLSD& substitutions = LLSD(), 

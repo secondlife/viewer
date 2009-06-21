@@ -3,12 +3,8 @@
 	<button label="Continuer" label_selected="Continuer" name="Continue" />
 	<button label="Annuler" label_selected="Annuler" name="Cancel" />
 	<radio_group name="tos_agreement">
-		<radio_item name="radio_disagree">
-			Je n&apos;accepte pas les Conditions Générales d&apos;Utilisation
-		</radio_item>
-		<radio_item name="radio_agree">
-			J&apos;accepte les Conditions Générales d&apos;Utilisation
-		</radio_item>
+		<radio_item name="radio_disagree" label="Je n&apos;accepte pas les Conditions Générales d&apos;Utilisation" />
+		<radio_item name="radio_agree" label="J&apos;accepte les Conditions Générales d&apos;Utilisation" />
 	</radio_group>
 	<text name="tos_title">
 		Acceptation des Conditions Générales d&apos;Utilisation

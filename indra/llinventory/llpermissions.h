@@ -314,9 +314,6 @@ public:
 	BOOL	importLegacyStream(std::istream& input_stream);
 	BOOL	exportLegacyStream(std::ostream& output_stream) const;
 
-	LLXMLNode *exportFileXML() const;
-	bool importXML(LLXMLNode* node);
-
 	bool operator==(const LLPermissions &rhs) const;
 	bool operator!=(const LLPermissions &rhs) const;
 

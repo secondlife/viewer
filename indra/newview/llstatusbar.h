@@ -48,45 +48,11 @@ class LLUUID;
 class LLFrameTimer;
 class LLStatGraph;
 
-// used by LCD screen
-class LLRegionDetails
-{
-public:
-	LLRegionDetails() :
-		mRegionName("Unknown"),
-		mParcelName("Unknown"),
-		mAccessString("Unknown"),
-		mX(0),
-		mY(0),
-		mZ(0),
-		mArea (0),
-		mForSale(FALSE),
-		mOwner("Unknown"),
-		mTraffic(0),
-		mBalance(0),
-		mPing(0)
-	{
-	}
-	std::string mRegionName;
-	std::string	mParcelName;
-	std::string	mAccessString;
-	S32		mX;
-	S32		mY;
-	S32		mZ;
-	S32		mArea;
-	BOOL	mForSale;
-	std::string	mOwner;
-	F32		mTraffic;
-	S32		mBalance;
-	std::string mTime;
-	U32		mPing;
-};
-
 class LLStatusBar
 :	public LLPanel
 {
 public:
-	LLStatusBar(const std::string& name, const LLRect& rect );
+	LLStatusBar(const LLRect& rect );
 	/*virtual*/ ~LLStatusBar();
 	
 	/*virtual*/ void draw();
@@ -116,7 +82,6 @@ public:
 	S32 getSquareMetersCredit() const;
 	S32 getSquareMetersCommitted() const;
 	S32 getSquareMetersLeft() const;
-	LLRegionDetails mRegionDetails;
 
 private:
 	// simple method to setup the part that holds the date
@@ -127,11 +92,8 @@ private:
 	static void onClickStatGraph(void* data);
 
 private:
-	LLTextBox	*mTextBalance;
 	LLTextBox	*mTextHealth;
 	LLTextBox	*mTextTime;
-
-	LLTextBox*	mTextParcelName;
 
 	LLStatGraph *mSGBandwidth;
 	LLStatGraph *mSGPacketLoss;

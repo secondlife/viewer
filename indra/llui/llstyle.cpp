@@ -33,10 +33,11 @@
 #include "linden_common.h"
 
 #include "llstyle.h"
+
+#include "llfontgl.h"
 #include "llstring.h"
 #include "llui.h"
 
-//#include "llviewerimagelist.h"
 
 LLStyle::LLStyle()
 {
@@ -110,7 +111,13 @@ LLStyle &LLStyle::operator=(const LLStyle &rhs)
 	return *this;
 }
 
+//virtual
+const std::string& LLStyle::getFontString() const
+{
+	return mFontName;
+}
 
+//virtual
 void LLStyle::setFontName(const std::string& fontname)
 {
 	mFontName = fontname;
@@ -118,26 +125,35 @@ void LLStyle::setFontName(const std::string& fontname)
 	std::string fontname_lc = fontname;
 	LLStringUtil::toLower(fontname_lc);
 	
-	mFontID = LLFONT_OCRA; // default
-	
+	// cache the font pointer for speed when rendering text
 	if ((fontname_lc == "sansserif") || (fontname_lc == "sans-serif"))
 	{
-		mFontID = LLFONT_SANSSERIF;
+		mFont = LLFontGL::getFontSansSerif();
 	}
 	else if ((fontname_lc == "serif"))
 	{
-		mFontID = LLFONT_SMALL;
+		// *TODO: Do we have a real serif font?
+		mFont = LLFontGL::getFontMonospace();
 	}
 	else if ((fontname_lc == "sansserifbig"))
 	{
-		mFontID = LLFONT_SANSSERIF_BIG;
+		mFont = LLFontGL::getFontSansSerifBig();
 	}
 	else if (fontname_lc ==  "small")
 	{
-		mFontID = LLFONT_SANSSERIF_SMALL;
+		mFont = LLFontGL::getFontSansSerifSmall();
+	}
+	else
+	{
+		mFont = LLFontGL::getFontMonospace();
 	}
 }
 
+//virtual
+LLFontGL* LLStyle::getFont() const
+{
+	return mFont;
+}
 
 void LLStyle::setLinkHREF(const std::string& href)
 {
@@ -166,7 +182,7 @@ LLUIImagePtr LLStyle::getImage() const
 
 void LLStyle::setImage(const LLUUID& src)
 {
-	mImagep = LLUI::sImageProvider->getUIImageByID(src);
+	mImagep = LLUI::getUIImageByID(src);
 }
 
 

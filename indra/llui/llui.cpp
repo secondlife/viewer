@@ -50,9 +50,17 @@
 // Project includes
 #include "llcontrol.h"
 #include "llui.h"
+#include "lluicolortable.h"
 #include "llview.h"
 #include "lllineeditor.h"
+#include "llfloater.h"
+#include "llfloaterreg.h"
+#include "llmenugl.h"
 #include "llwindow.h"
+
+// for XUIParse
+#include "llquaternion.h"
+#include <boost/tokenizer.hpp>
 
 //
 // Globals
@@ -65,18 +73,18 @@ BOOL gShowTextEditCursor = TRUE;
 // Language for UI construction
 std::map<std::string, std::string> gTranslation;
 std::list<std::string> gUntranslated;
+/*static*/ LLUI::settings_map_t LLUI::sSettingGroups;
+/*static*/ LLImageProviderInterface* LLUI::sImageProvider = NULL;
+/*static*/ LLUIAudioCallback LLUI::sAudioCallback = NULL;
+/*static*/ LLVector2		LLUI::sGLScaleFactor(1.f, 1.f);
+/*static*/ LLWindow*		LLUI::sWindow = NULL;
+/*static*/ LLHtmlHelp*		LLUI::sHtmlHelp = NULL;
+/*static*/ LLView*			LLUI::sRootView = NULL;
+/*static*/ BOOL            LLUI::sShowXUINames = FALSE;
+/*static*/ std::stack<LLRect> LLScreenClipRect::sClipRectStack;
 
-LLControlGroup* LLUI::sConfigGroup = NULL;
-LLControlGroup* LLUI::sIgnoresGroup = NULL;
-LLControlGroup* LLUI::sColorsGroup = NULL;
-LLImageProviderInterface* LLUI::sImageProvider = NULL;
-LLUIAudioCallback LLUI::sAudioCallback = NULL;
-LLVector2		LLUI::sGLScaleFactor(1.f, 1.f);
-LLWindow*		LLUI::sWindow = NULL;
-LLHtmlHelp*		LLUI::sHtmlHelp = NULL;
-BOOL            LLUI::sShowXUINames = FALSE;
-std::stack<LLRect> LLScreenClipRect::sClipRectStack;
-BOOL            LLUI::sQAMode = FALSE;
+/*static*/ std::vector<std::string> LLUI::sXUIPaths;
+
 
 //
 // Functions
@@ -84,18 +92,18 @@ BOOL            LLUI::sQAMode = FALSE;
 void make_ui_sound(const char* namep)
 {
 	std::string name = ll_safe_string(namep);
-	if (!LLUI::sConfigGroup->controlExists(name))
+	if (!LLUI::sSettingGroups["config"]->controlExists(name))
 	{
 		llwarns << "tried to make ui sound for unknown sound name: " << name << llendl;	
 	}
 	else
 	{
-		LLUUID uuid(LLUI::sConfigGroup->getString(name));		
+		LLUUID uuid(LLUI::sSettingGroups["config"]->getString(name));
 		if (uuid.isNull())
 		{
-			if (LLUI::sConfigGroup->getString(name) == LLUUID::null.asString())
+			if (LLUI::sSettingGroups["config"]->getString(name) == LLUUID::null.asString())
 			{
-				if (LLUI::sConfigGroup->getBOOL("UISndDebugSpamToggle"))
+				if (LLUI::sSettingGroups["config"]->getBOOL("UISndDebugSpamToggle"))
 				{
 					llinfos << "ui sound name: " << name << " triggered but silent (null uuid)" << llendl;	
 				}				
@@ -108,7 +116,7 @@ void make_ui_sound(const char* namep)
 		}
 		else if (LLUI::sAudioCallback != NULL)
 		{
-			if (LLUI::sConfigGroup->getBOOL("UISndDebugSpamToggle"))
+			if (LLUI::sSettingGroups["config"]->getBOOL("UISndDebugSpamToggle"))
 			{
 				llinfos << "ui sound name: " << name << llendl;	
 			}
@@ -1554,21 +1562,18 @@ bool handleShowXUINamesChanged(const LLSD& newvalue)
 	return true;
 }
 
-void LLUI::initClass(LLControlGroup* config, 
-					 LLControlGroup* ignores, 
-					 LLControlGroup* colors, 
+void LLUI::initClass(const settings_map_t& settings,
 					 LLImageProviderInterface* image_provider,
 					 LLUIAudioCallback audio_callback,
 					 const LLVector2* scale_factor,
 					 const std::string& language)
 {
-	sConfigGroup = config;
-	sIgnoresGroup = ignores;
-	sColorsGroup = colors;
+	sSettingGroups = settings;
 
-	if (sConfigGroup == NULL
-		|| sIgnoresGroup == NULL
-		|| sColorsGroup == NULL)
+	if ((get_ptr_in_map(sSettingGroups, std::string("config")) == NULL) ||
+		(get_ptr_in_map(sSettingGroups, std::string("color")) == NULL) ||
+		(get_ptr_in_map(sSettingGroups, std::string("floater")) == NULL) ||
+		(get_ptr_in_map(sSettingGroups, std::string("ignores")) == NULL))
 	{
 		llerrs << "Failure to initialize configuration groups" << llendl;
 	}
@@ -1577,16 +1582,31 @@ void LLUI::initClass(LLControlGroup* config,
 	sAudioCallback = audio_callback;
 	sGLScaleFactor = (scale_factor == NULL) ? LLVector2(1.f, 1.f) : *scale_factor;
 	sWindow = NULL; // set later in startup
-	LLFontGL::sShadowColor = colors->getColor("ColorDropShadow");
+	LLFontGL::sShadowColor = LLUI::sSettingGroups["color"]->getColor("ColorDropShadow");
 
-	LLUI::sShowXUINames = LLUI::sConfigGroup->getBOOL("ShowXUINames");
-	LLUI::sConfigGroup->getControl("ShowXUINames")->getSignal()->connect(&handleShowXUINamesChanged);
+	static LLUICachedControl<bool> show_xui_names ("ShowXUINames", false);
+	LLUI::sShowXUINames = show_xui_names;
+	LLUI::sSettingGroups["config"]->getControl("ShowXUINames")->getSignal()->connect(boost::bind(&handleShowXUINamesChanged, _2));
+	
+	// Callbacks for associating controls with floater visibilty:
+	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Floater.Toggle", boost::bind(&LLFloaterReg::toggleFloaterInstance, _2));
+	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Floater.Show", boost::bind(&LLFloaterReg::showFloaterInstance, _2));
+	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Floater.Hide", boost::bind(&LLFloaterReg::hideFloaterInstance, _2));
+	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Floater.InitToVisibilityControl", boost::bind(&LLFloaterReg::initUICtrlToFloaterVisibilityControl, _1, _2));
+	
+	// Button initialization callback for toggle buttons
+	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Button.SetFloaterToggle", boost::bind(&LLButton::setFloaterToggle, _1, _2));
+	
+	// Currently unused, but kept for reference:
+	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Button.ToggleFloater", boost::bind(&LLButton::toggleFloaterAndSetToggleState, _1, _2));
+	
+	// Used by menus along with Floater.Toggle to display visibility as a checkmark
+	LLUICtrl::EnableCallbackRegistry::defaultRegistrar().add("Floater.Visible", boost::bind(&LLFloaterReg::floaterInstanceVisible, _2));
 }
 
 void LLUI::cleanupClass()
 {
 	sImageProvider->cleanUp();
-	LLLineEditor::cleanupLineEditor();
 }
 
 
@@ -1678,25 +1698,59 @@ void LLUI::getCursorPositionLocal(const LLView* viewp, S32 *x, S32 *y)
 // static
 std::string LLUI::getLanguage()
 {
-	std::string language = "en-us";
-	if (sConfigGroup)
+	std::string language = "en";
+	if (sSettingGroups["config"])
 	{
-		language = sConfigGroup->getString("Language");
+		language = sSettingGroups["config"]->getString("Language");
 		if (language.empty() || language == "default")
 		{
-			language = sConfigGroup->getString("InstallLanguage");
+			language = sSettingGroups["config"]->getString("InstallLanguage");
 		}
 		if (language.empty() || language == "default")
 		{
-			language = sConfigGroup->getString("SystemLanguage");
+			language = sSettingGroups["config"]->getString("SystemLanguage");
 		}
 		if (language.empty() || language == "default")
 		{
-			language = "en-us";
+			language = "en";
 		}
 	}
 	return language;
 }
+
+//static
+void LLUI::setupPaths()
+{
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, "paths.xml");
+
+	LLXMLNodePtr root;
+	BOOL success  = LLXMLNode::parseFile(filename, root, NULL);
+	sXUIPaths.clear();
+	
+	if (success)
+	{
+		LLStringUtil::format_map_t path_args;
+		path_args["[LANGUAGE]"] = LLUI::getLanguage();
+		
+		for (LLXMLNodePtr path = root->getFirstChild(); path.notNull(); path = path->getNextSibling())
+		{
+			std::string path_val_ui(path->getValue());
+			LLStringUtil::format(path_val_ui, path_args);
+			if (std::find(sXUIPaths.begin(), sXUIPaths.end(), path_val_ui) == sXUIPaths.end())
+			{
+				sXUIPaths.push_back(path_val_ui);
+			}
+		}
+	}
+	else // parsing failed
+	{
+		std::string slash = gDirUtilp->getDirDelimiter();
+		std::string dir = "xui" + slash + "en";
+		llwarns << "XUI::config file unable to open: " << filename << llendl;
+		sXUIPaths.push_back(dir);
+	}
+}
+
 
 //static
 std::string LLUI::locateSkin(const std::string& filename)
@@ -1707,7 +1761,7 @@ std::string LLUI::locateSkin(const std::string& filename)
 	{
 		found_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename); // Should be CUSTOM_SKINS?
 	}
-	if (sConfigGroup && sConfigGroup->controlExists("Language"))
+	if (sSettingGroups["config"] && sSettingGroups["config"]->controlExists("Language"))
 	{
 		if (!gDirUtilp->fileExists(found_file))
 		{
@@ -1718,7 +1772,7 @@ std::string LLUI::locateSkin(const std::string& filename)
 	}
 	if (!gDirUtilp->fileExists(found_file))
 	{
-		std::string local_skin = "xui" + slash + "en-us" + slash + filename;
+		std::string local_skin = "xui" + slash + "en" + slash + filename;
 		found_file = gDirUtilp->findSkinnedFilename(local_skin);
 	}
 	if (!gDirUtilp->fileExists(found_file))
@@ -1765,10 +1819,23 @@ void LLUI::glRectToScreen(const LLRect& gl, LLRect *screen)
 	glPointToScreen(gl.mRight, gl.mBottom, &screen->mRight, &screen->mBottom);
 }
 
-//static 
-LLUIImage* LLUI::getUIImage(const std::string& name)
+//static
+LLPointer<LLUIImage> LLUI::getUIImageByID(const LLUUID& image_id)
 {
-	if (!name.empty())
+	if (sImageProvider)
+	{
+		return sImageProvider->getUIImageByID(image_id);
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+//static 
+LLPointer<LLUIImage> LLUI::getUIImage(const std::string& name)
+{
+	if (!name.empty() && sImageProvider)
 		return sImageProvider->getUIImage(name);
 	else
 		return NULL;
@@ -1780,10 +1847,26 @@ void LLUI::setHtmlHelp(LLHtmlHelp* html_help)
 	LLUI::sHtmlHelp = html_help;
 }
 
-//static 
-void LLUI::setQAMode(BOOL b)
+// static
+boost::function<const LLColor4&()> LLUI::getCachedColorFunctor(const std::string& color_name)
 {
-	LLUI::sQAMode = b;
+	return LLCachedControl<LLColor4>(*sSettingGroups["color"], color_name, LLColor4::magenta);
+}
+
+// static
+LLControlGroup& LLUI::getControlControlGroup (const std::string& controlname)
+{
+	for (settings_map_t::iterator itor = sSettingGroups.begin();
+		 itor != sSettingGroups.end(); ++itor)
+	{
+		if(itor->second!= NULL)
+		{
+			if (sSettingGroups[(itor->first)]->controlExists(controlname))
+				return *sSettingGroups[(itor->first)];
+		}
+	}
+
+	return *sSettingGroups["config"]; // default group
 }
 
 LLScreenClipRect::LLScreenClipRect(const LLRect& rect, BOOL enabled) : mScissorState(GL_SCISSOR_TEST), mEnabled(enabled)
@@ -1849,102 +1932,163 @@ LLLocalClipRect::LLLocalClipRect(const LLRect &rect, BOOL enabled)
 {
 }
 
-
-//
-// LLUIImage
-//
-
-LLUIImage::LLUIImage(const std::string& name, LLPointer<LLImageGL> image) :
-						mName(name),
-						mImage(image),
-						mScaleRegion(0.f, 1.f, 1.f, 0.f),
-						mClipRegion(0.f, 1.f, 1.f, 0.f),
-						mUniformScaling(TRUE),
-						mNoClip(TRUE)
+namespace LLInitParam
 {
-}
+	TypedParam<LLUIColor >::TypedParam(BlockDescriptor& descriptor, const char* name, const LLUIColor& value, ParamDescriptor::validation_func_t func)
+	:	super_t(descriptor, name, value, func),
+		red("red"),
+		green("green"),
+		blue("blue"),
+		alpha("alpha"),
+		control("")
+	{}
 
-void LLUIImage::setClipRegion(const LLRectf& region) 
-{ 
-	mClipRegion = region; 
-	mNoClip = mClipRegion.mLeft == 0.f
-				&& mClipRegion.mRight == 1.f
-				&& mClipRegion.mBottom == 0.f
-				&& mClipRegion.mTop == 1.f;
-}
-
-void LLUIImage::setScaleRegion(const LLRectf& region) 
-{ 
-	mScaleRegion = region; 
-	mUniformScaling = mScaleRegion.mLeft == 0.f
-					&& mScaleRegion.mRight == 1.f
-					&& mScaleRegion.mBottom == 0.f
-					&& mScaleRegion.mTop == 1.f;
-}
-
-//TODO: move drawing implementation inside class
-void LLUIImage::draw(S32 x, S32 y, const LLColor4& color) const
-{
-	gl_draw_image(x, y, mImage, color, mClipRegion);
-}
-
-void LLUIImage::draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const
-{
-	if (mUniformScaling)
+	LLUIColor TypedParam<LLUIColor>::getValueFromBlock() const
 	{
-		gl_draw_scaled_image(x, y, width, height, mImage, color, mClipRegion);
+		if (control.isProvided())
+		{
+			return LLUIColorTable::instance().getColor(control);
+		}
+		else
+		{
+			return LLColor4(red, green, blue, alpha);
+		}
 	}
-	else
+
+	void TypeValues<LLUIColor>::declareValues()
 	{
-		gl_draw_scaled_image_with_border(
-			x, y, 
-			width, height, 
-			mImage, 
-			color,
-			FALSE,
-			mClipRegion,
-			mScaleRegion);
+		declare("white", LLColor4::white);
+		declare("black", LLColor4::black);
+		declare("red", LLColor4::red);
+		declare("green", LLColor4::green);
+		declare("blue", LLColor4::blue);
+	}
+
+	TypedParam<const LLFontGL*>::TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL*const value, ParamDescriptor::validation_func_t func)
+	:	super_t(descriptor, name, value, func),
+		name("", std::string("")),
+		size("size", std::string("")),
+		style("style", std::string(""))
+	{}
+
+	const LLFontGL* TypedParam<const LLFontGL*>::getValueFromBlock() const
+	{
+		if (name.isProvided())
+		{
+			const LLFontGL* res_fontp = LLFontGL::getFontByName(name);
+			if (res_fontp)
+			{
+				return res_fontp;
+			}
+
+			U8 fontstyle = 0;
+			fontstyle = LLFontGL::getStyleFromString(style());
+			LLFontDescriptor desc(name(), size(), fontstyle);
+			const LLFontGL* fontp = LLFontGL::getFont(desc);
+			if (fontp)
+			{
+				return fontp;
+			}
+		}
+
+		// default to current value
+		return mData.mValue;
+	}
+
+	TypedParam<LLRect>::TypedParam(BlockDescriptor& descriptor, const char* name, const LLRect& value, ParamDescriptor::validation_func_t func)
+	:	super_t(descriptor, name, value, func),
+		left("left"),
+		top("top"),
+		right("right"),
+		bottom("bottom"),
+		width("width"),
+		height("height")
+	{}
+
+	LLRect TypedParam<LLRect>::getValueFromBlock() const
+	{
+		LLRect rect;
+
+		//calculate from params
+		// prefer explicit left and right
+		if (left.isProvided() && right.isProvided())
+		{
+			rect.mLeft = left;
+			rect.mRight = right;
+		}
+		// otherwise use width along with specified side, if any
+		else if (width.isProvided())
+		{
+			// only right + width provided
+			if (right.isProvided())
+			{
+				rect.mRight = right;
+				rect.mLeft = right - width;
+			}
+			else // left + width, or just width
+			{
+				rect.mLeft = left;
+				rect.mRight = left + width;
+			}
+		}
+		// just left, just right, or none
+		else
+		{
+			rect.mLeft = left;
+			rect.mRight = right;
+		}
+
+		// prefer explicit bottom and top
+		if (bottom.isProvided() && top.isProvided())
+		{
+			rect.mBottom = bottom;
+			rect.mTop = top;
+		}
+		// otherwise height along with specified side, if any
+		else if (height.isProvided())
+		{
+			// top + height provided
+			if (top.isProvided())
+			{
+				rect.mTop = top;
+				rect.mBottom = top - height;
+			}
+			// bottom + height or just height
+			else
+			{
+				rect.mBottom = bottom;
+				rect.mTop = bottom + height;
+			}
+		}
+		// just bottom, just top, or none
+		else
+		{
+			rect.mBottom = bottom;
+			rect.mTop = top;
+		}
+		return rect;
+	}
+
+	void TypeValues<LLFontGL::HAlign>::declareValues()
+	{
+		declare("left", LLFontGL::LEFT);
+		declare("right", LLFontGL::RIGHT);
+		declare("center", LLFontGL::HCENTER);
+	}
+
+	void TypeValues<LLFontGL::VAlign>::declareValues()
+	{
+		declare("top", LLFontGL::TOP);
+		declare("center", LLFontGL::VCENTER);
+		declare("baseline", LLFontGL::BASELINE);
+		declare("bottom", LLFontGL::BOTTOM);
+	}
+
+	void TypeValues<LLFontGL::ShadowType>::declareValues()
+	{
+		declare("none", LLFontGL::NO_SHADOW);
+		declare("hard", LLFontGL::DROP_SHADOW);
+		declare("soft", LLFontGL::DROP_SHADOW_SOFT);
 	}
 }
 
-void LLUIImage::drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const
-{
-	gl_draw_scaled_image_with_border(
-		x, y, 
-		width, height, 
-		mImage, 
-		color, 
-		TRUE,
-		mClipRegion,
-		mScaleRegion);
-}
-
-void LLUIImage::drawBorder(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, S32 border_width) const
-{
-	LLRect border_rect;
-	border_rect.setOriginAndSize(x, y, width, height);
-	border_rect.stretch(border_width, border_width);
-	drawSolid(border_rect, color);
-}
-
-S32 LLUIImage::getWidth() const
-{ 
-	// return clipped dimensions of actual image area
-	return llround((F32)mImage->getWidth(0) * mClipRegion.getWidth()); 
-}
-
-S32 LLUIImage::getHeight() const
-{ 
-	// return clipped dimensions of actual image area
-	return llround((F32)mImage->getHeight(0) * mClipRegion.getHeight()); 
-}
-
-S32 LLUIImage::getTextureWidth() const
-{
-	return mImage->getWidth(0);
-}
-
-S32 LLUIImage::getTextureHeight() const
-{
-	return mImage->getHeight(0);
-}

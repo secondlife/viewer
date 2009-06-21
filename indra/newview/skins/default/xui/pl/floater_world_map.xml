@@ -30,14 +30,10 @@
 	<check_box label="&apos;Adult&apos;" name="event_adult_chk"/>
 	<icon bottom="-196" name="avatar_icon"/>
 	<combo_box label="Dostępni Znajomi" name="friend combo" tool_tip="Znajomi na mapie">
-		<combo_item name="none_selected">
-			Dostępni Znajomi
-		</combo_item>
+		<combo_box.item name="none_selected" label="Dostępni Znajomi" />
 	</combo_box>
 	<combo_box label="Zapisane Miejsca" name="landmark combo" tool_tip="Zapisane miejsca na mapie">
-		<combo_item name="none_selected">
-			Zapisane Miejsca
-		</combo_item>
+		<combo_box.item name="none_selected" label="Zapisane Miejsca" />
 	</combo_box>
 	<line_editor label="Szukaj po nazwie regionu" name="location" tool_tip="Wpisz nazwę regionu"/>
 	<button label="Szukaj" name="DoSearch" tool_tip="Wyszukiwaie regionu"/>

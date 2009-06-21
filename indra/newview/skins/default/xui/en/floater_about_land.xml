@@ -1,0 +1,2139 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_tear_off="false"
+ height="420"
+ layout="topleft"
+ name="floaterland"
+ save_rect="true"
+ title="About Land"
+ width="460">
+    <floater.string
+     name="Minutes">
+        [MINUTES] minutes
+    </floater.string>
+    <floater.string
+     name="Minute">
+        minute
+    </floater.string>
+    <floater.string
+     name="Seconds">
+        [SECONDS] seconds
+    </floater.string>
+    <floater.string
+     name="Remaining">
+        remaining
+    </floater.string>
+    <tab_container
+     follows="left|top|right|bottom"
+     height="400"
+     layout="topleft"
+     left="1"
+     name="landtab"
+     tab_position="top"
+     top="20"
+     width="459">
+        <panel
+         border="true"
+         follows="left|top|right|bottom"
+         height="380"
+         label="General"
+         layout="topleft"
+         left="1"
+         name="land_general_panel"
+         top="-31"
+         width="458">
+            <panel.string
+             name="new users only">
+                New users only
+            </panel.string>
+            <panel.string
+             name="anyone">
+                Anyone
+            </panel.string>
+            <panel.string
+             name="area_text">
+                Area
+            </panel.string>
+            <panel.string
+             name="area_size_text">
+                [AREA] sq.m.
+            </panel.string>
+            <panel.string
+             name="auction_id_text">
+                Auction ID: [ID]
+            </panel.string>
+            <panel.string
+             name="need_tier_to_modify">
+                You must approve your purchase to modify this land.
+            </panel.string>
+            <panel.string
+             name="group_owned_text">
+                (Group Owned)
+            </panel.string>
+            <panel.string
+             name="profile_text">
+                Profile...
+            </panel.string>
+            <panel.string
+             name="info_text">
+                Info...
+            </panel.string>
+            <panel.string
+             name="public_text">
+                (public)
+            </panel.string>
+            <panel.string
+             name="none_text">
+                (none)
+            </panel.string>
+            <panel.string
+             name="sale_pending_text">
+                (Sale Pending)
+            </panel.string>
+            <panel.string
+             name="no_selection_text">
+                No parcel selected.
+Go to World menu &gt; About Land or select another parcel to show its details.
+            </panel.string>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="Name:"
+             top="4"
+             width="92">
+                Name:
+            </text>
+            <line_editor
+             border_style="line"
+             border_thickness="1"
+             follows="left|top|right"
+             height="16"
+             layout="topleft"
+             left_pad="2"
+             max_length="63"
+             name="Name"
+             top_delta="0"
+             width="350" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="Description:"
+             top="24"
+             width="100">
+                Description:
+            </text>
+            <text_editor
+             bevel_style="in"
+             border_style="line"
+             border_thickness="1"
+             follows="left|top|right"
+             height="52"
+             layout="topleft"
+             left_delta="92"
+             name="Description"
+             top_delta="0"
+             width="350"
+             word_wrap="true" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="LandType"
+             top="84"
+             width="92">
+                Type:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="92"
+             name="LandTypeText"
+             top_delta="0"
+             width="250">
+                Mainland / Homestead
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="ContentRating"
+             top="104"
+             width="92">
+                Rating:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="92"
+             name="ContentRatingText"
+             top_delta="0"
+             width="250">
+                Adult
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="Owner:"
+             top="124"
+             width="92">
+                Owner:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="92"
+             name="OwnerText"
+             top_delta="0"
+             width="250">
+                Leyla Linden
+            </text>
+            <button
+             follows="left|top"
+             font="SansSerifSmall"
+             height="16"
+             label="Profile..."
+             label_selected="Profile..."
+             layout="topleft"
+             left_pad="4"
+             name="Profile..."
+             top_delta="0"
+             width="90" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="Group:"
+             top="144"
+             width="92">
+                Group:
+            </text>
+            <text
+             enabled="false"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="92"
+             name="GroupText"
+             top_delta="2"
+             width="250" />
+            <button
+             follows="left|top"
+             font="SansSerifSmall"
+             height="16"
+             label="Set..."
+             label_selected="Set..."
+             layout="topleft"
+             left_pad="4"
+             name="Set..."
+             top_delta="-2"
+             width="90" />
+            <check_box
+             enabled="false"
+             height="16"
+             label="Allow Deed to Group"
+             layout="topleft"
+             left="96"
+             name="check deed"
+             tool_tip="A group officer can deed this land to the group, so it will be supported by the group&amp;apos;s land allocation."
+             top="164"
+             width="116" />
+            <button
+             enabled="false"
+             follows="left|top"
+             font="SansSerifSmall"
+             height="16"
+             label="Deed..."
+             label_selected="Deed..."
+             layout="topleft"
+             left_pad="138"
+             name="Deed..."
+             tool_tip="You may only deed land if you are an officer in the selected group."
+             top_delta="0"
+             width="90" />
+            <check_box
+             enabled="false"
+             height="16"
+             label="Owner Makes Contribution With Deed"
+             layout="topleft"
+             left="96"
+             name="check contrib"
+             tool_tip="When the land is deeded to the group, the former owner contributes enough land allocation to support it."
+             top="184"
+             width="199" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="For Sale:"
+             top="204"
+             width="92">
+                For Sale:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="92"
+             name="Not for sale."
+             top_delta="0"
+             width="186">
+                Not for sale.
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="0"
+             name="For Sale: Price L$[PRICE]."
+             top_delta="0"
+             width="226">
+                Price: L$[PRICE] (L$[PRICE_PER_SQM]/sq.m.).
+            </text>
+            <text
+             enabled="false"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="0"
+             name="SalePending"
+             top_pad="4"
+             width="344" />
+            <button
+             follows="left|top"
+             height="20"
+             label="Sell Land..."
+             label_selected="Sell Land..."
+             layout="topleft"
+             left_delta="199"
+             name="Sell Land..."
+             top_delta="0"
+             width="145" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="-199"
+             name="For sale to"
+             top_delta="0"
+             width="186">
+                For sale to: [BUYER]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="0"
+             name="Sell with landowners objects in parcel."
+             top_pad="4"
+             width="186">
+                Objects included in sale.
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="0"
+             name="Selling with no objects in parcel."
+             top_delta="0"
+             width="186">
+                Objects not included in sale.
+            </text>
+            <button
+             follows="left|top"
+             height="20"
+             label="Cancel Land Sale"
+             label_selected="Cancel Land Sale"
+             layout="topleft"
+             left="295"
+             name="Cancel Land Sale"
+             top="228"
+             width="145" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="Claimed:"
+             top="268"
+             width="92">
+                Claimed:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="92"
+             name="DateClaimText"
+             top_delta="0"
+             width="186">
+                Tue Aug 15 13:47:25 2006
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="PriceLabel"
+             top="288"
+             width="92">
+                Area:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="92"
+             name="PriceText"
+             top_delta="0"
+             width="186">
+                4048 sq.m.
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="Traffic:"
+             top="308"
+             width="92">
+                Traffic:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="92"
+             name="DwellText"
+             top_delta="0"
+             width="186">
+                0
+            </text>
+            <button
+             enabled="false"
+             follows="left|top"
+             height="20"
+             label="Buy Land..."
+             label_selected="Buy Land..."
+             layout="topleft"
+             left="155"
+             name="Buy Land..."
+             top="328"
+             width="100" />
+            <button
+             enabled="false"
+             follows="left|top"
+             height="20"
+             label="Buy For Group..."
+             label_selected="Buy For Group..."
+             layout="topleft"
+             left="260"
+             name="Buy For Group..."
+             top="352"
+             width="180" />
+            <button
+             enabled="false"
+             follows="left|top"
+             height="20"
+             label="Buy Pass..."
+             label_selected="Buy Pass..."
+             layout="topleft"
+             left_delta="-105"
+             name="Buy Pass..."
+             tool_tip="A pass gives you temporary access to this land."
+             top_delta="0"
+             width="100" />
+            <button
+             follows="left|top"
+             height="20"
+             label="Abandon Land..."
+             label_selected="Abandon Land..."
+             layout="topleft"
+             left="260"
+             name="Abandon Land..."
+             top="328"
+             width="180" />
+            <button
+             follows="left|top"
+             height="20"
+             label="Reclaim Land..."
+             label_selected="Reclaim Land..."
+             layout="topleft"
+             left_delta="0"
+             name="Reclaim Land..."
+             top_delta="-48"
+             width="180" />
+            <button
+             enabled="false"
+             follows="left|top"
+             height="20"
+             label="Linden Sale..."
+             label_selected="Linden Sale..."
+             layout="topleft"
+             left_delta="0"
+             name="Linden Sale..."
+             tool_tip="Land must be owned, set content, and not already for auction."
+             top_pad="4"
+             width="180" />
+        </panel>
+        <panel
+         border="true"
+         follows="left|top|right|bottom"
+         height="380"
+         label="Covenant"
+         layout="topleft"
+         left_delta="-1"
+         name="land_covenant_panel"
+         top_delta="-47"
+         width="458">
+            <panel.string
+             name="can_resell">
+                Purchased land in this region may be resold.
+            </panel.string>
+            <panel.string
+             name="can_not_resell">
+                Purchased land in this region may not be resold.
+            </panel.string>
+            <panel.string
+             name="can_change">
+                Purchased land in this region may be joined or subdivided.
+            </panel.string>
+            <panel.string
+             name="can_not_change">
+                Purchased land in this region may not be joined or subdivided.
+            </panel.string>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             font="SansSerif"
+             height="20"
+             layout="topleft"
+             left="5"
+             mouse_opaque="false"
+             name="estate_section_lbl"
+             top="0"
+             width="100">
+                Estate:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="20"
+             layout="topleft"
+             left="10"
+             mouse_opaque="false"
+             name="estate_name_lbl"
+             top="20"
+             width="100">
+                Name:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="20"
+             layout="topleft"
+             left_pad="10"
+             mouse_opaque="false"
+             name="estate_name_text"
+             top_delta="0"
+             width="150">
+                mainland
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="20"
+             layout="topleft"
+             left="10"
+             mouse_opaque="false"
+             name="estate_owner_lbl"
+             top="40"
+             width="100">
+                Owner:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="20"
+             layout="topleft"
+             left_pad="10"
+             mouse_opaque="false"
+             name="estate_owner_text"
+             top_delta="0"
+             width="150">
+                (none)
+            </text>
+            <text_editor
+             type="string"
+             length="1"
+             enabled="false"
+             follows="left|top|right|bottom"
+             height="115"
+             layout="topleft"
+             left_delta="0"
+             max_length="65535"
+             name="covenant_editor"
+             top_delta="20"
+             width="330"
+             word_wrap="true">
+                There is no Covenant provided for this Estate.
+            </text_editor>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="20"
+             layout="topleft"
+             left_delta="0"
+             mouse_opaque="false"
+             name="covenant_timestamp_text"
+             top_pad="55"
+             width="250">
+                Last Modified Wed Dec 31 16:00:00 1969
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             font="SansSerif"
+             height="20"
+             layout="topleft"
+             left="5"
+             mouse_opaque="false"
+             name="region_section_lbl"
+             top="250"
+             width="100">
+                Region:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="20"
+             layout="topleft"
+             left="10"
+             mouse_opaque="false"
+             name="region_name_lbl"
+             top="270"
+             width="100">
+                Name:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="20"
+             layout="topleft"
+             left_pad="10"
+             mouse_opaque="false"
+             name="region_name_text"
+             top_delta="0"
+             width="150">
+                leyla
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="20"
+             layout="topleft"
+             left="10"
+             mouse_opaque="false"
+             name="region_landtype_lbl"
+             top="290"
+             width="100">
+                Type:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="20"
+             layout="topleft"
+             left_pad="10"
+             mouse_opaque="false"
+             name="region_landtype_text"
+             top_delta="0"
+             width="150">
+                Mainland / Homestead
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="20"
+             layout="topleft"
+             left="10"
+             mouse_opaque="false"
+             name="region_maturity_lbl"
+             top="310"
+             width="100">
+                Rating:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="20"
+             layout="topleft"
+             left_pad="10"
+             mouse_opaque="false"
+             name="region_maturity_text"
+             top_delta="0"
+             width="150">
+                Adult
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="20"
+             layout="topleft"
+             left="10"
+             mouse_opaque="false"
+             name="resellable_lbl"
+             top="330"
+             width="100">
+                Resale:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="20"
+             layout="topleft"
+             left_pad="10"
+             mouse_opaque="false"
+             name="resellable_clause"
+             top_delta="0"
+             width="330">
+                Land in this region may not be resold.
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="20"
+             layout="topleft"
+             left="10"
+             mouse_opaque="false"
+             name="changeable_lbl"
+             top="350"
+             width="100">
+                Subdivide:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="30"
+             layout="topleft"
+             left_pad="10"
+             mouse_opaque="false"
+             name="changeable_clause"
+             top_delta="0"
+             width="330">
+                Land in this region may not be joined/subdivided.
+            </text>
+        </panel>
+        <panel
+         border="true"
+         follows="left|top|right|bottom"
+         height="380"
+         label="Objects"
+         layout="topleft"
+         left_delta="0"
+         name="land_objects_panel"
+         top_delta="-47"
+         width="458">
+            <panel.string
+             name="objects_available_text">
+                [COUNT] out of [MAX] ([AVAILABLE] available)
+            </panel.string>
+            <panel.string
+             name="objects_deleted_text">
+                [COUNT] out of [MAX] ([DELETED] will be deleted)
+            </panel.string>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="parcel_object_bonus"
+             top="4"
+             visible="false"
+             width="364">
+                Region Object Bonus Factor: [BONUS]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="0"
+             name="Simulator primitive usage:"
+             top_pad="4"
+             width="364">
+                Simulator primitive usage:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="152"
+             name="objects_available"
+             top_delta="0"
+             width="212">
+                [COUNT] out of [MAX] ([AVAILABLE] available)
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="Primitives parcel supports:"
+             top="44"
+             width="152">
+                Primitives parcel supports:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="152"
+             name="object_contrib_text"
+             top_delta="0"
+             width="212">
+                [COUNT]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="Primitives on parcel:"
+             top="64"
+             width="152">
+                Primitives on parcel:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="152"
+             name="total_objects_text"
+             top_delta="0"
+             width="48">
+                [COUNT]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="28"
+             name="Owned by parcel owner:"
+             top="84"
+             width="128">
+                Owned by parcel owner:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="128"
+             name="owner_objects_text"
+             top_delta="0"
+             width="48">
+                [COUNT]
+            </text>
+            <button
+             bottom="100"
+             enabled="false"
+             follows="left|top"
+             font="SansSerifSmall"
+             height="16"
+             label="Show"
+             label_selected="Show"
+             layout="topleft"
+             name="ShowOwner"
+             right="-190"
+             width="60" />
+            <button
+             bottom="100"
+             enabled="false"
+             follows="left|top"
+             font="SansSerifSmall"
+             height="16"
+             label="Return..."
+             label_selected="Return..."
+             layout="topleft"
+             name="ReturnOwner..."
+             right="-60"
+             tool_tip="Return objects to their owners."
+             width="119" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="28"
+             name="Set to group:"
+             top="104"
+             width="128">
+                Set to group:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="128"
+             name="group_objects_text"
+             top_delta="0"
+             width="48">
+                [COUNT]
+            </text>
+            <button
+             bottom="120"
+             enabled="false"
+             follows="left|top"
+             font="SansSerifSmall"
+             height="16"
+             label="Show"
+             label_selected="Show"
+             layout="topleft"
+             name="ShowGroup"
+             right="-190"
+             width="60" />
+            <button
+             bottom="120"
+             enabled="false"
+             follows="left|top"
+             font="SansSerifSmall"
+             height="16"
+             label="Return..."
+             label_selected="Return..."
+             layout="topleft"
+             name="ReturnGroup..."
+             right="-60"
+             tool_tip="Return objects to their owners."
+             width="119" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="28"
+             name="Owned by others:"
+             top="124"
+             width="128">
+                Owned by others:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="128"
+             name="other_objects_text"
+             top_delta="0"
+             width="48">
+                [COUNT]
+            </text>
+            <button
+             bottom="140"
+             enabled="false"
+             follows="left|top"
+             font="SansSerifSmall"
+             height="16"
+             label="Show"
+             label_selected="Show"
+             layout="topleft"
+             name="ShowOther"
+             right="-190"
+             width="60" />
+            <button
+             bottom="140"
+             enabled="false"
+             follows="left|top"
+             font="SansSerifSmall"
+             height="16"
+             label="Return..."
+             label_selected="Return..."
+             layout="topleft"
+             name="ReturnOther..."
+             right="-60"
+             tool_tip="Return objects to their owners."
+             width="119" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="28"
+             name="Selected / sat upon:"
+             top="144"
+             width="128">
+                Selected / sat upon:
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="128"
+             name="selected_objects_text"
+             top_delta="0"
+             width="48">
+                [COUNT]
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="Autoreturn"
+             top="164"
+             width="294">
+                Autoreturn other residents&apos; objects (minutes, 0 for off):
+            </text>
+            <line_editor
+             border_style="line"
+             border_thickness="1"
+             bottom="180"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             max_length="6"
+             name="clean other time"
+             right="-100"
+             width="56" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="Object Owners:"
+             top="184"
+             width="104">
+                Object Owners:
+            </text>
+            <button
+             follows="left|top"
+             font="SansSerifSmall"
+             height="16"
+             label="Refresh List"
+             label_selected="Refresh List"
+             layout="topleft"
+             left_delta="104"
+             name="Refresh List"
+             top_delta="0"
+             width="106" />
+            <button
+             enabled="false"
+             follows="left|top"
+             font="SansSerifSmall"
+             height="16"
+             label="Return objects..."
+             label_selected="Return objects..."
+             layout="topleft"
+             left_pad="6"
+             name="Return objects..."
+             top_delta="0"
+             width="164" />
+            <name_list
+             column_padding="0"
+             draw_heading="true"
+             follows="left|top|right|bottom"
+             height="165"
+             layout="topleft"
+             left="4"
+             name="owner list"
+             name_column="name"
+             top="210"
+             width="450">
+                <name_list.columns
+                 label="Type"
+                 name="type"
+                 sort_column="online_status"
+                 width="24" />
+                <name_list.columns
+                 name="online_status"
+                 width="-1" />
+                <name_list.columns
+                 dynamicwidth="true"
+                 label="Name"
+                 name="name" />
+                <name_list.columns
+                 label="Count"
+                 name="count"
+                 width="70" />
+                <name_list.columns
+                 label="Most Recent"
+                 name="mostrecent"
+                 width="160" />
+            </name_list>
+        </panel>
+        <panel
+         border="true"
+         follows="left|top|right|bottom"
+         height="333"
+         label="Options"
+         layout="topleft"
+         left_delta="0"
+         name="land_options_panel"
+         top_delta="31"
+         width="458">
+            <panel.string
+             name="search_enabled_tooltip">
+                Let people see this parcel in search results
+            </panel.string>
+            <panel.string
+             name="search_disabled_small_tooltip">
+                This option is disabled because this parcel&apos;s area is 128 sq.m. or smaller.
+Only large parcels can be listed in search.
+            </panel.string>
+            <panel.string
+             name="search_disabled_permissions_tooltip">
+                This option is disabled because you cannot modify this parcel&apos;s options.
+            </panel.string>
+            <panel.string
+             name="mature_check_mature">
+                Mature Content
+            </panel.string>
+            <panel.string
+             name="mature_check_adult">
+                Adult Content
+            </panel.string>
+            <panel.string
+             name="mature_check_mature_tooltip">
+                Your parcel information or content is considered mature.
+            </panel.string>
+            <panel.string
+             name="mature_check_adult_tooltip">
+                Your parcel information or content is considered adult.
+            </panel.string>
+            <panel.string
+             name="landing_point_none">
+                (none)
+            </panel.string>
+            <panel.string
+             name="push_restrict_text">
+                No Pushing
+            </panel.string>
+            <panel.string
+             name="push_restrict_region_text">
+                No Pushing (Region Override)
+            </panel.string>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="allow_label"
+             top="4"
+             width="278">
+                Allow other residents to:
+            </text>
+            <check_box
+             height="16"
+             label="Edit Terrain"
+             layout="topleft"
+             left="14"
+             name="edit land check"
+             tool_tip="If checked, anyone can terraform your land. It is best to leave this unchecked, as you can always edit your own land."
+             top="24"
+             width="268" />
+            <check_box
+             height="16"
+             label="Create Landmarks"
+             layout="topleft"
+             left_delta="0"
+             name="check landmark"
+             top_pad="4"
+             width="268" />
+            <check_box
+             height="16"
+             label="Fly"
+             layout="topleft"
+             left_delta="0"
+             name="check fly"
+             tool_tip="If checked, Residents can fly on your land. If unchecked, they can only fly into and over your land."
+             top_pad="4"
+             width="268" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="178"
+             name="allow_label2"
+             top="24"
+             width="104">
+                Create Objects:
+            </text>
+            <check_box
+             height="16"
+             label="All Residents"
+             layout="topleft"
+             left_delta="92"
+             name="edit objects check"
+             top_delta="0"
+             width="104" />
+            <check_box
+             height="16"
+             label="Group"
+             layout="topleft"
+             left_delta="100"
+             name="edit group objects check"
+             top_delta="0"
+             width="70" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="178"
+             name="allow_label3"
+             top="44"
+             width="124">
+                Object Entry:
+            </text>
+            <check_box
+             height="16"
+             label="All Residents"
+             layout="topleft"
+             left_delta="92"
+             name="all object entry check"
+             top_delta="0"
+             width="120" />
+            <check_box
+             height="16"
+             label="Group"
+             layout="topleft"
+             left_delta="100"
+             name="group object entry check"
+             top_delta="0"
+             width="70" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="178"
+             name="allow_label4"
+             top="64"
+             width="124">
+                Run Scripts:
+            </text>
+            <check_box
+             height="16"
+             label="All Residents"
+             layout="topleft"
+             left_delta="92"
+             name="check other scripts"
+             top_delta="0"
+             width="120" />
+            <check_box
+             height="16"
+             label="Group"
+             layout="topleft"
+             left_delta="100"
+             name="check group scripts"
+             top_delta="0"
+             width="70" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="land_options_label"
+             top="84"
+             width="278">
+                Land Options:
+            </text>
+            <check_box
+             height="16"
+             label="Safe (no damage)"
+             layout="topleft"
+             left="14"
+             name="check safe"
+             tool_tip="If checked, sets the land to Safe, disabling damage combat. If cleared, damage combat is enabled."
+             top="104"
+             width="268" />
+            <check_box
+             height="16"
+             label="No Pushing"
+             layout="topleft"
+             left_delta="164"
+             name="PushRestrictCheck"
+             tool_tip="Prevents scripts from pushing. Checking this option may be useful for preventing disruptive behavior on your land."
+             top_delta="0"
+             width="119" />
+            <check_box
+             height="16"
+             label="Show Place in Search (L$30/week) under"
+             layout="topleft"
+             left="14"
+             name="ShowDirectoryCheck"
+             tool_tip="Let people see this parcel in search results"
+             top="124"
+             width="268" />
+            <combo_box
+             enabled="false"
+             height="18"
+             layout="topleft"
+             left_delta="241"
+             name="land category with adult"
+             top_delta="-2"
+             visible="false"
+             width="130">
+                <combo_box.item
+                 label="Any Category"
+                 value="any" />
+                <combo_box.item
+                 label="Linden Location"
+                 value="linden" />
+                <combo_box.item
+                 label="Adult"
+                 value="adult" />
+                <combo_box.item
+                 label="Arts &amp; Culture"
+                 value="arts" />
+                <combo_box.item
+                 label="Business"
+                 value="store" />
+                <combo_box.item
+                 label="Educational"
+                 value="educational" />
+                <combo_box.item
+                 label="Gaming"
+                 value="game" />
+                <combo_box.item
+                 label="Hangout"
+                 value="gather" />
+                <combo_box.item
+                 label="Newcomer Friendly"
+                 value="newcomer" />
+                <combo_box.item
+                 label="Parks &amp; Nature"
+                 value="park" />
+                <combo_box.item
+                 label="Residential"
+                 value="home" />
+                <combo_box.item
+                 label="Shopping"
+                 value="shopping" />
+                <combo_box.item
+                 label="Other"
+                 value="other" />
+            </combo_box>
+            <combo_box
+             enabled="false"
+             height="18"
+             layout="topleft"
+             left_delta="0"
+             name="land category"
+             top_delta="0"
+             visible="false"
+             width="130">
+                <combo_box.item
+                 label="Any Category"
+                 value="any" />
+                <combo_box.item
+                 label="Linden Location"
+                 value="linden" />
+                <combo_box.item
+                 label="Arts &amp; Culture"
+                 value="arts" />
+                <combo_box.item
+                 label="Business"
+                 value="store" />
+                <combo_box.item
+                 label="Educational"
+                 value="educational" />
+                <combo_box.item
+                 label="Gaming"
+                 value="game" />
+                <combo_box.item
+                 label="Hangout"
+                 value="gather" />
+                <combo_box.item
+                 label="Newcomer Friendly"
+                 value="newcomer" />
+                <combo_box.item
+                 label="Parks &amp; Nature"
+                 value="park" />
+                <combo_box.item
+                 label="Residential"
+                 value="home" />
+                <combo_box.item
+                 label="Shopping"
+                 value="shopping" />
+                <combo_box.item
+                 label="Other"
+                 value="other" />
+            </combo_box>
+            <button
+             follows="left|top"
+             height="18"
+             label="?"
+             label_selected="?"
+             layout="topleft"
+             left_pad="15"
+             name="?"
+             top_delta="0"
+             width="18" />
+            <check_box
+             height="16"
+             label="Mature Content"
+             layout="topleft"
+             left="14"
+             name="MatureCheck"
+             tool_tip=" "
+             top="144"
+             width="107" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="Snapshot:"
+             top="164"
+             width="278">
+                Snapshot:
+            </text>
+            <texture_picker
+             follows="left|top"
+             height="135"
+             layout="topleft"
+             left_delta="72"
+             name="snapshot_ctrl"
+             tool_tip="Click to choose a picture"
+             top_delta="0"
+             width="180" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="landing_point"
+             top="287"
+             width="278">
+                Landing Point: [LANDING]
+            </text>
+            <button
+             follows="left|top"
+             font="SansSerifSmall"
+             height="16"
+             label="Set"
+             label_selected="Set"
+             layout="topleft"
+             left_delta="232"
+             name="Set"
+             tool_tip="Sets the landing point where visitors arrive. Sets to your avatar&apos;s location inside this parcel."
+             top_delta="0"
+             width="50" />
+            <button
+             follows="left|top"
+             font="SansSerifSmall"
+             height="16"
+             label="Clear"
+             label_selected="Clear"
+             layout="topleft"
+             left_pad="5"
+             name="Clear"
+             tool_tip="Clear the landing point."
+             top_delta="0"
+             width="50" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="4"
+             name="Teleport Routing: "
+             top="307"
+             width="278">
+                Teleport Routing:
+            </text>
+            <combo_box
+             height="18"
+             layout="topleft"
+             left_delta="116"
+             name="landing type"
+             tool_tip="Teleport Routing -- select how to handle teleports onto your land."
+             top_delta="0"
+             width="120">
+                <combo_box.item
+                 enabled="true"
+                 label="Blocked"
+                 value="Blocked" />
+                <combo_box.item
+                 enabled="true"
+                 label="Landing Point"
+                 value="Landing Point" />
+                <combo_box.item
+                 enabled="true"
+                 label="Anywhere"
+                 value="Anywhere" />
+            </combo_box>
+        </panel>
+        <panel
+         border="true"
+         follows="left|top|right|bottom"
+         height="363"
+         label="Media"
+         layout="topleft"
+         left_delta="0"
+         name="land_media_panel"
+         top_delta="1"
+         width="458">
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="10"
+             name="with media:"
+             top="9"
+             width="65">
+                Media Type:
+            </text>
+            <combo_box
+             height="18"
+             layout="topleft"
+             left_pad="5"
+             name="media type"
+             tool_tip="Specify if the URL is a movie, web page, or other media"
+             top_delta="-2"
+             width="120" />
+            <text
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_pad="10"
+             name="mime_type"
+             top_delta="2"
+             width="200" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="10"
+             name="at URL:"
+             top="29"
+             width="65">
+                Media URL:
+            </text>
+            <line_editor
+             bottom_delta="0"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="80"
+             max_length="255"
+             name="media_url"
+             right="-80"
+             select_on_focus="true"
+             text_readonly_color="0.576471 0.662745 0.835294 1" />
+            <button
+             follows="left|top"
+             font="SansSerifSmall"
+             height="16"
+             label="Set..."
+             label_selected="Set..."
+             layout="topleft"
+             left_pad="8"
+             name="set_media_url"
+             top_delta="0"
+             width="60" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="10"
+             name="Description:"
+             top="49"
+             width="364">
+                Description:
+            </text>
+            <line_editor
+             border_style="line"
+             border_thickness="1"
+             bottom_delta="0"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="80"
+             max_length="255"
+             name="url_description"
+             right="-80"
+             select_on_focus="true"
+             tool_tip="Text displayed next to play/load button" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="10"
+             name="Media texture:"
+             top="69"
+             width="364">
+                Replace
+Texture:
+            </text>
+            <texture_picker
+             allow_no_texture="true"
+             default_image_name="Default"
+             follows="left|top"
+             height="80"
+             layout="topleft"
+             left_delta="70"
+             name="media texture"
+             tool_tip="Click to choose a picture"
+             top_delta="0"
+             width="64" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="75"
+             name="replace_texture_help"
+             top="85"
+             width="270">
+                (Objects using this texture will show the movie or
+web page after you click the play arrow.)
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="10"
+             name="Options:"
+             top="140"
+             width="292">
+                Media
+Options:
+            </text>
+            <check_box
+             height="16"
+             label="Auto scale"
+             layout="topleft"
+             left_delta="70"
+             name="media_auto_scale"
+             tool_tip="Checking this option will scale the content for this parcel automatically. It may be slightly slower and lower quality visually but no other texture scaling or alignment will be required."
+             top_delta="0"
+             width="200" />
+            <check_box
+             height="16"
+             label="Loop Media"
+             layout="topleft"
+             left_delta="170"
+             name="media_loop"
+             tool_tip="Play media in a loop.  When the media has finished playing, it will restart from the beginning."
+             top_delta="0"
+             width="200" />
+            <check_box
+             height="16"
+             label="Hide Media URL"
+             layout="topleft"
+             left="80"
+             name="hide_media_url"
+             tool_tip="Checking this option will hide the media url to any non-authorized viewers of this parcel information. Note this is not available for HTML types."
+             top="160"
+             width="200" />
+            <check_box
+             height="16"
+             label="Hide Music URL"
+             layout="topleft"
+             left_delta="170"
+             name="hide_music_url"
+             tool_tip="Checking this option will hide the music url to any non-authorized viewers of this parcel information"
+             top_delta="0"
+             width="200" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="85"
+             name="media_size"
+             tool_tip="Size to render Web media, leave 0 for default."
+             top="185"
+             width="85">
+                Media size:
+            </text>
+            <spinner
+             decimal_digits="0"
+             enabled="false"
+             follows="left|top"
+             halign="right"
+             height="16"
+             increment="1"
+             initial_value="0"
+             layout="topleft"
+             left_delta="65"
+             max_val="1024"
+             name="media_size_width"
+             tool_tip="Size to render Web media, leave 0 for default."
+             top_delta="0"
+             width="64" />
+            <spinner
+             decimal_digits="0"
+             enabled="false"
+             follows="left|top"
+             halign="right"
+             height="16"
+             increment="1"
+             initial_value="0"
+             layout="topleft"
+             left_pad="16"
+             max_val="1024"
+             name="media_size_height"
+             tool_tip="Size to render Web media, leave 0 for default."
+             top_delta="0"
+             width="64" />
+            <text
+             type="string"
+             length="1"
+             bottom_delta="0"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left_delta="70"
+             name="pixels"
+             right="-10">
+                pixels
+            </text>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="10"
+             name="MusicURL:"
+             top="225"
+             width="364">
+                Music URL:
+            </text>
+            <line_editor
+             border_style="line"
+             border_thickness="1"
+             bottom_delta="0"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="80"
+             max_length="255"
+             name="music_url"
+             right="-15"
+             select_on_focus="true" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="10"
+             name="Sound:"
+             top="265"
+             width="364">
+                Sound:
+            </text>
+            <check_box
+             height="16"
+             label="Restrict gesture and object sounds to this parcel"
+             layout="topleft"
+             left_delta="70"
+             name="check sound local"
+             top_delta="0"
+             width="292" />
+            <button
+             follows="left|top"
+             height="18"
+             label="?"
+             label_selected="?"
+             layout="topleft"
+             left_delta="292"
+             name="?"
+             top_delta="-2"
+             width="18" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="10"
+             mouse_opaque="false"
+             name="Voice settings:"
+             top="305"
+             width="364">
+                Voice:
+            </text>
+            <check_box
+             height="54"
+             label="Enable Voice"
+             layout="topleft"
+             left="80"
+             name="parcel_enable_voice_channel"
+             top="267"
+             width="463" />
+            <check_box
+             enabled="false"
+             height="54"
+             label="Enable Voice (established by the Estate)"
+             layout="topleft"
+             left_delta="0"
+             name="parcel_enable_voice_channel_is_estate_disabled"
+             top_delta="0"
+             width="463" />
+            <check_box
+             height="54"
+             label="Restrict Voice to this parcel"
+             layout="topleft"
+             left="100"
+             name="parcel_enable_voice_channel_parcel"
+             top="287"
+             width="443" />
+        </panel>
+        <panel
+         border="true"
+         follows="left|top|right|bottom"
+         height="333"
+         label="Access"
+         layout="topleft"
+         left_delta="0"
+         name="land_access_panel"
+         top_delta="31"
+         width="458">
+            <panel.string
+             name="estate_override">
+                One or more of these options is set at the estate level
+            </panel.string>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             font="SansSerif"
+             height="20"
+             layout="topleft"
+             left="8"
+             name="Limit access to this parcel to:"
+             top="4"
+             width="278">
+                Access To This Parcel
+            </text>
+            <check_box
+             follows="top|left"
+             height="16"
+             label="Allow Public Access"
+             layout="topleft"
+             left_delta="0"
+             name="public_access"
+             top_pad="5"
+             width="278" />
+            <text
+             type="string"
+             length="1"
+             follows="top|left"
+             height="16"
+             layout="topleft"
+             left_delta="20"
+             name="Only Allow"
+             top="49"
+             width="278">
+                Block Access By:
+            </text>
+            <check_box
+             follows="top|left"
+             height="16"
+             label="Residents who have not given payment info to Linden Lab"
+             layout="topleft"
+             left_delta="0"
+             name="limit_payment"
+             tool_tip="Ban unidentified residents."
+             top_pad="4"
+             width="278" />
+            <check_box
+             follows="top|left"
+             height="16"
+             label="Residents who are not age verified adults"
+             layout="topleft"
+             left_delta="0"
+             name="limit_age_verified"
+             tool_tip="Ban residents who have not verified their age. See support.secondlife.com for more information."
+             top_pad="4"
+             width="278" />
+            <check_box
+             height="16"
+             label="Allow Group Access: [GROUP]"
+             layout="topleft"
+             left="8"
+             name="GroupCheck"
+             tool_tip="Set group in the General tab."
+             top="109"
+             width="278" />
+            <check_box
+             enabled="false"
+             height="16"
+             label="Sell passes to:"
+             layout="topleft"
+             left_delta="0"
+             name="PassCheck"
+             tool_tip="Allows temporary access to this parcel"
+             top_pad="4"
+             width="120" />
+            <combo_box
+             height="16"
+             layout="topleft"
+             left_pad="22"
+             name="pass_combo"
+             top_delta="0"
+             width="100">
+                <combo_box.item
+                 label="Anyone"
+                 value="anyone" />
+                <combo_box.item
+                 label="Group"
+                 value="group" />
+            </combo_box>
+            <spinner
+             enabled="false"
+             follows="left|top"
+             height="16"
+             increment="1"
+             initial_value="10"
+             label="Price in L$:"
+             label_width="120"
+             layout="topleft"
+             left="28"
+             max_val="500"
+             min_val="1"
+             name="PriceSpin"
+             top="149"
+             width="180" />
+            <spinner
+             enabled="false"
+             follows="left|top"
+             height="16"
+             increment="0.25"
+             initial_value="1"
+             label="Hours of access:"
+             label_width="120"
+             layout="topleft"
+             left_delta="0"
+             max_val="24"
+             min_val="0.01"
+             name="HoursSpin"
+             top_pad="4"
+             width="180" />
+            <text
+             type="string"
+             length="1"
+             follows="left|right|top"
+             height="16"
+             label="Always Allow"
+             layout="topleft"
+             left="20"
+             name="AllowedText"
+             top="204"
+             width="195">
+                Allowed Residents
+            </text>
+            <name_list
+             column_padding="0"
+             follows="top|bottom"
+             heading_height="14"
+             height="80"
+             layout="topleft"
+             left_delta="0"
+             multi_select="true"
+             name="AccessList"
+             tool_tip="([LISTED] listed, [MAX] max)"
+             top_pad="4"
+             width="195" />
+            <button
+             follows="bottom"
+             font="SansSerifSmall"
+             height="16"
+             label="Add..."
+             label_selected="Add..."
+             layout="topleft"
+             left_delta="5"
+             name="add_allowed"
+             top="308"
+             width="80" />
+            <button
+             follows="bottom"
+             font="SansSerifSmall"
+             height="16"
+             label="Remove"
+             label_selected="Remove"
+             layout="topleft"
+             left_pad="20"
+             name="remove_allowed"
+             top_delta="0"
+             width="80" />
+            <text
+             type="string"
+             length="1"
+             follows="left|right|top"
+             height="16"
+             label="Ban"
+             layout="topleft"
+             left="240"
+             name="BanCheck"
+             top="204"
+             width="195">
+                Banned Residents
+            </text>
+            <name_list
+             column_padding="0"
+             follows="top|bottom"
+             heading_height="14"
+             height="80"
+             layout="topleft"
+             left_delta="0"
+             multi_select="true"
+             name="BannedList"
+             tool_tip="([LISTED] listed, [MAX] max)"
+             top_pad="4"
+             width="195" />
+            <button
+             follows="bottom"
+             font="SansSerifSmall"
+             height="16"
+             label="Add..."
+             label_selected="Add..."
+             layout="topleft"
+             left_delta="5"
+             name="add_banned"
+             top="308"
+             width="80" />
+            <button
+             enabled="false"
+             follows="bottom"
+             font="SansSerifSmall"
+             height="16"
+             label="Remove"
+             label_selected="Remove"
+             layout="topleft"
+             left_pad="20"
+             name="remove_banned"
+             top_delta="0"
+             width="80" />
+        </panel>
+    </tab_container>
+</floater>

@@ -33,24 +33,14 @@
 #ifndef LL_LLCHECKBOXCTRL_H
 #define LL_LLCHECKBOXCTRL_H
 
-
-#include "stdtypes.h"
 #include "lluictrl.h"
 #include "llbutton.h"
+#include "lltextbox.h"
 #include "v4color.h"
-#include "llrect.h"
 
 //
 // Constants
 //
-const S32 LLCHECKBOXCTRL_BTN_SIZE = 13;
-const S32 LLCHECKBOXCTRL_VPAD = 2;
-const S32 LLCHECKBOXCTRL_HPAD = 2;
-const S32 LLCHECKBOXCTRL_SPACING = 5;
-const S32 LLCHECKBOXCTRL_HEIGHT = 16;
-
-// Deprecated, don't use.
-#define CHECKBOXCTRL_HEIGHT LLCHECKBOXCTRL_HEIGHT
 
 const BOOL	RADIO_STYLE = TRUE;
 const BOOL	CHECK_STYLE = FALSE;
@@ -59,30 +49,38 @@ const BOOL	CHECK_STYLE = FALSE;
 // Classes
 //
 class LLFontGL;
-class LLTextBox;
 class LLViewBorder;
 
 class LLCheckBoxCtrl
 : public LLUICtrl
 {
 public:
-	LLCheckBoxCtrl(const std::string& name, const LLRect& rect, const std::string& label,	
-		const LLFontGL* font = NULL,
-		void (*commit_callback)(LLUICtrl*, void*) = NULL,
-		void* callback_userdata = NULL,
-		BOOL initial_value = FALSE,
-		BOOL use_radio_style = FALSE, // if true, draw radio button style icons
-		const std::string& control_which = LLStringUtil::null);
+	struct Params 
+	:	public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Optional<LLUIColor>		text_enabled_color;
+		Optional<LLUIColor>		text_disabled_color;
+		Optional<bool>			initial_value;	// override LLUICtrl initial_value
+
+		Optional<LLTextBox::Params> label_text;
+		Optional<LLButton::Params> check_button;
+
+		Deprecated	radio_style;
+
+		Params();
+	};
+
 	virtual ~LLCheckBoxCtrl();
 
-	// LLView interface
+protected:
+	LLCheckBoxCtrl(const Params&);
+	friend class LLUICtrlFactory;
 
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
+public:
+	// LLView interface
 
 	virtual void		setEnabled( BOOL b );
 
-	virtual void		draw();
 	virtual void		reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 	// LLUICtrl interface
@@ -91,8 +89,8 @@ public:
 			BOOL		get() { return (BOOL)getValue().asBoolean(); }
 			void		set(BOOL value) { setValue(value); }
 
-	virtual void		setTentative(BOOL b)	{ mButton->setTentative(b); }
-	virtual BOOL		getTentative() const	{ return mButton->getTentative(); }
+	virtual void		setTentative(BOOL b);
+	virtual BOOL		getTentative() const;
 
 	virtual BOOL		setLabelArg( const std::string& key, const LLStringExplicit& text );
 
@@ -108,10 +106,11 @@ public:
 	void				setLabel( const LLStringExplicit& label );
 	std::string			getLabel() const;
 
+	void				setFont( const LLFontGL* font ) { mFont = font; }
+	
 	virtual void		setControlName(const std::string& control_name, LLView* context);
-	virtual std::string 	getControlName() const;
 
-	static void			onButtonPress(void *userdata);
+	void				onButtonPress(const LLSD& data);
 
 	virtual BOOL		isDirty()	const;		// Returns TRUE if the user has modified this control.
 	virtual void		resetDirty();			// Clear dirty state
@@ -121,19 +120,17 @@ protected:
 	LLButton*		mButton;
 	LLTextBox*		mLabel;
 	const LLFontGL* mFont;
-	LLColor4		mTextEnabledColor;
-	LLColor4		mTextDisabledColor;
-	BOOL			mRadioStyle;
-	BOOL			mInitialValue;			// Value set in constructor
-	BOOL			mSetValue;				// Value set programmatically
-	BOOL			mKeyboardFocusOnClick;
-	LLViewBorder*	mBorder;
+
+	LLUIColor		mTextEnabledColor;
+	LLUIColor		mTextDisabledColor;
 };
 
 
-// HACK: fix old capitalization problem
-//typedef LLCheckBoxCtrl LLCheckboxCtrl;
-#define LLCheckboxCtrl LLCheckBoxCtrl
-
+#ifdef LL_WINDOWS
+#ifndef INSTANTIATE_GETCHILD_CHECKBOX
+#pragma warning (disable : 4231)
+extern template LLCheckBoxCtrl* LLView::getChild<LLCheckBoxCtrl>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
+#endif
+#endif
 
 #endif  // LL_LLCHECKBOXCTRL_H

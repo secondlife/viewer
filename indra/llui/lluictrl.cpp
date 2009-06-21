@@ -36,13 +36,30 @@
 #include "lluictrl.h"
 #include "llfocusmgr.h"
 #include "llpanel.h"
+#include "lluictrlfactory.h"
 
-static LLRegisterWidget<LLUICtrl> r("ui_ctrl");
+static LLDefaultWidgetRegistry::Register<LLUICtrl> r("ui_ctrl");
+
+LLUICtrl::Params::Params()
+:	tab_stop("tab_stop", true),
+	label("label"),
+	initial_value("initial_value"),
+	init_callback("init_callback"),
+	commit_callback("commit_callback"),
+	validate_callback("validate_callback"),
+	rightclick_callback("rightclick_callback"),
+	control_name("control_name")
+{
+	addSynonym(initial_value, "initial_val");
+	// this is the canonical name for text contents of an xml node
+	addSynonym(initial_value, "value");
+}
 
 LLFocusableElement::LLFocusableElement()
 :	mFocusLostCallback(NULL),
 	mFocusReceivedCallback(NULL),
 	mFocusChangedCallback(NULL),
+	mTopLostCallback(NULL),
 	mFocusCallbackUserData(NULL)
 {
 }
@@ -77,6 +94,14 @@ void LLFocusableElement::onFocusLost()
 	}
 }
 
+void LLFocusableElement::onTopLost()
+{
+	if (mTopLostCallback)
+	{
+		mTopLostCallback(this, mFocusCallbackUserData);
+	}
+}
+
 BOOL LLFocusableElement::hasFocus() const
 {
 	return FALSE;
@@ -86,35 +111,90 @@ void LLFocusableElement::setFocus(BOOL b)
 {
 }
 
-
-
-LLUICtrl::LLUICtrl() :
-	mCommitCallback(NULL),
-	mLostTopCallback(NULL),
-	mValidateCallback(NULL),
-	mCallbackUserData(NULL),
+LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel) 
+:	LLView(p),
 	mTentative(FALSE),
-	mTabStop(TRUE),
-	mIsChrome(FALSE)
+	mIsChrome(FALSE),
+    mViewModel(viewmodel),
+	mControlVariable(NULL),
+	mEnabledControlVariable(NULL),
+	mDisabledControlVariable(NULL)
 {
+	mUICtrlHandle.bind(this);
 }
 
-LLUICtrl::LLUICtrl(const std::string& name, const LLRect& rect, BOOL mouse_opaque,
-	void (*on_commit_callback)(LLUICtrl*, void*),
-	void* callback_userdata,
-	U32 reshape)
-:	// can't make this automatically follow top and left, breaks lots
-	// of buttons in the UI. JC 7/20/2002
-	LLView( name, rect, mouse_opaque, reshape ),
-	mCommitCallback( on_commit_callback) ,
-	mLostTopCallback( NULL ),
-	mValidateCallback( NULL ),
-	mCallbackUserData( callback_userdata ),
-	mTentative( FALSE ),
-	mTabStop( TRUE ),
-	mIsChrome(FALSE)
+void LLUICtrl::initFromParams(const Params& p)
 {
+	LLView::initFromParams(p);
+
+	setControlName(p.control_name);
+	if(p.enabled_controls.isProvided())
+	{
+		if (p.enabled_controls.enabled.isChosen())
+		{
+			LLControlVariable* control = findControl(p.enabled_controls.enabled);
+			if (control)
+				setEnabledControlVariable(control);
+		}
+		else if(p.enabled_controls.disabled.isChosen())
+		{
+			LLControlVariable* control = findControl(p.enabled_controls.disabled);
+			if (control)
+				setDisabledControlVariable(control);
+		}
+	}
+	if(p.controls_visibility.isProvided())
+	{
+		if (p.controls_visibility.visible.isChosen())
+		{
+			LLControlVariable* control = findControl(p.controls_visibility.visible);
+			if (control)
+				setMakeVisibleControlVariable(control);
+		}
+		else if (p.controls_visibility.invisible.isChosen())
+		{
+			LLControlVariable* control = findControl(p.controls_visibility.invisible);
+			if (control)
+				setMakeInvisibleControlVariable(control);
+		}
+	}
+
+	setTabStop(p.tab_stop);
+	setFocusLostCallback(p.focus_lost_callback());
+
+	if (p.initial_value.isProvided() 
+		&& !p.control_name.isProvided())
+	{
+        setValue(p.initial_value);
+	}
+	
+	if (p.commit_callback.isProvided())
+		initCommitCallback(p.commit_callback, mCommitSignal);
+	
+	if (p.validate_callback.isProvided())
+		initEnableCallback(p.validate_callback, mValidateSignal);
+	
+	if (p.init_callback.isProvided())
+	{
+		if (p.init_callback.function.isProvided())
+		{
+			p.init_callback.function()(this, p.init_callback.parameter);
+		}
+		else
+		{
+			commit_callback_t* initfunc = (CallbackRegistry<commit_callback_t>::getValue(p.init_callback.function_name));
+			if (initfunc)
+			{
+				(*initfunc)(this, p.init_callback.parameter);
+			}
+		}
+	}
+
+	if(p.rightclick_callback.isProvided())
+		initCommitCallback(p.rightclick_callback, mRightClickSignal);
+
 }
+
 
 LLUICtrl::~LLUICtrl()
 {
@@ -127,12 +207,60 @@ LLUICtrl::~LLUICtrl()
 	}
 }
 
+void LLUICtrl::initCommitCallback(const CommitCallbackParam& cb, commit_signal_t& sig)
+{
+	if (cb.function.isProvided())
+	{
+		if (cb.parameter.isProvided())
+			sig.connect(boost::bind(cb.function(), _1, cb.parameter));
+		else
+			sig.connect(cb.function());
+	}
+	else
+	{
+		std::string function_name = cb.function_name;
+		commit_callback_t* func = (CallbackRegistry<commit_callback_t>::getValue(function_name));
+		if (func)
+		{
+			if (cb.parameter.isProvided())
+				sig.connect(boost::bind((*func), _1, cb.parameter));
+			else
+				sig.connect(*func);
+		}
+		else if (!function_name.empty())
+		{
+			llwarns << "No callback found for: '" << function_name << "' in control: " << getName() << llendl;
+		}			
+	}
+}
+
+void LLUICtrl::initEnableCallback(const EnableCallbackParam& cb, enable_signal_t& sig)
+{
+	// Set the callback function
+	if (cb.function.isProvided())
+	{
+		if (cb.parameter.isProvided())
+			sig.connect(boost::bind(cb.function(), this, cb.parameter));
+		else
+			sig.connect(cb.function());
+	}
+	else
+	{
+		enable_callback_t* func = (EnableCallbackRegistry::getValue(cb.function_name));
+		if (func)
+		{
+			if (cb.parameter.isProvided())
+				sig.connect(boost::bind((*func), this, cb.parameter));
+			else
+				sig.connect(*func);
+		}
+	}
+}
+
+
 void LLUICtrl::onCommit()
 {
-	if( mCommitCallback )
-	{
-		mCommitCallback( this, mCallbackUserData );
-	}
+	mCommitSignal(this, getValue());
 }
 
 //virtual
@@ -141,10 +269,170 @@ BOOL LLUICtrl::isCtrl() const
 	return TRUE;
 }
 
+//virtual 
+void LLUICtrl::setValue(const LLSD& value)
+{
+    mViewModel->setValue(value);
+}
+
 //virtual
 LLSD LLUICtrl::getValue() const
 {
-	return LLSD();
+	return mViewModel->getValue();
+}
+
+/// When two widgets are displaying the same data (e.g. during a skin
+/// change), share their ViewModel.
+void    LLUICtrl::shareViewModelFrom(const LLUICtrl& other)
+{
+    // Because mViewModel is an LLViewModelPtr, this assignment will quietly
+    // dispose of the previous LLViewModel -- unless it's already shared by
+    // somebody else.
+    mViewModel = other.mViewModel;
+}
+
+//virtual
+LLViewModel* LLUICtrl::getViewModel() const
+{
+	return mViewModel;
+}
+
+bool LLUICtrl::setControlValue(const LLSD& value)
+{
+	if (mControlVariable)
+	{
+		mControlVariable->set(value);
+		return true;
+	}
+	return false;
+}
+
+void LLUICtrl::setControlVariable(LLControlVariable* control)
+{
+	if (mControlVariable)
+	{
+		//RN: this will happen in practice, should we try to avoid it?
+		//llwarns << "setControlName called twice on same control!" << llendl;
+		mControlConnection.disconnect(); // disconnect current signal
+		mControlVariable = NULL;
+	}
+	
+	if (control)
+	{
+		mControlVariable = control;
+		mControlConnection = mControlVariable->getSignal()->connect(boost::bind(&controlListener, _2, getUICtrlHandle(), std::string("value")));
+		setValue(mControlVariable->getValue());
+	}
+}
+
+//virtual
+void LLUICtrl::setControlName(const std::string& control_name, LLView *context)
+{
+	if (context == NULL)
+	{
+		context = this;
+	}
+
+	// Register new listener
+	if (!control_name.empty())
+	{
+		LLControlVariable* control = context->findControl(control_name);
+		setControlVariable(control);
+	}
+}
+
+void LLUICtrl::setEnabledControlVariable(LLControlVariable* control)
+{
+	if (mEnabledControlVariable)
+	{
+		mEnabledControlConnection.disconnect(); // disconnect current signal
+		mEnabledControlVariable = NULL;
+	}
+	if (control)
+	{
+		mEnabledControlVariable = control;
+		mEnabledControlConnection = mEnabledControlVariable->getSignal()->connect(boost::bind(&controlListener, _2, getUICtrlHandle(), std::string("enabled")));
+		setEnabled(mEnabledControlVariable->getValue().asBoolean());
+	}
+}
+
+void LLUICtrl::setDisabledControlVariable(LLControlVariable* control)
+{
+	if (mDisabledControlVariable)
+	{
+		mDisabledControlConnection.disconnect(); // disconnect current signal
+		mDisabledControlVariable = NULL;
+	}
+	if (control)
+	{
+		mDisabledControlVariable = control;
+		mDisabledControlConnection = mDisabledControlVariable->getSignal()->connect(boost::bind(&controlListener, _2, getUICtrlHandle(), std::string("disabled")));
+		setEnabled(!(mDisabledControlVariable->getValue().asBoolean()));
+	}
+}
+
+void LLUICtrl::setMakeVisibleControlVariable(LLControlVariable* control)
+{
+	if (mMakeVisibleControlVariable)
+	{
+		mMakeVisibleControlConnection.disconnect(); // disconnect current signal
+		mMakeVisibleControlVariable = NULL;
+	}
+	if (control)
+	{
+		mMakeVisibleControlVariable = control;
+		mMakeVisibleControlConnection = mMakeVisibleControlVariable->getSignal()->connect(boost::bind(&controlListener, _2, getUICtrlHandle(), std::string("visible")));
+		setVisible(mMakeVisibleControlVariable->getValue().asBoolean());
+	}
+}
+
+void LLUICtrl::setMakeInvisibleControlVariable(LLControlVariable* control)
+{
+	if (mMakeInvisibleControlVariable)
+	{
+		mMakeInvisibleControlConnection.disconnect(); // disconnect current signal
+		mMakeInvisibleControlVariable = NULL;
+	}
+	if (control)
+	{
+		mMakeInvisibleControlVariable = control;
+		mMakeInvisibleControlConnection = mMakeInvisibleControlVariable->getSignal()->connect(boost::bind(&controlListener, _2, getUICtrlHandle(), std::string("invisible")));
+		setVisible(!(mMakeInvisibleControlVariable->getValue().asBoolean()));
+	}
+}
+// static
+bool LLUICtrl::controlListener(const LLSD& newvalue, LLHandle<LLUICtrl> handle, std::string type)
+{
+	LLUICtrl* ctrl = handle.get();
+	if (ctrl)
+	{
+		if (type == "value")
+		{
+			ctrl->setValue(newvalue);
+			return true;
+		}
+		else if (type == "enabled")
+		{
+			ctrl->setEnabled(newvalue.asBoolean());
+			return true;
+		}
+		else if(type =="disabled")
+		{
+			ctrl->setEnabled(!newvalue.asBoolean());
+			return true;
+		}
+		else if (type == "visible")
+		{
+			ctrl->setVisible(newvalue.asBoolean());
+			return true;
+		}
+		else if (type == "invisible")
+		{
+			ctrl->setVisible(!newvalue.asBoolean());
+			return true;
+		}
+	}
+	return false;
 }
 
 // virtual
@@ -248,12 +536,10 @@ void LLUICtrl::onFocusLost()
 	}
 }
 
-void LLUICtrl::onLostTop()
+void LLUICtrl::onTopLost()
 {
-	if (mLostTopCallback)
-	{
-		mLostTopCallback(this, mCallbackUserData);
-	}
+	// trigger callbacks
+	LLFocusableElement::onTopLost();
 }
 
 
@@ -278,12 +564,13 @@ BOOL LLUICtrl::acceptsTextInput() const
 //virtual
 BOOL LLUICtrl::isDirty() const
 {
-	return FALSE;
+	return mViewModel->isDirty();
 };
 
 //virtual
 void LLUICtrl::resetDirty()
 {
+    mViewModel->resetDirty();
 }
 
 // virtual
@@ -456,7 +743,8 @@ BOOL LLUICtrl::focusNextItem(BOOL text_fields_only)
 {
 	// this assumes that this method is called on the focus root.
 	LLCtrlQuery query = getTabOrderQuery();
-	if(text_fields_only || LLUI::sConfigGroup->getBOOL("TabToTextFieldsOnly"))
+	static LLUICachedControl<bool> tab_to_text_fields_only ("TabToTextFieldsOnly", false);
+	if(text_fields_only || tab_to_text_fields_only)
 	{
 		query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
 	}
@@ -468,7 +756,8 @@ BOOL LLUICtrl::focusPrevItem(BOOL text_fields_only)
 {
 	// this assumes that this method is called on the focus root.
 	LLCtrlQuery query = getTabOrderQuery();
-	if(text_fields_only || LLUI::sConfigGroup->getBOOL("TabToTextFieldsOnly"))
+	static LLUICachedControl<bool> tab_to_text_fields_only ("TabToTextFieldsOnly", false);
+	if(text_fields_only || tab_to_text_fields_only)
 	{
 		query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
 	}
@@ -524,33 +813,6 @@ BOOL LLUICtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect
 	return handled;
 }*/
 
-void LLUICtrl::initFromXML(LLXMLNodePtr node, LLView* parent)
-{
-	BOOL has_tab_stop = hasTabStop();
-	node->getAttributeBOOL("tab_stop", has_tab_stop);
-
-	setTabStop(has_tab_stop);
-
-	LLView::initFromXML(node, parent);
-}
-
-LLXMLNodePtr LLUICtrl::getXML(bool save_children) const
-{
-	LLXMLNodePtr node = LLView::getXML(save_children);
-	node->createChild("tab_stop", TRUE)->setBoolValue(hasTabStop());
-
-	return node;
-}
-
-//static 
-LLView* LLUICtrl::fromXML(LLXMLNodePtr node, LLView* parent, class LLUICtrlFactory* factory)
-{
-	LLUICtrl* ctrl = new LLUICtrl();
-	ctrl->initFromXML(node, parent);
-	return ctrl;
-}
-
-
 // Skip over any parents that are not LLUICtrl's
 //  Used in focus logic since only LLUICtrl elements can have focus
 LLUICtrl* LLUICtrl::getParentUICtrl() const
@@ -570,6 +832,16 @@ LLUICtrl* LLUICtrl::getParentUICtrl() const
 	return NULL;
 }
 
+// *TODO: Deprecate; for backwards compatability only:
+boost::signals::connection LLUICtrl::setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data)
+{
+	return setCommitCallback( boost::bind(cb, _1, data));
+}
+boost::signals::connection LLUICtrl::setValidateBeforeCommit( boost::function<bool (const LLSD& data)> cb )
+{
+	return mValidateSignal.connect(boost::bind(cb, _2));
+}
+
 // virtual
 void LLUICtrl::setTentative(BOOL b)									
 { 
@@ -583,11 +855,6 @@ BOOL LLUICtrl::getTentative() const
 }
 
 // virtual
-void LLUICtrl::setDoubleClickCallback( void (*cb)(void*) )				
-{ 
-}
-
-// virtual
 void LLUICtrl::setColor(const LLColor4& color)							
 { }
 
@@ -598,3 +865,40 @@ void LLUICtrl::setMinValue(LLSD min_value)
 // virtual
 void LLUICtrl::setMaxValue(LLSD max_value)								
 { }
+
+
+
+namespace LLInitParam
+{
+    template<> 
+	bool ParamCompare<LLUICtrl::commit_callback_t>::equals(
+		const LLUICtrl::commit_callback_t &a, 
+		const LLUICtrl::commit_callback_t &b)
+    {
+    	return false;
+    }
+    
+    template<> 
+	bool ParamCompare<LLUICtrl::focus_callback_t>::equals(
+		const LLUICtrl::focus_callback_t &a, 
+		const LLUICtrl::focus_callback_t &b)
+    {
+    	return false;
+    }
+    
+    template<> 
+	bool ParamCompare<LLUICtrl::enable_callback_t>::equals(
+		const LLUICtrl::enable_callback_t &a, 
+		const LLUICtrl::enable_callback_t &b)
+    {
+    	return false;
+    }
+
+    template<> 
+	bool ParamCompare<LLLazyValue<LLColor4> >::equals(
+		const LLLazyValue<LLColor4> &a, 
+		const LLLazyValue<LLColor4> &b)    
+    {
+    	return a.get() == b.get();
+    }
+}

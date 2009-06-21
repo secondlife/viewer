@@ -42,6 +42,7 @@
 #include "llfontgl.h"
 #include "llimagegl.h"
 #include "lltimer.h"
+#include "lltextbox.h"
 #include "llglheaders.h"
 
 #include "llagent.h"
@@ -68,9 +69,9 @@ const F32 TOTAL_LOGIN_TIME = 10.f;	// seconds, wild guess at time from GL contex
 S32 gLastStartAnimationFrame = 0;	// human-style indexing, first image = 1
 const S32 ANIMATION_FRAMES = 1; //13;
 
-// XUI:translate
-LLProgressView::LLProgressView(const std::string& name, const LLRect &rect) 
-:	LLPanel(name, rect, FALSE),
+// XUI: Translate
+LLProgressView::LLProgressView(const LLRect &rect) 
+:	LLPanel(),
 	mPercentDone( 0.f ),
 	mURLInMessage(false),
 	mMouseDownInActiveArea( false )
@@ -84,7 +85,7 @@ BOOL LLProgressView::postBuild()
 	mProgressBar = getChild<LLProgressBar>("login_progress_bar");
 
 	mCancelBtn = getChild<LLButton>("cancel_btn");
-	mCancelBtn->setClickedCallback(  LLProgressView::onCancelButtonClicked );
+	mCancelBtn->setClickedCallback(  LLProgressView::onCancelButtonClicked, NULL );
 	mFadeTimer.stop();
 
 	getChild<LLTextBox>("title_text")->setText(LLStringExplicit(LLAppViewer::instance()->getSecondLifeTitle()));

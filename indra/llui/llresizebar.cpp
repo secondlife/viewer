@@ -40,22 +40,22 @@
 #include "llfocusmgr.h"
 #include "llwindow.h"
 
-LLResizeBar::LLResizeBar( const std::string& name, LLView* resizing_view, const LLRect& rect, S32 min_size, S32 max_size, Side side )
-	:
-	LLView( name, rect, TRUE ),
+LLResizeBar::LLResizeBar(const LLResizeBar::Params& p)
+:	LLView(p),
 	mDragLastScreenX( 0 ),
 	mDragLastScreenY( 0 ),
 	mLastMouseScreenX( 0 ),
 	mLastMouseScreenY( 0 ),
-	mMinSize( min_size ),
-	mMaxSize( max_size ),
-	mSide( side ),
-	mSnappingEnabled(TRUE),
-	mAllowDoubleClickSnapping(TRUE),
-	mResizingView(resizing_view)
+	mMinSize( p.min_size ),
+	mMaxSize( p.max_size ),
+	mSide( p.side ),
+	mSnappingEnabled(p.snapping_enabled),
+	mAllowDoubleClickSnapping(p.allow_double_click_snapping),
+	mResizingView(p.resizing_view)
 {
+	setFollowsNone();
 	// set up some generically good follow code.
-	switch( side )
+	switch( mSide )
 	{
 	case LEFT:
 		setFollowsLeft();
@@ -80,8 +80,6 @@ LLResizeBar::LLResizeBar( const std::string& name, LLView* resizing_view, const 
 	default:
 		break;
 	}
-	// this is just a decorator
-	setSaveToXML(FALSE);
 }
 
 
@@ -185,30 +183,31 @@ BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 
 			if (mSnappingEnabled)
 			{
+				static LLUICachedControl<S32> snap_margin ("SnapMargin", 0);
 				switch( mSide )
 				{
 				case LEFT:
-					snap_view = mResizingView->findSnapEdge(scaled_rect.mLeft, mouse_dir, SNAP_LEFT, SNAP_PARENT_AND_SIBLINGS, LLUI::sConfigGroup->getS32("SnapMargin"));
+					snap_view = mResizingView->findSnapEdge(scaled_rect.mLeft, mouse_dir, SNAP_LEFT, SNAP_PARENT_AND_SIBLINGS, snap_margin);
 					break;
 				case TOP:
-					snap_view = mResizingView->findSnapEdge(scaled_rect.mTop, mouse_dir, SNAP_TOP, SNAP_PARENT_AND_SIBLINGS, LLUI::sConfigGroup->getS32("SnapMargin"));
+					snap_view = mResizingView->findSnapEdge(scaled_rect.mTop, mouse_dir, SNAP_TOP, SNAP_PARENT_AND_SIBLINGS, snap_margin);
 					break;
 				case RIGHT:
-					snap_view = mResizingView->findSnapEdge(scaled_rect.mRight, mouse_dir, SNAP_RIGHT, SNAP_PARENT_AND_SIBLINGS, LLUI::sConfigGroup->getS32("SnapMargin"));
+					snap_view = mResizingView->findSnapEdge(scaled_rect.mRight, mouse_dir, SNAP_RIGHT, SNAP_PARENT_AND_SIBLINGS, snap_margin);
 					break;
 				case BOTTOM:
-					snap_view = mResizingView->findSnapEdge(scaled_rect.mBottom, mouse_dir, SNAP_BOTTOM, SNAP_PARENT_AND_SIBLINGS, LLUI::sConfigGroup->getS32("SnapMargin"));
+					snap_view = mResizingView->findSnapEdge(scaled_rect.mBottom, mouse_dir, SNAP_BOTTOM, SNAP_PARENT_AND_SIBLINGS, snap_margin);
 					break;
 				}
 			}
 
 			// register "snap" behavior with snapped view
-			mResizingView->snappedTo(snap_view);
+			mResizingView->setSnappedTo(snap_view);
 
 			// restore original rectangle so the appropriate changes are detected
 			mResizingView->setRect(orig_rect);
 			// change view shape as user operation
-			mResizingView->userSetShape(scaled_rect);
+			mResizingView->setShape(scaled_rect, true);
 
 			// update last valid mouse cursor position based on resized view's actual size
 			LLRect new_rect = mResizingView->getRect();
@@ -284,7 +283,7 @@ BOOL LLResizeBar::handleDoubleClick(S32 x, S32 y, MASK mask)
 			break;
 		}
 
-		mResizingView->userSetShape(scaled_rect);
+		mResizingView->setShape(scaled_rect, true);
 	}
 
 	return TRUE;

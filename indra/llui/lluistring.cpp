@@ -33,6 +33,7 @@
 #include "linden_common.h"
 #include "lluistring.h"
 #include "llsd.h"
+#include "lltrans.h"
 
 const LLStringUtil::format_map_t LLUIString::sNullArgs;
 
@@ -111,7 +112,18 @@ void LLUIString::clear()
 
 void LLUIString::format()
 {
+	// optimize for empty strings (don't attempt string replacement)
+	if (mOrig.empty())
+	{
+		mResult.clear();
+		mWResult.clear();
+		return;
+	}
 	mResult = mOrig;
-	LLStringUtil::format(mResult, mArgs);
+	
+	// get the defailt args + local args
+	LLStringUtil::format_map_t combined_args = LLTrans::getDefaultArgs();
+	combined_args.insert(mArgs.begin(), mArgs.end());
+	LLStringUtil::format(mResult, combined_args);
 	mWResult = utf8str_to_wstring(mResult);
 }

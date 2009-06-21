@@ -30,229 +30,323 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFASTTIMER_H
-#define LL_LLFASTTIMER_H
+#ifndef LL_FASTTIMER_H
+#define LL_FASTTIMER_H
+
+#include "llinstancetracker.h"
 
 #define FAST_TIMER_ON 1
 
 U64 get_cpu_clock_count();
 
+class LLMutex;
+
+#include <queue>
+#include "llsd.h"
+
+
 class LLFastTimer
 {
 public:
-	enum EFastTimerType
+	// stores a "named" timer instance to be reused via multiple LLFastTimer stack instances
+	class NamedTimer 
+	:	public LLInstanceTracker<NamedTimer>
 	{
-		// high level
-		FTM_FRAME,
-		FTM_UPDATE,
-		FTM_RENDER,
-		FTM_SWAP,
-		FTM_CLIENT_COPY,
-		FTM_IDLE,
-		FTM_SLEEP,
+	public:
+		~NamedTimer();
 
-		// common messaging components
-		FTM_PUMP,
-		FTM_CURL,
+		enum { HISTORY_NUM = 60 };
+
+		const std::string& getName() { return mName; }
+		NamedTimer* getParent() { return mParent; }
+		void setParent(NamedTimer* parent);
+		S32 getDepth();
+		std::string getToolTip(S32 history_index = -1);
+
+		typedef std::vector<NamedTimer*>::const_iterator child_const_iter;
+		child_const_iter beginChildren();
+		child_const_iter endChildren();
+		std::vector<NamedTimer*>& getChildren();
+
+		void setCollapsed(bool collapsed) { mCollapsed = collapsed; }
+		bool getCollapsed() { return mCollapsed; }
+
+		U64 getCountAverage() { return mCountAverage; }
+		U64 getCallAverage() { return mCallAverage; }
+
+		U64 getHistoricalCount(S32 history_index = 0);
+		U64 getHistoricalCalls(S32 history_index = 0);
+
+		static NamedTimer& getRootNamedTimer();
+
+		struct FrameState
+		{
+			FrameState(NamedTimer* timerp);
+
+			U64 		mSelfTimeCounter;
+			U64			mLastStartTime;		// most recent time when this timer was started
+			U32 		mCalls;
+			FrameState*	mParent;		// info for caller timer
+			FrameState*	mLastCaller;	// used to bootstrap tree construction
+			NamedTimer*	mTimer;
+			U16			mActiveCount;	// number of timers with this ID active on stack
+			bool		mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
+		};
+
+		FrameState& getFrameStateFast() const
+		{
+			return (*sTimerInfos)[mFrameStateIndex];
+		}
+
+		S32 getFrameStateIndex() const { return mFrameStateIndex; }
+
+		FrameState& getFrameState() const;
+
+
+	private: 
+		friend class LLFastTimer;
+		friend class NamedTimerFactory;
+
+		//
+		// methods
+		//
+		NamedTimer(const std::string& name);
+		// recursive call to gather total time from children
+		static void accumulateTimings();
+
+		// called once per frame by LLFastTimer
+		static void processFrame();
+
+		static void buildHierarchy();
+		static void resetFrame();
+		static void reset();
+
+		typedef std::vector<FrameState> info_list_t;
+		static info_list_t& getFrameStateList();
+		static void createFrameStateList(); // must call before any call to getFrameStateList()
 		
-		// common simulation components
-		FTM_UPDATE_ANIMATION,
-		FTM_UPDATE_TERRAIN,
-		FTM_UPDATE_PRIMITIVES,
-		FTM_UPDATE_PARTICLES,
-		FTM_SIMULATE_PARTICLES,
-		FTM_UPDATE_SKY,
-		FTM_UPDATE_TEXTURES,
-		FTM_UPDATE_WLPARAM,
-		FTM_UPDATE_WATER,
-		FTM_UPDATE_CLOUDS,
-		FTM_UPDATE_GRASS,
-		FTM_UPDATE_TREE,
-		FTM_UPDATE_AVATAR,
-		
-		// common render components
-		FTM_SHADOW_GEOMETRY,
-		FTM_SHADOW_RENDER,
-		FTM_SHADOW_TERRAIN,
-		FTM_SHADOW_AVATAR,
-		FTM_SHADOW_SIMPLE,
-		FTM_SHADOW_ALPHA,
-		FTM_SHADOW_TREE,
-		
-		FTM_RENDER_GEOMETRY,
-		 FTM_RENDER_TERRAIN,
-		 FTM_RENDER_SIMPLE,
-		 FTM_RENDER_FULLBRIGHT,
-		 FTM_RENDER_GLOW,
-		 FTM_RENDER_GRASS,
-		 FTM_RENDER_INVISIBLE,
-		 FTM_RENDER_SHINY,
-		 FTM_RENDER_BUMP,
-		 FTM_RENDER_TREES,
-		 FTM_RENDER_CHARACTERS,
-		 FTM_RENDER_OCCLUSION,
-		 FTM_RENDER_ALPHA,
-         FTM_RENDER_CLOUDS,
-		 FTM_RENDER_HUD,
-		 FTM_RENDER_PARTICLES,
-		 FTM_RENDER_WATER,
-		 FTM_RENDER_WL_SKY,
-		 FTM_RENDER_FAKE_VBO_UPDATE,
-		FTM_RENDER_TIMER,
-		FTM_RENDER_UI,
-		FTM_RENDER_BLOOM,
-			FTM_RENDER_BLOOM_FBO,		
-		FTM_RENDER_FONTS,
-		
-		// newview specific
-		FTM_MESSAGES,
-		FTM_MOUSEHANDLER,
-		FTM_KEYHANDLER,
-		FTM_REBUILD,
-		FTM_STATESORT,
-		FTM_STATESORT_DRAWABLE,
-		FTM_STATESORT_POSTSORT,
-		FTM_REBUILD_VBO,
-		FTM_REBUILD_VOLUME_VB,
-		FTM_REBUILD_BRIDGE_VB,
-		FTM_REBUILD_HUD_VB,
-		FTM_REBUILD_TERRAIN_VB,
-		FTM_REBUILD_WATER_VB,
-		FTM_REBUILD_TREE_VB,
-		FTM_REBUILD_PARTICLE_VB,
-		FTM_REBUILD_CLOUD_VB,
-		FTM_REBUILD_GRASS_VB,
-		FTM_REBUILD_NONE_VB,
-		FTM_REBUILD_OCCLUSION_VB,
-		FTM_POOLS,
-		FTM_POOLRENDER,
-		FTM_IDLE_CB,
-		FTM_WORLD_UPDATE,
-		FTM_UPDATE_MOVE,
-		FTM_OCTREE_BALANCE,
-		FTM_UPDATE_LIGHTS,
-		FTM_CULL,
-		FTM_CULL_REBOUND,
-		FTM_FRUSTUM_CULL,
-		FTM_GEO_UPDATE,
-		FTM_GEO_RESERVE,
-		FTM_GEO_LIGHT,
-		FTM_GEO_SHADOW,
-		FTM_GEO_SKY,
-		FTM_GEN_VOLUME,
-		FTM_GEN_TRIANGLES,
-		FTM_GEN_FLEX,
-		FTM_AUDIO_UPDATE,
-		FTM_RESET_DRAWORDER,
-		FTM_OBJECTLIST_UPDATE,
-		FTM_AVATAR_UPDATE,
-		FTM_JOINT_UPDATE,
-		FTM_ATTACHMENT_UPDATE,
-		FTM_LOD_UPDATE,
-		FTM_REGION_UPDATE,
-		FTM_CLEANUP,
-		FTM_NETWORK,
-		FTM_IDLE_NETWORK,
-		FTM_CREATE_OBJECT,
-		FTM_LOAD_AVATAR,
-		FTM_PROCESS_MESSAGES,
-		FTM_PROCESS_OBJECTS,
-		FTM_PROCESS_IMAGES,
-		FTM_IMAGE_UPDATE,
-		FTM_IMAGE_CREATE,
-		FTM_IMAGE_DECODE,
-		FTM_IMAGE_MARK_DIRTY,
-		FTM_PIPELINE,
-		FTM_VFILE_WAIT,
-		FTM_FLEXIBLE_UPDATE,
-		FTM_OCCLUSION_READBACK,
-		FTM_HUD_EFFECTS,
-		FTM_HUD_UPDATE,
-		FTM_INVENTORY,
-		FTM_AUTO_SELECT,
-		FTM_ARRANGE,
-		FTM_FILTER,
-		FTM_REFRESH,
-		FTM_SORT,
-		FTM_PICK,
-		
-		// Temp
-		FTM_TEMP1,
-		FTM_TEMP2,
-		FTM_TEMP3,
-		FTM_TEMP4,
-		FTM_TEMP5,
-		FTM_TEMP6,
-		FTM_TEMP7,
-		FTM_TEMP8,
-		
-		FTM_OTHER, // Special, used by display code
-		
-		FTM_NUM_TYPES
+		//
+		// members
+		//
+		S32			mFrameStateIndex;
+
+		std::string	mName;
+
+		U64 		mTotalTimeCounter;
+
+		U64 		mCountAverage;
+		U64			mCallAverage;
+
+		U64*		mCountHistory;
+		U64*		mCallHistory;
+
+		// tree structure
+		NamedTimer*					mParent;				// NamedTimer of caller(parent)
+		std::vector<NamedTimer*>	mChildren;
+		bool						mCollapsed;				// don't show children
+		bool						mNeedsSorting;			// sort children whenever child added
+
+		static info_list_t* sTimerInfos;
 	};
-	enum { FTM_HISTORY_NUM = 60 };
-	enum { FTM_MAX_DEPTH = 64 };
-	
+
+	// used to statically declare a new named timer
+	class DeclareTimer
+	{
+	public:
+		DeclareTimer(const std::string& name, bool open);
+		DeclareTimer(const std::string& name);
+
+		// convertable to NamedTimer::FrameState for convenient usage of LLFastTimer(declared_timer)
+		operator NamedTimer::FrameState&() { return mNamedTimer.getFrameStateFast(); }
+	private:
+		NamedTimer& mNamedTimer;
+	};
+
+	static DeclareTimer FTM_ARRANGE;
+	static DeclareTimer FTM_ATTACHMENT_UPDATE;
+	static DeclareTimer FTM_AUDIO_UPDATE;
+	static DeclareTimer FTM_AUTO_SELECT;
+	static DeclareTimer FTM_AVATAR_UPDATE;
+	static DeclareTimer FTM_CLEANUP;
+	static DeclareTimer FTM_CLIENT_COPY;
+	static DeclareTimer FTM_CREATE_OBJECT;
+	static DeclareTimer FTM_CULL;
+	static DeclareTimer FTM_CULL_REBOUND;
+	static DeclareTimer FTM_FILTER;
+	static DeclareTimer FTM_FLEXIBLE_UPDATE;
+	static DeclareTimer FTM_FRAME;
+	static DeclareTimer FTM_FRUSTUM_CULL;
+	static DeclareTimer FTM_GEN_FLEX;
+	static DeclareTimer FTM_GEN_TRIANGLES;
+	static DeclareTimer FTM_GEN_VOLUME;
+	static DeclareTimer FTM_GEO_SKY;
+	static DeclareTimer FTM_GEO_UPDATE;
+	static DeclareTimer FTM_HUD_EFFECTS;
+	static DeclareTimer FTM_HUD_UPDATE;
+	static DeclareTimer FTM_IDLE;
+	static DeclareTimer FTM_IDLE_CB;
+	static DeclareTimer FTM_IDLE_NETWORK;
+	static DeclareTimer FTM_IMAGE_CREATE;
+	static DeclareTimer FTM_IMAGE_MARK_DIRTY;
+	static DeclareTimer FTM_IMAGE_UPDATE;
+	static DeclareTimer FTM_INVENTORY;
+	static DeclareTimer FTM_JOINT_UPDATE;
+	static DeclareTimer FTM_KEYHANDLER;
+	static DeclareTimer FTM_LOAD_AVATAR;
+	static DeclareTimer FTM_LOD_UPDATE;
+	static DeclareTimer FTM_MESSAGES;
+	static DeclareTimer FTM_MOUSEHANDLER;
+	static DeclareTimer FTM_NETWORK;
+	static DeclareTimer FTM_OBJECTLIST_UPDATE;
+	static DeclareTimer FTM_OCCLUSION_READBACK;
+	static DeclareTimer FTM_OCTREE_BALANCE;
+	static DeclareTimer FTM_PICK;
+	static DeclareTimer FTM_PIPELINE;
+	static DeclareTimer FTM_POOLRENDER;
+	static DeclareTimer FTM_POOLS;
+	static DeclareTimer FTM_PROCESS_IMAGES;
+	static DeclareTimer FTM_PROCESS_MESSAGES;
+	static DeclareTimer FTM_PROCESS_OBJECTS;
+	static DeclareTimer FTM_PUMP;
+	static DeclareTimer FTM_REBUILD_GRASS_VB;
+	static DeclareTimer FTM_REBUILD_PARTICLE_VB;
+	static DeclareTimer FTM_REBUILD_TERRAIN_VB;
+	static DeclareTimer FTM_REBUILD_VBO;
+	static DeclareTimer FTM_REBUILD_VOLUME_VB;
+	static DeclareTimer FTM_REFRESH;
+	static DeclareTimer FTM_REGION_UPDATE;
+	static DeclareTimer FTM_RENDER;
+	static DeclareTimer FTM_RENDER_ALPHA;
+	static DeclareTimer FTM_RENDER_BLOOM;
+	static DeclareTimer FTM_RENDER_BLOOM_FBO;
+	static DeclareTimer FTM_RENDER_BUMP;
+	static DeclareTimer FTM_RENDER_CHARACTERS;
+	static DeclareTimer FTM_RENDER_FAKE_VBO_UPDATE;
+	static DeclareTimer FTM_RENDER_FONTS;
+	static DeclareTimer FTM_RENDER_FULLBRIGHT;
+	static DeclareTimer FTM_RENDER_GEOMETRY;
+	static DeclareTimer FTM_RENDER_GLOW;
+	static DeclareTimer FTM_RENDER_GRASS;
+	static DeclareTimer FTM_RENDER_INVISIBLE;
+	static DeclareTimer FTM_RENDER_OCCLUSION;
+	static DeclareTimer FTM_RENDER_SHINY;
+	static DeclareTimer FTM_RENDER_SIMPLE;
+	static DeclareTimer FTM_RENDER_TERRAIN;
+	static DeclareTimer FTM_RENDER_TREES;
+	static DeclareTimer FTM_RENDER_UI;
+	static DeclareTimer FTM_RENDER_WATER;
+	static DeclareTimer FTM_RENDER_WL_SKY;
+	static DeclareTimer FTM_RESET_DRAWORDER;
+	static DeclareTimer FTM_SHADOW_ALPHA;
+	static DeclareTimer FTM_SHADOW_AVATAR;
+	static DeclareTimer FTM_SHADOW_RENDER;
+	static DeclareTimer FTM_SHADOW_SIMPLE;
+	static DeclareTimer FTM_SHADOW_TERRAIN;
+	static DeclareTimer FTM_SHADOW_TREE;
+	static DeclareTimer FTM_SIMULATE_PARTICLES;
+	static DeclareTimer FTM_SLEEP;
+	static DeclareTimer FTM_SORT;
+	static DeclareTimer FTM_STATESORT;
+	static DeclareTimer FTM_STATESORT_DRAWABLE;
+	static DeclareTimer FTM_STATESORT_POSTSORT;
+	static DeclareTimer FTM_SWAP;
+	static DeclareTimer FTM_TEMP1;
+	static DeclareTimer FTM_TEMP2;
+	static DeclareTimer FTM_TEMP3;
+	static DeclareTimer FTM_TEMP4;
+	static DeclareTimer FTM_TEMP5;
+	static DeclareTimer FTM_TEMP6;
+	static DeclareTimer FTM_TEMP7;
+	static DeclareTimer FTM_TEMP8;
+	static DeclareTimer FTM_UPDATE_ANIMATION;
+	static DeclareTimer FTM_UPDATE_AVATAR;
+	static DeclareTimer FTM_UPDATE_CLOUDS;
+	static DeclareTimer FTM_UPDATE_GRASS;
+	static DeclareTimer FTM_UPDATE_MOVE;
+	static DeclareTimer FTM_UPDATE_PARTICLES;
+	static DeclareTimer FTM_UPDATE_PRIMITIVES;
+	static DeclareTimer FTM_UPDATE_SKY;
+	static DeclareTimer FTM_UPDATE_TERRAIN;
+	static DeclareTimer FTM_UPDATE_TEXTURES;
+	static DeclareTimer FTM_UPDATE_TREE;
+	static DeclareTimer FTM_UPDATE_WATER;
+	static DeclareTimer FTM_UPDATE_WLPARAM;
+	static DeclareTimer FTM_VFILE_WAIT;
+	static DeclareTimer FTM_WORLD_UPDATE;
+
 public:
-	static LLFastTimer::EFastTimerType sCurType;
+	enum RootTimerMarker { ROOT };
+	
+	static LLMutex* sLogLock;
+	static std::queue<LLSD> sLogQueue;
+	static BOOL sLog;
+	static BOOL sMetricLog;
 
-	LLFastTimer(EFastTimerType type)
+	LLFastTimer(RootTimerMarker);
+
+	LLFastTimer(NamedTimer::FrameState& timer)
+	:	mFrameState(&timer)
 	{
-#if FAST_TIMER_ON
-		mType = type;
-		sCurType = type;
-		// These don't get counted, because they use CPU clockticks
-		//gTimerBins[gCurTimerBin]++;
-		//LLTimer::sNumTimerCalls++;
+		NamedTimer::FrameState* frame_state = mFrameState;
+		frame_state->mLastStartTime = get_cpu_clock_count();
+		mStartSelfTime = frame_state->mLastStartTime;
 
-		U64 cpu_clocks = get_cpu_clock_count();
+		frame_state->mActiveCount++;
+		frame_state->mCalls++;
+		// keep current parent as long as it is active when we are
+		frame_state->mMoveUpTree |= (frame_state->mParent->mActiveCount == 0);
+	
+		mLastTimer = sCurTimer;
+		sCurTimer = this;
+	}
 
-		sStart[sCurDepth] = cpu_clocks;
-		sCurDepth++;
-#endif
-	};
 	~LLFastTimer()
 	{
 #if FAST_TIMER_ON
-		U64 end,delta;
-		int i;
+		NamedTimer::FrameState* frame_state = mFrameState;
+		U64 cur_time = get_cpu_clock_count();
+		frame_state->mSelfTimeCounter += cur_time - mStartSelfTime;
 
-		// These don't get counted, because they use CPU clockticks
-		//gTimerBins[gCurTimerBin]++;
-		//LLTimer::sNumTimerCalls++;
-		end = get_cpu_clock_count();
+		frame_state->mActiveCount--;
+		LLFastTimer* last_timer = mLastTimer;
+		sCurTimer = last_timer;
 
-		sCurDepth--;
-		delta = end - sStart[sCurDepth];
-		sCounter[mType] += delta;
-		sCalls[mType]++;
-		// Subtract delta from parents
-		for (i=0; i<sCurDepth; i++)
-			sStart[i] += delta;
+		// store last caller to bootstrap tree creation
+		frame_state->mLastCaller = last_timer->mFrameState;
+
+		// we are only tracking self time, so subtract our total time delta from parents
+		U64 total_time = cur_time - frame_state->mLastStartTime;
+		last_timer->mStartSelfTime += total_time;
 #endif
 	}
 
+
+	// call this once a frame to reset timers
+	static void nextFrame();
+
+	// call this to reset timer hierarchy, averages, etc.
 	static void reset();
+
 	static U64 countsPerSecond();
+	static S32 getLastFrameIndex() { return sLastFrameIndex; }
+	static S32 getCurFrameIndex() { return sCurFrameIndex; }
+
+	static void writeLog(std::ostream& os);
 
 public:
-	static int sCurDepth;
-	static U64 sStart[FTM_MAX_DEPTH];
-	static U64 sCounter[FTM_NUM_TYPES];
-	static U64 sCalls[FTM_NUM_TYPES];
-	static U64 sCountAverage[FTM_NUM_TYPES];
-	static U64 sCallAverage[FTM_NUM_TYPES];
-	static U64 sCountHistory[FTM_HISTORY_NUM][FTM_NUM_TYPES];
-	static U64 sCallHistory[FTM_HISTORY_NUM][FTM_NUM_TYPES];
-	static S32 sCurFrameIndex;
-	static S32 sLastFrameIndex;
-	static int sPauseHistory;
-	static int sResetHistory;
-	static F64 sCPUClockFrequency;
+	static bool 		sPauseHistory;
+	static bool 		sResetHistory;
 	
 private:
-	EFastTimerType mType;
-};
+	typedef std::vector<LLFastTimer*> timer_stack_t;
+	static LLFastTimer*		sCurTimer;
+	static S32				sCurFrameIndex;
+	static S32				sLastFrameIndex;
 
+	static F64				sCPUClockFrequency;
+	U64						mStartSelfTime;	// start time + time of all child timers
+	NamedTimer::FrameState*	mFrameState;
+	LLFastTimer*			mLastTimer;
+};
 
 #endif // LL_LLFASTTIMER_H

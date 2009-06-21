@@ -50,8 +50,16 @@
 #include "glh/glh_linear.h"
 
 extern BOOL gDebugGL;
+extern BOOL gDebugSession;
+extern std::ofstream gFailLog;
 
 #define LL_GL_ERRS LL_ERRS("RenderState")
+
+void ll_init_fail_log(std::string filename);
+
+void ll_fail(std::string msg);
+
+void ll_close_fail_log();
 
 class LLSD;
 
@@ -88,6 +96,7 @@ public:
 	BOOL mHasOcclusionQuery;
 	BOOL mHasPointParameters;
 	BOOL mHasDrawBuffers;
+	BOOL mHasTextureRectangle;
 
 	// Other extensions.
 	BOOL mHasAnisotropic;

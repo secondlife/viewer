@@ -29,14 +29,10 @@
 	<check_box label="Mature" name="event_mature_chk"/>
 	<check_box label="Adult" name="event_adult_chk"/>
 	<combo_box label="Online vrienden" name="friend combo" tool_tip="Vriend die op kaart getoond wordt">
-		<combo_item name="none_selected">
-			Online vrienden
-		</combo_item>
+		<combo_box.item name="none_selected" label="Online vrienden"/>
 	</combo_box>
 	<combo_box label="Landmarkeringen" name="landmark combo" tool_tip="Landmarkering die op kaart getoond wordt">
-		<combo_item name="none_selected">
-			Landmarkeringen
-		</combo_item>
+		<combo_box.item name="none_selected" label="Landmarkeringen"/>
 	</combo_box>
 	<line_editor label="Zoek op regionaam" name="location" tool_tip="Type de naam van een regio"/>
 	<button label="Zoeken" name="DoSearch" tool_tip="Zoek naar regio"/>

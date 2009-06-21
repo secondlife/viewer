@@ -36,6 +36,7 @@
 	<text name="covenant_text">
 		Sie müssen dem Grundstücksvertrag zustimmen:
 	</text>
+	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
 		Wird geladen...
 	</text_editor>
@@ -74,15 +75,9 @@ Objekte im Verkauf eingeschlossen
 		Landbesitz ist Premium-Mitgliedern vorbehalten.
 	</text>
 	<combo_box name="account_level">
-		<combo_item name="US$9.95/month,billedmonthly">
-			9,95 US$/Monat, monatliche Abrechnung
-		</combo_item>
-		<combo_item name="US$7.50/month,billedquarterly">
-			7,50 US$/Monat, vierteljährliche Abrechnung
-		</combo_item>
-		<combo_item name="US$6.00/month,billedannually">
-			6,00 US$/Monat, jährliche Abrechnung
-		</combo_item>
+		<combo_box.item name="US$9.95/month,billedmonthly" label="9,95 US$/Monat, monatliche Abrechnung" />
+		<combo_box.item name="US$7.50/month,billedquarterly" label="7,50 US$/Monat, vierteljährliche Abrechnung" />
+		<combo_box.item name="US$6.00/month,billedannually" label="6,00 US$/Monat, jährliche Abrechnung" />
 	</combo_box>
 	<text name="land_use_action">
 		Erhöhen Sie Ihre monatlichen Landnutzungsgebühren auf 40 US$/month.

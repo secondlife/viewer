@@ -41,7 +41,6 @@
 // viewer includes
 #include "llagent.h"
 #include "llcallingcard.h"
-#include "llcolorscheme.h"
 #include "llviewercontrol.h"
 #include "llfloaterworldmap.h"
 #include "llworldmapview.h"
@@ -55,10 +54,12 @@ const S32 HUD_ARROW_SIZE = 32;
 
 LLHUDView::LLHUDView()
 :	LLPanel()
-{ }
+{
+}
 
 LLHUDView::~LLHUDView()
-{ }
+{
+}
 
 // virtual
 void LLHUDView::draw()

@@ -38,15 +38,9 @@ dieser Parzelle:
 beschränkt ist.
 	</text>
 	<combo_box height="16" left="72" name="sell_to" bottom_delta="-32" width="140">
-		<combo_item name="--selectone--">
-			-- select one --
-		</combo_item>
-		<combo_item name="Anyone">
-			Jeder
-		</combo_item>
-		<combo_item name="Specificuser:">
-			Bestimmter Benutzer:
-		</combo_item>
+		<combo_box.item name="--selectone--" label="select one --" />
+		<combo_box.item name="Anyone" label="Jeder" />
+		<combo_box.item name="Specificuser:" label="Bestimmter Benutzer:" />
 	</combo_box>
 	<button label="Auswählen..." name="sell_to_select_agent" />
 	<text name="sell_objects_label">
@@ -57,12 +51,8 @@ beschränkt ist.
 wechseln den Eigentümer.
 	</text>
 	<radio_group bottom_delta="-58" name="sell_objects">
-		<radio_item name="no">
-			Nein, Objekte behalten
-		</radio_item>
-		<radio_item name="yes">
-			Ja, Objekte mit Land verkaufen
-		</radio_item>
+		<radio_item name="no" label="Nein, Objekte behalten" />
+		<radio_item name="yes" label="Ja, Objekte mit Land verkaufen" />
 	</radio_group>
 	<button label="Objekte anzeigen" name="show_objects" width="116"/>
 	<text name="nag_message_label">

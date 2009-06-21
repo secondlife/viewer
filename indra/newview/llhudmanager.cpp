@@ -52,9 +52,9 @@ LLColor4 LLHUDManager::sChildColor;
 LLHUDManager::LLHUDManager()
 {
 
-	LLHUDManager::sParentColor = gColors.getColor("FocusColor");
+	LLHUDManager::sParentColor = gSavedSkinSettings.getColor("FocusColor");
 	// rdw commented out since it's not used.  Also removed from colors_base.xml
-	//LLHUDManager::sChildColor = gColors.getColor("FocusSecondaryColor");
+	//LLHUDManager::sChildColor =gSavedSkinSettings.getColor("FocusSecondaryColor");
 }
 
 LLHUDManager::~LLHUDManager()

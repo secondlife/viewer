@@ -35,6 +35,7 @@
 #include "lllogchat.h"
 #include "llappviewer.h"
 #include "llfloaterchat.h"
+#include "lltrans.h"
 
 const S32 LOG_RECALL_SIZE = 2048;
 
@@ -64,20 +65,26 @@ std::string LLLogChat::timestamp(bool withdate)
 	time_t utc_time;
 	utc_time = time_corrected();
 
-	// There's only one internal tm buffer.
-	struct tm* timep;
+	std::string timeStr;
+	LLSD substitution;
+	substitution["datetime"] = (S32) utc_time;
 
-	// Convert to Pacific, based on server's opinion of whether
-	// it's daylight savings time there.
-	timep = utc_to_pacific_time(utc_time, gPacificDaylightTime);
-
-	std::string text;
 	if (withdate)
-		text = llformat("[%d/%02d/%02d %d:%02d]  ", (timep->tm_year-100)+2000, timep->tm_mon+1, timep->tm_mday, timep->tm_hour, timep->tm_min);
+	{
+		timeStr = "["+LLTrans::getString ("TimeYear")+"]/["
+		          +LLTrans::getString ("TimeMonth")+"]/["
+				  +LLTrans::getString ("TimeDay")+"] ["
+				  +LLTrans::getString ("TimeHour")+"]:["
+				  +LLTrans::getString ("TimeMin")+"] ";
+	}
 	else
-		text = llformat("[%d:%02d]  ", timep->tm_hour, timep->tm_min);
+	{
+		timeStr = "[" + LLTrans::getString("TimeHour") + "]:["
+			      + LLTrans::getString ("TimeMin")+"] "; 
+	}
 
-	return text;
+	LLStringUtil::format (timeStr, substitution);
+	return timeStr;
 }
 
 
@@ -114,7 +121,7 @@ void LLLogChat::loadHistory(std::string filename , void (*callback)(ELogLineType
 	LLFILE* fptr = LLFile::fopen(makeLogFileName(filename), "r");		/*Flawfinder: ignore*/
 	if (!fptr)
 	{
-		//LLUIString message = LLFloaterChat::getInstance()->getString("IM_logging_string");
+		//LLUIString message = LLTrans::getString("IM_logging_string");
 		//callback(LOG_EMPTY,"IM_logging_string",userdata);
 		callback(LOG_EMPTY,LLStringUtil::null,userdata);
 		return;			//No previous conversation with this name.

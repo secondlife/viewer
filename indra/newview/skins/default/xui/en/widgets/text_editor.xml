@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<line_editor background_image="sm_rounded_corners_simple.tga"
+             select_on_focus="false"
+             handle_edit_keys_directly="false"
+             commit_on_focus_lost="true"
+             ignore_tab="true"
+             cursor_color="TextCursorColor"
+             text_color="TextFgColor"
+             text_readonly_color="TextFgReadOnlyColor"
+             text_tentative_color="TextFgTentativeColor"
+             bg_readonly_color="TextBgReadOnlyColor"
+             bg_writeable_color="TextBgWriteableColor"
+             bg_focus_color="TextBgFocusColor"
+             mouse_opaque="true"
+             name="line_editor"
+             font="SansSerifSmall">
+  <line_editor.border bevel_style="in"
+                      follows="all"/>
+</line_editor>

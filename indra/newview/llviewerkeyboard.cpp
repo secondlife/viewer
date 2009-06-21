@@ -43,7 +43,7 @@
 #include "llmoveview.h"
 #include "lltoolfocus.h"
 #include "llviewerwindow.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 
 //
 // Constants
@@ -224,7 +224,7 @@ void agent_toggle_fly( EKeystate s )
 	// Only catch the edge
 	if (KEYSTATE_DOWN == s )
 	{
-		gAgent.toggleFlying();
+		LLAgent::toggleFlying();
 	}
 }
 
@@ -500,7 +500,8 @@ void stop_moving( EKeystate s )
 void start_chat( EKeystate s )
 {
 	// start chat
-	gChatBar->startChat(NULL);
+	LLChatBar::startChat(NULL);
+//	gChatBar->startChat(NULL);
 }
 
 void start_gesture( EKeystate s )
@@ -508,16 +509,18 @@ void start_gesture( EKeystate s )
 	if (KEYSTATE_UP == s &&
 		!(gFocusMgr.getKeyboardFocus() && gFocusMgr.getKeyboardFocus()->acceptsTextInput()))
 	{
-		if (gChatBar->getCurrentChat().empty())
-		{
-			// No existing chat in chat editor, insert '/'
-			gChatBar->startChat("/");
-		}
-		else
-		{
-			// Don't overwrite existing text in chat editor
-			gChatBar->startChat(NULL);
-		}
+		//TODO* remove DUMMY chatbar
+		LLChatBar::startChat(NULL);
+// 		if (gChatBar->getCurrentChat().empty())
+// 		{
+// 			// No existing chat in chat editor, insert '/'
+// 			gChatBar->startChat("/");
+// 		}
+// 		else
+// 		{
+// 			// Don't overwrite existing text in chat editor
+// 			gChatBar->startChat(NULL);
+// 		}
 	}
 }
 

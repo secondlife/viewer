@@ -23,38 +23,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>UserChatColor</key>
-        <map>
-        <key>Comment</key>
-            <string>Color of your chat messages</string>
-        <key>Persist</key>
-            <integer>1</integer>
-        <key>Type</key>
-            <string>Color4</string>
-        <key>Value</key>
-            <array>
-                <real>1.0</real>
-                <real>1.0</real>
-                <real>1.0</real>
-                <real>1.0</real>
-            </array>
-        </map>
-    <key>AgentChatColor</key>
-    <map>
-      <key>Comment</key>
-      <string>Color of chat messages from other residents</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
     <key>AlertedUnsupportedHardware</key>
     <map>
       <key>Comment</key>
@@ -594,22 +562,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>BackgroundChatColor</key>
-    <map>
-      <key>Comment</key>
-      <string>Color of chat bubble background</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>0.0</real>
-        <real>0.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
     <key>BackgroundYieldTime</key>
     <map>
       <key>Comment</key>
@@ -621,42 +573,21 @@
       <key>Value</key>
       <integer>40</integer>
     </map>
-    <key>BackwardBtnRect</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>45</integer>
-        <integer>29</integer>
-        <integer>66</integer>
-        <integer>4</integer>
-      </array>
-    </map>
-    <key>BasicHelpRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for help window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>404</integer>
-        <integer>467</integer>
-        <integer>0</integer>
-      </array>
-    </map>
     <key>BeaconAlwaysOn</key>
     <map>
       <key>Comment</key>
       <string>Beacons / highlighting always on</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>BottomPanelNew</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable the new bottom panel</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -874,6 +805,17 @@
       <real>1.0</real>
     </map>
     <key>BuildBtnState</key>
+    <map>
+      <key>Comment</key>
+      <string />
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>BuildBtnEnabled</key>
     <map>
       <key>Comment</key>
       <string />
@@ -1391,22 +1333,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ChatterboxRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for chatterbox window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>400</integer>
-        <integer>350</integer>
-        <integer>0</integer>
-      </array>
-    </map>
     <key>CheesyBeacon</key>
     <map>
       <key>Comment</key>
@@ -1421,7 +1347,7 @@
     <key>ClientSettingsFile</key>
     <map>
       <key>Comment</key>
-      <string>Persisted client settings file name (per install).</string>
+      <string>Client settings file name (per install).</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
@@ -1497,545 +1423,17 @@
         <string />
       </array>
     </map>
-    <key>ColorPaletteEntry01</key>
+    <key>CompressSnapshotsToDisk</key>
     <map>
       <key>Comment</key>
-      <string>Color picker palette entry</string>
+      <string>Compress snapshots saved to disk (Using JPEG 2000)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Color4</string>
+      <string>Boolean</string>
       <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>0.0</real>
-        <real>0.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry02</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.5</real>
-        <real>0.5</real>
-        <real>0.5</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry03</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.5</real>
-        <real>0.0</real>
-        <real>0.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry04</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.5</real>
-        <real>0.5</real>
-        <real>0.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry05</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>0.5</real>
-        <real>0.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry06</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>0.5</real>
-        <real>0.5</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry07</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>0.0</real>
-        <real>0.5</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry08</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.5</real>
-        <real>0.0</real>
-        <real>0.5</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry09</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.5</real>
-        <real>0.5</real>
-        <real>0.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry10</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>0.25</real>
-        <real>0.25</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry11</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>0.5</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry12</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>0.25</real>
-        <real>0.5</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry13</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.5</real>
-        <real>0.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry14</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.5</real>
-        <real>0.25</real>
-        <real>0.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry15</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry16</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry17</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry18</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.75</real>
-        <real>0.75</real>
-        <real>0.75</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry19</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>0.0</real>
-        <real>0.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry20</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>0.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry21</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>1.0</real>
-        <real>0.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry22</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry23</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>0.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry24</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>0.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry25</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>0.5</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry26</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>1.0</real>
-        <real>0.5</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry27</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.5</real>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry28</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.5</real>
-        <real>0.5</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry29</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>0.0</real>
-        <real>0.5</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry30</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>0.5</real>
-        <real>0.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry31</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColorPaletteEntry32</key>
-    <map>
-      <key>Comment</key>
-      <string>Color picker palette entry</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
-    <key>ColumnHeaderDropDownDelay</key>
-    <map>
-      <key>Comment</key>
-      <string>Time in seconds of mouse click before column header shows sort options list</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.300000011921</real>
-    </map>
-    <key>CompileOutputRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for script Recompile Everything output window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>400</integer>
-        <integer>300</integer>
-        <integer>0</integer>
-      </array>
-    </map>
+      <integer>0</integer>
+    </map>    
     <key>ConnectAsGod</key>
     <map>
       <key>Comment</key>
@@ -3136,22 +2534,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>EffectColor</key>
-    <map>
-      <key>Comment</key>
-      <string>Particle effects color</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
     <key>EnableRippleWater</key>
     <map>
       <key>Comment</key>
@@ -3361,6 +2743,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>FirstSelectedDisabledPopups</key>
+    <map>
+      <key>Comment</key>
+      <string>Return false if there is not disabled popup selected in the list of floater preferences popups</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>		
     <key>FixedWeather</key>
     <map>
       <key>Comment</key>
@@ -3371,38 +2764,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>FloaterAboutRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for About window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>440</integer>
-        <integer>470</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterActiveSpeakersRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for active speakers window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>300</integer>
-        <integer>250</integer>
-        <integer>0</integer>
-      </array>
     </map>
     <key>FloaterActiveSpeakersSortAscending</key>
     <map>
@@ -3426,618 +2787,95 @@
       <key>Value</key>
       <string>speaking_status</string>
     </map>
-    <key>FloaterAdvancedSkyRect</key>
+    <key>FloaterMapNorth</key>
     <map>
       <key>Comment</key>
-      <string>Rectangle for Advanced Sky Editor</string>
+      <string>Floater Map North Label</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Rect</string>
+      <string>String</string>
       <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>220</integer>
-        <integer>700</integer>
-        <integer>0</integer>
-      </array>
+      <string>N</string>
     </map>
-    <key>FloaterAdvancedWaterRect</key>
+    <key>FloaterMapNorthEast</key>
     <map>
       <key>Comment</key>
-      <string>Rectangle for Advanced Water Editor</string>
+      <string>Floater Map North-East Label</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Rect</string>
+      <string>String</string>
       <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>240</integer>
-        <integer>700</integer>
-        <integer>0</integer>
-      </array>
+      <string>NE</string>
     </map>
-    <key>FloaterAudioVolumeRect</key>
+    <key>FloaterMapNorthWest</key>
     <map>
       <key>Comment</key>
-      <string>Rectangle for Audio Volume window</string>
+      <string>Floater Map North-West Label</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Rect</string>
+      <string>String</string>
       <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>440</integer>
-        <integer>470</integer>
-        <integer>0</integer>
-      </array>
+      <string>NW</string>
     </map>
-    <key>FloaterBeaconsRect</key>
-    <map>
-        <key>Comment</key>
-        <string>Rectangle for beacon and highlight controls</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>Rect</string>
-        <key>Value</key>
-        <array>
-            <integer>200</integer>
-            <integer>250</integer>
-            <integer>250</integer>
-            <integer>200</integer>
-    </array>
-  </map>
-    <key>FloaterBuildOptionsRect</key>
+    <key>FloaterMapEast</key>
     <map>
       <key>Comment</key>
-      <string>Rectangle for build options window.</string>
+      <string>Floater Map East Label</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Rect</string>
+      <string>String</string>
       <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>0</integer>
-        <integer>0</integer>
-        <integer>0</integer>
-      </array>
+      <string>E</string>
     </map>
-    <key>FloaterBumpRect</key>
+    <key>FloaterMapWest</key>
     <map>
       <key>Comment</key>
-      <string>Rectangle for Bumps/Hits window</string>
+      <string>Floater Map West Label</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Rect</string>
+      <string>String</string>
       <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>180</integer>
-        <integer>400</integer>
-        <integer>0</integer>
-      </array>
+      <string>W</string>
     </map>
-    <key>FloaterBuyContentsRect</key>
+    <key>FloaterMapSouth</key>
     <map>
       <key>Comment</key>
-      <string>Rectangle for Buy Contents window</string>
+      <string>Floater Map South Label</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Rect</string>
+      <string>String</string>
       <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>250</integer>
-        <integer>300</integer>
-        <integer>0</integer>
-      </array>
+      <string>S</string>
     </map>
-    <key>FloaterBuyRect</key>
+    <key>FloaterMapSouthEast</key>
     <map>
       <key>Comment</key>
-      <string>Rectangle for buy window</string>
+      <string>Floater Map South-East Label</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Rect</string>
+      <string>String</string>
       <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>250</integer>
-        <integer>300</integer>
-        <integer>0</integer>
-      </array>
+      <string>SE</string>
     </map>
-    <key>FloaterCameraRect3</key>
+    <key>FloaterMapSouthWest</key>
     <map>
       <key>Comment</key>
-      <string>Rectangle for camera control window</string>
+      <string>Floater Map South-West Label</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Rect</string>
+      <string>String</string>
       <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>64</integer>
-        <integer>176</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterChatRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for chat history</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>172</integer>
-        <integer>500</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterClothingRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for clothing window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>480</integer>
-        <integer>320</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterContactsRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for chat history</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>390</integer>
-        <integer>395</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterCustomizeAppearanceRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for avatar customization window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>540</integer>
-        <integer>494</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterDayCycleRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for Day Cycle Editor</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>646</integer>
-        <integer>275</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterEnvRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for Environment Editor</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>150</integer>
-        <integer>600</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterFindRect2</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for Find window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>570</integer>
-        <integer>780</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterFriendsRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for friends window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>400</integer>
-        <integer>250</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterGestureRect2</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for gestures window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>465</integer>
-        <integer>350</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterHUDRect2</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for HUD Floater window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-<!-- NOTE: Height and width must match values in settings.xml for 
-     FloaterHUDRect because this floater is resized to those values
-     in LLViewerWindow initialization. JC -->
-      <array>
-        <integer>0</integer>
-        <integer>292</integer>
-        <integer>362</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterHtmlRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for HTML window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>100</integer>
-        <integer>460</integer>
-        <integer>370</integer>
-        <integer>100</integer>
-      </array>
-    </map>
-    <key>FloaterIMRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for IM window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>160</integer>
-        <integer>500</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterInspectRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for Object Inspect window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>400</integer>
-        <integer>400</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterInventoryRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for inventory window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>400</integer>
-        <integer>300</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterJoystickRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for joystick controls window.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>0</integer>
-        <integer>0</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterLagMeter</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for lag meter</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>142</integer>
-        <integer>350</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterLandRect5</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for About Land window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>370</integer>
-        <integer>460</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterLandmarkRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for landmark picker</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>290</integer>
-        <integer>310</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterMediaRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for media browser window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>16</integer>
-        <integer>650</integer>
-        <integer>600</integer>
-        <integer>128</integer>
-      </array>
-    </map>
-    <key>FloaterMiniMapRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for world map</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>225</integer>
-        <integer>200</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterMoveRect2</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for avatar control window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>58</integer>
-        <integer>135</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterMuteRect3</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for mute window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>300</integer>
-        <integer>300</integer>
-        <integer>0</integer>
-      </array>
+      <string>SW</string>
     </map>
   
-  <key>FloaterObjectIMInfo</key>
-  <map>
-    <key>Comment</key>
-    <string>Rectangle for floater object im info windows</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Rect</string>
-    <key>Value</key>
-    <array>
-      <integer>0</integer>
-      <integer>300</integer>
-      <integer>300</integer>
-      <integer>0</integer>
-    </array>
-  </map>
-  <key>FloaterOpenObjectRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for Open Object window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>350</integer>
-        <integer>300</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterPayRectB</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for pay window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>150</integer>
-        <integer>400</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterPermPrefsRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for initial permissions preferences</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>200</integer>
-        <integer>250</integer>
-        <integer>250</integer>
-        <integer>200</integer>
-      </array>
-    </map>
-    <key>FloaterRegionInfo</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for region info window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>512</integer>
-        <integer>480</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterScriptDebugRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for Script Error/Debug window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>130</integer>
-        <integer>450</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>FloaterSnapshotRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for snapshot window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>200</integer>
-        <integer>200</integer>
-        <integer>400</integer>
-      </array>
-    </map>
     <key>FloaterStatisticsRect</key>
     <map>
       <key>Comment</key>
@@ -4054,32 +2892,16 @@
         <integer>0</integer>
       </array>
     </map>
-    <key>FloaterViewBottom</key>
+    <key>FlyBtnEnabled</key>
     <map>
       <key>Comment</key>
-      <string>[DO NOT MODIFY] Controls layout of floating windows within SL window</string>
+      <string />
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
-      <string>S32</string>
+      <string>Boolean</string>
       <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>FloaterWorldMapRect2</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for world map window</string>
-      <key>Persist</key>
       <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>0</integer>
-        <integer>0</integer>
-        <integer>0</integer>
-      </array>
     </map>
     <key>FlyBtnState</key>
     <map>
@@ -4496,22 +3318,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ForwardBtnRect</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>45</integer>
-        <integer>54</integer>
-        <integer>66</integer>
-        <integer>29</integer>
-      </array>
-    </map>
     <key>FreezeTime</key>
     <map>
       <key>Comment</key>
@@ -4523,16 +3329,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>FullScreen</key>
+    <key>NotFullScreen</key>
     <map>
       <key>Comment</key>
-      <string>Run SL in fullscreen mode</string>
+      <string>Run SL in non fullscreen mode</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>FullScreenAspectRatio</key>
     <map>
@@ -4676,23 +3482,7 @@
       <string>S32</string>
       <key>Value</key>
       <integer>400</integer>
-    </map>
-    <key>HTMLLinkColor</key>
-    <map>
-      <key>Comment</key>
-      <string>Color of hyperlinks</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.600000023842</real>
-        <real>0.600000023842</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
+    </map>  
     <key>HelpHomeURL</key>
     <map>
       <key>Comment</key>
@@ -4726,22 +3516,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>HtmlFindRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for HTML find window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>16</integer>
-        <integer>650</integer>
-        <integer>600</integer>
-        <integer>128</integer>
-      </array>
-    </map>
     <key>HtmlHelpLastPage</key>
     <map>
       <key>Comment</key>
@@ -4753,64 +3527,27 @@
       <key>Value</key>
       <string />
     </map>
-    <key>HtmlHelpRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for HTML help window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>16</integer>
-        <integer>650</integer>
-        <integer>600</integer>
-        <integer>128</integer>
-      </array>
-    </map>
-    <key>HtmlReleaseMessage</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for HTML Release Message Floater window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>46</integer>
-        <integer>520</integer>
-        <integer>400</integer>
-        <integer>128</integer>
-      </array>
-    </map>
-    <key>IMChatColor</key>
-    <map>
-      <key>Comment</key>
-      <string>Color of instant messages from other residents</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
     <key>IMInChatConsole</key>
     <map>
       <key>Comment</key>
-      <string>Copy IM into background chat console</string>
+      <string>Copy IM into chat console</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>IMInChatHistory</key>
+    <map>
+      <key>Comment</key>
+      <string>Copy IM into chat history</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>IMShowTimestamps</key>
     <map>
@@ -5087,22 +3824,6 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
-    <key>LSLHelpRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for LSL help window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>400</integer>
-        <integer>400</integer>
-        <integer>0</integer>
-      </array>
-    </map>
     <key>LSLHelpURL</key>
     <map>
       <key>Comment</key>
@@ -5412,16 +4133,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>LoginLastLocation</key>
+    <key>LoginLocation</key>
     <map>
       <key>Comment</key>
       <string>Login at same location you last logged out</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>String</string>
       <key>Value</key>
-      <integer>1</integer>
+      <string>last</string>
     </map>
     <key>LoginPage</key>
     <map>
@@ -5632,6 +4353,17 @@
         <key>Value</key>
             <real>600.0</real>
         </map>
+    <key>MemProfiling</key>
+    <map>
+      <key>Comment</key>
+      <string>You want to use tcmalloc's memory profiling options.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>  
     <key>MenuAccessKeyTime</key>
     <map>
       <key>Comment</key>
@@ -5741,38 +4473,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>MoveDownBtnRect</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>91</integer>
-        <integer>29</integer>
-        <integer>116</integer>
-        <integer>4</integer>
-      </array>
-    </map>
-    <key>MoveUpBtnRect</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>91</integer>
-        <integer>54</integer>
-        <integer>116</integer>
-        <integer>29</integer>
-      </array>
     </map>
     <key>MuteAmbient</key>
     <map>
@@ -5983,22 +4683,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>NotecardEditorRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for notecard editor</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>400</integer>
-        <integer>400</integer>
-        <integer>0</integer>
-      </array>
-    </map>
     <key>NotifyBoxHeight</key>
     <map>
       <key>Comment</key>
@@ -6064,22 +4748,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>ObjectChatColor</key>
-    <map>
-      <key>Comment</key>
-      <string>Color of chat messages from objects</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-         <real>0.699999988079</real>
-         <real>0.899999976158</real>
-         <real>0.699999988079</real>
-         <real>1</real>
-      </array>
     </map>
     <key>OpenDebugStatAdvanced</key>
     <map>
@@ -6183,6 +4851,17 @@
     <key>OutBandwidth</key>
     <map>
       <key>Comment</key>
+      <string>Expand render stats display</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>OutBandwidth</key>
+    <map>
+      <key>Comment</key>
       <string>Outgoing bandwidth throttle (bps)</string>
       <key>Persist</key>
       <integer>1</integer>
@@ -6190,22 +4869,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.0</real>
-    </map>
-    <key>OverdrivenColor</key>
-    <map>
-      <key>Comment</key>
-      <string>Color of various indicators when resident is speaking too loud.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>0.0</real>
-        <real>0.0</real>
-        <real>1.0</real>
-      </array>
     </map>
     <key>OverlayTitle</key>
     <map>
@@ -6284,22 +4947,6 @@
       <key>Value</key>
       <integer>344</integer>
     </map>
-    <key>PermissionsManagerRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for permissions manager window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>85</integer>
-        <integer>300</integer>
-        <integer>0</integer>
-      </array>
-    </map>
     <key>PickerContextOpacity</key>
     <map>
       <key>Comment</key>
@@ -6343,17 +4990,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>2.5</real>
-    </map>
-    <key>PinTalkViewOpen</key>
-    <map>
-      <key>Comment</key>
-      <string>Stay in IM after hitting return</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>PingInterpolate</key>
     <map>
@@ -6410,166 +5046,6 @@
       <key>Value</key>
 	  <integer>13</integer>
     </map>
-    <key>PreviewAnimRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for animation preview window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>85</integer>
-        <integer>300</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>PreviewClassifiedRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for URL preview window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>530</integer>
-        <integer>420</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>PreviewEventRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for Event preview window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>530</integer>
-        <integer>420</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>PreviewLandmarkRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for landmark preview window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>90</integer>
-        <integer>300</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>PreviewObjectRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for object preview window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>85</integer>
-        <integer>300</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>PreviewScriptRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for script preview window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>586</integer>
-        <integer>576</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>PreviewSoundRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for sound preview window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>85</integer>
-        <integer>300</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>PreviewTextureRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for texture preview window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>400</integer>
-        <integer>400</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>PreviewURLRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for URL preview window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>90</integer>
-        <integer>300</integer>
-        <integer>0</integer>
-      </array>
-    </map>
-    <key>PreviewWearableRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for wearable preview window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>85</integer>
-        <integer>300</integer>
-        <integer>0</integer>
-      </array>
-    </map>
     <key>ProbeHardwareOnStartup</key>
     <map>
       <key>Comment</key>
@@ -6580,22 +5056,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>PropertiesRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for inventory item properties window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>320</integer>
-        <integer>350</integer>
-        <integer>0</integer>
-      </array>
     </map>
     <key>PurgeCacheOnNextStartup</key>
     <map>
@@ -6794,8 +5254,19 @@
             <string>Boolean</string>
         <key>Value</key>
             <integer>1</integer>
-        </map> 
-    <key>RenderAvatarCloth</key>
+        </map>
+  <key>RenderAvatar</key>
+    <map>
+      <key>Comment</key>
+      <string>Render Avatars</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+  <key>RenderAvatarCloth</key>
     <map>
       <key>Comment</key>
       <string>Controls if avatars use wavy cloth</string>
@@ -6988,6 +5459,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>RenderDebugAlphaMask</key>
+    <map>
+      <key>Comment</key>
+      <string>Test Alpha Masking Cutoffs.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
     </map>
     <key>RenderDebugGL</key>
     <map>
@@ -7265,21 +5747,6 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
-    <key>RenderGlowLumWeights</key>
-    <map>
-      <key>Comment</key>
-      <string>Weights for each color channel to be used in calculating luminance (should add up to 1.0)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>0.299</real>
-        <real>0.587</real>
-        <real>0.114</real>
-      </array>
-    </map>
     <key>RenderGlowMaxExtractAlpha</key>
     <map>
       <key>Comment</key>
@@ -7334,21 +5801,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.0</real>
-    </map>
-    <key>RenderGlowWarmthWeights</key>
-    <map>
-      <key>Comment</key>
-      <string>Weight of each color channel used before finding the max warmth</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>0.5</real>
-        <real>0.7</real>
-      </array>
     </map>
     <key>RenderGlowWidth</key>
     <map>
@@ -7933,22 +6385,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ScriptErrorColor</key>
-    <map>
-      <key>Comment</key>
-      <string>Color of script error messages</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.8235294117</real>
-        <real>0.2745098039</real>
-        <real>0.2745098039</real>
-        <real>1.0</real>
-      </array>
-    </map>
     <key>ScriptErrorsAsChat</key>
     <map>
       <key>Comment</key>
@@ -8186,28 +6622,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ShowChatHistory</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowCommunicate</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>ShowConsoleWindow</key>
     <map>
       <key>Comment</key>
@@ -8234,17 +6648,6 @@
     <map>
       <key>Comment</key>
       <string>Show log in SL window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowDebugStats</key>
-    <map>
-      <key>Comment</key>
-      <string>Show performance stats display</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8284,17 +6687,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>ShowInventory</key>
-    <map>
-      <key>Comment</key>
-      <string>Open inventory window on login</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>ShowLandHoverTip</key>
     <map>
@@ -8552,17 +6944,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowMiniMap</key>
-    <map>
-      <key>Comment</key>
-      <string>Display mini map on login</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>ShowMovementControls</key>
     <map>
       <key>Comment</key>
@@ -8671,7 +7052,18 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowNetStats</key>
+    <map>
+      <key>Comment</key>
+      <string>Show the Search Bar in the Status Overlay</string>
+      <key>Persist</key>
       <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>ShowSelectionBeam</key>
     <map>
@@ -8761,23 +7153,12 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowWorldMap</key>
-    <map>
-      <key>Comment</key>
-      <string>Display world map on login</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>ShowXUINames</key>
     <map>
       <key>Comment</key>
       <string>Display XUI Names as Tooltips</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -8805,6 +7186,17 @@
       <key>Value</key>
       <string>default</string>
     </map>
+    <key>SkinningSettingsFile</key>
+    <map>
+      <key>Comment</key>
+      <string>Client skin color setting file name (per install).</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
     <key>SkyAmbientScale</key>
     <map>
       <key>Comment</key>
@@ -8826,21 +7218,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>SkyNightColorShift</key>
-    <map>
-      <key>Comment</key>
-      <string>Controls moonlight color (base color applied to moon as light source)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color3</string>
-      <key>Value</key>
-      <array>
-        <real>0.699999988079</real>
-        <real>0.699999988079</real>
-        <real>1.0</real>
-      </array>
     </map>
     <key>SkyOverrideSimSunPosition</key>
     <map>
@@ -8878,38 +7255,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>SlideLeftBtnRect</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>20</integer>
-        <integer>54</integer>
-        <integer>45</integer>
-        <integer>29</integer>
-      </array>
-    </map>
-    <key>SlideRightBtnRect</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>66</integer>
-        <integer>54</integer>
-        <integer>91</integer>
-        <integer>29</integer>
-      </array>
     </map>
     <key>SmallAvatarNames</key>
     <map>
@@ -9010,22 +7355,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>SpeakingColor</key>
-    <map>
-      <key>Comment</key>
-      <string>Color of various indicators when resident is speaking on a voice channel.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.0</real>
-        <real>1.0</real>
-        <real>0.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
     <key>SpeedTest</key>
     <map>
       <key>Comment</key>
@@ -9114,44 +7443,6 @@
       <key>Value</key>
       <string>fss.txt</string>
     </map>
-    <key>StatusBarHeight</key>
-    <map>
-      <key>Comment</key>
-      <string>Height of menu/status bar at top of screen (pixels)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>26</integer>
-    </map>
-    <key>StatusBarPad</key>
-    <map>
-      <key>Comment</key>
-      <string>Spacing between popup buttons at bottom of screen (Stand up, Release Controls)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>10</integer>
-    </map>
-    <key>SystemChatColor</key>
-    <map>
-      <key>Comment</key>
-      <string>Color of chat messages from SL System</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.800000011921</real>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-      </array>
-    </map>
     <key>SystemLanguage</key>
     <map>
       <key>Comment</key>
@@ -9161,7 +7452,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>en-us</string>
+      <string>en</string>
     </map>
     <key>TabToTextFieldsOnly</key>
     <map>
@@ -9207,22 +7498,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>TexturePickerRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for texture picker</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>290</integer>
-        <integer>350</integer>
-        <integer>0</integer>
-      </array>
-    </map>
     <key>TexturePickerShowFolders</key>
     <map>
       <key>Comment</key>
@@ -9267,22 +7542,6 @@
       <key>Value</key>
       <real>500.0</real>
     </map>
-    <key>ToolHelpRect</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>8</integer>
-        <integer>178</integer>
-        <integer>75</integer>
-        <integer>162</integer>
-      </array>
-    </map>
     <key>ToolTipDelay</key>
     <map>
       <key>Comment</key>
@@ -9305,22 +7564,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ToolboxRect</key>
-    <map>
-      <key>Comment</key>
-      <string>Rectangle for tools window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>0</integer>
-        <integer>100</integer>
-        <integer>100</integer>
-        <integer>100</integer>
-      </array>
-    </map>
     <key>TrackFocusObject</key>
     <map>
       <key>Comment</key>
@@ -9331,38 +7574,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>TurnLeftBtnRect</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>20</integer>
-        <integer>29</integer>
-        <integer>45</integer>
-        <integer>4</integer>
-      </array>
-    </map>
-    <key>TurnRightBtnRect</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Rect</string>
-      <key>Value</key>
-      <array>
-        <integer>66</integer>
-        <integer>29</integer>
-        <integer>91</integer>
-        <integer>4</integer>
-      </array>
     </map>
     <key>TutorialURL</key>
     <map>
@@ -9397,6 +7608,182 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>UIAvatariconctrlSymbolHPad</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Avatar Icon Control Symbol Horizontal Pad</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>2</real>
+    </map>    
+    <key>UIAvatariconctrlSymbolVPad</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Avatar Icon Control Symbol Vertical Pad</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>2</real>
+    </map>    
+    <key>UIAvatariconctrlSymbolSize</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Avatar Icon Control Symbol Size</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>5</real>
+    </map>    
+    <key>UIAvatariconctrlSymbolPosition</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Avatar Icon Control Symbol Position (TopLeft|TopRight|BottomLeft|BottomRight)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>BottomRight</string>
+    </map>
+    <key>UIButtonOrigHPad</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Button Original Horizontal Pad</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>6</real>
+    </map>
+    <key>UICheckboxctrlBtnSize</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Checkbox Control Button Size</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>13</real>
+    </map>
+    <key>UICheckboxctrlHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Checkbox Control Height</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>16</real>
+    </map>
+    <key>UICheckboxctrlHPad</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Checkbox Control Horizontal Pad</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>2</real>
+    </map>
+    <key>UICheckboxctrlSpacing</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Checkbox Control Spacing</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>5</real>
+    </map>
+    <key>UICheckboxctrlVPad</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Checkbox Control Vertical Pad</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>2</real>
+    </map>
+    <key>UICloseBoxFromTop</key>
+    <map>
+      <key>Comment</key>
+      <string>Size of UI floater close box from top</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>1</real>
+    </map>
+    <key>UIExtraTriangleHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>UI extra triangle height</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>-2</real>
+    </map>
+    <key>UIExtraTriangleWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>UI extra triangle width</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>2</real>
+    </map>
+    <key>UIFloaterCloseBoxSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Size of UI floater close box size</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>16</real>
+    </map>
+    <key>UIFloaterHeaderSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Size of UI floater header size</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>18</real>
+    </map>
+    <key>UIFloaterHPad</key>
+    <map>
+      <key>Comment</key>
+      <string>Size of UI floater horizontal pad</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>6</real>
+    </map>
     <key>UIFloaterTestBool</key>
     <map>
       <key>Comment</key>
@@ -9408,720 +7795,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>UIImgBtnCloseActiveUUID</key>
+    <key>UIFloaterVPad</key>
     <map>
       <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>47a8c844-cd2a-4b1a-be01-df8b1612fe5d</string>
-    </map>
-    <key>UIImgBtnCloseInactiveUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>779e4fa3-9b13-f74a-fba9-3886fe9c86ba</string>
-    </map>
-    <key>UIImgBtnClosePressedUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>e5821134-23c0-4bd0-af06-7fa95b9fb01a</string>
-    </map>
-    <key>UIImgBtnForwardInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>54197a61-f5d1-4c29-95d2-c071d08849cb</string>
-    </map>
-    <key>UIImgBtnForwardOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>a0eb4021-1b20-4a53-892d-8faa9265a6f5</string>
-    </map>
-    <key>UIImgBtnJumpLeftInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>9cad3e6d-2d6d-107d-f8ab-5ba272b5bfe1</string>
-    </map>
-    <key>UIImgBtnJumpLeftOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>3c18c87e-5f50-14e2-e744-f44734aa365f</string>
-    </map>
-    <key>UIImgBtnJumpRightInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>7dabc040-ec13-2309-ddf7-4f161f6de2f4</string>
-    </map>
-    <key>UIImgBtnJumpRightOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>ff9a71eb-7414-4cf8-866e-a701deb7c3cf</string>
-    </map>
-    <key>UIImgBtnLeftInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>95463c78-aaa6-464d-892d-3a805b6bb7bf</string>
-    </map>
-    <key>UIImgBtnLeftOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>13a93910-6b44-45eb-ad3a-4d1324c59bac</string>
-    </map>
-    <key>UIImgBtnMinimizeActiveUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>34c9398d-bb78-4643-9633-46a2fa3e9637</string>
-    </map>
-    <key>UIImgBtnMinimizeInactiveUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>6e72abba-1378-437f-bf7a-f0c15f3e99a3</string>
-    </map>
-    <key>UIImgBtnMinimizePressedUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>39801651-26cb-4926-af57-7af9352c273c</string>
-    </map>
-    <key>UIImgBtnMoveDownInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>b92a70b9-c841-4c94-b4b3-cee9eb460d48</string>
-    </map>
-    <key>UIImgBtnMoveDownOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>b5abc9fa-9e62-4e03-bc33-82c4c1b6b689</string>
-    </map>
-    <key>UIImgBtnMoveUpInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>49b4b357-e430-4b56-b9e0-05b8759c3c82</string>
-    </map>
-    <key>UIImgBtnMoveUpOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>f887146d-829f-4e39-9211-cf872b78f97c</string>
-    </map>
-    <key>UIImgBtnPanDownInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>e5821134-23c0-4bd0-af06-7fa95b9fb01a</string>
-    </map>
-    <key>UIImgBtnPanDownOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>47a8c844-cd2a-4b1a-be01-df8b1612fe5d</string>
-    </map>
-    <key>UIImgBtnPanLeftInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>e5821134-23c0-4bd0-af06-7fa95b9fb01a</string>
-    </map>
-    <key>UIImgBtnPanLeftOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>47a8c844-cd2a-4b1a-be01-df8b1612fe5d</string>
-    </map>
-    <key>UIImgBtnPanRightInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>e5821134-23c0-4bd0-af06-7fa95b9fb01a</string>
-    </map>
-    <key>UIImgBtnPanRightOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>47a8c844-cd2a-4b1a-be01-df8b1612fe5d</string>
-    </map>
-    <key>UIImgBtnPanUpInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>e5821134-23c0-4bd0-af06-7fa95b9fb01a</string>
-    </map>
-    <key>UIImgBtnPanUpOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>47a8c844-cd2a-4b1a-be01-df8b1612fe5d</string>
-    </map>
-    <key>UIImgBtnRestoreActiveUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>111b39de-8928-4690-b7b2-e17d5c960277</string>
-    </map>
-    <key>UIImgBtnRestoreInactiveUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>0eafa471-70af-4882-b8c1-40a310929744</string>
-    </map>
-    <key>UIImgBtnRestorePressedUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>90a0ed5c-2e7b-4845-9958-a64a1b30f312</string>
-    </map>
-    <key>UIImgBtnRightInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>5e616d0d-4335-476f-9977-560bccd009da</string>
-    </map>
-    <key>UIImgBtnRightOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>5a44fd04-f52b-4c30-8b00-4a31e27614bd</string>
-    </map>
-    <key>UIImgBtnScrollDownInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>d2421bab-2eaf-4863-b8f6-5e4c52519247</string>
-    </map>
-    <key>UIImgBtnScrollDownOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>b4ecdecf-5c8d-44e7-b882-17a77e88ed55</string>
-    </map>
-    <key>UIImgBtnScrollLeftInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>ea137a32-6718-4d05-9c22-7d570d27b2cd</string>
-    </map>
-    <key>UIImgBtnScrollLeftOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>43773e8d-49aa-48e0-80f3-a04715f4677a</string>
-    </map>
-    <key>UIImgBtnScrollRightInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>b749de64-e903-4c3c-ac0b-25fb6fa39cb5</string>
-    </map>
-    <key>UIImgBtnScrollRightOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>3d700d19-e708-465d-87f2-46c8c0ee7938</string>
-    </map>
-    <key>UIImgBtnScrollUpInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>a93abdf3-27b5-4e22-a8fa-c48216cd2e3a</string>
-    </map>
-    <key>UIImgBtnScrollUpOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>dad084d7-9a46-452a-b0ff-4b9f1cefdde9</string>
-    </map>
-    <key>UIImgBtnSlideLeftInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>724996f5-b956-46f6-9844-4fcfce1d5e83</string>
-    </map>
-    <key>UIImgBtnSlideLeftOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>82476321-0374-4c26-9567-521535ab4cd7</string>
-    </map>
-    <key>UIImgBtnSlideRightInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>7eeb57d2-3f37-454d-a729-8b217b8be443</string>
-    </map>
-    <key>UIImgBtnSlideRightOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>1fbe4e60-0607-44d1-a50a-032eff56ae75</string>
-    </map>
-    <key>UIImgBtnSpinDownInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>a985ac71-052f-48e6-9c33-d931c813ac92</string>
-    </map>
-    <key>UIImgBtnSpinDownOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>b6d240dd-5602-426f-b606-bbb49a30726d</string>
-    </map>
-    <key>UIImgBtnSpinUpInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>c8450082-96a0-4319-8090-d3ff900b4954</string>
-    </map>
-    <key>UIImgBtnSpinUpOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>56576e6e-6710-4e66-89f9-471b59122794</string>
-    </map>
-    <key>UIImgBtnTabBottomInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>c001d8fd-a869-4b6f-86a1-fdcb106df9c7</string>
-    </map>
-    <key>UIImgBtnTabBottomOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>bf0a8779-689b-48c3-bb9a-6af546366ef4</string>
-    </map>
-    <key>UIImgBtnTabBottomPartialInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>eb0b0904-8c91-4f24-b500-1180b91140de</string>
-    </map>
-    <key>UIImgBtnTabBottomPartialOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>8dca716c-b29c-403a-9886-91c028357d6e</string>
-    </map>
-    <key>UIImgBtnTabTopInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>16d032e8-817b-4368-8a4e-b7b947ae3889</string>
-    </map>
-    <key>UIImgBtnTabTopOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>1ed83f57-41cf-4052-a3b4-2e8bb78d8191</string>
-    </map>
-    <key>UIImgBtnTabTopPartialInUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>7c6c6c26-0e25-4438-89bd-30d8b8e9d704</string>
-    </map>
-    <key>UIImgBtnTabTopPartialOutUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>932ad585-0e45-4a57-aa23-4cf81beeb7b0</string>
-    </map>
-    <key>UIImgBtnTearOffActiveUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>74e1a96f-4833-a24d-a1bb-1bce1468b0e7</string>
-    </map>
-    <key>UIImgBtnTearOffInactiveUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>74e1a96f-4833-a24d-a1bb-1bce1468b0e7</string>
-    </map>
-    <key>UIImgBtnTearOffPressedUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>d2524c13-4ba6-af7c-e305-8ac6cc18d86a</string>
-    </map>
-    <key>UIImgCheckboxActiveSelectedUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>cf4a2ed7-1533-4686-9dde-df9a37ddca55</string>
-    </map>
-    <key>UIImgCheckboxActiveUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>05bb64ee-96fd-4243-b74e-f40a41bc53ba</string>
-    </map>
-    <key>UIImgCheckboxInactiveSelectedUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>c817c642-9abd-4236-9287-ae0513fe7d2b</string>
-    </map>
-    <key>UIImgCheckboxInactiveUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>7d94cb59-32a2-49bf-a516-9e5a2045f9d9</string>
-    </map>
-    <key>UIImgCreateSelectedUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>0098b015-3daf-4cfe-a72f-915369ea97c2</string>
-    </map>
-    <key>UIImgCreateUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>7a0b1bdb-b5d9-4df5-bac2-ba230da93b5b</string>
-    </map>
-    <key>UIImgCrosshairsUUID</key>
-    <map>
-      <key>Comment</key>
-      <string>Image to use for crosshair display (UUID texture reference)</string>
+      <string>Size of UI floater vertical pad</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>String</string>
+      <string>S32</string>
       <key>Value</key>
-      <string>6e1a3980-bf2d-4274-8970-91e60d85fb52</string>
+      <real>6</real>
     </map>
     <key>UIImgDefaultEyesUUID</key>
     <map>
@@ -10222,7 +7905,7 @@
       <key>Value</key>
       <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
     </map>
-    <key>UIImgDefaultUnderwearUUID</key>
+    <key>UIImgDefaultAlphaUUID</key>
     <map>
       <key>Comment</key>
       <string />
@@ -10233,7 +7916,7 @@
       <key>Value</key>
       <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
     </map>
-    <key>UIImgDirectionArrowUUID</key>
+    <key>UIImgDefaultTattooUUID</key>
     <map>
       <key>Comment</key>
       <string />
@@ -10242,9 +7925,9 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>586383e8-4d9b-4fba-9196-2b5938e79c2c</string>
+      <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
     </map>
-    <key>UIImgFaceSelectedUUID</key>
+    <key>UIImgDefaultUnderwearUUID</key>
     <map>
       <key>Comment</key>
       <string />
@@ -10253,183 +7936,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>b4870163-6208-42a9-9801-93133bf9a6cd</string>
-    </map>
-    <key>UIImgFaceUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>ce15fd63-b0b6-463c-a37d-ea6393208b3e</string>
-    </map>
-    <key>UIImgFocusSelectedUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>ab6a730e-ddfd-4982-9a32-c6de3de6d31d</string>
-    </map>
-    <key>UIImgFocusUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>57bc39d1-288c-4519-aea6-6d1786a5c274</string>
-    </map>
-    <key>UIImgGrabSelectedUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>c1e21504-f136-451d-b8e9-929037812f1d</string>
-    </map>
-    <key>UIImgGrabUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>c63f124c-6340-4fbf-b59e-0869a44adb64</string>
-    </map>
-    <key>UIImgMoveSelectedUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>46f17c7b-8381-48c3-b628-6a406e060dd6</string>
-    </map>
-    <key>UIImgMoveUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>2fa5dc06-bcdd-4e09-a426-f9f262d4fa65</string>
-    </map>
-    <key>UIImgRadioActiveSelectedUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>52f09e07-5816-4052-953c-94c6c10479b7</string>
-    </map>
-    <key>UIImgRadioActiveUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>7a1ba9b8-1047-4d1e-9cfc-bc478c80b63f</string>
-    </map>
-    <key>UIImgRadioInactiveSelectedUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>1975db39-aa29-4251-aea0-409ac09d414d</string>
-    </map>
-    <key>UIImgRadioInactiveUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>90688481-67ff-4af0-be69-4aa084bcad1e</string>
-    </map>
-    <key>UIImgResizeBottomRightUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>e3690e25-9690-4f6c-a745-e7dcd885285a</string>
-    </map>
-    <key>UIImgRotateSelectedUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>cdfb7fde-0d13-418a-9d89-2bd91019fc95</string>
-    </map>
-    <key>UIImgRotateUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>c34b1eaa-aae3-4351-b082-e26c0b636779</string>
-    </map>
-    <key>UIImgScaleSelectedUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>55aa57ef-508a-47f7-8867-85d21c5a810d</string>
-    </map>
-    <key>UIImgScaleUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>88a90fef-b448-4883-9344-ecf378a60433</string>
+      <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
     </map>
     <key>UIImgWhiteUUID</key>
     <map>
@@ -10442,6 +7949,193 @@
       <key>Value</key>
       <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
     </map>
+    <key>UILineEditorCursorThickness</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Line Editor Cursor Thickness</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>
+    <key>UILineEditorHPad</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Line Editor Horizontal Pad</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>
+    <key>UILineEditorVPad</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Line Editor Vertical Pad</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>UIMaxComboWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum width of combo box</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>500</real>
+    </map>
+    <key>UIMinimizedWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Size of UI floater minimized width</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>160</real>
+    </map>
+    <key>UIMultiSliderctrlSpacing</key>
+    <map>
+      <key>Comment</key>
+      <string>UI multi slider ctrl spacing</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>4</real>
+    </map>
+    <key>UIMultiTrackHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>UI multi track height</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>6</real>
+    </map>
+    <key>UIPreeditMarkerBrightness</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Preedit Marker Brightness</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.4</real>
+    </map>
+    <key>UIPreeditMarkerGap</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Preedit Marker Gap</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>1</real>
+    </map>
+    <key>UIPreeditMarkerPosition</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Preedit Marker Position</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>1</real>
+    </map>
+    <key>UIPreeditMarkerThickness</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Preedit Marker Thickness</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>1</real>
+    </map>
+    <key>UIPreeditStandoutBrightness</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Preedit Standout Brightness</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.6</real>
+    </map>
+    <key>UIPreeditStandoutGap</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Preedit Standout Gap</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>1</real>
+    </map>
+    <key>UIPreeditStandoutPosition</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Preedit Standout Position</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>2</real>
+    </map>
+    <key>UIPreeditStandoutThickness</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Preedit Standout Thickness</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>2</real>
+    </map>
+    <key>UIResizeBarHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>Size of UI resize bar height</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>3</real>
+    </map>
+    <key>UIResizeBarOverlap</key>
+    <map>
+      <key>Comment</key>
+      <string>Size of UI resize bar overlap</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>1</real>
+    </map>
     <key>UIScaleFactor</key>
     <map>
       <key>Comment</key>
@@ -10452,6 +8146,39 @@
       <string>F32</string>
       <key>Value</key>
       <real>1.0</real>
+    </map>
+    <key>UIScrollbarSize</key>
+    <map>
+      <key>Comment</key>
+      <string>UI scrollbar size</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>16</real>
+    </map>
+    <key>UISliderctrlHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>UI slider ctrl height</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>16</real>
+    </map>
+    <key>UISliderctrlSpacing</key>
+    <map>
+      <key>Comment</key>
+      <string>UI slider ctrl spacing</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>4</real>
     </map>
     <key>UISndAlert</key>
     <map>
@@ -10815,6 +8542,193 @@
       <string>String</string>
       <key>Value</key>
       <string>c80260ba-41fd-8a46-768a-6bf236360e3a</string>
+    </map>
+    <key>UISpinctrlBtnHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>UI spin control button height</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>8</integer>
+    </map>
+    <key>UISpinctrlBtnWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>UI spin control button width</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>16</integer>
+    </map>
+    <key>UISpinctrlDefaultLabelWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>UI spin control default label width</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>10</integer>
+    </map>
+    <key>UISpinctrlSpacing</key>
+    <map>
+      <key>Comment</key>
+      <string>UI spin control spacing</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>
+    <key>UITabCntrArrowBtnSize</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Tab Container Arrow Button Size</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>16</integer>
+    </map>
+    <key>UITabCntrvArrowBtnSize</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Tab Container V Arrow Button Size</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>16</integer>
+    </map>
+    <key>UITabCntrvPad</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Tab Container V Pad</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>UITabCntrButtonPanelOverlap</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Tab Container Button Panel Overlap</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>UITabCntrCloseBtnSize</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Tab Container Close Button Size</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>16</integer>
+    </map>
+    <key>UITabCntrTabHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Tab Container Tab Height</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>16</integer>
+    </map>
+    <key>UITabCntrTabHPad</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Tab Container Tab Horizontal Pad</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>4</integer>
+    </map>
+    <key>UITabCntrTabPartialWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Tab Container Tab Partial Width</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>12</integer>
+    </map>
+    <key>UITabCntrVertTabMinWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Tab Container Vertical Tab Minimum Width</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>100</integer>
+    </map>
+    <key>UITabPadding</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Tab Padding</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>15</integer>
+    </map>
+    <key>UITextEditorBorder</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Text Editor Border</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>UITextEditorHPad</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Text Horizontal Pad</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>4</integer>
+    </map>
+    <key>UITextEditorVPadTop</key>
+    <map>
+      <key>Comment</key>
+      <string>UI Text Vertical Pad Top</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>4</integer>
     </map>
 	<key>UploadBakedTexOld</key>
     <map>
@@ -11301,6 +9215,17 @@
       <key>Value</key>
       <integer>44125</integer>
     </map>
+    <key>WarningsAsChat</key>
+    <map>
+      <key>Comment</key>
+      <string>Display warning messages in chat history</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>WLSkyDetail</key>
     <map>
       <key>Comment</key>
@@ -11311,325 +9236,6 @@
       <string>U32</string>
       <key>Value</key>
       <integer>64</integer>
-    </map>
-    <key>WarnAboutBadPCI</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables AboutBadPCI warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnAboutDirectX9</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables AboutDirectX9 warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnAboutOldGraphicsDriver</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables AboutOldGraphicsDriver warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnAboutPCIGraphics</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables AboutPCIGraphics warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnBrowserLaunch</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables BrowserLaunch warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnDeedObject</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables DeedObject warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstAppearance</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstAppearance warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstAttach</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstAttach warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstBalanceDecrease</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstBalanceDecrease warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstBalanceIncrease</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstBalanceIncrease warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstBuild</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstBuild warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstDebugMenus</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstDebugMenus warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstFlexible</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstFlexible warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstGoTo</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstGoTo warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstInventory</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstInventory warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstLeftClickNoHit</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstLeftClickNoHit warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstMap</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstMap warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstMedia</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstMedia warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstOverrideKeys</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstOverrideKeys warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstSandbox</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstSandbox warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstSculptedPrim</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstSculptedPrim warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstSit</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstSit warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstStreamingMusic</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstStreamingMusic warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstStreamingVideo</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstStreamingVideo warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstTeleport</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstTeleport warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnFirstVoice</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables FirstVoice warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnNewClassified</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables NewClassified warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnQuickTimeInstalled</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables QuickTimeInstalled warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>WarnReturnToOwner</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables ReturnToOwner warning dialog</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>WatchdogEnabled</key>
     <map>
@@ -11806,22 +9412,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.40000000596</real>
-    </map>
-    <key>llOwnerSayChatColor</key>
-    <map>
-      <key>Comment</key>
-      <string>Color of chat messages from objects only visible to the owner</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color4</string>
-      <key>Value</key>
-      <array>
-        <real>0.990000009537</real>
-        <real>0.990000009537</real>
-        <real>0.689999997616</real>
-        <real>1.0</real>
-      </array>
     </map>
     <key>particlesbeacon</key>
     <map>

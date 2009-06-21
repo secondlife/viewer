@@ -36,15 +36,9 @@
 		誰にでも販売するか、特定の人にのみ販売するかを選択してください
 	</text>
 	<combo_box name="sell_to">
-		<combo_item name="--selectone--">
-			－－1つ選択－－
-		</combo_item>
-		<combo_item name="Anyone">
-			誰でも
-		</combo_item>
-		<combo_item name="Specificuser:">
-			特定ユーザー：
-		</combo_item>
+		<combo_box.item name="--selectone--" label="1つ選択－－" />
+		<combo_box.item name="Anyone" label="誰でも" />
+		<combo_box.item name="Specificuser:" label="特定ユーザー：" />
 	</combo_box>
 	<button label="選択..." name="sell_to_select_agent" />
 	<text name="sell_objects_label">

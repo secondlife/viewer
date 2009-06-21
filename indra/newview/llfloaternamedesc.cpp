@@ -41,6 +41,7 @@
 #include "llbutton.h"
 #include "llviewerwindow.h"
 #include "llfocusmgr.h"
+#include "llrootview.h"
 #include "llradiogroup.h"
 #include "lldbstrings.h"
 #include "lldir.h"
@@ -69,8 +70,9 @@ const S32 PREF_BUTTON_HEIGHT = 16;
 // LLFloaterNameDesc()
 //-----------------------------------------------------------------------------
 LLFloaterNameDesc::LLFloaterNameDesc(const std::string& filename )
-	: LLFloater(std::string("Name/Description Floater"))
+	: LLFloater()
 {
+	setTitle("Name/Description Floater");
 	mFilenameAndPath = filename;
 	mFilename = gDirUtilp->getBaseFileName(filename, false);
 	// SL-5521 Maintain capitalization of filename when making the inventory item. JC
@@ -190,7 +192,7 @@ void LLFloaterNameDesc::onBtnOK( void* userdata )
 			    0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE,
 			    LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
 			    display_name, callback, expected_upload_cost, nruserdata);
-	fp->close(false);
+	fp->closeFloater(false);
 }
 
 // static 
@@ -200,5 +202,5 @@ void LLFloaterNameDesc::onBtnOK( void* userdata )
 void LLFloaterNameDesc::onBtnCancel( void* userdata )
 {
 	LLFloaterNameDesc *fp =(LLFloaterNameDesc *)userdata;
-	fp->close(false);
+	fp->closeFloater(false);
 }

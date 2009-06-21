@@ -55,11 +55,11 @@
 #include "lllineeditor.h"
 #include "llradiogroup.h"
 #include "llcombobox.h"
-#include "llfloateravatarinfo.h"
 #include "lluiconstants.h"
 #include "lldbstrings.h"
 #include "llfloatergroupinfo.h"
 #include "llfloatergroups.h"
+#include "llfriendactions.h"
 #include "llnamebox.h"
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
@@ -70,56 +70,44 @@
 ///----------------------------------------------------------------------------
 
 // Default constructor
-LLPanelPermissions::LLPanelPermissions(const std::string& title) :
-	LLPanel(title)
+LLPanelPermissions::LLPanelPermissions() :
+	LLPanel()
 {
 	setMouseOpaque(FALSE);
 }
 
 BOOL LLPanelPermissions::postBuild()
 {
-	this->childSetCommitCallback("Object Name",LLPanelPermissions::onCommitName,this);
-	this->childSetPrevalidate("Object Name",LLLineEditor::prevalidatePrintableNotPipe);
-	this->childSetCommitCallback("Object Description",LLPanelPermissions::onCommitDesc,this);
-	this->childSetPrevalidate("Object Description",LLLineEditor::prevalidatePrintableNotPipe);
+	childSetCommitCallback("Object Name",LLPanelPermissions::onCommitName,this);
+	childSetPrevalidate("Object Name",LLLineEditor::prevalidatePrintableNotPipe);
+	childSetCommitCallback("Object Description",LLPanelPermissions::onCommitDesc,this);
+	childSetPrevalidate("Object Description",LLLineEditor::prevalidatePrintableNotPipe);
 
 	
-	this->childSetAction("button owner profile",LLPanelPermissions::onClickOwner,this);
-	this->childSetAction("button creator profile",LLPanelPermissions::onClickCreator,this);
+	childSetAction("button owner profile",LLPanelPermissions::onClickOwner,this);
+	childSetAction("button creator profile",LLPanelPermissions::onClickCreator,this);
 
-	this->childSetAction("button set group",LLPanelPermissions::onClickGroup,this);
+	getChild<LLUICtrl>("button set group")->setCommitCallback(boost::bind(&LLPanelPermissions::onClickGroup,this));
 
-	this->childSetCommitCallback("checkbox share with group",LLPanelPermissions::onCommitGroupShare,this);
+	childSetCommitCallback("checkbox share with group",LLPanelPermissions::onCommitGroupShare,this);
 
-	this->childSetAction("button deed",LLPanelPermissions::onClickDeedToGroup,this);
+	childSetAction("button deed",LLPanelPermissions::onClickDeedToGroup,this);
 
-	this->childSetCommitCallback("checkbox allow everyone move",LLPanelPermissions::onCommitEveryoneMove,this);
+	childSetCommitCallback("checkbox allow everyone move",LLPanelPermissions::onCommitEveryoneMove,this);
 
-	this->childSetCommitCallback("checkbox allow everyone copy",LLPanelPermissions::onCommitEveryoneCopy,this);
+	childSetCommitCallback("checkbox allow everyone copy",LLPanelPermissions::onCommitEveryoneCopy,this);
 	
-	this->childSetCommitCallback("checkbox for sale",LLPanelPermissions::onCommitSaleInfo,this);
+	childSetCommitCallback("checkbox for sale",LLPanelPermissions::onCommitSaleInfo,this);
 
-	this->childSetCommitCallback("Edit Cost",LLPanelPermissions::onCommitSaleInfo,this);
-	this->childSetPrevalidate("Edit Cost",LLLineEditor::prevalidateNonNegativeS32);
-
-	this->childSetCommitCallback("sale type",LLPanelPermissions::onCommitSaleType,this);
+	childSetCommitCallback("sale type",LLPanelPermissions::onCommitSaleType,this);
 	
-	this->childSetCommitCallback("checkbox next owner can modify",LLPanelPermissions::onCommitNextOwnerModify,this);
-	this->childSetCommitCallback("checkbox next owner can copy",LLPanelPermissions::onCommitNextOwnerCopy,this);
-	this->childSetCommitCallback("checkbox next owner can transfer",LLPanelPermissions::onCommitNextOwnerTransfer,this);
-	this->childSetCommitCallback("clickaction",LLPanelPermissions::onCommitClickAction,this);
-	this->childSetCommitCallback("search_check",LLPanelPermissions::onCommitIncludeInSearch,this);
+	childSetCommitCallback("checkbox next owner can modify",LLPanelPermissions::onCommitNextOwnerModify,this);
+	childSetCommitCallback("checkbox next owner can copy",LLPanelPermissions::onCommitNextOwnerCopy,this);
+	childSetCommitCallback("checkbox next owner can transfer",LLPanelPermissions::onCommitNextOwnerTransfer,this);
+	childSetCommitCallback("clickaction",LLPanelPermissions::onCommitClickAction,this);
+	childSetCommitCallback("search_check",LLPanelPermissions::onCommitIncludeInSearch,this);
 	
-	LLTextBox* group_rect_proxy = getChild<LLTextBox>("Group Name Proxy");
-	if(group_rect_proxy )
-	{
-		mLabelGroupName = new LLNameBox("Group Name", group_rect_proxy->getRect());
-		addChild(mLabelGroupName);
-	}
-	else
-	{
-		mLabelGroupName = NULL;
-	}
+	mLabelGroupName = getChild<LLNameBox>("Group Name Proxy");
 
 	return TRUE;
 }
@@ -137,7 +125,7 @@ void LLPanelPermissions::refresh()
 	if(BtnDeedToGroup)
 	{	
 		std::string deedText;
-		if (gSavedSettings.getWarning("DeedObject"))
+		if (gWarningSettings.getBOOL("DeedObject"))
 		{
 			deedText = getString("text deed continued");
 		}
@@ -823,7 +811,7 @@ void LLPanelPermissions::onClickCreator(void *data)
 {
 	LLPanelPermissions *self = (LLPanelPermissions *)data;
 
-	LLFloaterAvatarInfo::showFromObject(self->mCreatorID);
+	LLFriendActions::showProfile(self->mCreatorID);
 }
 
 // static
@@ -839,23 +827,22 @@ void LLPanelPermissions::onClickOwner(void *data)
 	}
 	else
 	{
-		LLFloaterAvatarInfo::showFromObject(self->mOwnerID);
+		LLFriendActions::showProfile(self->mOwnerID);
 	}
 }
 
-void LLPanelPermissions::onClickGroup(void* data)
+void LLPanelPermissions::onClickGroup()
 {
-	LLPanelPermissions* panelp = (LLPanelPermissions*)data;
 	LLUUID owner_id;
 	std::string name;
 	BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, name);
-	LLFloater* parent_floater = gFloaterView->getParentFloater(panelp);
+	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
 
 	if(owners_identical && (owner_id == gAgent.getID()))
 	{
 		LLFloaterGroupPicker* fg;
 		fg = LLFloaterGroupPicker::showInstance(LLSD(gAgent.getID()));
-		fg->setSelectCallback( cbGroupID, data );
+		fg->setSelectGroupCallback( boost::bind(&LLPanelPermissions::cbGroupID, this, _1) );
 
 		if (parent_floater)
 		{
@@ -866,13 +853,11 @@ void LLPanelPermissions::onClickGroup(void* data)
 	}
 }
 
-// static
-void LLPanelPermissions::cbGroupID(LLUUID group_id, void* userdata)
+void LLPanelPermissions::cbGroupID(LLUUID group_id)
 {
-	LLPanelPermissions* self = (LLPanelPermissions*)userdata;
-	if(self->mLabelGroupName)
+	if(mLabelGroupName)
 	{
-		self->mLabelGroupName->setNameID(group_id, TRUE);
+		mLabelGroupName->setNameID(group_id, TRUE);
 	}
 	LLSelectMgr::getInstance()->sendGroup(group_id);
 }

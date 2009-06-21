@@ -223,8 +223,8 @@ LLColor3 LLKeywords::readColor( const std::string& s )
 {
 	F32 r, g, b;
 	r = g = b = 0.0f;
-	S32 read = sscanf(s.c_str(), "%f, %f, %f]", &r, &g, &b );
-	if( read != 3 )	/* Flawfinder: ignore */
+	S32 values_read = sscanf(s.c_str(), "%f, %f, %f]", &r, &g, &b );
+	if( values_read != 3 )
 	{
 		llinfos << " poorly formed color in keyword file" << llendl;
 	}

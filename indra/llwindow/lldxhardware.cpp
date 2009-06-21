@@ -47,6 +47,7 @@
 
 #include "llstring.h"
 #include "llstl.h"
+#include "lltimer.h"
 
 void (*gWriteDebug)(const char* msg) = NULL;
 LLDXHardware gDXHardware;

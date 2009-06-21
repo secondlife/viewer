@@ -39,52 +39,8 @@
 #include "llcursortypes.h"
 
 class LLSplashScreen;
-
-class LLWindow;
-
 class LLPreeditor;
-
-class LLWindowCallbacks
-{
-public:
-	virtual ~LLWindowCallbacks() {}
-	virtual BOOL handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated);
-	virtual BOOL handleTranslatedKeyUp(KEY key,  MASK mask);
-	virtual void handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level);
-	virtual BOOL handleUnicodeChar(llwchar uni_char, MASK mask);
-
-	virtual BOOL handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
-	virtual BOOL handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
-	virtual void handleMouseLeave(LLWindow *window);
-	// return TRUE to allow window to close, which will then cause handleQuit to be called
-	virtual BOOL handleCloseRequest(LLWindow *window);
-	// window is about to be destroyed, clean up your business
-	virtual void handleQuit(LLWindow *window);
-	virtual BOOL handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
-	virtual BOOL handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
-	virtual BOOL handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
-	virtual BOOL handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
-	virtual BOOL handleActivate(LLWindow *window, BOOL activated);
-	virtual BOOL handleActivateApp(LLWindow *window, BOOL activating);
-	virtual void handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask);
-	virtual void handleScrollWheel(LLWindow *window,  S32 clicks);
-	virtual void handleResize(LLWindow *window,  S32 width,  S32 height);
-	virtual void handleFocus(LLWindow *window);
-	virtual void handleFocusLost(LLWindow *window);
-	virtual void handleMenuSelect(LLWindow *window,  S32 menu_item);
-	virtual BOOL handlePaint(LLWindow *window,  S32 x,  S32 y,  S32 width,  S32 height);
-	virtual BOOL handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);			// double-click of left mouse button
-	virtual void handleWindowBlock(LLWindow *window);							// window is taking over CPU for a while
-	virtual void handleWindowUnblock(LLWindow *window);							// window coming back after taking over CPU for a while
-	virtual void handleDataCopy(LLWindow *window, S32 data_type, void *data);
-	virtual BOOL handleTimerEvent(LLWindow *window);
-	virtual BOOL handleDeviceChange(LLWindow *window);
-
-	virtual void handlePingWatchdog(LLWindow *window, const char * msg);
-	virtual void handlePauseWatchdog(LLWindow *window);
-	virtual void handleResumeWatchdog(LLWindow *window);
-
-};
+class LLWindowCallbacks;
 
 // Refer to llwindow_test in test/common/llwindow for usage example
 
@@ -134,12 +90,12 @@ public:
 	// arrow/hour if busycount > 0.
 	virtual void incBusyCount();
 	virtual void decBusyCount();
-	virtual void resetBusyCount() { mBusyCount = 0; }
-	virtual S32 getBusyCount() const { return mBusyCount; }
+	virtual void resetBusyCount();
+	virtual S32 getBusyCount() const;
 
 	// Sets cursor, may set to arrow+hourglass
 	virtual void setCursor(ECursorType cursor) = 0;
-	virtual ECursorType getCursor() const { return mCurrentCursor; }
+	virtual ECursorType getCursor() const;
 
 	virtual void captureMouse() = 0;
 	virtual void releaseMouse() = 0;
@@ -183,13 +139,12 @@ public:
 	virtual F32 getPixelAspectRatio() = 0;
 	virtual void setNativeAspectRatio(F32 aspect) = 0;
 	
-	void setCallbacks(LLWindowCallbacks *callbacks);
-
 	virtual void beforeDialog() {};	// prepare to put up an OS dialog (if special measures are required, such as in fullscreen mode)
 	virtual void afterDialog() {};	// undo whatever was done in beforeDialog()
 
-// opens system default color picker
-	virtual BOOL dialog_color_picker (F32 *r, F32 *g, F32 *b) { return FALSE; };
+	// opens system default color picker, modally
+	// Returns TRUE if valid color selected
+	virtual BOOL dialogColorPicker(F32 *r, F32 *g, F32 *b);
 
 // return a platform-specific window reference (HWND on Windows, WindowRef on the Mac, Gtk window on Linux)
 	virtual void *getPlatformWindow() = 0;
@@ -207,12 +162,12 @@ public:
 	static std::vector<std::string> getDynamicFallbackFontList();
 
 protected:
-	LLWindow(BOOL fullscreen, U32 flags);
-	virtual ~LLWindow() {}
-	virtual BOOL isValid() {return TRUE;}
-	virtual BOOL canDelete() {return TRUE;}
-protected:
-	static LLWindowCallbacks	sDefaultCallbacks;
+	LLWindow(LLWindowCallbacks* callbacks, BOOL fullscreen, U32 flags);
+	virtual ~LLWindow();
+	// Defaults to true
+	virtual BOOL isValid();
+	// Defaults to true
+	virtual BOOL canDelete();
 
 protected:
 	LLWindowCallbacks*	mCallbacks;
@@ -294,18 +249,8 @@ const S32 OSBTN_CANCEL = 3;
 class LLWindowManager
 {
 public:
-	static LLWindow* createWindow(
-		const std::string& title,
-		const std::string& name,
-		LLCoordScreen upper_left = LLCoordScreen(10, 10),
-		LLCoordScreen size = LLCoordScreen(320, 240),
-		U32 flags = 0,
-		BOOL fullscreen = FALSE,
-		BOOL clearBg = FALSE,
-		BOOL disable_vsync = TRUE,
-		BOOL use_gl = TRUE,
-		BOOL ignore_pixel_depth = FALSE);
 	static LLWindow *createWindow(
+		LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height,
 		U32 flags = 0,
 		BOOL fullscreen = FALSE,

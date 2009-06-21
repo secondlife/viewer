@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<simple_text_editor cursor_color="TextCursorColor"
+                    default_color="TextDefaultColor"
+                    text_color="TextFgColor"
+                    text_readonly_color="TextFgReadOnlyColor"
+                    bg_readonly_color="TextBgReadOnlyColor"
+                    bg_writeable_color="TextBgWriteableColor"
+                    bg_focus_color="TextBgFocusColor"
+                    hide_border="false" 
+                    hide_scrollbar="false" 
+                    font="SansSerif"/>

@@ -60,8 +60,7 @@
 //---------------------------------------------------------------------------
 
 LLPanelLandMedia::LLPanelLandMedia(LLParcelSelectionHandle& parcel)
-:	LLPanel(std::string("land_media_panel")),
-
+:	LLPanel(),
 	mParcel(parcel),
 	mCheckSoundLocal(NULL),
 	mSoundHelpButton(NULL),
@@ -118,8 +117,7 @@ BOOL LLPanelLandMedia::postBuild()
 	childSetCommitCallback("music_url", onCommitAny, this);
 
 	mMediaTextureCtrl = getChild<LLTextureCtrl>("media texture");
-	mMediaTextureCtrl->setCommitCallback( onCommitAny );
-	mMediaTextureCtrl->setCallbackUserData( this );
+	mMediaTextureCtrl->setCommitCallback( onCommitAny, this );
 	mMediaTextureCtrl->setAllowNoTexture ( TRUE );
 	mMediaTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
 	mMediaTextureCtrl->setNonImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);

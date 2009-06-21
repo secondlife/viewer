@@ -1,18 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Chat de texto" name="chat">
 	<text length="1" name="text_box" type="string">
-		Tamaño de la fuente del chat:
+		Tamaño de la fuente
+del chat:
 	</text>
 	<radio_group name="chat_font_size">
-		<radio_item name="radio">
-			Pequeño
-		</radio_item>
-		<radio_item name="radio2">
-			Medio
-		</radio_item>
-		<radio_item name="radio3">
-			Grande
-		</radio_item>
+		<radio_item name="radio" label="Pequeño" />
+		<radio_item name="radio2" label="Medio" />
+		<radio_item name="radio3" label="Grande" />
 	</radio_group>
 	<text length="1" name="text_box2" type="string">
 		Color del chat:
@@ -35,7 +30,7 @@
 	</text>
 	<spinner label="Quitar el chat tras" name="fade_chat_time" label_width="95" width="145" />
 	<text length="1" name="text_box4" type="string" left="297" >
-		(s)
+		(seg.)
 	</text>
 	<text length="1" name="text_box5" type="string">
 		(# líneas)

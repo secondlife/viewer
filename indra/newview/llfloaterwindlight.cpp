@@ -67,15 +67,36 @@ std::set<std::string> LLFloaterWindLight::sDefaultPresets;
 
 static const F32 WL_SUN_AMBIENT_SLIDER_SCALE = 3.0f;
 
-LLFloaterWindLight::LLFloaterWindLight() : LLFloater(std::string("windlight floater"))
+LLFloaterWindLight::LLFloaterWindLight()
+  : LLFloater()
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_windlight_options.xml");
 	
+
+
+	// add the list of presets
+	std::string def_days = getString("WLDefaultSkyNames");
+
+	// no editing or deleting of the blank string
+	sDefaultPresets.insert("");
+	boost_tokenizer tokens(def_days, boost::char_separator<char>(":"));
+	for (boost_tokenizer::iterator token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
+	{
+		std::string tok(*token_iter);
+		sDefaultPresets.insert(tok);
+	}
+}
+
+LLFloaterWindLight::~LLFloaterWindLight()
+{
+}
+BOOL LLFloaterWindLight::postBuild()
+{
 	// add the combo boxes
 	LLComboBox* comboBox = getChild<LLComboBox>("WLPresetsCombo");
 
 	if(comboBox != NULL) {
-		
+
 		std::map<std::string, LLWLParamSet>::iterator mIt = 
 			LLWLParamManager::instance()->mParamList.begin();
 		for(; mIt != LLWLParamManager::instance()->mParamList.end(); mIt++) 
@@ -89,27 +110,10 @@ LLFloaterWindLight::LLFloaterWindLight() : LLFloater(std::string("windlight floa
 		// set defaults on combo boxes
 		comboBox->selectByValue(LLSD("Default"));
 	}
-
-	// add the list of presets
-	std::string def_days = getString("WLDefaultSkyNames");
-
-	// no editing or deleting of the blank string
-	sDefaultPresets.insert("");
-	boost_tokenizer tokens(def_days, boost::char_separator<char>(":"));
-	for (boost_tokenizer::iterator token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
-	{
-		std::string tok(*token_iter);
-		sDefaultPresets.insert(tok);
-	}
-
 	// load it up
 	initCallbacks();
+	return TRUE;
 }
-
-LLFloaterWindLight::~LLFloaterWindLight()
-{
-}
-
 void LLFloaterWindLight::initCallbacks(void) {
 
 	// help buttons
@@ -210,7 +214,7 @@ void LLFloaterWindLight::initCallbacks(void) {
 	childSetCommitCallback("WLCloudScrollX", onCloudScrollXMoved, NULL);
 	childSetCommitCallback("WLCloudScrollY", onCloudScrollYMoved, NULL);
 	childSetCommitCallback("WLDistanceMult", onFloatControlMoved, &param_mgr->mDistanceMult);
-	childSetCommitCallback("DrawClassicClouds", LLSavedSettingsGlue::setBOOL, (void*)"SkyUseClassicClouds");
+	getChild<LLUICtrl>("DrawClassicClouds")->setCommitCallback(boost::bind(LLSavedSettingsGlue::setBOOL, _1, "SkyUseClassicClouds"));
 
 	// WL Top
 	childSetAction("WLDayCycleMenuButton", onOpenDayCycle, NULL);
@@ -222,7 +226,7 @@ void LLFloaterWindLight::initCallbacks(void) {
 	childSetAction("WLSavePreset", onSavePreset, comboBox);
 	childSetAction("WLDeletePreset", onDeletePreset, comboBox);
 
-	comboBox->setCommitCallback(onChangePresetName);
+	comboBox->setCommitCallback(boost::bind(&LLFloaterWindLight::onChangePresetName, this, _1));
 
 
 	// Dome
@@ -444,7 +448,7 @@ LLFloaterWindLight* LLFloaterWindLight::instance()
 	if (!sWindLight)
 	{
 		sWindLight = new LLFloaterWindLight();
-		sWindLight->open();
+		sWindLight->openFloater();
 		sWindLight->setFocus(TRUE);
 	}
 	return sWindLight;
@@ -458,7 +462,7 @@ void LLFloaterWindLight::show()
 	//LLUICtrlFactory::getInstance()->buildFloater(windLight, "floater_windlight_options.xml");
 	//windLight->initCallbacks();
 
-	windLight->open();
+	windLight->openFloater();
 }
 
 bool LLFloaterWindLight::isOpen()
@@ -903,20 +907,16 @@ bool LLFloaterWindLight::deleteAlertCallback(const LLSD& notification, const LLS
 }
 
 
-void LLFloaterWindLight::onChangePresetName(LLUICtrl* ctrl, void * userData)
+void LLFloaterWindLight::onChangePresetName(LLUICtrl* ctrl)
 {
 	deactivateAnimator();
 
-	LLComboBox * combo_box = static_cast<LLComboBox*>(ctrl);
-	
-	if(combo_box->getSimple() == "")
+	std::string data = ctrl->getValue().asString();
+	if(!data.empty())
 	{
-		return;
+		LLWLParamManager::instance()->loadPreset( data);
+		sWindLight->syncMenu();
 	}
-	
-	LLWLParamManager::instance()->loadPreset(
-		combo_box->getSelectedValue().asString());
-	sWindLight->syncMenu();
 }
 
 void LLFloaterWindLight::onOpenDayCycle(void* userData)

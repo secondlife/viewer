@@ -40,6 +40,7 @@
 
 
 LLFloaterBeacons::LLFloaterBeacons(const LLSD& seed)
+:	LLFloater()
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_beacons.xml");
 
@@ -71,14 +72,13 @@ BOOL LLFloaterBeacons::postBuild()
 
 // Needed to make the floater visibility toggle the beacons.
 // Too bad we can't just add control_name="BeaconAlwaysOn" to the XML.
-void LLFloaterBeacons::open()
+void LLFloaterBeacons::onOpen(const LLSD& key)
 {
-	LLFloater::open();
 	gSavedSettings.setBOOL( "BeaconAlwaysOn", TRUE);
 }
-void LLFloaterBeacons::close(bool app_quitting)
+void LLFloaterBeacons::onClose(bool app_quitting)
 {
-	LLFloater::close(app_quitting);
+	destroy();
 	if(!app_quitting)
 	{
 		gSavedSettings.setBOOL( "BeaconAlwaysOn", FALSE);

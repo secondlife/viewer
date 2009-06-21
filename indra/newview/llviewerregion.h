@@ -288,9 +288,6 @@ public:
     /// implements LLCapabilityProvider
     virtual std::string getDescription() const;
 
-	// used by LCD to get details for debug screen
-	U32 getNetDetailsForLCD();
-
 	LLSpatialPartition* getSpatialPartition(U32 type);
 public:
 	struct CompareDistance

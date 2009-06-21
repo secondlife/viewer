@@ -66,25 +66,11 @@ LLFloaterWater* LLFloaterWater::sWaterMenu = NULL;
 
 std::set<std::string> LLFloaterWater::sDefaultPresets;
 
-LLFloaterWater::LLFloaterWater() : LLFloater(std::string("water floater"))
+LLFloaterWater::LLFloaterWater()
+  : LLFloater()
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_water.xml");
 	
-	// add the combo boxes
-	LLComboBox* comboBox = getChild<LLComboBox>("WaterPresetsCombo");
-
-	if(comboBox != NULL) {
-		
-		std::map<std::string, LLWaterParamSet>::iterator mIt = 
-			LLWaterParamManager::instance()->mParamList.begin();
-		for(; mIt != LLWaterParamManager::instance()->mParamList.end(); mIt++) 
-		{
-			comboBox->add(mIt->first);
-		}
-
-		// set defaults on combo boxes
-		comboBox->selectByValue(LLSD("Default"));
-	}
 
 	std::string def_water = getString("WLDefaultWaterNames");
 
@@ -97,14 +83,33 @@ LLFloaterWater::LLFloaterWater() : LLFloater(std::string("water floater"))
 		sDefaultPresets.insert(tok);
 	}
 
-	// load it up
-	initCallbacks();
+
 }
 
 LLFloaterWater::~LLFloaterWater()
 {
 }
+BOOL LLFloaterWater::postBuild()
+{
+	// add the combo boxes
+	LLComboBox* comboBox = getChild<LLComboBox>("WaterPresetsCombo");
 
+	if(comboBox != NULL) {
+
+		std::map<std::string, LLWaterParamSet>::iterator mIt = 
+			LLWaterParamManager::instance()->mParamList.begin();
+		for(; mIt != LLWaterParamManager::instance()->mParamList.end(); mIt++) 
+		{
+			comboBox->add(mIt->first);
+		}
+
+		// set defaults on combo boxes
+		comboBox->selectByValue(LLSD("Default"));
+	}
+	// load it up
+	initCallbacks();
+	return TRUE;
+}
 void LLFloaterWater::initCallbacks(void) {
 
 	// help buttons
@@ -165,7 +170,7 @@ void LLFloaterWater::initCallbacks(void) {
 	childSetCommitCallback("WaterWave2DirX", onVector2ControlXMoved, &param_mgr->mWave2Dir);
 	childSetCommitCallback("WaterWave2DirY", onVector2ControlYMoved, &param_mgr->mWave2Dir);
 
-	comboBox->setCommitCallback(onChangePresetName);
+	comboBox->setCommitCallback(boost::bind(&LLFloaterWater::onChangePresetName, this, _1));
 
 	LLTextureCtrl* textCtrl = getChild<LLTextureCtrl>("WaterNormalMap");
 	textCtrl->setDefaultImageAssetID(DEFAULT_WATER_NORMAL);
@@ -296,7 +301,7 @@ LLFloaterWater* LLFloaterWater::instance()
 	if (!sWaterMenu)
 	{
 		sWaterMenu = new LLFloaterWater();
-		sWaterMenu->open();
+		sWaterMenu->openFloater();
 		sWaterMenu->setFocus(TRUE);
 	}
 	return sWaterMenu;
@@ -310,7 +315,7 @@ void LLFloaterWater::show()
 	//LLUICtrlFactory::getInstance()->buildFloater(water, "floater_water.xml");
 	//water->initCallbacks();
 
-	water->open();
+	water->openFloater();
 }
 
 bool LLFloaterWater::isOpen()
@@ -712,17 +717,13 @@ bool LLFloaterWater::deleteAlertCallback(const LLSD& notification, const LLSD& r
 }
 
 
-void LLFloaterWater::onChangePresetName(LLUICtrl* ctrl, void * userData)
+void LLFloaterWater::onChangePresetName(LLUICtrl* ctrl)
 {
-	LLComboBox * combo_box = static_cast<LLComboBox*>(ctrl);
-	
-	if(combo_box->getSimple() == "")
+	std::string data = ctrl->getValue().asString();
+	if(!data.empty())
 	{
-		return;
+		LLWaterParamManager::instance()->loadPreset(data);
+		sWaterMenu->syncMenu();
 	}
-	
-	LLWaterParamManager::instance()->loadPreset(
-		combo_box->getSelectedValue().asString());
-	sWaterMenu->syncMenu();
 }
 

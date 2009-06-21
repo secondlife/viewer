@@ -42,6 +42,7 @@
 
 
 LLFloaterPerms::LLFloaterPerms(const LLSD& seed)
+: LLFloater()
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_perm_prefs.xml");
 }
@@ -64,7 +65,7 @@ void LLFloaterPerms::onClickOK(void* data)
 {
 	LLFloaterPerms* self = static_cast<LLFloaterPerms*>(data);
 	self->ok();
-	self->close();
+	self->closeFloater();
 }
 
 //static 
@@ -72,7 +73,7 @@ void LLFloaterPerms::onClickCancel(void* data)
 {
 	LLFloaterPerms* self = static_cast<LLFloaterPerms*>(data);
 	self->cancel();
-	self->close();
+	self->closeFloater();
 }
 
 //static 
@@ -117,7 +118,7 @@ void LLFloaterPerms::onClose(bool app_quitting)
 	// Cancel any unsaved changes before closing. 
 	// Note: when closed due to the OK button this amounts to a no-op.
 	cancel();
-	LLFloater::onClose(app_quitting);
+	destroy();
 }
 
 //static 

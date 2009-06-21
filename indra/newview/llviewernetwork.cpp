@@ -218,7 +218,7 @@ void LLViewerLogin::setGridChoice(const std::string& grid_name)
 void LLViewerLogin::resetURIs()
 {
     // Clear URIs when picking a new server
-	gSavedSettings.setValue("CmdLineLoginURI", LLSD::emptyArray());
+	gSavedSettings.setLLSD("CmdLineLoginURI", LLSD::emptyArray());
 	gSavedSettings.setString("CmdLineHelperURI", "");
 }
 

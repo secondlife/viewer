@@ -34,10 +34,17 @@
 #ifndef LL_LLUICTRL_H
 #define LL_LLUICTRL_H
 
-#include "llview.h"
+#include "llboost.h"
 #include "llrect.h"
 #include "llsd.h"
+#include <boost/function.hpp>
 
+#include "llinitparam.h"
+#include "llview.h"
+#include "llviewmodel.h"
+
+const BOOL TAKE_FOCUS_YES = TRUE;
+const BOOL TAKE_FOCUS_NO  = FALSE;
 
 class LLFocusableElement
 {
@@ -49,39 +56,127 @@ public:
 	virtual void	setFocus( BOOL b );
 	virtual BOOL	hasFocus() const;
 
-	void			setFocusLostCallback(void (*cb)(LLFocusableElement* caller, void*), void* user_data = NULL) { mFocusLostCallback = cb; mFocusCallbackUserData = user_data; }
-	void			setFocusReceivedCallback( void (*cb)(LLFocusableElement*, void*), void* user_data = NULL)	{ mFocusReceivedCallback = cb; mFocusCallbackUserData = user_data; }
-	void			setFocusChangedCallback( void (*cb)(LLFocusableElement*, void*), void* user_data = NULL )		{ mFocusChangedCallback = cb; mFocusCallbackUserData = user_data; }
+	typedef boost::function<void(LLFocusableElement*, void*)> focus_callback_t;
+	void	setFocusLostCallback(focus_callback_t cb, void* user_data = NULL)	{ mFocusLostCallback = cb; mFocusCallbackUserData = user_data; }
+	void	setFocusReceivedCallback(focus_callback_t cb, void* user_data = NULL)	{ mFocusReceivedCallback = cb; mFocusCallbackUserData = user_data; }
+	void	setFocusChangedCallback(focus_callback_t cb, void* user_data = NULL )	{ mFocusChangedCallback = cb; mFocusCallbackUserData = user_data; }
+	void	setTopLostCallback(focus_callback_t cb, void* user_data = NULL )	{ mTopLostCallback = cb; mFocusCallbackUserData = user_data; }
 
 protected:
 	virtual void	onFocusReceived();
 	virtual void	onFocusLost();
-	void			(*mFocusLostCallback)( LLFocusableElement* caller, void* userdata );
-	void			(*mFocusReceivedCallback)( LLFocusableElement* ctrl, void* userdata );
-	void			(*mFocusChangedCallback)( LLFocusableElement* ctrl, void* userdata );
+	virtual void	onTopLost();	// called when registered as top ctrl and user clicks elsewhere
+	focus_callback_t mFocusLostCallback;
+	focus_callback_t mFocusReceivedCallback;
+	focus_callback_t mFocusChangedCallback;
+	focus_callback_t mTopLostCallback;
 	void*			mFocusCallbackUserData;
 };
 
 class LLUICtrl
-: public LLView, public LLFocusableElement
+	: public LLView, public LLFocusableElement, public boost::signals::trackable
 {
 public:
-	typedef void (*LLUICtrlCallback)(LLUICtrl* ctrl, void* userdata);
-	typedef BOOL (*LLUICtrlValidate)(LLUICtrl* ctrl, void* userdata);
 
-	LLUICtrl();
-	LLUICtrl( const std::string& name, const LLRect& rect, BOOL mouse_opaque,
-		LLUICtrlCallback callback,
-		void* callback_userdata,
-		U32 reshape=FOLLOWS_NONE);
+
+	typedef boost::function<void (LLUICtrl* ctrl, const LLSD& param)> commit_callback_t;
+	typedef boost::signal<void (LLUICtrl* ctrl, const LLSD& param)> commit_signal_t;
+	
+	typedef boost::function<bool (LLUICtrl* ctrl, const LLSD& param)> enable_callback_t;
+	typedef boost::signal<bool (LLUICtrl* ctrl, const LLSD& param), boost_boolean_combiner> enable_signal_t;
+	
+	struct CallbackParam : public LLInitParam::Block<CallbackParam>
+	{
+		Deprecated				name;
+
+		Optional<std::string>	function_name;
+		Optional<LLSD>			parameter;
+
+		Optional<std::string>	control_name;
+		
+		CallbackParam()
+		  :	name("name"),
+			function_name("function"),
+			parameter("parameter"),
+			control_name("control") // Shortcut to control -> "control_name" for backwards compatability			
+		{
+			addSynonym(parameter, "userdata");
+		}
+	};
+
+	struct CommitCallbackParam : public LLInitParam::Block<CommitCallbackParam, CallbackParam >
+	{
+		Optional<commit_callback_t> function;
+	};
+	
+	struct EnableCallbackParam : public LLInitParam::Block<EnableCallbackParam, CallbackParam >
+	{
+		Optional<enable_callback_t> function;
+	};
+	
+	struct EnableControls : public LLInitParam::Choice<EnableControls>
+	{
+		Option<std::string> enabled;
+		Option<std::string> disabled;
+		
+		EnableControls()
+		: enabled("enabled_control"),
+		  disabled("disabled_control")
+		{}
+	};	
+	struct ControlVisibility : public LLInitParam::Choice<ControlVisibility>
+	{
+		Option<std::string> visible;
+		Option<std::string> invisible;
+
+		ControlVisibility()
+			: visible("make_visible_control"),
+			invisible("make_invisible_control")
+		{}
+	};	
+	struct Params : public LLInitParam::Block<Params, LLView::Params>
+	{
+		Optional<std::string>			label;
+		Optional<bool>					tab_stop;
+		Optional<LLSD>					initial_value;
+
+		Optional<CommitCallbackParam>	init_callback,
+										commit_callback;
+		Optional<EnableCallbackParam>	validate_callback;
+		
+		Optional<CommitCallbackParam>	rightclick_callback;
+		
+		Optional<focus_callback_t>		focus_lost_callback;
+		
+		Optional<std::string>			control_name;
+		Optional<EnableControls>		enabled_controls;
+		Optional<ControlVisibility>		controls_visibility;
+		
+		Params();
+	};
+
 	/*virtual*/ ~LLUICtrl();
 
+	void initFromParams(const Params& p);
+protected:
+	friend class LLUICtrlFactory;
+	LLUICtrl(const Params& p = LLUICtrl::Params(),
+             const LLViewModelPtr& viewmodel=LLViewModelPtr(new LLViewModel));
+	
+	void initCommitCallback(const CommitCallbackParam& cb, commit_signal_t& sig);
+	void initEnableCallback(const EnableCallbackParam& cb, enable_signal_t& sig);
+
+	// We need this virtual so we can override it with derived versions
+	virtual LLViewModel* getViewModel() const;
+    // We shouldn't ever need to set this directly
+    //virtual void    setViewModel(const LLViewModelPtr&);
+	
+public:
 	// LLView interface
-	/*virtual*/ void	initFromXML(LLXMLNodePtr node, LLView* parent);
-	/*virtual*/ LLXMLNodePtr getXML(bool save_children = true) const;
 	/*virtual*/ BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 	/*virtual*/ void	onFocusReceived();
 	/*virtual*/ void	onFocusLost();
+	/*virtual*/ void	onTopLost();
 	/*virtual*/ BOOL	isCtrl() const;
 	/*virtual*/ void	setTentative(BOOL b);
 	/*virtual*/ BOOL	getTentative() const;
@@ -97,7 +192,23 @@ public:
 	virtual class LLCtrlListInterface* getListInterface();
 	virtual class LLCtrlScrollInterface* getScrollInterface();
 
+	bool setControlValue(const LLSD& value);
+	void setControlVariable(LLControlVariable* control);
+	virtual void setControlName(const std::string& control, LLView *context = NULL);
+	
+	LLControlVariable* getControlVariable() { return mControlVariable; } 
+	
+	void setEnabledControlVariable(LLControlVariable* control);
+	void setDisabledControlVariable(LLControlVariable* control);
+	void setMakeVisibleControlVariable(LLControlVariable* control);
+	void setMakeInvisibleControlVariable(LLControlVariable* control);
+
+	virtual void	setValue(const LLSD& value);
 	virtual LLSD	getValue() const;
+    /// When two widgets are displaying the same data (e.g. during a skin
+    /// change), share their ViewModel.
+    virtual void    shareViewModelFrom(const LLUICtrl& other);
+
 	virtual BOOL	setTextArg(  const std::string& key, const LLStringExplicit& text );
 	virtual void	setIsChrome(BOOL is_chrome);
 
@@ -108,14 +219,12 @@ public:
 	virtual BOOL	isDirty() const; // Defauls to false
 	virtual void	resetDirty(); //Defaults to no-op
 	
-	// Call appropriate callbacks
-	virtual void	onLostTop();	// called when registered as top ctrl and user clicks elsewhere
+	// Call appropriate callback
 	virtual void	onCommit();
 	
 	// Default to no-op:
 	virtual void	onTabInto();
 	virtual void	clear();
-	virtual	void	setDoubleClickCallback( void (*cb)(void*) );
 	virtual void	setColor(const LLColor4& color);
 	virtual void	setMinValue(LLSD min_value);
 	virtual void	setMaxValue(LLSD max_value);
@@ -126,6 +235,7 @@ public:
 	BOOL	focusLastItem(BOOL prefer_text_fields = FALSE);
 
 	// Non Virtuals
+	LLHandle<LLUICtrl> getUICtrlHandle() const { return mUICtrlHandle; }
 	BOOL			getIsChrome() const;
 	
 	void			setTabStop( BOOL b );
@@ -133,16 +243,14 @@ public:
 
 	LLUICtrl*		getParentUICtrl() const;
 
-	void*			getCallbackUserData() const								{ return mCallbackUserData; }
-	void			setCallbackUserData( void* data )						{ mCallbackUserData = data; }
+	boost::signals::connection setCommitCallback( const commit_signal_t::slot_type& cb ) { return mCommitSignal.connect(cb); }
+	boost::signals::connection setValidateCallback( const enable_signal_t::slot_type& cb ) { return mValidateSignal.connect(cb); }
 	
-	void			setCommitCallback( void (*cb)(LLUICtrl*, void*) )		{ mCommitCallback = cb; }
-	void			setValidateBeforeCommit( BOOL(*cb)(LLUICtrl*, void*) )	{ mValidateCallback = cb; }
-	void			setLostTopCallback( void (*cb)(LLUICtrl*, void*) )		{ mLostTopCallback = cb; }
+	// *TODO: Deprecate; for backwards compatability only:
+	boost::signals::connection setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data);	
+	boost::signals::connection setValidateBeforeCommit( boost::function<bool (const LLSD& data)> cb );
 	
-	static LLView* fromXML(LLXMLNodePtr node, LLView* parent, class LLUICtrlFactory* factory);
-
-	LLUICtrl*		findRootMostFocusRoot();
+	LLUICtrl* findRootMostFocusRoot();
 
 	class LLTextInputFilter : public LLQueryFilter, public LLSingleton<LLTextInputFilter>
 	{
@@ -151,22 +259,59 @@ public:
 			return filterResult_t(view->isCtrl() && static_cast<const LLUICtrl *>(view)->acceptsTextInput(), TRUE);
 		}
 	};
+	
+	template <typename F> class CallbackRegistry : public LLRegistrySingleton<std::string, F, CallbackRegistry<F> >
+	{};	
 
+	typedef CallbackRegistry<commit_callback_t> CommitCallbackRegistry;
+	typedef CallbackRegistry<enable_callback_t> EnableCallbackRegistry;
+	
 protected:
 
-	void			(*mCommitCallback)( LLUICtrl* ctrl, void* userdata );
-	void			(*mLostTopCallback)( LLUICtrl* ctrl, void* userdata );
-	BOOL			(*mValidateCallback)( LLUICtrl* ctrl, void* userdata );
+	static bool controlListener(const LLSD& newvalue, LLHandle<LLUICtrl> handle, std::string type);
 
-	void*			mCallbackUserData;
+	commit_signal_t		mCommitSignal;
+	enable_signal_t		mValidateSignal;
+	commit_signal_t		mRightClickSignal;
 
+    LLViewModelPtr  mViewModel;
+
+	LLControlVariable* mControlVariable;
+	boost::signals::connection mControlConnection;
+	LLControlVariable* mEnabledControlVariable;
+	boost::signals::connection mEnabledControlConnection;
+	LLControlVariable* mDisabledControlVariable;
+	boost::signals::connection mDisabledControlConnection;
+	LLControlVariable* mMakeVisibleControlVariable;
+	boost::signals::connection mMakeVisibleControlConnection;
+	LLControlVariable* mMakeInvisibleControlVariable;
+	boost::signals::connection mMakeInvisibleControlConnection;
 private:
 
 	BOOL			mTabStop;
 	BOOL			mIsChrome;
 	BOOL			mTentative;
+	LLRootHandle<LLUICtrl> mUICtrlHandle;
 
 	class DefaultTabGroupFirstSorter;
 };
+
+namespace LLInitParam
+{   
+    template<> 
+	bool ParamCompare<LLUICtrl::commit_callback_t>::equals(
+		const LLUICtrl::commit_callback_t &a, 
+		const LLUICtrl::commit_callback_t &b); 
+		
+    template<> 
+	bool ParamCompare<LLUICtrl::enable_callback_t>::equals(
+		const LLUICtrl::enable_callback_t &a, 
+		const LLUICtrl::enable_callback_t &b); 
+    
+	template<> 
+	bool ParamCompare<LLUICtrl::focus_callback_t>::equals(
+		const LLUICtrl::focus_callback_t &a, 
+		const LLUICtrl::focus_callback_t &b); 
+}
 
 #endif  // LL_LLUICTRL_H

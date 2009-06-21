@@ -227,6 +227,40 @@ const LLColor4&	LLColor4::setVec(const LLColor3 &vec, F32 a)
 	return (*this);
 }
 
+void LLColor4::setValue(const LLSD& sd)
+{
+#if 0
+	// Clamping on setValue from LLSD is inconsistent with other set behavior
+	F32 val;
+	bool out_of_range = false;
+	val = sd[0].asReal();
+	mV[0] = llclamp(val, 0.f, 1.f);
+	out_of_range = mV[0] != val;
+
+	val = sd[1].asReal();
+	mV[1] = llclamp(val, 0.f, 1.f);
+	out_of_range |= mV[1] != val;
+
+	val = sd[2].asReal();
+	mV[2] = llclamp(val, 0.f, 1.f);
+	out_of_range |= mV[2] != val;
+
+	val = sd[3].asReal();
+	mV[3] = llclamp(val, 0.f, 1.f);
+	out_of_range |= mV[3] != val;
+
+	if (out_of_range)
+	{
+		llwarns << "LLSD color value out of range!" << llendl;
+	}
+#else
+	mV[0] = (F32) sd[0].asReal();
+	mV[1] = (F32) sd[1].asReal();
+	mV[2] = (F32) sd[2].asReal();
+	mV[3] = (F32) sd[3].asReal();
+#endif
+}
+
 const LLColor4& LLColor4::operator=(const LLColor3 &a)
 {
 	mV[VX] = a.mV[VX];
@@ -269,6 +303,42 @@ LLColor4	vec3to4(const LLColor3 &vec)
 {
 	LLColor3	temp(vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
 	return temp;
+}
+
+static F32 hueToRgb ( F32 val1In, F32 val2In, F32 valHUeIn )
+{
+	if ( valHUeIn < 0.0f ) valHUeIn += 1.0f;
+	if ( valHUeIn > 1.0f ) valHUeIn -= 1.0f;
+	if ( ( 6.0f * valHUeIn ) < 1.0f ) return ( val1In + ( val2In - val1In ) * 6.0f * valHUeIn );
+	if ( ( 2.0f * valHUeIn ) < 1.0f ) return ( val2In );
+	if ( ( 3.0f * valHUeIn ) < 2.0f ) return ( val1In + ( val2In - val1In ) * ( ( 2.0f / 3.0f ) - valHUeIn ) * 6.0f );
+	return ( val1In );
+}
+
+void LLColor4::setHSL ( F32 hValIn, F32 sValIn, F32 lValIn)
+{
+	if ( sValIn < 0.00001f )
+	{
+		mV[VRED] = lValIn;
+		mV[VGREEN] = lValIn;
+		mV[VBLUE] = lValIn;
+	}
+	else
+	{
+		F32 interVal1;
+		F32 interVal2;
+
+		if ( lValIn < 0.5f )
+			interVal2 = lValIn * ( 1.0f + sValIn );
+		else
+			interVal2 = ( lValIn + sValIn ) - ( sValIn * lValIn );
+
+		interVal1 = 2.0f * lValIn - interVal2;
+
+		mV[VRED] = hueToRgb ( interVal1, interVal2, hValIn + ( 1.f / 3.f ) );
+		mV[VGREEN] = hueToRgb ( interVal1, interVal2, hValIn );
+		mV[VBLUE] = hueToRgb ( interVal1, interVal2, hValIn - ( 1.f / 3.f ) );
+	}
 }
 
 void LLColor4::calcHSL(F32* hue, F32* saturation, F32* luminance) const

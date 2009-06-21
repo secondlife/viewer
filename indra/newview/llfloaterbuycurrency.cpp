@@ -80,7 +80,6 @@ public:
 
 	virtual void draw();
 	virtual BOOL canClose();
-	virtual void onClose(bool app_quitting);
 
 	static void onClickBuy(void* data);
 	static void onClickCancel(void* data);
@@ -114,7 +113,7 @@ LLFloaterBuyCurrencyUI* LLFloaterBuyCurrencyUI::soleInstance(bool createIfNeeded
 #pragma warning(disable : 4355)
 #endif 
 LLFloaterBuyCurrencyUI::LLFloaterBuyCurrencyUI()
-:	LLFloater(std::string("Buy Currency")),
+:	LLFloater(),
 	mChildren(*this),
 	mManager(*this)
 {
@@ -162,7 +161,6 @@ BOOL LLFloaterBuyCurrencyUI::postBuild()
 	childSetAction("error_web", onClickErrorWeb, this);
 
 	updateUI();
-	
 	return TRUE;
 }
 
@@ -172,7 +170,7 @@ void LLFloaterBuyCurrencyUI::draw()
 	{
 		if (mManager.bought())
 		{
-			close();
+			closeFloater();
 			return;
 		}
 		
@@ -185,12 +183,6 @@ void LLFloaterBuyCurrencyUI::draw()
 BOOL LLFloaterBuyCurrencyUI::canClose()
 {
 	return mManager.canCancel();
-}
-
-void LLFloaterBuyCurrencyUI::onClose(bool app_quitting)
-{
-	LLFloater::onClose(app_quitting);
-	destroy();
 }
 
 void LLFloaterBuyCurrencyUI::updateUI()
@@ -341,7 +333,7 @@ void LLFloaterBuyCurrencyUI::onClickCancel(void* data)
 	LLFloaterBuyCurrencyUI* self = LLFloaterBuyCurrencyUI::soleInstance(false);
 	if (self)
 	{
-		self->close();
+		self->closeFloater();
 	}
 }
 
@@ -352,7 +344,7 @@ void LLFloaterBuyCurrencyUI::onClickErrorWeb(void* data)
 	if (self)
 	{
 		LLWeb::loadURLExternal(self->mManager.errorURI());
-		self->close();
+		self->closeFloater();
 	}
 }
 
@@ -362,7 +354,7 @@ void LLFloaterBuyCurrency::buyCurrency()
 	LLFloaterBuyCurrencyUI* ui = LLFloaterBuyCurrencyUI::soleInstance(true);
 	ui->noTarget();
 	ui->updateUI();
-	ui->open();
+	ui->openFloater();
 }
 
 void LLFloaterBuyCurrency::buyCurrency(const std::string& name, S32 price)
@@ -370,7 +362,7 @@ void LLFloaterBuyCurrency::buyCurrency(const std::string& name, S32 price)
 	LLFloaterBuyCurrencyUI* ui = LLFloaterBuyCurrencyUI::soleInstance(true);
 	ui->target(name, price);
 	ui->updateUI();
-	ui->open();
+	ui->openFloater();
 }
 
 

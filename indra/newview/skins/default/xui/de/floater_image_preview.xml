@@ -10,36 +10,16 @@
 		Bildvorschau als:
 	</text>
 	<combo_box label="Kleidungstyp" name="clothing_type_combo">
-		<combo_item name="Image">
-			Bild
-		</combo_item>
-		<combo_item name="Hair">
-			Haar
-		</combo_item>
-		<combo_item name="FemaleHead">
-			Kopf (Frau)
-		</combo_item>
-		<combo_item name="FemaleUpperBody">
-			Oberkörper (Frau)
-		</combo_item>
-		<combo_item name="FemaleLowerBody">
-			Unterkörper (Frau)
-		</combo_item>
-		<combo_item name="MaleHead">
-			Kopf (Mann)
-		</combo_item>
-		<combo_item name="MaleUpperBody">
-			Oberkörper (Mann)
-		</combo_item>
-		<combo_item name="MaleLowerBody">
-			Unterkörper (Mann)
-		</combo_item>
-		<combo_item name="Skirt">
-			Rock
-		</combo_item>
-		<combo_item name="SculptedPrim">
-			Geformtes Primitiv
-		</combo_item>
+		<combo_box.item name="Image" label="Bild" />
+		<combo_box.item name="Hair" label="Haar" />
+		<combo_box.item name="FemaleHead" label="Kopf (Frau)" />
+		<combo_box.item name="FemaleUpperBody" label="Oberkörper (Frau)" />
+		<combo_box.item name="FemaleLowerBody" label="Unterkörper (Frau)" />
+		<combo_box.item name="MaleHead" label="Kopf (Mann)" />
+		<combo_box.item name="MaleUpperBody" label="Oberkörper (Mann)" />
+		<combo_box.item name="MaleLowerBody" label="Unterkörper (Mann)" />
+		<combo_box.item name="Skirt" label="Rock" />
+		<combo_box.item name="SculptedPrim" label="Geformtes Primitiv" />
 	</combo_box>
 	<text name="bad_image_text">
 		Bild kann nicht gelesen werden.

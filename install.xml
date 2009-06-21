@@ -541,6 +541,25 @@
           </map>
         </map>
       </map>
+      <key>google-perftools</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2005, Google Inc.</string>
+        <key>description</key>
+        <string>Heap performance and validity checking tools from google. Includes TCMalloc, heap-checker, heap-profiler and cpu-profiler.</string>
+        <key>license</key>
+        <string>bsd</string>
+        <key>packages</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>32dba32ddd460a08e082898ebba6315c</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-perftools-1.0-windows-20090406.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
       <key>gstreamer</key>
       <map>
         <key>license</key>

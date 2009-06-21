@@ -3,25 +3,25 @@
 	<text name="region_name_label">
 		Región:
 	</text>
-	<text name="region_name_text">
+	<text name="region_name_text" left="565">
 		(desconocida)
 	</text>
 	<text name="region_type_label">
 		Tipo:
 	</text>
-	<text name="region_type_text">
+	<text name="region_type_text" left="565">
 		(desconocido)
 	</text>
 	<text name="estate_name_label">
 		Estado:
 	</text>
-	<text name="estate_name_text">
+	<text name="estate_name_text" left="565">
 		(desconocido)
 	</text>
-	<text name="estate_owner_label">
+	<text name="estate_owner_label" width="115" right="565">
 		Propietario del estado:
 	</text>
-	<text name="estate_owner_text">
+	<text name="estate_owner_text" left="565" >
 		(desconocido)
 	</text>
 	<text name="resellable_changeable_label">
@@ -36,6 +36,7 @@
 	<text name="covenant_text">
 		Deve aceptar el Contrato del Estado:
 	</text>
+	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
 		Cargando...
 	</text_editor>
@@ -74,15 +75,9 @@ incluyendo los objetos
 		Sólo pueden ser propietarios de terreno los miembros premium.
 	</text>
 	<combo_box name="account_level">
-		<combo_item name="US$9.95/month,billedmonthly">
-			9.95 US$/mes, facturados mensualmente
-		</combo_item>
-		<combo_item name="US$7.50/month,billedquarterly">
-			7.50 US$/mes, facturados cuatrimestralmente
-		</combo_item>
-		<combo_item name="US$6.00/month,billedannually">
-			6.00 US$/mes, facturados anualmente
-		</combo_item>
+		<combo_box.item name="US$9.95/month,billedmonthly" label="9.95 US$/mes, facturados mensualmente" />
+		<combo_box.item name="US$7.50/month,billedquarterly" label="7.50 US$/mes, facturados cuatrimestralmente" />
+		<combo_box.item name="US$6.00/month,billedannually" label="6.00 US$/mes, facturados anualmente" />
 	</combo_box>
 	<text name="land_use_action">
 		Aumenta su cuota mensual por uso de terreno a 40 US$/mes.

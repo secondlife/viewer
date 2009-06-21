@@ -2,12 +2,8 @@
 <floater name="floater_auction" title="Commencer la vente de terrain Linden">
 	<check_box label="Inclure le marquage de sélection jaune" name="fence_check" />
 	<combo_box name="saletype_combo">
-		<combo_item name="Auction">
-			Enchères
-		</combo_item>
-		<combo_item name="FirstLand">
-			Premier terrain
-		</combo_item>
+		<combo_box.item name="Auction" label="Enchères" />
+		<combo_box.item name="FirstLand" label="Premier terrain" />
 	</combo_box>
 	<button label="Capture d&apos;écran" label_selected="Capture d&apos;écran"
 	     name="snapshot_btn" width="110" />

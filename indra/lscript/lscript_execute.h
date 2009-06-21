@@ -37,6 +37,8 @@
 #include "linked_lists.h"
 #include "lscript_library.h"
 
+class LLTimer;
+
 // Return values for run() methods
 const U32 NO_DELETE_FLAG	= 0x0000;
 const U32 DELETE_FLAG		= 0x0001;

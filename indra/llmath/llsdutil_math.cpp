@@ -165,9 +165,6 @@ LLSD ll_sd_from_color4(const LLColor4& c)
 LLColor4 ll_color4_from_sd(const LLSD& sd)
 {
 	LLColor4 c;
-	c.mV[0] = (F32)sd[0].asReal();
-	c.mV[1] = (F32)sd[1].asReal();
-	c.mV[2] = (F32)sd[2].asReal();
-	c.mV[3] = (F32)sd[3].asReal();
+	c.setValue(sd);
 	return c;
 }

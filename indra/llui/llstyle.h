@@ -34,9 +34,10 @@
 #define LL_LLSTYLE_H
 
 #include "v4color.h"
-#include "llresmgr.h"
 #include "llfont.h"
 #include "llui.h"
+
+class LLFontGL;
 
 class LLStyle : public LLRefCount
 {
@@ -55,9 +56,9 @@ public:
 	virtual BOOL isVisible() const;
 	virtual void setVisible(BOOL is_visible);
 
-	virtual const std::string& getFontString() const { return mFontName; }
+	virtual const std::string& getFontString() const;
 	virtual void setFontName(const std::string& fontname);
-	virtual LLFONT_ID getFontID() const { return mFontID; }
+	virtual LLFontGL* getFont() const;
 
 	virtual const std::string& getLinkHREF() const { return mLink; }
 	virtual void setLinkHREF(const std::string& href);
@@ -107,7 +108,7 @@ private:
 	BOOL		mVisible;
 	LLColor4	mColor;
 	std::string	mFontName;
-	LLFONT_ID   mFontID;
+	LLFontGL*   mFont;		// cached for performance
 	std::string	mLink;
 	LLUIImagePtr mImagep;
 	BOOL		mIsEmbeddedItem;

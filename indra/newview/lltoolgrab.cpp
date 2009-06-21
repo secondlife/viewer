@@ -61,7 +61,7 @@
 #include "llviewerobjectlist.h" 
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llworld.h"
 
 const S32 SLOP_DIST_SQ = 4;
@@ -885,7 +885,7 @@ void LLToolGrab::handleHoverInactive(S32 x, S32 y, MASK mask)
 
 	// Look for cursor against the edge of the screen
 	// Only works in fullscreen
-	if (gSavedSettings.getBOOL("FullScreen"))
+	if (!gSavedSettings.getBOOL("NotFullScreen"))
 	{
 		if (gAgent.cameraThirdPerson() )
 		{

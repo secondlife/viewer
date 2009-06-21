@@ -40,19 +40,18 @@
 
 #include "llfloater.h"
 #include "lllogchat.h"
-class LLButton;
+
 class LLChat;
-class LLComboBox;
-class LLLineEditor;
 class LLViewerTextEditor;
 class LLMessageSystem;
 class LLUUID;
 class LLCheckBoxCtrl;
 class LLPanelActiveSpeakers;
 class LLLogChat;
+class LLVector3d;
+class LLWindow;
 
-class LLFloaterChat
-	:	public LLFloater, public LLUISingleton<LLFloaterChat, LLFloaterChat>
+class LLFloaterChat : public LLFloater
 {
 public:
 	LLFloaterChat(const LLSD& seed);
@@ -67,14 +66,16 @@ public:
 	void updateConsoleVisibility();
 
 	static void setHistoryCursorAndScrollToEnd();
-	
+
+	//  *TODO:Skinning - move these to LLChat (or LLViewerChat?)
 	// Add chat to console and history list.
 	// Color based on source, type, distance.
 	static void addChat(const LLChat& chat, BOOL from_im = FALSE, BOOL local_agent = FALSE);
-	
 	// Add chat to history alone.
 	static void addChatHistory(const LLChat& chat, bool log_to_file = true);
 	
+	static void triggerAlerts(const std::string& text);
+
 	static void onClickMute(void *data);
 	static void onClickToggleShowMute(LLUICtrl* caller, void *data);
 	static void onClickToggleActiveSpeakers(void* userdata);
@@ -82,12 +83,9 @@ public:
 	static void loadHistory();
 	static void* createSpeakersPanel(void* data);
 	static void* createChatPanel(void* data);
-
-	// visibility policy for LLUISingleton
-	static bool visible(LLFloater* instance, const LLSD& key);
-	static void show(LLFloater* instance, const LLSD& key);
-	static void hide(LLFloater* instance, const LLSD& key);
-
+	
+	static LLFloaterChat* getInstance(); // *TODO:Skinning Deprecate
+	
 	LLPanelActiveSpeakers* mPanel;
 	BOOL mScrolledToEnd;
 };

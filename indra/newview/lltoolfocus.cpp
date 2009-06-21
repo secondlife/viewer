@@ -54,7 +54,7 @@
 #include "llviewercamera.h"
 #include "llviewerobject.h"
 #include "llviewerwindow.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llmorphview.h"
 
 // Globals

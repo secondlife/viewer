@@ -49,18 +49,21 @@
 #include "llchat.h"
 #include "llconsole.h"
 #include "llfloater.h"
+#include "llfloatercall.h"
 #include "llfloatergroupinfo.h"
+#include "llfriendactions.h"
 #include "llimview.h"
 #include "llinventory.h"
 #include "llinventorymodel.h"
 #include "llinventoryview.h"
 #include "llfloateractivespeakers.h"
-#include "llfloateravatarinfo.h"
 #include "llfloaterchat.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llnotify.h"
+#include "llrecentpeople.h"
 #include "llresmgr.h"
+#include "lltrans.h"
 #include "lltabcontainer.h"
 #include "llviewertexteditor.h"
 #include "llviewermessage.h"
@@ -216,7 +219,7 @@ private:
 bool send_start_session_messages(
 	const LLUUID& temp_session_id,
 	const LLUUID& other_participant_id,
-	const LLDynamicArray<LLUUID>& ids,
+	const std::vector<LLUUID>& ids,
 	EInstantMessage dialog)
 {
 	if ( dialog == IM_SESSION_GROUP_START )
@@ -246,7 +249,7 @@ bool send_start_session_messages(
 		LLSD agents;
 		for (int i = 0; i < (S32) ids.size(); i++)
 		{
-			agents.append(ids.get(i));
+			agents.append(ids[i]);
 		}
 
 		//we have a new way of starting conference calls now
@@ -587,7 +590,6 @@ LLVoiceChannel* LLVoiceChannel::getChannelByURI(std::string uri)
 	}
 }
 
-
 void LLVoiceChannel::updateSessionID(const LLUUID& new_session_id)
 {
 	sVoiceChannelMap.erase(sVoiceChannelMap.find(mSessionID));
@@ -622,6 +624,17 @@ void LLVoiceChannel::setState(EState state)
 	mState = state;
 }
 
+void LLVoiceChannel::toggleCallWindowIfNeeded(EState state)
+{
+	if (state == STATE_CONNECTED)
+		LLFloaterCall::openInstance(mSessionID);
+	// By checking that current state is CONNECTED we make sure that the call window
+	// has been shown, hence there's something to hide. This helps when user presses
+	// the "End call" button right after initiating the call.
+	// *TODO: move this check to LLFloaterCall?
+	else if (state == STATE_HUNG_UP && mState == STATE_CONNECTED)
+		LLFloaterCall::closeInstance(mSessionID);
+}
 
 //static
 void LLVoiceChannel::initClass()
@@ -693,6 +706,15 @@ void LLVoiceChannelGroup::activate()
 		LLVoiceClient::getInstance()->setNonSpatialChannel(
 			mURI,
 			mCredentials);
+
+#if 0 // *TODO
+		if (!gAgent.isInGroup(mSessionID)) // ad-hoc channel
+		{
+			// Add the party to the list of people with which we've recently interacted.
+			for (/*people in the chat*/)
+				LLRecentPeople::instance().add(buddy_id);
+		}
+#endif
 	}
 }
 
@@ -814,6 +836,9 @@ void LLVoiceChannelGroup::handleError(EStatusType status)
 
 void LLVoiceChannelGroup::setState(EState state)
 {
+	// HACK: Open/close the call window if needed.
+	toggleCallWindowIfNeeded(state);
+
 	switch(state)
 	{
 	case STATE_RINGING:
@@ -999,6 +1024,9 @@ void LLVoiceChannelP2P::activate()
 			// using the session handle invalidates it.  Clear it out here so we can't reuse it by accident.
 			mSessionHandle.clear();
 		}
+
+		// Add the party to the list of people with which we've recently interacted.
+		LLRecentPeople::instance().add(mOtherUserID);
 	}
 }
 
@@ -1056,6 +1084,9 @@ void LLVoiceChannelP2P::setSessionHandle(const std::string& handle, const std::s
 
 void LLVoiceChannelP2P::setState(EState state)
 {
+	// HACK: Open/close the call window if needed.
+	toggleCallWindowIfNeeded(state);
+
 	// you only "answer" voice invites in p2p mode
 	// so provide a special purpose message here
 	if (mReceivedCall && state == STATE_RINGING)
@@ -1071,20 +1102,23 @@ void LLVoiceChannelP2P::setState(EState state)
 //
 // LLFloaterIMPanel
 //
-LLFloaterIMPanel::LLFloaterIMPanel(
-	const std::string& session_label,
-	const LLUUID& session_id,
-	const LLUUID& other_participant_id,
-	EInstantMessage dialog) :
-	LLFloater(session_label, LLRect(), session_label),
+
+LLFloaterIMPanel::LLFloaterIMPanel(const std::string& session_label,
+								   const LLUUID& session_id,
+								   const LLUUID& other_participant_id,
+								   const std::vector<LLUUID>& ids,
+								   EInstantMessage dialog)
+:	LLFloater(session_id),
 	mInputEditor(NULL),
 	mHistoryEditor(NULL),
 	mSessionUUID(session_id),
+	mSessionLabel(session_label),
 	mVoiceChannel(NULL),
 	mSessionInitialized(FALSE),
 	mSessionStartMsgPos(0),
 	mOtherParticipantUUID(other_participant_id),
 	mDialog(dialog),
+	mSessionInitialTargetIDs(ids),
 	mTyping(FALSE),
 	mOtherTyping(FALSE),
 	mTypingLineStartIndex(0),
@@ -1100,47 +1134,6 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 	mFirstKeystrokeTimer(),
 	mLastKeystrokeTimer()
 {
-	init(session_label);
-}
-
-LLFloaterIMPanel::LLFloaterIMPanel(
-	const std::string& session_label,
-	const LLUUID& session_id,
-	const LLUUID& other_participant_id,
-	const LLDynamicArray<LLUUID>& ids,
-	EInstantMessage dialog) :
-	LLFloater(session_label, LLRect(), session_label),
-	mInputEditor(NULL),
-	mHistoryEditor(NULL),
-	mSessionUUID(session_id),
-	mVoiceChannel(NULL),
-	mSessionInitialized(FALSE),
-	mSessionStartMsgPos(0),
-	mOtherParticipantUUID(other_participant_id),
-	mDialog(dialog),
-	mTyping(FALSE),
-	mOtherTyping(FALSE),
-	mTypingLineStartIndex(0),
-	mSentTypingState(TRUE),
-	mShowSpeakersOnConnect(TRUE),
-	mAutoConnect(FALSE),
-	mTextIMPossible(TRUE),
-	mProfileButtonEnabled(TRUE),
-	mCallBackEnabled(TRUE),
-	mSpeakers(NULL),
-	mSpeakerPanel(NULL),
-	mFirstKeystrokeTimer(),
-	mLastKeystrokeTimer()
-{
-	mSessionInitialTargetIDs = ids;
-	init(session_label);
-}
-
-
-void LLFloaterIMPanel::init(const std::string& session_label)
-{
-	mSessionLabel = session_label;
-
 	std::string xml_filename;
 	switch(mDialog)
 	{
@@ -1188,11 +1181,10 @@ void LLFloaterIMPanel::init(const std::string& session_label)
 	}
 
 	mSpeakers = new LLIMSpeakerMgr(mVoiceChannel);
+	// All participants will be added to the list of people we've recently interacted with.
+	mSpeakers->addListener(&LLRecentPeople::instance(), "add");
 
-	LLUICtrlFactory::getInstance()->buildFloater(this,
-								xml_filename,
-								&getFactoryMap(),
-								FALSE);
+	LLUICtrlFactory::getInstance()->buildFloater(this, xml_filename, FALSE);
 
 	setTitle(mSessionLabel);
 	mInputEditor->setMaxTextLength(1023);
@@ -1230,7 +1222,7 @@ void LLFloaterIMPanel::init(const std::string& session_label)
 
 			addHistoryLine(
 				session_start,
-				gSavedSettings.getColor4("SystemChatColor"),
+				gSavedSkinSettings.getColor4("SystemChatColor"),
 				false);
 		}
 	}
@@ -1283,9 +1275,8 @@ BOOL LLFloaterIMPanel::postBuild()
 		mInputEditor = getChild<LLLineEditor>("chat_editor");
 		mInputEditor->setFocusReceivedCallback( onInputEditorFocusReceived, this );
 		mInputEditor->setFocusLostCallback( onInputEditorFocusLost, this );
-		mInputEditor->setKeystrokeCallback( onInputEditorKeystroke );
-		mInputEditor->setCommitCallback( onCommitChat );
-		mInputEditor->setCallbackUserData(this);
+		mInputEditor->setKeystrokeCallback( onInputEditorKeystroke, this );
+		mInputEditor->setCommitCallback( onCommitChat, this );
 		mInputEditor->setCommitOnFocusLost( FALSE );
 		mInputEditor->setRevertOnEsc( FALSE );
 		mInputEditor->setReplaceNewlinesWithSpaces( FALSE );
@@ -1479,7 +1470,7 @@ private:
 	LLUUID mSessionID;
 };
 
-BOOL LLFloaterIMPanel::inviteToSession(const LLDynamicArray<LLUUID>& ids)
+BOOL LLFloaterIMPanel::inviteToSession(const std::vector<LLUUID>& ids)
 {
 	LLViewerRegion* region = gAgent.getRegion();
 	if (!region)
@@ -1487,7 +1478,7 @@ BOOL LLFloaterIMPanel::inviteToSession(const LLDynamicArray<LLUUID>& ids)
 		return FALSE;
 	}
 	
-	S32 count = ids.count();
+	S32 count = ids.size();
 
 	if( isInviteAllowed() && (count > 0) )
 	{
@@ -1500,7 +1491,7 @@ BOOL LLFloaterIMPanel::inviteToSession(const LLDynamicArray<LLUUID>& ids)
 		data["params"] = LLSD::emptyArray();
 		for (int i = 0; i < count; i++)
 		{
-			data["params"].append(ids.get(i));
+			data["params"].append(ids[i]);
 		}
 
 		data["method"] = "invite";
@@ -1637,24 +1628,11 @@ BOOL LLFloaterIMPanel::handleKeyHere( KEY key, MASK mask )
 	{
 		sendMsg();
 		handled = TRUE;
-
-		// Close talk panels on hitting return
-		// but not shift-return or control-return
-		if ( !gSavedSettings.getBOOL("PinTalkViewOpen") && !(mask & MASK_CONTROL) && !(mask & MASK_SHIFT) )
-		{
-			gIMMgr->toggle(NULL);
-		}
 	}
 	else if ( KEY_ESCAPE == key )
 	{
 		handled = TRUE;
 		gFocusMgr.setKeyboardFocus(NULL);
-
-		// Close talk panel with escape
-		if( !gSavedSettings.getBOOL("PinTalkViewOpen") )
-		{
-			gIMMgr->toggle(NULL);
-		}
 	}
 
 	// May need to call base class LLPanel::handleKeyHere if not handled
@@ -1705,8 +1683,8 @@ BOOL LLFloaterIMPanel::dropCallingCard(LLInventoryItem* item, BOOL drop)
 	{
 		if(drop)
 		{
-			LLDynamicArray<LLUUID> ids;
-			ids.put(item->getCreatorUUID());
+			std::vector<LLUUID> ids;
+			ids.push_back(item->getCreatorUUID());
 			inviteToSession(ids);
 		}
 	}
@@ -1738,10 +1716,11 @@ BOOL LLFloaterIMPanel::dropCategory(LLInventoryCategory* category, BOOL drop)
 		}
 		else if(drop)
 		{
-			LLDynamicArray<LLUUID> ids;
+			std::vector<LLUUID> ids;
+			ids.reserve(count);
 			for(S32 i = 0; i < count; ++i)
 			{
-				ids.put(items.get(i)->getCreatorUUID());
+				ids.push_back(items.get(i)->getCreatorUUID());
 			}
 			inviteToSession(ids);
 		}
@@ -1771,9 +1750,9 @@ void LLFloaterIMPanel::onClickProfile( void* userdata )
 	//  Bring up the Profile window
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*) userdata;
 	
-	if (self->mOtherParticipantUUID.notNull())
+	if (self->getOtherParticipantID().notNull())
 	{
-		LLFloaterAvatarInfo::showFromDirectory(self->getOtherParticipantID());
+		LLFriendActions::showProfile(self->getOtherParticipantID());
 	}
 }
 
@@ -1792,7 +1771,7 @@ void LLFloaterIMPanel::onClickClose( void* userdata )
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*) userdata;
 	if(self)
 	{
-		self->close();
+		self->closeFloater();
 	}
 }
 
@@ -1887,6 +1866,9 @@ void LLFloaterIMPanel::onClose(bool app_quitting)
 	}
 	gIMMgr->removeSession(mSessionUUID);
 
+	// *HACK hide the voice floater
+	LLFloaterCall::toggleInstanceVisibility(FALSE, mSessionUUID);
+
 	destroy();
 }
 
@@ -1896,6 +1878,10 @@ void LLFloaterIMPanel::onVisibilityChange(BOOL new_visibility)
 	{
 		mNumUnreadMessages = 0;
 	}
+
+	LLFloaterCall::toggleInstanceVisibility(
+		new_visibility && mVoiceChannel->getState() == LLVoiceChannel::STATE_CONNECTED,
+		mSessionUUID);
 }
 
 void deliver_message(const std::string& utf8_text,
@@ -1966,6 +1952,9 @@ void deliver_message(const std::string& utf8_text,
 		default: ; // do nothing
 		}
 	}
+
+	// Add the recipient to the recent people list.
+	LLRecentPeople::instance().add(other_participant_id);
 }
 
 void LLFloaterIMPanel::sendMsg()
@@ -2015,7 +2004,7 @@ void LLFloaterIMPanel::sendMsg()
 
 					BOOL other_was_typing = mOtherTyping;
 
-					addHistoryLine(history_echo, gSavedSettings.getColor("IMChatColor"), true, gAgent.getID());
+					addHistoryLine(history_echo, gSavedSkinSettings.getColor("IMChatColor"), true, gAgent.getID());
 
 					if (other_was_typing) 
 					{
@@ -2186,7 +2175,7 @@ void LLFloaterIMPanel::addTypingIndicator(const std::string &name)
 		mTypingLineStartIndex = mHistoryEditor->getWText().length();
 		LLUIString typing_start = sTypingStartString;
 		typing_start.setArg("[NAME]", name);
-		addHistoryLine(typing_start, gSavedSettings.getColor4("SystemChatColor"), false);
+		addHistoryLine(typing_start, gSavedSkinSettings.getColor4("SystemChatColor"), false);
 		mOtherTypingName = name;
 		mOtherTyping = TRUE;
 	}
@@ -2224,14 +2213,14 @@ void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string
 		// add warning log enabled message
 		if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
 		{
-			message = LLFloaterChat::getInstance()->getString("IM_logging_string");
+			message = LLTrans::getString("IM_logging_string");
 		}
 		break;
 	case LLLogChat::LOG_END:
 		// add log end message
 		if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
 		{
-			message = LLFloaterChat::getInstance()->getString("IM_logging_string");
+			message = LLTrans::getString("IM_logging_string");
 		}
 		break;
 	case LLLogChat::LOG_LINE:
@@ -2243,7 +2232,7 @@ void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string
 	}
 
 	//self->addHistoryLine(line, LLColor4::grey, FALSE);
-	self->mHistoryEditor->appendColoredText(message, false, true, LLColor4::grey);
+	self->mHistoryEditor->appendColoredText(message, false, true, gSavedSkinSettings.getColor4("ChatHistoryTextColor"));
 }
 
 void LLFloaterIMPanel::showSessionStartError(
@@ -2325,7 +2314,7 @@ bool LLFloaterIMPanel::onConfirmForceCloseError(const LLSD& notification, const 
 		LLFloaterIMPanel* floaterp = gIMMgr->findFloaterBySession(
 			session_id);
 
-		if ( floaterp ) floaterp->close(FALSE);
+		if ( floaterp ) floaterp->closeFloater(FALSE);
 	}
 	return false;
 }

@@ -54,18 +54,22 @@
 
 LLFloaterEnvSettings* LLFloaterEnvSettings::sEnvSettings = NULL;
 
-LLFloaterEnvSettings::LLFloaterEnvSettings() : LLFloater(std::string("Environment Settings Floater"))
+LLFloaterEnvSettings::LLFloaterEnvSettings()
+  : LLFloater()
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_env_settings.xml");
-	
-	// load it up
-	initCallbacks();
 }
-
+// virtual
 LLFloaterEnvSettings::~LLFloaterEnvSettings()
 {
 }
-
+// virtual
+BOOL LLFloaterEnvSettings::postBuild()
+{	
+	// load it up
+	initCallbacks();
+	return TRUE;
+}
 void LLFloaterEnvSettings::onClickHelp(void* data)
 {
 	LLFloaterEnvSettings* self = (LLFloaterEnvSettings*)data;
@@ -174,7 +178,7 @@ LLFloaterEnvSettings* LLFloaterEnvSettings::instance()
 	if (!sEnvSettings)
 	{
 		sEnvSettings = new LLFloaterEnvSettings();
-		sEnvSettings->open();
+		sEnvSettings->openFloater();
 		sEnvSettings->setFocus(TRUE);
 	}
 	return sEnvSettings;
@@ -188,7 +192,7 @@ void LLFloaterEnvSettings::show()
 	//LLUICtrlFactory::getInstance()->buildFloater(envSettings, "floater_env_settings.xml");
 	//envSettings->initCallbacks();
 
-	envSettings->open();
+	envSettings->openFloater();
 }
 
 bool LLFloaterEnvSettings::isOpen()
@@ -303,7 +307,6 @@ std::string LLFloaterEnvSettings::timeToString(F32 curTime)
 {
 	S32 hours;
 	S32 min;
-	bool isPM = false;
 
 	// get hours and minutes
 	hours = (S32) (24.0 * curTime);
@@ -317,46 +320,19 @@ std::string LLFloaterEnvSettings::timeToString(F32 curTime)
 		min = 0;
 	}
 
-	// set for PM
-	if(hours >= 12 && hours < 24)
-	{
-		isPM = true;
-	}
+	std::string newTime = getString("timeStr");
+	struct tm * timeT;
+	time_t secT = time(0);
+	timeT = gmtime (&secT);
 
-	// convert to non-military notation
-	if(hours >= 24) 
-	{
-		hours = 12;
-	} 
-	else if(hours > 12) 
-	{
-		hours -= 12;
-	} 
-	else if(hours == 0) 
-	{
-		hours = 12;
-	}
+	timeT->tm_hour = hours;
+	timeT->tm_min = min;
+	secT = mktime (timeT);
+	secT -= LLStringOps::getLocalTimeOffset ();
 
-	// make the string
-	std::stringstream newTime;
-	newTime << hours << ":";
-	
-	// double 0
-	if(min < 10) 
-	{
-		newTime << 0;
-	}
-	
-	// finish it
-	newTime << min << " ";
-	if(isPM) 
-	{
-		newTime << "PM";
-	} 
-	else 
-	{
-		newTime << "AM";
-	}
+	LLSD substitution;
+	substitution["datetime"] = (S32) secT;
 
-	return newTime.str();
+	LLStringUtil::format (newTime, substitution);
+	return newTime;
 }

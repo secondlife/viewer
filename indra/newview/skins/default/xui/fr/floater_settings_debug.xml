@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="settings_debug" title="Paramétrages du mode Debug">
 	<combo_box name="boolean_combo">
-		<combo_item name="TRUE">
-			TRUE
-		</combo_item>
-		<combo_item name="FALSE">
-			FALSE
-		</combo_item>
+		<combo_box.item name="TRUE" label="TRUE" />
+		<combo_box.item name="FALSE" label="FALSE" />
 	</combo_box>
 	<color_swatch label="Couleur" name="color_swatch" width="43" />
 	<spinner label="x" name="val_spinner_1" />

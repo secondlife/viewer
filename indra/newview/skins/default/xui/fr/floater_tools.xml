@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" title="">
+<floater name="toolbox floater" title="" short_title="Construire">
 	<button label="" label_selected="" name="button focus" tool_tip="Mise au point"/>
 	<button label="" label_selected="" name="button move" tool_tip="Déplacer"/>
 	<button label="" label_selected="" name="button edit" tool_tip="Modifier"/>
@@ -20,15 +20,9 @@
 		Axe :
 	</text>
 	<combo_box name="combobox grid mode">
-		<combo_item name="World">
-			Monde
-		</combo_item>
-		<combo_item name="Local">
-			Local
-		</combo_item>
-		<combo_item name="Reference">
-			Référence
-		</combo_item>
+		<combo_box.item name="World" label="Monde"/>
+		<combo_box.item name="Local" label="Local"/>
+		<combo_box.item name="Reference" label="Référence"/>
 	</combo_box>
 	<check_box label="Étirer les deux côtés" name="checkbox uniform"/>
 	<check_box label="Étirer les textures" name="checkbox stretch textures"/>
@@ -130,15 +124,9 @@
 				Prix : L$
 			</text>
 			<radio_group name="sale type">
-				<radio_item name="Original">
-					Original
-				</radio_item>
-				<radio_item name="Copy">
-					Copie
-				</radio_item>
-				<radio_item name="Contents">
-					Contenus
-				</radio_item>
+				<radio_item name="Original" label="Original" />
+				<radio_item name="Copy" label="Copie" />
+				<radio_item name="Contents" label="Contenus" />
 			</radio_group>
 			<text name="Next owner can:">
 				Le prochain propriétaire pourra :
@@ -150,27 +138,13 @@
 				Action du clic-gauche :
 			</text>
 			<combo_box name="clickaction" width="178">
-				<combo_item name="Touch/grab(default)">
-					Toucher/attraper (défaut)
-				</combo_item>
-				<combo_item name="Sitonobject">
-					S&apos;asseoir sur l&apos;objet
-				</combo_item>
-				<combo_item name="Buyobject">
-					Acheter l&apos;objet
-				</combo_item>
-				<combo_item name="Payobject">
-					Payer l&apos;objet
-				</combo_item>
-				<combo_item name="Open">
-					Ouvrir
-				</combo_item>
-				<combo_item name="Play">
-					Jouer le média de la parcelle
-				</combo_item>
-				<combo_item name="Opemmedia">
-					Ouvrir le média de la parcelle
-				</combo_item>
+				<combo_box.item name="Touch/grab(default)" label="Toucher/attraper (défaut)"/>
+				<combo_box.item name="Sitonobject" label="S&apos;asseoir sur l&apos;objet"/>
+				<combo_box.item name="Buyobject" label="Acheter l&apos;objet"/>
+				<combo_box.item name="Payobject" label="Payer l&apos;objet"/>
+				<combo_box.item name="Open" label="Ouvrir"/>
+				<combo_box.item name="Play" label="Jouer le média de la parcelle"/>
+				<combo_box.item name="Opemmedia" label="Ouvrir le média de la parcelle"/>
 			</combo_box>
 			<text name="B:">
 				B :
@@ -254,56 +228,26 @@
 				Matériau
 			</text>
 			<combo_box name="material">
-				<combo_item name="Stone">
-					Pierre
-				</combo_item>
-				<combo_item name="Metal">
-					Métal
-				</combo_item>
-				<combo_item name="Glass">
-					Verre
-				</combo_item>
-				<combo_item name="Wood">
-					Bois
-				</combo_item>
-				<combo_item name="Flesh">
-					Chair
-				</combo_item>
-				<combo_item name="Plastic">
-					Plastique
-				</combo_item>
-				<combo_item name="Rubber">
-					Caoutchouc
-				</combo_item>
+				<combo_box.item name="Stone" label="Pierre"/>
+				<combo_box.item name="Metal" label="Métal"/>
+				<combo_box.item name="Glass" label="Verre"/>
+				<combo_box.item name="Wood" label="Bois"/>
+				<combo_box.item name="Flesh" label="Chair"/>
+				<combo_box.item name="Plastic" label="Plastique"/>
+				<combo_box.item name="Rubber" label="Caoutchouc"/>
 			</combo_box>
 			<text name="label basetype">
 				Type de construction
 			</text>
 			<combo_box name="comboBaseType">
-				<combo_item name="Box">
-					Boîte
-				</combo_item>
-				<combo_item name="Cylinder">
-					Cylindre
-				</combo_item>
-				<combo_item name="Prism">
-					Prisme
-				</combo_item>
-				<combo_item name="Sphere">
-					Sphère
-				</combo_item>
-				<combo_item name="Torus">
-					Tore
-				</combo_item>
-				<combo_item name="Tube">
-					Tube
-				</combo_item>
-				<combo_item name="Ring">
-					Anneau
-				</combo_item>
-				<combo_item name="Sculpted">
-					Sculptie
-				</combo_item>
+				<combo_box.item name="Box" label="Boîte"/>
+				<combo_box.item name="Cylinder" label="Cylindre"/>
+				<combo_box.item name="Prism" label="Prisme"/>
+				<combo_box.item name="Sphere" label="Sphère"/>
+				<combo_box.item name="Torus" label="Tore"/>
+				<combo_box.item name="Tube" label="Tube"/>
+				<combo_box.item name="Ring" label="Anneau"/>
+				<combo_box.item name="Sculpted" label="Sculptie"/>
 			</combo_box>
 			<text name="text cut">
 				Début et fin de découpe du tracé
@@ -320,18 +264,10 @@
 				Forme du creux
 			</text>
 			<combo_box name="hole">
-				<combo_item name="Default">
-					Défaut
-				</combo_item>
-				<combo_item name="Circle">
-					Cercle
-				</combo_item>
-				<combo_item name="Square">
-					Carré
-				</combo_item>
-				<combo_item name="Triangle">
-					Triangle
-				</combo_item>
+				<combo_box.item name="Default" label="Défaut"/>
+				<combo_box.item name="Circle" label="Cercle"/>
+				<combo_box.item name="Square" label="Carré"/>
+				<combo_box.item name="Triangle" label="Triangle"/>
 			</combo_box>
 			<text name="text twist">
 				Début et fin de vrille
@@ -380,21 +316,11 @@
 				Type de raccord
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_item name="None">
-					(aucun)
-				</combo_item>
-				<combo_item name="Sphere">
-					Sphère
-				</combo_item>
-				<combo_item name="Torus">
-					Tore
-				</combo_item>
-				<combo_item name="Plane">
-					Plan
-				</combo_item>
-				<combo_item name="Cylinder">
-					Cylindre
-				</combo_item>
+				<combo_box.item name="None" label="aucun)"/>
+				<combo_box.item name="Sphere" label="Sphère"/>
+				<combo_box.item name="Torus" label="Tore"/>
+				<combo_box.item name="Plane" label="Plan"/>
+				<combo_box.item name="Cylinder" label="Cylindre"/>
 			</combo_box>
 		</panel>
 		<panel label="Attributs" name="Features">
@@ -436,88 +362,40 @@
 				Application
 			</text>
 			<combo_box name="combobox texgen">
-				<combo_item name="Default">
-					Défaut
-				</combo_item>
-				<combo_item name="Planar">
-					Planar
-				</combo_item>
+				<combo_box.item name="Default" label="Défaut"/>
+				<combo_box.item name="Planar" label="Planar"/>
 			</combo_box>
 			<text name="label shininess">
 				Brillance
 			</text>
 			<combo_box name="combobox shininess">
-				<combo_item name="None">
-					Aucune
-				</combo_item>
-				<combo_item name="Low">
-					Faible
-				</combo_item>
-				<combo_item name="Medium">
-					Moyenne
-				</combo_item>
-				<combo_item name="High">
-					Élevée
-				</combo_item>
+				<combo_box.item name="None" label="Aucune"/>
+				<combo_box.item name="Low" label="Faible"/>
+				<combo_box.item name="Medium" label="Moyenne"/>
+				<combo_box.item name="High" label="Élevée"/>
 			</combo_box>
 			<text name="label bumpiness">
 				Relief
 			</text>
 			<combo_box name="combobox bumpiness">
-				<combo_item name="None">
-					Aucun
-				</combo_item>
-				<combo_item name="Brightness">
-					Luminosité
-				</combo_item>
-				<combo_item name="Darkness">
-					Obscurité
-				</combo_item>
-				<combo_item name="woodgrain">
-					Aggloméré
-				</combo_item>
-				<combo_item name="bark">
-					Écorce
-				</combo_item>
-				<combo_item name="bricks">
-					Briques
-				</combo_item>
-				<combo_item name="checker">
-					Damier
-				</combo_item>
-				<combo_item name="concrete">
-					Béton
-				</combo_item>
-				<combo_item name="crustytile">
-					Carrelage
-				</combo_item>
-				<combo_item name="cutstone">
-					Pierre de taille
-				</combo_item>
-				<combo_item name="discs">
-					Disques
-				</combo_item>
-				<combo_item name="gravel">
-					Gravier
-				</combo_item>
-				<combo_item name="petridish">
-					Boîte de Petri
-				</combo_item>
-				<combo_item name="siding">
-					Lattes
-				</combo_item>
-				<combo_item name="stonetile">
-					Carreaux
-				</combo_item>
-				<combo_item name="stucco">
-					Stuc
-				</combo_item>
-				<combo_item name="suction">
-					Ventouses
-				</combo_item>
-				<combo_item name="weave">
-					Tissage
-				</combo_item>
+				<combo_box.item name="None" label="Aucun"/>
+				<combo_box.item name="Brightness" label="Luminosité"/>
+				<combo_box.item name="Darkness" label="Obscurité"/>
+				<combo_box.item name="woodgrain" label="Aggloméré"/>
+				<combo_box.item name="bark" label="Écorce"/>
+				<combo_box.item name="bricks" label="Briques"/>
+				<combo_box.item name="checker" label="Damier"/>
+				<combo_box.item name="concrete" label="Béton"/>
+				<combo_box.item name="crustytile" label="Carrelage"/>
+				<combo_box.item name="cutstone" label="Pierre de taille"/>
+				<combo_box.item name="discs" label="Disques"/>
+				<combo_box.item name="gravel" label="Gravier"/>
+				<combo_box.item name="petridish" label="Boîte de Petri"/>
+				<combo_box.item name="siding" label="Lattes"/>
+				<combo_box.item name="stonetile" label="Carreaux"/>
+				<combo_box.item name="stucco" label="Stuc"/>
+				<combo_box.item name="suction" label="Ventouses"/>
+				<combo_box.item name="weave" label="Tissage"/>
 			</combo_box>
 			<text name="tex scale">
 				Répétitions par face

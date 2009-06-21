@@ -46,12 +46,14 @@
 #include "llfloateravatarpicker.h"
 #include "llviewerwindow.h"
 #include "llbutton.h"
-#include "llfloateravatarinfo.h"
+#include "llfriendactions.h"
 #include "llinventorymodel.h"
 #include "llnamelistctrl.h"
 #include "llnotify.h"
 #include "llresmgr.h"
-#include "llimview.h"
+#include "llscrolllistctrl.h"
+#include "llscrolllistitem.h"
+#include "llscrolllistcell.h"
 #include "lluictrlfactory.h"
 #include "llmenucommands.h"
 #include "llviewercontrol.h"
@@ -59,6 +61,8 @@
 #include "lltimer.h"
 #include "lltextbox.h"
 #include "llvoiceclient.h"
+
+// *TODO: Move more common stuff to LLFriendActions?
 
 //Maximum number of people you can select to do an operation on at once.
 #define MAX_FRIEND_SELECT 20
@@ -148,7 +152,7 @@ void LLPanelFriends::updateFriends(U32 changed_mask)
 	// if the maximum amount of friends are selected
 	mShowMaxSelectWarning = false;
 
-	LLDynamicArray<LLUUID> selected_friends = getSelectedIDs();
+	std::vector<LLUUID> selected_friends = getSelectedIDs();
 	if(changed_mask & (LLFriendObserver::ADD | LLFriendObserver::REMOVE | LLFriendObserver::ONLINE))
 	{
 		refreshNames(changed_mask);
@@ -173,7 +177,7 @@ void LLPanelFriends::updateFriends(U32 changed_mask)
 		// but we don't really care here, because refreshUI() will
 		// clean up the interface.
 		friends_list->setCurrentByID(selected_id);
-		for(LLDynamicArray<LLUUID>::iterator itr = selected_friends.begin(); itr != selected_friends.end(); ++itr)
+		for(std::vector<LLUUID>::iterator itr = selected_friends.begin(); itr != selected_friends.end(); ++itr)
 		{
 			friends_list->setSelectedByValue(*itr, true);
 		}
@@ -188,10 +192,10 @@ BOOL LLPanelFriends::postBuild()
 {
 	mFriendsList = getChild<LLScrollListCtrl>("friend_list");
 	mFriendsList->setMaxSelectable(MAX_FRIEND_SELECT);
-	mFriendsList->setMaximumSelectCallback(onMaximumSelect);
+	mFriendsList->setMaximumSelectCallback(boost::bind(&LLPanelFriends::onMaximumSelect));
 	mFriendsList->setCommitOnSelectionChange(TRUE);
 	childSetCommitCallback("friend_list", onSelectName, this);
-	childSetDoubleClickCallback("friend_list", onClickIM);
+	getChild<LLScrollListCtrl>("friend_list")->setDoubleClickCallback(onClickIM, this);
 
 	U32 changed_mask = LLFriendObserver::ADD | LLFriendObserver::REMOVE | LLFriendObserver::ONLINE;
 	refreshNames(changed_mask);
@@ -233,7 +237,7 @@ BOOL LLPanelFriends::addFriend(const LLUUID& agent_id)
 	friend_column["column"] = "friend_name";
 	friend_column["value"] = fullname;
 	friend_column["font"] = "SANSSERIF";
-	friend_column["font-style"] = "NORMAL";	
+	friend_column["font"]["style"] = "NORMAL";	
 
 	LLSD& online_status_column = element["columns"][LIST_ONLINE_STATUS];
 	online_status_column["column"] = "icon_online_status";
@@ -241,12 +245,12 @@ BOOL LLPanelFriends::addFriend(const LLUUID& agent_id)
 	
 	if (isOnline)
 	{
-		friend_column["font-style"] = "BOLD";	
+		friend_column["font"]["style"] = "BOLD";	
 		online_status_column["value"] = "icon_avatar_online.tga";
 	}
 	else if(isOnlineSIP)
 	{
-		friend_column["font-style"] = "BOLD";	
+		friend_column["font"]["style"] = "BOLD";	
 		online_status_column["value"] = ONLINE_SIP_ICON_NAME;
 	}
 
@@ -325,31 +329,14 @@ BOOL LLPanelFriends::updateFriendItem(const LLUUID& agent_id, const LLRelationsh
 
 void LLPanelFriends::refreshRightsChangeList()
 {
-	LLDynamicArray<LLUUID> friends = getSelectedIDs();
+	std::vector<LLUUID> friends = getSelectedIDs();
 	S32 num_selected = friends.size();
 
 	bool can_offer_teleport = num_selected >= 1;
 	bool selected_friends_online = true;
 
-	LLTextBox* processing_label = getChild<LLTextBox>("process_rights_label");
-
-	if(!mAllowRightsChange)
-	{
-		if(processing_label)
-		{
-			processing_label->setVisible(true);
-			// ignore selection for now
-			friends.clear();
-			num_selected = 0;
-		}
-	}
-	else if(processing_label)
-	{
-		processing_label->setVisible(false);
-	}
-
 	const LLRelationship* friend_status = NULL;
-	for(LLDynamicArray<LLUUID>::iterator itr = friends.begin(); itr != friends.end(); ++itr)
+	for(std::vector<LLUUID>::iterator itr = friends.begin(); itr != friends.end(); ++itr)
 	{
 		friend_status = LLAvatarTracker::instance().getBuddyInfo(*itr);
 		if (friend_status)
@@ -391,7 +378,7 @@ struct SortFriendsByID
 
 void LLPanelFriends::refreshNames(U32 changed_mask)
 {
-	LLDynamicArray<LLUUID> selected_ids = getSelectedIDs();	
+	std::vector<LLUUID> selected_ids = getSelectedIDs();	
 	S32 pos = mFriendsList->getScrollPos();	
 	
 	// get all buddies we know about
@@ -499,17 +486,8 @@ void LLPanelFriends::refreshUI()
 		single_selected = TRUE;
 		if(num_selected > 1)
 		{
-			childSetText("friend_name_label", getString("Multiple"));
 			multiple_selected = TRUE;		
 		}
-		else
-		{			
-			childSetText("friend_name_label", mFriendsList->getFirstSelected()->getColumn(LIST_FRIEND_NAME)->getValue().asString() + "...");
-		}
-	}
-	else
-	{
-		childSetText("friend_name_label", LLStringUtil::null);
 	}
 
 
@@ -521,15 +499,15 @@ void LLPanelFriends::refreshUI()
 	//(single_selected will always be true in this situations)
 	childSetEnabled("remove_btn", single_selected);
 	childSetEnabled("im_btn", single_selected);
-	childSetEnabled("friend_rights", single_selected);
+//	childSetEnabled("friend_rights", single_selected);
 
 	refreshRightsChangeList();
 }
 
-LLDynamicArray<LLUUID> LLPanelFriends::getSelectedIDs()
+std::vector<LLUUID> LLPanelFriends::getSelectedIDs()
 {
 	LLUUID selected_id;
-	LLDynamicArray<LLUUID> friend_ids;
+	std::vector<LLUUID> friend_ids;
 	std::vector<LLScrollListItem*> selected = mFriendsList->getAllSelected();
 	for(std::vector<LLScrollListItem*>::iterator itr = selected.begin(); itr != selected.end(); ++itr)
 	{
@@ -552,7 +530,7 @@ void LLPanelFriends::onSelectName(LLUICtrl* ctrl, void* user_data)
 }
 
 //static
-void LLPanelFriends::onMaximumSelect(void* user_data)
+void LLPanelFriends::onMaximumSelect()
 {
 	LLSD args;
 	args["MAX_SELECT"] = llformat("%d", MAX_FRIEND_SELECT);
@@ -564,14 +542,11 @@ void LLPanelFriends::onClickProfile(void* user_data)
 {
 	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
 
-	//llinfos << "LLPanelFriends::onClickProfile()" << llendl;
-	LLDynamicArray<LLUUID> ids = panelp->getSelectedIDs();
+	std::vector<LLUUID> ids = panelp->getSelectedIDs();
 	if(ids.size() > 0)
 	{
 		LLUUID agent_id = ids[0];
-		BOOL online;
-		online = LLAvatarTracker::instance().isBuddyOnline(agent_id);
-		LLFloaterAvatarInfo::showFromFriend(agent_id, online);
+		LLFriendActions::showProfile(agent_id);
 	}
 }
 
@@ -580,70 +555,18 @@ void LLPanelFriends::onClickIM(void* user_data)
 {
 	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
 
-	//llinfos << "LLPanelFriends::onClickIM()" << llendl;
-	LLDynamicArray<LLUUID> ids = panelp->getSelectedIDs();
+	std::vector<LLUUID> ids = panelp->getSelectedIDs();
 	if(ids.size() > 0)
 	{
 		if(ids.size() == 1)
 		{
-			LLUUID agent_id = ids[0];
-			const LLRelationship* info = LLAvatarTracker::instance().getBuddyInfo(agent_id);
-			std::string fullname;
-			if(info && gCacheName->getFullName(agent_id, fullname))
-			{
-				gIMMgr->setFloaterOpen(TRUE);
-				gIMMgr->addSession(fullname, IM_NOTHING_SPECIAL, agent_id);
-			}		
+			LLFriendActions::startIM(ids[0]);
 		}
 		else
 		{
-			gIMMgr->setFloaterOpen(TRUE);
-			gIMMgr->addSession("Friends Conference", IM_SESSION_CONFERENCE_START, ids[0], ids);
+			LLFriendActions::startConference(ids);
 		}
-		make_ui_sound("UISndStartIM");
 	}
-}
-
-// static
-void LLPanelFriends::requestFriendship(const LLUUID& target_id, const std::string& target_name, const std::string& message)
-{
-	LLUUID calling_card_folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CALLINGCARD);
-	send_improved_im(target_id,
-					 target_name,
-					 message,
-					 IM_ONLINE,
-					 IM_FRIENDSHIP_OFFERED,
-					 calling_card_folder_id);
-}
-
-// static
-bool LLPanelFriends::callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-	if (option == 0)
-	{
-		requestFriendship(notification["payload"]["id"].asUUID(), 
-		    notification["payload"]["name"].asString(),
-		    response["message"].asString());
-	}
-	return false;
-}
-
-bool LLPanelFriends::callbackAddFriend(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-	if (option == 0)
-	{
-		// Servers older than 1.25 require the text of the message to be the
-		// calling card folder ID for the offering user. JC
-		LLUUID calling_card_folder_id = 
-			gInventory.findCategoryUUIDForType(LLAssetType::AT_CALLINGCARD);
-		std::string message = calling_card_folder_id.asString();
-		requestFriendship(notification["payload"]["id"].asUUID(), 
-		    notification["payload"]["name"].asString(),
-		    message);
-	}
-    return false;
 }
 
 // static
@@ -653,35 +576,7 @@ void LLPanelFriends::onPickAvatar(const std::vector<std::string>& names,
 {
 	if (names.empty()) return;
 	if (ids.empty()) return;
-	requestFriendshipDialog(ids[0], names[0]);
-}
-
-// static
-void LLPanelFriends::requestFriendshipDialog(const LLUUID& id,
-											   const std::string& name)
-{
-	if(id == gAgentID)
-	{
-		LLNotifications::instance().add("AddSelfFriend");
-		return;
-	}
-
-	LLSD args;
-	args["NAME"] = name;
-	LLSD payload;
-	payload["id"] = id;
-	payload["name"] = name;
-    // Look for server versions like: Second Life Server 1.24.4.95600
-	if (gLastVersionChannel.find(" 1.24.") != std::string::npos)
-	{
-		// Old and busted server version, doesn't support friend
-		// requests with messages.
-    	LLNotifications::instance().add("AddFriend", args, payload, &callbackAddFriend);
-	}
-	else
-	{
-    	LLNotifications::instance().add("AddFriendWithMessage", args, payload, &callbackAddFriendWithMessage);
-	}
+	LLFriendActions::requestFriendshipDialog(ids[0], names[0]);
 }
 
 // static
@@ -700,53 +595,14 @@ void LLPanelFriends::onClickAddFriend(void* user_data)
 void LLPanelFriends::onClickRemove(void* user_data)
 {
 	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
-
-	//llinfos << "LLPanelFriends::onClickRemove()" << llendl;
-	LLDynamicArray<LLUUID> ids = panelp->getSelectedIDs();
-	LLSD args;
-	if(ids.size() > 0)
-	{
-		std::string msgType = "RemoveFromFriends";
-		if(ids.size() == 1)
-		{
-			LLUUID agent_id = ids[0];
-			std::string first, last;
-			if(gCacheName->getName(agent_id, first, last))
-			{
-				args["FIRST_NAME"] = first;
-				args["LAST_NAME"] = last;	
-			}
-		}
-		else
-		{
-			msgType = "RemoveMultipleFromFriends";
-		}
-		LLSD payload;
-
-		for (LLDynamicArray<LLUUID>::iterator it = ids.begin();
-			it != ids.end();
-			++it)
-		{
-			payload["ids"].append(*it);
-		}
-
-		LLNotifications::instance().add(msgType,
-			args,
-			payload,
-			&handleRemove);
-	}
+	LLFriendActions::removeFriendsDialog(panelp->getSelectedIDs());
 }
 
 // static
 void LLPanelFriends::onClickOfferTeleport(void* user_data)
 {
 	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
-
-	LLDynamicArray<LLUUID> ids = panelp->getSelectedIDs();
-	if(ids.size() > 0)
-	{	
-		handle_lure(ids);
-	}
+	LLFriendActions::offerTeleport(panelp->getSelectedIDs());
 }
 
 // static
@@ -754,7 +610,7 @@ void LLPanelFriends::onClickPay(void* user_data)
 {
 	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
 
-	LLDynamicArray<LLUUID> ids = panelp->getSelectedIDs();
+	std::vector<LLUUID> ids = panelp->getSelectedIDs();
 	if(ids.size() == 1)
 	{	
 		handle_pay_by_id(ids[0]);
@@ -954,43 +810,4 @@ void LLPanelFriends::sendRightsGrant(rights_map_t& ids)
 
 	mNumRightsChanged = ids.size();
 	gAgent.sendReliableMessage();
-}
-
-
-
-// static
-bool LLPanelFriends::handleRemove(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-
-	const LLSD& ids = notification["payload"]["ids"];
-	for(LLSD::array_const_iterator itr = ids.beginArray(); itr != ids.endArray(); ++itr)
-	{
-		LLUUID id = itr->asUUID();
-		const LLRelationship* ip = LLAvatarTracker::instance().getBuddyInfo(id);
-		if(ip)
-		{			
-			switch(option)
-			{
-			case 0: // YES
-				if( ip->isRightGrantedTo(LLRelationship::GRANT_MODIFY_OBJECTS))
-				{
-					LLAvatarTracker::instance().empower(id, FALSE);
-					LLAvatarTracker::instance().notifyObservers();
-				}
-				LLAvatarTracker::instance().terminateBuddy(id);
-				LLAvatarTracker::instance().notifyObservers();
-				gInventory.addChangedMask(LLInventoryObserver::LABEL | LLInventoryObserver::CALLING_CARD, LLUUID::null);
-				gInventory.notifyObservers();
-				break;
-
-			case 1: // NO
-			default:
-				llinfos << "No removal performed." << llendl;
-				break;
-			}
-		}
-		
-	}
-	return false;
 }

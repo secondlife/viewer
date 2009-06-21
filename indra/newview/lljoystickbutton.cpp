@@ -49,8 +49,12 @@
 
 #include "llglheaders.h"
 
-static LLRegisterWidget<LLJoystickAgentSlide> r1("joystick_slide");
-static LLRegisterWidget<LLJoystickAgentTurn> r2("joystick_turn");
+static LLDefaultWidgetRegistry::Register<LLJoystickAgentSlide> r1("joystick_slide");
+static LLDefaultWidgetRegistry::Register<LLJoystickAgentTurn> r2("joystick_turn");
+static LLDefaultWidgetRegistry::Register<LLJoystickCameraRotate> r3("joystick_rotate");
+static LLDefaultWidgetRegistry::Register<LLJoystickCameraZoom> r4("joystick_zoom");
+static LLDefaultWidgetRegistry::Register<LLJoystickCameraTrack> r5("joystick_track");
+
 
 
 const F32 NUDGE_TIME = 0.25f;		// in seconds
@@ -59,15 +63,18 @@ const F32 ORBIT_NUDGE_RATE = 0.05f; // fraction of normal speed
 //
 // Public Methods
 //
-LLJoystick::LLJoystick(
-	const std::string& name, 
-	LLRect rect,
-	const std::string &default_image,
-	const std::string &selected_image,
-	EJoystickQuadrant initial_quadrant )
-	:	
-	LLButton(name, rect, default_image, selected_image, LLStringUtil::null, NULL, NULL),
-	mInitialQuadrant(initial_quadrant),
+void QuadrantNames::declareValues()
+{
+	declare("origin", JQ_ORIGIN);
+	declare("up", JQ_UP);
+	declare("down", JQ_DOWN);
+	declare("left", JQ_LEFT);
+	declare("right", JQ_RIGHT);
+}
+
+
+LLJoystick::LLJoystick(const LLJoystick::Params& p)
+:	LLButton(p),
 	mInitialOffset(0, 0),
 	mLastMouse(0, 0),
 	mFirstMouse(0, 0),
@@ -76,10 +83,10 @@ LLJoystick::LLJoystick(
 	mHorizSlopNear(0),
 	mHorizSlopFar(0),
 	mHeldDown(FALSE),
-	mHeldDownTimer()
+	mHeldDownTimer(),
+	mInitialQuadrant(p.quadrant)
 {
-	setHeldDownCallback(&LLJoystick::onHeldDown);
-	setCallbackUserData(this);
+	setHeldDownCallback(&LLJoystick::onBtnHeldDown, this);
 }
 
 
@@ -178,16 +185,14 @@ F32 LLJoystick::getElapsedHeldDownTime()
 }
 
 // static
-void LLJoystick::onHeldDown(void *userdata)
+void LLJoystick::onBtnHeldDown(void *userdata)
 {
 	LLJoystick *self = (LLJoystick *)userdata;
-
-	// somebody removed this function without checking the
-	// build. Removed 2007-03-26.
-	//llassert( gViewerWindow->hasMouseCapture( self ) );
-
-	self->mHeldDown = TRUE;
-	self->onHeldDown();
+	if (self)
+	{
+		self->mHeldDown = TRUE;
+		self->onHeldDown();
+	}
 }
 
 EJoystickQuadrant LLJoystick::selectQuadrant(LLXMLNodePtr node)
@@ -244,23 +249,6 @@ EJoystickQuadrant LLJoystick::quadrantFromName(const std::string& sQuadrant)
 
 	return quadrant;
 }
-
-
-LLXMLNodePtr LLJoystick::getXML(bool save_children) const
-{
-	LLXMLNodePtr node = LLUICtrl::getXML();
-
-	node->createChild("halign", TRUE)->setStringValue(LLFontGL::nameFromHAlign(getHAlign()));
-	node->createChild("quadrant", TRUE)->setStringValue(nameFromQuadrant(mInitialQuadrant));
-
-	addImageAttributeToXML(node,getImageUnselectedName(),getImageUnselectedID(),std::string("image_unselected"));
-	addImageAttributeToXML(node,getImageSelectedName(),getImageSelectedID(),std::string("image_selected"));
-	
-	node->createChild("scale_image", TRUE)->setBoolValue(getScaleImage());
-
-	return node;
-}
-
 
 
 //-------------------------------------------------------------------------------
@@ -326,46 +314,6 @@ void LLJoystickAgentTurn::onHeldDown()
 		}
 	}
 }
-
-LLView* LLJoystickAgentTurn::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
-{
-	std::string name("button");
-	node->getAttributeString("name", name);
-
-	std::string	image_unselected;
-	if (node->hasAttribute("image_unselected")) node->getAttributeString("image_unselected",image_unselected);
-	
-	std::string	image_selected;
-	if (node->hasAttribute("image_selected")) node->getAttributeString("image_selected",image_selected);
-
-	EJoystickQuadrant quad = JQ_ORIGIN;
-	if (node->hasAttribute("quadrant")) quad = selectQuadrant(node);
-	
-	LLJoystickAgentTurn *button = new LLJoystickAgentTurn(name, 
-		LLRect(),
-		image_unselected,
-		image_selected,
-		quad);
-
-	if (node->hasAttribute("halign"))
-	{
-		LLFontGL::HAlign halign = selectFontHAlign(node);
-		button->setHAlign(halign);
-	}
-
-	if (node->hasAttribute("scale_image"))
-	{
-		BOOL	needsScale = FALSE;
-		node->getAttributeBOOL("scale_image",needsScale);
-		button->setScaleImage( needsScale );
-	}
-
-	button->initFromXML(node, parent);
-	
-	return button;
-}
-
-
 
 //-------------------------------------------------------------------------------
 // LLJoystickAgentSlide
@@ -435,54 +383,12 @@ void LLJoystickAgentSlide::onHeldDown()
 }
 
 
-// static
-LLView* LLJoystickAgentSlide::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
-{
-	std::string name("button");
-	node->getAttributeString("name", name);
-
-	std::string	image_unselected;
-	if (node->hasAttribute("image_unselected")) node->getAttributeString("image_unselected",image_unselected);
-	
-	std::string	image_selected;
-	if (node->hasAttribute("image_selected")) node->getAttributeString("image_selected",image_selected);
-	
-	
-	EJoystickQuadrant quad = JQ_ORIGIN;
-	if (node->hasAttribute("quadrant")) quad = selectQuadrant(node);
-	
-	LLJoystickAgentSlide *button = new LLJoystickAgentSlide(name, 
-		LLRect(),
-		image_unselected,
-		image_selected,
-		quad);
-
-	if (node->hasAttribute("halign"))
-	{
-		LLFontGL::HAlign halign = selectFontHAlign(node);
-		button->setHAlign(halign);
-	}
-
-	if (node->hasAttribute("scale_image"))
-	{
-		BOOL	needsScale = FALSE;
-		node->getAttributeBOOL("scale_image",needsScale);
-		button->setScaleImage( needsScale );
-	}
-	
-	button->initFromXML(node, parent);
-	
-	return button;
-}
-
-
 //-------------------------------------------------------------------------------
 // LLJoystickCameraRotate
 //-------------------------------------------------------------------------------
 
-LLJoystickCameraRotate::LLJoystickCameraRotate(const std::string& name, LLRect rect, const std::string &out_img, const std::string &in_img)
-	: 
-	LLJoystick(name, rect, out_img, in_img, JQ_ORIGIN),
+LLJoystickCameraRotate::LLJoystickCameraRotate(const LLJoystickCameraRotate::Params& p)
+:	LLJoystick(p), 
 	mInLeft( FALSE ),
 	mInTop( FALSE ),
 	mInRight( FALSE ),
@@ -636,6 +542,13 @@ void LLJoystickCameraRotate::draw()
 	{
 		drawDebugRect();
 	}
+
+	//// *HACK: also draw debug rectangles around currently-being-edited LLView, and any elements that are being highlighted by GUI preview code (see LLFloaterUIPreview)
+	//std::set<LLView*>::iterator iter = std::find(sPreviewHighlightedElements.begin(), sPreviewHighlightedElements.end(), this);
+	//if ((sEditingUI && this == sEditingUIView) || (iter != sPreviewHighlightedElements.end() && sDrawPreviewHighlights))
+	//{
+	//	drawDebugRect();
+	//}
 }
 
 // Draws image rotated by multiples of 90 degrees
@@ -679,6 +592,15 @@ void LLJoystickCameraRotate::drawRotatedImage( LLImageGL* image, S32 rotations )
 // LLJoystickCameraTrack
 //-------------------------------------------------------------------------------
 
+LLJoystickCameraTrack::Params::Params()
+{
+	held_down_delay.seconds(0.0);
+}
+
+LLJoystickCameraTrack::LLJoystickCameraTrack(const LLJoystickCameraTrack::Params& p)
+:	LLJoystickCameraRotate(p)
+{}
+
 
 void LLJoystickCameraTrack::onHeldDown()
 {
@@ -717,16 +639,14 @@ void LLJoystickCameraTrack::onHeldDown()
 // LLJoystickCameraZoom
 //-------------------------------------------------------------------------------
 
-LLJoystickCameraZoom::LLJoystickCameraZoom(const std::string& name, LLRect rect, const std::string &out_img, const std::string &plus_in_img, const std::string &minus_in_img)
-	: 
-	LLJoystick(name, rect, out_img, LLStringUtil::null, JQ_ORIGIN),
+LLJoystickCameraZoom::LLJoystickCameraZoom(const LLJoystickCameraZoom::Params& p)
+:	LLJoystick(p),
 	mInTop( FALSE ),
-	mInBottom( FALSE )
+	mInBottom( FALSE ),
+	mPlusInImage(p.plus_image),
+	mMinusInImage(p.minus_image)
 {
-	mPlusInImage = LLUIImageList::getInstance()->getUIImage(plus_in_img);
-	mMinusInImage = LLUIImageList::getInstance()->getUIImage(minus_in_img);
 }
-
 
 BOOL LLJoystickCameraZoom::handleMouseDown(S32 x, S32 y, MASK mask)
 {
@@ -808,6 +728,13 @@ void LLJoystickCameraZoom::draw()
 	{
 		drawDebugRect();
 	}
+
+	//// *HACK: also draw debug rectangles around currently-being-edited LLView, and any elements that are being highlighted by GUI preview code (see LLFloaterUIPreview)
+	//std::set<LLView*>::iterator iter = std::find(sPreviewHighlightedElements.begin(), sPreviewHighlightedElements.end(), this);
+	//if ((sEditingUI && this == sEditingUIView) || (iter != sPreviewHighlightedElements.end() && sDrawPreviewHighlights))
+	//{
+	//	drawDebugRect();
+	//}
 }
 
 void LLJoystickCameraZoom::updateSlop()

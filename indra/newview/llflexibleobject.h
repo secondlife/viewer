@@ -43,7 +43,6 @@
 #ifndef LL_LLFLEXIBLEOBJECT_H
 #define LL_LLFLEXIBLEOBJECT_H
 
-#include "llmemory.h"
 #include "llprimitive.h"
 #include "llvovolume.h"
 #include "llwind.h"
