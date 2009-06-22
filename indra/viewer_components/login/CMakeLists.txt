@@ -1,6 +1,9 @@
+# -*- cmake -*-
+
 project(login)
 
 include(00-Common)
+include(LLAddBuildTest)
 include(LLCommon)
 include(LLMath)
 include(LLXML)
@@ -40,4 +43,7 @@ target_link_libraries(lllogin
     ${PTH_LIBRARIES}
     )
 
-ADD_BUILD_TEST(lllogin lllogin "")
+SET(lllogin_TEST_SOURCE_FILES
+    lllogin.cpp
+    )
+LL_ADD_PROJECT_UNIT_TESTS(lllogin "${lllogin_TEST_SOURCE_FILES}")
