@@ -41,8 +41,7 @@
 #include "llui.h"
 
 #include <boost/function.hpp>
-#include <boost/signal.hpp>
-#include <boost/signals/connection.hpp>
+#include <boost/signals2.hpp>
 
 class LLUUID;
 class LLMessageSystem;
@@ -84,7 +83,7 @@ class LLViewerParcelMgr : public LLSingleton<LLViewerParcelMgr>
 
 public:
 	typedef boost::function<void()> parcel_changed_callback_t;
-	typedef boost::signal  <void()> parcel_changed_signal_t;
+	typedef boost::signals2::signal<void()> parcel_changed_signal_t;
 
 	LLViewerParcelMgr();
 	~LLViewerParcelMgr();
@@ -263,9 +262,9 @@ public:
 	// the agent is banned or not in the allowed group
 	BOOL isCollisionBanned();
 
-	boost::signals::connection setAgentParcelChangedCallback(parcel_changed_callback_t cb);
-	boost::signals::connection setTeleportFinishedCallback(parcel_changed_callback_t cb);
-	boost::signals::connection setTeleportFailedCallback(parcel_changed_callback_t cb);
+	boost::signals2::connection setAgentParcelChangedCallback(parcel_changed_callback_t cb);
+	boost::signals2::connection setTeleportFinishedCallback(parcel_changed_callback_t cb);
+	boost::signals2::connection setTeleportFailedCallback(parcel_changed_callback_t cb);
 	void onTeleportFinished();
 	void onTeleportFailed();
 

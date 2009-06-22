@@ -151,20 +151,20 @@ public:
 	void			setUnselectedLabelColor( const LLColor4& c )		{ mUnselectedLabelColor = c; }
 	void			setSelectedLabelColor( const LLColor4& c )			{ mSelectedLabelColor = c; }
 
-	boost::signals::connection setClickedCallback( const commit_signal_t::slot_type& cb ); // mouse down and up within button
-	boost::signals::connection setMouseDownCallback( const commit_signal_t::slot_type& cb );
-	boost::signals::connection setMouseUpCallback( const commit_signal_t::slot_type& cb ); // mouse up, EVEN IF NOT IN BUTTON
+	boost::signals2::connection setClickedCallback( const commit_signal_t::slot_type& cb ); // mouse down and up within button
+	boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb );
+	boost::signals2::connection setMouseUpCallback( const commit_signal_t::slot_type& cb ); // mouse up, EVEN IF NOT IN BUTTON
 	// Passes a 'count' parameter in the commit param payload, i.e. param["count"])
-	boost::signals::connection setHeldDownCallback( const commit_signal_t::slot_type& cb ); // Mouse button held down and in button
-	boost::signals::connection setRightClickedCallback( const commit_signal_t::slot_type& cb ); // right mouse down and up within button
+	boost::signals2::connection setHeldDownCallback( const commit_signal_t::slot_type& cb ); // Mouse button held down and in button
+	boost::signals2::connection setRightClickedCallback( const commit_signal_t::slot_type& cb ); // right mouse down and up within button
 
 
 	
 	// *TODO: Deprecate (for backwards compatability only)
-	boost::signals::connection setClickedCallback( button_callback_t cb, void* data );
-	boost::signals::connection setMouseDownCallback( button_callback_t cb, void* data );
-	boost::signals::connection setMouseUpCallback( button_callback_t cb, void* data );
-	boost::signals::connection setHeldDownCallback( button_callback_t cb, void* data );
+	boost::signals2::connection setClickedCallback( button_callback_t cb, void* data );
+	boost::signals2::connection setMouseDownCallback( button_callback_t cb, void* data );
+	boost::signals2::connection setMouseUpCallback( button_callback_t cb, void* data );
+	boost::signals2::connection setHeldDownCallback( button_callback_t cb, void* data );
 		
 	void			setHeldDownDelay( F32 seconds, S32 frames = 0)		{ mHeldDownDelay = seconds; mHeldDownFrameDelay = frames; }
 	

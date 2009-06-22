@@ -60,7 +60,7 @@ public:
 
 	virtual bool getShowCounter() {return mShowCounter;};
 
-	virtual boost::signals::connection setLeftButtonClickCallback(
+	virtual boost::signals2::connection setLeftButtonClickCallback(
 		const commit_callback_t& cb);
 
 protected:
@@ -158,7 +158,7 @@ public:
 
 	S32 getCounter() {return mCounter;};
 
-	boost::signals::connection setClickCallback(const commit_callback_t& cb);
+	boost::signals2::connection setClickCallback(const commit_callback_t& cb);
 
 	virtual ~ LLNotificationChiclet();
 
@@ -212,7 +212,7 @@ public:
 
 	void onRightScrollClick();
 
-	boost::signals::connection setChicletClickCallback(
+	boost::signals2::connection setChicletClickCallback(
 		const commit_callback_t& cb);
 
 	void onChicletClick(LLUICtrl*ctrl,const LLSD&param);

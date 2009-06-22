@@ -41,7 +41,7 @@
 #include "lltool.h"
 #include "lltextureentry.h"
 #include <boost/function.hpp>
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 
 class LLViewerObject;
 class LLPickInfo;
@@ -58,8 +58,8 @@ public:
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect *sticky_rect_screen);
 
-	// Note: Don't return connection; use boost::bind + boost::signal::trackable to disconnect slots
-	typedef boost::signal<void (const LLTextureEntry& te)> signal_t;
+	// Note: Don't return connection; use boost::bind + boost::signals2::trackable to disconnect slots
+	typedef boost::signals2::signal<void (const LLTextureEntry& te)> signal_t;
 	void setToolSelectCallback(const signal_t::slot_type& cb) { mSignal.connect(cb); }
 	void setResult(BOOL success, const std::string& msg);
 	

@@ -162,7 +162,7 @@ void LLTeleportHistory::updateCurrentLocation()
 	onHistoryChanged();
 }
 
-boost::signals::connection LLTeleportHistory::setHistoryChangedCallback(history_callback_t cb)
+boost::signals2::connection LLTeleportHistory::setHistoryChangedCallback(history_callback_t cb)
 {
 	return mHistoryChangedSignal.connect(cb);
 }

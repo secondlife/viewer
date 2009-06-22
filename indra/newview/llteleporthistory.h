@@ -38,8 +38,7 @@
 #include <vector>
 #include <string>
 #include <boost/function.hpp>
-#include <boost/signal.hpp>
-#include <boost/signals/connection.hpp>
+#include <boost/signals2.hpp>
 
 
 /**
@@ -81,7 +80,7 @@ public:
 	
 	typedef std::vector<LLTeleportHistoryItem>	slurl_list_t;
 	typedef boost::function<void()>				history_callback_t;
-	typedef boost::signal  <void()>				history_signal_t;
+	typedef boost::signals2::signal<void()>		history_signal_t;
 	
 	LLTeleportHistory();
 	~LLTeleportHistory();
@@ -126,7 +125,7 @@ public:
 	 * 
 	 * Multiple callbacks can be set.
 	 */
-	boost::signals::connection	setHistoryChangedCallback(history_callback_t cb);
+	boost::signals2::connection	setHistoryChangedCallback(history_callback_t cb);
 	
 	/**
 	 * Save history to a file so that we can restore it on startup.
@@ -212,14 +211,14 @@ private:
 	 * Using this connection we get notified when a teleport finishes
 	 * or initial location update occurs.
 	 */
-	boost::signals::connection	mTeleportFinishedConn;
+	boost::signals2::connection	mTeleportFinishedConn;
 	
 	/**
 	 * Teleport failure notification connection.
 	 * 
 	 * Using this connection we get notified when a teleport fails.
 	 */
-	boost::signals::connection	mTeleportFailedConn;
+	boost::signals2::connection	mTeleportFailedConn;
 };
 
 #endif

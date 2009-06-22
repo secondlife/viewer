@@ -45,8 +45,7 @@
 #include <map>
 #include <deque>
 #include <boost/function.hpp>
-#include <boost/signal.hpp>
-#include <boost/signals/connection.hpp>
+#include <boost/signals2.hpp>
 
 #include "lluictrl.h"
 #include "v4color.h"
@@ -768,7 +767,7 @@ public:
 	void setFilterPermMask(PermissionMask filter_perm_mask) { mFilter.setFilterPermissions(filter_perm_mask); }
 	void setAllowMultiSelect(BOOL allow) { mAllowMultiSelect = allow; }
 	
-	typedef boost::signal<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)> signal_t;
+	typedef boost::signals2::signal<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)> signal_t;
 	void setSelectCallback(const signal_t::slot_type& cb) { mSelectSignal.connect(cb); }
 	void setReshapeCallback(const signal_t::slot_type& cb) { mReshapeSignal.connect(cb); }
 	

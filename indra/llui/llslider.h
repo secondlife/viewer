@@ -67,8 +67,8 @@ public:
 	virtual void	setMinValue(F32 min_value) { LLF32UICtrl::setMinValue(min_value); updateThumbRect(); }
 	virtual void	setMaxValue(F32 max_value) { LLF32UICtrl::setMaxValue(max_value); updateThumbRect(); }
 
-	boost::signals::connection setMouseDownCallback( const commit_signal_t::slot_type& cb ) { return mMouseDownSignal.connect(cb); }
-	boost::signals::connection setMouseUpCallback(	const commit_signal_t::slot_type& cb )   { return mMouseUpSignal.connect(cb); }
+	boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb ) { return mMouseDownSignal.connect(cb); }
+	boost::signals2::connection setMouseUpCallback(	const commit_signal_t::slot_type& cb )   { return mMouseUpSignal.connect(cb); }
 
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);

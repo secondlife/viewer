@@ -39,7 +39,7 @@
 
 #include <vector>
 #include <set>
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 
 /**
  * List of people the agent recently interacted with.
@@ -56,7 +56,7 @@ class LLRecentPeople: public LLSingleton<LLRecentPeople>, public LLOldEvents::LL
 {
 	LOG_CLASS(LLRecentPeople);
 public:
-	typedef boost::signal<void ()> signal_t;
+	typedef boost::signals2::signal<void ()> signal_t;
 	
 	/**
 	 * Add specified avatar to the list if it's not there already.
@@ -84,7 +84,7 @@ public:
 	 * 
 	 * Multiple callbacks can be set.
 	 * 
-	 * @return no connection; use boost::bind + boost::signal::trackable to disconnect slots.
+	 * @return no connection; use boost::bind + boost::signals2::trackable to disconnect slots.
 	 */
 	void setChangedCallback(const signal_t::slot_type& cb) { mChangedSignal.connect(cb); }
 

@@ -74,16 +74,16 @@ protected:
 };
 
 class LLUICtrl
-	: public LLView, public LLFocusableElement, public boost::signals::trackable
+	: public LLView, public LLFocusableElement, public boost::signals2::trackable
 {
 public:
 
 
 	typedef boost::function<void (LLUICtrl* ctrl, const LLSD& param)> commit_callback_t;
-	typedef boost::signal<void (LLUICtrl* ctrl, const LLSD& param)> commit_signal_t;
+	typedef boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param)> commit_signal_t;
 	
 	typedef boost::function<bool (LLUICtrl* ctrl, const LLSD& param)> enable_callback_t;
-	typedef boost::signal<bool (LLUICtrl* ctrl, const LLSD& param), boost_boolean_combiner> enable_signal_t;
+	typedef boost::signals2::signal<bool (LLUICtrl* ctrl, const LLSD& param), boost_boolean_combiner> enable_signal_t;
 	
 	struct CallbackParam : public LLInitParam::Block<CallbackParam>
 	{
@@ -244,12 +244,12 @@ public:
 
 	LLUICtrl*		getParentUICtrl() const;
 
-	boost::signals::connection setCommitCallback( const commit_signal_t::slot_type& cb ) { return mCommitSignal.connect(cb); }
-	boost::signals::connection setValidateCallback( const enable_signal_t::slot_type& cb ) { return mValidateSignal.connect(cb); }
+	boost::signals2::connection setCommitCallback( const commit_signal_t::slot_type& cb ) { return mCommitSignal.connect(cb); }
+	boost::signals2::connection setValidateCallback( const enable_signal_t::slot_type& cb ) { return mValidateSignal.connect(cb); }
 	
 	// *TODO: Deprecate; for backwards compatability only:
-	boost::signals::connection setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data);	
-	boost::signals::connection setValidateBeforeCommit( boost::function<bool (const LLSD& data)> cb );
+	boost::signals2::connection setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data);	
+	boost::signals2::connection setValidateBeforeCommit( boost::function<bool (const LLSD& data)> cb );
 	
 	LLUICtrl* findRootMostFocusRoot();
 
@@ -278,15 +278,15 @@ protected:
     LLViewModelPtr  mViewModel;
 
 	LLControlVariable* mControlVariable;
-	boost::signals::connection mControlConnection;
+	boost::signals2::connection mControlConnection;
 	LLControlVariable* mEnabledControlVariable;
-	boost::signals::connection mEnabledControlConnection;
+	boost::signals2::connection mEnabledControlConnection;
 	LLControlVariable* mDisabledControlVariable;
-	boost::signals::connection mDisabledControlConnection;
+	boost::signals2::connection mDisabledControlConnection;
 	LLControlVariable* mMakeVisibleControlVariable;
-	boost::signals::connection mMakeVisibleControlConnection;
+	boost::signals2::connection mMakeVisibleControlConnection;
 	LLControlVariable* mMakeInvisibleControlVariable;
-	boost::signals::connection mMakeInvisibleControlConnection;
+	boost::signals2::connection mMakeInvisibleControlConnection;
 private:
 
 	BOOL			mTabStop;

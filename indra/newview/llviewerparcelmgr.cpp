@@ -2392,17 +2392,17 @@ LLViewerImage* LLViewerParcelMgr::getPassImage() const
 	return sPassImage;
 }
 
-boost::signals::connection LLViewerParcelMgr::setAgentParcelChangedCallback(parcel_changed_callback_t cb)
+boost::signals2::connection LLViewerParcelMgr::setAgentParcelChangedCallback(parcel_changed_callback_t cb)
 {
 	return mAgentParcelChangedSignal.connect(cb);
 }
 
-boost::signals::connection LLViewerParcelMgr::setTeleportFinishedCallback(parcel_changed_callback_t cb)
+boost::signals2::connection LLViewerParcelMgr::setTeleportFinishedCallback(parcel_changed_callback_t cb)
 {
 	return mTeleportFinishedSignal.connect(cb);
 }
 
-boost::signals::connection LLViewerParcelMgr::setTeleportFailedCallback(parcel_changed_callback_t cb)
+boost::signals2::connection LLViewerParcelMgr::setTeleportFailedCallback(parcel_changed_callback_t cb)
 {
 	return mTeleportFailedSignal.connect(cb);
 }

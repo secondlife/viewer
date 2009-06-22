@@ -244,43 +244,43 @@ void LLButton::onCommit()
 	LLUICtrl::onCommit();
 }
 
-boost::signals::connection LLButton::setClickedCallback( const commit_signal_t::slot_type& cb )
+boost::signals2::connection LLButton::setClickedCallback( const commit_signal_t::slot_type& cb )
 {
 	return mCommitSignal.connect(cb);
 }
-boost::signals::connection LLButton::setMouseDownCallback( const commit_signal_t::slot_type& cb )
+boost::signals2::connection LLButton::setMouseDownCallback( const commit_signal_t::slot_type& cb )
 {
 	return mMouseDownSignal.connect(cb);
 }
-boost::signals::connection LLButton::setMouseUpCallback( const commit_signal_t::slot_type& cb )
+boost::signals2::connection LLButton::setMouseUpCallback( const commit_signal_t::slot_type& cb )
 {
 	return mMouseUpSignal.connect(cb);
 }
-boost::signals::connection LLButton::setHeldDownCallback( const commit_signal_t::slot_type& cb )
+boost::signals2::connection LLButton::setHeldDownCallback( const commit_signal_t::slot_type& cb )
 {
 	return mHeldDownSignal.connect(cb);
 }
 														  
-boost::signals::connection LLButton::setRightClickedCallback( const commit_signal_t::slot_type& cb )
+boost::signals2::connection LLButton::setRightClickedCallback( const commit_signal_t::slot_type& cb )
 {
 	return mRightClickSignal.connect(cb);
 }
 
 
 // *TODO: Deprecate (for backwards compatability only)
-boost::signals::connection LLButton::setClickedCallback( button_callback_t cb, void* data )
+boost::signals2::connection LLButton::setClickedCallback( button_callback_t cb, void* data )
 {
 	return setClickedCallback(boost::bind(cb, data));
 }
-boost::signals::connection LLButton::setMouseDownCallback( button_callback_t cb, void* data )
+boost::signals2::connection LLButton::setMouseDownCallback( button_callback_t cb, void* data )
 {
 	return setMouseDownCallback(boost::bind(cb, data));
 }
-boost::signals::connection LLButton::setMouseUpCallback( button_callback_t cb, void* data )
+boost::signals2::connection LLButton::setMouseUpCallback( button_callback_t cb, void* data )
 {
 	return setMouseUpCallback(boost::bind(cb, data));
 }
-boost::signals::connection LLButton::setHeldDownCallback( button_callback_t cb, void* data )
+boost::signals2::connection LLButton::setHeldDownCallback( button_callback_t cb, void* data )
 {
 	return setHeldDownCallback(boost::bind(cb, data));
 }

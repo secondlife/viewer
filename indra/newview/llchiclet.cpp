@@ -119,7 +119,7 @@ void LLNotificationChiclet::setCounter(S32 counter)
 	mCounterText->setText(stream.str());
 }
 
-boost::signals::connection LLNotificationChiclet::setClickCallback(
+boost::signals2::connection LLNotificationChiclet::setClickCallback(
 	const commit_callback_t& cb)
 {
 	return mButton->setClickedCallback(cb);
@@ -142,7 +142,7 @@ LLChiclet::~LLChiclet()
 
 }
 
-boost::signals::connection LLChiclet::setLeftButtonClickCallback(
+boost::signals2::connection LLChiclet::setLeftButtonClickCallback(
 	const commit_callback_t& cb)
 {
 	return mCommitSignal.connect(cb);
@@ -587,7 +587,7 @@ void LLChicletPanel::onRightScrollClick()
 	scrollRight();
 }
 
-boost::signals::connection LLChicletPanel::setChicletClickCallback(
+boost::signals2::connection LLChicletPanel::setChicletClickCallback(
 	const commit_callback_t& cb)
 {
 	return mCommitSignal.connect(cb);
