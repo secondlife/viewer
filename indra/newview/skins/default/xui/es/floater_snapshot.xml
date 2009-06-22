@@ -4,15 +4,9 @@
 		Destino de la foto
 	</text>
 	<radio_group label="Tipo de la foto" name="snapshot_type_radio">
-		<radio_item name="postcard">
-			Enviar por correo electrónico
-		</radio_item>
-		<radio_item name="texture">
-			Guardarla en su inventario ([AMOUNT] L$)
-		</radio_item>
-		<radio_item name="local">
-			Guardarla en su disco duro
-		</radio_item>
+		<radio_item name="postcard" label="Enviar por correo electrónico" />
+		<radio_item name="texture" label="Guardarla en su inventario ([AMOUNT] L$)" />
+		<radio_item name="local" label="Guardarla en su disco duro" />
 	</radio_group>
 	<text name="file_size_label">
 		Tamaño del archivo: [SIZE] KB
@@ -62,8 +56,8 @@
 		<combo_box.item name="JPEG" label="JPEG"/>
 		<combo_box.item name="BMP" label="BMP"/>
 	</combo_box>
-	<spinner label="Ancho" name="snapshot_width"/>
-	<spinner label="Alto" name="snapshot_height"/>
+	<spinner label="Ancho" name="snapshot_width" label_width="41" width="101"/>
+	<spinner label="Alto" name="snapshot_height" label_width="30" width="90" left="121"/>
 	<check_box label="Mantener las proporciones" name="keep_aspect_check"/>
 	<slider label="Calidad de la imagen" name="image_quality_slider"/>
 	<text name="layer_type_label">
@@ -75,10 +69,10 @@
 		<combo_box.item name="ObjectMattes" label="Bandas negras"/>
 	</combo_box>
 	<check_box label="Incluir la interfaz en la foto" name="ui_check"/>
-	<check_box label="Incluir los HUD en la foto" name="hud_check"/>
-	<check_box label="Mantenerla abierta tras guardarla" name="keep_open_check"/>
-	<check_box label="Congelar la toma (vista previa en pantalla completa)" name="freeze_frame_check"/>
-	<check_box label="Actualizar automáticamente" name="auto_snapshot_check"/>
+	<check_box bottom_delta="-17" label="Incluir los HUD en la foto" name="hud_check"/>
+	<check_box bottom_delta="-17" label="Mantenerla abierta tras guardarla" name="keep_open_check"/>
+	<check_box bottom_delta="-17" label="Congelar la toma &#10;(vista previa en pantalla completa)" name="freeze_frame_check"/>
+	<check_box bottom_delta="-29" label="Actualizar automáticamente" name="auto_snapshot_check"/>
 	<string name="unknown">
 		desconocido
 	</string>

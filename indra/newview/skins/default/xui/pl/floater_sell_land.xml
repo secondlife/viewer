@@ -46,12 +46,8 @@
 		Przekazywalne obiekty właściciela Posiadłości zmienią właściciela.
 	</text>
 	<radio_group name="sell_objects">
-		<radio_item name="no">
-			Nie, zatrzymaj obiekty
-		</radio_item>
-		<radio_item name="yes">
-			Tak, sprzedaj obiekty razem z Posiadłością
-		</radio_item>
+		<radio_item name="no" label="Nie, zatrzymaj obiekty" />
+		<radio_item name="yes" label="Tak, sprzedaj obiekty razem z Posiadłością" />
 	</radio_group>
 	<button label="Pokaż Obiekty" name="show_objects" />
 	<text name="nag_message_label">

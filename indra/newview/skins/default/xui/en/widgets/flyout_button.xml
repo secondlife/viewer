@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<flyout_button list_position="below">
+  <action_button scale_image="true"
+                image_selected="flyout_btn_left_selected.tga"
+                image_unselected="flyout_btn_left.tga"
+                image_disabled="flyout_btn_left_disabled.tga"/>
+  <combo_button image_selected="flyout_btn_right_selected.tga"
+                image_unselected="flyout_btn_right.tga"
+                image_disabled="flyout_btn_right_disabled.tga"
+                pad_right="6"
+                tab_stop="false"/>
+</flyout_button>
+

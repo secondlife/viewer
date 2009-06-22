@@ -66,7 +66,7 @@ public:
 	static LLMessageConfigFile& instance();
 		// return the singleton configuration file
 
-	/* virtual */ void loadFile();
+	/* virtual */ bool loadFile();
 	void loadServerDefaults(const LLSD& data);
 	void loadMaxQueuedEvents(const LLSD& data);
 	void loadMessages(const LLSD& data);
@@ -98,7 +98,7 @@ LLMessageConfigFile& LLMessageConfigFile::instance()
 }
 
 // virtual
-void LLMessageConfigFile::loadFile()
+bool LLMessageConfigFile::loadFile()
 {
 	LLSD data;
     {
@@ -115,7 +115,7 @@ void LLMessageConfigFile::loadFile()
             LL_INFOS("AppInit") << "LLMessageConfigFile::loadFile: file missing,"
 				" ill-formed, or simply undefined; not changing the"
 				" file" << LL_ENDL;
-            return;
+            return false;
         }
     }
 	loadServerDefaults(data);
@@ -123,6 +123,7 @@ void LLMessageConfigFile::loadFile()
 	loadMessages(data);
 	loadCapBans(data);
 	loadMessageBans(data);
+	return true;
 }
 
 void LLMessageConfigFile::loadServerDefaults(const LLSD& data)

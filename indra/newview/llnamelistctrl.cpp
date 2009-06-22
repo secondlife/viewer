@@ -44,7 +44,7 @@
 #include "llscrolllistcolumn.h"
 #include "llsdparam.h"
 
-static LLRegisterWidget<LLNameListCtrl> r("name_list");
+static LLDefaultWidgetRegistry::Register<LLNameListCtrl> r("name_list");
 
 void LLNameListCtrl::NameTypeNames::declareValues()
 {
@@ -266,7 +266,7 @@ void LLNameListCtrl::refreshAll(const LLUUID& id, const std::string& first,
 								const std::string& last, BOOL is_group)
 {
 	LLInstanceTracker<LLNameListCtrl>::instance_iter it;
-	for (it = instancesBegin(); it != instancesEnd(); ++it)
+	for (it = beginInstances(); it != endInstances(); ++it)
 	{
 		LLNameListCtrl* ctrl = *it;
 		ctrl->refresh(id, first, last, is_group);

@@ -61,7 +61,7 @@
 #include "llviewerjoint.h"
 #include "llviewerobject.h"
 #include "llviewerwindow.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llworld.h"
 #include "llui.h"
 #include "pipeline.h"

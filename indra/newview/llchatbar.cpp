@@ -67,7 +67,7 @@
 #include "llui.h"
 #include "llviewermenu.h"
 #include "lluictrlfactory.h"
-
+#include "llbottomtray.h"
 
 //
 // Globals
@@ -75,10 +75,6 @@
 const F32 AGENT_TYPING_TIMEOUT = 5.f;	// seconds
 
 LLChatBar *gChatBar = NULL;
-
-// legacy calllback glue
-void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
-
 
 class LLChatBarGestureObserver : public LLGestureManagerObserver
 {
@@ -418,17 +414,25 @@ void LLChatBar::sendChat( EChatType type )
 // static 
 void LLChatBar::startChat(const char* line)
 {
-	gChatBar->setVisible(TRUE);
-	gChatBar->setKeyboardFocus(TRUE);
-	gSavedSettings.setBOOL("ChatVisible", TRUE);
-
-	if (line && gChatBar->mInputEditor)
+	//TODO* remove DUMMY chat
+	if(LLBottomTray::getInstance()->getChatBox())
 	{
-		std::string line_string(line);
-		gChatBar->mInputEditor->setText(line_string);
+		LLBottomTray::getInstance()->getChatBox()->setFocus(TRUE);
 	}
-	// always move cursor to end so users don't obliterate chat when accidentally hitting WASD
-	gChatBar->mInputEditor->setCursorToEnd();
+
+	// *TODO Vadim: Why was this code commented out?
+
+// 	gChatBar->setVisible(TRUE);
+// 	gChatBar->setKeyboardFocus(TRUE);
+// 	gSavedSettings.setBOOL("ChatVisible", TRUE);
+// 
+// 	if (line && gChatBar->mInputEditor)
+// 	{
+// 		std::string line_string(line);
+// 		gChatBar->mInputEditor->setText(line_string);
+// 	}
+// 	// always move cursor to end so users don't obliterate chat when accidentally hitting WASD
+// 	gChatBar->mInputEditor->setCursorToEnd();
 }
 
 
@@ -436,21 +440,29 @@ void LLChatBar::startChat(const char* line)
 // static
 void LLChatBar::stopChat()
 {
-	// In simple UI mode, we never release focus from the chat bar
-	gChatBar->setKeyboardFocus(FALSE);
+	//TODO* remove DUMMY chat
+	if(LLBottomTray::getInstance()->getChatBox())
+	{
+		LLBottomTray::getInstance()->getChatBox()->setFocus(FALSE);
+	}
 
-	// If we typed a movement key and pressed return during the
-	// same frame, the keyboard handlers will see the key as having
-	// gone down this frame and try to move the avatar.
-	gKeyboard->resetKeys();
-	gKeyboard->resetMaskKeys();
+	// *TODO Vadim: Why was this code commented out?
 
-	// stop typing animation
-	gAgent.stopTyping();
-
-	// hide chat bar so it doesn't grab focus back
-	gChatBar->setVisible(FALSE);
-	gSavedSettings.setBOOL("ChatVisible", FALSE);
+// 	// In simple UI mode, we never release focus from the chat bar
+// 	gChatBar->setKeyboardFocus(FALSE);
+// 
+// 	// If we typed a movement key and pressed return during the
+// 	// same frame, the keyboard handlers will see the key as having
+// 	// gone down this frame and try to move the avatar.
+// 	gKeyboard->resetKeys();
+// 	gKeyboard->resetMaskKeys();
+// 
+// 	// stop typing animation
+// 	gAgent.stopTyping();
+// 
+// 	// hide chat bar so it doesn't grab focus back
+// 	gChatBar->setVisible(FALSE);
+// 	gSavedSettings.setBOOL("ChatVisible", FALSE);
 }
 
 // static

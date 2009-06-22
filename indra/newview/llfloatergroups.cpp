@@ -41,22 +41,14 @@
 
 #include "llfloatergroups.h"
 
-#include "message.h"
 #include "roles_constants.h"
 
 #include "llagent.h"
 #include "llbutton.h"
-#include "llfloaterreg.h"
-#include "llfloatergroupinfo.h"
-#include "llfloaterdirectory.h"
-#include "llfocusmgr.h"
-#include "llalertdialog.h"
-#include "llselectmgr.h"
+#include "llgroupactions.h"
 #include "llscrolllistctrl.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
-#include "llviewerwindow.h"
-#include "llimview.h"
 #include "lltrans.h"
 
 using namespace LLOldEvents;
@@ -304,112 +296,54 @@ void LLPanelGroups::onBtnSearch(void* userdata)
 
 void LLPanelGroups::create()
 {
-	llinfos << "LLPanelGroups::create" << llendl;
-	LLFloaterGroupInfo::showCreateGroup(NULL);
+	LLGroupActions::create();
 }
 
 void LLPanelGroups::activate()
 {
-	llinfos << "LLPanelGroups::activate" << llendl;
 	LLCtrlListInterface *group_list = childGetListInterface("group list");
 	LLUUID group_id;
 	if (group_list)
 	{
 		group_id = group_list->getCurrentID();
 	}
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessageFast(_PREHASH_ActivateGroup);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->addUUIDFast(_PREHASH_GroupID, group_id);
-	gAgent.sendReliableMessage();
+	LLGroupActions::activate(group_id);
 }
 
 void LLPanelGroups::info()
 {
-	llinfos << "LLPanelGroups::info" << llendl;
 	LLCtrlListInterface *group_list = childGetListInterface("group list");
 	LLUUID group_id;
 	if (group_list && (group_id = group_list->getCurrentID()).notNull())
 	{
-		LLFloaterGroupInfo::showFromUUID(group_id);
+		LLGroupActions::info(group_id);
 	}
 }
 
 void LLPanelGroups::startIM()
 {
-	//llinfos << "LLPanelFriends::onClickIM()" << llendl;
 	LLCtrlListInterface *group_list = childGetListInterface("group list");
 	LLUUID group_id;
 
 	if (group_list && (group_id = group_list->getCurrentID()).notNull())
 	{
-		LLGroupData group_data;
-		if (gAgent.getGroupData(group_id, group_data))
-		{
-			gIMMgr->addSession(
-				group_data.mName,
-				IM_SESSION_GROUP_START,
-				group_id);
-			make_ui_sound("UISndStartIM");
-		}
-		else
-		{
-			// this should never happen, as starting a group IM session
-			// relies on you belonging to the group and hence having the group data
-			make_ui_sound("UISndInvalidOp");
-		}
+		LLGroupActions::startChat(group_id);
 	}
 }
 
 void LLPanelGroups::leave()
 {
-	llinfos << "LLPanelGroups::leave" << llendl;
 	LLCtrlListInterface *group_list = childGetListInterface("group list");
 	LLUUID group_id;
 	if (group_list && (group_id = group_list->getCurrentID()).notNull())
 	{
-		S32 count = gAgent.mGroups.count();
-		S32 i;
-		for(i = 0; i < count; ++i)
-		{
-			if(gAgent.mGroups.get(i).mID == group_id)
-				break;
-		}
-		if(i < count)
-		{
-			LLSD args;
-			args["GROUP"] = gAgent.mGroups.get(i).mName;
-			LLSD payload;
-			payload["group_id"] = group_id;
-			LLNotifications::instance().add("GroupLeaveConfirmMember", args, payload, callbackLeaveGroup);
-		}
+		LLGroupActions::leave(group_id);
 	}
 }
 
 void LLPanelGroups::search()
 {
-	LLFloaterReg::showInstance("search", LLSD().insert("panel", "group"));
-}
-
-// static
-bool LLPanelGroups::callbackLeaveGroup(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-	LLUUID group_id = notification["payload"]["group_id"].asUUID();
-	if(option == 0)
-	{
-		LLMessageSystem* msg = gMessageSystem;
-		msg->newMessageFast(_PREHASH_LeaveGroupRequest);
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		msg->nextBlockFast(_PREHASH_GroupData);
-		msg->addUUIDFast(_PREHASH_GroupID, group_id);
-		gAgent.sendReliableMessage();
-	}
-	return false;
+	LLGroupActions::search();
 }
 
 void LLPanelGroups::onGroupList(LLUICtrl* ctrl, void* userdata)

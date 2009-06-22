@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_report_abuse" title="Misbruik rapporteren">
 	<check_box label="Voeg schermafbeelding toe" name="screen_check"/>
-	<text name="reporter_title">
+	<text name="reporter_title" width="110">
 		Rapporteur:
 	</text>
-	<text name="reporter_field">
+	<text name="reporter_field" left_delta="70">
 		Loremipsum Dolorsitamut
 	</text>
 	<text name="sim_title">
 		Regio:
 	</text>
-	<text name="sim_field">
+	<text name="sim_field" left_delta="70">
 		Regionaam
 	</text>
 	<text name="pos_title">
 		Positie:
 	</text>
-	<text name="pos_field">
+	<text name="pos_field" left_delta="70">
 		{128.1, 128.1, 15.4}
 	</text>
 	<text name="select_object_label">
@@ -26,7 +26,7 @@
 	<text name="object_name_label">
 		Naam:
 	</text>
-	<text name="object_name">
+	<text name="object_name" width="120">
 		Consetetur Sadipscing
 	</text>
 	<text name="owner_name_label">
@@ -39,9 +39,9 @@
 		<combo_box.item name="Select_category" label="Selecteer categorie"/>
 		<combo_box.item name="Age__Age_play" label="Leeftijd &gt; Leeftijd spelen"/>
 		<combo_box.item name="Age__Adult_resident_on_Teen_Second_Life" label="Leeftijd &gt; Volwassen inwoner in Teen Second Life"/>
-		
-		
-		
+		<combo_item name="Age__Underage_resident_outside_of_Teen_Second_Life">
+			Leeftijd &gt; Minderjarige inwoner buiten Teen Second Life
+		</combo_item>
 		<combo_box.item name="Assault__Combat_sandbox___unsafe_area" label="Aanval &gt; Gevechtszandbak / onveilig gebied"/>
 		<combo_box.item name="Assault__Safe_area" label="Aanval &gt; Veilig gebied"/>
 		<combo_box.item name="Assault__Weapons_testing_sandbox" label="Aanval &gt; Zandbak voor het testen van wapens"/>
@@ -65,13 +65,13 @@
 		<combo_box.item name="Harassment__Solicting_inciting_others_to_violate_ToS" label="Intimidatie &gt; Anderen uitnodigen/aanzetten tot het schenden van de ToS"/>
 		<combo_box.item name="Harassment__Verbal_abuse" label="Intimidatie &gt; Verbaal misbruik"/>
 		<combo_box.item name="Indecency__Broadly_offensive_content_or_conduct" label="Onfatsoenlijkheid &gt; Globaal beledigende inhoud of gedrag"/>
-		
-		
-		
 		<combo_box.item name="Indecency__Inappropriate_avatar_name" label="Onfatsoenlijkheid &gt; Ongepaste avatar naam"/>
-		
-		
-		
+		<combo_item name="Indecency__Mature_content_in_PG_region">
+			Onfatsoenlijkheid &gt; Ongepaste inhoud of gedrag in een PG regio
+		</combo_item>
+		<combo_item name="Indecency__Inappropriate_content_in_Mature_region">
+			Onfatsoenlijkheid &gt; Ongepaste inhoud of gedrag in een Mature regio
+		</combo_item>
 		<combo_box.item name="Intellectual_property_infringement_Content_Removal" label="Inbreuk op intellectueel eigendom &gt; Verwijderen van inhoud"/>
 		<combo_box.item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit" label="Inbreuk op intellectueel eigendom &gt; CopyBot of misbruik van permissies"/>
 		<combo_box.item name="Intolerance" label="Intolerantie"/>
@@ -97,7 +97,9 @@
 		Details:
 	</text>
 	<text name="bug_aviso">
-		Wees alstublieft zo specifiek mogelijk m.b.t. datum, locatie, aard van het misbruik, relevante chat/IM tekst, en selecteer het object indien mogelijk.
+		Wees alstublieft zo specifiek mogelijk m.b.t. datum, locatie, 
+aard van het misbruik, relevante chat/IM tekst, en selecteer 
+het object indien mogelijk.
 	</text>
 	<text name="incomplete_title">
 		Let op: onvolledige rapporten zullen niet worden onderzocht.

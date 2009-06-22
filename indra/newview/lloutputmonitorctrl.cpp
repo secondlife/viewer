@@ -39,7 +39,7 @@
 // viewer includes
 #include "llvoiceclient.h"
 
-static LLRegisterWidget<LLOutputMonitorCtrl> r("output_monitor");
+static LLDefaultWidgetRegistry::Register<LLOutputMonitorCtrl> r("output_monitor");
 
 // The defaults will be initialized in the constructor.
 LLColor4	LLOutputMonitorCtrl::sColorMuted;
@@ -74,6 +74,8 @@ LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 	sRectsNumber		= output_monitor_rects_number;
 	sRectWidthRatio		= output_monitor_rect_width_ratio;
 	sRectHeightRatio	= output_monitor_rect_height_ratio;
+
+	mBorder = p.draw_border;
 }
 
 LLOutputMonitorCtrl::~LLOutputMonitorCtrl()
@@ -96,10 +98,14 @@ void LLOutputMonitorCtrl::draw()
 	//
 	const int monh		= getRect().getHeight();
 	const int monw		= getRect().getWidth();
-	const int maxrects	= sRectsNumber;
-	const int period	= monw / maxrects;
-	const int rectw		= llfloor(period * sRectWidthRatio);
+	int maxrects		= sRectsNumber;
+	const int period	= llmax(1, monw / maxrects, 0, 0);                    // "1" - min value for the period
+	const int rectw		= llmax(1, llfloor(period * sRectWidthRatio), 0, 0);  // "1" - min value for the rect's width
 	const int recth		= llfloor(monh * sRectHeightRatio);
+
+	if(period == 1 && rectw == 1) //if we have so small control, then "maxrects = monitor's_width - 2*monitor_border's_width
+		maxrects = monw-2;
+
 	const int nrects	= mIsMuted ? maxrects : llfloor(mPower * maxrects); // how many rects to draw?
 	const int rectbtm	= (monh - recth) / 2;
 	const int recttop	= rectbtm + recth;
@@ -130,5 +136,6 @@ void LLOutputMonitorCtrl::draw()
 	//
 	// Draw bounding box.
 	//
-	gl_rect_2d(0, monh, monw, 0, sColorBound, FALSE);
+	if(mBorder)
+		gl_rect_2d(0, monh, monw, 0, sColorBound, FALSE);
 }

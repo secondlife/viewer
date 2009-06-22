@@ -584,6 +584,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>BottomPanelNew</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable the new bottom panel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>BrowserHomePage</key>
     <map>
       <key>Comment</key>
@@ -2732,6 +2743,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>FirstSelectedDisabledPopups</key>
+    <map>
+      <key>Comment</key>
+      <string>Return false if there is not disabled popup selected in the list of floater preferences popups</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>		
     <key>FixedWeather</key>
     <map>
       <key>Comment</key>
@@ -2869,17 +2891,6 @@
         <integer>250</integer>
         <integer>0</integer>
       </array>
-    </map>
-    <key>FloaterViewBottom</key>
-    <map>
-      <key>Comment</key>
-      <string>[DO NOT MODIFY] Controls layout of floating windows within SL window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
     </map>
     <key>FlyBtnEnabled</key>
     <map>
@@ -3318,16 +3329,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>FullScreen</key>
+    <key>NotFullScreen</key>
     <map>
       <key>Comment</key>
-      <string>Run SL in fullscreen mode</string>
+      <string>Run SL in non fullscreen mode</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>FullScreenAspectRatio</key>
     <map>
@@ -3515,6 +3526,17 @@
       <string>String</string>
       <key>Value</key>
       <string />
+    </map>
+    <key>IMInChatConsole</key>
+    <map>
+      <key>Comment</key>
+      <string>Copy IM into chat console</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>IMInChatHistory</key>
     <map>
@@ -4331,6 +4353,17 @@
         <key>Value</key>
             <real>600.0</real>
         </map>
+    <key>MemProfiling</key>
+    <map>
+      <key>Comment</key>
+      <string>You want to use tcmalloc's memory profiling options.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>  
     <key>MenuAccessKeyTime</key>
     <map>
       <key>Comment</key>
@@ -5427,6 +5460,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>RenderDebugAlphaMask</key>
+    <map>
+      <key>Comment</key>
+      <string>Test Alpha Masking Cutoffs.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
+    </map>
     <key>RenderDebugGL</key>
     <map>
       <key>Comment</key>
@@ -5784,6 +5828,17 @@
     <map>
       <key>Comment</key>
       <string>Display HUD attachments in snapshot</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderHUDParticles</key>
+    <map>
+      <key>Comment</key>
+      <string>Display particle systems in HUD attachments (experimental)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6997,7 +7052,18 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowNetStats</key>
+    <map>
+      <key>Comment</key>
+      <string>Show the Search Bar in the Status Overlay</string>
+      <key>Persist</key>
       <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>ShowSelectionBeam</key>
     <map>
@@ -7092,7 +7158,7 @@
       <key>Comment</key>
       <string>Display XUI Names as Tooltips</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -7377,28 +7443,6 @@
       <key>Value</key>
       <string>fss.txt</string>
     </map>
-    <key>StatusBarHeight</key>
-    <map>
-      <key>Comment</key>
-      <string>Height of menu/status bar at top of screen (pixels)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>26</integer>
-    </map>
-    <key>StatusBarPad</key>
-    <map>
-      <key>Comment</key>
-      <string>Spacing between popup buttons at bottom of screen (Stand up, Release Controls)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>10</integer>
-    </map>
     <key>SystemLanguage</key>
     <map>
       <key>Comment</key>
@@ -7408,7 +7452,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>en-us</string>
+      <string>en</string>
     </map>
     <key>TabToTextFieldsOnly</key>
     <map>
@@ -7851,6 +7895,28 @@
       <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
     </map>
     <key>UIImgDefaultSocksUUID</key>
+    <map>
+      <key>Comment</key>
+      <string />
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
+    </map>
+    <key>UIImgDefaultAlphaUUID</key>
+    <map>
+      <key>Comment</key>
+      <string />
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
+    </map>
+    <key>UIImgDefaultTattooUUID</key>
     <map>
       <key>Comment</key>
       <string />
@@ -9149,6 +9215,17 @@
       <key>Value</key>
       <integer>44125</integer>
     </map>
+    <key>WarningsAsChat</key>
+    <map>
+      <key>Comment</key>
+      <string>Display warning messages in chat history</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>WLSkyDetail</key>
     <map>
       <key>Comment</key>
@@ -9169,7 +9246,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>WaterEditPresets</key>
     <map>

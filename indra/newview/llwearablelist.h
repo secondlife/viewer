@@ -33,37 +33,37 @@
 #ifndef LL_LLWEARABLELIST_H
 #define LL_LLWEARABLELIST_H
 
+#include "llmemory.h"
 #include "llwearable.h"
 #include "lluuid.h"
 #include "llassetstorage.h"
 
-class LLWearableList
+// Globally constructed; be careful that there's no dependency with gAgent.
+class LLWearableList : public LLSingleton<LLWearableList>
 {
 public:
 	LLWearableList()	{}
 	~LLWearableList();
 
-	S32					getLength() { return mList.size(); }
+	S32					getLength() const { return mList.size(); }
 
-	void				getAsset( 
-							const LLAssetID& assetID,
-							const std::string& wearable_name,
-							LLAssetType::EType asset_type,
-							void(*asset_arrived_callback)(LLWearable*, void* userdata),
-							void* userdata );
+	void				getAsset(const LLAssetID& assetID,
+								 const std::string& wearable_name,
+								 LLAssetType::EType asset_type,
+								 void(*asset_arrived_callback)(LLWearable*, void* userdata),
+								 void* userdata);
 
-	LLWearable*			createWearableMatchedToInventoryItem( LLWearable* old_wearable, LLViewerInventoryItem* item );
-	LLWearable*			createCopyFromAvatar( LLWearable* old_wearable, const std::string& new_name = std::string() );
-	LLWearable*			createCopy( LLWearable* old_wearable );
-	LLWearable*			createNewWearable( EWearableType type );
+	LLWearable*			createCopyFromAvatar(const LLWearable* old_wearable, const std::string& new_name = std::string());
+	LLWearable*			createCopy(const LLWearable* old_wearable);
+	LLWearable*			createNewWearable(EWearableType type);
 	
 	// Callback
 	static void	 	    processGetAssetReply(const char* filename, const LLAssetID& assetID, void* user_data, S32 status, LLExtStat ext_status);
 
 protected:
-	std::map< LLUUID, LLWearable* > mList;
+	LLWearable* generateNewWearable(); // used for the create... functions
+private:
+	std::map<LLUUID, LLWearable*> mList;
 };
-
-extern LLWearableList gWearableList;
 
 #endif  // LL_LLWEARABLELIST_H

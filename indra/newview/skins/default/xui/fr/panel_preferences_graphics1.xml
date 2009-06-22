@@ -86,18 +86,10 @@
 		Objets reflétés :
 	</text>
 	<radio_group name="ReflectionDetailRadio">
-		<radio_item name="0">
-			Terrain et Arbres
-		</radio_item>
-		<radio_item name="1">
-			Objets statiques
-		</radio_item>
-		<radio_item name="2">
-			Objets et avatars
-		</radio_item>
-		<radio_item name="3">
-			Tout
-		</radio_item>
+		<radio_item name="0" label="Terrain et Arbres" />
+		<radio_item name="1" label="Objets statiques" />
+		<radio_item name="2" label="Objets et avatars" />
+		<radio_item name="3" label="Tout" />
 	</radio_group>
 	<text name="AvatarRenderingText">
 		Rendu de l&apos;avatar :
@@ -148,23 +140,15 @@
 		Sources lumineuses :
 	</text>
 	<radio_group name="LightingDetailRadio">
-		<radio_item name="SunMoon">
-			Soleil et lune uniquement
-		</radio_item>
-		<radio_item name="LocalLights">
-			Lumières à proximité
-		</radio_item>
+		<radio_item name="SunMoon" label="Soleil et lune uniquement" />
+		<radio_item name="LocalLights" label="Lumières à proximité" />
 	</radio_group>
 	<text left="380" name="TerrainDetailText">
 		Rendu du terrain :
 	</text>
 	<radio_group name="TerrainDetailRadio">
-		<radio_item name="0">
-			Faible
-		</radio_item>
-		<radio_item name="2">
-			Élevé
-		</radio_item>
+		<radio_item name="0" label="Faible" />
+		<radio_item name="2" label="Élevé" />
 	</radio_group>
 	<button label="Paramètres recommandés" name="Defaults"/>
 	<button label="Configuration du matériel" label_selected="Configuration du matériel" name="GraphicsHardwareButton"/>

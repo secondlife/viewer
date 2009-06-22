@@ -37,7 +37,7 @@
 #include "llresmgr.h"
 #include "llinventory.h"
 #include "llinventoryview.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llagent.h"          // gAgent
 #include "llkeyframemotion.h"
 #include "llfilepicker.h"

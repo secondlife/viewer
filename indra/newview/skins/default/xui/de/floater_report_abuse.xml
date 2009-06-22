@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_report_abuse" title="Missbrauch melden">
 	<texture_picker label="" name="screenshot"/>
-	<check_box label="Screenshot einschließen" name="screen_check" bottom_delta="-20"/>
+	<check_box bottom_delta="-20" label="Screenshot einschließen" name="screen_check"/>
 	<text name="reporter_title">
 		Melder:
 	</text>
@@ -41,9 +41,9 @@ dann auf das Objekt:
 		<combo_box.item name="Select_category" label="Kategorie auswählen"/>
 		<combo_box.item name="Age__Age_play" label="Alter&gt; Age-Play"/>
 		<combo_box.item name="Age__Adult_resident_on_Teen_Second_Life" label="Alter&gt; Erwachsener Einwohner in Teen Second Life"/>
-		
-		
-		
+		<combo_item name="Age__Underage_resident_outside_of_Teen_Second_Life">
+			Alter &gt; Minderjähriger Einwohner außerhalb Teen Second Life
+		</combo_item>
 		<combo_box.item name="Assault__Combat_sandbox___unsafe_area" label="Angriff&gt; Kampf-Sandbox / unsichere Region"/>
 		<combo_box.item name="Assault__Safe_area" label="Angriff&gt; Sichere Region"/>
 		<combo_box.item name="Assault__Weapons_testing_sandbox" label="Angriff &gt; Sandbox für Waffentest"/>
@@ -67,13 +67,13 @@ dann auf das Objekt:
 		<combo_box.item name="Harassment__Solicting_inciting_others_to_violate_ToS" label="Belästigung &gt; Anstiften Dritter zur Missachtung der Nutzungsbedingungen"/>
 		<combo_box.item name="Harassment__Verbal_abuse" label="Belästigung &gt; Beschimpfung"/>
 		<combo_box.item name="Indecency__Broadly_offensive_content_or_conduct" label="Unanständigkeit &gt; Anstößige Inhalte oder Handlungen in der Öffentlichkeit"/>
-		
-		
-		
 		<combo_box.item name="Indecency__Inappropriate_avatar_name" label="Unanständigkeit &gt; Anstößiger Avatarname"/>
-		
-		
-		
+		<combo_item name="Indecency__Mature_content_in_PG_region">
+			Unanständigkeit &gt; Unangemessener Inhalt oder unangemessenes Verhalten in PG-Region
+		</combo_item>
+		<combo_item name="Indecency__Inappropriate_content_in_Mature_region">
+			Unanständigkeit &gt; Unangemessener Inhalt oder unangemessenes Verhalten in Mature-Region
+		</combo_item>
 		<combo_box.item name="Intellectual_property_infringement_Content_Removal" label="Urheberrechtsverletzung &gt; Entfernen von Inhalten"/>
 		<combo_box.item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit" label="Urheberrechtsverletzung &gt; CopyBot oder Berechtigungs-Exploit"/>
 		<combo_box.item name="Intolerance" label="Intoleranz"/>
@@ -103,8 +103,8 @@ dann auf das Objekt:
 Missbrauchs, relevantem Chat/IM und wählen Sie das 
 Objekt, wenn möglich.
 	</text>
-	<text_editor bottom_delta="-136" height="130" name="details_edit" />
-	<text name="incomplete_title" bottom_delta="-20">
+	<text_editor bottom_delta="-136" height="130" name="details_edit"/>
+	<text bottom_delta="-20" name="incomplete_title">
 		Hinweis: Unvollständige Meldungen werden nicht bearbeitet.
 	</text>
 	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn"/>

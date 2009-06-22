@@ -56,8 +56,6 @@
 #include "lltexteditor.h"
 #include "lltextbox.h"
 
-using namespace LLOldEvents;
-
 BOOL	LLView::sDebugRects = FALSE;
 BOOL	LLView::sDebugKeys = FALSE;
 S32		LLView::sDepth = 0;
@@ -95,9 +93,10 @@ LLView::Params::Params()
 	layout("layout"),
 	rect("rect"),
 	bottom_delta("bottom_delta", S32_MAX),
+	top_pad("top_pad"),
+	top_delta("top_delta", S32_MAX),
+	left_pad("left_pad"),
 	left_delta("left_delta", S32_MAX),
-	top_delta("top_delta"),
-	right_delta("right_delta"),
 	center_horiz("center_horiz", false),
 	center_vert("center_vert", false),
 	serializable("", false),
@@ -124,7 +123,8 @@ LLView::LLView(const LLView::Params& p)
 	mUseBoundingRect(p.use_bounding_rect),
 	mDefaultTabGroup(p.default_tab_group),
 	mLastTabGroup(0),
-	mToolTipMsg((LLStringExplicit)p.tool_tip())
+	mToolTipMsg((LLStringExplicit)p.tool_tip()),
+	mDefaultWidgets(NULL)
 {
 	// create rect first, as this will supply initial follows flags
 	setShape(p.rect);
@@ -157,8 +157,13 @@ LLView::~LLView()
 		mParentView->removeChild(this);
 	}
 
-	std::for_each(mDummyWidgets.begin(), mDummyWidgets.end(),
-				  DeletePairedPointer());
+	if (mDefaultWidgets)
+	{
+		std::for_each(mDefaultWidgets->begin(), mDefaultWidgets->end(),
+					  DeletePairedPointer());
+		delete mDefaultWidgets;
+		mDefaultWidgets = NULL;
+	}
 }
 
 // virtual
@@ -266,34 +271,6 @@ void LLView::moveChildToBackOfTabGroup(LLUICtrl* child)
 	if(mCtrlOrder.find(child) != mCtrlOrder.end())
 	{
 		mCtrlOrder[child].second = mNextInsertionOrdinal++;
-	}
-}
-
-void LLView::addChildren(LLXMLNodePtr node, LLXMLNodePtr output_node)
-{
-	if (node.isNull()) return;
-
-	for (LLXMLNodePtr child_node = node->getFirstChild(); child_node.notNull(); child_node = child_node->getNextSibling())
-	{
-		LLXMLNodePtr outputChild;
-		if (output_node) 
-		{
-			outputChild = output_node->createChild("", FALSE);
-		}
-
-		if (!LLUICtrlFactory::getInstance()->createFromXML(child_node, this, LLStringUtil::null, outputChild))
-		{
-			std::string child_name = std::string(child_node->getName()->mString);
-			if (child_name.find(".") == std::string::npos)
-			{
-				llwarns << "Could not create widget named " << child_node->getName()->mString << llendl;
-			}
-		}
-
-		if (outputChild && !outputChild->mChildren && outputChild->mAttributes.empty() && outputChild->getValue().empty())
-		{
-			output_node->deleteChild(outputChild);
-		}
 	}
 }
 
@@ -1733,10 +1710,10 @@ LLView* LLView::getChildView(const std::string& name, BOOL recurse, BOOL create_
 
 	if (create_if_missing)
 	{
-		LLView* view = getDummyWidget<LLView>(name);
+		LLView* view = getDefaultWidget<LLView>(name);
 		if (!view)
 		{
-			 view = LLUICtrlFactory::createDummyWidget<LLView>(name);
+			 view = LLUICtrlFactory::createDefaultWidget<LLView>(name);
 		}
 		return view;
 	}
@@ -2305,15 +2282,33 @@ LLView*	LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESna
 
 LLControlVariable *LLView::findControl(const std::string& name)
 {
-	LLControlVariable* control;
-	control = LLUI::sSettingGroups["color"]->getControl(name);
-	if (control)
+	// parse the name to locate which group it belongs to
+	std::size_t key_pos= name.find(".");
+	if(key_pos!=  std::string::npos )
 	{
-		return control;
+		std::string control_group_key = name.substr(0, key_pos);
+		LLControlVariable* control;
+		// check if it's in the control group that name indicated
+		if(LLUI::sSettingGroups[control_group_key])
+		{
+			control = LLUI::sSettingGroups[control_group_key]->getControl(name);
+			if (control)
+			{
+				return control;
+			}
+		}
 	}
 	
-	return LLUI::sSettingGroups["config"]->getControl(name);
+	LLControlGroup& control_group = LLUI::getControlControlGroup(name);
+	return control_group.getControl(name);	
 }
+
+const widget_registry_t& LLView::getChildRegistry() const
+{
+	static widget_registry_t empty_registry;
+	return empty_registry;
+}
+
 
 const S32 FLOATER_H_MARGIN = 15;
 const S32 MIN_WIDGET_HEIGHT = 10;
@@ -2395,17 +2390,38 @@ void LLView::parseFollowsFlags(const LLView::Params& params)
 
 
 // static
-LLFontGL::HAlign LLView::selectFontHAlign(LLXMLNodePtr node)
-{
-	LLFontGL::HAlign gl_hfont_align = LLFontGL::LEFT;
+//LLFontGL::HAlign LLView::selectFontHAlign(LLXMLNodePtr node)
+//{
+//	LLFontGL::HAlign gl_hfont_align = LLFontGL::LEFT;
+//
+//	if (node->hasAttribute("halign"))
+//	{
+//		std::string horizontal_align_name;
+//		node->getAttributeString("halign", horizontal_align_name);
+//		gl_hfont_align = LLFontGL::hAlignFromName(horizontal_align_name);
+//	}
+//	return gl_hfont_align;
+//}
 
-	if (node->hasAttribute("halign"))
+// Return the rectangle of the last-constructed child,
+// if present and a first-class widget (eg, not a close box or drag handle)
+// Returns true if found
+static bool get_last_child_rect(LLView* parent, LLRect *rect)
+{
+	if (!parent) return false;
+
+	LLView::child_list_t::const_iterator itor = 
+		parent->getChildList()->begin();
+	for (;itor != parent->getChildList()->end(); ++itor)
 	{
-		std::string horizontal_align_name;
-		node->getAttributeString("halign", horizontal_align_name);
-		gl_hfont_align = LLFontGL::hAlignFromName(horizontal_align_name);
+		LLView *last_view = (*itor);
+		if (last_view->getSaveToXML())
+		{
+			*rect = last_view->getRect();
+			return true;
+		}
 	}
-	return gl_hfont_align;
+	return false;
 }
 
 //static
@@ -2416,10 +2432,12 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 	
 	p.serializable(true);
 
-	// *NOTE: Do not inherit layout from parent until we re-export
-	// all nodes and make topleft the default. JC
-	//if (p.layout().empty() && parent) 
-	//	p.layout = parent->getLayout();
+	// *NOTE:  This will confuse export of floater/panel coordinates unless
+	// the default is also "topleft".  JC
+	if (p.layout().empty() && parent)
+	{
+		p.layout = parent->getLayout();
+	}
 
 	if (parent)
 	{
@@ -2488,20 +2506,11 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 
 		last_rect.translate(0, last_rect.getHeight());
 
-		LLView::child_list_t::const_iterator itor = parent->getChildList()->begin();
-		for (;itor != parent->getChildList()->end(); ++itor)
-		{
-			LLView *last_view = (*itor);
-			if (last_view->getSaveToXML())
-			{
-				last_rect = last_view->getRect();
-				break;
-			}
-		}
+		// If there was a recently constructed child, use its rectangle
+		get_last_child_rect(parent, &last_rect);
 
 		if (layout_topleft)
 		{
-			S32 left_delta = 0;
 			p.bottom_delta.setIfNotProvided(0, false);
 
 			// Invert the sense of bottom_delta for topleft layout
@@ -2509,32 +2518,33 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 			{
 				p.bottom_delta = -p.bottom_delta;
 			}
-			else if (p.top_delta.isProvided()) 
+			else if (p.top_pad.isProvided()) 
 			{
-				p.bottom_delta = -(p.rect.height + p.top_delta);
+				p.bottom_delta = -(p.rect.height + p.top_pad);
 			}
-			else if (!p.left_delta.isProvided() && !p.right_delta.isProvided() && !p.top_delta.isProvided())
+			else if (p.top_delta.isProvided())
+			{
+				p.bottom_delta =
+					-(p.top_delta + p.rect.height - last_rect.getHeight());
+			}
+			else if (!p.bottom_delta.isProvided()
+					 && !p.left_delta.isProvided()
+					 && !p.top_pad.isProvided()
+					 && !p.left_pad.isProvided())
 			{
 				// set default position is just below last rect
-				p.bottom_delta.setIfNotProvided(-(p.rect.height + VPAD), false);
+				p.bottom_delta.set(-(p.rect.height + VPAD), false);
 			}
 	
-			// *TODO: Add left_pad for padding off the last widget's right edge
-			// if (p.left_pad.isProvided())
-			//{
-			//	left_delta = p.left_pad + last_rect.getWidth();
-			//}
-			//else if ...
-			if (p.left_delta.isProvided())
+			// default to same left edge
+			p.left_delta.setIfNotProvided(0, false);
+			if (p.left_pad.isProvided())
 			{
-				left_delta = p.left_delta;
-			}
-			else if (p.right_delta.isProvided())
-			{
-				left_delta = -(p.right_delta + p.rect.width);
+				// left_pad is based on prior widget's right edge
+				p.left_delta.set(p.left_pad + last_rect.getWidth(), false);
 			}
 			
-			last_rect.translate(left_delta, p.bottom_delta);				
+			last_rect.translate(p.left_delta, p.bottom_delta);				
 		}
 		else
 		{	
@@ -2581,6 +2591,110 @@ static S32 invert_vertical(S32 y, LLView* parent)
 	}
 }
 
+// Assumes that input is in bottom-left coordinates, hence must call
+// _before_ convert_coords_to_top_left().
+static void convert_to_relative_layout(LLView::Params& p, LLView* parent)
+{
+	// Use setupParams to get the final widget rectangle
+	// according to our wacky layout rules.
+	LLView::Params final = p;
+	LLView::setupParams(final, parent);
+	// Must actually extract the rectangle to get consistent
+	// right = left+width, top = bottom+height
+	LLRect final_rect = final.rect;
+
+	// We prefer to write out top edge instead of bottom, regardless
+	// of whether we use relative positioning
+	bool converted_top = false;
+
+	// Look for a last rectangle
+	LLRect last_rect;
+	if (get_last_child_rect(parent, &last_rect))
+	{
+		// ...we have a previous widget to compare to
+		const S32 EDGE_THRESHOLD_PIXELS = 4;
+		S32 left_pad = final_rect.mLeft - last_rect.mRight;
+		S32 left_delta = final_rect.mLeft - last_rect.mLeft;
+		S32 top_pad = final_rect.mTop - last_rect.mBottom;
+		S32 top_delta = final_rect.mTop - last_rect.mTop;
+		// If my left edge is almost the same, or my top edge is
+		// almost the same...
+		if (llabs(left_delta) <= EDGE_THRESHOLD_PIXELS
+			|| llabs(top_delta) <= EDGE_THRESHOLD_PIXELS)
+		{
+			// ...use relative positioning
+			// prefer top_pad if widgets are stacking vertically
+			// (coordinate system is still bottom-left here)
+			if (top_pad < 0)
+			{
+				p.top_pad = top_pad;
+				p.top_delta.setProvided(false);
+			}
+			else
+			{
+				p.top_pad.setProvided(false);
+				p.top_delta = top_delta;
+			}
+			// null out other vertical specifiers
+			p.rect.top.setProvided(false);
+			p.rect.bottom.setProvided(false);
+			p.bottom_delta.setProvided(false);
+			converted_top = true;
+
+			// prefer left_pad if widgets are stacking horizontally
+			if (left_pad > 0)
+			{
+				p.left_pad = left_pad;
+				p.left_delta.setProvided(false);
+			}
+			else
+			{
+				p.left_pad.setProvided(false);
+				p.left_delta = left_delta;
+			}
+			p.rect.left.setProvided(false);
+			p.rect.right.setProvided(false);
+		}
+	}
+
+	if (!converted_top)
+	{
+		// ...this is the first widget, or one that wasn't aligned
+		// prefer top/left specification
+		p.rect.top = final_rect.mTop;
+		p.rect.bottom.setProvided(false);
+		p.bottom_delta.setProvided(false);
+		p.top_pad.setProvided(false);
+		p.top_delta.setProvided(false);
+	}
+}
+
+static void convert_coords_to_top_left(LLView::Params& p, LLView* parent)
+{
+	// Convert the coordinate system to be top-left based.
+	if (p.rect.top.isProvided())
+	{
+		p.rect.top = invert_vertical(p.rect.top, parent);
+	}
+	if (p.rect.bottom.isProvided())
+	{
+		p.rect.bottom = invert_vertical(p.rect.bottom, parent);
+	}
+	if (p.top_pad.isProvided())
+	{
+		p.top_pad = -p.top_pad;
+	}
+	if (p.top_delta.isProvided())
+	{
+		p.top_delta = -p.top_delta;
+	}
+	if (p.bottom_delta.isProvided())
+	{
+		p.bottom_delta = -p.bottom_delta;
+	}
+	p.layout = "topleft";
+}
+
 //static
 void LLView::setupParamsForExport(Params& p, LLView* parent)
 {
@@ -2590,23 +2704,35 @@ void LLView::setupParamsForExport(Params& p, LLView* parent)
 		return;
 	}
 
-	if (p.rect.top.isProvided())
+	// heuristic:  Many of our floaters and panels were bulk-exported.
+	// These specify exactly bottom/left and height/width.
+	// Others were done by hand using bottom_delta and/or left_delta.
+	// Some rely on not specifying left to mean align with left edge.
+	// Try to convert both to use relative layout, but using top-left
+	// coordinates.
+	// Avoid rectangles where top/bottom/left/right was specified.
+	if (p.rect.height.isProvided() && p.rect.width.isProvided())
 	{
-		p.rect.top = invert_vertical(p.rect.top, parent);
+		if (p.rect.bottom.isProvided() && p.rect.left.isProvided())
+		{
+			// standard bulk export, convert it
+			convert_to_relative_layout(p, parent);
+		}
+		else if (p.rect.bottom.isProvided() && p.left_delta.isProvided())
+		{
+			// hand layout with left_delta
+			convert_to_relative_layout(p, parent);
+		}
+		else if (p.bottom_delta.isProvided())
+		{
+			// hand layout with bottom_delta
+			// don't check for p.rect.left or p.left_delta because sometimes
+			// this layout doesn't set it for widgets that are left-aligned
+			convert_to_relative_layout(p, parent);
+		}
 	}
-	if (p.top_delta.isProvided())
-	{
-		p.top_delta = -p.top_delta;
-	}
-	if (p.rect.bottom.isProvided())
-	{
-		p.rect.bottom = invert_vertical(p.rect.bottom, parent);
-	}
-	if (p.bottom_delta.isProvided())
-	{
-		p.bottom_delta = -p.bottom_delta;
-	}
-	p.layout = "topleft";
+
+	convert_coords_to_top_left(p, parent);
 }
 
 LLView::tree_iterator_t LLView::beginTree() 
@@ -2620,4 +2746,15 @@ LLView::tree_iterator_t LLView::endTree()
 { 
 	// an empty iterator is an "end" iterator
 	return tree_iterator_t();
+}
+
+// only create maps on demand, as they incur heap allocation/deallocation cost
+// when a view is constructed/deconstructed
+LLView::default_widget_map_t& LLView::getDefaultWidgetMap() const
+{
+	if (!mDefaultWidgets)
+	{
+		mDefaultWidgets = new default_widget_map_t();
+	}
+	return *mDefaultWidgets;
 }

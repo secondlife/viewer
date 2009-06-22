@@ -29,6 +29,26 @@
 	<check_box label="Utiliser une échelle indépendante de la résolution" name="ui_auto_scale"/>
 	<spinner label="Absent(e) après :" name="afk_timeout_spinner"/>
 	<check_box label="M&apos;avertir lorsque je dépense ou reçois des L$" name="notify_money_change_checkbox"/>
+	<text name="maturity_desired_label">
+		Catégorie de contenu :
+	</text>
+	<text name="maturity_desired_prompt">
+		Je veux accéder au contenu classé :
+	</text>
+	<combo_box name="maturity_desired_combobox" left="340">
+		<combo_item name="Desired_Adult">
+			PG, Mature et Adult
+		</combo_item>
+		<combo_item name="Desired_Mature">
+			PG et Mature
+		</combo_item>
+		<combo_item name="Desired_PG">
+			PG uniquement
+		</combo_item>
+	</combo_box>
+	<text name="maturity_desired_textbox" left="340">
+		PG uniquement
+	</text>
 	<text length="1" name="start_location_textbox" type="string">
 		Lieu de départ :
 	</text>
@@ -74,6 +94,15 @@ de sélection :
 		<combo_box.item length="1" name="Chinese" type="string" label="中文 (简体) (Chinois) - Bêta"/>
 		<combo_box.item length="1" name="(Japanese)" type="string" label="日本語 (Japonais) - Bêta"/>
 		<combo_box.item length="1" name="(Korean)" type="string" label="한국어 (Coréen) - Bêta"/>
+		<combo_item name="Italian">
+			Italiano (Italien) - Bêta
+		</combo_item>
+		<combo_item name="Dutch">
+			Nederlands (Néerlandais) - Bêta
+		</combo_item>
+		</combo_item>
+		<combo_item name="Turkish">
+			Türkçe (Turc) - Bêta
 	</combo_box>
 	<check_box label="Partager la langue avec les objets" name="language_is_public" tool_tip="Cette option permet de faire connaître aux objets du Monde votre langue favorite."/>
 </panel>

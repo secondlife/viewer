@@ -112,6 +112,13 @@ void LLUIString::clear()
 
 void LLUIString::format()
 {
+	// optimize for empty strings (don't attempt string replacement)
+	if (mOrig.empty())
+	{
+		mResult.clear();
+		mWResult.clear();
+		return;
+	}
 	mResult = mOrig;
 	
 	// get the defailt args + local args

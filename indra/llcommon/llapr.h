@@ -49,6 +49,7 @@
 #include "llstring.h"
 
 extern LL_COMMON_API apr_thread_mutex_t* gLogMutexp;
+extern apr_thread_mutex_t* gCallStacksLogMutexp;
 
 /** 
  * @brief initialize the common apr constructs -- apr itself, the

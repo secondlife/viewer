@@ -69,10 +69,12 @@
 
 // Library headers from llcommon project:
 #include "bitpack.h"
+#include "lldeleteutils.h"
 #include "imageids.h"
 #include "indra_constants.h"
 //#include "linden_common.h"
 //#include "llpreprocessor.h"
+#include "llallocator.h"
 #include "llapp.h"
 #include "llapr.h"
 #include "llcriticaldamp.h"
@@ -217,9 +219,6 @@
 //#include "llvolume.h"
 #include "llvolumemgr.h"
 #include "material_codes.h"
-
-// Library includes from llxml
-#include "llxmlnode.h"
 
 // Library includes from llvfs
 #include "llassettype.h"

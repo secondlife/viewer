@@ -35,8 +35,8 @@
 #include "llagent.h"
 #include "llavatarconstants.h"
 #include "llavatariconctrl.h"
-#include "llfloateravatarinfo.h"
-#include "llfloaterfriends.h"
+#include "llcallingcard.h" // for LLAvatarTracker
+#include "llfriendactions.h"
 #include "llimview.h"
 #include "llmenugl.h"
 #include "lluictrlfactory.h"
@@ -44,10 +44,11 @@
 #define MENU_ITEM_VIEW_PROFILE 0
 #define MENU_ITEM_SEND_IM 1
 
-static LLRegisterWidget<LLAvatarIconCtrl> r("avatar_icon");
+static LLDefaultWidgetRegistry::Register<LLAvatarIconCtrl> r("avatar_icon");
 
 LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
-:	LLIconCtrl(p)
+:	LLIconCtrl(p),
+	mDrawTooltip(p.draw_tooltip)
 {
 	LLRect rect = p.rect;
 
@@ -87,18 +88,23 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 	mStatusSymbol->setColor(LLColor4::grey);
 
 	addChild(mStatusSymbol);
-
+	
 	if (p.avatar_id.isProvided())
 	{
 		LLSD value(p.avatar_id);
 		setValue(value);
 	}
+	else
+	{
+		LLIconCtrl::setValue("default_profile_picture.j2c");
+	}
+
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
 	registrar.add("AvatarIcon.Action", boost::bind(&LLAvatarIconCtrl::onAvatarIconContextMenuItemClicked, this, _2));
 
-	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_avatar_icon.xml", this);
+	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_avatar_icon.xml", gMenuHolder);
 
 	mPopupMenuHandle = menu->getHandle();
 }
@@ -127,7 +133,7 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 		if (mAvatarId != value.asUUID())
 		{
 			LLAvatarPropertiesProcessor::getInstance()->addObserver(value.asUUID(), this);
-			LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(value.asUUID());
+			LLAvatarPropertiesProcessor::getInstance()->sendDataRequest(value.asUUID(),APT_PROPERTIES);
 			mAvatarId = value.asUUID();
 		}
 	}
@@ -140,28 +146,47 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 }
 
 //virtual
-void LLAvatarIconCtrl::processAvatarProperties(const LLAvatarData& avatar_data)
+void LLAvatarIconCtrl::processProperties(void* data, EAvatarProcessorType type)
 {
-	if (avatar_data.avatar_id != mAvatarId)
+	if (APT_PROPERTIES == type)
 	{
-		return;
-	}
+		LLAvatarData* avatar_data = static_cast<LLAvatarData*>(data);
+		if (avatar_data)
+		{
+			if (avatar_data->avatar_id != mAvatarId)
+			{
+				return;
+			}
 
-	// Update the avatar
-	LLIconCtrl::setValue(avatar_data.image_id);
+			// Update the avatar
+			if (avatar_data->image_id.notNull())
+			{
+				LLIconCtrl::setValue(avatar_data->image_id);
+			}
+			else
+			{
+				LLIconCtrl::setValue("default_profile_picture.j2c");
+			}
 
-	// Update color of status symbol and tool tip
-	if (avatar_data.flags & AVATAR_ONLINE)
-	{
-		mStatusSymbol->setColor(LLColor4::green);
-		setToolTip((LLStringExplicit)"Online");
+			// Update color of status symbol and tool tip
+			if (avatar_data->flags & AVATAR_ONLINE)
+			{
+				mStatusSymbol->setColor(LLColor4::green);
+				if (mDrawTooltip)
+				{
+					setToolTip((LLStringExplicit)"Online");
+				}
+			}
+			else
+			{
+				mStatusSymbol->setColor(LLColor4::grey);
+				if (mDrawTooltip)
+				{
+					setToolTip((LLStringExplicit)"Offline");
+				}
+			}
+		}
 	}
-	else
-	{
-		mStatusSymbol->setColor(LLColor4::grey);
-		setToolTip((LLStringExplicit)"Offline");
-	}
-	
 }
 
 BOOL LLAvatarIconCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
@@ -203,7 +228,7 @@ void LLAvatarIconCtrl::onAvatarIconContextMenuItemClicked(const LLSD& userdata)
 
 	if (level == "profile")
 	{
-		LLFloaterAvatarInfo::show(id);
+		LLFriendActions::showProfile(id);
 	}
 	else if (level == "im")
 	{
@@ -221,24 +246,10 @@ void LLAvatarIconCtrl::onAvatarIconContextMenuItemClicked(const LLSD& userdata)
 		name.append(" ");
 		name.append(getLastName());
 
-		LLPanelFriends::requestFriendshipDialog(id, name);
+		LLFriendActions::requestFriendshipDialog(id, name);
 	}
 	else if (level == "remove")
 	{
-		LLSD args;
-
-		std::string msgType = "RemoveFromFriends";
-
-		args["FIRST_NAME"] = getFirstName();
-		args["LAST_NAME"] = getLastName();
-
-		LLSD payload;
-
-		payload["ids"].append(id);
-
-		LLNotifications::instance().add(msgType,
-			args,
-			payload,
-			&LLPanelFriends::handleRemove);
+		LLFriendActions::removeFriendDialog(id);
 	}
 }

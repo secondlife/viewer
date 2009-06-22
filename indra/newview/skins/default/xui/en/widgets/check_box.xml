@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<check_box text_enabled_color="LabelTextColor"
+           text_disabled_color="LabelDisabledColor"
+           font="SansSerifSmall"
+           follows="left|top">
+  <check_box.label_text name="checkbox label"/>
+  <check_box.check_button name="CheckboxCtrl Button"
+                          commit_on_return="false" 
+                          label=""
+                          is_toggle="true"
+                          hover_glow_amount="0.35"
+                          font="SansSerif"
+                          scale_image="false"
+                          image_unselected="checkbox_enabled_false.tga"
+                          image_selected="checkbox_enabled_true.tga"
+                          image_disabled="checkbox_disabled_false.tga"
+                          image_disabled_selected="checkbox_disabled_true.tga"/>
+</check_box>

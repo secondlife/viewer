@@ -104,6 +104,7 @@ public:
 	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect);
 	virtual void	draw();
 	virtual bool	addChild(LLView* view, S32 tab_group = 0);
+	virtual const widget_registry_t& getChildRegistry() const;
 
 private:
 	// internal scrollbar handlers

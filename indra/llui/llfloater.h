@@ -141,9 +141,15 @@ public:
 		}
 	};
 	
-	LLFloater(const LLSD& key = LLSD(), const LLFloater::Params& params = LLFloater::Params());
+	// use this to avoid creating your own default LLFloater::Param instance
+	static const Params& getDefaultParams();
+
+	LLFloater(const LLSD& key = LLSD(), const Params& params = getDefaultParams());
 
 	virtual ~LLFloater();
+
+	// Don't export top/left for rect, only height/width
+	static void setupParamsForExport(Params& p, LLView* parent);
 
 	void initFromParams(const LLFloater::Params& p);
 	void initFloaterXML(LLXMLNodePtr node, LLView *parent, BOOL open_floater = TRUE, LLXMLNodePtr output_node = NULL);
@@ -424,6 +430,7 @@ public:
 	S32 getZOrder(LLFloater* child);
 
 	void setSnapOffsetBottom(S32 offset) { mSnapOffsetBottom = offset; }
+	void setSnapOffsetRight(S32 offset) { mSnapOffsetRight = offset; }
 
 private:
 	S32				mColumn;
@@ -431,6 +438,7 @@ private:
 	S32				mNextTop;
 	BOOL			mFocusCycleMode;
 	S32				mSnapOffsetBottom;
+	S32				mSnapOffsetRight;
 };
 
 // singleton implementation for floaters

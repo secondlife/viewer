@@ -42,6 +42,8 @@ class LLFloaterSettingsDebug
 	public LLFloaterSingleton<LLFloaterSettingsDebug>
 {
 public:
+	// key - selects which settings to show, one of:
+	// "all", "base", "account", "skin"
 	LLFloaterSettingsDebug(const LLSD& key);
 	virtual ~LLFloaterSettingsDebug();
 
@@ -50,9 +52,9 @@ public:
 
 	void updateControl(LLControlVariable* control);
 
-	static void onSettingSelect(LLUICtrl* ctrl, void* user_data);
-	static void onCommitSettings(LLUICtrl* ctrl, void* user_data);
-	static void onClickDefault(void* user_data);
+	void onSettingSelect(LLUICtrl* ctrl);
+	void onCommitSettings();
+	void onClickDefault();
 
 protected:
 	LLTextEditor* mComment;

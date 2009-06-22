@@ -73,8 +73,10 @@ class LLGroupDropTarget : public LLView
 public:
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
-		Mandatory<LLPanelGroupNotices*> panel;
-		Mandatory<LLUUID>	group_id;
+		// *NOTE: These parameters logically Mandatory, but are not
+		// specified in XML files, hence Optional
+		Optional<LLPanelGroupNotices*> panel;
+		Optional<LLUUID>	group_id;
 		Params()
 		:	panel("panel"),
 			group_id("group_id")
@@ -103,7 +105,7 @@ protected:
 	LLUUID	mGroupID;
 };
 
-static LLRegisterWidget<LLGroupDropTarget> r("group_drop_target");
+static LLDefaultWidgetRegistry::Register<LLGroupDropTarget> r("group_drop_target");
 
 LLGroupDropTarget::LLGroupDropTarget(const LLGroupDropTarget::Params& p) 
 :	LLView(p),
@@ -196,8 +198,9 @@ std::string build_notice_date(const U32& the_time)
 		time(&t);
 	}
 	
-
-	std::string dateStr = LLTrans::getString("GroupNotifyDateStr");
+	std::string dateStr = "["+LLTrans::getString("LTimeMthNum")+"]/["
+								+LLTrans::getString("LTimeDay")+"]/["
+								+LLTrans::getString("LTimeYear")+"]";
 	LLSD substitution;
 	substitution["datetime"] = (S32) t;
 	LLStringUtil::format (dateStr, substitution);

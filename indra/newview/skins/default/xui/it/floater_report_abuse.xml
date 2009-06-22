@@ -39,9 +39,9 @@
 		<combo_box.item name="Select_category" label="Scegli la categoria"/>
 		<combo_box.item name="Age__Age_play" label="Età &gt; Far finta di essere minore"/>
 		<combo_box.item name="Age__Adult_resident_on_Teen_Second_Life" label="Età &gt; Residente adulto nella Teen Second Life"/>
-		
-		
-		
+		<combo_item name="Age__Underage_resident_outside_of_Teen_Second_Life">
+			Età &gt; Residente minorenne al di fuori della &apos;Second Life per Teenager&apos;
+		</combo_item>
 		<combo_box.item name="Assault__Combat_sandbox___unsafe_area" label="Assalto &gt; sandbox da combattimento / area pericolosa"/>
 		<combo_box.item name="Assault__Safe_area" label="Assalto &gt; Area sicura"/>
 		<combo_box.item name="Assault__Weapons_testing_sandbox" label="Assalto &gt; Test di armi in sandbox"/>
@@ -65,13 +65,13 @@
 		<combo_box.item name="Harassment__Solicting_inciting_others_to_violate_ToS" label="Molestie &gt; Sollecitare/incitare altri a violare i Termini di Servizio"/>
 		<combo_box.item name="Harassment__Verbal_abuse" label="Molestie &gt; Abusi verbali"/>
 		<combo_box.item name="Indecency__Broadly_offensive_content_or_conduct" label="Indecenza &gt; Condotta o contenuti largamente offensivi"/>
-		
-		
-		
 		<combo_box.item name="Indecency__Inappropriate_avatar_name" label="Indecenza &gt; Nome di un avatar inappropriato"/>
-		
-		
-		
+		<combo_item name="Indecency__Mature_content_in_PG_region">
+			Indecenza &gt; Contenuto o condotta inappropriata in una regione PG
+		</combo_item>
+		<combo_item name="Indecency__Inappropriate_content_in_Mature_region">
+			Indecenza &gt; Contenuto o condotta inappropriata in una regione Mature
+		</combo_item>
 		<combo_box.item name="Intellectual_property_infringement_Content_Removal" label="Violazione della proprietà intellettuale &gt; Rimozione contenuti"/>
 		<combo_box.item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit" label="Violazione della proprietà intellettuale &gt; CopyBot o sblocco di permessi"/>
 		<combo_box.item name="Intolerance" label="Intolleranza"/>
@@ -97,8 +97,9 @@
 		Dettagli:
 	</text>
 	<text name="bug_aviso">
-		Ti preghiamo di essere circostanziato riguardo data, luogo, natura
-dell&apos;abuso, testo rilevante di chat/IM, e, se possibile, indica l&apos;oggetto.
+		Ti preghiamo di essere circostanziato riguardo data,
+luogo, natura dell&apos;abuso, testo rilevante di chat/IM, e,
+se possibile, indica l&apos;oggetto.
 	</text>
 	<text name="incomplete_title">
 		Nota: Segnalazioni incomplete non saranno esaminate.

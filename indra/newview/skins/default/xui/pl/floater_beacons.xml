@@ -9,7 +9,7 @@
 		<check_box label="Podkreśl Emitery" name="highlights"/>
 		<check_box label="Pokaż Emitery" name="beacons"/>
 		<text name="beacon_width_label">
-			Szerokość Emiterów:
+			Zasięg Emiterów:
 		</text>
 	</panel>
 </floater>

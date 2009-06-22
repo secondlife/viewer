@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="sidetray_tab_panel"
+       bottom="0" height="25" left="0" background_visible="false"
+       bg_visible="false" border="false" border_visible="false"
+       bg_opaque_color="0.7 0.3 0.7 1.0"
+       follows="left|top|right"
+       mouse_opaque="true">
+    <text type="string" length="1" bg_visible="false" border_visible="false"
+               bottom="0" enabled="true" follows="left|top"
+               height="20" left="10"
+               font="SansSerifBold" halign="left"
+               name="sidetray_tab_title" width="100">
+        Side Panel
+    </text>
+</panel>

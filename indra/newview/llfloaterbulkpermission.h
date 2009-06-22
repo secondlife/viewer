@@ -77,6 +77,7 @@ private:
 								U8 key,
 								bool is_new);
 
+	static void onHelpBtn(void* user_data);
 	static void onCloseBtn(void* user_data);
 	static void onApplyBtn(void* user_data);
 	static void onCommitCopy(LLUICtrl* ctrl, void* data);

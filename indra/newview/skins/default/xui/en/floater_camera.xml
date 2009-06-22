@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_minimize="false"
+ center_horiz="true"
+ follows="top"
+ height="64"
+ layout="topleft"
+ name="camera_floater"
+ save_rect="true"
+ width="176">
+    <floater.string
+     name="rotate_tooltip">
+        Rotate Camera Around Focus
+    </floater.string>
+    <floater.string
+     name="zoom_tooltip">
+        Zoom Camera Towards Focus
+    </floater.string>
+    <floater.string
+     name="move_tooltip">
+        Move Camera Up and Down, Left and Right
+    </floater.string>
+    <joystick_rotate
+     follows="top|left"
+     height="64"
+     image_selected="cam_rotate_in.tga"
+     image_unselected="cam_rotate_out.tga"
+     layout="topleft"
+     left="16"
+     name="cam_rotate_stick"
+     picture_style="true"
+     quadrant="left"
+     scale_image="false"
+     sound_flags="3"
+     tool_tip="rotate_tooltip"
+     top="0"
+     width="64" />
+    <joystick_zoom
+     follows="top|left"
+     height="64"
+     image_unselected="cam_zoom_out.tga"
+     layout="topleft"
+     left_delta="64"
+     minus_image="cam_zoom_minus_in.tga"
+     name="zoom"
+     picture_style="true"
+     plus_image="cam_zoom_plus_in.tga"
+     quadrant="left"
+     scale_image="false"
+     sound_flags="3"
+     tool_tip="zoom_tooltip"
+     top_delta="0"
+     width="16" />
+    <joystick_track
+     follows="top|left"
+     height="64"
+     image_selected="cam_tracking_in.tga"
+     image_unselected="cam_tracking_out.tga"
+     layout="topleft"
+     left_delta="16"
+     name="cam_track_stick"
+     picture_style="true"
+     quadrant="left"
+     scale_image="false"
+     sound_flags="3"
+     tool_tip="move_tooltip"
+     top_delta="0"
+     width="64" />
+</floater>

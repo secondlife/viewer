@@ -86,17 +86,20 @@ public:
 								min_height;
 
 		Optional<std::string>	filename;
+		Optional<std::string>	class_name;
 
 		Multiple<LocalizedString>	strings;
 
 		Params();
 	};
 
+protected:
+	friend class LLUICtrlFactory;
 	// RN: for some reason you can't just use LLUICtrlFactory::getDefaultParams as a default argument in VC8
-	static const Params& defaultParams() { return LLUICtrlFactory::getDefaultParams<LLPanel::Params>(); }
+	static const LLPanel::Params& getDefaultParams();
 
 	// Panels can get constructed directly
-	LLPanel(const Params& params = defaultParams());
+	LLPanel(const LLPanel::Params& params = getDefaultParams());
 	
 public:
 // 	LLPanel(const std::string& name, const LLRect& rect = LLRect(), BOOL bordered = TRUE);
@@ -119,7 +122,7 @@ public:
 
 	// Border controls
 	void addBorder( LLViewBorder::Params p);
-	void addBorder() {  LLViewBorder::Params p; p.border_thickness(LLPANEL_BORDER_WIDTH); addBorder(p); }
+	void addBorder();
 	void			removeBorder();
 	BOOL			hasBorder() const { return mBorder != NULL; }
 	void			setBorderVisible( BOOL b );
@@ -158,9 +161,11 @@ public:
 	const LLCallbackMap::map_t& getFactoryMap() const { return mFactoryMap; }
 	
 	CommitCallbackRegistry::ScopedRegistrar& getCommitCallbackRegistrar() { return mCommitCallbackRegistrar; }
+	EnableCallbackRegistry::ScopedRegistrar& getEnableCallbackRegistrar() { return mEnableCallbackRegistrar; }
 	
 	void initFromParams(const Params& p);
 	BOOL initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
+	/*virtual*/ const widget_registry_t& getChildRegistry() const;
 	
 	bool hasString(const std::string& name);
 	std::string getString(const std::string& name, const LLStringUtil::format_map_t& args) const;
@@ -238,12 +243,16 @@ public:
 	void childDisplayNotFound();
 
 	static LLView*	fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
+
+	//call onOpen to let panel know when it's about to be shown or activated
+	virtual void	onOpen(const LLSD& key) {}
 	
 protected:
 	// Override to set not found list
 	LLButton*		getDefaultButton() { return mDefaultBtn; }
 	LLCallbackMap::map_t mFactoryMap;
 	CommitCallbackRegistry::ScopedRegistrar mCommitCallbackRegistrar;
+	EnableCallbackRegistry::ScopedRegistrar mEnableCallbackRegistrar;
 	
 private:
 	// Unified error reporting for the child* functions

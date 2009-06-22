@@ -46,14 +46,13 @@
 #include "llflexibleobject.h"
 #include "llfeaturemanager.h"
 #include "llviewershadermgr.h"
-#include "llpanelgeneral.h"
-#include "llpanelinput.h"
+
 #include "llsky.h"
 #include "llvieweraudio.h"
 #include "llviewerimagelist.h"
 #include "llviewerthrottle.h"
 #include "llviewerwindow.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llvoiceclient.h"
 #include "llvosky.h"
 #include "llvotree.h"
@@ -122,7 +121,7 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 
 static bool handleSetSelfInvisible( const LLSD& newvalue)
 {
-	LLVOAvatar::onChangeSelfInvisible( newvalue.asBoolean() );
+	LLVOAvatarSelf::onChangeSelfInvisible( newvalue.asBoolean() );
 	return true;
 }
 
@@ -379,7 +378,7 @@ static bool handleRenderUseImpostorsChanged(const LLSD& newvalue)
 
 static bool handleRenderDebugGLChanged(const LLSD& newvalue)
 {
-	gDebugGL = newvalue.asBoolean();
+	gDebugGL = newvalue.asBoolean() || gDebugSession;
 	gGL.clearErrors();
 	return true;
 }

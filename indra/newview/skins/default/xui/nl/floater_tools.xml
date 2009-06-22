@@ -17,12 +17,18 @@
 	<check_box label="Selecteer textuur" name="radio select face"/>
 	<check_box label="Bewerk gekoppelde onderdelen" name="checkbox edit linked parts"/>
 	<text name="text ruler mode">
-		Liniaal modus
+		Liniaal:
 	</text>
 	<combo_box name="combobox grid mode">
-		<combo_box.item name="World" label="Wereld"/>
-		<combo_box.item name="Local" label="Lokaal"/>
-		<combo_box.item name="Reference" label="Referentie"/>
+		<combo_item name="World">
+			Wereld
+		</combo_item>
+		<combo_item name="Local">
+			Lokaal
+		</combo_item>
+		<combo_item name="Reference">
+			Referentie
+		</combo_item>
 	</combo_box>
 	<check_box label="Beide zijden uitrekken" name="checkbox uniform"/>
 	<check_box label="Texturen uitrekken" name="checkbox stretch textures"/>
@@ -46,29 +52,33 @@
 	<button label="" label_selected="" name="ToolRing" tool_tip="Ring"/>
 	<button label="" label_selected="" name="ToolTree" tool_tip="Boom"/>
 	<button label="" label_selected="" name="ToolGrass" tool_tip="Gras"/>
-	<check_box label="Behoud geselecteerde gereedschap" name="checkbox sticky"/>
-	<check_box label="Kopieer selectie" name="checkbox copy selection"/>
-	<check_box label="Middelpunt kopie" name="checkbox copy centers"/>
-	<check_box label="Roteer kopie" name="checkbox copy rotates"/>
+	<check_box label="Behoud geselecteerd" name="checkbox sticky"/>
+	<check_box label="Kopiëer Selectie" name="checkbox copy selection"/>
+	<check_box label="Middelpunt" name="checkbox copy centers"/>
+	<check_box label="Roteer" name="checkbox copy rotates"/>
 	<check_box label="Selecteer land" name="radio select land"/>
-	<check_box label="Land vlakmaken" name="radio flatten"/>
-	<check_box label="Land verhogen" name="radio raise"/>
-	<check_box label="Land verlagen" name="radio lower"/>
-	<check_box label="Land egaliseren" name="radio smooth"/>
-	<check_box label="Land opruwen" name="radio noise"/>
-	<check_box label="Herstel land" name="radio revert"/>
-	<combo_box name="combobox brush size">
-		<combo_box.item name="Small" label="Klein"/>
-		<combo_box.item name="Medium" label="Medium"/>
-		<combo_box.item name="Large" label="Groot"/>
-	</combo_box>
-	<text name="Strength:">
-		Sterkte:
+	<check_box label="Vlak maken" name="radio flatten"/>
+	<check_box label="Verhogen" name="radio raise"/>
+	<check_box label="Verlagen" name="radio lower"/>
+	<check_box label="Egaliseren" name="radio smooth"/>
+	<check_box label="Opruwen" name="radio noise"/>
+	<check_box label="Herstellen" name="radio revert"/>
+	<button label="Toepassen" label_selected="Toepassen" name="button apply to selection" tool_tip="Wijzig geselecteerd land"/>
+	<text name="Bulldozer:">
+		Bulldozer:
 	</text>
-	<button label="Toepassen op selectie" label_selected="Toepassen op selectie" name="button apply to selection" tool_tip="Wijzig geselecteerd land"/>
-	<check_box label="Toon eigenaren" name="checkbox show owners"/>
-	<button label="Meer &gt;&gt;" name="button more" tool_tip="Geavanceerde opties"/>
-	<button label="&lt;&lt; Minder" name="button less" tool_tip="Geavanceerde opties"/>
+	<text name="Dozer Size:">
+		Grootte
+	</text>
+	<text name="Strength:">
+		Sterkte
+	</text>
+	<text name="obj_count">
+		Geselecteerde objecten: [COUNT]
+	</text>
+	<text name="prim_count">
+		primitieven: [COUNT]
+	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="Algemeen" name="General">
 			<text name="Name:">
@@ -98,16 +108,13 @@
 				De Lindens
 			</text>
 			<button label="Instellen..." label_selected="Instellen..." name="button set group"/>
-			<text name="prim info">
-				1 Object, 1 Primitief
-			</text>
 			<text name="Permissions:">
 				Permissies:
 			</text>
 			<text name="perm_modify">
 				U kunt dit object wijzigen
 			</text>
-			<check_box label="Deel met groep" name="checkbox share with group" tool_tip="Groepsleden toestaan om te verplaatsen, wijzigen, kopiëren en verwijderen."/>
+			<check_box label="Deel met groep" name="checkbox share with group" tool_tip="Alle leden van de ingestelde groep toestaan om te delen en uw permissies voor dit object te gebruiken. U moet &apos;Overdragen&apos; om rolbeperkingen in te schakelen."/>
 			<string name="text deed continued">
 				Overdragen...
 			</string>
@@ -143,13 +150,27 @@
 				Wanneer links-geklikt:
 			</text>
 			<combo_box name="clickaction">
-				<combo_box.item name="Touch/grab(default)" label="Aanraken/pakken (standaard)"/>
-				<combo_box.item name="Sitonobject" label="Zit op object"/>
-				<combo_box.item name="Buyobject" label="Koop object"/>
-				<combo_box.item name="Payobject" label="Betaal object"/>
-				<combo_box.item name="Open" label="Open"/>
-				<combo_box.item name="Play" label="Perceelmedia afspelen"/>
-				<combo_box.item name="Opemmedia" label="Perceelmedia openen"/>
+				<combo_item name="Touch/grab(default)">
+					Aanraken/pakken (standaard)
+				</combo_item>
+				<combo_item name="Sitonobject">
+					Zit op object
+				</combo_item>
+				<combo_item name="Buyobject">
+					Koop object
+				</combo_item>
+				<combo_item name="Payobject">
+					Betaal object
+				</combo_item>
+				<combo_item name="Open">
+					Open
+				</combo_item>
+				<combo_item name="Play">
+					Perceelmedia afspelen
+				</combo_item>
+				<combo_item name="Opemmedia">
+					Perceelmedia openen
+				</combo_item>
 			</combo_box>
 			<text name="B:">
 				B:
@@ -233,26 +254,56 @@
 				Materiaal
 			</text>
 			<combo_box name="material">
-				<combo_box.item name="Stone" label="Steen"/>
-				<combo_box.item name="Metal" label="Metaal"/>
-				<combo_box.item name="Glass" label="Glas"/>
-				<combo_box.item name="Wood" label="Hout"/>
-				<combo_box.item name="Flesh" label="Vlees"/>
-				<combo_box.item name="Plastic" label="Plastic"/>
-				<combo_box.item name="Rubber" label="Rubber"/>
+				<combo_item name="Stone">
+					Steen
+				</combo_item>
+				<combo_item name="Metal">
+					Metaal
+				</combo_item>
+				<combo_item name="Glass">
+					Glas
+				</combo_item>
+				<combo_item name="Wood">
+					Hout
+				</combo_item>
+				<combo_item name="Flesh">
+					Vlees
+				</combo_item>
+				<combo_item name="Plastic">
+					Plastic
+				</combo_item>
+				<combo_item name="Rubber">
+					Rubber
+				</combo_item>
 			</combo_box>
 			<text name="label basetype">
 				Bouwbloktype
 			</text>
 			<combo_box name="comboBaseType">
-				<combo_box.item name="Box" label="Kubus"/>
-				<combo_box.item name="Cylinder" label="Cilinder"/>
-				<combo_box.item name="Prism" label="Prisma"/>
-				<combo_box.item name="Sphere" label="Bol"/>
-				<combo_box.item name="Torus" label="Torus"/>
-				<combo_box.item name="Tube" label="Buis"/>
-				<combo_box.item name="Ring" label="Ring"/>
-				<combo_box.item name="Sculpted" label="Sculpted"/>
+				<combo_item name="Box">
+					Kubus
+				</combo_item>
+				<combo_item name="Cylinder">
+					Cilinder
+				</combo_item>
+				<combo_item name="Prism">
+					Prisma
+				</combo_item>
+				<combo_item name="Sphere">
+					Bol
+				</combo_item>
+				<combo_item name="Torus">
+					Torus
+				</combo_item>
+				<combo_item name="Tube">
+					Buis
+				</combo_item>
+				<combo_item name="Ring">
+					Ring
+				</combo_item>
+				<combo_item name="Sculpted">
+					Sculpted
+				</combo_item>
 			</combo_box>
 			<text name="text cut">
 				Uitsnede begin en einde
@@ -269,10 +320,18 @@
 				Holtevorm
 			</text>
 			<combo_box name="hole">
-				<combo_box.item name="Default" label="Standaard"/>
-				<combo_box.item name="Circle" label="Cirkel"/>
-				<combo_box.item name="Square" label="Vierkant"/>
-				<combo_box.item name="Triangle" label="Driehoek"/>
+				<combo_item name="Default">
+					Standaard
+				</combo_item>
+				<combo_item name="Circle">
+					Cirkel
+				</combo_item>
+				<combo_item name="Square">
+					Vierkant
+				</combo_item>
+				<combo_item name="Triangle">
+					Driehoek
+				</combo_item>
 			</combo_box>
 			<text name="text twist">
 				Verdraai begin en einde
@@ -298,6 +357,9 @@
 			<text name="advanced_dimple">
 				Deuk begin en einde
 			</text>
+			<text name="advanced_slice">
+				Uitsnede Begin en Einde
+			</text>
 			<spinner label="B" name="Path Limit Begin"/>
 			<spinner label="E" name="Path Limit End"/>
 			<text name="text taper2">
@@ -318,11 +380,21 @@
 				Hechtingstype
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_box.item name="None" label="none)"/>
-				<combo_box.item name="Sphere" label="Bol"/>
-				<combo_box.item name="Torus" label="Torus"/>
-				<combo_box.item name="Plane" label="Vlak"/>
-				<combo_box.item name="Cylinder" label="Cilinder"/>
+				<combo_item name="None">
+					(none)
+				</combo_item>
+				<combo_item name="Sphere">
+					Bol
+				</combo_item>
+				<combo_item name="Torus">
+					Torus
+				</combo_item>
+				<combo_item name="Plane">
+					Vlak
+				</combo_item>
+				<combo_item name="Cylinder">
+					Cilinder
+				</combo_item>
 			</combo_box>
 		</panel>
 		<panel label="Kenmerken" name="Features">
@@ -364,40 +436,88 @@
 				Mapping
 			</text>
 			<combo_box name="combobox texgen">
-				<combo_box.item name="Default" label="Standaard"/>
-				<combo_box.item name="Planar" label="Vlak"/>
+				<combo_item name="Default">
+					Standaard
+				</combo_item>
+				<combo_item name="Planar">
+					Vlak
+				</combo_item>
 			</combo_box>
 			<text name="label shininess">
 				Glans
 			</text>
 			<combo_box name="combobox shininess">
-				<combo_box.item name="None" label="Geen"/>
-				<combo_box.item name="Low" label="Laag"/>
-				<combo_box.item name="Medium" label="Middel"/>
-				<combo_box.item name="High" label="Hoog"/>
+				<combo_item name="None">
+					Geen
+				</combo_item>
+				<combo_item name="Low">
+					Laag
+				</combo_item>
+				<combo_item name="Medium">
+					Middel
+				</combo_item>
+				<combo_item name="High">
+					Hoog
+				</combo_item>
 			</combo_box>
 			<text name="label bumpiness">
 				Bumpiness
 			</text>
 			<combo_box name="combobox bumpiness">
-				<combo_box.item name="None" label="Geen"/>
-				<combo_box.item name="Brightness" label="Helderheid"/>
-				<combo_box.item name="Darkness" label="Donkerheid"/>
-				<combo_box.item name="woodgrain" label="Houtnerf"/>
-				<combo_box.item name="bark" label="Schors"/>
-				<combo_box.item name="bricks" label="Stenen"/>
-				<combo_box.item name="checker" label="Dambord"/>
-				<combo_box.item name="concrete" label="Beton"/>
-				<combo_box.item name="crustytile" label="gebarsten tegels"/>
-				<combo_box.item name="cutstone" label="natuursteen"/>
-				<combo_box.item name="discs" label="schijven"/>
-				<combo_box.item name="gravel" label="grind"/>
-				<combo_box.item name="petridish" label="petrischaal"/>
-				<combo_box.item name="siding" label="wandpaneel"/>
-				<combo_box.item name="stonetile" label="plavuizen"/>
-				<combo_box.item name="stucco" label="stucwerk"/>
-				<combo_box.item name="suction" label="zuignappen"/>
-				<combo_box.item name="weave" label="weven"/>
+				<combo_item name="None">
+					Geen
+				</combo_item>
+				<combo_item name="Brightness">
+					Helderheid
+				</combo_item>
+				<combo_item name="Darkness">
+					Donkerheid
+				</combo_item>
+				<combo_item name="woodgrain">
+					Houtnerf
+				</combo_item>
+				<combo_item name="bark">
+					Schors
+				</combo_item>
+				<combo_item name="bricks">
+					Stenen
+				</combo_item>
+				<combo_item name="checker">
+					Dambord
+				</combo_item>
+				<combo_item name="concrete">
+					Beton
+				</combo_item>
+				<combo_item name="crustytile">
+					gebarsten tegels
+				</combo_item>
+				<combo_item name="cutstone">
+					natuursteen
+				</combo_item>
+				<combo_item name="discs">
+					schijven
+				</combo_item>
+				<combo_item name="gravel">
+					grind
+				</combo_item>
+				<combo_item name="petridish">
+					petrischaal
+				</combo_item>
+				<combo_item name="siding">
+					wandpaneel
+				</combo_item>
+				<combo_item name="stonetile">
+					plavuizen
+				</combo_item>
+				<combo_item name="stucco">
+					stucwerk
+				</combo_item>
+				<combo_item name="suction">
+					zuignappen
+				</combo_item>
+				<combo_item name="weave">
+					weven
+				</combo_item>
 			</combo_box>
 			<text name="tex scale">
 				Herhalingen per zijde
@@ -430,21 +550,33 @@
 			<button label="Uitlijnen" label_selected="Uitlijnen" name="button align"/>
 		</panel>
 		<panel label="Inhoud" name="Contents">
-			<button label="Nieuw script..." label_selected="Nieuw script..." name="button new script"/>
+			<button label="Nieuw script" label_selected="Nieuw script..." name="button new script"/>
+			<button label="Permissies..." name="button permissions"/>
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
+		<text name="label_parcel_info">
+			Perceel Informatie
+		</text>
 		<text name="label_area_price">
 			Prijs: L$[PRICE] voor [AREA] m2.
 		</text>
 		<text name="label_area">
 			Gebied: [AREA] m2.
 		</text>
-		<button label="Koop land..." label_selected="Koop land..." name="button buy land"/>
-		<button label="Land Afstaan..." label_selected="Land Afstaan..." name="button abandon land"/>
+		<button label="Over land..." label_selected="Over land..." name="button about land"/>
+		<check_box label="Toon Eigenaren" name="checkbox show owners" tool_tip="Kleur percelen op basis van hun eigendom"/>
+		<button label="?" label_selected="?" name="button show owners help"/>
+		<text name="label_parcel_modify">
+			Wijzig Perceel
+		</text>
 		<button label="Opdelen..." label_selected="Opdelen..." name="button subdivide land"/>
 		<button label="Samenvoegen..." label_selected="Samenvoegen..." name="button join land"/>
-		<button label="Over land..." label_selected="Over land..." name="button about land"/>
+		<text name="label_parcel_trans">
+			Landtransacties
+		</text>
+		<button label="Koop land..." label_selected="Koop land..." name="button buy land"/>
+		<button label="Land Afstaan..." label_selected="Land Afstaan..." name="button abandon land"/>
 	</panel>
 	<string name="status_rotate">
 		Sleep de gekleurde banden om het object te roteren
@@ -462,10 +594,10 @@
 		Klik en sleep om beeld te wijzigen
 	</string>
 	<string name="status_grab">
-		Sleep om objecten te verplaatsen, Ctrl om op te tillen, Ctrl-Shift om te draaien
+		Sleep om te verplaatsen, Ctrl om op te tillen, Ctrl-Shift om te roteren.
 	</string>
 	<string name="status_place">
-		Klik in de wereld om te creëren, shift-klik om te selecteren
+		Klik in-wereld om te bouwen
 	</string>
 	<string name="status_selectland">
 		Klik en sleep om land te selecteren

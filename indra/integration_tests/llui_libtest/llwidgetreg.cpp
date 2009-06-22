@@ -62,46 +62,45 @@ void LLWidgetReg::initClass(bool register_widgets)
 	// references to the object files.
 	if (register_widgets)
 	{
-		LLRegisterWidget<LLButton> button("button");
-		LLRegisterWidget<LLCheckBoxCtrl> check_box("check_box");
-		LLRegisterWidget<LLComboBox> combo_box("combo_box");
-		LLRegisterWidget<LLFlyoutButton> flyout_button("flyout_button");
-		LLRegisterWidget<LLContainerView> container_view("container_view");
-		LLRegisterWidget<LLIconCtrl> icon("icon");
-		LLRegisterWidget<LLLineEditor> line_editor("line_editor");
-		LLRegisterWidget<LLSearchEditor> search_editor("search_editor");
-		LLRegisterWidget<LLMenuItemSeparatorGL> menu_item_separator("menu_item_separator");
-		LLRegisterWidget<LLMenuItemCallGL> menu_item_call_gl("menu_item_call");
-		LLRegisterWidget<LLMenuItemCheckGL> menu_item_check_gl("menu_item_check");
-		LLRegisterWidget<LLMenuGL> menu("menu");
-		LLRegisterWidget<LLMenuBarGL> menu_bar("menu_bar");
-		LLRegisterWidget<LLContextMenu> context_menu("context_menu");
-		LLRegisterWidget<LLMultiSlider> multi_slider_bar("multi_slider_bar");
-		LLRegisterWidget<LLMultiSliderCtrl> multi_slider("multi_slider");
-		LLRegisterWidget<LLPanel> panel("panel", &LLPanel::fromXML);
-		LLRegisterWidget<LLLayoutStack> layout_stack("layout_stack", &LLLayoutStack::fromXML);
-		LLRegisterWidget<LLProgressBar> progress_bar("progress_bar");
-		LLRegisterWidget<LLRadioGroup> radio_group("radio_group");
-		LLRegisterWidget<LLRadioCtrl> radio_item("radio_item");
-		LLRegisterWidget<LLScrollContainer> scroll_container("scroll_container");
-		LLRegisterWidget<LLScrollingPanelList> scrolling_panel_list("scrolling_panel_list");
-		LLRegisterWidget<LLScrollListCtrl> scroll_list("scroll_list");
-		LLRegisterWidget<LLSlider> slider_bar("slider_bar");
-		LLRegisterWidget<LLSlider> volume_slider("volume_slider");
-		LLRegisterWidget<LLSliderCtrl> slider("slider");
-		LLRegisterWidget<LLSpinCtrl> spinner("spinner");
-		LLRegisterWidget<LLStatBar> stat_bar("stat_bar");
-		//LLRegisterWidget<LLPlaceHolderPanel> placeholder("placeholder");
-		LLRegisterWidget<LLTabContainer> tab_container("tab_container");
-		LLRegisterWidget<LLTextBox> text("text");
-		LLRegisterWidget<LLTextEditor> simple_text_editor("simple_text_editor");
-		LLRegisterWidget<LLUICtrl> ui_ctrl("ui_ctrl");
-		LLRegisterWidget<LLStatView> stat_view("stat_view");
-		//LLRegisterWidget<LLUICtrlLocate> locate("locate");
-		//LLRegisterWidget<LLUICtrlLocate> pad("pad");
-		LLRegisterWidget<LLViewBorder> view_border("view_border");
+		LLDefaultWidgetRegistry::Register<LLButton> button("button");
+		LLDefaultWidgetRegistry::Register<LLCheckBoxCtrl> check_box("check_box");
+		LLDefaultWidgetRegistry::Register<LLComboBox> combo_box("combo_box");
+		LLDefaultWidgetRegistry::Register<LLFlyoutButton> flyout_button("flyout_button");
+		LLDefaultWidgetRegistry::Register<LLContainerView> container_view("container_view");
+		LLDefaultWidgetRegistry::Register<LLIconCtrl> icon("icon");
+		LLDefaultWidgetRegistry::Register<LLLineEditor> line_editor("line_editor");
+		LLDefaultWidgetRegistry::Register<LLSearchEditor> search_editor("search_editor");
+		LLDefaultWidgetRegistry::Register<LLMenuItemSeparatorGL> menu_item_separator("menu_item_separator");
+		LLDefaultWidgetRegistry::Register<LLMenuItemCallGL> menu_item_call_gl("menu_item_call");
+		LLDefaultWidgetRegistry::Register<LLMenuItemCheckGL> menu_item_check_gl("menu_item_check");
+		LLDefaultWidgetRegistry::Register<LLMenuGL> menu("menu");
+		LLDefaultWidgetRegistry::Register<LLMenuBarGL> menu_bar("menu_bar");
+		LLDefaultWidgetRegistry::Register<LLContextMenu> context_menu("context_menu");
+		LLDefaultWidgetRegistry::Register<LLMultiSlider> multi_slider_bar("multi_slider_bar");
+		LLDefaultWidgetRegistry::Register<LLMultiSliderCtrl> multi_slider("multi_slider");
+		LLDefaultWidgetRegistry::Register<LLPanel> panel("panel", &LLPanel::fromXML);
+		LLDefaultWidgetRegistry::Register<LLLayoutStack> layout_stack("layout_stack", &LLLayoutStack::fromXML);
+		LLDefaultWidgetRegistry::Register<LLProgressBar> progress_bar("progress_bar");
+		LLDefaultWidgetRegistry::Register<LLRadioGroup> radio_group("radio_group");
+		LLDefaultWidgetRegistry::Register<LLRadioCtrl> radio_item("radio_item");
+		LLDefaultWidgetRegistry::Register<LLScrollContainer> scroll_container("scroll_container");
+		LLDefaultWidgetRegistry::Register<LLScrollingPanelList> scrolling_panel_list("scrolling_panel_list");
+		LLDefaultWidgetRegistry::Register<LLScrollListCtrl> scroll_list("scroll_list");
+		LLDefaultWidgetRegistry::Register<LLSlider> slider_bar("slider_bar");
+		LLDefaultWidgetRegistry::Register<LLSliderCtrl> slider("slider");
+		LLDefaultWidgetRegistry::Register<LLSpinCtrl> spinner("spinner");
+		LLDefaultWidgetRegistry::Register<LLStatBar> stat_bar("stat_bar");
+		//LLDefaultWidgetRegistry::Register<LLPlaceHolderPanel> placeholder("placeholder");
+		LLDefaultWidgetRegistry::Register<LLTabContainer> tab_container("tab_container");
+		LLDefaultWidgetRegistry::Register<LLTextBox> text("text");
+		LLDefaultWidgetRegistry::Register<LLTextEditor> simple_text_editor("simple_text_editor");
+		LLDefaultWidgetRegistry::Register<LLUICtrl> ui_ctrl("ui_ctrl");
+		LLDefaultWidgetRegistry::Register<LLStatView> stat_view("stat_view");
+		//LLDefaultWidgetRegistry::Register<LLUICtrlLocate> locate("locate");
+		//LLDefaultWidgetRegistry::Register<LLUICtrlLocate> pad("pad");
+		LLDefaultWidgetRegistry::Register<LLViewBorder> view_border("view_border");
 	}
 
 	// *HACK: Usually this is registered as a viewer text editor
-	LLRegisterWidget<LLTextEditor> text_editor("text_editor");
+	LLDefaultWidgetRegistry::Register<LLTextEditor> text_editor("text_editor");
 }

@@ -46,12 +46,8 @@ Zeit, außer Sie fügen Warteschritte
 ein.
 	</text>
 	<radio_group name="animation_trigger_type">
-		<radio_item name="start">
-			Start
-		</radio_item>
-		<radio_item name="stop">
-			Stopp
-		</radio_item>
+		<radio_item name="start" label="Start" />
+		<radio_item name="stop" label="Stopp" />
 	</radio_group>
 	<check_box label="bis alle Animationen beendet sind" name="wait_anim_check"/>
 	<check_box label="Zeit in Sekunden" name="wait_time_check"/>

@@ -64,15 +64,9 @@ public:
 	mLeft(left), mTop(top), mRight(right), mBottom(bottom)
 	{}
 
-	LLRectBase(const LLSD& sd)
+	explicit LLRectBase(const LLSD& sd)
 	{
 		setValue(sd);
-	}
-
-	const LLRectBase& operator=(const LLSD& sd)
-	{
-		setValue(sd);
-		return *this;
 	}
 
 	void setValue(const LLSD& sd)

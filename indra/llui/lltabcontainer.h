@@ -71,6 +71,13 @@ public:
 		Optional<bool>						hide_tabs;
 		Optional<S32>						tab_padding_right;
 
+		Optional<LLUIImage*>				tab_top_image_unselected,
+											tab_top_image_selected,
+											tab_bottom_image_unselected,
+											tab_bottom_image_selected,
+											tab_left_image_unselected,
+											tab_left_image_selected;
+
 		Params();
 	};
 
@@ -236,6 +243,13 @@ private:
 	S32								mTotalTabWidth;
 
 	LLFrameTimer					mDragAndDropDelayTimer;
+
+	LLPointer<LLUIImage>			mImageTopUnselected;
+	LLPointer<LLUIImage>			mImageTopSelected;
+	LLPointer<LLUIImage>			mImageBottomUnselected;
+	LLPointer<LLUIImage>			mImageBottomSelected;
+	LLPointer<LLUIImage>			mImageLeftUnselected;
+	LLPointer<LLUIImage>			mImageLeftSelected;
 };
 
 #endif  // LL_TABCONTAINER_H

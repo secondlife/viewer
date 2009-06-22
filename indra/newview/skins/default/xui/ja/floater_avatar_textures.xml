@@ -1,30 +1,31 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="avatar_texture_debug" title="アバター・テクスチャー">
-	<text name="baked_label" width="128">
-		構築されたﾃｸｽﾁｬｰ
+	<text name="label">
+		ベークドテクスチャ
 	</text>
 	<text name="composite_label" width="128">
 		合成テクスチャー
 	</text>
-	<texture_picker label="頭" name="baked_head" />
-	<texture_picker label="メイクアップ" name="head_bodypaint" />
-	<texture_picker label="髪" name="hair" />
-	<button label="捨てる" label_selected="捨てる" name="Dump" />
-	<texture_picker label="眼" name="baked_eyes" />
-	<texture_picker label="眼" name="eye_texture" />
-	<texture_picker label="上半身" name="baked_upper_body" />
-	<texture_picker label="上半身のタトゥー" name="upper_bodypaint" />
-	<texture_picker label="（下着の）シャツ" name="undershirt" />
-	<texture_picker label="手袋" name="gloves" />
-	<texture_picker label="シャツ" name="shirt" />
-	<texture_picker label="上半身のジャケット" name="upper_jacket" />
-	<texture_picker label="下半身" name="baked_lower_body" />
-	<texture_picker label="下半身のタトゥー" name="lower_bodypaint" />
-	<texture_picker label="（下着の）パンツ" name="underpants" />
-	<texture_picker label="靴下" name="socks" />
-	<texture_picker label="靴" name="shoes" />
-	<texture_picker label="ズボン" name="pants" />
-	<texture_picker label="ジャケット" name="jacket" />
-	<texture_picker label="スカート" name="baked_skirt" />
-	<texture_picker label="スカート" name="skirt_texture" />
+	<button label="テクスチャID一覧をコンソールに書き込む" label_selected="捨てる" name="Dump"/>
+	<texture_picker label="髪型" name="hair-baked"/>
+	<texture_picker label="髪" name="hair"/>
+	<texture_picker label="頭" name="head-baked"/>
+	<texture_picker label="メイクアップ" name="head bodypaint"/>
+	<texture_picker label="目" name="eyes-baked"/>
+	<texture_picker label="目" name="iris"/>
+	<texture_picker label="上半身" name="upper-baked"/>
+	<texture_picker label="上半身のタトゥー" name="upper bodypaint"/>
+	<texture_picker label="（下着の）シャツ" name="undershirt"/>
+	<texture_picker label="手袋" name="gloves"/>
+	<texture_picker label="シャツ" name="shirt"/>
+	<texture_picker label="上着" name="upper jacket"/>
+	<texture_picker label="下半身" name="lower-baked"/>
+	<texture_picker label="下半身のタトゥー" name="lower bodypaint"/>
+	<texture_picker label="（下着の）パンツ" name="underpants"/>
+	<texture_picker label="靴下" name="socks"/>
+	<texture_picker label="靴" name="shoes"/>
+	<texture_picker label="ズボン" name="pants"/>
+	<texture_picker label="上着" name="lower jacket"/>
+	<texture_picker label="スカート" name="skirt-baked"/>
+	<texture_picker label="スカート" name="skirt"/>
 </floater>

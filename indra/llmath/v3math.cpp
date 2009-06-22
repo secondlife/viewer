@@ -314,12 +314,6 @@ void LLVector3::setValue(const LLSD& sd)
 	mV[2] = (F32) sd[2].asReal();
 }
 
-const LLVector3& LLVector3::operator=(const LLSD& sd)
-{
-	setValue(sd);
-	return *this;
-}
-
 const LLVector3& operator*=(LLVector3 &a, const LLQuaternion &rot)
 {
     const F32 rw = - rot.mQ[VX] * a.mV[VX] - rot.mQ[VY] * a.mV[VY] - rot.mQ[VZ] * a.mV[VZ];

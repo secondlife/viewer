@@ -41,6 +41,7 @@
 #include "llbutton.h"
 #include "llviewerwindow.h"
 #include "llfocusmgr.h"
+#include "llrootview.h"
 #include "llradiogroup.h"
 #include "lldbstrings.h"
 #include "lldir.h"

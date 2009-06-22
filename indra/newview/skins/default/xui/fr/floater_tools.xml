@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" title="">
+<floater name="toolbox floater" title="" short_title="Construire">
 	<button label="" label_selected="" name="button focus" tool_tip="Mise au point"/>
 	<button label="" label_selected="" name="button move" tool_tip="Déplacer"/>
 	<button label="" label_selected="" name="button edit" tool_tip="Modifier"/>
@@ -29,11 +29,10 @@
 	<check_box label="Utiliser la grille" name="checkbox snap to grid"/>
 	<button label="Options..." label_selected="Options..." name="Options..."/>
 	<text name="text status">
-		Faîtes glisser pour déplacer, Maj-faire glisser pour
-		copier.
+		Glissez pour déplacer, Maj-glissez pour copier.
 	</text>
 	<button label="" label_selected="" name="ToolCube" tool_tip="Cube"/>
-	<button label="" label_selected="" name="ToolPrism" tool_tip="Prisme"/>
+	<button label="" label_selected="" name="ToolPrism" tool_tip="Prisme droit"/>
 	<button label="" label_selected="" name="ToolPyramid" tool_tip="Pyramide"/>
 	<button label="" label_selected="" name="ToolTetrahedron" tool_tip="Tétraèdre"/>
 	<button label="" label_selected="" name="ToolCylinder" tool_tip="Cylindre"/>
@@ -58,7 +57,7 @@
 	<check_box label="Lisser" name="radio smooth"/>
 	<check_box label="Bosseler" name="radio noise"/>
 	<check_box label="Annuler modification" name="radio revert"/>
-	<button label="Appliquer" label_selected="Appliquer" name="button apply to selection" tool_tip="Modifier le terrain sélectionné"/>
+	<button label="Appliquer" label_selected="Appliquer" name="button apply to selection" tool_tip="Modifier le terrain sélectionné" left="176"/>
 	<text name="Bulldozer:">
 		Bulldozer :
 	</text>
@@ -104,12 +103,12 @@
 			</text>
 			<button label="Définir..." label_selected="Définir..." name="button set group"/>
 			<text name="Permissions:">
-				Autorisations :
+				Droits :
 			</text>
 			<text name="perm_modify">
 				Vous pouvez modifier cet objet.
 			</text>
-			<check_box label="Partager avec le groupe" name="checkbox share with group" tool_tip="Autoriser les membres du groupe à déplacer, copier et supprimer."/>
+			<check_box label="Partager avec le groupe" name="checkbox share with group" tool_tip="Autorisez tous les membres du groupe choisi à utiliser et à partager vos droits pour cet objet. Pour activer les restrictions de rôles, vous devez d&apos;abord cliquer sur Transférer."/>
 			<string name="text deed continued">
 				Transférer...
 			</string>
@@ -125,15 +124,9 @@
 				Prix : L$
 			</text>
 			<radio_group name="sale type">
-				<radio_item name="Original">
-					Original
-				</radio_item>
-				<radio_item name="Copy">
-					Copie
-				</radio_item>
-				<radio_item name="Contents">
-					Contenus
-				</radio_item>
+				<radio_item name="Original" label="Original" />
+				<radio_item name="Copy" label="Copie" />
+				<radio_item name="Contents" label="Contenus" />
 			</radio_group>
 			<text name="Next owner can:">
 				Le prochain propriétaire pourra :
@@ -439,7 +432,7 @@
 		</panel>
 		<panel label="Contenu" name="Contents">
 			<button label="Nouveau script" label_selected="Nouveau script..." name="button new script"/>
-			<button label="Permissions..." name="button permissions"/>
+			<button label="Droits..." name="button permissions"/>
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
@@ -452,43 +445,43 @@
 		<text name="label_area">
 			Surface : [AREA] m²
 		</text>
-		<button label="À propos du terrain..." label_selected="À propos du terrain..." name="button about land" width="132"/>
+		<button label="À propos du terrain..." label_selected="À propos du terrain..." name="button about land" width="142"/>
 		<check_box label="Afficher les propriétaires" name="checkbox show owners" tool_tip="Colorie les parcelles en fonction de leur propriétaire"/>
-		<button label="?" label_selected="?" name="button show owners help"/>
+		<button label="?" label_selected="?" name="button show owners help" left_delta="154"/>
 		<text name="label_parcel_modify">
 			Modifier la parcelle
 		</text>
-		<button label="Diviser..." label_selected="Diviser..." name="button subdivide land" width="132"/>
-		<button label="Fusionner..." label_selected="Fusionner..." name="button join land" width="132"/>
+		<button label="Diviser..." label_selected="Diviser..." name="button subdivide land" width="142"/>
+		<button label="Fusionner..." label_selected="Fusionner..." name="button join land" width="142"/>
 		<text name="label_parcel_trans">
 			Transactions
 		</text>
-		<button label="Acheter le terrain..." label_selected="Acheter le terrain..." name="button buy land" width="132"/>
-		<button label="Abandonner le terrain..." label_selected="Abandonner le terrain..." name="button abandon land" width="132"/>
+		<button label="Acheter le terrain..." label_selected="Acheter le terrain..." name="button buy land" width="142"/>
+		<button label="Abandonner le terrain..." label_selected="Abandonner le terrain..." name="button abandon land" width="142"/>
 	</panel>
 	<string name="status_rotate">
 		Pour faire tourner l&apos;objet, faîtes glisser les bandes de couleur.
 	</string>
 	<string name="status_scale">
-		Pour étirer le côté sélectionné, cliquez et faites glisser
+		Pour étirer le côté sélectionné, cliquez et faites glisser.
 	</string>
 	<string name="status_move">
-		Faîtes glisser pour déplacer, Maj-faire glisser pour copier.
+		Glissez pour déplacer, Maj-glissez pour copier.
 	</string>
 	<string name="status_modifyland">
-		Cliquez et maintenez pour modifier le terrain
+		Cliquez et maintenez pour modifier le terrain.
 	</string>
 	<string name="status_camera">
-		Cliquez et faites glisser pour changer l&apos;affichage
+		Cliquez et faites glisser pour changer l&apos;affichage.
 	</string>
 	<string name="status_grab">
-		Faîtes glisser pour déplacer, appuyez sur Ctrl pour soulever, Crtl-Maj pour pivoter
+		Glisser pour déplacer, Ctrl pour soulever, Crtl-Maj pour pivoter.
 	</string>
 	<string name="status_place">
-		Cliquez dans le monde pour construire
+		Cliquez dans le monde pour construire.
 	</string>
 	<string name="status_selectland">
-		Cliquez et faites glisser pour sélectionner le terrain
+		Cliquez et faites glisser pour sélectionner le terrain.
 	</string>
 	<string name="grid_screen_text">
 		Écran

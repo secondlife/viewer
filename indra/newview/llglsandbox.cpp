@@ -49,7 +49,7 @@
 #include "lltextureentry.h"
 #include "llviewercamera.h"
 
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llagent.h"
 #include "lltoolmgr.h"
 #include "llselectmgr.h"

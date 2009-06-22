@@ -1,21 +1,42 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="avatarpicker" title="Choisir le résident">
-	<text name="Type part of the person&apos;s name:">
-		Entrez les premières lettres du nom de la personne :
-	</text>
-	<text name="instruct_search_resident_name">
-		Saisissez une partie du nom du résident :
-	</text>
-	<button label="Chercher" label_selected="Chercher" name="Find"/>
-	<text name="Or select a calling card:">
-		Ou sélectionnez une carte de visite :
-	</text>
-	<text name="Or select their calling card:">
-		Ou sélectionnez une carte de visite :
-	</text>
+	<tab_container name="ResidentChooserTabs">
+		<panel label="Rechercher" name="SearchPanel">
+			<text name="InstructSearchResidentName">
+				Saisissez une partie du nom du résident :
+			</text>
+			<button label="Trouver" label_selected="Trouver" name="Find"/>
+		</panel>
+		<panel label="Cartes de visite" name="CallingCardsPanel">
+			<text name="InstructSelectCallingCard">
+				Sélectionnez une carte de visite :
+			</text>
+		</panel>
+		<panel label="Près de moi" name="NearMePanel">
+			<text name="InstructSelectResident">
+				Choisir un résident
+près de vous :
+			</text>
+			<button font="SansSerifSmall" label="Rafraîchir la liste" label_selected="Rafraîchir la liste" name="Refresh" left_delta="10" width="105"/>
+			<slider label="Distance" name="near_me_range" bottom_delta="-36"/>
+			<text name="meters">
+				mètres
+			</text>
+			<scroll_list bottom_delta="-169" height="159" name="NearMe"  />
+		</panel>
+	</tab_container>
 	<button label="Sélectionner" label_selected="Sélectionner" name="Select"/>
-	<button label="Fermer" label_selected="Fermer" name="Close"/>
-	<text name="NotFound">
+	<button label="Annuler" label_selected="Annuler" name="Cancel"/>
+	<string name="not_found">
 		&apos;[TEXT]&apos; introuvable
-	</text>
+	</string>
+	<string name="no_one_near">
+		Il n'y a personne près de vous
+	</string>
+	<string name="no_results">
+		Aucun résultat
+	</string>
+	<string name="searching">
+		Recherche...
+	</string>
 </floater>

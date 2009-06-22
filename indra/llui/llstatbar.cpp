@@ -43,8 +43,6 @@
 #include "llstat.h"
 #include "lluictrlfactory.h"
 
-static LLRegisterWidget<LLStatBar> r1("stat_bar");
-
 ///////////////////////////////////////////////////////////////////////////////////
 
 LLStatBar::LLStatBar(const Params& p)

@@ -4,15 +4,9 @@
 		Lokacja zapisu
 	</text>
 	<radio_group label="Rodzaje zdjęć" name="snapshot_type_radio">
-		<radio_item name="postcard">
-			Wyślij (email) pocztówkę
-		</radio_item>
-		<radio_item name="texture">
-			Załaduj do szafy ([AMOUNT]L$)
-		</radio_item>
-		<radio_item name="local">
-			Zapisz na dysk
-		</radio_item>
+		<radio_item name="postcard" label="Wyślij (email) pocztówkę" />
+		<radio_item name="texture" label="Załaduj do szafy ([AMOUNT]L$)" />
+		<radio_item name="local" label="Zapisz na dysk" />
 	</radio_group>
 	<text name="file_size_label">
 		Rozmiar pliku: [SIZE] KB

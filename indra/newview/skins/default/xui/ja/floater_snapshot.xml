@@ -4,15 +4,9 @@
 		スナップショットの送り先
 	</text>
 	<radio_group label="スナップショット・タイプ" name="snapshot_type_radio">
-		<radio_item name="postcard">
-			Eメールで送信
-		</radio_item>
-		<radio_item name="texture">
-			持ち物に保存（L$[AMOUNT]）
-		</radio_item>
-		<radio_item name="local">
-			ハードディスクに保存
-		</radio_item>
+		<radio_item name="postcard" label="Eメールで送信" />
+		<radio_item name="texture" label="持ち物に保存（L$[AMOUNT]）" />
+		<radio_item name="local" label="ハードディスクに保存" />
 	</radio_group>
 	<text name="file_size_label">
 		ファイル・サイズ： [SIZE] KB

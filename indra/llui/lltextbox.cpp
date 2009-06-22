@@ -40,7 +40,7 @@
 
 template LLTextBox* LLView::getChild<LLTextBox>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
 
-static LLRegisterWidget<LLTextBox> r("text");
+static LLDefaultWidgetRegistry::Register<LLTextBox> r("text");
 
 LLTextBox::Params::Params()
 :	text_color("text_color"),

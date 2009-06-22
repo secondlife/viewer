@@ -15,10 +15,10 @@
 	<text name="trigger_label">
 		トリガー:
 	</text>
-	<text name="replace_text" tool_tip="トリガー・ワードをこれらの単語に置き換えます。 たとえば、トリガー&apos;hello&apos;を&apos;Howdy&apos;に置換すると、&apos;I wanted to say hello&apos;というチャット文が&apos;I wanted to say howdy&apos;に変わり、ジェスチャーにも置換が反映されます。">
+	<text name="replace_text" tool_tip="トリガー・ワードをこれらの単語に置き換えます。 たとえば、トリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。">
 		置換：
 	</text>
-	<line_editor name="replace_editor" tool_tip="トリガー・ワードをこれらの単語に置き換えます。 たとえば、トリガー&apos;hello&apos;を&apos;Howdy&apos;に置換すると、&apos;I wanted to say hello&apos;というチャット文が&apos;I wanted to say howdy&apos;に変わり、ジェスチャーにも置換が反映されます。"/>
+	<line_editor name="replace_editor" tool_tip="トリガー・ワードをこれらの単語に置き換えます。 たとえば、トリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。"/>
 	<text name="key_label">
 		ショートカット・キー：
 	</text>
@@ -46,12 +46,8 @@
 ます。
 	</text>
 	<radio_group name="animation_trigger_type">
-		<radio_item name="start">
-			開始
-		</radio_item>
-		<radio_item name="stop">
-			停止
-		</radio_item>
+		<radio_item name="start" label="開始" />
+		<radio_item name="stop" label="停止" />
 	</radio_group>
 	<check_box label="アニメーションが完了するまで" name="wait_anim_check"/>
 	<check_box label="秒表示の時間" name="wait_time_check"/>

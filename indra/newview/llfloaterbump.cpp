@@ -50,7 +50,7 @@
 LLFloaterBump::LLFloaterBump(const LLSD& key) 
 :	LLFloater()
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_bumps.xml");
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_bumps.xml");
 }
 
 

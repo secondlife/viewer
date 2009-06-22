@@ -55,6 +55,7 @@
 	<menu_item_call label="Attiva" name="Activate"/>
 	<menu_item_call label="Disattiva" name="Deactivate"/>
 	<menu_item_call label="Stacca da te" name="Detach From Yourself"/>
+	<menu_item_call label="Ripristina all&apos;ultima posizione" name="Restore to Last Position"/>
 	<menu_item_call label="Indossa" name="Object Wear"/>
 	<menu label="Attacca a" name="Attach To"/>
 	<menu label="Attacca all&apos;HUD" name="Attach To HUD"/>

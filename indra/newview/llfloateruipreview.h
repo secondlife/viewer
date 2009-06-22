@@ -79,7 +79,7 @@ public:
 	BOOL mFirstFade;				// setting this avoids showing the fade reload warning on first load
 	std::string mFileName;
 protected:
-	void loadFile();
+	bool loadFile();
 };
 
 // Implementation of graphical fade in/out (on timer) for when XUI files are updated
@@ -127,7 +127,7 @@ public:
 	int mOriginalWidth, mOriginalHeight, mSpacing;
 };
 
-class LLFloaterUIPreview : public LLFloater, public LLFloaterSingleton<LLFloaterUIPreview>
+class LLFloaterUIPreview : public LLFloater
 {
 public:
 	// Setup
@@ -203,6 +203,7 @@ private:
 	// Button/drop-down action listeners (self explanatory)
 	static void onClickDisplayFloater(void*);
 	static void onClickSaveFloater(void*);
+	static void onClickSaveAll(void*);
 	static void onClickEditFloater(void*);
 	static void onClickBrowseForEditor(void*);
 	static void onClickBrowseForDiffs(void*);

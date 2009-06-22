@@ -27,10 +27,28 @@
 	</text>
 	<check_box label="Usar escala independente da resolução" name="ui_auto_scale"/>
 	<spinner label="Tempo para ficar Ausente:" name="afk_timeout_spinner"/>
-	<check_box label="Rotacionar Mini-Mapa" name="rotate_mini_map_checkbox"/>
 	<check_box label="Avisar quando receber ou gastar Linden dollars (L$)" name="notify_money_change_checkbox"/>
-	<check_box label="Usar a paleta de cores padrão do sistema" name="use_system_color_picker_checkbox" tool_tip="Usar a paleta de cores padrão do sistema ao invés de uma feita dentro de Second Life."/>
-	<check_box label="Mostrar o painel de busca na barra sobreposta" name="show_search_panel" tool_tip="Mostrar o painel de busca embutido."/>
+	<text name="maturity_desired_label" bottom="-312">
+		Classificação:
+	</text>
+	<text name="maturity_desired_prompt" bottom="-312">
+		Eu quero acessar
+conteúdo classificado:
+	</text>
+	<combo_box name="maturity_desired_combobox" bottom="-330" left="278">
+		<combo_item name="Desired_Adult">
+			PG, Mature e Adult
+		</combo_item>
+		<combo_item name="Desired_Mature">
+			PG e Mature
+		</combo_item>
+		<combo_item name="Desired_PG">
+			apenas PG
+		</combo_item>
+	</combo_box>
+	<text name="maturity_desired_textbox" bottom="-324" left="278">
+		apenas PG
+	</text>
 	<text length="1" name="start_location_textbox" type="string">
 		Posição Inicial:
 	</text>
@@ -73,6 +91,21 @@
 		<combo_box.item name="Chinese" label="中文 (简体) (Chinês) - Beta"/>
 		<combo_box.item name="(Japanese)" label="日本語 (Japonês) - Beta"/>
 		<combo_box.item name="(Korean)" label="한국어 (Coreano) - Beta"/>
+		<combo_item name="Italian">
+			Italiano - Beta
+		</combo_item>
+		<combo_item name="Dutch">
+			Nederlands (Holandês) - Beta
+		</combo_item>
+		</combo_item>
+		<combo_item name="Russian">
+			Русский (Russo) - Beta
+		</combo_item>
+		<combo_item name="Turkish">
+			Türkçe (Turco) - Beta
+		</combo_item>
+		<combo_item name="Ukrainian">
+			Українська (Ucraniano) - Beta
 	</combo_box>
 	<check_box label="Compartilhar a linguagem com objetos" name="language_is_public" tool_tip="Isto permite que os objetos no mundo conheçam sua linguagem preferida."/>
 </panel>

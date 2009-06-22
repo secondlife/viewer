@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
-     It is only for those strings which don&apos;t belong in a floater.
+     It is only for those strings which do not belong in a floater.
      For example, the strings used in avatar chat bubbles, and strings 
      that are returned from one component and may appear in many places-->
 <strings>
@@ -54,9 +54,6 @@
 	</string>
 	<string name="LoginDownloadingClothing">
 		Kleding downloaden...
-	</string>
-	<string name="LoginFailedNoNetwork">
-		Netwerk fout: Kan geen verbinding opzetten, controleer alstublieft uw netwerkverbinding
 	</string>
 	<string name="AgentLostConnection">
 		Deze regio kan problemen ondervinden. Controleer alstublieft uw verbinding met het internet.
@@ -183,6 +180,9 @@
 	</string>
 	<string name="AssetErrorCircuitGone">
 		Circuit verdwenen
+	</string>
+	<string name="AssetErrorPriceMismatch">
+		Viewer en server zijn het niet eens over de prijs.
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		Onbekende status
@@ -417,5 +417,70 @@
 	</string>
 	<string name="shout">
 		schreeuwt:
+	</string>
+	<string name="SIM_ACCESS_PG">
+		PG
+	</string>
+	<string name="SIM_ACCESS_MATURE">
+		Mature
+	</string>
+	<string name="SIM_ACCESS_ADULT">
+		Adult
+	</string>
+	<string name="SIM_ACCESS_DOWN">
+		Offline
+	</string>
+	<string name="SIM_ACCESS_MIN">
+		Onbekend
+	</string>
+	<string name="land_type_unknown">
+		(onbekend)
+	</string>
+	<string name="covenant_never_modified">Laatst gewijzigd: (nooit)</string>
+	<string name="covenant_modified">Laatst gewijzigd: </string>
+	<string name="all_files">
+		Alle bestanden
+	</string>
+	<string name="sound_files">
+		Geluiden
+	</string>
+	<string name="animation_files">
+		Animaties
+	</string>
+	<string name="image_files">
+		Afbeeldingen
+	</string>
+	<string name="save_file_verb">
+		Opslaan
+	</string>
+	<string name="load_file_verb">
+		Laden
+	</string>
+	<string name="targa_image_files">
+		Targa afbeeldingen
+	</string>
+	<string name="bitmap_image_files">
+		Bitmap afbeeldingen
+	</string>
+	<string name="avi_movie_file">
+		AVI Film bestand
+	</string>
+	<string name="xaf_animation_file">
+		XAF Anim bestand
+	</string>
+	<string name="xml_file">
+		XML bestand
+	</string>
+	<string name="dot_raw_file">
+		RAW bestand
+	</string>
+	<string name="compressed_image_files">
+		Gecomprimeerde afbeeldingen
+	</string>
+	<string name="load_files">
+		Laad bestanden
+	</string>
+	<string name="choose_the_directory">
+		Kies folder
 	</string>
 </strings>

@@ -49,7 +49,7 @@
 				<column label="Cuotas donadas" name="donated"/>
 				<column label="Última conexión" name="online"/>
 			</name_list>
-			<button label="Invitar a una nueva persona..." name="member_invite"/>
+			<button label="Invitar a un nuevo miembro..." name="member_invite"/>
 			<button label="Expulsar del grupo" name="member_eject"/>
 			<string name="help_text">
 				Puede añadir o quitar los roles asignados a los miembros.

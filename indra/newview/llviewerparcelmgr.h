@@ -42,7 +42,6 @@
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
-#include <boost/signals2/connection.hpp>
 
 class LLUUID;
 class LLMessageSystem;
@@ -83,7 +82,7 @@ class LLViewerParcelMgr : public LLSingleton<LLViewerParcelMgr>
 {
 
 public:
-	typedef boost::function        <void()> parcel_changed_callback_t;
+	typedef boost::function<void()> parcel_changed_callback_t;
 	typedef boost::signals2::signal<void()> parcel_changed_signal_t;
 
 	LLViewerParcelMgr();
@@ -265,7 +264,9 @@ public:
 
 	boost::signals2::connection setAgentParcelChangedCallback(parcel_changed_callback_t cb);
 	boost::signals2::connection setTeleportFinishedCallback(parcel_changed_callback_t cb);
+	boost::signals2::connection setTeleportFailedCallback(parcel_changed_callback_t cb);
 	void onTeleportFinished();
+	void onTeleportFailed();
 
 	static BOOL isParcelOwnedByAgent(const LLParcel* parcelp, U64 group_proxy_power);
 	static BOOL isParcelModifiableByAgent(const LLParcel* parcelp, U64 group_proxy_power);
@@ -316,6 +317,7 @@ private:
 
 	BOOL						mTeleportInProgress;
 	parcel_changed_signal_t		mTeleportFinishedSignal;
+	parcel_changed_signal_t		mTeleportFailedSignal;
 	parcel_changed_signal_t		mAgentParcelChangedSignal;
 
 	// Array of pieces of parcel edges to potentially draw

@@ -69,18 +69,10 @@
 		Spejlnings detaljer:
 	</text>
 	<radio_group name="ReflectionDetailRadio">
-		<radio_item type="string" length="1" name="0">
-			Terræn og træer
-		</radio_item>
-		<radio_item type="string" length="1" name="1">
-			Alle statiske objekter
-		</radio_item>
-		<radio_item type="string" length="1" name="2">
-			Alle avatarer og objekter
-		</radio_item>
-		<radio_item type="string" length="1" name="3">
-			Alt
-		</radio_item>
+		<radio_item type="string" length="1" name="0" label="Terræn og træer" />
+		<radio_item type="string" length="1" name="1" label="Alle statiske objekter" />
+		<radio_item type="string" length="1" name="2" label="Alle avatarer og objekter" />
+		<radio_item type="string" length="1" name="3" label="Alt" />
 	</radio_group>
 	<text type="string" length="1" name="AvatarRenderingText">
 		Avatar gengivelse
@@ -131,23 +123,15 @@
 		Lys detaljer:
 	</text>
 	<radio_group name="LightingDetailRadio">
-		<radio_item type="string" length="1" name="SunMoon">
-			Kun sol og måne
-		</radio_item>
-		<radio_item type="string" length="1" name="LocalLights">
-			Lys i nærheden
-		</radio_item>
+		<radio_item type="string" length="1" name="SunMoon" label="Kun sol og måne" />
+		<radio_item type="string" length="1" name="LocalLights" label="Lys i nærheden" />
 	</radio_group>
 	<text type="string" length="1" name="TerrainDetailText">
 		Terræn detaljer:
 	</text>
 	<radio_group name="TerrainDetailRadio">
-		<radio_item type="string" length="1" name="0">
-			Lav
-		</radio_item>
-		<radio_item type="string" length="1" name="2">
-			Høj
-		</radio_item>
+		<radio_item type="string" length="1" name="0" label="Lav" />
+		<radio_item type="string" length="1" name="2" label="Høj" />
 	</radio_group>
 	<button label="Anbefalede indstillinger" name="Defaults" />
 	<button label="Hardware valg" label_selected="Hardware Options"

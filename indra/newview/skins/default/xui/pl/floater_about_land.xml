@@ -8,6 +8,18 @@
 			<text length="1" name="Description:" type="string">
 				Opis:
 			</text>
+			<text name="LandType">
+				Typ:
+			</text>
+			<text name="LandTypeText">
+				Region Główny / Ziemia
+			</text>
+			<text name="ContentRating">
+				Rodzaj:
+			</text>
+			<text name="ContentRatingText">
+				&apos;Adult&apos;
+			</text>
 			<text length="1" name="Owner:" type="string">
 				Właściciel:
 			</text>
@@ -16,7 +28,7 @@
 			</text>
 			<button label="Profile..." label_selected="Profile..." name="Profile..."/>
 			<text length="1" name="Group:" type="string">
-				Groupa:
+				Grupa:
 			</text>
 			<button label="Ustaw..." label_selected="Ustaw..." name="Set..."/>
 			<check_box label="Udostępnij przypisywanie na grupę" name="check deed" tool_tip="Oficer grupy ma prawo przepisać prawo własności posiadłości na grupę. Posiadłość wspierana jest przez przydziały pochodzące od członków grupy."/>
@@ -29,7 +41,7 @@
 				Nie
 			</text>
 			<text length="1" name="For Sale: Price L$[PRICE]." type="string">
-				Cena: [PRICE]L$.
+				Cena: L$[PRICE] (L$[PRICE_PER_SQM]/m²).
 			</text>
 			<button label="Sprzedaj Posiadłość..." label_selected="Sprzedaj Posiadłość..." name="Sell Land..."/>
 			<text length="1" name="For sale to" type="string">
@@ -52,7 +64,7 @@
 				Obszar:
 			</text>
 			<text length="1" name="PriceText" type="string">
-				4048 m
+				4048 m²
 			</text>
 			<text length="1" name="Traffic:" type="string">
 				Ruch:
@@ -60,9 +72,9 @@
 			<text length="1" name="DwellText" type="string">
 				0
 			</text>
-			<button label="Kup Posiadłość..." label_selected="Kup Posiadłość..." name="Buy Land..." width="125" left="130"/>
+			<button label="Kup Posiadłość..." label_selected="Kup Posiadłość..." left="130" name="Buy Land..." width="125"/>
 			<button label="Kup dla Grupy..." label_selected="Kup dla Grupy..." name="Buy For Group..."/>
-			<button label="Kup Przepustkę..." label_selected="Kup Przeputkę..." name="Buy Pass..." tool_tip="Przepustka udostępnia tymczasowy wstęp na posiadłość." width="125" left="130"/>
+			<button label="Kup Przepustkę..." label_selected="Kup Przeputkę..." left="130" name="Buy Pass..." tool_tip="Przepustka udostępnia tymczasowy wstęp na posiadłość." width="125"/>
 			<button label="Porzuć z Posiadłości..." label_selected="Porzuć z Posiadłości..." name="Abandon Land..."/>
 			<button label="Odzyskaj Posiadłość..." label_selected="Odzyskaj Posiadłość..." name="Reclaim Land..."/>
 			<button label="Sprzedaż przez Lindenów..." label_selected="Sprzedaż przez Lindenów..." name="Linden Sale..." tool_tip="Posiadłość musi mieć właściciela, zawartość oraz nie może być wystawiona na aukcę."/>
@@ -76,7 +88,7 @@
 				Obszar:
 			</string>
 			<string name="area_size_text">
-				[AREA] m
+				[AREA] m²
 			</string>
 			<string name="auction_id_text">
 				Numer aukcji: [ID]
@@ -108,36 +120,61 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 			</string>
 		</panel>
 		<panel label="Umowa" name="land_covenant_panel">
-			<text length="1" name="covenant_timestamp_text" type="string">
-				Ostatnia Modyfikacja Wed Dec 31 16:00:00 1969
-			</text>
-			<text length="1" name="region_name_lbl" type="string">
-				Region:
-			</text>
-			<text length="1" name="region_name_text" type="string">
-				leyla
+			<text name="estate_section_lbl">
+				Majątek:
 			</text>
 			<text length="1" name="estate_name_lbl" type="string">
-				Posiadłość:
+				Nazwa:
 			</text>
-			<text length="1" name="estate_name_text" type="string">
+			<text length="1" name="estate_name_text" type="string" left="115">
 				Główne
 			</text>
 			<text length="1" name="estate_owner_lbl" type="string">
 				Właściciel:
 			</text>
-			<text length="1" name="estate_owner_text" type="string">
+			<text length="1" name="estate_owner_text" type="string" left="115">
 				(brak)
 			</text>
-			<text length="1" name="resellable_clause" type="string">
-				Posiadłość zakupiona w tym regionie nie może być odsprzedana.
-			</text>
-			<text length="1" name="changeable_clause" type="string">
-				Posiadłość zakupiona w tym regionie nie może być łączona/dzielona
-			</text>
-			<text_editor length="1" name="covenant_editor" type="string">
+			<text_editor length="1" name="covenant_editor" type="string" left="115">
 				Ta posiadłość nie wymaga żadej umowy.
 			</text_editor>
+			<text length="1" name="covenant_timestamp_text" type="string" left="115">
+				Ostatnia Modyfikacja Wed Dec 31 16:00:00 1969
+			</text>
+			<text name="region_section_lbl">
+				Region:
+			</text>
+			<text length="1" name="region_name_lbl" type="string">
+				Nazwa:
+			</text>
+			<text length="1" name="region_name_text" type="string" left="115">
+				leyla
+			</text>
+			<text name="region_landtype_lbl">
+				Typ:
+			</text>
+			<text name="region_landtype_text" left="115">
+				Region Główny / Ziemia
+			</text>
+			<text name="region_maturity_lbl">
+				Rodzaj:
+			</text>
+			<text name="region_maturity_text" left="115">
+				&apos;Adult&apos;
+			</text>
+			<text name="resellable_lbl">
+				Odsprzedaj:
+			</text>
+			<text length="1" name="resellable_clause" type="string" width="338" left="115">
+				Posiadłość zakupiona w tym regionie nie może być odsprzedana.
+			</text>
+			<text name="changeable_lbl">
+				Podziel:
+			</text>
+			<text length="1" name="changeable_clause" type="string" width="338" left="115">
+				Posiadłość zakupiona w tym regionie nie może być
+łączona/dzielona.
+			</text>
 			<string name="can_resell">
 				Posiadłość zakupiona w tym regionie może być odsprzedana.
 			</string>
@@ -145,10 +182,11 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				Posiadłość zakupiona w tym regionie nie może być odsprzedana.
 			</string>
 			<string name="can_change">
-				Posiadłość zakupiona w tym regionie może być łączona/dzielona
+				Posiadłość zakupiona w tym regionie może być łączona/dzielona.
 			</string>
 			<string name="can_not_change">
-				Posiadłość zakupiona w tym regionie nie może być łączona/dzielona
+				Posiadłość zakupiona w tym regionie nie może być
+łączona/dzielona.
 			</string>
 		</panel>
 		<panel label="Obiekty" name="land_objects_panel">
@@ -215,13 +253,14 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 			<text length="1" name="Object Owners:" type="string" width="108">
 				Właściciel Obiektów:
 			</text>
-			<button label="Odśwież Listę" label_selected="Odśwież Listę" name="Refresh List" left="112"/>
-			<button label="Zwróć obiekty..." label_selected="Zwróć obiekty..." name="Return objects..." left="224"/>
+			<button label="Odśwież Listę" label_selected="Odśwież Listę" left="112" name="Refresh List"/>
+			<button label="Zwróć obiekty..." label_selected="Zwróć obiekty..." left="224" name="Return objects..."/>
 			<name_list name="owner list">
 				<column label="Typ" name="type"/>
 				<column name="online_status"/>
 				<column label="Nazwa" name="name"/>
 				<column label="Liczba" name="count"/>
+				<column label="Najbardziej aktualne" name="mostrecent"/>
 			</name_list>
 		</panel>
 		<panel label="Opcje" name="land_options_panel">
@@ -240,7 +279,7 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				Nowe Obiekty:
 			</text>
 			<check_box label="Wszyscy" name="all object entry check"/>
-			<check_box label="Gropa" name="group object entry check"/>
+			<check_box label="Grupa" name="group object entry check"/>
 			<text length="1" name="allow_label4" type="string">
 				Skrypty:
 			</text>
@@ -252,10 +291,60 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 			<check_box label="Bezpieczna (brak zniszczeń)" name="check safe" tool_tip="Wybrana - posiadłość jest bezpieczna - zniszczenia w walce są zablokowane. Nie wybrana - zniszczenia w walce są włączone."/>
 			<check_box label="Popychanie niedozwolone" name="PushRestrictCheck" tool_tip="Nie pozwalaj skryptom na popychanie. Wybranie tej opcji może być przydatne do ograniczenia zakłóceń spokoju w Twojej posiadłości."/>
 			<check_box label="Wyświetlaj w wyszukiwarce (30L$/tyg.)" name="ShowDirectoryCheck" tool_tip="Udostępnij ukazywanie się nazwy posiadłości w wyszukiwarce"/>
+			<string name="search_enabled_tooltip">
+				Udostępnij wyświetlanie tej posiadłości w wyszukiwarce
+			</string>
+			<string name="search_disabled_small_tooltip">
+				Wybrana opcja jest wyłączona ze względu iż wielkość posiadłości wynosi 128 m² bądź mniej.
+Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
+			</string>
+			<string name="search_disabled_permissions_tooltip">
+				Wybrana opcja jest wyłączona ponieważ nie posiadasz prawa do modyfikacji posiadłości.
+			</string>
+			<combo_box name="land category with adult">
+				<combo_item name="AnyCategory">
+					Każda Kategoria
+				</combo_item>
+				<combo_item name="LindenLocation">
+					Linden Lokacja
+				</combo_item>
+				<combo_item name="Adult">
+					&apos;Adult&apos;
+				</combo_item>
+				<combo_item name="Arts&amp;Culture">
+					Sztuka i Kultura
+				</combo_item>
+				<combo_item name="Business">
+					Biznes
+				</combo_item>
+				<combo_item name="Educational">
+					Edukacja
+				</combo_item>
+				<combo_item name="Gaming">
+					Gra
+				</combo_item>
+				<combo_item name="Hangout">
+					Poznawanie ludzi
+				</combo_item>
+				<combo_item name="NewcomerFriendly">
+					Przyjazne dla nowych
+				</combo_item>
+				<combo_item name="Parks&amp;Nature">
+					Park i Natura
+				</combo_item>
+				<combo_item name="Residential">
+					Mieszkalna
+				</combo_item>
+				<combo_item name="Shopping">
+					Zakupy
+				</combo_item>
+				<combo_item name="Other">
+					Inne
+				</combo_item>
+			</combo_box>
 			<combo_box name="land category">
 				<combo_box.item name="AnyCategory" label="Każda"/>
 				<combo_box.item name="LindenLocation" label="Linden Lokacja"/>
-
 				<combo_box.item name="Arts&amp;Culture" label="Sztuka i Kultura"/>
 				<combo_box.item name="Business" label="Biznes"/>
 				<combo_box.item name="Educational" label="Edukacyjna"/>
@@ -268,7 +357,19 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				<combo_box.item name="Other" label="Inna"/>
 			</combo_box>
 			<button label="?" label_selected="?" name="?"/>
-			<check_box name="MatureCheck" />
+			<check_box label="Treść &apos;Mature&apos;" name="MatureCheck" tool_tip=""/>
+			<string name="mature_check_mature">
+				Treść &apos;Mature&apos;
+			</string>
+			<string name="mature_check_adult">
+				Treść &apos;Adult&apos;
+			</string>
+			<string name="mature_check_mature_tooltip">
+				Twoja posiadłość bądź treść jaką zawiera klasyfikowana jest jako &apos;Mature&apos;.
+			</string>
+			<string name="mature_check_adult_tooltip">
+				Informacje o Twojej posiadłości i treści jaką zawiera klasyfikowane są jako &apos;Adult&apos;.
+			</string>
 			<text length="1" name="Snapshot:" type="string">
 				Zdjęcie:
 			</text>
@@ -341,21 +442,14 @@ Mediów:
 			<text length="1" name="Sound:" type="string">
 				Dźwięk:
 			</text>
-			<check_box label="Ogranicz dźwięki przestrzenne w posiadłości" name="check sound local"/>
+			<check_box label="Restrykcja obiektów oraz gestur dozwolonych w tej posiadłości" name="check sound local"/>
+			<button label="?" label_selected="?" name="?" left="432"/>
 			<text length="1" name="Voice settings:" type="string">
 				Głos:
 			</text>
-			<radio_group name="parcel_voice_channel" width="310">
-				<radio_item length="1" name="Estate" type="string">
-					Użyj kanału przestrzennego na posiadlości
-				</radio_item>
-				<radio_item length="1" name="Private" type="string">
-					Użyj kanału prywatnego na posiadlości
-				</radio_item>
-				<radio_item length="1" name="Disabled" type="string">
-					Zablokuj kanał przestrzenny na posiadlości
-				</radio_item>
-			</radio_group>
+			<check_box label="Rozmowy Dozwolone" name="parcel_enable_voice_channel"/>
+			<check_box label="Rozmowy Dozwolone (ustawione przez majątek)" name="parcel_enable_voice_channel_is_estate_disabled"/>
+			<check_box label="Ogranicz komunikację głosową w tej posiadłości." name="parcel_enable_voice_channel_parcel"/>
 		</panel>
 		<panel label="Dostęp" name="land_access_panel">
 			<text length="1" name="Limit access to this parcel to:" type="string">

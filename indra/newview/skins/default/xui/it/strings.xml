@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
-     It is only for those strings which don&apos;t belong in a floater.
+     It is only for those strings which do not belong in a floater.
      For example, the strings used in avatar chat bubbles, and strings 
      that are returned from one component and may appear in many places-->
 <strings>
@@ -54,9 +54,6 @@
 	</string>
 	<string name="LoginDownloadingClothing">
 		Sto caricando i vestiti...
-	</string>
-	<string name="LoginFailedNoNetwork">
-		Errore di rete: impossibile connettersi, verifica la tua connessione.
 	</string>
 	<string name="AgentLostConnection">
 		Questa regione sta avendo problemi.  Verifica la tua connessione a Internet.
@@ -183,6 +180,9 @@
 	</string>
 	<string name="AssetErrorCircuitGone">
 		Circuito perso
+	</string>
+	<string name="AssetErrorPriceMismatch">
+		Il programma e il server non combaciano nel prezzo
 	</string>
 	<string name="AssetErrorUnknownStatus">
 		Stato sconosciuto
@@ -417,5 +417,70 @@
 	</string>
 	<string name="shout">
 		grida:
+	</string>
+	<string name="SIM_ACCESS_PG">
+		PG
+	</string>
+	<string name="SIM_ACCESS_MATURE">
+		Mature
+	</string>
+	<string name="SIM_ACCESS_ADULT">
+		Adult
+	</string>
+	<string name="SIM_ACCESS_DOWN">
+		Offline
+	</string>
+	<string name="SIM_ACCESS_MIN">
+		Sconosciuto
+	</string>
+	<string name="land_type_unknown">
+		(sconosciuto)
+	</string>
+	<string name="covenant_never_modified">Ultima modifica: (mai)</string>
+	<string name="covenant_modified">Ultima modifica: </string>
+	<string name="all_files">
+		Tutti i file
+	</string>
+	<string name="sound_files">
+		Suoni
+	</string>
+	<string name="animation_files">
+		Animazioni
+	</string>
+	<string name="image_files">
+		Immagini
+	</string>
+	<string name="save_file_verb">
+		Salva
+	</string>
+	<string name="load_file_verb">
+		Carica
+	</string>
+	<string name="targa_image_files">
+		Immagini Targa
+	</string>
+	<string name="bitmap_image_files">
+		Immagini Bitmap
+	</string>
+	<string name="avi_movie_file">
+		File video AVI
+	</string>
+	<string name="xaf_animation_file">
+		File animazione XAF
+	</string>
+	<string name="xml_file">
+		File XML
+	</string>
+	<string name="dot_raw_file">
+		File RAW
+	</string>
+	<string name="compressed_image_files">
+		Immagini compresse
+	</string>
+	<string name="load_files">
+		Carica i file
+	</string>
+	<string name="choose_the_directory">
+		Scegli la cartella
 	</string>
 </strings>

@@ -8,7 +8,7 @@
 			Per E-Mail senden
 		</radio_item>
 		<radio_item name="texture">
-			Im Inventar speichern (L$10)
+			Im Inventar speichern ([AMOUNT] L$)
 		</radio_item>
 		<radio_item name="local">
 			Auf Festplatte speichern
@@ -19,7 +19,7 @@
 	</text>
 	<button label="Foto aktualisieren" name="new_snapshot_btn"/>
 	<button label="Senden" name="send_btn"/>
-	<button label="Speichern (L$10)" name="upload_btn"/>
+	<button label="Speichern ([AMOUNT] L$)" name="upload_btn"/>
 	<flyout_button label="Speichern" name="save_btn" tool_tip="Bild als Datei speichern">
     <flyout_button.item name="save_item">
       Speichern

@@ -52,7 +52,7 @@ const U32 MAX_STRING_LENGTH = 10;
 
 template LLCheckBoxCtrl* LLView::getChild<LLCheckBoxCtrl>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
 
-static LLRegisterWidget<LLCheckBoxCtrl> r("check_box");
+static LLDefaultWidgetRegistry::Register<LLCheckBoxCtrl> r("check_box");
 
 LLCheckBoxCtrl::Params::Params()
 :	text_enabled_color("text_enabled_color"),

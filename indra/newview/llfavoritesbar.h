@@ -47,22 +47,41 @@ protected:
 public:
 	virtual ~LLFavoritesBarCtrl();
 
+	/*virtual*/ BOOL postBuild();
+
 	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
 
+	// LLInventoryObserver observer trigger
 	virtual void changed(U32 mask);
-
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+
 protected:
-	void updateButtons(U32 barWidth, LLInventoryModel::item_array_t items);
+	void updateButtons(U32 bar_width);
 	BOOL collectFavoriteItems(LLInventoryModel::item_array_t &items);
 
-	void onButtonClick(int idx);
+	void onButtonClick(LLUUID id);
+	void onButtonRightClick(LLUUID id);
+	
+	void doToSelected(const LLSD& userdata);
+	
+	void showDropDownMenu();
 
+	LLHandle<LLView> mPopupMenuHandle;
+	LLHandle<LLView> mInventoryItemsPopupMenuHandle;
+
+	LLUUID mFavoriteFolderId;
 	const LLFontGL *mFont;
+	S32 mFirstDropDownItem;
+
+	typedef LLDynamicArray<std::string> item_names_array_t;
+	item_names_array_t mItemNamesCache;
+
+	LLUUID mSelectedItemID;
+	LLRect mChevronRect;
 };
 
 

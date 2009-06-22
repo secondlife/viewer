@@ -27,10 +27,28 @@
 	</text>
 	<check_box label="Resolución independiente del tamaño" name="ui_auto_scale"/>
 	<spinner label="Ausente tras:" name="afk_timeout_spinner"/>
-	<check_box label="Girar el minimapa" name="rotate_mini_map_checkbox"/>
 	<check_box label="Avisar cuando gasto o recibo dólares Linden (L$)" name="notify_money_change_checkbox"/>
-	<check_box label="Usar los colores del SO" name="use_system_color_picker_checkbox" tool_tip="Usar los colores del propio sistema operativo en vez de los propios de Second Life."/>
-	<check_box label="Incluir una ventana de búsqueda en la barra superior" name="show_search_panel" tool_tip="Muestra el panel de búsqueda insertado."/>
+	<text name="maturity_desired_label" bottom="-312">
+		Calificación:
+	</text>
+	<text name="maturity_desired_prompt" bottom="-312">
+		Quiero acceder a
+contenido calificado:
+	</text>
+	<combo_box name="maturity_desired_combobox" bottom="-330" left="274">
+		<combo_item name="Desired_Adult">
+			&apos;PG&apos;, &apos;Mature&apos; y &apos;Adult&apos;
+		</combo_item>
+		<combo_item name="Desired_Mature">
+			&apos;PG&apos; y &apos;Mature&apos;
+		</combo_item>
+		<combo_item name="Desired_PG">
+			sólo &apos;PG&apos;
+		</combo_item>
+	</combo_box>
+	<text name="maturity_desired_textbox" bottom="-324" left="274">
+		sólo &apos;PG&apos;
+	</text>
 	<text length="1" name="start_location_textbox" type="string">
 		Posición inicial:
 	</text>
@@ -49,7 +67,7 @@
 	<text length="1" name="language_textbox" type="string">
 		Idioma:
 	</text>
-	<text length="1" name="language_textbox2" type="string" left_delta="313" >
+	<text left_delta="313" length="1" name="language_textbox2" type="string">
 		(Tendrá efecto tras reiniciar)
 	</text>
 	<string name="region_name_prompt">
@@ -73,6 +91,21 @@
 		<combo_box.item length="1" name="Chinese" type="string" label="中文 (简体) (Chino) - Beta"/>
 		<combo_box.item length="1" name="(Japanese)" type="string" label="日本語 (Japonés) - Beta"/>
 		<combo_box.item length="1" name="(Korean)" type="string" label="한국어 (Coreano) - Beta"/>
+		<combo_item name="Italian">
+			Italiano - Beta
+		</combo_item>
+		<combo_item name="Dutch">
+			Nederlands (Neerlandés) - Beta
+		</combo_item>
+		</combo_item>
+		<combo_item name="Russian">
+			Русский (Ruso) - Beta
+		</combo_item>
+		<combo_item name="Turkish">
+			Türkçe (Turco) - Beta
+		</combo_item>
+		<combo_item name="Ukrainian">
+			Українська (Ucraniano) - Beta
 	</combo_box>
 	<check_box label="Compartir el idioma con los objetos" name="language_is_public" tool_tip="Hace que los objetos con script del mundo sepan su idioma preferido."/>
 </panel>

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ follows="top|left|right|bottom"
+ background_visible="true"
+ bevel_style="in"
+ bg_alpha_color="0.5 0.5 0.5 1"
+ height="705"
+ label="Notes and Privacy"
+ layout="topleft"
+ left="10"
+ name="panel_notes"
+ top="10"
+ width="355">
+ <scroll_container
+      left="1" width="354" height="690" follows="left|top|right|bottom"
+	  layout="topleft"
+      reserve_scroll_corner="false">
+	  <panel
+	  layout="topleft"
+	  width="320"
+	  height="690"
+	  left="0"
+	  top="0">
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerifHugeBold"
+     height="35"
+     layout="topleft"
+     left="10"
+     name="pick_title"
+     text_color="white"
+     top="10"
+     width="250"
+     word_wrap="true">
+        Private Notes
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     font.style="ITALIC"
+     height="15"
+     layout="topleft"
+     left="10"
+     name="status_message"
+     text_color="0.1 0.1 0.1 1"
+     top="50"
+     width="300">
+        Your notes about this user:
+    </text>
+    <text_editor
+     bg_focus_color="white"
+     bg_writeable_color="0.6 0.6 0.6 1"
+     follows="left|right"
+     font="SansSerif"
+     height="300"
+     hide_scrollbar="true"
+     layout="topleft"
+     left="10"
+     max_length="1000"
+     name="notes_edit"
+     text_color="black"
+     top="70"
+     width="280"
+     word_wrap="true" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerifHugeBold"
+     height="35"
+     layout="topleft"
+     left="10"
+     name="pick_title"
+     text_color="white"
+     top="410"
+     width="250"
+     word_wrap="true">
+        Private Settings
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     font.style="ITALIC"
+     height="15"
+     layout="topleft"
+     left="10"
+     name="status_message"
+     text_color="0.1 0.1 0.1 1"
+     top="435"
+     width="300">
+        This user can:
+    </text>
+    <check_box
+     enabled="false"
+     follows="left|top"
+     font="SansSerifBig"
+     height="20"
+     label="See my online status"
+     layout="topleft"
+     left="10"
+     name="status_check"
+     text_disabled_color="0.1 0.1 0.1 1"
+     text_enabled_color="white"
+     top="455"
+     width="300" />
+    <check_box
+     enabled="false"
+     follows="left|top"
+     font="SansSerifBig"
+     height="20"
+     label="See me on the map"
+     layout="topleft"
+     left="10"
+     name="map_check"
+     text_disabled_color="0.1 0.1 0.1 1"
+     text_enabled_color="white"
+     top="480"
+     width="300" />
+    <check_box
+     enabled="false"
+     follows="left|top"
+     font="SansSerifBig"
+     height="20"
+     label="Edit, delite or take my objects"
+     layout="topleft"
+     left="10"
+     name="objects_check"
+     text_disabled_color="0.1 0.1 0.1 1"
+     text_enabled_color="white"
+     top="505"
+     width="300" />
+    <panel
+	 layout="topleft"
+     follows="bottom"
+     height="30"
+     left="0"
+     name="notes_buttons_panel"
+     bottom="690"
+     width="350">
+      <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Add Friend"
+         layout="topleft"
+         left="5"
+         mouse_opaque="false"
+         name="add_friend"
+         top="0"
+         width="75" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="IM"
+         layout="topleft"
+         left_pad="5"
+         name="im"
+         top_delta="0"
+         width="40" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Call"
+         layout="topleft"
+         left_pad="5"
+         name="call"
+         top_delta="0"
+         width="50"
+         enabled="false"/>
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Teleport"
+         layout="topleft"
+         left_pad="5"
+         name="teleport"
+         top_delta="0"
+         width="65" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Share"
+         layout="topleft"
+         left_pad="15"
+         name="share"
+         top_delta="0"
+         width="50"
+         enabled="false"/>
+    </panel>
+</panel>
+	</scroll_container>
+</panel>

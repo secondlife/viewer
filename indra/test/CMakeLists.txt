@@ -35,8 +35,8 @@ set(test_SOURCE_FILES
     llblowfish_tut.cpp
     llbuffer_tut.cpp
     lldate_tut.cpp
-    lldoubledispatch_tut.cpp
     lldependencies_tut.cpp
+    lldoubledispatch_tut.cpp
     llerror_tut.cpp
     llevents_tut.cpp
     llhost_tut.cpp
@@ -130,6 +130,7 @@ target_link_libraries(test
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
     ${DL_LIBRARY}
+    ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
 
 if (WINDOWS)

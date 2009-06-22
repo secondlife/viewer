@@ -318,8 +318,8 @@ void LLHUDText::renderText(BOOL for_select)
 	
 	if (mOnHUDAttachment)
 	{
-		x_pixel_vec = LLVector3::y_axis / (F32)gViewerWindow->getWindowWidth();
-		y_pixel_vec = LLVector3::z_axis / (F32)gViewerWindow->getWindowHeight();
+		x_pixel_vec = LLVector3::y_axis / (F32)gViewerWindow->getWorldViewWidth();
+		y_pixel_vec = LLVector3::z_axis / (F32)gViewerWindow->getWorldViewHeight();
 	}
 	else
 	{
@@ -797,44 +797,26 @@ LLVector2 LLHUDText::updateScreenPos(LLVector2 &offset)
 	if (!LLViewerCamera::getInstance()->projectPosAgentToScreen(world_pos, screen_pos, FALSE) && mVisibleOffScreen)
 	{
 		// bubble off-screen, so find a spot for it along screen edge
-		LLVector2 window_center(gViewerWindow->getWindowDisplayWidth() * 0.5f, gViewerWindow->getWindowDisplayHeight() * 0.5f);
-		LLVector2 delta_from_center(screen_pos.mX - window_center.mV[VX], 
-									screen_pos.mY - window_center.mV[VY]);
-		delta_from_center.normVec();
-
-		F32 camera_aspect = LLViewerCamera::getInstance()->getAspect();
-		F32 delta_aspect = llabs(delta_from_center.mV[VX] / delta_from_center.mV[VY]);
-		if (camera_aspect / llmax(delta_aspect, 0.001f) > 1.f)
-		{
-			// camera has wider aspect ratio than offset vector, so clamp to height
-			delta_from_center *= llabs(window_center.mV[VY] / delta_from_center.mV[VY]);
-		}
-		else
-		{
-			// camera has narrower aspect ratio than offset vector, so clamp to width
-			delta_from_center *= llabs(window_center.mV[VX] / delta_from_center.mV[VX]);
-		}
-
-		screen_pos_vec = window_center + delta_from_center;
+		LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(world_pos, screen_pos);
 	}
-	else
-	{
-		screen_pos_vec.setVec((F32)screen_pos.mX, (F32)screen_pos.mY);
-	}
-	S32 bottom = STATUS_BAR_HEIGHT;
-	if (gChatBar->getVisible())
+
+	screen_pos_vec.setVec((F32)screen_pos.mX, (F32)screen_pos.mY);
+
+	LLRect world_rect = gViewerWindow->getVirtualWorldViewRect();
+	S32 bottom = world_rect.mBottom + STATUS_BAR_HEIGHT;
+	if (gChatBar && gChatBar->getVisible())
 	{
 		bottom += CHAT_BAR_HEIGHT;
 	}
 
 	LLVector2 screen_center;
-	screen_center.mV[VX] = llclamp((F32)screen_pos_vec.mV[VX], mWidth * 0.5f, (F32)gViewerWindow->getWindowDisplayWidth() - mWidth * 0.5f);
+	screen_center.mV[VX] = llclamp((F32)screen_pos_vec.mV[VX], (F32)world_rect.mLeft + mWidth * 0.5f, (F32)world_rect.mRight - mWidth * 0.5f);
 
 	if(mVertAlignment == ALIGN_VERT_TOP)
 	{
 		screen_center.mV[VY] = llclamp((F32)screen_pos_vec.mV[VY], 
 			(F32)bottom, 
-			(F32)gViewerWindow->getWindowDisplayHeight() - mHeight - (F32)MENU_BAR_HEIGHT);
+			(F32)world_rect.mTop - mHeight - (F32)MENU_BAR_HEIGHT);
 		mSoftScreenRect.setLeftTopAndSize(screen_center.mV[VX] - (mWidth + BUFFER_SIZE) * 0.5f, 
 			screen_center.mV[VY] + (mHeight + BUFFER_SIZE), mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
 	}
@@ -842,7 +824,7 @@ LLVector2 LLHUDText::updateScreenPos(LLVector2 &offset)
 	{
 		screen_center.mV[VY] = llclamp((F32)screen_pos_vec.mV[VY], 
 			(F32)bottom + mHeight * 0.5f, 
-			(F32)gViewerWindow->getWindowDisplayHeight() - mHeight * 0.5f - (F32)MENU_BAR_HEIGHT);
+			(F32)world_rect.mTop - mHeight * 0.5f - (F32)MENU_BAR_HEIGHT);
 		mSoftScreenRect.setCenterAndSize(screen_center.mV[VX], screen_center.mV[VY], mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
 	}
 

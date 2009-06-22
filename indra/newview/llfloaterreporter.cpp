@@ -188,7 +188,7 @@ BOOL LLFloaterReporter::postBuild()
 	LLLineEditor* le = getChild<LLLineEditor>("abuser_name_edit");
 	le->setEnabled( FALSE );
 
-	setPosBox(mPosition.getValue());
+	setPosBox((LLVector3d)mPosition.getValue());
 	LLButton* pick_btn = getChild<LLButton>("pick_btn");
 	pick_btn->setImages(std::string("tool_face.tga"),
 						std::string("tool_face_active.tga") );

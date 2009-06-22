@@ -45,10 +45,13 @@
 #include "llrender.h"
 
 #include "llerror.h"
+#include "llerrorcontrol.h"
 #include "llquaternion.h"
 #include "llmath.h"
 #include "m4math.h"
 #include "llstring.h"
+#include "llmemtype.h"
+#include "llstacktrace.h"
 
 #include "llglheaders.h"
 
@@ -56,9 +59,49 @@
 //#define GL_STATE_VERIFY
 #endif
 
+
+BOOL gDebugSession = FALSE;
 BOOL gDebugGL = FALSE;
 BOOL gClothRipple = FALSE;
 BOOL gNoRender = FALSE;
+
+std::ofstream gFailLog;
+
+void ll_init_fail_log(std::string filename)
+{
+	gFailLog.open(filename.c_str());
+}
+
+
+void ll_fail(std::string msg)
+{
+	
+	if (gDebugSession)
+	{
+		std::vector<std::string> lines;
+
+		gFailLog << LLError::utcTime() << " " << msg << std::endl;
+
+		gFailLog << "Stack Trace:" << std::endl;
+
+		ll_get_stack_trace(lines);
+		
+		for(size_t i = 0; i < lines.size(); ++i)
+		{
+			gFailLog << lines[i] << std::endl;
+		}
+
+		gFailLog << "End of Stack Trace." << std::endl << std::endl;
+
+		gFailLog.flush();
+	}
+};
+
+void ll_close_fail_log()
+{
+	gFailLog.close();
+}
+
 LLMatrix4 gGLObliqueProjectionInverse;
 
 #define LL_GL_NAME_POOLING 0
@@ -594,6 +637,7 @@ void LLGLManager::initExtensions()
 	mHasShaderObjects = FALSE;
 	mHasVertexShader = FALSE;
 	mHasFragmentShader = FALSE;
+	mHasTextureRectangle = FALSE;
 #else // LL_MESA_HEADLESS
 	mHasMultitexture = glh_init_extensions("GL_ARB_multitexture");
 	mHasMipMapGeneration = glh_init_extensions("GL_SGIS_generate_mipmap");
@@ -610,6 +654,7 @@ void LLGLManager::initExtensions()
 		&& ExtensionExists("GL_EXT_packed_depth_stencil", gGLHExts.mSysExts);
 	mHasFramebufferMultisample = mHasFramebufferObject && ExtensionExists("GL_EXT_framebuffer_multisample", gGLHExts.mSysExts);
 	mHasDrawBuffers = ExtensionExists("GL_ARB_draw_buffers", gGLHExts.mSysExts);
+	mHasTextureRectangle = ExtensionExists("GL_ARB_texture_rectangle", gGLHExts.mSysExts);
 #if !LL_DARWIN
 	mHasPointParameters = !mIsATI && ExtensionExists("GL_ARB_point_parameters", gGLHExts.mSysExts);
 #endif
@@ -683,6 +728,7 @@ void LLGLManager::initExtensions()
 		if (strchr(blacklist,'q')) mHasFramebufferObject = FALSE;//S
 		if (strchr(blacklist,'r')) mHasDrawBuffers = FALSE;//S
 		if (strchr(blacklist,'s')) mHasFramebufferMultisample = FALSE;
+		if (strchr(blacklist,'t')) mHasTextureRectangle = FALSE;
 
 	}
 #endif // LL_LINUX || LL_SOLARIS
@@ -969,6 +1015,7 @@ void assert_glerror()
 	{
 		return;
 	}
+	
 	if (!gGLManager.mInited)
 	{
 		LL_ERRS("RenderInit") << "GL not initialized" << LL_ENDL;
@@ -986,12 +1033,22 @@ void assert_glerror()
 		{
 			LL_WARNS("RenderState") << "GL Error:" << error<< LL_ENDL;
 			LL_WARNS("RenderState") << "GL Error String:" << gl_error_msg << LL_ENDL;
+
+			if (gDebugSession)
+			{
+				gFailLog << "GL Error:" << gl_error_msg << std::endl;
+			}
 		}
 		else
 		{
 			// gluErrorString returns NULL for some extensions' error codes.
 			// you'll probably have to grep for the number in glext.h.
 			LL_WARNS("RenderState") << "GL Error: UNKNOWN 0x" << std::hex << error << std::dec << LL_ENDL;
+
+			if (gDebugSession)
+			{
+				gFailLog << "GL Error: UNKNOWN 0x" << std::hex << error << std::dec << std::endl;
+			}
 		}
 		error = glGetError();
 #endif
@@ -999,7 +1056,14 @@ void assert_glerror()
 
 	if (quit)
 	{
-		llerrs << "One or more unhandled GL errors." << llendl;
+		if (gDebugSession)
+		{
+			ll_fail("assert_glerror failed");
+		}
+		else
+		{
+			llerrs << "One or more unhandled GL errors." << llendl;
+		}
 	}
 }
 
@@ -1085,9 +1149,19 @@ void LLGLState::checkStates(const std::string& msg)
 	glGetIntegerv(GL_BLEND_SRC, &src);
 	glGetIntegerv(GL_BLEND_DST, &dst);
 	
+	BOOL error = FALSE;
+
 	if (src != GL_SRC_ALPHA || dst != GL_ONE_MINUS_SRC_ALPHA)
 	{
-		LL_GL_ERRS << "Blend function corrupted: " << std::hex << src << " " << std::hex << dst << "  " << msg << std::dec << LL_ENDL;
+		if (gDebugSession)
+		{
+			gFailLog << "Blend function corrupted: " << std::hex << src << " " << std::hex << dst << "  " << msg << std::dec << std::endl;
+			error = TRUE;
+		}
+		else
+		{
+			LL_GL_ERRS << "Blend function corrupted: " << std::hex << src << " " << std::hex << dst << "  " << msg << std::dec << LL_ENDL;
+		}
 	}
 	
 	for (std::map<LLGLenum, LLGLboolean>::iterator iter = sStateMap.begin();
@@ -1099,10 +1173,22 @@ void LLGLState::checkStates(const std::string& msg)
 		if(cur_state != gl_state)
 		{
 			dumpStates();
-			LL_GL_ERRS << llformat("LLGLState error. State: 0x%04x",state) << LL_ENDL;
+			if (gDebugSession)
+			{
+				gFailLog << llformat("LLGLState error. State: 0x%04x",state) << std::endl;
+				error = TRUE;
+			}
+			else
+			{
+				LL_GL_ERRS << llformat("LLGLState error. State: 0x%04x",state) << LL_ENDL;
+			}
 		}
 	}
 	
+	if (error)
+	{
+		ll_fail("LLGLState::checkStates failed.");
+	}
 	stop_glerror();
 }
 
@@ -1113,9 +1199,12 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 		return;
 	}
 
+	stop_glerror();
+
 	GLint activeTexture;
 	glGetIntegerv(GL_ACTIVE_TEXTURE_ARB, &activeTexture);
-	
+	stop_glerror();
+
 	BOOL error = FALSE;
 
 	if (activeTexture == GL_TEXTURE0_ARB)
@@ -1123,15 +1212,22 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 		GLint tex_env_mode = 0;
 
 		glGetTexEnviv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, &tex_env_mode);
+		stop_glerror();
+
 		if (tex_env_mode != GL_MODULATE)
 		{
 			error = TRUE;
 			LL_WARNS("RenderState") << "GL_TEXTURE_ENV_MODE invalid: " << std::hex << tex_env_mode << std::dec << LL_ENDL;
+			if (gDebugSession)
+			{
+				gFailLog << "GL_TEXTURE_ENV_MODE invalid: " << std::hex << tex_env_mode << std::dec << std::endl;
+			}
 		}
 	}
 
-	GLint maxTextureUnits;
+	GLint maxTextureUnits = 0;
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &maxTextureUnits);
+	stop_glerror();
 
 	static const char* label[] =
 	{
@@ -1167,30 +1263,48 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 	{
 		gGL.getTexUnit(i)->activate();
 		glClientActiveTextureARB(GL_TEXTURE0_ARB+i);
-
+		stop_glerror();
 		glGetIntegerv(GL_TEXTURE_STACK_DEPTH, &stackDepth);
+		stop_glerror();
 
 		if (stackDepth != 1)
 		{
 			error = TRUE;
 			LL_WARNS("RenderState") << "Texture matrix stack corrupted." << LL_ENDL;
+
+			if (gDebugSession)
+			{
+				gFailLog << "Texture matrix stack corrupted." << std::endl;
+			}
 		}
 
 		glGetFloatv(GL_TEXTURE_MATRIX, (GLfloat*) matrix.mMatrix);
+		stop_glerror();
 
 		if (matrix != identity)
 		{
 			error = TRUE;
 			LL_WARNS("RenderState") << "Texture matrix in channel " << i << " corrupt." << LL_ENDL;
+			if (gDebugSession)
+			{
+				gFailLog << "Texture matrix in channel " << i << " corrupt." << std::endl;
+			}
 		}
 
-		for (S32 j = (i == 0 ? 1 : 0); j < 9; j++)
+		
+		for (S32 j = (i == 0 ? 1 : 0); 
+			j < (gGLManager.mHasTextureRectangle ? 9 : 8); j++)
 		{
 			if (glIsEnabled(value[j]))
 			{
 				error = TRUE;
 				LL_WARNS("RenderState") << "Texture channel " << i << " still has " << label[j] << " enabled." << LL_ENDL;
+				if (gDebugSession)
+				{
+					gFailLog << "Texture channel " << i << " still has " << label[j] << " enabled." << std::endl;
+				}
 			}
+			stop_glerror();
 		}
 
 		glh::matrix4f mat;
@@ -1198,20 +1312,33 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 		identity.identity();
 
 		glGetFloatv(GL_TEXTURE_MATRIX, mat.m);
+		stop_glerror();
 
 		if (mat != identity)
 		{
 			error = TRUE;
 			LL_WARNS("RenderState") << "Texture matrix " << i << " is not identity." << LL_ENDL;
+			if (gDebugSession)
+			{
+				gFailLog << "Texture matrix " << i << " is not identity." << std::endl;
+			}
 		}
 	}
 
 	gGL.getTexUnit(0)->activate();
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
+	stop_glerror();
 
 	if (error)
 	{
-		LL_GL_ERRS << "GL texture state corruption detected.  " << msg << LL_ENDL;
+		if (gDebugSession)
+		{
+			ll_fail("LLGLState::checkTextureChannels failed.");
+		}
+		else
+		{
+			LL_GL_ERRS << "GL texture state corruption detected.  " << msg << LL_ENDL;
+		}
 	}
 }
 
@@ -1231,6 +1358,10 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 	if (active_texture != GL_TEXTURE0_ARB)
 	{
 		llwarns << "Client active texture corrupted: " << active_texture << llendl;
+		if (gDebugSession)
+		{
+			gFailLog << "Client active texture corrupted: " << active_texture << std::endl;
+		}
 		error = TRUE;
 	}
 
@@ -1238,6 +1369,10 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 	if (active_texture != GL_TEXTURE0_ARB)
 	{
 		llwarns << "Active texture corrupted: " << active_texture << llendl;
+		if (gDebugSession)
+		{
+			gFailLog << "Active texture corrupted: " << active_texture << std::endl;
+		}
 		error = TRUE;
 	}
 
@@ -1274,6 +1409,10 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 			{
 				error = TRUE;
 				LL_WARNS("RenderState") << "GL still has " << label[j] << " enabled." << LL_ENDL;
+				if (gDebugSession)
+				{
+					gFailLog << "GL still has " << label[j] << " enabled." << std::endl;
+				}
 			}
 		}
 		else
@@ -1282,6 +1421,10 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 			{
 				error = TRUE;
 				LL_WARNS("RenderState") << "GL does not have " << label[j] << " enabled." << LL_ENDL;
+				if (gDebugSession)
+				{
+					gFailLog << "GL does not have " << label[j] << " enabled." << std::endl;
+				}
 			}
 		}
 	}
@@ -1294,6 +1437,10 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 		{
 			error = TRUE;
 			LL_WARNS("RenderState") << "GL still has GL_TEXTURE_COORD_ARRAY enabled on channel 1." << LL_ENDL;
+			if (gDebugSession)
+			{
+				gFailLog << "GL still has GL_TEXTURE_COORD_ARRAY enabled on channel 1." << std::endl;
+			}
 		}
 	}
 	else
@@ -1302,6 +1449,10 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 		{
 			error = TRUE;
 			LL_WARNS("RenderState") << "GL does not have GL_TEXTURE_COORD_ARRAY enabled on channel 1." << LL_ENDL;
+			if (gDebugSession)
+			{
+				gFailLog << "GL does not have GL_TEXTURE_COORD_ARRAY enabled on channel 1." << std::endl;
+			}
 		}
 	}
 
@@ -1311,6 +1462,10 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 		{
 			error = TRUE;
 			LL_WARNS("RenderState") << "GL still has GL_TEXTURE_2D enabled on channel 1." << LL_ENDL;
+			if (gDebugSession)
+			{
+				gFailLog << "GL still has GL_TEXTURE_2D enabled on channel 1." << std::endl;
+			}
 		}
 	}
 	else
@@ -1319,6 +1474,10 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 		{
 			error = TRUE;
 			LL_WARNS("RenderState") << "GL does not have GL_TEXTURE_2D enabled on channel 1." << LL_ENDL;
+			if (gDebugSession)
+			{
+				gFailLog << "GL does not have GL_TEXTURE_2D enabled on channel 1." << std::endl;
+			}
 		}
 	}
 
@@ -1337,13 +1496,24 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 			{
 				error = TRUE;
 				LL_WARNS("RenderState") << "GL still has vertex attrib array " << i << " enabled." << LL_ENDL;
+				if (gDebugSession)
+				{
+					gFailLog <<  "GL still has vertex attrib array " << i << " enabled." << std::endl;
+				}
 			}
 		}
 	}
 
 	if (error)
 	{
-		LL_GL_ERRS << "GL client array corruption detected.  " << msg << LL_ENDL;
+		if (gDebugSession)
+		{
+			ll_fail("LLGLState::checkClientArrays failed.");
+		}
+		else
+		{
+			LL_GL_ERRS << "GL client array corruption detected.  " << msg << LL_ENDL;
+		}
 	}
 }
 
@@ -1394,7 +1564,17 @@ LLGLState::~LLGLState()
 	{
 		if (gDebugGL)
 		{
-			llassert_always(sStateMap[mState] == glIsEnabled(mState));
+			if (!gDebugSession)
+			{
+				llassert_always(sStateMap[mState] == glIsEnabled(mState));
+			}
+			else
+			{
+				if (sStateMap[mState] != glIsEnabled(mState))
+				{
+					ll_fail("GL enabled state does not match expected");
+				}
+			}
 		}
 
 		if (mIsEnabled != mWasEnabled)
@@ -1706,6 +1886,7 @@ void LLGLNamePool::release(GLuint name)
 //static
 void LLGLNamePool::upkeepPools()
 {
+	LLMemType mt(LLMemType::MTYPE_UPKEEP_POOLS);
 	for (pool_list_t::iterator iter = sInstances.begin(); iter != sInstances.end(); ++iter)
 	{
 		LLGLNamePool* pool = *iter;

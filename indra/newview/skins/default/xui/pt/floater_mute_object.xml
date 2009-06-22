@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="mute by name" title="Emudecer objeto pelo nome">
+<floater name="mute by name" title="Silenciar objeto pelo nome">
 	<text name="message">
-		Emudecer pelo nome afeta apenas conversa de objeto e MI, não sons. Você deve digitar o nome exato do objeto.
+		Silenciar pelo nome afeta apenas conversa de objeto e MI, não sons. Você deve digitar o nome exato do objeto.
 	</text>
 	<line_editor name="object_name">
 		Nome do objeto

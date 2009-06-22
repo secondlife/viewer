@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<spinner text_enabled_color="LabelTextColor"
+         text_disabled_color="LabelDisabledColor"
+         decimal_digits="3" 
+         label_width="40"/>

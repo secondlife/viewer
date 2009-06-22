@@ -49,14 +49,18 @@ class LLOutputMonitorCtrl
 public:
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
+		Optional<bool>	draw_border;
+
 		Params()
 		{
+			draw_border = true;
 			name = "output_monitor";
 			follows.flags(FOLLOWS_LEFT|FOLLOWS_TOP);
 			mouse_opaque = false;
-		}
+		};
 	};
 protected:
+	bool	mBorder;
 	LLOutputMonitorCtrl(const Params&);
 	friend class LLUICtrlFactory;
 

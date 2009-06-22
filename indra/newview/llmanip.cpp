@@ -499,9 +499,9 @@ void LLManip::renderTickText(const LLVector3& pos, const std::string& text, cons
 	// render shadow first
 	LLColor4 shadow_color = LLColor4::black;
 	shadow_color.mV[VALPHA] = color.mV[VALPHA] * 0.5f;
-	gViewerWindow->setupViewport(1, -1);
+	gViewerWindow->setup3DViewport(1, -1);
 	hud_render_utf8text(text, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,  -0.5f * big_fontp->getWidthF32(text), 3.f, shadow_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
-	gViewerWindow->setupViewport();
+	gViewerWindow->setup3DViewport();
 	hud_render_utf8text(text, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(text), 3.f, color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
 
 	glPopMatrix();
@@ -561,19 +561,19 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const std::string
 	{
 		fraction_string = llformat("%c%02d%s", LLResMgr::getInstance()->getDecimalPoint(), fractional_portion, suffix.c_str());
 
-		gViewerWindow->setupViewport(1, -1);
+		gViewerWindow->setup3DViewport(1, -1);
 		hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -1.f * big_fontp->getWidthF32(val_string), 3.f, shadow_color, hud_selection);
 		hud_render_utf8text(fraction_string, render_pos, *small_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, 1.f, 3.f, shadow_color, hud_selection);
 
-		gViewerWindow->setupViewport();
+		gViewerWindow->setup3DViewport();
 		hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -1.f * big_fontp->getWidthF32(val_string), 3.f, color, hud_selection);
 		hud_render_utf8text(fraction_string, render_pos, *small_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, 1.f, 3.f, color, hud_selection);
 	}
 	else
 	{
-		gViewerWindow->setupViewport(1, -1);
+		gViewerWindow->setup3DViewport(1, -1);
 		hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(val_string), 3.f, shadow_color, hud_selection);
-		gViewerWindow->setupViewport();
+		gViewerWindow->setup3DViewport();
 		hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(val_string), 3.f, color, hud_selection);
 	}
 	glPopMatrix();
@@ -592,14 +592,14 @@ LLColor4 LLManip::setupSnapGuideRenderPass(S32 pass)
 	{
 	case 0:
 		// shadow
-		gViewerWindow->setupViewport(1, -1);
+		gViewerWindow->setup3DViewport(1, -1);
 		line_color = grid_color_shadow;
 		line_color.mV[VALPHA] *= line_alpha;
 		LLUI::setLineWidth(2.f);
 		break;
 	case 1:
 		// hidden lines
-		gViewerWindow->setupViewport();
+		gViewerWindow->setup3DViewport();
 		line_color = grid_color_bg;
 		line_color.mV[VALPHA] *= line_alpha;
 		LLUI::setLineWidth(1.f);

@@ -224,6 +224,10 @@ static void request(
 	LLURLRequest* req = new LLURLRequest(method, url);
 	req->checkRootCertificate(true);
 
+	
+	lldebugs << LLURLRequest::actionAsVerb(method) << " " << url << " "
+		<< headers << llendl;
+
     // Insert custom headers is the caller sent any
     if (headers.isMap())
     {
@@ -375,70 +379,138 @@ private:
 	std::string mBuffer;
 };
 
-// *TODO: Deprecate (only used by dataserver)
-// This call is blocking! This is probably usually bad. :(
-LLSD LLHTTPClient::blockingGet(const std::string& url)
+// These calls are blocking! This is usually bad, unless you're a dataserver. Then it's awesome.
+
+/**
+	@brief does a blocking request on the url, returning the data or bad status.
+
+	@param url URI to verb on.
+	@param method the verb to hit the URI with.
+	@param body the body of the call (if needed - for instance not used for GET and DELETE, but is for POST and PUT)
+	@param headers HTTP headers to use for the request.
+	@param timeout Curl timeout to use. Defaults to 5. Rationale:
+	Without this timeout, blockingGet() calls have been observed to take
+	up to 90 seconds to complete.  Users of blockingGet() already must 
+	check the HTTP return code for validity, so this will not introduce
+	new errors.  A 5 second timeout will succeed > 95% of the time (and 
+	probably > 99% of the time) based on my statistics. JC
+
+	@returns an LLSD map: {status: integer, body: map}
+  */
+static LLSD blocking_request(
+	const std::string& url,
+	LLURLRequest::ERequestAction method,
+	const LLSD& body,
+	const LLSD& headers = LLSD(),
+	const F32 timeout = 5
+)
 {
-	llinfos << "blockingGet of " << url << llendl;
-
-	// Returns an LLSD map: {status: integer, body: map}
-	char curl_error_buffer[CURL_ERROR_SIZE];
+	lldebugs << "blockingRequest of " << url << llendl;
+	char curl_error_buffer[CURL_ERROR_SIZE] = "\0";
 	CURL* curlp = curl_easy_init();
-
 	LLHTTPBuffer http_buffer;
-
-	// Without this timeout, blockingGet() calls have been observed to take
-	// up to 90 seconds to complete.  Users of blockingGet() already must 
-	// check the HTTP return code for validity, so this will not introduce
-	// new errors.  A 5 second timeout will succeed > 95% of the time (and 
-	// probably > 99% of the time) based on my statistics. JC
+	std::string body_str;
+	
+	// other request method checks root cert first, we skip?
+	//req->checkRootCertificate(true);
+	
+	// * Set curl handle options
 	curl_easy_setopt(curlp, CURLOPT_NOSIGNAL, 1);	// don't use SIGALRM for timeouts
-	curl_easy_setopt(curlp, CURLOPT_TIMEOUT, 5);	// seconds
-
+	curl_easy_setopt(curlp, CURLOPT_TIMEOUT, timeout);	// seconds, see warning at top of function.
 	curl_easy_setopt(curlp, CURLOPT_WRITEFUNCTION, LLHTTPBuffer::curl_write);
 	curl_easy_setopt(curlp, CURLOPT_WRITEDATA, &http_buffer);
 	curl_easy_setopt(curlp, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curlp, CURLOPT_ERRORBUFFER, curl_error_buffer);
-	curl_easy_setopt(curlp, CURLOPT_FAILONERROR, 1);
+	
+	// * Setup headers (don't forget to free them after the call!)
+	curl_slist* headers_list = NULL;
+	if (headers.isMap())
+	{
+		LLSD::map_const_iterator iter = headers.beginMap();
+		LLSD::map_const_iterator end  = headers.endMap();
+		for (; iter != end; ++iter)
+		{
+			std::ostringstream header;
+			header << iter->first << ": " << iter->second.asString() ;
+			lldebugs << "header = " << header.str() << llendl;
+			headers_list = curl_slist_append(headers_list, header.str().c_str());
+		}
+	}
+	
+	// * Setup specific method / "verb" for the URI (currently only GET and POST supported + poppy)
+	if (method == LLURLRequest::HTTP_GET)
+	{
+		curl_easy_setopt(curlp, CURLOPT_HTTPGET, 1);
+	}
+	else if (method == LLURLRequest::HTTP_POST)
+	{
+		curl_easy_setopt(curlp, CURLOPT_POST, 1);
+		//serialize to ostr then copy to str - need to because ostr ptr is unstable :(
+		std::ostringstream ostr;
+		LLSDSerialize::toXML(body, ostr);
+		body_str = ostr.str();
+		curl_easy_setopt(curlp, CURLOPT_POSTFIELDS, body_str.c_str());
+		//copied from PHP libs, correct?
+		headers_list = curl_slist_append(headers_list, "Content-Type: application/llsd+xml");
 
-	struct curl_slist *header_list = NULL;
-	header_list = curl_slist_append(header_list, "Accept: application/llsd+xml");
-	CURLcode curl_result = curl_easy_setopt(curlp, CURLOPT_HTTPHEADER, header_list);
+		// copied from llurlrequest.cpp
+		// it appears that apache2.2.3 or django in etch is busted. If
+		// we do not clear the expect header, we get a 500. May be
+		// limited to django/mod_wsgi.
+		headers_list = curl_slist_append(headers_list, "Expect:");
+	}
+	
+	// * Do the action using curl, handle results
+	lldebugs << "HTTP body: " << body_str << llendl;
+	headers_list = curl_slist_append(headers_list, "Accept: application/llsd+xml");
+	CURLcode curl_result = curl_easy_setopt(curlp, CURLOPT_HTTPHEADER, headers_list);
 	if ( curl_result != CURLE_OK )
 	{
-		llinfos << "Curl is hosed - can't add Accept header for llsd+xml" << llendl;
+		llinfos << "Curl is hosed - can't add headers" << llendl;
 	}
 
 	LLSD response = LLSD::emptyMap();
-
 	S32 curl_success = curl_easy_perform(curlp);
-
 	S32 http_status = 499;
-	curl_easy_getinfo(curlp,CURLINFO_RESPONSE_CODE, &http_status);
-
+	curl_easy_getinfo(curlp, CURLINFO_RESPONSE_CODE, &http_status);
 	response["status"] = http_status;
-
-	if (curl_success != 0 
-		&& http_status != 404)  // We expect 404s, don't spam for them.
+	// if we get a non-404 and it's not a 200 OR maybe it is but you have error bits,
+	if ( http_status != 404 && (http_status != 200 || curl_success != 0) )
 	{
+		// We expect 404s, don't spam for them.
+		llwarns << "CURL REQ URL: " << url << llendl;
+		llwarns << "CURL REQ METHOD TYPE: " << method << llendl;
+		llwarns << "CURL REQ HEADERS: " << headers.asString() << llendl;
+		llwarns << "CURL REQ BODY: " << body_str << llendl;
+		llwarns << "CURL HTTP_STATUS: " << http_status << llendl;
 		llwarns << "CURL ERROR: " << curl_error_buffer << llendl;
-		
+		llwarns << "CURL ERROR BODY: " << http_buffer.asString() << llendl;
 		response["body"] = http_buffer.asString();
 	}
 	else
 	{
 		response["body"] = http_buffer.asLLSD();
+		lldebugs << "CURL response: " << http_buffer.asString() << llendl;
 	}
 	
-	if(header_list)
+	if(headers_list)
 	{	// free the header list  
-		curl_slist_free_all(header_list); 
-		header_list = NULL;
+		curl_slist_free_all(headers_list); 
 	}
 
+	// * Cleanup
 	curl_easy_cleanup(curlp);
-
 	return response;
+}
+
+LLSD LLHTTPClient::blockingGet(const std::string& url)
+{
+	return blocking_request(url, LLURLRequest::HTTP_GET, LLSD());
+}
+
+LLSD LLHTTPClient::blockingPost(const std::string& url, const LLSD& body)
+{
+	return blocking_request(url, LLURLRequest::HTTP_POST, body);
 }
 
 void LLHTTPClient::put(

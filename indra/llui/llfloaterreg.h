@@ -29,6 +29,8 @@
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
+#ifndef LLFLOATERREG_H
+#define LLFLOATERREG_H
 
 /// llcommon
 #include "llboost.h"
@@ -147,3 +149,4 @@ public:
 	
 };
 
+#endif

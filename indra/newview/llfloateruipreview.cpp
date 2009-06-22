@@ -56,6 +56,7 @@
 #include "llfilepicker.h"
 #include "lldraghandle.h"
 #include "lllayoutstack.h"
+#include "llviewermenu.h"
 
 // Boost (for linux/unix command-line execv)
 #include <boost/tokenizer.hpp>
@@ -120,7 +121,7 @@ LLGUIPreviewLiveFile::~LLGUIPreviewLiveFile()
 }
 
 // Live file load
-void LLGUIPreviewLiveFile::loadFile()
+bool LLGUIPreviewLiveFile::loadFile()
 {
 	mParent->displayFloater(FALSE,1);	// redisplay the floater
 	if(mFirstFade)	// only fade if it wasn't just clicked on; can't use "clicked" BOOL below because of an oddity with setting LLLiveFile initial state
@@ -135,6 +136,7 @@ void LLGUIPreviewLiveFile::loadFile()
 		}
 		mFadeTimer = new LLFadeEventTimer(0.05f,this);
 	}
+	return true;
 }
 
 // Initialize fade event timer
@@ -191,7 +193,7 @@ void* create_overlap_panel(void* data)
 
 // Constructor
 LLFloaterUIPreview::LLFloaterUIPreview(const LLSD& key)
-  : LLFloater(),
+  : LLFloater(key),
 	mDisplayedFloater(NULL),
 	mDisplayedFloater_2(NULL),
 	mLiveFile(NULL),
@@ -203,7 +205,7 @@ LLFloaterUIPreview::LLFloaterUIPreview(const LLSD& key)
 {
 	sInstance = this;
 	mFactoryMap["overlap_panel"] = LLCallbackMap(create_overlap_panel, NULL);
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_ui_preview.xml");
+	// called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_ui_preview.xml");
 }
 
 // Destructor
@@ -260,6 +262,7 @@ BOOL LLFloaterUIPreview::postBuild()
 	mToggleHighlightButton = vlt_panel_tmp->getChild<LLButton>("toggle_vlt_diff_highlight");
 	mToggleHighlightButton->setClickedCallback(onClickToggleDiffHighlighting, NULL);
 	main_panel_tmp->getChild<LLButton>("save_floater")->setClickedCallback(onClickSaveFloater, (void*)&PRIMARY_FLOATER);
+	main_panel_tmp->getChild<LLButton>("save_all_floaters")->setClickedCallback(onClickSaveAll, (void*)&PRIMARY_FLOATER);
 
 	// get pointers to text fields
 	mEditorPathTextBox = editor_panel_tmp->getChild<LLLineEditor>("executable_path_field");
@@ -278,7 +281,7 @@ BOOL LLFloaterUIPreview::postBuild()
 	
 	mDelim = gDirUtilp->getDirDelimiter();	// initialize delimiter to dir sep slash
 
-	// refresh list of available languages (EN-US will still be default)
+	// refresh list of available languages (EN will still be default)
 	BOOL found = TRUE;
 	BOOL found_en_us = FALSE;
 	std::string language_directory;
@@ -296,7 +299,7 @@ BOOL LLFloaterUIPreview::postBuild()
 
 			if(strncmp("template",language_directory.c_str(),8) && -1 == language_directory.find("."))				// if it's not the template directory or a hidden directory
 			{
-				if(!strncmp("en-us",language_directory.c_str(),5))													// remember if we've seen en-us, so we can make it default
+				if(!strncmp("en",language_directory.c_str(),5))													// remember if we've seen en, so we can make it default
 				{
 					found_en_us = TRUE;
 				}
@@ -310,12 +313,12 @@ BOOL LLFloaterUIPreview::postBuild()
 	}
 	if(found_en_us)
 	{
-		mLanguageSelection->add(std::string("en-us"),ADD_TOP);															// make en-us first item if we found it
-		mLanguageSelection_2->add(std::string("en-us"),ADD_TOP);	
+		mLanguageSelection->add(std::string("en"),ADD_TOP);															// make en first item if we found it
+		mLanguageSelection_2->add(std::string("en"),ADD_TOP);	
 	}
 	else
 	{
-		std::string warning = std::string("No EN-US localization found; check your XUI directories!");
+		std::string warning = std::string("No EN localization found; check your XUI directories!");
 		popupAndPrintWarning(warning);
 	}
 	mLanguageSelection->selectFirstItem();																			// select the first item
@@ -390,7 +393,7 @@ std::string LLFloaterUIPreview::getLocStr(S32 ID)
 // Get localized directory (build path from data directory to XUI files, substituting localization string in for language)
 std::string LLFloaterUIPreview::getLocalizedDirectory()
 {
-	return get_xui_dir() + (sInstance ? getLocStr(1) : "en-us") + mDelim; // e.g. "C:/Code/guipreview/indra/newview/skins/xui/en-us/";
+	return get_xui_dir() + (sInstance ? getLocStr(1) : "en") + mDelim; // e.g. "C:/Code/guipreview/indra/newview/skins/xui/en/";
 }
 
 // Refresh the list of floaters by doing a directory traverse for XML XUI floater files
@@ -404,6 +407,14 @@ void LLFloaterUIPreview::refreshList()
 	while(found)				// for every floater file that matches the pattern
 	{
 		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "floater_*.xml", name, FALSE)))	// get next file matching pattern
+		{
+			addFloaterEntry(name.c_str());	// and add it to the list (file name only; localization code takes care of rest of path)
+		}
+	}
+	found = TRUE;
+	while(found)				// for every menu file that matches the pattern
+	{
+		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "menu_*.xml", name, FALSE)))	// get next file matching pattern
 		{
 			addFloaterEntry(name.c_str());	// and add it to the list (file name only; localization code takes care of rest of path)
 		}
@@ -504,7 +515,7 @@ void LLFloaterUIPreview::onClickDisplayFloater(void* data)
 	}
 }
 
-// Respond to button click to display/refresh currently-selected floater
+// Saves the current floater/panel
 void LLFloaterUIPreview::onClickSaveFloater(void* data)
 {
 	S32 caller_id = *((S32*)data);
@@ -515,12 +526,24 @@ void LLFloaterUIPreview::onClickSaveFloater(void* data)
 	}
 }
 
+// Saves all floater/panels
+void LLFloaterUIPreview::onClickSaveAll(void* data)
+{
+	S32 caller_id = *((S32*)data);
+	int listSize = sInstance->mFileList->getItemCount();
+
+	for (int index = 0; index < listSize; index++)
+	{
+		sInstance->mFileList->selectNthItem(index);
+		displayFloater(TRUE, caller_id, true);
+	}
+}
 
 // Given path to floater or panel XML file "filename.xml",
 // returns "filename_new.xml"
 static std::string append_new_to_xml_filename(const std::string& path)
 {
-	std::string full_filename = gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), path);
+	std::string full_filename = gDirUtilp->findSkinnedFilename(LLUI::getLocalizedSkinPath(), path);
 	std::string::size_type extension_pos = full_filename.rfind(".xml");
 	full_filename.resize(extension_pos);
 	full_filename += "_new.xml";
@@ -564,24 +587,46 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 
 	*floaterp = new LLPreviewedFloater();
 
-	if(strncmp(path.c_str(),"panel_",6))								// if it's not a panel
+	if(!strncmp(path.c_str(),"floater_",8))								// if it's a floater
 	{
 		if (save)
 		{
 			LLXMLNodePtr floater_write = new LLXMLNode();			
 			LLUICtrlFactory::getInstance()->buildFloater(*floaterp, path, FALSE, floater_write);	// just build it
-			
-			std::string full_filename = append_new_to_xml_filename(path);
-			LLFILE* floater_temp = LLFile::fopen(full_filename.c_str(), "w");
-			LLXMLNode::writeHeaderToFile(floater_temp);
-			floater_write->writeToFile(floater_temp, "    ");
-			fclose(floater_temp);
+
+			if (!floater_write->isNull())
+			{
+				std::string full_filename = append_new_to_xml_filename(path);
+				LLFILE* floater_temp = LLFile::fopen(full_filename.c_str(), "w");
+				LLXMLNode::writeHeaderToFile(floater_temp);
+				floater_write->writeToFile(floater_temp);
+				fclose(floater_temp);
+			}
 		}
 		else
 		{
 			LLUICtrlFactory::getInstance()->buildFloater(*floaterp, path, TRUE);	// just build it
 		}
 
+	}
+	else if (!strncmp(path.c_str(),"menu_",5))								// if it's a menu
+	{
+		if (save)
+		{	
+			LLXMLNodePtr menu_write = new LLXMLNode();	
+			LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(path, gMenuHolder, menu_write);
+
+			if (!menu_write->isNull())
+			{
+				std::string full_filename = append_new_to_xml_filename(path);
+				LLFILE* menu_temp = LLFile::fopen(full_filename.c_str(), "w");
+				LLXMLNode::writeHeaderToFile(menu_temp);
+				menu_write->writeToFile(menu_temp);
+				fclose(menu_temp);
+			}
+
+			delete menu;
+		}
 	}
 	else																// if it is a panel...
 	{
@@ -594,21 +639,19 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		{
 			LLXMLNodePtr panel_write = new LLXMLNode();
 			LLUICtrlFactory::getInstance()->buildPanel(panel, path, panel_write);		// build it
-	
-			std::string full_filename = append_new_to_xml_filename(path);
-			LLFILE* panel_temp = LLFile::fopen(full_filename.c_str(), "w");
-			LLXMLNode::writeHeaderToFile(panel_temp);
-			panel_write->writeToFile(panel_temp, "    ");
-			fclose(panel_temp);
+			
+			if (!panel_write->isNull())
+			{
+				std::string full_filename = append_new_to_xml_filename(path);
+				LLFILE* panel_temp = LLFile::fopen(full_filename.c_str(), "w");
+				LLXMLNode::writeHeaderToFile(panel_temp);
+				panel_write->writeToFile(panel_temp);
+				fclose(panel_temp);
+			}
 		}
 		else
 		{
 			LLUICtrlFactory::getInstance()->buildPanel(panel, path);		// build it
-
-		}
-
-		if (!save) 
-		{
 			LLRect new_size = panel->getRect();								// get its rectangle
 			panel->setOrigin(0,0);											// reset its origin point so it's not offset by -left or other XUI attributes
 			(*floaterp)->setTitle(path);									// use the file name as its title, since panels have no guaranteed meaningful name attribute
@@ -649,9 +692,9 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		sInstance->mDisplayedFloater->addDependentFloater(sInstance->mDisplayedFloater_2);
 	}
 
-	// Add localization to title so user knows whether it's localized or defaulted to en-us
+	// Add localization to title so user knows whether it's localized or defaulted to en
 	std::string full_path = sInstance->getLocalizedDirectory() + path;
-	std::string floater_lang = "EN-US";
+	std::string floater_lang = "EN";
 	llstat dummy;
 	if(!LLFile::stat(full_path.c_str(), &dummy))	// if the file does not exist
 	{
@@ -723,10 +766,10 @@ void LLFloaterUIPreview::onClickEditFloater(void*)
 	llstat dummy;
 	if(LLFile::stat(path.c_str(), &dummy))								// if the file does not exist
 	{
-		std::string warning = "No file for this floater exists in the selected localization.  Opening the EN-US version instead.";
+		std::string warning = "No file for this floater exists in the selected localization.  Opening the EN version instead.";
 		popupAndPrintWarning(warning);
 
-		path = get_xui_dir() + sInstance->mDelim + "en-us" + sInstance->mDelim + file_name; // open the en-us version instead, by default
+		path = get_xui_dir() + sInstance->mDelim + "en" + sInstance->mDelim + file_name; // open the en version instead, by default
 	}
 
 	// get executable path

@@ -40,7 +40,6 @@
 #include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llglheaders.h"
-#include "llmenugl.h"
 
 // Viewer includes
 #include "llagent.h"
@@ -50,6 +49,7 @@
 #include "llviewercamera.h"
 #include "lldraghandle.h"
 #include "lltextbox.h"
+#include "llviewermenu.h"
 
 //
 // Constants
@@ -94,7 +94,7 @@ BOOL LLFloaterMap::postBuild()
 	registrar.add("Minimap.Zoom", boost::bind(&LLFloaterMap::handleZoom, this, _2));
 	registrar.add("Minimap.Tracker", boost::bind(&LLFloaterMap::handleStopTracking, this, _2));
 
-	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_minimap.xml", this);
+	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_minimap.xml", gMenuHolder);
 	if (mPopupMenu && !LLTracker::isTracking(0))
 	{
 		mPopupMenu->setItemEnabled ("Stop Tracking", false);

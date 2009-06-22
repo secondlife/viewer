@@ -179,6 +179,11 @@ protected:
 	F32				mTrunkAspect;		//  Ratio between width/length of trunk
 	F32				mBranchAspect;	//  Ratio between width/length of branch
 	F32				mRandomLeafRotate;	//	How much to randomly rotate leaves about arbitrary axis 
+
+	// cache last position+rotation so we can detect the need for a
+	// complete rebuild when not animating
+	LLVector3 mLastPosition;
+	LLQuaternion mLastRotation;
 	
 	U32 mFrameCount;
 

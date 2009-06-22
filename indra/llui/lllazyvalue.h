@@ -75,6 +75,11 @@ public:
 		return mValue;
 	}
 
+	bool isUsingFunction() const
+	{
+		return mValueGetter != NULL;
+	}
+
 private:
 	function_type	mValueGetter;
 	T				mValue;

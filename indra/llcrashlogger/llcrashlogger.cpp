@@ -90,7 +90,8 @@ LLCrashLogger::LLCrashLogger() :
 	mSentCrashLogs(false),
 	mCrashHost("")
 {
-
+	// Set up generic error handling
+	setupErrorHandling();
 }
 
 LLCrashLogger::~LLCrashLogger()
@@ -208,7 +209,10 @@ void LLCrashLogger::gatherFiles()
 		mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
 	}
 
+#if !LL_DARWIN
 	if(mCrashInPreviousExec)
+#else
+#endif
 	{
 		// Replace the log file ext with .old, since the 
 		// instance that launched this process has overwritten

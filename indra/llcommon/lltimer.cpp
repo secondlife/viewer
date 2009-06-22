@@ -581,7 +581,7 @@ LLEventTimer::~LLEventTimer()
 void LLEventTimer::updateClass() 
 {
 	std::list<LLEventTimer*> completed_timers;
-	for (instance_iter iter = instancesBegin(); iter != instancesEnd(); ) 
+	for (instance_iter iter = beginInstances(); iter != endInstances(); ) 
 	{
 		LLEventTimer* timer = *iter++;
 		F32 et = timer->mEventTimer.getElapsedTimeF32();

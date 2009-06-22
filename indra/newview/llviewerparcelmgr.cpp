@@ -58,7 +58,6 @@
 #include "llparcelselection.h"
 #include "llresmgr.h"
 #include "llsdutil.h"
-#include "llsdutil_math.h"
 #include "llstatusbar.h"
 #include "llui.h"
 #include "llviewerimage.h"
@@ -2403,6 +2402,11 @@ boost::signals2::connection LLViewerParcelMgr::setTeleportFinishedCallback(parce
 	return mTeleportFinishedSignal.connect(cb);
 }
 
+boost::signals2::connection LLViewerParcelMgr::setTeleportFailedCallback(parcel_changed_callback_t cb)
+{
+	return mTeleportFailedSignal.connect(cb);
+}
+
 /* Ok, we're notified that teleport has been finished.
  * We should now propagate the notification via mTeleportFinishedSignal
  * to all interested parties.
@@ -2412,4 +2416,9 @@ boost::signals2::connection LLViewerParcelMgr::setTeleportFinishedCallback(parce
 void LLViewerParcelMgr::onTeleportFinished()
 {
 	mTeleportInProgress = TRUE;
+}
+
+void LLViewerParcelMgr::onTeleportFailed()
+{
+	mTeleportFailedSignal();
 }

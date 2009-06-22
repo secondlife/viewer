@@ -99,15 +99,21 @@ struct LLPlaceHolderPanel : public LLPanel
 	LLPlaceHolderPanel(const Params& p) : LLPanel(p)
 	{}
 };
-static LLRegisterWidget<LLPlaceHolderPanel> r1("placeholder");
-static LLRegisterWidget<LLTabContainer> r2("tab_container");
+static LLDefaultWidgetRegistry::Register<LLPlaceHolderPanel> r1("placeholder");
+static LLDefaultWidgetRegistry::Register<LLTabContainer> r2("tab_container");
 
 LLTabContainer::Params::Params()
 :	tab_width("tab_width"),
 	tab_position("tab_position"),
 	tab_min_width("tab_min_width"),
 	tab_max_width("tab_max_width"),
-	hide_tabs("hide_tabs", false)
+	hide_tabs("hide_tabs", false),
+	tab_top_image_unselected("tab_top_image_unselected"),
+	tab_top_image_selected("tab_top_image_selected"),
+	tab_bottom_image_unselected("tab_bottom_image_unselected"),
+	tab_bottom_image_selected("tab_bottom_image_selected"),
+	tab_left_image_unselected("tab_left_image_unselected"),
+	tab_left_image_selected("tab_left_image_selected")
 {
 	name(std::string("tab_container"));
 	mouse_opaque = false;
@@ -134,7 +140,13 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 	mJumpNextArrowBtn(NULL),
 	mRightTabBtnOffset(p.tab_padding_right),
 	mTotalTabWidth(0),
-	mTabPosition(p.tab_position)
+	mTabPosition(p.tab_position),
+	mImageTopUnselected(p.tab_top_image_unselected),
+	mImageTopSelected(p.tab_top_image_selected),
+	mImageBottomUnselected(p.tab_bottom_image_unselected),
+	mImageBottomSelected(p.tab_bottom_image_selected),
+	mImageLeftUnselected(p.tab_left_image_unselected),
+	mImageLeftSelected(p.tab_left_image_selected)
 {
 	static LLUICachedControl<S32> tabcntr_vert_tab_min_width ("UITabCntrVertTabMinWidth", 0);
 
@@ -817,8 +829,8 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 
 	// Tab button
 	LLRect btn_rect;  // Note: btn_rect.mLeft is just a dummy.  Will be updated in draw().
-	std::string tab_img;
-	std::string tab_selected_img;
+	LLUIImage* tab_img = NULL;
+	LLUIImage* tab_selected_img = NULL;
 	S32 tab_fudge = 1;		//  To make new tab art look better, nudge buttons up 1 pel
 
 	if (mIsVertical)
@@ -831,14 +843,14 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	else if( getTabPosition() == LLTabContainer::TOP )
 	{
 		btn_rect.setLeftTopAndSize( 0, getRect().getHeight() - getTopBorderHeight() + tab_fudge, button_width, tabcntr_tab_height );
-		tab_img = "tab_top_blue.tga";
-		tab_selected_img = "tab_top_selected_blue.tga";
+		tab_img = mImageTopUnselected.get();
+		tab_selected_img = mImageTopSelected.get();
 	}
 	else
 	{
 		btn_rect.setOriginAndSize( 0, 0 + tab_fudge, button_width, tabcntr_tab_height );
-		tab_img = "tab_bottom_blue.tga";
-		tab_selected_img = "tab_bottom_selected_blue.tga";
+		tab_img = mImageBottomUnselected.get();
+		tab_selected_img = mImageBottomSelected.get();
 	}
 
 	LLTextBox* textbox = NULL;
@@ -869,8 +881,8 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 			p.click_callback.function(boost::bind(&LLTabContainer::onTabBtn, this, _2, child));
 			p.font(font);
 			p.label(trimmed_label);
-			p.image_unselected.name("tab_left.tga");
-			p.image_selected.name("tab_left_selected.tga");
+			p.image_unselected(mImageLeftUnselected);
+			p.image_selected(mImageLeftSelected);
 			p.scale_image(true);
 			p.font_halign = LLFontGL::LEFT;
 			p.tab_stop(false);
@@ -895,8 +907,8 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 			p.visible(false);
 			p.tool_tip(tooltip);
 			p.scale_image(true);
-			p.image_unselected.name(tab_img);
-			p.image_selected.name(tab_selected_img);
+			p.image_unselected(tab_img);
+			p.image_selected(tab_selected_img);
 			p.tab_stop(false);
 			// Try to squeeze in a bit more text
 			p.pad_left(4);

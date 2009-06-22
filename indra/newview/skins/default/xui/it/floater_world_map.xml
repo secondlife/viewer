@@ -4,35 +4,31 @@
 		<panel label="Oggetti" name="objects_mapview"/>
 		<panel label="Terreno" name="terrain_mapview"/>
 	</tab_container>
-	<text name="land_for_sale_label">
-		Terreno in vendita
-	</text>
-	<text name="auction_label">
-		Asta
-	</text>
 	<text name="you_label">
 		Tu
 	</text>
 	<text name="home_label">
 		Casa
 	</text>
-	<button label="Vai a Casa" label_selected="Vai a Casa" name="Go Home" tool_tip="Teletrasportati a casa"/>
-	<text name="person_label">
-		Persona
+	<text name="auction_label">
+		Asta
 	</text>
-	<text name="infohub_label">
-		Punto d&apos;informazione
-	</text>
-	<text name="telehub_label">
-		Snodo di teleport
-	</text>
-	<text name="land_for_sale_label2">
+	<text name="land_for_sale_label">
 		Terreno in vendita
 	</text>
+	<button label="Vai a Casa" label_selected="Vai a Casa" name="Go Home" tool_tip="Teletrasportati a casa"/>
+	<check_box label="Residenti" name="people_chk"/>
+	<check_box label="Punto informativo" name="infohub_chk"/>
+	<check_box label="Punto di snodo &#10;di teletrasporto" name="telehubchk"/>
+	<icon bottom="-170" name="landforsale" />
+	<check_box label="Terra in vendita" name="land_for_sale_chk" bottom="-170"/>
 	<text name="events_label">
-		Eventi
+		Eventi:
 	</text>
-
+	<check_box label="PG" name="event_chk"/>
+	<check_box label="Mature" name="event_mature_chk"/>
+	<check_box label="Adult" name="event_adult_chk"/>
+	<icon bottom="-200" name="avatar_icon" />
 	<combo_box label="Amici Online" name="friend combo" tool_tip="Amici da mostrare sulla mappa">
 		<combo_box.item name="none_selected" label="Amici Online"/>
 	</combo_box>
@@ -44,16 +40,20 @@
 	<text name="search_label">
 		Cerca tra i risultati:
 	</text>
+	<scroll_list name="search_results" bottom_delta="-310" height="304" >
+		<column label="" name="icon"/>
+		<column label="" name="sim_name"/>
+	</scroll_list>
 	<text name="location_label">
 		Luogo:
 	</text>
 	<spinner name="spin x" tool_tip="Coordinata X del luogo da mostrare sulla mappa"/>
 	<spinner name="spin y" tool_tip="Coordinata Y del luogo da mostrare sulla mappa"/>
 	<spinner name="spin z" tool_tip="Coordinata Z del luogo da mostrare sulla mappa"/>
-	<button label="Teletrasporto" label_selected="Teletrasporto" name="Teleport" tool_tip="Teletrasporto al luogo prescelto"/>
-	<button label="Mostra destinazione" label_selected="Mostra destinazione" name="Show Destination" tool_tip="Centra la mappa sul luogo prescelto"/>
-	<button label="Pulisci" label_selected="Pulisci" name="Clear" tool_tip="Togli traccia"/>
-	<button label="Mostra la mia posizione" label_selected="Mostra la mia posizione" name="Show My Location" tool_tip="Centra la mappa alla posizione del tuo avatar"/>
-	<button label="Copia lo SLURL negli appunti" name="copy_slurl" tool_tip="Copia l&apos;attuale posizione quale SLURL utilizzabile nel web."/>
+	<button font="SansSerifSmall" label="Teletrasporto" label_selected="Teletrasporto" name="Teleport" tool_tip="Teletrasporto al luogo prescelto"/>
+	<button font="SansSerifSmall" left_delta="91" width="135" label="Mostra destinazione" label_selected="Mostra destinazione" name="Show Destination" tool_tip="Centra la mappa sul luogo prescelto"/>
+	<button font="SansSerifSmall" label="Pulisci" label_selected="Pulisci" name="Clear" tool_tip="Togli traccia"/>
+	<button font="SansSerifSmall" left_delta="91" width="135" label="Mostra la mia posizione" label_selected="Mostra la mia posizione" name="Show My Location" tool_tip="Centra la mappa alla posizione del tuo avatar"/>
+	<button font="SansSerifSmall" label="Copia lo SLURL negli appunti" name="copy_slurl" tool_tip="Copia l&apos;attuale posizione quale SLURL utilizzabile nel web."/>
 	<slider label="Zoom" name="zoom slider"/>
 </floater>

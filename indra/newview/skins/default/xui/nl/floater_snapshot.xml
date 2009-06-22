@@ -4,15 +4,9 @@
 		Fotobestemming
 	</text>
 	<radio_group label="Fototype" name="snapshot_type_radio">
-		<radio_item name="postcard">
-			Verzend via e-mail
-		</radio_item>
-		<radio_item name="texture">
-			Opslaan in uw inventaris (L$[AMOUNT])
-		</radio_item>
-		<radio_item name="local">
-			Opslaan op uw harde schijf
-		</radio_item>
+		<radio_item name="postcard" label="Verzend via e-mail" />
+		<radio_item name="texture" label="Opslaan in uw inventaris (L$[AMOUNT])" />
+		<radio_item name="local" label="Opslaan op uw harde schijf" />
 	</radio_group>
 	<text name="file_size_label">
 		Bestandsgrootte: [SIZE] KB
@@ -62,14 +56,14 @@
 		<combo_box.item name="JPEG" label="JPEG"/>
 		<combo_box.item name="BMP" label="BMP"/>
 	</combo_box>
-	<spinner label="Breedte" name="snapshot_width"/>
-	<spinner label="Hoogte" name="snapshot_height"/>
+	<spinner label="Breedte" name="snapshot_width" label_width="48" width="100"/>
+	<spinner label="Hoogte" name="snapshot_height" label_width="41" width="95" left="114"/>
 	<check_box label="Beperk verhoudingen" name="keep_aspect_check"/>
 	<slider label="Afbeeldingkwaliteit" name="image_quality_slider"/>
-	<text name="layer_type_label">
+	<text name="layer_type_label" width="100">
 		Vastleggen:
 	</text>
-	<combo_box label="Afbeeldingslagen" name="layer_types">
+	<combo_box label="Afbeeldingslagen" name="layer_types" width="130" left="76">
 		<combo_box.item name="Colors" label="Kleuren"/>
 		<combo_box.item name="Depth" label="Diepte"/>
 		<combo_box.item name="ObjectMattes" label="Object matheid"/>
@@ -77,7 +71,7 @@
 	<check_box label="Toon interface in foto" name="ui_check"/>
 	<check_box label="Toon HUD objecten in foto" name="hud_check"/>
 	<check_box label="Open houden na opslaan" name="keep_open_check"/>
-	<check_box label="Frame bevriezen (volledig scherm voorbeeld)" name="freeze_frame_check"/>
+	<check_box label="Frame bevriezen" name="freeze_frame_check"/>
 	<check_box label="Automatisch verversen" name="auto_snapshot_check"/>
 	<string name="unknown">
 		onbekend

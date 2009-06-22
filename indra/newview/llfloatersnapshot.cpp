@@ -249,7 +249,7 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mImageScaled[0] = FALSE;
 	mImageScaled[1] = FALSE;
 
-	mMaxImageSize = MAX_IMAGE_SIZE ;
+	mMaxImageSize = MAX_SNAPSHOT_IMAGE_SIZE ;
 	mKeepAspectRatio = gSavedSettings.getBOOL("KeepAspectForSnapshot") ;
 	mThumbnailUpdateLock = FALSE ;
 	mThumbnailUpToDate   = FALSE ;
@@ -268,13 +268,13 @@ LLSnapshotLivePreview::~LLSnapshotLivePreview()
 
 void LLSnapshotLivePreview::setMaxImageSize(S32 size) 
 {
-	if(size < MAX_IMAGE_SIZE)
+	if(size < MAX_SNAPSHOT_IMAGE_SIZE)
 	{
 		mMaxImageSize = size;
 	}
 	else
 	{
-		mMaxImageSize = MAX_IMAGE_SIZE ;
+		mMaxImageSize = MAX_SNAPSHOT_IMAGE_SIZE ;
 	}
 }
 
@@ -968,7 +968,7 @@ void LLSnapshotLivePreview::saveTexture()
 	{
 		LLVFile::writeFile(formatted->getData(), formatted->getDataSize(), gVFS, new_asset_id, LLAssetType::AT_TEXTURE);
 		std::string pos_string;
-		gAgent.buildLocationString(pos_string);
+		gAgent.buildLocationString(pos_string, LLAgent::LOCATION_FORMAT_FULL);
 		std::string who_took_it;
 		gAgent.buildFullname(who_took_it);
 		LLAssetStorage::LLStoreAssetCallback callback = NULL;

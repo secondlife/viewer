@@ -33,67 +33,58 @@
 #include "linden_common.h"
 
 #include "llinventorytype.h"
+#include "lldictionary.h"
+#include "llmemory.h"
+#include "llsingleton.h"
+
+static const std::string empty_string;
 
 ///----------------------------------------------------------------------------
 /// Class LLInventoryType
 ///----------------------------------------------------------------------------
-
-// Unlike asset type names, not limited to 8 characters.
-// Need not match asset type names.
-static const char* INVENTORY_TYPE_NAMES[LLInventoryType::IT_COUNT] =
-{ 
-	"texture",      // 0
-	"sound",
-	"callcard",
-	"landmark",
-	NULL,
-	NULL,           // 5
-	"object",
-	"notecard",
-	"category",
-	"root",
-	"script",       // 10
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	"snapshot",     // 15
-	NULL,
-	"attach",
-	"wearable",
-	"animation",
-	"gesture",		// 20
-	"favorite"		//21
+struct InventoryEntry : public LLDictionaryEntry
+{
+	InventoryEntry(const std::string &name,
+				   const std::string &human_name,
+				   int num_asset_types = 0, ...);
+	const std::string mHumanName;
+	typedef std::vector<LLAssetType::EType> asset_vec_t;
+	asset_vec_t mAssetTypes;
 };
 
-// This table is meant for decoding to human readable form. Put any
-// and as many printable characters you want in each one.
-// See also LLAssetType::mAssetTypeHumanNames
-static const char* INVENTORY_TYPE_HUMAN_NAMES[LLInventoryType::IT_COUNT] =
-{ 
-	"texture",      // 0
-	"sound",
-	"calling card",
-	"landmark",
-	NULL,
-	NULL,           // 5
-	"object",
-	"note card",
-	"folder",
-	"root",
-	"script",       // 10
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	"snapshot",     // 15
-	NULL,
-	"attachment",
-	"wearable",
-	"animation",
-	"gesture",		// 20
-	"favorite"		// 21
+class LLInventoryDictionary : public LLSingleton<LLInventoryDictionary>,
+							  public LLDictionary<LLInventoryType::EType, InventoryEntry>
+{
+public:
+	LLInventoryDictionary();
 };
+
+LLInventoryDictionary::LLInventoryDictionary()
+{
+	addEntry(LLInventoryType::IT_TEXTURE,             new InventoryEntry("texture",   "texture",       1, LLAssetType::AT_TEXTURE));
+	addEntry(LLInventoryType::IT_SOUND,               new InventoryEntry("sound",     "sound",         1, LLAssetType::AT_SOUND));
+	addEntry(LLInventoryType::IT_CALLINGCARD,         new InventoryEntry("callcard",  "calling card",  1, LLAssetType::AT_CALLINGCARD));
+	addEntry(LLInventoryType::IT_LANDMARK,            new InventoryEntry("landmark",  "landmark",      1, LLAssetType::AT_LANDMARK));
+	//addEntry(LLInventoryType::IT_SCRIPT,            new InventoryEntry(NULL,NULL));
+	//addEntry(LLInventoryType::IT_CLOTHING,          new InventoryEntry(NULL,NULL));
+	addEntry(LLInventoryType::IT_OBJECT,              new InventoryEntry("object",    "object",        1, LLAssetType::AT_OBJECT));
+	addEntry(LLInventoryType::IT_NOTECARD,            new InventoryEntry("notecard",  "note card",     1, LLAssetType::AT_NOTECARD));
+	addEntry(LLInventoryType::IT_CATEGORY,            new InventoryEntry("category",  "folder"         ));
+	addEntry(LLInventoryType::IT_ROOT_CATEGORY,       new InventoryEntry("root",      "root"           ));
+	addEntry(LLInventoryType::IT_LSL,                 new InventoryEntry("script",    "script",        2, LLAssetType::AT_LSL_TEXT, LLAssetType::AT_LSL_BYTECODE));
+	//addEntry(LLInventoryType::IT_LSL_BYTECODE,      new InventoryEntry(NULL,NULL));
+	//addEntry(LLInventoryType::IT_TEXTURE_TGA,       new InventoryEntry(NULL,NULL));
+	//addEntry(LLInventoryType::IT_BODYPART,          new InventoryEntry(NULL,NULL));
+	//addEntry(LLInventoryType::IT_TRASH,             new InventoryEntry(NULL,NULL));
+	addEntry(LLInventoryType::IT_SNAPSHOT,            new InventoryEntry("snapshot",  "snapshot",      1, LLAssetType::AT_TEXTURE));
+	//addEntry(LLInventoryType::IT_LOST_AND_FOUND,    new InventoryEntry(NULL,NULL, ));
+	addEntry(LLInventoryType::IT_ATTACHMENT,          new InventoryEntry("attach",    "attachment",    1, LLAssetType::AT_OBJECT));
+	addEntry(LLInventoryType::IT_WEARABLE,            new InventoryEntry("wearable",  "wearable",      2, LLAssetType::AT_CLOTHING, LLAssetType::AT_BODYPART));
+	addEntry(LLInventoryType::IT_ANIMATION,           new InventoryEntry("animation", "animation",     1, LLAssetType::AT_ANIMATION));  
+	addEntry(LLInventoryType::IT_GESTURE,             new InventoryEntry("gesture",   "gesture",       1, LLAssetType::AT_GESTURE)); 
+	addEntry(LLInventoryType::IT_FAVORITE,            new InventoryEntry("favorite",  "favorite",      1, LLAssetType::AT_FAVORITE)); 
+}
+
 
 // Maps asset types to the default inventory type for that kind of asset.
 // Thus, "Lost and Found" is a "Category"
@@ -122,78 +113,48 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
 	LLInventoryType::IT_NONE,			// AT_IMAGE_JPEG
 	LLInventoryType::IT_ANIMATION,		// AT_ANIMATION
 	LLInventoryType::IT_GESTURE,		// AT_GESTURE
+	LLInventoryType::IT_NONE,			// AT_LINK
 	LLInventoryType::IT_FAVORITE,		// AT_FAVORITE
 };
 
-static const int MAX_POSSIBLE_ASSET_TYPES = 2;
-static const LLAssetType::EType
-INVENTORY_TO_ASSET_TYPE[LLInventoryType::IT_COUNT][MAX_POSSIBLE_ASSET_TYPES] =
+InventoryEntry::InventoryEntry(const std::string &name,
+							   const std::string &human_name,
+							   int num_asset_types, ...) :
+	LLDictionaryEntry(name),
+	mHumanName(human_name)
 {
-	{ LLAssetType::AT_TEXTURE, LLAssetType::AT_NONE },		// IT_TEXTURE
-	{ LLAssetType::AT_SOUND, LLAssetType::AT_NONE },		// IT_SOUND
-	{ LLAssetType::AT_CALLINGCARD, LLAssetType::AT_NONE },	// IT_CALLINGCARD
-	{ LLAssetType::AT_LANDMARK, LLAssetType::AT_NONE },		// IT_LANDMARK
-	{ LLAssetType::AT_NONE, LLAssetType::AT_NONE },
-	{ LLAssetType::AT_NONE, LLAssetType::AT_NONE },
-	{ LLAssetType::AT_OBJECT, LLAssetType::AT_NONE },		// IT_OBJECT
-	{ LLAssetType::AT_NOTECARD, LLAssetType::AT_NONE },		// IT_NOTECARD
-	{ LLAssetType::AT_NONE, LLAssetType::AT_NONE },			// IT_CATEGORY
-	{ LLAssetType::AT_NONE, LLAssetType::AT_NONE },			// IT_ROOT_CATEGORY
-	{ LLAssetType::AT_LSL_TEXT, LLAssetType::AT_LSL_BYTECODE }, // IT_LSL
-	{ LLAssetType::AT_NONE, LLAssetType::AT_NONE },
-	{ LLAssetType::AT_NONE, LLAssetType::AT_NONE },
-	{ LLAssetType::AT_NONE, LLAssetType::AT_NONE },
-	{ LLAssetType::AT_NONE, LLAssetType::AT_NONE },
-	{ LLAssetType::AT_TEXTURE, LLAssetType::AT_NONE },		// IT_SNAPSHOT
-	{ LLAssetType::AT_NONE, LLAssetType::AT_NONE },
-	{ LLAssetType::AT_OBJECT, LLAssetType::AT_NONE },		// IT_ATTACHMENT
-	{ LLAssetType::AT_CLOTHING, LLAssetType::AT_BODYPART },	// IT_WEARABLE
-	{ LLAssetType::AT_ANIMATION, LLAssetType::AT_NONE },	// IT_ANIMATION
-	{ LLAssetType::AT_GESTURE, LLAssetType::AT_NONE },		// IT_GESTURE
-	{ LLAssetType::AT_FAVORITE, LLAssetType::AT_NONE },		// IT_FAVORITE
-};
+	va_list argp;
+	va_start(argp, num_asset_types);
+	// Read in local textures
+	for (U8 i=0; i < num_asset_types; i++)
+	{
+		LLAssetType::EType t = (LLAssetType::EType)va_arg(argp,int);
+		mAssetTypes.push_back(t);
+	}
+}
 
 // static
-const char* LLInventoryType::lookup(EType type)
+const std::string &LLInventoryType::lookup(EType type)
 {
-	if((type >= 0) && (type < IT_COUNT))
-	{
-		return INVENTORY_TYPE_NAMES[S32(type)];
-	}
-	else
-	{
-		return NULL;
-	}
+	const InventoryEntry *entry = LLInventoryDictionary::getInstance()->lookup(type);
+	if (!entry) return empty_string;
+	return entry->mName;
 }
 
 // static
 LLInventoryType::EType LLInventoryType::lookup(const std::string& name)
 {
-	for(S32 i = 0; i < IT_COUNT; ++i)
-	{
-		if((INVENTORY_TYPE_NAMES[i])
-		   && (name == INVENTORY_TYPE_NAMES[i]))
-		{
-			// match
-			return (EType)i;
-		}
-	}
-	return IT_NONE;
+	return LLInventoryDictionary::getInstance()->lookup(name);
 }
 
 // XUI:translate
 // translation from a type to a human readable form.
 // static
-const char* LLInventoryType::lookupHumanReadable(EType type)
+const std::string &LLInventoryType::lookupHumanReadable(EType type)
 {
-	if((type >= 0) && (type < IT_COUNT))
-	{
-		return INVENTORY_TYPE_HUMAN_NAMES[S32(type)];
-	}
-	else
-	{
-		return NULL;
-	}
+	const InventoryEntry *entry = LLInventoryDictionary::getInstance()->lookup(type);
+	if (!entry) return empty_string;
+	return entry->mHumanName;
 }
 
 // return the default inventory for the given asset type.
@@ -210,21 +171,21 @@ LLInventoryType::EType LLInventoryType::defaultForAssetType(LLAssetType::EType a
 	}
 }
 
-bool inventory_and_asset_types_match(
-	LLInventoryType::EType inventory_type,
-	LLAssetType::EType asset_type)
+bool inventory_and_asset_types_match(LLInventoryType::EType inventory_type,
+									 LLAssetType::EType asset_type)
 {
-	bool rv = false;
-	if((inventory_type >= 0) && (inventory_type < LLInventoryType::IT_COUNT))
+	const InventoryEntry *entry = LLInventoryDictionary::getInstance()->lookup(inventory_type);
+	if (!entry) return false;
+
+	for (InventoryEntry::asset_vec_t::const_iterator iter = entry->mAssetTypes.begin();
+		 iter != entry->mAssetTypes.end();
+		 iter++)
 	{
-		for(S32 i = 0; i < MAX_POSSIBLE_ASSET_TYPES; ++i)
+		const LLAssetType::EType type = (*iter);
+		if(type == asset_type)
 		{
-			if(INVENTORY_TO_ASSET_TYPE[inventory_type][i] == asset_type)
-			{
-				rv = true;
-				break;
-			}
+			return true;
 		}
 	}
-	return rv;
+	return false;
 }

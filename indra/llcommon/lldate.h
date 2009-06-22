@@ -142,6 +142,14 @@ public:
     bool operator!=(const LLDate& rhs) const { return (*this < rhs) || (rhs < *this); }
     bool operator==(const LLDate& rhs) const { return !(*this != rhs); }
 
+	/**
+	 * @brief Compare to epoch UTC.
+	 */
+
+	bool isNull() const { return mSecondsSinceEpoch == 0.0; }
+	bool notNull() const { return mSecondsSinceEpoch != 0.0; }
+	 
+
 private:
 	F64 mSecondsSinceEpoch;
 };

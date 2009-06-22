@@ -2,18 +2,18 @@
 <teleport_messages>
 	<message_set name="errors">
 		<message name="invalid_tport">
-			Huston / LL - Mamy problem z teleportacją. Może relog by pomógl?
-Jeżeli cały czas nie możesz się telportować sprawdź Pomoc Techniczną na:
-www.secondlife.com/support
+			Wystąpił problem z teleportacją. Wyloguj się i zaloguj ponownie.
+Jeśli nadal otrzymujesz ten komunikat sprawdź Pomoc Techniczną na stronie:
+www.secondlife.com/support.
 		</message>
 		<message name="invalid_region_handoff">
-			Huston / LL - Mamy problem ze zmianą regionu. Może relog by pomógl?
-Jeżeli cały czas nie możesz zmienić regionu sprawdź Pomoc Techniczną na:
-www.secondlife.com/support
+			Wystąpił problem ze zmianą regionu. Wyloguj się i zaloguj ponownie.
+Jeśli nadal otrzymujesz ten komunikat sprawdź Pomoc Techniczną na stronie:
+www.secondlife.com/support.
 		</message>
 		<message name="blocked_tport">
-			Przepraszamy, ale teleportacja jest chwilowo niedostępna - problemy z nową technologią. 
-Spróbuj jeszcze raz. Hmm - cały czas nie działa - może relog by pomógl?
+			Przepraszamy, teleportacja jest chwilowo niedostępna. Spróbuj jeszcze raz.
+Jeśli nadal nie możesz się teleportować wyloguj się i ponownie zaloguj.
 		</message>
 		<message name="nolandmark_tport">
 			Przepraszamy, ale nie możemy znaleźć miejsca docelowego.

@@ -78,10 +78,14 @@ const S32 VPAD = 4;
 const S32 FLOATER_H_MARGIN = 15;
 const S32 MIN_WIDGET_HEIGHT = 10;
 
+LLFastTimer::DeclareTimer FTM_WIDGET_CONSTRUCTION("Widget Construction");
+LLFastTimer::DeclareTimer FTM_INIT_FROM_PARAMS("Widget InitFromParams");
+LLFastTimer::DeclareTimer FTM_WIDGET_SETUP("Widget Setup");
+
 //-----------------------------------------------------------------------------
 // Register widgets that are purely data driven here so they get linked in
 #include "llstatview.h"
-static LLRegisterWidget<LLStatView> register_stat_view("stat_view");
+static LLDefaultWidgetRegistry::Register<LLStatView> register_stat_view("stat_view");
 
 //-----------------------------------------------------------------------------
 
@@ -103,9 +107,7 @@ public:
 
 };
 
-//FIXME: this created an ambiguous lookup of template (locate.xml or pad.xml?)
-static LLRegisterWidget<LLUICtrlLocate> r1("locate");
-static LLRegisterWidget<LLUICtrlLocate> r2("pad");
+static LLDefaultWidgetRegistry::Register<LLUICtrlLocate> r1("locate");
 
 //-----------------------------------------------------------------------------
 // LLUICtrlFactory()
@@ -132,22 +134,82 @@ void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitPa
 	}
 }
 
+//static 
+void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, LLXMLNodePtr output_node)
+{
+	if (node.isNull()) return;
+
+	for (LLXMLNodePtr child_node = node->getFirstChild(); child_node.notNull(); child_node = child_node->getNextSibling())
+	{
+		LLXMLNodePtr outputChild;
+		if (output_node) 
+		{
+			outputChild = output_node->createChild("", FALSE);
+		}
+
+		if (!instance().createFromXML(child_node, viewp, LLStringUtil::null, outputChild, viewp->getChildRegistry()))
+		{
+			std::string child_name = std::string(child_node->getName()->mString);
+			llwarns << "Could not create widget named " << child_node->getName()->mString << llendl;
+		}
+
+		if (outputChild && !outputChild->mChildren && outputChild->mAttributes.empty() && outputChild->getValue().empty())
+		{
+			output_node->deleteChild(outputChild);
+		}
+	}
+
+}
+
+LLFastTimer::DeclareTimer FTM_XML_PARSE("XML Reading/Parsing");
 //-----------------------------------------------------------------------------
 // getLayeredXMLNode()
 //-----------------------------------------------------------------------------
 bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNodePtr& root)
 {
+	LLFastTimer timer(FTM_XML_PARSE);
 	return LLXMLNode::getLayeredXMLNode(xui_filename, root, LLUI::getXUIPaths());
 }
+
+
+//-----------------------------------------------------------------------------
+// getLocalizedXMLNode()
+//-----------------------------------------------------------------------------
+bool LLUICtrlFactory::getLocalizedXMLNode(const std::string &xui_filename, LLXMLNodePtr& root)
+{
+	LLFastTimer timer(FTM_XML_PARSE);
+	std::string full_filename = gDirUtilp->findSkinnedFilename(LLUI::getLocalizedSkinPath(), xui_filename);
+	if (!LLXMLNode::parseFile(full_filename, root, NULL))
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+static LLFastTimer::DeclareTimer BUILD_FLOATERS("Build Floaters");
 
 //-----------------------------------------------------------------------------
 // buildFloater()
 //-----------------------------------------------------------------------------
 void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filename, BOOL open_floater, LLXMLNodePtr output_node)
 {
+	LLFastTimer timer(BUILD_FLOATERS);
 	LLXMLNodePtr root;
 
-	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
+	//if exporting, only load the language being exported, 
+	//instead of layering localized version on top of english
+	if (output_node)
+	{
+		if (!LLUICtrlFactory::getLocalizedXMLNode(filename, root))
+		{
+			llwarns << "Couldn't parse floater from: " << LLUI::getLocalizedSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
+			return;
+		}
+	}
+	else if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
 	{
 		llwarns << "Couldn't parse floater from: " << LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
 		return;
@@ -167,8 +229,10 @@ void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 		{
 			mFactoryStack.push_front(&floaterp->getFactoryMap());
 		}
-		
-		floaterp->getCommitCallbackRegistrar().pushScope(); // for local registry callbacks; define in constructor, referenced in XUI or postBuild
+
+		 // for local registry callbacks; define in constructor, referenced in XUI or postBuild
+		floaterp->getCommitCallbackRegistrar().pushScope();
+		floaterp->getEnableCallbackRegistrar().pushScope();
 		
 		floaterp->initFloaterXML(root, floaterp->getParent(), open_floater, output_node);
 
@@ -178,6 +242,7 @@ void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 		}
 		
 		floaterp->getCommitCallbackRegistrar().popScope();
+		floaterp->getEnableCallbackRegistrar().popScope();
 		
 		if (!floaterp->getFactoryMap().empty())
 		{
@@ -202,15 +267,28 @@ S32 LLUICtrlFactory::saveToXML(LLView* viewp, const std::string& filename)
 	return 0;
 }
 
+static LLFastTimer::DeclareTimer BUILD_PANELS("Build Panels");
+
 //-----------------------------------------------------------------------------
 // buildPanel()
 //-----------------------------------------------------------------------------
 BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const std::string& filename, LLXMLNodePtr output_node)
 {
+	LLFastTimer timer(BUILD_PANELS);
 	BOOL didPost = FALSE;
 	LLXMLNodePtr root;
 
-	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
+	//if exporting, only load the language being exported, 
+	//instead of layering localized version on top of english
+	if (output_node)
+	{	
+		if (!LLUICtrlFactory::getLocalizedXMLNode(filename, root))
+		{
+			llwarns << "Couldn't parse panel from: " << LLUI::getLocalizedSkinPath() + gDirUtilp->getDirDelimiter() + filename  << llendl;
+			return didPost;
+		}
+	}
+	else if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
 	{
 		llwarns << "Couldn't parse panel from: " << LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + filename << llendl;
 		return didPost;
@@ -232,7 +310,14 @@ BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const std::string& filename, L
 			mFactoryStack.push_front(&panelp->getFactoryMap());
 		}
 		
+		 // for local registry callbacks; define in constructor, referenced in XUI or postBuild
+		panelp->getCommitCallbackRegistrar().pushScope();
+		panelp->getEnableCallbackRegistrar().pushScope();
+		
 		didPost = panelp->initPanelXML(root, NULL, output_node);
+
+		panelp->getCommitCallbackRegistrar().popScope();
+		panelp->getEnableCallbackRegistrar().popScope();
 		
 		if (LLUI::sShowXUINames)
 		{
@@ -251,13 +336,15 @@ BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const std::string& filename, L
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-LLView *LLUICtrlFactory::createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename,  LLXMLNodePtr output_node)
+LLFastTimer::DeclareTimer FTM_CREATE_FROM_XML("Create child widget");
+
+LLView *LLUICtrlFactory::createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename,  LLXMLNodePtr output_node, const widget_registry_t& registry)
 {
+	LLFastTimer timer(FTM_CREATE_FROM_XML);
 	std::string ctrl_type = node->getName()->mString;
 	LLStringUtil::toLower(ctrl_type);
 	
-	LLWidgetCreatorFunc* funcp = LLWidgetCreatorRegistry::getInstance()->getValue(ctrl_type);
-
+	const LLWidgetCreatorFunc* funcp = registry.getValue(ctrl_type);
 	if (funcp == NULL)
 	{
 		return NULL;
@@ -267,7 +354,8 @@ LLView *LLUICtrlFactory::createFromXML(LLXMLNodePtr node, LLView* parent, const 
 	{
 		if (mDummyPanel == NULL)
 		{
-			mDummyPanel = new LLPanel();
+			LLPanel::Params p;
+			mDummyPanel = create<LLPanel>(p);
 		}
 		parent = mDummyPanel;
 	}
@@ -299,7 +387,8 @@ LLPanel* LLUICtrlFactory::createFactoryPanel(const std::string& name)
 			return ret;
 		}
 	}
-	return new LLPanel();
+	LLPanel::Params panel_p;
+	return create<LLPanel>(panel_p);
 }
 
 //-----------------------------------------------------------------------------
@@ -359,12 +448,18 @@ void LLUICtrlFactory::popFactoryFunctions()
 	}
 }
 
+const widget_registry_t& LLUICtrlFactory::getWidgetRegistry(LLView* viewp)
+{
+	return viewp->getChildRegistry();
+}
+
 
 //
 // LLXUIParser
 //
 LLXUIParser::LLXUIParser()
-:	mLastWriteGeneration(-1)
+:	mLastWriteGeneration(-1),
+	mCurReadDepth(0)
 {
 	registerParserFuncs<bool>(boost::bind(&LLXUIParser::readBoolValue, this, _1),
 								boost::bind(&LLXUIParser::writeBoolValue, this, _1, _2));
@@ -396,9 +491,13 @@ LLXUIParser::LLXUIParser()
 								boost::bind(&LLXUIParser::writeSDValue, this, _1, _2));
 }
 
+static LLFastTimer::DeclareTimer PARSE_XUI("XUI Parsing");
+
 void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, bool silent)
 {
+	LLFastTimer timer(PARSE_XUI);
 	mNameStack.clear();
+	mCurReadDepth = 0;
 	setParseSilently(silent);
 
 	if (node.isNull())
@@ -421,9 +520,21 @@ void LLXUIParser::writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock &bloc
 // go from a stack of names to a specific XML node
 LLXMLNodePtr LLXUIParser::getNode(const name_stack_t& stack)
 {
-	if (stack.empty() || mWriteRootNode.isNull()) return NULL;
+	name_stack_t name_stack;
 
-	std::string attribute_name = stack.front().first;
+	for (name_stack_t::const_iterator it = stack.begin();
+		it != stack.end();
+		++it)
+	{
+		if (!it->first.empty())
+		{
+			name_stack.push_back(*it);
+		}
+	}
+
+	if (name_stack.empty() || mWriteRootNode.isNull()) return NULL;
+
+	std::string attribute_name = name_stack.front().first;
 
 	// heuristic to make font always attribute of parent node
 	bool is_font = (attribute_name == "font");
@@ -444,43 +555,68 @@ LLXMLNodePtr LLXUIParser::getNode(const name_stack_t& stack)
 		}
 	}
 
-	for (name_stack_t::const_iterator it = ++stack.begin();
-		it != stack.end();
+	for (name_stack_t::const_iterator it = ++name_stack.begin();
+		it != name_stack.end();
 		++it)
 	{
 		attribute_name += ".";
 		attribute_name += it->first;
 	}
 
+	// *NOTE: <string> elements for translation need to have whitespace
+	// preserved like "initial_value" above, however, the <string> node
+	// becomes an attribute of the containing floater or panel.
+	// Because all <string> elements must have a "name" attribute, and
+	// "name" is parsed first, just put the value into the last written
+	// child.
+	if (attribute_name == "string.value")
+	{
+		// The caller of will shortly call writeStringValue(), which sets
+		// this node's type to string, but we don't want to export type="string".
+		// Set the default for this node to suppress the export.
+		static LLXMLNodePtr default_node;
+		if (default_node.isNull())
+		{
+			default_node = new LLXMLNode();
+			// Force the node to have a string type
+			default_node->setStringValue( std::string() );
+		}
+		mLastWrittenChild->setDefault(default_node);
+		// mLastWrittenChild is the "string" node part of "string.value",
+		// so the caller will call writeStringValue() into that node,
+		// setting the node text contents.
+		return mLastWrittenChild;
+	}
+
 	LLXMLNodePtr attribute_node;
 
 	const char* attribute_cstr = attribute_name.c_str();
-	if (stack.size() != 1
+	if (name_stack.size() != 1
 		&& !is_font)
 	{
 		std::string child_node_name(mWriteRootNode->getName()->mString);
 		child_node_name += ".";
-		child_node_name += stack.front().first;
+		child_node_name += name_stack.front().first;
 
 		LLXMLNodePtr child_node;
 
-		if (mLastWriteGeneration == stack.front().second)
+		if (mLastWriteGeneration == name_stack.front().second)
 		{
 			child_node = mLastWrittenChild;
 		}
 		else
 		{
-			mLastWriteGeneration = stack.front().second;
+			mLastWriteGeneration = name_stack.front().second;
 			child_node = mWriteRootNode->createChild(child_node_name.c_str(), false);
 		}
 
 		mLastWrittenChild = child_node;
 
-		name_stack_t::const_iterator it = ++stack.begin();
+		name_stack_t::const_iterator it = ++name_stack.begin();
 		std::string short_attribute_name(it->first);
 
 		for (++it;
-			it != stack.end();
+			it != name_stack.end();
 			++it)
 		{
 			short_attribute_name += ".";
@@ -526,7 +662,10 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, const std::string& scope, LLIn
 	{
 		mCurReadNode = nodep;
 		mNameStack.push_back(std::make_pair(std::string("value"), newParseGeneration()));
-		block.submitValue(mNameStack, *this);
+		// child nodes are not necessarily valid parameters (could be a child widget)
+		// so don't complain once we've recursed
+		bool silent = mCurReadDepth > 0;
+		block.submitValue(mNameStack, *this, silent);
 		mNameStack.pop_back();
 	}
 
@@ -539,6 +678,7 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, const std::string& scope, LLIn
 	//         nested_param1
 	//         nested_param2
 	//             nested_param3	
+	mCurReadDepth++;
 	for(LLXMLNodePtr childp = nodep->getFirstChild(); childp.notNull();)
 	{
 		std::string child_name(childp->getName()->mString);
@@ -550,13 +690,6 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, const std::string& scope, LLIn
 		// since there is no widget named "rect"
 		if (child_name.find(".") == std::string::npos) 
 		{
-			// skip over children with registered names
-			if (LLWidgetCreatorRegistry::instance().exists(child_name))
-			{
-				childp = childp->getNextSibling();
-				continue;
-			}
-
 			mNameStack.push_back(std::make_pair(child_name, newParseGeneration()));
 			num_tokens_pushed++;
 		}
@@ -611,6 +744,7 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, const std::string& scope, LLIn
 			mNameStack.pop_back();
 		}
 	}
+	mCurReadDepth--;
 	return values_parsed;
 }
 
@@ -637,7 +771,9 @@ bool LLXUIParser::readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& blo
 			num_tokens_pushed++;
 		}
 
-		any_parsed |= block.submitValue(mNameStack, *this);
+		// child nodes are not necessarily valid attributes, so don't complain once we've recursed
+		bool silent = mCurReadDepth > 0;
+		any_parsed |= block.submitValue(mNameStack, *this, silent);
 		
 		while(num_tokens_pushed-- > 0)
 		{
@@ -872,6 +1008,9 @@ bool LLXUIParser::writeUIColorValue(const void* val_ptr, const name_stack_t& sta
 	if (node.notNull())
 	{
 		LLUIColor color = *((LLUIColor*)val_ptr);
+		//RN: don't write out the color that is represented by a function
+		// rely on param block exporting to get the reference to the color settings
+		if (color.isUsingFunction()) return false;
 		node->setFloatValue(4, color.get().mV);
 		return true;
 	}

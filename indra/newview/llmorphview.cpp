@@ -47,7 +47,7 @@
 #include "lltoolmgr.h"
 #include "lltoolmorph.h"
 #include "llviewercamera.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llviewerwindow.h"
 #include "pipeline.h"
 
@@ -108,7 +108,7 @@ void	LLMorphView::initialize()
 //-----------------------------------------------------------------------------
 void	LLMorphView::shutdown()
 {
-	LLVOAvatar::onCustomizeEnd();
+	LLVOAvatarSelf::onCustomizeEnd();
 
 	LLVOAvatar *avatarp = gAgent.getAvatarObject();
 	if(avatarp && !avatarp->isDead())

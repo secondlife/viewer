@@ -92,18 +92,10 @@
 		反射詳細：
 	</text>
 	<radio_group name="ReflectionDetailRadio">
-		<radio_item name="0">
-			地形と樹木
-		</radio_item>
-		<radio_item name="1">
-			すべての静的オブジェクト
-		</radio_item>
-		<radio_item name="2">
-			すべてのアバターとオブジェクト
-		</radio_item>
-		<radio_item name="3">
-			すべて
-		</radio_item>
+		<radio_item name="0" label="地形と樹木" />
+		<radio_item name="1" label="すべての静的オブジェクト" />
+		<radio_item name="2" label="すべてのアバターとオブジェクト" />
+		<radio_item name="3" label="すべて" />
 	</radio_group>
 	<text name="AvatarRenderingText">
 		アバター表示：
@@ -154,23 +146,15 @@
 		ライティング詳細：
 	</text>
 	<radio_group name="LightingDetailRadio">
-		<radio_item name="SunMoon">
-			太陽と月のみ
-		</radio_item>
-		<radio_item name="LocalLights">
-			近隣のローカル・ライト
-		</radio_item>
+		<radio_item name="SunMoon" label="太陽と月のみ" />
+		<radio_item name="LocalLights" label="近隣のローカル・ライト" />
 	</radio_group>
 	<text name="TerrainDetailText">
 		地形詳細：
 	</text>
 	<radio_group name="TerrainDetailRadio">
-		<radio_item name="0">
-			低
-		</radio_item>
-		<radio_item name="2">
-			高
-		</radio_item>
+		<radio_item name="0" label="低" />
+		<radio_item name="2" label="高" />
 	</radio_group>
 	<button label="推奨された設定" name="Defaults" />
 	<button label="ハードウェア・オプション"

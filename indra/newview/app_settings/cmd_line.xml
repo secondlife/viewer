@@ -106,6 +106,46 @@
       <string>QuitAfterSeconds</string>
     </map>
 
+    <key>logperformance</key>
+    <map>
+      <key>desc</key>
+      <string>Log performance metrics for benchmarking</string>
+      <key>map-to</key>
+      <string>LogPerformance</string>
+    </map>
+
+    <key>logmetrics</key>
+    <map>
+      <key>desc</key>
+      <string>Log metrics for benchmarking</string>
+      <key>map-to</key>
+      <string>LogMetrics</string>
+    </map>
+    
+    <key>analyzeperformance</key>
+    <map>
+      <key>desc</key>
+      <string>When used in conjunction with logperformance, analyzes result of log against baseline.</string>
+      <key>map-to</key>
+      <string>AnalyzePerformance</string>
+    </map>
+
+    <key>debugsession</key>
+    <map>
+      <key>desc</key>
+      <string>Run as if RenderDebugGL is TRUE, but log errors until end of session.</string>
+      <key>map-to</key>
+      <string>DebugSession</string>
+    </map>
+
+    <key>replaysession</key>
+    <map>
+      <key>desc</key>
+      <string>After login, replay last recorded session and quit.</string>
+      <key>map-to</key>
+      <string>ReplaySession</string>
+    </map>
+
     <key>rotate</key>
     <map>
       <key>map-to</key>
@@ -164,6 +204,16 @@
       <integer>1</integer>
       <key>map-to</key>
       <string>UserLogFile</string>
+    </map>
+
+    <key>graphicslevel</key>
+    <map>
+      <key>desc</key>
+      <string>Set the detail level. 
+              0 - low, 1 - medium, 2 - high, 3 - ultra
+       </string>
+      <key>count</key>
+      <integer>1</integer>
     </map>
 
     <key>setdefault</key>

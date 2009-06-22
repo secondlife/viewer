@@ -289,7 +289,7 @@ namespace
 	public:
 		static LogControlFile& fromDirectory(const std::string& dir);
 		
-		virtual void loadFile();
+		virtual bool loadFile();
 		
 	private:
 		LogControlFile(const std::string &filename)
@@ -317,7 +317,7 @@ namespace
 			// NB: This instance is never freed
 	}
 	
-	void LogControlFile::loadFile()
+	bool LogControlFile::loadFile()
 	{
 		LLSD configuration;
 
@@ -333,12 +333,13 @@ namespace
 				llwarns << filename() << " missing, ill-formed,"
 							" or simply undefined; not changing configuration"
 						<< llendl;
-				return;
+				return false;
 			}
 		}
 		
 		LLError::configure(configuration);
 		llinfos << "logging reconfigured from " << filename() << llendl;
+		return true;
 	}
 
 
@@ -1228,9 +1229,62 @@ namespace LLError
 	char** LLCallStacks::sBuffer = NULL ;
 	S32    LLCallStacks::sIndex  = 0 ;
 
+	class CallStacksLogLock
+	{
+	public:
+		CallStacksLogLock();
+		~CallStacksLogLock();
+		bool ok() const { return mOK; }
+	private:
+		bool mLocked;
+		bool mOK;
+	};
+	
+	CallStacksLogLock::CallStacksLogLock()
+		: mLocked(false), mOK(false)
+	{
+		if (!gCallStacksLogMutexp)
+		{
+			mOK = true;
+			return;
+		}
+		
+		const int MAX_RETRIES = 5;
+		for (int attempts = 0; attempts < MAX_RETRIES; ++attempts)
+		{
+			apr_status_t s = apr_thread_mutex_trylock(gCallStacksLogMutexp);
+			if (!APR_STATUS_IS_EBUSY(s))
+			{
+				mLocked = true;
+				mOK = true;
+				return;
+			}
+
+			ms_sleep(1);
+		}
+
+		// We're hosed, we can't get the mutex.  Blah.
+		std::cerr << "CallStacksLogLock::CallStacksLogLock: failed to get mutex for log"
+					<< std::endl;
+	}
+	
+	CallStacksLogLock::~CallStacksLogLock()
+	{
+		if (mLocked)
+		{
+			apr_thread_mutex_unlock(gCallStacksLogMutexp);
+		}
+	}
+
 	//static
    void LLCallStacks::push(const char* function, const int line)
    {
+	   CallStacksLogLock lock;
+       if (!lock.ok())
+       {
+           return;
+       }
+
 	   if(!sBuffer)
 	   {
 		   sBuffer = new char*[512] ;
@@ -1266,6 +1320,12 @@ namespace LLError
    //static
    void LLCallStacks::end(std::ostringstream* _out)
    {
+	   CallStacksLogLock lock;
+       if (!lock.ok())
+       {
+           return;
+       }
+
 	   if(!sBuffer)
 	   {
 		   sBuffer = new char*[512] ;
@@ -1288,6 +1348,12 @@ namespace LLError
    //static
    void LLCallStacks::print()
    {
+	   CallStacksLogLock lock;
+       if (!lock.ok())
+       {
+           return;
+       }
+
        if(sIndex > 0)
        {
            llinfos << " ************* PRINT OUT LL CALL STACKS ************* " << llendl ;

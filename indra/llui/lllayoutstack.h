@@ -43,6 +43,7 @@ public:
 	{
 		Optional<std::string>	orientation;
 		Optional<S32>			border_size;
+		Optional<bool>	animate;
 		// mMinWidth and mMinHeight are calculated, not set in XML
 
 		Params();
@@ -81,7 +82,7 @@ protected:
 	friend class LLUICtrlFactory;
 
 private:
-	struct LLEmbeddedPanel;
+	struct LayoutPanel;
 
 	void updateLayout(BOOL force_resize = FALSE);
 	void calcMinExtents();
@@ -90,13 +91,15 @@ private:
 
 	const ELayoutOrientation mOrientation;
 
-	typedef std::vector<LLEmbeddedPanel*> e_panel_list_t;
+	typedef std::vector<LayoutPanel*> e_panel_list_t;
 	e_panel_list_t mPanels;
-	LLEmbeddedPanel* findEmbeddedPanel(LLPanel* panelp) const;
+	LayoutPanel* findEmbeddedPanel(LLPanel* panelp) const;
 
 	S32 mMinWidth;  // calculated by calcMinExtents
 	S32 mMinHeight;  // calculated by calcMinExtents
 	S32 mPanelSpacing;
+
+	bool mAnimate;
 }; // end class LLLayoutStack
 
 #endif

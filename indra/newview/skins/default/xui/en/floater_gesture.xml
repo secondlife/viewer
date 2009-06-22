@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="true"
+ height="465"
+ layout="topleft"
+ min_height="200"
+ min_width="350"
+ name="gestures"
+ title="Active Gestures"
+ width="350">
+    <floater.string
+     name="loading">
+        Loading...
+    </floater.string>
+    <floater.string
+     name="playing">
+        (Playing)
+    </floater.string>
+    <text
+     type="string"
+     length="1"
+     bottom="30"
+     follows="top|left"
+     layout="topleft"
+     left="15"
+     name="help_label">
+        Double-click a gesture to play animations and sounds.
+    </text>
+    <scroll_list
+     bottom_delta="390"
+     draw_heading="true"
+     follows="top|left|bottom|right"
+     height="380"
+     layout="topleft"
+     left="15"
+     name="gesture_list"
+     right="-15">
+        <scroll_list.columns
+         label="Trigger"
+         name="trigger"
+         width="70" />
+        <scroll_list.columns
+         label="Key"
+         name="shortcut"
+         width="70" />
+        <scroll_list.columns
+         label=""
+         name="key"
+         width="-1" />
+        <scroll_list.columns
+         label="Name"
+         name="name"
+         width="160" />
+    </scroll_list>
+    <button
+     follows="bottom|right"
+     height="20"
+     label="New"
+     layout="topleft"
+     left_delta="0"
+     name="new_gesture_btn"
+     top_pad="10"
+     width="83" />
+    <button
+     follows="bottom|right"
+     height="20"
+     label="Edit"
+     layout="topleft"
+     left_pad="6"
+     name="edit_btn"
+     top_delta="0"
+     width="83" />
+    <button
+     follows="bottom|right"
+     height="20"
+     label="Play"
+     layout="topleft"
+     left_pad="6"
+     name="play_btn"
+     top_delta="0"
+     width="83" />
+    <button
+     follows="bottom|right"
+     height="20"
+     label="Stop"
+     layout="topleft"
+     left_delta="0"
+     name="stop_btn"
+     top_delta="0"
+     width="83" />
+</floater>

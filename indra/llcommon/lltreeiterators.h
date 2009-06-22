@@ -356,7 +356,7 @@ public:
     LLTreeDFSIter() {}
 
 	/// flags iterator logic to skip traversing children of current node on next increment
-	void skipChildren(bool skip = true) { mSkipChildren = skip; }
+	void skipDescendants(bool skip = true) { mSkipChildren = skip; }
 
 private:
     /// leverage boost::iterator_facade
@@ -453,7 +453,8 @@ public:
     /// each node.
     LLTreeDFSPostIter(const ptr_type& node, const func_type& beginfunc, const func_type& endfunc):
         mBeginFunc(beginfunc),
-        mEndFunc(endfunc)
+        mEndFunc(endfunc),
+		mSkipAncestors(false)
     {
         if (! node)
             return;
@@ -462,6 +463,9 @@ public:
     }
     /// Instantiate an LLTreeDFSPostIter to mark the end of the walk
     LLTreeDFSPostIter() {}
+
+	/// flags iterator logic to skip traversing ancestors of current node on next increment
+	void skipAncestors(bool skip = true) { mSkipAncestors = skip; }
 
 private:
     /// leverage boost::iterator_facade
@@ -480,11 +484,25 @@ private:
     /// implement dereference/indirection operators
     ptr_type& dereference() const { return const_cast<ptr_type&>(mPending.back().first); }
 
+	struct isOpen
+	{
+		bool operator()(const typename list_type::value_type& item)
+		{
+			return item.second;
+		}
+	};
+
     /// Call this each time we change mPending.back() -- that is, every time
     /// we're about to change the value returned by dereference(). If we
     /// haven't yet pushed the new node's children, do so now.
     void makeCurrent()
     {
+		if (mSkipAncestors)
+		{
+			mPending.erase(std::remove_if(mPending.begin(), mPending.end(), isOpen()), mPending.end());
+			mSkipAncestors = false;
+		}
+
         // Once we've popped the last node, this becomes a no-op.
         if (mPending.empty())
             return;
@@ -524,11 +542,13 @@ private:
     }
 
     /// list of the nodes yet to be processed
-    list_type mPending;
+    list_type	mPending;
     /// functor to extract begin() child iterator
-    func_type mBeginFunc;
+    func_type	mBeginFunc;
     /// functor to extract end() child iterator
-    func_type mEndFunc;
+    func_type	mEndFunc;
+	/// flags logic to skip traversal of ancestors of current node
+	bool		mSkipAncestors;
 };
 
 /**

@@ -44,6 +44,8 @@
 #include <vector>
 #include <map>
 #include <deque>
+#include <boost/function.hpp>
+#include <boost/signals2.hpp>
 
 #include "lluictrl.h"
 #include "v4color.h"
@@ -315,7 +317,7 @@ class LLFontGL;
 class LLFolderViewFolder;
 class LLFolderView;
 
-class LLFolderViewItem : public LLUICtrl
+class LLFolderViewItem : public LLView
 {
 public:
 	static void initClass();
@@ -352,9 +354,9 @@ protected:
 	static LLUIImagePtr			sBoxImage;
 	std::string					mLabel;
 	std::string					mSearchableLabel;
-	std::string					mType;
 	S32							mLabelWidth;
-	time_t							mCreationDate;
+	bool						mLabelWidthDirty;
+	time_t						mCreationDate;
 	LLFolderViewFolder*			mParentFolder;
 	LLFolderViewEventListener*	mListener;
 	BOOL						mIsSelected;
@@ -585,6 +587,7 @@ protected:
 	S32			mLastCalculatedWidth;
 	S32			mCompletedFilterGeneration;
 	S32			mMostFilteredDescendantGeneration;
+	bool		mNeedsSort;
 public:
 	typedef enum e_recurse_type
 	{
@@ -610,6 +613,7 @@ public:
 	virtual S32 arrange( S32* width, S32* height, S32 filter_generation );
 
 	BOOL needsArrange();
+	void requestSort();
 
 	// Returns the sort group (system, trash, folder) for this folder.
 	virtual EInventorySortGroup getSortGroup() const;
@@ -709,7 +713,7 @@ public:
 	virtual void applyListenerFunctorRecursively(LLFolderViewListenerFunctor& functor);
 
 	virtual void openItem( void );
-	virtual BOOL addItem(LLFolderViewItem* item); 
+	virtual BOOL addItem(LLFolderViewItem* item);
 	virtual BOOL addFolder( LLFolderViewFolder* folder);
 
 	// LLView functionality
@@ -739,7 +743,7 @@ public:
 class LLUICtrl;
 class LLLineEditor;
 
-class LLFolderView : public LLFolderViewFolder, LLEditMenuHandler
+class LLFolderView : public LLFolderViewFolder, public LLEditMenuHandler
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLFolderViewFolder::Params>
@@ -763,8 +767,9 @@ public:
 	void setFilterPermMask(PermissionMask filter_perm_mask) { mFilter.setFilterPermissions(filter_perm_mask); }
 	void setAllowMultiSelect(BOOL allow) { mAllowMultiSelect = allow; }
 	
-	typedef boost::signals2::signal<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)> signal_t;	
+	typedef boost::signals2::signal<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)> signal_t;
 	void setSelectCallback(const signal_t::slot_type& cb) { mSelectSignal.connect(cb); }
+	void setReshapeCallback(const signal_t::slot_type& cb) { mReshapeSignal.connect(cb); }
 	
 	LLInventoryFilter* getFilter() { return &mFilter; }
 	const std::string getFilterSubString(BOOL trim = FALSE);
@@ -799,7 +804,13 @@ public:
 	// Record the selected item and pass it down the hierachy.
 	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem,
 		BOOL take_keyboard_focus);
-
+	
+	// Used by menu callbacks
+	void setSelectionByID(const LLUUID& obj_id, BOOL take_keyboard_focus);
+	
+	// Called once a frame to update the selection if mSelectThisID has been set
+	void updateSelection();	
+	
 	// This method is used to toggle the selection of an item. Walks
 	// children, and keeps track of selected objects.
 	virtual BOOL changeSelection(LLFolderViewItem* selection, BOOL selected);
@@ -852,9 +863,6 @@ public:
 	//void				dragItemIntoFolder( LLFolderViewItem* moving_item, LLFolderViewFolder* dst_folder, BOOL drop, BOOL* accept );
 	//void				dragFolderIntoFolder( LLFolderViewFolder* moving_folder, LLFolderViewFolder* dst_folder, BOOL drop, BOOL* accept );
 
-	// LLUICtrl Functionality
-	/*virtual*/ void setFocus(BOOL focus);
-
 	// LLView functionality
 	///*virtual*/ BOOL handleKey( KEY key, MASK mask, BOOL called_from_parent );
 	/*virtual*/ BOOL handleKeyHere( KEY key, MASK mask );
@@ -869,7 +877,6 @@ public:
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	/*virtual*/ void onFocusLost();
 	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual void draw();
 	virtual void deleteAllChildren();
@@ -889,7 +896,9 @@ public:
 	void addItemID(const LLUUID& id, LLFolderViewItem* itemp);
 	void removeItemID(const LLUUID& id);
 	LLFolderViewItem* getItemByID(const LLUUID& id);
-
+	
+	bool doToSelected(LLInventoryModel* model, const LLSD& userdata);
+	
 	void	doIdle();						// Real idle routine
 	static void idle(void* user_data);		// static glue to doIdle()
 
@@ -901,8 +910,12 @@ public:
 
 	BOOL getDebugFilters() { return mDebugFilters; }
 
+	LLPanel* getParentPanel() { return mParentPanel; }
 	// DEBUG only
 	void dumpSelectionInformation();
+
+private:
+	void updateRenamerPosition();
 
 protected:
 	LLScrollContainer* mScrollContainer;  // NULL if this is not a child of a scroll container.
@@ -948,10 +961,15 @@ protected:
 	S32								mArrangeGeneration;
 
 	signal_t						mSelectSignal;
+	signal_t						mReshapeSignal;
 	S32								mSignalSelectCallback;
 	S32								mMinWidth;
 	std::map<LLUUID, LLFolderViewItem*> mItemMap;
 	BOOL							mDragAndDropThisFrame;
+	
+	LLUUID							mSelectThisID; // if non null, select this item
+	
+	LLPanel*						mParentPanel;
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar* mCallbackRegistrar;
 	

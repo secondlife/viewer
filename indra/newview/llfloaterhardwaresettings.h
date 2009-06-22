@@ -35,8 +35,6 @@
 
 #include "llfloater.h"
 
-class LLSliderCtrl;
-
 /// Menuing system for all of windlight's functionality
 class LLFloaterHardwareSettings : public LLFloater
 {
@@ -85,8 +83,6 @@ public:
 	void refreshEnabledState();
 
 protected:
-	LLSliderCtrl*	mCtrlVideoCardMem;
-
 	BOOL mUseVBO;
 	BOOL mUseAniso;
 	U32 mFSAASamples;

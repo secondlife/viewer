@@ -10,7 +10,7 @@
 		Senha:
 	</text>
 	<text name="start_location_text">
-		Localização inicial:
+		Posição inicial:
 	</text>
 	<combo_box name="start_location_combo">
 		<combo_box.item name="MyHome" label="Minha casa" />
@@ -22,7 +22,7 @@
 	<text name="create_new_account_text">
 		Registrar-se para uma conta
 	</text>
-	<text name="forgot_password_text">
+	<text name="forgot_password_text" left="-240" width="230">
 		Esqueceu seu nome de usuário ou senha?
 	</text>
 	<text name="channel_text">

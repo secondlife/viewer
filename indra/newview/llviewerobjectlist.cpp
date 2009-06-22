@@ -61,6 +61,7 @@
 #include "llresmgr.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
+#include "llvoavatarself.h"
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
 #include "llkeyboard.h"
@@ -211,6 +212,7 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 										   LLDataPacker* dpp, 
 										   BOOL just_created)
 {
+	LLMemType mt(LLMemType::MTYPE_OBJECT_PROCESS_UPDATE_CORE);
 	LLMessageSystem* msg = gMessageSystem;
 
 	// ignore returned flags
@@ -261,6 +263,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 											 const EObjectUpdateType update_type,
 											 bool cached, bool compressed)
 {
+	LLMemType mt(LLMemType::MTYPE_OBJECT_PROCESS_UPDATE);
 	LLFastTimer t(LLFastTimer::FTM_PROCESS_OBJECTS);	
 	
 	LLVector3d camera_global = gAgent.getCameraPositionGlobal();

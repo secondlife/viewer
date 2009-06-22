@@ -9,6 +9,18 @@
 			<text length="1" name="Description:" type="string">
 				説明：
 			</text>
+			<text name="LandType">
+				種類：
+			</text>
+			<text name="LandTypeText">
+				メインランド/ホームステッド
+			</text>
+			<text name="ContentRating">
+				区分：
+			</text>
+			<text name="ContentRatingText">
+				Adult
+			</text>
 			<text length="1" name="Owner:" type="string">
 				オーナー：
 			</text>
@@ -24,7 +36,7 @@
 			<button label="譲渡..." label_selected="譲渡..." name="Deed..." tool_tip="選択されたグループのオフィサーであるときのみ、土地を譲渡できます。"/>
 			<check_box label="オーナーが譲渡と共に寄付" name="check contrib" tool_tip="土地がグループに譲渡されるとき、前の所有者は譲渡が成立するよう、十分な土地を寄付します。"/>
 			<text length="1" name="For Sale:" type="string">
-				売り出し中：
+				販売の有無：
 			</text>
 			<text length="1" name="Not for sale." type="string">
 				販売対象外
@@ -44,7 +56,7 @@
 			</text>
 			<button label="土地販売の取り消し" label_selected="土地販売の取り消し" name="Cancel Land Sale"/>
 			<text length="1" name="Claimed:" type="string">
-				要求：
+				取得日時：
 			</text>
 			<text length="1" name="DateClaimText" type="string">
 				2006年8月15日火曜日13:47:25
@@ -61,11 +73,11 @@
 			<text length="1" name="DwellText" type="string">
 				誤
 			</text>
-			<button label="土地を購入..." label_selected="土地を購入..." name="Buy Land..." width="125" left="130"/>
+			<button label="土地を購入..." label_selected="土地を購入..." left="130" name="Buy Land..." width="125"/>
 			<button label="グループ用に購入..." label_selected="グループ用に購入..." name="Buy For Group..."/>
-			<button label="入場許可を購入..." label_selected="入場許可を購入..." name="Buy Pass..." tool_tip="この土地への一時的なアクセスを許可します。" width="125" left="130"/>
+			<button label="入場許可を購入..." label_selected="入場許可を購入..." left="130" name="Buy Pass..." tool_tip="この土地への一時的なアクセスを許可します。" width="125"/>
 			<button label="土地を放棄..." label_selected="土地を放棄..." name="Abandon Land..."/>
-			<button label="土地開拓..." label_selected="土地開拓..." name="Reclaim Land..."/>
+			<button label="土地の返還を要求..." label_selected="土地の返還を要求..." name="Reclaim Land..."/>
 			<button label="Lindenセール..." label_selected="Lindenセール..." name="Linden Sale..." tool_tip="土地が所有されており、コンテンツが設定されている必要があります。オークションの対象になっていないことも必要条件です。"/>
 			<string name="new users only">
 				新規ユーザーのみ
@@ -74,7 +86,7 @@
 				誰でも
 			</string>
 			<string name="area_text">
-				エリア
+				面積：
 			</string>
 			<string name="area_size_text">
 				[AREA]平方メートル
@@ -105,40 +117,65 @@
 			</string>
 			<string name="no_selection_text">
 				区画が選定されていません。
-[世界]メニュー&gt;[土地情報]に進むか、別の区画を選択して、詳細を表示します。
+「世界」メニュー＞「土地情報」に進むか、別の区画を選択して、詳細を表示します。
 			</string>
 		</panel>
 		<panel label="約款" name="land_covenant_panel">
-			<text length="1" name="covenant_timestamp_text" type="string">
-				最後の更新1969年12月31日水曜日16：00：00
-			</text>
-			<text length="1" name="region_name_lbl" type="string">
-				地域：
-			</text>
-			<text length="1" name="region_name_text" type="string">
-				Leyla
+			<text font="SansSerifLarge" name="estate_section_lbl">
+				不動産：
 			</text>
 			<text length="1" name="estate_name_lbl" type="string">
-				不動産：
+				名前：
 			</text>
 			<text length="1" name="estate_name_text" type="string">
 				メインランド
 			</text>
 			<text length="1" name="estate_owner_lbl" type="string">
-				不動産オーナー：
+				オーナー：
 			</text>
 			<text length="1" name="estate_owner_text" type="string">
 				（なし）
 			</text>
-			<text length="1" name="resellable_clause" type="string">
-				この地域で購入した土地は、再販できないことがあります。
-			</text>
-			<text length="1" name="changeable_clause" type="string">
-				この地域で購入した土地は、統合／再分割できないことがあります。
-			</text>
 			<text_editor length="1" name="covenant_editor" type="string">
 				この不動産には約款がありません。
 			</text_editor>
+			<text length="1" name="covenant_timestamp_text" type="string">
+				最後の更新1969年12月31日水曜日16：00：00
+			</text>
+			<text font="SansSerifLarge" name="region_section_lbl">
+				地域：
+			</text>
+			<text length="1" name="region_name_lbl" type="string">
+				名前：
+			</text>
+			<text length="1" name="region_name_text" type="string">
+				Leyla
+			</text>
+			<text name="region_landtype_lbl">
+				種類：
+			</text>
+			<text name="region_landtype_text">
+				メインランド/ホームステッド
+			</text>
+			<text name="region_maturity_lbl">
+				区分：
+			</text>
+			<text name="region_maturity_text">
+				Adult
+			</text>
+			<text name="resellable_lbl">
+				再販：
+			</text>
+			<text length="1" name="resellable_clause" type="string">
+				この地域（リージョン）にある土地は再販できません。
+			</text>
+			<text name="changeable_lbl">
+				再分割：
+			</text>
+			<text length="1" name="changeable_clause" type="string">
+				この地域（リージョン）にある土地は統合または分割ができ
+ません。
+			</text>
 			<string name="can_resell">
 				この地域で購入した土地は、再販できます。
 			</string>
@@ -149,7 +186,8 @@
 				この地域で購入した土地は、統合または再分割できます。
 			</string>
 			<string name="can_not_change">
-				この地域で購入した土地は、統合／再分割できないことがあります。
+				この地域で購入した土地は、統合／再分割できないことが
+あります。
 			</string>
 		</panel>
 		<panel label="オブジェクト" name="land_objects_panel">
@@ -255,10 +293,60 @@
 			<check_box label="安全（ダメージなし）" name="check safe" tool_tip="チェックを入れるとこの土地でのダメージコンバットが無効になり、「安全」に設定されます。 チェックを外すとダメージコンバットが有効になります。"/>
 			<check_box label="プッシングを制限" name="PushRestrictCheck" tool_tip="スクリプトによるプッシングを制限します。 このオプションを選択することにより、あなたの土地での破壊的行動を妨げることができます。"/>
 			<check_box label="検索に表示＞（週L$30）以下の場所" name="ShowDirectoryCheck" tool_tip="検索結果でこの区画を表示させる"/>
+			<string name="search_enabled_tooltip">
+				この区画を検索結果に表示する
+			</string>
+			<string name="search_disabled_small_tooltip">
+				区画面積が128平方メートルかそれ以下のため、このオプションは無効です。
+大きな区画のみ検索に表示させることが可能です。
+			</string>
+			<string name="search_disabled_permissions_tooltip">
+				あなたはこの区画の設定編集ができないため、このオプションは無効です。
+			</string>
+			<combo_box name="land category with adult">
+				<combo_item name="AnyCategory">
+					全カテゴリ
+				</combo_item>
+				<combo_item name="LindenLocation">
+					Linden所在地
+				</combo_item>
+				<combo_item name="Adult">
+					Adult
+				</combo_item>
+				<combo_item name="Arts&amp;Culture">
+					アートとカルチャー
+				</combo_item>
+				<combo_item name="Business">
+					ビジネス
+				</combo_item>
+				<combo_item name="Educational">
+					教育的
+				</combo_item>
+				<combo_item name="Gaming">
+					ゲーム
+				</combo_item>
+				<combo_item name="Hangout">
+					たまり場
+				</combo_item>
+				<combo_item name="NewcomerFriendly">
+					新住人に好意的
+				</combo_item>
+				<combo_item name="Parks&amp;Nature">
+					公園と自然
+				</combo_item>
+				<combo_item name="Residential">
+					住宅用
+				</combo_item>
+				<combo_item name="Shopping">
+					ショッピング
+				</combo_item>
+				<combo_item name="Other">
+					その他
+				</combo_item>
+			</combo_box>
 			<combo_box name="land category">
 				<combo_box.item name="AnyCategory" label="全カテゴリー"/>
 				<combo_box.item name="LindenLocation" label="Linden所在地"/>
-
 				<combo_box.item name="Arts&amp;Culture" label="アート&amp;カルチャー"/>
 				<combo_box.item name="Business" label="ビジネス"/>
 				<combo_box.item name="Educational" label="教育的"/>
@@ -271,18 +359,30 @@
 				<combo_box.item name="Other" label="その他"/>
 			</combo_box>
 			<button label="?" label_selected="?" name="?"/>
-			<check_box name="MatureCheck" />
+			<check_box label="Matureコンテンツ" name="MatureCheck" tool_tip=""/>
+			<string name="mature_check_mature">
+				Matureコンテンツ
+			</string>
+			<string name="mature_check_adult">
+				Adultコンテンツ
+			</string>
+			<string name="mature_check_mature_tooltip">
+				あなたの区画情報及びコンテンツはMatureとされています。
+			</string>
+			<string name="mature_check_adult_tooltip">
+				あなたの区画情報及びコンテンツはAdultとされています。
+			</string>
 			<text length="1" name="Snapshot:" type="string">
 				スナップショット：
 			</text>
 			<texture_picker label="" left="116" name="snapshot_ctrl" tool_tip="写真をクリックして選択"/>
 			<text name="landing_point">
-				着陸地点: [LANDING]
+				着地点: [LANDING]
 			</text>
 			<string name="landing_point_none">
 				（なし）
 			</string>
-			<button label="設定" label_selected="設定" name="Set" tool_tip="訪問者の着地地点の設定を行います。この区画内に立って行ってください。"/>
+			<button label="設定" label_selected="設定" name="Set" tool_tip="訪問者の着地点の設定を行います。この区画内に立って行ってください。"/>
 			<button label="クリア" label_selected="クリア" name="Clear" tool_tip="着地点をクリアしてください。"/>
 			<text length="1" name="Teleport Routing: " type="string">
 				テレポート制限：
@@ -317,9 +417,10 @@
 ャ取替：
 			</text>
 			<texture_picker label="" name="media texture" tool_tip="写真をクリックして選択"/>
-			<text name="replace_texture_help">
-				［再生］矢印をクリックすると、このテクスチャーを使用するオブジェクトに
-動画またはウェブ・ページが表示されます。
+			<text name="replace_texture_help" width="290">
+				「再生」矢印をクリックすると、このテクスチャーを
+ 使用するオブジェクトに動画またはウェブ・ページ
+ が表示されます。
 			</text>
 			<text name="Options:">
 				メディア
@@ -343,21 +444,14 @@
 			<text name="Sound:">
 				サウンド：
 			</text>
-			<check_box label="この区画だけに限定" name="check sound local"/>
+			<check_box label="ジェスチャーとオブジェクトの音をこの区画だけに限定" name="check sound local"/>
+			<button label="?" label_selected="?" left="408" name="?"/>
 			<text name="Voice settings:">
 				ボイス：
 			</text>
-			<radio_group name="parcel_voice_channel" width="310">
-				<radio_item name="Estate">
-					不動産（エステート）全体
-				</radio_item>
-				<radio_item name="Private">
-					この区画のみ
-				</radio_item>
-				<radio_item name="Disabled">
-					使用不可
-				</radio_item>
-			</radio_group>
+			<check_box label="ボイスを有効にする" name="parcel_enable_voice_channel"/>
+			<check_box label="ボイスを有効にする（不動産設定）" name="parcel_enable_voice_channel_is_estate_disabled"/>
+			<check_box label="この区画でのボイス使用を制限する" name="parcel_enable_voice_channel_parcel"/>
 		</panel>
 		<panel label="アクセス" name="land_access_panel">
 			<text length="1" name="Limit access to this parcel to:" type="string">

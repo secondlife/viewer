@@ -20,6 +20,8 @@ include_directories(
 #     ${LLCOMMON_LIBRARIES})
 
 set(llcommon_SOURCE_FILES
+    llallocator.cpp
+    llallocator_heap_profile.cpp
     llapp.cpp
     llapr.cpp
     llaprsockstream.cpp
@@ -47,15 +49,16 @@ set(llcommon_SOURCE_FILES
     llformat.cpp
     llframetimer.cpp
     llheartbeat.cpp
-    llindraconfigfile.cpp
     llliveappconfig.cpp
     lllivefile.cpp
     lllog.cpp
     llmd5.cpp
     llmemory.cpp
     llmemorystream.cpp
+    llmemtype.cpp
     llmetrics.cpp
     llmortician.cpp
+    llptrto.cpp 
     llprocessor.cpp
     llqueuedthread.cpp
     llrand.cpp
@@ -67,6 +70,7 @@ set(llcommon_SOURCE_FILES
     llsdutil.cpp
     llsecondlifeurls.cpp
     llstat.cpp
+    llstacktrace.cpp
     llstreamtools.cpp
     llstring.cpp
     llstringtable.cpp
@@ -93,6 +97,8 @@ set(llcommon_HEADER_FILES
     indra_constants.h
     linden_common.h
     linked_lists.h
+    llallocator.h
+    llallocator_heap_profile.h
     llagentconstants.h
     llapp.h
     llapr.h
@@ -115,7 +121,9 @@ set(llcommon_HEADER_FILES
     lldate.h
     lldefs.h
     lldependencies.h
+    lldeleteutils.h
     lldepthstack.h
+    lldictionary.h
     lldlinked.h
     lldoubledispatch.h
     lldqueueptr.h
@@ -142,7 +150,7 @@ set(llcommon_HEADER_FILES
     llheartbeat.h
     llhttpstatuscodes.h
     llindexedqueue.h
-    llindraconfigfile.h
+    llinstancetracker.h
     llinstancetracker.h
     llkeythrottle.h
     lllazy.h
@@ -183,6 +191,7 @@ set(llcommon_HEADER_FILES
     llskiplist.h
     llskipmap.h
     llstack.h
+    llstacktrace.h
     llstat.h
     llstatenums.h
     llstl.h
@@ -240,7 +249,15 @@ target_link_libraries(
     ${BOOST_REGEX_LIBRARY}
     )
 
-ADD_BUILD_TEST(llaprsockstream llcommon)
-ADD_BUILD_TEST(lllazy llcommon)
-ADD_BUILD_TEST(lleventfilter llcommon)
-ADD_BUILD_TEST(lleventcoro llcommon)
+include(LLAddBuildTest)
+SET(llcommon_TEST_SOURCE_FILES
+  # WARNING: Please don't write tests against LLCommon or LLMath until this issue is resolved: https://jira.lindenlab.com/jira/browse/DEV-29456
+  # lllazy.cpp
+  )
+LL_ADD_PROJECT_UNIT_TESTS(llcommon "${llcommon_TEST_SOURCE_FILES}")
+
+# *TODO - reenable these once tcmalloc libs no longer break the build.
+#ADD_BUILD_TEST(llallocator llcommon)
+#ADD_BUILD_TEST(llallocator_heap_profile llcommon)
+#ADD_BUILD_TEST(llmemtype llcommon)
+

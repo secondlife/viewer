@@ -35,6 +35,8 @@
 
 #include "llview.h"
 
+class LLAllocator;
+
 class LLMemoryView : public LLView
 {
 public:
@@ -54,14 +56,12 @@ public:
 	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
 	virtual void draw();
 
-private:
-	void setDataDumpInterval(float delay);
-	void dumpData();
-
-	float mDelay;
-	LLFrameTimer mDumpTimer;
+	void refreshProfile();
 
 private:
+    std::vector<LLWString> mLines;
+	LLAllocator* mAlloc;
+
 };
 
 #endif

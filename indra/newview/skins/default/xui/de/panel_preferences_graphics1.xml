@@ -93,18 +93,10 @@
 		Spiegelung:
 	</text>
 	<radio_group name="ReflectionDetailRadio">
-		<radio_item name="0">
-			Terrain und Bäume
-		</radio_item>
-		<radio_item name="1">
-			Alle statischen Objekte
-		</radio_item>
-		<radio_item name="2">
-			Alle Avatare und Objekte
-		</radio_item>
-		<radio_item name="3">
-			Alles
-		</radio_item>
+		<radio_item name="0" label="Terrain und Bäume" />
+		<radio_item name="1" label="Alle statischen Objekte" />
+		<radio_item name="2" label="Alle Avatare und Objekte" />
+		<radio_item name="3" label="Alles" />
 	</radio_group>
 	<text name="AvatarRenderingText">
 		Avatar-Darstellung:
@@ -155,23 +147,15 @@
 		Beleuchtungsdetails:
 	</text>
 	<radio_group name="LightingDetailRadio">
-		<radio_item name="SunMoon">
-			Nur Sonne und Mond
-		</radio_item>
-		<radio_item name="LocalLights">
-			Lokale Lichtquellen
-		</radio_item>
+		<radio_item name="SunMoon" label="Nur Sonne und Mond" />
+		<radio_item name="LocalLights" label="Lokale Lichtquellen" />
 	</radio_group>
 	<text name="TerrainDetailText">
 		Terraindetails:
 	</text>
 	<radio_group name="TerrainDetailRadio">
-		<radio_item name="0">
-			Niedrig
-		</radio_item>
-		<radio_item name="2">
-			Hoch
-		</radio_item>
+		<radio_item name="0" label="Niedrig" />
+		<radio_item name="2" label="Hoch" />
 	</radio_group>
 	<button label="Empfohlene Einstellungen" name="Defaults" />
 	<button label="Hardware-Optionen" label_selected="Hardware-Optionen"

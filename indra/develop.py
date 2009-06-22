@@ -370,22 +370,29 @@ class LinuxSetup(UnixSetup):
                 cpus += m and int(m.group(1)) or 1
             return hosts, cpus
 
-        def mk_distcc_hosts():
+        def mk_distcc_hosts(basename, range, num_cpus):
             '''Generate a list of LL-internal machines to build on.'''
             loc_entry, cpus = localhost()
             hosts = [loc_entry]
             dead = []
-            stations = [s for s in xrange(36) if s not in dead]
+            stations = [s for s in xrange(range) if s not in dead]
             random.shuffle(stations)
-            hosts += ['station%d.lindenlab.com/2,lzo' % s for s in stations]
+            hosts += ['%s%d.lindenlab.com/%d,lzo' % (basename, s, num_cpus) for s in stations]
             cpus += 2 * len(stations)
             return ' '.join(hosts), cpus
 
         if job_count is None:
             hosts, job_count = count_distcc_hosts()
-            if hosts == 1 and socket.gethostname().startswith('station'):
-                hosts, job_count = mk_distcc_hosts()
-                os.putenv('DISTCC_HOSTS', hosts)
+            if hosts == 1:
+                hostname = socket.gethostname()
+                if hostname.startswith('station'):
+                    hosts, job_count = mk_distcc_hosts('station', 36, 2)
+                    os.environ['DISTCC_HOSTS'] = hosts
+                if hostname.startswith('eniac'):
+                    hosts, job_count = mk_distcc_hosts('eniac', 71, 2)
+                    os.environ['DISTCC_HOSTS'] = hosts
+            if job_count > 12:
+                job_count = 12;
             opts.extend(['-j', str(job_count)])
 
         if targets:
@@ -444,7 +451,8 @@ class DarwinSetup(UnixSetup):
             targets = ' '.join(['-target ' + repr(t) for t in targets])
         else:
             targets = ''
-        cmd = ('xcodebuild -parallelizeTargets '
+        # cmd = ('xcodebuild -parallelizeTargets ' # parallelizeTargets is suspected of non-deterministic build failures. + poppy 2009-06-05
+        cmd = ('xcodebuild '
                '-configuration %s %s %s' %
                (self.build_type, ' '.join(opts), targets))
         for d in self.build_dirs():
@@ -525,27 +533,35 @@ class WindowsSetup(PlatformSetup):
                 '-DROOT_PROJECT_NAME:STRING=%(project_name)s '
                 '%(opts)s "%(dir)s"' % args)
 
+    def get_HKLM_registry_value(self, key_str, value_str):
+        import _winreg
+        reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
+        key = _winreg.OpenKey(reg, key_str)
+        value = _winreg.QueryValueEx(key, value_str)[0]
+        print 'Found: %s' % value
+        return value
+        
     def find_visual_studio(self, gen=None):
         if gen is None:
             gen = self._generator
         gen = gen.lower()
+        value_str = (r'EnvironmentDirectory')
+        key_str = (r'SOFTWARE\Microsoft\VisualStudio\%s\Setup\VS' %
+                   self.gens[gen]['ver'])
+        print ('Reading VS environment from HKEY_LOCAL_MACHINE\%s\%s' %
+               (key_str, value_str))
         try:
-            import _winreg
-            key_str = (r'SOFTWARE\Microsoft\VisualStudio\%s\Setup\VS' %
-                       self.gens[gen]['ver'])
-            value_str = (r'EnvironmentDirectory')
-            print ('Reading VS environment from HKEY_LOCAL_MACHINE\%s\%s' %
-                   (key_str, value_str))
-            print key_str
-
-            reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
-            key = _winreg.OpenKey(reg, key_str)
-            value = _winreg.QueryValueEx(key, value_str)[0]
-            print 'Found: %s' % value
-            return value
+            return self.get_HKLM_registry_value(key_str, value_str)           
         except WindowsError, err:
+            key_str = (r'SOFTWARE\Wow6432Node\Microsoft\VisualStudio\%s\Setup\VS' %
+                       self.gens[gen]['ver'])
+
+        try:
+            return self.get_HKLM_registry_value(key_str, value_str)
+        except:
             print >> sys.stderr, "Didn't find ", self.gens[gen]['gen']
-            return ''
+            
+        return ''
 
     def get_build_cmd(self):
         if self.incredibuild:
@@ -689,6 +705,15 @@ Examples:
 '''
 
 def main(arguments):
+    if os.getenv('DISTCC_DIR') is None:
+        distcc_dir = os.path.join(getcwd(), '.distcc')
+        if not os.path.exists(distcc_dir):
+            os.mkdir(distcc_dir)
+        print "setting DISTCC_DIR to %s" % distcc_dir
+        os.environ['DISTCC_DIR'] = distcc_dir
+    else:
+        print "DISTCC_DIR is set to %s" % os.getenv('DISTCC_DIR')
+ 
     setup = setup_platform[sys.platform]()
     try:
         opts, args = getopt.getopt(

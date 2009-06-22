@@ -1,21 +1,40 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="avatarpicker" title="住人を選択">
-	<text name="Type part of the person&apos;s name:">
-		住人の名前の一部を入力してください。
-	</text>
-	<text name="instruct_search_resident_name">
-		住人の名前を一部入力してください：
-	</text>
-	<button label="検索" label_selected="検索" name="Find" />
-	<text name="Or select a calling card:">
-		またはコーリング・カードを選択：
-	</text>
-	<text name="Or select their calling card:">
-		または、コーリングカードを選択：
-	</text>
-	<button label="選択" label_selected="選択" name="Select" />
-	<button label="閉じる" label_selected="閉じる" name="Close" />
-	<text name="NotFound">
-		&apos;[TEXT]&apos;が見つかりません。
-	</text>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="avatarpicker" title="住人を選択" min_width="275" width="275">
+	<tab_container name="ResidentChooserTabs" width="265">
+		<panel label="検索" name="SearchPanel" width="145">
+			<text name="InstructSearchResidentName">
+				住人の名前の一部を入力：
+			</text>
+			<button label="検索" label_selected="検索" name="Find"/>
+		</panel>
+		<panel label="コーリングカード" name="CallingCardsPanel" width="145">
+			<text name="InstructSelectCallingCard">
+				コーリングカードを選択：
+			</text>
+		</panel>
+		<panel label="自分の近く" name="NearMePanel" width="145">
+			<text name="InstructSelectResident">
+				近くの住人を選択：
+			</text>
+			<button label="リスト更新" label_selected="リスト更新" name="Refresh"/>
+			<slider label="範囲" name="near_me_range"/>
+			<text name="meters" width="50">
+				メートル
+			</text>
+		</panel>
+	</tab_container>
+	<button label="選択" label_selected="選択" name="Select"/>
+	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
+	<string name="not_found">
+		「[TEXT]」は見つかりませんでした
+	</string>
+	<string name="no_one_near">
+		近くに誰もいません
+	</string>
+	<string name="no_results">
+		検索結果：ゼロ
+	</string>
+	<string name="searching">
+		検索中...
+	</string>
 </floater>

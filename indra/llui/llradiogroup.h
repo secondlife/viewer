@@ -48,8 +48,8 @@ class LLRadioCtrl : public LLCheckBoxCtrl
 public:
 	struct Params : public LLInitParam::Block<Params, LLCheckBoxCtrl::Params>
 	{
-		Deprecated length;
-		Deprecated type;
+		Ignored		length;
+		Ignored		type;
 
 		Params() 
 		:	length("length"),
@@ -70,7 +70,6 @@ protected:
 	friend class LLUICtrlFactory;
 };
 
-
 /*
  * An invisible view containing multiple mutually exclusive toggling 
  * buttons (usually radio buttons).  Automatically handles the mutex
@@ -80,6 +79,7 @@ class LLRadioGroup
 :	public LLUICtrl, public LLCtrlSelectionInterface
 {
 public:
+
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Optional<bool> has_border;
@@ -118,6 +118,8 @@ public:
 	// Update the control as needed.  Userdata must be a pointer to the button.
 	void onClickButton(LLUICtrl* clicked_radio);
 	
+	virtual const widget_registry_t& getChildRegistry() const;
+
 	//========================================================================
 	LLCtrlSelectionInterface* getSelectionInterface()	{ return (LLCtrlSelectionInterface*)this; };
 
@@ -144,6 +146,5 @@ private:
 
 	BOOL mHasBorder;
 };
-
 
 #endif

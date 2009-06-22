@@ -40,9 +40,9 @@
 		<combo_box.item name="Select_category" label="Elegir la categoría"/>
 		<combo_box.item name="Age__Age_play" label="Edad &gt; Jugar a ser niño"/>
 		<combo_box.item name="Age__Adult_resident_on_Teen_Second_Life" label="Edad &gt; Residente adulto en Teen Second Life"/>
-		
-		
-		
+		<combo_item name="Age__Underage_resident_outside_of_Teen_Second_Life">
+			Edad &gt; Residente menor de edad fuera de Teen Second Life
+		</combo_item>
 		<combo_box.item name="Assault__Combat_sandbox___unsafe_area" label="Ataque &gt; Sandbox de combate / Zona no segura"/>
 		<combo_box.item name="Assault__Safe_area" label="Ataque &gt; Zona segura"/>
 		<combo_box.item name="Assault__Weapons_testing_sandbox" label="Ataque &gt; Sandbox de prueba de armas"/>
@@ -66,13 +66,13 @@
 		<combo_box.item name="Harassment__Solicting_inciting_others_to_violate_ToS" label="Acoso &gt; Incitar a, o pedir, que otros violen las Condiciones del Servicio"/>
 		<combo_box.item name="Harassment__Verbal_abuse" label="Acoso &gt; Abuso verbal"/>
 		<combo_box.item name="Indecency__Broadly_offensive_content_or_conduct" label="Indecencia &gt; En general, contenido o conducta ofensivos"/>
-		
-		
-		
 		<combo_box.item name="Indecency__Inappropriate_avatar_name" label="Indecencia &gt; Nombre inapropiado del avatar"/>
-		
-		
-		
+		<combo_item name="Indecency__Mature_content_in_PG_region">
+			Indecencia &gt; Contenido o conducta inapropiada en una región &apos;PG&apos;
+		</combo_item>
+		<combo_item name="Indecency__Inappropriate_content_in_Mature_region">
+			Indecencia &gt; Contenido o conducta inapropiada en una región &apos;Mature&apos;
+		</combo_item>
 		<combo_box.item name="Intellectual_property_infringement_Content_Removal" label="Infracción de la propiedad intelectual &gt; Eliminación de contenidos"/>
 		<combo_box.item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit" label="Infracción de la propiedad intelectual &gt; CopyBot o Exploit (programa malicioso) de permisos"/>
 		<combo_box.item name="Intolerance" label="Intolerancia"/>
@@ -98,7 +98,9 @@
 		Detalles:
 	</text>
 	<text name="bug_aviso">
-		Por favor, sea muy concreto sobre la fecha, la localización, la naturaleza de la infracción, el aportar textos relevantes del chat o los MI, y, si es posible, seleccione el objeto.
+		Por favor, sea muy concreto sobre la fecha, la localización,
+la naturaleza de la infracción, el aportar textos relevantes
+del chat o los MI, y, si es posible, seleccione el objeto.
 	</text>
 	<text name="incomplete_title">
 		Nota: las denuncias incompletas no se investigarán.

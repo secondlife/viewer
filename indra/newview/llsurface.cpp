@@ -628,6 +628,7 @@ void LLSurface::updatePatchVisibilities(LLAgent &agent)
 
 BOOL LLSurface::idleUpdate(F32 max_update_time)
 {
+	LLMemType mt_ius(LLMemType::MTYPE_IDLE_UPDATE_SURFACE);
 	if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_TERRAIN))
 	{
 		return FALSE;

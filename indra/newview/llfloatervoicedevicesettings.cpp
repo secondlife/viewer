@@ -41,7 +41,6 @@
 #include "llcombobox.h"
 #include "llfocusmgr.h"
 #include "lliconctrl.h"
-#include "llprefsvoice.h"
 #include "llsliderctrl.h"
 #include "llviewercontrol.h"
 #include "llvoiceclient.h"
@@ -290,11 +289,14 @@ LLFloaterVoiceDeviceSettings::LLFloaterVoiceDeviceSettings(const LLSD& seed)
 {
 	mFactoryMap["device_settings"] = LLCallbackMap(createPanelVoiceDeviceSettings, this);
 	// do not automatically open singleton floaters (as result of getInstance())
-	BOOL no_open = FALSE;
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_device_settings.xml", no_open);
-	center();
+//	BOOL no_open = FALSE;
+//	Called from floater reg:  LLUICtrlFactory::getInstance()->buildFloater(this, "floater_device_settings.xml", no_open);	
 }
-
+BOOL LLFloaterVoiceDeviceSettings::postBuild()
+{
+	center();
+	return TRUE;
+}
 void LLFloaterVoiceDeviceSettings::onOpen(const LLSD& key)
 {
 	if(mDevicePanel)

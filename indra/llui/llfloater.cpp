@@ -188,6 +188,13 @@ bool LLFloater::KeyCompare::equate(const LLSD& a, const LLSD& b)
 
 //************************************
 
+//static 
+const LLFloater::Params& LLFloater::getDefaultParams()
+{
+	return LLUICtrlFactory::getDefaultParams<LLFloater::Params>();
+}
+
+
 LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	:	LLPanel(),
 		mDragHandle(NULL),
@@ -1710,6 +1717,7 @@ LLFloaterView::LLFloaterView (const Params& p)
 :	LLUICtrl (p),
 	mFocusCycleMode(FALSE),
 	mSnapOffsetBottom(0)
+	,mSnapOffsetRight(0)
 {
 }
 
@@ -2214,6 +2222,7 @@ LLRect LLFloaterView::getSnapRect() const
 {
 	LLRect snap_rect = getRect();
 	snap_rect.mBottom += mSnapOffsetBottom;
+	snap_rect.mRight  -= mSnapOffsetRight;
 
 	return snap_rect;
 }
@@ -2397,6 +2406,35 @@ void LLFloater::setKey(const LLSD& newkey)
 	mKey = newkey;
 }
 
+//static
+void LLFloater::setupParamsForExport(Params& p, LLView* parent)
+{
+	// Do rectangle munging to topleft layout first
+	LLPanel::setupParamsForExport(p, parent);
+
+	// Copy the rectangle out to apply layout constraints
+	LLRect rect = p.rect;
+
+	// Null out other settings
+	p.rect.left.setProvided(false);
+	p.rect.top.setProvided(false);
+	p.rect.right.setProvided(false);
+	p.rect.bottom.setProvided(false);
+
+	// Explicitly set width/height
+	p.rect.width.set( rect.getWidth(), true );
+	p.rect.height.set( rect.getHeight(), true );
+
+	// If you can't resize this floater, don't export min_height
+	// and min_width
+	bool can_resize = p.can_resize;
+	if (!can_resize)
+	{
+		p.min_height.setProvided(false);
+		p.min_width.setProvided(false);
+	}
+}
+
 void LLFloater::initFromParams(const LLFloater::Params& p)
 {
 	 // control_name, tab_stop, focus_lost_callback, initial_value, rect, enabled, visible
@@ -2453,7 +2491,7 @@ void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, BOOL open_floa
 		LLFloater::setFloaterHost((LLMultiFloater*) this);
 	}
 
-	addChildren(node, output_node);
+	LLUICtrlFactory::createChildren(this, node, output_node);
 
 	if (node->hasName("multi_floater"))
 	{

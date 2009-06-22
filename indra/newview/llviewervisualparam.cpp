@@ -76,7 +76,7 @@ BOOL LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
 	static LLStdStringHandle wearable_string = LLXmlTree::addAttributeString("wearable");
 	if( node->getFastAttributeString( wearable_string, wearable) )
 	{
-		mWearableType = LLWearable::typeNameToType( wearable );
+		mWearableType = LLWearableDictionary::typeNameToType( wearable );
 	}
 
 	static LLStdStringHandle edit_group_string = LLXmlTree::addAttributeString("edit_group");
@@ -119,12 +119,6 @@ LLViewerVisualParam::LLViewerVisualParam()
 {
 }
 
-/*
-//=============================================================================
-// These virtual functions should always be overridden,
-// but are included here for use as templates
-//=============================================================================
-
 //-----------------------------------------------------------------------------
 // setInfo()
 //-----------------------------------------------------------------------------
@@ -139,6 +133,12 @@ BOOL LLViewerVisualParam::setInfo(LLViewerVisualParamInfo *info)
 	setWeight(getDefaultWeight(), FALSE );
 	return TRUE;
 }
+
+/*
+//=============================================================================
+// These virtual functions should always be overridden,
+// but are included here for use as templates
+//=============================================================================
 
 //-----------------------------------------------------------------------------
 // parseData()

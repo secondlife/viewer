@@ -61,7 +61,7 @@
 #include "llviewerimagelist.h"
 #include "llviewerobject.h"
 #include "llviewerwindow.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "pipeline.h"
 
 
@@ -144,7 +144,7 @@ BOOL LLVisualParamHint::needsRender()
 
 void LLVisualParamHint::preRender(BOOL clear_depth)
 {
-	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 
 	mLastParamWeight = avatarp->getVisualParamWeight(mVisualParam);
 	avatarp->setVisualParamWeight(mVisualParam, mVisualParamWeight);
@@ -291,7 +291,7 @@ BOOL LLVisualParamReset::render()
 {
 	if (sDirty)
 	{
-		LLVOAvatar* avatarp = gAgent.getAvatarObject();
+		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 		avatarp->updateComposites();
 		avatarp->updateVisualParams();
 		avatarp->updateGeometry(avatarp->mDrawable);

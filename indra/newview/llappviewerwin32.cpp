@@ -160,9 +160,31 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
                      int       nCmdShow)
 {
 	LLMemType mt1(LLMemType::MTYPE_STARTUP);
+
+	const S32 MAX_HEAPS = 255;
+	DWORD heap_enable_lfh_error[MAX_HEAPS];
+	S32 num_heaps = 0;
 	
 #if WINDOWS_CRT_MEM_CHECKS && !INCLUDE_VLD
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF ); // dump memory leaks on exit
+#elif 1
+	// Experimental - enable the low fragmentation heap
+	// This results in a 2-3x improvement in opening a new Inventory window (which uses a large numebr of allocations)
+	// Note: This won't work when running from the debugger unless the _NO_DEBUG_HEAP environment variable is set to 1
+
+	_CrtSetDbgFlag(0); // default, just making explicit
+	
+	ULONG ulEnableLFH = 2;
+	HANDLE* hHeaps = new HANDLE[MAX_HEAPS];
+	num_heaps = GetProcessHeaps(MAX_HEAPS, hHeaps);
+	for(S32 i = 0; i < num_heaps; i++)
+	{
+		bool success = HeapSetInformation(hHeaps[i], HeapCompatibilityInformation, &ulEnableLFH, sizeof(ulEnableLFH));
+		if (success)
+			heap_enable_lfh_error[i] = 0;
+		else
+			heap_enable_lfh_error[i] = GetLastError();
+	}
 #endif
 	
 	// *FIX: global
@@ -184,8 +206,21 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		llwarns << "Application init failed." << llendl;
 		return -1;
 	}
-
-		// Run the application main loop
+	
+	// Have to wait until after logging is initialized to display LFH info
+	if (num_heaps > 0)
+	{
+		llinfos << "Attempted to enable LFH for " << num_heaps << " heaps." << llendl;
+		for(S32 i = 0; i < num_heaps; i++)
+		{
+			if (heap_enable_lfh_error[i])
+			{
+				llinfos << "  Failed to enable LFH for heap: " << i << " Error: " << heap_enable_lfh_error[i] << llendl;
+			}
+		}
+	}
+	
+	// Run the application main loop
 	if(!LLApp::isQuitting()) 
 	{
 		viewer_app_ptr->mainLoop();

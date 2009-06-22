@@ -15,6 +15,7 @@
 	<text name="info_action">
 		Vender esta parcela:
 	</text>
+	<icon bottom_delta="-56" name="step_price" />
 	<text name="price_label">
 		Marque un precio:
 	</text>
@@ -43,17 +44,14 @@
 		¿Vender los objetos con el terreno?
 	</text>
 	<text name="sell_objects_text">
-		Los objetos transferibles del propietario del terreno cambiarán de propietario.
+		Los objetos transferibles del propietario del terreno cambiarán
+de propietario.
 	</text>
-	<radio_group name="sell_objects">
-		<radio_item name="no">
-			No, mantener la propiedad de los objetos
-		</radio_item>
-		<radio_item name="yes">
-			Sí, vender los objetos con el terreno
-		</radio_item>
+	<radio_group name="sell_objects" bottom_delta="-58" >
+		<radio_item name="no" label="No, mantener la propiedad de los objetos" />
+		<radio_item name="yes" label="Sí, vender los objetos con el terreno" />
 	</radio_group>
-	<button label="Mostrar los objetos" name="show_objects"/>
+	<button label="Mostrar los objetos" name="show_objects" width="120"/>
 	<text name="nag_message_label">
 		RECUERDE: todas las ventas son definitivas.
 	</text>

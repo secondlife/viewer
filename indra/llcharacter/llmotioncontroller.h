@@ -153,12 +153,12 @@ public:
 	// pause and continue all motions
 	void pauseAllMotions();
 	void unpauseAllMotions();
-	BOOL isPaused() { return mPaused; }
+	BOOL isPaused() const { return mPaused; }
 
 	void setTimeStep(F32 step);
 
 	void setTimeFactor(F32 time_factor);
-	F32 getTimeFactor() { return mTimeFactor; }
+	F32 getTimeFactor() const { return mTimeFactor; }
 
 	motion_list_t& getActiveMotions() { return mActiveMotions; }
 
@@ -167,7 +167,7 @@ public:
 //protected:
 	bool isMotionActive( LLMotion *motion );
 	bool isMotionLoading( LLMotion *motion );
-	LLMotion *findMotion( const LLUUID& id );
+	LLMotion *findMotion( const LLUUID& id ) const;
 
 protected:
 	// internal operations act on motion instances directly

@@ -41,9 +41,9 @@
 	<menu_item_call label="Copiar" name="Copy"/>
 	<menu_item_call label="Colar" name="Paste"/>
 	<menu_item_call label="Apagar" name="Delete"/>
+	<menu_item_call label="Remover os itens" name="Take Off Items"/>
 	<menu_item_call label="Adicionar ao equipamento" name="Add To Outfit"/>
 	<menu_item_call label="Substituir equipamento" name="Replace Outfit"/>
-	<menu_item_call label="Remover os itens" name="Take Off Items"/>
 	<menu_item_call label="Iniciar conversa em conferência" name="Conference Chat Folder"/>
 	<menu_item_call label="Executar" name="Sound Play"/>
 	<menu_item_call label="Sobre as Landmarks" name="Teleport To Landmark"/>
@@ -55,11 +55,12 @@
 	<menu_item_call label="Ativar" name="Activate"/>
 	<menu_item_call label="Desativar" name="Deactivate"/>
 	<menu_item_call label="Retirar de você" name="Detach From Yourself"/>
+	<menu_item_call label="Recuperar Última Posição" name="Restore to Last Position"/>
 	<menu_item_call label="Vestir" name="Object Wear"/>
 	<menu label="Anexar a" name="Attach To"/>
 	<menu label="Anexar ao HUD" name="Attach To HUD"/>
-	<menu_item_call label="Vestir" name="Wearable Wear"/>
 	<menu_item_call label="Editar" name="Wearable Edit"/>
+	<menu_item_call label="Vestir" name="Wearable Wear"/>
 	<menu_item_call label="Retirar" name="Take Off"/>
 	<menu_item_call label="--Sem opções--" name="--no options--"/>
 </menu>

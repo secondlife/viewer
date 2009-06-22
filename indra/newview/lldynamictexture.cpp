@@ -179,7 +179,7 @@ void LLDynamicTexture::postRender(BOOL success)
 	}
 
 	// restore viewport
-	gViewerWindow->setupViewport();
+	gViewerWindow->setup2DViewport();
 
 	// restore camera
 	LLViewerCamera::getInstance()->setOrigin(mCamera);

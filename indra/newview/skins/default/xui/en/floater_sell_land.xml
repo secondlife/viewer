@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_minimize="false"
+ height="485"
+ layout="topleft"
+ name="sell land"
+ title="Sell Land"
+ width="450">
+    <texture_picker
+     enabled="false"
+     follows="top|left"
+     height="135"
+     layout="topleft"
+     left="244"
+     name="info_image"
+     right="424"
+     top="40"
+     width="180" />
+    <text
+     type="string"
+     length="1"
+     bottom_delta="-144"
+     follows="top|left"
+     layout="topleft"
+     left="16"
+     name="info_parcel_label"
+     width="48">
+        Parcel:
+    </text>
+    <text
+     type="string"
+     length="1"
+     bottom_delta="5"
+     follows="top|left"
+     font="SansSerif"
+     height="16"
+     layout="topleft"
+     left="56"
+     name="info_parcel"
+     right="-20">
+        PARCEL NAME
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     layout="topleft"
+     left="16"
+     name="info_size_label"
+     width="48">
+        Size:
+    </text>
+    <text
+     type="string"
+     length="1"
+     bottom_delta="21"
+     follows="top|left"
+     font="SansSerif"
+     height="32"
+     layout="topleft"
+     left="56"
+     name="info_size"
+     right="-20">
+        [AREA] sq. m.
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     font="SansSerifHuge"
+     height="24"
+     layout="topleft"
+     left="16"
+     name="info_action"
+     text_color="white"
+     top="141"
+     width="200">
+        To sell this parcel:
+    </text>
+    <icon
+     follows="top|left"
+     height="64"
+     image_name="badge_note.j2c"
+     layout="topleft"
+     left="0"
+     name="step_price"
+     top="167"
+     width="64" />
+    <text
+     type="string"
+     length="1"
+     bottom_delta="-38"
+     follows="top|left"
+     font="SansSerifBig"
+     height="16"
+     layout="topleft"
+     left="72"
+     name="price_label"
+     right="-20">
+        Set a price:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     height="16"
+     layout="topleft"
+     left="72"
+     name="price_text"
+     right="-20">
+        Choose an appropriate price for this land.
+    </text>
+    <text
+     type="string"
+     length="1"
+     height="16"
+     layout="topleft"
+     left="72"
+     name="price_ld"
+     width="20">
+        L$
+    </text>
+    <line_editor
+     type="string"
+     length="1"
+     follows="top|left"
+     height="16"
+     layout="topleft"
+     left_delta="20"
+     name="price"
+     top_delta="0"
+     width="100">
+        0
+    </line_editor>
+    <text
+     type="string"
+     length="1"
+     height="16"
+     layout="topleft"
+     left_pad="10"
+     name="price_per_m"
+     top_delta="0"
+     width="200">
+        (L$[PER_METER] per square meter)
+    </text>
+    <icon
+     follows="top|left"
+     height="64"
+     image_name="badge_note.j2c"
+     layout="topleft"
+     left="0"
+     name="step_sell_to"
+     width="64" />
+    <text
+     type="string"
+     length="1"
+     bottom_delta="-38"
+     follows="top|left"
+     font="SansSerifBig"
+     height="16"
+     layout="topleft"
+     left="72"
+     name="sell_to_label"
+     right="-20">
+        Sell the land to:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     height="16"
+     layout="topleft"
+     left="72"
+     name="sell_to_text"
+     right="-20">
+        Choose whether to sell to anyone or a particular buyer.
+    </text>
+    <combo_box
+     follows="top|right"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     name="sell_to"
+     top_delta="16"
+     width="140">
+        <combo_box.item
+         enabled="false"
+         label="select one --"
+         value="select" />
+        <combo_box.item
+         label="Anyone"
+         value="anyone" />
+        <combo_box.item
+         label="Specific user:"
+         value="user" />
+    </combo_box>
+    <line_editor
+     enabled="false"
+     follows="top|right"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     name="sell_to_agent"
+     top_pad="4"
+     width="150" />
+    <button
+     height="16"
+     label="Select..."
+     layout="topleft"
+     left_pad="5"
+     name="sell_to_select_agent"
+     top_delta="0"
+     width="60" />
+    <icon
+     follows="top|left"
+     height="64"
+     image_name="badge_note.j2c"
+     layout="topleft"
+     left="0"
+     name="step_sell_objects"
+     width="64" />
+    <text
+     type="string"
+     length="1"
+     bottom_delta="-38"
+     follows="top|left"
+     font="SansSerifBig"
+     height="16"
+     layout="topleft"
+     left="72"
+     name="sell_objects_label"
+     right="-20">
+        Sell the objects with the land?
+    </text>
+    <text
+     type="string"
+     length="1"
+     bottom_delta="20"
+     follows="top|left"
+     height="16"
+     layout="topleft"
+     left="72"
+     name="sell_objects_text">
+        Land owner&apos;s transferable objects on parcel will change ownership.
+    </text>
+    <radio_group
+     bottom_delta="44"
+     follows="top|right"
+     height="40"
+     layout="topleft"
+     left="72"
+     name="sell_objects"
+     right="420">
+        <radio_item
+         bottom="40"
+         height="0"
+         layout="topleft"
+         left="10"
+         name="none"
+         visible="false" />
+        <radio_item
+         bottom="20"
+         height="16"
+         label="No, keep ownership of objects"
+         layout="topleft"
+         left="10"
+         name="no" />
+        <radio_item
+         bottom="40"
+         height="16"
+         label="Yes, sell objects with land"
+         layout="topleft"
+         left="10"
+         name="yes" />
+    </radio_group>
+    <button
+     height="16"
+     label="Show Objects"
+     layout="topleft"
+     name="show_objects"
+     right="414"
+     top="393"
+     width="110" />
+    <text
+     type="string"
+     length="1"
+     bottom_delta="35"
+     follows="top|left"
+     font="SansSerifBig"
+     height="16"
+     layout="topleft"
+     left="72"
+     name="nag_message_label"
+     right="-20">
+        REMEMBER: All sales are final.
+    </text>
+    <button
+     follows="bottom|left"
+     height="20"
+     label="Set Land For Sale"
+     layout="topleft"
+     left_delta="0"
+     name="sell_btn"
+     top_pad="15"
+     width="130" />
+    <button
+     follows="bottom|right"
+     height="20"
+     label="Cancel"
+     layout="topleft"
+     left_pad="152"
+     name="cancel_btn"
+     top_delta="0"
+     width="90" />
+</floater>

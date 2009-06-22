@@ -30,6 +30,9 @@
  * $/LicenseInfo$
  */
 
+#ifndef LL_LLINVENTORYBRIDGE_H
+#define LL_LLINVENTORYBRIDGE_H
+
 #include "llfloaterproperties.h"
 #include "llwearable.h"
 #include "llviewercontrol.h"
@@ -66,6 +69,8 @@ enum EInventoryIcon
 	CLOTHING_UNDERSHIRT_ICON_NAME,
 	CLOTHING_UNDERPANTS_ICON_NAME,
 	CLOTHING_SKIRT_ICON_NAME,
+	CLOTHING_ALPHA_ICON_NAME,
+	CLOTHING_TATTOO_ICON_NAME,
 	
 	ANIMATION_ICON_NAME,
 	GESTURE_ICON_NAME,
@@ -532,6 +537,9 @@ public:
 	static void		onWearOnAvatarArrived( LLWearable* wearable, void* userdata );
 	void			wearOnAvatar();
 
+	static void		onWearAddOnAvatarArrived( LLWearable* wearable, void* userdata );
+	void			wearAddOnAvatar();
+
 	static BOOL		canEditOnAvatar( void* userdata );	// Access to editOnAvatar() from menu
 	static void		onEditOnAvatar( void* userdata );
 	void			editOnAvatar();
@@ -712,3 +720,183 @@ protected:
 	void wearOnAvatar();
 
 };
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLInvFVBridgeAction (& it's derived classes)
+//
+// This is an implementation class to be able to 
+// perform action to view inventory items.
+//
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLInvFVBridgeAction
+{
+public:
+	// This method is a convenience function which creates the correct
+	// type of bridge action based on some basic information
+	static LLInvFVBridgeAction* createAction(LLAssetType::EType asset_type,
+											 const LLUUID& uuid,LLInventoryModel* model);
+
+	static void doAction(LLAssetType::EType asset_type,
+						 const LLUUID& uuid, LLInventoryModel* model);
+	static void doAction(const LLUUID& uuid, LLInventoryModel* model);
+
+	virtual void doIt() {  };
+	virtual ~LLInvFVBridgeAction(){}//need this because of warning on OSX
+protected:
+	LLInvFVBridgeAction(const LLUUID& id,LLInventoryModel* model):mUUID(id),mModel(model){}
+
+	LLViewerInventoryItem* getItem() const;
+protected:
+	const LLUUID& mUUID;	// item id
+	LLInventoryModel* mModel;
+
+};
+
+
+
+class LLTextureBridgeAction: public LLInvFVBridgeAction
+{
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void	doIt() ;
+	virtual ~LLTextureBridgeAction(){}
+protected:
+	LLTextureBridgeAction(const LLUUID& id,LLInventoryModel* model):LLInvFVBridgeAction(id,model){}
+
+};
+
+
+class LLSoundBridgeAction: public LLInvFVBridgeAction
+{
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void	doIt() ;
+	virtual ~LLSoundBridgeAction(){}
+protected:
+	LLSoundBridgeAction(const LLUUID& id,LLInventoryModel* model):LLInvFVBridgeAction(id,model){}
+
+};
+
+
+class LLLandmarkBridgeAction: public LLInvFVBridgeAction
+{
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void	doIt() ;
+	virtual ~LLLandmarkBridgeAction(){}
+protected:
+	LLLandmarkBridgeAction(const LLUUID& id,LLInventoryModel* model):LLInvFVBridgeAction(id,model){}
+
+};
+
+
+class LLCallingCardBridgeAction: public LLInvFVBridgeAction
+{
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void	doIt() ;
+	virtual ~LLCallingCardBridgeAction(){}
+protected:
+	LLCallingCardBridgeAction(const LLUUID& id,LLInventoryModel* model):LLInvFVBridgeAction(id,model){}
+
+};
+
+
+class LLNotecardBridgeAction: public LLInvFVBridgeAction
+{
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void	doIt() ;
+	virtual ~LLNotecardBridgeAction(){}
+protected:
+	LLNotecardBridgeAction(const LLUUID& id,LLInventoryModel* model):LLInvFVBridgeAction(id,model){}
+
+};
+
+
+class LLGestureBridgeAction: public LLInvFVBridgeAction
+{
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void	doIt() ;
+	virtual ~LLGestureBridgeAction(){}
+protected:
+	LLGestureBridgeAction(const LLUUID& id,LLInventoryModel* model):LLInvFVBridgeAction(id,model){}
+
+};
+
+
+class LLAnimationBridgeAction: public LLInvFVBridgeAction
+{
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void	doIt() ;
+	virtual ~LLAnimationBridgeAction(){}
+protected:
+	LLAnimationBridgeAction(const LLUUID& id,LLInventoryModel* model):LLInvFVBridgeAction(id,model){}
+
+};
+
+
+class LLObjectBridgeAction: public LLInvFVBridgeAction
+{
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void	doIt() ;
+	virtual ~LLObjectBridgeAction(){}
+protected:
+	LLObjectBridgeAction(const LLUUID& id,LLInventoryModel* model):LLInvFVBridgeAction(id,model){}
+
+};
+
+
+class LLLSLTextBridgeAction: public LLInvFVBridgeAction
+{
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void	doIt() ;
+	virtual ~LLLSLTextBridgeAction(){}
+protected:
+	LLLSLTextBridgeAction(const LLUUID& id,LLInventoryModel* model):LLInvFVBridgeAction(id,model){}
+
+};
+
+
+class LLWearableBridgeAction: public LLInvFVBridgeAction
+{
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void	doIt();
+	virtual ~LLWearableBridgeAction(){}
+protected:
+	LLWearableBridgeAction(const LLUUID& id,LLInventoryModel* model):LLInvFVBridgeAction(id,model){}
+
+
+	BOOL isInTrash() const;
+	// return true if the item is in agent inventory. if false, it
+	// must be lost or in the inventory library.
+	BOOL isAgentInventory() const;
+
+	void wearOnAvatar();
+
+};
+
+void wear_inventory_item_on_avatar(LLInventoryItem* item);
+void wear_outfit_by_name(const std::string& name);
+void wear_inventory_category(LLInventoryCategory* category, bool copy, bool append);
+
+void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attachment);
+
+// Move items from an in-world object's "Contents" folder to a specified
+// folder in agent inventory.
+BOOL move_inv_category_world_to_agent(const LLUUID& object_id, 
+									  const LLUUID& category_id,
+									  BOOL drop,
+									  void (*callback)(S32, void*) = NULL,
+									  void* user_data = NULL);
+
+
+
+void teleport_via_landmark(const LLUUID& asset_id);
+
+#endif // LL_LLINVENTORYBRIDGE_H

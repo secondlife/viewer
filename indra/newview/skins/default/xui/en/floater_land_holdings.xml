@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ height="383"
+ layout="topleft"
+ name="land holdings floater"
+ title="My Land"
+ width="600">
+    <floater.string
+     name="area_string">
+        [AREA] sq. meters
+    </floater.string>
+    <scroll_list
+     draw_heading="true"
+     height="170"
+     layout="topleft"
+     left="8"
+     name="parcel list"
+     top="24"
+     width="584">
+        <scroll_list.columns
+         label="Parcel Name"
+         name="name"
+         width="163" />
+        <scroll_list.columns
+         label="Region"
+         name="location"
+         width="175" />
+        <scroll_list.columns
+         label="Type"
+         name="type"
+         width="140" />
+        <scroll_list.columns
+         label="Area"
+         name="area"
+         width="87" />
+        <scroll_list.columns
+         label=""
+         name="hidden"
+         width="-1" />
+    </scroll_list>
+    <button
+     height="20"
+     label="Teleport"
+     label_selected="Teleport"
+     layout="topleft"
+     left_delta="4"
+     name="Teleport"
+     tool_tip="Teleport to the center of this land."
+     top_pad="4"
+     width="100" />
+    <button
+     height="20"
+     label="Show on Map"
+     label_selected="Show on Map"
+     layout="topleft"
+     left_pad="4"
+     name="Show on Map"
+     tool_tip="Show this land on the world map."
+     top_delta="0"
+     width="100" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="12"
+     name="contrib_label"
+     top="222"
+     width="480">
+        Contributions to your groups:
+    </text>
+    <scroll_list
+     draw_heading="true"
+     height="75"
+     layout="topleft"
+     left_delta="-4"
+     name="grant list"
+     top_pad="4"
+     width="584">
+        <scroll_list.columns
+         label="Group"
+         name="group"
+         width="330" />
+        <scroll_list.columns
+         label="Area"
+         name="area"
+         width="220" />
+    </scroll_list>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_delta="4"
+     name="allowed_label"
+     top_pad="4"
+     width="348">
+        Allowed land holdings at current payment plan:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_delta="340"
+     name="allowed_text"
+     top_delta="0"
+     width="132">
+        [AREA] sq. meters
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="12"
+     name="current_label"
+     top="341"
+     width="348">
+        Current land holdings:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_delta="340"
+     name="current_text"
+     top_delta="0"
+     width="132">
+        [AREA] sq. meters
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerifBold"
+     height="16"
+     layout="topleft"
+     left="12"
+     name="available_label"
+     top="361"
+     width="348">
+        Available for land purchases:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerifBold"
+     height="16"
+     layout="topleft"
+     left_delta="340"
+     name="available_text"
+     top_delta="0"
+     width="140">
+        [AREA] sq. meters
+    </text>
+</floater>

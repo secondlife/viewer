@@ -103,7 +103,7 @@ public:
 		Optional<S32>					text_pad_left,
 										text_pad_right;
 
-		Deprecated						is_unicode,
+		Ignored							is_unicode,
 										drop_shadow_visible,	
 										border_drop_shadow_visible,
 										bg_visible;
@@ -320,6 +320,7 @@ protected:
 	LLLinePrevalidateFunc mPrevalidateFunc;
 
 	LLFrameTimer mKeystrokeTimer;
+	LLTimer		mTripleClickTimer;
 
 	LLUIColor	mCursorColor;
 	LLUIColor	mFgColor;

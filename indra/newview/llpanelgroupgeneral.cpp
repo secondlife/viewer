@@ -37,7 +37,6 @@
 #include "lluictrlfactory.h"
 #include "llagent.h"
 #include "roles_constants.h"
-#include "llfloateravatarinfo.h"
 #include "llfloatergroupinfo.h"
 
 // UI elements
@@ -45,6 +44,7 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldbstrings.h"
+#include "llfriendactions.h"
 #include "lllineeditor.h"
 #include "llnamebox.h"
 #include "llnamelistctrl.h"
@@ -375,7 +375,7 @@ void LLPanelGroupGeneral::openProfile(void* data)
 		LLScrollListItem* selected = self->mListVisibleMembers->getFirstSelected();
 		if (selected)
 		{
-			LLFloaterAvatarInfo::showFromDirectory( selected->getUUID() );
+			LLFriendActions::showProfile(selected->getUUID());
 		}
 	}
 }

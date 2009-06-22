@@ -282,7 +282,7 @@ LLScriptEdCore::LLScriptEdCore(
 	setBorderVisible(FALSE);
 
 	
-	LLUICtrlFactory::getInstance()->buildPanel(this, "floater_script_ed_panel.xml");
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_script_ed.xml");
 
 	std::vector<std::string> funcs;
 	std::vector<std::string> tooltips;

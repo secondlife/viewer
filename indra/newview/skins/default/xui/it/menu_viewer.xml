@@ -3,10 +3,12 @@
 	<menu label="File" name="File">
 		<tearoff_menu label="~~~~~~~~~~~" name="~~~~~~~~~~~"/>
 		<menu label="Carica" name="upload">
-			<menu_item_call label="Carica immagine ([COST] L$)..." name="Upload Image"/>
-			<menu_item_call label="Carica Suono ([COST] L$)..." name="Upload Sound"/>
-			<menu_item_call label="Carica Animazione ([COST] L$)..." name="Upload Animation"/>
-			<menu_item_call label="Caricamento multiplo ([COST] L$ per file)..." name="Bulk Upload"/>
+			<menu_item_call label="Immagine ([COST]L$)..." name="Upload Image"/>
+			<menu_item_call label="Suono ([COST]L$)..." name="Upload Sound"/>
+			<menu_item_call label="Animazione ([COST]L$)..." name="Upload Animation"/>
+			<menu_item_call label="Multiplo ([COST]L$ per file)..." name="Bulk Upload"/>
+			<menu_item_separator label="-----------" name="separator"/>
+			<menu_item_call label="Imposta i permessi di base..." name="perm prefs"/>
 		</menu>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Chiudi la finestra" name="Close Window"/>
@@ -72,7 +74,7 @@
 		<menu_item_check label="Comunica" name="Instant Message"/>
 		<menu_item_check label="Inventario" name="Inventory"/>
 		<menu_item_check label="Residenti con voice attivo" name="Active Speakers"/>
-		<menu_item_check label="Muta la lista" name="Mute List"/>
+		<menu_item_check label="Residenti ignorati &amp; Oggetti" name="Mute List"/>
 		<menu_item_separator label="-----------" name="separator2"/>
 		<menu_item_check label="Controlli della telecamera" name="Camera Controls"/>
 		<menu_item_check label="Controlli dei movimenti" name="Movement Controls"/>
@@ -81,6 +83,7 @@
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_check label="Barra delle statistiche" name="Statistics Bar"/>
 		<menu_item_check label="Confini della proprietÃ" name="Property Lines"/>
+		<menu_item_check label="Linee di confini privati" name="Banlines"/>
 		<menu_item_check label="Proprietari dei terreni" name="Land Owners"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu label="Suggerimenti" name="Hover Tips">
@@ -113,7 +116,7 @@
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_call label="Imposta come &apos;Assente&apos;" name="Set Away"/>
 		<menu_item_call label="Imposta occupato" name="Set Busy"/>
-		<menu_item_call label="Ferma tutte le animazioni" name="Stop All Animations"/>
+		<menu_item_call label="Ferma le animazioni sul mio avatar" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Rilascia tutti i dispositivi" name="Release Keys"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu_item_call label="Estratto conto..." name="Account History..."/>
@@ -164,7 +167,6 @@
 		<menu_item_call label="Fai zoom sulla selezione" name="Zoom to Selection"/>
 		<menu_item_call label="Compra l&apos;oggetto" name="Menu Object Take"/>
 		<menu_item_call label="Prendi una copia" name="Take Copy"/>
-		<menu_item_call label="Salva nuovamente l&apos;oggetto nel mio inventario" name="Save Object Back to My Inventory"/>
 		<menu_item_call label="Salva nuovamente l&apos;oggetto nel contenuto dell&apos;oggetto" name="Save Object Back to Object Contents"/>
 		<menu_item_separator label="-----------" name="separator6"/>
 		<menu_item_call label="Mostra avvisi script/finestra degli errori" name="Show Script Warning/Error Window"/>

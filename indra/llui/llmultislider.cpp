@@ -45,7 +45,7 @@
 
 #include <sstream>
 
-static LLRegisterWidget<LLMultiSlider> r("multi_slider_bar");
+static LLDefaultWidgetRegistry::Register<LLMultiSlider> r("multi_slider_bar");
 
 const F32 FLOAT_THRESHOLD = 0.00001f;
 

@@ -1,26 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="sell land" title="Land verkaufen">
-	<text bottom_delta="119" follows="top|left" font="SansSerifSmall" left="16"
-	     name="info_parcel_label" text_color="white" width="64">
+	<text name="info_parcel_label">
 		Parzelle:
 	</text>
-	<text bottom_delta="-5" follows="top|left" font="SansSerif" height="16" left="64"
-	     name="info_parcel" text_color="white">
+	<text bottom_delta="-5" height="16" name="info_parcel">
 		PARZELLENNAME
 	</text>
 	<text name="info_size_label">
 		Größe:
 	</text>
-	<text bottom_delta="-21" follows="top|left" font="SansSerif" height="32" left="56"
-	     name="info_size" text_color="white">
+	<text bottom_delta="-21" height="32" name="info_size">
 		[AREA] qm
 	</text>
-	<text follows="top|left" font="SansSerifHuge" height="28" left="16"
-	     name="info_action" text_color="white" bottom_delta="-32" width="200">
+	<text height="28" name="info_action" bottom_delta="-57">
 		Zum Verkauf
 dieser Parzelle:
 	</text>
-	<icon bottom_delta="-76" name="step_price" />
+	<icon bottom_delta="-80" name="step_price" />
 	<text name="price_label">
 		Preis festlegen:
 	</text>
@@ -33,17 +29,15 @@ dieser Parzelle:
 	<text name="price_per_m">
 		([PER_METER] L$ pro Quadratmeter)
 	</text>
-	<icon follows="top|left" height="64" image_name="badge_note.tga" left="0"
-	     name="step_sell_to" width="64" />
-	<text bottom_delta="38" follows="top|left" height="16" left="72" name="sell_to_label"
-	     right="-20" text_color="white">
+	<icon height="64" left="0" name="step_sell_to" width="64" />
+	<text bottom_delta="38" left="72" name="sell_to_label" right="-20">
 		Land verkaufen an:
 	</text>
-	<text follows="top|left" height="16" left="72" name="sell_to_text" bottom_delta="-16" right="-10">
+	<text height="16" left="72" name="sell_to_text" bottom_delta="-16" right="-10">
 		Wählen Sie, ob der Verkauf offen oder auf eine bestimmte Person
 beschränkt ist.
 	</text>
-	<combo_box follows="top|right" height="16" left="72" name="sell_to" bottom_delta="-32" width="140">
+	<combo_box height="16" left="72" name="sell_to" bottom_delta="-32" width="140">
 		<combo_box.item name="--selectone--" label="select one --" />
 		<combo_box.item name="Anyone" label="Jeder" />
 		<combo_box.item name="Specificuser:" label="Bestimmter Benutzer:" />
@@ -57,15 +51,11 @@ beschränkt ist.
 wechseln den Eigentümer.
 	</text>
 	<radio_group bottom_delta="-58" name="sell_objects">
-		<radio_item name="no">
-			Nein, Objekte behalten
-		</radio_item>
-		<radio_item name="yes">
-			Ja, Objekte mit Land verkaufen
-		</radio_item>
+		<radio_item name="no" label="Nein, Objekte behalten" />
+		<radio_item name="yes" label="Ja, Objekte mit Land verkaufen" />
 	</radio_group>
-	<button label="Objekte anzeigen" name="show_objects" />
-        <text name="nag_message_label">
+	<button label="Objekte anzeigen" name="show_objects" width="116"/>
+	<text name="nag_message_label">
 		ACHTUNG: Verkäufe sind endgültig.
 	</text>
 	<button label="Land zum Verkauf freigeben" width="180" name="sell_btn" />

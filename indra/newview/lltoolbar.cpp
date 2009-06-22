@@ -43,13 +43,14 @@
 #include "llparcel.h"
 
 #include "llagent.h"
+#include "llagentwearables.h"
 #include "llbutton.h"
 #include "llfocusmgr.h"
 #include "llviewercontrol.h"
 #include "llmenucommands.h"
 #include "llimview.h"
 #include "lluiconstants.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "lltooldraganddrop.h"
 #include "llinventoryview.h"
 #include "llfloaterchatterbox.h"
@@ -94,7 +95,7 @@ F32	LLToolBar::sInventoryAutoOpenTime = 1.f;
 //
 
 LLToolBar::LLToolBar()
-	: LLPanel()
+:	LLPanel()
 #if LL_DARWIN
 	, mResizeHandle(NULL)
 #endif // LL_DARWIN
@@ -158,11 +159,14 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 	LLInventoryView* active_inventory = LLInventoryView::getActiveInventory();
 
+	LLRect button_screen_rect;
+	inventory_btn->localRectToScreen(inventory_btn->getRect(),&button_screen_rect);
+
 	if(active_inventory && active_inventory->getVisible())
 	{
 		mInventoryAutoOpen = FALSE;
 	}
-	else if (inventory_btn->getRect().pointInRect(x, y))
+	else if (button_screen_rect.pointInRect(x, y))
 	{
 		if (mInventoryAutoOpen)
 		{
@@ -185,7 +189,7 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 // static
 void LLToolBar::toggle(void*)
 {
-	BOOL show = gSavedSettings.getBOOL("ShowToolBar");
+	BOOL show = gSavedSettings.getBOOL("ShowToolBar");                      
 	gSavedSettings.setBOOL("ShowToolBar", !show);                           
 	gToolBar->setVisible(!show);
 }
@@ -261,8 +265,8 @@ void LLToolBar::refresh()
 	{
 		gSavedSettings.setBOOL("FlyBtnEnabled", sitting ? false : true);
 	}
-	
-	// Check to see if we're in build mode	
+
+	// Check to see if we're in build mode
 	bool build_enabled = LLToolMgr::getInstance()->canEdit();
 	if (build_enabled)
 	{
@@ -270,17 +274,17 @@ void LLToolBar::refresh()
 		bool build_mode = LLToolMgr::getInstance()->inEdit();
 		// HACK: Not in mouselook and not just clicking on a scripted object
 		if (gAgent.cameraMouselook() || LLToolGrab::getInstance()->getHideBuildHighlight())
-		{
-			build_mode = FALSE;
-		}
-		gSavedSettings.setBOOL("BuildBtnState", build_mode);
+	{
+		build_mode = FALSE;
+	}
+	gSavedSettings.setBOOL("BuildBtnState", build_mode);
 	}
 	else
 	{
 		gSavedSettings.setBOOL("BuildBtnEnabled", false);
 		gSavedSettings.setBOOL("BuildBtnState", false);
 	}
-	
+
 	if (isInVisibleChain())
 	{
 		updateCommunicateList();
@@ -328,7 +332,7 @@ void LLToolBar::updateCommunicateList()
 	communicate_button->addSeparator(ADD_TOP);
 	communicate_button->add(getString("Redock Windows"), LLSD("redock"), ADD_TOP);
 	communicate_button->addSeparator(ADD_TOP);
-	communicate_button->add(LLFloaterMute::getInstance()->getShortTitle(), LLSD("mute list"), ADD_TOP);
+	communicate_button->add(LLFloaterReg::getTypedInstance<LLFloaterMute>("mute")->getShortTitle(), LLSD("mute list"), ADD_TOP);
 	
 	std::set<LLHandle<LLFloater> >::const_iterator floater_handle_it;
 
@@ -403,12 +407,12 @@ void LLToolBar::onClickCommunicate(LLUICtrl* ctrl, const LLSD& user_data)
 	}
 	else if (selected_option.asString() == "mute list")
 	{
-		LLFloaterMute::showInstance();
+		LLFloaterReg::showInstance("mute");
 	}
 	else if (selected_option.isUndefined()) // user just clicked the communicate button, treat as toggle
 	{
 		LLFloaterReg::toggleInstance("communicate");
-	}
+		}
 	else // otherwise selection_option is undifined or a specific IM session id
 	{
 		LLFloaterReg::showInstance("communicate", selected_option);

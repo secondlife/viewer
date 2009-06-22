@@ -7,66 +7,140 @@
 		Opis:
 	</text>
 	<spinner label="Pierwszeństwo" name="priority"
-	     tool_tip="Kontroluj,które z animacji,które też używasz mogą zostać zdominowane przez tą animację" />
-	<check_box label="Loop" name="loop_check" tool_tip="Powtarzaj tę animację" />
-	<spinner label="In(%)" name="loop_in_point"
+	     tool_tip="Kontroluj,animacje,które mogą zostać zdominowane przez tą animację" />
+	<check_box label="Powtarzaj" name="loop_check" tool_tip="Powtarzaj tą animację" />
+	<spinner label="Od(%)" name="loop_in_point"
 	     tool_tip="Wybierz punkt, od którego chcesz zacząć powtarzać animację" />
-	<spinner label="Out(%)" name="loop_out_point"
+	<spinner label="Do(%)" name="loop_out_point"
 	     tool_tip="Wybierz punkt, od którego chcesz zakończyć powtarznie animacji" />
 	<text name="hand_label">
 		Pozycja Ręki
 	</text>
 	<combo_box label="" name="hand_pose_combo"
 	     tool_tip="Kontroluje co robi ręka podczas animacji">
-		<combo_box.item name="Spread" label="Rozciągaj" />
-		<combo_box.item name="Relaxed" label="Odpocznij" />
-		<combo_box.item name="PointBoth" label="Wskazuj" />
-		<combo_box.item name="Fist" label="Pięść" />
-		<combo_box.item name="RelaxedLeft" label="Lewa-Odpocznij" />
-		<combo_box.item name="PointLeft" label="Wskazuj Lewą" />
-		<combo_box.item name="FistLeft" label="Zaciśnij Lewą" />
-		<combo_box.item name="RelaxedRight" label="Prawa-Odpocznj" />
-		<combo_box.item name="PointRight" label="Wskazuj Prawą" />
-		<combo_box.item name="FistRight" label="Zaciśnij Prawą" />
-		<combo_box.item name="SaluteRight" label="Salutuj Prawą" />
-		<combo_box.item name="Typing" label="Pisz" />
-		<combo_box.item name="PeaceRight" label="Prawa-Pokój" />
+		<combo_item name="Spread">
+			Rozciągaj
+		</combo_item>
+		<combo_item name="Relaxed">
+			Odpocznij
+		</combo_item>
+		<combo_item name="PointBoth">
+			Wskazuj
+		</combo_item>
+		<combo_item name="Fist">
+			Pięść
+		</combo_item>
+		<combo_item name="RelaxedLeft">
+			Lewa-Odpocznij
+		</combo_item>
+		<combo_item name="PointLeft">
+			Wskazuj Lewą
+		</combo_item>
+		<combo_item name="FistLeft">
+			Zaciśnij Lewą
+		</combo_item>
+		<combo_item name="RelaxedRight">
+			Prawa-Odpocznj
+		</combo_item>
+		<combo_item name="PointRight">
+			Wskazuj Prawą
+		</combo_item>
+		<combo_item name="FistRight">
+			Zaciśnij Prawą
+		</combo_item>
+		<combo_item name="SaluteRight">
+			Salutuj Prawą
+		</combo_item>
+		<combo_item name="Typing">
+			Pisz
+		</combo_item>
+		<combo_item name="PeaceRight">
+			Prawa-Pokój
+		</combo_item>
 	</combo_box>
 	<text name="emote_label">
 		Ekspresja
 	</text>
 	<combo_box label="" name="emote_combo"
-	     tool_tip="Kontroluj co wykonuje twarz w czasie animacji">
-		<combo_box.item name="[None]" label="Żadne]" />
-		<combo_box.item name="Aaaaah" label="Aaaaah" />
-		<combo_box.item name="Afraid" label="Obawa" />
-		<combo_box.item name="Angry" label="Zlość" />
-		<combo_box.item name="BigSmile" label="Duży Uśmiech" />
-		<combo_box.item name="Bored" label="Znudzenie" />
-		<combo_box.item name="Cry" label="Placz" />
-		<combo_box.item name="Disdain" label="Wzgarda" />
-		<combo_box.item name="Embarrassed" label="Zakłopotanie" />
-		<combo_box.item name="Frown" label="Marszczenie Brwi" />
-		<combo_box.item name="Kiss" label="Pocałunek" />
-		<combo_box.item name="Laugh" label="Śmiech" />
-		<combo_box.item name="Plllppt" label="Plllppt" />
-		<combo_box.item name="Repulsed" label="Odrzucenie" />
-		<combo_box.item name="Sad" label="Smutek" />
-		<combo_box.item name="Shrug" label="Wzruszanie Ramionami" />
-		<combo_box.item name="Smile" label="Uśmiech" />
-		<combo_box.item name="Surprise" label="Niespodzianka" />
-		<combo_box.item name="Wink" label="Mrugnięcie" />
-		<combo_box.item name="Worry" label="Zmartwienie" />
+	     tool_tip="Kontroluj mimikę twarzy w czasie animacji">
+		<combo_item name="[None]">
+			[Żadne]
+		</combo_item>
+		<combo_item name="Aaaaah">
+			Aaaaah
+		</combo_item>
+		<combo_item name="Afraid">
+			Obawa
+		</combo_item>
+		<combo_item name="Angry">
+			Złość
+		</combo_item>
+		<combo_item name="BigSmile">
+			Duży Uśmiech
+		</combo_item>
+		<combo_item name="Bored">
+			Znudzenie
+		</combo_item>
+		<combo_item name="Cry">
+			Płacz
+		</combo_item>
+		<combo_item name="Disdain">
+			Wzgarda
+		</combo_item>
+		<combo_item name="Embarrassed">
+			Zakłopotanie
+		</combo_item>
+		<combo_item name="Frown">
+			Marszczenie Brwi
+		</combo_item>
+		<combo_item name="Kiss">
+			Pocałunek
+		</combo_item>
+		<combo_item name="Laugh">
+			Śmiech
+		</combo_item>
+		<combo_item name="Plllppt">
+			Plllppt
+		</combo_item>
+		<combo_item name="Repulsed">
+			Odrzucenie
+		</combo_item>
+		<combo_item name="Sad">
+			Smutek
+		</combo_item>
+		<combo_item name="Shrug">
+			Wzruszanie Ramionami
+		</combo_item>
+		<combo_item name="Smile">
+			Uśmiech
+		</combo_item>
+		<combo_item name="Surprise">
+			Niespodzianka
+		</combo_item>
+		<combo_item name="Wink">
+			Mrugnięcie
+		</combo_item>
+		<combo_item name="Worry">
+			Zmartwienie
+		</combo_item>
 	</combo_box>
 	<text name="preview_label">
-		Przeglądaj kiedy
+		Przeglądaj kiedy:
 	</text>
 	<combo_box label="" name="preview_base_anim"
 	     tool_tip="Przetestuj zachowanie animacji kiedy awatar wykonuje normalne czynności">
-		<combo_box.item name="Standing" label="Stanie" />
-		<combo_box.item name="Walking" label="Chodzenie" />
-		<combo_box.item name="Sitting" label="Siedzenie" />
-		<combo_box.item name="Flying" label="Latanie" />
+		<combo_item name="Standing">
+			Stoisz
+		</combo_item>
+		<combo_item name="Walking">
+			Chodzisz
+		</combo_item>
+		<combo_item name="Sitting">
+			Siedzisz
+		</combo_item>
+		<combo_item name="Flying">
+			Latasz
+		</combo_item>
 	</combo_box>
 	<spinner label="Złagodzić w (sekund)" name="ease_in_time"
 	     tool_tip="Ilość Czasu (w sekundach), w których animacje mieszają się" />
@@ -76,12 +150,12 @@
 	<button label="" name="stop_btn" tool_tip="Stop animation playback" />
 	<slider label="" name="playback_slider" />
 	<text name="bad_animation_text">
-		Niemożliwość odczytania pliku animacji do wyświetlenia/
-	
-	Sugerujemy pliki BVH eksportowane z pozycji.
+		Brak możliwości wczytania pliku animacji.
+
+Doradzamy eksport plików BVH z Poser 4.
 	</text>
 	<button label="Anuluj" name="cancel_btn" />
-	<button label="Upload (L$[AMOUNT])" name="ok_btn" />
+	<button label="Załaduj (L$[AMOUNT])" name="ok_btn" />
 	<string name="failed_to_initialize">
 		Inicjalizacja ruchu nie powiodła się.
 	</string>

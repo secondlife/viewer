@@ -53,7 +53,7 @@
 
 const U32 MAX_STRING_LENGTH = 10;
 
-static LLRegisterWidget<LLSliderCtrl> r("slider");
+static LLDefaultWidgetRegistry::Register<LLSliderCtrl> r("slider");
 
 LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)
 :	LLF32UICtrl(p),
@@ -397,5 +397,4 @@ void LLSliderCtrl::reportInvalidData()
 {
 	make_ui_sound("UISndBadKeystroke");
 }
-
 

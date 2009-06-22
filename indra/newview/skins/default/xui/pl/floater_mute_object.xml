@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="mute by name" title="Wycisz Obiekt Według Nazwy">
+<floater name="mute by name" title="Wycisz Obiekt Według Nazwy" height="160" min_height="160" >
 	<text name="message">
-		Wyciszenie obiektu jest skuteczne jedynie na czacie oraz w wiadomościach IM. Nie obejmuje natomiast dźwięków.
+		Wyciszenie obiektu jest skuteczne jedynie na czacie oraz w
+wiadomościach IM. Nie obejmuje natomiast dźwięków.
 By wyciszyć obiekt musisz wpisać dokładnie jego nazwę.
 	</text>
-	<line_editor name="object_name">
+	<line_editor name="object_name" bottom_delta="-60">
 		Nazwa Obiektu
 	</line_editor>
 	<button label="Ok" name="OK" />

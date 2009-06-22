@@ -35,6 +35,7 @@
 #define LL_LLLANDMARK_H
 
 #include <map>
+#include <boost/function.hpp>
 #include "llframetimer.h"
 #include "lluuid.h"
 #include "v3dmath.h"
@@ -42,24 +43,12 @@
 class LLMessageSystem;
 class LLHost;
 
-// virutal base class used for calling back interested parties when a
-// region handle comes back.
-class LLRegionHandleCallback
-{
-public:
-	LLRegionHandleCallback() {}
-	virtual ~LLRegionHandleCallback() {}
-	virtual bool dataReady(
-		const LLUUID& region_id,
-		const U64& region_handle)
-	{
-		return true;
-	}
-};
-
 class LLLandmark
 {
 public:
+	// for calling back interested parties when a region handle comes back.
+	typedef boost::function<void(const LLUUID& region_id, const U64& region_handle)> region_handle_callback_t;
+
 	~LLLandmark() {}
 
 	// returns true if the position is known.
@@ -90,7 +79,7 @@ public:
 		LLMessageSystem* msg,
 		const LLHost& upstream_host,
 		const LLUUID& region_id,
-		LLRegionHandleCallback* callback);
+		region_handle_callback_t callback);
 
 	// Call this method to create a lookup for this region. This
 	// simplifies a lot of the code.
@@ -118,8 +107,8 @@ private:
 	static std::pair<LLUUID, U64> mLocalRegion;
 	typedef std::map<LLUUID, CacheInfo> region_map_t;
 	static region_map_t mRegions;
-	typedef std::multimap<LLUUID, LLRegionHandleCallback*> region_callback_t;
-	static region_callback_t mRegionCallback;
+	typedef std::multimap<LLUUID, region_handle_callback_t> region_callback_map_t;
+	static region_callback_map_t sRegionCallbackMap;
 };
 
 #endif

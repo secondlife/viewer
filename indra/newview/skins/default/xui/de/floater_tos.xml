@@ -3,12 +3,8 @@
 	<button label="Weiter" label_selected="Weiter" name="Continue" />
 	<button label="Abbrechen" label_selected="Abbrechen" name="Cancel" />
 	<radio_group name="tos_agreement">
-		<radio_item name="radio_disagree">
-			Ich stimme den Nutzungsbedingungen nicht zu
-		</radio_item>
-		<radio_item name="radio_agree">
-			Ich stimme den Nutzungsbedingungen zu
-		</radio_item>
+		<radio_item name="radio_disagree" label="Ich stimme den Nutzungsbedingungen nicht zu" />
+		<radio_item name="radio_agree" label="Ich stimme den Nutzungsbedingungen zu" />
 	</radio_group>
 	<text name="tos_title">
 		Nutzungsvereinbarung

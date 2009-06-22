@@ -38,7 +38,7 @@
 #include "llpanel.h"
 #include "lluictrlfactory.h"
 
-static LLRegisterWidget<LLUICtrl> r("ui_ctrl");
+static LLDefaultWidgetRegistry::Register<LLUICtrl> r("ui_ctrl");
 
 LLUICtrl::Params::Params()
 :	tab_stop("tab_stop", true),
@@ -47,8 +47,8 @@ LLUICtrl::Params::Params()
 	init_callback("init_callback"),
 	commit_callback("commit_callback"),
 	validate_callback("validate_callback"),
-	control_name("control_name"),
-	enabled_control("enabled_control")
+	rightclick_callback("rightclick_callback"),
+	control_name("control_name")
 {
 	addSynonym(initial_value, "initial_val");
 	// this is the canonical name for text contents of an xml node
@@ -111,13 +111,21 @@ void LLFocusableElement::setFocus(BOOL b)
 {
 }
 
+//static 
+const LLUICtrl::Params& LLUICtrl::getDefaultParams()
+{
+	return LLUICtrlFactory::getDefaultParams<LLUICtrl::Params>();
+}
+
+
 LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel) 
 :	LLView(p),
 	mTentative(FALSE),
 	mIsChrome(FALSE),
     mViewModel(viewmodel),
 	mControlVariable(NULL),
-	mEnabledControlVariable(NULL)
+	mEnabledControlVariable(NULL),
+	mDisabledControlVariable(NULL)
 {
 	mUICtrlHandle.bind(this);
 }
@@ -127,12 +135,37 @@ void LLUICtrl::initFromParams(const Params& p)
 	LLView::initFromParams(p);
 
 	setControlName(p.control_name);
-	if (p.enabled_control.isProvided())
+	if(p.enabled_controls.isProvided())
 	{
-		LLControlVariable* control = findControl(p.enabled_control);
-		if (control)
-			setEnabledControlVariable(control);
+		if (p.enabled_controls.enabled.isChosen())
+		{
+			LLControlVariable* control = findControl(p.enabled_controls.enabled);
+			if (control)
+				setEnabledControlVariable(control);
+		}
+		else if(p.enabled_controls.disabled.isChosen())
+		{
+			LLControlVariable* control = findControl(p.enabled_controls.disabled);
+			if (control)
+				setDisabledControlVariable(control);
+		}
 	}
+	if(p.controls_visibility.isProvided())
+	{
+		if (p.controls_visibility.visible.isChosen())
+		{
+			LLControlVariable* control = findControl(p.controls_visibility.visible);
+			if (control)
+				setMakeVisibleControlVariable(control);
+		}
+		else if (p.controls_visibility.invisible.isChosen())
+		{
+			LLControlVariable* control = findControl(p.controls_visibility.invisible);
+			if (control)
+				setMakeInvisibleControlVariable(control);
+		}
+	}
+
 	setTabStop(p.tab_stop);
 	setFocusLostCallback(p.focus_lost_callback());
 
@@ -163,6 +196,10 @@ void LLUICtrl::initFromParams(const Params& p)
 			}
 		}
 	}
+
+	if(p.rightclick_callback.isProvided())
+		initCommitCallback(p.rightclick_callback, mRightClickSignal);
+
 }
 
 
@@ -326,6 +363,50 @@ void LLUICtrl::setEnabledControlVariable(LLControlVariable* control)
 	}
 }
 
+void LLUICtrl::setDisabledControlVariable(LLControlVariable* control)
+{
+	if (mDisabledControlVariable)
+	{
+		mDisabledControlConnection.disconnect(); // disconnect current signal
+		mDisabledControlVariable = NULL;
+	}
+	if (control)
+	{
+		mDisabledControlVariable = control;
+		mDisabledControlConnection = mDisabledControlVariable->getSignal()->connect(boost::bind(&controlListener, _2, getUICtrlHandle(), std::string("disabled")));
+		setEnabled(!(mDisabledControlVariable->getValue().asBoolean()));
+	}
+}
+
+void LLUICtrl::setMakeVisibleControlVariable(LLControlVariable* control)
+{
+	if (mMakeVisibleControlVariable)
+	{
+		mMakeVisibleControlConnection.disconnect(); // disconnect current signal
+		mMakeVisibleControlVariable = NULL;
+	}
+	if (control)
+	{
+		mMakeVisibleControlVariable = control;
+		mMakeVisibleControlConnection = mMakeVisibleControlVariable->getSignal()->connect(boost::bind(&controlListener, _2, getUICtrlHandle(), std::string("visible")));
+		setVisible(mMakeVisibleControlVariable->getValue().asBoolean());
+	}
+}
+
+void LLUICtrl::setMakeInvisibleControlVariable(LLControlVariable* control)
+{
+	if (mMakeInvisibleControlVariable)
+	{
+		mMakeInvisibleControlConnection.disconnect(); // disconnect current signal
+		mMakeInvisibleControlVariable = NULL;
+	}
+	if (control)
+	{
+		mMakeInvisibleControlVariable = control;
+		mMakeInvisibleControlConnection = mMakeInvisibleControlVariable->getSignal()->connect(boost::bind(&controlListener, _2, getUICtrlHandle(), std::string("invisible")));
+		setVisible(!(mMakeInvisibleControlVariable->getValue().asBoolean()));
+	}
+}
 // static
 bool LLUICtrl::controlListener(const LLSD& newvalue, LLHandle<LLUICtrl> handle, std::string type)
 {
@@ -342,9 +423,19 @@ bool LLUICtrl::controlListener(const LLSD& newvalue, LLHandle<LLUICtrl> handle, 
 			ctrl->setEnabled(newvalue.asBoolean());
 			return true;
 		}
+		else if(type =="disabled")
+		{
+			ctrl->setEnabled(!newvalue.asBoolean());
+			return true;
+		}
 		else if (type == "visible")
 		{
 			ctrl->setVisible(newvalue.asBoolean());
+			return true;
+		}
+		else if (type == "invisible")
+		{
+			ctrl->setVisible(!newvalue.asBoolean());
 			return true;
 		}
 	}

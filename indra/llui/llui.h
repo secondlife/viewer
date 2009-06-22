@@ -183,7 +183,8 @@ public:
 	static void setupPaths();
 	static const std::vector<std::string>& getXUIPaths() { return sXUIPaths; }
 	static std::string getSkinPath() { return sXUIPaths.front(); }
-	
+	static std::string getLocalizedSkinPath() { return sXUIPaths.back(); }  //all files may not exist at the localized path
+
 	//helper functions (should probably move free standing rendering helper functions here)
 	static LLView* getRootView() { return sRootView; }
 	static void setRootView(LLView* view) { sRootView = view; }
@@ -664,8 +665,8 @@ template <typename T> LLRegisterWith<LLDestroyClassList> LLDestroyClass<T>::sReg
 // useful parameter blocks
 struct TimeIntervalParam : public LLInitParam::Choice<TimeIntervalParam>
 {
-	Option<F32>		seconds;
-	Option<S32>		frames;
+	Alternative<F32>		seconds;
+	Alternative<S32>		frames;
 	TimeIntervalParam()
 	:	seconds("seconds"),
 		frames("frames")

@@ -83,6 +83,7 @@ LLToolMgr::LLToolMgr()
 	mSelectedTool( NULL ),
 	mCurrentToolset( NULL )
 {
+	// Not a panel, register these callbacks globally.
 	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Active", boost::bind(&LLToolMgr::inEdit, this));
 	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Enabled", boost::bind(&LLToolMgr::canEdit, this));
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Build.Toggle", boost::bind(&LLToolMgr::toggleBuildMode, this));

@@ -42,6 +42,7 @@
 #include "llstring.h"
 
 #include "llagent.h"
+#include "llanimationstates.h"
 #include "llbbox.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"

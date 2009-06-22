@@ -51,6 +51,53 @@
 // *TODO: switch to using TUT
 // *TODO: teach Parabuild about this program, run automatically after full builds
 
+// We can't create LLImageGL objects because we have no window or rendering 
+// context.  Provide enough of an LLUIImage to test the LLUI library without
+// an underlying image.
+class TestUIImage : public LLUIImage
+{
+public:
+	TestUIImage()
+	:	LLUIImage( std::string(), NULL ) // NULL ImageGL, don't deref!
+	{ }
+
+	/*virtual*/ S32 getWidth() const
+	{
+		return 16;
+	}
+
+	/*virtual*/ S32 getHeight() const
+	{
+		return 16;
+	}
+};
+
+// We need to supply dummy images
+class TestImageProvider : public LLImageProviderInterface
+{
+public:
+	/*virtual*/ LLPointer<LLUIImage> getUIImage(const std::string& name)
+	{
+		return makeImage();
+	}
+
+	/*virtual*/ LLPointer<LLUIImage> getUIImageByID(const LLUUID& id)
+	{
+		return makeImage();
+	}
+
+	/*virtual*/ void cleanUp()
+	{
+	}
+
+	LLPointer<LLUIImage> makeImage()
+	{
+		LLPointer<LLImageGL> image_gl;
+		LLPointer<LLUIImage> image = new LLUIImage( std::string(), image_gl);
+		return image;
+	}
+};
+
 static std::string get_xui_dir()
 {
 	std::string delim = gDirUtilp->getDirDelimiter();
@@ -84,8 +131,9 @@ int main(int argc, char** argv)
 	settings["floater"] = &floater_group;
 	settings["ignores"] = &ignores_group;
 
-	LLImageProviderInterface* image_provider = NULL;
-	LLUI::initClass(settings, image_provider);
+	// Don't use real images as we don't have a GL context
+	TestImageProvider image_provider;
+	LLUI::initClass(settings, &image_provider);
 
 	const bool no_register_widgets = false;
 	LLWidgetReg::initClass( no_register_widgets );
@@ -116,7 +164,7 @@ int main(int argc, char** argv)
 
 	// Convert all test floaters to new XML format
 	std::string delim = gDirUtilp->getDirDelimiter();
-	std::string xui_dir = get_xui_dir() + "en-us" + delim;
+	std::string xui_dir = get_xui_dir() + "en" + delim;
 	std::string filename;
 	while (gDirUtilp->getNextFileInDir(xui_dir, "floater_test_*.xml", filename, false))
 	{
@@ -141,8 +189,7 @@ int main(int argc, char** argv)
 		llinfos << "Output: " << out_filename << llendl;
 		LLFILE* floater_file = LLFile::fopen(out_filename.c_str(), "w");
 		LLXMLNode::writeHeaderToFile(floater_file);
-		const char* const indent = "    ";
-		output_node->writeToFile(floater_file, indent);
+		output_node->writeToFile(floater_file);
 		fclose(floater_file);
 	}
 	return 0;

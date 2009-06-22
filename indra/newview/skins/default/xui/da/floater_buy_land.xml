@@ -1,9 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="buy land" title="Køb land">
 	<text name="region_name_label">
 		Region:
 	</text>
 	<text name="region_name_text">
+		(ukendt)
+	</text>
+	<text name="region_type_label">
+		Type:
+	</text>
+	<text name="region_type_text">
 		(ukendt)
 	</text>
 	<text name="estate_name_label">
@@ -22,35 +28,38 @@
 		Købt land i denne region:
 	</text>
 	<text name="resellable_clause">
-		Købt land i denne region kan eller kan ikke videresælges.
+		Kan eller kan ikke videresælges.
 	</text>
 	<text name="changeable_clause">
-		kan eller kan ikke samles eller opdeles.
+		Må eller må ikke samles eller opdeles.
 	</text>
 	<text name="covenant_text">
 		Du skal acceptere Estate reglerne:
 	</text>
+	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
 		Indlæser...
 	</text_editor>
-	<check_box label="Jeg acceptere betingelserne der er beskrevet." name="agree_covenant" />
+	<check_box label="Jeg acceptere betingelserne der er beskrevet." name="agree_covenant"/>
 	<text name="info_parcel_label">
 		Parcel:
 	</text>
-	<text name="info_parcel" left_delta="62">
+	<text left_delta="62" name="info_parcel">
 		Scotopteryx 138,204
 	</text>
 	<text name="info_size_label" width="60">
 		Størrelse:
 	</text>
-	<text name="info_size" left_delta="62">
+	<text left_delta="62" name="info_size">
 		1024 m²
 	</text>
 	<text name="info_price_label">
 		Pris:
 	</text>
-	<text name="info_price" left_delta="62">
-		L$ 1500, objekter inkluderet
+	<text left_delta="62" name="info_price">
+		L$ 1500
+(L$ 1.1/m²)
+sælges med objekter
 	</text>
 	<text name="info_action">
 		Køb af dette land vil:
@@ -58,7 +67,7 @@
 	<text name="error_message">
 		Noget er ikke rigtigt.
 	</text>
-	<button label="Go to website" name="error_web" />
+	<button label="Go to website" name="error_web"/>
 	<text name="account_action">
 		Opgrader dig til premium medlemsskab.
 	</text>
@@ -74,8 +83,8 @@
 		Forøg dine månedlige arealanvendelse gebyrer til US $ 40/måned.
 	</text>
 	<text name="land_use_reason">
-		Du har 1.309 kvadratmeter jord. 
-Dette parcel er på 512 kvadratmeter jord.
+		You hold 1309 m² of land. 
+This parcel is 512 m² of land.
 	</text>
 	<text name="purchase_action">
 		Betal Joe Resident L$ 4000 dette areal
@@ -95,10 +104,9 @@ Dette parcel er på 512 kvadratmeter jord.
 	<text name="currency_balance">
 		Du har L$2,100.
 	</text>
-	<check_box label="Fjern [AMOUNT] kvadratmeter af bidrag fra gruppe."
-	     name="remove_contribution" />
-	<button label="K&#248;b" name="buy_btn" />
-	<button label="Annullér" name="cancel_btn" />
+	<check_box label="Fjern [AMOUNT] kvadratmeter af bidrag fra gruppe." name="remove_contribution"/>
+	<button label="Køb" name="buy_btn"/>
+	<button label="Annullér" name="cancel_btn"/>
 	<string name="can_resell">
 		Kan videresælges.
 	</string>
@@ -155,7 +163,7 @@ Prøv at vælge et mindre område.
 		Køb af dette areal vil:
 	</string>
 	<string name="buying_for_group">
-		Køb jord til gruppe:
+		Køb af dette areal vil:
 	</string>
 	<string name="cannot_buy_now">
 		Kan ikke købe nu:
@@ -173,29 +181,37 @@ Prøv at vælge et mindre område.
 		Din konto kan eje jord.
 	</string>
 	<string name="land_holdings">
-		Du har [BUYER] kvadratmeter jord.
+		Du har [BUYER] m² jord.
 	</string>
 	<string name="pay_to_for_land">
 		Betal L$ [AMOUNT] til [SELLER] for dette stykke jord
 	</string>
 	<string name="buy_for_US">
-		Køb L$ [AMOUNT] for omkring US$ [AMOUNT2] ,
+		Køb L$ [AMOUNT] for ca. US$ [AMOUNT2],
 	</string>
 	<string name="parcel_meters">
-		Dette parcel er [AMOUNT] kvadratmeter.
+		Denne parcel er [AMOUNT] m².
 	</string>
 	<string name="premium_land">
-		Dette stykke jord er premium, og vil tælle som [AMOUNT] kvadratmeter.
+		Dette stykke jord er premium, og vil tælle som [AMOUNT] m².
 	</string>
 	<string name="discounted_land">
-		Dette stykke jord er på tilbud, og vil tælle som [AMOUNT] kvadratmeter.
+		Dette stykke jord er på tilbud, og vil tælle som [AMOUNT] m².
 	</string>
 	<string name="meters_supports_object">
 		[AMOUNT] m²
-indeholder [AMOUNT2] objekter
+kan indeholder [AMOUNT2] objekter
 	</string>
 	<string name="sold_with_objects">
 		solgt med objekter
+	</string>
+	<string name="sold_without_objects">
+		objekter ikke inkluderet
+	</string>
+	<string name="info_price_string">
+		L$ [PRICE]
+(L$ [PRICE_PER_SQM]/m²)
+[SOLD_WITH_OBJECTS]
 	</string>
 	<string name="insufficient_land_credits">
 		Gruppen [GROUP] skal bruge nok tildelt jord brugs 

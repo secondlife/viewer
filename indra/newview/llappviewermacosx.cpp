@@ -188,7 +188,7 @@ bool LLAppViewerMacOSX::initParseCommandLine(LLCommandLineParser& clp)
 		// in the "General" tab, click the "Add Localization" button
 		// create a new localization for the language you're adding
 		// set the contents of the new localization of the file to the string corresponding to our localization
-		//   (i.e. "en-us", "ja", etc.  Use the existing ones as a guide.)
+		//   (i.e. "en", "ja", etc.  Use the existing ones as a guide.)
 	CFURLRef url = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("language"), CFSTR("txt"), NULL);
 	char path[MAX_PATH];
 	if(CFURLGetFileSystemRepresentation(url, false, (UInt8 *)path, sizeof(path)))
@@ -391,6 +391,28 @@ void LLAppViewerMacOSX::handleCrashReporting(bool reportFreeze)
 	{
 		_exit(1);
 	}
+	
+	// TODO:palmer REMOVE THIS VERY SOON.  THIS WILL NOT BE IN VIEWER 2.0
+	// Remove the crash stack log from previous executions.
+	// Since we've started logging a new instance of the app, we can assume 
+	// The old crash stack is invalid for the next crash report.
+	char path[MAX_PATH];		
+	FSRef folder;
+	if(FSFindFolder(kUserDomain, kLogsFolderType, false, &folder) == noErr)
+	{
+		// folder is an FSRef to ~/Library/Logs/
+		if(FSRefMakePath(&folder, (UInt8*)&path, sizeof(path)) == noErr)
+		{
+			std::string pathname = std::string(path) + std::string("/CrashReporter/");
+			std::string mask = "Second Life*";
+			std::string file_name;
+			while(gDirUtilp->getNextFileInDir(pathname, mask, file_name, false))
+			{
+				LLFile::remove(pathname + file_name);
+			}
+		}
+	}
+	
 }
 
 std::string LLAppViewerMacOSX::generateSerialNumber()

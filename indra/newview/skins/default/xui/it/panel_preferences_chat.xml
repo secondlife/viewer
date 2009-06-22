@@ -1,18 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Text Chat" name="chat">
 	<text name="text_box">
-		Grandezza carattere chat:
+		Grandezza carattere
+chat:
 	</text>
 	<radio_group name="chat_font_size">
-		<radio_item name="radio">
-			Piccolo
-		</radio_item>
-		<radio_item name="radio2">
-			Medio
-		</radio_item>
-		<radio_item name="radio3">
-			Grande
-		</radio_item>
+		<radio_item name="radio" label="Piccolo" />
+		<radio_item name="radio2" label="Medio" />
+		<radio_item name="radio3" label="Grande" />
 	</radio_group>
 	<text name="text_box2">
 		Colore carattere chat:
@@ -48,7 +43,7 @@
 	<check_box label="Chiudi la barra chat dopo aver premuto invio" name="close_chat_on_return_check"/>
 	<check_box label="Le frecce muovono comunque l&apos;avatar quando si sta scrivendo" name="arrow_keys_move_avatar_check"/>
 	<check_box label="Mostra orario nella chat principale" name="show_timestamps_check"/>
-	<check_box label="Simula la battitura tasti quando chatti" name="play_typing_animation"/>
+	<check_box label="Simula la battitura tasti quando scrivi" name="play_typing_animation"/>
 	<text name="text_box7">
 		Chat con vignette:
 	</text>

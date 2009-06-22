@@ -90,7 +90,7 @@ public:
 	virtual const LLVector3*	getNextDistortion(U32 *index, LLPolyMesh **mesh) = 0;
 	
 	// interface methods
-	F32					getDisplayOrder()			{ return getInfo()->mEditGroupDisplayOrder; }
+	F32					getDisplayOrder() const		{ return getInfo()->mEditGroupDisplayOrder; }
 	S32					getWearableType() const		{ return getInfo()->mWearableType; }
 	const std::string&	getEditGroup() const		{ return getInfo()->mEditGroup; }
 

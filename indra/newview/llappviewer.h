@@ -40,6 +40,8 @@ class LLWorkerThread;
 class LLTextureFetch;
 class LLWatchdogTimeout;
 class LLCommandLineParser;
+class LLAllocator;
+
 
 
 class LLAppViewer : public LLApp
@@ -153,6 +155,8 @@ public:
 	// *NOTE:Mani Fix this for login abstraction!!
 	void handleLoginComplete();
 
+    LLAllocator & getAllocator() { return mAlloc; }
+
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
 	virtual bool initLogging(); // Initialize log files, logging system, return false on failure.
@@ -224,6 +228,8 @@ private:
 
 	bool mSavedFinalSnapshot;
 
+	bool mForceGraphicsDetail;
+
     bool mQuitRequested;				// User wants to quit, may have modified documents open.
     bool mLogoutRequestSent;			// Disconnect message sent to simulator, no longer safe to send messages to the sim.
     S32 mYieldTime;
@@ -231,9 +237,12 @@ private:
 
 	LLWatchdogTimeout* mMainloopTimeout;
 
+	LLThread*	mFastTimerLogThread;
 	// for tracking viewer<->region circuit death
 	bool mAgentRegionLastAlive;
 	LLUUID mAgentRegionLastID;
+
+    LLAllocator mAlloc;
 
 public:
 	//some information for updater

@@ -1146,7 +1146,7 @@ void LLFloaterBuyLandUI::refreshUI()
 		if (mIsForGroup)
 		{
 			LLStringUtil::format_map_t string_args;
-			string_args["[GROUP]"] = std::string(gAgent.mGroupName);
+			string_args["[GROUP]"] = std::string(gAgent.getGroupName());
 
 			message += getString("insufficient_land_credits", string_args);
 				

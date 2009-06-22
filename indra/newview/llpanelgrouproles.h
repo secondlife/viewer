@@ -42,6 +42,7 @@ class LLPanelGroupRolesSubTab;
 class LLPanelGroupActionsSubTab;
 class LLScrollListCtrl;
 class LLScrollListItem;
+class LLTextEditor;
 
 // Forward declare for friend usage.
 //virtual BOOL LLPanelGroupSubTab::postBuildSubTab(LLView*);

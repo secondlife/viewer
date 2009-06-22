@@ -49,7 +49,7 @@
 #include "llviewerobjectlist.h"
 #include "lldbstrings.h"
 #include "llagent.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llselectmgr.h"
 #include "llinventoryview.h"
 #include "llviewerinventory.h"
@@ -171,7 +171,7 @@ void LLPreview::onCommit()
 			// update the object itself.
 			if( item->getType() == LLAssetType::AT_OBJECT )
 			{
-				LLVOAvatar* avatar = gAgent.getAvatarObject();
+				LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 				if( avatar )
 				{
 					LLViewerObject* obj = avatar->getWornAttachment( item->getUUID() );

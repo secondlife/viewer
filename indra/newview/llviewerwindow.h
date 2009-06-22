@@ -61,6 +61,7 @@ class LLTextBox;
 class LLImageRaw;
 class LLHUDIcon;
 class LLWindow;
+class LLRootView;
 
 #define PICK_HALF_WIDTH 5
 #define PICK_DIAMETER (2 * PICK_HALF_WIDTH + 1)
@@ -126,7 +127,7 @@ private:
 
 };
 
-#define MAX_IMAGE_SIZE 6144 //6 * 1024, max snapshot image size 6144 * 6144
+static const U32 MAX_SNAPSHOT_IMAGE_SIZE = 6 * 1024; // max snapshot image size 6144 * 6144
 
 class LLViewerWindow : public LLWindowCallbacks
 {
@@ -189,10 +190,15 @@ public:
 	//
 	// ACCESSORS
 	//
-	LLView*			getRootView()		const	{ return mRootView; }
+	LLRootView*			getRootView()		const;
 
 	// Window in raw pixels as seen on screen.
 	const LLRect&	getWindowRect()		const	{ return mWindowRect; };
+	// portion of window that shows 3d world
+	const LLRect&	getWorldViewRect()		const	{ return mWorldViewRect; };
+	LLRect			getVirtualWorldViewRect()	const;
+	S32 			getWorldViewHeight() const;
+	S32 			getWorldViewWidth() const;
 	S32				getWindowDisplayHeight()	const;
 	S32				getWindowDisplayWidth()	const;
 
@@ -224,7 +230,8 @@ public:
 	const LLPickInfo&	getLastPick() const { return mLastPick; }
 	const LLPickInfo&	getHoverPick() const { return mHoverPick; }
 
-	void			setupViewport(S32 x_offset = 0, S32 y_offset = 0);
+	void			setup2DViewport(S32 x_offset = 0, S32 y_offset = 0);
+	void			setup3DViewport(S32 x_offset = 0, S32 y_offset = 0);
 	void			setup3DRender();
 	void			setup2DRender();
 
@@ -261,6 +268,7 @@ public:
 	void			setProgressMessage(const std::string& msg);
 	void			setProgressCancelButtonVisible( BOOL b, const std::string& label = LLStringUtil::null );
 	LLProgressView *getProgressView() const;
+	void			handleLoginComplete();
 
 	void			updateObjectUnderCursor();
 
@@ -269,6 +277,8 @@ public:
 	void				updateMouseDelta();		
 	void				updateKeyboardFocus();		
 	void				updatePicking(S32 x, S32 y, MASK mask);
+
+	void			updateWorldViewRect();
 
 	BOOL			handleKey(KEY key, MASK mask);
 	void			handleScrollWheel	(S32 clicks);
@@ -362,6 +372,7 @@ public:
 	BOOL			changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, BOOL disable_vsync, BOOL show_progress_bar);
 	BOOL			getIgnoreDestroyWindow() { return mIgnoreActivate; }
 	F32				getDisplayAspectRatio() const;
+	F32				getWorldViewAspectRatio() const;
 	const LLVector2& getDisplayScale() const { return mDisplayScale; }
 	void			calcDisplayScale();
 
@@ -379,6 +390,7 @@ private:
 	void			initFonts(F32 zoom_factor = 1.f);
 	void			schedulePick(LLPickInfo& pick_info);
 	S32				getChatConsoleBottomPad(); // Vertical padding for child console rect, varied by bottom clutter
+	LLRect			getChatConsoleRect(); // Get optimal cosole rect.
 
 public:
 	LLWindow*		mWindow;						// graphical window object
@@ -389,7 +401,8 @@ protected:
 	BOOL			mShowFullscreenProgress;
 	LLRect			mWindowRect;
 	LLRect			mVirtualWindowRect;
-	LLView*			mRootView;					// a view of size mWindowRect, containing all child views
+	LLRect			mWorldViewRect;					// specifies area of screen where we render the 3D world
+	LLRootView*		mRootView;					// a view of size mWindowRect, containing all child views
 	LLVector2		mDisplayScale;
 
 	LLCoordGL		mCurrentMousePoint;			// last mouse position in GL coords

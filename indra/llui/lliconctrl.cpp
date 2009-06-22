@@ -42,7 +42,7 @@
 #include "lluictrlfactory.h"
 #include "lluiimage.h"
 
-static LLRegisterWidget<LLIconCtrl> r("icon");
+static LLDefaultWidgetRegistry::Register<LLIconCtrl> r("icon");
 
 LLIconCtrl::Params::Params()
 :	image("image_name"),

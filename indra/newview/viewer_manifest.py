@@ -256,9 +256,9 @@ class WindowsManifest(ViewerManifest):
                   dst="updater.exe")
 
         # For google-perftools tcmalloc allocator.
-        #if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
-        #        self.path("libtcmalloc_minimal.dll")
-        #        self.end_prefix()
+        if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
+                self.path("libtcmalloc_minimal.dll")
+                self.end_prefix()
 
 
     def nsi_file_commands(self, install=True):
@@ -439,6 +439,18 @@ class DarwinManifest(ViewerManifest):
                 self.path("German.lproj")
                 self.path("Japanese.lproj")
                 self.path("Korean.lproj")
+                self.path("da.lproj")
+                self.path("es.lproj")
+                self.path("fr.lproj")
+                self.path("hu.lproj")
+                self.path("it.lproj")
+                self.path("nl.lproj")
+                self.path("pl.lproj")
+                self.path("pt.lproj")
+                self.path("ru.lproj")
+                self.path("tr.lproj")
+                self.path("uk.lproj")
+                self.path("zh-Hans.lproj")
 
                 # SLVoice and vivox lols
                 self.path("vivox-runtime/universal-darwin/libalut.dylib", "libalut.dylib")
@@ -656,7 +668,7 @@ class Linux_i686Manifest(LinuxManifest):
         self.path("app_settings/mozilla-runtime-linux-i686")
 
         if self.prefix("../../libraries/i686-linux/lib_release_client", dst="lib"):
-            self.path("libkdu_v42R.so", "libkdu.so")
+            #self.path("libkdu_v42R.so", "libkdu.so")
             self.path("libfmod-3.75.so")
             self.path("libapr-1.so.0")
             self.path("libaprutil-1.so.0")

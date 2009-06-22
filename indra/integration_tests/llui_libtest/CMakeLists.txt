@@ -62,6 +62,7 @@ endif (DARWIN)
 target_link_libraries(llui_libtest
     llui
     ${OS_LIBRARIES}
+    ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
 
 if (WINDOWS)

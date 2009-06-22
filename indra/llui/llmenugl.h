@@ -63,7 +63,7 @@ public:
 		Optional<KEY>			jump_key;
 		Optional<bool>			use_mac_ctrl;
 
-		Deprecated				rect,
+		Ignored					rect,
 								left,
 								top,
 								right,
@@ -175,6 +175,7 @@ public:
 	virtual BOOL handleKeyHere( KEY key, MASK mask );
 	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask );
+	virtual BOOL handleScrollWheel( S32 x, S32 y, S32 clicks );
 	virtual void draw( void );
 
 	BOOL getHover() const { return mGotHover; }
@@ -368,7 +369,8 @@ public:
 										drop_shadow,
 										bg_visible,
 										create_jump_keys,
-										keep_fixed_size;
+										keep_fixed_size,
+										scrollable;
 		Optional<LLUIColor>				bg_color;
 
 		Params()
@@ -377,7 +379,8 @@ public:
 			drop_shadow("drop_shadow", true),
 			bg_visible("bg_visible", true),
 			create_jump_keys("create_jump_keys", false),
-			bg_color("bg_color",  LLUI::getCachedColorFunctor( "MenuDefaultBgColor" ))
+			bg_color("bg_color",  LLUI::getCachedColorFunctor( "MenuDefaultBgColor" )),
+			scrollable("scrollable", false)
 		{
 			addSynonym(bg_visible, "opaque");
 			addSynonym(bg_color, "color");
@@ -400,12 +403,14 @@ public:
 	// LLView Functionality
 	/*virtual*/ BOOL handleUnicodeCharHere( llwchar uni_char );
 	/*virtual*/ BOOL handleHover( S32 x, S32 y, MASK mask );
+	/*virtual*/ BOOL handleScrollWheel( S32 x, S32 y, S32 clicks );
 	/*virtual*/ void draw( void );
 	/*virtual*/ void drawBackground(LLMenuItemGL* itemp, F32 alpha);
 	/*virtual*/ void setVisible(BOOL visible);
 	/*virtual*/ bool addChild(LLView* view, S32 tab_group = 0);
 	/*virtual*/ void removeChild( LLView* ctrl);
 	/*virtual*/ BOOL postBuild();
+	/*virtual*/ const widget_registry_t& getChildRegistry() const;
 
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
@@ -493,6 +498,10 @@ public:
 	static void setKeyboardMode(BOOL mode) { sKeyboardMode = mode; }
 	static BOOL getKeyboardMode() { return sKeyboardMode; }
 
+	void scrollItemsUp();
+	void scrollItemsDown();
+	BOOL isScrollable() const { return mScrollable; }
+
 	static class LLMenuHolderGL* sMenuContainer;
 	
 protected:
@@ -507,6 +516,9 @@ protected:
 	// TODO: create accessor methods for these?
 	typedef std::list< LLMenuItemGL* > item_list_t;
 	item_list_t mItems;
+	LLMenuItemGL*mFirstVisibleItem;
+	LLMenuItemGL *mArrowUpItem, *mArrowDownItem;
+
 	typedef std::map<KEY, LLMenuItemGL*> navigation_key_map_t;
 	navigation_key_map_t mJumpKeys;
 	S32				mLastMouseX;
@@ -514,6 +526,7 @@ protected:
 	S32				mMouseVelX;
 	S32				mMouseVelY;
 	BOOL			mHorizontalLayout;
+	BOOL			mScrollable;
 	BOOL			mKeepFixedSize;
 	BOOL			mNeedsArrange;
 
@@ -530,6 +543,7 @@ private:
 	BOOL mDropShadowed; 	//  Whether to drop shadow 
 	BOOL			mHasSelection;
 	LLFrameTimer	mFadeTimer;
+	LLTimer			mScrollItemsTimer;
 	BOOL			mTornOff;
 	class LLMenuItemTearOffGL* mTearOffItem;
 	class LLMenuItemBranchGL* mSpilloverBranch;
@@ -653,9 +667,6 @@ public:
 			BOOL	appendContextSubMenu(LLContextMenu *menu);
 
 protected:
-	LLMenuItemGL*	getItemFromXY		(S32 x, S32 y);
-
-protected:
 	BOOL			mHoveredAnyItem;
 	LLMenuItemGL*	mHoverItem;
 };
@@ -685,14 +696,14 @@ public:
 	LLMenuBarGL( const Params& p );
 	virtual ~LLMenuBarGL();
 
-	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
-	virtual BOOL handleJumpKey(KEY key);
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleAcceleratorKey(KEY key, MASK mask);
+	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
+	/*virtual*/ BOOL handleJumpKey(KEY key);
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
-	virtual void draw();
-	virtual BOOL jumpKeysActive();
+	/*virtual*/ void draw();
+	/*virtual*/ BOOL jumpKeysActive();
 
 	// add a vertical separator to this menu
 	virtual BOOL addSeparator();

@@ -705,8 +705,8 @@ BOOL LLInventoryItem::exportFile(LLFILE* fp, BOOL include_asset_key) const
 		fprintf(fp, "\t\tasset_id\t%s\n", uuid_str.c_str());
 	}
 	fprintf(fp, "\t\ttype\t%s\n", LLAssetType::lookup(mType));
-	const char* inv_type_str = LLInventoryType::lookup(mInventoryType);
-	if(inv_type_str) fprintf(fp, "\t\tinv_type\t%s\n", inv_type_str);
+	const std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
+	if(!inv_type_str.empty()) fprintf(fp, "\t\tinv_type\t%s\n", inv_type_str.c_str());
 	fprintf(fp, "\t\tflags\t%08x\n", mFlags);
 	mSaleInfo.exportFile(fp);
 	fprintf(fp, "\t\tname\t%s|\n", mName.c_str());
@@ -908,8 +908,8 @@ BOOL LLInventoryItem::exportLegacyStream(std::ostream& output_stream, BOOL inclu
 		output_stream << "\t\tasset_id\t" << uuid_str << "\n";
 	}
 	output_stream << "\t\ttype\t" << LLAssetType::lookup(mType) << "\n";
-	const char* inv_type_str = LLInventoryType::lookup(mInventoryType);
-	if(inv_type_str) 
+	const std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
+	if(!inv_type_str.empty()) 
 		output_stream << "\t\tinv_type\t" << inv_type_str << "\n";
 	std::string buffer;
 	buffer = llformat( "\t\tflags\t%08x\n", mFlags);
@@ -951,8 +951,8 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
 	}
 	sd[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
 	sd[INV_INVENTORY_TYPE_LABEL] = mInventoryType;
-	const char* inv_type_str = LLInventoryType::lookup(mInventoryType);
-	if(inv_type_str)
+	const std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
+	if(!inv_type_str.empty())
 	{
 		sd[INV_INVENTORY_TYPE_LABEL] = inv_type_str;
 	}

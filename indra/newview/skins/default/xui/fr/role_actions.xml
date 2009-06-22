@@ -48,7 +48,7 @@
 		     name="group change identity" value="11" />
 	</action_set>
 	<action_set
-	     description="Ces pouvoirs permettent de transférer, modifier et vendre du terrain appartenant au groupe. Pour accéder au menu À propos du terrain, cliquez sur le nom de la parcelle en haut de l&apos;écran ou cliquez à droite sur le sol."
+	     description="Ces pouvoirs permettent de transférer, modifier et vendre du terrain appartenant au groupe. Pour accéder au menu À propos du terrain, cliquez sur le nom de la parcelle en haut de l&apos;écran ou cliquez-droit sur le sol."
 	     name="Parcel Management">
 		<action description="Transférer et acheter des parcelles pour le groupe"
 		     longdescription="Transférez et achetez des parcelles pour le groupe à partir du menu À propos du terrain &gt; Général."
@@ -60,7 +60,7 @@
 		     longdescription="Vendez des parcelles du groupe. Attention : ce pouvoir autorise la vente d&apos;un terrain appartenant au groupe. Ce terrain sera alors définitivement perdu. Assurez-vous de bien comprendre ce pouvoir avant de l&apos;attribuer."
 		     name="land set sale info" value="14" />
 		<action description="Diviser et fusionner des parcelles"
-		     longdescription="Divisez et fusionnez des parcelles. Pour cela, cliquez à droite sur le sol, sélectionnez Modifier le terrain, et faites glisser votre souris sur l&apos;endroit que vous souhaitez modifier. Pour diviser le terrain, sélectionnez un endroit puis cliquez sur Diviser... Pour fusionner des parcelles, sélectionnez au moins deux parcelles adjacentes et cliquez sur Fusionner."
+		     longdescription="Divisez et fusionnez des parcelles. Pour cela, cliquez-droit sur le sol, sélectionnez Modifier le terrain, et faites glisser votre souris sur l&apos;endroit que vous souhaitez modifier. Pour diviser le terrain, sélectionnez un endroit puis cliquez sur Diviser... Pour fusionner des parcelles, sélectionnez au moins deux parcelles adjacentes et cliquez sur Fusionner."
 		     name="land divide join" value="15" />
 	</action_set>
 	<action_set

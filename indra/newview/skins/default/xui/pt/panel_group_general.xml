@@ -45,7 +45,17 @@
 		<check_box label="Adesão aberta" name="open_enrollement" tool_tip="Definir se este grupo permite que novos membros entrem sem serem convidados"/>
 		<check_box label="Taxa de adesão: L$" name="check_enrollment_fee" tool_tip="Define se é necessária uma taxa de adesão para se unir ao grupo."/>
 		<spinner name="spin_enrollment_fee" tool_tip="Os novos membros devem pagar esta taxa para se unir ao grupo quando a Taxa de Adesão está marcada."/>
-
+		<combo_box name="group_mature_check" tool_tip="Define se a informação do seu grupo é considerada mature.">
+			<combo_item name="select_mature">
+				- Selecionar Maturidade -
+			</combo_item>
+			<combo_item name="mature">
+				Conteúdo Mature
+			</combo_item>
+			<combo_item name="pg">
+				Conteúdo PG
+			</combo_item>
+		</combo_box>
 		<panel name="title_container">
 			<text name="active_title_label">
 				Meu título ativo

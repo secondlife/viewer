@@ -43,10 +43,9 @@
 #include "llimagegl.h"
 #include "lluictrlfactory.h"
 
-static LLRegisterWidget<LLSlider> r1("slider_bar");
+static LLDefaultWidgetRegistry::Register<LLSlider> r1("slider_bar");
 //FIXME: make this into an unregistered template so that code constructed sliders don't
 // have ambigious template lookup problem
-static LLRegisterWidget<LLSlider> r2("volume_slider");
 
 LLSlider::Params::Params()
 :	track_color("track_color"),

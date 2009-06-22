@@ -71,6 +71,8 @@
 		Zona Morta de Zoom
 	</text>
 	<button label="Padrões do Navegador Espacial" name="SpaceNavigatorDefaults"/>
+	<button label="OK" label_selected="OK" name="ok_btn"/>
+	<button label="Cancelar" label_selected="Cancelar" name="cancel_btn"/>
 	<string name="JoystickMonitor">
 		Monitor do Joystick
 	</string>

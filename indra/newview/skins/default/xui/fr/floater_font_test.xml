@@ -1,10 +1,6 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater can_close="true" can_drag_on_left="false" can_minimize="true" can_resize="true"
-     height="800" min_height="175" min_width="154" name="contents"
-     title="Font Test" width="500">
-
-<text name="linea" font="OverrideTest" follows="left|top|right" bottom_delta="-20" left="16" height="16">
-OverrideTest, should be timesbd, from default/xui/fr
-</text>
-
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="contents" title="Test de la police">
+	<text name="linea">
+		OverrideTest, Times-BOLD doit être sélectionné ici. (De default/xui/fr)
+	</text>
 </floater>

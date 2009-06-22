@@ -34,9 +34,8 @@
 
 #include "llpanellogin.h"
 
-#include "llpanelgeneral.h"
-
 #include "indra_constants.h"		// for key and mask constants
+#include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llmd5.h"
 #include "llsecondlifeurls.h"
@@ -49,7 +48,6 @@
 #include "llcombobox.h"
 #include "llcurl.h"
 #include "llviewercontrol.h"
-#include "llfloaterabout.h"
 #include "llfloaterpreference.h"
 #include "llfocusmgr.h"
 #include "lllineeditor.h"
@@ -69,8 +67,8 @@
 #include "llhttpclient.h"
 #include "llweb.h"
 #include "llwebbrowserctrl.h"
-#include "llfloateruipreview.h"
 #include "llfloaterhtml.h"
+#include "llrootview.h"
 
 #include "llfloaterhtmlhelp.h"
 #include "llfloatertos.h"
@@ -418,7 +416,7 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask)
 	{	// previously was "Test Floater"
 		if(gSavedSettings.getBOOL("QAMode"))
 		{
-			LLFloaterUIPreview::showInstance();
+			LLFloaterReg::showInstance("ui_preview", LLSD(), TRUE);
 			return TRUE;
 		}
 	}
@@ -434,7 +432,7 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask)
 	if ( KEY_F2 == key )
 	{
 		llinfos << "Spawning floater TOS window" << llendl;
-		LLFloaterTOS* tos_dialog = LLFloaterTOS::show(LLFloaterTOS::TOS_TOS,"", NULL);
+		LLFloaterTOS* tos_dialog = LLFloaterTOS::show(LLFloaterTOS::TOS_TOS,"");
 		tos_dialog->startModal();
 		return TRUE;
 	}
@@ -907,7 +905,7 @@ void LLPanelLogin::onClickQuit(void*)
 // static
 void LLPanelLogin::onClickVersion(void*)
 {
-	LLFloaterAbout::showInstance();
+	LLFloaterReg::showInstance("sl_about"); 
 }
 
 //static

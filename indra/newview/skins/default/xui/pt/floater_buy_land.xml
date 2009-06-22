@@ -3,37 +3,44 @@
 	<text name="region_name_label">
 		Região:
 	</text>
-	<text name="region_name_text">
+	<text name="region_name_text" left="560">
+		(desconhecido)
+	</text>
+	<text name="region_type_label">
+		Tipo:
+	</text>
+	<text name="region_type_text" left="560">
 		(desconhecido)
 	</text>
 	<text name="estate_name_label">
 		Propriedade:
 	</text>
-	<text name="estate_name_text">
+	<text name="estate_name_text" left="560">
 		(desconhecido)
 	</text>
-	<text name="estate_owner_label">
+	<text name="estate_owner_label" width="105" right="565">
 		Dono da propriedade:
 	</text>
-	<text name="estate_owner_text">
+	<text name="estate_owner_text" left="560" >
 		(desconhecido)
 	</text>
 	<text name="resellable_changeable_label">
 		Adquiriu um terreno nesta região:
 	</text>
 	<text name="resellable_clause">
-		Terra adquirida nesta região pode, ou não, ser revendida.
+		Pode ou não ser revendida.
 	</text>
 	<text name="changeable_clause">
-		pode, ou não, ser unido ou subdividido.
+		Pode ou não ser unida ou sub-dividida.
 	</text>
 	<text name="covenant_text">
 		Você deve concordar com o Corretor da Propriedade:
 	</text>
+	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
 		Carregando...
 	</text_editor>
-	<check_box label="Eu concordo com as definições do Corretor feitas acima." name="agree_covenant"/>
+	<check_box label="Eu concordo com as definições do &#10;Corretor feitas acima." name="agree_covenant"/>
 	<text name="info_parcel_label">
 		Lote:
 	</text>
@@ -50,7 +57,9 @@
 		Preço:
 	</text>
 	<text name="info_price">
-		L$ 1500, objetos inclusos
+		L$ 1500
+(L$ 1.1/m²)
+vendido com os objetos
 	</text>
 	<text name="info_action">
 		Comprar este lote irá:
@@ -58,7 +67,7 @@
 	<text name="error_message">
 		Algo ainda não está correto.
 	</text>
-	<button label="Ir para a página da web" name="error_web"/>
+	<button label="Ir para a página da web" name="error_web" width="150" />
 	<text name="account_action">
 		Evoluir sua conta para membro Premium
 	</text>
@@ -74,8 +83,8 @@
 		Aumente sua taxa de locação de terra para US$ 40/mês.
 	</text>
 	<text name="land_use_reason">
-		Você possui 1.309 metros quadrados de terra. 
-Este lote tem 512 metros quadrados de terra.
+		Você possui 1309 m² de terra.
+Este lote tem 512 m² de terra.
 	</text>
 	<text name="purchase_action">
 		Pagar ao Residente Joe L$4000 pela terra
@@ -83,10 +92,10 @@ Este lote tem 512 metros quadrados de terra.
 	<text name="currency_reason">
 		Você tem L$2,100.
 	</text>
-	<text name="currency_action">
+	<text name="currency_action" width="116">
 		Compre L$ adicionais
 	</text>
-	<line_editor name="currency_amt">
+	<line_editor name="currency_amt" left="190" width="65">
 		1000
 	</line_editor>
 	<text name="currency_est">
@@ -152,7 +161,7 @@ Este lote tem 512 metros quadrados de terra.
 		Comprar esta terra irá:
 	</string>
 	<string name="buying_for_group">
-		Comprar terra para o grupo:
+		Ao comprar terra para o grupo:
 	</string>
 	<string name="cannot_buy_now">
 		Não foi possível comprar agora:
@@ -176,23 +185,31 @@ Este lote tem 512 metros quadrados de terra.
 		Pagar L$ [AMOUNT] para [SELLER] por esta terra
 	</string>
 	<string name="buy_for_US">
-		Comprar L$ [AMOUNT] por aproximadamente US$ [AMOUNT2] ,
+		Comprar L$ [AMOUNT] por aprox. US$ [AMOUNT2],
 	</string>
 	<string name="parcel_meters">
 		Este lote tem [AMOUNT] m².
 	</string>
 	<string name="premium_land">
-		Esta terra é Premium, e irá cobrar como [AMOUNT] m².
+		Esta terra é premium e será taxada como [AMOUNT] m².
 	</string>
 	<string name="discounted_land">
-		Este lote é promocional, e irá cobrar como [AMOUNT] m².
+		Esta terra tem desconto e será taxada como [AMOUNT] m².
 	</string>
 	<string name="meters_supports_object">
 		[AMOUNT] m²
-suporta [AMOUNT2] objetos
+aceita [AMOUNT2] objetos
 	</string>
 	<string name="sold_with_objects">
 		vendido com objetos
+	</string>
+	<string name="sold_without_objects">
+		objetos não incluídos
+	</string>
+	<string name="info_price_string">
+		L$ [PRICE]
+(L$ [PRICE_PER_SQM]/m²)
+[SOLD_WITH_OBJECTS]
 	</string>
 	<string name="insufficient_land_credits">
 		O grupo [GROUP] precisará de fundos suficientes de terras

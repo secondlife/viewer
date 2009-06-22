@@ -67,7 +67,7 @@
 #include "llworld.h"
 #include "llworldmap.h"
 #include "llfocusmgr.h"
-
+#include "llbottomtray.h"
 void handle_pay_by_id(const LLUUID& agent_id)
 {
 	const BOOL is_group = FALSE;
@@ -83,7 +83,8 @@ void handle_mouselook(void*)
 void handle_chat(void*)
 {
 	// give focus to chatbar if it's open but not focused
-	if (gSavedSettings.getBOOL("ChatVisible") && gFocusMgr.childHasKeyboardFocus(gChatBar))
+	if (gSavedSettings.getBOOL("ChatVisible") && gFocusMgr.childHasKeyboardFocus(
+		LLBottomTray::getInstance()->getChatBox()))
 	{
 		LLChatBar::stopChat();
 	}

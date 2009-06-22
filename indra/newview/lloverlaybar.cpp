@@ -45,7 +45,6 @@
 #include "llfocusmgr.h"
 #include "llimview.h"
 #include "llmediaremotectrl.h"
-#include "llpanelaudiovolume.h"
 #include "llparcel.h"
 #include "lltextbox.h"
 #include "llui.h"
@@ -60,7 +59,7 @@
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "llvoiceclient.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llvoiceremotectrl.h"
 #include "llwebbrowserctrl.h"
 #include "llselectmgr.h"
@@ -169,8 +168,9 @@ void LLOverlayBar::layoutButtons()
 
 		// calculate button widths
 		const S32 MAX_BUTTON_WIDTH = 150;
+		const S32 STATUS_BAR_PAD = 10;
 		S32 segment_width = llclamp(lltrunc((F32)(bar_width) / (F32)button_list.size()), 0, MAX_BUTTON_WIDTH);
-		S32 btn_width = segment_width - gSavedSettings.getS32("StatusBarPad");
+		S32 btn_width = segment_width - STATUS_BAR_PAD;
 
 		// Evenly space all buttons, starting from left
 		S32 left = 0;

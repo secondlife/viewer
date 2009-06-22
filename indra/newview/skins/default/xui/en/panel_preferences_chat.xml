@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ border="true"
+ follows="left|top|right|bottom"
+ height="408"
+ label="Text Chat"
+ layout="topleft"
+ left="102"
+ name="chat"
+ top="1"
+ width="517">
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="12"
+     mouse_opaque="false"
+     top="10"
+     width="128">
+        Chat Font Size:
+    </text>
+    <radio_group
+     height="30"
+     layout="topleft"
+     left_pad="8"
+	 control_name="ChatFontSize"
+     name="chat_font_size"
+     top_delta="0"
+     width="331">
+        <radio_item
+         height="16"
+         label="Small"
+         layout="topleft"
+         left="0"
+         name="radio"
+         top="8"
+         width="98" />
+        <radio_item
+         height="16"
+         label="Medium"
+         layout="topleft"
+         left_pad="12"
+         name="radio2"
+         top_delta="0"
+         width="98" />
+        <radio_item
+         height="16"
+         label="Large"
+         layout="topleft"
+         left_pad="12"
+         name="radio3"
+         top_delta="0"
+         width="98" />
+    </radio_group>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="12"
+     mouse_opaque="false"
+     name="text_box2"
+     top="54"
+     width="128">
+        Chat Color:
+    </text>
+    <color_swatch
+     border_color="0.45098 0.517647 0.607843 1"
+     can_apply_immediately="true"
+     control_name="UserChatColor"
+     follows="left|top"
+     height="47"
+     label="You"
+     layout="topleft"
+     left_pad="8"
+     name="user"
+     top_delta="-1"
+     width="44" />
+    <color_swatch
+     border_color="0.45098 0.517647 0.607843 1"
+     can_apply_immediately="true"
+     control_name="AgentChatColor"
+     follows="left|top"
+     height="47"
+     label="Others"
+     layout="topleft"
+     left_pad="10"
+     name="agent"
+     top_delta="0"
+     width="44" />
+    <color_swatch
+     border_color="0.45098 0.517647 0.607843 1"
+     can_apply_immediately="true"
+     color="0.6 0.6 1 1"
+     control_name="IMChatColor"
+     follows="left|top"
+     height="47"
+     label="IM"
+     label_width="60"
+     layout="topleft"
+     left_pad="10"
+     name="im"
+     top_delta="0"
+     width="44" />
+    <color_swatch
+     border_color="0.45098 0.517647 0.607843 1"
+     can_apply_immediately="true"
+     color="0.8 1 1 1"
+     control_name="SystemChatColor"
+     follows="left|top"
+     height="47"
+     label="System"
+     label_width="44"
+     layout="topleft"
+     left_pad="10"
+     name="system"
+     top_delta="0"
+     width="44" />
+    <color_swatch
+     border_color="0.45098 0.517647 0.607843 1"
+     can_apply_immediately="true"
+     color="0.82 0.82 0.99 1"
+     control_name="ScriptErrorColor"
+     follows="left|top"
+     height="47"
+     label="Errors"
+     layout="topleft"
+     left_pad="10"
+     name="script_error"
+     top_delta="0"
+     width="44" />
+    <color_swatch
+     border_color="0.45098 0.517647 0.607843 1"
+     can_apply_immediately="true"
+     color="0.7 0.9 0.7 1"
+     control_name="ObjectChatColor"
+     follows="left|top"
+     height="47"
+     label="Objects"
+     layout="topleft"
+     left="148"
+     name="objects"
+     top="103"
+     width="44" />
+    <color_swatch
+     border_color="0.45098 0.517647 0.607843 1"
+     can_apply_immediately="true"
+     color="0.7 0.9 0.7 1"
+     control_name="llOwnerSayChatColor"
+     follows="left|top"
+     height="47"
+     label="Owner"
+     layout="topleft"
+     left_pad="10"
+     name="owner"
+     top_delta="0"
+     width="44" />
+    <color_swatch
+     border_color="0.45098 0.517647 0.607843 1"
+     can_apply_immediately="true"
+     color="0 0 0 1"
+     control_name="BackgroundChatColor"
+     follows="left|top"
+     height="47"
+     label="Bubble"
+     layout="topleft"
+     left_pad="10"
+     name="background"
+     top_delta="0"
+     width="44" />
+    <color_swatch
+     border_color="0.45098 0.517647 0.607843 1"
+     can_apply_immediately="true"
+     color="0.6 0.6 1 1"
+     control_name="HTMLLinkColor"
+     follows="left|top"
+     height="47"
+     label="URLs"
+     layout="topleft"
+     left_pad="10"
+     name="links"
+     top_delta="0"
+     width="44" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="12"
+     mouse_opaque="false"
+     name="text_box3"
+     top="168"
+     width="135">
+        Chat Console:
+    </text>
+    <spinner
+     control_name="ChatPersistTime"
+     decimal_digits="0"
+     follows="left|top"
+     height="16"
+     increment="1"
+     initial_value="10"
+     label="Fade chat after"
+     label_width="80"
+     layout="topleft"
+     left_pad="1"
+     max_val="60"
+     min_val="2"
+     name="fade_chat_time"
+     top_delta="2"
+     width="130" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="4"
+     mouse_opaque="false"
+     name="text_box4"
+     top_delta="0"
+     width="80">
+        (seconds)
+    </text>
+    <spinner
+     control_name="ConsoleMaxLines"
+     decimal_digits="0"
+     follows="left|top"
+     height="16"
+     increment="1"
+     initial_value="10"
+     layout="topleft"
+     left_delta="58"
+     max_val="50"
+     min_val="1"
+     name="max_chat_count"
+     top_delta="0"
+     width="60" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_pad="5"
+     mouse_opaque="false"
+     name="text_box5"
+     top_delta="0"
+     width="60">
+        (# lines)
+    </text>
+    <slider
+     control_name="ConsoleBackgroundOpacity"
+     follows="left|top"
+     height="12"
+     increment="0.05"
+     initial_value="1"
+     label="Opacity"
+     layout="topleft"
+     left="148"
+     name="console_opacity"
+     top="193"
+     width="200" />
+    <check_box
+     control_name="ChatFullWidth"
+     height="16"
+     label="Use full screen width  (Requires restart)"
+     layout="topleft"
+     left_delta="0"
+     name="chat_full_width_check"
+     top_pad="9"
+     width="239" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="12"
+     mouse_opaque="false"
+     name="text_box6"
+     top="245"
+     width="135">
+        Chat Options:
+    </text>
+    <check_box
+     control_name="CloseChatOnReturn"
+     height="16"
+     label="Close chat bar after hitting return"
+     layout="topleft"
+     left_pad="1"
+     name="close_chat_on_return_check"
+     top_delta="2"
+     width="237" />
+    <check_box
+     control_name="ArrowKeysMoveAvatar"
+     height="16"
+     label="Arrow keys always move avatar when chatting"
+     layout="topleft"
+     left_delta="0"
+     name="arrow_keys_move_avatar_check"
+     top_pad="4"
+     width="237" />
+    <check_box
+     control_name="ChatShowTimestamps"
+     height="16"
+     label="Show timestamps in Local Chat"
+     layout="topleft"
+     left_delta="0"
+     name="show_timestamps_check"
+     top_pad="4"
+     width="237" />
+    <check_box
+     control_name="ScriptErrorsAsChat"
+     height="16"
+     label="Show script errors and warnings as regular chat"
+     layout="topleft"
+     left_delta="0"
+     name="script_errors_as_chat"
+     top_pad="4"
+     width="275" />
+    <check_box
+     control_name="PlayTypingAnim"
+     height="16"
+     initial_value="true"
+     label="Play typing animation when chatting"
+     layout="topleft"
+     left_delta="0"
+     name="play_typing_animation"
+     top_pad="4"
+     width="237" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="12"
+     mouse_opaque="false"
+     name="text_box7"
+     top="359"
+     width="128">
+        Bubble Chat:
+    </text>
+    <check_box
+     control_name="UseChatBubbles"
+     height="16"
+     label="Show chat bubbles"
+     layout="topleft"
+     left_pad="8"
+     name="bubble_text_chat"
+     top_delta="1"
+     width="237" />
+    <slider
+     control_name="ChatBubbleOpacity"
+     follows="left|top"
+     height="12"
+     increment="0.05"
+     initial_value="1"
+     label="Opacity"
+     layout="topleft"
+     left_delta="0"
+     name="bubble_chat_opacity"
+     top_pad="4"
+     width="200" />
+</panel>

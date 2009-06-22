@@ -12,7 +12,13 @@
 	<text name="version_channel_text">
 		(inconnu)
 	</text>
-	<check_box label="Bloquer le terraformage" name="block_terraform_check"/>
+	<text name="region_type_lbl">
+		Type :
+	</text>
+	<text name="region_type">
+		(inconnu)
+	</text>
+	<check_box label="Interdire le terraformage" name="block_terraform_check"/>
 	<button label="?" name="terraform_help"/>
 	<check_box label="Interdire le vol" name="block_fly_check"/>
 	<button label="?" name="fly_help"/>
@@ -26,16 +32,24 @@
 	<button label="?" name="parcel_changes_help"/>
 	<check_box label="Ne pas afficher dans la recherche" name="block_parcel_search_check" tool_tip="Afficher cette région et ses parcelles dans les résultats de recherche"/>
 	<button label="?" name="parcel_search_help"/>
-	<spinner label="Nombre limite d&apos;avatars" name="agent_limit_spin" label_width="127" width="190"/>
+	<spinner label="Nombre maximum d&apos;avatars" label_width="127" name="agent_limit_spin" width="190"/>
 	<button label="?" name="agent_limit_help"/>
-	<spinner label="Bonus objet" name="object_bonus_spin" label_width="127" width="190"/>
+	<spinner label="Bonus objet" label_width="127" name="object_bonus_spin" width="190"/>
 	<button label="?" name="object_bonus_help"/>
 	<text label="Maturité" name="access_text">
-		Maturité :
+		Catégorie :
 	</text>
-
-
-
+	<combo_box label="Mature" name="access_combo">
+		<combo_item name="Adult">
+			Adult
+		</combo_item>
+		<combo_item name="Mature">
+			Mature
+		</combo_item>
+		<combo_item name="PG">
+			PG
+		</combo_item>
+	</combo_box>
 	<button label="?" name="access_help"/>
 	<button label="Appliquer" name="apply_btn"/>
 	<button label="Téléporter un résident chez lui..." name="kick_btn"/>

@@ -37,51 +37,123 @@
 		Hendrerit Vulputate
 	</text>
 	<combo_box name="category_combo" tool_tip="カテゴリー -- この報告に最も適したカテゴリーを選択してください">
-		<combo_box.item name="Select_category" label="カテゴリーを選択"/>
-		<combo_box.item name="Age__Age_play" label="年齢&gt;年齢偽証"/>
-		<combo_box.item name="Age__Adult_resident_on_Teen_Second_Life" label="年齢&gt;成人の住人がTeen Second Life上にいる"/>
-		
-		
-		
-		<combo_box.item name="Assault__Combat_sandbox___unsafe_area" label="攻撃&gt;コンバット・サンドボックス/危険なエリア"/>
-		<combo_box.item name="Assault__Safe_area" label="攻撃&gt;安全なエリア"/>
-		<combo_box.item name="Assault__Weapons_testing_sandbox" label="攻撃&gt;武器テスト用サンドボックス"/>
-		<combo_box.item name="Commerce__Failure_to_deliver_product_or_service" label="商取引&gt;製品またはサービスの提供が行われない"/>
-		<combo_box.item name="Disclosure__Real_world_information" label="開示 &gt; リアルワールドの情報"/>
-		<combo_box.item name="Disclosure__Remotely_monitoring chat" label="開示&gt;離れたところからチャットをモニターしている"/>
-		<combo_box.item name="Disclosure__Second_Life_information_chat_IMs" label="開示&gt;Second Lifeの情報/チャット/IM"/>
-		<combo_box.item name="Disturbing_the_peace__Unfair_use_of_region_resources" label="平穏を乱す行為&gt;地域リソースの使用が不公平"/>
-		<combo_box.item name="Disturbing_the_peace__Excessive_scripted_objects" label="平穏を乱す行為&gt;スクリプト・オブジェクトの乱用"/>
-		<combo_box.item name="Disturbing_the_peace__Object_littering" label="平穏を乱す行為&gt;オブジェクトの捨て置き"/>
-		<combo_box.item name="Disturbing_the_peace__Repetitive_spam" label="平穏を乱す行為&gt;繰り返しスパム"/>
-		<combo_box.item name="Disturbing_the_peace__Unwanted_advert_spam" label="平穏を乱す行為&gt;不要な広告スパム"/>
-		<combo_box.item name="Fraud__L$" label="詐欺&gt; L$"/>
-		<combo_box.item name="Fraud__Land" label="詐欺&gt;土地"/>
-		<combo_box.item name="Fraud__Pyramid_scheme_or_chain_letter" label="詐欺&gt;マルチ商法またはチェーン・メール"/>
-		<combo_box.item name="Fraud__US$" label="詐欺&gt; US$"/>
-		<combo_box.item name="Harassment__Advert_farms___visual_spam" label="嫌がらせ&gt;広告委託/視覚的なスパム"/>
-		<combo_box.item name="Harassment__Defaming_individuals_or_groups" label="嫌がらせ&gt;個人またはグループの中傷"/>
-		<combo_box.item name="Harassment__Impeding_movement" label="嫌がらせ&gt;移動の妨害"/>
-		<combo_box.item name="Harassment__Sexual_harassment" label="嫌がらせ&gt;性的な嫌がらせ"/>
-		<combo_box.item name="Harassment__Solicting_inciting_others_to_violate_ToS" label="嫌がらせ&gt;利用規約（ToS）に違反する行為を行うよう他者を勧誘/扇動"/>
-		<combo_box.item name="Harassment__Verbal_abuse" label="嫌がらせ&gt;暴言"/>
-		<combo_box.item name="Indecency__Broadly_offensive_content_or_conduct" label="わいせつ&gt;著しく不快であると見なされるコンテンツまたは行為"/>
-		
-		
-		
-		<combo_box.item name="Indecency__Inappropriate_avatar_name" label="わいせつ&gt;不適切なアバター名"/>
-		
-		
-		
-		<combo_box.item name="Intellectual_property_infringement_Content_Removal" label="知的財産の侵害 &gt; コンテンツの撤去"/>
-		<combo_box.item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit" label="知的財産の侵害 &gt; コピーBot及び権限の悪用"/>
-		<combo_box.item name="Intolerance" label="不寛容"/>
-		<combo_box.item name="Land__Abuse_of_sandbox_resources" label="土地&gt;サンドボックス・リソースの乱用"/>
-		<combo_box.item name="Land__Encroachment__Objects_textures" label="土地&gt;不法侵入&gt;オブジェクト/テクスチャー"/>
-		<combo_box.item name="Land__Encroachment__Particles" label="土地&gt;不法侵入&gt;パーティクル"/>
-		<combo_box.item name="Land__Encroachment__Trees_plants" label="土地&gt;不法侵入&gt;樹木/植物"/>
-		<combo_box.item name="Wagering_gambling" label="賭け/ギャンブル"/>
-		<combo_box.item name="Other" label="その他"/>
+		<combo_item name="Select_category">
+			カテゴリーを選択
+		</combo_item>
+		<combo_item name="Age__Age_play">
+			年齢＞年齢偽証
+		</combo_item>
+		<combo_item name="Age__Adult_resident_on_Teen_Second_Life">
+			年齢＞成人の住人がTeen Second Life上にいる
+		</combo_item>
+		<combo_item name="Age__Underage_resident_outside_of_Teen_Second_Life">
+			年齢＞未成年な住人がTeen Second Lifeの外にいる
+		</combo_item>
+		<combo_item name="Assault__Combat_sandbox___unsafe_area">
+			攻撃＞コンバット・サンドボックス/危険なエリア
+		</combo_item>
+		<combo_item name="Assault__Safe_area">
+			攻撃＞安全なエリア
+		</combo_item>
+		<combo_item name="Assault__Weapons_testing_sandbox">
+			攻撃＞武器テスト用サンドボックス
+		</combo_item>
+		<combo_item name="Commerce__Failure_to_deliver_product_or_service">
+			商取引＞製品またはサービスの提供が行われない
+		</combo_item>
+		<combo_item name="Disclosure__Real_world_information">
+			開示＞リアルワールドの情報
+		</combo_item>
+		<combo_item name="Disclosure__Remotely_monitoring chat">
+			開示＞離れたところからチャットをモニターしている
+		</combo_item>
+		<combo_item name="Disclosure__Second_Life_information_chat_IMs">
+			開示＞Second Lifeの情報/チャット/IM
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Unfair_use_of_region_resources">
+			平穏を乱す行為＞地域リソースの使用が不公平
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Excessive_scripted_objects">
+			平穏を乱す行為＞スクリプト・オブジェクトの乱用
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Object_littering">
+			平穏を乱す行為＞オブジェクトの捨て置き
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Repetitive_spam">
+			平穏を乱す行為＞繰り返しスパム
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Unwanted_advert_spam">
+			平穏を乱す行為＞不要な広告スパム
+		</combo_item>
+		<combo_item name="Fraud__L$">
+			詐欺＞ L$
+		</combo_item>
+		<combo_item name="Fraud__Land">
+			詐欺＞土地
+		</combo_item>
+		<combo_item name="Fraud__Pyramid_scheme_or_chain_letter">
+			詐欺＞マルチ商法またはチェーン・メール
+		</combo_item>
+		<combo_item name="Fraud__US$">
+			詐欺＞ US$
+		</combo_item>
+		<combo_item name="Harassment__Advert_farms___visual_spam">
+			嫌がらせ＞広告委託/視覚的なスパム
+		</combo_item>
+		<combo_item name="Harassment__Defaming_individuals_or_groups">
+			嫌がらせ＞個人またはグループの中傷
+		</combo_item>
+		<combo_item name="Harassment__Impeding_movement">
+			嫌がらせ＞移動の妨害
+		</combo_item>
+		<combo_item name="Harassment__Sexual_harassment">
+			嫌がらせ＞性的な嫌がらせ
+		</combo_item>
+		<combo_item name="Harassment__Solicting_inciting_others_to_violate_ToS">
+			嫌がらせ＞利用規約（ToS）に違反する行為を行うよう他者を勧誘/扇動
+		</combo_item>
+		<combo_item name="Harassment__Verbal_abuse">
+			嫌がらせ＞暴言
+		</combo_item>
+		<combo_item name="Indecency__Broadly_offensive_content_or_conduct">
+			わいせつ＞著しく不快であると見なされるコンテンツまたは行為
+		</combo_item>
+		<combo_item name="Indecency__Inappropriate_avatar_name">
+			わいせつ＞不適切なアバター名
+		</combo_item>
+		<combo_item name="Indecency__Mature_content_in_PG_region">
+			わいせつ＞PG地域での不適切なコンテンツまたは行為
+		</combo_item>
+		<combo_item name="Indecency__Inappropriate_content_in_Mature_region">
+			わいせつ＞Mature地域での不適切なコンテンツまたは行為
+		</combo_item>
+		<combo_item name="Intellectual_property_infringement_Content_Removal">
+			知的財産の侵害＞コンテンツの撤去
+		</combo_item>
+		<combo_item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit">
+			知的財産の侵害＞コピーBot及び権限の悪用
+		</combo_item>
+		<combo_item name="Intolerance">
+			不寛容
+		</combo_item>
+		<combo_item name="Land__Abuse_of_sandbox_resources">
+			土地＞サンドボックス・リソースの乱用
+		</combo_item>
+		<combo_item name="Land__Encroachment__Objects_textures">
+			土地＞不法侵入＞オブジェクト/テクスチャー
+		</combo_item>
+		<combo_item name="Land__Encroachment__Particles">
+			土地＞不法侵入＞パーティクル
+		</combo_item>
+		<combo_item name="Land__Encroachment__Trees_plants">
+			土地＞不法侵入＞樹木/植物
+		</combo_item>
+		<combo_item name="Wagering_gambling">
+			賭け/ギャンブル
+		</combo_item>
+		<combo_item name="Other">
+			その他
+		</combo_item>
 	</combo_box>
 	<text name="abuser_name_title">
 		迷惑ユーザーの名前：

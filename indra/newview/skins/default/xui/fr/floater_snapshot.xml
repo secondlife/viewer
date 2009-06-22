@@ -4,15 +4,9 @@
 		Destination de la photo
 	</text>
 	<radio_group label="Type de photo" name="snapshot_type_radio" width="228">
-		<radio_item name="postcard">
-			Envoyer par e-mail
-		</radio_item>
-		<radio_item name="texture">
-			Enregistrer dans votre inventaire ([AMOUNT] L$)
-		</radio_item>
-		<radio_item name="local">
-			Enregistrer sur votre disque dur
-		</radio_item>
+		<radio_item name="postcard" label="Envoyer par e-mail" />
+		<radio_item name="texture" label="Enregistrer dans votre inventaire ([AMOUNT] L$)" />
+		<radio_item name="local" label="Enregistrer sur votre disque dur" />
 	</radio_group>
 	<button label="Plus &gt;&gt;" name="more_btn" tool_tip="Options avancées"/>
 	<button label="&lt;&lt; Moins" name="less_btn" tool_tip="Options avancées"/>

@@ -59,8 +59,14 @@
 #include "llappviewer.h" 
 #include "llglheaders.h"
 #include "llmediamanager.h"
+#include "llwindow.h"
 
+#if LL_WINDOWS
+#include "lldxhardware.h"
+#endif
 
+extern LLCPUInfo gSysCPU;
+extern LLMemoryInfo gSysMemory;
 extern U32 gPacketsIn;
 
 static std::string get_viewer_release_notes_url();
@@ -74,8 +80,8 @@ static std::string get_viewer_release_notes_url();
 LLFloaterAbout::LLFloaterAbout(const LLSD& key) 
 :	LLFloater()
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_about.xml");
-	center();
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_about.xml");
+	
 }
 
 // Destroys the object
@@ -85,6 +91,7 @@ LLFloaterAbout::~LLFloaterAbout()
 
 BOOL LLFloaterAbout::postBuild()
 {
+	center();
 	LLViewerTextEditor *support_widget = 
 		getChild<LLViewerTextEditor>("support_editor", true);
 
@@ -185,6 +192,20 @@ BOOL LLFloaterAbout::postBuild()
 	support.append( (const char*) glGetString(GL_RENDERER) );
 	support.append("\n");
 
+#if LL_WINDOWS
+    getWindow()->incBusyCount();
+    getWindow()->setCursor(UI_CURSOR_ARROW);
+    support.append("Windows Graphics Driver Version: ");
+    LLSD driver_info = gDXHardware.getDisplayInfo();
+    if (driver_info.has("DriverVersion"))
+    {
+        support.append(driver_info["DriverVersion"]);
+    }
+    support.append("\n");
+    getWindow()->decBusyCount();
+    getWindow()->setCursor(UI_CURSOR_ARROW);
+#endif
+
 	support.append(getString("OpenGLVersion") + " ");
 	support.append( (const char*) glGetString(GL_VERSION) );
 	support.append("\n");
@@ -255,7 +276,7 @@ BOOL LLFloaterAbout::postBuild()
  	query["version"] = version.str();
 
  	std::ostringstream url;
-	 url << LLFloaterAbout::getInstance()->getString("RELEASE_NOTES_BASE_URL") << LLURI::mapToQueryString(query);
+	 url << LLTrans::getString("RELEASE_NOTES_BASE_URL") << LLURI::mapToQueryString(query);
 
  	return url.str();
  }

@@ -512,6 +512,7 @@ void LLVOVolume::updateTextures()
 			mSculptTexture->addTextureStats(2.f * tex_size * tex_size);
 			mSculptTexture->setBoostLevel(llmax((S32)mSculptTexture->getBoostLevel(),
 												(S32)LLViewerImage::BOOST_SCULPTED));
+			mSculptTexture->setForSculpt() ;
 		}
 
 		S32 texture_discard = mSculptTexture->getDiscardLevel(); //try to match the texture
@@ -653,7 +654,8 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
 	}
 	
 	updateRadius();
-	mDrawable->updateDistance(*LLViewerCamera::getInstance());
+	bool force_update = true; // avoid non-alpha mDistance update being optimized away
+	mDrawable->updateDistance(*LLViewerCamera::getInstance(), force_update);
 
 	return mDrawable;
 }
@@ -780,6 +782,11 @@ void LLVOVolume::sculpt()
 			sculpt_width = 0;
 			sculpt_height = 0;
 			sculpt_data = NULL ;
+
+			if(LLViewerImage::sTesterp)
+			{
+				LLViewerImage::sTesterp->updateGrayTextureBinding();
+			}
 		}
 		else
 		{
@@ -788,6 +795,11 @@ void LLVOVolume::sculpt()
 					   << " < " << sculpt_height << " x " << sculpt_width << " x " <<sculpt_components << llendl;
 					   
 			sculpt_data = raw_image->getData();
+
+			if(LLViewerImage::sTesterp)
+			{
+				mSculptTexture->updateBindStats() ;
+			}
 		}
 		getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level);
 	}
@@ -1271,15 +1283,28 @@ S32 LLVOVolume::setTEColor(const U8 te, const LLColor3& color)
 
 S32 LLVOVolume::setTEColor(const U8 te, const LLColor4& color)
 {
-	S32 res = LLViewerObject::setTEColor(te, color);
-	if (res && mDrawable.notNull())
+	S32 retval = 0;
+	const LLTextureEntry *tep = getTE(te);
+	if (!tep)
 	{
-		//gPipeline.markTextured(mDrawable);
-		mDrawable->setState(LLDrawable::REBUILD_COLOR);
-		dirtyMesh();
-		//mFaceMappingChanged = TRUE;
+		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
 	}
-	return  res;
+	else if (color != tep->getColor())
+	{
+		if (color.mV[3] != tep->getColor().mV[3])
+		{
+			gPipeline.markTextured(mDrawable);
+		}
+		retval = LLPrimitive::setTEColor(te, color);
+		if (mDrawable.notNull() && retval)
+		{
+			// These should only happen on updates which are not the initial update.
+			mDrawable->setState(LLDrawable::REBUILD_COLOR);
+			dirtyMesh();
+		}
+	}
+
+	return  retval;
 }
 
 S32 LLVOVolume::setTEBumpmap(const U8 te, const U8 bumpmap)
@@ -1296,6 +1321,17 @@ S32 LLVOVolume::setTEBumpmap(const U8 te, const U8 bumpmap)
 S32 LLVOVolume::setTETexGen(const U8 te, const U8 texgen)
 {
 	S32 res = LLViewerObject::setTETexGen(te, texgen);
+	if (res)
+	{
+		gPipeline.markTextured(mDrawable);
+		mFaceMappingChanged = TRUE;
+	}
+	return  res;
+}
+
+S32 LLVOVolume::setTEMediaTexGen(const U8 te, const U8 media)
+{
+	S32 res = LLViewerObject::setTEMediaTexGen(te, media);
 	if (res)
 	{
 		gPipeline.markTextured(mDrawable);
@@ -1324,6 +1360,17 @@ S32 LLVOVolume::setTEFullbright(const U8 te, const U8 fullbright)
 		mFaceMappingChanged = TRUE;
 	}
 	return  res;
+}
+
+S32 LLVOVolume::setTEBumpShinyFullbright(const U8 te, const U8 bump)
+{
+	S32 res = LLViewerObject::setTEBumpShinyFullbright(te, bump);
+	if (res)
+	{
+		gPipeline.markTextured(mDrawable);
+		mFaceMappingChanged = TRUE;
+	}
+	return res;
 }
 
 S32 LLVOVolume::setTEMediaFlags(const U8 te, const U8 media_flags)
@@ -2811,7 +2858,7 @@ LLHUDPartition::LLHUDPartition()
 	mPartitionType = LLViewerRegion::PARTITION_HUD;
 	mDrawableType = LLPipeline::RENDER_TYPE_HUD;
 	mSlopRatio = 0.f;
-	mLODPeriod = 16;
+	mLODPeriod = 1;
 }
 
 void LLHUDPartition::shift(const LLVector3 &offset)

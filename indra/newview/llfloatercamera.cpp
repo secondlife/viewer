@@ -47,20 +47,24 @@ const F32 CAMERA_BUTTON_DELAY = 0.0f;
 //
 // Member functions
 //
-
-
 LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 :	LLFloater()
 {
-	setIsChrome(TRUE);
-	
 	// For now, only used for size and tooltip strings
 	const BOOL DONT_OPEN = FALSE;
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_camera.xml", DONT_OPEN);
-	
+}
+
+// virtual
+BOOL LLFloaterCamera::postBuild()
+{
+	setIsChrome(TRUE);
+
 	mRotate = getChild<LLJoystickCameraRotate>("cam_rotate_stick");
 	mZoom = getChild<LLJoystickCameraZoom>("zoom");
 	mTrack = getChild<LLJoystickCameraTrack>("cam_track_stick");
+
+	return TRUE;
 }
 
 // virtual
@@ -79,3 +83,4 @@ void LLFloaterCamera::onClose(bool app_quitting)
 		gSavedSettings.setBOOL("ShowCameraControls", FALSE);
 	}
 }
+

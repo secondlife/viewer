@@ -42,7 +42,7 @@
 #include "llscrollcontainer.h"
 #include "lluictrlfactory.h"
 
-static LLRegisterWidget<LLContainerView> r("container_view");
+static LLDefaultWidgetRegistry::Register<LLContainerView> r("container_view");
 
 LLContainerView::LLContainerView(const LLContainerView::Params& p)
 :	LLView(p),

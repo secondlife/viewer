@@ -725,6 +725,8 @@ void LLIMMgr::addMessage(
 			dialog,
 			FALSE);
 
+		notifyObserverSessionAdded(floater->getSessionID(), name, other_participant_id);
+
 		// When we get a new IM, and if you are a god, display a bit
 		// of information about the source. This is to help liaisons
 		// when answering questions.
@@ -897,6 +899,7 @@ LLUUID LLIMMgr::addSession(
 	}
 	//mTabContainer->selectTabPanel(panel);
 	floater->setInputFocus(TRUE);
+	notifyObserverSessionAdded(floater->getSessionID(), name, other_participant_id);
 	return floater->getSessionID();
 }
 
@@ -947,6 +950,7 @@ LLUUID LLIMMgr::addSession(
 	}
 	//mTabContainer->selectTabPanel(panel);
 	floater->setInputFocus(TRUE);
+	notifyObserverSessionAdded(floater->getSessionID(), name, other_participant_id);
 	return floater->getSessionID();
 }
 
@@ -964,6 +968,7 @@ void LLIMMgr::removeSession(const LLUUID& session_id)
 		clearPendingInvitation(session_id);
 		clearPendingAgentListUpdates(session_id);
 	}
+	notifyObserverSessionRemoved(session_id);
 }
 
 void LLIMMgr::inviteToSession(
@@ -1236,6 +1241,32 @@ void LLIMMgr::clearPendingAgentListUpdates(const LLUUID& session_id)
 	{
 		mPendingAgentListUpdates.erase(session_id.asString());
 	}
+}
+
+void LLIMMgr::notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
+{
+	for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); it++)
+	{
+		(*it)->sessionAdded(session_id, name, other_participant_id);
+	}
+}
+
+void LLIMMgr::notifyObserverSessionRemoved(const LLUUID& session_id)
+{
+	for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); it++)
+	{
+		(*it)->sessionRemoved(session_id);
+	}
+}
+
+void LLIMMgr::addSessionObserver(LLIMSessionObserver *observer)
+{
+	mSessionObservers.push_back(observer);
+}
+
+void LLIMMgr::removeSessionObserver(LLIMSessionObserver *observer)
+{
+	mSessionObservers.remove(observer);
 }
 
 // create a floater and update internal representation for

@@ -6,6 +6,12 @@
 	<text name="region_name_text">
 		(onbekend)
 	</text>
+	<text name="region_type_label">
+		Type:
+	</text>
+	<text name="region_type_text">
+		(onbekend)
+	</text>
 	<text name="estate_name_label">
 		Estate:
 	</text>
@@ -22,18 +28,19 @@
 		Aangekocht land in deze regio:
 	</text>
 	<text name="resellable_clause">
-		Aangekocht land in deze regio mag of mag niet worden doorverkocht.
+		Mag niet worden doorverkocht
 	</text>
 	<text name="changeable_clause">
-		Mag of mag niet worden samengevoegd of opgedeeld.
+		Mag niet worden samengevoegd/opgesplitst
 	</text>
 	<text name="covenant_text">
 		U moet instemmen met het estate convenant:
 	</text>
+	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
 		Laden...
 	</text_editor>
-	<check_box label="Ik ga akkoord met het hierboven beschreven convenant." name="agree_covenant"/>
+	<check_box label="Ik ga akkoord met het hierboven &#10;beschreven convenant." name="agree_covenant"/>
 	<text name="info_parcel_label">
 		Perceel:
 	</text>
@@ -44,13 +51,15 @@
 		Grootte:
 	</text>
 	<text name="info_size">
-		1024 m2.
+		1024 m²
 	</text>
 	<text name="info_price_label">
 		Prijs:
 	</text>
 	<text name="info_price">
-		L$ 1500, inclusief objecten
+		L$ 1500
+(L$ 1.1/m²)
+verkocht met objecten
 	</text>
 	<text name="info_action">
 		Het kopen van dit land zal:
@@ -74,8 +83,8 @@
 		Verhoog uw maandelijkse landgebruikskosten tot US$ 40/maand
 	</text>
 	<text name="land_use_reason">
-		U bezit 1,309 vierkante meters land. 
-Dit perceel is 512 vierkante meters land.
+		U bezit 1309 m² land. 
+Dit perceel omvat 512 m² land.
 	</text>
 	<text name="purchase_action">
 		Betaal Joe Resident L$4000 voor het land
@@ -152,7 +161,7 @@ Dit perceel is 512 vierkante meters land.
 		Het kopen van dit land zal:
 	</string>
 	<string name="buying_for_group">
-		Land voor groep kopen:
+		Land voor groep kopen zal:
 	</string>
 	<string name="cannot_buy_now">
 		Kan nu niet kopen:
@@ -176,7 +185,7 @@ Dit perceel is 512 vierkante meters land.
 		Betaal L$ [AMOUNT] aan [SELLER] voor dit land
 	</string>
 	<string name="buy_for_US">
-		Koop L$ [AMOUNT] voor ong. US$ [AMOUNT2] ,
+		Koop L$ [AMOUNT] voor ong. US$ [AMOUNT2],
 	</string>
 	<string name="parcel_meters">
 		Dit perceel is [AMOUNT] vierkante meters.
@@ -193,6 +202,14 @@ ondersteunt [AMOUNT2] objecten
 	</string>
 	<string name="sold_with_objects">
 		verkocht met objecten
+	</string>
+	<string name="sold_without_objects">
+		objecten niet inbegrepen
+	</string>
+	<string name="info_price_string">
+		L$ [PRICE]
+(L$ [PRICE_PER_SQM]/m²)
+[SOLD_WITH_OBJECTS]
 	</string>
 	<string name="insufficient_land_credits">
 		De groep [GROUP] heeft voldoende bijdrage van landgebruikcredits nodig om dit perceel te dekken voordat de aankoop kan worden afgerond.

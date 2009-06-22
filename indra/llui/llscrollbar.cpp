@@ -48,7 +48,7 @@
 #include "llrender.h"
 #include "lluictrlfactory.h"
 
-static LLRegisterWidget<LLScrollbar> register_scrollbar("scroll_bar");
+static LLDefaultWidgetRegistry::Register<LLScrollbar> register_scrollbar("scroll_bar");
 
 LLScrollbar::Params::Params()
 :	orientation ("orientation", HORIZONTAL),
@@ -62,7 +62,9 @@ LLScrollbar::Params::Params()
 	thumb_color("thumb_color"),
 	thickness("thickness"),
 	up_button("up_button"),
-	down_button("down_button")
+	down_button("down_button"),
+	left_button("left_button"),
+	right_button("right_button")
 {
 	tab_stop = false;
 }

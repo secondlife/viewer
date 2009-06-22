@@ -64,7 +64,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llvograss.h"
 #include "llworld.h"
 #include "pipeline.h"
@@ -164,6 +164,7 @@ void display_startup()
 
 void display_update_camera()
 {
+	LLMemType mt_uc(LLMemType::MTYPE_DISPLAY_UPDATE_CAMERA);
 	llpushcallstacks ;
 	// TODO: cut draw distance down if customizing avatar?
 	// TODO: cut draw distance on per-parcel basis?
@@ -210,6 +211,7 @@ void display_stats()
 // Paint the display!
 void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 {
+	LLMemType mt_render(LLMemType::MTYPE_RENDER);
 	LLFastTimer t(LLFastTimer::FTM_RENDER);
 
 	if (LLPipeline::sRenderFrameTest)
@@ -227,8 +229,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 	
+	stop_glerror();
+
 	gPipeline.disableLights();
 	
+	stop_glerror();
+
 	// Don't draw if the window is hidden or minimized.
 	// In fact, must explicitly check the minimized state before drawing.
 	// Attempting to draw into a minimized window causes a GL error. JC
@@ -239,10 +245,14 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		// Clean up memory the pools may have allocated
 		if (rebuild)
 		{
+			stop_glerror();
 			gPipeline.rebuildPools();
+			stop_glerror();
 		}
 
+		stop_glerror();
 		gViewerWindow->returnEmptyPicks();
+		stop_glerror();
 		return; 
 	}
 
@@ -503,17 +513,23 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		}
 	}
 
-	gViewerWindow->setupViewport();
+	gViewerWindow->setup3DViewport();
 
 	gPipeline.resetFrameStats();	// Reset per-frame statistics.
 	if (!gDisconnected)
 	{
+		LLMemType mt_du(LLMemType::MTYPE_DISPLAY_UPDATE);
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Update");
 		if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
 		{ //don't draw hud objects in this frame
 			gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
 		}
-		
+
+		if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD_PARTICLES))
+		{ //don't draw hud particles in this frame
+			gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD_PARTICLES);
+		}
+
 		//upkeep gl name pools
 		LLGLNamePool::upkeepPools();
 		
@@ -522,15 +538,21 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		stop_glerror();
 				
 		// *TODO: merge these two methods
-		LLHUDManager::getInstance()->updateEffects();
-		LLHUDObject::updateAll();
-		stop_glerror();
-		
-		const F32 max_geom_update_time = 0.005f*10.f*gFrameIntervalSeconds; // 50 ms/second update time
-		gPipeline.createObjects(max_geom_update_time);
-		gPipeline.updateGeom(max_geom_update_time);
-		stop_glerror();
-		
+		{
+			LLMemType mt_uh(LLMemType::MTYPE_DISPLAY_UPDATE_HUD);
+			LLHUDManager::getInstance()->updateEffects();
+			LLHUDObject::updateAll();
+			stop_glerror();
+		}
+
+		{
+			LLMemType mt_ug(LLMemType::MTYPE_DISPLAY_UPDATE_GEOM);
+			const F32 max_geom_update_time = 0.005f*10.f*gFrameIntervalSeconds; // 50 ms/second update time
+			gPipeline.createObjects(max_geom_update_time);
+			gPipeline.updateGeom(max_geom_update_time);
+			stop_glerror();
+		}
+
 		S32 water_clip = 0;
 		if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT) > 1) &&
 			 gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER))
@@ -544,7 +566,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				water_clip = 1;
 			}
 		}
-
+		
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Cull");
 		
 		//Increment drawable frame counter
@@ -593,6 +615,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Swap");
 		
 		{ 
+			LLMemType mt_ds(LLMemType::MTYPE_DISPLAY_SWAP);
 			{
  				LLFastTimer ftm(LLFastTimer::FTM_CLIENT_COPY);
 				LLVertexBuffer::clientCopy(0.016);
@@ -635,7 +658,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				glLoadMatrixf(proj.m);
 				glMatrixMode(GL_MODELVIEW);
 				glLoadMatrixf(mod.m);
-				gViewerWindow->setupViewport();
+				gViewerWindow->setup3DViewport();
 
 				LLGLState::checkStates();
 				LLGLState::checkTextureChannels();
@@ -647,6 +670,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		if (!for_snapshot)
 		{
+			LLMemType mt_gw(LLMemType::MTYPE_DISPLAY_GEN_REFLECTION);
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Imagery");
 			gPipeline.generateWaterReflection(*LLViewerCamera::getInstance());
 		}
@@ -663,6 +687,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		llpushcallstacks ;
 
 		{
+			LLMemType mt_iu(LLMemType::MTYPE_DISPLAY_IMAGE_UPDATE);
 			LLFastTimer t(LLFastTimer::FTM_IMAGE_UPDATE);
 			
 			LLViewerImage::updateClass(LLViewerCamera::getInstance()->getVelocityStat()->getMean(),
@@ -685,6 +710,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//
 		LLAppViewer::instance()->pingMainloopTimeout("Display:StateSort");
 		{
+			LLMemType mt_ss(LLMemType::MTYPE_DISPLAY_STATE_SORT);
 			gPipeline.stateSort(*LLViewerCamera::getInstance(), result);
 			stop_glerror();
 				
@@ -703,6 +729,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLPipeline::sUseOcclusion = occlusion;
 
 		{
+			LLMemType mt_ds(LLMemType::MTYPE_DISPLAY_SKY);
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Sky");
 			LLFastTimer t(LLFastTimer::FTM_UPDATE_SKY);	
 			gSky.updateSky();
@@ -781,7 +808,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot())
 				&& !gRestoreGL)
 		{
-
+			LLMemType mt_rg(LLMemType::MTYPE_DISPLAY_RENDER_GEOM);
 			gGL.setColorMask(true, false);
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
 			{
@@ -807,6 +834,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		
 		if (to_texture)
 		{
+			LLMemType mt_rf(LLMemType::MTYPE_DISPLAY_RENDER_FLUSH);
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
 			{
 				gPipeline.mDeferredScreen.flush();
@@ -857,6 +885,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 void render_hud_attachments()
 {
+	LLMemType mt_ra(LLMemType::MTYPE_DISPLAY_RENDER_ATTACHMENTS);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -877,16 +906,26 @@ void render_hud_attachments()
 		hud_cam.setOrigin(-1.f,0,0);
 		hud_cam.setAxes(LLVector3(1,0,0), LLVector3(0,1,0), LLVector3(0,0,1));
 		LLViewerCamera::updateFrustumPlanes(hud_cam, TRUE);
+
+		bool render_particles = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES) && gSavedSettings.getBOOL("RenderHUDParticles");
 		
 		//only render hud objects
 		U32 mask = gPipeline.getRenderTypeMask();
+		// turn off everything
 		gPipeline.setRenderTypeMask(0);
-		if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
+		// turn on HUD
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
+		// turn on HUD particles
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD_PARTICLES);
+
+		// if particles are off, turn off hud-particles as well
+		if (!render_particles)
 		{
-			gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
+			// turn back off HUD particles
+			gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD_PARTICLES);
 		}
 
-		BOOL has_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+		bool has_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
 		if (has_ui)
 		{
 			gPipeline.toggleRenderDebugFeature((void*) LLPipeline::RENDER_DEBUG_FEATURE_UI);
@@ -1005,6 +1044,7 @@ BOOL setup_hud_matrices(const LLRect& screen_region)
 
 void render_ui(F32 zoom_factor, int subfield)
 {
+	LLMemType mt_ru(LLMemType::MTYPE_DISPLAY_RENDER_UI);
 	LLGLState::checkStates();
 	
 	glPushMatrix();

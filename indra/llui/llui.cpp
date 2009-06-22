@@ -50,12 +50,17 @@
 // Project includes
 #include "llcontrol.h"
 #include "llui.h"
+#include "lluicolortable.h"
 #include "llview.h"
 #include "lllineeditor.h"
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llmenugl.h"
 #include "llwindow.h"
+
+// for registration
+#include "llsearcheditor.h"
+#include "llflyoutbutton.h"
 
 // for XUIParse
 #include "llquaternion.h"
@@ -83,6 +88,10 @@ std::list<std::string> gUntranslated;
 /*static*/ std::stack<LLRect> LLScreenClipRect::sClipRectStack;
 
 /*static*/ std::vector<std::string> LLUI::sXUIPaths;
+
+// register searcheditor here
+static LLDefaultWidgetRegistry::Register<LLSearchEditor> register_search_editor("search_editor");
+static LLDefaultWidgetRegistry::Register<LLFlyoutButton> register_flyout_button("flyout_button");
 
 
 //
@@ -1697,7 +1706,7 @@ void LLUI::getCursorPositionLocal(const LLView* viewp, S32 *x, S32 *y)
 // static
 std::string LLUI::getLanguage()
 {
-	std::string language = "en-us";
+	std::string language = "en";
 	if (sSettingGroups["config"])
 	{
 		language = sSettingGroups["config"]->getString("Language");
@@ -1711,7 +1720,7 @@ std::string LLUI::getLanguage()
 		}
 		if (language.empty() || language == "default")
 		{
-			language = "en-us";
+			language = "en";
 		}
 	}
 	return language;
@@ -1744,7 +1753,7 @@ void LLUI::setupPaths()
 	else // parsing failed
 	{
 		std::string slash = gDirUtilp->getDirDelimiter();
-		std::string dir = "xui" + slash + "en-us";
+		std::string dir = "xui" + slash + "en";
 		llwarns << "XUI::config file unable to open: " << filename << llendl;
 		sXUIPaths.push_back(dir);
 	}
@@ -1771,7 +1780,7 @@ std::string LLUI::locateSkin(const std::string& filename)
 	}
 	if (!gDirUtilp->fileExists(found_file))
 	{
-		std::string local_skin = "xui" + slash + "en-us" + slash + filename;
+		std::string local_skin = "xui" + slash + "en" + slash + filename;
 		found_file = gDirUtilp->findSkinnedFilename(local_skin);
 	}
 	if (!gDirUtilp->fileExists(found_file))
@@ -1858,8 +1867,11 @@ LLControlGroup& LLUI::getControlControlGroup (const std::string& controlname)
 	for (settings_map_t::iterator itor = sSettingGroups.begin();
 		 itor != sSettingGroups.end(); ++itor)
 	{
-		if (sSettingGroups[(itor->first)]->controlExists(controlname))
-			return *sSettingGroups[(itor->first)];
+		if(itor->second!= NULL)
+		{
+			if (sSettingGroups[(itor->first)]->controlExists(controlname))
+				return *sSettingGroups[(itor->first)];
+		}
 	}
 
 	return *sSettingGroups["config"]; // default group
@@ -1943,7 +1955,7 @@ namespace LLInitParam
 	{
 		if (control.isProvided())
 		{
-			return LLUI::getCachedColorFunctor(control);
+			return LLUIColorTable::instance().getColor(control);
 		}
 		else
 		{

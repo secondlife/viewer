@@ -11,7 +11,6 @@ include(ELFIO)
 include(FMOD)
 include(OPENAL)
 include(FindOpenGL)
-include(LLAddBuildTest)
 include(LLAudio)
 include(LLCharacter)
 include(LLCommon)
@@ -66,28 +65,36 @@ include_directories(
     )
 
 set(viewer_SOURCE_FILES
+    llaccordionpanel.cpp
     llagent.cpp
     llagentaccess.cpp
     llagentdata.cpp
     llagentlanguage.cpp
     llagentpilot.cpp
+    llagentwearables.cpp
     llanimstatelabels.cpp
     llappviewer.cpp
     llassetuploadresponders.cpp
     llassetuploadqueue.cpp
     llaudiosourcevo.cpp
     llavatariconctrl.cpp
+    llavatarlist.cpp
+    llavatarlistitem.cpp
     llavatarpropertiesprocessor.cpp
     llbbox.cpp
+    llbottomtray.cpp
     llbox.cpp
     llcallbacklist.cpp
     llcallingcard.cpp
     llcapabilitylistener.cpp
     llcaphttpsender.cpp
     llchatbar.cpp
+    llchathistoryscroll.cpp
+    llchiclet.cpp
     llclassifiedinfo.cpp
     llclassifiedstatsresponder.cpp
     llcloud.cpp
+    llcollapsiblectrl.cpp
     llcolorswatch.cpp
     llcommandhandler.cpp
     llcommandlineparser.cpp
@@ -99,6 +106,7 @@ set(viewer_SOURCE_FILES
     lldebugview.cpp
     lldelayedgestureerror.cpp
     lldirpicker.cpp
+    lldraggerbar.cpp
     lldrawable.cpp
     lldrawpoolalpha.cpp
     lldrawpoolavatar.cpp
@@ -126,6 +134,7 @@ set(viewer_SOURCE_FILES
     llflexibleobject.cpp
     llfloaterabout.cpp
     llfloateractivespeakers.cpp
+    llfloateraddlandmark.cpp
     llfloateranimpreview.cpp
     llfloaterauction.cpp
     llfloateravatarinfo.cpp
@@ -172,6 +181,7 @@ set(viewer_SOURCE_FILES
     llfloaterlandholdings.cpp
     llfloatermap.cpp
     llfloatermemleak.cpp
+    llfloaterminiinspector.cpp
     llfloatermute.cpp
     llfloaternamedesc.cpp
     llfloaternotificationsconsole.cpp
@@ -202,9 +212,12 @@ set(viewer_SOURCE_FILES
     llfloaterworldmap.cpp
     llfolderview.cpp
     llfollowcam.cpp
+    llfriendactions.cpp
     llgesturemgr.cpp
     llgivemoney.cpp
     llglsandbox.cpp
+    llgroupactions.cpp
+    llgrouplist.cpp
     llgroupmgr.cpp
     llgroupnotify.cpp
     llhomelocationresponder.cpp
@@ -222,7 +235,7 @@ set(viewer_SOURCE_FILES
     llhudview.cpp
     llimpanel.cpp
     llimview.cpp
-    llinventoryactions.cpp
+    llimcontrolpanel.cpp
     llinventorybridge.cpp
     llinventoryclipboard.cpp
     llinventorymodel.cpp
@@ -242,6 +255,7 @@ set(viewer_SOURCE_FILES
     llmediaremotectrl.cpp
     llmemoryview.cpp
     llmenucommands.cpp
+    llmetricperformancetester.cpp
     llmimetypes.cpp
     llmorphview.cpp
     llmoveview.cpp
@@ -250,12 +264,11 @@ set(viewer_SOURCE_FILES
     llnameeditor.cpp
     llnamelistctrl.cpp
     llnavigationbar.cpp
+    llnearbychathistory.cpp
     llnetmap.cpp
     llnotify.cpp
     lloutputmonitorctrl.cpp
     lloverlaybar.cpp
-    llpanelaudioprefs.cpp
-    llpanelaudiovolume.cpp
     llpanelavatar.cpp
     llpanelavatarrow.cpp
     llpanelclassified.cpp
@@ -268,38 +281,37 @@ set(viewer_SOURCE_FILES
     llpaneldirland.cpp
     llpaneldirpeople.cpp
     llpaneldirplaces.cpp
-    llpaneldisplay.cpp
     llpanelevent.cpp
     llpanelface.cpp
-    llpanelgeneral.cpp
     llpanelgroup.cpp
     llpanelgroupgeneral.cpp
     llpanelgroupinvite.cpp
     llpanelgrouplandmoney.cpp
     llpanelgroupnotices.cpp
     llpanelgrouproles.cpp
-    llpanelinput.cpp
     llpanelinventory.cpp
     llpanelland.cpp
+    llpanellandmarks.cpp
     llpanellandmedia.cpp
     llpanellogin.cpp
-    llpanelmsgs.cpp
-    llpanelnetwork.cpp
+    llpanelmeprofile.cpp
     llpanelobject.cpp
+    llpanelpeople.cpp
     llpanelpermissions.cpp
     llpanelpick.cpp
+    llpanelpicks.cpp
     llpanelplace.cpp
+    llpanelplaceinfo.cpp
     llpanelshower.cpp
-    llpanelskins.cpp
+    llpanelplaces.cpp
+    llpanelplacestab.cpp
+    llpanelprofileview.cpp
+    llpanelteleporthistory.cpp
     llpanelvolume.cpp
-    llpanelweb.cpp
     llparcelselection.cpp
     llpatchvertexarray.cpp
     llpolymesh.cpp
     llpolymorph.cpp
-    llprefschat.cpp
-    llprefsim.cpp
-    llprefsvoice.cpp
     llpreviewanim.cpp
     llpreview.cpp
     llpreviewgesture.cpp
@@ -310,10 +322,12 @@ set(viewer_SOURCE_FILES
     llpreviewtexture.cpp
     llproductinforequest.cpp
     llprogressview.cpp
+    llrecentpeople.cpp
     llregionposition.cpp
     llremoteparcelrequest.cpp
     llsavedsettingsglue.cpp
     llselectmgr.cpp
+    llsidetray.cpp
     llsky.cpp
     llslurl.cpp
     llspatialpartition.cpp
@@ -324,7 +338,9 @@ set(viewer_SOURCE_FILES
     llsurface.cpp
     llsurfacepatch.cpp
     llteleporthistory.cpp
+    lltexglobalcolor.cpp
     lltexlayer.cpp
+    lltexlayerparams.cpp
     lltexturecache.cpp
     lltexturectrl.cpp
     lltexturefetch.cpp
@@ -402,6 +418,7 @@ set(viewer_SOURCE_FILES
     llvlmanager.cpp
     llvoavatar.cpp
     llvoavatardefines.cpp
+    llvoavatarself.cpp
     llvocache.cpp
     llvoclouds.cpp
     llvograss.cpp
@@ -409,6 +426,7 @@ set(viewer_SOURCE_FILES
     llvoiceclient.cpp
     llvoiceremotectrl.cpp
     llvoicevisualizer.cpp
+    llvoicecontrolpanel.cpp
     llvoinventorylistener.cpp
     llvopartgroup.cpp
     llvosky.cpp
@@ -422,6 +440,7 @@ set(viewer_SOURCE_FILES
     llwaterparammanager.cpp
     llwaterparamset.cpp
     llwearable.cpp
+    llwearabledictionary.cpp
     llwearablelist.cpp
     llweb.cpp
     llwebbrowserctrl.cpp
@@ -459,12 +478,13 @@ endif (LINUX)
 set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
-
+    llaccordionpanel.h
     llagent.h
     llagentaccess.h
     llagentdata.h
     llagentlanguage.h
     llagentpilot.h
+    llagentwearables.h
     llanimstatelabels.h
     llappearance.h
     llappviewer.h
@@ -472,8 +492,11 @@ set(viewer_HEADER_FILES
     llassetuploadqueue.h
     llaudiosourcevo.h
     llavatariconctrl.h
+    llavatarlist.h
+    llavatarlistitem.h
     llavatarpropertiesprocessor.h
     llbbox.h
+    llbottomtray.h
     llbox.h
     llcallbacklist.h
     llcallingcard.h
@@ -481,9 +504,12 @@ set(viewer_HEADER_FILES
     llcapabilityprovider.h
     llcaphttpsender.h
     llchatbar.h
+    llchathistoryscroll.h
+    llchiclet.h
     llclassifiedinfo.h
     llclassifiedstatsresponder.h
     llcloud.h
+    llcollapsiblectrl.h
     llcolorswatch.h
     llcommandhandler.h
     llcommandlineparser.h
@@ -495,6 +521,7 @@ set(viewer_HEADER_FILES
     lldebugview.h
     lldelayedgestureerror.h
     lldirpicker.h
+    lldraggerbar.h
     lldrawable.h
     lldrawpool.h
     lldrawpoolalpha.h
@@ -523,6 +550,7 @@ set(viewer_HEADER_FILES
     llflexibleobject.h
     llfloaterabout.h
     llfloateractivespeakers.h
+    llfloateraddlandmark.h
     llfloateranimpreview.h
     llfloaterauction.h
     llfloateravatarinfo.h
@@ -569,6 +597,7 @@ set(viewer_HEADER_FILES
     llfloaterlandholdings.h
     llfloatermap.h
     llfloatermemleak.h
+    llfloaterminiinspector.h
     llfloatermute.h
     llfloaternamedesc.h
     llfloaternotificationsconsole.h
@@ -599,8 +628,11 @@ set(viewer_HEADER_FILES
     llfloaterworldmap.h
     llfolderview.h
     llfollowcam.h
+    llfriendactions.h
     llgesturemgr.h
     llgivemoney.h
+    llgroupactions.h
+    llgrouplist.h
     llgroupmgr.h
     llgroupnotify.h
     llhomelocationresponder.h
@@ -618,6 +650,7 @@ set(viewer_HEADER_FILES
     llhudview.h
     llimpanel.h
     llimview.h
+    llimcontrolpanel.h
     llinventorybridge.h
     llinventoryclipboard.h
     llinventorymodel.h
@@ -638,6 +671,7 @@ set(viewer_HEADER_FILES
     llmediaremotectrl.h
     llmemoryview.h
     llmenucommands.h
+    llmetricperformancetester.h
     llmimetypes.h
     llmorphview.h
     llmoveview.h
@@ -646,12 +680,11 @@ set(viewer_HEADER_FILES
     llnameeditor.h
     llnamelistctrl.h
     llnavigationbar.h
+    llnearbychathistory.h
     llnetmap.h
     llnotify.h
     lloutputmonitorctrl.h
     lloverlaybar.h
-    llpanelaudioprefs.h
-    llpanelaudiovolume.h
     llpanelavatar.h
     llpanelavatarrow.h
     llpanelclassified.h
@@ -664,38 +697,37 @@ set(viewer_HEADER_FILES
     llpaneldirland.h
     llpaneldirpeople.h
     llpaneldirplaces.h
-    llpaneldisplay.h
     llpanelevent.h
     llpanelface.h
-    llpanelgeneral.h
     llpanelgroup.h
     llpanelgroupgeneral.h
     llpanelgroupinvite.h
     llpanelgrouplandmoney.h
     llpanelgroupnotices.h
     llpanelgrouproles.h
-    llpanelinput.h
     llpanelinventory.h
     llpanelland.h
+    llpanellandmarks.h
     llpanellandmedia.h
     llpanellogin.h
-    llpanelmsgs.h
-    llpanelnetwork.h
+    llpanelmeprofile.h
     llpanelobject.h
+    llpanelpeople.h
     llpanelpermissions.h
     llpanelpick.h
+    llpanelpicks.h
     llpanelplace.h
+    llpanelplaceinfo.h
     llpanelshower.h
-    llpanelskins.h
+    llpanelplaces.h
+    llpanelplacestab.h
+    llpanelprofileview.h
+    llpanelteleporthistory.h
     llpanelvolume.h
-    llpanelweb.h
     llparcelselection.h
     llpatchvertexarray.h
     llpolymesh.h
     llpolymorph.h
-    llprefschat.h
-    llprefsim.h
-    llprefsvoice.h
     llpreview.h
     llpreviewanim.h
     llpreviewgesture.h
@@ -706,11 +738,14 @@ set(viewer_HEADER_FILES
     llpreviewtexture.h
     llproductinforequest.h
     llprogressview.h
+    llrecentpeople.h
     llregionposition.h
     llremoteparcelrequest.h
     llresourcedata.h
+    llrootview.h
     llsavedsettingsglue.h
     llselectmgr.h
+    llsidetray.h
     llsky.h
     llslurl.h
     llspatialpartition.h
@@ -722,7 +757,9 @@ set(viewer_HEADER_FILES
     llsurfacepatch.h
     lltable.h
     llteleporthistory.h
+    lltexglobalcolor.h
     lltexlayer.h
+    lltexlayerparams.h
     lltexturecache.h
     lltexturectrl.h
     lltexturefetch.h
@@ -800,6 +837,7 @@ set(viewer_HEADER_FILES
     llvlmanager.h
     llvoavatar.h
     llvoavatardefines.h
+    llvoavatarself.h
     llvocache.h
     llvoclouds.h
     llvograss.h
@@ -807,6 +845,7 @@ set(viewer_HEADER_FILES
     llvoiceclient.h
     llvoiceremotectrl.h
     llvoicevisualizer.h
+    llvoicecontrolpanel.h
     llvoinventorylistener.h
     llvopartgroup.h
     llvosky.h
@@ -821,6 +860,7 @@ set(viewer_HEADER_FILES
     llwaterparammanager.h
     llwaterparamset.h
     llwearable.h
+    llwearabledictionary.h
     llwearablelist.h
     llweb.h
     llwebbrowserctrl.h
@@ -988,12 +1028,11 @@ if (WINDOWS)
         )
 
     set(viewer_LIBRARIES
-        advapi32
+        ${WINDOWS_LIBRARIES}
         comdlg32
         ${DINPUT_LIBRARY}
         ${DXGUID_LIBRARY}
         fmodvc
-        gdi32
         kernel32
         odbc32
         odbccp32
@@ -1001,7 +1040,6 @@ if (WINDOWS)
         oleaut32
         opengl32
         shell32
-        user32
         Vfw32
         winspool
         )
@@ -1017,6 +1055,8 @@ if (WINDOWS)
     if (INTEL_MEMOPS_LIBRARY)
       list(APPEND viewer_LIBRARIES ${INTEL_MEMOPS_LIBRARY})
     endif (INTEL_MEMOPS_LIBRARY)
+
+    use_prebuilt_binary(dbghelp)
 endif (WINDOWS)
 
 # Add the xui files. This is handy for searching for xui elements
@@ -1026,11 +1066,11 @@ set(viewer_XUI_FILES
     skins/default/textures/textures.xml
     )
 file(GLOB DEFAULT_XUI_FILE_GLOB_LIST
-     ${CMAKE_CURRENT_SOURCE_DIR}/skins/default/xui/en-us/*.xml)
+     ${CMAKE_CURRENT_SOURCE_DIR}/skins/default/xui/en/*.xml)
 list(APPEND viewer_XUI_FILES ${DEFAULT_XUI_FILE_GLOB_LIST})
 
 file(GLOB DEFAULT_WIDGET_FILE_GLOB_LIST
-     ${CMAKE_CURRENT_SOURCE_DIR}/skins/default/xui/en-us/widgets/*.xml)
+     ${CMAKE_CURRENT_SOURCE_DIR}/skins/default/xui/en/widgets/*.xml)
 list(APPEND viewer_XUI_FILES ${DEFAULT_WIDGET_FILE_GLOB_LIST})
 
 file(GLOB SILVER_XUI_FILE_GLOB_LIST
@@ -1164,6 +1204,8 @@ if (WINDOWS)
     
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
+        # *TODO -reenable this once we get server usage sorted out
+        #LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:\"__tcmalloc\""
         LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS"
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
         LINK_FLAGS_RELEASE ${release_flags}
@@ -1269,6 +1311,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${XMLRPCEPI_LIBRARIES}
     ${ELFIO_LIBRARIES}
     ${LLLOGIN_LIBRARIES}
+    ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
 
 build_version(viewer)
@@ -1390,8 +1433,20 @@ if (INSTALL)
   include(${CMAKE_CURRENT_SOURCE_DIR}/ViewerInstall.cmake)
 endif (INSTALL)
 
-ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
-ADD_VIEWER_COMM_BUILD_TEST(llcapabilitylistener viewer 
-  ${CMAKE_CURRENT_SOURCE_DIR}/../llmessage/tests/test_llsdmessage_peer.py)
-ADD_VIEWER_COMM_BUILD_TEST(llxmlrpclistener viewer
-  ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llxmlrpc_peer.py)
+include(LLAddBuildTest)
+SET(viewer_TEST_SOURCE_FILES
+  llagentaccess.cpp
+  # Not *actually* a unit test, it's an integration test.
+  # Because it won't work in the new unit test iface, i've commented out
+  # and notified Nat. Delete this when it's replaced!
+  # + poppy & brad 2009-06-05
+  # llcapabilitylistener.cpp
+  )
+set_source_files_properties(
+  ${viewer_TEST_SOURCE_FILES}
+  PROPERTIES
+    LL_TEST_ADDITIONAL_SOURCE_FILES llviewerprecompiledheaders.cpp
+  )
+LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
+
+#ADD_VIEWER_BUILD_TEST(llmemoryview viewer)

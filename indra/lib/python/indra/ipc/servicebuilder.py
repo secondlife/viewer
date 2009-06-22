@@ -39,6 +39,12 @@ except:
     pass
 
 _g_builder = None
+def _builder():
+    global _g_builder
+    if _g_builder is None:
+        _g_builder = ServiceBuilder()
+    return _g_builder
+
 def build(name, context={}, **kwargs):
     """ Convenience method for using a global, singleton, service builder.  Pass arguments either via a dict or via python keyword arguments, or both!
 
@@ -55,6 +61,11 @@ def build(name, context={}, **kwargs):
     if _g_builder is None:
         _g_builder = ServiceBuilder()
     return _g_builder.buildServiceURL(name, context, **kwargs)
+
+def build_path(name, context={}, **kwargs):
+    context = context.copy()  # shouldn't modify the caller's dictionary
+    context.update(kwargs)
+    return _builder().buildPath(name, context)
 
 class ServiceBuilder(object):
     def __init__(self, services_definition = services_config):
@@ -73,11 +84,20 @@ class ServiceBuilder(object):
                 continue
             if isinstance(service_builder, dict):
                 # We will be constructing several builders
-                for name, builder in service_builder.items():
+                for name, builder in service_builder.iteritems():
                     full_builder_name = service['name'] + '-' + name
                     self.builders[full_builder_name] = builder
             else:
                 self.builders[service['name']] = service_builder
+
+    def buildPath(self, name, context):
+        """\
+        @brief given the environment on construction, return a service path.
+        @param name The name of the service.
+        @param context A dict of name value lookups for the service.
+        @returns Returns the 
+        """
+        return russ.format(self.builders[name], context)
 
     def buildServiceURL(self, name, context={}, **kwargs):
         """\

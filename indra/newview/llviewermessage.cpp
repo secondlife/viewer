@@ -126,7 +126,7 @@
 #include "llviewerthrottle.h"
 #include "llviewerwindow.h"
 #include "llvlmanager.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llvotextbubble.h"
 #include "llweb.h"
 #include "llworld.h"
@@ -137,6 +137,7 @@
 #include "llkeythrottle.h"
 
 #include <boost/tokenizer.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #if LL_WINDOWS // For Windows specific error handler
 #include "llwindebug.h"	// For the invalid message handler
@@ -892,7 +893,14 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 				LLFloaterReg::showInstance("preview_notecard", LLSD(id), take_focus);
 				break;
 			  case LLAssetType::AT_LANDMARK:
-				LLFloaterReg::showInstance("preview_landmark", LLSD(id), take_focus);
+			  	{
+					// *TODO: Embed a link to the Places panel so that user can edit the landmark right away.
+					LLInventoryCategory* parent_folder = gInventory.getCategory(item->getParentUUID());
+					LLSD args;
+					args["LANDMARK_NAME"] = item->getName();
+					args["FOLDER_NAME"] = std::string(parent_folder ? parent_folder->getName() : "unnkown");
+					LLNotifications::instance().add("LandmarkCreated", args);
+			  	}
 				break;
 			  case LLAssetType::AT_TEXTURE:
 				LLFloaterReg::showInstance("preview_texture", LLSD(id), take_focus);
@@ -977,8 +985,8 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 	LLMute mute(blocked_id, from_name, type);
 	if (LLMuteList::getInstance()->add(mute))
 	{
-		LLFloaterMute::showInstance();
-		LLFloaterMute::getInstance()->selectMute(blocked_id);
+		LLFloaterReg::showInstance("mute");
+		LLFloaterReg::getTypedInstance<LLFloaterMute>("mute")->selectMute(blocked_id);
 	}
 
 	// purge the message queue of any previously queued inventory offers from the same source.
@@ -2405,8 +2413,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		// T		*		*		*				F			Yes			Yes
 
 		chat.mMuted = is_muted && !is_linden;
-		
-		
+
 		if (!visible_in_chat_bubble 
 			&& (is_linden || !is_busy || is_owned_by_me))
 		{
@@ -2889,11 +2896,44 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	{
 		LLSD payload;
 		payload["message"] = version_channel;
-		LLNotifications::instance().add("ServerVersionChanged", LLSD(), payload);
+		LLNotifications::instance().add("ServerVersionChanged", LLSD(), payload, server_version_changed_callback);
 	}
 
 	gLastVersionChannel = version_channel;
 }
+
+bool server_version_changed_callback(const LLSD& notification, const LLSD& response)
+{
+	if(notification["payload"]["message"].asString() =="")
+		return false;
+	std::string url ="http://wiki.secondlife.com/wiki/Release_Notes/";
+	//parse the msg string
+	std::string server_version = notification["payload"]["message"].asString();
+	std::vector<std::string> s_vect;
+	boost::algorithm::split(s_vect, server_version, isspace);
+	for(U32 i = 0; i < s_vect.size(); i++)
+	{
+    	if (i != (s_vect.size() - 1))
+		{
+			if(i != (s_vect.size() - 2))
+			{
+			   url += s_vect[i] + "_";
+			}
+			else
+			{
+				url += s_vect[i] + "/";
+			}
+		}
+		else
+		{
+			url += s_vect[i].substr(0,4);
+		}
+	}
+	
+	LLWeb::loadURL(url);
+	return false;
+}
+
 
 void process_crossed_region(LLMessageSystem* msg, void**)
 {
@@ -3791,7 +3831,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 		gAgent.setSitCamera(sitObjectID, camera_eye, camera_at);
 	}
 	
-	gAgent.mForceMouselook = force_mouselook;
+	gAgent.setForceMouselook(force_mouselook);
 
 	LLViewerObject* object = gObjectList.findObject(sitObjectID);
 	if (object)
@@ -4355,8 +4395,8 @@ void handle_show_mean_events(void *)
 	{
 		return;
 	}
-
-	LLFloaterBump::showInstance();
+	LLFloaterReg::showInstance("bumps");
+	//LLFloaterBump::showInstance();
 }
 
 void mean_name_callback(const LLUUID &id, const std::string& first, const std::string& last, BOOL always_false)
@@ -4855,7 +4895,14 @@ void container_inventory_arrived(LLViewerObject* object,
 // method to format the time.
 std::string formatted_time(const time_t& the_time)
 {
-	std::string dateStr = LLTrans::getString("ViewerMsgGenericTime");
+	std::string dateStr = "["+LLTrans::getString("LTimeWeek")+"] ["
+						+LLTrans::getString("LTimeMonth")+"] ["
+						+LLTrans::getString("LTimeDay")+"] ["
+						+LLTrans::getString("LTimeHour")+"]:["
+						+LLTrans::getString("LTimeMin")+"]:["
+						+LLTrans::getString("LTimeSec")+"] ["
+						+LLTrans::getString("LTimeYear")+"]";
+
 	LLSD substitution;
 	substitution["datetime"] = (S32) the_time;
 	LLStringUtil::format (dateStr, substitution);
@@ -4927,6 +4974,9 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 
 	LLNotifications::instance().add("CouldNotTeleportReason", args);
 
+	// Let the interested parties know that teleport failed.
+	LLViewerParcelMgr::getInstance()->onTeleportFailed();
+
 	if( gAgent.getTeleportState() != LLAgent::TELEPORT_NONE )
 	{
 		gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
@@ -4955,6 +5005,9 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 	{
 		gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 	}
+
+	// Let the interested parties know we've teleported.
+	LLViewerParcelMgr::getInstance()->onTeleportFinished();
 
 	// Sim tells us whether the new position is off the ground
 	if (teleport_flags & TELEPORT_FLAGS_IS_FLYING)
@@ -5083,13 +5136,13 @@ void handle_lure(const LLUUID& invitee)
 }
 
 // Prompt for a message to the invited user.
-void handle_lure(std::vector<LLUUID>& ids) 
+void handle_lure(const std::vector<LLUUID>& ids)
 {
 	LLSD edit_args;
 	edit_args["REGION"] = gAgent.getRegion()->getName();
 
 	LLSD payload;
-	for (LLDynamicArray<LLUUID>::iterator it = ids.begin();
+	for (LLDynamicArray<LLUUID>::const_iterator it = ids.begin();
 		it != ids.end();
 		++it)
 	{
@@ -5256,6 +5309,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	S32 button_count = msg->getNumberOfBlocks("Buttons");
 	if (button_count > SCRIPT_DIALOG_MAX_BUTTONS)
 	{
+		llwarns << "Too many script dialog buttons - omitting some" << llendl;
 		button_count = SCRIPT_DIALOG_MAX_BUTTONS;
 	}
 
@@ -5465,10 +5519,25 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLFloaterBuyLand::updateEstateName(estate_name);
 
 	// standard message, not from system
-	std::string last_modified = LLTrans::getString("last_modified");
-	LLSD substitution;
-	substitution["datetime"] = (S32) covenant_timestamp;
-	LLStringUtil::format (last_modified, substitution);
+	std::string last_modified;
+	if (covenant_timestamp == 0)
+	{
+		last_modified = LLTrans::getString("covenant_last_modified")+LLTrans::getString("never_text");
+	}
+	else
+	{
+		last_modified = LLTrans::getString("covenant_last_modified")+"["
+						+LLTrans::getString("LTimeWeek")+"] ["
+						+LLTrans::getString("LTimeMonth")+"] ["
+						+LLTrans::getString("LTimeDay")+"] ["
+						+LLTrans::getString("LTimeHour")+"]:["
+						+LLTrans::getString("LTimeMin")+"]:["
+						+LLTrans::getString("LTimeSec")+"] ["
+						+LLTrans::getString("LTimeYear")+"]";
+		LLSD substitution;
+		substitution["datetime"] = (S32) covenant_timestamp;
+		LLStringUtil::format (last_modified, substitution);
+	}
 
 	LLPanelEstateCovenant::updateLastModified(last_modified);
 	LLPanelLandCovenant::updateLastModified(last_modified);

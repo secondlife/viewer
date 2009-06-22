@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
-     It is only for those strings which don&apos;t belong in a floater.
+     It is only for those strings which do not belong in a floater.
      For example, the strings used in avatar chat bubbles, and strings 
      that are returned from one component and may appear in many places-->
 <strings>
@@ -417,6 +417,30 @@
 	</string>
 	<string name="shout">
 		の叫び:
+	</string>
+	<string name="SIM_ACCESS_PG">
+		PG
+	</string>
+	<string name="SIM_ACCESS_MATURE">
+		Mature
+	</string>
+	<string name="SIM_ACCESS_ADULT">
+		Adult
+	</string>
+	<string name="SIM_ACCESS_DOWN">
+		オフライン
+	</string>
+	<string name="SIM_ACCESS_MIN">
+		不明
+	</string>
+	<string name="land_type_unknown">
+		（不明）
+	</string>
+	<string name="covenant_never_modified">
+		最終修正： （無）
+	</string>
+	<string name="covenant_modified">
+		最終修正：
 	</string>
 	<string name="all_files">
 		全てのファイル

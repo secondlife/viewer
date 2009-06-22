@@ -46,12 +46,11 @@
 #include "llfloateravatarpicker.h"
 #include "llviewerwindow.h"
 #include "llbutton.h"
-#include "llfloateravatarinfo.h"
+#include "llfriendactions.h"
 #include "llinventorymodel.h"
 #include "llnamelistctrl.h"
 #include "llnotify.h"
 #include "llresmgr.h"
-#include "llimview.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcell.h"
@@ -62,6 +61,8 @@
 #include "lltimer.h"
 #include "lltextbox.h"
 #include "llvoiceclient.h"
+
+// *TODO: Move more common stuff to LLFriendActions?
 
 //Maximum number of people you can select to do an operation on at once.
 #define MAX_FRIEND_SELECT 20
@@ -541,14 +542,11 @@ void LLPanelFriends::onClickProfile(void* user_data)
 {
 	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
 
-	//llinfos << "LLPanelFriends::onClickProfile()" << llendl;
 	std::vector<LLUUID> ids = panelp->getSelectedIDs();
 	if(ids.size() > 0)
 	{
 		LLUUID agent_id = ids[0];
-		BOOL online;
-		online = LLAvatarTracker::instance().isBuddyOnline(agent_id);
-		LLFloaterAvatarInfo::showFromFriend(agent_id, online);
+		LLFriendActions::showProfile(agent_id);
 	}
 }
 
@@ -557,74 +555,18 @@ void LLPanelFriends::onClickIM(void* user_data)
 {
 	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
 
-	//llinfos << "LLPanelFriends::onClickIM()" << llendl;
 	std::vector<LLUUID> ids = panelp->getSelectedIDs();
 	if(ids.size() > 0)
 	{
 		if(ids.size() == 1)
 		{
-			LLUUID agent_id = ids[0];
-			const LLRelationship* info = LLAvatarTracker::instance().getBuddyInfo(agent_id);
-			std::string fullname;
-			if(info && gCacheName->getFullName(agent_id, fullname))
-			{
-				gIMMgr->addSession(fullname, IM_NOTHING_SPECIAL, agent_id);
-			}		
+			LLFriendActions::startIM(ids[0]);
 		}
 		else
 		{
-			// *HACK: Copy into dynamic array
-			LLDynamicArray<LLUUID> id_array;
-			for (std::vector<LLUUID>::iterator it = ids.begin(); it != ids.end(); ++it)
-			{
-				id_array.push_back(*it);
-			}
-			gIMMgr->addSession("Friends Conference", IM_SESSION_CONFERENCE_START, ids[0], id_array);
+			LLFriendActions::startConference(ids);
 		}
-		make_ui_sound("UISndStartIM");
 	}
-}
-
-// static
-void LLPanelFriends::requestFriendship(const LLUUID& target_id, const std::string& target_name, const std::string& message)
-{
-	LLUUID calling_card_folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CALLINGCARD);
-	send_improved_im(target_id,
-					 target_name,
-					 message,
-					 IM_ONLINE,
-					 IM_FRIENDSHIP_OFFERED,
-					 calling_card_folder_id);
-}
-
-// static
-bool LLPanelFriends::callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-	if (option == 0)
-	{
-		requestFriendship(notification["payload"]["id"].asUUID(), 
-		    notification["payload"]["name"].asString(),
-		    response["message"].asString());
-	}
-	return false;
-}
-
-bool LLPanelFriends::callbackAddFriend(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-	if (option == 0)
-	{
-		// Servers older than 1.25 require the text of the message to be the
-		// calling card folder ID for the offering user. JC
-		LLUUID calling_card_folder_id = 
-			gInventory.findCategoryUUIDForType(LLAssetType::AT_CALLINGCARD);
-		std::string message = calling_card_folder_id.asString();
-		requestFriendship(notification["payload"]["id"].asUUID(), 
-		    notification["payload"]["name"].asString(),
-		    message);
-	}
-    return false;
 }
 
 // static
@@ -634,35 +576,7 @@ void LLPanelFriends::onPickAvatar(const std::vector<std::string>& names,
 {
 	if (names.empty()) return;
 	if (ids.empty()) return;
-	requestFriendshipDialog(ids[0], names[0]);
-}
-
-// static
-void LLPanelFriends::requestFriendshipDialog(const LLUUID& id,
-											   const std::string& name)
-{
-	if(id == gAgentID)
-	{
-		LLNotifications::instance().add("AddSelfFriend");
-		return;
-	}
-
-	LLSD args;
-	args["NAME"] = name;
-	LLSD payload;
-	payload["id"] = id;
-	payload["name"] = name;
-    // Look for server versions like: Second Life Server 1.24.4.95600
-	if (gLastVersionChannel.find(" 1.24.") != std::string::npos)
-	{
-		// Old and busted server version, doesn't support friend
-		// requests with messages.
-    	LLNotifications::instance().add("AddFriend", args, payload, &callbackAddFriend);
-	}
-	else
-	{
-    	LLNotifications::instance().add("AddFriendWithMessage", args, payload, &callbackAddFriendWithMessage);
-	}
+	LLFriendActions::requestFriendshipDialog(ids[0], names[0]);
 }
 
 // static
@@ -681,53 +595,14 @@ void LLPanelFriends::onClickAddFriend(void* user_data)
 void LLPanelFriends::onClickRemove(void* user_data)
 {
 	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
-
-	//llinfos << "LLPanelFriends::onClickRemove()" << llendl;
-	std::vector<LLUUID> ids = panelp->getSelectedIDs();
-	LLSD args;
-	if(ids.size() > 0)
-	{
-		std::string msgType = "RemoveFromFriends";
-		if(ids.size() == 1)
-		{
-			LLUUID agent_id = ids[0];
-			std::string first, last;
-			if(gCacheName->getName(agent_id, first, last))
-			{
-				args["FIRST_NAME"] = first;
-				args["LAST_NAME"] = last;	
-			}
-		}
-		else
-		{
-			msgType = "RemoveMultipleFromFriends";
-		}
-		LLSD payload;
-
-		for (LLDynamicArray<LLUUID>::iterator it = ids.begin();
-			it != ids.end();
-			++it)
-		{
-			payload["ids"].append(*it);
-		}
-
-		LLNotifications::instance().add(msgType,
-			args,
-			payload,
-			&handleRemove);
-	}
+	LLFriendActions::removeFriendsDialog(panelp->getSelectedIDs());
 }
 
 // static
 void LLPanelFriends::onClickOfferTeleport(void* user_data)
 {
 	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
-
-	std::vector<LLUUID> ids = panelp->getSelectedIDs();
-	if(ids.size() > 0)
-	{	
-		handle_lure(ids);
-	}
+	LLFriendActions::offerTeleport(panelp->getSelectedIDs());
 }
 
 // static
@@ -935,43 +810,4 @@ void LLPanelFriends::sendRightsGrant(rights_map_t& ids)
 
 	mNumRightsChanged = ids.size();
 	gAgent.sendReliableMessage();
-}
-
-
-
-// static
-bool LLPanelFriends::handleRemove(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-
-	const LLSD& ids = notification["payload"]["ids"];
-	for(LLSD::array_const_iterator itr = ids.beginArray(); itr != ids.endArray(); ++itr)
-	{
-		LLUUID id = itr->asUUID();
-		const LLRelationship* ip = LLAvatarTracker::instance().getBuddyInfo(id);
-		if(ip)
-		{			
-			switch(option)
-			{
-			case 0: // YES
-				if( ip->isRightGrantedTo(LLRelationship::GRANT_MODIFY_OBJECTS))
-				{
-					LLAvatarTracker::instance().empower(id, FALSE);
-					LLAvatarTracker::instance().notifyObservers();
-				}
-				LLAvatarTracker::instance().terminateBuddy(id);
-				LLAvatarTracker::instance().notifyObservers();
-				gInventory.addChangedMask(LLInventoryObserver::LABEL | LLInventoryObserver::CALLING_CARD, LLUUID::null);
-				gInventory.notifyObservers();
-				break;
-
-			case 1: // NO
-			default:
-				llinfos << "No removal performed." << llendl;
-				break;
-			}
-		}
-		
-	}
-	return false;
 }

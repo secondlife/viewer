@@ -35,7 +35,7 @@
 #include "llfocusmgr.h"
 #include "lluictrlfactory.h"
 
-static LLRegisterWidget<LLViewBorder> r("view_border");
+static LLDefaultWidgetRegistry::Register<LLViewBorder> r("view_border");
 
 void LLViewBorder::BevelValues::declareValues()
 {

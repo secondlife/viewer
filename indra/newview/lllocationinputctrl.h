@@ -1,5 +1,5 @@
 /** 
- * @file lllocationinputmonitorctrl.h
+ * @file lllocationinputctrl.h
  * @brief Combobox-like location input control
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
@@ -33,216 +33,87 @@
 #ifndef LL_LLLOCATIONINPUTCTRL_H
 #define LL_LLLOCATIONINPUTCTRL_H
 
-#include "llbutton.h"
-#include "lluictrl.h"
-#include "llctrlselectioninterface.h"
-#include "llimagegl.h"
-#include "llrect.h"
-#include "llscrolllistitem.h"
-#include <boost/function.hpp>
+#include <llcombobox.h>
 
-// Classes
-class LLButton;
-class LLFontGL;
-class LLLineEditor;
-class LLScrollListCtrl;
-class LLSquareButton;
-class LLUICtrlFactory;
-class LLViewBorder;
+class LLLandmark;
+
+// internals
+class LLAddLandmarkObserver;
+class LLRemoveLandmarkObserver;
 
 /**
  * Location input control.
  * 
- * This is currently just a copy of LLComboBox (which is not exactly what the nav bar needs).
- * The only major difference so far is the way auto-completion works.
- * 
  * @see LLNavigationBar
  */
 class LLLocationInputCtrl
-:	public LLUICtrl, public LLCtrlListInterface
+:	public LLComboBox
 {
 	LOG_CLASS(LLLocationInputCtrl);
-	
+	friend class LLAddLandmarkObserver;
+	friend class LLRemoveLandmarkObserver;
+
 public:
 	struct Params 
-	:	public LLInitParam::Block<Params, LLUICtrl::Params>
+	:	public LLInitParam::Block<Params, LLComboBox::Params>
 	{
-		Optional<bool>	allow_text_entry, select_on_focus;
-		Optional<S32>	max_chars;
-		Optional<commit_callback_t> prearrange_callback;
-		Optional<commit_callback_t> text_entry_callback;
-		Optional<commit_callback_t > selection_callback;
-		Optional<LLUIImage*> arrow_image;
-Multiple<LLScrollListItem::Params> items;
-		
-		Params() 
-		:	allow_text_entry("allow_text_entry", false),
-			select_on_focus("select_on_focus", true),
-			max_chars("max_chars", 20),
-			arrow_image("arrow_image", LLUI::getUIImage("combobox_arrow.tga")),
-			items("item")
-		{
-			addSynonym(items, "combo_item");
-		}
+		Optional<LLUIImage*>				add_landmark_image_enabled,
+											add_landmark_image_disabled;
+		Optional<S32>						add_landmark_hpad;
+		Optional<LLButton::Params>			add_landmark_button,
+											info_button,
+											background;
+		Params();
 	};
 
-	typedef enum e_preferred_position
-	{
-		ABOVE,
-		BELOW
-	} EPreferredPosition;
-
-	virtual ~LLLocationInputCtrl(); 
-protected:
-	friend class LLUICtrlFactory;
-	LLLocationInputCtrl(const Params&);
-public:
 	// LLView interface
-
-	virtual BOOL	postBuild();
-	virtual void	draw();
-	virtual void	onFocusLost();
-
-	virtual void	setEnabled(BOOL enabled);
-
-	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect);
-	virtual BOOL	handleKeyHere(KEY key, MASK mask);
-	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
+	/*virtual*/ void		setEnabled(BOOL enabled);
+	/*virtual*/ BOOL		handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect);
+	/*virtual*/ BOOL		handleKeyHere(KEY key, MASK mask);
+	//========================================================================
 
 	// LLUICtrl interface
-	virtual void	clear();					// select nothing
-	virtual void	onCommit();
-	virtual BOOL	acceptsTextInput() const		{ return mAllowTextEntry; }
-	virtual BOOL	isDirty() const;			// Returns TRUE if the user has modified this control.
-	virtual void	resetDirty();				// Clear dirty state
-
-	virtual void	setFocus(BOOL b);
-
-	// Selects item by underlying LLSD value, using LLSD::asString() matching.  
-	// For simple items, this is just the name of the label.
-	virtual void	setValue(const LLSD& value );
-
-	// Gets underlying LLSD value for currently selected items.  For simple
-	// items, this is just the label.
-	virtual LLSD	getValue() const;
-
-	void			setTextEntry(const LLStringExplicit& text);
-	void			setText(const LLStringExplicit& text);
-
-	LLScrollListItem*	add(const std::string& name, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);	// add item "name" to menu
-	LLScrollListItem*	add(const std::string& name, const LLUUID& id, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);
-	LLScrollListItem*	add(const std::string& name, void* userdata, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);
-	LLScrollListItem*	add(const std::string& name, LLSD value, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);
-	LLScrollListItem*	addSeparator(EAddPosition pos = ADD_BOTTOM);
-	BOOL			remove( S32 index );	// remove item by index, return TRUE if found and removed
-	void			removeall() { clearRows(); }
-
-	void			sortByName(BOOL ascending = TRUE); // Sort the entries in the combobox by name
-
-	// Select current item by name using selectItemByLabel.  Returns FALSE if not found.
-	BOOL			setSimple(const LLStringExplicit& name);
-	// Get name of current item. Returns an empty string if not found.
-	const std::string	getSimple() const;
-	// Get contents of column x of selected row
-	const std::string getSelectedItemLabel(S32 column = 0) const;
-
-	// Sets the label, which doesn't have to exist in the label.
-	// This is probably a UI abuse.
-	void			setLabel(const LLStringExplicit& name);
-
-	BOOL			remove(const std::string& name);	// remove item "name", return TRUE if found and removed
-	
-	BOOL			setCurrentByIndex( S32 index );
-	S32				getCurrentIndex() const;
-
-	virtual void	updateLayout();
-
+	/*virtual*/ void		setFocus(BOOL b);
 	//========================================================================
-	LLCtrlSelectionInterface* getSelectionInterface()	{ return (LLCtrlSelectionInterface*)this; };
-	LLCtrlListInterface* getListInterface()				{ return (LLCtrlListInterface*)this; };
 
-	// LLCtrlListInterface functions
-	// See llscrolllistctrl.h
-	virtual S32		getItemCount() const;
-	// Overwrites the default column (See LLScrollListCtrl for format)
-	virtual void 	addColumn(const LLSD& column, EAddPosition pos = ADD_BOTTOM);
-	virtual void 	clearColumns();
-	virtual void	setColumnLabel(const std::string& column, const std::string& label);
-	virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
-	virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos = ADD_BOTTOM, const LLSD& id = LLSD());
-	virtual void 	clearRows();
-	virtual void 	sortByColumn(const std::string& name, BOOL ascending);
-
-	// LLCtrlSelectionInterface functions
-	virtual BOOL	getCanSelect() const				{ return TRUE; }
-	virtual BOOL	selectFirstItem()					{ return setCurrentByIndex(0); }
-	virtual BOOL	selectNthItem( S32 index )			{ return setCurrentByIndex(index); }
-	virtual BOOL	selectItemRange( S32 first, S32 last );
-	virtual S32		getFirstSelectedIndex() const		{ return getCurrentIndex(); }
-	virtual BOOL	setCurrentByID( const LLUUID& id );
-	virtual LLUUID	getCurrentID() const;				// LLUUID::null if no items in menu
-	virtual BOOL	setSelectedByValue(const LLSD& value, BOOL selected);
-	virtual LLSD	getSelectedValue();
-	virtual BOOL	isSelected(const LLSD& value) const;
-	virtual BOOL	operateOnSelection(EOperation op);
-	virtual BOOL	operateOnAll(EOperation op);
-
+	// LLComboBox interface
+	void					hideList();
+	void					onTextEntry(LLLineEditor* line_editor);
 	//========================================================================
-	
-	void*			getCurrentUserdata();
 
-	void			setPrearrangeCallback( commit_callback_t cb ) { mPrearrangeCallback = cb; }
-	void			setTextEntryCallback( commit_callback_t cb ) { mTextEntryCallback = cb; }
-	void			setSelectionCallback( commit_callback_t cb ) { mSelectionCallback = cb; }
+	LLLineEditor*			getTextEntry() const { return mTextEntry; }
+	void					handleLoginComplete();
 
-	void			setButtonVisible(BOOL visible);
+private:
+	friend class LLUICtrlFactory;
+	LLLocationInputCtrl(const Params&);
+	virtual ~LLLocationInputCtrl();
 
-	void			onButtonDown();
-	void			onItemSelected(const LLSD& data);
-	void			onTextCommit(const LLSD& data);
+	void					focusTextEntry();
+	void					enableAddLandmarkButton(bool val);
+	void					refresh();
+	void					refreshLocation();
+	void					rebuildLocationHistory(std::string filter = "");
+	void					setText(const LLStringExplicit& text);
+	void					updateAddLandmarkButton();
+	void					updateWidgetlayout();
 
-	virtual void	updateSelection();
-	virtual void	showList();
-	virtual void	hideList();
-	
-	//========================================================================
-	BOOL childHasFocus() const; /// Is one of our children focused?
-	
-	BOOL	canCut()		const;
-	BOOL	canCopy()		const;
-	BOOL	canPaste()		const;
-	BOOL	canDeselect()	const;
-	BOOL	canSelectAll()	const;
-	
-	void	cut();
-	void	copy();
-	void	paste();
-	void	deleteSelection();
-	void	selectAll();
-	//========================================================================
-	
-	void	onTextEntry(LLLineEditor* line_editor);
-	
-protected:
+	void					onFocusReceived();
+	void					onFocusLost();
+	void					onInfoButtonClicked();
+	void					onLocationHistoryLoaded();
+	void					onLocationPrearrange(const LLSD& data);
+	void					onLandmarkLoaded(LLLandmark* lm);
+	void					onAddLandmarkButtonClicked();
+	void					onAgentParcelChange();
 
-	void				prearrangeList(std::string filter = "");
+	LLButton*				mBackground;
+	LLButton*				mAddLandmarkBtn;
+	LLButton*				mInfoBtn;
+	S32						mAddLandmarkHPad;
 
-
-	LLButton*			mButton;
-	LLScrollListCtrl*	mList;
-	EPreferredPosition	mListPosition;
-	LLPointer<LLUIImage>	mArrowImage;
-	std::string			mLabel;
-	S32					mButtonPadding;
-	LLLineEditor*		mTextEntry;
-	BOOL				mAllowTextEntry;
-	BOOL				mSelectOnFocus;
-	BOOL				mHasAutocompletedText;
-	S32					mMaxChars;
-	BOOL				mTextEntryTentative;
-	commit_callback_t	mPrearrangeCallback;
-	commit_callback_t	mTextEntryCallback;
-	commit_callback_t	mSelectionCallback;
+	LLAddLandmarkObserver*		mAddLandmarkObserver;
+	LLRemoveLandmarkObserver*	mRemoveLandmarkObserver;
 };
 
 #endif

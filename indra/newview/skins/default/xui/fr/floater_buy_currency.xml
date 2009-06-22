@@ -23,13 +23,13 @@
 		[NAME] L$ [PRICE]
 	</text>
 	<text name="currency_action">
-		Acheter des L$
+		Acheter 
 	</text>
-	<line_editor name="currency_amt">
+	<line_editor name="currency_amt" width="65">
 		1234
 	</line_editor>
-	<text name="currency_est" width="138">
-		pour environ [USD] US$
+	<text name="currency_est" width="138" left_delta="68">
+		L$  pour environ [USD] US$
 	</text>
 	<text name="getting_data" width="138">
 		Obtention des données...
@@ -52,11 +52,12 @@
 	<text name="total_amount">
 		[AMT] L$
 	</text>
-	<text name="purchase_warning_repurchase">
-		En confirmant cette transaction, vous achetez uniquement les devises.
-Vous devrez recommencer cette opération.
+	<text name="purchase_warning_repurchase" height="48" bottom_delta="-64" right="-10">
+		En confirmant cette transaction, vous achetez
+uniquement les devises. Vous devrez recommencer
+cette opération.
 	</text>
-	<text name="purchase_warning_notenough">
+	<text name="purchase_warning_notenough" bottom_delta="16">
 		Vous n&apos;achetez pas assez de devises.
 Veuillez saisir un montant plus élevé.
 	</text>

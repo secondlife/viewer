@@ -172,6 +172,9 @@ void LLAssetUploadResponder::uploadUpload(const LLSD& content)
 
 void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 {
+	// remove the "Uploading..." message
+	LLUploadDialog::modalUploadFinished();
+	
 	std::string reason = content["state"];
 	// deal with L$ errors
 	if (reason == "insufficient funds")
@@ -335,11 +338,11 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 }
 
 LLSendTexLayerResponder::LLSendTexLayerResponder(const LLSD& post_data,
-														   const LLUUID& vfile_id,
-														   LLAssetType::EType asset_type,
-														   LLBakedUploadData * baked_upload_data)
-												: LLAssetUploadResponder(post_data, vfile_id, asset_type),
-												mBakedUploadData(baked_upload_data)
+												 const LLUUID& vfile_id,
+												 LLAssetType::EType asset_type,
+												 LLBakedUploadData * baked_upload_data) : 
+	LLAssetUploadResponder(post_data, vfile_id, asset_type),
+	mBakedUploadData(baked_upload_data)
 {
 }
 

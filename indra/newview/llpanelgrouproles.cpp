@@ -36,8 +36,8 @@
 
 #include "llagent.h"
 #include "llbutton.h"
-#include "llfloateravatarinfo.h"
 #include "llfloatergroupinvite.h"
+#include "llfriendactions.h"
 #include "lliconctrl.h"
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
@@ -1289,7 +1289,7 @@ void LLPanelGroupMembersSubTab::handleMemberDoubleClick()
 	LLScrollListItem* selected = mMembersList->getFirstSelected();
 	if (selected)
 	{
-		LLFloaterAvatarInfo::showFromDirectory( selected->getUUID() );
+		LLFriendActions::showProfile(selected->getUUID());
 	}
 }
 

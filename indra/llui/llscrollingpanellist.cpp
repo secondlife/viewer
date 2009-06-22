@@ -35,7 +35,7 @@
 
 #include "llscrollingpanellist.h"
 
-static LLRegisterWidget<LLScrollingPanelList> r("scrolling_panel_list");
+static LLDefaultWidgetRegistry::Register<LLScrollingPanelList> r("scrolling_panel_list");
 
 
 /////////////////////////////////////////////////////////////////////

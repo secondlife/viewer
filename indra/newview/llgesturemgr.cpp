@@ -55,8 +55,9 @@
 #include "llinventorymodel.h"
 #include "llnotify.h"
 #include "llviewermessage.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llviewerstats.h"
+#include "llbottomtray.h"
 
 LLGestureManager gGestureManager;
 
@@ -868,9 +869,11 @@ void LLGestureManager::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 			std::string chat_text = chat_step->mChatText;
 			// Don't animate the nodding, as this might not blend with
 			// other playing animations.
+
 			const BOOL animate = FALSE;
 
-			gChatBar->sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
+			LLBottomTray::getInstance()->sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
+
 			gesture->mCurrentStep++;
 			break;
 		}

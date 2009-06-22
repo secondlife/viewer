@@ -69,23 +69,15 @@
 		Ustawienia Odbić:
 	</text>
 	<radio_group name="ReflectionDetailRadio">
-		<radio_item type="string" length="1" name="0">
-			Teren i Drzewa
-		</radio_item>
-		<radio_item type="string" length="1" name="1">
-			Obiekty Statyczne
-		</radio_item>
-		<radio_item type="string" length="1" name="2">
-			Awatary i Obiekty
-		</radio_item>
-		<radio_item type="string" length="1" name="3">
-			Wszystko
-		</radio_item>
+		<radio_item type="string" length="1" name="0" label="Teren i Drzewa" />
+		<radio_item type="string" length="1" name="1" label="Obiekty Statyczne" />
+		<radio_item type="string" length="1" name="2" label="Awatary i Obiekty" />
+		<radio_item type="string" length="1" name="3" label="Wszystko" />
 	</radio_group>
 	<text type="string" length="1" name="AvatarRenderingText">
 		Prezentacja Awatarów:
 	</text>
-	<check_box label="Fałszywe Awatary" name="AvatarImpostors" />
+        <check_box label="Impostoryzacja Awatarowa" name="AvatarImpostors" />
 	<check_box label="Skinning" name="AvatarVertexProgram" />
 	<check_box label="Ubranie Awatarów" name="AvatarCloth" />
 	<text type="string" length="1" name="DrawDistanceMeterText1">
@@ -131,23 +123,15 @@
 		Ustawienia Światła:
 	</text>
 	<radio_group name="LightingDetailRadio">
-		<radio_item type="string" length="1" name="SunMoon">
-			Tylko Słońce i Księżyc
-		</radio_item>
-		<radio_item type="string" length="1" name="LocalLights">
-			Tylko Bliskie Światła
-		</radio_item>
+		<radio_item type="string" length="1" name="SunMoon" label="Tylko Słońce i Księżyc" />
+		<radio_item type="string" length="1" name="LocalLights" label="Tylko Bliskie Światła" />
 	</radio_group>
 	<text type="string" length="1" name="TerrainDetailText">
 		Szczgóły Terenu:
 	</text>
 	<radio_group name="TerrainDetailRadio">
-		<radio_item type="string" length="1" name="0">
-			Mało
-		</radio_item>
-		<radio_item type="string" length="1" name="2">
-			Dużo
-		</radio_item>
+		<radio_item type="string" length="1" name="0" label="Mało" />
+		<radio_item type="string" length="1" name="2" label="Dużo" />
 	</radio_group>
 	<button label="Ustawienia Domyślne" name="Defaults" />
 	<button label="Ustawnia Sprzętowe" label_selected="Ustawienia Sprzętowe"

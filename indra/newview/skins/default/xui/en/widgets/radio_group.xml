@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<radio_group draw_border="true"
+             name="radio_group"
+             mouse_opaque="true"
+             follows="left|top"
+             font="SansSerifSmall"/>

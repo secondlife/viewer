@@ -79,7 +79,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llvovolume.h"
 #include "pipeline.h"
 
@@ -5393,6 +5393,11 @@ void dialog_refresh_all()
 	gFloaterTools->dirty();
 
 	gPieObject->needsArrange();
+
+	if( gPieAttachment->getVisible() )
+	{
+		gPieAttachment->arrange();
+	}
 
 	LLFloaterProperties::dirtyAll();
 	LLFloaterInspect::dirty();

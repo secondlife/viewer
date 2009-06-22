@@ -47,6 +47,7 @@
 
 // newview
 #include "llagent.h"		// todo: remove
+#include "llanimationstates.h"
 #include "llassetuploadresponders.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
@@ -70,6 +71,7 @@
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"		// busycount
+#include "llvoavatarself.h"
 #include "llappviewer.h"			// gVFS
 #include "llanimstatelabels.h"
 #include "llresmgr.h"

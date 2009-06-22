@@ -414,12 +414,6 @@ public:
 	void completeSale(U32& type, U8& flags, LLUUID& to_id);
 	void clearSale();
 
-	// this function returns TRUE if the parcel needs conversion to a
-	// lease from a non-owned-status state.
-	BOOL getRecordTransaction() const { return mRecordTransaction; }
-	void setRecordTransaction(BOOL record) { mRecordTransaction = record; }
-
-
 	// more accessors
 	U32		getParcelFlags() const			{ return mParcelFlags; }
 
@@ -597,8 +591,6 @@ protected:
 	ELandingType mLandingType;
 	LLTimer mSaleTimerExpires;
 	S32 mGraceExtension;
-	BOOL mRecordTransaction;
-	
 
 	// This value is non-zero if there is an auction associated with
 	// the parcel.

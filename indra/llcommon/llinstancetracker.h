@@ -42,6 +42,7 @@
 // This mix-in class adds support for tracking all instances of the specified class parameter T
 // The (optional) key associates a value of type KEY with a given instance of T, for quick lookup
 // If KEY is not provided, then instances are stored in a simple set
+// *NOTE: see explicit specialization below for default KEY==T* case
 template<typename T, typename KEY = T*>
 class LLInstanceTracker : boost::noncopyable
 {
@@ -83,6 +84,8 @@ private:
 	static std::map<KEY, T*>* sInstances;
 };
 
+// explicit specialization for default case where KEY is T*
+// use a simple std::set<T*>
 template<typename T>
 class LLInstanceTracker<T, T*>
 {
@@ -90,8 +93,8 @@ public:
 	typedef typename std::set<T*>::iterator instance_iter;
 	typedef typename std::set<T*>::const_iterator instance_const_iter;
 
-	static instance_iter instancesBegin() { return getSet().begin(); }
-	static instance_iter instancesEnd() { return getSet().end(); }
+	static instance_iter beginInstances() { return getSet().begin(); }
+	static instance_iter endInstances() { return getSet().end(); }
 	static S32 instanceCount() { return getSet().size(); }
 
 protected:

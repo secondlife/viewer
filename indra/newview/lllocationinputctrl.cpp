@@ -1,5 +1,5 @@
-/** 
- * @file lllocationinputmonitorctrl.cpp
+/**
+ * @file lllocationinputctrl.cpp
  * @brief Combobox-like location input control
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
@@ -36,1091 +36,482 @@
 #include "lllocationinputctrl.h"
 
 // common includes
-#include <llstring.h>
-#include <llcombobox.h>
+#include "llbutton.h"
+#include "llfloaterreg.h"
+#include "llfocusmgr.h"
+#include "llkeyboard.h"
+#include "llstring.h"
+#include "lluictrlfactory.h"
+#include "v2math.h"
 
 // newview includes
-#include "llbutton.h"
-#include "llkeyboard.h"
-#include "llscrolllistctrl.h"
-#include "llwindow.h"
-#include "llfloater.h"
-#include "llscrollbar.h"
-#include "llscrolllistcell.h"
-#include "llscrolllistitem.h"
-#include "llcontrol.h"
-#include "llfocusmgr.h"
-#include "lllineeditor.h"
-#include "v2math.h"
-#include "lluictrlfactory.h"
+#include "llagent.h"
+#include "llfloaterland.h"
+#include "llinventorymodel.h"
+#include "lllandmarklist.h"
+#include "lllocationhistory.h"
+#include "llpanelplaces.h"
+#include "llsidetray.h"
+#include "llviewerinventory.h"
+#include "llviewerparcelmgr.h"
 
-// Globals
-static S32 MAX_COMBO_WIDTH = 500;
+//============================================================================
+/*
+ * "ADD LANDMARK" BUTTON UPDATING LOGIC
+ * 
+ * If the current parcel has been landmarked, we should draw
+ * a special image on the button.
+ * 
+ * To avoid determining the appropriate image on every draw() we do that
+ * only in the following cases:
+ * 1) Navbar is shown for the first time after login.
+ * 2) Agent moves to another parcel.
+ * 3) A landmark is created or removed.
+ * 
+ * The first case is handled by the handleLoginComplete() method.
+ * 
+ * The second case is handled by setting the "agent parcel changed" callback
+ * on LLViewerParcelMgr.
+ * 
+ * The third case is the most complex one. We have two inventory observers for that:
+ * one is designated to handle adding landmarks, the other handles removal.
+ * Let's see how the former works.
+ * 
+ * When we get notified about landmark addition, the landmark position is unknown yet. What we can
+ * do at that point is initiate loading the landmark data by LLLandmarkList and set the
+ * "loading finished" callback on it. Finally, when the callback is triggered,
+ * we can determine whether the landmark refers to a point within the current parcel
+ * and choose the appropriate image for the "Add landmark" button.
+ */
 
-static LLRegisterWidget<LLLocationInputCtrl> r("location_input");
-
-LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
-:	LLUICtrl(p),
-	mTextEntry(NULL),
-	mTextEntryTentative(TRUE),
-	mListPosition(BELOW),
-	mAllowTextEntry(p.allow_text_entry),
-	mSelectOnFocus(p.select_on_focus),
-	mHasAutocompletedText(false),
-	mMaxChars(p.max_chars),
-	mPrearrangeCallback(p.prearrange_callback()),
-	mTextEntryCallback(p.text_entry_callback()),
-	mSelectionCallback(p.selection_callback()),
-	mArrowImage(p.arrow_image)
+// Returns true if the given inventory item is a landmark pointing to the current parcel.
+// Used to filter inventory items.
+class LLIsAgentParcelLandmark : public LLInventoryCollectFunctor
 {
-	// Text label button
-
-	LLButton::Params button_params;
-	button_params.name(p.label);
-	button_params.image_unselected.name("square_btn_32x128.tga");
-	button_params.image_selected.name("square_btn_selected_32x128.tga");
-	button_params.image_disabled.name("square_btn_32x128.tga");
-	button_params.image_disabled_selected.name("square_btn_selected_32x128.tga");
-	button_params.image_overlay.name("combobox_arrow.tga");
-	button_params.image_overlay_alignment("right");
-	button_params.scale_image(true);
-	button_params.mouse_down_callback.function(boost::bind(&LLLocationInputCtrl::onButtonDown, this));
-	button_params.font(LLFontGL::getFontSansSerifSmall());
-	button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM|FOLLOWS_RIGHT);
-	button_params.font_halign(LLFontGL::LEFT);
-	button_params.rect(p.rect);
-	button_params.pad_right(2);
-
-	mButton = LLUICtrlFactory::create<LLButton>(button_params);
-	mButton->setRightHPad(2);  //redo to compensate for button hack that leaves space for a character
-	addChild(mButton);
-
-	LLScrollListCtrl::Params params;
-	params.name ("LocationInput");
-	params.commit_callback.function(boost::bind(&LLLocationInputCtrl::onItemSelected, this, _2));
-	params.visible(false);
-	params.bg_writeable_color(LLColor4::white);
-	params.commit_on_keyboard_movement(false);
-
-	mList = LLUICtrlFactory::create<LLScrollListCtrl>(params);
-	addChild(mList);
-
-	for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator it = p.items().begin();
-		it != p.items().end();
-		++it)
+public:
+	/*virtual*/ bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 	{
-		mList->addRow(*it);
+		if (!item || item->getType() != LLAssetType::AT_LANDMARK)
+			return false;
+
+		LLLandmark* landmark = gLandmarkList.getAsset(item->getAssetUUID());
+		if (!landmark) // the landmark not been loaded yet
+			return false;
+
+		LLVector3d landmark_global_pos;
+		if (!landmark->getGlobalPos(landmark_global_pos))
+			return false;
+
+		return LLViewerParcelMgr::getInstance()->inAgentParcel(landmark_global_pos);
+	}
+};
+
+/**
+ * Initiates loading the landmarks that have been just added.
+ *
+ * Once the loading is complete we'll be notified
+ * with the callback we set for LLLandmarkList.
+ */
+class LLAddLandmarkObserver : public LLInventoryAddedObserver
+{
+public:
+	LLAddLandmarkObserver(LLLocationInputCtrl* input) : mInput(input) {}
+
+private:
+	/*virtual*/ void done()
+	{
+		std::vector<LLUUID>::const_iterator it = mAdded.begin(), end = mAdded.end();
+		for(; it != end; ++it)
+		{
+			LLInventoryItem* item = gInventory.getItem(*it);
+			if (!item || item->getType() != LLAssetType::AT_LANDMARK)
+				continue;
+
+			// Start loading the landmark.
+			LLLandmark* lm = gLandmarkList.getAsset(
+					item->getAssetUUID(),
+					boost::bind(&LLLocationInputCtrl::onLandmarkLoaded, mInput, _1));
+			if (lm)
+			{
+				// Already loaded? Great, handle it immediately (the callback won't be called).
+				mInput->onLandmarkLoaded(lm);
+			}
+		}
+
+		mAdded.clear();
 	}
 
-	setTopLostCallback(boost::bind(&LLLocationInputCtrl::hideList, this));
+	LLLocationInputCtrl* mInput;
+};
+
+/**
+ * Updates the "Add landmark" button once a landmark gets removed.
+ */
+class LLRemoveLandmarkObserver : public LLInventoryObserver
+{
+public:
+	LLRemoveLandmarkObserver(LLLocationInputCtrl* input) : mInput(input) {}
+
+private:
+	/*virtual*/ void changed(U32 mask)
+	{
+		if (mask & (~(LLInventoryObserver::LABEL|LLInventoryObserver::INTERNAL|LLInventoryObserver::ADD)))
+		{
+			mInput->updateAddLandmarkButton();
+		}
+	}
+
+	LLLocationInputCtrl* mInput;
+};
+
+//============================================================================
+
+
+static LLDefaultWidgetRegistry::Register<LLLocationInputCtrl> r("location_input");
+
+LLLocationInputCtrl::Params::Params()
+:	add_landmark_image_enabled("add_landmark_image_enabled"),
+	add_landmark_image_disabled("add_landmark_image_disabled"),
+	add_landmark_button("add_landmark_button"),
+	add_landmark_hpad("add_landmark_hpad", 0),
+	info_button("info_button"),
+	background("background")
+{
 }
+
+LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
+:	LLComboBox(p),
+	mAddLandmarkHPad(p.add_landmark_hpad),
+	mInfoBtn(NULL),
+	mAddLandmarkBtn(NULL)
+{
+	// Background image.
+	LLButton::Params bg_params = p.background;
+	mBackground = LLUICtrlFactory::create<LLButton>(bg_params);
+	addChildInBack(mBackground);
+
+	// "Place information" button.
+	LLButton::Params info_params = p.info_button;
+	mInfoBtn = LLUICtrlFactory::create<LLButton>(info_params);
+	mInfoBtn->setClickedCallback(boost::bind(&LLLocationInputCtrl::onInfoButtonClicked, this));
+	addChild(mInfoBtn);
 	
+	// "Add landmark" button.
+	LLButton::Params al_params = p.add_landmark_button;
+	if (p.add_landmark_image_enabled())
+	{
+		al_params.image_unselected = p.add_landmark_image_enabled;
+		al_params.image_selected = p.add_landmark_image_enabled;
+	}
+	if (p.add_landmark_image_disabled())
+	{
+		al_params.image_disabled = p.add_landmark_image_disabled;
+		al_params.image_disabled_selected = p.add_landmark_image_disabled;
+	}
+	al_params.click_callback.function(boost::bind(&LLLocationInputCtrl::onAddLandmarkButtonClicked, this));
+	mAddLandmarkBtn = LLUICtrlFactory::create<LLButton>(al_params);
+	enableAddLandmarkButton(true);
+	addChild(mAddLandmarkBtn);
+	
+	setFocusReceivedCallback(boost::bind(&LLLocationInputCtrl::onFocusReceived, this));
+	setFocusLostCallback(boost::bind(&LLLocationInputCtrl::onFocusLost, this));
+	setPrearrangeCallback(boost::bind(&LLLocationInputCtrl::onLocationPrearrange, this, _2));
+
+	updateWidgetlayout();
+
+	// - Make the "Add landmark" button updated when either current parcel gets changed
+	//   or a landmark gets created or removed from the inventory.
+	// - Update the location string on parcel change.
+	LLViewerParcelMgr::getInstance()->setAgentParcelChangedCallback(
+		boost::bind(&LLLocationInputCtrl::onAgentParcelChange, this));
+
+	LLLocationHistory::getInstance()->setLoadedCallback(
+			boost::bind(&LLLocationInputCtrl::onLocationHistoryLoaded, this));
+
+	mRemoveLandmarkObserver	= new LLRemoveLandmarkObserver(this);
+	mAddLandmarkObserver	= new LLAddLandmarkObserver(this);
+	gInventory.addObserver(mRemoveLandmarkObserver);
+	gInventory.addObserver(mAddLandmarkObserver);
+}
+
 LLLocationInputCtrl::~LLLocationInputCtrl()
 {
-	// children automatically deleted, including mMenu, mButton
+	gInventory.removeObserver(mRemoveLandmarkObserver);
+	gInventory.removeObserver(mAddLandmarkObserver);
+	delete mRemoveLandmarkObserver;
+	delete mAddLandmarkObserver;
 }
 
 void LLLocationInputCtrl::setEnabled(BOOL enabled)
 {
-	LLView::setEnabled(enabled);
-	mButton->setEnabled(enabled);
-}
-
-void LLLocationInputCtrl::clear()
-{ 
-	if (mTextEntry)
-	{
-		mTextEntry->setText(LLStringUtil::null);
-	}
-	mButton->setLabelSelected(LLStringUtil::null);
-	mButton->setLabelUnselected(LLStringUtil::null);
-	mButton->setDisabledLabel(LLStringUtil::null);
-	mButton->setDisabledSelectedLabel(LLStringUtil::null);
-	mList->deselectAllItems();
-}
-
-void LLLocationInputCtrl::onCommit()
-{
-	if (mAllowTextEntry && getCurrentIndex() != -1)
-	{
-		// we have selected an existing item, blitz the manual text entry with
-		// the properly capitalized item
-		mTextEntry->setValue(getSimple());
-		mTextEntry->setTentative(FALSE);
-	}
-	LLUICtrl::onCommit();
-}
-
-// virtual
-BOOL LLLocationInputCtrl::isDirty() const
-{
-	BOOL grubby = FALSE;
-	if ( mList )
-	{
-		grubby = mList->isDirty();
-	}
-	return grubby;
-}
-
-// virtual   Clear dirty state
-void	LLLocationInputCtrl::resetDirty()
-{
-	if ( mList )
-	{
-		mList->resetDirty();
-	}
-}
-
-
-// add item "name" to menu
-LLScrollListItem* LLLocationInputCtrl::add(const std::string& name, EAddPosition pos, BOOL enabled)
-{
-	LLScrollListItem* item = mList->addSimpleElement(name, pos);
-	item->setEnabled(enabled);
-	if (!mAllowTextEntry && mLabel.empty())
-	{
-		selectFirstItem();
-	}
-	return item;
-}
-
-// add item "name" with a unique id to menu
-LLScrollListItem* LLLocationInputCtrl::add(const std::string& name, const LLUUID& id, EAddPosition pos, BOOL enabled )
-{
-	LLScrollListItem* item = mList->addSimpleElement(name, pos, id);
-	item->setEnabled(enabled);
-	if (!mAllowTextEntry && mLabel.empty())
-	{
-		selectFirstItem();
-	}
-	return item;
-}
-
-// add item "name" with attached userdata
-LLScrollListItem* LLLocationInputCtrl::add(const std::string& name, void* userdata, EAddPosition pos, BOOL enabled )
-{
-	LLScrollListItem* item = mList->addSimpleElement(name, pos);
-	item->setEnabled(enabled);
-	item->setUserdata( userdata );
-	if (!mAllowTextEntry && mLabel.empty())
-	{
-		selectFirstItem();
-	}
-	return item;
-}
-
-// add item "name" with attached generic data
-LLScrollListItem* LLLocationInputCtrl::add(const std::string& name, LLSD value, EAddPosition pos, BOOL enabled )
-{
-	LLScrollListItem* item = mList->addSimpleElement(name, pos, value);
-	item->setEnabled(enabled);
-	if (!mAllowTextEntry && mLabel.empty())
-	{
-		selectFirstItem();
-	}
-	return item;
-}
-
-LLScrollListItem* LLLocationInputCtrl::addSeparator(EAddPosition pos)
-{
-	return mList->addSeparator(pos);
-}
-
-void LLLocationInputCtrl::sortByName(BOOL ascending)
-{
-	mList->sortOnce(0, ascending);
-}
-
-
-// Choose an item with a given name in the menu.
-// Returns TRUE if the item was found.
-BOOL LLLocationInputCtrl::setSimple(const LLStringExplicit& name)
-{
-	BOOL found = mList->selectItemByLabel(name, FALSE);
-
-	if (found)
-	{
-		setLabel(name);
-	}
-
-	return found;
-}
-
-// virtual
-void LLLocationInputCtrl::setValue(const LLSD& value)
-{
-	BOOL found = mList->selectByValue(value);
-	if (found)
-	{
-		LLScrollListItem* item = mList->getFirstSelected();
-		if (item)
-		{
-			setLabel( mList->getSelectedItemLabel() );
-		}
-	}
-}
-
-const std::string LLLocationInputCtrl::getSimple() const
-{
-	const std::string res = mList->getSelectedItemLabel();
-	if (res.empty() && mAllowTextEntry)
-	{
-		return mTextEntry->getText();
-	}
-	else
-	{
-		return res;
-	}
-}
-
-const std::string LLLocationInputCtrl::getSelectedItemLabel(S32 column) const
-{
-	return mList->getSelectedItemLabel(column);
-}
-
-// virtual
-LLSD LLLocationInputCtrl::getValue() const
-{
-	LLScrollListItem* item = mList->getFirstSelected();
-	if( item )
-	{
-		return item->getValue();
-	}
-	else if (mAllowTextEntry)
-	{
-		return mTextEntry->getValue();
-	}
-	else
-	{
-		return LLSD();
-	}
-}
-
-void LLLocationInputCtrl::setLabel(const LLStringExplicit& name)
-{
-	if ( mTextEntry )
-	{
-		mTextEntry->setText(name);
-		if (mList->selectItemByLabel(name, FALSE))
-		{
-			mTextEntry->setTentative(FALSE);
-		}
-		else
-		{
-			mTextEntry->setTentative(mTextEntryTentative);
-		}
-	}
-	
-	if (!mAllowTextEntry)
-	{
-		mButton->setLabelUnselected(name);
-		mButton->setLabelSelected(name);
-		mButton->setDisabledLabel(name);
-		mButton->setDisabledSelectedLabel(name);
-	}
-}
-
-
-BOOL LLLocationInputCtrl::remove(const std::string& name)
-{
-	BOOL found = mList->selectItemByLabel(name);
-
-	if (found)
-	{
-		LLScrollListItem* item = mList->getFirstSelected();
-		if (item)
-		{
-			mList->deleteSingleItem(mList->getItemIndex(item));
-		}
-	}
-
-	return found;
-}
-
-BOOL LLLocationInputCtrl::remove(S32 index)
-{
-	if (index < mList->getItemCount())
-	{
-		mList->deleteSingleItem(index);
-		return TRUE;
-	}
-	return FALSE;
-}
-
-// Keyboard focus lost.
-void LLLocationInputCtrl::onFocusLost()
-{
-	hideList();
-	// if valid selection
-	if (mAllowTextEntry && getCurrentIndex() != -1)
-	{
-		mTextEntry->selectAll();
-	}
-	LLUICtrl::onFocusLost();
-}
-
-void LLLocationInputCtrl::setButtonVisible(BOOL visible)
-{
-	static LLUICachedControl<S32> drop_shadow_button ("DropShadowButton", 0);
-
-	mButton->setVisible(visible);
-	if (mTextEntry)
-	{
-		LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
-		if (visible)
-		{
-			text_entry_rect.mRight -= llmax(8,mArrowImage->getWidth()) + 2 * drop_shadow_button;
-		}
-		//mTextEntry->setRect(text_entry_rect);
-		mTextEntry->reshape(text_entry_rect.getWidth(), text_entry_rect.getHeight(), TRUE);
-	}
-}
-
-/*virtual*/
-BOOL LLLocationInputCtrl::postBuild()
-{
-	// If providing user text entry or descriptive label don't select an item under the hood
-	if (!acceptsTextInput() && mLabel.empty())
-	{
-		selectFirstItem();
-	}
-	updateLayout();
-	return TRUE;
-}
-
-void LLLocationInputCtrl::draw()
-{
-	mButton->setEnabled(getEnabled() /*&& !mList->isEmpty()*/);
-
-	// Draw children normally
-	LLUICtrl::draw();
-}
-
-BOOL LLLocationInputCtrl::setCurrentByIndex( S32 index )
-{
-	BOOL found = mList->selectNthItem( index );
-	if (found)
-	{
-		setLabel(mList->getSelectedItemLabel());
-	}
-	return found;
-}
-
-S32 LLLocationInputCtrl::getCurrentIndex() const
-{
-	LLScrollListItem* item = mList->getFirstSelected();
-	if( item )
-	{
-		return mList->getItemIndex( item );
-	}
-	return -1;
-}
-
-
-void LLLocationInputCtrl::updateLayout()
-{
-	static LLUICachedControl<S32> drop_shadow_button ("DropShadowButton", 0);
-	LLRect rect = getLocalRect();
-	if (mAllowTextEntry)
-	{
-		S32 shadow_size = drop_shadow_button;
-		mButton->setRect(LLRect( getRect().getWidth() - llmax(8,mArrowImage->getWidth()) - 2 * shadow_size,
-								rect.mTop, rect.mRight, rect.mBottom));
-		mButton->setTabStop(FALSE);
-		mButton->setHAlign(LLFontGL::HCENTER);
-
-		if (!mTextEntry)
-		{
-			LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
-			text_entry_rect.mRight -= llmax(8,mArrowImage->getWidth()) + 2 * drop_shadow_button;
-			// clear label on button
-			std::string cur_label = mButton->getLabelSelected();
-			LLLineEditor::Params params;
-			params.name ("combo_text_entry");
-			params.rect (text_entry_rect);
-			params.default_text (LLStringUtil::null);
-			params.font (LLFontGL::getFontSansSerifSmall());
-			params.max_length_bytes (mMaxChars);
-			params.commit_callback.function(boost::bind(&LLLocationInputCtrl::onTextCommit, this, _2));
-			params.keystroke_callback (boost::bind(&LLLocationInputCtrl::onTextEntry, this, _1));
-			params.focus_lost_callback (NULL);
-			params.select_on_focus (mSelectOnFocus);
-			params.handle_edit_keys_directly (true);
-			params.commit_on_focus_lost (false);
-			params.follows.flags (FOLLOWS_ALL);
-			mTextEntry = LLUICtrlFactory::create<LLLineEditor> (params);
-			mTextEntry->setText(cur_label);
-			mTextEntry->setIgnoreTab(TRUE);
-			mTextEntry->setRevertOnEsc(FALSE);
-			//mTextEntry->setFocusReceivedCallback(boost::bind(&LLLocationInputCtrl::hideList, this));
-			addChild(mTextEntry);
-		}
-		else
-		{
-			mTextEntry->setVisible(TRUE);
-			mTextEntry->setMaxTextLength(mMaxChars);
-		}
-
-		// clear label on button
-		setLabel(LLStringUtil::null);
-
-		mButton->setFollows(FOLLOWS_BOTTOM | FOLLOWS_TOP | FOLLOWS_RIGHT);
-	}
-	else if (!mAllowTextEntry)
-	{
-		mButton->setRect(rect);
-		mButton->setTabStop(TRUE);
-		mButton->setHAlign(LLFontGL::LEFT);
-
-		if (mTextEntry)
-		{
-			mTextEntry->setVisible(FALSE);
-		}
-		mButton->setFollowsAll();
-	}
-}
-
-void* LLLocationInputCtrl::getCurrentUserdata()
-{
-	LLScrollListItem* item = mList->getFirstSelected();
-	if( item )
-	{
-		return item->getUserdata();
-	}
-	return NULL;
-}
-
-
-void LLLocationInputCtrl::showList()
-{
-	// Make sure we don't go off top of screen.
-	LLCoordWindow window_size;
-	getWindow()->getSize(&window_size);
-	//HACK: shouldn't have to know about scale here
-	mList->fitContents( 192, llfloor((F32)window_size.mY / LLUI::sGLScaleFactor.mV[VY]) - 50 );
-
-	// Make sure that we can see the whole list
-	LLRect root_view_local;
-	LLView* root_view = getRootView();
-	root_view->localRectToOtherView(root_view->getLocalRect(), &root_view_local, this);
-	
-	LLRect rect = mList->getRect();
-
-	S32 min_width = getRect().getWidth();
-	S32 max_width = llmax(min_width, MAX_COMBO_WIDTH);
-	// make sure we have up to date content width metrics
-	mList->calcColumnWidths();
-	S32 list_width = llclamp(mList->getMaxContentWidth(), min_width, max_width);
-
-	if (mListPosition == BELOW)
-	{
-		if (rect.getHeight() <= -root_view_local.mBottom)
-		{
-			// Move rect so it hangs off the bottom of this view
-			rect.setLeftTopAndSize(0, 0, list_width, rect.getHeight() );
-		}
-		else
-		{	
-			// stack on top or bottom, depending on which has more room
-			if (-root_view_local.mBottom > root_view_local.mTop - getRect().getHeight())
-			{
-				// Move rect so it hangs off the bottom of this view
-				rect.setLeftTopAndSize(0, 0, list_width, llmin(-root_view_local.mBottom, rect.getHeight()));
-			}
-			else
-			{
-				// move rect so it stacks on top of this view (clipped to size of screen)
-				rect.setOriginAndSize(0, getRect().getHeight(), list_width, llmin(root_view_local.mTop - getRect().getHeight(), rect.getHeight()));
-			}
-		}
-	}
-	else // ABOVE
-	{
-		if (rect.getHeight() <= root_view_local.mTop - getRect().getHeight())
-		{
-			// move rect so it stacks on top of this view (clipped to size of screen)
-			rect.setOriginAndSize(0, getRect().getHeight(), list_width, llmin(root_view_local.mTop - getRect().getHeight(), rect.getHeight()));
-		}
-		else
-		{
-			// stack on top or bottom, depending on which has more room
-			if (-root_view_local.mBottom > root_view_local.mTop - getRect().getHeight())
-			{
-				// Move rect so it hangs off the bottom of this view
-				rect.setLeftTopAndSize(0, 0, list_width, llmin(-root_view_local.mBottom, rect.getHeight()));
-			}
-			else
-			{
-				// move rect so it stacks on top of this view (clipped to size of screen)
-				rect.setOriginAndSize(0, getRect().getHeight(), list_width, llmin(root_view_local.mTop - getRect().getHeight(), rect.getHeight()));
-			}
-		}
-
-	}
-	mList->setOrigin(rect.mLeft, rect.mBottom);
-	mList->reshape(rect.getWidth(), rect.getHeight());
-	mList->translateIntoRect(root_view_local, FALSE);
-
-	// Make sure we didn't go off bottom of screen
-	S32 x, y;
-	mList->localPointToScreen(0, 0, &x, &y);
-
-	if (y < 0)
-	{
-		mList->translate(0, -y);
-	}
-
-	// NB: this call will trigger the focuslost callback which will hide the list, so do it first
-	// before finally showing the list
-
-	mList->setFocus(TRUE);
-
-	// register ourselves as a "top" control
-	// effectively putting us into a special draw layer
-	// and not affecting the bounding rectangle calculation
-	gFocusMgr.setTopCtrl(this);
-
-	// Show the list and push the button down
-	mButton->setToggleState(TRUE);
-	mList->setVisible(TRUE);
-	
-	setUseBoundingRect(TRUE);
+	LLComboBox::setEnabled(enabled);
+	mAddLandmarkBtn->setEnabled(enabled);
 }
 
 void LLLocationInputCtrl::hideList()
 {
-	//*HACK: store the original value explicitly somewhere, not just in label
-	std::string orig_selection = mAllowTextEntry ? mTextEntry->getText() : mButton->getLabelSelected();
-
-	// assert selection in list
-	mList->selectItemByLabel(orig_selection, FALSE);
-
-	mButton->setToggleState(FALSE);
-	mList->setVisible(FALSE);
-	mList->mouseOverHighlightNthItem(-1);
-	
-	setUseBoundingRect(FALSE);
-
-	if( gFocusMgr.getTopCtrl() == this )
-	{
-		gFocusMgr.setTopCtrl(NULL);
-	}
-}
-
-void LLLocationInputCtrl::onButtonDown()
-{
-	if (!mList->getVisible())
-	{
-#if 0 // XXX VS		
-		LLScrollListItem* last_selected_item = mList->getLastSelectedItem();
-		if (last_selected_item)
-		{
-			// highlight the original selection before potentially selecting a new item
-			mList->mouseOverHighlightNthItem(mList->getItemIndex(last_selected_item));
-		}
-#endif
-		
-		prearrangeList();
-
-		if (mList->getItemCount() != 0)
-		{
-			showList();
-		}
-
-		setFocus( TRUE );
-
-		// pass mouse capture on to list if button is depressed
-		if (mButton->hasMouseCapture())
-		{
-			gFocusMgr.setMouseCapture(mList);
-		}
-	}
-	else
-	{
-		hideList();
-		// XXX VS
-		mTextEntry->setFocus(TRUE);
-	} 
-
-}
-
-
-//------------------------------------------------------------------
-// static functions
-//------------------------------------------------------------------
-
-void LLLocationInputCtrl::onItemSelected(const LLSD& data)
-{
-	const std::string name = mList->getSelectedItemLabel();
-
-	S32 cur_id = getCurrentIndex();
-	if (cur_id != -1)
-	{
-		setLabel(name);
-
-		if (mAllowTextEntry)
-		{
-			gFocusMgr.setKeyboardFocus(mTextEntry);
-			mTextEntry->selectAll();
-		}
-	}
-
-	// hiding the list reasserts the old value stored in the text editor/dropdown button
-	hideList();
-
-	// commit does the reverse, asserting the value in the list
-	onCommit();
-
-	// call the callback if it exists
-	if(mSelectionCallback)
-	{
-		mSelectionCallback(this, data);
-	}
+	LLComboBox::hideList();
+	if (mTextEntry && hasFocus())
+		focusTextEntry();
 }
 
 BOOL LLLocationInputCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
 {
-    std::string tool_tip;
-
-	if(LLUICtrl::handleToolTip(x, y, msg, sticky_rect_screen))
+	// Let the buttons show their tooltips.
+	if (LLUICtrl::handleToolTip(x, y, msg, sticky_rect_screen) && !msg.empty())
 	{
 		return TRUE;
 	}
-	
-	if (LLUI::sShowXUINames)
-	{
-		tool_tip = getShowNamesToolTip();
-	}
-	else
-	{
-		tool_tip = getToolTip();
-		if (tool_tip.empty())
-		{
-			tool_tip = getSelectedItemLabel();
-		}
-	}
-	
-	if( !tool_tip.empty() )
-	{
-		msg = tool_tip;
 
-		// Convert rect local to screen coordinates
-		localPointToScreen( 
-			0, 0, 
-			&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
-		localPointToScreen(
-			getRect().getWidth(), getRect().getHeight(),
-			&(sticky_rect_screen->mRight), &(sticky_rect_screen->mTop) );
+	// Cursor is above the text entry.
+	msg = LLUI::sShowXUINames ? getShowNamesToolTip() : gAgent.getSLURL();
+	if (mTextEntry && sticky_rect_screen)
+	{
+		*sticky_rect_screen = mTextEntry->calcScreenRect();
 	}
+
 	return TRUE;
 }
 
 BOOL LLLocationInputCtrl::handleKeyHere(KEY key, MASK mask)
 {
-	BOOL result = FALSE;
-	if (hasFocus())
-	{
-		if (mList->getVisible() 
-			&& key == KEY_ESCAPE && mask == MASK_NONE)
-		{
-			hideList();
-			// XXX VS
-			mTextEntry->setFocus(TRUE);
-			return TRUE;
-		}
-		//give list a chance to pop up and handle key
-		LLScrollListItem* last_selected_item = mList->getLastSelectedItem();
-		if (last_selected_item)
-		{
-			// highlight the original selection before potentially selecting a new item
-			mList->mouseOverHighlightNthItem(mList->getItemIndex(last_selected_item));
-		}
-		result = mList->handleKeyHere(key, mask);
+	BOOL result = LLComboBox::handleKeyHere(key, mask);
 
-		// will only see return key if it is originating from line editor
-		// since the dropdown button eats the key
-		if (key == KEY_RETURN)
-		{
-			// don't show list and don't eat key input when committing
-			// free-form text entry with RETURN since user already knows
-            // what they are trying to select
-			return FALSE;
-		}
-		// if selection has changed, pop open list
-		// XXX VS
-#if 1
-		else if(key == KEY_DOWN && mList->getItemCount() != 0)
-#else
-		else if (mList->getLastSelectedItem() != last_selected_item)
-#endif
+	if (key == KEY_DOWN && hasFocus() && mList->getItemCount() != 0)
+	{
+		showList();
+	}
+
+	return result;
+}
+
+void LLLocationInputCtrl::onTextEntry(LLLineEditor* line_editor)
+{
+	KEY key = gKeyboard->currentKey();
+
+	if (line_editor->getText().empty())
+	{
+		prearrangeList(); // resets filter
+		hideList();
+	}
+	// Typing? (moving cursor should not affect showing the list)
+	else if (key != KEY_LEFT && key != KEY_RIGHT && key != KEY_HOME && key != KEY_END)
+	{
+		prearrangeList(line_editor->getText());
+		if (mList->getItemCount() != 0)
 		{
 			showList();
+			focusTextEntry();
 		}
-		
-	}
-	return result;
-}
-
-BOOL LLLocationInputCtrl::handleUnicodeCharHere(llwchar uni_char)
-{
-	BOOL result = FALSE;
-	if (gFocusMgr.childHasKeyboardFocus(this))
-	{
-		// space bar just shows the list
-		if (' ' != uni_char )
+		else
 		{
-			LLScrollListItem* last_selected_item = mList->getLastSelectedItem();
-			if (last_selected_item)
-			{
-				// highlight the original selection before potentially selecting a new item
-				mList->mouseOverHighlightNthItem(mList->getItemIndex(last_selected_item));
-			}
-			result = mList->handleUnicodeCharHere(uni_char);
-			if (mList->getLastSelectedItem() != last_selected_item)
-			{
-				showList();
-			}
+			// Hide the list if it's empty.
+			hideList();
 		}
 	}
-	return result;
-}
-
-void LLLocationInputCtrl::setTextEntry(const LLStringExplicit& text)
-{
-	if (mTextEntry)
-	{
-		setText(text);
-		updateSelection();
-	}
+	
+	LLComboBox::onTextEntry(line_editor);
 }
 
 /**
  * Useful if we want to just set the text entry value, no matter what the list contains.
- * 
+ *
  * This is faster than setTextEntry().
  */
 void LLLocationInputCtrl::setText(const LLStringExplicit& text)
 {
 	if (mTextEntry)
+	{
 		mTextEntry->setText(text);
-}
-
-void LLLocationInputCtrl::onTextEntry(LLLineEditor* line_editor)
-{
-	if (mTextEntryCallback != NULL)
-	{
-		(mTextEntryCallback)(line_editor, LLSD());
-	}
-	
-	KEY key = gKeyboard->currentKey();
-	
-	// XXX VS
-	{
-		if (line_editor->getText().empty())
-		{
-			prearrangeList(); // resets filter
-			hideList();
-		}
-		// Moving cursor should not affect showing the list.
-		else if (key != KEY_LEFT && key != KEY_RIGHT && key != KEY_HOME && key != KEY_END)
-		{
-			prearrangeList(line_editor->getText());
-			if (mList->getItemCount() != 0)
-			{
-				showList();
-			}
-			else
-			{
-				// Hide the list if it's empty.
-				hideList();
-			}
-			
-			mTextEntry->setFocus(TRUE);
-		}
-	}
-	
-	if (key == KEY_BACKSPACE || 
-		key == KEY_DELETE)
-	{
-		if (mList->selectItemByLabel(line_editor->getText(), FALSE))
-		{
-			line_editor->setTentative(FALSE);
-		}
-		else
-		{
-			line_editor->setTentative(mTextEntryTentative);
-			mList->deselectAllItems();
-		}
-		return;
-	}
-
-	if (key == KEY_LEFT || 
-		key == KEY_RIGHT)
-	{
-		return;
-	}
-	
-	if (key == KEY_DOWN)
-	{
-		setCurrentByIndex(llmin(getItemCount() - 1, getCurrentIndex() + 1));
-		if (!mList->getVisible())
-		{
-			prearrangeList();
-
-			if (mList->getItemCount() != 0)
-			{
-				showList();
-			}
-		}
-		line_editor->selectAll();
-		line_editor->setTentative(FALSE);
-	}
-	else
-	{
-		// RN: presumably text entry
-		updateSelection();
-	}
-}
-
-void LLLocationInputCtrl::updateSelection()
-{
-	LLWString left_wstring = mTextEntry->getWText().substr(0, mTextEntry->getCursor());
-	// user-entered portion of string, based on assumption that any selected
-    // text was a result of auto-completion
-	LLWString user_wstring = mHasAutocompletedText ? left_wstring : mTextEntry->getWText();
-	std::string full_string = mTextEntry->getText();
-
-	// go ahead and arrange drop down list on first typed character, even
-	// though we aren't showing it... some code relies on prearrange
-	// callback to populate content
-	if( mTextEntry->getWText().size() == 1 )
-	{
-		prearrangeList(mTextEntry->getText());
-	}
-
-	if (mList->selectItemByLabel(full_string, FALSE))
-	{
-		mTextEntry->setTentative(FALSE);
-	}
-	else if (mList->selectItemByPrefix(left_wstring, FALSE))
-	{
-		LLWString selected_item = utf8str_to_wstring(mList->getSelectedItemLabel());
-		LLWString wtext = left_wstring + selected_item.substr(left_wstring.size(), selected_item.size());
-		mTextEntry->setText(wstring_to_utf8str(wtext));
-		mTextEntry->setSelection(left_wstring.size(), mTextEntry->getWText().size());
-		mTextEntry->endSelection();
-		mTextEntry->setTentative(FALSE);
-		mHasAutocompletedText = TRUE;
-	}
-	else // no matching items found
-	{
-		mList->deselectAllItems();
-		mTextEntry->setText(wstring_to_utf8str(user_wstring)); // removes text added by autocompletion
-		mTextEntry->setTentative(mTextEntryTentative);
 		mHasAutocompletedText = FALSE;
 	}
 }
 
-void LLLocationInputCtrl::onTextCommit(const LLSD& data)
-{
-	std::string text = mTextEntry->getText();
-	setSimple(text);
-	onCommit();
-	mTextEntry->selectAll();
-}
-
 void LLLocationInputCtrl::setFocus(BOOL b)
 {
-	LLUICtrl::setFocus(b);
+	LLComboBox::setFocus(b);
 
-	if (b)
-	{
-		mList->clearSearchString();
-		if (mList->getVisible())
-		{
-			mList->setFocus(TRUE);
-		}
-		else
-		{
-			mTextEntry->setFocus(TRUE);
-		}
-	}
+	if (mTextEntry && b && !mList->getVisible())
+		mTextEntry->setFocus(TRUE);
 }
 
-//============================================================================
-// LLCtrlListInterface functions
-
-S32 LLLocationInputCtrl::getItemCount() const
+void LLLocationInputCtrl::handleLoginComplete()
 {
-	return mList->getItemCount();
+	// An agent parcel update hasn't occurred yet, so we have to
+	// manually set location and the appropriate "Add landmark" icon.
+	refresh();
 }
 
-void LLLocationInputCtrl::addColumn(const LLSD& column, EAddPosition pos)
+//== private methods =========================================================
+
+void LLLocationInputCtrl::onFocusReceived()
 {
-	mList->clearColumns();
-	mList->addColumn(column, pos);
-}
-
-void LLLocationInputCtrl::clearColumns()
-{
-	mList->clearColumns();
-}
-
-void LLLocationInputCtrl::setColumnLabel(const std::string& column, const std::string& label)
-{
-	mList->setColumnLabel(column, label);
-}
-
-LLScrollListItem* LLLocationInputCtrl::addElement(const LLSD& value, EAddPosition pos, void* userdata)
-{
-	return mList->addElement(value, pos, userdata);
-}
-
-LLScrollListItem* LLLocationInputCtrl::addSimpleElement(const std::string& value, EAddPosition pos, const LLSD& id)
-{
-	return mList->addSimpleElement(value, pos, id);
-}
-
-void LLLocationInputCtrl::clearRows()
-{
-	mList->clearRows();
-}
-
-void LLLocationInputCtrl::sortByColumn(const std::string& name, BOOL ascending)
-{
-	mList->sortByColumn(name, ascending);
-}
-
-//============================================================================
-//LLCtrlSelectionInterface functions
-
-BOOL LLLocationInputCtrl::setCurrentByID(const LLUUID& id)
-{
-	BOOL found = mList->selectByID( id );
-
-	if (found)
-	{
-		setLabel(mList->getSelectedItemLabel());
-	}
-
-	return found;
-}
-
-LLUUID LLLocationInputCtrl::getCurrentID() const
-{
-	return mList->getStringUUIDSelectedItem();
-}
-BOOL LLLocationInputCtrl::setSelectedByValue(const LLSD& value, BOOL selected)
-{
-	BOOL found = mList->setSelectedByValue(value, selected);
-	if (found)
-	{
-		setLabel(mList->getSelectedItemLabel());
-	}
-	return found;
-}
-
-LLSD LLLocationInputCtrl::getSelectedValue()
-{
-	return mList->getSelectedValue();
-}
-
-BOOL LLLocationInputCtrl::isSelected(const LLSD& value) const
-{
-	return mList->isSelected(value);
-}
-
-BOOL LLLocationInputCtrl::operateOnSelection(EOperation op)
-{
-	if (op == OP_DELETE)
-	{
-		mList->deleteSelectedItems();
-		return TRUE;
-	}
-	return FALSE;
-}
-
-BOOL LLLocationInputCtrl::operateOnAll(EOperation op)
-{
-	if (op == OP_DELETE)
-	{
-		clearRows();
-		return TRUE;
-	}
-	return FALSE;
-}
-
-BOOL LLLocationInputCtrl::selectItemRange( S32 first, S32 last )
-{
-	return mList->selectItemRange(first, last);
-}
-
-void LLLocationInputCtrl::prearrangeList(std::string filter)
-{
-	if (mPrearrangeCallback)
-	{
-		mPrearrangeCallback(this, LLSD(filter));
-	}
-}
-
-//===========================================================================
-
-BOOL LLLocationInputCtrl::childHasFocus() const
-{
-	return LLUICtrl::hasFocus() || mButton->hasFocus() || mList->hasFocus() || mTextEntry->hasFocus();
-}
-
-BOOL LLLocationInputCtrl::canCut() const
-{
-	return mTextEntry ? mTextEntry->canCut() : false;
-}
-
-BOOL LLLocationInputCtrl::canCopy() const
-{
-	return mTextEntry ? mTextEntry->canCopy() : false;
-}
-
-BOOL LLLocationInputCtrl::canPaste() const
-{
-	return mTextEntry ? mTextEntry->canPaste() : false;
-}
-
-BOOL LLLocationInputCtrl::canDeselect() const
-{
-	return mTextEntry ? mTextEntry->canDeselect() : false;
-}
-
-BOOL LLLocationInputCtrl::canSelectAll() const
-{
-	return mTextEntry ? mTextEntry->canSelectAll() : false;
-}
-
-void LLLocationInputCtrl::cut()
-{
+	prearrangeList();
+	setText(gAgent.getSLURL());
 	if (mTextEntry)
-		mTextEntry->cut();
+		mTextEntry->endSelection(); // we don't want handleMouseUp() to "finish" the selection
 }
 
-void LLLocationInputCtrl::copy()
+void LLLocationInputCtrl::onFocusLost()
 {
-	if (mTextEntry)
-		mTextEntry->copy();
+	refreshLocation();
 }
 
-void LLLocationInputCtrl::paste()
+void LLLocationInputCtrl::onInfoButtonClicked()
 {
-	if (mTextEntry)
-		mTextEntry->paste();
+	LLSD key;
+	key["type"] = LLPanelPlaces::AGENT;
+
+	LLSideTray::getInstance()->showPanel("panel_places", key);
 }
 
-void LLLocationInputCtrl::deleteSelection()
+void LLLocationInputCtrl::onAddLandmarkButtonClicked()
 {
-	if (mTextEntry)
-		mTextEntry->deleteSelection();
+	LLFloaterReg::showInstance("add_landmark");
 }
 
-void LLLocationInputCtrl::selectAll()
+void LLLocationInputCtrl::onAgentParcelChange()
 {
+	refresh();
+}
+
+void LLLocationInputCtrl::onLandmarkLoaded(LLLandmark* lm)
+{
+	(void) lm;
+	updateAddLandmarkButton();
+}
+
+void LLLocationInputCtrl::onLocationHistoryLoaded()
+{
+	rebuildLocationHistory();
+}
+
+void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
+{
+	std::string filter = data.asString();
+	rebuildLocationHistory(filter);
+	mList->mouseOverHighlightNthItem(-1); // Clear highlight on the last selected item.
+}
+
+void LLLocationInputCtrl::refresh()
+{
+	refreshLocation();			// update location string
+	updateAddLandmarkButton();	// indicate whether current parcel has been landmarked 
+}
+
+void LLLocationInputCtrl::refreshLocation()
+{
+	// Is one of our children focused?
+	if (LLUICtrl::hasFocus() || mButton->hasFocus() || mList->hasFocus() ||
+		(mTextEntry && mTextEntry->hasFocus()) || (mAddLandmarkBtn->hasFocus()))
+
+	{
+		llwarns << "Location input should not be refreshed when having focus" << llendl;
+		return;
+	}
+
+	// Update location field.
+	std::string location_name;
+
+	if (!gAgent.buildLocationString(location_name, LLAgent::LOCATION_FORMAT_NORMAL))
+		location_name = "Unknown";
+
+	setText(location_name);
+}
+
+void LLLocationInputCtrl::rebuildLocationHistory(std::string filter)
+{
+	LLLocationHistory::location_list_t filtered_items;
+	const LLLocationHistory::location_list_t* itemsp = NULL;
+	LLLocationHistory* lh = LLLocationHistory::getInstance();
+	
+	if (filter.empty())
+	{
+		itemsp = &lh->getItems();
+	}
+	else
+	{
+		lh->getMatchingItems(filter, filtered_items);
+		itemsp = &filtered_items;
+	}
+	
+	removeall();
+	for (LLLocationHistory::location_list_t::const_reverse_iterator it = itemsp->rbegin(); it != itemsp->rend(); it++)
+	{
+		add(*it);
+	}
+}
+
+void LLLocationInputCtrl::focusTextEntry()
+{
+	// We can't use "mTextEntry->setFocus(TRUE)" instead because
+	// if the "select_on_focus" parameter is true it places the cursor
+	// at the beginning (after selecting text), thus screwing up updateSelection().
 	if (mTextEntry)
-		mTextEntry->selectAll();
+		gFocusMgr.setKeyboardFocus(mTextEntry);
+}
+
+void LLLocationInputCtrl::enableAddLandmarkButton(bool val)
+{
+	// Enable/disable the button.
+	mAddLandmarkBtn->setEnabled(val);
+}
+
+// Change the "Add landmark" button image
+// depending on whether current parcel has been landmarked.
+void LLLocationInputCtrl::updateAddLandmarkButton()
+{
+	bool cur_parcel_landmarked = false;
+
+	// Determine whether there are landmarks pointing to the current parcel.
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLIsAgentParcelLandmark is_current_parcel_landmark;
+	gInventory.collectDescendentsIf(gAgent.getInventoryRootID(),
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		is_current_parcel_landmark);
+	cur_parcel_landmarked = !items.empty();
+
+	enableAddLandmarkButton(!cur_parcel_landmarked);
+}
+
+void LLLocationInputCtrl::updateWidgetlayout()
+{
+	const LLRect&	rect			= getLocalRect();
+	const LLRect&	hist_btn_rect	= mButton->getRect();
+	LLRect			info_btn_rect	= mButton->getRect();
+
+	// info button
+	info_btn_rect.setOriginAndSize(
+		0, (rect.getHeight() - info_btn_rect.getHeight()) / 2,
+		info_btn_rect.getWidth(), info_btn_rect.getHeight());
+	mInfoBtn->setRect(info_btn_rect);
+
+	// background
+	mBackground->setRect(LLRect(info_btn_rect.getWidth(), rect.mTop,
+		rect.mRight - hist_btn_rect.getWidth(), rect.mBottom));
+
+	// history button
+	mButton->setRightHPad(0);
+
+	// "Add Landmark" button
+	{
+		LLRect al_btn_rect = mAddLandmarkBtn->getRect();
+		al_btn_rect.translate(
+			hist_btn_rect.mLeft - mAddLandmarkHPad - al_btn_rect.getWidth(),
+			(rect.getHeight() - al_btn_rect.getHeight()) / 2);
+		mAddLandmarkBtn->setRect(al_btn_rect);
+	}
+
+	// text entry
+	if (mTextEntry)
+	{
+		LLRect text_entry_rect(rect);
+		text_entry_rect.mLeft = info_btn_rect.getWidth();
+		text_entry_rect.mRight = mAddLandmarkBtn->getRect().mLeft;
+		text_entry_rect.stretch(0, -1); // make space for border
+		mTextEntry->setRect(text_entry_rect);
+	}
 }

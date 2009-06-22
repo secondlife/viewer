@@ -9,15 +9,14 @@
 	<spinner label="Prioritet" name="priority"
 	     tool_tip="Vælg hvilke andre animationer der har lavere prioritet end denne." />
 	<check_box label="Gentag" name="loop_check" tool_tip="Gentager animationen konstant." />
-	<spinner label="Ind(%)" name="loop_in_point"
-	     tool_tip="Sætter punktet hvor gentagelsen genstarter fra." />
+	<spinner left="76" label_width="40" width="105" label="Ind(%)" name="loop_in_point" tool_tip="Sætter punktet hvor gentagelsen genstarter fra."/>
 	<spinner label="Ud (%)" name="loop_out_point"
 	     tool_tip="Sætter punktet i animationen der afslutter gentagelsen." />
 	<text name="hand_label">
 		Hånd posering
 	</text>
 	<combo_box label="" name="hand_pose_combo"
-	     tool_tip="Kontrollerer hvad hænderne går i løbet af animationen.">
+	     tool_tip="Kontrollerer hvad hænderne går i løbet af animationen." width="140">
 		<combo_box.item name="Spread" label="Spredt" />
 		<combo_box.item name="Relaxed" label="Afslappet" />
 		<combo_box.item name="PointBoth" label="Peg begge" />
@@ -36,7 +35,7 @@
 		Ansigtsudtryk
 	</text>
 	<combo_box label="" name="emote_combo"
-	     tool_tip="Angiver hvad ansigtet gør under animationen">
+	     tool_tip="Angiver hvad ansigtet gør under animationen" width="140">
 		<combo_box.item name="[None]" label="Intet]" />
 		<combo_box.item name="Aaaaah" label="Aaaaah" />
 		<combo_box.item name="Afraid" label="Bange" />
@@ -62,7 +61,7 @@
 		Vis mens
 	</text>
 	<combo_box label="" name="preview_base_anim"
-	     tool_tip="Se hvordan animation ser ud i forskellige typiske avatar-situationer.">
+	     tool_tip="Se hvordan animation ser ud i forskellige typiske avatar-situationer." width="140">
 		<combo_box.item name="Standing" label="Står" />
 		<combo_box.item name="Walking" label="Går" />
 		<combo_box.item name="Sitting" label="Sidder" />
@@ -77,8 +76,8 @@
 	<slider label="" name="playback_slider" />
 	<text name="bad_animation_text">
 		Kan ikke læse animations fil.
-	
-	Vi anbefaler BVH filer der er exporteret fra Poser 4.
+
+Vi anbefaler BVH filer der er exporteret fra Poser 4.
 	</text>
 	<button label="Annullér" name="cancel_btn" />
 	<button label="Hent (L$[AMOUNT])" name="ok_btn" />

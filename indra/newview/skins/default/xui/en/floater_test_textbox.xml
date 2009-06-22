@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="true"
+ height="400"
+ layout="topleft"
+ name="floater_test_textbox"
+ width="400">
+    <text
+     type="string"
+     length="1"
+     height="10"
+     layout="topleft"
+     left="10"
+     top="30"
+     width="300">
+        Bottom and left specified
+    </text>
+    <text
+     type="string"
+     length="1"
+     height="10"
+     layout="topleft"
+     left_delta="200"
+     top_delta="0"
+     width="300">
+        Bottom delta left delta
+    </text>
+    <text
+     type="string"
+     length="1"
+     height="10"
+     layout="topleft"
+     left="10"
+     top="50"
+     width="300">
+        Bottom delta -20
+    </text>
+    <text
+     type="string"
+     length="1"
+     height="10"
+     layout="topleft"
+     left_delta="0"
+     top_pad="30"
+     width="300">
+        First line of multiple lines
+    Second line of multiple lines
+    </text>
+    <text
+     type="string"
+     length="1"
+     font="SansSerif"
+     height="10"
+     layout="topleft"
+     left_delta="0"
+     top_pad="30"
+     width="300">
+        font SansSerif
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="bottom|right"
+     height="10"
+     layout="topleft"
+     left_delta="0"
+     top_pad="10"
+     width="300">
+        follows bottom right
+    </text>
+    <text
+     type="string"
+     length="1"
+     font="SansSerifSmall"
+     font.style="BOLD"
+     height="10"
+     layout="topleft"
+     left_delta="0"
+     top_pad="10"
+     width="300">
+        font style BOLD
+    </text>
+    <text
+     type="string"
+     length="1"
+     font="SansSerifSmall"
+     font.style="BOLD|UNDERLINE"
+     height="10"
+     layout="topleft"
+     left_delta="0"
+     top_pad="10"
+     width="300">
+        font style BOLD UNDERLINE
+    </text>
+    <text
+     type="string"
+     length="1"
+     height="10"
+     layout="topleft"
+     left_delta="0"
+     top_pad="10"
+     width="300">
+        font style UNDERLINE
+    </text>
+    <text
+     type="string"
+     length="1"
+     height="10"
+     layout="topleft"
+     left_delta="0"
+     top_pad="10"
+     width="300">
+        Escaped greater than &gt;
+    </text>
+    <text
+     type="string"
+     length="1"
+     bottom="390"
+     label="N"
+     layout="topleft"
+     left="10"
+     name="floater_map_north"
+     right="30"
+     text="N"
+     text_color="1 1 1 0.7"
+     top="370">
+        N
+    </text>
+</floater>

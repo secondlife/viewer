@@ -162,11 +162,10 @@ namespace
 		{ return LLURI::escape(s, unreserved() + ":@!$'()*+,="); }	// sub_delims - "&;" + ":@"
 }
 
-// *TODO: Consider using curl. After http textures gets merged everywhere.
-// static
+//static
 std::string LLURI::escape(const std::string& str)
 {
-	static std::string default_allowed(unreserved() + ":@!$'()*+,=/?&#;");
+	static std::string default_allowed = unreserved();
 	static bool initialized = false;
 	if(!initialized)
 	{

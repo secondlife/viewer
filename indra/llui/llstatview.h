@@ -53,11 +53,14 @@ public:
 	};
 	~LLStatView();
 
+	virtual const widget_registry_t& getChildRegistry() const;
+
 protected:
 	LLStatView(const Params&);
 	friend class LLUICtrlFactory;
 
 protected:
 	std::string mSetting;
+
 };
 #endif // LL_STATVIEW_

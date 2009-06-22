@@ -47,6 +47,7 @@
 #include "llviewerobjectlist.h" 
 #include "llviewerimagelist.h" 
 #include "lltexlayer.h"
+#include "lltexlayerparams.h"
 #include "llsurface.h"
 #include "llvlmanager.h"
 #include "llagent.h"
@@ -57,6 +58,7 @@
 #include "llfasttimerview.h"
 #include "llviewerregion.h"
 #include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llfloaterhtml.h"
 #include "llviewerwindow.h"		// *TODO: remove, only used for width/height
 #include "llworld.h"
@@ -423,8 +425,8 @@ void output_statistics(void*)
 	llinfos << "Number of orphans: " << gObjectList.getOrphanCount() << llendl;
 	llinfos << "Number of dead objects: " << gObjectList.mNumDeadObjects << llendl;
 	llinfos << "Num images: " << gImageList.getNumImages() << llendl;
-	llinfos << "Texture usage: " << LLImageGL::sGlobalTextureMemory << llendl;
-	llinfos << "Texture working set: " << LLImageGL::sBoundTextureMemory << llendl;
+	llinfos << "Texture usage: " << LLImageGL::sGlobalTextureMemoryInBytes << llendl;
+	llinfos << "Texture working set: " << LLImageGL::sBoundTextureMemoryInBytes << llendl;
 	llinfos << "Raw usage: " << LLImageRaw::sGlobalRawMemory << llendl;
 	llinfos << "Formatted usage: " << LLImageFormatted::sGlobalFormattedMemory << llendl;
 	llinfos << "Zombie Viewer Objects: " << LLViewerObject::getNumZombieObjects() << llendl;
@@ -507,10 +509,10 @@ void output_statistics(void*)
 
 	llinfos << "--------------------------------" << llendl;
 	llinfos << "Avatar Memory (partly overlaps with above stats):" << llendl;
-	gTexStaticImageList.dumpByteCount();
-	LLVOAvatar::dumpScratchTextureByteCount();
+	LLTexLayerStaticImageList::getInstance()->dumpByteCount();
+	LLVOAvatarSelf::dumpScratchTextureByteCount();
 	LLTexLayerSetBuffer::dumpTotalByteCount();
-	LLVOAvatar::dumpTotalLocalTextureByteCount();
+	LLVOAvatarSelf::dumpTotalLocalTextureByteCount();
 	LLTexLayerParamAlpha::dumpCacheByteCount();
 	LLVOAvatar::dumpBakedStatus();
 
@@ -592,7 +594,7 @@ void update_statistics(U32 frame_count)
 	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_SHADER_AVATAR, (F64)gSavedSettings.getBOOL("VertexShaderLevelAvatar"));
 	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_SHADER_ENVIRONMENT, (F64)gSavedSettings.getBOOL("VertexShaderLevelEnvironment"));
 #endif
-	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_FRAME_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_FRAME));
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_FRAME_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::NamedTimer::getRootNamedTimer().getFrameState()));
 	F64 idle_secs = gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_IDLE);
 	F64 network_secs = gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_NETWORK);
 	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_UPDATE_SECS, idle_secs - network_secs);

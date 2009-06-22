@@ -37,6 +37,7 @@
 // the HUD or a dialog box or a button.  It can also contain sub-views
 // and child widgets
 
+#include "stdtypes.h"
 #include "llcoord.h"
 #include "llfontgl.h"
 #include "llmortician.h"
@@ -48,7 +49,6 @@
 #include "llui.h"
 #include "lluistring.h"
 #include "llviewquery.h"
-#include "llxmlnode.h"
 #include "stdenums.h"
 #include "lluistring.h"
 #include "llcursortypes.h"
@@ -143,8 +143,8 @@ class LLView : public LLMouseHandler, public LLMortician
 public:
 	struct Follows : public LLInitParam::Choice<Follows>
 	{
-		Option<std::string>	string;
-		Option<U32>			flags;
+		Alternative<std::string>	string;
+		Alternative<U32>			flags;
 
         Follows()
 		:   string(""),
@@ -176,17 +176,21 @@ public:
 
 		Optional<std::string>		layout;
 		Optional<LLRect>			rect;
-		Optional<S32>				top_delta,
-									bottom_delta,
-									right_delta,
-									left_delta;
-									
+		// Historical bottom-left layout used bottom_delta and left_delta
+		// for relative positioning.  New layout "topleft" prefers specifying
+		// based on top edge.
+		Optional<S32>				bottom_delta,	// deprecated
+									top_pad,	// from last bottom to my top
+									top_delta,	// from last top to my top
+									left_pad,	// from last right to my left
+									left_delta;	// from last left to my left
+								
 		Optional<bool>				center_horiz,
 									center_vert;
 
 		// these are nested attributes for LLLayoutPanel
 		//FIXME: get parent context involved in parsing traversal
-		Deprecated					user_resize,
+		Ignored						user_resize,
 									auto_resize,
 									needs_translate;
 
@@ -284,8 +288,6 @@ public:
 	void		sendChildToBack(LLView* child);
 	void		moveChildToFrontOfTabGroup(LLUICtrl* child);
 	void		moveChildToBackOfTabGroup(LLUICtrl* child);
-	
-	void		addChildren(LLXMLNodePtr node, LLXMLNodePtr output_node = NULL);
 	
 	virtual bool addChild(LLView* view, S32 tab_group = 0);
 
@@ -484,20 +486,23 @@ public:
 
 	virtual LLView* getChildView(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
 
-	template <class T> T* getDummyWidget(const std::string& name) const
+	template <class T> T* getDefaultWidget(const std::string& name) const
 	{
-		dummy_widget_map_t::const_iterator found_it = mDummyWidgets.find(name);
-		if (found_it == mDummyWidgets.end())
+		default_widget_map_t::const_iterator found_it = getDefaultWidgetMap().find(name);
+		if (found_it == getDefaultWidgetMap().end())
 		{
 			return NULL;
 		}
 		return dynamic_cast<T*>(found_it->second);
 	}
 
+	// determines allowable children when parsing XUI
+	virtual const widget_registry_t& getChildRegistry() const;
+
 	//////////////////////////////////////////////
 	// statics
 	//////////////////////////////////////////////
-	static LLFontGL::HAlign selectFontHAlign(LLXMLNodePtr node);
+	//static LLFontGL::HAlign selectFontHAlign(LLXMLNodePtr node);
 	
 	// focuses the item in the list after the currently-focused item, wrapping if necessary
 	static	BOOL focusNext(LLView::child_list_t & result);
@@ -520,13 +525,13 @@ public:
 	// to be top-left based.
 	static void setupParamsForExport(Params& p, LLView* parent);
 	
-protected:
 	//virtual BOOL	addChildFromParam(const LLInitParam::BaseBlock& params) { return TRUE; }
 	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
 
 	virtual void	handleReshape(const LLRect& rect, bool by_user);
 
+protected:
 	void			drawDebugRect();
 	void			drawChild(LLView* childp, S32 x_offset = 0, S32 y_offset = 0, BOOL force_draw = FALSE);
 
@@ -587,8 +592,11 @@ private:
 
 	static LLWindow* sWindow;	// All root views must know about their window.
 
-	typedef std::map<std::string, LLView*> dummy_widget_map_t;
-	mutable dummy_widget_map_t mDummyWidgets;
+	typedef std::map<std::string, LLView*> default_widget_map_t;
+	// allocate this map no demand, as it is rarely needed
+	mutable default_widget_map_t* mDefaultWidgets;
+
+	default_widget_map_t& getDefaultWidgetMap() const;
 
 public:
 	static BOOL	sDebugRects;	// Draw debug rects behind everything.
@@ -632,10 +640,10 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse, BO
 		}
 		if (create_if_missing)
 		{
-			result = getDummyWidget<T>(name);
+			result = getDefaultWidget<T>(name);
 			if (!result)
 			{
-				result = LLUICtrlFactory::createDummyWidget<T>(name);
+				result = LLUICtrlFactory::getDefaultWidget<T>(name);
 
 				if (result)
 				{
@@ -647,7 +655,7 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse, BO
 					return NULL;
 				}
 
-				mDummyWidgets[name] = result;
+				getDefaultWidgetMap()[name] = result;
 			}
 		}
 	}

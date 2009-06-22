@@ -37,6 +37,9 @@
 #include "llframetimer.h"
 #include "llwearable.h"
 
+class LLFolderView;
+class LLFolderBridge;
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLViewerInventoryItem
 //
@@ -53,6 +56,10 @@ protected:
 	~LLViewerInventoryItem( void ); // ref counted
 	
 public:
+	virtual LLAssetType::EType getType() const;
+	virtual const LLUUID& getAssetUUID() const;
+	virtual const std::string& getName() const;
+	
 	// construct a complete viewer inventory item
 	LLViewerInventoryItem(const LLUUID& uuid, const LLUUID& parent_uuid,
 						  const LLPermissions& permissions,
@@ -285,5 +292,9 @@ void copy_inventory_from_notecard(const LLUUID& object_id,
 								  const LLInventoryItem *src,
 								  U32 callback_id = 0);
 
+
+void menu_create_inventory_item(LLFolderView* folder,
+								LLFolderBridge* bridge,
+								const LLSD& userdata);
 
 #endif // LL_LLVIEWERINVENTORY_H

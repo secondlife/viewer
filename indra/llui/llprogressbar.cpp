@@ -46,7 +46,7 @@
 #include "llfocusmgr.h"
 #include "lluictrlfactory.h"
 
-static LLRegisterWidget<LLProgressBar> r("progress_bar");
+static LLDefaultWidgetRegistry::Register<LLProgressBar> r("progress_bar");
 
 LLProgressBar::Params::Params()
 :	image_bar("image_bar"),

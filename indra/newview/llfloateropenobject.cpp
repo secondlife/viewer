@@ -45,6 +45,7 @@
 
 #include "llagent.h"			// for agent id
 #include "llalertdialog.h"
+#include "llinventorybridge.h"
 #include "llinventoryview.h"
 #include "llinventorymodel.h"
 #include "llpanelinventory.h"

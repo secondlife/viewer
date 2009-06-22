@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<side_tray 
+  name="sidebar" 
+  background_visible="false" 
+  bg_opaque_color="0.0 0.0 0.0 0.0" 
+  mouse_opaque="true" 
+  collapsed="true"
+>
+  <sidetray_tab 	
+    name="sidebarpanel2" 
+    mouse_opaque="false" 
+    background_opaque="false" 
+    background_visible="true" 
+    bg_opaque_color="0.5 0.5 0.5 1.0"
+    image="icn_voice-groupfocus.tga"
+    tab_title="People"
+    description="Find your friends, contacts and people nearby."
+  >
+    <collapsible_ctrl 
+      name="people_accordion" 
+      title="People" 
+      collapsable="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="true" 
+      header_visible="false"
+    >
+      <panel 
+        class="panel_people" 
+        name="panel_people" 
+        filename="panel_people.xml" 
+        width="355" 
+        height="465" 
+        label="People" 
+        border="true" 
+      />
+    </collapsible_ctrl>
+  </sidetray_tab>
+  
+  <sidetray_tab 
+    name="sidebarpanel1" 
+    mouse_opaque="false" 
+    background_visible="true" 
+    label="Places" 
+    bg_opaque_color="0.5 0.5 0.5 1.0"
+    image="inv_item_landmark.tga" 
+    tab_title="Places" 
+    description="Find places to go and places you've been."
+  >
+    <collapsible_ctrl 
+      name="places_accordian" 
+      title="Places" 
+      collapsable="true" 
+      min_width="355" 
+      min_height="570" 
+      header_visible="false"
+    >
+      <panel 
+        class="panel_places" 
+        name="panel_places" 
+        filename="panel_places.xml" 
+        label="Places" 
+        border="true"
+      />
+    </collapsible_ctrl>
+  </sidetray_tab>
+  
+  <sidetray_tab 
+    name="sidebar_me"
+    mouse_opaque="false" 
+    background_visible="true" 
+    bg_opaque_color="0.5 0.5 0.5 1.0"
+    image="icn_voice-pvtfocus.tga"
+    tab_title="Me"
+    description="Change your profile, your look and quick links to your outfits."
+  >
+    <collapsible_ctrl 
+      name="me_accordion" 
+      title="Me" 
+      collapsable="false" 
+      min_width="200" 
+      min_height="200" 
+      header_visible="false"
+    >
+      <panel 
+        class="panel_me_profile" 
+        name="panel_me_profile" 
+        filename="panel_me_profile.xml" 
+        label="Me" 
+        border="true"
+      />
+    </collapsible_ctrl>
+  </sidetray_tab>  
+</side_tray>
+

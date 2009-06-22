@@ -64,3 +64,17 @@ LLStatView::~LLStatView()
 	}
 }
 
+
+// widget registrars
+struct StatViewRegistry : public LLWidgetRegistry<StatViewRegistry>
+{};
+
+static StatViewRegistry::Register<LLStatBar> r1("stat_bar");
+
+
+const widget_registry_t& LLStatView::getChildRegistry() const
+{
+	return StatViewRegistry::instance();
+}
+
+

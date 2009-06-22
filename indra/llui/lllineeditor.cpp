@@ -70,8 +70,9 @@ const F32	CURSOR_FLASH_DELAY = 1.0f;  // in seconds
 const S32	SCROLL_INCREMENT_ADD = 0;	// make space for typing
 const S32   SCROLL_INCREMENT_DEL = 4;	// make space for baskspacing
 const F32   AUTO_SCROLL_TIME = 0.05f;
+const F32	TRIPLE_CLICK_INTERVAL = 0.3f;	// delay between double and triple click. *TODO: make this equal to the double click interval?
 
-static LLRegisterWidget<LLLineEditor> r1("line_editor");
+static LLDefaultWidgetRegistry::Register<LLLineEditor> r1("line_editor");
 
 template LLLineEditor* LLView::getChild<LLLineEditor>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
 
@@ -161,6 +162,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	llassert( mMaxLengthBytes > 0 );
 
 	mScrollTimer.reset();
+	mTripleClickTimer.reset();
 	setText(p.default_text());
 
 	// line history support:
@@ -450,6 +452,7 @@ void LLLineEditor::selectAll()
 BOOL LLLineEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	setFocus( TRUE );
+	mTripleClickTimer.setTimerExpirySec(TRIPLE_CLICK_INTERVAL);
 
 	if (mSelectionEnd == 0 && mSelectionStart == mText.length())
 	{
@@ -566,14 +569,25 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 		}
 		else
 		{
-			// Save selection for word/line selecting on double-click
-			mLastSelectionStart = mSelectionStart;
-			mLastSelectionEnd = mSelectionEnd;
+			if (mTripleClickTimer.hasExpired())
+			{
+				// Save selection for word/line selecting on double-click
+				mLastSelectionStart = mSelectionStart;
+				mLastSelectionEnd = mSelectionEnd;
 
-			// Move cursor and deselect for regular click
-			setCursorAtLocalPos( x );
-			deselect();
-			startSelection();
+				// Move cursor and deselect for regular click
+				setCursorAtLocalPos( x );
+				deselect();
+				startSelection();
+			}
+			else // handle triple click
+			{
+				selectAll();
+				// We don't want handleMouseUp() to "finish" the selection (and thereby
+				// set mSelectionEnd to where the mouse is), so we finish the selection 
+				// here.
+				mIsSelecting = FALSE;
+			}
 		}
 
 		gFocusMgr.setMouseCapture( this );

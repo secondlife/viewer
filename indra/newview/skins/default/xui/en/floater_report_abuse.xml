@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ height="590"
+ layout="topleft"
+ name="floater_report_abuse"
+ title="Report Abuse"
+ width="390">
+    <floater.string
+     name="Screenshot">
+        Screenshot
+    </floater.string>
+    <texture_picker
+     allow_no_texture="true"
+     default_image_name="None"
+     follows="left|top"
+     height="114"
+     layout="topleft"
+     left="238"
+     name="screenshot"
+     top="36"
+     width="134" />
+    <check_box
+     height="16"
+     label="Include screenshot"
+     layout="topleft"
+     left="13"
+     name="screen_check"
+     top="134"
+     width="116" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_delta="3"
+     name="reporter_title"
+     top_delta="-102"
+     width="50">
+        Reporter:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="12"
+     name="reporter_field"
+     top_delta="0"
+     width="150">
+        Loremipsum Dolorsitamut
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="16"
+     name="sim_title"
+     top="48"
+     width="60">
+        Region:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="2"
+     name="sim_field"
+     top_delta="0"
+     width="120">
+        Region Name
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="16"
+     name="pos_title"
+     top="64"
+     width="50">
+        Position:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="12"
+     name="pos_field"
+     top_delta="0"
+     width="120">
+        {128.1, 128.1, 15.4}
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="16"
+     name="select_object_label"
+     top="82"
+     width="220">
+        Click the button then the object:
+    </text>
+    <button
+     height="32"
+     layout="topleft"
+     left_delta="0"
+     name="pick_btn"
+     picture_style="true"
+     tool_tip="Object Picker - Identify an object as the subject of this report"
+     top_delta="14"
+     width="32" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="5"
+     name="object_name_label"
+     top_delta="0"
+     width="60">
+        Name:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="6"
+     name="object_name"
+     top_delta="0"
+     width="109">
+        Consetetur Sadipscing
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="53"
+     name="owner_name_label"
+     top="112"
+     width="60">
+        Owner:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="6"
+     name="owner_name"
+     top_delta="0"
+     width="109">
+        Hendrerit Vulputate
+    </text>
+    <combo_box
+     height="20"
+     layout="topleft"
+     left="16"
+     name="category_combo"
+     tool_tip="Category -- select the category that best describes this report"
+     top="156"
+     width="356">
+        <combo_box.item
+         label="Select category"
+         value="0" />
+        <combo_box.item
+         label="Age &gt; Age play"
+         value="31" />
+        <combo_box.item
+         label="Age &gt; Adult resident on Teen Second Life"
+         value="32" />
+        <combo_box.item
+         label="Age &gt; Underage resident outside of Teen Second Life"
+         value="33" />
+        <combo_box.item
+         label="Assault &gt; Combat sandbox / unsafe area"
+         value="34" />
+        <combo_box.item
+         label="Assault &gt; Safe area"
+         value="35" />
+        <combo_box.item
+         label="Assault &gt; Weapons testing sandbox"
+         value="36" />
+        <combo_box.item
+         label="Commerce &gt; Failure to deliver product or service"
+         value="38" />
+        <combo_box.item
+         label="Disclosure &gt; Real world information"
+         value="39" />
+        <combo_box.item
+         label="Disclosure &gt; Remotely monitoring chat"
+         value="40" />
+        <combo_box.item
+         label="Disclosure &gt; Second Life information/chat/IMs"
+         value="41" />
+        <combo_box.item
+         label="Disturbing the peace &gt; Unfair use of region resources"
+         value="42" />
+        <combo_box.item
+         label="Disturbing the peace &gt; Excessive scripted objects"
+         value="43" />
+        <combo_box.item
+         label="Disturbing the peace &gt; Object littering"
+         value="44" />
+        <combo_box.item
+         label="Disturbing the peace &gt; Repetitive spam"
+         value="45" />
+        <combo_box.item
+         label="Disturbing the peace &gt; Unwanted advert spam"
+         value="46" />
+        <combo_box.item
+         label="Fraud &gt; L$"
+         value="47" />
+        <combo_box.item
+         label="Fraud &gt; Land"
+         value="48" />
+        <combo_box.item
+         label="Fraud &gt; Pyramid scheme or chain letter"
+         value="49" />
+        <combo_box.item
+         label="Fraud &gt; US$"
+         value="50" />
+        <combo_box.item
+         label="Harassment &gt; Advert farms / visual spam"
+         value="51" />
+        <combo_box.item
+         label="Harassment &gt; Defaming individuals or groups"
+         value="52" />
+        <combo_box.item
+         label="Harassment &gt; Impeding movement"
+         value="53" />
+        <combo_box.item
+         label="Harassment &gt; Sexual harassment"
+         value="54" />
+        <combo_box.item
+         label="Harassment &gt; Solicting/inciting others to violate ToS"
+         value="55" />
+        <combo_box.item
+         label="Harassment &gt; Verbal abuse"
+         value="56" />
+        <combo_box.item
+         label="Indecency &gt; Broadly offensive content or conduct"
+         value="57" />
+        <combo_box.item
+         label="Indecency &gt; Inappropriate avatar name"
+         value="59" />
+        <combo_box.item
+         label="Indecency &gt; Inappropriate content or conduct in a PG region"
+         value="60" />
+        <combo_box.item
+         label="Indecency &gt; Inappropriate content or conduct in a Mature region"
+         value="69" />
+        <combo_box.item
+         label="Intellectual property infringement &gt; Content Removal"
+         value="66" />
+        <combo_box.item
+         label="Intellectual property infringement &gt; CopyBot or Permissions Exploit"
+         value="37" />
+        <combo_box.item
+         label="Intolerance"
+         value="61" />
+        <combo_box.item
+         label="Land &gt; Abuse of sandbox resources"
+         value="62" />
+        <combo_box.item
+         label="Land &gt; Encroachment &gt; Objects/textures"
+         value="63" />
+        <combo_box.item
+         label="Land &gt; Encroachment &gt; Particles"
+         value="64" />
+        <combo_box.item
+         label="Land &gt; Encroachment &gt; Trees/plants"
+         value="65" />
+        <combo_box.item
+         label="Wagering/gambling"
+         value="67" />
+        <combo_box.item
+         label="Other"
+         value="68" />
+    </combo_box>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     name="abuser_name_title"
+     top_pad="10"
+     width="180">
+        Abuser name:
+    </text>
+    <line_editor
+     border_style="line"
+     border_thickness="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     max_length="32"
+     name="abuser_name_edit"
+     top_pad="2"
+     width="180" />
+    <button
+     height="20"
+     label="Choose Resident"
+     layout="topleft"
+     left_pad="10"
+     name="select_abuser"
+     tool_tip="Select the name of the abuser from a list"
+     top_delta="-2"
+     width="160" />
+    <check_box
+     height="16"
+     label="Don&apos;t know abuser&apos;s name"
+     layout="topleft"
+     left="13"
+     name="omit_abuser_name"
+     tool_tip="Check this if you are unable to provide the abuser&apos;s name"
+     top="224"
+     visible="false"
+     width="116" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_delta="3"
+     name="abuser_name_title2"
+     top_pad="8"
+     width="180">
+        Location of Abuse:
+    </text>
+    <line_editor
+     border_style="line"
+     border_thickness="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     max_length="256"
+     name="abuse_location_edit"
+     top_pad="2"
+     width="356" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     name="sum_title"
+     top_pad="8"
+     width="180">
+        Summary:
+    </text>
+    <line_editor
+     border_style="line"
+     border_thickness="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     max_length="64"
+     name="summary_edit"
+     top_pad="2"
+     width="356" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     name="dscr_title"
+     top_pad="8"
+     width="180">
+        Details:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="48"
+     layout="topleft"
+     left_delta="54"
+     name="bug_aviso"
+     top_delta="0"
+     width="308">
+        Please be specific about the date, location, nature of
+abuse, relevant chat/IM text, and select the object
+if possible.
+    </text>
+    <text_editor
+     follows="left|top"
+     height="146"
+     layout="topleft"
+     left="16"
+     max_length="800"
+     mouse_opaque="false"
+     name="details_edit"
+     top="386"
+     width="356"
+     word_wrap="true" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     name="incomplete_title"
+     top_pad="8"
+     width="342">
+        Note: Incomplete reports will not be investigated.
+    </text>
+    <button
+     bottom="580"
+     follows="right|bottom"
+     height="20"
+     label="Cancel"
+     label_selected="Cancel"
+     layout="topleft"
+     name="cancel_btn"
+     right="373"
+     width="150" />
+    <button
+     bottom="580"
+     follows="right|bottom"
+     height="20"
+     label="Report Abuse"
+     label_selected="Report Abuse"
+     layout="topleft"
+     name="send_btn"
+     right="217"
+     width="150" />
+</floater>

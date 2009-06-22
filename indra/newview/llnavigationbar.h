@@ -58,13 +58,14 @@ public:
 	/*virtual*/ BOOL	postBuild();
 	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 
+	void handleLoginComplete();
+
 private:
 	LLNavigationBar();
 
-	void refreshLocation();
-	void rebuildLocationHistory(std::string filter = "");
 	void rebuildTeleportHistoryMenu();
 	void showTeleportHistoryMenu();
+	void invokeSearch(std::string search_text);
 	
 	// callbacks
 	bool onLocationContextMenuItemEnabled(const LLSD& userdata);
@@ -75,20 +76,17 @@ private:
 	void onBackOrForwardButtonHeldDown(const LLSD& param);
 	void onForwardButtonClicked();
 	void onHomeButtonClicked();
-	void onInfoButtonClicked();
 	void onHelpButtonClicked();
-	void onLocationFocusReceived();
-	void onLocationFocusLost();
 	void onLocationSelection();
-	void onLocationTextEntry(LLUICtrl* ctrl);
 	void onLocationPrearrange(const LLSD& data);
 	void onLocationHistoryLoaded();
 	void onSearchCommit();
-	static void onRegionNameResponse(
-			LLVector3 local_coords, U64 region_handle, const std::string& url,
+	void onRegionNameResponse(
+			std::string typed_location,
+			std::string region_name,
+			LLVector3 local_coords,
+			U64 region_handle, const std::string& url,
 			const LLUUID& snapshot_id, bool teleport);
-
-	static void teleport(std::string slurl);
 
 	static LLNavigationBar *sInstance;
 	
@@ -97,7 +95,6 @@ private:
 	LLButton*				mBtnBack;
 	LLButton*				mBtnForward;
 	LLButton*				mBtnHome;
-	LLButton*				mBtnInfo;
 	LLButton*				mBtnHelp;
 	LLLineEditor*			mLeSearch;
 	LLLocationInputCtrl*	mCmbLocation;

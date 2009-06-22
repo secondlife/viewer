@@ -3,18 +3,20 @@
 	<text name="info_parcel_label">
 		Terreno:
 	</text>
-	<text name="info_parcel">
+	<text name="info_parcel" left="82">
 		NOME APPEZZAMENTO
 	</text>
 	<text name="info_size_label">
 		Dimensioni:
 	</text>
-	<text name="info_size">
-		[AREA] mq
+	<text name="info_size" left="82">
+		[AREA] m²
 	</text>
-	<text name="info_action">
-		Per vendere questo terreno:
+	<text height="28" name="info_action" bottom_delta="-57">
+		Per vendere questo
+terreno:
 	</text>
+	<icon bottom_delta="-86" name="step_price" />
 	<text name="price_label">
 		Imposta prezzo:
 	</text>
@@ -43,15 +45,12 @@
 		Vendi gli oggetti con la terra?
 	</text>
 	<text name="sell_objects_text">
-		Gli oggetti trasferibili del proprietario della terra sul terreno cambieranno proprietario.
+		Gli oggetti trasferibili del proprietario della terra sul terreno
+cambieranno proprietario.
 	</text>
-	<radio_group name="sell_objects">
-		<radio_item name="no">
-			No, voglio mantenere la proprietà degli oggetti
-		</radio_item>
-		<radio_item name="yes">
-			Si, vendi gli oggetti con la terra
-		</radio_item>
+	<radio_group name="sell_objects" bottom_delta="-58" >
+		<radio_item name="no" label="No, voglio mantenere la proprietà degli oggetti" />
+		<radio_item name="yes" label="Si, vendi gli oggetti con la terra" />
 	</radio_group>
 	<button label="Mostra oggetti" name="show_objects"/>
 	<text name="nag_message_label">

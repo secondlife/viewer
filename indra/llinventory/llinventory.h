@@ -92,9 +92,9 @@ public:
 	// accessors
 	virtual const LLUUID& getUUID() const;
 	const LLUUID& getParentUUID() const;
-	const std::string& getName() const;
-	LLAssetType::EType getType() const;
-
+	virtual const std::string& getName() const;
+	virtual LLAssetType::EType getType() const;
+	LLAssetType::EType getActualType() const { return mType; }
 	// mutators - will not call updateServer();
 	void setUUID(const LLUUID& new_uuid);
 	void rename(const std::string& new_name);
@@ -217,6 +217,7 @@ protected:
 	~LLInventoryItem(); // ref counted
 
 public:
+
 	MEM_TYPE_NEW(LLMemType::MTYPE_INVENTORY);
 	LLInventoryItem(const LLUUID& uuid,
 					const LLUUID& parent_uuid,
@@ -241,7 +242,7 @@ public:
 	// accessors
 	const LLPermissions& getPermissions() const;
 	const LLUUID& getCreatorUUID() const;
-	const LLUUID& getAssetUUID() const;
+	virtual const LLUUID& getAssetUUID() const;
 	const std::string& getDescription() const;
 	const LLSaleInfo& getSaleInfo() const;
 	LLInventoryType::EType getInventoryType() const;

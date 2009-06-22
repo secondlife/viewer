@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="true"
+ follows="right|top"
+ height="392"
+ layout="topleft"
+ mouse_opaque="false"
+ name="stats floater"
+ title="Statistics"
+ width="250" />

@@ -87,7 +87,7 @@ public:
 	
 	struct CallbackParam : public LLInitParam::Block<CallbackParam>
 	{
-		Deprecated				name;
+		Ignored					name;
 
 		Optional<std::string>	function_name;
 		Optional<LLSD>			parameter;
@@ -114,6 +114,26 @@ public:
 		Optional<enable_callback_t> function;
 	};
 	
+	struct EnableControls : public LLInitParam::Choice<EnableControls>
+	{
+		Alternative<std::string> enabled;
+		Alternative<std::string> disabled;
+		
+		EnableControls()
+		: enabled("enabled_control"),
+		  disabled("disabled_control")
+		{}
+	};	
+	struct ControlVisibility : public LLInitParam::Choice<ControlVisibility>
+	{
+		Alternative<std::string> visible;
+		Alternative<std::string> invisible;
+
+		ControlVisibility()
+			: visible("make_visible_control"),
+			invisible("make_invisible_control")
+		{}
+	};	
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
 		Optional<std::string>			label;
@@ -124,10 +144,13 @@ public:
 										commit_callback;
 		Optional<EnableCallbackParam>	validate_callback;
 		
+		Optional<CommitCallbackParam>	rightclick_callback;
+		
 		Optional<focus_callback_t>		focus_lost_callback;
 		
 		Optional<std::string>			control_name;
-		Optional<std::string>			enabled_control;
+		Optional<EnableControls>		enabled_controls;
+		Optional<ControlVisibility>		controls_visibility;
 		
 		Params();
 	};
@@ -137,7 +160,8 @@ public:
 	void initFromParams(const Params& p);
 protected:
 	friend class LLUICtrlFactory;
-	LLUICtrl(const Params& p = LLUICtrl::Params(),
+	static const Params& getDefaultParams();
+	LLUICtrl(const Params& p = getDefaultParams(),
              const LLViewModelPtr& viewmodel=LLViewModelPtr(new LLViewModel));
 	
 	void initCommitCallback(const CommitCallbackParam& cb, commit_signal_t& sig);
@@ -176,6 +200,9 @@ public:
 	LLControlVariable* getControlVariable() { return mControlVariable; } 
 	
 	void setEnabledControlVariable(LLControlVariable* control);
+	void setDisabledControlVariable(LLControlVariable* control);
+	void setMakeVisibleControlVariable(LLControlVariable* control);
+	void setMakeInvisibleControlVariable(LLControlVariable* control);
 
 	virtual void	setValue(const LLSD& value);
 	virtual LLSD	getValue() const;
@@ -244,8 +271,9 @@ protected:
 
 	static bool controlListener(const LLSD& newvalue, LLHandle<LLUICtrl> handle, std::string type);
 
-	commit_signal_t	mCommitSignal;
-	enable_signal_t mValidateSignal;
+	commit_signal_t		mCommitSignal;
+	enable_signal_t		mValidateSignal;
+	commit_signal_t		mRightClickSignal;
 
     LLViewModelPtr  mViewModel;
 
@@ -253,7 +281,12 @@ protected:
 	boost::signals2::connection mControlConnection;
 	LLControlVariable* mEnabledControlVariable;
 	boost::signals2::connection mEnabledControlConnection;
-
+	LLControlVariable* mDisabledControlVariable;
+	boost::signals2::connection mDisabledControlConnection;
+	LLControlVariable* mMakeVisibleControlVariable;
+	boost::signals2::connection mMakeVisibleControlConnection;
+	LLControlVariable* mMakeInvisibleControlVariable;
+	boost::signals2::connection mMakeInvisibleControlConnection;
 private:
 
 	BOOL			mTabStop;

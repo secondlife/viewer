@@ -189,7 +189,7 @@ bool LLTexUnit::bind(LLImageGL* texture, bool forceBind)
 		llwarns << "NULL LLTexUnit::bind texture" << llendl;
 		return false;
 	}
-	
+
 	if (!texture->getTexName()) //if texture does not exist
 	{
 		//if deleted, will re-generate it immediately
@@ -784,6 +784,9 @@ void LLRender::setSceneBlendType(eBlendType type)
 			break;
 		case BT_MULT:
 			glBlendFunc(GL_DST_COLOR, GL_ZERO);
+			break;
+		case BT_MULT_ALPHA:
+			glBlendFunc(GL_DST_ALPHA, GL_ZERO);
 			break;
 		case BT_MULT_X2:
 			glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);

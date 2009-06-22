@@ -60,7 +60,6 @@ public:
 	void					dump() const;
 
 private:
-	static const size_t			MAX_ITEMS = 10;
 	std::vector<std::string>	mItems;
 	std::string					mFilename; /// File to store the history to.
 	loaded_callback_t			mLoadedCallback;

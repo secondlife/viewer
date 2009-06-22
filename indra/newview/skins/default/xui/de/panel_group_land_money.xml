@@ -1,15 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Land und L$" name="land_money_tab">
-	<text name="help_text">
-		Es werden Parzellen in Gruppenbesitz und Beitragsdetails angezeigt. Ein Warnhinweis wird angezeigt, solange der Wert für das Insgesamt verwendete Land gleich oder weniger ist als der Gesamtbeitrag. Die Registerkarten „Planung“, „Details“ und „Verkäufe“ enthalten Informationen über die Gruppenfinanzen.
-	</text>
-	<button label="?" name="help_button" />
-	<text name="cant_view_group_land_text">
+	<string name="help_text">
+		Parzellen in Gruppenbesitz werden zusammen mit Beitragsdetails angezeigt. Ein Warnhinweis wird angezeigt, solange der Wert für das insgesamt verwendete Land gleich oder weniger ist als der Gesamtbeitrag. Die Registerkarten „Planung“, „Details“ und „Verkäufe“ enthalten Informationen über die Gruppenfinanzen.
+	</string>
+	<button label="?" name="help_button"/>
+	<string name="cant_view_group_land_text">
 		Sie sind nicht berechtigt, Landeigentum der Gruppe anzuzeigen.
-	</text>
-	<text name="cant_view_group_accounting_text">
+	</string>
+	<string name="cant_view_group_accounting_text">
 		Sie sind nicht berechtigt, die Finanzinformationen der Gruppe anzuzeigen.
-	</text>
+	</string>
 	<string name="loading_txt">
 		Wird geladen...
 	</string>
@@ -17,12 +17,13 @@
 		Land in Gruppenbesitz
 	</text>
 	<scroll_list name="group_parcel_list">
-		<column label="Parzellenname" name="name" />
-		<column label="Region" name="location" />
-		<column label="Gebiet" name="area" />
-		<column label="" name="hidden" />
+		<column label="Parzellenname" name="name"/>
+		<column label="Region" name="location"/>
+		<column label="Typ" name="type"/>
+		<column label="Gebiet" name="area"/>
+		<column label="" name="hidden"/>
 	</scroll_list>
-	<button label="Auf Karte" label_selected="Auf Karte" name="map_button" />
+	<button label="Auf Karte" label_selected="Auf Karte" name="map_button"/>
 	<text name="total_contributed_land_label">
 		Gesamtbeitrag:
 	</text>
@@ -43,9 +44,6 @@
 	</text>
 	<text name="your_contribution_label">
 		Ihr Beitrag:
-	</text>
-	<text name="your_contribution_max_value_append">
-		qm
 	</text>
 	<string name="land_contrib_error">
 		Ihr Landbeitrag kann nicht festgelegt werden.
@@ -70,19 +68,15 @@ das verwendete Land gehalten werden kann.
 			<text_editor name="group_money_details_text">
 				Wird berechnet...
 			</text_editor>
-			<button label="&lt; Früher" label_selected="&lt; Früher"
-			     name="earlier_details_button" tool_tip="Zurück in der Zeit" />
-			<button label="Später &gt;" label_selected="Später &gt;" name="later_details_button"
-			     tool_tip="Weiter in der Zeit" />
+			<button label="&lt; Früher" label_selected="&lt; Früher" name="earlier_details_button" tool_tip="Zurück in der Zeit"/>
+			<button label="Später &gt;" label_selected="Später &gt;" name="later_details_button" tool_tip="Weiter in der Zeit"/>
 		</panel>
 		<panel label="Verkäufe" name="group_money_sales_tab">
 			<text_editor name="group_money_sales_text">
 				Wird berechnet...
 			</text_editor>
-			<button label="&lt; Früher" label_selected="&lt; Früher" name="earlier_sales_button"
-			     tool_tip="Zurück in der Zeit" />
-			<button label="Später &gt;" label_selected="Später &gt;" name="later_sales_button"
-			     tool_tip="Weiter in der Zeit" />
+			<button label="&lt; Früher" label_selected="&lt; Früher" name="earlier_sales_button" tool_tip="Zurück in der Zeit"/>
+			<button label="Später &gt;" label_selected="Später &gt;" name="later_sales_button" tool_tip="Weiter in der Zeit"/>
 		</panel>
 	</tab_container>
 </panel>

@@ -49,6 +49,7 @@
 #include "llviewercontrol.h"	// gSavedSettings
 #include "llviewerimagelist.h"
 #include "lluictrlfactory.h"
+#include "llviewerinventory.h"
 #include "llviewermenu.h"	// gMenuHolder
 #include "llviewerregion.h"
 #include "llviewerstats.h"
@@ -70,8 +71,6 @@
 
 // system libraries
 #include <boost/tokenizer.hpp>
-
-using namespace LLOldEvents;
 
 class LLFileEnableSaveAs : public view_listener_t
 {

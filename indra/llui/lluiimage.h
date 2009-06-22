@@ -33,7 +33,7 @@
 #ifndef LL_LLUIIMAGE_H
 #define LL_LLUIIMAGE_H
 
-#include "llgl.h"
+//#include "llgl.h"
 #include "llimagegl.h"
 #include "llrefcount.h"
 #include "llrect.h"
@@ -46,6 +46,7 @@ class LLUIImage : public LLRefCount
 {
 public:
 	LLUIImage(const std::string& name, LLPointer<LLImageGL> image);
+	virtual ~LLUIImage();
 
 	void setClipRegion(const LLRectf& region);
 	void setScaleRegion(const LLRectf& region);
@@ -67,8 +68,8 @@ public:
 	
 	const std::string& getName() const { return mName; }
 
-	S32 getWidth() const;
-	S32 getHeight() const;
+	virtual S32 getWidth() const;
+	virtual S32 getHeight() const;
 
 	// returns dimensions of underlying textures, which might not be equal to ui image portion
 	S32 getTextureWidth() const;

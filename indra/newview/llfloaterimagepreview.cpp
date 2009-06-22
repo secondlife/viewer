@@ -52,6 +52,7 @@
 #include "llui.h"
 #include "llviewercamera.h"
 #include "llviewerwindow.h"
+#include "llviewerobjectlist.h"
 #include "llvoavatar.h"
 #include "pipeline.h"
 #include "lluictrlfactory.h"
@@ -110,7 +111,7 @@ BOOL LLFloaterImagePreview::postBuild()
 
 	childHide("bad_image_text");
 
-	if (mRawImagep.notNull())
+	if (mRawImagep.notNull() && gAgent.getRegion() != NULL)
 	{
 		mAvatarPreview = new LLImagePreviewAvatar(256, 256);
 		mAvatarPreview->setPreviewTarget("mPelvis", "mUpperBodyMesh0", mRawImagep, 2.f, FALSE);
@@ -213,13 +214,16 @@ void	LLFloaterImagePreview::onPreviewTypeCommit(LLUICtrl* ctrl, void* userdata)
 //-----------------------------------------------------------------------------
 void LLFloaterImagePreview::clearAllPreviewTextures()
 {
-	mAvatarPreview->clearPreviewTexture("mHairMesh0");
-	mAvatarPreview->clearPreviewTexture("mUpperBodyMesh0");
-	mAvatarPreview->clearPreviewTexture("mLowerBodyMesh0");
-	mAvatarPreview->clearPreviewTexture("mHeadMesh0");
-	mAvatarPreview->clearPreviewTexture("mUpperBodyMesh0");
-	mAvatarPreview->clearPreviewTexture("mLowerBodyMesh0");
-	mAvatarPreview->clearPreviewTexture("mSkirtMesh0");
+	if (mAvatarPreview)
+	{
+		mAvatarPreview->clearPreviewTexture("mHairMesh0");
+		mAvatarPreview->clearPreviewTexture("mUpperBodyMesh0");
+		mAvatarPreview->clearPreviewTexture("mLowerBodyMesh0");
+		mAvatarPreview->clearPreviewTexture("mHeadMesh0");
+		mAvatarPreview->clearPreviewTexture("mUpperBodyMesh0");
+		mAvatarPreview->clearPreviewTexture("mLowerBodyMesh0");
+		mAvatarPreview->clearPreviewTexture("mSkirtMesh0");
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -612,7 +616,8 @@ LLImagePreviewAvatar::LLImagePreviewAvatar(S32 width, S32 height) : LLDynamicTex
 	mCameraPitch = 0.f;
 	mCameraZoom = 1.f;
 
-	mDummyAvatar = new LLVOAvatar(LLUUID::null, LL_PCODE_LEGACY_AVATAR, gAgent.getRegion());
+	mDummyAvatar = (LLVOAvatar*)gObjectList.createObjectViewer(LL_PCODE_LEGACY_AVATAR, gAgent.getRegion());
+	mDummyAvatar->initInstance();
 	mDummyAvatar->createDrawable(&gPipeline);
 	mDummyAvatar->mIsDummy = TRUE;
 	mDummyAvatar->mSpecialRenderMode = 2;
@@ -670,11 +675,14 @@ void LLImagePreviewAvatar::setPreviewTarget(const std::string& joint_name, const
 //-----------------------------------------------------------------------------
 void LLImagePreviewAvatar::clearPreviewTexture(const std::string& mesh_name)
 {
-	LLViewerJointMesh *mesh = (LLViewerJointMesh*)mDummyAvatar->mRoot.findJoint(mesh_name);
-	// clear out existing test mesh
-	if (mesh)
+	if (mDummyAvatar)
 	{
-		mesh->setTestTexture(0);
+		LLViewerJointMesh *mesh = (LLViewerJointMesh*)mDummyAvatar->mRoot.findJoint(mesh_name);
+		// clear out existing test mesh
+		if (mesh)
+		{
+			mesh->setTestTexture(0);
+		}
 	}
 }
 
@@ -795,27 +803,11 @@ LLImagePreviewSculpted::LLImagePreviewSculpted(S32 width, S32 height) : LLDynami
 	
 	F32 const HIGHEST_LOD = 4.0f;
 	mVolume = new LLVolume(volume_params,  HIGHEST_LOD);
-
-	/*
-	mDummyAvatar = new LLVOAvatar(LLUUID::null, LL_PCODE_LEGACY_AVATAR, gAgent.getRegion());
-	mDummyAvatar->createDrawable(&gPipeline);
-	mDummyAvatar->mIsDummy = TRUE;
-	mDummyAvatar->mSpecialRenderMode = 2;
-	mDummyAvatar->setPositionAgent(LLVector3::zero);
-	mDummyAvatar->slamPosition();
-	mDummyAvatar->updateJointLODs();
-	mDummyAvatar->updateGeometry(mDummyAvatar->mDrawable);
-	gPipeline.markVisible(mDummyAvatar->mDrawable, *LLViewerCamera::getInstance());
-	mTextureName = 0;
-	*/
 }
 
 
 LLImagePreviewSculpted::~LLImagePreviewSculpted()
 {
-	/*
-	mDummyAvatar->markDead();
-	*/
 }
 
 

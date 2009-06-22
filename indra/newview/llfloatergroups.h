@@ -62,7 +62,7 @@ class LLFloaterGroupPicker : public LLFloater, public LLUIFactory<LLFloaterGroup
 public:
 	~LLFloaterGroupPicker();
 	
-	// Note: Don't return connection; use boost::bind + boost::signal::trackable to disconnect slots
+	// Note: Don't return connection; use boost::bind + boost::signals2::trackable to disconnect slots
 	typedef boost::signals2::signal<void (LLUUID id)> signal_t;	
 	void setSelectGroupCallback(const signal_t::slot_type& cb) { mGroupSelectSignal.connect(cb); }
 	void setPowersMask(U64 powers_mask);

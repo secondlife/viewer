@@ -38,89 +38,78 @@
 #define LL_LLPANELPICK_H
 
 #include "llpanel.h"
-#include "v3dmath.h"
-#include "lluuid.h"
 
-class LLButton;
-class LLCheckBoxCtrl;
-class LLIconCtrl;
-class LLLineEditor;
-class LLTextBox;
-class LLTextEditor;
 class LLTextureCtrl;
-class LLUICtrl;
 class LLMessageSystem;
+class LLPanelMeProfile;
+class LLAvatarPropertiesObserver;
 
-class LLPanelPick : public LLPanel
+class LLPanelPick : public LLPanel, public LLAvatarPropertiesObserver
 {
+	LOG_CLASS(LLPanelPick);
 public:
-    LLPanelPick();
-    /*virtual*/ ~LLPanelPick();
+	LLPanelPick(BOOL edit_mode = FALSE);
+	/*virtual*/ ~LLPanelPick();
 
 	void reset();
 
-    /*virtual*/ BOOL postBuild();
+	/*virtual*/ BOOL postBuild();
 
-    /*virtual*/ void draw();
-
-	/*virtual*/ void refresh();
-
-	// Setup a new pick, including creating an id, giving a sane
+	// Create a new pick, including creating an id, giving a sane
 	// initial position, etc.
-	void initNewPick();
+	void createNewPick();
 
-	// We need to know the creator id so the database knows which partition
-	// to query for the pick data.
-	void setPickID(const LLUUID& pick_id, const LLUUID& creator_id);
+	void init(LLUUID creator_id, LLUUID pick_id);
 
-	// Schedules the panel to request data
-	// from the server next time it is drawn.
-	void markForServerRequest();
+	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
 
-	std::string getPickName();
-	const LLUUID& getPickID() const { return mPickID; }
-	const LLUUID& getPickCreatorID() const { return mCreatorID; }
+	void setEditMode(BOOL edit_mode);
 
-    void sendPickInfoRequest();
-	void sendPickInfoUpdate();
-
-    static void processPickInfoReply(LLMessageSystem* msg, void**);
+	//TODO redo panel toggling
+	void setPanelMeProfile(LLPanelMeProfile* meProfilePanel);
 
 protected:
-    static void onClickTeleport(void* data);
-    static void onClickMap(void* data);
-    //static void onClickLandmark(void* data);
-    static void onClickSet(void* data);
 
-	static void onCommitAny(LLUICtrl* ctrl, void* data);
+	void setName(std::string name);
+	void setDesc(std::string desc);
+	void setLocation(std::string location);
+
+	std::string getName();
+	std::string getDesc();
+	std::string getLocation();
+
+	void sendUpdate();
+	void init(LLPickData *pick_data);
+
+	//-----------------------------------------
+	// "PICK INFO" (VIEW MODE) BUTTON HANDLERS
+	//-----------------------------------------
+	static void onClickEdit(void* data);
+	static void onClickTeleport(void* data);
+	static void onClickMap(void* data);
+	static void onClickBack(void* data);
+
+	//-----------------------------------------
+	// "EDIT PICK" (EDIT MODE) BUTTON HANDLERS
+	//-----------------------------------------
+	static void onClickSet(void* data);
+	static void onClickSave(void* data);
+	static void onClickCancel(void* data);
 
 protected:
-    LLUUID mPickID;
-	LLUUID mCreatorID;
-	LLUUID mParcelID;
-
-	// Data will be requested on first draw
+	BOOL mEditMode;
+	LLTextureCtrl*	mSnapshotCtrl;
 	BOOL mDataRequested;
 	BOOL mDataReceived;
 
+	LLUUID mPickId;
+	LLUUID mCreatorId;
+	LLVector3d mPosGlobal;
+	LLUUID mParcelId;
 	std::string mSimName;
-    LLVector3d mPosGlobal;
 
-    LLTextureCtrl*	mSnapshotCtrl;
-    LLLineEditor*	mNameEditor;
-    LLTextEditor*	mDescEditor;
-    LLLineEditor*	mLocationEditor;
-
-    LLButton*    mTeleportBtn;
-    LLButton*    mMapBtn;
-
-    LLTextBox*    mSortOrderText;
-    LLLineEditor* mSortOrderEditor;
-    LLCheckBoxCtrl* mEnabledCheck;
-    LLButton*    mSetBtn;
-
-    typedef std::list<LLPanelPick*> panel_list_t;
-	static panel_list_t sAllPanels;
+	//TODO redo panel toggling
+	LLPanelMeProfile* mMeProfilePanel;
 };
 
 #endif // LL_LLPANELPICK_H

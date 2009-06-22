@@ -65,7 +65,7 @@ S32 MAX_COMBO_WIDTH = 500;
 
 template LLComboBox* LLView::getChild<LLComboBox>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
 
-static LLRegisterWidget<LLComboBox> register_combo_box("combo_box");
+static LLDefaultWidgetRegistry::Register<LLComboBox> register_combo_box("combo_box");
 
 void LLComboBox::PreferredPositionValues::declareValues()
 {
@@ -98,6 +98,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 :	LLUICtrl(p),
 	mTextEntry(NULL),
 	mTextEntryTentative(p.show_text_as_tentative),
+	mHasAutocompletedText(false),
 	mAllowTextEntry(p.allow_text_entry),
 	mMaxChars(p.max_chars),
 	mPrearrangeCallback(p.prearrange_callback()),
@@ -482,7 +483,6 @@ void LLComboBox::createLineEditor(const LLComboBox::Params& p)
 		params.commit_callback.function(boost::bind(&LLComboBox::onTextCommit, this, _2));
 		params.keystroke_callback(boost::bind(&LLComboBox::onTextEntry, this, _1));
 		params.focus_lost_callback(NULL);
-		params.select_on_focus(true);
 		params.handle_edit_keys_directly(true);
 		params.commit_on_focus_lost(false);
 		params.follows.flags(FOLLOWS_ALL);
@@ -640,16 +640,15 @@ void LLComboBox::onButtonDown()
 {
 	if (!mList->getVisible())
 	{
+		// this might change selection, so do it first
+		prearrangeList();
+
+		// highlight the last selected item from the original selection before potentially selecting a new item
+		// as visual cue to original value of combo box
 		LLScrollListItem* last_selected_item = mList->getLastSelectedItem();
 		if (last_selected_item)
 		{
-			// highlight the original selection before potentially selecting a new item
 			mList->mouseOverHighlightNthItem(mList->getItemIndex(last_selected_item));
-		}
-
-		if( mPrearrangeCallback )
-		{
-			mPrearrangeCallback( this, LLSD() );
 		}
 
 		if (mList->getItemCount() != 0)
@@ -810,6 +809,7 @@ void LLComboBox::setTextEntry(const LLStringExplicit& text)
 	if (mTextEntry)
 	{
 		mTextEntry->setText(text);
+		mHasAutocompletedText = FALSE;
 		updateSelection();
 	}
 }
@@ -848,10 +848,7 @@ void LLComboBox::onTextEntry(LLLineEditor* line_editor)
 		setCurrentByIndex(llmin(getItemCount() - 1, getCurrentIndex() + 1));
 		if (!mList->getVisible())
 		{
-			if( mPrearrangeCallback )
-			{
-				mPrearrangeCallback( this, LLSD() );
-			}
+			prearrangeList();
 
 			if (mList->getItemCount() != 0)
 			{
@@ -866,10 +863,7 @@ void LLComboBox::onTextEntry(LLLineEditor* line_editor)
 		setCurrentByIndex(llmax(0, getCurrentIndex() - 1));
 		if (!mList->getVisible())
 		{
-			if( mPrearrangeCallback )
-			{
-				mPrearrangeCallback( this, LLSD() );
-			}
+			prearrangeList();
 
 			if (mList->getItemCount() != 0)
 			{
@@ -891,7 +885,7 @@ void LLComboBox::updateSelection()
 	LLWString left_wstring = mTextEntry->getWText().substr(0, mTextEntry->getCursor());
 	// user-entered portion of string, based on assumption that any selected
     // text was a result of auto-completion
-	LLWString user_wstring = mTextEntry->hasSelection() ? left_wstring : mTextEntry->getWText();
+	LLWString user_wstring = mHasAutocompletedText ? left_wstring : mTextEntry->getWText();
 	std::string full_string = mTextEntry->getText();
 
 	// go ahead and arrange drop down list on first typed character, even
@@ -899,23 +893,14 @@ void LLComboBox::updateSelection()
 	// callback to populate content
 	if( mTextEntry->getWText().size() == 1 )
 	{
-		if (mPrearrangeCallback)
-		{
-			mPrearrangeCallback( this, LLSD() );
-		}
+		prearrangeList(mTextEntry->getText());
 	}
 
 	if (mList->selectItemByLabel(full_string, FALSE))
 	{
 		mTextEntry->setTentative(FALSE);
 	}
-	else if (!mList->selectItemByPrefix(left_wstring, FALSE))
-	{
-		mList->deselectAllItems();
-		mTextEntry->setText(wstring_to_utf8str(user_wstring));
-		mTextEntry->setTentative(mTextEntryTentative);
-	}
-	else
+	else if (mList->selectItemByPrefix(left_wstring, FALSE))
 	{
 		LLWString selected_item = utf8str_to_wstring(mList->getSelectedItemLabel());
 		LLWString wtext = left_wstring + selected_item.substr(left_wstring.size(), selected_item.size());
@@ -923,6 +908,14 @@ void LLComboBox::updateSelection()
 		mTextEntry->setSelection(left_wstring.size(), mTextEntry->getWText().size());
 		mTextEntry->endSelection();
 		mTextEntry->setTentative(FALSE);
+		mHasAutocompletedText = TRUE;
+	}
+	else // no matching items found
+	{
+		mList->deselectAllItems();
+		mTextEntry->setText(wstring_to_utf8str(user_wstring)); // removes text added by autocompletion
+		mTextEntry->setTentative(mTextEntryTentative);
+		mHasAutocompletedText = FALSE;
 	}
 }
 
@@ -945,6 +938,14 @@ void LLComboBox::setFocus(BOOL b)
 		{
 			mList->setFocus(TRUE);
 		}
+	}
+}
+
+void LLComboBox::prearrangeList(std::string filter)
+{
+	if (mPrearrangeCallback)
+	{
+		mPrearrangeCallback(this, LLSD(filter));
 	}
 }
 

@@ -70,18 +70,19 @@ LLSD LLTeleportHistoryItem::toLLSD() const
 
 LLTeleportHistory::LLTeleportHistory():
 	mCurrentItem(-1),
-	mHistoryTeleportInProgress(false),
-	mGotInitialUpdate(false),
-	mFilename("teleports.txt"),
-	mHistoryChangedCallback(NULL)
+	mRequestedItem(-1),
+	mGotInitialUpdate(false)
 {
 	mTeleportFinishedConn = LLViewerParcelMgr::getInstance()->
 		setTeleportFinishedCallback(boost::bind(&LLTeleportHistory::updateCurrentLocation, this));
+	mTeleportFailedConn = LLViewerParcelMgr::getInstance()->
+		setTeleportFailedCallback(boost::bind(&LLTeleportHistory::onTeleportFailed, this));
 }
 
 LLTeleportHistory::~LLTeleportHistory()
 {
 	mTeleportFinishedConn.disconnect();
+	mTeleportFailedConn.disconnect();
 }
 
 void LLTeleportHistory::goToItem(int idx)
@@ -102,18 +103,27 @@ void LLTeleportHistory::goToItem(int idx)
 		return;
 	}
 
-	// Make specified item current and teleport to it.
-	mCurrentItem = idx;
-	mHistoryTeleportInProgress = true;
-	onHistoryChanged();
-	gAgent.teleportViaLocation(mItems[mCurrentItem].mGlobalPos);
+	// Attempt to teleport to the requested item.
+	gAgent.teleportViaLocation(mItems[idx].mGlobalPos);
+	mRequestedItem = idx;
+}
+
+void LLTeleportHistory::onTeleportFailed()
+{
+	// Are we trying to teleport within the history?
+	if (mRequestedItem != -1)
+	{
+		// Not anymore.
+		mRequestedItem = -1;
+	}
 }
 
 void LLTeleportHistory::updateCurrentLocation()
 {
-	if (mHistoryTeleportInProgress)
+	if (mRequestedItem != -1) // teleport within the history in progress?
 	{
-		mHistoryTeleportInProgress = false;
+		mCurrentItem = mRequestedItem;
+		mRequestedItem = -1;
 	}
 	else
 	{
@@ -131,16 +141,18 @@ void LLTeleportHistory::updateCurrentLocation()
 			mItems.push_back(LLTeleportHistoryItem("", LLVector3d()));
 			mCurrentItem++;
 		}
+
+		// Update current history item.
+		if (mCurrentItem < 0 || mCurrentItem >= (int) mItems.size()) // sanity check
+		{
+			llwarns << "Invalid current item. (this should not happen)" << llendl;
+			return;
+		}
+		mItems[mCurrentItem].mTitle = getCurrentLocationTitle();
+		mItems[mCurrentItem].mGlobalPos	= gAgent.getPositionGlobal();
+		mItems[mCurrentItem].mRegionID = gAgent.getRegion()->getRegionID();
 	}
 
-	// Update current history item.
-	if (mCurrentItem < 0 || mCurrentItem >= (int) mItems.size()) // sanity check
-	{
-		llwarns << "Invalid current item. (this should not happen)" << llendl;
-		return;
-	}
-	mItems[mCurrentItem].mTitle = getCurrentLocationTitle();
-	mItems[mCurrentItem].mGlobalPos	= gAgent.getPositionGlobal();
 	dump();
 	
 	if (!mGotInitialUpdate)
@@ -150,80 +162,14 @@ void LLTeleportHistory::updateCurrentLocation()
 	onHistoryChanged();
 }
 
-void LLTeleportHistory::save() const
+boost::signals2::connection LLTeleportHistory::setHistoryChangedCallback(history_callback_t cb)
 {
-	// build filename for each user
-	std::string resolvedFilename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, mFilename);
-
-	// open the history file for writing
-	llofstream file (resolvedFilename);
-	if (!file.is_open())
-	{
-		llwarns << "can't open teleport history file \"" << mFilename << "\" for writing" << llendl;
-		return;
-	}
-
-	for (size_t i=0; i<mItems.size(); i++)
-	{
-		LLSD s_item = mItems[i].toLLSD();
-		s_item["is_current"] = (i == mCurrentItem);
-		file << LLSDOStreamer<LLSDNotationFormatter>(s_item) << std::endl;
-	}
-
-	file.close();
-}
-
-// *TODO: clean this up
-void LLTeleportHistory::load()
-{
-	// build filename for each user
-	std::string resolved_filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, mFilename);
-
-	// open the history file for reading
-	llifstream file(resolved_filename);
-	if (!file.is_open())
-	{
-		llwarns << "can't load teleport history from file \"" << mFilename << "\"" << llendl;
-		return;
-	}
-	
-	// remove current entries before we load over them
-	mItems.clear();
-	mCurrentItem = -1;
-	
-	// the parser's destructor is protected so we cannot create in the stack.
-	LLPointer<LLSDParser> parser = new LLSDNotationParser();
-	std::string line;
-	for (int i = 0; std::getline(file, line); i++)
-	{
-		LLSD s_item;
-		std::istringstream iss(line);
-		if (parser->parse(iss, s_item, line.length()) == LLSDParser::PARSE_FAILURE)
-		{
-			llinfos << "Parsing saved teleport history failed" << llendl;
-			break;
-		}
-		
-		mItems.push_back(s_item);
-		if (s_item["is_current"].asBoolean() == true)
-			mCurrentItem = i; 
-	}
-
-	file.close();
-	onHistoryChanged();
-}
-
-void LLTeleportHistory::setHistoryChangedCallback(history_callback_t cb)
-{
-	mHistoryChangedCallback = cb;
+	return mHistoryChangedSignal.connect(cb);
 }
 
 void LLTeleportHistory::onHistoryChanged()
 {
-	if (mHistoryChangedCallback)
-	{
-		mHistoryChangedCallback();
-	}
+	mHistoryChangedSignal();
 }
 
 // static
@@ -246,6 +192,7 @@ void LLTeleportHistory::dump() const
 		std::stringstream line;
 		line << ((i == mCurrentItem) ? " * " : "   ");
 		line << i << ": " << mItems[i].mTitle;
+		line << " REGION_ID: " << mItems[i].mRegionID;
 		llinfos << line.str() << llendl;
 	}
 }

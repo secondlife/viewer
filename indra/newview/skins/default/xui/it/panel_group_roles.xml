@@ -51,7 +51,7 @@ eseguire tali abilità.
 				<column label="Contributo donato" name="donated"/>
 				<column label="Ultimo accesso" name="online"/>
 			</name_list>
-			<button label="Invitare una nuova persona..." name="member_invite"/>
+			<button label="Invita un nuovo membro ..." name="member_invite"/>
 			<button label="Espellere dal gruppo" name="member_eject"/>
 			<string name="help_text">
 				Puoi aggiungere o rimuovere i ruoli assegnati ai membri. 

@@ -4,35 +4,30 @@
 		<panel label="Objecten" name="objects_mapview"/>
 		<panel label="Terrein" name="terrain_mapview"/>
 	</tab_container>
-	<text name="land_for_sale_label">
-		Land te koop
+	<text name="you_label">
+		U
+	</text>
+	<icon left="1058" name="home"/>
+	<text name="home_label">
+		Thuis
 	</text>
 	<text name="auction_label">
 		Veiling
 	</text>
-	<text name="you_label">
-		U
-	</text>
-	<text name="home_label">
-		Thuis
-	</text>
-	<button label="Ga naar Thuislocatie" label_selected="Ga naar Thuislocatie" name="Go Home" tool_tip="Teleport naar uw thuislocatie"/>
-	<text name="person_label">
-		Persoon
-	</text>
-	<text name="infohub_label">
-		Infohub
-	</text>
-	<text name="telehub_label">
-		Telehub
-	</text>
-	<text name="land_for_sale_label2">
+	<text name="land_for_sale_label">
 		Land te koop
 	</text>
+	<button width="122" left="1116" label="Ga naar Thuislocatie" label_selected="Ga naar Thuislocatie" name="Go Home" tool_tip="Teleport naar uw thuislocatie"/>
+	<check_box label="Inwoner" name="people_chk"/>
+	<check_box label="Infohub" name="infohub_chk"/>
+	<check_box label="Telehub" name="telehubchk"/>
+	<check_box label="Land te koop" name="land_for_sale_chk"/>
 	<text name="events_label">
-		Evenementen
+		Evenementen:
 	</text>
-
+	<check_box label="PG" name="event_chk"/>
+	<check_box label="Mature" name="event_mature_chk"/>
+	<check_box label="Adult" name="event_adult_chk"/>
 	<combo_box label="Online vrienden" name="friend combo" tool_tip="Vriend die op kaart getoond wordt">
 		<combo_box.item name="none_selected" label="Online vrienden"/>
 	</combo_box>

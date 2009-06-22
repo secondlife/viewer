@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ auto_tile="true"
+ can_resize="true"
+ follows="left|bottom"
+ height="331"
+ layout="topleft"
+ min_height="120"
+ min_width="300"
+ name="preview_texture"
+ width="300">
+    <floater.string
+     name="Title">
+        Texture: [NAME]
+    </floater.string>
+    <floater.string
+     name="Copy">
+        Copy To Inventory
+    </floater.string>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="19"
+     layout="topleft"
+     left="13"
+     name="desc txt"
+     top="21"
+     width="80">
+        Description:
+    </text>
+    <line_editor
+     border_style="line"
+     border_thickness="1"
+     follows="left|top|right"
+     font="SansSerif"
+     height="19"
+     layout="topleft"
+     left_delta="80"
+     max_length="127"
+     name="desc"
+     top_delta="-2"
+     width="194" />
+    <button
+     follows="left|bottom"
+     height="20"
+     label="Discard"
+     label_selected="Discard"
+     layout="topleft"
+     left="9"
+     name="Discard"
+     top="302"
+     width="100" />
+    <button
+     follows="left|bottom"
+     height="20"
+     label="Keep"
+     label_selected="Keep"
+     layout="topleft"
+     left_pad="5"
+     name="Keep"
+     top_delta="0"
+     width="100" />
+    <text
+     type="string"
+     length="1"
+     follows="left|bottom"
+     height="14"
+     layout="topleft"
+     left="13"
+     name="dimensions"
+     top="287"
+     width="163">
+        Dimensions: [WIDTH] x [HEIGHT]
+    </text>
+</floater>

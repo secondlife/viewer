@@ -33,25 +33,43 @@
 #ifndef LLLIVEAPPCONFIG_H
 #define LLLIVEAPPCONFIG_H
 
+#include "llapp.h"
 #include "lllivefile.h"
 
-class LLApp;
 
-class LL_COMMON_API LLLiveAppConfig : public LLLiveFile
+/**
+ * @class LLLiveAppConfig
+ * @see LLLiveFile
+ *
+ * To use this, instantiate a LLLiveAppConfig object inside your main
+ * loop.  The traditional name for it is live_config.  Be sure to call
+ * <code>live_config.checkAndReload()</code> periodically.
+ */
+class LLLiveAppConfig : public LLLiveFile
 {
 public:
-	// To use this, instantiate a LLLiveAppConfig object inside your main loop.
-	// The traditional name for it is live_config.
-	// Be sure to call live_config.checkAndReload() periodically.
 
-	LLLiveAppConfig(LLApp* app, const std::string& filename, F32 refresh_period);
-	~LLLiveAppConfig();
+	/**
+	 * @brief Constructor
+	 *
+	 * @param filename. The name of the file for periodically checking
+	 * configuration.
+	 * @param refresh_period How often the internal timer should
+	 * bother checking the filesystem.
+	 * @param The application priority level of that configuration file.
+	 */
+	LLLiveAppConfig(
+		const std::string& filename,
+		F32 refresh_period,
+		LLApp::OptionPriority priority);
+
+	~LLLiveAppConfig(); ///< Destructor
 
 protected:
-	/*virtual*/ void loadFile();
+	/*virtual*/ bool loadFile();
 
 private:
-	LLApp* mApp;
+	LLApp::OptionPriority mPriority;
 };
 
 #endif

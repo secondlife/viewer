@@ -44,6 +44,7 @@
 LLAgentPilot gAgentPilot;
 
 BOOL LLAgentPilot::sLoop = TRUE;
+BOOL LLAgentPilot::sReplaySession = FALSE;
 
 LLAgentPilot::LLAgentPilot() :
 	mNumRuns(-1),
@@ -175,6 +176,11 @@ void LLAgentPilot::stopPlayback()
 		mCurrentAction = 0;
 		mTimer.reset();
 		gAgent.stopAutoPilot();
+	}
+
+	if (sReplaySession)
+	{
+		LLAppViewer::instance()->forceQuit();
 	}
 }
 

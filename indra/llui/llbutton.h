@@ -107,8 +107,7 @@ public:
 		Optional<CommitCallbackParam>	click_callback, // alias -> commit_callback
 															mouse_down_callback,
 															mouse_up_callback,
-															mouse_held_callback,
-															mouse_held_once_callback;
+															mouse_held_callback;
 		
 		// misc
 		Optional<bool>			is_toggle,
@@ -138,6 +137,8 @@ public:
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
+	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
+	virtual BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);	
 	virtual void	draw();
 	/*virtual*/ BOOL postBuild();
 
@@ -155,6 +156,9 @@ public:
 	boost::signals2::connection setMouseUpCallback( const commit_signal_t::slot_type& cb ); // mouse up, EVEN IF NOT IN BUTTON
 	// Passes a 'count' parameter in the commit param payload, i.e. param["count"])
 	boost::signals2::connection setHeldDownCallback( const commit_signal_t::slot_type& cb ); // Mouse button held down and in button
+	boost::signals2::connection setRightClickedCallback( const commit_signal_t::slot_type& cb ); // right mouse down and up within button
+
+
 	
 	// *TODO: Deprecate (for backwards compatability only)
 	boost::signals2::connection setClickedCallback( button_callback_t cb, void* data );

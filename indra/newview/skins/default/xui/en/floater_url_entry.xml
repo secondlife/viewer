@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_minimize="false"
+ height="87"
+ layout="topleft"
+ name="url_entry"
+ width="500">
+    <text
+     type="string"
+     length="1"
+     bottom="20"
+     follows="top|left"
+     height="15"
+     layout="topleft"
+     left="20"
+     name="media_label"
+     top="20">
+        Media URL:
+    </text>
+    <combo_box
+     allow_text_entry="true"
+     follows="left|top|right"
+     height="19"
+     layout="topleft"
+     left_delta="70"
+     max_chars="255"
+     name="media_entry"
+     top_delta="-4"
+     width="370" />
+    <button
+     follows="top|left"
+     height="20"
+     label="OK"
+     layout="topleft"
+     left="20"
+     name="ok_btn"
+     top="50"
+     width="64" />
+    <button
+     follows="top|left"
+     height="20"
+     label="Cancel"
+     layout="topleft"
+     left_pad="28"
+     name="cancel_btn"
+     top_delta="0"
+     width="64" />
+    <button
+     follows="top|right"
+     height="20"
+     label="Clear"
+     layout="topleft"
+     left_pad="220"
+     name="clear_btn"
+     top_delta="0"
+     width="64" />
+    <text
+     type="string"
+     length="1"
+     bottom_delta="-2"
+     follows="bottom|left"
+     height="15"
+     layout="topleft"
+     left="220"
+     name="loading_label"
+     visible="false">
+        Loading...
+    </text>
+</floater>

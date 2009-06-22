@@ -56,7 +56,12 @@
 #include "llbutton.h"
 #include "lltabcontainer.h"
 
-static LLRegisterWidget<LLPanel> r1("panel", &LLPanel::fromXML);
+static LLDefaultWidgetRegistry::Register<LLPanel> r1("panel", &LLPanel::fromXML);
+
+const LLPanel::Params& LLPanel::getDefaultParams() 
+{ 
+	return LLUICtrlFactory::getDefaultParams<LLPanel::Params>(); 
+}
 
 LLPanel::Params::Params()
 :	has_border("border", false),
@@ -67,7 +72,8 @@ LLPanel::Params::Params()
 	min_width("min_width", 100),
 	min_height("min_height", 100),
 	strings("string"),
-	filename("filename")
+	filename("filename"),
+	class_name("class")
 {
 	name = "panel";
 	addSynonym(background_visible, "bg_visible");
@@ -85,7 +91,8 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 	mDefaultBtn(NULL),
 	mBorder(NULL),
 	mLabel(p.label),
-	mCommitCallbackRegistrar(false)
+	mCommitCallbackRegistrar(false),
+	mEnableCallbackRegistrar(false)
 {
 	setIsChrome(FALSE);
 
@@ -111,6 +118,14 @@ void LLPanel::addBorder(LLViewBorder::Params p)
 	mBorder = LLUICtrlFactory::create<LLViewBorder>(p);
 	addChild( mBorder );
 }
+
+void LLPanel::addBorder() 
+{  
+	LLViewBorder::Params p; 
+	p.border_thickness(LLPANEL_BORDER_WIDTH); 
+	addBorder(p); 
+}
+
 
 void LLPanel::removeBorder()
 {
@@ -263,29 +278,26 @@ BOOL LLPanel::handleKeyHere( KEY key, MASK mask )
 			}
 		}
 	}
-
-	// If we have a default button, click it when
-	// return is pressed, unless current focus is a return-capturing button
-	// in which case *that* button will handle the return key
-	LLButton* focused_button = dynamic_cast<LLButton*>(cur_focus);
-	if (cur_focus && !(focused_button && focused_button->getCommitOnReturn()))
+	
+	// If RETURN was pressed and something has focus, call onCommit()
+	if (!handled && cur_focus && key == KEY_RETURN && mask == MASK_NONE)
 	{
-		// RETURN key means hit default button in this case
-		if (key == KEY_RETURN && mask == MASK_NONE 
-			&& mDefaultBtn != NULL 
-			&& mDefaultBtn->getVisible()
-			&& mDefaultBtn->getEnabled())
+		LLButton* focused_button = dynamic_cast<LLButton*>(cur_focus);
+		if (focused_button && focused_button->getCommitOnReturn())
 		{
+			// current focus is a return-capturing button,
+			// let *that* button handle the return key
+			handled = FALSE; 
+		}
+		else if (mDefaultBtn && mDefaultBtn->getVisible() && mDefaultBtn->getEnabled())
+		{
+			// If we have a default button, click it when return is pressed
 			mDefaultBtn->onCommit();
 			handled = TRUE;
 		}
-	}
-
-	if (key == KEY_RETURN && mask == MASK_NONE)
-	{
-		// set keyboard focus to self to trigger commitOnFocusLost behavior on current ctrl
-		if (cur_focus && cur_focus->acceptsTextInput())
+		else if (cur_focus->acceptsTextInput())
 		{
+			// call onCommit for text input handling control
 			cur_focus->onCommit();
 			handled = TRUE;
 		}
@@ -352,23 +364,49 @@ void LLPanel::setBorderVisible(BOOL b)
 	}
 }
 
+LLFastTimer::DeclareTimer FTM_PANEL_CONSTRUCTION("Panel Construction");
+
 LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_node)
 {
 	std::string name("panel");
 	node->getAttributeString("name", name);
 
-	LLPanel* panelp = LLUICtrlFactory::getInstance()->createFactoryPanel(name); 
+	std::string class_attr;
+	node->getAttributeString("class", class_attr);
 
+	LLPanel* panelp = NULL;
+	
+	{
+		LLFastTimer timer(FTM_PANEL_CONSTRUCTION);
+		
+		if(!class_attr.empty())
+		{
+			panelp = LLRegisterPanelClass::instance().createPanelClass(class_attr);
+			if (!panelp)
+			{
+				llwarns << "Panel class \"" << class_attr << "\" not registered." << llendl;
+			}
+		}
+
+		if (!panelp)
+		{
+			panelp = LLUICtrlFactory::getInstance()->createFactoryPanel(name);
+		}
+
+	}
 	// factory panels may have registered their own factory maps
 	if (!panelp->getFactoryMap().empty())
 	{
 		LLUICtrlFactory::instance().pushFactoryFunctions(&panelp->getFactoryMap());
 	}
-	panelp->mCommitCallbackRegistrar.pushScope(); // for local registry callbacks; define in constructor, referenced in XUI or postBuild
+	// for local registry callbacks; define in constructor, referenced in XUI or postBuild
+	panelp->mCommitCallbackRegistrar.pushScope(); 
+	panelp->mEnableCallbackRegistrar.pushScope();
 
 	panelp->initPanelXML(node, parent, output_node);
 	
 	panelp->mCommitCallbackRegistrar.popScope();
+	panelp->mEnableCallbackRegistrar.popScope();
 
 	if (panelp && !panelp->getFactoryMap().empty())
 	{
@@ -422,60 +460,93 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 	
 }
 
+static LLFastTimer::DeclareTimer FTM_PANEL_SETUP("Panel Setup");
+static LLFastTimer::DeclareTimer FTM_EXTERNAL_PANEL_LOAD("Load Extern Panel Reference");
+static LLFastTimer::DeclareTimer FTM_PANEL_POSTBUILD("Panel PostBuild");
+
 BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 {
 	const LLPanel::Params& default_params(LLUICtrlFactory::getDefaultParams<LLPanel::Params>());
 	Params params(default_params);
 
-	LLXMLNodePtr referenced_xml;
-	std::string xml_filename;
-	node->getAttributeString("filename", xml_filename);
-
-	if (!xml_filename.empty())
 	{
-		if (!LLUICtrlFactory::getLayeredXMLNode(xml_filename, referenced_xml))
-		{
-			llwarns << "Couldn't parse panel from: " << xml_filename << llendl;
+		LLFastTimer timer(FTM_PANEL_SETUP);
 
-			return FALSE;
+		LLXMLNodePtr referenced_xml;
+		std::string xml_filename;
+		node->getAttributeString("filename", xml_filename);
+
+		if (!xml_filename.empty())
+		{
+			LLFastTimer timer(FTM_EXTERNAL_PANEL_LOAD);
+			if (output_node)
+			{
+				//if we are exporting, we want to export the current xml
+				//not the referenced xml
+				LLXUIParser::instance().readXUI(node, params);
+				Params output_params(params);
+				setupParamsForExport(output_params, parent);
+				output_node->setName(node->getName()->mString);
+				LLXUIParser::instance().writeXUI(
+					output_node, output_params, &default_params);
+				return TRUE;
+			}
+		
+			if (!LLUICtrlFactory::getLayeredXMLNode(xml_filename, referenced_xml))
+			{
+				llwarns << "Couldn't parse panel from: " << xml_filename << llendl;
+
+				return FALSE;
+			}
+
+			LLXUIParser::instance().readXUI(referenced_xml, params);
+
+			// add children using dimensions from referenced xml for consistent layout
+			setShape(params.rect);
+			LLUICtrlFactory::createChildren(this, referenced_xml);
 		}
 
-		LLXUIParser::instance().readXUI(referenced_xml, params);
+		LLXUIParser::instance().readXUI(node, params);
 
-		// add children using dimensions from referenced xml for consistent layout
-		setShape(params.rect);
-		addChildren(referenced_xml);
+		if (output_node)
+		{
+			Params output_params(params);
+			setupParamsForExport(output_params, parent);
+			output_node->setName(node->getName()->mString);
+			LLXUIParser::instance().writeXUI(
+				output_node, output_params, &default_params);
+		}
+		
+		setupParams(params, parent);
+		{
+			LLFastTimer timer(FTM_PANEL_CONSTRUCTION);
+			initFromParams(params);
+		}
+
+		// add children
+		LLUICtrlFactory::createChildren(this, node, output_node);
+
+		// Connect to parent after children are built, because tab containers
+		// do a reshape() on their child panels, which requires that the children
+		// be built/added. JC
+		if (parent)
+		{
+			S32 tab_group = params.tab_group.isProvided() ? params.tab_group() : -1;
+			parent->addChild(this, tab_group);
+		}
+
+		{
+			LLFastTimer timer(FTM_PANEL_POSTBUILD);
+			postBuild();
+		}
 	}
-
-	LLXUIParser::instance().readXUI(node, params);
-
-	if (output_node)
-	{
-		Params output_params(params);
-		setupParamsForExport(output_params, parent);
-		output_node->setName(node->getName()->mString);
-		LLXUIParser::instance().writeXUI(
-			output_node, output_params, &default_params);
-	}
-	
-	setupParams(params, parent);
-	initFromParams(params);
-
-	// add children
-	addChildren(node, output_node);
-
-	// Connect to parent after children are built, because tab containers
-	// do a reshape() on their child panels, which requires that the children
-	// be built/added. JC
-	if (parent)
-	{
-		S32 tab_group = params.tab_group.isProvided() ? params.tab_group() : -1;
-		parent->addChild(this, tab_group);
-	}
-
-	postBuild();
-
 	return TRUE;
+}
+
+const widget_registry_t& LLPanel::getChildRegistry() const
+{
+	// use default widget registry
+	return LLDefaultWidgetRegistry::instance();
 }
 
 bool LLPanel::hasString(const std::string& name)
@@ -827,10 +898,11 @@ LLView* LLPanel::getChildView(const std::string& name, BOOL recurse, BOOL create
 	}
 	if (!view && create_if_missing)
 	{
-		view = getDummyWidget<LLView>(name);
+		view = getDefaultWidget<LLView>(name);
 		if (!view)
 		{
-			view = LLUICtrlFactory::createDummyWidget<LLView>(name);
+			// create LLViews explicitly, as they are not registered widget types
+			view = LLUICtrlFactory::createDefaultWidget<LLView>(name);
 		}
 	}
 	return view;

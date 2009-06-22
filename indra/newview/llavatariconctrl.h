@@ -44,9 +44,11 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLIconCtrl::Params>
 	{
 		Optional <LLUUID> avatar_id;
+		Optional <bool> draw_tooltip;
 		Params()
 		{
 			name = "avatar_icon";
+			draw_tooltip = TRUE;
 		}
 	};
 protected:
@@ -61,7 +63,7 @@ public:
 	virtual void setValue(const LLSD& value);
 
 	// LLAvatarPropertiesProcessor observer trigger
-	virtual void processAvatarProperties(const LLAvatarData& avatar_data);
+	virtual void processProperties(void* data, EAvatarProcessorType type);
 
 	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
@@ -81,6 +83,7 @@ protected:
 	std::string			mFirstName;
 	std::string			mLastName;
 	LLHandle<LLView>	mPopupMenuHandle;
+	bool				mDrawTooltip;
 };
 
 #endif  // LL_LLAVATARICONCTRL_H

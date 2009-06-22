@@ -38,7 +38,7 @@
 #include <vector>
 #include <string>
 #include <boost/function.hpp>
-#include <boost/signals2/connection.hpp>
+#include <boost/signals2.hpp>
 
 
 /**
@@ -61,6 +61,7 @@ public:
 
 	std::string	mTitle;		// human-readable location title
 	LLVector3d	mGlobalPos; // global position
+	LLUUID		mRegionID;	// region ID for getting the region info 
 };
 
 /**
@@ -79,6 +80,7 @@ public:
 	
 	typedef std::vector<LLTeleportHistoryItem>	slurl_list_t;
 	typedef boost::function<void()>				history_callback_t;
+	typedef boost::signals2::signal<void()>		history_signal_t;
 	
 	LLTeleportHistory();
 	~LLTeleportHistory();
@@ -120,18 +122,10 @@ public:
 	
 	/**
 	 * Set a callback to be called upon history changes.
+	 * 
+	 * Multiple callbacks can be set.
 	 */
-	void					setHistoryChangedCallback(history_callback_t cb);
-
-	/**
-	 * Save the history to a file, so that it can be restored upon next logon.
-	 */
-	void					save() const;
-	
-	/**
-	 * Load previously saved history from a file.
-	 */
-	void					load();
+	boost::signals2::connection	setHistoryChangedCallback(history_callback_t cb);
 	
 	/**
 	 * Save history to a file so that we can restore it on startup.
@@ -143,21 +137,32 @@ public:
 private:
 	
 	/**
+	 * Called by when a teleport fails.
+	 * 
+	 * Called via callback set on the LLViewerParcelMgr "teleport failed" signal.
+	 * 
+	 * @see mTeleportFailedConn
+	 */
+	void onTeleportFailed();
+
+	/**
 	 * Update current location.
 	 * 
 	 * Called when a teleport finishes.
+	 * Called via callback set on the LLViewerParcelMgr "teleport finished" signal.
 	 *
-	 * Takes mHistoryTeleportInProgress into consideration: if it's false
+	 * Takes mRequestedItem into consideration: if it's not -1
 	 * (i.e. user is teleporting to an arbitrary location, not to a history item)
-	 * we purge forward items.
+	 * we purge forward items and append a new one, making it current. Otherwise
+	 * we just modify mCurrentItem.
 	 * 
-	 * @see mHistoryTeleportInProgress
+	 * @see mRequestedItem
 	 * @see mGotInitialUpdate
 	 */
 	void					updateCurrentLocation();
 	
 	/**
-	 * Invokes mHistoryChangedCallback.
+	 * Invokes the "history changed" callback(s).
 	 */
 	void					onHistoryChanged();
 	
@@ -174,14 +179,17 @@ private:
 	int						mCurrentItem;
 	
 	/**
-	 * Indicates whether teleport back/forward is currently in progress.
+	 * Requested position within the history.
 	 * 
-	 * Helps to make sure we don't purge forward items
-	 * when a teleport within history finishes. 
+	 * When a teleport succeeds, this is checked by updateCurrentLocation() to tell
+	 * if this is a teleport within the history (mRequestedItem >=0) or not (-1).
 	 * 
+	 * Set by goToItem(); reset by onTeleportFailed() (if teleport fails).
+	 * 
+	 * @see goToItem()
 	 * @see updateCurrentLocation()
-	 */ 
-	bool					mHistoryTeleportInProgress;
+	 */
+	int						mRequestedItem;
 	
 	/**
 	 * Have we received the initial location update?
@@ -191,22 +199,26 @@ private:
 	bool					mGotInitialUpdate;
 	
 	/**
-	 * File to store the history to.
+	 * Signal emitted when the history gets changed.
+	 * 
+	 * Invokes callbacks set with setHistoryChangedCallback().
 	 */
-	std::string				mFilename;
+	history_signal_t		mHistoryChangedSignal;
 	
 	/**
-	 * Callback to be called when the history gets changed.
-	 */
-	history_callback_t		mHistoryChangedCallback;
-	
-	/**
-	 * Teleport notification connection.
+	 * Teleport success notification connection.
 	 * 
 	 * Using this connection we get notified when a teleport finishes
 	 * or initial location update occurs.
 	 */
 	boost::signals2::connection	mTeleportFinishedConn;
+	
+	/**
+	 * Teleport failure notification connection.
+	 * 
+	 * Using this connection we get notified when a teleport fails.
+	 */
+	boost::signals2::connection	mTeleportFailedConn;
 };
 
 #endif

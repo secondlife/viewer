@@ -74,15 +74,6 @@ public:
 
 	virtual BOOL postBuild();
 
-	// Show a dialog explaining what friendship entails, then request
-	// friendship. JC
-	static void requestFriendshipDialog(const LLUUID& target_id, 
-										const std::string& target_name);
-
-	// Just request friendship, no dialog.
-	static void requestFriendship(const LLUUID& target_id,
-								  const std::string& target_name, const std::string& message);
-
 	// *HACK Made public to remove friends from LLAvatarIconCtrl context menu
 	static bool handleRemove(const LLSD& notification, const LLSD& response);
 

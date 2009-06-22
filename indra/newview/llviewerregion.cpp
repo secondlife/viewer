@@ -639,6 +639,7 @@ void LLViewerRegion::dirtyHeights()
 
 BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 {
+	LLMemType mt_ivr(LLMemType::MTYPE_IDLE_UPDATE_VIEWER_REGION);
 	// did_update returns TRUE if we did at least one significant update
 	BOOL did_update = mLandp->idleUpdate(max_update_time);
 	

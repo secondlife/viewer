@@ -7,9 +7,10 @@
 		Descrizione:
 	</text>
 	<text name="preview_label">
-		Anteprima dell&apos;immagine come:
+		Anteprima dell&apos;
+immagine come:
 	</text>
-	<combo_box label="Tipo d&apos;abito" name="clothing_type_combo">
+	<combo_box label="Tipo d&apos;abito" name="clothing_type_combo" left="120" width="166">
 		<combo_box.item name="Image" label="Immagine"/>
 		<combo_box.item name="Hair" label="Capelli"/>
 		<combo_box.item name="FemaleHead" label="Testa femminile"/>

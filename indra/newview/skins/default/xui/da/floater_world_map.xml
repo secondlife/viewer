@@ -1,77 +1,57 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="worldmap" title="Verdenskort">
 	<tab_container name="maptab">
-		<panel label="Objekter" name="objects_mapview" />
-		<panel label="Terræn" name="terrain_mapview" />
+		<panel label="Objekter" name="objects_mapview"/>
+		<panel label="Terræn" name="terrain_mapview"/>
 	</tab_container>
-	<text name="land_for_sale_label">
-		Land til salg
-	</text>
-	<text name="auction_label">
-		Auktion
-	</text>
 	<text name="you_label">
 		Dig
 	</text>
 	<text name="home_label">
 		Hjem
 	</text>
-	<button label="Tag hjem" label_selected="Tag hjem" name="Go Home"
-	     tool_tip="Teleporter til dit hjem" />
-	<text name="person_label">
-		Person
+	<text name="auction_label">
+		Auktion
 	</text>
-	<check_box label=" " name="people_chk" />
-	<text name="infohub_label">
-		Infohub
-	</text>
-	<check_box label="" name="infohub_chk" />
-	<text name="telehub_label">
-		Telehub
-	</text>
-	<check_box label="" name="telehubchk" />
-	<text name="land_for_sale_label2">
+	<text name="land_for_sale_label">
 		Land til salg
 	</text>
-	<check_box label="" name="land_for_sale_chk" />
+	<button label="Tag hjem" label_selected="Tag hjem" name="Go Home" tool_tip="Teleporter til dit hjem"/>
+	<check_box label="Beboer" name="people_chk"/>
+	<check_box label="Infohub" name="infohub_chk"/>
+	<check_box label="Telehub" name="telehubchk"/>
+	<check_box label="Land til salg" name="land_for_sale_chk"/>
 	<text name="events_label">
-		Events
+		Events:
 	</text>
-	<check_box label="" name="event_chk" />
-	<text name="events_mature_label" />
-	<check_box label="" name="event_mature_chk" />
-	<combo_box label="Venner online" name="friend combo"
-	     tool_tip="Ven der skal vises på kortet">
+	<check_box label="PG" name="event_chk"/>
+	<check_box label="Mature" name="event_mature_chk"/>
+	<check_box label="Adult" name="event_adult_chk"/>
+	<combo_box label="Venner online" name="friend combo" tool_tip="Ven der skal vises på kortet">
 		<combo_box.item name="none_selected" label="Venner online" />
 	</combo_box>
-	<combo_box label="Landemærker" name="landmark combo"
-	     tool_tip="Landemærke der skal vises på kortet">
+	<combo_box label="Landemærker" name="landmark combo" tool_tip="Landemærke der skal vises på kortet">
 		<combo_box.item name="none_selected" label="Landemærker" />
 	</combo_box>
-	<line_editor label="Søg på region navn" name="location"
-	     tool_tip="Skriv navnet på en region" />
-	<button label="Søg" name="DoSearch" tool_tip="Søg efter en region" />
+	<line_editor label="Søg på region navn" name="location" tool_tip="Skriv navnet på en region"/>
+	<button label="Søg" name="DoSearch" tool_tip="Søg efter en region"/>
 	<text name="search_label">
 		Søgeresultater:
 	</text>
 	<scroll_list name="search_results">
-		<column label="" name="icon" />
-		<column label="" name="sim_name" />
+		<column label="" name="icon"/>
+		<column label="" name="sim_name"/>
 	</scroll_list>
 	<text name="location_label">
 		Lokation:
 	</text>
-	<spinner name="spin x" tool_tip="X koordinat for lokation der skal vises på kortet" />
-	<spinner name="spin y" tool_tip="Y koordinat for lokation der skal vises på kortet" />
-	<spinner name="spin z" tool_tip="Z koordinat for lokation der skal vises på kortet" />
-	<button label="Teleport" label_selected="Teleport" name="Teleport"
-	     tool_tip="Teleportér til den valgte lokation" />
-	<button label="Vis destination" label_selected="Vis destination"
-	     name="Show Destination" tool_tip="Centrér kortet på valgte lokation" />
-	<button label="Slet" label_selected="Slet" name="Clear" tool_tip="Stop søg" />
-	<button label="Vis min position" label_selected="Vis min position"
-	     name="Show My Location" tool_tip="Centrer kortet på din avatars lokation" />
-	<button label="Kopiér SLURL til udklipsholder" name="copy_slurl"
-	     tool_tip="Kopierer den nuværende lokation som et SLURL, så det kan bruges på nettet." />
-	<slider label="Zoom" name="zoom slider" />
+	<spinner name="spin x" tool_tip="X koordinat for lokation der skal vises på kortet"/>
+	<spinner name="spin y" tool_tip="Y koordinat for lokation der skal vises på kortet"/>
+	<spinner name="spin z" tool_tip="Z koordinat for lokation der skal vises på kortet"/>
+	<button label="Teleport" label_selected="Teleport" name="Teleport" tool_tip="Teleportér til den valgte lokation"/>
+	<button label="Vis destination" label_selected="Vis destination" name="Show Destination" tool_tip="Centrér kortet på valgte lokation"/>
+	<button label="Slet" label_selected="Slet" name="Clear" tool_tip="Stop søg"/>
+	<button label="Vis min position" label_selected="Vis min position" name="Show My Location" tool_tip="Centrer kortet på din avatars lokation"/>
+	<button label="Kopiér SLURL til udklipsholder" name="copy_slurl" tool_tip="Kopierer den nuværende lokation som et SLURL, så det kan bruges på nettet."/>
+	<slider label="Zoom" name="zoom slider"/>
 </floater>

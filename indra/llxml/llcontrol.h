@@ -332,10 +332,6 @@ public:
 
 	~LLControlCache()
 	{
-		if(mConnection.connected())
-		{
-			mConnection.disconnect();
-		}
 	}
 
 	const T& getValue() const { return mCachedValue; }
@@ -378,7 +374,7 @@ private:
 private:
     T							mCachedValue;
 	eControlType				mType;
-    boost::signals2::connection	mConnection;
+    boost::signals2::scoped_connection	mConnection;
 };
 
 template <typename T>

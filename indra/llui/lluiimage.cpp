@@ -49,6 +49,10 @@ LLUIImage::LLUIImage(const std::string& name, LLPointer<LLImageGL> image) :
 {
 }
 
+LLUIImage::~LLUIImage()
+{
+}
+
 void LLUIImage::setClipRegion(const LLRectf& region) 
 { 
 	mClipRegion = region; 
@@ -147,12 +151,16 @@ namespace LLInitParam
 		return imagep;
 	}
 
+	
 	template<>
 	bool ParamCompare<LLUIImage*>::equals(
 		LLUIImage* const &a,
 		LLUIImage* const &b)
 	{
 		// force all LLUIImages for XML UI export to be "non-default"
-		return false;
+		if (!a && !b)
+			return false;
+		else
+			return (a == b);
 	}
 }

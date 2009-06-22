@@ -41,23 +41,24 @@
 
 #include "llfloater.h"
 
-class LLPanelGeneral;
-class LLPanelInput;
+class LLPanelPreference;
 class LLPanelLCD;
-class LLPanelDisplay;
-class LLPanelAudioPrefs;
 class LLPanelDebug;
-class LLPanelNetwork;
-class LLPanelWeb;
 class LLMessageSystem;
-class LLPrefsChat;
-class LLPrefsVoice;
-class LLPrefsIM;
-class LLPanelMsgs;
-class LLPanelSkins;
 class LLScrollListCtrl;
-
+class LLSliderCtrl;
 class LLSD;
+class LLTextBox;
+
+typedef enum
+	{
+		GS_LOW_GRAPHICS,
+		GS_MID_GRAPHICS,
+		GS_HIGH_GRAPHICS,
+		GS_ULTRA_GRAPHICS
+		
+	} EGraphicsSettings;
+
 
 // Floater to control preferences (display, audio, bandwidth, general.
 class LLFloaterPreference : public LLFloater
@@ -68,6 +69,7 @@ public:
 
 	void apply();
 	void cancel();
+	/*virtual*/ void draw();
 	virtual BOOL postBuild();
 	virtual void onOpen(const LLSD& key);
 	virtual void onClose(bool app_quitting);
@@ -79,32 +81,85 @@ public:
 	static void refreshEnabledGraphics();
 	
 protected:
-	static void		onClickAbout(void*);
-	static void		onBtnOK(void*);
-	static void		onBtnCancel(void*);
-	static void		onBtnApply(void*);
 	
+	void		onBtnOK();
+	void		onBtnCancel();
+	void		onBtnApply();
+	void		onOpenHelp();
+
+	static void		onClickClearCache(void*);
+	static void		onClickBrowserClearCache(void*);
+
+	// if the custom settings box is clicked
+	void onChangeCustom();
+	void updateMeterText(LLUICtrl* ctrl);
+	void onOpenHardwareSettings();
+	/// callback for defaults
+	void setHardwareDefaults();
+	// callback for when client turns on shaders
+	void onVertexShaderEnable();
+	
+
+public:
+
+	void onClickSetCache();
+	void onClickResetCache();
+	void onClickSkin(LLUICtrl* ctrl,const LLSD& userdata);
+	void onSelectSkin();
+	void onClickSetKey();
+	void setKey(KEY key);
+	void onClickSetMiddleMouse();
+	void onClickSkipDialogs();
+	void onClickResetDialogs();
+	void onClickEnablePopup();
+	void resetAllIgnored();
+	void setAllIgnored();
+	void onClickLogPath();	
+	void enableHistory();
+	void onCommitLogging();
+	void setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string& email);
+	void refreshEnabledState();
+	void disableUnavailableSettings();
+	void onCommitWindowedMode();
+	void refresh();	// Refresh enable/disable
+	// if the quality radio buttons are changed
+	void onChangeQuality(const LLSD& data);
+	
+	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
+	void onUpdateSliderText(LLUICtrl* ctrl, const LLSD& name);
+	void onKeystrokeAspectRatio();
+//	void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
+//	bool extractWindowSizeFromString(const std::string& instr, U32 &width, U32 &height);
+
+	void onCommitAutoDetectAspect();
+	void applyResolution();
+	void applyWindowSize();
+
+	static void initWindowSizeControls(LLPanel* panelp);
+	
+	static void buildLists(void* data);
+	static void refreshSkin(void* data);
+	static void cleanupBadSetting();
+	static F32 sAspectRatio;	
 private:
-	LLPanelSkins			*mSkinsPanel;
-	LLPanelInput			*mInputPanel;
-	LLPanelNetwork	        *mNetworkPanel;
-	LLPanelDisplay	        *mDisplayPanel;
-	LLPanelAudioPrefs		*mAudioPanel;
-	LLPrefsChat				*mPrefsChat;
-	LLPrefsVoice			*mPrefsVoice;
-	LLPrefsIM				*mPrefsIM;
-	LLPanelWeb				*mWebPanel;
-	LLPanelMsgs				*mMsgPanel;
+	static std::string sSkin;
+	bool mGotPersonalInfo;
+	bool mOriginalIMViaEmail;
+	
+	bool mOriginalHideOnlineStatus;
+	std::string mDirectoryVisibility;
+
 };
 
 class LLPanelPreference : public LLPanel
 {
 public:
+	LLPanelPreference();
 	/*virtual*/ BOOL postBuild();
 	
 	virtual void apply();
 	virtual void cancel();
-	
+	void setControlFalse(const LLSD& user_data);
 private:
 	typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
 	control_values_map_t mSavedValues;

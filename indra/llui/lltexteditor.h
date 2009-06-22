@@ -82,7 +82,7 @@ public:
 
 		Optional<LLViewBorder::Params> border;
 
-		Deprecated				type,
+		Ignored					type,
 								length,
 								is_unicode;
 

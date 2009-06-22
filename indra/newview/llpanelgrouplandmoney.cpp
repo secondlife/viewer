@@ -402,12 +402,6 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 		//if ( !gAgent.hasPowerInGroup(mGroupID, GP_LAND_VIEW_OWNED) ) return;
 		if (!gAgent.isInGroup(mGroupID)) return;
 
-		//we updated more than just the available area special block
-		if ( count > 1)
-		{
-			mMapButtonp->setEnabled(TRUE);
-		}
-
 		std::string name;
 		std::string desc;
 		S32 actual_area;
@@ -555,6 +549,7 @@ void LLPanelGroupLandMoney::activate()
 		mImplementationp->setYourMaxContributionTextBox(max_avail);
 	}
 
+	mImplementationp->mMapButtonp->setEnabled(false);
 	update(GC_ALL);
 }
 
@@ -645,6 +640,12 @@ BOOL LLPanelGroupLandMoney::postBuild()
 	mImplementationp->mGroupParcelsp = 
 		getChild<LLScrollListCtrl>("group_parcel_list");
 
+	if ( mImplementationp->mGroupParcelsp )
+	{
+		mImplementationp->mGroupParcelsp->setCommitCallback(boost::bind(&LLButton::setEnabled, mImplementationp->mMapButtonp, true));
+		mImplementationp->mGroupParcelsp->setCommitOnSelectionChange(true);
+	}
+
 	mImplementationp->mCantViewParcelsText = getString("cant_view_group_land_text");
 	mImplementationp->mCantViewAccountsText = getString("cant_view_group_accounting_text");
 	
@@ -661,11 +662,6 @@ BOOL LLPanelGroupLandMoney::postBuild()
 	if ( mImplementationp->mGroupOverLimitIconp )
 	{
 		mImplementationp->mGroupOverLimitIconp->setVisible(FALSE);
-	}
-
-	if ( mImplementationp->mMapButtonp )
-	{
-		mImplementationp->mMapButtonp->setEnabled(FALSE);
 	}
 
 	if ( !can_view )

@@ -46,12 +46,8 @@
 		Dine objekter der kan videregives sælges med jorden.
 	</text>
 	<radio_group name="sell_objects">
-		<radio_item name="no">
-			Nej, behold ejerskab til objekterne
-		</radio_item>
-		<radio_item name="yes">
-			Ja, sælg objekter med jorden
-		</radio_item>
+		<radio_item name="no" label="Nej, behold ejerskab til objekterne" />
+		<radio_item name="yes" label="Ja, sælg objekter med jorden" />
 	</radio_group>
 	<button label="Vis objekter" name="show_objects" />
 	<text name="nag_message_label">

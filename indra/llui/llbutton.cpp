@@ -53,7 +53,7 @@
 #include "llrender.h"
 #include "lluictrlfactory.h"
 
-static LLRegisterWidget<LLButton> r("button");
+static LLDefaultWidgetRegistry::Register<LLButton> r("button");
 
 // globals loaded from settings.xml
 S32	LLBUTTON_H_PAD	= 0;
@@ -90,7 +90,6 @@ LLButton::Params::Params()
 	mouse_down_callback("mouse_down_callback"),
 	mouse_up_callback("mouse_up_callback"),
 	mouse_held_callback("mouse_held_callback"),
-	mouse_held_once_callback("mouse_held_once_callback"),
 	is_toggle("is_toggle", false),
 	scale_image("scale_image", true),
 	help_url("help_url"),
@@ -147,7 +146,7 @@ LLButton::LLButton(const LLButton::Params& p)
 	mFadeWhenDisabled(FALSE)
 {
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
-	static LLButton::Params default_params(LLUICtrlFactory::getDefaultParams<LLButton::Params>());
+	static Params default_params(LLUICtrlFactory::getDefaultParams<Params>());
 
 	//if we aren't a picture_style button set label as name if not provided
 	if (!p.picture_style.isProvided() || !p.picture_style)
@@ -197,6 +196,11 @@ LLButton::LLButton(const LLButton::Params& p)
 			mImageDisabledSelected = p.image_selected;
 			mFadeWhenDisabled = TRUE;
 		}
+	}
+	
+	if (mImageUnselected.isNull())
+	{
+		llwarns << "Button: " << getName() << " with no image!" << llendl;
 	}
 	
 	if (p.click_callback.isProvided())
@@ -256,6 +260,12 @@ boost::signals2::connection LLButton::setHeldDownCallback( const commit_signal_t
 {
 	return mHeldDownSignal.connect(cb);
 }
+														  
+boost::signals2::connection LLButton::setRightClickedCallback( const commit_signal_t::slot_type& cb )
+{
+	return mRightClickSignal.connect(cb);
+}
+
 
 // *TODO: Deprecate (for backwards compatability only)
 boost::signals2::connection LLButton::setClickedCallback( button_callback_t cb, void* data )
@@ -372,6 +382,36 @@ BOOL LLButton::handleMouseUp(S32 x, S32 y, MASK mask)
 		}
 	}
 
+	return TRUE;
+}
+
+BOOL	LLButton::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	// Route future Mouse messages here preemptively.  (Release on mouse up.)
+	gFocusMgr.setMouseCapture( this );
+
+	if (hasTabStop() && !getIsChrome())
+	{
+		setFocus(TRUE);
+	}
+
+
+	return TRUE;
+}
+
+BOOL	LLButton::handleRightMouseUp(S32 x, S32 y, MASK mask)
+{
+	// We only handle the click if the click both started and ended within us
+	if( hasMouseCapture() )
+	{
+		// Always release the mouse
+		gFocusMgr.setMouseCapture( NULL );
+
+		if (pointInView(x, y))
+		{
+			mRightClickSignal(this, getValue());
+		}
+	}
 	return TRUE;
 }
 
@@ -615,7 +655,7 @@ void LLButton::draw()
 	else
 	{
 		// no image
-		llwarns << "No image for button " << getName() << llendl;
+		lldebugs << "No image for button " << getName() << llendl;
 		// draw it in pink so we can find it
 		gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4::pink1, FALSE);
 	}
@@ -813,6 +853,10 @@ void LLButton::setDisabledSelectedLabel( const LLStringExplicit& label )
 void LLButton::setImageUnselected(LLPointer<LLUIImage> image)
 {
 	mImageUnselected = image;
+	if (mImageUnselected.isNull())
+	{
+		llwarns << "Setting default button image for: " << getName() << " to NULL" << llendl;
+	}
 }
 
 void LLButton::autoResize()
@@ -854,7 +898,7 @@ void LLButton::resize(LLUIString label)
 	{ 
 		if (btn_width - (mRightHPad + mLeftHPad) < label_width)
 		{
-			setRect(LLRect( getRect().mLeft, getRect().mTop, getRect().mRight+ label_width + mLeftHPad + mRightHPad , getRect().mBottom));
+			setRect(LLRect( getRect().mLeft, getRect().mTop, getRect().mLeft + label_width + mLeftHPad + mRightHPad , getRect().mBottom));
 		}
 	} 
 }

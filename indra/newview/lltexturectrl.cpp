@@ -351,7 +351,7 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 			root_folder->scrollToShowSelection();
 			
 			// move focus to inventory proper
-			root_folder->setFocus(TRUE);
+			mInventoryPanel->setFocus(TRUE);
 			
 			// treat this as a user selection of the first filtered result
 			commitIfImmediateSet();
@@ -359,7 +359,7 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 			return TRUE;
 		}
 		
-		if (root_folder->hasFocus() && key == KEY_UP)
+		if (mInventoryPanel->hasFocus() && key == KEY_UP)
 		{
 			mSearchEdit->focusFirstItem(TRUE);
 		}
@@ -858,7 +858,7 @@ void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
 ///////////////////////////////////////////////////////////////////////
 // LLTextureCtrl
 
-static LLRegisterWidget<LLTextureCtrl> r("texture_picker");
+static LLDefaultWidgetRegistry::Register<LLTextureCtrl> r("texture_picker");
 
 LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 :	LLUICtrl(p),
@@ -1001,6 +1001,9 @@ void LLTextureCtrl::setLabel(const std::string& label)
 
 void LLTextureCtrl::showPicker(BOOL take_focus)
 {
+	// show hourglass cursor when loading inventory window
+	// because inventory construction is slooow
+	getWindow()->setCursor(UI_CURSOR_WAIT);
 	LLFloater* floaterp = mFloaterHandle.get();
 
 	// Show the dialog
@@ -1020,7 +1023,9 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 
 		mFloaterHandle = floaterp->getHandle();
 
-		gFloaterView->getParentFloater(this)->addDependentFloater(floaterp);
+		LLFloater* root_floater = gFloaterView->getParentFloater(this);
+		if (root_floater)
+			root_floater->addDependentFloater(floaterp);
 		floaterp->openFloater();
 	}
 

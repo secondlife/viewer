@@ -55,11 +55,11 @@
 #include "lllineeditor.h"
 #include "llradiogroup.h"
 #include "llcombobox.h"
-#include "llfloateravatarinfo.h"
 #include "lluiconstants.h"
 #include "lldbstrings.h"
 #include "llfloatergroupinfo.h"
 #include "llfloatergroups.h"
+#include "llfriendactions.h"
 #include "llnamebox.h"
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
@@ -811,7 +811,7 @@ void LLPanelPermissions::onClickCreator(void *data)
 {
 	LLPanelPermissions *self = (LLPanelPermissions *)data;
 
-	LLFloaterAvatarInfo::showFromObject(self->mCreatorID);
+	LLFriendActions::showProfile(self->mCreatorID);
 }
 
 // static
@@ -827,7 +827,7 @@ void LLPanelPermissions::onClickOwner(void *data)
 	}
 	else
 	{
-		LLFloaterAvatarInfo::showFromObject(self->mOwnerID);
+		LLFriendActions::showProfile(self->mOwnerID);
 	}
 }
 

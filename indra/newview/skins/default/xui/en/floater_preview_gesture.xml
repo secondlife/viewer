@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ auto_tile="true"
+ height="350"
+ layout="topleft"
+ name="gesture_preview"
+ width="450">
+    <floater.string
+     name="step_anim">
+        Animation to play:
+    </floater.string>
+    <floater.string
+     name="step_sound">
+        Sound to play:
+    </floater.string>
+    <floater.string
+     name="step_chat">
+        Chat to say:
+    </floater.string>
+    <floater.string
+     name="step_wait">
+        Wait:
+    </floater.string>
+    <floater.string
+     name="stop_txt">
+        Stop
+    </floater.string>
+    <floater.string
+     name="preview_txt">
+        Preview
+    </floater.string>
+    <floater.string
+     name="none_text">
+        -- None --
+    </floater.string>
+    <floater.string
+     name="Title">
+        Gesture: [NAME]
+    </floater.string>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     font="SansSerif"
+     height="10"
+     layout="topleft"
+     left="16"
+     name="desc_label"
+     top="25"
+     width="100">
+        Description:
+    </text>
+    <line_editor
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     left_delta="84"
+     name="desc"
+     top_delta="-4"
+     width="330" />
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     font="SansSerif"
+     height="10"
+     layout="topleft"
+     left="16"
+     name="trigger_label"
+     top="54"
+     width="100">
+        Trigger:
+    </text>
+    <line_editor
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     left_delta="84"
+     max_length="31"
+     name="trigger_editor"
+     top_delta="-4"
+     width="105" />
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     font="SansSerif"
+     height="10"
+     layout="topleft"
+     left_pad="15"
+     name="replace_text"
+     tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture!"
+     top_delta="4"
+     width="200">
+        Replace with:
+    </text>
+    <line_editor
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     left_delta="80"
+     max_length="31"
+     name="replace_editor"
+     tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture"
+     top_delta="-4"
+     width="130" />
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     font="SansSerif"
+     height="10"
+     layout="topleft"
+     left="16"
+     name="key_label"
+     top="83"
+     width="100">
+        Shortcut Key:
+    </text>
+    <combo_box
+     height="20"
+     label="None"
+     layout="topleft"
+     left_delta="84"
+     name="modifier_combo"
+     top_delta="-4"
+     width="50" />
+    <combo_box
+     height="20"
+     label="None"
+     layout="topleft"
+     left_pad="10"
+     name="key_combo"
+     top_delta="0"
+     width="45" />
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     font="SansSerif"
+     height="10"
+     layout="topleft"
+     left="16"
+     name="library_label"
+     top="112"
+     width="100">
+        Library:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     font="SansSerif"
+     height="10"
+     layout="topleft"
+     left_pad="104"
+     name="steps_label"
+     top_delta="0"
+     width="100">
+        Steps:
+    </text>
+    <scroll_list
+     follows="top|left"
+     height="110"
+     layout="topleft"
+     left="16"
+     name="library_list"
+     top="132"
+     width="100">
+        <scroll_list.rows
+         value="Animation" />
+        <scroll_list.rows
+         value="Sound" />
+        <scroll_list.rows
+         value="Chat" />
+        <scroll_list.rows
+         value="Wait" />
+    </scroll_list>
+    <button
+     follows="top|left"
+     height="20"
+     label="Add &gt;&gt;"
+     layout="topleft"
+     left_pad="14"
+     name="add_btn"
+     top_delta="0"
+     width="80" />
+    <button
+     follows="top|left"
+     height="20"
+     label="Move Up"
+     layout="topleft"
+     left_delta="0"
+     name="up_btn"
+     top_pad="10"
+     width="80" />
+    <button
+     follows="top|left"
+     height="20"
+     label="Move Down"
+     layout="topleft"
+     left_delta="0"
+     name="down_btn"
+     top_pad="10"
+     width="80" />
+    <button
+     follows="top|left"
+     height="20"
+     label="Remove"
+     layout="topleft"
+     left_delta="0"
+     name="delete_btn"
+     top_pad="10"
+     width="80" />
+    <scroll_list
+     follows="top|left"
+     height="110"
+     layout="topleft"
+     left="220"
+     name="step_list"
+     top="132"
+     width="210" />
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     font="SansSerif"
+     height="60"
+     layout="topleft"
+     left="16"
+     name="help_label"
+     top="252"
+     width="200">
+        All steps happen simultaneously, 
+unless you add wait steps.
+    </text>
+    <text
+     follows="top|left"
+     height="60"
+     layout="topleft"
+     left_pad="6"
+     name="options_text"
+     top_delta="0"
+     width="205" />
+    <combo_box
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left_delta="10"
+     name="animation_list"
+     top="272"
+     width="100" />
+    <combo_box
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left_delta="0"
+     name="sound_list"
+     top_delta="0"
+     width="100" />
+    <line_editor
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left_delta="0"
+     max_length="127"
+     name="chat_editor"
+     top_delta="0"
+     width="100" />
+    <radio_group
+     draw_border="false"
+     follows="top|left"
+     height="40"
+     layout="topleft"
+     left_pad="8"
+     name="animation_trigger_type"
+     top_delta="0"
+     width="80">
+        <radio_item
+         height="16"
+         label="Start"
+         layout="topleft"
+         left="3"
+         name="start"
+         top="-11"
+         width="80" />
+        <radio_item
+         height="16"
+         label="Stop"
+         layout="topleft"
+         left_delta="0"
+         name="stop"
+         top_pad="10"
+         width="80" />
+    </radio_group>
+    <check_box
+     follows="top|left"
+     height="20"
+     label="until animations are done"
+     layout="topleft"
+     left="232"
+     name="wait_anim_check"
+     top="267"
+     width="100" />
+    <check_box
+     follows="top|left"
+     height="20"
+     label="time in seconds"
+     layout="topleft"
+     left_delta="0"
+     name="wait_time_check"
+     top_delta="20"
+     width="100" />
+    <line_editor
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left_pad="5"
+     max_length="15"
+     name="wait_time_editor"
+     top_delta="0"
+     width="50" />
+    <check_box
+     follows="top|left"
+     height="20"
+     label="Active"
+     layout="topleft"
+     left="140"
+     name="active_check"
+     tool_tip="Active gestures can be triggered by chatting their trigger phrases or pressing their hot keys.  Gestures usually become inactive when there is a key binding conflict."
+     top="323"
+     width="100" />
+    <button
+     follows="top|left"
+     height="20"
+     label="Preview"
+     layout="topleft"
+     left_delta="75"
+     name="preview_btn"
+     top_delta="2"
+     width="80" />
+    <button
+     follows="top|left"
+     height="20"
+     label="Save"
+     layout="topleft"
+     left_pad="10"
+     name="save_btn"
+     top_delta="0"
+     width="80" />
+</floater>

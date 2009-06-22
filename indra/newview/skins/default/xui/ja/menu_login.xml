@@ -7,7 +7,7 @@
 		<menu_item_call label="環境設定..." name="Preferences..." />
 	</menu>
 	<menu label="ヘルプ" name="Help">
-		<menu_item_call label="セカンドライフヘルプ" name="Second Life Help" />
+		<menu_item_call label="Second Lifeヘルプ" name="Second Life Help" />
 		<menu_item_call label="Second Lifeについて..." name="About Second Life..." />
 	</menu>
 </menu_bar>

@@ -48,6 +48,7 @@
 #include "llviewercamera.h"
 #include "llviewerwindow.h"
 #include "lldrawable.h"
+#include "llrootview.h"
 
 
 LLToolObjPicker::LLToolObjPicker()
@@ -62,7 +63,7 @@ LLToolObjPicker::LLToolObjPicker()
 // returns TRUE if an object was selected 
 BOOL LLToolObjPicker::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	LLView* viewp = gViewerWindow->getRootView();
+	LLRootView* viewp = gViewerWindow->getRootView();
 	BOOL handled = viewp->handleMouseDown(x, y, mask);
 
 	mHitObjectID.setNull();

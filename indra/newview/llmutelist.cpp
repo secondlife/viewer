@@ -67,7 +67,6 @@
 #include "llfloaterchat.h"
 #include "llimpanel.h"
 #include "llimview.h"
-#include "lltrans.h"
 #include "llnotifications.h"
 #include "lluistring.h"
 #include "llviewerobject.h" 
@@ -500,35 +499,42 @@ void LLMuteList::updateRemove(const LLMute& mute)
 
 void notify_automute_callback(const LLUUID& agent_id, const std::string& first_name, const std::string& last_name, BOOL is_group, LLMuteList::EAutoReason reason)
 {
-	std::string auto_message;
+	std::string notif_name;
 	switch (reason)
 	{
 	default:
 	case LLMuteList::AR_IM:
-		auto_message = LLTrans::getString("AutoUnmuteByIM");
+		notif_name = "AutoUnmuteByIM";
 		break;
 	case LLMuteList::AR_INVENTORY:
-		auto_message = LLTrans::getString("AutoUnmuteByInventory");
+		notif_name = "AutoUnmuteByInventory";
 		break;
 	case LLMuteList::AR_MONEY:
-		auto_message = LLTrans::getString("AutoUnmuteByMoney");
+		notif_name = "AutoUnmuteByMoney";
 		break;
 	}
 
-	std::string message = auto_message;
-	LLStringUtil::format(message, LLSD().insert("FIRST", first_name).insert("LAST", last_name));
-
-	if (reason == LLMuteList::AR_IM)
+	LLSD args;
+	args["FIRST"] = first_name;
+	args["LAST"] = last_name;
+    
+	LLNotificationPtr notif_ptr = LLNotifications::instance().add(notif_name, args);
+	if (notif_ptr)
 	{
-		LLFloaterIMPanel *timp = gIMMgr->findFloaterBySession(agent_id);
-		if (timp)
-		{
-			timp->addHistoryLine(message);
-		}
-	}
+		std::string message = notif_ptr->getMessage();
 
-	LLChat auto_chat(message);
-	LLFloaterChat::addChat(auto_chat, FALSE, FALSE);
+		if (reason == LLMuteList::AR_IM)
+		{
+			LLFloaterIMPanel *timp = gIMMgr->findFloaterBySession(agent_id);
+			if (timp)
+			{
+				timp->addHistoryLine(message);
+			}
+		}
+
+		LLChat auto_chat(message);
+		LLFloaterChat::addChat(auto_chat, FALSE, FALSE);
+	}
 }
 
 

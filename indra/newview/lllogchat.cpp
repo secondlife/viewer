@@ -71,11 +71,16 @@ std::string LLLogChat::timestamp(bool withdate)
 
 	if (withdate)
 	{
-		timeStr = LLTrans::getString ("LogChatDateTime");
+		timeStr = "["+LLTrans::getString ("TimeYear")+"]/["
+		          +LLTrans::getString ("TimeMonth")+"]/["
+				  +LLTrans::getString ("TimeDay")+"] ["
+				  +LLTrans::getString ("TimeHour")+"]:["
+				  +LLTrans::getString ("TimeMin")+"] ";
 	}
 	else
 	{
-		timeStr = LLTrans::getString ("LogChatTime");
+		timeStr = "[" + LLTrans::getString("TimeHour") + "]:["
+			      + LLTrans::getString ("TimeMin")+"] "; 
 	}
 
 	LLStringUtil::format (timeStr, substitution);

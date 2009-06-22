@@ -30,7 +30,7 @@
 		Tu puoi:
 	</text>
 	<check_box label="Modificare" name="CheckOwnerModify"/>
-	<check_box label="Copiare" name="CheckOwnerCopy"/>
+	<check_box left_delta="88" label="Copiare" name="CheckOwnerCopy"/>
 	<check_box label="Rivendere/Regalare" name="CheckOwnerTransfer"/>
 	<text name="BaseMaskDebug">
 		B:
@@ -49,23 +49,19 @@
 	</text>
 	<check_box label="Condividi con il gruppo" name="CheckShareWithGroup"/>
 	<check_box label="Permetti a tutti di copiare" name="CheckEveryoneCopy"/>
-	<text name="NextOwnerLabel">
+	<text name="NextOwnerLabel" width="230">
 		Il prossimo proprietario può:
 	</text>
 	<check_box label="Modificare" name="CheckNextOwnerModify"/>
-	<check_box label="Copiare" name="CheckNextOwnerCopy"/>
+	<check_box left_delta="88" label="Copiare" name="CheckNextOwnerCopy"/>
 	<check_box label="Rivendere/Regalare" name="CheckNextOwnerTransfer"/>
 	<text name="SaleLabel">
 		Metti l&apos;oggetto:
 	</text>
 	<check_box label="In vendita" name="CheckPurchase"/>
-	<radio_group name="RadioSaleType">
-		<radio_item name="radio">
-			Originale
-		</radio_item>
-		<radio_item name="radio2">
-			Copia
-		</radio_item>
+	<radio_group name="RadioSaleType" left_delta="88" >
+		<radio_item name="radio" label="Originale" />
+		<radio_item name="radio2" label="Copia" />
 	</radio_group>
 	<text name="TextPrice">
 		Prezzo:  L$

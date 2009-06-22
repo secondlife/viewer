@@ -2,25 +2,26 @@
 <floater name="godtools floater" title="Boskie Narzędzia">
 	<tab_container name="GodTools Tabs">
 		<panel label="Grid" name="grid">
-			<button label="Usuń wszystkich użytkowników" label_selected="Usuń wszystkich użytkowników" name="Kick all users"/>
-			<button label="Wyrównaj ten region&apos;s Widoczność Buforu Mapy" label_selected="Wyrównaj ten region&apos;s Widoczność Buforu Mapy" name="Flush This Region&apos;s Map Visibility Caches"/>
+			<button width="205" label="Usuń wszystkich użytkowników" label_selected="Usuń wszystkich użytkowników" name="Kick all users"/>
+			<button width="285" label="Wyrównaj Widoczność Buforu Mapy Regionu" label_selected="Wyrównaj Widoczność Buforu Mapy Regionu" name="Flush This Region&apos;s Map Visibility Caches"/>
 		</panel>
 		<panel label="Region" name="region">
-			<text name="Sim Name:">
+			<text name="Sim Name:" width="100">
 				Nazwa Symulatora:
 			</text>
+			<line_editor left="115" name="region name" width="178" />
 			<line_editor name="region name"/>
 			<check_box label="Wstęp" name="check prelude" />
 			<check_box label="Korekta Słońca" name="check fixed sun" tool_tip="Skorektuj ustawienia pozycji słońca."/>
-			<check_box label="Zresetuj Pozycję Miejsca Startwego" name="check reset home" />
-			<check_box label="Widoczny" name="check visible" tool_tip="Wybierz tę opcję by ustawić region widocznym dla wszystkich."/>
+			<check_box height="32" label="Zresetuj Pozycję &#10;Miejsca Startowego" name="check reset home" />
+			<check_box bottom_delta="-32" label="Widoczny" name="check visible" tool_tip="Wybierz tę opcję by ustawić region widocznym dla wszystkich."/>
 			<check_box label="Zniszczenia" name="check damage" tool_tip="Wybierz tę opcję by uruchomić opcję zniszczeń w regionie."/>
 			<check_box label="Zablokuj Monitorowanie Trafficu" name="block dwell" tool_tip="Wybierz tę opcję by zablokować monitorowanie trafficu w regionie."/>
 			<check_box label="Zablokuj Terraformowanie" name="block terraform" tool_tip="Wybierz tę opcję by zablokować terraforming w regionie"/>
 			<check_box label="Piaskownica" name="is sandbox" />
-			<button label="Bake Teren" label_selected="Bake Teren" name="Bake Terrain" tool_tip="Zachowaj obecne ustawienia jako domyślne"/>
-			<button label="Cofnięcie Modyfikacji" label_selected="Cofnięcie Modyfikacji" name="Revert Terrain" tool_tip="Przywróć Ustawienia Domyślne Regionu."/>
-			<button label="Zamień Teren" label_selected="Zamień Teren" name="Swap Terrain" />
+			<button width="138" label="Ustal Teren" label_selected="Ustal Teren" name="Bake Terrain" tool_tip="Zapamiętaj obecny teren jako początkowy dla cofnięcia modyfikacji terenu."/>
+			<button width="138" label="Cofnięcie Modyfikacji" label_selected="Cofnięcie Modyfikacji" name="Revert Terrain" tool_tip="Przywróć Ustawienia Domyślne Regionu."/>
+			<button width="138" label="Zamień Teren" label_selected="Zamień Teren" name="Swap Terrain" />
 			<text name="estate id">
 				ID Regionu:
 			</text>
@@ -32,13 +33,13 @@
 			<text name="Grid Pos: ">
 				Pozycje Gridu:
 			</text>
-			<line_editor name="gridposx" tool_tip="Pozycja x gridu dla regionu"/>
-			<line_editor name="gridposy" tool_tip="Pozycja y gridu dla regionu"/>
+			<line_editor name="gridposx" tool_tip="Pozycja x gridu dla regionu" left_delta="110" width="35" />
+			<line_editor name="gridposy" tool_tip="Pozycja y gridu dla regionu" left_delta="45" width="35" />
 			<text name="Redirect to Grid: ">
 				Przełącz do gridu:
 			</text>
-			<line_editor name="redirectx"/>
-			<line_editor name="redirecty"/>
+			<line_editor left_delta="110" name="redirectx" width="35" />
+			<line_editor left_delta="45" name="redirecty" width="35" />
 			<spinner name="billable factor"/>
 			<text name="billable factor text">
 				Czynnik Płatnośći:
@@ -48,15 +49,15 @@
 				L$/m:
 			</text>
 			<button label="Odśwież" label_selected="Odśwież" name="Refresh" />
-			<button label="Apply" label_selected="Apply" name="Apply" />
-			<button label="Wybierz Region" label_selected="Wybierz Region" name="Select Region" tool_tip="Wybierz cały region za pomocą narzędzi edycji terenu"/>
-			<button label="Automatyczne Zapisanie" label_selected="Automatyczne Zapisanie" name="Autosave now" />
+			<button label="Zastosuj" label_selected="Zastosuj" name="Apply" />
+			<button width="150" left="156" label="Wybierz Region" label_selected="Wybierz Region" name="Select Region" tool_tip="Wybierz cały region za pomocą narzędzi edycji terenu"/>
+			<button width="150" left="156" label="Automatyczne Zapisanie" label_selected="Automatyczne Zapisanie" name="Autosave now" />
 		</panel>
 		<panel label="Obiekty" name="objects">
-			<text name="Sim Name:">
+			<text name="Sim Name:" width="105">
 				Nazwa Symulatora:
 			</text>
-			<text name="region name">
+			<text name="region name" left_delta="110">
 				Welsh
 			</text>
 			<check_box label="Wyłącz Skrypty" name="disable scripts" />
@@ -74,7 +75,7 @@
 			<button label="Główne Skrypty" label_selected="Główne Skrypty" name="Get Top Scripts" />
 			<button label="Treść skryptów" label_selected="Treść skryptów" name="Scripts digest" tool_tip="Wyświetla listę wszystkich skryptów i liczbę ich zastosowań."/>
 		</panel>
-		<panel label="Zarządaj" name="request">
+		<panel label="Zażądaj" name="request">
 			<text name="Destination:">
 				Cel:
 			</text>
@@ -83,7 +84,7 @@
 				<combo_box.item name="AgentRegion" label="Agent Regionu" />
 			</combo_box>
 			<text name="Request:">
-				Rządanie:
+				Żądanie:
 			</text>
 			<combo_box name="request">
 				<combo_box.item name="colliders&lt;steps&gt;" label="kolidery &lt;kroki&gt;" />
@@ -95,7 +96,7 @@
 				Parameter:
 			</text>
 			<line_editor name="parameter"/>
-			<button label="Zarządaj" label_selected="Zarządaj" name="Make Request"/>
+			<button label="Zażądaj" label_selected="Zażądaj" name="Make Request"/>
 		</panel>
 	</tab_container>
 </floater>

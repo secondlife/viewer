@@ -44,6 +44,14 @@ class LLFloaterIMPanel;
 class LLFriendObserver;
 class LLFloaterIM;
 
+class LLIMSessionObserver
+{
+public:
+	virtual ~LLIMSessionObserver() {}
+	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) = 0;
+	virtual void sessionRemoved(const LLUUID& session_id) = 0;
+};
+
 class LLIMMgr : public LLSingleton<LLIMMgr>
 {
 public:
@@ -165,6 +173,9 @@ public:
 	//HACK: need a better way of enumerating existing session, or listening to session create/destroy events
 	const std::set<LLHandle<LLFloater> >& getIMFloaterHandles() { return mFloaters; }
 
+	void addSessionObserver(LLIMSessionObserver *);
+	void removeSessionObserver(LLIMSessionObserver *);
+
 private:
 	// create a panel and update internal representation for
 	// consistency. Returns the pointer, caller (the class instance
@@ -194,9 +205,15 @@ private:
 
 	static void onInviteNameLookup(LLSD payload, const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
 
+	void notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
+	void notifyObserverSessionRemoved(const LLUUID& session_id);
+
 private:
 	std::set<LLHandle<LLFloater> > mFloaters;
 	LLFriendObserver* mFriendObserver;
+
+	typedef std::list <LLIMSessionObserver *> session_observers_list_t;
+	session_observers_list_t mSessionObservers;
 
 	// An IM has been received that you haven't seen yet.
 	BOOL mIMReceived;

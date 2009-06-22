@@ -63,7 +63,7 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
 #include "llviewermedia.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llworld.h"
 #include "llui.h"
 #include "llweb.h"

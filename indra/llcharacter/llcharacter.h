@@ -169,7 +169,7 @@ public:
 	void updateMotions(e_update_t update_type);
 
 	LLAnimPauseRequest requestPause();
-	BOOL areAnimationsPaused() { return mMotionController.isPaused(); }
+	BOOL areAnimationsPaused() const { return mMotionController.isPaused(); }
 	void setAnimTimeFactor(F32 factor) { mMotionController.setTimeFactor(factor); }
 	void setTimeStep(F32 time_step) { mMotionController.setTimeStep(time_step); }
 
@@ -231,9 +231,9 @@ public:
 		return (mCurIterator++)->second;
 	}
 
-	LLVisualParam*	getVisualParam(S32 id)
+	LLVisualParam*	getVisualParam(S32 id) const
 	{
-		VisualParamIndexMap_t::iterator iter = mVisualParamIndexMap.find(id);
+		VisualParamIndexMap_t::const_iterator iter = mVisualParamIndexMap.find(id);
 		return (iter == mVisualParamIndexMap.end()) ? 0 : iter->second;
 	}
 	S32 getVisualParamID(LLVisualParam *id)
@@ -246,11 +246,11 @@ public:
 		}
 		return 0;
 	}
-	S32				getVisualParamCount() { return (S32)mVisualParamIndexMap.size(); }
+	S32				getVisualParamCount() const { return (S32)mVisualParamIndexMap.size(); }
 	LLVisualParam*	getVisualParam(const char *name);
 
 
-	ESex getSex()				{ return mSex; }
+	ESex getSex() const			{ return mSex; }
 	void setSex( ESex sex )		{ mSex = sex; }
 
 	U32				getAppearanceSerialNum() const		{ return mAppearanceSerialNum; }

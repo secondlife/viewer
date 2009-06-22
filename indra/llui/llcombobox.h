@@ -106,6 +106,7 @@ protected:
 	friend class LLUICtrlFactory;
 	LLComboBox(const Params&);
 	void	initFromParams(const Params&);
+	void	prearrangeList(std::string filter = "");
 
 public:
 	// LLView interface
@@ -213,18 +214,18 @@ public:
 	virtual void	showList();
 	virtual void	hideList();
 	
-	void			onTextEntry(LLLineEditor* line_editor);
+	virtual void	onTextEntry(LLLineEditor* line_editor);
 	
 protected:
 	LLButton*			mButton;
+	LLLineEditor*		mTextEntry;
 	LLScrollListCtrl*	mList;
 	EPreferredPosition	mListPosition;
 	LLPointer<LLUIImage>	mArrowImage;
 	LLUIString			mLabel;
+	BOOL				mHasAutocompletedText;
 
 private:
-	S32					mButtonPadding;
-	LLLineEditor*		mTextEntry;
 	BOOL				mAllowTextEntry;
 	S32					mMaxChars;
 	BOOL				mTextEntryTentative;

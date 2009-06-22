@@ -33,7 +33,7 @@
 
 // Register all widgets with the builder registry.
 // Useful on Windows where linker discards all references to the 
-// static LLRegisterWidget<> calls.
+// static LLDefaultWidgetRegistry::Register<> calls.
 class LLWidgetReg
 {
 public:

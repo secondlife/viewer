@@ -285,6 +285,16 @@ void LLScrollListColumn::SortNames::declareValues()
 	declare("descending", LLScrollListColumn::DESCENDING);
 }
 
+//
+// LLScrollListColumn
+//
+//static 
+const LLScrollListColumn::Params& LLScrollListColumn::getDefaultParams()
+{
+	return LLUICtrlFactory::getDefaultParams<LLScrollListColumn::Params>();
+}
+
+
 LLScrollListColumn::LLScrollListColumn(const Params& p, LLScrollListCtrl* parent)
 :	mWidth(0),
 	mIndex (-1),

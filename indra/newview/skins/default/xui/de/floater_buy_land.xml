@@ -1,9 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="buy land" title="Land kaufen">
 	<text name="region_name_label">
 		Region:
 	</text>
 	<text left="580" name="region_name_text">
+		(unbekannt)
+	</text>
+	<text name="region_type_label">
+		Typ:
+	</text>
+	<text left="580" name="region_type_text">
 		(unbekannt)
 	</text>
 	<text name="estate_name_label">
@@ -22,18 +28,19 @@
 		Gekauftes Land in dieser Region:
 	</text>
 	<text name="resellable_clause">
-		Gekauftes Land in dieser Region kann oder kann nicht wiederverkauft werden.
+		Wiederverkauf möglich oder nicht möglich.
 	</text>
 	<text name="changeable_clause">
-		kann oder kann nicht zusammengelegt/unterteilt werden.
+		Darft oder darf nicht zusammengelegt/unterteilt werden.
 	</text>
 	<text name="covenant_text">
 		Sie müssen dem Grundstücksvertrag zustimmen:
 	</text>
+	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
 		Wird geladen...
 	</text_editor>
-	<check_box label="Ich stimme dem obigen Vertrag zu." name="agree_covenant" />
+	<check_box label="Ich stimme dem obigen Vertrag zu." name="agree_covenant"/>
 	<text name="info_parcel_label">
 		Parzelle:
 	</text>
@@ -44,21 +51,23 @@
 		Größe:
 	</text>
 	<text name="info_size">
-		1024 qm
+		1024 qm.
 	</text>
 	<text name="info_price_label">
 		Preis:
 	</text>
 	<text name="info_price">
-		1500 L$, Objekte eingeschlossen
+		1500 L$
+(L$ 1,1 L$/qm)
+Objekte im Verkauf eingeschlossen
 	</text>
-	<text name="info_action" width="275">
+	<text name="info_action">
 		Bei Landkauf:
 	</text>
 	<text name="error_message">
 		Irgendetwas stimmt nicht.
 	</text>
-	<button label="Gehe zu Website" name="error_web" />
+	<button label="Gehe zu Website" name="error_web"/>
 	<text name="account_action">
 		Macht Sie zum Premium-Mitglied.
 	</text>
@@ -74,7 +83,7 @@
 		Erhöhen Sie Ihre monatlichen Landnutzungsgebühren auf 40 US$/month.
 	</text>
 	<text name="land_use_reason">
-		Sie besitzen 1.309 qm Land. 
+		Sie besitzen 1309 qm Land. 
 Diese Parzelle ist 512 qm groß.
 	</text>
 	<text name="purchase_action">
@@ -95,127 +104,134 @@ Diese Parzelle ist 512 qm groß.
 	<text name="currency_balance">
 		Sie haben 2.100 L$.
 	</text>
-	<check_box label="[AMOUNT] Quadratmeter des Beitrags von Gruppe nehmen."
-	     name="remove_contribution" />
-	<button label="Kaufen" name="buy_btn" />
-	<button label="Abbrechen" name="cancel_btn" />
-	<text name="can_resell">
+	<check_box label="[AMOUNT] Quadratmeter des Beitrags von Gruppe nehmen." name="remove_contribution"/>
+	<button label="Kaufen" name="buy_btn"/>
+	<button label="Abbrechen" name="cancel_btn"/>
+	<string name="can_resell">
 		Verkauf möglich.
-	</text>
-	<text name="can_not_resell">
+	</string>
+	<string name="can_not_resell">
 		Verkauf nicht möglich.
-	</text>
-	<text name="can_change">
+	</string>
+	<string name="can_change">
 		Zusammenlegen/unterteilen möglich.
-	</text>
-	<text name="can_not_change">
+	</string>
+	<string name="can_not_change">
 		Zusammenlegen/unterteilen nicht möglich.
-	</text>
-	<text name="cant_buy_for_group">
+	</string>
+	<string name="cant_buy_for_group">
 		Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
-	</text>
-	<text name="no_land_selected">
+	</string>
+	<string name="no_land_selected">
 		Kein Land ausgewählt.
-	</text>
-	<text name="multiple_parcels_selected">
+	</string>
+	<string name="multiple_parcels_selected">
 		Mehrere unterschiedliche Parzellen ausgewählt. 
 Verkleinern Sie Ihre Auswahl.
-	</text>
-	<text name="no_permission">
+	</string>
+	<string name="no_permission">
 		Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
-	</text>
-	<text name="parcel_not_for_sale">
+	</string>
+	<string name="parcel_not_for_sale">
 		Die ausgewählte Parzelle steht nicht zum Verkauf.
-	</text>
-	<text name="group_already_owns">
+	</string>
+	<string name="group_already_owns">
 		Die Parzelle befindet sich bereits in Gruppenbesitz.
-	</text>
-	<text name="you_already_own">
+	</string>
+	<string name="you_already_own">
 		Die Parzelle gehört Ihnen bereits.
-	</text>
-	<text name="set_to_sell_to_other">
+	</string>
+	<string name="set_to_sell_to_other">
 		Die ausgewählte Parzelle steht zum Verkauf an Dritte.
-	</text>
-	<text name="no_public_land">
+	</string>
+	<string name="no_public_land">
 		Das ausgewählte Land beinhaltet kein öffentliches Land.
-	</text>
-	<text name="not_owned_by_you">
+	</string>
+	<string name="not_owned_by_you">
 		Sie haben Land ausgewählt, das einer anderen Person gehört. 
 Verkleinern Sie Ihre Auswahl.
-	</text>
-	<text name="processing">
+	</string>
+	<string name="processing">
 		Kauf wird abgewickelt...
  
 (Dies kann 1 bis 2 Minuten dauern.)
-	</text>
-	<text name="fetching_error">
+	</string>
+	<string name="fetching_error">
 		Fehler bei Abfrage der Landkauf-Informationen.
-	</text>
-	<text name="buying_will">
+	</string>
+	<string name="buying_will">
 		Bei Landkauf:
-	</text>
-	<text name="buying_for_group">
-		Kaufe Land für Gruppe:
-	</text>
-	<text name="cannot_buy_now">
+	</string>
+	<string name="buying_for_group">
+		Landkauf für Gruppe:
+	</string>
+	<string name="cannot_buy_now">
 		Kaufen jetzt nicht möglich:
-	</text>
-	<text name="not_for_sale">
+	</string>
+	<string name="not_for_sale">
 		Nicht zu verkaufen:
-	</text>
-	<text name="none_needed">
+	</string>
+	<string name="none_needed">
 		nicht benötigt
-	</text>
-	<text name="must_upgrade">
+	</string>
+	<string name="must_upgrade">
 		Sie müssen Ihr Konto upgraden, um Land kaufen zu können.
-	</text>
-	<text name="cant_own_land">
+	</string>
+	<string name="cant_own_land">
 		Mit Ihrem Konto können Sie Land kaufen.
-	</text>
-	<text name="land_holdings">
+	</string>
+	<string name="land_holdings">
 		Sie besitzen [BUYER] qm Land.
-	</text>
-	<text name="pay_to_for_land">
+	</string>
+	<string name="pay_to_for_land">
 		[SELLER] [AMOUNT] L$ für das Land bezahlen
-	</text>
-	<text name="buy_for_US">
-		[AMOUNT] L$ für ca. [AMOUNT2] US$ kaufen ,
-	</text>
-	<text name="parcel_meters">
+	</string>
+	<string name="buy_for_US">
+		[AMOUNT] L$ für circa [AMOUNT2] US$ kaufen,
+	</string>
+	<string name="parcel_meters">
 		Diese Parzelle ist [AMOUNT] qm groß.
-	</text>
-	<text name="premium_land">
-		Für dieses Land gilt ein Aufschlag. Es wird mit [AMOUNT] qm angesetzt.
-	</text>
-	<text name="discounted_land">
-		Für dieses Land gilt ein Rabatt. Es wird mit [AMOUNT] qm angesetzt.
-	</text>
-	<text name="meters_supports_object">
-		[AMOUNT] qm
+	</string>
+	<string name="premium_land">
+		Dieses Land ist eine Premium-Immobilie. Es wird mit [AMOUNT] qm angesetzt.
+	</string>
+	<string name="discounted_land">
+		Dieses Land ist im Angebot. Es wird mit [AMOUNT] qm angesetzt.
+	</string>
+	<string name="meters_supports_object">
+		[AMOUNT] qm.
 unterstützt [AMOUNT2] Objekte
-	</text>
-	<text name="sold_with_objects">
+	</string>
+	<string name="sold_with_objects">
 		mit Objekten verkauft
-	</text>
-	<text name="insufficient_land_credits">
-		Die Gruppe [GROUP] benötigt ausreichende Landnutzungsrechte für diese Parzelle, um den Kauf abzuschließen.
-	</text>
-	<text name="have_enough_lindens">
+	</string>
+	<string name="sold_without_objects">
+		Objekte nicht im Verkauf mit eingeschlossen
+	</string>
+	<string name="info_price_string">
+		[PRICE] L$
+([PRICE_PER_SQM] L$/qm)
+[SOLD_WITH_OBJECTS]
+	</string>
+	<string name="insufficient_land_credits">
+		Die Gruppe [GROUP] benötigt ausreichende gespendete Landnutzungsrechte, um die Parzelle abzudecken, bevor der Kauf abgeschlossen werden kann.
+	</string>
+	<string name="have_enough_lindens">
 		Sie haben [AMOUNT] L$, genug zum Kauf dieses Landes.
-	</text>
-	<text name="not_enough_lindens">
+	</string>
+	<string name="not_enough_lindens">
 		Sie haben nur [AMOUNT] L$, brauchen aber mindestens [AMOUNT2] L$.
-	</text>
-	<text name="balance_left">
+	</string>
+	<string name="balance_left">
 		Nach dem Einkauf verbleiben Ihnen noch [AMOUNT] L$.
-	</text>
-	<text name="balance_needed">
+	</string>
+	<string name="balance_needed">
 		Für dieses Land müssen Sie mindestens [AMOUNT] L$ kaufen.
-	</text>
-	<text name="no_parcel_selected">
+	</string>
+	<string name="no_parcel_selected">
 		(keine Parzelle ausgewählt)
-	</text>
-	<text name="buy_currency">
+	</string>
+	<string name="buy_currency">
 		[LINDENS] L$ für ca. [USD] US$ kaufen
-	</text>
+	</string>
 </floater>

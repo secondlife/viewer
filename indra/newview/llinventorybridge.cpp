@@ -40,6 +40,7 @@
 #include "message.h"
 
 #include "llagent.h"
+#include "llagentwearables.h"
 #include "llcallingcard.h"
 #include "llcheckboxctrl.h"		// for radio buttons
 #include "llfloaterreg.h"
@@ -50,13 +51,13 @@
 
 #include "llviewercontrol.h"
 #include "llfirstuse.h"
-#include "llfloateravatarinfo.h"
 #include "llfloaterchat.h"
 #include "llfloatercustomize.h"
 #include "llfloaterproperties.h"
 #include "llfloaterworldmap.h"
 #include "llfocusmgr.h"
 #include "llfolderview.h"
+#include "llfriendactions.h"
 #include "llgesturemgr.h"
 #include "lliconctrl.h"
 #include "llinventorymodel.h"
@@ -83,6 +84,7 @@
 #include "llwearablelist.h"
 #include "llviewermessage.h" 
 #include "llviewerregion.h"
+#include "llvoavatarself.h"
 #include "lltabcontainer.h"
 #include "lluictrlfactory.h"
 #include "llselectmgr.h"
@@ -108,6 +110,7 @@ void dec_busy_count()
 
 // Function declarations
 struct LLWearableHoldingPattern;
+void wear_add_inventory_item_on_avatar(LLInventoryItem* item);
 void wear_inventory_category_on_avatar(LLInventoryCategory* category, BOOL append);
 void wear_inventory_category_on_avatar_step2( BOOL proceed, LLUUID category, BOOL append);
 void wear_inventory_category_on_avatar_loop(LLWearable* wearable, void*);
@@ -146,6 +149,8 @@ std::string ICON_NAME[ICON_NAME_COUNT] =
 	"inv_item_undershirt.tga",
 	"inv_item_underpants.tga",
 	"inv_item_skirt.tga",
+	"inv_item_alpha.tga",
+	"inv_item_tattoo.tga",
 
 	"inv_item_animation.tga",
 	"inv_item_gesture.tga",
@@ -377,8 +382,8 @@ BOOL LLInvFVBridge::isClipboardPasteable() const
 }
 
 void hideContextEntries(LLMenuGL& menu, 
-									   const std::vector<std::string> &entries_to_show,
-									   const std::vector<std::string> &disabled_entries)
+						const std::vector<std::string> &entries_to_show,
+						const std::vector<std::string> &disabled_entries)
 {
 	const LLView::child_list_t *list = menu.getChildList();
 
@@ -422,8 +427,9 @@ void hideContextEntries(LLMenuGL& menu,
 }
 
 // Helper for commonly-used entries
-void LLInvFVBridge::getClipboardEntries(bool show_asset_id, std::vector<std::string> &items, 
-		std::vector<std::string> &disabled_items, U32 flags)
+void LLInvFVBridge::getClipboardEntries(bool show_asset_id, 
+										std::vector<std::string> &items, 
+										std::vector<std::string> &disabled_items, U32 flags)
 {
 	items.push_back(std::string("Rename"));
 	if (!isItemRenameable() || (flags & FIRST_SELECTED_ITEM) == 0)
@@ -602,22 +608,21 @@ void LLInvFVBridge::changeCategoryParent(LLInventoryModel* model,
 }
 
 
-const char* safe_inv_type_lookup(LLInventoryType::EType inv_type)
+const std::string safe_inv_type_lookup(LLInventoryType::EType inv_type)
 {
-	const char* rv = LLInventoryType::lookup(inv_type);
-	if(!rv)
+	const std::string rv= LLInventoryType::lookup(inv_type);
+	if(rv.empty())
 	{
-		const char* INVALID_TYPE = "<invalid>";
-		rv = INVALID_TYPE;
+		return std::string("<invalid>");
 	}
 	return rv;
 }
 
 LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
-					   LLInventoryType::EType inv_type,
-					   LLInventoryPanel* inventory,
-					   const LLUUID& uuid,
-					   U32 flags)
+										   LLInventoryType::EType inv_type,
+										   LLInventoryPanel* inventory,
+										   const LLUUID& uuid,
+										   U32 flags)
 {
 	LLInvFVBridge* new_listener = NULL;
 	switch(asset_type)
@@ -910,6 +915,11 @@ void LLItemBridge::buildDisplayName(LLInventoryItem* item, std::string& name)
 
 std::string LLItemBridge::getLabelSuffix() const
 {
+	// assume that this won't be called before string table is loaded
+	static const char* NO_COPY =LLTrans::getString("NO_COPY").c_str();
+	static const char* NO_MOD = LLTrans::getString("NO_MOD").c_str();
+	static const char* NO_XFER = LLTrans::getString("NO_XFER").c_str();
+
 	std::string suffix;
 	LLInventoryItem* item = getItem();
 	if(item) 
@@ -924,9 +934,6 @@ std::string LLItemBridge::getLabelSuffix() const
 																gAgent.getID());
 
 			const char* EMPTY = "";
-			const char* NO_COPY =LLTrans::getString("NO_COPY").c_str();
-			const char* NO_MOD = LLTrans::getString("NO_MOD").c_str();
-			const char* NO_XFER = LLTrans::getString("NO_XFER").c_str();
 			const char* scopy;
 			if(copy) scopy = EMPTY;
 			else scopy = NO_COPY;
@@ -1021,7 +1028,7 @@ BOOL LLItemBridge::isItemCopyable() const
 	if (item)
 	{
 		// can't copy worn objects. DEV-15183
-		LLVOAvatar *avatarp = gAgent.getAvatarObject();
+		LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
 		if( !avatarp )
 		{
 			return FALSE;
@@ -1108,7 +1115,7 @@ BOOL LLFolderBridge::isItemRemovable()
 		return FALSE;
 	}
 
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 	if( !avatar )
 	{
 		return FALSE;
@@ -1145,7 +1152,7 @@ BOOL LLFolderBridge::isItemRemovable()
 		if( (item->getType() == LLAssetType::AT_CLOTHING) ||
 			(item->getType() == LLAssetType::AT_BODYPART) )
 		{
-			if( gAgent.isWearingItem( item->getUUID() ) )
+			if( gAgentWearables.isWearingItem( item->getUUID() ) )
 			{
 				return FALSE;
 			}
@@ -1186,7 +1193,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return FALSE;
 
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 	if(!avatar) return FALSE;
 
 	// cannot drag into library
@@ -1239,7 +1246,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 						if( (item->getType() == LLAssetType::AT_CLOTHING) ||
 							(item->getType() == LLAssetType::AT_BODYPART) )
 						{
-							if( gAgent.isWearingItem( item->getUUID() ) )
+							if( gAgentWearables.isWearingItem( item->getUUID() ) )
 							{
 								is_movable = FALSE;  // It's generally movable, but not into the trash!
 								break;
@@ -2188,7 +2195,7 @@ void LLFolderBridge::createWearable(LLFolderBridge* bridge, EWearableType type)
 // static
 void LLFolderBridge::createWearable(LLUUID parent_id, EWearableType type)
 {
-	LLWearable* wearable = gWearableList.createNewWearable(type);
+	LLWearable* wearable = LLWearableList::instance().createNewWearable(type);
 	LLAssetType::EType asset_type = wearable->getAssetType();
 	LLInventoryType::EType inv_type = LLInventoryType::IT_WEARABLE;
 	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
@@ -2260,7 +2267,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		return FALSE;
 	}
 
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 	if(!avatar) return FALSE;
 
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
@@ -2291,7 +2298,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			{
 			case LLAssetType::AT_CLOTHING:
 			case LLAssetType::AT_BODYPART:
-				is_movable = !gAgent.isWearingItem(inv_item->getUUID());
+				is_movable = !gAgentWearables.isWearingItem(inv_item->getUUID());
 				break;
 
 			case LLAssetType::AT_OBJECT:
@@ -2577,7 +2584,7 @@ void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 }
 
 // Convenience function for the two functions below.
-static void teleport_via_landmark(const LLUUID& asset_id)
+void teleport_via_landmark(const LLUUID& asset_id)
 {
 	gAgent.teleportViaLandmark( asset_id );
 
@@ -2706,7 +2713,7 @@ void LLCallingCardBridge::performAction(LLFolderView* folder, LLInventoryModel* 
 		if (item && (item->getCreatorUUID() != gAgent.getID()) &&
 			(!item->getCreatorUUID().isNull()))
 		{
-			handle_lure(item->getCreatorUUID());
+			LLFriendActions::offerTeleport(item->getCreatorUUID());
 		}
 	}
 	else LLItemBridge::performAction(folder, model, action);
@@ -2748,9 +2755,7 @@ void LLCallingCardBridge::openItem()
 	LLViewerInventoryItem* item = getItem();
 	if(item && !item->getCreatorUUID().isNull())
 	{
-		BOOL online;
-		online = LLAvatarTracker::instance().isBuddyOnline(item->getCreatorUUID());
-		LLFloaterAvatarInfo::showFromFriend(item->getCreatorUUID(), online);
+		LLFriendActions::showProfile(item->getCreatorUUID());
 	}
 */
 }
@@ -3109,7 +3114,7 @@ LLUUID LLObjectBridge::sContextMenuItemID;
 
 BOOL LLObjectBridge::isItemRemovable()
 {
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 	if(!avatar) return FALSE;
 	if(avatar->isWearingAttachment(mUUID)) return FALSE;
 	return LLInvFVBridge::isItemRemovable();
@@ -3119,8 +3124,6 @@ LLUIImagePtr LLObjectBridge::getIcon() const
 {
 	return get_item_icon(LLAssetType::AT_OBJECT, mInvType, mAttachPt, mIsMultiObject );
 }
-
-void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attachment);
 
 // virtual
 void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
@@ -3191,7 +3194,7 @@ void LLObjectBridge::openItem()
 
 LLFontGL::StyleFlags LLObjectBridge::getLabelStyle() const
 { 
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 	if( avatar && avatar->isWearingAttachment( mUUID ) )
 	{
 		return LLFontGL::BOLD;
@@ -3204,7 +3207,7 @@ LLFontGL::StyleFlags LLObjectBridge::getLabelStyle() const
 
 std::string LLObjectBridge::getLabelSuffix() const
 {
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 	if( avatar && avatar->isWearingAttachment( mUUID ) )
 	{
 		std::string attachment_point_name = avatar->getAttachedPointName(mUUID);
@@ -3301,7 +3304,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		LLInventoryItem* item = getItem();
 		if(item)
 		{
-			LLVOAvatar *avatarp = gAgent.getAvatarObject();
+			LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 			if( !avatarp )
 			{
 				return;
@@ -3318,7 +3321,8 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				items.push_back(std::string("Object Wear"));
 				items.push_back(std::string("Attach To"));
 				items.push_back(std::string("Attach To HUD"));
-				items.push_back(std::string("Restore to Last Position"));
+				// commented out for DEV-32347
+				//items.push_back(std::string("Restore to Last Position"));
 
 				LLMenuGL* attach_menu = menu.getChildMenuByName("Attach To", TRUE);
 				LLMenuGL* attach_hud_menu = menu.getChildMenuByName("Attach To HUD", TRUE);
@@ -3379,7 +3383,7 @@ BOOL LLObjectBridge::renameItem(const std::string& new_name)
 		model->updateItem(new_item);
 		model->notifyObservers();
 
-		LLVOAvatar* avatar = gAgent.getAvatarObject();
+		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 		if( avatar )
 		{
 			LLViewerObject* obj = avatar->getWornAttachment( item->getUUID() );
@@ -3435,13 +3439,29 @@ void wear_inventory_item_on_avatar( LLInventoryItem* item )
 		lldebugs << "wear_inventory_item_on_avatar( " << item->getName()
 				 << " )" << llendl;
 			
-		gWearableList.getAsset(item->getAssetUUID(),
+		LLWearableList::instance().getAsset(item->getAssetUUID(),
 							   item->getName(),
 							   item->getType(),
 							   LLWearableBridge::onWearOnAvatarArrived,
 							   new LLUUID(item->getUUID()));
 	}
 }
+
+void wear_add_inventory_item_on_avatar( LLInventoryItem* item )
+{
+	if(item)
+	{
+		lldebugs << "wear_add_inventory_item_on_avatar( " << item->getName()
+				 << " )" << llendl;
+			
+		LLWearableList::instance().getAsset(item->getAssetUUID(),
+							   item->getName(),
+							   item->getType(),
+							   LLWearableBridge::onWearAddOnAvatarArrived,
+							   new LLUUID(item->getUUID()));
+	}
+}
+
 
 struct LLFoundData
 {
@@ -3856,7 +3876,7 @@ void wear_inventory_category_on_avatar_step2( BOOL proceed, LLUUID category, BOO
 				gAddToOutfit = append;
 
 				found = found_container.get(i);
-				gWearableList.getAsset(found->mAssetID,
+				LLWearableList::instance().getAsset(found->mAssetID,
 										found->mName,
 									   found->mAssetType,
 									   wear_inventory_category_on_avatar_loop,
@@ -3869,7 +3889,7 @@ void wear_inventory_category_on_avatar_step2( BOOL proceed, LLUUID category, BOO
 		if (!append 
 			&& !(wearable_count == 0 && obj_count == 0 && gest_count > 0) )
 		{
-			LLAgent::userRemoveAllAttachments(NULL);
+			LLAgentWearables::userRemoveAllAttachments(NULL);
 		}
 
 		if( obj_count > 0 )
@@ -3976,18 +3996,6 @@ void wear_inventory_category_on_avatar_step3(LLWearableHoldingPattern* holder, B
 				item = (LLViewerInventoryItem*)gInventory.getItem(data->mItemID);
 				if( item && (item->getAssetUUID() == wearable->getID()) )
 				{
-				//RN: after discussing with Brashears, I disabled this code
-				//Metadata should reside in the item, not the asset
-				//And this code does not handle failed asset uploads properly
-//					if(!wearable->isMatchedToInventoryItem(item ))
-//					{
-//						wearable = gWearableList.createWearableMatchedToInventoryItem( wearable, item );
-//						// Now that we have an asset that matches the
-//						// item, update the item to point to the new
-//						// asset.
-//						item->setAssetUUID(wearable->getID());
-//						item->updateAssetOnServer();
-//					}
 					items.put(item);
 					wearables.put(wearable);
 				}
@@ -3998,7 +4006,7 @@ void wear_inventory_category_on_avatar_step3(LLWearableHoldingPattern* holder, B
 
 	if(wearables.count() > 0)
 	{
-		gAgent.setWearableOutfit(items, wearables, !append);
+		gAgentWearables.setWearableOutfit(items, wearables, !append);
 		gInventory.notifyObservers();
 	}
 
@@ -4069,9 +4077,9 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 		{
 			for(i = 0; i  < wearable_count; ++i)
 			{
-				if( gAgent.isWearingItem (item_array.get(i)->getUUID()) )
+				if( gAgentWearables.isWearingItem (item_array.get(i)->getUUID()) )
 				{
-					gWearableList.getAsset(item_array.get(i)->getAssetUUID(),
+					LLWearableList::instance().getAsset(item_array.get(i)->getAssetUUID(),
 									item_array.get(i)->getName(),
 								   item_array.get(i)->getType(),
 								    LLWearableBridge::onRemoveFromAvatarArrived,
@@ -4124,22 +4132,22 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 
 BOOL LLWearableBridge::renameItem(const std::string& new_name)
 {
-	if( gAgent.isWearingItem( mUUID ) )
+	if( gAgentWearables.isWearingItem( mUUID ) )
 	{
-		gAgent.setWearableName( mUUID, new_name );
+		gAgentWearables.setWearableName( mUUID, new_name );
 	}
 	return LLItemBridge::renameItem(new_name);
 }
 
 BOOL LLWearableBridge::isItemRemovable()
 {
-	if(gAgent.isWearingItem(mUUID)) return FALSE;
+	if(gAgentWearables.isWearingItem(mUUID)) return FALSE;
 	return LLInvFVBridge::isItemRemovable();
 }
 
 LLFontGL::StyleFlags LLWearableBridge::getLabelStyle() const
 { 
-	if( gAgent.isWearingItem( mUUID ) )
+	if( gAgentWearables.isWearingItem( mUUID ) )
 	{
 		// llinfos << "BOLD" << llendl;
 		return LLFontGL::BOLD;
@@ -4152,7 +4160,7 @@ LLFontGL::StyleFlags LLWearableBridge::getLabelStyle() const
 
 std::string LLWearableBridge::getLabelSuffix() const
 {
-	if( gAgent.isWearingItem( mUUID ) )
+	if( gAgentWearables.isWearingItem( mUUID ) )
 	{
 		return LLItemBridge::getLabelSuffix() + " (worn)";
 	}
@@ -4174,6 +4182,10 @@ void LLWearableBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 	{
 		wearOnAvatar();
 	}
+	else if ("wear_add" == action)
+	{
+		wearAddOnAvatar();
+	}
 	else if ("edit" == action)
 	{
 		editOnAvatar();
@@ -4181,12 +4193,12 @@ void LLWearableBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 	}
 	else if ("take_off" == action)
 	{
-		if(gAgent.isWearingItem(mUUID))
+		if(gAgentWearables.isWearingItem(mUUID))
 		{
 			LLViewerInventoryItem* item = getItem();
 			if (item)
 			{
-				gWearableList.getAsset(item->getAssetUUID(),
+				LLWearableList::instance().getAsset(item->getAssetUUID(),
 										item->getName(),
 									item->getType(),
 									LLWearableBridge::onRemoveFromAvatarArrived,
@@ -4212,7 +4224,7 @@ void LLWearableBridge::openItem()
 	}
 	else if(isAgentInventory())
 	{
-		if( !gAgent.isWearingItem( mUUID ) )
+		if( !gAgentWearables.isWearingItem( mUUID ) )
 		{
 			wearOnAvatar();
 		}
@@ -4281,6 +4293,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		items.push_back(std::string("Wearable Separator"));
 		
 		items.push_back(std::string("Wearable Wear"));
+		items.push_back(std::string("Wearable Add"));
 		items.push_back(std::string("Wearable Edit"));
 
 		if ((flags & FIRST_SELECTED_ITEM) == 0)
@@ -4307,7 +4320,7 @@ BOOL LLWearableBridge::canWearOnAvatar(void* user_data)
 		LLViewerInventoryItem* item = (LLViewerInventoryItem*)self->getItem();
 		if(!item || !item->isComplete()) return FALSE;
 	}
-	return (!gAgent.isWearingItem(self->mUUID));
+	return (!gAgentWearables.isWearingItem(self->mUUID));
 }
 
 // Called from menus
@@ -4323,7 +4336,7 @@ void LLWearableBridge::wearOnAvatar()
 {
 	// Don't wear anything until initial wearables are loaded, can
 	// destroy clothing items.
-	if (!gAgent.areWearablesLoaded()) 
+	if (!gAgentWearables.areWearablesLoaded()) 
 	{
 		LLNotifications::instance().add("CanNotChangeAppearanceUntilLoaded");
 		return;
@@ -4350,6 +4363,37 @@ void LLWearableBridge::wearOnAvatar()
 	}
 }
 
+void LLWearableBridge::wearAddOnAvatar()
+{
+	// Don't wear anything until initial wearables are loaded, can
+	// destroy clothing items.
+	if (!gAgentWearables.areWearablesLoaded()) 
+	{
+		LLNotifications::instance().add("CanNotChangeAppearanceUntilLoaded");
+		return;
+	}
+
+	LLViewerInventoryItem* item = getItem();
+	if(item)
+	{
+		if(!isAgentInventory())
+		{
+			LLPointer<LLInventoryCallback> cb = new WearOnAvatarCallback();
+			copy_inventory_item(
+				gAgent.getID(),
+				item->getPermissions().getOwner(),
+				item->getUUID(),
+				LLUUID::null,
+				std::string(),
+				cb);
+		}
+		else
+		{
+			wear_add_inventory_item_on_avatar(item);
+		}
+	}
+}
+
 // static
 void LLWearableBridge::onWearOnAvatarArrived( LLWearable* wearable, void* userdata )
 {
@@ -4362,22 +4406,33 @@ void LLWearableBridge::onWearOnAvatarArrived( LLWearable* wearable, void* userda
 		{
 			if(item->getAssetUUID() == wearable->getID())
 			{
-				//RN: after discussing with Brashears, I disabled this code
-				//Metadata should reside in the item, not the asset
-				//And this code does not handle failed asset uploads properly
+				gAgentWearables.setWearable(item, wearable);
+				gInventory.notifyObservers();
+				//self->getFolderItem()->refreshFromRoot();
+			}
+			else
+			{
+				llinfos << "By the time wearable asset arrived, its inv item already pointed to a different asset." << llendl;
+			}
+		}
+	}
+	delete item_id;
+}
 
-//				if(!wearable->isMatchedToInventoryItem(item))
-//				{
-//					LLWearable* new_wearable = gWearableList.createWearableMatchedToInventoryItem( wearable, item );
-//
-//					// Now that we have an asset that matches the
-//					// item, update the item to point to the new
-//					// asset.
-//					item->setAssetUUID(new_wearable->getID());
-//					item->updateAssetOnServer();
-//					wearable = new_wearable;
-//				}
-				gAgent.setWearable(item, wearable);
+// static
+void LLWearableBridge::onWearAddOnAvatarArrived( LLWearable* wearable, void* userdata )
+{
+	LLUUID* item_id = (LLUUID*) userdata;
+	if(wearable)
+	{
+		LLViewerInventoryItem* item = NULL;
+		item = (LLViewerInventoryItem*)gInventory.getItem(*item_id);
+		if(item)
+		{
+			if(item->getAssetUUID() == wearable->getID())
+			{
+				bool do_append = true;
+				gAgentWearables.setWearable(item, wearable, do_append);
 				gInventory.notifyObservers();
 				//self->getFolderItem()->refreshFromRoot();
 			}
@@ -4396,7 +4451,7 @@ BOOL LLWearableBridge::canEditOnAvatar(void* user_data)
 	LLWearableBridge* self = (LLWearableBridge*)user_data;
 	if(!self) return FALSE;
 
-	return (gAgent.isWearingItem(self->mUUID));
+	return (gAgentWearables.isWearingItem(self->mUUID));
 }
 
 // static 
@@ -4411,7 +4466,7 @@ void LLWearableBridge::onEditOnAvatar(void* user_data)
 
 void LLWearableBridge::editOnAvatar()
 {
-	LLWearable* wearable = gAgent.getWearableFromWearableItem(mUUID);
+	LLWearable* wearable = gAgentWearables.getWearableFromWearableItem(mUUID);
 	if( wearable )
 	{
 		// Set the tab to the right wearable.
@@ -4432,7 +4487,7 @@ BOOL LLWearableBridge::canRemoveFromAvatar(void* user_data)
 	LLWearableBridge* self = (LLWearableBridge*)user_data;
 	if( self && (LLAssetType::AT_BODYPART != self->mAssetType) )
 	{
-		return gAgent.isWearingItem( self->mUUID );
+		return gAgentWearables.isWearingItem( self->mUUID );
 	}
 	return FALSE;
 }
@@ -4442,12 +4497,12 @@ void LLWearableBridge::onRemoveFromAvatar(void* user_data)
 {
 	LLWearableBridge* self = (LLWearableBridge*)user_data;
 	if(!self) return;
-	if(gAgent.isWearingItem(self->mUUID))
+	if(gAgentWearables.isWearingItem(self->mUUID))
 	{
 		LLViewerInventoryItem* item = self->getItem();
 		if (item)
 		{
-			gWearableList.getAsset(item->getAssetUUID(),
+			LLWearableList::instance().getAsset(item->getAssetUUID(),
 									item->getName(),
 								   item->getType(),
 								   onRemoveFromAvatarArrived,
@@ -4463,14 +4518,16 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 	LLUUID* item_id = (LLUUID*) userdata;
 	if(wearable)
 	{
-		if( gAgent.isWearingItem( *item_id ) )
+		if( gAgentWearables.isWearingItem( *item_id ) )
 		{
 			EWearableType type = wearable->getType();
 	
 			if( !(type==WT_SHAPE || type==WT_SKIN || type==WT_HAIR || type==WT_EYES ) ) //&&
 				//!((!gAgent.isTeen()) && ( type==WT_UNDERPANTS || type==WT_UNDERSHIRT )) )
 			{
-				gAgent.removeWearable( type );
+				// MULTI_WEARABLE: FIXME HACK - always remove all
+				bool do_remove_all = false;
+				gAgentWearables.removeWearable( type, do_remove_all, 0 );
 			}
 		}
 	}
@@ -4533,9 +4590,21 @@ LLInvFVBridgeAction* LLInvFVBridgeAction::createAction(LLAssetType::EType asset_
 }
 
 //static 
-void		LLInvFVBridgeAction::doAction(LLAssetType::EType asset_type,
-									   const LLUUID& uuid,LLInventoryModel* model)
+void LLInvFVBridgeAction::doAction(LLAssetType::EType asset_type,
+								   const LLUUID& uuid,LLInventoryModel* model)
 {
+	LLInvFVBridgeAction* action = createAction(asset_type,uuid,model);
+	if(action)
+	{
+		action->doIt();
+		delete action;
+	}
+}
+
+//static 
+void LLInvFVBridgeAction::doAction(const LLUUID& uuid, LLInventoryModel* model)
+{
+	LLAssetType::EType asset_type = model->getItem(uuid)->getType();
 	LLInvFVBridgeAction* action = createAction(asset_type,uuid,model);
 	if(action)
 	{
@@ -4596,11 +4665,9 @@ void	LLLandmarkBridgeAction::doIt()
 void	LLCallingCardBridgeAction::doIt() 
 {
 	LLViewerInventoryItem* item = getItem();
-	if(item && !item->getCreatorUUID().isNull())
+	if(item && item->getCreatorUUID().notNull())
 	{
-		BOOL online;
-		online = LLAvatarTracker::instance().isBuddyOnline(item->getCreatorUUID());
-		LLFloaterAvatarInfo::showFromFriend(item->getCreatorUUID(), online);
+		LLFriendActions::showProfile(item->getCreatorUUID());
 	}
 
 	LLInvFVBridgeAction::doIt();
@@ -4685,7 +4752,7 @@ void LLWearableBridgeAction::wearOnAvatar()
 {
 	// Don't wear anything until initial wearables are loaded, can
 	// destroy clothing items.
-	if (!gAgent.areWearablesLoaded()) 
+	if (!gAgentWearables.areWearablesLoaded()) 
 	{
 		LLNotifications::instance().add("CanNotChangeAppearanceUntilLoaded");
 		return;
@@ -4721,7 +4788,7 @@ void	LLWearableBridgeAction::doIt()
 	}
 	else if(isAgentInventory())
 	{
-		if( !gAgent.isWearingItem( mUUID ) )
+		if( !gAgentWearables.isWearingItem( mUUID ) )
 		{
 			wearOnAvatar();
 		}

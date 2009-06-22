@@ -1,39 +1,70 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Regolamento" name="Covenant">
-	<text name="covenant_help_text">
-		Le modifiche alle informazioni del regolamento saranno esposte in tutti i terreni della proprietà immobiliare.
-	</text>
-	<text name="region_name_lbl">
-		Regione:
-	</text>
-	<text name="region_name_text">
-		(sconosciuta)
+	<text name="estate_section_lbl">
+		Proprietà:
 	</text>
 	<text name="estate_name_lbl">
-		Proprietà immobiliare:
+		Nome:
 	</text>
 	<text name="estate_name_text">
-		(sconosciuta)
+		mainland
 	</text>
 	<text name="estate_owner_lbl">
-		Proprietario immobiliare:
+		Proprietario:
 	</text>
 	<text name="estate_owner_text">
-		(sconosciuto)
+		(nessuno)
 	</text>
-	<text name="resellable_clause">
-		Un terreno acquistato in questa regione può o non può essere rivenduto.
+	<text name="estate_cov_lbl">
+		Regolamento:
 	</text>
-	<text name="changeable_clause">
-		Un terreno acquistato in questa regione può o non può essere unito o suddiviso.
+	<text name="covenant_timestamp_text">
+		Ultima modifica Merc 31 Dic 1969 16:00:00
 	</text>
-	<text name="covenent_instructions">
-		Trascina e rilascia una notecard per cambiare il Regolamento di questa Proprietà Immobiliare.
-	</text>
+	<button label="?" name="covenant_help"/>
 	<text_editor name="covenant_editor">
-		In caricamento...
+		Per questa proprietà non è stato emesso alcun regolamento.
 	</text_editor>
 	<button label="Ripristina" name="reset_covenant"/>
+	<text name="covenant_help_text">
+		Le modifiche nel regolamento saranno visibili su tutti i terreni della proprietà.
+	</text>
+	<text name="covenant_instructions">
+		Trascina e rilascia una notecard per cambiare il regolamento di questa proprietà.
+	</text>
+	<text name="region_section_lbl">
+		Regione:
+	</text>
+	<text name="region_name_lbl">
+		Nome:
+	</text>
+	<text name="region_name_text">
+		leyla
+	</text>
+	<text name="region_landtype_lbl">
+		Tipo:
+	</text>
+	<text name="region_landtype_text">
+		Mainland / Homestead
+	</text>
+	<text name="region_maturity_lbl">
+		Categoria di accesso:
+	</text>
+	<text name="region_maturity_text">
+		Adult
+	</text>
+	<text name="resellable_lbl">
+		Rivendita:
+	</text>
+	<text name="resellable_clause">
+		La terra in questa regione non può essere rivenduta.
+	</text>
+	<text name="changeable_lbl">
+		Suddividi:
+	</text>
+	<text name="changeable_clause">
+		La terra in questa regione non può essere unita/suddivisa.
+	</text>
 	<string name="can_resell">
 		Un terreno acquistato in questa regione può essere rivenduto.
 	</string>
@@ -46,5 +77,4 @@
 	<string name="can_not_change">
 		Un terreno acquistato in questa regione non può essere unito o suddiviso.
 	</string>
-	<button label="?" name="covenant_help"/>
 </panel>

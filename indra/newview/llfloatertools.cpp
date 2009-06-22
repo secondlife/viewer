@@ -45,6 +45,7 @@
 #include "lldraghandle.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloateropenobject.h"
+#include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llmenugl.h"
 #include "llpanelcontents.h"
@@ -952,7 +953,7 @@ void LLFloaterTools::setObjectType( LLPCode pcode )
 void LLFloaterTools::onClickGridOptions(void* data)
 {
 	//LLFloaterTools* floaterp = (LLFloaterTools*)data;
-	LLFloaterBuildOptions::showInstance();
+	LLFloaterReg::showInstance("build_options");
 	// RN: this makes grid options dependent on build tools window
 	//floaterp->addDependentFloater(LLFloaterBuildOptions::getInstance(), FALSE);
 }

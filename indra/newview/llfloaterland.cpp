@@ -44,15 +44,15 @@
 #include "lluserauth.h"
 
 #include "llagent.h"
-#include "llfloateravatarpicker.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
-#include "llradiogroup.h"
 #include "llcombobox.h"
+#include "llfloaterreg.h"
+#include "llfloateravatarpicker.h"
 #include "llfloaterauction.h"
-#include "llfloateravatarinfo.h"
 #include "llfloatergroups.h"
 #include "llfloatergroupinfo.h"
+#include "llfriendactions.h"
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
 #include "llnotify.h"
@@ -784,7 +784,7 @@ void LLPanelLandGeneral::onClickProfile(void* data)
 	else
 	{
 		const LLUUID& avatar_id = parcel->getOwnerID();
-		LLFloaterAvatarInfo::showFromObject(avatar_id);
+		LLFriendActions::showProfile(avatar_id);
 	}
 }
 
@@ -889,7 +889,8 @@ void LLPanelLandGeneral::onClickStartAuction(void* data)
 		}
 		else
 		{
-			LLFloaterAuction::showInstance();
+			//LLFloaterAuction::showInstance();
+			LLFloaterReg::showInstance("auction");
 		}
 	}
 }
@@ -1056,7 +1057,7 @@ void LLPanelLandObjects::onDoubleClickOwner(void *userdata)
 		}
 		else
 		{
-			LLFloaterAvatarInfo::showFromDirectory(owner_id);
+			LLFriendActions::showProfile(owner_id);
 		}
 	}
 }
@@ -2284,6 +2285,8 @@ LLPanelLandAccess::~LLPanelLandAccess()
 
 void LLPanelLandAccess::refresh()
 {
+	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+	
 	if (mListAccess)
 		mListAccess->deleteAllItems();
 	if (mListBanned)
@@ -2326,20 +2329,20 @@ void LLPanelLandAccess::refresh()
 					if (seconds >= 120)
 					{
 						args["[MINUTES]"] = llformat("%d", (seconds/60));
-						std::string buf = getString ("Minutes", args);
+						std::string buf = parent_floater->getString ("Minutes", args);
 						suffix.append(buf);
 					}
 					else if (seconds >= 60)
 					{
-						suffix.append("1 " + getString("Minute"));
+						suffix.append("1 " + parent_floater->getString("Minute"));
 					}
 					else
 					{
 						args["[SECONDS]"] = llformat("%d", seconds);
-						std::string buf = getString ("Seconds", args);
+						std::string buf = parent_floater->getString ("Seconds", args);
 						suffix.append(buf);
 					}
-					suffix.append(" " + getString("Remaining") + ")");
+					suffix.append(" " + parent_floater->getString("Remaining") + ")");
 				}
 				if (mListAccess)
 					mListAccess->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
@@ -2368,20 +2371,20 @@ void LLPanelLandAccess::refresh()
 					if (seconds >= 120)
 					{
 						args["[MINUTES]"] = llformat("%d", (seconds/60));
-						std::string buf = getString ("Minutes", args);
+						std::string buf = parent_floater->getString ("Minutes", args);
 						suffix.append(buf);
 					}
 					else if (seconds >= 60)
 					{
-						suffix.append("1 " + getString("Minute"));
+						suffix.append("1 " + parent_floater->getString("Minute"));
 					}
 					else
 					{
 						args["[SECONDS]"] = llformat("%d", seconds);
-						std::string buf = getString ("Seconds", args);
+						std::string buf = parent_floater->getString ("Seconds", args);
 						suffix.append(buf);
 					}
-					suffix.append(" " + getString("Remaining") + ")");
+					suffix.append(" " + parent_floater->getString("Remaining") + ")");
 				}
 				mListBanned->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
 			}

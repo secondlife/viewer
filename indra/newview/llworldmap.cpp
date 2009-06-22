@@ -758,7 +758,9 @@ void LLWorldMap::processMapItemReply(LLMessageSystem* msg, void**)
 			case MAP_ITEM_MATURE_EVENT:
 			case MAP_ITEM_ADULT_EVENT:
 			{
-				std::string timeStr = LLTrans::getString ("WorldMapTimeStr");
+				std::string timeStr = "["+ LLTrans::getString ("TimeHour")+"]:["
+					                   +LLTrans::getString ("TimeMin")+"] ["
+									   +LLTrans::getString ("TimeAMPM")+"]";
 				LLSD substitution;
 				substitution["datetime"] = (S32) extra;
 				LLStringUtil::format (timeStr, substitution);

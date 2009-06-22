@@ -37,51 +37,123 @@
 		Hendrerit Vulputate
 	</text>
 	<combo_box name="category_combo" tool_tip="Choisissez la catégorie qui décrit le mieux ce rapport">
-		<combo_box.item name="Select_category" label="Sélectionnez une catégorie"/>
-		<combo_box.item name="Age__Age_play" label="Âge &gt; « Age play »"/>
-		<combo_box.item name="Age__Adult_resident_on_Teen_Second_Life" label="Âge &gt; Résident adulte sur Second Life pour adolescents"/>
-		
-		
-		
-		<combo_box.item name="Assault__Combat_sandbox___unsafe_area" label="Assaut &gt; Bac à sable utilisé pour des combats/zone non sécurisée"/>
-		<combo_box.item name="Assault__Safe_area" label="Assaut &gt; Zone sécurisée"/>
-		<combo_box.item name="Assault__Weapons_testing_sandbox" label="Assaut &gt; Bac à sable pour tests d&apos;armes à feu"/>
-		<combo_box.item name="Commerce__Failure_to_deliver_product_or_service" label="Commerce &gt; Incapacité à fournir un produit ou service"/>
-		<combo_box.item name="Disclosure__Real_world_information" label="Divulgation &gt; Informations sur la vie réelle"/>
-		<combo_box.item name="Disclosure__Remotely_monitoring chat" label="Divulgation &gt; Écoute d&apos;un chat à distance"/>
-		<combo_box.item name="Disclosure__Second_Life_information_chat_IMs" label="Divulgation &gt; Informations sur Second Life/chat/IM"/>
-		<combo_box.item name="Disturbing_the_peace__Unfair_use_of_region_resources" label="Trouble de la paix &gt; Utilisation inadéquate des ressources de la région"/>
-		<combo_box.item name="Disturbing_the_peace__Excessive_scripted_objects" label="Trouble de la paix &gt; Nombre d&apos;objets scriptés excessif"/>
-		<combo_box.item name="Disturbing_the_peace__Object_littering" label="Trouble de la paix &gt; Abandon d&apos;objets"/>
-		<combo_box.item name="Disturbing_the_peace__Repetitive_spam" label="Trouble de la paix &gt; Spam à répétition"/>
-		<combo_box.item name="Disturbing_the_peace__Unwanted_advert_spam" label="Trouble de la paix &gt; Spam à caractère commercial"/>
-		<combo_box.item name="Fraud__L$" label="Fraude &gt; L$"/>
-		<combo_box.item name="Fraud__Land" label="Fraude &gt; Terrain"/>
-		<combo_box.item name="Fraud__Pyramid_scheme_or_chain_letter" label="Fraude &gt; Vente pyramidale ou lettre-chaîne"/>
-		<combo_box.item name="Fraud__US$" label="Fraude &gt; US$"/>
-		<combo_box.item name="Harassment__Advert_farms___visual_spam" label="Harcèlement &gt; Spam visuel"/>
-		<combo_box.item name="Harassment__Defaming_individuals_or_groups" label="Harcèlement &gt; Diffamation envers des individus ou des groupes"/>
-		<combo_box.item name="Harassment__Impeding_movement" label="Harcèlement &gt; Immobilisation"/>
-		<combo_box.item name="Harassment__Sexual_harassment" label="Harcèlement &gt;  Harcèlement sexuel"/>
-		<combo_box.item name="Harassment__Solicting_inciting_others_to_violate_ToS" label="Harcèlement &gt; Incitation à enfreindre les Conditions d&apos;utilisation"/>
-		<combo_box.item name="Harassment__Verbal_abuse" label="Harcèlement &gt; Abus verbal"/>
-		<combo_box.item name="Indecency__Broadly_offensive_content_or_conduct" label="Indécence &gt; Contenu ou comportement offensifs"/>
-		
-		
-		
-		<combo_box.item name="Indecency__Inappropriate_avatar_name" label="Indécence &gt; Nom d&apos;avatar inapproprié"/>
-		
-		
-		
-		<combo_box.item name="Intellectual_property_infringement_Content_Removal" label="Violation de droits de propriété intellectuelle &gt; Suppression de contenu"/>
-		<combo_box.item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit" label="Violation de droits de propriété intellectuelle &gt; CopyBot ou exploitation abusive des permissions"/>
-		<combo_box.item name="Intolerance" label="Intolérance"/>
-		<combo_box.item name="Land__Abuse_of_sandbox_resources" label="Terrain &gt; Utilisation abusive des ressources du bac à sable"/>
-		<combo_box.item name="Land__Encroachment__Objects_textures" label="Terrain &gt; Empiètement &gt; Objets/textures"/>
-		<combo_box.item name="Land__Encroachment__Particles" label="Terrain &gt; Empiètement &gt; Particules"/>
-		<combo_box.item name="Land__Encroachment__Trees_plants" label="Terrain &gt; Empiètement &gt; Arbres/plantes"/>
-		<combo_box.item name="Wagering_gambling" label="Paris/jeux d&apos;argent"/>
-		<combo_box.item name="Other" label="Autre"/>
+		<combo_item name="Select_category">
+			Sélectionnez une catégorie
+		</combo_item>
+		<combo_item name="Age__Age_play">
+			Âge &gt; « Age play »
+		</combo_item>
+		<combo_item name="Age__Adult_resident_on_Teen_Second_Life">
+			Âge &gt; Résident adulte sur Second Life pour adolescents
+		</combo_item>
+		<combo_item name="Age__Underage_resident_outside_of_Teen_Second_Life">
+			Âge &gt; Resident mineur en dehors de Teen Second Life
+		</combo_item>
+		<combo_item name="Assault__Combat_sandbox___unsafe_area">
+			Assaut &gt; Bac à sable utilisé pour des combats/zone non sécurisée
+		</combo_item>
+		<combo_item name="Assault__Safe_area">
+			Assaut &gt; Zone sécurisée
+		</combo_item>
+		<combo_item name="Assault__Weapons_testing_sandbox">
+			Assaut &gt; Bac à sable pour tests d&apos;armes à feu
+		</combo_item>
+		<combo_item name="Commerce__Failure_to_deliver_product_or_service">
+			Commerce &gt; Incapacité à fournir un produit ou service
+		</combo_item>
+		<combo_item name="Disclosure__Real_world_information">
+			Divulgation &gt; Informations sur la vie réelle
+		</combo_item>
+		<combo_item name="Disclosure__Remotely_monitoring chat">
+			Divulgation &gt; Écoute d&apos;un chat à distance
+		</combo_item>
+		<combo_item name="Disclosure__Second_Life_information_chat_IMs">
+			Divulgation &gt; Informations sur Second Life/chat/IM
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Unfair_use_of_region_resources">
+			Trouble de la paix &gt; Utilisation inadéquate des ressources de la région
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Excessive_scripted_objects">
+			Trouble de la paix &gt; Nombre d&apos;objets scriptés excessif
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Object_littering">
+			Trouble de la paix &gt; Abandon d&apos;objets
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Repetitive_spam">
+			Trouble de la paix &gt; Spam à répétition
+		</combo_item>
+		<combo_item name="Disturbing_the_peace__Unwanted_advert_spam">
+			Trouble de la paix &gt; Spam à caractère commercial
+		</combo_item>
+		<combo_item name="Fraud__L$">
+			Fraude &gt; L$
+		</combo_item>
+		<combo_item name="Fraud__Land">
+			Fraude &gt; Terrain
+		</combo_item>
+		<combo_item name="Fraud__Pyramid_scheme_or_chain_letter">
+			Fraude &gt; Vente pyramidale ou lettre-chaîne
+		</combo_item>
+		<combo_item name="Fraud__US$">
+			Fraude &gt; US$
+		</combo_item>
+		<combo_item name="Harassment__Advert_farms___visual_spam">
+			Harcèlement &gt; Spam visuel
+		</combo_item>
+		<combo_item name="Harassment__Defaming_individuals_or_groups">
+			Harcèlement &gt; Diffamation envers des individus ou des groupes
+		</combo_item>
+		<combo_item name="Harassment__Impeding_movement">
+			Harcèlement &gt; Immobilisation
+		</combo_item>
+		<combo_item name="Harassment__Sexual_harassment">
+			Harcèlement &gt;  Harcèlement sexuel
+		</combo_item>
+		<combo_item name="Harassment__Solicting_inciting_others_to_violate_ToS">
+			Harcèlement &gt; Incitation à enfreindre les Conditions d&apos;utilisation
+		</combo_item>
+		<combo_item name="Harassment__Verbal_abuse">
+			Harcèlement &gt; Abus verbal
+		</combo_item>
+		<combo_item name="Indecency__Broadly_offensive_content_or_conduct">
+			Indécence &gt; Contenu ou comportement offensifs
+		</combo_item>
+		<combo_item name="Indecency__Inappropriate_avatar_name">
+			Indécence &gt; Nom d&apos;avatar inapproprié
+		</combo_item>
+		<combo_item name="Indecency__Mature_content_in_PG_region">
+			Indécence &gt; Contenu ou conduite inappropriés dans une région PG
+		</combo_item>
+		<combo_item name="Indecency__Inappropriate_content_in_Mature_region">
+			Indécence &gt; Contenu ou conduite inappropriés dans une région Mature
+		</combo_item>
+		<combo_item name="Intellectual_property_infringement_Content_Removal">
+			Violation de droits de propriété intellectuelle &gt; Suppression de contenu
+		</combo_item>
+		<combo_item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit">
+			Violation de droits de propriété intellectuelle &gt; CopyBot ou exploitation abusive des droits
+		</combo_item>
+		<combo_item name="Intolerance">
+			Intolérance
+		</combo_item>
+		<combo_item name="Land__Abuse_of_sandbox_resources">
+			Terrain &gt; Utilisation abusive des ressources du bac à sable
+		</combo_item>
+		<combo_item name="Land__Encroachment__Objects_textures">
+			Terrain &gt; Empiètement &gt; Objets/textures
+		</combo_item>
+		<combo_item name="Land__Encroachment__Particles">
+			Terrain &gt; Empiètement &gt; Particules
+		</combo_item>
+		<combo_item name="Land__Encroachment__Trees_plants">
+			Terrain &gt; Empiètement &gt; Arbres/plantes
+		</combo_item>
+		<combo_item name="Wagering_gambling">
+			Paris/jeux d&apos;argent
+		</combo_item>
+		<combo_item name="Other">
+			Autre
+		</combo_item>
 	</combo_box>
 	<text name="abuser_name_title">
 		Nom du contrevenant :

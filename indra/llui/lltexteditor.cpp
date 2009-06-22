@@ -63,7 +63,7 @@
 // 
 // Globals
 //
-static LLRegisterWidget<LLTextEditor> r("simple_text_editor");
+static LLDefaultWidgetRegistry::Register<LLTextEditor> r("simple_text_editor");
 
 //
 // Constants

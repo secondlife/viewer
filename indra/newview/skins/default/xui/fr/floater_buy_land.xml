@@ -6,6 +6,12 @@
 	<text name="region_name_text">
 		(inconnue)
 	</text>
+	<text name="region_type_label">
+		Type :
+	</text>
+	<text name="region_type_text">
+		(inconnu)
+	</text>
 	<text name="estate_name_label">
 		Domaine :
 	</text>
@@ -22,14 +28,15 @@
 		Terrain acheté dans cette région :
 	</text>
 	<text name="resellable_clause">
-		Le terrain acheté dans cette région peut être revendu ou pas.
+		Peut être revendu ou pas.
 	</text>
 	<text name="changeable_clause">
-		peut être fusionné/divisé ou pas.
+		Peut être fusionné/divisé ou pas.
 	</text>
 	<text name="covenant_text">
 		Vous devez accepter le règlement du domaine :
 	</text>
+	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
 		Chargement...
 	</text_editor>
@@ -54,7 +61,7 @@
 		(1,1 L$/m²)
 		vendu avec objets
 	</text>
-	<text name="info_action" width="275">
+	<text name="info_action" width="380">
 		Si vous achetez ce terrain :
 	</text>
 	<text name="error_message">
@@ -72,12 +79,12 @@
 		<combo_box.item name="US$7.50/month,billedquarterly" label="7,50 US$/mois, facturation trimestrielle"/>
 		<combo_box.item name="US$6.00/month,billedannually" label="6,00 US$/mois, facturation annuelle"/>
 	</combo_box>
-	<text name="land_use_action" right="430" width="210">
+	<text name="land_use_action">
 		Augmentez vos frais d&apos;occupation de terrain à 40 US$/mois.
 	</text>
 	<text name="land_use_reason">
-		Vous possédez un terrain de 1,309 mètres carrés. 
-Cette parcelle fait 512 mètres carrés.
+		Vous êtes propriétaire de 1 309 m² de terrain. 
+Cette parcelle fait 512 m².
 	</text>
 	<text name="purchase_action">
 		Payez au résident X 4 000 L$ pour le terrain
@@ -156,7 +163,7 @@ Sélectionnez une zone plus petite.
 		Si vous achetez ce terrain :
 	</string>
 	<string name="buying_for_group">
-		Achat de terrain pour le groupe :
+		Si vous achetez le terrain pour le groupe :
 	</string>
 	<string name="cannot_buy_now">
 		Impossible d&apos;acheter maintenant :
@@ -210,7 +217,7 @@ peuvent contenir [AMOUNT2] prims
 		Ce groupe, [GROUP], aura besoin de suffisamment de crédit pour payer les frais d&apos;occupation de terrain avant que l&apos;achat de cette parcelle ne soit finalisé.
 	</string>
 	<string name="have_enough_lindens">
-		Vous avez [AMOUNT]L$, ce qui est suffisant pour acheter ce terrain.
+		Vous avez [AMOUNT] L$, ce qui est suffisant pour acheter ce terrain.
 	</string>
 	<string name="not_enough_lindens">
 		Vous n&apos;avez que [AMOUNT] L$ et vous avez besoin de [AMOUNT2] L$ de plus.

@@ -43,6 +43,8 @@
 #include "imageids.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
+#include "llappviewer.h"
+#include "llmemoryview.h"
 
 //
 // Globals
@@ -81,7 +83,8 @@ LLDebugView::LLDebugView(const LLDebugView::Params& p)
 	mFastTimerView->setVisible(FALSE);			// start invisible
 	addChild(mFastTimerView);
 
-	r.set(25, rect.getHeight() - 50, rect.getWidth()/2, rect.getHeight() - 450);
+	r.set(25, rect.getHeight() - 50, (S32) (gViewerWindow->getVirtualWindowRect().getWidth() * 0.75f), 
+									 (S32) (gViewerWindow->getVirtualWindowRect().getHeight() * 0.75f));
 	LLMemoryView::Params mp;
 	mp.name("memory");
 	mp.rect(r);

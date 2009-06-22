@@ -38,12 +38,15 @@
 #include "llresizebar.h"
 #include "llcriticaldamp.h"
 
+static LLDefaultWidgetRegistry::Register<LLLayoutStack> register_layout_stack("layout_stack", &LLLayoutStack::fromXML);
+
+
 //
 // LLLayoutStack
 //
-struct LLLayoutStack::LLEmbeddedPanel
+struct LLLayoutStack::LayoutPanel
 {
-	LLEmbeddedPanel(LLPanel* panelp, ELayoutOrientation orientation, S32 min_width, S32 min_height, BOOL auto_resize, BOOL user_resize)	:	mPanel(panelp), 
+	LayoutPanel(LLPanel* panelp, ELayoutOrientation orientation, S32 min_width, S32 min_height, BOOL auto_resize, BOOL user_resize)	:	mPanel(panelp), 
 		mMinWidth(min_width), 
 		mMinHeight(min_height),
 		mAutoResize(auto_resize),
@@ -68,7 +71,7 @@ struct LLLayoutStack::LLEmbeddedPanel
 		}
 		LLResizeBar::Params p;
 		p.name("resize");
-		p.resizing_view(mPanel);
+			p.resizing_view(mPanel);
 		p.min_size(min_dim);
 		p.side(side);
 		p.snapping_enabled(false);
@@ -80,13 +83,13 @@ struct LLLayoutStack::LLEmbeddedPanel
 		}
 	}
 
-	~LLEmbeddedPanel()
+	~LayoutPanel()
 	{
 		// probably not necessary, but...
 		delete mResizeBar;
 		mResizeBar = NULL;
 	}
-
+	
 	F32 getCollapseFactor()
 	{
 		if (mOrientation == HORIZONTAL)
@@ -96,7 +99,7 @@ struct LLLayoutStack::LLEmbeddedPanel
 			return mVisibleAmt * collapse_amt;
 		}
 		else
-		{
+	{
 			F32 collapse_amt = 
 				clamp_rescale(mCollapseAmt, 0.f, 1.f, 1.f, llmin(1.f, (F32)mMinHeight / (F32)llmax(1, mPanel->getRect().getHeight())));
 			return mVisibleAmt * collapse_amt;
@@ -115,10 +118,9 @@ struct LLLayoutStack::LLEmbeddedPanel
 	F32 mCollapseAmt;
 };
 
-static LLRegisterWidget<LLLayoutStack> r2("layout_stack", &LLLayoutStack::fromXML);
-
 LLLayoutStack::Params::Params()
 :	orientation("orientation", std::string("vertical")),
+	animate("animate", TRUE),
 	border_size("border_size", LLCachedControl<S32>(*LLUI::sSettingGroups["config"], "UIResizeBarHeight", 0))
 {
 	name="stack";
@@ -129,7 +131,8 @@ LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p)
 	mMinWidth(0),
 	mMinHeight(0),
 	mPanelSpacing(p.border_size),
-	mOrientation((p.orientation() == "vertical") ? VERTICAL : HORIZONTAL)
+	mOrientation((p.orientation() == "vertical") ? VERTICAL : HORIZONTAL),
+	mAnimate(p.animate)
 {}
 
 LLLayoutStack::~LLLayoutStack()
@@ -168,7 +171,7 @@ void LLLayoutStack::draw()
 
 void LLLayoutStack::removeChild(LLView* view)
 {
-	LLEmbeddedPanel* embedded_panelp = findEmbeddedPanel(dynamic_cast<LLPanel*>(view));
+	LayoutPanel* embedded_panelp = findEmbeddedPanel(dynamic_cast<LLPanel*>(view));
 
 	if (embedded_panelp)
 	{
@@ -222,16 +225,10 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 {
 	LLLayoutStack::Params p(LLUICtrlFactory::getDefaultParams<LLLayoutStack::Params>());
 	LLXUIParser::instance().readXUI(node, p);
-	setupParams(p, parent);
-	LLLayoutStack* layout_stackp = LLUICtrlFactory::create<LLLayoutStack>(p);
 
-	if (parent && layout_stackp)
-	{
-		S32 tab_group = p.tab_group.isProvided() ? p.tab_group() : parent->getLastTabGroup();
-
-		parent->addChild(layout_stackp, tab_group);
-	}
-
+	// Export must happen before setupParams() mungles rectangles and before
+	// this item gets added to parent (otherwise screws up last_child_rect
+	// logic). JC
 	if (output_node)
 	{
 		Params output_params(p);
@@ -240,6 +237,16 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 		output_node->setName(node->getName()->mString);
 		LLXUIParser::instance().writeXUI(
 			output_node, output_params, &default_params);
+	}
+
+	setupParams(p, parent);
+	LLLayoutStack* layout_stackp = LLUICtrlFactory::create<LLLayoutStack>(p);
+
+	if (parent && layout_stackp)
+	{
+		S32 tab_group = p.tab_group.isProvided() ? p.tab_group() : parent->getLastTabGroup();
+
+		parent->addChild(layout_stackp, tab_group);
 	}
 
 	for (LLXMLNodePtr child_node = node->getFirstChild(); child_node.notNull(); child_node = child_node->getNextSibling())
@@ -287,8 +294,9 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 			get_attribute_bool_and_write(child_node, "user_resize", &user_resize,
 				FALSE, output_child);
 
-			LLPanel* panelp = new LLPanel();
-			LLView* new_child = LLUICtrlFactory::getInstance()->createFromXML(child_node, panelp, LLStringUtil::null, output_child);
+			LLPanel::Params p;
+			LLPanel* panelp = LLUICtrlFactory::create<LLPanel>(p);
+			LLView* new_child = LLUICtrlFactory::getInstance()->createFromXML(child_node, panelp, LLStringUtil::null, output_child, parent ? parent->getChildRegistry() : LLDefaultWidgetRegistry::instance());
 			if (new_child)
 			{
 				// put child in new embedded panel
@@ -349,7 +357,7 @@ void LLLayoutStack::addPanel(LLPanel* panel, S32 min_width, S32 min_height, BOOL
 	{
 		panel->setVisible(FALSE);
 	}
-	LLEmbeddedPanel* embedded_panel = new LLEmbeddedPanel(panel, mOrientation, min_width, min_height, auto_resize, user_resize);
+	LayoutPanel* embedded_panel = new LayoutPanel(panel, mOrientation, min_width, min_height, auto_resize, user_resize);
 	
 	mPanels.insert(mPanels.begin() + llclamp(index, 0, (S32)mPanels.size()), embedded_panel);
 	
@@ -381,7 +389,7 @@ void LLLayoutStack::removePanel(LLPanel* panel)
 
 void LLLayoutStack::collapsePanel(LLPanel* panel, BOOL collapsed)
 {
-	LLEmbeddedPanel* panel_container = findEmbeddedPanel(panel);
+	LayoutPanel* panel_container = findEmbeddedPanel(panel);
 	if (!panel_container) return;
 
 	panel_container->mCollapsed = collapsed;
@@ -405,16 +413,30 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		LLPanel* panelp = (*panel_it)->mPanel;
 		if (panelp->getVisible()) 
 		{
-			(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 1.f, LLCriticalDamp::getInterpolant(ANIM_OPEN_TIME));
-			if ((*panel_it)->mVisibleAmt > 0.99f)
+			if (mAnimate)
+			{
+				(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 1.f, LLCriticalDamp::getInterpolant(ANIM_OPEN_TIME));
+				if ((*panel_it)->mVisibleAmt > 0.99f)
+				{
+					(*panel_it)->mVisibleAmt = 1.f;
+				}
+			}
+			else
 			{
 				(*panel_it)->mVisibleAmt = 1.f;
 			}
 		}
 		else // not visible
 		{
-			(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 0.f, LLCriticalDamp::getInterpolant(ANIM_CLOSE_TIME));
-			if ((*panel_it)->mVisibleAmt < 0.001f)
+			if (mAnimate)
+			{
+				(*panel_it)->mVisibleAmt = lerp((*panel_it)->mVisibleAmt, 0.f, LLCriticalDamp::getInterpolant(ANIM_CLOSE_TIME));
+				if ((*panel_it)->mVisibleAmt < 0.001f)
+				{
+					(*panel_it)->mVisibleAmt = 0.f;
+				}
+			}
+			else
 			{
 				(*panel_it)->mVisibleAmt = 0.f;
 			}
@@ -670,7 +692,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 } // end LLLayoutStack::updateLayout
 
 
-LLLayoutStack::LLEmbeddedPanel* LLLayoutStack::findEmbeddedPanel(LLPanel* panelp) const
+LLLayoutStack::LayoutPanel* LLLayoutStack::findEmbeddedPanel(LLPanel* panelp) const
 {
 	if (!panelp) return NULL;
 

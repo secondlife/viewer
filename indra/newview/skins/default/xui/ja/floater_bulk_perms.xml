@@ -26,6 +26,7 @@
 	<check_box label="修正" name="next_owner_modify"/>
 	<check_box label="コピー" name="next_owner_copy"/>
 	<check_box label="再販/プレゼント" name="next_owner_transfer"/>
+	<button label="ヘルプ" name="help"/>
 	<button label="適用" name="apply"/>
 	<button label="閉じる" name="close"/>
 	<string name="nothing_to_modify_text">

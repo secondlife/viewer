@@ -68,18 +68,10 @@ rápido
 		Detalhes de Reflexão:
 	</text>
 	<radio_group name="ReflectionDetailRadio">
-		<radio_item name="0">
-			Terreno e Árvores
-		</radio_item>
-		<radio_item name="1">
-			Todos os objetos estáticos
-		</radio_item>
-		<radio_item name="2">
-			Todos os avatares e Objetos
-		</radio_item>
-		<radio_item name="3">
-			Tudo
-		</radio_item>
+		<radio_item name="0" label="Terreno e Árvores" />
+		<radio_item name="1" label="Todos os objetos estáticos" />
+		<radio_item name="2" label="Todos os avatares e Objetos" />
+		<radio_item name="3" label="Tudo" />
 	</radio_group>
 	<text name="AvatarRenderingText">
 		Renderização de Avatar:
@@ -93,18 +85,18 @@ rápido
 	<text name="DrawDistanceMeterText2">
 		m
 	</text>
-	<slider label="Distancia de desenho:" label_width="146" name="DrawDistance" width="255"/>
-	<slider label="Contador máx. de partículas:" label_width="146" name="MaxParticleCount" width="262"/>
-	<slider label="Qualidade de Pós-processamento:" label_width="146" name="RenderPostProcess" width="223"/>
+	<slider label="Distancia de desenho:" label_width="150" name="DrawDistance" width="255"/>
+	<slider label="Contador máx. de partículas:" label_width="150" name="MaxParticleCount" width="262"/>
+	<slider label="Qualidade de Pós-processamento:" label_width="178" name="RenderPostProcess" width="223"/>
 	<text name="MeshDetailText">
 		Detalhes de Malha:
 	</text>
-	<slider label="Objetos:" name="ObjectMeshDetail"/>
-	<slider label="Primitivas Flexiveis:" name="FlexibleMeshDetail"/>
-	<slider label="Árvores:" name="TreeMeshDetail"/>
-	<slider label="Avatares:" name="AvatarMeshDetail"/>
-	<slider label="Terreno:" name="TerrainMeshDetail"/>
-	<slider label="Céu:" name="SkyMeshDetail"/>
+	<slider label="  Objetos:" name="ObjectMeshDetail"/>
+	<slider label="  Primitivas Flexiveis:" name="FlexibleMeshDetail"/>
+	<slider label="  Árvores:" name="TreeMeshDetail"/>
+	<slider label="  Avatares:" name="AvatarMeshDetail"/>
+	<slider label="  Terreno:" name="TerrainMeshDetail"/>
+	<slider label="  Céu:" name="SkyMeshDetail"/>
 	<text name="PostProcessText">
 		Baixo
 	</text>
@@ -130,25 +122,17 @@ rápido
 		Detalhes de Iluminação:
 	</text>
 	<radio_group name="LightingDetailRadio">
-		<radio_item name="SunMoon">
-			Sol e Lua apenas
-		</radio_item>
-		<radio_item name="LocalLights">
-			Luzes locais nas proximidades
-		</radio_item>
+		<radio_item name="SunMoon" label="Sol e Lua apenas" />
+		<radio_item name="LocalLights" label="Luzes locais nas proximidades" />
 	</radio_group>
 	<text name="TerrainDetailText">
 		Detalhe do Terreno:
 	</text>
 	<radio_group left_delta="45" name="TerrainDetailRadio" width="276">
-		<radio_item name="0">
-			Baixo
-		</radio_item>
-		<radio_item name="2">
-			Alto
-		</radio_item>
+		<radio_item name="0" label="Baixo" />
+		<radio_item name="2" label="Alto" />
 	</radio_group>
-	<button label="Configurações Recomendadas" name="Defaults"/>
+	<button label="Configurações Recomendadas" name="Defaults" width="190" left="110"/>
 	<button label="Opções de Hardware" label_selected="Opções de Hardware" name="GraphicsHardwareButton"/>
 	<string name="resolution_format">
 		[RES_X] x [RES_Y]

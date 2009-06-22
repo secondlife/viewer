@@ -6,14 +6,14 @@
 	<text name="description_label">
 		Descrizione:
 	</text>
-	<spinner label="Priorità" name="priority" tool_tip="Controlla quali altre animazioni possono essere annullate da questa animazione."/>
+	<spinner label_width="72" width="110" label="Priorità" name="priority" tool_tip="Controlla quali altre animazioni possono essere annullate da questa animazione."/>
 	<check_box label="Ciclica" name="loop_check" tool_tip="Rende questa animazione ciclica."/>
 	<spinner label="In(%)" name="loop_in_point" tool_tip="Imposta il punto nell&apos;animazione in cui ritornare dopo ogni ciclo."/>
 	<spinner label="Out(%)" name="loop_out_point" tool_tip="Imposta il punto nell&apos;animazione in cui terminare dopo ogni ciclo."/>
 	<text name="hand_label">
 		Postura della mano
 	</text>
-	<combo_box label="" name="hand_pose_combo" tool_tip="Controlla cosa fanno le mani durante l&apos;animazione.">
+	<combo_box left_delta="100"  width="184" name="hand_pose_combo" tool_tip="Controlla cosa fanno le mani durante l&apos;animazione.">
 		<combo_box.item name="Spread" label="Aperte"/>
 		<combo_box.item name="Relaxed" label="Rilassate"/>
 		<combo_box.item name="PointBoth" label="Entrambe indicano"/>
@@ -31,7 +31,7 @@
 	<text name="emote_label">
 		Espressione
 	</text>
-	<combo_box label="" name="emote_combo" tool_tip="Controlla l&apos;espressione del viso durante l&apos;animazione.">
+	<combo_box left_delta="100" width="184" name="emote_combo" tool_tip="Controlla l&apos;espressione del viso durante l&apos;animazione.">
 		<combo_box.item name="[None]" label="None]"/>
 		<combo_box.item name="Aaaaah" label="Aaaaah"/>
 		<combo_box.item name="Afraid" label="Paura"/>
@@ -53,23 +53,24 @@
 		<combo_box.item name="Wink" label="Ammiccamento"/>
 		<combo_box.item name="Worry" label="Preoccupazione"/>
 	</combo_box>
-	<text name="preview_label">
+	<text name="preview_label" width="250">
 		Vedi anteprima mentre
 	</text>
-	<combo_box label="" name="preview_base_anim" tool_tip="Da usarsi per controllare il comportamento dell&apos;animazione mentre l&apos;avatar svolge azioni abituali.">
+	<combo_box left_delta="154" width="130" name="preview_base_anim" tool_tip="Da usarsi per controllare il comportamento dell&apos;animazione mentre l&apos;avatar svolge azioni abituali.">
 		<combo_box.item name="Standing" label="In piedi"/>
 		<combo_box.item name="Walking" label="Passeggia"/>
 		<combo_box.item name="Sitting" label="Siede"/>
 		<combo_box.item name="Flying" label="Vola"/>
 	</combo_box>
-	<spinner label="Avvio lento (sec)" name="ease_in_time" tool_tip="Tempo (in secondi) in cui le animazioni iniziano a sfumare."/>
-	<spinner label="Arresto lento (sec)" name="ease_out_time" tool_tip="Tempo (in secondi) in cui le animazioni iniziano a sfumare."/>
-	<button label="" name="play_btn" tool_tip="Attiva/sospendi l&apos;animazione."/>
+	<spinner label_width="125" width="192" label="Avvio lento (sec)" name="ease_in_time" tool_tip="Tempo (in secondi) in cui le animazioni iniziano a sfumare."/>
+	<spinner bottom_delta="-20"  label_width="125" left="10"  width="192" label="Arresto lento (sec)" name="ease_out_time" tool_tip="Tempo (in secondi) in cui le animazioni iniziano a sfumare."/>
+	<button bottom_delta="-32" name="play_btn" tool_tip="Attiva/sospendi l&apos;animazione."/>
 	<button label="" name="stop_btn" tool_tip="Ferma la riproduzione dell&apos;animazione"/>
 	<text name="bad_animation_text">
 		Impossibile leggere il file dell&apos;animazione.
 
-Raccomandiamo file di tipo BVH esportati da Poser 4.
+Raccomandiamo file di tipo BVH esportati da
+Poser 4.
 	</text>
 	<button label="Annulla" name="cancel_btn"/>
 	<button label="Importa ([AMOUNT]L$)" name="ok_btn"/>

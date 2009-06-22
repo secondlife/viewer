@@ -51,16 +51,17 @@
 #include "llfloater.h"
 #include "llfloatercall.h"
 #include "llfloatergroupinfo.h"
+#include "llfriendactions.h"
 #include "llimview.h"
 #include "llinventory.h"
 #include "llinventorymodel.h"
 #include "llinventoryview.h"
 #include "llfloateractivespeakers.h"
-#include "llfloateravatarinfo.h"
 #include "llfloaterchat.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llnotify.h"
+#include "llrecentpeople.h"
 #include "llresmgr.h"
 #include "lltrans.h"
 #include "lltabcontainer.h"
@@ -705,6 +706,15 @@ void LLVoiceChannelGroup::activate()
 		LLVoiceClient::getInstance()->setNonSpatialChannel(
 			mURI,
 			mCredentials);
+
+#if 0 // *TODO
+		if (!gAgent.isInGroup(mSessionID)) // ad-hoc channel
+		{
+			// Add the party to the list of people with which we've recently interacted.
+			for (/*people in the chat*/)
+				LLRecentPeople::instance().add(buddy_id);
+		}
+#endif
 	}
 }
 
@@ -1014,6 +1024,9 @@ void LLVoiceChannelP2P::activate()
 			// using the session handle invalidates it.  Clear it out here so we can't reuse it by accident.
 			mSessionHandle.clear();
 		}
+
+		// Add the party to the list of people with which we've recently interacted.
+		LLRecentPeople::instance().add(mOtherUserID);
 	}
 }
 
@@ -1168,6 +1181,8 @@ LLFloaterIMPanel::LLFloaterIMPanel(const std::string& session_label,
 	}
 
 	mSpeakers = new LLIMSpeakerMgr(mVoiceChannel);
+	// All participants will be added to the list of people we've recently interacted with.
+	mSpeakers->addListener(&LLRecentPeople::instance(), "add");
 
 	LLUICtrlFactory::getInstance()->buildFloater(this, xml_filename, FALSE);
 
@@ -1735,9 +1750,9 @@ void LLFloaterIMPanel::onClickProfile( void* userdata )
 	//  Bring up the Profile window
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*) userdata;
 	
-	if (self->mOtherParticipantUUID.notNull())
+	if (self->getOtherParticipantID().notNull())
 	{
-		LLFloaterAvatarInfo::showFromDirectory(self->getOtherParticipantID());
+		LLFriendActions::showProfile(self->getOtherParticipantID());
 	}
 }
 
@@ -1937,6 +1952,9 @@ void deliver_message(const std::string& utf8_text,
 		default: ; // do nothing
 		}
 	}
+
+	// Add the recipient to the recent people list.
+	LLRecentPeople::instance().add(other_participant_id);
 }
 
 void LLFloaterIMPanel::sendMsg()

@@ -77,8 +77,8 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
 	LLVector3 up_axis;
 	if (orthographic)
 	{
-		right_axis.setVec(0.f, -1.f / gViewerWindow->getWindowHeight(), 0.f);
-		up_axis.setVec(0.f, 0.f, 1.f / gViewerWindow->getWindowHeight());
+		right_axis.setVec(0.f, -1.f / gViewerWindow->getWorldViewWidth(), 0.f);
+		up_axis.setVec(0.f, 0.f, 1.f / gViewerWindow->getWorldViewHeight());
 	}
 	else
 	{
@@ -106,19 +106,29 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
 	//get the render_pos in screen space
 	
 	F64 winX, winY, winZ;
+	LLRect world_view_rect = gViewerWindow->getWorldViewRect();
+	S32	viewport[4];
+	viewport[0] = world_view_rect.mLeft;
+	viewport[1] = world_view_rect.mBottom;
+	viewport[2] = world_view_rect.getWidth();
+	viewport[3] = world_view_rect.getHeight();
 	gluProject(render_pos.mV[0], render_pos.mV[1], render_pos.mV[2],
-				gGLModelView, gGLProjection, (GLint*) gGLViewport,
+				gGLModelView, gGLProjection, (GLint*) viewport,
 				&winX, &winY, &winZ);
 		
-	//fonts all render orthographically, set up projection
+	//fonts all render orthographically, set up projection``
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	
 	LLUI::pushMatrix();
 		
-	gViewerWindow->setup2DRender();
+	gl_state_for_2d(world_view_rect.getWidth(), world_view_rect.getHeight());
+	gViewerWindow->setup3DViewport();
+	//gViewerWindow->setup2DRender();
 
+	winX -= world_view_rect.mLeft;
+	winY -= world_view_rect.mBottom;
 	LLUI::loadIdentity();
 	LLUI::translate((F32) winX*1.0f/LLFontGL::sScaleX, (F32) winY*1.0f/(LLFontGL::sScaleY), -(((F32) winZ*2.f)-1.f));
 	//glRotatef(angle * RAD_TO_DEG, axis.mV[VX], axis.mV[VY], axis.mV[VZ]);

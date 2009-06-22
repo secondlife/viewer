@@ -116,9 +116,9 @@ public:
 
 		struct Width : public LLInitParam::Choice<Width>
 		{
-			Option<bool>	dynamic_width;
-			Option<S32>		pixel_width;
-			Option<F32>		relative_width;
+			Alternative<bool>	dynamic_width;
+			Alternative<S32>		pixel_width;
+			Alternative<F32>		relative_width;
 
 			Width()
 			:	dynamic_width("dynamicwidth", false),
@@ -133,8 +133,8 @@ public:
 		// either an image or label is used in column header
 		struct Header : public LLInitParam::Choice<Header>
 		{
-			Option<std::string>			label;
-			Option<LLUIImage*>			image;
+			Alternative<std::string>			label;
+			Alternative<LLUIImage*>			image;
 
 			Header()
 			:	label("label"),
@@ -160,8 +160,10 @@ public:
 		}
 	};
 
+	static const Params& getDefaultParams();
+
 	//NOTE: this is default constructible so we can store it in a map.
-	LLScrollListColumn(const Params& p = Params(), LLScrollListCtrl* = NULL);
+	LLScrollListColumn(const Params& p = getDefaultParams(), LLScrollListCtrl* = NULL);
 
 	void setWidth(S32 width);
 	S32 getWidth() const { return mWidth; }

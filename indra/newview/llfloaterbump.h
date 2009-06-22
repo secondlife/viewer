@@ -44,13 +44,12 @@ class LLFloaterBump
 {
 	friend class LLUISingleton<LLFloaterBump, VisibilityPolicy<LLFloater> >;
 protected:
-	LLFloaterBump(const LLSD& key);
-	virtual ~LLFloaterBump();
-	
 	void add(LLScrollListCtrl* list, LLMeanCollisionData *mcd);
 
 public:
 	/*virtual*/ void onOpen(const LLSD& key);
+	LLFloaterBump(const LLSD& key);
+	virtual ~LLFloaterBump();
 };
 
 #endif

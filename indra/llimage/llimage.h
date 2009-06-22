@@ -37,6 +37,7 @@
 #include "llstring.h"
 //#include "llmemory.h"
 #include "llthread.h"
+#include "llmemtype.h"
 
 const S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
 const S32 MAX_IMAGE_MIP = 11; // 2048x2048
@@ -155,7 +156,7 @@ private:
 	BOOL mBadBufferAllocation ;
 
 public:
-	S16 mMemType; // debug
+	LLMemType::DeclareMemType& mMemType; // debug
 	
 	static BOOL sSizeOverride;
 };

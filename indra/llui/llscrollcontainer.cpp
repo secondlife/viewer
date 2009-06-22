@@ -63,7 +63,7 @@ static const F32 AUTO_SCROLL_RATE_ACCEL = 120.f;
 /// Class LLScrollContainer
 ///----------------------------------------------------------------------------
 
-static LLRegisterWidget<LLScrollContainer> r("scroll_container");
+static LLDefaultWidgetRegistry::Register<LLScrollContainer> r("scroll_container");
 
 LLScrollContainer::Params::Params()
 :	is_opaque("opaque"),
@@ -197,6 +197,15 @@ void LLScrollContainer::reshape(S32 width, S32 height,
 
 BOOL LLScrollContainer::handleKeyHere(KEY key, MASK mask)
 {
+	// allow scrolled view to handle keystrokes in case it delegated keyboard focus
+	// to the scroll container.  
+	// NOTE: this should not recurse indefinitely as handleKeyHere
+	// should not propagate to parent controls, so mScrolledView should *not*
+	// call LLScrollContainer::handleKeyHere in turn
+	if (mScrolledView->handleKeyHere(key, mask))
+	{
+		return TRUE;
+	}
 	for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
 	{
 		if( mScrollbar[i]->handleKeyHere(key, mask) )
@@ -508,6 +517,11 @@ bool LLScrollContainer::addChild(LLView* view, S32 tab_group)
 	return ret_val;
 }
 
+const widget_registry_t& LLScrollContainer::getChildRegistry() const
+{
+	// a scroll container can contain any default widget
+	return LLDefaultWidgetRegistry::instance();
+}
 
 void LLScrollContainer::updateScroll()
 {

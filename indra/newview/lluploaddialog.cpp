@@ -41,6 +41,7 @@
 #include "llkeyboard.h"
 #include "llfocusmgr.h"
 #include "llviewercontrol.h"
+#include "llrootview.h"
 
 // static
 LLUploadDialog*	LLUploadDialog::sDialog = NULL;

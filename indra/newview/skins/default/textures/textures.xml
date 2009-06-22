@@ -323,10 +323,15 @@
   <texture name="cloud-particle.j2c" use_mips="true"/>
   
   <texture name="skin_thumbnail_default.png" preload="true" />
-  <texture name="skin_thumbnail_silver.png" preload="true" />
 
   <texture name="default_land_picture.j2c"/>
   <texture name="default_profile_picture.j2c"/>
   <texture name="locked_image.j2c"/>
   <texture name="menu_separator" file_name="menu_separator.png"/>
+
+  <texture name="sidebar_tab_left.tga"			preload="true" scale.left="16" scale.top="8" scale.right="112" scale.bottom="9"/>
+  <texture name="sidebar_tab_left_selected.tga"	preload="true" scale.left="16" scale.top="8" scale.right="112" scale.bottom="9"/>
+
+  <texture name="teleport_history_backward.tga" preload="true"/>
+  <texture name="teleport_history_forward.tga" preload="true"/>
 </textures>

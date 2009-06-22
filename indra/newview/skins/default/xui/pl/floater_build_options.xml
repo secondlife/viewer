@@ -3,6 +3,6 @@
 	<spinner label="Jednostka Siatki (metry)" name="GridResolution" />
 	<spinner label="Rozmiary Siatki (metry)" name="GridDrawSize" />
 	<check_box label="Udostępnij Podjednostkowe Dopasowywanie" name="GridSubUnit" />
-	<check_box label="Pokaż Sekcje Skrośne" name="GridCrossSection" />
+	<check_box label="Pokaż Sekcje Skośne" name="GridCrossSection" />
 	<slider label="Nieprzezroczystość Siatki" name="GridOpacity" />
 </floater>

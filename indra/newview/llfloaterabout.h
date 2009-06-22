@@ -39,8 +39,9 @@ class LLFloaterAbout
 	: public LLFloater, public LLFloaterSingleton<LLFloaterAbout>
 {
 	friend class LLUISingleton<LLFloaterAbout, VisibilityPolicy<LLFloater> >;
-protected:
+public:	
 	LLFloaterAbout(const LLSD& key);
+protected:
 	virtual ~LLFloaterAbout();
 
 public:
