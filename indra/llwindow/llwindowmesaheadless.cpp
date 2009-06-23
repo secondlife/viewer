@@ -44,10 +44,11 @@ U16 *gMesaBuffer = NULL;
 //
 // LLWindowMesaHeadless
 //
-LLWindowMesaHeadless::LLWindowMesaHeadless(const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height,
+LLWindowMesaHeadless::LLWindowMesaHeadless(LLWindowCallbacks* callbacks,
+                                           const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height,
 							 U32 flags,  BOOL fullscreen, BOOL clearBg,
 							 BOOL disable_vsync, BOOL use_gl, BOOL ignore_pixel_depth)
-	: LLWindow(fullscreen, flags)
+	: LLWindow(callbacks, fullscreen, flags)
 {
 	if (use_gl)
 	{
