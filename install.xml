@@ -214,16 +214,16 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>33e2d48a6c2207ade0f914fff99c18af</string>
+            <string>f89f2c7a26f738010114e7efdf9dffda</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-linux-20090427.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-linux-20090623.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
-            <string>cadb1934581b20f9b03aa18e2be7c55c</string>
+            <string>ab7638e09aacb23048c8441e4fd25ce3</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-linux64-20090427.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-linux64-20090623.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
