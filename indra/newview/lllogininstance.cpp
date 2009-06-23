@@ -52,6 +52,9 @@
 #include "llurlsimstring.h"
 #include "llfloatertos.h"
 #include "llwindow.h"
+#if LL_LINUX || LL_SOLARIS
+#include "lltrans.h"
+#endif
 
 std::string construct_start_string();
 
