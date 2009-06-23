@@ -223,11 +223,11 @@ IF (NOT LINUX AND VIEWER)
       # llhttpclientadapter.cpp
       lltrustedmessageservice.cpp
       lltemplatemessagedispatcher.cpp
+      # Commented out - see rationale at bottom of newview's build file + poppy 2009-06-05
+      # Don't make llmessage depend on llsdmessage_test because ADD_COMM_BUILD_TEST depends on llmessage!
+      # ADD_COMM_BUILD_TEST(llsdmessage "" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py")
+	  # llareslistener.cpp
       )
     LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")
     
-    # Commented out - see rationale at bottom of newview's build file + poppy 2009-06-05
-    # Don't make llmessage depend on llsdmessage_test because ADD_COMM_BUILD_TEST depends on llmessage!
-    # ADD_COMM_BUILD_TEST(llsdmessage "" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py")
-    ADD_BUILD_TEST(llareslistener llmessage)
 ENDIF (NOT LINUX AND VIEWER)
