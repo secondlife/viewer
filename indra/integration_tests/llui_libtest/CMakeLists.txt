@@ -1,5 +1,9 @@
 # -*- cmake -*-
 
+# Only set this up for viewer builds, because the llui library is most closely
+# related to the viewer
+if (VIEWER)
+
 project (llui_libtest)
 
 include(00-Common)
@@ -89,9 +93,9 @@ if (WINDOWS)
         )
 endif (WINDOWS)
 
-if (VIEWER)
-    # Ensure people working on the viewer don't break this library
-    # *NOTE: This could be removed, or only built by Parabuild, if the build
-    # and link times become too long. JC
-    add_dependencies(viewer llui_libtest)
+# Ensure people working on the viewer don't break this library
+# *NOTE: This could be removed, or only built by Parabuild, if the build
+# and link times become too long. JC
+add_dependencies(viewer llui_libtest)
+
 endif (VIEWER)
