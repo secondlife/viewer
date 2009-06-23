@@ -61,6 +61,7 @@
 #include "lluictrlfactory.h"
 #include "llweb.h"
 #include "llsdutil.h"
+#include "llsdutil_math.h"
 
 static LLRegisterPanelClassWrapper<LLPanelPlaceInfo> t_places("panel_landmark_info");
 

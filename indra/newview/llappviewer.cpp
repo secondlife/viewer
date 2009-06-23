@@ -3652,7 +3652,7 @@ void LLAppViewer::idleShutdown()
 	if (!saved_teleport_history)
 	{
 		saved_teleport_history = true;
-		LLTeleportHistory::getInstance()->save();
+		LLTeleportHistory::getInstance()->dump();
 		LLLocationHistory::getInstance()->save(); // *TODO: find a better place for doing this
 		return;
 	}
