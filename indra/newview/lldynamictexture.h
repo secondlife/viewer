@@ -33,6 +33,7 @@
 #ifndef LL_LLDYNAMICTEXTURE_H
 #define LL_LLDYNAMICTEXTURE_H
 
+#include "llcamera.h"
 #include "llgl.h"
 #include "llcoord.h"
 #include "llimagegl.h"

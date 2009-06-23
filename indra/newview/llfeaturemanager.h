@@ -35,6 +35,7 @@
 
 #include "stdtypes.h"
 
+#include "llsingleton.h"
 #include "llstring.h"
 #include <map>
 

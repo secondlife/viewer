@@ -35,6 +35,8 @@
 
 #include "llassettype.h"
 #include "lldarray.h"
+#include "llframetimer.h"
+#include "llhttpclient.h"
 #include "lluuid.h"
 #include "llpermissionsflags.h"
 #include "llstring.h"
@@ -111,7 +113,7 @@ public:
 	LLInventoryModel();
 	~LLInventoryModel();
 
-	class fetchInventoryResponder: public LLHTTPClient::Responder
+	class fetchInventoryResponder : public LLHTTPClient::Responder
 	{
 	public:
 		fetchInventoryResponder(const LLSD& request_sd) : mRequestSD(request_sd) {};

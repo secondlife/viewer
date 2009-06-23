@@ -33,14 +33,19 @@
 #ifndef LL_LLAPPVIEWER_H
 #define LL_LLAPPVIEWER_H
 
+#include "llallocator.h"
 #include "llcontrol.h"
+#include "llsys.h"			// for LLOSInfo
 
-class LLTextureCache;
-class LLWorkerThread;
-class LLTextureFetch;
-class LLWatchdogTimeout;
 class LLCommandLineParser;
-class LLAllocator;
+class LLFrameTimer;
+class LLPumpIO;
+class LLTextureCache;
+class LLTextureFetch;
+class LLTimer;
+class LLVFS;
+class LLWatchdogTimeout;
+class LLWorkerThread;
 
 
 class LLAppViewer : public LLApp

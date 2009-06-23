@@ -56,10 +56,12 @@
 #include "llviewerobject.h"
 #include "llviewerregion.h"
 #include "llresmgr.h"
+
 #include "llbutton.h"
 #include "lldir.h"
 #include "llfloaterchat.h"
 #include "llviewerstats.h"
+#include "llvfile.h"
 #include "lluictrlfactory.h"
 #include "lltrans.h"
 

@@ -35,6 +35,9 @@
 
 #include "llhttpclient.h"
 
+class LLHost;
+
+
 class LLEventPoll
 	///< implements the viewer side of server-to-viewer pushed events.
 {

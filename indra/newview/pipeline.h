@@ -33,6 +33,7 @@
 #ifndef LL_PIPELINE_H
 #define LL_PIPELINE_H
 
+#include "llcamera.h"
 #include "llerror.h"
 #include "lldarrayptr.h"
 #include "lldqueueptr.h"

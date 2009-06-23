@@ -21,6 +21,7 @@
 // other Linden headers
 #include "stringize.h"
 #include "llcapabilityprovider.h"
+#include "message.h"
 
 class LLCapabilityListener::CapabilityMappers: public LLSingleton<LLCapabilityListener::CapabilityMappers>
 {

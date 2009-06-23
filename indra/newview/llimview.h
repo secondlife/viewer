@@ -33,6 +33,7 @@
 #ifndef LL_LLIMVIEW_H
 #define LL_LLIMVIEW_H
 
+#include "lldarray.h"
 #include "llmodaldialog.h"
 #include "llinstantmessage.h"
 #include "lluuid.h"

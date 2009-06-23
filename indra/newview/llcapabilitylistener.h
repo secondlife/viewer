@@ -17,6 +17,7 @@
 #include "llerror.h"                // LOG_CLASS()
 
 class LLCapabilityProvider;
+class LLMessageSystem;
 class LLSD;
 
 class LLCapabilityListener
