@@ -177,7 +177,10 @@
 //----------------------------------------------------------------------------
 // llviewernetwork.h
 #include "llviewernetwork.h"
+// define a self-registering event API object
+#include "llappviewerlistener.h"
 
+static LLAppViewerListener sAppViewerListener("LLAppViewer", LLAppViewer::instance());
 
 ////// Windows-specific includes to the bottom - nasty defines in these pollute the preprocessor
 //
