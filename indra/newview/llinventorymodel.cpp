@@ -1851,11 +1851,6 @@ bool LLInventoryModel::loadSkeleton(
 
 	typedef std::set<LLPointer<LLViewerInventoryCategory>, InventoryIDPtrLess> cat_set_t;
 	cat_set_t temp_cats;
-
-	update_map_t child_counts;
-
-	LLUUID id;
-	LLAssetType::EType preferred_type;
 	bool rv = true;
 
 	for(LLSD::array_const_iterator it = options.beginArray(),
@@ -1898,6 +1893,7 @@ bool LLInventoryModel::loadSkeleton(
 	S32 cached_item_count = 0;
 	if(!temp_cats.empty())
 	{
+		update_map_t child_counts;
 		cat_array_t categories;
 		item_array_t items;
 		std::string owner_id_str;
@@ -2096,15 +2092,15 @@ bool LLInventoryModel::loadMeat(const LLSD& options, const LLUUID& owner_id)
 				if(llsd_perm_mask.isDefined())
                 {
 					PermissionMask perm_mask = llsd_perm_mask.asInteger();
-                    default_perm.initMasks(
-					perm_mask, perm_mask, perm_mask, perm_mask, perm_mask);
-                }
-                else
-                {
-                    default_perm.initMasks(
-                        PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE);
-                }
-                item->setPermissions(default_perm);
+					default_perm.initMasks(
+						perm_mask, perm_mask, perm_mask, perm_mask, perm_mask);
+				}
+				else
+				{
+					default_perm.initMasks(
+						PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE);
+				}
+				item->setPermissions(default_perm);
 				item->setAssetUUID(data_id.asUUID());
             }
 
