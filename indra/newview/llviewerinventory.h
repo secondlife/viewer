@@ -39,6 +39,7 @@
 
 class LLFolderView;
 class LLFolderBridge;
+class LLViewerInventoryCategory;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLViewerInventoryItem
@@ -59,7 +60,15 @@ public:
 	virtual LLAssetType::EType getType() const;
 	virtual const LLUUID& getAssetUUID() const;
 	virtual const std::string& getName() const;
-	
+	virtual const LLPermissions& getPermissions() const;
+	virtual const LLUUID& getCreatorUUID() const;
+	virtual const std::string& getDescription() const;
+	virtual const LLSaleInfo& getSaleInfo() const;
+	virtual LLInventoryType::EType getInventoryType() const;
+	virtual U32 getFlags() const;
+	virtual time_t getCreationDate() const;
+	virtual U32 getCRC32() const; // really more of a checksum.
+
 	// construct a complete viewer inventory item
 	LLViewerInventoryItem(const LLUUID& uuid, const LLUUID& parent_uuid,
 						  const LLPermissions& permissions,
@@ -133,6 +142,9 @@ public:
 	LLTransactionID getTransactionID() const { return mTransactionID; }
 	
 protected:
+	const LLViewerInventoryItem *getLinkedItem() const;
+	const LLViewerInventoryCategory *getLinkedCategory() const;
+
 	BOOL mIsComplete;
 	LLTransactionID mTransactionID;
 };
@@ -277,6 +289,14 @@ void copy_inventory_item(
 	const LLUUID& item_id,
 	const LLUUID& parent_id,
 	const std::string& new_name,
+	LLPointer<LLInventoryCallback> cb);
+
+void link_inventory_item(
+	const LLUUID& agent_id,
+	const LLUUID& item_id,
+	const LLUUID& parent_id,
+	const std::string& new_name,
+	const LLAssetType::EType asset_type,
 	LLPointer<LLInventoryCallback> cb);
 
 void move_inventory_item(

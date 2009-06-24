@@ -907,18 +907,43 @@ void LLVOAvatarSelf::wearableUpdated( EWearableType type )
 //-----------------------------------------------------------------------------
 // isWearingAttachment()
 //-----------------------------------------------------------------------------
-BOOL LLVOAvatarSelf::isWearingAttachment( const LLUUID& inv_item_id )
+// Warning: include_linked_items = TRUE makes this operation expensive.
+BOOL LLVOAvatarSelf::isWearingAttachment( const LLUUID& inv_item_id , BOOL include_linked_items ) const
 {
-	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end(); )
 	{
-		attachment_map_t::iterator curiter = iter++;
-		LLViewerJointAttachment* attachment = curiter->second;
+		attachment_map_t::const_iterator curiter = iter++;
+		const LLViewerJointAttachment* attachment = curiter->second;
 		if( attachment->getItemID() == inv_item_id )
 		{
 			return TRUE;
 		}
 	}
+
+	if (include_linked_items)
+	{
+		LLInventoryModel::item_array_t item_array;
+		gInventory.collectLinkedItems(inv_item_id, item_array);
+		for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
+			 iter != item_array.end();
+			 iter++)
+		{
+			const LLViewerInventoryItem *linked_item = (*iter);
+			const LLUUID &item_id = linked_item->getUUID();
+			for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
+				 iter != mAttachmentPoints.end(); )
+			{
+				attachment_map_t::const_iterator curiter = iter++;
+				const LLViewerJointAttachment* attachment = curiter->second;
+				if( attachment->getItemID() == item_id )
+				{
+					return TRUE;
+				}
+			}
+		}
+	}
+
 	return FALSE;
 }
 

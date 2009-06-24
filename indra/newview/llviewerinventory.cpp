@@ -244,8 +244,7 @@ BOOL LLViewerInventoryItem::unpackMessage(LLSD item)
 }
 
 // virtual
-BOOL LLViewerInventoryItem::unpackMessage(
-	LLMessageSystem* msg, const char* block, S32 block_num)
+BOOL LLViewerInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num)
 {
 	BOOL rv = LLInventoryItem::unpackMessage(msg, block, block_num);
 	mIsComplete = TRUE;
@@ -742,6 +741,32 @@ void copy_inventory_item(
 	gAgent.sendReliableMessage();
 }
 
+void link_inventory_item(
+	const LLUUID& agent_id,
+	const LLUUID& item_id,
+	const LLUUID& parent_id,
+	const std::string& new_name,
+	const LLAssetType::EType asset_type,
+	LLPointer<LLInventoryCallback> cb)
+{
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_LinkInventoryItem);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	{
+		msg->addUUIDFast(_PREHASH_AgentID, agent_id);
+		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	}
+	msg->nextBlockFast(_PREHASH_InventoryData);
+	{
+		msg->addU32Fast(_PREHASH_CallbackID, gInventoryCallbacks.registerCB(cb));
+		msg->addUUIDFast(_PREHASH_FolderID, parent_id);
+		msg->addUUIDFast(_PREHASH_OldItemID, item_id);
+		msg->addStringFast(_PREHASH_Name, new_name);
+		msg->addU8Fast(_PREHASH_AssetType, asset_type);
+	}
+	gAgent.sendReliableMessage();
+}
+
 void move_inventory_item(
 	const LLUUID& agent_id,
 	const LLUUID& session_id,
@@ -948,26 +973,19 @@ void menu_create_inventory_item(LLFolderView* folder, LLFolderBridge *bridge, co
 
 LLAssetType::EType LLViewerInventoryItem::getType() const
 {
-	if (mType == LLAssetType::AT_LINK)
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
 	{
-		LLInventoryItem *linked_item = gInventory.getItem(mAssetUUID);
-		if (linked_item)
-		{
-			return linked_item->getType();
-		}
+		return linked_item->getType();
 	}
+	
 	return LLInventoryItem::getType();
 }
 
 const LLUUID& LLViewerInventoryItem::getAssetUUID() const
 {
-	if (mType == LLAssetType::AT_LINK)
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
 	{
-		LLInventoryItem *linked_item = gInventory.getItem(mAssetUUID);
-		if (linked_item)
-		{
-			return linked_item->getAssetUUID();
-		}
+		return linked_item->getAssetUUID();
 	}
 
 	return LLInventoryItem::getAssetUUID();
@@ -975,11 +993,96 @@ const LLUUID& LLViewerInventoryItem::getAssetUUID() const
 
 const std::string& LLViewerInventoryItem::getName() const
 {
-	if (mType == LLAssetType::AT_LINK)
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
 	{
-		return LLInventoryItem::getName(); //+" link";
+		return linked_item->getName();
 	}
 
 	return LLInventoryItem::getName();
 }
 
+const LLPermissions& LLViewerInventoryItem::getPermissions() const
+{
+	// Use the actual permissions of the symlink, not its parent.
+	return LLInventoryItem::getPermissions();	
+}
+
+const LLUUID& LLViewerInventoryItem::getCreatorUUID() const
+{
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getCreatorUUID();
+	}
+
+	return LLInventoryItem::getCreatorUUID();
+}
+
+const std::string& LLViewerInventoryItem::getDescription() const
+{
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getDescription();
+	}
+
+	return LLInventoryItem::getDescription();
+}
+
+const LLSaleInfo& LLViewerInventoryItem::getSaleInfo() const
+{	
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getSaleInfo();
+	}
+
+	return LLInventoryItem::getSaleInfo();
+}
+
+LLInventoryType::EType LLViewerInventoryItem::getInventoryType() const
+{
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getInventoryType();
+	}
+
+	return LLInventoryItem::getInventoryType();
+}
+
+U32 LLViewerInventoryItem::getFlags() const
+{
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getFlags();
+	}
+
+	return LLInventoryItem::getFlags();
+}
+
+time_t LLViewerInventoryItem::getCreationDate() const
+{
+	return LLInventoryItem::getCreationDate();
+}
+
+U32 LLViewerInventoryItem::getCRC32() const
+{
+	return LLInventoryItem::getCRC32();	
+}
+
+const LLViewerInventoryItem *LLViewerInventoryItem::getLinkedItem() const
+{
+	if (mType == LLAssetType::AT_LINK)
+	{
+		const LLViewerInventoryItem *linked_item = gInventory.getItem(mAssetUUID);
+		return linked_item;
+	}
+	return NULL;
+}
+
+const LLViewerInventoryCategory *LLViewerInventoryItem::getLinkedCategory() const
+{
+	if (mType == LLAssetType::AT_LINK_FOLDER)
+	{
+		const LLViewerInventoryCategory *linked_category = gInventory.getCategory(mAssetUUID);
+		return linked_category;
+	}
+	return NULL;
+}

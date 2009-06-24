@@ -464,6 +464,18 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 	}
 }
 
+void LLInventoryModel::collectLinkedItems(const LLUUID& id,
+										  item_array_t& items)
+{
+	LLInventoryModel::cat_array_t cat_array;
+	LLLinkedItemIDMatches is_linked_item_match(id);
+	collectDescendentsIf(gAgent.getInventoryRootID(),
+						 cat_array,
+						 items,
+						 LLInventoryModel::INCLUDE_TRASH,
+						 is_linked_item_match);
+}
+
 // Generates a string containing the path to the item specified by
 // item_id.
 void LLInventoryModel::appendPath(const LLUUID& id, std::string& path)
@@ -747,6 +759,7 @@ void LLInventoryModel::moveObject(const LLUUID& object_id, const LLUUID& cat_id)
 // Delete a particular inventory object by ID.
 void LLInventoryModel::deleteObject(const LLUUID& id)
 {
+	purgeLinkedObjects(id);
 	lldebugs << "LLInventoryModel::deleteObject()" << llendl;
 	LLPointer<LLInventoryObject> obj = getObject(id);
 	if(obj)
@@ -783,6 +796,42 @@ void LLInventoryModel::deleteObject(const LLUUID& id)
 		}
 		addChangedMask(LLInventoryObserver::REMOVE, id);
 		obj = NULL; // delete obj
+	}
+}
+
+// Delete a particular inventory item by ID, and remove it from the server.
+void LLInventoryModel::purgeObject(const LLUUID &id)
+{
+	lldebugs << "LLInventoryModel::purgeObject()" << llendl;
+	LLPointer<LLInventoryObject> obj = getObject(id);
+	if(obj)
+	{
+		obj->removeFromServer();
+		LLPreview::hide(id);
+		deleteObject(id);
+	}
+}
+
+void LLInventoryModel::purgeLinkedObjects(const LLUUID &id)
+{
+	LLInventoryItem* itemp = getItem(id);
+	if (!itemp) return;
+
+	if (LLAssetType::lookupIsLinkType(itemp->getActualType()))
+	{
+		return;
+	}
+
+	LLInventoryModel::item_array_t item_array;
+	collectLinkedItems(id, item_array);
+	
+	for (LLInventoryModel::item_array_t::iterator iter = item_array.begin();
+		 iter != item_array.end();
+		 iter++)
+	{
+		LLViewerInventoryItem *linked_item = (*iter);
+		if (linked_item->getUUID() == id) continue;
+		purgeObject(linked_item->getUUID());
 	}
 }
 
@@ -3914,11 +3963,20 @@ void LLInventoryTransactionObserver::changed(U32 mask)
 ///----------------------------------------------------------------------------
 /// LLAssetIDMatches 
 ///----------------------------------------------------------------------------
-bool LLAssetIDMatches ::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+bool LLAssetIDMatches::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 {
 	return (item && item->getAssetUUID() == mAssetID);
 }
 
+///----------------------------------------------------------------------------
+/// LLLinkedItemIDMatches 
+///----------------------------------------------------------------------------
+bool LLLinkedItemIDMatches::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	return (item && 
+			(LLAssetType::lookupIsLinkType(item->getActualType())) &&
+			(item->getLinkedUUID() == mBaseItemID)); // A linked item's assetID will be the compared-to item's itemID.
+}
 
 ///----------------------------------------------------------------------------
 /// Local function definitions

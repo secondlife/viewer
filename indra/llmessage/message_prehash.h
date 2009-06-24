@@ -174,6 +174,7 @@ extern char * _PREHASH_UpdateInventoryItem;
 extern char * _PREHASH_UpdateCreateInventoryItem;
 extern char * _PREHASH_MoveInventoryItem;
 extern char * _PREHASH_CopyInventoryItem;
+extern char * _PREHASH_LinkInventoryItem;
 extern char * _PREHASH_RemoveInventoryItem;
 extern char * _PREHASH_CreateInventoryItem;
 extern char * _PREHASH_PathTwistBegin;

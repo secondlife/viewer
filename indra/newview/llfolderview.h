@@ -103,6 +103,7 @@ public:
 	virtual void cutToClipboard() = 0;
 	virtual BOOL isClipboardPasteable() const = 0;
 	virtual void pasteFromClipboard() = 0;
+	virtual void pasteLinkFromClipboard() = 0;
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags) = 0;
 	virtual BOOL isUpToDate() const = 0;
 	virtual BOOL hasChildren() const = 0;
