@@ -23,40 +23,6 @@
 #include "llevents.h"
 
 class LLSD;
-/*==========================================================================*|
-class LLEventDispatcher;
-
-namespace LLEventDetail
-{
-    /// For a given call to add(), decide whether we're being passed an
-    /// unbound member function pointer or a plain callable.
-    /// Default case.
-    template <typename CALLABLE>
-    struct AddCallable
-    {
-        void operator()(LLEventDispatcher& disp, const std::string& name,
-                        const CALLABLE& callable, const LLSD& required);
-    };
-
-    /// Unbound member function pointer
-    template <class CLASS>
-    struct AddCallable<void (CLASS::*)(const LLSD&)>
-    {
-        typedef void (CLASS::*Method)(const LLSD&);
-        void operator()(LLEventDispatcher& disp, const std::string& name,
-                        Method method, const LLSD& required);
-    };
-
-    /// Unbound const member function pointer
-    template <class CLASS>
-    struct AddCallable<void (CLASS::*)(const LLSD&) const>
-    {
-        typedef void (CLASS::*Method)(const LLSD&) const;
-        void operator()(LLEventDispatcher& disp, const std::string& name,
-                        Method method, const LLSD& required);
-    };
-}
-|*==========================================================================*/
 
 /**
  * Given an LLSD map, examine a string-valued key and call a corresponding
@@ -79,11 +45,6 @@ public:
      * llsd_matches()).
      */
     void add(const std::string& name, const Callable& callable, const LLSD& required=LLSD());
-/*==========================================================================*|
-    {
-        LLEventDetail::AddCallable<CALLABLE>()(*this, name, callable, required);
-    }
-|*==========================================================================*/
 
     /**
      * Special case: a subclass of this class can pass an unbound member
@@ -141,50 +102,6 @@ private:
     typedef std::map<std::string, std::pair<Callable, LLSD> > DispatchMap;
     DispatchMap mDispatch;
 };
-
-/*==========================================================================*|
-/// Have to implement these template specialization methods after
-/// LLEventDispatcher so they can use its methods
-template <typename CALLABLE>
-void LLEventDetail::AddCallable<CALLABLE>::operator()(
-    LLEventDispatcher& disp, const std::string& name, const CALLABLE& callable, const LLSD& required)
-{
-    disp.addImpl(name, callable, required);
-}
-
-template <class CLASS>
-void LLEventDetail::AddCallable<void (CLASS::*)(const LLSD&)>::operator()(
-    LLEventDispatcher& disp, const std::string& name, const Method& method, const LLSD& required)
-{
-    CLASS* downcast = dynamic_cast<CLASS*>(&disp);
-    if (! downcast)
-    {
-        disp.addFail(name, typeid(CLASS).name());
-    }
-    else
-    {
-        disp.addImpl(name, boost::bind(method, downcast, _1), required);
-    }
-}
-
-/// Have to overload for both const and non-const methods
-template <class CLASS>
-void LLEventDetail::AddCallable<void (CLASS::*)(const LLSD&) const>::operator()(
-    LLEventDispatcher& disp, const std::string& name, const Method& method, const LLSD& required)
-{
-    // I am severely bummed that I have, as yet, found no way short of a
-    // macro to avoid replicating the (admittedly brief) body of this overload.
-    CLASS* downcast = dynamic_cast<CLASS*>(&disp);
-    if (! downcast)
-    {
-        disp.addFail(name, typeid(CLASS).name());
-    }
-    else
-    {
-        disp.addImpl(name, boost::bind(method, downcast, _1), required);
-    }
-}
-|*==========================================================================*/
 
 /**
  * Bundle an LLEventPump and a listener with an LLEventDispatcher. A class
