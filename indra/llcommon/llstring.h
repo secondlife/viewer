@@ -521,7 +521,14 @@ std::string utf8str_removeCRLF(const std::string& utf8str);
  * formatted string.
  *
  */
-int safe_snprintf(char* str, size_t size, const char* format, ...);
+
+// Deal with the differeneces on Windows
+namespace snprintf_hack
+{
+	LL_COMMON_API int snprintf(char *str, size_t size, const char *format, ...);
+}
+
+using snprintf_hack::snprintf;
 
 /**
  * @brief Convert a wide string to std::string
