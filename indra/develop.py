@@ -444,8 +444,7 @@ class DarwinSetup(UnixSetup):
             targets = ' '.join(['-target ' + repr(t) for t in targets])
         else:
             targets = ''
-        cmd = ('xcodebuild -parallelizeTargets '
-               '-configuration %s %s %s' %
+        cmd = ('xcodebuild -configuration %s %s %s' %
                (self.build_type, ' '.join(opts), targets))
         for d in self.build_dirs():
             try:
