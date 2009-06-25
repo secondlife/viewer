@@ -46,4 +46,11 @@ target_link_libraries(lllogin
 SET(lllogin_TEST_SOURCE_FILES
     lllogin.cpp
     )
+
+set_source_files_properties(
+  lllogin.cpp
+  PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${PTH_LIBRARIES}"
+  )
+
 LL_ADD_PROJECT_UNIT_TESTS(lllogin "${lllogin_TEST_SOURCE_FILES}")
