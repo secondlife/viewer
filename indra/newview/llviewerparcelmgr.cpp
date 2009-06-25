@@ -1,4 +1,4 @@
-llvi/** 
+/** 
  * @file llviewerparcelmgr.cpp
  * @brief Viewer-side representation of owned land
  *
