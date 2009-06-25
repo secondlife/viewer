@@ -4,6 +4,7 @@ syntax: glob
 *~
 .*.swp
 LICENSES
+indra/.distcc
 indra/build-darwin-*
 indra/build-vc[0-9]*
 indra/lib/mono/1.0/*.dll
