@@ -1115,7 +1115,6 @@ bool idle_startup()
 		LLWaterParamManager::initClass();
 
 		LLViewerObject::initVOClasses();
-		LLWearable::initClass();
 
 		// Initialize all our tools.  Must be done after saved settings loaded.
 		// NOTE: This also is where gToolMgr used to be instantiated before being turned into a singleton.
@@ -1539,8 +1538,6 @@ bool idle_startup()
 			}
 			LLAvatarTracker::instance().addBuddyList(list);
  		}
-
-		options.clear();
 
 		bool show_hud = false;
 		LLSD tutorial_setting = response["tutorial_setting"];
@@ -2914,7 +2911,7 @@ bool process_login_success_response()
 	LLUUID inv_root_folder_id = response["inventory-root"][0]["folder_id"];
 	if(inv_root_folder_id.notNull())
 	{
-		gAgent.mInventoryRootID = inv_root_folder_id;
+		gAgent.getInventoryRootID() = inv_root_folder_id;
 		//gInventory.mock(gAgent.getInventoryRootID());
 	}
 
@@ -3002,7 +2999,7 @@ bool process_login_success_response()
 	   && gAgentSessionID.notNull()
 	   && gMessageSystem->mOurCircuitCode
 	   && gFirstSim.isOk()
-	   && gAgent.mInventoryRootID.notNull())
+	   && gAgent.getInventoryRootID().notNull())
 	{
 		success = true;
 	}
