@@ -55,7 +55,6 @@
 #include "llcachename.h"
 #include "lldir.h"
 #include "llerrorcontrol.h"
-#include "llfiltersd2xmlrpc.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llhttpsender.h"
@@ -65,10 +64,11 @@
 #include "llmemorystream.h"
 #include "llmessageconfig.h"
 #include "llmoveview.h"
+#include "llteleporthistory.h"
 #include "llregionhandle.h"
 #include "llsd.h"
 #include "llsdserialize.h"
-#include "llsdutil.h"
+#include "llsdutil_math.h"
 #include "llsecondlifeurls.h"
 #include "llstring.h"
 #include "lluserrelations.h"
@@ -103,7 +103,6 @@
 #include "llfloaterland.h"
 #include "llfloaterpreference.h"
 #include "llfloatertopobjects.h"
-#include "llfloatertos.h"
 #include "llfloaterworldmap.h"
 #include "llgesturemgr.h"
 #include "llgroupmgr.h"
@@ -116,6 +115,7 @@
 #include "llinventoryview.h"
 #include "llkeyboard.h"
 #include "llloginhandler.h"			// gLoginHandler, SLURL support
+#include "lllogininstance.h" // Host the login module.
 #include "llpanellogin.h"
 #include "llmutelist.h"
 #include "llnotify.h"
@@ -135,7 +135,6 @@
 #include "llsecondlifeurls.h"
 #include "llselectmgr.h"
 #include "llsky.h"
-#include "llsrv.h"
 #include "llstatview.h"
 #include "lltrans.h"
 #include "llstatusbar.h"		// sendMoneyBalanceRequest(), owns L$ balance
@@ -148,7 +147,6 @@
 #include "llurlsimstring.h"
 #include "llurlhistory.h"
 #include "llurlwhitelist.h"
-#include "lluserauth.h"
 #include "llvieweraudio.h"
 #include "llviewerassetstorage.h"
 #include "llviewercamera.h"
@@ -190,6 +188,8 @@
 #include "llwearable.h"
 #include "llinventorybridge.h"
 
+#include "lllogin.h"
+
 #if LL_LIBXUL_ENABLED
 #include "llmozlib.h"
 #endif // LL_LIBXUL_ENABLED
@@ -203,11 +203,11 @@
 // exported globals
 //
 bool gAgentMovementCompleted = false;
-std::string gInitialOutfit;
-std::string gInitialOutfitGender;
 
 std::string SCREEN_HOME_FILENAME = "screen_home.bmp";
 std::string SCREEN_LAST_FILENAME = "screen_last.bmp";
+
+LLPointer<LLImageGL> gStartImageGL;
 
 //
 // Imported globals
@@ -218,12 +218,6 @@ extern S32 gStartImageHeight;
 //
 // local globals
 //
-
-LLPointer<LLImageGL> gStartImageGL;
-
-static LLHost gAgentSimHost;
-static BOOL gSkipOptionalUpdate = FALSE;
-
 static bool gGotUseCircuitCodeAck = false;
 static std::string sInitialOutfit;
 static std::string sInitialOutfitGender;	// "male" or "female"
@@ -231,6 +225,17 @@ static std::string sInitialOutfitGender;	// "male" or "female"
 static bool gUseCircuitCallbackCalled = false;
 
 EStartupState LLStartUp::gStartupState = STATE_FIRST;
+
+// *NOTE:Mani - to reconcile with giab changes...
+static std::string gFirstname;
+static std::string gLastname;
+static std::string gPassword;
+
+static U64 gFirstSimHandle = 0;
+static LLHost gFirstSim;
+static std::string gFirstSimSeedCap;
+static LLVector3 gAgentStartLookAt(1.0f, 0.f, 0.f);
+static std::string gAgentStartLocation = "safe";
 
 
 //
@@ -244,8 +249,6 @@ void show_first_run_dialog();
 bool first_run_dialog_callback(const LLSD& notification, const LLSD& response);
 void set_startup_status(const F32 frac, const std::string& string, const std::string& msg);
 bool login_alert_status(const LLSD& notification, const LLSD& response);
-void update_app(BOOL mandatory, const std::string& message);
-bool update_dialog_callback(const LLSD& notification, const LLSD& response);
 void login_packet_failed(void**, S32 result);
 void use_circuit_callback(void**, S32 result);
 void register_viewer_callbacks(LLMessageSystem* msg);
@@ -255,6 +258,7 @@ void init_start_screen(S32 location_id);
 void release_start_screen();
 void reset_login();
 void apply_udp_blacklist(const std::string& csv);
+bool process_login_success_response();
 
 void callback_cache_name(const LLUUID& id, const std::string& firstname, const std::string& lastname, BOOL is_group)
 {
@@ -311,9 +315,6 @@ void update_texture_fetch()
 	gImageList.updateImages(0.10f);
 }
 
-static std::vector<std::string> sAuthUris;
-static S32 sAuthUriNum = -1;
-
 // Returns false to skip other idle processing. Should only return
 // true when all initialization done.
 bool idle_startup()
@@ -332,23 +333,11 @@ bool idle_startup()
 	// auth/transform loop will do.
 	static F32 progress = 0.10f;
 
-	static std::string auth_method;
 	static std::string auth_desc;
 	static std::string auth_message;
-	static std::string firstname;
-	static std::string lastname;
-	static LLUUID web_login_key;
-	static std::string password;
-	static std::vector<const char*> requested_options;
-
-	static U64 first_sim_handle = 0;
-	static LLHost first_sim;
-	static std::string first_sim_seed_cap;
 
 	static LLVector3 initial_sun_direction(1.f, 0.f, 0.f);
 	static LLVector3 agent_start_position_region(10.f, 10.f, 10.f);		// default for when no space server
-	static LLVector3 agent_start_look_at(1.0f, 0.f, 0.f);
-	static std::string agent_start_location = "safe";
 
 	// last location by default
 	static S32  agent_location_id = START_LOCATION_ID_LAST;
@@ -356,7 +345,7 @@ bool idle_startup()
 
 	static bool show_connect_box = true;
 
-	static bool stipend_since_login = false;
+	//static bool stipend_since_login = false;
 
 	// HACK: These are things from the main loop that usually aren't done
 	// until initialization is complete, but need to be done here for things
@@ -377,12 +366,7 @@ bool idle_startup()
 
 	LLStringUtil::setLocale (LLTrans::getString(system));
 
-	if (gNoRender)
-	{
-		// HACK, skip optional updates if you're running drones
-		gSkipOptionalUpdate = TRUE;
-	}
-	else
+	if (!gNoRender)
 	{
 		// Update images?
 		gImageList.updateImages(0.01f);
@@ -677,24 +661,23 @@ bool idle_startup()
 			|| !gLoginHandler.getWebLoginKey().isNull() )
 		{
 			// We have at least some login information on a SLURL
-			firstname = gLoginHandler.getFirstName();
-			lastname = gLoginHandler.getLastName();
-			web_login_key = gLoginHandler.getWebLoginKey();
+			gFirstname = gLoginHandler.getFirstName();
+			gLastname = gLoginHandler.getLastName();
 
 			// Show the login screen if we don't have everything
 			show_connect_box = 
-				firstname.empty() || lastname.empty() || web_login_key.isNull();
+				gFirstname.empty() || gLastname.empty();
 		}
         else if(gSavedSettings.getLLSD("UserLoginInfo").size() == 3)
         {
             LLSD cmd_line_login = gSavedSettings.getLLSD("UserLoginInfo");
-			firstname = cmd_line_login[0].asString();
-			lastname = cmd_line_login[1].asString();
+			gFirstname = cmd_line_login[0].asString();
+			gLastname = cmd_line_login[1].asString();
 
 			LLMD5 pass((unsigned char*)cmd_line_login[2].asString().c_str());
 			char md5pass[33];               /* Flawfinder: ignore */
 			pass.hex_digest(md5pass);
-			password = md5pass;
+			gPassword = md5pass;
 			
 #ifdef USE_VIEWER_AUTH
 			show_connect_box = true;
@@ -705,9 +688,9 @@ bool idle_startup()
         }
 		else if (gSavedSettings.getBOOL("AutoLogin"))
 		{
-			firstname = gSavedSettings.getString("FirstName");
-			lastname = gSavedSettings.getString("LastName");
-			password = LLStartUp::loadPasswordFromDisk();
+			gFirstname = gSavedSettings.getString("FirstName");
+			gLastname = gSavedSettings.getString("LastName");
+			gPassword = LLStartUp::loadPasswordFromDisk();
 			gSavedSettings.setBOOL("RememberPassword", TRUE);
 			
 #ifdef USE_VIEWER_AUTH
@@ -720,9 +703,9 @@ bool idle_startup()
 		{
 			// if not automatically logging in, display login dialog
 			// a valid grid is selected
-			firstname = gSavedSettings.getString("FirstName");
-			lastname = gSavedSettings.getString("LastName");
-			password = LLStartUp::loadPasswordFromDisk();
+			gFirstname = gSavedSettings.getString("FirstName");
+			gLastname = gSavedSettings.getString("LastName");
+			gPassword = LLStartUp::loadPasswordFromDisk();
 			show_connect_box = true;
 		}
 
@@ -759,7 +742,7 @@ bool idle_startup()
 			// Load all the name information out of the login view
 			// NOTE: Hits "Attempted getFields with no login view shown" warning, since we don't
 			// show the login view until login_show() is called below.  
-			// LLPanelLogin::getFields(firstname, lastname, password);
+			// LLPanelLogin::getFields(gFirstname, gLastname, gPassword);
 
 			if (gNoRender)
 			{
@@ -771,7 +754,7 @@ bool idle_startup()
 			// Show the login dialog
 			login_show();
 			// connect dialog is already shown, so fill in the names
-			LLPanelLogin::setFields( firstname, lastname, password);
+			LLPanelLogin::setFields( gFirstname, gLastname, gPassword);
 
 			LLPanelLogin::giveFocus();
 
@@ -828,37 +811,29 @@ bool idle_startup()
 
 	if (STATE_LOGIN_CLEANUP == LLStartUp::getStartupState())
 	{
-		//reset the values that could have come in from a slurl
-		if (!gLoginHandler.getWebLoginKey().isNull())
-		{
-			firstname = gLoginHandler.getFirstName();
-			lastname = gLoginHandler.getLastName();
-			web_login_key = gLoginHandler.getWebLoginKey();
-		}
-				
 		if (show_connect_box)
 		{
 			// TODO if not use viewer auth
 			// Load all the name information out of the login view
-			LLPanelLogin::getFields(&firstname, &lastname, &password);
+			LLPanelLogin::getFields(&gFirstname, &gLastname, &gPassword);
 			// end TODO
 	 
 			// HACK: Try to make not jump on login
 			gKeyboard->resetKeys();
 		}
 
-		if (!firstname.empty() && !lastname.empty())
+		if (!gFirstname.empty() && !gLastname.empty())
 		{
-			gSavedSettings.setString("FirstName", firstname);
-			gSavedSettings.setString("LastName", lastname);
+			gSavedSettings.setString("FirstName", gFirstname);
+			gSavedSettings.setString("LastName", gLastname);
 
-			LL_INFOS("AppInit") << "Attempting login as: " << firstname << " " << lastname << LL_ENDL;
-			gDebugInfo["LoginName"] = firstname + " " + lastname;	
+			LL_INFOS("AppInit") << "Attempting login as: " << gFirstname << " " << gLastname << LL_ENDL;
+			gDebugInfo["LoginName"] = gFirstname + " " + gLastname;	
 		}
 
 		// create necessary directories
 		// *FIX: these mkdir's should error check
-		gDirUtilp->setLindenUserDir(firstname, lastname);
+		gDirUtilp->setLindenUserDir(gFirstname, gLastname);
     	LLFile::mkdir(gDirUtilp->getLindenUserDir());
 
 		LLLocationHistory::getInstance()->load();
@@ -891,7 +866,7 @@ bool idle_startup()
 			gDirUtilp->setChatLogsDir(gSavedPerAccountSettings.getString("InstantMessageLogPath"));		
 		}
 		
-		gDirUtilp->setPerAccountChatLogsDir(firstname, lastname);
+		gDirUtilp->setPerAccountChatLogsDir(gFirstname, gLastname);
 
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
@@ -912,13 +887,6 @@ bool idle_startup()
 
 		if (show_connect_box)
 		{
-			if ( LLPanelLogin::isGridComboDirty() )
-			{
-				// User picked a grid from the popup, so clear the 
-				// stored uris and they will be reacquired from the grid choice.
-				sAuthUris.clear();
-			}
-			
 			std::string location;
 			LLPanelLogin::getLocation( location );
 			LLURLSimString::setString( location );
@@ -948,7 +916,7 @@ bool idle_startup()
 			agent_location_id = START_LOCATION_ID_URL;
 
 			// doesn't really matter what location_which is, since
-			// agent_start_look_at will be overwritten when the
+			// gAgentStartLookAt will be overwritten when the
 			// UserLoginLocationReply arrives
 			location_which = START_LOCATION_ID_LAST;
 		}
@@ -981,594 +949,118 @@ bool idle_startup()
 
 		gVFS->pokeFiles();
 
-		// skipping over STATE_UPDATE_CHECK because that just waits for input
 		LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
 
 		return FALSE;
 	}
 
-	if (STATE_UPDATE_CHECK == LLStartUp::getStartupState())
-	{
-		// wait for user to give input via dialog box
-		return FALSE;
-	}
-
 	if(STATE_LOGIN_AUTH_INIT == LLStartUp::getStartupState())
 	{
-//#define LL_MINIMIAL_REQUESTED_OPTIONS
 		gDebugInfo["GridName"] = LLViewerLogin::getInstance()->getGridLabel();
 
-		// *Note: this is where gUserAuth used to be created.
-		requested_options.clear();
-		requested_options.push_back("inventory-root");
-		requested_options.push_back("inventory-skeleton");
-		//requested_options.push_back("inventory-meat");
-		//requested_options.push_back("inventory-skel-targets");
-#if (!defined LL_MINIMIAL_REQUESTED_OPTIONS)
-		if(FALSE == gSavedSettings.getBOOL("NoInventoryLibrary"))
-		{
-			requested_options.push_back("inventory-lib-root");
-			requested_options.push_back("inventory-lib-owner");
-			requested_options.push_back("inventory-skel-lib");
-		//	requested_options.push_back("inventory-meat-lib");
-		}
-
-		requested_options.push_back("initial-outfit");
-		requested_options.push_back("gestures");
-		requested_options.push_back("event_categories");
-		requested_options.push_back("event_notifications");
-		requested_options.push_back("classified_categories");
-		//requested_options.push_back("inventory-targets");
-		requested_options.push_back("buddy-list");
-		requested_options.push_back("ui-config");
-#endif
-		requested_options.push_back("tutorial_setting");
-		requested_options.push_back("login-flags");
-		requested_options.push_back("global-textures");
-		if(gSavedSettings.getBOOL("ConnectAsGod"))
-		{
-			gSavedSettings.setBOOL("UseDebugMenus", TRUE);
-			requested_options.push_back("god-connect");
-		}
-		std::vector<std::string> uris;
-		LLViewerLogin::getInstance()->getLoginURIs(uris);
-		std::vector<std::string>::const_iterator iter, end;
-		for (iter = uris.begin(), end = uris.end(); iter != end; ++iter)
-		{
-			std::vector<std::string> rewritten;
-			rewritten = LLSRV::rewriteURI(*iter);
-			sAuthUris.insert(sAuthUris.end(),
-							 rewritten.begin(), rewritten.end());
-		}
-		sAuthUriNum = 0;
-		auth_method = "login_to_simulator";
-		
+		// Update progress status and the display loop.
 		auth_desc = LLTrans::getString("LoginInProgress");
-		LLStartUp::setStartupState( STATE_LOGIN_AUTHENTICATE );
-	}
-
-	if (STATE_LOGIN_AUTHENTICATE == LLStartUp::getStartupState())
-	{
-		LL_DEBUGS("AppInit") << "STATE_LOGIN_AUTHENTICATE" << LL_ENDL;
 		set_startup_status(progress, auth_desc, auth_message);
 		progress += 0.02f;
 		display_startup();
-		
-		std::stringstream start;
-		if (LLURLSimString::parse())
+
+		// Setting initial values...
+		if(gNoRender)
 		{
-			// a startup URL was specified
-			std::stringstream unescaped_start;
-			unescaped_start << "uri:" 
-							<< LLURLSimString::sInstance.mSimName << "&" 
-							<< LLURLSimString::sInstance.mX << "&" 
-							<< LLURLSimString::sInstance.mY << "&" 
-							<< LLURLSimString::sInstance.mZ;
-			start << xml_escape_string(unescaped_start.str());
-			
-		}
-		else
-		{
-			start << gSavedSettings.getString("LoginLocation");
+			// HACK, skip optional updates if you're running drones
+			LLLoginInstance::getInstance()->setSkipOptionalUpdate(true);
 		}
 
-		char hashed_mac_string[MD5HEX_STR_SIZE];		/* Flawfinder: ignore */
-		LLMD5 hashed_mac;
-		hashed_mac.update( gMACAddress, MAC_ADDRESS_BYTES );
-		hashed_mac.finalize();
-		hashed_mac.hex_digest(hashed_mac_string);
+		LLLoginInstance::getInstance()->setUserInteraction(show_connect_box);
 
-		// TODO if statement here to use web_login_key
-		sAuthUriNum = llclamp(sAuthUriNum, 0, (S32)sAuthUris.size()-1);
-		LLUserAuth::getInstance()->authenticate(
-			sAuthUris[sAuthUriNum],
-			auth_method,
-			firstname,
-			lastname,			
-			password, // web_login_key,
-			start.str(),
-			gSkipOptionalUpdate,
-			gAcceptTOS,
-			gAcceptCriticalMessage,
-			gLastExecEvent,
-			requested_options,
-			hashed_mac_string,
-			LLAppViewer::instance()->getSerialNumber());
+		// This call to LLLoginInstance::connect() starts the 
+		// authentication process.
+		LLSD credentials;
+		credentials["first"] = gFirstname;
+		credentials["last"] = gLastname;
+		credentials["passwd"] = gPassword;
+		LLLoginInstance::getInstance()->connect(credentials);
 
-		// reset globals
-		gAcceptTOS = FALSE;
-		gAcceptCriticalMessage = FALSE;
-		LLStartUp::setStartupState( STATE_LOGIN_NO_DATA_YET );
-		return FALSE;
-	}
-
-	if(STATE_LOGIN_NO_DATA_YET == LLStartUp::getStartupState())
-	{
-		LL_DEBUGS("AppInit") << "STATE_LOGIN_NO_DATA_YET" << LL_ENDL;
-		// If we get here we have gotten past the potential stall
-		// in curl, so take "may appear frozen" out of progress bar. JC
-		auth_desc = LLTrans::getString("LoginInProgressNoFrozen");
-		set_startup_status(progress, auth_desc, auth_message);
-		// Process messages to keep from dropping circuit.
-		LLMessageSystem* msg = gMessageSystem;
-		while (msg->checkAllMessages(gFrameCount, gServicePump))
-		{
-		}
-		msg->processAcks();
-		LLUserAuth::UserAuthcode error = LLUserAuth::getInstance()->authResponse();
-		if(LLUserAuth::E_NO_RESPONSE_YET == error)
-		{
-			LL_DEBUGS("AppInit") << "waiting..." << LL_ENDL;
-			return FALSE;
-		}
-		LLStartUp::setStartupState( STATE_LOGIN_DOWNLOADING );
-		progress += 0.01f;
-		set_startup_status(progress, auth_desc, auth_message);
-		return FALSE;
-	}
-
-	if(STATE_LOGIN_DOWNLOADING == LLStartUp::getStartupState())
-	{
-		LL_DEBUGS("AppInit") << "STATE_LOGIN_DOWNLOADING" << LL_ENDL;
-		// Process messages to keep from dropping circuit.
-		LLMessageSystem* msg = gMessageSystem;
-		while (msg->checkAllMessages(gFrameCount, gServicePump))
-		{
-		}
-		msg->processAcks();
-		LLUserAuth::UserAuthcode error = LLUserAuth::getInstance()->authResponse();
-		if(LLUserAuth::E_DOWNLOADING == error)
-		{
-			LL_DEBUGS("AppInit") << "downloading..." << LL_ENDL;
-			return FALSE;
-		}
 		LLStartUp::setStartupState( STATE_LOGIN_PROCESS_RESPONSE );
-		progress += 0.01f;
-		set_startup_status(progress, LLTrans::getString("LoginProcessingResponse"), auth_message);
 		return FALSE;
 	}
 
-	if(STATE_LOGIN_PROCESS_RESPONSE == LLStartUp::getStartupState())
+	if(STATE_LOGIN_PROCESS_RESPONSE == LLStartUp::getStartupState()) 
 	{
-		LL_DEBUGS("AppInit") << "STATE_LOGIN_PROCESS_RESPONSE" << LL_ENDL;
+		bool transitionBackToLoginPanel = false;
 		std::ostringstream emsg;
-		bool quit = false;
-		bool update = false;
-		std::string login_response;
-		std::string reason_response;
-		std::string message_response;
-		bool successful_login = false;
-		LLUserAuth::UserAuthcode error = LLUserAuth::getInstance()->authResponse();
-		// reset globals
-		gAcceptTOS = FALSE;
-		gAcceptCriticalMessage = FALSE;
-		switch(error)
+		if(LLLoginInstance::getInstance()->authFailure())
 		{
-		case LLUserAuth::E_OK:
-			login_response = LLUserAuth::getInstance()->getResponse("login");
-			if(login_response == "true")
+			// Still have error conditions that may need some 
+			// sort of handling.
+			emsg << "Login failed.\n";
+			std::string reason_response = LLLoginInstance::getInstance()->getResponse("reason");
+			std::string message_response = LLLoginInstance::getInstance()->getResponse("message");
+	
+			if(!message_response.empty())
 			{
-				// Yay, login!
-				successful_login = true;
-			}
-			else if(login_response == "indeterminate")
-			{
-				LL_INFOS("AppInit") << "Indeterminate login..." << LL_ENDL;
-				sAuthUris = LLSRV::rewriteURI(LLUserAuth::getInstance()->getResponse("next_url"));
-				sAuthUriNum = 0;
-				auth_method = LLUserAuth::getInstance()->getResponse("next_method");
-				auth_message = LLUserAuth::getInstance()->getResponse("message");
-				if(auth_method.substr(0, 5) == "login")
+				// XUI: fix translation for strings returned during login
+				// We need a generic table for translations
+				std::string big_reason = LLAgent::sTeleportErrorMessages[ message_response ];
+				if ( big_reason.size() == 0 )
 				{
-					auth_desc.assign(LLTrans::getString("LoginAuthenticating"));
+					emsg << message_response;
 				}
 				else
 				{
-					auth_desc.assign(LLTrans::getString("LoginMaintenance"));
+					emsg << big_reason;
 				}
-				// ignoring the duration & options array for now.
-				// Go back to authenticate.
-				LLStartUp::setStartupState( STATE_LOGIN_AUTHENTICATE );
-				return FALSE;
+			}
+
+			if(reason_response == "key")
+			{
+				// Couldn't login because user/password is wrong
+				// Clear the password
+				gPassword = "";
+			}
+
+			if(reason_response == "update" 
+				|| reason_response == "optional")
+			{
+				// In the case of a needed update, quit.
+				// Its either downloading or declined.
+				// If optional was skipped this case shouldn't 
+				// be reached.
+				LLLoginInstance::getInstance()->disconnect();
+				LLAppViewer::instance()->forceQuit();
 			}
 			else
 			{
-				emsg << "Login failed.\n";
-				reason_response = LLUserAuth::getInstance()->getResponse("reason");
-				message_response = LLUserAuth::getInstance()->getResponse("message");
-
-				if (!message_response.empty())
-				{
-					// XUI: fix translation for strings returned during login
-					// We need a generic table for translations
-					std::string big_reason = LLAgent::sTeleportErrorMessages[ message_response ];
-					if ( big_reason.size() == 0 )
-					{
-						emsg << message_response;
-					}
-					else
-					{
-						emsg << big_reason;
-					}
-				}
-
-				if(reason_response == "tos")
-				{
-					if (show_connect_box)
-					{
-						LL_DEBUGS("AppInit") << "Need tos agreement" << LL_ENDL;
-						LLStartUp::setStartupState( STATE_UPDATE_CHECK );
-						LLFloaterTOS* tos_dialog = LLFloaterTOS::show(LLFloaterTOS::TOS_TOS,
-																	message_response);
-						tos_dialog->startModal();
-						// LLFloaterTOS deletes itself.
-						return false;
-					}
-					else
-					{
-						quit = true;
-					}
-				}
-				if(reason_response == "critical")
-				{
-					if (show_connect_box)
-					{
-						LL_DEBUGS("AppInit") << "Need critical message" << LL_ENDL;
-						LLStartUp::setStartupState( STATE_UPDATE_CHECK );
-						LLFloaterTOS* tos_dialog = LLFloaterTOS::show(LLFloaterTOS::TOS_CRITICAL_MESSAGE,
-																	message_response);
-						tos_dialog->startModal();
-						// LLFloaterTOS deletes itself.
-						return false;
-					}
-					else
-					{
-						quit = true;
-					}
-				}
-				if(reason_response == "key")
-				{
-					// Couldn't login because user/password is wrong
-					// Clear the password
-					password = "";
-				}
-				if(reason_response == "update")
-				{
-					auth_message = LLUserAuth::getInstance()->getResponse("message");
-					update = true;
-				}
-				if(reason_response == "optional")
-				{
-					LL_DEBUGS("AppInit") << "Login got optional update" << LL_ENDL;
-					auth_message = LLUserAuth::getInstance()->getResponse("message");
-					if (show_connect_box)
-					{
-						update_app(FALSE, auth_message);
-						LLStartUp::setStartupState( STATE_UPDATE_CHECK );
-						gSkipOptionalUpdate = TRUE;
-						return false;
-					}
-				}
-			}
-			break;
-		case LLUserAuth::E_COULDNT_RESOLVE_HOST:
-		case LLUserAuth::E_SSL_PEER_CERTIFICATE:
-		case LLUserAuth::E_UNHANDLED_ERROR:
-		case LLUserAuth::E_SSL_CACERT:
-		case LLUserAuth::E_SSL_CONNECT_ERROR:
-		default:
-			if (sAuthUriNum >= (int) sAuthUris.size() - 1)
-			{
-				emsg << "Unable to connect to " << LLAppViewer::instance()->getSecondLifeTitle() << ".\n";
-				emsg << LLUserAuth::getInstance()->errorMessage();
-			} else {
-				sAuthUriNum++;
-				std::ostringstream s;
-				LLStringUtil::format_map_t args;
-				args["[NUMBER]"] = llformat("%d", sAuthUriNum + 1);
-				auth_desc = LLTrans::getString("LoginAttempt", args);
-				LLStartUp::setStartupState( STATE_LOGIN_AUTHENTICATE );
-				return FALSE;
-			}
-			break;
-		}
-
-		if (update || gSavedSettings.getBOOL("ForceMandatoryUpdate"))
-		{
-			gSavedSettings.setBOOL("ForceMandatoryUpdate", FALSE);
-			update_app(TRUE, auth_message);
-			LLStartUp::setStartupState( STATE_UPDATE_CHECK );
-			return false;
-		}
-
-		// Version update and we're not showing the dialog
-		if(quit)
-		{
-			LLUserAuth::getInstance()->reset();
-			LLAppViewer::instance()->forceQuit();
-			return false;
-		}
-
-		if(successful_login)
-		{
-			std::string text;
-			text = LLUserAuth::getInstance()->getResponse("udp_blacklist");
-			if(!text.empty())
-			{
-				apply_udp_blacklist(text);
-			}
-
-			// unpack login data needed by the application
-			text = LLUserAuth::getInstance()->getResponse("agent_id");
-			if(!text.empty()) gAgentID.set(text);
-			gDebugInfo["AgentID"] = text;
-			
-			text = LLUserAuth::getInstance()->getResponse("session_id");
-			if(!text.empty()) gAgentSessionID.set(text);
-			gDebugInfo["SessionID"] = text;
-			
-			text = LLUserAuth::getInstance()->getResponse("secure_session_id");
-			if(!text.empty()) gAgent.mSecureSessionID.set(text);
-
-			text = LLUserAuth::getInstance()->getResponse("first_name");
-			if(!text.empty()) 
-			{
-				// Remove quotes from string.  Login.cgi sends these to force
-				// names that look like numbers into strings.
-				firstname.assign(text);
-				LLStringUtil::replaceChar(firstname, '"', ' ');
-				LLStringUtil::trim(firstname);
-			}
-			text = LLUserAuth::getInstance()->getResponse("last_name");
-			if(!text.empty()) lastname.assign(text);
-			gSavedSettings.setString("FirstName", firstname);
-			gSavedSettings.setString("LastName", lastname);
-
-			if (gSavedSettings.getBOOL("RememberPassword"))
-			{
-				// Successful login means the password is valid, so save it.
-				LLStartUp::savePasswordToDisk(password);
-			}
-			else
-			{
-				// Don't leave password from previous session sitting around
-				// during this login session.
-				LLStartUp::deletePasswordFromDisk();
-			}
-
-			// this is their actual ability to access content
-			text = LLUserAuth::getInstance()->getResponse("agent_access_max");
-			if (!text.empty())
-			{
-				// agent_access can be 'A', 'M', and 'PG'.
-				gAgent.setMaturity(text[0]);
-			}
-			
-			// this is the value of their preference setting for that content
-			// which will always be <= agent_access_max
-			text = LLUserAuth::getInstance()->getResponse("agent_region_access");
-			if (!text.empty())
-			{
-				int preferredMaturity = LLAgent::convertTextToMaturity(text[0]);
-				gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
-			}
-			// During the AO transition, this flag will be true. Then the flag will
-			// go away. After the AO transition, this code and all the code that
-			// uses it can be deleted.
-			text = LLUserAuth::getInstance()->getResponse("ao_transition");
-			if (!text.empty())
-			{
-				if (text == "1")
-				{
-					gAgent.setAOTransition();
-				}
-			}
-
-			text = LLUserAuth::getInstance()->getResponse("start_location");
-			if(!text.empty()) agent_start_location.assign(text);
-			text = LLUserAuth::getInstance()->getResponse("circuit_code");
-			if(!text.empty())
-			{
-				gMessageSystem->mOurCircuitCode = strtoul(text.c_str(), NULL, 10);
-			}
-			std::string sim_ip_str = LLUserAuth::getInstance()->getResponse("sim_ip");
-			std::string sim_port_str = LLUserAuth::getInstance()->getResponse("sim_port");
-			if(!sim_ip_str.empty() && !sim_port_str.empty())
-			{
-				U32 sim_port = strtoul(sim_port_str.c_str(), NULL, 10);
-				first_sim.set(sim_ip_str, sim_port);
-				if (first_sim.isOk())
-				{
-					gMessageSystem->enableCircuit(first_sim, TRUE);
-				}
-			}
-			std::string region_x_str = LLUserAuth::getInstance()->getResponse("region_x");
-			std::string region_y_str = LLUserAuth::getInstance()->getResponse("region_y");
-			if(!region_x_str.empty() && !region_y_str.empty())
-			{
-				U32 region_x = strtoul(region_x_str.c_str(), NULL, 10);
-				U32 region_y = strtoul(region_y_str.c_str(), NULL, 10);
-				first_sim_handle = to_region_handle(region_x, region_y);
-			}
-			
-			const std::string look_at_str = LLUserAuth::getInstance()->getResponse("look_at");
-			if (!look_at_str.empty())
-			{
-				size_t len = look_at_str.size();
-				LLMemoryStream mstr((U8*)look_at_str.c_str(), len);
-				LLSD sd = LLSDSerialize::fromNotation(mstr, len);
-				agent_start_look_at = ll_vector3_from_sd(sd);
-			}
-
-			text = LLUserAuth::getInstance()->getResponse("seed_capability");
-			if (!text.empty()) first_sim_seed_cap = text;
-						
-			text = LLUserAuth::getInstance()->getResponse("seconds_since_epoch");
-			if(!text.empty())
-			{
-				U32 server_utc_time = strtoul(text.c_str(), NULL, 10);
-				if(server_utc_time)
-				{
-					time_t now = time(NULL);
-					gUTCOffset = (server_utc_time - now);
-				}
-			}
-
-			std::string home_location = LLUserAuth::getInstance()->getResponse("home");
-			if(!home_location.empty())
-			{
-				size_t len = home_location.size();
-				LLMemoryStream mstr((U8*)home_location.c_str(), len);
-				LLSD sd = LLSDSerialize::fromNotation(mstr, len);
-				S32 region_x = sd["region_handle"][0].asInteger();
-				S32 region_y = sd["region_handle"][1].asInteger();
-				U64 region_handle = to_region_handle(region_x, region_y);
-				LLVector3 position = ll_vector3_from_sd(sd["position"]);
-				gAgent.setHomePosRegion(region_handle, position);
-			}
-
-			gAgent.mMOTD.assign(LLUserAuth::getInstance()->getResponse("message"));
-			LLUserAuth::options_t options;
-			if(LLUserAuth::getInstance()->getOptions("inventory-root", options))
-			{
-				LLUserAuth::response_t::iterator it;
-				it = options[0].find("folder_id");
-				if(it != options[0].end())
-				{
-					gAgent.getInventoryRootID().set((*it).second);
-					//gInventory.mock(gAgent.getInventoryRootID());
-				}
-			}
-
-			options.clear();
-			if(LLUserAuth::getInstance()->getOptions("login-flags", options))
-			{
-				LLUserAuth::response_t::iterator it;
-				LLUserAuth::response_t::iterator no_flag = options[0].end();
-				it = options[0].find("ever_logged_in");
-				if(it != no_flag)
-				{
-					if((*it).second == "N") gAgent.setFirstLogin(TRUE);
-					else gAgent.setFirstLogin(FALSE);
-				}
-				it = options[0].find("stipend_since_login");
-				if(it != no_flag)
-				{
-					if((*it).second == "Y") stipend_since_login = true;
-				}
-				it = options[0].find("gendered");
-				if(it != no_flag)
-				{
-					if((*it).second == "Y") gAgent.setGenderChosen(TRUE);
-				}
-				it = options[0].find("daylight_savings");
-				if(it != no_flag)
-				{
-					if((*it).second == "Y")  gPacificDaylightTime = TRUE;
-					else gPacificDaylightTime = FALSE;
-				}
+				transitionBackToLoginPanel = true;
 
 				//setup map of datetime strings to codes and slt & local time offset from utc
 				LLStringOps::setupDatetimeInfo (gPacificDaylightTime);
 			}
-			options.clear();
-			if (LLUserAuth::getInstance()->getOptions("initial-outfit", options)
-				&& !options.empty())
+		}
+		else if(LLLoginInstance::getInstance()->authSuccess())
+		{
+			if(process_login_success_response())
 			{
-				LLUserAuth::response_t::iterator it;
-				LLUserAuth::response_t::iterator it_end = options[0].end();
-				it = options[0].find("folder_name");
-				if(it != it_end)
-				{
-					// Initial outfit is a folder in your inventory,
-					// must be an exact folder-name match.
-					sInitialOutfit = (*it).second;
-				}
-				it = options[0].find("gender");
-				if (it != it_end)
-				{
-					sInitialOutfitGender = (*it).second;
-				}
-			}
-
-			options.clear();
-			if(LLUserAuth::getInstance()->getOptions("global-textures", options))
-			{
-				// Extract sun and moon texture IDs.  These are used
-				// in the LLVOSky constructor, but I can't figure out
-				// how to pass them in.  JC
-				LLUserAuth::response_t::iterator it;
-				LLUserAuth::response_t::iterator no_texture = options[0].end();
-				it = options[0].find("sun_texture_id");
-				if(it != no_texture)
-				{
-					gSunTextureID.set((*it).second);
-				}
-				it = options[0].find("moon_texture_id");
-				if(it != no_texture)
-				{
-					gMoonTextureID.set((*it).second);
-				}
-				it = options[0].find("cloud_texture_id");
-				if(it != no_texture)
-				{
-					gCloudTextureID.set((*it).second);
-				}
-			}
-
-
-			// JC: gesture loading done below, when we have an asset system
-			// in place.  Don't delete/clear user_credentials until then.
-
-			if(gAgentID.notNull()
-			   && gAgentSessionID.notNull()
-			   && gMessageSystem->mOurCircuitCode
-			   && first_sim.isOk()
-			   && gAgent.getInventoryRootID().notNull())
-			{
-				LLStartUp::setStartupState( STATE_WORLD_INIT );
+				// Pass the user information to the voice chat server interface.
+				gVoiceClient->userAuthorized(gFirstname, gLastname, gAgentID);
+				LLStartUp::setStartupState( STATE_WORLD_INIT);
 			}
 			else
 			{
-				if (gNoRender)
-				{
-					LL_WARNS("AppInit") << "Bad login - missing return values" << LL_ENDL;
-					LL_WARNS("AppInit") << emsg << LL_ENDL;
-					exit(0);
-				}
-				// Bounce back to the login screen.
-				LLSD args;
-				args["ERROR_MESSAGE"] = emsg.str();
-				LLNotifications::instance().add("ErrorMessage", args, LLSD(), login_alert_done);
-				reset_login();
-				gSavedSettings.setBOOL("AutoLogin", FALSE);
-				show_connect_box = true;
+				transitionBackToLoginPanel = false;
 			}
-			
-			// Pass the user information to the voice chat server interface.
-			gVoiceClient->userAuthorized(firstname, lastname, gAgentID);
 		}
-		else // if(successful_login)
+		else
+		{
+			// Still waiting for response.
+			// *TODO:Mani - Actually check for login progress.
+			// If we get here we have gotten past the potential stall
+			// in curl, so take "may appear frozen" out of progress bar. JC
+			auth_desc = LLTrans::getString("LoginInProgressNoFrozen");
+			set_startup_status(progress, auth_desc, auth_message);
+		}
+
+		if(transitionBackToLoginPanel)
 		{
 			if (gNoRender)
 			{
@@ -1576,11 +1068,12 @@ bool idle_startup()
 				LL_WARNS("AppInit") << emsg << LL_ENDL;
 				exit(0);
 			}
+
 			// Bounce back to the login screen.
 			LLSD args;
 			args["ERROR_MESSAGE"] = emsg.str();
 			LLNotifications::instance().add("ErrorMessage", args, LLSD(), login_alert_done);
-			reset_login();
+			reset_login(); // calls LLStartUp::setStartupState( STATE_LOGIN_SHOW );
 			gSavedSettings.setBOOL("AutoLogin", FALSE);
 			show_connect_box = true;
 		}
@@ -1622,6 +1115,7 @@ bool idle_startup()
 		LLWaterParamManager::initClass();
 
 		LLViewerObject::initVOClasses();
+		LLWearable::initClass();
 
 		// Initialize all our tools.  Must be done after saved settings loaded.
 		// NOTE: This also is where gToolMgr used to be instantiated before being turned into a singleton.
@@ -1643,14 +1137,14 @@ bool idle_startup()
 		// This is necessary because creating objects before this is set will result in a
 		// bad mPositionAgent cache.
 
-		gAgent.initOriginGlobal(from_region_handle(first_sim_handle));
+		gAgent.initOriginGlobal(from_region_handle(gFirstSimHandle));
 
-		LLWorld::getInstance()->addRegion(first_sim_handle, first_sim);
+		LLWorld::getInstance()->addRegion(gFirstSimHandle, gFirstSim);
 
-		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(first_sim_handle);
+		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(gFirstSimHandle);
 		LL_INFOS("AppInit") << "Adding initial simulator " << regionp->getOriginGlobal() << LL_ENDL;
 		
-		regionp->setSeedCapability(first_sim_seed_cap);
+		regionp->setSeedCapability(gFirstSimSeedCap);
 		LL_DEBUGS("AppInit") << "Waiting for seed grant ...." << LL_ENDL;
 		
 		// Set agent's initial region to be the one we just created.
@@ -1810,7 +1304,7 @@ bool idle_startup()
 		// the coordinates handed to us to fit in the local region.
 
 		gAgent.setPositionAgent(agent_start_position_region);
-		gAgent.resetAxes(agent_start_look_at);
+		gAgent.resetAxes(gAgentStartLookAt);
 		gAgent.stopCameraAnimation();
 		gAgent.resetCamera();
 
@@ -1849,18 +1343,18 @@ bool idle_startup()
 			LL_WARNS("AppInit") << "Attempting to connect to simulator with a zero circuit code!" << LL_ENDL;
 		}
 
-		gUseCircuitCallbackCalled = FALSE;
+		gUseCircuitCallbackCalled = false;
 
-		msg->enableCircuit(first_sim, TRUE);
+		msg->enableCircuit(gFirstSim, TRUE);
 		// now, use the circuit info to tell simulator about us!
-		LL_INFOS("AppInit") << "viewer: UserLoginLocationReply() Enabling " << first_sim << " with code " << msg->mOurCircuitCode << LL_ENDL;
+		LL_INFOS("AppInit") << "viewer: UserLoginLocationReply() Enabling " << gFirstSim << " with code " << msg->mOurCircuitCode << LL_ENDL;
 		msg->newMessageFast(_PREHASH_UseCircuitCode);
 		msg->nextBlockFast(_PREHASH_CircuitCode);
 		msg->addU32Fast(_PREHASH_Code, msg->mOurCircuitCode);
 		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		msg->addUUIDFast(_PREHASH_ID, gAgent.getID());
 		msg->sendReliable(
-			first_sim,
+			gFirstSim,
 			MAX_TIMEOUT_COUNT,
 			FALSE,
 			TIMEOUT_SECONDS,
@@ -1971,77 +1465,76 @@ bool idle_startup()
 		LLAgentLanguage::update();
 
 		// unpack thin inventory
-		LLUserAuth::options_t options;
-		options.clear();
+		LLSD response = LLLoginInstance::getInstance()->getResponse();
 		//bool dump_buffer = false;
-		
-		if(LLUserAuth::getInstance()->getOptions("inventory-lib-root", options)
-			&& !options.empty())
+
+		LLSD inv_lib_root = response["inventory-lib-root"];
+		if(inv_lib_root.isDefined())
 		{
 			// should only be one
-			LLUserAuth::response_t::iterator it;
-			it = options[0].find("folder_id");
-			if(it != options[0].end())
+			LLSD id = inv_lib_root[0]["folder_id"];
+			if(id.isDefined())
 			{
-				gInventoryLibraryRoot.set((*it).second);
+				gInventoryLibraryRoot = id.asUUID();
 			}
 		}
- 		options.clear();
-		if(LLUserAuth::getInstance()->getOptions("inventory-lib-owner", options)
-			&& !options.empty())
+ 		
+		LLSD inv_lib_owner = response["inventory-lib-owner"];
+		if(inv_lib_owner.isDefined())
 		{
 			// should only be one
-			LLUserAuth::response_t::iterator it;
-			it = options[0].find("agent_id");
-			if(it != options[0].end())
+			LLSD id = inv_lib_owner[0]["agent_id"];
+			if(id.isDefined())
 			{
-				gInventoryLibraryOwner.set((*it).second);
+				gInventoryLibraryOwner = id.asUUID();
 			}
 		}
- 		options.clear();
- 		if(LLUserAuth::getInstance()->getOptions("inventory-skel-lib", options)
-			&& gInventoryLibraryOwner.notNull())
+
+		LLSD inv_skel_lib = response["inventory-skel-lib"];
+ 		if(inv_skel_lib.isDefined() && gInventoryLibraryOwner.notNull())
  		{
- 			if(!gInventory.loadSkeleton(options, gInventoryLibraryOwner))
+ 			if(!gInventory.loadSkeleton(inv_skel_lib, gInventoryLibraryOwner))
  			{
  				LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
  			}
  		}
- 		options.clear();
- 		if(LLUserAuth::getInstance()->getOptions("inventory-skeleton", options))
+
+		LLSD inv_skeleton = response["inventory-skeleton"];
+ 		if(inv_skeleton.isDefined())
  		{
- 			if(!gInventory.loadSkeleton(options, gAgent.getID()))
+ 			if(!gInventory.loadSkeleton(inv_skeleton, gAgent.getID()))
  			{
  				LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
  			}
  		}
 
-		options.clear();
- 		if(LLUserAuth::getInstance()->getOptions("buddy-list", options))
+		LLSD buddy_list = response["buddy-list"];
+ 		if(buddy_list.isDefined())
  		{
-			LLUserAuth::options_t::iterator it = options.begin();
-			LLUserAuth::options_t::iterator end = options.end();
 			LLAvatarTracker::buddy_map_t list;
 			LLUUID agent_id;
 			S32 has_rights = 0, given_rights = 0;
-			for (; it != end; ++it)
+			for(LLSD::array_const_iterator it = buddy_list.beginArray(),
+				end = buddy_list.endArray(); it != end; ++it)
 			{
-				LLUserAuth::response_t::const_iterator option_it;
-				option_it = (*it).find("buddy_id");
-				if(option_it != (*it).end())
+				LLSD buddy_id = (*it)["buddy_id"];
+				if(buddy_id.isDefined())
 				{
-					agent_id.set((*option_it).second);
+					agent_id = buddy_id.asUUID();
 				}
-				option_it = (*it).find("buddy_rights_has");
-				if(option_it != (*it).end())
+
+				LLSD buddy_rights_has = (*it)["buddy_rights_has"];
+				if(buddy_rights_has.isDefined())
 				{
-					has_rights = atoi((*option_it).second.c_str());
+					has_rights = buddy_rights_has.asInteger();
 				}
-				option_it = (*it).find("buddy_rights_given");
-				if(option_it != (*it).end())
+
+				LLSD buddy_rights_given = (*it)["buddy_rights_given"];
+				if(buddy_rights_given.isDefined())
 				{
-					given_rights = atoi((*option_it).second.c_str());
+					given_rights = buddy_rights_given.asInteger();
 				}
+
 				list[agent_id] = new LLRelationship(given_rights, has_rights, false);
 			}
 			LLAvatarTracker::instance().addBuddyList(list);
@@ -2050,26 +1543,23 @@ bool idle_startup()
 		options.clear();
 
 		bool show_hud = false;
-		if(LLUserAuth::getInstance()->getOptions("tutorial_setting", options))
+		LLSD tutorial_setting = response["tutorial_setting"];
+		if(tutorial_setting.isDefined())
 		{
-			LLUserAuth::options_t::iterator it = options.begin();
-			LLUserAuth::options_t::iterator end = options.end();
-			for (; it != end; ++it)
+			for(LLSD::array_const_iterator it = tutorial_setting.beginArray(),
+				end = tutorial_setting.endArray(); it != end; ++it)
 			{
-				LLUserAuth::response_t::const_iterator option_it;
-				option_it = (*it).find("tutorial_url");
-				if(option_it != (*it).end())
+				LLSD tutorial_url = (*it)["tutorial_url"];
+				if(tutorial_url.isDefined())
 				{
 					// Tutorial floater will append language code
-					gSavedSettings.setString("TutorialURL", option_it->second);
+					gSavedSettings.setString("TutorialURL", tutorial_url.asString());
 				}
-				option_it = (*it).find("use_tutorial");
-				if(option_it != (*it).end())
+				
+				LLSD use_tutorial = (*it)["use_tutorial"];
+				if(use_tutorial.asString() == "true")
 				{
-					if (option_it->second == "true")
-					{
-						show_hud = true;
-					}
+					show_hud = true;
 				}
 			}
 		}
@@ -2082,19 +1572,22 @@ bool idle_startup()
 			LLFloaterHUD::showHUD();
 		}
 
-		options.clear();
-		if(LLUserAuth::getInstance()->getOptions("event_categories", options))
+		LLSD event_categories = response["event_categories"];
+		if(event_categories.isDefined())
 		{
-			LLEventInfo::loadCategories(options);
+			LLEventInfo::loadCategories(event_categories);
 		}
-		if(LLUserAuth::getInstance()->getOptions("event_notifications", options))
+
+		LLSD event_notifications = response["event_notifications"];
+		if(event_notifications.isDefined())
 		{
-			gEventNotifier.load(options);
+			gEventNotifier.load(event_notifications);
 		}
-		options.clear();
-		if(LLUserAuth::getInstance()->getOptions("classified_categories", options))
+
+		LLSD classified_categories = response["classified_categories"];
+		if(classified_categories.isDefined())
 		{
-			LLClassifiedInfo::loadCategories(options);
+			LLClassifiedInfo::loadCategories(classified_categories);
 		}
 
 
@@ -2151,7 +1644,7 @@ bool idle_startup()
 			// This is actually a pessimistic computation, because TCP may not have enough
 			// time to ramp up on the (small) default inventory file to truly measure max
 			// bandwidth. JC
-			F64 rate_bps = LLUserAuth::getInstance()->getLastTransferRateBPS();
+			F64 rate_bps = LLLoginInstance::getInstance()->getLastTransferRateBPS();
 			const F32 FAST_RATE_BPS = 600.f * 1024.f;
 			const F32 FASTER_RATE_BPS = 750.f * 1024.f;
 			F32 max_bandwidth = gViewerThrottle.getMaxBandwidth();
@@ -2198,34 +1691,20 @@ bool idle_startup()
 			// JC: Initialize "active" gestures.  This may also trigger
 			// many gesture downloads, if this is the user's first
 			// time on this machine or -purge has been run.
-			LLUserAuth::options_t gesture_options;
-			if (LLUserAuth::getInstance()->getOptions("gestures", gesture_options))
+			LLSD gesture_options 
+				= LLLoginInstance::getInstance()->getResponse("gestures");
+			if (gesture_options.isDefined())
 			{
 				LL_DEBUGS("AppInit") << "Gesture Manager loading " << gesture_options.size()
 					<< LL_ENDL;
 				std::vector<LLUUID> item_ids;
-				LLUserAuth::options_t::iterator resp_it;
-				for (resp_it = gesture_options.begin();
-					 resp_it != gesture_options.end();
-					 ++resp_it)
+				for(LLSD::array_const_iterator resp_it = gesture_options.beginArray(),
+					end = gesture_options.endArray(); resp_it != end; ++resp_it)
 				{
-					const LLUserAuth::response_t& response = *resp_it;
-					LLUUID item_id;
-					LLUUID asset_id;
-					LLUserAuth::response_t::const_iterator option_it;
-
-					option_it = response.find("item_id");
-					if (option_it != response.end())
-					{
-						const std::string& uuid_string = (*option_it).second;
-						item_id.set(uuid_string);
-					}
-					option_it = response.find("asset_id");
-					if (option_it != response.end())
-					{
-						const std::string& uuid_string = (*option_it).second;
-						asset_id.set(uuid_string);
-					}
+					// If the id is not specifed in the LLSD,
+					// the LLSD operator[]() will return a null LLUUID. 
+					LLUUID item_id = (*resp_it)["item_id"];
+					LLUUID asset_id = (*resp_it)["asset_id"];
 
 					if (item_id.notNull() && asset_id.notNull())
 					{
@@ -2281,8 +1760,8 @@ bool idle_startup()
 		if (!gAgent.isFirstLogin())
 		{
 			bool url_ok = LLURLSimString::sInstance.parse();
-			if ((url_ok && agent_start_location == "url") ||
-				(!url_ok && ((agent_start_location == gSavedSettings.getString("LoginLocation")))))
+			if ((url_ok && gAgentStartLocation == "url") ||
+				(!url_ok && ((gAgentStartLocation == gSavedSettings.getString("LoginLocation")))))
 			{
 				// Start location is OK
 				// Disabled code to restore camera location and focus if logging in to default location
@@ -2493,8 +1972,10 @@ bool idle_startup()
 		// then the data is cached for the viewer's lifetime)
 		LLProductInfoRequestManager::instance();
 		
+		// *FIX:Mani - What do I do here?
+		// Need we really clear the Auth response data?
 		// Clean up the userauth stuff.
-		LLUserAuth::getInstance()->reset();
+		// LLUserAuth::getInstance()->reset();
 
 		LLStartUp::setStartupState( STATE_STARTED );
 
@@ -2782,194 +2263,6 @@ bool login_alert_status(const LLSD& notification, const LLSD& response)
 	return false;
 }
 
-void update_app(BOOL mandatory, const std::string& auth_msg)
-{
-	// store off config state, as we might quit soon
-	gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);	
-	gSavedSkinSettings.saveToFile(gSavedSettings.getString("SkinningSettingsFile"), TRUE);
-	std::ostringstream message;
-
-	std::string msg;
-	if (!auth_msg.empty())
-	{
-		msg = "("+ auth_msg + ") \n";
-	}
-
-	LLSD args;
-	args["MESSAGE"] = msg;
-	
-	LLSD payload;
-	payload["mandatory"] = mandatory;
-
-/*
- We're constructing one of the following 6 strings here:
-	 "DownloadWindowsMandatory"
-	 "DownloadWindowsReleaseForDownload"
-	 "DownloadWindows"
-	 "DownloadMacMandatory"
-	 "DownloadMacReleaseForDownload"
-	 "DownloadMac"
- 
- I've called them out explicitly in this comment so that they can be grepped for.
- 
- Also, we assume that if we're not Windows we're Mac. If we ever intend to support 
- Linux with autoupdate, this should be an explicit #elif LL_DARWIN, but 
- we'd rather deliver the wrong message than no message, so until Linux is supported
- we'll leave it alone.
- */
-	std::string notification_name = "Download";
-	
-#if LL_WINDOWS
-	notification_name += "Windows";
-#else
-	notification_name += "Mac";
-#endif
-	
-	if (mandatory)
-	{
-		notification_name += "Mandatory";
-	}
-	else
-	{
-#if LL_RELEASE_FOR_DOWNLOAD
-		notification_name += "ReleaseForDownload";
-#endif
-	}
-	
-	LLNotifications::instance().add(notification_name, args, payload, update_dialog_callback);
-	
-}
-
-bool update_dialog_callback(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-	std::string update_exe_path;
-	bool mandatory = notification["payload"]["mandatory"].asBoolean();
-
-#if !LL_RELEASE_FOR_DOWNLOAD
-	if (option == 2)
-	{
-		LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT ); 
-		return false;
-	}
-#endif
-
-	if (option == 1)
-	{
-		// ...user doesn't want to do it
-		if (mandatory)
-		{
-			LLAppViewer::instance()->forceQuit();
-			// Bump them back to the login screen.
-			//reset_login();
-		}
-		else
-		{
-			LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
-		}
-		return false;
-	}
-	
-	LLSD query_map = LLSD::emptyMap();
-	// *TODO place os string in a global constant
-#if LL_WINDOWS  
-	query_map["os"] = "win";
-#elif LL_DARWIN
-	query_map["os"] = "mac";
-#elif LL_LINUX
-	query_map["os"] = "lnx";
-#elif LL_SOLARIS
-	query_map["os"] = "sol";
-#endif
-	// *TODO change userserver to be grid on both viewer and sim, since
-	// userserver no longer exists.
-	query_map["userserver"] = LLViewerLogin::getInstance()->getGridLabel();
-	query_map["channel"] = gSavedSettings.getString("VersionChannelName");
-	// *TODO constantize this guy
-	// *NOTE: This URL is also used in win_setup/lldownloader.cpp
-	LLURI update_url = LLURI::buildHTTP("secondlife.com", 80, "update.php", query_map);
-	
-	if(LLAppViewer::sUpdaterInfo)
-	{
-		delete LLAppViewer::sUpdaterInfo ;
-	}
-	LLAppViewer::sUpdaterInfo = new LLAppViewer::LLUpdaterInfo() ;
-	
-#if LL_WINDOWS
-	LLAppViewer::sUpdaterInfo->mUpdateExePath = gDirUtilp->getTempFilename();
-	if (LLAppViewer::sUpdaterInfo->mUpdateExePath.empty())
-	{
-		delete LLAppViewer::sUpdaterInfo ;
-		LLAppViewer::sUpdaterInfo = NULL ;
-
-		// We're hosed, bail
-		LL_WARNS("AppInit") << "LLDir::getTempFilename() failed" << LL_ENDL;
-		LLAppViewer::instance()->forceQuit();
-		return false;
-	}
-
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += ".exe";
-
-	std::string updater_source = gDirUtilp->getAppRODataDir();
-	updater_source += gDirUtilp->getDirDelimiter();
-	updater_source += "updater.exe";
-
-	LL_DEBUGS("AppInit") << "Calling CopyFile source: " << updater_source
-			<< " dest: " << LLAppViewer::sUpdaterInfo->mUpdateExePath
-			<< LL_ENDL;
-
-
-	if (!CopyFileA(updater_source.c_str(), LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str(), FALSE))
-	{
-		delete LLAppViewer::sUpdaterInfo ;
-		LLAppViewer::sUpdaterInfo = NULL ;
-
-		LL_WARNS("AppInit") << "Unable to copy the updater!" << LL_ENDL;
-		LLAppViewer::instance()->forceQuit();
-		return false;
-	}
-
-	// if a sim name was passed in via command line parameter (typically through a SLURL)
-	if ( LLURLSimString::sInstance.mSimString.length() )
-	{
-		// record the location to start at next time
-		gSavedSettings.setString( "NextLoginLocation", LLURLSimString::sInstance.mSimString ); 
-	};
-
-	LLAppViewer::sUpdaterInfo->mParams << "-url \"" << update_url.asString() << "\"";
-
-	LL_DEBUGS("AppInit") << "Calling updater: " << LLAppViewer::sUpdaterInfo->mUpdateExePath << " " << LLAppViewer::sUpdaterInfo->mParams.str() << LL_ENDL;
-
-	//Explicitly remove the marker file, otherwise we pass the lock onto the child process and things get weird.
-	LLAppViewer::instance()->removeMarkerFile(); // In case updater fails
-	
-#elif LL_DARWIN
-	// if a sim name was passed in via command line parameter (typically through a SLURL)
-	if ( LLURLSimString::sInstance.mSimString.length() )
-	{
-		// record the location to start at next time
-		gSavedSettings.setString( "NextLoginLocation", LLURLSimString::sInstance.mSimString ); 
-	};
-	
-	LLAppViewer::sUpdaterInfo->mUpdateExePath = "'";
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += gDirUtilp->getAppRODataDir();
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += "/mac-updater.app/Contents/MacOS/mac-updater' -url \"";
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += update_url.asString();
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" -name \"";
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += LLAppViewer::instance()->getSecondLifeTitle();
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" &";
-
-	LL_DEBUGS("AppInit") << "Calling updater: " << LLAppViewer::sUpdaterInfo->mUpdateExePath << LL_ENDL;
-
-	// Run the auto-updater.
-	system(LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str()); /* Flawfinder: ignore */
-
-#elif LL_LINUX || LL_SOLARIS
-	OSMessageBox(LLTrans::getString("MBNoAutoUpdate"), LLStringUtil::null, OSMB_OK);
-#endif
-	LLAppViewer::instance()->forceQuit();
-	return false;
-}
 
 void use_circuit_callback(void**, S32 result)
 {
@@ -3326,11 +2619,7 @@ std::string LLStartUp::startupStateToString(EStartupState state)
 		RTNENUM( STATE_LOGIN_SHOW );
 		RTNENUM( STATE_LOGIN_WAIT );
 		RTNENUM( STATE_LOGIN_CLEANUP );
-		RTNENUM( STATE_UPDATE_CHECK );
 		RTNENUM( STATE_LOGIN_AUTH_INIT );
-		RTNENUM( STATE_LOGIN_AUTHENTICATE );
-		RTNENUM( STATE_LOGIN_NO_DATA_YET );
-		RTNENUM( STATE_LOGIN_DOWNLOADING );
 		RTNENUM( STATE_LOGIN_PROCESS_RESPONSE );
 		RTNENUM( STATE_WORLD_INIT );
 		RTNENUM( STATE_SEED_GRANTED_WAIT );
@@ -3471,3 +2760,252 @@ void apply_udp_blacklist(const std::string& csv)
 	
 }
 
+bool process_login_success_response()
+{
+	LLSD response = LLLoginInstance::getInstance()->getResponse();
+
+	std::string text(response["udp_blacklist"]);
+	if(!text.empty())
+	{
+		apply_udp_blacklist(text);
+	}
+
+	// unpack login data needed by the application
+	text = response["agent_id"].asString();
+	if(!text.empty()) gAgentID.set(text);
+	gDebugInfo["AgentID"] = text;
+	
+	text = response["session_id"].asString();
+	if(!text.empty()) gAgentSessionID.set(text);
+	gDebugInfo["SessionID"] = text;
+	
+	text = response["secure_session_id"].asString();
+	if(!text.empty()) gAgent.mSecureSessionID.set(text);
+
+	text = response["first_name"].asString();
+	if(!text.empty()) 
+	{
+		// Remove quotes from string.  Login.cgi sends these to force
+		// names that look like numbers into strings.
+		gFirstname.assign(text);
+		LLStringUtil::replaceChar(gFirstname, '"', ' ');
+		LLStringUtil::trim(gFirstname);
+	}
+	text = response["last_name"].asString();
+	if(!text.empty()) 
+	{
+		gLastname.assign(text);
+	}
+	gSavedSettings.setString("FirstName", gFirstname);
+	gSavedSettings.setString("LastName", gLastname);
+
+	if (gSavedSettings.getBOOL("RememberPassword"))
+	{
+		// Successful login means the password is valid, so save it.
+		LLStartUp::savePasswordToDisk(gPassword);
+	}
+	else
+	{
+		// Don't leave password from previous session sitting around
+		// during this login session.
+		LLStartUp::deletePasswordFromDisk();
+	}
+
+	// this is their actual ability to access content
+	text = response["agent_access_max"].asString();
+	if (!text.empty())
+	{
+		// agent_access can be 'A', 'M', and 'PG'.
+		gAgent.setMaturity(text[0]);
+	}
+	
+	// this is the value of their preference setting for that content
+	// which will always be <= agent_access_max
+	text = response["agent_region_access"].asString();
+	if (!text.empty())
+	{
+		int preferredMaturity = LLAgent::convertTextToMaturity(text[0]);
+		gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
+	}
+	// During the AO transition, this flag will be true. Then the flag will
+	// go away. After the AO transition, this code and all the code that
+	// uses it can be deleted.
+	text = response["ao_transition"].asString();
+	if (!text.empty())
+	{
+		if (text == "1")
+		{
+			gAgent.setAOTransition();
+		}
+	}
+
+	text = response["start_location"].asString();
+	if(!text.empty()) 
+	{
+		gAgentStartLocation.assign(text);
+	}
+
+	text = response["circuit_code"].asString();
+	if(!text.empty())
+	{
+		gMessageSystem->mOurCircuitCode = strtoul(text.c_str(), NULL, 10);
+	}
+	std::string sim_ip_str = response["sim_ip"];
+	std::string sim_port_str = response["sim_port"];
+	if(!sim_ip_str.empty() && !sim_port_str.empty())
+	{
+		U32 sim_port = strtoul(sim_port_str.c_str(), NULL, 10);
+		gFirstSim.set(sim_ip_str, sim_port);
+		if (gFirstSim.isOk())
+		{
+			gMessageSystem->enableCircuit(gFirstSim, TRUE);
+		}
+	}
+	std::string region_x_str = response["region_x"];
+	std::string region_y_str = response["region_y"];
+	if(!region_x_str.empty() && !region_y_str.empty())
+	{
+		U32 region_x = strtoul(region_x_str.c_str(), NULL, 10);
+		U32 region_y = strtoul(region_y_str.c_str(), NULL, 10);
+		gFirstSimHandle = to_region_handle(region_x, region_y);
+	}
+	
+	const std::string look_at_str = response["look_at"];
+	if (!look_at_str.empty())
+	{
+		size_t len = look_at_str.size();
+		LLMemoryStream mstr((U8*)look_at_str.c_str(), len);
+		LLSD sd = LLSDSerialize::fromNotation(mstr, len);
+		gAgentStartLookAt = ll_vector3_from_sd(sd);
+	}
+
+	text = response["seed_capability"].asString();
+	if (!text.empty()) gFirstSimSeedCap = text;
+				
+	text = response["seconds_since_epoch"].asString();
+	if(!text.empty())
+	{
+		U32 server_utc_time = strtoul(text.c_str(), NULL, 10);
+		if(server_utc_time)
+		{
+			time_t now = time(NULL);
+			gUTCOffset = (server_utc_time - now);
+		}
+	}
+
+	std::string home_location = response["home"];
+	if(!home_location.empty())
+	{
+		size_t len = home_location.size();
+		LLMemoryStream mstr((U8*)home_location.c_str(), len);
+		LLSD sd = LLSDSerialize::fromNotation(mstr, len);
+		S32 region_x = sd["region_handle"][0].asInteger();
+		S32 region_y = sd["region_handle"][1].asInteger();
+		U64 region_handle = to_region_handle(region_x, region_y);
+		LLVector3 position = ll_vector3_from_sd(sd["position"]);
+		gAgent.setHomePosRegion(region_handle, position);
+	}
+
+	gAgent.mMOTD.assign(response["message"]);
+
+	// Options...
+	// Each 'option' is an array of submaps. 
+	// It appears that we only ever use the first element of the array.
+	LLUUID inv_root_folder_id = response["inventory-root"][0]["folder_id"];
+	if(inv_root_folder_id.notNull())
+	{
+		gAgent.mInventoryRootID = inv_root_folder_id;
+		//gInventory.mock(gAgent.getInventoryRootID());
+	}
+
+	LLSD login_flags = response["login-flags"][0];
+	if(login_flags.size())
+	{
+		std::string flag = login_flags["ever_logged_in"];
+		if(!flag.empty())
+		{
+			gAgent.setFirstLogin((flag == "N") ? TRUE : FALSE);
+		}
+
+		/*  Flag is currently ignored by the viewer.
+		flag = login_flags["stipend_since_login"];
+		if(flag == "Y") 
+		{
+			stipend_since_login = true;
+		}
+		*/
+
+		flag = login_flags["gendered"].asString();
+		if(flag == "Y")
+		{
+			gAgent.setGenderChosen(TRUE);
+		}
+		
+		flag = login_flags["daylight_savings"].asString();
+		if(flag == "Y")
+		{
+			gPacificDaylightTime  = (flag == "Y") ? TRUE : FALSE;
+		}
+
+		//setup map of datetime strings to codes and slt & local time offset from utc
+		LLStringOps::setupDatetimeInfo (gPacificDaylightTime);
+	}
+
+	LLSD initial_outfit = response["initial-outfit"][0];
+	if(initial_outfit.size())
+	{
+		std::string flag = initial_outfit["folder_name"];
+		if(!flag.empty())
+		{
+			// Initial outfit is a folder in your inventory,
+			// must be an exact folder-name match.
+			sInitialOutfit = flag;
+		}
+
+		flag = initial_outfit["gender"].asString();
+		if(!flag.empty())
+		{
+			sInitialOutfitGender = flag;
+		}
+	}
+
+	LLSD global_textures = response["global-textures"][0];
+	if(global_textures.size())
+	{
+		// Extract sun and moon texture IDs.  These are used
+		// in the LLVOSky constructor, but I can't figure out
+		// how to pass them in.  JC
+		LLUUID id = global_textures["sun_texture_id"];
+		if(id.notNull())
+		{
+			gSunTextureID = id;
+		}
+
+		id = global_textures["moon_texture_id"];
+		if(id.notNull())
+		{
+			gMoonTextureID = id;
+		}
+
+		id = global_textures["cloud_texture_id"];
+		if(id.notNull())
+		{
+			gCloudTextureID = id;
+		}
+	}
+
+
+	bool success = false;
+	// JC: gesture loading done below, when we have an asset system
+	// in place.  Don't delete/clear user_credentials until then.
+	if(gAgentID.notNull()
+	   && gAgentSessionID.notNull()
+	   && gMessageSystem->mOurCircuitCode
+	   && gFirstSim.isOk()
+	   && gAgent.mInventoryRootID.notNull())
+	{
+		success = true;
+	}
+
+	return success;
+}
