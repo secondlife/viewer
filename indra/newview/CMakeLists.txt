@@ -74,6 +74,7 @@ set(viewer_SOURCE_FILES
     llagentwearables.cpp
     llanimstatelabels.cpp
     llappviewer.cpp
+    llappviewerlistener.cpp
     llassetuploadresponders.cpp
     llassetuploadqueue.cpp
     llaudiosourcevo.cpp
@@ -488,6 +489,7 @@ set(viewer_HEADER_FILES
     llanimstatelabels.h
     llappearance.h
     llappviewer.h
+    llappviewerlistener.h
     llassetuploadresponders.h
     llassetuploadqueue.h
     llaudiosourcevo.h
