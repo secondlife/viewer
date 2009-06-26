@@ -24,7 +24,6 @@ set(llcommon_SOURCE_FILES
     llallocator_heap_profile.cpp
     llapp.cpp
     llapr.cpp
-    llaprsockstream.cpp
     llassettype.cpp
     llbase32.cpp
     llbase64.cpp
@@ -102,7 +101,6 @@ set(llcommon_HEADER_FILES
     llagentconstants.h
     llapp.h
     llapr.h
-    llaprsockstream.h
     llassettype.h
     llassoclist.h
     llavatarconstants.h
