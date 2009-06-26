@@ -160,6 +160,12 @@ private:
 
 bool filterIgnoredNotifications(LLNotificationPtr notification)
 {
+	// filter everything if we are to ignore ALL
+	if(LLNotifications::instance().getIgnoreAllNotifications())
+	{
+		return false;
+	}
+
 	LLNotificationFormPtr form = notification->getForm();
 	// Check to see if the user wants to ignore this alert
 	if (form->getIgnoreType() != LLNotificationForm::IGNORE_NO)
@@ -231,7 +237,7 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLXMLNodeP
 		LLSD item_entry;
 		std::string element_name = child->getName()->mString;
 
-		if (element_name == "ignore")
+		if (element_name == "ignore" )
 		{
 			bool save_option = false;
 			child->getAttribute_bool("save_option", save_option);
@@ -925,7 +931,8 @@ std::string LLNotificationChannel::summarize()
 // LLNotifications implementation
 // ---
 LLNotifications::LLNotifications() : LLNotificationChannelBase(LLNotificationFilters::includeEverything,
-															   LLNotificationComparators::orderByUUID())
+															   LLNotificationComparators::orderByUUID()),
+									mIgnoreAllNotifications(false)
 {
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Notification.Show", boost::bind(&LLNotifications::addFromCallback, this, _2));
 }
@@ -1473,6 +1480,14 @@ std::string LLNotifications::getGlobalString(const std::string& key) const
 	}
 }
 
+void LLNotifications::setIgnoreAllNotifications(bool setting)
+{
+	mIgnoreAllNotifications = setting; 
+}
+bool LLNotifications::getIgnoreAllNotifications()
+{
+	return mIgnoreAllNotifications; 
+}
 													
 // ---
 // END OF LLNotifications implementation
