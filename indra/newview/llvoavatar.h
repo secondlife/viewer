@@ -776,7 +776,7 @@ private:
  **/
 
 public:
-	virtual void 	setParent(LLViewerObject* parent);
+	virtual BOOL 	setParent(LLViewerObject* parent);
 	virtual void 	addChild(LLViewerObject *childp);
 	virtual void 	removeChild(LLViewerObject *childp);
 
