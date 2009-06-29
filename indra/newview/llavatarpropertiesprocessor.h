@@ -34,6 +34,8 @@
 #define LL_LLAVATARPROPERTIESPROCESSOR_H
 
 #include "lluuid.h"
+#include "llsingleton.h"
+#include "v3dmath.h"	// LLVector3d
 #include <map>
 
 /*

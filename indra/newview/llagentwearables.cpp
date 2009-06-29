@@ -626,9 +626,24 @@ const LLUUID& LLAgentWearables::getWearableItem(EWearableType type, U32 index) c
 }
 
 
-BOOL LLAgentWearables::isWearingItem(const LLUUID& item_id) const
+// Warning: include_linked_items = TRUE makes this operation expensive.
+BOOL LLAgentWearables::isWearingItem(const LLUUID& item_id, BOOL include_linked_items) const
 {
-	return (getWearableFromWearableItem(item_id) != NULL);
+	if (getWearableFromWearableItem(item_id) != NULL) return TRUE;
+	if (include_linked_items)
+	{
+		LLInventoryModel::item_array_t item_array;
+		gInventory.collectLinkedItems(item_id, item_array);
+		for (LLInventoryModel::item_array_t::iterator iter = item_array.begin();
+			 iter != item_array.end();
+			 iter++)
+		{
+			LLViewerInventoryItem *linked_item = (*iter);
+			const LLUUID &item_id = linked_item->getUUID();
+			if (getWearableFromWearableItem(item_id) != NULL) return TRUE;
+		}
+	}
+	return FALSE;
 }
 
 // MULTI-WEARABLE: update for multiple

@@ -167,7 +167,9 @@ public:
 	virtual BOOL copyToClipboard() const { return FALSE; }
 	virtual void cutToClipboard() {}
 	virtual BOOL isClipboardPasteable() const;
+	virtual BOOL isClipboardPasteableAsLink() const;
 	virtual void pasteFromClipboard() {}
+	virtual void pasteLinkFromClipboard() {}
 	void getClipboardEntries(bool show_asset_id, std::vector<std::string> &items, 
 		std::vector<std::string> &disabled_items, U32 flags);
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
@@ -191,6 +193,8 @@ protected:
 	LLInventoryModel* getInventoryModel() const;
 	
 	BOOL isInTrash() const;
+	BOOL isLinkedObjectInTrash() const; // Is this obj or its baseobj in the trash?
+
 	// return true if the item is in agent inventory. if false, it
 	// must be lost or in the inventory library.
 	BOOL isAgentInventory() const;
@@ -204,11 +208,13 @@ protected:
 									 const LLUUID& new_parent,
 									 BOOL restamp);
 	void removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*>& batch);
-	
+	void renameLinkedItems(const LLUUID &item_id, const std::string& new_name);
+
 protected:
 	LLHandle<LLPanel> mInventoryPanel;
-	LLUUID mUUID;	// item id
+	const LLUUID mUUID;	// item id
 	LLInventoryType::EType mInvType;
+	void purgeItem(LLInventoryModel *model, const LLUUID &uuid);
 };
 
 
@@ -227,6 +233,7 @@ public:
 	virtual LLUIImagePtr getIcon() const;
 	virtual const std::string& getDisplayName() const;
 	virtual std::string getLabelSuffix() const;
+	virtual LLFontGL::StyleFlags getLabelStyle() const;
 	virtual PermissionMask getPermissionMask() const;
 	virtual time_t getCreationDate() const;
 	virtual BOOL isItemRenameable() const;
@@ -267,8 +274,8 @@ public:
 	virtual LLUIImagePtr getIcon() const;
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL removeItem();
-	virtual BOOL isClipboardPasteable() const;
 	virtual void pasteFromClipboard();
+	virtual void pasteLinkFromClipboard();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual BOOL hasChildren() const;
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
@@ -278,7 +285,9 @@ public:
 	virtual BOOL isItemRemovable();
 	virtual BOOL isItemMovable();
 	virtual BOOL isUpToDate() const;
-
+	virtual BOOL isItemCopyable() const;
+	virtual BOOL copyToClipboard() const;
+	
 	static void createWearable(LLFolderBridge* bridge, EWearableType type);
 	static void createWearable(LLUUID parent_folder_id, EWearableType type);
 
@@ -489,6 +498,8 @@ public:
 	virtual BOOL			isItemRemovable();
 	virtual BOOL renameItem(const std::string& new_name);
 
+	LLInventoryObject* getObject() const;
+
 protected:
 	LLObjectBridge(LLInventoryPanel* inventory, const LLUUID& uuid, LLInventoryType::EType type, U32 flags) :
 		LLItemBridge(inventory, uuid), mInvType(type)
@@ -527,7 +538,6 @@ public:
 	virtual void	performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
 	virtual void	openItem();
 	virtual void	buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual LLFontGL::StyleFlags getLabelStyle() const;
 	virtual std::string getLabelSuffix() const;
 	virtual BOOL	isItemRemovable();
 	virtual BOOL renameItem(const std::string& new_name);
@@ -562,8 +572,25 @@ protected:
 	EWearableType  mWearableType;
 };
 
+class LLLinkItemBridge : public LLItemBridge
+{
+	friend class LLInvFVBridge;
+public:
+	virtual const std::string& getPrefix() { return sPrefix; }
+
+	virtual LLUIImagePtr getIcon() const;
+	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+
+protected:
+	LLLinkItemBridge(LLInventoryPanel* inventory, const LLUUID& uuid) :
+		LLItemBridge(inventory, uuid) {}
+
+protected:
+	static std::string sPrefix;
+};
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInvFVBridgeAction (& it's derived classes)
+// Class LLInvFVBridgeAction (& its derived classes)
 //
 // This is an implementation class to be able to 
 // perform action to view inventory items.

@@ -64,6 +64,7 @@ class LLWorld;
 class LLNameValue;
 class LLNetMap;
 class LLMessageSystem;
+class LLPartSysData;
 class LLPrimitive;
 class LLPipeline;
 class LLTextureEntry;
@@ -236,7 +237,7 @@ public:
 	BOOL isProbablyModifiable() const;
 	*/
 
-	virtual void setParent(LLViewerObject* parent);
+	virtual BOOL setParent(LLViewerObject* parent);
 	virtual void addChild(LLViewerObject *childp);
 	virtual void removeChild(LLViewerObject *childp);
 	const_child_list_t& getChildren() const { 	return mChildList; }

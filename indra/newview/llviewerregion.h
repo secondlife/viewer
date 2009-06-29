@@ -51,6 +51,7 @@
 #include "llweb.h"
 #include "llcapabilityprovider.h"
 #include "llcapabilitylistener.h"
+#include "m4math.h"					// LLMatrix4
 
 // Surface id's
 #define LAND  1

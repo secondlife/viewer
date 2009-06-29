@@ -512,15 +512,24 @@ BOOL LLViewerObject::isOverGroupOwnedLand() const
 		&& mRegionp->getParcelOverlay()->isOwnedGroup(getPositionRegion());
 }
 
-void LLViewerObject::setParent(LLViewerObject* parent)
+BOOL LLViewerObject::setParent(LLViewerObject* parent)
 {
-	LLPrimitive::setParent(parent);
+	if(mParent != parent)
+	{
+		LLViewerObject* old_parent = (LLViewerObject*)mParent ;		
+		BOOL ret = LLPrimitive::setParent(parent);
+		if(ret && old_parent && parent)
+		{
+			old_parent->removeChild(this) ;
+		}
+		return ret ;
+	}
+
+	return FALSE ;
 }
 
 void LLViewerObject::addChild(LLViewerObject *childp)
 {
-	BOOL result = TRUE;
-	
 	for (child_list_t::iterator i = mChildList.begin(); i != mChildList.end(); ++i)
 	{
 		if (*i == childp)
@@ -535,18 +544,9 @@ void LLViewerObject::addChild(LLViewerObject *childp)
 		childp->mbCanSelect = mbCanSelect;
 	}
 
-	childp->setParent(this);
-	mChildList.push_back(childp);
-
-	if (!result) 
+	if(childp->setParent(this))
 	{
-		llwarns << "Failed to attach child " << childp->getID() << " to object " << getID() << llendl;
-		removeChild(childp);
-		if (mJointInfo)
-		{
-			delete mJointInfo;
-			mJointInfo = NULL;
-		}
+		mChildList.push_back(childp);
 	}
 }
 
@@ -562,7 +562,11 @@ void LLViewerObject::removeChild(LLViewerObject *childp)
 			}
 
 			mChildList.erase(i);
-			childp->setParent(NULL);			
+
+			if(childp->getParent() == this)
+			{
+				childp->setParent(NULL);			
+			}
 			break;
 		}
 	}
@@ -644,11 +648,14 @@ BOOL LLViewerObject::setDrawableParent(LLDrawable* parentp)
 		return FALSE;
 	}
 
-	LLDrawable* old_parent = mDrawable->mParent;
-
-	mDrawable->mParent = parentp; 
-	
 	BOOL ret = mDrawable->mXform.setParent(parentp ? &parentp->mXform : NULL);
+	if(!ret)
+	{
+		return FALSE ;
+	}
+	LLDrawable* old_parent = mDrawable->mParent;
+	mDrawable->mParent = parentp; 
+		
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
 	if(	old_parent != parentp &&
 		old_parent || (parentp && parentp->isActive()))

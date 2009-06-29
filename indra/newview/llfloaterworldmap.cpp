@@ -57,6 +57,7 @@
 #include "llslurl.h"
 #include "lltextbox.h"
 #include "lltracker.h"
+#include "llviewerinventory.h"	// LLViewerInventoryItem
 #include "llviewermenu.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"

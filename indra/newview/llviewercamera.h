@@ -34,8 +34,9 @@
 #define LL_LLVIEWERCAMERA_H
 
 #include "llcamera.h"
-#include "lltimer.h"
+#include "llsingleton.h"
 #include "llstat.h"
+#include "lltimer.h"
 #include "m4math.h"
 
 class LLCoordGL;

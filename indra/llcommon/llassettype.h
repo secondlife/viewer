@@ -125,23 +125,25 @@ public:
 
 		AT_SIMSTATE = 22,
 			// Simstate file.
-			
-		AT_LINK = 23,
-			// Inventory symbolic link
-			
-		AT_FAVORITE = 24,
+	
+		AT_FAVORITE = 23,
 			// favorite items
 
-		// +*********************************************+
-		// |  TO ADD AN ELEMENT TO THIS ENUM:            |
-			// +************************************************+
-		// | 1. INSERT BEFORE AT_COUNT                   |
-		// | 2. INCREMENT AT_COUNT BY 1                  |
-		// | 3. ADD TO LLAssetType::mAssetTypeNames      |
-		// | 4. ADD TO LLAssetType::mAssetTypeHumanNames |
-		// +*********************************************+
+		AT_LINK = 24,
+			// Inventory symbolic link
 
-		AT_COUNT = 25,
+		AT_LINK_FOLDER = 25,
+			// Inventory folder link
+
+		AT_COUNT = 26,
+
+			// +************************************************+
+			// |  TO ADD AN ELEMENT TO THIS ENUM:               |
+			// +************************************************+
+			// | 1. INSERT BEFORE AT_COUNT                      |
+			// | 2. INCREMENT AT_COUNT BY 1                     |
+			// | 3. ADD TO LLAssetDictionary in llassettype.cpp |
+			// +************************************************+
 
 		AT_NONE = -1
 	};
@@ -166,6 +168,8 @@ public:
 	static EType 				getType(const std::string& desc_name);
 	static const std::string&	getDesc(EType asset_type);
 	static EDragAndDropType   	lookupDragAndDropType(EType asset_type);
+	static bool 				lookupCanLink(EType asset_type);
+	static bool 				lookupIsLinkType(EType asset_type);
 
 	/* TODO: Change return types from "const char *" to "const std::string &".
 	This is fairly straightforward, but requires changing some calls to use .c_str().

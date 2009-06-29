@@ -58,11 +58,13 @@
 #include "lltexlayer.h"
 
 // library includes
+#include "lldir.h"
 #include "lleconomy.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llscrolllistctrl.h"
 #include "llsdserialize.h"
+#include "llvfs.h"
 
 // When uploading multiple files, don't display any of them when uploading more than this number.
 static const S32 FILE_COUNT_DISPLAY_THRESHOLD = 5;

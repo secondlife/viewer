@@ -41,6 +41,8 @@
 #include "llmenugl.h"
 #include "lluictrlfactory.h"
 
+#include "llcachename.h"
+
 #define MENU_ITEM_VIEW_PROFILE 0
 #define MENU_ITEM_SEND_IM 1
 

@@ -39,6 +39,7 @@
 #include <string>
 #include <vector>
 
+#include "imageids.h"			// IMG_INVISIBLE
 #include "llchat.h"
 #include "lldrawpoolalpha.h"
 #include "llviewerobject.h"
@@ -49,6 +50,7 @@
 #include "llvoavatardefines.h"
 #include "lltexglobalcolor.h"
 #include "lldriverparam.h"
+#include "material_codes.h"		// LL_MCODE_END
 
 extern const LLUUID ANIM_AGENT_BODY_NOISE;
 extern const LLUUID ANIM_AGENT_BREATHE_ROT;
@@ -774,7 +776,7 @@ private:
  **/
 
 public:
-	virtual void 	setParent(LLViewerObject* parent);
+	virtual BOOL 	setParent(LLViewerObject* parent);
 	virtual void 	addChild(LLViewerObject *childp);
 	virtual void 	removeChild(LLViewerObject *childp);
 

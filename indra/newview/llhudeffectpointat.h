@@ -33,6 +33,7 @@
 #ifndef LL_LLHUDEFFECTPOINTAT_H
 #define LL_LLHUDEFFECTPOINTAT_H
 
+#include "llframetimer.h"
 #include "llhudeffect.h"
 
 class LLViewerObject;

@@ -35,6 +35,8 @@
 
 #include "llassettype.h"
 #include "lldarray.h"
+#include "llframetimer.h"
+#include "llhttpclient.h"
 #include "lluuid.h"
 #include "llpermissionsflags.h"
 #include "llstring.h"
@@ -111,7 +113,7 @@ public:
 	LLInventoryModel();
 	~LLInventoryModel();
 
-	class fetchInventoryResponder: public LLHTTPClient::Responder
+	class fetchInventoryResponder : public LLHTTPClient::Responder
 	{
 	public:
 		fetchInventoryResponder(const LLSD& request_sd) : mRequestSD(request_sd) {};
@@ -167,7 +169,7 @@ public:
 									item_array_t*& items);
 	void unlockDirectDescendentArrays(const LLUUID& cat_id);
 	
-	// Starting with the object specified, add it's descendents to the
+	// Starting with the object specified, add its descendents to the
 	// array provided, but do not add the inventory object specified
 	// by id. There is no guaranteed order. Neither array will be
 	// erased before adding objects to it. Do not store a copy of the
@@ -185,6 +187,11 @@ public:
 							  BOOL include_trash,
 							  LLInventoryCollectFunctor& add);
 
+	// Collect all items in inventory that are linked to item_id.
+	// Assumes item_id is itself not a linked item.
+	void collectLinkedItems(const LLUUID& item_id,
+							item_array_t& items);
+	
 	// This method will return false if this inventory model is in an usabel state.
 	// The inventory model usage is sensitive to the initial construction of the 
 	// model. 
@@ -225,8 +232,13 @@ public:
 	// delete a particular inventory object by ID. This will purge one
 	// object from the internal data structures maintaining a
 	// cosistent internal state. No cache accounting, observer
-	// notification, or server update is performed.
+	// notification, or server update is performed.  Purges linked items.
 	void deleteObject(const LLUUID& id);
+	
+	// delete a particular inventory object by ID, and delete it from
+	// the server.  Also purges linked items via purgeLinkedObjects.
+	void purgeObject(const LLUUID& id);
+	void purgeLinkedObjects(const LLUUID& id);
 
 	// This is a method which collects the descendents of the id
 	// provided. If the category is not found, no action is
@@ -526,6 +538,22 @@ protected:
 	LLUUID mAssetID;
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLLinkedItemIDMatches
+//
+// This functor finds inventory items linked to the specific inventory id.
+// Assumes the inventory id is itself not a linked item.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLLinkedItemIDMatches : public LLInventoryCollectFunctor
+{
+public:
+	LLLinkedItemIDMatches(const LLUUID& item_id) : mBaseItemID(item_id) {}
+	virtual ~LLLinkedItemIDMatches() {}
+	bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+	
+protected:
+	LLUUID mBaseItemID;
+};
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLIsType

@@ -61,6 +61,7 @@
 LLPreview::LLPreview(const LLSD& key)
 :	LLFloater(key),
 	mItemUUID(key.asUUID()),
+	mObjectUUID(),			// set later by setObjectID()
 	mCopyToInvBtn( NULL ),
 	mForceClose(FALSE),
 	mUserResized(FALSE),
@@ -192,6 +193,13 @@ void LLPreview::onCommit()
 void LLPreview::changed(U32 mask)
 {
 	mDirty = TRUE;
+}
+
+void LLPreview::setNotecardInfo(const LLUUID& notecard_inv_id, 
+								const LLUUID& object_id)
+{
+	mNotecardInventoryID = notecard_inv_id;
+	mNotecardObjectID = object_id;
 }
 
 void LLPreview::draw()
@@ -338,6 +346,12 @@ void LLPreview::onOpen(const LLSD& key)
 	}
 }
 
+void LLPreview::setAuxItem( const LLInventoryItem* item )
+{
+	if ( mAuxItem ) 
+		mAuxItem->copyItem(item);
+}
+
 // static
 void LLPreview::onBtnCopyToInv(void* userdata)
 {
@@ -349,7 +363,7 @@ void LLPreview::onBtnCopyToInv(void* userdata)
 		// Copy to inventory
 		if (self->mNotecardInventoryID.notNull())
 		{
-			copy_inventory_from_notecard(self->mObjectID,
+			copy_inventory_from_notecard(self->mNotecardObjectID,
 				self->mNotecardInventoryID, item);
 		}
 		else

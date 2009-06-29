@@ -870,6 +870,9 @@ public:
 	
 	std::string getGlobalString(const std::string& key) const;
 
+	void setIgnoreAllNotifications(bool ignore);
+	bool getIgnoreAllNotifications();
+
 private:
 	// we're a singleton, so we don't have a public constructor
 	LLNotifications();
@@ -898,6 +901,8 @@ private:
 	
 	typedef std::map<std::string, std::string> GlobalStringMap;
 	GlobalStringMap mGlobalStrings;
+
+	bool mIgnoreAllNotifications;
 };
 
 
