@@ -113,8 +113,10 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
 	LLInventoryType::IT_NONE,			// AT_IMAGE_JPEG
 	LLInventoryType::IT_ANIMATION,		// AT_ANIMATION
 	LLInventoryType::IT_GESTURE,		// AT_GESTURE
-	LLInventoryType::IT_NONE,			// AT_LINK
+	LLInventoryType::IT_NONE,			// AT_SIMSTATE
 	LLInventoryType::IT_FAVORITE,		// AT_FAVORITE
+	LLInventoryType::IT_NONE,			// AT_LINK
+	LLInventoryType::IT_NONE,			// AT_LINK_FOLDER
 };
 
 InventoryEntry::InventoryEntry(const std::string &name,

@@ -34,6 +34,7 @@
 #define LL_LLVIEWERMESSAGE_H
 
 #include "llinstantmessage.h"
+#include "llpointer.h"
 #include "lltransactiontypes.h"
 #include "lluuid.h"
 #include "stdenums.h"
@@ -42,10 +43,11 @@
 // Forward declarations
 //
 class LLColor4;
-class LLViewerObject;
 class LLInventoryObject;
 class LLInventoryItem;
+class LLMeanCollisionData;
 class LLMessageSystem;
+class LLViewerObject;
 class LLViewerRegion;
 
 //

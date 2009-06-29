@@ -146,6 +146,14 @@
       <string>ReplaySession</string>
     </map>
 
+    <key>nonotifications</key>
+    <map>
+      <key>desc</key>
+      <string>User will not get any notifications. NOTE: All notifications that occur will get added to ignore file for future runs.</string>
+      <key>map-to</key>
+      <string>IgnoreAllNotifications</string>      
+    </map>    
+
     <key>rotate</key>
     <map>
       <key>map-to</key>

@@ -32,8 +32,9 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "linden_common.h"
 #include "llcaphttpsender.h"
+
+#include "llhost.h"
 
 LLCapHTTPSender::LLCapHTTPSender(const std::string& cap) :
 	mCap(cap)

@@ -35,6 +35,7 @@ include_directories(
 set(llwindow_SOURCE_FILES
     llkeyboard.cpp
     llwindowheadless.cpp
+    llwindowcallbacks.cpp
     )
 
 set(llwindow_HEADER_FILES
@@ -42,27 +43,28 @@ set(llwindow_HEADER_FILES
 
     llkeyboard.h
     llwindowheadless.h
+    llwindowcallbacks.h
     )
 
 set(viewer_SOURCE_FILES
     llwindow.cpp
     llmousehandler.cpp
-    llwindowcallbacks.cpp
     )
 
 set(viewer_HEADER_FILES
     llwindow.h
-    llwindowcallbacks.h
     llpreeditor.h
     llmousehandler.h
     )
 
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
-set(llwindow_LINK_LIBRARIES
-    ${UI_LIBRARIES}     # for GTK
-    ${SDL_LIBRARY}
-    )
+if (NOT LINUX OR VIEWER)
+  set(llwindow_LINK_LIBRARIES
+      ${UI_LIBRARIES}     # for GTK
+      ${SDL_LIBRARY}
+      )
+endif (VIEWER)
 
 if (DARWIN)
   list(APPEND llwindow_SOURCE_FILES
@@ -85,7 +87,7 @@ if (DARWIN)
       )
 endif (DARWIN)
 
-if (LINUX)
+if (LINUX AND VIEWER)
   list(APPEND viewer_SOURCE_FILES 
        llkeyboardsdl.cpp 
        llwindowsdl.cpp

@@ -1424,7 +1424,7 @@ void LLLiveLSLEditor::callbackLSLCompileSucceeded(const LLUUID& task_id,
 												  bool is_script_running)
 {
 	lldebugs << "LSL Bytecode saved" << llendl;
-	mScriptEd->mErrorList->setCommentText(LLTrans::getString("Compilesuccessful"));
+	mScriptEd->mErrorList->setCommentText(LLTrans::getString("CompileSuccessful"));
 	mScriptEd->mErrorList->setCommentText(LLTrans::getString("SaveComplete"));
 	closeIfNeeded();
 }
@@ -1441,6 +1441,7 @@ void LLLiveLSLEditor::callbackLSLCompileFailed(const LLSD& compile_errors)
 		std::string error_message = line->asString();
 		LLStringUtil::stripNonprintable(error_message);
 		row["columns"][0]["value"] = error_message;
+		// *TODO: change to "MONOSPACE" and change llfontgl.cpp?
 		row["columns"][0]["font"] = "OCRA";
 		mScriptEd->mErrorList->addElement(row);
 	}
@@ -1767,7 +1768,7 @@ void LLLiveLSLEditor::onSearchReplace(void* userdata)
 struct LLLiveLSLSaveData
 {
 	LLLiveLSLSaveData(const LLUUID& id, const LLViewerInventoryItem* item, BOOL active);
-	LLUUID mObjectID;
+	LLUUID mSaveObjectID;
 	LLPointer<LLViewerInventoryItem> mItem;
 	BOOL mActive;
 };
@@ -1775,7 +1776,7 @@ struct LLLiveLSLSaveData
 LLLiveLSLSaveData::LLLiveLSLSaveData(const LLUUID& id,
 									 const LLViewerInventoryItem* item,
 									 BOOL active) :
-	mObjectID(id),
+	mSaveObjectID(id),
 	mActive(active)
 {
 	llassert(item);
@@ -1785,7 +1786,7 @@ LLLiveLSLSaveData::LLLiveLSLSaveData(const LLUUID& id,
 void LLLiveLSLEditor::saveIfNeeded()
 {
 	llinfos << "LLLiveLSLEditor::saveIfNeeded()" << llendl;
-	LLViewerObject* object = gObjectList.findObject(mObjectID);
+	LLViewerObject* object = gObjectList.findObject(mObjectUUID);
 	if(!object)
 	{
 		LLNotifications::instance().add("SaveScriptFailObjectNotFound");
@@ -1865,7 +1866,7 @@ void LLLiveLSLEditor::saveIfNeeded()
 	BOOL is_running = getChild<LLCheckBoxCtrl>( "running")->get();
 	if (!url.empty())
 	{
-		uploadAssetViaCaps(url, filename, mObjectID, mItemUUID, is_running);
+		uploadAssetViaCaps(url, filename, mObjectUUID, mItemUUID, is_running);
 	}
 	else if (gAssetStorage)
 	{
@@ -1894,7 +1895,7 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 										const LLTransactionID& tid,
 										BOOL is_running)
 {
-	LLLiveLSLSaveData* data = new LLLiveLSLSaveData(mObjectID,
+	LLLiveLSLSaveData* data = new LLLiveLSLSaveData(mObjectUUID,
 													mItem,
 													is_running);
 	gAssetStorage->storeAssetData(filename, tid,
@@ -1965,7 +1966,7 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 			getWindow()->incBusyCount();
 			mPendingUploads++;
 			LLLiveLSLSaveData* data = NULL;
-			data = new LLLiveLSLSaveData(mObjectID,
+			data = new LLLiveLSLSaveData(mObjectUUID,
 										 mItem,
 										 is_running);
 			gAssetStorage->storeAssetData(dst_filename,
@@ -2001,7 +2002,7 @@ void LLLiveLSLEditor::onSaveTextComplete(const LLUUID& asset_uuid, void* user_da
 	}
 	else
 	{
-		LLLiveLSLEditor* self = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", data->mItem->getUUID()); //  ^ data->mObjectID
+		LLLiveLSLEditor* self = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", data->mItem->getUUID()); //  ^ data->mSaveObjectID
 		if (self)
 		{
 			self->getWindow()->decBusyCount();
@@ -2026,7 +2027,7 @@ void LLLiveLSLEditor::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* use
 	if(0 ==status)
 	{
 		llinfos << "LSL Bytecode saved" << llendl;
-		LLLiveLSLEditor* self = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", data->mItem->getUUID()); //  ^ data->mObjectID
+		LLLiveLSLEditor* self = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", data->mItem->getUUID()); //  ^ data->mSaveObjectID
 		if (self)
 		{
 			// Tell the user that the compile worked.
@@ -2040,7 +2041,7 @@ void LLLiveLSLEditor::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* use
 				self->closeFloater();
 			}
 		}
-		LLViewerObject* object = gObjectList.findObject(data->mObjectID);
+		LLViewerObject* object = gObjectList.findObject(data->mSaveObjectID);
 		if(object)
 		{
 			object->saveScript(data->mItem, data->mActive, false);
@@ -2122,7 +2123,7 @@ void LLLiveLSLEditor::processScriptRunningReply(LLMessageSystem* msg, void**)
 void LLLiveLSLEditor::onMonoCheckboxClicked(LLUICtrl*, void* userdata)
 {
 	LLLiveLSLEditor* self = static_cast<LLLiveLSLEditor*>(userdata);
-	self->mMonoCheckbox->setEnabled(have_script_upload_cap(self->mObjectID));
+	self->mMonoCheckbox->setEnabled(have_script_upload_cap(self->mObjectUUID));
 	self->mScriptEd->enableSave(self->getIsModifiable());
 }
 

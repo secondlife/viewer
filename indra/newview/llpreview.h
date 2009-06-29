@@ -35,13 +35,12 @@
 
 #include "llmultifloater.h"
 #include "llresizehandle.h"
-#include "llmap.h"
+#include "llpointer.h"
 #include "lluuid.h"
-#include "llviewerinventory.h"
-#include "lltabcontainer.h"
-#include "llinventorymodel.h"
+#include "llinventorymodel.h"	// LLInventoryObserver
 #include <map>
 
+class LLInventoryItem;
 class LLLineEditor;
 class LLRadioGroup;
 class LLPreview;
@@ -88,11 +87,7 @@ public:
 	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
 	virtual void onOpen(const LLSD& key);
 	
-	void setAuxItem( const LLInventoryItem* item )
-	{
-		if ( mAuxItem ) 
-			mAuxItem->copyItem(item);
-	}
+	void setAuxItem( const LLInventoryItem* item );
 
 	static void			onBtnCopyToInv(void* userdata);
 
@@ -107,11 +102,12 @@ public:
 	virtual EAssetStatus getAssetStatus() { return mAssetStatus;}
 
 	static LLPreview* getFirstPreviewForSource(const LLUUID& source_id);
-	void setNotecardInfo(const LLUUID& notecard_inv_id, const LLUUID& object_id)
-	{ mNotecardInventoryID = notecard_inv_id; mObjectID = object_id; }
+
+	// Why is this at the LLPreview level?  JC
+	void setNotecardInfo(const LLUUID& notecard_inv_id, const LLUUID& object_id);
 
 	// llview
-	virtual void draw();
+	/*virtual*/ void draw();
 	void refreshFromItem();
 	
 protected:
@@ -129,7 +125,7 @@ protected:
 protected:
 	LLUUID mItemUUID;
 
-	// mObjectID will have a value if it is associated with a task in
+	// mObjectUUID will have a value if it is associated with a task in
 	// the world, and will be == LLUUID::null if it's in the agent
 	// inventory.
 	LLUUID mObjectUUID;
@@ -152,7 +148,9 @@ protected:
 	EAssetStatus mAssetStatus;
 
 	LLUUID mNotecardInventoryID;
-	LLUUID mObjectID;
+	// I am unsure if this is always the same as mObjectUUID, or why it exists
+	// at the LLPreview level.  JC 2009-06-24
+	LLUUID mNotecardObjectID;
 };
 
 

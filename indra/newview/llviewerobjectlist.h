@@ -39,11 +39,13 @@
 // common includes
 #include "llstat.h"
 #include "lldarrayptr.h"
+#include "llmap.h"			// *TODO: switch to std::map
 #include "llstring.h"
 
 // project includes
 #include "llviewerobject.h"
 
+class LLCamera;
 class LLNetMap;
 class LLDebugBeacon;
 
