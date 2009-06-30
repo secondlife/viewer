@@ -93,6 +93,10 @@
 #   include <sys/file.h> // For initMarkerFile support
 #endif
 
+#include "llapr.h"
+#include "apr_dso.h"
+#include <boost/lexical_cast.hpp>
+
 #include "llnotify.h"
 #include "llviewerkeyboard.h"
 #include "lllfsthread.h"
@@ -860,6 +864,11 @@ bool LLAppViewer::init()
 
 	LLViewerJoystick::getInstance()->init(false);
 
+	if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getS32("QAModeEventHostPort") > 0)
+	{
+		loadEventHostModule(gSavedSettings.getS32("QAModeEventHostPort"));
+	}
+	
 	return true;
 }
 
@@ -4084,4 +4093,46 @@ void LLAppViewer::handleLoginComplete()
 		gDebugInfo["MainloopTimeoutState"] = LLAppViewer::instance()->mMainloopTimeout->getState();
 	}
 	writeDebugInfo();
+}
+
+// *TODO - generalize this and move DSO wrangling to a helper class -brad
+void LLAppViewer::loadEventHostModule(S32 listen_port) const
+{
+	std::string dso_name("liblleventhost");
+
+#if LL_WINDOWS
+	dso_name += ".dll";
+#elif LL_DARWIN
+	dso_name += ".dylib";
+#else
+	dso_name += ".so";
+#endif
+
+	std::string dso_path = gDirUtilp->findFile(dso_name,
+		gDirUtilp->getAppRODataDir(),
+		gDirUtilp->getExecutableDir());
+
+	apr_dso_handle_t * eventhost_dso_handle = NULL;
+	apr_pool_t * eventhost_dso_memory_pool = NULL;
+
+	//attempt to load the shared library
+	apr_pool_create(&eventhost_dso_memory_pool, NULL);
+	apr_status_t rv = apr_dso_load(&eventhost_dso_handle,
+		dso_path.c_str(),
+		eventhost_dso_memory_pool);
+	ll_apr_assert_status(rv);
+	llassert_always(eventhost_dso_handle != NULL);
+
+	int (*ll_plugin_start_func)(char const * const *, char const * const *) = NULL;
+	rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll_plugin_start_func, eventhost_dso_handle, "ll_plugin_start");
+
+	ll_apr_assert_status(rv);
+	llassert_always(ll_plugin_start_func != NULL);
+
+	std::string port_text = boost::lexical_cast<std::string>(listen_port);
+	std::vector<char const *> args;
+	args.push_back("-L");
+	args.push_back(port_text.c_str());
+
+	ll_plugin_start_func(&args[0], &args[0] + args.size());
 }
