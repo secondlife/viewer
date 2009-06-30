@@ -1646,15 +1646,17 @@ bool LLMenuGL::addChild(LLView* view, S32 tab_group)
 
 void LLMenuGL::removeChild( LLView* ctrl)
 {
-	LLMenuItemGL* itemp = dynamic_cast<LLMenuItemGL*>(ctrl);
-	if (itemp)
+	// previously a dynamic_cast with if statement to check validity
+	// unfortunately removeChild is called by ~LLView, and at that point the
+	// object being deleted is no longer a LLMenuItemGL so a dynamic_cast will fail
+	LLMenuItemGL* itemp = static_cast<LLMenuItemGL*>(ctrl);
+
+	item_list_t::iterator found_it = std::find(mItems.begin(), mItems.end(), (itemp));
+	if (found_it != mItems.end())
 	{
-		item_list_t::iterator found_it = std::find(mItems.begin(), mItems.end(), (itemp));
-		if (found_it != mItems.end())
-		{
-			mItems.erase(found_it);
-		}
+		mItems.erase(found_it);
 	}
+
 	return LLUICtrl::removeChild(ctrl);
 }
 
