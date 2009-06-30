@@ -7,11 +7,13 @@ include(LLAddBuildTest)
 include(LLCommon)
 include(Linking)
 include(Boost)
+include (Pth)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
+    ${PTH_INCLUDE_DIRS}
     )
 
 # add_executable(lltreeiterators lltreeiterators.cpp)
@@ -245,6 +247,7 @@ target_link_libraries(
     ${WINDOWS_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
+    ${PTH_LIBRARIES}
     )
 
 include(LLAddBuildTest)
