@@ -7,11 +7,13 @@ include(LLAddBuildTest)
 include(LLCommon)
 include(Linking)
 include(Boost)
+include (Pth)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
+    ${PTH_INCLUDE_DIRS}
     )
 
 # add_executable(lltreeiterators lltreeiterators.cpp)
@@ -24,7 +26,6 @@ set(llcommon_SOURCE_FILES
     llallocator_heap_profile.cpp
     llapp.cpp
     llapr.cpp
-    llaprsockstream.cpp
     llassettype.cpp
     llbase32.cpp
     llbase64.cpp
@@ -102,7 +103,6 @@ set(llcommon_HEADER_FILES
     llagentconstants.h
     llapp.h
     llapr.h
-    llaprsockstream.h
     llassettype.h
     llassoclist.h
     llavatarconstants.h
@@ -247,6 +247,7 @@ target_link_libraries(
     ${WINDOWS_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
+    ${PTH_LIBRARIES}
     )
 
 include(LLAddBuildTest)

@@ -27,6 +27,7 @@ public:
 
 private:
     void requestQuit(const LLSD& event) const;
+    void setSetting(const LLSD & event) const;
 
     LLAppViewer* mAppViewer;
 };

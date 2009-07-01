@@ -204,6 +204,8 @@ private:
     void sendLogoutRequest();
     void disconnectViewer();
 
+	void loadEventHostModule(S32 listen_port) const;
+	
 	// *FIX: the app viewer class should be some sort of singleton, no?
 	// Perhaps its child class is the singleton and this should be an abstract base.
 	static LLAppViewer* sInstance; 
