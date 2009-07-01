@@ -114,6 +114,8 @@ class LL_COMMON_API LLDispatchListener: public LLEventDispatcher
 public:
     LLDispatchListener(const std::string& pumpname, const std::string& key);
 
+    std::string getPumpName() const { return mPump.getName(); }
+
 private:
     bool process(const LLSD& event);
 
