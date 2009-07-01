@@ -415,6 +415,7 @@ set(viewer_SOURCE_FILES
     llviewerthrottle.cpp
     llviewervisualparam.cpp
     llviewerwindow.cpp
+    llviewerwindowlistener.cpp
     llvlcomposition.cpp
     llvlmanager.cpp
     llvoavatar.cpp
@@ -835,6 +836,7 @@ set(viewer_HEADER_FILES
     llviewerthrottle.h
     llviewervisualparam.h
     llviewerwindow.h
+    llviewerwindowlistener.h
     llvlcomposition.h
     llvlmanager.h
     llvoavatar.h
