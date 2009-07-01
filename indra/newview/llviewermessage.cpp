@@ -1040,7 +1040,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	// * we can't build two messages at once.
 	if (2 == button)
 	{
-		gCacheName->get(mFromID, mFromGroup, inventory_offer_mute_callback, this);
+		gCacheName->getNameFromUUID(mFromID, mFromGroup, inventory_offer_mute_callback, this);
 	}
 
 	LLMessageSystem* msg = gMessageSystem;
@@ -4428,7 +4428,7 @@ void process_mean_collision_alert_message(LLMessageSystem *msgsystem, void **use
 			LLMeanCollisionData *mcd = new LLMeanCollisionData(gAgentID, perp, time, type, mag);
 			gMeanCollisionList.push_front(mcd);
 			const BOOL is_group = FALSE;
-			gCacheName->get(perp, is_group, mean_name_callback);
+			gCacheName->getNameFromUUID(perp, is_group, mean_name_callback);
 		}
 	}
 }
@@ -5375,7 +5375,7 @@ void process_load_url(LLMessageSystem* msg, void**)
 	// Add to list of pending name lookups
 	gLoadUrlList.push_back(payload);
 
-	gCacheName->get(owner_id, owner_is_group, callback_load_url_name);
+	gCacheName->getNameFromUUID(owner_id, owner_is_group, callback_load_url_name);
 }
 
 
@@ -5469,7 +5469,9 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLPanelLandCovenant::updateLastModified(last_modified);
 	LLFloaterBuyLand::updateLastModified(last_modified);
 
-	gCacheName->getName(estate_owner_id, callbackCacheEstateOwnerName);
+	// Estates can't be owned by groups
+	BOOL is_group = FALSE;
+	gCacheName->getNameFromUUID(estate_owner_id, is_group, callbackCacheEstateOwnerName);
 	
 	// load the actual covenant asset data
 	const BOOL high_priority = TRUE;

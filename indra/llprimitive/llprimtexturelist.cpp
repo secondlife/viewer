@@ -386,8 +386,18 @@ void LLPrimTextureList::setSize(S32 new_size)
 		mEntryList.resize(new_size);
 		for (S32 index = current_size; index < new_size; ++index)
 		{
-			LLTextureEntry* new_entry = LLPrimTextureList::newTextureEntry();
-			mEntryList[index] = new_entry;
+			if (current_size > 0
+				&& mEntryList[current_size - 1])
+			{
+				// copy the last valid entry for the new one
+				mEntryList[index] = mEntryList[current_size - 1]->newCopy();
+			}
+			else
+			{
+				// no valid enries to copy, so we new one up
+				LLTextureEntry* new_entry = LLPrimTextureList::newTextureEntry();
+				mEntryList[index] = new_entry;
+			}
 		}
 	}
 	else if (new_size < current_size)

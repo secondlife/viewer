@@ -566,7 +566,7 @@ BOOL LLMuteList::autoRemove(const LLUUID& agent_id, const EAutoReason reason, co
 			else
 			{
 				// not in cache, lookup name from cache
-				gCacheName->get(agent_id, FALSE, notify_automute_callback, (void *)reason);
+				gCacheName->getNameFromUUID(agent_id, FALSE, notify_automute_callback, (void *)reason);
 			}
 		}
 		else

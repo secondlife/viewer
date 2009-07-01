@@ -265,6 +265,31 @@ BOOL LLThrottleGroup::setNominalBPS(F32* throttle_vec)
 	return changed;
 }
 
+// Return bits available in the channel
+S32		LLThrottleGroup::getAvailable(S32 throttle_cat)
+{
+	S32 retval = 0;
+
+	F32 category_bps = mCurrentBPS[throttle_cat];
+	F32 lookahead_bits = category_bps * THROTTLE_LOOKAHEAD_TIME;
+
+	// use a temporary bits_available
+	// since we don't want to change mBitsAvailable every time
+	F32 elapsed_time = (F32)(LLMessageSystem::getMessageTimeSeconds() - mLastSendTime[throttle_cat]);
+	F32 bits_available = mBitsAvailable[throttle_cat] + (category_bps * elapsed_time);
+
+	if (bits_available >= lookahead_bits)
+	{
+		retval = (S32) gThrottleMaximumBPS[throttle_cat];
+	}
+	else 
+	{
+		retval = (S32) bits_available;
+	}
+	
+	return retval;
+}
+
 
 BOOL LLThrottleGroup::checkOverflow(S32 throttle_cat, F32 bits)
 {

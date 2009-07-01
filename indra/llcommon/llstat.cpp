@@ -43,7 +43,7 @@
 
 
 // statics
-BOOL            LLPerfBlock::sStatsEnabled = FALSE;    // Flag for detailed information
+S32	            LLPerfBlock::sStatsFlags = LLPerfBlock::LLSTATS_NO_OPTIONAL_STATS;       // Control what is being recorded
 LLPerfBlock::stat_map_t    LLPerfBlock::sStatMap;    // Map full path string to LLStatTime objects, tracks all active objects
 std::string        LLPerfBlock::sCurrentStatPath = "";    // Something like "/total_time/physics/physics step"
 
@@ -129,6 +129,7 @@ bool LLStatsConfigFile::loadFile()
 
     F32 duration = 0.f;
     F32 interval = 0.f;
+	S32 flags = LLPerfBlock::LLSTATS_BASIC_STATS;
 
     const char * w = "duration";
     if (stats_config.has(w))
@@ -140,8 +141,18 @@ bool LLStatsConfigFile::loadFile()
     {
         interval = (F32)stats_config[w].asReal();
     } 
+    w = "flags";
+    if (stats_config.has(w))
+    {
+		flags = (S32)stats_config[w].asInteger();
+		if (flags == LLPerfBlock::LLSTATS_NO_OPTIONAL_STATS &&
+			duration > 0)
+		{   // No flags passed in, but have a duration, so reset to basic stats
+			flags = LLPerfBlock::LLSTATS_BASIC_STATS;
+		}
+    } 
 
-    mStatsp->setReportPerformanceDuration( duration );
+    mStatsp->setReportPerformanceDuration( duration, flags );
     mStatsp->setReportPerformanceInterval( interval );
 
     if ( duration > 0 )
@@ -253,13 +264,14 @@ void LLPerfStats::dumpIntervalPerformanceStats()
     }
 }
 
-// Set length of performance stat recording
-void    LLPerfStats::setReportPerformanceDuration( F32 seconds )
+// Set length of performance stat recording.  
+// If turning stats on, caller must provide flags
+void    LLPerfStats::setReportPerformanceDuration( F32 seconds, S32 flags /* = LLSTATS_NO_OPTIONAL_STATS */ )
 { 
 	if ( seconds <= 0.f )
 	{
 		mReportPerformanceStatEnd = 0.0;
-		LLPerfBlock::setStatsEnabled( FALSE );
+		LLPerfBlock::setStatsFlags(LLPerfBlock::LLSTATS_NO_OPTIONAL_STATS);		// Make sure all recording is off
 		mFrameStatsFile.close();
 		LLPerfBlock::clearDynamicStats();
 	}
@@ -268,8 +280,8 @@ void    LLPerfStats::setReportPerformanceDuration( F32 seconds )
 		mReportPerformanceStatEnd = LLFrameTimer::getElapsedSeconds() + ((F64) seconds);
 		// Clear failure flag to try and create the log file once
 		mFrameStatsFileFailure = FALSE;
-		LLPerfBlock::setStatsEnabled( TRUE );
 		mSkipFirstFrameStats = TRUE;		// Skip the first report (at the end of this frame)
+		LLPerfBlock::setStatsFlags(flags);
 	}
 }
 
@@ -611,11 +623,26 @@ LLPerfBlock::LLPerfBlock(LLStatTime* stat ) : mPredefinedStat(stat), mDynamicSta
     }
 }
 
-// Use this constructor for dynamically created LLStatTime objects (not pre-defined) with a multi-part key.
-// These are also turned on or off via the switch passed in
-LLPerfBlock::LLPerfBlock( const char* key1, const char* key2 ) : mPredefinedStat(NULL), mDynamicStat(NULL)
+// Use this constructor for normal, optional LLPerfBlock time slices
+LLPerfBlock::LLPerfBlock( const char* key ) : mPredefinedStat(NULL), mDynamicStat(NULL)
 {
-    if (!sStatsEnabled) return;
+    if ((sStatsFlags & LLSTATS_BASIC_STATS) == 0)
+	{	// These are off unless the base set is enabled
+		return;
+	}
+
+	initDynamicStat(key);
+}
+
+	
+// Use this constructor for dynamically created LLPerfBlock time slices
+// that are only enabled by specific control flags
+LLPerfBlock::LLPerfBlock( const char* key1, const char* key2, S32 flags ) : mPredefinedStat(NULL), mDynamicStat(NULL)
+{
+    if ((sStatsFlags & flags) == 0)
+	{
+		return;
+	}
 
     if (NULL == key2 || strlen(key2) == 0)
     {
@@ -629,10 +656,12 @@ LLPerfBlock::LLPerfBlock( const char* key1, const char* key2 ) : mPredefinedStat
     }
 }
 
+// Set up the result data map if dynamic stats are enabled
 void LLPerfBlock::initDynamicStat(const std::string& key)
 {
     // Early exit if dynamic stats aren't enabled.
-    if (!sStatsEnabled) return;
+    if (sStatsFlags == LLSTATS_NO_OPTIONAL_STATS) 
+		return;
 
     mLastPath = sCurrentStatPath;		// Save and restore current path
     sCurrentStatPath += "/" + key;		// Add key to current path

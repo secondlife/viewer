@@ -277,6 +277,17 @@ BOOL LLPermissions::setOwnerAndGroup(
 	return allowed;
 }
 
+//Fix for DEV-33917, last owner isn't used much and has little impact on
+//permissions so it's reasonably safe to do this, however, for now, 
+//limiting the functionality of this routine to objects which are 
+//group owned.
+void LLPermissions::setLastOwner(const LLUUID& last_owner)
+{
+	if (isGroupOwned())
+		mLastOwner = last_owner;
+}
+
+ 
 // only call this if you know what you're doing
 // there are usually perm-bit consequences when the 
 // ownerhsip changes

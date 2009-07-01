@@ -451,9 +451,7 @@ class DarwinSetup(UnixSetup):
             targets = ' '.join(['-target ' + repr(t) for t in targets])
         else:
             targets = ''
-        # cmd = ('xcodebuild -parallelizeTargets ' # parallelizeTargets is suspected of non-deterministic build failures. + poppy 2009-06-05
-        cmd = ('xcodebuild '
-               '-configuration %s %s %s' %
+        cmd = ('xcodebuild -configuration %s %s %s' %
                (self.build_type, ' '.join(opts), targets))
         for d in self.build_dirs():
             try:

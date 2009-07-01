@@ -89,12 +89,8 @@ public:
 	// If the data is currently available, may call the callback immediatly
 	// otherwise, will request the data, and will call the callback when
 	// available.  There is no garuntee the callback will ever be called.
-	void get(const LLUUID& id, BOOL is_group, LLCacheNameCallback callback, void* user_data = NULL);
+	void getNameFromUUID(const LLUUID& id, BOOL is_group, LLCacheNameCallback callback, void* user_data = NULL);
 	
-	// LEGACY
-	void getName(const LLUUID& id, LLCacheNameCallback callback, void* user_data = NULL)
-			{ get(id, FALSE, callback, user_data); }
-
 	// This method needs to be called from time to time to send out
 	// requests.
 	void processPending();

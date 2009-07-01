@@ -3063,7 +3063,7 @@ bool LLDispatchEstateUpdateInfo::operator()(
 	regionp->setOwner(owner_id);
 	// Update estate owner name in UI
 	const BOOL is_group = FALSE;
-	gCacheName->get(owner_id, is_group, LLPanelEstateInfo::callbackCacheName);
+	gCacheName->getNameFromUUID(owner_id, is_group, LLPanelEstateInfo::callbackCacheName);
 
 	U32 estate_id = strtoul(strings[2].c_str(), NULL, 10);
 	panel->setEstateID(estate_id);

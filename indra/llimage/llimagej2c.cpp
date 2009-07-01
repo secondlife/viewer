@@ -178,8 +178,8 @@ LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 							mMaxBytes(0),
 							mRawDiscardLevel(-1),
 							mRate(0.0f),
-							mReversible(FALSE)
-	
+							mReversible(FALSE),
+							mAreaUsedForDataSizeCalcs(0)
 {
 	//We assume here that if we wanted to create via
 	//a dynamic library that the approriate open calls were made
@@ -195,6 +195,12 @@ LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 	}
 
 	mImpl = j2cimpl_create_func();
+
+	// Clear data size table
+	for( S32 i = 0; i <= MAX_DISCARD_LEVEL; i++)
+	{	// Array size is MAX_DISCARD_LEVEL+1
+		mDataSizes[i] = 0;
+	}
 }
 
 // virtual
@@ -367,9 +373,45 @@ S32 LLImageJ2C::calcHeaderSize()
 	return calcHeaderSizeJ2C();
 }
 
+
+// calcDataSize() returns how many bytes to read 
+// to load discard_level (including header and higher discard levels)
 S32 LLImageJ2C::calcDataSize(S32 discard_level)
 {
-	return calcDataSizeJ2C(getWidth(), getHeight(), getComponents(), discard_level, mRate);
+	discard_level = llclamp(discard_level, 0, MAX_DISCARD_LEVEL);
+
+	if ( mAreaUsedForDataSizeCalcs != (getHeight() * getWidth()) 
+		|| mDataSizes[0] == 0)
+	{
+		mAreaUsedForDataSizeCalcs = getHeight() * getWidth();
+		
+		S32 level = MAX_DISCARD_LEVEL;	// Start at the highest discard
+		while ( level >= 0 )
+		{
+			mDataSizes[level] = calcDataSizeJ2C(getWidth(), getHeight(), getComponents(), level, mRate);
+			level--;
+		}
+
+		/* This is technically a more correct way to calculate the size required
+		   for each discard level, since they should include the size needed for
+		   lower levels.   Unfortunately, this doesn't work well and will lead to 
+		   download stalls.  The true correct way is to parse the header.  This will
+		   all go away with http textures at some point.
+
+		// Calculate the size for each discard level.   Lower levels (higher quality)
+		// contain the cumulative size of higher levels		
+		S32 total_size = calcHeaderSizeJ2C();
+
+		S32 level = MAX_DISCARD_LEVEL;	// Start at the highest discard
+		while ( level >= 0 )
+		{	// Add in this discard level and all before it
+			total_size += calcDataSizeJ2C(getWidth(), getHeight(), getComponents(), level, mRate);
+			mDataSizes[level] = total_size;
+			level--;
+		}
+		*/
+	}
+	return mDataSizes[discard_level];
 }
 
 S32 LLImageJ2C::calcDiscardLevelBytes(S32 bytes)
