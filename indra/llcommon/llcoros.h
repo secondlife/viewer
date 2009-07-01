@@ -58,7 +58,7 @@
  * Finally, the next frame ("mainloop" event) after the coroutine terminates,
  * LLCoros will notice its demise and destroy it.
  */
-class LLCoros: public LLSingleton<LLCoros>
+class LL_COMMON_API LLCoros: public LLSingleton<LLCoros>
 {
 public:
     /// Canonical boost::coroutines::coroutine signature we use

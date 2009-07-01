@@ -149,7 +149,7 @@ protected:
 	apr_thread_mutex_t* mMutex;
 };
 
-template <typename Type> class LL_COMMON_API LLAtomic32
+template <typename Type> class LLAtomic32
 {
 public:
 	LLAtomic32<Type>() {};
@@ -167,8 +167,8 @@ private:
 	apr_uint32_t mData;
 };
 
-typedef LLAtomic32<U32> LLAtomicU32;
-typedef LLAtomic32<S32> LLAtomicS32;
+typedef LL_COMMON_API LLAtomic32<U32> LLAtomicU32;
+typedef LL_COMMON_API LLAtomic32<S32> LLAtomicS32;
 
 // File IO convenience functions.
 // Returns NULL if the file fails to openm sets *sizep to file size of not NULL

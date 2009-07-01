@@ -30,7 +30,7 @@ class LLSD;
  * listener class that will register some of its own methods, though any
  * callable can be used.
  */
-class LLEventDispatcher
+class LL_COMMON_API LLEventDispatcher
 {
 public:
     LLEventDispatcher(const std::string& desc, const std::string& key);
@@ -109,7 +109,7 @@ private:
  * LLEventPump name and dispatch key, and add() its methods. Incoming events
  * will automatically be dispatched.
  */
-class LLDispatchListener: public LLEventDispatcher
+class LL_COMMON_API LLDispatchListener: public LLEventDispatcher
 {
 public:
     LLDispatchListener(const std::string& pumpname, const std::string& key);

@@ -607,7 +607,7 @@ private:
  * perfectly reasonable not to set a ["reqid"] key in the request, ignoring
  * the @c isUndefined() ["reqid"] value in the response.
  */
-class LLReqID
+class LL_COMMON_API LLReqID
 {
 public:
     /**
