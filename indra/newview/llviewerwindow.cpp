@@ -30,11 +30,11 @@
  * $/LicenseInfo$
  */
 
-#if defined(LL_WINDOWS)
+#include "llviewerprecompiledheaders.h"
+
+#if LL_WINDOWS
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
-
-#include "llviewerprecompiledheaders.h"
 
 // system library includes
 #include <stdio.h>
