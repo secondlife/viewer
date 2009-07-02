@@ -13,18 +13,33 @@ if (STANDALONE)
 else (STANDALONE)
   use_prebuilt_binary(apr_suite)
   if (WINDOWS)
-    set(APR_LIBRARIES 
-      debug ${ARCH_PREBUILT_DIRS_DEBUG}/apr-1.lib
-      optimized ${ARCH_PREBUILT_DIRS_RELEASE}/apr-1.lib
-      )
-    set(APRICONV_LIBRARIES 
-      debug ${ARCH_PREBUILT_DIRS_DEBUG}/apriconv-1.lib
-      optimized ${ARCH_PREBUILT_DIRS_RELEASE}/apriconv-1.lib
-      )
-    set(APRUTIL_LIBRARIES 
-      debug ${ARCH_PREBUILT_DIRS_DEBUG}/aprutil-1.lib ${APRICONV_LIBRARIES}
-      optimized ${ARCH_PREBUILT_DIRS_RELEASE}/aprutil-1.lib ${APRICONV_LIBRARIES}
-      )
+    if (LLCOMMON_LINK_SHARED)
+      set(APR_LIBRARIES 
+        debug ${ARCH_PREBUILT_DIRS_DEBUG}/libapr-1.lib
+        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libapr-1.lib
+        )
+      set(APRICONV_LIBRARIES 
+        debug ${ARCH_PREBUILT_DIRS_DEBUG}/libapriconv-1.lib
+        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libapriconv-1.lib
+        )
+      set(APRUTIL_LIBRARIES 
+        debug ${ARCH_PREBUILT_DIRS_DEBUG}/libaprutil-1.lib ${APRICONV_LIBRARIES}
+        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libaprutil-1.lib ${APRICONV_LIBRARIES}
+        )
+    else (LLCOMMON_LINK_SHARED)
+      set(APR_LIBRARIES 
+        debug ${ARCH_PREBUILT_DIRS_DEBUG}/apr-1.lib
+        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/apr-1.lib
+        )
+      set(APRICONV_LIBRARIES 
+        debug ${ARCH_PREBUILT_DIRS_DEBUG}/apriconv-1.lib
+        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/apriconv-1.lib
+        )
+      set(APRUTIL_LIBRARIES 
+        debug ${ARCH_PREBUILT_DIRS_DEBUG}/aprutil-1.lib ${APRICONV_LIBRARIES}
+        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/aprutil-1.lib ${APRICONV_LIBRARIES}
+        )
+    endif (LLCOMMON_LINK_SHARED)
   elseif (DARWIN)
     set(APR_LIBRARIES 
       debug ${ARCH_PREBUILT_DIRS_DEBUG}/libapr-1.a
