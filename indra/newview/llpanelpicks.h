@@ -37,13 +37,14 @@
 #include "v3dmath.h"
 #include "lluuid.h"
 #include "llavatarpropertiesprocessor.h"
+#include "llpanelavatar.h"
 
 class LLMessageSystem;
 class LLVector3d;
 class LLPanelProfileTab;
-class LLPanelMeProfile;
 class LLPanelPick;
 class LLAgent;
+class LLMenuGL;
 class LLPickItem;
 
 
@@ -52,15 +53,10 @@ class LLPanelPicks
 {
 public:
 	LLPanelPicks(const LLUUID& avatar_id = LLUUID::null);
-	LLPanelPicks(const Params& params );
 	~LLPanelPicks();
 
 	static void* create(void* data);
 
-	static void teleport(const LLVector3d& position);
-
-	static void showOnMap(const LLVector3d& position);
-	
 	/*virtual*/ BOOL postBuild(void);
 
 	/*virtual*/ void onActivate(const LLUUID& id);
@@ -69,28 +65,38 @@ public:
 
 	void updateData();
 
-	void setPanelMeProfile(LLPanelMeProfile*);
-
 	void clear();
 
-	//*TODO implement
-	//LLPickItem& getSelectedPick();
+	// returns the selected pick item
+	LLPickItem* getSelectedPickItem();
+
+	// removes the specified pick item
+	void removePickItem(LLPickItem* pick_item);
+
+	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 
 private:
-	static void onClickInfo(void* data);
-	static void onClickNew(void* data);
 	static void onClickDelete(void* data);
 	static void onClickTeleport(void* data);
 	static void onClickMap(void* data);
 
 	bool callbackDelete(const LLSD& notification, const LLSD& response);
 
+	void reshapePicksList();
+	void reshapePickItem(LLView* const pick_item, const S32 last_bottom);
+	LLView* getPicksList() const;
 	void updateButtons();
 
-	typedef std::vector<LLPickItem*> picture_list_t;
-	picture_list_t mPickItemList;
-	LLPanelMeProfile* mMeProfilePanel;
+	void setSelectedPickItem(LLPickItem* item);
 
+	BOOL isMouseInPick(S32 x, S32 y);
+
+	typedef std::list<LLPickItem*> picture_list_t;
+	picture_list_t mPickItemList;
+
+	LLMenuGL* mPopupMenu;
+	LLPickItem* mSelectedPickItem;
 };
 
 class LLPickItem : public LLPanel, public LLAvatarPropertiesObserver
@@ -103,13 +109,11 @@ public:
 
 	void init(LLPickData* pick_data);
 
-	void setPictureName(const std::string& name);
+	void setPickName(const std::string& name);
 
-	void setPictureDescription(const std::string& descr);
+	void setPickDesc(const std::string& descr);
 
-	void setPicture();
-
-	void setPictureId(const LLUUID& id);
+	void setPickId(const LLUUID& id);
 
 	void setCreatorId(const LLUUID& id) {mCreatorID = id;};
 
@@ -139,7 +143,7 @@ public:
 
 protected:
 
-	LLUUID mPicID;
+	LLUUID mPickID;
 	LLUUID mCreatorID;
 	LLUUID mParcelID;
 	LLUUID mSnapshotID;

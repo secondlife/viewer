@@ -2724,7 +2724,8 @@ void LLAgent::startTyping()
 	{
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_START);
 	}
-	LLBottomTray::getInstance()->sendChatFromViewer("", CHAT_TYPE_START, FALSE);
+	if(gBottomTray)
+		gBottomTray->sendChatFromViewer("", CHAT_TYPE_START, FALSE);
 }
 
 //-----------------------------------------------------------------------------
@@ -2736,7 +2737,8 @@ void LLAgent::stopTyping()
 	{
 		clearRenderState(AGENT_STATE_TYPING);
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_STOP);
-		LLBottomTray::getInstance()->sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
+		if(gBottomTray)
+			gBottomTray->sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
 	}
 }
 
@@ -2811,7 +2813,8 @@ void LLAgent::endAnimationUpdateUI()
 		LLNavigationBar::getInstance()->setVisible(TRUE);
 		gStatusBar->setVisibleForMouselook(true);
 
-		LLBottomTray::getInstance()->setVisible(TRUE);
+		if(gBottomTray)
+			gBottomTray->setVisible(TRUE);
 
 		LLSideTray::getInstance()->setVisible(TRUE);
 
@@ -2901,7 +2904,8 @@ void LLAgent::endAnimationUpdateUI()
 		LLNavigationBar::getInstance()->setVisible(FALSE);
 		gStatusBar->setVisibleForMouselook(false);
 
-		LLBottomTray::getInstance()->setVisible(FALSE);
+		if(gBottomTray)
+			gBottomTray->setVisible(FALSE);
 
 		LLSideTray::getInstance()->setVisible(FALSE);
 

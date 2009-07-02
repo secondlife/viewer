@@ -82,9 +82,9 @@
           top="9" left="10" width="16" height="16"
           follows="bottom|left"
           font="SansSerifBigBold"
-          image_hover_selected="add_btn.tga"
-          image_selected="add_btn.tga"
-          image_unselected="add_btn.tga" picture_style="true"
+          image_hover_selected="plus.tga"
+          image_selected="plus.tga"
+          image_unselected="plus.tga" picture_style="true"
         />
         <button
           name="del_btn"
@@ -92,9 +92,9 @@
           top_delta="0" left_pad="24" width="16" height="16"
           follows="bottom|left"
           font="SansSerifBigBold"
-          image_hover_selected="del_btn.tga"
-          image_selected="del_btn.tga"
-          image_unselected="del_btn.tga"
+          image_hover_selected="minus.tga"
+          image_selected="minus.tga"
+          image_unselected="minus.tga"
           picture_style="true"
         />
         <button
@@ -137,9 +137,9 @@
           top="9" left="10" width="16" height="16"
           follows="bottom|left"
           font="SansSerifBigBold"
-          image_hover_selected="add_btn.tga"
-          image_selected="add_btn.tga"
-          image_unselected="add_btn.tga"
+          image_hover_selected="plus.tga"
+          image_selected="plus.tga"
+          image_unselected="plus.tga"
           picture_style="true"
         />
         <button
@@ -148,9 +148,9 @@
           top_delta="0" left_pad="24" width="16" height="16"
           follows="bottom|left"
           font="SansSerifBigBold"
-          image_hover_selected="del_btn.tga"
-          image_selected="del_btn.tga"
-          image_unselected="del_btn.tga"
+          image_hover_selected="minus.tga"
+          image_selected="minus.tga"
+          image_unselected="minus.tga"
           picture_style="true"
         />
         <button
@@ -159,9 +159,9 @@
           top_delta="0" left_pad="24" width="16" height="16"
           follows="bottom|left"
           font="SansSerifBigBold"
-          image_hover_selected="activate_btn.tga"
-          image_selected="activate_btn.tga"
-          image_unselected="activate_btn.tga"
+          image_hover_selected="group_activate_btn.tga"
+          image_selected="group_activate_btn.tga"
+          image_unselected="group_activate_btn.tga"
           picture_style="true"
         />
         <button
@@ -434,8 +434,8 @@
 	class="panel_profile_view" 
 	filename="panel_profile_view.xml"
 	top="0"
-	left="5"
-	width="345"
+	left="0"
+	width="355"
 	height="465"
 	follows="left|right|top|bottom"
 	visible="false"

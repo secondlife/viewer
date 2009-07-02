@@ -264,7 +264,7 @@ void LLIMChiclet::setShowSpeaker(bool show)
 void LLIMChiclet::draw()
 {
 	LLUICtrl::draw();
-	gl_rect_2d(1, getRect().getHeight(), getRect().getWidth(), 1, LLColor4(0.0f,0.0f,0.0f,1.f), FALSE);
+	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 1, LLColor4(0.0f,0.0f,0.0f,1.f), FALSE);
 }
 
 S32 LLIMChiclet::calcCounterWidth()
@@ -281,27 +281,27 @@ S32 LLIMChiclet::calcCounterWidth()
 
 LLChicletPanel::LLChicletPanel(const Params&p)
 : LLPanel(p)
+, mScrollArea(NULL)
 , mLeftScroll(NULL)
 , mRightScroll(NULL)
-, mFirstToShow(0)
 {
 	LLButton::Params params;
 
 	params.name("scroll_left");
 	params.label(LLStringUtil::null);
 	params.tab_stop(false);
-	params.image_selected(LLUI::getUIImage("scroll_left.tga"));
-	params.image_unselected(LLUI::getUIImage("scroll_left.tga"));
-	params.image_hover_selected(LLUI::getUIImage("scroll_left.tga"));
+	params.image_selected(LLUI::getUIImage("bottom_tray_scroll_left.tga"));
+	params.image_unselected(LLUI::getUIImage("bottom_tray_scroll_left.tga"));
+	params.image_hover_selected(LLUI::getUIImage("bottom_tray_scroll_left.tga"));
 	mLeftScroll = LLUICtrlFactory::create<LLButton>(params);
 	addChild(mLeftScroll);
 	mLeftScroll->setClickedCallback(boost::bind(&LLChicletPanel::onLeftScrollClick,this));
 	mLeftScroll->setEnabled(false);
 
 	params.name("scroll_right");
-	params.image_selected(LLUI::getUIImage("scroll_right.tga"));
-	params.image_unselected(LLUI::getUIImage("scroll_right.tga"));
-	params.image_hover_selected(LLUI::getUIImage("scroll_right.tga"));
+	params.image_selected(LLUI::getUIImage("bottom_tray_scroll_right.tga"));
+	params.image_unselected(LLUI::getUIImage("bottom_tray_scroll_right.tga"));
+	params.image_hover_selected(LLUI::getUIImage("bottom_tray_scroll_right.tga"));
 	mRightScroll = LLUICtrlFactory::create<LLButton>(params);
 	addChild(mRightScroll);
 	mRightScroll->setClickedCallback(boost::bind(&LLChicletPanel::onRightScrollClick,this));
@@ -315,19 +315,6 @@ LLChicletPanel::LLChicletPanel(const Params&p)
 LLChicletPanel::~LLChicletPanel()
 {
 
-}
-
-LLChicletPanel* LLChicletPanel::create()
-{
-	LLChicletPanel* panel = new LLChicletPanel(LLChicletPanel::Params());
-	return panel;
-}
-
-BOOL LLChicletPanel::postBuild()
-{
-	LLPanel::postBuild();
-
-	return TRUE;
 }
 
 LLChiclet* LLChicletPanel::createChiclet(LLSD* imSessionId, S32 pos)
@@ -352,9 +339,19 @@ bool LLChicletPanel::addChiclet(LLChiclet* chiclet, S32 pos)
 {
 	if(mScrollArea->addChild(chiclet))
 	{
+		// if first chiclet is scrolled left, the created one should be scrolled left too
+		if(0 == pos && canScrollLeft())
+		{
+			LLRect first_chiclet_rect = getChiclet(0)->getRect();
+			chiclet->setRect(first_chiclet_rect);
+		}
+
 		mChicletList.insert(mChicletList.begin() + pos, chiclet);
 
 		chiclet->setLeftButtonClickCallback(boost::bind(&LLChicletPanel::onChicletClick, this, _1, _2));
+
+		arrange();
+		showScrollButtonsIfNeeded();
 
 		return true;
 	}
@@ -378,6 +375,7 @@ LLChiclet* LLChicletPanel::findIMChiclet(LLSD* imSessionId)
 	chiclet_list_t::const_iterator it = mChicletList.begin();
 	for( ; mChicletList.end() != it; ++it)
 	{
+		// Only IM Chiclets have session id, skip non IM Chiclets
 		LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(*it);
 		if(!chiclet)
 		{
@@ -394,21 +392,35 @@ LLChiclet* LLChicletPanel::findIMChiclet(LLSD* imSessionId)
 
 LLChiclet* LLChicletPanel::getChiclet(S32 pos)
 {
-	return mChicletList.at(pos);
+	return mChicletList[pos];
 }
 
 void LLChicletPanel::removeChiclet(chiclet_list_t::iterator it)
 {
+	// if possible, after deletion shift chiclets right
+	if(canScrollLeft() && !canScrollRight())
+	{
+		LLChiclet* chiclet = *it;
+		LLRect first_chiclet_rect = getChiclet(0)->getRect();
+		S32 deleted_chiclet_width = chiclet->getRect().getWidth();
+		deleted_chiclet_width += CHICLET_PADDING;
+		
+		first_chiclet_rect.mLeft += deleted_chiclet_width;
+		first_chiclet_rect.mRight += deleted_chiclet_width;
+
+		getChiclet(0)->setRect(first_chiclet_rect);
+	}
+
 	mScrollArea->removeChild(*it);
-	delete *it;
 	mChicletList.erase(it);
-	mLeftScroll->setEnabled(canScrollLeft());
-	mRightScroll->setEnabled(canScrollRight());
+	
+	arrange();
+	showScrollButtonsIfNeeded();
 }
 
 void LLChicletPanel::removeChiclet(S32 pos)
 {
-	if(0 > pos || getChicletCount() >= pos)
+	if(0 > pos || getChicletCount() <= pos)
 	{
 		return;
 	}
@@ -434,6 +446,7 @@ void LLChicletPanel::removeIMChiclet(LLSD* imSessionId)
 	chiclet_list_t::iterator it = mChicletList.begin();
 	for( ; mChicletList.end() != it; ++it)
 	{
+		// Only IM Chiclets have session id, skip non IM Chiclets
 		LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(*it);
 		if(!chiclet)
 		{
@@ -453,8 +466,8 @@ void LLChicletPanel::removeAll()
 	mScrollArea->deleteAllChildren();
 
 	mChicletList.erase(mChicletList.begin(), mChicletList.end());
-	mLeftScroll->setEnabled(false);
-	mRightScroll->setEnabled(false);
+
+	showScrollButtonsIfNeeded();
 }
 
 void LLChicletPanel::reshape(S32 width, S32 height, BOOL called_from_parent )
@@ -463,41 +476,92 @@ void LLChicletPanel::reshape(S32 width, S32 height, BOOL called_from_parent )
 
 	mLeftScroll->setRect(LLRect(0,CHICLET_HEIGHT,SCROLL_BUTTON_WIDTH,
 		CHICLET_HEIGHT - SCROLL_BUTTON_HEIGHT));
-	mRightScroll->setRect(LLRect(getRect().getWidth()-SCROLL_BUTTON_WIDTH,CHICLET_HEIGHT,
-		getRect().getWidth(),CHICLET_HEIGHT - SCROLL_BUTTON_HEIGHT));
+	mRightScroll->setRect(LLRect(width-SCROLL_BUTTON_WIDTH,CHICLET_HEIGHT,
+		width,CHICLET_HEIGHT - SCROLL_BUTTON_HEIGHT));
+
+	S32 old_scroll_width = mScrollArea->getRect().getWidth();
 
 	mScrollArea->setRect(LLRect(SCROLL_BUTTON_WIDTH + 5,CHICLET_HEIGHT + 1,
-		getRect().getWidth() - SCROLL_BUTTON_WIDTH - 5, 0));
+		width - SCROLL_BUTTON_WIDTH - 5, 0));
 
+	S32 current_scroll_width = mScrollArea->getRect().getWidth();
+	reshapeScrollArea(current_scroll_width - old_scroll_width);
 
-	arrange();
+	showScrollButtonsIfNeeded();
+}
+
+void LLChicletPanel::reshapeScrollArea(S32 delta_width)
+{
+	if(mChicletList.empty())
+		return;
+
+	S32 last_chiclet_right = (*mChicletList.rbegin())->getRect().mRight;
+	S32 scroll_width = mScrollArea->getRect().getWidth();
+
+	// Align all chiclets to last chiclet
+	// if there is a gap between last chiclet and scroll area right side
+	// or last chiclet is at visible area right side
+	if( last_chiclet_right < scroll_width 
+		|| last_chiclet_right == scroll_width - delta_width)
+	{
+		LLRect first_chiclet_rect = getChiclet(0)->getRect();
+		// if we can right shift all chiclets
+		if(first_chiclet_rect.mLeft < 0)
+		{
+			first_chiclet_rect.mLeft += delta_width;
+			first_chiclet_rect.mRight += delta_width;
+
+			getChiclet(0)->setRect(first_chiclet_rect);
+
+			arrange();
+		}
+	}
 }
 
 void LLChicletPanel::arrange()
 {
-	S32 left = 0;
-	S32 size = getChicletCount();
+	if(mChicletList.empty())
+		return;
 
-	for( int n = mFirstToShow; n < size; ++n)
+	LLRect first_chiclet_rect = getChiclet(0)->getRect();
+	// don't allow gap between first chiclet and scroll area left side
+	if(first_chiclet_rect.mLeft > 0)
+	{
+		first_chiclet_rect.mRight = first_chiclet_rect.getWidth();
+		first_chiclet_rect.mLeft = 0;
+	}
+
+	S32 left = first_chiclet_rect.mLeft;
+
+	S32 size = getChicletCount();
+	for( int n = 0; n < size; ++n)
 	{
 		LLChiclet* chiclet = getChiclet(n);
 		S32 chiclet_width = chiclet->getRequiredRect().getWidth();
 		LLRect rc(left, CHICLET_HEIGHT, left + chiclet_width, 0);
 
 		chiclet->setRect(rc);
-		chiclet->reshape(rc.getWidth(),rc.getHeight());
 
 		left += chiclet_width + CHICLET_PADDING;
 	}
+}
 
-	mLeftScroll->setEnabled(canScrollLeft());
-	mRightScroll->setEnabled(canScrollRight());
+void LLChicletPanel::showScrollButtonsIfNeeded()
+{
+	bool can_scroll_left = canScrollLeft();
+	bool can_scroll_right = canScrollRight();
+
+	mLeftScroll->setEnabled(can_scroll_left);
+	mRightScroll->setEnabled(can_scroll_right);
+
+	bool show_scroll_buttons = can_scroll_left || can_scroll_right;
+
+	mLeftScroll->setVisible(show_scroll_buttons);
+	mRightScroll->setVisible(show_scroll_buttons);
 }
 
 void LLChicletPanel::draw()
 {
-	//gl_rect_2d(0,getRect().getHeight(),getRect().getWidth(),0,LLColor4(0.f,1.f,1.f,1.f),TRUE);
-
 	child_list_const_iter_t it = getChildList()->begin();
 	for( ; getChildList()->end() != it; ++it)
 	{
@@ -516,36 +580,60 @@ void LLChicletPanel::draw()
 
 bool LLChicletPanel::canScrollRight()
 {
-	S32 width = 0;
-	LLRect visible_rect = mScrollArea->getRect();
+	if(mChicletList.empty())
+		return false;
 
-	chiclet_list_t::const_iterator it = mChicletList.begin() + mFirstToShow;
-	for(;mChicletList.end() != it; ++it)
-	{
-		LLChiclet* chiclet = *it;
-		width += chiclet->getRect().getWidth() + CHICLET_PADDING;
-		if(width > visible_rect.getWidth())
-			return true;
-	}
+	S32 scroll_width = mScrollArea->getRect().getWidth();
+	S32 last_chiclet_right = (*mChicletList.rbegin())->getRect().mRight;
+
+	if(last_chiclet_right > scroll_width)
+		return true;
+
 	return false;
 }
 
 bool LLChicletPanel::canScrollLeft()
 {
-	return mFirstToShow > 0;
+	if(mChicletList.empty())
+		return false;
+
+	return getChiclet(0)->getRect().mLeft < 0;
 }
 
 void LLChicletPanel::scroll(ScrollDirection direction)
 {
-	S32 elem = 0;
-	if(SCROLL_LEFT == direction)
-		elem = mFirstToShow;
-	else if(SCROLL_RIGHT)
-		elem = mFirstToShow - 1;
+	S32 first_visible_chiclet = getFirstVisibleChiclet();
+	if(-1 == first_visible_chiclet)
+		return;
 
-	S32 offset = mChicletList[elem]->getRect().getWidth() + 
-		CHICLET_PADDING;
-	offset *= direction;
+	S32 offset = 0;
+
+	if(SCROLL_LEFT == direction)
+	{
+		if(0 == first_visible_chiclet)
+		{
+			// shift chiclets in case first chiclet is partially visible
+			offset = llabs(getChiclet(first_visible_chiclet)->getRect().mLeft);
+		}
+		else
+		{
+			offset = getChiclet(first_visible_chiclet - 1)->getRect().getWidth() + CHICLET_PADDING;
+		}
+	}
+	else if(SCROLL_RIGHT == direction)
+	{
+		S32 last_chiclet_right = (*mChicletList.rbegin())->getRect().mRight;
+		S32 scroll_rect_width = mScrollArea->getRect().getWidth();
+
+		offset = getChiclet(first_visible_chiclet)->getRect().getWidth() + CHICLET_PADDING;
+		offset *= direction;
+		// if after scrolling, the last chiclet will not be aligned to 
+		// scroll area right side - align it.
+		if( last_chiclet_right + offset < scroll_rect_width )
+		{
+			offset = scroll_rect_width - last_chiclet_right;
+		}
+	}
 
 	chiclet_list_t::const_iterator it = mChicletList.begin();
 	for(;mChicletList.end() != it; ++it)
@@ -555,14 +643,33 @@ void LLChicletPanel::scroll(ScrollDirection direction)
 	}
 }
 
+S32 LLChicletPanel::getFirstVisibleChiclet()
+{
+	if(mChicletList.empty())
+		return -1;
+
+	for(int n = 0; n < getChicletCount(); ++n)
+	{
+		LLRect rc = getChiclet(n)->getRect();
+		if(n > 0)
+			rc.mLeft -= CHICLET_PADDING;
+		// bottom left of scroll area is first visible point
+		if(rc.pointInRect(0,0))
+		{
+			return n;
+		}
+	}
+
+	return -1;
+}
+
 void LLChicletPanel::scrollLeft()
 {
 	if(canScrollLeft())
 	{
-		--mFirstToShow;
 		scroll(SCROLL_LEFT);
-		mLeftScroll->setEnabled(canScrollLeft());
-		mRightScroll->setEnabled(canScrollRight());
+		
+		showScrollButtonsIfNeeded();
 	}
 }
 
@@ -570,10 +677,9 @@ void LLChicletPanel::scrollRight()
 {
 	if(canScrollRight())
 	{
-		++mFirstToShow;
 		scroll(SCROLL_RIGHT);
-		mLeftScroll->setEnabled(canScrollLeft());
-		mRightScroll->setEnabled(canScrollRight());
+		
+		showScrollButtonsIfNeeded();
 	}
 }
 
@@ -605,6 +711,10 @@ BOOL LLChicletPanel::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	}
 	return TRUE;
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 LLTalkButton::LLTalkButton(const LLUICtrl::Params& p)
 : LLUICtrl(p)
@@ -639,8 +749,8 @@ LLTalkButton::LLTalkButton(const LLUICtrl::Params& p)
 	show_params.tab_stop(false);
 	show_params.is_toggle(true);
 	show_params.picture_style(true);
-	show_params.image_selected(LLUI::getUIImage("show_btn_selected.tga"));
-	show_params.image_unselected(LLUI::getUIImage("show_btn.tga"));
+	show_params.image_selected(LLUI::getUIImage("talk_btn_right_selected.tga"));
+	show_params.image_unselected(LLUI::getUIImage("talk_btn_right.tga"));
 	mShowBtn = LLUICtrlFactory::create<LLButton>(show_params);
 	addChild(mShowBtn);
 
@@ -704,8 +814,8 @@ void LLTalkButton::onClick_ShowBtn()
 	mPrivateCallPanel = new LLVoiceControlPanel;
 	getRootView()->addChild(mPrivateCallPanel);
 
-	y = LLBottomTray::getInstance()->getRect().getHeight()
-		+ mPrivateCallPanel->getRect().getHeight();
+ 	if(gBottomTray)
+ 		y = gBottomTray->getRect().getHeight() + mPrivateCallPanel->getRect().getHeight();
 
 	LLRect rect;
 	rect.setLeftTopAndSize(x, y, mPrivateCallPanel->getRect().getWidth(), mPrivateCallPanel->getRect().getHeight());

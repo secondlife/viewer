@@ -180,7 +180,7 @@ public:
 		Params(){};
 	};
 
-	static LLChicletPanel* create();
+	~LLChicletPanel();
 
 	LLChiclet* createChiclet(LLSD* imSessionId = NULL, S32 pos = 0);
 
@@ -199,10 +199,6 @@ public:
 	void removeIMChiclet(LLSD* imSessionId);
 
 	void removeAll();
-
-	void arrange();
-
-	~LLChicletPanel();
 
 	void scrollLeft();
 
@@ -224,17 +220,21 @@ public:
 
 	void draw();
 
-	BOOL postBuild();
-
 protected:
 	LLChicletPanel(const Params&p);
 	friend class LLUICtrlFactory;
 
-	bool needsScrolling();
+	void arrange();
 
 	bool canScrollRight();
 
 	bool canScrollLeft();
+
+	void showScrollButtonsIfNeeded();
+
+	S32 getFirstVisibleChiclet();
+
+	void reshapeScrollArea(S32 delta_width);
 
 	enum ScrollDirection
 	{
@@ -255,8 +255,6 @@ protected:
 	chiclet_list_t mChicletList;
 	LLButton* mLeftScroll;
 	LLButton* mRightScroll;
-	S32 mFirstToShow;
-	S32 mLastToShow;
 	LLPanel* mScrollArea;
 };
 

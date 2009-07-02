@@ -62,10 +62,18 @@ using namespace LLOldEvents;
 #define NEARBY_LIST_UPDATE_INTERVAL 1
 #define RECENT_LIST_UPDATE_DELAY	1
 
+static const std::string NEARBY_TAB_NAME	= "nearby_panel";
+static const std::string FRIENDS_TAB_NAME	= "friends_panel";
+static const std::string GROUP_TAB_NAME		= "groups_panel";
+static const std::string RECENT_TAB_NAME	= "recent_panel";
+
 static LLRegisterPanelClassWrapper<LLPanelPeople> t_people("panel_people");
 
 //=============================================================================
 
+/**
+ * Updates given list either on regular basis or on external events (up to implementation). 
+ */
 class LLPanelPeople::Updater
 {
 public:
@@ -74,15 +82,31 @@ public:
 	: mCallback(cb)
 	{
 	}
+
 	virtual ~Updater()
 	{
 	}
+
+	/**
+	 * Force the list updates.
+	 * 
+	 * This may start repeated updates until all names are complete.
+	 */
+	virtual void forceUpdate() {}
+
+	/**
+	 * Activate/deactivate updater.
+	 *
+	 * This may start/stop regular updates.
+	 */
 	virtual void setActive(bool) {}
+
 protected:
 	bool updateList(U32 mask = 0)
 	{
 		return mCallback(mask);
 	}
+
 	callback_t		mCallback;
 };
 
@@ -99,10 +123,13 @@ public:
 
 /**
  * Updates the friends list.
+ * 
+ * Updates the list on external events which trigger the changed() method. 
  */
 class LLFriendListUpdater : public LLAvatarListUpdater, public LLFriendObserver
 {
 	LOG_CLASS(LLFriendListUpdater);
+
 public: 
 	LLFriendListUpdater(callback_t cb)
 	:	LLAvatarListUpdater(cb, FRIEND_LIST_UPDATE_TIMEOUT)
@@ -111,20 +138,20 @@ public:
 		// For notification when SIP online status changes.
 		LLVoiceClient::getInstance()->addObserver(this);
 	}
+
 	~LLFriendListUpdater()
 	{
 		LLVoiceClient::getInstance()->removeObserver(this);
 		LLAvatarTracker::instance().removeObserver(this);
 	}
-	/*virtual*/ void setActive(bool val)
-	{
-		if (!val)
-			return;
 
+	/*virtual*/ void forceUpdate()
+	{
 		// Perform updates until all names are loaded.
 		if (!updateList(LLFriendObserver::ADD))
 			changed(LLFriendObserver::ADD);
 	}
+
 	/*virtual*/ void changed(U32 mask)
 	{
 		// events can arrive quickly in bulk - we need not process EVERY one of them -
@@ -134,6 +161,7 @@ public:
 		// save-up all the mask-bits which have come-in
 		mMask |= mask;
 	}
+
 	/*virtual*/ BOOL tick()
 	{
 		if (updateList(mMask))
@@ -145,33 +173,33 @@ public:
 
 		return FALSE;
 	}
+
 private:
 	U32 mMask;
 };
 
 /**
  * Periodically updates the nearby people list while the Nearby tab is active.
+ * 
+ * The period is defined by NEARBY_LIST_UPDATE_INTERVAL constant.
  */
 class LLNearbyListUpdater : public LLAvatarListUpdater
 {
 	LOG_CLASS(LLNearbyListUpdater);
+
 public:
 	LLNearbyListUpdater(callback_t cb)
 	:	LLAvatarListUpdater(cb, NEARBY_LIST_UPDATE_INTERVAL)
 	{
 		setActive(false);
 	}
-	/*virtual*/ BOOL tick()
-	{
-		updateList();
-		return FALSE;
-	}
+
 	/*virtual*/ void setActive(bool val)
 	{
 		if (val)
 		{
 			// update immediately and start regular updates
-			tick();
+			updateList();
 			mEventTimer.start(); 
 		}
 		else
@@ -179,6 +207,17 @@ public:
 			// stop regular updates
 			mEventTimer.stop();
 		}
+	}
+
+	/*virtual*/ void forceUpdate()
+	{
+		updateList();
+	}
+
+	/*virtual*/ BOOL tick()
+	{
+		updateList();
+		return FALSE;
 	}
 private:
 };
@@ -189,13 +228,20 @@ private:
 class LLRecentListUpdater : public LLAvatarListUpdater
 {
 	LOG_CLASS(LLRecentListUpdater);
+
 public:
 	LLRecentListUpdater(callback_t cb)
 	:	LLAvatarListUpdater(cb, RECENT_LIST_UPDATE_DELAY)
 	{
 		LLRecentPeople::instance().setChangedCallback(boost::bind(&LLRecentListUpdater::onRecentPeopleChanged, this));
 	}
+
 private:
+	/*virtual*/ void forceUpdate()
+	{
+		onRecentPeopleChanged();
+	}
+	
 	/*virtual*/ BOOL tick()
 	{
 		// Update the list until we get all the names. 
@@ -207,6 +253,7 @@ private:
 
 		return FALSE;
 	}
+
 	void onRecentPeopleChanged()
 	{
 		if (!updateList())
@@ -223,16 +270,24 @@ private:
 class LLGroupListUpdater : public LLPanelPeople::Updater, public LLSimpleListener
 {
 	LOG_CLASS(LLGroupListUpdater);
+
 public:
 	LLGroupListUpdater(callback_t cb)
 	:	LLPanelPeople::Updater(cb)
 	{
 		gAgent.addListener(this, "new group");
 	}
+
 	~LLGroupListUpdater()
 	{
 		gAgent.removeListener(this);
 	}
+
+	/*virtual*/ void forceUpdate()
+	{
+		updateList();
+	}
+
 	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		// Why is "new group" sufficient?
@@ -277,22 +332,23 @@ LLPanelPeople::~LLPanelPeople()
 BOOL LLPanelPeople::postBuild()
 {
 	mSearchEditor = getChild<LLSearchEditor>("filter_input");
+	mSearchEditor->setSearchCallback(boost::bind(&LLPanelPeople::onSearchEdit, this, _1));
 
 	mTabContainer = getChild<LLTabContainer>("tabs");
 	mTabContainer->setCommitCallback(boost::bind(&LLPanelPeople::onTabSelected, this, _2));
-	mTabContainer->selectTabByName("friends_panel"); // must go after setting commit callback
+	mTabContainer->selectTabByName(FRIENDS_TAB_NAME); // must go after setting commit callback
 
-	mFriendList = getChild<LLPanel>("friends_panel")->getChild<LLAvatarList>("avatar_list");
-	mNearbyList = getChild<LLPanel>("nearby_panel")->getChild<LLAvatarList>("avatar_list");
-	mRecentList = getChild<LLPanel>("recent_panel")->getChild<LLAvatarList>("avatar_list");
+	mFriendList = getChild<LLPanel>(FRIENDS_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
+	mNearbyList = getChild<LLPanel>(NEARBY_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
+	mRecentList = getChild<LLPanel>(RECENT_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
 	mGroupList = getChild<LLGroupList>("group_list");
 
-	LLPanel* groups_panel = getChild<LLPanel>("groups_panel");
+	LLPanel* groups_panel = getChild<LLPanel>(GROUP_TAB_NAME);
 	groups_panel->childSetAction("activate_btn", boost::bind(&LLPanelPeople::onActivateButtonClicked,	this));
 	groups_panel->childSetAction("plus_btn",	boost::bind(&LLPanelPeople::onGroupPlusButtonClicked,	this));
 	groups_panel->childSetAction("minus_btn",	boost::bind(&LLPanelPeople::onGroupMinusButtonClicked,	this));
 
-	LLPanel* friends_panel = getChild<LLPanel>("friends_panel");
+	LLPanel* friends_panel = getChild<LLPanel>(FRIENDS_TAB_NAME);
 	friends_panel->childSetAction("add_btn",	boost::bind(&LLPanelPeople::onAddFriendWizButtonClicked,	this));
 	friends_panel->childSetAction("del_btn",	boost::bind(&LLPanelPeople::onDeleteFriendButtonClicked,	this));
 
@@ -326,82 +382,84 @@ BOOL LLPanelPeople::postBuild()
 	mGroupMinusMenuHandle = minus_menu->getHandle();
 
 	// Perform initial update.
-	mFriendListUpdater->setActive(true);
+	mFriendListUpdater->forceUpdate();
 	updateGroupList();
 	updateRecentList();
 
 	return TRUE;
 }
 
-bool LLPanelPeople::refreshFriendNames(U32 changed_mask)
+bool LLPanelPeople::updateFriendList(U32 changed_mask)
 {
-	// get all buddies we know about
-	LLAvatarTracker::buddy_map_t all_buddies;
-	LLAvatarTracker::instance().copyBuddyList(all_buddies);
-	
-	bool have_names = true;
-
+	// Refresh names.
 	if (changed_mask & (LLFriendObserver::ADD | LLFriendObserver::REMOVE | LLFriendObserver::ONLINE))
 	{
+		// get all buddies we know about
+		LLAvatarTracker::buddy_map_t all_buddies;
+		LLAvatarTracker::instance().copyBuddyList(all_buddies);
+
 		// *TODO: it's suboptimal to rebuild the whole list on online status change.
 
 		// convert the buddy map to vector
-		std::vector<LLUUID> avatar_ids;
+		mFriendVec.clear();
 		LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();
 		for (; buddy_it != all_buddies.end(); ++buddy_it)
-			avatar_ids.push_back(buddy_it->first);
+			mFriendVec.push_back(buddy_it->first);
 
-		// do refresh the friend list
-		if (avatar_ids.size() > 0)
-			have_names = mFriendList->updateList(avatar_ids);
-		else	
-			mFriendList->setCommentText(getString("no_friends"));
+		return filterFriendList();
 	}
 
-	return have_names;
-}
-
-bool LLPanelPeople::updateFriendList(U32 changed_mask)
-{
-	// Refresh names. 
-	if (changed_mask & (LLFriendObserver::ADD | LLFriendObserver::REMOVE | LLFriendObserver::ONLINE))
-	{
-		return refreshFriendNames(changed_mask);
-	}
-	
 	return true;
 }
 
 bool LLPanelPeople::updateNearbyList()
 {
-	std::vector<LLUUID> avatar_ids;
-
-	LLWorld::getInstance()->getAvatars(&avatar_ids, NULL, gAgent.getPositionGlobal(), gSavedSettings.getF32("NearMeRange"));
-
-	mNearbyList->updateList(avatar_ids);
-
-	if (avatar_ids.size() == 0)
-		mNearbyList->setCommentText(getString("no_one_near"));
+	LLWorld::getInstance()->getAvatars(&mNearbyVec, NULL, gAgent.getPositionGlobal(), gSavedSettings.getF32("NearMeRange"));
+	filterNearbyList();
 
 	return true;
 }
 
 bool LLPanelPeople::updateRecentList()
 {
-	std::vector<LLUUID> avatar_ids;
+	LLRecentPeople::instance().get(mRecentVec);
+	filterRecentList();
 
-	LLRecentPeople::instance().get(avatar_ids);
-	
-	if (avatar_ids.size() > 0)
-		return mRecentList->updateList(avatar_ids);
-
-	mRecentList->setCommentText(getString("no_people"));
 	return true;
 }
 
 bool LLPanelPeople::updateGroupList()
 {
-	return mGroupList->updateList();
+	return mGroupList->update(mFilterSubString);
+}
+
+bool LLPanelPeople::filterFriendList()
+{
+	if (mFriendVec.size() > 0)
+		return mFriendList->update(mFriendVec, mFilterSubString);
+
+	mFriendList->setCommentText(getString("no_friends"));
+	return true;
+}
+
+bool LLPanelPeople::filterNearbyList()
+{
+	bool have_names = mNearbyList->update(mNearbyVec, mFilterSubString);
+
+	if (mNearbyVec.size() == 0)
+		mNearbyList->setCommentText(getString("no_one_near"));
+
+	return have_names;
+}
+
+bool LLPanelPeople::filterRecentList()
+{
+	if (mRecentVec.size() > 0)
+		return mRecentList->update(mRecentVec, mFilterSubString);
+
+	mRecentList->setCommentText(getString("no_people"));
+
+	return true;
 }
 
 void LLPanelPeople::buttonSetVisible(std::string btn_name, BOOL visible)
@@ -433,10 +491,10 @@ void LLPanelPeople::buttonSetAction(const std::string& btn_name, const commit_si
 void LLPanelPeople::updateButtons()
 {
 	std::string cur_tab		= mTabContainer->getCurrentPanel()->getName();
-	bool nearby_tab_active	= (cur_tab == "nearby_panel");
-	bool friends_tab_active = (cur_tab == "friends_panel");
-	bool group_tab_active	= (cur_tab == "groups_panel");
-	bool recent_tab_active	= (cur_tab == "recent_panel");
+	bool nearby_tab_active	= (cur_tab == NEARBY_TAB_NAME);
+	bool friends_tab_active = (cur_tab == FRIENDS_TAB_NAME);
+	bool group_tab_active	= (cur_tab == GROUP_TAB_NAME);
+	bool recent_tab_active	= (cur_tab == RECENT_TAB_NAME);
 	LLUUID selected_id;
 
 	buttonSetVisible("group_info_btn",		group_tab_active);
@@ -489,11 +547,11 @@ LLAvatarList* LLPanelPeople::getActiveAvatarList() const
 {
 	std::string cur_tab = mTabContainer->getCurrentPanel()->getName();
 
-	if (cur_tab == "friends_panel")
+	if (cur_tab == FRIENDS_TAB_NAME)
 		return mFriendList;
-	if (cur_tab == "nearby_panel")
+	if (cur_tab == NEARBY_TAB_NAME)
 		return mNearbyList;
-	if (cur_tab == "recent_panel")
+	if (cur_tab == RECENT_TAB_NAME)
 		return mRecentList;
 
 	return NULL;
@@ -535,12 +593,17 @@ void LLPanelPeople::onVisibilityChange(BOOL new_visibility)
 	}
 	else
 	{
-		// Make the tab-container re-select current tab
-		// for onTabSelected() callback to get called.
-		// (currently this is needed to reactivate nearby list updates
-		// when we get visible)
-		mTabContainer->selectTab(mTabContainer->getCurrentPanelIndex());
+		reSelectedCurrentTab();
 	}
+}
+
+// Make the tab-container re-select current tab
+// for onTabSelected() callback to get called.
+// (currently this is needed to reactivate nearby list updates
+// when we get visible)
+void LLPanelPeople::reSelectedCurrentTab()
+{
+	mTabContainer->selectTab(mTabContainer->getCurrentPanelIndex());
 }
 
 void LLPanelPeople::onSearchEdit(const std::string& search_string)
@@ -553,12 +616,18 @@ void LLPanelPeople::onSearchEdit(const std::string& search_string)
 	LLStringUtil::toUpper(mFilterSubString);
 	LLStringUtil::trimHead(mFilterSubString);
 	mSearchEditor->setText(mFilterSubString);
+
+	// Apply new filter to all tabs.
+	filterNearbyList();
+	filterFriendList();
+	filterRecentList();
+	updateGroupList();
 }
 
 void LLPanelPeople::onTabSelected(const LLSD& param)
 {
 	std::string tab_name = getChild<LLPanel>(param.asString())->getName();
-	mNearbyListUpdater->setActive(tab_name == "nearby_panel");
+	mNearbyListUpdater->setActive(tab_name == NEARBY_TAB_NAME);
 	updateButtons();
 }
 
@@ -725,5 +794,5 @@ void LLPanelPeople::onMoreButtonClicked()
 
 void	LLPanelPeople::onOpen(const LLSD& key)
 {
-	mTabContainer->selectTab(key.asInteger());
+	reSelectedCurrentTab();
 }

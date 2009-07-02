@@ -102,6 +102,7 @@ void LLAvatarPropertiesProcessor::sendDataRequest(const LLUUID& avatar_id, EAvat
 		if (data) {
 			sendPickInfoRequest(avatar_id, *static_cast<const LLUUID*>(data));
 		}
+		break;
 	case APT_NOTES:
 		sendGenericRequest(avatar_id, "avatarnotesrequest");
 		break;

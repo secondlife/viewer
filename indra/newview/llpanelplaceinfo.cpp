@@ -34,33 +34,36 @@
 
 #include "llpanelplaceinfo.h"
 
-// *TODO: reorder includes to match the coding standard
-#include "llinventory.h"
-#include "llviewercontrol.h"
-#include "llqueryflags.h"
-#include "llui.h"
+#include "roles_constants.h"
+#include "llsdutil.h"
 #include "llsecondlifeurls.h"
+
+#include "llinventory.h"
+
+#include "llqueryflags.h"
+
+#include "llbutton.h"
 #include "llfloater.h"
 #include "llfloaterreg.h"
+#include "lllineeditor.h"
+#include "llscrollcontainer.h"
+#include "lltextbox.h"
+#include "lltrans.h"
+#include "llui.h"
+#include "lluictrlfactory.h"
 
 #include "llagent.h"
-#include "llviewerwindow.h"
-#include "llviewerinventory.h"
-#include "llbutton.h"
 #include "llfloaterworldmap.h"
-#include "lllineeditor.h"
 #include "llinventorymodel.h"
-#include "lluiconstants.h"
-#include "roles_constants.h"
-#include "lltextbox.h"
-#include "llviewertexteditor.h"
 #include "lltexturectrl.h"
-#include "lltrans.h"
-#include "llworldmap.h"
+#include "lluiconstants.h"
+#include "llviewercontrol.h"
+#include "llviewerinventory.h"
 #include "llviewerregion.h"
-#include "lluictrlfactory.h"
+#include "llviewertexteditor.h"
+#include "llviewerwindow.h"
 #include "llweb.h"
-#include "llsdutil.h"
+#include "llworldmap.h"
 
 static LLRegisterPanelClassWrapper<LLPanelPlaceInfo> t_places("panel_landmark_info");
 
@@ -69,7 +72,8 @@ LLPanelPlaceInfo::LLPanelPlaceInfo()
 	mParcelID(),
 	mRequestedID(),
 	mPosRegion(),
-	mLandmarkID()
+	mLandmarkID(),
+	mMinHeight(0)
 {}
 
 LLPanelPlaceInfo::~LLPanelPlaceInfo()
@@ -103,6 +107,12 @@ BOOL LLPanelPlaceInfo::postBuild()
 	mNotesEditor = getChild<LLTextEditor>("notes_editor");
 	mNotesEditor->setCommitCallback(boost::bind(&LLPanelPlaceInfo::onCommitTitleOrNote, this, NOTE));
 	mNotesEditor->setCommitOnFocusLost(true);
+
+	LLScrollContainer* scroll_container = getChild<LLScrollContainer>("scroll_container");
+	scroll_container->setBorderVisible(FALSE);
+	mMinHeight = scroll_container->getScrolledViewRect().getHeight();
+
+	mScrollingPanel = getChild<LLPanel>("scrolling_panel");
 
 	mInfoPanel = getChild<LLPanel>("info_panel");
 
@@ -379,4 +389,14 @@ void LLPanelPlaceInfo::onCommitTitleOrNote(LANDMARK_INFO_TYPE type)
 		gInventory.updateItem(new_item);
 		gInventory.notifyObservers();
 	}
+}
+
+void LLPanelPlaceInfo::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	if (mMinHeight > 0)
+	{
+		mScrollingPanel->reshape(mScrollingPanel->getRect().getWidth(), mMinHeight);
+	}
+
+	LLView::reshape(width, height, called_from_parent);
 }

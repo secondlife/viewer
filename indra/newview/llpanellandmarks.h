@@ -48,6 +48,7 @@ public:
 	/*virtual*/ void onShowOnMap();
 	/*virtual*/ void onTeleport();
 	///*virtual*/ void onCopySLURL();
+	/*virtual*/ void updateVerbs();
 
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();

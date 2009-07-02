@@ -117,7 +117,13 @@ void LLAvatarList::addItem(const LLUUID& id, const std::string& name, BOOL is_bo
 	}
 }
 
-BOOL LLAvatarList::updateList(const std::vector<LLUUID>& all_buddies)
+static bool findInsensitive(std::string haystack, const std::string& needle_upper)
+{
+    LLStringUtil::toUpper(haystack);
+    return haystack.find(needle_upper) != std::string::npos;
+}
+
+BOOL LLAvatarList::update(const std::vector<LLUUID>& all_buddies, const std::string& name_filter)
 {
 	BOOL have_names = TRUE;
 	
@@ -133,6 +139,8 @@ BOOL LLAvatarList::updateList(const std::vector<LLUUID>& all_buddies)
 		std::string name;
 		const LLUUID& buddy_id = *buddy_it;
 		have_names &= gCacheName->getFullName(buddy_id, name);
+		if (name_filter != LLStringUtil::null && !findInsensitive(name, name_filter))
+			continue;
 		addItem(buddy_id, name, LLAvatarTracker::instance().isBuddyOnline(buddy_id));
 	}
 

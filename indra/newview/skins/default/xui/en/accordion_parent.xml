@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
   <panel  border_thickness="2" name="splitter_parent"
-    can_resize="true" background_visible="true"
+    background_visible="true"
        label="splitter_parent"
        title=""
     >

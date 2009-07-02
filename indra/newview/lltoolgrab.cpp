@@ -46,7 +46,6 @@
 
 // newview headers
 #include "llagent.h"
-//#include "llfloateravatarinfo.h"
 #include "lldrawable.h"
 #include "llfloatertools.h"
 #include "llhudeffect.h"

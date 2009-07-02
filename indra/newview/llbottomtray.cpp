@@ -38,53 +38,81 @@
 #include "llkeyboard.h"
 #include "llgesturemgr.h"
 #include "llanimationstates.h"
+#include "llmultigesture.h"
 
 //FIXME: temporary, for send_chat_from_viewer() proto
 #include "llchatbar.h"
 
+//
+// Globals
+//
+//FIXME: made it adjustable
+const F32 AGENT_TYPING_TIMEOUT = 5.f;	// seconds
+
+LLBottomTray* gBottomTray = NULL;
+
 LLBottomTray::LLBottomTray()
-	:mLastSpecialChatChannel(0)
+	: mLastSpecialChatChannel(0)
+	, mGestureLabelTimer()
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_bottomtray.xml");
 
 	mChicletPanel = getChild<LLChicletPanel>("chiclet_list",TRUE,FALSE);
+	mIMWell = getChild<LLNotificationChiclet>("im_well",TRUE,FALSE);
+	mSysWell = getChild<LLNotificationChiclet>("sys_well",TRUE,FALSE);
+	mSeparator = getChild<LLViewBorder>("well_separator",TRUE,FALSE);
+	mChatBox = getChild<LLLineEditor>("chat_box",TRUE,FALSE);
 
-	LLLineEditor* chat_box = getChatBox();
-	chat_box->setCommitCallback(boost::bind(&LLBottomTray::onChatBoxCommit, this));
-	chat_box->setKeystrokeCallback(&onChatBoxKeystroke, this);
-	chat_box->setFocusLostCallback(&onChatBoxFocusLost, this);
+	if (mChatBox)
+	{
+		mChatBox->setCommitCallback(boost::bind(&LLBottomTray::onChatBoxCommit, this));
+		mChatBox->setKeystrokeCallback(&onChatBoxKeystroke, this);
+		mChatBox->setFocusLostCallback(&onChatBoxFocusLost, this);
+
+		mChatBox->setIgnoreArrowKeys(TRUE);
+		mChatBox->setCommitOnFocusLost( FALSE );
+		mChatBox->setRevertOnEsc( FALSE );
+		mChatBox->setIgnoreTab(TRUE);
+		mChatBox->setPassDelete(TRUE);
+		mChatBox->setReplaceNewlinesWithSpaces(FALSE);
+		mChatBox->setMaxTextLength(1023);
+		mChatBox->setEnableLineHistory(TRUE);
+
+	}
+
+	mGestureCombo = getChild<LLComboBox>( "Gesture", TRUE, FALSE);
+	if (mGestureCombo)
+	{
+		mGestureCombo->setCommitCallback(boost::bind(&LLBottomTray::onCommitGesture, this, _1));
+
+		// now register us as observer since we have a place to put the results
+		gGestureManager.addObserver(this);
+
+		// refresh list from current active gestures
+		refreshGestures();
+	}
 
 	LLIMMgr::getInstance()->addSessionObserver(this);
 }
 
 LLBottomTray::~LLBottomTray()
 {
+	gGestureManager.removeObserver(this);
 	if (!LLSingleton<LLIMMgr>::destroyed())
 	{
 		LLIMMgr::getInstance()->removeSessionObserver(this);
 	}
 }
 
-LLLineEditor* LLBottomTray::getChatBox()
-{
-	return getChild<LLLineEditor>("chat_box",TRUE,FALSE);
-}
-
 void LLBottomTray::onChatBoxCommit()
 {
-	if (getChatBox()->getText().length() > 0)
+	if (mChatBox && mChatBox->getText().length() > 0)
 	{
 		sendChat(CHAT_TYPE_NORMAL);
-		
-		LLLineEditor* chat_box = getChatBox();
-
-		if (chat_box)
-		{
-			chat_box->setText(LLStringExplicit(""));			
-		}
-
-		gAgent.stopTyping();
+		mChatBox->setText(LLStringExplicit(""));
 	}
+
+	gAgent.stopTyping();
 }
 
 void LLBottomTray::sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate)
@@ -219,6 +247,105 @@ void LLBottomTray::onChatBoxFocusLost(LLFocusableElement* caller, void* userdata
 	gAgent.stopTyping();
 }
 
+void LLBottomTray::refresh()
+{
+	// HACK: Leave the name of the gesture in place for a few seconds.
+	const F32 SHOW_GESTURE_NAME_TIME = 2.f;
+	if (mGestureLabelTimer.getStarted() && mGestureLabelTimer.getElapsedTimeF32() > SHOW_GESTURE_NAME_TIME)
+	{
+		LLCtrlListInterface* gestures = mGestureCombo ? mGestureCombo->getListInterface() : NULL;
+		if (gestures) gestures->selectFirstItem();
+		mGestureLabelTimer.stop();
+	}
+
+	if ((gAgent.getTypingTime() > AGENT_TYPING_TIMEOUT) && (gAgent.getRenderState() & AGENT_STATE_TYPING))
+	{
+		gAgent.stopTyping();
+	}
+}
+
+void LLBottomTray::onCommitGesture(LLUICtrl* ctrl)
+{
+	LLCtrlListInterface* gestures = mGestureCombo ? mGestureCombo->getListInterface() : NULL;
+	if (gestures)
+	{
+		S32 index = gestures->getFirstSelectedIndex();
+		if (index == 0)
+		{
+			return;
+		}
+		const std::string& trigger = gestures->getSelectedValue().asString();
+
+		// pretend the user chatted the trigger string, to invoke
+		// substitution and logging.
+		std::string text(trigger);
+		std::string revised_text;
+		gGestureManager.triggerAndReviseString(text, &revised_text);
+
+		revised_text = utf8str_trim(revised_text);
+		if (!revised_text.empty())
+		{
+			// Don't play nodding animation
+			sendChatFromViewer(revised_text, CHAT_TYPE_NORMAL, FALSE);
+		}
+	}
+	mGestureLabelTimer.start();
+	if (mGestureCombo != NULL)
+	{
+		// free focus back to chat bar
+		mGestureCombo->setFocus(FALSE);
+	}
+}
+
+void LLBottomTray::refreshGestures()
+{
+	if (mGestureCombo)
+	{
+		
+		//store current selection so we can maintain it
+		std::string cur_gesture = mGestureCombo->getValue().asString();
+		mGestureCombo->selectFirstItem();
+		std::string label = mGestureCombo->getValue().asString();;
+		// clear
+		mGestureCombo->clearRows();
+		
+		// collect list of unique gestures
+		std::map <std::string, BOOL> unique;
+		LLGestureManager::item_map_t::iterator it;
+		for (it = gGestureManager.mActive.begin(); it != gGestureManager.mActive.end(); ++it)
+		{
+			LLMultiGesture* gesture = (*it).second;
+			if (gesture)
+			{
+				if (!gesture->mTrigger.empty())
+				{
+					unique[gesture->mTrigger] = TRUE;
+				}
+			}
+		}
+		
+		// add unique gestures
+		std::map <std::string, BOOL>::iterator it2;
+		for (it2 = unique.begin(); it2 != unique.end(); ++it2)
+		{
+			mGestureCombo->addSimpleElement((*it2).first);
+		}
+		
+		mGestureCombo->sortByName();
+		// Insert label after sorting, at top, with separator below it
+		mGestureCombo->addSeparator(ADD_TOP);		
+		mGestureCombo->addSimpleElement(getString("gesture_label"), ADD_TOP);
+		
+		if (!cur_gesture.empty())
+		{ 
+			mGestureCombo->selectByValue(LLSD(cur_gesture));
+		}
+		else
+		{
+			mGestureCombo->selectFirstItem();
+		}
+	}
+}
 
 //virtual
 void LLBottomTray::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
@@ -236,8 +363,6 @@ void LLBottomTray::sessionAdded(const LLUUID& session_id, const std::string& nam
 			LLIMChiclet* chicklet = (LLIMChiclet *)getChicletPanel()->createChiclet(&sid);
 			chicklet->setIMSessionName(name);
 			chicklet->setOtherParticipantId(other_participant_id);
-
-			getChicletPanel()->arrange();
 		}
 	}
 }
@@ -249,21 +374,48 @@ void LLBottomTray::sessionRemoved(const LLUUID& session_id)
 	{
 		LLSD sid(session_id);
 		getChicletPanel()->removeIMChiclet(&sid);
-		getChicletPanel()->arrange();
 	}
+}
+
+//virtual
+void LLBottomTray::onFocusLost()
+{
+	if (gAgent.cameraMouselook())
+	{
+		setVisible(FALSE);
+	}
+}
+
+//virtual
+void LLBottomTray::onVisibilityChange(BOOL curVisibilityIn)
+{
+	BOOL visibility = gAgent.cameraMouselook() ? false : true;
+
+	if (mChicletPanel && mChicletPanel->getVisible() == visibility)
+		return;
+
+	if (mChicletPanel)
+		mChicletPanel->setVisible(visibility);
+
+	if (mIMWell)
+		mIMWell->setVisible(visibility);
+
+	if (mSysWell)
+		mSysWell->setVisible(visibility);
+
+	if (mSeparator)
+		mSeparator->setVisible(visibility);
 }
 
 void LLBottomTray::sendChat( EChatType type )
 {
-	LLLineEditor* chat_box = getChatBox();
-
-	if (chat_box)
+	if (mChatBox)
 	{
-		LLWString text = chat_box->getConvertedText();
+		LLWString text = mChatBox->getConvertedText();
 		if (!text.empty())
 		{
 			// store sent line in history, duplicates will get filtered
-			chat_box->updateHistory();
+			mChatBox->updateHistory();
 			// Check if this is destined for another channel
 			S32 channel = 0;
 			stripChannelNumber(text, &channel);

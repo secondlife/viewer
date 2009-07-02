@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ bg_alpha_color="0.4 0.4 0.4 1"
+ bg_opaque_color="0.4 0.4 0.4 1"
+ border="true"
+ follows="top|left|right"
+ height="80"
+ layout="topleft"
+ left="0"
+ name="picture_item"
+ top="80"
+ width="310">
+    <texture_picker
+     allow_no_texture="true"
+     default_image_name="None"
+     enabled="false"
+     follows="left|top"
+     height="80"
+     layout="topleft"
+     left="5"
+     mouse_opaque="false"
+     name="picture"
+     tab_stop="false"
+     top="7"
+     width="90" />
+    <text
+     follows="right"
+     font="SansSerifBold"
+     height="20"
+     layout="topleft"
+     left="100"
+     name="picture_name"
+     text_color="black"
+     top="5"
+     width="170" />
+    <text
+     follows="right"
+     font="SansSerif"
+     height="40"
+     layout="topleft"
+     left="100"
+     name="picture_descr"
+     text_color="white"
+     top="25"
+     width="170"
+     word_wrap="true" />
+    <button
+     follows="right"
+     height="20"
+     image_disabled="navbar_bg_button.tga"
+     image_disabled_selected="navbar_bg_button.tga"
+     image_overlay="navbar_forward.tga"
+     image_selected="navbar_bg_button.tga"
+     image_unselected="navbar_bg_button.tga"
+     layout="topleft"
+     name="inspector"
+     picture_style="true"
+     right="-5"
+     tab_stop="false"
+     top="28"
+     width="20" />
+</panel>

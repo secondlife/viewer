@@ -53,7 +53,8 @@ public:
 	LLAvatarList(const Params&);
 	virtual	~LLAvatarList() {}
 
-	BOOL updateList(const std::vector<LLUUID>& all_buddies);
+	BOOL update(const std::vector<LLUUID>& all_buddies,
+		const std::string& name_filter = LLStringUtil::null);
 
 protected:
 	std::vector<LLUUID> getSelectedIDs();

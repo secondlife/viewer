@@ -41,7 +41,6 @@
 
 class LLTextureCtrl;
 class LLMessageSystem;
-class LLPanelMeProfile;
 class LLAvatarPropertiesObserver;
 
 class LLPanelPick : public LLPanel, public LLAvatarPropertiesObserver
@@ -51,6 +50,7 @@ public:
 	LLPanelPick(BOOL edit_mode = FALSE);
 	/*virtual*/ ~LLPanelPick();
 
+	// switches the panel to the VIEW mode and resets controls
 	void reset();
 
 	/*virtual*/ BOOL postBuild();
@@ -59,14 +59,26 @@ public:
 	// initial position, etc.
 	void createNewPick();
 
+	//initializes the panel with data of the pick with id = pick_id 
+	//owned by the avatar with id = creator_id
 	void init(LLUUID creator_id, LLUUID pick_id);
 
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
 
+	// switches the panel to either View or Edit mode
 	void setEditMode(BOOL edit_mode);
 
-	//TODO redo panel toggling
-	void setPanelMeProfile(LLPanelMeProfile* meProfilePanel);
+	// because this panel works in two modes (edit/view) we are  
+	// free from managing two panel for editing and viewing picks and so
+	// are free from controlling switching between them in the parent panel (e.g. Me Profile)
+	// but that causes such a complication that we cannot set a callback for a "Back" button
+	// from the parent panel only once, so we have to preserve that callback
+	// in the pick panel and set it for the back button everytime postBuild() is called.
+	void setExitCallback(boost::function<void(void*)> function, void* value);
+
+	static void teleport(const LLVector3d& position);
+	static void showOnMap(const LLVector3d& position);
+
 
 protected:
 
@@ -79,7 +91,11 @@ protected:
 	std::string getLocation();
 
 	void sendUpdate();
+	void requestData();
+
 	void init(LLPickData *pick_data);
+
+	void updateButtons();
 
 	//-----------------------------------------
 	// "PICK INFO" (VIEW MODE) BUTTON HANDLERS
@@ -87,7 +103,6 @@ protected:
 	static void onClickEdit(void* data);
 	static void onClickTeleport(void* data);
 	static void onClickMap(void* data);
-	static void onClickBack(void* data);
 
 	//-----------------------------------------
 	// "EDIT PICK" (EDIT MODE) BUTTON HANDLERS
@@ -99,7 +114,6 @@ protected:
 protected:
 	BOOL mEditMode;
 	LLTextureCtrl*	mSnapshotCtrl;
-	BOOL mDataRequested;
 	BOOL mDataReceived;
 
 	LLUUID mPickId;
@@ -108,8 +122,8 @@ protected:
 	LLUUID mParcelId;
 	std::string mSimName;
 
-	//TODO redo panel toggling
-	LLPanelMeProfile* mMeProfilePanel;
+	boost::function<void(void*)> mExitFunction;
+	void* mExitData;
 };
 
 #endif // LL_LLPANELPICK_H

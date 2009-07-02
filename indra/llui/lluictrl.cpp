@@ -48,6 +48,8 @@ LLUICtrl::Params::Params()
 	commit_callback("commit_callback"),
 	validate_callback("validate_callback"),
 	rightclick_callback("rightclick_callback"),
+	mouseenter_callback("mouseenter_callback"),
+	mouseleave_callback("mouseleave_callback"),
 	control_name("control_name")
 {
 	addSynonym(initial_value, "initial_val");
@@ -200,6 +202,11 @@ void LLUICtrl::initFromParams(const Params& p)
 	if(p.rightclick_callback.isProvided())
 		initCommitCallback(p.rightclick_callback, mRightClickSignal);
 
+	if(p.mouseenter_callback.isProvided())
+		initCommitCallback(p.mouseenter_callback, mMouseEnterSignal);
+
+	if(p.mouseleave_callback.isProvided())
+		initCommitCallback(p.mouseleave_callback, mMouseLeaveSignal);
 }
 
 
@@ -264,6 +271,17 @@ void LLUICtrl::initEnableCallback(const EnableCallbackParam& cb, enable_signal_t
 	}
 }
 
+// virtual
+void LLUICtrl::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+	mMouseEnterSignal(this, getValue());
+}
+
+// virtual
+void LLUICtrl::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	mMouseLeaveSignal(this, getValue());
+}
 
 void LLUICtrl::onCommit()
 {

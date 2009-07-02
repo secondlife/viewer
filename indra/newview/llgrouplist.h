@@ -47,7 +47,7 @@ public:
 	};
 
 	LLGroupList(const Params&);
-	BOOL updateList();
+	BOOL update(const std::string& name_filter = LLStringUtil::null);
 };
 
 #endif // LL_LLGROUPLIST_H

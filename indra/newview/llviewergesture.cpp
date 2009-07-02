@@ -133,11 +133,11 @@ void LLViewerGesture::doTrigger( BOOL send_chat )
 		}
 	}
 
-	if ( send_chat && !mOutputString.empty())
+	if (gBottomTray && send_chat && !mOutputString.empty())
 	{
 		// Don't play nodding animation, since that might not blend
 		// with the gesture animation.
-		LLBottomTray::getInstance()->sendChatFromViewer(mOutputString, CHAT_TYPE_NORMAL, FALSE);
+		gBottomTray->sendChatFromViewer(mOutputString, CHAT_TYPE_NORMAL, FALSE);
 	}
 }
 

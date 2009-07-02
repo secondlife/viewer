@@ -157,8 +157,6 @@ void LLLandmarksPanel::onTeleport()
 	{
 		listenerp->openItem();
 	}
-
-	togglePanelPlacesButtons(TRUE);
 }
 
 /*
@@ -195,6 +193,25 @@ void LLLandmarksPanel::onCopySLURL()
 }
 */
 
+// virtual
+void LLLandmarksPanel::updateVerbs()
+{
+	BOOL enabled = FALSE;
+
+	LLFolderViewItem* current_item = mInventoryPanel->getRootFolder()->getCurSelectedItem();
+	if (current_item)
+	{
+		LLFolderViewEventListener* listenerp = current_item->getListener();
+		if (listenerp->getInventoryType() == LLInventoryType::IT_LANDMARK)
+		{
+			enabled = TRUE;
+		}
+	}
+
+	mTeleportBtn->setEnabled(enabled);
+	mShowOnMapBtn->setEnabled(enabled);
+}
+
 void LLLandmarksPanel::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
 {
 	LLFolderViewItem* current_item = mInventoryPanel->getRootFolder()->getCurSelectedItem();
@@ -224,16 +241,14 @@ void LLLandmarksPanel::onSelectionChange(const std::deque<LLFolderViewItem*> &it
 
 		if (!mActionBtn->getVisible())
 			mActionBtn->setVisible(TRUE);
-
-		togglePanelPlacesButtons(TRUE);
 	}
 	else
 	{
 		if (mActionBtn->getVisible())
 			mActionBtn->setVisible(FALSE);
-
-		togglePanelPlacesButtons(FALSE);
 	}
+
+	updateVerbs();
 }
 
 void LLLandmarksPanel::onSelectorButtonClicked()

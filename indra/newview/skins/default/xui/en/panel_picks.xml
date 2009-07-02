@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- background_visible="true"
  bevel_style="in"
- bg_alpha_color="0.5 0.5 0.5 1"
- height="690"
+ follows="left|top|right|bottom"
+ height="625"
  label="Picks"
  layout="topleft"
  left="0"
@@ -15,7 +14,7 @@
      length="1"
      follows="top|left|right"
      font="SansSerifHugeBold"
-     height="55"
+     height="50"
      layout="topleft"
      left="10"
      name="pick_title"
@@ -44,22 +43,23 @@
     </text>
     <scroll_container
      follows="left|top|right|bottom"
-     height="550"
+     height="495"
      layout="topleft"
-     left="5"
-     reserve_scroll_corner="true"
-     width="345">
+     left="8"
+     name="profile_scroll"
+     opaque="true"
+     color="0.5 0.5 0.5 1.0"
+     reserve_scroll_corner="false"
+     top_pad="0"
+     width="340">
         <panel
-         background_visible="true"
          bevel_style="in"
-         bg_alpha_color="0.6 0.6 0.6 1"
-         follows="left|top|right|bottom"
-         height="600"
+         height="40"
          layout="topleft"
          left="0"
          name="back_panel"
          top="0"
-         width="325" />
+         width="310" />
     </scroll_container>
     <panel
      background_visible="true"
@@ -70,10 +70,11 @@
      height="25"
      label="bottom_panel"
      layout="topleft"
-     left="5"
+     left="8"
      name="edit_panel"
      visible="false"
-     width="345">
+     top_pad="0"
+     width="340">
         <button
          enabled="false"
          follows="bottom|left"
@@ -92,27 +93,27 @@
          follows="bottom|left"
          font="SansSerifBigBold"
          height="16"
-         image_disabled="add_btn.tga"
-         image_disabled_selected="add_btn.tga"
-         image_hover_selected="add_btn.tga"
-         image_selected="add_btn.tga"
-         image_unselected="add_btn.tga"
+         image_disabled="plus.tga"
+         image_disabled_selected="plus.tga"
+         image_hover_selected="plus.tga"
+         image_selected="plus.tga"
+         image_unselected="plus.tga"
          layout="topleft"
          left="35"
          name="new_btn"
          picture_style="true"
-		 tool_tip="Create New Pick at Current Location"
+         tool_tip="Create New Pick at Current Location"
          top="5"
          width="16" />
         <button
          follows="bottom|right"
          font="SansSerifBigBold"
          height="16"
-         image_disabled="del_btn.tga"
-         image_disabled_selected="del_btn.tga"
-         image_hover_selected="del_btn.tga"
-         image_selected="del_btn.tga"
-         image_unselected="del_btn.tga"
+         image_disabled="minus.tga"
+         image_disabled_selected="minus.tga"
+         image_hover_selected="minus.tga"
+         image_selected="minus.tga"
+         image_unselected="minus.tga"
          layout="topleft"
          name="trash_btn"
          picture_style="true"
@@ -121,12 +122,12 @@
          width="16" />
     </panel>
     <panel
-     follows="left|right"
-     height="25"
+     follows="bottom|left"
+     height="30"
      layout="topleft"
-     left="0"
+     left="8"
      name="buttons_cucks"
-     top_pad="10"
+     bottom="625"
      width="345">
         <button
          follows="bottom|left"
@@ -134,8 +135,9 @@
          height="25"
          label="Info"
          layout="topleft"
-         left="10"
+         left="0"
          name="info_btn"
+         enabled="false"
          top="0"
          width="50" />
         <button
@@ -144,8 +146,9 @@
          height="25"
          label="Teleport"
          layout="topleft"
-         left="65"
+         left_pad="5"
          name="teleport_btn"
+         enabled="false"
          top="0"
          width="70" />
         <button
@@ -154,8 +157,9 @@
          height="25"
          label="Show on Map"
          layout="topleft"
-         left="140"
+         left_pad="5"
          name="show_on_map_btn"
+         enabled="false"
          top="0"
          width="90" />
         <button
@@ -165,7 +169,7 @@
          height="25"
          label="Verb"
          layout="topleft"
-         left="270"
+         left="280"
          name="verb_btn"
          top="0"
          width="50" />

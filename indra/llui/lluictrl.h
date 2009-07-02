@@ -145,6 +145,9 @@ public:
 		Optional<EnableCallbackParam>	validate_callback;
 		
 		Optional<CommitCallbackParam>	rightclick_callback;
+
+		Optional<CommitCallbackParam>	mouseenter_callback;
+		Optional<CommitCallbackParam>	mouseleave_callback;
 		
 		Optional<focus_callback_t>		focus_lost_callback;
 		
@@ -181,6 +184,8 @@ public:
 	/*virtual*/ BOOL	isCtrl() const;
 	/*virtual*/ void	setTentative(BOOL b);
 	/*virtual*/ BOOL	getTentative() const;
+	/*virtual*/ void	onMouseEnter(S32 x, S32 y, MASK mask);
+	/*virtual*/ void	onMouseLeave(S32 x, S32 y, MASK mask);
 
 	// From LLFocusableElement
 	/*virtual*/ void	setFocus( BOOL b );
@@ -246,6 +251,9 @@ public:
 
 	boost::signals2::connection setCommitCallback( const commit_signal_t::slot_type& cb ) { return mCommitSignal.connect(cb); }
 	boost::signals2::connection setValidateCallback( const enable_signal_t::slot_type& cb ) { return mValidateSignal.connect(cb); }
+
+	boost::signals2::connection setMouseEnterCallback( const commit_signal_t::slot_type& cb ) { return mMouseEnterSignal.connect(cb); }
+	boost::signals2::connection setMouseLeaveCallback( const commit_signal_t::slot_type& cb ) { return mMouseLeaveSignal.connect(cb); }
 	
 	// *TODO: Deprecate; for backwards compatability only:
 	boost::signals2::connection setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data);	
@@ -274,6 +282,9 @@ protected:
 	commit_signal_t		mCommitSignal;
 	enable_signal_t		mValidateSignal;
 	commit_signal_t		mRightClickSignal;
+
+	commit_signal_t		mMouseEnterSignal;
+	commit_signal_t		mMouseLeaveSignal;
 
     LLViewModelPtr  mViewModel;
 

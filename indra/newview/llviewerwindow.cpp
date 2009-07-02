@@ -1552,20 +1552,13 @@ void LLViewerWindow::initWorldUI()
 	gIMMgr = LLIMMgr::getInstance();
 
 	// new bottom panel
-	LLRect rc = LLBottomTray::getInstance()->getRect();
+	gBottomTray = new LLBottomTray();
+	LLRect rc = gBottomTray->getRect();
 	rc.mLeft = 0;
 	rc.mRight = mRootView->getRect().getWidth();
-	mRootView->addChild(LLBottomTray::getInstance());
-	LLBottomTray::getInstance()->reshape(rc.getWidth(),rc.getHeight(),FALSE);
-	LLBottomTray::getInstance()->setRect(rc);
-
-	// Updating of bottom boundary of gConsole to avoid overlapping
-	if (gConsole)
-	{
-		LLRect cr = gConsole->getRect();
-		cr.mBottom += LLBottomTray::getInstance()->getRect().getHeight();
-		gConsole->setRect(cr);
-	}
+	mRootView->addChild(gBottomTray);
+	gBottomTray->reshape(rc.getWidth(),rc.getHeight(),FALSE);
+	gBottomTray->setRect(rc);
 
 	// View for hover information
 	LLHoverView::Params hvp;
@@ -1597,9 +1590,9 @@ void LLViewerWindow::initWorldUI()
 	LLRect floater_view_rect = gFloaterView->getRect();
 	LLRect notify_view_rect = gNotifyBoxView->getRect();
 	floater_view_rect.mTop -= NAVIGATION_BAR_HEIGHT;
-	floater_view_rect.mBottom += LLBottomTray::getInstance()->getRect().getHeight();
+	floater_view_rect.mBottom += gBottomTray->getRect().getHeight();
 	notify_view_rect.mTop -= NAVIGATION_BAR_HEIGHT;
-	notify_view_rect.mBottom += LLBottomTray::getInstance()->getRect().getHeight();
+	notify_view_rect.mBottom += gBottomTray->getRect().getHeight();
 	gFloaterView->setRect(floater_view_rect);
 	gNotifyBoxView->setRect(notify_view_rect);
 
@@ -1858,8 +1851,11 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 // Hide normal UI when a logon fails
 void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 {
-	LLBottomTray::getInstance()->setVisible(visible);
-	LLBottomTray::getInstance()->setEnabled(visible);
+	if(gBottomTray)
+	{
+		gBottomTray->setVisible(visible);
+		gBottomTray->setEnabled(visible);
+	}
 
 	if ( gMenuBarView )
 	{
@@ -2774,6 +2770,14 @@ void LLViewerWindow::updateLayout()
 			gFloaterTools->setVisible(FALSE);
 		}
 		gMenuBarView->setItemVisible("BuildTools", gFloaterTools->getVisible());
+	}
+
+	// Always update console
+	if(gConsole)
+	{
+		LLRect console_rect = getChatConsoleRect();
+		gConsole->reshape(console_rect.getWidth(), console_rect.getHeight());
+		gConsole->setRect(console_rect);
 	}
 }
 
@@ -4850,13 +4854,12 @@ void LLViewerWindow::calcDisplayScale()
 	}
 }
 
-S32 TOOL_BAR_HEIGHT = 20; // *TODO:Skinning Fix
-
 S32 LLViewerWindow::getChatConsoleBottomPad()
 {
 	S32 offset = 0;
-	if( gToolBar && gToolBar->getVisible() )
-		offset += TOOL_BAR_HEIGHT;
+
+	if(gBottomTray)
+		offset += gBottomTray->getRect().getHeight();
 
 	return offset;
 }
@@ -4875,7 +4878,9 @@ LLRect LLViewerWindow::getChatConsoleRect()
 
 	console_rect.mLeft   += CONSOLE_PADDING_LEFT; 
 
-	if (gSavedSettings.getBOOL("ChatFullWidth"))
+	static const BOOL CHAT_FULL_WIDTH = gSavedSettings.getBOOL("ChatFullWidth");
+
+	if (CHAT_FULL_WIDTH)
 	{
 		console_rect.mRight -= CONSOLE_PADDING_RIGHT;
 	}

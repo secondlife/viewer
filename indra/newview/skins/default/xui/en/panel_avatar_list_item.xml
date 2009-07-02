@@ -47,9 +47,9 @@
   <button
     bottom="5" left="260" width="20" height="20" follows="right"
     name="info_btn" label=""
-    image_unselected="info_btn.tga" image_disabled="info_btn.tga"
-    image_selected="info_btn_active.tga" image_hover_selected="info_btn_active.tga"
-    image_disabled_selected="info_btn.tga" font="SansSerifBigBold"
+    image_unselected="avatar_info_btn.tga" image_disabled="avatar_info_btn.tga"
+    image_selected="avatar_info_btn_active.tga" image_hover_selected="avatar_info_btn_active.tga"
+    image_disabled_selected="avatar_info_btn.tga" font="SansSerifBigBold"
   />
   
   <button

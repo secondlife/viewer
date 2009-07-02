@@ -48,6 +48,7 @@
 #include "llhoverview.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
+#include "llmediamanager.h"
 #include "llmenugl.h"
 #include "llmutelist.h"
 #include "llselectmgr.h"

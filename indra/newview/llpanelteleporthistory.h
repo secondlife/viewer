@@ -50,7 +50,8 @@ public:
 	/*virtual*/ void onShowOnMap();
 	/*virtual*/ void onTeleport();
 	///*virtual*/ void onCopySLURL();
-
+	/*virtual*/ void updateVerbs();
+	
 	void showTeleportHistory();
 	void handleItemSelect(const LLSD& data);
 

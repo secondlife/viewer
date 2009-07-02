@@ -872,7 +872,8 @@ void LLGestureManager::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 
 			const BOOL animate = FALSE;
 
-			LLBottomTray::getInstance()->sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
+			if(gBottomTray)
+				gBottomTray->sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
 
 			gesture->mCurrentStep++;
 			break;

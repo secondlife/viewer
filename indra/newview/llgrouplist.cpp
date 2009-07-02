@@ -34,6 +34,9 @@
 
 #include "llgrouplist.h"
 
+// libs
+#include "lltrans.h"
+
 // newview
 #include "llagent.h"
 
@@ -44,7 +47,13 @@ LLGroupList::LLGroupList(const Params& p)
 {
 }
 
-BOOL LLGroupList::updateList()
+static bool findInsensitive(std::string haystack, const std::string& needle_upper)
+{
+    LLStringUtil::toUpper(haystack);
+    return haystack.find(needle_upper) != std::string::npos;
+}
+
+BOOL LLGroupList::update(const std::string& name_filter)
 {
 	LLCtrlListInterface *group_list		= getListInterface();
 	const LLUUID& 		highlight_id	= gAgent.getGroupID();
@@ -58,12 +67,17 @@ BOOL LLGroupList::updateList()
 		// *TODO: check powers mask?
 		id = gAgent.mGroups.get(i).mID;
 		const LLGroupData& group_data = gAgent.mGroups.get(i);
+		if (name_filter != LLStringUtil::null && !findInsensitive(group_data.mName, name_filter))
+			continue;
 		addItem(id, group_data.mName, highlight_id == id, ADD_BOTTOM);
 	}
 
 	// add "none" to list at top
-	//name = LLTrans::getString("GroupsNone")
-	addItem(LLUUID::null, std::string("none"), highlight_id.isNull(), ADD_TOP); // *TODO: localize
+	{
+		std::string loc_none = LLTrans::getString("GroupsNone");
+		if (name_filter == LLStringUtil::null || findInsensitive(loc_none, name_filter))
+			addItem(LLUUID::null, loc_none, highlight_id.isNull(), ADD_TOP);
+	}
 
 	group_list->selectByValue(highlight_id);
 	return TRUE;

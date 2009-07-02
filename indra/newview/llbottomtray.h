@@ -37,6 +37,7 @@
 #include "llflyoutbutton.h"
 #include "llimview.h"
 #include "llchat.h"
+#include "llgesturemgr.h"
 
 class LLChicletPanel;
 class LLNotificationChiclet;
@@ -44,22 +45,19 @@ class LLNotificationChiclet;
 class LLTalkButton;
 
 class LLBottomTray 
-	: public LLSingleton<LLBottomTray>
-	, public LLPanel
+	: public LLPanel
 	, public LLIMSessionObserver
+	, LLGestureManagerObserver
 {
 public:
 	LLBottomTray();
 
 	~LLBottomTray();
 
-	LLLineEditor* getChatBox();
-
-	LLChicletPanel* getChicletPanel() {return mChicletPanel;};
-
-	LLNotificationChiclet* getIMWell() {return mIMWell;};
-
-	LLNotificationChiclet* getNotificationWell(){return mNotificationWell;};
+	LLLineEditor*		getChatBox()	{return mChatBox;}
+	LLChicletPanel*		getChicletPanel()	{return mChicletPanel;}
+	LLNotificationChiclet*	getIMWell()	{return mIMWell;}
+	LLNotificationChiclet*	getSysWell()	{return mSysWell;}
 
 	void onChatBoxCommit();
 	void sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate);
@@ -67,9 +65,20 @@ public:
 	static void onChatBoxKeystroke(LLLineEditor* caller, void* userdata);
 	static void onChatBoxFocusLost(LLFocusableElement* caller, void* userdata);
 
+	void refresh();
+
+	void onCommitGesture(LLUICtrl* ctrl);
+	void refreshGestures();
+
 	// LLIMSessionObserver observe triggers
 	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
 	virtual void sessionRemoved(const LLUUID& session_id);
+
+	// LLGestureManagerObserver trigger
+	virtual void changed() { refreshGestures(); }
+
+	virtual void onFocusLost();
+	virtual void onVisibilityChange(BOOL curVisibilityIn);
 
 protected:
 
@@ -79,10 +88,14 @@ protected:
 	// Which non-zero channel did we last chat on?
 	S32 mLastSpecialChatChannel;
 
-	LLChicletPanel* mChicletPanel;
-	LLNotificationChiclet* mIMWell;
-	LLNotificationChiclet* mNotificationWell;
-	LLTalkButton* mTalkBtn;
+	LLLineEditor*		mChatBox;
+	LLChicletPanel* 	mChicletPanel;
+	LLNotificationChiclet* 	mIMWell;
+	LLNotificationChiclet* 	mSysWell;
+	LLViewBorder*		mSeparator;
+	LLTalkButton* 		mTalkBtn;
+	LLComboBox* 		mGestureCombo;
+	LLFrameTimer 		mGestureLabelTimer;
 };
 
 extern LLBottomTray* gBottomTray;

@@ -704,6 +704,7 @@ void LLSideTray::createHomeTab()
 		panel_params.padding_right(10);
 		panel_params.padding_top(5);
 		panel_params.padding_bottom(5);
+		panel_params.name(sidebar_tab->getTabTitle());
 
 		LLCollapsibleCtrl* ctrl = LLUICtrlFactory::create<LLCollapsibleCtrl>(panel_params);
 
@@ -732,7 +733,8 @@ void	LLSideTray::setPanelRect	()
 		panel_width+=mMaxBarWidth;
 
 	S32 panel_height = parent_rect.getHeight()-fake_top_offset;
-	panel_height -= LLBottomTray::getInstance()->getRect().getHeight();
+	if(gBottomTray)
+		panel_height -= gBottomTray->getRect().getHeight();
 
 	LLRect panel_rect;
 	panel_rect.setLeftTopAndSize( parent_rect.mRight-panel_width, parent_rect.mTop-fake_top_offset, panel_width, panel_height);

@@ -109,6 +109,9 @@ protected:
 	virtual ~LLPanelProfileTab();
 	void setProfileType();
 
+private:
+	void scrollToTop();
+
 protected:
 	e_profile_type mProfileType;
 	LLUUID mAvatarId;
@@ -133,7 +136,7 @@ public:
 	virtual void clearControls();
 
 	/*virtual*/ BOOL postBuild(void);
-	void onOpen(const LLSD& key);
+	/*virtual*/ void onOpen(const LLSD& key);
 
 	void onAddFriendButtonClick();
 
@@ -152,8 +155,12 @@ private:
 	void onStatusChanged();
 	void onStatusMessageChanged();
 	void setCaptionText(const LLAvatarData* avatar_data);
-	void scrollToTop();
 
+	static void onUrlTextboxClicked(std::string url);
+	void onHomepageTextboxClicked();
+	void onUpdateAccountTextboxClicked();
+	void onMyAccountTextboxClicked();
+	void onPartnerEditTextboxClicked();
 
 protected:
 	bool mEditMode;
@@ -175,6 +182,8 @@ public:
 
 	static void* create(void* data);
 
+	void onActivate(const LLUUID& id);
+
 	BOOL postBuild(void);
 
 	void onCommitRights();
@@ -188,6 +197,8 @@ public:
 	void updateData();
 
 protected:
+
+	void updateChildrenList();
 };
 
 

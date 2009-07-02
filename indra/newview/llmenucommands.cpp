@@ -84,8 +84,8 @@ void handle_mouselook(void*)
 void handle_chat(void*)
 {
 	// give focus to chatbar if it's open but not focused
-	if (gSavedSettings.getBOOL("ChatVisible") && gFocusMgr.childHasKeyboardFocus(
-		LLBottomTray::getInstance()->getChatBox()))
+	if (gBottomTray && gSavedSettings.getBOOL("ChatVisible") && 
+		gFocusMgr.childHasKeyboardFocus(gBottomTray->getChatBox()))
 	{
 		LLChatBar::stopChat();
 	}

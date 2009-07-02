@@ -75,24 +75,3 @@ void LLPanelPlacesTab::onRegionResponse(const LLVector3d& landmark_global_pos,
 
 	LLNotifications::instance().add("CopySLURL", args);
 }
-
-void LLPanelPlacesTab::onTabSelected()
-{
-	togglePanelPlacesButtons(TRUE);
-}
-
-void LLPanelPlacesTab::togglePanelPlacesButtons(BOOL enabled)
-{
-	if (enabled)
-	{
-		//mShareBtn->setEnabled(TRUE);
-		mTeleportBtn->setEnabled(TRUE);
-		mShowOnMapBtn->setEnabled(TRUE);
-	}
-	else
-	{
-		//mShareBtn->setEnabled(FALSE);
-		mTeleportBtn->setEnabled(FALSE);
-		mShowOnMapBtn->setEnabled(FALSE);
-	}
-}

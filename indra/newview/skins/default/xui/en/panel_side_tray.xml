@@ -52,7 +52,7 @@
       title="Places" 
       collapsable="true" 
       min_width="355" 
-      min_height="570" 
+      min_height="200" 
       header_visible="false"
     >
       <panel 

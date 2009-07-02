@@ -119,6 +119,24 @@
                top_pad="5"
                width="105" />
           </panel>
+          <icon
+           height="16"
+           image_name="image_edit_icon.tga"
+           layout="topleft"
+           left="75"
+           name="2nd_life_edit_icon"
+           tool_tip="Click to select an image" 
+           top="35"
+           width="16" />
+          <icon
+           height="16"
+           image_name="image_edit_icon.tga"
+           layout="topleft"
+           left="200"
+           name="1st_life_edit_icon"
+           tool_tip="Click to select an image" 
+           top="35"
+           width="16" />
       </panel>
       <text
        type="string"
@@ -189,8 +207,6 @@
           Homepage:
       </text>
       <line_editor
-       type="string"
-       length="1"
        follows="left|top|right"
        font="SansSerif"
        font.style="UNDERLINE"

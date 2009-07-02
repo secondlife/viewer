@@ -70,10 +70,8 @@ void LLPanelProfileView::onOpen(const LLSD& key)
 
 	mProfileId = id;
 	mTabs[PANEL_PROFILE]->onOpen(mProfileId);
-	mTabs[PANEL_PICKS]->setAvatarId(mProfileId);
-	mTabs[PANEL_PICKS]->updateData();
-	mTabs[PANEL_NOTES]->setAvatarId(mProfileId);
-	mTabs[PANEL_NOTES]->updateData();
+	mTabs[PANEL_PICKS]->onActivate(mProfileId);
+	mTabs[PANEL_NOTES]->onActivate(mProfileId);
 
 	std::string full_name;
 	gCacheName->getFullName(key,full_name);

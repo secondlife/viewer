@@ -1,5 +1,5 @@
 /** 
- * @file llpanelplace.h
+ * @file llpanelplaceinfo.h
  * @brief Displays place information in Side Tray.
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
@@ -43,11 +43,11 @@
 #include "llremoteparcelrequest.h"
 
 class LLButton;
-class LLTextBox;
+class LLInventoryItem;
 class LLLineEditor;
+class LLTextBox;
 class LLTextEditor;
 class LLTextureCtrl;
-class LLInventoryItem;
 
 class LLPanelPlaceInfo : public LLPanel, LLRemoteParcelInfoObserver
 {
@@ -77,6 +77,7 @@ public:
 							 const std::string& last);
 
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 private:
 	enum LANDMARK_INFO_TYPE
@@ -102,8 +103,10 @@ private:
 	LLTextBox*			mCreated;
 	LLLineEditor*		mTitleEditor;
 	LLTextEditor*		mNotesEditor;
-	LLTextBox*			mLocationEditor;	
+	LLTextBox*			mLocationEditor;
+	LLPanel*            mScrollingPanel;
 	LLPanel*			mInfoPanel;
+	S32					mMinHeight;
 };
 
 #endif // LL_LLPANELPLACEINFO_H

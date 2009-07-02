@@ -108,13 +108,14 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 		return;
 
 	togglePlaceInfoPanel(TRUE);
-	
+
 	mPlaceInfoType = key["type"].asInteger();
 
 	if (mPlaceInfoType == AGENT)
 	{
 		// We don't need to teleport to the current location so disable the button
 		getChild<LLButton>("teleport_btn")->setEnabled(FALSE);
+		getChild<LLButton>("map_btn")->setEnabled(TRUE);
 
 		mPlaceInfo->displayParcelInfo(gAgent.getPositionAgent(),
 									  gAgent.getRegion()->getRegionID(),
@@ -178,15 +179,11 @@ void LLPanelPlaces::onSearchEdit(const std::string& search_string)
 
 void LLPanelPlaces::onTabSelected()
 {
-	if (!mActivePanel)
-		return;
-
 	mActivePanel = dynamic_cast<LLPanelPlacesTab*>(mTabContainer->getCurrentPanel());
-
 	if (mActivePanel)
 	{
 		mActivePanel->onSearchEdit(mFilterSubString);
-		mActivePanel->onTabSelected();
+		mActivePanel->updateVerbs();
 	}
 }
 
@@ -249,7 +246,7 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 
 		LLRect rect = getRect();
 		LLRect new_rect = LLRect(rect.mLeft, rect.mTop, rect.mRight, mTabContainer->getRect().mBottom);
-		mPlaceInfo->reshape(new_rect.getWidth(),new_rect.getHeight());
+		mPlaceInfo->reshape(new_rect.getWidth(),new_rect.getHeight());	
 	}
 }
 

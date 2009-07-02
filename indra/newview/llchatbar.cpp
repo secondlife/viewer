@@ -415,9 +415,10 @@ void LLChatBar::sendChat( EChatType type )
 void LLChatBar::startChat(const char* line)
 {
 	//TODO* remove DUMMY chat
-	if(LLBottomTray::getInstance()->getChatBox())
+	if(gBottomTray && gBottomTray->getChatBox())
 	{
-		LLBottomTray::getInstance()->getChatBox()->setFocus(TRUE);
+		gBottomTray->setVisible(TRUE);
+		gBottomTray->getChatBox()->setFocus(TRUE);
 	}
 
 	// *TODO Vadim: Why was this code commented out?
@@ -441,9 +442,9 @@ void LLChatBar::startChat(const char* line)
 void LLChatBar::stopChat()
 {
 	//TODO* remove DUMMY chat
-	if(LLBottomTray::getInstance()->getChatBox())
+	if(gBottomTray && gBottomTray->getChatBox())
 	{
-		LLBottomTray::getInstance()->getChatBox()->setFocus(FALSE);
+		gBottomTray->getChatBox()->setFocus(FALSE);
 	}
 
 	// *TODO Vadim: Why was this code commented out?

@@ -9,7 +9,7 @@
  left="0"
  name="panel_edit_pick"
  top="0"
- width="355">
+ width="345">
     <text
      type="string"
      length="1"
@@ -33,14 +33,33 @@
      left="10"
      right="-10"
      top="30">
-        <texture_picker
+        <panel
          follows="left|top|right"
          height="150"
          layout="topleft"
          left="10"
-         name="pick_snapshot"
          right="-10"
-         top="10" />
+         top="10">
+            <panel
+             follows="left|top|right"
+             height="150"
+             layout="topleft" >
+                <texture_picker
+                 follows="left|top|right"
+                 height="150"
+                 layout="topleft"
+                 name="pick_snapshot" />
+            </panel>
+            <icon
+             height="16"
+             image_name="image_edit_icon.tga"
+             layout="topleft"
+             name="edit_icon"
+             right="-25"
+             top="30"
+             visible="false"
+             width="16" />
+        </panel>
         <text
          type="string"
          length="1"
@@ -124,11 +143,11 @@
      left="5"
      name="bottom_panel"
      top="605"
-     width="345">
+	   right="-10">
         <button
          follows="bottom|left"
          height="20"
-         label="Save Changes"
+         label="Save [WHAT]"
          layout="topleft"
          name="save_changes_btn"
          right="-120"
