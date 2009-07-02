@@ -106,9 +106,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>b9d23a69a25fdeed96dcc3bf696b6514</string>
+            <string>abb339b5147f90e20b6090ee235d77a6</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.12-windows-20080806.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.12-windows-20090702.tar.bz2</uri>
           </map>
         </map>
       </map>

@@ -94,7 +94,7 @@
 
 
 // Static linking with apr on windows needs to be declared.
-#ifdef LL_WINDOWS
+#if LL_WINDOWS && !LL_COMMON_LINK_SHARED
 #ifndef APR_DECLARE_STATIC
 #define APR_DECLARE_STATIC // For APR on Windows
 #endif
