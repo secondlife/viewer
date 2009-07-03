@@ -7,6 +7,7 @@ include(Boost)
 include(BuildVersion)
 include(DBusGlib)
 include(DirectX)
+include(OpenSSL)
 include(ELFIO)
 include(FMOD)
 include(OPENAL)
@@ -372,6 +373,8 @@ set(viewer_SOURCE_FILES
     llscrollingpanelparam.cpp
     llsearchcombobox.cpp
     llsearchhistory.cpp
+    llsecapi.cpp
+    llsechandler_basic.cpp
     llselectmgr.cpp
     llsidepanelappearance.cpp
     llsidepanelinventory.cpp
@@ -875,6 +878,8 @@ set(viewer_HEADER_FILES
     llscrollingpanelparam.h
     llsearchcombobox.h
     llsearchhistory.h
+    llsecapi.h
+    llsechandler_basic.h
     llselectmgr.h
     llsidepanelappearance.h
     llsidepanelinventory.h
@@ -1618,6 +1623,8 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${WINDOWS_LIBRARIES}
     ${XMLRPCEPI_LIBRARIES}
     ${ELFIO_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
+    ${CRYPTO_LIBRARIES}
     ${LLLOGIN_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
@@ -1803,6 +1810,9 @@ if (LL_TESTS)
   #ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
   #ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
   #ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)
+  #ADD_COMM_BUILD_TEST(llsecapi viewer "" llviewerprecompiledheaders.cpp llsechandler_basic.cpp)
+  #ADD_VIEWER_COMM_BUILD_TEST(llsechandler_basic viewer "")
+
 endif (LL_TESTS)
 
 
