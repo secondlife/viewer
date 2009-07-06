@@ -75,7 +75,7 @@ const S32	CURSOR_THICKNESS = 2;
 const S32	SPACES_PER_TAB = 4;
 
 
-LLColor4 LLTextEditor::mLinkColor = LLColor4::blue;
+LLUIColor LLTextEditor::mLinkColor = LLColor4::blue;
 void (* LLTextEditor::mURLcallback)(const std::string&)   = NULL;
 bool (* LLTextEditor::mSecondlifeURLcallback)(const std::string&)   = NULL;
 bool (* LLTextEditor::mSecondlifeURLcallbackRightClick)(const std::string&)   = NULL;
@@ -3083,8 +3083,8 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 
 	if (style->getIsEmbeddedItem())
 	{
-		static LLUICachedControl<LLColor4> text_embedded_item_readonly_color ("TextEmbeddedItemReadOnlyColor", *(new LLColor4));
-		static LLUICachedControl<LLColor4> text_embedded_item_color ("TextEmbeddedItemColor", *(new LLColor4));
+		static LLUIColor text_embedded_item_readonly_color = LLUIColorTable::instance().getColor("TextEmbeddedItemReadOnlyColor");
+		static LLUIColor text_embedded_item_color = LLUIColorTable::instance().getColor("TextEmbeddedItemColor");
 		if (mReadOnly)
 		{
 			color = text_embedded_item_readonly_color;

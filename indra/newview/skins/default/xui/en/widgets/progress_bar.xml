@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<progress_bar image_bar="rounded_square.tga"
-              image_fill="progressbar_fill.tga"
+<progress_bar image_bar="ProgressTrack"
+              image_fill="ProgressBar"
               image_shadow="rounded_square_soft.tga"
               color_bar.red="0.5764"
               color_bar.green="0.6627"

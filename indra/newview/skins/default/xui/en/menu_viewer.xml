@@ -228,7 +228,7 @@
              parameter="active speakers" />
         </menu_item_check>
         <menu_item_check
-         label="Mute List"
+         label="Block List"
          layout="topleft"
          name="Mute List">
             <menu_item_check.on_check
@@ -2832,6 +2832,13 @@
          name="XUI"
          tear_off="true">
             <menu_item_call
+               label="Reload Color Settings"
+               layout="topleft"
+               name="Reload Color Settings">
+              <menu_item_call.on_click
+               function="Advanced.ReloadColorSettings" />
+            </menu_item_call>
+            <menu_item_call
              label="Show Font Test"
              layout="topleft"
              name="Show Font Test">
@@ -3092,7 +3099,8 @@
                  function="Advanced.ToggleInfoDisplay"
                  parameter="agent target" />
             </menu_item_check>
-         <!--   <menu_item_check
+<!-- Appears not to exist anymore
+            <menu_item_check
              label="Debug Rotation"
              layout="topleft"
              name="Debug Rotation">
@@ -3103,6 +3111,7 @@
                  function="ToggleControl"
                  parameter="DebugAvatarRotation" />
             </menu_item_check> -->
+-->
             <menu_item_call
              label="Dump Attachments"
              layout="topleft"

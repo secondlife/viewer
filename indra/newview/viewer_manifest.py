@@ -77,6 +77,10 @@ class ViewerManifest(LLManifest):
                 self.path("paths.xml")
                 # include the entire textures directory recursively
                 if self.prefix(src="*/textures"):
+                        self.path("*/*.tga")
+                        self.path("*/*.j2c")
+                        self.path("*/*.jpg")
+                        self.path("*/*.png")
                         self.path("*.tga")
                         self.path("*.j2c")
                         self.path("*.jpg")

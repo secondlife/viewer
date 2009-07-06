@@ -2,8 +2,9 @@
 <radio_item follows="left|top">
   <radio_item.label_text name="Radio Item label"/>
   <radio_item.check_button name="Radio control button"
-                          image_unselected="radio_active_false.tga"
-                          image_selected="radio_active_true.tga"
-                          image_disabled="radio_inactive_false.tga"
-                          image_disabled_selected="radio_inactive_true.tga"/>
+                          image_unselected="RadioButton_Off"
+                          image_selected="RadioButton_On"
+                          image_disabled="RadioButton_Disabled"
+                          image_disabled_selected="RadioButton_On_Disabled"/>
 </radio_item>
+

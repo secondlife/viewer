@@ -17,8 +17,11 @@
 
 #include "v4color.h"
 
+class LLUIColor;
+
 class LLUIColorTable : public LLSingleton<LLUIColorTable>
 {
+LOG_CLASS(LLUIColorTable);
 public:
 	struct ColorParams : LLInitParam::Choice<ColorParams>
 	{
@@ -44,15 +47,37 @@ public:
 	};
 
 	// define colors by passing in a param block that can be generated via XUI file or manually
-	void init(const Params& p);
+	void insertFromParams(const Params& p);
+
+	// reset all colors to default magenta color
+	void clear();
 
 	// color lookup
-	const LLColor4& getColor(const std::string& name) const;
+	LLUIColor getColor(const std::string& name, const LLColor4& default_color = LLColor4::magenta) const;
+
+	// if the color is in the table, it's value is changed, otherwise it is added
+	void setColor(const std::string& name, const LLColor4& color);
+
+	// returns true if color_name exists in the table
+	bool colorExists(const std::string& color_name) const;
+
+	// loads colors from settings files
+	bool loadFromSettings();
+
+	// saves colors specified by the user to the users skin directory
+	void saveUserSettings() const;
 
 private:
-	// consider using sorted vector
+	bool loadFromFilename(const std::string& filename);
+
+	// consider using sorted vector, can be much faster
 	typedef std::map<std::string, LLColor4>  string_color_map_t;
-	string_color_map_t mColors;
+	
+	void clearTable(string_color_map_t& table);
+	void setColor(const std::string& name, const LLColor4& color, string_color_map_t& table);
+
+	string_color_map_t mLoadedColors;
+	string_color_map_t mUserSetColors;
 };
 
 #endif // LL_LLUICOLORTABLE_H

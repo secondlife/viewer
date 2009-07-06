@@ -284,7 +284,7 @@ BOOL is_agent_in_region(LLViewerRegion* region, LLSimInfo* info)
 
 void LLWorldMapView::draw()
 {
-	static LLCachedControl<LLColor4> map_track_color(gSavedSkinSettings, "MapTrackColor", LLColor4::white);
+	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
 	
 	LLTextureView::clearDebugImages();
 
@@ -908,8 +908,8 @@ void LLWorldMapView::drawImageStack(const LLVector3d& global_pos, LLUIImagePtr i
 
 void LLWorldMapView::drawAgents()
 {
-	static LLCachedControl<LLColor4> map_avatar_color(gSavedSkinSettings, "MapAvatarColor", LLColor4::white);
-	static LLCachedControl<LLColor4> map_avatar_friend_color(gSavedSkinSettings, "MapAvatarFriendColor", LLColor4::white);
+	static LLUIColor map_avatar_color = LLUIColorTable::instance().getColor("MapAvatarColor", LLColor4::white);
+	static LLUIColor map_avatar_friend_color = LLUIColorTable::instance().getColor("MapAvatarFriendColor", LLColor4::white);
 	
 	F32 agents_scale = (gMapScale * 0.9f) / 256.f;
 

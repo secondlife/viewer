@@ -8,7 +8,7 @@
  name="floater_buy_contents"
  save_rect="true"
  title="Buy Contents"
- width="300">
+ width="280">
     <floater.string
      name="no_copy_text">
         (no copy)
@@ -41,7 +41,7 @@
      left_delta="0"
      name="item_list"
      top_pad="4"
-     width="281">
+     width="250">
         <scroll_list.columns
          name="icon"
          width="16" />
@@ -68,7 +68,7 @@
      label="Cancel"
      label_selected="Cancel"
      layout="topleft"
-     left="216"
+     left="211"
      name="cancel_btn"
      top="224"
      width="60" />

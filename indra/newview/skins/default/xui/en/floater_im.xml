@@ -24,7 +24,7 @@
     </multi_floater.string>
     <multi_floater.string
      name="muted_message">
-        You have muted this resident. Sending a message will automatically unmute them.
+        You have blocked this resident. Sending a message will automatically unblock them.
     </multi_floater.string>
     <multi_floater.string
      name="generic_request_error">

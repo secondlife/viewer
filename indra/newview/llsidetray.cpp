@@ -162,8 +162,8 @@ BOOL LLSideTrayTab::postBuild()
 	
 	title_panel->getChild<LLTextBox>(TAB_PANEL_CAPTION_TITLE_BOX)->setValue(mTabTitle);
 
-	static LLUICachedControl<LLColor4> default_background_color ("FloaterDefaultBackgroundColor", *(new LLColor4));
-	static LLUICachedControl<LLColor4> focus_background_color ("FloaterFocusBackgroundColor", *(new LLColor4));
+	static LLUIColor default_background_color = LLUIColorTable::instance().getColor("FloaterDefaultBackgroundColor");
+	static LLUIColor focus_background_color = LLUIColorTable::instance().getColor("FloaterFocusBackgroundColor");
 	
 	setTransparentColor(default_background_color);
 	setBackgroundColor(focus_background_color);

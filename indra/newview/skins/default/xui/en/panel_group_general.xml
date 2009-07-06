@@ -2,13 +2,13 @@
 <panel
  border="true"
  follows="all"
- height="466"
+ height="514"
  label="General"
  layout="topleft"
  left="1"
  name="general_tab"
  top="466"
- width="418">
+ width="279">
     <panel.string
      name="help_text">
         The General tab contains general information about
@@ -41,44 +41,45 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      label="?"
      label_selected="?"
      layout="topleft"
-     left="391"
+     left="250"
      name="help_button"
      top="8"
      width="20" />
     <line_editor
      follows="left|top"
-     font="SansSerif"
+     font="SansSerifSmall"
      halign="left"
      height="16"
      label="Type your new group name here"
      layout="topleft"
-     left_delta="-384"
+     left_delta="-245"
      max_length="35"
      name="group_name_editor"
      top_delta="0"
-     width="300" />
+     width="200" />
     <text
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerifBig"
+     font="SansSerifSmall"
      height="16"
      layout="topleft"
      left_delta="0"
      name="group_name"
-     top_delta="-4"
-     width="300">
+     top_delta="0"
+     width="200">
         Type your new group name here
     </text>
     <text
      type="string"
      length="1"
+     follows="left|top"
      height="16"
      layout="topleft"
      left_delta="0"
      name="prepend_founded_by"
      top_pad="4"
-     width="100">
+     width="67">
         Founded by
     </text>
     <name_box
@@ -89,65 +90,69 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      left_delta="63"
      name="founder_name"
      top_delta="0"
-     width="200" />
-    <text
-     type="string"
-     length="1"
-     height="16"
-     layout="topleft"
-     name="group_charter_label"
-     right="410"
-     top="40"
-     width="265">
-        Group Charter
-    </text>
-    <texture_picker
-     follows="left|top"
-     height="144"
-     label="Group Insignia"
-     layout="topleft"
-     left_delta="-138"
-     name="insignia"
-     tool_tip="Click to choose a picture"
-     top_delta="1"
-     width="128" />
+     width="133" />
     <text_editor
      type="string"
      length="1"
      follows="left|top"
      halign="left"
-     height="160"
+     height="125"
      hide_scrollbar="true"
      layout="topleft"
      max_length="511"
      name="charter"
-     right="410"
-     top="55"
-     width="265"
+     right="270"
+     top="42"
+     width="170"
      word_wrap="true">
         Group Charter
     </text_editor>
+    <texture_picker
+     follows="left|top"
+     height="96"
+     label=""
+     layout="topleft"
+     left_delta="-95"
+     name="insignia"
+     tool_tip="Click to choose a picture"
+     top_delta="1"
+     width="85" />
+    <text
+      follows="left|top"
+     type="string"
+     length="1"
+     height="16"
+     layout="topleft"
+     name="group_charter_label"
+     right="270"
+     top="167"
+     width="170">
+        Group Charter
+    </text>
     <button
      follows="left|top"
      height="22"
+     font="SansSerifSmall"
      label="Join (L$0)"
      label_selected="Join (L$0)"
      layout="topleft"
      left="7"
      name="join_button"
-     top="193"
-     width="128" />
+     top="160"
+     width="85" />
     <button
      follows="left|top"
      height="22"
-     label="Detailed View"
+     font="SansSerifSmall"
+     label="Details"
      label_selected="Detailed View"
      layout="topleft"
      left_delta="0"
      name="info_button"
      top_delta="0"
-     width="128" />
+     width="85" />
     <text
+      follows="left|top"
      type="string"
      length="1"
      font="SansSerif"
@@ -155,11 +160,12 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      layout="topleft"
      left_delta="0"
      name="text_owners_and_visible_members"
-     top_pad="4"
-     width="160">
+     top_pad="15"
+     width="270">
         Owners &amp; Visible Members
     </text>
     <text
+      follows="left|top"
      type="string"
      length="1"
      height="16"
@@ -167,7 +173,7 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      left_delta="0"
      name="text_owners_are_shown_in_bold"
      top_delta="16"
-     width="160">
+     width="270">
         (Owners are shown in bold)
     </text>
     <name_list
@@ -180,7 +186,7 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      left_delta="0"
      name="visible_members"
      top_pad="8"
-     width="404">
+     width="263">
         <name_list.columns
          label="Member Name"
          name="name"
@@ -195,6 +201,7 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
          relative_width="0.25" />
     </name_list>
     <text
+      follows="left|top"
      type="string"
      length="1"
      bottom_delta="18"
@@ -208,12 +215,12 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      bevel_style="in"
      border="true"
      follows="left|top"
-     height="96"
+     height="115"
      layout="topleft"
      left_delta="0"
      name="preferences_container"
      top_pad="8"
-     width="404">
+     width="263">
         <check_box
          height="16"
          initial_value="true"
@@ -223,7 +230,7 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
          name="show_in_group_list"
          tool_tip="Let people see this group in search results."
          top="4"
-         width="95" />
+         width="63" />
         <check_box
          follows="right|top"
          height="16"
@@ -233,16 +240,16 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
          name="open_enrollement"
          tool_tip="Sets whether this group allows new members to join   without being invited."
          top_pad="2"
-         width="95" />
+         width="63" />
         <check_box
          height="16"
          label="Enrollment fee: L$"
          layout="topleft"
-         left_delta="16"
+         left_delta="0"
          name="check_enrollment_fee"
          tool_tip="Sets whether to require an enrollment fee to join the group."
          top="40"
-         width="95" />
+         width="63" />
         <spinner
          decimal_digits="0"
          follows="left|top"
@@ -251,8 +258,9 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
          increment="1"
          label_width="10"
          layout="topleft"
-         left_pad="21"
+         left="25"
          max_val="99999"
+         top="60"
          name="spin_enrollment_fee"
          tool_tip="New members must pay this fee to join the group when   Enrollment Fee is checked."
          top_delta="-2"
@@ -263,8 +271,8 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
          left="6"
          name="group_mature_check"
          tool_tip="Sets whether your group information is considered mature."
-         top="64"
-         width="130">
+         top="90"
+         width="120">
             <combo_box.item
              label="Select Mature -"
              value="Select" />
@@ -280,7 +288,7 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
          length="1"
          height="16"
          layout="topleft"
-         left="225"
+         left="150"
          name="active_title_label"
          top="4"
          width="95">
@@ -296,7 +304,8 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
          width="95" />
         <check_box
          height="16"
-         label="Receive group notices"
+         font="SansSerifSmall"
+         label="Receive notices"
          layout="topleft"
          left_delta="0"
          name="receive_notices"
@@ -305,7 +314,7 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
          width="95" />
         <check_box
          height="16"
-         label="List group in my profile"
+         label="List in my profile"
          layout="topleft"
          left_delta="0"
          name="list_groups_in_profile"
@@ -313,4 +322,4 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
          top_pad="2"
          width="95" />
     </panel>
-</panel>
+</panel> 

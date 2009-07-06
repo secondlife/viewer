@@ -45,6 +45,8 @@
 #include "lluiimage.h"		// *TODO: break this dependency, need to add #include "lluiimage.h" to all widgets that hold an Optional<LLUIImage*> in their paramblocks
 #include "llinitparam.h"
 #include "llregistry.h"
+#include "lluicolor.h"
+#include "lluicolortable.h"
 #include <boost/signals2.hpp>
 #include "lllazyvalue.h"
 
@@ -202,7 +204,6 @@ public:
 	static void screenRectToGL(const LLRect& screen, LLRect *gl);
 	static void glRectToScreen(const LLRect& gl, LLRect *screen);
 	static void setHtmlHelp(LLHtmlHelp* html_help);
-	static boost::function<const LLColor4&()> getCachedColorFunctor(const std::string& color_name);
 	// Returns the control group containing the control name, or the default group
 	static LLControlGroup& getControlControlGroup (const std::string& controlname);
 	
@@ -690,8 +691,6 @@ public:
 	{}
 };
 
-typedef LLLazyValue<LLColor4> LLUIColor;
-
 namespace LLInitParam
 {
 	template<>
@@ -765,13 +764,6 @@ namespace LLInitParam
 	{
 		static void declareValues();
 	};
-}
-
-namespace LLInitParam
-{
-    template<>
-	bool ParamCompare<LLLazyValue<LLColor4> >::equals(
-		const LLLazyValue<LLColor4> &a, const LLLazyValue<LLColor4> &b); 
 }
 
 #endif

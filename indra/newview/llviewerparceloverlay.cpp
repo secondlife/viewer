@@ -206,12 +206,12 @@ void LLViewerParcelOverlay::updateOverlayTexture()
 	{
 		return;
 	}
-	const LLColor4U avail = gSavedSkinSettings.getColor4("PropertyColorAvail");
-	const LLColor4U owned = gSavedSkinSettings.getColor4("PropertyColorOther");
-	const LLColor4U group = gSavedSkinSettings.getColor4("PropertyColorGroup");
-	const LLColor4U self  = gSavedSkinSettings.getColor4("PropertyColorSelf");
-	const LLColor4U for_sale  = gSavedSkinSettings.getColor4("PropertyColorForSale");
-	const LLColor4U auction  = gSavedSkinSettings.getColor4("PropertyColorAuction");
+	const LLColor4U avail = LLUIColorTable::instance().getColor("PropertyColorAvail").get();
+	const LLColor4U owned = LLUIColorTable::instance().getColor("PropertyColorOther").get();
+	const LLColor4U group = LLUIColorTable::instance().getColor("PropertyColorGroup").get();
+	const LLColor4U self  = LLUIColorTable::instance().getColor("PropertyColorSelf").get();
+	const LLColor4U for_sale  = LLUIColorTable::instance().getColor("PropertyColorForSale").get();
+	const LLColor4U auction  = LLUIColorTable::instance().getColor("PropertyColorAuction").get();
 
 	// Create the base texture.
 	U8 *raw = mImageRaw->getData();
@@ -314,11 +314,11 @@ void LLViewerParcelOverlay::updatePropertyLines()
 	
 	S32 row, col;
 
-	const LLColor4U self_coloru  = gSavedSkinSettings.getColor4("PropertyColorSelf");
-	const LLColor4U other_coloru = gSavedSkinSettings.getColor4("PropertyColorOther");
-	const LLColor4U group_coloru = gSavedSkinSettings.getColor4("PropertyColorGroup");
-	const LLColor4U for_sale_coloru = gSavedSkinSettings.getColor4("PropertyColorForSale");
-	const LLColor4U auction_coloru = gSavedSkinSettings.getColor4("PropertyColorAuction");
+	const LLColor4U self_coloru  = LLUIColorTable::instance().getColor("PropertyColorSelf").get();
+	const LLColor4U other_coloru = LLUIColorTable::instance().getColor("PropertyColorOther").get();
+	const LLColor4U group_coloru = LLUIColorTable::instance().getColor("PropertyColorGroup").get();
+	const LLColor4U for_sale_coloru = LLUIColorTable::instance().getColor("PropertyColorForSale").get();
+	const LLColor4U auction_coloru = LLUIColorTable::instance().getColor("PropertyColorAuction").get();
 
 	// Build into dynamic arrays, then copy into static arrays.
 	LLDynamicArray<LLVector3, 256> new_vertex_array;

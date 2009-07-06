@@ -387,8 +387,8 @@ void LLFloaterWorldMap::reshape( S32 width, S32 height, BOOL called_from_parent 
 // virtual
 void LLFloaterWorldMap::draw()
 {
-	static LLCachedControl<LLColor4> map_track_color(gSavedSkinSettings, "MapTrackColor", LLColor4::white);
-	static LLCachedControl<LLColor4> map_track_disabled_color(gSavedSkinSettings, "MapTrackDisabledColor", LLColor4::white);
+	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
+	static LLUIColor map_track_disabled_color = LLUIColorTable::instance().getColor("MapTrackDisabledColor", LLColor4::white);
 	
 	// Hide/Show Mature Events controls
 	childSetVisible("events_mature_icon", gAgent.canAccessMature());

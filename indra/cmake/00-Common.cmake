@@ -227,7 +227,6 @@ else (STANDALONE)
       glib-2.0
       gstreamer-0.10
       gtk-2.0
-      llfreetype2
       pango-1.0
       )
 endif (STANDALONE)

@@ -2333,10 +2333,10 @@ BOOL LLMenuGL::appendMenu( LLMenuGL* menu )
 	p.label = menu->getLabel();
 	p.branch = menu;
 	p.jump_key = menu->getJumpKey();
-	p.enabled_color=LLUI::getCachedColorFunctor("MenuItemEnabledColor");
-	p.disabled_color=LLUI::getCachedColorFunctor("MenuItemDisabledColor");
-	p.highlight_bg_color=LLUI::getCachedColorFunctor("MenuItemHighlightBgColor");
-	p.highlight_fg_color=LLUI::getCachedColorFunctor("MenuItemHighlightFgColor");
+	p.enabled_color=LLUIColorTable::instance().getColor("MenuItemEnabledColor");
+	p.disabled_color=LLUIColorTable::instance().getColor("MenuItemDisabledColor");
+	p.highlight_bg_color=LLUIColorTable::instance().getColor("MenuItemHighlightBgColor");
+	p.highlight_fg_color=LLUIColorTable::instance().getColor("MenuItemHighlightFgColor");
 
 	LLMenuItemBranchGL* branch = LLUICtrlFactory::create<LLMenuItemBranchGL>(p);
 	success &= append( branch );
@@ -2743,7 +2743,7 @@ void LLMenuGL::draw( void )
 	if (mDropShadowed && !mTornOff)
 	{
 		static LLUICachedControl<S32> drop_shadow_floater ("DropShadowFloater", 0);
-		static LLUICachedControl<LLColor4> color_drop_shadow ("ColorDropShadow", *(new LLColor4));
+		static LLUIColor color_drop_shadow = LLUIColorTable::instance().getColor("ColorDropShadow");
 		gl_drop_shadow(0, getRect().getHeight(), getRect().getWidth(), 0, 
 			color_drop_shadow, drop_shadow_floater );
 	}
@@ -3117,10 +3117,10 @@ BOOL LLMenuBarGL::appendMenu( LLMenuGL* menu )
 	p.label = menu->getLabel();
 	p.visible = menu->getVisible();
 	p.branch = menu;
-	p.enabled_color=LLUI::getCachedColorFunctor("MenuItemEnabledColor");
-	p.disabled_color=LLUI::getCachedColorFunctor("MenuItemDisabledColor");
-	p.highlight_bg_color=LLUI::getCachedColorFunctor("MenuItemHighlightBgColor");
-	p.highlight_fg_color=LLUI::getCachedColorFunctor("MenuItemHighlightFgColor");
+	p.enabled_color=LLUIColorTable::instance().getColor("MenuItemEnabledColor");
+	p.disabled_color=LLUIColorTable::instance().getColor("MenuItemDisabledColor");
+	p.highlight_bg_color=LLUIColorTable::instance().getColor("MenuItemHighlightBgColor");
+	p.highlight_fg_color=LLUIColorTable::instance().getColor("MenuItemHighlightFgColor");
 
 	LLMenuItemBranchDownGL* branch = LLUICtrlFactory::create<LLMenuItemBranchDownGL>(p);
 	success &= branch->addToAcceleratorList(&mAccelerators);
@@ -3804,10 +3804,10 @@ BOOL LLContextMenu::appendContextSubMenu(LLContextMenu *menu)
 	p.name = menu->getName();
 	p.label = menu->getLabel();
 	p.branch = menu;
-	p.enabled_color=LLUI::getCachedColorFunctor("MenuItemEnabledColor");
-	p.disabled_color=LLUI::getCachedColorFunctor("MenuItemDisabledColor");
-	p.highlight_bg_color=LLUI::getCachedColorFunctor("MenuItemHighlightBgColor");
-	p.highlight_fg_color=LLUI::getCachedColorFunctor("MenuItemHighlightFgColor");
+	p.enabled_color=LLUIColorTable::instance().getColor("MenuItemEnabledColor");
+	p.disabled_color=LLUIColorTable::instance().getColor("MenuItemDisabledColor");
+	p.highlight_bg_color=LLUIColorTable::instance().getColor("MenuItemHighlightBgColor");
+	p.highlight_fg_color=LLUIColorTable::instance().getColor("MenuItemHighlightFgColor");
 	
 	item = LLUICtrlFactory::create<LLContextMenuBranch>(p);
 	LLMenuGL::sMenuContainer->addChild(item->getBranch());

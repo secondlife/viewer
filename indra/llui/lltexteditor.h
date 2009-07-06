@@ -512,7 +512,7 @@ private:
 	// Data
 	//
 	LLKeywords		mKeywords;
-	static LLColor4 mLinkColor;
+	static LLUIColor mLinkColor;
 	static void			(*mURLcallback) (const std::string& url);
 	static bool			(*mSecondlifeURLcallback) (const std::string& url);
 	static bool			(*mSecondlifeURLcallbackRightClick) (const std::string& url);

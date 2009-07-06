@@ -81,6 +81,7 @@ set(llui_SOURCE_FILES
     lltextparser.cpp
     lltrans.cpp
     llui.cpp
+    lluicolor.cpp
     lluicolortable.cpp
     lluictrl.cpp
     lluictrlfactory.cpp
@@ -154,6 +155,7 @@ set(llui_HEADER_FILES
     lltexteditor.h
     lltextparser.h
     lltrans.h
+    lluicolor.h
     lluicolortable.h
     lluiconstants.h
     lluictrlfactory.h

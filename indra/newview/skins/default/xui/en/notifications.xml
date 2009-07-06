@@ -2836,7 +2836,7 @@ Do you REALLY want to kick all users off the grid?
    icon="alertmodal.tga"
    name="MuteLinden"
    type="alertmodal">
-Sorry, you cannot mute a Linden.
+Sorry, you cannot block a Linden.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -2851,10 +2851,10 @@ You cannot start an auction on a parcel which is already set for sale.  Disable 
 
   <notification
    icon="alertmodal.tga"
-   label="Mute object by name failed"
+   label="Block object by name failed"
    name="MuteByNameFailed"
    type="alertmodal">
-You already have muted this name.
+You already have blocked this name.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -5708,7 +5708,7 @@ An object named [OBJECTFROMNAME] owned by [FIRST] [LAST] has given you a [OBJECT
       <button
        index="2"
        name="Mute"
-       text="Mute"/>
+       text="Block"/>
     </form>
   </notification>
 
@@ -5729,7 +5729,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown user) has given you a [OBJ
       <button
        index="2"
        name="Mute"
-       text="Mute"/>
+       text="Block"/>
     </form>
   </notification>
 
@@ -5750,7 +5750,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown user) has given you a [OBJ
       <button
        index="2"
        name="Mute"
-       text="Mute"/>
+       text="Block"/>
     </form>
   </notification>
 
@@ -5974,7 +5974,7 @@ Is this OK?
       <button
        index="2"
        name="Mute"
-       text="Mute"/>
+       text="Block"/>
     </form>
   </notification>
 
@@ -6181,7 +6181,7 @@ You may only select up to [MAX_SELECT] items from this list.
    name="VoiceInviteP2P"
    type="notify">
 [NAME] is inviting you to a Voice Chat call.
-Click Accept to join the call or Decline to decline the invitation. Click Mute to mute this caller.
+Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
     <unique>
       <context key="NAME"/>
     </unique>
@@ -6197,7 +6197,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Mute t
       <button
        index="2"
        name="Mute"
-       text="Mute"/>
+       text="Block"/>
     </form>
   </notification>
 
@@ -6205,21 +6205,21 @@ Click Accept to join the call or Decline to decline the invitation. Click Mute t
    icon="notify.tga"
    name="AutoUnmuteByIM"
    type="notify">
-[FIRST] [LAST] was sent an instant message and has been automatically unmuted.
+[FIRST] [LAST] was sent an instant message and has been automatically unblocked.
   </notification>
 
   <notification
    icon="notify.tga"
    name="AutoUnmuteByMoney"
    type="notify">
-[FIRST] [LAST] was given money and has been automatically unmuted.
+[FIRST] [LAST] was given money and has been automatically unblocked.
   </notification>
 
   <notification
    icon="notify.tga"
    name="AutoUnmuteByInventory"
    type="notify">
-[FIRST] [LAST] was offered inventory and has been automatically unmuted.
+[FIRST] [LAST] was offered inventory and has been automatically unblocked.
   </notification>
 
   <notification
@@ -6227,7 +6227,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Mute t
    name="VoiceInviteGroup"
    type="notify">
 [NAME] has joined a Voice Chat call with the group [GROUP].
-Click Accept to join the call or Decline to decline the invitation. Click Mute to mute this caller.
+Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
     <unique>
       <context key="NAME"/>
       <context key="GROUP"/>
@@ -6244,7 +6244,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Mute t
       <button
        index="2"
        name="Mute"
-       text="Mute"/>
+       text="Block"/>
     </form>
   </notification>
 
@@ -6253,7 +6253,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Mute t
    name="VoiceInviteAdHoc"
    type="notify">
 [NAME] has joined a Voice Chat call with a conference chat...
-Click Accept to join the call or Decline to decline the invitation. Click Mute to mute this user.
+Click Accept to join the call or Decline to decline the invitation. Click Block to block this user.
     <unique>
       <context key="NAME"/>
     </unique>
@@ -6269,7 +6269,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Mute t
       <button
        index="2"
        name="Mute"
-       text="Mute"/>
+       text="Block"/>
     </form>
   </notification>
 
@@ -6278,7 +6278,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Mute t
    name="InviteAdHoc"
    type="notify">
 [NAME] is inviting you to a conference chat.
-Click Accept to join the chat or Decline to decline the invitation. Click Mute to mute this user.
+Click Accept to join the chat or Decline to decline the invitation. Click Block to block this user.
     <unique>
       <context key="NAME"/>
     </unique>
@@ -6294,7 +6294,7 @@ Click Accept to join the chat or Decline to decline the invitation. Click Mute t
       <button
        index="2"
        name="Mute"
-       text="Mute"/>
+       text="Block"/>
     </form>
   </notification>
 

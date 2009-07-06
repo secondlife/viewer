@@ -106,7 +106,7 @@ BOOL LLFloaterAbout::postBuild()
 	viewer_link_style->setVisible(true);
 	viewer_link_style->setFontName(LLStringUtil::null);
 	viewer_link_style->setLinkHREF(get_viewer_release_notes_url());
-	viewer_link_style->setColor(gSavedSkinSettings.getColor4("HTMLLinkColor"));
+	viewer_link_style->setColor(LLUIColorTable::instance().getColor("HTMLLinkColor"));
 
 	// Version string
 	std::string version = LLTrans::getString("SECOND_LIFE_VIEWER")
@@ -114,7 +114,7 @@ BOOL LLFloaterAbout::postBuild()
 				   LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VIEWER_BUILD,
 				   __DATE__, __TIME__,
 				   gSavedSettings.getString("VersionChannelName").c_str());
-	support_widget->appendColoredText(version, FALSE, FALSE, LLUI::sSettingGroups["color"]->getColor("TextFgReadOnlyColor"));
+	support_widget->appendColoredText(version, FALSE, FALSE, LLUIColorTable::instance().getColor("TextFgReadOnlyColor"));
 	support_widget->appendStyledText(LLTrans::getString("ReleaseNotes"), false, false, viewer_link_style);
 
 	std::string support;
@@ -136,7 +136,7 @@ BOOL LLFloaterAbout::postBuild()
 		server_link_style->setVisible(true);
 		server_link_style->setFontName(LLStringUtil::null);
 		server_link_style->setLinkHREF(region->getCapability("ServerReleaseNotes"));
-		server_link_style->setColor(gSavedSkinSettings.getColor4("HTMLLinkColor"));
+		server_link_style->setColor(LLUIColorTable::instance().getColor("HTMLLinkColor"));
 
 		const LLVector3d &pos = gAgent.getPositionGlobal();
 		LLUIString pos_text = getString("you_are_at");
@@ -158,7 +158,7 @@ BOOL LLFloaterAbout::postBuild()
 		support.append(gLastVersionChannel);
 		support.append("\n");
 
-		support_widget->appendColoredText(support, FALSE, FALSE, LLUI::sSettingGroups["color"]->getColor("TextFgReadOnlyColor"));
+		support_widget->appendColoredText(support, FALSE, FALSE, LLUIColorTable::instance().getColor("TextFgReadOnlyColor"));
 		support_widget->appendStyledText(LLTrans::getString("ReleaseNotes"), false, false, server_link_style);
 
 		support = "\n\n";
@@ -246,7 +246,7 @@ BOOL LLFloaterAbout::postBuild()
 		support.append(getString ("PacketsLost", args) + "\n");
 	}
 
-	support_widget->appendColoredText(support, FALSE, FALSE, LLUI::sSettingGroups["color"]->getColor("TextFgReadOnlyColor"));
+	support_widget->appendColoredText(support, FALSE, FALSE, LLUIColorTable::instance().getColor("TextFgReadOnlyColor"));
 
 	// Fix views
 	support_widget->setCursorPos(0);

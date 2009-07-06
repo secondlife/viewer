@@ -379,7 +379,7 @@ public:
 			drop_shadow("drop_shadow", true),
 			bg_visible("bg_visible", true),
 			create_jump_keys("create_jump_keys", false),
-			bg_color("bg_color",  LLUI::getCachedColorFunctor( "MenuDefaultBgColor" )),
+			bg_color("bg_color",  LLUIColorTable::instance().getColor( "MenuDefaultBgColor" )),
 			scrollable("scrollable", false)
 		{
 			addSynonym(bg_visible, "opaque");

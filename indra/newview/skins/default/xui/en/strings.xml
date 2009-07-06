@@ -152,7 +152,7 @@
 	<string name="AvatarEditingAppearance">(Editing Appearance)</string>
 	<string name="AvatarAway">Away</string>
 	<string name="AvatarBusy">Busy</string>
-	<string name="AvatarMuted">Muted</string>
+	<string name="AvatarMuted">Blocked</string>
 
 	<!-- animations -->
 	<string name="anim_express_afraid">Afraid</string>

@@ -173,7 +173,7 @@ void LLFloaterColorPicker::createUI ()
 
 		// argh!
 		const std::string s ( codec.str () );
-		mPalette.push_back ( new LLColor4 ( gSavedSkinSettings.getColor4 ( s )  ) );
+		mPalette.push_back ( new LLColor4 ( LLUIColorTable::instance().getColor ( s )  ) );
 	}
 }
 
@@ -1017,7 +1017,7 @@ BOOL LLFloaterColorPicker::handleMouseUp ( S32 x, S32 y, MASK mask )
 							std::ostringstream codec;
 							codec << "ColorPaletteEntry" << std::setfill ( '0' ) << std::setw ( 2 ) << curEntry + 1;
 							const std::string s ( codec.str () );
-							gSavedSkinSettings.setColor4( s, *mPalette [ curEntry ] );
+							LLUIColorTable::instance().setColor(s, *mPalette [ curEntry ] );
 						}
 					}
 

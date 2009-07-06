@@ -22,7 +22,7 @@
 	  </panel>
 		<icon name="DUMMY" image_name="spacer24.tga" left="0" width="5" height="10" bottom="0" follows="left|right" auto_resize="false" color="0 0 0 0"/>
 	  <panel follows="left|right" auto_resize="true" width="90" height="28" min_height="28">
-		<combo_box follows="left|right" height="20" label="Gestures" left="0" bottom="6" name="Gesture" top_delta="0" width="90" />
+		<combo_box follows="left" height="20" label="Gestures" left="0" bottom="6" name="Gesture" top_delta="0" width="90" />
 	  </panel>
 	  	<icon name="DUMMY" image_name="spacer24.tga" left="0" width="5" height="10" bottom="0" follows="left|right" auto_resize="false" color="0 0 0 0"/>
 	  <panel follows="left|right" auto_resize="true" width="250" height="28" min_height="28">

@@ -123,9 +123,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.94</real>
-        <real>0.61</real>
-        <real>0</real>
+        <real>1</real>
+        <real>1</real>
+        <real>1</real>
         <real>1</real>
       </array>
     </map>
@@ -171,9 +171,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>1</real>
-        <real>0.75</real>
-        <real>0.24</real>
+        <real>0.334399998188018798828125</real>
+        <real>0.545599997043609619140625</real>
+        <real>0.51590001583099365234375</real>
         <real>0.5</real>
       </array>
     </map>
@@ -203,10 +203,10 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.86</real>
-        <real>0.86</real>
-        <real>0.86</real>
-        <real>1</real>
+          <real>1</real>
+          <real>1</real>
+          <real>1</real>
+          <real>1</real>
       </array>
     </map>
     <key>ButtonLabelDisabledColor</key>
@@ -219,10 +219,10 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.58</real>
-        <real>0.66</real>
-        <real>0.84</real>
-        <real>0.78</real>
+        <real>0.75</real>
+        <real>0.75</real>
+        <real>0.75</real>
+        <real>0.7799999713897705078125</real>
       </array>
     </map>
     <key>ButtonLabelSelectedColor</key>
@@ -251,10 +251,10 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.64</real>
-        <real>0.75</real>
-        <real>0.93</real>
-        <real>0.78</real>
+        <real>1</real>
+        <real>1</real>
+        <real>1</real>
+        <real>0.7799999713897705078125</real>
       </array>
     </map>
     <key>ButtonSelectedBgColor</key>
@@ -267,9 +267,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.24</real>
-        <real>0.24</real>
-        <real>0.24</real>
+        <real>1</real>
+        <real>1</real>
+        <real>1</real>
         <real>1</real>
       </array>
     </map>
@@ -299,9 +299,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.24</real>
-        <real>0.24</real>
-        <real>0.24</real>
+        <real>1</real>
+        <real>1</real>
+        <real>1</real>
         <real>1</real>
       </array>
     </map>
@@ -411,9 +411,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.5</real>
-        <real>0.0</real>
-        <real>0.0</real>
+        <real>0.334399998188018798828125</real>
+        <real>0.545599997043609619140625</real>
+        <real>0.51590001583099365234375</real>
         <real>1.0</real>
       </array>
     </map>
@@ -1003,9 +1003,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0</real>
-        <real>0</real>
-        <real>0.08</real>
+        <real>1</real>
+        <real>1</real>
+        <real>1</real>
         <real>1</real>
       </array>
     </map>
@@ -1035,9 +1035,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.94</real>
-        <real>0.61</real>
-        <real>0</real>
+        <real>0.334399998188018798828125</real>
+        <real>0.545599997043609619140625</real>
+        <real>0.51590001583099365234375</real>
         <real>1</real>
       </array>
     </map>
@@ -1115,9 +1115,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.94</real>
-        <real>0.61</real>
-        <real>0</real>
+        <real>0.272800028324127197265625</real>
+        <real>0.607199966907501220703125</real>
+        <real>0.5601749420166015625</real>
         <real>1</real>
       </array>
     </map>
@@ -1131,9 +1131,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.94</real>
-        <real>0.65</real>
-        <real>0.35</real>
+        <real>0.334399998188018798828125</real>
+        <real>0.545599997043609619140625</real>
+        <real>0.51590001583099365234375</real>
         <real>1</real>
       </array>
     </map>
@@ -1211,9 +1211,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.27</real>
-        <real>0.67</real>
-        <real>1</real>
+        <real>0.334399998188018798828125</real>
+        <real>0.545599997043609619140625</real>
+        <real>0.51590001583099365234375</real>
         <real>1</real>
       </array>
     </map>
@@ -1259,10 +1259,10 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.60</real>
-        <real>0.60</real>
-        <real>1.0</real>
-        <real>1.0</real>
+        <real>0.334399998188018798828125</real>
+        <real>0.545599997043609619140625</real>
+        <real>0.51590001583099365234375</real>
+        <real>1</real>
       </array>
     </map>
     <key>HealthTextColor</key>
@@ -1404,8 +1404,8 @@
       <key>Value</key>
       <array>
         <real>1</real>
+        <real>0.5</real>
         <real>0</real>
-        <real>1</real>
         <real>1</real>
       </array>
     </map>
@@ -1595,9 +1595,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.64</real>
-        <real>0.75</real>
-        <real>0.93</real>
+        <real>1</real>
+        <real>1</real>
+        <real>1</real>
         <real>0.5</real>
       </array>
     </map>
@@ -1611,9 +1611,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.58</real>
-        <real>0.66</real>
-        <real>0.84</real>
+        <real>1</real>
+        <real>1</real>
+        <real>1</real>
         <real>1</real>
       </array>
     </map>
@@ -1724,9 +1724,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.0</real>
         <real>1.0</real>
-        <real>0.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
         <real>1.0</real>
       </array>
     </map>
@@ -1756,10 +1756,10 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
-        <real>1.0</real>
+        <real>0.53125</real>
+        <real>0</real>
+        <real>0.498047053813934326171875</real>
+        <real>1</real>
       </array>
     </map>
     <key>MapFrustumColor</key>
@@ -1854,9 +1854,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.24</real>
-        <real>0.5</real>
-        <real>0.24</real>
+        <real>0.0</real>
+        <real>0.0</real>
+        <real>0.0</real>
         <real>1</real>
       </array>
     </map>
@@ -2014,9 +2014,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.72</real>
-        <real>0.72</real>
-        <real>0.74</real>
+        <real>1</real>
+        <real>1</real>
+        <real>1</real>
         <real>1</real>
       </array>
     </map>
@@ -2500,36 +2500,6 @@
         <real>0.4</real>
       </array>
     </map>
-    <key>RenderGlowLumWeights</key>
-    <map>
-      <key>Comment</key>
-      <string>Weights for each color channel to be used in calculating luminance (should add up to 1.0)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>0.299</real>
-        <real>0.587</real>
-        <real>0.114</real>
-      </array>
-    </map>
-    <key>RenderGlowWarmthWeights</key>
-    <map>
-      <key>Comment</key>
-      <string>Weight of each color channel used before finding the max warmth</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>0.5</real>
-        <real>0.7</real>
-      </array>
-    </map>
     <key>ScriptBgReadOnlyColor</key>
     <map>
       <key>Comment</key>
@@ -2572,10 +2542,10 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.39</real>
-        <real>0.39</real>
-        <real>0.39</real>
-        <real>0.16</real>
+        <real>0.334399998188018798828125</real>
+        <real>0.545599997043609619140625</real>
+        <real>0.51590001583099365234375</real>
+        <real>0.1599999964237213134765625</real>
       </array>
     </map>
     <key>ScrollBgReadOnlyColor</key>
@@ -2716,9 +2686,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.24</real>
-        <real>0.3</real>
-        <real>0.49</real>
+        <real>1</real>
+        <real>1</real>
+        <real>1</real>
         <real>1</real>
       </array>
     </map>
@@ -2732,9 +2702,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.6</real>
-        <real>0.6</real>
-        <real>0.62</real>
+        <real>1</real>
+        <real>1</real>
+        <real>1</real>
         <real>1</real>
       </array>
     </map>
@@ -2770,21 +2740,6 @@
         <real>1</real>
       </array>
     </map>
-    <key>SkyNightColorShift</key>
-    <map>
-      <key>Comment</key>
-      <string>Controls moonlight color (base color applied to moon as light source)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Color3</string>
-      <key>Value</key>
-      <array>
-        <real>0.67</real>
-        <real>0.67</real>
-        <real>1.0</real>
-      </array>
-    </map>
     <key>SliderDisabledThumbColor</key>
     <map>
       <key>Comment</key>
@@ -2795,9 +2750,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0</real>
-        <real>0</real>
-        <real>0</real>
+        <real>1</real>
+        <real>1</real>
+        <real>1</real>
         <real>1</real>
       </array>
     </map>
@@ -2811,9 +2766,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.78</real>
-        <real>0.78</real>
-        <real>0.78</real>
+        <real>1</real>
+        <real>1</real>
+        <real>1</real>
         <real>1</real>
       </array>
     </map>

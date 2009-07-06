@@ -63,7 +63,7 @@ LLResizeHandle::LLResizeHandle(const LLResizeHandle::Params& p)
 {
 	if( RIGHT_BOTTOM == mCorner)
 	{
-		mImage = LLUI::getUIImage("resize_handle_bottom_right_blue.tga");
+		mImage = LLUI::getUIImage("Resize_Corner");
 	}
 	switch( p.corner )
 	{

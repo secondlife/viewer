@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  border="true"
- height="466"
+ height="514"
  label="Members &amp; Roles"
  layout="topleft"
  left="1"
  name="roles_tab"
  top="466"
- width="418">
+ width="280">
     <panel.string
      name="default_needs_apply_text">
         There are unapplied changes on the current sub-tab.
@@ -19,20 +19,22 @@
     <panel.string
      name="help_text" />
     <button
+     follows="left|top"
      height="16"
      label="?"
      layout="topleft"
-     left="391"
+     left="250"
      name="help_button"
      top="8"
      width="20" />
     <panel
+     follows="left|top"
      height="24"
      layout="topleft"
      left="7"
      name="members_header"
      top="0"
-     width="380">
+     width="273">
         <text
          type="string"
          length="1"
@@ -48,24 +50,25 @@
         <text
          type="string"
          length="1"
-         height="32"
+         word_wrap="true"
+         height="40"
          layout="topleft"
          left_delta="0"
          name="static2"
          top_pad="4"
-         width="400">
-            Group Members are assigned Roles with Abilities. These settings can 
-easily be customized, allowing for greater organization and flexibility.
+         width="270">
+            Group Members are assigned Roles with Abilities. These settings can easily be customized, allowing for greater organization and flexibility.
         </text>
     </panel>
     <panel
+     follows="left|top"
      height="24"
      layout="topleft"
      left_delta="0"
      name="roles_header"
      top_delta="0"
      visible="false"
-     width="380">
+     width="280">
         <text
          type="string"
          length="1"
@@ -81,58 +84,63 @@ easily be customized, allowing for greater organization and flexibility.
         <text
          type="string"
          length="1"
-         height="16"
+         word_wrap="true"
+         height="40"
          layout="topleft"
          left_delta="0"
          name="role_properties_modifiable"
          top_pad="4"
          visible="false"
-         width="394">
+         width="270">
             Select a Role below.  You can modify its Name, Description and Member Title.
         </text>
         <text
          type="string"
          length="1"
-         height="16"
+         word_wrap="true"
+         height="40"
          layout="topleft"
          left_delta="0"
          name="role_properties_not_modifiable"
          top_delta="0"
-         width="394">
+         width="270">
             Select a Role below to see its properties, Members and allowed Abilities.
         </text>
         <text
          type="string"
          length="1"
+         word_wrap="true"
          height="16"
          layout="topleft"
          left_delta="0"
          name="role_actions_modifiable"
-         top_delta="14"
+         top_delta="24"
          visible="false"
-         width="394">
+         width="270">
             You can also assign Abilities to the Role.
         </text>
         <text
          type="string"
          length="1"
+         word_wrap="true"
          height="16"
          layout="topleft"
          left_delta="0"
          name="role_actions_not_modifiable"
          top_delta="0"
-         width="394">
+         width="270">
             You may view, but not modify, assigned Abilities.
         </text>
     </panel>
     <panel
+     follows="left|top"
      height="24"
      layout="topleft"
      left_delta="0"
      name="actions_header"
      top_delta="20"
      visible="false"
-     width="380">
+     width="280">
         <text
          type="string"
          length="1"
@@ -148,14 +156,14 @@ easily be customized, allowing for greater organization and flexibility.
         <text
          type="string"
          length="1"
-         height="32"
+         word_wrap="true"
+         height="40"
          layout="topleft"
          left_delta="0"
          name="static2"
          top_pad="4"
-         width="394">
-            You can view an Ability&apos;s Description and which Roles and Members can 
-execute the Ability.
+         width="270">
+            You can view an Ability&apos;s Description and which Roles and Members can execute the Ability.
         </text>
     </panel>
     <tab_container
@@ -164,8 +172,8 @@ execute the Ability.
      left_delta="-1"
      name="roles_tab_container"
      tab_position="top"
-     top_pad="10"
-     width="406">
+     top="85"
+     width="275">
         <panel
          border="true"
          height="164"
@@ -175,7 +183,7 @@ execute the Ability.
          name="members_sub_tab"
          tool_tip="Members"
          top="16"
-         width="406">
+         width="275">
             <panel.string
              name="help_text">
                 You can add or remove Roles assigned to Members.
@@ -222,36 +230,38 @@ clicking on their names.
              multi_select="true"
              name="member_list"
              top="24"
-             width="396">
+             width="265">
                 <name_list.columns
-                 label="Member Name"
+                 label="Member"
                  name="name"
-                 width="136" />
+                 width="90" />
                 <name_list.columns
-                 label="Donated Tier"
+                 label="Donations"
                  name="donated"
-                 width="136" />
+                 width="95" />
                 <name_list.columns
-                 label="Last Login"
+                 label="Online"
                  name="online"
-                 width="116" />
+                 width="80" />
             </name_list>
             <button
              height="19"
-             label="Invite New Member ..."
+             font="SansSerifSmall"
+             label="Invite"
              layout="topleft"
              left_delta="0"
              name="member_invite"
              top_pad="1"
-             width="146" />
+             width="100" />
             <button
              height="19"
-             label="Eject From Group"
+             font="SansSerifSmall"
+             label="Eject"
              layout="topleft"
-             left_pad="103"
+             left_pad="65"
              name="member_eject"
              top_delta="0"
-             width="146" />
+             width="100" />
             <icon
              height="16"
              image_name="inv_folder_plain_closed.tga"
@@ -268,7 +278,7 @@ clicking on their names.
          left_delta="0"
          name="roles_sub_tab"
          top_delta="0"
-         width="398">
+         width="275">
             <panel.string
              name="help_text">
                 Roles have a title and an allowed list of Abilities
@@ -332,36 +342,38 @@ including the Everyone and Owner Roles.
              left="4"
              name="role_list"
              top="23"
-             width="396">
+             width="265">
                 <scroll_list.columns
-                 label="Role Name"
+                 label="Role"
                  name="name"
-                 width="126" />
+                 width="80" />
                 <scroll_list.columns
                  label="Title"
                  name="title"
-                 width="186" />
+                 width="90" />
                 <scroll_list.columns
                  label="Members"
                  name="members"
-                 width="76" />
+                 width="95" />
             </scroll_list>
             <button
              height="19"
-             label="Create New Role ..."
+             font="SansSerifSmall"
+             label="Create New Role"
              layout="topleft"
              left_delta="0"
              name="role_create"
              top_pad="2"
-             width="146" />
+             width="125" />
             <button
              height="19"
+             font="SansSerifSmall"
              label="Delete Role"
              layout="topleft"
-             left_pad="95"
+             left_pad="15"
              name="role_delete"
              top_delta="0"
-             width="146" />
+             width="125" />
         </panel>
         <panel
          border="true"
@@ -371,7 +383,7 @@ including the Everyone and Owner Roles.
          left_delta="0"
          name="actions_sub_tab"
          top_delta="0"
-         width="398">
+         width="275">
             <panel.string
              name="help_text">
                 Abilities allow Members in Roles to do specific
@@ -419,7 +431,7 @@ things in this group. There&apos;s a broad variety of Abilities.
              search_column="1"
              tool_tip="Select an Ability to view more details."
              top="23"
-             width="392">
+             width="265">
                 <scroll_list.columns
                  label=""
                  name="icon"
@@ -427,7 +439,7 @@ things in this group. There&apos;s a broad variety of Abilities.
                 <scroll_list.columns
                  label=""
                  name="action"
-                 width="356" />
+                 width="247" />
             </scroll_list>
             <icon
              height="16"
@@ -438,13 +450,13 @@ things in this group. There&apos;s a broad variety of Abilities.
              width="16" />
         </panel>
     </tab_container>
-    <panel
-     height="215"
+      <panel
+     height="50"
      layout="topleft"
      left_delta="1"
      name="members_footer"
      top_pad="20"
-     width="406">
+     width="270">
         <text
          type="string"
          length="1"
@@ -463,21 +475,21 @@ things in this group. There&apos;s a broad variety of Abilities.
          font="SansSerif"
          height="16"
          layout="topleft"
-         left_pad="50"
+         left_pad="30"
          name="static2"
          top_delta="0"
-         width="150">
+         width="100">
             Allowed Abilities
         </text>
         <scroll_list
          draw_stripes="false"
          enabled="false"
-         height="198"
+         height="75"
          layout="topleft"
          left="0"
          name="member_assigned_roles"
          top="1"
-         width="145">
+         width="125">
             <scroll_list.columns
              label=""
              name="checkbox"
@@ -485,18 +497,18 @@ things in this group. There&apos;s a broad variety of Abilities.
             <scroll_list.columns
              label=""
              name="role"
-             width="109" />
+             width="107" />
         </scroll_list>
         <scroll_list
          draw_stripes="false"
          enabled="false"
-         height="198"
+         height="75"
          layout="topleft"
          left_pad="5"
          name="member_allowed_actions"
          tool_tip="For Details of each Allowed Ability see the Abilities tab."
          top_delta="0"
-         width="254">
+         width="140">
             <scroll_list.columns
              label=""
              name="icon"
@@ -504,7 +516,7 @@ things in this group. There&apos;s a broad variety of Abilities.
             <scroll_list.columns
              label=""
              name="action"
-             width="224" />
+             width="126" />
         </scroll_list>
     </panel>
     <panel
@@ -514,7 +526,7 @@ things in this group. There&apos;s a broad variety of Abilities.
      name="roles_footer"
      top_delta="0"
      visible="false"
-     width="406">
+     width="270">
         <text
          type="string"
          length="1"
@@ -533,7 +545,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          font="SansSerif"
          height="16"
          layout="topleft"
-         left_pad="50"
+         left_pad="40"
          name="static2"
          top_delta="0"
          width="100">
@@ -551,7 +563,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          max_length="20"
          name="role_name"
          top="0"
-         width="145">
+         width="130">
             Employees
         </line_editor>
         <text
@@ -578,7 +590,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          max_length="20"
          name="role_title"
          top_delta="16"
-         width="145">
+         width="130">
             (waiting)
         </line_editor>
         <text_editor
@@ -588,11 +600,11 @@ things in this group. There&apos;s a broad variety of Abilities.
          height="48"
          hide_scrollbar="true"
          layout="topleft"
-         left="150"
+         left="135"
          max_length="254"
          name="role_description"
          top="0"
-         width="254"
+         width="135"
          word_wrap="true">
             (waiting)
         </text_editor>
@@ -614,22 +626,22 @@ things in this group. There&apos;s a broad variety of Abilities.
          font="SansSerif"
          height="16"
          layout="topleft"
-         left_pad="30"
+         left_pad="20"
          name="static5"
          tool_tip="A list of Abilities the currently selected role can perform."
          top_delta="0"
-         width="240">
+         width="100">
             Allowed Abilities
         </text>
         <name_list
          draw_stripes="false"
          enabled="false"
-         height="105"
+         height="125"
          layout="topleft"
          left="0"
          name="role_assigned_members"
          top="74"
-         width="145" />
+         width="130" />
         <check_box
          height="16"
          label="Members are visible"
@@ -638,17 +650,17 @@ things in this group. There&apos;s a broad variety of Abilities.
          name="role_visible_in_list"
          tool_tip="Sets whether members of this role are visible in the General tab   to people outside of the group."
          top_pad="4"
-         width="361" />
+         width="130" />
         <scroll_list
          draw_stripes="false"
          height="125"
          layout="topleft"
-         left="150"
+         left="135"
          name="role_allowed_actions"
          search_column="2"
          tool_tip="For Details of each Allowed Ability see the Abilities tab."
          top="74"
-         width="254">
+         width="130">
             <scroll_list.columns
              label=""
              name="icon"
@@ -663,14 +675,14 @@ things in this group. There&apos;s a broad variety of Abilities.
              width="220" />
         </scroll_list>
     </panel>
-    <panel
+   <panel
      height="215"
      layout="topleft"
      left_delta="0"
      name="actions_footer"
      top_delta="0"
      visible="false"
-     width="406">
+     width="270">
         <text
          type="string"
          length="1"
@@ -695,7 +707,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          max_length="512"
          name="action_description"
          top_delta="16"
-         width="404"
+         width="270"
          word_wrap="true">
             This Ability is &apos;Eject Members from this Group&apos;. Only an Owner can eject another Owner.
         </text_editor>
@@ -708,7 +720,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          left_delta="0"
          name="static2"
          top_pad="10"
-         width="145">
+         width="125">
             Roles with Ability
         </text>
         <text
@@ -717,10 +729,10 @@ things in this group. There&apos;s a broad variety of Abilities.
          font="SansSerif"
          height="16"
          layout="topleft"
-         left_pad="5"
+         left_pad="10"
          name="static3"
          top_delta="0"
-         width="200">
+         width="125">
             Members with Ability
         </text>
         <scroll_list
@@ -730,7 +742,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          left="0"
          name="action_roles"
          top="74"
-         width="145" />
+         width="130" />
         <name_list
          enabled="false"
          height="125"
@@ -738,6 +750,6 @@ things in this group. There&apos;s a broad variety of Abilities.
          left_pad="5"
          name="action_members"
          top_delta="0"
-         width="254" />
+         width="135" />
     </panel>
 </panel>

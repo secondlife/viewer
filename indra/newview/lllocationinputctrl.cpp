@@ -174,8 +174,7 @@ LLLocationInputCtrl::Params::Params()
 	add_landmark_image_disabled("add_landmark_image_disabled"),
 	add_landmark_button("add_landmark_button"),
 	add_landmark_hpad("add_landmark_hpad", 0),
-	info_button("info_button"),
-	background("background")
+	info_button("info_button")
 {
 }
 
@@ -185,11 +184,6 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mInfoBtn(NULL),
 	mAddLandmarkBtn(NULL)
 {
-	// Background image.
-	LLButton::Params bg_params = p.background;
-	mBackground = LLUICtrlFactory::create<LLButton>(bg_params);
-	addChildInBack(mBackground);
-
 	// "Place information" button.
 	LLButton::Params info_params = p.info_button;
 	mInfoBtn = LLUICtrlFactory::create<LLButton>(info_params);
@@ -213,8 +207,6 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	enableAddLandmarkButton(true);
 	addChild(mAddLandmarkBtn);
 	
-	setFocusReceivedCallback(boost::bind(&LLLocationInputCtrl::onFocusReceived, this));
-	setFocusLostCallback(boost::bind(&LLLocationInputCtrl::onFocusLost, this));
 	setPrearrangeCallback(boost::bind(&LLLocationInputCtrl::onLocationPrearrange, this, _2));
 
 	updateWidgetlayout();
@@ -354,6 +346,7 @@ void LLLocationInputCtrl::onFocusReceived()
 
 void LLLocationInputCtrl::onFocusLost()
 {
+	LLUICtrl::onFocusLost();
 	refreshLocation();
 }
 
@@ -462,7 +455,6 @@ void LLLocationInputCtrl::enableAddLandmarkButton(bool val)
 void LLLocationInputCtrl::updateAddLandmarkButton()
 {
 	bool cur_parcel_landmarked = false;
-
 	// Determine whether there are landmarks pointing to the current parcel.
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
@@ -481,20 +473,13 @@ void LLLocationInputCtrl::updateWidgetlayout()
 {
 	const LLRect&	rect			= getLocalRect();
 	const LLRect&	hist_btn_rect	= mButton->getRect();
-	LLRect			info_btn_rect	= mButton->getRect();
+	LLRect			info_btn_rect	= mInfoBtn->getRect();
 
 	// info button
 	info_btn_rect.setOriginAndSize(
-		0, (rect.getHeight() - info_btn_rect.getHeight()) / 2,
+		2, (rect.getHeight() - info_btn_rect.getHeight()) / 2,
 		info_btn_rect.getWidth(), info_btn_rect.getHeight());
 	mInfoBtn->setRect(info_btn_rect);
-
-	// background
-	mBackground->setRect(LLRect(info_btn_rect.getWidth(), rect.mTop,
-		rect.mRight - hist_btn_rect.getWidth(), rect.mBottom));
-
-	// history button
-	mButton->setRightHPad(0);
 
 	// "Add Landmark" button
 	{
@@ -503,15 +488,5 @@ void LLLocationInputCtrl::updateWidgetlayout()
 			hist_btn_rect.mLeft - mAddLandmarkHPad - al_btn_rect.getWidth(),
 			(rect.getHeight() - al_btn_rect.getHeight()) / 2);
 		mAddLandmarkBtn->setRect(al_btn_rect);
-	}
-
-	// text entry
-	if (mTextEntry)
-	{
-		LLRect text_entry_rect(rect);
-		text_entry_rect.mLeft = info_btn_rect.getWidth();
-		text_entry_rect.mRight = mAddLandmarkBtn->getRect().mLeft;
-		text_entry_rect.stretch(0, -1); // make space for border
-		mTextEntry->setRect(text_entry_rect);
 	}
 }

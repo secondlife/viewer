@@ -5094,8 +5094,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		F32 minLum = llmax(gSavedSettings.getF32("RenderGlowMinLuminance"), 0.0f);
 		F32 maxAlpha = gSavedSettings.getF32("RenderGlowMaxExtractAlpha");		
 		F32 warmthAmount = gSavedSettings.getF32("RenderGlowWarmthAmount");	
-		LLVector3 lumWeights = gSavedSkinSettings.getVector3("RenderGlowLumWeights");
-		LLVector3 warmthWeights = gSavedSkinSettings.getVector3("RenderGlowWarmthWeights");
+		LLVector3 lumWeights = gSavedSettings.getVector3("RenderGlowLumWeights");
+		LLVector3 warmthWeights = gSavedSettings.getVector3("RenderGlowWarmthWeights");
 		gGlowExtractProgram.uniform1f("minLuminance", minLum);
 		gGlowExtractProgram.uniform1f("maxExtractAlpha", maxAlpha);
 		gGlowExtractProgram.uniform3f("lumWeights", lumWeights.mV[0], lumWeights.mV[1], lumWeights.mV[2]);

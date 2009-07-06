@@ -6,6 +6,6 @@
                     bg_readonly_color="TextBgReadOnlyColor"
                     bg_writeable_color="TextBgWriteableColor"
                     bg_focus_color="TextBgFocusColor"
-                    hide_border="false" 
-                    hide_scrollbar="false" 
+                    hide_border="true"
+                    hide_scrollbar="false"
                     font="SansSerif"/>

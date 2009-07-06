@@ -3329,17 +3329,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>NotFullScreen</key>
-    <map>
-      <key>Comment</key>
-      <string>Run SL in non fullscreen mode</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>FullScreenAspectRatio</key>
     <map>
       <key>Comment</key>
@@ -5460,17 +5449,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>RenderCustomSettings</key>
-    <map>
-      <key>Comment</key>
-      <string>Do you want to set the graphics settings yourself</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>RenderDebugAlphaMask</key>
     <map>
       <key>Comment</key>
@@ -5758,6 +5736,21 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
+    <key>RenderGlowLumWeights</key>
+    <map>
+      <key>Comment</key>
+      <string>Weights for each color channel to be used in calculating luminance (should add up to 1.0)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>0.299</real>
+        <real>0.587</real>
+        <real>0.114</real>
+      </array>
+    </map>
     <key>RenderGlowMaxExtractAlpha</key>
     <map>
       <key>Comment</key>
@@ -5812,6 +5805,21 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.0</real>
+    </map>
+    <key>RenderGlowWarmthWeights</key>
+    <map>
+      <key>Comment</key>
+      <string>Weight of each color channel used before finding the max warmth</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>0.5</real>
+        <real>0.7</real>
+      </array>
     </map>
     <key>RenderGlowWidth</key>
     <map>
@@ -6589,6 +6597,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ShowAdvancedGraphicsSettings</key>
+    <map>
+      <key>Comment</key>
+      <string>Show advanced graphics settings</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ShowAllObjectHoverTip</key>
     <map>
       <key>Comment</key>
@@ -7229,6 +7248,21 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>SkyNightColorShift</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls moonlight color (base color applied to moon as light source)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Color3</string>
+      <key>Value</key>
+      <array>
+        <real>0.67</real>
+        <real>0.67</real>
+        <real>1.0</real>
+      </array>
     </map>
     <key>SkyOverrideSimSunPosition</key>
     <map>
@@ -9313,6 +9347,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>WindowFullScreen</key>
+    <map>
+      <key>Comment</key>
+      <string>Run SL in fullscreen mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>WindowHeight</key>
     <map>

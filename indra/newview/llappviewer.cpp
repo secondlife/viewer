@@ -668,7 +668,6 @@ bool LLAppViewer::init()
 	// Widget construction depends on LLUI being initialized
 	LLUI::settings_map_t settings_map;
 	settings_map["config"] = &gSavedSettings;
-	settings_map["color"] = &gSavedSkinSettings;
 	settings_map["ignores"] = &gWarningSettings;
 	settings_map["floater"] = &gSavedSettings; // *TODO: New settings file
 	settings_map["account"] = &gSavedPerAccountSettings;
@@ -1346,8 +1345,8 @@ bool LLAppViewer::cleanup()
 	// save their rects on delete.
 	gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);
 	
-	//*FIX: don't overwrite user color tweaks with *all* colors
-	gSavedSkinSettings.saveToFile(gSavedSettings.getString("SkinningSettingsFile"), TRUE);
+	LLUIColorTable::instance().saveUserSettings();
+
 	// PerAccountSettingsFile should be empty if no use has been logged on.
 	// *FIX:Mani This should get really saved in a "logoff" mode. 
 	gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
@@ -1361,7 +1360,7 @@ bool LLAppViewer::cleanup()
 	gWarningSettings.saveToFile(warnings_settings_filename, TRUE);
 
 	gSavedSettings.cleanup();
-	gSavedSkinSettings.cleanup();
+	LLUIColorTable::instance().clear();
 	gCrashSettings.cleanup();
 
 	// Save URL history file
@@ -1701,43 +1700,11 @@ std::string LLAppViewer::getSettingsFilename(const std::string& location_key,
 
 void LLAppViewer::loadColorSettings()
 {
-	gSavedSkinSettings.cleanup();
-
-	loadSettingsFromDirectory("DefaultSkin");
-	loadSettingsFromDirectory("CurrentSkin", true);
-	loadSettingsFromDirectory("UserSkin");
-
-	class ColorConverterFunctor : public LLControlGroup::ApplyFunctor
+	if(!LLUIColorTable::instance().loadFromSettings())
 	{
-	public:
-		explicit ColorConverterFunctor(LLUIColorTable::Params& result)
-			:mResult(result)
-		{
-		}
-
-		void apply(const std::string& name, LLControlVariable* control)
-		{
-			if(control->isType(TYPE_COL4))
-			{
-				LLUIColorTable::ColorParams color;
-				color.value = (LLColor4)control->getValue();
-
-				LLUIColorTable::ColorEntryParams color_entry;
-				color_entry.name = name;
-				color_entry.color = color;
-
-				mResult.color_entries.add(color_entry);
-			}
-		}
-
-	private:
-		LLUIColorTable::Params& mResult;
-	};
-
-	LLUIColorTable::Params params;
-	ColorConverterFunctor ccf(params);
-	LLControlGroup::getInstance("Skinning")->applyToAll(&ccf);
-	LLUIColorTable::instance().init(params);
+		convert_legacy_color_settings();
+		LLUIColorTable::instance().loadFromSettings();
+	}
 }
 
 bool LLAppViewer::initConfiguration()
@@ -1780,9 +1747,6 @@ bool LLAppViewer::initConfiguration()
 	// Note: can't use LL_PATH_PER_SL_ACCOUNT for any of these since we haven't logged in yet
 	gSavedSettings.setString("ClientSettingsFile", 
         gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Global")));
-
-	gSavedSettings.setString("SkinningSettingsFile",
-		gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("UserSkin", "Skinning")));
 
 	gSavedSettings.setString("VersionChannelName", LL_CHANNEL);
 
@@ -2039,9 +2003,6 @@ bool LLAppViewer::initConfiguration()
     if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
     {   
         gDirUtilp->setSkinFolder(skinfolder->getValue().asString());
-
-		gSavedSettings.setString("SkinningSettingsFile",
-			gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("UserSkin", "Skinning")));
     }
 
     mYieldTime = gSavedSettings.getS32("YieldTime");
@@ -2265,10 +2226,10 @@ bool LLAppViewer::initWindow()
 		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
 		FALSE, ignorePixelDepth);
 		
-	if (!gSavedSettings.getBOOL("NotFullScreen"))
+	if (gSavedSettings.getBOOL("WindowFullScreen"))
 	{
+		// request to go full screen... which will be delayed until login
 		gViewerWindow->toggleFullscreen(FALSE);
-			// request to go full screen... which will be delayed until login
 	}
 	
 	if (gSavedSettings.getBOOL("WindowMaximized"))

@@ -184,6 +184,11 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mBorder = LLUICtrlFactory::create<LLViewBorder>(border_p);
 	addChild( mBorder );
 
+	if(p.background_image.isProvided())
+	{
+		mImage = p.background_image;
+	}
+
 	// clamp text padding to current editor size
 	updateTextPadding();
 	setCursor(mText.length());
@@ -1525,12 +1530,12 @@ void LLLineEditor::draw()
 
 	LLColor4 bg_color = mReadOnlyBgColor.get();
 
-#if 0 // for when we're ready for image art.
+#if 1 // for when we're ready for image art.
 	if( hasFocus())
 	{
 		mImage->drawBorder(0, 0, getRect().getWidth(), getRect().getHeight(), gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
 	}
-	mImage->draw(getLocalRect(), mReadOnly ? mReadOnlyBgColor : mWriteableBgColor  );
+	mImage->draw(getLocalRect());
 #else // the old programmer art.
 	// drawing solids requires texturing be disabled
 	{
@@ -1691,7 +1696,7 @@ void LLLineEditor::draw()
 			mMaxHPixels - llround(rendered_pixels_right),
 			&rendered_pixels_right);
 	}
-#if 0 // for when we're ready for image art.
+#if 1 // for when we're ready for image art.
 	mBorder->setVisible(FALSE); // no more programmatic art.
 #endif
 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <search_editor select_on_focus="true">
-  <clear_search_button image_unselected="icn_clear_lineeditor.tga"
-                       image_selected="close_inactive_blue.tga"
+  <clear_search_button image_unselected="TextField_Search_Off"
+                       image_selected="TextField_Search_Active"
+                       image_disabled="TextField_Search_Disabled"
                        image_color="TextFgTentativeColor"/>
 </search_editor>

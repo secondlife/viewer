@@ -111,8 +111,8 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 					.right(btn_right)
 					.height(spinctrl_btn_height);
 	up_button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM);
-	up_button_params.image_unselected.name("spin_up_out_blue.tga");
-	up_button_params.image_selected.name("spin_up_in_blue.tga");
+	up_button_params.image_unselected.name("ScrollArrow_Up");
+	up_button_params.image_selected.name("ScrollArrow_Up");
 	up_button_params.click_callback.function(boost::bind(&LLSpinCtrl::onUpBtn, this, _2));
 	up_button_params.mouse_held_callback.function(boost::bind(&LLSpinCtrl::onUpBtn, this, _2));
 	up_button_params.tab_stop(false);
@@ -130,8 +130,8 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 					.bottom(bottom)
 					.height(spinctrl_btn_height);
 	down_button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM);
-	down_button_params.image_unselected.name("spin_down_out_blue.tga");
-	down_button_params.image_selected.name("spin_down_in_blue.tga");
+	down_button_params.image_unselected.name("ScrollArrow_Down");
+	down_button_params.image_selected.name("ScrollArrow_Down");
 	down_button_params.click_callback.function(boost::bind(&LLSpinCtrl::onDownBtn, this, _2));
 	down_button_params.mouse_held_callback.function(boost::bind(&LLSpinCtrl::onDownBtn, this, _2));
 	down_button_params.tab_stop(false);

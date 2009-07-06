@@ -83,12 +83,12 @@ LLComboBox::Params::Params()
 :	allow_text_entry("allow_text_entry", false),
 	show_text_as_tentative("show_text_as_tentative", true),
 	max_chars("max_chars", 20),
-	arrow_image("arrow_image"),
 	list_position("list_position", BELOW),
 	items("item"),
 	combo_button("combo_button"),
 	combo_list("combo_list"),
-	combo_editor("combo_editor")
+	combo_editor("combo_editor"),
+	drop_down_button("drop_down_button")
 {
 	addSynonym(items, "combo_item");
 }
@@ -104,19 +104,29 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 	mPrearrangeCallback(p.prearrange_callback()),
 	mTextEntryCallback(p.text_entry_callback()),
 	mSelectionCallback(p.selection_callback()),
-	mArrowImage(p.arrow_image),
 	mListPosition(p.list_position)
 {
 	// Text label button
 
-	LLButton::Params button_params = p.combo_button;
+	LLButton::Params button_params = (mAllowTextEntry ? p.combo_button : p.drop_down_button);
 	button_params.mouse_down_callback.function(boost::bind(&LLComboBox::onButtonDown, this));
 	button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM|FOLLOWS_RIGHT);
 	button_params.rect(p.rect);
-	button_params.pad_right(2);
+
+	if(mAllowTextEntry)
+	{
+		button_params.pad_right(2);
+	}
+
+	mArrowImage = button_params.image_unselected;
 
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
-	mButton->setRightHPad(2);  //redo to compensate for button hack that leaves space for a character
+	if(mAllowTextEntry)
+	{
+		//redo to compensate for button hack that leaves space for a character
+		//unless it is a "minimal combobox"(drop down)
+		mButton->setRightHPad(2);
+	}
 	addChild(mButton);
 
 	LLScrollListCtrl::Params params = p.combo_list;

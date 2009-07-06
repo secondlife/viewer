@@ -1325,13 +1325,6 @@ void LLView::draw()
 		LLRect rootRect = getRootView()->getRect();
 		LLRect screenRect;
 
-		// draw focused control on top of everything else
-		LLView* focus_view = gFocusMgr.getKeyboardFocus();
-		if (focus_view && focus_view->getParent() != this)
-		{
-			focus_view = NULL;
-		}
-
 		++sDepth;
 
 		for (child_list_reverse_iter_t child_iter = mChildList.rbegin(); child_iter != mChildList.rend();)  // ++child_iter)
@@ -1339,7 +1332,7 @@ void LLView::draw()
 			child_list_reverse_iter_t child = child_iter++;
 			LLView *viewp = *child;
 
-			if (viewp->getVisible() && viewp != focus_view && viewp->getRect().isValid())
+			if (viewp->getVisible() && viewp->getRect().isValid())
 			{
 				// Only draw views that are within the root view
 				localRectToScreen(viewp->getRect(),&screenRect);
@@ -1357,11 +1350,6 @@ void LLView::draw()
 
 		}
 		--sDepth;
-
-		if (focus_view && focus_view->getVisible())
-		{
-			drawChild(focus_view);
-		}
 	}
 
 	gGL.getTexUnit(0)->disable();
@@ -1398,7 +1386,7 @@ void LLView::drawDebugRect()
 			}
 			else
 			{
-				static LLUICachedControl<LLColor4> scroll_highlighted_color ("ScrollHighlightedColor", *(new LLColor4));
+				static LLUIColor scroll_highlighted_color = LLUIColorTable::instance().getColor("ScrollHighlightedColor");
 				border_color = scroll_highlighted_color;
 			}
 		}

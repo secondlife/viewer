@@ -428,14 +428,10 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 		mUIStrings[it->name] = it->text;
 	}
 
-	setName(p.name());
 	setLabel(p.label());
-
 	setShape(p.rect);
 	parseFollowsFlags(p);
 
-	setEnabled(p.enabled);
-	setVisible(p.visible);
 	setToolTip(p.tool_tip());
 	setSaveToXML(p.serializable);
 	

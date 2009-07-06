@@ -305,7 +305,7 @@ fail:
 	static T* getDefaultWidget(const std::string& name)
 	{
 		dummy_widget_creator_func_t* dummy_func = LLDummyWidgetRegistry::instance().getValue(&typeid(T));
-		return dynamic_cast<T*>((*dummy_func)(name));
+		return dummy_func ? dynamic_cast<T*>((*dummy_func)(name)) : NULL;
 	}
 
 	template <class T> 

@@ -4,7 +4,7 @@
  height="556"
  layout="topleft"
  name="Animation Preview"
- width="300">
+ width="280">
     <floater.string
      name="failed_to_initialize">
         Failed to initialize motion
@@ -385,7 +385,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      increment="0.01"
      initial_value="0"
      label="Ease In (sec)"
-     label_width="65"
+     label_width="75"
      layout="topleft"
      left="10"
      max_val="10"
@@ -399,14 +399,14 @@ Maximum animation length is [MAX_LENGTH] seconds.
      increment="0.01"
      initial_value="0"
      label="Ease Out (sec)"
-     label_width="75"
+     label_width="80"
      layout="topleft"
-     left_pad="15"
+     left_pad="10"
      max_val="10"
      name="ease_out_time"
      tool_tip="Amount of time (in seconds) over which animations blends out."
      top_delta="0"
-     width="135" />
+     width="130" />
     <button
      follows="top|right"
      height="28"
@@ -440,7 +440,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      layout="topleft"
      left="80"
      name="playback_slider"
-     right="290"
+     right="275"
      show_text="false" />
     <text
      type="string"
@@ -461,7 +461,7 @@ We recommend BVH files exported from Poser 4.
      label="Cancel"
      layout="topleft"
      name="cancel_btn"
-     right="290"
+     right="265"
      width="123" />
     <button
      follows="bottom|left"

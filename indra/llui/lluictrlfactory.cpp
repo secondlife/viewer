@@ -398,11 +398,11 @@ BOOL LLUICtrlFactory::getAttributeColor(LLXMLNodePtr node, const std::string& na
 {
 	std::string colorstring;
 	BOOL res = node->getAttributeString(name.c_str(), colorstring);
-	if (res && LLUI::sSettingGroups["color"])
+	if (res)
 	{
-		if (LLUI::sSettingGroups["color"]->controlExists(colorstring))
+		if (LLUIColorTable::instance().colorExists(colorstring))
 		{
-			color.setVec(LLUI::sSettingGroups["color"]->getColor(colorstring));
+			color.setVec(LLUIColorTable::instance().getColor(colorstring));
 		}
 		else
 		{
@@ -1010,7 +1010,7 @@ bool LLXUIParser::writeUIColorValue(const void* val_ptr, const name_stack_t& sta
 		LLUIColor color = *((LLUIColor*)val_ptr);
 		//RN: don't write out the color that is represented by a function
 		// rely on param block exporting to get the reference to the color settings
-		if (color.isUsingFunction()) return false;
+		if (color.isReference()) return false;
 		node->setFloatValue(4, color.get().mV);
 		return true;
 	}

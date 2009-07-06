@@ -44,6 +44,7 @@
 #include "llcharacter.h" 			// LLAnimPauseRequest
 #include "llfollowcam.h" 			// Ventrella
 #include "llagentdata.h" 			// gAgentID, gAgentSessionID
+#include "lluicolor.h"
 #include "llvoavatardefines.h"
 
 extern const BOOL 	ANIMATE;
@@ -829,7 +830,7 @@ public:
 	F32				mHUDTargetZoom;	// Target zoom level for HUD objects (used when editing)
 	F32				mHUDCurZoom; 	// Current animated zoom level for HUD objects
 private:
-	LLColor4 		mEffectColor;
+	LLUIColor 		mEffectColor;
 
 /**                    Camera
  **                                                                            **

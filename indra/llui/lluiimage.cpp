@@ -74,7 +74,7 @@ void LLUIImage::setScaleRegion(const LLRectf& region)
 //TODO: move drawing implementation inside class
 void LLUIImage::draw(S32 x, S32 y, const LLColor4& color) const
 {
-	gl_draw_image(x, y, mImage, color, mClipRegion);
+	gl_draw_scaled_image(x, y, getWidth(), getHeight(), mImage, color, mClipRegion);
 }
 
 void LLUIImage::draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const

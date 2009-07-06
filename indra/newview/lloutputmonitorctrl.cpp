@@ -55,10 +55,10 @@ LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 	mPower(0),
 	mIsMuted(true)
 {
-	static LLUICachedControl<LLColor4> output_monitor_muted_color("OutputMonitorMutedColor", LLColor4::orange);
-	static LLUICachedControl<LLColor4> output_monitor_overdriven_color("OutputMonitorOverdrivenColor", LLColor4::red);
-	static LLUICachedControl<LLColor4> output_monitor_normal_color("OutputMonitorNotmalColor", LLColor4::green);
-	static LLUICachedControl<LLColor4> output_monitor_bound_color("OutputMonitorBoundColor", LLColor4::white);
+	static LLUIColor output_monitor_muted_color = LLUIColorTable::instance().getColor("OutputMonitorMutedColor", LLColor4::orange);
+	static LLUIColor output_monitor_overdriven_color = LLUIColorTable::instance().getColor("OutputMonitorOverdrivenColor", LLColor4::red);
+	static LLUIColor output_monitor_normal_color = LLUIColorTable::instance().getColor("OutputMonitorNotmalColor", LLColor4::green);
+	static LLUIColor output_monitor_bound_color = LLUIColorTable::instance().getColor("OutputMonitorBoundColor", LLColor4::white);
 	static LLUICachedControl<S32> output_monitor_rects_number("OutputMonitorRectanglesNumber", 20);
 	static LLUICachedControl<F32> output_monitor_rect_width_ratio("OutputMonitorRectangleWidthRatio", 0.5f);
 	static LLUICachedControl<F32> output_monitor_rect_height_ratio("OutputMonitorRectangleHeightRatio", 0.8f);

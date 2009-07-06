@@ -578,7 +578,7 @@
          top="0"
          width="50" />
     </panel>
-    <panel
+   <!-- <panel
      bottom="625"
      follows="bottom|left"
      height="30"
@@ -607,5 +607,5 @@
          name="edit_appearance_btn"
          top="0"
          width="130" />
-    </panel>
+    </panel> -->
 </panel>

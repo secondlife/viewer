@@ -523,7 +523,7 @@ void init_menus()
 	///
 	LLColor4 color;
 
-	LLColor4 context_menu_color = gSavedSkinSettings.getColor("MenuPopupBgColor");
+	LLColor4 context_menu_color = LLUIColorTable::instance().getColor("MenuPopupBgColor");
 	
 	gPieSelf->setBackgroundColor( context_menu_color );
 	gPieAvatar->setBackgroundColor( context_menu_color );
@@ -532,17 +532,17 @@ void init_menus()
 
 	gPieLand->setBackgroundColor( context_menu_color );
 
-	color = gSavedSkinSettings.getColor( "MenuPopupBgColor" );
+	color = LLUIColorTable::instance().getColor( "MenuPopupBgColor" );
 	gPopupMenuView->setBackgroundColor( color );
 
 	// If we are not in production, use a different color to make it apparent.
 	if (LLViewerLogin::getInstance()->isInProductionGrid())
 	{
-		color = gSavedSkinSettings.getColor( "MenuBarBgColor" );
+		color = LLUIColorTable::instance().getColor( "MenuBarBgColor" );
 	}
 	else
 	{
-		color = gSavedSkinSettings.getColor( "MenuNonProductionBgColor" );
+		color = LLUIColorTable::instance().getColor( "MenuNonProductionBgColor" );
 	}
 	gMenuBarView = LLUICtrlFactory::getInstance()->createFromFile<LLMenuBarGL>("menu_viewer.xml", gMenuHolder);
 	gMenuBarView->setRect(LLRect(0, top, 0, top - MENU_BAR_HEIGHT));
@@ -7983,6 +7983,7 @@ void initialize_menus()
 
 
 	// Advanced > XUI
+	commit.add("Advanced.ReloadColorSettings", boost::bind(&LLUIColorTable::loadFromSettings, LLUIColorTable::getInstance()));
 	view_listener_t::addMenu(new LLAdvancedShowFontTest(), "Advanced.ShowFontTest");
 	view_listener_t::addMenu(new LLAdvancedLoadUIFromXML(), "Advanced.LoadUIFromXML");
 	view_listener_t::addMenu(new LLAdvancedSaveUIToXML(), "Advanced.SaveUIToXML");

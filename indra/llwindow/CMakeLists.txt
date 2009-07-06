@@ -64,7 +64,7 @@ if (NOT LINUX OR VIEWER)
       ${UI_LIBRARIES}     # for GTK
       ${SDL_LIBRARY}
       )
-endif (VIEWER)
+endif (NOT LINUX OR VIEWER)
 
 if (DARWIN)
   list(APPEND llwindow_SOURCE_FILES
@@ -96,7 +96,7 @@ if (LINUX AND VIEWER)
        llkeyboardsdl.h
        llwindowsdl.h
        )
-endif (LINUX)
+endif (LINUX AND VIEWER)
 
 if (WINDOWS)
   list(APPEND llwindow_SOURCE_FILES

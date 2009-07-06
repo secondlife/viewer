@@ -17,133 +17,34 @@
      name="aspect_ratio_text">
         [NUM]:[DEN]
     </panel.string>
-    <button
-     follows="left|top"
-     height="18"
-     label="?"
-     layout="topleft"
-     left="470"
-     name="GraphicsPreferencesHelpButton"
-     top="4"
-     width="22">
-        <button.commit_callback
-         function="Pref.OpenHelp" />
-    </button>
-    <check_box
-	 control_name="NotFullScreen"
-     height="16"
-     label="Run Second Life in a window"
-     layout="topleft"
-     left_delta="-460"
-     name="windowed mode"
-     top_delta="3"
-     width="100">
-        <check_box.commit_callback
-         function="Pref.OpenHelp" />
-    </check_box>
-    <text_editor
-	 make_visible_control="NotFullScreen"
-     type="string"
-     length="1"
-     bg_readonly_color="0 0 0 0"
-     enabled="false"
-     follows="left|top"
-     height="20"
-     hide_border="true"
-     hide_scrollbar="true"
-     layout="topleft"
-     left_delta="0"
-     max_length="65535"
-     name="FullScreenInfo"
-     tab_stop="false"
-     top_delta="16"
-     width="350"
-     word_wrap="true">
-        If unchecked, viewer will display full-screen when logged in.
-    </text_editor>
     <text
-	 make_visible_control="NotFullScreen"
      type="string"
      length="1"
      follows="left|top"
      height="12"
      layout="topleft"
-     left_delta="0"
+     left="30"
      name="WindowSizeLabel"
-     top_pad="7"
+     top="10"
      width="128">
-        Window Size:
+        Window size:
     </text>
+    <check_box
+     control_name="WindowFullScreen"
+     height="16"
+     label="Use fullscreen"
+     layout="topleft"
+     left_delta="30"
+     name="windowed mode"
+     top_pad="5"
+     width="100">
+    </check_box>
     <combo_box
-	 make_visible_control="NotFullScreen"
-     height="18"
-     layout="topleft"
-     left_pad="47"
-     name="windowsize combo"
-     top_delta="-1"
-     width="150">
-        <combo_box.item
-         enabled="true"
-         label="640x480"
-         value="640 x 480" />
-        <combo_box.item
-         enabled="true"
-         label="800x600 "
-         value="800 x 600" />
-        <combo_box.item
-         enabled="true"
-         label="720x480 (NTSC)"
-         value="720 x 480" />
-        <combo_box.item
-         enabled="true"
-         label="768x576 (PAL)"
-         value="768 x 576" />
-        <combo_box.item
-         enabled="true"
-         label="1024x768"
-         value="1024 x 768" />
-    </combo_box>
-    <text
-	 make_invisible_control="NotFullScreen"
-     type="string"
-     length="1"
-     follows="left|top"
-     height="12"
-     layout="topleft"
-     left_delta="-175"
-     name="DisplayResLabel"
-     top_delta="1"
-     width="128">
-        Display Resolution:
-    </text>
-    <combo_box
-	 make_invisible_control="NotFullScreen"
-     height="18"
-     layout="topleft"
-     left_pad="47"
-     name="fullscreen combo"
-     top_delta="-1"
-     width="150" />
-    <text
-	 make_invisible_control="NotFullScreen"
-     type="string"
-     length="1"
-     follows="left|top"
-     height="12"
-     layout="topleft"
-     left="10"
-     name="AspectRatioLabel1"
-     tool_tip="width / height"
-     top="27"
-     width="160">
-        Aspect Ratio:
-    </text>
-    <combo_box
-	 make_invisible_control="NotFullScreen"
+	 make_visible_control="WindowFullScreen"
      allow_text_entry="true"
      height="16"
      layout="topleft"
-     left_pad="15"
+     left_delta="175"
      max_chars="100"
      name="aspect_ratio"
      tool_tip="width / height"
@@ -169,30 +70,17 @@
          function="setControlFalse"
 		 parameter="FullScreenAutoDetectAspectRatio" />
     </combo_box>
-    <check_box
-	 make_invisible_control="NotFullScreen"
-     control_name="FullScreenAutoDetectAspectRatio"
-     height="16"
-     label="Auto-detect ratio"
-     layout="topleft"
-     left_pad="23"
-     name="aspect_auto_detect"
-     top_delta="1"
-     width="256">
-        <check_box.commit_callback
-         function="Pref.AutoDetectAspect" />
-    </check_box>
-    <text
+     <text
      type="string"
      length="1"
      follows="left|top"
      height="12"
      layout="topleft"
-     left="10"
-     name="HigherText"
-     top="73"
-     width="80">
-        Quality and
+     left="30"
+     name="QualitySpeed"
+     top_pad="5"
+     width="400">
+        Quality and speed:
     </text>
     <text
      type="string"
@@ -200,21 +88,9 @@
      follows="left|top"
      height="12"
      layout="topleft"
-     left_delta="0"
-     name="QualityText"
-     top_pad="2"
-     width="95">
-        Performance:
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="12"
-     layout="topleft"
-     left="115"
+     left_delta="35"
      name="FasterText"
-     top="74"
+     top_pad="5"
      width="80">
         Faster
     </text>
@@ -224,80 +100,20 @@
      follows="left|top"
      height="12"
      layout="topleft"
-     left="158"
-     name="ShadersPrefText"
-     top="93"
-     width="40">
-        Low
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="12"
-     layout="topleft"
-     left_pad="7"
-     name="ShadersPrefText2"
+     left_delta="240"
+     name="BetterText"
      top_delta="0"
-     width="40">
-        Mid
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="12"
-     layout="topleft"
-     left_pad="7"
-     name="ShadersPrefText3"
-     top_delta="0"
-     width="40">
-        High
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="12"
-     layout="topleft"
-     left_pad="7"
-     name="ShadersPrefText4"
-     top_delta="0"
-     width="40">
-        Ultra
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="12"
-     layout="topleft"
-     left="334"
-     name="HigherText2"
-     top="68"
      width="80">
-        Higher
+        Better
     </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="12"
-     layout="topleft"
-     left_delta="0"
-     name="QualityText2"
-     top_pad="2"
-     width="95">
-        Quality
-    </text>
-    <icon
+        <icon
      color="0.12 0.12 0.12 1"
      height="14"
      image_name="rounded_square.tga"
      layout="topleft"
-     left="173"
+     left="140"
      name="LowGraphicsDivet"
-     top="75"
+     top_delta="2"
      width="2" />
     <icon
      color="0.12 0.12 0.12 1"
@@ -343,29 +159,64 @@
 	 <slider.commit_callback
 			function="Pref.QualityPerformance"/>
 	</slider>		
-    <check_box
-     control_name="RenderCustomSettings"
-     height="16"
-     initial_value="true"
-     label="Custom"
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="12"
      layout="topleft"
-     left_pad="70"
-     name="CustomSettings"
-     top_delta="1"
-     width="256">
-        <check_box.commit_callback
-         function="Pref.ChangeCustom" />
-    </check_box>
-	<panel
-	 make_visible_control="RenderCustomSettings"
-     border="true"
+     left="130"
+     name="ShadersPrefText"
+     top_delta="20"
+     width="80">
+        Low
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="12"
+     layout="topleft"
+     left_delta="42"
+     name="ShadersPrefText2"
+     top_delta="10"
+     width="80">
+        Mid
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="12"
+     layout="topleft"
+     left_delta="42"
+     name="ShadersPrefText3"
+     top_delta="-10"
+     width="40">
+        High
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="12"
+     layout="topleft"
+     left_delta="42"
+     name="ShadersPrefText4"
+     top_delta="10"
+     width="40">
+        Ultra
+    </text>
+    <panel
+	 make_visible_control="ShowAdvancedGraphicsSettings"
+     border="false"
 	 follows="top|left"
      height="260"
      label="CustomGraphics"
      layout="topleft"
      left="5"
      name="CustomGraphics Panel"
-     top="115"
+     top="117"
      width="485">
 		<text
 		type="string"
@@ -897,24 +748,37 @@
 	</panel>	
     <button
      height="20"
-     label="Recommended Settings"
+     label="Reset"
      layout="topleft"
-     left="130"
+     left="15"
      name="Defaults"
      top="380"
-     width="170">
+     width="155">
         <button.commit_callback
          function="Pref.HardwareDefaults" />
     </button>
     <button
+     control_name="ShowAdvancedGraphicsSettings"
      height="20"
-     label="Hardware Options"
-     label_selected="Hardware Options"
+     is_toggle="true"
+     label="Advanced"
      layout="topleft"
-     left_pad="10"
+     left_pad="5"
+     name="Advanced"
+     top_delta="0"
+     width="155">
+        <button.commit_callback
+         function="Pref.ChangeCustom" />
+    </button>
+    <button
+     height="20"
+     label="Hardware"
+     label_selected="Hardware"
+     layout="topleft"
+     left_pad="5"
      name="GraphicsHardwareButton"
      top_delta="0"
-     width="170">
+     width="155">
         <button.commit_callback
          function="Pref.HardwareSettings" />
     </button>

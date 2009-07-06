@@ -61,8 +61,7 @@ public:
 											add_landmark_image_disabled;
 		Optional<S32>						add_landmark_hpad;
 		Optional<LLButton::Params>			add_landmark_button,
-											info_button,
-											background;
+											info_button;
 		Params();
 	};
 
@@ -70,6 +69,8 @@ public:
 	/*virtual*/ void		setEnabled(BOOL enabled);
 	/*virtual*/ BOOL		handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect);
 	/*virtual*/ BOOL		handleKeyHere(KEY key, MASK mask);
+	/*virtual*/ void		onFocusReceived();
+	/*virtual*/ void		onFocusLost();
 	//========================================================================
 
 	// LLUICtrl interface
@@ -98,8 +99,6 @@ private:
 	void					updateAddLandmarkButton();
 	void					updateWidgetlayout();
 
-	void					onFocusReceived();
-	void					onFocusLost();
 	void					onInfoButtonClicked();
 	void					onLocationHistoryLoaded();
 	void					onLocationPrearrange(const LLSD& data);
@@ -107,7 +106,6 @@ private:
 	void					onAddLandmarkButtonClicked();
 	void					onAgentParcelChange();
 
-	LLButton*				mBackground;
 	LLButton*				mAddLandmarkBtn;
 	LLButton*				mInfoBtn;
 	S32						mAddLandmarkHPad;

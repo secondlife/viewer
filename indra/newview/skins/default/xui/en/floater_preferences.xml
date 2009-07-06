@@ -48,31 +48,6 @@
         <button.commit_callback
          function="Pref.Apply" />
     </button>
-    <button
-     follows="left|bottom"
-     height="20"
-     label="About"
-     label_selected="About"
-     layout="topleft"
-     left_delta="-512"
-     name="About..."
-     top_delta="0"
-     width="90">
-        <button.commit_callback
-         function="Floater.Show"
-         parameter="sl_about" />
-    </button>
-    <button
-     follows="left|bottom"
-     height="20"
-     help_url="https://support.secondlife.com/ics/support/default.asp?deptID=4417"
-     label="Help"
-     label_selected="Help"
-     layout="topleft"
-     left_pad="3"
-     name="Help"
-     top_delta="0"
-     width="90" />
     <tab_container
      follows="left|top|right|bottom"
      height="410"
@@ -91,12 +66,65 @@
          layout="topleft"
          name="general" />
         <panel
+         filename="panel_preferences_graphics1.xml"
+         label="Graphics"
+         layout="topleft"
+         name="display" />
+        <panel
+		 class="panel_preference"
+         filename="panel_preferences_im.xml"
+         label="Privacy"
+         layout="topleft"
+         name="im" />
+        <panel
+		 class="panel_preference"
+         filename="panel_preferences_audio.xml"
+         label="Sound"
+         layout="topleft"
+         name="audio" />
+        <panel
+		 class="panel_preference"
+         filename="panel_preferences_chat.xml"
+         label="Chat"
+         layout="topleft"
+         name="chat" />
+        <panel
+		 class="panel_preference"
+         filename="panel_preferences_popups.xml"
+         label="Alerts"
+         layout="topleft"
+         name="msgs" />
+        <panel
 		 class="panel_preference"
          filename="panel_preferences_input.xml"
-         label="Input &amp; Camera"
+         label="Setup"
          layout="topleft"
          name="input" />
         <panel
+		 class="panel_preference"
+         filename="panel_preferences_advanced.xml"
+         label="Advanced"
+         layout="topleft"
+         name="input" />
+        <panel
+		 class="panel_preference"
+         filename="panel_preferences_advanced2.xml"
+         label="Move, not to Advanced"
+         layout="topleft"
+         name="input" />
+        <panel
+		 class="panel_preference"
+         filename="panel_preferences_advanced3.xml"
+         label="Not in specs"
+         layout="topleft"
+         name="input" />
+        <panel
+		 class="panel_preference"
+         filename="panel_preferences_advanced4.xml"
+         label="Storage/Kill"
+         layout="topleft"
+         name="input" />
+        <!--panel
 		 class="panel_preference"
          filename="panel_preferences_network.xml"
          label="Network"
@@ -110,45 +138,42 @@
          name="web" />
         <panel
 		 class="panel_preference"
-         filename="panel_preferences_graphics1.xml"
-         label="Graphics"
-         layout="topleft"
-         name="display" />
-        <panel
-		 class="panel_preference"
-         filename="panel_preferences_audio.xml"
-         label="Audio &amp; Video"
-         layout="topleft"
-         name="audio" />
-        <panel
-		 class="panel_preference"
-         filename="panel_preferences_chat.xml"
-         label="Text Chat"
-         layout="topleft"
-         name="chat" />
-        <panel
-		 class="panel_preference"
          filename="panel_preferences_voice.xml"
          label="Voice Chat"
          layout="topleft"
          name="voice" />
         <panel
 		 class="panel_preference"
-         filename="panel_preferences_im.xml"
-         label="Communication"
-         layout="topleft"
-         name="im" />
-        <panel
-		 class="panel_preference"
-         filename="panel_preferences_popups.xml"
-         label="Popups"
-         layout="topleft"
-         name="msgs" />
-        <panel
-		 class="panel_preference"
          filename="panel_preferences_skins.xml"
          label="Skins"
          layout="topleft"
-         name="skins" />
+         name="skins" /-->
     </tab_container>
+    
+        <!--button
+     follows="left|bottom"
+     height="20"
+     label="About"
+     label_selected="About"
+     layout="topleft"
+     left_delta="-512"
+     name="About..."
+     top_delta="0"
+     width="90">
+        <button.commit_callback
+         function="Floater.Show"
+         parameter="sl_about" />
+    </button-->
+    <!--bottom"
+     height="20"
+     help_url="https://support.secondlife.com/ics/support/default.asp?deptID=4417"
+     label="Help"
+     label_selected="Help"
+     layout="topleft"
+     left_pad="3"
+     name="Help"
+     top_delta="0"
+     width="90" /-->
+
+    
 </floater>

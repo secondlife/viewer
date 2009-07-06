@@ -729,13 +729,11 @@ LLTalkButton::LLTalkButton(const LLUICtrl::Params& p)
 	speak_params.label("Speak");
 	speak_params.label_selected("Speak");
 	speak_params.font(LLFontGL::getFontSansSerifSmall());
-	speak_params.label_color(LLColor4::black);
-	speak_params.label_color_selected(LLColor4::black);
 	speak_params.tab_stop(false);
 	speak_params.is_toggle(true);
 	speak_params.picture_style(true);
-	speak_params.image_selected(LLUI::getUIImage("flyout_btn_left_selected.tga")); 
-	speak_params.image_unselected(LLUI::getUIImage("flyout_btn_left.tga"));
+	speak_params.image_selected(LLUI::getUIImage("SegmentedBtn_Left_Selected")); 
+	speak_params.image_unselected(LLUI::getUIImage("SegmentedBtn_Left_Off"));
 	mSpeakBtn = LLUICtrlFactory::create<LLButton>(speak_params);
 	addChild(mSpeakBtn);
 
@@ -749,8 +747,8 @@ LLTalkButton::LLTalkButton(const LLUICtrl::Params& p)
 	show_params.tab_stop(false);
 	show_params.is_toggle(true);
 	show_params.picture_style(true);
-	show_params.image_selected(LLUI::getUIImage("talk_btn_right_selected.tga"));
-	show_params.image_unselected(LLUI::getUIImage("talk_btn_right.tga"));
+	show_params.image_selected(LLUI::getUIImage("ComboButton_Selected"));
+	show_params.image_unselected(LLUI::getUIImage("ComboButton_Off"));
 	mShowBtn = LLUICtrlFactory::create<LLButton>(show_params);
 	addChild(mShowBtn);
 

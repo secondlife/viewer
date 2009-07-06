@@ -1579,7 +1579,6 @@ void LLUI::initClass(const settings_map_t& settings,
 	sSettingGroups = settings;
 
 	if ((get_ptr_in_map(sSettingGroups, std::string("config")) == NULL) ||
-		(get_ptr_in_map(sSettingGroups, std::string("color")) == NULL) ||
 		(get_ptr_in_map(sSettingGroups, std::string("floater")) == NULL) ||
 		(get_ptr_in_map(sSettingGroups, std::string("ignores")) == NULL))
 	{
@@ -1590,7 +1589,7 @@ void LLUI::initClass(const settings_map_t& settings,
 	sAudioCallback = audio_callback;
 	sGLScaleFactor = (scale_factor == NULL) ? LLVector2(1.f, 1.f) : *scale_factor;
 	sWindow = NULL; // set later in startup
-	LLFontGL::sShadowColor = LLUI::sSettingGroups["color"]->getColor("ColorDropShadow");
+	LLFontGL::sShadowColor = LLUIColorTable::instance().getColor("ColorDropShadow");
 
 	static LLUICachedControl<bool> show_xui_names ("ShowXUINames", false);
 	LLUI::sShowXUINames = show_xui_names;
@@ -1855,13 +1854,6 @@ void LLUI::setHtmlHelp(LLHtmlHelp* html_help)
 	LLUI::sHtmlHelp = html_help;
 }
 
-// static
-boost::function<const LLColor4&()> LLUI::getCachedColorFunctor(const std::string& color_name)
-{
-	return LLCachedControl<LLColor4>(*sSettingGroups["color"], color_name, LLColor4::magenta);
-}
-
-// static
 LLControlGroup& LLUI::getControlControlGroup (const std::string& controlname)
 {
 	for (settings_map_t::iterator itor = sSettingGroups.begin();

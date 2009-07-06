@@ -314,7 +314,7 @@ void LLTextBox::draw()
 
 	if( mBorderDropShadowVisible )
 	{
-		static LLUICachedControl<LLColor4> color_drop_shadow ("ColorDropShadow", *(new LLColor4));
+		static LLUIColor color_drop_shadow = LLUIColorTable::instance().getColor("ColorDropShadow");
 		static LLUICachedControl<S32> drop_shadow_tooltip ("DropShadowTooltip", 0);
 		gl_drop_shadow(0, getRect().getHeight(), getRect().getWidth(), 0,
 			color_drop_shadow, drop_shadow_tooltip);

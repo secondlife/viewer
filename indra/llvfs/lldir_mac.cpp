@@ -142,8 +142,25 @@ LLDir_Mac::LLDir_Mac()
 		CFURLRefToLLString(executableParentURLRef, mExecutableDir, true);
 		
 		// mAppRODataDir
-		CFURLRef	resourcesURLRef = CFBundleCopyResourcesDirectoryURL(mainBundleRef);
-		CFURLRefToLLString(resourcesURLRef, mAppRODataDir, true);
+		// *NOTE: When running in a dev tree, use the copy of app_settings and
+		// skins in indra/newview/ rather than in the application bundle.  This
+		// mirrors Windows dev environment behavior and allows direct checkin
+		// of edited skins/xui files. JC
+		U32 indra_pos = mExecutableDir.find("/indra");
+		if (indra_pos != std::string::npos)
+		{
+			// ...we're in a dev checkout
+			mAppRODataDir = mExecutableDir.substr(0, indra_pos)
+				+ "/indra/newview";
+			llinfos << "Running in dev checkout with mAppRODataDir "
+				<< mAppRODataDir << llendl;
+		}
+		else
+		{
+			// ...normal installation running
+			CFURLRef resourcesURLRef = CFBundleCopyResourcesDirectoryURL(mainBundleRef);
+			CFURLRefToLLString(resourcesURLRef, mAppRODataDir, true);
+		}
 		
 		// mOSUserDir
 		error = FSFindFolder(kUserDomain, kApplicationSupportFolderType, true, &fileRef);

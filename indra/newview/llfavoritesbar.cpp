@@ -369,7 +369,7 @@ BOOL LLFavoritesBarCtrl::postBuild()
 	{
 		menu = LLUICtrlFactory::getDefaultWidget<LLMenuGL>("inventory_menu");
 	}
-	menu->setBackgroundColor(gSavedSkinSettings.getColor("MenuPopupBgColor"));
+	menu->setBackgroundColor(LLUIColorTable::instance().getColor("MenuPopupBgColor"));
 	mInventoryItemsPopupMenuHandle = menu->getHandle();
 
 	return TRUE;

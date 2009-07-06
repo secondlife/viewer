@@ -684,7 +684,7 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 			{
 				std::string notifyMsg = notification->getMessage();
 				if (!notifyMsg.empty())
-					floater->addHistoryLine(notifyMsg,gSavedSkinSettings.getColor4("SystemChatColor"));
+					floater->addHistoryLine(notifyMsg,LLUIColorTable::instance().getColor("SystemChatColor"));
 			}
 		}
 

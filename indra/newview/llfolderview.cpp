@@ -793,13 +793,13 @@ BOOL LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 void LLFolderViewItem::draw()
 {
-	static LLCachedControl<LLColor4> sFgColor(gSavedSkinSettings, "MenuItemEnabledColor", DEFAULT_WHITE);
-	static LLCachedControl<LLColor4> sHighlightBgColor(gSavedSkinSettings, "MenuItemHighlightBgColor", DEFAULT_WHITE);
-	static LLCachedControl<LLColor4> sHighlightFgColor(gSavedSkinSettings, "MenuItemHighlightFgColor", DEFAULT_WHITE);
-	static LLCachedControl<LLColor4> sFilterBGColor(gSavedSkinSettings, "FilterBackgroundColor", DEFAULT_WHITE);
-	static LLCachedControl<LLColor4> sFilterTextColor(gSavedSkinSettings, "FilterTextColor", DEFAULT_WHITE);
-	static LLCachedControl<LLColor4> sSuffixColor(gSavedSkinSettings, "InventoryItemSuffixColor", DEFAULT_WHITE);
-	static LLCachedControl<LLColor4> sSearchStatusColor(gSavedSkinSettings, "InventorySearchStatusColor", DEFAULT_WHITE);
+	static LLUIColor sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
+	static LLUIColor sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
+	static LLUIColor sHighlightFgColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
+	static LLUIColor sFilterBGColor = LLUIColorTable::instance().getColor("FilterBackgroundColor", DEFAULT_WHITE);
+	static LLUIColor sFilterTextColor = LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
+	static LLUIColor sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemSuffixColor", DEFAULT_WHITE);
+	static LLUIColor sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
 
 	bool possibly_has_children = false;
 	bool up_to_date = mListener && mListener->isUpToDate();
@@ -2562,7 +2562,7 @@ LLFolderView::LLFolderView(const Params& p)
 	{
 		menu = LLUICtrlFactory::getDefaultWidget<LLMenuGL>("inventory_menu");
 	}
-	menu->setBackgroundColor(gSavedSkinSettings.getColor("MenuPopupBgColor"));
+	menu->setBackgroundColor(LLUIColorTable::instance().getColor("MenuPopupBgColor"));
 	mPopupMenuHandle = menu->getHandle();
 
 }
@@ -3148,7 +3148,7 @@ void LLFolderView::commitRename( const LLSD& data )
 
 void LLFolderView::draw()
 {
-	static LLCachedControl<LLColor4> sSearchStatusColor(gSavedSkinSettings, "InventorySearchStatusColor", DEFAULT_WHITE);
+	static LLUIColor sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
 	if (mDebugFilters)
 	{
 		std::string current_filter_string = llformat("Current Filter: %d, Least Filter: %d, Auto-accept Filter: %d",

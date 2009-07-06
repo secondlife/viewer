@@ -84,7 +84,6 @@ public:
 		Optional<commit_callback_t> 		prearrange_callback,
 											text_entry_callback,
 											selection_callback;
-		Optional<LLUIImage*>				arrow_image;
 
 		Optional<EPreferredPosition, PreferredPositionValues>	list_position;
 		
@@ -92,6 +91,8 @@ public:
 		Optional<LLButton::Params>			combo_button;
 		Optional<LLScrollListCtrl::Params>	combo_list;
 		Optional<LLLineEditor::Params>		combo_editor;
+
+		Optional<LLButton::Params>          drop_down_button;
 
 		Multiple<ItemParams>				items;
 		

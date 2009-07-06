@@ -45,6 +45,7 @@
 #include "llagent.h"
 #include "llavatarconstants.h"
 #include "llcheckboxctrl.h"
+#include "llcolorswatch.h"
 #include "llcombobox.h"
 #include "llcommandhandler.h"
 #include "lldirpicker.h"
@@ -332,7 +333,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
 	mCommitCallbackRegistrar.add("Pref.Logging",				boost::bind(&LLFloaterPreference::onCommitLogging, this));
 	mCommitCallbackRegistrar.add("Pref.OpenHelp",				boost::bind(&LLFloaterPreference::onOpenHelp, this));	
-	mCommitCallbackRegistrar.add("Pref.ChangeCustom",			boost::bind(&LLFloaterPreference::onChangeCustom, this));	
 	mCommitCallbackRegistrar.add("Pref.UpdateMeterText",		boost::bind(&LLFloaterPreference::updateMeterText, this, _1));	
 	mCommitCallbackRegistrar.add("Pref.HardwareSettings",       boost::bind(&LLFloaterPreference::onOpenHardwareSettings, this));	
 	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",       boost::bind(&LLFloaterPreference::setHardwareDefaults, this));	
@@ -342,8 +342,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.AutoDetectAspect",       boost::bind(&LLFloaterPreference::onCommitAutoDetectAspect, this));	
 	mCommitCallbackRegistrar.add("Pref.onSelectAspectRatio",    boost::bind(&LLFloaterPreference::onKeystrokeAspectRatio, this));	
 	mCommitCallbackRegistrar.add("Pref.QualityPerformance",     boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));	
-	
-	gSavedSkinSettings.getControl("HTMLLinkColor")->getCommitSignal()->connect(boost::bind(&handleHTMLLinkColorChanged,  _2));
 
 }
 
@@ -459,7 +457,7 @@ void LLFloaterPreference::apply()
 	applyResolution();
 	
 	// Only set window size if we're not in fullscreen mode
-	if(gSavedSettings.getBOOL("NotFullScreen"))
+	if(!gSavedSettings.getBOOL("WindowFullScreen"))
 	{
 		applyWindowSize();
 	}
@@ -544,7 +542,7 @@ void LLFloaterPreference::onBtnOK()
 		apply();
 		closeFloater(false);
 		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
-		gSavedSkinSettings.saveToFile(gSavedSettings.getString("SkinningSettingsFile") , TRUE );
+		LLUIColorTable::instance().saveUserSettings();
 		std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
 		// save all settings, even if equals defaults
 		gCrashSettings.saveToFile(crash_settings_filename, FALSE);
@@ -604,19 +602,6 @@ void LLFloaterPreference::updateUserInfo(const std::string& visibility, bool im_
 	}
 }
 
-
-void LLFloaterPreference::onChangeCustom()
-{
-	// if custom is turned off, reset everything to defaults
-	if (this && getChild<LLCheckBoxCtrl>("CustomSettings")->getValue())
-	{
-		U32 set = (U32)getChild<LLSliderCtrl>("QualityPerformanceSelection")->getValueF32();
-		LLFeatureManager::getInstance()->setGraphicsLevel(set, true);	
-		updateMeterText(getChild<LLSliderCtrl>("DrawDistance"));
-	}
-
-	refreshEnabledGraphics();
-}
 
 void LLFloaterPreference::refreshEnabledGraphics()
 {
@@ -780,12 +765,6 @@ void LLFloaterPreference::buildLists(void* data)
 
 void LLFloaterPreference::refreshEnabledState()
 {
-	
-	// disable graphics settings and exit if it's not set to custom
-	if(!gSavedSettings.getBOOL("RenderCustomSettings"))
-	{
-		return;
-	}
 	
 	LLCheckBoxCtrl* ctrl_reflections = getChild<LLCheckBoxCtrl>("Reflections");
 	LLRadioGroup* radio_reflection_detail = getChild<LLRadioGroup>("ReflectionDetailRadio");
@@ -1249,7 +1228,7 @@ void LLFloaterPreference::applyResolution()
 	gSavedSettings.setS32("FullScreenWidth", supported_resolutions[resIndex].mWidth);
 	gSavedSettings.setS32("FullScreenHeight", supported_resolutions[resIndex].mHeight);
 	
-	gViewerWindow->requestResolutionUpdate(!gSavedSettings.getBOOL("NotFullScreen"));
+	gViewerWindow->requestResolutionUpdate(gSavedSettings.getBOOL("WindowFullScreen"));
 	
 	send_agent_update(TRUE);
 	
@@ -1298,6 +1277,12 @@ LLPanelPreference::LLPanelPreference()
 	//
 	mCommitCallbackRegistrar.add("setControlFalse",		boost::bind(&LLPanelPreference::setControlFalse,this, _2));
 }
+
+static void applyUIColor(const std::string& color_name, LLUICtrl* ctrl, const LLSD& param)
+{
+	LLUIColorTable::instance().setColor(color_name, LLColor4(param));
+}
+
 //virtual
 BOOL LLPanelPreference::postBuild()
 {
@@ -1460,6 +1445,55 @@ BOOL LLPanelPreference::postBuild()
 		refresh();
 	}
 	
+
+	if(hasChild("user") && hasChild("agent") && hasChild("im") 
+	&& hasChild("system") && hasChild("script_error") && hasChild("objects") 
+	&& hasChild("owner") && hasChild("background") && hasChild("links"))
+	{
+		LLColorSwatchCtrl* color_swatch = getChild<LLColorSwatchCtrl>("user");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "UserChatColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("UserChatColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("agent");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "AgentChatColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("AgentChatColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("im");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "IMChatColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("IMChatColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("system");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "SystemChatColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("SystemChatColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("script_error");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "ScriptErrorColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("ScriptErrorColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("objects");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "ObjectChatColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("ObjectChatColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("owner");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "llOwnerSayChatColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("llOwnerSayChatColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("background");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "BackgroundChatColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("BackgroundChatColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("links");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "HTMLLinkColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("HTMLLinkColor"));
+	}
+
+	if(hasChild("effect_color_swatch"))
+	{
+		LLColorSwatchCtrl* color_swatch = getChild<LLColorSwatchCtrl>("effect_color_swatch");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "EffectColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("EffectColor"));
+	}
+
 	apply();
 	return true;
 }
@@ -1475,16 +1509,25 @@ void LLPanelPreference::apply()
 		// Process view on top of the stack
 		LLView* curview = view_stack.front();
 		view_stack.pop_front();
-		LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
-		if (ctrl)
+
+		LLColorSwatchCtrl* color_swatch = dynamic_cast<LLColorSwatchCtrl *>(curview);
+		if (color_swatch)
 		{
-			LLControlVariable* control = ctrl->getControlVariable();
-			if (control)
+			mSavedColors[color_swatch->getName()] = color_swatch->get();
+		}
+		else
+		{
+			LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
+			if (ctrl)
 			{
-				mSavedValues[control] = control->getValue();
+				LLControlVariable* control = ctrl->getControlVariable();
+				if (control)
+				{
+					mSavedValues[control] = control->getValue();
+				}
 			}
 		}
-		
+			
 		// Push children onto the end of the work stack
 		for (child_list_t::const_iterator iter = curview->getChildList()->begin();
 			 iter != curview->getChildList()->end(); ++iter)
@@ -1503,6 +1546,17 @@ void LLPanelPreference::cancel()
 		LLControlVariable* control = iter->first;
 		LLSD ctrl_value = iter->second;
 		control->set(ctrl_value);
+	}
+
+	for (string_color_map_t::iterator iter = mSavedColors.begin();
+		 iter != mSavedColors.end(); ++iter)
+	{
+		LLColorSwatchCtrl* color_swatch = findChild<LLColorSwatchCtrl>(iter->first);
+		if(color_swatch)
+		{
+			color_swatch->set(iter->second);
+			color_swatch->onCommit();
+		}
 	}
 }
 

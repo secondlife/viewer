@@ -107,10 +107,10 @@ void LLStatGraph::draw()
 	}
 
 	//gl_drop_shadow(0,  getRect().getHeight(), getRect().getWidth(), 0,
-	//				gSavedSkinSettings.getColor("ColorDropShadow"), 
+	//				LLUIColorTable::instance().getColor("ColorDropShadow"), 
 	//				(S32) gSavedSettings.getF32("DropShadowFloater") );
 
-	color = LLUI::sSettingGroups["color"]->getColor( "MenuDefaultBgColor" );
+	color = LLUIColorTable::instance().getColor( "MenuDefaultBgColor" );
 	gGL.color4fv(color.mV);
 	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, TRUE);
 

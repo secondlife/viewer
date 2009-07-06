@@ -434,7 +434,6 @@ void LLFeatureManager::applyRecommendedSettings()
 
 	setGraphicsLevel(level, false);
 	gSavedSettings.setU32("RenderQualityPerformance", level);
-	gSavedSettings.setBOOL("RenderCustomSettings", FALSE);
 
 	// now apply the tweaks to draw distance
 	// these are double negatives, because feature masks only work by

@@ -112,7 +112,7 @@ void LLTracker::stopTracking(void* userdata)
 // static virtual
 void LLTracker::drawHUDArrow()
 {
-	static LLCachedControl<LLColor4> map_track_color(gSavedSkinSettings, "MapTrackColor", LLColor4::white);
+	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
 	
 	/* tracking autopilot destination has been disabled 
 	   -- 2004.01.09, Leviathan
@@ -163,7 +163,7 @@ void LLTracker::render3D()
 		return;
 	}
 	
-	static LLCachedControl<LLColor4> map_track_color(gSavedSkinSettings, "MapTrackColor", LLColor4::white);
+	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
 	
 	// Arbitary location beacon
 	if( instance()->mIsTrackingLocation )

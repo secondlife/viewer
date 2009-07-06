@@ -469,13 +469,24 @@ bool idle_startup()
 		
 		#if LL_WINDOWS
 			// On the windows dev builds, unpackaged, the message_template.msg 
-			// file will be located in 
-			// indra/build-vc**/newview/<config>/app_settings.
+			// file will be located in:
+			// build-vc**/newview/<config>/app_settings
 			if (!found_template)
 			{
 				message_template_path = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "app_settings", "message_template.msg");
 				found_template = LLFile::fopen(message_template_path.c_str(), "r");		/* Flawfinder: ignore */
 			}	
+		#elif LL_DARWIN
+			// On Mac dev builds, message_template.msg lives in:
+			// indra/build-*/newview/<config>/Second Life/Contents/Resources/app_settings
+			if (!found_template)
+			{
+				message_template_path =
+					gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE,
+												   "../Resources/app_settings",
+												   "message_template.msg");
+				found_template = LLFile::fopen(message_template_path.c_str(), "r");		/* Flawfinder: ignore */
+			}		
 		#endif
 
 		if (found_template)
@@ -929,7 +940,7 @@ bool idle_startup()
 
 		
 		//For HTML parsing in text boxes.
-		LLTextEditor::setLinkColor( gSavedSkinSettings.getColor4("HTMLLinkColor") );
+		LLTextEditor::setLinkColor( LLUIColorTable::instance().getColor("HTMLLinkColor") );
 
 		// Load URL History File
 		LLURLHistory::loadFile("url_history.xml");
@@ -1604,7 +1615,7 @@ bool idle_startup()
 		// Since we connected, save off the settings so the user doesn't have to
 		// type the name/password again if we crash.
 		gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);
-		gSavedSkinSettings.saveToFile(gSavedSettings.getString("SkinningSettingsFile"), TRUE);
+		LLUIColorTable::instance().saveUserSettings();
 
 		//
 		// Initialize classes w/graphics stuff.
@@ -2187,7 +2198,7 @@ bool idle_startup()
 
 			// and make sure it's saved
 			gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile") , TRUE );
-			gSavedSkinSettings.saveToFile( gSavedSettings.getString("SkinningSettingsFile") , TRUE );
+			LLUIColorTable::instance().saveUserSettings();
 		};
 
 		if (!gNoRender)
@@ -2576,7 +2587,7 @@ void login_callback(S32 option, void *userdata)
 		{
 			// turn off the setting and write out to disk
 			gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile") , TRUE );
-			gSavedSkinSettings.saveToFile( gSavedSettings.getString("SkinningSettingsFile") , TRUE );
+			LLUIColorTable::instance().saveUserSettings();
 		}
 
 		// Next iteration through main loop should shut down the app cleanly.
@@ -2786,7 +2797,7 @@ void update_app(BOOL mandatory, const std::string& auth_msg)
 {
 	// store off config state, as we might quit soon
 	gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);	
-	gSavedSkinSettings.saveToFile(gSavedSettings.getString("SkinningSettingsFile"), TRUE);
+	LLUIColorTable::instance().saveUserSettings();
 	std::ostringstream message;
 
 	std::string msg;

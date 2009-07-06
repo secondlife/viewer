@@ -918,12 +918,4 @@ namespace LLInitParam
     {
     	return false;
     }
-
-    template<> 
-	bool ParamCompare<LLLazyValue<LLColor4> >::equals(
-		const LLLazyValue<LLColor4> &a, 
-		const LLLazyValue<LLColor4> &b)    
-    {
-    	return a.get() == b.get();
-    }
 }

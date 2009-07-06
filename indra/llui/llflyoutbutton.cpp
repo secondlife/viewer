@@ -54,11 +54,6 @@ LLFlyoutButton::LLFlyoutButton(const Params& p)
 
 	mActionButton = LLUICtrlFactory::create<LLButton>(bp);
 	addChild(mActionButton);
-
-	mButton->setOrigin(getRect().getWidth() - FLYOUT_BUTTON_ARROW_WIDTH, 0);
-	mButton->reshape(FLYOUT_BUTTON_ARROW_WIDTH, getRect().getHeight());
-	mButton->setFollows(FOLLOWS_RIGHT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
-	mButton->setImageOverlay(mListPosition == BELOW ? "down_arrow.tga" : "up_arrow.tga", LLFontGL::RIGHT);
 }
 
 void LLFlyoutButton::onActionButtonClick(const LLSD& data)
@@ -75,7 +70,7 @@ void LLFlyoutButton::draw()
 
 	//FIXME: this should be an attribute of comboboxes, whether they have a distinct label or
 	// the label reflects the last selected item, for now we have to manually remove the label
-	mButton->setLabel(LLStringUtil::null);
+	setLabel(LLStringUtil::null);
 	LLComboBox::draw();	
 }
 

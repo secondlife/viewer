@@ -368,11 +368,11 @@ void LLFloaterChat::addChat(const LLChat& chat,
 		F32 size = CHAT_MSG_SIZE;
 		if (chat.mSourceType == CHAT_SOURCE_SYSTEM)
 		{
-			text_color = gSavedSkinSettings.getColor("SystemChatColor");
+			text_color = LLUIColorTable::instance().getColor("SystemChatColor");
 		}
 		else if(from_instant_message)
 		{
-			text_color = gSavedSkinSettings.getColor("IMChatColor");
+			text_color = LLUIColorTable::instance().getColor("IMChatColor");
 			size = INSTANT_MSG_SIZE;
 		}
 		// We display anything if it's not an IM. If it's an IM, check pref...
@@ -453,37 +453,37 @@ LLColor4 get_text_color(const LLChat& chat)
 		switch(chat.mSourceType)
 		{
 		case CHAT_SOURCE_SYSTEM:
-			text_color = gSavedSkinSettings.getColor4("SystemChatColor");
+			text_color = LLUIColorTable::instance().getColor("SystemChatColor");
 			break;
 		case CHAT_SOURCE_AGENT:
 		    if (chat.mFromID.isNull())
 			{
-				text_color = gSavedSkinSettings.getColor4("SystemChatColor");
+				text_color = LLUIColorTable::instance().getColor("SystemChatColor");
 			}
 			else
 			{
 				if(gAgent.getID() == chat.mFromID)
 				{
-					text_color = gSavedSkinSettings.getColor4("UserChatColor");
+					text_color = LLUIColorTable::instance().getColor("UserChatColor");
 				}
 				else
 				{
-					text_color = gSavedSkinSettings.getColor4("AgentChatColor");
+					text_color = LLUIColorTable::instance().getColor("AgentChatColor");
 				}
 			}
 			break;
 		case CHAT_SOURCE_OBJECT:
 			if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 			{
-				text_color = gSavedSkinSettings.getColor4("ScriptErrorColor");
+				text_color = LLUIColorTable::instance().getColor("ScriptErrorColor");
 			}
 			else if ( chat.mChatType == CHAT_TYPE_OWNER )
 			{
-				text_color = gSavedSkinSettings.getColor4("llOwnerSayChatColor");
+				text_color = LLUIColorTable::instance().getColor("llOwnerSayChatColor");
 			}
 			else
 			{
-				text_color = gSavedSkinSettings.getColor4("ObjectChatColor");
+				text_color = LLUIColorTable::instance().getColor("ObjectChatColor");
 			}
 			break;
 		default:

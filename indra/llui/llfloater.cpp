@@ -66,7 +66,7 @@ const S32 TABBED_FLOATER_OFFSET = 0;
 
 std::string	LLFloater::sButtonActiveImageNames[BUTTON_COUNT] = 
 {
-	"closebox.tga",		//BUTTON_CLOSE
+	"Icon_Close_Foreground",		//BUTTON_CLOSE
 	"restore.tga",	//BUTTON_RESTORE
 	"minimize.tga",	//BUTTON_MINIMIZE
 	"tearoffbox.tga",	//BUTTON_TEAR_OFF
@@ -84,7 +84,7 @@ std::string	LLFloater::sButtonInactiveImageNames[BUTTON_COUNT] =
 
 std::string	LLFloater::sButtonPressedImageNames[BUTTON_COUNT] = 
 {
-	"close_in_blue.tga",		//BUTTON_CLOSE
+	"Icon_Close_Press",		//BUTTON_CLOSE
 	"restore_pressed.tga",	//BUTTON_RESTORE
 	"minimize_pressed.tga",	//BUTTON_MINIMIZE
 	"tearoff_pressed.tga",	//BUTTON_TEAR_OFF
@@ -221,8 +221,8 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 		mPreviousMinimizedLeft(0),
 		mNotificationContext(NULL)
 {
-	static LLUICachedControl<LLColor4> default_background_color ("FloaterDefaultBackgroundColor", *(new LLColor4));
-	static LLUICachedControl<LLColor4> focus_background_color ("FloaterFocusBackgroundColor", *(new LLColor4));
+	static LLUIColor default_background_color = LLUIColorTable::instance().getColor("FloaterDefaultBackgroundColor");
+	static LLUIColor focus_background_color = LLUIColorTable::instance().getColor("FloaterFocusBackgroundColor");
 	
 	for (S32 i = 0; i < BUTTON_COUNT; i++)
 	{
@@ -1449,7 +1449,7 @@ void LLFloater::draw()
 		S32 bottom = LLPANEL_BORDER_WIDTH;
 
 		static LLUICachedControl<S32> shadow_offset_S32 ("DropShadowFloater", 0);
-		static LLUICachedControl<LLColor4> shadow_color_cached ("ColorDropShadow", *(new LLColor4));
+		static LLUIColor shadow_color_cached = LLUIColorTable::instance().getColor("ColorDropShadow");
 		LLColor4 shadow_color = shadow_color_cached;
 		F32 shadow_offset = (F32)shadow_offset_S32;
 
@@ -1474,7 +1474,7 @@ void LLFloater::draw()
 
 		if(gFocusMgr.childHasKeyboardFocus(this) && !getIsChrome() && !getCurrentTitle().empty())
 		{
-			static LLUICachedControl<LLColor4> titlebar_focus_color ("TitleBarFocusColor", *(new LLColor4));
+			static LLUIColor titlebar_focus_color = LLUIColorTable::instance().getColor("TitleBarFocusColor");
 			// draw highlight on title bar to indicate focus.  RDW
 			const LLFontGL* font = LLFontGL::getFontSansSerif();
 			LLRect r = getRect();
@@ -1533,10 +1533,10 @@ void LLFloater::draw()
 	{
 		// add in a border to improve spacialized visual aclarity ;)
 		// use lines instead of gl_rect_2d so we can round the edges as per james' recommendation
-		static LLUICachedControl<LLColor4> focus_border_color ("FloaterFocusBorderColor", *(new LLColor4));
-		static LLUICachedControl<LLColor4> unfocus_border_color ("FloaterUnfocusBorderColor", *(new LLColor4));
+		static LLUIColor focus_border_color = LLUIColorTable::instance().getColor("FloaterFocusBorderColor");
+		static LLUIColor unfocus_border_color = LLUIColorTable::instance().getColor("FloaterUnfocusBorderColor");
 		LLUI::setLineWidth(1.5f);
-		LLColor4 outlineColor = gFocusMgr.childHasKeyboardFocus(this) ? focus_border_color() : unfocus_border_color;
+		LLColor4 outlineColor = gFocusMgr.childHasKeyboardFocus(this) ? focus_border_color : unfocus_border_color;
 		gl_rect_2d_offset_local(0, getRect().getHeight() + 1, getRect().getWidth() + 1, 0, outlineColor, -LLPANEL_BORDER_WIDTH, FALSE);
 		LLUI::setLineWidth(1.f);
 	}
@@ -1699,7 +1699,6 @@ void LLFloater::buildButtons()
 		p.tab_stop(false);
 		p.follows.flags(FOLLOWS_TOP|FOLLOWS_RIGHT);
 		p.tool_tip(sButtonToolTips[i]);
-		p.image_color(LLUI::getCachedColorFunctor("FloaterButtonImageColor"));
 		p.scale_image(true);
 
 		LLButton* buttonp = LLUICtrlFactory::create<LLButton>(p);

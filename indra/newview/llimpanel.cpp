@@ -1222,7 +1222,7 @@ LLFloaterIMPanel::LLFloaterIMPanel(const std::string& session_label,
 
 			addHistoryLine(
 				session_start,
-				gSavedSkinSettings.getColor4("SystemChatColor"),
+				LLUIColorTable::instance().getColor("SystemChatColor"),
 				false);
 		}
 	}
@@ -2004,7 +2004,7 @@ void LLFloaterIMPanel::sendMsg()
 
 					BOOL other_was_typing = mOtherTyping;
 
-					addHistoryLine(history_echo, gSavedSkinSettings.getColor("IMChatColor"), true, gAgent.getID());
+					addHistoryLine(history_echo, LLUIColorTable::instance().getColor("IMChatColor"), true, gAgent.getID());
 
 					if (other_was_typing) 
 					{
@@ -2175,7 +2175,7 @@ void LLFloaterIMPanel::addTypingIndicator(const std::string &name)
 		mTypingLineStartIndex = mHistoryEditor->getWText().length();
 		LLUIString typing_start = sTypingStartString;
 		typing_start.setArg("[NAME]", name);
-		addHistoryLine(typing_start, gSavedSkinSettings.getColor4("SystemChatColor"), false);
+		addHistoryLine(typing_start, LLUIColorTable::instance().getColor("SystemChatColor"), false);
 		mOtherTypingName = name;
 		mOtherTyping = TRUE;
 	}
@@ -2232,7 +2232,7 @@ void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string
 	}
 
 	//self->addHistoryLine(line, LLColor4::grey, FALSE);
-	self->mHistoryEditor->appendColoredText(message, false, true, gSavedSkinSettings.getColor4("ChatHistoryTextColor"));
+	self->mHistoryEditor->appendColoredText(message, false, true, LLUIColorTable::instance().getColor("ChatHistoryTextColor"));
 }
 
 void LLFloaterIMPanel::showSessionStartError(

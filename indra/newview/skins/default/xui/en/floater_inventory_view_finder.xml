@@ -5,7 +5,7 @@
  layout="topleft"
  name="Inventory Finder"
  title="inventory_recent_items"
- width="160">
+ width="280">
     <icon
      height="16"
      image_name="inv_item_animation.tga"

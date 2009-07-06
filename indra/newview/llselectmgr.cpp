@@ -187,12 +187,12 @@ LLSelectMgr::LLSelectMgr()
 	sHighlightUAnim		= gSavedSettings.getF32("SelectionHighlightUAnim");
 	sHighlightVAnim		= gSavedSettings.getF32("SelectionHighlightVAnim");
 
-	sSilhouetteParentColor =gSavedSkinSettings.getColor("SilhouetteParentColor");
-	sSilhouetteChildColor = gSavedSkinSettings.getColor("SilhouetteChildColor");
-	sHighlightParentColor = gSavedSkinSettings.getColor("HighlightParentColor");
-	sHighlightChildColor = gSavedSkinSettings.getColor("HighlightChildColor");
-	sHighlightInspectColor = gSavedSkinSettings.getColor("HighlightInspectColor");
-	sContextSilhouetteColor = gSavedSkinSettings.getColor("ContextSilhouetteColor")*0.5f;
+	sSilhouetteParentColor =LLUIColorTable::instance().getColor("SilhouetteParentColor");
+	sSilhouetteChildColor = LLUIColorTable::instance().getColor("SilhouetteChildColor");
+	sHighlightParentColor = LLUIColorTable::instance().getColor("HighlightParentColor");
+	sHighlightChildColor = LLUIColorTable::instance().getColor("HighlightChildColor");
+	sHighlightInspectColor = LLUIColorTable::instance().getColor("HighlightInspectColor");
+	sContextSilhouetteColor = LLUIColorTable::instance().getColor("ContextSilhouetteColor")*0.5f;
 
 	sRenderLightRadius = gSavedSettings.getBOOL("RenderLightRadius");
 	

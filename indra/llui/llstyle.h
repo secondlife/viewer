@@ -106,7 +106,7 @@ protected:
 
 private:
 	BOOL		mVisible;
-	LLColor4	mColor;
+	LLUIColor	mColor;
 	std::string	mFontName;
 	LLFontGL*   mFont;		// cached for performance
 	std::string	mLink;

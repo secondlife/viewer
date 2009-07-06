@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- height="383"
+ height="400"
  layout="topleft"
  name="land holdings floater"
  title="My Land"
- width="600">
+ width="280">
     <floater.string
      name="area_string">
         [AREA] sq. meters
@@ -16,23 +16,23 @@
      left="8"
      name="parcel list"
      top="24"
-     width="584">
+     width="270">
         <scroll_list.columns
-         label="Parcel Name"
+         label="Parcel"
          name="name"
-         width="163" />
+         width="69" />
         <scroll_list.columns
          label="Region"
          name="location"
-         width="175" />
+         width="74" />
         <scroll_list.columns
          label="Type"
          name="type"
-         width="140" />
+         width="55" />
         <scroll_list.columns
          label="Area"
          name="area"
-         width="87" />
+         width="10" />
         <scroll_list.columns
          label=""
          name="hidden"
@@ -40,6 +40,7 @@
     </scroll_list>
     <button
      height="20"
+     font="SansSerifSmall"
      label="Teleport"
      label_selected="Teleport"
      layout="topleft"
@@ -50,6 +51,7 @@
      width="100" />
     <button
      height="20"
+     font="SansSerifSmall"
      label="Show on Map"
      label_selected="Show on Map"
      layout="topleft"
@@ -77,15 +79,15 @@
      left_delta="-4"
      name="grant list"
      top_pad="4"
-     width="584">
+     width="270">
         <scroll_list.columns
          label="Group"
          name="group"
-         width="330" />
+         width="125" />
         <scroll_list.columns
          label="Area"
          name="area"
-         width="220" />
+         width="125" />
     </scroll_list>
     <text
      type="string"
@@ -96,8 +98,9 @@
      left_delta="4"
      name="allowed_label"
      top_pad="4"
-     width="348">
-        Allowed land holdings at current payment plan:
+     width="150">
+        Allowed land holdings at
+current payment plan:
     </text>
     <text
      type="string"
@@ -105,9 +108,9 @@
      follows="left|top"
      height="16"
      layout="topleft"
-     left_delta="340"
+     left_pad="5"
      name="allowed_text"
-     top_delta="0"
+     top_delta="10"
      width="132">
         [AREA] sq. meters
     </text>
@@ -119,8 +122,8 @@
      layout="topleft"
      left="12"
      name="current_label"
-     top="341"
-     width="348">
+     top_pad="5"
+     width="150">
         Current land holdings:
     </text>
     <text
@@ -129,7 +132,7 @@
      follows="left|top"
      height="16"
      layout="topleft"
-     left_delta="340"
+     left_pad="5"
      name="current_text"
      top_delta="0"
      width="132">
@@ -144,9 +147,10 @@
      layout="topleft"
      left="12"
      name="available_label"
-     top="361"
-     width="348">
-        Available for land purchases:
+     top_pad="5"
+     width="150">
+        Available for land
+purchases:
     </text>
     <text
      type="string"
@@ -155,9 +159,9 @@
      font="SansSerifBold"
      height="16"
      layout="topleft"
-     left_delta="340"
+     left_pad="5"
      name="available_text"
-     top_delta="0"
+     top_delta="5"
      width="140">
         [AREA] sq. meters
     </text>

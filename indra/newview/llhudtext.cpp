@@ -292,7 +292,7 @@ void LLHUDText::renderText(BOOL for_select)
 	LLUIImagePtr imagep = LLUI::getUIImage("rounded_square.tga");
 
 	// *TODO: make this a per-text setting
-	LLColor4 bg_color = gSavedSkinSettings.getColor4("BackgroundChatColor");
+	LLColor4 bg_color = LLUIColorTable::instance().getColor("BackgroundChatColor");
 	bg_color.setAlpha(gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
 
 	const S32 border_height = 16;

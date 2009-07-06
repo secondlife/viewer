@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  auto_tile="true"
- height="350"
+ height="400"
  layout="topleft"
  name="gesture_preview"
- width="450">
+ width="280">
     <floater.string
      name="step_anim">
         Animation to play:
@@ -41,10 +41,10 @@
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerif"
+     font="SansSerifSmall"
      height="10"
      layout="topleft"
-     left="16"
+     left="10"
      name="desc_label"
      top="25"
      width="100">
@@ -57,15 +57,15 @@
      left_delta="84"
      name="desc"
      top_delta="-4"
-     width="330" />
+     width="180" />
     <text
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerif"
+     font="SansSerifSmall"
      height="10"
      layout="topleft"
-     left="16"
+     left="10"
      name="trigger_label"
      top="54"
      width="100">
@@ -79,18 +79,18 @@
      max_length="31"
      name="trigger_editor"
      top_delta="-4"
-     width="105" />
+     width="100" />
     <text
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerif"
+     font="SansSerifSmall"
      height="10"
      layout="topleft"
-     left_pad="15"
+     left="10"
      name="replace_text"
      tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture!"
-     top_delta="4"
+     top="79"
      width="200">
         Replace with:
     </text>
@@ -98,7 +98,7 @@
      follows="left|top"
      height="20"
      layout="topleft"
-     left_delta="80"
+     left_delta="84"
      max_length="31"
      name="replace_editor"
      tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture"
@@ -108,12 +108,12 @@
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerif"
+     font="SansSerifSmall"
      height="10"
      layout="topleft"
-     left="16"
+     left="10"
      name="key_label"
-     top="83"
+     top="104"
      width="100">
         Shortcut Key:
     </text>
@@ -137,12 +137,12 @@
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerif"
+     font="SansSerifSmall"
      height="10"
      layout="topleft"
-     left="16"
+     left="10"
      name="library_label"
-     top="112"
+     top="135"
      width="100">
         Library:
     </text>
@@ -150,10 +150,10 @@
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerif"
+     font="SansSerifSmall"
      height="10"
      layout="topleft"
-     left_pad="104"
+     left_pad="75"
      name="steps_label"
      top_delta="0"
      width="100">
@@ -163,10 +163,10 @@
      follows="top|left"
      height="110"
      layout="topleft"
-     left="16"
+     left="10"
      name="library_list"
-     top="132"
-     width="100">
+     top="150"
+     width="80">
         <scroll_list.rows
          value="Animation" />
         <scroll_list.rows
@@ -179,57 +179,61 @@
     <button
      follows="top|left"
      height="20"
+     font="SansSerifSmall"
      label="Add &gt;&gt;"
      layout="topleft"
      left_pad="14"
      name="add_btn"
      top_delta="0"
-     width="80" />
+     width="70" />
     <button
      follows="top|left"
      height="20"
-     label="Move Up"
+     font="SansSerifSmall"
+     label="Up"
      layout="topleft"
      left_delta="0"
      name="up_btn"
      top_pad="10"
-     width="80" />
+     width="70" />
     <button
      follows="top|left"
      height="20"
-     label="Move Down"
+     font="SansSerifSmall"
+     label="Down"
      layout="topleft"
      left_delta="0"
      name="down_btn"
      top_pad="10"
-     width="80" />
+     width="70" />
     <button
      follows="top|left"
      height="20"
+     font="SansSerifSmall"
      label="Remove"
      layout="topleft"
      left_delta="0"
      name="delete_btn"
      top_pad="10"
-     width="80" />
+     width="70" />
     <scroll_list
      follows="top|left"
      height="110"
      layout="topleft"
-     left="220"
+     left="185"
      name="step_list"
-     top="132"
-     width="210" />
+     top="150"
+     width="85" />
     <text
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerif"
+     font="SansSerifSmall"
      height="60"
      layout="topleft"
-     left="16"
+     left="10"
      name="help_label"
-     top="252"
+     top="270"
      width="200">
         All steps happen simultaneously, 
 unless you add wait steps.
@@ -238,9 +242,9 @@ unless you add wait steps.
      follows="top|left"
      height="60"
      layout="topleft"
-     left_pad="6"
+     left="10"
      name="options_text"
-     top_delta="0"
+     top="300"
      width="205" />
     <combo_box
      follows="top|left"
@@ -248,7 +252,7 @@ unless you add wait steps.
      layout="topleft"
      left_delta="10"
      name="animation_list"
-     top="272"
+     top="320"
      width="100" />
     <combo_box
      follows="top|left"
@@ -298,9 +302,9 @@ unless you add wait steps.
      height="20"
      label="until animations are done"
      layout="topleft"
-     left="232"
+     left="16"
      name="wait_anim_check"
-     top="267"
+     top="315"
      width="100" />
     <check_box
      follows="top|left"
@@ -325,10 +329,10 @@ unless you add wait steps.
      height="20"
      label="Active"
      layout="topleft"
-     left="140"
+     left="20"
      name="active_check"
      tool_tip="Active gestures can be triggered by chatting their trigger phrases or pressing their hot keys.  Gestures usually become inactive when there is a key binding conflict."
-     top="323"
+     top="365"
      width="100" />
     <button
      follows="top|left"

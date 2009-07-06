@@ -745,7 +745,7 @@ void LLIMMgr::addMessage(
 			//<< "*** region_id: " << region_id << std::endl
 			//<< "*** position: " << position << std::endl;
 
-			floater->addHistoryLine(bonus_info.str(), gSavedSkinSettings.getColor4("SystemChatColor"));
+			floater->addHistoryLine(bonus_info.str(), LLUIColorTable::instance().getColor("SystemChatColor"));
 		}
 
 		make_ui_sound("UISndNewIncomingIMSession");
@@ -754,8 +754,8 @@ void LLIMMgr::addMessage(
 	// now add message to floater
 	bool is_from_system = target_id.isNull() || (from == SYSTEM_FROM);
 	const LLColor4& color = ( is_from_system ? 
-							  gSavedSkinSettings.getColor4("SystemChatColor") : 
-							  gSavedSkinSettings.getColor("IMChatColor"));
+							  LLUIColorTable::instance().getColor("SystemChatColor") : 
+							  LLUIColorTable::instance().getColor("IMChatColor"));
 	if ( !link_name )
 	{
 		floater->addHistoryLine(msg,color); // No name to prepend, so just add the message normally
@@ -1332,7 +1332,7 @@ void LLIMMgr::noteOfflineUsers(
 	S32 count = ids.count();
 	if(count == 0)
 	{
-		floater->addHistoryLine(sOnlyUserMessage, gSavedSkinSettings.getColor4("SystemChatColor"));
+		floater->addHistoryLine(sOnlyUserMessage, LLUIColorTable::instance().getColor("SystemChatColor"));
 	}
 	else
 	{
@@ -1348,7 +1348,7 @@ void LLIMMgr::noteOfflineUsers(
 				LLUIString offline = sOfflineMessage;
 				offline.setArg("[FIRST]", first);
 				offline.setArg("[LAST]", last);
-				floater->addHistoryLine(offline, gSavedSkinSettings.getColor4("SystemChatColor"));
+				floater->addHistoryLine(offline, LLUIColorTable::instance().getColor("SystemChatColor"));
 			}
 		}
 	}

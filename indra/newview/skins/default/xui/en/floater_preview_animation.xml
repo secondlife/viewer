@@ -4,7 +4,7 @@
  height="85"
  layout="topleft"
  name="preview_anim"
- width="300">
+ width="280">
     <floater.string
      name="Title">
         Animation: [NAME]
@@ -13,14 +13,14 @@
      border_style="line"
      border_thickness="1"
      follows="left|top|right"
-     font="SansSerif"
+     font="SansSerifSmall"
      height="19"
      layout="topleft"
      left="93"
      max_length="127"
      name="desc"
      top="19"
-     width="194" />
+     width="127" />
     <text
      type="string"
      length="1"
@@ -36,16 +36,18 @@
     </text>
     <button
      height="19"
+     font="SansSerifSmall"
      label="Play in World"
      label_selected="Stop"
      layout="topleft"
-     left="27"
+     left="20"
      name="Anim play btn"
      tool_tip="Play this animation so that others can see it."
      top="47"
      width="96" />
     <button
      height="19"
+     font="SansSerifSmall"
      label="Play Locally"
      label_selected="Stop"
      layout="topleft"

@@ -80,10 +80,6 @@ BOOL LLFloaterSettingsDebug::postBuild()
 	{
 		gSavedPerAccountSettings.applyToAll(&func);
 	}
-	if (key == "all" || key == "skin")
-	{
-		gSavedSkinSettings.applyToAll(&func);
-	}
 
 	settings_combo->sortByName();
 	settings_combo->updateSelection();

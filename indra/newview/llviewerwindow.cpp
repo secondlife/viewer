@@ -1526,10 +1526,10 @@ void LLViewerWindow::initBase()
 	params.rect(LLRect (0, 1, 1, 0));
 	params.h_pad(4);
 	params.v_pad(2);
-	params.text_color(gSavedSkinSettings.getColor( "ToolTipTextColor" ));
-	params.border_color(gSavedSkinSettings.getColor( "ToolTipBorderColor" ));
+	params.text_color(LLUIColorTable::instance().getColor( "ToolTipTextColor" ));
+	params.border_color(LLUIColorTable::instance().getColor( "ToolTipBorderColor" ));
 	params.border_visible(false);
-	params.background_color(gSavedSkinSettings.getColor( "ToolTipBgColor" ));
+	params.background_color(LLUIColorTable::instance().getColor( "ToolTipBgColor" ));
 	params.bg_visible(true);
 	params.font.style("NORMAL");
 	params.border_drop_shadow_visible(true);
@@ -1824,7 +1824,7 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 
 
 		// store the mode the user wants (even if not there yet)
-		gSavedSettings.setBOOL("NotFullScreen", !mWantFullscreen);
+		gSavedSettings.setBOOL("WindowFullScreen", mWantFullscreen);
 
 		// store new settings for the mode we are in, regardless
 		if (!mWindow->getFullscreen())
@@ -1887,19 +1887,19 @@ void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
 
     if(god_mode && LLViewerLogin::getInstance()->isInProductionGrid())
     {
-        new_bg_color = gSavedSkinSettings.getColor( "MenuBarGodBgColor" );
+        new_bg_color = LLUIColorTable::instance().getColor( "MenuBarGodBgColor" );
     }
     else if(god_mode && !LLViewerLogin::getInstance()->isInProductionGrid())
     {
-        new_bg_color = gSavedSkinSettings.getColor( "MenuNonProductionGodBgColor" );
+        new_bg_color = LLUIColorTable::instance().getColor( "MenuNonProductionGodBgColor" );
     }
     else if(!god_mode && !LLViewerLogin::getInstance()->isInProductionGrid())
     {
-        new_bg_color = gSavedSkinSettings.getColor( "MenuNonProductionBgColor" );
+        new_bg_color = LLUIColorTable::instance().getColor( "MenuNonProductionBgColor" );
     }
     else 
     {
-        new_bg_color = gSavedSkinSettings.getColor( "MenuBarBgColor" );
+        new_bg_color = LLUIColorTable::instance().getColor( "MenuBarBgColor" );
     }
 
     if(gMenuBarView)
@@ -2162,10 +2162,11 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	LLUICtrl* keyboard_focus = gFocusMgr.getKeyboardFocus();
 	if( keyboard_focus )
 	{
+		LLLineEditor* chat_bar = gBottomTray ? gBottomTray->getChatBox() : NULL;
 		// arrow keys move avatar while chatting hack
-		if (gChatBar && gChatBar->inputEditorHasFocus())
+		if (chat_bar && chat_bar->hasFocus())
 		{
-			if (gChatBar->getCurrentChat().empty() || gSavedSettings.getBOOL("ArrowKeysMoveAvatar"))
+			if (chat_bar->getText().empty() || gSavedSettings.getBOOL("ArrowKeysMoveAvatar"))
 			{
 				switch(key)
 				{
@@ -2895,15 +2896,17 @@ void LLViewerWindow::updateKeyboardFocus()
 
 	if(LLSideTray::instanceCreated())//just getInstance will create sidetray. we don't want this
 		LLSideTray::getInstance()->highlightFocused();
-	
 
-	if (gSavedSettings.getBOOL("ChatBarStealsFocus") 
-		&& gChatBar 
-		&& gFocusMgr.getKeyboardFocus() == NULL 
-		&& gChatBar->isInVisibleChain())
-	{
-		gChatBar->startChat(NULL);
-	}
+	//NOTE: this behavior is no longer desirable with a permanently visible chat batr
+	// which would *always* steal focus, disallowing navigation of the world via WASD controls --RN
+	
+	//if (gSavedSettings.getBOOL("ChatBarStealsFocus") 
+	//	&& gChatBar 
+	//	&& gFocusMgr.getKeyboardFocus() == NULL 
+	//	&& gChatBar->isInVisibleChain())
+	//{
+	//	gChatBar->startChat(NULL);
+	//}
 
 
 }
@@ -4649,7 +4652,7 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 	BOOL was_maximized = gSavedSettings.getBOOL("WindowMaximized");
 	mWantFullscreen = fullscreen;
 	mShowFullscreenProgress = show_progress_bar;
-	gSavedSettings.setBOOL("NotFullScreen", !mWantFullscreen);
+	gSavedSettings.setBOOL("WindowFullScreen", mWantFullscreen);
 
 	//gResizeScreenTexture = TRUE;
 

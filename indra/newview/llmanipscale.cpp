@@ -493,8 +493,8 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 			mProjectedManipulators.insert(projManipulator);
 		}
 
-		F32 half_width = (F32)gViewerWindow->getWindowWidth() / 2.f;
-		F32 half_height = (F32)gViewerWindow->getWindowHeight() / 2.f;
+		F32 half_width = (F32)gViewerWindow->getWorldViewWidth() / 2.f;
+		F32 half_height = (F32)gViewerWindow->getWorldViewHeight() / 2.f;
 		LLVector2 manip2d;
 		LLVector2 mousePos((F32)x - half_width, (F32)y - half_height);
 		LLVector2 delta;
@@ -1368,7 +1368,7 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
 	else
 	{
 		F32 object_distance = dist_vec(mScaleCenter, LLViewerCamera::getInstance()->getOrigin());
-		mSnapRegimeOffset = (SNAP_GUIDE_SCREEN_OFFSET * gViewerWindow->getWindowWidth() * object_distance) / LLViewerCamera::getInstance()->getPixelMeterRatio();
+		mSnapRegimeOffset = (SNAP_GUIDE_SCREEN_OFFSET * gViewerWindow->getWorldViewWidth() * object_distance) / LLViewerCamera::getInstance()->getPixelMeterRatio();
 	}
 	LLVector3 cam_at_axis;
 	F32 snap_guide_length;
@@ -1381,7 +1381,7 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
 	{
 		cam_at_axis = LLViewerCamera::getInstance()->getAtAxis();
 		F32 manipulator_distance = dist_vec(box_corner_agent, LLViewerCamera::getInstance()->getOrigin());
-		snap_guide_length = (SNAP_GUIDE_SCREEN_LENGTH * gViewerWindow->getWindowWidth() * manipulator_distance) / LLViewerCamera::getInstance()->getPixelMeterRatio();
+		snap_guide_length = (SNAP_GUIDE_SCREEN_LENGTH * gViewerWindow->getWorldViewWidth() * manipulator_distance) / LLViewerCamera::getInstance()->getPixelMeterRatio();
 	}
 	
 	mSnapGuideLength = snap_guide_length / llmax(0.1f, (llmin(mSnapGuideDir1 * cam_at_axis, mSnapGuideDir2 * cam_at_axis)));

@@ -78,7 +78,6 @@ BOOL 				gHackGodmode = FALSE;
 
 
 LLControlGroup gSavedSettings("Global");	// saved at end of session
-LLControlGroup gSavedSkinSettings("Skinning");	// saved at end of session
 LLControlGroup gSavedPerAccountSettings("PerAccount"); // saved at end of session
 LLControlGroup gCrashSettings("CrashSettings");	// saved at end of session
 LLControlGroup gWarningSettings("Warnings"); // persists ignored dialogs/warnings
@@ -585,7 +584,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("DebugViews")->getSignal()->connect(boost::bind(&handleDebugViewsChanged, _2));
 	gSavedSettings.getControl("UserLogFile")->getSignal()->connect(boost::bind(&handleLogFileChanged, _2));
 	gSavedSettings.getControl("RenderHideGroupTitle")->getSignal()->connect(boost::bind(handleHideGroupTitleChanged, _2));
-	gSavedSkinSettings.getControl("EffectColor")->getSignal()->connect(boost::bind(handleEffectColorChanged, _2));
 	gSavedSettings.getControl("HighResSnapshot")->getSignal()->connect(boost::bind(handleHighResSnapshotChanged, _2));
 	gSavedSettings.getControl("VectorizePerfTest")->getSignal()->connect(boost::bind(&handleVectorizeChanged, _2));
 	gSavedSettings.getControl("VectorizeEnable")->getSignal()->connect(boost::bind(&handleVectorizeChanged, _2));
@@ -601,6 +599,69 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("AudioLevelMic")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _2));
 	gSavedSettings.getControl("LipSyncEnabled")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _2));	
 	gSavedSettings.getControl("VelocityInterpolate")->getSignal()->connect(boost::bind(&handleVelocityInterpolate, _2));
+}
+
+class ColorConvertFunctor : public LLControlGroup::ApplyFunctor
+{
+public:
+    ColorConvertFunctor(LLUIColorTable::Params& params)
+        :mParams(params)
+    {
+    }
+
+    void apply(const std::string& name, LLControlVariable* control)
+    {
+        if(control->isType(TYPE_COL4))
+        {
+            LLUIColorTable::ColorParams color_params;
+            color_params.value = LLColor4(control->getValue());
+
+            mParams.color_entries.add(LLUIColorTable::ColorEntryParams().name(name).color(color_params));
+        }
+    }
+
+private:
+    LLUIColorTable::Params& mParams;
+};
+
+static void convert_legacy_color_settings(const std::string& location_key, ELLPath path)
+{
+	LLControlGroup::getInstance("Skinning")->cleanup();
+	LLAppViewer::instance()->loadSettingsFromDirectory(location_key);
+
+	LLUIColorTable::Params params;
+	ColorConvertFunctor ccf(params);
+	LLControlGroup::getInstance("Skinning")->applyToAll(&ccf);
+
+	LLXMLNodePtr output_node = new LLXMLNode("colors", false);
+	LLXUIParser::instance().writeXUI(output_node, params);
+
+	if(!output_node->isNull())
+	{
+		std::string filename = gDirUtilp->getExpandedFilename(path, "colors_def.xml");
+		LLFILE *fp = LLFile::fopen(filename, "w");
+
+		if(fp != NULL)
+		{
+			LLXMLNode::writeHeaderToFile(fp);
+			output_node->writeToFile(fp);
+
+			fclose(fp);
+		}
+	}
+
+	LLControlGroup::getInstance("Skinning")->cleanup();
+}
+
+void convert_legacy_color_settings()
+{
+	LLControlGroup saved_skin_settings("Skinning");
+
+	convert_legacy_color_settings("DefaultSkin", LL_PATH_DEFAULT_SKIN);
+	convert_legacy_color_settings("CurrentSkin", LL_PATH_TOP_SKIN);
+	convert_legacy_color_settings("UserSkin", LL_PATH_USER_SKIN);
+
+	saved_skin_settings.cleanup();
 }
 
 

@@ -40,6 +40,7 @@
 #include "llagent.h"
 #include "llhudeffect.h"
 #include "pipeline.h"
+#include "llui.h"
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 
@@ -52,9 +53,9 @@ LLColor4 LLHUDManager::sChildColor;
 LLHUDManager::LLHUDManager()
 {
 
-	LLHUDManager::sParentColor = gSavedSkinSettings.getColor("FocusColor");
+	LLHUDManager::sParentColor = LLUIColorTable::instance().getColor("FocusColor");
 	// rdw commented out since it's not used.  Also removed from colors_base.xml
-	//LLHUDManager::sChildColor =gSavedSkinSettings.getColor("FocusSecondaryColor");
+	//LLHUDManager::sChildColor =LLUIColorTable::instance().getColor("FocusSecondaryColor");
 }
 
 LLHUDManager::~LLHUDManager()
