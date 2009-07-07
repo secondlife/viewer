@@ -442,15 +442,15 @@
                  function="Floater.Show"
                  parameter="bumps" />
             </menu_item_call>
-            <menu_item_call
-             label="About Second Life"
-             layout="topleft"
-             name="About Second Life">
-                <menu_item_call.on_click
-                 function="Floater.Show"
-                 parameter="sl_about" />
-            </menu_item_call>
         </menu>
+        <menu_item_call
+         label="About Second Life"
+         layout="topleft"
+         name="About Second Life">
+            <menu_item_call.on_click
+             function="Floater.Show"
+             parameter="sl_about" />
+        </menu_item_call>
     </menu>
     <menu
      create_jump_keys="true"
