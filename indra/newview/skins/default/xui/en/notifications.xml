@@ -443,6 +443,13 @@ Go to the Second Life web site for more information on partnering?
 Your default permissions may not work in older regions.
   </notification>
 
+<notification
+    icon="alertmodal.tga"
+    name="ClickUnimplemented"
+    type="alertmodal">
+This feature is yet to be implemented. 
+  </notification>
+
   <notification
    icon="alertmodal.tga"
    name="ClickWebProfileHelpAvatar"

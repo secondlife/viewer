@@ -33,7 +33,11 @@
 	  <panel follows="left|right" auto_resize="false" width="40" height="28" min_height="28">
 		<chiclet_notification name="im_well" follows="left|right" auto_resize="false"
 			left="0" bottom="4" width="40" height="25" 
-			image_unselected="im_notifications.tga" image_selected="im_notifications.tga"/>
+			image_unselected="im_notifications.tga" image_selected="im_notifications.tga">
+			<chiclet_notification.commit_callback
+				function="Notification.Show"
+				parameter="ClickUnimplemented" />
+		</chiclet_notification>
 	  </panel>
 		<icon image_name="spacer24.tga" left="0" width="10" height="10" bottom="0" follows="left|right" auto_resize="false" color="0 0 0 0"/>
 		<view_border name="well_separator" bevel_style="in" bottom="0" height="30" width="1" follows="left|right" left="270" mouse_opaque="false" auto_resize="false"/>
@@ -41,7 +45,11 @@
 	  <panel follows="left|right" auto_resize="false" width="48" height="28" min_height="28">
 		<chiclet_notification name="sys_well" follows="left|right" auto_resize="false"
 			left="0" bottom="5" width="48" height="25" 
-			image_unselected="bottom_tray_sys_notifications.tga" image_selected="bottom_tray_sys_notifications.tga"/>
+			image_unselected="bottom_tray_sys_notifications.tga" image_selected="bottom_tray_sys_notifications.tga">
+			<chiclet_notification.commit_callback
+				function="Notification.Show"
+				parameter="ClickUnimplemented" />
+		</chiclet_notification>
 	  </panel>
 		<icon image_name="spacer24.tga" left="0" width="5" height="10" bottom="0" follows="left|right" auto_resize="false" color="0 0 0 0"/>
 	</layout_stack>	
