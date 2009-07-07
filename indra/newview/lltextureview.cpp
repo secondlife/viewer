@@ -406,7 +406,7 @@ void LLGLTexMemBar::draw()
 	S32 max_total_mem = LLViewerImage::sMaxTotalTextureMemInMegaBytes;
 	F32 discard_bias = LLViewerImage::sDesiredDiscardBias;
 	S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
-	S32 h_offset = (texture_bar_height + 2.8f) * mTextureView->mNumTextureBars ;
+	S32 h_offset = (S32)((texture_bar_height + 2.8f) * mTextureView->mNumTextureBars);
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;
 	F32 text_color[] = {1.f, 1.f, 1.f, 0.75f};
