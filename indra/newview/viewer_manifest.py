@@ -165,6 +165,20 @@ class WindowsManifest(ViewerManifest):
         # the final exe is complicated because we're not sure where it's coming from,
         # nor do we have a fixed name for the executable
         self.path(self.find_existing_file('debug/secondlife-bin.exe', 'release/secondlife-bin.exe', 'relwithdebinfo/secondlife-bin.exe'), dst=self.final_exe())
+
+        # need to get the llcommon.dll from any of the build directories as well
+        try:
+            self.path(self.find_existing_file('../llcommon/%s/llcommon.dll' % self.args['configuration']),
+                  dst='llcommon.dll')
+            if self.prefix(src=self.args['configuration'], dst=""):
+                self.path('libapr-1.dll')
+                self.path('libaprutil-1.dll')
+                self.path('libapriconv-1.dll')
+                self.end_prefix()
+        except:
+            print "Skipping llcommon.dll (assuming llcommon was linked statically)"
+            pass
+
         # need to get the kdu dll from any of the build directories as well
         try:
             self.path(self.find_existing_file('../llkdu/%s/llkdu.dll' % self.args['configuration'],
