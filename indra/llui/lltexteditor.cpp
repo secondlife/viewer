@@ -63,7 +63,7 @@
 // 
 // Globals
 //
-static LLDefaultWidgetRegistry::Register<LLTextEditor> r("simple_text_editor");
+static LLDefaultChildRegistry::Register<LLTextEditor> r("simple_text_editor");
 
 //
 // Constants
@@ -304,7 +304,7 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p)
 	LLViewBorder::Params params;
 	params.name("text ed border");
 	params.rect(getLocalRect());
-	params.bevel_type(LLViewBorder::BEVEL_IN);
+	params.bevel_style(LLViewBorder::BEVEL_IN);
 	params.border_thickness(text_editor_border);
 	mBorder = LLUICtrlFactory::create<LLViewBorder> (params);
 	addChild( mBorder );

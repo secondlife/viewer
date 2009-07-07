@@ -356,10 +356,28 @@ private:
 	LLFrameTimer mLastKeystrokeTimer;
 
 	void disableWhileSessionStarting();
-
-	typedef std::map<LLUUID, LLStyleSP> styleMap;
-	static styleMap mStyleMap;
 };
+
+
+class LLIMFloater : public LLFloater
+{
+public:
+	LLIMFloater(const LLUUID& session_id,
+			  const std::string title,
+			  EInstantMessage dialog);
+
+	virtual ~LLIMFloater();
+
+	static void show(const LLUUID& session_id, S32 center_x);
+	void updateMessages(const LLUUID& session_id);
+
+	static std::map<LLUUID, LLIMFloater*> sIMFloaterMap;
+
+	LLUUID mSessionID;
+	U32 mIndex;
+};
+
+
 
 
 #endif  // LL_IMPANEL_H

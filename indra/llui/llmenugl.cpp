@@ -119,16 +119,12 @@ const F32 PIE_SHRINK_TIME = 0.2f; // time of transition between unbounded and bo
 
 const F32 ACTIVATE_HIGHLIGHT_TIME = 0.3f;
 
-// widget registrars
-struct MenuRegistry : public LLWidgetRegistry<MenuRegistry>
-{};
-
 static MenuRegistry::Register<LLMenuItemSeparatorGL> register_separator("menu_item_separator");
 static MenuRegistry::Register<LLMenuItemCallGL> register_menu_item_call("menu_item_call");
 static MenuRegistry::Register<LLMenuItemCheckGL> register_menu_item_check("menu_item_check");
 static MenuRegistry::Register<LLMenuGL> register_menu("menu");
 
-static LLDefaultWidgetRegistry::Register<LLMenuGL> register_menu_default("menu");
+static LLDefaultChildRegistry::Register<LLMenuGL> register_menu_default("menu");
 
 
 
@@ -1666,12 +1662,6 @@ BOOL LLMenuGL::postBuild()
 	return LLUICtrl::postBuild();
 }
 
-const widget_registry_t& LLMenuGL::getChildRegistry() const
-{
-	return MenuRegistry::instance();
-}
-
-
 // are we the childmost active menu and hence our jump keys should be enabled?
 // or are we a free-standing torn-off menu (which uses jump keys too)
 BOOL LLMenuGL::jumpKeysActive()
@@ -2885,7 +2875,7 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 /// Class LLMenuBarGL
 ///============================================================================
 
-static LLDefaultWidgetRegistry::Register<LLMenuBarGL> r2("menu_bar");
+static LLDefaultChildRegistry::Register<LLMenuBarGL> r2("menu_bar");
 
 LLMenuBarGL::LLMenuBarGL( const Params& p )
 :	LLMenuGL(p),
@@ -3571,7 +3561,7 @@ void LLContextMenuBranch::setHighlight( BOOL highlight )
 // class LLContextMenu
 // A context menu
 //-----------------------------------------------------------------------------
-static LLDefaultWidgetRegistry::Register<LLContextMenu> context_menu_register("context_menu");
+static LLDefaultChildRegistry::Register<LLContextMenu> context_menu_register("context_menu");
 static MenuRegistry::Register<LLContextMenu> context_menu_register2("context_menu");
 
 

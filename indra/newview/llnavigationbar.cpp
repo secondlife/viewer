@@ -231,7 +231,7 @@ BOOL LLNavigationBar::postBuild()
 	search_btn->setClickedCallback(boost::bind(&LLNavigationBar::onSearchCommit, this));
 
 	// Load the location field context menu
-	mLocationContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_navbar.xml", gMenuHolder);
+	mLocationContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_navbar.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if (!mLocationContextMenu)
 	{
 		llwarns << "Error loading navigation bar context menu" << llendl;

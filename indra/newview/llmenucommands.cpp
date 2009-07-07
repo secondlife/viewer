@@ -51,7 +51,7 @@
 #include "llfloaterdirectory.h"
 #include "llfloaterworldmap.h"
 #include "llgivemoney.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llnotify.h"
 #include "llstatusbar.h"
 #include "llimview.h"

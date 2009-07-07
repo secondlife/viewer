@@ -34,7 +34,10 @@
              left="10"
              name="Kick all users"
              top="8"
-             width="100" />
+             width="100">
+				<button.commit_callback
+				function="GridTools.KickAll" />
+			</button>
             <button
              follows="left|top"
              height="20"
@@ -44,7 +47,10 @@
              left_delta="0"
              name="Flush This Region&apos;s Map Visibility Caches"
              top_pad="8"
-             width="250" />
+             width="250">
+				<button.commit_callback
+				function="GridTools.FlushMapVisibilityCaches" />
+			</button>
         </panel>
         <panel
          border="true"
@@ -79,7 +85,10 @@
              max_length="63"
              name="region name"
              top_delta="0"
-             width="208" />
+             width="208">
+			       <line_editor.commit_callback
+					function="RegionTools.ChangeAnything" />
+			</line_editor>
             <check_box
              height="16"
              label="Prelude"
@@ -88,7 +97,10 @@
              name="check prelude"
              tool_tip="Set this to make the region a prelude."
              top="30"
-             width="180" />
+             width="180">
+			       <check_box.commit_callback
+					function="RegionTools.ChangePrelude" />
+			</check_box>
             <check_box
              height="16"
              label="Fixed Sun"
@@ -97,7 +109,10 @@
              name="check fixed sun"
              tool_tip="Fix the sun position (like in Region/Estate &gt; Terrain."
              top_pad="4"
-             width="180" />
+             width="180">
+			       <check_box.commit_callback
+					function="RegionTools.ChangeAnything" />
+			</check_box>
             <check_box
              height="16"
              label="Reset Home On Teleport"
@@ -106,7 +121,10 @@
              name="check reset home"
              tool_tip="When resident teleports out, reset their home to the destination position."
              top_pad="4"
-             width="180" />
+             width="180">
+			       <check_box.commit_callback
+					function="RegionTools.ChangeAnything" />
+			</check_box>
             <check_box
              height="16"
              label="Visible"
@@ -115,7 +133,10 @@
              name="check visible"
              tool_tip="Set this to make the region visible to non-gods."
              top_pad="4"
-             width="180" />
+             width="180">
+			       <check_box.commit_callback
+					function="RegionTools.ChangeAnything" />
+			</check_box>
             <check_box
              height="16"
              label="Damage"
@@ -124,7 +145,10 @@
              name="check damage"
              tool_tip="Set this to enable damage in this region."
              top_pad="4"
-             width="180" />
+             width="180">
+			       <check_box.commit_callback
+					function="RegionTools.ChangeAnything" />
+			</check_box>
             <check_box
              height="16"
              label="Block Traffic Tracking"
@@ -133,7 +157,10 @@
              name="block dwell"
              tool_tip="Set this to make the region not compute traffic."
              top_pad="4"
-             width="180" />
+             width="180">
+			       <check_box.commit_callback
+					function="RegionTools.ChangeAnything" />
+			</check_box>
             <check_box
              height="16"
              label="Block Terraform"
@@ -142,7 +169,10 @@
              name="block terraform"
              tool_tip="Set this to disallow people terraforming their land"
              top_pad="4"
-             width="180" />
+             width="180">
+			       <check_box.commit_callback
+					function="RegionTools.ChangeAnything" />
+			</check_box>
             <check_box
              height="16"
              label="Sandbox"
@@ -151,7 +181,10 @@
              name="is sandbox"
              tool_tip="Toggle whether this is a sandbox region."
              top_pad="4"
-             width="180" />
+             width="180">
+			       <check_box.commit_callback
+					function="RegionTools.ChangeAnything" />
+			</check_box>
             <button
              follows="top|right"
              font="SansSerifSmall"
@@ -163,7 +196,10 @@
              name="Bake Terrain"
              tool_tip="Save the current terrain as default."
              top_pad="32"
-             width="110" />
+             width="110">
+			       <button.commit_callback
+					function="RegionTools.BakeTerrain" />
+			</button>
             <button
              follows="top|right"
              font="SansSerifSmall"
@@ -175,7 +211,10 @@
              name="Revert Terrain"
              tool_tip="Replace the current terrain with default."
              top_pad="4"
-             width="110" />
+             width="110">
+			       <button.commit_callback
+					function="RegionTools.RevertTerrain" />
+			</button>
             <button
              follows="top|right"
              font="SansSerifSmall"
@@ -187,7 +226,10 @@
              name="Swap Terrain"
              tool_tip="Swap current terrain with default."
              top_pad="4"
-             width="110" />
+             width="110">
+			       <button.commit_callback
+					function="RegionTools.SwapTerrain" />
+			</button>
             <text
              type="string"
              length="1"
@@ -236,7 +278,10 @@
              name="parentestate"
              tool_tip="This is the parent estate for this region"
              top_delta="0"
-             width="50" />
+             width="50">
+			       <line_editor.commit_callback
+					function="RegionTools.ChangeAnything" />
+			</line_editor>
             <text
              type="string"
              length="1"
@@ -260,7 +305,10 @@
              name="gridposx"
              tool_tip="This is the grid x position for this region"
              top_delta="0"
-             width="50" />
+             width="50">
+			       <line_editor.commit_callback
+					function="RegionTools.ChangeAnything" />
+			</line_editor>
             <line_editor
              border_style="line"
              border_thickness="1"
@@ -272,7 +320,10 @@
              name="gridposy"
              tool_tip="This is the grid y position for this region"
              top_delta="0"
-             width="40" />
+             width="40">
+			       <line_editor.commit_callback
+					function="RegionTools.ChangeAnything" />
+			</line_editor>
             <text
              type="string"
              length="1"
@@ -295,7 +346,10 @@
              max_length="10"
              name="redirectx"
              top_delta="0"
-             width="50" />
+             width="50">
+			       <line_editor.commit_callback
+					function="RegionTools.ChangeAnything" />
+			</line_editor>
             <line_editor
              border_style="line"
              border_thickness="1"
@@ -306,7 +360,10 @@
              max_length="10"
              name="redirecty"
              top_delta="0"
-             width="40" />
+             width="40">
+			       <line_editor.commit_callback
+					function="RegionTools.ChangeAnything" />
+			</line_editor>
             <spinner
              follows="top|right"
              height="16"
@@ -316,7 +373,10 @@
              max_val="4"
              name="billable factor"
              top="110"
-             width="80" />
+             width="80">
+			       <spinner.commit_callback
+					function="RegionTools.ChangeAnything" />
+			</spinner>
             <text
              type="string"
              length="1"
@@ -340,7 +400,10 @@
              max_val="100"
              name="land cost"
              top="130"
-             width="80" />
+             width="80">
+			       <spinner.commit_callback
+					function="RegionTools.ChangeAnything" />
+			</spinner>
             <text
              type="string"
              length="1"
@@ -365,7 +428,10 @@
              name="Refresh"
              tool_tip="Click here to refresh the above information."
              top="150"
-             width="110" />
+             width="110">
+				<button.commit_callback
+				function="RegionTools.Refresh" />
+			</button>
             <button
              follows="top|right"
              font="SansSerifSmall"
@@ -377,7 +443,10 @@
              name="Apply"
              tool_tip="Click here to apply any changes from above."
              top_pad="36"
-             width="110" />
+             width="110">
+				<button.commit_callback
+				function="RegionTools.ApplyChanges" />
+			</button>
             <button
              follows="top|right"
              font="SansSerifSmall"
@@ -389,7 +458,10 @@
              name="Select Region"
              tool_tip="Select the whole region with the land tool."
              top="238"
-             width="110" />
+             width="110">
+				<button.commit_callback
+				function="RegionTools.SelectRegion" />
+			</button>
             <button
              follows="top|right"
              font="SansSerifSmall"
@@ -401,7 +473,10 @@
              name="Autosave now"
              tool_tip="Save gzipped state to autosave directory."
              top_pad="4"
-             width="110" />
+             width="110">
+				<button.commit_callback
+				function="RegionTools.SaveState" />
+			</button>
         </panel>
         <panel
          border="true"
@@ -450,7 +525,10 @@
              name="disable scripts"
              tool_tip="Set this to disable all scripts in this region"
              top="30"
-             width="110" />
+             width="110">
+				<check_box.commit_callback
+					function="ObjectTools.ChangeAnything" />
+			</check_box>
             <check_box
              height="16"
              label="Disable Collisions"
@@ -459,7 +537,10 @@
              name="disable collisions"
              tool_tip="Set this to disable non-agent collisions in this region"
              top_delta="0"
-             width="121" />
+             width="121">
+				<check_box.commit_callback
+					function="ObjectTools.ChangeAnything" />
+			</check_box>
             <check_box
              height="16"
              label="Disable Physics"
@@ -468,7 +549,10 @@
              name="disable physics"
              tool_tip="Set this to disable all physics in this region"
              top_delta="0"
-             width="130" />
+             width="130">
+				<check_box.commit_callback
+					function="ObjectTools.ChangeAnything" />
+			</check_box>
             <button
              follows="top|right"
              font="SansSerifSmall"
@@ -480,8 +564,11 @@
              name="Apply"
              tool_tip="Click here to apply any changes from above."
              top="54"
-             width="110" />
-            <button
+             width="110">
+				<button.commit_callback
+				function="ObjectTools.ApplyChanges" />
+			</button>            
+			<button
              follows="top|right"
              font="SansSerifSmall"
              height="20"
@@ -492,7 +579,10 @@
              name="Set Target"
              tool_tip="Set the target avatar for object deletion."
              top="78"
-             width="110" />
+             width="110">
+				<button.commit_callback
+				function="ObjectTools.Set" />
+			</button>  
             <text
              type="string"
              length="1"
@@ -516,7 +606,10 @@
              name="Delete Target&apos;s Scripted Objects On Others Land"
              tool_tip="Delete all scripted objects owned by the target on land not owned by the target. (no copy) objects will be returned."
              top="126"
-             width="380" />
+             width="380">
+				<button.commit_callback
+				function="ObjectTools.DeletePublicOwnedBy" />
+			</button>    
             <button
              follows="top|right"
              font="SansSerifSmall"
@@ -528,7 +621,10 @@
              name="Delete Target&apos;s Scripted Objects On *Any* Land"
              tool_tip="Delete all scripted objects owned by the target in this region. (no copy) objects will be returned."
              top_pad="28"
-             width="380" />
+             width="380">
+				<button.commit_callback
+				function="ObjectTools.DeleteAllScriptedOwnedBy" />
+			</button>   
             <button
              follows="top|right"
              font="SansSerifSmall"
@@ -540,8 +636,11 @@
              name="Delete *ALL* Of Target&apos;s Objects"
              tool_tip="Delete all objects owned by the target in this region. (no copy) objects will be returned."
              top_pad="28"
-             width="380" />
-            <button
+             width="380">
+				<button.commit_callback
+				function="ObjectTools.DeleteAllOwnedBy" />
+			</button>   
+			<button
              follows="top|right"
              font="SansSerifSmall"
              height="20"
@@ -552,7 +651,10 @@
              name="Get Top Colliders"
              tool_tip="Gets list of objects experiencing the most narrowphase callbacks."
              top_pad="28"
-             width="110" />
+             width="110">
+				<button.commit_callback
+				function="ObjectTools.GetTopColliders" />
+			</button>   
             <button
              follows="top|right"
              font="SansSerifSmall"
@@ -564,7 +666,10 @@
              name="Get Top Scripts"
              tool_tip="Gets list of objects spending the most time running scripts."
              top_pad="4"
-             width="110" />
+             width="110">
+				<button.commit_callback
+				function="ObjectTools.GetTopScripts" />
+			</button>  
             <button
              follows="top|right"
              font="SansSerifSmall"
@@ -576,7 +681,10 @@
              name="Scripts digest"
              tool_tip="Gets a list of all scripts and number of occurences of each."
              top_pad="4"
-             width="110" />
+             width="110" >
+				<button.commit_callback
+				function="ObjectTools.GetScriptDigest" />
+			</button>  
         </panel>
         <panel
          border="true"
@@ -679,7 +787,10 @@
              left="10"
              name="Make Request"
              top="96"
-             width="100" />
+             width="100">
+				<button.commit_callback
+					function="GodTools.Request" />
+			</button>
         </panel>
     </tab_container>
 </floater>

@@ -9425,6 +9425,17 @@
       <key>Value</key>
       <real>150000.0</real>
     </map>
+    <key>XUIEditor</key>
+    <map>
+      <key>Comment</key>
+      <string>Path to program used to edit XUI files</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <real>150000.0</real>
+    </map>
     <key>YawFromMousePosition</key>
     <map>
       <key>Comment</key>

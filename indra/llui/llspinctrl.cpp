@@ -53,7 +53,7 @@
 
 const U32 MAX_STRING_LENGTH = 32;
 
-static LLDefaultWidgetRegistry::Register<LLSpinCtrl> r2("spinner");
+static LLDefaultChildRegistry::Register<LLSpinCtrl> r2("spinner");
 
 LLSpinCtrl::Params::Params()
 :	label_width("label_width"),

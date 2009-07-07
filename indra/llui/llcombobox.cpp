@@ -33,8 +33,6 @@
 // A control that displays the name of the chosen item, which when
 // clicked shows a scrolling box of options.
 
-#define INSTANTIATE_GETCHILD_COMBOBOX
-
 #include "linden_common.h"
 
 // file includes
@@ -63,9 +61,7 @@ S32 LLCOMBOBOX_HEIGHT = 0;
 S32 LLCOMBOBOX_WIDTH = 0;
 S32 MAX_COMBO_WIDTH = 500;
 
-template LLComboBox* LLView::getChild<LLComboBox>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-
-static LLDefaultWidgetRegistry::Register<LLComboBox> register_combo_box("combo_box");
+static LLDefaultChildRegistry::Register<LLComboBox> register_combo_box("combo_box");
 
 void LLComboBox::PreferredPositionValues::declareValues()
 {

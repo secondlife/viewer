@@ -115,7 +115,7 @@ BOOL LLDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	return FALSE;
 }
 
-static LLDefaultWidgetRegistry::Register<LLDropTarget> r("drop_target");
+static LLDefaultChildRegistry::Register<LLDropTarget> r("drop_target");
 
 //////////////////////////////////////////////////////////////////////////
 //-----------------------------------------------------------------------------

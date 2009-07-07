@@ -239,7 +239,7 @@ BOOL LLPanelPicks::postBuild(void)
 	mCommitCallbackRegistrar.add("Pick.Map", boost::bind(onClickMap, this));
 	mCommitCallbackRegistrar.add("Pick.Delete", boost::bind(onClickDelete, this));
 
-	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_picks.xml", gMenuHolder);
+	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_picks.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
 	return TRUE;
 }

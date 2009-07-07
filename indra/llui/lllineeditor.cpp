@@ -34,8 +34,6 @@
 
 #include "linden_common.h"
  
-#define INSTANTIATE_GETCHILD_LINEEDITOR
-
 #include "lllineeditor.h"
 
 #include "lltexteditor.h"
@@ -72,9 +70,7 @@ const S32   SCROLL_INCREMENT_DEL = 4;	// make space for baskspacing
 const F32   AUTO_SCROLL_TIME = 0.05f;
 const F32	TRIPLE_CLICK_INTERVAL = 0.3f;	// delay between double and triple click. *TODO: make this equal to the double click interval?
 
-static LLDefaultWidgetRegistry::Register<LLLineEditor> r1("line_editor");
-
-template LLLineEditor* LLView::getChild<LLLineEditor>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
+static LLDefaultChildRegistry::Register<LLLineEditor> r1("line_editor");
 
 //
 // Member functions
@@ -180,7 +176,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	LLViewBorder::Params border_p(p.border);
 	border_p.rect = border_rect;
 	border_p.follows.flags = FOLLOWS_ALL;
-	border_p.bevel_type = LLViewBorder::BEVEL_IN;
+	border_p.bevel_style = LLViewBorder::BEVEL_IN;
 	mBorder = LLUICtrlFactory::create<LLViewBorder>(border_p);
 	addChild( mBorder );
 

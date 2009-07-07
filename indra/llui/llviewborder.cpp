@@ -35,7 +35,7 @@
 #include "llfocusmgr.h"
 #include "lluictrlfactory.h"
 
-static LLDefaultWidgetRegistry::Register<LLViewBorder> r("view_border");
+static LLDefaultChildRegistry::Register<LLViewBorder> r("view_border");
 
 void LLViewBorder::BevelValues::declareValues()
 {
@@ -52,7 +52,7 @@ void LLViewBorder::StyleValues::declareValues()
 }
 
 LLViewBorder::Params::Params()
-:	bevel_type("bevel_style", BEVEL_OUT),
+:	bevel_style("bevel_style", BEVEL_OUT),
 	render_style("border_style", STYLE_LINE),
 	border_thickness("border_thickness"),
 	highlight_light_color("highlight_light_color"),
@@ -60,6 +60,8 @@ LLViewBorder::Params::Params()
 	shadow_light_color("shadow_light_color"),
 	shadow_dark_color("shadow_dark_color")
 {
+	addSynonym(border_thickness, "thickness");
+	addSynonym(render_style, "style");
 	name = "view_border";
 	mouse_opaque = false;
 	follows.flags = FOLLOWS_ALL;
@@ -75,7 +77,7 @@ LLViewBorder::LLViewBorder(const LLViewBorder::Params& p)
 	mHighlightDark(p.highlight_dark_color()),
 	mShadowLight(p.shadow_light_color()),
 	mShadowDark(p.shadow_dark_color()),
-	mBevel(p.bevel_type),
+	mBevel(p.bevel_style),
 	mStyle(p.render_style)
 {}
 

@@ -36,11 +36,12 @@
 // viewer includes
 #include "llagent.h"			// teleportViaLocation()
 #include "llcommandhandler.h"
-#include "llfloaterurldisplay.h"
 #include "llfloaterdirectory.h"
 #include "llfloaterhtml.h"
-#include "llfloaterworldmap.h"
 #include "llfloaterhtmlhelp.h"
+#include "llfloaterreg.h"
+#include "llfloaterurldisplay.h"
+#include "llfloaterworldmap.h"
 #include "llpanellogin.h"
 #include "llslurl.h"
 #include "llstartup.h"			// gStartupState
@@ -201,8 +202,8 @@ bool LLURLDispatcherImpl::dispatchRegion(const std::string& url, bool right_mous
 	S32 z = 0;
 	LLURLSimString::parse(sim_string, &region_name, &x, &y, &z);
 
-	LLFloaterURLDisplay* url_displayp = LLFloaterURLDisplay::getInstance(LLSD());
-	url_displayp->setName(region_name);
+	LLFloaterURLDisplay* url_displayp = LLFloaterReg::getTypedInstance<LLFloaterURLDisplay>("preview_url",LLSD());
+	if(url_displayp) url_displayp->setName(region_name);
 
 	// Request a region handle by name
 	LLWorldMap::getInstance()->sendNamedRegionRequest(region_name,
@@ -280,21 +281,26 @@ void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const std::str
 		LLVector3d global_pos = from_region_handle(region_handle);
 		global_pos += LLVector3d(local_pos);
 		gAgent.teleportViaLocation(global_pos);
-		LLFloaterWorldMap::getInstance()->trackLocation(global_pos);
+		LLFloaterWorldMap* instance = LLFloaterWorldMap::getInstance();
+		if(instance)
+		{
+			instance->trackLocation(global_pos);
+		}
 	}
 	else
 	{
 		// display informational floater, allow user to click teleport btn
-		LLFloaterURLDisplay* url_displayp = LLFloaterURLDisplay::getInstance(LLSD());
-
-
-		url_displayp->displayParcelInfo(region_handle, local_pos);
-		if(snapshot_id.notNull())
+		LLFloaterURLDisplay* url_displayp = LLFloaterReg::getTypedInstance<LLFloaterURLDisplay>("preview_url",LLSD());
+		if(url_displayp)
 		{
-			url_displayp->setSnapshotDisplay(snapshot_id);
+			url_displayp->displayParcelInfo(region_handle, local_pos);
+			if(snapshot_id.notNull())
+			{
+				url_displayp->setSnapshotDisplay(snapshot_id);
+			}
+			std::string locationString = llformat("%s %d, %d, %d", region_name.c_str(), x, y, z);
+			url_displayp->setLocationString(locationString);
 		}
-		std::string locationString = llformat("%s %d, %d, %d", region_name.c_str(), x, y, z);
-		url_displayp->setLocationString(locationString);
 	}
 }
 

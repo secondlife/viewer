@@ -96,7 +96,7 @@ LLColor4 get_text_color(const LLChat& chat);
 // Member Functions
 //
 LLFloaterChat::LLFloaterChat(const LLSD& seed)
-	: LLFloater(),
+	: LLFloater(seed),
 	  mPanel(NULL)
 {
 	mFactoryMap["chat_panel"] = LLCallbackMap(createChatPanel, NULL);
@@ -558,6 +558,6 @@ void LLFloaterChat::onClickToggleActiveSpeakers(void* userdata)
 //static
  LLFloaterChat* LLFloaterChat::getInstance()
  {
-	 LLFloater* inst = LLFloaterReg::getInstance("chat", LLSD()) ;
-	 return dynamic_cast<LLFloaterChat*>(inst);
+	 return LLFloaterReg::getTypedInstance<LLFloaterChat>("chat", LLSD()) ;
+	 
  }

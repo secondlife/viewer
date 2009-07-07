@@ -47,7 +47,7 @@
 #include "llviewermenu.h"
 #include "llviewermenu.h"
 
-static LLDefaultWidgetRegistry::Register<LLFavoritesBarCtrl> r("favorites_bar");
+static LLDefaultChildRegistry::Register<LLFavoritesBarCtrl> r("favorites_bar");
 
 // updateButtons's helper
 struct LLFavoritesSort
@@ -213,7 +213,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 	const S32 buttonHPad = LLUI::sSettingGroups["config"]->getS32("ButtonHPad");
 	const S32 buttonHGap = 2;
 	const S32 buttonVGap = 2;
-	static LLButton::Params default_button_params(LLUICtrlFactory::getDefaultParams<LLButton::Params>());
+	static LLButton::Params default_button_params(LLUICtrlFactory::getDefaultParams<LLButton>());
 	std::string flat_icon			= "transparent.j2c";
 	std::string hover_icon			= default_button_params.image_unselected.name;
 	std::string hover_icon_selected	= default_button_params.image_selected.name;
@@ -364,7 +364,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 BOOL LLFavoritesBarCtrl::postBuild()
 {
 	// make the popup menu available
-	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_favorites.xml", gMenuHolder);
+	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_favorites.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if (!menu)
 	{
 		menu = LLUICtrlFactory::getDefaultWidget<LLMenuGL>("inventory_menu");

@@ -44,7 +44,7 @@
 #include "llscrolllistcolumn.h"
 #include "llsdparam.h"
 
-static LLDefaultWidgetRegistry::Register<LLNameListCtrl> r("name_list");
+static LLDefaultChildRegistry::Register<LLNameListCtrl> r("name_list");
 
 void LLNameListCtrl::NameTypeNames::declareValues()
 {

@@ -36,12 +36,11 @@
 #include "llfloater.h"
 
 class LLFloaterAbout 
-	: public LLFloater, public LLFloaterSingleton<LLFloaterAbout>
+	: public LLFloater
 {
-	friend class LLUISingleton<LLFloaterAbout, VisibilityPolicy<LLFloater> >;
-public:	
+	friend class LLFloaterReg;
+private:
 	LLFloaterAbout(const LLSD& key);
-protected:
 	virtual ~LLFloaterAbout();
 
 public:

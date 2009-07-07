@@ -264,6 +264,8 @@ BOOL LLFloaterUIPreview::postBuild()
 	main_panel_tmp->getChild<LLButton>("save_floater")->setClickedCallback(onClickSaveFloater, (void*)&PRIMARY_FLOATER);
 	main_panel_tmp->getChild<LLButton>("save_all_floaters")->setClickedCallback(onClickSaveAll, (void*)&PRIMARY_FLOATER);
 
+	getChild<LLButton>("export_schema")->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickExportSchema, this));
+
 	// get pointers to text fields
 	mEditorPathTextBox = editor_panel_tmp->getChild<LLLineEditor>("executable_path_field");
 	mEditorArgsTextBox = editor_panel_tmp->getChild<LLLineEditor>("executable_args_field");
@@ -353,6 +355,34 @@ void LLFloaterUIPreview::onLanguageComboSelect(LLUICtrl* ctrl)
 	}
 
 }
+
+void LLFloaterUIPreview::onClickExportSchema()
+{
+	std::string template_path = gDirUtilp->getExpandedFilename(LL_PATH_DEFAULT_SKIN, "xui", "schema");
+
+	typedef LLWidgetTypeRegistry::Registrar::registry_map_t::const_iterator registry_it;
+	registry_it end_it = LLWidgetTypeRegistry::defaultRegistrar().endItems();
+	for(registry_it it = LLWidgetTypeRegistry::defaultRegistrar().beginItems();
+		it != end_it;
+		++it)
+	{
+		std::string widget_name = it->first;
+		const LLInitParam::BaseBlock& block = 
+			(*LLDefaultParamBlockRegistry::instance().getValue(*LLWidgetTypeRegistry::instance().getValue(widget_name)))();
+		LLXMLNodePtr root_nodep = new LLXMLNode();
+		LLRNGWriter().writeRNG(widget_name, root_nodep, block, "http://www.lindenlab.com/xui");
+
+		std::string file_name(template_path + gDirUtilp->getDirDelimiter() + widget_name + ".rng");
+
+		LLFILE* rng_file = LLFile::fopen(file_name.c_str(), "w");
+		{
+			LLXMLNode::writeHeaderToFile(rng_file);
+			root_nodep->writeToFile(rng_file);
+		}
+		fclose(rng_file);
+	}
+}
+
 
 // Close click handler -- delete my displayed floater if it exists
 void LLFloaterUIPreview::onClose(bool app_quitting)
@@ -614,7 +644,7 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		if (save)
 		{	
 			LLXMLNodePtr menu_write = new LLXMLNode();	
-			LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(path, gMenuHolder, menu_write);
+			LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(path, gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance(), menu_write);
 
 			if (!menu_write->isNull())
 			{
@@ -778,6 +808,10 @@ void LLFloaterUIPreview::onClickEditFloater(void*)
 	if(std::string("") != path_in_textfield)	// if the text field is not emtpy, use its path
 	{
 		exe_path_char = path_in_textfield.c_str();
+	}
+	else if (!LLUI::sSettingGroups["config"]->getString("XUIEditor").empty())
+	{
+		exe_path_char = LLUI::sSettingGroups["config"]->getString("XUIEditor").c_str();
 	}
 	else									// otherwise use the path specified by the environment variable
 	{

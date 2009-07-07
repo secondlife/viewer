@@ -52,7 +52,7 @@
 #include "llheadrotmotion.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llkeyframefallmotion.h"
 #include "llkeyframestandmotion.h"
 #include "llkeyframewalkmotion.h"

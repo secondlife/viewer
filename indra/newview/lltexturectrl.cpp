@@ -45,9 +45,10 @@
 #include "llfocusmgr.h"
 #include "llviewerimage.h"
 #include "llfolderview.h"
+#include "llfoldervieweventlistener.h"
 #include "llinventory.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "lllineeditor.h"
 #include "llui.h"
 #include "llviewerinventory.h"
@@ -342,7 +343,7 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 		{
 			if (!root_folder->getCurSelectedItem())
 			{
-				LLFolderViewItem* itemp = root_folder->getItemByID(gAgent.getInventoryRootID());
+				LLFolderViewItem* itemp = root_folder->getItemByID(gInventory.getRootFolderID());
 				if (itemp)
 				{
 					root_folder->setSelection(itemp, FALSE, FALSE);
@@ -858,7 +859,7 @@ void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
 ///////////////////////////////////////////////////////////////////////
 // LLTextureCtrl
 
-static LLDefaultWidgetRegistry::Register<LLTextureCtrl> r("texture_picker");
+static LLDefaultChildRegistry::Register<LLTextureCtrl> r("texture_picker");
 
 LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 :	LLUICtrl(p),

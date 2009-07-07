@@ -57,6 +57,7 @@
 #include "llfloaterinspect.h"
 #include "llfloaterproperties.h"
 #include "llfloaterreporter.h"
+#include "llfloaterreg.h"
 #include "llfloatertools.h"
 #include "llframetimer.h"
 #include "llhudeffecttrail.h"
@@ -4842,8 +4843,12 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 	}
 	if (mSelectedObjects->getNumNodes())
 	{
-		LLUUID inspect_item_id = LLFloaterInspect::getSelectedUUID();
-		
+		LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
+		LLUUID inspect_item_id= LLUUID::null;
+		if(inspect_instance)
+		{
+			inspect_item_id = inspect_instance->getSelectedUUID();
+		}
 		for (S32 pass = 0; pass < 2; pass++)
 		{
 			for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
@@ -5400,7 +5405,11 @@ void dialog_refresh_all()
 	}
 
 	LLFloaterProperties::dirtyAll();
-	LLFloaterInspect::dirty();
+	LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
+	if(inspect_instance)
+	{
+		inspect_instance->dirty();
+	}
 }
 
 S32 get_family_count(LLViewerObject *parent)

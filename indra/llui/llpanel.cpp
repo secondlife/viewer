@@ -56,11 +56,11 @@
 #include "llbutton.h"
 #include "lltabcontainer.h"
 
-static LLDefaultWidgetRegistry::Register<LLPanel> r1("panel", &LLPanel::fromXML);
+static LLDefaultChildRegistry::Register<LLPanel> r1("panel", &LLPanel::fromXML);
 
 const LLPanel::Params& LLPanel::getDefaultParams() 
 { 
-	return LLUICtrlFactory::getDefaultParams<LLPanel::Params>(); 
+	return LLUICtrlFactory::getDefaultParams<LLPanel>(); 
 }
 
 LLPanel::Params::Params()
@@ -433,7 +433,7 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 	parseFollowsFlags(p);
 
 	setToolTip(p.tool_tip());
-	setSaveToXML(p.serializable);
+	setSaveToXML(p.from_xui);
 	
 	mHoverCursor = getCursorFromString(p.hover_cursor);
 	
@@ -462,7 +462,7 @@ static LLFastTimer::DeclareTimer FTM_PANEL_POSTBUILD("Panel PostBuild");
 
 BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 {
-	const LLPanel::Params& default_params(LLUICtrlFactory::getDefaultParams<LLPanel::Params>());
+	const LLPanel::Params& default_params(LLUICtrlFactory::getDefaultParams<LLPanel>());
 	Params params(default_params);
 
 	{
@@ -499,7 +499,7 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 
 			// add children using dimensions from referenced xml for consistent layout
 			setShape(params.rect);
-			LLUICtrlFactory::createChildren(this, referenced_xml);
+			LLUICtrlFactory::createChildren(this, referenced_xml, child_registry_t::instance());
 		}
 
 		LLXUIParser::instance().readXUI(node, params);
@@ -520,7 +520,7 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 		}
 
 		// add children
-		LLUICtrlFactory::createChildren(this, node, output_node);
+		LLUICtrlFactory::createChildren(this, node, child_registry_t::instance(), output_node);
 
 		// Connect to parent after children are built, because tab containers
 		// do a reshape() on their child panels, which requires that the children
@@ -537,12 +537,6 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 		}
 	}
 	return TRUE;
-}
-
-const widget_registry_t& LLPanel::getChildRegistry() const
-{
-	// use default widget registry
-	return LLDefaultWidgetRegistry::instance();
 }
 
 bool LLPanel::hasString(const std::string& name)

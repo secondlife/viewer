@@ -85,7 +85,8 @@ LLFastTimer::DeclareTimer FTM_WIDGET_SETUP("Widget Setup");
 //-----------------------------------------------------------------------------
 // Register widgets that are purely data driven here so they get linked in
 #include "llstatview.h"
-static LLDefaultWidgetRegistry::Register<LLStatView> register_stat_view("stat_view");
+static LLDefaultChildRegistry::Register<LLStatView>
+	register_stat_view("stat_view");
 
 //-----------------------------------------------------------------------------
 
@@ -107,7 +108,7 @@ public:
 
 };
 
-static LLDefaultWidgetRegistry::Register<LLUICtrlLocate> r1("locate");
+static LLDefaultChildRegistry::Register<LLUICtrlLocate> r1("locate");
 
 //-----------------------------------------------------------------------------
 // LLUICtrlFactory()
@@ -135,7 +136,7 @@ void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitPa
 }
 
 //static 
-void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, LLXMLNodePtr output_node)
+void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t& registry, LLXMLNodePtr output_node)
 {
 	if (node.isNull()) return;
 
@@ -147,7 +148,7 @@ void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, LLXMLNode
 			outputChild = output_node->createChild("", FALSE);
 		}
 
-		if (!instance().createFromXML(child_node, viewp, LLStringUtil::null, outputChild, viewp->getChildRegistry()))
+		if (!instance().createFromXML(child_node, viewp, LLStringUtil::null, registry, outputChild))
 		{
 			std::string child_name = std::string(child_node->getName()->mString);
 			llwarns << "Could not create widget named " << child_node->getName()->mString << llendl;
@@ -338,12 +339,12 @@ BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const std::string& filename, L
 
 LLFastTimer::DeclareTimer FTM_CREATE_FROM_XML("Create child widget");
 
-LLView *LLUICtrlFactory::createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename,  LLXMLNodePtr output_node, const widget_registry_t& registry)
+LLView *LLUICtrlFactory::createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename, const widget_registry_t& registry, LLXMLNodePtr output_node)
 {
 	LLFastTimer timer(FTM_CREATE_FROM_XML);
 	std::string ctrl_type = node->getName()->mString;
 	LLStringUtil::toLower(ctrl_type);
-	
+
 	const LLWidgetCreatorFunc* funcp = registry.getValue(ctrl_type);
 	if (funcp == NULL)
 	{
@@ -448,11 +449,497 @@ void LLUICtrlFactory::popFactoryFunctions()
 	}
 }
 
-const widget_registry_t& LLUICtrlFactory::getWidgetRegistry(LLView* viewp)
+
+//
+// LLRNGWriter - writes Relax NG schema files based on a param block
+//
+LLRNGWriter::LLRNGWriter()
 {
-	return viewp->getChildRegistry();
+	// register various callbacks for inspecting the contents of a param block
+	registerInspectFunc<bool>(boost::bind(&LLRNGWriter::writeAttribute, this, "boolean", _1, _2, _3, _4));
+	registerInspectFunc<std::string>(boost::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
+	registerInspectFunc<U8>(boost::bind(&LLRNGWriter::writeAttribute, this, "unsignedByte", _1, _2, _3, _4));
+	registerInspectFunc<S8>(boost::bind(&LLRNGWriter::writeAttribute, this, "signedByte", _1, _2, _3, _4));
+	registerInspectFunc<U16>(boost::bind(&LLRNGWriter::writeAttribute, this, "unsignedShort", _1, _2, _3, _4));
+	registerInspectFunc<S16>(boost::bind(&LLRNGWriter::writeAttribute, this, "signedShort", _1, _2, _3, _4));
+	registerInspectFunc<U32>(boost::bind(&LLRNGWriter::writeAttribute, this, "unsignedInt", _1, _2, _3, _4));
+	registerInspectFunc<S32>(boost::bind(&LLRNGWriter::writeAttribute, this, "integer", _1, _2, _3, _4));
+	registerInspectFunc<F32>(boost::bind(&LLRNGWriter::writeAttribute, this, "float", _1, _2, _3, _4));
+	registerInspectFunc<F64>(boost::bind(&LLRNGWriter::writeAttribute, this, "double", _1, _2, _3, _4));
+	registerInspectFunc<LLColor4>(boost::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
+	registerInspectFunc<LLUIColor>(boost::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
+	registerInspectFunc<LLUUID>(boost::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
+	registerInspectFunc<LLSD>(boost::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
 }
 
+void LLRNGWriter::writeRNG(const std::string& type_name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace)
+{
+	mGrammarNode = node;
+	mGrammarNode->setName("grammar");
+	mGrammarNode->createChild("xmlns", true)->setStringValue("http://relaxng/ns/structure/1.0");
+	mGrammarNode->createChild("datatypeLibrary", true)->setStringValue("http://www.w3.org/2001/XMLSchema-datatypes");
+	mGrammarNode->createChild("ns", true)->setStringValue(xml_namespace);
+
+	node = mGrammarNode->createChild("start", false);
+	node = node->createChild("ref", false);
+	node->createChild("name", true)->setStringValue(type_name);
+	
+	node = mGrammarNode->createChild("define", false);
+	node->createChild("name", true)->setStringValue(type_name);
+
+	mElementNode = node->createChild("element", false);
+	mElementNode->createChild("name", true)->setStringValue(type_name);
+
+	block.inspectBlock(*this);
+}
+
+void LLRNGWriter::writeAttribute(const std::string& type, const Parser::name_stack_t& stack, S32 min_count, S32 max_count, const std::vector<std::string>* possible_values)
+{
+	name_stack_t non_empty_names;
+	std::string attribute_name;
+	for (name_stack_t::const_iterator it = stack.begin();
+		it != stack.end();
+		++it)
+	{
+		const std::string& name = it->first;
+		if (!name.empty())
+		{
+			non_empty_names.push_back(*it);
+		}
+	}
+
+	if (non_empty_names.empty()) return;
+
+	for (name_stack_t::const_iterator it = non_empty_names.begin();
+		it != non_empty_names.end();
+		++it)
+	{
+		if (!attribute_name.empty())
+		{
+			attribute_name += ".";
+		}
+		attribute_name += it->first;
+	}
+
+	// singular attribute
+	if (non_empty_names.size() == 1)
+	{
+		if (max_count == 1)
+		{
+			LLXMLNodePtr node = getCardinalityNode(mElementNode, min_count, max_count)->createChild("attribute", false);
+			node->createChild("name", true)->setStringValue(attribute_name);
+			node->createChild("data", false)->createChild("type", true)->setStringValue(type);
+		}
+	}
+	// compound attribute
+	else
+	{
+		std::string element_name;
+
+		// traverse all but last element, leaving that as an attribute name
+		name_stack_t::const_iterator end_it = non_empty_names.end();
+		end_it--;
+
+		for (name_stack_t::const_iterator it = non_empty_names.begin();
+			it != end_it;
+			++it)
+		{
+			if (it != non_empty_names.begin())
+			{
+				element_name += ".";
+			}
+			element_name += it->first;
+		}
+
+		elements_map_t::iterator found_it = mElementsWritten.find(element_name);
+		if (found_it != mElementsWritten.end())
+		{
+			// reuse existing element
+			LLXMLNodePtr choice_node = found_it->second;
+
+			LLXMLNodePtr node = choice_node->mChildren->head;
+			node = getCardinalityNode(node, min_count, max_count)->createChild("attribute", false);
+			node->createChild("name", true)->setStringValue(attribute_name);
+			node->createChild("data", false)->createChild("type", true)->setStringValue(type);
+
+			node = choice_node->mChildren->head->mNext->mChildren->head;
+			node = getCardinalityNode(node, min_count, max_count)->createChild("attribute", false);
+			node->createChild("name", true)->setStringValue(non_empty_names.back().first);
+			node->createChild("data", false)->createChild("type", true)->setStringValue(type);
+		}
+		else
+		{
+			LLXMLNodePtr choice_node = mElementNode->createChild("choice", false);
+
+			LLXMLNodePtr node = choice_node->createChild("group", false);
+			node = getCardinalityNode(node, min_count, max_count)->createChild("attribute", false);
+			node->createChild("name", true)->setStringValue(attribute_name);
+			node->createChild("data", false)->createChild("type", true)->setStringValue(type);
+
+			node = choice_node->createChild("element", false);
+			node->createChild("name", true)->setStringValue(element_name);
+			node = getCardinalityNode(node, min_count, max_count)->createChild("attribute", false);
+			node->createChild("name", true)->setStringValue(non_empty_names.back().first);
+			node->createChild("data", false)->createChild("type", true)->setStringValue(type);
+			
+			node = choice_node->createChild("element", false);
+			node->createChild("name", true)->setStringValue(type + "." + element_name);
+			node->createChild("ref", true)->createChild("name", true)->setStringValue(element_name);
+
+			mElementsWritten[element_name] = choice_node;
+		}
+	}
+}
+
+LLXMLNodePtr LLRNGWriter::getCardinalityNode(LLXMLNodePtr parent_node, S32 min_count, S32 max_count)
+{
+	// unlinked by default, meaning this attribute is forbidden
+	LLXMLNodePtr count_node = new LLXMLNode();
+	if (min_count >= 1)
+	{
+		if (max_count == 1 && min_count == 1)
+		{
+			// just add raw element, will count as 1 and only 1
+			count_node = mElementNode;
+		}
+		else
+		{
+			count_node = mElementNode->createChild("oneOrMore", false);
+		}
+	}
+	else
+	{
+		if (max_count == 1)
+		{
+			count_node = mElementNode->createChild("optional", false);
+		}
+		else if (max_count > 1)
+		{
+			count_node = mElementNode->createChild("zeroOrMore", false);
+		}
+	}
+	return count_node;
+}
+//
+// LLXSDWriter
+//
+LLXSDWriter::LLXSDWriter()
+{
+	registerInspectFunc<bool>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:boolean", _1, _2, _3, _4));
+	registerInspectFunc<std::string>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
+	registerInspectFunc<U8>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:unsignedByte", _1, _2, _3, _4));
+	registerInspectFunc<S8>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:signedByte", _1, _2, _3, _4));
+	registerInspectFunc<U16>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:unsignedShort", _1, _2, _3, _4));
+	registerInspectFunc<S16>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:signedShort", _1, _2, _3, _4));
+	registerInspectFunc<U32>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:unsignedInt", _1, _2, _3, _4));
+	registerInspectFunc<S32>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:integer", _1, _2, _3, _4));
+	registerInspectFunc<F32>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:float", _1, _2, _3, _4));
+	registerInspectFunc<F64>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:double", _1, _2, _3, _4));
+	registerInspectFunc<LLColor4>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
+	registerInspectFunc<LLUIColor>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
+	registerInspectFunc<LLUUID>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
+	registerInspectFunc<LLSD>(boost::bind(&LLXSDWriter::writeAttribute, this, "xs:string", _1, _2, _3, _4));
+}
+
+void LLXSDWriter::writeXSD(const std::string& type_name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace)
+{
+	mSchemaNode = node;
+	node->setName("xs:schema");
+	node->createChild("attributeFormDefault", true)->setStringValue("unqualified");
+	node->createChild("elementFormDefault", true)->setStringValue("qualified");
+	node->createChild("targetNamespace", true)->setStringValue(xml_namespace);
+	node->createChild("xmlns:xs", true)->setStringValue("http://www.w3.org/2001/XMLSchema");
+	node->createChild("xmlns", true)->setStringValue(xml_namespace);
+
+	node = node->createChild("xs:complexType", false);
+	node->createChild("name", true)->setStringValue(type_name);
+	node->createChild("mixed", true)->setStringValue("true");
+
+	mAttributeNode = node;
+	mElementNode = node->createChild("xs:choice", false);
+	mElementNode->createChild("minOccurs", true)->setStringValue("0");
+	mElementNode->createChild("maxOccurs", true)->setStringValue("unbounded");
+	block.inspectBlock(*this);
+
+	// duplicate element choices
+	LLXMLNodeList children;
+	mElementNode->getChildren("xs:element", children, FALSE);
+	for (LLXMLNodeList::iterator child_it = children.begin(); child_it != children.end(); ++child_it)
+	{
+		LLXMLNodePtr child_copy = child_it->second->deepCopy();
+		std::string child_name;
+		child_copy->getAttributeString("name", child_name);
+		child_copy->setAttributeString("name", type_name + "." + child_name);
+		mElementNode->addChild(child_copy);
+	}
+
+	LLXMLNodePtr element_declaration_node = mSchemaNode->createChild("xs:element", false);
+	element_declaration_node->createChild("name", true)->setStringValue(type_name);
+	element_declaration_node->createChild("type", true)->setStringValue(type_name);
+}
+
+void LLXSDWriter::writeAttribute(const std::string& type, const Parser::name_stack_t& stack, S32 min_count, S32 max_count, const std::vector<std::string>* possible_values)
+{
+	name_stack_t non_empty_names;
+	std::string attribute_name;
+	for (name_stack_t::const_iterator it = stack.begin();
+		it != stack.end();
+		++it)
+	{
+		const std::string& name = it->first;
+		if (!name.empty())
+		{
+			non_empty_names.push_back(*it);
+		}
+	}
+
+	for (name_stack_t::const_iterator it = non_empty_names.begin();
+		it != non_empty_names.end();
+		++it)
+	{
+		if (!attribute_name.empty())
+		{
+			attribute_name += ".";
+		}
+		attribute_name += it->first;
+	}
+
+	// only flag non-nested attributes as mandatory, nested attributes have variant syntax
+	// that can't be properly constrained in XSD
+	// e.g. <foo mandatory.value="bar"/> vs <foo><mandatory value="bar"/></foo>
+	bool attribute_mandatory = min_count == 1 && max_count == 1 && non_empty_names.size() == 1;
+
+	// don't bother supporting "Multiple" params as xml attributes
+	if (max_count <= 1)
+	{
+		// add compound attribute to root node
+		addAttributeToSchema(mAttributeNode, attribute_name, type, attribute_mandatory, possible_values);
+	}
+
+	// now generated nested elements for compound attributes
+	if (non_empty_names.size() > 1 && !attribute_mandatory)
+	{
+		std::string element_name;
+
+		// traverse all but last element, leaving that as an attribute name
+		name_stack_t::const_iterator end_it = non_empty_names.end();
+		end_it--;
+
+		for (name_stack_t::const_iterator it = non_empty_names.begin();
+			it != end_it;
+			++it)
+		{
+			if (it != non_empty_names.begin())
+			{
+				element_name += ".";
+			}
+			element_name += it->first;
+		}
+
+		std::string short_attribute_name = non_empty_names.back().first;
+
+		LLXMLNodePtr complex_type_node;
+
+		// find existing element node here, starting at tail of child list
+		if (mElementNode->mChildren.notNull())
+		{
+			for(LLXMLNodePtr element = mElementNode->mChildren->tail;
+				element.notNull(); 
+				element = element->mPrev)
+			{
+				std::string name;
+				if(element->getAttributeString("name", name) && name == element_name)
+				{
+					complex_type_node = element->mChildren->head;
+					break;
+				}
+			}
+		}
+		//create complex_type node
+		//
+		//<xs:element
+        //    maxOccurs="1"
+        //    minOccurs="0"
+        //    name="name">
+        //       <xs:complexType>
+        //       </xs:complexType>
+        //</xs:element>
+		if(complex_type_node.isNull())
+		{
+			complex_type_node = mElementNode->createChild("xs:element", false);
+
+			complex_type_node->createChild("minOccurs", true)->setIntValue(min_count);
+			complex_type_node->createChild("maxOccurs", true)->setIntValue(max_count);
+			complex_type_node->createChild("name",		true)->setStringValue(element_name);
+			complex_type_node = complex_type_node->createChild("xs:complexType", false);
+		}
+
+		addAttributeToSchema(complex_type_node, short_attribute_name, type, false, possible_values);
+	}
+}
+
+void LLXSDWriter::addAttributeToSchema(LLXMLNodePtr type_declaration_node, const std::string& attribute_name, const std::string& type, bool mandatory, const std::vector<std::string>* possible_values)
+{
+	if (!attribute_name.empty())
+	{
+		LLXMLNodePtr new_enum_type_node;
+		if (possible_values != NULL)
+		{
+			// custom attribute type, for example
+			//<xs:simpleType>
+			 // <xs:restriction
+			 //    base="xs:string">
+			 //     <xs:enumeration
+			 //      value="a" />
+			 //     <xs:enumeration
+			 //      value="b" />
+			 //   </xs:restriction>
+			 // </xs:simpleType>
+			new_enum_type_node = new LLXMLNode("xs:simpleType", false);
+
+			LLXMLNodePtr restriction_node = new_enum_type_node->createChild("xs:restriction", false);
+			restriction_node->createChild("base", true)->setStringValue("xs:string");
+
+			for (std::vector<std::string>::const_iterator it = possible_values->begin();
+				it != possible_values->end();
+				++it)
+			{
+				LLXMLNodePtr enum_node = restriction_node->createChild("xs:enumeration", false);
+				enum_node->createChild("value", true)->setStringValue(*it);
+			}
+		}
+
+		string_set_t& attributes_written = mAttributesWritten[type_declaration_node];
+
+		string_set_t::iterator found_it = std::lower_bound(attributes_written.begin(), attributes_written.end(), attribute_name);
+
+		// attribute not yet declared
+		if (found_it == attributes_written.end() || attributes_written.key_comp()(attribute_name, *found_it))
+		{
+			attributes_written.insert(found_it, attribute_name);
+
+			LLXMLNodePtr attribute_node = type_declaration_node->createChild("xs:attribute", false);
+
+			// attribute name
+			attribute_node->createChild("name", true)->setStringValue(attribute_name);
+
+			if (new_enum_type_node.notNull())
+			{
+				attribute_node->addChild(new_enum_type_node);
+			}
+			else
+			{
+				// simple attribute type
+				attribute_node->createChild("type", true)->setStringValue(type);
+			}
+
+			// required or optional
+			attribute_node->createChild("use", true)->setStringValue(mandatory ? "required" : "optional");
+		}
+		 // attribute exists...handle collision of same name attributes with potentially different types
+		else
+		{
+			LLXMLNodePtr attribute_declaration;
+			if (type_declaration_node.notNull())
+			{
+				for(LLXMLNodePtr node = type_declaration_node->mChildren->tail; 
+					node.notNull(); 
+					node = node->mPrev)
+				{
+					std::string name;
+					if (node->getAttributeString("name", name) && name == attribute_name)
+					{
+						attribute_declaration = node;
+						break;
+					}
+				}
+			}
+
+			bool new_type_is_enum = new_enum_type_node.notNull();
+			bool existing_type_is_enum = !attribute_declaration->hasAttribute("type");
+
+			// either type is enum, revert to string in collision
+			// don't bother to check for enum equivalence
+			if (new_type_is_enum || existing_type_is_enum)
+			{
+				if (attribute_declaration->hasAttribute("type"))
+				{
+					attribute_declaration->setAttributeString("type", "xs:string");
+				}
+				else
+				{
+					attribute_declaration->createChild("type", true)->setStringValue("xs:string");
+				}
+				attribute_declaration->deleteChildren("xs:simpleType");
+			}
+			else 
+			{
+				// check for collision of different standard types
+				std::string existing_type;
+				attribute_declaration->getAttributeString("type", existing_type);
+				// if current type is not the same as the new type, revert to strnig
+				if (existing_type != type)
+				{
+					// ...than use most general type, string
+					attribute_declaration->setAttributeString("type", "string");
+				}
+			}
+		}
+	}
+}
+
+//
+// LLXUIXSDWriter
+//
+void LLXUIXSDWriter::writeXSD(const std::string& type_name, const std::string& path, const LLInitParam::BaseBlock& block)
+{
+	std::string file_name(path);
+	file_name += type_name + ".xsd";
+	LLXMLNodePtr root_nodep = new LLXMLNode();
+
+	LLXSDWriter::writeXSD(type_name, root_nodep, block, "http://www.lindenlab.com/xui");
+
+	// add includes for all possible children
+	const std::type_info* type = *LLWidgetTypeRegistry::instance().getValue(type_name);
+	const widget_registry_t* widget_registryp = LLChildRegistryRegistry::instance().getValue(type);
+	
+	// add include declarations for all valid children
+	for (widget_registry_t::Registrar::registry_map_t::const_iterator it = widget_registryp->currentRegistrar().beginItems();
+		it != widget_registryp->currentRegistrar().endItems();
+		++it)
+	{
+		std::string widget_name = it->first;
+		if (widget_name == type_name)
+		{
+			continue;
+		}
+		LLXMLNodePtr nodep = new LLXMLNode("xs:include", false);
+		nodep->createChild("schemaLocation", true)->setStringValue(widget_name + ".xsd");
+
+		// add to front of schema
+		mSchemaNode->addChild(nodep, mSchemaNode);
+	}
+
+	// add choices for valid children
+	if (widget_registryp)
+	{
+		for (widget_registry_t::Registrar::registry_map_t::const_iterator it = widget_registryp->currentRegistrar().beginItems();
+			it != widget_registryp->currentRegistrar().endItems();
+			++it)
+		{
+			std::string widget_name = it->first;
+            //<xs:element name="widget_name" type="widget_name">
+			LLXMLNodePtr widget_node = mElementNode->createChild("xs:element", false);
+			widget_node->createChild("name", true)->setStringValue(widget_name);
+			widget_node->createChild("type", true)->setStringValue(widget_name);
+		}
+	}
+
+	LLFILE* xsd_file = LLFile::fopen(file_name.c_str(), "w");
+	LLXMLNode::writeHeaderToFile(xsd_file);
+	root_nodep->writeToFile(xsd_file);
+	fclose(xsd_file);
+}
 
 //
 // LLXUIParser

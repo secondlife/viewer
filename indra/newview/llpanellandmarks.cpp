@@ -31,12 +31,14 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llpanellandmarks.h"
+
 #include "llfloaterreg.h"
 #include "lllandmark.h"
 
 #include "llfloaterworldmap.h"
+#include "llfoldervieweventlistener.h"
 #include "lllandmarklist.h"
-#include "llpanellandmarks.h"
 #include "llsidetray.h"
 #include "lltabcontainer.h"
 #include "llworldmap.h"
@@ -138,9 +140,10 @@ void LLLandmarksPanel::onShowOnMap()
 	if (!landmark->getGlobalPos(landmark_global_pos))
 		return;
 	
-	if (!landmark_global_pos.isExactlyZero())
+	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+	if (!landmark_global_pos.isExactlyZero() && worldmap_instance)
 	{
-		LLFloaterWorldMap::getInstance()->trackLocation(landmark_global_pos);
+		worldmap_instance->trackLocation(landmark_global_pos);
 		LLFloaterReg::showInstance("world_map", "center");
 	}
 }

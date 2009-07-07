@@ -51,7 +51,7 @@ const std::string LAG_WARNING_IMAGE_NAME  = "lag_status_warning.tga";
 const std::string LAG_GOOD_IMAGE_NAME     = "lag_status_good.tga";
 
 LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
-	:	LLFloater()
+	:	LLFloater(key)
 {
 //	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_lagmeter.xml");
 	mCommitCallbackRegistrar.add("LagMeter.ClickShrink",  boost::bind(&LLFloaterLagMeter::onClickShrink, this));	

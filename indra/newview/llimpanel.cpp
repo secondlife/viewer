@@ -55,8 +55,7 @@
 #include "llimview.h"
 #include "llinventory.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
-#include "llfloateractivespeakers.h"
+#include "llfloaterinventory.h"
 #include "llfloaterchat.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
@@ -101,190 +100,7 @@ LLVoiceChannel* LLVoiceChannel::sSuspendedVoiceChannel = NULL;
 
 BOOL LLVoiceChannel::sSuspended = FALSE;
 
-void session_starter_helper(
-	const LLUUID& temp_session_id,
-	const LLUUID& other_participant_id,
-	EInstantMessage im_type)
-{
-	LLMessageSystem *msg = gMessageSystem;
 
-	msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-
-	msg->nextBlockFast(_PREHASH_MessageBlock);
-	msg->addBOOLFast(_PREHASH_FromGroup, FALSE);
-	msg->addUUIDFast(_PREHASH_ToAgentID, other_participant_id);
-	msg->addU8Fast(_PREHASH_Offline, IM_ONLINE);
-	msg->addU8Fast(_PREHASH_Dialog, im_type);
-	msg->addUUIDFast(_PREHASH_ID, temp_session_id);
-	msg->addU32Fast(_PREHASH_Timestamp, NO_TIMESTAMP); // no timestamp necessary
-
-	std::string name;
-	gAgent.buildFullname(name);
-
-	msg->addStringFast(_PREHASH_FromAgentName, name);
-	msg->addStringFast(_PREHASH_Message, LLStringUtil::null);
-	msg->addU32Fast(_PREHASH_ParentEstateID, 0);
-	msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
-	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
-}
-
-void start_deprecated_conference_chat(
-	const LLUUID& temp_session_id,
-	const LLUUID& creator_id,
-	const LLUUID& other_participant_id,
-	const LLSD& agents_to_invite)
-{
-	U8* bucket;
-	U8* pos;
-	S32 count;
-	S32 bucket_size;
-
-	// *FIX: this could suffer from endian issues
-	count = agents_to_invite.size();
-	bucket_size = UUID_BYTES * count;
-	bucket = new U8[bucket_size];
-	pos = bucket;
-
-	for(S32 i = 0; i < count; ++i)
-	{
-		LLUUID agent_id = agents_to_invite[i].asUUID();
-		
-		memcpy(pos, &agent_id, UUID_BYTES);
-		pos += UUID_BYTES;
-	}
-
-	session_starter_helper(
-		temp_session_id,
-		other_participant_id,
-		IM_SESSION_CONFERENCE_START);
-
-	gMessageSystem->addBinaryDataFast(
-		_PREHASH_BinaryBucket,
-		bucket,
-		bucket_size);
-
-	gAgent.sendReliableMessage();
- 
-	delete[] bucket;
-}
-
-class LLStartConferenceChatResponder : public LLHTTPClient::Responder
-{
-public:
-	LLStartConferenceChatResponder(
-		const LLUUID& temp_session_id,
-		const LLUUID& creator_id,
-		const LLUUID& other_participant_id,
-		const LLSD& agents_to_invite)
-	{
-		mTempSessionID = temp_session_id;
-		mCreatorID = creator_id;
-		mOtherParticipantID = other_participant_id;
-		mAgents = agents_to_invite;
-	}
-
-	virtual void error(U32 statusNum, const std::string& reason)
-	{
-		//try an "old school" way.
-		if ( statusNum == 400 )
-		{
-			start_deprecated_conference_chat(
-				mTempSessionID,
-				mCreatorID,
-				mOtherParticipantID,
-				mAgents);
-		}
-
-		//else throw an error back to the client?
-		//in theory we should have just have these error strings
-		//etc. set up in this file as opposed to the IMMgr,
-		//but the error string were unneeded here previously
-		//and it is not worth the effort switching over all
-		//the possible different language translations
-	}
-
-private:
-	LLUUID mTempSessionID;
-	LLUUID mCreatorID;
-	LLUUID mOtherParticipantID;
-
-	LLSD mAgents;
-};
-
-// Returns true if any messages were sent, false otherwise.
-// Is sort of equivalent to "does the server need to do anything?"
-bool send_start_session_messages(
-	const LLUUID& temp_session_id,
-	const LLUUID& other_participant_id,
-	const std::vector<LLUUID>& ids,
-	EInstantMessage dialog)
-{
-	if ( dialog == IM_SESSION_GROUP_START )
-	{
-		session_starter_helper(
-			temp_session_id,
-			other_participant_id,
-			dialog);
-
-		switch(dialog)
-		{
-		case IM_SESSION_GROUP_START:
-			gMessageSystem->addBinaryDataFast(
-				_PREHASH_BinaryBucket,
-				EMPTY_BINARY_BUCKET,
-				EMPTY_BINARY_BUCKET_SIZE);
-			break;
-		default:
-			break;
-		}
-		gAgent.sendReliableMessage();
-
-		return true;
-	}
-	else if ( dialog == IM_SESSION_CONFERENCE_START )
-	{
-		LLSD agents;
-		for (int i = 0; i < (S32) ids.size(); i++)
-		{
-			agents.append(ids[i]);
-		}
-
-		//we have a new way of starting conference calls now
-		LLViewerRegion* region = gAgent.getRegion();
-		if (region)
-		{
-			std::string url = region->getCapability(
-				"ChatSessionRequest");
-			LLSD data;
-			data["method"] = "start conference";
-			data["session-id"] = temp_session_id;
-
-			data["params"] = agents;
-
-			LLHTTPClient::post(
-				url,
-				data,
-				new LLStartConferenceChatResponder(
-					temp_session_id,
-					gAgent.getID(),
-					other_participant_id,
-					data["params"]));
-		}
-		else
-		{
-			start_deprecated_conference_chat(
-				temp_session_id,
-				gAgent.getID(),
-				other_participant_id,
-				agents);
-		}
-	}
-
-	return false;
-}
 
 class LLVoiceCallCapResponder : public LLHTTPClient::Responder
 {
@@ -1200,7 +1016,7 @@ LLFloaterIMPanel::LLFloaterIMPanel(const std::string& session_label,
 
 	if ( !mSessionInitialized )
 	{
-		if ( !send_start_session_messages(
+		if ( !LLIMModel::instance().sendStartSession(
 				 mSessionUUID,
 				 mOtherParticipantUUID,
 				 mSessionInitialTargetIDs,
@@ -1542,19 +1358,21 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 		prepend_newline = false;
 	}
 
+	std::string separator_string(": ");
+	
 	// 'name' is a sender name that we want to hotlink so that clicking on it opens a profile.
 	if (!name.empty()) // If name exists, then add it to the front of the message.
 	{
 		// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
 		if (name == SYSTEM_FROM)
 		{
-			mHistoryEditor->appendColoredText(name,false,prepend_newline,color);
+			mHistoryEditor->appendColoredText(name + separator_string, false, prepend_newline, color);
 		}
 		else
 		{
 			// Convert the name to a hotlink and add to message.
 			const LLStyleSP &source_style = LLStyleMap::instance().lookupAgent(source);
-			mHistoryEditor->appendStyledText(name,false,prepend_newline,source_style);
+			mHistoryEditor->appendStyledText(name + separator_string, false, prepend_newline, source_style);
 		}
 		prepend_newline = false;
 	}
@@ -1565,9 +1383,9 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 	{
 		std::string histstr;
 		if (gSavedPerAccountSettings.getBOOL("IMLogTimestamp"))
-			histstr = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate")) + name + utf8msg;
+			histstr = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate")) + name + separator_string + utf8msg;
 		else
-			histstr = name + utf8msg;
+			histstr = name + separator_string + utf8msg;
 
 		LLLogChat::saveHistory(getTitle(),histstr);
 	}
@@ -1619,7 +1437,6 @@ void LLFloaterIMPanel::selectNone()
 {
 	mInputEditor->deselect();
 }
-
 
 BOOL LLFloaterIMPanel::handleKeyHere( KEY key, MASK mask )
 {
@@ -1847,23 +1664,8 @@ void LLFloaterIMPanel::onClose(bool app_quitting)
 {
 	setTyping(FALSE);
 
-	if(mSessionUUID.notNull())
-	{
-		std::string name;
-		gAgent.buildFullname(name);
-		pack_instant_message(
-			gMessageSystem,
-			gAgent.getID(),
-			FALSE,
-			gAgent.getSessionID(),
-			mOtherParticipantUUID,
-			name, 
-			LLStringUtil::null,
-			IM_ONLINE,
-			IM_SESSION_LEAVE,
-			mSessionUUID);
-		gAgent.sendReliableMessage();
-	}
+	LLIMModel::instance().sendLeaveSession(mSessionUUID, mOtherParticipantUUID);
+
 	gIMMgr->removeSession(mSessionUUID);
 
 	// *HACK hide the voice floater
@@ -1882,79 +1684,6 @@ void LLFloaterIMPanel::onVisibilityChange(BOOL new_visibility)
 	LLFloaterCall::toggleInstanceVisibility(
 		new_visibility && mVoiceChannel->getState() == LLVoiceChannel::STATE_CONNECTED,
 		mSessionUUID);
-}
-
-void deliver_message(const std::string& utf8_text,
-					 const LLUUID& im_session_id,
-					 const LLUUID& other_participant_id,
-					 EInstantMessage dialog)
-{
-	std::string name;
-	bool sent = false;
-	gAgent.buildFullname(name);
-
-	const LLRelationship* info = NULL;
-	info = LLAvatarTracker::instance().getBuddyInfo(other_participant_id);
-	
-	U8 offline = (!info || info->isOnline()) ? IM_ONLINE : IM_OFFLINE;
-	
-	if((offline == IM_OFFLINE) && (LLVoiceClient::getInstance()->isOnlineSIP(other_participant_id)))
-	{
-		// User is online through the OOW connector, but not with a regular viewer.  Try to send the message via SLVoice.
-		sent = gVoiceClient->sendTextMessage(other_participant_id, utf8_text);
-	}
-	
-	if(!sent)
-	{
-		// Send message normally.
-
-		// default to IM_SESSION_SEND unless it's nothing special - in
-		// which case it's probably an IM to everyone.
-		U8 new_dialog = dialog;
-
-		if ( dialog != IM_NOTHING_SPECIAL )
-		{
-			new_dialog = IM_SESSION_SEND;
-		}
-		pack_instant_message(
-			gMessageSystem,
-			gAgent.getID(),
-			FALSE,
-			gAgent.getSessionID(),
-			other_participant_id,
-			name.c_str(),
-			utf8_text.c_str(),
-			offline,
-			(EInstantMessage)new_dialog,
-			im_session_id);
-		gAgent.sendReliableMessage();
-	}
-
-	// If there is a mute list and this is not a group chat...
-	if ( LLMuteList::getInstance() )
-	{
-		// ... the target should not be in our mute list for some message types.
-		// Auto-remove them if present.
-		switch( dialog )
-		{
-		case IM_NOTHING_SPECIAL:
-		case IM_GROUP_INVITATION:
-		case IM_INVENTORY_OFFERED:
-		case IM_SESSION_INVITE:
-		case IM_SESSION_P2P_INVITE:
-		case IM_SESSION_CONFERENCE_START:
-		case IM_SESSION_SEND: // This one is marginal - erring on the side of hearing.
-		case IM_LURE_USER:
-		case IM_GODLIKE_LURE_USER:
-		case IM_FRIENDSHIP_OFFERED:
-			LLMuteList::getInstance()->autoRemove(other_participant_id, LLMuteList::AR_IM);
-			break;
-		default: ; // do nothing
-		}
-	}
-
-	// Add the recipient to the recent people list.
-	LLRecentPeople::instance().add(other_participant_id);
 }
 
 void LLFloaterIMPanel::sendMsg()
@@ -1978,7 +1707,7 @@ void LLFloaterIMPanel::sendMsg()
 			
 			if ( mSessionInitialized )
 			{
-				deliver_message(utf8_text,
+				LLIMModel::sendMessage(utf8_text,
 								mSessionUUID,
 								mOtherParticipantUUID,
 								mDialog);
@@ -2084,7 +1813,7 @@ void LLFloaterIMPanel::sessionInitReplyReceived(const LLUUID& session_id)
 		  iter != mQueuedMsgsForInit.endArray();
 		  ++iter)
 	{
-		deliver_message(
+		LLIMModel::sendMessage(
 			iter->asString(),
 			mSessionUUID,
 			mOtherParticipantUUID,
@@ -2135,22 +1864,9 @@ void LLFloaterIMPanel::sendTypingState(BOOL typing)
 	// much network traffic.  Only send in person-to-person IMs.
 	if (mDialog != IM_NOTHING_SPECIAL) return;
 
-	std::string name;
-	gAgent.buildFullname(name);
-
-	pack_instant_message(
-		gMessageSystem,
-		gAgent.getID(),
-		FALSE,
-		gAgent.getSessionID(),
-		mOtherParticipantUUID,
-		name,
-		std::string("typing"),
-		IM_ONLINE,
-		(typing ? IM_TYPING_START : IM_TYPING_STOP),
-		mSessionUUID);
-	gAgent.sendReliableMessage();
+	LLIMModel::instance().sendTypingState(mSessionUUID, mOtherParticipantUUID, typing);
 }
+
 
 void LLFloaterIMPanel::processIMTyping(const LLIMInfo* im_info, BOOL typing)
 {
@@ -2320,3 +2036,80 @@ bool LLFloaterIMPanel::onConfirmForceCloseError(const LLSD& notification, const 
 }
 
 
+std::map<LLUUID, LLIMFloater*> LLIMFloater::sIMFloaterMap;
+
+LLIMFloater::LLIMFloater(const LLUUID& session_id,
+					 const std::string title,
+					 EInstantMessage dialog)
+:	mSessionID(session_id),
+	mIndex(0)
+{
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_im_session.xml");
+	sIMFloaterMap[mSessionID] = this;
+
+	setTitle(title);
+}
+
+LLIMFloater::~LLIMFloater()
+{
+	sIMFloaterMap.erase(mSessionID);
+}
+
+
+void LLIMFloater::show(const LLUUID& session_id, S32 center_x)
+{
+
+	LLIMFloater* floater = get_if_there(sIMFloaterMap, session_id, (LLIMFloater*)NULL);
+	
+	if (floater == NULL)
+	{
+		floater = new LLIMFloater(session_id, LLIMModel::instance().getName(session_id), IM_NOTHING_SPECIAL);
+	}
+
+	//hide all
+	for (std::map<LLUUID, LLIMFloater*>::iterator iter = sIMFloaterMap.begin();
+		 iter != sIMFloaterMap.end(); ++iter)
+	{
+		LLIMFloater* floater = (*iter).second;
+		floater->setVisible(false);
+	}
+
+	floater->setVisibleAndFrontmost(true);
+
+	floater->updateMessages(session_id);
+
+	floater->translate(center_x - floater->getRect().getCenterX(), gFloaterView->getRect().mBottom - floater->getRect().mBottom);
+
+}
+
+void LLIMFloater::updateMessages(const LLUUID& session_id)
+{
+
+	LLTextEditor* text_editor = getChild<LLTextEditor>("im_text", true, false);
+
+	if (!text_editor) 
+	{
+		llwarns << "Text editor not found! " << llendl;
+		return;
+	}
+
+	std::list<LLSD> messages = LLIMModel::instance().getMessages(mSessionID, mIndex);
+
+	if (messages.size())
+	{
+		std::ostringstream message;
+		std::list<LLSD>::const_reverse_iterator iter = messages.rbegin();
+		std::list<LLSD>::const_reverse_iterator iter_end = messages.rend();
+	    for (; iter != iter_end; ++iter)
+		{
+			LLSD msg = *iter;
+			
+			message << msg["from"].asString() << " : " << msg["time"].asString() << "\n   " << msg["message"].asString() << "\n"; 
+			
+			mIndex = msg["index"].asInteger();
+		}
+
+		text_editor->setText(message.str());
+	}
+
+}

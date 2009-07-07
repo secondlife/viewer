@@ -39,7 +39,7 @@
 #include "llinventory.h"
 #include "llviewerinventory.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llagent.h"
 #include "lltooldraganddrop.h"
 
@@ -105,7 +105,7 @@ protected:
 	LLUUID	mGroupID;
 };
 
-static LLDefaultWidgetRegistry::Register<LLGroupDropTarget> r("group_drop_target");
+static LLDefaultChildRegistry::Register<LLGroupDropTarget> r("group_drop_target");
 
 LLGroupDropTarget::LLGroupDropTarget(const LLGroupDropTarget::Params& p) 
 :	LLView(p),

@@ -51,7 +51,7 @@
 #include "llviewerimagelist.h"
 #include "llfocusmgr.h"
 
-static LLDefaultWidgetRegistry::Register<LLColorSwatchCtrl> r("color_swatch");
+static LLDefaultChildRegistry::Register<LLColorSwatchCtrl> r("color_swatch");
 
 LLColorSwatchCtrl::Params::Params()
 :	color("color", LLColor4::white),

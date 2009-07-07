@@ -41,6 +41,7 @@
 #include "lloutputmonitorctrl.h"
 #include "llimview.h"
 #include "llbottomtray.h"
+#include "llimpanel.h"
 
 static const S32 CHICLET_HEIGHT = 25;
 static const S32 CHICLET_SPACING = 0;
@@ -52,10 +53,10 @@ static const S32 SCROLL_BUTTON_WIDTH = 19;
 static const S32 SCROLL_BUTTON_HEIGHT = 20;
 static const S32 NOTIFICATION_TEXT_TOP_PAD = 5;
 
-static LLDefaultWidgetRegistry::Register<LLChicletPanel> t1("chiclet_panel");
-static LLDefaultWidgetRegistry::Register<LLTalkButton> t2("chiclet_talk");
-static LLDefaultWidgetRegistry::Register<LLNotificationChiclet> t3("chiclet_notification");
-static LLDefaultWidgetRegistry::Register<LLChicletPanel> t4("chiclet_panel");
+static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
+static LLDefaultChildRegistry::Register<LLTalkButton> t2("chiclet_talk");
+static LLDefaultChildRegistry::Register<LLNotificationChiclet> t3("chiclet_notification");
+static LLDefaultChildRegistry::Register<LLChicletPanel> t4("chiclet_panel");
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -317,6 +318,29 @@ LLChicletPanel::~LLChicletPanel()
 
 }
 
+void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
+
+	LLChiclet* chiclet = panel->findIMChiclet(&data["session_id"]);
+
+	if (chiclet)
+	{
+		chiclet->setCounter(data["num_unread"].asInteger());
+	}
+    else
+    {
+    	llwarns << "Unable to set counter for chiclet " << data["session_id"].asUUID() << llendl;
+    }
+}
+
+
+BOOL LLChicletPanel::postBuild()
+{
+	LLPanel::postBuild();
+	LLIMModel::instance().addChangedCallback(boost::bind(im_chiclet_callback, this, _1));
+
+	return TRUE;
+}
+
 LLChiclet* LLChicletPanel::createChiclet(LLSD* imSessionId, S32 pos)
 {
 	LLChiclet* chiclet = LLIMChiclet::create(imSessionId);
@@ -366,11 +390,18 @@ void LLChicletPanel::onChicletClick(LLUICtrl*ctrl,const LLSD&param)
 	{
 		LLFloaterReg::showInstance("communicate", chiclet->getIMSessionId().asUUID());
 	}
+    
+	S32 x, y;
+   	LLRect rect = chiclet->getRect();
+
+	localPointToScreen(rect.getCenterX(), 0, &x, &y);
+	LLIMFloater::show(chiclet->getIMSessionId().asUUID(), x);
 
 	mCommitSignal(ctrl,param);
 }
 
-LLChiclet* LLChicletPanel::findIMChiclet(LLSD* imSessionId)
+
+LLChiclet* LLChicletPanel::findIMChiclet(const LLSD* imSessionId)
 {
 	chiclet_list_t::const_iterator it = mChicletList.begin();
 	for( ; mChicletList.end() != it; ++it)
@@ -441,7 +472,7 @@ void LLChicletPanel::removeChiclet(LLChiclet*chiclet)
 	}
 }
 
-void LLChicletPanel::removeIMChiclet(LLSD* imSessionId)
+void LLChicletPanel::removeIMChiclet(const LLSD* imSessionId)
 {
 	chiclet_list_t::iterator it = mChicletList.begin();
 	for( ; mChicletList.end() != it; ++it)

@@ -39,48 +39,49 @@ class LLUICtrl;
 
 class LLFloaterTopObjects : public LLFloater
 {
+	friend class LLFloaterReg;
 public:
 	// Opens the floater on screen.
-	static void show();
+//	static void show();
 
 	// Opens the floater if it's not on-screen.
 	// Juggles the UI based on method = "scripts" or "colliders"
 	static void handle_land_reply(LLMessageSystem* msg, void** data);
 	void handleReply(LLMessageSystem* msg, void** data);
 	
-	static void clearList();
+	void clearList();
 	void updateSelectionInfo();
 	virtual BOOL postBuild();
 
-	static void onRefresh(void* data);
+	void onRefresh();
 
-	static void setMode(U32 mode)		{ if (sInstance) sInstance->mCurrentMode = mode; }
+	static void setMode(U32 mode);
 
 private:
-	LLFloaterTopObjects();
+	LLFloaterTopObjects(const LLSD& key);
 	~LLFloaterTopObjects();
 
 	void initColumns(LLCtrlListInterface *list);
 
-	static void onCommitObjectsList(LLUICtrl* ctrl, void* data);
+	void onCommitObjectsList();
 	static void onDoubleClickObjectsList(void* data);
-	static void onClickShowBeacon(void* data);
+	void onClickShowBeacon();
 
 	void doToObjects(int action, bool all);
 
-	static void onReturnAll(void* data);
-	static void onReturnSelected(void* data);
-	static void onDisableAll(void* data);
-	static void onDisableSelected(void* data);
+	void onReturnAll();
+	void onReturnSelected();
+	void onDisableAll();
+	void onDisableSelected();
 
 	static bool callbackReturnAll(const LLSD& notification, const LLSD& response);
 	static bool callbackDisableAll(const LLSD& notification, const LLSD& response);
 
-	static void onGetByOwnerName(LLUICtrl* ctrl, void* data);
-	static void onGetByObjectName(LLUICtrl* ctrl, void* data);
+	void onGetByOwnerName();
+	void onGetByObjectName();
 
-	static void onGetByOwnerNameClicked(void* data)  { onGetByOwnerName(NULL, data); };
-	static void onGetByObjectNameClicked(void* data) { onGetByObjectName(NULL, data); };
+//	static void onGetByOwnerNameClicked(void* data)  { onGetByOwnerName(NULL, data); };
+//	static void onGetByObjectNameClicked(void* data) { onGetByObjectName(NULL, data); };
 
 	void showBeacon();
 

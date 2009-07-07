@@ -453,11 +453,4 @@ private:
 	LLTextBox*		mCommentTextBox;
 }; // end class LLScrollListCtrl
 
-#ifdef LL_WINDOWS
-#ifndef INSTANTIATE_GETCHILD_SCROLLLIST
-#pragma warning (disable : 4231)
-extern template LLScrollListCtrl* LLView::getChild<LLScrollListCtrl>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-#endif
-#endif
-
 #endif  // LL_SCROLLLISTCTRL_H

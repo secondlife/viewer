@@ -44,29 +44,32 @@ class LLUICtrl;
 
 class LLFloaterInspect : public LLFloater
 {
+	friend class LLFloaterReg;
 public:
-	virtual ~LLFloaterInspect(void);
-	static void show(void* ignored = NULL);
+
+//	static void show(void* ignored = NULL);
 	virtual BOOL postBuild();
-	static void dirty();
-	static LLUUID getSelectedUUID();
+	void dirty();
+	LLUUID getSelectedUUID();
 	virtual void draw();
 	virtual void refresh();
-	static BOOL isVisible();
+//	static BOOL isVisible();
 	virtual void onFocusReceived();
-	static void onClickCreatorProfile(void* ctrl);
-	static void onClickOwnerProfile(void* ctrl);
-	static void onSelectObject(LLUICtrl* ctrl, void* user_data);
+	void onClickCreatorProfile();
+	void onClickOwnerProfile();
+	void onSelectObject();
 	LLScrollListCtrl* mObjectList;
 protected:
 	// protected members
-	LLFloaterInspect();
 	void setDirty() { mDirty = TRUE; }
 	bool mDirty;
 
 private:
+	
+	LLFloaterInspect(const LLSD& key);
+	virtual ~LLFloaterInspect(void);
 	// static data
-	static LLFloaterInspect* sInstance;
+//	static LLFloaterInspect* sInstance;
 
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
 };

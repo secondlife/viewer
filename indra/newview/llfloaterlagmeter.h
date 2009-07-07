@@ -37,18 +37,17 @@
 
 class LLTextBox;
 
-class LLFloaterLagMeter : public LLFloater, public LLFloaterSingleton<LLFloaterLagMeter>
+class LLFloaterLagMeter : public LLFloater
 {
-	friend class LLUISingleton<LLFloaterLagMeter, VisibilityPolicy<LLFloater> >;
+	friend class LLFloaterReg;
 	
 public:
-	LLFloaterLagMeter(const LLSD& key);
-	/*virtual*/ ~LLFloaterLagMeter();
-
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL postBuild();	
 private:
-
+	
+	LLFloaterLagMeter(const LLSD& key);
+	/*virtual*/ ~LLFloaterLagMeter();
 	void determineClient();
 	void determineNetwork();
 	void determineServer();

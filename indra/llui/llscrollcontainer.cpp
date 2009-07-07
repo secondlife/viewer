@@ -63,7 +63,7 @@ static const F32 AUTO_SCROLL_RATE_ACCEL = 120.f;
 /// Class LLScrollContainer
 ///----------------------------------------------------------------------------
 
-static LLDefaultWidgetRegistry::Register<LLScrollContainer> r("scroll_container");
+static LLDefaultChildRegistry::Register<LLScrollContainer> r("scroll_container");
 
 LLScrollContainer::Params::Params()
 :	is_opaque("opaque"),
@@ -91,7 +91,7 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	LLViewBorder::Params params;
 	params.name("scroll border");
 	params.rect(border_rect);
-	params.bevel_type(LLViewBorder::BEVEL_IN);
+	params.bevel_style(LLViewBorder::BEVEL_IN);
 	mBorder = LLUICtrlFactory::create<LLViewBorder> (params);
 	LLView::addChild( mBorder );
 
@@ -515,12 +515,6 @@ bool LLScrollContainer::addChild(LLView* view, S32 tab_group)
 	sendChildToFront( mScrollbar[VERTICAL] );
 
 	return ret_val;
-}
-
-const widget_registry_t& LLScrollContainer::getChildRegistry() const
-{
-	// a scroll container can contain any default widget
-	return LLDefaultWidgetRegistry::instance();
 }
 
 void LLScrollContainer::updateScroll()

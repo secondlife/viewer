@@ -42,25 +42,11 @@
 #include "lluictrlfactory.h"
 
 
-LLFloaterFontTest* LLFloaterFontTest::sInstance = NULL;
-
-LLFloaterFontTest::LLFloaterFontTest()
+LLFloaterFontTest::LLFloaterFontTest(const LLSD& key)
 	:	LLFloater("floater_font_test")
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_font_test.xml");
 }
 
 LLFloaterFontTest::~LLFloaterFontTest()
 {
-	sInstance = NULL;
-}
-
-// static
-void LLFloaterFontTest::show(void *unused)
-{
-	if (!sInstance)
-		sInstance = new LLFloaterFontTest();
-
-	sInstance->openFloater();
-	sInstance->setFocus(TRUE);
 }

@@ -38,7 +38,7 @@
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llcachename.h"
 
-static LLDefaultWidgetRegistry::Register<LLAvatarList> r("avatar_list");
+static LLDefaultChildRegistry::Register<LLAvatarList> r("avatar_list");
 
 LLAvatarList::Params::Params()
 {

@@ -275,6 +275,7 @@ void LLMultiFloater::selectPrevFloater()
 
 void LLMultiFloater::showFloater(LLFloater* floaterp, LLTabContainer::eInsertionPoint insertion_point)
 {
+	if(!floaterp) return;
 	// we won't select a panel that already is selected
 	// it is hard to do this internally to tab container
 	// as tab selection is handled via index and the tab at a given
@@ -288,7 +289,7 @@ void LLMultiFloater::showFloater(LLFloater* floaterp, LLTabContainer::eInsertion
 
 void LLMultiFloater::removeFloater(LLFloater* floaterp)
 {
-	if ( floaterp->getHost() != this )
+	if (!floaterp || floaterp->getHost() != this )
 		return;
 
 	floater_data_map_t::iterator found_data_it = mFloaterDataMap.find(floaterp->getHandle());

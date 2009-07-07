@@ -36,7 +36,7 @@
 #include "llagentwearables.h"
 
 #include "llfloatercustomize.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llinventorymodel.h"
 #include "llnotify.h"
 #include "llviewerregion.h"
@@ -1076,7 +1076,7 @@ void LLAgentWearables::makeNewOutfitDone(S32 type, U32 index)
 	// Open the inventory and select the first item we added.
 	if (first_item_id.notNull())
 	{
-		LLInventoryView* view = LLInventoryView::getActiveInventory();
+		LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
 		if (view)
 		{
 			view->getPanel()->setSelection(first_item_id, TAKE_FOCUS_NO);

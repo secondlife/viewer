@@ -216,8 +216,13 @@ void LLPanelPlaces::onShowOnMapButtonClicked()
 		LLVector3d global_pos = gAgent.getPositionGlobal();
 		if (!global_pos.isExactlyZero())
 			{
-				LLFloaterWorldMap::getInstance()->trackLocation(global_pos);
-				LLFloaterReg::showInstance("world_map", "center");
+				LLFloaterWorldMap* instance = LLFloaterWorldMap::getInstance();
+				if(instance)
+				{
+					instance->trackLocation(global_pos);
+					LLFloaterReg::showInstance("world_map", "center");
+
+				}
 			}
 	}
 	else

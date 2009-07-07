@@ -35,7 +35,7 @@
 // file includes
 #include "llflyoutbutton.h"
 
-//static LLDefaultWidgetRegistry::Register<LLFlyoutButton> r2("flyout_button");
+//static LLDefaultChildRegistry::Register<LLFlyoutButton> r2("flyout_button");
 
 const S32 FLYOUT_BUTTON_ARROW_WIDTH = 24;
 

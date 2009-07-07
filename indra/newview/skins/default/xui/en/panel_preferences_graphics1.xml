@@ -40,7 +40,7 @@
      width="100">
     </check_box>
     <combo_box
-	 make_visible_control="WindowFullScreen"
+	 visiblity_control="WindowFullScreen"
      allow_text_entry="true"
      height="16"
      layout="topleft"
@@ -208,7 +208,7 @@
         Ultra
     </text>
     <panel
-	 make_visible_control="ShowAdvancedGraphicsSettings"
+	 visiblity_control="ShowAdvancedGraphicsSettings"
      border="false"
 	 follows="top|left"
      height="260"

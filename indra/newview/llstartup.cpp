@@ -94,9 +94,6 @@
 #include "llface.h"
 #include "llfeaturemanager.h"
 #include "llfirstuse.h"
-#include "llfloateractivespeakers.h"
-#include "llfloaterbeacons.h"
-#include "llfloatercamera.h"
 #include "llfloaterchat.h"
 #include "llfloatergesture.h"
 #include "llfloaterhud.h"
@@ -113,7 +110,7 @@
 #include "llimagebmp.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llkeyboard.h"
 #include "llloginhandler.h"			// gLoginHandler, SLURL support
 #include "llpanellogin.h"
@@ -750,8 +747,10 @@ bool idle_startup()
 		std::string msg = LLTrans::getString("LoginInitializingBrowser");
 		set_startup_status(0.03f, msg.c_str(), gAgent.mMOTD.c_str());
 		display_startup();
+#if !defined(LL_WINDOWS) || !defined(LL_DEBUG)
+		// This generates an error in debug mode on Windows
 		LLViewerMedia::initBrowser();
-
+#endif
 		LLStartUp::setStartupState( STATE_LOGIN_SHOW );
 		return FALSE;
 	}
@@ -1466,8 +1465,7 @@ bool idle_startup()
 				it = options[0].find("folder_id");
 				if(it != options[0].end())
 				{
-					gAgent.getInventoryRootID().set((*it).second);
-					//gInventory.mock(gAgent.getInventoryRootID());
+					gInventory.setRootFolderID( LLUUID( (*it).second ) );
 				}
 			}
 
@@ -1555,7 +1553,7 @@ bool idle_startup()
 			   && gAgentSessionID.notNull()
 			   && gMessageSystem->mOurCircuitCode
 			   && first_sim.isOk()
-			   && gAgent.getInventoryRootID().notNull())
+			   && gInventory.getRootFolderID().notNull())
 			{
 				LLStartUp::setStartupState( STATE_WORLD_INIT );
 			}
@@ -1724,21 +1722,21 @@ bool idle_startup()
 
 		if (gSavedSettings.getBOOL("ShowCameraControls"))
 		{
-			LLFloaterCamera::showInstance();
+			LLFloaterReg::showInstance("camera");
 		}
 		if (gSavedSettings.getBOOL("ShowMovementControls"))
 		{
-			LLFloaterMove::showInstance();
+			LLFloaterReg::showInstance("moveview");
 		}
 
 		if (gSavedSettings.getBOOL("ShowActiveSpeakers"))
 		{
-			LLFloaterActiveSpeakers::showInstance();
+			LLFloaterReg::showInstance("active_speakers");
 		}
 
 		if (gSavedSettings.getBOOL("BeaconAlwaysOn"))
 		{
-			LLFloaterBeacons::showInstance();
+			LLFloaterReg::showInstance("beacons");
 		}
 
 		if (!gNoRender)
@@ -1994,7 +1992,7 @@ bool idle_startup()
 			it = options[0].find("folder_id");
 			if(it != options[0].end())
 			{
-				gInventoryLibraryRoot.set((*it).second);
+				gInventory.setLibraryRootFolderID( LLUUID( (*it).second ) );
 			}
 		}
  		options.clear();
@@ -2006,14 +2004,14 @@ bool idle_startup()
 			it = options[0].find("agent_id");
 			if(it != options[0].end())
 			{
-				gInventoryLibraryOwner.set((*it).second);
+				gInventory.setLibraryOwnerID( LLUUID( (*it).second ) );
 			}
 		}
  		options.clear();
  		if(LLUserAuth::getInstance()->getOptions("inventory-skel-lib", options)
-			&& gInventoryLibraryOwner.notNull())
+			&& gInventory.getLibraryOwnerID().notNull())
  		{
- 			if(!gInventory.loadSkeleton(options, gInventoryLibraryOwner))
+ 			if(!gInventory.loadSkeleton(options, gInventory.getLibraryOwnerID()))
  			{
  				LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
  			}
@@ -2087,10 +2085,9 @@ bool idle_startup()
 		// Either we want to show tutorial because this is the first login
 		// to a Linden Help Island or the user quit with the tutorial
 		// visible.  JC
-		if (show_hud
-			|| gSavedSettings.getBOOL("ShowTutorial"))
+		if (show_hud || gSavedSettings.getBOOL("ShowTutorial"))
 		{
-			LLFloaterHUD::showHUD();
+			LLFloaterReg::showInstance("hud", LLSD(), FALSE);
 		}
 
 		options.clear();
@@ -2465,9 +2462,11 @@ bool idle_startup()
 
 		// Let the map know about the inventory.
 		LLFloaterWorldMap* floater_world_map = LLFloaterWorldMap::getInstance();
-		floater_world_map->observeInventory(&gInventory);
-		floater_world_map->observeFriends();
-
+		if(floater_world_map)
+		{
+			floater_world_map->observeInventory(&gInventory);
+			floater_world_map->observeFriends();
+		}
 		gViewerWindow->showCursor();
 		gViewerWindow->getWindow()->resetBusyCount();
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);

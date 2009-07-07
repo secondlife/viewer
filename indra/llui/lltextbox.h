@@ -159,11 +159,4 @@ private:
 	callback_t		mClickedCallback;
 };
 
-#ifdef LL_WINDOWS
-#ifndef INSTANTIATE_GETCHILD_TEXTBOX
-#pragma warning (disable : 4231)
-extern template LLTextBox* LLView::getChild<LLTextBox>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-#endif
-#endif
-
 #endif

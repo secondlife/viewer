@@ -34,7 +34,7 @@
 
 #include <utility> // for std::pair<>
 
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llinventorybridge.h"
 
 #include "message.h"
@@ -184,6 +184,13 @@ PermissionMask LLInvFVBridge::getPermissionMask() const
 	return PERM_ALL;
 }
 
+// virtual
+LLAssetType::EType LLInvFVBridge::getPreferredType() const
+{
+	return LLAssetType::AT_NONE;
+}
+
+
 // Folders don't have creation dates.
 time_t LLInvFVBridge::getCreationDate() const
 {
@@ -195,7 +202,7 @@ BOOL LLInvFVBridge::isItemRemovable()
 {
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return FALSE;
-	if(model->isObjectDescendentOf(mUUID, gAgent.getInventoryRootID()))
+	if(model->isObjectDescendentOf(mUUID, gInventory.getRootFolderID()))
 	{
 		return TRUE;
 	}
@@ -660,8 +667,8 @@ BOOL LLInvFVBridge::isAgentInventory() const
 {
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return FALSE;
-	if(gAgent.getInventoryRootID() == mUUID) return TRUE;
-	return model->isObjectDescendentOf(mUUID, gAgent.getInventoryRootID());
+	if(gInventory.getRootFolderID() == mUUID) return TRUE;
+	return model->isObjectDescendentOf(mUUID, gInventory.getRootFolderID());
 }
 
 BOOL LLInvFVBridge::isItemPermissive() const
@@ -1020,7 +1027,7 @@ PermissionMask LLItemBridge::getPermissionMask() const
 	}
 	return perm_mask;
 }
-	
+
 const std::string& LLItemBridge::getDisplayName() const
 {
 	if(mDisplayName.empty())
@@ -1062,10 +1069,11 @@ LLFontGL::StyleFlags LLItemBridge::getLabelStyle() const
 
 std::string LLItemBridge::getLabelSuffix() const
 {
-	// assume that this won't be called before string table is loaded
-	static const char* NO_COPY =LLTrans::getString("NO_COPY").c_str();
-	static const char* NO_MOD = LLTrans::getString("NO_MOD").c_str();
-	static const char* NO_XFER = LLTrans::getString("NO_XFER").c_str();
+	// String table is loaded before login screen and inventory items are
+	// loaded after login, so LLTrans should be ready.
+	static std::string NO_COPY =LLTrans::getString("no_copy");
+	static std::string NO_MOD = LLTrans::getString("no_modify");
+	static std::string NO_XFER = LLTrans::getString("no_transfer");
 
 	std::string suffix;
 	LLInventoryItem* item = getItem();
@@ -1075,26 +1083,26 @@ std::string LLItemBridge::getLabelSuffix() const
 		if(LLAssetType::AT_CALLINGCARD != item->getType()
 		   && item->getPermissions().getOwner() == gAgent.getID())
 		{
-			BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
-			BOOL mod = item->getPermissions().allowModifyBy(gAgent.getID());
-			BOOL xfer = item->getPermissions().allowOperationBy(PERM_TRANSFER,
-																gAgent.getID());
 			BOOL link = (item->getActualType() == LLAssetType::AT_LINK);
-
-			const char* EMPTY = "";
 			const char* LINK = " (link)"; // *TODO: Seraph translate
 			if (link) return LINK;
 
-			const char* scopy;
-			if(copy) scopy = EMPTY;
-			else scopy = NO_COPY;
-			const char* smod;
-			if(mod) smod = EMPTY;
-			else smod = NO_MOD;
-			const char* sxfer;
-			if(xfer) sxfer = EMPTY;
-			else sxfer = NO_XFER;
-			suffix = llformat("%s%s%s",scopy,smod,sxfer);
+			BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
+			if (!copy)
+			{
+				suffix += NO_COPY;
+			}
+			BOOL mod = item->getPermissions().allowModifyBy(gAgent.getID());
+			if (!mod)
+			{
+				suffix += NO_MOD;
+			}
+			BOOL xfer = item->getPermissions().allowOperationBy(PERM_TRANSFER,
+																gAgent.getID());
+			if (!xfer)
+			{
+				suffix += NO_XFER;
+			}
 		}
 	}
 	return suffix;
@@ -1269,7 +1277,7 @@ BOOL LLFolderBridge::isItemRemovable()
 		return FALSE;
 	}
 
-	if(!model->isObjectDescendentOf(mUUID, gAgent.getInventoryRootID()))
+	if(!model->isObjectDescendentOf(mUUID, gInventory.getRootFolderID()))
 	{
 		return FALSE;
 	}
@@ -2525,9 +2533,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			// everything in the active window so that we don't follow
 			// the selection to its new location (which is very
 			// annoying).
-			if (LLInventoryView::getActiveInventory())
+			if (LLFloaterInventory::getActiveInventory())
 			{
-				LLInventoryPanel* active_panel = LLInventoryView::getActiveInventory()->getPanel();
+				LLInventoryPanel* active_panel = LLFloaterInventory::getActiveInventory()->getPanel();
 				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
 				if (active_panel && (panel != active_panel))
 				{
@@ -3348,7 +3356,7 @@ void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 		LLUUID object_id = mUUID;
 		LLViewerInventoryItem* item;
 		item = (LLViewerInventoryItem*)gInventory.getItem(object_id);
-		if(item && gInventory.isObjectDescendentOf(object_id, gAgent.getInventoryRootID()))
+		if(item && gInventory.isObjectDescendentOf(object_id, gInventory.getRootFolderID()))
 		{
 			rez_attachment(item, NULL);
 		}
@@ -3815,7 +3823,7 @@ void LLOutfitObserver::done()
 		}
 		if(pid.isNull())
 		{
-			pid = gAgent.getInventoryRootID();
+			pid = gInventory.getRootFolderID();
 		}
 		
 		LLUUID cat_id = gInventory.createNewCategory(
@@ -3922,7 +3930,7 @@ void wear_outfit_by_name(const std::string& name)
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
 	LLNameCategoryCollector has_name(name);
-	gInventory.collectDescendentsIf(gAgent.getInventoryRootID(),
+	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
 									cat_array,
 									item_array,
 									LLInventoryModel::EXCLUDE_TRASH,
@@ -4960,8 +4968,8 @@ BOOL LLWearableBridgeAction::isInTrash() const
 BOOL LLWearableBridgeAction::isAgentInventory() const
 {
 	if(!mModel) return FALSE;
-	if(gAgent.getInventoryRootID() == mUUID) return TRUE;
-	return mModel->isObjectDescendentOf(mUUID, gAgent.getInventoryRootID());
+	if(gInventory.getRootFolderID() == mUUID) return TRUE;
+	return mModel->isObjectDescendentOf(mUUID, gInventory.getRootFolderID());
 }
 
 void LLWearableBridgeAction::wearOnAvatar()

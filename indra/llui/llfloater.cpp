@@ -191,7 +191,7 @@ bool LLFloater::KeyCompare::equate(const LLSD& a, const LLSD& b)
 //static 
 const LLFloater::Params& LLFloater::getDefaultParams()
 {
-	return LLUICtrlFactory::getDefaultParams<LLFloater::Params>();
+	return LLUICtrlFactory::getDefaultParams<LLFloater>();
 }
 
 
@@ -560,6 +560,7 @@ void LLFloater::openFloater(const LLSD& key)
 		setVisibleAndFrontmost(mAutoFocus);
 	}
 
+	mOpenSignal(this, getValue());
 	onOpen(key);
 }
 
@@ -623,6 +624,7 @@ void LLFloater::closeFloater(bool app_quitting)
 		}
 		
 		// Let floater do cleanup.
+		mCloseSignal(this, getValue());
 		onClose(app_quitting);
 	}
 }
@@ -1709,6 +1711,33 @@ void LLFloater::buildButtons()
 	updateButtons();
 }
 
+void LLFloater::initOpenCallback(const OpenCallbackParam& cb, open_signal_t& sig)
+{
+	if (cb.function.isProvided())
+	{
+		if (cb.parameter.isProvided())
+			sig.connect(boost::bind(cb.function(), _1, cb.parameter));
+		else
+			sig.connect(cb.function());
+	}
+	else
+	{
+		std::string function_name = cb.function_name;
+		open_callback_t* func = (CallbackRegistry<open_callback_t>::getValue(function_name));
+		if (func)
+		{
+			if (cb.parameter.isProvided())
+				sig.connect(boost::bind((*func), _1, cb.parameter));
+			else
+				sig.connect(*func);
+		}
+		else if (!function_name.empty())
+		{
+			llwarns << "No callback found for: '" << function_name << "' in control: " << getName() << llendl;
+		}			
+	}
+}
+
 /////////////////////////////////////////////////////
 // LLFloaterView
 
@@ -2462,18 +2491,25 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	{
 		mVisibilityControl = "t"; // flag to build mVisibilityControl name once mInstanceName is set
 	}
+	
+	// open callback 
+	if (p.open_callback.isProvided())
+		initOpenCallback(p.open_callback, mOpenSignal);
+	// close callback 
+	if (p.close_callback.isProvided())
+		initOpenCallback(p.close_callback, mCloseSignal);
 }
 
 void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, BOOL open_floater, LLXMLNodePtr output_node)
 {
-	Params params(LLUICtrlFactory::getDefaultParams<LLFloater::Params>());
+	Params params(LLUICtrlFactory::getDefaultParams<LLFloater>());
 	LLXUIParser::instance().readXUI(node, params);
 
 	if (output_node)
 	{
 		Params output_params(params);
 		setupParamsForExport(output_params, parent);
-        Params default_params(LLUICtrlFactory::getDefaultParams<LLFloater::Params>());
+        Params default_params(LLUICtrlFactory::getDefaultParams<LLFloater>());
 		output_node->setName(node->getName()->mString);
 		LLXUIParser::instance().writeXUI(
 			output_node, output_params, &default_params);
@@ -2490,7 +2526,7 @@ void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, BOOL open_floa
 		LLFloater::setFloaterHost((LLMultiFloater*) this);
 	}
 
-	LLUICtrlFactory::createChildren(this, node, output_node);
+	LLUICtrlFactory::createChildren(this, node, child_registry_t::instance(), output_node);
 
 	if (node->hasName("multi_floater"))
 	{

@@ -30,17 +30,13 @@
  * $/LicenseInfo$
  */
 
-#define INSTANTIATE_GETCHILD_TEXTBOX
-
 #include "linden_common.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
 #include "llfocusmgr.h"
 #include "llwindow.h"
 
-template LLTextBox* LLView::getChild<LLTextBox>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-
-static LLDefaultWidgetRegistry::Register<LLTextBox> r("text");
+static LLDefaultChildRegistry::Register<LLTextBox> r("text");
 
 LLTextBox::Params::Params()
 :	text_color("text_color"),

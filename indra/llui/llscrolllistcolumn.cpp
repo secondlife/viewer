@@ -291,7 +291,7 @@ void LLScrollListColumn::SortNames::declareValues()
 //static 
 const LLScrollListColumn::Params& LLScrollListColumn::getDefaultParams()
 {
-	return LLUICtrlFactory::getDefaultParams<LLScrollListColumn::Params>();
+	return LLUICtrlFactory::getDefaultParams<LLScrollListColumn>();
 }
 
 

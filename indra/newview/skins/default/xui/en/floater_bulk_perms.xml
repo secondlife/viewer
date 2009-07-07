@@ -224,7 +224,10 @@
      left="8"
      name="check_all"
      top="257"
-     width="100" />
+     width="100">
+      <button.commit_callback
+       function="BulkPermission.CheckAll" />
+    </button>
     <button
      follows="left|top"
      height="20"
@@ -234,7 +237,10 @@
      left_delta="0"
      name="check_none"
      top_pad="4"
-     width="100" />
+     width="100" >
+      <button.commit_callback
+       function="BulkPermission.UncheckAll"/>
+    </button>
     <text
      type="string"
      length="1"
@@ -295,10 +301,13 @@
      left_delta="78"
      name="next_owner_copy"
      top_delta="0"
-     width="88" />
-    <check_box
+     width="88">
+      <check_box.commit_callback
+       function="BulkPermission.CommitCopy"/>
+     </check_box>
+     <check_box
      control_name="BulkChangeNextOwnerTransfer"
-     enabled="false"
+     enabled_control="BulkChangeNextOwnerCopy" 
      height="16"
      initial_value="true"
      label="Resell/Give away"
@@ -324,7 +333,10 @@
      left="65"
      name="apply"
      top_pad="10"
-     width="100" />
+     width="100">
+      <button.commit_callback
+       function="BulkPermission.Apply"/>
+    </button>
     <button
      follows="left|top"
      height="20"
@@ -333,5 +345,8 @@
      left_pad="5"
      name="close"
      top_delta="0"
-     width="100" />
+     width="100" >
+      <button.commit_callback
+       function="BulkPermission.Close"/>
+    </button>
 </floater>

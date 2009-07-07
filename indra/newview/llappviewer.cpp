@@ -152,8 +152,9 @@
 #include "llviewerfloaterreg.h"
 #include "llcommandlineparser.h"
 #include "llfloatermemleak.h"
+#include "llfloaterreg.h"
 #include "llfloatersnapshot.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 
 // includes for idle() idleShutdown()
 #include "llviewercontrol.h"
@@ -234,9 +235,6 @@ LLFrameTimer gForegroundTime;
 LLTimer gLogoutTimer;
 static const F32 LOGOUT_REQUEST_TIME = 6.f;  // this will be cut short by the LogoutReply msg.
 F32 gLogoutMaxTime = LOGOUT_REQUEST_TIME;
-
-LLUUID gInventoryLibraryOwner;
-LLUUID gInventoryLibraryRoot;
 
 BOOL				gDisconnected = FALSE;
 
@@ -930,9 +928,10 @@ bool LLAppViewer::mainLoop()
 			
 #endif
 			//memory leaking simulation
-			if(LLFloaterMemLeak::getInstance())
+			LLFloaterMemLeak* mem_leak_instance = LLFloaterReg::getTypedInstance<LLFloaterMemLeak>("mem_leaking");
+			if(mem_leak_instance)
 			{
-				LLFloaterMemLeak::getInstance()->idle() ;				
+				mem_leak_instance->idle() ;				
 			}			
 
             // canonical per-frame event
@@ -1099,9 +1098,10 @@ bool LLAppViewer::mainLoop()
 		catch(std::bad_alloc)
 		{			
 			//stop memory leaking simulation
-			if(LLFloaterMemLeak::getInstance())
+			LLFloaterMemLeak* mem_leak_instance = LLFloaterReg::getTypedInstance<LLFloaterMemLeak>("mem_leaking");
+			if(mem_leak_instance)
 			{
-				LLFloaterMemLeak::getInstance()->stop() ;				
+				mem_leak_instance->stop() ;				
 				llwarns << "Bad memory allocation in LLAppViewer::mainLoop()!" << llendl ;
 			}
 			else
@@ -1126,9 +1126,10 @@ bool LLAppViewer::mainLoop()
 			llwarns << "Bad memory allocation when saveFinalSnapshot() is called!" << llendl ;
 
 			//stop memory leaking simulation
-			if(LLFloaterMemLeak::getInstance())
+			LLFloaterMemLeak* mem_leak_instance = LLFloaterReg::getTypedInstance<LLFloaterMemLeak>("mem_leaking");
+			if(mem_leak_instance)
 			{
-				LLFloaterMemLeak::getInstance()->stop() ;				
+				mem_leak_instance->stop() ;				
 			}	
 		}
 	}
@@ -3864,20 +3865,20 @@ void LLAppViewer::disconnectViewer()
 		LLSelectMgr::getInstance()->deselectAll();
 	}
 
-	if (!gNoRender)
+	// save inventory if appropriate
+	gInventory.cache(gInventory.getRootFolderID(), gAgent.getID());
+	if (gInventory.getLibraryRootFolderID().notNull()
+		&& gInventory.getLibraryOwnerID().notNull())
 	{
-		// save inventory if appropriate
-		gInventory.cache(gAgent.getInventoryRootID(), gAgent.getID());
-		if(gInventoryLibraryRoot.notNull() && gInventoryLibraryOwner.notNull())
-		{
-			gInventory.cache(gInventoryLibraryRoot, gInventoryLibraryOwner);
-		}
+		gInventory.cache(
+			gInventory.getLibraryRootFolderID(),
+			gInventory.getLibraryOwnerID());
 	}
 
 	saveNameCache();
 
 	// close inventory interface, close all windows
-	LLInventoryView::cleanup();
+	LLFloaterInventory::cleanup();
 
 	gAgentWearables.cleanup();
 

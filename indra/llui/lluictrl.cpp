@@ -38,7 +38,7 @@
 #include "llpanel.h"
 #include "lluictrlfactory.h"
 
-static LLDefaultWidgetRegistry::Register<LLUICtrl> r("ui_ctrl");
+static LLDefaultChildRegistry::Register<LLUICtrl> r("ui_ctrl");
 
 LLUICtrl::Params::Params()
 :	tab_stop("tab_stop", true),
@@ -116,7 +116,7 @@ void LLFocusableElement::setFocus(BOOL b)
 //static 
 const LLUICtrl::Params& LLUICtrl::getDefaultParams()
 {
-	return LLUICtrlFactory::getDefaultParams<LLUICtrl::Params>();
+	return LLUICtrlFactory::getDefaultParams<LLUICtrl>();
 }
 
 

@@ -45,7 +45,7 @@
 #include "llgesturemgr.h"
 
 #include "llinventorybridge.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 
 #include "llviewerregion.h"
 #include "llviewerobjectlist.h"
@@ -870,7 +870,7 @@ void menu_create_inventory_item(LLFolderView* folder, LLFolderBridge *bridge, co
 		}
 		else
 		{
-			category = gInventory.createNewCategory(gAgent.getInventoryRootID(), LLAssetType::AT_NONE, LLStringUtil::null);
+			category = gInventory.createNewCategory(gInventory.getRootFolderID(), LLAssetType::AT_NONE, LLStringUtil::null);
 		}
 		gInventory.notifyObservers();
 		folder->setSelectionByID(category, TRUE);

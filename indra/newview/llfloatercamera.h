@@ -40,12 +40,12 @@ class LLJoystickCameraZoom;
 class LLJoystickCameraTrack;
 
 class LLFloaterCamera
-	:	public LLFloater,
-		public LLFloaterSingleton<LLFloaterCamera>
+	:	public LLFloater
 {
-	friend class LLUISingleton<LLFloaterCamera, VisibilityPolicy<LLFloater> >;
+	friend class LLFloaterReg;
 	
 private:
+
 	LLFloaterCamera(const LLSD& val);
 	~LLFloaterCamera() {};
 	
@@ -53,6 +53,7 @@ private:
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ BOOL postBuild();
 public:
+	
 	LLJoystickCameraRotate* mRotate;
 	LLJoystickCameraZoom*	mZoom;
 	LLJoystickCameraTrack*	mTrack;

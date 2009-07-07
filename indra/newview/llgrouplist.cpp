@@ -40,7 +40,7 @@
 // newview
 #include "llagent.h"
 
-static LLDefaultWidgetRegistry::Register<LLGroupList> r("group_list");
+static LLDefaultChildRegistry::Register<LLGroupList> r("group_list");
 
 LLGroupList::LLGroupList(const Params& p)
 :	LLAvatarList(p)

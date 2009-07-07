@@ -313,9 +313,6 @@ extern LLTimer gLogoutTimer;
 extern F32 gSimLastTime; 
 extern F32 gSimFrames;
 
-extern LLUUID gInventoryLibraryOwner;
-extern LLUUID gInventoryLibraryRoot;
-
 extern BOOL		gDisconnected;
 
 // Map scale in pixels per region

@@ -264,7 +264,7 @@ protected:
 	typedef std::map<llwchar,embedded_data_t*> embedded_map_t;
 	mutable embedded_map_t mEmbeddedChars;
 	
-	LLFontDescriptor mFontDesc;
+	LLFontDescriptor mFontDescriptor;
 
 	// Registry holds all instantiated fonts.
 	static LLFontRegistry* sFontRegistry;
@@ -276,8 +276,8 @@ public:
 	static LLCoordFont sCurOrigin;
 	static std::vector<LLCoordFont> sOriginStack;
 
-	const LLFontDescriptor &getFontDesc() const { return mFontDesc; }
-	void setFontDesc(const LLFontDescriptor& font_desc) { mFontDesc = font_desc; }
+	const LLFontDescriptor &getFontDesc() const { return mFontDescriptor; }
+	void setFontDesc(const LLFontDescriptor& font_desc) { mFontDescriptor = font_desc; }
 };
 
 #endif

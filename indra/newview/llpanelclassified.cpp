@@ -931,12 +931,12 @@ bool LLPanelClassified::confirmPublish(const LLSD& notification, const LLSD& res
 void LLPanelClassified::onClickTeleport(void* data)
 {
     LLPanelClassified* self = (LLPanelClassified*)data;
-
-    if (!self->mPosGlobal.isExactlyZero())
+	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+	
+    if (!self->mPosGlobal.isExactlyZero()&&worldmap_instance)
     {
-        gAgent.teleportViaLocation(self->mPosGlobal);
-        LLFloaterWorldMap::getInstance()->trackLocation(self->mPosGlobal);
-
+        gAgent.teleportViaLocation(self->mPosGlobal);		
+        worldmap_instance->trackLocation(self->mPosGlobal);
 		self->sendClassifiedClickMessage("teleport");
     }
 }
@@ -946,9 +946,12 @@ void LLPanelClassified::onClickTeleport(void* data)
 void LLPanelClassified::onClickMap(void* data)
 {
 	LLPanelClassified* self = (LLPanelClassified*)data;
-	LLFloaterWorldMap::getInstance()->trackLocation(self->mPosGlobal);
-	LLFloaterReg::showInstance("world_map", "center");
-
+	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+	if(worldmap_instance)
+	{
+		worldmap_instance->trackLocation(self->mPosGlobal);
+		LLFloaterReg::showInstance("world_map", "center");
+	}
 	self->sendClassifiedClickMessage("map");
 }
 

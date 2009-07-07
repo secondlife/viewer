@@ -38,7 +38,8 @@
 #include "llviewercontrol.h"
 #include "llcallingcard.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
+#include "llfoldervieweventlistener.h"
 
 enum EInventoryIcon
 {
@@ -147,6 +148,7 @@ public:
 	virtual const std::string& getName() const;
 	virtual const std::string& getDisplayName() const;
 	virtual PermissionMask getPermissionMask() const;
+	virtual LLAssetType::EType getPreferredType() const;
 	virtual time_t getCreationDate() const;
 	virtual LLFontGL::StyleFlags getLabelStyle() const
 	{

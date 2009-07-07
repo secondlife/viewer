@@ -87,14 +87,12 @@
 #include "llfloateractivespeakers.h"
 #include "llfloateranimpreview.h"
 #include "llfloateravatartextures.h"
-#include "llfloaterbeacons.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloaterbump.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloaterbuyland.h"
-#include "llfloatercamera.h"
 #include "llfloaterchat.h"
 #include "llfloatercustomize.h"
 #include "llfloaterdaycycle.h"
@@ -146,7 +144,7 @@
 #include "llimagetga.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llkeyboard.h"
 #include "llpanellogin.h"
 #include "llmenucommands.h"
@@ -500,23 +498,23 @@ void init_menus()
 	///
 	/// Pie menus
 	///
-	gPieSelf = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_pie_self.xml", gMenuHolder);
+	gPieSelf = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_pie_self.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
 	// TomY TODO: what shall we do about these?
 	gDetachScreenPieMenu = gMenuHolder->getChild<LLContextMenu>("Object Detach HUD", true);
 	gDetachPieMenu = gMenuHolder->getChild<LLContextMenu>("Object Detach", true);
 
-	gPieAvatar = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_pie_avatar.xml", gMenuHolder);
+	gPieAvatar = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_pie_avatar.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
-	gPieObject = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_pie_object.xml", gMenuHolder);
+	gPieObject = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_pie_object.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
 	gAttachScreenPieMenu = gMenuHolder->getChild<LLContextMenu>("Object Attach HUD");
 	gAttachPieMenu = gMenuHolder->getChild<LLContextMenu>("Object Attach");
 	gPieRate = gMenuHolder->getChild<LLContextMenu>("Rate Menu");
 
-	gPieAttachment = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_pie_attachment.xml", gMenuHolder);
+	gPieAttachment = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_pie_attachment.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
-	gPieLand = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_pie_land.xml", gMenuHolder);
+	gPieLand = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_pie_land.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
 	///
 	/// set up the colors
@@ -544,7 +542,7 @@ void init_menus()
 	{
 		color = LLUIColorTable::instance().getColor( "MenuNonProductionBgColor" );
 	}
-	gMenuBarView = LLUICtrlFactory::getInstance()->createFromFile<LLMenuBarGL>("menu_viewer.xml", gMenuHolder);
+	gMenuBarView = LLUICtrlFactory::getInstance()->createFromFile<LLMenuBarGL>("menu_viewer.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	gMenuBarView->setRect(LLRect(0, top, 0, top - MENU_BAR_HEIGHT));
 	gMenuBarView->setBackgroundColor( color );
 
@@ -575,7 +573,7 @@ void init_menus()
 	// Let land based option enable when parcel changes
 	gMenuParcelObserver = new LLMenuParcelObserver();
 
-	gLoginMenuBarView = LLUICtrlFactory::getInstance()->createFromFile<LLMenuBarGL>("menu_login.xml", gMenuHolder);
+	gLoginMenuBarView = LLUICtrlFactory::getInstance()->createFromFile<LLMenuBarGL>("menu_login.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	gLoginMenuBarView->arrangeAndClear();
 	LLRect menuBarRect = gLoginMenuBarView->getRect();
 	gLoginMenuBarView->setRect(LLRect(menuBarRect.mLeft, menuBarRect.mTop, gViewerWindow->getRootView()->getRect().getWidth() - menuBarRect.mLeft,  menuBarRect.mBottom));
@@ -612,11 +610,6 @@ class LLAdvancedToggleConsole : public view_listener_t
 			toggle_visibility( (void*)gDebugView->mMemoryView );
 		}
 #endif
-		else if ("notifications" == console_type)
-		{
-			//LLFloaterNotificationConsole::showInstance();
-			LLFloaterReg::showInstance("notifications_console");
-		}
 		return true;
 	}
 };
@@ -1117,30 +1110,6 @@ class LLAdvancedCheckFrameTest : public view_listener_t
 };
 
 
-	//
-/////////////////////////////
-//// HIDE SELECTED OBJECTS //
-/////////////////////////////
-//
-//
-//class LLAdvancedToggleHideSelectedObjects : public view_listener_t
-//{
-//	bool handleEvent(const LLSD& userdata)
-//	{
-//		LLSelectMgr::sHideSelectedObjects = !(LLSelectMgr::sHideSelectedObjects);
-//		return true;
-//	}
-//};
-	//
-//class LLAdvancedCheckHideSelectedObjects : public view_listener_t
-//{
-//	bool handleEvent(const LLSD& userdata)
-//	{
-//		bool new_value = gHideSelectedObjects;
-//		return new_value;
-//	}
-//};
-
 ///////////////////////////
 // SELECTED TEXTURE INFO //
 ///////////////////////////
@@ -1506,16 +1475,6 @@ class LLAdvancedCheckDebugWindowProc : public view_listener_t
 
 // ------------------------------XUI MENU ---------------------------
 
-
-class LLAdvancedShowFontTest : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterFontTest::show(NULL);
-		return true;
-	}
-};
-
 //////////////////////
 // LOAD UI FROM XML //
 //////////////////////
@@ -1546,6 +1505,15 @@ class LLAdvancedSaveUIToXML : public view_listener_t
 }
 };
 
+
+class LLAdvancedSendTestIms : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLIMModel::instance().testMessages();
+		return true;
+}
+};
 
 
 ///////////////
@@ -1987,18 +1955,6 @@ class LLAdvancedDumpAvatarLocalTextures : public view_listener_t
 	}
 };
 
-////////////////////////////////
-// Memory Leaking Simulation  //
-////////////////////////////////
-class LLAdvancedMemoryLeakingSimulation : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterMemLeak::show(NULL);
-		return true;
-	}
-};
-
 #endif
 	
 /////////////////
@@ -2147,7 +2103,6 @@ class LLAdvancedShowDebugSettings : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-	//	LLFloaterSettingsDebug::showInstance(userdata);
 		LLFloaterReg::showInstance("settings_debug",userdata);
 		return true;
 	}
@@ -2414,14 +2369,6 @@ class LLAdminHandleRegionDumpTempAssetData: public view_listener_t
 	}
 };
 //Admin (Top Level)
-class LLAdminShowGodTools: public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterGodTools::showInstance(LLSD());
-		return true;
-	}
-};
 
 class LLAdminOnSaveState: public view_listener_t
 {
@@ -2581,7 +2528,7 @@ class LLObjectEnableTouch : public view_listener_t
 //		label.assign("Touch");
 //	}
 //}
-
+/*
 bool handle_object_open()
 {
 	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
@@ -2598,7 +2545,7 @@ class LLObjectOpen : public view_listener_t
 		return handle_object_open();
 	}
 };
-
+*/
 class LLObjectEnableOpen : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -2714,16 +2661,6 @@ class LLObjectEdit : public view_listener_t
 		return true;
 	}
 };
-
-class LLObjectInspect : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterInspect::show();
-		return true;
-	}
-};
-
 
 //---------------------------------------------------------------------------
 // Land pie menu
@@ -4382,7 +4319,7 @@ void handle_take()
 			}
 
 			// check library
-			if(gInventory.isObjectDescendentOf(category_id, gInventoryLibraryRoot))
+			if(gInventory.isObjectDescendentOf(category_id, gInventory.getLibraryRootFolderID()))
 			{
 				category_id.setNull();
 			}
@@ -5612,34 +5549,9 @@ class LLShowFloater : public view_listener_t
 		{
 			LLToolBar::toggle(NULL);
 		}
-		else if (floater_name == "mute list")
-		{
-			 LLFloaterReg::toggleInstance("mute");
-		}
-		else if (floater_name == "camera controls")
-		{
-			LLFloaterCamera::toggleInstance();
-		}
-		else if (floater_name == "movement controls")
-		{
-			LLFloaterMove::toggleInstance();
-		}
 		else if (floater_name == "my land")
 		{
 			LLFloaterLandHoldings::show(NULL);
-		}
-		else if (floater_name == "about land")
-		{
-			if (LLViewerParcelMgr::getInstance()->selectionEmpty())
-			{
-				LLViewerParcelMgr::getInstance()->selectParcelAt(gAgent.getPositionGlobal());
-			}
-
-			LLFloaterLand::showInstance();
-		}
-		else if (floater_name == "about region")
-		{
-			LLFloaterRegionInfo::showInstance();
 		}
 		else if (floater_name == "buy land")
 		{
@@ -5650,10 +5562,6 @@ class LLShowFloater : public view_listener_t
 			
 			LLViewerParcelMgr::getInstance()->startBuyLand();
 		}
-		else if (floater_name == "grid options")
-		{
-			LLFloaterReg::showInstance("build_options");
-		}
 		else if (floater_name == "script errors")
 		{
 			LLFloaterScriptDebug::show(LLUUID::null);
@@ -5662,47 +5570,15 @@ class LLShowFloater : public view_listener_t
 		{
 			gViewerHtmlHelp.show();
 		}
-		else if (floater_name == "help tutorial")
-		{
-			LLFloaterHUD::showHUD();
-		}
 		else if (floater_name == "complaint reporter")
 		{
 			// Prevent menu from appearing in screen shot.
 			gMenuHolder->hideMenus();
 			LLFloaterReporter::showFromMenu(COMPLAINT_REPORT);
 		}
-		else if (floater_name == "mean events")
-		{
-			if (!gNoRender)
-			{
-				//LLFloaterBump::showInstance();
-				LLFloaterReg::showInstance("bumps");
-			}
-		}
-		else if (floater_name == "lag meter")
-		{
-			LLFloaterReg::showInstance("lagmeter");
-		}
 		else if (floater_name == "buy currency")
 		{
 			LLFloaterBuyCurrency::buyCurrency();
-		}
-		else if (floater_name == "about")
-		{
-			LLFloaterReg::showInstance("sl_about");
-		}
-		else if (floater_name == "active speakers")
-		{
-			LLFloaterActiveSpeakers::toggleInstance(LLSD());
-		}
-		else if (floater_name == "beacons")
-		{
-			LLFloaterBeacons::toggleInstance(LLSD());
-		}
-		else if (floater_name == "perm prefs")
-		{
-			LLFloaterPerms::toggleInstance(LLSD());
 		}
 		else
 		{
@@ -5721,30 +5597,6 @@ class LLFloaterVisible : public view_listener_t
 		if (floater_name == "toolbar")
 		{
 			new_value = LLToolBar::visible(NULL);
-		}
-		else if (floater_name == "mute list")
-		{
-			new_value = LLFloaterReg::instanceVisible("mute");
-		}
-		else if (floater_name == "camera controls")
-		{
-			new_value = LLFloaterCamera::instanceVisible();
-		}
-		else if (floater_name == "movement controls")
-		{
-			new_value = LLFloaterMove::instanceVisible();
-		}
-		else if (floater_name == "stat bar")
-		{
-			new_value = gSavedSettings.getBOOL("ShowDebugStats");
-		}
-		else if (floater_name == "active speakers")
-		{
-			new_value = LLFloaterActiveSpeakers::instanceVisible(LLSD());
-		}
-		else if (floater_name == "beacons")
-		{
-			new_value = LLFloaterBeacons::instanceVisible(LLSD());
 		}
 		else
 		{
@@ -6440,8 +6292,8 @@ class LLToolsSelectedScriptAction : public view_listener_t
 			msg = "RunningNot";
 		}
 		LLUUID id; id.generate();
-		LLFloater* floater = LLFloaterReg::getInstance(name, LLSD(id));
-		LLFloaterScriptQueue* queue = dynamic_cast<LLFloaterScriptQueue*>(floater);
+		
+		LLFloaterScriptQueue* queue =LLFloaterReg::getTypedInstance<LLFloaterScriptQueue>(name, LLSD(id));
 		if (queue)
 		{
 			queue->setMono(mono);
@@ -6450,7 +6302,7 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		else
 		{
 			llwarns << "Failed to generate LLFloaterScriptQueue with action: " << action << llendl;
-			delete floater;
+			delete queue;
 		}
 		return true;
 	}
@@ -7016,7 +6868,7 @@ void handle_grab_texture(void* data)
 			gInventory.updateItem(item);
 			gInventory.notifyObservers();
 
-			LLInventoryView* view = LLInventoryView::getActiveInventory();
+			LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
 
 			// Show the preview panel for textures to let
 			// user know that the image is now in inventory.
@@ -7026,7 +6878,7 @@ void handle_grab_texture(void* data)
 
 				view->getPanel()->setSelection(item_id, TAKE_FOCUS_NO);
 				view->getPanel()->openSelected();
-				//LLInventoryView::dumpSelectionInformation((void*)view);
+				//LLFloaterInventory::dumpSelectionInformation((void*)view);
 				// restore keyboard focus
 				gFocusMgr.setKeyboardFocus(focus_ctrl);
 			}
@@ -7261,10 +7113,14 @@ void handle_buy_currency_test(void*)
 
 	llinfos << "buy currency url " << url << llendl;
 
-	LLFloaterHtmlCurrency* floater = LLFloaterHtmlCurrency::showInstance(url);
-	// Needed so we can use secondlife:///app/floater/self/close SLURLs
-	floater->setTrusted(true);
-	floater->center();
+	LLFloaterHtmlCurrency* floater =LLFloaterReg::getTypedInstance<LLFloaterHtmlCurrency>("html_currency", LLSD(url));
+	if(floater)
+	{
+		LLFloaterReg::showInstance("html_currency", LLSD(url));
+		// Needed so we can use secondlife:///app/floater/self/close SLURLs
+		floater->setTrusted(true);
+		floater->center();
+	}
 }
 
 void handle_rebake_textures(void*)
@@ -7984,11 +7840,11 @@ void initialize_menus()
 
 	// Advanced > XUI
 	commit.add("Advanced.ReloadColorSettings", boost::bind(&LLUIColorTable::loadFromSettings, LLUIColorTable::getInstance()));
-	view_listener_t::addMenu(new LLAdvancedShowFontTest(), "Advanced.ShowFontTest");
 	view_listener_t::addMenu(new LLAdvancedLoadUIFromXML(), "Advanced.LoadUIFromXML");
 	view_listener_t::addMenu(new LLAdvancedSaveUIToXML(), "Advanced.SaveUIToXML");
 	view_listener_t::addMenu(new LLAdvancedToggleXUINames(), "Advanced.ToggleXUINames");
 	view_listener_t::addMenu(new LLAdvancedCheckXUINames(), "Advanced.CheckXUINames");
+	view_listener_t::addMenu(new LLAdvancedSendTestIms(), "Advanced.SendTestIMs");
 
 	// Advanced > Character > Grab Baked Texture
 	view_listener_t::addMenu(new LLAdvancedGrabBakedTexture(), "Advanced.GrabBakedTexture");
@@ -8024,7 +7880,6 @@ void initialize_menus()
 	#ifndef LL_RELEASE_FOR_DOWNLOAD
 	view_listener_t::addMenu(new LLAdvancedDebugAvatarTextures(), "Advanced.DebugAvatarTextures");
 	view_listener_t::addMenu(new LLAdvancedDumpAvatarLocalTextures(), "Advanced.DumpAvatarLocalTextures");
-	view_listener_t::addMenu(new LLAdvancedMemoryLeakingSimulation(), "Advanced.MemoryLeakingSimulation");
 	#endif
 	// Advanced > Network
 	view_listener_t::addMenu(new LLAdvancedEnableMessageLog(), "Advanced.EnableMessageLog");
@@ -8072,7 +7927,6 @@ void initialize_menus()
 	// Admin >Region
 	view_listener_t::addMenu(new LLAdminHandleRegionDumpTempAssetData(), "Admin.HandleRegionDumpTempAssetData");
 	// Admin top level
-	view_listener_t::addMenu(new LLAdminShowGodTools(), "Admin.ShowGodTools");
 	view_listener_t::addMenu(new LLAdminOnSaveState(), "Admin.OnSaveState");
 
 	// Self pie menu
@@ -8100,7 +7954,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAvatarEnableFreezeEject(), "Avatar.EnableFreezeEject");
 
 	// Object pie menu
-	view_listener_t::addMenu(new LLObjectOpen(), "Object.Open");
 	view_listener_t::addMenu(new LLObjectBuild(), "Object.Build");
 	view_listener_t::addMenu(new LLObjectTouch(), "Object.Touch");
 	view_listener_t::addMenu(new LLObjectSitOrStand(), "Object.SitOrStand");
@@ -8111,7 +7964,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLObjectMute(), "Object.Mute");
 	view_listener_t::addMenu(new LLObjectBuy(), "Object.Buy");
 	view_listener_t::addMenu(new LLObjectEdit(), "Object.Edit");
-	view_listener_t::addMenu(new LLObjectInspect(), "Object.Inspect");
 
 	view_listener_t::addMenu(new LLObjectEnableOpen(), "Object.EnableOpen");
 	view_listener_t::addMenu(new LLObjectEnableTouch(), "Object.EnableTouch");

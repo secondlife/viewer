@@ -43,7 +43,7 @@
 #include "llimagegl.h"
 #include "lluictrlfactory.h"
 
-static LLDefaultWidgetRegistry::Register<LLSlider> r1("slider_bar");
+static LLDefaultChildRegistry::Register<LLSlider> r1("slider_bar");
 
 LLSlider::Params::Params()
 :	track_color("track_color"),

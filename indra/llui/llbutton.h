@@ -352,11 +352,5 @@ private:
 	LLFrameTimer	mFlashingTimer;
 };
 
-#ifdef LL_WINDOWS
-#ifndef INSTANTIATE_GETCHILD_BUTTON
-#pragma warning (disable : 4231)
-extern template LLButton* LLView::getChild<LLButton>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-#endif
-#endif
 
 #endif  // LL_LLBUTTON_H

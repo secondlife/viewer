@@ -49,11 +49,11 @@
 
 #include "llglheaders.h"
 
-static LLDefaultWidgetRegistry::Register<LLJoystickAgentSlide> r1("joystick_slide");
-static LLDefaultWidgetRegistry::Register<LLJoystickAgentTurn> r2("joystick_turn");
-static LLDefaultWidgetRegistry::Register<LLJoystickCameraRotate> r3("joystick_rotate");
-static LLDefaultWidgetRegistry::Register<LLJoystickCameraZoom> r4("joystick_zoom");
-static LLDefaultWidgetRegistry::Register<LLJoystickCameraTrack> r5("joystick_track");
+static LLDefaultChildRegistry::Register<LLJoystickAgentSlide> r1("joystick_slide");
+static LLDefaultChildRegistry::Register<LLJoystickAgentTurn> r2("joystick_turn");
+static LLDefaultChildRegistry::Register<LLJoystickCameraRotate> r3("joystick_rotate");
+static LLDefaultChildRegistry::Register<LLJoystickCameraZoom> r4("joystick_zoom");
+static LLDefaultChildRegistry::Register<LLJoystickCameraTrack> r5("joystick_track");
 
 
 

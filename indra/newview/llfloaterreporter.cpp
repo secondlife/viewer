@@ -53,7 +53,7 @@
 #include "llagent.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "lllineeditor.h"
 #include "lltexturectrl.h"
 #include "llscrolllistctrl.h"

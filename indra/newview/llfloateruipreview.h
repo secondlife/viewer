@@ -211,6 +211,7 @@ private:
 	static void onClickToggleOverlapping(void*);
 	static void onClickCloseDisplayedFloater(void*);
 	void onLanguageComboSelect(LLUICtrl* ctrl);
+	void onClickExportSchema();
 };
 #endif // LL_LLUIPREVIEW_H
 

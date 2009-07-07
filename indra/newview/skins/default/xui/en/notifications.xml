@@ -13,7 +13,7 @@
   <global name="implicitclosebutton">
 		Close
   </global>
-  
+    
   <template name="okbutton">
     <form>
       <button
@@ -4980,347 +4980,347 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notifytip.tga"
    name="SystemMessageTip"
    type="notifytip">
-[MESSAGE]
+    [MESSAGE]
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="Cancelled"
    type="notifytip">
-Cancelled
+    Cancelled
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="CancelledSit"
    type="notifytip">
-Cancelled Sit
+    Cancelled Sit
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="CancelledAttach"
    type="notifytip">
-Cancelled Attach
+    Cancelled Attach
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="ReplacedMissingWearable"
    type="notifytip">
-Replaced missing clothing/body part with default.
+    Replaced missing clothing/body part with default.
   </notification>
 
   <notification
    icon="groupnotify"
    name="GroupNotice"
    type="groupnotify">
-Topic: [SUBJECT], Message: [MESSAGE]
+    Topic: [SUBJECT], Message: [MESSAGE]
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="FriendOnline"
    type="notifytip">
-[FIRST] [LAST] is Online
+    [FIRST] [LAST] is Online
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="FriendOffline"
    type="notifytip">
-[FIRST] [LAST] is Offline
+    [FIRST] [LAST] is Offline
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="AddSelfFriend"
    type="notifytip">
-You cannot add yourself as a friend.
+    You cannot add yourself as a friend.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="UploadingAuctionSnapshot"
    type="notifytip">
-Uploading in-world and web site snapshots...
-(Takes about 5 minutes.)
+    Uploading in-world and web site snapshots...
+    (Takes about 5 minutes.)
   </notification>
 
   <notification
    icon="notify.tga"
    name="UploadPayment"
    type="notify">
-You paid L$[AMOUNT] to upload.
+    You paid L$[AMOUNT] to upload.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="UploadWebSnapshotDone"
    type="notifytip">
-Web site snapshot upload done.
+    Web site snapshot upload done.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="UploadSnapshotDone"
    type="notifytip">
-In-world snapshot upload done
+    In-world snapshot upload done
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="TerrainDownloaded"
    type="notifytip">
-Terrain.raw downloaded
+    Terrain.raw downloaded
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="GestureMissing"
    type="notifytip">
-Gesture [NAME] is missing from database.
+    Gesture [NAME] is missing from database.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="UnableToLoadGesture"
    type="notifytip">
-Unable to load gesture [NAME].
-Please try again.
+    Unable to load gesture [NAME].
+    Please try again.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="LandmarkMissing"
    type="notifytip">
-Landmark is missing from database.
+    Landmark is missing from database.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="UnableToLoadLandmark"
    type="notifytip">
-Unable to load landmark.  Please try again.
+    Unable to load landmark.  Please try again.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="CapsKeyOn"
    type="notifytip">
-Your Caps Lock key is on.
-As this will affect the password you type in, you will probably want to turn it off.
+    Your Caps Lock key is on.
+    As this will affect the password you type in, you will probably want to turn it off.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="NotecardMissing"
    type="notifytip">
-Notecard is missing from database.
+    Notecard is missing from database.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="NotecardNoPermissions"
    type="notifytip">
-Insufficient permissions to view notecard.
+    Insufficient permissions to view notecard.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="RezItemNoPermissions"
    type="notifytip">
-Insufficient permissions to rez object.
+    Insufficient permissions to rez object.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="UnableToLoadNotecard"
    type="notifytip">
-Unable to load notecard.
-Please try again.
+    Unable to load notecard.
+    Please try again.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="ScriptMissing"
    type="notifytip">
-Script is missing from database.
+    Script is missing from database.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="ScriptNoPermissions"
    type="notifytip">
-Insufficient permissions to view script.
+    Insufficient permissions to view script.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="UnableToLoadScript"
    type="notifytip">
-Unable to load script.  Please try again.
+    Unable to load script.  Please try again.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="IncompleteInventory"
    type="notifytip">
-The complete contents you are offering are not yet locally available. Please try offering those items again in a minute.
+    The complete contents you are offering are not yet locally available. Please try offering those items again in a minute.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="CannotModifyProtectedCategories"
    type="notifytip">
-You cannot modify protected categories.
+    You cannot modify protected categories.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="CannotRemoveProtectedCategories"
    type="notifytip">
-You cannot remove protected categories.
+    You cannot remove protected categories.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="OfferedCard"
    type="notifytip">
-You have offered a calling card to [FIRST] [LAST]
+    You have offered a calling card to [FIRST] [LAST]
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="UnableToBuyWhileDownloading"
    type="notifytip">
-Unable to buy while downloading object data.
-Please try again.
+    Unable to buy while downloading object data.
+    Please try again.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="UnableToLinkWhileDownloading"
    type="notifytip">
-Unable to link while downloading object data.
-Please try again.
+    Unable to link while downloading object data.
+    Please try again.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="CannotBuyObjectsFromDifferentOwners"
    type="notifytip">
-Cannot buy objects from different owners at the same time.
-Please select a single object.
+    Cannot buy objects from different owners at the same time.
+    Please select a single object.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="ObjectNotForSale"
    type="notifytip">
-Object does not appear to be for sale.
+    Object does not appear to be for sale.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="EnteringGodMode"
    type="notifytip">
-Entering god mode, level [LEVEL]
+    Entering god mode, level [LEVEL]
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="LeavingGodMode"
    type="notifytip">
-Leaving god mode, level [LEVEL]
+    Leaving god mode, level [LEVEL]
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="CopyFailed"
    type="notifytip">
-Copy failed because you lack copy permission
+    Copy failed because you lack copy permission
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="InventoryAccepted"
    type="notifytip">
-[NAME] accepted your inventory offer.
+    [NAME] accepted your inventory offer.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="InventoryDeclined"
    type="notifytip">
-[NAME] declined your inventory offer.
+    [NAME] declined your inventory offer.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="ObjectMessage"
    type="notifytip">
-[NAME]: [MESSAGE]
+    [NAME]: [MESSAGE]
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="CallingCardAccepted"
    type="notifytip">
-Your calling card was accepted.
+    Your calling card was accepted.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="CallingCardDeclined"
    type="notifytip">
-Your calling card was declined.
+    Your calling card was declined.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="TeleportToLandmark"
    type="notifytip">
-Now that you have reached the mainland, you can teleport to locations like &apos;[NAME]&apos; by clicking on the Inventory button on the bottom right of your screen, and then select the Landmarks folder.
-Double click on the landmark and click on Teleport to travel there.
+    Now that you have reached the mainland, you can teleport to locations like &apos;[NAME]&apos; by clicking on the Inventory button on the bottom right of your screen, and then select the Landmarks folder.
+    Double click on the landmark and click on Teleport to travel there.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="TeleportToPerson"
    type="notifytip">
-Now that you have reached the mainland, you can contact residents like &apos;[NAME]&apos; by clicking on the Inventory button on the bottom right of your screen, and then select the Calling Cards folder.
-Double click on the card, click on Instant Message, and type a message.
+    Now that you have reached the mainland, you can contact residents like &apos;[NAME]&apos; by clicking on the Inventory button on the bottom right of your screen, and then select the Calling Cards folder.
+    Double click on the card, click on Instant Message, and type a message.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="CantSelectLandFromMultipleRegions"
    type="notifytip">
-Can&apos;t select land across server boundaries.
-Try selecting a smaller piece of land.
+    Can&apos;t select land across server boundaries.
+    Try selecting a smaller piece of land.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="SearchWordBanned"
    type="notifytip">
-Some terms in your search query were excluded due to content restrictions as clarified in the Community Standards.
+    Some terms in your search query were excluded due to content restrictions as clarified in the Community Standards.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="NoContentToSearch"
    type="notifytip">
-Please select at least one type of content to search (PG, Mature, or Adult).
+    Please select at least one type of content to search (PG, Mature, or Adult).
   </notification>
 
   <notification
    icon="notify.tga"
    name="GroupVote"
    type="notify">
-[NAME] has proposed to vote on:
-[MESSAGE]
+    [NAME] has proposed to vote on:
+    [MESSAGE]
     <form name="form">
       <button
        index="0"
@@ -5337,17 +5337,17 @@ Please select at least one type of content to search (PG, Mature, or Adult).
    icon="notify.tga"
    name="SystemMessage"
    type="notify">
-[MESSAGE]
+    [MESSAGE]
   </notification>
 
   <notification
    icon="notify.tga"
    name="EventNotification"
    type="notify">
-Event Notification:
+    Event Notification:
 
-[NAME]
-[DATE]
+    [NAME]
+    [DATE]
     <form name="form">
       <button
        index="0"
@@ -5368,9 +5368,9 @@ Event Notification:
    icon="notify.tga"
    name="TransferObjectsHighlighted"
    type="notify">
-All objects on this parcel that will transfer to the purchaser of this parcel are now highlighted.
+    All objects on this parcel that will transfer to the purchaser of this parcel are now highlighted.
 
-* Trees and grasses that will transfer are not highlighted.
+    * Trees and grasses that will transfer are not highlighted.
     <form name="form">
       <button
        index="0"
@@ -5383,61 +5383,61 @@ All objects on this parcel that will transfer to the purchaser of this parcel ar
    icon="notify.tga"
    name="DeactivatedGesturesTrigger"
    type="notify">
-Deactivated gestures with same trigger:
-[NAMES]
+    Deactivated gestures with same trigger:
+    [NAMES]
   </notification>
 
   <notification
    icon="notify.tga"
    name="NoQuickTime"
    type="notify">
-Apple&apos;s QuickTime software does not appear to be installed on your system.
-If you want to view streaming media on parcels that support it you should go to the QuickTime site (http://www.apple.com/quicktime) and install the QuickTime Player.
+    Apple&apos;s QuickTime software does not appear to be installed on your system.
+    If you want to view streaming media on parcels that support it you should go to the QuickTime site (http://www.apple.com/quicktime) and install the QuickTime Player.
   </notification>
 
   <notification
    icon="notify.tga"
    name="OwnedObjectsReturned"
    type="notify">
-The objects you own on the selected parcel of land have been returned back to your inventory.
+    The objects you own on the selected parcel of land have been returned back to your inventory.
   </notification>
 
   <notification
    icon="notify.tga"
    name="OtherObjectsReturned"
    type="notify">
-The objects on the selected parcel of land that is owned by [FIRST] [LAST] have been returned to his or her inventory.
+    The objects on the selected parcel of land that is owned by [FIRST] [LAST] have been returned to his or her inventory.
   </notification>
 
   <notification
    icon="notify.tga"
    name="OtherObjectsReturned2"
    type="notify">
-The objects on the selected parcel of land owned by the resident &apos;[NAME]&apos; have been returned to their owner.
+    The objects on the selected parcel of land owned by the resident &apos;[NAME]&apos; have been returned to their owner.
   </notification>
 
   <notification
    icon="notify.tga"
    name="GroupObjectsReturned"
    type="notify">
-The objects on the selected parcel of land shared with the group [GROUPNAME] have been returned back to their owner&apos;s inventory.
-Transferable deeded objects have been returned to their previous owners.
-Non-transferable objects that are deeded to the group have been deleted.
+    The objects on the selected parcel of land shared with the group [GROUPNAME] have been returned back to their owner&apos;s inventory.
+    Transferable deeded objects have been returned to their previous owners.
+    Non-transferable objects that are deeded to the group have been deleted.
   </notification>
 
   <notification
    icon="notify.tga"
    name="UnOwnedObjectsReturned"
    type="notify">
-The objects on the selected parcel that are NOT owned by you have been returned to their owners.
+    The objects on the selected parcel that are NOT owned by you have been returned to their owners.
   </notification>
 
   <notification
    icon="notify.tga"
    name="NotSafe"
    type="notify">
-This land has damage enabled (&apos;not safe&apos;).
-You can be hurt here. If you die, you will be teleported to your home location.
+    This land has damage enabled (&apos;not safe&apos;).
+    You can be hurt here. If you die, you will be teleported to your home location.
     <unique/>
   </notification>
 
@@ -5445,8 +5445,8 @@ You can be hurt here. If you die, you will be teleported to your home location.
    icon="notify.tga"
    name="NoFly"
    type="notify">
-This land has flying disabled (&apos;no fly&apos;).
-You cannot fly here.
+    This land has flying disabled (&apos;no fly&apos;).
+    You cannot fly here.
     <unique/>
   </notification>
 
@@ -5454,8 +5454,8 @@ You cannot fly here.
    icon="notify.tga"
    name="PushRestricted"
    type="notify">
-This land is &apos;No Pushing&apos;.
-You cannot push others here unless you own the land.
+    This land is &apos;No Pushing&apos;.
+    You cannot push others here unless you own the land.
     <unique/>
   </notification>
 
@@ -5463,7 +5463,7 @@ You cannot push others here unless you own the land.
    icon="notify.tga"
    name="NoVoice"
    type="notify">
-This land has voice disabled.
+    This land has voice disabled.
     <unique/>
   </notification>
 
@@ -5471,8 +5471,8 @@ This land has voice disabled.
    icon="notify.tga"
    name="NoBuild"
    type="notify">
-This land has building disabled (&apos;no build&apos;).
-You cannot create objects here.
+    This land has building disabled (&apos;no build&apos;).
+    You cannot create objects here.
     <unique/>
   </notification>
 
@@ -5480,222 +5480,222 @@ You cannot create objects here.
    icon="notify.tga"
    name="ScriptsStopped"
    type="notify">
-An administrator has temporarily stopped scripts in this region.
+    An administrator has temporarily stopped scripts in this region.
   </notification>
 
   <notification
    icon="notify.tga"
    name="ScriptsNotRunning"
    type="notify">
-This region is not running any scripts.
+    This region is not running any scripts.
   </notification>
 
   <notification
    icon="notify.tga"
    name="NoOutsideScripts"
    type="notify">
-This land has outside scripts disabled (&apos;no outside scripts&apos;).
-No scripts will run except those belonging to the land owner.
+    This land has outside scripts disabled (&apos;no outside scripts&apos;).
+    No scripts will run except those belonging to the land owner.
   </notification>
 
   <notification
    icon="notify.tga"
    name="ClaimPublicLand"
    type="notify">
-Can only claim public land in region you&apos;re in.
+    Can only claim public land in region you&apos;re in.
   </notification>
 
   <notification
    icon="notify.tga"
    name="RegionTPAccessBlocked"
    type="notify">
-You aren&apos;t allowed in that Region due to your maturity Rating. You may need to validate your age and/or install the latest Viewer.
+    You aren&apos;t allowed in that Region due to your maturity Rating. You may need to validate your age and/or install the latest Viewer.
 
-Please go to the Knowledge Base for details on accessing areas with this maturity Rating.  
+    Please go to the Knowledge Base for details on accessing areas with this maturity Rating.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="URBannedFromRegion"
 	type="notify">
-You are banned from the region.
+    You are banned from the region.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="NoTeenGridAccess"
 	type="notify">
-Your account cannot connect to this teen grid region.
+    Your account cannot connect to this teen grid region.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="NoHelpIslandTP"
 	type="notify">
-You cannot teleport back to Help Island.
-Go to &apos;Help Island Public&apos; to repeat the tutorial.
+    You cannot teleport back to Help Island.
+    Go to &apos;Help Island Public&apos; to repeat the tutorial.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="ImproperPaymentStatus"
 	type="notify">
-You do not have proper payment status to enter this region.
+    You do not have proper payment status to enter this region.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="MustGetAgeRgion"
 	type="notify">
-You must be age-verified to enter this region.
+    You must be age-verified to enter this region.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="MustGetAgeParcel"
 	type="notify">
-You must be age-verified to enter this parcel.
+    You must be age-verified to enter this parcel.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="NoDestRegion"
 	type="notify">
-No destination region found.
+    No destination region found.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="NotAllowedInDest"
 	type="notify">
-You are not allowed into the destination.
+    You are not allowed into the destination.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="RegionParcelBan"
 	type="notify">
-Cannot region cross into banned parcel. Try another way.
+    Cannot region cross into banned parcel. Try another way.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="TelehubRedirect"
 	type="notify">
-You have been redirected to a telehub.
+    You have been redirected to a telehub.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="CouldntTPCloser"
 	type="notify">
-Could not teleport closer to destination.
+    Could not teleport closer to destination.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="TPCancelled"
 	type="notify">
-	Teleport cancelled.
+    Teleport cancelled.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="FullRegionTryAgain"
 	type="notify">
-The region you are attempting to enter is currently full.
-Please try again in a few moments.
+    The region you are attempting to enter is currently full.
+    Please try again in a few moments.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="GeneralFailure"
 	type="notify">
-General failure.
+    General failure.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="RoutedWrongRegion"
 	type="notify">
-Routed to wrong region. Please try again.
+    Routed to wrong region. Please try again.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="NoValidAgentID"
 	type="notify">
-No valid agent id.
+    No valid agent id.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="NoValidSession"
 	type="notify">
-No valid session id.
+    No valid session id.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="NoValidCircuit"
 	type="notify">
-No valid circuit code.
+    No valid circuit code.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="NoValidTimestamp"
 	type="notify">
-No valid timestamp.
+    No valid timestamp.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="NoPendingConnection"
 	type="notify">
-Unable to create pending connection.
+    Unable to create pending connection.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="InternalUsherError"
 	type="notify">
-Internal error attempting to connect agent usher.
+    Internal error attempting to connect agent usher.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="NoGoodTPDestination"
 	type="notify">
-Unable to find a good teleport destination in this region.
+    Unable to find a good teleport destination in this region.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="InternalErrorRegionResolver"
 	type="notify">
-Internal error attempting to activate region resolver.
+    Internal error attempting to activate region resolver.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="NoValidLanding"
 	type="notify">
-A valid landing point could not be found.
+    A valid landing point could not be found.
   </notification>
 
   <notification
 	icon="notify.tga"
 	name="NoValidParcel"
 	type="notify">
-No valid parcel could be found.
+    No valid parcel could be found.
   </notification>
 
   <notification
    icon="notify.tga"
    name="ObjectGiveItem"
    type="notify">
-An object named [OBJECTFROMNAME] owned by [FIRST] [LAST] has given you a [OBJECTTYPE] named [OBJECTNAME].
+    An object named [OBJECTFROMNAME] owned by [FIRST] [LAST] has given you a [OBJECTTYPE] named [OBJECTNAME].
     <form name="form">
       <button
        index="0"
@@ -5716,7 +5716,7 @@ An object named [OBJECTFROMNAME] owned by [FIRST] [LAST] has given you a [OBJECT
    icon="notify.tga"
    name="ObjectGiveItemUnknownUser"
    type="notify">
-An object named [OBJECTFROMNAME] owned by (an unknown user) has given you a [OBJECTTYPE] named [OBJECTNAME].
+    An object named [OBJECTFROMNAME] owned by (an unknown user) has given you a [OBJECTTYPE] named [OBJECTNAME].
     <form name="form">
       <button
        index="0"
@@ -5737,7 +5737,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown user) has given you a [OBJ
    icon="notify.tga"
    name="UserGiveItem"
    type="notify">
-[NAME] has given you a [OBJECTTYPE] named &apos;[OBJECTNAME]&apos;.
+    [NAME] has given you a [OBJECTTYPE] named &apos;[OBJECTNAME]&apos;.
     <form name="form">
       <button
        index="0"
@@ -5758,15 +5758,15 @@ An object named [OBJECTFROMNAME] owned by (an unknown user) has given you a [OBJ
    icon="notify.tga"
    name="GodMessage"
    type="notify">
-[NAME]
-[MESSAGE]
+    [NAME]
+    [MESSAGE]
   </notification>
 
   <notification
    icon="notify.tga"
    name="JoinGroup"
    type="notify">
-[MESSAGE]
+    [MESSAGE]
     <form name="form">
       <button
        index="0"
@@ -5787,9 +5787,9 @@ An object named [OBJECTFROMNAME] owned by (an unknown user) has given you a [OBJ
    icon="notify.tga"
    name="TeleportOffered"
    type="notify">
-[NAME] has offered to teleport you to his or her location:
+    [NAME] has offered to teleport you to his or her location:
 
-[MESSAGE]
+    [MESSAGE]
     <form name="form">
       <button
        index="0"
@@ -5806,8 +5806,8 @@ An object named [OBJECTFROMNAME] owned by (an unknown user) has given you a [OBJ
    icon="notify.tga"
    name="GotoURL"
    type="notify">
-[MESSAGE]
-[URL]
+    [MESSAGE]
+    [URL]
     <form name="form">
       <button
        index="0"
@@ -5824,11 +5824,11 @@ An object named [OBJECTFROMNAME] owned by (an unknown user) has given you a [OBJ
    icon="notify.tga"
    name="OfferFriendship"
    type="notify">
-[NAME] is offering friendship.
+    [NAME] is offering friendship.
 
-[MESSAGE]
+    [MESSAGE]
 
-(By default, you will be able to see each other&apos;s online status.)
+    (By default, you will be able to see each other&apos;s online status.)
     <form name="form">
       <button
        index="0"
@@ -5845,9 +5845,9 @@ An object named [OBJECTFROMNAME] owned by (an unknown user) has given you a [OBJ
    icon="notify.tga"
    name="OfferFriendshipNoMessage"
    type="notify">
-[NAME] is offering friendship.
+    [NAME] is offering friendship.
 
-(By default, you will be able to see each other&apos;s online status.)
+    (By default, you will be able to see each other&apos;s online status.)
     <form name="form">
       <button
        index="0"
@@ -5864,22 +5864,22 @@ An object named [OBJECTFROMNAME] owned by (an unknown user) has given you a [OBJ
    icon="notify.tga"
    name="FriendshipAccepted"
    type="notify">
-[NAME] accepted your friendship offer.
+    [NAME] accepted your friendship offer.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FriendshipDeclined"
    type="notify">
-[NAME] declined your friendship offer.
+    [NAME] declined your friendship offer.
   </notification>
 
   <notification
    icon="notify.tga"
    name="OfferCallingCard"
    type="notify">
-[FIRST] [LAST] is offering their calling card.
-This will add a bookmark in your inventory so you can quickly IM this resident.
+    [FIRST] [LAST] is offering their calling card.
+    This will add a bookmark in your inventory so you can quickly IM this resident.
     <form name="form">
       <button
        index="0"
@@ -5898,8 +5898,8 @@ This will add a bookmark in your inventory so you can quickly IM this resident.
    priority="high"
    sound="UISndAlert"
    type="notify">
-Region is restarting in [MINUTES] minutes.
-If you remain in this region you will be logged out.
+    Region is restarting in [MINUTES] minutes.
+    If you remain in this region you will be logged out.
   </notification>
 
   <notification
@@ -5908,19 +5908,19 @@ If you remain in this region you will be logged out.
    priority="high"
    sound="UISndAlert"
    type="notify">
-Region is restarting in [SECONDS] seconds.
-If you remain in this region you will be logged out.
+    Region is restarting in [SECONDS] seconds.
+    If you remain in this region you will be logged out.
   </notification>
 
   <notification
    icon="notify.tga"
    name="LoadWebPage"
    type="notify">
-Load web page [URL]?
+    Load web page [URL]?
 
-[MESSAGE]
+    [MESSAGE]
 
-From object: [OBJECTNAME], owner: [NAME]?
+    From object: [OBJECTNAME], owner: [NAME]?
     <form name="form">
       <button
        index="0"
@@ -5937,14 +5937,14 @@ From object: [OBJECTNAME], owner: [NAME]?
    icon="notify.tga"
    name="FailedToFindWearableUnnamed"
    type="notify">
-Failed to find [TYPE] in database.
+    Failed to find [TYPE] in database.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FailedToFindWearable"
    type="notify">
-Failed to find [TYPE] named [DESC] in database.
+    Failed to find [TYPE] named [DESC] in database.
   </notification>
 
   <notification
@@ -5958,10 +5958,10 @@ Failed to find [TYPE] named [DESC] in database.
    icon="notify.tga"
    name="ScriptQuestion"
    type="notify">
-&apos;[OBJECTNAME]&apos;, an object owned by &apos;[NAME]&apos;, would like to:
+    &apos;[OBJECTNAME]&apos;, an object owned by &apos;[NAME]&apos;, would like to:
 
-[QUESTIONS]
-Is this OK?
+    [QUESTIONS]
+    Is this OK?
     <form name="form">
       <button
        index="0"
@@ -5983,12 +5983,12 @@ Is this OK?
    name="ScriptQuestionCaution"
    priority="high"
    type="notify">
-&apos;[OBJECTNAME]&apos;, an object owned by &apos;[NAME]&apos;, would like to:
+    &apos;[OBJECTNAME]&apos;, an object owned by &apos;[NAME]&apos;, would like to:
 
-[QUESTIONS]
-If you do not trust this object and its creator, you should deny the request. For additional information, click the Details button.
+    [QUESTIONS]
+    If you do not trust this object and its creator, you should deny the request. For additional information, click the Details button.
 
-Grant this request?
+    Grant this request?
     <form name="form">
       <button
        index="0"
@@ -6010,8 +6010,8 @@ Grant this request?
    icon="notify.tga"
    name="ScriptDialog"
    type="notify">
-[FIRST] [LAST]&apos;s &apos;[TITLE]&apos;
-[MESSAGE]
+    [FIRST] [LAST]&apos;s &apos;[TITLE]&apos;
+    [MESSAGE]
     <form name="form">
       <button
        index="-1"
@@ -6024,8 +6024,8 @@ Grant this request?
    icon="notify.tga"
    name="ScriptDialogGroup"
    type="notify">
-[GROUPNAME]&apos;s &apos;[TITLE]&apos;
-[MESSAGE]
+    [GROUPNAME]&apos;s &apos;[TITLE]&apos;
+    [MESSAGE]
     <form name="form">
       <button
        index="-1"
@@ -6038,142 +6038,142 @@ Grant this request?
    icon="notify.tga"
    name="FirstBalanceIncrease"
    type="notify">
-You just received L$[AMOUNT].
-Objects and other users may give you L$.
-Your balance is shown in the upper-right corner of the screen.
+    You just received L$[AMOUNT].
+    Objects and other users may give you L$.
+    Your balance is shown in the upper-right corner of the screen.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstBalanceDecrease"
    type="notify">
-You just paid L$[AMOUNT].
-Your balance is shown in the upper-right corner of the screen.
+    You just paid L$[AMOUNT].
+    Your balance is shown in the upper-right corner of the screen.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstSit"
    type="notify">
-You are sitting.
-Use the arrow keys (or AWSD) to change the view.
-Click the &apos;Stand Up&apos; button to get up.
+    You are sitting.
+    Use the arrow keys (or AWSD) to change the view.
+    Click the &apos;Stand Up&apos; button to get up.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstMap"
    type="notify">
-Click and drag to scroll the map.
-Double-click to teleport.
-Use the controls on the right to find things and display different backgrounds.
+    Click and drag to scroll the map.
+    Double-click to teleport.
+    Use the controls on the right to find things and display different backgrounds.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstBuild"
    type="notify">
-You can build new objects in some areas of [SECOND_LIFE].
-Use the tools in the upper left to build, and try holding down Ctrl or Alt to rapidly switch tools.
-Press Esc to stop building.
+    You can build new objects in some areas of [SECOND_LIFE].
+    Use the tools in the upper left to build, and try holding down Ctrl or Alt to rapidly switch tools.
+    Press Esc to stop building.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstLeftClickNoHit"
    type="notify">
-Left-clicking interacts with special objects.
-If the mouse pointer changes to a hand, you can interact with the object.
-Right-click always shows a menu of things you can do.
+    Left-clicking interacts with special objects.
+    If the mouse pointer changes to a hand, you can interact with the object.
+    Right-click always shows a menu of things you can do.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstTeleport"
    type="notify">
-This region doesn&apos;t allow point-to-point teleports, so you&apos;ve been transported to the nearest telehub.
-Your destination is marked with a tall beacon.
-Follow the red arrow to the beacon, or click the arrow to dismiss the beacon.
+    This region doesn&apos;t allow point-to-point teleports, so you&apos;ve been transported to the nearest telehub.
+    Your destination is marked with a tall beacon.
+    Follow the red arrow to the beacon, or click the arrow to dismiss the beacon.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstOverrideKeys"
    type="notify">
-Your movement keys are now being handled by an object.
-Try the arrow keys or AWSD to see what they do.
-Some objects (like guns) require you to go into mouselook  to use them.
-Press &apos;M&apos; to do this.
+    Your movement keys are now being handled by an object.
+    Try the arrow keys or AWSD to see what they do.
+    Some objects (like guns) require you to go into mouselook  to use them.
+    Press &apos;M&apos; to do this.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstAppearance"
    type="notify">
-You are editing your appearance.
-To rotate and zoom view, use the arrow keys.
-When you are finished, press &apos;Save All&apos; to save your look and exit.
-You can edit your appearance as often as you like.
+    You are editing your appearance.
+    To rotate and zoom view, use the arrow keys.
+    When you are finished, press &apos;Save All&apos; to save your look and exit.
+    You can edit your appearance as often as you like.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstInventory"
    type="notify">
-This is your inventory, which contains objects, notecards, clothing, and other things you own.
-* To wear an object or outfit folder, drag it onto yourself.
-* To bring an object into the world, drag it onto the ground.
-* To read a notecard, double-click it.
+    This is your inventory, which contains objects, notecards, clothing, and other things you own.
+    * To wear an object or outfit folder, drag it onto yourself.
+    * To bring an object into the world, drag it onto the ground.
+    * To read a notecard, double-click it.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstSandbox"
    type="notify">
-This is a sandbox region.
-Objects you build here may be deleted after you leave the area, Sandboxes clean on a regular basis, please refer to the information at the top of the screen next to the region name.
+    This is a sandbox region.
+    Objects you build here may be deleted after you leave the area, Sandboxes clean on a regular basis, please refer to the information at the top of the screen next to the region name.
 
-Sandbox regions are uncommon, and are marked with signs.
+    Sandbox regions are uncommon, and are marked with signs.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstFlexible"
    type="notify">
-This object is flexible.
-Flexible objects may not be physical and must be phantom until the flexible checkbox is unchecked.
+    This object is flexible.
+    Flexible objects may not be physical and must be phantom until the flexible checkbox is unchecked.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstDebugMenus"
    type="notify">
-You have enabled the Advanced menu.
-This menu contains features useful for developers debugging Second Life.
-To toggle this menu on Windows press Ctrl-Alt-D. On Mac press Cmd-Opt-Shift-D.
+    You have enabled the Advanced menu.
+    This menu contains features useful for developers debugging Second Life.
+    To toggle this menu on Windows press Ctrl-Alt-D. On Mac press Cmd-Opt-Shift-D.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstSculptedPrim"
    type="notify">
-You are editing a sculpted prim.
-Sculpted prims require a special texture to specify their shape.
-You can find example sculpted textures in the inventory library.
+    You are editing a sculpted prim.
+    Sculpted prims require a special texture to specify their shape.
+    You can find example sculpted textures in the inventory library.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstMedia"
    type="notify">
-You have begun playing media.  Media can set to play automatically in the preferences window under Audio / Video. Note that this can be a security risk for media sites you do not trust.
+    You have begun playing media.  Media can set to play automatically in the preferences window under Audio / Video. Note that this can be a security risk for media sites you do not trust.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="MaxListSelectMessage"
    type="notifytip">
-You may only select up to [MAX_SELECT] items from this list.
+    You may only select up to [MAX_SELECT] items from this list.
   </notification>
 
   <notification
@@ -6302,7 +6302,7 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
    icon="notifytip.tga"
    name="VoiceChannelFull"
    type="notifytip">
-The voice call you are trying to join, [VOICE_CHANNEL_NAME], has reached maximum capacity. Please try again later.
+    The voice call you are trying to join, [VOICE_CHANNEL_NAME], has reached maximum capacity. Please try again later.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -6312,7 +6312,7 @@ The voice call you are trying to join, [VOICE_CHANNEL_NAME], has reached maximum
    icon="notifytip.tga"
    name="ProximalVoiceChannelFull"
    type="notifytip">
-We&apos;re sorry.  This area has reached maximum capacity for voice conversations.  Please try to use voice in another area.
+    We&apos;re sorry.  This area has reached maximum capacity for voice conversations.  Please try to use voice in another area.
     <unique/>
   </notification>
 
@@ -6320,7 +6320,7 @@ We&apos;re sorry.  This area has reached maximum capacity for voice conversation
    icon="notifytip.tga"
    name="VoiceChannelDisconnected"
    type="notifytip">
-You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnected to spatial voice chat.
+    You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnected to spatial voice chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -6330,7 +6330,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="VoiceChannelDisconnectedP2P"
    type="notifytip">
-[VOICE_CHANNEL_NAME] has ended the call.  You will now be reconnected to spatial voice chat.
+    [VOICE_CHANNEL_NAME] has ended the call.  You will now be reconnected to spatial voice chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -6340,7 +6340,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="P2PCallDeclined"
    type="notifytip">
-[VOICE_CHANNEL_NAME] has declined your call.  You will now be reconnected to spatial voice chat.
+    [VOICE_CHANNEL_NAME] has declined your call.  You will now be reconnected to spatial voice chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -6350,7 +6350,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="P2PCallNoAnswer"
    type="notifytip">
-[VOICE_CHANNEL_NAME] is not available to take your call.  You will now be reconnected to spatial voice chat.
+    [VOICE_CHANNEL_NAME] is not available to take your call.  You will now be reconnected to spatial voice chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -6360,7 +6360,7 @@ You have been disconnected from [VOICE_CHANNEL_NAME].  You will now be reconnect
    icon="notifytip.tga"
    name="VoiceChannelJoinFailed"
    type="notifytip">
-Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now be reconnected to spatial voice chat.
+    Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now be reconnected to spatial voice chat.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -6371,7 +6371,7 @@ Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now
    icon="notifytip.tga"
    name="VoiceLoginRetry"
    type="notifytip">
-We are creating a voice channel for you. This may take up to one minute.
+    We are creating a voice channel for you. This may take up to one minute.
     <unique/>
   </notification>
 
@@ -6379,28 +6379,28 @@ We are creating a voice channel for you. This may take up to one minute.
    icon="notifytip.tga"
    name="Cannot enter parcel: not a group member"
    type="notifytip">
-Cannot enter parcel, you are not a member of the appropriate group.
+    Cannot enter parcel, you are not a member of the appropriate group.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="Cannot enter parcel: banned"
    type="notifytip">
-Cannot enter parcel, you have been banned.
+    Cannot enter parcel, you have been banned.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="Cannot enter parcel: not on access list"
    type="notifytip">
-Cannot enter parcel, you are not on the access list.
+    Cannot enter parcel, you are not on the access list.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="VoiceNotAllowed"
    type="notifytip">
-You do not have permission to connect to voice chat for [VOICE_CHANNEL_NAME].
+    You do not have permission to connect to voice chat for [VOICE_CHANNEL_NAME].
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -6410,7 +6410,7 @@ You do not have permission to connect to voice chat for [VOICE_CHANNEL_NAME].
    icon="notifytip.tga"
    name="VoiceCallGenericError"
    type="notifytip">
-An error has occurred while trying to connect to voice chat for [VOICE_CHANNEL_NAME].  Please try again later.
+    An error has occurred while trying to connect to voice chat for [VOICE_CHANNEL_NAME].  Please try again later.
     <unique>
       <context key="VOICE_CHANNEL_NAME"/>
     </unique>
@@ -6422,7 +6422,7 @@ An error has occurred while trying to connect to voice chat for [VOICE_CHANNEL_N
    name="ServerVersionChanged"
    priority="high"
    type="notifytip">
-The region you have entered is running a different simulator version. Click this message for details.
+    The region you have entered is running a different simulator version. Click this message for details.
   </notification>
 
   <notification
@@ -6430,7 +6430,14 @@ The region you have entered is running a different simulator version. Click this
    name="UnableToOpenCommandURL"
    priority="high"
    type="notifytip">
-The URL you clicked cannot be opened from this web browser.
+    The URL you clicked cannot be opened from this web browser.
+  </notification>
+
+  <notification name="IMToast" type="notify">
+    [MESSAGE]
+    <form name="form">
+      <button index="0" name="respondbutton" text="Respond"/>
+    </form>
   </notification>
 
   <global name="UnsupportedCPU">

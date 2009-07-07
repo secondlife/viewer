@@ -56,7 +56,7 @@
 #include "llworld.h"
 #include "llworldmapview.h"		// shared draw code
 
-static LLDefaultWidgetRegistry::Register<LLNetMap> r1("net_map");
+static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");
 
 const F32 MAP_SCALE_MIN = 64;
 const F32 MAP_SCALE_MID = 172;

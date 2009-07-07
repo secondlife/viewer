@@ -57,9 +57,9 @@ class LLTextBox;
 class LLMessageSystem;
 
 class LLFloaterGodTools
-	: public LLFloater, public LLFloaterSingleton<LLFloaterGodTools>
+	: public LLFloater
 {
-	friend class LLUISingleton<LLFloaterGodTools, VisibilityPolicy<LLFloater> >;
+	friend class LLFloaterReg;
 public:
 
 	enum EGodPanel
@@ -98,12 +98,16 @@ public:
 	// Send possibly changed values to simulator.
 	void sendGodUpdateRegionInfo();
 
+private:
+	
+	LLFloaterGodTools(const LLSD& key);
+	~LLFloaterGodTools();
+	
 protected:
 	U32 computeRegionFlags() const;
 
 protected:
-	LLFloaterGodTools(const LLSD& key);
-	~LLFloaterGodTools();
+
 	/*virtual*/	BOOL	postBuild();
 	// When the floater is going away, reset any options that need to be 
 	// cleared.
@@ -133,16 +137,17 @@ public:
 
 	/*virtual*/ void refresh();
 
-	static void onSaveState(void* data);
-	static void onChangeAnything(LLUICtrl* ctrl, void* userdata);
-	static void onChangePrelude(LLUICtrl* ctrl, void* data);
+	static void onSaveState(void* userdata);
 	static void onChangeSimName(LLLineEditor* caller, void* userdata);
-	static void onApplyChanges(void* userdata);
-	static void onBakeTerrain(void *userdata);
-	static void onRevertTerrain(void *userdata);
-	static void onSwapTerrain(void *userdata);
-	static void onSelectRegion(void *userdata);
-	static void onRefresh(void* userdata);
+	
+	void onChangeAnything();
+	void onChangePrelude();
+	void onApplyChanges();
+	void onBakeTerrain();
+	void onRevertTerrain();
+	void onSwapTerrain();
+	void onSelectRegion();
+	void onRefresh();
 
 	// set internal checkboxes/spinners/combos 
 	const std::string getSimName() const;
@@ -194,11 +199,11 @@ public:
 
 	void refresh();
 
-	static void onClickKickAll(void *data);
+	void onClickKickAll();
 	static bool confirmKick(const LLSD& notification, const LLSD& response);
 	static bool finishKick(const LLSD& notification, const LLSD& response);
 	static void onDragSunPhase(LLUICtrl *ctrl, void *userdata);
-	static void onClickFlushMapVisibilityCaches(void* data);
+	void onClickFlushMapVisibilityCaches();
 	static bool flushMapVisibilityCachesConfirm(const LLSD& notification, const LLSD& response);
 
 protected:
@@ -227,17 +232,17 @@ public:
 	void enableAllWidgets();
 	void setCheckFlags(U32 flags);
 
-	static void onChangeAnything(LLUICtrl* ctrl, void* data);
-	static void onApplyChanges(void* data);
-	static void onClickSet(void* data);
+	void onChangeAnything();
+	void onApplyChanges();
+	void onClickSet();
 	static void callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data);
-	static void onClickDeletePublicOwnedBy(void* data);
-	static void onClickDeleteAllScriptedOwnedBy(void* data);
-	static void onClickDeleteAllOwnedBy(void* data);
+	void onClickDeletePublicOwnedBy();
+	void onClickDeleteAllScriptedOwnedBy();
+	void onClickDeleteAllOwnedBy();
 	static bool callbackSimWideDeletes(const LLSD& notification, const LLSD& response);
-	static void onGetTopColliders(void* data);
-	static void onGetTopScripts(void* data);
-	static void onGetScriptDigest(void* data);
+	void onGetTopColliders();
+	void onGetTopScripts();
+	void onGetScriptDigest();
 	static void onClickSetBySelection(void* data);
 
 protected:
@@ -267,7 +272,7 @@ public:
 							const LLHost& host);
 
 protected:
-	static void onClickRequest(void *data);
+	void onClickRequest();
 	void sendRequest(const LLHost& host);
 };
 

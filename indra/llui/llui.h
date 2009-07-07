@@ -706,7 +706,7 @@ namespace LLInitParam
 						width,
 						height;
 
-		TypedParam(BlockDescriptor& descriptor, const char* name, const LLRect& value, ParamDescriptor::validation_func_t func);
+		TypedParam(BlockDescriptor& descriptor, const char* name, const LLRect& value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);
 
 		LLRect getValueFromBlock() const;
 	};
@@ -729,7 +729,7 @@ namespace LLInitParam
 		Optional<F32> alpha;
 		Optional<std::string> control;
 
-		TypedParam(BlockDescriptor& descriptor, const char* name, const LLUIColor& value, ParamDescriptor::validation_func_t func);
+		TypedParam(BlockDescriptor& descriptor, const char* name, const LLUIColor& value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);
 		LLUIColor getValueFromBlock() const;
 	};
 
@@ -743,7 +743,7 @@ namespace LLInitParam
 		Optional<std::string> size;
 		Optional<std::string> style;
 
-		TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL* const value, ParamDescriptor::validation_func_t func);
+		TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL* const value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);
 		const LLFontGL* getValueFromBlock() const;
 	};
 

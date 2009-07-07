@@ -71,9 +71,9 @@ class LLPanelLandRenters;
 class LLPanelLandCovenant;
 
 class LLFloaterLand
-:	public LLFloater, public LLFloaterSingleton<LLFloaterLand>
+:	public LLFloater
 {
-	friend class LLUISingleton<LLFloaterLand, VisibilityPolicy<LLFloater> >;
+	friend class LLFloaterReg;
 public:
 	static void refreshAll();
 
@@ -85,12 +85,13 @@ public:
 	virtual void onOpen(const LLSD& key);
 	virtual BOOL postBuild();
 
-protected:
-
+private:
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
 	LLFloaterLand(const LLSD& seed);
 	virtual ~LLFloaterLand();
+
+protected:
 
 	/*virtual*/ void refresh();
 

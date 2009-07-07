@@ -167,7 +167,7 @@ private:
 //============================================================================
 
 
-static LLDefaultWidgetRegistry::Register<LLLocationInputCtrl> r("location_input");
+static LLDefaultChildRegistry::Register<LLLocationInputCtrl> r("location_input");
 
 LLLocationInputCtrl::Params::Params()
 :	add_landmark_image_enabled("add_landmark_image_enabled"),
@@ -459,7 +459,7 @@ void LLLocationInputCtrl::updateAddLandmarkButton()
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
 	LLIsAgentParcelLandmark is_current_parcel_landmark;
-	gInventory.collectDescendentsIf(gAgent.getInventoryRootID(),
+	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
 		cats,
 		items,
 		LLInventoryModel::EXCLUDE_TRASH,

@@ -46,7 +46,7 @@
 #define MENU_ITEM_VIEW_PROFILE 0
 #define MENU_ITEM_SEND_IM 1
 
-static LLDefaultWidgetRegistry::Register<LLAvatarIconCtrl> r("avatar_icon");
+static LLDefaultChildRegistry::Register<LLAvatarIconCtrl> r("avatar_icon");
 
 LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 :	LLIconCtrl(p),
@@ -106,7 +106,7 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 
 	registrar.add("AvatarIcon.Action", boost::bind(&LLAvatarIconCtrl::onAvatarIconContextMenuItemClicked, this, _2));
 
-	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_avatar_icon.xml", gMenuHolder);
+	LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_avatar_icon.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
 	mPopupMenuHandle = menu->getHandle();
 }

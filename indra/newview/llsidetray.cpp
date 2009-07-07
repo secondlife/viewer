@@ -52,7 +52,7 @@
 using namespace std;
 
 static LLRootViewRegistry::Register<LLSideTray>	t1("side_tray");
-static LLDefaultWidgetRegistry::Register<LLSideTrayTab>	t2("sidetray_tab");
+static LLDefaultChildRegistry::Register<LLSideTrayTab>	t2("sidetray_tab");
 
 static const std::string COLLAPSED_NAME = "<<";
 static const std::string EXPANDED_NAME  = ">>";
@@ -103,7 +103,7 @@ LLSideTray* LLSideTray::getInstance()
 {
 	if (!sInstance)
 	{
-		sInstance = LLUICtrlFactory::createFromFile<LLSideTray>("panel_side_tray.xml",gViewerWindow->getRootView());
+		sInstance = LLUICtrlFactory::createFromFile<LLSideTray>("panel_side_tray.xml",gViewerWindow->getRootView(), LLRootView::child_registry_t::instance());
 	}
 
 	return sInstance;
@@ -156,7 +156,7 @@ bool LLSideTrayTab::addChild(LLView* view, S32 tab_group)
 //virtual 
 BOOL LLSideTrayTab::postBuild()
 {
-	LLPanel* title_panel = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>("panel_side_tray_tab_caption.xml",this);
+	LLPanel* title_panel = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>("panel_side_tray_tab_caption.xml",this, child_registry_t::instance());
 	string name = title_panel->getName();
 	LLPanel::addChild(title_panel);
 	
@@ -374,7 +374,7 @@ bool LLSideTray::selectTabByName	(const std::string& name)
 
 LLButton* LLSideTray::createButton	(const std::string& name,const std::string& image,LLUICtrl::commit_callback_t callback)
 {
-	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray::Params>());	
+	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
 	
 	LLButton::Params bparams;
 
@@ -475,7 +475,7 @@ void LLSideTray::reflectCollapseChange()
 
 void LLSideTray::arrange			()
 {
-	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray::Params>());	
+	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
 
 	calcMaxSideBarWidth();
 	
@@ -600,7 +600,7 @@ void LLSideTray::reshape			(S32 width, S32 height, BOOL called_from_parent)
 	if(!mActiveTab)
 		return;
 	
-	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray::Params>());	
+	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
 
 	setPanelRect();
 
@@ -724,7 +724,7 @@ static const S32	fake_top_offset = 78;
 
 void	LLSideTray::setPanelRect	()
 {
-	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray::Params>());	
+	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
 
 	const LLRect& parent_rect = gViewerWindow->getRootView()->getRect();
 
@@ -743,6 +743,6 @@ void	LLSideTray::setPanelRect	()
 
 S32	LLSideTray::getTrayWidth()
 {
-	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray::Params>());	
+	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
 	return getRect().getWidth() - (sidetray_params.default_button_width + sidetray_params.default_button_margin);
 }

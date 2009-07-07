@@ -234,12 +234,4 @@ private:
 	commit_callback_t	mTextEntryCallback;
 	commit_callback_t	mSelectionCallback;
 };
-
-#ifdef LL_WINDOWS
-#ifndef INSTANTIATE_GETCHILD_COMBOBOX
-#pragma warning (disable : 4231)
-extern template LLComboBox* LLView::getChild<LLComboBox>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-#endif
-#endif
-
 #endif

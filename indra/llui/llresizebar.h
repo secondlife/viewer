@@ -52,11 +52,11 @@ public:
 		Optional<bool>	allow_double_click_snapping;
 
 		Params()
-		:	max_size("", S32_MAX),
-			snapping_enabled("", true),
+		:	max_size("max_size", S32_MAX),
+			snapping_enabled("snapping_enabled", true),
 			resizing_view("resizing_view"),
 			side("side"),
-			allow_double_click_snapping("", true)
+			allow_double_click_snapping("allow_double_click_snapping", true)
 		{
 			name = "resize_bar";
 		}

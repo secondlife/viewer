@@ -41,6 +41,7 @@
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
 #include "llfloaterhtmlhelp.h"
+#include "llfloaterreg.h"
 #include "llalertdialog.h"
 
 class URLLoader : public LLAlertDialog::URLLoader
@@ -75,7 +76,7 @@ void LLWeb::loadURL(const std::string& url)
 	}
 	else
 	{
-		LLFloaterMediaBrowser::showInstance(url);
+		LLFloaterReg::showInstance("media_browser",url);
 	}
 }
 

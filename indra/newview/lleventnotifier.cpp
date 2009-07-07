@@ -192,9 +192,12 @@ bool LLEventNotification::handleResponse(const LLSD& notification, const LLSD& r
 	switch (option)
 	{
 	case 0:
-		gAgent.teleportViaLocation(getEventPosGlobal());
-		LLFloaterWorldMap::getInstance()->trackLocation(getEventPosGlobal());
-		break;
+		{
+			gAgent.teleportViaLocation(getEventPosGlobal());
+			LLFloaterWorldMap* floater_world_map = LLFloaterWorldMap::getInstance();
+			if(floater_world_map) floater_world_map->trackLocation(getEventPosGlobal());
+			break;
+		}
 	case 1:
 		gDisplayEventHack = TRUE;
 		LLFloaterReg::showInstance("search", LLSD().insert("panel", "event").insert("id", S32(getEventID())));

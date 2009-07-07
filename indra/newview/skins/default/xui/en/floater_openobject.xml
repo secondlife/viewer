@@ -42,7 +42,10 @@
      name="copy_to_inventory_button"
      tab_group="1"
      top_pad="285"
-     width="120" />
+     width="120">
+        <button.commit_callback
+         function="OpenObject.MoveToInventory" />
+    </button>
     <button
      follows="bottom|left"
      font="SansSerifSmall"
@@ -53,5 +56,8 @@
      left_pad="10"
      name="copy_and_wear_button"
      top_delta="0"
-     width="120" />
+     width="120">
+        <button.commit_callback
+         function="OpenObject.MoveAndWear" />
+    </button>
 </floater>

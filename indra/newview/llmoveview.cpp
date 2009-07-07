@@ -38,12 +38,14 @@
 #include "indra_constants.h"
 
 // Viewer includes
+
 #include "llagent.h"
-#include "llviewercontrol.h"
 #include "llbutton.h"
-#include "llviewerwindow.h"
+#include "llfloaterreg.h"
 #include "lljoystickbutton.h"
 #include "lluictrlfactory.h"
+#include "llviewerwindow.h"
+#include "llviewercontrol.h"
 
 //
 // Constants
@@ -59,12 +61,10 @@ const F32 NUDGE_TIME = 0.25f;		// in seconds
 
 // protected
 LLFloaterMove::LLFloaterMove(const LLSD& key)
-:	LLFloater()
+:	LLFloater(key)
 {
-	setIsChrome(TRUE);
 
-	const BOOL DONT_OPEN = FALSE;
-	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_moveview.xml", DONT_OPEN); 
+//	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_moveview.xml", DONT_OPEN); 
 
 }
 
@@ -81,6 +81,9 @@ void LLFloaterMove::onClose(bool app_quitting)
 // virtual
 BOOL LLFloaterMove::postBuild()
 {
+	setIsChrome(TRUE);
+	
+	
 	mForwardButton = getChild<LLJoystickAgentTurn>("forward btn"); 
 	mForwardButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
 
@@ -138,14 +141,20 @@ F32 LLFloaterMove::getYawRate( F32 time )
 // protected static 
 void LLFloaterMove::turnLeft(void *)
 {
-	F32 time = getInstance()->mTurnLeftButton->getHeldDownTime();
+	LLFloaterMove* instance = LLFloaterReg::getTypedInstance<LLFloaterMove>("moveview");
+	if(!instance) return;
+	
+	F32 time = instance->mTurnLeftButton->getHeldDownTime();
 	gAgent.moveYaw( getYawRate( time ) );
 }
 
 // protected static 
 void LLFloaterMove::turnRight(void *)
 {
-	F32 time = getInstance()->mTurnRightButton->getHeldDownTime();
+	LLFloaterMove* instance = LLFloaterReg::getTypedInstance<LLFloaterMove>("moveview");
+	if(!instance) return;
+	
+	F32 time = instance->mTurnRightButton->getHeldDownTime();
 	gAgent.moveYaw( -getYawRate( time ) );
 }
 

@@ -44,6 +44,7 @@
 #include "llfirstuse.h"
 #include "llfloateravatarinfo.h"
 #include "llfloaterland.h"
+#include "llfloaterreg.h"
 #include "llfloaterscriptdebug.h"
 #include "llhoverview.h"
 #include "llhudeffecttrail.h"
@@ -142,7 +143,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			else
 			{
 				// not selling passes, get info
-				LLFloaterLand::showInstance();
+				LLFloaterReg::showInstance("about_land");
 			}
 		}
 
@@ -425,7 +426,7 @@ void LLToolPie::selectionPropertiesReceived()
 				handle_give_money_dialog();
 				break;
 			case CLICK_ACTION_OPEN:
-				handle_object_open();
+				LLFloaterReg::showInstance("openobject");
 				break;
 			default:
 				break;

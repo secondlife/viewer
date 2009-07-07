@@ -47,7 +47,7 @@
 #include "llfloaterregioninfo.h"
 #include "llfloaterscriptdebug.h"
 #include "llhudicon.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"

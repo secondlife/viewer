@@ -72,7 +72,7 @@ void auction_tga_upload_done(const LLUUID& asset_id,
 
 // Default constructor
 LLFloaterAuction::LLFloaterAuction(const LLSD& key)
-  : LLFloater(),
+  : LLFloater(key),
 	mParcelID(-1)
 {
 //	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_auction.xml");

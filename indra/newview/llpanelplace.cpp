@@ -355,16 +355,17 @@ void LLPanelPlace::onClickTeleport(void* data)
 	}
 	// LLFloater* parent_floaterp = (LLFloater*)self->getParent();
 	parent_viewp->setVisible(false);
-	if(self->mLandmarkAssetID.notNull())
+	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+	if(self->mLandmarkAssetID.notNull() && worldmap_instance)
 	{
 		gAgent.teleportViaLandmark(self->mLandmarkAssetID);
-		LLFloaterWorldMap::getInstance()->trackLandmark(self->mLandmarkAssetID);
+		worldmap_instance->trackLandmark(self->mLandmarkAssetID);
 
 	}
-	else if (!self->mPosGlobal.isExactlyZero())
+	else if (!self->mPosGlobal.isExactlyZero() && worldmap_instance)
 	{
 		gAgent.teleportViaLocation(self->mPosGlobal);
-		LLFloaterWorldMap::getInstance()->trackLocation(self->mPosGlobal);
+		worldmap_instance->trackLocation(self->mPosGlobal);
 	}
 }
 
@@ -372,9 +373,11 @@ void LLPanelPlace::onClickTeleport(void* data)
 void LLPanelPlace::onClickMap(void* data)
 {
 	LLPanelPlace* self = (LLPanelPlace*)data;
-	if (!self->mPosGlobal.isExactlyZero())
+	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+	
+	if (!self->mPosGlobal.isExactlyZero() && worldmap_instance)
 	{
-		LLFloaterWorldMap::getInstance()->trackLocation(self->mPosGlobal);
+		worldmap_instance->trackLocation(self->mPosGlobal);
 		LLFloaterReg::showInstance("world_map", "center");
 	}
 }

@@ -43,7 +43,7 @@
 #include "llagent.h"			// for agent id
 #include "llalertdialog.h"
 #include "llinventorymodel.h"	// for gInventory
-#include "llinventoryview.h"	// for get_item_icon
+#include "llfloaterinventory.h"	// for get_item_icon
 #include "llselectmgr.h"
 #include "llscrolllistctrl.h"
 #include "llviewerobject.h"

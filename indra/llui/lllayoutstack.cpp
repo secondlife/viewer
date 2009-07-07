@@ -38,7 +38,7 @@
 #include "llresizebar.h"
 #include "llcriticaldamp.h"
 
-static LLDefaultWidgetRegistry::Register<LLLayoutStack> register_layout_stack("layout_stack", &LLLayoutStack::fromXML);
+static LLDefaultChildRegistry::Register<LLLayoutStack> register_layout_stack("layout_stack", &LLLayoutStack::fromXML);
 
 
 //
@@ -223,7 +223,7 @@ static void get_attribute_bool_and_write(LLXMLNodePtr node,
 //static 
 LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 {
-	LLLayoutStack::Params p(LLUICtrlFactory::getDefaultParams<LLLayoutStack::Params>());
+	LLLayoutStack::Params p(LLUICtrlFactory::getDefaultParams<LLLayoutStack>());
 	LLXUIParser::instance().readXUI(node, p);
 
 	// Export must happen before setupParams() mungles rectangles and before
@@ -233,7 +233,7 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 	{
 		Params output_params(p);
 		setupParamsForExport(output_params, parent);
-		LLLayoutStack::Params default_params(LLUICtrlFactory::getDefaultParams<LLLayoutStack::Params>());
+		LLLayoutStack::Params default_params(LLUICtrlFactory::getDefaultParams<LLLayoutStack>());
 		output_node->setName(node->getName()->mString);
 		LLXUIParser::instance().writeXUI(
 			output_node, output_params, &default_params);
@@ -296,7 +296,7 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 
 			LLPanel::Params p;
 			LLPanel* panelp = LLUICtrlFactory::create<LLPanel>(p);
-			LLView* new_child = LLUICtrlFactory::getInstance()->createFromXML(child_node, panelp, LLStringUtil::null, output_child, parent ? parent->getChildRegistry() : LLDefaultWidgetRegistry::instance());
+			LLView* new_child = LLUICtrlFactory::getInstance()->createFromXML(child_node, panelp, LLStringUtil::null, LLPanel::child_registry_t::instance(), output_child);
 			if (new_child)
 			{
 				// put child in new embedded panel

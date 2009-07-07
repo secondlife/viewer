@@ -82,6 +82,7 @@ set(viewer_SOURCE_FILES
     llbbox.cpp
     llbottomtray.cpp
     llbox.cpp
+    llbreadcrumbview.cpp
     llcallbacklist.cpp
     llcallingcard.cpp
     llcapabilitylistener.cpp
@@ -173,6 +174,7 @@ set(viewer_SOURCE_FILES
     llfloaterhud.cpp
     llfloaterimagepreview.cpp
     llfloaterinspect.cpp
+    llfloaterinventory.cpp
     llfloaterjoystick.cpp
     llfloaterlagmeter.cpp
     llfloaterland.cpp
@@ -198,6 +200,7 @@ set(viewer_SOURCE_FILES
     llfloatersettingsdebug.cpp
     llfloatersnapshot.cpp
     llfloatertelehub.cpp
+    llfloatertestlistview.cpp
     llfloatertools.cpp
     llfloatertopobjects.cpp
     llfloatertos.cpp
@@ -209,6 +212,7 @@ set(viewer_SOURCE_FILES
     llfloaterwindlight.cpp
     llfloaterworldmap.cpp
     llfolderview.cpp
+    llfolderviewitem.cpp
     llfollowcam.cpp
     llfriendactions.cpp
     llgesturemgr.cpp
@@ -236,10 +240,12 @@ set(viewer_SOURCE_FILES
     llimcontrolpanel.cpp
     llinventorybridge.cpp
     llinventoryclipboard.cpp
+    llinventoryfilter.cpp
     llinventorymodel.cpp
-    llinventoryview.cpp
     lljoystickbutton.cpp
     lllandmarklist.cpp
+    lllistbrowser.cpp
+    lllistview.cpp
     lllocationhistory.cpp
     lllocationinputctrl.cpp
     lllogchat.cpp
@@ -495,6 +501,7 @@ set(viewer_HEADER_FILES
     llbbox.h
     llbottomtray.h
     llbox.h
+    llbreadcrumbview.h
     llcallbacklist.h
     llcallingcard.h
     llcapabilitylistener.h
@@ -588,6 +595,7 @@ set(viewer_HEADER_FILES
     llfloaterhud.h
     llfloaterimagepreview.h
     llfloaterinspect.h
+    llfloaterinventory.h
     llfloaterjoystick.h
     llfloaterlagmeter.h
     llfloaterland.h
@@ -613,6 +621,7 @@ set(viewer_HEADER_FILES
     llfloatersettingsdebug.h
     llfloatersnapshot.h
     llfloatertelehub.h
+    llfloatertestlistview.h
     llfloatertools.h
     llfloatertopobjects.h
     llfloatertos.h
@@ -624,6 +633,8 @@ set(viewer_HEADER_FILES
     llfloaterwindlight.h
     llfloaterworldmap.h
     llfolderview.h
+    llfoldervieweventlistener.h
+    llfolderviewitem.h
     llfollowcam.h
     llfriendactions.h
     llgesturemgr.h
@@ -650,11 +661,13 @@ set(viewer_HEADER_FILES
     llimcontrolpanel.h
     llinventorybridge.h
     llinventoryclipboard.h
+    llinventoryfilter.h
     llinventorymodel.h
-    llinventoryview.h
     lljoystickbutton.h
     lllandmarklist.h
     lllightconstants.h
+    lllistbrowser.h
+    lllistview.h
     lllocationhistory.h
     lllocationinputctrl.h
     lllogchat.h

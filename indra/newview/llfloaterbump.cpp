@@ -45,11 +45,13 @@
 ///----------------------------------------------------------------------------
 /// Class LLFloaterBump
 ///----------------------------------------------------------------------------
+extern BOOL gNoRender;
 
 // Default constructor
 LLFloaterBump::LLFloaterBump(const LLSD& key) 
-:	LLFloater()
+:	LLFloater(key)
 {
+	if(gNoRender) return;
 	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_bumps.xml");
 }
 

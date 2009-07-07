@@ -375,10 +375,10 @@ BOOL LLPanelPeople::postBuild()
 	// Create menus.
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	registrar.add("People.Group.Plus.Action",  boost::bind(&LLPanelPeople::onGroupPlusMenuItemClicked,  this, _2));
-	LLMenuGL* plus_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_group_plus.xml",  gMenuHolder);
+	LLMenuGL* plus_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_group_plus.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGroupPlusMenuHandle  = plus_menu->getHandle();
 	registrar.add("People.Group.Minus.Action", boost::bind(&LLPanelPeople::onGroupMinusMenuItemClicked, this, _2));
-	LLMenuGL* minus_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_group_minus.xml", gMenuHolder);
+	LLMenuGL* minus_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_group_minus.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGroupMinusMenuHandle = minus_menu->getHandle();
 
 	// Perform initial update.

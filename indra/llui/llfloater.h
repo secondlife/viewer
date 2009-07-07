@@ -105,6 +105,17 @@ public:
 		BUTTON_COUNT
 	};
 	
+	typedef boost::function<void (LLUICtrl* ctrl, const LLSD& param)> open_callback_t;
+	typedef boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param)> open_signal_t;
+	
+	typedef boost::function<void (LLUICtrl* ctrl, const LLSD& param)> close_callback_t;
+	typedef boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param)> close_signal_t;
+	
+	struct OpenCallbackParam : public LLInitParam::Block<OpenCallbackParam, CallbackParam >
+	{
+		Optional<open_callback_t> function;
+	};
+	
 	struct Params 
 	:	public LLInitParam::Block<Params, LLPanel::Params>
 	{
@@ -120,7 +131,10 @@ public:
 								can_tear_off,
 								save_rect,
 								save_visibility;
-
+		
+		Optional<OpenCallbackParam> open_callback,
+									close_callback;
+		
 		Params() :
 			title("title"),
 			short_title("short_title"),
@@ -132,7 +146,9 @@ public:
 			can_drag_on_left("can_drag_on_left", false),
 			can_tear_off("can_tear_off", true),
 			save_rect("save_rect", false),
-			save_visibility("save_visibility", false)
+			save_visibility("save_visibility", false),
+		    open_callback("open_callback"),
+			close_callback("close_callback")
 		{
 			name = "floater";
 			// defaults that differ from LLPanel:
@@ -289,8 +305,9 @@ protected:
 
 	void			destroy() { die(); } // Don't call this directly.  You probably want to call close(). JC
 
+	void			initOpenCallback(const OpenCallbackParam& cb, open_signal_t& sig);
+
 private:
-	
 	void			setForeground(BOOL b);	// called only by floaterview
 	void			cleanupHandles(); // remove handles to dead floaters
 	void			createMinimizeButton();
@@ -299,11 +316,15 @@ private:
 	BOOL			offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButtons index);
 	void			addResizeCtrls();
 	void 			addDragHandle();
-	
+
+public:
+	typedef CallbackRegistry<open_callback_t> OpenCallbackRegistry;
+
 protected:
 	std::string		mRectControl;
 	std::string		mVisibilityControl;
-	
+	open_signal_t   mOpenSignal;
+	open_signal_t   mCloseSignal;
 	LLSD			mKey;				// Key used for retrieving instances; set (for now) by LLFLoaterReg
 	
 private:
@@ -378,6 +399,7 @@ private:
 	LLRootHandle<LLFloater>		mHandle;	
 };
 
+
 /////////////////////////////////////////////////////////////
 // LLFloaterView
 // Parent of all floating panels
@@ -441,9 +463,6 @@ private:
 	S32				mSnapOffsetRight;
 };
 
-// singleton implementation for floaters
-// https://wiki.lindenlab.com/mediawiki/index.php?title=LLFloaterSingleton&oldid=164990
-
 //*******************************************************
 //* TO BE DEPRECATED
 //*******************************************************
@@ -458,14 +477,6 @@ public:
 	static void show(LLFloater* instance, const LLSD& key);
 
 	static void hide(LLFloater* instance, const LLSD& key);
-};
-
-
-// singleton implementation for floaters (provides visibility policy)
-// https://wiki.lindenlab.com/mediawiki/index.php?title=LLFloaterSingleton&oldid=164990
-
-template <class T> class LLFloaterSingleton : public LLUISingleton<T, VisibilityPolicy<LLFloater> >
-{
 };
 
 //

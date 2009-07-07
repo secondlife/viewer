@@ -182,10 +182,7 @@ private:
 
 public:
  	LLVOAvatarSelf* getAvatarObject() const		{ return mAvatarObject; }
-	const LLUUID&	getInventoryRootID() const 	{ return mInventoryRootID; }
-	LLUUID&			getInventoryRootID() 		{ return mInventoryRootID; }
 private:
-	LLUUID			mInventoryRootID;
 	LLPointer<LLVOAvatarSelf> mAvatarObject; 	// NULL until avatar object sent down from simulator
 
 /**                    General Accessors

@@ -32,7 +32,6 @@
 
 #include "linden_common.h"
 
-#define INSTANTIATE_GETCHILD_BUTTON
 #include "llbutton.h"
 
 // Linden library includes
@@ -53,15 +52,13 @@
 #include "llrender.h"
 #include "lluictrlfactory.h"
 
-static LLDefaultWidgetRegistry::Register<LLButton> r("button");
+static LLDefaultChildRegistry::Register<LLButton> r("button");
 
 // globals loaded from settings.xml
 S32	LLBUTTON_H_PAD	= 0;
 S32	LLBUTTON_V_PAD	= 0;
 S32 BTN_HEIGHT_SMALL= 0;
 S32 BTN_HEIGHT		= 0;
-
-template LLButton* LLView::getChild<LLButton>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
 
 LLButton::Params::Params()
 :	label_selected("label_selected"),				// requires is_toggle true
@@ -146,7 +143,7 @@ LLButton::LLButton(const LLButton::Params& p)
 	mFadeWhenDisabled(FALSE)
 {
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
-	static Params default_params(LLUICtrlFactory::getDefaultParams<Params>());
+	static Params default_params(LLUICtrlFactory::getDefaultParams<LLButton>());
 
 	//if we aren't a picture_style button set label as name if not provided
 	if (!p.picture_style.isProvided() || !p.picture_style)
@@ -328,25 +325,27 @@ BOOL LLButton::handleKeyHere(KEY key, MASK mask )
 
 BOOL LLButton::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	// Route future Mouse messages here preemptively.  (Release on mouse up.)
-	gFocusMgr.setMouseCapture( this );
-
-	if (hasTabStop() && !getIsChrome())
+	if (!childrenHandleMouseDown(x, y, mask))
 	{
-		setFocus(TRUE);
+		// Route future Mouse messages here preemptively.  (Release on mouse up.)
+		gFocusMgr.setMouseCapture( this );
+
+		if (hasTabStop() && !getIsChrome())
+		{
+			setFocus(TRUE);
+		}
+
+		mMouseDownSignal(this, LLSD());
+
+		mMouseDownTimer.start();
+		mMouseDownFrame = (S32) LLFrameTimer::getFrameCount();
+		mMouseHeldDownCount = 0;
+		
+		if (getSoundFlags() & MOUSE_DOWN)
+		{
+			make_ui_sound("UISndClick");
+		}
 	}
-
-	mMouseDownSignal(this, LLSD());
-
-	mMouseDownTimer.start();
-	mMouseDownFrame = (S32) LLFrameTimer::getFrameCount();
-	mMouseHeldDownCount = 0;
-	
-	if (getSoundFlags() & MOUSE_DOWN)
-	{
-		make_ui_sound("UISndClick");
-	}
-
 	return TRUE;
 }
 
@@ -381,20 +380,26 @@ BOOL LLButton::handleMouseUp(S32 x, S32 y, MASK mask)
 			LLUICtrl::onCommit();
 		}
 	}
+	else
+	{
+		childrenHandleMouseUp(x, y, mask);
+	}
 
 	return TRUE;
 }
 
 BOOL	LLButton::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	// Route future Mouse messages here preemptively.  (Release on mouse up.)
-	gFocusMgr.setMouseCapture( this );
-
-	if (hasTabStop() && !getIsChrome())
+	if (!childrenHandleRightMouseDown(x, y, mask))
 	{
-		setFocus(TRUE);
-	}
+		// Route future Mouse messages here preemptively.  (Release on mouse up.)
+		gFocusMgr.setMouseCapture( this );
 
+		if (hasTabStop() && !getIsChrome())
+		{
+			setFocus(TRUE);
+		}
+	}
 
 	return TRUE;
 }
@@ -411,6 +416,10 @@ BOOL	LLButton::handleRightMouseUp(S32 x, S32 y, MASK mask)
 		{
 			mRightClickSignal(this, getValue());
 		}
+	}
+	else 
+	{
+		childrenHandleRightMouseUp(x, y, mask);
 	}
 	return TRUE;
 }
@@ -429,21 +438,23 @@ void LLButton::onMouseLeave(S32 x, S32 y, MASK mask)
 
 BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 {
-	if (mMouseDownTimer.getStarted())
+	if (!childrenHandleHover(x, y, mask))
 	{
-		F32 elapsed = getHeldDownTime();
-		if( mHeldDownDelay <= elapsed && mHeldDownFrameDelay <= (S32)LLFrameTimer::getFrameCount() - mMouseDownFrame)
+		if (mMouseDownTimer.getStarted())
 		{
-			LLSD param;
-			param["count"] = mMouseHeldDownCount++;
-			mHeldDownSignal(this, param);
+			F32 elapsed = getHeldDownTime();
+			if( mHeldDownDelay <= elapsed && mHeldDownFrameDelay <= (S32)LLFrameTimer::getFrameCount() - mMouseDownFrame)
+			{
+				LLSD param;
+				param["count"] = mMouseHeldDownCount++;
+				mHeldDownSignal(this, param);
+			}
 		}
+
+		// We only handle the click if the click both started and ended within us
+		getWindow()->setCursor(UI_CURSOR_ARROW);
+		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << llendl;
 	}
-
-	// We only handle the click if the click both started and ended within us
-	getWindow()->setCursor(UI_CURSOR_ARROW);
-	lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << llendl;
-
 	return TRUE;
 }
 

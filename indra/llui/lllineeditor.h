@@ -392,12 +392,6 @@ private:
 
 }; // end class LLLineEditor
 
-#ifdef LL_WINDOWS
-#ifndef INSTANTIATE_GETCHILD_LINEEDITOR
-#pragma warning (disable : 4231)
-extern template LLLineEditor* LLView::getChild<LLLineEditor>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-#endif
-#endif
 
 namespace LLInitParam
 {

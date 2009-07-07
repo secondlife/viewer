@@ -149,7 +149,7 @@ LLXMLNodePtr LLXMLNode::deepCopy()
 	if (mChildren.notNull())
 	{
 		for (LLXMLChildList::iterator iter = mChildren->map.begin();
-			 iter != mChildren->map.end(); ++iter)
+			 iter != mChildren->map.end(); ++iter)	
 		{
 			newnode->addChild(iter->second->deepCopy());
 		}
@@ -299,6 +299,22 @@ void LLXMLNode::addChild(LLXMLNodePtr new_child, LLXMLNodePtr after_child)
 			{
 				mChildren->tail->mNext = new_child;
 				new_child->mPrev = mChildren->tail;
+				mChildren->tail = new_child;
+			}
+		}
+		// if after_child == parent, then put new_child at beginning
+		else if (after_child == this)
+		{
+			// add to front of list
+			new_child->mNext = mChildren->head;
+			if (mChildren->head)
+			{
+				mChildren->head->mPrev = new_child;
+				mChildren->head = new_child;
+			}
+			else // no children
+			{
+				mChildren->head = new_child;
 				mChildren->tail = new_child;
 			}
 		}

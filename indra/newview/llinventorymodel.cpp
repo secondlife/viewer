@@ -46,7 +46,7 @@
 #include "llfloater.h"
 #include "llfocusmgr.h"
 #include "llinventorybridge.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llviewerinventory.h"
 #include "llviewermessage.h"
 #include "llviewerwindow.h"
@@ -155,9 +155,20 @@ bool LLCanCache::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 LLInventoryModel gInventory;
 
 // Default constructor
-LLInventoryModel::LLInventoryModel() :
-	mModifyMask(LLInventoryObserver::ALL),
+LLInventoryModel::LLInventoryModel()
+:	mModifyMask(LLInventoryObserver::ALL),
+	mChangedItemIDs(),
+	mCategoryMap(),
+	mItemMap(),
+	mCategoryLock(),
+	mItemLock(),
 	mLastItem(NULL),
+	mParentChildCategoryTree(),
+	mParentChildItemTree(),
+	mObservers(),
+	mRootFolderID(),
+	mLibraryRootFolderID(),
+	mLibraryOwnerID(),
 	mIsAgentInvUsable(false)
 {
 }
@@ -299,7 +310,7 @@ LLUUID LLInventoryModel::findCategoryUUIDForType(LLAssetType::EType t, bool crea
 	LLUUID rv = findCatUUID(t);
 	if(rv.isNull() && isInventoryUsable() && create_folder)
 	{
-		LLUUID root_id = gAgent.getInventoryRootID();
+		LLUUID root_id = gInventory.getRootFolderID();
 		if(root_id.notNull())
 		{
 			rv = createNewCategory(root_id, t, LLStringUtil::null);
@@ -312,7 +323,7 @@ LLUUID LLInventoryModel::findCategoryUUIDForType(LLAssetType::EType t, bool crea
 // preferred type. Returns LLUUID::null if not found.
 LLUUID LLInventoryModel::findCatUUID(LLAssetType::EType preferred_type)
 {
-	LLUUID root_id = gAgent.getInventoryRootID();
+	LLUUID root_id = gInventory.getRootFolderID();
 	if(LLAssetType::AT_CATEGORY == preferred_type)
 	{
 		return root_id;
@@ -469,7 +480,7 @@ void LLInventoryModel::collectLinkedItems(const LLUUID& id,
 {
 	LLInventoryModel::cat_array_t cat_array;
 	LLLinkedItemIDMatches is_linked_item_match(id);
-	collectDescendentsIf(gAgent.getInventoryRootID(),
+	collectDescendentsIf(gInventory.getRootFolderID(),
 						 cat_array,
 						 items,
 						 LLInventoryModel::INCLUDE_TRASH,
@@ -500,7 +511,7 @@ void LLInventoryModel::appendPath(const LLUUID& id, std::string& path)
 bool LLInventoryModel::isInventoryUsable()
 {
 	bool result = false;
-	if(gAgent.getInventoryRootID().notNull() && mIsAgentInvUsable)
+	if(gInventory.getRootFolderID().notNull() && mIsAgentInvUsable)
 	{
 		result = true;
 	}
@@ -1478,8 +1489,8 @@ void LLInventoryModel::startBackgroundFetch(const LLUUID& cat_id)
 			if (!sFullFetchStarted)
 			{
 				sFullFetchStarted = TRUE;
-				sFetchQueue.push_back(gInventoryLibraryRoot);
-				sFetchQueue.push_back(gAgent.getInventoryRootID());
+				sFetchQueue.push_back(gInventory.getLibraryRootFolderID());
+				sFetchQueue.push_back(gInventory.getRootFolderID());
 				gIdleCallbacks.addFunction(&LLInventoryModel::backgroundFetch, NULL);
 			}
 		}
@@ -2271,7 +2282,7 @@ void LLInventoryModel::buildParentChildMap()
 			else
 			{
 				// it's a protected folder.
-				cat->setParent(gAgent.getInventoryRootID());
+				cat->setParent(gInventory.getRootFolderID());
 			}
 			cat->updateServer(TRUE);
 			catsp = getUnlockedCatArray(cat->getParentUUID());
@@ -2371,7 +2382,7 @@ void LLInventoryModel::buildParentChildMap()
 		}
 	}
 
-	const LLUUID& agent_inv_root_id = gAgent.getInventoryRootID();
+	LLUUID agent_inv_root_id = gInventory.getRootFolderID();
 	if (agent_inv_root_id.notNull())
 	{
 		cat_array_t* catsp = get_ptr_in_map(mParentChildCategoryTree, agent_inv_root_id);
@@ -2821,7 +2832,7 @@ void LLInventoryModel::processUpdateInventoryFolder(LLMessageSystem* msg,
 	gInventory.notifyObservers();
 
 	// *HACK: Do the 'show' logic for a new item in the inventory.
-	LLInventoryView* view = LLInventoryView::getActiveInventory();
+	LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
 	if(view)
 	{
 		view->getPanel()->setSelection(lastfolder->getUUID(), TAKE_FOCUS_NO);
@@ -3030,13 +3041,13 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	// The incoming inventory could span more than one BulkInventoryUpdate packet,
 	// so record the transaction ID for this purchase, then wear all clothing
 	// that comes in as part of that transaction ID.  JC
-	if (LLInventoryView::sWearNewClothing)
+	if (LLFloaterInventory::sWearNewClothing)
 	{
-		LLInventoryView::sWearNewClothingTransactionID = tid;
-		LLInventoryView::sWearNewClothing = FALSE;
+		LLFloaterInventory::sWearNewClothingTransactionID = tid;
+		LLFloaterInventory::sWearNewClothing = FALSE;
 	}
 
-	if (tid == LLInventoryView::sWearNewClothingTransactionID)
+	if (tid == LLFloaterInventory::sWearNewClothingTransactionID)
 	{
 		count = wearable_ids.size();
 		for (i = 0; i < count; ++i)
@@ -3054,7 +3065,7 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 		gInventoryCallbacks.fire(cbinfo.mCallback, cbinfo.mInvID);
 	}
 	// Don't show the inventory.  We used to call showAgentInventory here.
-	//LLInventoryView* view = LLInventoryView::getActiveInventory();
+	//LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
 	//if(view)
 	//{
 	//	const BOOL take_keyboard_focus = FALSE;
@@ -3064,10 +3075,10 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	//	// HACK to open inventory offers that are accepted.  This information
 	//	// really needs to flow through the instant messages and inventory
 	//	// transfer/update messages.
-	//	if (LLInventoryView::sOpenNextNewItem)
+	//	if (LLFloaterInventory::sOpenNextNewItem)
 	//	{
 	//		view->openSelected();
-	//		LLInventoryView::sOpenNextNewItem = FALSE;
+	//		LLFloaterInventory::sOpenNextNewItem = FALSE;
 	//	}
 	//
 	//	// restore keyboard focus
@@ -3230,6 +3241,36 @@ void LLInventoryModel::removeItem(const LLUUID& item_id)
 		updateItem(new_item);
 		notifyObservers();
 	}
+}
+
+LLUUID LLInventoryModel::getRootFolderID() const
+{
+	return mRootFolderID;
+}
+
+void LLInventoryModel::setRootFolderID(const LLUUID& val)
+{
+	mRootFolderID = val;
+}
+
+LLUUID LLInventoryModel::getLibraryRootFolderID() const
+{
+	return mLibraryRootFolderID;
+}
+
+void LLInventoryModel::setLibraryRootFolderID(const LLUUID& val)
+{
+	mLibraryRootFolderID = val;
+}
+
+LLUUID LLInventoryModel::getLibraryOwnerID() const
+{
+	return mLibraryOwnerID;
+}
+
+void LLInventoryModel::setLibraryOwnerID(const LLUUID& val)
+{
+	mLibraryOwnerID = val;
 }
 
 //----------------------------------------------------------------------------

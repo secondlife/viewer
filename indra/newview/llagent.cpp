@@ -2153,7 +2153,6 @@ void LLAgent::setBusy()
 	{
 		gBusyMenu->setLabel(LLTrans::getString("AvatarSetNotBusy"));
 	}
-	LLFloaterReg::getTypedInstance<LLFloaterMute>("mute")->updateButtons();
 }
 
 //-----------------------------------------------------------------------------
@@ -2167,7 +2166,6 @@ void LLAgent::clearBusy()
 	{
 		gBusyMenu->setLabel(LLTrans::getString("AvatarSetBusy"));
 	}
-	LLFloaterReg::getTypedInstance<LLFloaterMute>("mute")->updateButtons();
 }
 
 //-----------------------------------------------------------------------------
@@ -2490,7 +2488,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 void LLAgent::propagate(const F32 dt)
 {
 	// Update UI based on agent motion
-	LLFloaterMove *floater_move = LLFloaterMove::getInstance();
+	LLFloaterMove *floater_move = LLFloaterReg::getTypedInstance<LLFloaterMove>("moveview");
 	if (floater_move)
 	{
 		floater_move->mForwardButton   ->setToggleState( mAtKey > 0 || mWalkKey > 0 );
@@ -3056,21 +3054,25 @@ void LLAgent::updateCamera()
 	}
 
 	// Update UI with our camera inputs
-	LLFloaterCamera::getInstance()->mRotate->setToggleState(
-		mOrbitRightKey > 0.f,	// left
-		mOrbitUpKey > 0.f,		// top
-		mOrbitLeftKey > 0.f,	// right
-		mOrbitDownKey > 0.f);	// bottom
+	LLFloaterCamera* camera_instance = LLFloaterReg::getTypedInstance<LLFloaterCamera>("camera");
+	if(camera_instance)
+	{
+		camera_instance->mRotate->setToggleState(
+												 mOrbitRightKey > 0.f,	// left
+												 mOrbitUpKey > 0.f,		// top
+												 mOrbitLeftKey > 0.f,	// right
+												 mOrbitDownKey > 0.f);	// bottom
 
-	LLFloaterCamera::getInstance()->mZoom->setToggleState( 
-		mOrbitInKey > 0.f,		// top
-		mOrbitOutKey > 0.f);	// bottom
+	    camera_instance->mZoom->setToggleState( 
+											   mOrbitInKey > 0.f,		// top
+											   mOrbitOutKey > 0.f);	// bottom
 
-	LLFloaterCamera::getInstance()->mTrack->setToggleState(
-		mPanLeftKey > 0.f,		// left
-		mPanUpKey > 0.f,		// top
-		mPanRightKey > 0.f,		// right
-		mPanDownKey > 0.f);		// bottom
+		camera_instance->mTrack->setToggleState(
+												mPanLeftKey > 0.f,		// left
+												mPanUpKey > 0.f,		// top
+												mPanRightKey > 0.f,		// right
+												mPanDownKey > 0.f);		// bottom
+	}
 
 	// Handle camera movement based on keyboard.
 	const F32 ORBIT_OVER_RATE = 90.f * DEG_TO_RAD;			// radians per second
@@ -6074,7 +6076,7 @@ bool LLAgent::teleportCore(bool is_local)
 	LLFloaterReg::hideInstance("search");
 
 	// hide land floater too - it'll be out of date
-	LLFloaterLand::hideInstance();
+	LLFloaterReg::hideInstance("about_land");
 
 	LLViewerParcelMgr::getInstance()->deselectLand();
 

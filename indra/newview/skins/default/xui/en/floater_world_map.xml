@@ -144,7 +144,10 @@
      name="Go Home"
      tool_tip="Teleport to your home"
      top="34"
-     width="88" />
+     width="88" >
+		<button.commit_callback
+		function="WMap.GoHome" />
+	</button>
     <icon
      color="0 1 0 1"
      follows="top|right"
@@ -325,6 +328,8 @@
         <combo_box.item
          label="Online Friends"
          value="None" />
+		<combo_box.commit_callback
+		function="WMap.AvatarCombo"/>
     </combo_box>
     <icon
      color="0.5 0 0 1"
@@ -352,6 +357,8 @@
         <combo_box.item
          label="Landmarks"
          value="None" />
+		 <combo_box.commit_callback
+		function="WMap.Landmark" />
     </combo_box>
     <icon
      color="0.5 0 0 1"
@@ -384,7 +391,10 @@
      name="DoSearch"
      tool_tip="Search for region"
      top_delta="0"
-     width="60" />
+     width="60">
+		<button.commit_callback
+		function="WMap.Location" />
+	</button>
     <text
      type="string"
      length="1"
@@ -415,6 +425,8 @@
          label=""
          name="sim_name"
          width="206" />
+		<scroll_list.commit_callback
+		function="WMap.SearchResult" />
     </scroll_list>
     <text
      type="string"
@@ -441,7 +453,10 @@
      name="spin x"
      tool_tip="X coordinate of location to show on map"
      top_delta="0"
-     width="48" />
+     width="48">
+		<spinner.commit_callback
+		function="WMap.CommitLocation" />
+    </spinner>
     <spinner
      decimal_digits="0"
      follows="bottom|right"
@@ -454,7 +469,10 @@
      name="spin y"
      tool_tip="Y coordinate of location to show on map"
      top_delta="0"
-     width="48" />
+     width="48" >
+		<spinner.commit_callback
+		function="WMap.CommitLocation" />
+    </spinner>
     <spinner
      decimal_digits="0"
      follows="bottom|right"
@@ -467,7 +485,10 @@
      name="spin z"
      tool_tip="Z coordinate of location to show on map"
      top_delta="0"
-     width="48" />
+     width="48">
+		<spinner.commit_callback
+		function="WMap.CommitLocation" />
+    </spinner>
     <button
      follows="right|bottom"
      height="20"
@@ -478,7 +499,10 @@
      name="Teleport"
      tool_tip="Teleport to selected location"
      top="494"
-     width="90" />
+     width="90">
+		<button.commit_callback
+		function="WMap.Teleport" />
+    </button>
     <button
      follows="right|bottom"
      height="20"
@@ -489,7 +513,10 @@
      name="Show Destination"
      tool_tip="Center map on selected location"
      top_delta="0"
-     width="125" />
+     width="125">
+		<button.commit_callback
+		function="WMap.ShowTarget" />
+    </button>
     <button
      follows="right|bottom"
      height="20"
@@ -500,7 +527,10 @@
      name="Clear"
      tool_tip="Stop tracking"
      top="518"
-     width="90" />
+     width="90">
+		<button.commit_callback
+		function="WMap.Clear" />
+    </button>
     <button
      follows="right|bottom"
      height="20"
@@ -511,7 +541,10 @@
      name="Show My Location"
      tool_tip="Center map on your avatar&apos;s location"
      top_delta="0"
-     width="125" />
+     width="125" >
+		<button.commit_callback
+		function="WMap.ShowAgent" />
+    </button>
     <button
      enabled="false"
      follows="bottom|right"
@@ -522,7 +555,10 @@
      name="copy_slurl"
      tool_tip="Copies current location as SLURL to be used on the web."
      top="542"
-     width="222" />
+     width="222">
+		<button.commit_callback
+		function="WMap.CopySLURL" />
+    </button>
     <slider
      follows="right|bottom"
      height="16"

@@ -310,7 +310,10 @@
      left="108"
      name="apply_btn"
      top="320"
-     width="100" />
+     width="100">
+        <button.commit_callback
+         function="RegionInfo.Cancel" />
+    </button>
    <button
      follows="left|top"
      height="20"

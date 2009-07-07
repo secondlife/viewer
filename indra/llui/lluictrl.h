@@ -130,8 +130,8 @@ public:
 		Alternative<std::string> invisible;
 
 		ControlVisibility()
-			: visible("make_visible_control"),
-			invisible("make_invisible_control")
+			: visible("visiblity_control"),
+			invisible("invisiblity_control")
 		{}
 	};	
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
@@ -324,6 +324,10 @@ namespace LLInitParam
 	bool ParamCompare<LLUICtrl::focus_callback_t>::equals(
 		const LLUICtrl::focus_callback_t &a, 
 		const LLUICtrl::focus_callback_t &b); 
+	
+    template<>
+	bool ParamCompare<LLLazyValue<LLColor4> >::equals(
+		const LLLazyValue<LLColor4> &a, const LLLazyValue<LLColor4> &b); 
 }
 
 #endif  // LL_LLUICTRL_H

@@ -247,9 +247,12 @@ void LLPanelGroupLandMoney::impl::onMapButton()
 	F64 global_z = gAgent.getPositionGlobal().mdV[VZ];
 
 	LLVector3d pos_global(global_x, global_y, global_z);
-	LLFloaterWorldMap::getInstance()->trackLocation(pos_global);
-
-	LLFloaterReg::showInstance("world_map", "center");
+	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+    if(worldmap_instance)
+	{
+		worldmap_instance->trackLocation(pos_global);
+		LLFloaterReg::showInstance("world_map", "center");
+	}
 }
 
 bool LLPanelGroupLandMoney::impl::applyContribution()

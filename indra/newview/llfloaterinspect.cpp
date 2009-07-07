@@ -47,13 +47,32 @@
 #include "llviewerobject.h"
 #include "lluictrlfactory.h"
 
-LLFloaterInspect* LLFloaterInspect::sInstance = NULL;
+//LLFloaterInspect* LLFloaterInspect::sInstance = NULL;
 
-LLFloaterInspect::LLFloaterInspect(void)
-  : LLFloater(),
+LLFloaterInspect::LLFloaterInspect(const LLSD& key)
+  : LLFloater(key),
 	mDirty(FALSE)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_inspect.xml");
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_inspect.xml");
+	mCommitCallbackRegistrar.add("Inspect.OwnerProfile",	boost::bind(&LLFloaterInspect::onClickOwnerProfile, this));
+	mCommitCallbackRegistrar.add("Inspect.CreatorProfile",	boost::bind(&LLFloaterInspect::onClickCreatorProfile, this));
+	mCommitCallbackRegistrar.add("Inspect.SelectObject",	boost::bind(&LLFloaterInspect::onSelectObject, this));
+}
+
+BOOL LLFloaterInspect::postBuild()
+{
+	mObjectList = getChild<LLScrollListCtrl>("object_list");
+//	childSetAction("button owner",onClickOwnerProfile, this);
+//	childSetAction("button creator",onClickCreatorProfile, this);
+//	childSetCommitCallback("object_list", onSelectObject, NULL);
+	
+	BOOL forcesel = LLSelectMgr::getInstance()->setForceSelection(TRUE);
+	LLToolMgr::getInstance()->setTransientTool(LLToolCompInspect::getInstance());
+	LLSelectMgr::getInstance()->setForceSelection(forcesel);	// restore previouis value
+	mObjectSelection = LLSelectMgr::getInstance()->getSelection();
+	refresh();
+	
+	return TRUE;
 }
 
 LLFloaterInspect::~LLFloaterInspect(void)
@@ -71,14 +90,14 @@ LLFloaterInspect::~LLFloaterInspect(void)
 	{
 		LLFloaterReg::showInstance("build", LLSD(), TRUE);
 	}
-	sInstance = NULL;
+	//sInstance = NULL;
 }
-
+/*
 BOOL LLFloaterInspect::isVisible()
 {
 	return (!!sInstance);
-}
-
+}*/
+/*
 void LLFloaterInspect::show(void* ignored)
 {
 	// setForceSelection ensures that the pie menu does not deselect things when it 
@@ -98,15 +117,14 @@ void LLFloaterInspect::show(void* ignored)
 	sInstance->mObjectSelection = LLSelectMgr::getInstance()->getSelection();
 	sInstance->refresh();
 }
-
-void LLFloaterInspect::onClickCreatorProfile(void* ctrl)
+*/
+void LLFloaterInspect::onClickCreatorProfile()
 {
-	if(sInstance->mObjectList->getAllSelected().size() == 0)
+	if(mObjectList->getAllSelected().size() == 0)
 	{
 		return;
 	}
-	LLScrollListItem* first_selected =
-		sInstance->mObjectList->getFirstSelected();
+	LLScrollListItem* first_selected =mObjectList->getFirstSelected();
 
 	if (first_selected)
 	{
@@ -119,7 +137,7 @@ void LLFloaterInspect::onClickCreatorProfile(void* ctrl)
 				return (obj_id == node->getObject()->getID());
 			}
 		} func(first_selected->getUUID());
-		LLSelectNode* node = sInstance->mObjectSelection->getFirstNode(&func);
+		LLSelectNode* node = mObjectSelection->getFirstNode(&func);
 		if(node)
 		{
 			LLFriendActions::showProfile(node->mPermissions->getCreator());
@@ -127,11 +145,10 @@ void LLFloaterInspect::onClickCreatorProfile(void* ctrl)
 	}
 }
 
-void LLFloaterInspect::onClickOwnerProfile(void* ctrl)
+void LLFloaterInspect::onClickOwnerProfile()
 {
-	if(sInstance->mObjectList->getAllSelected().size() == 0) return;
-	LLScrollListItem* first_selected =
-		sInstance->mObjectList->getFirstSelected();
+	if(mObjectList->getAllSelected().size() == 0) return;
+	LLScrollListItem* first_selected =mObjectList->getFirstSelected();
 
 	if (first_selected)
 	{
@@ -145,7 +162,7 @@ void LLFloaterInspect::onClickOwnerProfile(void* ctrl)
 				return (obj_id == node->getObject()->getID());
 			}
 		} func(selected_id);
-		LLSelectNode* node = sInstance->mObjectSelection->getFirstNode(&func);
+		LLSelectNode* node = mObjectSelection->getFirstNode(&func);
 		if(node)
 		{
 			const LLUUID& owner_id = node->mPermissions->getOwner();
@@ -154,37 +171,25 @@ void LLFloaterInspect::onClickOwnerProfile(void* ctrl)
 	}
 }
 
-BOOL LLFloaterInspect::postBuild()
-{
-	mObjectList = getChild<LLScrollListCtrl>("object_list");
-	childSetAction("button owner",onClickOwnerProfile, this);
-	childSetAction("button creator",onClickCreatorProfile, this);
-	childSetCommitCallback("object_list", onSelectObject, NULL);
-	return TRUE;
-}
-
-void LLFloaterInspect::onSelectObject(LLUICtrl* ctrl, void* user_data)
+void LLFloaterInspect::onSelectObject()
 {
 	if(LLFloaterInspect::getSelectedUUID() != LLUUID::null)
 	{
-		sInstance->childSetEnabled("button owner", true);
-		sInstance->childSetEnabled("button creator", true);
+		childSetEnabled("button owner", true);
+		childSetEnabled("button creator", true);
 	}
 }
 
 LLUUID LLFloaterInspect::getSelectedUUID()
 {
-	if(sInstance)
+	if(mObjectList->getAllSelected().size() > 0)
 	{
-		if(sInstance->mObjectList->getAllSelected().size() > 0)
+		LLScrollListItem* first_selected =mObjectList->getFirstSelected();
+		if (first_selected)
 		{
-			LLScrollListItem* first_selected =
-				sInstance->mObjectList->getFirstSelected();
-			if (first_selected)
-			{
-				return first_selected->getUUID();
-			}
+			return first_selected->getUUID();
 		}
+		
 	}
 	return LLUUID::null;
 }
@@ -262,7 +267,7 @@ void LLFloaterInspect::refresh()
 	{
 		mObjectList->selectNthItem(0);
 	}
-	onSelectObject(this, NULL);
+	onSelectObject();
 	mObjectList->setScrollPos(pos);
 }
 
@@ -274,10 +279,7 @@ void LLFloaterInspect::onFocusReceived()
 
 void LLFloaterInspect::dirty()
 {
-	if(sInstance)
-	{
-		sInstance->setDirty();
-	}
+	setDirty();
 }
 
 void LLFloaterInspect::draw()

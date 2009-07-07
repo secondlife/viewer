@@ -284,7 +284,7 @@ void LLPanelVoiceDeviceSettings::onCommitOutputDevice(LLUICtrl* ctrl, void* user
 //
 
 LLFloaterVoiceDeviceSettings::LLFloaterVoiceDeviceSettings(const LLSD& seed)
-	: LLFloater(),
+	: LLFloater(seed),
 	  mDevicePanel(NULL)
 {
 	mFactoryMap["device_settings"] = LLCallbackMap(createPanelVoiceDeviceSettings, this);

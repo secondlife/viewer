@@ -4551,7 +4551,7 @@ void LLVoiceClient::messageEvent(
 	
 	if(messageHeader.find("text/html") != std::string::npos)
 	{
-		std::string rawMessage;
+		std::string message;
 
 		{
 			const std::string startMarker = "<body";
@@ -4563,7 +4563,7 @@ void LLVoiceClient::messageEvent(
 			std::string::size_type end;
 			
 			// Default to displaying the raw string, so the message gets through.
-			rawMessage = messageBody;
+			message = messageBody;
 
 			// Find the actual message text within the XML fragment
 			start = messageBody.find(startMarker);
@@ -4577,7 +4577,7 @@ void LLVoiceClient::messageEvent(
 				if(end != std::string::npos)
 					end -= start;
 					
-				rawMessage.assign(messageBody, start, end);
+				message.assign(messageBody, start, end);
 			}
 			else 
 			{
@@ -4593,24 +4593,24 @@ void LLVoiceClient::messageEvent(
 					if(end != std::string::npos)
 						end -= start;
 					
-					rawMessage.assign(messageBody, start, end);
+					message.assign(messageBody, start, end);
 				}			
 			}
 		}	
 		
-//		LL_DEBUGS("Voice") << "    raw message = \n" << rawMessage << LL_ENDL;
+//		LL_DEBUGS("Voice") << "    raw message = \n" << message << LL_ENDL;
 
 		// strip formatting tags
 		{
 			std::string::size_type start;
 			std::string::size_type end;
 			
-			while((start = rawMessage.find('<')) != std::string::npos)
+			while((start = message.find('<')) != std::string::npos)
 			{
-				if((end = rawMessage.find('>', start + 1)) != std::string::npos)
+				if((end = message.find('>', start + 1)) != std::string::npos)
 				{
 					// Strip out the tag
-					rawMessage.erase(start, (end + 1) - start);
+					message.erase(start, (end + 1) - start);
 				}
 				else
 				{
@@ -4626,31 +4626,31 @@ void LLVoiceClient::messageEvent(
 
 			// The text may contain text encoded with &lt;, &gt;, and &amp;
 			mark = 0;
-			while((mark = rawMessage.find("&lt;", mark)) != std::string::npos)
+			while((mark = message.find("&lt;", mark)) != std::string::npos)
 			{
-				rawMessage.replace(mark, 4, "<");
+				message.replace(mark, 4, "<");
 				mark += 1;
 			}
 			
 			mark = 0;
-			while((mark = rawMessage.find("&gt;", mark)) != std::string::npos)
+			while((mark = message.find("&gt;", mark)) != std::string::npos)
 			{
-				rawMessage.replace(mark, 4, ">");
+				message.replace(mark, 4, ">");
 				mark += 1;
 			}
 			
 			mark = 0;
-			while((mark = rawMessage.find("&amp;", mark)) != std::string::npos)
+			while((mark = message.find("&amp;", mark)) != std::string::npos)
 			{
-				rawMessage.replace(mark, 5, "&");
+				message.replace(mark, 5, "&");
 				mark += 1;
 			}
 		}
 		
 		// strip leading/trailing whitespace (since we always seem to get a couple newlines)
-		LLStringUtil::trim(rawMessage);
+		LLStringUtil::trim(message);
 		
-//		LL_DEBUGS("Voice") << "    stripped message = \n" << rawMessage << LL_ENDL;
+//		LL_DEBUGS("Voice") << "    stripped message = \n" << message << LL_ENDL;
 		
 		sessionState *session = findSession(sessionHandle);
 		if(session)
@@ -4674,14 +4674,12 @@ void LLVoiceClient::messageEvent(
 					quiet_chat = true;
 					// TODO: Question: Return busy mode response here?  Or maybe when session is started instead?
 				}
-				
-				std::string fullMessage = std::string(": ") + rawMessage;
-				
+								
 				LL_DEBUGS("Voice") << "adding message, name " << session->mName << " session " << session->mIMSessionID << ", target " << session->mCallerID << LL_ENDL;
 				gIMMgr->addMessage(session->mIMSessionID,
 						session->mCallerID,
 						session->mName.c_str(),
-						fullMessage.c_str(),
+						message.c_str(),
 						LLStringUtil::null,		// default arg
 						IM_NOTHING_SPECIAL,		// default arg
 						0,						// default arg
@@ -4689,7 +4687,7 @@ void LLVoiceClient::messageEvent(
 						LLVector3::zero,		// default arg
 						true);					// prepend name and make it a link to the user's profile
 
-				chat.mText = std::string("IM: ") + session->mName + std::string(": ") + rawMessage;
+				chat.mText = std::string("IM: ") + session->mName + std::string(": ") + message;
 				// If the chat should come in quietly (i.e. we're in busy mode), pretend it's from a local agent.
 				LLFloaterChat::addChat( chat, TRUE, quiet_chat );
 			}

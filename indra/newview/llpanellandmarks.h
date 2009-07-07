@@ -33,7 +33,7 @@
 #ifndef LL_LLPANELLANDMARKS_H
 #define LL_LLPANELLANDMARKS_H
 
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llinventorymodel.h"
 #include "llpanelplacestab.h"
 

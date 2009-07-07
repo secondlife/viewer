@@ -93,6 +93,9 @@ public:
 		Params();
 	};
 
+	// valid children for LLPanel are stored in this registry
+	typedef LLDefaultChildRegistry child_registry_t;
+
 protected:
 	friend class LLUICtrlFactory;
 	// RN: for some reason you can't just use LLUICtrlFactory::getDefaultParams as a default argument in VC8
@@ -165,7 +168,6 @@ public:
 	
 	void initFromParams(const Params& p);
 	BOOL initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
-	/*virtual*/ const widget_registry_t& getChildRegistry() const;
 	
 	bool hasString(const std::string& name);
 	std::string getString(const std::string& name, const LLStringUtil::format_map_t& args) const;

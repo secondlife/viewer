@@ -63,7 +63,7 @@ public:
 		Params()
 		:	quadrant("quadrant", JQ_ORIGIN)
 		{
-			label("");
+			label = "";
 		}
 	};
 	LLJoystick(const Params&);

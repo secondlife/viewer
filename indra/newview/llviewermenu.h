@@ -101,7 +101,6 @@ void handle_toggle_flycam();
 
 bool handle_sit_or_stand();
 bool handle_give_money_dialog();
-bool handle_object_open();
 bool handle_go_to();
 
 // Export to XML or Collada

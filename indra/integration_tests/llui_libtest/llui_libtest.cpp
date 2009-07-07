@@ -104,25 +104,27 @@ static std::string get_xui_dir()
 	return gDirUtilp->getAppRODataDir() + delim + std::string("skins") + delim + "default" + delim + "xui" + delim;
 }
 
-int main(int argc, char** argv)
+void init_llui()
 {
-	// Must init LLError for llerrs to actually cause errors.
-	LLError::initForApplication(".");
-
 	// Font lookup needs directory support
-	gDirUtilp->initAppDirs("SecondLife", "../../../newview");
+#if LL_DARWIN
+	const char* newview_path = "../../../../newview";
+#else
+	const char* newview_path = "../../../newview";
+#endif
+	gDirUtilp->initAppDirs("SecondLife", newview_path);
 	gDirUtilp->setSkinFolder("default");
-
+	
 	std::string config_filename = gDirUtilp->getExpandedFilename(
-		LL_PATH_APP_SETTINGS, "settings.xml");
+																 LL_PATH_APP_SETTINGS, "settings.xml");
 	LLControlGroup config_group("config");
 	config_group.loadFromFile(config_filename);
-
+	
 	std::string color_filename = gDirUtilp->getExpandedFilename(
-		LL_PATH_DEFAULT_SKIN, "colors.xml");
+																LL_PATH_DEFAULT_SKIN, "colors.xml");
 	LLControlGroup color_group("color");
 	color_group.loadFromFile(color_filename);
-
+	
 	LLControlGroup floater_group("floater");
 	LLControlGroup ignores_group("ignores");
 	LLUI::settings_map_t settings;
@@ -130,14 +132,14 @@ int main(int argc, char** argv)
 	settings["color"] = &color_group;
 	settings["floater"] = &floater_group;
 	settings["ignores"] = &ignores_group;
-
+	
 	// Don't use real images as we don't have a GL context
 	TestImageProvider image_provider;
 	LLUI::initClass(settings, &image_provider);
-
+	
 	const bool no_register_widgets = false;
 	LLWidgetReg::initClass( no_register_widgets );
-
+	
 	// Unclear if this is needed
 	LLUI::setupPaths();
 	// Otherwise we get translation warnings when setting up floaters
@@ -146,14 +148,14 @@ int main(int argc, char** argv)
 	LLTrans::parseStrings("strings.xml", default_args);
     
 	LLFontManager::initClass();
-
+	
 	// Creating widgets apparently requires fonts to be initialized,
 	// otherwise it crashes.
 	LLFontGL::initClass(96.f, 1.f, 1.f,
-		gDirUtilp->getAppRODataDir(),
-		LLUI::getXUIPaths(),
-		false );	// don't create gl textures
-
+						gDirUtilp->getAppRODataDir(),
+						LLUI::getXUIPaths(),
+						false );	// don't create gl textures
+	
 	LLFloaterView::Params fvparams;
 	fvparams.name("Floater View");
 	fvparams.rect( LLRect(0,480,640,0) );
@@ -161,7 +163,10 @@ int main(int argc, char** argv)
 	fvparams.follows.flags(FOLLOWS_ALL);
 	fvparams.tab_stop(false);
 	gFloaterView = LLUICtrlFactory::create<LLFloaterView> (fvparams);
+}
 
+void export_test_floaters()
+{
 	// Convert all test floaters to new XML format
 	std::string delim = gDirUtilp->getDirDelimiter();
 	std::string xui_dir = get_xui_dir() + "en" + delim;
@@ -178,19 +183,30 @@ int main(int argc, char** argv)
 		LLXMLNodePtr output_node = new LLXMLNode();
 		LLFloater* floater = new LLFloater();
 		LLUICtrlFactory::getInstance()->buildFloater(floater,
-			filename,
-			FALSE,	// don't open floater
-			output_node);
+													 filename,
+													 FALSE,	// don't open floater
+													 output_node);
 		std::string out_filename = xui_dir + filename;
 		std::string::size_type extension_pos = out_filename.rfind(".xml");
 		out_filename.resize(extension_pos);
 		out_filename += "_new.xml";
-
+		
 		llinfos << "Output: " << out_filename << llendl;
 		LLFILE* floater_file = LLFile::fopen(out_filename.c_str(), "w");
 		LLXMLNode::writeHeaderToFile(floater_file);
 		output_node->writeToFile(floater_file);
 		fclose(floater_file);
 	}
+}
+
+int main(int argc, char** argv)
+{
+	// Must init LLError for llerrs to actually cause errors.
+	LLError::initForApplication(".");
+
+	init_llui();
+	
+	export_test_floaters();
+	
 	return 0;
 }

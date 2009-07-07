@@ -81,7 +81,7 @@ public:
 
 		Params()
 		:	shortcut("shortcut"),
-			jump_key("", KEY_NONE),
+			jump_key("jump_key", KEY_NONE),
 			use_mac_ctrl("use_mac_ctrl", false),
 			rect("rect"),
 			left("left"),
@@ -356,6 +356,11 @@ private:
 // it in the appendMenu() method.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+// child widget registry
+struct MenuRegistry : public LLChildRegistry<MenuRegistry>
+{};
+
+
 class LLMenuGL 
 :	public LLUICtrl
 {
@@ -374,7 +379,7 @@ public:
 		Optional<LLUIColor>				bg_color;
 
 		Params()
-		:	jump_key("", KEY_NONE),
+		:	jump_key("jump_key", KEY_NONE),
 			can_tear_off("tear_off", false),
 			drop_shadow("drop_shadow", true),
 			bg_visible("bg_visible", true),
@@ -388,6 +393,10 @@ public:
 			name = "menu";
 		}
 	};
+
+	// my valid children are contained in MenuRegistry
+	typedef MenuRegistry child_registry_t;
+
 	void initFromParams(const Params&);
 
 protected:
@@ -410,7 +419,6 @@ public:
 	/*virtual*/ bool addChild(LLView* view, S32 tab_group = 0);
 	/*virtual*/ void removeChild( LLView* ctrl);
 	/*virtual*/ BOOL postBuild();
-	/*virtual*/ const widget_registry_t& getChildRegistry() const;
 
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 

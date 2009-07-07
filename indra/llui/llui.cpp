@@ -90,8 +90,8 @@ std::list<std::string> gUntranslated;
 /*static*/ std::vector<std::string> LLUI::sXUIPaths;
 
 // register searcheditor here
-static LLDefaultWidgetRegistry::Register<LLSearchEditor> register_search_editor("search_editor");
-static LLDefaultWidgetRegistry::Register<LLFlyoutButton> register_flyout_button("flyout_button");
+static LLDefaultChildRegistry::Register<LLSearchEditor> register_search_editor("search_editor");
+static LLDefaultChildRegistry::Register<LLFlyoutButton> register_flyout_button("flyout_button");
 
 
 //
@@ -1934,8 +1934,8 @@ LLLocalClipRect::LLLocalClipRect(const LLRect &rect, BOOL enabled)
 
 namespace LLInitParam
 {
-	TypedParam<LLUIColor >::TypedParam(BlockDescriptor& descriptor, const char* name, const LLUIColor& value, ParamDescriptor::validation_func_t func)
-	:	super_t(descriptor, name, value, func),
+	TypedParam<LLUIColor >::TypedParam(BlockDescriptor& descriptor, const char* name, const LLUIColor& value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
+	:	super_t(descriptor, name, value, func, min_count, max_count),
 		red("red"),
 		green("green"),
 		blue("blue"),
@@ -1964,11 +1964,11 @@ namespace LLInitParam
 		declare("blue", LLColor4::blue);
 	}
 
-	TypedParam<const LLFontGL*>::TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL*const value, ParamDescriptor::validation_func_t func)
-	:	super_t(descriptor, name, value, func),
-		name("", std::string("")),
-		size("size", std::string("")),
-		style("style", std::string(""))
+	TypedParam<const LLFontGL*>::TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL*const value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
+	:	super_t(descriptor, name, value, func, min_count, max_count),
+		name(""),
+		size("size"),
+		style("style")
 	{}
 
 	const LLFontGL* TypedParam<const LLFontGL*>::getValueFromBlock() const
@@ -1995,8 +1995,8 @@ namespace LLInitParam
 		return mData.mValue;
 	}
 
-	TypedParam<LLRect>::TypedParam(BlockDescriptor& descriptor, const char* name, const LLRect& value, ParamDescriptor::validation_func_t func)
-	:	super_t(descriptor, name, value, func),
+	TypedParam<LLRect>::TypedParam(BlockDescriptor& descriptor, const char* name, const LLRect& value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
+	:	super_t(descriptor, name, value, func, min_count, max_count),
 		left("left"),
 		top("top"),
 		right("right"),

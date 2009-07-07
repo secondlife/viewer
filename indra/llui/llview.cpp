@@ -99,10 +99,15 @@ LLView::Params::Params()
 	left_delta("left_delta", S32_MAX),
 	center_horiz("center_horiz", false),
 	center_vert("center_vert", false),
-	serializable("", false),
+	from_xui("from_xui", false),
 	user_resize("user_resize"),
 	auto_resize("auto_resize"),
-	needs_translate("translate")
+	needs_translate("translate"),
+	xmlns("xmlns"),
+	xmlns_xsi("xmlns:xsi"),
+	xsi_schemaLocation("xsi:schemaLocation"),
+	xsi_type("xsi:type")
+
 {
 	addSynonym(rect, "");
 }
@@ -111,7 +116,7 @@ LLView::LLView(const LLView::Params& p)
 :	mName(p.name),
 	mParentView(NULL),
 	mReshapeFlags(FOLLOWS_NONE),
-	mSaveToXML(p.serializable),
+	mSaveToXML(p.from_xui),
 	mIsFocusRoot(FALSE),
 	mLastVisible(FALSE),
 	mNextInsertionOrdinal(0),
@@ -2291,13 +2296,6 @@ LLControlVariable *LLView::findControl(const std::string& name)
 	return control_group.getControl(name);	
 }
 
-const widget_registry_t& LLView::getChildRegistry() const
-{
-	static widget_registry_t empty_registry;
-	return empty_registry;
-}
-
-
 const S32 FLOATER_H_MARGIN = 15;
 const S32 MIN_WIDGET_HEIGHT = 10;
 const S32 VPAD = 4;
@@ -2418,7 +2416,7 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 	const S32 VPAD = 4;
 	const S32 MIN_WIDGET_HEIGHT = 10;
 	
-	p.serializable(true);
+	p.from_xui(true);
 
 	// *NOTE:  This will confuse export of floater/panel coordinates unless
 	// the default is also "topleft".  JC

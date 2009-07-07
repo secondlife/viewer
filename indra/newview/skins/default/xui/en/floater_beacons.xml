@@ -20,43 +20,64 @@
          control_name="scripttouchbeacon"
          label="Scripted Objects with Touch Only"
          layout="topleft"
-         name="touch_only" />
+         name="touch_only" >
+          <check_box.commit_callback
+           function="Beacons.UICheck" />
+        </check_box>
         <check_box
          bottom_delta="20"
          control_name="scriptsbeacon"
          label="Scripted Objects"
          layout="topleft"
-         name="scripted" />
+         name="scripted">
+          <check_box.commit_callback
+           function="Beacons.UICheck" />
+        </check_box>
         <check_box
          bottom_delta="20"
          control_name="physicalbeacon"
          label="Physical Objects"
          layout="topleft"
-         name="physical" />
+         name="physical" >
+          <check_box.commit_callback
+           function="Beacons.UICheck" />
+        </check_box>
         <check_box
          bottom_delta="20"
          control_name="soundsbeacon"
          label="Sound Sources"
          layout="topleft"
-         name="sounds" />
+         name="sounds" >
+          <check_box.commit_callback
+           function="Beacons.UICheck" />
+        </check_box>
         <check_box
          bottom_delta="20"
          control_name="particlesbeacon"
          label="Particle Sources"
          layout="topleft"
-         name="particles" />
+         name="particles" >
+          <check_box.commit_callback
+           function="Beacons.UICheck" />
+        </check_box>
         <check_box
          bottom_delta="20"
          control_name="renderhighlights"
          label="Render Highlights"
          layout="topleft"
-         name="highlights" />
+         name="highlights" >
+          <check_box.commit_callback
+           function="Beacons.UICheck" />
+        </check_box>
         <check_box
          bottom_delta="20"
          control_name="renderbeacons"
          label="Render Beacons"
          layout="topleft"
-         name="beacons" />
+         name="beacons" >
+          <check_box.commit_callback
+           function="Beacons.UICheck" />
+        </check_box>
         <text
          type="string"
          length="1"

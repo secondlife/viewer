@@ -39,7 +39,7 @@
 #include "llinventory.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 
 #include "llviewertexteditor.h"
 
@@ -64,7 +64,7 @@
 
 #include "llappviewer.h" // for gPacificDaylightTime
 
-static LLDefaultWidgetRegistry::Register<LLViewerTextEditor> r("text_editor");
+static LLDefaultChildRegistry::Register<LLViewerTextEditor> r("text_editor");
 
 ///----------------------------------------------------------------------------
 /// Class LLEmbeddedNotecardOpener

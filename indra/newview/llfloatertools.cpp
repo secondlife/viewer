@@ -445,7 +445,8 @@ void LLFloaterTools::draw()
 void LLFloaterTools::dirty()
 {
 	mDirty = TRUE; 
-	LLFloaterOpenObject::dirty();
+	LLFloaterOpenObject* instance = LLFloaterReg::getTypedInstance<LLFloaterOpenObject>("openobject");
+	if (instance) instance->dirty();
 }
 
 // Clean up any tool state that should not persist when the

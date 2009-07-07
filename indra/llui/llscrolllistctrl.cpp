@@ -31,8 +31,6 @@
  * $/LicenseInfo$
  */
 
-#define INSTANTIATE_GETCHILD_SCROLLLIST
-
 #include "linden_common.h"
 
 #include "llscrolllistctrl.h"
@@ -60,9 +58,7 @@
 #include "lltextbox.h"
 #include "llsdparam.h"
 
-template LLScrollListCtrl* LLView::getChild<LLScrollListCtrl>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-
-static LLDefaultWidgetRegistry::Register<LLScrollListCtrl> r("scroll_list");
+static LLDefaultChildRegistry::Register<LLScrollListCtrl> r("scroll_list");
 
 // local structures & classes.
 struct SortScrollListItem
@@ -225,7 +221,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 		LLViewBorder::Params params;
 		params.name("dig border");
 		params.rect(border_rect);
-		params.bevel_type(LLViewBorder::BEVEL_IN);
+		params.bevel_style(LLViewBorder::BEVEL_IN);
 		mBorder = LLUICtrlFactory::create<LLViewBorder> (params);
 		addChild(mBorder);
 	}

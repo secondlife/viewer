@@ -78,7 +78,7 @@ static std::string get_viewer_release_notes_url();
 
 // Default constructor
 LLFloaterAbout::LLFloaterAbout(const LLSD& key) 
-:	LLFloater()
+:	LLFloater(key)
 {
 	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_about.xml");
 	

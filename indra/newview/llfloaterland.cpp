@@ -149,23 +149,50 @@ void send_parcel_select_objects(S32 parcel_local_id, S32 return_type,
 //static
 LLPanelLandObjects* LLFloaterLand::getCurrentPanelLandObjects()
 {
-	return LLFloaterLand::getInstance()->mPanelObjects;
+	LLFloaterLand* land_instance = LLFloaterReg::getTypedInstance<LLFloaterLand>("about_land");
+	if(land_instance)
+	{
+		return land_instance->mPanelObjects;
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 //static
 LLPanelLandCovenant* LLFloaterLand::getCurrentPanelLandCovenant()
 {
-	return LLFloaterLand::getInstance()->mPanelCovenant;
+	LLFloaterLand* land_instance = LLFloaterReg::getTypedInstance<LLFloaterLand>("about_land");
+	if(land_instance)
+	{
+		return land_instance->mPanelCovenant;
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 // static
 void LLFloaterLand::refreshAll()
 {
-	LLFloaterLand::getInstance()->refresh();
+	LLFloaterLand* land_instance = LLFloaterReg::getTypedInstance<LLFloaterLand>("about_land");
+	if(land_instance)
+	{
+		land_instance->refresh();
+	}
 }
 
 void LLFloaterLand::onOpen(const LLSD& key)
 {
+	// moved from triggering show instance in llviwermenu.cpp
+	
+	if (LLViewerParcelMgr::getInstance()->selectionEmpty())
+	{
+		LLViewerParcelMgr::getInstance()->selectParcelAt(gAgent.getPositionGlobal());
+	}
+	
 	// Done automatically when the selected parcel's properties arrive
 	// (and hence we have the local id).
 	// LLViewerParcelMgr::getInstance()->sendParcelAccessListRequest(AL_ACCESS | AL_BAN | AL_RENTER);
@@ -196,7 +223,7 @@ void LLFloaterLand::onClose(bool app_quitting)
 
 
 LLFloaterLand::LLFloaterLand(const LLSD& seed)
-:	LLFloater()
+:	LLFloater(seed)
 {
 	mFactoryMap["land_general_panel"] = LLCallbackMap(createPanelLandGeneral, this);
 	mFactoryMap["land_covenant_panel"] = LLCallbackMap(createPanelLandCovenant, this);
@@ -205,7 +232,7 @@ LLFloaterLand::LLFloaterLand(const LLSD& seed)
 	mFactoryMap["land_media_panel"] =	LLCallbackMap(createPanelLandMedia, this);
 	mFactoryMap["land_access_panel"] =	LLCallbackMap(createPanelLandAccess, this);
 
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_about_land.xml", false);
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_about_land.xml", false);
 
 	sObserver = new LLParcelSelectionObserver();
 	LLViewerParcelMgr::getInstance()->addObserver( sObserver );

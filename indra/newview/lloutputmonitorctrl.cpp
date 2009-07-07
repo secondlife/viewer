@@ -39,7 +39,7 @@
 // viewer includes
 #include "llvoiceclient.h"
 
-static LLDefaultWidgetRegistry::Register<LLOutputMonitorCtrl> r("output_monitor");
+static LLDefaultChildRegistry::Register<LLOutputMonitorCtrl> r("output_monitor");
 
 // The defaults will be initialized in the constructor.
 LLColor4	LLOutputMonitorCtrl::sColorMuted;

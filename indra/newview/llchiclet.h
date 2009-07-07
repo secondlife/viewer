@@ -188,7 +188,7 @@ public:
 
 	LLChiclet* getChiclet(S32 pos);
 
-	LLChiclet* findIMChiclet(LLSD* imSessionId);
+	LLChiclet* findIMChiclet(const LLSD* imSessionId);
 
 	S32 getChicletCount() {return mChicletList.size();};
 
@@ -196,7 +196,7 @@ public:
 
 	void removeChiclet(LLChiclet*);
 
-	void removeIMChiclet(LLSD* imSessionId);
+	void removeIMChiclet(const LLSD* imSessionId);
 
 	void removeAll();
 
@@ -215,6 +215,7 @@ public:
 
 	//overrides
 public:
+	/*virtual*/ BOOL postBuild();
 
 	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE );
 

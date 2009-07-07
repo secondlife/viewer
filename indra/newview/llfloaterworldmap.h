@@ -114,25 +114,25 @@ public:
 protected:
 	static void		onPanBtn( void* userdata );
 
-	static void		onGoHome(void* data);
+	void			onGoHome();
 
-	void			onLandmarkComboPrearrange( );
-	static void		onLandmarkComboCommit( LLUICtrl* ctrl, void* data );
+	void			onLandmarkComboPrearrange();
+	void			onLandmarkComboCommit();
 
-	void			onAvatarComboPrearrange( );
-	static void		onAvatarComboCommit( LLUICtrl* ctrl, void* data );
+	void			onAvatarComboPrearrange();
+	void		    onAvatarComboCommit();
 
 	void			onCommitBackground();
 
 	void			onComboTextEntry( );
 	void			onSearchTextEntry( LLLineEditor* ctrl );
 
-	static void		onClearBtn(void*);
+	void			onClearBtn();
 	static void		onFlyBtn(void*);
 	static void		onClickTeleportBtn(void*);
-	static void		onShowTargetBtn(void*);
-	static void		onShowAgentBtn(void*);
-	static void		onCopySLURL(void*);
+	void			onShowTargetBtn();
+	void			onShowAgentBtn();
+	void			onCopySLURL();
 
 	static void onCheckEvents(LLUICtrl* ctrl, void*);
 
@@ -152,11 +152,11 @@ protected:
 	void			flyToAvatar();
 	void			teleportToAvatar();
 
-	void			updateSearchEnabled( );
+	void			updateSearchEnabled();
 	void			onLocationFocusChanged( LLFocusableElement* ctrl );
-	static void		onLocationCommit( void* userdata );
-	static void		onCommitLocation( LLUICtrl* ctrl, void* userdata );
-	static void		onCommitSearchResult( LLUICtrl* ctrl, void* userdata );
+	void		    onLocationCommit();
+	void			onCommitLocation();
+	void		    onCommitSearchResult();
 
 	void			cacheLandmarkPosition();
 
