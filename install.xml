@@ -1351,9 +1351,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>80ee8d5a30563ce0f55d37fed6dfc744</string>
+            <string>1804b54034ef7f82832506a44acb06b8</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-linux-20090417.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-linux-20090603.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
