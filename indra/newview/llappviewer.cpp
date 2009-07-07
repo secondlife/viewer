@@ -4098,14 +4098,13 @@ void LLAppViewer::handleLoginComplete()
 // *TODO - generalize this and move DSO wrangling to a helper class -brad
 void LLAppViewer::loadEventHostModule(S32 listen_port) const
 {
-	std::string dso_name("liblleventhost");
-
+	std::string dso_name =
 #if LL_WINDOWS
-	dso_name += ".dll";
+	    "lleventhost.dll";
 #elif LL_DARWIN
-	dso_name += ".dylib";
+	    "liblleventhost.dylib";
 #else
-	dso_name += ".so";
+	    "liblleventhost.so";
 #endif
 
 	std::string dso_path = gDirUtilp->findFile(dso_name,
