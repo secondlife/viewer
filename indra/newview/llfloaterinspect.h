@@ -48,6 +48,7 @@ class LLFloaterInspect : public LLFloater
 public:
 
 //	static void show(void* ignored = NULL);
+	void onOpen(const LLSD& key);
 	virtual BOOL postBuild();
 	void dirty();
 	LLUUID getSelectedUUID();
