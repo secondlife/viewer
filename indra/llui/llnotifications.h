@@ -799,6 +799,7 @@ private:
 };
 
 
+class LLNotificationsListener;
 
 class LLNotifications : 
 	public LLSingleton<LLNotifications>, 
@@ -903,6 +904,8 @@ private:
 	GlobalStringMap mGlobalStrings;
 
 	bool mIgnoreAllNotifications;
+
+    boost::scoped_ptr<LLNotificationsListener> mListener;
 };
 
 

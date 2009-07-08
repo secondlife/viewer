@@ -1154,6 +1154,8 @@ bool LLAppViewer::mainLoop()
 
 bool LLAppViewer::cleanup()
 {
+    // *TODO - unload event host module here -brad
+
 	//----------------------------------------------
 	//this test code will be removed after the test
 	//test manual call stack tracer
@@ -4132,4 +4134,8 @@ void LLAppViewer::loadEventHostModule(S32 listen_port) const
 	args["listen_port"] = listen_port;
 
 	ll_plugin_start_func(args);
+
+    args = LLSD();
+    args["MESSAGE"] = "EventHost module loaded successfully";
+    LLNotifications::instance().add("SystemMessageTip", args);
 }
