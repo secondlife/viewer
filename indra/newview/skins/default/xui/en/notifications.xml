@@ -2371,6 +2371,48 @@ Please choose the male or female avatar. You can change your mind later.
      notext="Female"
      yestext="Male"/>
   </notification>
+  <notification icon="alertmodal.tga"
+		name="GeneralCertificateError"
+		type="alertmodal">
+Could not connect to the server.
+[REASON]
+
+SubjectName: [SUBJECT_NAME_STRING]
+IssuerName: [ISSUER_NAME_STRING]
+Valid From: [VALID_FROM]
+Valid To: [VALID_TO]
+MD5 Fingerprint: [SHA1_DIGEST]
+SHA1 Fingerprint: [MD5_DIGEST]
+Key Usage: [KEYUSAGE]
+Extended Key Usage: [EXTENDEDKEYUSAGE]
+Subject Key Identifier: [SUBJECTKEYIDENTIFIER]
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+   </notification>
+
+  <notification icon="alertmodal.tga"
+		name="TrustCertificateError"
+		type="alertmodal">
+The certification authority for this server is not known.
+
+Certificate Information:
+SubjectName: [SUBJECT_NAME_STRING]
+IssuerName: [ISSUER_NAME_STRING]
+Valid From: [VALID_FROM]
+Valid To: [VALID_TO]
+MD5 Fingerprint: [SHA1_DIGEST]
+SHA1 Fingerprint: [MD5_DIGEST]
+Key Usage: [KEYUSAGE]
+Extended Key Usage: [EXTENDEDKEYUSAGE]
+Subject Key Identifier: [SUBJECTKEYIDENTIFIER]
+
+Would you like to trust this authority?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Trust"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"

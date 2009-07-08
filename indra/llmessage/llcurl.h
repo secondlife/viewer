@@ -229,6 +229,7 @@ public:
 	void setHeaderCallback(curl_header_callback callback, void* userdata);
 	void setWriteCallback(curl_write_callback callback, void* userdata);
 	void setReadCallback(curl_read_callback callback, void* userdata);
+	void setSSLCtxCallback(curl_ssl_ctx_callback callback, void* userdata);
 	void slist_append(const char* str);
 	void sendRequest(const std::string& url);
 	void requestComplete();

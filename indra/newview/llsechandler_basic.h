@@ -57,15 +57,101 @@ public:
 	
 	virtual ~LLBasicCertificate();
 	
-	virtual std::string getPem();
-	virtual std::vector<U8> getBinary();
-	virtual LLSD getLLSD();
+	virtual std::string getPem() const;
+	virtual std::vector<U8> getBinary() const;
+	virtual LLSD getLLSD() const;
 
-	virtual X509* getOpenSSLX509();
+	virtual X509* getOpenSSLX509() const;
+	
+	// set llsd elements for testing
+	void setLLSD(const std::string name, const LLSD& value) { mLLSDInfo[name] = value; }
 protected:
+
 	// certificates are stored as X509 objects, as validation and
 	// other functionality is via openssl
 	X509* mCert;
+	
+	LLSD& _initLLSD();
+	LLSD mLLSDInfo;
+};
+
+
+// class LLBasicCertificateVector
+// Class representing a list of certificates
+// This implementation uses a stl vector of certificates.
+class LLBasicCertificateVector : virtual public LLCertificateVector
+{
+	
+public:
+	LLBasicCertificateVector() {}
+	
+	virtual ~LLBasicCertificateVector() {}
+	
+	// Implementation of the basic iterator implementation.
+	// The implementation uses a vector iterator derived from 
+	// the vector in the LLBasicCertificateVector class
+	class BasicIteratorImpl : public iterator_impl
+	{
+	public:
+		BasicIteratorImpl(std::vector<LLPointer<LLCertificate> >::iterator _iter) { mIter = _iter;}
+		virtual ~BasicIteratorImpl() {};
+		// seek forward or back.  Used by the operator++/operator-- implementations
+		virtual void seek(bool incr)
+		{
+			if(incr)
+			{
+				mIter++;
+			}
+			else
+			{
+				mIter--;
+			}
+		}
+		// create a copy of the iterator implementation class, used by the iterator copy constructor
+		virtual LLPointer<iterator_impl> clone() const
+		{
+			return new BasicIteratorImpl(mIter);
+		}
+		
+		virtual bool equals(const LLPointer<iterator_impl>& _iter) const
+		{
+			const BasicIteratorImpl *rhs_iter = dynamic_cast<const BasicIteratorImpl *>(_iter.get());
+			return (mIter == rhs_iter->mIter);
+		}
+		virtual LLPointer<LLCertificate> get()
+		{
+			return *mIter;
+		}
+	protected:
+		friend class LLBasicCertificateVector;
+		std::vector<LLPointer<LLCertificate> >::iterator mIter;
+	};
+	
+	// numeric index of the vector
+	virtual LLPointer<LLCertificate> operator[](int _index) { return mCerts[_index];}
+	
+	// Iteration
+	virtual iterator begin() { return iterator(new BasicIteratorImpl(mCerts.begin())); }
+	
+	virtual iterator end() {  return iterator(new BasicIteratorImpl(mCerts.end())); }
+	
+	// find a cert given params
+	virtual iterator find(const LLSD& params);
+	
+	// return the number of certs in the store
+	virtual int size() const { return mCerts.size(); }	
+	
+	// insert the cert to the store.  if a copy of the cert already exists in the store, it is removed first
+	virtual void  add(LLPointer<LLCertificate> cert) { insert(end(), cert); }
+	
+	// insert the cert to the store.  if a copy of the cert already exists in the store, it is removed first
+	virtual void  insert(iterator _iter, LLPointer<LLCertificate> cert);	
+	
+	// remove a certificate from the store
+	virtual LLPointer<LLCertificate> erase(iterator _iter);
+	
+protected:
+	std::vector<LLPointer<LLCertificate> >mCerts;	
 };
 
 // class LLCertificateStore
@@ -73,42 +159,44 @@ protected:
 // certificates.  The store can be persisted, and can be used to validate
 // a cert chain
 //
-class LLBasicCertificateStore : public LLCertificateStore
+class LLBasicCertificateStore : virtual public LLBasicCertificateVector, public LLCertificateStore
 {
 public:
 	LLBasicCertificateStore(const std::string& filename);
-	LLBasicCertificateStore(const X509_STORE* store);
+	void load_from_file(const std::string& filename);
+	
 	virtual ~LLBasicCertificateStore();
-	
-	virtual X509_STORE* getOpenSSLX509Store();  // return an openssl X509_STORE  
-	// for this store
-	
-	// add a copy of a cert to the store
-	virtual void  append(const LLCertificate& cert);
-	
-	// add a copy of a cert to the store
-	virtual void insert(const int index, const LLCertificate& cert);
-	
-	// remove a certificate from the store
-	virtual void remove(int index);
-	
-	// return a certificate at the index
-	virtual LLPointer<LLCertificate> operator[](int index);
-	// return the number of certs in the store
-	virtual int len() const;
-	
-	// load the store from a persisted location
-	virtual void load(const std::string& store_id);
 	
 	// persist the store
 	virtual void save();
 	
 	// return the store id
-	virtual std::string storeId();
+	virtual std::string storeId() const;
 	
-	// validate a cert chain
-	virtual bool validate(const LLCertificateChain& cert_chain) const;
+protected:
+	std::vector<LLPointer<LLCertificate> >mCerts;
+	std::string mFilename;
 };
+
+// class LLCertificateChain
+// Class representing a chain of certificates in order, with the 
+// first element being the child cert.
+class LLBasicCertificateChain : virtual public LLBasicCertificateVector, public LLCertificateChain
+{
+	
+public:
+	LLBasicCertificateChain(const X509_STORE_CTX * store);
+	
+	virtual ~LLBasicCertificateChain() {}
+	
+	// validate a certificate chain against a certificate store, using the
+	// given validation policy.
+	virtual void validate(int validation_policy,
+						  LLPointer<LLCertificateStore> ca_store,
+						  const LLSD& validation_params);
+};
+
+
 
 // LLSecAPIBasicCredential class
 class LLSecAPIBasicCredential : public LLCredential
@@ -182,9 +270,12 @@ protected:
 
 	std::string mProtectedDataFilename;
 	LLSD mProtectedDataMap;
+	LLPointer<LLBasicCertificateStore> mStore;
 	
 	std::string mLegacyPasswordPath;
 };
+
+bool valueCompareLLSD(const LLSD& lhs, const LLSD& rhs);
 
 #endif // LLSECHANDLER_BASIC
 

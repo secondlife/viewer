@@ -292,7 +292,12 @@ void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_para
 	// to success, add a data/message and data/reason fields.
 	LLSD error_response;
 	error_response["reason"] = mAuthResponse["status"];
+	error_response["errorcode"] = mAuthResponse["errorcode"];
 	error_response["message"] = mAuthResponse["error"];
+	if(mAuthResponse.has("certificate"))
+	{
+		error_response["certificate"] = mAuthResponse["certificate"];
+	}
 	sendProgressEvent("offline", "fail.login", error_response);
 	}
 	catch (...) {

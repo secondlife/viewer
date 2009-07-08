@@ -895,6 +895,15 @@ void LLCurlEasyRequest::setReadCallback(curl_read_callback callback, void* userd
 	}
 }
 
+void LLCurlEasyRequest::setSSLCtxCallback(curl_ssl_ctx_callback callback, void* userdata)
+{
+	if (mEasy)
+	{
+		mEasy->setopt(CURLOPT_SSL_CTX_FUNCTION, (void*)callback);
+		mEasy->setopt(CURLOPT_SSL_CTX_DATA, userdata);
+	}
+}
+
 void LLCurlEasyRequest::slist_append(const char* str)
 {
 	if (mEasy)

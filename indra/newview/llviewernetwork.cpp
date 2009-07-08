@@ -5,7 +5,7 @@
  *
  * $LicenseInfo:firstyear=2006&license=viewergpl$
  * 
- * Copyright (c) 2006-2007, Linden Research, Inc.
+ * Copyright (c) 2006-2010, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -59,12 +59,6 @@ LLGridManager::LLGridManager()
 	
 }
 
-
-LLGridManager::LLGridManager(const std::string& grid_file)
-{
-	// initialize with an explicity grid file for testing.
-	initialize(grid_file);
-}
 
 //
 // LLGridManager - class for managing the list of known grids, and the current
@@ -240,12 +234,8 @@ void LLGridManager::initialize(const std::string& grid_file)
 	// load a grid from the command line.
 	// if the actual grid name is specified from the command line,
 	// set it as the 'selected' grid.
-	LLSD cmd_line_grid = gSavedSettings.getString("CmdLineGridChoice");
-	if (gSavedSettings.controlExists("CmdLineGridChoice"))
-	{
-		mGridName = gSavedSettings.getString("CmdLineGridChoice");
-		LL_INFOS("GridManager") << "Grid Name: " << mGridName << LL_ENDL;		
-	}
+	mGridName = gSavedSettings.getString("CmdLineGridChoice");
+	LL_INFOS("GridManager") << "Grid Name: " << mGridName << LL_ENDL;		
 	
 	// If a command line login URI was passed in, so we should add the command
 	// line grid to the list of grids

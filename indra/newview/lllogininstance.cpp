@@ -246,6 +246,15 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 			LLSD data(LLSD::emptyMap());
 			data["message"] = message_response;
 			data["reply_pump"] = TOS_REPLY_PUMP;
+			if(response.has("error_code"))
+			{
+				data["error_code"] = response["error_code"];
+			}
+			if(response.has("certificate"))
+			{
+				data["certificate"] = response["certificate"];
+			}
+			
 			LLFloaterReg::showInstance("message_critical", data);
 			LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
 				.listen(TOS_LISTENER_NAME,

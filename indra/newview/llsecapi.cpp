@@ -34,6 +34,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llsecapi.h"
 #include "llsechandler_basic.h"
+#include <openssl/evp.h>
 #include <map>
 
 
@@ -42,6 +43,9 @@ LLPointer<LLSecAPIHandler> gSecAPIHandler;
 
 void initializeSecHandler()
 {
+	OpenSSL_add_all_algorithms();
+	OpenSSL_add_all_ciphers();
+	OpenSSL_add_all_digests();	
 	gHandlerMap[BASIC_SECHANDLER] = new LLSecAPIBasicHandler();
 	
 	// Currently, we only have the Basic handler, so we can point the main sechandler
@@ -74,6 +78,7 @@ std::ostream& operator <<(std::ostream& s, const LLCredential& cred)
 {
 	return s << (std::string)cred;
 }
+
 
 
 LLSD LLCredential::getLoginParams()

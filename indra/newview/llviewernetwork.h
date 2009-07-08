@@ -5,7 +5,7 @@
  *
  * $LicenseInfo:firstyear=2006&license=viewergpl$
  * 
- * Copyright (c) 2006-2007, Linden Research, Inc.
+ * Copyright (c) 2006-2010, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -43,6 +43,7 @@ extern const char* DEFAULT_LOGIN_PAGE;
 #define GRID_LOGIN_PAGE_VALUE "login_page"
 #define GRID_IS_SYSTEM_GRID_VALUE "system_grid"
 #define GRID_IS_FAVORITE_VALUE "favorite"
+#define GRID_IS_VISIBLE_VALUE "visible"
 #define GRID_LOGIN_CREDENTIAL_PAGE_TYPE_VALUE "credential_type"
 #define GRID_LOGIN_CREDENTIAL_PAGE_TYPE_AGENT "agent"
 #define GRID_LOGIN_CREDENTIAL_PAGE_TYPE_ACCOUNT "account"
@@ -78,7 +79,6 @@ public:
 	
 	// when the grid manager is instantiated, the default grids are automatically
 	// loaded, and the grids favorites list is loaded from the xml file.
-	LLGridManager(const std::string& grid_file);
 	LLGridManager();
 	~LLGridManager();
 	

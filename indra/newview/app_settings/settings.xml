@@ -1275,6 +1275,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>CertStore</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies the Certificate Store for certificate trust verification</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>default</string>
+    </map>
     <key>ChatBarStealsFocus</key>
     <map>
       <key>Comment</key>

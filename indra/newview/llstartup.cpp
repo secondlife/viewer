@@ -261,6 +261,9 @@ bool callback_choose_gender(const LLSD& notification, const LLSD& response);
 void init_start_screen(S32 location_id);
 void release_start_screen();
 void reset_login();
+LLSD transform_cert_args(LLPointer<LLCertificate> cert);
+void general_cert_done(const LLSD& notification, const LLSD& response);
+void trust_cert_done(const LLSD& notification, const LLSD& response);
 void apply_udp_blacklist(const std::string& csv);
 bool process_login_success_response();
 void transition_back_to_login_panel(const std::string& emsg);
@@ -1053,10 +1056,11 @@ bool idle_startup()
 		{
 			LL_INFOS("LLStartup") << "Login failed, LLLoginInstance::getResponse(): "
 			                      << LLLoginInstance::getInstance()->getResponse() << LL_ENDL;
+			LLSD response = LLLoginInstance::getInstance()->getResponse();
 			// Still have error conditions that may need some 
 			// sort of handling.
-			std::string reason_response = LLLoginInstance::getInstance()->getResponse("reason");
-			std::string message_response = LLLoginInstance::getInstance()->getResponse("message");
+			std::string reason_response = response["reason"];
+			std::string message_response = response["message"];
 	
 			if(!message_response.empty())
 			{
@@ -1090,18 +1094,65 @@ bool idle_startup()
 				LLLoginInstance::getInstance()->disconnect();
 				LLAppViewer::instance()->forceQuit();
 			}
-			else
+			else 
 			{
-				// Don't pop up a notification in the TOS case because
-				// LLFloaterTOS::onCancel() already scolded the user.
-				if (reason_response != "tos")
+				if (reason_response != "tos") 
 				{
-					LLSD args;
-					args["ERROR_MESSAGE"] = emsg.str();
-					LL_INFOS("LLStartup") << "Notification: " << args << LL_ENDL;
-					LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
-				}
+					// Don't pop up a notification in the TOS case because
+					// LLFloaterTOS::onCancel() already scolded the user.
+					std::string error_code;
+					if(response.has("errorcode"))
+					{
+						error_code = response["errorcode"].asString();
+					}
+					if ((reason_response == "CURLError") && 
+						(error_code == "SSL_CACERT" || error_code == "SSL_PEER_CERTIFICATE") && 
+						response.has("certificate"))
+					{
+						// This was a certificate error, so grab the certificate
+						// and throw up the appropriate dialog.
+						LLPointer<LLCertificate> certificate = gSecAPIHandler->getCertificate(response["certificate"]);
+						if(certificate)
+						{
+							LLSD args = transform_cert_args(certificate);
 
+							if(error_code == "SSL_CACERT")
+							{
+								// if we are handling an untrusted CA, throw up the dialog                             
+								// with the 'trust this CA' button.                                                    
+								LLNotificationsUtil::add("TrustCertificateError", args, response,
+														trust_cert_done);
+								
+								show_connect_box = true;
+							}
+							else
+							{
+								// the certificate exception returns a unique string for each type of exception.       
+								// we grab this string via the LLUserAuth object, and use that to grab the localized   
+								// string.                                                                             
+								args["REASON"] = LLTrans::getString(message_response);
+								
+								LLNotificationsUtil::add("GeneralCertificateError", args, response,
+														 general_cert_done);
+								
+								reset_login();
+								gSavedSettings.setBOOL("AutoLogin", FALSE);
+								show_connect_box = true;
+								
+							}
+
+						}
+					}
+					else 
+					{
+						// This wasn't a certificate error, so throw up the normal
+						// notificatioin message.
+						LLSD args;
+						args["ERROR_MESSAGE"] = emsg.str();
+						LL_INFOS("LLStartup") << "Notification: " << args << LL_ENDL;
+						LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
+					}
+				}
 				//setup map of datetime strings to codes and slt & local time offset from utc
 				// *TODO: Does this need to be here?
 				LLStringOps::setupDatetimeInfo (false);
@@ -1126,6 +1177,7 @@ bool idle_startup()
 				LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
 				transition_back_to_login_panel(emsg.str());
 				show_connect_box = true;
+				return FALSE;
 			}
 		}
 		return FALSE;
@@ -2370,7 +2422,9 @@ const std::string FEMALE_OUTFIT_FOLDER = "Female Shape & Outfit";
 const S32 OPT_CLOSED_WINDOW = -1;
 const S32 OPT_MALE = 0;
 const S32 OPT_FEMALE = 1;
-
+const S32 OPT_TRUST_CERT = 0;
+const S32 OPT_CANCEL_TRUST = 1;
+	
 bool callback_choose_gender(const LLSD& notification, const LLSD& response)
 {	
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -2633,6 +2687,91 @@ bool login_alert_done(const LLSD& notification, const LLSD& response)
 	return false;
 }
 
+// parse the certificate information into args for the 
+// certificate notifications
+LLSD transform_cert_args(LLPointer<LLCertificate> cert)
+{
+	LLSD args = LLSD::emptyMap();
+	std::string value;
+	LLSD cert_info = cert->getLLSD();
+	// convert all of the elements in the cert into                                        
+	// args for the xml dialog, so we have flexability to                                  
+	// display various parts of the cert by only modifying                                 
+	// the cert alert dialog xml.                                                          
+	for(LLSD::map_iterator iter = cert_info.beginMap();
+		iter != cert_info.endMap();
+		iter++)
+	{
+		// key usage and extended key usage                                            
+		// are actually arrays, and we want to format them as comma separated          
+		// strings, so special case those.                                             
+		LLSDSerialize::toXML(cert_info[iter->first], std::cout);
+		if((iter->first== std::string(CERT_KEY_USAGE)) |
+		   (iter->first == std::string(CERT_EXTENDED_KEY_USAGE)))
+		{
+			value = "";
+			LLSD usage = cert_info[iter->first];
+			for (LLSD::array_iterator usage_iter = usage.beginArray();
+				 usage_iter != usage.endArray();
+				 usage_iter++)
+			{
+				
+				if(usage_iter != usage.beginArray())
+				{
+					value += ", ";
+				}
+				
+				value += (*usage_iter).asString();
+			}
+			
+		}
+		else
+		{
+			value = iter->second.asString();
+		}
+		
+		std::string name = iter->first;
+		std::transform(name.begin(), name.end(), name.begin(),
+					   (int(*)(int))toupper);
+		args[name.c_str()] = value;
+	}
+	return args;
+}
+
+
+// when we handle a cert error, give focus back to the login panel
+void general_cert_done(const LLSD& notification, const LLSD& response)
+{
+	LLStartUp::setStartupState( STATE_LOGIN_SHOW );			
+	LLPanelLogin::giveFocus();
+}
+
+// check to see if the user wants to trust the cert.
+// if they do, add it to the cert store and 
+void trust_cert_done(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);	
+	switch(option)
+	{
+		case OPT_TRUST_CERT:
+		{
+			LLPointer<LLCertificate> cert = gSecAPIHandler->getCertificate(notification["payload"]["certificate"]);
+			LLPointer<LLCertificateStore> store = gSecAPIHandler->getCertificateStore(gSavedSettings.getString("CertStore"));			
+			store->add(cert);
+			store->save();
+			LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );	
+			break;
+		}
+		case OPT_CANCEL_TRUST:
+			reset_login();
+			gSavedSettings.setBOOL("AutoLogin", FALSE);			
+			LLStartUp::setStartupState( STATE_LOGIN_SHOW );				
+		default:
+			LLPanelLogin::giveFocus();
+			break;
+	}
+
+}
 
 void apply_udp_blacklist(const std::string& csv)
 {
