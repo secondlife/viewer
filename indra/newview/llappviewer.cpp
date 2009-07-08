@@ -4122,16 +4122,14 @@ void LLAppViewer::loadEventHostModule(S32 listen_port) const
 	ll_apr_assert_status(rv);
 	llassert_always(eventhost_dso_handle != NULL);
 
-	int (*ll_plugin_start_func)(char const * const *, char const * const *) = NULL;
+	int (*ll_plugin_start_func)(LLSD const &) = NULL;
 	rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll_plugin_start_func, eventhost_dso_handle, "ll_plugin_start");
 
 	ll_apr_assert_status(rv);
 	llassert_always(ll_plugin_start_func != NULL);
 
-	std::string port_text = boost::lexical_cast<std::string>(listen_port);
-	std::vector<char const *> args;
-	args.push_back("-L");
-	args.push_back(port_text.c_str());
+	LLSD args;
+	args["listen_port"] = listen_port;
 
-	ll_plugin_start_func(&args[0], &args[0] + args.size());
+	ll_plugin_start_func(args);
 }
