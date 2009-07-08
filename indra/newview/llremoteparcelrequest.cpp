@@ -57,7 +57,13 @@ void LLRemoteParcelRequestResponder::result(const LLSD& content)
 {
 	LLUUID parcel_id = content["parcel_id"];
 
-	mObserverHandle.get()->setParcelID(parcel_id);
+	// Panel inspecting the information may be closed and destroyed
+	// before this response is received.
+	LLRemoteParcelInfoObserver* observer = mObserverHandle.get();
+	if (observer)
+	{
+		observer->setParcelID(parcel_id);
+	}
 }
 
 //If we get back an error (not found, etc...), handle it here
@@ -67,7 +73,13 @@ void LLRemoteParcelRequestResponder::error(U32 status, const std::string& reason
 	llinfos << "LLRemoteParcelRequest::error("
 		<< status << ": " << reason << ")" << llendl;
 
-	mObserverHandle.get()->setErrorStatus(status, reason);
+	// Panel inspecting the information may be closed and destroyed
+	// before this response is received.
+	LLRemoteParcelInfoObserver* observer = mObserverHandle.get();
+	if (observer)
+	{
+		observer->setErrorStatus(status, reason);
+	}
 }
 
 void LLRemoteParcelInfoProcessor::addObserver(const LLUUID& parcel_id, LLRemoteParcelInfoObserver* observer)
