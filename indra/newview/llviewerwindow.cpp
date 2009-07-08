@@ -2395,6 +2395,12 @@ void LLViewerWindow::updateUI()
 
 	updateWorldViewRect();
 
+	if(gBottomTray && LLSideTray::instanceCreated())
+	{
+		S32 delta = llround((F32)LLSideTray::getInstance()->getTrayWidth() * mDisplayScale.mV[VX]);
+		gBottomTray->updateRightPosition(mWindowRect.mRight - delta);
+	}
+
 	LLView::sMouseHandlerMessage.clear();
 
 	S32 x = mCurrentMousePoint.mX;

@@ -7,14 +7,14 @@
   collapsed="true"
 >
   <sidetray_tab 	
-    name="sidebarpanel2" 
+    name="sidebar_people"
+    tab_title="People"
+    description="Find your friends, contacts and people nearby."
+    image="icn_voice-groupfocus.tga"
     mouse_opaque="false" 
     background_opaque="false" 
     background_visible="true" 
     bg_opaque_color="0.5 0.5 0.5 1.0"
-    image="icn_voice-groupfocus.tga"
-    tab_title="People"
-    description="Find your friends, contacts and people nearby."
   >
     <collapsible_ctrl 
       name="people_accordion" 
@@ -36,16 +36,16 @@
       />
     </collapsible_ctrl>
   </sidetray_tab>
-  
+  <!-- *TODO Vadim: isn't the sidetray_tab "label" attribute redundant since we have "tab_title" ? -->
   <sidetray_tab 
-    name="sidebarpanel1" 
+    name="sidebar_places"
+    tab_title="Places"
+    label="Places"
+    description="Find places to go and places you've been."
+    image="inv_item_landmark.tga" 
     mouse_opaque="false" 
     background_visible="true" 
-    label="Places" 
     bg_opaque_color="0.5 0.5 0.5 1.0"
-    image="inv_item_landmark.tga" 
-    tab_title="Places" 
-    description="Find places to go and places you've been."
   >
     <collapsible_ctrl 
       name="places_accordian" 
@@ -67,12 +67,12 @@
   
   <sidetray_tab 
     name="sidebar_me"
+    tab_title="Me"
+    description="Change your profile, your look and quick links to your outfits."
+    image="icn_voice-pvtfocus.tga"
     mouse_opaque="false" 
     background_visible="true" 
     bg_opaque_color="0.5 0.5 0.5 1.0"
-    image="icn_voice-pvtfocus.tga"
-    tab_title="Me"
-    description="Change your profile, your look and quick links to your outfits."
   >
     <collapsible_ctrl 
       name="me_accordion" 

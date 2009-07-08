@@ -31,13 +31,13 @@
      top_pad="19"
      width="335" />
     <panel
-     class="panel_landmark_info"
-     filename="panel_landmark_info.xml"
+     class="panel_place_info"
+     filename="panel_place_info.xml"
      follows="left|top|right|bottom"
      height="675"
      layout="topleft"
      left="0"
-     name="panel_landmark_info"
+     name="panel_place_info"
      top="-310"
      visible="false"
      width="355" />
@@ -73,7 +73,7 @@
      top_delta="0"
      width="60" />
     <button
-     enabled="false"
+     enabled="true"
      follows="bottom|right"
      font="SansSerifSmallBold"
      height="25"

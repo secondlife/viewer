@@ -42,6 +42,7 @@
      name="picture_descr"
      text_color="white"
      top="25"
+     use_ellipses="true"
      width="170"
      word_wrap="true" />
     <button
@@ -53,7 +54,7 @@
      image_selected="navbar_bg_button.tga"
      image_unselected="navbar_bg_button.tga"
      layout="topleft"
-     name="inspector"
+     name="info_chevron"
      picture_style="true"
      right="-5"
      tab_stop="false"

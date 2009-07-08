@@ -297,6 +297,7 @@ set(viewer_SOURCE_FILES
     llpanellandmarks.cpp
     llpanellandmedia.cpp
     llpanellogin.cpp
+    llpanelmedia.cpp
     llpanelmeprofile.cpp
     llpanelobject.cpp
     llpanelpeople.cpp
@@ -307,6 +308,7 @@ set(viewer_SOURCE_FILES
     llpanelplaceinfo.cpp
     llpanelplaces.cpp
     llpanelplacestab.cpp
+    llpanelprofile.cpp
     llpanelprofileview.cpp
     llpanelteleporthistory.cpp
     llpanelvolume.cpp
@@ -719,6 +721,7 @@ set(viewer_HEADER_FILES
     llpanellandmarks.h
     llpanellandmedia.h
     llpanellogin.h
+    llpanelmedia.h
     llpanelmeprofile.h
     llpanelobject.h
     llpanelpeople.h
@@ -729,6 +732,7 @@ set(viewer_HEADER_FILES
     llpanelplaceinfo.h
     llpanelplaces.h
     llpanelplacestab.h
+    llpanelprofile.h
     llpanelprofileview.h
     llpanelteleporthistory.h
     llpanelvolume.h

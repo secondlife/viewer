@@ -34,9 +34,15 @@
 
 #include "llviewermedia.h"
 
+#include "audioengine.h"
+
+#include "llparcel.h"
+
 #include "llmimetypes.h"
 #include "llviewercontrol.h"
 #include "llviewerimage.h"
+#include "llviewerparcelmedia.h"
+#include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
 #include "llversionviewer.h"
 #include "llviewerimagelist.h"
@@ -461,7 +467,7 @@ bool LLViewerMediaImpl::handleSkinCurrentChanged(const LLSD& /*newvalue*/)
 // Wrapper class
 //////////////////////////////////////////////////////////////////////////////////////////
 
-
+S32 LLViewerMedia::mMusicState = LLViewerMedia::STOPPED;
 //////////////////////////////////////////////////////////////////////////////////////////
 // The viewer takes a long time to load the start screen.  Part of the problem
 // is media initialization -- in particular, QuickTime loads many DLLs and
@@ -687,6 +693,13 @@ bool LLViewerMedia::isActiveMediaTexture(const LLUUID& id)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+//static
+bool LLViewerMedia::isMusicPlaying()
+{
+	return mMusicState == PLAYING; 
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 // static
 std::string LLViewerMedia::getMediaURL()
 {
@@ -703,4 +716,59 @@ std::string LLViewerMedia::getMimeType()
 void LLViewerMedia::setMimeType(std::string mime_type)
 {
 	sViewerMediaImpl.mMimeType = mime_type;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//static
+void LLViewerMedia::toggleMusicPlay(void*)
+{
+	if (mMusicState != PLAYING)
+	{
+		mMusicState = PLAYING; // desired state
+		if (gAudiop)
+		{
+			LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+			if ( parcel )
+			{
+				gAudiop->startInternetStream(parcel->getMusicURL());
+			}
+		}
+	}
+	else
+	{
+		mMusicState = STOPPED; // desired state
+		if (gAudiop)
+		{
+			gAudiop->stopInternetStream();
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//static
+void LLViewerMedia::toggleMediaPlay(void*)
+{
+	if (LLViewerMedia::isMediaPaused())
+	{
+		LLViewerParcelMedia::start();
+	}
+	else if(LLViewerMedia::isMediaPlaying())
+	{
+		LLViewerParcelMedia::pause();
+	}
+	else
+	{
+		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+		if (parcel)
+		{
+			LLViewerParcelMedia::play(parcel);
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//static
+void LLViewerMedia::mediaStop(void*)
+{
+	LLViewerParcelMedia::stop();
 }

@@ -43,29 +43,20 @@
 #include "llqueryflags.h"
 
 #include "llbutton.h"
-#include "llfloater.h"
-#include "llfloaterreg.h"
 #include "lllineeditor.h"
 #include "llscrollcontainer.h"
 #include "lltextbox.h"
-#include "lltrans.h"
-#include "llui.h"
-#include "lluictrlfactory.h"
 
 #include "llagent.h"
 #include "llfloaterworldmap.h"
 #include "llinventorymodel.h"
 #include "lltexturectrl.h"
-#include "lluiconstants.h"
-#include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewerregion.h"
 #include "llviewertexteditor.h"
-#include "llviewerwindow.h"
-#include "llweb.h"
 #include "llworldmap.h"
 
-static LLRegisterPanelClassWrapper<LLPanelPlaceInfo> t_places("panel_landmark_info");
+static LLRegisterPanelClassWrapper<LLPanelPlaceInfo> t_place_info("panel_place_info");
 
 LLPanelPlaceInfo::LLPanelPlaceInfo()
 :	LLPanel(),
@@ -86,6 +77,9 @@ LLPanelPlaceInfo::~LLPanelPlaceInfo()
 
 BOOL LLPanelPlaceInfo::postBuild()
 {
+	mTitle = getChild<LLTextBox>("panel_title");
+	mCurrentTitle = mTitle->getText();
+
 	// Since this is only used in the directory browser, always
 	// disable the snapshot control. Otherwise clicking on it will
 	// open a texture picker.
@@ -114,7 +108,8 @@ BOOL LLPanelPlaceInfo::postBuild()
 
 	mScrollingPanel = getChild<LLPanel>("scrolling_panel");
 
-	mInfoPanel = getChild<LLPanel>("info_panel");
+	mInfoPanel = getChild<LLPanel>("info_panel", TRUE, FALSE);
+	mMediaPanel = getChild<LLMediaPanel>("media_panel", TRUE, FALSE);
 
 	return TRUE;
 }
@@ -233,6 +228,45 @@ void LLPanelPlaceInfo::setParcelID(const LLUUID& parcel_id)
 {
 	mParcelID = parcel_id;
 	sendParcelInfoRequest();
+}
+
+void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
+{
+	if (!mInfoPanel)
+	    return;
+
+	if (type == PLACE)
+	{
+		mCurrentTitle = getString("title_place");
+	}
+	else
+	{
+		mCurrentTitle = getString("title_landmark");
+	}
+	
+	if (mInfoPanel->getVisible())
+	{
+		mTitle->setText(mCurrentTitle);
+	}
+}
+
+void LLPanelPlaceInfo::toggleMediaPanel()
+{
+    if (!(mMediaPanel && mInfoPanel))
+        return;
+
+    bool visible = mInfoPanel->getVisible();
+    if (visible)
+	{
+		mTitle->setText(getString("title_media"));
+	}
+	else
+	{
+		mTitle->setText(mCurrentTitle);
+	}
+
+    mInfoPanel->setVisible(!visible);
+    mMediaPanel->setVisible(visible);
 }
 
 void LLPanelPlaceInfo::sendParcelInfoRequest()

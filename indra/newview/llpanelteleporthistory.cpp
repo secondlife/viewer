@@ -224,7 +224,7 @@ void LLTeleportHistoryPanel::onDoubleClickItem(void* user_data)
 		return;
 
 	LLSD key;
-	key["type"] = LLPanelPlaces::TELEPORT_HISTORY;
+	key["type"] = "teleport_history";
 	key["id"] = itemp->getColumn(LIST_INDEX)->getValue().asInteger();
 
 	LLSideTray::getInstance()->showPanel("panel_places", key);

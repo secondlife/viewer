@@ -428,6 +428,9 @@
   <string name="no_friends">
     No friends
   </string>
+  <string name="no_groups">
+    No groups
+  </string>
   <panel 
 	layout="topleft"
 	name="panel_profile_view" 

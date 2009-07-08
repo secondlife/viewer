@@ -326,7 +326,6 @@ LLPanelPeople::~LLPanelPeople()
 	delete mGroupListUpdater;
 
 	LLView::deleteViewByHandle(mGroupPlusMenuHandle);
-	LLView::deleteViewByHandle(mGroupMinusMenuHandle);
 }
 
 BOOL LLPanelPeople::postBuild()
@@ -377,9 +376,6 @@ BOOL LLPanelPeople::postBuild()
 	registrar.add("People.Group.Plus.Action",  boost::bind(&LLPanelPeople::onGroupPlusMenuItemClicked,  this, _2));
 	LLMenuGL* plus_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_group_plus.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGroupPlusMenuHandle  = plus_menu->getHandle();
-	registrar.add("People.Group.Minus.Action", boost::bind(&LLPanelPeople::onGroupMinusMenuItemClicked, this, _2));
-	LLMenuGL* minus_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_group_minus.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	mGroupMinusMenuHandle = minus_menu->getHandle();
 
 	// Perform initial update.
 	mFriendListUpdater->forceUpdate();
@@ -430,7 +426,12 @@ bool LLPanelPeople::updateRecentList()
 
 bool LLPanelPeople::updateGroupList()
 {
-	return mGroupList->update(mFilterSubString);
+	bool have_names = mGroupList->update(mFilterSubString);
+
+	if (mGroupList->isEmpty())
+		mGroupList->setCommentText(getString("no_groups"));
+
+	return have_names;
 }
 
 bool LLPanelPeople::filterFriendList()
@@ -742,11 +743,9 @@ void LLPanelPeople::onGroupPlusButtonClicked()
 
 void LLPanelPeople::onGroupMinusButtonClicked()
 {
-	LLMenuGL* minus_menu = (LLMenuGL*)mGroupMinusMenuHandle.get();
-	if (!minus_menu)
-		return;
-
-	showGroupMenu(minus_menu);
+	LLUUID group_id = getCurrentItemID();
+	if (group_id.notNull())
+		LLGroupActions::leave(group_id);
 }
 
 void LLPanelPeople::onGroupPlusMenuItemClicked(const LLSD& userdata)
@@ -757,19 +756,6 @@ void LLPanelPeople::onGroupPlusMenuItemClicked(const LLSD& userdata)
 		LLGroupActions::search();
 	else if (chosen_item == "new_group")
 		LLGroupActions::create();
-}
-
-void LLPanelPeople::onGroupMinusMenuItemClicked(const LLSD& userdata)
-{
-	std::string chosen_item = userdata.asString();
-
-	LLUUID group_id = getCurrentItemID();
-	if (chosen_item == "leave_group")
-		LLGroupActions::leave(group_id);
-	/*
-	else if (chosen_item == "delete_group")
-		; // *TODO: how to delete a group?
-	*/
 }
 
 void LLPanelPeople::onCallButtonClicked()
@@ -794,5 +780,10 @@ void LLPanelPeople::onMoreButtonClicked()
 
 void	LLPanelPeople::onOpen(const LLSD& key)
 {
-	reSelectedCurrentTab();
+	std::string tab_name = key.asString();
+
+	if (!tab_name.empty())
+		mTabContainer->selectTabByName(tab_name);
+	else
+		reSelectedCurrentTab();
 }

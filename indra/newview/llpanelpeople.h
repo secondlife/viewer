@@ -96,7 +96,6 @@ private:
 	void					onGroupPlusButtonClicked();
 	void					onGroupMinusButtonClicked();
 	void					onGroupPlusMenuItemClicked(const LLSD& userdata);
-	void					onGroupMinusMenuItemClicked(const LLSD& userdata);
 
 	// misc callbacks
 	bool					onFriendListUpdate(U32 changed_mask);
@@ -113,7 +112,6 @@ private:
 	LLGroupList*			mGroupList;
 
 	LLHandle<LLView>		mGroupPlusMenuHandle;
-	LLHandle<LLView>		mGroupMinusMenuHandle;
 
 	Updater*				mFriendListUpdater;
 	Updater*				mNearbyListUpdater;

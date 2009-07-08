@@ -34,37 +34,10 @@
 #define LL_LLPANELAVATAR_H
 
 #include "llpanel.h"
-#include "v3dmath.h"
-#include "lluuid.h"
-#include "llwebbrowserctrl.h"
-
 #include "llavatarpropertiesprocessor.h"
 
-class LLButton;
-class LLCheckBoxCtrl;
 class LLComboBox;
-class LLDropTarget;
-class LLInventoryItem;
 class LLLineEditor;
-class LLNameEditor;
-class LLPanelAvatar;
-class LLScrollListCtrl;
-class LLTabContainer;
-class LLTextBox;
-class LLTextEditor;
-class LLTextureCtrl;
-class LLUICtrl;
-class LLViewerImage;
-class LLViewerObject;
-class LLMessageSystem;
-class LLIconCtrl;
-class LLWebBrowserCtrl;
-class LLVector3d;
-class LLFloaterReg;
-
-class LLPanelMeProfile;
-class LLPanelPick;
-class LLAgent;
 
 enum EOnlineStatus
 {
@@ -87,7 +60,9 @@ public:
 	const LLUUID& getAvatarId(){return mAvatarId;}
 
 	virtual void updateData() = 0;
-	
+
+	virtual void onOpen(const LLSD& key);
+
 	virtual void onActivate(const LLUUID& id);
 
 	typedef enum e_profile_type
@@ -138,16 +113,6 @@ public:
 	/*virtual*/ BOOL postBuild(void);
 	/*virtual*/ void onOpen(const LLSD& key);
 
-	void onAddFriendButtonClick();
-
-	void onIMButtonClick();
-
-	void onCallButtonClick();
-
-	void onTeleportButtonClick();
-
-	void onShareButtonClick();
-
 private:
 	bool isOwnProfile(){return PT_OWN == mProfileType;}
 	bool isEditMode(){return mEditMode;}
@@ -161,6 +126,13 @@ private:
 	void onUpdateAccountTextboxClicked();
 	void onMyAccountTextboxClicked();
 	void onPartnerEditTextboxClicked();
+
+	void onAddFriendButtonClick();
+	void onIMButtonClick();
+	void onCallButtonClick();
+	void onTeleportButtonClick();
+	void onShareButtonClick();
+
 
 protected:
 	bool mEditMode;

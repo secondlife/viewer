@@ -40,6 +40,7 @@
 
 #include "lliconctrl.h"
 
+#include "llpanelmedia.h"
 #include "llremoteparcelrequest.h"
 
 class LLButton;
@@ -52,19 +53,31 @@ class LLTextureCtrl;
 class LLPanelPlaceInfo : public LLPanel, LLRemoteParcelInfoObserver
 {
 public:
+	enum INFO_TYPE
+	{
+		PLACE,
+		LANDMARK
+	};
+
 	LLPanelPlaceInfo();
 	/*virtual*/ ~LLPanelPlaceInfo();
 
 	/*virtual*/ BOOL postBuild();
 
+	// Ignore all old location information, useful if you are 
+	// recycling an existing dialog and need to clear it.
 	void resetLocation();
-		// Ignore all old location information, useful if you are 
-		// recycling an existing dialog and need to clear it.
 
+	// Sends a request for data about the given parcel, which will
+	// only update the location if there is none already available.
 	/*virtual*/ void setParcelID(const LLUUID& parcel_id);
-		// Sends a request for data about the given parcel, which will
-		// only update the location if there is none already available.
 
+	// Depending on how the panel was triggered 
+	// (from landmark or current location, or other) 
+	// sets a corresponding title and contents.
+	void setInfoType(INFO_TYPE type);
+
+	void toggleMediaPanel();
 	void displayItemInfo(const LLInventoryItem* pItem);
 	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason);
 
@@ -81,10 +94,10 @@ public:
 
 private:
 	enum LANDMARK_INFO_TYPE
-		{
-			TITLE,
-			NOTE
-		};
+	{
+		TITLE,
+		NOTE
+	};
 
 	void onCommitTitleOrNote(LANDMARK_INFO_TYPE type);
 
@@ -92,7 +105,10 @@ private:
 	LLUUID			mRequestedID;
 	LLUUID			mLandmarkID;
 	LLVector3		mPosRegion;
+	std::string		mCurrentTitle;
+	S32				mMinHeight;
 
+	LLTextBox*			mTitle;
 	LLTextureCtrl*		mSnapshotCtrl;
 	LLTextBox*			mRegionName;
 	LLTextBox*			mParcelName;
@@ -106,7 +122,7 @@ private:
 	LLTextBox*			mLocationEditor;
 	LLPanel*            mScrollingPanel;
 	LLPanel*			mInfoPanel;
-	S32					mMinHeight;
+	LLMediaPanel*		mMediaPanel;
 };
 
 #endif // LL_LLPANELPLACEINFO_H

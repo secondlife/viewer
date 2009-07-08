@@ -67,6 +67,7 @@ class LLViewerMedia
 		static bool isMediaPaused();
 		static bool hasMedia();
 		static bool isActiveMediaTexture(const LLUUID& id);
+		static bool isMusicPlaying();
 
 		static std::string getMediaURL();
 		static std::string getMimeType();
@@ -74,9 +75,16 @@ class LLViewerMedia
 
 		static void updateImagesMediaStreams();
 
+		static void toggleMusicPlay(void*);
+		static void toggleMediaPlay(void*);
+		static void mediaStop(void*);
+
 	private:
 		// Fill in initialization data for LLMediaManager::initClass()
 		static void buildMediaManagerData( LLMediaManagerData* init_data );
+		
+		enum { STOPPED=0, PLAYING=1, PAUSED=2 };
+		static S32 mMusicState;
 };
 
 #endif	// LLVIEWERMEDIA_H

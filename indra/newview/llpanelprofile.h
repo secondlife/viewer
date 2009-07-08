@@ -1,6 +1,6 @@
 /** 
-* @file llpanelprofileview.h
-* @brief Side tray "Profile View" panel
+* @file llpanelprofile.h
+* @brief Profile panel
 *
 * $LicenseInfo:firstyear=2009&license=viewergpl$
 * 
@@ -30,29 +30,43 @@
 * $/LicenseInfo$
 */
 
-#ifndef LL_LLPANELPROFILEVIEW_H
-#define LL_LLPANELPROFILEVIEW_H
+#ifndef LL_LLPANELPROFILE_H
+#define LL_LLPANELPROFILE_H
 
+#include "llviewerprecompiledheaders.h"
 #include "llpanel.h"
-#include "llpanelprofile.h"
+#include "llpanelavatar.h"
 
-class LLPanelProfile;
-class LLPanelProfileTab;
+class LLTabContainer;
 
-class LLPanelProfileView : public LLPanelProfile
+class LLPanelProfile : public LLPanel
 {
-	LOG_CLASS(LLPanelProfileView);
-	friend class LLUICtrlFactory;
+	LOG_CLASS(LLPanelProfile);
 
 public:
-	LLPanelProfileView();
+	virtual BOOL postBuild();
 
-	~LLPanelProfileView(void);
+	virtual void onOpen(const LLSD& key);
 
-	void onOpen(const LLSD& key);
+	virtual void togglePanel(LLPanel*);
+
+protected:
+	LLPanelProfile();
+	~LLPanelProfile();
+
+	void onTabSelected(const LLSD& param);
+
+	void setAllChildrenVisible(BOOL visible);
+
+
+	LLTabContainer* mTabContainer;
 	
-	BOOL postBuild();
-	void onBackBtnClick();
+	typedef std::map<std::string, LLPanelProfileTab*> profile_tabs_t;
+	profile_tabs_t mTabs;
+
+	LLUUID mAvatarId;
 };
 
-#endif //LL_LLPANELPROFILEVIEW_H
+
+
+#endif //LL_LLPANELPROFILE_H

@@ -46,13 +46,6 @@ class LLTabContainer;
 class LLPanelPlaces : public LLPanel, LLInventoryObserver
 {
 public:
-	enum PLACE_INFO_TYPE
-	{
-		AGENT,
-		LANDMARK,
-		TELEPORT_HISTORY
-	};
-
 	LLPanelPlaces();
 	virtual ~LLPanelPlaces();
 
@@ -79,7 +72,7 @@ private:
 	std::string				mFilterSubString;
 
 	// Place information type currently shown in Information panel
-	S32						mPlaceInfoType;
+	std::string				mPlaceInfoType;
 };
 
 #endif //LL_LLPANELPLACES_H

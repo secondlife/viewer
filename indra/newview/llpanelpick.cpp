@@ -102,6 +102,11 @@ void LLPanelPick::reset()
 	setLocation("");
 	mSnapshotCtrl->setImageAssetID(LLUUID::null);
 
+	//*HACK just setting asset id to NULL not enough to clear 
+	//the texture controls, w/o setValid(FALSE) it continues to 
+	//draw the previously set image
+	mSnapshotCtrl->setValid(FALSE);
+
 	mDataReceived = FALSE;
 
 	mPosGlobal.clearVec();
@@ -113,25 +118,24 @@ BOOL LLPanelPick::postBuild()
 
 	if (mEditMode)
 	{
-		childSetAction("cancel_btn", onClickCancel, this);
-		childSetAction("set_to_curr_location_btn", onClickSet, this);
-		childSetAction(XML_BTN_SAVE, onClickSave, this);
+		childSetAction("cancel_btn", boost::bind(&LLPanelPick::onClickCancel, this));
+		childSetAction("set_to_curr_location_btn", boost::bind(&LLPanelPick::onClickSet, this));
+		childSetAction(XML_BTN_SAVE, boost::bind(&LLPanelPick::onClickSave, this));
 
 		mSnapshotCtrl->setMouseEnterCallback(boost::bind(&LLPanelPick::childSetVisible, this, "edit_icon", true));
 		mSnapshotCtrl->setMouseLeaveCallback(boost::bind(&LLPanelPick::childSetVisible, this, "edit_icon", false));
 	}
 	else
 	{
-		childSetAction("edit_btn", onClickEdit, this);
-		childSetAction("teleport_btn", onClickTeleport, this);
-		childSetAction("show_on_map_btn", onClickMap, this);
+		childSetAction("edit_btn", boost::bind(&LLPanelPick::onClickEdit, this));
+		childSetAction("teleport_btn", boost::bind(&LLPanelPick::onClickTeleport, this));
+		childSetAction("show_on_map_btn", boost::bind(&LLPanelPick::onClickMap, this));
 
-		if (mExitFunction && mExitData)
+		if (!mBackCb.empty())
 		{
-			childSetAction("back_btn", mExitFunction, mExitData);
+			LLButton* button = findChild<LLButton>("back_btn");
+			if (button) button->setClickedCallback(mBackCb);
 		}
-
-		//*TODO set on menu
 	}
 
 	return TRUE;
@@ -164,6 +168,9 @@ void LLPanelPick::init(LLPickData *pick_data)
 	setDesc(pick_data->desc);
 	setLocation(pick_data->location_text);
 	mSnapshotCtrl->setImageAssetID(pick_data->snapshot_id);
+
+	//*HACK see reset() where the texture control was set to FALSE
+	mSnapshotCtrl->setValid(TRUE);
 
 	mPosGlobal = pick_data->pos_global;
 	mSimName = pick_data->sim_name;
@@ -322,30 +329,23 @@ void LLPanelPick::sendUpdate()
 //-----------------------------------------
 
 //static
-void LLPanelPick::onClickEdit(void* data)
+void LLPanelPick::onClickEdit()
 {
-	LLPanelPick* self = (LLPanelPick*)data;
-	if (!self) return;
-	if (self->mEditMode) return;
-	if (!self->mDataReceived) return;
-
-	self->setEditMode(TRUE);
+	if (mEditMode) return;
+	if (!mDataReceived) return;
+	setEditMode(TRUE);
 }
 
 //static
-void LLPanelPick::onClickTeleport(void* data)
+void LLPanelPick::onClickTeleport()
 {
-	LLPanelPick* self = (LLPanelPick*)data;
-	if (!self) return;
-	teleport(self->mPosGlobal);
+	teleport(mPosGlobal);
 }
 
 //static
-void LLPanelPick::onClickMap(void* data)
+void LLPanelPick::onClickMap()
 {
-	LLPanelPick* self = (LLPanelPick*)data;
-	if (!self) return;
-	showOnMap(self->mPosGlobal);
+	showOnMap(mPosGlobal);
 }
 
 
@@ -354,49 +354,44 @@ void LLPanelPick::onClickMap(void* data)
 //-----------------------------------------
 
 //static
-void LLPanelPick::onClickCancel(void* data)
+void LLPanelPick::onClickCancel()
 {
-	LLPanelPick* self = (LLPanelPick*) data;
-	if (!self) return;
-	if (!self->mEditMode) return;
+	if (!mEditMode) return;
 	
-	LLUUID pick_id = self->mPickId;
-	LLUUID creator_id = self->mCreatorId;
-	self->reset();
-	self->init(creator_id, pick_id);
+	LLUUID pick_id = mPickId;
+	LLUUID creator_id = mCreatorId;
+	reset();
+	init(creator_id, pick_id);
 }
 
 // static
-void LLPanelPick::onClickSet(void* data)
+void LLPanelPick::onClickSet()
 {
-	LLPanelPick* self = (LLPanelPick*) data;
-	if (!self) return;
-	if (!self->mEditMode) return;
-	if (!self->mDataReceived) return;
+	if (!mEditMode) return;
+	if (!mDataReceived) return;
 
 	// Save location for later.
-	self->mPosGlobal = gAgent.getPositionGlobal();
+	mPosGlobal = gAgent.getPositionGlobal();
 
-	S32 region_x = llround((F32)self->mPosGlobal.mdV[VX]) % REGION_WIDTH_UNITS;
-	S32 region_y = llround((F32)self->mPosGlobal.mdV[VY]) % REGION_WIDTH_UNITS;
-	S32 region_z = llround((F32)self->mPosGlobal.mdV[VZ]);
+	S32 region_x = llround((F32)mPosGlobal.mdV[VX]) % REGION_WIDTH_UNITS;
+	S32 region_y = llround((F32)mPosGlobal.mdV[VY]) % REGION_WIDTH_UNITS;
+	S32 region_z = llround((F32)mPosGlobal.mdV[VZ]);
 
 	std::string location_text = "(will update after save), ";
-	location_text.append(self->mSimName);
+	location_text.append(mSimName);
 	location_text.append(llformat(" (%d, %d, %d)", region_x, region_y, region_z));
 
-	self->setLocation(location_text);
+	setLocation(location_text);
 }
 
 // static
-void LLPanelPick::onClickSave(void* data)
+void LLPanelPick::onClickSave()
 {
-	LLPanelPick* self = (LLPanelPick*)data;
-	if (!self->mEditMode) return;
-	if (!self->mDataReceived) return;
+	if (!mEditMode) return;
+	if (!mDataReceived) return;
 
-	self->sendUpdate();
-	self->setEditMode(FALSE);
+	sendUpdate();
+	setEditMode(FALSE);
 }
 
 void LLPanelPick::updateButtons()
@@ -422,13 +417,13 @@ void LLPanelPick::updateButtons()
 	}
 }
 
-void LLPanelPick::setExitCallback( boost::function<void(void*)> function, void* data )
+void LLPanelPick::setExitCallback(commit_callback_t cb)
 {
-	mExitFunction = function;
-	mExitData = data;
+	mBackCb = cb;
 	if (!mEditMode)
 	{
-		childSetAction("back_btn", function, data);
+		LLButton* button = findChild<LLButton>("back_btn");
+		if (button) button->setClickedCallback(mBackCb);
 	}
 }
 

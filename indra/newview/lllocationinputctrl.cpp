@@ -50,7 +50,6 @@
 #include "llinventorymodel.h"
 #include "lllandmarklist.h"
 #include "lllocationhistory.h"
-#include "llpanelplaces.h"
 #include "llsidetray.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
@@ -352,10 +351,7 @@ void LLLocationInputCtrl::onFocusLost()
 
 void LLLocationInputCtrl::onInfoButtonClicked()
 {
-	LLSD key;
-	key["type"] = LLPanelPlaces::AGENT;
-
-	LLSideTray::getInstance()->showPanel("panel_places", key);
+	LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "agent"));
 }
 
 void LLLocationInputCtrl::onAddLandmarkButtonClicked()

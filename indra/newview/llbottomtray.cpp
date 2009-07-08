@@ -34,7 +34,8 @@
 #include "llbottomtray.h"
 #include "llagent.h"
 #include "llchiclet.h"
-#include "lllayoutstack.h"
+#include "llfloaterreg.h"
+#include "llflyoutbutton.h"
 #include "llkeyboard.h"
 #include "llgesturemgr.h"
 #include "llanimationstates.h"
@@ -54,14 +55,21 @@ LLBottomTray* gBottomTray = NULL;
 LLBottomTray::LLBottomTray()
 	: mLastSpecialChatChannel(0)
 	, mGestureLabelTimer()
+	, mChatBox(NULL)
+	, mChicletPanel(NULL)
+	, mIMWell(NULL)
+	, mSysWell(NULL)
+	, mTalkBtn(NULL)
+	, mGestureCombo(NULL)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_bottomtray.xml");
 
 	mChicletPanel = getChild<LLChicletPanel>("chiclet_list",TRUE,FALSE);
 	mIMWell = getChild<LLNotificationChiclet>("im_well",TRUE,FALSE);
 	mSysWell = getChild<LLNotificationChiclet>("sys_well",TRUE,FALSE);
-	mSeparator = getChild<LLViewBorder>("well_separator",TRUE,FALSE);
 	mChatBox = getChild<LLLineEditor>("chat_box",TRUE,FALSE);
+
+	mChicletPanel->setChicletClickCallback(boost::bind(&LLBottomTray::onChicletClick,this,_1));
 
 	if (mChatBox)
 	{
@@ -109,12 +117,20 @@ LLBottomTray::~LLBottomTray()
 	}
 }
 
+void LLBottomTray::onChicletClick(LLUICtrl* ctrl)
+{
+	LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(ctrl);
+	if (chiclet)
+	{
+		LLFloaterReg::showInstance("communicate", chiclet->getIMSessionId());
+	}
+}
+
 void LLBottomTray::onChatBoxCommit()
 {
 	if (mChatBox && mChatBox->getText().length() > 0)
 	{
 		sendChat(CHAT_TYPE_NORMAL);
-		mChatBox->setText(LLStringExplicit(""));
 	}
 
 	gAgent.stopTyping();
@@ -269,6 +285,17 @@ void LLBottomTray::refresh()
 	}
 }
 
+void LLBottomTray::updateRightPosition(const S32 new_right_position)
+{
+	LLRect rc = getRect();
+	if (new_right_position != rc.mRight)
+	{
+		rc.mRight = new_right_position;
+		reshape(rc.getWidth(), rc.getHeight(), FALSE);
+		setRect(rc);
+	}
+}
+
 void LLBottomTray::onCommitGesture(LLUICtrl* ctrl)
 {
 	LLCtrlListInterface* gestures = mGestureCombo ? mGestureCombo->getListInterface() : NULL;
@@ -357,15 +384,13 @@ void LLBottomTray::sessionAdded(const LLUUID& session_id, const std::string& nam
 {
 	if(getChicletPanel())
 	{
-		LLSD sid(session_id);
-
-		if(getChicletPanel()->findIMChiclet(&sid))
+		if(getChicletPanel()->findIMChiclet(session_id))
 		{
 
 		}
 		else
 		{
-			LLIMChiclet* chicklet = (LLIMChiclet *)getChicletPanel()->createChiclet(&sid);
+			LLIMChiclet* chicklet = (LLIMChiclet *)getChicletPanel()->createChiclet(session_id);
 			chicklet->setIMSessionName(name);
 			chicklet->setOtherParticipantId(other_participant_id);
 		}
@@ -377,8 +402,7 @@ void LLBottomTray::sessionRemoved(const LLUUID& session_id)
 {
 	if(getChicletPanel())
 	{
-		LLSD sid(session_id);
-		getChicletPanel()->removeIMChiclet(&sid);
+		getChicletPanel()->removeIMChiclet(session_id);
 	}
 }
 
@@ -391,25 +415,52 @@ void LLBottomTray::onFocusLost()
 	}
 }
 
-//virtual
-void LLBottomTray::onVisibilityChange(BOOL curVisibilityIn)
+// virtual
+BOOL LLBottomTray::handleKeyHere( KEY key, MASK mask )
 {
+	BOOL handled = FALSE;
+
+	// ALT-RETURN is reserved for windowed/fullscreen toggle
+	if( KEY_RETURN == key && mask == MASK_CONTROL)
+	{
+		// shout
+		sendChat(CHAT_TYPE_SHOUT);
+		handled = TRUE;
+	}
+
+	return handled;
+}
+
+//virtual
+// setVisible used instead of onVisibilityChange, since LLAgent calls it on entering/leaving mouselook mode.
+// If bottom tray is already visible in mouselook mode, then onVisibilityChange will not be called from setVisible(true),
+void LLBottomTray::setVisible(BOOL visible)
+{
+	LLPanel::setVisible(visible);
+
+	
 	BOOL visibility = gAgent.cameraMouselook() ? false : true;
 
-	if (mChicletPanel && mChicletPanel->getVisible() == visibility)
+	LLViewBorder* separator = getChild<LLViewBorder>("well_separator",TRUE,FALSE);
+
+	if (separator && separator->getVisible() == visibility)
 		return;
 
-	if (mChicletPanel)
-		mChicletPanel->setVisible(visibility);
+	if (separator)
+		separator->setVisible(visibility);
 
-	if (mIMWell)
-		mIMWell->setVisible(visibility);
+	LLPanel* p = getChild<LLPanel>("chiclet_list_panel",TRUE,FALSE);
+	if (p)
+		p->setVisible(visibility);
 
-	if (mSysWell)
-		mSysWell->setVisible(visibility);
+	p = getChild<LLPanel>("im_well_panel",TRUE,FALSE);
+	if (p)
+		p->setVisible(visibility);
 
-	if (mSeparator)
-		mSeparator->setVisible(visibility);
+	p = getChild<LLPanel>("sys_well_panel",TRUE,FALSE);
+	if (p)
+		p->setVisible(visibility);
+
 }
 
 void LLBottomTray::sendChat( EChatType type )
@@ -446,6 +497,8 @@ void LLBottomTray::sendChat( EChatType type )
 				sendChatFromViewer(utf8_revised_text, type, TRUE);
 			}
 		}
+
+		mChatBox->setText(LLStringExplicit(""));
 	}
 
 	gAgent.stopTyping();

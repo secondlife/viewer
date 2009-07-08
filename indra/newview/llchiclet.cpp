@@ -32,7 +32,6 @@
 
 #include "llviewerprecompiledheaders.h" // must be first include
 #include "llchiclet.h"
-#include "llfloaterreg.h"
 #include "llvoiceclient.h"
 #include "llagent.h"
 #include "lltextbox.h"
@@ -165,7 +164,7 @@ LLIMChiclet::LLIMChiclet(const LLChiclet::Params& p)
 , mAvatar(NULL)
 , mCounterText(NULL)
 , mSpeaker(NULL)
-, mIMSessionId()
+, mIMSessionId(LLUUID::null)
 , mShowSpeaker(false)
 , mSpeakerStatus(SPEAKER_IDLE)
 {
@@ -204,10 +203,10 @@ LLIMChiclet::~LLIMChiclet()
 
 }
 
-LLChiclet* LLIMChiclet::create(LLSD* imSessionId /* = NULL */)
+LLChiclet* LLIMChiclet::create(const LLUUID& im_session_id /* = LLUUID::null */)
 {
 	LLIMChiclet* chiclet = new LLIMChiclet(LLChiclet::Params());
-	chiclet->setIMSessionId(imSessionId);
+	chiclet->setIMSessionId(im_session_id);
 	return chiclet;
 }
 
@@ -265,7 +264,7 @@ void LLIMChiclet::setShowSpeaker(bool show)
 void LLIMChiclet::draw()
 {
 	LLUICtrl::draw();
-	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 1, LLColor4(0.0f,0.0f,0.0f,1.f), FALSE);
+	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.0f,0.0f,0.0f,1.f), FALSE);
 }
 
 S32 LLIMChiclet::calcCounterWidth()
@@ -319,8 +318,9 @@ LLChicletPanel::~LLChicletPanel()
 }
 
 void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
-
-	LLChiclet* chiclet = panel->findIMChiclet(&data["session_id"]);
+	
+	LLUUID session_id = data["session_id"].asUUID();
+	LLChiclet* chiclet = panel->findIMChiclet(session_id);
 
 	if (chiclet)
 	{
@@ -328,7 +328,7 @@ void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	}
     else
     {
-    	llwarns << "Unable to set counter for chiclet " << data["session_id"].asUUID() << llendl;
+    	llwarns << "Unable to set counter for chiclet " << session_id << llendl;
     }
 }
 
@@ -341,9 +341,9 @@ BOOL LLChicletPanel::postBuild()
 	return TRUE;
 }
 
-LLChiclet* LLChicletPanel::createChiclet(LLSD* imSessionId, S32 pos)
+LLChiclet* LLChicletPanel::createChiclet(const LLUUID& im_session_id /* = LLUUID::null */, S32 pos /* = 0 */)
 {
-	LLChiclet* chiclet = LLIMChiclet::create(imSessionId);
+	LLChiclet* chiclet = LLIMChiclet::create(im_session_id);
 	if(!chiclet)
 	{
 		assert(false);
@@ -388,20 +388,15 @@ void LLChicletPanel::onChicletClick(LLUICtrl*ctrl,const LLSD&param)
 	LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(ctrl);
 	if (chiclet)
 	{
-		LLFloaterReg::showInstance("communicate", chiclet->getIMSessionId().asUUID());
+		S32 x, y;
+		LLRect rect = getRect();
+		localPointToScreen(rect.getCenterX(), 0, &x, &y);
+		LLIMFloater::show(chiclet->getIMSessionId(), x);
 	}
-    
-	S32 x, y;
-   	LLRect rect = chiclet->getRect();
-
-	localPointToScreen(rect.getCenterX(), 0, &x, &y);
-	LLIMFloater::show(chiclet->getIMSessionId().asUUID(), x);
-
 	mCommitSignal(ctrl,param);
 }
 
-
-LLChiclet* LLChicletPanel::findIMChiclet(const LLSD* imSessionId)
+LLChiclet* LLChicletPanel::findIMChiclet(const LLUUID& im_session_id)
 {
 	chiclet_list_t::const_iterator it = mChicletList.begin();
 	for( ; mChicletList.end() != it; ++it)
@@ -413,7 +408,7 @@ LLChiclet* LLChicletPanel::findIMChiclet(const LLSD* imSessionId)
 			continue;
 		}
 
-		if(chiclet->getIMSessionId().asUUID() == imSessionId->asUUID())
+		if(chiclet->getIMSessionId() == im_session_id)
 		{
 			return chiclet;
 		}
@@ -472,7 +467,7 @@ void LLChicletPanel::removeChiclet(LLChiclet*chiclet)
 	}
 }
 
-void LLChicletPanel::removeIMChiclet(const LLSD* imSessionId)
+void LLChicletPanel::removeIMChiclet(const LLUUID& im_session_id)
 {
 	chiclet_list_t::iterator it = mChicletList.begin();
 	for( ; mChicletList.end() != it; ++it)
@@ -484,7 +479,7 @@ void LLChicletPanel::removeIMChiclet(const LLSD* imSessionId)
 			continue;
 		}
 
-		if(chiclet->getIMSessionId().asUUID() == imSessionId->asUUID())
+		if(chiclet->getIMSessionId() == im_session_id)
 		{
 			removeChiclet(it);
 			return;

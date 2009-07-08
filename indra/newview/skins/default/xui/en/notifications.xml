@@ -3063,6 +3063,17 @@ Are you sure you want to teleport?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="TeleportToPick"
+   type="alertmodal">
+Teleport to [PICK]?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
    icon="alert.tga"
    label="Message everyone in your Estate"
    name="MessageEstate"

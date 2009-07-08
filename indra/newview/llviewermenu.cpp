@@ -159,6 +159,7 @@
 #include "llresmgr.h"
 #include "llrootview.h"
 #include "llselectmgr.h"
+#include "llsidetray.h"
 #include "llsky.h"
 #include "llstatusbar.h"
 #include "llstatview.h"
@@ -3451,6 +3452,26 @@ class LLSelfEnableStandUp : public view_listener_t
 	}
 };
 
+class LLSelfFriends : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		// Open "Friends" tab of the "People" panel in side tray.
+		LLSideTray::getInstance()->showPanel("panel_people", "friends_panel");
+		return true;
+	}
+};
+
+class LLSelfGroups : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		// Open "Groups" tab of the "People" panel in side tray.
+		LLSideTray::getInstance()->showPanel("panel_people", "groups_panel");
+		return true;
+	}
+};
+
 BOOL check_admin_override(void*)
 {
 	return gAgent.getAdminOverride();
@@ -3584,14 +3605,9 @@ bool LLHaveCallingcard::operator()(LLInventoryCategory* cat,
 }
 */
 
-BOOL is_agent_friend(const LLUUID& agent_id)
-{
-	return (LLAvatarTracker::instance().getBuddyInfo(agent_id) != NULL);
-}
-
 BOOL is_agent_mappable(const LLUUID& agent_id)
 {
-	return (is_agent_friend(agent_id) &&
+	return (LLFriendActions::isFriend(agent_id) &&
 		LLAvatarTracker::instance().getBuddyInfo(agent_id)->isOnline() &&
 		LLAvatarTracker::instance().getBuddyInfo(agent_id)->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION)
 		);
@@ -3604,7 +3620,7 @@ class LLAvatarEnableAddFriend : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
-		bool new_value = avatar && !is_agent_friend(avatar->getID());
+		bool new_value = avatar && !LLFriendActions::isFriend(avatar->getID());
 		return new_value;
 	}
 };
@@ -5360,7 +5376,7 @@ class LLAvatarAddFriend : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
-		if(avatar && !is_agent_friend(avatar->getID()))
+		if(avatar && !LLFriendActions::isFriend(avatar->getID()))
 		{
 			request_friendship(avatar->getID());
 		}
@@ -7935,6 +7951,10 @@ void initialize_menus()
 
 	view_listener_t::addMenu(new LLSelfEnableStandUp(), "Self.EnableStandUp");
 	view_listener_t::addMenu(new LLSelfEnableRemoveAllAttachments(), "Self.EnableRemoveAllAttachments");
+
+	// we don't use boost::bind directly to delay side tray construction
+	view_listener_t::addMenu(new LLSelfFriends(), "Self.Friends");
+	view_listener_t::addMenu(new LLSelfGroups(), "Self.Groups");
 
 	 // Avatar pie menu
 	view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");

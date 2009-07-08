@@ -32,11 +32,10 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llpanelprofileview.h"
-#include <llfloaterreg.h>
-#include <lltabcontainer.h>
-#include <lluictrlfactory.h>
+
 #include "llpanelavatar.h"
 #include "llpanelpicks.h"
+#include "llpanelprofile.h"
 
 static LLRegisterPanelClassWrapper<LLPanelProfileView> t_panel_target_profile("panel_profile_view");
 static LLRegisterPanelClassWrapper<LLPanelAvatarNotes> t_panel_notes("panel_notes");
@@ -46,7 +45,7 @@ static std::string PANEL_PICKS = "panel_picks";
 static std::string PANEL_NOTES = "panel_notes";
 
 LLPanelProfileView::LLPanelProfileView()
-: LLPanel()
+:	LLPanelProfile()
 {
 }
 
@@ -57,35 +56,23 @@ LLPanelProfileView::~LLPanelProfileView(void)
 /*virtual*/ 
 void LLPanelProfileView::onOpen(const LLSD& key)
 {
-	if (!getVisible())
-		setVisible(TRUE);
-
-	LLUUID id(key.asUUID());
-	if(id.notNull() && mProfileId.notNull() && mProfileId != id)
-	{
-		mTabs[PANEL_PROFILE]->clear();
-		mTabs[PANEL_PICKS]->clear();
-		mTabs[PANEL_NOTES]->clear();
-	}
-
-	mProfileId = id;
-	mTabs[PANEL_PROFILE]->onOpen(mProfileId);
-	mTabs[PANEL_PICKS]->onActivate(mProfileId);
-	mTabs[PANEL_NOTES]->onActivate(mProfileId);
+	LLPanelProfile::onOpen(key);
+	
+	//*NOTE profile view panel doesn't have own side tray tab and 
+	//is usually opened over People side tray tab. By Back button
+	// Profile View panel just becomes invisible, see onBackBtnClick()
+	setVisible(TRUE);
 
 	std::string full_name;
-	gCacheName->getFullName(key,full_name);
+	gCacheName->getFullName(key["id"],full_name);
 	childSetValue("user_name",full_name);
 }
 
 
 BOOL LLPanelProfileView::postBuild()
 {
-	mTabContainer = getChild<LLTabContainer>("profile_tabs");
-	mTabContainer->setCommitCallback(boost::bind(&LLPanelProfileView::onTabSelected, this, _2));
+	LLPanelProfile::postBuild();
 
-	mTabs[PANEL_PROFILE] = (getChild<LLPanelAvatarProfile>(PANEL_PROFILE));
-	mTabs[PANEL_PICKS] = (getChild<LLPanelPicks>(PANEL_PICKS));
 	mTabs[PANEL_NOTES] = (getChild<LLPanelAvatarNotes>(PANEL_NOTES));
 
 	childSetCommitCallback("back",boost::bind(&LLPanelProfileView::onBackBtnClick,this),NULL);
@@ -95,14 +82,6 @@ BOOL LLPanelProfileView::postBuild()
 
 
 //private
-
-void LLPanelProfileView::initTabs(const LLSD& key)
-{
-}
-
-void LLPanelProfileView::onTabSelected(const LLSD& param)
-{
-}
 
 void LLPanelProfileView::onBackBtnClick()
 {

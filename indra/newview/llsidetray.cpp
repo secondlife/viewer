@@ -45,7 +45,6 @@
 #include "llfloater.h" //for gFloaterView
 #include "lliconctrl.h"//for Home tab icon
 #include "llwindow.h"//for SetCursor
-#include "llbottomtray.h"//for reshape
 
 //#include "llscrollcontainer.h"
 
@@ -733,9 +732,6 @@ void	LLSideTray::setPanelRect	()
 		panel_width+=mMaxBarWidth;
 
 	S32 panel_height = parent_rect.getHeight()-fake_top_offset;
-	if(gBottomTray)
-		panel_height -= gBottomTray->getRect().getHeight();
-
 	LLRect panel_rect;
 	panel_rect.setLeftTopAndSize( parent_rect.mRight-panel_width, parent_rect.mTop-fake_top_offset, panel_width, panel_height);
 	setRect(panel_rect);

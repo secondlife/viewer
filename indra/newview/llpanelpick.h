@@ -74,7 +74,7 @@ public:
 	// but that causes such a complication that we cannot set a callback for a "Back" button
 	// from the parent panel only once, so we have to preserve that callback
 	// in the pick panel and set it for the back button everytime postBuild() is called.
-	void setExitCallback(boost::function<void(void*)> function, void* value);
+	void setExitCallback(commit_callback_t cb);
 
 	static void teleport(const LLVector3d& position);
 	static void showOnMap(const LLVector3d& position);
@@ -100,16 +100,16 @@ protected:
 	//-----------------------------------------
 	// "PICK INFO" (VIEW MODE) BUTTON HANDLERS
 	//-----------------------------------------
-	static void onClickEdit(void* data);
-	static void onClickTeleport(void* data);
-	static void onClickMap(void* data);
+	void onClickEdit();
+	void onClickTeleport();
+	void onClickMap();
 
 	//-----------------------------------------
 	// "EDIT PICK" (EDIT MODE) BUTTON HANDLERS
 	//-----------------------------------------
-	static void onClickSet(void* data);
-	static void onClickSave(void* data);
-	static void onClickCancel(void* data);
+	void onClickSet();
+	void onClickSave();
+	void onClickCancel();
 
 protected:
 	BOOL mEditMode;
@@ -122,8 +122,7 @@ protected:
 	LLUUID mParcelId;
 	std::string mSimName;
 
-	boost::function<void(void*)> mExitFunction;
-	void* mExitData;
+	commit_callback_t mBackCb;
 };
 
 #endif // LL_LLPANELPICK_H

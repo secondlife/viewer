@@ -18,15 +18,6 @@
              function="Floater.Show"
              parameter="preferences" />
         </menu_item_call>
-		<menu_item_call
-         label="Media Remote Ctrl"
-         layout="topleft"
-         name="Preferences"
-         shortcut="control|A">
-            <menu_item_call.on_click
-             function="Floater.Toggle"
-             parameter="media_remote_ctrl" />
-        </menu_item_call>
         <menu_item_separator
          layout="topleft" />
         <menu
@@ -225,6 +216,17 @@
         </menu_item_check>
         <menu_item_separator
          layout="topleft" />
+		<menu_item_call
+         label="Media Remote Ctrl"
+         layout="topleft"
+         name="Preferences"
+         shortcut="control|alt|M">
+            <menu_item_call.on_click
+             function="Floater.Toggle"
+             parameter="media_remote_ctrl" />
+        </menu_item_call>
+        <menu_item_separator
+         layout="topleft" />
         <menu_item_check
          label="Active Speakers"
          layout="topleft"
@@ -362,7 +364,7 @@
              function="Floater.Visible"
 			 parameter="mini_map" />
             <menu_item_check.on_click
-             function="Floater.Show"
+             function="Floater.Toggle"
              parameter="mini_map" />
         </menu_item_check>
         <menu_item_separator

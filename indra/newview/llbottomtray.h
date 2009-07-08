@@ -34,20 +34,19 @@
 #define LL_LLBOTTOMPANEL_H
 
 #include "llpanel.h"
-#include "llflyoutbutton.h"
 #include "llimview.h"
 #include "llchat.h"
 #include "llgesturemgr.h"
 
 class LLChicletPanel;
 class LLNotificationChiclet;
-class LLNotificationChiclet;
 class LLTalkButton;
+class LLComboBox;
 
 class LLBottomTray 
 	: public LLPanel
 	, public LLIMSessionObserver
-	, LLGestureManagerObserver
+	, public LLGestureManagerObserver
 {
 public:
 	LLBottomTray();
@@ -66,6 +65,7 @@ public:
 	static void onChatBoxFocusLost(LLFocusableElement* caller, void* userdata);
 
 	void refresh();
+	void updateRightPosition(const S32 new_right_position);
 
 	void onCommitGesture(LLUICtrl* ctrl);
 	void refreshGestures();
@@ -78,12 +78,15 @@ public:
 	virtual void changed() { refreshGestures(); }
 
 	virtual void onFocusLost();
-	virtual void onVisibilityChange(BOOL curVisibilityIn);
+	virtual BOOL handleKeyHere(KEY key, MASK mask);
+	virtual void setVisible(BOOL visible);
 
 protected:
 
 	void sendChat( EChatType type );
 	LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
+
+	void onChicletClick(LLUICtrl* ctrl);
 
 	// Which non-zero channel did we last chat on?
 	S32 mLastSpecialChatChannel;
@@ -92,13 +95,11 @@ protected:
 	LLChicletPanel* 	mChicletPanel;
 	LLNotificationChiclet* 	mIMWell;
 	LLNotificationChiclet* 	mSysWell;
-	LLViewBorder*		mSeparator;
 	LLTalkButton* 		mTalkBtn;
 	LLComboBox* 		mGestureCombo;
 	LLFrameTimer 		mGestureLabelTimer;
 };
 
 extern LLBottomTray* gBottomTray;
-extern S32 BOTTOM_TRAY_HEIGHT;
 
 #endif // LL_LLBOTTOMPANEL_H

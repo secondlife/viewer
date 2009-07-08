@@ -78,15 +78,15 @@ protected:
 class LLIMChiclet : public LLChiclet
 {
 public:
-	static LLChiclet* create(LLSD* imSessionId = NULL);
+	static LLChiclet* create(const LLUUID& im_session_id = LLUUID::null);
 
 	void setCounter(S32);
 
 	S32 getCounter() {return mCounter;};
 
-	const LLSD& getIMSessionId() const {return mIMSessionId;};
+	const LLUUID& getIMSessionId() const {return mIMSessionId;};
 
-	void setIMSessionId(LLSD* imSessionId) {if (imSessionId) mIMSessionId = *imSessionId;};
+	void setIMSessionId(const LLUUID& im_session_id) { mIMSessionId = im_session_id; }
 	void setIMSessionName(const std::string& name);
 	void setOtherParticipantId(const LLUUID& other_participant_id);
 
@@ -126,7 +126,7 @@ protected:
 	LLTextBox* mCounterText;
 	LLIconCtrl* mSpeaker;
 
-	LLSD mIMSessionId;
+	LLUUID mIMSessionId;
 	bool mShowSpeaker;
 	SpeakerStatus mSpeakerStatus;
 };
@@ -182,13 +182,13 @@ public:
 
 	~LLChicletPanel();
 
-	LLChiclet* createChiclet(LLSD* imSessionId = NULL, S32 pos = 0);
+	LLChiclet* createChiclet(const LLUUID& im_session_id = LLUUID::null, S32 pos = 0);
 
 	bool addChiclet(LLChiclet*, S32 pos);
 
 	LLChiclet* getChiclet(S32 pos);
 
-	LLChiclet* findIMChiclet(const LLSD* imSessionId);
+	LLChiclet* findIMChiclet(const LLUUID& im_session_id);
 
 	S32 getChicletCount() {return mChicletList.size();};
 
@@ -196,7 +196,7 @@ public:
 
 	void removeChiclet(LLChiclet*);
 
-	void removeIMChiclet(const LLSD* imSessionId);
+	void removeIMChiclet(const LLUUID& im_session_id);
 
 	void removeAll();
 

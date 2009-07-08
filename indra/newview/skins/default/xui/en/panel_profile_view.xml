@@ -38,7 +38,7 @@
      height="625"
      layout="topleft"
      left="0"
-     name="profile_tabs"
+     name="tabs"
      tab_position="top"
      top="35"
      width="355">

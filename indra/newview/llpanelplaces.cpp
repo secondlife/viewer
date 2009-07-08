@@ -80,7 +80,7 @@ BOOL LLPanelPlaces::postBuild()
 		mSearchEditor->setSearchCallback(boost::bind(&LLPanelPlaces::onSearchEdit, this, _1));
 	}
 
-	mPlaceInfo = dynamic_cast<LLPanelPlaceInfo*>(getChild<LLPanel>("panel_landmark_info"));
+	mPlaceInfo = getChild<LLPanelPlaceInfo>("panel_place_info", TRUE, FALSE);
 	if (mPlaceInfo)
 	{
 		LLButton* back_btn = mPlaceInfo->getChild<LLButton>("back_btn");
@@ -88,6 +88,9 @@ BOOL LLPanelPlaces::postBuild()
 		{
 			back_btn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 		}
+
+		// *TODO: Assign the action to an appropriate event.
+		childSetAction("overflow_btn", boost::bind(&LLPanelPlaceInfo::toggleMediaPanel, mPlaceInfo), this);
 	}
 
 	//childSetAction("share_btn", boost::bind(&LLPanelPlaces::onShareButtonClicked, this), this);
@@ -109,24 +112,26 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 	togglePlaceInfoPanel(TRUE);
 
-	mPlaceInfoType = key["type"].asInteger();
+	mPlaceInfoType = key["type"].asString();
 
-	if (mPlaceInfoType == AGENT)
+	if (mPlaceInfoType == "agent")
 	{
 		// We don't need to teleport to the current location so disable the button
 		getChild<LLButton>("teleport_btn")->setEnabled(FALSE);
 		getChild<LLButton>("map_btn")->setEnabled(TRUE);
 
+		mPlaceInfo->setInfoType(LLPanelPlaceInfo::PLACE);
 		mPlaceInfo->displayParcelInfo(gAgent.getPositionAgent(),
 									  gAgent.getRegion()->getRegionID(),
 									  gAgent.getPositionGlobal());
 	}
-	else if (mPlaceInfoType == LANDMARK)
+	else if (mPlaceInfoType == "landmark")
 	{
 		LLInventoryItem* item = gInventory.getItem(key["id"].asUUID());
 		if (!item)
 			return;
 
+		mPlaceInfo->setInfoType(LLPanelPlaceInfo::LANDMARK);
 		mPlaceInfo->displayItemInfo(item);
 
 		LLLandmark* landmark = gLandmarkList.getAsset(item->getAssetUUID());
@@ -142,7 +147,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 									  pos_global);
 
 	}
-	else if (mPlaceInfoType == TELEPORT_HISTORY)
+	else if (mPlaceInfoType == "teleport_history")
 	{
 		S32 index = key["id"].asInteger();
 
@@ -156,6 +161,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 		LLVector3 pos_local(region_x, region_y, (F32)pos_global.mdV[VZ]);
 
+		mPlaceInfo->setInfoType(LLPanelPlaceInfo::PLACE);
 		mPlaceInfo->displayParcelInfo(pos_local,
 									  hist_items[index].mRegionID,
 									  pos_global);
@@ -211,7 +217,7 @@ void LLPanelPlaces::onTeleportButtonClicked()
 
 void LLPanelPlaces::onShowOnMapButtonClicked()
 {
-	if (!mPlaceInfoType)
+	if (mPlaceInfoType == "agent")
 	{
 		LLVector3d global_pos = gAgent.getPositionGlobal();
 		if (!global_pos.isExactlyZero())

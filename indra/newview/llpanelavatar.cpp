@@ -43,7 +43,6 @@
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
 #include "lltooldraganddrop.h"
-#include "llviewermenu.h"		// *FIX: for is_agent_friend()
 #include "llscrollcontainer.h"
 #include "llweb.h"
 
@@ -140,7 +139,6 @@ LLPanelProfileTab::LLPanelProfileTab(const Params& params )
 
 LLPanelProfileTab::~LLPanelProfileTab()
 {
-	// *TODO Vadim: use notNull() instead. (there are several similar cases below)
 	if(mAvatarId.notNull())
 	{
 		LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
@@ -164,6 +162,11 @@ void LLPanelProfileTab::setAvatarId(const LLUUID& avatar_id)
 void LLPanelProfileTab::setProfileType()
 {
 	mProfileType = (gAgentID == mAvatarId) ? PT_OWN : PT_OTHER;
+}
+
+void LLPanelProfileTab::onOpen(const LLSD& key)
+{
+	onActivate(key);
 }
 
 void LLPanelProfileTab::onActivate(const LLUUID& id)
@@ -293,7 +296,7 @@ void LLPanelAvatarProfile::processProperties(void* data, EAvatarProcessorType ty
 
 
 			bool online = avatar_data->flags & AVATAR_ONLINE;
-			if(is_agent_friend(avatar_data->avatar_id))
+			if(LLFriendActions::isFriend(avatar_data->avatar_id))
 			{
 				// Online status NO could be because they are hidden
 				// If they are a friend, we may know the truth!
@@ -533,7 +536,7 @@ void LLPanelAvatarProfile::updateChildrenList()
 		childSetVisible("partner_edit_link", false);
 
 		//hide for friends
-		childSetEnabled("add_friend", !is_agent_friend(getAvatarId()));
+		childSetEnabled("add_friend", !LLFriendActions::isFriend(getAvatarId()));
 
 		//need to update profile view on every activate
 		mUpdated = false;
@@ -727,5 +730,5 @@ void LLPanelAvatarNotes::onActivate(const LLUUID& id)
 void LLPanelAvatarNotes::updateChildrenList()
 {
 	//hide for friends
-	childSetEnabled("add_friend", !is_agent_friend(getAvatarId()));
+	childSetEnabled("add_friend", !LLFriendActions::isFriend(getAvatarId()));
 }

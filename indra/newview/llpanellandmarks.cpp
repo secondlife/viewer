@@ -262,7 +262,7 @@ void LLLandmarksPanel::onSelectorButtonClicked()
 	if (listenerp->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{
 		LLSD key;
-		key["type"] = LLPanelPlaces::LANDMARK;
+		key["type"] = "landmark";
 		key["id"] = listenerp->getUUID();
 
 		LLSideTray::getInstance()->showPanel("panel_places", key);
