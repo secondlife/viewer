@@ -27,7 +27,11 @@ LLAppViewerListener::LLAppViewerListener(const std::string& pumpname, LLAppViewe
     add("requestQuit", &LLAppViewerListener::requestQuit);
 }
 
-void LLAppViewerListener::requestQuit(const LLSD& event) const
+void LLAppViewerListener::requestQuit(const LLSD& event)
 {
+    if(mAppViewer == NULL)
+    {
+        mAppViewer = LLAppViewer::instance();
+    }
     mAppViewer->requestQuit();
 }

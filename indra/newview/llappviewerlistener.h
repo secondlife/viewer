@@ -26,7 +26,7 @@ public:
     LLAppViewerListener(const std::string& pumpname, LLAppViewer* llappviewer);
 
 private:
-    void requestQuit(const LLSD& event) const;
+    void requestQuit(const LLSD& event);
 
     LLAppViewer* mAppViewer;
 };
