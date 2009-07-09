@@ -132,7 +132,7 @@
              follows="left|top"
              font="SansSerifBig"
              height="20"
-             label="Edit, delite or take my objects"
+             label="Edit, delete or take my objects"
              layout="topleft"
              left="10"
              name="objects_check"
