@@ -1224,7 +1224,12 @@ void LLFloaterPreference::applyResolution()
 	S32 num_resolutions;
 	LLWindow::LLWindowResolution* supported_resolutions = 
 	gViewerWindow->getWindow()->getSupportedResolutions(num_resolutions);
-	U32 resIndex = getChild<LLComboBox>("fullscreen combo")->getCurrentIndex();
+	S32 resIndex = getChild<LLComboBox>("fullscreen combo")->getCurrentIndex();
+	if (resIndex == -1)
+	{
+		// use highest resolution if nothing selected
+		resIndex = num_resolutions - 1;
+	}
 	gSavedSettings.setS32("FullScreenWidth", supported_resolutions[resIndex].mWidth);
 	gSavedSettings.setS32("FullScreenHeight", supported_resolutions[resIndex].mHeight);
 	

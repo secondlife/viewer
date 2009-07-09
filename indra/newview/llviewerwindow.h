@@ -76,7 +76,6 @@ public:
 		BOOL pick_transparent, 
 		BOOL pick_surface_info,
 		void (*pick_callback)(const LLPickInfo& pick_info));
-	~LLPickInfo();
 
 	void fetchResults();
 	LLPointer<LLViewerObject> getObject() const;

@@ -3427,12 +3427,12 @@ LLVector3 LLViewerWindow::mouseDirectionGlobal(const S32 x, const S32 y) const
 	// find vertical field of view
 	F32			fov = LLViewerCamera::getInstance()->getView();
 
-	// find world view center
-	F32			center_x = (F32)getWorldViewRect().getCenterX();
-	F32			center_y = (F32)getWorldViewRect().getCenterY();
+	// find world view center in scaled ui coordinates
+	F32			center_x = (F32)getWorldViewRect().getCenterX() / mDisplayScale.mV[VX];
+	F32			center_y = (F32)getWorldViewRect().getCenterY() / mDisplayScale.mV[VY];
 
 	// calculate pixel distance to screen
-	F32			distance = (getWorldViewHeight() / 2.f) / (tan(fov / 2.f));
+	F32			distance = ((F32)getWorldViewHeight() / (mDisplayScale.mV[VY] * 2.f)) / (tan(fov / 2.f));
 
 	// calculate click point relative to middle of screen
 	F32			click_x = x - center_x;
@@ -3451,11 +3451,11 @@ LLVector3 LLViewerWindow::mouseDirectionGlobal(const S32 x, const S32 y) const
 LLVector3 LLViewerWindow::mousePointHUD(const S32 x, const S32 y) const
 {
 	// find screen resolution
-	S32			height = getWorldViewHeight();
+	S32			height = llround((F32)getWorldViewHeight() / mDisplayScale.mV[VY]);
 
 	// find world view center
-	F32			center_x = (F32)getWorldViewRect().getCenterX();
-	F32			center_y = (F32)getWorldViewRect().getCenterY();
+	F32			center_x = (F32)getWorldViewRect().getCenterX() / mDisplayScale.mV[VX];
+	F32			center_y = (F32)getWorldViewRect().getCenterY() / mDisplayScale.mV[VY];
 
 	// remap with uniform scale (1/height) so that top is -0.5, bottom is +0.5
 	F32 hud_x = -((F32)x - center_x)  / height;
@@ -3473,12 +3473,12 @@ LLVector3 LLViewerWindow::mouseDirectionCamera(const S32 x, const S32 y) const
 	F32			fov_width = fov_height * LLViewerCamera::getInstance()->getAspect();
 
 	// find screen resolution
-	S32			height = getWorldViewHeight();
-	S32			width = getWorldViewWidth();
+	S32			height = llround((F32)getWorldViewHeight() / mDisplayScale.mV[VY]);
+	S32			width = llround((F32)getWorldViewWidth() / mDisplayScale.mV[VX]);
 
 	// find world view center
-	F32			center_x = (F32)getWorldViewRect().getCenterX();
-	F32			center_y = (F32)getWorldViewRect().getCenterY();
+	F32			center_x = (F32)getWorldViewRect().getCenterX() / mDisplayScale.mV[VX];
+	F32			center_y = (F32)getWorldViewRect().getCenterY() / mDisplayScale.mV[VY];
 
 	// calculate click point relative to middle of screen
 	F32			click_x = (((F32)x - center_x) / (F32)width) * fov_width * -1.f;
@@ -4977,10 +4977,6 @@ LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos,
 {
 }
 
-LLPickInfo::~LLPickInfo()
-{
-}
-
 void LLPickInfo::fetchResults()
 {
 
@@ -4999,59 +4995,14 @@ void LLPickInfo::fetchResults()
 									NULL, -1, mPickTransparent, &face_hit,
 									&intersection, &uv, &normal, &binormal);
 	
-	// read back colors and depth values from buffer
-	//glReadPixels(mScreenRegion.mLeft, mScreenRegion.mBottom, mScreenRegion.getWidth(), mScreenRegion.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, mPickBuffer);
-	//glReadPixels(mScreenRegion.mLeft, mScreenRegion.mBottom, mScreenRegion.getWidth(), mScreenRegion.getHeight(), GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, mPickDepthBuffer );
-
-	// find pick region that is fully onscreen
-	LLCoordGL scaled_pick_point;;
-	scaled_pick_point.mX = llclamp(llround((F32)mMousePt.mX * gViewerWindow->getDisplayScale().mV[VX]), PICK_HALF_WIDTH, gViewerWindow->getWorldViewWidth() - PICK_HALF_WIDTH);
-	scaled_pick_point.mY = llclamp(llround((F32)mMousePt.mY * gViewerWindow->getDisplayScale().mV[VY]), PICK_HALF_WIDTH, gViewerWindow->getWorldViewHeight() - PICK_HALF_WIDTH);
-	//S32 pixel_index = PICK_HALF_WIDTH * PICK_DIAMETER + PICK_HALF_WIDTH;
-	//S32 pick_id = (U32)mPickBuffer[(pixel_index * 4) + 0] << 16 | (U32)mPickBuffer[(pixel_index * 4) + 1] << 8 | (U32)mPickBuffer[(pixel_index * 4) + 2];
-	//F32 depth = mPickDepthBuffer[pixel_index];
-
-	//S32 x_offset = mMousePt.mX - llround((F32)scaled_pick_point.mX / gViewerWindow->getDisplayScale().mV[VX]);
-	//S32 y_offset = mMousePt.mY - llround((F32)scaled_pick_point.mY / gViewerWindow->getDisplayScale().mV[VY]);
-
 	mPickPt = mMousePt;
 
-	// we hit nothing, scan surrounding pixels for something useful
-	/*if (!pick_id)
-	{
-		S32 closest_distance = 10000;
-		//S32 closest_pick_name = 0;
-		for (S32 col = 0; col < PICK_DIAMETER; col++)
-		{
-			for (S32 row = 0; row < PICK_DIAMETER; row++)
-			{
-				S32 distance_squared = (llabs(col - x_offset - PICK_HALF_WIDTH) * llabs(col - x_offset - PICK_HALF_WIDTH)) + (llabs(row - y_offset - PICK_HALF_WIDTH) * llabs(row - y_offset - PICK_HALF_WIDTH));
-				pixel_index = row * PICK_DIAMETER + col;
-				S32 test_name = (U32)mPickBuffer[(pixel_index * 4) + 0] << 16 | (U32)mPickBuffer[(pixel_index * 4) + 1] << 8 | (U32)mPickBuffer[(pixel_index * 4) + 2];
-				if (test_name && distance_squared < closest_distance)
-				{
-					closest_distance = distance_squared;
-					pick_id = test_name;
-					depth = mPickDepthBuffer[pixel_index];
-					mPickPt.mX = mMousePt.mX + (col - PICK_HALF_WIDTH);
-					mPickPt.mY = mMousePt.mY + (row - PICK_HALF_WIDTH);
-				}
-			}
-		}
-	}*/
-
-
 	U32 te_offset = face_hit > -1 ? face_hit : 0;
-	//pick_id &= 0x000fffff;
 
 	//unproject relative clicked coordinate from window coordinate using GL
 	
 	LLViewerObject* objectp = hit_object;
 
-	//if (pick_id == (S32)GL_NAME_PARCEL_WALL)
-	//{
-	//	mPickType = PICK_PARCEL_WALL;
-	//}
 	if (hit_icon && 
 		(!objectp || 
 		icon_dist < (LLViewerCamera::getInstance()->getOrigin()-intersection).magVec()))
@@ -5094,20 +5045,6 @@ void LLPickInfo::fetchResults()
 			mObjectOffset = gAgent.calcFocusOffset(objectp, intersection, mPickPt.mX, mPickPt.mY);
 			mObjectID = objectp->mID;
 			mObjectFace = (te_offset == NO_FACE) ? -1 : (S32)te_offset;
-
-			/*glh::matrix4f newModel((F32*)LLViewerCamera::getInstance()->getModelview().mMatrix);
-
-			for(U32 i = 0; i < 16; ++i)
-			{
-				modelview[i] = newModel.m[i];
-				projection[i] = LLViewerCamera::getInstance()->getProjection().mMatrix[i/4][i%4];
-			}
-			glGetIntegerv( GL_VIEWPORT, viewport );
-
-			winX = ((F32)mPickPt.mX) * gViewerWindow->getDisplayScale().mV[VX];
-			winY = ((F32)mPickPt.mY) * gViewerWindow->getDisplayScale().mV[VY];
-
-			gluUnProject( winX, winY, depth, modelview, projection, viewport, &posX, &posY, &posZ);*/
 
 			mPosGlobal = gAgent.getPosGlobalFromAgent(intersection);
 			
