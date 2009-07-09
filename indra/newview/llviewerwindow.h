@@ -278,7 +278,7 @@ public:
 	void				updateKeyboardFocus();		
 	void				updatePicking(S32 x, S32 y, MASK mask);
 
-	void			updateWorldViewRect();
+	void			updateWorldViewRect(bool use_full_window=false);
 
 	BOOL			handleKey(KEY key, MASK mask);
 	void			handleScrollWheel	(S32 clicks);

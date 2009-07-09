@@ -2916,27 +2916,31 @@ void LLViewerWindow::updateKeyboardFocus()
 
 }
 
-void LLViewerWindow::updateWorldViewRect()
+void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 {
 	if (!LLSideTray::instanceCreated()) return;
 
+	// start off using whole window to render world
 	LLRect new_world_rect = mWindowRect;
 
-	// pull in right side of world view based on sidetray
-	LLSideTray* sidetray = LLSideTray::getInstance();
-	if (sidetray->getVisible())
+	if (use_full_window == false)
 	{
-		new_world_rect.mRight -= llround((F32)sidetray->getTrayWidth() * mDisplayScale.mV[VX]);
-	}
-
-	// push top of world view below nav bar
-	if (LLNavigationBar::getInstance()->getVisible())
-	{
-		LLNavigationBar* barp = LLNavigationBar::getInstance();
-		LLRect nav_bar_rect;
-		if(barp->localRectToOtherView(barp->getLocalRect(), &nav_bar_rect, mRootView))
+		// pull in right side of world view based on sidetray
+		LLSideTray* sidetray = LLSideTray::getInstance();
+		if (sidetray->getVisible())
 		{
-			new_world_rect.mTop = llround((F32)LLNavigationBar::getInstance()->getRect().mBottom * mDisplayScale.mV[VY]);
+			new_world_rect.mRight -= llround((F32)sidetray->getTrayWidth() * mDisplayScale.mV[VX]);
+		}
+
+		// push top of world view below nav bar
+		if (LLNavigationBar::getInstance()->getVisible())
+		{
+			LLNavigationBar* barp = LLNavigationBar::getInstance();
+			LLRect nav_bar_rect;
+			if(barp->localRectToOtherView(barp->getLocalRect(), &nav_bar_rect, mRootView))
+			{
+				new_world_rect.mTop = llround((F32)LLNavigationBar::getInstance()->getRect().mBottom * mDisplayScale.mV[VY]);
+			}
 		}
 	}
 
@@ -3925,6 +3929,9 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	// PRE SNAPSHOT
 	gDisplaySwapBuffers = FALSE;
 	
+	// if not showing ui, use full window to render world view
+	updateWorldViewRect(!show_ui);
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	setCursor(UI_CURSOR_WAIT);
 
