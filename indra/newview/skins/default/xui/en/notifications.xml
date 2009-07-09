@@ -6451,7 +6451,7 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
     The URL you clicked cannot be opened from this web browser.
   </notification>
 
-  <notification name="IMToast" type="notify">
+  <notification name="IMToast" type="notifytoast">
     [MESSAGE]
     <form name="form">
       <button index="0" name="respondbutton" text="Respond"/>
