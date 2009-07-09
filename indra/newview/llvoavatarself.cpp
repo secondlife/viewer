@@ -161,9 +161,17 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 	{
 		mLocalTextureDatas[(ETextureIndex)i].push_back(new LocalTextureData);
 	}
+}
 
+void LLVOAvatarSelf::initInstance()
+{
 	BOOL status = TRUE;
+	// creates hud joint(mScreen) among other things
 	status &= loadAvatarSelf();
+
+	// adds attachment points to mScreen among other things
+	LLVOAvatar::initInstance();
+
 	status &= buildMenus();
 	if (!status)
 	{

@@ -54,6 +54,7 @@ public:
 	LLVOAvatarSelf(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	virtual 				~LLVOAvatarSelf();
 	virtual void			markDead();
+	virtual void 		initInstance(); // Called after construction to initialize the class.
 protected:
 	BOOL					loadAvatarSelf();
 	BOOL					buildSkeletonSelf(const LLVOAvatarSkeletonInfo *info);
