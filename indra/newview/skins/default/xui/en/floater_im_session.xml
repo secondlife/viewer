@@ -7,6 +7,7 @@
  left="0"
  name="panel_im"
  top="0"
+ visible="false" 
  width="300">
   <text_editor
    enabled="false"

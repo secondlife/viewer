@@ -415,10 +415,7 @@ void LLNavigationBar::onRegionNameResponse(
 	S32 selected_item = mCmbLocation->getCurrentIndex();
 	if (selected_item == -1) // user has typed text
 	{
-		LLLocationHistory* lh = LLLocationHistory::getInstance();
 		mCmbLocation->add(typed_location);
-		lh->addItem(typed_location);
-		lh->save();
 	}
 
 	// Teleport to the location.

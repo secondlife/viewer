@@ -37,11 +37,28 @@
 #include <iomanip> // for std::setw()
 
 #include "llui.h"
+#include "llagent.h"
+#include "llslurl.h"
+#include "llviewerregion.h"
+#include "llviewerparcelmgr.h"
+
+
+void addLocationHistory()
+{	
+	LLVector3 position = gAgent.getPositionAgent();
+	std::string region_name = gAgent.getRegion()->getName();
+	std::string location = LLSLURL::buildSLURL(region_name, position.mV[VX], 
+		                                       position.mV[VY], position.mV[VZ]);
+	LLLocationHistory* lh = LLLocationHistory::getInstance();
+	lh->addItem(location);
+	lh->save();
+}
 
 LLLocationHistory::LLLocationHistory() :
 	mFilename("typed_locations.txt"),
 	mLoadedCallback(NULL)
 {
+	LLViewerParcelMgr::getInstance()->setTeleportFinishedCallback(addLocationHistory);
 }
 
 void LLLocationHistory::addItem(std::string item)

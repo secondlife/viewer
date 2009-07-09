@@ -2074,7 +2074,7 @@ void LLIMFloater::show(const LLUUID& session_id, S32 center_x)
 		floater->setVisible(false);
 	}
 
-	floater->setVisibleAndFrontmost(true);
+	//floater->setVisibleAndFrontmost(true);
 
 	floater->updateMessages(session_id);
 
