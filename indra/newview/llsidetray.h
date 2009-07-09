@@ -61,7 +61,6 @@ protected:
 	LLSideTrayTab(const Params& params);
 	
 
-	S32		getMaxSideBarTabWidth();
 public:
 	virtual ~LLSideTrayTab();
 
@@ -215,8 +214,6 @@ protected:
 
 	void		toggleTabButton	(LLSideTrayTab* tab);
 
-
-	void		calcMaxSideBarWidth();
 
 	void		setPanelRect	();
 	
