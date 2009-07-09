@@ -112,8 +112,6 @@ public:
 	void			teleport();
 
 protected:
-	static void		onPanBtn( void* userdata );
-
 	void			onGoHome();
 
 	void			onLandmarkComboPrearrange();
@@ -128,13 +126,10 @@ protected:
 	void			onSearchTextEntry( LLLineEditor* ctrl );
 
 	void			onClearBtn();
-	static void		onFlyBtn(void*);
-	static void		onClickTeleportBtn(void*);
+	void			onClickTeleportBtn();
 	void			onShowTargetBtn();
 	void			onShowAgentBtn();
 	void			onCopySLURL();
-
-	static void onCheckEvents(LLUICtrl* ctrl, void*);
 
 	void			centerOnTarget(BOOL animate);
 	void			updateLocation();
@@ -143,7 +138,6 @@ protected:
 	void			fly();
 
 	void			buildLandmarkIDLists();
-	static void		onGoToLandmarkDialog(S32 option,void* userdata);
 	void			flyToLandmark();
 	void			teleportToLandmark();
 	void			setLandmarkVisited();
@@ -169,7 +163,6 @@ protected:
 
 	LLDynamicArray<LLUUID>	mLandmarkAssetIDList;
 	LLDynamicArray<LLUUID>	mLandmarkItemIDList;
-	BOOL					mHasLandmarkPosition;
 
 	static const LLUUID	sHomeID;
 
