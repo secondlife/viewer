@@ -53,8 +53,13 @@
              layout="topleft"
              left="0"
              name="chat_box"
+				     right="-39"
              top="3"
              width="250" />
+            <button follows="right" width="36" top="3" left="214" resize="false"
+               label="Hx" height="20">
+              <button.commit_callback function="Floater.Toggle" parameter="chat"/>
+          </button>
         </layout_panel>
         <icon
          auto_resize="false"
