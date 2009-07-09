@@ -43,7 +43,9 @@
 
 //FIXME: temporary, for send_chat_from_viewer() proto
 #include "llchatbar.h"
-
+//FIXME: temporary, for stand up proto
+#include "llselectmgr.h" 
+#include "llvoavatarself.h"
 //
 // Globals
 //
@@ -61,6 +63,7 @@ LLBottomTray::LLBottomTray()
 	, mSysWell(NULL)
 	, mTalkBtn(NULL)
 	, mGestureCombo(NULL)
+	, mStandUpBtn(NULL)  ////FIXME: temporary, for stand up proto
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_bottomtray.xml");
 
@@ -100,6 +103,13 @@ LLBottomTray::LLBottomTray()
 		refreshGestures();
 	}
 
+	////FIXME: temporary, for stand up proto
+	mStandUpBtn = getChild<LLButton> ("stand", TRUE, FALSE);
+	if (mStandUpBtn)
+	{
+		mStandUpBtn->setCommitCallback(boost::bind(&LLBottomTray::onCommitStandUp, this, _1));
+	}
+	
 	LLIMMgr::getInstance()->addSessionObserver(this);
 
 	//this is to fix a crash that occurs because LLBottomTray is a singleton
@@ -283,8 +293,31 @@ void LLBottomTray::refresh()
 	{
 		gAgent.stopTyping();
 	}
+	
+	LLPanel::refresh();
 }
 
+void LLBottomTray::draw()
+{
+	refreshStandUp();
+	LLPanel::draw();
+}
+void LLBottomTray::refreshStandUp()
+{
+	//FIXME: temporary, for stand up proto
+	BOOL sitting = FALSE;
+	if (gAgent.getAvatarObject())
+	{
+		sitting = gAgent.getAvatarObject()->mIsSitting;
+	}
+	
+	if (mStandUpBtn && mStandUpBtn->getVisible() != sitting)
+	{
+		mStandUpBtn->setVisible(sitting);
+		sendChildToFront(mStandUpBtn);
+		moveChildToBackOfTabGroup(mStandUpBtn);
+	}
+}
 void LLBottomTray::updateRightPosition(const S32 new_right_position)
 {
 	LLRect rc = getRect();
@@ -327,6 +360,13 @@ void LLBottomTray::onCommitGesture(LLUICtrl* ctrl)
 		// free focus back to chat bar
 		mGestureCombo->setFocus(FALSE);
 	}
+}
+
+//FIXME: temporary, for stand up proto
+void LLBottomTray::onCommitStandUp(LLUICtrl* ctrl)
+{
+	LLSelectMgr::getInstance()->deselectAllForStandingUp();
+	gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 }
 
 void LLBottomTray::refreshGestures()

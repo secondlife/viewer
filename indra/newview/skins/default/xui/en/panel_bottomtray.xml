@@ -136,6 +136,38 @@
              top="3"
              width="90" />
         </layout_panel>
+		 <icon
+         auto_resize="false"
+         color="0 0 0 0"
+         follows="left|right"
+         height="10"
+         image_name="spacer24.tga"
+         layout="topleft"
+         left="0"
+         name="DUMMY"
+         top="0"
+         width="5" 
+         min_width="5"/>
+        <layout_panel
+         auto_resize="false"
+         follows="right"
+         height="28"
+         layout="topleft"
+		 left="5"
+         min_height="28"
+         width="90"
+         top_delta="-10"
+         min_width="90">
+            <button
+             bottom="22"
+             follows="right"
+             height="20"
+             label="Stand Up"
+             layout="topleft"
+             name="stand"
+             top="3"
+             width="90" />
+        </layout_panel>
         <icon
          auto_resize="false"
          color="0 0 0 0"

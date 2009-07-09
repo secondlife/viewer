@@ -65,9 +65,12 @@ public:
 	static void onChatBoxFocusLost(LLFocusableElement* caller, void* userdata);
 
 	void refresh();
+	/*virtual*/void draw();
+	void refreshStandUp();
 	void updateRightPosition(const S32 new_right_position);
 
 	void onCommitGesture(LLUICtrl* ctrl);
+	void onCommitStandUp(LLUICtrl* ctrl);	
 	void refreshGestures();
 
 	// LLIMSessionObserver observe triggers
@@ -98,6 +101,7 @@ protected:
 	LLTalkButton* 		mTalkBtn;
 	LLComboBox* 		mGestureCombo;
 	LLFrameTimer 		mGestureLabelTimer;
+	LLButton*           mStandUpBtn;
 };
 
 extern LLBottomTray* gBottomTray;
