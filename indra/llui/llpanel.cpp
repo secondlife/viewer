@@ -418,6 +418,10 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_
 
 void LLPanel::initFromParams(const LLPanel::Params& p)
 {
+	// The LLPanel constructor doesn't correctly receive Params yet
+	setEnabled(p.enabled); 
+	setVisible(p.visible);
+	
 	 // control_name, tab_stop, focus_lost_callback, initial_value, rect, enabled, visible
 	LLUICtrl::initFromParams(p);
 

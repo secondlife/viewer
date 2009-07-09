@@ -4,7 +4,8 @@
   background_visible="false" 
   bg_opaque_color="0.0 0.0 0.0 0.0" 
   mouse_opaque="true" 
-  collapsed="true"
+  width="280" 
+  collapsed="true" 
 >
   <sidetray_tab 	
     name="sidebar_people"

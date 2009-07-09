@@ -170,11 +170,6 @@ BOOL LLSideTrayTab::postBuild()
 	return true;
 }
 
-S32		LLSideTrayTab::getMaxSideBarTabWidth()
-{
-	return (mAccordionPanel)?mAccordionPanel->getMaxPanelWidth():0;
-}
-
 static const S32 splitter_margin = 1;
 
 //virtual 
@@ -251,10 +246,11 @@ LLSideTrayTab*  LLSideTrayTab::createInstance	()
 
 //virtual 
 LLSideTray::LLSideTray(Params& params)
-		:mActiveTab(0)
+	   : LLPanel(params)
+	    ,mActiveTab(0)
 		,mCollapsed(false)
 		,mCollapseButton(0)
-		,mMaxBarWidth(0)
+	    ,mMaxBarWidth(params.rect.width)
 		,mHomeTab(0)
 {
 	mCollapsed=params.collapsed;
@@ -263,8 +259,6 @@ LLSideTray::LLSideTray(Params& params)
 
 BOOL LLSideTray::postBuild()
 {
-	calcMaxSideBarWidth();
-
 	createButtons();
 
 	createHomeTab();
@@ -476,10 +470,6 @@ void LLSideTray::arrange			()
 {
 	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
 
-	calcMaxSideBarWidth();
-	
-	
-
 	setPanelRect();
 	
 	LLRect ctrl_rect;
@@ -552,25 +542,6 @@ void LLSideTray::expandSideBar	()
 
 }
 
-void LLSideTray::calcMaxSideBarWidth()
-{
-	
-	S32 max_bar_width = 0;
-	
-
-	child_vector_const_iter_t child_it;
-	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
-	{
-		LLSideTrayTab* sidebar_tab = dynamic_cast<LLSideTrayTab*>(*child_it);
-		if(sidebar_tab == NULL)
-			continue;
-		max_bar_width = llmax(max_bar_width,sidebar_tab->getMaxSideBarTabWidth());
-	}
-
-	if(max_bar_width > 0)
-		mMaxBarWidth = max_bar_width;
-	
-}
 void LLSideTray::highlightFocused()
 {
 	if(!mActiveTab)
