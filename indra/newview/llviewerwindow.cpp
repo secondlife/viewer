@@ -2868,10 +2868,10 @@ void LLViewerWindow::updateKeyboardFocus()
 	}
 
 	// last ditch force of edit menu to selection manager
-	if (LLEditMenuHandler::gEditMenuHandler == NULL && LLSelectMgr::getInstance()->getSelection()->getObjectCount())
-	{
-		LLEditMenuHandler::gEditMenuHandler = LLSelectMgr::getInstance();
-	}
+//	if (LLEditMenuHandler::gEditMenuHandler == NULL && LLSelectMgr::getInstance()->getSelection()->getObjectCount())
+//	{
+//		LLEditMenuHandler::gEditMenuHandler = LLSelectMgr::getInstance();
+//	}
 
 	if (gFloaterView->getCycleMode())
 	{

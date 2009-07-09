@@ -74,7 +74,6 @@ LLFloaterOpenObject::~LLFloaterOpenObject()
 // virtual
 BOOL LLFloaterOpenObject::postBuild()
 {
-	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 	childSetTextArg("object_name", "[DESC]", std::string("Object") ); // *Note: probably do not want to translate this
 	mPanelInventory = getChild<LLPanelInventory>("object_contents");
 	return TRUE;
@@ -94,6 +93,7 @@ void LLFloaterOpenObject::onOpen(const LLSD& key)
 		closeFloater();
 		return;
 	}
+	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 }
 void LLFloaterOpenObject::refresh()
 {

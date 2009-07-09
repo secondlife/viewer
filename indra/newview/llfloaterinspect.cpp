@@ -66,7 +66,6 @@ BOOL LLFloaterInspect::postBuild()
 //	childSetAction("button creator",onClickCreatorProfile, this);
 //	childSetCommitCallback("object_list", onSelectObject, NULL);
 	
-	mObjectSelection = LLSelectMgr::getInstance()->getSelection();
 	refresh();
 	
 	return TRUE;
@@ -120,6 +119,8 @@ void LLFloaterInspect::onOpen(const LLSD& key)
 	BOOL forcesel = LLSelectMgr::getInstance()->setForceSelection(TRUE);
 	LLToolMgr::getInstance()->setTransientTool(LLToolCompInspect::getInstance());
 	LLSelectMgr::getInstance()->setForceSelection(forcesel);	// restore previouis value
+	mObjectSelection = LLSelectMgr::getInstance()->getSelection();
+	refresh();
 }
 void LLFloaterInspect::onClickCreatorProfile()
 {
