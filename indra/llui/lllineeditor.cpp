@@ -124,6 +124,8 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mScrollHPos( 0 ),
 	mTextPadLeft(p.text_pad_left),
 	mTextPadRight(p.text_pad_right),
+	mMinHPixels(0),		// computed in updateTextPadding() below
+	mMaxHPixels(0),		// computed in updateTextPadding() below
 	mCommitOnFocusLost( p.commit_on_focus_lost ),
 	mRevertOnEsc( TRUE ),
 	mKeystrokeCallback( p.keystroke_callback() ),
@@ -1554,7 +1556,8 @@ void LLLineEditor::draw()
 
 	// draw text
 
-	S32 cursor_bottom = background.mBottom + 1;
+	// With viewer-2 art files, input region is 2 pixels up
+	S32 cursor_bottom = background.mBottom + 2;
 	S32 cursor_top = background.mTop - 1;
 
 	LLColor4 text_color;
