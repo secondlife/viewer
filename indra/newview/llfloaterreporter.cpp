@@ -124,7 +124,7 @@ void LLFloaterReporter::processRegionInfo(LLMessageSystem* msg)
 // virtual
 BOOL LLFloaterReporter::postBuild()
 {
-	childSetText("abuse_location_edit", LLAgentUI::buildSLURL());
+	childSetText("abuse_location_edit", LLAgentUI::buildSLURL().getSLURLString());
 
 	enableControls(TRUE);
 
@@ -279,7 +279,7 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 				}
 				childSetText("object_name", object_owner);
 				std::string owner_link =
-					LLSLURL::buildCommand("agent", mObjectID, "inspect");
+					LLSLURL("agent", mObjectID, "inspect").getSLURLString();
 				childSetText("owner_name", owner_link);
 				childSetText("abuser_name_edit", object_owner);
 				mAbuserID = object_id;
@@ -483,7 +483,7 @@ void LLFloaterReporter::setPickedObjectProperties(const std::string& object_name
 {
 	childSetText("object_name", object_name);
 	std::string owner_link =
-		LLSLURL::buildCommand("agent", owner_id, "inspect");
+		LLSLURL("agent", owner_id, "inspect").getSLURLString();
 	childSetText("owner_name", owner_link);
 	childSetText("abuser_name_edit", owner_name);
 	mAbuserID = owner_id;

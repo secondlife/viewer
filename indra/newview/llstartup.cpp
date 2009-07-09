@@ -144,7 +144,7 @@
 #include "lltoolmgr.h"
 #include "llui.h"
 #include "llurldispatcher.h"
-#include "llurlsimstring.h"
+#include "llslurl.h"
 #include "llurlhistory.h"
 #include "llurlwhitelist.h"
 #include "llvieweraudio.h"
@@ -229,6 +229,7 @@ static std::string sInitialOutfitGender;	// "male" or "female"
 static bool gUseCircuitCallbackCalled = false;
 
 EStartupState LLStartUp::gStartupState = STATE_FIRST;
+LLSLURL LLStartUp::sStartSLURL;
 
 static LLPointer<LLCredential> gUserCredential;
 static std::string gDisplayName;
@@ -419,7 +420,7 @@ bool idle_startup()
 
 	if ( STATE_FIRST == LLStartUp::getStartupState() )
 	{
-		gViewerWindow->showCursor();
+		gViewerWindow->showCursor(); 
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_WAIT);
 
 		/////////////////////////////////////////////////
@@ -719,7 +720,7 @@ bool idle_startup()
 		//
 		if (gUserCredential.isNull())
 		{
-			gUserCredential = gLoginHandler.initializeLoginInfo(LLStartUp::sSLURLCommand);
+			gUserCredential = gLoginHandler.initializeLoginInfo();
 		}
 		if (gUserCredential.isNull())
 		{
@@ -769,7 +770,7 @@ bool idle_startup()
 			// show the login view until login_show() is called below.  
 			if (gUserCredential.isNull())                                                                          
 			{                                                                                                      
-				gUserCredential = gLoginHandler.initializeLoginInfo(LLStartUp::sSLURLCommand);                 
+				gUserCredential = gLoginHandler.initializeLoginInfo();                 
 			}     
 			if (gNoRender)
 			{
@@ -936,11 +937,7 @@ bool idle_startup()
 
 		if (show_connect_box)
 		{
-			std::string location;
-			LLPanelLogin::getLocation( location );
-			LLURLSimString::setString( location );
-
-			// END TODO
+			LLStartUp::setStartSLURL(LLPanelLogin::getLocation());
 			LLPanelLogin::closePanel();
 		}
 
@@ -961,26 +958,21 @@ bool idle_startup()
 		// their last location, or some URL "-url //sim/x/y[/z]"
 		// All accounts have both a home and a last location, and we don't support
 		// more locations than that.  Choose the appropriate one.  JC
-		if (LLURLSimString::parse())
-		{
-			// a startup URL was specified
-			agent_location_id = START_LOCATION_ID_URL;
-
-			// doesn't really matter what location_which is, since
-			// gAgentStartLookAt will be overwritten when the
-			// UserLoginLocationReply arrives
-			location_which = START_LOCATION_ID_LAST;
-		}
-		else if (gSavedSettings.getString("LoginLocation") == "last" )
-		{
-			agent_location_id = START_LOCATION_ID_LAST;	// last location
-			location_which = START_LOCATION_ID_LAST;
-		}
-		else
-		{
-			agent_location_id = START_LOCATION_ID_HOME;	// home
-			location_which = START_LOCATION_ID_HOME;
-		}
+		switch (LLStartUp::getStartSLURL().getType())
+		  {
+		  case LLSLURL::LOCATION:
+		    agent_location_id = START_LOCATION_ID_URL;
+		    location_which = START_LOCATION_ID_LAST;
+		    break;
+		  case LLSLURL::LAST_LOCATION:
+		    agent_location_id = START_LOCATION_ID_LAST;
+		    location_which = START_LOCATION_ID_LAST;
+		    break;
+		  default:
+		    agent_location_id = START_LOCATION_ID_HOME;
+		    location_which = START_LOCATION_ID_HOME;
+		    break;
+		  }
 
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_WAIT);
 
@@ -1851,7 +1843,8 @@ bool idle_startup()
 		// thus, do not show this alert.
 		if (!gAgent.isFirstLogin())
 		{
-			bool url_ok = LLURLSimString::sInstance.parse();
+			llinfos << "gAgentStartLocation : " << gAgentStartLocation << llendl;
+			bool url_ok = (LLStartUp::getStartSLURL().getType() == LLSLURL::LOCATION);
 			if ((url_ok && gAgentStartLocation == "url") ||
 				(!url_ok && ((gAgentStartLocation == gSavedSettings.getString("LoginLocation")))))
 			{
@@ -2197,7 +2190,7 @@ bool login_alert_status(const LLSD& notification, const LLSD& response)
       //      break;
         case 2:     // Teleport
             // Restart the login process, starting at our home locaton
-            LLURLSimString::setString("home");
+	  LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
             LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
             break;
         default:
@@ -2619,7 +2612,6 @@ void reset_login()
 
 //---------------------------------------------------------------------------
 
-std::string LLStartUp::sSLURLCommand;
 
 bool LLStartUp::canGoFullscreen()
 {
@@ -2652,33 +2644,38 @@ void LLStartUp::fontInit()
 bool LLStartUp::dispatchURL()
 {
 	// ok, if we've gotten this far and have a startup URL
-	if (!sSLURLCommand.empty())
+        if (!getStartSLURL().isValid())
 	{
-		LLMediaCtrl* web = NULL;
-		const bool trusted_browser = false;
-		LLURLDispatcher::dispatch(sSLURLCommand, web, trusted_browser);
+	  return false;
 	}
-	else if (LLURLSimString::parse())
-	{
+        if(getStartSLURL().getType() != LLSLURL::APP)
+	  {
+	    
 		// If we started with a location, but we're already
 		// at that location, don't pop dialogs open.
 		LLVector3 pos = gAgent.getPositionAgent();
-		F32 dx = pos.mV[VX] - (F32)LLURLSimString::sInstance.mX;
-		F32 dy = pos.mV[VY] - (F32)LLURLSimString::sInstance.mY;
+		LLVector3 slurlpos = getStartSLURL().getPosition();
+		F32 dx = pos.mV[VX] - slurlpos.mV[VX];
+		F32 dy = pos.mV[VY] - slurlpos.mV[VY];
 		const F32 SLOP = 2.f;	// meters
 
-		if( LLURLSimString::sInstance.mSimName != gAgent.getRegion()->getName()
+		if( getStartSLURL().getRegion() != gAgent.getRegion()->getName()
 			|| (dx*dx > SLOP*SLOP)
 			|| (dy*dy > SLOP*SLOP) )
 		{
-			std::string url = LLURLSimString::getURL();
-			LLMediaCtrl* web = NULL;
-			const bool trusted_browser = false;
-			LLURLDispatcher::dispatch(url, web, trusted_browser);
+			LLURLDispatcher::dispatch(getStartSLURL().getSLURLString(), 
+						  NULL, false);
 		}
 		return true;
 	}
 	return false;
+}
+
+void LLStartUp::setStartSLURL(const LLSLURL& slurl) 
+{
+  sStartSLURL = slurl;
+  gSavedSettings.setBOOL("LoginLastLocation", 
+			 !(slurl.getType() == LLSLURL::HOME_LOCATION)); 
 }
 
 bool login_alert_done(const LLSD& notification, const LLSD& response)

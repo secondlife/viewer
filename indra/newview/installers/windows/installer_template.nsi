@@ -797,6 +797,12 @@ WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\DefaultIcon" "" '"$INSTDIR\$INSTEXE"'
 ;; URL param must be last item passed to viewer, it ignores subsequent params
 ;; to avoid parameter injection attacks.
 WriteRegExpandStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open\command" "" '"$INSTDIR\$INSTEXE" $INSTFLAGS -url "%1"'
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info"(default)" "URL:Second Life"
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "URL Protocol" ""
+WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" '"$INSTDIR\$INSTEXE"'
+;; URL param must be last item passed to viewer, it ignores subsequent params
+;; to avoid parameter injection attacks.
+WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" "" '"$INSTDIR\$INSTEXE" $INSTFLAGS -url "%1"'
 
 ; write out uninstaller
 WriteUninstaller "$INSTDIR\uninst.exe"

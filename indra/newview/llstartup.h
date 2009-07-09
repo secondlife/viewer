@@ -34,6 +34,7 @@
 #define LL_LLSTARTUP_H
 
 #include <boost/scoped_ptr.hpp>
+#include "llslurl.h"
 
 class LLViewerTexture ;
 class LLEventPump;
@@ -106,13 +107,13 @@ public:
 		// if we have a SLURL or sim string ("Ahern/123/45") that started
 		// the viewer, dispatch it
 
-	static std::string sSLURLCommand;
-		// *HACK: On startup, if we were passed a secondlife://app/do/foo
-		// command URL, store it for later processing.
-
 	static void postStartupState();
+	static void setStartSLURL(const LLSLURL& slurl); 
+	static LLSLURL& getStartSLURL() { return sStartSLURL; } 
 
 private:
+	static LLSLURL sStartSLURL;
+
 	static std::string startupStateToString(EStartupState state);
 	static EStartupState gStartupState; // Do not set directly, use LLStartup::setStartupState
 	static boost::scoped_ptr<LLEventPump> sStateWatcher;

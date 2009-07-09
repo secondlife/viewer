@@ -2372,6 +2372,15 @@ Please choose the male or female avatar. You can change your mind later.
      yestext="Male"/>
   </notification>
   <notification icon="alertmodal.tga"
+		name="CantTeleportToGrid"
+		type="alertmodal">
+Could not teleport to [SLURL] as it's on a different grid ([GRID]) than the current grid ([CURRENT_GRID]).  Please close your viewer and try again.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification icon="alertmodal.tga"
 		name="GeneralCertificateError"
 		type="alertmodal">
 Could not connect to the server.

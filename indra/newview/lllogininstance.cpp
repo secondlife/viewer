@@ -48,7 +48,8 @@
 // newview
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
-#include "llurlsimstring.h"
+#include "llslurl.h"
+#include "llstartup.h"
 #include "llfloaterreg.h"
 #include "llnotifications.h"
 #include "llwindow.h"
@@ -56,6 +57,7 @@
 #include "lltrans.h"
 #endif
 #include "llsecapi.h"
+#include "llstartup.h"
 
 static const char * const TOS_REPLY_PUMP = "lllogininstance_tos_callback";
 static const char * const TOS_LISTENER_NAME = "lllogininstance_tos";
@@ -462,15 +464,17 @@ bool LLLoginInstance::updateDialogCallback(const LLSD& notification, const LLSD&
 std::string construct_start_string()
 {
 	std::string start;
-	if (LLURLSimString::parse())
+	LLSLURL start_slurl = LLStartUp::getStartSLURL();
+	if (start_slurl.getType() == LLSLURL::LOCATION)
 	{
 		// a startup URL was specified
+		LLVector3 position = start_slurl.getPosition();
 		std::string unescaped_start = 
 			STRINGIZE(  "uri:" 
-						<< LLURLSimString::sInstance.mSimName << "&" 
-						<< LLURLSimString::sInstance.mX << "&" 
-						<< LLURLSimString::sInstance.mY << "&" 
-						<< LLURLSimString::sInstance.mZ);
+					  << start_slurl.getRegion() << "&" 
+						<< position[VX] << "&" 
+						<< position[VY] << "&" 
+						<< position[VZ]);
 		start = xml_escape_string(unescaped_start);
 	}
 	else

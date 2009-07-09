@@ -150,7 +150,7 @@
 #include "llworld.h"
 #include "llhudeffecttrail.h"
 #include "llvectorperfoptions.h"
-#include "llurlsimstring.h"
+#include "llslurl.h"
 #include "llwatchdog.h"
 
 // Included so that constants/settings might be initialized
@@ -2078,30 +2078,21 @@ bool LLAppViewer::initConfiguration()
     // injection and steal passwords. Phoenix. SL-55321
     if(clp.hasOption("url"))
     {
-        std::string slurl = clp.getOption("url")[0];
-        if (LLSLURL::isSLURLCommand(slurl))
-        {
-	        LLStartUp::sSLURLCommand = slurl;
-        }
-        else
-        {
-	        LLURLSimString::setString(slurl);
-        }
+		LLStartUp::setStartSLURL(LLSLURL(clp.getOption("url")[0]));
+		if(LLStartUp::getStartSLURL().getType() == LLSLURL::LOCATION) 
+		{  
+			LLGridManager::getInstance()->setGridChoice(LLStartUp::getStartSLURL().getGrid());
+			
+		}  
     }
     else if(clp.hasOption("slurl"))
     {
-        std::string slurl = clp.getOption("slurl")[0];
-        if(LLSLURL::isSLURL(slurl))
-        {
-            if (LLSLURL::isSLURLCommand(slurl))
-            {
-	            LLStartUp::sSLURLCommand = slurl;
-            }
-            else
-            {
-	            LLURLSimString::setString(slurl);
-            }
-        }
+      LLStartUp::setStartSLURL(LLSLURL(clp.getOption("surl")[0]));
+      if(LLStartUp::getStartSLURL().getType() == LLSLURL::LOCATION) 
+	  {  
+		  LLGridManager::getInstance()->setGridChoice(LLStartUp::getStartSLURL().getGrid());
+		  
+	  }  
     }
 
     const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
@@ -2180,18 +2171,10 @@ bool LLAppViewer::initConfiguration()
 	// don't call anotherInstanceRunning() when doing URL handoff, as
 	// it relies on checking a marker file which will not work when running
 	// out of different directories
-	std::string slurl;
-	if (!LLStartUp::sSLURLCommand.empty())
+
+	if (LLStartUp::getStartSLURL().isValid())
 	{
-		slurl = LLStartUp::sSLURLCommand;
-	}
-	else if (LLURLSimString::parse())
-	{
-		slurl = LLURLSimString::getURL();
-	}
-	if (!slurl.empty())
-	{
-		if (sendURLToOtherInstance(slurl))
+		if (sendURLToOtherInstance(LLStartUp::getStartSLURL().getSLURLString()))
 		{
 			// successfully handed off URL to existing instance, exit
 			return false;
@@ -2247,9 +2230,9 @@ bool LLAppViewer::initConfiguration()
 
    	// need to do this here - need to have initialized global settings first
 	std::string nextLoginLocation = gSavedSettings.getString( "NextLoginLocation" );
-	if ( nextLoginLocation.length() )
+	if ( !nextLoginLocation.empty() )
 	{
-		LLURLSimString::setString( nextLoginLocation );
+		LLStartUp::setStartSLURL(LLSLURL(nextLoginLocation));
 	};
 
 	gLastRunVersion = gSavedSettings.getString("LastRunVersion");
@@ -4246,10 +4229,10 @@ void LLAppViewer::launchUpdater()
 	LLAppViewer::sUpdaterInfo = new LLAppViewer::LLUpdaterInfo() ;
 
 	// if a sim name was passed in via command line parameter (typically through a SLURL)
-	if ( LLURLSimString::sInstance.mSimString.length() )
+	if ( LLStartUp::getStartSLURL().getType() == LLSLURL::LOCATION )
 	{
 		// record the location to start at next time
-		gSavedSettings.setString( "NextLoginLocation", LLURLSimString::sInstance.mSimString ); 
+		gSavedSettings.setString( "NextLoginLocation", LLStartUp::getStartSLURL().getSLURLString()); 
 	};
 
 #if LL_WINDOWS

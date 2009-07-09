@@ -38,6 +38,7 @@
 #include "llmediactrl.h"	// LLMediaCtrlObserver
 #include <boost/scoped_ptr.hpp>
 #include "llsecapi.h"
+#include "llslurl.h"
 
 class LLLineEditor;
 class LLUIImage;
@@ -68,13 +69,13 @@ public:
 
 	static void setFields(LLPointer<LLCredential> credential, BOOL remember);
 
-	static void refreshLocation( bool force_visible );
-
 	static void getFields(LLPointer<LLCredential>& credential, BOOL& remember);
 
 	static BOOL isGridComboDirty();
-	static void getLocation(std::string &location);
-
+	static BOOL areCredentialFieldsDirty();
+	static LLSLURL getLocation();
+	
+	static void updateLocationCombo(bool force_visible);  // simply update the combo box
 	static void closePanel();
 
 	void setSiteIsAlive( bool alive );
@@ -99,7 +100,11 @@ private:
 	static void onSelectServer(LLUICtrl*, void*);
 	static void onServerComboLostFocus(LLFocusableElement*);
 	static void updateServerCombo();
+	static void onSelectLocation(LLUICtrl*, void*);
 	
+	static void updateServer(std::string grid);  // update the combo box, change the login page to the new server, clear the combo
+	static void updateLoginPanelLinks();
+
 private:
 	LLPointer<LLUIImage> mLogoImage;
 	boost::scoped_ptr<LLPanelLoginListener> mListener;

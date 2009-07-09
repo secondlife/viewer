@@ -5,7 +5,7 @@
  *
  * $LicenseInfo:firstyear=2006&license=viewergpl$
  * 
- * Copyright (c) 2006-2010, Linden Research, Inc.
+ * Copyright (c) 2006-2007, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -40,7 +40,8 @@
                                                             
 const char* DEFAULT_LOGIN_PAGE = "http://secondlife.com/app/login/";
 
-const char* SYSTEM_GRID_SLURL_BASE = "http://slurl.com/secondlife/";
+const char* SYSTEM_GRID_SLURL_BASE = "secondlife://%s/secondlife/";
+const char* MAIN_GRID_SLURL_BASE = "http://slurl.com/secondlife/";
 const char* SYSTEM_GRID_APP_SLURL_BASE = "secondlife:///app";
 
 const char* DEFAULT_SLURL_BASE = "https://%s/region/";
@@ -59,6 +60,12 @@ LLGridManager::LLGridManager()
 	
 }
 
+
+LLGridManager::LLGridManager(const std::string& grid_file)
+{
+	// initialize with an explicity grid file for testing.
+	initialize(grid_file);
+}
 
 //
 // LLGridManager - class for managing the list of known grids, and the current
@@ -391,7 +398,7 @@ void LLGridManager::addSystemGrid(const std::string& label,
 	grid[GRID_LOGIN_PAGE_VALUE] = login_page;
 	grid[GRID_IS_SYSTEM_GRID_VALUE] = TRUE;
 	grid[GRID_LOGIN_CREDENTIAL_PAGE_TYPE_VALUE] = GRID_LOGIN_CREDENTIAL_PAGE_TYPE_AGENT;
-	grid[GRID_SLURL_BASE] = SYSTEM_GRID_SLURL_BASE;
+	
 	grid[GRID_APP_SLURL_BASE] = SYSTEM_GRID_APP_SLURL_BASE;
 	if (login_id.empty())
 	{
@@ -406,7 +413,12 @@ void LLGridManager::addSystemGrid(const std::string& label,
 	// if we're building a debug version.
 	if (name == std::string(MAINGRID))
 	{
+		grid[GRID_SLURL_BASE] = MAIN_GRID_SLURL_BASE;		
 		grid[GRID_IS_FAVORITE_VALUE] = TRUE;		
+	}
+	else
+	{
+		grid[GRID_SLURL_BASE] = llformat(SYSTEM_GRID_SLURL_BASE, label.c_str());		
 	}
 	addGrid(grid);
 }
@@ -456,6 +468,20 @@ void LLGridManager::setGridChoice(const std::string& grid_name)
 	addGrid(grid);
 	mGridName = grid_name;
 	gSavedSettings.setString("CurrentGrid", grid_name);
+}
+
+std::string LLGridManager::getGridByLabel( const std::string &grid_label)
+{
+	for(LLSD::map_iterator grid_iter = mGridList.beginMap();
+		grid_iter != mGridList.endMap();
+		grid_iter++) 
+	{
+		if (grid_iter->second.has(GRID_LABEL_VALUE) && (grid_iter->second[GRID_LABEL_VALUE].asString() == grid_label))
+		{
+			return grid_iter->first;
+		}
+	}
+	return std::string();
 }
 
 void LLGridManager::getLoginURIs(std::vector<std::string>& uris)
@@ -528,10 +554,10 @@ std::string LLGridManager::getAppSLURLBase(const std::string& grid_name)
 	std::string grid_base;
 	if(mGridList.has(grid_name) && mGridList[grid_name].has(GRID_APP_SLURL_BASE))
 	{
-		return mGridList[grid_name][GRID_APP_SLURL_BASE].asString();
+	  return mGridList[grid_name][GRID_APP_SLURL_BASE].asString();
 	}
 	else
 	{
-		return  llformat(DEFAULT_APP_SLURL_BASE, grid_name.c_str());
+	  return  llformat(DEFAULT_APP_SLURL_BASE, grid_name.c_str());
 	}
 }

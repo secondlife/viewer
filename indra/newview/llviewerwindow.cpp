@@ -2033,7 +2033,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 			gSavedSettings.setBOOL("ForceShowGrid", visible);
 
 			// Initialize visibility (and don't force visibility - use prefs)
-			LLPanelLogin::refreshLocation( false );
+			LLPanelLogin::updateLocationCombo( false );
 		}
 	}
 

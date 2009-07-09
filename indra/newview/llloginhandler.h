@@ -51,7 +51,7 @@ class LLLoginHandler : public LLCommandHandler
 	//LLUUID getWebLoginKey() const { return mWebLoginKey; }
 
 	LLPointer<LLCredential> loadSavedUserLoginInfo();  
-	LLPointer<LLCredential> initializeLoginInfo(const std::string& url);
+	LLPointer<LLCredential> initializeLoginInfo();
 
 private:
 	void parse(const LLSD& queryMap);

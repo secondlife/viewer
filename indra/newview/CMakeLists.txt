@@ -449,7 +449,6 @@ set(viewer_SOURCE_FILES
     llurldispatcherlistener.cpp
     llurlhistory.cpp
     llurllineeditorctrl.cpp
-    llurlsimstring.cpp
     llurlwhitelist.cpp
     llvectorperfoptions.cpp
     llversioninfo.cpp
@@ -956,7 +955,6 @@ set(viewer_HEADER_FILES
     llurldispatcherlistener.h
     llurlhistory.h
     llurllineeditorctrl.h
-    llurlsimstring.h
     llurlwhitelist.h
     llvectorperfoptions.h
     llversioninfo.h
@@ -1822,9 +1820,18 @@ if (LL_TESTS)
      llsecapi.cpp
     "${test_libs}"
     )
+  set(llslurl_test_sources
+      llslurl.cpp
+      llviewernetwork.cpp
+  )
 
   LL_ADD_INTEGRATION_TEST(llviewernetwork
      llviewernetwork.cpp
+    "${test_libs}"
+    )
+
+  LL_ADD_INTEGRATION_TEST(llslurl
+     "${llslurl_test_sources}"
     "${test_libs}"
     )
 

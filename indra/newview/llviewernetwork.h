@@ -43,7 +43,6 @@ extern const char* DEFAULT_LOGIN_PAGE;
 #define GRID_LOGIN_PAGE_VALUE "login_page"
 #define GRID_IS_SYSTEM_GRID_VALUE "system_grid"
 #define GRID_IS_FAVORITE_VALUE "favorite"
-#define GRID_IS_VISIBLE_VALUE "visible"
 #define GRID_LOGIN_CREDENTIAL_PAGE_TYPE_VALUE "credential_type"
 #define GRID_LOGIN_CREDENTIAL_PAGE_TYPE_AGENT "agent"
 #define GRID_LOGIN_CREDENTIAL_PAGE_TYPE_ACCOUNT "account"
@@ -79,6 +78,7 @@ public:
 	
 	// when the grid manager is instantiated, the default grids are automatically
 	// loaded, and the grids favorites list is loaded from the xml file.
+	LLGridManager(const std::string& grid_file);
 	LLGridManager();
 	~LLGridManager();
 	
@@ -112,10 +112,7 @@ public:
 	void setGridChoice(const std::string& grid_name);
 	
 	
-	std::string getGridLabel() 
-	{ 
-		return mGridList[mGridName][GRID_LABEL_VALUE]; 
-	} 	
+	std::string getGridLabel() { return mGridList[mGridName][GRID_LABEL_VALUE]; } 	
 	std::string getGridName() const { return mGridName; }
 	void getLoginURIs(std::vector<std::string>& uris);
 	std::string getHelperURI() {return mGridList[mGridName][GRID_HELPER_URI_VALUE];}
@@ -131,6 +128,8 @@ public:
 	std::string getAppSLURLBase() { return getAppSLURLBase(mGridName); }	
 	
 	LLSD getGridInfo() { return mGridList[mGridName]; }
+	
+	std::string getGridByLabel( const std::string &grid_label);
 	
 	bool isSystemGrid(const std::string& grid) 
 	{ 

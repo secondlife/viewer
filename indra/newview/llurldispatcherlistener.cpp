@@ -17,6 +17,7 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "llslurl.h"
 #include "llurldispatcher.h"
 
 LLURLDispatcherListener::LLURLDispatcherListener(/* LLURLDispatcher* instance */):

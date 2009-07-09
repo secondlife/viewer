@@ -36,7 +36,12 @@ const std::string APPVIEWER_SERIALNUMBER("appviewer_serialno");
 //-----------------------------------------------------------------------------
 static LLEventStream gTestPump("test_pump");
 
+#include "../llslurl.h"
+#include "../llstartup.h"
+LLSLURL LLStartUp::sStartSLURL;
+
 #include "lllogin.h"
+
 static std::string gLoginURI;
 static LLSD gLoginCreds;
 static bool gDisconnectCalled = false;
@@ -141,10 +146,6 @@ BOOL LLControlGroup::declareString(const std::string& name, const std::string &i
 #include "lluicolortable.h"
 void LLUIColorTable::saveUserSettings(void)const {}
 
-//-----------------------------------------------------------------------------
-#include "../llurlsimstring.h"
-LLURLSimString LLURLSimString::sInstance;
-bool LLURLSimString::parse() { return true; }
 
 //-----------------------------------------------------------------------------
 #include "llnotifications.h"

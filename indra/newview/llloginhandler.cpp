@@ -38,7 +38,7 @@
 #include "llsecapi.h"
 #include "llpanellogin.h"			// save_password_to_disk()
 #include "llstartup.h"				// getStartupState()
-#include "llurlsimstring.h"
+#include "llslurl.h"
 #include "llviewercontrol.h"		// gSavedSettings
 #include "llviewernetwork.h"		// EGridInfo
 #include "llviewerwindow.h"                    // getWindow()
@@ -69,7 +69,7 @@ void LLLoginHandler::parse(const LLSD& queryMap)
 	
 	if (queryMap.has("grid"))
 	{
-		LLGridManager::getInstance()->setGridChoice(queryMap["grid"].asString());
+	  LLGridManager::getInstance()->setGridChoice(queryMap["grid"].asString());
 	}
 	
 	
@@ -77,11 +77,16 @@ void LLLoginHandler::parse(const LLSD& queryMap)
 	
 	if (startLocation == "specify")
 	{
-	  LLURLSimString::setString(queryMap["region"].asString());
+	  LLStartUp::setStartSLURL(LLSLURL(LLGridManager::getInstance()->getGridID(),
+					   queryMap["region"].asString()));
 	}
-	else if (!startLocation.empty())
+	else if (startLocation == "home")
 	{
-	  LLURLSimString::setString(startLocation);
+	  LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
+	}
+	else if (startLocation == "last")
+	{
+	  LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_LAST));
 	}
 }
 
@@ -153,12 +158,9 @@ bool LLLoginHandler::handle(const LLSD& tokens,
 // ones from the protected credential store.                                                                                
 // This always returns with a credential structure set in the                                                               
 // login handler                                                                                                            
-LLPointer<LLCredential> LLLoginHandler::initializeLoginInfo(const std::string& url)                                         
+LLPointer<LLCredential> LLLoginHandler::initializeLoginInfo()                                         
 {                                                                                                                           
-	LLURI uri(url);                                                                                                      
 	LLPointer<LLCredential> result = NULL;                                                                               
-	parse(uri.queryMap());                                                                                               
-	// we weren't able to parse login info from the slurl,                                                               
 	// so try to load it from the UserLoginInfo                                                                          
 	result = loadSavedUserLoginInfo();                                                                                   
 	if (result.isNull())                                                                                                 

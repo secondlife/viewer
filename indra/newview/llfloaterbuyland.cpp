@@ -808,7 +808,7 @@ void LLFloaterBuyLandUI::updateNames()
 	else
 	{
 		mParcelSellerName =
-			LLSLURL::buildCommand("agent", parcelp->getOwnerID(), "inspect");
+			LLSLURL("agent", parcelp->getOwnerID(), "inspect").getSLURLString();
 	}
 }
 

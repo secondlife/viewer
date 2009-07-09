@@ -50,7 +50,6 @@
 #include "llsearchcombobox.h"
 #include "llsidetray.h"
 #include "llslurl.h"
-#include "llurlsimstring.h"
 #include "llurlregistry.h"
 #include "llurldispatcher.h"
 #include "llviewerinventory.h"
@@ -421,16 +420,15 @@ void LLNavigationBar::onLocationSelection()
 	
 	std::string region_name;
 	LLVector3 local_coords(128, 128, 0);
-	S32 x = 0, y = 0, z = 0;
 	// Is the typed location a SLURL?
-	if (LLSLURL::isSLURL(typed_location))
+	LLSLURL slurl = LLSLURL(typed_location);
+	if (slurl.getType() == LLSLURL::LOCATION)
 	{
 		// Yes. Extract region name and local coordinates from it.
-		if (LLURLSimString::parse(LLSLURL::stripProtocol(typed_location), &region_name, &x, &y, &z))
-				local_coords.set(x, y, z);
-		else
-			return;
-	}else
+		region_name = slurl.getRegion();
+		local_coords = slurl.getPosition();
+	}
+	else
 	{
 		// assume that an user has typed the {region name} or possible {region_name, parcel}
 		region_name  = typed_location.substr(0,typed_location.find(','));
@@ -465,7 +463,7 @@ void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos)
 	 */
 		LLAgentUI::buildLocationString(location, LLAgentUI::LOCATION_FORMAT_NO_MATURITY,
 					gAgent.getPosAgentFromGlobal(global_agent_pos));
-	std::string tooltip (LLSLURL::buildSLURLfromPosGlobal(gAgent.getRegion()->getName(), global_agent_pos, false));
+	std::string tooltip (LLSLURL(gAgent.getRegion()->getName(), global_agent_pos).getSLURLString());
 	
 	LLLocationHistoryItem item (location,
 			global_agent_pos, tooltip,TYPED_REGION_SURL);// we can add into history only TYPED location
@@ -567,7 +565,7 @@ void LLNavigationBar::onRegionNameResponse(
 	LLVector3d region_pos = from_region_handle(region_handle);
 	LLVector3d global_pos = region_pos + (LLVector3d) local_coords;
 
-	llinfos << "Teleporting to: " << LLSLURL::buildSLURLfromPosGlobal(region_name,	global_pos, false)  << llendl;
+	llinfos << "Teleporting to: " << LLSLURL(region_name,	global_pos).getSLURLString()  << llendl;
 	gAgent.teleportViaLocation(global_pos);
 }
 

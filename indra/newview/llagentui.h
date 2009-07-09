@@ -32,6 +32,7 @@
 
 #ifndef LLAGENTUI_H
 #define LLAGENTUI_H
+#include "llslurl.h"
 
 class LLAgentUI
 {
@@ -48,7 +49,7 @@ public:
 	static void buildName(std::string& name);
 	static void buildFullname(std::string &name);
 
-	static std::string buildSLURL(const bool escaped = true);
+	static LLSLURL buildSLURL(const bool escaped = true);
 	//build location string using the current position of gAgent.
 	static BOOL buildLocationString(std::string& str, ELocationFormat fmt = LOCATION_FORMAT_LANDMARK);
 	//build location string using a region position of the avatar. 
