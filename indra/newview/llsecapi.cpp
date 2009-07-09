@@ -36,6 +36,8 @@
 #include "llsechandler_basic.h"
 #include <openssl/evp.h>
 #include <map>
+#include "llhttpclient.h"
+
 
 
 std::map<std::string, LLPointer<LLSecAPIHandler> > gHandlerMap;
@@ -79,7 +81,42 @@ std::ostream& operator <<(std::ostream& s, const LLCredential& cred)
 	return s << (std::string)cred;
 }
 
+	
+// secapiSSLCertVerifyCallback
+// basic callback called when a cert verification is requested.
+// calls SECAPI to validate the context
+// not initialized in the above initialization function, due to unit tests
+// see llappviewer
 
+int secapiSSLCertVerifyCallback(X509_STORE_CTX *ctx, void *param)
+{
+	LLURLRequest *req = (LLURLRequest *)param;
+	LLPointer<LLCertificateStore> store = gSecAPIHandler->getCertificateStore("");
+	LLPointer<LLCertificateChain> chain = gSecAPIHandler->getCertificateChain(ctx);
+	LLSD validation_params = LLSD::emptyMap();
+	LLURI uri(req->getURL());
+	validation_params[CERT_HOSTNAME] = uri.hostName();
+	try
+	{
+		chain->validate(VALIDATION_POLICY_SSL, store, validation_params);
+	}
+	catch (LLCertValidationTrustException& cert_exception)
+	{
+		LL_WARNS("AppInit") << "Cert not trusted: " << cert_exception.getMessage() << LL_ENDL;
+		return 0;		
+	}
+	catch (LLCertException& cert_exception)
+	{
+		LL_WARNS("AppInit") << "cert error " << cert_exception.getMessage() << LL_ENDL;
+		return 0;
+	}
+	catch (...)
+	{
+		LL_WARNS("AppInit") << "cert error " << LL_ENDL;
+		return 0;
+	}
+	return 1;
+}
 
 LLSD LLCredential::getLoginParams()
 {

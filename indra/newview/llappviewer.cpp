@@ -621,6 +621,7 @@ bool LLAppViewer::init()
 
     initThreads();
     initializeSecHandler();
+	LLHTTPClient::setCertVerifyCallback(secapiSSLCertVerifyCallback);
     writeSystemInfo();
 
 	// Build a string representing the current version number.
