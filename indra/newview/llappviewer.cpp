@@ -1701,11 +1701,7 @@ std::string LLAppViewer::getSettingsFilename(const std::string& location_key,
 
 void LLAppViewer::loadColorSettings()
 {
-	if(!LLUIColorTable::instance().loadFromSettings())
-	{
-		convert_legacy_color_settings();
-		LLUIColorTable::instance().loadFromSettings();
-	}
+	LLUIColorTable::instance().loadFromSettings();
 }
 
 bool LLAppViewer::initConfiguration()

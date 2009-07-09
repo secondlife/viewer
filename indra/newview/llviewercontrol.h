@@ -50,10 +50,6 @@ void settings_setup_listeners();
 // for the graphics settings
 void create_graphics_group(LLControlGroup& group);
 
-// convert legacy colors.xml LLSD based color settings to
-// newer colors_def.xml XUI/Params based color settings
-void convert_legacy_color_settings();
-
 // saved at end of session
 extern LLControlGroup gSavedSettings;
 extern LLControlGroup gSavedPerAccountSettings;

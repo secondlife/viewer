@@ -181,16 +181,16 @@ bool LLUIColorTable::loadFromSettings()
 {
 	bool result = false;
 
-	std::string default_filename = gDirUtilp->getExpandedFilename(LL_PATH_DEFAULT_SKIN, "colors_def.xml");
+	std::string default_filename = gDirUtilp->getExpandedFilename(LL_PATH_DEFAULT_SKIN, "colors.xml");
 	result |= loadFromFilename(default_filename);
 
-	std::string current_filename = gDirUtilp->getExpandedFilename(LL_PATH_TOP_SKIN, "colors_def.xml");
+	std::string current_filename = gDirUtilp->getExpandedFilename(LL_PATH_TOP_SKIN, "colors.xml");
 	if(current_filename != default_filename)
 	{
 		result |= loadFromFilename(current_filename);
 	}
 
-	std::string user_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SKIN, "colors_def.xml");
+	std::string user_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SKIN, "colors.xml");
 	loadFromFilename(user_filename);
 
 	return result;
@@ -216,7 +216,7 @@ void LLUIColorTable::saveUserSettings() const
 
 	if(!output_node->isNull())
 	{
-		const std::string& filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SKIN, "colors_def.xml");
+		const std::string& filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SKIN, "colors.xml");
 		LLFILE *fp = LLFile::fopen(filename, "w");
 
 		if(fp != NULL)
@@ -268,6 +268,12 @@ bool LLUIColorTable::loadFromFilename(const std::string& filename)
 	if(!LLXMLNode::parseFile(filename, root, NULL))
 	{
 		llwarns << "Unable to parse color file " << filename << llendl;
+		return false;
+	}
+
+	if(!root->hasName("colors"))
+	{
+		llwarns << filename << " is not a valid color definition file" << llendl;
 		return false;
 	}
 
