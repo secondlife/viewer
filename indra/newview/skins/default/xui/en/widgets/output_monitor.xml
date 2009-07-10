@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<output_monitor
+  image_mute="mute_icon.tga"
+  image_off="icn_voice_ptt-off.tga"
+  image_on="icn_voice_ptt-on.tga"
+  image_level_1="icn_voice_ptt-on-lvl1.tga"
+  image_level_2="icn_voice_ptt-on-lvl2.tga"
+  image_level_3="icn_voice_ptt-on-lvl3.tga"
+  />

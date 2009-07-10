@@ -792,6 +792,8 @@ LLTalkButton::LLTalkButton(const LLUICtrl::Params& p)
 	monitor_param.rect(LLRect(rc.getWidth()-20,18,rc.getWidth()-3,2));
 	monitor_param.visible(true);
 	mOutputMonitor = LLUICtrlFactory::create<LLOutputMonitorCtrl>(monitor_param);
+	// never show "muted" because you can't mute yourself
+	mOutputMonitor->setIsMuted(false);
 
 	mSpeakBtn->addChild(mOutputMonitor);
 
@@ -804,10 +806,9 @@ LLTalkButton::~LLTalkButton()
 
 void LLTalkButton::draw()
 {
-	if(mSpeakBtn->getToggleState())
-	{
-		mOutputMonitor->setPower(gVoiceClient->getCurrentPower(gAgent.getID()));
-	}
+	// Always provide speaking feedback.  User can trigger speaking
+	// with keyboard or middle-mouse shortcut.
+	mOutputMonitor->setPower(gVoiceClient->getCurrentPower(gAgent.getID()));
 
 	LLUICtrl::draw();
 }
@@ -816,7 +817,6 @@ void LLTalkButton::onClick_SpeakBtn()
 {
 	bool speaking = mSpeakBtn->getToggleState();
 	gVoiceClient->setUserPTTState(speaking);
-	mOutputMonitor->setIsMuted(!speaking);
 }
 
 void LLTalkButton::onClick_ShowBtn()
