@@ -378,6 +378,7 @@ set(viewer_SOURCE_FILES
     llvieweraudio.cpp
     llviewercamera.cpp
     llviewercontrol.cpp
+    llviewercontrollistener.cpp
     llviewerdisplay.cpp
     llviewerfloaterreg.cpp
     llviewergenericmessage.cpp
@@ -801,6 +802,7 @@ set(viewer_HEADER_FILES
     llviewerbuild.h
     llviewercamera.h
     llviewercontrol.h
+    llviewercontrollistener.h
     llviewerdisplay.h
     llviewerfloaterreg.h
     llviewergenericmessage.h
