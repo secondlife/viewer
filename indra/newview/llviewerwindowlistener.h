@@ -27,6 +27,7 @@ public:
 
 private:
     void saveSnapshot(const LLSD& event) const;
+    void requestReshape(LLSD const & event_data) const;
 
     LLViewerWindow* mViewerWindow;
 };

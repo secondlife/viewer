@@ -35,6 +35,7 @@ LLViewerWindowListener::LLViewerWindowListener(const std::string& pumpname, LLVi
 //  saveSnapshotArgs["rebuild"] = LLSD::Boolean();
 //  saveSnapshotArgs["type"] = LLSD::String();
     add("saveSnapshot", &LLViewerWindowListener::saveSnapshot, saveSnapshotArgs);
+    add("requestReshape", &LLViewerWindowListener::requestReshape);
 }
 
 void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
@@ -75,4 +76,12 @@ void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
     LLSD response(reqid.makeResponse());
     response["ok"] = ok;
     LLEventPumps::instance().obtain(event["reply"]).post(response);
+}
+
+void LLViewerWindowListener::requestReshape(LLSD const & event_data) const
+{
+	if(event_data.has("w") && event_data.has("h"))
+	{
+		mViewerWindow->reshape(event_data["w"].asInteger(), event_data["h"].asInteger());
+	}
 }
