@@ -168,9 +168,8 @@ class WindowsManifest(ViewerManifest):
 
         # need to get the llcommon.dll from any of the build directories as well
         try:
-            self.path(self.find_existing_file('../llcommon/%s/llcommon.dll' % self.args['configuration']),
-                  dst='llcommon.dll')
             if self.prefix(src=self.args['configuration'], dst=""):
+                self.path('llcommon.dll')
                 self.path('libapr-1.dll')
                 self.path('libaprutil-1.dll')
                 self.path('libapriconv-1.dll')
@@ -181,8 +180,7 @@ class WindowsManifest(ViewerManifest):
 
         # need to get the kdu dll from any of the build directories as well
         try:
-            self.path(self.find_existing_file('../llkdu/%s/llkdu.dll' % self.args['configuration'],
-                '../../libraries/i686-win32/lib/release/llkdu.dll'), 
+            self.path(self.find_existing_file('%s/llkdu.dll' % self.args['configuration']), 
                   dst='llkdu.dll')
             pass
         except:
@@ -394,7 +392,11 @@ class WindowsManifest(ViewerManifest):
 
         # We use the Unicode version of NSIS, available from
         # http://www.scratchpaper.com/
-        NSIS_path = 'C:\\Program Files\\NSIS\\Unicode\\makensis.exe'
+        # Check two paths, one for Program Files, and one for Program Files (x86).
+        # Yay 64bit windows.
+        NSIS_path = os.path.expandvars('${ProgramFiles}\\NSIS\\Unicode\\makensis.exe')
+        if not os.path.exists(NSIS_path):
+            NSIS_path = os.path.expandvars('${ProgramFiles(x86)}\\NSIS\\Unicode\\makensis.exe')
         self.run_command('"' + proper_windows_path(NSIS_path) + '" ' + self.dst_path_of(tempfile))
         # self.remove(self.dst_path_of(tempfile))
         # If we're on a build machine, sign the code using our Authenticode certificate. JC

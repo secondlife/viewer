@@ -38,10 +38,6 @@ include(LLKDU)
 include(ViewerMiscLibs)
 include(LLLogin)
 
-if (WINDOWS)
-    include(CopyWinLibs)
-endif (WINDOWS)
-
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
     ${ELFIO_INCLUDE_DIR}
@@ -1252,7 +1248,23 @@ if (WINDOWS)
         COMMENT "Copying message.xml to the runtime folder."
         )
        
-    add_dependencies(${VIEWER_BINARY_NAME} copy_win_libs)
+	if(WINDOWS)
+      # Copy Win Libs...
+	  # This happens at build time, not config time. We can't glob files in this cmake.
+	  # *FIX:Mani Write a sub script to glob the files...
+	  add_custom_command(
+        TARGET ${VIEWER_BINARY_NAME} PRE_BUILD
+        COMMAND ${CMAKE_COMMAND}
+        ARGS
+          -E
+          copy_directory
+          ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}
+         ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+        COMMENT "Copying staged dlls."
+		)
+	endif(WINDOWS)
+	
+	
 
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
