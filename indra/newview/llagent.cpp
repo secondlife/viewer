@@ -35,6 +35,7 @@
 #include "llagent.h" 
 #include "llagentwearables.h"
 
+#include "llagentlistener.h"
 #include "llanimationstates.h"
 #include "llcallingcard.h"
 #include "llchatbar.h"
@@ -254,6 +255,7 @@ LLAgent::LLAgent() :
 	mHUDTargetZoom(1.f),
 	mHUDCurZoom(1.f),
 	mInitialized(FALSE),
+	mListener(),
 	mForceMouselook(FALSE),
 
 	mDoubleTapRunTimer(),
@@ -381,6 +383,8 @@ LLAgent::LLAgent() :
 	}
 
 	mFollowCam.setMaxCameraDistantFromSubject( MAX_CAMERA_DISTANCE_FROM_AGENT );
+
+	mListener.reset(new LLAgentListener(*this));
 }
 
 // Requires gSavedSettings to be initialized.

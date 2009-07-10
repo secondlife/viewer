@@ -67,6 +67,7 @@ include_directories(
 set(viewer_SOURCE_FILES
     llaccordionpanel.cpp
     llagent.cpp
+    llagentlistener.cpp
     llagentaccess.cpp
     llagentdata.cpp
     llagentlanguage.cpp
@@ -483,6 +484,7 @@ set(viewer_HEADER_FILES
     ViewerInstall.cmake
     llaccordionpanel.h
     llagent.h
+    llagentlistener.h
     llagentaccess.h
     llagentdata.h
     llagentlanguage.h
