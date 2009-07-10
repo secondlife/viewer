@@ -1,7 +1,7 @@
 /**
  * @file   llviewercontrollistener.cpp
- * @author Nat Goodspeed
- * @date   2009-06-30
+ * @author Brad Kittenbrink
+ * @date   2009-07-09
  * @brief  Implementation for llviewercontrollistener.
  * 
  * $LicenseInfo:firstyear=2009&license=viewergpl$
