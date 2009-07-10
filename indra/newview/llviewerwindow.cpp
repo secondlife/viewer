@@ -1601,7 +1601,6 @@ void LLViewerWindow::initWorldUI()
 	
 	// Force gFloaterWorldMap to initialize
 	LLFloaterReg::getInstance("world_map");
-	LLFloaterReg::hideInstance("world_map");
 
 	// Force gFloaterTools to initialize
 	LLFloaterReg::getInstance("build");

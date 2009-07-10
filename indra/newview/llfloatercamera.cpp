@@ -67,20 +67,3 @@ BOOL LLFloaterCamera::postBuild()
 	return TRUE;
 }
 
-// virtual
-void LLFloaterCamera::onOpen(const LLSD& key)
-{
-	gSavedSettings.setBOOL("ShowCameraControls", TRUE);
-}
-
-// virtual
-void LLFloaterCamera::onClose(bool app_quitting)
-{
-	destroy();
-	
-	if (!app_quitting)
-	{
-		gSavedSettings.setBOOL("ShowCameraControls", FALSE);
-	}
-}
-

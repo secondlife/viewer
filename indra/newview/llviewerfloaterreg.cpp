@@ -177,4 +177,6 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("media_remote_ctrl", "floater_media_remote.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMediaRemoteCtrl>);
 
 	// *NOTE: Please keep these alphabetized for easier merges
+
+	LLFloaterReg::registerControlVariables(); // Make sure visibility and rect controls get preserved when saving
 }

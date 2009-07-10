@@ -372,6 +372,7 @@ private:
 
 	static LLMultiFloater* sHostp;
 	static BOOL		sEditModeEnabled;
+	static BOOL		sQuitting;
 	static std::string	sButtonActiveImageNames[BUTTON_COUNT];
 	static std::string	sButtonInactiveImageNames[BUTTON_COUNT];
 	static std::string	sButtonPressedImageNames[BUTTON_COUNT];

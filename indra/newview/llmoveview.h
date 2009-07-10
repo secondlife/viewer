@@ -53,8 +53,6 @@ private:
 	~LLFloaterMove() {}
 public:
 
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/	BOOL	postBuild();
 	static F32	getYawRate(F32 time);
 

@@ -126,7 +126,8 @@ LLFloater::click_callback LLFloater::sButtonCallbacks[BUTTON_COUNT] =
 };
 
 LLMultiFloater* LLFloater::sHostp = NULL;
-BOOL			LLFloater::sEditModeEnabled;
+BOOL			LLFloater::sEditModeEnabled = FALSE;
+BOOL			LLFloater::sQuitting = FALSE; // Temporary hack until onClose() behavior becomes data driven
 LLFloater::handle_map_t	LLFloater::sFloaterMap;
 
 LLFloaterView* gFloaterView = NULL;
@@ -473,7 +474,8 @@ void LLFloater::storeRectControl()
 
 void LLFloater::storeVisibilityControl()
 {
-	if( mVisibilityControl.size() > 1 )
+	// sQuitting is a temp hack until we standardize onClose() behavior so that it won't call this when quitting
+	if( !sQuitting && mVisibilityControl.size() > 1 )
 	{
 		LLUI::sSettingGroups["floater"]->setBOOL( mVisibilityControl, getVisible() );
 	}
@@ -566,6 +568,11 @@ void LLFloater::openFloater(const LLSD& key)
 
 void LLFloater::closeFloater(bool app_quitting)
 {
+	if (app_quitting)
+	{
+		LLFloater::sQuitting = true; // Temp hack until we standardize onClose()	
+	}
+	
 	// Always unminimize before trying to close.
 	// Most of the time the user will never see this state.
 	setMinimized(FALSE);

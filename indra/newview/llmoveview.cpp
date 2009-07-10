@@ -69,16 +69,6 @@ LLFloaterMove::LLFloaterMove(const LLSD& key)
 }
 
 // virtual
-void LLFloaterMove::onClose(bool app_quitting)
-{
-	destroy();
-	
-	if (!app_quitting)
-	{
-		gSavedSettings.setBOOL("ShowMovementControls", FALSE);
-	}
-}
-// virtual
 BOOL LLFloaterMove::postBuild()
 {
 	setIsChrome(TRUE);
@@ -118,11 +108,6 @@ BOOL LLFloaterMove::postBuild()
 //
 // Static member functions
 //
-
-void LLFloaterMove::onOpen(const LLSD& key)
-{
-	gSavedSettings.setBOOL("ShowMovementControls", TRUE);
-}
 
 // protected static 
 F32 LLFloaterMove::getYawRate( F32 time )

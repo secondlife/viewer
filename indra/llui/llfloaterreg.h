@@ -120,6 +120,7 @@ public:
 	static std::string declareRectControl(const std::string& name);
 	static std::string getVisibilityControlName(const std::string& name);
 	static std::string declareVisibilityControl(const std::string& name);
+	static void registerControlVariables();
 
 	// Callback wrappers
 	static void initUICtrlToFloaterVisibilityControl(LLUICtrl* ctrl, const LLSD& sdname);

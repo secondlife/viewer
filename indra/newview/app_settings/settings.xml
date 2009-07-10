@@ -6597,17 +6597,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowActiveSpeakers</key>
-    <map>
-      <key>Comment</key>
-      <string>Display active speakers list on login</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>ShowAdvancedGraphicsSettings</key>
     <map>
       <key>Comment</key>
@@ -6651,17 +6640,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>ShowCameraControls</key>
-    <map>
-      <key>Comment</key>
-      <string>Display camera controls on login</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>ShowConsoleWindow</key>
     <map>
@@ -6980,17 +6958,6 @@
       <integer>1</integer>
 	  <key>HideFromEditor</key>
 	  <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowMovementControls</key>
-    <map>
-      <key>Comment</key>
-      <string>Display movement controls on login</string>
-      <key>Persist</key>
-      <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>

@@ -1720,20 +1720,6 @@ bool idle_startup()
 		
 		LLFloaterReg::showInitialVisibleInstances();
 
-		if (gSavedSettings.getBOOL("ShowCameraControls"))
-		{
-			LLFloaterReg::showInstance("camera");
-		}
-		if (gSavedSettings.getBOOL("ShowMovementControls"))
-		{
-			LLFloaterReg::showInstance("moveview");
-		}
-
-		if (gSavedSettings.getBOOL("ShowActiveSpeakers"))
-		{
-			LLFloaterReg::showInstance("active_speakers");
-		}
-
 		if (gSavedSettings.getBOOL("BeaconAlwaysOn"))
 		{
 			LLFloaterReg::showInstance("beacons");
