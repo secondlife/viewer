@@ -47,8 +47,10 @@ void addLocationHistory()
 {	
 	LLVector3 position = gAgent.getPositionAgent();
 	std::string region_name = gAgent.getRegion()->getName();
-	std::string location = LLSLURL::buildSLURL(region_name, position.mV[VX], 
-		                                       position.mV[VY], position.mV[VZ]);
+	std::string location = LLSLURL::buildSLURL(region_name,
+			(S32)(position.mV[VX]), 
+		    (S32)(position.mV[VY]), 
+			(S32)(position.mV[VZ]) );
 	LLLocationHistory* lh = LLLocationHistory::getInstance();
 	lh->addItem(location);
 	lh->save();
