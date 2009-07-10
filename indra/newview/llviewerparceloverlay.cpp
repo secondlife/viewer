@@ -43,13 +43,13 @@
 #include "v2math.h"
 
 // newview includes
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 #include "llviewercontrol.h"
 #include "llsurface.h"
 #include "llviewerregion.h"
 #include "llagent.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llselectmgr.h"
 #include "llfloatertools.h"
 #include "llglheaders.h"
@@ -69,10 +69,9 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
 {
 	// Create a texture to hold color information.
 	// 4 components
-	// Use mipmaps = FALSE, clamped, NEAREST filter, for sharp edges
-	mTexture = new LLImageGL(FALSE);
+	// Use mipmaps = FALSE, clamped, NEAREST filter, for sharp edges	
 	mImageRaw = new LLImageRaw(mParcelGridsPerEdge, mParcelGridsPerEdge, OVERLAY_IMG_COMPONENTS);
-	mTexture->createGLTexture(0, mImageRaw);
+	mTexture = LLViewerTextureManager::getLocalTexture(mImageRaw.get(), FALSE);
 	gGL.getTexUnit(0)->activate();
 	gGL.getTexUnit(0)->bind(mTexture);
 	mTexture->setAddressMode(LLTexUnit::TAM_CLAMP);

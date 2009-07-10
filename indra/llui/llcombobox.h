@@ -39,7 +39,6 @@
 #include "llbutton.h"
 #include "lluictrl.h"
 #include "llctrlselectioninterface.h"
-#include "llimagegl.h"
 #include "llrect.h"
 #include "llscrolllistctrl.h"
 #include "lllineeditor.h"

@@ -77,7 +77,6 @@
 #include "lltabcontainer.h"
 #include "lltooldraganddrop.h"
 #include "lluictrlfactory.h"
-#include "llviewerimagelist.h"
 #include "llviewerinventory.h"
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"

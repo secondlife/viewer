@@ -33,7 +33,7 @@
 #ifndef LL_LLSTARTUP_H
 #define LL_LLSTARTUP_H
 
-#include "llimagegl.h"
+class LLViewerTexture ;
 
 // functions
 bool idle_startup();
@@ -74,7 +74,7 @@ typedef enum {
 
 // exported symbols
 extern bool gAgentMovementCompleted;
-extern LLPointer<LLImageGL> gStartImageGL;
+extern LLPointer<LLViewerTexture> gStartTexture;
 extern std::string gInitialOutfit;
 extern std::string gInitialOutfitGender;	// "male" or "female"
 

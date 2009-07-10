@@ -47,7 +47,7 @@
 #include "llfloaterperms.h"
 #include "llstatusbar.h"
 #include "llviewercontrol.h"	// gSavedSettings
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "lluictrlfactory.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"	// gMenuHolder
@@ -481,7 +481,7 @@ void handle_compress_image(void*)
 
 			BOOL success;
 
-			success = LLViewerImageList::createUploadFile(infile, outfile, IMG_CODEC_TGA);
+			success = LLViewerTextureList::createUploadFile(infile, outfile, IMG_CODEC_TGA);
 
 			if (success)
 			{
@@ -537,7 +537,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 	else if( exten == "bmp")
 	{
 		asset_type = LLAssetType::AT_TEXTURE;
-		if (!LLViewerImageList::createUploadFile(src_filename,
+		if (!LLViewerTextureList::createUploadFile(src_filename,
 												 filename,
 												 IMG_CODEC_BMP ))
 		{
@@ -552,7 +552,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 	else if( exten == "tga")
 	{
 		asset_type = LLAssetType::AT_TEXTURE;
-		if (!LLViewerImageList::createUploadFile(src_filename,
+		if (!LLViewerTextureList::createUploadFile(src_filename,
 												 filename,
 												 IMG_CODEC_TGA ))
 		{
@@ -567,7 +567,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 	else if( exten == "jpg" || exten == "jpeg")
 	{
 		asset_type = LLAssetType::AT_TEXTURE;
-		if (!LLViewerImageList::createUploadFile(src_filename,
+		if (!LLViewerTextureList::createUploadFile(src_filename,
 												 filename,
 												 IMG_CODEC_JPEG ))
 		{
@@ -582,7 +582,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
  	else if( exten == "png")
  	{
  		asset_type = LLAssetType::AT_TEXTURE;
- 		if (!LLViewerImageList::createUploadFile(src_filename,
+ 		if (!LLViewerTextureList::createUploadFile(src_filename,
  												 filename,
  												 IMG_CODEC_PNG ))
  		{

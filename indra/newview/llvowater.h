@@ -34,7 +34,7 @@
 #define LL_VOWATER_H
 
 #include "llviewerobject.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 #include "v2math.h"
 
 const U32 N_RES	= 16; //32			// number of subdivisions of wave tile

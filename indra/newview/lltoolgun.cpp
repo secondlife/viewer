@@ -42,7 +42,7 @@
 #include "llresmgr.h"
 #include "llfontgl.h"
 #include "llui.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewercamera.h"
 #include "llhudmanager.h"
 #include "lltoolmgr.h"

@@ -58,7 +58,7 @@ class LLSpatialGroup;
 class LLSpatialBridge;
 class LLSpatialPartition;
 class LLVOVolume;
-class LLViewerImage;
+class LLViewerTexture;
 
 // Can have multiple silhouettes for each object
 const U32 SILHOUETTE_HIGHLIGHT = 0;
@@ -125,11 +125,11 @@ public:
 	inline S32			getNumFaces()      	 const;
 
 	//void                removeFace(const S32 i); // SJB: Avoid using this, it's slow
-	LLFace*				addFace(LLFacePool *poolp, LLViewerImage *texturep);
-	LLFace*				addFace(const LLTextureEntry *te, LLViewerImage *texturep);
+	LLFace*				addFace(LLFacePool *poolp, LLViewerTexture *texturep);
+	LLFace*				addFace(const LLTextureEntry *te, LLViewerTexture *texturep);
 	void				deleteFaces(S32 offset, S32 count);
-	void                setNumFaces(const S32 numFaces, LLFacePool *poolp, LLViewerImage *texturep);
-	void                setNumFacesFast(const S32 numFaces, LLFacePool *poolp, LLViewerImage *texturep);
+	void                setNumFaces(const S32 numFaces, LLFacePool *poolp, LLViewerTexture *texturep);
+	void                setNumFacesFast(const S32 numFaces, LLFacePool *poolp, LLViewerTexture *texturep);
 	void				mergeFaces(LLDrawable* src);
 
 	void init();

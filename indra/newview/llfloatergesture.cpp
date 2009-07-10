@@ -56,7 +56,7 @@
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llviewergesture.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerinventory.h"
 #include "llvoavatar.h"
 #include "llviewercontrol.h"

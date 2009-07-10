@@ -36,6 +36,7 @@ set(llrender_SOURCE_FILES
     llpostprocess.cpp
     llrendersphere.cpp
     llshadermgr.cpp
+    lltexture.cpp
     llvertexbuffer.cpp
     )
     
@@ -58,6 +59,7 @@ set(llrender_HEADER_FILES
     llrender.h
     llrendersphere.h
     llshadermgr.h
+    lltexture.h
     llvertexbuffer.h
     )
 

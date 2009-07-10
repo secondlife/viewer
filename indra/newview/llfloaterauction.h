@@ -37,7 +37,7 @@
 #include "llfloater.h"
 #include "lluuid.h"
 #include "llpointer.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFloaterAuction
@@ -69,7 +69,7 @@ private:
 private:
 	LLTransactionID mTransactionID;
 	LLAssetID mImageID;
-	LLPointer<LLImageGL> mImage;
+	LLPointer<LLViewerTexture> mImage;
 	LLSafeHandle<LLParcelSelection> mParcelp;
 	S32 mParcelID;
 	LLHost mParcelHost;

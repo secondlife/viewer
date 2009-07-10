@@ -40,7 +40,7 @@
 #include "llviewerobject.h"
 #include "lldrawable.h"
 #include "llviewercamera.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 #include "llviewerwindow.h"
 
 //-----------------------------------------------------------------------------
@@ -144,7 +144,7 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 		alpha_factor *= clamp_rescale(time_elapsed, MAX_VISIBLE_TIME - FADE_OUT_TIME, MAX_VISIBLE_TIME, 1.f, 0.f);
 	}
 
-	F32 image_aspect = (F32)mImagep->mFullWidth / (F32)mImagep->mFullHeight;
+	F32 image_aspect = (F32)mImagep->getFullWidth() / (F32)mImagep->getFullHeight() ;
 	LLVector3 x_scale = image_aspect * (F32)gViewerWindow->getWindowHeight() * mScale * scale_factor * x_pixel_vec;
 	LLVector3 y_scale = (F32)gViewerWindow->getWindowHeight() * mScale * scale_factor * y_pixel_vec;
 
@@ -164,7 +164,7 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 		LLColor4 icon_color = LLColor4::white;
 		icon_color.mV[VALPHA] = alpha_factor;
 		gGL.color4fv(icon_color.mV);
-		gGL.getTexUnit(0)->bind(mImagep.get());
+		gGL.getTexUnit(0)->bind(mImagep);
 	}
 
 	gGL.begin(LLRender::QUADS);
@@ -181,7 +181,7 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 	gGL.end();
 }
 
-void LLHUDIcon::setImage(LLViewerImage* imagep)
+void LLHUDIcon::setImage(LLViewerTexture* imagep)
 {
 	mImagep = imagep;
 	mImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
@@ -260,7 +260,7 @@ BOOL LLHUDIcon::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 		return FALSE;
 	}
 	
-	F32 image_aspect = (F32)mImagep->mFullWidth / (F32)mImagep->mFullHeight;
+	F32 image_aspect = (F32)mImagep->getFullWidth() / (F32)mImagep->getFullHeight() ;
 	LLVector3 x_scale = image_aspect * (F32)gViewerWindow->getWindowHeight() * mScale * scale_factor * x_pixel_vec;
 	LLVector3 y_scale = (F32)gViewerWindow->getWindowHeight() * mScale * scale_factor * y_pixel_vec;
 

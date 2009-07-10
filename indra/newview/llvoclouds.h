@@ -37,7 +37,7 @@
 #include "lltable.h"
 #include "v4coloru.h"
 
-class LLViewerImage;
+class LLViewerTexture;
 class LLViewerCloudGroup;
 
 class LLCloudGroup;

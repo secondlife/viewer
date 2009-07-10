@@ -45,7 +45,7 @@
 class LLButton;
 class LLFloaterTexturePicker;
 class LLInventoryItem;
-class LLViewerImage;
+class LLViewerTexture;
 
 // used for setting drag & drop callbacks.
 typedef boost::function<BOOL (LLUICtrl*, LLInventoryItem*)> drag_n_drop_callback;
@@ -189,7 +189,7 @@ private:
 	drag_n_drop_callback	 mDropCallback;
 	commit_callback_t		 mOnCancelCallback;
 	commit_callback_t		 mOnSelectCallback;
-	LLPointer<LLViewerImage> mTexturep;
+	LLPointer<LLViewerTexture> mTexturep;
 	LLUIColor				 mBorderColor;
 	LLUUID					 mImageItemID;
 	LLUUID					 mImageAssetID;

@@ -55,7 +55,7 @@
 #include "stdenums.h"
 #include "llfontgl.h"
 #include "lleditmenuhandler.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 #include "lldepthstack.h"
 #include "lltooldraganddrop.h"
 // JAMESDEBUG - move this up

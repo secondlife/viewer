@@ -91,13 +91,8 @@
 #include "llspinctrl.h"
 #include "llstartup.h"
 #include "lltextbox.h"
-
 #include "llui.h"
-
-#include "llviewerimage.h"
-#include "llviewerimagelist.h"
 #include "llviewerobjectlist.h"
-
 #include "llvoavatar.h"
 #include "llvovolume.h"
 #include "llwindow.h"

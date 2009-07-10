@@ -37,7 +37,6 @@
 #include "v4color.h"
 #include "lluictrl.h"
 #include "stdenums.h"
-#include "llimagegl.h"
 
 class LLTextBox;
 class LLUICtrlFactory;

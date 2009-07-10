@@ -47,7 +47,7 @@
 #include "llviewercontrol.h"
 #include "llworld.h"
 #include "lldrawpoolterrain.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llwindow.h"
 #include "llui.h"
 #include "llcontrol.h"

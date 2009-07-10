@@ -44,7 +44,7 @@
 #include "llsdserialize.h"
 
 #include "llappviewer.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llui.h"
 #include "llviewercontrol.h"
 #include "llstat.h"

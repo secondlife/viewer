@@ -49,7 +49,7 @@
 #include "lltextbox.h"
 #include "llui.h"
 #include "llviewercontrol.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerjoystick.h"
 #include "llviewermedia.h"
 #include "llviewermenu.h"	// handle_reset_view()

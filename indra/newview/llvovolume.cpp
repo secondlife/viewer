@@ -59,7 +59,7 @@
 
 #include "llsky.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerregion.h"
 #include "llviewertextureanim.h"
 #include "llworld.h"
@@ -427,7 +427,7 @@ void LLVOVolume::updateTextures()
 		return;
 	}
 	
-	if (LLViewerImage::sDontLoadVolumeTextures || mDrawable.isNull()) // || !mDrawable->isVisible())
+	if (LLViewerTexture::sDontLoadVolumeTextures || mDrawable.isNull()) // || !mDrawable->isVisible())
 	{
 		return;
 	}
@@ -443,7 +443,7 @@ void LLVOVolume::updateTextures()
 	{
 		LLFace* face = mDrawable->getFace(i);
 		const LLTextureEntry *te = face->getTextureEntry();
-		LLViewerImage *imagep = face->getTexture();
+		LLViewerTexture *imagep = face->getTexture();
 		if (!imagep || !te ||
 			face->mExtents[0] == face->mExtents[1])
 		{
@@ -456,7 +456,7 @@ void LLVOVolume::updateTextures()
 		{
 			F32 area = (F32) LLViewerCamera::getInstance()->getScreenPixelArea();
 			vsize = area;
-			imagep->setBoostLevel(LLViewerImage::BOOST_HUD);
+			imagep->setBoostLevel(LLViewerTexture::BOOST_HUD);
  			face->setPixelArea(area); // treat as full screen
 		}
 		else
@@ -486,10 +486,14 @@ void LLVOVolume::updateTextures()
 		}
 		else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
 		{
-			F32 pri = imagep->getDecodePriority();
-			pri = llmax(pri, 0.0f);
-			if (pri < min_vsize) min_vsize = pri;
-			if (pri > max_vsize) max_vsize = pri;
+			LLViewerFetchedTexture* img = LLViewerTextureManager::staticCastToFetchedTexture(imagep) ;
+			if(img)
+			{
+				F32 pri = img->getDecodePriority();
+				pri = llmax(pri, 0.0f);
+				if (pri < min_vsize) min_vsize = pri;
+				if (pri > max_vsize) max_vsize = pri;
+			}
 		}
 		else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_FACE_AREA))
 		{
@@ -503,7 +507,7 @@ void LLVOVolume::updateTextures()
 	{
 		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 		LLUUID id =  sculpt_params->getSculptTexture(); 
-		mSculptTexture = gImageList.getImage(id);
+		mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
 		if (mSculptTexture.notNull())
 		{
 			S32 lod = llmin(mLOD, 3);
@@ -511,7 +515,7 @@ void LLVOVolume::updateTextures()
 			F32 tex_size = lodf * MAX_SCULPT_REZ;
 			mSculptTexture->addTextureStats(2.f * tex_size * tex_size);
 			mSculptTexture->setBoostLevel(llmax((S32)mSculptTexture->getBoostLevel(),
-												(S32)LLViewerImage::BOOST_SCULPTED));
+												(S32)LLViewerTexture::BOOST_SCULPTED));
 			mSculptTexture->setForSculpt() ;
 		}
 
@@ -625,7 +629,7 @@ void LLVOVolume::setScale(const LLVector3 &scale, BOOL damped)
 LLFace* LLVOVolume::addFace(S32 f)
 {
 	const LLTextureEntry* te = getTE(f);
-	LLViewerImage* imagep = getTEImage(f);
+	LLViewerTexture* imagep = getTEImage(f);
 	return mDrawable->addFace(te, imagep);
 }
 
@@ -701,7 +705,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &volume_params, const S32 detail
 		
 		if (isSculpted())
 		{
-			mSculptTexture = gImageList.getImage(volume_params.getSculptID());
+			mSculptTexture = LLViewerTextureManager::getFetchedTexture(volume_params.getSculptID(), TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
 			if (mSculptTexture.notNull())
 			{
 				sculpt();
@@ -783,9 +787,9 @@ void LLVOVolume::sculpt()
 			sculpt_height = 0;
 			sculpt_data = NULL ;
 
-			if(LLViewerImage::sTesterp)
+			if(LLViewerTextureManager::sTesterp)
 			{
-				LLViewerImage::sTesterp->updateGrayTextureBinding();
+				LLViewerTextureManager::sTesterp->updateGrayTextureBinding();
 			}
 		}
 		else
@@ -796,9 +800,9 @@ void LLVOVolume::sculpt()
 					   
 			sculpt_data = raw_image->getData();
 
-			if(LLViewerImage::sTesterp)
+			if(LLViewerTextureManager::sTesterp)
 			{
-				mSculptTexture->updateBindStats() ;
+				mSculptTexture->updateBindStatsForTester() ;
 			}
 		}
 		getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level);
@@ -1257,7 +1261,7 @@ BOOL LLVOVolume::isRootEdit() const
 	return TRUE;
 }
 
-void LLVOVolume::setTEImage(const U8 te, LLViewerImage *imagep)
+void LLVOVolume::setTEImage(const U8 te, LLViewerTexture *imagep)
 {
 	BOOL changed = (mTEImages[te] != imagep);
 	LLViewerObject::setTEImage(te, imagep);
@@ -2056,7 +2060,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 			{
 				LLFace* face = mDrawable->getFace(face_hit);
 			
-				if (pick_transparent || !face->getTexture() || face->getTexture()->getMask(face->surfaceToTexture(tc, p, n)))
+				if (pick_transparent || !face->getTexture() || !face->getTexture()->hasGLTexture() || face->getTexture()->getMask(face->surfaceToTexture(tc, p, n)))
 				{
 					v_end = p;
 					if (face_hitp != NULL)
@@ -2167,7 +2171,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	U8 bump = (type == LLRenderPass::PASS_BUMP ? facep->getTextureEntry()->getBumpmap() : 0);
 	
-	LLViewerImage* tex = facep->getTexture();
+	LLViewerTexture* tex = facep->getTexture();
 
 	U8 glow = 0;
 		
@@ -2318,7 +2322,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			if (facep->hasGeometry() && facep->mPixelArea > FORCE_CULL_AREA)
 			{
 				const LLTextureEntry* te = facep->getTextureEntry();
-				LLViewerImage* tex = facep->getTexture();
+				LLViewerTexture* tex = facep->getTexture();
 
 				if (facep->isState(LLFace::TEXTURE_ANIM))
 				{
@@ -2566,7 +2570,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 	
 	LLSpatialGroup::buffer_map_t buffer_map;
 
-	LLViewerImage* last_tex = NULL;
+	LLViewerTexture* last_tex = NULL;
 	S32 buffer_index = 0;
 
 	if (distance_sort)
@@ -2578,7 +2582,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 	{
 		//pull off next face
 		LLFace* facep = *face_iter;
-		LLViewerImage* tex = facep->getTexture();
+		LLViewerTexture* tex = facep->getTexture();
 
 		if (distance_sort)
 		{

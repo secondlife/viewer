@@ -37,13 +37,13 @@
 
 #include "llrender.h"
 #include "llagent.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llbutton.h"
 #include "lldraghandle.h"
 #include "llfocusmgr.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 #include "llfolderview.h"
 #include "llfoldervieweventlistener.h"
 #include "llinventory.h"
@@ -146,7 +146,7 @@ public:
 		   void		onTextureSelect( const LLTextureEntry& te );
 
 protected:
-	LLPointer<LLViewerImage> mTexturep;
+	LLPointer<LLViewerTexture> mTexturep;
 	LLTextureCtrl*		mOwner;
 
 	LLUUID				mImageAssetID; // Currently selected texture
@@ -263,9 +263,9 @@ void LLFloaterTexturePicker::updateImageStats()
 	if (mTexturep.notNull())
 	{
 		//RN: have we received header data for this image?
-		if (mTexturep->getWidth(0) > 0 && mTexturep->getHeight(0) > 0)
+		if (mTexturep->getFullWidth() > 0 && mTexturep->getFullHeight() > 0)
 		{
-			std::string formatted_dims = llformat("%d x %d", mTexturep->getWidth(0),mTexturep->getHeight(0));
+			std::string formatted_dims = llformat("%d x %d", mTexturep->getFullWidth(),mTexturep->getFullHeight());
 			mResolutionLabel->setTextArg("[DIMENSIONS]", formatted_dims);
 		}
 		else
@@ -532,13 +532,13 @@ void LLFloaterTexturePicker::draw()
 		mTexturep = NULL;
 		if(mImageAssetID.notNull())
 		{
-			mTexturep = gImageList.getImage(mImageAssetID, MIPMAP_YES, IMMEDIATE_NO);
-			mTexturep->setBoostLevel(LLViewerImage::BOOST_PREVIEW);
+			mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES, IMMEDIATE_NO);
+			mTexturep->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
 		}
 		else if (!mFallbackImageName.empty())
 		{
-			mTexturep = gImageList.getImageFromFile(mFallbackImageName);
-			mTexturep->setBoostLevel(LLViewerImage::BOOST_PREVIEW);
+			mTexturep = LLViewerTextureManager::getFetchedTextureFromFile(mFallbackImageName);
+			mTexturep->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
 		}
 
 		if (mTentativeLabel)
@@ -1191,14 +1191,14 @@ void LLTextureCtrl::draw()
 	}
 	else if (!mImageAssetID.isNull())
 	{
-		mTexturep = gImageList.getImage(mImageAssetID, MIPMAP_YES, IMMEDIATE_NO);
-		mTexturep->setBoostLevel(LLViewerImage::BOOST_PREVIEW);
+		mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES, IMMEDIATE_NO);
+		mTexturep->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
 	}
 	else if (!mFallbackImageName.empty())
 	{
 		// Show fallback image.
-		mTexturep = gImageList.getImageFromFile(mFallbackImageName);
-		mTexturep->setBoostLevel(LLViewerImage::BOOST_PREVIEW);
+		mTexturep = LLViewerTextureManager::getFetchedTextureFromFile(mFallbackImageName);
+		mTexturep->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
 	}
 	
 	// Border

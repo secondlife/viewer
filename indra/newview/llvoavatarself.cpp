@@ -69,7 +69,7 @@
 #include "lltoolmorph.h"
 #include "lltrans.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
@@ -103,7 +103,7 @@ struct LocalTextureData
 		mWearableID(IMG_DEFAULT_AVATAR),
 		mTexEntry(NULL)
 	{}
-	LLPointer<LLViewerImage> mImage;
+	LLPointer<LLViewerFetchedTexture> mImage;
 	BOOL mIsBakedReady;
 	S32 mDiscard;
 	LLUUID mWearableID;	// UUID of the wearable that this texture belongs to, not of the image itself
@@ -675,7 +675,7 @@ void LLVOAvatarSelf::stopMotionFromSource(const LLUUID& source_id)
 }
 
 // virtual
-void LLVOAvatarSelf::setLocalTextureTE(U8 te, LLViewerImage* image, BOOL set_by_user, U32 index)
+void LLVOAvatarSelf::setLocalTextureTE(U8 te, LLViewerTexture* image, BOOL set_by_user, U32 index)
 {
 	if (te >= TEX_NUM_INDICES)
 	{
@@ -716,9 +716,10 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
 		const S32 te = mBakedTextureDatas[i].mTextureIndex;
-		if (getTEImage(te)->isMissingAsset())
+		LLViewerTexture* tex = getTEImage(te) ;
+		if (!tex || tex->isMissingAsset())
 		{
-			setTEImage(te, gImageList.getImage(IMG_DEFAULT_AVATAR));
+			setTEImage(te, LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR));
 			removed = TRUE;
 		}
 	}
@@ -1008,7 +1009,7 @@ LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *viewer_obj
 }
 
 // virtual
-void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerImage *src_vi, LLImageRaw* src_raw, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src_raw, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {	
 	//llinfos << "onLocalTextureLoaded: " << src_vi->getID() << llendl;
 
@@ -1074,9 +1075,9 @@ BOOL LLVOAvatarSelf::getLocalTextureRaw(ETextureIndex index, LLImageRaw* image_r
 */
 
 // virtual
-BOOL LLVOAvatarSelf::getLocalTextureGL(ETextureIndex type, LLImageGL** image_gl_pp, U32 index) const
+BOOL LLVOAvatarSelf::getLocalTextureGL(ETextureIndex type, LLViewerTexture** tex_pp, U32 index) const
 {
-	*image_gl_pp = NULL;
+	*tex_pp = NULL;
 
 	if (!isIndexLocalTexture(type)) return FALSE;
 	if (getLocalTextureID(type, index) == IMG_DEFAULT_AVATAR) return TRUE;
@@ -1086,7 +1087,7 @@ BOOL LLVOAvatarSelf::getLocalTextureGL(ETextureIndex type, LLImageGL** image_gl_
 	{
 		return FALSE;
 	}
-	*image_gl_pp = local_tex_data->mImage;
+	*tex_pp = local_tex_data->mImage;
 	return TRUE;
 }
 
@@ -1230,7 +1231,7 @@ void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL set_by_u
 		llassert(isSelf());
 
 		ETextureIndex baked_te = getBakedTE( layerset );
-		setTEImage( baked_te, gImageList.getImage(IMG_DEFAULT_AVATAR) );
+		setTEImage( baked_te, LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR) );
 		layerset->requestUpload();
 	}
 }
@@ -1319,12 +1320,12 @@ void LLVOAvatarSelf::getLocalTextureByteCount(S32* gl_bytes) const
 			const LocalTextureData *local_tex_data = local_tex_vec[num];
 			if (local_tex_data)
 			{
-				const LLViewerImage* image_gl = local_tex_data->mImage;
+				const LLViewerFetchedTexture* image_gl = local_tex_data->mImage;
 				if (image_gl)
 				{
 					S32 bytes = (S32)image_gl->getWidth() * image_gl->getHeight() * image_gl->getComponents();
 					
-					if (image_gl->getHasGLTexture())
+					if (image_gl->hasValidGLTexture())
 					{
 						*gl_bytes += bytes;
 					}
@@ -1335,9 +1336,15 @@ void LLVOAvatarSelf::getLocalTextureByteCount(S32* gl_bytes) const
 }
 
 // virtual 
-void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerImage* tex, BOOL baked_version_ready, U32 index)
+void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_tex, BOOL baked_version_ready, U32 index)
 {
 	if (!isIndexLocalTexture(type)) return;
+
+	LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(src_tex, TRUE) ;
+	if(!tex)
+	{
+		return ;
+	}
 
 	S32 desired_discard = isSelf() ? 0 : 2;
 	LocalTextureData *local_tex_data = getLocalTextureData(type,index);
@@ -1415,7 +1422,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 			}
 			else
 			{
-				const LLViewerImage* image = local_tex_data->mImage;
+				const LLViewerFetchedTexture* image = local_tex_data->mImage;
 
 				llinfos << "LocTex " << name << ": "
 						<< "Discard " << image->getDiscardLevel() << ", "
@@ -1431,7 +1438,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 		}
 		else
 		{
-			llinfos << "LocTex " << name << ": No LLViewerImage" << llendl;
+			llinfos << "LocTex " << name << ": No LLViewerTexture" << llendl;
 		}
 	}
 }
@@ -1441,7 +1448,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 // onLocalTextureLoaded()
 //-----------------------------------------------------------------------------
 
-void LLVOAvatarSelf::onLocalTextureLoaded(BOOL success, LLViewerImage *src_vi, LLImageRaw* src_raw, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+void LLVOAvatarSelf::onLocalTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src_raw, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {
 	LLAvatarTexData *data = (LLAvatarTexData *)userdata;
 	LLVOAvatarSelf *self = (LLVOAvatarSelf *)gObjectList.findObject(data->mAvatarID);
@@ -1555,8 +1562,8 @@ BOOL LLVOAvatarSelf::updateIsFullyLoaded()
 				continue;
 
 			// Check for the case that texture is defined but not sufficiently loaded to display anything.
-			LLViewerImage* baked_img = getImage( texture_data.mTextureIndex );
-			if (!baked_img || !baked_img->getHasGLTexture())
+			LLViewerTexture* baked_img = getImage( texture_data.mTextureIndex );
+			if (!baked_img || !baked_img->hasValidGLTexture())
 			{
 				loading = TRUE;
 			}
@@ -1646,7 +1653,7 @@ BOOL LLVOAvatarSelf::canGrabLocalTexture(ETextureIndex type, U32 index) const
 	return TRUE;
 }
 
-void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerImage* imagep,
+void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTexture* imagep,
 										   F32 texel_area_ratio, BOOL render_avatar, BOOL covered_by_baked, U32 index )
 {
 	if (!isIndexLocalTexture(type)) return;
@@ -1698,7 +1705,7 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 {
 	// Baked textures live on other sims.
 	LLHost target_host = getObjectHost();	
-	setTEImage( te, gImageList.getImageFromHost( uuid, target_host ) );
+	setTEImage( te, LLViewerTextureManager::getFetchedTextureFromHost( uuid, target_host ) );
 	updateMeshTextures();
 	dirtyMesh();
 

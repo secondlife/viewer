@@ -49,7 +49,7 @@
 
 #include "llsky.h"
 #include "llvieweraudio.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerthrottle.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
@@ -212,7 +212,7 @@ static bool handleMaxPartCountChanged(const LLSD& newvalue)
 
 static bool handleVideoMemoryChanged(const LLSD& newvalue)
 {
-	gImageList.updateMaxResidentTexMem(newvalue.asInteger());
+	gTextureList.updateMaxResidentTexMem(newvalue.asInteger());
 	return true;
 }
 

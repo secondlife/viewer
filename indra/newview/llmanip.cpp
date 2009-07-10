@@ -40,7 +40,7 @@
 #include "llrender.h"
 #include "llprimitive.h"
 #include "llview.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 
 #include "llagent.h"
 #include "llviewercontrol.h"

@@ -42,8 +42,8 @@
 // Project includes
 #include "llui.h"
 #include "llagent.h"
-#include "llviewerimage.h"
-#include "llviewerimagelist.h"
+#include "llviewertexture.h"
+#include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llmoveview.h"
 
@@ -552,7 +552,7 @@ void LLJoystickCameraRotate::draw()
 }
 
 // Draws image rotated by multiples of 90 degrees
-void LLJoystickCameraRotate::drawRotatedImage( LLImageGL* image, S32 rotations )
+void LLJoystickCameraRotate::drawRotatedImage( LLTexture* image, S32 rotations )
 {
 	S32 width = image->getWidth();
 	S32 height = image->getHeight();

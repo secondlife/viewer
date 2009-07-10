@@ -60,8 +60,8 @@
 #include "llsdutil.h"
 #include "llstatusbar.h"
 #include "llui.h"
-#include "llviewerimage.h"
-#include "llviewerimagelist.h"
+#include "llviewertexture.h"
+#include "llviewertexturelist.h"
 #include "llviewermenu.h"
 #include "llviewerparcelmedia.h"
 #include "llviewerparceloverlay.h"
@@ -80,8 +80,8 @@ U8* LLViewerParcelMgr::sPackedOverlay = NULL;
 
 LLUUID gCurrentMovieID = LLUUID::null;
 
-LLPointer<LLViewerImage> sBlockedImage;
-LLPointer<LLViewerImage> sPassImage;
+LLPointer<LLViewerTexture> sBlockedImage;
+LLPointer<LLViewerTexture> sPassImage;
 
 // Local functions
 void optionally_start_music(const std::string& music_url);
@@ -143,8 +143,8 @@ LLViewerParcelMgr::LLViewerParcelMgr()
 	mCollisionSegments = new U8[(mParcelsPerEdge+1)*(mParcelsPerEdge+1)];
 	resetSegments(mCollisionSegments);
 
-	mBlockedImage = gImageList.getImageFromFile("noentrylines.j2c");
-	mPassImage = gImageList.getImageFromFile("noentrypasslines.j2c");
+	mBlockedImage = LLViewerTextureManager::getFetchedTextureFromFile("noentrylines.j2c");
+	mPassImage = LLViewerTextureManager::getFetchedTextureFromFile("noentrypasslines.j2c");
 
 	S32 overlay_size = mParcelsPerEdge * mParcelsPerEdge / PARCEL_OVERLAY_CHUNKS;
 	sPackedOverlay = new U8[overlay_size];
@@ -2382,12 +2382,12 @@ void LLViewerParcelMgr::cleanupGlobals()
 	LLParcelSelection::sNullSelection = NULL;
 }
 
-LLViewerImage* LLViewerParcelMgr::getBlockedImage() const
+LLViewerTexture* LLViewerParcelMgr::getBlockedImage() const
 {
 	return sBlockedImage;
 }
 
-LLViewerImage* LLViewerParcelMgr::getPassImage() const
+LLViewerTexture* LLViewerParcelMgr::getPassImage() const
 {
 	return sPassImage;
 }

@@ -80,7 +80,7 @@ public:
 	BOOL					getMultiplyBlend() const;
 
 private:
-	LLPointer<LLImageGL>	mCachedProcessedImageGL;
+	LLPointer<LLViewerTexture>	mCachedProcessedTexture;
 	LLPointer<LLImageTGA>	mStaticImageTGA;
 	LLPointer<LLImageRaw>	mStaticImageRaw;
 	BOOL					mNeedsCreateTexture;

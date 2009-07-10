@@ -39,6 +39,7 @@
 
 #include "llfloater.h"
 #include "llpointer.h"	// LLPointer<>
+//#include "llviewertexturelist.h"
 #include "llsafehandle.h"
 
 typedef std::set<LLUUID, lluuid_less> uuid_list_t;

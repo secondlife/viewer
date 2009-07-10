@@ -72,6 +72,7 @@ public:
 	}
 };
 
+class LLTexture ;
 // We need to supply dummy images
 class TestImageProvider : public LLImageProviderInterface
 {
@@ -92,7 +93,7 @@ public:
 
 	LLPointer<LLUIImage> makeImage()
 	{
-		LLPointer<LLImageGL> image_gl;
+		LLPointer<LLTexture> image_gl;
 		LLPointer<LLUIImage> image = new LLUIImage( std::string(), image_gl);
 		return image;
 	}

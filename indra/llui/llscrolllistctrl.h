@@ -44,7 +44,6 @@
 #include "llfontgl.h"
 #include "llui.h"
 #include "llstring.h"	// LLWString
-//#include "llimagegl.h"
 #include "lleditmenuhandler.h"
 #include "llframetimer.h"
 

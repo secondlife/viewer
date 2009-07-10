@@ -39,7 +39,7 @@
 #include "lluiimage.h"
 #include "llui.h"
 
-LLUIImage::LLUIImage(const std::string& name, LLPointer<LLImageGL> image) :
+LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image) :
 						mName(name),
 						mImage(image),
 						mScaleRegion(0.f, 1.f, 1.f, 0.f),

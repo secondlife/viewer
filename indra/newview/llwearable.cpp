@@ -35,7 +35,7 @@
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llfloatercustomize.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llinventorymodel.h"
 #include "llviewerregion.h"
 #include "llvoavatar.h"
@@ -459,7 +459,7 @@ BOOL LLWearable::isDirty() const
 	{
 		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
-			LLViewerImage* avatar_image = avatar->getTEImage( te );
+			LLViewerTexture* avatar_image = avatar->getTEImage( te );
 			if( !avatar_image )
 			{
 				llassert( 0 );
@@ -559,7 +559,7 @@ void LLWearable::writeToAvatar( BOOL set_by_user )
 		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
 			const LLUUID& image_id = get_if_there(mTEMap, te, LLVOAvatarDictionary::getDefaultTextureImageID((ETextureIndex) te));
-			LLViewerImage* image = gImageList.getImage( image_id );
+			LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( image_id, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE );
 			avatar->setLocalTextureTE(te, image, set_by_user);
 		}
 	}
@@ -631,7 +631,7 @@ void LLWearable::removeFromAvatar( EWearableType type, BOOL set_by_user )
 	}
 
 	// Pull textures
-	LLViewerImage* image = gImageList.getImage( IMG_DEFAULT_AVATAR );
+	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( IMG_DEFAULT_AVATAR );
 	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
 		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == type)
@@ -682,7 +682,7 @@ void LLWearable::readFromAvatar()
 	{
 		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
-			LLViewerImage* image = avatar->getTEImage( te );
+			LLViewerTexture* image = avatar->getTEImage( te );
 			if( image )
 			{
 				mTEMap[te] = image->getID();

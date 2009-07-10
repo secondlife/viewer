@@ -40,7 +40,6 @@
 #include "llfocusmgr.h"
 #include "llkeyboard.h"			// for the MASK constants
 #include "llcontrol.h"
-#include "llimagegl.h"
 #include "lluictrlfactory.h"
 
 static LLDefaultChildRegistry::Register<LLSlider> r1("slider_bar");

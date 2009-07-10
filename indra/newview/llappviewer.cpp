@@ -42,7 +42,7 @@
 #include "lltexteditor.h"
 #include "llalertdialog.h"
 #include "llerrorcontrol.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llgroupmgr.h"
 #include "llagent.h"
 #include "llagentwearables.h"
@@ -1440,10 +1440,10 @@ bool LLAppViewer::cleanup()
 	LLMetricPerformanceTester::cleanClass() ;
 
 	//Note:
-	//LLViewerMedia::cleanupClass() has to be put before gImageList.shutdown()
+	//LLViewerMedia::cleanupClass() has to be put before gTextureList.shutdown()
 	//because some new image might be generated during cleaning up media. --bao
 	LLViewerMedia::cleanupClass();
-	gImageList.shutdown(); // shutdown again in case a callback added something
+	gTextureList.shutdown(); // shutdown again in case a callback added something
 	LLUIImageList::getInstance()->cleanUp();
 	
 	// This should eventually be done in LLAppViewer

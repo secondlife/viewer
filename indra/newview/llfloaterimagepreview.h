@@ -44,11 +44,13 @@ class LLVOAvatar;
 class LLTextBox;
 class LLVertexBuffer;
 
-class LLImagePreviewSculpted : public LLDynamicTexture
+class LLImagePreviewSculpted : public LLViewerDynamicTexture
 {
- public:
-	LLImagePreviewSculpted(S32 width, S32 height);
+protected:
 	virtual ~LLImagePreviewSculpted();
+
+ public:
+	LLImagePreviewSculpted(S32 width, S32 height);	
 
 	void setPreviewTarget(LLImageRaw *imagep, F32 distance);
 	void setTexture(U32 name) { mTextureName = name; }
@@ -73,11 +75,13 @@ class LLImagePreviewSculpted : public LLDynamicTexture
 };
 
 
-class LLImagePreviewAvatar : public LLDynamicTexture
+class LLImagePreviewAvatar : public LLViewerDynamicTexture
 {
-public:
-	LLImagePreviewAvatar(S32 width, S32 height);
+protected:
 	virtual ~LLImagePreviewAvatar();
+
+public:
+	LLImagePreviewAvatar(S32 width, S32 height);	
 
 	void setPreviewTarget(const std::string& joint_name, const std::string& mesh_name, LLImageRaw* imagep, F32 distance, BOOL male);
 	void setTexture(U32 name) { mTextureName = name; }
@@ -127,13 +131,13 @@ protected:
 	bool			loadImage(const std::string& filename);
 
 	LLPointer<LLImageRaw> mRawImagep;
-	LLImagePreviewAvatar* mAvatarPreview;
-	LLImagePreviewSculpted* mSculptedPreview;
+	LLPointer<LLImagePreviewAvatar> mAvatarPreview;
+	LLPointer<LLImagePreviewSculpted> mSculptedPreview;
 	S32				mLastMouseX;
 	S32				mLastMouseY;
 	LLRect			mPreviewRect;
 	LLRectf			mPreviewImageRect;
-	LLPointer<LLImageGL> mImagep ;
+	LLPointer<LLViewerTexture> mImagep ;
 
 	static S32		sUploadAmount;
 };

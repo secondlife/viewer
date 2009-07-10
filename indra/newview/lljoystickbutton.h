@@ -35,7 +35,7 @@
 
 #include "llbutton.h"
 #include "llcoord.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 
 typedef enum e_joystick_quadrant
 {
@@ -150,7 +150,7 @@ public:
 protected:
 	F32				getOrbitRate();
 	virtual void	updateSlop();
-	void			drawRotatedImage( LLImageGL* image, S32 rotations );
+	void			drawRotatedImage( LLTexture* image, S32 rotations );
 
 protected:
 	BOOL			mInLeft;

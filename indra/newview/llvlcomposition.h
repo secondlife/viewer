@@ -34,7 +34,7 @@
 #define LL_LLVLCOMPOSITION_H
 
 #include "llviewerlayer.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 
 class LLSurface;
 
@@ -62,7 +62,7 @@ public:
 		CORNER_COUNT = 4
 	};
 	LLUUID getDetailTextureID(S32 corner);
-	LLViewerImage* getDetailTexture(S32 corner);
+	LLViewerFetchedTexture* getDetailTexture(S32 corner);
 	F32 getStartHeight(S32 corner);
 	F32 getHeightRange(S32 corner);
 
@@ -79,7 +79,7 @@ protected:
 	LLSurface *mSurfacep;
 	BOOL mTexturesLoaded;
 
-	LLPointer<LLViewerImage> mDetailTextures[CORNER_COUNT];
+	LLPointer<LLViewerFetchedTexture> mDetailTextures[CORNER_COUNT];
 	LLPointer<LLImageRaw> mRawImages[CORNER_COUNT];
 
 	F32 mStartHeight[CORNER_COUNT];

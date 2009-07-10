@@ -35,14 +35,13 @@
 #include "llhudeffecttrail.h"
 
 #include "llviewercontrol.h"
-#include "llimagegl.h"
 #include "message.h"
 
 #include "llagent.h"
 #include "llbox.h"
 #include "lldrawable.h"
 #include "llhudrender.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerobjectlist.h"
 #include "llviewerpartsim.h"
 #include "llviewerpartsource.h"

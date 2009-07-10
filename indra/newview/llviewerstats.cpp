@@ -45,7 +45,7 @@
 #include "pipeline.h" 
 #include "lltexturefetch.h" 
 #include "llviewerobjectlist.h" 
-#include "llviewerimagelist.h" 
+#include "llviewertexturelist.h" 
 #include "lltexlayer.h"
 #include "lltexlayerparams.h"
 #include "llsurface.h"
@@ -424,7 +424,7 @@ void output_statistics(void*)
 {
 	llinfos << "Number of orphans: " << gObjectList.getOrphanCount() << llendl;
 	llinfos << "Number of dead objects: " << gObjectList.mNumDeadObjects << llendl;
-	llinfos << "Num images: " << gImageList.getNumImages() << llendl;
+	llinfos << "Num images: " << gTextureList.getNumImages() << llendl;
 	llinfos << "Texture usage: " << LLImageGL::sGlobalTextureMemoryInBytes << llendl;
 	llinfos << "Texture working set: " << LLImageGL::sBoundTextureMemoryInBytes << llendl;
 	llinfos << "Raw usage: " << LLImageRaw::sGlobalRawMemory << llendl;
@@ -567,7 +567,7 @@ void update_statistics(U32 frame_count)
 {
 	gTotalWorldBytes += gVLManager.getTotalBytes();
 	gTotalObjectBytes += gObjectBits / 8;
-	gTotalTextureBytes += gImageList.mTextureBits / 8;
+	gTotalTextureBytes += gTextureList.mTextureBits / 8;
 
 	// make sure we have a valid time delta for this frame
 	if (gFrameIntervalSeconds > 0.f)
@@ -619,7 +619,7 @@ void update_statistics(U32 frame_count)
 	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
 	LLViewerStats::getInstance()->mLayersKBitStat.addValue(layer_bits/1024.f);
 	LLViewerStats::getInstance()->mObjectKBitStat.addValue(gObjectBits/1024.f);
-	LLViewerStats::getInstance()->mTextureKBitStat.addValue(gImageList.mTextureBits/1024.f);
+	LLViewerStats::getInstance()->mTextureKBitStat.addValue(gTextureList.mTextureBits/1024.f);
 	LLViewerStats::getInstance()->mVFSPendingOperations.addValue(LLVFile::getVFSThread()->getPending());
 	LLViewerStats::getInstance()->mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
@@ -633,7 +633,7 @@ void update_statistics(U32 frame_count)
 		gDebugTimers[0].unpause();
 	}
 	
-	LLViewerStats::getInstance()->mTexturePacketsStat.addValue(gImageList.mTexturePackets);
+	LLViewerStats::getInstance()->mTexturePacketsStat.addValue(gTextureList.mTexturePackets);
 
 	{
 		static F32 visible_avatar_frames = 0.f;
@@ -654,8 +654,8 @@ void update_statistics(U32 frame_count)
 	gObjectBits = 0;
 //	gDecodedBits = 0;
 
-	gImageList.mTextureBits = 0;
-	gImageList.mTexturePackets = 0;
+	gTextureList.mTextureBits = 0;
+	gTextureList.mTexturePackets = 0;
 
 }
 

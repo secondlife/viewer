@@ -43,7 +43,6 @@
 #include "v4color.h"
 #include "llrender.h"
 #include "llrect.h"
-#include "llimagegl.h"
 #include "lldir.h"
 #include "llfontgl.h"
 
@@ -424,7 +423,7 @@ void gl_corners_2d(S32 left, S32 top, S32 right, S32 bottom, S32 length, F32 max
 }
 
 
-void gl_draw_image( S32 x, S32 y, LLImageGL* image, const LLColor4& color, const LLRectf& uv_rect )
+void gl_draw_image( S32 x, S32 y, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect )
 {
 	if (NULL == image)
 	{
@@ -434,7 +433,7 @@ void gl_draw_image( S32 x, S32 y, LLImageGL* image, const LLColor4& color, const
 	gl_draw_scaled_rotated_image( x, y, image->getWidth(0), image->getHeight(0), 0.f, image, color, uv_rect );
 }
 
-void gl_draw_scaled_image(S32 x, S32 y, S32 width, S32 height, LLImageGL* image, const LLColor4& color, const LLRectf& uv_rect)
+void gl_draw_scaled_image(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect)
 {
 	if (NULL == image)
 	{
@@ -444,7 +443,7 @@ void gl_draw_scaled_image(S32 x, S32 y, S32 width, S32 height, LLImageGL* image,
 	gl_draw_scaled_rotated_image( x, y, width, height, 0.f, image, color, uv_rect );
 }
 
-void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border_height, S32 width, S32 height, LLImageGL* image, const LLColor4& color, BOOL solid_color, const LLRectf& uv_rect)
+void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border_height, S32 width, S32 height, LLTexture* image, const LLColor4& color, BOOL solid_color, const LLRectf& uv_rect)
 {
 	if (NULL == image)
 	{
@@ -460,7 +459,7 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border
 	gl_draw_scaled_image_with_border(x, y, width, height, image, color, solid_color, uv_rect, scale_rect);
 }
 
-void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLImageGL* image, const LLColor4& color, BOOL solid_color, const LLRectf& uv_rect, const LLRectf& scale_rect)
+void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4& color, BOOL solid_color, const LLRectf& uv_rect, const LLRectf& scale_rect)
 {
 	stop_glerror();
 
@@ -646,12 +645,12 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLIma
 	}
 }
 
-void gl_draw_rotated_image(S32 x, S32 y, F32 degrees, LLImageGL* image, const LLColor4& color, const LLRectf& uv_rect)
+void gl_draw_rotated_image(S32 x, S32 y, F32 degrees, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect)
 {
 	gl_draw_scaled_rotated_image( x, y, image->getWidth(0), image->getHeight(0), degrees, image, color, uv_rect );
 }
 
-void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degrees, LLImageGL* image, const LLColor4& color, const LLRectf& uv_rect)
+void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degrees, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect)
 {
 	if (NULL == image)
 	{
@@ -697,7 +696,7 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 }
 
 
-void gl_draw_scaled_image_inverted(S32 x, S32 y, S32 width, S32 height, LLImageGL* image, const LLColor4& color, const LLRectf& uv_rect)
+void gl_draw_scaled_image_inverted(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect)
 {
 	if (NULL == image)
 	{

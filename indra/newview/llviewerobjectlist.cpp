@@ -66,7 +66,7 @@
 #include "lltoolpie.h"
 #include "llkeyboard.h"
 #include "u64.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "lldatapacker.h"
 #ifdef LL_STANDALONE
 #include <zlib.h>
@@ -558,7 +558,7 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	{
 		num_updates = mObjects.count() - mCurLazyUpdateIndex;
 		max_value = mObjects.count();
-		gImageList.setUpdateStats(TRUE);
+		gTextureList.setUpdateStats(TRUE);
 	}
 	else
 	{

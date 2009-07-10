@@ -33,26 +33,28 @@
 #ifndef LL_LLUIIMAGE_H
 #define LL_LLUIIMAGE_H
 
-//#include "llgl.h"
-#include "llimagegl.h"
+#include "v4color.h"
+#include "llpointer.h"
+#include "llrefcount.h"
 #include "llrefcount.h"
 #include "llrect.h"
 #include <boost/function.hpp>
 #include "llinitparam.h"
+#include "lltexture.h"
 
 extern const LLColor4 UI_VERTEX_COLOR;
 
 class LLUIImage : public LLRefCount
 {
 public:
-	LLUIImage(const std::string& name, LLPointer<LLImageGL> image);
+	LLUIImage(const std::string& name, LLPointer<LLTexture> image);
 	virtual ~LLUIImage();
 
 	void setClipRegion(const LLRectf& region);
 	void setScaleRegion(const LLRectf& region);
 
-	LLPointer<LLImageGL> getImage() { return mImage; }
-	const LLPointer<LLImageGL>& getImage() const { return mImage; }
+	LLPointer<LLTexture> getImage() { return mImage; }
+	const LLPointer<LLTexture>& getImage() const { return mImage; }
 
 	void draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color = UI_VERTEX_COLOR) const;
 	void draw(S32 x, S32 y, const LLColor4& color = UI_VERTEX_COLOR) const;
@@ -79,7 +81,7 @@ protected:
 	std::string			mName;
 	LLRectf				mScaleRegion;
 	LLRectf				mClipRegion;
-	LLPointer<LLImageGL> mImage;
+	LLPointer<LLTexture> mImage;
 	BOOL				mUniformScaling;
 	BOOL				mNoClip;
 };

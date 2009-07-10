@@ -37,7 +37,6 @@
 #include "llstl.h"
 #include "llviewercontrol.h"
 #include "lldir.h"
-#include "llimagegl.h"
 #include "m3math.h"
 #include "m4math.h"
 #include "v4math.h"
@@ -51,7 +50,7 @@
 #include "llsky.h"
 #include "lltextureentry.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
 #include "llviewershadermgr.h"
@@ -143,9 +142,10 @@ void LLStandardBumpmap::restoreGL()
 // 		llinfos << "Loading bumpmap: " << bump_image_id << " from viewerart" << llendl;
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mLabel = label;
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage = 
-			gImageList.getImage(LLUUID(bump_image_id),
+			LLViewerTextureManager::getFetchedTexture(LLUUID(bump_image_id),
 										TRUE, 
 										FALSE, 
+										LLViewerTexture::LOD_TEXTURE,
 										0, 
 										0);																								
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->setLoadedCallback(LLBumpImageList::onSourceStandardLoaded, 0, TRUE, FALSE, NULL );
@@ -569,22 +569,23 @@ void LLDrawPoolBump::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL
 // static
 BOOL LLDrawPoolBump::bindBumpMap(LLDrawInfo& params, S32 channel)
 {
-	LLImageGL* bump = NULL;
+	LLViewerTexture* bump = NULL;
 
 	U8 bump_code = params.mBump;
-	LLViewerImage* tex = params.mTexture;
+	LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(params.mTexture) ;
+	if(!tex)
+	{
+		//if the texture is not a fetched texture
+		return FALSE;
+	}
 
 	switch( bump_code )
 	{
-	case BE_NO_BUMP:
-		bump = NULL;
+	case BE_NO_BUMP:		
 		break;
 	case BE_BRIGHTNESS: 
 	case BE_DARKNESS:
-		if( tex )
-		{
-			bump = gBumpImageList.getBrightnessDarknessImage( tex, bump_code );
-		}
+		bump = gBumpImageList.getBrightnessDarknessImage( tex, bump_code );		
 		break;
 
 	default:
@@ -812,7 +813,7 @@ LLBumpImageList::~LLBumpImageList()
 void LLBumpImageList::addTextureStats(U8 bump, const LLUUID& base_image_id, F32 virtual_size)
 {
 	bump &= TEM_BUMP_MASK;
-	LLViewerImage* bump_image = gStandardBumpmapList[bump].mImage;
+	LLViewerFetchedTexture* bump_image = gStandardBumpmapList[bump].mImage;
 	if( bump_image )
 	{
 		bump_image->addTextureStats(virtual_size);
@@ -826,11 +827,11 @@ void LLBumpImageList::updateImages()
 	for (bump_image_map_t::iterator iter = mBrightnessEntries.begin(); iter != mBrightnessEntries.end(); )
 	{
 		bump_image_map_t::iterator curiter = iter++;
-		LLImageGL* image = curiter->second;
+		LLViewerTexture* image = curiter->second;
 		if( image )
 		{
 			BOOL destroy = TRUE;
-			if( image->getHasGLTexture())
+			if( image->hasValidGLTexture())
 			{
 				if( image->getBoundRecently() )
 				{
@@ -853,11 +854,11 @@ void LLBumpImageList::updateImages()
 	for (bump_image_map_t::iterator iter = mDarknessEntries.begin(); iter != mDarknessEntries.end(); )
 	{
 		bump_image_map_t::iterator curiter = iter++;
-		LLImageGL* image = curiter->second;
+		LLViewerTexture* image = curiter->second;
 		if( image )
 		{
 			BOOL destroy = TRUE;
-			if( image->getHasGLTexture())
+			if( image->hasValidGLTexture())
 			{
 				if( image->getBoundRecently() )
 				{
@@ -881,16 +882,16 @@ void LLBumpImageList::updateImages()
 
 
 // Note: the caller SHOULD NOT keep the pointer that this function returns.  It may be updated as more data arrives.
-LLImageGL* LLBumpImageList::getBrightnessDarknessImage(LLViewerImage* src_image, U8 bump_code )
+LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedTexture* src_image, U8 bump_code )
 {
 	llassert( (bump_code == BE_BRIGHTNESS) || (bump_code == BE_DARKNESS) );
 
-	LLImageGL* bump = NULL;
+	LLViewerTexture* bump = NULL;
 	const F32 BRIGHTNESS_DARKNESS_PIXEL_AREA_THRESHOLD = 1000;
-	if( src_image->mMaxVirtualSize > BRIGHTNESS_DARKNESS_PIXEL_AREA_THRESHOLD )
+	if( src_image->getMaxVirtualSize() > BRIGHTNESS_DARKNESS_PIXEL_AREA_THRESHOLD )
 	{
 		bump_image_map_t* entries_list = NULL;
-		void (*callback_func)( BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata ) = NULL;
+		void (*callback_func)( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata ) = NULL;
 
 		switch( bump_code )
 		{
@@ -917,14 +918,8 @@ LLImageGL* LLBumpImageList::getBrightnessDarknessImage(LLViewerImage* src_image,
 			LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,1);
 			raw->clear(0x77, 0x77, 0x77, 0xFF);
 
-			//------------------------------
-			bump = new LLImageGL( raw, TRUE);
-			//immediately assign bump to a global smart pointer in case some local smart pointer
-			//accidently releases it.
-			(*entries_list)[src_image->getID()] = bump;
-			//------------------------------
-
-			bump->setExplicitFormat(GL_ALPHA8, GL_ALPHA);			
+			(*entries_list)[src_image->getID()] = LLViewerTextureManager::getLocalTexture( raw.get(), TRUE);
+			(*entries_list)[src_image->getID()]->setExplicitFormat(GL_ALPHA8, GL_ALPHA);			
 
 			// Note: this may create an LLImageGL immediately
 			src_image->setLoadedCallback( callback_func, 0, TRUE, FALSE, new LLUUID(src_image->getID()) );
@@ -940,7 +935,7 @@ LLImageGL* LLBumpImageList::getBrightnessDarknessImage(LLViewerImage* src_image,
 
 
 // static
-void LLBumpImageList::onSourceBrightnessLoaded( BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
+void LLBumpImageList::onSourceBrightnessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
 {
 	LLUUID* source_asset_id = (LLUUID*)userdata;
 	LLBumpImageList::onSourceLoaded( success, src_vi, src, *source_asset_id, BE_BRIGHTNESS );
@@ -951,7 +946,7 @@ void LLBumpImageList::onSourceBrightnessLoaded( BOOL success, LLViewerImage *src
 }
 
 // static
-void LLBumpImageList::onSourceDarknessLoaded( BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
+void LLBumpImageList::onSourceDarknessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
 {
 	LLUUID* source_asset_id = (LLUUID*)userdata;
 	LLBumpImageList::onSourceLoaded( success, src_vi, src, *source_asset_id, BE_DARKNESS );
@@ -961,7 +956,7 @@ void LLBumpImageList::onSourceDarknessLoaded( BOOL success, LLViewerImage *src_v
 	}
 }
 
-void LLBumpImageList::onSourceStandardLoaded( BOOL success, LLViewerImage* src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+void LLBumpImageList::onSourceStandardLoaded( BOOL success, LLViewerFetchedTexture* src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {
 	if (success && LLPipeline::sRenderDeferred)
 	{
@@ -1028,7 +1023,7 @@ void LLBumpImageList::generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nr
 }
 
 // static
-void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump_code )
+void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump_code )
 {
 	if( success )
 	{
@@ -1147,7 +1142,7 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerImage *src_vi, LLIma
 			//---------------------------------------------------
 			//immediately assign bump to a global smart pointer in case some local smart pointer
 			//accidently releases it.
-			LLPointer<LLImageGL> bump = new LLImageGL( TRUE);
+			LLPointer<LLViewerTexture> bump = LLViewerTextureManager::getLocalTexture( TRUE);
 			
 			if (!LLPipeline::sRenderDeferred)
 			{
@@ -1220,7 +1215,7 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 	{
 		if (params.mTexture.notNull())
 		{
-			gGL.getTexUnit(diffuse_channel)->bind(params.mTexture.get());
+			gGL.getTexUnit(diffuse_channel)->bind(params.mTexture) ;
 			params.mTexture->addTextureStats(params.mVSize);
 		}
 		else

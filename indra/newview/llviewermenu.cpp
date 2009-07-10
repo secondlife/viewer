@@ -183,7 +183,7 @@
 #include "llviewercamera.h"
 #include "llviewergenericmessage.h"
 #include "llviewergesture.h"
-#include "llviewerimagelist.h"	// gImageList
+#include "llviewertexturelist.h"	// gTextureList
 #include "llviewerinventory.h"
 #include "llviewermenufile.h"	// init_menu_file()
 #include "llviewermessage.h"
@@ -1155,7 +1155,7 @@ class LLAdvancedToggleDisableTextures : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLViewerImage::sDontLoadVolumeTextures = !LLViewerImage::sDontLoadVolumeTextures;
+		LLViewerTexture::sDontLoadVolumeTextures = !LLViewerTexture::sDontLoadVolumeTextures;
 		return true;
 	}
 };
@@ -1164,7 +1164,7 @@ class LLAdvancedCheckDisableTextures : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = LLViewerImage::sDontLoadVolumeTextures; // <-- make this using LLCacheControl
+		bool new_value = LLViewerTexture::sDontLoadVolumeTextures; // <-- make this using LLCacheControl
 		return new_value;
 	}
 };
@@ -6345,7 +6345,7 @@ void handle_selected_texture_info(void*)
 		{
 			if (!node->isTESelected(i)) continue;
 
-			LLViewerImage* img = node->getObject()->getTEImage(i);
+			LLViewerTexture* img = node->getObject()->getTEImage(i);
 			LLUUID image_id = img->getID();
 			faces_per_texture[image_id].push_back(i);
 		}
@@ -6355,7 +6355,7 @@ void handle_selected_texture_info(void*)
 		{
 			LLUUID image_id = it->first;
 			U8 te = it->second[0];
-			LLViewerImage* img = node->getObject()->getTEImage(te);
+			LLViewerTexture* img = node->getObject()->getTEImage(te);
 			S32 height = img->getHeight();
 			S32 width = img->getWidth();
 			S32 components = img->getComponents();
