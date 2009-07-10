@@ -738,12 +738,7 @@ BOOL LLComboBox::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_re
 		msg = tool_tip;
 
 		// Convert rect local to screen coordinates
-		localPointToScreen( 
-			0, 0, 
-			&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
-		localPointToScreen(
-			getRect().getWidth(), getRect().getHeight(),
-			&(sticky_rect_screen->mRight), &(sticky_rect_screen->mTop) );
+		*sticky_rect_screen = calcScreenRect();
 	}
 	return TRUE;
 }

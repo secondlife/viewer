@@ -1512,19 +1512,12 @@ BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sti
 		if (hit_cell 
 			&& hit_cell->isText())
 		{
-
 			S32 rect_left = getColumnOffsetFromIndex(column_index) + mItemListRect.mLeft;
 			S32 rect_bottom = getRowOffsetFromIndex(getItemIndex(hit_item));
 			LLRect cell_rect;
 			cell_rect.setOriginAndSize(rect_left, rect_bottom, rect_left + columnp->getWidth(), mLineHeight);
 			// Convert rect local to screen coordinates
-			localPointToScreen( 
-				cell_rect.mLeft, cell_rect.mBottom, 
-				&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
-			localPointToScreen(
-				cell_rect.mRight, cell_rect.mTop, 
-				&(sticky_rect_screen->mRight), &(sticky_rect_screen->mTop) );
-
+			localRectToScreen(cell_rect, sticky_rect_screen);
 			msg = hit_cell->getValue().asString();
 		}
 		handled = TRUE;
@@ -1849,8 +1842,7 @@ S32 LLScrollListCtrl::getColumnOffsetFromIndex(S32 index)
 
 S32 LLScrollListCtrl::getRowOffsetFromIndex(S32 index)
 {
-	S32 row_bottom = ((mItemListRect.mTop - (index - mScrollLines)) * mLineHeight) 
-						- mLineHeight;
+	S32 row_bottom = (mItemListRect.mTop - ((index - mScrollLines + 1) * mLineHeight) );
 	return row_bottom;
 }
 

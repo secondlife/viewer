@@ -333,34 +333,6 @@ BOOL LLScrollContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	return TRUE;
 }
 
-
-BOOL LLScrollContainer::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect)
-{
-	S32 local_x, local_y;
-	for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
-	{
-		local_x = x - mScrollbar[i]->getRect().mLeft;
-		local_y = y - mScrollbar[i]->getRect().mBottom;
-		if( mScrollbar[i]->handleToolTip(local_x, local_y, msg, sticky_rect) )
-		{
-			return TRUE;
-		}
-	}
-	// Handle 'child' view.
-	if( mScrolledView )
-	{
-		local_x = x - mScrolledView->getRect().mLeft;
-		local_y = y - mScrolledView->getRect().mBottom;
-		if( mScrolledView->handleToolTip(local_x, local_y, msg, sticky_rect) )
-		{
-			return TRUE;
-		}
-	}
-
-	// Opaque
-	return TRUE;
-}
-
 void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const
 {
 	const LLRect& rect = mScrolledView->getRect();
@@ -500,12 +472,8 @@ bool LLScrollContainer::addChild(LLView* view, S32 tab_group)
 {
 	if (!mScrolledView)
 	{
-		//*TODO: Move LLFolderView to llui and enable this check
-// 		if (dynamic_cast<LLPanel*>(view) || dynamic_cast<LLContainerView*>(view) || dynamic_cast<LLScrollingPanelList*>(view) || dynamic_cast<LLFolderView*>(view))
-		{
-			// Use the first panel or container as the scrollable view (bit of a hack)
-			mScrolledView = view;
-		}
+		// Use the first panel or container as the scrollable view (bit of a hack)
+		mScrolledView = view;
 	}
 
 	bool ret_val = LLView::addChild(view, tab_group);

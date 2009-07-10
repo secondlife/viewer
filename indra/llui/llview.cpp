@@ -743,12 +743,7 @@ BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_s
 		msg = tool_tip;
 
 		// Convert rect local to screen coordinates
-		localPointToScreen(
-			0, 0,
-			&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
-		localPointToScreen(
-			mRect.getWidth(), mRect.getHeight(),
-			&(sticky_rect_screen->mRight), &(sticky_rect_screen->mTop) );
+		*sticky_rect_screen = calcScreenRect();
 	}
 	// don't allow any siblings to handle this event
 	// even if we don't have a tooltip

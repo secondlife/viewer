@@ -601,11 +601,11 @@ bool LLViewerWindow::shouldShowToolTipFor(LLMouseHandler *mh)
 	{
 		LLMouseHandler::EShowToolTip showlevel = mh->getShowToolTip();
 
-		return (
-			showlevel == LLMouseHandler::SHOW_ALWAYS ||
-			(showlevel == LLMouseHandler::SHOW_IF_NOT_BLOCKED &&
-			 !mToolTipBlocked)
-			);
+		bool tool_tip_allowed = (showlevel == LLMouseHandler::SHOW_ALWAYS 
+								|| (showlevel == LLMouseHandler::SHOW_IF_NOT_BLOCKED 
+									&& !mToolTipBlocked));
+
+		return tool_tip_allowed;
 	}
 	return false;
 }
@@ -2617,57 +2617,91 @@ void LLViewerWindow::updateUI()
 	// Show a new tool tip (or update one that is alrady shown)
 	BOOL tool_tip_handled = FALSE;
 	std::string tool_tip_msg;
-	F32 tooltip_delay = gSavedSettings.getF32( "ToolTipDelay" );
-	//HACK: hack for tool-based tooltips which need to pop up more quickly
-	//Also for show xui names as tooltips debug mode
-	if ((mouse_captor && !mouse_captor->isView()) || LLUI::sShowXUINames)
-	{
-		tooltip_delay = gSavedSettings.getF32( "DragAndDropToolTipDelay" );
-	}
-	if( handled && 
-	    gMouseIdleTimer.getElapsedTimeF32() > tooltip_delay &&
-	    !mWindow->isCursorHidden() )
+	if( handled 
+		&& !mWindow->isCursorHidden()
+		&& mToolTip)
 	{
 		LLRect screen_sticky_rect;
-		LLMouseHandler *mh;
+		LLMouseHandler *tooltip_source = NULL;
 		S32 local_x, local_y;
 		if (mouse_captor)
 		{
 			mouse_captor->screenPointToLocal(x, y, &local_x, &local_y);
-			mh = mouse_captor;
+			tooltip_source = mouse_captor;
 		}
 		else if (handled_by_top_ctrl)
 		{
 			top_ctrl->screenPointToLocal(x, y, &local_x, &local_y);
-			mh = top_ctrl;
+			tooltip_source = top_ctrl;
 		}
 		else
 		{
 			local_x = x; local_y = y;
-			mh = mRootView;
+			tooltip_source = mRootView;
 		}
 
-		BOOL tooltip_vis = FALSE;
-		if (shouldShowToolTipFor(mh))
+		F32 tooltip_delay = gSavedSettings.getF32( "ToolTipDelay" );
+		//HACK: hack for tool-based tooltips which need to pop up more quickly
+		//Also for show xui names as tooltips debug mode
+		if ((gFocusMgr.getMouseCapture() 
+				&& !gFocusMgr.getMouseCapture()->isView()) 
+			|| LLUI::sShowXUINames)
 		{
-			tool_tip_handled = mh->handleToolTip(local_x, local_y, tool_tip_msg, &screen_sticky_rect );
+			tooltip_delay = gSavedSettings.getF32( "DragAndDropToolTipDelay" );
+		}
+
+
+		BOOL tooltip_vis = FALSE;
+		if (shouldShowToolTipFor(tooltip_source))
+		{
+			tool_tip_handled = tooltip_source->handleToolTip(local_x, local_y, tool_tip_msg, &screen_sticky_rect );
 		
+			// if we actually got a tooltip back...
 			if( tool_tip_handled && !tool_tip_msg.empty() )
 			{
-				mToolTipStickyRect = screen_sticky_rect;
-				mToolTip->setWrappedText( tool_tip_msg, 200 );
-				mToolTip->reshapeToFitText();
-				mToolTip->setOrigin( x, y );
-				LLRect virtual_window_rect(0, getWindowHeight(), getWindowWidth(), 0);
-				mToolTip->translateIntoRect( virtual_window_rect, FALSE );
-				tooltip_vis = TRUE;
+				if (mToolTip->getVisible()										// already showing a tooltip
+					|| gMouseIdleTimer.getElapsedTimeF32() > tooltip_delay)		// mouse has been still long enough to show the tooltip
+				{
+					// if tooltip has changed or mouse has moved outside of "sticky" rectangle...
+					if (mLastToolTipMessage != tool_tip_msg
+						|| !mToolTipStickyRect.pointInRect(x, y))
+					{
+						//...update "sticky" rect and tooltip position
+						mToolTipStickyRect = screen_sticky_rect;
+						mToolTip->setOrigin( x, y );
+					}
+
+					// remember this tooltip so we know when it changes
+					mLastToolTipMessage = tool_tip_msg;
+					mToolTip->setWrappedText( tool_tip_msg, 200 );
+					mToolTip->reshapeToFitText();
+					LLRect virtual_window_rect(0, getWindowHeight(), getWindowWidth(), 0);
+					mToolTip->translateIntoRect( virtual_window_rect, FALSE );
+					tooltip_vis = TRUE;
+				}
 			}
 		}
 
-		if (mToolTip)
+		// HACK: assuming tooltip background is in ToolTipBGColor, perform fade out
+		LLColor4 bg_color = LLUIColorTable::instance().getColor( "ToolTipBgColor" );
+		if (tooltip_vis)
 		{
-			mToolTip->setVisible( tooltip_vis );
+			mToolTipFadeTimer.stop();
+			mToolTip->setBackgroundColor(bg_color);
 		}
+		else 
+		{
+			if (!mToolTipFadeTimer.getStarted())
+			{
+				mToolTipFadeTimer.start();
+			}
+			F32 tool_tip_fade_time = gSavedSettings.getF32("ToolTipFadeTime");
+			bg_color.mV[VALPHA] = clamp_rescale(mToolTipFadeTimer.getElapsedTimeF32(), 0.f, tool_tip_fade_time, bg_color.mV[VALPHA], 0.f);
+			mToolTip->setBackgroundColor(bg_color);
+		}
+
+		// above interpolation of bg_color alpha is guaranteed to reach 0.f exactly
+		mToolTip->setVisible( bg_color.mV[VALPHA] != 0.f );
 	}		
 	
 	updateLayout();

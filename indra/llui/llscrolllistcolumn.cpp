@@ -65,8 +65,6 @@ LLScrollColumnHeader::LLScrollColumnHeader(const LLScrollColumnHeader::Params& p
 	resize_bar_p.enabled(false);
 	mResizeBar = LLUICtrlFactory::create<LLResizeBar>(resize_bar_p);
 	addChild(mResizeBar);
-
-	setToolTip(p.label());
 }
 
 LLScrollColumnHeader::~LLScrollColumnHeader()

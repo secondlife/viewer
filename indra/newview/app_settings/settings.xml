@@ -7609,6 +7609,17 @@
       <key>Value</key>
       <real>0.699999988079</real>
     </map>
+    <key>ToolTipFadeTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Seconds over which tooltip fades away</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.2</real>
+    </map>
     <key>ToolboxAutoMove</key>
     <map>
       <key>Comment</key>

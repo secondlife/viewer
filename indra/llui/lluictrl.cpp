@@ -806,38 +806,6 @@ LLUICtrl* LLUICtrl::findRootMostFocusRoot()
 	return focus_root;
 }
 
-
-/*
-// Don't let the children handle the tool tip.  Handle it here instead.
-BOOL LLUICtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
-{
-	BOOL handled = FALSE;
-	if (getVisible() && pointInView( x, y ) ) 
-	{
-		if( !mToolTipMsg.empty() )
-		{
-			msg = mToolTipMsg;
-
-			// Convert rect local to screen coordinates
-			localPointToScreen( 
-				0, 0, 
-				&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
-			localPointToScreen(
-				getRect().getWidth(), getRect().getHeight(),
-				&(sticky_rect_screen->mRight), &(sticky_rect_screen->mTop) );
-
-			handled = TRUE;
-		}
-	}
-
-	if (!handled)
-	{
-		return LLView::handleToolTip(x, y, msg, sticky_rect_screen);
-	}
-
-	return handled;
-}*/
-
 // Skip over any parents that are not LLUICtrl's
 //  Used in focus logic since only LLUICtrl elements can have focus
 LLUICtrl* LLUICtrl::getParentUICtrl() const

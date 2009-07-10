@@ -414,7 +414,9 @@ protected:
 
 	LLProgressView	*mProgressView;
 
+	LLFrameTimer	mToolTipFadeTimer;
 	LLTextBox*		mToolTip;
+	std::string		mLastToolTipMessage;
 	BOOL			mToolTipBlocked;			// True after a key press or a mouse button event.  False once the mouse moves again.
 	LLRect			mToolTipStickyRect;			// Once a tool tip is shown, it will stay visible until the mouse leaves this rect.
 
