@@ -9,6 +9,10 @@ include(Linking)
 include(Boost)
 include (Pth)
 
+if (WINDOWS)
+    include(CopyWinLibs)
+endif (WINDOWS)
+
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
@@ -234,6 +238,10 @@ list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 if(LLCOMMON_LINK_SHARED)
     add_library (llcommon SHARED ${llcommon_SOURCE_FILES})
     add_definitions(-DLL_COMMON_BUILD=1)
+	# *FIX:Mani ---
+	# llcommon.dll get written to the DLL staging directory.
+	# Also this directory is shared with RunBuildTest.cmake, y'know, for the tests.
+	set_target_properties(llcommon PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${SHARED_LIB_STAGING_DIR})
 else(LLCOMMON_LINK_SHARED)
     add_library (llcommon ${llcommon_SOURCE_FILES})
 endif(LLCOMMON_LINK_SHARED)
@@ -249,6 +257,8 @@ target_link_libraries(
     ${BOOST_REGEX_LIBRARY}
     ${PTH_LIBRARIES}
     )
+
+add_dependencies(llcommon stage_third_party_libs)
 
 include(LLAddBuildTest)
 SET(llcommon_TEST_SOURCE_FILES
