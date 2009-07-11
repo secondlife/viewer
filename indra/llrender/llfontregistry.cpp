@@ -104,7 +104,7 @@ bool removeSubString(std::string& str, const std::string& substr)
 	size_t pos = str.find(substr);
 	if (pos != string::npos)
 	{
-		str.replace(pos,substr.length(),(const char *)NULL, 0);
+		str.replace(pos,substr.length(), "", 0);
 		return true;
 	}
 	return false;
