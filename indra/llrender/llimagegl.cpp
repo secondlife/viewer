@@ -262,6 +262,31 @@ void LLImageGL::restoreGL()
 }
 
 //----------------------------------------------------------------------------
+
+//for server side use only.
+//static 
+BOOL LLImageGL::create(LLPointer<LLImageGL>& dest, BOOL usemipmaps)
+{
+	dest = new LLImageGL(usemipmaps);
+	return TRUE;
+}
+
+//for server side use only.
+BOOL LLImageGL::create(LLPointer<LLImageGL>& dest, U32 width, U32 height, U8 components, BOOL usemipmaps)
+{
+	dest = new LLImageGL(width, height, components, usemipmaps);
+	return TRUE;
+}
+
+//for server side use only.
+BOOL LLImageGL::create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, BOOL usemipmaps)
+{
+	dest = new LLImageGL(imageraw, usemipmaps);
+	return TRUE;
+}
+
+//----------------------------------------------------------------------------
+
 LLImageGL::LLImageGL(BOOL usemipmaps)
 	: mSaveData(0)
 {

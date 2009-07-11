@@ -71,7 +71,14 @@ public:
 	static S32 updateBoundTexMem(const S32 delta);
 
 	static bool checkSize(S32 width, S32 height);
-	
+
+	//for server side use only.
+	// Not currently necessary for LLImageGL, but required in some derived classes,
+	// so include for compatability
+	static BOOL create(LLPointer<LLImageGL>& dest, BOOL usemipmaps = TRUE);
+	static BOOL create(LLPointer<LLImageGL>& dest, U32 width, U32 height, U8 components, BOOL usemipmaps = TRUE);
+	static BOOL create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, BOOL usemipmaps = TRUE);
+		
 public:
 	LLImageGL(BOOL usemipmaps = TRUE);
 	LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps = TRUE);
