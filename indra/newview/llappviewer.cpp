@@ -1154,7 +1154,17 @@ bool LLAppViewer::mainLoop()
 
 bool LLAppViewer::cleanup()
 {
-    // *TODO - unload event host module here -brad
+	// *TODO - generalize this and move DSO wrangling to a helper class -brad
+	std::set<struct apr_dso_handle_t *>::const_iterator i;
+	for(i = mPlugins.begin(); i != mPlugins.end(); ++i)
+	{
+		int (*ll_plugin_stop_func)(void) = NULL;
+		apr_status_t rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll_plugin_stop_func, *i, "ll_plugin_stop");
+		ll_plugin_stop_func();
+
+		rv = apr_dso_unload(*i);
+	}
+	mPlugins.clear();
 
 	//----------------------------------------------
 	//this test code will be removed after the test
@@ -4098,7 +4108,7 @@ void LLAppViewer::handleLoginComplete()
 }
 
 // *TODO - generalize this and move DSO wrangling to a helper class -brad
-void LLAppViewer::loadEventHostModule(S32 listen_port) const
+void LLAppViewer::loadEventHostModule(S32 listen_port)
 {
 	std::string dso_name =
 #if LL_WINDOWS
@@ -4133,9 +4143,12 @@ void LLAppViewer::loadEventHostModule(S32 listen_port) const
 	LLSD args;
 	args["listen_port"] = listen_port;
 
-	ll_plugin_start_func(args);
+	int status = ll_plugin_start_func(args);
 
-    args = LLSD();
-    args["MESSAGE"] = "EventHost module loaded successfully";
-    LLNotifications::instance().add("SystemMessageTip", args);
+	if(status != 0)
+	{
+		llwarns << "problem loading eventhost plugin, status: " << status << llendl;
+	}
+
+	mPlugins.insert(eventhost_dso_handle);
 }

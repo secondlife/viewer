@@ -47,6 +47,7 @@ class LLVFS;
 class LLWatchdogTimeout;
 class LLWorkerThread;
 
+struct apr_dso_handle_t;
 
 
 class LLAppViewer : public LLApp
@@ -204,7 +205,7 @@ private:
     void sendLogoutRequest();
     void disconnectViewer();
 
-	void loadEventHostModule(S32 listen_port) const;
+	void loadEventHostModule(S32 listen_port);
 	
 	// *FIX: the app viewer class should be some sort of singleton, no?
 	// Perhaps its child class is the singleton and this should be an abstract base.
@@ -250,6 +251,8 @@ private:
 	LLUUID mAgentRegionLastID;
 
     LLAllocator mAlloc;
+
+	std::set<struct apr_dso_handle_t*> mPlugins;
 
 public:
 	//some information for updater
