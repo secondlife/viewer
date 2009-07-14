@@ -34,7 +34,7 @@
 #include "lllocaltextureobject.h"
 
 #include "lltexlayer.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 #include "lltextureentry.h"
 #include "lluuid.h"
 
@@ -46,7 +46,7 @@ LLLocalTextureObject::LLLocalTextureObject() :
 	mImage = NULL;
 }
 
-LLLocalTextureObject::LLLocalTextureObject(LLViewerImage *image, LLTextureEntry *entry, LLTexLayer *layer, LLUUID id)
+LLLocalTextureObject::LLLocalTextureObject(LLViewerFetchedTexture *image, LLTextureEntry *entry, LLTexLayer *layer, LLUUID id)
 {
 	if (entry)
 	{
@@ -77,7 +77,7 @@ LLLocalTextureObject::~LLLocalTextureObject()
 {
 }
 
-LLViewerImage* LLLocalTextureObject::getImage() const
+LLViewerFetchedTexture* LLLocalTextureObject::getImage() const
 {
 	return mImage;
 }
@@ -107,7 +107,7 @@ BOOL LLLocalTextureObject::getBakedReady() const
 	return mIsBakedReady;
 }
 
-void LLLocalTextureObject::setImage(LLViewerImage* new_image)
+void LLLocalTextureObject::setImage(LLViewerFetchedTexture* new_image)
 {
 	mImage = new_image;
 }

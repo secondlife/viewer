@@ -35,7 +35,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-class LLViewerImage;
+class LLViewerFetchedTexture;
 class LLUUID;
 class LLTexLayer;
 class LLTextureEntry;
@@ -47,18 +47,18 @@ class LLLocalTextureObject
 {
 public:
 	LLLocalTextureObject();
-	LLLocalTextureObject(LLViewerImage *image, LLTextureEntry *entry, LLTexLayer *layer, LLUUID id);
+	LLLocalTextureObject(LLViewerFetchedTexture *image, LLTextureEntry *entry, LLTexLayer *layer, LLUUID id);
 	LLLocalTextureObject(const LLLocalTextureObject &lto);
 	~LLLocalTextureObject();
 
-	LLViewerImage* getImage() const;
+	LLViewerFetchedTexture* getImage() const;
 	LLTextureEntry* getTexEntry() const;
 	LLTexLayer* getTexLayer() const;
 	LLUUID		getID() const;
 	S32			getDiscard() const;
 	BOOL		getBakedReady() const;
 
-	void setImage(LLViewerImage* new_image);
+	void setImage(LLViewerFetchedTexture* new_image);
 	void setTexEntry(LLTextureEntry *new_te);
 	void setTexLayer(LLTexLayer *new_tex_layer);
 	void setID(LLUUID new_id);
@@ -69,7 +69,7 @@ protected:
 
 private:
 
-	LLPointer<LLViewerImage>  			mImage;
+	LLPointer<LLViewerFetchedTexture>  			mImage;
 	// NOTE: LLLocalTextureObject should be the exclusive owner of mTexEntry and mTexLayer
 	// using shared pointers here only for smart assignment & cleanup
 	// do NOT create new shared pointers to these objects, or keep pointers to them around
