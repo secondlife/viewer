@@ -37,6 +37,7 @@
 #include "llgl.h"
 #include "llcoord.h"
 #include "llviewertexture.h"
+#include "llcamera.h"
 
 class LLViewerDynamicTexture : public LLViewerTexture
 {

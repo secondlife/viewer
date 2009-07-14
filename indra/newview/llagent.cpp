@@ -6450,7 +6450,7 @@ void LLAgent::sendAgentSetAppearance()
 				const LLWearable* wearable = gAgentWearables.getWearable(wearable_type,0);
 				if (wearable)
 				{
-					hash ^= wearable->getID();
+					hash ^= wearable->getAssetID();
 				}
 			}
 			if (hash.notNull())

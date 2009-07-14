@@ -53,6 +53,7 @@ class LLTexLayerParamColorInfo;
 class LLTexLayerParamAlpha;
 class LLTexLayerParamAlphaInfo;
 
+
 typedef std::vector<LLTexLayerParamColor *> param_color_list_t;
 typedef std::vector<LLTexLayerParamAlpha *> param_alpha_list_t;
 typedef std::vector<LLTexLayerParamColorInfo *> param_color_info_list_t;
@@ -74,6 +75,7 @@ public:
 	};
 
 	LLTexLayer(LLTexLayerSet* const layer_set);
+	LLTexLayer(const LLTexLayer &layer);
 	~LLTexLayer();
 
 	const LLTexLayerInfo* 	getInfo() const { return mInfo; }

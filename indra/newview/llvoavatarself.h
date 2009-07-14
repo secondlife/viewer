@@ -180,6 +180,8 @@ protected:
 	void				localTextureLoaded(BOOL succcess, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 	void				getLocalTextureByteCount(S32* gl_byte_count) const;
 	/*virtual*/ void	addLocalTextureStats(LLVOAvatarDefines::ETextureIndex i, LLViewerFetchedTexture* imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked, U32 index = 0);
+	LLLocalTextureObject* getLocalTextureObject(LLVOAvatarDefines::ETextureIndex i, U32 index = 0) const;
+
 private:
 	static void			onLocalTextureLoaded(BOOL succcess, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 
@@ -227,20 +229,6 @@ private:
 	static LLMap< LLGLenum, LLGLuint*> sScratchTexNames;
 	static LLMap< LLGLenum, F32*> sScratchTexLastBindTime;
 
-	//--------------------------------------------------------------------
-	// Texture Data
-	//--------------------------------------------------------------------
-private:
-	typedef std::vector<LocalTextureData*> 	localtexture_vec_t; // all textures of a certain TE
-	typedef std::map<LLVOAvatarDefines::ETextureIndex, localtexture_vec_t> localtexture_map_t; // texture TE vectors arranged by texture type
-	localtexture_map_t 						mLocalTextureDatas;
-
-	const localtexture_vec_t&				getLocalTextureData(LLVOAvatarDefines::ETextureIndex index) const; // const accessor into mLocalTextureDatas
-	const LocalTextureData*					getLocalTextureData(LLVOAvatarDefines::ETextureIndex type, U32 index) const; // const accessor to individual LocalTextureData
-
-	localtexture_vec_t&				getLocalTextureData(LLVOAvatarDefines::ETextureIndex index); // accessor into mLocalTextureDatas
-	LocalTextureData*					getLocalTextureData(LLVOAvatarDefines::ETextureIndex type, U32 index); // accessor to individual LocalTextureData
-
 /**                    Textures
  **                                                                            **
  *******************************************************************************/
@@ -278,6 +266,8 @@ public:
 	// HUDs
 	//--------------------------------------------------------------------
 private:
+	U32 getNumWearables(LLVOAvatarDefines::ETextureIndex i) const;
+
 	LLViewerJoint* 		mScreenp; // special purpose joint for HUD attachments
 	
 /**                    Attachments

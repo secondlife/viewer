@@ -246,6 +246,7 @@ set(viewer_SOURCE_FILES
     lllandmarklist.cpp
     lllistbrowser.cpp
     lllistview.cpp
+    lllocaltextureobject.cpp
     lllocationhistory.cpp
     lllocationinputctrl.cpp
     lllogchat.cpp
@@ -670,6 +671,7 @@ set(viewer_HEADER_FILES
     lllightconstants.h
     lllistbrowser.h
     lllistview.h
+    lllocaltextureobject.h
     lllocationhistory.h
     lllocationinputctrl.h
     lllogchat.h

@@ -48,6 +48,7 @@
 #include "llthread.h"		// LLThreadSafeRefCount
 #include "llstring.h"
 #include "llstringtable.h"
+#include "llfile.h"
 
 
 class LLVector3;

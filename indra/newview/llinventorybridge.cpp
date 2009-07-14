@@ -4192,7 +4192,7 @@ void wear_inventory_category_on_avatar_loop(LLWearable* wearable, void* data)
 			 iter != holder->mFoundList.end(); ++iter)
 		{
 			LLFoundData* data = *iter;
-			if(wearable->getID() == data->mAssetID)
+			if(wearable->getAssetID() == data->mAssetID)
 			{
 				data->mWearable = wearable;
 				break;
@@ -4225,7 +4225,7 @@ void wear_inventory_category_on_avatar_step3(LLWearableHoldingPattern* holder, B
 			{
 				LLViewerInventoryItem* item;
 				item = (LLViewerInventoryItem*)gInventory.getItem(data->mItemID);
-				if( item && (item->getAssetUUID() == wearable->getID()) )
+				if( item && (item->getAssetUUID() == wearable->getAssetID()) )
 				{
 					items.put(item);
 					wearables.put(wearable);
@@ -4629,9 +4629,9 @@ void LLWearableBridge::onWearOnAvatarArrived( LLWearable* wearable, void* userda
 		item = (LLViewerInventoryItem*)gInventory.getItem(*item_id);
 		if(item)
 		{
-			if(item->getAssetUUID() == wearable->getID())
+			if(item->getAssetUUID() == wearable->getAssetID())
 			{
-				gAgentWearables.setWearable(item, wearable);
+				gAgentWearables.setWearableItem(item, wearable);
 				gInventory.notifyObservers();
 				//self->getFolderItem()->refreshFromRoot();
 			}
@@ -4654,10 +4654,10 @@ void LLWearableBridge::onWearAddOnAvatarArrived( LLWearable* wearable, void* use
 		item = (LLViewerInventoryItem*)gInventory.getItem(*item_id);
 		if(item)
 		{
-			if(item->getAssetUUID() == wearable->getID())
+			if(item->getAssetUUID() == wearable->getAssetID())
 			{
 				bool do_append = true;
-				gAgentWearables.setWearable(item, wearable, do_append);
+				gAgentWearables.setWearableItem(item, wearable, do_append);
 				gInventory.notifyObservers();
 				//self->getFolderItem()->refreshFromRoot();
 			}
@@ -4691,7 +4691,7 @@ void LLWearableBridge::onEditOnAvatar(void* user_data)
 
 void LLWearableBridge::editOnAvatar()
 {
-	LLWearable* wearable = gAgentWearables.getWearableFromWearableItem(mUUID);
+	const LLWearable* wearable = gAgentWearables.getWearableFromWearableItem(mUUID);
 	if( wearable )
 	{
 		// Set the tab to the right wearable.

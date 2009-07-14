@@ -7393,47 +7393,47 @@ class LLEditEnableTakeOff : public view_listener_t
 		bool new_value = false;
 		if (clothing == "shirt")
 		{
-			new_value = LLAgentWearables::selfHasWearable((void *)WT_SHIRT);
+			new_value = LLAgentWearables::selfHasWearable(WT_SHIRT);
 		}
 		if (clothing == "pants")
 		{
-			new_value = LLAgentWearables::selfHasWearable((void *)WT_PANTS);
+			new_value = LLAgentWearables::selfHasWearable(WT_PANTS);
 		}
 		if (clothing == "shoes")
 		{
-			new_value = LLAgentWearables::selfHasWearable((void *)WT_SHOES);
+			new_value = LLAgentWearables::selfHasWearable(WT_SHOES);
 		}
 		if (clothing == "socks")
 		{
-			new_value = LLAgentWearables::selfHasWearable((void *)WT_SOCKS);
+			new_value = LLAgentWearables::selfHasWearable(WT_SOCKS);
 		}
 		if (clothing == "jacket")
 		{
-			new_value = LLAgentWearables::selfHasWearable((void *)WT_JACKET);
+			new_value = LLAgentWearables::selfHasWearable(WT_JACKET);
 		}
 		if (clothing == "gloves")
 		{
-			new_value = LLAgentWearables::selfHasWearable((void *)WT_GLOVES);
+			new_value = LLAgentWearables::selfHasWearable(WT_GLOVES);
 		}
 		if (clothing == "undershirt")
 		{
-			new_value = LLAgentWearables::selfHasWearable((void *)WT_UNDERSHIRT);
+			new_value = LLAgentWearables::selfHasWearable(WT_UNDERSHIRT);
 		}
 		if (clothing == "underpants")
 		{
-			new_value = LLAgentWearables::selfHasWearable((void *)WT_UNDERPANTS);
+			new_value = LLAgentWearables::selfHasWearable(WT_UNDERPANTS);
 		}
 		if (clothing == "skirt")
 		{
-			new_value = LLAgentWearables::selfHasWearable((void *)WT_SKIRT);
+			new_value = LLAgentWearables::selfHasWearable(WT_SKIRT);
 		}
 		if (clothing == "alpha")
 		{
-			new_value = LLAgentWearables::selfHasWearable((void *)WT_ALPHA);
+			new_value = LLAgentWearables::selfHasWearable(WT_ALPHA);
 		}
 		if (clothing == "tattoo")
 		{
-			new_value = LLAgentWearables::selfHasWearable((void *)WT_TATTOO);
+			new_value = LLAgentWearables::selfHasWearable(WT_TATTOO);
 		}
 		return new_value;
 	}

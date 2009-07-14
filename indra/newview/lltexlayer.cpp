@@ -1237,6 +1237,16 @@ LLTexLayer::LLTexLayer(LLTexLayerSet* layer_set) :
 {
 }
 
+LLTexLayer::LLTexLayer(const LLTexLayer &layer) :
+	mTexLayerSet( layer.mTexLayerSet )
+{
+	setInfo(layer.getInfo());
+
+	
+	mHasMorph = layer.mHasMorph;
+
+}
+
 LLTexLayer::~LLTexLayer()
 {
 	// mParamAlphaList and mParamColorList are LLViewerVisualParam's and get
