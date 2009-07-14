@@ -659,7 +659,7 @@ public:
 	
 	virtual void	draw				();
 	
-	virtual void	show				(S32 x, S32 y, BOOL adjustCursor = TRUE);
+	virtual void	show				(S32 x, S32 y);
 	virtual void	hide				();
 
 	

@@ -269,11 +269,11 @@ public:
 		}
 	};
 	
-	template <typename F> class CallbackRegistry : public LLRegistrySingleton<std::string, F, CallbackRegistry<F> >
+	template <typename F, typename DERIVED> class CallbackRegistry : public LLRegistrySingleton<std::string, F, DERIVED >
 	{};	
 
-	typedef CallbackRegistry<commit_callback_t> CommitCallbackRegistry;
-	typedef CallbackRegistry<enable_callback_t> EnableCallbackRegistry;
+	class CommitCallbackRegistry : public CallbackRegistry<commit_callback_t, CommitCallbackRegistry>{};
+	class EnableCallbackRegistry : public CallbackRegistry<enable_callback_t, EnableCallbackRegistry>{};
 	
 protected:
 

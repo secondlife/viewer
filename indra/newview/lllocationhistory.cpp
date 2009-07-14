@@ -42,7 +42,6 @@
 #include "llviewerregion.h"
 #include "llviewerparcelmgr.h"
 
-
 void addLocationHistory()
 {	
 	LLVector3 position = gAgent.getPositionAgent();

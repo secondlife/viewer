@@ -191,7 +191,7 @@ void LLUICtrl::initFromParams(const Params& p)
 		}
 		else
 		{
-			commit_callback_t* initfunc = (CallbackRegistry<commit_callback_t>::getValue(p.init_callback.function_name));
+			commit_callback_t* initfunc = (CommitCallbackRegistry::getValue(p.init_callback.function_name));
 			if (initfunc)
 			{
 				(*initfunc)(this, p.init_callback.parameter);
@@ -233,7 +233,7 @@ void LLUICtrl::initCommitCallback(const CommitCallbackParam& cb, commit_signal_t
 	else
 	{
 		std::string function_name = cb.function_name;
-		commit_callback_t* func = (CallbackRegistry<commit_callback_t>::getValue(function_name));
+		commit_callback_t* func = (CommitCallbackRegistry::getValue(function_name));
 		if (func)
 		{
 			if (cb.parameter.isProvided())

@@ -35,7 +35,7 @@
 #include "lllistview.h"
 
 #include "lltextbox.h"
-#include "lluictrlfactory.h"	// LLDefaultWidgetRegistry
+#include "lluictrlfactory.h"	// LLDefaultChildRegistry
 
 // linker optimizes this out on Windows until there is a real reference
 // to this file

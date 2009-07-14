@@ -337,7 +337,7 @@ BOOL LLPanelPicks::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		{
 			mPopupMenu->buildDrawLabels();
 			mPopupMenu->updateParent(LLMenuGL::sMenuContainer);
-			((LLContextMenu*)mPopupMenu)->show(x, y, FALSE);
+			((LLContextMenu*)mPopupMenu)->show(x, y);
 			LLMenuGL::showPopup(this, mPopupMenu, x, y);
 		}
 		return TRUE;

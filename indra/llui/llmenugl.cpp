@@ -3532,7 +3532,7 @@ void	LLContextMenuBranch::showSubMenu()
 	S32 center_x;
 	S32 center_y;
 	localPointToScreen(getRect().getWidth(), getRect().getHeight() , &center_x, &center_y);
-	mBranch->show(	center_x, center_y, FALSE);
+	mBranch->show(	center_x, center_y);
 }
 
 // onCommit() - do the primary funcationality of the menu item.
@@ -3580,7 +3580,7 @@ void LLContextMenu::setVisible(BOOL visible)
 		hide();
 }
 
-void LLContextMenu::show(S32 x, S32 y,BOOL adjustCursor)
+void LLContextMenu::show(S32 x, S32 y)
 {
 	arrangeAndClear();
 
@@ -3603,12 +3603,6 @@ void LLContextMenu::show(S32 x, S32 y,BOOL adjustCursor)
 	// HACK: casting away const.  Should use setRect or some helper function instead.
 	const_cast<LLRect&>(getRect()).setCenterAndSize(local_x + width/2, local_y - height/2, width, height);
 	arrange();
-
-
-	if (translateIntoRect(menu_region_rect,FALSE) && adjustCursor)
-	{
-		LLUI::setCursorPositionLocal(getParent(), getRect().mLeft , getRect().mTop);
-	}
 
 	LLView::setVisible(TRUE);
 

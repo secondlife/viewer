@@ -77,6 +77,8 @@ std::string LLFloaterUIPreview::mSavedDiffPath	  = std::string("");
 static const S32 PRIMARY_FLOATER = 1;
 static const S32 SECONDARY_FLOATER = 2;
 
+static LLDefaultChildRegistry::Register<LLOverlapPanel> register_overlap_panel("overlap_panel");
+
 static std::string get_xui_dir()
 {
 	std::string delim = gDirUtilp->getDirDelimiter();
@@ -186,11 +188,6 @@ BOOL LLFadeEventTimer::tick()
 	return FALSE;
 }
 
-void* create_overlap_panel(void* data)
-{
-	return new LLOverlapPanel();
-}
-
 // Constructor
 LLFloaterUIPreview::LLFloaterUIPreview(const LLSD& key)
   : LLFloater(key),
@@ -204,7 +201,6 @@ LLFloaterUIPreview::LLFloaterUIPreview(const LLSD& key)
 
 {
 	sInstance = this;
-	mFactoryMap["overlap_panel"] = LLCallbackMap(create_overlap_panel, NULL);
 	// called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_ui_preview.xml");
 }
 

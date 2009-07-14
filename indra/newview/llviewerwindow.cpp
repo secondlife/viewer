@@ -1550,6 +1550,12 @@ void LLViewerWindow::initWorldUI()
 
 	gIMMgr = LLIMMgr::getInstance();
 
+	// side tray
+	getRootView()->addChild(LLSideTray::getInstance());
+
+	getRootView()->sendChildToFront(gFloaterView);
+	getRootView()->sendChildToFront(gSnapshotFloaterView);
+
 	// new bottom panel
 	gBottomTray = new LLBottomTray();
 	LLRect rc = gBottomTray->getRect();
@@ -1628,13 +1634,12 @@ void LLViewerWindow::initWorldUI()
 	getRootView()->addChild(gStatusBar);
 	getRootView()->addChild(navbar);
 
-	// side tray
-	getRootView()->addChild(LLSideTray::getInstance());
 
 	//sidetray
 	//then notify area
 	//then menu
-	getRootView()->sendChildToFront(LLSideTray::getInstance());
+	//getRootView()->sendChildToFront(LLSideTray::getInstance());
+
 	getRootView()->sendChildToFront(gNotifyBoxView);
 	// menu holder appears on top to get first pass at all mouse events
 	getRootView()->sendChildToFront(gMenuHolder);

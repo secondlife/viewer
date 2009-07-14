@@ -631,7 +631,7 @@ void LLFloater::closeFloater(bool app_quitting)
 		}
 		
 		// Let floater do cleanup.
-		mCloseSignal(this, getValue());
+		mCloseSignal(this, getValue(), app_quitting);
 		onClose(app_quitting);
 	}
 }
@@ -1730,7 +1730,7 @@ void LLFloater::initOpenCallback(const OpenCallbackParam& cb, open_signal_t& sig
 	else
 	{
 		std::string function_name = cb.function_name;
-		open_callback_t* func = (CallbackRegistry<open_callback_t>::getValue(function_name));
+		open_callback_t* func = (OpenCallbackRegistry::getValue(function_name));
 		if (func)
 		{
 			if (cb.parameter.isProvided())
@@ -1744,6 +1744,45 @@ void LLFloater::initOpenCallback(const OpenCallbackParam& cb, open_signal_t& sig
 		}			
 	}
 }
+
+void LLFloater::initCloseCallback(const CloseCallbackParam& cb, close_signal_t& sig)
+{
+	if (cb.function.isProvided())
+	{
+		if (cb.parameter.isProvided())
+			sig.connect(boost::bind(cb.function(), _1, cb.parameter, _3));
+		else
+			sig.connect(cb.function());
+	}
+	else
+	{
+		std::string function_name = cb.function_name;
+		close_callback_t* func = (CloseCallbackRegistry::getValue(function_name)); 
+		if (func)
+		{
+			if (cb.parameter.isProvided())
+				sig.connect(boost::bind((*func), _1, cb.parameter,_3));
+			else
+				sig.connect(*func);
+		}
+		else if (!function_name.empty())
+		{
+			llwarns << "No callback found for: '" << function_name << "' in control: " << getName() << llendl;
+		}			
+	}
+}
+
+namespace LLInitParam
+{
+    
+    template<> 
+	bool ParamCompare<LLFloater::close_callback_t>::equals(
+												  const LLFloater::close_callback_t &a, 
+												  const LLFloater::close_callback_t &b)
+    {
+    	return false;
+    }
+}    
 
 /////////////////////////////////////////////////////
 // LLFloaterView
@@ -2505,7 +2544,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 		initOpenCallback(p.open_callback, mOpenSignal);
 	// close callback 
 	if (p.close_callback.isProvided())
-		initOpenCallback(p.close_callback, mCloseSignal);
+		initCloseCallback(p.close_callback, mCloseSignal);
 }
 
 void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, BOOL open_floater, LLXMLNodePtr output_node)

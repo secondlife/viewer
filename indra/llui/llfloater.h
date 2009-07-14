@@ -108,14 +108,19 @@ public:
 	typedef boost::function<void (LLUICtrl* ctrl, const LLSD& param)> open_callback_t;
 	typedef boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param)> open_signal_t;
 	
-	typedef boost::function<void (LLUICtrl* ctrl, const LLSD& param)> close_callback_t;
-	typedef boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param)> close_signal_t;
-	
+	typedef boost::function<void (LLUICtrl* ctrl, const LLSD& param, bool app_quitting)> close_callback_t;
+	typedef boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param, bool app_quitting)> close_signal_t;
+
 	struct OpenCallbackParam : public LLInitParam::Block<OpenCallbackParam, CallbackParam >
 	{
 		Optional<open_callback_t> function;
 	};
-	
+
+	struct CloseCallbackParam : public LLInitParam::Block<CloseCallbackParam, CallbackParam >
+	{
+		Optional<close_callback_t> function;
+	};
+	 	
 	struct Params 
 	:	public LLInitParam::Block<Params, LLPanel::Params>
 	{
@@ -132,8 +137,8 @@ public:
 								save_rect,
 								save_visibility;
 		
-		Optional<OpenCallbackParam> open_callback,
-									close_callback;
+		Optional<OpenCallbackParam> open_callback;
+		Optional<CloseCallbackParam> close_callback;
 		
 		Params() :
 			title("title"),
@@ -306,6 +311,7 @@ protected:
 	void			destroy() { die(); } // Don't call this directly.  You probably want to call close(). JC
 
 	void			initOpenCallback(const OpenCallbackParam& cb, open_signal_t& sig);
+	void			initCloseCallback(const CloseCallbackParam& cb, close_signal_t& sig);
 
 private:
 	void			setForeground(BOOL b);	// called only by floaterview
@@ -318,13 +324,14 @@ private:
 	void 			addDragHandle();
 
 public:
-	typedef CallbackRegistry<open_callback_t> OpenCallbackRegistry;
+	class OpenCallbackRegistry : public CallbackRegistry<open_callback_t, OpenCallbackRegistry> {};
+	class CloseCallbackRegistry : public CallbackRegistry<close_callback_t, CloseCallbackRegistry> {};
 
 protected:
 	std::string		mRectControl;
 	std::string		mVisibilityControl;
 	open_signal_t   mOpenSignal;
-	open_signal_t   mCloseSignal;
+	close_signal_t  mCloseSignal;
 	LLSD			mKey;				// Key used for retrieving instances; set (for now) by LLFLoaterReg
 	
 private:
@@ -485,6 +492,15 @@ public:
 //
 
 extern LLFloaterView* gFloaterView;
+
+namespace LLInitParam
+{   
+    template<> 
+	bool ParamCompare<LLFloater::close_callback_t>::equals(
+		const LLFloater::close_callback_t &a, 
+		const LLFloater::close_callback_t &b); 
+}
+
 
 #endif  // LL_FLOATER_H
 
