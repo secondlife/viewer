@@ -14,6 +14,7 @@ include(LScript)
 include(Linking)
 include(Tut)
 include(Boost)
+include(GoogleMock)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
@@ -24,6 +25,7 @@ include_directories(
     ${LLVFS_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}
+    ${GOOGLEMOCK_INCLUDE_DIRS}
     )
 
 set(test_SOURCE_FILES
@@ -121,6 +123,7 @@ target_link_libraries(test
     ${LLXML_LIBRARIES}
     ${LSCRIPT_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
+    ${GOOGLEMOCK_LIBRARIES}
     ${APRICONV_LIBRARIES}
     ${PTHREAD_LIBRARY}
     ${WINDOWS_LIBRARIES}
@@ -137,12 +140,18 @@ endif (WINDOWS)
 
 get_target_property(TEST_EXE test LOCATION)
 
+SET(TEST_CMD ${TEST_EXE} --touch=${TEST_OUTPUT} --sourcedir=${CMAKE_CURRENT_SOURCE_DIR})
+
+SET(TEST_LD_CMD 
+  ${CMAKE_COMMAND} 
+  -DLD_LIBRARY_PATH=${ARCH_PREBUILT_DIRS}:/usr/lib
+  -DTEST_CMD:STRING="${TEST_CMD}" 
+  -P ${CMAKE_SOURCE_DIR}/cmake/RunBuildTest.cmake
+  )
+
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt
-  COMMAND ${TEST_EXE}
-  ARGS
-    --output=${CMAKE_CURRENT_BINARY_DIR}/cpp_test_results.txt
-    --touch=${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt
+  COMMAND ${TEST_LD_CMD}
   DEPENDS test
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMENT "C++ unit tests"
