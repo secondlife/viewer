@@ -8799,8 +8799,7 @@ void LLScriptIf::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass p
 		}
 		break;
 	case LSCP_PRUNE:
-		prunearg = TRUE;
-		mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		prunearg = FALSE;
 		break;
 	case LSCP_TYPE:
 		mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -8986,8 +8985,7 @@ void LLScriptFor::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass 
 		}
 		break;
 	case LSCP_PRUNE:
-		prunearg = TRUE;
-		mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		prunearg = FALSE;
 		break;
 	case LSCP_TYPE:
 		if(mSequence)
@@ -9091,8 +9089,7 @@ void LLScriptDoWhile::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompileP
 		}
 		break;
 	case LSCP_PRUNE:
-		prunearg = TRUE;
-		mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		prunearg = FALSE;
 		break;
 	case LSCP_TYPE:
 		mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -9168,8 +9165,7 @@ void LLScriptWhile::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePas
 		}
 		break;
 	case LSCP_PRUNE:
-		prunearg = TRUE;
-		mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
+		prunearg = FALSE;
 		break;
 	case LSCP_TYPE:
 		mExpression->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -10137,10 +10133,7 @@ void LLScriptGlobalFunctions::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPT
 			mStatements->recurse(fp, tabs, tabsize, pass, LSPRUNE_GLOBAL_NON_VOIDS, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			if (!prunearg)
 			{
-				if (!gErrorToText.getErrors()) // Hide this error when a state change has been made in a global function
-				{
-					gErrorToText.writeError(fp, this, LSERROR_NO_RETURN);
-				}
+				gErrorToText.writeError(fp, this, LSERROR_NO_RETURN);
 			}
 		}
 		else
