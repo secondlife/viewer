@@ -3589,12 +3589,30 @@ void LLContextMenu::show(S32 x, S32 y)
 	const LLRect menu_region_rect = LLMenuGL::sMenuContainer->getMenuRect();
 	LLView* parent_view = getParent();
 
-	if(getParentMenuItem())
+	// Open upwards if menu extends past bottom
+	if (y - height < menu_region_rect.mBottom)
 	{
-		S32 parent_width = getParentMenuItem()->getRect().getWidth();
-		
-		if(x + width > menu_region_rect.getWidth())
-			x -= parent_width + width;
+		if (getParentMenuItem()) // Adjust if this is a submenu
+		{
+			y += height - getParentMenuItem()->getNominalHeight();		
+		}
+		else
+		{
+			y += height;
+		}
+	}
+
+	// Open out to the left if menu extends past right edge
+	if (x + width > menu_region_rect.mRight)
+	{
+		if (getParentMenuItem())
+		{
+			x -= getParentMenuItem()->getRect().getWidth() + width;
+		}
+		else
+		{
+			x -= width;
+		}
 	}
 
 	S32 local_x, local_y;
