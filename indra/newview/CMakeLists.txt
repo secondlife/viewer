@@ -1196,6 +1196,11 @@ if (LLKDU_LIBRARY)
   add_dependencies(${VIEWER_BINARY_NAME} ${LLKDU_LIBRARY})
 endif (LLKDU_LIBRARY)
 
+# add package files
+file(GLOB EVENT_HOST_SCRIPT_GLOB_LIST
+     ${CMAKE_CURRENT_SOURCE_DIR}/../viewer_components/*.py)
+list(APPEND EVENT_HOST_SCRIPTS ${EVENT_HOST_SCRIPT_GLOB_LIST})
+
 set(PACKAGE OFF CACHE BOOL
     "Add a package target that builds an installer package.")
 
@@ -1291,8 +1296,26 @@ if (WINDOWS)
         DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         )
     if (PACKAGE)
-      add_custom_target(package ALL DEPENDS ${CMAKE_CFG_INTDIR}/touched.bat)
+      add_custom_command(
+          OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/event_host.tar.bz2
+          COMMAND ${PYTHON_EXECUTABLE}
+          ARGS
+            ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
+            ${CMAKE_CURRENT_SOURCE_DIR}/..
+            ${CMAKE_CFG_INTDIR}
+
+          DEPENDS 
+            lleventhost 
+            ${EVENT_HOST_SCRIPTS}
+            ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py)
+
+      add_custom_target(package ALL 
+          DEPENDS 
+            ${CMAKE_CFG_INTDIR}/touched.bat
+            ${CMAKE_CURRENT_SOURCE_DIR}/event_host.tar.bz2)
       add_dependencies(package windows-updater windows-crash-logger)
+
+
     endif (PACKAGE)
 endif (WINDOWS)
 
