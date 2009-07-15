@@ -82,7 +82,7 @@ static LLDefaultChildRegistry::Register<LLOverlapPanel> register_overlap_panel("
 static std::string get_xui_dir()
 {
 	std::string delim = gDirUtilp->getDirDelimiter();
-	return gDirUtilp->getAppRODataDir() + delim + std::string("skins") + delim + "default" + delim + "xui" + delim;
+	return gDirUtilp->getSkinBaseDir() + delim + "default" + delim + "xui" + delim;
 }
 
 // Localization reset forcer -- ensures that when localization is temporarily changed for previewed floater, it is reset

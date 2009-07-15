@@ -102,7 +102,7 @@ public:
 static std::string get_xui_dir()
 {
 	std::string delim = gDirUtilp->getDirDelimiter();
-	return gDirUtilp->getAppRODataDir() + delim + std::string("skins") + delim + "default" + delim + "xui" + delim;
+	return gDirUtilp->getSkinBaseDir() + delim + "default" + delim + "xui" + delim;
 }
 
 void init_llui()

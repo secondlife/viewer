@@ -161,6 +161,7 @@ protected:
 	std::string mDefaultCacheDir;	// default cache diretory
 	std::string mOSCacheDir;		// operating system cache dir
 	std::string mDirDelimiter;
+	std::string mSkinBaseDir;			// Base for skins paths.
 	std::string mSkinDir;			// Location for current skin info.
 	std::string mDefaultSkinDir;			// Location for default skin info.
 	std::string mUserSkinDir;			// Location for user-modified skin info.
