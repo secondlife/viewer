@@ -71,10 +71,10 @@ public:
 
 	void setValue(const LLSD& sd)
 	{
-		mLeft = sd[0].asInteger(); 
-		mTop = sd[1].asInteger();
-		mRight = sd[2].asInteger();
-		mBottom = sd[3].asInteger();
+		mLeft = (Type)sd[0].asInteger(); 
+		mTop = (Type)sd[1].asInteger();
+		mRight = (Type)sd[2].asInteger();
+		mBottom = (Type)sd[3].asInteger();
 	}
 
 	LLSD getValue() const
