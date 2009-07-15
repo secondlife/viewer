@@ -517,7 +517,7 @@ void LLInspectAvatar::updateVolumeSlider()
 	// By convention, we only display and toggle voice mutes, not all mutes
 	bool is_muted = LLMuteList::getInstance()->
 						isMuted(mAvatarID, LLMute::flagVoiceChat);
-	bool voice_enabled = gVoiceClient->getVoiceEnabled(mAvatarID);
+	bool voice_enabled = LLVoiceClient::getInstance()->getVoiceEnabled(mAvatarID);
 	bool is_self = (mAvatarID == gAgent.getID());
 
 	LLUICtrl* mute_btn = getChild<LLUICtrl>("mute_btn");
@@ -544,7 +544,7 @@ void LLInspectAvatar::updateVolumeSlider()
 	else
 	{
 		// actual volume
-		volume = gVoiceClient->getUserVolume(mAvatarID);
+		volume = LLVoiceClient::getInstance()->getUserVolume(mAvatarID);
 
 		// *HACK: Voice client doesn't have any data until user actually
 		// says something.
@@ -578,7 +578,7 @@ void LLInspectAvatar::onClickMuteVolume()
 void LLInspectAvatar::onVolumeChange(const LLSD& data)
 {
 	F32 volume = (F32)data.asReal();
-	gVoiceClient->setUserVolume(mAvatarID, volume);
+	LLVoiceClient::getInstance()->setUserVolume(mAvatarID, volume);
 }
 
 void LLInspectAvatar::nameUpdatedCallback(

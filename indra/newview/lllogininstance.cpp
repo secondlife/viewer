@@ -150,6 +150,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	requested_options.append("buddy-list");
 	requested_options.append("ui-config");
 #endif
+	requested_options.append("voice-config");
 	requested_options.append("tutorial_setting");
 	requested_options.append("login-flags");
 	requested_options.append("global-textures");

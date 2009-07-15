@@ -189,6 +189,7 @@
 #include "llinventorybridge.h"
 #include "llappearancemgr.h"
 #include "llavatariconctrl.h"
+#include "llvoicechannel.h"
 
 #include "lllogin.h"
 #include "llevents.h"
@@ -1157,7 +1158,11 @@ bool idle_startup()
 			if(process_login_success_response())
 			{
 				// Pass the user information to the voice chat server interface.
-				gVoiceClient->userAuthorized(gUserCredential->userID(), gAgentID);
+				LLVoiceClient::getInstance()->userAuthorized(gUserCredential->userID(), gAgentID);
+				// create the default proximal channel
+				LLVoiceChannel::initClass();
+				// update the voice settings
+				LLVoiceClient::getInstance()->updateSettings();
 				LLGridManager::getInstance()->setFavorite(); 
 				LLStartUp::setStartupState( STATE_WORLD_INIT);
 			}
@@ -3008,7 +3013,44 @@ bool process_login_success_response()
 		//setup map of datetime strings to codes and slt & local time offset from utc
 		LLStringOps::setupDatetimeInfo(pacific_daylight_time);
 	}
-
+	
+	static const char* CONFIG_OPTIONS[] = {"voice-config"};
+	for (int i = 0; i < sizeof(CONFIG_OPTIONS)/sizeof(CONFIG_OPTIONS[0]); i++)
+	{
+		LLSD options = response[CONFIG_OPTIONS[i]];
+		if (!options.isArray() && (options.size() < 1) && !options[0].isMap())
+		{
+			continue;
+		}
+		llinfos << "config option " << CONFIG_OPTIONS[i][0] << "response " << options << llendl;
+		for(LLSD::map_iterator option_it = options[0].beginMap();
+			option_it != options[0].endMap();
+			option_it++)
+		{
+			llinfos << "trying option " << option_it->first << llendl;
+			LLPointer<LLControlVariable> control = gSavedSettings.getControl(option_it->first);
+			if(control.notNull())
+			{
+				if(control->isType(TYPE_BOOLEAN))
+				{
+					llinfos << "Setting BOOL from login " << option_it->first << " " << option_it->second << llendl;
+					
+					gSavedSettings.setBOOL(option_it->first, !((option_it->second == "F") ||
+															   (option_it->second == "false") ||
+															   (!option_it->second)));
+				}
+				else if (control->isType(TYPE_STRING))
+				{
+					llinfos << "Setting String from login " << option_it->first << " " << option_it->second << llendl;
+					gSavedSettings.setString(option_it->first, option_it->second);
+				}
+				// we don't support other types now                                                                                                            
+				
+			}
+			
+		}
+	}
+	
 	LLSD initial_outfit = response["initial-outfit"][0];
 	if(initial_outfit.size())
 	{

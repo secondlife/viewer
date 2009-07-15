@@ -19,8 +19,7 @@
 						</array>
 					<key>tags</key>
 						<array>
-							<string>AppInit</string>
-							<string>LLLogin</string>
+							<string>Voice</string>
 						</array>
 				</map>
 				<map>
@@ -36,8 +35,7 @@
 						</array>
 					<key>tags</key>
 						<array>
-							<string>AppInit</string>
-							<string>LLLogin</string>
+							<string>Voice</string>
 						</array>
 				</map>
 			</array>

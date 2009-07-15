@@ -920,8 +920,7 @@ bool LLAppViewer::mainLoop()
 	
 	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
 
-	LLVoiceChannel::initClass();
-	LLVoiceClient::init(gServicePump);
+	LLVoiceClient::getInstance()->init(gServicePump);
 				
 	LLTimer frameTimer,idleTimer;
 	LLTimer debugTime;
@@ -1241,7 +1240,7 @@ bool LLAppViewer::cleanup()
 	// to ensure shutdown order
 	LLMortician::setZealous(TRUE);
 
-	LLVoiceClient::terminate();
+	LLVoiceClient::getInstance()->terminate();
 	
 	disconnectViewer();
 
@@ -3807,7 +3806,7 @@ void LLAppViewer::sendLogoutRequest()
 		gLogoutMaxTime = LOGOUT_REQUEST_TIME;
 		mLogoutRequestSent = TRUE;
 		
-		gVoiceClient->leaveChannel();
+		LLVoiceClient::getInstance()->leaveChannel();
 
 		//Set internal status variables and marker files
 		gLogoutInProgress = TRUE;

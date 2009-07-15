@@ -813,7 +813,7 @@ BOOL LLViewerWindow::handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK m
 BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = TRUE;
-	gVoiceClient->middleMouseState(true);
+	LLVoiceClient::getInstance()->middleMouseState(true);
  	handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_MIDDLE,down);
   
   	// Always handled as far as the OS is concerned.
@@ -823,7 +823,7 @@ BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MAS
 BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = FALSE;
-	gVoiceClient->middleMouseState(false);
+	LLVoiceClient::getInstance()->middleMouseState(false);
  	handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_MIDDLE,down);
   
   	// Always handled as far as the OS is concerned.
@@ -939,7 +939,7 @@ void LLViewerWindow::handleFocusLost(LLWindow *window)
 BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 {
 	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
-	gVoiceClient->keyDown(key, mask);
+	LLVoiceClient::getInstance()->keyDown(key, mask);
 	
 	if (gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
 	{
@@ -961,7 +961,7 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 {
 	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
-	gVoiceClient->keyUp(key, mask);
+	LLVoiceClient::getInstance()->keyUp(key, mask);
 
 	return FALSE;
 }

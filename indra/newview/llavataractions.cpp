@@ -290,7 +290,7 @@ bool LLAvatarActions::canCall(const LLUUID &id)
 		// can be only ONLINE. There is no way to see "usual resident" in OFFLINE status. If we see "usual
 		// resident" it automatically means that the resident is ONLINE. So to make a call to the "usual resident"
 		// we need to check only that "our" voice is enabled.
-		return LLVoiceClient::voiceEnabled();
+		return LLVoiceClient::getInstance()->voiceEnabled();
 	}
 
 }

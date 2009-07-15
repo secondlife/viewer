@@ -92,7 +92,7 @@ BOOL LLPanelChatControlPanel::postBuild()
 void LLPanelChatControlPanel::draw()
 {
 	// hide/show start call and end call buttons
-	bool voice_enabled = LLVoiceClient::voiceEnabled();
+	bool voice_enabled = LLVoiceClient::getInstance()->voiceEnabled();
 
 	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(mSessionId);
 	if (!session) return;

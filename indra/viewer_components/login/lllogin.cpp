@@ -131,6 +131,7 @@ void LLLogin::Impl::connect(const std::string& uri, const LLSD& login_params)
     std::string coroname = 
         LLCoros::instance().launch("LLLogin::Impl::login_",
                                    boost::bind(&Impl::login_, this, _1, uri, login_params));
+    LL_DEBUGS("LLLogin") << " connected with  uri '" << uri << "', login_params " << login_params << LL_ENDL;	
 }
 
 void LLLogin::Impl::login_(LLCoros::self& self, std::string uri, LLSD login_params)
