@@ -32,6 +32,8 @@ set(test_SOURCE_FILES
     io.cpp
 #    llapp_tut.cpp						# Temporarily removed until thread issues can be solved
     llbase64_tut.cpp
+    llbbox_tut.cpp
+    llbboxlocal_tut.cpp
     llblowfish_tut.cpp
     llbuffer_tut.cpp
     lldate_tut.cpp
@@ -54,6 +56,7 @@ set(test_SOURCE_FILES
     llpipeutil.cpp
     llquaternion_tut.cpp
     llrandom_tut.cpp
+    llrect_tut.cpp
     llsaleinfo_tut.cpp
     llscriptresource_tut.cpp
     llsdmessagebuilder_tut.cpp

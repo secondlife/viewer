@@ -79,7 +79,6 @@ set(viewer_SOURCE_FILES
     llavatarlist.cpp
     llavatarlistitem.cpp
     llavatarpropertiesprocessor.cpp
-    llbbox.cpp
     llbottomtray.cpp
     llbox.cpp
     llbreadcrumbview.cpp
@@ -501,7 +500,6 @@ set(viewer_HEADER_FILES
     llavatarlist.h
     llavatarlistitem.h
     llavatarpropertiesprocessor.h
-    llbbox.h
     llbottomtray.h
     llbox.h
     llbreadcrumbview.h
