@@ -102,6 +102,7 @@
 #include "llfunctorregistry.h"
 #include "llui.h"
 #include "llmemory.h"
+#include "llnotificationslistener.h"
 
 class LLNotification;
 typedef boost::shared_ptr<LLNotification> LLNotificationPtr;
@@ -798,8 +799,6 @@ private:
 	LLNotificationComparator mComparator;
 };
 
-
-class LLNotificationsListener;
 
 class LLNotifications : 
 	public LLSingleton<LLNotifications>, 
