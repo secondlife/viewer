@@ -207,30 +207,30 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>081ef195a856c708cc473c4421b4b290</string>
+            <string>6be5bca5f4b031b1b79824da5cfd4ddf</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-darwin-20090223.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-darwin-20090702a.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>b516a8576ecad0f957db7fc2cd972aac</string>
+            <string>113ca35011c916660a8aa55bc1ca462a</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-linux-20090223a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-linux-20090702.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
-            <string>6db62bb7f141b3a1b3107e1f9aad0eb0</string>
+            <string>270f64d3aa416cec96f445d58dfcfb6d</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-linux64-20090223a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-linux64-20090702.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>3b56fe9e8d2975c612639d0a5370ffe7</string>
+            <string>44d4fdf386742b94419c93ad2baa1616</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-windows-20090225.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-windows-20090702.tar.bz2</uri>
           </map>
         </map>
       </map>

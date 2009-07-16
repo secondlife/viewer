@@ -232,8 +232,6 @@ public:
 	virtual void	onTabInto();
 	virtual void	clear();
 	virtual void	setColor(const LLColor4& color);
-	virtual void	setMinValue(LLSD min_value);
-	virtual void	setMaxValue(LLSD max_value);
 
 	BOOL	focusNextItem(BOOL text_entry_only);
 	BOOL	focusPrevItem(BOOL text_entry_only);

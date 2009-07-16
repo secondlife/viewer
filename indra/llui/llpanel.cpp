@@ -799,24 +799,6 @@ BOOL LLPanel::childSetToolTipArg(const std::string& id, const std::string& key, 
 	return FALSE;
 }
 
-void LLPanel::childSetMinValue(const std::string& id, LLSD min_value)
-{
-	LLUICtrl* child = findChild<LLUICtrl>(id);
-	if (child)
-	{
-		child->setMinValue(min_value);
-	}
-}
-
-void LLPanel::childSetMaxValue(const std::string& id, LLSD max_value)
-{
-	LLUICtrl* child = findChild<LLUICtrl>(id);
-	if (child)
-	{
-		child->setMaxValue(max_value);
-	}
-}
-
 void LLPanel::childShowTab(const std::string& id, const std::string& tabname, bool visible)
 {
 	LLTabContainer* child = findChild<LLTabContainer>(id);

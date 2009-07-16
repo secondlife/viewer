@@ -118,6 +118,7 @@ public:
 	public:
 		fetchInventoryResponder(const LLSD& request_sd) : mRequestSD(request_sd) {};
 		void result(const LLSD& content);			
+		
 		void error(U32 status, const std::string& reason);
 
 	public:

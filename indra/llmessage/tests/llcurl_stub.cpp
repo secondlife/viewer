@@ -34,7 +34,7 @@ void LLCurl::Responder::completed(U32 status, std::basic_string<char, std::char_
 	}
 	else
 	{
-		error(status, reason, mContent);
+		errorWithContent(status, reason, mContent);
 	}
 }
 
@@ -51,7 +51,7 @@ void LLCurl::Responder::completedRaw(unsigned,
 {
 }
 
-void LLCurl::Responder::error(unsigned,
+void LLCurl::Responder::errorWithContent(unsigned,
 							  std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&,
 							  LLSD const&)
 {

@@ -56,7 +56,7 @@ public:
 		desc.source(__FILE__, __LINE__);
 	}
     
-	virtual LLSD get() const
+	virtual LLSD simpleGet() const
 	{
 		LLSD result;
 		LLApp* app = LLApp::instance();
@@ -82,7 +82,7 @@ public:
 		desc.source(__FILE__, __LINE__);
 	}
     
-	virtual LLSD get() const
+	virtual LLSD simpleGet() const
 	{
 		return LLApp::instance()->getOptionData(
 			LLApp::PRIORITY_RUNTIME_OVERRIDE);

@@ -67,6 +67,7 @@
 #include "llappviewer.h"
 #include "llmapimagetype.h"
 #include "llweb.h"
+#include "llslider.h"
 
 #include "llglheaders.h"
 #include "llwindow.h"			// copyTextToClipboard()
@@ -972,7 +973,8 @@ void LLFloaterWorldMap::adjustZoomSliderBounds()
 	pixels_per_region = llclamp(pixels_per_region, 1.f, ZOOM_MAX);
 
 	F32 min_power = log(pixels_per_region/256.f)/log(2.f);
-	childSetMinValue("zoom slider", min_power);
+	
+	getChild<LLSlider>("zoom slider")->setMinValue(min_power);
 }
 
 

@@ -82,13 +82,13 @@ public:
 
 protected:
 
-	void setName(std::string name);
-	void setDesc(std::string desc);
-	void setLocation(std::string location);
+	void setPickName(std::string name);
+	void setPickDesc(std::string desc);
+	void setPickLocation(std::string location);
 
-	std::string getName();
-	std::string getDesc();
-	std::string getLocation();
+	std::string getPickName();
+	std::string getPickDesc();
+	std::string getPickLocation();
 
 	void sendUpdate();
 	void requestData();

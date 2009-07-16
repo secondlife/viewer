@@ -148,7 +148,7 @@ public:
 
 	void setIsTransparent(BOOL is_transparent) { mIsTransparent = is_transparent; }
 
-	/*virtual*/ BOOL isAnimatable() { return FALSE; }
+	/*virtual*/ BOOL isAnimatable() const { return FALSE; }
 	
 	static void updateVectorize(); // Update globals when settings variables change
 	

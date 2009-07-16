@@ -826,7 +826,7 @@ class LLSpatialSetStateDiff : public LLSpatialSetState
 public:
 	LLSpatialSetStateDiff(U32 state) : LLSpatialSetState(state) { }
 
-	virtual void traverse(const LLSpatialGroup::TreeNode* n)
+	virtual void traverse(const LLSpatialGroup::OctreeNode* n)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) n->getListener(0);
 		
@@ -885,7 +885,7 @@ class LLSpatialClearStateDiff : public LLSpatialClearState
 public:
 	LLSpatialClearStateDiff(U32 state) : LLSpatialClearState(state) { }
 
-	virtual void traverse(const LLSpatialGroup::TreeNode* n)
+	virtual void traverse(const LLSpatialGroup::OctreeNode* n)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) n->getListener(0);
 		
@@ -1498,7 +1498,7 @@ public:
 		return false;
 	}
 	
-	virtual void traverse(const LLSpatialGroup::TreeNode* n)
+	virtual void traverse(const LLSpatialGroup::OctreeNode* n)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) n->getListener(0);
 

@@ -97,9 +97,9 @@ void LLPanelPick::reset()
 	mCreatorId.setNull();
 	mParcelId.setNull();
 	
-	setName("");
-	setDesc("");
-	setLocation("");
+	setPickName("");
+	setPickDesc("");
+	setPickLocation("");
 	mSnapshotCtrl->setImageAssetID(LLUUID::null);
 
 	//*HACK just setting asset id to NULL not enough to clear 
@@ -164,9 +164,9 @@ void LLPanelPick::init(LLPickData *pick_data)
 	mPickId = pick_data->pick_id;
 	mCreatorId = pick_data->creator_id;
 
-	setName(pick_data->name);
-	setDesc(pick_data->desc);
-	setLocation(pick_data->location_text);
+	setPickName(pick_data->name);
+	setPickDesc(pick_data->desc);
+	setPickLocation(pick_data->location_text);
 	mSnapshotCtrl->setImageAssetID(pick_data->snapshot_id);
 
 	//*HACK see reset() where the texture control was set to FALSE
@@ -188,8 +188,8 @@ void LLPanelPick::createNewPick()
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (parcel)
 	{
-		setName(parcel->getName());
-		setDesc(parcel->getDesc());
+		setPickName(parcel->getName());
+		setPickDesc(parcel->getDesc());
 		mSnapshotCtrl->setImageAssetID(parcel->getSnapshotID());
 	}
 
@@ -219,9 +219,9 @@ void LLPanelPick::setEditMode( BOOL edit_mode )
 	mEditMode = edit_mode;
 
 	// preserve data before killing controls
-	std::string name = getName();
-	std::string desc = getDesc();
-	std::string location = getLocation();
+	std::string name = getPickName();
+	std::string desc = getPickDesc();
+	std::string location = getPickLocation();
 	LLUUID snapshot_id = mSnapshotCtrl->getImageAssetID();
 	LLRect old_rect = getRect();
 
@@ -242,15 +242,15 @@ void LLPanelPick::setEditMode( BOOL edit_mode )
 	setRect(old_rect);
 
 	// time to restore data
-	setName(name);
-	setDesc(desc);
-	setLocation(location);
+	setPickName(name);
+	setPickDesc(desc);
+	setPickLocation(location);
 	mSnapshotCtrl->setImageAssetID(snapshot_id);
 
 	updateButtons();
 }
 
-void LLPanelPick::setName(std::string name)
+void LLPanelPick::setPickName(std::string name)
 {
 	if (mEditMode)
 	{
@@ -262,7 +262,7 @@ void LLPanelPick::setName(std::string name)
 	}
 }
 
-void LLPanelPick::setDesc(std::string desc)
+void LLPanelPick::setPickDesc(std::string desc)
 {
 	if (mEditMode)
 	{
@@ -274,22 +274,22 @@ void LLPanelPick::setDesc(std::string desc)
 	}
 }
 
-void LLPanelPick::setLocation(std::string location)
+void LLPanelPick::setPickLocation(std::string location)
 {
 	childSetWrappedText(XML_LOCATION, location);
 }
 
-std::string LLPanelPick::getName()
+std::string LLPanelPick::getPickName()
 {
 	return childGetValue(XML_NAME).asString();
 }
 
-std::string LLPanelPick::getDesc()
+std::string LLPanelPick::getPickDesc()
 {
 	return childGetValue(XML_DESC).asString();
 }
 
-std::string LLPanelPick::getLocation()
+std::string LLPanelPick::getPickLocation()
 {
 	return childGetValue(XML_LOCATION).asString();
 }
@@ -310,8 +310,8 @@ void LLPanelPick::sendUpdate()
 	//legacy var  need to be deleted
 	pick_data.top_pick = FALSE; 
 	pick_data.parcel_id = mParcelId;
-	pick_data.name = getName();
-	pick_data.desc = getDesc();
+	pick_data.name = getPickName();
+	pick_data.desc = getPickDesc();
 	pick_data.snapshot_id = mSnapshotCtrl->getImageAssetID();
 	pick_data.pos_global = mPosGlobal;
 	pick_data.sort_order = 0;
@@ -381,7 +381,7 @@ void LLPanelPick::onClickSet()
 	location_text.append(mSimName);
 	location_text.append(llformat(" (%d, %d, %d)", region_x, region_y, region_z));
 
-	setLocation(location_text);
+	setPickLocation(location_text);
 }
 
 // static

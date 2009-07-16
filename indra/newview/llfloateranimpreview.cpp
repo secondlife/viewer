@@ -307,8 +307,9 @@ BOOL LLFloaterAnimPreview::postBuild()
 
 			motionp->setName(childGetValue("name_form").asString());
 			mAnimPreview->getDummyAvatar()->startMotion(mMotionID);
-			childSetMinValue("playback_slider", 0.0);
-			childSetMaxValue("playback_slider", 1.0);
+			
+			getChild<LLSlider>("playback_slider")->setMinValue(0.0);
+			getChild<LLSlider>("playback_slider")->setMaxValue(1.0);
 
 			childSetValue("loop_check", LLSD(motionp->getLoop()));
 			childSetValue("loop_in_point", LLSD(motionp->getLoopIn() / motionp->getDuration() * 100.f));

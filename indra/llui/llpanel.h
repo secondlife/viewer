@@ -215,10 +215,6 @@ public:
 	BOOL childSetLabelArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
 	BOOL childSetToolTipArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
 	
-	// LLSlider / LLMultiSlider / LLSpinCtrl
-	void childSetMinValue(const std::string& id, LLSD min_value);
-	void childSetMaxValue(const std::string& id, LLSD max_value);
-
 	// LLTabContainer
 	void childShowTab(const std::string& id, const std::string& tabname, bool visible = true);
 	LLPanel *childGetVisibleTab(const std::string& id) const;

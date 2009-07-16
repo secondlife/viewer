@@ -851,14 +851,6 @@ BOOL LLUICtrl::getTentative() const
 void LLUICtrl::setColor(const LLColor4& color)							
 { }
 
-// virtual
-void LLUICtrl::setMinValue(LLSD min_value)								
-{ }
-
-// virtual
-void LLUICtrl::setMaxValue(LLSD max_value)								
-{ }
-
 
 
 namespace LLInitParam
