@@ -156,6 +156,11 @@ LLViewerMediaTexture*  LLViewerTextureManager::getMediaTexture(const LLUUID& id,
 
 LLViewerFetchedTexture* LLViewerTextureManager::staticCastToFetchedTexture(LLViewerTexture* tex, BOOL report_error)
 {
+	if(!tex)
+	{
+		return NULL ;
+	}
+
 	S8 type = tex->getType() ;
 	if(type == LLViewerTexture::FETCHED_TEXTURE || type == LLViewerTexture::LOD_TEXTURE)
 	{
