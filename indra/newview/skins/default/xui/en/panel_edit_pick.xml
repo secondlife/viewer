@@ -112,7 +112,7 @@
          height="20"
          layout="topleft"
          left="10"
-         name="description_label"
+         name="location_label"
          text_color="white"
          v_pad="15"
          valign="bottom">

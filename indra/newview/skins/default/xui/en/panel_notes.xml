@@ -79,7 +79,7 @@
              height="20"
              layout="topleft"
              left="10"
-             name="pick_title"
+             name="pick_title2"
              text_color="white"
              top_pad="10"
              width="250"
@@ -95,7 +95,7 @@
              height="15"
              layout="topleft"
              left="10"
-             name="status_message"
+             name="status_message2"
              text_color="0.1 0.1 0.1 1"
              top_pad="10"
              width="300">

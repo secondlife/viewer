@@ -772,7 +772,6 @@ If you continue to receive this message, contact customer support.
 	<string name="LTimeHour">hour,datetime,local</string>
 	<string name="LTimeMin">min,datetime,local</string>	
 	<string name="LTimeYear">year,datetime,local</string>	
-	<string name="LTimeSec">second,datetime,local</string>	
 	
 	<string name="UTCTimeWeek">weekday,datetime,utc</string>
 	<string name="UTCTimeDay">day,datetime,utc</string>
