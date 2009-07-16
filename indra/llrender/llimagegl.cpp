@@ -362,6 +362,7 @@ void LLImageGL::init(BOOL usemipmaps)
 
 	mGLTextureCreated = FALSE ;
 	mIsMask = FALSE;
+	mNeedsAlpahAndPickMask = TRUE ;
 }
 
 void LLImageGL::cleanup()
@@ -1356,6 +1357,11 @@ void LLImageGL::setTarget(const LLGLenum target, const LLTexUnit::eTextureType b
 
 void LLImageGL::analyzeAlpha(const void* data_in, S32 w, S32 h)
 {
+	if(!mNeedsAlpahAndPickMask)
+	{
+		return ;
+	}
+
 	if (mFormatType != GL_UNSIGNED_BYTE)
 	{
 		llwarns << "Cannot analyze alpha for image with format type " << std::hex << mFormatType << std::dec << llendl;
@@ -1416,6 +1422,11 @@ void LLImageGL::analyzeAlpha(const void* data_in, S32 w, S32 h)
 //----------------------------------------------------------------------------
 void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 {
+	if(!mNeedsAlpahAndPickMask)
+	{
+		return ;
+	}
+
 	if (mFormatType != GL_UNSIGNED_BYTE ||
 		mFormatPrimary != GL_RGBA)
 	{
