@@ -556,21 +556,21 @@
             <key>md5sum</key>
             <string>4863e9fea433d0a4be761ea5d3e8346a</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/googlemock-1.1.0-darwin-20090626.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-darwin-20090626.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
             <string>877dabecf84339690191c6115c76366e</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/googlemock-1.1.0-linux32-20090527.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-linux32-20090527.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
             <string>be37695d9f26552aec81c8e97ded0212</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/googlemock-1.1.0-windows-20090529.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-windows-20090529.tar.bz2</uri>
           </map>
         </map>
       </map>
