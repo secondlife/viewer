@@ -414,11 +414,11 @@ class DarwinSetup(UnixSetup):
     def os(self):
         return 'darwin'
 
-    def arch(self):
-        if self.unattended == 'ON':
-            return 'universal'
-        else:
-            return UnixSetup.arch(self)
+    #def arch(self):
+    #    if self.unattended == 'ON':
+    #        return 'universal'
+    #    else:
+    #        return UnixSetup.arch(self)
 
     def cmake_commandline(self, src_dir, build_dir, opts, simple):
         args = dict(
@@ -433,7 +433,8 @@ class DarwinSetup(UnixSetup):
             type=self.build_type.upper(),
             )
         if self.unattended == 'ON':
-            args['universal'] = '-DCMAKE_OSX_ARCHITECTURES:STRING=\'i386;ppc\''
+            #args['universal'] = '-DCMAKE_OSX_ARCHITECTURES:STRING=\'i386;ppc\''
+            pass
         #if simple:
         #    return 'cmake %(opts)s %(dir)r' % args
         return ('cmake -G %(generator)r '
