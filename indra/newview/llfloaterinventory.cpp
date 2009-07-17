@@ -1208,6 +1208,12 @@ const std::string& get_item_icon_name(LLAssetType::EType asset_type,
 		//TODO - need bette idx
 		idx = LANDMARK_ICON_NAME;
 		break;
+	case LLAssetType::AT_LINK:
+		idx = BODYPART_ICON_NAME; // Seraph replace this with broken item link icon
+		break;
+	case LLAssetType::AT_LINK_FOLDER:
+		idx = BODYPART_ICON_NAME; // Seraph replace this with broken folder link icon
+		break;
 	default:
 		break;
 	}
@@ -1316,10 +1322,13 @@ BOOL LLInventoryPanel::postBuild()
 LLInventoryPanel::~LLInventoryPanel()
 {
 	// should this be a global setting?
-	U32 sort_order = mFolders->getSortOrder();
-	if (mSortOrderSetting != INHERIT_SORT_ORDER)
+	if (mFolders)
 	{
-		gSavedSettings.setU32(mSortOrderSetting, sort_order);
+		U32 sort_order = mFolders->getSortOrder();
+		if (mSortOrderSetting != INHERIT_SORT_ORDER)
+		{
+			gSavedSettings.setU32(mSortOrderSetting, sort_order);
+		}
 	}
 
 	// LLView destructor will take care of the sub-views.
