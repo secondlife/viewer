@@ -167,7 +167,7 @@ public:
 	void init(BOOL usemipmaps);
 	virtual void cleanup(); // Clean up the LLImageGL so it can be reinitialized.  Be careful when using this in derived class destructors
 
-	void setNeedsAlpahAndPickMask(BOOL need_mask) {mNeedsAlpahAndPickMask = need_mask;}
+	void setNeedsAlphaAndPickMask(BOOL need_mask) {mNeedsAlphaAndPickMask = need_mask;}
 public:
 	// Various GL/Rendering options
 	S32 mTextureMemory;
@@ -181,7 +181,7 @@ private:
 	S8 mAutoGenMips;
 
 	BOOL mIsMask;
-	BOOL mNeedsAlpahAndPickMask;
+	BOOL mNeedsAlphaAndPickMask;
 	
 	bool     mGLTextureCreated ;
 	LLGLuint mTexName;

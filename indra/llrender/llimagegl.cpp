@@ -362,7 +362,7 @@ void LLImageGL::init(BOOL usemipmaps)
 
 	mGLTextureCreated = FALSE ;
 	mIsMask = FALSE;
-	mNeedsAlpahAndPickMask = TRUE ;
+	mNeedsAlphaAndPickMask = TRUE ;
 }
 
 void LLImageGL::cleanup()
@@ -1357,7 +1357,7 @@ void LLImageGL::setTarget(const LLGLenum target, const LLTexUnit::eTextureType b
 
 void LLImageGL::analyzeAlpha(const void* data_in, S32 w, S32 h)
 {
-	if(!mNeedsAlpahAndPickMask)
+	if(!mNeedsAlphaAndPickMask)
 	{
 		return ;
 	}
@@ -1422,7 +1422,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, S32 w, S32 h)
 //----------------------------------------------------------------------------
 void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 {
-	if(!mNeedsAlpahAndPickMask)
+	if(!mNeedsAlphaAndPickMask)
 	{
 		return ;
 	}
