@@ -275,13 +275,16 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
          width="120">
             <combo_box.item
              label="Select Mature -"
+             name="select_mature"
              value="Select" />
             <combo_box.item
              label="Mature Content"
+             name="mature"
              value="Mature" />
             <combo_box.item
              label="PG Content"
-             value="Not Mature" />
+             name="pg"
+             value="PG" />
         </combo_box>
         <text
          type="string"

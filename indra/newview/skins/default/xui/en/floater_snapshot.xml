@@ -172,18 +172,23 @@
      width="115">
         <combo_box.item
          label="Current Window"
+         name="CurrentWindow"
          value="[i0,i0]" />
         <combo_box.item
          label="640x480"
+         name="640x480"
          value="[i640,i480]" />
         <combo_box.item
          label="800x600"
+         name="800x600"
          value="[i800,i600]" />
         <combo_box.item
          label="1024x768"
+         name="1024x768"
          value="[i1024,i768]" />
         <combo_box.item
          label="Custom"
+         name="Custom"
          value="[i-1,i-1]" />
     </combo_box>
     <combo_box
@@ -196,18 +201,23 @@
      width="115">
         <combo_box.item
          label="Current Window"
+         name="CurrentWindow"
          value="[i0,i0]" />
         <combo_box.item
          label="Small (128x128)"
+         name="Small(128x128)"
          value="[i128,i128]" />
         <combo_box.item
          label="Medium (256x256)"
+         name="Medium(256x256)"
          value="[i256,i256]" />
         <combo_box.item
          label="Large (512x512)"
+         name="Large(512x512)"
          value="[i512,i512]" />
         <combo_box.item
          label="Custom"
+         name="Custom"
          value="[i-1,i-1]" />
     </combo_box>
     <combo_box
@@ -220,27 +230,35 @@
      width="115">
         <combo_box.item
          label="Current Window"
+         name="CurrentWindow"
          value="[i0,i0]" />
         <combo_box.item
          label="320x240"
+         name="320x240"
          value="[i320,i240]" />
         <combo_box.item
          label="640x480"
+         name="640x480"
          value="[i640,i480]" />
         <combo_box.item
          label="800x600"
+         name="800x600"
          value="[i800,i600]" />
         <combo_box.item
          label="1024x768"
+         name="1024x768"
          value="[i1024,i768]" />
         <combo_box.item
          label="1280x1024"
+         name="1280x1024"
          value="[i1280,i1024]" />
         <combo_box.item
          label="1600x1200"
+         name="1600x1200"
          value="[i1600,i1200]" />
         <combo_box.item
          label="Custom"
+         name="Custom"
          value="[i-1,i-1]" />
     </combo_box>
     <combo_box
@@ -252,11 +270,14 @@
      top_delta="0"
      width="70">
         <combo_box.item
-         label="PNG" />
+         label="PNG"
+         name="PNG" />
         <combo_box.item
-         label="JPEG" />
+         label="JPEG"
+         name="JPEG" />
         <combo_box.item
-         label="BMP" />
+         label="BMP"
+         name="BMP" />
     </combo_box>
     <spinner
      allow_text_entry="false"
@@ -329,12 +350,15 @@
      width="145">
         <combo_box.item
          label="Colors"
+         name="Colors"
          value="colors" />
         <combo_box.item
          label="Depth"
+         name="Depth"
          value="depth" />
         <combo_box.item
          label="Object Mattes"
+         name="ObjectMattes"
          value="objects" />
     </combo_box>
     <check_box

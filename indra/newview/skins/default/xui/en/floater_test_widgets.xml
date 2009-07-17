@@ -126,8 +126,10 @@
    tool_tip="combo box" 
    name="test_combo_box">
     <combo_box.item
+     name="item1"
      label="Combobox Item 1" />
     <combo_box.item
+     name="item2"
      label="Combobox Item 2" />
   </combo_box>
   <!-- "icon" is a read-only image.  The image_name must match an entry

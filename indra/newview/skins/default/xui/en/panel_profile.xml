@@ -232,12 +232,15 @@
                  width="150">
                     <combo_box.item
                      label="Online"
+                     name="online"
                      value="online" />
                     <combo_box.item
                      label="Away"
+                     name="away"
                      value="away" />
                     <combo_box.item
                      label="Busy"
+                     name="busy"
                      value="busy" />
                 </combo_box>
                 <text

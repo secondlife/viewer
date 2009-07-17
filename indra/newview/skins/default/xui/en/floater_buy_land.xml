@@ -531,11 +531,14 @@ sold with objects
      name="account_level"
      width="336">
         <combo_box.item
-         label="US$9.95/month, billed monthly" />
+         label="US$9.95/month, billed monthly"
+         name="US$9.95/month,billedmonthly" />
         <combo_box.item
-         label="US$7.50/month, billed quarterly" />
+         label="US$7.50/month, billed quarterly"
+         name="US$7.50/month,billedquarterly" />
         <combo_box.item
-         label="US$6.00/month, billed annually" />
+         label="US$6.00/month, billed annually"
+         name="US$6.00/month,billedannually" />
     </combo_box>
     <locate
      height="10"

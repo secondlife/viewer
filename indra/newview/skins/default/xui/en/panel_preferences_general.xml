@@ -34,74 +34,92 @@
         <combo_box.item
          enabled="true"
          label="System Default"
+         name="System Default Language"
          value="default" />
         <combo_box.item
          enabled="true"
          label="English"
+         name="English"
          value="en" />
         <combo_box.item
          enabled="true"
          label="Dansk (Danish) - Beta"
+         name="Danish"
          value="da" />
         <combo_box.item
          enabled="true"
          label="Deutsch (German) - Beta"
+         name="Deutsch(German)"
          value="de" />
         <combo_box.item
          enabled="true"
          label="Español (Spanish) - Beta"
+         name="Spanish"
          value="es" />
         <combo_box.item
          enabled="true"
          label="Français (French) - Beta"
+         name="French"
          value="fr" />
         <combo_box.item
          enabled="true"
          label="Italiano (Italian) - Beta"
+         name="Italian"
          value="it" />
         <combo_box.item
          enabled="true"
          label="Magyar (Hungarian) - Beta"
+         name="Hungarian"
          value="hu" />
         <combo_box.item
          enabled="true"
          label="Nederlands (Dutch) - Beta"
+         name="Dutch"
          value="nl" />
         <combo_box.item
          enabled="true"
          label="Polski (Polish) - Beta"
+         name="Polish"
          value="pl" />
         <combo_box.item
          enabled="true"
          label="Portugués (Portuguese) - Beta"
+         name="Portugese"
          value="pt" />
         <combo_box.item
          enabled="true"
          label="Русский (Russian) - Beta"
+         name="Russian"
          value="ru" />
         <combo_box.item
          enabled="true"
          label="Türkçe (Turkish) - Beta"
+         name="Turkish"
          value="tr" />
         <combo_box.item
          enabled="true"
          label="Українська (Ukrainian) - Beta"
+         name="Ukrainian"
          value="uk" />
         <combo_box.item
          enabled="true"
          label="中文 (简体) (Chinese) - Beta"
+         name="Chinese"
          value="zh" />
         <combo_box.item
          enabled="true"
          label="日本語 (Japanese) - Beta"
+         name="(Japanese)"
          value="ja" />
         <combo_box.item
          enabled="true"
          label="한국어 (Korean) - Beta"
+         name="(Korean)"
          value="ko" />
         <combo_box.item
          enabled="true"
          label="Test Language"
+         name="TestLanguage"
          value="test" />
     </combo_box>
     <text
@@ -134,17 +152,20 @@
      height="18"
      layout="topleft"
      left_delta="50"
-     name="start_location_combo"
+     name="maturity_desired_combobox"
      top_pad="10"
      width="155">
         <combo_box.item
          label="PG, Mature and Adult"
+         name="Desired_Adult"
          value="42" />
         <combo_box.item
          label="PG and Mature"
+         name="Desired_Mature"
          value="21" />
         <combo_box.item
          label="PG"
+         name="Desired_PG"
          value="13" />
     </combo_box>
     <text
@@ -170,9 +191,11 @@
      width="155">
         <combo_box.item
          label="My Last Location"
+         name="MyLastLocation"
          value="last" />
         <combo_box.item
          label="My Home"
+         name="MyHome"
          value="home" />
     </combo_box>
     <check_box

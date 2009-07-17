@@ -108,13 +108,16 @@
      width="130">
         <combo_box.item
          label="- Select Mature -"
+         name="select_mature"
          value="Select" />
         <combo_box.item
          label="Mature Content"
+         name="mature"
          value="Mature" />
         <combo_box.item
          label="PG Content"
-         value="Not Mature" />
+         name="pg"
+         value="PG" />
     </combo_box>
     <combo_box
      bottom="45"

@@ -327,6 +327,7 @@
      width="202">
         <combo_box.item
          label="Online Friends"
+         name="item1"
          value="None" />
 		<combo_box.commit_callback
 		function="WMap.AvatarCombo"/>
@@ -356,6 +357,7 @@
      width="202">
         <combo_box.item
          label="Landmarks"
+         name="item1"
          value="None" />
 		 <combo_box.commit_callback
 		function="WMap.Landmark" />

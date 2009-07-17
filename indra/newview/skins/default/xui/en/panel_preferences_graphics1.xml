@@ -53,18 +53,22 @@
         <combo_box.item
          enabled="true"
          label="4:3 (Standard CRT)"
+         name="item1"
          value="1.333333" />
         <combo_box.item
          enabled="true"
          label="5:4 (1280x1024 LCD)"
+         name="item2"
          value="1.25" />
         <combo_box.item
          enabled="true"
          label="8:5 (Widescreen)"
+         name="item3"
          value="1.6" />
         <combo_box.item
          enabled="true"
          label="16:9 (Widescreen)"
+         name="item4"
          value="1.7777777" />
 		 <combo_box.commit_callback
          function="setControlFalse"

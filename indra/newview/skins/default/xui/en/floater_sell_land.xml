@@ -186,13 +186,16 @@ or a particular buyer.
      width="130">
         <combo_box.item
          enabled="false"
-         label="select one --"
+         label="-- select one --"
+         name="--selectone--"
          value="select" />
         <combo_box.item
          label="Anyone"
+         name="Anyone"
          value="anyone" />
         <combo_box.item
          label="Specific user:"
+         name="Specificuser:"
          value="user" />
     </combo_box>
     <line_editor

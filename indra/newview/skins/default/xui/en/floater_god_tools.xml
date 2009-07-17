@@ -717,9 +717,11 @@
              width="290">
                 <combo_box.item
                  label="Selection"
+                 name="item1"
                  value="Selection" />
                 <combo_box.item
                  label="Agent Region"
+                 name="item2"
                  value="Agent Region" />
             </combo_box>
             <text
@@ -744,15 +746,19 @@
              width="290">
                 <combo_box.item
                  label="colliders &lt;steps&gt;"
+                 name="item1"
                  value="colliders &lt;steps&gt;" />
                 <combo_box.item
                  label="scripts &lt;count&gt;,&lt;optional pattern&gt;"
+                 name="item2"
                  value="scripts &lt;count&gt;,&lt;optional pattern&gt;" />
                 <combo_box.item
                  label="objects &lt;pattern&gt;"
+                 name="item3"
                  value="objects &lt;pattern&gt;" />
                 <combo_box.item
                  label="rez &lt;asset_id&gt;"
+                 name="item4"
                  value="rez &lt;asset_id&gt;" />
             </combo_box>
             <text

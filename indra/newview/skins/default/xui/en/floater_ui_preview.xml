@@ -41,6 +41,7 @@
          width="55">
             <combo_box.item
              label="en"
+             name="item1"
              value="en" />
         </combo_box>
         <button
@@ -136,6 +137,7 @@
          width="55">
             <combo_box.item
              label="en"
+             name="item1"
              value="en" />
         </combo_box>
         <button

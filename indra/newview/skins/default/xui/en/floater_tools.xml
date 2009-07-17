@@ -245,12 +245,15 @@
      width="90">
         <combo_box.item
          label="World"
+         name="World"
          value="World" />
         <combo_box.item
          label="Local"
+         name="Local"
          value="Local" />
         <combo_box.item
          label="Reference"
+         name="Reference"
          value="Reference" />
     </combo_box>
     <check_box
@@ -952,25 +955,32 @@
              left_pad="0">
                 <combo_box.item
                  label="Touch  (default)"
+                 name="Touch/grab(default)"
                  value="Touch/grab (default)" />
                 <combo_box.item
                  label="Sit on object"
+                 name="Sitonobject"
                  value="Sit on object" />
                 <combo_box.item
                  label="Buy object"
+                 name="Buyobject"
                  value="Buy object" />
                 <combo_box.item
                  label="Pay object"
+                 name="Payobject"
                  value="Pay object" />
                 <combo_box.item
                  label="Open"
+                 name="Open"
                  value="Open" />
 <!--TODO: Kill this-->
 <!--                <combo_box.item
                  label="Play parcel media"
+                 name="Play"
                  value="Play" />
                 <combo_box.item
                  label="Open parcel media"
+                 name="Opemmedia"
                  value="Open Media" />-->
             </combo_box>
             <check_box
@@ -1325,24 +1335,31 @@
              width="95">
                 <combo_box.item
                  label="Stone"
+                 name="Stone"
                  value="Stone" />
                 <combo_box.item
                  label="Metal"
+                 name="Metal"
                  value="Metal" />
                 <combo_box.item
                  label="Glass"
+                 name="Glass"
                  value="Glass" />
                 <combo_box.item
                  label="Wood"
+                 name="Wood"
                  value="Wood" />
                 <combo_box.item
                  label="Flesh"
+                 name="Flesh"
                  value="Flesh" />
                 <combo_box.item
                  label="Plastic"
+                 name="Plastic"
                  value="Plastic" />
                 <combo_box.item
                  label="Rubber"
+                 name="Rubber"
                  value="Rubber" />
             </combo_box>
             <text
@@ -1540,27 +1557,35 @@
              width="150">
                 <combo_box.item
                  label="Box"
+                 name="Box"
                  value="Box" />
                 <combo_box.item
                  label="Cylinder"
+                 name="Cylinder"
                  value="Cylinder" />
                 <combo_box.item
                  label="Prism"
+                 name="Prism"
                  value="Prism" />
                 <combo_box.item
                  label="Sphere"
+                 name="Sphere"
                  value="Sphere" />
                 <combo_box.item
                  label="Torus"
+                 name="Torus"
                  value="Torus" />
                 <combo_box.item
                  label="Tube"
+                 name="Tube"
                  value="Tube" />
                 <combo_box.item
                  label="Ring"
+                 name="Ring"
                  value="Ring" />
                 <combo_box.item
                  label="Sculpted"
+                 name="Sculpted"
                  value="Sculpted" />
             </combo_box>
             <text
@@ -1671,15 +1696,19 @@
              width="150">
                 <combo_box.item
                  label="Default"
+                 name="Default"
                  value="Default" />
                 <combo_box.item
                  label="Circle"
+                 name="Circle"
                  value="Circle" />
                 <combo_box.item
                  label="Square"
+                 name="Square"
                  value="Square" />
                 <combo_box.item
                  label="Triangle"
+                 name="Triangle"
                  value="Triangle" />
             </combo_box>
             <text
@@ -2022,19 +2051,24 @@
              visible="false"
              width="150">
                 <combo_box.item
-                 label="none)"
+                 label="(none)"
+                 name="None"
                  value="None" />
                 <combo_box.item
                  label="Sphere"
+                 name="Sphere"
                  value="Sphere" />
                 <combo_box.item
                  label="Torus"
+                 name="Torus"
                  value="Torus" />
                 <combo_box.item
                  label="Plane"
+                 name="Plane"
                  value="Plane" />
                 <combo_box.item
                  label="Cylinder"
+                 name="Cylinder"
                  value="Cylinder" />
             </combo_box>
         </panel>
@@ -2379,9 +2413,11 @@
              width="80">
                 <combo_box.item
                  label="Default"
+                 name="Default"
                  value="Default" />
                 <combo_box.item
                  label="Planar"
+                 name="Planar"
                  value="Planar" />
             </combo_box>
             <text
@@ -2405,15 +2441,19 @@
              width="70">
                 <combo_box.item
                  label="None"
+                 name="None"
                  value="None" />
                 <combo_box.item
                  label="Low"
+                 name="Low"
                  value="Low" />
                 <combo_box.item
                  label="Medium"
+                 name="Medium"
                  value="Medium" />
                 <combo_box.item
                  label="High"
+                 name="High"
                  value="High" />
             </combo_box>
             <text
@@ -2437,57 +2477,75 @@
              width="80">
                 <combo_box.item
                  label="None"
+                 name="None"
                  value="None" />
                 <combo_box.item
                  label="Brightness"
+                 name="Brightness"
                  value="Brightness" />
                 <combo_box.item
                  label="Darkness"
+                 name="Darkness"
                  value="Darkness" />
                 <combo_box.item
                  label="woodgrain"
+                 name="woodgrain"
                  value="woodgrain" />
                 <combo_box.item
                  label="bark"
+                 name="bark"
                  value="bark" />
                 <combo_box.item
                  label="bricks"
+                 name="bricks"
                  value="bricks" />
                 <combo_box.item
                  label="checker"
+                 name="checker"
                  value="checker" />
                 <combo_box.item
                  label="concrete"
+                 name="concrete"
                  value="concrete" />
                 <combo_box.item
                  label="crustytile"
+                 name="crustytile"
                  value="crustytile" />
                 <combo_box.item
                  label="cutstone"
+                 name="cutstone"
                  value="cutstone" />
                 <combo_box.item
                  label="discs"
+                 name="discs"
                  value="discs" />
                 <combo_box.item
                  label="gravel"
+                 name="gravel"
                  value="gravel" />
                 <combo_box.item
                  label="petridish"
+                 name="petridish"
                  value="petridish" />
                 <combo_box.item
                  label="siding"
+                 name="siding"
                  value="siding" />
                 <combo_box.item
                  label="stonetile"
+                 name="stonetile"
                  value="stonetile" />
                 <combo_box.item
                  label="stucco"
+                 name="stucco"
                  value="stucco" />
                 <combo_box.item
                  label="suction"
+                 name="suction"
                  value="suction" />
                 <combo_box.item
                  label="weave"
+                 name="weave"
                  value="weave" />
             </combo_box>
             <text

@@ -252,42 +252,55 @@ Maximum animation length is [MAX_LENGTH] seconds.
      width="104">
         <combo_box.item
          label="Spread"
+         name="Spread"
          value="" />
         <combo_box.item
          label="Relaxed"
+         name="Relaxed"
          value="Hands_Relaxed" />
         <combo_box.item
          label="Point Both"
+         name="PointBoth"
          value="Hands_Point" />
         <combo_box.item
          label="Fist"
+         name="Fist"
          value="Hands_Fist" />
         <combo_box.item
          label="Relaxed Left"
+         name="RelaxedLeft"
          value="Hands_Relaxed_L" />
         <combo_box.item
          label="Point Left"
+         name="PointLeft"
          value="Hands_Point_L" />
         <combo_box.item
          label="Fist Left"
+         name="FistLeft"
          value="Hands_Fist_L" />
         <combo_box.item
          label="Relaxed Right"
+         name="RelaxedRight"
          value="Hands_Relaxed_R" />
         <combo_box.item
          label="Point Right"
+         name="PointRight"
          value="Hands_Point_R" />
         <combo_box.item
          label="Fist Right"
+         name="FistRight"
          value="Hands_Fist_R" />
         <combo_box.item
          label="Salute Right"
+         name="SaluteRight"
          value="Hands_Salute_R" />
         <combo_box.item
          label="Typing"
+         name="Typing"
          value="Hands_Typing" />
         <combo_box.item
          label="Peace Right"
+         name="PeaceRight"
          value="Hands_Peace_R" />
     </combo_box>
     <text
@@ -310,45 +323,65 @@ Maximum animation length is [MAX_LENGTH] seconds.
      top_delta="-1"
      width="104">
         <combo_box.item
-         label="None]" />
+         label="(None)"
+         name="[None]" />
         <combo_box.item
-         label="Aaaaah" />
+         label="Aaaaah"
+         name="Aaaaah" />
         <combo_box.item
-         label="Afraid" />
+         label="Afraid"
+         name="Afraid" />
         <combo_box.item
-         label="Angry" />
+         label="Angry"
+         name="Angry" />
         <combo_box.item
-         label="Big Smile" />
+         label="Big Smile"
+         name="BigSmile" />
         <combo_box.item
-         label="Bored" />
+         label="Bored"
+         name="Bored" />
         <combo_box.item
-         label="Cry" />
+         label="Cry"
+         name="Cry" />
         <combo_box.item
-         label="Disdain" />
+         label="Disdain"
+         name="Disdain" />
         <combo_box.item
-         label="Embarrassed" />
+         label="Embarrassed"
+         name="Embarrassed" />
         <combo_box.item
-         label="Frown" />
+         label="Frown"
+         name="Frown" />
         <combo_box.item
-         label="Kiss" />
+         label="Kiss"
+         name="Kiss" />
         <combo_box.item
-         label="Laugh" />
+         label="Laugh"
+         name="Laugh" />
         <combo_box.item
-         label="Plllppt" />
+         label="Plllppt"
+         name="Plllppt" />
         <combo_box.item
-         label="Repulsed" />
+         label="Repulsed"
+         name="Repulsed" />
         <combo_box.item
-         label="Sad" />
+         label="Sad"
+         name="Sad" />
         <combo_box.item
-         label="Shrug" />
+         label="Shrug"
+         name="Shrug" />
         <combo_box.item
-         label="Smile" />
+         label="Smile"
+         name="Smile" />
         <combo_box.item
-         label="Surprise" />
+         label="Surprise"
+         name="Surprise" />
         <combo_box.item
-         label="Wink" />
+         label="Wink"
+         name="Wink" />
         <combo_box.item
-         label="Worry" />
+         label="Worry"
+         name="Worry" />
     </combo_box>
     <text
      type="string"
@@ -371,13 +404,17 @@ Maximum animation length is [MAX_LENGTH] seconds.
      top_delta="-1"
      width="104">
         <combo_box.item
-         label="Standing" />
+         label="Standing"
+         name="Standing" />
         <combo_box.item
-         label="Walking" />
+         label="Walking"
+         name="Walking" />
         <combo_box.item
-         label="Sitting" />
+         label="Sitting"
+         name="Sitting" />
         <combo_box.item
-         label="Flying" />
+         label="Flying"
+         name="Flying" />
     </combo_box>
     <spinner
      follows="left|top"
