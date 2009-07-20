@@ -1297,11 +1297,12 @@ if (WINDOWS)
         )
     if (PACKAGE)
       add_custom_command(
-          OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/event_host.tar.bz2
+          OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2
           COMMAND ${PYTHON_EXECUTABLE}
           ARGS
             ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
             ${CMAKE_CURRENT_SOURCE_DIR}/..
+            ${CMAKE_CURRENT_BINARY_DIR}
             ${CMAKE_CFG_INTDIR}
 
           DEPENDS 
@@ -1312,7 +1313,7 @@ if (WINDOWS)
       add_custom_target(package ALL 
           DEPENDS 
             ${CMAKE_CFG_INTDIR}/touched.bat
-            ${CMAKE_CURRENT_SOURCE_DIR}/event_host.tar.bz2)
+            ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)
       add_dependencies(package windows-updater windows-crash-logger)
 
 
