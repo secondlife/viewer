@@ -75,7 +75,7 @@ public:
 private:
 	BOOL outsideSlop		(S32 x, S32 y, S32 start_x, S32 start_y);
 	BOOL pickLeftMouseDownCallback();
-	BOOL pickRightMouseUpCallback();
+	BOOL pickRightMouseDownCallback();
 	BOOL useClickAction		(MASK mask, LLViewerObject* object,LLViewerObject* parent);
 
 	void showVisualContextMenuEffect();

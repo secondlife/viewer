@@ -3250,6 +3250,19 @@ BOOL LLMenuHolderGL::handleRightMouseDown( S32 x, S32 y, MASK mask )
 	return handled;
 }
 
+// This occurs when you mouse-down to spawn a context menu, hold the button 
+// down, move off the menu, then mouse-up.  We want this to close the menu.
+BOOL LLMenuHolderGL::handleRightMouseUp( S32 x, S32 y, MASK mask )
+{
+	BOOL handled = LLView::childrenHandleRightMouseUp(x, y, mask) != NULL;
+	if (!handled)
+	{
+		// clicked off of menu, hide them all
+		hideMenus();
+	}
+	return handled;
+}
+
 void LLMenuHolderGL::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	if (width != getRect().getWidth() || height != getRect().getHeight())
@@ -3568,8 +3581,9 @@ static MenuRegistry::Register<LLContextMenu> context_menu_register2("context_men
 LLContextMenu::LLContextMenu(const Params& p)
 :	LLMenuGL(p),
 	mHoveredAnyItem(FALSE),
-	mHoverItem(NULL)
-
+	mHoverItem(NULL),
+	mSpawnMouseX(S32_MAX),  // definitely not inside the window frame
+	mSpawnMouseY(S32_MAX)
 {
 	//setBackgroundVisible(TRUE);
 }
@@ -3580,6 +3594,7 @@ void LLContextMenu::setVisible(BOOL visible)
 		hide();
 }
 
+// Takes cursor position in screen space?
 void LLContextMenu::show(S32 x, S32 y)
 {
 	arrangeAndClear();
@@ -3622,8 +3637,12 @@ void LLContextMenu::show(S32 x, S32 y)
 	const_cast<LLRect&>(getRect()).setCenterAndSize(local_x + width/2, local_y - height/2, width, height);
 	arrange();
 
-	LLView::setVisible(TRUE);
+	// Save click point for detecting cursor moves before mouse-up.
+	// Must be in local coords to compare with mouseUp events.
+	// If the mouse doesn't move, the menu will stay open ala the Mac.
+	screenPointToLocal(x, y, &mSpawnMouseX, &mSpawnMouseY);
 
+	LLView::setVisible(TRUE);
 }
 
 void LLContextMenu::hide()
@@ -3683,58 +3702,8 @@ BOOL LLContextMenu::handleHover( S32 x, S32 y, MASK mask )
 	return handled;
 }
 
-BOOL LLContextMenu::handleMouseDown( S32 x, S32 y, MASK mask )
-{
-	BOOL handled = FALSE;
-	// The click was somewhere within our rectangle
-	LLMenuItemGL *item = getHighlightedItem();
+// handleMouseDown and handleMouseUp are handled by LLMenuGL
 
-	if (item)
-	{
-		// lie to the item about where the click happened
-		// to make sure it's within the item's rectangle
-		handled = item->handleMouseDown( 0, 0, mask );
-	}
-	else 
-	{
-		// call hidemenus to make sure transient selections get cleared
-		((LLMenuHolderGL*)getParent())->hideMenus();
-	}
-
-	// always handle mouse down as mouse up will close open menus
-	return handled;
-}
-BOOL LLContextMenu::handleMouseUp( S32 x, S32 y, MASK mask )
-{
-	BOOL handled = FALSE;
-
-	// The click was somewhere within our rectangle
-	LLMenuItemGL *item = getHighlightedItem();
-
-	if (item)
-	{
-		// lie to the item about where the click happened
-		// to make sure it's within the item's rectangle
-		if (item->getEnabled())
-		{
-			handled = item->handleMouseUp( 0, 0, mask );
-			hide();
-		}
-	}
-	else 
-	{
-		// call hidemenus to make sure transient selections get cleared
-		((LLMenuHolderGL*)getParent())->hideMenus();
-	}
-
-	if (!handled)
-	{
-		// call hidemenus to make sure transient selections get cleared
-		sMenuContainer->hideMenus();
-	}
-
-	return handled;
-}
 
 BOOL LLContextMenu::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
@@ -3770,7 +3739,19 @@ BOOL LLContextMenu::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLContextMenu::handleRightMouseUp( S32 x, S32 y, MASK mask )
 {
-	// release mouse capture when right mouse button released, and we're past the shrink time
+	const S32 SLOP = 2;
+	S32 spawn_dx = (x - mSpawnMouseX);
+	S32 spawn_dy = (y - mSpawnMouseY);
+	if (-SLOP <= spawn_dx && spawn_dx <= SLOP
+		&& -SLOP <= spawn_dy && spawn_dy <= SLOP)
+	{
+		// we're still inside the slop region from spawning this menu
+		// so interpret the mouse-up as a single-click to show and leave on
+		// screen
+		mSpawnMouseX = S32_MAX;
+		mSpawnMouseY = S32_MAX;
+		return TRUE;
+	}
 
 	S32 local_x = x - getRect().mLeft;
 	S32 local_y = y - getRect().mBottom;
