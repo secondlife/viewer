@@ -63,6 +63,7 @@ include_directories(
     )
 
 set(viewer_SOURCE_FILES
+    llaccordionctrltab.cpp
     llaccordionpanel.cpp
     llagent.cpp
     llagentaccess.cpp
@@ -75,6 +76,7 @@ set(viewer_SOURCE_FILES
     llassetuploadresponders.cpp
     llassetuploadqueue.cpp
     llaudiosourcevo.cpp
+    llavataractions.cpp
     llavatariconctrl.cpp
     llavatarlist.cpp
     llavatarlistitem.cpp
@@ -86,13 +88,11 @@ set(viewer_SOURCE_FILES
     llcallingcard.cpp
     llcapabilitylistener.cpp
     llcaphttpsender.cpp
-    llchatbar.cpp
     llchathistoryscroll.cpp
     llchiclet.cpp
     llclassifiedinfo.cpp
     llclassifiedstatsresponder.cpp
     llcloud.cpp
-    llcollapsiblectrl.cpp
     llcolorswatch.cpp
     llcommandhandler.cpp
     llcommandlineparser.cpp
@@ -213,7 +213,6 @@ set(viewer_SOURCE_FILES
     llfolderview.cpp
     llfolderviewitem.cpp
     llfollowcam.cpp
-    llfriendactions.cpp
     llgesturemgr.cpp
     llgivemoney.cpp
     llglsandbox.cpp
@@ -350,6 +349,7 @@ set(viewer_SOURCE_FILES
     lltexturectrl.cpp
     lltexturefetch.cpp
     lltextureview.cpp
+    lltoggleablemenu.cpp
     lltoolbar.cpp
     lltoolbrush.cpp
     lltoolcomp.cpp
@@ -483,6 +483,7 @@ endif (LINUX)
 set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
+    llaccordionctrltab.h
     llaccordionpanel.h
     llagent.h
     llagentaccess.h
@@ -496,6 +497,7 @@ set(viewer_HEADER_FILES
     llassetuploadresponders.h
     llassetuploadqueue.h
     llaudiosourcevo.h
+    llavataractions.h
     llavatariconctrl.h
     llavatarlist.h
     llavatarlistitem.h
@@ -508,13 +510,11 @@ set(viewer_HEADER_FILES
     llcapabilitylistener.h
     llcapabilityprovider.h
     llcaphttpsender.h
-    llchatbar.h
     llchathistoryscroll.h
     llchiclet.h
     llclassifiedinfo.h
     llclassifiedstatsresponder.h
     llcloud.h
-    llcollapsiblectrl.h
     llcolorswatch.h
     llcommandhandler.h
     llcommandlineparser.h
@@ -637,7 +637,6 @@ set(viewer_HEADER_FILES
     llfoldervieweventlistener.h
     llfolderviewitem.h
     llfollowcam.h
-    llfriendactions.h
     llgesturemgr.h
     llgivemoney.h
     llgroupactions.h
@@ -777,6 +776,7 @@ set(viewer_HEADER_FILES
     lltexturectrl.h
     lltexturefetch.h
     lltextureview.h
+    lltoggleablemenu.h
     lltool.h
     lltoolbar.h
     lltoolbrush.h

@@ -44,7 +44,7 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldbstrings.h"
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "lllineeditor.h"
 #include "llnamebox.h"
 #include "llnamelistctrl.h"
@@ -375,7 +375,7 @@ void LLPanelGroupGeneral::openProfile(void* data)
 		LLScrollListItem* selected = self->mListVisibleMembers->getFirstSelected();
 		if (selected)
 		{
-			LLFriendActions::showProfile(selected->getUUID());
+			LLAvatarActions::showProfile(selected->getUUID());
 		}
 	}
 }

@@ -3068,9 +3068,10 @@ Are you sure you want to teleport?
    type="alertmodal">
 Teleport to [PICK]?
     <usetemplate
-     name="okcancelbuttons"
+     ignoretext="When teleporting from double-clicking a pick"
+     name="okcancelignore"
      notext="Cancel"
-     yestext="OK"/>
+     yestext="Teleport"/>
   </notification>
   
   <notification

@@ -32,6 +32,8 @@
 #ifndef LL_LLPANELPLACES_H
 #define LL_LLPANELPLACES_H
 
+#include "lltimer.h"
+
 #include "llpanel.h"
 
 #include "llinventory.h"
@@ -50,7 +52,6 @@ public:
 	virtual ~LLPanelPlaces();
 
 	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void draw();
 	/*virtual*/ void changed(U32 mask);
 	/*virtual*/ void onOpen(const LLSD& key);
 
@@ -62,7 +63,9 @@ public:
 	void onTeleportButtonClicked();
 	void onShowOnMapButtonClicked();
 	void onBackButtonClicked();
+	void toggleMediaPanel();
 	void togglePlaceInfoPanel(BOOL visible);
+	void onAgentParcelChange();
 
 private:
 	LLSearchEditor*			mSearchEditor;
@@ -73,6 +76,17 @@ private:
 
 	// Place information type currently shown in Information panel
 	std::string				mPlaceInfoType;
+
+	// Helper class to delay the coordinates update 
+	// when agent changes parcel
+	class LLParcelUpdateTimer : public LLEventTimer
+	{
+	public:
+		LLParcelUpdateTimer(F32 period);
+		virtual ~LLParcelUpdateTimer() {};
+
+		virtual BOOL tick();
+	};
 };
 
 #endif //LL_LLPANELPLACES_H

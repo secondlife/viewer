@@ -32,7 +32,8 @@
      name="picture_name"
      text_color="black"
      top="5"
-     width="170" />
+     use_ellipses="true"
+     width="170"/>
     <text
      follows="right"
      font="SansSerif"

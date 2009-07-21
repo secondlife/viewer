@@ -38,7 +38,7 @@
 #include "llavatarconstants.h"
 #include "llcallingcard.h"
 #include "llcombobox.h"
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "llimview.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
@@ -182,7 +182,7 @@ void LLPanelProfileTab::onAddFriend()
 	{
 		std::string name;
 		gCacheName->getFullName(getAvatarId(),name);
-		LLFriendActions::requestFriendshipDialog(getAvatarId(), name);
+		LLAvatarActions::requestFriendshipDialog(getAvatarId(), name);
 	}
 }
 
@@ -200,7 +200,7 @@ void LLPanelProfileTab::onTeleport()
 {
 	if(getAvatarId().notNull())
 	{
-		LLFriendActions::offerTeleport(getAvatarId());
+		LLAvatarActions::offerTeleport(getAvatarId());
 	}
 }
 
@@ -296,7 +296,7 @@ void LLPanelAvatarProfile::processProperties(void* data, EAvatarProcessorType ty
 
 
 			bool online = avatar_data->flags & AVATAR_ONLINE;
-			if(LLFriendActions::isFriend(avatar_data->avatar_id))
+			if(LLAvatarActions::isFriend(avatar_data->avatar_id))
 			{
 				// Online status NO could be because they are hidden
 				// If they are a friend, we may know the truth!
@@ -536,7 +536,7 @@ void LLPanelAvatarProfile::updateChildrenList()
 		childSetVisible("partner_edit_link", false);
 
 		//hide for friends
-		childSetEnabled("add_friend", !LLFriendActions::isFriend(getAvatarId()));
+		childSetEnabled("add_friend", !LLAvatarActions::isFriend(getAvatarId()));
 
 		//need to update profile view on every activate
 		mUpdated = false;
@@ -730,5 +730,5 @@ void LLPanelAvatarNotes::onActivate(const LLUUID& id)
 void LLPanelAvatarNotes::updateChildrenList()
 {
 	//hide for friends
-	childSetEnabled("add_friend", !LLFriendActions::isFriend(getAvatarId()));
+	childSetEnabled("add_friend", !LLAvatarActions::isFriend(getAvatarId()));
 }

@@ -50,7 +50,6 @@
 
 // newview
 #include "llagent.h"
-#include "llchatbar.h"
 #include "lldelayedgestureerror.h"
 #include "llinventorymodel.h"
 #include "llnotify.h"
@@ -872,8 +871,7 @@ void LLGestureManager::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 
 			const BOOL animate = FALSE;
 
-			if(gBottomTray)
-				gBottomTray->sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
+			LLBottomTray::getInstance()->sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
 
 			gesture->mCurrentStep++;
 			break;

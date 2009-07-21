@@ -219,9 +219,6 @@ void LLPanelPick::setEditMode( BOOL edit_mode )
 	mEditMode = edit_mode;
 
 	// preserve data before killing controls
-	std::string name = getPickName();
-	std::string desc = getPickDesc();
-	std::string location = getPickLocation();
 	LLUUID snapshot_id = mSnapshotCtrl->getImageAssetID();
 	LLRect old_rect = getRect();
 
@@ -242,9 +239,9 @@ void LLPanelPick::setEditMode( BOOL edit_mode )
 	setRect(old_rect);
 
 	// time to restore data
-	setPickName(name);
-	setPickDesc(desc);
-	setPickLocation(location);
+	setPickName(mName);
+	setPickDesc(mDesc);
+	setPickLocation(mLocation);
 	mSnapshotCtrl->setImageAssetID(snapshot_id);
 
 	updateButtons();
@@ -260,6 +257,9 @@ void LLPanelPick::setPickName(std::string name)
 	{
 		childSetWrappedText(XML_NAME, name);
 	}
+	
+	//preserving non-wrapped text for info/edit modes switching
+	mName = name;
 }
 
 void LLPanelPick::setPickDesc(std::string desc)
@@ -272,11 +272,17 @@ void LLPanelPick::setPickDesc(std::string desc)
 	{
 		childSetWrappedText(XML_DESC, desc);
 	}
+
+	//preserving non-wrapped text for info/edit modes switching
+	mDesc = desc;
 }
 
 void LLPanelPick::setPickLocation(std::string location)
 {
 	childSetWrappedText(XML_LOCATION, location);
+
+	//preserving non-wrapped text for info/edit modes switching
+	mLocation = location;
 }
 
 std::string LLPanelPick::getPickName()

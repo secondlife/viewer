@@ -56,7 +56,8 @@ public:
 	enum INFO_TYPE
 	{
 		PLACE,
-		LANDMARK
+		LANDMARK,
+		TELEPORT_HISTORY
 	};
 
 	LLPanelPlaceInfo();
@@ -77,7 +78,8 @@ public:
 	// sets a corresponding title and contents.
 	void setInfoType(INFO_TYPE type);
 
-	void toggleMediaPanel();
+	BOOL isMediaPanelVisible();
+	void toggleMediaPanel(BOOL visible);
 	void displayItemInfo(const LLInventoryItem* pItem);
 	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason);
 

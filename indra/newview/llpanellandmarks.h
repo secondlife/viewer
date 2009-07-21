@@ -52,6 +52,7 @@ public:
 
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();
+	void setSelectedItem(const LLUUID& obj_id);
 
 private:
 	LLInventoryPanel*			mInventoryPanel;

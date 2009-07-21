@@ -39,7 +39,6 @@
 #include "llviewerinventory.h"
 #include "sound_ids.h"		// for testing
 
-#include "llchatbar.h"
 #include "llkeyboard.h"		// for key shortcuts for testing
 #include "llinventorymodel.h"
 #include "llvoavatar.h"
@@ -133,11 +132,11 @@ void LLViewerGesture::doTrigger( BOOL send_chat )
 		}
 	}
 
-	if (gBottomTray && send_chat && !mOutputString.empty())
+	if (send_chat && !mOutputString.empty())
 	{
 		// Don't play nodding animation, since that might not blend
 		// with the gesture animation.
-		gBottomTray->sendChatFromViewer(mOutputString, CHAT_TYPE_NORMAL, FALSE);
+		LLBottomTray::getInstance()->sendChatFromViewer(mOutputString, CHAT_TYPE_NORMAL, FALSE);
 	}
 }
 

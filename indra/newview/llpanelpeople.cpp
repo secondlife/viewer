@@ -47,7 +47,7 @@
 #include "llcallingcard.h"			// for LLAvatarTracker
 #include "llfloateravatarpicker.h"
 #include "llfloaterminiinspector.h"
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "llgroupactions.h"
 #include "llgrouplist.h"
 #include "llrecentpeople.h"
@@ -508,17 +508,19 @@ void LLPanelPeople::updateButtons()
 
 	if (group_tab_active)
 	{
+		bool item_selected = mGroupList->getFirstSelected() != NULL;
 		bool cur_group_active = true;
 
-		selected_id = mGroupList->getCurrentID();
-		if (selected_id.notNull())
+		if (item_selected)
+		{
+			selected_id = mGroupList->getCurrentID();
 			cur_group_active = (gAgent.getGroupID() == selected_id);
-
-		bool item_selected = selected_id.notNull();
+		}
+	
 		LLPanel* groups_panel = mTabContainer->getCurrentPanel();
-		groups_panel->childSetEnabled("activate_btn",	!item_selected || !cur_group_active); // "none" or a non-active group selected
+		groups_panel->childSetEnabled("activate_btn",	item_selected && !cur_group_active); // "none" or a non-active group selected
 		groups_panel->childSetEnabled("plus_btn",		item_selected);
-		groups_panel->childSetEnabled("minus_btn",		item_selected);
+		groups_panel->childSetEnabled("minus_btn",		item_selected && selected_id.notNull());
 	}
 	else
 	{
@@ -623,6 +625,8 @@ void LLPanelPeople::onSearchEdit(const std::string& search_string)
 	filterFriendList();
 	filterRecentList();
 	updateGroupList();
+
+	updateButtons();
 }
 
 void LLPanelPeople::onTabSelected(const LLSD& param)
@@ -653,7 +657,7 @@ void LLPanelPeople::onAvatarListCommitted(LLAvatarList* list)
 void LLPanelPeople::onViewProfileButtonClicked()
 {
 	LLUUID id = getCurrentItemID();
-	LLFriendActions::showProfile(id);
+	LLAvatarActions::showProfile(id);
 }
 
 void LLPanelPeople::onAddFriendButtonClicked()
@@ -663,7 +667,7 @@ void LLPanelPeople::onAddFriendButtonClicked()
 	{
 		std::string name;
 		gCacheName->getFullName(id, name);
-		LLFriendActions::requestFriendshipDialog(id, name);
+		LLAvatarActions::requestFriendshipDialog(id, name);
 	}
 }
 
@@ -680,7 +684,7 @@ void LLPanelPeople::onAddFriendWizButtonClicked()
 
 void LLPanelPeople::onDeleteFriendButtonClicked()
 {
-	LLFriendActions::removeFriendDialog(getCurrentItemID());
+	LLAvatarActions::removeFriendDialog(getCurrentItemID());
 }
 
 void LLPanelPeople::onGroupInfoButtonClicked()
@@ -702,7 +706,7 @@ void LLPanelPeople::onImButtonClicked()
 	LLUUID id = getCurrentItemID();
 	if (id.notNull())
 	{
-		LLFriendActions::startIM(id);
+		LLAvatarActions::startIM(id);
 	}
 }
 
@@ -718,7 +722,7 @@ void LLPanelPeople::onAvatarPicked(
 		void*)
 {
 	if (!names.empty() && !ids.empty())
-		LLFriendActions::requestFriendshipDialog(ids[0], names[0]);
+		LLAvatarActions::requestFriendshipDialog(ids[0], names[0]);
 }
 
 bool LLPanelPeople::onFriendListUpdate(U32 changed_mask)
@@ -765,7 +769,7 @@ void LLPanelPeople::onCallButtonClicked()
 
 void LLPanelPeople::onTeleportButtonClicked()
 {
-	LLFriendActions::offerTeleport(getCurrentItemID());
+	LLAvatarActions::offerTeleport(getCurrentItemID());
 }
 
 void LLPanelPeople::onShareButtonClicked()

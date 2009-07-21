@@ -51,7 +51,7 @@
 #include "llresmgr.h"
 #include "llfloaterchat.h"
 #include "llfloaterchatterbox.h"
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "llhttpnode.h"
 #include "llimpanel.h"
 #include "llresizebar.h"

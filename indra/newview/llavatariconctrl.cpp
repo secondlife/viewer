@@ -36,7 +36,7 @@
 #include "llavatarconstants.h"
 #include "llavatariconctrl.h"
 #include "llcallingcard.h" // for LLAvatarTracker
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "llimview.h"
 #include "llmenugl.h"
 #include "lluictrlfactory.h"
@@ -230,7 +230,7 @@ void LLAvatarIconCtrl::onAvatarIconContextMenuItemClicked(const LLSD& userdata)
 
 	if (level == "profile")
 	{
-		LLFriendActions::showProfile(id);
+		LLAvatarActions::showProfile(id);
 	}
 	else if (level == "im")
 	{
@@ -248,10 +248,10 @@ void LLAvatarIconCtrl::onAvatarIconContextMenuItemClicked(const LLSD& userdata)
 		name.append(" ");
 		name.append(getLastName());
 
-		LLFriendActions::requestFriendshipDialog(id, name);
+		LLAvatarActions::requestFriendshipDialog(id, name);
 	}
 	else if (level == "remove")
 	{
-		LLFriendActions::removeFriendDialog(id);
+		LLAvatarActions::removeFriendDialog(id);
 	}
 }

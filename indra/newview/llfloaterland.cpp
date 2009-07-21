@@ -52,7 +52,7 @@
 #include "llfloaterauction.h"
 #include "llfloatergroups.h"
 #include "llfloatergroupinfo.h"
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
 #include "llnotify.h"
@@ -811,7 +811,7 @@ void LLPanelLandGeneral::onClickProfile(void* data)
 	else
 	{
 		const LLUUID& avatar_id = parcel->getOwnerID();
-		LLFriendActions::showProfile(avatar_id);
+		LLAvatarActions::showProfile(avatar_id);
 	}
 }
 
@@ -1084,7 +1084,7 @@ void LLPanelLandObjects::onDoubleClickOwner(void *userdata)
 		}
 		else
 		{
-			LLFriendActions::showProfile(owner_id);
+			LLAvatarActions::showProfile(owner_id);
 		}
 	}
 }

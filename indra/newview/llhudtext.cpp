@@ -39,7 +39,6 @@
 
 #include "llagent.h"
 #include "llviewercontrol.h"
-#include "llchatbar.h"
 #include "llcriticaldamp.h"
 #include "lldrawable.h"
 #include "llfontgl.h"
@@ -803,10 +802,6 @@ LLVector2 LLHUDText::updateScreenPos(LLVector2 &offset)
 
 	LLRect world_rect = gViewerWindow->getVirtualWorldViewRect();
 	S32 bottom = world_rect.mBottom + STATUS_BAR_HEIGHT;
-	if (gChatBar && gChatBar->getVisible())
-	{
-		bottom += CHAT_BAR_HEIGHT;
-	}
 
 	LLVector2 screen_center;
 	screen_center.mV[VX] = llclamp((F32)screen_pos_vec.mV[VX], (F32)world_rect.mLeft + mWidth * 0.5f, (F32)world_rect.mRight - mWidth * 0.5f);

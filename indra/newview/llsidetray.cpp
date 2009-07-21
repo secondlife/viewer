@@ -40,7 +40,7 @@
 #include "llfocusmgr.h"
 #include "llrootview.h"
 
-#include "llcollapsiblectrl.h"
+#include "llaccordionctrltab.h"
 
 #include "llfloater.h" //for gFloaterView
 #include "lliconctrl.h"//for Home tab icon
@@ -664,7 +664,7 @@ void LLSideTray::createHomeTab()
 
 		panel->setCommitCallback(boost::bind(&LLSideTray::onTabButtonClick, this, sidebar_tab->getName()));
 
-		LLCollapsibleCtrl::Params panel_params; 
+		LLAccordionCtrlTab::Params panel_params; 
 		panel_params.display_children(true);
 		panel_params.collapsible(false);
 		panel_params.header_visible(false);
@@ -676,7 +676,7 @@ void LLSideTray::createHomeTab()
 		panel_params.padding_bottom(5);
 		panel_params.name(sidebar_tab->getTabTitle());
 
-		LLCollapsibleCtrl* ctrl = LLUICtrlFactory::create<LLCollapsibleCtrl>(panel_params);
+		LLAccordionCtrlTab* ctrl = LLUICtrlFactory::create<LLAccordionCtrlTab>(panel_params);
 
 		
 		ctrl->setPanel(panel);

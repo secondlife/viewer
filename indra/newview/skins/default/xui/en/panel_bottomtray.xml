@@ -11,10 +11,6 @@
  top="28"
  border_visible="true"
  width="1000">
-    <panel.string
-     name="gesture_label">
-        Gestures
-    </panel.string>
     <layout_stack
      border_size="0"
      follows="left|right|bottom|top"
@@ -53,7 +49,7 @@
              layout="topleft"
              left="0"
              name="chat_box"
-				     right="-39"
+             right="-39"
              top="3"
              width="250" />
             <button follows="right" width="36" top="3" left="214" resize="false"
@@ -131,7 +127,7 @@
          width="90"
          top="0"
          min_width="90">
-            <combo_box
+            <gesture_combo_box
              bottom="22"
              follows="right"
              height="20"
@@ -192,8 +188,8 @@
          min_height="28"
          top="0"
          name="chiclet_list_panel"
-         width="250"
-         min_width="100">
+         width="150"
+         min_width="70">
             <chiclet_panel
              follows="left|right"
              height="25"
@@ -201,7 +197,9 @@
              left="0"
              name="chiclet_list"
              top="1"
-             width="250" />
+             chiclet_padding="3"
+             scrolling_offset="40"
+             width="150" />
         </layout_panel>
         <icon
          auto_resize="false"
@@ -227,13 +225,19 @@
             <chiclet_notification
              follows="right"
              height="25"
-             image_selected="im_notifications.tga"
-             image_unselected="im_notifications.tga"
              layout="topleft"
              left="0"
              name="im_well"
              top="1"
-             width="40" >
+             width="40">
+              <button
+               image_selected="im_notifications.tga"
+               image_unselected="im_notifications.tga"/>
+              <unread_notifications
+               width="20"
+               height="20"
+               left="18"
+               top="23"/>
 			  <chiclet_notification.commit_callback
 				 function="Notification.Show"
 				 parameter="ClickUnimplemented" />
@@ -254,7 +258,7 @@
          auto_resize="false"
          bevel_style="in"
          follows="left|right"
-         height="30"
+         height="28"
          layout="topleft"
          left="270"
          name="well_separator"
@@ -284,13 +288,19 @@
             <chiclet_notification
              follows="right"
              height="25"
-             image_selected="bottom_tray_sys_notifications.tga"
-             image_unselected="bottom_tray_sys_notifications.tga"
              layout="topleft"
              left="0"
              name="sys_well"
              top="1"
-             width="48" >
+             width="48">
+              <button
+               image_selected="bottom_tray_sys_notifications.tga"
+               image_unselected="bottom_tray_sys_notifications.tga"/>
+              <unread_notifications
+               width="20"
+               height="20"
+               left="22"
+               top="23"/>
 			  <chiclet_notification.commit_callback
 				 function="Notification.Show"
 				 parameter="ClickUnimplemented" />

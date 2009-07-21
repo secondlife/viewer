@@ -44,7 +44,6 @@
 
 #include "llagent.h"
 #include "llcallingcard.h"
-#include "llchatbar.h"
 #include "llviewercontrol.h"
 #include "llfirstuse.h"
 #include "llfloaterchat.h"
@@ -84,20 +83,20 @@ void handle_mouselook(void*)
 void handle_chat(void*)
 {
 	// give focus to chatbar if it's open but not focused
-	if (gBottomTray && gSavedSettings.getBOOL("ChatVisible") && 
-		gFocusMgr.childHasKeyboardFocus(gBottomTray->getChatBox()))
+	if (gSavedSettings.getBOOL("ChatVisible") && 
+		gFocusMgr.childHasKeyboardFocus(LLBottomTray::getInstance()->getChatBox()))
 	{
-		LLChatBar::stopChat();
+		LLBottomTray::stopChat();
 	}
 	else
 	{
-		LLChatBar::startChat(NULL);
+		LLBottomTray::startChat(NULL);
 	}
 }
 
 void handle_slash_key(void*)
 {
-	// LLChatBar::startChat("/");
+	// LLBottomTray::startChat("/");
 	//
 	// Don't do this, it results in a double-slash in the input field.
 	// Another "/" will be automatically typed for us, because the WM_KEYDOWN event
@@ -107,5 +106,5 @@ void handle_slash_key(void*)
 	// menu accelerators that put input focus into a field.   And Mac works
 	// the same way.  JC
 
-	LLChatBar::startChat(NULL);
+	LLBottomTray::startChat(NULL);
 }

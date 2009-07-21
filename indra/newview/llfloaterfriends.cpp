@@ -46,7 +46,7 @@
 #include "llfloateravatarpicker.h"
 #include "llviewerwindow.h"
 #include "llbutton.h"
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "llinventorymodel.h"
 #include "llnamelistctrl.h"
 #include "llnotify.h"
@@ -62,7 +62,7 @@
 #include "lltextbox.h"
 #include "llvoiceclient.h"
 
-// *TODO: Move more common stuff to LLFriendActions?
+// *TODO: Move more common stuff to LLAvatarActions?
 
 //Maximum number of people you can select to do an operation on at once.
 #define MAX_FRIEND_SELECT 20
@@ -546,7 +546,7 @@ void LLPanelFriends::onClickProfile(void* user_data)
 	if(ids.size() > 0)
 	{
 		LLUUID agent_id = ids[0];
-		LLFriendActions::showProfile(agent_id);
+		LLAvatarActions::showProfile(agent_id);
 	}
 }
 
@@ -560,11 +560,11 @@ void LLPanelFriends::onClickIM(void* user_data)
 	{
 		if(ids.size() == 1)
 		{
-			LLFriendActions::startIM(ids[0]);
+			LLAvatarActions::startIM(ids[0]);
 		}
 		else
 		{
-			LLFriendActions::startConference(ids);
+			LLAvatarActions::startConference(ids);
 		}
 	}
 }
@@ -576,7 +576,7 @@ void LLPanelFriends::onPickAvatar(const std::vector<std::string>& names,
 {
 	if (names.empty()) return;
 	if (ids.empty()) return;
-	LLFriendActions::requestFriendshipDialog(ids[0], names[0]);
+	LLAvatarActions::requestFriendshipDialog(ids[0], names[0]);
 }
 
 // static
@@ -595,14 +595,14 @@ void LLPanelFriends::onClickAddFriend(void* user_data)
 void LLPanelFriends::onClickRemove(void* user_data)
 {
 	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
-	LLFriendActions::removeFriendsDialog(panelp->getSelectedIDs());
+	LLAvatarActions::removeFriendsDialog(panelp->getSelectedIDs());
 }
 
 // static
 void LLPanelFriends::onClickOfferTeleport(void* user_data)
 {
 	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
-	LLFriendActions::offerTeleport(panelp->getSelectedIDs());
+	LLAvatarActions::offerTeleport(panelp->getSelectedIDs());
 }
 
 // static

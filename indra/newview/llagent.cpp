@@ -37,7 +37,6 @@
 
 #include "llanimationstates.h"
 #include "llcallingcard.h"
-#include "llchatbar.h"
 #include "llconsole.h"
 #include "lldrawable.h"
 #include "llfirstuse.h"
@@ -2722,8 +2721,7 @@ void LLAgent::startTyping()
 	{
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_START);
 	}
-	if(gBottomTray)
-		gBottomTray->sendChatFromViewer("", CHAT_TYPE_START, FALSE);
+	LLBottomTray::getInstance()->sendChatFromViewer("", CHAT_TYPE_START, FALSE);
 }
 
 //-----------------------------------------------------------------------------
@@ -2735,8 +2733,7 @@ void LLAgent::stopTyping()
 	{
 		clearRenderState(AGENT_STATE_TYPING);
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_STOP);
-		if(gBottomTray)
-			gBottomTray->sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
+		LLBottomTray::getInstance()->sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
 	}
 }
 
@@ -2811,8 +2808,7 @@ void LLAgent::endAnimationUpdateUI()
 		LLNavigationBar::getInstance()->setVisible(TRUE);
 		gStatusBar->setVisibleForMouselook(true);
 
-		if(gBottomTray)
-			gBottomTray->setVisible(TRUE);
+		LLBottomTray::getInstance()->setVisible(TRUE);
 
 		LLSideTray::getInstance()->setVisible(TRUE);
 
@@ -2902,8 +2898,7 @@ void LLAgent::endAnimationUpdateUI()
 		LLNavigationBar::getInstance()->setVisible(FALSE);
 		gStatusBar->setVisibleForMouselook(false);
 
-		if(gBottomTray)
-			gBottomTray->setVisible(FALSE);
+		LLBottomTray::getInstance()->setVisible(FALSE);
 
 		LLSideTray::getInstance()->setVisible(FALSE);
 

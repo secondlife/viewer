@@ -397,7 +397,12 @@ public:
 		delete sInstance;
 		sInstance = NULL;
 	}
+
+	static bool instanceExists() { return NULL != sInstance; }
 	
+private:
+	LLUISingleton(const LLUISingleton&){}
+	LLUISingleton& operator=(const LLUISingleton&){}
 private:
 	static T*	sInstance;
 };

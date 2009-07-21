@@ -12,6 +12,14 @@
  name="places panel"
  top="400"
  width="355">
+    <panel.string
+     name="landmarks_tab_title">
+        Landmarks
+    </panel.string>
+    <panel.string
+     name="teleport_history_tab_title">
+        Teleport History
+    </panel.string>
     <search_editor
      follows="left|top|right"
      height="16"
@@ -73,7 +81,7 @@
      top_delta="0"
      width="60" />
     <button
-     enabled="true"
+     enabled="false"
      follows="bottom|right"
      font="SansSerifSmallBold"
      height="25"

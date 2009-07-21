@@ -54,7 +54,6 @@
 //#include "lllineeditor.h"
 #include "llmutelist.h"
 //#include "llresizehandle.h"
-#include "llchatbar.h"
 #include "llrecentpeople.h"
 #include "llstatusbar.h"
 #include "llviewertexteditor.h"
@@ -63,7 +62,6 @@
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
-#include "llchatbar.h"
 #include "lllogchat.h"
 #include "lltexteditor.h"
 #include "lltextparser.h"
@@ -99,7 +97,6 @@ LLFloaterChat::LLFloaterChat(const LLSD& seed)
 	: LLFloater(seed),
 	  mPanel(NULL)
 {
-	mFactoryMap["chat_panel"] = LLCallbackMap(createChatPanel, NULL);
 	mFactoryMap["active_speakers_panel"] = LLCallbackMap(createSpeakersPanel, NULL);
 	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this,"floater_chat_history.xml");
 
@@ -121,12 +118,6 @@ void LLFloaterChat::draw()
 		
 	childSetValue("toggle_active_speakers_btn", childIsVisible("active_speakers_panel"));
 
-	LLChatBar* chat_barp = findChild<LLChatBar>("chat_panel", TRUE);
-	if (chat_barp)
-	{
-		chat_barp->refresh();
-	}
-
 	mPanel->refreshSpeakers();
 	LLFloater::draw();
 }
@@ -134,12 +125,6 @@ void LLFloaterChat::draw()
 BOOL LLFloaterChat::postBuild()
 {
 	mPanel = (LLPanelActiveSpeakers*)getChild<LLPanel>("active_speakers_panel");
-
-	LLChatBar* chat_barp = findChild<LLChatBar>("chat_panel", TRUE);
-	if (chat_barp)
-	{
-		chat_barp->setGestureCombo(getChild<LLComboBox>( "Gesture"));
-	}
 
 	childSetCommitCallback("show mutes",onClickToggleShowMute,this); //show mutes
 	childSetVisible("Chat History Editor with mute",FALSE);
@@ -538,13 +523,6 @@ void LLFloaterChat::chatFromLogFile(LLLogChat::ELogLineType type , std::string l
 void* LLFloaterChat::createSpeakersPanel(void* data)
 {
 	return new LLPanelActiveSpeakers(LLLocalSpeakerMgr::getInstance(), TRUE);
-}
-
-//static
-void* LLFloaterChat::createChatPanel(void* data)
-{
-	LLChatBar* chatp = new LLChatBar();
-	return chatp;
 }
 
 // static

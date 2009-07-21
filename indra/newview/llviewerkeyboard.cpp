@@ -36,7 +36,7 @@
 #include "llviewerkeyboard.h"
 #include "llmath.h"
 #include "llagent.h"
-#include "llchatbar.h"
+#include "llbottomtray.h"
 #include "llviewercontrol.h"
 #include "llfocusmgr.h"
 #include "llmorphview.h"
@@ -500,8 +500,7 @@ void stop_moving( EKeystate s )
 void start_chat( EKeystate s )
 {
 	// start chat
-	LLChatBar::startChat(NULL);
-//	gChatBar->startChat(NULL);
+	LLBottomTray::startChat(NULL);
 }
 
 void start_gesture( EKeystate s )
@@ -509,18 +508,16 @@ void start_gesture( EKeystate s )
 	if (KEYSTATE_UP == s &&
 		!(gFocusMgr.getKeyboardFocus() && gFocusMgr.getKeyboardFocus()->acceptsTextInput()))
 	{
-		//TODO* remove DUMMY chatbar
-		LLChatBar::startChat(NULL);
-// 		if (gChatBar->getCurrentChat().empty())
-// 		{
-// 			// No existing chat in chat editor, insert '/'
-// 			gChatBar->startChat("/");
-// 		}
-// 		else
-// 		{
-// 			// Don't overwrite existing text in chat editor
-// 			gChatBar->startChat(NULL);
-// 		}
+ 		if (LLBottomTray::getInstance()->getCurrentChat().empty())
+ 		{
+ 			// No existing chat in chat editor, insert '/'
+ 			LLBottomTray::getInstance()->startChat("/");
+ 		}
+ 		else
+ 		{
+ 			// Don't overwrite existing text in chat editor
+ 			LLBottomTray::getInstance()->startChat(NULL);
+ 		}
 	}
 }
 

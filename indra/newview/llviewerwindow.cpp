@@ -78,7 +78,6 @@
 #include "llagent.h"
 #include "llalertdialog.h"
 #include "llbox.h"
-#include "llchatbar.h"
 #include "llconsole.h"
 #include "llviewercontrol.h"
 #include "llcylinder.h"
@@ -1557,13 +1556,12 @@ void LLViewerWindow::initWorldUI()
 	getRootView()->sendChildToFront(gSnapshotFloaterView);
 
 	// new bottom panel
-	gBottomTray = new LLBottomTray();
-	LLRect rc = gBottomTray->getRect();
+	LLRect rc = LLBottomTray::getInstance()->getRect();
 	rc.mLeft = 0;
 	rc.mRight = mRootView->getRect().getWidth();
-	mRootView->addChild(gBottomTray);
-	gBottomTray->reshape(rc.getWidth(),rc.getHeight(),FALSE);
-	gBottomTray->setRect(rc);
+	mRootView->addChild(LLBottomTray::getInstance());
+	LLBottomTray::getInstance()->reshape(rc.getWidth(),rc.getHeight(),FALSE);
+	LLBottomTray::getInstance()->setRect(rc);
 
 	// View for hover information
 	LLHoverView::Params hvp;
@@ -1595,9 +1593,9 @@ void LLViewerWindow::initWorldUI()
 	LLRect floater_view_rect = gFloaterView->getRect();
 	LLRect notify_view_rect = gNotifyBoxView->getRect();
 	floater_view_rect.mTop -= NAVIGATION_BAR_HEIGHT;
-	floater_view_rect.mBottom += gBottomTray->getRect().getHeight();
+	floater_view_rect.mBottom += LLBottomTray::getInstance()->getRect().getHeight();
 	notify_view_rect.mTop -= NAVIGATION_BAR_HEIGHT;
-	notify_view_rect.mBottom += gBottomTray->getRect().getHeight();
+	notify_view_rect.mBottom += LLBottomTray::getInstance()->getRect().getHeight();
 	gFloaterView->setRect(floater_view_rect);
 	gNotifyBoxView->setRect(notify_view_rect);
 
@@ -1854,10 +1852,10 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 // Hide normal UI when a logon fails
 void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 {
-	if(gBottomTray)
+	if(LLBottomTray::instanceExists())
 	{
-		gBottomTray->setVisible(visible);
-		gBottomTray->setEnabled(visible);
+		LLBottomTray::getInstance()->setVisible(visible);
+		LLBottomTray::getInstance()->setEnabled(visible);
 	}
 
 	if ( gMenuBarView )
@@ -2165,11 +2163,11 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	LLUICtrl* keyboard_focus = gFocusMgr.getKeyboardFocus();
 	if( keyboard_focus )
 	{
-		LLLineEditor* chat_bar = gBottomTray ? gBottomTray->getChatBox() : NULL;
+		LLLineEditor* chat_editor = LLBottomTray::instanceExists() ? LLBottomTray::getInstance()->getChatBox() : NULL;
 		// arrow keys move avatar while chatting hack
-		if (chat_bar && chat_bar->hasFocus())
+		if (chat_editor && chat_editor->hasFocus())
 		{
-			if (chat_bar->getText().empty() || gSavedSettings.getBOOL("ArrowKeysMoveAvatar"))
+			if (chat_editor->getText().empty() || gSavedSettings.getBOOL("ArrowKeysMoveAvatar"))
 			{
 				switch(key)
 				{
@@ -2399,10 +2397,14 @@ void LLViewerWindow::updateUI()
 
 	updateWorldViewRect();
 
-	if(gBottomTray && LLSideTray::instanceCreated())
+	if(LLBottomTray::instanceExists() && LLSideTray::instanceCreated())
 	{
-		S32 delta = llround((F32)LLSideTray::getInstance()->getTrayWidth() * mDisplayScale.mV[VX]);
-		gBottomTray->updateRightPosition(mWindowRect.mRight - delta);
+		S32 delta = 0;
+		if(LLSideTray::getInstance()->getVisible())
+		{
+			delta = llround((F32)LLSideTray::getInstance()->getTrayWidth() * mDisplayScale.mV[VX]);
+		}
+		LLBottomTray::getInstance()->updateRightPosition(mWindowRect.mRight - delta);
 	}
 
 	LLView::sMouseHandlerMessage.clear();
@@ -2939,19 +2941,6 @@ void LLViewerWindow::updateKeyboardFocus()
 
 	if(LLSideTray::instanceCreated())//just getInstance will create sidetray. we don't want this
 		LLSideTray::getInstance()->highlightFocused();
-
-	//NOTE: this behavior is no longer desirable with a permanently visible chat batr
-	// which would *always* steal focus, disallowing navigation of the world via WASD controls --RN
-	
-	//if (gSavedSettings.getBOOL("ChatBarStealsFocus") 
-	//	&& gChatBar 
-	//	&& gFocusMgr.getKeyboardFocus() == NULL 
-	//	&& gChatBar->isInVisibleChain())
-	//{
-	//	gChatBar->startChat(NULL);
-	//}
-
-
 }
 
 void LLViewerWindow::updateWorldViewRect(bool use_full_window)
@@ -4912,8 +4901,8 @@ S32 LLViewerWindow::getChatConsoleBottomPad()
 {
 	S32 offset = 0;
 
-	if(gBottomTray)
-		offset += gBottomTray->getRect().getHeight();
+	if(LLBottomTray::instanceExists())
+		offset += LLBottomTray::getInstance()->getRect().getHeight();
 
 	return offset;
 }

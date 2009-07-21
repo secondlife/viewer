@@ -57,7 +57,7 @@
 #include "llfloaterworldmap.h"
 #include "llfocusmgr.h"
 #include "llfolderview.h"
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "llgesturemgr.h"
 #include "lliconctrl.h"
 #include "llinventorymodel.h"
@@ -88,6 +88,7 @@
 #include "lltabcontainer.h"
 #include "lluictrlfactory.h"
 #include "llselectmgr.h"
+#include "llsidetray.h"
 #include "llfloateropenobject.h"
 #include "lltrans.h"
 
@@ -2825,7 +2826,15 @@ void LLLandmarkBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 		LLViewerInventoryItem* item = getItem();
 		if(item)
 		{
-			LLFloaterReg::showInstance("preview_landmark", LLSD(item->getUUID()), TAKE_FOCUS_YES);
+			LLSD key;
+			key["type"] = "landmark";
+			key["id"] = item->getUUID();
+
+			LLSideTray::getInstance()->showPanel("panel_places", key);
+			
+			// Floater preview_landmark disabled, 
+			// its functionality moved to Side Tray Places Panel 
+			//LLFloaterReg::showInstance("preview_landmark", LLSD(item->getUUID()), TAKE_FOCUS_YES);
 		}
 	}
 	else 
@@ -2925,7 +2934,7 @@ void LLCallingCardBridge::performAction(LLFolderView* folder, LLInventoryModel* 
 		if (item && (item->getCreatorUUID() != gAgent.getID()) &&
 			(!item->getCreatorUUID().isNull()))
 		{
-			LLFriendActions::offerTeleport(item->getCreatorUUID());
+			LLAvatarActions::offerTeleport(item->getCreatorUUID());
 		}
 	}
 	else LLItemBridge::performAction(folder, model, action);
@@ -2967,7 +2976,7 @@ void LLCallingCardBridge::openItem()
 	LLViewerInventoryItem* item = getItem();
 	if(item && !item->getCreatorUUID().isNull())
 	{
-		LLFriendActions::showProfile(item->getCreatorUUID());
+		LLAvatarActions::showProfile(item->getCreatorUUID());
 	}
 */
 }
@@ -4891,7 +4900,7 @@ void	LLCallingCardBridgeAction::doIt()
 	LLViewerInventoryItem* item = getItem();
 	if(item && item->getCreatorUUID().notNull())
 	{
-		LLFriendActions::showProfile(item->getCreatorUUID());
+		LLAvatarActions::showProfile(item->getCreatorUUID());
 	}
 
 	LLInvFVBridgeAction::doIt();

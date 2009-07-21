@@ -59,7 +59,7 @@
 #include "lldbstrings.h"
 #include "llfloatergroupinfo.h"
 #include "llfloatergroups.h"
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "llnamebox.h"
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
@@ -811,7 +811,7 @@ void LLPanelPermissions::onClickCreator(void *data)
 {
 	LLPanelPermissions *self = (LLPanelPermissions *)data;
 
-	LLFriendActions::showProfile(self->mCreatorID);
+	LLAvatarActions::showProfile(self->mCreatorID);
 }
 
 // static
@@ -827,7 +827,7 @@ void LLPanelPermissions::onClickOwner(void *data)
 	}
 	else
 	{
-		LLFriendActions::showProfile(self->mOwnerID);
+		LLAvatarActions::showProfile(self->mOwnerID);
 	}
 }
 

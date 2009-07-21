@@ -77,6 +77,7 @@
          height="20"
          layout="topleft"
          left="10"
+         max_length="63"
          name="pick_name"
          right="-10"
          text_color="black"

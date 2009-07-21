@@ -17,7 +17,7 @@
     background_visible="true" 
     bg_opaque_color="0.5 0.5 0.5 1.0"
   >
-    <collapsible_ctrl 
+    <accordionctrl_tab 
       name="people_accordion" 
       title="People" 
       collapsable="true" 
@@ -35,7 +35,7 @@
         label="People" 
         border="true" 
       />
-    </collapsible_ctrl>
+    </accordionctrl_tab>
   </sidetray_tab>
   <!-- *TODO Vadim: isn't the sidetray_tab "label" attribute redundant since we have "tab_title" ? -->
   <sidetray_tab 
@@ -48,7 +48,7 @@
     background_visible="true" 
     bg_opaque_color="0.5 0.5 0.5 1.0"
   >
-    <collapsible_ctrl 
+    <accordionctrl_tab 
       name="places_accordian" 
       title="Places" 
       collapsable="true" 
@@ -63,7 +63,7 @@
         label="Places" 
         border="true"
       />
-    </collapsible_ctrl>
+    </accordionctrl_tab>
   </sidetray_tab>
   
   <sidetray_tab 
@@ -75,7 +75,7 @@
     background_visible="true" 
     bg_opaque_color="0.5 0.5 0.5 1.0"
   >
-    <collapsible_ctrl 
+    <accordionctrl_tab 
       name="me_accordion" 
       title="Me" 
       collapsable="false" 
@@ -90,7 +90,7 @@
         label="Me" 
         border="true"
       />
-    </collapsible_ctrl>
+    </accordionctrl_tab>
   </sidetray_tab>
   
   <!--
@@ -103,7 +103,7 @@
     tab_title="Groups"
     description="Manage Groups."
   >
-    <collapsible_ctrl 
+    <accordionctrl_tab 
       name="group_accordion" 
       title="Group General"
       expanded="true"
@@ -119,12 +119,12 @@
         label="Group" 
         border="true"
       />
-    </collapsible_ctrl>
-     <collapsible_ctrl 
+    </accordionctrl_tab>
+     <accordionctrl_tab 
       name="groupland_accordion" 
       title="Group Land and Money"
       expanded="false"
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       header_visible="true"
@@ -136,12 +136,12 @@
         label="Group" 
         border="true"
       />
-    </collapsible_ctrl>
-     <collapsible_ctrl 
+    </accordionctrl_tab>
+     <accordionctrl_tab 
       name="groupnotices_accordion" 
       title="Group Notices"
       expanded="false"
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       header_visible="true"
@@ -153,12 +153,12 @@
         label="Group" 
         border="true"
       />
-    </collapsible_ctrl>
-     <collapsible_ctrl 
+    </accordionctrl_tab>
+     <accordionctrl_tab 
       name="grouproles_accordion" 
       title="Group Roles"
       expanded="false"
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       header_visible="true"
@@ -170,7 +170,7 @@
         label="Group" 
         border="true"
       />
-    </collapsible_ctrl>
+    </accordionctrl_tab>
   </sidetray_tab>  
   
 
@@ -184,7 +184,7 @@
     tab_title="Previews"
     description="Previews."
   >
-    <collapsible_ctrl 
+    <accordionctrl_tab 
       name="floater_preview_animation" 
       title="Preview Animation" 
       collapsable="true"
@@ -202,8 +202,8 @@
         label="Preview_Animation" 
         border="true" 
       />
-    </collapsible_ctrl>
-    <collapsible_ctrl 
+    </accordionctrl_tab>
+    <accordionctrl_tab 
       name="floater_preview_gesture" 
       title="Preview Gesture" 
       collapsable="true"
@@ -221,8 +221,8 @@
         label="Preview_Gesture" 
         border="true" 
       />
-    </collapsible_ctrl>
-    <collapsible_ctrl 
+    </accordionctrl_tab>
+    <accordionctrl_tab 
       name="floater_preview_existing_landmark" 
       title="Preview Existing Landmark" 
       collapsable="true"
@@ -240,8 +240,8 @@
         label="Preview_Existing_Landmark" 
         border="true" 
       />
-    </collapsible_ctrl>
-    <collapsible_ctrl 
+    </accordionctrl_tab>
+    <accordionctrl_tab 
       name="floater_preview_sound" 
       title="Preview Sound" 
       collapsable="true"
@@ -259,8 +259,8 @@
         label="Preview_Sound" 
         border="true" 
       />
-    </collapsible_ctrl>
-    <collapsible_ctrl 
+    </accordionctrl_tab>
+    <accordionctrl_tab 
       name="floater_preview_url" 
       title="Preview URL" 
       collapsable="true"
@@ -278,8 +278,8 @@
         label="Preview_URL" 
         border="true" 
       />
-    </collapsible_ctrl>
-    <collapsible_ctrl 
+    </accordionctrl_tab>
+    <accordionctrl_tab 
       name="floater_URL_entry" 
       title="URL Entry" 
       collapsable="true"
@@ -297,7 +297,7 @@
         label="URL_entry" 
         border="true" 
       />
-    </collapsible_ctrl>
+    </accordionctrl_tab>
   </sidetray_tab>
 
   <sidetray_tab 	
@@ -310,7 +310,7 @@
     tab_title="Region"
     description="Region."
   >
-    <collapsible_ctrl 
+    <accordionctrl_tab 
       name="panel_region_covenant" 
       title="Region Covenant" 
       collapsable="true" 
@@ -328,8 +328,8 @@
         label="Panel_Region_Covenant" 
         border="true" 
       />
-    </collapsible_ctrl>
-    <collapsible_ctrl 
+    </accordionctrl_tab>
+    <accordionctrl_tab 
       name="panel_region_debug" 
       title="Region Debug" 
       collapsable="true" 
@@ -347,8 +347,8 @@
         label="Panel_Region_Debug" 
         border="true" 
       />
-    </collapsible_ctrl>
-  <collapsible_ctrl 
+    </accordionctrl_tab>
+  <accordionctrl_tab 
       name="panel_region_estate" 
       title="Region Estate" 
       collapsable="true" 
@@ -366,8 +366,8 @@
         label="Panel_Region_Estate" 
         border="true" 
       />
-    </collapsible_ctrl>
-  <collapsible_ctrl 
+    </accordionctrl_tab>
+  <accordionctrl_tab 
       name="panel_region_general" 
       title="Region General" 
       collapsable="true" 
@@ -385,8 +385,8 @@
         label="Panel_Region_General" 
         border="true" 
       />
-    </collapsible_ctrl>
-  <collapsible_ctrl 
+    </accordionctrl_tab>
+  <accordionctrl_tab 
       name="panel_region_terrain" 
       title="Region Terrain" 
       collapsable="true" 
@@ -404,8 +404,8 @@
         label="Panel_Region_Terrain" 
         border="true" 
       />
-    </collapsible_ctrl>
-  <collapsible_ctrl 
+    </accordionctrl_tab>
+  <accordionctrl_tab 
       name="panel_region_texture" 
       title="Region Texture" 
       collapsable="true" 
@@ -423,8 +423,8 @@
         label="Panel_Region_Texture" 
         border="true" 
       />
-    </collapsible_ctrl>
-  <collapsible_ctrl 
+    </accordionctrl_tab>
+  <accordionctrl_tab 
       name="floater_region_info" 
       title="Region Info" 
       collapsable="true" 
@@ -442,7 +442,7 @@
         label="Floater_Region_Info" 
         border="true" 
       />
-    </collapsible_ctrl>
+    </accordionctrl_tab>
   </sidetray_tab>
  
   <sidetray_tab 	
@@ -455,7 +455,7 @@
     tab_title="Build"
     description="Build"
   >
-    <collapsible_ctrl 
+    <accordionctrl_tab 
       name="floater_tools" 
       title="Tools" 
       collapsable="true" 
@@ -473,8 +473,8 @@
         label="Tools" 
         border="true" 
       />
-    </collapsible_ctrl>
-    <collapsible_ctrl 
+    </accordionctrl_tab>
+    <accordionctrl_tab 
       name="floater_bulk_perms" 
       title="Bulk Perms" 
       collapsable="true" 
@@ -492,8 +492,8 @@
         label="Tools" 
         border="true" 
       />
-    </collapsible_ctrl>
-    <collapsible_ctrl 
+    </accordionctrl_tab>
+    <accordionctrl_tab 
       name="floater_build_options" 
       title="Build Options" 
       collapsable="true" 
@@ -511,7 +511,7 @@
         label="Tools" 
         border="true" 
       />
-    </collapsible_ctrl>
+    </accordionctrl_tab>
     
   </sidetray_tab>
 
@@ -525,7 +525,7 @@
     tab_title="Other Tools"
     description="Other Tools"
   >
-    <collapsible_ctrl 
+    <accordionctrl_tab 
       name="floater_gesture" 
       title="Gestures" 
       collapsable="true" 
@@ -543,9 +543,9 @@
         label="Gesture" 
         border="true" 
       />
-    </collapsible_ctrl>
+    </accordionctrl_tab>
     
-    <collapsible_ctrl 
+    <accordionctrl_tab 
       name="floater_buy_contents" 
       title="Buy Contents" 
       collapsable="true" 
@@ -563,8 +563,8 @@
         label="buy_contents" 
         border="true" 
       />
-    </collapsible_ctrl>
-    <collapsible_ctrl 
+    </accordionctrl_tab>
+    <accordionctrl_tab 
       name="floater_buy_object" 
       title="Buy Object" 
       collapsable="true" 
@@ -583,7 +583,7 @@
         border="true" 
       />
     </collapsible_ctrl>
-    <collapsible_ctrl 
+    <accordionctrl_tab 
       name="floater_inventory_view_finder" 
       title="Inventory View Finder" 
       collapsable="true" 
@@ -601,8 +601,8 @@
         label="view_finder" 
         border="true" 
       />
-    </collapsible_ctrl>
-    <collapsible_ctrl 
+    </accordionctrl_tab>
+    <accordionctrl_tab 
       name="floater_mute" 
       title="Mute" 
       collapsable="true" 
@@ -620,8 +620,8 @@
         label="mute" 
         border="true" 
       />
-    </collapsible_ctrl>
-     <collapsible_ctrl 
+    </accordionctrl_tab>
+     <accordionctrl_tab 
       name="floater_sell_land" 
       title="Sell Land" 
       collapsable="true" 
@@ -639,8 +639,8 @@
         label="sell_land" 
         border="true" 
       />
-    </collapsible_ctrl>
-     <collapsible_ctrl 
+    </accordionctrl_tab>
+     <accordionctrl_tab 
       name="floater_telehub" 
       title="Telehub" 
       collapsable="true" 
@@ -658,7 +658,7 @@
         label="telehub" 
         border="true" 
       />
-    </collapsible_ctrl>
+    </accordionctrl_tab>
     
   </sidetray_tab>
  --> 

@@ -268,3 +268,8 @@ void LLLandmarksPanel::onSelectorButtonClicked()
 		LLSideTray::getInstance()->showPanel("panel_places", key);
 	}
 }
+
+void LLLandmarksPanel::setSelectedItem(const LLUUID& obj_id)
+{
+	mInventoryPanel->setSelection(obj_id, FALSE);
+}

@@ -44,7 +44,7 @@
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llfloatergroupinfo.h"
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
 #include "llradiogroup.h"
@@ -611,7 +611,7 @@ void LLFloaterProperties::onClickCreator(void* data)
 	if(!item) return;
 	if(!item->getCreatorUUID().isNull())
 	{
-		LLFriendActions::showProfile(item->getCreatorUUID());
+		LLAvatarActions::showProfile(item->getCreatorUUID());
 	}
 }
 
@@ -628,7 +628,7 @@ void LLFloaterProperties::onClickOwner(void* data)
 	}
 	else
 	{
-		LLFriendActions::showProfile(item->getPermissions().getOwner());
+		LLAvatarActions::showProfile(item->getPermissions().getOwner());
 	}
 }
 

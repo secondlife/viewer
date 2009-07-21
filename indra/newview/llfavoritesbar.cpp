@@ -43,6 +43,8 @@
 #include "llagent.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
+#include "llsidetray.h"
+#include "lltoggleablemenu.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
 #include "llviewermenu.h"
@@ -68,41 +70,6 @@ struct LLFavoritesSort
 		}
 	}
 };
-
-class LLVisibilityTrackingMenuGL : public LLMenuGL
-{
-protected:
-	LLVisibilityTrackingMenuGL(const LLMenuGL::Params&);
-	friend class LLUICtrlFactory;
-public:
-	virtual void onVisibilityChange (BOOL curVisibilityIn);
-	void setChevronRect(const LLRect& rect) { mChevronRect = rect; }
-
-	bool getClosedByChevronClick() { return mClosedByChevronClick; }
-	void resetClosedByChevronClick() { mClosedByChevronClick = false; }
-	
-protected:
-	bool mClosedByChevronClick;
-	LLRect mChevronRect;
-};
-
-LLVisibilityTrackingMenuGL::LLVisibilityTrackingMenuGL(const LLMenuGL::Params& p)
-:	LLMenuGL(p),
-	mClosedByChevronClick(false)
-{
-}
-
-//virtual
-void LLVisibilityTrackingMenuGL::onVisibilityChange (BOOL curVisibilityIn)
-{
-	S32 x,y;
-	LLUI::getCursorPositionLocal(LLUI::getRootView(), &x, &y);
-
-	if (!curVisibilityIn && mChevronRect.pointInRect(x, y))
-	{
-		mClosedByChevronClick = true;
-	}
-}
 
 LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 :	LLUICtrl(p),
@@ -269,10 +236,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 				LLRect rect;
 				rect.setOriginAndSize(bar_width - chevron_button_width - buttonHGap, buttonVGap, chevron_button_width, getRect().getHeight()-buttonVGap);
 				chevron_button->setRect(rect);
-
-				S32 chevron_root_x, chevron_root_y;
-				localPointToOtherView(rect.mLeft, rect.mBottom, &chevron_root_x, &chevron_root_y, LLUI::getRootView());
-				mChevronRect.setOriginAndSize(chevron_root_x, chevron_root_y, rect.getWidth(), rect.getHeight());
+				mChevronRect = rect;
 			}
 			return;
 		}
@@ -355,9 +319,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 
 		addChildInBack(LLUICtrlFactory::create<LLButton> (bparams));
 
-		S32 chevron_root_x, chevron_root_y;
-		localPointToOtherView(rect.mLeft, rect.mBottom, &chevron_root_x, &chevron_root_y, LLUI::getRootView());
-		mChevronRect.setOriginAndSize(chevron_root_x, chevron_root_y, rect.getWidth(), rect.getHeight());
+		mChevronRect = rect;
 	}
 }
 
@@ -400,25 +362,25 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 		menu_p.visible(false);
 		menu_p.scrollable(true);
 
-		LLVisibilityTrackingMenuGL* menu = LLUICtrlFactory::create<LLVisibilityTrackingMenuGL>(menu_p);
+		LLToggleableMenu* menu = LLUICtrlFactory::create<LLToggleableMenu>(menu_p);
 
 		mPopupMenuHandle = menu->getHandle();
 	}
 
-	LLVisibilityTrackingMenuGL* menu = (LLVisibilityTrackingMenuGL*)mPopupMenuHandle.get();
+	LLToggleableMenu* menu = (LLToggleableMenu*)mPopupMenuHandle.get();
 
 	if(menu)
 	{
-		if (menu->getClosedByChevronClick())
+		if (menu->getClosedByButtonClick())
 		{
-			menu->resetClosedByChevronClick();
+			menu->resetClosedByButtonClick();
 			return;
 		}
 
 		if (menu->getVisible())
 		{
 			menu->setVisible(FALSE);
-			menu->resetClosedByChevronClick();
+			menu->resetClosedByButtonClick();
 			return;
 		}
 
@@ -449,7 +411,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 				menu->buildDrawLabels();
 				menu->updateParent(LLMenuGL::sMenuContainer);
 
-				menu->setChevronRect(mChevronRect);
+				menu->setButtonRect(mChevronRect, this);
 
 				LLMenuGL::showPopup(this, menu, getRect().getWidth() - menu->getRect().getWidth(), 0);
 				return;
@@ -514,7 +476,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 		menu->buildDrawLabels();
 		menu->updateParent(LLMenuGL::sMenuContainer);
 
-		menu->setChevronRect(mChevronRect);
+		menu->setButtonRect(mChevronRect, this);
 
 		LLMenuGL::showPopup(this, menu, getRect().getWidth() - max_width, 0);
 	}
@@ -565,7 +527,11 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 	}
 	else if (action == "about")
 	{
-		LLFloaterReg::showInstance("preview_landmark", LLSD(mSelectedItemID), TAKE_FOCUS_YES);
+		LLSD key;
+		key["type"] = "landmark";
+		key["id"] = mSelectedItemID;
+
+		LLSideTray::getInstance()->showPanel("panel_places", key);
 	}
 	else if (action == "rename")
 	{

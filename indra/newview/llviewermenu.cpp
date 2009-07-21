@@ -131,7 +131,7 @@
 #include "llfloaterworldmap.h"
 #include "llfloatermemleak.h"
 #include "llfasttimerview.h"
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "llmemoryview.h"
 #include "llgivemoney.h"
 #include "llgroupmgr.h"
@@ -3607,7 +3607,7 @@ bool LLHaveCallingcard::operator()(LLInventoryCategory* cat,
 
 BOOL is_agent_mappable(const LLUUID& agent_id)
 {
-	return (LLFriendActions::isFriend(agent_id) &&
+	return (LLAvatarActions::isFriend(agent_id) &&
 		LLAvatarTracker::instance().getBuddyInfo(agent_id)->isOnline() &&
 		LLAvatarTracker::instance().getBuddyInfo(agent_id)->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION)
 		);
@@ -3620,7 +3620,7 @@ class LLAvatarEnableAddFriend : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
-		bool new_value = avatar && !LLFriendActions::isFriend(avatar->getID());
+		bool new_value = avatar && !LLAvatarActions::isFriend(avatar->getID());
 		return new_value;
 	}
 };
@@ -3644,7 +3644,7 @@ void request_friendship(const LLUUID& dest_id)
 		}
 		if (!fullname.empty())
 		{
-			LLFriendActions::requestFriendshipDialog(dest_id, fullname);
+			LLAvatarActions::requestFriendshipDialog(dest_id, fullname);
 		}
 		else
 		{
@@ -5376,7 +5376,7 @@ class LLAvatarAddFriend : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
-		if(avatar && !LLFriendActions::isFriend(avatar->getID()))
+		if(avatar && !LLAvatarActions::isFriend(avatar->getID()))
 		{
 			request_friendship(avatar->getID());
 		}
@@ -5720,7 +5720,7 @@ class LLShowAgentProfile : public view_listener_t
 		LLVOAvatar* avatar = find_avatar_from_object(agent_id);
 		if (avatar)
 		{
-			LLFriendActions::showProfile(avatar->getID());
+			LLAvatarActions::showProfile(avatar->getID());
 		}
 		return true;
 	}

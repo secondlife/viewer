@@ -44,7 +44,22 @@
 #include "llpanelplaces.h"
 #include "llpanellandmarks.h"
 #include "llpanelteleporthistory.h"
+#include "llsidetray.h"
+#include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
+
+LLPanelPlaces::LLParcelUpdateTimer::LLParcelUpdateTimer(F32 period)
+:	LLEventTimer(period)
+{
+};
+
+// virtual
+BOOL LLPanelPlaces::LLParcelUpdateTimer::tick()
+{
+	LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "agent"));
+	
+	return TRUE;
+}
 
 static LLRegisterPanelClassWrapper<LLPanelPlaces> t_places("panel_places");
 
@@ -56,6 +71,9 @@ LLPanelPlaces::LLPanelPlaces()
 		mPlaceInfo(NULL)
 {
 	gInventory.addObserver(this);
+
+	LLViewerParcelMgr::getInstance()->setAgentParcelChangedCallback(
+			boost::bind(&LLPanelPlaces::onAgentParcelChange, this));
 
 	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_places.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
@@ -90,7 +108,7 @@ BOOL LLPanelPlaces::postBuild()
 		}
 
 		// *TODO: Assign the action to an appropriate event.
-		childSetAction("overflow_btn", boost::bind(&LLPanelPlaceInfo::toggleMediaPanel, mPlaceInfo), this);
+		childSetAction("overflow_btn", boost::bind(&LLPanelPlaces::toggleMediaPanel, this), this);
 	}
 
 	//childSetAction("share_btn", boost::bind(&LLPanelPlaces::onShareButtonClicked, this), this);
@@ -100,19 +118,14 @@ BOOL LLPanelPlaces::postBuild()
 	return TRUE;
 }
 
-void LLPanelPlaces::draw()
-{
-	LLPanel::draw();
-}
-
 void LLPanelPlaces::onOpen(const LLSD& key)
 {
 	if(key.size() == 0)
 		return;
 
-	togglePlaceInfoPanel(TRUE);
-
 	mPlaceInfoType = key["type"].asString();
+	
+	togglePlaceInfoPanel(TRUE);
 
 	if (mPlaceInfoType == "agent")
 	{
@@ -127,7 +140,8 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	}
 	else if (mPlaceInfoType == "landmark")
 	{
-		LLInventoryItem* item = gInventory.getItem(key["id"].asUUID());
+		LLUUID item_uuid = key["id"].asUUID();
+		LLInventoryItem* item = gInventory.getItem(item_uuid);
 		if (!item)
 			return;
 
@@ -138,6 +152,12 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 		if (!landmark)
 			return;
 
+		// Select Landmarks tab and set selection to requested landmark so that
+		// context dependent Verbs buttons update properly.
+		mTabContainer->selectFirstTab(); // Assume that first tab is Landmarks tab.
+		LLLandmarksPanel* landmarks_panel = dynamic_cast<LLLandmarksPanel*>(mTabContainer->getCurrentPanel());
+		landmarks_panel->setSelectedItem(item_uuid);
+
 		LLUUID region_id;
 		landmark->getRegionID(region_id);
 		LLVector3d pos_global;
@@ -145,7 +165,6 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 		mPlaceInfo->displayParcelInfo(landmark->getRegionPos(),
 									  region_id,
 									  pos_global);
-
 	}
 	else if (mPlaceInfoType == "teleport_history")
 	{
@@ -161,7 +180,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 		LLVector3 pos_local(region_x, region_y, (F32)pos_global.mdV[VZ]);
 
-		mPlaceInfo->setInfoType(LLPanelPlaceInfo::PLACE);
+		mPlaceInfo->setInfoType(LLPanelPlaceInfo::TELEPORT_HISTORY);
 		mPlaceInfo->displayParcelInfo(pos_local,
 									  hist_items[index].mRegionID,
 									  pos_global);
@@ -186,11 +205,11 @@ void LLPanelPlaces::onSearchEdit(const std::string& search_string)
 void LLPanelPlaces::onTabSelected()
 {
 	mActivePanel = dynamic_cast<LLPanelPlacesTab*>(mTabContainer->getCurrentPanel());
-	if (mActivePanel)
-	{
-		mActivePanel->onSearchEdit(mFilterSubString);
-		mActivePanel->updateVerbs();
-	}
+	if (!mActivePanel)
+		return;
+
+	onSearchEdit(mFilterSubString);	
+	mActivePanel->updateVerbs();
 }
 
 void LLPanelPlaces::onShareButtonClicked()
@@ -242,6 +261,13 @@ void LLPanelPlaces::onBackButtonClicked()
 	togglePlaceInfoPanel(FALSE);
 }
 
+void LLPanelPlaces::toggleMediaPanel()
+{
+	if (!mPlaceInfo)
+			return;
+
+	mPlaceInfo->toggleMediaPanel(!mPlaceInfo->isMediaPanelVisible());
+}
 void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 {
 	if (!mPlaceInfo)
@@ -250,6 +276,9 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 	mPlaceInfo->setVisible(visible);
 	mSearchEditor->setVisible(!visible);
 	mTabContainer->setVisible(!visible);
+	
+	// Enable overflow button only for the information about agent's current location.
+	getChild<LLButton>("overflow_btn")->setEnabled(visible && mPlaceInfoType == "agent");
 
 	if (visible)
 	{
@@ -275,7 +304,7 @@ void LLPanelPlaces::changed(U32 mask)
 		mTabContainer->addTabPanel(
 			LLTabContainer::TabPanelParams().
 			panel(landmarks_panel).
-			label("Landmarks").
+			label(getString("landmarks_tab_title")).
 			insert_at(LLTabContainer::END));
 	}
 
@@ -287,7 +316,7 @@ void LLPanelPlaces::changed(U32 mask)
 		mTabContainer->addTabPanel(
 			LLTabContainer::TabPanelParams().
 			panel(teleport_history_panel).
-			label("Teleport History").
+			label(getString("teleport_history_tab_title")).
 			insert_at(LLTabContainer::END));
 	}
 
@@ -298,4 +327,14 @@ void LLPanelPlaces::changed(U32 mask)
 	// we don't need to monitor inventory changes anymore,
 	// so remove the observer
 	gInventory.removeObserver(this);
+}
+
+void LLPanelPlaces::onAgentParcelChange()
+{
+	if (mPlaceInfo->getVisible() && mPlaceInfoType == "agent")
+	{
+		// Using timer to delay obtaining agent's coordinates
+		// not to get the coordinates of previous parcel.
+		new LLParcelUpdateTimer(.5);
+	}
 }

@@ -235,27 +235,46 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 	if (!mInfoPanel)
 	    return;
 
-	if (type == PLACE)
+	switch(type)
 	{
-		mCurrentTitle = getString("title_place");
-	}
-	else
-	{
-		mCurrentTitle = getString("title_landmark");
-	}
-	
-	if (mInfoPanel->getVisible())
-	{
-		mTitle->setText(mCurrentTitle);
+		case PLACE:
+			mCurrentTitle = getString("title_place");
+
+			if (!isMediaPanelVisible())
+			{
+				mTitle->setText(mCurrentTitle);
+			}
+		break;
+
+		// Hide Media Panel if showing information about
+		// a landmark or a teleport history item
+		case LANDMARK:
+			mCurrentTitle = getString("title_landmark");
+
+			toggleMediaPanel(FALSE);
+		break;
+		
+		case TELEPORT_HISTORY:
+			mCurrentTitle = getString("title_place");
+ 
+			toggleMediaPanel(FALSE);
+		break;
 	}
 }
 
-void LLPanelPlaceInfo::toggleMediaPanel()
+BOOL LLPanelPlaceInfo::isMediaPanelVisible()
+{
+	if (!mMediaPanel)
+		return FALSE;
+	
+	return mMediaPanel->getVisible();
+}
+
+void LLPanelPlaceInfo::toggleMediaPanel(BOOL visible)
 {
     if (!(mMediaPanel && mInfoPanel))
         return;
 
-    bool visible = mInfoPanel->getVisible();
     if (visible)
 	{
 		mTitle->setText(getString("title_media"));

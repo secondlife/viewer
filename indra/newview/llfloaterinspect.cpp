@@ -36,7 +36,7 @@
 
 #include "llfloaterreg.h"
 #include "llfloatertools.h"
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "llcachename.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
@@ -144,7 +144,7 @@ void LLFloaterInspect::onClickCreatorProfile()
 		LLSelectNode* node = mObjectSelection->getFirstNode(&func);
 		if(node)
 		{
-			LLFriendActions::showProfile(node->mPermissions->getCreator());
+			LLAvatarActions::showProfile(node->mPermissions->getCreator());
 		}
 	}
 }
@@ -170,7 +170,7 @@ void LLFloaterInspect::onClickOwnerProfile()
 		if(node)
 		{
 			const LLUUID& owner_id = node->mPermissions->getOwner();
-			LLFriendActions::showProfile(owner_id);
+			LLAvatarActions::showProfile(owner_id);
 		}
 	}
 }

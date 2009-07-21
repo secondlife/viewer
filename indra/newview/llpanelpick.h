@@ -122,6 +122,11 @@ protected:
 	LLUUID mParcelId;
 	std::string mSimName;
 
+	//These strings are used to keep non-wrapped text
+	std::string mName;
+	std::string mDesc;
+	std::string mLocation;
+
 	commit_callback_t mBackCb;
 };
 

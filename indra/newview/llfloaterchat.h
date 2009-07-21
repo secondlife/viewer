@@ -82,7 +82,6 @@ public:
 	static void chatFromLogFile(LLLogChat::ELogLineType type,std::string line, void* userdata);
 	static void loadHistory();
 	static void* createSpeakersPanel(void* data);
-	static void* createChatPanel(void* data);
 	
 	static LLFloaterChat* getInstance(); // *TODO:Skinning Deprecate
 	

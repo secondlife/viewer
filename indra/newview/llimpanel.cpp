@@ -51,7 +51,7 @@
 #include "llfloater.h"
 #include "llfloatercall.h"
 #include "llfloatergroupinfo.h"
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "llimview.h"
 #include "llinventory.h"
 #include "llinventorymodel.h"
@@ -1569,7 +1569,7 @@ void LLFloaterIMPanel::onClickProfile( void* userdata )
 	
 	if (self->getOtherParticipantID().notNull())
 	{
-		LLFriendActions::showProfile(self->getOtherParticipantID());
+		LLAvatarActions::showProfile(self->getOtherParticipantID());
 	}
 }
 
