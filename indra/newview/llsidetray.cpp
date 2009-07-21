@@ -36,7 +36,7 @@
 
 #include "llsidetray.h"
 #include "llviewerwindow.h"
-#include "llaccordionpanel.h"
+#include "llaccordionctrl.h"
 #include "llfocusmgr.h"
 #include "llrootview.h"
 
@@ -113,7 +113,7 @@ bool	LLSideTray::instanceCreated	()
 	return sInstance!=0;
 }
 
-LLSideTrayTab::LLSideTrayTab(const Params& params):mAccordionPanel(0)
+LLSideTrayTab::LLSideTrayTab(const Params& params):mAccordionCtrl(0)
 												
 {
 	mImagePath = params.image_path;
@@ -131,18 +131,18 @@ void LLSideTrayTab::addPanel(LLPanel* panel)
 
 bool LLSideTrayTab::addChild(LLView* view, S32 tab_group)
 {
-	if(mAccordionPanel == 0)		
+	if(mAccordionCtrl == 0)		
 	{
-		mAccordionPanel = new LLAccordionPanel();
-		mAccordionPanel->setVisible(TRUE);
-		LLPanel::addChild(mAccordionPanel,tab_group);
+		mAccordionCtrl = new LLAccordionCtrl();
+		mAccordionCtrl->setVisible(TRUE);
+		LLPanel::addChild(mAccordionCtrl,tab_group);
 	}
 
 	
 	bool res = true;
 	if(TAB_PANEL_CAPTION_NAME != view->getName())//skip our caption panel
 	{
-		mAccordionPanel->addCollapsibleCtrl(view);
+		mAccordionCtrl->addCollapsibleCtrl(view);
 	}
 	else
 		res = LLPanel::addChild(view,tab_group);
@@ -185,17 +185,17 @@ void	LLSideTrayTab::arrange(S32 width, S32 height )
 		offset = title_panel->getRect().getHeight();
 	}
 
-	LLRect sRect = mAccordionPanel->getRect();
+	LLRect sRect = mAccordionCtrl->getRect();
 	sRect.setLeftTopAndSize( splitter_margin, height - offset - splitter_margin, width - 2*splitter_margin, height - offset - 2*splitter_margin);
-	mAccordionPanel->setRect(sRect);
+	mAccordionCtrl->setRect(sRect);
 	
-	mAccordionPanel->setMaxWidth(sRect.getWidth());
-	mAccordionPanel->arrange();
+	mAccordionCtrl->setMaxWidth(sRect.getWidth());
+	mAccordionCtrl->arrange();
 }
 
 void LLSideTrayTab::reshape		(S32 width, S32 height, BOOL called_from_parent )
 {
-	if(!mAccordionPanel)
+	if(!mAccordionCtrl)
 		return;
 	S32 offset = 0;
 
@@ -210,12 +210,12 @@ void LLSideTrayTab::reshape		(S32 width, S32 height, BOOL called_from_parent )
 
 	
 
-	LLRect sRect = mAccordionPanel->getRect();
+	LLRect sRect = mAccordionCtrl->getRect();
 	sRect.setLeftTopAndSize( splitter_margin, height - offset - splitter_margin, width - 2*splitter_margin, height - offset - 2*splitter_margin);
-	mAccordionPanel->setMaxWidth(sRect.getWidth());
-	mAccordionPanel->reshape(sRect.getWidth(), sRect.getHeight());
+	mAccordionCtrl->setMaxWidth(sRect.getWidth());
+	mAccordionCtrl->reshape(sRect.getWidth(), sRect.getHeight());
 	
-	mAccordionPanel->setRect(sRect);
+	mAccordionCtrl->setRect(sRect);
 
 }
 
@@ -231,7 +231,7 @@ void LLSideTrayTab::draw()
 
 void	LLSideTrayTab::onOpen		(const LLSD& key)
 {
-	mAccordionPanel->onOpen(key);
+	mAccordionCtrl->onOpen(key);
 }
 
 LLSideTrayTab*  LLSideTrayTab::createInstance	()

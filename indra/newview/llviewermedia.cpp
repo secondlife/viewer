@@ -43,6 +43,8 @@
 #include "llviewertexture.h"
 #include "llviewerparcelmedia.h"
 #include "llviewerparcelmgr.h"
+#include "llviewerparcelmedia.h"
+#include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
 #include "llversionviewer.h"
 #include "llviewertexturelist.h"

@@ -62,9 +62,11 @@ LLNotificationChiclet::Params::Params()
 : button("button")
 , unread_notifications("unread_notifications")
 {
+	button.name("button");
 	button.tab_stop(FALSE);
 	button.label(LLStringUtil::null);
 
+	unread_notifications.name("unread");
 	unread_notifications.font(LLFontGL::getFontSansSerif());
 	unread_notifications.text_color=(LLColor4::white);
 	unread_notifications.font_halign(LLFontGL::HCENTER);
@@ -327,9 +329,12 @@ BOOL LLIMChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		createPopupMenu();
 
 	updateMenuItems();
-	
-	mPopupMenu->arrangeAndClear();
 
+	if (mPopupMenu)
+	{
+		mPopupMenu->arrangeAndClear();
+	}
+	
 	LLMenuGL::showPopup(this, mPopupMenu, x, y);
 
 	return TRUE;

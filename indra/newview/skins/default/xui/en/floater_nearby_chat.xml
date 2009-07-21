@@ -28,5 +28,5 @@
       		color="1 1 1 1" enabled="true" image_name="closebox.tga"
       		name="close_btn"/>
 	</panel>
-  <chat_history_view bottom="0" width="250" height="320" follows="left|right|top|bottom" name="chat_scroll" />
+  <chat_items_container bottom="0" width="250" height="320" follows="left|right|top|bottom" name="chat_history" />
 </floater>

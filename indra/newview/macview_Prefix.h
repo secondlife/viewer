@@ -75,7 +75,6 @@
 #include "llfloatertools.h"
 #include "llhudeffectlookat.h"
 #include "llhudmanager.h"
-#include "llinventoryview.h"
 #include "lljoystickbutton.h"
 #include "llmenugl.h"
 #include "llmorphview.h"

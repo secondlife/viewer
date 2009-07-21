@@ -37,7 +37,7 @@
 #include "string"
 
 class LLSideTray;
-class LLAccordionPanel;
+class LLAccordionCtrl;
 
 class LLSideTrayTab: public LLPanel
 {
@@ -86,7 +86,7 @@ private:
 	std::string mImagePath;
 	std::string	mDescription;
 
-	LLAccordionPanel*	mAccordionPanel;
+	LLAccordionCtrl*	mAccordionCtrl;
 };
 
 

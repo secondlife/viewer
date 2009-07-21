@@ -143,6 +143,9 @@
 #include "llwindebug.h"	// For the invalid message handler
 #endif
 
+//#include "llnearbychathistory.h"
+#include "llnotificationmanager.h"
+
 //
 // Constants
 //
@@ -2370,15 +2373,15 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			switch(chat.mChatType)
 			{
 			case CHAT_TYPE_WHISPER:
-				verb = " " + LLTrans::getString("whisper") + " ";
+				verb = "(" + LLTrans::getString("whisper") + ")";
 				break;
 			case CHAT_TYPE_DEBUG_MSG:
 			case CHAT_TYPE_OWNER:
 			case CHAT_TYPE_NORMAL:
-				verb = ": ";
+				verb = "";
 				break;
 			case CHAT_TYPE_SHOUT:
-				verb = " " + LLTrans::getString("shout") + " ";
+				verb = "(" + LLTrans::getString("shout") + ")";
 				break;
 			case CHAT_TYPE_START:
 			case CHAT_TYPE_STOP:
@@ -2386,12 +2389,12 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 				break;
 			default:
 				LL_WARNS("Messaging") << "Unknown type " << chat.mChatType << " in chat!" << LL_ENDL;
-				verb = " say, ";
+				verb = "";
 				break;
 			}
 
 
-			chat.mText = from_name;
+			chat.mText = "";
 			chat.mText += verb;
 			chat.mText += mesg;
 		}
@@ -2419,12 +2422,14 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			&& (is_linden || !is_busy || is_owned_by_me))
 		{
 			// show on screen and add to history
-			LLFloaterChat::addChat(chat, FALSE, FALSE);
+			LLNotificationsUI::LLNotificationManager::instance().onChat(
+					chat, LLNotificationsUI::NT_NEARBYCHAT);
 		}
 		else
 		{
+			LLNotificationsUI::LLNotificationManager::instance().onChat(
+					chat, LLNotificationsUI::NT_NEARBYCHAT);
 			// just add to chat history
-			LLFloaterChat::addChatHistory(chat);
 		}
 	}
 }

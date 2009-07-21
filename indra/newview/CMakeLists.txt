@@ -64,7 +64,7 @@ include_directories(
 
 set(viewer_SOURCE_FILES
     llaccordionctrltab.cpp
-    llaccordionpanel.cpp
+    llaccordionctrl.cpp
     llagent.cpp
     llagentaccess.cpp
     llagentdata.cpp
@@ -88,7 +88,9 @@ set(viewer_SOURCE_FILES
     llcallingcard.cpp
     llcapabilitylistener.cpp
     llcaphttpsender.cpp
-    llchathistoryscroll.cpp
+    llchannelmanager.cpp
+    llchatitemscontainerctrl.cpp
+    llchatmsgbox.cpp
     llchiclet.cpp
     llclassifiedinfo.cpp
     llclassifiedstatsresponder.cpp
@@ -104,7 +106,6 @@ set(viewer_SOURCE_FILES
     lldebugview.cpp
     lldelayedgestureerror.cpp
     lldirpicker.cpp
-    lldraggerbar.cpp
     lldrawable.cpp
     lldrawpoolalpha.cpp
     lldrawpoolavatar.cpp
@@ -266,8 +267,13 @@ set(viewer_SOURCE_FILES
     llnameeditor.cpp
     llnamelistctrl.cpp
     llnavigationbar.cpp
-    llnearbychathistory.cpp
+    llnearbychat.cpp
+    llnearbychathandler.cpp
     llnetmap.cpp
+    llnotificationalerthandler.cpp
+    llnotificationgrouphandler.cpp
+    llnotificationinfohandler.cpp
+    llnotificationmanager.cpp
     llnotify.cpp
     lloutputmonitorctrl.cpp
     lloverlaybar.cpp
@@ -329,6 +335,7 @@ set(viewer_SOURCE_FILES
     llregionposition.cpp
     llremoteparcelrequest.cpp
     llsavedsettingsglue.cpp
+    llscreenchannel.cpp
     llselectmgr.cpp
     llsidetray.cpp
     llsky.cpp
@@ -349,6 +356,11 @@ set(viewer_SOURCE_FILES
     lltexturectrl.cpp
     lltexturefetch.cpp
     lltextureview.cpp
+    lltoast.cpp
+    lltoastalertpanel.cpp
+    lltoastgroupnotifypanel.cpp
+    lltoastnotifypanel.cpp
+    lltoastpanel.cpp
     lltoggleablemenu.cpp
     lltoolbar.cpp
     lltoolbrush.cpp
@@ -484,7 +496,7 @@ set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
     llaccordionctrltab.h
-    llaccordionpanel.h
+    llaccordionctrl.h
     llagent.h
     llagentaccess.h
     llagentdata.h
@@ -510,7 +522,9 @@ set(viewer_HEADER_FILES
     llcapabilitylistener.h
     llcapabilityprovider.h
     llcaphttpsender.h
-    llchathistoryscroll.h
+    llchannelmanager.h
+    llchatitemscontainerctrl.h
+    llchatmsgbox.h
     llchiclet.h
     llclassifiedinfo.h
     llclassifiedstatsresponder.h
@@ -526,7 +540,6 @@ set(viewer_HEADER_FILES
     lldebugview.h
     lldelayedgestureerror.h
     lldirpicker.h
-    lldraggerbar.h
     lldrawable.h
     lldrawpool.h
     lldrawpoolalpha.h
@@ -690,8 +703,11 @@ set(viewer_HEADER_FILES
     llnameeditor.h
     llnamelistctrl.h
     llnavigationbar.h
-    llnearbychathistory.h
+    llnearbychat.h
+    llnearbychathandler.h
     llnetmap.h
+    llnotificationhandler.h
+    llnotificationmanager.h
     llnotify.h
     lloutputmonitorctrl.h
     lloverlaybar.h
@@ -754,6 +770,7 @@ set(viewer_HEADER_FILES
     llremoteparcelrequest.h
     llresourcedata.h
     llrootview.h
+    llscreenchannel.h
     llsavedsettingsglue.h
     llselectmgr.h
     llsidetray.h
@@ -776,6 +793,11 @@ set(viewer_HEADER_FILES
     lltexturectrl.h
     lltexturefetch.h
     lltextureview.h
+    lltoast.h
+    lltoastalertpanel.h
+    lltoastgroupnotifypanel.h
+    lltoastnotifypanel.h
+    lltoastpanel.h
     lltoggleablemenu.h
     lltool.h
     lltoolbar.h

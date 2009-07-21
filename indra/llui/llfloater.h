@@ -333,12 +333,13 @@ protected:
 	open_signal_t   mOpenSignal;
 	close_signal_t  mCloseSignal;
 	LLSD			mKey;				// Key used for retrieving instances; set (for now) by LLFLoaterReg
-	
-private:
-	LLRect			mExpandedRect;
+
 	LLDragHandle*	mDragHandle;
 	LLResizeBar*	mResizeBar[4];
 	LLResizeHandle*	mResizeHandle[4];
+
+private:
+	LLRect			mExpandedRect;
 	
 	LLUIString		mTitle;
 	LLUIString		mShortTitle;

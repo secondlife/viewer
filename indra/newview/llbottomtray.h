@@ -89,7 +89,6 @@ public:
 
 	/*virtual*/void draw();
 	void refreshStandUp();
-	void updateRightPosition(const S32 new_right_position);
 
 	void onCommitGesture(LLUICtrl* ctrl);
 	void onCommitStandUp(LLUICtrl* ctrl);	
@@ -118,7 +117,7 @@ protected:
 	void setChicletPanelVisible(bool visible);
 
 	// Which non-zero channel did we last chat on?
-	static S32 mLastSpecialChatChannel;
+	static S32 sLastSpecialChatChannel;
 
 	LLLineEditor*		mChatBox;
 	LLChicletPanel* 	mChicletPanel;

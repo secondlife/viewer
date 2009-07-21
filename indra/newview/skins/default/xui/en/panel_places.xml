@@ -81,7 +81,7 @@
      top_delta="0"
      width="60" />
     <button
-     enabled="false"
+     enabled="true"
      follows="bottom|right"
      font="SansSerifSmallBold"
      height="25"

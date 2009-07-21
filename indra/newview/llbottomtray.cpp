@@ -47,7 +47,7 @@
 #include "llselectmgr.h" 
 #include "llvoavatarself.h"
 
-S32 LLBottomTray::mLastSpecialChatChannel = 0;
+S32 LLBottomTray::sLastSpecialChatChannel = 0;
 
 // legacy calllback glue
 void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
@@ -412,16 +412,6 @@ void LLBottomTray::refreshStandUp()
 		moveChildToBackOfTabGroup(mStandUpBtn);
 	}
 }
-void LLBottomTray::updateRightPosition(const S32 new_right_position)
-{
-	LLRect rc = getRect();
-	if (new_right_position != rc.mRight)
-	{
-		rc.mRight = new_right_position;
-		reshape(rc.getWidth(), rc.getHeight(), FALSE);
-		setRect(rc);
-	}
-}
 
 //FIXME: temporary, for stand up proto
 void LLBottomTray::onCommitStandUp(LLUICtrl* ctrl)
@@ -624,7 +614,7 @@ LLWString LLBottomTray::stripChannelNumber(const LLWString &mesg, S32* channel)
 		&& mesg[1] == '/')
 	{
 		// This is a "repeat channel send"
-		*channel = mLastSpecialChatChannel;
+		*channel = sLastSpecialChatChannel;
 		return mesg.substr(2, mesg.length() - 2);
 	}
 	else if (mesg[0] == '/'
@@ -654,8 +644,8 @@ LLWString LLBottomTray::stripChannelNumber(const LLWString &mesg, S32* channel)
 			pos++;
 		}
 		
-		mLastSpecialChatChannel = strtol(wstring_to_utf8str(channel_string).c_str(), NULL, 10);
-		*channel = mLastSpecialChatChannel;
+		sLastSpecialChatChannel = strtol(wstring_to_utf8str(channel_string).c_str(), NULL, 10);
+		*channel = sLastSpecialChatChannel;
 		return mesg.substr(pos, mesg.length() - pos);
 	}
 	else

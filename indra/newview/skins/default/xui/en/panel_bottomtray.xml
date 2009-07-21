@@ -301,9 +301,11 @@
                height="20"
                left="22"
                top="23"/>
+<!-- 
 			  <chiclet_notification.commit_callback
 				 function="Notification.Show"
 				 parameter="ClickUnimplemented" />
+ -->               				 
 			</chiclet_notification>
         </layout_panel>
         <icon

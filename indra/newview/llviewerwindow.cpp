@@ -184,9 +184,11 @@
 #include "llpostprocess.h"
 #include "llbottomtray.h"
 
+#include "llnotificationmanager.h"
+
 #include "llfloaternotificationsconsole.h"
 
-#include "llnearbychathistory.h"
+#include "llnearbychat.h"
 
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
@@ -1641,6 +1643,15 @@ void LLViewerWindow::initWorldUI()
 	getRootView()->sendChildToFront(gNotifyBoxView);
 	// menu holder appears on top to get first pass at all mouse events
 	getRootView()->sendChildToFront(gMenuHolder);
+
+	//Channel Manager
+	LLNotificationsUI::LLChannelManager * channel_manager
+			= LLNotificationsUI::LLChannelManager::getInstance();
+	getRootView()->addChild(channel_manager);
+	//Notification Manager
+	LLNotificationsUI::LLNotificationManager* notify_manager =
+			LLNotificationsUI::LLNotificationManager::getInstance();
+	getRootView()->addChild(notify_manager);
 }
 
 // Destroy the UI
@@ -2384,6 +2395,29 @@ void LLViewerWindow::moveCursorToCenter()
 	LLUI::setCursorPositionScreen(x, y);	
 }
 
+void LLViewerWindow::updateBottomTrayRect()
+{
+	if(LLBottomTray::instanceExists() && LLSideTray::instanceCreated())
+	{
+		S32 side_tray_width = 0;
+		if(LLSideTray::getInstance()->getVisible())
+		{
+			side_tray_width = LLSideTray::getInstance()->getTrayWidth();
+		}
+
+		LLBottomTray* bottom_tray = LLBottomTray::getInstance();
+		S32 right = llround((F32)mWindowRect.mRight / mDisplayScale.mV[VX]) - side_tray_width;
+
+		LLRect rc = bottom_tray->getRect();
+		if (right != rc.mRight)
+		{
+			rc.mRight = right;
+			bottom_tray->reshape(rc.getWidth(), rc.getHeight(), FALSE);
+			bottom_tray->setRect(rc);
+		}
+	}
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Hover handlers
@@ -2397,15 +2431,7 @@ void LLViewerWindow::updateUI()
 
 	updateWorldViewRect();
 
-	if(LLBottomTray::instanceExists() && LLSideTray::instanceCreated())
-	{
-		S32 delta = 0;
-		if(LLSideTray::getInstance()->getVisible())
-		{
-			delta = llround((F32)LLSideTray::getInstance()->getTrayWidth() * mDisplayScale.mV[VX]);
-		}
-		LLBottomTray::getInstance()->updateRightPosition(mWindowRect.mRight - delta);
-	}
+	updateBottomTrayRect();
 
 	LLView::sMouseHandlerMessage.clear();
 
