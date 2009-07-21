@@ -105,25 +105,25 @@
          filename="panel_preferences_advanced.xml"
          label="Advanced"
          layout="topleft"
-         name="input" />
+         name="advanced1" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_advanced2.xml"
          label="Move, not to Advanced"
          layout="topleft"
-         name="input" />
+         name="advanced2" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_advanced3.xml"
          label="Not in specs"
          layout="topleft"
-         name="input" />
+         name="advanced3" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_advanced4.xml"
          label="Storage/Kill"
          layout="topleft"
-         name="input" />
+         name="advanced4" />
         <!--panel
 		 class="panel_preference"
          filename="panel_preferences_network.xml"

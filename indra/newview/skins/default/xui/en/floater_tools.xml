@@ -1131,7 +1131,7 @@
             <text
                type="string"
                follows="left|top"
-               name="Next owner can:"
+               name="Anyone can:"
                width="250"
                top_pad="7"
                left="10">

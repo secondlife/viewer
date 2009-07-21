@@ -61,7 +61,7 @@
      layout="topleft"
      left_pad="5"
      mouse_opaque="false"
-     name="text_box2"
+     name="text_box1"
      top_delta="5"
      width="95">
         Me
@@ -111,7 +111,7 @@
      layout="topleft"
      left_pad="5"
      mouse_opaque="false"
-     name="text_box2"
+     name="text_box3"
      top_delta="5"
      width="95">
         IM
@@ -137,7 +137,7 @@
      layout="topleft"
      left_pad="5"
      mouse_opaque="false"
-     name="text_box2"
+     name="text_box4"
      top_delta="5"
      width="95">
         System
@@ -162,7 +162,7 @@
      layout="topleft"
      left_pad="5"
      mouse_opaque="false"
-     name="text_box2"
+     name="text_box5"
      top_delta="5"
      width="95">
         Errors
@@ -187,7 +187,7 @@
      layout="topleft"
      left_pad="5"
      mouse_opaque="false"
-     name="text_box2"
+     name="text_box6"
      top_delta="5"
      width="95">
         Objects
@@ -212,7 +212,7 @@
      layout="topleft"
      left_pad="5"
      mouse_opaque="false"
-     name="text_box2"
+     name="text_box7"
      top_delta="5"
      width="95">
         Owner
@@ -237,7 +237,7 @@
      layout="topleft"
      left_pad="5"
      mouse_opaque="false"
-     name="text_box2"
+     name="text_box8"
      top_delta="5"
      width="95">
         Bubble
@@ -262,7 +262,7 @@
      layout="topleft"
      left_pad="5"
      mouse_opaque="false"
-     name="text_box2"
+     name="text_box9"
      top_delta="5"
      width="95">
         URLs

@@ -108,7 +108,7 @@
      initial_value="second"
      layout="topleft"
      left_delta="0"
-     name="text_entry_combo"
+     name="text_entry_combo2"
      top_pad="2"
      width="150">
         <combo_box.item

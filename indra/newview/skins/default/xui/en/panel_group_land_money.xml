@@ -200,7 +200,7 @@
      height="16"
      layout="topleft"
      left_pad="5"
-     name="your_contribution_max_value"
+     name="your_contribution_units"
      top_delta="2">
          sq. meters
     </text>
