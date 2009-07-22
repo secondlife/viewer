@@ -954,6 +954,8 @@ void LLMetaClassT<LLPermissions>::reflectProperties(LLMetaClass& meta_class)
 {
 	reflectProperty(meta_class, "mCreator", &LLPermissions::mCreator);
 	reflectProperty(meta_class, "mOwner", &LLPermissions::mOwner);
+	reflectProperty(meta_class, "mGroup", &LLPermissions::mGroup);
+	reflectProperty(meta_class, "mIsGroupOwned", &LLPermissions::mIsGroupOwned);
 }
 
 // virtual
