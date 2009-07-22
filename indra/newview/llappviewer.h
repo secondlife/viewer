@@ -126,7 +126,7 @@ public:
     virtual void forceErrorLLError();
     virtual void forceErrorBreakpoint();
     virtual void forceErrorBadMemoryAccess();
-    virtual void forceErrorInifiniteLoop();
+    virtual void forceErrorInfiniteLoop();
     virtual void forceErrorSoftwareException();
     virtual void forceErrorDriverCrash();
 
@@ -262,6 +262,8 @@ public:
 		std::ostringstream mParams;
 	}LLUpdaterInfo ;
 	static LLUpdaterInfo *sUpdaterInfo ;
+
+	void launchUpdater();
 };
 
 // consts from viewer.h

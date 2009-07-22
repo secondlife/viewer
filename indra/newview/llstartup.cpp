@@ -965,13 +965,17 @@ bool idle_startup()
 		display_startup();
 
 		// Setting initial values...
+		LLLoginInstance* login = LLLoginInstance::getInstance();
 		if(gNoRender)
 		{
 			// HACK, skip optional updates if you're running drones
-			LLLoginInstance::getInstance()->setSkipOptionalUpdate(true);
+			login->setSkipOptionalUpdate(true);
 		}
 
-		LLLoginInstance::getInstance()->setUserInteraction(show_connect_box);
+		login->setUserInteraction(show_connect_box);
+		login->setSerialNumber(LLAppViewer::instance()->getSerialNumber());
+		login->setLastExecEvent(gLastExecEvent);
+		login->setUpdaterLauncher(boost::bind(LLAppViewer::launchUpdater, LLAppViewer::instance()));
 
 		// This call to LLLoginInstance::connect() starts the 
 		// authentication process.
@@ -979,7 +983,7 @@ bool idle_startup()
 		credentials["first"] = gFirstname;
 		credentials["last"] = gLastname;
 		credentials["passwd"] = gPassword;
-		LLLoginInstance::getInstance()->connect(credentials);
+		login->connect(credentials);
 
 		LLStartUp::setStartupState( STATE_LOGIN_PROCESS_RESPONSE );
 		return FALSE;

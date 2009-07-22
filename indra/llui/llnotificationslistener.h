@@ -25,7 +25,10 @@ public:
     void requestAdd(LLSD const & event_data) const;
 
 private:
-    LLNotifications & mNotifications;
+	void NotificationResponder(const std::string& replypump, 
+							   const LLSD& notification, 
+							   const LLSD& response);
+	LLNotifications & mNotifications;
 };
 
 #endif // LL_LLNOTIFICATIONSLISTENER_H

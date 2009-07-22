@@ -74,6 +74,8 @@ LLFloaterTOS* LLFloaterTOS::show(ETOSType type,
 		LLUICtrlFactory::getInstance()->buildFloater(LLFloaterTOS::sInstance, "floater_critical.xml");
 	}
 
+	sInstance->startModal();
+
 	return LLFloaterTOS::sInstance;
 }
 

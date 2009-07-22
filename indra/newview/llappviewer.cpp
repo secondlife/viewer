@@ -3986,7 +3986,7 @@ void LLAppViewer::forceErrorBadMemoryAccess()
     return;
 }
 
-void LLAppViewer::forceErrorInifiniteLoop()
+void LLAppViewer::forceErrorInfiniteLoop()
 {
     while(true)
     {
@@ -4151,4 +4151,112 @@ void LLAppViewer::loadEventHostModule(S32 listen_port)
 	}
 
 	mPlugins.insert(eventhost_dso_handle);
+}
+
+void LLAppViewer::launchUpdater()
+{
+		LLSD query_map = LLSD::emptyMap();
+	// *TODO place os string in a global constant
+#if LL_WINDOWS  
+	query_map["os"] = "win";
+#elif LL_DARWIN
+	query_map["os"] = "mac";
+#elif LL_LINUX
+	query_map["os"] = "lnx";
+#elif LL_SOLARIS
+	query_map["os"] = "sol";
+#endif
+	// *TODO change userserver to be grid on both viewer and sim, since
+	// userserver no longer exists.
+	query_map["userserver"] = LLViewerLogin::getInstance()->getGridLabel();
+	query_map["channel"] = gSavedSettings.getString("VersionChannelName");
+	// *TODO constantize this guy
+	// *NOTE: This URL is also used in win_setup/lldownloader.cpp
+	LLURI update_url = LLURI::buildHTTP("secondlife.com", 80, "update.php", query_map);
+	
+	if(LLAppViewer::sUpdaterInfo)
+	{
+		delete LLAppViewer::sUpdaterInfo;
+	}
+	LLAppViewer::sUpdaterInfo = new LLAppViewer::LLUpdaterInfo() ;
+	
+#if LL_WINDOWS
+	LLAppViewer::sUpdaterInfo->mUpdateExePath = gDirUtilp->getTempFilename();
+	if (LLAppViewer::sUpdaterInfo->mUpdateExePath.empty())
+	{
+		delete LLAppViewer::sUpdaterInfo ;
+		LLAppViewer::sUpdaterInfo = NULL ;
+
+		// We're hosed, bail
+		LL_WARNS("AppInit") << "LLDir::getTempFilename() failed" << LL_ENDL;
+		return;
+	}
+
+	LLAppViewer::sUpdaterInfo->mUpdateExePath += ".exe";
+
+	std::string updater_source = gDirUtilp->getAppRODataDir();
+	updater_source += gDirUtilp->getDirDelimiter();
+	updater_source += "updater.exe";
+
+	LL_DEBUGS("AppInit") << "Calling CopyFile source: " << updater_source
+			<< " dest: " << LLAppViewer::sUpdaterInfo->mUpdateExePath
+			<< LL_ENDL;
+
+
+	if (!CopyFileA(updater_source.c_str(), LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str(), FALSE))
+	{
+		delete LLAppViewer::sUpdaterInfo ;
+		LLAppViewer::sUpdaterInfo = NULL ;
+
+		LL_WARNS("AppInit") << "Unable to copy the updater!" << LL_ENDL;
+
+		return;
+	}
+
+	// if a sim name was passed in via command line parameter (typically through a SLURL)
+	if ( LLURLSimString::sInstance.mSimString.length() )
+	{
+		// record the location to start at next time
+		gSavedSettings.setString( "NextLoginLocation", LLURLSimString::sInstance.mSimString ); 
+	};
+
+	LLAppViewer::sUpdaterInfo->mParams << "-url \"" << update_url.asString() << "\"";
+
+	LL_DEBUGS("AppInit") << "Calling updater: " << LLAppViewer::sUpdaterInfo->mUpdateExePath << " " << LLAppViewer::sUpdaterInfo->mParams.str() << LL_ENDL;
+
+	//Explicitly remove the marker file, otherwise we pass the lock onto the child process and things get weird.
+	LLAppViewer::instance()->removeMarkerFile(); // In case updater fails
+
+	// *NOTE:Mani The updater is spawned as the last thing before the WinMain exit.
+	// see LLAppViewerWin32.cpp
+	
+#elif LL_DARWIN
+	// if a sim name was passed in via command line parameter (typically through a SLURL)
+	if ( LLURLSimString::sInstance.mSimString.length() )
+	{
+		// record the location to start at next time
+		gSavedSettings.setString( "NextLoginLocation", LLURLSimString::sInstance.mSimString ); 
+	};
+	
+	LLAppViewer::sUpdaterInfo->mUpdateExePath = "'";
+	LLAppViewer::sUpdaterInfo->mUpdateExePath += gDirUtilp->getAppRODataDir();
+	LLAppViewer::sUpdaterInfo->mUpdateExePath += "/mac-updater.app/Contents/MacOS/mac-updater' -url \"";
+	LLAppViewer::sUpdaterInfo->mUpdateExePath += update_url.asString();
+	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" -name \"";
+	LLAppViewer::sUpdaterInfo->mUpdateExePath += LLAppViewer::instance()->getSecondLifeTitle();
+	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" &";
+
+	LL_DEBUGS("AppInit") << "Calling updater: " << LLAppViewer::sUpdaterInfo->mUpdateExePath << LL_ENDL;
+
+	// Run the auto-updater.
+	system(LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str()); /* Flawfinder: ignore */
+
+#elif LL_LINUX || LL_SOLARIS
+	OSMessageBox("Automatic updating is not yet implemented for Linux.\n"
+		"Please download the latest version from www.secondlife.com.",
+		LLStringUtil::null, OSMB_OK);
+#endif
+
+	// *REMOVE:Mani - Saving for reference...
+	// LLAppViewer::instance()->forceQuit();
 }

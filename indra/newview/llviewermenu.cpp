@@ -7103,7 +7103,7 @@ void force_error_bad_memory_access(void *)
 
 void force_error_infinite_loop(void *)
 {
-    LLAppViewer::instance()->forceErrorInifiniteLoop();
+    LLAppViewer::instance()->forceErrorInfiniteLoop();
 }
 
 void force_error_software_exception(void *)

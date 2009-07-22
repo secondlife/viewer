@@ -34,7 +34,9 @@
 #define LL_LLLOGININSTANCE_H
 
 #include <boost/scoped_ptr.hpp>
+#include <boost/function.hpp>
 class LLLogin;
+class LLEventStream;
 
 // This class hosts the login module and is used to 
 // negotiate user authentication attempts.
@@ -49,16 +51,6 @@ public:
 	void reconnect(); // reconnect using the current credentials.
 	void disconnect();
 
-	// Set whether this class will drive user interaction.
-	// If not, login failures like 'need tos agreement' will 
-	// end the login attempt.
-	void setUserInteraction(bool state) { mUserInteraction = state; } 
-	bool getUserInteraction() { return mUserInteraction; }
-
-	// Whether to tell login to skip optional update request.
-	// False by default.
-	void setSkipOptionalUpdate(bool state) { mSkipOptionalUpdate = state; }
-	
 	bool authFailure() { return mAttemptComplete && mLoginState == "offline"; }
 	bool authSuccess() { return mAttemptComplete && mLoginState == "online"; }
 
@@ -69,10 +61,25 @@ public:
 	// Only valid when authSuccess == true.
 	const F64 getLastTransferRateBPS() { return mTransferRate; }
 
+		// Set whether this class will drive user interaction.
+	// If not, login failures like 'need tos agreement' will 
+	// end the login attempt.
+	void setUserInteraction(bool state) { mUserInteraction = state; } 
+	bool getUserInteraction() { return mUserInteraction; }
+
+	// Whether to tell login to skip optional update request.
+	// False by default.
+	void setSkipOptionalUpdate(bool state) { mSkipOptionalUpdate = state; }
+	void setSerialNumber(const std::string& sn) { mSerialNumber = sn; }
+	void setLastExecEvent(int lee) { mLastExecEvent = lee; }
+
+	typedef boost::function<void()> UpdaterLauncherCallback;
+	void setUpdaterLauncher(const UpdaterLauncherCallback& ulc) { mUpdaterLauncher = ulc; }
+
 private:
 	void constructAuthParams(const LLSD& credentials); 
 	void updateApp(bool mandatory, const std::string& message);
-	bool updateDialogCallback(const LLSD& notification, const LLSD& response);
+	bool updateDialogCallback(const LLSD& event);
 
 	bool handleLoginEvent(const LLSD& event);
 	bool handleLoginFailure(const LLSD& event);
@@ -90,6 +97,10 @@ private:
 	bool mSkipOptionalUpdate;
 	bool mAttemptComplete;
 	F64 mTransferRate;
+	std::string mSerialNumber;
+	int mLastExecEvent;
+	UpdaterLauncherCallback mUpdaterLauncher;
+	boost::scoped_ptr<LLEventStream> mUpdateAppResponse;
 };
 
 #endif

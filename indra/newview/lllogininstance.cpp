@@ -47,7 +47,6 @@
 
 // newview
 #include "llviewernetwork.h"
-#include "llappviewer.h" // Wish I didn't have to, but...
 #include "llviewercontrol.h"
 #include "llurlsimstring.h"
 #include "llfloatertos.h"
@@ -74,7 +73,6 @@ LLLoginInstance::~LLLoginInstance()
 {
 }
 
-
 void LLLoginInstance::connect(const LLSD& credentials)
 {
 	std::vector<std::string> uris;
@@ -84,6 +82,7 @@ void LLLoginInstance::connect(const LLSD& credentials)
 
 void LLLoginInstance::connect(const std::string& uri, const LLSD& credentials)
 {
+	mAttemptComplete = false; // Reset attempt complete at this point!
 	constructAuthParams(credentials);
 	mLoginModule->connect(uri, mRequestData);
 }
@@ -99,6 +98,7 @@ void LLLoginInstance::reconnect()
 
 void LLLoginInstance::disconnect()
 {
+	mAttemptComplete = false; // Reset attempt complete at this point!
 	mRequestData.clear();
 	mLoginModule->disconnect();
 }
@@ -162,12 +162,13 @@ void LLLoginInstance::constructAuthParams(const LLSD& credentials)
 	request_params["skipoptional"] = mSkipOptionalUpdate;
 	request_params["agree_to_tos"] = false; // Always false here. Set true in 
 	request_params["read_critical"] = false; // handleTOSResponse
-	request_params["last_exec_event"] = gLastExecEvent;
+	request_params["last_exec_event"] = mLastExecEvent;
 	request_params["mac"] = hashed_mac_string;
 	request_params["version"] = gCurrentVersion; // Includes channel name
 	request_params["channel"] = gSavedSettings.getString("VersionChannelName");
-	request_params["id0"] = LLAppViewer::instance()->getSerialNumber();
+	request_params["id0"] = mSerialNumber;
 
+	mRequestData.clear();
 	mRequestData["method"] = "login_to_simulator";
 	mRequestData["params"] = request_params;
 	mRequestData["options"] = requested_options;
@@ -219,21 +220,18 @@ bool LLLoginInstance::handleLoginFailure(const LLSD& event)
 		// to reconnect or to end the attempt in failure.
 		if(reason_response == "tos")
 		{
-			LLFloaterTOS* tos_dialog = LLFloaterTOS::show(LLFloaterTOS::TOS_TOS,
-											message_response,
-											boost::bind(&LLLoginInstance::handleTOSResponse, 
-														this, _1, "agree_to_tos")
-											);
-			tos_dialog->startModal();
+			LLFloaterTOS::show(LLFloaterTOS::TOS_TOS,
+								message_response,
+								boost::bind(&LLLoginInstance::handleTOSResponse, 
+											this, _1, "agree_to_tos"));
 		}
 		else if(reason_response == "critical")
 		{
-			LLFloaterTOS* tos_dialog = LLFloaterTOS::show(LLFloaterTOS::TOS_CRITICAL_MESSAGE,
-											message_response,
-											boost::bind(&LLLoginInstance::handleTOSResponse, 
-														this, _1, "read_critical")
+			LLFloaterTOS::show(LLFloaterTOS::TOS_CRITICAL_MESSAGE,
+								message_response,
+								boost::bind(&LLLoginInstance::handleTOSResponse, 
+												this, _1, "read_critical")
 											);
-			tos_dialog->startModal();
 		}
 		else if(reason_response == "update" || gSavedSettings.getBOOL("ForceMandatoryUpdate"))
 		{
@@ -259,12 +257,14 @@ bool LLLoginInstance::handleLoginFailure(const LLSD& event)
 
 bool LLLoginInstance::handleLoginSuccess(const LLSD& event)
 {
-	LLSD response = event["data"];
-	std::string message_response = response["message"].asString();
 	if(gSavedSettings.getBOOL("ForceMandatoryUpdate"))
 	{
+		LLSD response = event["data"];
+		std::string message_response = response["message"].asString();
+
 		// Testing update...
 		gSavedSettings.setBOOL("ForceMandatoryUpdate", FALSE);
+
 		// Don't confuse startup by leaving login "online".
 		mLoginModule->disconnect(); 
 		updateApp(true, message_response);
@@ -281,7 +281,7 @@ void LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
 	if(accepted)
 	{	
 		// Set the request data to true and retry login.
-		mRequestData[key] = true; 
+		mRequestData["params"][key] = true; 
 		reconnect();
 	}
 	else
@@ -344,13 +344,36 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 		notification_name += "ReleaseForDownload";
 #endif
 	}
-	
-	LLNotifications::instance().add(notification_name, args, payload, 
-		boost::bind(&LLLoginInstance::updateDialogCallback, this, _1, _2));
+
+	// *NOTE:Mani - for reference
+//	LLNotifications::instance().add(notification_name, args, payload, 
+//		boost::bind(&LLLoginInstance::updateDialogCallback, this, _1, _2));
+
+	if(!mUpdateAppResponse)
+	{
+		bool make_unique = true;
+		mUpdateAppResponse.reset(new LLEventStream("logininstance_updateapp", make_unique));
+		mUpdateAppResponse->listen("diaupdateDialogCallback", 
+								   boost::bind(&LLLoginInstance::updateDialogCallback,
+								 			   this, _1
+											   )
+								   );
+	}
+
+	LLSD event;
+	event["op"] = "requestAdd";
+	event["name"] = notification_name;
+	event["substitutions"] = args;
+	event["payload"] = payload;
+	event["reply"] = mUpdateAppResponse->getName();
+
+	LLEventPumps::getInstance()->obtain("LLNotifications").post(event);
 }
 
-bool LLLoginInstance::updateDialogCallback(const LLSD& notification, const LLSD& response)
+bool LLLoginInstance::updateDialogCallback(const LLSD& event)
 {
+	LLSD notification = event["notification"];
+	LLSD response = event["response"];
 	S32 option = LLNotification::getSelectedOption(notification, response);
 	std::string update_exe_path;
 	bool mandatory = notification["payload"]["mandatory"].asBoolean();
@@ -395,114 +418,12 @@ bool LLLoginInstance::updateDialogCallback(const LLSD& notification, const LLSD&
 		return false;
 	}
 	
-	LLSD query_map = LLSD::emptyMap();
-	// *TODO place os string in a global constant
-#if LL_WINDOWS  
-	query_map["os"] = "win";
-#elif LL_DARWIN
-	query_map["os"] = "mac";
-#elif LL_LINUX
-	query_map["os"] = "lnx";
-#elif LL_SOLARIS
-	query_map["os"] = "sol";
-#endif
-	// *TODO change userserver to be grid on both viewer and sim, since
-	// userserver no longer exists.
-	query_map["userserver"] = LLViewerLogin::getInstance()->getGridLabel();
-	query_map["channel"] = gSavedSettings.getString("VersionChannelName");
-	// *TODO constantize this guy
-	// *NOTE: This URL is also used in win_setup/lldownloader.cpp
-	LLURI update_url = LLURI::buildHTTP("secondlife.com", 80, "update.php", query_map);
-	
-	if(LLAppViewer::sUpdaterInfo)
-	{
-		delete LLAppViewer::sUpdaterInfo;
-	}
-	LLAppViewer::sUpdaterInfo = new LLAppViewer::LLUpdaterInfo() ;
-	
-#if LL_WINDOWS
-	LLAppViewer::sUpdaterInfo->mUpdateExePath = gDirUtilp->getTempFilename();
-	if (LLAppViewer::sUpdaterInfo->mUpdateExePath.empty())
-	{
-		delete LLAppViewer::sUpdaterInfo ;
-		LLAppViewer::sUpdaterInfo = NULL ;
-
-		// We're hosed, bail
-		LL_WARNS("AppInit") << "LLDir::getTempFilename() failed" << LL_ENDL;
-
-		attemptComplete();
-		// *REMOVE:Mani - Saving for reference...
-		// LLAppViewer::instance()->forceQuit();
-		return false;
-	}
-
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += ".exe";
-
-	std::string updater_source = gDirUtilp->getAppRODataDir();
-	updater_source += gDirUtilp->getDirDelimiter();
-	updater_source += "updater.exe";
-
-	LL_DEBUGS("AppInit") << "Calling CopyFile source: " << updater_source
-			<< " dest: " << LLAppViewer::sUpdaterInfo->mUpdateExePath
-			<< LL_ENDL;
-
-
-	if (!CopyFileA(updater_source.c_str(), LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str(), FALSE))
-	{
-		delete LLAppViewer::sUpdaterInfo ;
-		LLAppViewer::sUpdaterInfo = NULL ;
-
-		LL_WARNS("AppInit") << "Unable to copy the updater!" << LL_ENDL;
-		attemptComplete();
-		// *REMOVE:Mani - Saving for reference...
-		// LLAppViewer::instance()->forceQuit();
-		return false;
-	}
-
-	// if a sim name was passed in via command line parameter (typically through a SLURL)
-	if ( LLURLSimString::sInstance.mSimString.length() )
-	{
-		// record the location to start at next time
-		gSavedSettings.setString( "NextLoginLocation", LLURLSimString::sInstance.mSimString ); 
-	};
-
-	LLAppViewer::sUpdaterInfo->mParams << "-url \"" << update_url.asString() << "\"";
-
-	LL_DEBUGS("AppInit") << "Calling updater: " << LLAppViewer::sUpdaterInfo->mUpdateExePath << " " << LLAppViewer::sUpdaterInfo->mParams.str() << LL_ENDL;
-
-	//Explicitly remove the marker file, otherwise we pass the lock onto the child process and things get weird.
-	LLAppViewer::instance()->removeMarkerFile(); // In case updater fails
-
-	// *NOTE:Mani The updater is spawned as the last thing before the WinMain exit.
-	// see LLAppViewerWin32.cpp
-	
-#elif LL_DARWIN
-	// if a sim name was passed in via command line parameter (typically through a SLURL)
-	if ( LLURLSimString::sInstance.mSimString.length() )
-	{
-		// record the location to start at next time
-		gSavedSettings.setString( "NextLoginLocation", LLURLSimString::sInstance.mSimString ); 
-	};
-	
-	LLAppViewer::sUpdaterInfo->mUpdateExePath = "'";
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += gDirUtilp->getAppRODataDir();
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += "/mac-updater.app/Contents/MacOS/mac-updater' -url \"";
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += update_url.asString();
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" -name \"";
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += LLAppViewer::instance()->getSecondLifeTitle();
-	LLAppViewer::sUpdaterInfo->mUpdateExePath += "\" &";
-
-	LL_DEBUGS("AppInit") << "Calling updater: " << LLAppViewer::sUpdaterInfo->mUpdateExePath << LL_ENDL;
-
-	// Run the auto-updater.
-	system(LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str()); /* Flawfinder: ignore */
-
-#elif LL_LINUX || LL_SOLARIS
-	OSMessageBox(LLTrans::getString("MBNoAutoUpdate"), LLStringUtil::null, OSMB_OK);
-#endif
-
-	// *REMOVE:Mani - Saving for reference...
-	// LLAppViewer::instance()->forceQuit();
+ 	if(mUpdaterLauncher)
+  	{
+ 		mUpdaterLauncher();
+  	}
+  
+ 	attemptComplete();
 
 	return false;
 }

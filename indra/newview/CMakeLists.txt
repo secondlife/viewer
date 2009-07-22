@@ -1480,6 +1480,7 @@ endif (INSTALL)
 include(LLAddBuildTest)
 SET(viewer_TEST_SOURCE_FILES
   llagentaccess.cpp
+  lllogininstance.cpp
   # Not *actually* a unit test, it's an integration test.
   # Because it won't work in the new unit test iface, i've commented out
   # and notified Nat. Delete this when it's replaced!
