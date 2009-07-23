@@ -230,7 +230,7 @@ void LLFolderViewItem::refreshFromListener()
 
 		// *TODO: to be removed when database supports multi language. This is a
 		// temporary attempt to display the inventory folder in the user locale.
-		if (preferred_type != LLAssetType::AT_NONE)
+		if (LLAssetType::lookupIsProtectedCategoryType(preferred_type))
 		{
 			mLabel = LLTrans::getString("InvFolder " + mLabel);
 		};

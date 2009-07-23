@@ -475,6 +475,35 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 	}
 }
 
+void LLInventoryModel::updateLinkedObjects(const LLUUID& object_id)
+{
+	LLInventoryModel::cat_array_t cat_array;
+	LLInventoryModel::item_array_t item_array;
+	LLLinkedItemIDMatches is_linked_item_match(object_id);
+	collectDescendentsIf(gInventory.getRootFolderID(),
+						 cat_array,
+						 item_array,
+						 LLInventoryModel::INCLUDE_TRASH,
+						 is_linked_item_match);
+
+	for (LLInventoryModel::cat_array_t::iterator cat_iter = cat_array.begin();
+		 cat_iter != cat_array.end();
+		 cat_iter++)
+	{
+		LLViewerInventoryCategory *linked_cat = (*cat_iter);
+		addChangedMask(LLInventoryObserver::LABEL, linked_cat->getUUID());
+	};
+
+	for (LLInventoryModel::item_array_t::iterator iter = item_array.begin();
+		 iter != item_array.end();
+		 iter++)
+	{
+		LLViewerInventoryItem *linked_item = (*iter);
+		addChangedMask(LLInventoryObserver::LABEL, linked_item->getUUID());
+	};
+	notifyObservers();
+}
+
 void LLInventoryModel::collectLinkedItems(const LLUUID& id,
 										  item_array_t& items)
 {
@@ -825,10 +854,10 @@ void LLInventoryModel::purgeObject(const LLUUID &id)
 
 void LLInventoryModel::purgeLinkedObjects(const LLUUID &id)
 {
-	LLInventoryItem* itemp = getItem(id);
-	if (!itemp) return;
+	LLInventoryObject* objectp = getObject(id);
+	if (!objectp) return;
 
-	if (LLAssetType::lookupIsLinkType(itemp->getActualType()))
+	if (LLAssetType::lookupIsLinkType(objectp->getActualType()))
 	{
 		return;
 	}

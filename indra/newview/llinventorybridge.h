@@ -133,6 +133,7 @@ public:
 	// This method is a convenience function which creates the correct
 	// type of bridge based on some basic information
 	static LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
+									   LLAssetType::EType actual_asset_type,
 									   LLInventoryType::EType inv_type,
 									   LLInventoryPanel* inventory,
 									   const LLUUID& uuid,
@@ -156,6 +157,7 @@ public:
 	}
 	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
 	virtual void openItem() {}
+	virtual void gotoItem(LLFolderView *folder) {} // for links
 	virtual void previewItem() {openItem();}
 	virtual void showProperties();
 	virtual BOOL isItemRenameable() const { return TRUE; }
@@ -231,6 +233,7 @@ public:
 	virtual void selectItem();
 	virtual void restoreItem();
 	virtual void restoreToWorld();
+	virtual void gotoItem(LLFolderView *folder);
 
 	virtual LLUIImagePtr getIcon() const;
 	virtual const std::string& getDisplayName() const;
@@ -274,6 +277,8 @@ public:
 
 	virtual LLAssetType::EType getPreferredType() const;
 	virtual LLUIImagePtr getIcon() const;
+	static LLUIImagePtr getIcon(LLAssetType::EType asset_type);
+
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL removeItem();
 	virtual void pasteFromClipboard();
@@ -586,6 +591,27 @@ public:
 protected:
 	LLLinkItemBridge(LLInventoryPanel* inventory, const LLUUID& uuid) :
 		LLItemBridge(inventory, uuid) {}
+
+protected:
+	static std::string sPrefix;
+};
+
+
+class LLLinkFolderBridge : public LLItemBridge
+{
+	friend class LLInvFVBridge;
+public:
+	virtual const std::string& getPrefix() { return sPrefix; }
+
+	virtual LLUIImagePtr getIcon() const;
+	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
+	virtual void gotoItem(LLFolderView *folder);
+
+protected:
+	LLLinkFolderBridge(LLInventoryPanel* inventory, const LLUUID& uuid) :
+		LLItemBridge(inventory, uuid) {}
+	const LLUUID &getFolderID() const;
 
 protected:
 	static std::string sPrefix;

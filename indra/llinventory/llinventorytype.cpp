@@ -44,9 +44,23 @@ static const std::string empty_string;
 ///----------------------------------------------------------------------------
 struct InventoryEntry : public LLDictionaryEntry
 {
-	InventoryEntry(const std::string &name,
-				   const std::string &human_name,
-				   int num_asset_types = 0, ...);
+	InventoryEntry(const std::string &name, // unlike asset type names, not limited to 8 characters; need not match asset type names
+				   const std::string &human_name, // for decoding to human readable form; put any and as many printable characters you want in each one.
+				   int num_asset_types = 0, ...)
+		:
+		LLDictionaryEntry(name),
+		mHumanName(human_name)
+	{
+		va_list argp;
+		va_start(argp, num_asset_types);
+		// Read in local textures
+		for (U8 i=0; i < num_asset_types; i++)
+		{
+			LLAssetType::EType t = (LLAssetType::EType)va_arg(argp,int);
+			mAssetTypes.push_back(t);
+		}
+	}
+		
 	const std::string mHumanName;
 	typedef std::vector<LLAssetType::EType> asset_vec_t;
 	asset_vec_t mAssetTypes;
@@ -115,25 +129,35 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
 	LLInventoryType::IT_GESTURE,		// AT_GESTURE
 	LLInventoryType::IT_NONE,			// AT_SIMSTATE
 	LLInventoryType::IT_FAVORITE,		// AT_FAVORITE
+
 	LLInventoryType::IT_NONE,			// AT_LINK
 	LLInventoryType::IT_NONE,			// AT_LINK_FOLDER
-};
 
-InventoryEntry::InventoryEntry(const std::string &name,
-							   const std::string &human_name,
-							   int num_asset_types, ...) :
-	LLDictionaryEntry(name),
-	mHumanName(human_name)
-{
-	va_list argp;
-	va_start(argp, num_asset_types);
-	// Read in local textures
-	for (U8 i=0; i < num_asset_types; i++)
-	{
-		LLAssetType::EType t = (LLAssetType::EType)va_arg(argp,int);
-		mAssetTypes.push_back(t);
-	}
-}
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+	LLInventoryType::IT_CATEGORY,		// AT_ENSEMBLE
+
+	LLInventoryType::IT_CATEGORY,		// AT_CURRENT_OUTFIT
+	LLInventoryType::IT_CATEGORY,		// AT_OUTFIT
+	LLInventoryType::IT_CATEGORY,		// AT_MY_OUTFITS
+};
 
 // static
 const std::string &LLInventoryType::lookup(EType type)
@@ -170,6 +194,21 @@ LLInventoryType::EType LLInventoryType::defaultForAssetType(LLAssetType::EType a
 	else
 	{
 		return IT_NONE;
+	}
+}
+
+
+// add any types that we don't want the user to be able to change permissions on.
+// static
+bool LLInventoryType::cannotRestrictPermissions(LLInventoryType::EType type)
+{
+	switch(type)
+	{
+		case IT_CALLINGCARD:
+		case IT_LANDMARK:
+			return true;
+		default:
+			return false;
 	}
 }
 

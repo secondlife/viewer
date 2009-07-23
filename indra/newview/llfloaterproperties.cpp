@@ -658,6 +658,7 @@ void LLFloaterProperties::onCommitName(LLUICtrl* ctrl, void* data)
 		{
 			new_item->updateServer(FALSE);
 			gInventory.updateItem(new_item);
+			gInventory.updateLinkedObjects(new_item->getUUID());
 			gInventory.notifyObservers();
 		}
 		else

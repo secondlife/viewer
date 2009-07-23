@@ -83,10 +83,13 @@ public:
 	// return the default inventory for the given asset type.
 	static EType defaultForAssetType(LLAssetType::EType asset_type);
 
+	// true if this type cannot have restricted permissions.
+	static bool cannotRestrictPermissions(EType type);
+
 private:
 	// don't instantiate or derive one of these objects
-	LLInventoryType() {}
-	~LLInventoryType() {}
+	LLInventoryType( void );
+	~LLInventoryType( void );
 };
 
 // helper function that returns true if inventory type and asset type

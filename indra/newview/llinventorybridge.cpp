@@ -51,6 +51,7 @@
 
 #include "llviewercontrol.h"
 #include "llfirstuse.h"
+#include "llfoldertype.h"
 #include "llfloaterchat.h"
 #include "llfloatercustomize.h"
 #include "llfloaterproperties.h"
@@ -604,7 +605,7 @@ BOOL LLInvFVBridge::startDrag(EDragAndDropType* type, LLUUID* id) const
 
 	if(obj)
 	{
-		*type = LLAssetType::lookupDragAndDropType(obj->getType());
+		*type = LLAssetType::lookupDragAndDropType(obj->getActualType());
 		if(*type == DAD_NONE)
 		{
 			return FALSE;
@@ -653,11 +654,11 @@ BOOL LLInvFVBridge::isLinkedObjectInTrash() const
 {
 	if (isInTrash()) return TRUE;
 
-	LLInventoryModel* model = getInventoryModel();
-	if(!model) return FALSE;
-	LLInventoryObject *obj = model->getObject(mUUID);
+	LLInventoryObject *obj = getInventoryObject();
 	if (obj && LLAssetType::lookupIsLinkType(obj->getActualType()))
 	{
+		LLInventoryModel* model = getInventoryModel();
+		if(!model) return FALSE;
 		const LLUUID& trash_id = model->findCategoryUUIDForType(LLAssetType::AT_TRASH);
 		return model->isObjectDescendentOf(obj->getLinkedUUID(), trash_id);
 	}
@@ -735,6 +736,7 @@ const std::string safe_inv_type_lookup(LLInventoryType::EType inv_type)
 }
 
 LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
+										   LLAssetType::EType actual_asset_type,
 										   LLInventoryType::EType inv_type,
 										   LLInventoryPanel* inventory,
 										   const LLUUID& uuid,
@@ -833,9 +835,19 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			break;
 		case LLAssetType::AT_CATEGORY:
 		case LLAssetType::AT_ROOT_CATEGORY:
+			if (actual_asset_type == LLAssetType::AT_LINK_FOLDER)
+			{
+				// Create a link folder handler instead.
+				new_listener = new LLLinkFolderBridge(inventory, uuid);
+				break;
+			}
 			new_listener = new LLFolderBridge(inventory, uuid);
 			break;
 		case LLAssetType::AT_LINK:
+			// Only should happen for broken links.
+			new_listener = new LLLinkItemBridge(inventory, uuid);
+			break;
+		case LLAssetType::AT_LINK_FOLDER:
 			// Only should happen for broken links.
 			new_listener = new LLLinkItemBridge(inventory, uuid);
 			break;
@@ -875,6 +887,10 @@ void LLInvFVBridge::purgeItem(LLInventoryModel *model, const LLUUID &uuid)
 
 void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
 {
+	if ("goto" == action)
+	{
+		gotoItem(folder);
+	}
 	if ("open" == action)
 	{
 		openItem();
@@ -1005,6 +1021,19 @@ void LLItemBridge::restoreToWorld()
 	}
 }
 
+void LLItemBridge::gotoItem(LLFolderView *folder)
+{
+	LLInventoryObject *obj = getInventoryObject();
+	if (obj && LLAssetType::lookupIsLinkType(obj->getActualType()))
+	{
+		LLInventoryPanel* active_panel = LLFloaterInventory::getActiveInventory()->getPanel();
+		if (active_panel)
+		{
+			active_panel->setSelection(obj->getLinkedUUID(), TAKE_FOCUS_NO);
+		}
+	}
+}
+
 LLUIImagePtr LLItemBridge::getIcon() const
 {
 	return LLUI::getUIImage(ICON_NAME[OBJECT_ICON_NAME]);
@@ -1075,7 +1104,8 @@ std::string LLItemBridge::getLabelSuffix() const
 	static std::string NO_COPY =LLTrans::getString("no_copy");
 	static std::string NO_MOD = LLTrans::getString("no_modify");
 	static std::string NO_XFER = LLTrans::getString("no_transfer");
-
+	static std::string LINK = LLTrans::getString("link");
+	static std::string BROKEN_LINK = LLTrans::getString("broken_link");
 	std::string suffix;
 	LLInventoryItem* item = getItem();
 	if(item) 
@@ -1084,8 +1114,10 @@ std::string LLItemBridge::getLabelSuffix() const
 		if(LLAssetType::AT_CALLINGCARD != item->getType()
 		   && item->getPermissions().getOwner() == gAgent.getID())
 		{
-			BOOL link = (item->getActualType() == LLAssetType::AT_LINK);
-			const char* LINK = " (link)"; // *TODO: Seraph translate
+			BOOL broken_link = LLAssetType::lookupIsLinkType(item->getType());
+			if (broken_link) return BROKEN_LINK;
+
+			BOOL link = LLAssetType::lookupIsLinkType(item->getActualType());
 			if (link) return LINK;
 
 			BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
@@ -1146,7 +1178,7 @@ BOOL LLItemBridge::renameItem(const std::string& new_name)
 		buildDisplayName(new_item, mDisplayName);
 		new_item->updateServer(FALSE);
 		model->updateItem(new_item);
-		renameLinkedItems(item->getUUID(),new_name);
+		model->updateLinkedObjects(item->getUUID());
 
 		model->notifyObservers();
 	}
@@ -1204,7 +1236,7 @@ BOOL LLItemBridge::isItemCopyable() const
 		// All items can be copied, not all can be pasted.
 		// The only time an item can't be copied is if it's a link 
 		// return (item->getPermissions().allowCopyBy(gAgent.getID()));
-		if (item->getActualType() == LLAssetType::AT_LINK)
+		if (LLAssetType::lookupIsLinkType(item->getActualType()))
 		{
 			return FALSE;
 		}
@@ -1259,7 +1291,7 @@ BOOL LLFolderBridge::isItemMovable()
 	LLInventoryObject* obj = getInventoryObject();
 	if(obj)
 	{
-		return (LLAssetType::AT_NONE == ((LLInventoryCategory*)obj)->getPreferredType());
+		return (!LLAssetType::lookupIsProtectedCategoryType(((LLInventoryCategory*)obj)->getPreferredType()));
 	}
 	return FALSE;
 }
@@ -1295,7 +1327,7 @@ BOOL LLFolderBridge::isItemRemovable()
 		return FALSE;
 	}
 
-	if( LLAssetType::AT_NONE != category->getPreferredType() )
+	if(LLAssetType::lookupIsProtectedCategoryType(category->getPreferredType()))
 	{
 		return FALSE;
 	}
@@ -1308,7 +1340,7 @@ BOOL LLFolderBridge::isItemRemovable()
 	for( i = 0; i < descendent_categories.count(); i++ )
 	{
 		LLInventoryCategory* category = descendent_categories[i];
-		if( LLAssetType::AT_NONE != category->getPreferredType() )
+		if(LLAssetType::lookupIsProtectedCategoryType(category->getPreferredType()))
 		{
 			return FALSE;
 		}
@@ -1403,7 +1435,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		trash_id = model->findCategoryUUIDForType(LLAssetType::AT_TRASH);
 		BOOL move_is_into_trash = (mUUID == trash_id)
 				|| model->isObjectDescendentOf(mUUID, trash_id);
-		BOOL is_movable = (LLAssetType::AT_NONE == inv_cat->getPreferredType());
+		BOOL is_movable = (!LLAssetType::lookupIsProtectedCategoryType(inv_cat->getPreferredType()));
 		if( is_movable )
 		{
 			gInventory.collectDescendents( cat_id, descendent_categories, descendent_items, FALSE );
@@ -1411,7 +1443,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			for( i = 0; i < descendent_categories.count(); i++ )
 			{
 				LLInventoryCategory* category = descendent_categories[i];
-				if( LLAssetType::AT_NONE != category->getPreferredType() )
+				if(LLAssetType::lookupIsProtectedCategoryType(category->getPreferredType()))
 				{
 					// ...can't move "special folders" like Textures
 					is_movable = FALSE;
@@ -1868,7 +1900,7 @@ void LLFolderBridge::openItem()
 BOOL LLFolderBridge::isItemRenameable() const
 {
 	LLViewerInventoryCategory* cat = (LLViewerInventoryCategory*)getCategory();
-	if(cat && (cat->getPreferredType() == LLAssetType::AT_NONE)
+	if(cat && !LLAssetType::lookupIsProtectedCategoryType(cat->getPreferredType())
 	   && (cat->getOwnerID() == gAgent.getID()))
 	{
 		return TRUE;
@@ -1904,13 +1936,26 @@ LLAssetType::EType LLFolderBridge::getPreferredType() const
 // Icons for folders are based on the preferred type
 LLUIImagePtr LLFolderBridge::getIcon() const
 {
-	const char* control = NULL;
 	LLAssetType::EType preferred_type = LLAssetType::AT_NONE;
 	LLViewerInventoryCategory* cat = getCategory();
 	if(cat)
 	{
 		preferred_type = cat->getPreferredType();
 	}
+	return getIcon(preferred_type);
+}
+
+LLUIImagePtr LLFolderBridge::getIcon(LLAssetType::EType preferred_type)
+{
+	if (preferred_type >= LLAssetType::AT_FOLDER_ENSEMBLE_START &&
+		preferred_type <= LLAssetType::AT_FOLDER_ENSEMBLE_END)
+	{
+		LLUIImage* icon = LLUI::getUIImage(LLFolderType::lookupIconName(preferred_type));
+		if (icon)
+			return icon;
+	}
+	
+	const char* control = NULL;
 	switch(preferred_type)
 	{
 		case LLAssetType::AT_TEXTURE:
@@ -1984,7 +2029,7 @@ BOOL LLFolderBridge::renameItem(const std::string& new_name)
 		new_cat->rename(new_name);
 		new_cat->updateServer(FALSE);
 		model->updateCategory(new_cat);
-		renameLinkedItems(cat->getUUID(),new_name);
+		model->updateLinkedObjects(cat->getUUID());
 
 		model->notifyObservers();
 	}
@@ -2066,15 +2111,24 @@ void LLFolderBridge::pasteLinkFromClipboard()
 	LLInventoryModel* model = getInventoryModel();
 	if(model)
 	{
-		LLInventoryItem* item = NULL;
 		LLDynamicArray<LLUUID> objects;
 		LLInventoryClipboard::instance().retrieve(objects);
 		S32 count = objects.count();
 		LLUUID parent_id(mUUID);
 		for(S32 i = 0; i < count; i++)
 		{
-			item = model->getItem(objects.get(i));
-			if (item)
+			const LLUUID &object_id = objects.get(i);
+			if (LLInventoryCategory *cat = model->getCategory(object_id))
+			{
+				link_inventory_item(
+					gAgent.getID(),
+					cat->getUUID(),
+					parent_id,
+					cat->getName(),
+					LLAssetType::AT_LINK_FOLDER,
+					LLPointer<LLInventoryCallback>(NULL));
+			}
+			else if (LLInventoryItem *item = model->getItem(object_id))
 			{
 				link_inventory_item(
 					gAgent.getID(),
@@ -2103,7 +2157,7 @@ void LLFolderBridge::folderOptionsMenu()
 
 	const LLInventoryCategory* category = model->getCategory(mUUID);
 	bool is_default_folder = category &&
-		(LLAssetType::AT_NONE != category->getPreferredType());
+		(LLAssetType::lookupIsProtectedCategoryType(category->getPreferredType()));
 	
 	// calling card related functionality for folders.
 
@@ -2199,7 +2253,14 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		mItems.push_back(std::string("New Gesture"));
 		mItems.push_back(std::string("New Clothes"));
 		mItems.push_back(std::string("New Body Parts"));
+		mItems.push_back(std::string("Change Type"));
 
+		LLViewerInventoryCategory *cat =  getCategory();
+		if (cat && LLAssetType::lookupIsProtectedCategoryType(cat->getPreferredType()))
+		{
+			mDisabledItems.push_back(std::string("Change Type"));
+		}
+		
 		getClipboardEntries(false, mItems, mDisabledItems, flags);
 
 		//Added by spatters to force inventory pull on right-click to display folder options correctly. 07-17-06
@@ -2268,26 +2329,27 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 	BOOL accept = FALSE;
 	switch(cargo_type)
 	{
-	case DAD_TEXTURE:
-	case DAD_SOUND:
-	case DAD_CALLINGCARD:
-	case DAD_LANDMARK:
-	case DAD_SCRIPT:
-	case DAD_OBJECT:
-	case DAD_NOTECARD:
-	case DAD_CLOTHING:
-	case DAD_BODYPART:
-	case DAD_ANIMATION:
-	case DAD_GESTURE:
-		accept = dragItemIntoFolder((LLInventoryItem*)cargo_data,
-									drop);
-		break;
-	case DAD_CATEGORY:
-		accept = dragCategoryIntoFolder((LLInventoryCategory*)cargo_data,
+		case DAD_TEXTURE:
+		case DAD_SOUND:
+		case DAD_CALLINGCARD:
+		case DAD_LANDMARK:
+		case DAD_SCRIPT:
+		case DAD_OBJECT:
+		case DAD_NOTECARD:
+		case DAD_CLOTHING:
+		case DAD_BODYPART:
+		case DAD_ANIMATION:
+		case DAD_GESTURE:
+		case DAD_LINK:
+			accept = dragItemIntoFolder((LLInventoryItem*)cargo_data,
 										drop);
-		break;
-	default:
-		break;
+			break;
+		case DAD_CATEGORY:
+			accept = dragCategoryIntoFolder((LLInventoryCategory*)cargo_data,
+											drop);
+			break;
+		default:
+			break;
 	}
 	return accept;
 }
@@ -2490,14 +2552,14 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	{
 
 		BOOL is_movable = TRUE;
-		switch( inv_item->getType() )
+		switch( inv_item->getActualType() )
 		{
 		case LLAssetType::AT_ROOT_CATEGORY:
 			is_movable = FALSE;
 			break;
 
 		case LLAssetType::AT_CATEGORY:
-			is_movable = ( LLAssetType::AT_NONE == ((LLInventoryCategory*)inv_item)->getPreferredType() );
+			is_movable = !LLAssetType::lookupIsProtectedCategoryType(((LLInventoryCategory*)inv_item)->getPreferredType());
 			break;
 		default:
 			break;
@@ -2511,11 +2573,11 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			{
 			case LLAssetType::AT_CLOTHING:
 			case LLAssetType::AT_BODYPART:
-				is_movable = !gAgentWearables.isWearingItem(inv_item->getUUID());
+				is_movable = !gAgentWearables.isWearingItem(inv_item->getUUID(), TRUE);
 				break;
 
 			case LLAssetType::AT_OBJECT:
-				is_movable = !avatar->isWearingAttachment(inv_item->getUUID());
+				is_movable = !avatar->isWearingAttachment(inv_item->getUUID(), TRUE);
 				break;
 			default:
 				break;
@@ -3435,7 +3497,7 @@ LLFontGL::StyleFlags LLObjectBridge::getLabelStyle() const
 	}
 
 	LLInventoryItem* item = getItem();
-	if (item->getActualType() == LLAssetType::AT_LINK)
+	if (LLAssetType::lookupIsLinkType(item->getActualType()))
 	{
 		font |= LLFontGL::ITALIC;
 	}
@@ -3533,13 +3595,18 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
+		LLInventoryItem* item = getItem();
+		if (item && LLAssetType::lookupIsLinkType(item->getActualType()))
+		{
+			items.push_back(std::string("Goto Link"));
+		}
+
 		items.push_back(std::string("Properties"));
 
 		getClipboardEntries(true, items, disabled_items, flags);
 
 		LLObjectBridge::sContextMenuItemID = mUUID;
 
-		LLInventoryItem* item = getItem();
 		if(item)
 		{
 			LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
@@ -3619,7 +3686,7 @@ BOOL LLObjectBridge::renameItem(const std::string& new_name)
 		buildDisplayName(new_item, mDisplayName);
 		new_item->updateServer(FALSE);
 		model->updateItem(new_item);
-		renameLinkedItems(item->getUUID(),new_name);
+		model->updateLinkedObjects(item->getUUID());
 
 		model->notifyObservers();
 
@@ -4513,6 +4580,11 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			items.push_back(std::string("Open"));
 		}
 
+		if (item && LLAssetType::lookupIsLinkType(item->getActualType()))
+		{
+			items.push_back(std::string("Goto Link"));
+		}
+
 		items.push_back(std::string("Properties"));
 
 		getClipboardEntries(true, items, disabled_items, flags);
@@ -5092,4 +5164,95 @@ void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		}
 	}
 	hideContextEntries(menu, items, disabled_items);
+}
+
+
+// +=================================================+
+// |        LLLinkBridge                             |
+// +=================================================+
+// For broken links.
+
+std::string LLLinkFolderBridge::sPrefix("Link: ");
+
+
+LLUIImagePtr LLLinkFolderBridge::getIcon() const
+{
+	LLAssetType::EType preferred_type = LLAssetType::AT_NONE;
+	if (LLViewerInventoryItem *item = getItem())
+	{
+		if (const LLViewerInventoryCategory* cat = item->getLinkedCategory())
+		{
+			preferred_type = cat->getPreferredType();
+		}
+	}
+	return LLFolderBridge::getIcon(preferred_type);
+}
+
+void LLLinkFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+	// *TODO: Translate
+	lldebugs << "LLLink::buildContextMenu()" << llendl;
+	std::vector<std::string> items;
+	std::vector<std::string> disabled_items;
+
+	if(isInTrash())
+	{
+		items.push_back(std::string("Purge Item"));
+		if (!isItemRemovable())
+		{
+			disabled_items.push_back(std::string("Purge Item"));
+		}
+
+		items.push_back(std::string("Restore Item"));
+	}
+	else
+	{	
+		items.push_back(std::string("Goto Link"));
+		items.push_back(std::string("Delete"));
+		if (!isItemRemovable())
+		{
+			disabled_items.push_back(std::string("Delete"));
+		}
+	}
+	hideContextEntries(menu, items, disabled_items);
+}
+
+void LLLinkFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+{
+	if ("goto" == action)
+	{
+		gotoItem(folder);
+		return;
+	}
+	LLItemBridge::performAction(folder,model,action);
+}
+
+void LLLinkFolderBridge::gotoItem(LLFolderView *folder)
+{
+	const LLUUID &cat_uuid = getFolderID();
+	if (!cat_uuid.isNull())
+	{
+		if (LLFolderViewItem *base_folder = folder->getItemByID(cat_uuid))
+		{
+			if (LLInventoryModel* model = getInventoryModel())
+			{
+				model->fetchDescendentsOf(cat_uuid);
+			}
+			base_folder->setOpen(TRUE);
+			folder->setSelectionFromRoot(base_folder,TRUE);
+		}
+	}
+}
+
+const LLUUID &LLLinkFolderBridge::getFolderID() const
+{
+	if (LLViewerInventoryItem *link_item = getItem())
+	{
+		if (const LLViewerInventoryCategory *cat = link_item->getLinkedCategory())
+		{
+			const LLUUID& cat_uuid = cat->getUUID();
+			return cat_uuid;
+		}
+	}
+	return LLUUID::null;
 }

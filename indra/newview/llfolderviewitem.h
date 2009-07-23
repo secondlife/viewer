@@ -157,13 +157,6 @@ protected:
 	BOOL                            mIsLoading;
 	LLTimer                         mTimeSinceRequestStart;
 
-	// This function clears the currently selected item, and records
-	// the specified selected item appropriately for display and use
-	// in the UI. If open is TRUE, then folders are opened up along
-	// the way to the selection.
-	void setSelectionFromRoot(LLFolderViewItem* selection, BOOL openitem,
-		BOOL take_keyboard_focus = TRUE);
-
 	// helper function to change the selection from the root.
 	void changeSelectionFromRoot(LLFolderViewItem* selection, BOOL selected);
 
@@ -176,6 +169,13 @@ protected:
 	virtual BOOL addFolder(LLFolderViewFolder*) { return FALSE; }
 
 public:
+	// This function clears the currently selected item, and records
+	// the specified selected item appropriately for display and use
+	// in the UI. If open is TRUE, then folders are opened up along
+	// the way to the selection.
+	void setSelectionFromRoot(LLFolderViewItem* selection, BOOL openitem,
+		BOOL take_keyboard_focus = TRUE);
+
 	// This function is called when the folder view is dirty. It's
 	// implemented here but called by derived classes when folding the
 	// views.

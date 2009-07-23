@@ -1624,7 +1624,7 @@ LLSD ll_create_sd_from_inventory_category(LLPointer<LLInventoryCategory> cat)
 	rv[INV_PARENT_ID_LABEL] = cat->getParentUUID();
 	rv[INV_NAME_LABEL] = cat->getName();
 	rv[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(cat->getType());
-	if(LLAssetType::AT_NONE != cat->getPreferredType())
+	if(LLAssetType::lookupIsProtectedCategoryType(cat->getPreferredType()))
 	{
 		rv[INV_PREFERRED_TYPE_LABEL] =
 			LLAssetType::lookup(cat->getPreferredType());

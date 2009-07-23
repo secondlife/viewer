@@ -473,6 +473,14 @@ LLToolDragAndDrop::dragOrDrop3dImpl LLToolDragAndDrop::sDragAndDrop3d[DAD_COUNT]
 		&LLToolDragAndDrop::dad3dUpdateInventory, // Dest: DT_OBJECT
 		&LLToolDragAndDrop::dad3dNULL,//dad3dAssetOnLand, // Dest: DT_LAND
 	},
+	//	Source: DAD_LINK
+	{
+		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_NONE
+		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_SELF
+		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_AVATAR
+		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_OBJECT
+		&LLToolDragAndDrop::dad3dNULL,//dad3dAssetOnLand, // Dest: DT_LAND
+	},
 };
 
 LLToolDragAndDrop::LLToolDragAndDrop()
@@ -1894,7 +1902,7 @@ BOOL LLToolDragAndDrop::isInventoryGroupGiveAcceptable(LLInventoryItem* item)
 		acceptable = FALSE;
 		break;
 	case LLAssetType::AT_OBJECT:
-		if(my_avatar->isWearingAttachment(item->getUUID()))
+		if(my_avatar->isWearingAttachment(item->getUUID(), TRUE))
 		{
 			acceptable = FALSE;
 		}

@@ -1533,12 +1533,14 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 				<< ((S32) objectp->getType())
 				<< " (shouldn't happen)" << llendl;
 		}
-		else if (objectp->getType() == LLAssetType::AT_CATEGORY) // build new view for category
+		else if (objectp->getType() == LLAssetType::AT_CATEGORY &&
+				 objectp->getActualType() != LLAssetType::AT_LINK_FOLDER) 
 		{
 			LLInvFVBridge* new_listener = LLInvFVBridge::createBridge(objectp->getType(),
-													LLInventoryType::IT_CATEGORY,
-													this,
-													objectp->getUUID());
+																	  objectp->getType(),
+																	  LLInventoryType::IT_CATEGORY,
+																	  this,
+																	  objectp->getUUID());
 
 			if (new_listener)
 			{
@@ -1553,15 +1555,17 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 				itemp = folderp;
 			}
 		}
-		else // build new view for item
+		else 
 		{
+			// Build new view for item
 			LLInventoryItem* item = (LLInventoryItem*)objectp;
-			LLInvFVBridge* new_listener = LLInvFVBridge::createBridge(
-				item->getType(),
-				item->getInventoryType(),
-				this,
-				item->getUUID(),
-				item->getFlags());
+			LLInvFVBridge* new_listener = LLInvFVBridge::createBridge(item->getType(),
+																	  item->getActualType(),
+																	  item->getInventoryType(),
+																	  this,
+																	  item->getUUID(),
+																	  item->getFlags());
+
 			if (new_listener)
 			{
 				LLFolderViewItem::Params params;
@@ -1591,7 +1595,7 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 		}
 	}
 	if ((id.isNull() ||
-		(objectp && objectp->getType() == LLAssetType::AT_CATEGORY)))
+		 (objectp && objectp->getType() == LLAssetType::AT_CATEGORY)))
 	{
 		LLViewerInventoryCategory::cat_array_t* categories;
 		LLViewerInventoryItem::item_array_t* items;

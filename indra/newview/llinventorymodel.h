@@ -181,7 +181,6 @@ public:
 							cat_array_t& categories,
 							item_array_t& items,
 							BOOL include_trash);
-
 	void collectDescendentsIf(const LLUUID& id,
 							  cat_array_t& categories,
 							  item_array_t& items,
@@ -192,8 +191,9 @@ public:
 	// Assumes item_id is itself not a linked item.
 	void collectLinkedItems(const LLUUID& item_id,
 							item_array_t& items);
-	
-	// This method will return false if this inventory model is in an usabel state.
+	// Updates all linked objects pointing to this id.
+	void updateLinkedObjects(const LLUUID& object_id);
+
 	// The inventory model usage is sensitive to the initial construction of the 
 	// model. 
 	bool isInventoryUsable();

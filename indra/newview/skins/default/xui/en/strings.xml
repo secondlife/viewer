@@ -346,6 +346,8 @@ this texture in your inventory
 	<string name="no_modify"   value=" (no modify)" />
 	<string name="no_copy"     value=" (no copy)" />
 	<string name="worn"        value=" (worn)" />
+	<string name="link"        value=" (link)" />
+	<string name="broken_link" value=" (broken_link)" />
 	<string name="LoadingContents">Loading contents...</string>
 	<string name="NoContents">No contents</string>
 

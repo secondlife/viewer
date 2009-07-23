@@ -190,6 +190,9 @@ public:
 	void openSelectedItems( void );
 	void propertiesSelectedItems( void );
 
+	// change the folder type
+	void changeType(LLInventoryModel *model, LLAssetType::EType new_folder_type);
+
 	void autoOpenItem(LLFolderViewFolder* item);
 	void closeAutoOpenedFolders();
 	BOOL autoOpenTest(LLFolderViewFolder* item);

@@ -34,10 +34,12 @@
 
 #include "llfolderview.h"
 
+#include "llagent.h"
 #include "llcallbacklist.h"
 #include "llinventorybridge.h"
 #include "llinventoryclipboard.h" // *TODO: remove this once hack below gone.
 #include "llinventoryfilter.h"
+#include "llfoldertype.h"
 #include "llfloaterinventory.h"// hacked in for the bonus context menu items.
 #include "llkeyboard.h"
 #include "lllineeditor.h"
@@ -1094,6 +1096,35 @@ void LLFolderView::propertiesSelectedItems( void )
 	}
 }
 
+void LLFolderView::changeType(LLInventoryModel *model, LLAssetType::EType new_folder_type)
+{
+	LLFolderBridge *folder_bridge = LLFolderBridge::sSelf;
+
+	if (!folder_bridge) return;
+	LLViewerInventoryCategory *cat = folder_bridge->getCategory();
+	if (!cat) return;
+		
+	const LLUUID &folder_id = cat->getUUID();
+	const LLUUID &parent_id = cat->getParentUUID();
+	const std::string &name = cat->getName();
+		
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_UpdateInventoryFolder);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->nextBlockFast(_PREHASH_FolderData);
+	msg->addUUIDFast(_PREHASH_FolderID, folder_id);
+	msg->addUUIDFast(_PREHASH_ParentID, parent_id);
+	msg->addS8Fast(_PREHASH_Type, new_folder_type);
+	msg->addStringFast(_PREHASH_Name, name);
+	gAgent.sendReliableMessage();
+
+	cat->setPreferredType(new_folder_type);
+	gInventory.addChangedMask(LLInventoryObserver::LABEL, folder_id);
+	gInventory.updateLinkedObjects(folder_id);
+}
+
 void LLFolderView::autoOpenItem( LLFolderViewFolder* item )
 {
 	if (mAutoOpenItems.check() == item || mAutoOpenItems.getDepth() >= (U32)AUTO_OPEN_STACK_DEPTH)
@@ -1903,6 +1934,16 @@ bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 	{	
 		LLInventoryClipboard::instance().reset();
 	}
+
+	static const std::string change_folder_string = "change_folder_type_";
+	if (action.length() > change_folder_string.length() && 
+		(action.compare(0,change_folder_string.length(),"change_folder_type_") == 0))
+	{
+		LLAssetType::EType new_folder_type = LLFolderType::lookupTypeFromXUIName(action.substr(change_folder_string.length()));
+		changeType(model, new_folder_type);
+		return true;
+	}
+
 
 	std::set<LLUUID> selected_items;
 	getSelectionList(selected_items);
