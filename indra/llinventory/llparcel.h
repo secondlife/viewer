@@ -446,8 +446,10 @@ public:
 	BOOL	getAllowFly() const
 					{ return (mParcelFlags & PF_ALLOW_FLY) ? TRUE : FALSE; }
 
+	// Remove permission restrictions for creating landmarks.
+	// We should eventually remove this flag completely.
 	BOOL	getAllowLandmark() const
-					{ return (mParcelFlags & PF_ALLOW_LANDMARK) ? TRUE : FALSE; }
+					{ return TRUE; }
 
 	BOOL	getAllowGroupScripts() const
 					{ return (mParcelFlags & PF_ALLOW_GROUP_SCRIPTS) ? TRUE : FALSE; }

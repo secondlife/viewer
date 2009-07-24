@@ -67,20 +67,24 @@ public:
 		IT_WEARABLE = 18,
 		IT_ANIMATION = 19,
 		IT_GESTURE = 20,
-		IT_COUNT = 21,
+		IT_FAVORITE = 21,
+		IT_COUNT = 22,
 
 		IT_NONE = -1
 	};
 
 	// machine transation between type and strings
 	static EType lookup(const std::string& name);
-	static const char* lookup(EType type);
+	static const std::string &lookup(EType type);
 
 	// translation from a type to a human readable form.
-	static const char* lookupHumanReadable(EType type);
+	static const std::string &lookupHumanReadable(EType type);
 
 	// return the default inventory for the given asset type.
 	static EType defaultForAssetType(LLAssetType::EType asset_type);
+
+	// true if this type cannot have restricted permissions.
+	static bool cannotRestrictPermissions(EType type);
 
 private:
 	// don't instantiate or derive one of these objects

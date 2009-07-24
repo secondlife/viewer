@@ -8945,3 +8945,21 @@ version 2.0
 		{	CRC				U32	}
 	}
 }
+
+{
+	LinkInventoryItem	Low	426 NotTrusted	Zerocoded
+	{
+		AgentData		Single
+		{	AgentID		LLUUID	}
+		{	SessionID	LLUUID	}
+	}
+	{
+		InventoryData		Variable
+		{	CallbackID	U32			} // Async Response
+		{	FolderID		LLUUID	}
+		{	OldItemID		LLUUID	}
+		{	Name			Variable	1	}
+		{	AssetType		U8		}
+	}
+}
+

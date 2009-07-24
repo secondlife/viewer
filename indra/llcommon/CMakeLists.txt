@@ -99,6 +99,7 @@ set(llcommon_HEADER_FILES
     lldefs.h
     lldependencies.h
     lldepthstack.h
+    lldictionary.h
     lldlinked.h
     lldqueueptr.h
     llendianswizzle.h

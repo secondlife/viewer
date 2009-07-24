@@ -174,6 +174,7 @@ char* _PREHASH_UpdateInventoryItem = LLMessageStringTable::getInstance()->getStr
 char* _PREHASH_UpdateCreateInventoryItem = LLMessageStringTable::getInstance()->getString("UpdateCreateInventoryItem");
 char* _PREHASH_MoveInventoryItem = LLMessageStringTable::getInstance()->getString("MoveInventoryItem");
 char* _PREHASH_CopyInventoryItem = LLMessageStringTable::getInstance()->getString("CopyInventoryItem");
+char* _PREHASH_LinkInventoryItem = LLMessageStringTable::getInstance()->getString("LinkInventoryItem");
 char* _PREHASH_RemoveInventoryItem = LLMessageStringTable::getInstance()->getString("RemoveInventoryItem");
 char* _PREHASH_CreateInventoryItem = LLMessageStringTable::getInstance()->getString("CreateInventoryItem");
 char* _PREHASH_PathTwistBegin = LLMessageStringTable::getInstance()->getString("PathTwistBegin");

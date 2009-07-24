@@ -91,8 +91,11 @@ public:
 	// accessors
 	virtual const LLUUID& getUUID() const;
 	const LLUUID& getParentUUID() const;
-	const std::string& getName() const;
-	LLAssetType::EType getType() const;
+	virtual const LLUUID& getLinkedUUID() const; // get the inventoryID that this item points to, else this item's inventoryID
+
+	virtual const std::string& getName() const;
+	virtual LLAssetType::EType getType() const;
+	LLAssetType::EType getActualType() const; // bypasses indirection for linked items
 
 	// mutators - will not call updateServer();
 	void setUUID(const LLUUID& new_uuid);
@@ -238,15 +241,16 @@ public:
 	void generateUUID() { mUUID.generate(); }
 	
 	// accessors
-	const LLPermissions& getPermissions() const;
-	const LLUUID& getCreatorUUID() const;
-	const LLUUID& getAssetUUID() const;
-	const std::string& getDescription() const;
-	const LLSaleInfo& getSaleInfo() const;
-	LLInventoryType::EType getInventoryType() const;
-	U32 getFlags() const;
-	time_t getCreationDate() const;
-	U32 getCRC32() const; // really more of a checksum.
+	virtual const LLUUID& getLinkedUUID() const;
+	virtual const LLPermissions& getPermissions() const;
+	virtual const LLUUID& getCreatorUUID() const;
+	virtual const LLUUID& getAssetUUID() const;
+	virtual const std::string& getDescription() const;
+	virtual const LLSaleInfo& getSaleInfo() const;
+	virtual LLInventoryType::EType getInventoryType() const;
+	virtual U32 getFlags() const;
+	virtual time_t getCreationDate() const;
+	virtual U32 getCRC32() const; // really more of a checksum.
 	
 	// mutators - will not call updateServer(), and will never fail
 	// (though it may correct to sane values)

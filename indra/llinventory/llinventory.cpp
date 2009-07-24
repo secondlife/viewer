@@ -126,6 +126,20 @@ const std::string& LLInventoryObject::getName() const
 	return mName;
 }
 
+// To bypass linked items, since llviewerinventory's getType
+// will return the linked-to item's type instead of this object's type.
+LLAssetType::EType LLInventoryObject::getActualType() const
+{
+	return mType;
+}
+
+// See LLInventoryItem override.
+// virtual
+const LLUUID& LLInventoryObject::getLinkedUUID() const
+{
+	return mUUID;
+}
+
 LLAssetType::EType LLInventoryObject::getType() const
 {
 	return mType;
@@ -296,6 +310,7 @@ LLInventoryItem::LLInventoryItem(
 {
 	LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
 	LLStringUtil::replaceChar(mDescription, '|', ' ');
+	mPermissions.initMasks(inv_type);
 }
 
 LLInventoryItem::LLInventoryItem() :
@@ -331,6 +346,19 @@ void LLInventoryItem::copyItem(const LLInventoryItem* other)
 	mInventoryType = other->mInventoryType;
 	mFlags = other->mFlags;
 	mCreationDate = other->mCreationDate;
+}
+
+// If this is a linked item, then the UUID of the base object is
+// this item's assetID.
+// virtual
+const LLUUID& LLInventoryItem::getLinkedUUID() const
+{
+	if (LLAssetType::lookupIsLinkType(getActualType()))
+	{
+		return mAssetUUID;
+	}
+
+	return LLInventoryObject::getLinkedUUID();
 }
 
 const LLPermissions& LLInventoryItem::getPermissions() const
@@ -405,6 +433,9 @@ void LLInventoryItem::setDescription(const std::string& d)
 void LLInventoryItem::setPermissions(const LLPermissions& perm)
 {
 	mPermissions = perm;
+
+	// Override permissions to unrestricted if this is a landmark
+	mPermissions.initMasks(mInventoryType);
 }
 
 void LLInventoryItem::setInventoryType(LLInventoryType::EType inv_type)
@@ -476,6 +507,7 @@ BOOL LLInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32
 	mType = static_cast<LLAssetType::EType>(type);
 	msg->getS8(block, "InvType", type, block_num);
 	mInventoryType = static_cast<LLInventoryType::EType>(type);
+	mPermissions.initMasks(mInventoryType);
 
 	msg->getU32Fast(block, _PREHASH_Flags, mFlags, block_num);
 
@@ -666,6 +698,9 @@ BOOL LLInventoryItem::importFile(LLFILE* fp)
 		lldebugs << "Resetting inventory type for " << mUUID << llendl;
 		mInventoryType = LLInventoryType::defaultForAssetType(mType);
 	}
+
+	mPermissions.initMasks(mInventoryType);
+
 	return success;
 }
 
@@ -705,8 +740,8 @@ BOOL LLInventoryItem::exportFile(LLFILE* fp, BOOL include_asset_key) const
 		fprintf(fp, "\t\tasset_id\t%s\n", uuid_str.c_str());
 	}
 	fprintf(fp, "\t\ttype\t%s\n", LLAssetType::lookup(mType));
-	const char* inv_type_str = LLInventoryType::lookup(mInventoryType);
-	if(inv_type_str) fprintf(fp, "\t\tinv_type\t%s\n", inv_type_str);
+	const std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
+	if(!inv_type_str.empty()) fprintf(fp, "\t\tinv_type\t%s\n", inv_type_str.c_str());
 	fprintf(fp, "\t\tflags\t%08x\n", mFlags);
 	mSaleInfo.exportFile(fp);
 	fprintf(fp, "\t\tname\t%s|\n", mName.c_str());
@@ -869,6 +904,9 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 		lldebugs << "Resetting inventory type for " << mUUID << llendl;
 		mInventoryType = LLInventoryType::defaultForAssetType(mType);
 	}
+
+	mPermissions.initMasks(mInventoryType);
+
 	return success;
 }
 
@@ -908,8 +946,8 @@ BOOL LLInventoryItem::exportLegacyStream(std::ostream& output_stream, BOOL inclu
 		output_stream << "\t\tasset_id\t" << uuid_str << "\n";
 	}
 	output_stream << "\t\ttype\t" << LLAssetType::lookup(mType) << "\n";
-	const char* inv_type_str = LLInventoryType::lookup(mInventoryType);
-	if(inv_type_str) 
+	const std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
+	if(!inv_type_str.empty()) 
 		output_stream << "\t\tinv_type\t" << inv_type_str << "\n";
 	std::string buffer;
 	buffer = llformat( "\t\tflags\t%08x\n", mFlags);
@@ -951,8 +989,8 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
 	}
 	sd[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
 	sd[INV_INVENTORY_TYPE_LABEL] = mInventoryType;
-	const char* inv_type_str = LLInventoryType::lookup(mInventoryType);
-	if(inv_type_str)
+	const std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
+	if(!inv_type_str.empty())
 	{
 		sd[INV_INVENTORY_TYPE_LABEL] = inv_type_str;
 	}
@@ -1090,6 +1128,8 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd)
 		lldebugs << "Resetting inventory type for " << mUUID << llendl;
 		mInventoryType = LLInventoryType::defaultForAssetType(mType);
 	}
+
+	mPermissions.initMasks(mInventoryType);
 
 	return true;
 fail:
@@ -1698,7 +1738,7 @@ LLSD ll_create_sd_from_inventory_category(LLPointer<LLInventoryCategory> cat)
 	rv[INV_PARENT_ID_LABEL] = cat->getParentUUID();
 	rv[INV_NAME_LABEL] = cat->getName();
 	rv[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(cat->getType());
-	if(LLAssetType::AT_NONE != cat->getPreferredType())
+	if(LLAssetType::lookupIsProtectedCategoryType(cat->getPreferredType()))
 	{
 		rv[INV_PREFERRED_TYPE_LABEL] =
 			LLAssetType::lookup(cat->getPreferredType());

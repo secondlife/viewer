@@ -602,13 +602,12 @@ void LLInvFVBridge::changeCategoryParent(LLInventoryModel* model,
 }
 
 
-const char* safe_inv_type_lookup(LLInventoryType::EType inv_type)
+const std::string safe_inv_type_lookup(LLInventoryType::EType inv_type)
 {
-	const char* rv = LLInventoryType::lookup(inv_type);
-	if(!rv)
+	const std::string rv= LLInventoryType::lookup(inv_type);
+	if(rv.empty())
 	{
-		const char* INVALID_TYPE = "<invalid>";
-		rv = INVALID_TYPE;
+		return std::string("<invalid>");
 	}
 	return rv;
 }

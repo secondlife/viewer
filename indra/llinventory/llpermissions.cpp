@@ -83,6 +83,17 @@ void LLPermissions::initMasks(PermissionMask base, PermissionMask owner,
 	fix();
 }
 
+// ! BACKWARDS COMPATIBILITY ! Override masks for inventory types that
+// no longer can have restricted permissions.  This takes care of previous
+// version landmarks that could have had no copy/mod/transfer bits set.
+void LLPermissions::initMasks(LLInventoryType::EType type)
+{
+	if (LLInventoryType::cannotRestrictPermissions(type))
+	{
+		initMasks(PERM_ALL, PERM_ALL, PERM_ALL, PERM_ALL, PERM_ALL);
+	}
+}
+
 BOOL LLPermissions::getOwnership(LLUUID& owner_id, BOOL& is_group_owned) const
 {
 	if(mOwner.notNull())
