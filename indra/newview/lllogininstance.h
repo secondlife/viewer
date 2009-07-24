@@ -37,6 +37,7 @@
 #include <boost/function.hpp>
 class LLLogin;
 class LLEventStream;
+class LLNotificationsInterface;
 
 // This class hosts the login module and is used to 
 // negotiate user authentication attempts.
@@ -73,13 +74,15 @@ public:
 	void setSerialNumber(const std::string& sn) { mSerialNumber = sn; }
 	void setLastExecEvent(int lee) { mLastExecEvent = lee; }
 
+	void setNotificationsInterface(LLNotificationsInterface* ni) { mNotifications = ni; }
+
 	typedef boost::function<void()> UpdaterLauncherCallback;
 	void setUpdaterLauncher(const UpdaterLauncherCallback& ulc) { mUpdaterLauncher = ulc; }
 
 private:
 	void constructAuthParams(const LLSD& credentials); 
 	void updateApp(bool mandatory, const std::string& message);
-	bool updateDialogCallback(const LLSD& event);
+	bool updateDialogCallback(const LLSD& notification, const LLSD& response);
 
 	bool handleLoginEvent(const LLSD& event);
 	bool handleLoginFailure(const LLSD& event);
@@ -90,6 +93,8 @@ private:
 	void attemptComplete() { mAttemptComplete = true; } // In the future an event?
 
 	boost::scoped_ptr<LLLogin> mLoginModule;
+	LLNotificationsInterface* mNotifications;
+
 	std::string mLoginState;
 	LLSD mRequestData;
 	LLSD mResponseData;

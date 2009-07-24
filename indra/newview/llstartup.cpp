@@ -966,6 +966,7 @@ bool idle_startup()
 
 		// Setting initial values...
 		LLLoginInstance* login = LLLoginInstance::getInstance();
+		login->setNotificationsInterface(LLNotifications::getInstance());
 		if(gNoRender)
 		{
 			// HACK, skip optional updates if you're running drones
@@ -975,7 +976,7 @@ bool idle_startup()
 		login->setUserInteraction(show_connect_box);
 		login->setSerialNumber(LLAppViewer::instance()->getSerialNumber());
 		login->setLastExecEvent(gLastExecEvent);
-		login->setUpdaterLauncher(boost::bind(LLAppViewer::launchUpdater, LLAppViewer::instance()));
+		login->setUpdaterLauncher(boost::bind(&LLAppViewer::launchUpdater, LLAppViewer::instance()));
 
 		// This call to LLLoginInstance::connect() starts the 
 		// authentication process.

@@ -27,7 +27,7 @@ public:
 private:
 	void NotificationResponder(const std::string& replypump, 
 							   const LLSD& notification, 
-							   const LLSD& response);
+							   const LLSD& response) const;
 	LLNotifications & mNotifications;
 };
 

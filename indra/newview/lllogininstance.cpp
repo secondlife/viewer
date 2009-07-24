@@ -59,6 +59,7 @@ std::string construct_start_string();
 
 LLLoginInstance::LLLoginInstance() :
 	mLoginModule(new LLLogin()),
+	mNotifications(NULL),
 	mLoginState("offline"),
 	mUserInteraction(true),
 	mSkipOptionalUpdate(false),
@@ -345,10 +346,13 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 #endif
 	}
 
-	// *NOTE:Mani - for reference
-//	LLNotifications::instance().add(notification_name, args, payload, 
-//		boost::bind(&LLLoginInstance::updateDialogCallback, this, _1, _2));
+	if(mNotifications)
+	{
+		mNotifications->add(notification_name, args, payload, 
+			boost::bind(&LLLoginInstance::updateDialogCallback, this, _1, _2));
+	}
 
+	/* *NOTE:Mani Experiment with Event API interface.
 	if(!mUpdateAppResponse)
 	{
 		bool make_unique = true;
@@ -368,12 +372,11 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 	event["reply"] = mUpdateAppResponse->getName();
 
 	LLEventPumps::getInstance()->obtain("LLNotifications").post(event);
+	*/
 }
 
-bool LLLoginInstance::updateDialogCallback(const LLSD& event)
+bool LLLoginInstance::updateDialogCallback(const LLSD& notification, const LLSD& response)
 {
-	LLSD notification = event["notification"];
-	LLSD response = event["response"];
 	S32 option = LLNotification::getSelectedOption(notification, response);
 	std::string update_exe_path;
 	bool mandatory = notification["payload"]["mandatory"].asBoolean();

@@ -29,7 +29,7 @@ void LLNotificationsListener::requestAdd(const LLSD& event_data) const
 		mNotifications.add(event_data["name"], 
 						   event_data["substitutions"], 
 						   event_data["payload"],
-						   boost::bind(&LLNotificationListener::Responder, 
+						   boost::bind(&LLNotificationsListener::NotificationResponder, 
 									   this, 
 									   event_data["reply"].asString(), 
 									   _1, _2
@@ -44,12 +44,12 @@ void LLNotificationsListener::requestAdd(const LLSD& event_data) const
 	}
 }
 
-void LLNotificationsListener::Responder(const std::string& reply_pump, 
+void LLNotificationsListener::NotificationResponder(const std::string& reply_pump, 
 										const LLSD& notification, 
-										const LLSD& response)
+										const LLSD& response) const
 {
 	LLSD reponse_event;
 	reponse_event["notification"] = notification;
 	reponse_event["response"] = response;
-	mEventPumps.obtain(reply_pump).post(reponse_event);
+	LLEventPumps::getInstance()->obtain(reply_pump).post(reponse_event);
 }
