@@ -1,5 +1,5 @@
 /** 
- * @file 
+ * @file llmessagesenderinterface.h
  * @brief 
  *
  * $LicenseInfo:firstyear=2008&license=viewergpl$

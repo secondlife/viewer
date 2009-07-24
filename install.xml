@@ -541,6 +541,39 @@
           </map>
         </map>
       </map>
+      <key>googlemock</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright 2008, Google Inc.</string>
+        <key>description</key>
+        <string>Google C++ Mocking Framework (or Google Mock for short) is a library for writing and using C++ mock classes.</string>
+        <key>license</key>
+        <string>bsd</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>4863e9fea433d0a4be761ea5d3e8346a</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-darwin-20090626.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>877dabecf84339690191c6115c76366e</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-linux32-20090527.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>be37695d9f26552aec81c8e97ded0212</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-windows-20090529.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
       <key>gstreamer</key>
       <map>
         <key>license</key>

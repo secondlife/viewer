@@ -76,11 +76,13 @@ public:
 	LLCacheNameEntry();
 
 public:
-	bool mIsGroup;
-	U32 mCreateTime;	// unix time_t
-	std::string mFirstName;
-	std::string mLastName;
-	std::string mGroupName;
+	bool isUnknown()			{ return (mFirstName.empty()
+										  || mFirstName == std::string("(???)"));	};
+
+	bool mIsGroup;				// true if this is a group ID/name
+	U32 mCreateTime;			// unix time_t
+	std::string mFirstName;		// Doubles as the group name
+	std::string mLastName;		// Will be "" for groups
 };
 
 LLCacheNameEntry::LLCacheNameEntry()
@@ -162,7 +164,7 @@ void ReplySender::send(const LLUUID& id,
 	mMsg->addUUIDFast(_PREHASH_ID, id);
 	if(mCurrIsGroup)
 	{
-		mMsg->addStringFast(_PREHASH_GroupName, entry.mGroupName);
+		mMsg->addStringFast(_PREHASH_GroupName, entry.mFirstName);
 	}
 	else
 	{
@@ -222,6 +224,7 @@ public:
 	void processPendingReplies();
 	void sendRequest(const char* msg_name, const AskQueue& queue);
 	bool isRequestPending(const LLUUID& id);
+	void makeNameRequestForID(const LLUUID& id, bool isGroup, LLHost & fromHost);
 
 	// Message system callbacks.
 	void processUUIDRequest(LLMessageSystem* msg, bool isGroup);
@@ -389,6 +392,7 @@ void LLCacheName::importFile(LLFILE* fp)
 		entry->mCreateTime = create_time;
 		entry->mFirstName = firstname;
 		entry->mLastName = lastname;
+		//llinfos << "Adding entry from file for " << entry->mFirstName << " " << entry->mLastName << ", id " << id << llendl;
 		impl.mCache[id] = entry;
 
 		count++;
@@ -425,6 +429,7 @@ bool LLCacheName::importFile(std::istream& istr)
 		entry->mCreateTime = ctime;
 		entry->mFirstName = agent[FIRST].asString();
 		entry->mLastName = agent[LAST].asString();
+		//llinfos << "Adding name entry from XML file for " << entry->mFirstName << " " << entry->mLastName << ", id " << id << llendl;
 		impl.mCache[id] = entry;
 
 		++count;
@@ -445,7 +450,9 @@ bool LLCacheName::importFile(std::istream& istr)
 		LLCacheNameEntry* entry = new LLCacheNameEntry();
 		entry->mIsGroup = true;
 		entry->mCreateTime = ctime;
-		entry->mGroupName = group[NAME].asString();
+		entry->mFirstName = group[NAME].asString();
+		entry->mLastName = "";
+		//llinfos << "Adding group entry from XML file for " << entry->mFirstName << " " << entry->mLastName << ", id " << id << llendl;
 		impl.mCache[id] = entry;
 		++count;
 	}
@@ -463,25 +470,24 @@ void LLCacheName::exportFile(std::ostream& ostr)
 		// Only write entries for which we have valid data.
 		LLCacheNameEntry* entry = iter->second;
 		if(!entry
-		   || (std::string::npos != entry->mFirstName.find('?'))
-		   || (std::string::npos != entry->mGroupName.find('?')))
-		{
+		   || entry->isUnknown())
+		{	// No entry, or user or group name is unknown
 			continue;
 		}
 
 		// store it
 		LLUUID id = iter->first;
 		std::string id_str = id.asString();
-		if(!entry->mFirstName.empty() && !entry->mLastName.empty())
-		{
+		if(entry->mIsGroup)
+		{	// Save group name and ID
+			data[GROUPS][id_str][NAME] = entry->mFirstName;
+			data[GROUPS][id_str][CTIME] = (S32)entry->mCreateTime;
+		}
+		else if(!entry->mLastName.empty())
+		{	// Save user names and ID
 			data[AGENTS][id_str][FIRST] = entry->mFirstName;
 			data[AGENTS][id_str][LAST] = entry->mLastName;
 			data[AGENTS][id_str][CTIME] = (S32)entry->mCreateTime;
-		}
-		else if(entry->mIsGroup && !entry->mGroupName.empty())
-		{
-			data[GROUPS][id_str][NAME] = entry->mGroupName;
-			data[GROUPS][id_str][CTIME] = (S32)entry->mCreateTime;
 		}
 	}
 
@@ -489,6 +495,7 @@ void LLCacheName::exportFile(std::ostream& ostr)
 }
 
 
+// DO NOT CALL THIS FOR GROUP NAMES
 BOOL LLCacheName::getName(const LLUUID& id, std::string& first, std::string& last)
 {
 	if(id.isNull())
@@ -511,11 +518,11 @@ BOOL LLCacheName::getName(const LLUUID& id, std::string& first, std::string& las
 		last.clear();
 		if (!impl.isRequestPending(id))
 		{
+			//llinfos << "**** adding name req for " << id << llendl;
 			impl.mAskNameQueue.insert(id);
 		}	
-		return FALSE;
 	}
-
+	return FALSE;
 }
 
 BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
@@ -535,7 +542,7 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 	}
 
 	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache,id);
-	if (entry && entry->mGroupName.empty())
+	if (entry && entry->mFirstName.empty())
 	{
 		// COUNTER-HACK to combat James' HACK in exportFile()...
 		// this group name was loaded from a name cache that did not
@@ -546,7 +553,7 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 
 	if (entry)
 	{
-		group = entry->mGroupName;
+		group = entry->mFirstName;
 		return TRUE;
 	}
 	else 
@@ -562,7 +569,7 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 
 // TODO: Make the cache name callback take a SINGLE std::string,
 // not a separate first and last name.
-void LLCacheName::get(const LLUUID& id, BOOL is_group, LLCacheNameCallback callback, void* user_data)
+void LLCacheName::getNameFromUUID(const LLUUID& id, BOOL is_group, LLCacheNameCallback callback, void* user_data)
 {
 	if(id.isNull())
 	{
@@ -573,15 +580,8 @@ void LLCacheName::get(const LLUUID& id, BOOL is_group, LLCacheNameCallback callb
 	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache, id );
 	if (entry)
 	{
-		// id found in map therefore we can call the callback immediately.
-		if (entry->mIsGroup)
-		{
-			callback(id, entry->mGroupName, "", entry->mIsGroup, user_data);
-		}
-		else
-		{
-			callback(id, entry->mFirstName, entry->mLastName, entry->mIsGroup, user_data);
-		}
+		// id found in map therefore we can call the callback immediately.  mLastName will be empty for groups
+		callback(id, entry->mFirstName, entry->mLastName, entry->mIsGroup, user_data);
 	}
 	else
 	{
@@ -590,13 +590,17 @@ void LLCacheName::get(const LLUUID& id, BOOL is_group, LLCacheNameCallback callb
 		{
 			if (is_group)
 			{
+				//llinfos << "Group queued for " << id << llendl;
 				impl.mAskGroupQueue.insert(id);
 			}
 			else
 			{
+				//llinfos << "Name queued for " << id << llendl;
 				impl.mAskNameQueue.insert(id);
 			}
 		}
+
+		// There may be multiple replies for the same ID request
 		impl.mReplyQueue.push_back(PendingReply(id, callback, user_data));
 	}
 }
@@ -661,7 +665,7 @@ void LLCacheName::dump()
 		{
 			llinfos
 				<< iter->first << " = (group) "
-				<< entry->mGroupName
+				<< entry->mFirstName
 				<< " @ " << entry->mCreateTime
 				<< llendl;
 		}
@@ -715,17 +719,7 @@ void LLCacheName::Impl::processPendingReplies()
 
 		if (it->mCallback)
 		{
-			if (!entry->mIsGroup)
-			{
-				(it->mCallback)(it->mID,
-					entry->mFirstName, entry->mLastName,
-					FALSE, it->mData);
-			}
-			else {
-				(it->mCallback)(it->mID,
-					entry->mGroupName, "",
-					TRUE, it->mData);
-			}
+			(it->mCallback)(it->mID, entry->mFirstName, entry->mLastName, entry->mIsGroup, it->mData);
 		}
 	}
 
@@ -768,10 +762,12 @@ void LLCacheName::Impl::sendRequest(
 		if(start_new_message)
 		{
 			start_new_message = false;
+			//llinfos << "newMessageFast : " << msg_name << llendl;
 			mMsg->newMessageFast(msg_name);
 		}
 		mMsg->nextBlockFast(_PREHASH_UUIDNameBlock);
 		mMsg->addUUIDFast(_PREHASH_ID, (*it));
+		//llinfos << " asking for ID: " << (*it) << llendl;
 
 		if(mMsg->isSendFullFast(_PREHASH_UUIDNameBlock))
 		{
@@ -837,37 +833,101 @@ void LLCacheName::Impl::processUUIDRequest(LLMessageSystem* msg, bool isGroup)
 		{
 			if (isGroup != entry->mIsGroup)
 			{
-				llwarns << "LLCacheName - Asked for "
-						<< (isGroup ? "group" : "user") << " name, "
-						<< "but found "
-						<< (entry->mIsGroup ? "group" : "user")
-						<< ": " << id << llendl;
+				if (entry->isUnknown())
+				{
+					Cache::iterator doomediter = mCache.find(id);
+					if (doomediter != mCache.end())
+					{	// Kill existing unknown entry
+						llwarns << "LLCacheName - Asked for "
+								<< (isGroup ? "group" : "user") << " name, "
+								<< "but found unknown "
+								<< (entry->mIsGroup ? "group" : "user")
+								<< " entry for: " << id 
+								<< ", deleting bad entry"
+								<< llendl;
+
+						delete entry;
+						entry = NULL;
+						mCache.erase(doomediter);
+
+						// Request it with (hopefully) the correct type
+						makeNameRequestForID(id,isGroup,fromHost);
+					}
+				}
+				else if (isGroup)
+				{
+					llwarns << "LLCacheName - Asked for group name, but found user: "
+							<< id 
+							<< " named " 
+							<< entry->mFirstName << " " << entry->mLastName 
+							<< llendl;
+				}
+				else
+				{
+					llwarns << "LLCacheName - Asked for user name, but found group: "
+							<< id 
+							<< " named " 
+							<< entry->mFirstName
+							<< llendl;
+				}
 			}
 			else
 			{
 				// ...it's in the cache, so send it as the reply
 				sender.send(id, *entry, fromHost);
-			}
-		}
-		else
-		{
-			if (!isRequestPending(id))
-			{
+
+				/*
 				if (isGroup)
 				{
-					mAskGroupQueue.insert(id);
+					llinfos << "Group ID " << id 
+						<< " name " << entry->mFirstName
+						<< " was already in cache" << llendl;
 				}
 				else
 				{
-					mAskNameQueue.insert(id);
+					llinfos << "Agent ID " << id 
+						<< " name " << entry->mFirstName << " " << entry->mLastName 
+						<< " was already in cache" << llendl;
 				}
+				*/
 			}
-			
-			mReplyQueue.push_back(PendingReply(id, fromHost));
+		}
+		else
+		{	/*
+			if (isGroup)
+			{
+				llinfos << "Group ID " << id << " is not in cache" << llendl;
+			}
+			else
+			{
+				llinfos << "Agent ID " << id << " is not in cache" << llendl;
+			}
+			*/
+			makeNameRequestForID(id,isGroup,fromHost);
 		}
 	}
 }
 
+
+void LLCacheName::Impl::makeNameRequestForID(const LLUUID& id, bool isGroup, LLHost & fromHost)
+{
+	if (!isRequestPending(id))
+	{
+		if (isGroup)
+		{
+			//llinfos << "Adding group request for " << id << llendl;
+			mAskGroupQueue.insert(id);
+		}
+		else
+		{
+			//llinfos << "Adding name request for " << id << llendl;
+			mAskNameQueue.insert(id);
+		}
+	}
+	
+	// There may be multiple replys for the same ID request
+	mReplyQueue.push_back(PendingReply(id, fromHost));
+}
 
 
 void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
@@ -878,35 +938,53 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 		LLUUID id;
 		msg->getUUIDFast(_PREHASH_UUIDNameBlock, _PREHASH_ID, id, i);
 		LLCacheNameEntry* entry = get_ptr_in_map(mCache, id);
+		bool add_new_entry_to_cache = false;
 		if (!entry)
 		{
 			entry = new LLCacheNameEntry;
+			add_new_entry_to_cache = true;
+		}
+
+		// Remove ID from pending queue
+		mPendingQueue.erase(id);
+
+		std::string first_name;
+		std::string last_name;
+		if (isGroup)
+		{	// Group
+			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_GroupName, first_name, i);
+			LLStringFn::replace_ascii_controlchars(first_name, LL_UNKNOWN_CHAR);
+		}
+		else
+		{	// User
+			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_FirstName, first_name, i);
+			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_LastName, last_name, i);
+		}
+	
+		if (!add_new_entry_to_cache &&
+			(entry->mFirstName != first_name ||
+				entry->mLastName != last_name ||
+				entry->mIsGroup != isGroup))
+		{	// Hmmm, we already had an different entry for this ID.  Let's see what happened...
+			llwarns << "Replacing existing entry in name cache for id " << id
+				<< " first name was " << entry->mFirstName << ", now " << first_name
+				<< " last name was " << entry->mLastName << ", now " << last_name
+				<< " group flag was " << (S32) entry->mIsGroup << ", now " << (S32) isGroup
+				<< llendl;
+		}
+
+		entry->mFirstName = first_name;
+		entry->mLastName = last_name;
+		entry->mIsGroup = isGroup;
+		entry->mCreateTime = (U32)time(NULL);
+
+		if (add_new_entry_to_cache)
+		{
+			//llinfos << "Adding entry for " << entry->mFirstName << " " << entry->mLastName << ", id " << id << llendl;
 			mCache[id] = entry;
 		}
 
-		mPendingQueue.erase(id);
-
-		entry->mIsGroup = isGroup;
-		entry->mCreateTime = (U32)time(NULL);
-		if (!isGroup)
-		{
-			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_FirstName, entry->mFirstName, i);
-			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_LastName,  entry->mLastName, i);
-		}
-		else
-		{	// is group
-			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_GroupName, entry->mGroupName, i);
-			LLStringFn::replace_ascii_controlchars(entry->mGroupName, LL_UNKNOWN_CHAR);
-		}
-
-		if (!isGroup)
-		{
-			notifyObservers(id, entry->mFirstName, entry->mLastName, FALSE);
-		}
-		else
-		{
-			notifyObservers(id, entry->mGroupName, "", TRUE);
-		}
+		notifyObservers(id, entry->mFirstName, entry->mLastName, isGroup);
 	}
 }
 

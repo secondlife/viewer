@@ -13,6 +13,8 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   #
   # WARNING: do NOT modify this code without working with poppy or daveh -
   # there is another branch that will conflict heavily with any changes here.
+INCLUDE(GoogleMock)
+
 
   IF(LL_TEST_VERBOSE)
     MESSAGE("LL_ADD_PROJECT_UNIT_TESTS UNITTEST_PROJECT_${project} sources: ${sources}")
@@ -32,8 +34,10 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
     ${LLMATH_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${LIBS_OPEN_DIR}/test
+    ${GOOGLEMOCK_INCLUDE_DIRS}
     )
   SET(alltest_LIBRARIES
+    ${GOOGLEMOCK_LIBRARIES}
     ${PTHREAD_LIBRARY}
     ${WINDOWS_LIBRARIES}
     )
@@ -41,6 +45,11 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   SET(alltest_HEADER_FILES
     ${CMAKE_SOURCE_DIR}/test/test.h
     )
+
+  # Use the default flags
+  if (LINUX)
+    SET(CMAKE_EXE_LINKER_FLAGS "")
+  endif (LINUX)
 
   # start the source test executable definitions
   SET(${project}_TEST_OUTPUT "")
@@ -84,9 +93,9 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
       MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_additional_INCLUDE_DIRS ${${name}_test_additional_INCLUDE_DIRS}")
     ENDIF(LL_TEST_VERBOSE)
 
+
     # Setup target
     ADD_EXECUTABLE(PROJECT_${project}_TEST_${name} ${${name}_test_SOURCE_FILES})
-
     #
     # Per-codefile additional / external project dep and lib dep property extraction
     #

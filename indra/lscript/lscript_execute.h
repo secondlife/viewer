@@ -369,8 +369,7 @@ class LLScriptExecute
 {
 public:
 	LLScriptExecute();
-	virtual ~LLScriptExecute() {;}
-
+	virtual ~LLScriptExecute()  = 0;
 	virtual S32 getVersion() const = 0;
 	virtual void deleteAllEvents() = 0;
 	virtual void addEvent(LLScriptDataCollection* event) = 0;

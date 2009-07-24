@@ -41,6 +41,8 @@
 #include "lscript_library.h"
 #include "lscript_heapruntime.h"
 #include "lscript_alloc.h"
+#include "llstat.h"
+
 
 // Static
 const	S32	DEFAULT_SCRIPT_TIMER_CHECK_SKIP = 4;
@@ -72,7 +74,7 @@ const char* URL_REQUEST_GRANTED = "URL_REQUEST_GRANTED";
 const char* URL_REQUEST_DENIED = "URL_REQUEST_DENIED";
 
 // HTTP Requests to LSL scripts will time out after 25 seconds.
-const U64 LSL_HTTP_REQUEST_TIMEOUT = 25 * USEC_PER_SEC; 
+const U64 LSL_HTTP_REQUEST_TIMEOUT_USEC = 25 * USEC_PER_SEC; 
 
 LLScriptExecuteLSL2::LLScriptExecuteLSL2(LLFILE *fp)
 {
@@ -110,6 +112,7 @@ LLScriptExecuteLSL2::LLScriptExecuteLSL2(const U8* bytecode, U32 bytecode_size)
 	init();
 }
 
+LLScriptExecute::~LLScriptExecute() {}
 LLScriptExecuteLSL2::~LLScriptExecuteLSL2()
 {
 	delete[] mBuffer;
@@ -4234,19 +4237,16 @@ S32 lscript_push_variable(LLScriptLibData *data, U8 *buffer)
 	return 4;
 }
 
-BOOL run_calllib(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
+
+// Shared code for run_calllib() and run_calllib_two_byte()
+BOOL run_calllib_common(U8 *buffer, S32 &offset, const LLUUID &id, U16 arg)
 {
-	if (b_print)
-		printf("[0x%X]\tCALLLIB ", offset);
-	offset++;
-	U8 arg = safe_instruction_bytestream2byte(buffer, offset);
 	if (arg >= gScriptLibrary.mNextNumber)
 	{
 		set_fault(buffer, LSRF_BOUND_CHECK_ERROR);
 		return FALSE;
 	}
-	if (b_print)
-		printf("%d (%s)\n", (U32)arg, gScriptLibrary.mFunctions[arg]->mName);
+	LLScriptLibraryFunction *function = gScriptLibrary.mFunctions[arg];
 
 	// pull out the arguments and the return values
 	LLScriptLibData	*arguments = NULL;
@@ -4254,14 +4254,14 @@ BOOL run_calllib(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 
 	S32 i, number;
 
-	if (gScriptLibrary.mFunctions[arg]->mReturnType)
+	if (function->mReturnType)
 	{
 		returnvalue = new LLScriptLibData;
 	}
 
-	if (gScriptLibrary.mFunctions[arg]->mArgs)
+	if (function->mArgs)
 	{
-		number = (S32)strlen(gScriptLibrary.mFunctions[arg]->mArgs);		/*Flawfinder: ignore*/
+		number = (S32)strlen(function->mArgs);		//Flawfinder: ignore
 		arguments = new LLScriptLibData[number];
 	}
 	else
@@ -4271,24 +4271,18 @@ BOOL run_calllib(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 
 	for (i = number - 1; i >= 0; i--)
 	{
-		lscript_pop_variable(&arguments[i], buffer, gScriptLibrary.mFunctions[arg]->mArgs[i]);
+		lscript_pop_variable(&arguments[i], buffer, function->mArgs[i]);
 	}
 
-	if (b_print)
-	{
-		printf("%s\n", gScriptLibrary.mFunctions[arg]->mDesc);
-	}
+	// Actually execute the function call
+	function->mExecFunc(returnvalue, arguments, id);
 
-	{
-		// LLFastTimer time_in_libraries1(LLFastTimer::FTM_TEMP7);
-		gScriptLibrary.mFunctions[arg]->mExecFunc(returnvalue, arguments, id);
-	}
-	add_register_fp(buffer, LREG_ESR, -gScriptLibrary.mFunctions[arg]->mEnergyUse);
-	add_register_fp(buffer, LREG_SLR, gScriptLibrary.mFunctions[arg]->mSleepTime);
+	add_register_fp(buffer, LREG_ESR, -(function->mEnergyUse));
+	add_register_fp(buffer, LREG_SLR, function->mSleepTime);
 
 	if (returnvalue)
 	{
-		returnvalue->mType = char2type(*gScriptLibrary.mFunctions[arg]->mReturnType);
+		returnvalue->mType = char2type(*function->mReturnType);
 		lscript_push_return_variable(returnvalue, buffer);
 	}
 
@@ -4305,72 +4299,32 @@ BOOL run_calllib(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 }
 
 
+BOOL run_calllib(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
+{
+	offset++;
+	U16 arg = (U16) safe_instruction_bytestream2byte(buffer, offset);
+	if (b_print &&
+		arg < gScriptLibrary.mNextNumber)
+	{
+		printf("[0x%X]\tCALLLIB ", offset);
+		LLScriptLibraryFunction *function = gScriptLibrary.mFunctions[arg];
+		printf("%d (%s)\n", (U32)arg, function->mName);
+		printf("%s\n", function->mDesc);
+	}
+	return run_calllib_common(buffer, offset, id, arg);
+}
+
 BOOL run_calllib_two_byte(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 {
-	if (b_print)
-		printf("[0x%X]\tCALLLIB ", offset);
 	offset++;
 	U16 arg = safe_instruction_bytestream2u16(buffer, offset);
-	if (arg >= gScriptLibrary.mNextNumber)
+	if (b_print &&
+		arg < gScriptLibrary.mNextNumber)
 	{
-		set_fault(buffer, LSRF_BOUND_CHECK_ERROR);
-		return FALSE;
+		printf("[0x%X]\tCALLLIB ", (offset-1));
+		LLScriptLibraryFunction *function = gScriptLibrary.mFunctions[arg];
+		printf("%d (%s)\n", (U32)arg, function->mName);
+		printf("%s\n", function->mDesc);
 	}
-	if (b_print)
-		printf("%d (%s)\n", (U32)arg, gScriptLibrary.mFunctions[arg]->mName);
-
-	// pull out the arguments and the return values
-	LLScriptLibData	*arguments = NULL;
-	LLScriptLibData	*returnvalue = NULL;
-
-	S32 i, number;
-
-	if (gScriptLibrary.mFunctions[arg]->mReturnType)
-	{
-		returnvalue = new LLScriptLibData;
-	}
-
-	if (gScriptLibrary.mFunctions[arg]->mArgs)
-	{
-		number = (S32)strlen(gScriptLibrary.mFunctions[arg]->mArgs);		/*Flawfinder: ignore*/
-		arguments = new LLScriptLibData[number];
-	}
-	else
-	{
-		number = 0;
-	}
-
-	for (i = number - 1; i >= 0; i--)
-	{
-		lscript_pop_variable(&arguments[i], buffer, gScriptLibrary.mFunctions[arg]->mArgs[i]);
-	}
-
-	if (b_print)
-	{
-		printf("%s\n", gScriptLibrary.mFunctions[arg]->mDesc);
-	}
-
-	{
-		// LLFastTimer time_in_libraries2(LLFastTimer::FTM_TEMP8);
-		gScriptLibrary.mFunctions[arg]->mExecFunc(returnvalue, arguments, id);
-	}
-	add_register_fp(buffer, LREG_ESR, -gScriptLibrary.mFunctions[arg]->mEnergyUse);
-	add_register_fp(buffer, LREG_SLR, gScriptLibrary.mFunctions[arg]->mSleepTime);
-
-	if (returnvalue)
-	{
-		returnvalue->mType = char2type(*gScriptLibrary.mFunctions[arg]->mReturnType);
-		lscript_push_return_variable(returnvalue, buffer);
-	}
-
-	delete [] arguments;
-	delete returnvalue;
-
-	// reset the BP after calling the library files
-	S32 bp = lscript_pop_int(buffer);
-	set_bp(buffer, bp);
-
-	// pop off the spot for the instruction pointer
-	lscript_poparg(buffer, 4);
-	return FALSE;
+	return run_calllib_common(buffer, offset, id, arg);
 }

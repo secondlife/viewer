@@ -229,6 +229,10 @@ public:
 	// ownerhsip changes
 	void yesReallySetOwner(const LLUUID& owner, bool group_owned);
 
+	// Last owner doesn't have much in the way of permissions so it's 
+	//not too dangerous to do this. 
+	void setLastOwner(const LLUUID& last_owner);
+
 	// saves last owner, sets owner to uuid null, sets group
 	// owned. group_id must be the group of the object (that's who it
 	// is being deeded to) and the object must be group

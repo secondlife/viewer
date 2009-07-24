@@ -520,7 +520,7 @@ protected:
 	 * seek orfor string assignment.
 	 * @returns Returns true if a line was found.
 	 */
-	bool readLine(
+	bool readHeaderLine(
 		const LLChannelDescriptors& channels,
 		buffer_ptr_t buffer,
 		U8* dest,
@@ -591,7 +591,7 @@ LLHTTPResponder::~LLHTTPResponder()
 	//lldebugs << "destroying LLHTTPResponder" << llendl;
 }
 
-bool LLHTTPResponder::readLine(
+bool LLHTTPResponder::readHeaderLine(
 	const LLChannelDescriptors& channels,
 	buffer_ptr_t buffer,
 	U8* dest,
@@ -669,7 +669,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 #endif
 		
 		PUMP_DEBUG;
-		if(readLine(channels, buffer, (U8*)buf, len))
+		if(readHeaderLine(channels, buffer, (U8*)buf, len))
 		{
 			bool read_next_line = false;
 			bool parse_all = true;
@@ -733,7 +733,13 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 					if(read_next_line)
 					{
 						len = HEADER_BUFFER_SIZE;	
-						readLine(channels, buffer, (U8*)buf, len);
+						if (!readHeaderLine(channels, buffer, (U8*)buf, len))
+						{
+							// Failed to read the header line, probably too long.
+							// readHeaderLine already marked the channel/buffer as bad.
+							keep_parsing = false;
+							break;
+						}
 					}
 					if(0 == len)
 					{

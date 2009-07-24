@@ -932,7 +932,8 @@ void LLIMMgr::inviteToSession(
 	{
 		if (caller_name.empty())
 		{
-			gCacheName->getName(caller_id, onInviteNameLookup, new LLSD(payload));
+			BOOL is_group = FALSE;		// Inviter must be a person
+			gCacheName->getNameFromUUID(caller_id, is_group, onInviteNameLookup, new LLSD(payload));
 		}
 		else
 		{

@@ -221,6 +221,7 @@ IF (NOT LINUX AND VIEWER)
       # llhttpclientadapter.cpp
       lltrustedmessageservice.cpp
       lltemplatemessagedispatcher.cpp
+      llregionpresenceverifier.cpp
       )
     LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")
     
@@ -228,3 +229,4 @@ IF (NOT LINUX AND VIEWER)
     # Don't make llmessage depend on llsdmessage_test because ADD_COMM_BUILD_TEST depends on llmessage!
     # ADD_COMM_BUILD_TEST(llsdmessage "" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py")
 ENDIF (NOT LINUX AND VIEWER)
+
