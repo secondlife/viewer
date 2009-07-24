@@ -387,8 +387,8 @@ LLToolDragAndDrop::dragOrDrop3dImpl LLToolDragAndDrop::sDragAndDrop3d[DAD_COUNT]
 	{
 		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_NONE
 		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_SELF
-		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_AVATAR
-		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_OBJECT
+		&LLToolDragAndDrop::dad3dGiveInventory, // Dest: DT_AVATAR
+		&LLToolDragAndDrop::dad3dUpdateInventory, // Dest: DT_OBJECT
 		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_LAND
 	},
 	//	Source: DAD_LANDMARK
@@ -1848,9 +1848,6 @@ BOOL LLToolDragAndDrop::isInventoryGiveAcceptable(LLInventoryItem* item)
 	BOOL acceptable = TRUE;
 	switch(item->getType())
 	{
-	case LLAssetType::AT_CALLINGCARD:
-		acceptable = FALSE;
-		break;
 	case LLAssetType::AT_OBJECT:
 		if(my_avatar->isWearingAttachment(item->getUUID()))
 		{
@@ -1898,9 +1895,6 @@ BOOL LLToolDragAndDrop::isInventoryGroupGiveAcceptable(LLInventoryItem* item)
 	BOOL acceptable = TRUE;
 	switch(item->getType())
 	{
-	case LLAssetType::AT_CALLINGCARD:
-		acceptable = FALSE;
-		break;
 	case LLAssetType::AT_OBJECT:
 		if(my_avatar->isWearingAttachment(item->getUUID(), TRUE))
 		{
@@ -2003,6 +1997,7 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
 	case DAD_BODYPART:
 	case DAD_ANIMATION:
 	case DAD_GESTURE:
+	case DAD_CALLINGCARD:
 	{
 		LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
 		if(gInventory.getItem(inv_item->getUUID())
@@ -2047,7 +2042,6 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
 		}
 		break;
 	}
-	case DAD_CALLINGCARD:
 	default:
 		*accept = ACCEPT_NO;
 		break;

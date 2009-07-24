@@ -250,7 +250,6 @@ void LLFloaterBulkPermission::doCheckUncheckAll(BOOL check)
 	gSavedSettings.setBOOL("BulkChangeIncludeBodyParts" , check);
 	gSavedSettings.setBOOL("BulkChangeIncludeClothing"  , check);
 	gSavedSettings.setBOOL("BulkChangeIncludeGestures"  , check);
-	gSavedSettings.setBOOL("BulkChangeIncludeLandmarks" , check);
 	gSavedSettings.setBOOL("BulkChangeIncludeNotecards" , check);
 	gSavedSettings.setBOOL("BulkChangeIncludeObjects"   , check);
 	gSavedSettings.setBOOL("BulkChangeIncludeScripts"   , check);
@@ -273,7 +272,6 @@ void LLFloaterBulkPermission::handleInventory(LLViewerObject* viewer_obj, Invent
 			( asstype == LLAssetType::AT_BODYPART  && gSavedSettings.getBOOL("BulkChangeIncludeBodyParts" )) ||
 			( asstype == LLAssetType::AT_CLOTHING  && gSavedSettings.getBOOL("BulkChangeIncludeClothing"  )) ||
 			( asstype == LLAssetType::AT_GESTURE   && gSavedSettings.getBOOL("BulkChangeIncludeGestures"  )) ||
-			( asstype == LLAssetType::AT_LANDMARK  && gSavedSettings.getBOOL("BulkChangeIncludeLandmarks" )) ||
 			( asstype == LLAssetType::AT_FAVORITE  && gSavedSettings.getBOOL("BulkChangeIncludeFavourite" )) ||
 			( asstype == LLAssetType::AT_NOTECARD  && gSavedSettings.getBOOL("BulkChangeIncludeNotecards" )) ||
 			( asstype == LLAssetType::AT_OBJECT    && gSavedSettings.getBOOL("BulkChangeIncludeObjects"   )) ||

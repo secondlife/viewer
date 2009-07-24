@@ -109,30 +109,12 @@
      width="126" />
     <icon
      height="16"
-     image_name="inv_item_landmark_visited.tga"
-     layout="topleft"
-     left="12"
-     mouse_opaque="true"
-     name="icon_landmark"
-     top="134"
-     width="16" />
-    <check_box
-     control_name="BulkChangeIncludeLandmarks"
-     height="16"
-     label="Landmarks"
-     layout="topleft"
-     left_pad="2"
-     name="check_landmark"
-     top_delta="0"
-     width="126" />
-    <icon
-     height="16"
      image_name="inv_item_notecard.tga"
      layout="topleft"
      left="12"
      mouse_opaque="true"
      name="icon_notecard"
-     top="154"
+     top="134"
      width="16" />
     <check_box
      control_name="BulkChangeIncludeNotecards"
@@ -150,7 +132,7 @@
      left="12"
      mouse_opaque="true"
      name="icon_object"
-     top="174"
+     top="154"
      width="16" />
     <check_box
      control_name="BulkChangeIncludeObjects"
@@ -168,7 +150,7 @@
      left="12"
      mouse_opaque="true"
      name="icon_script"
-     top="194"
+     top="174"
      width="16" />
     <check_box
      control_name="BulkChangeIncludeScripts"
@@ -186,7 +168,7 @@
      left="12"
      mouse_opaque="true"
      name="icon_sound"
-     top="214"
+     top="194"
      width="16" />
     <check_box
      control_name="BulkChangeIncludeSounds"
@@ -204,7 +186,7 @@
      left="12"
      mouse_opaque="true"
      name="icon_texture"
-     top="234"
+     top="214"
      width="16" />
     <check_box
      control_name="BulkChangeIncludeTextures"

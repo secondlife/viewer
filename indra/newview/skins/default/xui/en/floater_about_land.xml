@@ -1234,14 +1234,6 @@ Only large parcels can be listed in search.
              width="268" />
             <check_box
              height="16"
-             label="Create Landmarks"
-             layout="topleft"
-             left_delta="0"
-             name="check landmark"
-             top_pad="4"
-             width="268" />
-            <check_box
-             height="16"
              label="Fly"
              layout="topleft"
              left_delta="0"

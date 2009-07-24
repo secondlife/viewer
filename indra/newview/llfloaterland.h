@@ -330,7 +330,6 @@ private:
 	LLCheckBoxCtrl*	mCheckFly;
 	LLCheckBoxCtrl*	mCheckGroupScripts;
 	LLCheckBoxCtrl*	mCheckOtherScripts;
-	LLCheckBoxCtrl*	mCheckLandmark;
 
 	LLCheckBoxCtrl*	mCheckShowDirectory;
 	LLComboBox*		mCategoryCombo;

@@ -152,6 +152,7 @@ BOOL LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		case DAD_BODYPART:
 		case DAD_ANIMATION:
 		case DAD_GESTURE:
+		case DAD_CALLINGCARD:
 		{
 			LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
 			if(gInventory.getItem(inv_item->getUUID())
@@ -175,7 +176,6 @@ BOOL LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			break;
 		}
 		case DAD_CATEGORY:
-		case DAD_CALLINGCARD:
 		default:
 			*accept = ACCEPT_NO;
 			break;

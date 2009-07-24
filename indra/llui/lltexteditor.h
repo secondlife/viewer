@@ -268,8 +268,6 @@ public:
 
 	void			setSourceID(const LLUUID& id) 			{ mSourceID = id; }
 	const LLUUID&	getSourceID() const						{ return mSourceID; }
-	void 			setAcceptCallingCardNames(BOOL enable)	{ mAcceptCallingCardNames = enable; }
-	BOOL			acceptsCallingCardNames() const			{ return mAcceptCallingCardNames; }
 
 	void			setHandleEditKeysDirectly( BOOL b ) 	{ mHandleEditKeysDirectly = b; }
 
@@ -585,8 +583,6 @@ private:
 	BOOL			mScrolledToBottom;
 
 	BOOL			mAllowEmbeddedItems;
-
-	BOOL 			mAcceptCallingCardNames;
 
 	LLUUID			mSourceID;
 

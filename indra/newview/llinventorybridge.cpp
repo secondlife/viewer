@@ -1157,6 +1157,12 @@ BOOL LLItemBridge::isItemRenameable() const
 	LLViewerInventoryItem* item = getItem();
 	if(item)
 	{
+		// (For now) Don't allow calling card rename since that may confuse users as to
+		// what the calling card points to.
+		if (item->getInventoryType() == LLInventoryType::IT_CALLINGCARD)
+		{
+			return FALSE;
+		}
 		return (item->getPermissions().allowModifyBy(gAgent.getID()));
 	}
 	return FALSE;
@@ -2987,7 +2993,9 @@ void LLCallingCardBridge::performAction(LLFolderView* folder, LLInventoryModel* 
 		if (item && (item->getCreatorUUID() != gAgent.getID()) &&
 			(!item->getCreatorUUID().isNull()))
 		{
-			gIMMgr->addSession(item->getName(), IM_NOTHING_SPECIAL, item->getCreatorUUID());
+			std::string callingcard_name;
+			gCacheName->getFullName(item->getCreatorUUID(), callingcard_name);
+			gIMMgr->addSession(callingcard_name, IM_NOTHING_SPECIAL, item->getCreatorUUID());
 		}
 	}
 	else if ("lure" == action)

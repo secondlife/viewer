@@ -925,17 +925,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>BulkChangeIncludeLandmarks</key>
-    <map>
-      <key>Comment</key>
-      <string>Bulk permission changes affect landmarks</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>BulkChangeIncludeNotecards</key>
     <map>
       <key>Comment</key>

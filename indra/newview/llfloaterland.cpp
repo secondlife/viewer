@@ -1720,7 +1720,6 @@ LLPanelLandOptions::LLPanelLandOptions(LLParcelSelectionHandle& parcel)
 	mCheckFly(NULL),
 	mCheckGroupScripts(NULL),
 	mCheckOtherScripts(NULL),
-	mCheckLandmark(NULL),
 	mCheckShowDirectory(NULL),
 	mCategoryCombo(NULL),
 	mLandingTypeCombo(NULL),
@@ -1752,10 +1751,6 @@ BOOL LLPanelLandOptions::postBuild()
 	
 	mCheckEditLand = getChild<LLCheckBoxCtrl>( "edit land check");
 	childSetCommitCallback("edit land check", onCommitAny, this);
-
-	
-	mCheckLandmark = getChild<LLCheckBoxCtrl>( "check landmark");
-	childSetCommitCallback("check landmark", onCommitAny, this);
 
 	
 	mCheckGroupScripts = getChild<LLCheckBoxCtrl>( "check group scripts");
@@ -1883,9 +1878,6 @@ void LLPanelLandOptions::refresh()
 		mCheckFly			->set(FALSE);
 		mCheckFly			->setEnabled(FALSE);
 
-		mCheckLandmark		->set(FALSE);
-		mCheckLandmark		->setEnabled(FALSE);
-
 		mCheckGroupScripts	->set(FALSE);
 		mCheckGroupScripts	->setEnabled(FALSE);
 
@@ -1935,9 +1927,6 @@ void LLPanelLandOptions::refresh()
 
 		mCheckFly			->set( parcel->getAllowFly() );
 		mCheckFly			->setEnabled( can_change_options );
-
-		mCheckLandmark		->set( parcel->getAllowLandmark() );
-		mCheckLandmark		->setEnabled( can_change_options );
 
 		mCheckGroupScripts	->set( parcel->getAllowGroupScripts() || parcel->getAllowOtherScripts());
 		mCheckGroupScripts	->setEnabled( can_change_options && !parcel->getAllowOtherScripts());
@@ -2153,7 +2142,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	BOOL allow_terraform	= self->mCheckEditLand->get();
 	BOOL allow_damage		= !self->mCheckSafe->get();
 	BOOL allow_fly			= self->mCheckFly->get();
-	BOOL allow_landmark		= self->mCheckLandmark->get();
+	BOOL allow_landmark		= TRUE; // cannot restrict landmark creation
 	BOOL allow_group_scripts	= self->mCheckGroupScripts->get() || self->mCheckOtherScripts->get();
 	BOOL allow_other_scripts	= self->mCheckOtherScripts->get();
 	BOOL allow_publish		= FALSE;

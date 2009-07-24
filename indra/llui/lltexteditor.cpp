@@ -255,7 +255,6 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p)
 	mTakesNonScrollClicks( p.takes_non_scroll_clicks ),
 	mTrackBottom( p.track_bottom ),
 	mAllowEmbeddedItems( p.allow_embedded_items ),
-	mAcceptCallingCardNames(FALSE),
 	mHandleEditKeysDirectly( FALSE ),
 	mMouseDownX(0),
 	mMouseDownY(0),
