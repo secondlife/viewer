@@ -31,6 +31,7 @@
              name="Account History">
                 <menu_item_call.on_click
                  function="PromptShowURL"
+                 name="AccountHistory_url"
                  parameter="WebLaunchAccountHistory,http://secondlife.com/account/transactions.php" />
             </menu_item_call>
             <menu_item_call
@@ -39,6 +40,7 @@
              name="Manage My Account">
                 <menu_item_call.on_click
                  function="PromptShowURL"
+                 name="ManageMyAccount_url"
                  parameter="WebLaunchJoinNow,http://secondlife.com/account/" />
             </menu_item_call>
             <menu_item_separator
@@ -423,6 +425,7 @@
              name="ReportBug">
             <menu_item_call.on_click
                  function="PromptShowURL"
+                 name="ReportBug_url"
                  parameter="hud,http://help.secondlife.com/en/bugreport/" />
         </menu_item_call>
         <menu_item_call
@@ -838,6 +841,7 @@
                  function="Tools.BuyOrTake" />
                 <menu_item_call.on_enable
                  function="Tools.EnableBuyOrTake"
+                 name="EnableBuyOrTake"
                  parameter="Buy,Take" />
             </menu_item_call>
             <menu_item_call
@@ -3507,6 +3511,7 @@
              name="Official Linden Blog">
                 <menu_item_call.on_click
                  function="PromptShowURL"
+                 name="OfficialLindenBlog_url"
                  parameter="WebLaunchSupportWiki,http://blog.secondlife.com/" />
             </menu_item_call>
             <menu_item_call
@@ -3515,6 +3520,7 @@
              name="Scripting Portal">
                 <menu_item_call.on_click
                  function="PromptShowURL"
+                 name="ScriptingPortal_url"
                  parameter="WebLaunchLSLWiki,http://wiki.secondlife.com/wiki/LSL_Portal" />
             </menu_item_call>
             <menu
@@ -3529,6 +3535,7 @@
                  name="Public Issue Tracker">
                     <menu_item_call.on_click
                      function="PromptShowURL"
+                     name="PublicIssueTracker_url"
                      parameter="WebLaunchPublicIssue,http://jira.secondlife.com" />
                 </menu_item_call>
                 <menu_item_call
@@ -3537,6 +3544,7 @@
                  name="Publc Issue Tracker Help">
                     <menu_item_call.on_click
                      function="PromptShowURL"
+                     name="PublicIssueTrackerHelp_url"
                      parameter="WebLaunchPublicIssueHelp,http://wiki.secondlife.com/wiki/Issue_tracker" />
                 </menu_item_call>
                 <menu_item_separator
@@ -3547,6 +3555,7 @@
                  name="Bug Reporing 101">
                     <menu_item_call.on_click
                      function="PromptShowURL"
+                     name="BugReporting101_url"
                      parameter="WebLaunchBugReport101,http://wiki.secondlife.com/wiki/Bug_Reporting_101" />
                 </menu_item_call>
                 <menu_item_call
@@ -3555,6 +3564,7 @@
                  name="Security Issues">
                     <menu_item_call.on_click
                      function="PromptShowURL"
+                     name="SecurityIssues_url"
                      parameter="WebLaunchSecurityIssues,http://wiki.secondlife.com/wiki/Security_issues" />
                 </menu_item_call>
                 <menu_item_call
@@ -3563,6 +3573,7 @@
                  name="QA Wiki">
                     <menu_item_call.on_click
                      function="PromptShowURL"
+                     name="QAWiki_url"
                      parameter="WebLaunchQAWiki,http://wiki.secondlife.com/wiki/QA_Portal" />
                 </menu_item_call>
             </menu>

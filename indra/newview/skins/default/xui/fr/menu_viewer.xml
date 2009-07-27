@@ -120,10 +120,10 @@
 		<menu_item_call label="Reprendre le contrôle" name="Release Keys"/>
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu_item_call label="Historique de mon compte..." name="Account History...">
-			<on_click name="AccountHistory_url" userdata="WebLaunchAccountHistory,http://secondlife.com/account/transactions.php?lang=fr"/>
+			<menu_item_call.on_click name="AccountHistory_url" userdata="WebLaunchAccountHistory,http://secondlife.com/account/transactions.php?lang=fr"/>
 		</menu_item_call>
 		<menu_item_call label="Gérer mon compte..." name="Manage My Account...">
-			<on_click name="ManageMyAccount_url" userdata="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=fr"/>
+			<menu_item_call.on_click name="ManageMyAccount_url" userdata="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=fr"/>
 		</menu_item_call>
 		<menu_item_call label="Acheter des L$..." name="Buy and Sell L$..."/>
 		<menu_item_separator label="-----------" name="separator5"/>
@@ -169,7 +169,9 @@
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu_item_call label="Mise au point sur la sélection" name="Focus on Selection"/>
 		<menu_item_call label="Zoom sur la sélection" name="Zoom to Selection"/>
-		<menu_item_call label="Acheter l&apos;objet" name="Menu Object Take"/>
+		<menu_item_call label="Acheter l&apos;objet" name="Menu Object Take">
+			<menu_item_call.on_enable parameter="Acheter,Prendre" name="EnableBuyOrTake"/>
+		</menu_item_call>
 		<menu_item_call label="Prendre une copie" name="Take Copy"/>
 		<menu_item_call label="Remplacer l&apos;objet dans le contenu de l&apos;objet" name="Save Object Back to Object Contents"/>
 		<menu_item_separator label="-----------" name="separator6"/>
@@ -189,7 +191,7 @@
 		<menu_item_call label="Blog officiel..." name="Official Linden Blog..."/>
 		<menu_item_separator label="-----------" name="separator2"/>
 		<menu_item_call label="Aide sur le LSL..." name="Scripting Portal...">
-			<on_click name="ScriptingPortal_url" userdata="WebLaunchLSLWiki,http://wiki.secondlife.com/wiki/LSL_Portal/fr" />
+			<menu_item_call.on_click name="ScriptingPortal_url" userdata="WebLaunchLSLWiki,http://wiki.secondlife.com/wiki/LSL_Portal/fr" />
 		</menu_item_call>
 		<menu_item_separator label="-----------" name="separator3"/>
 		<menu_item_call label="Signaler une infraction..." name="Report Abuse..."/>
@@ -199,14 +201,14 @@
 		<menu label="Signaler des bugs" name="Bug Reporting">
 			<menu_item_call label="Ouvrir un JIRA..." name="Public Issue Tracker..."/>
 			<menu_item_call label="Comment utiliser JIRA ?" name="Publc Issue Tracker Help...">
-				<on_click name="PublicIssueTrackerHelp_url" userdata="WebLaunchPublicIssueHelp,http://wiki.secondlife.com/wiki/Issue_tracker/fr" />
+				<menu_item_call.on_click name="PublicIssueTrackerHelp_url" userdata="WebLaunchPublicIssueHelp,http://wiki.secondlife.com/wiki/Issue_tracker/fr" />
 			</menu_item_call>
 			<menu_item_separator label="-----------" name="separator7"/>
 			<menu_item_call label="Comment signaler des bugs ?" name="Bug Reporing 101...">
-				<on_click name="BugReporting101_url" userdata="WebLaunchBugReport101,http://wiki.secondlife.com/wiki/Bug_Reporting_101/fr"/>
+				<menu_item_call.on_click name="BugReporting101_url" userdata="WebLaunchBugReport101,http://wiki.secondlife.com/wiki/Bug_Reporting_101/fr"/>
 			</menu_item_call>
 			<menu_item_call label="Comment signaler un problème de sécurité ?" name="Security Issues...">
-				<on_click name="SecurityIssues_url" userdata="WebLaunchSecurityIssues,http://wiki.secondlife.com/wiki/Security_issues/fr"/>
+				<menu_item_call.on_click name="SecurityIssues_url" userdata="WebLaunchSecurityIssues,http://wiki.secondlife.com/wiki/Security_issues/fr"/>
 			</menu_item_call>
 			<menu_item_call label="Wiki Assurance Qualité…" name="QA Wiki..."/>
 			<menu_item_separator label="-----------" name="separator9"/>
