@@ -23,7 +23,7 @@
      name="Fetched">
         Fetched
     </floater.string>
-    <search_editor
+    <filter_editor
      follows="left|top|right"
      height="16"
      label="Type here to search"

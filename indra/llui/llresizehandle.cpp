@@ -45,7 +45,9 @@
 const S32 RESIZE_BORDER_WIDTH = 3;
 
 LLResizeHandle::Params::Params()
-:	corner("corner")
+:	corner("corner"),
+	min_width("min_width"),
+	min_height("min_height")
 {
 	name = "resize_handle";
 }

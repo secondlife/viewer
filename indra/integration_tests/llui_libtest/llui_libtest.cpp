@@ -41,6 +41,7 @@
 #include "lldir.h"
 #include "llerrorcontrol.h"
 #include "llfloater.h"
+#include "llfontfreetype.h"
 #include "llfontgl.h"
 #include "lltrans.h"
 #include "llui.h"

@@ -19,7 +19,7 @@
      name="teleport_history_tab_title">
         Teleport History
     </panel.string>
-    <search_editor
+    <filter_editor
      follows="left|top|right"
      height="20"
      label="Filter"

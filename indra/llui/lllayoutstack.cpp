@@ -120,7 +120,8 @@ struct LLLayoutStack::LayoutPanel
 
 LLLayoutStack::Params::Params()
 :	orientation("orientation", std::string("vertical")),
-	animate("animate", TRUE),
+	animate("animate", true),
+	clip("clip", true),
 	border_size("border_size", LLCachedControl<S32>(*LLUI::sSettingGroups["config"], "UIResizeBarHeight", 0))
 {
 	name="stack";
@@ -132,7 +133,8 @@ LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p)
 	mMinHeight(0),
 	mPanelSpacing(p.border_size),
 	mOrientation((p.orientation() == "vertical") ? VERTICAL : HORIZONTAL),
-	mAnimate(p.animate)
+	mAnimate(p.animate),
+	mClip(p.clip)
 {}
 
 LLLayoutStack::~LLLayoutStack()
@@ -163,7 +165,7 @@ void LLLayoutStack::draw()
 
 		LLPanel* panelp = (*panel_it)->mPanel;
 
-		LLLocalClipRect clip(clip_rect);
+		LLLocalClipRect clip(clip_rect, mClip);
 		// only force drawing invisible children if visible amount is non-zero
 		drawChild(panelp, 0, 0, !clip_rect.isNull());
 	}

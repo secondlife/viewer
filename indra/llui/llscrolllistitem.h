@@ -68,7 +68,7 @@ public:
 		Ignored				type; 
 		Ignored				length; 
 
-		Multiple<LLScrollListCell::Params> cells;
+		Multiple<LLScrollListCell::Params> columns;
 
 		Params()
 		:	enabled("enabled", true),
@@ -76,9 +76,9 @@ public:
 			name("name"),
 			type("type"),
 			length("length"),
-			cells("columns")
+			columns("columns")
 		{
-			addSynonym(cells, "column");
+			addSynonym(columns, "column");
 			addSynonym(value, "id");
 		}
 	};

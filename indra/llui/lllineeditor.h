@@ -84,7 +84,9 @@ public:
 		
 		Optional<LLViewBorder::Params>	border;
 
-		Optional<LLUIImage*>			background_image;
+		Optional<LLUIImage*>			background_image,
+										background_image_disabled,
+										background_image_focused;
 
 		Optional<bool>					select_on_focus,
 										handle_edit_keys_directly,
@@ -96,10 +98,9 @@ public:
 										text_color,
 										text_readonly_color,
 										text_tentative_color,
-										bg_readonly_color,
-										bg_writeable_color,
-										bg_focus_color;
-
+										highlight_color,
+										preedit_bg_color;
+		
 		Optional<S32>					text_pad_left,
 										text_pad_right;
 
@@ -107,7 +108,7 @@ public:
 										drop_shadow_visible,	
 										border_drop_shadow_visible,
 										bg_visible;
-
+		
 		Params();
 	};
 protected:
@@ -163,12 +164,12 @@ public:
 	virtual void 	setRect(const LLRect& rect);
 	virtual BOOL	acceptsTextInput() const;
 	virtual void	onCommit();
-	virtual BOOL	isDirty() const { return mText.getString() != mPrevText; }	// Returns TRUE if user changed value at all
-	virtual void	resetDirty() { mPrevText = mText.getString(); }		// Clear dirty state
+	virtual BOOL	isDirty() const;	// Returns TRUE if user changed value at all
+	virtual void	resetDirty();		// Clear dirty state
 
 	// assumes UTF8 text
-	virtual void	setValue(const LLSD& value ) { setText(value.asString()); }
-	virtual LLSD	getValue() const { return LLSD(getText()); }
+	virtual void	setValue(const LLSD& value );
+	virtual LLSD	getValue() const;
 	virtual BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
 	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 
@@ -197,16 +198,10 @@ public:
 	void setFgColor( const LLColor4& c )			{ mFgColor = c; }
 	void setReadOnlyFgColor( const LLColor4& c )	{ mReadOnlyFgColor = c; }
 	void setTentativeFgColor(const LLColor4& c)		{ mTentativeFgColor = c; }
-	void setWriteableBgColor( const LLColor4& c )	{ mWriteableBgColor = c; }
-	void setReadOnlyBgColor( const LLColor4& c )	{ mReadOnlyBgColor = c; }
-	void setFocusBgColor(const LLColor4& c)			{ mFocusBgColor = c; }
 
 	const LLColor4& getFgColor() const			{ return mFgColor.get(); }
 	const LLColor4& getReadOnlyFgColor() const	{ return mReadOnlyFgColor.get(); }
 	const LLColor4& getTentativeFgColor() const { return mTentativeFgColor.get(); }
-	const LLColor4& getWriteableBgColor() const	{ return mWriteableBgColor.get(); }
-	const LLColor4& getReadOnlyBgColor() const	{ return mReadOnlyBgColor.get(); }
-	const LLColor4& getFocusBgColor() const		{ return mFocusBgColor.get(); }
 
 	void			setIgnoreArrowKeys(BOOL b)		{ mIgnoreArrowKeys = b; }
 	void			setIgnoreTab(BOOL b)			{ mIgnoreTab = b; }
@@ -266,6 +261,9 @@ private:
 	BOOL			handleControlKey(KEY key, MASK mask);
 	S32				handleCommitKey(KEY key, MASK mask);
 	void			updateTextPadding();
+	
+	// Draw the background image depending on enabled/focused state.
+	void			drawBackground();
 
 	//
 	// private data members
@@ -294,7 +292,6 @@ protected:
 
 	LLViewBorder* mBorder;
 	const LLFontGL*	mGLFont;
-	U8          mGLFontStyle;
 	S32			mMaxLengthBytes;			// Max length of the UTF8 string in bytes
 	S32			mCursorPos;					// I-beam is just after the mCursorPos-th character.
 	S32			mScrollHPos;				// Horizontal offset from the start of mText.  Used for scrolling.
@@ -326,9 +323,8 @@ protected:
 	LLUIColor	mFgColor;
 	LLUIColor	mReadOnlyFgColor;
 	LLUIColor	mTentativeFgColor;
-	LLUIColor	mWriteableBgColor;
-	LLUIColor	mReadOnlyBgColor;
-	LLUIColor	mFocusBgColor;
+	LLUIColor	mHighlightColor;		// background for selected text
+	LLUIColor	mPreeditBgColor;		// preedit marker background color
 
 	S32			mBorderThickness;
 
@@ -349,7 +345,9 @@ protected:
 
 private:
 	// Instances that by default point to the statics but can be overidden in XML.
-	LLPointer<LLUIImage> mImage;
+	LLPointer<LLUIImage> mBgImage;
+	LLPointer<LLUIImage> mBgImageDisabled;
+	LLPointer<LLUIImage> mBgImageFocused;
 
 	BOOL        mReplaceNewlinesWithSpaces; // if false, will replace pasted newlines with paragraph symbol.
 

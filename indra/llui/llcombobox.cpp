@@ -141,7 +141,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 		LLScrollListItem::Params item_params = *it;
 		if (it->label.isProvided())
 		{
-			item_params.cells.add().value(it->label());
+			item_params.columns.add().value(it->label());
 		}
 
 		mList->addRow(item_params);

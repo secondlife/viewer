@@ -143,7 +143,6 @@ private:
 	BOOL			mWordWrap;
 	BOOL            mDidWordWrap;
 	
-	U8				mFontStyle; // style bit flags for font
 	LLFontGL::ShadowType mShadowType;
 	BOOL			mBorderDropShadowVisible;
 	BOOL			mUseEllipses;

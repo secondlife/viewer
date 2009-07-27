@@ -47,6 +47,7 @@ class LLInventoryItem;
 class LLInventoryCategory;
 class LLIMSpeakerMgr;
 class LLPanelActiveSpeakers;
+class LLIMChiclet;
 
 class LLVoiceChannel : public LLVoiceClientStatusObserver
 {
@@ -359,6 +360,8 @@ private:
 };
 
 
+// Individual IM window that appears at the bottom of the screen,
+// optionally "docked" to the bottom tray.
 class LLIMFloater : public LLFloater
 {
 public:
@@ -367,14 +370,49 @@ public:
 			  EInstantMessage dialog);
 
 	virtual ~LLIMFloater();
+	
+	// LLView overrides
+	/*virtual*/ BOOL postBuild();
 
-	static void show(const LLUUID& session_id, S32 center_x);
-	void updateMessages(const LLUUID& session_id);
+	// Floater should close when user clicks away to other UI area,
+	// hence causing focus loss.
+	/*virtual*/ void onFocusLost();
 
+	// LLFloater overrides
+	/*virtual*/ void setDocked(bool docked,  bool pop_on_undock = true);
+
+	static LLIMFloater* show(const LLUUID& session_id);
+	void onClose(bool app_quitting);
+
+	// get new messages from LLIMModel
+	void updateMessages();
+	static void onSendMsg( LLUICtrl*, void*);
+	void sendMsg();
+
+	// callback for LLIMModel on new messages
+	// route to specific floater if it is visible
+	static void newIMCallback(const LLSD& data);
+	
 	static std::map<LLUUID, LLIMFloater*> sIMFloaterMap;
+	
 
+private:
+	
+	static void		onInputEditorFocusReceived( LLFocusableElement* caller, void* userdata );
+	static void		onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
+	static void		onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
+	void			setTyping(BOOL typing);
+
+	void onSlide();
+	
 	LLUUID mSessionID;
-	U32 mIndex;
+	S32 mLastMessageIndex;
+	EInstantMessage mDialog;
+	LLIMChiclet* mChiclet;
+	LLUUID mOtherParticipantUUID;
+	LLViewerTextEditor* mHistoryEditor;
+	LLLineEditor* mInputEditor;
+
 };
 
 

@@ -40,6 +40,7 @@
 #include "llcombobox.h"
 
 class LLChicletPanel;
+class LLLineEditor;
 class LLNotificationChiclet;
 class LLTalkButton;
 

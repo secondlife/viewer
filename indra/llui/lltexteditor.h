@@ -63,7 +63,7 @@ public:
 		Optional<S32>			max_text_length;
 
 		Optional<bool>			read_only,
-								allow_embedded_items,
+								embedded_items,
 								hide_scrollbar,
 								word_wrap,
 								ignore_tab,
@@ -86,30 +86,7 @@ public:
 								length,
 								is_unicode;
 
-
-		Params()
-		:	max_text_length("max_length", 255),
-			read_only("read_only", false),
-			allow_embedded_items("embedded_items", false),
-			hide_scrollbar("hide_scrollbar", false),
-			hide_border("hide_border", false),
-			word_wrap("word_wrap", false),
-			ignore_tab("ignore_tab", true),
-			track_bottom("track_bottom", false),
-			takes_non_scroll_clicks("takes_non_scroll_clicks", true),
-			cursor_color("cursor_color"),
-			default_color("default_color"),
-			text_color("text_color"),
-			text_readonly_color("text_readonly_color"),
-			bg_readonly_color("bg_readonly_color"),
-			bg_writeable_color("bg_writeable_color"),
-			bg_focus_color("bg_focus_color"),
-			length("length"),
-			type("type"),
-			is_unicode("is_unicode")
-		{}
-			
-			
+		Params();
 	};
 
 	void initFromParams(const Params&);
@@ -524,7 +501,6 @@ private:
 	S32				mMaxTextByteLength;		// Maximum length mText is allowed to be in bytes
 
 	const LLFontGL*	mGLFont;
-	U8              mGLFontStyle; // the font style from xml
 
 	class LLViewBorder*	mBorder;
 

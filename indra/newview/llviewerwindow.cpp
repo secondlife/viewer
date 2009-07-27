@@ -107,6 +107,7 @@
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
 #include "llfocusmgr.h"
+#include "llfontfreetype.h"
 #include "llgesturemgr.h"
 #include "llglheaders.h"
 #include "llhoverview.h"

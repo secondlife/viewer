@@ -108,7 +108,7 @@ public:
 	{
 		Optional<commit_callback_t> function;
 	};
-	
+
 	struct EnableCallbackParam : public LLInitParam::Block<EnableCallbackParam, CallbackParam >
 	{
 		Optional<enable_callback_t> function;

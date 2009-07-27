@@ -101,37 +101,21 @@
 <!--      top_delta="0" -->
 <!--      width="168" /> -->
     
-    <button
-     follows="right|top"
-     height="16"
-     image_disabled="Search"
-     image_disabled_selected="Search"
-     image_selected="Search"
-     image_unselected="Search"
-     layout="topleft"
-     left_pad="5"
-     name="search_btn"
-     picture_style="true"
-     scale_image="false"
-     tool_tip="Search"
-     top_delta="2"
-     width="16" />
-    
-    <line_editor
+    <search_editor
      bevel_style="none"
      border_style="line"
      border.border_thickness="0"
      commit_on_focus_lost="false"
      follows="right|top"
      halign="right"
-     height="18"
+     height="20"
      label="Search All"
      layout="topleft"
-     left_pad="2"
+     left_pad="5"
      mouse_opaque="false"
      name="search_input"
      tool_tip="Search All"
-     top_delta="-1"
+     top_delta="0"
      width="135" /> 
     
     <button

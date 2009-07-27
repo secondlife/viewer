@@ -145,14 +145,13 @@ public:
 	/*virtual*/ BOOL	isText() const;
 
 	void			setText(const LLStringExplicit& text);
-	void			setFontStyle(const U8 font_style) { mFontStyle = font_style; }
+	void			setFontStyle(const U8 font_style);
 
 private:
 	LLUIString		mText;
 	const LLFontGL*	mFont;
 	LLColor4		mColor;
 	U8				mUseColor;
-	U8				mFontStyle;
 	LLFontGL::HAlign mFontAlignment;
 	BOOL			mVisible;
 	S32				mHighlightCount;

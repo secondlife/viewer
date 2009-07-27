@@ -43,7 +43,8 @@ public:
 	{
 		Optional<std::string>	orientation;
 		Optional<S32>			border_size;
-		Optional<bool>	animate;
+		Optional<bool>			animate;
+		Optional<bool>			clip;
 		// mMinWidth and mMinHeight are calculated, not set in XML
 
 		Params();
@@ -100,6 +101,7 @@ private:
 	S32 mPanelSpacing;
 
 	bool mAnimate;
+	bool mClip;
 }; // end class LLLayoutStack
 
 #endif

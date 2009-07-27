@@ -922,7 +922,7 @@ void LLXMLNode::writeHeaderToFile(LLFILE *out_file)
 	fprintf(out_file, "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n");
 }
 
-void LLXMLNode::writeToFile(LLFILE *out_file, const std::string& indent)
+void LLXMLNode::writeToFile(LLFILE *out_file, const std::string& indent, bool use_type_decorations)
 {
 	if (isFullyDefault())
 	{
@@ -931,7 +931,7 @@ void LLXMLNode::writeToFile(LLFILE *out_file, const std::string& indent)
 	}
 
 	std::ostringstream ostream;
-	writeToOstream(ostream, indent);
+	writeToOstream(ostream, indent, use_type_decorations);
 	std::string outstring = ostream.str();
 	size_t written = fwrite(outstring.c_str(), 1, outstring.length(), out_file);
 	if (written != outstring.length())
@@ -940,7 +940,7 @@ void LLXMLNode::writeToFile(LLFILE *out_file, const std::string& indent)
 	}
 }
 
-void LLXMLNode::writeToOstream(std::ostream& output_stream, const std::string& indent)
+void LLXMLNode::writeToOstream(std::ostream& output_stream, const std::string& indent, bool use_type_decorations)
 {
 	if (isFullyDefault())
 	{
@@ -956,77 +956,80 @@ void LLXMLNode::writeToOstream(std::ostream& output_stream, const std::string& i
 	// stream the name
 	output_stream << indent << "<" << mName->mString << "\n";
 
-	// ID
-	if (mID != "")
+	if (use_type_decorations)
 	{
-		output_stream << indent << " id=\"" << mID << "\"\n";
-	}
-
-	// Type
-	if (!has_default_type)
-	{
-		switch (mType)
+		// ID
+		if (mID != "")
 		{
-		case TYPE_BOOLEAN:
-			output_stream << indent << " type=\"boolean\"\n";
-			break;
-		case TYPE_INTEGER:
-			output_stream << indent << " type=\"integer\"\n";
-			break;
-		case TYPE_FLOAT:
-			output_stream << indent << " type=\"float\"\n";
-			break;
-		case TYPE_STRING:
-			output_stream << indent << " type=\"string\"\n";
-			break;
-		case TYPE_UUID:
-			output_stream << indent << " type=\"uuid\"\n";
-			break;
-		case TYPE_NODEREF:
-			output_stream << indent << " type=\"noderef\"\n";
-			break;
-		default:
-			// default on switch(enum) eliminates a warning on linux
-			break;
-		};
-	}
+			output_stream << indent << " id=\"" << mID << "\"\n";
+		}
 
-	// Encoding
-	if (!has_default_encoding)
-	{
-		switch (mEncoding)
+		// Type
+		if (!has_default_type)
 		{
-		case ENCODING_DECIMAL:
-			output_stream << indent << " encoding=\"decimal\"\n";
-			break;
-		case ENCODING_HEX:
-			output_stream << indent << " encoding=\"hex\"\n";
-			break;
-		/*case ENCODING_BASE32:
-			output_stream << indent << " encoding=\"base32\"\n";
-			break;*/
-		default:
-			// default on switch(enum) eliminates a warning on linux
-			break;
-		};
-	}
+			switch (mType)
+			{
+			case TYPE_BOOLEAN:
+				output_stream << indent << " type=\"boolean\"\n";
+				break;
+			case TYPE_INTEGER:
+				output_stream << indent << " type=\"integer\"\n";
+				break;
+			case TYPE_FLOAT:
+				output_stream << indent << " type=\"float\"\n";
+				break;
+			case TYPE_STRING:
+				output_stream << indent << " type=\"string\"\n";
+				break;
+			case TYPE_UUID:
+				output_stream << indent << " type=\"uuid\"\n";
+				break;
+			case TYPE_NODEREF:
+				output_stream << indent << " type=\"noderef\"\n";
+				break;
+			default:
+				// default on switch(enum) eliminates a warning on linux
+				break;
+			};
+		}
 
-	// Precision
-	if (!has_default_precision && (mType == TYPE_INTEGER || mType == TYPE_FLOAT))
-	{
-		output_stream << indent << " precision=\"" << mPrecision << "\"\n";
-	}
+		// Encoding
+		if (!has_default_encoding)
+		{
+			switch (mEncoding)
+			{
+			case ENCODING_DECIMAL:
+				output_stream << indent << " encoding=\"decimal\"\n";
+				break;
+			case ENCODING_HEX:
+				output_stream << indent << " encoding=\"hex\"\n";
+				break;
+			/*case ENCODING_BASE32:
+				output_stream << indent << " encoding=\"base32\"\n";
+				break;*/
+			default:
+				// default on switch(enum) eliminates a warning on linux
+				break;
+			};
+		}
 
-	// Version
-	if (mVersionMajor > 0 || mVersionMinor > 0)
-	{
-		output_stream << indent << " version=\"" << mVersionMajor << "." << mVersionMinor << "\"\n";
-	}
+		// Precision
+		if (!has_default_precision && (mType == TYPE_INTEGER || mType == TYPE_FLOAT))
+		{
+			output_stream << indent << " precision=\"" << mPrecision << "\"\n";
+		}
 
-	// Array length
-	if (!has_default_length && mLength > 0)
-	{
-		output_stream << indent << " length=\"" << mLength << "\"\n";
+		// Version
+		if (mVersionMajor > 0 || mVersionMinor > 0)
+		{
+			output_stream << indent << " version=\"" << mVersionMajor << "." << mVersionMinor << "\"\n";
+		}
+
+		// Array length
+		if (!has_default_length && mLength > 0)
+		{
+			output_stream << indent << " length=\"" << mLength << "\"\n";
+		}
 	}
 
 	{
@@ -1039,12 +1042,13 @@ void LLXMLNode::writeToOstream(std::ostream& output_stream, const std::string& i
 			if (child->mDefault.isNull() || child->mDefault->mValue != child->mValue)
 			{
 				std::string attr = child->mName->mString;
-				if (attr == "id" ||
-					attr == "type" ||
-					attr == "encoding" ||
-					attr == "precision" ||
-					attr == "version" ||
-					attr == "length")
+				if (use_type_decorations
+					&& (attr == "id" ||
+						attr == "type" ||
+						attr == "encoding" ||
+						attr == "precision" ||
+						attr == "version" ||
+						attr == "length"))
 				{
 					continue; // skip built-in attributes
 				}
@@ -1074,7 +1078,7 @@ void LLXMLNode::writeToOstream(std::ostream& output_stream, const std::string& i
 			std::string next_indent = indent + "    ";
 			for (LLXMLNode* child = getFirstChild(); child; child = child->getNextSibling())
 			{
-				child->writeToOstream(output_stream, next_indent);
+				child->writeToOstream(output_stream, next_indent, use_type_decorations);
 			}
 		}
 		if (!mValue.empty())

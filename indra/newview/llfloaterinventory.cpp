@@ -42,7 +42,7 @@
 #include "llcallingcard.h"
 #include "llfloaterreg.h"
 #include "llsdserialize.h"
-#include "llsearcheditor.h"
+#include "llfiltereditor.h"
 #include "llspinctrl.h"
 #include "llui.h"
 #include "message.h"
@@ -530,10 +530,10 @@ BOOL LLFloaterInventory::postBuild()
 	}
 
 
-	mSearchEditor = getChild<LLSearchEditor>("inventory search editor");
-	if (mSearchEditor)
+	mFilterEditor = getChild<LLFilterEditor>("inventory search editor");
+	if (mFilterEditor)
 	{
-		mSearchEditor->setSearchCallback(boost::bind(&LLFloaterInventory::onSearchEdit, this, _1));
+		mFilterEditor->setCommitCallback(boost::bind(&LLFloaterInventory::onFilterEdit, this, _2));
 	}
 
 	// *TODO:Get the cost info from the server
@@ -598,9 +598,9 @@ void LLFloaterInventory::draw()
 		title << mFilterText;
 		setTitle(title.str());
 	}
-	if (mActivePanel && mSearchEditor)
+	if (mActivePanel && mFilterEditor)
 	{
-		mSearchEditor->setText(mActivePanel->getFilterSubString());
+		mFilterEditor->setText(mActivePanel->getFilterSubString());
 	}
 	LLFloater::draw();
 }
@@ -673,9 +673,9 @@ void LLOpenFoldersWithSelection::doFolder(LLFolderViewFolder* folder)
 void LLFloaterInventory::startSearch()
 {
 	// this forces focus to line editor portion of search editor
-	if (mSearchEditor)
+	if (mFilterEditor)
 	{
-		mSearchEditor->focusFirstItem(TRUE);
+		mFilterEditor->focusFirstItem(TRUE);
 	}
 }
 
@@ -715,8 +715,8 @@ BOOL LLFloaterInventory::handleKeyHere(KEY key, MASK mask)
 	if (root_folder)
 	{
 		// first check for user accepting current search results
-		if (mSearchEditor 
-			&& mSearchEditor->hasFocus()
+		if (mFilterEditor 
+			&& mFilterEditor->hasFocus()
 		    && (key == KEY_RETURN 
 		    	|| key == KEY_DOWN)
 		    && mask == MASK_NONE)
@@ -966,7 +966,7 @@ void LLFloaterInventory::onClearSearch()
 	}
 }
 
-void LLFloaterInventory::onSearchEdit(const std::string& search_string )
+void LLFloaterInventory::onFilterEdit(const std::string& search_string )
 {
 	if (search_string == "")
 	{

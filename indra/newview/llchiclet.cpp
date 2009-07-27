@@ -37,7 +37,7 @@
 #include "llbottomtray.h"
 #include "llgroupactions.h"
 #include "lliconctrl.h"
-#include "llimpanel.h"
+#include "llimpanel.h"				// LLFloaterIMPanel
 #include "llimview.h"
 #include "llfloatergroupinfo.h"
 #include "llmenugl.h"
@@ -203,6 +203,7 @@ LLIMChiclet::LLIMChiclet(const Params& p)
 , mSpeakerCtrl(NULL)
 , mShowSpeaker(p.show_speaker)
 , mPopupMenu(NULL)
+, mDockTongueVisible(false)
 {
 	LLChicletAvatarIconCtrl::Params avatar_params = p.avatar_icon;
 	mAvatarCtrl = LLUICtrlFactory::create<LLChicletAvatarIconCtrl>(avatar_params);
@@ -225,6 +226,11 @@ LLIMChiclet::LLIMChiclet(const Params& p)
 LLIMChiclet::~LLIMChiclet()
 {
 
+}
+
+void LLIMChiclet::setDockTongueVisible(bool visible)
+{
+	mDockTongueVisible = visible;
 }
 
 void LLIMChiclet::setCounter(S32 counter)
@@ -321,6 +327,13 @@ void LLIMChiclet::draw()
 {
 	LLUICtrl::draw();
 	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.0f,0.0f,0.0f,1.f), FALSE);
+
+	if (mDockTongueVisible)
+	{
+		LLUIImagePtr flyout_tongue = LLUI::getUIImage("windows/Flyout_Pointer.png");
+		// was previously AVATAR_WIDTH-16 and CHICLET_HEIGHT-6
+		flyout_tongue->draw( getRect().getWidth()-31, getRect().getHeight()-5);
+	}
 }
 
 BOOL LLIMChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
@@ -552,14 +565,6 @@ void LLChicletPanel::onChicletSizeChanged(LLChiclet* ctrl, const LLSD& param)
 
 void LLChicletPanel::onChicletClick(LLUICtrl*ctrl,const LLSD&param)
 {
-	LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(ctrl);
-	if (chiclet)
-	{
-		S32 x, y;
-		LLRect rect = getRect();
-		localPointToScreen(rect.getCenterX(), 0, &x, &y);
-		LLIMFloater::show(chiclet->getSessionId(), x);
-	}
 	mCommitSignal(ctrl,param);
 }
 
@@ -653,7 +658,7 @@ void LLChicletPanel::reshape(S32 width, S32 height, BOOL called_from_parent )
 		width, height - scroll_button_rect.getHeight()));
 
 	mScrollArea->setRect(LLRect(scroll_button_rect.getWidth() + SCROLL_BUTTON_PAD,
-		height + 1, width - scroll_button_rect.getWidth() - SCROLL_BUTTON_PAD, 0));
+		height + 7, width - scroll_button_rect.getWidth() - SCROLL_BUTTON_PAD, 0));
 
 	trimChiclets();
 

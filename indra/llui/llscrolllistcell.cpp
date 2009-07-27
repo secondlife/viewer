@@ -177,7 +177,6 @@ LLScrollListText::LLScrollListText(const LLScrollListCell::Params& p)
 	mFont(p.font),
 	mColor(p.color),
 	mUseColor(p.color.isProvided()),
-	mFontStyle(LLFontGL::NORMAL),
 	mFontAlignment(p.font_halign),
 	mVisible(p.visible),
 	mHighlightCount( 0 ),
@@ -238,6 +237,13 @@ void LLScrollListText::setColor(const LLColor4& color)
 void LLScrollListText::setText(const LLStringExplicit& text)
 {
 	mText = text;
+}
+
+void LLScrollListText::setFontStyle(const U8 font_style)
+{
+	LLFontDescriptor new_desc(mFont->getFontDesc());
+	new_desc.setStyle(font_style);
+	mFont = LLFontGL::getFont(new_desc);
 }
 
 //virtual
@@ -308,7 +314,7 @@ void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_col
 						display_color,
 						mFontAlignment,
 						LLFontGL::BOTTOM, 
-						mFontStyle,
+						0,
 						LLFontGL::NO_SHADOW,
 						string_chars, 
 						getWidth(),

@@ -62,7 +62,7 @@ S32 BTN_HEIGHT		= 0;
 
 LLButton::Params::Params()
 :	label_selected("label_selected"),				// requires is_toggle true
-	label_dropshadow("label_shadow", true),
+	label_shadow("label_shadow", true),
 	auto_resize("auto_resize", false),
 	image_unselected("image_unselected"),
 	image_selected("image_selected"),
@@ -133,7 +133,7 @@ LLButton::LLButton(const LLButton::Params& p)
 	mImageOverlayAlignment(LLFontGL::hAlignFromName(p.image_overlay_alignment)),
 	mIsToggle(p.is_toggle),
 	mScaleImage(p.scale_image),
-	mDropShadowedText(p.label_dropshadow),
+	mDropShadowedText(p.label_shadow),
 	mAutoResize(p.auto_resize),
 	mHAlign(p.font_halign),
 	mLeftHPad(p.pad_left),

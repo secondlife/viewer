@@ -299,6 +299,7 @@ set(viewer_SOURCE_FILES
     llpanelgroupnotices.cpp
     llpanelgrouproles.cpp
     llpanelinventory.cpp
+    llpanelimcontrolpanel.cpp
     llpanelland.cpp
     llpanellandmarks.cpp
     llpanellandmedia.cpp
@@ -734,6 +735,7 @@ set(viewer_HEADER_FILES
     llpanelgroupnotices.h
     llpanelgrouproles.h
     llpanelinventory.h
+    llpanelimcontrolpanel.h
     llpanelland.h
     llpanellandmarks.h
     llpanellandmedia.h

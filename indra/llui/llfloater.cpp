@@ -71,15 +71,8 @@ std::string	LLFloater::sButtonActiveImageNames[BUTTON_COUNT] =
 	"minimize.tga",	//BUTTON_MINIMIZE
 	"tearoffbox.tga",	//BUTTON_TEAR_OFF
 	"closebox.tga",		//BUTTON_EDIT
-};
-
-std::string	LLFloater::sButtonInactiveImageNames[BUTTON_COUNT] = 
-{
-	"close_inactive_blue.tga",	//BUTTON_CLOSE
-	"restore_inactive.tga",	//BUTTON_RESTORE
-	"minimize_inactive.tga",	//BUTTON_MINIMIZE
-	"tearoffbox.tga",	//BUTTON_TEAR_OFF
-	"close_inactive_blue.tga",	//BUTTON_EDIT
+	"Icon_Dock_Foreground",
+	"Icon_Undock_Foreground"
 };
 
 std::string	LLFloater::sButtonPressedImageNames[BUTTON_COUNT] = 
@@ -89,6 +82,8 @@ std::string	LLFloater::sButtonPressedImageNames[BUTTON_COUNT] =
 	"minimize_pressed.tga",	//BUTTON_MINIMIZE
 	"tearoff_pressed.tga",	//BUTTON_TEAR_OFF
 	"close_in_blue.tga",		//BUTTON_EDIT
+	"Icon_Dock_Press",
+	"Icon_Undock_Press"
 };
 
 std::string	LLFloater::sButtonNames[BUTTON_COUNT] = 
@@ -98,6 +93,8 @@ std::string	LLFloater::sButtonNames[BUTTON_COUNT] =
 	"llfloater_minimize_btn",	//BUTTON_MINIMIZE
 	"llfloater_tear_off_btn",	//BUTTON_TEAR_OFF
 	"llfloater_edit_btn",		//BUTTON_EDIT
+	"llfloater_dock_btn",
+	"llfloater_undock_btn"
 };
 
 std::string LLFloater::sButtonToolTips[BUTTON_COUNT] = {};
@@ -114,6 +111,8 @@ std::string LLFloater::sButtonToolTipsIndex[BUTTON_COUNT]=
 	"BUTTON_MINIMIZE",//LLTrans::getString("BUTTON_MINIMIZE"),	//"Minimize",	//BUTTON_MINIMIZE
 	"BUTTON_TEAR_OFF",//LLTrans::getString("BUTTON_TEAR_OFF"),	//"Tear Off",	//BUTTON_TEAR_OFF
 	"BUTTON_EDIT", //LLTrans::getString("BUTTON_EDIT"), //	"Edit",		//BUTTON_EDIT
+	"BUTTON_DOCK",
+	"BUTTON_UNDOCK"
 };
 
 LLFloater::click_callback LLFloater::sButtonCallbacks[BUTTON_COUNT] =
@@ -123,6 +122,8 @@ LLFloater::click_callback LLFloater::sButtonCallbacks[BUTTON_COUNT] =
 	LLFloater::onClickMinimize, //BUTTON_MINIMIZE
 	LLFloater::onClickTearOff,	//BUTTON_TEAR_OFF
 	LLFloater::onClickEdit,	//BUTTON_EDIT
+	LLFloater::onClickDock,
+	LLFloater::onClickDock
 };
 
 LLMultiFloater* LLFloater::sHostp = NULL;
@@ -189,6 +190,29 @@ bool LLFloater::KeyCompare::equate(const LLSD& a, const LLSD& b)
 
 //************************************
 
+LLFloater::Params::Params()
+:	title("title"),
+	short_title("short_title"),
+	single_instance("single_instance", false),
+	auto_tile("auto_tile", false),
+	can_resize("can_resize", false),
+	can_minimize("can_minimize", true),
+	can_close("can_close", true),
+	can_drag_on_left("can_drag_on_left", false),
+	can_tear_off("can_tear_off", true),
+	save_rect("save_rect", false),
+	save_visibility("save_visibility", false),
+	open_callback("open_callback"),
+	close_callback("close_callback"),
+	can_dock("can_dock", false)
+{
+	name = "floater";
+	// defaults that differ from LLPanel:
+	background_visible = true;
+	visible = false;
+}
+
+
 //static 
 const LLFloater::Params& LLFloater::getDefaultParams()
 {
@@ -217,6 +241,8 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 		mEditing(FALSE),
 		mButtonScale(1.0f),
 		mAutoFocus(TRUE), // automatically take focus when opened
+		mCanDock(false),
+		mDocked(false),
 		mHasBeenDraggedWhileMinimized(FALSE),
 		mPreviousMinimizedBottom(0),
 		mPreviousMinimizedLeft(0),
@@ -287,6 +313,11 @@ void LLFloater::initFloater()
 	if ( !mDragOnLeft && mCanMinimize )
 	{
 		mButtonsEnabled[BUTTON_MINIMIZE] = TRUE;
+	}
+
+	if(mCanDock)
+	{
+		mButtonsEnabled[BUTTON_DOCK] = TRUE;
 	}
 
 	buildButtons();
@@ -1305,6 +1336,36 @@ void LLFloater::setFrontmost(BOOL take_focus)
 	}
 }
 
+void LLFloater::setCanDock(bool b)
+{
+	if(b != mCanDock)
+	{
+		mCanDock = b;
+		if(mCanDock)
+		{
+			mButtonsEnabled[BUTTON_DOCK] = !mDocked;
+			mButtonsEnabled[BUTTON_UNDOCK] = mDocked;
+		}
+		else
+		{
+			mButtonsEnabled[BUTTON_DOCK] = FALSE;
+			mButtonsEnabled[BUTTON_UNDOCK] = FALSE;
+		}
+	}
+	updateButtons();
+}
+
+void LLFloater::setDocked(bool docked, bool pop_on_undock)
+{
+	if(docked != mDocked && mCanDock)
+	{
+		mDocked = docked;
+		mButtonsEnabled[BUTTON_DOCK] = !mDocked;
+		mButtonsEnabled[BUTTON_UNDOCK] = mDocked;
+		updateButtons();
+	}
+}
+
 //static
 void LLFloater::setEditModeEnabled(BOOL enable)
 {
@@ -1379,6 +1440,15 @@ void LLFloater::onClickEdit(LLFloater* self)
 	if (!self)
 		return;
 	self->mEditing = self->mEditing ? FALSE : TRUE;
+}
+
+// static
+void LLFloater::onClickDock(LLFloater* self)
+{
+	if(self && self->mCanDock)
+	{
+		self->setDocked(!self->mDocked, true);
+	}
 }
 
 // static 
@@ -2522,6 +2592,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	setCanTearOff(p.can_tear_off);
 	setCanMinimize(p.can_minimize);
 	setCanClose(p.can_close);
+	setCanDock(p.can_dock);
 	
 	mDragOnLeft = p.can_drag_on_left;
 	mResizable = p.can_resize;

@@ -35,7 +35,7 @@
 // libs
 #include "llfloaterreg.h"
 #include "llmenugl.h"
-#include "llsearcheditor.h"
+#include "llfiltereditor.h"
 #include "lltabcontainer.h"
 #include "lluictrlfactory.h"
 
@@ -306,7 +306,7 @@ public:
 LLPanelPeople::LLPanelPeople()
 	:	LLPanel(),
 		mFilterSubString(LLStringUtil::null),
-		mSearchEditor(NULL),
+		mFilterEditor(NULL),
 		mTabContainer(NULL),
 		mFriendList(NULL),
 		mNearbyList(NULL),
@@ -330,8 +330,8 @@ LLPanelPeople::~LLPanelPeople()
 
 BOOL LLPanelPeople::postBuild()
 {
-	mSearchEditor = getChild<LLSearchEditor>("filter_input");
-	mSearchEditor->setSearchCallback(boost::bind(&LLPanelPeople::onSearchEdit, this, _1));
+	mFilterEditor = getChild<LLFilterEditor>("filter_input");
+	mFilterEditor->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 
 	mTabContainer = getChild<LLTabContainer>("tabs");
 	mTabContainer->setCommitCallback(boost::bind(&LLPanelPeople::onTabSelected, this, _2));
@@ -609,7 +609,7 @@ void LLPanelPeople::reSelectedCurrentTab()
 	mTabContainer->selectTab(mTabContainer->getCurrentPanelIndex());
 }
 
-void LLPanelPeople::onSearchEdit(const std::string& search_string)
+void LLPanelPeople::onFilterEdit(const std::string& search_string)
 {
 	if (mFilterSubString == search_string)
 		return;
@@ -618,7 +618,7 @@ void LLPanelPeople::onSearchEdit(const std::string& search_string)
 
 	LLStringUtil::toUpper(mFilterSubString);
 	LLStringUtil::trimHead(mFilterSubString);
-	mSearchEditor->setText(mFilterSubString);
+	mFilterEditor->setText(mFilterSubString);
 
 	// Apply new filter to all tabs.
 	filterNearbyList();

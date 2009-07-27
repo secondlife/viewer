@@ -42,7 +42,7 @@
 #include "llpanelplaceinfo.h"
 
 class LLPanelPlacesTab;
-class LLSearchEditor;
+class LLFilterEditor;
 class LLTabContainer;
 
 class LLPanelPlaces : public LLPanel, LLInventoryObserver
@@ -55,7 +55,7 @@ public:
 	/*virtual*/ void changed(U32 mask);
 	/*virtual*/ void onOpen(const LLSD& key);
 
-	void onSearchEdit(const std::string& search_string);
+	void onFilterEdit(const std::string& search_string);
 	void onTabSelected();
 	//void onAddLandmarkButtonClicked();
 	//void onCopySLURLButtonClicked();
@@ -68,7 +68,7 @@ public:
 	void onAgentParcelChange();
 
 private:
-	LLSearchEditor*			mSearchEditor;
+	LLFilterEditor*			mFilterEditor;
 	LLPanelPlacesTab*		mActivePanel;
 	LLTabContainer*			mTabContainer;
 	LLPanelPlaceInfo*		mPlaceInfo;

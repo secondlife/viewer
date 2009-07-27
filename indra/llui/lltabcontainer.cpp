@@ -108,6 +108,7 @@ LLTabContainer::Params::Params()
 	tab_min_width("tab_min_width"),
 	tab_max_width("tab_max_width"),
 	hide_tabs("hide_tabs", false),
+	tab_padding_right("tab_padding_right"),
 	tab_top_image_unselected("tab_top_image_unselected"),
 	tab_top_image_selected("tab_top_image_selected"),
 	tab_bottom_image_unselected("tab_bottom_image_unselected"),

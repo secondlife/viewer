@@ -42,6 +42,7 @@
 #include "llmultisliderctrl.h"
 #include "llprogressbar.h"
 #include "llradiogroup.h"
+#include "llsearcheditor.h"
 #include "llscrollcontainer.h"
 #include "llscrollingpanellist.h"
 #include "llscrolllistctrl.h"
@@ -53,7 +54,7 @@
 #include "lltextbox.h"
 #include "lltexteditor.h"
 #include "llflyoutbutton.h"
-#include "llsearcheditor.h"
+#include "llfiltereditor.h"
 #include "lllayoutstack.h"
 
 void LLWidgetReg::initClass(bool register_widgets)
@@ -65,11 +66,11 @@ void LLWidgetReg::initClass(bool register_widgets)
 		LLDefaultChildRegistry::Register<LLButton> button("button");
 		LLDefaultChildRegistry::Register<LLCheckBoxCtrl> check_box("check_box");
 		LLDefaultChildRegistry::Register<LLComboBox> combo_box("combo_box");
+		LLDefaultChildRegistry::Register<LLFilterEditor> filter_editor("filter_editor");
 		LLDefaultChildRegistry::Register<LLFlyoutButton> flyout_button("flyout_button");
 		LLDefaultChildRegistry::Register<LLContainerView> container_view("container_view");
 		LLDefaultChildRegistry::Register<LLIconCtrl> icon("icon");
 		LLDefaultChildRegistry::Register<LLLineEditor> line_editor("line_editor");
-		LLDefaultChildRegistry::Register<LLSearchEditor> search_editor("search_editor");
 		LLDefaultChildRegistry::Register<LLMenuItemSeparatorGL> menu_item_separator("menu_item_separator");
 		LLDefaultChildRegistry::Register<LLMenuItemCallGL> menu_item_call_gl("menu_item_call");
 		LLDefaultChildRegistry::Register<LLMenuItemCheckGL> menu_item_check_gl("menu_item_check");
@@ -83,6 +84,7 @@ void LLWidgetReg::initClass(bool register_widgets)
 		LLDefaultChildRegistry::Register<LLProgressBar> progress_bar("progress_bar");
 		LLDefaultChildRegistry::Register<LLRadioGroup> radio_group("radio_group");
 		LLDefaultChildRegistry::Register<LLRadioCtrl> radio_item("radio_item");
+		LLDefaultChildRegistry::Register<LLSearchEditor> search_editor("search_editor");
 		LLDefaultChildRegistry::Register<LLScrollContainer> scroll_container("scroll_container");
 		LLDefaultChildRegistry::Register<LLScrollingPanelList> scrolling_panel_list("scrolling_panel_list");
 		LLDefaultChildRegistry::Register<LLScrollListCtrl> scroll_list("scroll_list");

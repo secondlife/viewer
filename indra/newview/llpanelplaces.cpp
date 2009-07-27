@@ -32,7 +32,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterreg.h"
-#include "llsearcheditor.h"
+#include "llfiltereditor.h"
 #include "lltabcontainer.h"
 #include "lluictrlfactory.h"
 
@@ -67,7 +67,7 @@ LLPanelPlaces::LLPanelPlaces()
 	:	LLPanel(),
 		mFilterSubString(LLStringUtil::null),
 		mActivePanel(NULL),
-		mSearchEditor(NULL),
+		mFilterEditor(NULL),
 		mPlaceInfo(NULL)
 {
 	gInventory.addObserver(this);
@@ -92,10 +92,10 @@ BOOL LLPanelPlaces::postBuild()
 		mTabContainer->setCommitCallback(boost::bind(&LLPanelPlaces::onTabSelected, this));
 	}
 
-	mSearchEditor = getChild<LLSearchEditor>("Filter");
-	if (mSearchEditor)
+	mFilterEditor = getChild<LLFilterEditor>("Filter");
+	if (mFilterEditor)
 	{
-		mSearchEditor->setSearchCallback(boost::bind(&LLPanelPlaces::onSearchEdit, this, _1));
+		mFilterEditor->setCommitCallback(boost::bind(&LLPanelPlaces::onFilterEdit, this, _2));
 	}
 
 	mPlaceInfo = getChild<LLPanelPlaceInfo>("panel_place_info", TRUE, FALSE);
@@ -187,7 +187,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	}
 }
 
-void LLPanelPlaces::onSearchEdit(const std::string& search_string)
+void LLPanelPlaces::onFilterEdit(const std::string& search_string)
 {
 	if (mFilterSubString != search_string)
 	{
@@ -196,7 +196,7 @@ void LLPanelPlaces::onSearchEdit(const std::string& search_string)
 		LLStringUtil::toUpper(mFilterSubString);
 		LLStringUtil::trimHead(mFilterSubString);
 
-		mSearchEditor->setText(mFilterSubString);
+		mFilterEditor->setText(mFilterSubString);
 
 		mActivePanel->onSearchEdit(mFilterSubString);
 	}
@@ -208,7 +208,7 @@ void LLPanelPlaces::onTabSelected()
 	if (!mActivePanel)
 		return;
 
-	onSearchEdit(mFilterSubString);	
+	onFilterEdit(mFilterSubString);	
 	mActivePanel->updateVerbs();
 }
 
@@ -274,7 +274,7 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 		return;
 
 	mPlaceInfo->setVisible(visible);
-	mSearchEditor->setVisible(!visible);
+	mFilterEditor->setVisible(!visible);
 	mTabContainer->setVisible(!visible);
 	
 	// Enable overflow button only for the information about agent's current location.

@@ -61,6 +61,7 @@ public:
 	{
 		Optional<LLUUID> agent_id;
 		Params()
+		:	agent_id("agent_id")
 		{
 			mouse_opaque(false);
 			follows.flags(FOLLOWS_ALL);

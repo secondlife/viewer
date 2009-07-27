@@ -113,14 +113,16 @@ void toast_callback(const LLSD& msg){
 LLIMModel::LLIMModel() 
 {
 	addChangedCallback(toast_callback);
+	addChangedCallback(LLIMFloater::newIMCallback);
 }
 
 
 void LLIMModel::testMessages()
 {
-	static LLUUID bot1_id, bot1_session_id;
-	if (bot1_id.isNull()) bot1_id.generate();
-	std::string from = "Bot1 TestLinden";
+	LLUUID bot1_id("d0426ec6-6535-4c11-a5d9-526bb0c654d9");
+	LLUUID bot1_session_id;
+	std::string from = "IM Tester";
+
 	bot1_session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, bot1_id);
 	newSession(bot1_session_id, from, IM_NOTHING_SPECIAL, bot1_id);
 	addMessage(bot1_session_id, from, "Test Message: Hi from testerbot land!");
@@ -158,7 +160,7 @@ bool LLIMModel::newSession(LLUUID session_id, std::string name, EInstantMessage 
 
 }
 
-std::list<LLSD> LLIMModel::getMessages(LLUUID session_id, int index)
+std::list<LLSD> LLIMModel::getMessages(LLUUID session_id, int start_index)
 {
 	std::list<LLSD> return_list;
 
@@ -170,7 +172,7 @@ std::list<LLSD> LLIMModel::getMessages(LLUUID session_id, int index)
 		return return_list;
 	}
 
-	int i = session->mMsgs.size() - index;
+	int i = session->mMsgs.size() - start_index;
 
 	for (std::list<LLSD>::iterator iter = session->mMsgs.begin(); 
 		iter != session->mMsgs.end() && i > 0;

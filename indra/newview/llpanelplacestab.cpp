@@ -31,12 +31,14 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llpanelplacestab.h"
+
 #include "llwindow.h"
 
 #include "llnotifications.h"
 
+#include "llbutton.h"
 #include "llslurl.h"
-#include "llpanelplacestab.h"
 #include "llworldmap.h"
 
 void LLPanelPlacesTab::setPanelPlacesButtons(LLPanelPlaces* panel)

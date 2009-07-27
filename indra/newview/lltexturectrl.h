@@ -84,7 +84,7 @@ public:
 
 		Params()
 		:	image_id("image"),
-			default_image_id("default_image"),
+			default_image_id("default_image_id"),
 			default_image_name("default_image_name"),
 			allow_no_texture("allow_no_texture"),
 			can_apply_immediately("can_apply_immediately"),

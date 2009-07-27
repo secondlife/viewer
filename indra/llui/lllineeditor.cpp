@@ -91,7 +91,11 @@ void LLLineEditor::PrevalidateNamedFuncs::declareValues()
 
 LLLineEditor::Params::Params()
 :	max_length_bytes("max_length", 254),
+    keystroke_callback("keystroke_callback"),
+	prevalidate_callback("prevalidate_callback"),
 	background_image("background_image"),
+	background_image_disabled("background_image_disabled"),
+	background_image_focused("background_image_focused"),
 	select_on_focus("select_on_focus", false),
 	handle_edit_keys_directly("handle_edit_keys_directly", false),
 	commit_on_focus_lost("commit_on_focus_lost", true),
@@ -100,9 +104,8 @@ LLLineEditor::Params::Params()
 	text_color("text_color"),
 	text_readonly_color("text_readonly_color"),
 	text_tentative_color("text_tentative_color"),
-	bg_readonly_color("bg_readonly_color"),
-	bg_writeable_color("bg_writeable_color"),
-	bg_focus_color("bg_focus_color"),
+	highlight_color("highlight_color"),
+	preedit_bg_color("preedit_bg_color"),
 	border(""),
 	is_unicode("is_unicode"),
 	drop_shadow_visible("drop_shadow_visible"),
@@ -145,18 +148,18 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mSelectAllonFocusReceived( p.select_on_focus ),
 	mPassDelete(FALSE),
 	mReadOnly(FALSE),
-	mImage( NULL ),
+	mBgImage( p.background_image ),
+	mBgImageDisabled( p.background_image_disabled ),
+	mBgImageFocused( p.background_image_focused ),
 	mReplaceNewlinesWithSpaces( TRUE ),
 	mLabel(p.label),
 	mCursorColor(p.cursor_color()),
 	mFgColor(p.text_color()),
 	mReadOnlyFgColor(p.text_readonly_color()),
 	mTentativeFgColor(p.text_tentative_color()),
-	mWriteableBgColor(p.bg_writeable_color()),
-	mReadOnlyBgColor(p.bg_readonly_color()),
-	mFocusBgColor(p.bg_focus_color()),
-	mGLFont(p.font),
-	mGLFontStyle(LLFontGL::getStyleFromString(p.font.style))
+	mHighlightColor(p.highlight_color()),
+	mPreeditBgColor(p.preedit_bg_color()),
+	mGLFont(p.font)
 {
 	llassert( mMaxLengthBytes > 0 );
 
@@ -182,11 +185,6 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	border_p.bevel_style = LLViewBorder::BEVEL_IN;
 	mBorder = LLUICtrlFactory::create<LLViewBorder>(border_p);
 	addChild( mBorder );
-
-	if(p.background_image.isProvided())
-	{
-		mImage = p.background_image;
-	}
 
 	// clamp text padding to current editor size
 	updateTextPadding();
@@ -237,6 +235,7 @@ void LLLineEditor::onFocusLost()
 	LLUICtrl::onFocusLost();
 }
 
+// virtual
 void LLLineEditor::onCommit()
 {
 	// put current line into the line history
@@ -245,6 +244,33 @@ void LLLineEditor::onCommit()
 	setControlValue(getValue());
 	LLUICtrl::onCommit();
 	selectAll();
+}
+
+// Returns TRUE if user changed value at all
+// virtual
+BOOL LLLineEditor::isDirty() const
+{
+	return mText.getString() != mPrevText;
+}
+
+// Clear dirty state
+// virtual
+void LLLineEditor::resetDirty()
+{
+	mPrevText = mText.getString();
+}		
+
+// assumes UTF8 text
+// virtual
+void LLLineEditor::setValue(const LLSD& value )
+{
+	setText(value.asString());
+}
+
+//virtual
+LLSD LLLineEditor::getValue() const
+{
+	return LLSD(getText());
 }
 
 
@@ -1497,6 +1523,33 @@ void LLLineEditor::doDelete()
 }
 
 
+void LLLineEditor::drawBackground()
+{
+	bool has_focus = hasFocus();
+	LLUIImage* image;
+	if ( mReadOnly )
+	{
+		image = mBgImageDisabled;
+	}
+	else if ( has_focus )
+	{
+		image = mBgImageFocused;
+	}
+	else
+	{
+		image = mBgImage;
+	}
+	
+	// optionally draw programmatic border
+	if (has_focus)
+	{
+		image->drawBorder(0, 0, getRect().getWidth(), getRect().getHeight(),
+						  gFocusMgr.getFocusColor(),
+						  gFocusMgr.getFocusFlashWidth());
+	}
+	image->draw(getLocalRect());
+}
+
 void LLLineEditor::draw()
 {
 	S32 text_len = mText.length();
@@ -1527,34 +1580,8 @@ void LLLineEditor::draw()
 	LLRect background( 0, getRect().getHeight(), getRect().getWidth(), 0 );
 	background.stretch( -mBorderThickness );
 
-	LLColor4 bg_color = mReadOnlyBgColor.get();
-
-#if 1 // for when we're ready for image art.
-	if( hasFocus())
-	{
-		mImage->drawBorder(0, 0, getRect().getWidth(), getRect().getHeight(), gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
-	}
-	mImage->draw(getLocalRect());
-#else // the old programmer art.
-	// drawing solids requires texturing be disabled
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		// draw background for text
-		if( !mReadOnly )
-		{
-			if( gFocusMgr.getKeyboardFocus() == this )
-			{
-				bg_color = mFocusBgColor.get();
-			}
-			else
-			{
-				bg_color = mWriteableBgColor.get();
-			}
-		}
-		gl_rect_2d(background, bg_color);
-	}
-#endif
-
+	drawBackground();
+	
 	// draw text
 
 	// With viewer-2 art files, input region is 2 pixels up
@@ -1600,7 +1627,8 @@ void LLLineEditor::draw()
 						background.mBottom + preedit_standout_position,
 						preedit_pixels_right - preedit_standout_gap - 1,
 						background.mBottom + preedit_standout_position - preedit_standout_thickness,
-						(text_color * preedit_standout_brightness + bg_color * (1 - preedit_standout_brightness)).setAlpha(1.0f));
+						(text_color * preedit_standout_brightness 
+						 + mPreeditBgColor * (1 - preedit_standout_brightness)).setAlpha(1.0f));
 				}
 				else
 				{
@@ -1608,7 +1636,8 @@ void LLLineEditor::draw()
 						background.mBottom + preedit_marker_position,
 						preedit_pixels_right - preedit_marker_gap - 1,
 						background.mBottom + preedit_marker_position - preedit_marker_thickness,
-						(text_color * preedit_marker_brightness + bg_color * (1 - preedit_marker_brightness)).setAlpha(1.0f));
+						(text_color * preedit_marker_brightness
+						 + mPreeditBgColor * (1 - preedit_marker_brightness)).setAlpha(1.0f));
 				}
 			}
 		}
@@ -1641,7 +1670,7 @@ void LLLineEditor::draw()
 				rendered_pixels_right, text_bottom,
 				text_color,
 				LLFontGL::LEFT, LLFontGL::BOTTOM,
-				mGLFontStyle,
+				0,
 				LLFontGL::NO_SHADOW,
 				select_left - mScrollHPos,
 				mMaxHPixels - llround(rendered_pixels_right),
@@ -1650,7 +1679,7 @@ void LLLineEditor::draw()
 		
 		if( (rendered_pixels_right < (F32)mMaxHPixels) && (rendered_text < text_len) )
 		{
-			LLColor4 color(1.f - bg_color.mV[0], 1.f - bg_color.mV[1], 1.f - bg_color.mV[2], 1.f);
+			LLColor4 color = mHighlightColor;
 			// selected middle
 			S32 width = mGLFont->getWidth(mText.getWString().c_str(), mScrollHPos + rendered_text, select_right - mScrollHPos - rendered_text);
 			width = llmin(width, mMaxHPixels - llround(rendered_pixels_right));
@@ -1661,7 +1690,7 @@ void LLLineEditor::draw()
 				rendered_pixels_right, text_bottom,
 				LLColor4( 1.f - text_color.mV[0], 1.f - text_color.mV[1], 1.f - text_color.mV[2], 1 ),
 				LLFontGL::LEFT, LLFontGL::BOTTOM,
-				mGLFontStyle,
+				0,
 				LLFontGL::NO_SHADOW,
 				select_right - mScrollHPos - rendered_text,
 				mMaxHPixels - llround(rendered_pixels_right),
@@ -1676,7 +1705,7 @@ void LLLineEditor::draw()
 				rendered_pixels_right, text_bottom,
 				text_color,
 				LLFontGL::LEFT, LLFontGL::BOTTOM,
-				mGLFontStyle,
+				0,
 				LLFontGL::NO_SHADOW,
 				S32_MAX,
 				mMaxHPixels - llround(rendered_pixels_right),
@@ -1690,7 +1719,7 @@ void LLLineEditor::draw()
 			rendered_pixels_right, text_bottom,
 			text_color,
 			LLFontGL::LEFT, LLFontGL::BOTTOM,
-			mGLFontStyle,
+			0,
 			LLFontGL::NO_SHADOW,
 			S32_MAX,
 			mMaxHPixels - llround(rendered_pixels_right),
@@ -1728,7 +1757,7 @@ void LLLineEditor::draw()
 					mGLFont->render(mText, getCursor(), (F32)(cursor_left + lineeditor_cursor_thickness / 2), text_bottom, 
 						LLColor4( 1.f - text_color.mV[0], 1.f - text_color.mV[1], 1.f - text_color.mV[2], 1 ),
 						LLFontGL::LEFT, LLFontGL::BOTTOM,
-						mGLFontStyle,
+						0,
 						LLFontGL::NO_SHADOW,
 						1);
 				}
@@ -1754,7 +1783,7 @@ void LLLineEditor::draw()
 							label_color,
 							LLFontGL::LEFT,
 							LLFontGL::BOTTOM,
-							mGLFontStyle,
+							0,
 							LLFontGL::NO_SHADOW,
 							S32_MAX,
 							mMaxHPixels - llround(rendered_pixels_right),
@@ -1779,7 +1808,7 @@ void LLLineEditor::draw()
 							label_color,
 							LLFontGL::LEFT,
 							LLFontGL::BOTTOM,
-							mGLFontStyle,
+							0,
 							LLFontGL::NO_SHADOW,
 							S32_MAX,
 							mMaxHPixels - llround(rendered_pixels_right),

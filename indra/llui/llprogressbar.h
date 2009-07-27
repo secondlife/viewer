@@ -43,12 +43,9 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
 		Optional<LLUIImage*>	image_bar,
-								image_fill,
-								image_shadow;
+								image_fill;
 
 		Optional<LLUIColor>		color_bar,
-								color_bar2,
-								color_shadow,
 								color_bg;
 
 		Params();
@@ -65,10 +62,7 @@ private:
 
 	LLPointer<LLUIImage>	mImageBar;
 	LLUIColor	mColorBar;
-	LLUIColor	mColorBar2;
 
-	LLPointer<LLUIImage>	mImageShadow;
-	LLUIColor    mColorShadow;
 	LLUIColor    mColorBackground;
 	
 	LLPointer<LLUIImage>	mImageFill;

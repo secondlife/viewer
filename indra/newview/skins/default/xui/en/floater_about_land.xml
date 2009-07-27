@@ -1147,7 +1147,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
                  name="online_status"
                  width="-1" />
                 <name_list.columns
-                 dynamicwidth="true"
+                 dynamic_width="true"
                  label="Name"
                  name="name" />
                 <name_list.columns

@@ -367,7 +367,7 @@ void	LLChatItemsContainerCtrl::updateLayout				(S32 width, S32 height)
 	}
 
 
-	//set sizes for first pannels and dragbars
+	//set sizes for first panels and dragbars
 	for(size_t i=0;i<mItems.size();++i)
 	{
 		LLRect panel_rect = mItems[i]->getRect();

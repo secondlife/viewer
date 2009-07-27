@@ -294,7 +294,7 @@ public:
 		Optional<LLSD>							payload;
 		Optional<ENotificationPriority>			priority;
 		Optional<LLSD>							form_elements;
-		Optional<LLDate>						timestamp;
+		Optional<LLDate>						time_stamp;
 		Optional<LLNotificationContext*>		context;
 
 		struct Functor : public LLInitParam::Choice<Functor>
@@ -312,19 +312,23 @@ public:
 		Params()
 		:	name("name"),
 			priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
-			timestamp("time_stamp")
+			time_stamp("time_stamp"),
+			payload("payload"),
+			form_elements("form_elements")
 		{
-			timestamp = LLDate::now();
+			time_stamp = LLDate::now();
 		}
 
 		Params(const std::string& _name) 
-			:	name("name"),
-				priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
-				timestamp("time_stamp")
+		:	name("name"),
+			priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
+			time_stamp("time_stamp"),
+			payload("payload"),
+			form_elements("form_elements")
 		{
 			functor.name = _name;
 			name = _name;
-			timestamp = LLDate::now();
+			time_stamp = LLDate::now();
 		}
 	};
 

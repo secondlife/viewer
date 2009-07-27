@@ -156,9 +156,9 @@
    width="200">
     Line Editor Sample Text
   </line_editor>
-  <!-- "search_editor" is a specialized line_editor that shows read-only
+  <!-- "filter_editor" is a specialized line_editor that shows read-only
        help text until the user clicks in the widget. -->
-  <search_editor
+  <filter_editor
    follows="left|top|right"
    height="20"
    label="Type here to search"
@@ -230,11 +230,11 @@
    tool_tip="scroll list" 
    layout="topleft">
     <scroll_list.columns
-     dynamicwidth="true"
+     dynamic_width="true"
      name="first_column"
      label="Column A"/>
     <scroll_list.columns
-     dynamicwidth="true"
+     dynamic_width="true"
      name="second_column"
      label="Column B"/>
   </scroll_list>

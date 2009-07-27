@@ -8091,7 +8091,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>1</real>
+      <integer>4</integer>
     </map>
     <key>UIPreeditMarkerThickness</key>
     <map>
@@ -8135,7 +8135,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>2</real>
+      <integer>4</integer>
     </map>
     <key>UIPreeditStandoutThickness</key>
     <map>
@@ -8146,7 +8146,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>2</real>
+      <integer>2</integer>
     </map>
     <key>UIResizeBarHeight</key>
     <map>

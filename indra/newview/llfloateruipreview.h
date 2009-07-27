@@ -49,6 +49,7 @@ class LLColor;
 class LLScrollListCtrl;
 class LLComboBox;
 class LLButton;
+class LLLineEditor;
 class LLXmlTreeNode;
 class LLFloaterUIPreview;
 class LLFadeEventTimer;

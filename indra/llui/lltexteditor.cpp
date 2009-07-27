@@ -36,6 +36,7 @@
 
 #include "lltexteditor.h"
 
+#include "llfontfreetype.h" // for LLFontFreetype::FIRST_CHAR
 #include "llfontgl.h"
 #include "llrender.h"
 #include "llui.h"
@@ -227,6 +228,29 @@ private:
 
 
 ///////////////////////////////////////////////////////////////////
+LLTextEditor::Params::Params()
+:	default_text("default_text"),
+	max_text_length("max_length", 255),
+	read_only("read_only", false),
+	embedded_items("embedded_items", false),
+	hide_scrollbar("hide_scrollbar", false),
+	hide_border("hide_border", false),
+	word_wrap("word_wrap", false),
+	ignore_tab("ignore_tab", true),
+	track_bottom("track_bottom", false),
+	takes_non_scroll_clicks("takes_non_scroll_clicks", true),
+	cursor_color("cursor_color"),
+	default_color("default_color"),
+	text_color("text_color"),
+	text_readonly_color("text_readonly_color"),
+	bg_readonly_color("bg_readonly_color"),
+	bg_writeable_color("bg_writeable_color"),
+	bg_focus_color("bg_focus_color"),
+	length("length"),		// ignored
+	type("type"),			// ignored
+	is_unicode("is_unicode")// ignored
+{}
+
 LLTextEditor::LLTextEditor(const LLTextEditor::Params& p)
 	:	LLUICtrl(p, LLTextViewModelPtr(new LLTextViewModel)),
 	mMaxTextByteLength( p.max_text_length ),
@@ -254,7 +278,7 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p)
 	mHideScrollbarForShortDocs( FALSE ),
 	mTakesNonScrollClicks( p.takes_non_scroll_clicks ),
 	mTrackBottom( p.track_bottom ),
-	mAllowEmbeddedItems( p.allow_embedded_items ),
+	mAllowEmbeddedItems( p.embedded_items ),
 	mHandleEditKeysDirectly( FALSE ),
 	mMouseDownX(0),
 	mMouseDownY(0),
@@ -263,8 +287,7 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p)
 	mScrollNeeded(FALSE),
 	mLastSelectionY(-1),
 	mTabsToNextField(p.ignore_tab),
-	mGLFont(p.font),
-	mGLFontStyle(LLFontGL::getStyleFromString(p.font.style))
+	mGLFont(p.font)
 {
 	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
 
@@ -1930,7 +1953,7 @@ void LLTextEditor::pasteHelper(bool is_primary)
 		for( S32 i = 0; i < len; i++ )
 		{
 			llwchar wc = clean_string[i];
-			if( (wc < LLFont::FIRST_CHAR) && (wc != LF) )
+			if( (wc < LLFontFreetype::FIRST_CHAR) && (wc != LF) )
 			{
 				clean_string[i] = LL_UNKNOWN_CHAR;
 			}
@@ -3101,7 +3124,7 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 		S32 start = seg_start;
 		S32 end = llmin( selection_left, seg_end );
 		S32 length =  end - start;
-		font->render(text, start, x, y_top, color, LLFontGL::LEFT, LLFontGL::TOP, mGLFontStyle, LLFontGL::NO_SHADOW, length, S32_MAX, right_x, mAllowEmbeddedItems);
+		font->render(text, start, x, y_top, color, LLFontGL::LEFT, LLFontGL::TOP, 0, LLFontGL::NO_SHADOW, length, S32_MAX, right_x, mAllowEmbeddedItems);
 	}
 	x = *right_x;
 	
@@ -3114,7 +3137,7 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 
 		font->render(text, start, x, y_top,
 					 LLColor4( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], 1.f ),
-					 LLFontGL::LEFT, LLFontGL::TOP, mGLFontStyle, LLFontGL::NO_SHADOW, length, S32_MAX, right_x, mAllowEmbeddedItems);
+					 LLFontGL::LEFT, LLFontGL::TOP, 0, LLFontGL::NO_SHADOW, length, S32_MAX, right_x, mAllowEmbeddedItems);
 	}
 	x = *right_x;
 	if( selection_right < seg_end )
@@ -3123,7 +3146,7 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 		S32 start = llmax( selection_right, seg_start );
 		S32 end = seg_end;
 		S32 length = end - start;
-		font->render(text, start, x, y_top, color, LLFontGL::LEFT, LLFontGL::TOP, mGLFontStyle, LLFontGL::NO_SHADOW, length, S32_MAX, right_x, mAllowEmbeddedItems);
+		font->render(text, start, x, y_top, color, LLFontGL::LEFT, LLFontGL::TOP, 0, LLFontGL::NO_SHADOW, length, S32_MAX, right_x, mAllowEmbeddedItems);
 	}
  }
 

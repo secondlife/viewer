@@ -32,11 +32,14 @@
 
 #include "llviewerprecompiledheaders.h" // must be first include
 #include "llbottomtray.h"
+
 #include "llagent.h"
 #include "llchiclet.h"
 #include "llfloaterreg.h"
 #include "llflyoutbutton.h"
+#include "llimpanel.h"
 #include "llkeyboard.h"
+#include "lllineeditor.h"
 #include "llgesturemgr.h"
 #include "llanimationstates.h"
 #include "llmultigesture.h"
@@ -233,7 +236,13 @@ void LLBottomTray::onChicletClick(LLUICtrl* ctrl)
 	LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(ctrl);
 	if (chiclet)
 	{
+		// Until you can type into an IM Window and have a conversation,
+		// still show the old communicate window
 		LLFloaterReg::showInstance("communicate", chiclet->getSessionId());
+		// DISABLED IN VIEWER-2 BRANCH UNTIL FEATURE IS DONE -- James
+		//// Show after comm window so it is frontmost (and hence will not
+		//// auto-hide)
+		//LLIMFloater::show(chiclet->getSessionId());
 	}
 }
 

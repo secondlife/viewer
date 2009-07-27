@@ -174,7 +174,7 @@ LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification) : LLToas
 		params.max_text_length(MAX_LENGTH);
 		params.default_text(mMessage);
 		params.font(sFont);
-		params.allow_embedded_items(false);
+		params.embedded_items(false);
 		params.word_wrap(true);
 		params.tab_stop(false);
 		params.mouse_opaque(false);

@@ -163,6 +163,15 @@
          tool_tip="Closes the currently-displayed floater, if one exists"
          top_delta="0"
          width="85" />
+        <button
+         follows="left|top"
+         height="25"
+         label="Export Schema"
+         layout="topleft"
+         left_pad="10"
+         name="export_schema"
+         top_delta="0"
+         width="120" />
         <scroll_list
          bottom="525"
          column_padding="0"
@@ -185,7 +194,7 @@
              name="file_column"
              width="150" />
             <scroll_list.columns
-             dynamicwidth="true"
+             dynamic_width="true"
              label="Top-Level Node"
              name="top_level_node_column" />
         </scroll_list>

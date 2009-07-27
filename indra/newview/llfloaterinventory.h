@@ -64,7 +64,7 @@ class LLScrollContainer;
 class LLTextBox;
 class LLIconCtrl;
 class LLSaveFolderState;
-class LLSearchEditor;
+class LLFilterEditor;
 class LLTabContainer;
 
 class LLInventoryPanel : public LLPanel
@@ -267,7 +267,7 @@ public:
 	void onClearSearch();
 	static void onFoldersByName(void *user_data);
 	static BOOL checkFoldersByName(void *user_data);
-	void onSearchEdit(const std::string& search_string );
+	void onFilterEdit(const std::string& search_string );
 	static BOOL incrementalFind(LLFolderViewItem* first_item, const char *find_text, BOOL backward);
 	void onFilterSelected();
 
@@ -291,7 +291,7 @@ public:
 	LLFloaterInventoryFinder* getFinder() { return (LLFloaterInventoryFinder*)mFinderHandle.get(); }
 
 protected:
-	LLSearchEditor*				mSearchEditor;
+	LLFilterEditor*				mFilterEditor;
 	LLTabContainer*				mFilterTabs;
 	LLHandle<LLFloater>			mFinderHandle;
 	LLInventoryPanel*			mActivePanel;

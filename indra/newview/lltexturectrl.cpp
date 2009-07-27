@@ -60,7 +60,7 @@
 #include "llscrollcontainer.h"
 #include "lltoolmgr.h"
 #include "lltoolpipette.h"
-#include "llsearcheditor.h"
+#include "llfiltereditor.h"
 
 #include "lltool.h"
 #include "llviewerwindow.h"
@@ -130,7 +130,7 @@ public:
 	void updateFilterPermMask();
 	void commitIfImmediateSet();
 	
-	void onSearchEdit(const std::string& search_string );
+	void onFilterEdit(const std::string& search_string );
 	
 	static void		onBtnSetToDefault( void* userdata );
 	static void		onBtnSelect( void* userdata );
@@ -164,7 +164,7 @@ protected:
 	std::string			mPendingName;
 	BOOL				mActive;
 
-	LLSearchEditor*		mSearchEdit;
+	LLFilterEditor*		mFilterEdit;
 	LLInventoryPanel*	mInventoryPanel;
 	PermissionMask		mImmediateFilterPermMask;
 	PermissionMask		mNonImmediateFilterPermMask;
@@ -191,7 +191,7 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mTentativeLabel(NULL),
 	mResolutionLabel(NULL),
 	mActive( TRUE ),
-	mSearchEdit(NULL),
+	mFilterEdit(NULL),
 	mImmediateFilterPermMask(immediate_filter_perm_mask),
 	mNonImmediateFilterPermMask(non_immediate_filter_perm_mask),
 	mContextConeOpacity(0.f)
@@ -335,9 +335,9 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 {
 	LLFolderView* root_folder = mInventoryPanel->getRootFolder();
 
-	if (root_folder && mSearchEdit)
+	if (root_folder && mFilterEdit)
 	{
-		if (mSearchEdit->hasFocus() 
+		if (mFilterEdit->hasFocus() 
 			&& (key == KEY_RETURN || key == KEY_DOWN) 
 			&& mask == MASK_NONE)
 		{
@@ -362,7 +362,7 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 		
 		if (mInventoryPanel->hasFocus() && key == KEY_UP)
 		{
-			mSearchEdit->focusFirstItem(TRUE);
+			mFilterEdit->focusFirstItem(TRUE);
 		}
 	}
 
@@ -404,8 +404,8 @@ BOOL LLFloaterTexturePicker::postBuild()
 	childSetCommitCallback("show_folders_check", onShowFolders, this);
 	childSetVisible("show_folders_check", FALSE);
 
-	mSearchEdit = getChild<LLSearchEditor>("inventory search editor");
-	mSearchEdit->setSearchCallback(boost::bind(&LLFloaterTexturePicker::onSearchEdit, this, _1));
+	mFilterEdit = getChild<LLFilterEditor>("inventory search editor");
+	mFilterEdit->setCommitCallback(boost::bind(&LLFloaterTexturePicker::onFilterEdit, this, _2));
 
 	mInventoryPanel = getChild<LLInventoryPanel>("inventory panel");
 
@@ -524,7 +524,7 @@ void LLFloaterTexturePicker::draw()
 	childSetValue("Pipette", LLToolMgr::getInstance()->getCurrentTool() == LLToolPipette::getInstance());
 
 	//RN: reset search bar to reflect actual search query (all caps, for example)
-	mSearchEdit->setText(mInventoryPanel->getFilterSubString());
+	mFilterEdit->setText(mInventoryPanel->getFilterSubString());
 
 	//BOOL allow_copy = FALSE;
 	if( mOwner ) 
@@ -797,7 +797,7 @@ void LLFloaterTexturePicker::updateFilterPermMask()
 	//mInventoryPanel->setFilterPermMask( getFilterPermMask() );  Commented out due to no-copy texture loss.
 }
 
-void LLFloaterTexturePicker::onSearchEdit(const std::string& search_string )
+void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
 {
 	std::string upper_case_search_string = search_string;
 	LLStringUtil::toUpper(upper_case_search_string);

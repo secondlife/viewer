@@ -52,7 +52,8 @@ LLColor4	LLOutputMonitorCtrl::sColorBound;
 //F32			LLOutputMonitorCtrl::sRectHeightRatio	= 0.f;
 
 LLOutputMonitorCtrl::Params::Params()
-:	image_mute("image_mute"),
+:	draw_border("draw_border"),
+	image_mute("image_mute"),
 	image_off("image_off"),
 	image_on("image_on"),
 	image_level_1("image_level_1"),

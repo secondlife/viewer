@@ -43,6 +43,7 @@
 #include "llerror.h"
 #include "lltimer.h"
 
+#include "llbutton.h"
 #include "llmenugl.h"
 //#include "llstatusbar.h"
 #include "llui.h"
@@ -53,7 +54,6 @@
 #include "lluictrl.h"
 #include "lluictrlfactory.h"
 #include "llviewborder.h"
-#include "llbutton.h"
 #include "lltabcontainer.h"
 
 static LLDefaultChildRegistry::Register<LLPanel> r1("panel", &LLPanel::fromXML);
@@ -65,6 +65,7 @@ const LLPanel::Params& LLPanel::getDefaultParams()
 
 LLPanel::Params::Params()
 :	has_border("border", false),
+	border(""),
 	bg_opaque_color("bg_opaque_color"),
 	bg_alpha_color("bg_alpha_color"),
 	background_visible("background_visible", false),
@@ -430,7 +431,7 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 		it != p.strings().end();
 		++it)
 	{
-		mUIStrings[it->name] = it->text;
+		mUIStrings[it->name] = it->value;
 	}
 
 	setLabel(p.label());

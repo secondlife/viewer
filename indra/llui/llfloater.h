@@ -102,6 +102,8 @@ public:
 		BUTTON_MINIMIZE,
 		BUTTON_TEAR_OFF,
 		BUTTON_EDIT,
+		BUTTON_DOCK,
+		BUTTON_UNDOCK,
 		BUTTON_COUNT
 	};
 	
@@ -120,7 +122,7 @@ public:
 	{
 		Optional<close_callback_t> function;
 	};
-	 	
+
 	struct Params 
 	:	public LLInitParam::Block<Params, LLPanel::Params>
 	{
@@ -135,31 +137,13 @@ public:
 								can_drag_on_left,
 								can_tear_off,
 								save_rect,
-								save_visibility;
+								save_visibility,
+								can_dock;
 		
 		Optional<OpenCallbackParam> open_callback;
 		Optional<CloseCallbackParam> close_callback;
 		
-		Params() :
-			title("title"),
-			short_title("short_title"),
-			single_instance("single_instance", false),
-			auto_tile("auto_tile", false),
-			can_resize("can_resize", false),
-			can_minimize("can_minimize", true),
-			can_close("can_close", true),
-			can_drag_on_left("can_drag_on_left", false),
-			can_tear_off("can_tear_off", true),
-			save_rect("save_rect", false),
-			save_visibility("save_visibility", false),
-		    open_callback("open_callback"),
-			close_callback("close_callback")
-		{
-			name = "floater";
-			// defaults that differ from LLPanel:
-			background_visible = true;
-			visible = false;
-		}
+		Params();
 	};
 	
 	// use this to avoid creating your own default LLFloater::Param instance
@@ -267,6 +251,12 @@ public:
 	const LLSD& 	getKey() { return mKey; }
 	BOOL		 	matchesKey(const LLSD& key) { return mSingleInstance || KeyCompare::equate(key, mKey); }
 
+	bool            isDockable() const { return mCanDock; }
+	void            setCanDock(bool b);
+
+	bool            isDocked() const { return mDocked; }
+	virtual void    setDocked(bool docked, bool pop_on_undock = true);
+
 	// Return a closeable floater, if any, given the current focus.
 	static LLFloater* getClosableFloaterFromFocus(); 
 
@@ -283,6 +273,7 @@ public:
 	static void		onClickMinimize(LLFloater* floater);
 	static void		onClickTearOff(LLFloater* floater);
 	static void		onClickEdit(LLFloater* floater);
+	static void     onClickDock(LLFloater* floater);
 
 	static void		setFloaterHost(LLMultiFloater* hostp) {sHostp = hostp; }
 	static void		setEditModeEnabled(BOOL enable);
@@ -378,11 +369,13 @@ private:
 	LLHandle<LLFloater> mHostHandle;
 	LLHandle<LLFloater> mLastHostHandle;
 
+	bool            mCanDock;
+	bool            mDocked;
+
 	static LLMultiFloater* sHostp;
 	static BOOL		sEditModeEnabled;
 	static BOOL		sQuitting;
 	static std::string	sButtonActiveImageNames[BUTTON_COUNT];
-	static std::string	sButtonInactiveImageNames[BUTTON_COUNT];
 	static std::string	sButtonPressedImageNames[BUTTON_COUNT];
 	static std::string	sButtonNames[BUTTON_COUNT];
 	static std::string	sButtonToolTips[BUTTON_COUNT];

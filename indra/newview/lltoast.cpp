@@ -32,8 +32,10 @@
 
 #include "llviewerprecompiledheaders.h" // must be first include
 
-#include "llfocusmgr.h"
 #include "lltoast.h"
+
+#include "llbutton.h"
+#include "llfocusmgr.h"
 
 using namespace LLNotificationsUI;
 

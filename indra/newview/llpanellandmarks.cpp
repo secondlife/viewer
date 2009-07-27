@@ -33,6 +33,7 @@
 
 #include "llpanellandmarks.h"
 
+#include "llbutton.h"
 #include "llfloaterreg.h"
 #include "lllandmark.h"
 

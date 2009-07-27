@@ -7,9 +7,10 @@
   height="465"
   follows="left|top|right|bottom"  
   background_visible="true"
+  bg_alpha_color="0.3 0.3 0.3 1"
   label="People"
   name="people_panel">
- <search_editor
+  <filter_editor
     layout="topleft"
     top="3"
     left="15"

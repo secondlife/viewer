@@ -29,7 +29,7 @@
          tool_tip="Online status"
          width="20" />
         <scroll_list.columns
-         dynamicwidth="true"
+         dynamic_width="true"
          label="Name"
          name="friend_name"
          tool_tip="Name" />

@@ -77,6 +77,7 @@ const S32 HPAD = 4;
 const S32 VPAD = 4;
 const S32 FLOATER_H_MARGIN = 15;
 const S32 MIN_WIDGET_HEIGHT = 10;
+const S32 MAX_STRING_ATTRIBUTE_SIZE = 40;
 
 LLFastTimer::DeclareTimer FTM_WIDGET_CONSTRUCTION("Widget Construction");
 LLFastTimer::DeclareTimer FTM_INIT_FROM_PARAMS("Widget InitFromParams");
@@ -449,177 +450,6 @@ void LLUICtrlFactory::popFactoryFunctions()
 	}
 }
 
-
-//
-// LLRNGWriter - writes Relax NG schema files based on a param block
-//
-LLRNGWriter::LLRNGWriter()
-{
-	// register various callbacks for inspecting the contents of a param block
-	registerInspectFunc<bool>(boost::bind(&LLRNGWriter::writeAttribute, this, "boolean", _1, _2, _3, _4));
-	registerInspectFunc<std::string>(boost::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
-	registerInspectFunc<U8>(boost::bind(&LLRNGWriter::writeAttribute, this, "unsignedByte", _1, _2, _3, _4));
-	registerInspectFunc<S8>(boost::bind(&LLRNGWriter::writeAttribute, this, "signedByte", _1, _2, _3, _4));
-	registerInspectFunc<U16>(boost::bind(&LLRNGWriter::writeAttribute, this, "unsignedShort", _1, _2, _3, _4));
-	registerInspectFunc<S16>(boost::bind(&LLRNGWriter::writeAttribute, this, "signedShort", _1, _2, _3, _4));
-	registerInspectFunc<U32>(boost::bind(&LLRNGWriter::writeAttribute, this, "unsignedInt", _1, _2, _3, _4));
-	registerInspectFunc<S32>(boost::bind(&LLRNGWriter::writeAttribute, this, "integer", _1, _2, _3, _4));
-	registerInspectFunc<F32>(boost::bind(&LLRNGWriter::writeAttribute, this, "float", _1, _2, _3, _4));
-	registerInspectFunc<F64>(boost::bind(&LLRNGWriter::writeAttribute, this, "double", _1, _2, _3, _4));
-	registerInspectFunc<LLColor4>(boost::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
-	registerInspectFunc<LLUIColor>(boost::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
-	registerInspectFunc<LLUUID>(boost::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
-	registerInspectFunc<LLSD>(boost::bind(&LLRNGWriter::writeAttribute, this, "string", _1, _2, _3, _4));
-}
-
-void LLRNGWriter::writeRNG(const std::string& type_name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace)
-{
-	mGrammarNode = node;
-	mGrammarNode->setName("grammar");
-	mGrammarNode->createChild("xmlns", true)->setStringValue("http://relaxng/ns/structure/1.0");
-	mGrammarNode->createChild("datatypeLibrary", true)->setStringValue("http://www.w3.org/2001/XMLSchema-datatypes");
-	mGrammarNode->createChild("ns", true)->setStringValue(xml_namespace);
-
-	node = mGrammarNode->createChild("start", false);
-	node = node->createChild("ref", false);
-	node->createChild("name", true)->setStringValue(type_name);
-	
-	node = mGrammarNode->createChild("define", false);
-	node->createChild("name", true)->setStringValue(type_name);
-
-	mElementNode = node->createChild("element", false);
-	mElementNode->createChild("name", true)->setStringValue(type_name);
-
-	block.inspectBlock(*this);
-}
-
-void LLRNGWriter::writeAttribute(const std::string& type, const Parser::name_stack_t& stack, S32 min_count, S32 max_count, const std::vector<std::string>* possible_values)
-{
-	name_stack_t non_empty_names;
-	std::string attribute_name;
-	for (name_stack_t::const_iterator it = stack.begin();
-		it != stack.end();
-		++it)
-	{
-		const std::string& name = it->first;
-		if (!name.empty())
-		{
-			non_empty_names.push_back(*it);
-		}
-	}
-
-	if (non_empty_names.empty()) return;
-
-	for (name_stack_t::const_iterator it = non_empty_names.begin();
-		it != non_empty_names.end();
-		++it)
-	{
-		if (!attribute_name.empty())
-		{
-			attribute_name += ".";
-		}
-		attribute_name += it->first;
-	}
-
-	// singular attribute
-	if (non_empty_names.size() == 1)
-	{
-		if (max_count == 1)
-		{
-			LLXMLNodePtr node = getCardinalityNode(mElementNode, min_count, max_count)->createChild("attribute", false);
-			node->createChild("name", true)->setStringValue(attribute_name);
-			node->createChild("data", false)->createChild("type", true)->setStringValue(type);
-		}
-	}
-	// compound attribute
-	else
-	{
-		std::string element_name;
-
-		// traverse all but last element, leaving that as an attribute name
-		name_stack_t::const_iterator end_it = non_empty_names.end();
-		end_it--;
-
-		for (name_stack_t::const_iterator it = non_empty_names.begin();
-			it != end_it;
-			++it)
-		{
-			if (it != non_empty_names.begin())
-			{
-				element_name += ".";
-			}
-			element_name += it->first;
-		}
-
-		elements_map_t::iterator found_it = mElementsWritten.find(element_name);
-		if (found_it != mElementsWritten.end())
-		{
-			// reuse existing element
-			LLXMLNodePtr choice_node = found_it->second;
-
-			LLXMLNodePtr node = choice_node->mChildren->head;
-			node = getCardinalityNode(node, min_count, max_count)->createChild("attribute", false);
-			node->createChild("name", true)->setStringValue(attribute_name);
-			node->createChild("data", false)->createChild("type", true)->setStringValue(type);
-
-			node = choice_node->mChildren->head->mNext->mChildren->head;
-			node = getCardinalityNode(node, min_count, max_count)->createChild("attribute", false);
-			node->createChild("name", true)->setStringValue(non_empty_names.back().first);
-			node->createChild("data", false)->createChild("type", true)->setStringValue(type);
-		}
-		else
-		{
-			LLXMLNodePtr choice_node = mElementNode->createChild("choice", false);
-
-			LLXMLNodePtr node = choice_node->createChild("group", false);
-			node = getCardinalityNode(node, min_count, max_count)->createChild("attribute", false);
-			node->createChild("name", true)->setStringValue(attribute_name);
-			node->createChild("data", false)->createChild("type", true)->setStringValue(type);
-
-			node = choice_node->createChild("element", false);
-			node->createChild("name", true)->setStringValue(element_name);
-			node = getCardinalityNode(node, min_count, max_count)->createChild("attribute", false);
-			node->createChild("name", true)->setStringValue(non_empty_names.back().first);
-			node->createChild("data", false)->createChild("type", true)->setStringValue(type);
-			
-			node = choice_node->createChild("element", false);
-			node->createChild("name", true)->setStringValue(type + "." + element_name);
-			node->createChild("ref", true)->createChild("name", true)->setStringValue(element_name);
-
-			mElementsWritten[element_name] = choice_node;
-		}
-	}
-}
-
-LLXMLNodePtr LLRNGWriter::getCardinalityNode(LLXMLNodePtr parent_node, S32 min_count, S32 max_count)
-{
-	// unlinked by default, meaning this attribute is forbidden
-	LLXMLNodePtr count_node = new LLXMLNode();
-	if (min_count >= 1)
-	{
-		if (max_count == 1 && min_count == 1)
-		{
-			// just add raw element, will count as 1 and only 1
-			count_node = mElementNode;
-		}
-		else
-		{
-			count_node = mElementNode->createChild("oneOrMore", false);
-		}
-	}
-	else
-	{
-		if (max_count == 1)
-		{
-			count_node = mElementNode->createChild("optional", false);
-		}
-		else if (max_count > 1)
-		{
-			count_node = mElementNode->createChild("zeroOrMore", false);
-		}
-	}
-	return count_node;
-}
 //
 // LLXSDWriter
 //
@@ -811,7 +641,7 @@ void LLXSDWriter::addAttributeToSchema(LLXMLNodePtr type_declaration_node, const
 
 		string_set_t& attributes_written = mAttributesWritten[type_declaration_node];
 
-		string_set_t::iterator found_it = std::lower_bound(attributes_written.begin(), attributes_written.end(), attribute_name);
+		string_set_t::iterator found_it = attributes_written.lower_bound(attribute_name);
 
 		// attribute not yet declared
 		if (found_it == attributes_written.end() || attributes_written.key_comp()(attribute_name, *found_it))
@@ -997,142 +827,6 @@ void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, bool
 	}
 }
 
-void LLXUIParser::writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock &block, const LLInitParam::BaseBlock* diff_block)
-{
-	mLastWriteGeneration = -1;
-	mWriteRootNode = node;
-	block.serializeBlock(*this, Parser::name_stack_t(), diff_block);
-}
-
-// go from a stack of names to a specific XML node
-LLXMLNodePtr LLXUIParser::getNode(const name_stack_t& stack)
-{
-	name_stack_t name_stack;
-
-	for (name_stack_t::const_iterator it = stack.begin();
-		it != stack.end();
-		++it)
-	{
-		if (!it->first.empty())
-		{
-			name_stack.push_back(*it);
-		}
-	}
-
-	if (name_stack.empty() || mWriteRootNode.isNull()) return NULL;
-
-	std::string attribute_name = name_stack.front().first;
-
-	// heuristic to make font always attribute of parent node
-	bool is_font = (attribute_name == "font");
-	// XML spec says that attributes have their whitespace normalized
-	// on parse: http://www.w3.org/TR/REC-xml/#AVNormalize
-	// Therefore text-oriented widgets that might have carriage returns
-	// have their values serialized as text contents, not the
-	// initial_value attribute. JC
-	if (attribute_name == "initial_value")
-	{
-		const char* root_node_name = mWriteRootNode->getName()->mString;
-		if (!strcmp(root_node_name, "text")		// LLTextBox
-			|| !strcmp(root_node_name, "text_editor") 
-			|| !strcmp(root_node_name, "line_editor")) // for consistency
-		{
-			// writeStringValue will write to this node
-			return mWriteRootNode;
-		}
-	}
-
-	for (name_stack_t::const_iterator it = ++name_stack.begin();
-		it != name_stack.end();
-		++it)
-	{
-		attribute_name += ".";
-		attribute_name += it->first;
-	}
-
-	// *NOTE: <string> elements for translation need to have whitespace
-	// preserved like "initial_value" above, however, the <string> node
-	// becomes an attribute of the containing floater or panel.
-	// Because all <string> elements must have a "name" attribute, and
-	// "name" is parsed first, just put the value into the last written
-	// child.
-	if (attribute_name == "string.value")
-	{
-		// The caller of will shortly call writeStringValue(), which sets
-		// this node's type to string, but we don't want to export type="string".
-		// Set the default for this node to suppress the export.
-		static LLXMLNodePtr default_node;
-		if (default_node.isNull())
-		{
-			default_node = new LLXMLNode();
-			// Force the node to have a string type
-			default_node->setStringValue( std::string() );
-		}
-		mLastWrittenChild->setDefault(default_node);
-		// mLastWrittenChild is the "string" node part of "string.value",
-		// so the caller will call writeStringValue() into that node,
-		// setting the node text contents.
-		return mLastWrittenChild;
-	}
-
-	LLXMLNodePtr attribute_node;
-
-	const char* attribute_cstr = attribute_name.c_str();
-	if (name_stack.size() != 1
-		&& !is_font)
-	{
-		std::string child_node_name(mWriteRootNode->getName()->mString);
-		child_node_name += ".";
-		child_node_name += name_stack.front().first;
-
-		LLXMLNodePtr child_node;
-
-		if (mLastWriteGeneration == name_stack.front().second)
-		{
-			child_node = mLastWrittenChild;
-		}
-		else
-		{
-			mLastWriteGeneration = name_stack.front().second;
-			child_node = mWriteRootNode->createChild(child_node_name.c_str(), false);
-		}
-
-		mLastWrittenChild = child_node;
-
-		name_stack_t::const_iterator it = ++name_stack.begin();
-		std::string short_attribute_name(it->first);
-
-		for (++it;
-			it != name_stack.end();
-			++it)
-		{
-			short_attribute_name += ".";
-			short_attribute_name += it->first;
-		}
-
-		if (child_node->hasAttribute(short_attribute_name.c_str()))
-		{
-			llerrs << "Attribute " << short_attribute_name << " already exists!" << llendl;
-		}
-
-		attribute_node = child_node->createChild(short_attribute_name.c_str(), true);
-	}
-	else
-	{
-		if (mWriteRootNode->hasAttribute(attribute_cstr))
-		{
-			mWriteRootNode->getAttribute(attribute_cstr, attribute_node);
-		}
-		else
-		{
-			attribute_node = mWriteRootNode->createChild(attribute_name.c_str(), true);
-		}
-	}
-
-	return attribute_node;
-}
-
-
 bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, const std::string& scope, LLInitParam::BaseBlock& block)
 {
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
@@ -1152,8 +846,15 @@ bool LLXUIParser::readXUIImpl(LLXMLNodePtr nodep, const std::string& scope, LLIn
 		// child nodes are not necessarily valid parameters (could be a child widget)
 		// so don't complain once we've recursed
 		bool silent = mCurReadDepth > 0;
-		block.submitValue(mNameStack, *this, silent);
-		mNameStack.pop_back();
+		if (!block.submitValue(mNameStack, *this, true))
+		{
+			mNameStack.pop_back();
+			block.submitValue(mNameStack, *this, silent);
+		}
+		else
+		{
+			mNameStack.pop_back();
+		}
 	}
 
 	// then traverse children
@@ -1271,6 +972,62 @@ bool LLXUIParser::readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& blo
 	return any_parsed;
 }
 
+void LLXUIParser::writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock &block, const LLInitParam::BaseBlock* diff_block)
+{
+	mWriteRootNode = node;
+	block.serializeBlock(*this, Parser::name_stack_t(), diff_block);
+	mOutNodes.clear();
+}
+
+// go from a stack of names to a specific XML node
+LLXMLNodePtr LLXUIParser::getNode(const name_stack_t& stack)
+{
+	name_stack_t name_stack;
+	for (name_stack_t::const_iterator it = stack.begin();
+		it != stack.end();
+		++it)
+	{
+		if (!it->first.empty())
+		{
+			name_stack.push_back(*it);
+		}
+	}
+
+	LLXMLNodePtr out_node = mWriteRootNode;
+
+	name_stack_t::const_iterator next_it = name_stack.begin();
+	for (name_stack_t::const_iterator it = name_stack.begin();
+		it != name_stack.end();
+		it = next_it)
+	{
+		++next_it;
+		if (it->first.empty())
+		{
+			continue;
+		}
+
+		out_nodes_t::iterator found_it = mOutNodes.lower_bound(it->second);
+
+		// node with this name not yet written
+		if (found_it == mOutNodes.end() || mOutNodes.key_comp()(found_it->first, it->second))
+		{
+			// make an attribute if we are the last element on the name stack
+			bool is_attribute = next_it == name_stack.end();
+			LLXMLNodePtr new_node = new LLXMLNode(it->first.c_str(), is_attribute);
+			out_node->addChild(new_node);
+			mOutNodes.insert(found_it, std::make_pair(it->second, new_node));
+			out_node = new_node;
+		}
+		else
+		{
+			out_node = found_it->second;
+		}
+	}
+
+	return (out_node == mWriteRootNode ? LLXMLNodePtr(NULL) : out_node);
+}
+
+
 bool LLXUIParser::readBoolValue(void* val_ptr)
 {
 	S32 value;
@@ -1301,7 +1058,27 @@ bool LLXUIParser::writeStringValue(const void* val_ptr, const name_stack_t& stac
 	LLXMLNodePtr node = getNode(stack);
 	if (node.notNull())
 	{
-		node->setStringValue(*((std::string*)val_ptr));
+		const std::string* string_val = reinterpret_cast<const std::string*>(val_ptr);
+		if (string_val->find('\n') != std::string::npos 
+			|| string_val->size() > MAX_STRING_ATTRIBUTE_SIZE)
+		{
+			// don't write strings with newlines into attributes
+			std::string attribute_name = node->getName()->mString;
+			LLXMLNodePtr parent_node = node->mParent;
+			parent_node->deleteChild(node);
+			// write results in text contents of node
+			if (attribute_name == "value")
+			{
+				// "value" is implicit, just write to parent
+				node = parent_node;
+			}
+			else
+			{
+				// create a child that is not an attribute, but with same name
+				node = parent_node->createChild(attribute_name.c_str(), false);
+			}
+		}
+		node->setStringValue(*string_val);
 		return true;
 	}
 	return false;
@@ -1538,7 +1315,26 @@ bool LLXUIParser::writeSDValue(const void* val_ptr, const name_stack_t& stack)
 	LLXMLNodePtr node = getNode(stack);
 	if (node.notNull())
 	{
-		node->setStringValue(((LLSD*)val_ptr)->asString());
+		std::string string_val = ((LLSD*)val_ptr)->asString();
+		if (string_val.find('\n') != std::string::npos || string_val.size() > MAX_STRING_ATTRIBUTE_SIZE)
+		{
+			// don't write strings with newlines into attributes
+			std::string attribute_name = node->getName()->mString;
+			LLXMLNodePtr parent_node = node->mParent;
+			parent_node->deleteChild(node);
+			// write results in text contents of node
+			if (attribute_name == "value")
+			{
+				// "value" is implicit, just write to parent
+				node = parent_node;
+			}
+			else
+			{
+				node = parent_node->createChild(attribute_name.c_str(), false);
+			}
+		}
+
+		node->setStringValue(string_val);
 		return true;
 	}
 	return false;

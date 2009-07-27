@@ -45,6 +45,7 @@
 #include "lllocationhistory.h"
 #include "lllocationinputctrl.h"
 #include "llteleporthistory.h"
+#include "llsearcheditor.h"
 #include "llslurl.h"
 #include "llurlsimstring.h"
 #include "llviewerinventory.h"
@@ -204,12 +205,10 @@ BOOL LLNavigationBar::postBuild()
 	mBtnHelp	= getChild<LLButton>("help_btn");
 	
 	mCmbLocation= getChild<LLLocationInputCtrl>("location_combo"); 
-	mLeSearch	= getChild<LLLineEditor>("search_input");
-	
-	LLButton* search_btn = getChild<LLButton>("search_btn");
+	mLeSearch	= getChild<LLSearchEditor>("search_input");
 
 	if (!mBtnBack || !mBtnForward || !mBtnHome || !mBtnHelp ||
-		!mCmbLocation || !mLeSearch || !search_btn)
+		!mCmbLocation || !mLeSearch)
 	{
 		llwarns << "Malformed navigation bar" << llendl;
 		return FALSE;
@@ -229,7 +228,6 @@ BOOL LLNavigationBar::postBuild()
 	mCmbLocation->setSelectionCallback(boost::bind(&LLNavigationBar::onLocationSelection, this));
 	
 	mLeSearch->setCommitCallback(boost::bind(&LLNavigationBar::onSearchCommit, this));
-	search_btn->setClickedCallback(boost::bind(&LLNavigationBar::onSearchCommit, this));
 
 	// Load the location field context menu
 	mLocationContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_navbar.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -306,7 +304,7 @@ void LLNavigationBar::onHelpButtonClicked()
 
 void LLNavigationBar::onSearchCommit()
 {
-	invokeSearch(mLeSearch->getText());
+	invokeSearch(mLeSearch->getValue().asString());
 }
 
 void LLNavigationBar::onTeleportHistoryMenuItemClicked(const LLSD& userdata)

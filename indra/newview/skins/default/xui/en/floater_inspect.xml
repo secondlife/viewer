@@ -25,15 +25,15 @@
      tool_tip="Select an object from this list to highlight it in-world"
      top="20">
         <scroll_list.columns
-         dynamicwidth="true"
+         dynamic_width="true"
          label="Object Name"
          name="object_name" />
         <scroll_list.columns
-         dynamicwidth="true"
+         dynamic_width="true"
          label="Owner Name"
          name="owner_name" />
         <scroll_list.columns
-         dynamicwidth="true"
+         dynamic_width="true"
          label="Creator Name"
          name="creator_name" />
         <scroll_list.columns

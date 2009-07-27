@@ -57,11 +57,11 @@ public:
 
 	struct NameItem : public LLInitParam::Block<NameItem, LLScrollListItem::Params>
 	{
-		Optional<std::string>				display_name;
+		Optional<std::string>				name;
 		Optional<ENameType, NameTypeNames>	target;
 
 		NameItem()
-		:	display_name("name"),
+		:	name("name"),
 			target("target", INDIVIDUAL)
 		{}		
 	};

@@ -118,7 +118,7 @@ LLSideTrayTab::LLSideTrayTab(const Params& params):mAccordionCtrl(0)
 {
 	mImagePath = params.image_path;
 	mTabTitle = params.tab_title;
-	mDescription = params.tab_description;
+	mDescription = params.description;
 }
 LLSideTrayTab::~LLSideTrayTab()
 {

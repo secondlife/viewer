@@ -57,6 +57,7 @@
 #include "lldraghandle.h"
 #include "lllayoutstack.h"
 #include "llviewermenu.h"
+#include "llrngwriter.h"
 
 // Boost (for linux/unix command-line execv)
 #include <boost/tokenizer.hpp>
@@ -354,6 +355,7 @@ void LLFloaterUIPreview::onLanguageComboSelect(LLUICtrl* ctrl)
 
 void LLFloaterUIPreview::onClickExportSchema()
 {
+	gViewerWindow->setCursor(UI_CURSOR_WAIT);
 	std::string template_path = gDirUtilp->getExpandedFilename(LL_PATH_DEFAULT_SKIN, "xui", "schema");
 
 	typedef LLWidgetTypeRegistry::Registrar::registry_map_t::const_iterator registry_it;
@@ -373,10 +375,12 @@ void LLFloaterUIPreview::onClickExportSchema()
 		LLFILE* rng_file = LLFile::fopen(file_name.c_str(), "w");
 		{
 			LLXMLNode::writeHeaderToFile(rng_file);
-			root_nodep->writeToFile(rng_file);
+			const bool use_type_decorations = false;
+			root_nodep->writeToFile(rng_file, std::string(), use_type_decorations);
 		}
 		fclose(rng_file);
 	}
+	gViewerWindow->setCursor(UI_CURSOR_ARROW);
 }
 
 
@@ -625,7 +629,8 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 				std::string full_filename = append_new_to_xml_filename(path);
 				LLFILE* floater_temp = LLFile::fopen(full_filename.c_str(), "w");
 				LLXMLNode::writeHeaderToFile(floater_temp);
-				floater_write->writeToFile(floater_temp);
+				const bool use_type_decorations = false;
+				floater_write->writeToFile(floater_temp, std::string(), use_type_decorations);
 				fclose(floater_temp);
 			}
 		}
@@ -647,7 +652,8 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 				std::string full_filename = append_new_to_xml_filename(path);
 				LLFILE* menu_temp = LLFile::fopen(full_filename.c_str(), "w");
 				LLXMLNode::writeHeaderToFile(menu_temp);
-				menu_write->writeToFile(menu_temp);
+				const bool use_type_decorations = false;
+				menu_write->writeToFile(menu_temp, std::string(), use_type_decorations);
 				fclose(menu_temp);
 			}
 
@@ -671,7 +677,8 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 				std::string full_filename = append_new_to_xml_filename(path);
 				LLFILE* panel_temp = LLFile::fopen(full_filename.c_str(), "w");
 				LLXMLNode::writeHeaderToFile(panel_temp);
-				panel_write->writeToFile(panel_temp);
+				const bool use_type_decorations = false;
+				panel_write->writeToFile(panel_temp, std::string(), use_type_decorations);
 				fclose(panel_temp);
 			}
 		}

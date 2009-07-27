@@ -34,7 +34,6 @@
 #define LL_LLSTYLE_H
 
 #include "v4color.h"
-#include "llfont.h"
 #include "llui.h"
 
 class LLFontGL;

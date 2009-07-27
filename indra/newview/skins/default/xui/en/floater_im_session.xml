@@ -2,25 +2,66 @@
 <floater
  background_visible="true"
  follows="left|top|right|bottom"
- height="200"
+ height="250"
  layout="topleft"
  left="0"
  name="panel_im"
  top="0"
+ can_dock="true"
+ can_minimize="false"
  visible="false" 
- width="300">
-  <text_editor
-   enabled="false"
-   type="string"
-   length="1"
-   top="20" 
-   follows="left|top|right"
-   font="SansSerif"
-   height="175"
-   layout="topleft"
-   left="5"
-   name="im_text"
-   width="290"
-   word_wrap="true">
-  </text_editor>
+ width="315">
+  <layout_stack follows="left|top|right|bottom"
+                height="235"
+                width="315"
+                layout="topleft"
+                orientation="horizontal"
+                name="im_panels"
+                top="16"
+                left="2">
+    <layout_panel
+      class="panel_im_control_panel"
+      name="panel_im_control_panel"
+      filename="panel_im_control_panel.xml"
+      layout="topleft"
+      top_delta="-3"
+      min_width="96" 
+      width="96"
+      height="225"
+      label="IM Control Panel"
+      user_resize="false" />
+    <layout_panel height="235"
+                  width="200"
+                  left_delta="96" 
+                  top="0"
+                  user_resize="false">
+      <button height="12"
+              top="8" 
+              label="&lt;&lt;"
+              layout="topleft"
+              width="35"
+              name="slide_left_btn" />
+      <button height="12"
+              top="8"
+              label="&gt;&gt;"
+              layout="topleft"
+              width="35"
+              name="slide_right_btn" />
+      <text_editor
+       enabled="false"
+       type="string"
+       length="1"
+       follows="left|top|right"
+       font="SansSerif"
+       height="185"
+       layout="topleft"
+       max_length="2147483647"
+       name="im_text"
+       width="195"
+       word_wrap="true">
+      </text_editor>
+      <line_editor name="chat_editor" height="20" layout="topleft" width="190">
+      </line_editor>
+    </layout_panel>
+  </layout_stack>
 </floater>

@@ -1,4 +1,5 @@
 <textures version="101">
+  <!-- Please add new files alphabetically to prevent merge conflicts. JC -->
 
   <texture name="ScrollThumb_Horiz" file_name="widgets/ScrollThumb_Horiz.png" preload="true" scale.left="4" scale.top="10" scale.bottom="53" scale.right="4" />
   <texture name="ScrollThumb_Vert" file_name="widgets/ScrollThumb_Vert.png" preload="true" scale.left="4" scale.top="53" scale.bottom="10" scale.right="4" />
@@ -469,7 +470,6 @@
   <texture name="Icon_Gear_Background" file_name="windows/Icon_Gear_Background.png" preload="true"/>
   <texture name="Icon_Gear_Foreground" file_name="windows/Icon_Gear_Foreground.png" preload="true"/>
   <texture name="Icon_Gear_Press" file_name="windows/Icon_Gear_Press.png" preload="true"/>
-  
   <texture name="Stepper_Down_Disabled" file_name="widgets/Stepper_Down_Disabled.png" preload="true"/>
   <texture name="Stepper_Down_Off" file_name="widgets/Stepper_Down_Off.png" preload="true"/>
   <texture name="Stepper_Down_Press" file_name="widgets/Stepper_Down_Press.png" preload="true"/>
@@ -477,4 +477,5 @@
   <texture name="Stepper_Up_Off" file_name="widgets/Stepper_Up_Off.png" preload="true"/>
   <texture name="Stepper_Up_Press" file_name="widgets/Stepper_Up_Press.png" preload="true"/>
 
+  <!-- Please add new files alphabetically to prevent merge conflicts. JC -->
 </textures>

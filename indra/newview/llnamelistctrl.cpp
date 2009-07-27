@@ -169,7 +169,7 @@ LLScrollListItem* LLNameListCtrl::addRow(const LLNameListCtrl::NameItem& name_it
 	if (!item) return NULL;
 
 	// use supplied name by default
-	std::string fullname = name_item.display_name;
+	std::string fullname = name_item.name;
 	switch(name_item.target)
 	{
 	case GROUP:

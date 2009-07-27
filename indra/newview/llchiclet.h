@@ -34,6 +34,7 @@
 #define LL_LLCHICLET_H
 
 #include "llavatariconctrl.h"
+#include "llbutton.h"
 #include "llpanel.h"
 #include "lltextbox.h"
 #include "lloutputmonitorctrl.h"
@@ -266,6 +267,8 @@ public:
 	*/
 	virtual void setShowSpeaker(bool show);
 
+	void setDockTongueVisible(bool visible);
+
 	/*
 	 * Returns voice chat status control visibility.
 	*/
@@ -332,6 +335,7 @@ protected:
 	LLMenuGL* mPopupMenu;
 
 	bool mShowSpeaker;
+	bool mDockTongueVisible;
 };
 
 /*

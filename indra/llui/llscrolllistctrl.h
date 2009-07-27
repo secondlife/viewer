@@ -99,7 +99,7 @@ public:
 							bg_selected_color,
 							fg_disable_color,
 							bg_writeable_color,
-							bg_read_only_color,
+							bg_readonly_color,
 							bg_stripe_color,
 							hovered_color,
 							highlighted_color;

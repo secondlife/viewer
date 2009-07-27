@@ -47,28 +47,6 @@ class LLPanel;
 class LLFloater;
 class LLView;
 
-class LLRNGWriter : public LLInitParam::Parser
-{
-	LOG_CLASS(LLRNGWriter);
-public:
-	void writeRNG(const std::string& name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace);
-
-	/*virtual*/ std::string getCurrentElementName() { return LLStringUtil::null; }
-
-	LLRNGWriter();
-
-private:
-	LLXMLNodePtr getCardinalityNode(LLXMLNodePtr parent_node, S32 min_count, S32 max_count);
-
-	void writeAttribute(const std::string& type, const Parser::name_stack_t&, S32 min_count, S32 max_count, const std::vector<std::string>* possible_values);
-	LLXMLNodePtr mElementNode;
-	LLXMLNodePtr mGrammarNode;
-
-	typedef std::map<std::string, LLXMLNodePtr> elements_map_t;
-	elements_map_t	mElementsWritten;
-};
-
-
 class LLXSDWriter : public LLInitParam::Parser
 {
 	LOG_CLASS(LLXSDWriter);
@@ -161,6 +139,9 @@ private:
 	LLXMLNodePtr					mCurReadNode;
 	// Root of the widget XML sub-tree, for example, "line_editor"
 	LLXMLNodePtr					mWriteRootNode;
+	
+	typedef std::map<S32, LLXMLNodePtr>	out_nodes_t;
+	out_nodes_t						mOutNodes;
 	S32								mLastWriteGeneration;
 	LLXMLNodePtr					mLastWrittenChild;
 	S32								mCurReadDepth;
@@ -489,7 +470,7 @@ LLChildRegistry<DERIVED>::Register<T>::Register(const char* tag, LLWidgetCreator
 }
 
 
-typedef boost::function<LLPanel* (void)> LLPannelClassCreatorFunc;
+typedef boost::function<LLPanel* (void)> LLPanelClassCreatorFunc;
 
 // local static instance for registering a particular panel class
 
@@ -498,15 +479,15 @@ class LLRegisterPanelClass
 {
 public:
 	// reigister with either the provided builder, or the generic templated builder
-	void addPanelClass(const std::string& tag,LLPannelClassCreatorFunc func)
+	void addPanelClass(const std::string& tag,LLPanelClassCreatorFunc func)
 	{
-		mPannelClassesNames[tag] = func;
+		mPanelClassesNames[tag] = func;
 	}
 
 	LLPanel* createPanelClass(const std::string& tag)
 	{
-		param_name_map_t::iterator iT =  mPannelClassesNames.find(tag);
-		if(iT == mPannelClassesNames.end())
+		param_name_map_t::iterator iT =  mPanelClassesNames.find(tag);
+		if(iT == mPanelClassesNames.end())
 			return 0;
 		return iT->second();
 	}
@@ -518,9 +499,9 @@ public:
 	}
 
 private:
-	typedef std::map< std::string, LLPannelClassCreatorFunc> param_name_map_t;
+	typedef std::map< std::string, LLPanelClassCreatorFunc> param_name_map_t;
 	
-	param_name_map_t mPannelClassesNames;
+	param_name_map_t mPanelClassesNames;
 };
 
 

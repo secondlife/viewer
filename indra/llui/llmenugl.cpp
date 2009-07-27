@@ -49,12 +49,12 @@
 #include "llmath.h"
 #include "llrender.h"
 #include "llfocusmgr.h"
-#include "llfont.h"
 #include "llcoord.h"
 #include "llwindow.h"
 #include "llcriticaldamp.h"
 #include "lluictrlfactory.h"
 
+#include "llbutton.h"
 #include "llfontgl.h"
 #include "llresmgr.h"
 #include "llui.h"
@@ -1453,6 +1453,7 @@ void LLMenuItemBranchDownGL::draw( void )
 	setHover(FALSE);
 }
 
+
 class LLMenuScrollItem : public LLMenuItemCallGL
 {
 public:
@@ -1461,10 +1462,18 @@ public:
 		ARROW_DOWN,
 		ARROW_UP
 	};
+	struct ArrowTypes : public LLInitParam::TypeValuesHelper<EArrowType, ArrowTypes>
+	{
+		static void declareValues()
+		{
+			declare("up", ARROW_UP);
+			declare("down", ARROW_DOWN);
+		}
+	};
 
 	struct Params : public LLInitParam::Block<Params, LLMenuItemCallGL::Params>
 	{
-		Optional<EArrowType> arrow_type;
+		Optional<EArrowType, ArrowTypes> arrow_type;
 		Optional<CommitCallbackParam> scroll_callback;
 	};
 

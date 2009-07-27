@@ -43,7 +43,7 @@ static LLDefaultChildRegistry::Register<LLUICtrl> r("ui_ctrl");
 LLUICtrl::Params::Params()
 :	tab_stop("tab_stop", true),
 	label("label"),
-	initial_value("initial_value"),
+	initial_value("value"),
 	init_callback("init_callback"),
 	commit_callback("commit_callback"),
 	validate_callback("validate_callback"),
@@ -52,9 +52,7 @@ LLUICtrl::Params::Params()
 	mouseleave_callback("mouseleave_callback"),
 	control_name("control_name")
 {
-	addSynonym(initial_value, "initial_val");
-	// this is the canonical name for text contents of an xml node
-	addSynonym(initial_value, "value");
+	addSynonym(initial_value, "initial_value");
 }
 
 LLFocusableElement::LLFocusableElement()

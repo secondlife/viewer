@@ -81,8 +81,9 @@ void LLFolderViewItem::cleanupClass()
 
 // NOTE: Optimize this, we call it a *lot* when opening a large inventory
 LLFolderViewItem::Params::Params()
-:	folder_arrow_image("", LLUI::getUIImage("folder_arrow.tga")),
-	selection_image("", LLUI::getUIImage("rounded_square.tga"))
+:	icon("icon"),
+	folder_arrow_image("folder_arrow_image", LLUI::getUIImage("folder_arrow.tga")),
+	selection_image("selection_image", LLUI::getUIImage("rounded_square.tga"))
 {
 	mouse_opaque(true);
 	follows.flags(FOLLOWS_LEFT|FOLLOWS_TOP|FOLLOWS_RIGHT);

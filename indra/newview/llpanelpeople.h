@@ -37,7 +37,7 @@
 
 #include "llcallingcard.h" // for avatar tracker
 
-class LLSearchEditor;
+class LLFilterEditor;
 class LLTabContainer;
 class LLAvatarList;
 class LLGroupList;
@@ -77,7 +77,7 @@ private:
 	void					reSelectedCurrentTab();
 
 	// UI callbacks
-	void					onSearchEdit(const std::string& search_string);
+	void					onFilterEdit(const std::string& search_string);
 	void					onTabSelected(const LLSD& param);
 	void					onViewProfileButtonClicked();
 	void					onAddFriendButtonClicked();
@@ -104,7 +104,7 @@ private:
 								const std::vector<LLUUID>& ids,
 								void*);
 
-	LLSearchEditor*			mSearchEditor;
+	LLFilterEditor*			mFilterEditor;
 	LLTabContainer*			mTabContainer;
 	LLAvatarList*			mFriendList;
 	LLAvatarList*			mNearbyList;

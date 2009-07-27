@@ -45,8 +45,10 @@
 
 #include "llagent.h"
 #include "llbutton.h"
+#include "llbottomtray.h"
 #include "llcallingcard.h"
 #include "llchat.h"
+#include "llchiclet.h"
 #include "llconsole.h"
 #include "llfloater.h"
 #include "llfloatercall.h"
@@ -57,9 +59,12 @@
 #include "llinventorymodel.h"
 #include "llfloaterinventory.h"
 #include "llfloaterchat.h"
+#include "lliconctrl.h"
+#include "llimview.h"                  // for LLIMModel to get other avatar id in chat
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llnotify.h"
+#include "llpanelimcontrolpanel.h"
 #include "llrecentpeople.h"
 #include "llresmgr.h"
 #include "lltrans.h"
@@ -2040,7 +2045,7 @@ bool LLFloaterIMPanel::onConfirmForceCloseError(const LLSD& notification, const 
 	}
 	return false;
 }
-
+	
 
 std::map<LLUUID, LLIMFloater*> LLIMFloater::sIMFloaterMap;
 
@@ -2048,23 +2053,183 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id,
 					 const std::string title,
 					 EInstantMessage dialog)
 :	mSessionID(session_id),
-	mIndex(0)
+	mLastMessageIndex(-1),
+	mDialog(dialog)
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_im_session.xml");
 	sIMFloaterMap[mSessionID] = this;
 
+	LLPanelIMControlPanel* im_control_panel = getChild<LLPanelIMControlPanel>("panel_im_control_panel");
+
+	LLIMModel::LLIMSession* session = get_if_there(LLIMModel::instance().sSessionsMap, session_id, (LLIMModel::LLIMSession*)NULL);
+	if(session)
+	{
+		mOtherParticipantUUID = session->mOtherParticipantID;
+		im_control_panel->setAvatarId(session->mOtherParticipantID);
+	}
+
+	LLButton* slide_left = getChild<LLButton>("slide_left_btn");
+	slide_left->setVisible(im_control_panel->getVisible());
+	slide_left->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
+
+	LLButton* slide_right = getChild<LLButton>("slide_right_btn");
+	slide_right->setVisible(!im_control_panel->getVisible());
+	slide_right->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
+
 	setTitle(title);
+	setDocked(true);
+
+	mInputEditor = getChild<LLLineEditor>("chat_editor");
+
+	
+	mInputEditor->setMaxTextLength(1023);
+	// enable line history support for instant message bar
+	mInputEditor->setEnableLineHistory(TRUE);
+	
+	mInputEditor->setFocusReceivedCallback( onInputEditorFocusReceived, this );
+	mInputEditor->setFocusLostCallback( onInputEditorFocusLost, this );
+	mInputEditor->setKeystrokeCallback( onInputEditorKeystroke, this );
+	mInputEditor->setCommitOnFocusLost( FALSE );
+	mInputEditor->setRevertOnEsc( FALSE );
+	mInputEditor->setReplaceNewlinesWithSpaces( FALSE );
+
+	childSetCommitCallback("chat_editor", onSendMsg, this);
 }
+
+/* static */
+void LLIMFloater::newIMCallback(const LLSD& data){
+	
+	if (data["num_unread"].asInteger() > 0)
+	{
+		LLUUID session_id = data["session_id"].asUUID();
+
+		LLIMFloater* floater = get_if_there(sIMFloaterMap, session_id, (LLIMFloater*)NULL);
+		
+		if (floater == NULL)
+		{
+			llwarns << "new_im_callback for non-existent session_id " << session_id << llendl;
+			return;
+		}
+
+        // update if visible, otherwise will be updated when opened
+		if (floater->getVisible())
+		{
+			floater->updateMessages();
+		}
+	}
+}
+
+void LLIMFloater::onSendMsg( LLUICtrl* ctrl, void* userdata )
+{
+	LLIMFloater* self = (LLIMFloater*) userdata;
+	self->sendMsg();
+}
+
+void LLIMFloater::sendMsg()
+{
+	if (!gAgent.isGodlike() 
+		&& (mDialog == IM_NOTHING_SPECIAL)
+		&& mOtherParticipantUUID.isNull())
+	{
+		llinfos << "Cannot send IM to everyone unless you're a god." << llendl;
+		return;
+	}
+
+	if (mInputEditor)
+	{
+		LLWString text = mInputEditor->getConvertedText();
+		if(!text.empty())
+		{
+			// Truncate and convert to UTF8 for transport
+			std::string utf8_text = wstring_to_utf8str(text);
+			utf8_text = utf8str_truncate(utf8_text, MAX_MSG_BUF_SIZE - 1);
+			
+			LLIMModel::sendMessage(utf8_text,
+								mSessionID,
+								mOtherParticipantUUID,
+								mDialog);
+
+			mInputEditor->setText(LLStringUtil::null);
+
+			updateMessages();
+		}
+	}
+}
+
+
 
 LLIMFloater::~LLIMFloater()
 {
 	sIMFloaterMap.erase(mSessionID);
 }
 
-
-void LLIMFloater::show(const LLUUID& session_id, S32 center_x)
+//virtual
+BOOL LLIMFloater::postBuild()
 {
+	mHistoryEditor = getChild<LLViewerTextEditor>("im_text", true, false);
+	mChiclet = LLBottomTray::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(mSessionID);
 
+	if (!mChiclet)
+	{
+		llwarns << "No chiclet found for the IMFloter" << llendl;
+	}
+	setDocked(false);
+	return TRUE;
+}
+
+const U32 UNDOCK_LEAP_HEIGHT = 12;
+const U32 DOCK_ICON_HEIGHT = 6;
+
+//virtual
+void LLIMFloater::onFocusLost()
+{
+	// spec says close if docked to bottom tray and user has clicked away
+	// (hence we are no longer focused)
+	if (isDocked())
+	{
+		// app not quitting
+		closeFloater(false);
+	}
+}
+
+
+//virtual
+void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
+{
+	LLFloater::setDocked(docked);
+	mChiclet->setDockTongueVisible(docked);
+	if (docked)
+	{
+		S32 x, y;
+		mChiclet->localPointToScreen((mChiclet->getRect().getWidth())/2, 0, &x, &y);
+		translate(x - getRect().getCenterX(), DOCK_ICON_HEIGHT - getRect().mBottom);	
+	}
+	else if (pop_on_undock)
+	{
+		// visually pop up a little bit to emphasize the undocking
+		translate(0, UNDOCK_LEAP_HEIGHT);
+	}
+}
+
+
+void LLIMFloater::onClose(bool app_quitting)
+{
+	mChiclet->setDockTongueVisible(false);
+	LLFloater::onClose(app_quitting);
+}
+
+void LLIMFloater::onSlide()
+{
+	LLPanel* im_control_panel = getChild<LLPanel>("panel_im_control_panel");
+	im_control_panel->setVisible(!im_control_panel->getVisible());
+
+	getChild<LLButton>("slide_left_btn")->setVisible(im_control_panel->getVisible());
+	getChild<LLButton>("slide_right_btn")->setVisible(!im_control_panel->getVisible());
+}
+
+//static
+LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
+{
 	LLIMFloater* floater = get_if_there(sIMFloaterMap, session_id, (LLIMFloater*)NULL);
 	
 	if (floater == NULL)
@@ -2078,28 +2243,25 @@ void LLIMFloater::show(const LLUUID& session_id, S32 center_x)
 	{
 		LLIMFloater* floater = (*iter).second;
 		floater->setVisible(false);
+		floater->mChiclet->setDockTongueVisible(false);
+	
 	}
 
-	//floater->setVisibleAndFrontmost(true);
+	floater->setVisibleAndFrontmost(true);
 
-	floater->updateMessages(session_id);
+	if (floater->isDocked()) 
+	{
+		floater->mChiclet->setDockTongueVisible(true);
+	}
 
-	floater->translate(center_x - floater->getRect().getCenterX(), gFloaterView->getRect().mBottom - floater->getRect().mBottom);
-
+	floater->updateMessages();
+	return floater;
 }
 
-void LLIMFloater::updateMessages(const LLUUID& session_id)
+void LLIMFloater::updateMessages()
 {
 
-	LLTextEditor* text_editor = getChild<LLTextEditor>("im_text", true, false);
-
-	if (!text_editor) 
-	{
-		llwarns << "Text editor not found! " << llendl;
-		return;
-	}
-
-	std::list<LLSD> messages = LLIMModel::instance().getMessages(mSessionID, mIndex);
+	std::list<LLSD> messages = LLIMModel::instance().getMessages(mSessionID, mLastMessageIndex+1);
 
 	if (messages.size())
 	{
@@ -2112,10 +2274,45 @@ void LLIMFloater::updateMessages(const LLUUID& session_id)
 			
 			message << msg["from"].asString() << " : " << msg["time"].asString() << "\n   " << msg["message"].asString() << "\n"; 
 			
-			mIndex = msg["index"].asInteger();
+			mLastMessageIndex = msg["index"].asInteger();
 		}
 
-		text_editor->setText(message.str());
+		mHistoryEditor->appendText(message.str(), false, false);
+		mHistoryEditor->setCursorAndScrollToEnd();
 	}
 
+}
+// static
+void LLIMFloater::onInputEditorFocusReceived( LLFocusableElement* caller, void* userdata )
+{
+	LLIMFloater* self= (LLIMFloater*) userdata;
+	self->mHistoryEditor->setCursorAndScrollToEnd();
+}
+
+// static
+void LLIMFloater::onInputEditorFocusLost(LLFocusableElement* caller, void* userdata)
+{
+	LLIMFloater* self = (LLIMFloater*) userdata;
+	self->setTyping(FALSE);
+}
+
+// static
+void LLIMFloater::onInputEditorKeystroke(LLLineEditor* caller, void* userdata)
+{
+	LLIMFloater* self = (LLIMFloater*)userdata;
+	std::string text = self->mInputEditor->getText();
+	if (!text.empty())
+	{
+		self->setTyping(TRUE);
+	}
+	else
+	{
+		// Deleting all text counts as stopping typing.
+		self->setTyping(FALSE);
+	}
+}
+
+//just a stub for now
+void LLIMFloater::setTyping(BOOL typing)
+{
 }

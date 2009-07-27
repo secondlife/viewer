@@ -380,6 +380,7 @@ public:
 
 		Params()
 		:	jump_key("jump_key", KEY_NONE),
+			horizontal_layout("horizontal_layout"),
 			can_tear_off("tear_off", false),
 			drop_shadow("drop_shadow", true),
 			bg_visible("bg_visible", true),

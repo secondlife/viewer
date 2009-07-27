@@ -40,7 +40,7 @@ extern S32 NAVIGATION_BAR_HEIGHT;
 class LLButton;
 class LLLocationInputCtrl;
 class LLMenuGL;
-class LLLineEditor;
+class LLSearchEditor;
 
 /**
  * Web browser-like navigation bar.
@@ -97,7 +97,7 @@ private:
 	LLButton*				mBtnForward;
 	LLButton*				mBtnHome;
 	LLButton*				mBtnHelp;
-	LLLineEditor*			mLeSearch;
+	LLSearchEditor*			mLeSearch;
 	LLLocationInputCtrl*	mCmbLocation;
 	bool					mPurgeTPHistoryItems;
 };

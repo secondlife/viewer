@@ -51,10 +51,11 @@ public:
 		// image name
 		Optional<std::string>		image_path;
 		Optional<std::string>		tab_title;
-		Optional<std::string>		tab_description;
-		Params():image_path("image","")
-				,tab_title("tab_title","no title")
-				,tab_description("description","no description")
+		Optional<std::string>		description;
+		Params()
+		:	image_path("image"),
+			tab_title("tab_title","no title"),
+			description("description","no description")
 		{};
 	};
 protected:
@@ -109,14 +110,14 @@ public:
 		Optional<S32>				default_button_height;
 		Optional<S32>				default_button_margin;
 		
-		Params():
-			collapsed("collapsed",false)
-			,tab_btn_image_normal("tab_btn_image","sidebar_tab_left.tga")
-			,tab_btn_image_selected("tab_btn_image_selected","button_enabled_selected_32x128.tga")
-			,default_button_width("tab_btn_width",32)
-			,default_button_height("tab_btn_height",32)
-			,default_button_margin("tab_btn_margin",0)
-			{};
+		Params()
+		:	collapsed("collapsed",false),
+			tab_btn_image_normal("tab_btn_image","sidebar_tab_left.tga"),
+			tab_btn_image_selected("tab_btn_image_selected","button_enabled_selected_32x128.tga"),
+			default_button_width("tab_btn_width",32),
+			default_button_height("tab_btn_height",32),
+			default_button_margin("tab_btn_margin",0)
+		{};
 	};
 
 	static LLSideTray*	getInstance		();

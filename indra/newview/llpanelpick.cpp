@@ -38,6 +38,7 @@
 #include "llpanel.h"
 #include "message.h"
 #include "llagent.h"
+#include "llbutton.h"
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
 #include "lltexturectrl.h"

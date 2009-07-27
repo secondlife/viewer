@@ -82,8 +82,7 @@ LLTextBox::LLTextBox(const LLTextBox::Params& p)
 	mHAlign(p.font_halign),
 	mLineSpacing(p.line_spacing),
 	mWordWrap( p.word_wrap ),
-	mDidWordWrap(FALSE),
-	mFontStyle(LLFontGL::getStyleFromString(p.font.style))
+	mDidWordWrap(FALSE)
 {
 	setText( p.text() );
 }
@@ -382,7 +381,7 @@ void LLTextBox::drawText( S32 x, S32 y, const LLColor4& color )
 	{
 		mFontGL->render(mText.getWString(), 0, (F32)x, (F32)y, color,
 						mHAlign, mVAlign, 
-						mFontStyle,
+						0,
 						mShadowType,
 						S32_MAX, getRect().getWidth(), NULL, TRUE, mUseEllipses);
 	}
@@ -395,7 +394,7 @@ void LLTextBox::drawText( S32 x, S32 y, const LLColor4& color )
 			S32 line_length = *iter;
 			mFontGL->render(mText.getWString(), cur_pos, (F32)x, (F32)y, color,
 							mHAlign, mVAlign,
-							mFontStyle,
+							0,
 							mShadowType,
 							line_length, getRect().getWidth(), NULL, TRUE, mUseEllipses );
 			cur_pos += line_length + 1;

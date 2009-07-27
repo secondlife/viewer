@@ -58,8 +58,9 @@
 #include "llwindow.h"
 
 // for registration
-#include "llsearcheditor.h"
+#include "llfiltereditor.h"
 #include "llflyoutbutton.h"
+#include "llsearcheditor.h"
 
 // for XUIParse
 #include "llquaternion.h"
@@ -88,9 +89,10 @@ std::list<std::string> gUntranslated;
 
 /*static*/ std::vector<std::string> LLUI::sXUIPaths;
 
-// register searcheditor here
-static LLDefaultChildRegistry::Register<LLSearchEditor> register_search_editor("search_editor");
+// register filtereditor here
+static LLDefaultChildRegistry::Register<LLFilterEditor> register_filter_editor("filter_editor");
 static LLDefaultChildRegistry::Register<LLFlyoutButton> register_flyout_button("flyout_button");
+static LLDefaultChildRegistry::Register<LLSearchEditor> register_search_editor("search_editor");
 
 
 //
@@ -1962,6 +1964,17 @@ namespace LLInitParam
 		declare("green", LLColor4::green);
 		declare("blue", LLColor4::blue);
 	}
+
+	template<>
+	class ParamCompare<const LLFontGL*>
+	{
+	public:
+		static bool equals(const LLFontGL* a, const LLFontGL* b)
+		{
+			return !(a->getFontDesc() < b->getFontDesc())
+				&& !(b->getFontDesc() < a->getFontDesc());
+		}
+	};
 
 	TypedParam<const LLFontGL*>::TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL*const value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
 	:	super_t(descriptor, name, value, func, min_count, max_count),

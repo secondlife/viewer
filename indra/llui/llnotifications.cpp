@@ -384,7 +384,7 @@ LLNotificationTemplate::LLNotificationTemplate() :
 }
 
 LLNotification::LLNotification(const LLNotification::Params& p) : 
-	mTimestamp(p.timestamp), 
+	mTimestamp(p.time_stamp), 
 	mSubstitutions(p.substitutions),
 	mPayload(p.payload),
 	mExpiresAt(0),

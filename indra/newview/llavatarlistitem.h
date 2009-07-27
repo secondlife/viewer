@@ -57,7 +57,9 @@ public:
 			{};
 		} buttons;
 
-        Params() : avatar_icon("avatar_icon",LLUUID()), user_name("user_name","")
+        Params() 
+		:	avatar_icon("avatar_icon"), 
+			user_name("user_name")
         {};
 	};
 

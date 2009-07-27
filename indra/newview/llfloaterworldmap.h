@@ -49,6 +49,7 @@ class LLFriendObserver;
 class LLInventoryModel;
 class LLInventoryObserver;
 class LLItemInfo;
+class LLLineEditor;
 class LLTabContainer;
 
 class LLFloaterWorldMap : public LLFloater

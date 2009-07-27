@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<filter_editor select_on_focus="true"
+               background="TextField_Search_Off" >
+  <clear_filter_button label="" 
+                       image_unselected="Icon_Close_Foreground"
+                       image_selected="Icon_Close_Press" />
+</filter_editor>

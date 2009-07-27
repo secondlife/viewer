@@ -98,7 +98,7 @@ public:
 
 	void dump();
 	
-	const string_vec_t& getUltimateFallbackList() const { return mUltimateFallbackList; }
+	const string_vec_t& getUltimateFallbackList() const;
 
 private:
 	LLFontGL *createFont(const LLFontDescriptor& desc);

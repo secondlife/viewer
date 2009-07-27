@@ -37,8 +37,6 @@
 
 #include "llcallbackmap.h"
 #include "lluictrl.h"
-#include "llbutton.h"
-#include "lllineeditor.h"
 #include "llviewborder.h"
 #include "lluistring.h"
 #include "v4color.h"
@@ -49,6 +47,7 @@ const S32 LLPANEL_BORDER_WIDTH = 1;
 const BOOL BORDER_YES = TRUE;
 const BOOL BORDER_NO = FALSE;
 
+class LLButton;
 
 /*
  * General purpose concrete view base class.
@@ -62,11 +61,11 @@ public:
 	struct LocalizedString : public LLInitParam::Block<LocalizedString>
 	{
 		Mandatory<std::string>	name;
-		Mandatory<std::string>	text;
+		Mandatory<std::string>	value;
 		
 		LocalizedString()
 		:	name("name"),
-			text("value")
+			value("value")
 		{}
 	};
 
