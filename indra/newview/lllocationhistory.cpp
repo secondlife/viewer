@@ -55,6 +55,11 @@ void LLLocationHistory::addItem(std::string item)
 		mItems.erase(mItems.begin(), mItems.end()-max_items);
 }
 
+void LLLocationHistory::removeItems()
+{
+	mItems.erase(mItems.begin(), mItems.end());
+}
+
 
 bool LLLocationHistory::getMatchingItems(std::string substring, location_list_t& result) const
 {

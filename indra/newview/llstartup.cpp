@@ -891,10 +891,13 @@ bool idle_startup()
 		}
 
 		//Default the path if one isn't set.
-		if (gSavedPerAccountSettings.getString("InstantMessageLogPath").empty())
+		if (gSavedPerAccountSettings.getString("InstantMessageLogFolder").empty())
 		{
 			gDirUtilp->setChatLogsDir(gDirUtilp->getOSUserAppDir());
-			gSavedPerAccountSettings.setString("InstantMessageLogPath",gDirUtilp->getChatLogsDir());
+			std::string chat_log_dir = gDirUtilp->getChatLogsDir();
+			std::string chat_log_top_folder=gDirUtilp->getBaseFileName(chat_log_dir);
+			gSavedPerAccountSettings.setString("InstantMessageLogPath",chat_log_dir);
+			gSavedPerAccountSettings.setString("InstantMessageLogFolder",chat_log_top_folder);
 		}
 		else
 		{

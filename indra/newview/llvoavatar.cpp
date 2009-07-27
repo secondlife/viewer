@@ -170,8 +170,8 @@ const LLColor4 DUMMY_COLOR = LLColor4(0.5,0.5,0.5,1.0);
 enum ERenderName
 {
 	RENDER_NAME_NEVER,
-	RENDER_NAME_FADE,
-	RENDER_NAME_ALWAYS
+	RENDER_NAME_ALWAYS,	
+	RENDER_NAME_FADE
 };
 
 //-----------------------------------------------------------------------------
@@ -2603,7 +2603,8 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	{
 		render_name = render_name
 			&& !gAgent.cameraMouselook()
-			&& (visible_chat || !gSavedSettings.getBOOL("RenderNameHideSelf"));
+			&& (visible_chat || (gSavedSettings.getBOOL("RenderNameShowSelf") 
+								 && gSavedSettings.getS32("AvatarNameTagMode") ));
 	}
 
 	if ( render_name )

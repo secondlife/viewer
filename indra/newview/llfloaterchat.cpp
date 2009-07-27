@@ -85,6 +85,7 @@
 const F32 INSTANT_MSG_SIZE = 8.0f;
 const F32 CHAT_MSG_SIZE = 8.0f;
 
+
 //
 // Global statics
 //
@@ -203,7 +204,7 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 void log_chat_text(const LLChat& chat)
 {
 		std::string histstr;
-		if (gSavedPerAccountSettings.getBOOL("LogChatTimestamp"))
+		if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
 			histstr = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate")) + chat.mText;
 		else
 			histstr = chat.mText;
@@ -213,7 +214,7 @@ void log_chat_text(const LLChat& chat)
 // static
 void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 {	
-	if ( gSavedPerAccountSettings.getBOOL("LogChat") && log_to_file) 
+	if ( (gSavedPerAccountSettings.getS32("IMLogOptions")!=LOG_IM) && log_to_file) 
 	{
 		log_chat_text(chat);
 	}
@@ -367,7 +368,7 @@ void LLFloaterChat::addChat(const LLChat& chat,
 		}
 	}
 
-	if(from_instant_message && gSavedPerAccountSettings.getBOOL("LogChatIM"))
+	if(from_instant_message && (gSavedPerAccountSettings.getS32("IMLogOptions")== LOG_BOTH_TOGETHER))
 		log_chat_text(chat);
 	
 	if(from_instant_message && gSavedSettings.getBOOL("IMInChatHistory")) 	 

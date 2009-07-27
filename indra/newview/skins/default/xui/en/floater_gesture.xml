@@ -38,11 +38,11 @@
         <scroll_list.columns
          label="Name"
          name="name"
-         width="105" />
+         width="90" />
         <scroll_list.columns
          label="Trigger"
          name="trigger"
-         width="70" />
+         width="80" />
        <scroll_list.columns
          label=""
          name="key"

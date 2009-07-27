@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  background_visible="true"
- bg_alpha_color="0.3 0.3 0.3 1"
  follows="left|top|right|bottom"
  height="400"
  label="Places"
@@ -11,7 +10,7 @@
  min_width="240"
  name="places panel"
  top="400"
- width="355">
+ width="305">
     <panel.string
      name="landmarks_tab_title">
         Landmarks
@@ -22,22 +21,39 @@
     </panel.string>
     <search_editor
      follows="left|top|right"
-     height="16"
+     height="20"
      label="Filter"
      layout="topleft"
-     left="10"
+     left="15"
      name="Filter"
-     top="4"
-     width="335" />
+     top="3"
+     width="270"
+     font="SansSerif"
+     background_image="TextField_Search_Off"
+     text_pad_left="23"
+     text_color="black"/>
+    <button
+      name="landmark_search"
+      layout="topleft"
+      top="5"
+      left="23"
+      width="13"
+      height="13"
+      scale_image="false"
+      follows="left|top|right"
+      font="SansSerifBigBold"
+      image_selected="Search"
+      image_unselected="Search"
+      picture_style="true"/>
     <tab_container
      follows="left|top|right|bottom"
      height="326"
      layout="topleft"
-     left_delta="0"
+     left="10"
      name="Places Tabs"
      tab_position="top"
      top_pad="19"
-     width="335" />
+     width="280" />
     <panel
      class="panel_place_info"
      filename="panel_place_info.xml"
@@ -48,7 +64,7 @@
      name="panel_place_info"
      top="-310"
      visible="false"
-     width="355" />
+     width="280" />
     <button
      follows="bottom|left"
      font="SansSerifSmallBold"
@@ -58,14 +74,14 @@
      left_delta="10"
      name="teleport_btn"
      top_pad="5"
-     width="90" />
+     width="80" />
     <button
      follows="bottom|left"
      font="SansSerifSmallBold"
      height="25"
      label="Show on Map"
      layout="topleft"
-     left_pad="5"
+     left_pad="0"
      name="map_btn"
      top_delta="0"
      width="110" />
@@ -76,7 +92,7 @@
      height="25"
      label="Share"
      layout="topleft"
-     left_pad="5"
+     left_pad="0"
      name="share_btn"
      top_delta="0"
      width="60" />
@@ -87,7 +103,7 @@
      height="25"
      label="▼"
      layout="topleft"
-     left_pad="35"
+     left_pad="0"
      name="overflow_btn"
      top_delta="0"
      width="30" />

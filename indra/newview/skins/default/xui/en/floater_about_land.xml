@@ -56,7 +56,7 @@
             </panel.string>
             <panel.string
              name="area_size_text">
-                [AREA] sq.m.
+                [AREA] m²
             </panel.string>
             <panel.string
              name="auction_id_text">
@@ -264,7 +264,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              layout="topleft"
              left="96"
              name="check deed"
-             tool_tip="A group officer can deed this land to the group, so it will be supported by the group&amp;apos;s land allocation."
+             tool_tip="A group officer can deed this land to the group, so it will be supported by the group&apos;s land allocation."
              top="164"
              width="116" />
             <button
@@ -324,7 +324,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              name="For Sale: Price L$[PRICE]."
              top_delta="0"
              width="226">
-                Price: L$[PRICE] (L$[PRICE_PER_SQM]/sq.m.).
+                Price: L$[PRICE] (L$[PRICE_PER_SQM]/m²).
             </text>
             <text
              enabled="false"
@@ -437,7 +437,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              name="PriceText"
              top_delta="0"
              width="186">
-                4048 sq.m.
+                4048 m²
             </text>
             <text
              type="string"
@@ -1176,7 +1176,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
             </panel.string>
             <panel.string
              name="search_disabled_small_tooltip">
-                This option is disabled because this parcel&apos;s area is 128 sq.m. or smaller.
+                This option is disabled because this parcel&apos;s area is 128 m² or smaller.
 Only large parcels can be listed in search.
             </panel.string>
             <panel.string

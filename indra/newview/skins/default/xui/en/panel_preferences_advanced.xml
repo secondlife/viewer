@@ -70,45 +70,6 @@ Beware the Trout!
      top_pad="10"
      width="200" />
     
-        <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="12"
-     layout="topleft"
-     left="30"
-     name="UI Size:"
-     top_pad="10"
-     width="100">
-        UI Size:
-    </text>
-    <slider
-     can_edit_text="true"
-     control_name="UIScaleFactor"
-     decimal_digits="2"
-     follows="left|top"
-     height="15"
-     increment="0.025"
-     initial_value="1"
-     layout="topleft"
-     left_delta="0"
-     max_val="1.4"
-     min_val="0.75"
-     name="ui_scale_slider"
-     top_pad="10"
-     width="180" />
-    <spinner
-     control_name="UIScaleFactor"
-     height="16"
-     increment="0.025"
-     initial_value="1"
-     layout="topleft"
-     left_pad="10"
-     max_val="1.4"
-     min_val="0.75"
-     name="ui_scale_slider"
-     top_delta="0"
-     width="58" />
     <check_box
      control_name="UIAutoScale"
      height="16"

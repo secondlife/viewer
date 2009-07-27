@@ -292,9 +292,11 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 
 			return TRUE;
 		}
-		// Could be first left-click on nothing
-		LLFirstUse::useLeftClickNoHit();
-
+	//////////
+	//	// Could be first left-click on nothing
+	//	LLFirstUse::useLeftClickNoHit();
+	/////////
+		
 		// Eat the event
 		return LLTool::handleMouseDown(x, y, mask);
 	}

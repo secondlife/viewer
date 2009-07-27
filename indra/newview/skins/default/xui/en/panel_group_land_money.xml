@@ -29,6 +29,7 @@
      name="land_contrib_error">
         Unable to set your land contribution.
     </panel.string>
+    <!--
     <button
       follows="left|top"
      height="16"
@@ -38,6 +39,7 @@
      name="help_button"
      top="8"
      width="20" />
+    -->
     <text
      type="string"
      length="1"
@@ -45,10 +47,10 @@
      font="SansSerifBig"
      height="16"
      layout="topleft"
-     left_delta="-250"
+     left="10"
      name="group_land_heading"
-     top_delta="-4"
-     width="150">
+     top_pad="10"
+     width="260">
         Group Owned Land
     </text>
     <scroll_list
@@ -56,12 +58,12 @@
      follows="top"
      font="SansSerifSmall"
      heading_height="14"
-     height="120"
+     height="100"
      layout="topleft"
      left_delta="0"
      name="group_parcel_list"
-     top_pad="6"
-     width="275">
+     top_pad="4"
+     width="265">
         <scroll_list.columns
          label="Parcel"
          name="name"
@@ -86,13 +88,13 @@
     <button
      follows="top"
      height="20"
-     label="Map"
+     label="Show on Map"
      label_selected="Show on Map"
      layout="topleft"
-     left="225"
+     left="150"
      name="map_button"
-     top="150"
-     width="50"
+     top_pad="10"
+     width="125"
      enabled="false" />
     <text
      type="string"
@@ -101,10 +103,10 @@
      halign="right"
      height="16"
      layout="topleft"
-     left_delta="-226"
+     left="5"
      name="total_contributed_land_label"
-     top_delta="4"
-     width="100">
+     top_pad="10"
+     width="130">
         Total Contribution:
     </text>
     <text
@@ -116,8 +118,8 @@
      left_pad="5"
      name="total_contributed_land_value"
      top_delta="0"
-     width="100">
-        [AREA] sq. meters
+     width="120">
+        [AREA] m²
     </text>
     <text
      type="string"
@@ -126,10 +128,10 @@
      halign="right"
      height="16"
      layout="topleft"
-     left="0"
+     left="5"
      name="total_land_in_use_label"
-     top="172"
-     width="100">
+     top_pad="0"
+     width="130">
         Total Land In Use:
     </text>
     <text
@@ -141,8 +143,8 @@
      left_pad="5"
      name="total_land_in_use_value"
      top_delta="0"
-     width="150">
-        [AREA] sq. meters
+     width="120">
+        [AREA] m²
     </text>
     <text
      type="string"
@@ -151,10 +153,10 @@
      halign="right"
      height="16"
      layout="topleft"
-     left="10"
+     left="5"
      name="land_available_label"
-     top="190"
-     width="90">
+     top_pad="0"
+     width="130">
         Land Available:
     </text>
     <text
@@ -167,7 +169,7 @@
      name="land_available_value"
      top_delta="0"
      width="120">
-        [AREA] sq. meters
+        [AREA] m²
     </text>
     <text
      type="string"
@@ -176,10 +178,10 @@
      halign="right"
      height="16"
      layout="topleft"
-     left="0"
+     left="5"
      name="your_contribution_label"
-     top="208"
-     width="100">
+     top_pad="0"
+     width="130">
         Your Contribution:
     </text>
     <line_editor
@@ -192,7 +194,7 @@
      max_length="10"
      name="your_contribution_line_editor"
      top_delta="-2"
-     width="70" />
+     width="95" />
     <text
      type="string"
      length="1"
@@ -202,7 +204,7 @@
      left_pad="5"
      name="your_contribution_units"
      top_delta="2">
-         sq. meters
+        ( m² )
     </text>
      <text
      type="string"
@@ -211,11 +213,10 @@
      halign="right"
      height="16"
      layout="topleft"
-     left="20"
+     left_pad="5"
      name="your_contribution_max_value"
-     top="226"
      top_delta="0"
-     width="180">
+     width="95">
         ([AMOUNT] max)
     </text>
     <icon
@@ -224,7 +225,7 @@
      layout="topleft"
      left="9"
      name="group_over_limit_icon"
-     top="245"
+     top_pad="0"
      visible="false"
      width="16" />
     <text
@@ -233,7 +234,7 @@
      length="1"
      word_wrap="true"
      font="SansSerifSmall"
-     height="50"
+     height="40"
      layout="topleft"
      left_pad="5"
      name="group_over_limit_text"
@@ -249,21 +250,21 @@
      font="SansSerifBig"
      height="16"
      layout="topleft"
-     left="12"
+     left="10"
      name="group_money_heading"
-     top_delta="40"
+     top_pad="0"
      width="150">
         Group L$
     </text>
     <tab_container
      follows="all"
-     height="180"
+     height="100"
      layout="topleft"
-     left="6"
+     left="10"
      name="group_money_tab_container"
      tab_position="top"
      top_pad="10"
-     width="270">
+     width="265">
         <panel
          border="true"
          follows="left|top|right|bottom"
@@ -320,21 +321,21 @@
              label="&lt; Earlier"
              label_selected="&lt; Earlier"
              layout="topleft"
-             left="30"
+             left="5"
              name="earlier_details_button"
              tool_tip="Go back in time"
-             top_pad="5"
-             width="80" />
+             top_pad="10"
+             width="125" />
             <button
              height="20"
              label="Later &gt;"
              label_selected="Later &gt;"
              layout="topleft"
-             left_pad="20"
+             left_pad="5"
              name="later_details_button"
              tool_tip="Go forward in time"
              top_delta="0"
-             width="80" />  
+             width="125" />  
         </panel>
       <panel
          border="true"
@@ -366,21 +367,21 @@
              label="&lt; Earlier"
              label_selected="&lt; Earlier"
              layout="topleft"
-             left="30"
+             left="5"
              name="earlier_sales_button"
              tool_tip="Go back in time"
-             top_pad="5"
-             width="80" />
+             top_pad="10"
+             width="125" />
             <button
              height="20"
              label="Later &gt;"
              label_selected="Later &gt;"
              layout="topleft"
-             left_pad="20"
+             left_pad="5"
              name="later_sales_button"
              tool_tip="Go forward in time"
              top_delta="0"
-             width="80" />
+             width="125" />
         </panel>
     </tab_container>
 </panel> 

@@ -59,14 +59,15 @@ public:
 	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 
 	void handleLoginComplete();
-
+	void clearHistoryCache();
+	
 private:
 	LLNavigationBar();
 
 	void rebuildTeleportHistoryMenu();
 	void showTeleportHistoryMenu();
 	void invokeSearch(std::string search_text);
-	
+
 	// callbacks
 	bool onLocationContextMenuItemEnabled(const LLSD& userdata);
 	void onLocationContextMenuItemClicked(const LLSD& userdata);
@@ -98,6 +99,7 @@ private:
 	LLButton*				mBtnHelp;
 	LLLineEditor*			mLeSearch;
 	LLLocationInputCtrl*	mCmbLocation;
+	bool					mPurgeTPHistoryItems;
 };
 
 #endif

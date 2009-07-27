@@ -8,8 +8,8 @@
  left="0"
  name="panel_picks"
  top="0"
- width="355">
-    <text
+ width="305">
+    <!--<text
      type="string"
      length="1"
      follows="top|left|right"
@@ -20,24 +20,24 @@
      name="pick_title"
      text_color="white"
      top="10"
-     width="330"
+     width="270"
      word_wrap="true">
         [NAME]&apos;s favorite places in Second Life...
-    </text>
+    </text>-->
     <!-- below is a special title shown for the Agent on the "Picks" tab-->
     <text
      type="string"
      length="1"
      follows="top"
-     font="SansSerifHugeBold"
-     height="55"
+     font="SansSerifBold"
+     height="35"
      layout="topleft"
      left="10"
      name="pick_title_agent"
      text_color="white"
      top="10"
      visible="false" 
-     width="330"
+     width="270"
      word_wrap="true">
         Tell everyone about your favorite Second Life places...
     </text>
@@ -48,10 +48,10 @@
      left="8"
      name="profile_scroll"
      opaque="true"
-     color="0.5 0.5 0.5 1.0"
+     color="DkGray2"
      reserve_scroll_corner="false"
      top_pad="0"
-     width="340">
+     width="260">
         <panel
          bevel_style="in"
          height="40"
@@ -59,12 +59,11 @@
          left="0"
          name="back_panel"
          top="0"
-         width="310" />
+         width="260" />
     </scroll_container>
     <panel
      background_visible="true"
      bevel_style="in"
-     bg_alpha_color="black"
      enabled="false"
      follows="left|right|bottom"
      height="25"
@@ -74,48 +73,52 @@
      name="edit_panel"
      visible="false"
      top_pad="0"
-     width="340">
+     width="260">
         <button
          enabled="false"
          follows="bottom|left"
          font="SansSerifBigBold"
-         height="16"
-         image_hover_selected="gear.tga"
-         image_selected="gear.tga"
-         image_unselected="gear.tga"
+         height="18"
+         hover_glow_amount="0.15"
+         image_selected="OptionsMenu_Press"
+         image_unselected="OptionsMenu_Off"
          layout="topleft"
-         left="5"
+         left="10"
          name="gear_menu_btn"
          picture_style="true"
          top="5"
-         width="16" />
+         width="18" />
         <button
          follows="bottom|left"
          font="SansSerifBigBold"
-         height="16"
-         image_hover_selected="plus.tga"
-         image_selected="plus.tga"
-         image_unselected="plus.tga"
+         height="18"
+         image_disabled="AddItem_Off"
+         image_disabled_selected="AddItem_Press"
+         hover_glow_amount="0.15"
+         image_selected="AddItem_Press"
+         image_unselected="AddItem_Off"
          layout="topleft"
          left="35"
          name="new_btn"
          picture_style="true"
          tool_tip="Create New Pick at Current Location"
          top="5"
-         width="16" />
+         width="18" />
         <button
          follows="bottom|right"
          font="SansSerifBigBold"
-         height="16"
-         image_hover_selected="minus.tga"
-         image_selected="minus.tga"
-         image_unselected="minus.tga"
+         height="18"
+         image_disabled="TrashItem_Off"
+         image_disabled_selected="TrashItem_Press"
+         hover_glow_amount="0.15"
+         image_selected="TrashItem_Press"
+         image_unselected="TrashItem_Off"
          layout="topleft"
          name="trash_btn"
          picture_style="true"
          right="-10"
          top="5"
-         width="16" />
+         width="18" />
     </panel>
     <panel
      follows="bottom|left"
@@ -124,7 +127,7 @@
      left="8"
      name="buttons_cucks"
      bottom="625"
-     width="345">
+     width="280">
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
@@ -135,29 +138,29 @@
          name="info_btn"
          enabled="false"
          top="0"
-         width="50" />
+         width="60" />
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
          height="25"
          label="Teleport"
          layout="topleft"
-         left_pad="5"
+         left_pad="0"
          name="teleport_btn"
          enabled="false"
          top="0"
-         width="70" />
+         width="75" />
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
          height="25"
          label="Show on Map"
          layout="topleft"
-         left_pad="5"
+         left_pad="0"
          name="show_on_map_btn"
          enabled="false"
          top="0"
-         width="90" />
+         width="105" />
         <button
          enabled="false"
          follows="bottom|right"
@@ -165,9 +168,9 @@
          height="25"
          label="Verb"
          layout="topleft"
-         right="-15"
+         left_pad="0"
          name="verb_btn"
          top="0"
-         width="50" />
+         width="60" />
     </panel>
 </panel>

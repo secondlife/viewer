@@ -1000,22 +1000,17 @@
             width="170"
             max_chars="20"
             mouse_opaque="true"
-            name="sale type">
-         <combo_item
-            name="Copy"
-            value="Copy">
-            Copy
-         </combo_item>
-         <combo_item
-            name="Contents"
-            value="Contents">
-                  Contents
-         </combo_item>
-         <combo_item
-            name="Original"
-            value="Original">
-                  Original
-         </combo_item>
+            name="sale type"
+            intial_value="2">
+        <combo_item
+           label="Copy" 
+           value="2" />
+        <combo_item
+           label="Contents"  
+           value="3" />
+        <combo_item
+           label="Original" 
+           value="1" />
       </combo_box>
 <!-- NEW PRICE SPINNER -->
       <spinner
@@ -2793,7 +2788,7 @@
          name="label_area_price"
          top="48"
          width="150">
-            Price: L$[PRICE] for [AREA] sq. m.
+            Price: L$[PRICE] for [AREA] m²
         </text>
         <text
          type="string"
@@ -2805,7 +2800,7 @@
          name="label_area"
          top_delta="0"
          width="150">
-            Area: [AREA] sq. m.
+            Area: [AREA] m²
         </text>
         <button
          follows="left|top"

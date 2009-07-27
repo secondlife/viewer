@@ -102,7 +102,7 @@
    name="MissingAlert"
    label="Unknown Alert Message"
    type="alertmodal">
-Your version of Second Life does not know how to display the alert message it just received.
+Your version of Second Life does not know how to display the alert it just received.  Please verify that you have the latest Viewer installed.
 
 Error details: The alert called &apos;[_NAME]&apos; was not found in notifications.xml.
     <usetemplate
@@ -154,7 +154,7 @@ No tutorial is currently available.
    icon="alertmodal.tga"
    name="BadInstallation"
    type="alertmodal">
-An error occurred while updating Second Life. Please download the latest version from secondlife.com.
+ An error occurred while updating Second Life.  Please download the latest version of the Viewer. http://get.secondlife.com
     <usetemplate
      name="okbutton"
      yestext="Ok"/>
@@ -164,9 +164,9 @@ An error occurred while updating Second Life. Please download the latest version
    icon="alertmodal.tga"
    name="LoginFailedNoNetwork"
    type="alertmodal">
-Network Error: Could not establish a connection. 
+Could not connect to the Second Life Grid.
 &apos;[DIAGNOSTIC]&apos;
-Please check your network connection.
+Make sure your Internet connection is working properly.
 	<usetemplate
      name="okbutton"
      yestext="Ok"/>
@@ -2342,9 +2342,10 @@ You can use [SECOND_LIFE] normally and other users will see you correctly.
    icon="alertmodal.tga"
    name="FirstRun"
    type="alertmodal">
+
 [SECOND_LIFE] installation is complete.
 
-If this is your first time using [SECOND_LIFE], you will need to create an account before you can log on.
+If this is your first time using [SECOND_LIFE], you will need to create an account before you can log in.
 Return to www.secondlife.com to create a new account?
     <usetemplate
      name="okcancelbuttons"
@@ -2406,7 +2407,7 @@ Please choose the male or female avatar. You can change your mind later.
    icon="alertmodal.tga"
    name="GrantedModifyRights"
    type="alertmodal">
-You have been granted the privilege to modify [FIRST_NAME] [LAST_NAME]&apos;s objects.
+[FIRST_NAME] [LAST_NAME] has given you permission to edit their objects.
   </notification>
 
   <notification
@@ -2914,8 +2915,7 @@ Chat and instant messages will be hidden. Instant messages will get your Busy mo
    icon="alert.tga"
    name="JoinedTooManyGroupsMember"
    type="alert">
-You are a member of too many groups to join another one. Please leave at least one group before joining this one, or decline the offer.
-To leave a group select the &apos;Groups...&apos; option from the &apos;Edit&apos; menu.
+You have reached your maximum number of groups. Please leave another group before joining this one, or decline the offer.
 [NAME] has invited you to join a group as a member.
 [INVITE]
     <usetemplate
@@ -4173,7 +4173,7 @@ Go to the Second Life web site to see your account history?
    icon="alertmodal.tga"
    name="ClickOpenF1Help"
    type="alertmodal">
-Visit the Second Life Support Web site?
+View Second Life help?
     <usetemplate
      ignoretext="When visiting the Second Life Support Website."
      name="okcancelignore"
@@ -4189,7 +4189,7 @@ Are you sure you want to quit?
     <usetemplate
      ignoretext="When Quitting Second Life."
      name="okcancelignore"
-     notext="Continue"
+     notext="Don&apos;t Quit"
      yestext="Quit"/>
   </notification>
 
@@ -4385,7 +4385,7 @@ Would you like to leave Busy Mode before completing this transaction?
    icon="alertmodal.tga"
    name="ConfirmEmptyTrash"
    type="alertmodal">
-Are you sure you want to permanently remove the contents of your Trash folder?
+Are you sure you want to permanently delete the contents of your Trash?
     <usetemplate
      ignoretext="When emptying your inventory trash folder"
      name="okcancelignore"
@@ -4430,7 +4430,7 @@ Are you sure you want to clear your list of saved URLs?
    icon="alertmodal.tga"
    name="ConfirmEmptyLostAndFound"
    type="alertmodal">
-Are you sure you want to permanently remove the contents of your Lost And Found folder?
+Are you sure you want to permanently delete the contents of your Lost And Found?
     <usetemplate
      ignoretext="When emptying your inventory Lost And Found folder"
      name="okcancelignore"
@@ -4442,13 +4442,13 @@ Are you sure you want to permanently remove the contents of your Lost And Found 
    icon="alertmodal.tga"
    name="CopySLURL"
    type="alertmodal">
-The following SLURL has been copied to your clipboard:
+The following SLurl has been copied to your clipboard:
  [SLURL]
 
 Put it in a web page to give others easy access to this location or try it out yourself by pasting it into the address bar of your web browser.
     <form name="form">
       <ignore name="ignore"
-       text="When copying a SLURL to your clipboard"/>
+       text="When copying a SLurl to your clipboard"/>
     </form>
   </notification>
 
@@ -4924,7 +4924,7 @@ Your chat session with [NAME] must close.
    icon="alertmodal.tga"
    name="Cannot_Purchase_an_Attachment"
    type="alertmodal">
-Items may not be purchased while they are part of an attachment.
+You can&apos;t buy an object while it is attached.
   </notification>
 
   <notification
@@ -4942,7 +4942,7 @@ Granting this request gives a script ongoing permission to take Linden dollars (
    icon="alertmodal.tga"
    name="AutoWearNewClothing"
    type="alertmodal">
-Would you like to automatically wear the clothing item you create?
+Automatically wear the clothing you create?
     <usetemplate
      ignoretext="Automatically wear new clothing"
      name="okcancelignore"
@@ -4954,13 +4954,12 @@ Would you like to automatically wear the clothing item you create?
    icon="alertmodal.tga"
    name="NotAgeVerified"
    type="alertmodal">
-You need to be age-verified in order to access this parcel.
-Would you like to visit the Second Life website to verify your age?
+You must be age-verified to visit this area.  Visit the Second Life website and verify your age?
 
 [_URL]
-    <url option="0" name="url">
+    <url option="0">
 
-			https://secondlife.com/account/verification.php
+	    https://secondlife.com/account/verification.php
     </url>
     <usetemplate
      ignoretext="Warn about lack of age verification"
@@ -4973,8 +4972,7 @@ Would you like to visit the Second Life website to verify your age?
    icon="alertmodal.tga"
    name="Cannot enter parcel: no payment info on file"
    type="alertmodal">
-This parcel requires that you have payment information on file before you can access it.
-Would you like to visit the Second Life website to set this up?
+You must have payment information on file to visit this area.  Visit the Second Life website and set this up?
 
 [_URL]
     <url option="0" name="url">
@@ -4992,7 +4990,7 @@ Would you like to visit the Second Life website to set this up?
    icon="alertmodal.tga"
    name="MissingString"
    type="alertmodal">
-The string [STRING_NAME] is missing from strings.xml
+How odd. The string [STRING_NAME] is missing from strings.xml
   </notification>
 
   <notification
@@ -5055,7 +5053,7 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notifytip.tga"
    name="AddSelfFriend"
    type="notifytip">
-    You cannot add yourself as a friend.
+    Although you&apos;re very nice, you can&apos;t add yourself as a friend.
   </notification>
 
   <notification
@@ -5098,7 +5096,7 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notifytip.tga"
    name="GestureMissing"
    type="notifytip">
-    Gesture [NAME] is missing from database.
+    Hmm. Gesture [NAME] is missing from the database.
   </notification>
 
   <notification
@@ -5128,7 +5126,7 @@ The string [STRING_NAME] is missing from strings.xml
    name="CapsKeyOn"
    type="notifytip">
     Your Caps Lock key is on.
-    As this will affect the password you type in, you will probably want to turn it off.
+    This might affect your password.
   </notification>
 
   <notification
@@ -5142,7 +5140,7 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notifytip.tga"
    name="NotecardNoPermissions"
    type="notifytip">
-    Insufficient permissions to view notecard.
+    You don&apos;t have permission to view this notecard.
   </notification>
 
   <notification
@@ -5229,7 +5227,7 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notifytip.tga"
    name="CannotBuyObjectsFromDifferentOwners"
    type="notifytip">
-    Cannot buy objects from different owners at the same time.
+    You can only buy objects from one owner at a time.
     Please select a single object.
   </notification>
 
@@ -5237,7 +5235,7 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notifytip.tga"
    name="ObjectNotForSale"
    type="notifytip">
-    Object does not appear to be for sale.
+    This object is not for sale.
   </notification>
 
   <notification
@@ -5251,14 +5249,14 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notifytip.tga"
    name="LeavingGodMode"
    type="notifytip">
-    Leaving god mode, level [LEVEL]
+    Now leaving god mode, level [LEVEL]
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="CopyFailed"
    type="notifytip">
-    Copy failed because you lack copy permission
+    You don&apos;t have permission to copy this.
   </notification>
 
   <notification
@@ -5455,7 +5453,7 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notify.tga"
    name="NotSafe"
    type="notify">
-    This land has damage enabled (&apos;not safe&apos;).
+    This land has damage enabled.
     You can be hurt here. If you die, you will be teleported to your home location.
     <unique/>
   </notification>
@@ -5464,8 +5462,8 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notify.tga"
    name="NoFly"
    type="notify">
-    This land has flying disabled (&apos;no fly&apos;).
-    You cannot fly here.
+    This area has flying disabled.
+    You can&apos;t fly here.
     <unique/>
   </notification>
 
@@ -5473,8 +5471,7 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notify.tga"
    name="PushRestricted"
    type="notify">
-    This land is &apos;No Pushing&apos;.
-    You cannot push others here unless you own the land.
+    This area does not allow pushing. You can&apos;t push others here unless you own the land.
     <unique/>
   </notification>
 
@@ -5482,7 +5479,7 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notify.tga"
    name="NoVoice"
    type="notify">
-    This land has voice disabled.
+    This area has voice chat disabled. You won&apos;t be able to hear anyone talking.
     <unique/>
   </notification>
 
@@ -5490,8 +5487,7 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notify.tga"
    name="NoBuild"
    type="notify">
-    This land has building disabled (&apos;no build&apos;).
-    You cannot create objects here.
+    This area has building disabled. You can&apos;t build or rez objects here.
     <unique/>
   </notification>
 
@@ -5513,15 +5509,16 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notify.tga"
    name="NoOutsideScripts"
    type="notify">
-    This land has outside scripts disabled (&apos;no outside scripts&apos;).
-    No scripts will run except those belonging to the land owner.
+    This land has outside scripts disabled.
+
+    No scripts will work here except those belonging to the land owner.
   </notification>
 
   <notification
    icon="notify.tga"
    name="ClaimPublicLand"
    type="notify">
-    Can only claim public land in region you&apos;re in.
+    You can only claim public land in the Region you&apos;re in.
   </notification>
 
   <notification
@@ -5806,7 +5803,7 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notify.tga"
    name="TeleportOffered"
    type="notify">
-    [NAME] has offered to teleport you to his or her location:
+    [NAME] has offered to teleport you to their location:
 
     [MESSAGE]
     <form name="form">
@@ -5917,8 +5914,8 @@ The string [STRING_NAME] is missing from strings.xml
    priority="high"
    sound="UISndAlert"
    type="notify">
-    Region is restarting in [MINUTES] minutes.
-    If you remain in this region you will be logged out.
+    This region will restart in [MINUTES] minutes.
+    If you stay in this region you will be logged out.
   </notification>
 
   <notification
@@ -5927,8 +5924,8 @@ The string [STRING_NAME] is missing from strings.xml
    priority="high"
    sound="UISndAlert"
    type="notify">
-    Region is restarting in [SECONDS] seconds.
-    If you remain in this region you will be logged out.
+    This region will restart in [SECONDS] seconds.
+    If you stay in this region you will be logged out.
   </notification>
 
   <notification
@@ -6002,10 +5999,10 @@ The string [STRING_NAME] is missing from strings.xml
    name="ScriptQuestionCaution"
    priority="high"
    type="notify">
-    &apos;[OBJECTNAME]&apos;, an object owned by &apos;[NAME]&apos;, would like to:
+    An object named &apos;[OBJECTNAME]&apos;, owned by &apos;[NAME]&apos; would like to:
 
     [QUESTIONS]
-    If you do not trust this object and its creator, you should deny the request. For additional information, click the Details button.
+    If you do not trust this object and its creator, you should deny the request.
 
     Grant this request?
     <form name="form">
@@ -6058,8 +6055,7 @@ The string [STRING_NAME] is missing from strings.xml
    name="FirstBalanceIncrease"
    type="notify">
     You just received L$[AMOUNT].
-    Objects and other users may give you L$.
-    Your balance is shown in the upper-right corner of the screen.
+    Your L$ balance is shown in the upper-right.
   </notification>
 
   <notification
@@ -6067,7 +6063,7 @@ The string [STRING_NAME] is missing from strings.xml
    name="FirstBalanceDecrease"
    type="notify">
     You just paid L$[AMOUNT].
-    Your balance is shown in the upper-right corner of the screen.
+    Your L$ balance is shown in the upper-right.
   </notification>
 
   <notification
@@ -6075,15 +6071,15 @@ The string [STRING_NAME] is missing from strings.xml
    name="FirstSit"
    type="notify">
     You are sitting.
-    Use the arrow keys (or AWSD) to change the view.
-    Click the &apos;Stand Up&apos; button to get up.
+    Use your arrow keys (or AWSD) to look around.
+    Click the &apos;Stand Up&apos; button to stand.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstMap"
    type="notify">
-    Click and drag to scroll the map.
+    Click and drag the map to look around.
     Double-click to teleport.
     Use the controls on the right to find things and display different backgrounds.
   </notification>
@@ -6092,11 +6088,10 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notify.tga"
    name="FirstBuild"
    type="notify">
-    You can build new objects in some areas of [SECOND_LIFE].
-    Use the tools in the upper left to build, and try holding down Ctrl or Alt to rapidly switch tools.
-    Press Esc to stop building.
+    You have opened the Build Tools. Every object you see around you was created using these tools.
   </notification>
 
+<!--
   <notification
    icon="notify.tga"
    name="FirstLeftClickNoHit"
@@ -6105,14 +6100,12 @@ The string [STRING_NAME] is missing from strings.xml
     If the mouse pointer changes to a hand, you can interact with the object.
     Right-click always shows a menu of things you can do.
   </notification>
-
+-->
   <notification
    icon="notify.tga"
    name="FirstTeleport"
    type="notify">
-    This region doesn&apos;t allow point-to-point teleports, so you&apos;ve been transported to the nearest telehub.
-    Your destination is marked with a tall beacon.
-    Follow the red arrow to the beacon, or click the arrow to dismiss the beacon.
+    You can only teleport to certain areas in this region. The arrow points to your specific destination. Click to dismiss it.
   </notification>
 
   <notification
@@ -6129,19 +6122,19 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notify.tga"
    name="FirstAppearance"
    type="notify">
-    You are editing your appearance.
-    To rotate and zoom view, use the arrow keys.
-    When you are finished, press &apos;Save All&apos; to save your look and exit.
-    You can edit your appearance as often as you like.
+    You are editing your Appearance.
+Use the arrow keys to look around.
+When you are done, press &apos;Save All&apos;.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstInventory"
    type="notify">
-    This is your inventory, which contains objects, notecards, clothing, and other things you own.
-    * To wear an object or outfit folder, drag it onto yourself.
-    * To bring an object into the world, drag it onto the ground.
+    This is your Inventory, which contains items you own.
+
+    * To wear something, drag it onto yourself.
+    * To rez something inworld, drag it onto the ground.
     * To read a notecard, double-click it.
   </notification>
 
@@ -6149,36 +6142,35 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notify.tga"
    name="FirstSandbox"
    type="notify">
-    This is a sandbox region.
-    Objects you build here may be deleted after you leave the area, Sandboxes clean on a regular basis, please refer to the information at the top of the screen next to the region name.
+   This is a sandbox area, and is meant to help Residents learn how to build.
 
-    Sandbox regions are uncommon, and are marked with signs.
+   Things you build here will be deleted after you leave, so don&apos;t forget to right-click and choose &apos;take&apos; to move your creation to your Inventory.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstFlexible"
    type="notify">
-    This object is flexible.
-    Flexible objects may not be physical and must be phantom until the flexible checkbox is unchecked.
+    This object is flexible. Flexis must be phantom and not physical.
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstDebugMenus"
    type="notify">
-    You have enabled the Advanced menu.
-    This menu contains features useful for developers debugging Second Life.
-    To toggle this menu on Windows press Ctrl-Alt-D. On Mac press Cmd-Opt-Shift-D.
+    You opened the Advanced menu.
+
+    To toggle this menu,
+    Windows: Ctrl-Alt-D
+    Mac: &#8984;-Opt-D
+
   </notification>
 
   <notification
    icon="notify.tga"
    name="FirstSculptedPrim"
    type="notify">
-    You are editing a sculpted prim.
-    Sculpted prims require a special texture to specify their shape.
-    You can find example sculpted textures in the inventory library.
+    You are editing a Sculpted prim. Sculpties require a special texture to define their shape.
   </notification>
 
   <notification
@@ -6271,7 +6263,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    icon="notify.tga"
    name="VoiceInviteAdHoc"
    type="notify">
-[NAME] has joined a Voice Chat call with a conference chat...
+[NAME] has joined a voice chat call with a conference chat.
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this user.
     <unique>
       <context key="NAME"/>
@@ -6398,7 +6390,7 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
    icon="notifytip.tga"
    name="Cannot enter parcel: not a group member"
    type="notifytip">
-    Cannot enter parcel, you are not a member of the appropriate group.
+    Only members of a certain group can visit this area.
   </notification>
 
   <notification
@@ -6441,7 +6433,7 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
    name="ServerVersionChanged"
    priority="high"
    type="notifytip">
-    The region you have entered is running a different simulator version. Click this message for details.
+    You just entered a region using a different server version, which may affect performance. Click to see the release notes.
   </notification>
 
   <notification
@@ -6449,7 +6441,7 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
    name="UnableToOpenCommandURL"
    priority="high"
    type="notifytip">
-    The URL you clicked cannot be opened from this web browser.
+    The link you clicked cannot be opened from this web browser.
   </notification>
 
   <notification name="IMToast" type="notifytoast">
@@ -6458,6 +6450,21 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
       <button index="0" name="respondbutton" text="Respond"/>
     </form>
   </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="CreateGroupCost"
+   type="alertmodal">
+    Creating this group will cost L$100.
+    Groups need more than one member, or they are deleted forever.
+    Please invite members within 48 hours.
+    <usetemplate
+     canceltext="Cancel"
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Create group for L$100"/>
+  </notification>
+
 
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.

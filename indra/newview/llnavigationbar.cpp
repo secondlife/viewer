@@ -176,7 +176,8 @@ LLNavigationBar::LLNavigationBar()
 	mBtnHome(NULL),
 	mBtnHelp(NULL),
 	mCmbLocation(NULL),
-	mLeSearch(NULL)
+	mLeSearch(NULL),
+	mPurgeTPHistoryItems(false)
 {
 	setIsChrome(TRUE);
 	
@@ -247,6 +248,12 @@ BOOL LLNavigationBar::postBuild()
 
 void LLNavigationBar::draw()
 {
+	if(mPurgeTPHistoryItems)
+	{
+		LLTeleportHistory::getInstance()->purgeItems();
+		onTeleportHistoryChanged();
+		mPurgeTPHistoryItems = false;
+	}
 	LLPanel::draw();
 }
 
@@ -530,4 +537,13 @@ void LLNavigationBar::handleLoginComplete()
 void LLNavigationBar::invokeSearch(std::string search_text)
 {
 	LLFloaterReg::showInstance("search", LLSD().insert("panel", "all").insert("id", LLSD(search_text)));
+}
+
+void LLNavigationBar::clearHistoryCache()
+{
+	mCmbLocation->removeall();
+	LLLocationHistory* lh = LLLocationHistory::getInstance();
+	lh->removeItems();
+	lh->save();	
+	mPurgeTPHistoryItems= true;
 }

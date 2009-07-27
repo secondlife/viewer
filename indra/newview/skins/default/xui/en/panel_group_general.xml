@@ -7,8 +7,8 @@
  layout="topleft"
  left="1"
  name="general_tab"
- top="466"
- width="279">
+ top="514"
+ width="280">
     <panel.string
      name="help_text">
         The General tab contains general information about
@@ -26,25 +26,19 @@ Hover your mouse over the options for more help.
         Retrieving member data
     </panel.string>
     <panel.string
-     name="confirm_group_create_str">
-        Creating this group will cost L$100. 
-Are you really, really, REALLY sure you want to spend L$100 to create this group?
-Be aware that if nobody else joins this group within 48 hours, it will be disbanded and the group&apos;s name will be unavailable for future use.
-    </panel.string>
-    <panel.string
      name="group_join_btn">
         Join (L$[AMOUNT])
     </panel.string>
-    <button
+    <!--<button
      follows="left|top"
      height="16"
      label="?"
      label_selected="?"
      layout="topleft"
-     left="250"
+     left="255"
      name="help_button"
      top="8"
-     width="20" />
+     width="20" /> -->
     <line_editor
      follows="left|top"
      font="SansSerifSmall"
@@ -52,11 +46,11 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      height="16"
      label="Type your new group name here"
      layout="topleft"
-     left_delta="-245"
+     left="10"
      max_length="35"
      name="group_name_editor"
-     top_delta="0"
-     width="200" />
+     top="8"
+     width="235" />
     <text
      type="string"
      length="1"
@@ -67,7 +61,7 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      left_delta="0"
      name="group_name"
      top_delta="0"
-     width="200">
+     width="240">
         Type your new group name here
     </text>
     <text
@@ -79,17 +73,17 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      left_delta="0"
      name="prepend_founded_by"
      top_pad="4"
-     width="67">
-        Founded by
+     width="270">
+        Founded by:
     </text>
     <name_box
      follows="left|top"
      height="16"
      initial_value="(retrieving)"
      layout="topleft"
-     left_delta="63"
+     left="30"
      name="founder_name"
-     top_delta="0"
+     top_pad="0"
      width="133" />
     <text_editor
      type="string"
@@ -101,8 +95,8 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      layout="topleft"
      max_length="511"
      name="charter"
-     right="270"
-     top="42"
+     right="275"
+     top_pad="0"
      width="170"
      word_wrap="true">
         Group Charter
@@ -124,8 +118,8 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      height="16"
      layout="topleft"
      name="group_charter_label"
-     right="270"
-     top="167"
+     right="275"
+     top="190"
      width="170">
         Group Charter
     </text>
@@ -136,7 +130,7 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      label="Join (L$0)"
      label_selected="Join (L$0)"
      layout="topleft"
-     left="7"
+     left="10"
      name="join_button"
      top="160"
      width="85" />
@@ -160,7 +154,7 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      layout="topleft"
      left_delta="0"
      name="text_owners_and_visible_members"
-     top_pad="15"
+     top_pad="30"
      width="270">
         Owners &amp; Visible Members
     </text>
@@ -172,7 +166,7 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      layout="topleft"
      left_delta="0"
      name="text_owners_are_shown_in_bold"
-     top_delta="16"
+     top_pad="0"
      width="270">
         (Owners are shown in bold)
     </text>
@@ -185,7 +179,7 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      layout="topleft"
      left_delta="0"
      name="visible_members"
-     top_pad="8"
+     top_pad="0"
      width="263">
         <name_list.columns
          label="Member Name"
@@ -202,9 +196,10 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
     </name_list>
     <text
       follows="left|top"
+      height="16"
      type="string"
      length="1"
-     bottom_delta="18"
+     top_pad="10"
      font="SansSerif"
      layout="topleft"
      name="text_group_preferences">
@@ -215,11 +210,11 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
      bevel_style="in"
      border="true"
      follows="left|top"
-     height="115"
+     height="125"
      layout="topleft"
      left_delta="0"
      name="preferences_container"
-     top_pad="8"
+     top_pad="0"
      width="263">
         <check_box
          height="16"
@@ -230,7 +225,7 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
          name="show_in_group_list"
          tool_tip="Let people see this group in search results."
          top="4"
-         width="63" />
+         width="90" />
         <check_box
          follows="right|top"
          height="16"
@@ -239,8 +234,8 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
          left_delta="0"
          name="open_enrollement"
          tool_tip="Sets whether this group allows new members to join   without being invited."
-         top_pad="2"
-         width="63" />
+         top_pad="5"
+         width="90" />
         <check_box
          height="16"
          label="Enrollment fee: L$"
@@ -248,8 +243,8 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
          left_delta="0"
          name="check_enrollment_fee"
          tool_tip="Sets whether to require an enrollment fee to join the group."
-         top="40"
-         width="63" />
+         top_pad="5"
+         width="90" />
         <spinner
          decimal_digits="0"
          follows="left|top"
@@ -260,18 +255,56 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
          layout="topleft"
          left="25"
          max_val="99999"
-         top="60"
+         top_pad="5"
          name="spin_enrollment_fee"
          tool_tip="New members must pay this fee to join the group when   Enrollment Fee is checked."
          top_delta="-2"
          width="65" />
+        <check_box
+         height="16"
+         font="SansSerifSmall"
+         label="Receive notices"
+         layout="topleft"
+         left="5"
+         name="receive_notices"
+         tool_tip="Sets whether you want to receive Notices from this group.   Uncheck this box if this group is spamming you."
+         top_pad="5"
+         width="240" />
+        <check_box
+         height="16"
+         label="List in my profile"
+         layout="topleft"
+         left="5"
+         name="list_groups_in_profile"
+         tool_tip="Sets whether you want to list this group in your Profile"
+         top_pad="5"
+         width="240" />
+      <text
+         type="string"
+         length="1"
+         height="16"
+         layout="topleft"
+         left="145"
+         name="active_title_label"
+         top="4"
+         width="95">
+            My Active Title
+        </text>
         <combo_box
          height="20"
          layout="topleft"
-         left="6"
+         left_delta="0"
+         name="active_title"
+         tool_tip="Sets the title that appears in your avatar&apos;s name tag   when this group is active."
+         top_pad="0"
+         width="110" />
+      <combo_box
+         height="20"
+         layout="topleft"
+         left_delta="0"
          name="group_mature_check"
          tool_tip="Sets whether your group information is considered mature."
-         top="90"
+         top_pad="10"
          width="120">
             <combo_box.item
              label="Select Mature -"
@@ -284,45 +317,7 @@ Be aware that if nobody else joins this group within 48 hours, it will be disban
             <combo_box.item
              label="PG Content"
              name="pg"
-             value="PG" />
-        </combo_box>
-        <text
-         type="string"
-         length="1"
-         height="16"
-         layout="topleft"
-         left="150"
-         name="active_title_label"
-         top="4"
-         width="95">
-            My Active Title
-        </text>
-        <combo_box
-         height="16"
-         layout="topleft"
-         left_delta="0"
-         name="active_title"
-         tool_tip="Sets the title that appears in your avatar&apos;s name tag   when this group is active."
-         top_pad="6"
-         width="95" />
-        <check_box
-         height="16"
-         font="SansSerifSmall"
-         label="Receive notices"
-         layout="topleft"
-         left_delta="0"
-         name="receive_notices"
-         tool_tip="Sets whether you want to receive Notices from this group.   Uncheck this box if this group is spamming you."
-         top_pad="9"
-         width="95" />
-        <check_box
-         height="16"
-         label="List in my profile"
-         layout="topleft"
-         left_delta="0"
-         name="list_groups_in_profile"
-         tool_tip="Sets whether you want to list this group in your Profile"
-         top_pad="2"
-         width="95" />
+             value="Not Mature" />
+        </combo_box>  
     </panel>
 </panel> 

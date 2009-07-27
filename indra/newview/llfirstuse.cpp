@@ -145,7 +145,7 @@ void LLFirstUse::useBuild()
 		LLNotifications::instance().add("FirstBuild");
 	}
 }
-
+/*
 // static
 void LLFirstUse::useLeftClickNoHit()
 { 
@@ -156,7 +156,7 @@ void LLFirstUse::useLeftClickNoHit()
 		LLNotifications::instance().add("FirstLeftClickNoHit");
 	}
 }
-
+*/
 // static
 void LLFirstUse::useTeleport()
 {

@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- background_visible="true"
  bevel_style="in"
- bg_alpha_color="0.2 0.2 0.2 1"
  height="660"
  layout="topleft"
  left="0"
  name="panel_pick_info"
  top="0"
- width="355">
+ width="305">
     <button
      follows="top|left"
      height="20"
@@ -36,11 +34,12 @@
         Pick Info
     </text>
     <panel
-     background_visible="true"
-     bg_alpha_color="0.5 0.5 0.5 1"
      follows="left|right|top|bottom"
      height="580"
+     width="280"
      layout="topleft"
+     background_visible="true"
+     bg_alpha_color="DkGray2"
      left="10"
      right="-10"
      top="30">
@@ -73,7 +72,7 @@
          left="10"
          name="pick_name"
          right="-10"
-         text_color="black"
+         text_color="white"
          word_wrap="true">
             [name]
         </text>
@@ -99,7 +98,7 @@
          left="10"
          name="pick_desc"
          right="-10"
-         text_color="black"
+         text_color="white"
          valign="center"
          word_wrap="true">
             [description]
@@ -124,7 +123,7 @@
          layout="topleft"
          left="10"
          name="pick_location"
-         text_color="black"
+         text_color="white"
          valign="center">
             [loading...]
         </text>
@@ -153,20 +152,20 @@
          height="25"
          label="Teleport"
          layout="topleft"
-         left_pad="5"
+         left_pad="0"
          name="teleport_btn"
          top="0"
-         width="70" />
+         width="80" />
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
          height="25"
          label="Show on Map"
          layout="topleft"
-         left_pad="5"
+         left_pad="0"
          name="show_on_map_btn"
          top="0"
-         width="90" />
+         width="100" />
         <button
          enabled="false"
          follows="bottom|left"
@@ -174,7 +173,7 @@
          height="25"
          label="Verb"
          layout="topleft"
-         right="-5"
+         left_pad="0"
          name="verb_btn"
          top="0"
          width="50" />

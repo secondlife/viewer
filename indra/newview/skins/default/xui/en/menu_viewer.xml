@@ -415,36 +415,24 @@
              function="Floater.Show"
              parameter="hud" />
         </menu_item_call>
-        <menu
-         label="Report"
-         layout="topleft"
-         name="Report"
-         tear_off="true">
-            <menu_item_call
-             label="Report Abuse"
+        <menu_item_separator
+             layout="topleft" />
+        <menu_item_call
+             label="Report Bug..."
+             layout="topleft"
+             name="ReportBug">
+            <menu_item_call.on_click
+                 function="PromptShowURL"
+                 parameter="hud,http://help.secondlife.com/en/bugreport/" />
+        </menu_item_call>
+        <menu_item_call
+             label="Report Abuse..."
              layout="topleft"
              name="Report Abuse">
                 <menu_item_call.on_click
                  function="ShowFloater"
                  parameter="complaint reporter" />
             </menu_item_call>
-            <menu_item_call
-             label="Report Bug"
-             layout="topleft"
-             name="Report Bug">
-                <menu_item_call.on_click
-                 function="PromptShowURL"
-                 parameter="WebLaunchPublicIssue,http://jira.secondlife.com" />
-            </menu_item_call>
-            <menu_item_call
-             label="Bumps, Pushes &amp; Hits."
-             layout="topleft"
-             name="Bumps, Pushes &amp;amp; Hits">
-                <menu_item_call.on_click
-                 function="Floater.Show"
-                 parameter="bumps" />
-            </menu_item_call>
-        </menu>
         <menu_item_call
          label="About Second Life"
          layout="topleft"
@@ -2014,6 +2002,14 @@
              function="Floater.Show"
              parameter="mem_leaking" />
         </menu_item_call>
+        <menu_item_call
+             label="Bumps, Pushes &amp; Hits..."
+             layout="topleft"
+             name="Bumps, Pushes &amp;amp; Hits">
+                <menu_item_call.on_click
+                 function="Floater.Show"
+                 parameter="bumps" />
+            </menu_item_call>
         <menu_item_separator
          layout="topleft" />
         <menu

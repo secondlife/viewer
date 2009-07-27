@@ -2,14 +2,13 @@
 <panel
  background_visible="true"
  bevel_style="in"
- bg_alpha_color="0.2 0.2 0.2 1"
  height="640"
  label="Edit Pick"
  layout="topleft"
  left="0"
  name="panel_edit_pick"
  top="0"
- width="345">
+ width="305">
     <text
      type="string"
      length="1"
@@ -21,12 +20,13 @@
      name="title"
      text_color="white"
      top="0"
-     width="150">
+     width="250">
         Edit Pick
     </text>
     <panel
      background_visible="true"
-     bg_alpha_color="0.5 0.5 0.5 1"
+     bg_alpha_color="DkGray2"
+     width="280"
      follows="left|right|top|bottom"
      height="570"
      layout="topleft"
@@ -128,8 +128,9 @@
          left="10"
          name="pick_location"
          right="-10"
-         text_color="black"
+         text_color="white"
          v_pad="10"
+         width="250"
          valign="center"
          word_wrap="true">
             loading...

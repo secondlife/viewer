@@ -61,7 +61,7 @@
      left="56"
      name="info_size"
      right="-20">
-        [AREA] sq. m.
+        [AREA] m²
     </text>
     <text
      type="string"
@@ -141,7 +141,7 @@
      name="price_per_m"
      top_delta="25"
      width="200">
-        (L$[PER_METER] per square meter)
+        (L$[PER_METER] per m²)
     </text>
     <icon
      follows="top|left"

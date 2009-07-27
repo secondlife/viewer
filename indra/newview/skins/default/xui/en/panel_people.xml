@@ -1,225 +1,298 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
   layout="topleft"
-  top="0" left="0" width="355" height="465"
+  top="0"
+  left="0"
+  width="305"
+  height="465"
   follows="left|top|right|bottom"  
-  background_visible="true" bg_alpha_color="0.3 0.3 0.3 1"  
-  label="People" name="people_panel" 
->
-  <search_editor
+  background_visible="true"
+  label="People"
+  name="people_panel">
+ <search_editor
     layout="topleft"
-    top="3" left="10" width="335" height="16"
+    top="3"
+    left="15"
+    width="270"
+    height="20"
     follows="left|top|right"
-    max_length="300"
-    label="Filter" name="filter_input"
-    font="SansSerif" text_color="black"
-  />
+    max_length="270"
+    label="Filter People"
+    name="filter_input"
+    font="SansSerif"
+    background_image="TextField_Search_Off"
+    text_pad_left="23"
+    text_color="black"/>
+  <button
+          name="people_search"
+          layout="topleft"
+          top="5"
+          left="23"
+          width="13"
+          height="13"
+          scale_image="false"
+          follows="left|top|right"
+          font="SansSerifBigBold"
+          image_selected="Search"
+          image_unselected="Search"
+          picture_style="true"/>
   <tab_container
     layout="topleft"
-    top="30" left="10" width="335" height="400"
+    top="30"
+    left="10"
+    width="280"
+    height="400"
     follows="left|top|right|bottom"
     name="tabs"
-    tab_position="top"
-    bg_alpha_color="0.7 0.7 0.1 1"
-  >
-    <panel
+    tab_position="top">
+      <panel
       layout="topleft"
-      height="390" width="332"
+      height="390"
+      width="280"
       follows="left|top|right|bottom"
-      background_visible="true" bevel_style="bright" 
-      label="Nearby" name="nearby_panel"
-    >
+      background_visible="true"
+      bevel_style="bright" 
+      label="Nearby"
+      name="nearby_panel">
       <avatar_list
         layout="topleft"
-        top="2" left="0" width="332" height="357"
+        top="2"
+        left="0"
+        width="280"
+        height="357"
         follows="left|top|right|bottom"
-        name="avatar_list"
-      />
+        name="avatar_list"/>
       <panel
         layout="topleft"
-        bottom="390" left="0" width="333" height="30"
+        bottom="390"
+        left="0"
+        width="280"
+        height="30"
         follows="left|right|bottom"
-        background_visible="true"  bevel_style="bright" bg_alpha_color="black"
-        label="bottom_panel" name="bottom_panel"
-      >
+        background_visible="true"
+        bevel_style="bright"
+        label="bottom_panel"
+        name="bottom_panel">
         <button
           name="gear_btn"
           enabled="false"
           layout="topleft"
-          top="9" left="305" width="16" height="16"
+          top="7"
+          left="20"
+          width="18"
+          height="18"
           follows="bottom|right"
           font="SansSerifBigBold"
-          image_hover_selected="gear.tga"
-          image_selected="gear.tga"
-          image_unselected="gear.tga"
-          picture_style="true"
-        />
-      </panel>
+          hover_glow_amount="0.15"
+          image_selected="OptionsMenu_Press"
+          image_unselected="OptionsMenu_Off"
+          picture_style="true"/>
+        </panel>
     </panel>
     <panel
       layout="topleft"
-      height="390" width="332"
+      height="390"
+      width="280"
       follows="left|top|right|bottom"
-      background_visible="true" bevel_style="bright" 
-      label="Friends" name="friends_panel"
-     >
+      background_visible="true"
+      bevel_style="bright" 
+      label="Friends"
+      name="friends_panel">
       <avatar_list
         layout="topleft"
-        top="2" left="0" width="332" height="357"
+        top="2"
+        left="0"
+        width="280"
+        height="357"
         follows="left|top|right|bottom"
-        name="avatar_list"
-      />
+        name="avatar_list"/>
       <panel
         layout="topleft"
-        bottom="390" left="0" width="333" height="30"
+        bottom="390"
+        left="0"
+        width="280"
+        height="30"
         follows="left|right|bottom"
-        background_visible="true"  bevel_style="in" bg_alpha_color="black"
-        label="bottom_panel" name="bottom_panel"
-      >
-        <button
+        background_visible="true"
+        bevel_style="in"
+        label="bottom_panel"
+        name="bottom_panel">
+         <button
+          name="gear_btn"
+          enabled="false"
+          layout="topleft"
+          top="7"
+          left="20"
+          width="18"
+          height="18"
+          follows="bottom|right"
+          font="SansSerifBigBold"
+          hover_glow_amount="0.15"
+          image_selected="OptionsMenu_Press"
+          image_unselected="OptionsMenu_Off"
+          picture_style="true"/>
+         <button
           name="add_btn"
           layout="topleft"
-          top="9" left="10" width="16" height="16"
+          top_delta="0"
+          left_pad="5"
+          width="18"
+          height="18"
           follows="bottom|left"
           font="SansSerifBigBold"
-          image_hover_selected="plus.tga"
-          image_selected="plus.tga"
-          image_unselected="plus.tga" picture_style="true"
-        />
+          hover_glow_amount="0.15"
+          image_selected="AddItem_Press"
+          image_unselected="AddItem_Off"
+          picture_style="true"/>
         <button
           name="del_btn"
           layout="topleft"
-          top_delta="0" left_pad="24" width="16" height="16"
+          top_delta="0"
+          left_pad="180"
+          width="18"
+          height="18"
           follows="bottom|left"
           font="SansSerifBigBold"
-          image_hover_selected="minus.tga"
-          image_selected="minus.tga"
-          image_unselected="minus.tga"
-          picture_style="true"
-        />
+          hover_glow_amount="0.15"
+          image_selected="TrashItem_Press"
+          image_unselected="TrashItem_Off"
+          picture_style="true"/>
+        </panel>
+    </panel>
+    <panel
+      layout="topleft"
+      height="390"
+      width="280"  
+      follows="left|top|right|bottom"
+      background_visible="true"
+      bevel_style="bright" 
+      label="Groups"
+      name="groups_panel">
+      <group_list
+        layout="topleft"
+        top="2"
+        left="0"
+        width="280"
+        height="357"
+        follows="left|top|right|bottom"
+        name="group_list"/>
+      <panel
+        layout="topleft"
+        bottom="390"
+        left="0"
+        width="280"
+        height="30"
+        follows="left|right|bottom"
+        background_visible="true"
+        bevel_style="in"
+        label="bottom_panel"
+        name="bottom_panel">
         <button
           name="gear_btn"
           enabled="false"
           layout="topleft"
-          top_delta="0" left_pad="239" width="16" height="16"
+          top="7"
+          left="20"
+          width="18"
+          height="18"
           follows="bottom|right"
           font="SansSerifBigBold"
-          image_hover_selected="gear.tga"
-          image_selected="gear.tga"
-          image_unselected="gear.tga"
-          picture_style="true"
-        />
-      </panel>
-    </panel>
-    <panel
-      layout="topleft"
-      height="390" width="332"  
-      follows="left|top|right|bottom"
-      background_visible="true" bevel_style="bright" 
-      label="Groups" name="groups_panel"
-     >
-      <group_list
-        layout="topleft"
-        top="2" left="0" width="332" height="357"
-        follows="left|top|right|bottom"
-        name="group_list"
-      />
-      <panel
-        layout="topleft"
-        bottom="390" left="0" width="333" height="30"
-        follows="left|right|bottom"
-        background_visible="true"  bevel_style="in" bg_alpha_color="black"
-        label="bottom_panel" name="bottom_panel"
-      >
+          hover_glow_amount="0.15"
+          image_selected="OptionsMenu_Press"
+          image_unselected="OptionsMenu_Off"
+          picture_style="true"/>
         <button
           name="plus_btn"
           layout="topleft"
-          top="9" left="10" width="16" height="16"
+          top_delta="0"
+          left_pad="5"
+          width="18"
+          height="18"
           follows="bottom|left"
           font="SansSerifBigBold"
-          image_hover_selected="plus.tga"
-          image_selected="plus.tga"
-          image_unselected="plus.tga"
-          picture_style="true"
-        />
-        <button
-          name="minus_btn"
-          layout="topleft"
-          top_delta="0" left_pad="24" width="16" height="16"
-          follows="bottom|left"
-          font="SansSerifBigBold"
-          image_hover_selected="minus.tga"
-          image_selected="minus.tga"
-          image_unselected="minus.tga"
-          picture_style="true"
-        />
+          hover_glow_amount="0.15"
+          image_selected="AddItem_Press"
+          image_unselected="AddItem_Off"
+          picture_style="true"/>
         <button
           name="activate_btn"
           layout="topleft"
-          top_delta="0" left_pad="24" width="16" height="16"
+          top_delta="5"
+          left_pad="24"
+          width="10"
+          height="10"
           follows="bottom|left"
           font="SansSerifBigBold"
           image_hover_selected="group_activate_btn.tga"
           image_selected="group_activate_btn.tga"
           image_unselected="group_activate_btn.tga"
-          picture_style="true"
-        />
+          picture_style="true"/>
         <button
-          name="gear_btn"
-          enabled="false"
+          name="minus_btn"
           layout="topleft"
-          top_delta="0" left="305" width="16" height="16"
-          follows="bottom|right"
+          top_delta="-5"
+          left_pad="146"
+          width="18"
+          height="18"
+          follows="bottom|left"
           font="SansSerifBigBold"
-          image_hover_selected="gear.tga"
-          image_selected="gear.tga"
-          image_unselected="gear.tga"
-          picture_style="true"
-        />
-      </panel>
+          hover_glow_amount="0.15"
+          image_selected="TrashItem_Press"
+          image_unselected="TrashItem_Off"
+          picture_style="true"/> 
+        </panel>
     </panel>
     <panel
       layout="topleft"
-      height="390" width="332"
+      height="390"
+      width="280"
       follows="left|top|right|bottom"
-      background_visible="true" bevel_style="bright"
-      label="Recent" name="recent_panel"
-     >
+      background_visible="true"
+      bevel_style="bright"
+      label="Recent"
+      name="recent_panel">
       <avatar_list
         layout="topleft"
-        top="2" left="0" width="332" height="357"
+        top="2"
+        left="0"
+        width="280"
+        height="357"
         follows="left|top|right|bottom"
-        name="avatar_list"
-      />
+        name="avatar_list"/>
       <panel
         layout="topleft"
-        bottom="390" left="0" width="333" height="30"
+        bottom="390"
+        left="0"
+        width="280"
+        height="30"
         follows="left|right|bottom"
-        background_visible="true"  bevel_style="in" bg_alpha_color="black"
-        label="bottom_panel" name="bottom_panel"
-      >
+        background_visible="true"
+        bevel_style="in"
+        label="bottom_panel"
+        name="bottom_panel">
         <button
           name="gear_btn"
           enabled="false"
           layout="topleft"
-          top="9" left="305" width="16" height="16"
+          top="7"
+          left="20"
+          width="18"
+          height="18"
           follows="bottom|right"
           font="SansSerifBigBold"
-          image_hover_selected="gear.tga"
-          image_selected="gear.tga"
-          image_unselected="gear.tga"
-          picture_style="true"
-        />
+          hover_glow_amount="0.15"
+          image_selected="OptionsMenu_Press"
+          image_unselected="OptionsMenu_Off"
+          picture_style="true"/>
       </panel>
     </panel>
   </tab_container>
-
-  <layout_stack
+ <layout_stack
     name="button_bar"
     follows="left|right|bottom"
     bottom="6"
     left="6"
-    width="335"
+    width="280"
     height="27"
     orientation="horizontal"
     animate="false"
@@ -234,16 +307,15 @@
       left="0"
       min_width="85"
       width="85"
-      visible="true"
-    >
+      visible="true">
       <button
         label="View Profile"
         name="view_profile_btn"
         layout="topleft"
-        width="85" height="25"
+        width="85"
+        height="25"
         follows="top|left|right"
-        font="SansSerifSmallBold"
-       />
+        font="SansSerifSmallBold"/>
     </layout_panel>
     <layout_panel
       name="add_friend_btn_panel"
@@ -255,16 +327,14 @@
       left="0"
       min_width="85"
       width="85"
-      visible="true"
-    >
+      visible="true">
       <button
         label="Add Friend"
         name="add_friend_btn"
         layout="topleft"
         width="85" height="25"
         follows="top|left|right"
-        font="SansSerifSmallBold"
-      />
+        font="SansSerifSmallBold"/>
     </layout_panel>
     <layout_panel
       name="group_info_btn_panel"
@@ -276,16 +346,15 @@
       left="0"
       min_width="80"
       width="80"
-      visible="true"
-    >
+      visible="true">
       <button
         label="Group Info"
         name="group_info_btn"
         layout="topleft"
-        width="80" height="25"
+        width="80"
+        height="25"
         follows="top|left|right"
-        font="SansSerifSmallBold"
-       />
+        font="SansSerifSmallBold"/>
     </layout_panel>
     <layout_panel name="chat_btn_panel"
       border="false"
@@ -296,16 +365,14 @@
       left="0"
       min_width="45"
       width="45"
-      visible="true"
-    >
+      visible="true">
       <button
         label="Chat"
         name="chat_btn"
         layout="topleft"
         width="45" height="25"
         follows="top|left|right"
-        font="SansSerifSmallBold"
-       />
+        font="SansSerifSmallBold"/>
     </layout_panel>
     <layout_panel
       name="im_btn_panel"
@@ -317,16 +384,15 @@
       left="0"
       min_width="35"
       width="35"
-    visible="true"
-    >
+    visible="true">
       <button
         label="IM"
         name="im_btn"
         layout="topleft"
-        width="35" height="25"
+        width="35"
+        height="25"
         follows="top|left|right"
-        font="SansSerifSmallBold"
-      />
+        font="SansSerifSmallBold"/>
     </layout_panel>
     <layout_panel
       name="call_btn_panel"
@@ -338,17 +404,16 @@
       left="0"
       min_width="40"
       width="40"
-      visible="false"
-    >
+      visible="false">
       <button
         label="Call"
         name="call_btn"
         enabled="false"
         layout="topleft"
-        width="40" height="25"
+        width="40"
+        height="25"
         follows="top|left|right"
-        font="SansSerifSmallBold"
-      />
+        font="SansSerifSmallBold"/>
     </layout_panel>
     <layout_panel
       name="teleport_btn_panel"
@@ -359,8 +424,7 @@
       height="25"
       left="0"
       min_width="65"
-      width="65"
-    >
+      width="65">
       <button
         label="Teleport"
         name="teleport_btn"
@@ -368,8 +432,7 @@
         height="25"
         layout="topleft"
         follows="left|top|right"
-        font="SansSerifSmallBold"
-      />
+        font="SansSerifSmallBold"/>
     </layout_panel>
     <layout_panel
       name="share_btn_panel"
@@ -382,8 +445,7 @@
       left="0"
       min_width="50"
       width="50"
-      visible="false"
-    >
+      visible="false">
       <button
         label="Share"
         name="share_btn"
@@ -392,8 +454,7 @@
         width="50"
         height="25"
         follows="top|left|right"
-        font="SansSerifSmallBold"
-      />
+        font="SansSerifSmallBold"/>
     </layout_panel>
     <layout_panel
       name="more_btn_panel"
@@ -405,8 +466,7 @@
       left="0"
       min_width="40"
       width="40"
-      visible="true"
-    >
+      visible="true">
       <button
         label="&gt;&gt;"
         name="more_btn"
@@ -415,10 +475,9 @@
         width="40"
         height="25"
         follows="top|right"
-        font="SansSerifSmallBold"
-      />
+        font="SansSerifSmallBold"/>
     </layout_panel>
-  </layout_stack>
+  </layout_stack> 
   <string name="no_people">
     No people
   </string>

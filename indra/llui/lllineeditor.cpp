@@ -115,6 +115,7 @@ LLLineEditor::Params::Params()
 	mouse_opaque = true;
 	addSynonym(select_on_focus, "select_all_on_focus_received");
 	addSynonym(border, "border");
+	addSynonym(label, "watermark_text");
 }
 
 LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)

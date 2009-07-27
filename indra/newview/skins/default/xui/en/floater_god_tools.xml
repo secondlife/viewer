@@ -415,7 +415,7 @@
              name="land cost text"
              top_delta="0"
              width="110">
-                L$ per sq. meter:
+                L$ per m²:
             </text>
             <button
              follows="top|right"

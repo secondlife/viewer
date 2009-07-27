@@ -6,7 +6,7 @@
              ignore_tab="true"
              cursor_color="TextCursorColor"
              text_color="TextFgColor"
-             text_readonly_color="TextFgReadOnlyColor"
+             text_readonly_color="Green"
              text_tentative_color="TextFgTentativeColor"
              bg_readonly_color="TextBgReadOnlyColor"
              bg_writeable_color="TextBgWriteableColor"

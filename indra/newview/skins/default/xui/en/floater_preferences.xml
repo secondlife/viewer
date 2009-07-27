@@ -15,7 +15,7 @@
      label="OK"
      label_selected="OK"
      layout="topleft"
-     left="335"
+     left="427"
      name="OK"
      top="435"
      width="90">
@@ -34,19 +34,6 @@
      width="90" >
         <button.commit_callback
          function="Pref.Cancel" />
-    </button>
-    <button
-     follows="right|bottom"
-     height="20"
-     label="Apply"
-     label_selected="Apply"
-     layout="topleft"
-     left_pad="3"
-     name="Apply"
-     top_delta="0"
-     width="90">
-        <button.commit_callback
-         function="Pref.Apply" />
     </button>
     <tab_container
      follows="left|top|right|bottom"
@@ -100,6 +87,8 @@
          label="Setup"
          layout="topleft"
          name="input" />
+		<!-- I put back the commented out panels for now, pending 
+		implementation of new default settings. James -->
         <panel
 		 class="panel_preference"
          filename="panel_preferences_advanced.xml"

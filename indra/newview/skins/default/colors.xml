@@ -260,18 +260,18 @@
     <color
      name="EffectColor"
      reference="White" />
-    <color
+     <color
      name="FilterBackgroundColor"
-     reference="White" />
+     reference="FloaterDefaultBackgroundColor" />
     <color
      name="FilterTextColor"
      value="1 0.78 0.27 1" />
-    <color
+     <color
      name="FloaterButtonImageColor"
      reference="LtGray" />
     <color
      name="FloaterDefaultBackgroundColor"
-     reference="DkGray" />
+     reference="DkGray_66" />
     <color
      name="FloaterFocusBackgroundColor"
      reference="DkGray2" />

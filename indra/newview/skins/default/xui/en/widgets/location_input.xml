@@ -7,8 +7,9 @@
 
 
 <location_input font="SansSerifSmall"
-                add_landmark_image_enabled="icon_event_adult.tga"
-                add_landmark_image_disabled="icon_event.tga"
+                add_landmark_image_enabled="Favorite_Star_Active"
+                add_landmark_image_disabled="Favorite_Star_Off"
+                hover_glow_amount="0.15"
                 add_landmark_width="20"
                 add_landmark_height="20"
                 add_landmark_hpad="2"
@@ -41,7 +42,7 @@
                           label=""
                           pad_right="0"
                           tool_tip="My Location History"/>
-  <combo_list bg_writeable_color="white"/>
+  <combo_list bg_writeable_color="MenuDefaultBgColor"/>
   <combo_editor name="Combo Text Entry"
                 text_pad_left="20"
                 select_on_focus="true"

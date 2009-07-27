@@ -1377,17 +1377,23 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 		prepend_newline = false;
 	}
 	mHistoryEditor->appendColoredText(utf8msg, false, prepend_newline, color);
-	
-	if (log_to_file
-		&& gSavedPerAccountSettings.getBOOL("LogInstantMessages") ) 
+	S32 im_log_option =  gSavedPerAccountSettings.getS32("IMLogOptions");
+	if (log_to_file && (im_log_option!=LOG_CHAT))
 	{
 		std::string histstr;
-		if (gSavedPerAccountSettings.getBOOL("IMLogTimestamp"))
+		if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
 			histstr = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate")) + name + separator_string + utf8msg;
 		else
 			histstr = name + separator_string + utf8msg;
 
-		LLLogChat::saveHistory(getTitle(),histstr);
+		if(im_log_option==LOG_BOTH_TOGETHER)
+		{
+			LLLogChat::saveHistory(std::string("chat"),histstr);
+		}
+		else
+		{
+			LLLogChat::saveHistory(getTitle(),histstr);
+		}
 	}
 
 	if (!isInVisibleChain())
@@ -1922,19 +1928,19 @@ void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string
 {
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*)userdata;
 	std::string message = line;
-
+	S32 im_log_option =  gSavedPerAccountSettings.getS32("IMLogOptions");
 	switch (type)
 	{
 	case LLLogChat::LOG_EMPTY:
 		// add warning log enabled message
-		if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
+		if (im_log_option!=LOG_CHAT)
 		{
 			message = LLTrans::getString("IM_logging_string");
 		}
 		break;
 	case LLLogChat::LOG_END:
 		// add log end message
-		if (gSavedPerAccountSettings.getBOOL("LogInstantMessages"))
+		if (im_log_option!=LOG_CHAT)
 		{
 			message = LLTrans::getString("IM_logging_string");
 		}

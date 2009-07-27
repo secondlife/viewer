@@ -9,7 +9,7 @@
  visible="false"
  width="128">
     <menu_item_call
-     label="Copy SLURL to Clipboard"
+     label="Copy SLurl to Clipboard"
      layout="topleft"
      name="Copy SLURL">
         <menu_item_call.on_click

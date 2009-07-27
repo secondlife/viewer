@@ -76,7 +76,7 @@
 	<string name="TooltipAltRight">Alt-Right arrow for next tab</string>	
 	
 	<!-- ButtonToolTips, llfloater.cpp -->
-	<string name="BUTTON_CLOSE_DARWIN">Close (Cmd-W)</string>
+	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;-W)</string>
 	<string name="BUTTON_CLOSE_WIN">Close (Ctrl-W)</string>
 	<string name="BUTTON_RESTORE">Restore</string>			
 	<string name="BUTTON_MINIMIZE">Minimize</string>

@@ -58,6 +58,7 @@
 #include "llfloatervoicedevicesettings.h"
 #include "llkeyboard.h"
 #include "llmodaldialog.h"
+#include "llnavigationbar.h"
 #include "llpanellogin.h"
 #include "llradiogroup.h"
 #include "llsky.h"
@@ -169,6 +170,7 @@ void LLVoiceSetKeyDialog::onCancel(void* user_data)
 
 void free_web_media(LLMediaBase *media_source);
 void handleHTMLLinkColorChanged(const LLSD& newvalue);	
+void handleNameTagOptionChanged(const LLSD& newvalue);	
 LLMediaBase *get_web_media();
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response);
 
@@ -220,11 +222,20 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 	S32 option = LLNotification::getSelectedOption(notification, response);
 	if ( option == 0 ) // YES
 	{
+		// clean web
 		LLMediaBase *media_source = get_web_media();
 		if (media_source)
 			media_source->clearCache();
 		free_web_media(media_source);
+		
+		// clean nav bar history
+		LLNavigationBar::getInstance()->clearHistoryCache();
+		
+		// flag client texture cache for clearing next time the client runs
+		gSavedSettings.setBOOL("PurgeCacheOnNextStartup", TRUE);
+		LLNotifications::instance().add("CacheWillClear");
 	}
+	
 	return false;
 }
 
@@ -233,6 +244,18 @@ void handleHTMLLinkColorChanged(const LLSD& newvalue)
 	LLTextEditor::setLinkColor(LLColor4(newvalue));
 	LLStyleMap::instance().update();
 	
+}
+void handleNameTagOptionChanged(const LLSD& newvalue)
+{
+	S32 name_tag_option = S32(newvalue);
+	if(name_tag_option==2)
+	{
+		gSavedSettings.setBOOL("SmallAvatarNames", TRUE);
+	}
+	else
+	{
+		gSavedSettings.setBOOL("SmallAvatarNames", FALSE);
+	}
 }
 
 bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
@@ -314,8 +337,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.Cancel",				boost::bind(&LLFloaterPreference::onBtnCancel, this));
 	mCommitCallbackRegistrar.add("Pref.OK",					boost::bind(&LLFloaterPreference::onBtnOK, this));
 	
-	mCommitCallbackRegistrar.add("Pref.ClearCache",				boost::bind(&LLFloaterPreference::onClickClearCache, (void*)NULL));
-	mCommitCallbackRegistrar.add("Pref.WebClearCache",			boost::bind(&LLFloaterPreference::onClickBrowserClearCache, (void*)NULL));
+//	mCommitCallbackRegistrar.add("Pref.ClearCache",				boost::bind(&LLFloaterPreference::onClickClearCache, this));
+	mCommitCallbackRegistrar.add("Pref.WebClearCache",			boost::bind(&LLFloaterPreference::onClickBrowserClearCache, this));
 	mCommitCallbackRegistrar.add("Pref.SetCache",				boost::bind(&LLFloaterPreference::onClickSetCache, this));
 	mCommitCallbackRegistrar.add("Pref.ResetCache",				boost::bind(&LLFloaterPreference::onClickResetCache, this));
 	mCommitCallbackRegistrar.add("Pref.ClickSkin",				boost::bind(&LLFloaterPreference::onClickSkin, this,_1, _2));
@@ -325,6 +348,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ClickSkipDialogs",		boost::bind(&LLFloaterPreference::onClickSkipDialogs, this));
 	mCommitCallbackRegistrar.add("Pref.ClickResetDialogs",		boost::bind(&LLFloaterPreference::onClickResetDialogs, this));
 	mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",		boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
+	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
 	mCommitCallbackRegistrar.add("Pref.Logging",				boost::bind(&LLFloaterPreference::onCommitLogging, this));
 	mCommitCallbackRegistrar.add("Pref.OpenHelp",				boost::bind(&LLFloaterPreference::onOpenHelp, this));	
@@ -338,6 +362,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.onSelectAspectRatio",    boost::bind(&LLFloaterPreference::onKeystrokeAspectRatio, this));	
 	mCommitCallbackRegistrar.add("Pref.QualityPerformance",     boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));	
 
+	gSavedSettings.getControl("AvatarNameTagMode")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));
 }
 
 BOOL LLFloaterPreference::postBuild()
@@ -345,6 +370,8 @@ BOOL LLFloaterPreference::postBuild()
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 		tabcontainer->selectFirstTab();
+	S32 show_avatar_nametag_options = gSavedSettings.getS32("AvatarNameTagMode");
+	handleNameTagOptionChanged(LLSD(show_avatar_nametag_options));
 	return TRUE;
 }
 
@@ -366,6 +393,10 @@ void LLFloaterPreference::draw()
 {
 	BOOL has_first_selected = (getChildRef<LLScrollListCtrl>("disabled_popups").getFirstSelected()!=NULL);
 	gSavedSettings.setBOOL("FirstSelectedDisabledPopups", has_first_selected);
+	
+	has_first_selected = (getChildRef<LLScrollListCtrl>("enabled_popups").getFirstSelected()!=NULL);
+	gSavedSettings.setBOOL("FirstSelectedEnabledPopups", has_first_selected);
+	
 	LLFloater::draw();
 }
 
@@ -622,17 +653,16 @@ void LLFloaterPreference::updateMeterText(LLUICtrl* ctrl)
 	m1->setVisible(two_digits);
 	m2->setVisible(!two_digits);
 }
-
-// static
-void LLFloaterPreference::onClickClearCache(void*)
+/*
+void LLFloaterPreference::onClickClearCache()
 {
 	// flag client cache for clearing next time the client runs
 	gSavedSettings.setBOOL("PurgeCacheOnNextStartup", TRUE);
 	LLNotifications::instance().add("CacheWillClear");
 }
+*/
 
-// static
-void LLFloaterPreference::onClickBrowserClearCache(void*)
+void LLFloaterPreference::onClickBrowserClearCache()
 {
 	LLNotifications::instance().add("ConfirmClearBrowserCache", LLSD(), LLSD(), callback_clear_browser_cache);
 }
@@ -640,6 +670,8 @@ void LLFloaterPreference::onClickBrowserClearCache(void*)
 void LLFloaterPreference::onClickSetCache()
 {
 	std::string cur_name(gSavedSettings.getString("CacheLocation"));
+//	std::string cur_top_folder(gDirUtilp->getBaseFileName(cur_name));
+	
 	std::string proposed_name(cur_name);
 
 	LLDirPicker& picker = LLDirPicker::instance();
@@ -651,14 +683,17 @@ void LLFloaterPreference::onClickSetCache()
 	std::string dir_name = picker.getDirName();
 	if (!dir_name.empty() && dir_name != cur_name)
 	{
-		childSetText("cache_location", dir_name);
+		std::string new_top_folder(gDirUtilp->getBaseFileName(dir_name));	
 		LLNotifications::instance().add("CacheWillBeMoved");
 		gSavedSettings.setString("NewCacheLocation", dir_name);
+		gSavedSettings.setString("NewCacheLocationTopFolder", new_top_folder);
 	}
 	else
 	{
 		std::string cache_location = gDirUtilp->getCacheDir();
-		childSetText("cache_location", cache_location);
+		gSavedSettings.setString("CacheLocation", cache_location);
+		std::string top_folder(gDirUtilp->getBaseFileName(cache_location));
+		gSavedSettings.setString("CacheLocationTopFolder", top_folder);
 	}
 }
 
@@ -667,10 +702,13 @@ void LLFloaterPreference::onClickResetCache()
 	if (!gSavedSettings.getString("CacheLocation").empty())
 	{
 		gSavedSettings.setString("NewCacheLocation", "");
+		gSavedSettings.setString("NewCacheLocationTopFolder", "");
 		LLNotifications::instance().add("CacheWillBeMoved");
 	}
 	std::string cache_location = gDirUtilp->getCacheDir(true);
-	childSetText("cache_location", cache_location);
+	gSavedSettings.setString("CacheLocation", cache_location);
+	std::string top_folder(gDirUtilp->getBaseFileName(cache_location));
+	gSavedSettings.setString("CacheLocationTopFolder", top_folder);
 }
 
 void LLFloaterPreference::onClickSkin(LLUICtrl* ctrl, const LLSD& userdata)
@@ -1008,6 +1046,22 @@ void LLFloaterPreference::onClickEnablePopup()
 	buildLists(this);
 }
 
+void LLFloaterPreference::onClickDisablePopup()
+{	
+	LLScrollListCtrl& enabled_popups = getChildRef<LLScrollListCtrl>("enabled_popups");
+	
+	std::vector<LLScrollListItem*> items = enabled_popups.getAllSelected();
+	std::vector<LLScrollListItem*>::iterator itor;
+	for (itor = items.begin(); itor != items.end(); ++itor)
+	{
+		LLNotificationTemplatePtr templatep = LLNotifications::instance().getTemplate(*(std::string*)((*itor)->getUserdata()));
+		//gSavedSettings.setWarning(templatep->mName, TRUE);
+		std::string notification_name = templatep->mName;
+		LLUI::sSettingGroups["ignores"]->setBOOL(notification_name, FALSE);
+	}
+	
+	buildLists(this);
+}
 void LLFloaterPreference::resetAllIgnored()
 {
 	for (LLNotifications::TemplateMap::const_iterator iter = LLNotifications::instance().templatesBegin();
@@ -1036,15 +1090,17 @@ void LLFloaterPreference::setAllIgnored()
 
 void LLFloaterPreference::onClickLogPath()
 {
-	std::string proposed_name(childGetText("log_path_string"));	 
+	std::string proposed_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));	 
 	
 	LLDirPicker& picker = LLDirPicker::instance();
 	if (!picker.getDir(&proposed_name ) )
 	{
 		return; //Canceled!
 	}
-	
-	childSetText("log_path_string", picker.getDirName());	 
+	std::string chat_log_dir = picker.getDirName();
+	std::string chat_log_top_folder= gDirUtilp->getBaseFileName(chat_log_dir);
+	gSavedPerAccountSettings.setString("InstantMessageLogPath",chat_log_dir);
+	gSavedPerAccountSettings.setString("InstantMessageLogFolder",chat_log_top_folder);
 }
 
 void LLFloaterPreference::onCommitLogging()
@@ -1054,15 +1110,17 @@ void LLFloaterPreference::onCommitLogging()
 
 void LLFloaterPreference::enableHistory()
 {
-	if (childGetValue("log_instant_messages").asBoolean() || childGetValue("log_chat").asBoolean())
+	if (childGetValue("log_instant_messages").asBoolean())
 	{
-		childEnable("log_show_history");
+		childEnable("ChatIMLogs");
 		childEnable("log_path_button");
+		childEnable("show_timestamps_check_im");
 	}
 	else
 	{
-		childDisable("log_show_history");
+		childDisable("ChatIMLogs");
 		childDisable("log_path_button");
+		childDisable("show_timestamps_check_im");
 	}
 }
 
@@ -1096,10 +1154,10 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	childEnable("send_im_to_email");
 	childSetValue("send_im_to_email", im_via_email);
 	childEnable("log_instant_messages");
-	childEnable("log_chat");
+//	childEnable("log_chat");
 	childEnable("busy_response");
-	childEnable("log_instant_messages_timestamp");
-	childEnable("log_chat_timestamp");
+//	childEnable("log_instant_messages_timestamp");
+//	childEnable("log_chat_timestamp");
 	childEnable("log_chat_IM");
 	childEnable("log_date_timestamp");
 	

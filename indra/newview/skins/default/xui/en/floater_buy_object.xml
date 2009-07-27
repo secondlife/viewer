@@ -88,21 +88,21 @@
     <button
      follows="right|bottom"
      height="20"
-     label="Cancel"
-     label_selected="Cancel"
-     layout="topleft"
-     left="211"
-     name="cancel_btn"
-     top="224"
-     width="60" />
-    <button
-     follows="right|bottom"
-     height="20"
      label="Buy"
      label_selected="Buy"
      layout="topleft"
-     left_delta="-64"
+     left="10"
      name="buy_btn"
+     top_pad="5"
+     width="125" />
+    <button
+     follows="right|bottom"
+     height="20"
+     label="Cancel"
+     label_selected="Cancel"
+     layout="topleft"
+     left_pad="5"
+     name="cancel_btn"
      top_delta="0"
-     width="60" />
+     width="125" />
 </floater>

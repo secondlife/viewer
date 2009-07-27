@@ -53,7 +53,6 @@
 #include "llagent.h"
 #include "llstatusbar.h"		// for getBalance()
 #include "lllineeditor.h"
-#include "llradiogroup.h"
 #include "llcombobox.h"
 #include "lluiconstants.h"
 #include "lldbstrings.h"
@@ -63,6 +62,7 @@
 #include "llnamebox.h"
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
+#include "llspinctrl.h"
 #include "roles_constants.h"
 
 ///----------------------------------------------------------------------------
@@ -100,6 +100,8 @@ BOOL LLPanelPermissions::postBuild()
 	childSetCommitCallback("checkbox for sale",LLPanelPermissions::onCommitSaleInfo,this);
 
 	childSetCommitCallback("sale type",LLPanelPermissions::onCommitSaleType,this);
+
+	childSetCommitCallback("Edit Cost", LLPanelPermissions::onCommitSaleInfo, this);
 	
 	childSetCommitCallback("checkbox next owner can modify",LLPanelPermissions::onCommitNextOwnerModify,this);
 	childSetCommitCallback("checkbox next owner can copy",LLPanelPermissions::onCommitNextOwnerCopy,this);
@@ -208,12 +210,9 @@ void LLPanelPermissions::refresh()
 		childSetValue("search_check", FALSE);
 		childSetEnabled("search_check", false);
 		
-		LLRadioGroup*	RadioSaleType = getChild<LLRadioGroup>("sale type");
-		if(RadioSaleType)
-		{
-			RadioSaleType->setSelectedIndex(-1);
-			RadioSaleType->setEnabled(FALSE);
-		}
+		LLComboBox*	combo_sale_type = getChild<LLComboBox>("sale type");
+		combo_sale_type->setValue(LLSaleInfo::FS_COPY);
+		combo_sale_type->setEnabled(FALSE);
 		
 		childSetEnabled("Cost",false);
 		childSetText("Cost",getString("Cost Default"));
@@ -417,22 +416,22 @@ void LLPanelPermissions::refresh()
 			childSetText("Cost",getString("Cost Default"));
 		}
 		
-		LLLineEditor *editPrice = getChild<LLLineEditor>("Edit Cost");
-		if(keyboard_focus_view != editPrice)
+		LLSpinCtrl *edit_price = getChild<LLSpinCtrl>("Edit Cost");
+		if(!edit_price->hasFocus())
 		{
 			// If the sale price is mixed then set the cost to MIXED, otherwise
 			// set to the actual cost.
 			if (num_for_sale > 0 && is_for_sale_mixed)
 			{
-				childSetText("Edit Cost",getString("Sale Mixed"));
+				edit_price->setTentative(TRUE);
 			}
 			else if (num_for_sale > 0 && is_sale_price_mixed)
 			{
-				childSetText("Edit Cost",getString("Cost Mixed"));
+				edit_price->setTentative(TRUE);
 			}
 			else 
 			{
-				childSetText("Edit Cost",llformat("%d",individual_sale_price));
+				edit_price->setValue(individual_sale_price);
 			}
 		}
 		// The edit fields are only enabled if you can sell this object
@@ -742,20 +741,17 @@ void LLPanelPermissions::refresh()
 	BOOL valid_sale_info = LLSelectMgr::getInstance()->selectGetSaleInfo(sale_info);
 	LLSaleInfo::EForSale sale_type = sale_info.getSaleType();
 
-	LLRadioGroup* RadioSaleType = getChild<LLRadioGroup>("sale type");
-	if(RadioSaleType)
+	LLComboBox* combo_sale_type = getChild<LLComboBox>("sale type");
+	if (valid_sale_info)
 	{
-		if (valid_sale_info)
-		{
-			RadioSaleType->setSelectedIndex((S32)sale_type - 1);
-			RadioSaleType->setTentative(FALSE); // unfortunately this doesn't do anything at the moment.
-		}
-		else
-		{
-			// default option is sell copy, determined to be safest
-			RadioSaleType->setSelectedIndex((S32)LLSaleInfo::FS_COPY - 1);
-			RadioSaleType->setTentative(TRUE); // unfortunately this doesn't do anything at the moment.
-		}
+		combo_sale_type->setValue(sale_type == LLSaleInfo::FS_NOT ? LLSaleInfo::FS_COPY : sale_type);
+		combo_sale_type->setTentative(FALSE); // unfortunately this doesn't do anything at the moment.
+	}
+	else
+	{
+		// default option is sell copy, determined to be safest
+		combo_sale_type->setValue(LLSaleInfo::FS_COPY);
+		combo_sale_type->setTentative(TRUE); // unfortunately this doesn't do anything at the moment.
 	}
 
 	childSetValue("checkbox for sale", num_for_sale != 0);
@@ -991,44 +987,14 @@ void LLPanelPermissions::setAllSaleInfo()
 	// Set the sale type if the object(s) are for sale.
 	if(checkPurchase && checkPurchase->get())
 	{
-		LLRadioGroup* RadioSaleType = getChild<LLRadioGroup>("sale type");
-		if(RadioSaleType)
-		{
-			switch(RadioSaleType->getSelectedIndex())
-			{
-			case 0:
-				sale_type = LLSaleInfo::FS_ORIGINAL;
-				break;
-			case 1:
-				sale_type = LLSaleInfo::FS_COPY;
-				break;
-			case 2:
-				sale_type = LLSaleInfo::FS_CONTENTS;
-				break;
-			default:
-				sale_type = LLSaleInfo::FS_COPY;
-				break;
-			}
-		}
+		sale_type = static_cast<LLSaleInfo::EForSale>(getChild<LLComboBox>("sale type")->getValue().asInteger());
 	}
 
 	S32 price = -1;
 	
-	LLLineEditor *editPrice = getChild<LLLineEditor>("Edit Cost");
-	if (editPrice)
-	{
-		// Don't extract the price if it's labeled as MIXED or is empty.
-		const std::string& editPriceString = editPrice->getText();
-		if (editPriceString != getString("Cost Mixed") && editPriceString != getString("Sale Mixed") &&
-			!editPriceString.empty())
-		{
-			price = atoi(editPriceString.c_str());
-		}
-		else
-		{
-			price = DEFAULT_PRICE;
-		}
-	}
+	LLSpinCtrl *edit_price = getChild<LLSpinCtrl>("Edit Cost");
+	price = (edit_price->getTentative()) ? DEFAULT_PRICE : edit_price->getValue().asInteger();
+
 	// If somehow an invalid price, turn the sale off.
 	if (price < 0)
 		sale_type = LLSaleInfo::FS_NOT;

@@ -1775,7 +1775,7 @@ bool LLAppViewer::initConfiguration()
 	LLFirstUse::addConfigVariable("FirstMap");
 	LLFirstUse::addConfigVariable("FirstGoTo");
 	LLFirstUse::addConfigVariable("FirstBuild");
-	LLFirstUse::addConfigVariable("FirstLeftClickNoHit");
+//	LLFirstUse::addConfigVariable("FirstLeftClickNoHit");
 	LLFirstUse::addConfigVariable("FirstTeleport");
 	LLFirstUse::addConfigVariable("FirstOverrideKeys");
 	LLFirstUse::addConfigVariable("FirstAttach");
@@ -1999,7 +1999,9 @@ bool LLAppViewer::initConfiguration()
     const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
     if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
     {   
-        gDirUtilp->setSkinFolder(skinfolder->getValue().asString());
+		// hack to force the skin to default.
+        //gDirUtilp->setSkinFolder(skinfolder->getValue().asString());
+		gDirUtilp->setSkinFolder("default");
     }
 
     mYieldTime = gSavedSettings.getS32("YieldTime");
@@ -2874,12 +2876,14 @@ bool LLAppViewer::initCache()
 		gDirUtilp->setCacheDir(gSavedSettings.getString("CacheLocation"));
 		purgeCache(); // purge old cache
 		gSavedSettings.setString("CacheLocation", new_cache_location);
+		gSavedSettings.setString("CacheLocationTopFolder", gDirUtilp->getBaseFileName(new_cache_location));
 	}
 	
 	if (!gDirUtilp->setCacheDir(gSavedSettings.getString("CacheLocation")))
 	{
 		LL_WARNS("AppCache") << "Unable to set cache location" << LL_ENDL;
 		gSavedSettings.setString("CacheLocation", "");
+		gSavedSettings.setString("CacheLocationTopFolder", "");
 	}
 	
 	if (mPurgeCache)

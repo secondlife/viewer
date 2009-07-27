@@ -104,7 +104,7 @@ Try selecting a smaller area.
     </floater.string>
     <floater.string
      name="land_holdings">
-        You hold [BUYER] sq.m. of land.
+        You hold [BUYER] m² of land.
     </floater.string>
     <floater.string
      name="pay_to_for_land">
@@ -116,19 +116,19 @@ Try selecting a smaller area.
     </floater.string>
     <floater.string
      name="parcel_meters">
-        This parcel is [AMOUNT] sq.m.
+        This parcel is [AMOUNT] m²
     </floater.string>
     <floater.string
      name="premium_land">
-        This land is premium, and will charge as [AMOUNT] sq.m.
+        This land is premium, and will charge as [AMOUNT] m².
     </floater.string>
     <floater.string
      name="discounted_land">
-        This land is discounted, and will charge as [AMOUNT] sq.m.
+        This land is discounted, and will charge as [AMOUNT] m².
     </floater.string>
     <floater.string
      name="meters_supports_object">
-        [AMOUNT] sq.m.
+        [AMOUNT] m²
 supports [AMOUNT2] objects
     </floater.string>
     <floater.string
@@ -142,7 +142,7 @@ supports [AMOUNT2] objects
     <floater.string
      name="info_price_string">
         L$ [PRICE]
-(L$ [PRICE_PER_SQM]/sq.m.)
+(L$ [PRICE_PER_SQM]/m²)
 [SOLD_WITH_OBJECTS]
     </floater.string>
     <floater.string
@@ -413,7 +413,7 @@ supports [AMOUNT2] objects
      name="info_size"
      top_delta="-1"
      width="180">
-        1024 sq.m.
+        1024 m²
     </text>
     <text
      type="string"
@@ -437,7 +437,7 @@ supports [AMOUNT2] objects
      top_delta="-1"
      width="180">
         L$ 1500
-(L$ 1.1/sq.m.)
+(L$ 1.1/m²)
 sold with objects
     </text>
     <text
@@ -575,8 +575,8 @@ sold with objects
      name="land_use_reason"
      right="435"
      width="215">
-        You hold 1309 sq.m. of land.
-    This parcel is 512 sq.m. of land.
+        You hold 1309 m² of land.
+    This parcel is 512 m² of land.
     </text>
     <locate
      height="10"
@@ -671,7 +671,7 @@ sold with objects
     <check_box
      follows="bottom|left"
      height="20"
-     label="Remove [AMOUNT] square meters of contribution from group."
+     label="Remove [AMOUNT] m² of contribution from group."
      layout="topleft"
      left_delta="3"
      name="remove_contribution"

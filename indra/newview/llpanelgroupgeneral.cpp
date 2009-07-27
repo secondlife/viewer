@@ -216,8 +216,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 	}
 
 	mIncompleteMemberDataStr = getString("incomplete_member_data_str");
-	mConfirmGroupCreateStr = getString("confirm_group_create_str");
-
+	
 	// If the group_id is null, then we are creating a new group
 	if (mGroupID.isNull())
 	{
@@ -450,9 +449,7 @@ bool LLPanelGroupGeneral::apply(std::string& mesg)
 				return false;
 			}
 
-			LLSD args;
-			args["MESSAGE"] = mConfirmGroupCreateStr;
-			LLNotifications::instance().add("GenericAlertYesCancel", args, LLSD(), boost::bind(&LLPanelGroupGeneral::createGroupCallback, this, _1, _2));
+			LLNotifications::instance().add("CreateGroupCost",  LLSD(), LLSD(), boost::bind(&LLPanelGroupGeneral::createGroupCallback, this, _1, _2));
 
 			return false;
 		}

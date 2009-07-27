@@ -551,11 +551,11 @@
      enabled="false"
      follows="bottom|right"
      height="20"
-     label="Copy SLURL to clipboard"
+     label="Copy SLurl to clipboard"
      layout="topleft"
      left="-230"
      name="copy_slurl"
-     tool_tip="Copies current location as SLURL to be used on the web."
+     tool_tip="Copies current location as SLurl to be used on the web."
      top="542"
      width="222">
 		<button.commit_callback

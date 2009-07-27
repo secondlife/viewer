@@ -50,6 +50,7 @@ public:
 	LLLocationHistory();
 	
 	void					addItem(std::string item);
+	void                    removeItems();
 	size_t					getItemCount() const	{ return mItems.size(); }
 	const location_list_t&	getItems() const		{ return mItems; }
 	bool					getMatchingItems(std::string substring, location_list_t& result) const;

@@ -223,15 +223,15 @@
    </text>
    <!-- THIS IS A NEW RADIO GROUP ADDED BY LIS -->
    <radio_group
+     control_name="AvatarNameTagMode"
      height="30"
      layout="topleft"
      left_delta="50"
-	 control_name="NameTags"
      name="Name_Tag_Preference"
      top_pad="10">
         <radio_item
          height="16"
-         label="On"
+         label="Off"
          layout="topleft"
          left="0"
          name="radio"
@@ -239,7 +239,7 @@
          width="98" />
         <radio_item
          height="16"
-         label="Off"
+         label="On"
          layout="topleft"
          left_pad="12"
          name="radio2"
@@ -255,7 +255,8 @@
          width="98" />
     </radio_group>
     <check_box
-     control_name="RenderNameHideSelf"
+	 enabled_control="AvatarNameTagMode"
+     control_name="RenderNameShowSelf"
      height="16"
      label="Show my name"
      layout="topleft"
@@ -264,7 +265,8 @@
      top_pad="5"
      width="300" />
    <check_box
-     control_name="RenderHideGroupTitleAll"
+	 enabled_control="AvatarNameTagMode"
+     control_name="RenderShowGroupTitleAll"
      height="16"
      label="Show group titles"
      layout="topleft"

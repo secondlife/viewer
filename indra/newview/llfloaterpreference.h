@@ -87,8 +87,8 @@ protected:
 	void		onBtnApply();
 	void		onOpenHelp();
 
-	static void		onClickClearCache(void*);
-	static void		onClickBrowserClearCache(void*);
+//	void		onClickClearCache();
+	void		onClickBrowserClearCache();
 
 	// if the custom settings box is clicked
 	void onChangeCustom();
@@ -112,6 +112,7 @@ public:
 	void onClickSkipDialogs();
 	void onClickResetDialogs();
 	void onClickEnablePopup();
+	void onClickDisablePopup();	
 	void resetAllIgnored();
 	void setAllIgnored();
 	void onClickLogPath();	

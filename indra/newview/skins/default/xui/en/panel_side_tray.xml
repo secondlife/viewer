@@ -4,7 +4,7 @@
   background_visible="false" 
   bg_opaque_color="0.0 0.0 0.0 0.0" 
   mouse_opaque="true" 
-  width="280" 
+  width="305" 
   collapsed="true" 
 >
   <sidetray_tab 	
@@ -30,7 +30,7 @@
         class="panel_people" 
         name="panel_people" 
         filename="panel_people.xml" 
-        width="355" 
+        width="280" 
         height="465" 
         label="People" 
         border="true" 
@@ -80,13 +80,13 @@
       title="Me" 
       collapsable="false" 
       min_width="200" 
-      min_height="200" 
+      min_height="200"
       header_visible="false"
     >
       <panel 
         class="panel_me_profile" 
         name="panel_me_profile" 
-        filename="panel_me_profile.xml" 
+        filename="panel_me_profile.xml"
         label="Me" 
         border="true"
       />

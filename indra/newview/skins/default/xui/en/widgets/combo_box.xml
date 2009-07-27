@@ -22,7 +22,7 @@
                               image_selected="DropDown_Selected"
                               image_disabled="DropDown_Disabled"
                               image_disabled_selected="DropDown_Disabled_Selected" />
-  <combo_box.combo_list bg_writeable_color="white" />
+  <combo_box.combo_list bg_writeable_color="MenuDefaultBgColor" />
   <combo_box.combo_editor name="Combo Text Entry"
                           select_on_focus="true"
                           font="SansSerifSmall" />

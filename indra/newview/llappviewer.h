@@ -161,6 +161,8 @@ public:
 
     LLAllocator & getAllocator() { return mAlloc; }
 
+	void purgeCache(); // Clear the local cache. 
+	
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
 	virtual bool initLogging(); // Initialize log files, logging system, return false on failure.
@@ -182,7 +184,7 @@ private:
 	void initGridChoice();
 
 	bool initCache(); // Initialize local client cache.
-	void purgeCache(); // Clear the local cache. 
+
 
 	// We have switched locations of both Mac and Windows cache, make sure
 	// files migrate and old cache is cleared out.

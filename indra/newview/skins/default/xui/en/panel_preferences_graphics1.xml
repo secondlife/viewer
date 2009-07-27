@@ -36,7 +36,7 @@
      layout="topleft"
      left_delta="30"
      name="windowed mode"
-     top_pad="5"
+     top_pad="4"
      width="100">
     </check_box>
     <combo_box
@@ -74,6 +74,46 @@
          function="setControlFalse"
 		 parameter="FullScreenAutoDetectAspectRatio" />
     </combo_box>
+            <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="12"
+     layout="topleft"
+     left="30"
+     name="UI Size:"
+     top_pad="4"
+     width="100">
+        UI Size:
+    </text>
+    <slider
+     can_edit_text="true"
+     control_name="UIScaleFactor"
+     decimal_digits="2"
+     follows="left|top"
+     height="15"
+     increment="0.025"
+     initial_value="1"
+     layout="topleft"
+     left_delta="32"
+     max_val="1.4"
+     min_val="0.75"
+     name="ui_scale_slider"
+     top_pad="2"
+     width="180" />
+    <spinner
+     control_name="UIScaleFactor"
+     height="16"
+     increment="0.025"
+     initial_value="1"
+     layout="topleft"
+     left_pad="10"
+     max_val="1.4"
+     min_val="0.75"
+     name="ui_scale_slider"
+     top_delta="0"
+     width="58" />
+
      <text
      type="string"
      length="1"
@@ -82,7 +122,7 @@
      layout="topleft"
      left="30"
      name="QualitySpeed"
-     top_pad="5"
+     top_pad="4"
      width="400">
         Quality and speed:
     </text>
@@ -90,11 +130,12 @@
      type="string"
      length="1"
      follows="left|top"
+     halign="right"
      height="12"
      layout="topleft"
-     left_delta="35"
+     left="35"
      name="FasterText"
-     top_pad="5"
+     top_pad="4"
      width="80">
         Faster
     </text>
@@ -104,27 +145,27 @@
      follows="left|top"
      height="12"
      layout="topleft"
-     left_delta="240"
+     left_delta="360"
      name="BetterText"
      top_delta="0"
      width="80">
         Better
     </text>
-        <icon
+    <icon
      color="0.12 0.12 0.12 1"
      height="14"
      image_name="rounded_square.tga"
      layout="topleft"
-     left="140"
+     left="128"
      name="LowGraphicsDivet"
-     top_delta="2"
+     top_delta="-2"
      width="2" />
     <icon
      color="0.12 0.12 0.12 1"
      height="14"
      image_name="rounded_square.tga"
      layout="topleft"
-     left_pad="42"
+     left_pad="83"
      name="MidGraphicsDivet"
      top_delta="0"
      width="2" />
@@ -133,7 +174,7 @@
      height="14"
      image_name="rounded_square.tga"
      layout="topleft"
-     left_pad="42"
+     left_pad="85"
      name="HighGraphicsDivet"
      top_delta="0"
      width="2" />
@@ -142,7 +183,7 @@
      height="14"
      image_name="rounded_square.tga"
      layout="topleft"
-     left_pad="42"
+     left_pad="83"
      name="UltraGraphicsDivet"
      top_delta="0"
      width="2" />
@@ -154,12 +195,12 @@
      increment="1"
      initial_value="0"
      layout="topleft"
-     left_delta="-140"
+     left="120"
      max_val="3"
      name="QualityPerformanceSelection"
      show_text="false"
-     top_delta="-1"
-     width="150">
+     top_delta="-2"
+     width="275">
 	 <slider.commit_callback
 			function="Pref.QualityPerformance"/>
 	</slider>		
@@ -167,9 +208,10 @@
      type="string"
      length="1"
      follows="left|top"
+     halign="center"
      height="12"
      layout="topleft"
-     left="130"
+     left="88"
      name="ShadersPrefText"
      top_delta="20"
      width="80">
@@ -179,11 +221,12 @@
      type="string"
      length="1"
      follows="left|top"
+     halign="center"
      height="12"
      layout="topleft"
-     left_delta="42"
+     left_delta="87"
      name="ShadersPrefText2"
-     top_delta="10"
+     top_delta="0"
      width="80">
         Mid
     </text>
@@ -191,24 +234,26 @@
      type="string"
      length="1"
      follows="left|top"
+     halign="center"
      height="12"
      layout="topleft"
-     left_delta="42"
+     left_delta="87"
      name="ShadersPrefText3"
-     top_delta="-10"
-     width="40">
+     top_delta="0"
+     width="80">
         High
     </text>
     <text
      type="string"
      length="1"
      follows="left|top"
+     halign="center"
      height="12"
      layout="topleft"
-     left_delta="42"
+     left_delta="85"
      name="ShadersPrefText4"
-     top_delta="10"
-     width="40">
+     top_delta="0"
+     width="80">
         Ultra
     </text>
     <panel
@@ -220,7 +265,7 @@
      layout="topleft"
      left="5"
      name="CustomGraphics Panel"
-     top="117"
+     top="124"
      width="485">
 		<text
 		type="string"
@@ -750,39 +795,55 @@
             width="315" />
         </radio_group>
 	</panel>	
+        <button
+     follows="left|bottom"
+     height="20"
+     label="Apply"
+     label_selected="Apply"
+     layout="topleft"
+     left="10"
+     name="Apply"
+     top="383"
+     width="115">
+        <button.commit_callback
+         function="Pref.Apply" />
+    </button>
     <button
+     follows="left|bottom"
      height="20"
      label="Reset"
      layout="topleft"
-     left="15"
+     left_pad="3"
      name="Defaults"
-     top="380"
-     width="155">
+     top="383"
+     width="115">
         <button.commit_callback
          function="Pref.HardwareDefaults" />
     </button>
     <button
      control_name="ShowAdvancedGraphicsSettings"
+     follows="right|bottom"
      height="20"
      is_toggle="true"
      label="Advanced"
      layout="topleft"
-     left_pad="5"
+     left_pad="35"
      name="Advanced"
      top_delta="0"
-     width="155">
+     width="115">
         <button.commit_callback
          function="Pref.ChangeCustom" />
     </button>
     <button
+     follows="right|bottom"
      height="20"
      label="Hardware"
      label_selected="Hardware"
      layout="topleft"
-     left_pad="5"
+     left_pad="3"
      name="GraphicsHardwareButton"
      top_delta="0"
-     width="155">
+     width="115">
         <button.commit_callback
          function="Pref.HardwareSettings" />
     </button>
