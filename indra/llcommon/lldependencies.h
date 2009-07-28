@@ -81,7 +81,7 @@ struct instance_from_range: public TYPE
  * LLDependencies components that should not be reinstantiated for each KEY,
  * NODE specialization
  */
-class LLDependenciesBase
+class LL_COMMON_API LLDependenciesBase
 {
 public:
     virtual ~LLDependenciesBase() {}

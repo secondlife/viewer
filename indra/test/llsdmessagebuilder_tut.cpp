@@ -44,7 +44,8 @@
 #include "v3dmath.h"
 #include "v3math.h"
 #include "v4math.h"
-#include "llsdutil.cpp"
+#include "llsdutil.h"
+//#include "llsdutil.cpp"
 #include "llsdutil_math.cpp"
 #include "lltemplatemessagebuilder.h"
 

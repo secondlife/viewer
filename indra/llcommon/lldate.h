@@ -155,10 +155,10 @@ private:
 };
 
 // Helper function to stream out a date
-std::ostream& operator<<(std::ostream& s, const LLDate& date);
+LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLDate& date);
 
 // Helper function to stream in a date
-std::istream& operator>>(std::istream& s, LLDate& date);
+LL_COMMON_API std::istream& operator>>(std::istream& s, LLDate& date);
 
 
 const static std::string weekdays[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};

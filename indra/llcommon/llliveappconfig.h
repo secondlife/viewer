@@ -45,7 +45,7 @@
  * loop.  The traditional name for it is live_config.  Be sure to call
  * <code>live_config.checkAndReload()</code> periodically.
  */
-class LLLiveAppConfig : public LLLiveFile
+class LL_COMMON_API LLLiveAppConfig : public LLLiveFile
 {
 public:
 
