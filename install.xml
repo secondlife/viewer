@@ -1372,9 +1372,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>789988ea1fd8615137f843fbbe5b6bfa</string>
+            <string>af723ab6a9b0222613b2de060bcec98c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-windows-20080723.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-windows-20090727.tar.bz2</uri>
           </map>
         </map>
       </map>
