@@ -262,6 +262,10 @@ public:
 	void setFlags(U32 flags);
 	void setCreationDate(time_t creation_date_utc);
 
+	// Check for changes in permissions masks and sale info
+	// and set the corresponding bits in mFlags
+	void accumulatePermissionSlamBits(const LLInventoryItem& old_item);
+
 	// Put this inventory item onto the current outgoing mesage. It
 	// assumes you have already called nextBlock().
 	virtual void packMessage(LLMessageSystem* msg) const;

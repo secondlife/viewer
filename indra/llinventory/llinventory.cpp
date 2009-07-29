@@ -453,6 +453,39 @@ void LLInventoryItem::setCreationDate(time_t creation_date_utc)
 	mCreationDate = creation_date_utc;
 }
 
+void LLInventoryItem::accumulatePermissionSlamBits(const LLInventoryItem& old_item)
+{
+	// Remove any pre-existing II_FLAGS_PERM_OVERWRITE_MASK flags 
+	// because we now detect when they should be set.
+	setFlags( old_item.getFlags() | (getFlags() & ~(LLInventoryItem::II_FLAGS_PERM_OVERWRITE_MASK)) );
+
+	// Enforce the PERM_OVERWRITE flags for any masks that are different
+	// but only for AT_OBJECT's since that is the only asset type that can 
+	// exist in-world (instead of only in-inventory or in-object-contents).
+	if (LLAssetType::AT_OBJECT == getType())
+	{
+		LLPermissions old_permissions = old_item.getPermissions();
+		U32 flags_to_be_set = 0;
+		if(old_permissions.getMaskNextOwner() != getPermissions().getMaskNextOwner())
+		{
+			flags_to_be_set |= LLInventoryItem::II_FLAGS_OBJECT_SLAM_PERM;
+		}
+		if(old_permissions.getMaskEveryone() != getPermissions().getMaskEveryone())
+		{
+			flags_to_be_set |= LLInventoryItem::II_FLAGS_OBJECT_PERM_OVERWRITE_EVERYONE;
+		}
+		if(old_permissions.getMaskGroup() != getPermissions().getMaskGroup())
+		{
+			flags_to_be_set |= LLInventoryItem::II_FLAGS_OBJECT_PERM_OVERWRITE_GROUP;
+		}
+		LLSaleInfo old_sale_info = old_item.getSaleInfo();
+		if(old_sale_info != getSaleInfo())
+		{
+			flags_to_be_set |= LLInventoryItem::II_FLAGS_OBJECT_SLAM_SALE;
+		}
+		setFlags(getFlags() | flags_to_be_set);
+	}
+}
 
 const LLSaleInfo& LLInventoryItem::getSaleInfo() const
 {
