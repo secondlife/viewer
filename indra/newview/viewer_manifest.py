@@ -162,26 +162,24 @@ class WindowsManifest(ViewerManifest):
 
     def construct(self):
         super(WindowsManifest, self).construct()
-        # the final exe is complicated because we're not sure where it's coming from,
-        # nor do we have a fixed name for the executable
-        self.path(self.find_existing_file('debug/secondlife-bin.exe', 'release/secondlife-bin.exe', 'relwithdebinfo/secondlife-bin.exe'), dst=self.final_exe())
+        # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
+        self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
-        # need to get the llcommon.dll from any of the build directories as well
-        try:
-            if self.prefix(src=self.args['configuration'], dst=""):
+        # need to get the llcommon.dll from the build directory as well
+        if self.prefix(src=self.args['configuration'], dst=""):
+            try:
                 self.path('llcommon.dll')
                 self.path('libapr-1.dll')
                 self.path('libaprutil-1.dll')
                 self.path('libapriconv-1.dll')
-                self.end_prefix()
-        except:
-            print "Skipping llcommon.dll (assuming llcommon was linked statically)"
-            pass
+            except:
+                print "Skipping llcommon.dll (assuming llcommon was linked statically)"
+                pass
+        self.end_prefix()
 
-        # need to get the kdu dll from any of the build directories as well
+        # need to get the kdu dll from the build directory as well
         try:
-            self.path(self.find_existing_file('%s/llkdu.dll' % self.args['configuration']), 
-                  dst='llkdu.dll')
+            self.path('%s/llkdu.dll' % self.args['configuration'], dst='llkdu.dll')
             pass
         except:
             print "Skipping llkdu.dll"
@@ -197,8 +195,11 @@ class WindowsManifest(ViewerManifest):
         self.path("fmod.dll")
 
         # For textures
-        if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
-            self.path("openjpeg.dll")
+        if self.prefix(src=self.args['configuration'], dst=""):
+            if(self.args['configuration'].lower() == 'debug'):
+                self.path("openjpegd.dll")
+            else:
+                self.path("openjpeg.dll")
             self.end_prefix()
 
         # Mozilla appears to force a dependency on these files so we need to ship it (CP) - updated to vc8 versions (nyx)
@@ -216,7 +217,7 @@ class WindowsManifest(ViewerManifest):
             self.end_prefix()
 
         # Mozilla runtime DLLs (CP)
-        if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
+        if self.prefix(src=self.args['configuration'], dst=""):
             self.path("freebl3.dll")
             self.path("js3250.dll")
             self.path("nspr4.dll")
@@ -247,7 +248,7 @@ class WindowsManifest(ViewerManifest):
         self.path("SecondLife.exe.config", dst=self.final_exe() + ".config")
 
         # Vivox runtimes
-        if self.prefix(src="vivox-runtime/i686-win32", dst=""):
+        if self.prefix(src=self.args['configuration'], dst=""):
             self.path("SLVoice.exe")
             self.path("alut.dll")
             self.path("vivoxsdk.dll")
@@ -256,22 +257,18 @@ class WindowsManifest(ViewerManifest):
             self.end_prefix()
 
         # pull in the crash logger and updater from other projects
-        self.path(src=self.find_existing_file( # tag:"crash-logger" here as a cue to the exporter
-                "../win_crash_logger/debug/windows-crash-logger.exe",
-                "../win_crash_logger/release/windows-crash-logger.exe",
-                "../win_crash_logger/relwithdebinfo/windows-crash-logger.exe"),
+        # tag:"crash-logger" here as a cue to the exporter
+        self.path(src='../win_crash_logger/%s/windows-crash-logger.exe' % self.args['configuration'],
                   dst="win_crash_logger.exe")
-        self.path(src=self.find_existing_file(
-                "../win_updater/debug/windows-updater.exe",
-                "../win_updater/release/windows-updater.exe",
-                "../win_updater/relwithdebinfo/windows-updater.exe"),
+        self.path(src='../win_updater/%s/windows-updater.exe' % self.args['configuration'],
                   dst="updater.exe")
 
         # For google-perftools tcmalloc allocator.
-        if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
-                self.path("libtcmalloc_minimal.dll")
-                self.end_prefix()
-
+        try:
+            self.path('%s/libtcmalloc_minimal.dll' % self.args['configuration'])
+        except:
+            print "Skipping libtcmalloc_minimal.dll"
+            pass           
 
     def nsi_file_commands(self, install=True):
         def wpath(path):
