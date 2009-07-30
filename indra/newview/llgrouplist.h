@@ -44,6 +44,7 @@ class LLGroupList: public LLAvatarList
 public:
 	struct Params : public LLInitParam::Block<Params, LLAvatarList::Params>
 	{
+		Params();
 	};
 
 	LLGroupList(const Params&);

@@ -42,6 +42,7 @@
 
 #include "llagent.h"
 #include "llfloaterhtmlhelp.h"
+#include "lllandmarkactions.h"
 #include "lllocationhistory.h"
 #include "lllocationinputctrl.h"
 #include "llteleporthistory.h"
@@ -175,7 +176,6 @@ LLNavigationBar::LLNavigationBar()
 	mBtnBack(NULL),
 	mBtnForward(NULL),
 	mBtnHome(NULL),
-	mBtnHelp(NULL),
 	mCmbLocation(NULL),
 	mLeSearch(NULL),
 	mPurgeTPHistoryItems(false)
@@ -202,12 +202,11 @@ BOOL LLNavigationBar::postBuild()
 	mBtnBack	= getChild<LLButton>("back_btn");
 	mBtnForward	= getChild<LLButton>("forward_btn");
 	mBtnHome	= getChild<LLButton>("home_btn");
-	mBtnHelp	= getChild<LLButton>("help_btn");
 	
 	mCmbLocation= getChild<LLLocationInputCtrl>("location_combo"); 
 	mLeSearch	= getChild<LLSearchEditor>("search_input");
 
-	if (!mBtnBack || !mBtnForward || !mBtnHome || !mBtnHelp ||
+	if (!mBtnBack || !mBtnForward || !mBtnHome ||
 		!mCmbLocation || !mLeSearch)
 	{
 		llwarns << "Malformed navigation bar" << llendl;
@@ -223,7 +222,6 @@ BOOL LLNavigationBar::postBuild()
 	mBtnForward->setHeldDownCallback(boost::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this, _2));
 
 	mBtnHome->setClickedCallback(boost::bind(&LLNavigationBar::onHomeButtonClicked, this));
-	mBtnHelp->setClickedCallback(boost::bind(&LLNavigationBar::onHelpButtonClicked, this));
 
 	mCmbLocation->setSelectionCallback(boost::bind(&LLNavigationBar::onLocationSelection, this));
 	
@@ -295,11 +293,6 @@ void LLNavigationBar::onForwardButtonClicked()
 void LLNavigationBar::onHomeButtonClicked()
 {
 	gAgent.teleportHome();
-}
-
-void LLNavigationBar::onHelpButtonClicked()
-{
-	gViewerHtmlHelp.show();
 }
 
 void LLNavigationBar::onSearchCommit()
@@ -522,6 +515,10 @@ bool LLNavigationBar::onLocationContextMenuItemEnabled(const LLSD& userdata)
 	else if (item == std::string("can_select_all"))
 	{
 		return location_entry->canSelectAll();
+	}
+	else if(item == std::string("can_landmark"))
+	{
+		return !LLLandmarkActions::landmarkAlreadyExists();
 	}
 
 	return false;

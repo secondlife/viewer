@@ -63,6 +63,7 @@ public:
 	void	addText		(const std::string& message);
 	void	setMessage	(const LLChat& msg);
 	void	setWidth		(S32 width);
+	void	snapToMessageHeight	();
 
 	bool	canAddText	();
 
@@ -75,6 +76,7 @@ public:
 	void	reshape		(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 	void	setHeaderVisibility(EShowItemHeader e);
+	BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 private:
 	
 	std::string appendTime	();

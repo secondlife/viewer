@@ -45,6 +45,7 @@
 #include "llpanelavatar.h"
 #include "llpanelprofile.h"
 #include "llpanelpick.h"
+#include "llscrollcontainer.h"
 
 static const std::string XML_BTN_NEW = "new_btn";
 static const std::string XML_BTN_DELETE = "trash_btn";
@@ -203,7 +204,7 @@ void LLPanelPicks::reshapePicksList()
 			last_bottom -= childp->getRect().getHeight();
 			last_bottom -= PICK_ITEMS_BETWEEN;
 		}
-		reshapePickItem(childp, last_bottom);
+		reshapePickItem(childp, last_bottom,pickList->getRect().getWidth());
 	}
 
 	S32 height = pickList->getChildCount() * ((*child_first_it)->getRect().getHeight() + PICK_ITEMS_BETWEEN);
@@ -213,13 +214,13 @@ void LLPanelPicks::reshapePicksList()
 	pickList->setRect(rc);
 }
 
-void LLPanelPicks::reshapePickItem(LLView* const pick_item, const S32 last_bottom)
+void LLPanelPicks::reshapePickItem(LLView* const pick_item, const S32 last_bottom, const S32 newWidth)
 {
 	LLRect rc = pick_item->getRect();
 	rc.mBottom = last_bottom - rc.getHeight();
 	rc.mTop = last_bottom;
-	pick_item->reshape(rc.getWidth(), rc.getHeight());
 	pick_item->setRect(rc);
+	pick_item->reshape(newWidth, rc.getHeight());
 }
 
 LLView* LLPanelPicks::getPicksList() const
@@ -402,7 +403,7 @@ void LLPanelPicks::setSelectedPickItem(LLPickItem* item)
 
 BOOL LLPanelPicks::isMouseInPick( S32 x, S32 y )
 {
-	LLView* scroll = getChild<LLView>("profile_scroll");
+	LLScrollContainer* scroll = getChild<LLScrollContainer>("profile_scroll");
 	if (!scroll->parentPointInView(x, y)) return FALSE;
 
 	S32 x_l = x;

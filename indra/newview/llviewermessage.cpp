@@ -209,6 +209,10 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	LLUUID fid;
 	LLMessageSystem* msg = gMessageSystem;
 	const LLSD& payload = notification["payload"];
+
+	// add friend to recent people list
+	LLRecentPeople::instance().add(payload["from_id"]);
+
 	switch(option)
 	{
 	case 0:
@@ -1180,6 +1184,9 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			{
 				opener = open_agent_offer;
 			}
+
+			// add buddy to recent people list
+			LLRecentPeople::instance().add(mFromID);
 		}
 			break;
 		case IM_TASK_INVENTORY_OFFERED:

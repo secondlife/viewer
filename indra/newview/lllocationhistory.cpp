@@ -39,8 +39,7 @@
 #include "llui.h"
 
 LLLocationHistory::LLLocationHistory() :
-	mFilename("typed_locations.txt"),
-	mLoadedCallback(NULL)
+	mFilename("typed_locations.txt")
 {
 }
 
@@ -134,6 +133,5 @@ void LLLocationHistory::load()
 
 	file.close();
 	
-	if (mLoadedCallback)
-		mLoadedCallback();
+	mLoadedSignal();
 }

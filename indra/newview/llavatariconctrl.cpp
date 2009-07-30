@@ -42,11 +42,14 @@
 #include "lluictrlfactory.h"
 
 #include "llcachename.h"
+#include "llagentdata.h"
 
 #define MENU_ITEM_VIEW_PROFILE 0
 #define MENU_ITEM_SEND_IM 1
 
 static LLDefaultChildRegistry::Register<LLAvatarIconCtrl> r("avatar_icon");
+
+LLAvatarIconCtrl::avatar_image_map_t LLAvatarIconCtrl::sImagesCache;
 
 LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 :	LLIconCtrl(p),
@@ -137,7 +140,17 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 			LLAvatarPropertiesProcessor::getInstance()->addObserver(value.asUUID(), this);
 			LLAvatarPropertiesProcessor::getInstance()->sendDataRequest(value.asUUID(),APT_PROPERTIES);
 			mAvatarId = value.asUUID();
+
+			// Check if cache already contains image_id for that avatar
+			avatar_image_map_t::iterator it;
+
+			it = sImagesCache.find(mAvatarId);
+			if (it != sImagesCache.end())
+			{
+				updateFromCache(it->second);
+			}
 		}
+
 	}
 	else
 	{
@@ -145,6 +158,37 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 	}
 
 	gCacheName->get(mAvatarId, FALSE, boost::bind(&LLAvatarIconCtrl::nameUpdatedCallback, this, _1, _2, _3, _4));
+}
+
+void LLAvatarIconCtrl::updateFromCache(LLAvatarIconCtrl::LLImagesCacheItem data)
+{
+	// Update the avatar
+	if (data.image_id.notNull())
+	{
+		LLIconCtrl::setValue(data.image_id);
+	}
+	else
+	{
+		LLIconCtrl::setValue("default_profile_picture.j2c");
+	}
+
+	// Update color of status symbol and tool tip
+	if (data.flags & AVATAR_ONLINE)
+	{
+		mStatusSymbol->setColor(LLColor4::green);
+		if (mDrawTooltip)
+		{
+			setToolTip((LLStringExplicit)"Online");
+		}
+	}
+	else
+	{
+		mStatusSymbol->setColor(LLColor4::grey);
+		if (mDrawTooltip)
+		{
+			setToolTip((LLStringExplicit)"Offline");
+		}
+	}
 }
 
 //virtual
@@ -160,33 +204,10 @@ void LLAvatarIconCtrl::processProperties(void* data, EAvatarProcessorType type)
 				return;
 			}
 
-			// Update the avatar
-			if (avatar_data->image_id.notNull())
-			{
-				LLIconCtrl::setValue(avatar_data->image_id);
-			}
-			else
-			{
-				LLIconCtrl::setValue("default_profile_picture.j2c");
-			}
+			LLAvatarIconCtrl::LLImagesCacheItem data(avatar_data->image_id, avatar_data->flags);
 
-			// Update color of status symbol and tool tip
-			if (avatar_data->flags & AVATAR_ONLINE)
-			{
-				mStatusSymbol->setColor(LLColor4::green);
-				if (mDrawTooltip)
-				{
-					setToolTip((LLStringExplicit)"Online");
-				}
-			}
-			else
-			{
-				mStatusSymbol->setColor(LLColor4::grey);
-				if (mDrawTooltip)
-				{
-					setToolTip((LLStringExplicit)"Offline");
-				}
-			}
+			updateFromCache(data);
+			sImagesCache.insert(std::pair<LLUUID, LLAvatarIconCtrl::LLImagesCacheItem>(mAvatarId, data));
 		}
 	}
 }
@@ -198,9 +219,16 @@ BOOL LLAvatarIconCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	if(menu)
 	{
 		bool is_friend = LLAvatarTracker::instance().getBuddyInfo(mAvatarId) != NULL;
-
+		
 		menu->setItemEnabled("Add Friend", !is_friend);
 		menu->setItemEnabled("Remove Friend", is_friend);
+
+		if(gAgentID == mAvatarId)
+		{
+			menu->setItemEnabled("Add Friend", false);
+			menu->setItemEnabled("Send IM", false);
+			menu->setItemEnabled("Remove Friend", false);
+		}
 
 		menu->buildDrawLabels();
 		menu->updateParent(LLMenuGL::sMenuContainer);

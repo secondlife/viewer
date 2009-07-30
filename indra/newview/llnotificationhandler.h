@@ -42,6 +42,8 @@
 
 namespace LLNotificationsUI
 {
+// ID for channel that displays Alert Notifications
+#define ALERT_CHANNEL_ID	"F3E07BC8-A973-476D-8C7F-F3B7293975D1"
 
 // ENotificationType enumerates all possible types of notifications that could be met
 // 

@@ -143,6 +143,9 @@ void LLTeleportHistoryPanel::onCopySLURL()
 // virtual
 void LLTeleportHistoryPanel::updateVerbs()
 {
+	if (!isTabVisible()) 
+		return;
+
 	S32 index = 0;
 	S32 cur_item = 0;
 

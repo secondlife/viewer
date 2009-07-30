@@ -63,24 +63,11 @@ LLSideTray* LLSideTray::sInstance = 0;
 
 class LLSideTrayInfoPanel: public LLPanel
 {
-protected:
-	LLSideTrayInfoPanel(){}
+	
 public:
-	static LLSideTrayInfoPanel* createInstance(const string& image, const string& name,const string& description)
+	LLSideTrayInfoPanel():LLPanel()
 	{
-		LLSideTrayInfoPanel* panel = new LLSideTrayInfoPanel();
-		LLUICtrlFactory::getInstance()->buildPanel(panel,"panel_sidetray_tab_info.xml");
-		if(panel)
-			panel->setData(image, name,description);
-		panel->setBorderVisible(true);
-		return panel;
-
-	}
-	void setData(const string& image, const string& name,const string& description)
-	{
-		getChild<LLTextBox>("tab_name",false,false)->setValue(name);
-		getChild<LLTextBox>("tab_description",false,false)->setValue(description);
-		getChild<LLIconCtrl>("tab_icon",false,false)->setValue(image);
+		setBorderVisible(true);
 	}
 
 	BOOL handleHover(S32 x, S32 y, MASK mask)
@@ -91,12 +78,19 @@ public:
 
 	BOOL handleMouseUp(S32 x, S32 y, MASK mask)
 	{
+		std::string name = getName();
 		onCommit();
+		LLSideTray::getInstance()->selectTabByName(name);
 		return LLPanel::handleMouseUp(x,y,mask);
+	}
+	void reshape		(S32 width, S32 height, BOOL called_from_parent )
+	{
+		return LLPanel::reshape(width, height, called_from_parent);
 	}
 
 };
 
+static LLRegisterPanelClassWrapper<LLSideTrayInfoPanel> t_people("panel_sidetray_home_info");
 
 LLSideTray* LLSideTray::getInstance()
 {
@@ -113,7 +107,7 @@ bool	LLSideTray::instanceCreated	()
 	return sInstance!=0;
 }
 
-LLSideTrayTab::LLSideTrayTab(const Params& params):mAccordionCtrl(0)
+LLSideTrayTab::LLSideTrayTab(const Params& params):mMainPanel(0)
 												
 {
 	mImagePath = params.image_path;
@@ -124,30 +118,12 @@ LLSideTrayTab::~LLSideTrayTab()
 {
 }
 
-void LLSideTrayTab::addPanel(LLPanel* panel)
-{
-	//addChild(panel,false);
-}
-
 bool LLSideTrayTab::addChild(LLView* view, S32 tab_group)
 {
-	if(mAccordionCtrl == 0)		
-	{
-		mAccordionCtrl = new LLAccordionCtrl();
-		mAccordionCtrl->setVisible(TRUE);
-		LLPanel::addChild(mAccordionCtrl,tab_group);
-	}
-
-	
-	bool res = true;
-	if(TAB_PANEL_CAPTION_NAME != view->getName())//skip our caption panel
-	{
-		mAccordionCtrl->addCollapsibleCtrl(view);
-	}
-	else
-		res = LLPanel::addChild(view,tab_group);
-
-	return res;
+	if(mMainPanel == 0 && TAB_PANEL_CAPTION_NAME != view->getName())//skip our caption panel
+		mMainPanel = view;
+	return LLPanel::addChild(view,tab_group);
+	//return res;
 }
 
 
@@ -185,17 +161,18 @@ void	LLSideTrayTab::arrange(S32 width, S32 height )
 		offset = title_panel->getRect().getHeight();
 	}
 
-	LLRect sRect = mAccordionCtrl->getRect();
+	LLRect sRect = mMainPanel->getRect();
 	sRect.setLeftTopAndSize( splitter_margin, height - offset - splitter_margin, width - 2*splitter_margin, height - offset - 2*splitter_margin);
-	mAccordionCtrl->setRect(sRect);
+	mMainPanel->reshape(sRect.getWidth(),sRect.getHeight());
+	mMainPanel->setRect(sRect);
 	
-	mAccordionCtrl->setMaxWidth(sRect.getWidth());
-	mAccordionCtrl->arrange();
+
+	
 }
 
 void LLSideTrayTab::reshape		(S32 width, S32 height, BOOL called_from_parent )
 {
-	if(!mAccordionCtrl)
+	if(!mMainPanel)
 		return;
 	S32 offset = 0;
 
@@ -210,12 +187,12 @@ void LLSideTrayTab::reshape		(S32 width, S32 height, BOOL called_from_parent )
 
 	
 
-	LLRect sRect = mAccordionCtrl->getRect();
+	LLRect sRect = mMainPanel->getRect();
 	sRect.setLeftTopAndSize( splitter_margin, height - offset - splitter_margin, width - 2*splitter_margin, height - offset - 2*splitter_margin);
-	mAccordionCtrl->setMaxWidth(sRect.getWidth());
-	mAccordionCtrl->reshape(sRect.getWidth(), sRect.getHeight());
+	//mMainPanel->setMaxWidth(sRect.getWidth());
+	mMainPanel->reshape(sRect.getWidth(), sRect.getHeight());
 	
-	mAccordionCtrl->setRect(sRect);
+	mMainPanel->setRect(sRect);
 
 }
 
@@ -231,7 +208,9 @@ void LLSideTrayTab::draw()
 
 void	LLSideTrayTab::onOpen		(const LLSD& key)
 {
-	mAccordionCtrl->onOpen(key);
+	LLPanel* panel = dynamic_cast<LLPanel*>(mMainPanel);
+	if(panel)
+		panel->onOpen(key);
 }
 
 LLSideTrayTab*  LLSideTrayTab::createInstance	()
@@ -251,7 +230,6 @@ LLSideTray::LLSideTray(Params& params)
 		,mCollapsed(false)
 		,mCollapseButton(0)
 	    ,mMaxBarWidth(params.rect.width)
-		,mHomeTab(0)
 {
 	mCollapsed=params.collapsed;
 }
@@ -261,10 +239,8 @@ BOOL LLSideTray::postBuild()
 {
 	createButtons();
 
-	createHomeTab();
-
 	arrange();
-	selectTabByName("home_tab");
+	selectTabByName("sidebar_home");
 
 	if(mCollapsed)
 		collapseSideBar();
@@ -333,8 +309,6 @@ bool LLSideTray::selectTabByIndex(size_t index)
 bool LLSideTray::selectTabByName	(const std::string& name)
 {
 	LLSideTrayTab* side_bar = getTab(name);
-	if(side_bar == 0 && name == "home_tab")
-		side_bar = mHomeTab;
 
 	if(side_bar == NULL || side_bar == mActiveTab)
 		return false;
@@ -416,9 +390,10 @@ void	LLSideTray::createButtons	()
 	mCollapseButton = createButton(EXPANDED_NAME,"",boost::bind(&LLSideTray::onToggleCollapse, this));
 
 	//create buttons for tabs
-	child_vector_const_iter_t child_it;
+	child_vector_const_iter_t child_it = mTabs.begin();
+	++child_it;
 
-	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
+	for ( ; child_it != mTabs.end(); ++child_it)
 	{
 		LLSideTrayTab* sidebar_tab = dynamic_cast<LLSideTrayTab*>(*child_it);
 		if(sidebar_tab == NULL)
@@ -445,7 +420,7 @@ void		LLSideTray::onToggleCollapse()
 	if(mCollapsed)
 	{
 		expandSideBar();
-		selectTabByName("home_tab");
+		selectTabByName("sidebar_home");
 	}
 	else
 		collapseSideBar();
@@ -517,10 +492,6 @@ void LLSideTray::arrange			()
 		sidebar_tab->setRect(ctrl_rect);
 		sidebar_tab->arrange(mMaxBarWidth,getRect().getHeight());
 	}
-
-	mHomeTab->setRect(ctrl_rect);
-	mHomeTab->arrange(mMaxBarWidth,getRect().getHeight());
-	
 }
 
 void LLSideTray::collapseSideBar	()
@@ -619,19 +590,16 @@ void LLSideTray::reshape			(S32 width, S32 height, BOOL called_from_parent)
 		sidebar_tab->setRect(ctrl_rect);
 		
 	}
-	
-	mHomeTab->reshape(mMaxBarWidth,getRect().getHeight());
-	ctrl_rect.setLeftTopAndSize(sidetray_params.default_button_width,getRect().getHeight(),mMaxBarWidth,getRect().getHeight());
-	mHomeTab->setRect(ctrl_rect);
-
-	
 }
 
 /**
  * Activate tab with "panel_name" panel
- * if no such tab - return false, otherwise true
+ * if no such tab - return false, otherwise true.
+ * TODO* In some cases a pointer to a panel of
+ * a specific class may be needed so this method
+ * would need to use templates.
  */
-bool		LLSideTray::showPanel		(const std::string& panel_name, const LLSD& params)
+LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& params)
 {
 	//arrange tabs
 	child_vector_const_iter_t child_it;
@@ -644,51 +612,12 @@ bool		LLSideTray::showPanel		(const std::string& panel_name, const LLSD& params)
 			LLPanel* panel = dynamic_cast<LLPanel*>(view);
 			if(panel)
 				panel->onOpen(params);
-			return true;
+			return panel;
 		}
 	}
-	return false;
+	return NULL;
 }
 
-void LLSideTray::createHomeTab()
-{
-	mHomeTab = LLSideTrayTab::createInstance();
-	child_vector_iter_t child_it;
-	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
-	{
-		LLSideTrayTab* sidebar_tab = dynamic_cast<LLSideTrayTab*>(*child_it);
-		if(sidebar_tab == NULL)
-			continue;
-		
-		LLPanel* panel = LLSideTrayInfoPanel::createInstance(sidebar_tab->mImagePath,sidebar_tab->getTabTitle(),sidebar_tab->getDescription());
-
-		panel->setCommitCallback(boost::bind(&LLSideTray::onTabButtonClick, this, sidebar_tab->getName()));
-
-		LLAccordionCtrlTab::Params panel_params; 
-		panel_params.display_children(true);
-		panel_params.collapsible(false);
-		panel_params.header_visible(false);
-		panel_params.can_resize(false);
-		panel_params.min_height(200);
-		panel_params.padding_left(10);
-		panel_params.padding_right(10);
-		panel_params.padding_top(5);
-		panel_params.padding_bottom(5);
-		panel_params.name(sidebar_tab->getTabTitle());
-
-		LLAccordionCtrlTab* ctrl = LLUICtrlFactory::create<LLAccordionCtrlTab>(panel_params);
-
-		
-		ctrl->setPanel(panel);
-		ctrl->postBuild();
-		mHomeTab->addChild(ctrl,0);
-	}
-
-	mHomeTab->setBackgroundVisible(true);
-	mHomeTab->postBuild();
-
-	LLUICtrl::addChild(mHomeTab, 0);
-}
 static const S32	fake_offset = 132;
 static const S32	fake_top_offset = 78;
 

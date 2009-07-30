@@ -80,7 +80,6 @@ private:
 	void onHelpButtonClicked();
 	void onLocationSelection();
 	void onLocationPrearrange(const LLSD& data);
-	void onLocationHistoryLoaded();
 	void onSearchCommit();
 	void onRegionNameResponse(
 			std::string typed_location,
@@ -96,7 +95,6 @@ private:
 	LLButton*				mBtnBack;
 	LLButton*				mBtnForward;
 	LLButton*				mBtnHome;
-	LLButton*				mBtnHelp;
 	LLSearchEditor*			mLeSearch;
 	LLLocationInputCtrl*	mCmbLocation;
 	bool					mPurgeTPHistoryItems;

@@ -793,6 +793,16 @@ BOOL LLMenuItemCallGL::handleAcceleratorKey( KEY key, MASK mask )
 	return FALSE;
 }
 
+BOOL LLMenuItemCallGL::handleRightMouseUp(S32 x, S32 y, MASK mask)
+{
+	if (pointInView(x, y))
+	{
+		mRightClickSignal(this, getValue());
+	}
+
+	return TRUE;
+}
+
 ///============================================================================
 /// Class LLMenuItemCheckGL
 ///============================================================================

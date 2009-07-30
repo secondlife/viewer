@@ -43,6 +43,7 @@
 #include "llfloaterurldisplay.h"
 #include "llfloaterworldmap.h"
 #include "llpanellogin.h"
+#include "llsidetray.h"
 #include "llslurl.h"
 #include "llstartup.h"			// gStartupState
 #include "llurlsimstring.h"
@@ -202,8 +203,9 @@ bool LLURLDispatcherImpl::dispatchRegion(const std::string& url, bool right_mous
 	S32 z = 0;
 	LLURLSimString::parse(sim_string, &region_name, &x, &y, &z);
 
-	LLFloaterURLDisplay* url_displayp = LLFloaterReg::getTypedInstance<LLFloaterURLDisplay>("preview_url",LLSD());
-	if(url_displayp) url_displayp->setName(region_name);
+	// LLFloaterURLDisplay functionality moved to LLPanelPlaces in Side Tray.
+	//LLFloaterURLDisplay* url_displayp = LLFloaterReg::getTypedInstance<LLFloaterURLDisplay>("preview_url",LLSD());
+	//if(url_displayp) url_displayp->setName(region_name);
 
 	// Request a region handle by name
 	LLWorldMap::getInstance()->sendNamedRegionRequest(region_name,
@@ -274,12 +276,11 @@ void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const std::str
 	local_pos.mV[VY] = (F32)local_y;
 	local_pos.mV[VZ] = (F32)z;
 
-
+	LLVector3d global_pos = from_region_handle(region_handle);
+	global_pos += LLVector3d(local_pos);
 	
 	if (teleport)
-	{
-		LLVector3d global_pos = from_region_handle(region_handle);
-		global_pos += LLVector3d(local_pos);
+	{	
 		gAgent.teleportViaLocation(global_pos);
 		LLFloaterWorldMap* instance = LLFloaterWorldMap::getInstance();
 		if(instance)
@@ -289,18 +290,28 @@ void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const std::str
 	}
 	else
 	{
-		// display informational floater, allow user to click teleport btn
-		LLFloaterURLDisplay* url_displayp = LLFloaterReg::getTypedInstance<LLFloaterURLDisplay>("preview_url",LLSD());
-		if(url_displayp)
-		{
-			url_displayp->displayParcelInfo(region_handle, local_pos);
-			if(snapshot_id.notNull())
-			{
-				url_displayp->setSnapshotDisplay(snapshot_id);
-			}
-			std::string locationString = llformat("%s %d, %d, %d", region_name.c_str(), x, y, z);
-			url_displayp->setLocationString(locationString);
-		}
+		LLSD key;
+		key["type"] = "remote_place";
+		key["x"] = global_pos.mdV[VX];
+		key["y"] = global_pos.mdV[VY];
+		key["z"] = global_pos.mdV[VZ];
+
+		LLSideTray::getInstance()->showPanel("panel_places", key);
+
+		// LLFloaterURLDisplay functionality moved to LLPanelPlaces in Side Tray.
+
+//		// display informational floater, allow user to click teleport btn
+//		LLFloaterURLDisplay* url_displayp = LLFloaterReg::getTypedInstance<LLFloaterURLDisplay>("preview_url",LLSD());
+//		if(url_displayp)
+//		{
+//			url_displayp->displayParcelInfo(region_handle, local_pos);
+//			if(snapshot_id.notNull())
+//			{
+//				url_displayp->setSnapshotDisplay(snapshot_id);
+//			}
+//			std::string locationString = llformat("%s %d, %d, %d", region_name.c_str(), x, y, z);
+//			url_displayp->setLocationString(locationString);
+//		}
 	}
 }
 

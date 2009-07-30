@@ -428,9 +428,11 @@ LLChicletPanel::Params::Params()
 , scrolling_offset("scrolling_offset")
 , left_scroll_button("left_scroll_button")
 , right_scroll_button("right_scroll_button")
+, min_width("min_width")
 {
 	chiclet_padding = 3;
 	scrolling_offset = 40;
+	min_width = 70;
 
 	LLRect scroll_button_rect(0, 25, 19, 5);
 
@@ -458,6 +460,8 @@ LLChicletPanel::LLChicletPanel(const Params&p)
 , mRightScrollButton(NULL)
 , mChicletPadding(p.chiclet_padding)
 , mScrollingOffset(p.scrolling_offset)
+, mMinWidth(p.min_width)
+, mShowControls(true)
 {
 	LLButton::Params scroll_button_params = p.left_scroll_button;
 
@@ -660,6 +664,9 @@ void LLChicletPanel::reshape(S32 width, S32 height, BOOL called_from_parent )
 	mScrollArea->setRect(LLRect(scroll_button_rect.getWidth() + SCROLL_BUTTON_PAD,
 		height + 7, width - scroll_button_rect.getWidth() - SCROLL_BUTTON_PAD, 0));
 
+	mShowControls = width > mMinWidth;
+	mScrollArea->setVisible(mShowControls);
+
 	trimChiclets();
 
 	showScrollButtonsIfNeeded();
@@ -719,7 +726,7 @@ void LLChicletPanel::showScrollButtonsIfNeeded()
 	mLeftScrollButton->setEnabled(can_scroll_left);
 	mRightScrollButton->setEnabled(can_scroll_right);
 
-	bool show_scroll_buttons = can_scroll_left || can_scroll_right;
+	bool show_scroll_buttons = (can_scroll_left || can_scroll_right) && mShowControls;
 
 	mLeftScrollButton->setVisible(show_scroll_buttons);
 	mRightScrollButton->setVisible(show_scroll_buttons);
@@ -950,6 +957,11 @@ void LLTalkButton::draw()
 	LLUICtrl::draw();
 }
 
+void LLTalkButton::setSpeakBtnToggleState(bool state)
+{
+	mSpeakBtn->setToggleState(state);
+}
+
 void LLTalkButton::onClick_SpeakBtn()
 {
 	bool speaking = mSpeakBtn->getToggleState();
@@ -1012,7 +1024,14 @@ void LLChicletNotificationCounterCtrl::setCounter(S32 counter)
 
 	std::stringstream stream;
 	stream << getCounter();
-	setText(stream.str());
+	if(mCounter != 0)
+	{
+		setText(stream.str());
+	}
+	else
+	{
+		setText(std::string(""));
+	}
 }
 
 LLRect LLChicletNotificationCounterCtrl::getRequiredRect()

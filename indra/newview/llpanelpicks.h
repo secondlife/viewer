@@ -102,7 +102,7 @@ private:
 	bool callbackTeleport(const LLSD& notification, const LLSD& response);
 
 	void reshapePicksList();
-	void reshapePickItem(LLView* const pick_item, const S32 last_bottom);
+	void reshapePickItem(LLView* const pick_item, const S32 last_bottom, const S32 newWidth);
 	LLView* getPicksList() const;
 	void updateButtons();
 

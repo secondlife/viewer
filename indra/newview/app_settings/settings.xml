@@ -4749,6 +4749,83 @@
       <key>Value</key>
       <integer>350</integer>
     </map>
+    <key>NotificationToastTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Width of notification messages</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>5</integer>
+    </map>
+    <key>StartUpToastTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Width of notification messages</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>10</integer>
+    </map>
+    <key>ToastMargin</key>
+    <map>
+      <key>Comment</key>
+      <string>Width of notification messages</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>5</integer>
+    </map>
+    <key>ChannelBottomPanelMargin</key>
+    <map>
+      <key>Comment</key>
+      <string>Width of notification messages</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>35</integer>
+    </map>
+    <key>NotificationChannelRightMargin</key>
+    <map>
+      <key>Comment</key>
+      <string>Width of notification messages</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>10</integer>
+    </map>
+    <key>NavBarMargin</key>
+    <map>
+      <key>Comment</key>
+      <string>Width of notification messages</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>60</integer>
+    </map>
+    <key>OverflowToastHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>Width of notification messages</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>72</integer>
+    </map>
     <key>NotifyMoneyChange</key>
     <map>
       <key>Comment</key>

@@ -184,6 +184,7 @@
 #include "llviewernetwork.h"
 #include "llpostprocess.h"
 #include "llbottomtray.h"
+#include "llnearbychatbar.h"
 
 #include "llnotificationmanager.h"
 
@@ -1559,10 +1560,12 @@ void LLViewerWindow::initWorldUI()
 	getRootView()->sendChildToFront(gSnapshotFloaterView);
 
 	// new bottom panel
+	getRootView()->addChild(LLBottomTray::getInstance());
+	// Make sure Bottom Tray is behind Side Tray regardless "addChild" order.
+	getRootView()->sendChildToBack(LLBottomTray::getInstance());
 	LLRect rc = LLBottomTray::getInstance()->getRect();
 	rc.mLeft = 0;
 	rc.mRight = mRootView->getRect().getWidth();
-	mRootView->addChild(LLBottomTray::getInstance());
 	LLBottomTray::getInstance()->reshape(rc.getWidth(),rc.getHeight(),FALSE);
 	LLBottomTray::getInstance()->setRect(rc);
 
@@ -1646,12 +1649,10 @@ void LLViewerWindow::initWorldUI()
 	getRootView()->sendChildToFront(gMenuHolder);
 
 	//Channel Manager
-	LLNotificationsUI::LLChannelManager * channel_manager
-			= LLNotificationsUI::LLChannelManager::getInstance();
+	LLNotificationsUI::LLChannelManager* channel_manager = LLNotificationsUI::LLChannelManager::getInstance();
 	getRootView()->addChild(channel_manager);
 	//Notification Manager
-	LLNotificationsUI::LLNotificationManager* notify_manager =
-			LLNotificationsUI::LLNotificationManager::getInstance();
+	LLNotificationsUI::LLNotificationManager* notify_manager = LLNotificationsUI::LLNotificationManager::getInstance();
 	getRootView()->addChild(notify_manager);
 }
 
@@ -2175,7 +2176,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	LLUICtrl* keyboard_focus = gFocusMgr.getKeyboardFocus();
 	if( keyboard_focus )
 	{
-		LLLineEditor* chat_editor = LLBottomTray::instanceExists() ? LLBottomTray::getInstance()->getChatBox() : NULL;
+		LLLineEditor* chat_editor = LLBottomTray::instanceExists() ? LLBottomTray::getInstance()->getNearbyChatBar()->getChatBox() : NULL;
 		// arrow keys move avatar while chatting hack
 		if (chat_editor && chat_editor->hasFocus())
 		{

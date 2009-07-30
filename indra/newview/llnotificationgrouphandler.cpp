@@ -50,7 +50,7 @@ LLGroupHandler::LLGroupHandler(e_notification_type type, const LLSD& id)
 	mChiclet = tray->getSysWell();
 	LLChannelManager::Params p;
 	p.chiclet = mChiclet;
-	p.channel_right_bound = tray->getRect().mRight - 10; //HACK: need to correctly resolve SysWell's position
+	p.channel_right_bound = tray->getRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin");
 	p.channel_width = gSavedSettings.getS32("NotifyBoxWidth");
 
 	// Getting a Channel for our notifications
@@ -74,7 +74,7 @@ void LLGroupHandler::processNotification(const LLSD& notify)
 			toast = mChannel->addToast(notification->getID(), notify_box);
 			if(!toast)
 				return;			
-			toast->setAndStartTimer(5); 
+			toast->setAndStartTimer(gSavedSettings.getS32("NotificationToastTime")); 
 			toast->setOnToastDestroyCallback((boost::bind(&LLGroupHandler::onToastDestroy, this, toast)));
 			mChiclet->setCounter(mChiclet->getCounter() + 1);
 	}

@@ -51,9 +51,8 @@ LLChatMsgBox::Params::Params()
 	disabled_color("disabled_color"),
 	background_color("background_color"),
 	border_color("border_color"),
-	v_pad("v_pad", 0),
-	h_pad("h_pad", 0),
-	line_spacing("line_spacing", 0),
+	line_spacing("line_spacing", 4),
+	block_spacing("block_spacing",10),
 	text("text"),
 	font_shadow("font_shadow", LLFontGL::NO_SHADOW)
 {}
@@ -68,8 +67,6 @@ LLChatMsgBox::LLChatMsgBox(const LLChatMsgBox::Params& p)
 	mShadowType( p.font_shadow ),
 	mBorderDropShadowVisible( p.border_drop_shadow_visible ),
 	mUseEllipses( p.use_ellipses ),
-	mHPad(p.h_pad),
-	mVPad(p.v_pad),
 	mVAlign( LLFontGL::TOP ),
 	mClickedCallback(NULL),
 	mTextColor(p.text_color()),
@@ -79,6 +76,7 @@ LLChatMsgBox::LLChatMsgBox(const LLChatMsgBox::Params& p)
 	mHoverColor(p.hover_color()),
 	mHAlign(p.font_halign),
 	mLineSpacing(p.line_spacing),
+	mBlockSpasing(p.block_spacing),
 	mWordWrap( p.word_wrap ),
 	mFontStyle(LLFontGL::getStyleFromString(p.font.style))
 {
@@ -271,7 +269,7 @@ S32	LLChatMsgBox::getTextLinesNum()
 S32 LLChatMsgBox::getTextPixelHeight()
 {
 	S32 num_lines = getTextLinesNum();
-	return (S32)(num_lines * mFontGL->getLineHeight() + (num_lines-1)*4);
+	return (S32)(num_lines * mFontGL->getLineHeight() +  (num_lines-1)*mLineSpacing + mBlockSpasing*(mTextStrings.size()-1) + 2*mLineSpacing);//some extra space
 }
 
 void LLChatMsgBox::setValue(const LLSD& value )
@@ -305,17 +303,16 @@ void LLChatMsgBox::draw()
 	switch( mHAlign )
 	{
 	case LLFontGL::LEFT:	
-		text_x = mHPad;						
 		break;
 	case LLFontGL::HCENTER:
 		text_x = getRect().getWidth() / 2;
 		break;
 	case LLFontGL::RIGHT:
-		text_x = getRect().getWidth() - mHPad;
+		text_x = getRect().getWidth() ;
 		break;
 	}
 
-	S32 text_y = getRect().getHeight() - mVPad;
+	S32 text_y = getRect().getHeight() ;
 
 	if ( getEnabled() )
 	{
@@ -358,6 +355,7 @@ void LLChatMsgBox::reshape(S32 width, S32 height, BOOL called_from_parent)
 void LLChatMsgBox::drawText( S32 x, S32 y, const LLColor4& color )
 {
 	S32 width = getRect().getWidth()-10;
+
 	
 	for(std::vector< boost::shared_ptr<text_block> >::iterator it = mTextStrings.begin();
 			it!=mTextStrings.end();++it)
@@ -383,8 +381,9 @@ void LLChatMsgBox::drawText( S32 x, S32 y, const LLColor4& color )
 		if(next == mTextStrings.end())
 			break;
 		//separator
-		gl_line_2d(5,y-2,width,y-2,LLColor4::grey);
-		y-=4;
+		gl_line_2d(5,y-mBlockSpasing/2,width,y-mBlockSpasing/2,LLColor4::grey);
+		y-=mBlockSpasing;
 	}
+
 }
 

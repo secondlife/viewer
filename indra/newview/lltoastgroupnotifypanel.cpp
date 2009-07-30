@@ -51,6 +51,8 @@
 #include "llglheaders.h"
 #include "llagent.h"
 #include "llavatariconctrl.h"
+#include "llfloaterinventory.h"
+#include "llinventorytype.h"
 
 LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification)
 :	LLToastPanel(notification),
@@ -64,6 +66,8 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 		llwarns << "Group notice for unkown group: " << payload["group_id"].asUUID() << llendl;
 	}
 
+	static const LLUIColor textColor = LLUIColorTable::instance().getColor("GroupNotifyTextColor");
+
 	//group icon
 	LLIconCtrl* pGroupIcon = getChild<LLIconCtrl>("group_icon", TRUE);
 	pGroupIcon->setValue(groupData.mInsigniaID);
@@ -76,11 +80,36 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	pTitleText->setValue(from.str());
 
 	//message body
+	const std::string& subject = payload["subject"].asString();
 	const std::string& message = payload["message"].asString();
+
 	LLTextEditor* pMessageText = getChild<	LLTextEditor>("message", TRUE, FALSE);
+	pMessageText->setValue("");
 	pMessageText->setEnabled(FALSE);
 	pMessageText->setTakesFocus(FALSE);
-	pMessageText->setValue(message);
+
+	static const LLStyleSP headerstyle(new LLStyle(true, textColor,
+			"SansSerifBig"));
+	static const LLStyleSP datestyle(new LLStyle(true, textColor, "serif"));
+
+	pMessageText->appendStyledText(subject + "\n",false,false,headerstyle);
+
+	std::string timeStr = "["+LLTrans::getString("UTCTimeWeek")+"],["
+							+LLTrans::getString("UTCTimeDay")+"] ["
+							+LLTrans::getString("UTCTimeMth")+"] ["
+							+LLTrans::getString("UTCTimeYr")+"] ["
+							+LLTrans::getString("UTCTimeHr")+"]:["
+							+LLTrans::getString("UTCTimeMin")+"]:["
+							+LLTrans::getString("UTCTimeSec")+"] ["
+							+LLTrans::getString("UTCTimeTimezone")+"]";
+	const LLDate timeStamp = notification->getDate();
+	LLDate notice_date = timeStamp.notNull() ? timeStamp : LLDate::now();
+	LLSD substitution;
+	substitution["datetime"] = (S32) notice_date.secondsSinceEpoch();
+	LLStringUtil::format(timeStr, substitution);
+	pMessageText->appendStyledText(timeStr, false, false, datestyle);
+	pMessageText->appendColoredText(std::string("\n\n") + message, false,
+			false, textColor);
 
 	//attachment
 	BOOL hasInventory = payload["inventory_offer"].isDefined();
@@ -91,6 +120,13 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 		mInventoryOffer = new LLOfferInfo(payload["inventory_offer"]);
 		childSetActionTextbox("attachment", boost::bind(
 				&LLToastGroupNotifyPanel::onClickAttachment, this));
+
+		//attachment icon
+		LLIconCtrl* pAttachIcon = getChild<LLIconCtrl>("attachment_icon", TRUE);
+		LLUIImagePtr attachIconImg = get_item_icon(mInventoryOffer->mType,
+												LLInventoryType::IT_TEXTURE,
+												0, FALSE);
+		pAttachIcon->setValue(attachIconImg->getName());
 	}
 
 	//ok button
@@ -128,10 +164,43 @@ void LLToastGroupNotifyPanel::onClickOk()
 
 void LLToastGroupNotifyPanel::onClickAttachment()
 {
-	mInventoryOffer->forceResponse(IOR_ACCEPT);
+	if (mInventoryOffer != NULL) {
+		mInventoryOffer->forceResponse(IOR_ACCEPT);
 
-	mInventoryOffer = NULL;
+		LLTextBox * pAttachLink = getChild<LLTextBox> ("attachment", TRUE,
+				FALSE);
+		static const LLUIColor textColor = LLUIColorTable::instance().getColor(
+				"GroupNotifyDimmedTextColor");
+		pAttachLink->setColor(textColor);
 
-	LLTextBox * pAttachLink = getChild<LLTextBox>("attachment", TRUE, FALSE);
-	pAttachLink->setVisible(FALSE);
+		LLIconCtrl* pAttachIcon =
+				getChild<LLIconCtrl> ("attachment_icon", TRUE);
+		pAttachIcon->setEnabled(FALSE);
+
+		//if attachment isn't openable - notify about saving
+		if (!isAttachmentOpenable(mInventoryOffer->mType)) {
+			LLNotifications::instance().add("AttachmentSaved");
+		}
+
+		mInventoryOffer = NULL;
+	}
 }
+
+//static
+bool LLToastGroupNotifyPanel::isAttachmentOpenable(LLAssetType::EType type)
+{
+	switch(type)
+	{
+	case LLAssetType::AT_LANDMARK:
+	case LLAssetType::AT_FAVORITE:
+	case LLAssetType::AT_NOTECARD:
+	case LLAssetType::AT_IMAGE_JPEG:
+	case LLAssetType::AT_IMAGE_TGA:
+	case LLAssetType::AT_TEXTURE:
+	case LLAssetType::AT_TEXTURE_TGA:
+		return true;
+	default:
+		return false;
+	}
+}
+

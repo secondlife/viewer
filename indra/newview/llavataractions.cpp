@@ -73,6 +73,9 @@ void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::strin
 	{
     	LLNotifications::instance().add("AddFriendWithMessage", args, payload, &callbackAddFriendWithMessage);
 	}
+
+	// add friend to recent people list
+	LLRecentPeople::instance().add(id);
 }
 
 // static

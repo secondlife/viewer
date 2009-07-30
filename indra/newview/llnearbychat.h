@@ -77,8 +77,10 @@ public:
 	void	onNearbyChatContextMenuItemClicked(const LLSD& userdata);
 	bool	onNearbyChatCheckContextMenuItem(const LLSD& userdata);
 
-	virtual void	onClose(bool app_quitting) { if(app_quitting) destroy(); else setVisible(false); }
-	
+	virtual void	onClose		(bool app_quitting) { if(app_quitting) destroy(); else setVisible(false); }
+
+	virtual void	onOpen		(const LLSD& key);
+
 private:
 	
 	void	pinn_panel();

@@ -45,6 +45,8 @@
 namespace LLNotificationsUI
 {
 
+#define STARTUP_CHANNEL_ID		"AEED3193-8709-4693-8558-7452CCA97AE5"
+
 /**
  * Manager for screen channels.
  * Responsible for instantiating and retrieving screen channels.
@@ -98,6 +100,10 @@ public:
 	LLChannelManager();	
 	virtual ~LLChannelManager();
 
+	// On LoginCompleted - show StartUp toast
+	void onLoginCompleted();
+	void enableShowToasts();
+
 	//TODO: make protected? in order to be shure that channels are created only by notification handlers
 	LLScreenChannel*	createChannel(LLChannelManager::Params& p);
 
@@ -108,6 +114,7 @@ public:
 
 private:
 
+	LLScreenChannel*			mStartUpChannel;
 	std::vector<ChannelElem>	mChannelList;
 };
 

@@ -283,6 +283,7 @@ public:
 
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
+	virtual BOOL handleRightMouseUp(S32 x, S32 y, MASK mask);
 	
 	//virtual void draw();
 	
@@ -294,6 +295,11 @@ public:
 	boost::signals2::connection setEnableCallback( const enable_signal_t::slot_type& cb )
 	{
 		return mEnableSignal.connect(cb);
+	}
+
+	boost::signals2::connection setRightClickedCallback( const commit_signal_t::slot_type& cb )
+	{
+		return mRightClickSignal.connect(cb);
 	}
 	
 private:

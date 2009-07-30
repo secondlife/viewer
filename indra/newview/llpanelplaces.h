@@ -41,6 +41,8 @@
 #include "llinventorymodel.h"
 #include "llpanelplaceinfo.h"
 
+class LLInventoryItem;
+class LLLandmark;
 class LLPanelPlacesTab;
 class LLFilterEditor;
 class LLTabContainer;
@@ -55,38 +57,49 @@ public:
 	/*virtual*/ void changed(U32 mask);
 	/*virtual*/ void onOpen(const LLSD& key);
 
+	void setItem(LLInventoryItem* item);
+
+private:
+	void onLandmarkLoaded(LLLandmark* landmark);
 	void onFilterEdit(const std::string& search_string);
 	void onTabSelected();
+
 	//void onAddLandmarkButtonClicked();
 	//void onCopySLURLButtonClicked();
-	void onShareButtonClicked();
+	//void onShareButtonClicked();
 	void onTeleportButtonClicked();
 	void onShowOnMapButtonClicked();
 	void onBackButtonClicked();
+
 	void toggleMediaPanel();
 	void togglePlaceInfoPanel(BOOL visible);
+
 	void onAgentParcelChange();
+	void updateVerbs();
 
-private:
-	LLFilterEditor*			mFilterEditor;
-	LLPanelPlacesTab*		mActivePanel;
-	LLTabContainer*			mTabContainer;
-	LLPanelPlaceInfo*		mPlaceInfo;
-	std::string				mFilterSubString;
+	LLFilterEditor*				mFilterEditor;
+	LLPanelPlacesTab*			mActivePanel;
+	LLTabContainer*				mTabContainer;
+	LLPanelPlaceInfo*			mPlaceInfo;
 
-	// Place information type currently shown in Information panel
-	std::string				mPlaceInfoType;
+	//LLButton*					mShareBtn;
+	LLButton*					mTeleportBtn;
+	LLButton*					mShowOnMapBtn;
+	LLButton*					mOverflowBtn;
 
-	// Helper class to delay the coordinates update 
-	// when agent changes parcel
-	class LLParcelUpdateTimer : public LLEventTimer
-	{
-	public:
-		LLParcelUpdateTimer(F32 period);
-		virtual ~LLParcelUpdateTimer() {};
+	// Pointer to a landmark item or to a linked landmark
+	LLPointer<LLInventoryItem>	mItem;
+	
+	// Absolute position of the location for teleport, may not
+	// be available (hence zero)
+	LLVector3d					mPosGlobal;
 
-		virtual BOOL tick();
-	};
+	// Search string for filtering landmarks and teleport
+	// history locations
+	std::string					mFilterSubString;
+
+	// Information type currently shown in Place Information panel
+	std::string					mPlaceInfoType;
 };
 
 #endif //LL_LLPANELPLACES_H

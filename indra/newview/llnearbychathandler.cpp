@@ -61,6 +61,7 @@ LLNearbyChatHandler::LLNearbyChatHandler(e_notification_type type, const LLSD& i
 	// Getting a Channel for our notifications
 	mChannel = LLChannelManager::getInstance()->createChannel(p);
 	mChannel->setFollows(FOLLOWS_LEFT | FOLLOWS_BOTTOM | FOLLOWS_TOP); 
+	mChannel->setOverflowFormatString("You have %d unread nearby chat messages");
 	mChannel->setStoreToasts(false);
 }
 LLNearbyChatHandler::~LLNearbyChatHandler()
@@ -70,6 +71,9 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 {
 	if(chat_msg.mSourceType == CHAT_SOURCE_AGENT && chat_msg.mFromID.notNull())
          LLRecentPeople::instance().add(chat_msg.mFromID);
+
+	if(chat_msg.mText.empty())
+		return;//don't process empty messages
 
 	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 	nearby_chat->addMessage(chat_msg);
@@ -82,7 +86,9 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 	LLChatItemCtrl* item = LLChatItemCtrl::createInstance();
 	
 	item->setMessage(chat_msg);
-	item->setWidth(nearby_chat->getRect().getWidth() - 16);
+	//static S32 chat_item_width = nearby_chat->getRect().getWidth() - 16;
+	static S32 chat_item_width = 304;
+	item->setWidth(chat_item_width);
 	item->setHeaderVisibility((EShowItemHeader)gSavedSettings.getS32("nearbychat_showicons_and_names"));
 	
 	item->setVisible(true);
@@ -91,7 +97,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 	LLToast* toast = mChannel->addToast(id, item);
 	
 	toast->setOnMouseEnterCallback(boost::bind(&LLNearbyChatHandler::onToastDestroy, this, toast));
-	toast->setAndStartTimer(10); //TODO: set correct time
+	toast->setAndStartTimer(gSavedSettings.getS32("NotificationToastTime"));
 }
 
 void LLNearbyChatHandler::onToastDestroy(LLToast* toast)

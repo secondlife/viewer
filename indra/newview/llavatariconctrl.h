@@ -85,6 +85,20 @@ protected:
 	std::string			mLastName;
 	LLHandle<LLView>	mPopupMenuHandle;
 	bool				mDrawTooltip;
+
+	struct LLImagesCacheItem
+	{
+		LLUUID	image_id;
+		U32   	flags;
+
+		LLImagesCacheItem(LLUUID image_id_, U32 flags_) : image_id(image_id_), flags(flags_) {}
+	};
+
+	typedef std::map<LLUUID, LLAvatarIconCtrl::LLImagesCacheItem> avatar_image_map_t;
+	
+	static avatar_image_map_t sImagesCache;
+
+	void updateFromCache(LLAvatarIconCtrl::LLImagesCacheItem data);
 };
 
 #endif  // LL_LLAVATARICONCTRL_H

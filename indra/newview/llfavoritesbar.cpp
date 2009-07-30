@@ -216,6 +216,8 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 		}
 	}
 
+	bool recreate_buttons = true;
+
 	// If inventory items are not changed up to mFirstDropDownItem, no need to recreate them
 	if (mFirstDropDownItem == first_drop_down_item && (mItemNamesCache.size() == count || mItemNamesCache.size() == mFirstDropDownItem))
 	{
@@ -229,97 +231,113 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 		}
 		if (i == mFirstDropDownItem)
 		{
-			// Chevron button should stay right aligned
-			LLView *chevron_button = getChildView(std::string(">>"), FALSE, FALSE);
-			if (chevron_button)
-			{
-				LLRect rect;
-				rect.setOriginAndSize(bar_width - chevron_button_width - buttonHGap, buttonVGap, chevron_button_width, getRect().getHeight()-buttonVGap);
-				chevron_button->setRect(rect);
-				mChevronRect = rect;
-			}
-			return;
+			recreate_buttons = false;
 		}
 	}
 
-	mFirstDropDownItem = first_drop_down_item;
-
-	mItemNamesCache.clear();
-	for (S32 i = 0; i < mFirstDropDownItem; i++)
+	if (recreate_buttons)
 	{
-		mItemNamesCache.put(items.get(i)->getName());
-	}
+		mFirstDropDownItem = first_drop_down_item;
 
-        // Rebuild the buttons only
-        // child_list_t is a linked list, so safe to erase from the middle if we pre-incrament the iterator
-        for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); )
-        {
-                child_list_const_iter_t cur_it = child_it++;
-                LLView* viewp = *cur_it;
-                LLButton* button = dynamic_cast<LLButton*>(viewp);
-                if (button)
-                {
-                        removeChild(button);
-                        delete button;
-                }
-        }
+		mItemNamesCache.clear();
+		for (S32 i = 0; i < mFirstDropDownItem; i++)
+		{
+			mItemNamesCache.put(items.get(i)->getName());
+		}
 
-	// Adding buttons
-	for(S32 i = 0; i < mFirstDropDownItem; i++)
-	{
-	
-		LLInventoryItem* item = items.get(i);
+		// Rebuild the buttons only
+		// child_list_t is a linked list, so safe to erase from the middle if we pre-incrament the iterator
+		for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); )
+		{
+			child_list_const_iter_t cur_it = child_it++;
+			LLView* viewp = *cur_it;
+			LLButton* button = dynamic_cast<LLButton*>(viewp);
+			if (button)
+			{
+				removeChild(button);
+				delete button;
+			}
+		}
 
-		S32 buttonWidth = mFont->getWidth(item->getName()) + buttonHPad * 2;
+		// Adding buttons
+		for(S32 i = mFirstDropDownItem -1; i >= 0; i--)
+		{
 
-		LLRect rect;
-		rect.setOriginAndSize(curr_x, buttonVGap, buttonWidth, getRect().getHeight()-buttonVGap);
+			LLInventoryItem* item = items.get(i);
 
-		LLButton::Params bparams;
-		bparams.image_unselected.name(flat_icon);
-		bparams.image_disabled.name(flat_icon);
-		bparams.image_selected.name(hover_icon_selected);
-		bparams.image_hover_selected.name(hover_icon_selected);
-		bparams.image_disabled_selected.name(hover_icon_selected);
-		bparams.image_hover_unselected.name(hover_icon);
-		bparams.follows.flags (FOLLOWS_LEFT | FOLLOWS_BOTTOM);
-		bparams.rect (rect);
-		bparams.tab_stop(false);
-		bparams.font(mFont);
-		bparams.name(item->getName());
-		bparams.tool_tip(item->getName());
-		bparams.click_callback.function(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
-		bparams.rightclick_callback.function(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID()));
+			S32 buttonWidth = mFont->getWidth(item->getName()) + buttonHPad * 2;
 
-		addChildInBack(LLUICtrlFactory::create<LLButton> (bparams));
+			LLRect rect;
+			rect.setOriginAndSize(curr_x, buttonVGap, buttonWidth, getRect().getHeight()-buttonVGap);
 
-		curr_x += buttonWidth + buttonHGap;
+			LLButton::Params bparams;
+			bparams.image_unselected.name(flat_icon);
+			bparams.image_disabled.name(flat_icon);
+			bparams.image_selected.name(hover_icon_selected);
+			bparams.image_hover_selected.name(hover_icon_selected);
+			bparams.image_disabled_selected.name(hover_icon_selected);
+			bparams.image_hover_unselected.name(hover_icon);
+			bparams.follows.flags (FOLLOWS_LEFT | FOLLOWS_BOTTOM);
+			bparams.rect (rect);
+			bparams.tab_stop(false);
+			bparams.font(mFont);
+			bparams.name(item->getName());
+			bparams.tool_tip(item->getName());
+			bparams.click_callback.function(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
+			bparams.rightclick_callback.function(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID()));
+
+			addChildInBack(LLUICtrlFactory::create<LLButton> (bparams));
+
+			curr_x += buttonWidth + buttonHGap;
+		}
 	}
 
 	// Chevron button
 	if (mFirstDropDownItem != count)
 	{
-		LLButton::Params bparams;
+		// Chevron button should stay right aligned
+		LLView *chevron_button = getChildView(std::string(">>"), FALSE, FALSE);
+		if (chevron_button)
+		{
+			LLRect rect;
+			rect.setOriginAndSize(bar_width - chevron_button_width - buttonHGap, buttonVGap, chevron_button_width, getRect().getHeight()-buttonVGap);
+			chevron_button->setRect(rect);
+			chevron_button->setVisible(TRUE);
+			mChevronRect = rect;
+		}
+		else
+		{
+			LLButton::Params bparams;
 
-		LLRect rect;
-		rect.setOriginAndSize(bar_width - chevron_button_width - buttonHGap, buttonVGap, chevron_button_width, getRect().getHeight()-buttonVGap);
+			LLRect rect;
+			rect.setOriginAndSize(bar_width - chevron_button_width - buttonHGap, buttonVGap, chevron_button_width, getRect().getHeight()-buttonVGap);
 
-		bparams.follows.flags (FOLLOWS_LEFT | FOLLOWS_BOTTOM);
-		bparams.image_unselected.name(flat_icon);
-		bparams.image_disabled.name(flat_icon);
-		bparams.image_selected.name(hover_icon_selected);
-		bparams.image_hover_selected.name(hover_icon_selected);
-		bparams.image_disabled_selected.name(hover_icon_selected);
-		bparams.image_hover_unselected.name(hover_icon);
-		bparams.rect (rect);
-		bparams.tab_stop(false);
-		bparams.font(mFont);
-		bparams.name(">>");
-		bparams.click_callback.function(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));
+			bparams.follows.flags (FOLLOWS_LEFT | FOLLOWS_BOTTOM);
+			bparams.image_unselected.name(flat_icon);
+			bparams.image_disabled.name(flat_icon);
+			bparams.image_selected.name(hover_icon_selected);
+			bparams.image_hover_selected.name(hover_icon_selected);
+			bparams.image_disabled_selected.name(hover_icon_selected);
+			bparams.image_hover_unselected.name(hover_icon);
+			bparams.rect (rect);
+			bparams.tab_stop(false);
+			bparams.font(mFont);
+			bparams.name(">>");
+			bparams.click_callback.function(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));
 
-		addChildInBack(LLUICtrlFactory::create<LLButton> (bparams));
+			addChildInBack(LLUICtrlFactory::create<LLButton> (bparams));
 
-		mChevronRect = rect;
+			mChevronRect = rect;
+		}
+	}
+	else
+	{
+		// Hide chevron button if all items are visible on bar
+		LLView *chevron_button = getChildView(std::string(">>"), FALSE, FALSE);
+		if (chevron_button)
+		{
+			chevron_button->setVisible(FALSE);
+		}
 	}
 }
 
@@ -444,6 +462,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 			item_params.label(item_name);
 			
 			item_params.on_click.function(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
+			item_params.rightclick_callback.function(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID()));
 
 			LLMenuItemCallGL *menu_item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 

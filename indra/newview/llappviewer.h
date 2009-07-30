@@ -161,6 +161,11 @@ public:
 
     LLAllocator & getAllocator() { return mAlloc; }
 
+	// On LoginCompleted callback
+	typedef boost::signals2::signal<void (void)> login_completed_signal_t;
+	login_completed_signal_t mOnLoginCompleted;
+	boost::signals2::connection setOnLoginCompletedCallback( const login_completed_signal_t::slot_type& cb ) { return mOnLoginCompleted.connect(cb); } 
+
 	void purgeCache(); // Clear the local cache. 
 	
 protected:

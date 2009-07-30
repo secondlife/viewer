@@ -200,6 +200,9 @@ void LLLandmarksPanel::onCopySLURL()
 // virtual
 void LLLandmarksPanel::updateVerbs()
 {
+	if (!isTabVisible()) 
+		return;
+
 	BOOL enabled = FALSE;
 
 	LLFolderViewItem* current_item = mInventoryPanel->getRootFolder()->getCurSelectedItem();

@@ -39,6 +39,7 @@
 #include "llsecondlifeurls.h"
 
 #include "llinventory.h"
+#include "llparcel.h"
 
 #include "llqueryflags.h"
 
@@ -52,6 +53,7 @@
 #include "llinventorymodel.h"
 #include "lltexturectrl.h"
 #include "llviewerinventory.h"
+#include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewertexteditor.h"
 #include "llworldmap.h"
@@ -221,6 +223,8 @@ void LLPanelPlaceInfo::resetLocation()
 	mCreated->setText(not_available);
 	mTitleEditor->setText(LLStringUtil::null);
 	mNotesEditor->setText(LLStringUtil::null);
+	mSnapshotCtrl->setImageAssetID(LLUUID::null);
+	mSnapshotCtrl->setFallbackImageName("default_land_picture.j2c");
 }
 
 //virtual
@@ -237,6 +241,12 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 
 	switch(type)
 	{
+		case CREATE_LANDMARK:
+			mCurrentTitle = getString("title_create_landmark");
+
+			toggleMediaPanel(FALSE);
+		break;
+
 		case PLACE:
 			mCurrentTitle = getString("title_place");
 
@@ -362,11 +372,18 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 		region_z = llround(parcel_data.global_z);
 	}
 
+	std::string name;
 	if (!parcel_data.sim_name.empty())
 	{
-		std::string name = llformat("%s (%d, %d, %d)",
-									parcel_data.sim_name.c_str(), region_x, region_y, region_z);
+		name = llformat("%s (%d, %d, %d)",
+						parcel_data.sim_name.c_str(), region_x, region_y, region_z);
 		mRegionName->setText(name);
+	}
+	
+	if (mCurrentTitle != getString("title_landmark"))
+	{
+		mTitleEditor->setText(parcel_data.name + "; " + name);
+		mNotesEditor->setText(LLStringUtil::null);
 	}
 }
 
@@ -374,9 +391,14 @@ void LLPanelPlaceInfo::displayParcelInfo(const LLVector3& pos_region,
 									 const LLUUID& region_id,
 									 const LLVector3d& pos_global)
 {
-	LLSD body;
 	mPosRegion = pos_region;
-	std::string url = gAgent.getRegion()->getCapability("RemoteParcelRequest");
+
+	LLViewerRegion* region = gAgent.getRegion();
+	if (!region)
+		return;
+
+	LLSD body;
+	std::string url = region->getCapability("RemoteParcelRequest");
 	if (!url.empty())
 	{
 		body["location"] = ll_sd_from_vector3(pos_region);
@@ -395,8 +417,29 @@ void LLPanelPlaceInfo::displayParcelInfo(const LLVector3& pos_region,
 	{
 		mDescEditor->setText(getString("server_update_text"));
 	}
-	mSnapshotCtrl->setImageAssetID(LLUUID::null);
-	mSnapshotCtrl->setFallbackImageName("default_land_picture.j2c");
+}
+
+void LLPanelPlaceInfo::displayAgentParcelInfo()
+{
+	mPosRegion = gAgent.getPositionAgent();
+
+	LLViewerRegion* region = gAgent.getRegion();
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	if (!region || !parcel)
+		return;
+
+	LLParcelData parcel_data;
+	parcel_data.desc = parcel->getDesc();
+	parcel_data.flags = parcel->getParcelFlags();
+	parcel_data.name = parcel->getName();
+	parcel_data.sim_name = gAgent.getRegion()->getName();
+	parcel_data.snapshot_id = parcel->getSnapshotID();
+	LLVector3d global_pos = gAgent.getPositionGlobal();
+	parcel_data.global_x = global_pos.mdV[0];
+	parcel_data.global_y = global_pos.mdV[1];
+	parcel_data.global_z = global_pos.mdV[2];
+
+	processParcelInfo(parcel_data);
 }
 
 void LLPanelPlaceInfo::onCommitTitleOrNote(LANDMARK_INFO_TYPE type)

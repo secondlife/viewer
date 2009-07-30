@@ -55,6 +55,7 @@ class LLPanelPlaceInfo : public LLPanel, LLRemoteParcelInfoObserver
 public:
 	enum INFO_TYPE
 	{
+		CREATE_LANDMARK,
 		PLACE,
 		LANDMARK,
 		TELEPORT_HISTORY
@@ -84,9 +85,17 @@ public:
 	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason);
 
 	void sendParcelInfoRequest();
+
+	// Displays information about a remote parcel.
+	// Sends a request to the server.
 	void displayParcelInfo(const LLVector3& pos_region,
 						   const LLUUID& region_id,
 						   const LLVector3d& pos_global);
+
+	// Displays information about the parcel the agent is currently on
+	// without sending a request to the server.
+	void displayAgentParcelInfo();
+
 	void nameUpdatedCallback(LLTextBox* text,
 							 const std::string& first,
 							 const std::string& last);

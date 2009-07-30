@@ -652,6 +652,7 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="Stage">Stage</string>	
 	<string name="Other">Other</string>	
 	<string name="Any">Any</string>	
+	<string name="You">You</string>							
 						
 	<!-- puncutations -->
 	<string name=":">:</string>			
@@ -785,4 +786,6 @@ If you continue to receive this message, contact customer support.
 	<string name="UTCTimeMin">min,datetime,utc</string>
 	<string name="UTCTimeSec">second,datetime,utc</string>
 	<string name="UTCTimeTimezone">timezone,datetime,utc</string>							
+	
+	
 </strings>

@@ -49,7 +49,7 @@ LLAlertHandler::LLAlertHandler(e_notification_type type, const LLSD& id) : mIsMo
 
 	LLBottomTray* tray = LLBottomTray::getInstance();
 	LLChannelManager::Params p;
-	p.id = LLUUID("F3E07BC8-A973-476D-8C7F-F3B7293975D1");
+	p.id = LLUUID(ALERT_CHANNEL_ID);
 	p.channel_right_bound = tray->getRect().getWidth() / 2;
 	p.channel_width = 0;
 	p.align = NA_CENTRE;

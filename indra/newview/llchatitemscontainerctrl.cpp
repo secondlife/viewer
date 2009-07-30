@@ -41,6 +41,7 @@
 #include "lltrans.h"
 
 #include "llviewercontrol.h"
+#include "llagentdata.h"
 
 static const S32 BORDER_MARGIN = 2;
 static const S32 PARENT_BORDER_MARGIN = 0;
@@ -50,6 +51,9 @@ static const S32 VERTICAL_MULTIPLE = 16;
 static const F32 MIN_AUTO_SCROLL_RATE = 120.f;
 static const F32 MAX_AUTO_SCROLL_RATE = 500.f;
 static const F32 AUTO_SCROLL_RATE_ACCEL = 120.f;
+
+static const S32 msg_left_offset = 30;
+static const S32 msg_right_offset = 10;
 
 #define MAX_CHAT_HISTORY 100
 
@@ -89,8 +93,8 @@ void	LLChatItemCtrl::reshape		(S32 width, S32 height, BOOL called_from_parent )
 
 		
 		LLRect msg_text_rect = msg_text->getRect();
-		msg_text_rect.setLeftTopAndSize( 10, height - caption_rect.getHeight() , width - 20, height - caption_rect.getHeight());
-		msg_text->reshape( width - 20, height - caption_rect.getHeight(), 1);
+		msg_text_rect.setLeftTopAndSize( msg_left_offset, height - caption_rect.getHeight() , width - msg_left_offset - msg_right_offset, height - caption_rect.getHeight());
+		msg_text->reshape( width - msg_left_offset - msg_right_offset, height - caption_rect.getHeight(), 1);
 		msg_text->setRect(msg_text_rect);
 	}
 		
@@ -132,10 +136,21 @@ void	LLChatItemCtrl::setMessage	(const LLChat& msg)
 	LLPanel* caption = getChild<LLPanel>("msg_caption",false,false);
 	if(!caption)
 		return;
-	caption->getChild<LLTextBox>("sender_name",false,false)->setText(msg.mFromName);
+
+	std::string str_sender;
+
+	
+	if(gAgentID != msg.mFromID)
+		str_sender = msg.mFromName;
+	else
+		str_sender = LLTrans::getString("You");;
+
+	caption->getChild<LLTextBox>("sender_name",false,false)->setText(str_sender);
+	
 	std::string tt = appendTime();
 	
 	caption->getChild<LLTextBox>("msg_time",false,false)->setText(tt);
+
 
 	caption->getChild<LLAvatarIconCtrl>("avatar_icon",false,false)->setValue(msg.mFromID);
 
@@ -153,6 +168,28 @@ void	LLChatItemCtrl::setMessage	(const LLChat& msg)
 
 }
 
+void	LLChatItemCtrl::snapToMessageHeight	()
+{
+	LLChatMsgBox* text_box = getChild<LLChatMsgBox>("msg_text",false,false);
+	if(!text_box)
+		return;///actually assert fits better
+	S32 new_height = text_box->getTextPixelHeight();
+	LLRect panel_rect = getRect();
+
+	S32 caption_height = 0;
+	LLPanel* caption = getChild<LLPanel>("msg_caption",false,false);
+	if(caption)
+		caption_height = caption->getRect().getHeight();
+
+
+	panel_rect.setLeftTopAndSize( panel_rect.mLeft, panel_rect.mTop, panel_rect.getWidth()	, caption_height + new_height);
+	
+	reshape( getRect().getWidth(), caption_height + new_height, 1);
+	
+	setRect(panel_rect);
+
+}
+
 
 void	LLChatItemCtrl::setWidth(S32 width)
 {
@@ -160,7 +197,7 @@ void	LLChatItemCtrl::setWidth(S32 width)
 	if(!text_box)
 		return;///actually assert fits better
 
-	text_box->reshape(width - 20,100/*its not magic number, we just need any number*/);
+	text_box->reshape(width - msg_left_offset - msg_right_offset,100/*its not magic number, we just need any number*/);
 
 	LLChatMsgBox* msg_text = getChild<LLChatMsgBox>("msg_text",false,false);
 	if(msg_text && mOriginalMessage.mText.length())
@@ -169,13 +206,8 @@ void	LLChatItemCtrl::setWidth(S32 width)
 	for(size_t i=0;i<mMessages.size();++i)
 		msg_text->addText(mMessages[i]);
 
-	S32 new_height = text_box->getTextPixelHeight();
-	LLRect panel_rect = getRect();
-	panel_rect.setLeftTopAndSize( panel_rect.mLeft, panel_rect.mTop, width	, 35 + new_height);
-	
-	reshape( width, panel_rect.getHeight(), 1);
-	
-	setRect(panel_rect);
+	setRect(LLRect(getRect().mLeft, getRect().mTop, getRect().mLeft + width	, getRect().mBottom));
+	snapToMessageHeight	();
 }
 
 void LLChatItemCtrl::onMouseLeave			(S32 x, S32 y, MASK mask)
@@ -190,6 +222,8 @@ void LLChatItemCtrl::onMouseLeave			(S32 x, S32 y, MASK mask)
 }
 void LLChatItemCtrl::onMouseEnter				(S32 x, S32 y, MASK mask)
 {
+	if(mOriginalMessage.mSourceType != CHAT_SOURCE_AGENT)
+		return;
 	LLPanel* caption = getChild<LLPanel>("msg_caption",false,false);
 	if(!caption)
 		return;
@@ -200,8 +234,10 @@ void LLChatItemCtrl::onMouseEnter				(S32 x, S32 y, MASK mask)
 
 BOOL	LLChatItemCtrl::handleMouseDown	(S32 x, S32 y, MASK mask)
 {
+	if(mOriginalMessage.mSourceType != CHAT_SOURCE_AGENT)
+		return LLPanel::handleMouseDown(x,y,mask);
 	LLPanel* caption = getChild<LLPanel>("msg_caption",false,false);
-	if(mOriginalMessage.mSourceType == CHAT_SOURCE_AGENT && caption)
+	if(caption)
 	{
 		LLUICtrl* msg_inspector = caption->getChild<LLUICtrl>("msg_inspector");
 		if(msg_inspector)
@@ -242,6 +278,23 @@ bool	LLChatItemCtrl::canAddText	()
 	return msg_text->getTextLinesNum()<10;
 }
 
+BOOL	LLChatItemCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	LLPanel* caption = getChild<LLPanel>("msg_caption",false,false);
+	if(!caption)
+		return LLPanel::handleRightMouseDown(x,y,mask);
+	LLUICtrl* avatar_icon = caption->getChild<LLUICtrl>("avatar_icon",false,false);
+	if(!avatar_icon)
+		return LLPanel::handleRightMouseDown(x,y,mask);
+	S32 local_x = x - avatar_icon->getRect().mLeft - caption->getRect().mLeft;
+	S32 local_y = y - avatar_icon->getRect().mBottom - caption->getRect().mBottom;
+
+	//eat message for avatar icon if msg was from object
+	if(avatar_icon->pointInView(local_x, local_y) && mOriginalMessage.mSourceType != CHAT_SOURCE_AGENT)
+		return TRUE;
+	return LLPanel::handleRightMouseDown(x,y,mask);
+}
+
 
 //*******************************************************************************************************************
 //LLChatItemsContainerCtrl
@@ -264,13 +317,18 @@ void	LLChatItemsContainerCtrl::addMessage(const LLChat& msg)
 		LLChatItemCtrl* item = mItems[0];
 		removeChild(item);
 		delete item;
+		mItems.erase(mItems.begin());
 	}
 
 	
-	if(mItems.size() > 0 && msg.mFromID == mItems[mItems.size()-1]->getMessage().mFromID && mItems[mItems.size()-1]->canAddText())
+	if(mItems.size() > 0 
+		&& msg.mFromID == mItems[mItems.size()-1]->getMessage().mFromID 
+		&& (msg.mTime-mItems[mItems.size()-1]->getMessage().mTime)<60
+		&& mItems[mItems.size()-1]->canAddText()
+		)
 	{
 		mItems[mItems.size()-1]->addText(msg.mText);
-		mItems[mItems.size()-1]->setWidth(getRect().getWidth() - 16);
+		mItems[mItems.size()-1]->snapToMessageHeight();
 	}
 	else
 	{
@@ -279,6 +337,8 @@ void	LLChatItemsContainerCtrl::addMessage(const LLChat& msg)
 		addChild(item,0);
 		item->setWidth(getRect().getWidth() - 16);
 		item->setMessage(msg);
+		item->snapToMessageHeight();
+		
 		item->setHeaderVisibility((EShowItemHeader)gSavedSettings.getS32("nearbychat_showicons_and_names"));
 
 		item->setVisible(true);

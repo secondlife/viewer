@@ -9,7 +9,7 @@
  left="0"
  name="picture_item"
  top="80"
- width="310">
+ width="245">
     <texture_picker
      allow_no_texture="true"
      default_image_name="None"
@@ -22,32 +22,31 @@
      name="picture"
      tab_stop="false"
      top="7"
-     width="90" />
+     width="70" />
     <text
-     follows="right"
-     font="SansSerifBold"
+     follows="top|left|right"
+     font="SansSerif"
      height="20"
      layout="topleft"
-     left="100"
+     left="80"
      name="picture_name"
      text_color="black"
      top="5"
      use_ellipses="true"
-     width="170"/>
+     width="150"/>
     <text
-     follows="right"
-     font="SansSerif"
+     follows="top|left|right"
+     font="SansSerifSmall"
      height="40"
      layout="topleft"
-     left="100"
      name="picture_descr"
      text_color="white"
      top="25"
      use_ellipses="true"
-     width="170"
+     width="150"
      word_wrap="true" />
     <button
-     follows="right"
+     follows="top|right"
      height="20"
      image_disabled="navbar_bg_button.tga"
      image_disabled_selected="navbar_bg_button.tga"

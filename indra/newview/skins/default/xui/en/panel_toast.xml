@@ -17,16 +17,16 @@
   bg_alpha_color="0.3 0.3 0.3 1.0">
 
   <text
-   type="string"
    visible="false"
    follows="left|top|right|bottom"
    font="SansSerifBold"
    height="40"
    layout="topleft"
    left="60"
-   name="text"
+   name="toast_text"
+   word_wrap="true"
    text_color="white"
-   top="30"
+   top="20"
    width="290">
     Toast text;
   </text>

@@ -304,7 +304,10 @@
      value="0.3344 0.5456 0.5159 1" />
     <color
      name="GroupNotifyTextColor"
-     value="0 0.12 0.24 1" />
+	 reference="White"/>
+    <color
+     name="GroupNotifyDimmedTextColor"
+	 reference="DkGray"/>	 
     <color
      name="GroupOverTierColor"
      value="0.43 0.06 0.06 1" />
@@ -493,10 +496,10 @@
      value="1 0.82 0.46 1" />
     <color
      name="NotifyCautionWarnColor"
-     reference="Black" />
+     reference="White" />
     <color
      name="NotifyTextColor"
-     reference="Black" />
+     reference="White" />
     <color
      name="ObjectChatColor"
      reference="LtGray" />

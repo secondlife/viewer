@@ -71,9 +71,9 @@ public:
 							background_color,
 							border_color;
 
-		Optional<S32>		v_pad,
-							h_pad,
-							line_spacing;
+		Optional<S32>		line_spacing;
+		
+		Optional<S32>		block_spacing;
 
 		Params();
 	};
@@ -104,8 +104,6 @@ public:
 	void			setBackgroundVisible(BOOL visible)		{ mBackgroundVisible = visible; }
 	void			setBorderVisible(BOOL visible)			{ mBorderVisible = visible; }
 	void			setBorderDropshadowVisible(BOOL visible){ mBorderDropShadowVisible = visible; }
-	void			setHPad(S32 pixels)						{ mHPad = pixels; }
-	void			setVPad(S32 pixels)						{ mVPad = pixels; }
 	void			setRightAlign()							{ mHAlign = LLFontGL::RIGHT; }
 	void			setHAlign( LLFontGL::HAlign align )		{ mHAlign = align; }
 	void			setClickedCallback( boost::function<void (void*)> cb, void* userdata = NULL ){ mClickedCallback = boost::bind(cb, userdata); }		// mouse down and up within button
@@ -145,9 +143,8 @@ private:
 	BOOL			mUseEllipses;
 
 	S32				mLineSpacing;
+	S32				mBlockSpasing;
 
-	S32				mHPad;
-	S32				mVPad;
 	LLFontGL::HAlign mHAlign;
 	LLFontGL::VAlign mVAlign;
 

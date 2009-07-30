@@ -39,105 +39,12 @@
          layout="topleft"
          left="5"
          min_height="28"
-         width="250"
+         width="500"
          top="0"
-         min_width="100">
-            <line_editor
-             border_style="line"
-             border_thickness="1"
-             follows="left|right"
-             height="20"
-             layout="topleft"
-             left="0"
-             name="chat_box"
-             right="-39"
-             top="3"
-             width="250" />
-            <button follows="right" width="36" top="3" left="214" resize="false"
-               label="Hx" height="20">
-              <button.commit_callback function="Floater.Toggle" parameter="chat"/>
-          </button>
-        </layout_panel>
-        <icon
-         auto_resize="false"
-         color="0 0 0 0"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
-         top="0"
-         width="5"
-         min_width="5" />
-        <view_border
-         auto_resize="false"
-         bevel_style="in"
-         follows="left|right"
-         height="28"
-         layout="topleft"
-         left="270"
-         top="0"
-         width="1" />
-        <icon
-         auto_resize="false"
-         color="0 0 0 0"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
-         top="0"
-         width="5" 
-         min_width="5" />
-        <layout_panel
-         auto_resize="false"
-         follows="right"
-         height="28"
-         layout="topleft"
-         min_height="28"
-         width="100"
-         top="0"
-         min_width="100">
-            <chiclet_talk
-             follows="right"
-             height="20"
-             layout="topleft"
-             left="0"
-             name="talk"
-             top="3"
-             width="100" />
-        </layout_panel>
-        <icon
-         auto_resize="false"
-         color="0 0 0 0"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
-         name="DUMMY"
-         top="0"
-         width="5" 
-         min_width="5"/>
-        <layout_panel
-         auto_resize="false"
-         follows="right"
-         height="28"
-         layout="topleft"
-         min_height="28"
-         width="90"
-         top="0"
-         min_width="90">
-            <gesture_combo_box
-             bottom="22"
-             follows="right"
-             height="20"
-             label="Gestures"
-             layout="topleft"
-             name="Gesture"
-             top="3"
-             width="90" />
-        </layout_panel>
+         min_width="305"
+         name="chat_bar"
+         user_resize="false"
+         filename="panel_nearby_chat_bar.xml"/>
 		 <icon
          auto_resize="false"
          color="0 0 0 0"
@@ -159,7 +66,8 @@
          min_height="28"
          width="90"
          top_delta="-10"
-         min_width="90">
+         min_width="90"
+         user_resize="false">
             <button
              bottom="22"
              follows="right"
@@ -190,7 +98,7 @@
          top="0"
          name="chiclet_list_panel"
          width="150"
-         min_width="70">
+         user_resize="false">
             <chiclet_panel
              follows="left|right"
              height="25"
@@ -222,14 +130,15 @@
          name="im_well_panel"
          width="40"
          top="0"
-         min_width="40" >
+         min_width="40" 
+         user_resize="false">
             <chiclet_notification
              follows="right"
              height="25"
              layout="topleft"
              left="0"
              name="im_well"
-             top="1"
+             top="2"
              width="40">
               <button
                image_selected="im_notifications.tga"
@@ -285,14 +194,15 @@
          top="0"
          name="sys_well_panel"
          width="48"
-         min_width="48">
+         min_width="48"
+         user_resize="false">
             <chiclet_notification
              follows="right"
              height="25"
              layout="topleft"
              left="0"
              name="sys_well"
-             top="1"
+             top="2"
              width="48">
               <button
                image_selected="bottom_tray_sys_notifications.tga"

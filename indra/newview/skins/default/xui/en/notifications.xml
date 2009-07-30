@@ -4191,6 +4191,7 @@ Are you sure you want to quit?
      name="okcancelignore"
      notext="Don&apos;t Quit"
      yestext="Quit"/>
+     <unique/>
   </notification>
 
   <notification
@@ -6465,6 +6466,10 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
      yestext="Create group for L$100"/>
   </notification>
 
+  <notification icon="notifytip.tga"
+		name="AttachmentSaved" type="notifytip">
+		Attachment has been saved.
+  </notification>
 
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.

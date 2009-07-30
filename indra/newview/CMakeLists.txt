@@ -243,6 +243,7 @@ set(viewer_SOURCE_FILES
     llinventoryfilter.cpp
     llinventorymodel.cpp
     lljoystickbutton.cpp
+    lllandmarkactions.cpp
     lllandmarklist.cpp
     lllistbrowser.cpp
     lllistview.cpp
@@ -269,6 +270,7 @@ set(viewer_SOURCE_FILES
     llnamelistctrl.cpp
     llnavigationbar.cpp
     llnearbychat.cpp
+    llnearbychatbar.cpp
     llnearbychathandler.cpp
     llnetmap.cpp
     llnotificationalerthandler.cpp
@@ -680,6 +682,7 @@ set(viewer_HEADER_FILES
     llinventoryfilter.h
     llinventorymodel.h
     lljoystickbutton.h
+    lllandmarkactions.h
     lllandmarklist.h
     lllightconstants.h
     lllistbrowser.h
@@ -707,6 +710,7 @@ set(viewer_HEADER_FILES
     llnamelistctrl.h
     llnavigationbar.h
     llnearbychat.h
+    llnearbychatbar.h
     llnearbychathandler.h
     llnetmap.h
     llnotificationhandler.h

@@ -47,11 +47,13 @@
 #include "llfloateravatarinfo.h"
 #include "llfloaterworldmap.h"
 #include "llnotify.h"
+#include "llpanelplaces.h"
 #include "llpreview.h"
 #include "llpreviewtexture.h"
 #include "llpreviewnotecard.h"
 #include "llpreviewlandmark.h"
 #include "llscrollbar.h"
+#include "llsidetray.h"
 #include "lltooldraganddrop.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
@@ -1365,11 +1367,22 @@ void LLViewerTextEditor::openEmbeddedLandmark( LLInventoryItem* item, llwchar wc
 {
 	if (!item)
 		return;
-	LLPreviewLandmark* preview = LLFloaterReg::showTypedInstance<LLPreviewLandmark>("preview_landmark", LLSD(item->getUUID()), TAKE_FOCUS_YES);
-	if (preview)
+
+	LLSD key;
+	key["type"] = "landmark";
+	key["id"] = item->getUUID();
+
+	LLPanelPlaces *panel = dynamic_cast<LLPanelPlaces*>(LLSideTray::getInstance()->showPanel("panel_places", key));
+	if (panel)
 	{
-		preview->setItem( item );
+		panel->setItem(item);
 	}
+
+//	LLPreviewLandmark* preview = LLFloaterReg::showTypedInstance<LLPreviewLandmark>("preview_landmark", LLSD(item->getUUID()), TAKE_FOCUS_YES);
+//	if (preview)
+//	{
+//		preview->setItem( item );
+//	}
 }
 
 void LLViewerTextEditor::openEmbeddedNotecard( LLInventoryItem* item, llwchar wc )

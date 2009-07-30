@@ -23,6 +23,9 @@
         <menu_item_call.on_click
          function="Navbar.Action"
          parameter="landmark" />
+        <menu_item_call.on_enable
+         function="Navbar.EnableMenuItem"
+         parameter="can_landmark" />
     </menu_item_call>
     <menu_item_separator
      layout="topleft"

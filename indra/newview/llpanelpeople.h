@@ -104,6 +104,8 @@ private:
 								const std::vector<LLUUID>& ids,
 								void*);
 
+	void					hideProfileView();
+
 	LLFilterEditor*			mFilterEditor;
 	LLTabContainer*			mTabContainer;
 	LLAvatarList*			mFriendList;

@@ -3,6 +3,5 @@
             thumb_outline_color="SliderThumbOutlineColor"
             thumb_center_color="SliderThumbCenterColor"
             thumb_image="SliderThumb_Off"
-            hover_glow_amount="0.15"
             track_image="SliderTrack_Horiz"
             track_highlight_image="SliderTrack_Horiz" />

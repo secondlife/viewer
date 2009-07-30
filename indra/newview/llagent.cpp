@@ -98,6 +98,7 @@
 #include "pipeline.h"
 #include "lltrans.h"
 #include "llbottomtray.h"
+#include "llnearbychatbar.h"
 #include "stringize.h"
 #include "llcapabilitylistener.h"
 
@@ -2721,7 +2722,7 @@ void LLAgent::startTyping()
 	{
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_START);
 	}
-	LLBottomTray::getInstance()->sendChatFromViewer("", CHAT_TYPE_START, FALSE);
+	LLNearbyChatBar::getInstance()->sendChatFromViewer("", CHAT_TYPE_START, FALSE);
 }
 
 //-----------------------------------------------------------------------------
@@ -2733,7 +2734,7 @@ void LLAgent::stopTyping()
 	{
 		clearRenderState(AGENT_STATE_TYPING);
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_STOP);
-		LLBottomTray::getInstance()->sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
+		LLNearbyChatBar::getInstance()->sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
 	}
 }
 
@@ -6573,49 +6574,6 @@ void LLAgent::parseTeleportMessages(const std::string& xml_filename)
 			} //end if ( message exists and has a name)
 		} //end for (all message in set)
 	}//end for (all message sets in xml file)
-}
-
-// static
-void LLAgent::createLandmarkHere()
-{
-	std::string landmark_name, landmark_desc;
-
-	gAgent.buildLocationString(landmark_name, LLAgent::LOCATION_FORMAT_LANDMARK);
-	gAgent.buildLocationString(landmark_desc, LLAgent::LOCATION_FORMAT_FULL);
-	LLUUID folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
-
-	createLandmarkHere(landmark_name, landmark_desc, folder_id);
-}
-
-// static
-void LLAgent::createLandmarkHere(const std::string& name, const std::string& desc, const LLUUID& folder_id)
-{
-	LLViewerRegion* agent_region = gAgent.getRegion();
-	if(!agent_region)
-	{
-		llwarns << "No agent region" << llendl;
-		return;
-	}
-	LLParcel* agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-	if (!agent_parcel)
-	{
-		llwarns << "No agent parcel" << llendl;
-		return;
-	}
-	if (!agent_parcel->getAllowLandmark()
-		&& !LLViewerParcelMgr::isParcelOwnedByAgent(agent_parcel, GP_LAND_ALLOW_LANDMARK))
-	{
-		LLNotifications::instance().add("CannotCreateLandmarkNotOwner");
-		return;
-	}
-
-	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-						  folder_id, LLTransactionID::tnull,
-						  name, desc,
-						  LLAssetType::AT_LANDMARK,
-						  LLInventoryType::IT_LANDMARK,
-						  NOT_WEARABLE, PERM_ALL, 
-						  NULL);
 }
 
 void LLAgent::sendAgentUpdateUserInfo(bool im_via_email, const std::string& directory_visibility )

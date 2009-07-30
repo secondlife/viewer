@@ -4034,5 +4034,8 @@ void LLAppViewer::handleLoginComplete()
 	{
 		gDebugInfo["MainloopTimeoutState"] = LLAppViewer::instance()->mMainloopTimeout->getState();
 	}
+
+	mOnLoginCompleted();
+
 	writeDebugInfo();
 }

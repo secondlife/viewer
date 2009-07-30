@@ -112,6 +112,9 @@ private:
 
 	LLAddLandmarkObserver*		mAddLandmarkObserver;
 	LLRemoveLandmarkObserver*	mRemoveLandmarkObserver;
+
+	boost::signals2::connection	mParcelMgrConnection;
+	boost::signals2::connection	mLocationHistoryConnection;
 };
 
 #endif

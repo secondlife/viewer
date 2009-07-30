@@ -37,31 +37,36 @@
 #include "lltextbox.h"
 #include "llscreenchannel.h"
 
+#include "llviewercontrol.h"
+
 #include <algorithm>
 
 using namespace LLNotificationsUI;
 
-#define	TOAST_MARGIN		5
-#define	BOTTOMPANEL_MARGIN	35
-#define	NAVBAR_MARGIN		60
-
+bool LLScreenChannel::mWasStartUpToastShown = false;
 
 //--------------------------------------------------------------------------
 LLScreenChannel::LLScreenChannel(): mUnreadToastsPanel(NULL), 
 									mToastAlignment(NA_BOTTOM), 
 									mStoreToasts(true),
+									mHiddenToastsNum(0),
 									mOverflowToastHidden(false),
 									mIsHovering(false),
 									mControlHovering(false)
 {	
 	setFollows(FOLLOWS_RIGHT | FOLLOWS_BOTTOM | FOLLOWS_TOP);  
+
+	//TODO: load as a resource string
+	mOverflowFormatString = "You have %d more notification";
+
+	setMouseOpaque( false );
 }
 
-void LLScreenChannel::init(S32 channel_position, LLView* root_view)
+void LLScreenChannel::init(S32 channel_left, S32 channel_right)
 {
-	root_view->addChild(this);
-	setRect( LLRect(channel_position, root_view->getRect().getHeight() - NAVBAR_MARGIN,
-					channel_position, root_view->getRect().mBottom + BOTTOMPANEL_MARGIN));
+	S32 channel_top = getRootView()->getRect().getHeight() - gSavedSettings.getS32("NavBarMargin");
+	S32 channel_bottom = getRootView()->getRect().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
+	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
 
 }
 
@@ -79,7 +84,7 @@ void LLScreenChannel::reshape(S32 width, S32 height, BOOL called_from_parent)
 }
 
 //--------------------------------------------------------------------------
-LLToast* LLScreenChannel::addToast(LLUUID id, LLPanel* panel)
+LLToast* LLScreenChannel::addToast(LLUUID id, LLPanel* panel, bool is_not_tip)
 {	
 	ToastElem new_toast_elem(id, panel);
 
@@ -92,7 +97,29 @@ LLToast* LLScreenChannel::addToast(LLUUID id, LLPanel* panel)
 	{
 		new_toast_elem.toast->setOnToastHoverCallback(boost::bind(&LLScreenChannel::onToastHover, this, _1, _2));
 	}
-	showToasts();
+
+	// don't show toasts until StartUp toast will fade, but show alerts
+	if(!mWasStartUpToastShown && mToastAlignment != NA_CENTRE)
+	{
+		new_toast_elem.toast->stopTimer();
+		// Count and store only non tip notifications
+		if(is_not_tip)
+		{
+			mHiddenToastsNum++;			
+			storeToast(new_toast_elem);
+		}
+		else
+		{
+			// destroy tip toasts at once
+			new_toast_elem.toast->close();			
+		}
+		// remove toast from channel
+		mToastList.pop_back();
+	}
+	else
+	{
+		showToasts();
+	}
 
 	return new_toast_elem.toast;
 }
@@ -213,10 +240,20 @@ void LLScreenChannel::showToastsBottom()
 		}
 
 		toast_rect = (*it).toast->getRect();
-		toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+TOAST_MARGIN, toast_rect.getWidth() ,toast_rect.getHeight());
+		toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastMargin"), toast_rect.getWidth() ,toast_rect.getHeight());
 		(*it).toast->setRect(toast_rect);
 
-		if((*it).toast->getRect().mTop > getRect().getHeight())
+		bool stop_showing_toasts = (*it).toast->getRect().mTop > getRect().getHeight();
+
+		if(!stop_showing_toasts)
+		{
+			if( it != mToastList.rend()-1)
+			{
+				stop_showing_toasts = ((*it).toast->getRect().mTop + gSavedSettings.getS32("OverflowToastHeight") + gSavedSettings.getS32("ToastMargin")) > getRect().getHeight();
+			}
+		} 
+
+		if(stop_showing_toasts)
 			break;
 
 		(*it).toast->setVisible(TRUE);	
@@ -243,7 +280,7 @@ void LLScreenChannel::showToastsCentre()
 	for(it = mToastList.rbegin(); it != mToastList.rend(); ++it)
 	{
 		toast_rect = (*it).toast->getRect();
-		toast_rect.setLeftTopAndSize(getRect().mLeft - toast_rect.getWidth() / 2, bottom + toast_rect.getHeight() / 2 + TOAST_MARGIN, toast_rect.getWidth() ,toast_rect.getHeight());
+		toast_rect.setLeftTopAndSize(getRect().mLeft - toast_rect.getWidth() / 2, bottom + toast_rect.getHeight() / 2 + gSavedSettings.getS32("ToastMargin"), toast_rect.getWidth() ,toast_rect.getHeight());
 		(*it).toast->setRect(toast_rect);
 
 		(*it).toast->setVisible(TRUE);	
@@ -256,7 +293,7 @@ void LLScreenChannel::showToastsTop()
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::createOverflowToast(S32 bottom)
+void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 {
 	LLRect toast_rect;
 	mUnreadToastsPanel = new LLToast(NULL);
@@ -266,21 +303,29 @@ void LLScreenChannel::createOverflowToast(S32 bottom)
 
 	mUnreadToastsPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::onOverflowToastHide, this));
 
-	LLTextBox* text_box = mUnreadToastsPanel->getChild<LLTextBox>("text");
+	LLTextBox* text_box = mUnreadToastsPanel->getChild<LLTextBox>("toast_text");
 	LLIconCtrl* icon = mUnreadToastsPanel->getChild<LLIconCtrl>("icon");
+	std::string	text = llformat(mOverflowFormatString.c_str(),mHiddenToastsNum);
+	if(mHiddenToastsNum == 1)
+	{
+		text += ".";
+	}
+	else
+	{
+		text += "s.";
+	}
 
-	std::string toastsNumStr = llformat("%d", mHiddenToastsNum);
-	std::string	text = "You have " + toastsNumStr + " new notifications.";
+	toast_rect = mUnreadToastsPanel->getRect();
+	mUnreadToastsPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
+	toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastMargin"), getRect().getWidth(), toast_rect.getHeight());	
+	mUnreadToastsPanel->setRect(toast_rect);
+	mUnreadToastsPanel->setAndStartTimer(timer ? timer : gSavedSettings.getS32("NotificationToastTime"));
+	getRootView()->addChild(mUnreadToastsPanel);
 
-	text_box->setText(text);
+	text_box->setValue(text);
 	text_box->setVisible(TRUE);
 	icon->setVisible(TRUE);
 
-	toast_rect = mUnreadToastsPanel->getRect();
-	toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+TOAST_MARGIN, toast_rect.getWidth() ,toast_rect.getHeight());
-	mUnreadToastsPanel->setRect(toast_rect);
-	mUnreadToastsPanel->setAndStartTimer(5);
-	getRootView()->addChild(mUnreadToastsPanel);
 	mUnreadToastsPanel->setVisible(TRUE);
 }
 
@@ -288,6 +333,7 @@ void LLScreenChannel::createOverflowToast(S32 bottom)
 void LLScreenChannel::onOverflowToastHide()
 {
 	mOverflowToastHidden = true;
+	onCommit();
 }
 
 //--------------------------------------------------------------------------

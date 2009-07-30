@@ -390,6 +390,8 @@ public:
 		Optional<LLButton::Params> left_scroll_button,
 								   right_scroll_button;
 
+		Optional<S32> min_width;
+
 		Params();
 	};
 
@@ -558,6 +560,8 @@ protected:
 
 	S32 mChicletPadding;
 	S32 mScrollingOffset;
+	S32 mMinWidth;
+	bool mShowControls;
 };
 
 /*
@@ -580,6 +584,7 @@ public:
 	/*virtual*/ ~LLTalkButton();
 
 	/*virtual*/ void draw();
+	void setSpeakBtnToggleState(bool state);
 
 protected:
 	friend class LLUICtrlFactory;

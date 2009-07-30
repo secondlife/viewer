@@ -132,6 +132,7 @@
 #include "llfloatermemleak.h"
 #include "llfasttimerview.h"
 #include "llavataractions.h"
+#include "lllandmarkactions.h"
 #include "llmemoryview.h"
 #include "llgivemoney.h"
 #include "llgroupmgr.h"
@@ -5270,24 +5271,6 @@ class LLWorldSetBusy : public view_listener_t
 	}
 };
 
-bool can_create_landmark()
-{
-	BOOL can = FALSE;
-
-	LLParcel* agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-	if (agent_parcel)
-{
-
-		if (agent_parcel->getAllowLandmark()
-			|| LLViewerParcelMgr::isParcelOwnedByAgent(agent_parcel, GP_LAND_ALLOW_LANDMARK))
-	{
-			can = TRUE;
-		}
-	}
-
-	return can;
-}
-
 class LLWorldCreateLandmark : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -6675,9 +6658,7 @@ class LLWorldEnableCreateLandmark : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = can_create_landmark();
-		
-		return new_value;
+		return !LLLandmarkActions::landmarkAlreadyExists();
 	}
 };
 

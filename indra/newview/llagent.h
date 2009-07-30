@@ -263,8 +263,6 @@ public:
 	std::string		getSLURL() const;
 	BOOL			inPrelude();
 	BOOL 			buildLocationString(std::string& str, ELocationFormat fmt = LOCATION_FORMAT_LANDMARK); // Utility to build a location string
-	static void		createLandmarkHere();
-	static void		createLandmarkHere(const std::string& name, const std::string& desc, const LLUUID& folder_id);
 private:
 	LLViewerRegion	*mRegionp;
 

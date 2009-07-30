@@ -871,8 +871,6 @@ bool idle_startup()
 		gDirUtilp->setLindenUserDir(firstname, lastname);
     	LLFile::mkdir(gDirUtilp->getLindenUserDir());
 
-		LLLocationHistory::getInstance()->load();
-
         // Set PerAccountSettingsFile to the default value.
 		gSavedSettings.setString("PerAccountSettingsFile",
 			gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, 
@@ -2516,6 +2514,8 @@ bool idle_startup()
 
 		// reset timers now that we are running "logged in" logic
 		LLFastTimer::reset();
+
+		LLLocationHistory::getInstance()->load();
 
 		return TRUE;
 	}

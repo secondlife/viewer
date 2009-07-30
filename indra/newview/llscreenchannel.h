@@ -54,14 +54,15 @@ typedef enum e_notification_toast_alignment
  */
 class LLScreenChannel : public LLUICtrl
 {
+	friend class LLChannelManager;
 public:
 	LLScreenChannel();
 	virtual ~LLScreenChannel();
 
 	void		reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
-	LLToast*	addToast(LLUUID id, LLPanel* panel);
-	void		init(S32 channel_position, LLView* root_view);
+	LLToast*	addToast(LLUUID id, LLPanel* panel, bool is_not_tip = true);
+	void		init(S32 channel_left, S32 channel_right);
 	
 	void		killToastByNotificationID(LLUUID id);
 	void		modifyToastByNotificationID(LLUUID id, LLPanel* panel);
@@ -79,7 +80,14 @@ public:
 	
 	void		showToasts();
 
+	S32			getNumberOfHiddenToasts() { return mHiddenToastsNum;}
+	void		setNumberOfHiddenToasts(S32 num) { mHiddenToastsNum = num;}
+
+	static void	setStartUpToastShown() { mWasStartUpToastShown = true; }
+
 	e_notification_toast_alignment getToastAlignment() {return mToastAlignment;}
+
+	void		setOverflowFormatString ( std::string str)  { mOverflowFormatString = str; }
 
 private:
 	struct ToastElem
@@ -117,9 +125,10 @@ private:
 	void	showToastsCentre();
 	void	showToastsTop();
 	
-	void	createOverflowToast(S32 bottom);
+	void	createOverflowToast(S32 bottom, F32 timer = 0);
 	void	onOverflowToastHide();
 
+	static bool	mWasStartUpToastShown;
 	bool		mControlHovering;
 	bool		mIsHovering;
 	bool		mStoreToasts;
@@ -130,6 +139,8 @@ private:
 	std::vector<ToastElem>	mStoredToastList;
 	e_notification_toast_alignment	mToastAlignment;
 	std::map<LLToast*, bool>	mToastEventStack;
+
+	std::string mOverflowFormatString;
 };
 
 }

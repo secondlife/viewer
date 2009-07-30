@@ -65,7 +65,6 @@ protected:
 public:
 	virtual ~LLSideTrayTab();
 
-	void			addPanel	(LLPanel* panel);
     /*virtual*/ BOOL	postBuild	();
 	/*virtual*/ bool	addChild	(LLView* view, S32 tab_group);
 
@@ -87,7 +86,7 @@ private:
 	std::string mImagePath;
 	std::string	mDescription;
 
-	LLAccordionCtrl*	mAccordionCtrl;
+	LLView*	mMainPanel;
 };
 
 
@@ -163,9 +162,9 @@ public:
 
 	/**
 	 * Activate tab with "panel_name" panel
-	 * if no such tab - return false, otherwise true
+	 * if no such tab - return NULL, otherwise a pointer to the panel
 	 */
-	bool		showPanel		(const std::string& panel_name, const LLSD& params);
+    LLPanel*	showPanel		(const std::string& panel_name, const LLSD& params);
 
 	/*
      * collapse SideBar, hiding visible tab and moving tab buttons
@@ -209,7 +208,6 @@ protected:
 
 	void		createButtons	();
 	LLButton*	createButton	(const std::string& name,const std::string& image,LLUICtrl::commit_callback_t callback);
-	void		createHomeTab	();
 	void		arrange			();
 	void		reflectCollapseChange();
 
@@ -223,7 +221,6 @@ private:
 
 	std::map<std::string,LLButton*>	mTabButtons;
 	child_vector_t					mTabs;
-	LLSideTrayTab*					mHomeTab;
 	LLSideTrayTab*					mActiveTab;	
 	
 	LLButton*						mCollapseButton;

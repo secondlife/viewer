@@ -67,7 +67,7 @@
 #include "llworld.h"
 #include "llworldmap.h"
 #include "llfocusmgr.h"
-#include "llbottomtray.h"
+#include "llnearbychatbar.h"
 
 void handle_pay_by_id(const LLUUID& agent_id)
 {
@@ -85,13 +85,13 @@ void handle_chat(void*)
 {
 	// give focus to chatbar if it's open but not focused
 	if (gSavedSettings.getBOOL("ChatVisible") && 
-		gFocusMgr.childHasKeyboardFocus(LLBottomTray::getInstance()->getChatBox()))
+		gFocusMgr.childHasKeyboardFocus(LLNearbyChatBar::getInstance()->getChatBox()))
 	{
-		LLBottomTray::stopChat();
+		LLNearbyChatBar::stopChat();
 	}
 	else
 	{
-		LLBottomTray::startChat(NULL);
+		LLNearbyChatBar::startChat(NULL);
 	}
 }
 
@@ -107,5 +107,5 @@ void handle_slash_key(void*)
 	// menu accelerators that put input focus into a field.   And Mac works
 	// the same way.  JC
 
-	LLBottomTray::startChat(NULL);
+	LLNearbyChatBar::startChat(NULL);
 }

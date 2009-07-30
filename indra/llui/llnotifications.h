@@ -693,6 +693,14 @@ public:
                                               this,
                                               _1));
     }
+	template <typename LISTENER>
+    LLBoundListener connectAtFrontChanged(const LISTENER& slot)
+    {
+        return LLEventDetail::visit_and_connect(slot,
+                                  boost::bind(&LLNotificationChannelBase::connectAtFrontChangedImpl,
+                                              this,
+                                              _1));
+    }
     template <typename LISTENER>
 	LLBoundListener connectPassedFilter(const LISTENER& slot)
     {
@@ -718,6 +726,7 @@ public:
 
 protected:
     LLBoundListener connectChangedImpl(const LLEventListener& slot);
+    LLBoundListener connectAtFrontChangedImpl(const LLEventListener& slot);
     LLBoundListener connectPassedFilterImpl(const LLEventListener& slot);
     LLBoundListener connectFailedFilterImpl(const LLEventListener& slot);
 

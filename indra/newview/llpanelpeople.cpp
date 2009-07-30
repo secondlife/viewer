@@ -436,11 +436,13 @@ bool LLPanelPeople::updateGroupList()
 
 bool LLPanelPeople::filterFriendList()
 {
-	if (mFriendVec.size() > 0)
-		return mFriendList->update(mFriendVec, mFilterSubString);
+	// We must always update Friends list to clear the latest removed friend.
+	bool have_names = mFriendList->update(mFriendVec, mFilterSubString);
 
-	mFriendList->setCommentText(getString("no_friends"));
-	return true;
+	if (mFriendVec.size() == 0)
+		mFriendList->setCommentText(getString("no_friends"));
+
+	return have_names;
 }
 
 bool LLPanelPeople::filterNearbyList()
@@ -784,10 +786,22 @@ void LLPanelPeople::onMoreButtonClicked()
 
 void	LLPanelPeople::onOpen(const LLSD& key)
 {
-	std::string tab_name = key.asString();
+	// Profile View is activated through LLSideTray::showPanel(), 
+	// hide Profile View to be able to see Panel People content
+	hideProfileView();
 
+	std::string tab_name = key.asString();
 	if (!tab_name.empty())
 		mTabContainer->selectTabByName(tab_name);
 	else
 		reSelectedCurrentTab();
+}
+
+void LLPanelPeople::hideProfileView()
+{
+	LLView* view = getChildView("panel_profile_view",true,false);
+	if(view && view->getVisible())
+	{
+		view->setVisible(false);
+	}
 }

@@ -181,22 +181,10 @@
              function="World.Chat" />
         </menu_item_call>
         <menu_item_check
-         label="Local Chat"
-         layout="topleft"
-         name="Chat History"
-         shortcut="control|H">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="chat" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="chat" />
-        </menu_item_check>
-        <menu_item_check
          label="Nearby Chat"
          layout="topleft"
          name="Nearby Chat"
-         shortcut="control|N">
+         shortcut="control|H">
             <menu_item_check.on_check
              function="Floater.Visible"
              parameter="nearby_chat" />
@@ -204,29 +192,6 @@
              function="Floater.Toggle"
              parameter="nearby_chat" />
         </menu_item_check>
-        <menu_item_check
-         label="Communicate"
-         layout="topleft"
-         name="Instant Message"
-         shortcut="control|T">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="communicate" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="communicate" />
-        </menu_item_check>
-        <menu_item_separator
-         layout="topleft" />
-		<menu_item_call
-         label="Media Remote Ctrl"
-         layout="topleft"
-         name="Preferences"
-         shortcut="control|alt|M">
-            <menu_item_call.on_click
-             function="Floater.Toggle"
-             parameter="media_remote_ctrl" />
-        </menu_item_call>
         <menu_item_separator
          layout="topleft" />
         <menu_item_check
@@ -251,6 +216,29 @@
              function="Floater.Toggle"
              parameter="mute" />
         </menu_item_check>
+        <menu_item_separator
+         layout="topleft" />
+        <menu_item_check
+         label="(Legacy) Communicate"
+         layout="topleft"
+         name="Instant Message"
+         shortcut="control|T">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="communicate" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="communicate" />
+        </menu_item_check>
+		<menu_item_call
+         label="(Temp) Media Remote Ctrl"
+         layout="topleft"
+         name="Preferences"
+         shortcut="control|alt|M">
+            <menu_item_call.on_click
+             function="Floater.Toggle"
+             parameter="media_remote_ctrl" />
+        </menu_item_call>
     </menu>
     <menu
      label="World"

@@ -276,7 +276,7 @@ void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
 		std::string text = obj->getName();
 		if (!(next_owner_mask & PERM_COPY))
 		{
-			text.append(getString("no_copy"));
+			text.append(LLTrans::getString("no_copy"));
 		}
 		if (!(next_owner_mask & PERM_MODIFY))
 		{

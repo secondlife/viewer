@@ -34,6 +34,9 @@
 
 #include "llchannelmanager.h"
 
+#include "llappviewer.h"
+#include "llviewercontrol.h"
+
 #include <algorithm>
 
 using namespace LLNotificationsUI;
@@ -41,12 +44,52 @@ using namespace LLNotificationsUI;
 //--------------------------------------------------------------------------
 LLChannelManager::LLChannelManager()
 {
+	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLChannelManager::onLoginCompleted, this));
 }
 
 //--------------------------------------------------------------------------
 LLChannelManager::~LLChannelManager()
 {
 	//All channels are being deleted by Parent View
+}
+
+//--------------------------------------------------------------------------
+void LLChannelManager::onLoginCompleted()
+{
+	S32 hidden_notifications = 0;
+
+	for(std::vector<ChannelElem>::iterator it = mChannelList.begin(); it !=  mChannelList.end(); ++it)
+	{
+		//(*it).channel->showToasts();
+		hidden_notifications +=(*it).channel->getNumberOfHiddenToasts();
+	}
+
+	if(!hidden_notifications)
+	{
+		LLScreenChannel::setStartUpToastShown();
+		return;
+	}
+	
+	LLChannelManager::Params p;
+	p.id = LLUUID(STARTUP_CHANNEL_ID);
+	p.channel_right_bound = getRootView()->getRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
+	p.channel_width = gSavedSettings.getS32("NotifyBoxWidth");
+	mStartUpChannel = NULL;
+	mStartUpChannel = createChannel(p);
+
+	if(!mStartUpChannel)
+		return;
+
+	static_cast<LLUICtrl*>(mStartUpChannel)->setCommitCallback(boost::bind(&LLChannelManager::enableShowToasts, this));
+	mStartUpChannel->setNumberOfHiddenToasts(hidden_notifications);
+	mStartUpChannel->createOverflowToast(gSavedSettings.getS32("ChannelBottomPanelMargin"), gSavedSettings.getS32("StartUpToastTime"));
+}
+
+//--------------------------------------------------------------------------
+void LLChannelManager::enableShowToasts()
+{
+	LLScreenChannel::setStartUpToastShown();
+	delete mStartUpChannel;
 }
 
 //--------------------------------------------------------------------------
@@ -67,7 +110,8 @@ LLScreenChannel* LLChannelManager::createChannel(LLChannelManager::Params& p)
 		return new_channel;
 
 	new_channel = new LLScreenChannel(); 
-	new_channel->init(p.channel_right_bound - p.channel_width, getRootView());
+	getRootView()->addChild(new_channel);
+	new_channel->init(p.channel_right_bound - p.channel_width, p.channel_right_bound);
 	new_channel->setToastAlignment(p.align);
 
 	ChannelElem new_elem;

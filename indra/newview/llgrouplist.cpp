@@ -42,6 +42,12 @@
 
 static LLDefaultChildRegistry::Register<LLGroupList> r("group_list");
 
+LLGroupList::Params::Params()
+{
+	// Prevent the active group from being always first in the list.
+	online_go_first = false;
+}
+
 LLGroupList::LLGroupList(const Params& p)
 :	LLAvatarList(p)
 {

@@ -104,6 +104,7 @@ bool LLToast::timerHasExpired()
 	if (mTimer.getStarted())
 	{
 		F32 elapsed_time = mTimer.getElapsedTimeF32();
+		// after 4 seconds a toast should start fade
 		if (elapsed_time > 4) 
 		{
 			setBackgroundOpaque(FALSE);
@@ -119,7 +120,7 @@ bool LLToast::timerHasExpired()
 //--------------------------------------------------------------------------
 void LLToast::hide()
 {
-	setVisible(FALSE);			//TODO: store in Chiclet's history
+	setVisible(FALSE);
 	mIsViewed = false;
 	mTimer.stop();
 	mOnFade(this, LLSD());

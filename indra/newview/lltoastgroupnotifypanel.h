@@ -66,6 +66,7 @@ protected:
 	void onClickOk();
 	void onClickAttachment();
 private:
+	static bool isAttachmentOpenable(LLAssetType::EType);
 
 	LLButton* mSaveInventoryBtn;
 

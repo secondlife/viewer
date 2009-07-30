@@ -765,13 +765,17 @@ BOOL LLViewerParcelMgr::canHearSound(const LLVector3d &pos_global) const
 BOOL LLViewerParcelMgr::inAgentParcel(const LLVector3d &pos_global) const
 {
 	LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosGlobal(pos_global);
-	if (region != gAgent.getRegion())
+	LLViewerRegion* agent_region = gAgent.getRegion();
+	if (!region || !agent_region)
+		return FALSE;
+
+	if (region != agent_region)
 	{
 		// Can't be in the agent parcel if you're not in the same region.
 		return FALSE;
 	}
 
-	LLVector3 pos_region = gAgent.getRegion()->getPosRegionFromGlobal(pos_global);
+	LLVector3 pos_region = agent_region->getPosRegionFromGlobal(pos_global);
 	S32 row =    S32(pos_region.mV[VY] / PARCEL_GRID_STEP_METERS);
 	S32 column = S32(pos_region.mV[VX] / PARCEL_GRID_STEP_METERS);
 

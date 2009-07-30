@@ -48,6 +48,7 @@
 #include "llagent.h"
 #include "llfloaterland.h"
 #include "llinventorymodel.h"
+#include "lllandmarkactions.h"
 #include "lllandmarklist.h"
 #include "lllocationhistory.h"
 #include "llsidetray.h"
@@ -82,28 +83,6 @@
  * we can determine whether the landmark refers to a point within the current parcel
  * and choose the appropriate image for the "Add landmark" button.
  */
-
-// Returns true if the given inventory item is a landmark pointing to the current parcel.
-// Used to filter inventory items.
-class LLIsAgentParcelLandmark : public LLInventoryCollectFunctor
-{
-public:
-	/*virtual*/ bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
-	{
-		if (!item || item->getType() != LLAssetType::AT_LANDMARK)
-			return false;
-
-		LLLandmark* landmark = gLandmarkList.getAsset(item->getAssetUUID());
-		if (!landmark) // the landmark not been loaded yet
-			return false;
-
-		LLVector3d landmark_global_pos;
-		if (!landmark->getGlobalPos(landmark_global_pos))
-			return false;
-
-		return LLViewerParcelMgr::getInstance()->inAgentParcel(landmark_global_pos);
-	}
-};
 
 /**
  * Initiates loading the landmarks that have been just added.
@@ -213,10 +192,10 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	// - Make the "Add landmark" button updated when either current parcel gets changed
 	//   or a landmark gets created or removed from the inventory.
 	// - Update the location string on parcel change.
-	LLViewerParcelMgr::getInstance()->setAgentParcelChangedCallback(
+	mParcelMgrConnection = LLViewerParcelMgr::getInstance()->setAgentParcelChangedCallback(
 		boost::bind(&LLLocationInputCtrl::onAgentParcelChange, this));
 
-	LLLocationHistory::getInstance()->setLoadedCallback(
+	mLocationHistoryConnection = LLLocationHistory::getInstance()->setLoadedCallback(
 			boost::bind(&LLLocationInputCtrl::onLocationHistoryLoaded, this));
 
 	mRemoveLandmarkObserver	= new LLRemoveLandmarkObserver(this);
@@ -231,6 +210,9 @@ LLLocationInputCtrl::~LLLocationInputCtrl()
 	gInventory.removeObserver(mAddLandmarkObserver);
 	delete mRemoveLandmarkObserver;
 	delete mAddLandmarkObserver;
+
+	mParcelMgrConnection.disconnect();
+	mLocationHistoryConnection.disconnect();
 }
 
 void LLLocationInputCtrl::setEnabled(BOOL enabled)
@@ -356,6 +338,10 @@ void LLLocationInputCtrl::onInfoButtonClicked()
 
 void LLLocationInputCtrl::onAddLandmarkButtonClicked()
 {
+	LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+	
+	// Floater "Add Landmark" functionality moved to Side Tray
+	// TODO* Disable floater "Add Landmark" call
 	LLFloaterReg::showInstance("add_landmark");
 }
 
@@ -450,19 +436,7 @@ void LLLocationInputCtrl::enableAddLandmarkButton(bool val)
 // depending on whether current parcel has been landmarked.
 void LLLocationInputCtrl::updateAddLandmarkButton()
 {
-	bool cur_parcel_landmarked = false;
-	// Determine whether there are landmarks pointing to the current parcel.
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	LLIsAgentParcelLandmark is_current_parcel_landmark;
-	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
-		cats,
-		items,
-		LLInventoryModel::EXCLUDE_TRASH,
-		is_current_parcel_landmark);
-	cur_parcel_landmarked = !items.empty();
-
-	enableAddLandmarkButton(!cur_parcel_landmarked);
+	enableAddLandmarkButton(!LLLandmarkActions::landmarkAlreadyExists());
 }
 
 void LLLocationInputCtrl::updateWidgetlayout()

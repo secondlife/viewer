@@ -10,16 +10,13 @@
                 add_landmark_image_enabled="Favorite_Star_Active"
                 add_landmark_image_disabled="Favorite_Star_Off"
                 hover_glow_amount="0.15"
-                add_landmark_width="20"
-                add_landmark_height="20"
                 add_landmark_hpad="2"
                 allow_text_entry="true"
-                arrow_image="Combobox_Selected"
                 list_position="below"
       	        show_text_as_tentative="false"
                 max_chars="20"
                 follows="left|top"
-                background="TextField_Off">
+                >
   <info_button name="Place Information"
                           label=""
                           tool_tip="About current location"

@@ -36,7 +36,7 @@
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
 #include "llrootview.h"
-#include "llchatitemscontainerctrl.h"
+//#include "llchatitemscontainerctrl.h"
 #include "lliconctrl.h"
 #include "llsidetray.h"
 #include "llfocusmgr.h"
@@ -44,6 +44,9 @@
 #include "llresizehandle.h"
 #include "llmenugl.h"
 #include "llviewermenu.h"//for gMenuHolder
+
+#include "llnearbychathandler.h"
+#include "llchannelmanager.h"
 
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
@@ -66,6 +69,11 @@ BOOL LLNearbyChat::postBuild()
 	mResizeBar[LLResizeBar::LEFT]->setVisible(false);
 	mResizeBar[LLResizeBar::RIGHT]->setVisible(false);
 
+	mResizeBar[LLResizeBar::BOTTOM]->setResizeLimits(120,500);
+	mResizeBar[LLResizeBar::TOP]->setResizeLimits(120,500);
+	mResizeBar[LLResizeBar::LEFT]->setResizeLimits(220,600);
+	mResizeBar[LLResizeBar::RIGHT]->setResizeLimits(220,600);
+
 	mResizeHandle[0]->setVisible(false);
 	mResizeHandle[1]->setVisible(false);
 	mResizeHandle[2]->setVisible(false);
@@ -86,24 +94,160 @@ BOOL LLNearbyChat::postBuild()
 
 	gSavedSettings.declareS32("nearbychat_showicons_and_names",2,"NearByChat header settings",true);
 
+	/*
 	LLChatItemsContainerCtrl* panel = getChild<LLChatItemsContainerCtrl>("chat_history",false,false);
 	if(panel)
 	{
 		panel->setHeaderVisibility((EShowItemHeader)gSavedSettings.getS32("nearbychat_showicons_and_names"));
 	}
+	*/
 	
 	reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
 	
 	return LLFloater::postBuild();
 }
 
-void	LLNearbyChat::addMessage(const LLChat& message)
+#include "llagent.h" 			// gAgent
+#include "llfloaterscriptdebug.h"
+#include "llviewertexteditor.h"
+#include "llstylemap.h"
+
+LLColor4 nearbychat_get_text_color(const LLChat& chat)
 {
+	LLColor4 text_color;
+
+	if(chat.mMuted)
+	{
+		text_color.setVec(0.8f, 0.8f, 0.8f, 1.f);
+	}
+	else
+	{
+		switch(chat.mSourceType)
+		{
+		case CHAT_SOURCE_SYSTEM:
+			text_color = LLUIColorTable::instance().getColor("SystemChatColor"); 
+			break;
+		case CHAT_SOURCE_AGENT:
+		    if (chat.mFromID.isNull())
+			{
+				text_color = LLUIColorTable::instance().getColor("SystemChatColor");
+			}
+			else
+			{
+				if(gAgentID == chat.mFromID)
+				{
+					text_color = LLUIColorTable::instance().getColor("UserChatColor");
+				}
+				else
+				{
+					text_color = LLUIColorTable::instance().getColor("AgentChatColor");
+				}
+			}
+			break;
+		case CHAT_SOURCE_OBJECT:
+			if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
+			{
+				text_color = LLUIColorTable::instance().getColor("ScriptErrorColor");
+			}
+			else if ( chat.mChatType == CHAT_TYPE_OWNER )
+			{
+				text_color = LLUIColorTable::instance().getColor("llOwnerSayChatColor");
+			}
+			else
+			{
+				text_color = LLUIColorTable::instance().getColor("ObjectChatColor");
+			}
+			break;
+		default:
+			text_color.setToWhite();
+		}
+
+		if (!chat.mPosAgent.isExactlyZero())
+		{
+			LLVector3 pos_agent = gAgent.getPositionAgent();
+			F32 distance = dist_vec(pos_agent, chat.mPosAgent);
+			if (distance > gAgent.getNearChatRadius())
+			{
+				// diminish far-off chat
+				text_color.mV[VALPHA] = 0.8f;
+			}
+		}
+	}
+
+	return text_color;
+}
+
+void nearbychat_add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4& color)
+{
+	std::string line = chat.mFromName;
+	line +=": ";
+	line +=chat.mText;
+
+	bool prepend_newline = true;
+	if (gSavedSettings.getBOOL("ChatShowTimestamps"))
+	{
+		edit->appendTime(prepend_newline);
+		prepend_newline = false;
+	}
+
+	// If the msg is from an agent (not yourself though),
+	// extract out the sender name and replace it with the hotlinked name.
+	if (chat.mSourceType == CHAT_SOURCE_AGENT &&
+		chat.mFromID != LLUUID::null)
+	{
+		chat.mURL = llformat("secondlife:///app/agent/%s/about",chat.mFromID.asString().c_str());
+	}
+
+	// If the chat line has an associated url, link it up to the name.
+	if (!chat.mURL.empty()
+		&& (line.length() > chat.mFromName.length() && line.find(chat.mFromName,0) == 0))
+	{
+		std::string start_line = line.substr(0, chat.mFromName.length() + 1);
+		line = line.substr(chat.mFromName.length() + 1);
+		const LLStyleSP &sourceStyle = LLStyleMap::instance().lookup(chat.mFromID,chat.mURL);
+		edit->appendStyledText(start_line, false, prepend_newline, sourceStyle);
+		prepend_newline = false;
+	}
+	edit->appendColoredText(line, false, prepend_newline, color);
+}
+
+
+
+void	LLNearbyChat::addMessage(const LLChat& chat)
+{
+	/*
 	LLChatItemsContainerCtrl* panel = getChild<LLChatItemsContainerCtrl>("chat_history",false,false);
 	if(!panel)
 		return;
 	panel->addMessage(message);
+	*/
+
+	//"Chat History Editor" !!!!!
+
+	LLColor4 color = nearbychat_get_text_color(chat);
 	
+
+	if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
+	{
+		LLFloaterScriptDebug::addScriptLine(chat.mText,
+											chat.mFromName, 
+											color, 
+											chat.mFromID);
+		if (!gSavedSettings.getBOOL("ScriptErrorsAsChat"))
+		{
+			return;
+		}
+	}
+	
+	// could flash the chat button in the status bar here. JC
+
+	LLViewerTextEditor*	history_editor = getChild<LLViewerTextEditor>("Chat History Editor");
+
+	history_editor->setParseHTML(TRUE);
+	history_editor->setParseHighlights(TRUE);
+	
+	if (!chat.mMuted)
+		nearbychat_add_timestamped_line(history_editor, chat, color);
 }
 
 void LLNearbyChat::onNearbySpeakers()
@@ -166,7 +310,9 @@ void LLNearbyChat::reshape(S32 width, S32 height, BOOL called_from_parent)
 		caption->setRect(caption_rect);
 	}
 	
-	LLPanel* scroll_panel = getChild<LLPanel>("chat_history",false,false);
+	//LLPanel* scroll_panel = getChild<LLPanel>("chat_history",false,false);
+	LLViewerTextEditor*	scroll_panel = getChild<LLViewerTextEditor>("Chat History Editor");
+	
 	if (scroll_panel)
 	{
 		LLRect scroll_rect = scroll_panel->getRect();
@@ -305,10 +451,13 @@ void	LLNearbyChat::float_panel()
 	mResizeBar[LLResizeBar::BOTTOM]->setVisible(true);
 	mResizeBar[LLResizeBar::LEFT]->setVisible(true);
 	mResizeBar[LLResizeBar::RIGHT]->setVisible(true);
+
+	translate(4,4);
 }
 
 void LLNearbyChat::onNearbyChatContextMenuItemClicked(const LLSD& userdata)
 {
+	/*
 	LLChatItemsContainerCtrl* panel = getChild<LLChatItemsContainerCtrl>("chat_history",false,false);
 	if(!panel)
 		return;
@@ -322,15 +471,18 @@ void LLNearbyChat::onNearbyChatContextMenuItemClicked(const LLSD& userdata)
 		panel->setHeaderVisibility(CHATITEMHEADER_SHOW_BOTH);
 
 	gSavedSettings.setS32("nearbychat_showicons_and_names", (S32)panel->getHeaderVisibility());
-
-
+	*/
 }
 bool	LLNearbyChat::onNearbyChatCheckContextMenuItem(const LLSD& userdata)
 {
+	std::string str = userdata.asString();
+	if(str == "nearby_people")
+		onNearbySpeakers();	
+	/*
 	LLChatItemsContainerCtrl* panel = getChild<LLChatItemsContainerCtrl>("chat_history",false,false);
 	if(!panel)
 		return false;
-	std::string str = userdata.asString();
+	
 	if(str == "show_buddy_icons")
 		return panel->getHeaderVisibility() == CHATITEMHEADER_SHOW_ONLY_ICON;
 	else if(str == "show_names")
@@ -339,6 +491,7 @@ bool	LLNearbyChat::onNearbyChatCheckContextMenuItem(const LLSD& userdata)
 		return panel->getHeaderVisibility() == CHATITEMHEADER_SHOW_BOTH;
 	else if(str == "nearby_people")
 		onNearbySpeakers();
+	*/
 	return false;
 }
 
@@ -360,3 +513,11 @@ BOOL LLNearbyChat::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return LLFloater::handleRightMouseDown(x, y, mask);
 }
 
+void	LLNearbyChat::onOpen(const LLSD& key )
+{
+	LLNotificationsUI::LLScreenChannel* chat_channel = LLNotificationsUI::LLChannelManager::getInstance()->getChannelByID(LLUUID(NEARBY_CHAT_ID));
+	if(chat_channel)
+	{
+		chat_channel->removeToastsFromChannel();
+	}
+}

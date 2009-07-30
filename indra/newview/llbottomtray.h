@@ -35,35 +35,12 @@
 
 #include "llpanel.h"
 #include "llimview.h"
-#include "llchat.h"
-#include "llgesturemgr.h"
-#include "llcombobox.h"
 
 class LLChicletPanel;
 class LLLineEditor;
 class LLNotificationChiclet;
 class LLTalkButton;
-
-class LLGestureComboBox
-	: public LLComboBox
-	, public LLGestureManagerObserver
-{
-protected:
-	LLGestureComboBox(const LLComboBox::Params&);
-	friend class LLUICtrlFactory;
-public:
-	~LLGestureComboBox();
-
-	void refreshGestures();
-	void onCommitGesture(LLUICtrl* ctrl);
-	virtual void draw();
-
-	// LLGestureManagerObserver trigger
-	virtual void changed() { refreshGestures(); }
-
-protected:
-	LLFrameTimer mGestureLabelTimer;
-};
+class LLNearbyChatBar;
 
 class LLBottomTray 
 	: public LLUISingleton<LLBottomTray>
@@ -74,19 +51,10 @@ class LLBottomTray
 public:
 	~LLBottomTray();
 
-	LLLineEditor*		getChatBox()	{return mChatBox;}
 	LLChicletPanel*		getChicletPanel()	{return mChicletPanel;}
 	LLNotificationChiclet*	getIMWell()	{return mIMWell;}
 	LLNotificationChiclet*	getSysWell()	{return mSysWell;}
-
-	void onChatBoxCommit();
-	static void sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate);
-	static void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
-	static void onChatBoxKeystroke(LLLineEditor* caller, void* userdata);
-	static void onChatBoxFocusLost(LLFocusableElement* caller, void* userdata);
-
-	BOOL inputEditorHasFocus();
-	std::string getCurrentChat();
+	LLNearbyChatBar*		getNearbyChatBar()	{return mNearbyChatBar;}
 
 	/*virtual*/void draw();
 	void refreshStandUp();
@@ -100,33 +68,22 @@ public:
 	virtual void sessionRemoved(const LLUUID& session_id);
 
 	virtual void onFocusLost();
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
 	virtual void setVisible(BOOL visible);
-
-	static void startChat(const char* line);
-	static void stopChat();
 
 protected:
 
 	LLBottomTray(const LLSD& key = LLSD());
 
-	void sendChat( EChatType type );
-	static LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
-
 	void onChicletClick(LLUICtrl* ctrl);
 
-	void setChicletPanelVisible(bool visible);
+	static void* createNearbyChatBar(void* userdata);
 
-	// Which non-zero channel did we last chat on?
-	static S32 sLastSpecialChatChannel;
-
-	LLLineEditor*		mChatBox;
 	LLChicletPanel* 	mChicletPanel;
 	LLNotificationChiclet* 	mIMWell;
 	LLNotificationChiclet* 	mSysWell;
 	LLTalkButton* 		mTalkBtn;
-	LLGestureComboBox*	mGestureCombo;
 	LLButton*           mStandUpBtn;
+	LLNearbyChatBar*	mNearbyChatBar;
 };
 
 #endif // LL_LLBOTTOMPANEL_H

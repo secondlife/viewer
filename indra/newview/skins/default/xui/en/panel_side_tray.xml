@@ -8,6 +8,26 @@
   collapsed="true" 
 >
   <sidetray_tab 	
+    name="sidebar_home"
+    tab_title="Home"
+    description="Home."
+    image="icn_voice-groupfocus.tga"
+    mouse_opaque="false" 
+    background_opaque="false" 
+    background_visible="true" 
+    bg_opaque_color="0.5 0.5 0.5 1.0"
+  >
+      <panel 
+        name="panel_home" 
+        filename="panel_sidetray_home_tab.xml" 
+        width="355" 
+        height="465" 
+        label="home" 
+        border="true" 
+      />
+  </sidetray_tab>
+
+  <sidetray_tab 	
     name="sidebar_people"
     tab_title="People"
     description="Find your friends, contacts and people nearby."
@@ -17,15 +37,6 @@
     background_visible="true" 
     bg_opaque_color="0.5 0.5 0.5 1.0"
   >
-    <accordion_tab 
-      name="people_accordion" 
-      title="People" 
-      collapsable="true" 
-      min_width="200" 
-      min_height="200" 
-      expanded="true" 
-      header_visible="false"
-    >
       <panel 
         class="panel_people" 
         name="panel_people" 
@@ -35,7 +46,6 @@
         label="People" 
         border="true" 
       />
-    </accordion_tab>
   </sidetray_tab>
   <!-- *TODO Vadim: isn't the sidetray_tab "label" attribute redundant since we have "tab_title" ? -->
   <sidetray_tab 
@@ -48,14 +58,6 @@
     background_visible="true" 
     bg_opaque_color="0.5 0.5 0.5 1.0"
   >
-    <accordion_tab 
-      name="places_accordian" 
-      title="Places" 
-      collapsable="true" 
-      min_width="355" 
-      min_height="200" 
-      header_visible="false"
-    >
       <panel 
         class="panel_places" 
         name="panel_places" 
@@ -63,7 +65,6 @@
         label="Places" 
         border="true"
       />
-    </accordion_tab>
   </sidetray_tab>
   
   <sidetray_tab 
@@ -75,14 +76,6 @@
     background_visible="true" 
     bg_opaque_color="0.5 0.5 0.5 1.0"
   >
-    <accordion_tab 
-      name="me_accordion" 
-      title="Me" 
-      collapsable="false" 
-      min_width="200" 
-      min_height="200"
-      header_visible="false"
-    >
       <panel 
         class="panel_me_profile" 
         name="panel_me_profile" 
@@ -90,7 +83,6 @@
         label="Me" 
         border="true"
       />
-    </accordion_tab>
   </sidetray_tab>
   
   <!--
@@ -107,7 +99,7 @@
       name="group_accordion" 
       title="Group General"
       expanded="true"
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       header_visible="true"
@@ -187,7 +179,7 @@
     <accordion_tab 
       name="floater_preview_animation" 
       title="Preview Animation" 
-      collapsable="true"
+      collapsible="true"
       expanded="false"
       min_width="200" 
       min_height="200" 
@@ -206,7 +198,7 @@
     <accordion_tab 
       name="floater_preview_gesture" 
       title="Preview Gesture" 
-      collapsable="true"
+      collapsible="true"
       expanded="false"
       min_width="200" 
       min_height="200" 
@@ -225,7 +217,7 @@
     <accordion_tab 
       name="floater_preview_existing_landmark" 
       title="Preview Existing Landmark" 
-      collapsable="true"
+      collapsible="true"
       expanded="false"
       min_width="200" 
       min_height="200" 
@@ -244,7 +236,7 @@
     <accordion_tab 
       name="floater_preview_sound" 
       title="Preview Sound" 
-      collapsable="true"
+      collapsible="true"
       expanded="false"
       min_width="200" 
       min_height="200" 
@@ -263,7 +255,7 @@
     <accordion_tab 
       name="floater_preview_url" 
       title="Preview URL" 
-      collapsable="true"
+      collapsible="true"
       expanded="false"
       min_width="200" 
       min_height="200" 
@@ -282,7 +274,7 @@
     <accordion_tab 
       name="floater_URL_entry" 
       title="URL Entry" 
-      collapsable="true"
+      collapsible="true"
       expanded="false"
       min_width="200" 
       min_height="200" 
@@ -313,7 +305,7 @@
     <accordion_tab 
       name="panel_region_covenant" 
       title="Region Covenant" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -332,7 +324,7 @@
     <accordion_tab 
       name="panel_region_debug" 
       title="Region Debug" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -351,7 +343,7 @@
   <accordion_tab 
       name="panel_region_estate" 
       title="Region Estate" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -370,7 +362,7 @@
   <accordion_tab 
       name="panel_region_general" 
       title="Region General" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -389,7 +381,7 @@
   <accordion_tab 
       name="panel_region_terrain" 
       title="Region Terrain" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -408,7 +400,7 @@
   <accordion_tab 
       name="panel_region_texture" 
       title="Region Texture" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -427,7 +419,7 @@
   <accordion_tab 
       name="floater_region_info" 
       title="Region Info" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -458,7 +450,7 @@
     <accordion_tab 
       name="floater_tools" 
       title="Tools" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -477,7 +469,7 @@
     <accordion_tab 
       name="floater_bulk_perms" 
       title="Bulk Perms" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -496,7 +488,7 @@
     <accordion_tab 
       name="floater_build_options" 
       title="Build Options" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -528,7 +520,7 @@
     <accordion_tab 
       name="floater_gesture" 
       title="Gestures" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -548,7 +540,7 @@
     <accordion_tab 
       name="floater_buy_contents" 
       title="Buy Contents" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -567,7 +559,7 @@
     <accordion_tab 
       name="floater_buy_object" 
       title="Buy Object" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -586,7 +578,7 @@
     <accordion_tab 
       name="floater_inventory_view_finder" 
       title="Inventory View Finder" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -605,7 +597,7 @@
     <accordion_tab 
       name="floater_mute" 
       title="Mute" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -624,7 +616,7 @@
      <accordion_tab 
       name="floater_sell_land" 
       title="Sell Land" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 
@@ -643,7 +635,7 @@
      <accordion_tab 
       name="floater_telehub" 
       title="Telehub" 
-      collapsable="true" 
+      collapsible="true" 
       min_width="200" 
       min_height="200" 
       expanded="false" 

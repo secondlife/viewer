@@ -1606,6 +1606,8 @@ void LLToolDragAndDrop::commitGiveInventoryItem(const LLUUID& to_agent,
 		gIMMgr->addSystemMessage(im_session_id, "inventory_item_offered", args);
 	}
 
+	// add buddy to recent people list
+	LLRecentPeople::instance().add(to_agent);
 }
 
 void LLToolDragAndDrop::giveInventoryCategory(const LLUUID& to_agent,
@@ -1729,6 +1731,9 @@ void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
 	if(!cat) return;
 	llinfos << "LLToolDragAndDrop::commitGiveInventoryCategory() - "
 			<< cat->getUUID() << llendl;
+
+	// add buddy to recent people list
+	LLRecentPeople::instance().add(to_agent);
 
 	// Test out how many items are being given.
 	LLViewerInventoryCategory::cat_array_t cats;

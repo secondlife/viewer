@@ -41,6 +41,14 @@
 #include "llslurl.h"
 #include "llworldmap.h"
 
+bool LLPanelPlacesTab::isTabVisible()
+{
+	LLUICtrl* parent = getParentUICtrl();
+	if (!parent) return false;
+	if (!parent->getVisible()) return false;
+	return true;
+}
+
 void LLPanelPlacesTab::setPanelPlacesButtons(LLPanelPlaces* panel)
 {
 	//mShareBtn = panel->getChild<LLButton>("share_btn");

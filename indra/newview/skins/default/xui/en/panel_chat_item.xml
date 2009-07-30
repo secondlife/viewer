@@ -15,7 +15,7 @@
       		color="1 1 1 1" enabled="true" name="avatar_icon"
 		  />
     	<text
-        	width="160" top="25" left="40" height="20" follows="left|right|top"
+        	width="130" top="25" left="40" height="20" follows="left|right|top"
         	font="SansSerifBigBold" text_color="white" word_wrap="true"
         	mouse_opaque="true" name="sender_name" >
 	      Jerry Knight

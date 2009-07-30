@@ -340,12 +340,17 @@ void LLPanelAvatarProfile::processProperties(void* data, EAvatarProcessorType ty
 		if(avatar_groups)
 		{
 			std::string groups;
-			LLAvatarGroups::group_list_t::const_iterator it = avatar_groups->group_list.begin();
-			for(; avatar_groups->group_list.end() != it; ++it)
-			{
+			if (!avatar_groups->group_list.empty()) {
+				LLAvatarGroups::group_list_t::const_iterator it = avatar_groups->group_list.begin();
 				LLAvatarGroups::LLGroupData group_data = *it;
-				groups += group_data.group_name;
-				groups += ", ";
+				groups+= group_data.group_name;
+				while (++it != avatar_groups->group_list.end())
+				{
+					group_data = *it;				
+					groups += ", ";
+					groups += group_data.group_name;
+					
+				}
 			}
 			childSetValue("sl_groups",groups);
 		}

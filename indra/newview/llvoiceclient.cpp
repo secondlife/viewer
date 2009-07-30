@@ -67,6 +67,9 @@
 #include "llfloaterfriends.h"  //VIVOX, inorder to refresh communicate panel
 #include "llfloaterchat.h"		// for LLFloaterChat::addChat()
 
+// for Talk Button's state updating
+#include "llnearbychatbar.h"
+
 // for base64 decoding
 #include "apr_base64.h"
 
@@ -5783,6 +5786,7 @@ bool LLVoiceClient::getMuteMic() const
 void LLVoiceClient::setUserPTTState(bool ptt)
 {
 	mUserPTTState = ptt;
+	LLNearbyChatBar::getInstance()->setPTTState(ptt);
 }
 
 bool LLVoiceClient::getUserPTTState()
@@ -5793,6 +5797,7 @@ bool LLVoiceClient::getUserPTTState()
 void LLVoiceClient::toggleUserPTTState(void)
 {
 	mUserPTTState = !mUserPTTState;
+	LLNearbyChatBar::getInstance()->setPTTState(mUserPTTState);
 }
 
 void LLVoiceClient::setVoiceEnabled(bool enabled)
