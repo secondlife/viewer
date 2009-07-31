@@ -204,7 +204,7 @@ bool gAgentMovementCompleted = false;
 std::string SCREEN_HOME_FILENAME = "screen_home.bmp";
 std::string SCREEN_LAST_FILENAME = "screen_last.bmp";
 
-LLPointer<LLImageGL> gStartImageGL;
+LLPointer<LLViewerTexture> gStartTexture;
 
 //
 // Imported globals
@@ -1487,7 +1487,7 @@ bool idle_startup()
 			LLSD id = inv_lib_owner[0]["agent_id"];
 			if(id.isDefined())
 			{
-				gInventory.setLibraryOwnerID( LLUUID(id.asUUID());
+				gInventory.setLibraryOwnerID( LLUUID(id.asUUID()));
 			}
 		}
 
@@ -2915,7 +2915,7 @@ bool process_login_success_response()
 	LLUUID inv_root_folder_id = response["inventory-root"][0]["folder_id"];
 	if(inv_root_folder_id.notNull())
 	{
-		gAgent.getInventoryRootID() = inv_root_folder_id;
+		gInventory.setRootFolderID(inv_root_folder_id);
 		//gInventory.mock(gAgent.getInventoryRootID());
 	}
 
@@ -3003,7 +3003,7 @@ bool process_login_success_response()
 	   && gAgentSessionID.notNull()
 	   && gMessageSystem->mOurCircuitCode
 	   && gFirstSim.isOk()
-	   && gAgent.getInventoryRootID().notNull())
+	   && gInventory.getRootFolderID().notNull())
 	{
 		success = true;
 	}
