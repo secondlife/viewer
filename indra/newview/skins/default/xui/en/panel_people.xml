@@ -62,7 +62,8 @@
         width="280"
         height="357"
         follows="left|top|right|bottom"
-        name="avatar_list"/>
+        name="avatar_list"
+		volume_column_width="20"/>
       <panel
         layout="topleft"
         bottom="390"
