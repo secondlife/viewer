@@ -1162,7 +1162,9 @@ bool LLAppViewer::cleanup()
 		apr_status_t rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll_plugin_stop_func, *i, "ll_plugin_stop");
 		ll_plugin_stop_func();
 
-		rv = apr_dso_unload(*i);
+		// *NOTE - disabled unloading as partial solution to DEV-35406 crash on shutdown
+		//rv = apr_dso_unload(*i);
+		(void)rv;
 	}
 	mPlugins.clear();
 
@@ -4122,6 +4124,12 @@ void LLAppViewer::loadEventHostModule(S32 listen_port)
 	std::string dso_path = gDirUtilp->findFile(dso_name,
 		gDirUtilp->getAppRODataDir(),
 		gDirUtilp->getExecutableDir());
+
+	if(dso_path == "")
+	{
+		llwarns << "QAModeEventHost requested but module \"" << dso_name << "\" not found!" << llendl;
+		return;
+	}
 
 	apr_dso_handle_t * eventhost_dso_handle = NULL;
 	apr_pool_t * eventhost_dso_memory_pool = NULL;

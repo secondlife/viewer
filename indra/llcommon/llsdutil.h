@@ -35,7 +35,7 @@
 #ifndef LL_LLSDUTIL_H
 #define LL_LLSDUTIL_H
 
-class LL_COMMON_API LLSD;
+class LLSD;
 
 // U32
 LL_COMMON_API LLSD ll_sd_from_U32(const U32);

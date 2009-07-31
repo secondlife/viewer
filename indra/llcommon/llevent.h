@@ -41,10 +41,10 @@
 namespace LLOldEvents
 {
 
-class LL_COMMON_API LLEventListener;
-class LL_COMMON_API LLEvent;
-class LL_COMMON_API LLEventDispatcher;
-class LL_COMMON_API LLObservable;
+class LLEventListener;
+class LLEvent;
+class LLEventDispatcher;
+class LLObservable;
 
 // Abstract event. All events derive from LLEvent
 class LL_COMMON_API LLEvent : public LLThreadSafeRefCount
@@ -104,7 +104,7 @@ protected:
 	std::vector<LLEventDispatcher *> mDispatchers;
 };
 
-class LL_COMMON_API LLObservable; // defined below
+class LLObservable; // defined below
 
 // A structure which stores a Listener and its metadata
 struct LLListenerEntry

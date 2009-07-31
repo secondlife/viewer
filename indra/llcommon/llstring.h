@@ -345,9 +345,9 @@ public:
 template<class T> std::basic_string<T> LLStringUtilBase<T>::null;
 template<class T> std::string LLStringUtilBase<T>::sLocale;
 
-typedef LL_COMMON_API LLStringUtilBase<char> LLStringUtil;
-typedef LL_COMMON_API LLStringUtilBase<llwchar> LLWStringUtil;
-typedef LL_COMMON_API std::basic_string<llwchar> LLWString;
+typedef LLStringUtilBase<char> LLStringUtil;
+typedef LLStringUtilBase<llwchar> LLWStringUtil;
+typedef std::basic_string<llwchar> LLWString;
 
 //@ Use this where we want to disallow input in the form of "foo"
 //  This is used to catch places where english text is embedded in the code
@@ -419,7 +419,7 @@ LL_COMMON_API std::string rawstr_to_utf8(const std::string& raw);
 //
 // We should never use UTF16 except when communicating with Win32!
 //
-typedef LL_COMMON_API std::basic_string<U16> llutf16string;
+typedef std::basic_string<U16> llutf16string;
 
 LL_COMMON_API LLWString utf16str_to_wstring(const llutf16string &utf16str, S32 len);
 LL_COMMON_API LLWString utf16str_to_wstring(const llutf16string &utf16str);

@@ -35,7 +35,7 @@
 #ifndef LL_REFLECTIVE_H
 #define LL_REFLECTIVE_H
 
-class LL_COMMON_API LLMetaClass;
+class LLMetaClass;
 class LL_COMMON_API LLReflective
 {
 public:
