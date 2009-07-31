@@ -4125,6 +4125,12 @@ void LLAppViewer::loadEventHostModule(S32 listen_port)
 		gDirUtilp->getAppRODataDir(),
 		gDirUtilp->getExecutableDir());
 
+	if(dso_path == "")
+	{
+		llwarns << "QAModeEventHost requested but module \"" << dso_name << "\" not found!" << llendl;
+		return;
+	}
+
 	apr_dso_handle_t * eventhost_dso_handle = NULL;
 	apr_pool_t * eventhost_dso_memory_pool = NULL;
 
