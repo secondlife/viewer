@@ -473,29 +473,25 @@ class DarwinManifest(ViewerManifest):
                 self.path("vivox-runtime/universal-darwin/SLVoice", "SLVoice")
 
                 libdir = "../../libraries/universal-darwin/lib_release"
-
-                for libfile in ("libapr-1.0.3.7.dylib", "libaprutil-1.0.3.8.dylib"):
-                    self.path(os.path.join(libdir, libfile), libfile)
+                dylibs = {}
 
                 # need to get the kdu dll from any of the build directories as well
-                lib = "llkdu"
-                libfile = "lib%s.dylib" % lib
-                try:
-                    self.path(self.find_existing_file('../%s/%s/%s' %
-                                                      (lib, self.args['configuration'], libfile),
-                                                      os.path.join(libdir, libfile)),
-                              dst=libfile)
-                    pass
-                except:
-                    print "Skipping %s" % libfile
-                    pass
+                for lib in "llkdu", "llcommon":
+                    libfile = "lib%s.dylib" % lib
+                    try:
+                        self.path(self.find_existing_file('../%s/%s/%s' %
+                                                          (lib, self.args['configuration'], libfile),
+                                                          os.path.join(libdir, libfile)),
+                                  dst=libfile)
+                    except RuntimeError:
+                        print "Skipping %s" % libfile
+                        dylibs[lib] = False
+                    else:
+                        dylibs[lib] = True
 
-                lib = "llcommon"
-                libfile = "lib%s.dylib" % lib
-                self.path(self.find_existing_file('../%s/%s/%s' %
-                                                  (lib, self.args['configuration'], libfile),
-                                                  os.path.join(libdir, libfile)),
-                          dst=libfile)
+                if dylibs["llcommon"]:
+                    for libfile in ("libapr-1.0.3.7.dylib", "libaprutil-1.0.3.8.dylib"):
+                        self.path(os.path.join(libdir, libfile), libfile)
 
                 #libfmodwrapper.dylib
                 self.path(self.args['configuration'] + "/libfmodwrapper.dylib", "libfmodwrapper.dylib")
