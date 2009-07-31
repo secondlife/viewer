@@ -472,16 +472,31 @@ class DarwinManifest(ViewerManifest):
                 self.path("vivox-runtime/universal-darwin/libvivoxsdk.dylib", "libvivoxsdk.dylib")
                 self.path("vivox-runtime/universal-darwin/SLVoice", "SLVoice")
 
+                libdir = "../../libraries/universal-darwin/lib_release"
+
+                for libfile in ("libapr-1.0.3.7.dylib", "libaprutil-1.0.3.8.dylib"):
+                    self.path(os.path.join(libdir, libfile), libfile)
+
                 # need to get the kdu dll from any of the build directories as well
+                lib = "llkdu"
+                libfile = "lib%s.dylib" % lib
                 try:
-                    self.path(self.find_existing_file('../llkdu/%s/libllkdu.dylib' % self.args['configuration'],
-                        "../../libraries/universal-darwin/lib_release/libllkdu.dylib"),
-                        dst='libllkdu.dylib')
+                    self.path(self.find_existing_file('../%s/%s/%s' %
+                                                      (lib, self.args['configuration'], libfile),
+                                                      os.path.join(libdir, libfile)),
+                              dst=libfile)
                     pass
                 except:
-                    print "Skipping libllkdu.dylib"
+                    print "Skipping %s" % libfile
                     pass
-                
+
+                lib = "llcommon"
+                libfile = "lib%s.dylib" % lib
+                self.path(self.find_existing_file('../%s/%s/%s' %
+                                                  (lib, self.args['configuration'], libfile),
+                                                  os.path.join(libdir, libfile)),
+                          dst=libfile)
+
                 #libfmodwrapper.dylib
                 self.path(self.args['configuration'] + "/libfmodwrapper.dylib", "libfmodwrapper.dylib")
                 

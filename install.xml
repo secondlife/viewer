@@ -85,9 +85,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>c4de63e9416a800155aff3f96b149a0c</string>
+            <string>30e3b60d596801a4f4c74c56ece059dc</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.3.7-darwin-20090730.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.3.7-darwin-20090731.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
