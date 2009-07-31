@@ -69,7 +69,6 @@ std::string LLViewerLogin::getGridLabel() const { return VIEWERLOGIN_GRIDLABEL; 
 //-----------------------------------------------------------------------------
 #include "../llviewercontrol.h"
 LLControlGroup gSavedSettings("Global");
-LLControlGroup gSavedSkinSettings("Skinning");
 std::string gCurrentVersion = "invalid_version";
 
 LLControlGroup::LLControlGroup(const std::string& name) :
@@ -82,6 +81,9 @@ void LLControlGroup::setString(const std::string& name, const std::string& val) 
 std::string LLControlGroup::getString(const std::string& name) { return "test_string"; }
 BOOL LLControlGroup::declareBOOL(const std::string& name, BOOL initial_val, const std::string& comment, BOOL persist) { return TRUE; }
 BOOL LLControlGroup::declareString(const std::string& name, const std::string &initial_val, const std::string& comment, BOOL persist) { return TRUE; }
+
+#include "lluicolortable.h"
+void LLUIColorTable::saveUserSettings(void)const {}
 
 //-----------------------------------------------------------------------------
 #include "../llurlsimstring.h"
