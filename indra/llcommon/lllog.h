@@ -39,7 +39,7 @@
 
 class LLLogImpl;
 class LLApp;
-class LL_COMMON_API LLSD;
+class LLSD;
 
 class LL_COMMON_API LLLog
 {

@@ -40,7 +40,7 @@
 #include "llframetimer.h"
 #include "llfile.h"
 
-class	LL_COMMON_API LLSD;
+class	LLSD;
 
 // Set this if longer stats are needed
 #define ENABLE_LONG_TIME_STATS	0

@@ -172,7 +172,7 @@ private:
 /*****************************************************************************
 *   LLEventPumps
 *****************************************************************************/
-class LL_COMMON_API LLEventPump;
+class LLEventPump;
 
 /**
  * LLEventPumps is a Singleton manager through which one typically accesses

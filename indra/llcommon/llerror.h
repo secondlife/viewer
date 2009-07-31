@@ -129,7 +129,7 @@ namespace LLError
 		They are not intended for general use.
 	*/
 	
-	class LL_COMMON_API CallSite;
+	class CallSite;
 	
 	class LL_COMMON_API Log
 	{

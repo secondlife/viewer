@@ -37,9 +37,9 @@
 
 #include <string>
 
-class LL_COMMON_API LLSD;
-class LL_COMMON_API LLUUID;
-class LL_COMMON_API LLApp;
+class LLSD;
+class LLUUID;
+class LLApp;
 
 /** 
  *
