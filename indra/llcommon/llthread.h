@@ -38,9 +38,9 @@
 
 #include "apr_thread_cond.h"
 
-class LL_COMMON_API LLThread;
-class LL_COMMON_API LLMutex;
-class LL_COMMON_API LLCondition;
+class LLThread;
+class LLMutex;
+class LLCondition;
 
 class LL_COMMON_API LLThread
 {

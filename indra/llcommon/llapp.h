@@ -61,7 +61,7 @@ public:
 };
 #endif
 
-class LLApp
+class LL_COMMON_API LLApp
 {
 	friend class LLErrorThread;
 public:

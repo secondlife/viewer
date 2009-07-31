@@ -38,7 +38,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-class LL_COMMON_API LLRunnable;
+class LLRunnable;
 
 /** 
  * @class LLRunner

@@ -40,9 +40,9 @@
 
 #include "stdtypes.h"
 
-class LL_COMMON_API LLReflective;
-class LL_COMMON_API LLMetaProperty;
-class LL_COMMON_API LLMetaMethod;
+class LLReflective;
+class LLMetaProperty;
+class LLMetaMethod;
 class LL_COMMON_API LLMetaClass
 {
 public:

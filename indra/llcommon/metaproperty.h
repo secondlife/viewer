@@ -39,8 +39,8 @@
 #include "llsd.h"
 #include "reflective.h"
 
-class LL_COMMON_API LLMetaClass;
-class LL_COMMON_API LLReflective;
+class LLMetaClass;
+class LLReflective;
 class LL_COMMON_API LLMetaProperty
 {
 public:

@@ -138,11 +138,13 @@
 #if LL_WINDOWS
 #define LL_DLLEXPORT __declspec(dllexport)
 #define LL_DLLIMPORT __declspec(dllimport)
+#elif LL_LINUX
+#define LL_DLLEXPORT __attribute__ ((visibility("default")))
+#define LL_DLLIMPORT
 #else
 #define LL_DLLEXPORT
 #define LL_DLLIMPORT
 #endif // LL_WINDOWS
-
 
 #if LL_COMMON_LINK_SHARED
 # if LL_COMMON_BUILD
