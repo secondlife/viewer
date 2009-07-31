@@ -41,7 +41,7 @@
 
 // Fixed size buffer for console output and other things.
 
-class LLFixedBuffer
+class LL_COMMON_API LLFixedBuffer
 {
 public:
 	LLFixedBuffer(const U32 max_lines = 20);

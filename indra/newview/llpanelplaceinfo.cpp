@@ -57,6 +57,7 @@
 #include "llviewerregion.h"
 #include "llviewertexteditor.h"
 #include "llworldmap.h"
+#include "llsdutil_math.h"
 
 static LLRegisterPanelClassWrapper<LLPanelPlaceInfo> t_place_info("panel_place_info");
 

@@ -10,15 +10,9 @@
 	</radio_group>
 	<check_box label="Ver mi posición inicial en la pantalla de inicio de sesión" name="show_location_checkbox"/>
 	<combo_box name="fade_out_combobox" width="166">
-		<combo_item name="Never">
-			Nunca
-		</combo_item>
-		<combo_item name="Show Temporarily">
-			Mostrarlos temporalmente
-		</combo_item>
-		<combo_item name="Always">
-			Siempre
-		</combo_item>
+		<combo_box.item name="Never" label="Nunca"/>
+		<combo_box.item name="Show Temporarily" label="Mostrarlos temporalmente"/>
+		<combo_box.item name="Always" label="Siempre"/>
 	</combo_box>
 	<check_box label="Nombres de avatar en pequeño" name="small_avatar_names_checkbox"/>
 	<check_box label="No ver mi nombre en mi pantalla" name="show_my_name_checkbox"/>
@@ -80,49 +74,29 @@ contenido calificado:
 		&lt;escriba el nombre de la región&gt;
 	</string>
 	<combo_box name="crash_behavior_combobox" width="166">
-		<combo_item length="1" name="Askbeforesending" type="string">
-			Preguntar antes de enviar
-		</combo_item>
-		<combo_item length="1" name="Alwayssend" type="string">
-			Enviar siempre
-		</combo_item>
-		<combo_item length="1" name="Neversend" type="string">
-			No enviar nunca
-		</combo_item>
+		<combo_box.item length="1" name="Askbeforesending" type="string" label="Preguntar antes de enviar"/>
+		<combo_box.item length="1" name="Alwayssend" type="string" label="Enviar siempre"/>
+		<combo_box.item length="1" name="Neversend" type="string" label="No enviar nunca"/>
 	</combo_box>
 	<combo_box name="language_combobox" width="166">
-		<combo_item name="System Default Language">
-			Predeterminado del sistema
-		</combo_item>
-		<combo_item length="1" name="English" type="string">
-			English (Inglés)
-		</combo_item>
-		<combo_item name="Danish">
-			Dansk (Danés) - Beta
-		</combo_item>
-		<combo_item length="1" name="Deutsch(German)" type="string">
-			Deutsch (Alemán) - Beta
-		</combo_item>
-		<combo_item name="Spanish" type="string">
-			Español - Beta
-		</combo_item>
-		<combo_item length="1" name="French" type="string">
-			Français (Francés) - Beta
-		</combo_item>
+		<combo_box.item name="System Default Language" label="Predeterminado del sistema"/>
+		<combo_box.item length="1" name="English" type="string" label="English (Inglés)"/>
+		<combo_box.item name="Danish" label="Dansk (Danés) - Beta"/>
+		<combo_box.item length="1" name="Deutsch(German)" type="string" label="Deutsch (Alemán) - Beta"/>
+		<combo_box.item name="Spanish" type="string" label="Español - Beta"/>
+		<combo_box.item length="1" name="French" type="string" label="Français (Francés) - Beta"/>
+		<combo_box.item name="Hungarian" label="Magyar (Húngaro) - Beta"/>
+		<combo_box.item name="Polish" label="Polski (Polaco) - Beta"/>
+		<combo_box.item name="Portugese" label="Portugués (Portugués) - Beta"/>
+		<combo_box.item length="1" name="Chinese" type="string" label="中文 (简体) (Chino) - Beta"/>
+		<combo_box.item length="1" name="(Japanese)" type="string" label="日本語 (Japonés) - Beta"/>
+		<combo_box.item length="1" name="(Korean)" type="string" label="한국어 (Coreano) - Beta"/>
 		<combo_item name="Italian">
 			Italiano - Beta
-		</combo_item>
-		<combo_item name="Hungarian">
-			Magyar (Húngaro) - Beta
 		</combo_item>
 		<combo_item name="Dutch">
 			Nederlands (Neerlandés) - Beta
 		</combo_item>
-		<combo_item name="Polish">
-			Polski (Polaco) - Beta
-		</combo_item>
-		<combo_item name="Portugese">
-			Portugués (Portugués) - Beta
 		</combo_item>
 		<combo_item name="Russian">
 			Русский (Ruso) - Beta
@@ -132,16 +106,6 @@ contenido calificado:
 		</combo_item>
 		<combo_item name="Ukrainian">
 			Українська (Ucraniano) - Beta
-		</combo_item>
-		<combo_item length="1" name="Chinese" type="string">
-			中文 (简体) (Chino) - Beta
-		</combo_item>
-		<combo_item length="1" name="(Japanese)" type="string">
-			日本語 (Japonés) - Beta
-		</combo_item>
-		<combo_item length="1" name="(Korean)" type="string">
-			한국어 (Coreano) - Beta
-		</combo_item>
 	</combo_box>
 	<check_box label="Compartir el idioma con los objetos" name="language_is_public" tool_tip="Hace que los objetos con script del mundo sepan su idioma preferido."/>
 </panel>

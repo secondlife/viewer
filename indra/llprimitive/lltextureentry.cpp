@@ -33,7 +33,7 @@
 #include "linden_common.h"
 
 #include "lltextureentry.h"
-#include "llsdutil.h"
+#include "llsdutil_math.h"
 
 const U8 DEFAULT_BUMP_CODE = 0;  // no bump or shininess
 

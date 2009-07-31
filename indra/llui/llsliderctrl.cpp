@@ -398,4 +398,3 @@ void LLSliderCtrl::reportInvalidData()
 	make_ui_sound("UISndBadKeystroke");
 }
 
-

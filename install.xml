@@ -85,9 +85,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>abd07d760cdc7d23da3b861f34b09c92</string>
+            <string>c4de63e9416a800155aff3f96b149a0c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.8-darwin-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.3.7-darwin-20090730.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -106,9 +106,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>b9d23a69a25fdeed96dcc3bf696b6514</string>
+            <string>abb339b5147f90e20b6090ee235d77a6</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.12-windows-20080806.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.2.12-windows-20090702.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1170,6 +1170,53 @@ anguage Infrstructure (CLI) international standard</string>
           </map>
         </map>
       </map>
+      <key>pth</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 1999-2006 Ralf S. Engelschall &lt;rse@gnu.org&gt;</string>
+        <key>description</key>
+        <string>Portable cooperative threads package, used to support Boost.Coroutine on Mac OS X 10.4</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>533f4c710a209a6c4f205f81ccc0cfce</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-darwin-20090427.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>c5c2f73847c126e679d925beab48c7d4</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-linux-20090427.tar.bz2</uri>
+          </map>
+          <key>linux32</key>
+          <map>
+            <key>md5sum</key>
+            <string>c5c2f73847c126e679d925beab48c7d4</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-linux32-20090427.tar.bz2</uri>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>md5sum</key>
+            <string>c5c2f73847c126e679d925beab48c7d4</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-linux64-20090427.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>c5c2f73847c126e679d925beab48c7d4</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-windows-20090427.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
       <key>quicktime</key>
       <map>
         <key>copyright</key>
@@ -1325,9 +1372,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>789988ea1fd8615137f843fbbe5b6bfa</string>
+            <string>af723ab6a9b0222613b2de060bcec98c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-windows-20080723.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc-epi-0.51-windows-20090727.tar.bz2</uri>
           </map>
         </map>
       </map>

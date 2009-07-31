@@ -52,7 +52,7 @@ class	LLSD;
 // amounts of time with very low memory cost.
 //
 
-class LLStatAccum
+class LL_COMMON_API LLStatAccum
 {
 protected:
 	LLStatAccum(bool use_frame_timer);
@@ -116,7 +116,7 @@ public:
 	F64 	mLastSampleValue;
 };
 
-class LLStatMeasure : public LLStatAccum
+class LL_COMMON_API LLStatMeasure : public LLStatAccum
 	// gathers statistics about things that are measured
 	// ex.: tempature, time dilation
 {
@@ -131,7 +131,7 @@ public:
 };
 
 
-class LLStatRate : public LLStatAccum
+class LL_COMMON_API LLStatRate : public LLStatAccum
 	// gathers statistics about things that can be counted over time
 	// ex.: LSL instructions executed, messages sent, simulator frames completed
 	// renders it in terms of rate of thing per second
@@ -147,7 +147,7 @@ public:
 };
 
 
-class LLStatTime : public LLStatAccum
+class LL_COMMON_API LLStatTime : public LLStatAccum
 	// gathers statistics about time spent in a block of code
 	// measure average duration per second in the block
 {
@@ -178,7 +178,7 @@ private:
 
 
 // Use this class on the stack to record statistics about an area of code
-class LLPerfBlock
+class LL_COMMON_API LLPerfBlock
 {
 public:
     struct StatEntry
@@ -220,7 +220,7 @@ private:
 
 // ----------------------------------------------------------------------------
 
-class LLPerfStats
+class LL_COMMON_API LLPerfStats
 {
 public:
     LLPerfStats(const std::string& process_name = "unknown", S32 process_pid = 0);
@@ -256,7 +256,7 @@ private:
 };
 
 // ----------------------------------------------------------------------------
-class LLStat
+class LL_COMMON_API LLStat
 {
 private:
 	typedef std::multimap<std::string, LLStat*> stat_map_t;

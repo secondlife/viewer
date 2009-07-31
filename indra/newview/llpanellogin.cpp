@@ -432,8 +432,7 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask)
 	if ( KEY_F2 == key )
 	{
 		llinfos << "Spawning floater TOS window" << llendl;
-		LLFloaterTOS* tos_dialog = LLFloaterTOS::show(LLFloaterTOS::TOS_TOS,"");
-		tos_dialog->startModal();
+		LLFloaterTOS::show(LLFloaterTOS::TOS_TOS,"", NULL);
 		return TRUE;
 	}
 #endif

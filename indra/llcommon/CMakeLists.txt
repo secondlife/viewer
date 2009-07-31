@@ -5,12 +5,19 @@ project(llcommon)
 include(00-Common)
 include(LLAddBuildTest)
 include(LLCommon)
+include(Linking)
 include(Boost)
+include (Pth)
+
+if (WINDOWS)
+    include(CopyWinLibs)
+endif (WINDOWS)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
+    ${PTH_INCLUDE_DIRS}
     )
 
 # add_executable(lltreeiterators lltreeiterators.cpp)
@@ -27,6 +34,7 @@ set(llcommon_SOURCE_FILES
     llbase32.cpp
     llbase64.cpp
     llcommon.cpp
+    llcoros.cpp
     llcrc.cpp
     llcriticaldamp.cpp
     llcursortypes.cpp
@@ -35,6 +43,9 @@ set(llcommon_SOURCE_FILES
     llerror.cpp
     llerrorthread.cpp
     llevent.cpp
+    lleventcoro.cpp
+    lleventdispatcher.cpp
+    lleventfilter.cpp
     llevents.cpp
     llfasttimer.cpp
     llfile.cpp
@@ -105,6 +116,7 @@ set(llcommon_HEADER_FILES
     llchat.h
     llclickaction.h
     llcommon.h
+    llcoros.h
     llcrc.h
     llcriticaldamp.h
     llcursortypes.h
@@ -126,6 +138,9 @@ set(llcommon_HEADER_FILES
     llerrorlegacy.h
     llerrorthread.h
     llevent.h
+    lleventcoro.h
+    lleventdispatcher.h
+    lleventfilter.h
     llevents.h
     lleventemitter.h
     llextendedstatus.h
@@ -139,6 +154,7 @@ set(llcommon_HEADER_FILES
     llheartbeat.h
     llhttpstatuscodes.h
     llindexedqueue.h
+    llinstancetracker.h
     llinstancetracker.h
     llkeythrottle.h
     lllazy.h
@@ -219,16 +235,48 @@ set_source_files_properties(${llcommon_HEADER_FILES}
 
 list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
-add_library (llcommon ${llcommon_SOURCE_FILES})
+if(LLCOMMON_LINK_SHARED)
+    add_library (llcommon SHARED ${llcommon_SOURCE_FILES})
+    add_definitions(-DLL_COMMON_BUILD=1)
+
+    if(SHARED_LIB_STAGING_DIR)
+        # *FIX:Mani ---
+        # llcommon.dll get written to the DLL staging directory.
+        # Also this directory is shared with RunBuildTest.cmake, y'know, for the tests.
+        set_target_properties(llcommon PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${SHARED_LIB_STAGING_DIR})
+    endif(SHARED_LIB_STAGING_DIR)
+
+    get_target_property(LLCOMMON_PATH llcommon LOCATION)
+    get_filename_component(LLCOMMON_FILE ${LLCOMMON_PATH} NAME)
+    add_custom_command(
+        TARGET llcommon POST_BUILD
+        COMMAND ${CMAKE_COMMAND}
+        ARGS
+          -E
+          copy_if_different
+          ${LLCOMMON_FILE}
+          ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/${LLCOMMON_FILE}
+        COMMENT "Copying llcommon to the staging folder."
+        )
+
+else(LLCOMMON_LINK_SHARED)
+    add_library (llcommon ${llcommon_SOURCE_FILES})
+endif(LLCOMMON_LINK_SHARED)
+
 target_link_libraries(
     llcommon
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}
     ${ZLIB_LIBRARIES}
+    ${WINDOWS_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
+    ${PTH_LIBRARIES}
     )
+
+add_dependencies(llcommon stage_third_party_libs)
+
 
 include(LLAddBuildTest)
 SET(llcommon_TEST_SOURCE_FILES

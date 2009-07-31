@@ -439,6 +439,11 @@ void LLViewerMedia::buildMediaManagerData( LLMediaManagerData* init_data )
 	component_dir += gDirUtilp->getDirDelimiter();
   #ifdef LL_DEBUG
 	component_dir += "mozilla_debug";
+	// *NOTE:Mani - if this doesn't exist llmozlib goes crashy in the debug build.
+	// LLMozlib::init wants to write some files to <exe_dir>/components
+	std::string debug_init_component_dir( gDirUtilp->getExecutableDir() );
+	debug_init_component_dir += "/components";
+	LLAPRFile::makeDir(debug_init_component_dir.c_str()); 
   #else // LL_DEBUG
 	component_dir += "mozilla";
   #endif // LL_DEBUG

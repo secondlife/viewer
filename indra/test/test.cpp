@@ -64,13 +64,14 @@ namespace tut
 class LLTestCallback : public tut::callback
 {
 public:
-	LLTestCallback(bool verbose_mode, std::ostream *stream) :
+	LLTestCallback(bool verbose_mode, std::ostream *stream, bool wait) :
 		mVerboseMode(verbose_mode),
 		mTotalTests(0),
 		mPassedTests(0),
 		mFailedTests(0),
 		mSkippedTests(0),
-		mStream(stream)
+		mStream(stream),
+        mWaitAtExit(wait)
 	{
 	}
 
@@ -137,6 +138,11 @@ public:
 		}
 		run_completed_(std::cout);
 
+        if(mWaitAtExit) {
+            std::cerr << "Waiting for input before exiting..." << std::endl;
+	        std::cin.get();
+        }
+
 		if (mFailedTests > 0)
 		{
 			exit(1);
@@ -176,6 +182,7 @@ protected:
 	int mFailedTests;
 	int mSkippedTests;
 	std::ostream *mStream;
+    bool mWaitAtExit;
 };
 
 static const apr_getopt_option_t TEST_CL_OPTIONS[] =
@@ -328,7 +335,7 @@ int main(int argc, char **argv)
 	}
 
 	// run the tests
-	LLTestCallback callback(verbose_mode, output);
+	LLTestCallback callback(verbose_mode, output, wait_at_exit);
 	tut::runner.get().set_callback(&callback);
 	
 	if(test_group.empty())
@@ -338,12 +345,6 @@ int main(int argc, char **argv)
 	else
 	{
 		tut::runner.get().run_tests(test_group);
-	}
-
-	if (wait_at_exit)
-	{
-		std::cerr << "Waiting for input before exiting..." << std::endl;
-		std::cin.get();
 	}
 	
 	if (output)

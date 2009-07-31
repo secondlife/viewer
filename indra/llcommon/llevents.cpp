@@ -38,6 +38,9 @@
 #pragma warning (pop)
 #endif
 // other Linden headers
+#include "stringize.h"
+#include "llerror.h"
+#include "llsdutil.h"
 
 /*****************************************************************************
 *   queue_names: specify LLEventPump names that should be instantiated as
@@ -255,6 +258,12 @@ LLEventPump::~LLEventPump()
 
 // static data member
 const LLEventPump::NameList LLEventPump::empty;
+
+std::string LLEventPump::inventName(const std::string& pfx)
+{
+    static long suffix = 0;
+    return STRINGIZE(pfx << suffix++);
+}
 
 LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventListener& listener,
                                          const NameList& after,
@@ -498,4 +507,27 @@ bool LLListenerOrPumpName::operator()(const LLSD& event) const
         throw Empty("attempting to call uninitialized");
     }
     return (*mListener)(event);
+}
+
+void LLReqID::stamp(LLSD& response) const
+{
+    if (! (response.isUndefined() || response.isMap()))
+    {
+        // If 'response' was previously completely empty, it's okay to
+        // turn it into a map. If it was already a map, then it should be
+        // okay to add a key. But if it was anything else (e.g. a scalar),
+        // assigning a ["reqid"] key will DISCARD the previous value,
+        // replacing it with a map. That would be Bad.
+        LL_INFOS("LLReqID") << "stamp(" << mReqid << ") leaving non-map response unmodified: "
+                            << response << LL_ENDL;
+        return;
+    }
+    LLSD oldReqid(response["reqid"]);
+    if (! (oldReqid.isUndefined() || llsd_equals(oldReqid, mReqid)))
+    {
+        LL_INFOS("LLReqID") << "stamp(" << mReqid << ") preserving existing [\"reqid\"] value "
+                            << oldReqid << " in response: " << response << LL_ENDL;
+        return;
+    }
+    response["reqid"] = mReqid;
 }

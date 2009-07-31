@@ -39,23 +39,23 @@
 // unless specifed otherwise these all return input_stream.good()
 
 // skips spaces and tabs
-bool skip_whitespace(std::istream& input_stream);
+LL_COMMON_API bool skip_whitespace(std::istream& input_stream);
 
 // skips whitespace and newlines
-bool skip_emptyspace(std::istream& input_stream);
+LL_COMMON_API bool skip_emptyspace(std::istream& input_stream);
 
 // skips emptyspace and lines that start with a #
-bool skip_comments_and_emptyspace(std::istream& input_stream);
+LL_COMMON_API bool skip_comments_and_emptyspace(std::istream& input_stream);
 
 // skips to character after next newline
-bool skip_line(std::istream& input_stream);
+LL_COMMON_API bool skip_line(std::istream& input_stream);
 
 // skips to beginning of next non-emptyspace
-bool skip_to_next_word(std::istream& input_stream);
+LL_COMMON_API bool skip_to_next_word(std::istream& input_stream);
 
 // skips to character after the end of next keyword 
 // a 'keyword' is defined as the first word on a line
-bool skip_to_end_of_next_keyword(const char* keyword, std::istream& input_stream);
+LL_COMMON_API bool skip_to_end_of_next_keyword(const char* keyword, std::istream& input_stream);
 
 // skip_to_start_of_next_keyword() is disabled -- might tickle corruption bug 
 // in windows iostream
@@ -65,14 +65,14 @@ bool skip_to_end_of_next_keyword(const char* keyword, std::istream& input_stream
 
 // characters are pulled out of input_stream and appended to output_string
 // returns result of input_stream.good() after characters are pulled
-bool get_word(std::string& output_string, std::istream& input_stream);
-bool get_line(std::string& output_string, std::istream& input_stream);
+LL_COMMON_API bool get_word(std::string& output_string, std::istream& input_stream);
+LL_COMMON_API bool get_line(std::string& output_string, std::istream& input_stream);
 
 // characters are pulled out of input_stream (up to a max of 'n')
 // and appended to output_string 
 // returns result of input_stream.good() after characters are pulled
-bool get_word(std::string& output_string, std::istream& input_stream, int n);
-bool get_line(std::string& output_string, std::istream& input_stream, int n);
+LL_COMMON_API bool get_word(std::string& output_string, std::istream& input_stream, int n);
+LL_COMMON_API bool get_line(std::string& output_string, std::istream& input_stream, int n);
 
 // unget_line() is disabled -- might tickle corruption bug in windows iostream
 //// backs up the input_stream by line_size + 1 characters
@@ -82,28 +82,28 @@ bool get_line(std::string& output_string, std::istream& input_stream, int n);
 
 // removes the last char in 'line' if it matches 'c'
 // returns true if removed last char
-bool remove_last_char(char c, std::string& line);
+LL_COMMON_API bool remove_last_char(char c, std::string& line);
 
 // replaces escaped characters with the correct characters from left to right
 // "\\" ---> '\\' 
 // "\n" ---> '\n' 
-void unescape_string(std::string& line);
+LL_COMMON_API void unescape_string(std::string& line);
 
 // replaces unescaped characters with expanded equivalents from left to right
 // '\\' ---> "\\" 
 // '\n' ---> "\n" 
-void escape_string(std::string& line);
+LL_COMMON_API void escape_string(std::string& line);
 
 // replaces each '\n' character with ' '
-void replace_newlines_with_whitespace(std::string& line);
+LL_COMMON_API void replace_newlines_with_whitespace(std::string& line);
 
 // erases any double-quote characters in line
-void remove_double_quotes(std::string& line);
+LL_COMMON_API void remove_double_quotes(std::string& line);
 
 // the 'keyword' is defined as the first word on a line
 // the 'value' is everything after the keyword on the same line
 // starting at the first non-whitespace and ending right before the newline
-void get_keyword_and_value(std::string& keyword, 
+LL_COMMON_API void get_keyword_and_value(std::string& keyword, 
 						   std::string& value, 
 						   const std::string& line);
 
@@ -111,13 +111,13 @@ void get_keyword_and_value(std::string& keyword,
 // read anymore or until we hit the count.  Some istream
 // implimentations have a max that they will read.
 // Returns the number of bytes read.
-std::streamsize fullread(
+LL_COMMON_API std::streamsize fullread(
 	std::istream& istr,
 	char* buf,
 	std::streamsize requested);
 
 
-std::istream& operator>>(std::istream& str, const char *tocheck);
+LL_COMMON_API std::istream& operator>>(std::istream& str, const char *tocheck);
 
 #endif
 
