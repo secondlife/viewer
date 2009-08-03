@@ -55,8 +55,8 @@
          left="0"
          name="DUMMY"
          top="0"
-         width="5" 
-         min_width="5"/>
+         width="3" 
+         min_width="3"/>
         <layout_panel
          auto_resize="false"
          follows="right"
@@ -64,19 +64,116 @@
          layout="topleft"
 		 left="5"
          min_height="28"
-         width="90"
+         width="70"
          top_delta="-10"
-         min_width="90"
+         min_width="70"
          user_resize="false">
             <button
-             bottom="22"
              follows="right"
              height="20"
-             label="Stand Up"
+             is_toggle="true"
+             label="Move"
              layout="topleft"
-             name="stand"
-             top="3"
-             width="90" />
+             name="movement_btn"
+             tab_stop="false"
+             tool_tip="Shows/Hide Movement controls" 
+             top="6"
+             width="70">
+                <button.init_callback
+                 function="Button.SetFloaterToggle"
+                 parameter="moveview" />
+            </button>
+        </layout_panel>
+         <icon
+         auto_resize="false"
+         color="0 0 0 0"
+         follows="left|right"
+         height="10"
+         image_name="spacer24.tga"
+         layout="topleft"
+         left="0"
+         name="DUMMY"
+         top="0"
+         width="8" 
+         min_width="8"/>
+        <layout_panel
+         auto_resize="false"
+         follows="right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="150"
+         top_delta="-10"
+         width="150">
+            <split_button
+             follows="right"
+             height="18"
+             name="presets"
+             top="6"
+             width="35">
+                <split_button.arrow_button 
+                 image_selected="camera_presets/camera_presets_arrow.png"
+                 image_unselected="camera_presets/camera_presets_arrow.png"
+                 image_disabled_selected="camera_presets/camera_presets_arrow.png" 
+                 image_disabled="camera_presets/camera_presets_arrow.png"
+                 tool_tip="Camera Presets" 
+                 />
+                <split_button.item
+                 image_selected="camera_presets/camera_presets_rear_view.png"
+                 image_unselected="camera_presets/camera_presets_rear_view.png"
+                 name="rear_view"
+                 tool_tip="Rear View"
+                 />
+                <split_button.item
+                 image_selected="camera_presets/camera_presets_34_view.png"
+                 image_unselected="camera_presets/camera_presets_34_view.png"
+                 name="3/4_view"
+                 tool_tip="3/4 View" 
+                />
+                <split_button.item
+                 image_selected="camera_presets/camera_presets_fron_view.png"
+                 image_unselected="camera_presets/camera_presets_fron_view.png"
+                 name="front_view"
+                 tool_tip="Front View" 
+                />
+            </split_button>
+            <button
+             follows="right"
+             height="20"
+             is_toggle="true"
+             label="Camera"
+             layout="topleft"
+             left_pad="0"
+             tab_stop="false"
+             tool_tip="Shows/Hide Camera controls" 
+             top="6"
+             name="camera_btn"
+             width="70">
+                <button.init_callback
+                 function="Button.SetFloaterToggle"
+                 parameter="camera" />
+            </button>
+            <split_button
+             arrow_position="right"
+             follows="right"
+             height="18"
+             left_pad="0"
+             name="snapshots"
+             top="6"
+             width="35">
+                <split_button.arrow_button 
+                 image_selected="camera_presets/camera_presets_arrow_right.png"
+                 image_unselected="camera_presets/camera_presets_arrow_right.png"
+                 image_disabled_selected="camera_presets/camera_presets_arrow_right.png" 
+                 image_disabled="camera_presets/camera_presets_arrow_right.png"
+                 tool_tip="Snapshot Settings" />
+                 />
+                <split_button.item
+                 image_selected="camera_presets/camera_presets_snapshot.png"
+                 image_unselected="camera_presets/camera_presets_snapshot.png"
+                 name="snapshot"
+                 tool_tip="Take Snapshot" />
+            </split_button>
         </layout_panel>
         <icon
          auto_resize="false"

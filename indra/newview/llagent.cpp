@@ -42,7 +42,6 @@
 #include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llfloateractivespeakers.h"
-#include "llfloateravatarinfo.h"
 #include "llfloatercamera.h"
 #include "llfloatercustomize.h"
 #include "llfloaterdirectory.h"
@@ -499,12 +498,16 @@ void LLAgent::resetView(BOOL reset_camera, BOOL change_camera)
 			LLViewerJoystick::getInstance()->moveAvatar(true);
 		}
 
-		LLFloaterReg::hideInstance("build");
+		//Camera Tool is needed for Free Camera Control Mode
+		if (!LLFloaterCamera::inFreeCameraMode())
+		{
+			LLFloaterReg::hideInstance("build");
+
+			// Switch back to basic toolset
+			LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
+		}
 		
 		gViewerWindow->showCursor();
-
-		// Switch back to basic toolset
-		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 	}
 
 
@@ -755,7 +758,7 @@ void LLAgent::setFlying(BOOL fly)
 		}
 
 		// don't allow taking off while sitting
-		if (fly && mAvatarObject->mIsSitting)
+		if (fly && mAvatarObject->isSitting())
 		{
 			return;
 		}
@@ -784,6 +787,11 @@ void LLAgent::setFlying(BOOL fly)
 		clearControlFlags(AGENT_CONTROL_FLY);
 		gSavedSettings.setBOOL("FlyBtnState", FALSE);
 	}
+
+
+	// Update Movement Controls according to Fly mode
+	LLFloaterMove::setFlyingMode(fly);
+
 	mbFlagsDirty = TRUE;
 }
 
@@ -807,9 +815,14 @@ bool LLAgent::enableFlying()
 	BOOL sitting = FALSE;
 	if (gAgent.getAvatarObject())
 	{
-		sitting = gAgent.getAvatarObject()->mIsSitting;
+		sitting = gAgent.getAvatarObject()->isSitting();
 	}
 	return !sitting;
+}
+
+void LLAgent::standUp()
+{
+	setControlFlags(AGENT_CONTROL_STAND_UP);
 }
 
 
@@ -1242,7 +1255,7 @@ F32 LLAgent::clampPitchToLimits(F32 angle)
 
 	F32 angle_from_skyward = acos( mFrameAgent.getAtAxis() * skyward );
 
-	if (mAvatarObject.notNull() && mAvatarObject->mIsSitting)
+	if (mAvatarObject.notNull() && mAvatarObject->isSitting())
 	{
 		look_down_limit = 130.f * DEG_TO_RAD;
 	}
@@ -2488,13 +2501,11 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 void LLAgent::propagate(const F32 dt)
 {
 	// Update UI based on agent motion
-	LLFloaterMove *floater_move = LLFloaterReg::getTypedInstance<LLFloaterMove>("moveview");
+	LLFloaterMove *floater_move = LLFloaterReg::findTypedInstance<LLFloaterMove>("moveview");
 	if (floater_move)
 	{
 		floater_move->mForwardButton   ->setToggleState( mAtKey > 0 || mWalkKey > 0 );
 		floater_move->mBackwardButton  ->setToggleState( mAtKey < 0 || mWalkKey < 0 );
-		floater_move->mSlideLeftButton ->setToggleState( mLeftKey > 0 );
-		floater_move->mSlideRightButton->setToggleState( mLeftKey < 0 );
 		floater_move->mTurnLeftButton  ->setToggleState( mYawKey > 0.f );
 		floater_move->mTurnRightButton ->setToggleState( mYawKey < 0.f );
 		floater_move->mMoveUpButton    ->setToggleState( mUpKey > 0 );
@@ -2579,7 +2590,7 @@ void LLAgent::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 		else
 		{
 			// *FIX: rotate mframeagent by sit object's rotation?
-			LLQuaternion look_rotation = mAvatarObject->mIsSitting ? mAvatarObject->getRenderRotation() : mFrameAgent.getQuaternion(); // use camera's current rotation
+			LLQuaternion look_rotation = mAvatarObject->isSitting() ? mAvatarObject->getRenderRotation() : mFrameAgent.getQuaternion(); // use camera's current rotation
 			LLVector3 look_offset = LLVector3(2.f, 0.f, 0.f) * look_rotation * av_inv_rot;
 			setLookAt(LOOKAT_TARGET_IDLE, mAvatarObject, look_offset);
 		}
@@ -2815,6 +2826,8 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 
+		LLFloaterCamera::toPrevModeIfInAvatarViewMode();
+
 		// Only pop if we have pushed...
 		if (TRUE == mViewsPushed)
 		{
@@ -2908,6 +2921,10 @@ void LLAgent::endAnimationUpdateUI()
 
 		// JC - Added for always chat in third person option
 		gFocusMgr.setKeyboardFocus(NULL);
+
+		//Making sure Camera Controls floater is in the right state 
+		//when entering Mouse Look using wheel scrolling
+		LLFloaterCamera::updateIfNotInAvatarViewMode();
 
 		LLToolMgr::getInstance()->setCurrentToolset(gMouselookToolset);
 
@@ -3019,7 +3036,7 @@ void LLAgent::updateCamera()
 	validateFocusObject();
 
 	if (mAvatarObject.notNull() && 
-		mAvatarObject->mIsSitting &&
+		mAvatarObject->isSitting() &&
 		camera_mode == CAMERA_MODE_MOUSELOOK)
 	{
 		//Ventrella
@@ -3050,24 +3067,24 @@ void LLAgent::updateCamera()
 	}
 
 	// Update UI with our camera inputs
-	LLFloaterCamera* camera_instance = LLFloaterReg::getTypedInstance<LLFloaterCamera>("camera");
-	if(camera_instance)
+	LLFloaterCamera* camera_floater = LLFloaterReg::findTypedInstance<LLFloaterCamera>("camera");
+	if (camera_floater)
 	{
-		camera_instance->mRotate->setToggleState(
-												 mOrbitRightKey > 0.f,	// left
-												 mOrbitUpKey > 0.f,		// top
-												 mOrbitLeftKey > 0.f,	// right
-												 mOrbitDownKey > 0.f);	// bottom
+		camera_floater->mRotate->setToggleState(
+		mOrbitRightKey > 0.f,	// left
+		mOrbitUpKey > 0.f,		// top
+		mOrbitLeftKey > 0.f,	// right
+		mOrbitDownKey > 0.f);	// bottom
 
-	    camera_instance->mZoom->setToggleState( 
-											   mOrbitInKey > 0.f,		// top
-											   mOrbitOutKey > 0.f);	// bottom
+		camera_floater->mZoom->setToggleState( 
+		mOrbitInKey > 0.f,		// top
+		mOrbitOutKey > 0.f);	// bottom
 
-		camera_instance->mTrack->setToggleState(
-												mPanLeftKey > 0.f,		// left
-												mPanUpKey > 0.f,		// top
-												mPanRightKey > 0.f,		// right
-												mPanDownKey > 0.f);		// bottom
+		camera_floater->mTrack->setToggleState(
+		mPanLeftKey > 0.f,		// left
+		mPanUpKey > 0.f,		// top
+		mPanRightKey > 0.f,		// right
+		mPanDownKey > 0.f);		// bottom
 	}
 
 	// Handle camera movement based on keyboard.
@@ -3144,7 +3161,7 @@ void LLAgent::updateCamera()
 			// (2) focus, and (3) upvector. They can then be queried elsewhere in llAgent.
 			//--------------------------------------------------------------------------------
 			// *TODO: use combined rotation of frameagent and sit object
-			LLQuaternion avatarRotationForFollowCam = mAvatarObject->mIsSitting ? mAvatarObject->getRenderRotation() : mFrameAgent.getQuaternion();
+			LLQuaternion avatarRotationForFollowCam = mAvatarObject->isSitting() ? mAvatarObject->getRenderRotation() : mFrameAgent.getQuaternion();
 
 			LLFollowCamParams* current_cam = LLFollowCamMgr::getActiveFollowCamParams();
 			if (current_cam)
@@ -3324,7 +3341,7 @@ void LLAgent::updateCamera()
 	}
 	mLastPositionGlobal = global_pos;
 	
-	if (LLVOAvatar::sVisibleInFirstPerson && mAvatarObject.notNull() && !mAvatarObject->mIsSitting && cameraMouselook())
+	if (LLVOAvatar::sVisibleInFirstPerson && mAvatarObject.notNull() && !mAvatarObject->isSitting() && cameraMouselook())
 	{
 		LLVector3 head_pos = mAvatarObject->mHeadp->getWorldPosition() + 
 			LLVector3(0.08f, 0.f, 0.05f) * mAvatarObject->mHeadp->getWorldRotation() + 
@@ -3504,7 +3521,7 @@ LLVector3d LLAgent::calcFocusPositionTargetGlobal()
 		}
 		return mFocusTargetGlobal;
 	}
-	else if (mSitCameraEnabled && mAvatarObject.notNull() && mAvatarObject->mIsSitting && mSitCameraReferenceObject.notNull())
+	else if (mSitCameraEnabled && mAvatarObject.notNull() && mAvatarObject->isSitting() && mSitCameraReferenceObject.notNull())
 	{
 		// sit camera
 		LLVector3 object_pos = mSitCameraReferenceObject->getRenderPosition();
@@ -3628,7 +3645,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 			return LLVector3d::zero;
 		}
 		head_offset.clearVec();
-		if (mAvatarObject->mIsSitting && mAvatarObject->getParent())
+		if (mAvatarObject->isSitting() && mAvatarObject->getParent())
 		{
 			mAvatarObject->updateHeadOffset();
 			head_offset.mdV[VX] = mAvatarObject->mHeadOffset.mV[VX];
@@ -3642,7 +3659,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 		else
 		{
 			head_offset.mdV[VZ] = mAvatarObject->mHeadOffset.mV[VZ];
-			if (mAvatarObject->mIsSitting)
+			if (mAvatarObject->isSitting())
 			{
 				head_offset.mdV[VZ] += 0.1;
 			}
@@ -3658,7 +3675,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 
 		if (mSitCameraEnabled 
 			&& mAvatarObject.notNull() 
-			&& mAvatarObject->mIsSitting 
+			&& mAvatarObject->isSitting() 
 			&& mSitCameraReferenceObject.notNull())
 		{
 			// sit camera
@@ -3690,7 +3707,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 				local_camera_offset = mFrameAgent.rotateToAbsolute( local_camera_offset );
 			}
 
-			if (!mCameraCollidePlane.isExactlyZero() && (mAvatarObject.isNull() || !mAvatarObject->mIsSitting))
+			if (!mCameraCollidePlane.isExactlyZero() && (mAvatarObject.isNull() || !mAvatarObject->isSitting()))
 			{
 				LLVector3 plane_normal;
 				plane_normal.setVec(mCameraCollidePlane.mV);
@@ -4116,7 +4133,7 @@ void LLAgent::changeCameraToThirdPerson(BOOL animate)
 
 	if (mAvatarObject.notNull())
 	{
-		if (!mAvatarObject->mIsSitting)
+		if (!mAvatarObject->isSitting())
 		{
 			mAvatarObject->mPelvisp->setPosition(LLVector3::zero);
 		}
@@ -4198,7 +4215,7 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL camera_ani
 		return;
 	}
 
-	setControlFlags(AGENT_CONTROL_STAND_UP); // force stand up
+	standUp(); // force stand up
 	gViewerWindow->getWindow()->resetBusyCount();
 
 	if (gFaceEditToolset)
@@ -5478,13 +5495,8 @@ void update_group_floaters(const LLUUID& group_id)
 {
 	LLFloaterGroupInfo::refreshGroup(group_id);
 
-	//*TODO Implement group update for Profile View
-	// update avatar info
-// 	LLFloaterAvatarInfo* fa = LLFloaterReg::findTypedInstance<LLFloaterAvatarInfo>("preview_avatar", LLSD(gAgent.getID()));
-// 	if(fa)
-// 	{
-// 		fa->resetGroupList();
-// 	}
+	//*TODO Implement group update for Profile View 
+	// still actual as of July 31, 2009 (DZ)
 
 	if (gIMMgr)
 	{

@@ -56,6 +56,8 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llmorphview.h"
+#include "llfloaterreg.h"
+#include "llfloatercamera.h"
 
 // Globals
 BOOL gCameraBtnZoom = TRUE;
@@ -254,7 +256,11 @@ void LLToolCamera::releaseMouse()
 
 	gViewerWindow->showCursor();
 
-	LLToolMgr::getInstance()->clearTransientTool();
+	//for the situation when left click was performed on the Agent
+	if (!LLFloaterCamera::inFreeCameraMode())
+	{
+		LLToolMgr::getInstance()->clearTransientTool();
+	}
 
 	mMouseSteering = FALSE;
 	mValidClickPoint = FALSE;

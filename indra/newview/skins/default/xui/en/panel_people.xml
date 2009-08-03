@@ -492,16 +492,4 @@
   <string name="no_groups">
     No groups
   </string>
-  <panel 
-	layout="topleft"
-	name="panel_profile_view" 
-	class="panel_profile_view" 
-	filename="panel_profile_view.xml"
-	top="0"
-	left="0"
-	width="355"
-	height="465"
-	follows="left|right|top|bottom"
-	visible="false"
-	/>
 </panel>

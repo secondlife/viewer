@@ -42,7 +42,6 @@
 #include "llfloateractivespeakers.h"
 #include "llfloaterauction.h"
 #include "llfloateraddlandmark.h"
-#include "llfloateravatarinfo.h"
 #include "llfloaterbeacons.h"
 #include "llfloaterbulkpermission.h"
 #include "llfloaterbuildoptions.h"
@@ -51,6 +50,7 @@
 #include "llfloaterchat.h"
 #include "llfloaterchatterbox.h"
 #include "llfloaterdirectory.h"
+#include "llfloaterfirsttimetip.h"
 #include "llfloaterfonttest.h"
 #include "llfloatergodtools.h"
 #include "llfloaterhtmlcurrency.h"
@@ -114,6 +114,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("compile_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCompileQueue>);
 	LLFloaterReg::add("contacts", "floater_my_friends.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMyFriends>);	
 
+	LLFloaterReg::add("first_time_tip", "floater_first_time_tip.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFirstTimeTip>);
 	LLFloaterReg::add("font_test", "floater_font_test.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFontTest>);
 
 	LLFloaterReg::add("god_tools", "floater_god_tools.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGodTools>);
@@ -127,7 +128,6 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("lagmeter", "floater_lagmeter.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLagMeter>);
 	
 	LLFloaterReg::add("mem_leaking", "floater_mem_leaking.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMemLeak>);
-	LLFloaterReg::add("me_profile", "floater_me.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAvatarInfo>);
 	LLFloaterReg::add("media_browser", "floater_media_browser.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMediaBrowser>);	
 	LLFloaterReg::add("moveview", "floater_moveview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMove>);
 	LLFloaterReg::add("mute", "floater_mute.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMute>);
@@ -144,7 +144,6 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("preview_url", "floater_preview_url.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterURLDisplay>);
 	LLFloaterReg::add("pref_joystick", "floater_joystick.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterJoystick>);
 	LLFloaterReg::add("pref_voicedevicesettings", "floater_device_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterVoiceDeviceSettings>);
-	LLFloaterReg::add("preview_avatar", "floater_profile.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAvatarInfo>);
 	LLFloaterReg::add("preview_anim", "floater_preview_animation.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLPreviewAnim>, "preview");
 	LLFloaterReg::add("preview_gesture", "floater_preview_gesture.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLPreviewGesture>, "preview");
 	LLFloaterReg::add("preview_landmark", "floater_preview_existing_landmark.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLPreviewLandmark>, "preview");

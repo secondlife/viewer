@@ -269,7 +269,7 @@ void LLPanelAvatarProfile::processProperties(void* data, EAvatarProcessorType ty
 			childSetValue("sl_description_edit", avatar_data->about_text);
 			childSetValue("fl_description_edit",avatar_data->fl_about_text);
 			childSetValue("2nd_life_pic", avatar_data->image_id);
-			childSetValue("1st_life_pic", avatar_data->fl_image_id);
+			childSetValue("real_world_pic", avatar_data->fl_image_id);
 			childSetValue("homepage_edit", avatar_data->profile_url);
 
 			if (!isEditMode())
@@ -365,7 +365,7 @@ void LLPanelAvatarProfile::clear()
 void LLPanelAvatarProfile::clearControls()
 {
 	childSetValue("2nd_life_pic",LLUUID::null);
-	childSetValue("1st_life_pic",LLUUID::null);
+	childSetValue("real_world_pic",LLUUID::null);
 	childSetValue("online_status",LLStringUtil::null);
 	childSetValue("status_message",LLStringUtil::null);
 	childSetValue("sl_description_edit",LLStringUtil::null);
@@ -489,7 +489,7 @@ void LLPanelAvatarProfile::onShareButtonClick()
 	{
 		pic->setFallbackImageName("default_land_picture.j2c");
 	}
-	pic = getChild<LLTextureCtrl>("1st_life_pic",TRUE,FALSE);
+	pic = getChild<LLTextureCtrl>("real_world_pic",TRUE,FALSE);
 	if(pic)
 	{
 		pic->setFallbackImageName("default_land_picture.j2c");
@@ -510,13 +510,13 @@ void LLPanelAvatarProfile::onOpen(const LLSD& key)
 
 void LLPanelAvatarProfile::updateChildrenList()
 {
-	if (mUpdated || isEditMode())
-	{
-		return;
-	}
 	switch (mProfileType)
 	{
 	case PT_OWN:
+		if (mUpdated || isEditMode())
+		{
+			return;
+		}
 		childSetVisible("user_name", true);
 		childSetVisible("status_panel", false);
 		childSetVisible("profile_buttons_panel", false);

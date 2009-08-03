@@ -335,7 +335,7 @@
 	<string name="GraphicsQualityHigh">High</string>
 	
 	<!-- mouselook -->
-	<string name="LeaveMouselook">Press ESC to leave Mouselook.</string>
+	<string name="LeaveMouselook">Press ESC to return to World View</string>
 	
 	<!-- inventory -->
 	<string name="InventoryNoMatchingItems">No matching items found in inventory.</string>

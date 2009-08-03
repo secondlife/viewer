@@ -539,7 +539,7 @@ void LLPanelPeople::updateButtons()
 	}
 
 	bool item_selected = selected_id.notNull();
-	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected);
+	buttonSetEnabled("teleport_btn",		(friends_tab_active || group_tab_active) && item_selected);
 	buttonSetEnabled("view_profile_btn",	item_selected);
 	buttonSetEnabled("im_btn",				item_selected);
 	buttonSetEnabled("call_btn",			item_selected && false); // not implemented yet
@@ -771,7 +771,16 @@ void LLPanelPeople::onCallButtonClicked()
 
 void LLPanelPeople::onTeleportButtonClicked()
 {
-	LLAvatarActions::offerTeleport(getCurrentItemID());
+	std::string cur_tab = mTabContainer->getCurrentPanel()->getName();
+
+	if (cur_tab == FRIENDS_TAB_NAME)
+	{
+		LLAvatarActions::offerTeleport(getCurrentItemID());
+	}
+	else if (cur_tab == GROUP_TAB_NAME)
+	{
+		LLGroupActions::offerTeleport(getCurrentItemID());
+	}
 }
 
 void LLPanelPeople::onShareButtonClicked()
@@ -786,22 +795,10 @@ void LLPanelPeople::onMoreButtonClicked()
 
 void	LLPanelPeople::onOpen(const LLSD& key)
 {
-	// Profile View is activated through LLSideTray::showPanel(), 
-	// hide Profile View to be able to see Panel People content
-	hideProfileView();
-
-	std::string tab_name = key.asString();
+	std::string tab_name = key["people_panel_tab_name"];
 	if (!tab_name.empty())
 		mTabContainer->selectTabByName(tab_name);
 	else
 		reSelectedCurrentTab();
 }
 
-void LLPanelPeople::hideProfileView()
-{
-	LLView* view = getChildView("panel_profile_view",true,false);
-	if(view && view->getVisible())
-	{
-		view->setVisible(false);
-	}
-}

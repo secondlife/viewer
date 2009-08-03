@@ -20,8 +20,6 @@
       <panel 
         name="panel_home" 
         filename="panel_sidetray_home_tab.xml" 
-        width="355" 
-        height="465" 
         label="home" 
         border="true" 
       />
@@ -37,15 +35,22 @@
     background_visible="true" 
     bg_opaque_color="0.5 0.5 0.5 1.0"
   >
+    <panel_container
+      name="panel_container"
+    >
       <panel 
         class="panel_people" 
         name="panel_people" 
         filename="panel_people.xml" 
-        width="280" 
-        height="465" 
-        label="People" 
         border="true" 
       />
+      <panel 
+        class="panel_profile_view" 
+        name="panel_profile_view" 
+        filename="panel_profile_view.xml"
+        border="true"
+      />
+    </panel_container>
   </sidetray_tab>
   <!-- *TODO Vadim: isn't the sidetray_tab "label" attribute redundant since we have "tab_title" ? -->
   <sidetray_tab 

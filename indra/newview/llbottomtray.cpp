@@ -38,17 +38,14 @@
 #include "llfloaterreg.h"
 #include "llflyoutbutton.h"
 #include "llnearbychatbar.h"
-
-//FIXME: temporary, for stand up proto
-#include "llselectmgr.h" 
-#include "llvoavatarself.h"
+#include "llsplitbutton.h"
+#include "llfloatercamera.h"
 
 LLBottomTray::LLBottomTray(const LLSD&)
 	: mChicletPanel(NULL)
 	, mIMWell(NULL)
 	, mSysWell(NULL)
 	, mTalkBtn(NULL)
-	, mStandUpBtn(NULL)  ////FIXME: temporary, for stand up proto
 	, mNearbyChatBar(NULL)
 {
 	mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
@@ -61,13 +58,9 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 	mChicletPanel->setChicletClickedCallback(boost::bind(&LLBottomTray::onChicletClick,this,_1));
 
-	////FIXME: temporary, for stand up proto
-	mStandUpBtn = getChild<LLButton> ("stand", TRUE, FALSE);
-	if (mStandUpBtn)
-	{
-		mStandUpBtn->setCommitCallback(boost::bind(&LLBottomTray::onCommitStandUp, this, _1));
-	}
-	
+	LLSplitButton* presets = getChild<LLSplitButton>("presets", TRUE, FALSE);
+	if (presets) presets->setSelectionCallback(LLFloaterCamera::onClickCameraPresets);
+
 	LLIMMgr::getInstance()->addSessionObserver(this);
 
 	//this is to fix a crash that occurs because LLBottomTray is a singleton
@@ -99,6 +92,7 @@ void LLBottomTray::onChicletClick(LLUICtrl* ctrl)
 		//// Show after comm window so it is frontmost (and hence will not
 		//// auto-hide)
 		//LLIMFloater::show(chiclet->getSessionId());
+		chiclet->setCounter(0);
 	}
 }
 
@@ -111,37 +105,6 @@ void* LLBottomTray::createNearbyChatBar(void* userdata)
 	bt->mNearbyChatBar = new LLNearbyChatBar();
 
 	return bt->mNearbyChatBar;
-}
-
-//virtual
-void LLBottomTray::draw()
-{
-	refreshStandUp();
-	LLPanel::draw();
-}
-
-void LLBottomTray::refreshStandUp()
-{
-	//FIXME: temporary, for stand up proto
-	BOOL sitting = FALSE;
-	if (gAgent.getAvatarObject())
-	{
-		sitting = gAgent.getAvatarObject()->mIsSitting;
-	}
-	
-	if (mStandUpBtn && mStandUpBtn->getVisible() != sitting)
-	{
-		mStandUpBtn->setVisible(sitting);
-		sendChildToFront(mStandUpBtn);
-		moveChildToBackOfTabGroup(mStandUpBtn);
-	}
-}
-
-//FIXME: temporary, for stand up proto
-void LLBottomTray::onCommitStandUp(LLUICtrl* ctrl)
-{
-	LLSelectMgr::getInstance()->deselectAllForStandingUp();
-	gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 }
 
 //virtual

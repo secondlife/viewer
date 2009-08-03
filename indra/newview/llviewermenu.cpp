@@ -81,6 +81,7 @@
 #include "lldrawpooltree.h"
 #include "llface.h"
 #include "llfirstuse.h"
+#include "llfirsttimetipmanager.h"
 #include "llfloater.h"
 #include "llfloaterabout.h"
 #include "llfloaterbuycurrency.h"
@@ -3439,7 +3440,7 @@ class LLSelfStandUp : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
+		gAgent.standUp();
 		return true;
 	}
 };
@@ -3448,7 +3449,7 @@ class LLSelfEnableStandUp : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gAgent.getAvatarObject() && gAgent.getAvatarObject()->mIsSitting;
+		bool new_value = gAgent.getAvatarObject() && gAgent.getAvatarObject()->isSitting();
 		return new_value;
 	}
 };
@@ -3676,7 +3677,7 @@ bool handle_sit_or_stand()
 
 	if (sitting_on_selection())
 	{
-		gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
+		gAgent.standUp();
 		return true;
 	}
 
@@ -3722,7 +3723,7 @@ class LLLandSit : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
+		gAgent.standUp();
 		LLViewerParcelMgr::getInstance()->deselectLand();
 
 		LLVector3d posGlobal = LLToolPie::getInstance()->getPick().mPosGlobal;
@@ -4630,7 +4631,7 @@ BOOL sitting_on_selection()
 		return FALSE;
 	}
 
-	return (avatar->mIsSitting && avatar->getRoot() == root_object);
+	return (avatar->isSitting() && avatar->getRoot() == root_object);
 }
 
 class LLToolsSaveToInventory : public view_listener_t
@@ -5225,6 +5226,9 @@ class LLWorldAlwaysRun : public view_listener_t
 		// tell the simulator.
 		gAgent.sendWalkRun(gAgent.getAlwaysRun());
 
+		// Update Movement Controls according to AlwaysRun mode
+		LLFloaterMove::setAlwaysRunMode(gAgent.getAlwaysRun());
+
 		return true;
 	}
 };
@@ -5275,7 +5279,10 @@ class LLWorldCreateLandmark : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterReg::showInstance("add_landmark");
+		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+			
+		// Floater "Add Landmark" functionality moved to Side Tray
+		//LLFloaterReg::showInstance("add_landmark");
 		return true;
 	}
 };
@@ -7623,7 +7630,23 @@ class LLWorldDayCycle : public view_listener_t
 	}
 };
 
+/// Show First Time Tips calbacks
+class LLHelpCheckShowFirstTimeTip : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return LLFirstTimeTipsManager::tipsEnabled();
+	}
+};
 
+class LLHelpShowFirstTimeTip : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLFirstTimeTipsManager::enabledTip(!userdata.asBoolean());
+		return true;
+	}
+};
 
 void initialize_menus()
 {
@@ -7727,6 +7750,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldWaterSettings(), "World.WaterSettings");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
 	view_listener_t::addMenu(new LLWorldDayCycle(), "World.DayCycle");
+
+	view_listener_t::addMenu(new LLHelpCheckShowFirstTimeTip(), "Help.CheckShowFirstTimeTip");
+	view_listener_t::addMenu(new LLHelpShowFirstTimeTip(), "Help.ShowQuickTips");
 
 	// Tools menu
 	view_listener_t::addMenu(new LLToolsSelectTool(), "Tools.SelectTool");

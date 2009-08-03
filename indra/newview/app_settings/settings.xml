@@ -4760,6 +4760,17 @@
       <key>Value</key>
       <integer>5</integer>
     </map>
+    <key>ToastOpaqueTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Width of notification messages</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>4</integer>
+    </map>
     <key>StartUpToastTime</key>
     <map>
       <key>Comment</key>
@@ -4769,7 +4780,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>10</integer>
+      <integer>5</integer>
     </map>
     <key>ToastMargin</key>
     <map>
@@ -6763,6 +6774,17 @@
       <integer>0</integer>
     </map>
     <key>ShowCrosshairs</key>
+    <map>
+      <key>Comment</key>
+      <string>Show Coordinates in  Location Input Field</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowCoordinatesOption</key>
     <map>
       <key>Comment</key>
       <string>Display crosshairs when in mouselook mode</string>
@@ -9622,6 +9644,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>GroupTeleportMembersLimit</key>
+    <map>
+      <key>Comment</key>
+      <string>Max number of members of group to offer teleport</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>100</integer>
     </map>
   </map>
 </llsd>

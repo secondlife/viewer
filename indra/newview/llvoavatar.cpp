@@ -57,6 +57,7 @@
 #include "llkeyframestandmotion.h"
 #include "llkeyframewalkmotion.h"
 #include "llmutelist.h"
+#include "llmoveview.h"
 #include "llnotify.h"
 #include "llquantize.h"
 #include "llregionhandle.h"
@@ -4244,7 +4245,7 @@ BOOL LLVOAvatar::processSingleAnimationStateChange( const LLUUID& anim_id, BOOL 
 		}
 		else if (anim_id == ANIM_AGENT_SIT_GROUND_CONSTRAINED)
 		{
-			mIsSitting = TRUE;
+			sitDown(TRUE);
 		}
 
 
@@ -4261,7 +4262,7 @@ BOOL LLVOAvatar::processSingleAnimationStateChange( const LLUUID& anim_id, BOOL 
 	{
 		if (anim_id == ANIM_AGENT_SIT_GROUND_CONSTRAINED)
 		{
-			mIsSitting = FALSE;
+			sitDown(FALSE);
 		}
 		stopMotion(anim_id);
 		result = TRUE;
@@ -5484,6 +5485,19 @@ BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 }
 
 //-----------------------------------------------------------------------------
+// sitDown()
+//-----------------------------------------------------------------------------
+void LLVOAvatar::sitDown(BOOL bSitting)
+{
+	mIsSitting = bSitting;
+	if (isSelf())
+	{
+		// Update Movement Controls according to own Sitting mode
+		LLFloaterMove::setSittingMode(bSitting);
+	}
+}
+
+//-----------------------------------------------------------------------------
 // sitOnObject()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::sitOnObject(LLViewerObject *sit_object)
@@ -5502,7 +5516,7 @@ void LLVOAvatar::sitOnObject(LLViewerObject *sit_object)
 	mDrawable->mXform.setRotation(mDrawable->getWorldRotation() * inv_obj_rot);
 
 	gPipeline.markMoved(mDrawable, TRUE);
-	mIsSitting = TRUE;
+	sitDown(TRUE);
 	mRoot.getXform()->setParent(&sit_object->mDrawable->mXform); // LLVOAvatar::sitOnObject
 	mRoot.setPosition(getPosition());
 	mRoot.updateWorldMatrixChildren();
@@ -5566,7 +5580,8 @@ void LLVOAvatar::getOffObject()
 	
 	gPipeline.markMoved(mDrawable, TRUE);
 
-	mIsSitting = FALSE;
+	sitDown(FALSE);
+
 	mRoot.getXform()->setParent(NULL); // LLVOAvatar::getOffObject
 	mRoot.setPosition(cur_position_world);
 	mRoot.setRotation(cur_rotation_world);

@@ -71,6 +71,11 @@ public:
 	 * Start group instant messaging session.
 	 */
 	static void startChat(const LLUUID& group_id);
+
+	/**
+	 * Offers teleport for online members of group
+	 */
+	static void offerTeleport(const LLUUID& group_id);
 	
 private:
 	static bool onLeaveGroup(const LLSD& notification, const LLSD& response);

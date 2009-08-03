@@ -71,6 +71,7 @@ public:
 	/*virtual*/ BOOL		handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ void		onFocusReceived();
 	/*virtual*/ void		onFocusLost();
+	/*virtual*/ void		draw();
 	//========================================================================
 
 	// LLUICtrl interface

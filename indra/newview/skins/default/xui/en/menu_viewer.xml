@@ -405,6 +405,15 @@
              function="Floater.Show"
              parameter="hud" />
         </menu_item_call>
+        <menu_item_check
+         label="Show Quick Tips"
+         layout="topleft"
+         name="Show Quick Tips">
+            <menu_item_check.on_check
+             function="Help.CheckShowFirstTimeTip" />
+            <menu_item_check.on_click
+             function="Help.ShowQuickTips" />
+        </menu_item_check>
         <menu_item_separator
              layout="topleft" />
         <menu_item_call

@@ -63,7 +63,6 @@
 #include "lldrawable.h"
 #include "llfirstuse.h"
 #include "llfloater.h"
-#include "llfloateravatarinfo.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloaterchat.h"
 #include "llfloatercustomize.h"

@@ -47,6 +47,8 @@ class LLPanelPlacesTab;
 class LLFilterEditor;
 class LLTabContainer;
 
+typedef std::pair<LLUUID, std::string>	folder_pair_t;
+
 class LLPanelPlaces : public LLPanel, LLInventoryObserver
 {
 public:
@@ -69,6 +71,7 @@ private:
 	//void onShareButtonClicked();
 	void onTeleportButtonClicked();
 	void onShowOnMapButtonClicked();
+	void onCreateLandmarkButtonClicked(const LLUUID& folder_id);
 	void onBackButtonClicked();
 
 	void toggleMediaPanel();
@@ -76,15 +79,19 @@ private:
 
 	void onAgentParcelChange();
 	void updateVerbs();
+	
+	void showLandmarkFoldersMenu();
 
 	LLFilterEditor*				mFilterEditor;
 	LLPanelPlacesTab*			mActivePanel;
 	LLTabContainer*				mTabContainer;
 	LLPanelPlaceInfo*			mPlaceInfo;
 
-	//LLButton*					mShareBtn;
+	LLButton*					mCreateLandmarkBtn;
+	LLButton*					mFolderMenuBtn;
 	LLButton*					mTeleportBtn;
 	LLButton*					mShowOnMapBtn;
+	LLButton*					mShareBtn;
 	LLButton*					mOverflowBtn;
 
 	// Pointer to a landmark item or to a linked landmark
@@ -100,6 +107,20 @@ private:
 
 	// Information type currently shown in Place Information panel
 	std::string					mPlaceInfoType;
+
+	// Menu handle for pop-up menu to chose a landmark saving
+	// folder when creating a new landmark
+	LLHandle<LLView> 			mLandmarkFoldersMenuHandle;
+
+	typedef std::vector<folder_pair_t>	folder_vec_t;
+
+	// List of folders to choose from when creating a landmark
+	folder_vec_t				mLandmarkFoldersCache;
+	
+	// If root view width or height is changed
+	// the pop-up menu must be updated
+	S32							mRootViewWidth;
+	S32							mRootViewHeight;
 };
 
 #endif //LL_LLPANELPLACES_H

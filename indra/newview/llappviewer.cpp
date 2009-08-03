@@ -3997,8 +3997,6 @@ void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
 
 void LLAppViewer::handleLoginComplete()
 {
-	gViewerWindow->handleLoginComplete();
-
 	initMainloopTimeout("Mainloop Init");
 
 	// Store some data to DebugInfo in case of a freeze.

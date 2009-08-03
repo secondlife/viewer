@@ -201,10 +201,19 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 	{
 		std::string url; 
 
-		if( ALEXANDRIA_LINDEN_ID.getString() == mPermissions.getOwner().getString())
-			url = gAgent.getRegion()->getCapability("FetchLib");
-		else	
-			url = gAgent.getRegion()->getCapability("FetchInventory");
+		LLViewerRegion* region = gAgent.getRegion();
+		// we have to check region. It can be null after region was destroyed. See EXT-245
+		if (region)
+		{
+			if( ALEXANDRIA_LINDEN_ID.getString() == mPermissions.getOwner().getString())
+				url = region->getCapability("FetchLib");
+			else	
+				url = region->getCapability("FetchInventory");
+		}
+		else
+		{
+			llwarns << "Agent Region is absent" << llendl;
+		}
 
 		if (!url.empty())
 		{

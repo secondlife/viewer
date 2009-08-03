@@ -130,13 +130,13 @@ set(viewer_SOURCE_FILES
     llfeaturemanager.cpp
     llfilepicker.cpp
     llfirstuse.cpp
+    llfirsttimetipmanager.cpp
     llflexibleobject.cpp
     llfloaterabout.cpp
     llfloateractivespeakers.cpp
     llfloateraddlandmark.cpp
     llfloateranimpreview.cpp
     llfloaterauction.cpp
-    llfloateravatarinfo.cpp
     llfloateravatarpicker.cpp
     llfloateravatartextures.cpp
     llfloaterbeacons.cpp
@@ -158,6 +158,7 @@ set(viewer_SOURCE_FILES
     llfloaterdirectory.cpp
     llfloaterenvsettings.cpp
     llfloaterevent.cpp
+    llfloaterfirsttimetip.cpp
     llfloaterfriends.cpp
     llfloaterfonttest.cpp
     llfloatergesture.cpp
@@ -283,6 +284,7 @@ set(viewer_SOURCE_FILES
     llpanelavatar.cpp
     llpanelavatarrow.cpp
     llpanelclassified.cpp
+    llsidetraypanelcontainer.cpp
     llpanelcontents.cpp
     llpaneldirbrowser.cpp
     llpaneldirclassified.cpp
@@ -308,6 +310,7 @@ set(viewer_SOURCE_FILES
     llpanellogin.cpp
     llpanelmedia.cpp
     llpanelmeprofile.cpp
+    llpanelmovetip.cpp
     llpanelobject.cpp
     llpanelpeople.cpp
     llpanelpermissions.cpp
@@ -345,6 +348,7 @@ set(viewer_SOURCE_FILES
     llsky.cpp
     llslurl.cpp
     llspatialpartition.cpp
+    llsplitbutton.cpp
     llsprite.cpp
     llsrv.cpp
     llstartup.cpp
@@ -569,13 +573,13 @@ set(viewer_HEADER_FILES
     llfeaturemanager.h
     llfilepicker.h
     llfirstuse.h
+    llfirsttimetipmanager.h
     llflexibleobject.h
     llfloaterabout.h
     llfloateractivespeakers.h
     llfloateraddlandmark.h
     llfloateranimpreview.h
     llfloaterauction.h
-    llfloateravatarinfo.h
     llfloateravatarpicker.h
     llfloateravatartextures.h
     llfloaterbeacons.h
@@ -597,6 +601,7 @@ set(viewer_HEADER_FILES
     llfloaterdirectory.h
     llfloaterenvsettings.h
     llfloaterevent.h
+    llfloaterfirsttimetip.h
     llfloaterfonttest.h
     llfloaterfriends.h
     llfloatergesture.h
@@ -721,6 +726,7 @@ set(viewer_HEADER_FILES
     llpanelavatar.h
     llpanelavatarrow.h
     llpanelclassified.h
+    llsidetraypanelcontainer.h
     llpanelcontents.h
     llpaneldirbrowser.h
     llpaneldirclassified.h
@@ -746,6 +752,7 @@ set(viewer_HEADER_FILES
     llpanellogin.h
     llpanelmedia.h
     llpanelmeprofile.h
+    llpanelmovetip.h
     llpanelobject.h
     llpanelpeople.h
     llpanelpermissions.h
@@ -785,6 +792,7 @@ set(viewer_HEADER_FILES
     llsky.h
     llslurl.h
     llspatialpartition.h
+    llsplitbutton.h
     llsprite.h
     llsrv.h
     llstartup.h

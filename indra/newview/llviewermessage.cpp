@@ -96,6 +96,7 @@
 #include "llinventorymodel.h"
 #include "llfloaterinventory.h"
 #include "llmenugl.h"
+#include "llmoveview.h"
 #include "llmutelist.h"
 #include "llnotifications.h"
 #include "llnotify.h"
@@ -1184,9 +1185,6 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			{
 				opener = open_agent_offer;
 			}
-
-			// add buddy to recent people list
-			LLRecentPeople::instance().add(mFromID);
 		}
 			break;
 		case IM_TASK_INVENTORY_OFFERED:
@@ -1257,6 +1255,12 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			busy_message(msg,mFromID);
 		}
 		break;
+	}
+
+	if(IM_INVENTORY_OFFERED == mIM)
+	{
+		// add buddy to recent people list
+		LLRecentPeople::instance().add(mFromID);
 	}
 
 	if(opener)
@@ -3850,7 +3854,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	if (object)
 	{
 		LLVector3 sit_spot = object->getPositionAgent() + (sitPosition * object->getRotation());
-		if (!use_autopilot || (avatar && avatar->mIsSitting && avatar->getRoot() == object->getRoot()))
+		if (!use_autopilot || (avatar && avatar->isSitting() && avatar->getRoot() == object->getRoot()))
 		{
 			//we're already sitting on this object, so don't autopilot
 		}

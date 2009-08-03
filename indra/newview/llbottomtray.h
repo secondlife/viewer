@@ -56,11 +56,7 @@ public:
 	LLNotificationChiclet*	getSysWell()	{return mSysWell;}
 	LLNearbyChatBar*		getNearbyChatBar()	{return mNearbyChatBar;}
 
-	/*virtual*/void draw();
-	void refreshStandUp();
-
 	void onCommitGesture(LLUICtrl* ctrl);
-	void onCommitStandUp(LLUICtrl* ctrl);	
 	void refreshGestures();
 
 	// LLIMSessionObserver observe triggers
@@ -82,7 +78,6 @@ protected:
 	LLNotificationChiclet* 	mIMWell;
 	LLNotificationChiclet* 	mSysWell;
 	LLTalkButton* 		mTalkBtn;
-	LLButton*           mStandUpBtn;
 	LLNearbyChatBar*	mNearbyChatBar;
 };
 

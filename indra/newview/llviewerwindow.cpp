@@ -4254,30 +4254,19 @@ void LLViewerWindow::destroyWindow()
 
 void LLViewerWindow::drawMouselookInstructions()
 {
-	// Draw instructions for mouselook ("Press ESC to leave Mouselook" in a box at the top of the screen.)
+	// Draw instructions for mouselook ("Press ESC to return to World View" partially transparent at the bottom of the screen.)
 	const std::string instructions = LLTrans::getString("LeaveMouselook");
-	const LLFontGL* font = LLFontGL::getFontSansSerif();
-
-	const S32 INSTRUCTIONS_PAD = 5;
-	LLRect instructions_rect;
-	instructions_rect.setLeftTopAndSize( 
-		mWorldViewRect.mLeft + INSTRUCTIONS_PAD,
-		mWorldViewRect.mTop - INSTRUCTIONS_PAD,
-		font->getWidth( instructions ) + 2 * INSTRUCTIONS_PAD,
-		llround(font->getLineHeight() + 2 * INSTRUCTIONS_PAD));
-
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gGL.color4f( 0.9f, 0.9f, 0.9f, 1.0f );
-		gl_rect_2d( instructions_rect );
-	}
+	const LLFontGL* font = LLFontGL::getFont(LLFontDescriptor("SansSerif", "Huge", LLFontGL::BOLD));
 	
+	//to be on top of Bottom bar when it is opened
+	const S32 INSTRUCTIONS_PAD = 50;
+
 	font->renderUTF8( 
 		instructions, 0,
-		instructions_rect.mLeft + INSTRUCTIONS_PAD,
-		instructions_rect.mTop - INSTRUCTIONS_PAD,
-		LLColor4( 0.0f, 0.0f, 0.0f, 1.f ),
-		LLFontGL::LEFT, LLFontGL::TOP);
+		mWorldViewRect.getCenterX(),
+		mWorldViewRect.mBottom + INSTRUCTIONS_PAD,
+		LLColor4( 0.0f, 0.0f, 0.0f, 0.6f ),
+		LLFontGL::HCENTER, LLFontGL::TOP);
 }
 
 
@@ -4394,11 +4383,6 @@ void LLViewerWindow::setShowProgress(const BOOL show)
 BOOL LLViewerWindow::getShowProgress() const
 {
 	return (mProgressView && mProgressView->getVisible());
-}
-
-void LLViewerWindow::handleLoginComplete()
-{
-	LLNavigationBar::getInstance()->handleLoginComplete();
 }
 
 void LLViewerWindow::moveProgressViewToFront()
