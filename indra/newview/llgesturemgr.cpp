@@ -1151,7 +1151,7 @@ void LLGestureManager::done()
 {
 	for(item_map_t::iterator it = mActive.begin(); it != mActive.end(); ++it)
 	{
-		if(it->second->mName.empty())
+		if(it->second && it->second->mName.empty())
 		{
 			LLViewerInventoryItem* item = gInventory.getItem(it->first);
 			if(item)
