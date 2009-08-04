@@ -39,20 +39,20 @@
 LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 :	LLUICtrl(p)
 {
-	const S32 fudge = 2;
-	S32 btn_height = getRect().getHeight() - (fudge * 2);
+	S32 btn_top = p.search_button.top_pad + p.search_button.rect.height;
+	S32 btn_right = p.search_button.rect.width + p.search_button.left_pad;
+	LLRect search_btn_rect(p.search_button.left_pad, btn_top, btn_right, p.search_button.top_pad);
 
 	LLLineEditor::Params line_editor_params(p);
 	line_editor_params.name("filter edit box");
 	line_editor_params.rect(getLocalRect());
 	line_editor_params.follows.flags(FOLLOWS_ALL);
-	line_editor_params.text_pad_left(btn_height + fudge);
+	line_editor_params.text_pad_left(p.text_pad_left + search_btn_rect.getWidth());
 	line_editor_params.commit_callback.function(boost::bind(&LLUICtrl::onCommit, this));
 
 	mSearchEditor = LLUICtrlFactory::create<LLLineEditor>(line_editor_params);
 	addChild(mSearchEditor);
 
-	LLRect search_btn_rect(fudge, fudge + btn_height, fudge + btn_height, fudge);
 	LLButton::Params button_params(p.search_button);
 	button_params.name(std::string("clear filter"));
 	button_params.rect(search_btn_rect) ;

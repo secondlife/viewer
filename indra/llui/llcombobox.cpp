@@ -100,7 +100,8 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 	mPrearrangeCallback(p.prearrange_callback()),
 	mTextEntryCallback(p.text_entry_callback()),
 	mSelectionCallback(p.selection_callback()),
-	mListPosition(p.list_position)
+	mListPosition(p.list_position),
+	mLastSelectedIndex(-1)
 {
 	// Text label button
 
@@ -625,15 +626,15 @@ void LLComboBox::showList()
 	mList->setVisible(TRUE);
 	
 	setUseBoundingRect(TRUE);
+
+	mList->sortItems();
+	mLastSelectedIndex = mList->getFirstSelectedIndex();
 }
 
 void LLComboBox::hideList()
 {
-	//*HACK: store the original value explicitly somewhere, not just in label
-	std::string orig_selection = mAllowTextEntry ? mTextEntry->getText() : mButton->getLabelSelected();
-
 	// assert selection in list
-	mList->selectItemByLabel(orig_selection, FALSE);
+	mList->selectNthItem(mLastSelectedIndex);
 
 	mButton->setToggleState(FALSE);
 	mList->setVisible(FALSE);
@@ -691,6 +692,7 @@ void LLComboBox::onItemSelected(const LLSD& data)
 	const std::string name = mList->getSelectedItemLabel();
 
 	S32 cur_id = getCurrentIndex();
+	mLastSelectedIndex = cur_id;
 	if (cur_id != -1)
 	{
 		setLabel(name);

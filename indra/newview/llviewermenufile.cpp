@@ -37,10 +37,8 @@
 // project includes
 #include "llagent.h"
 #include "llfilepicker.h"
-#include "llfloateranimpreview.h"
+#include "llfloaterreg.h"
 #include "llfloaterbuycurrency.h"
-#include "llfloaterimagepreview.h"
-#include "llfloaternamedesc.h"
 #include "llfloatersnapshot.h"
 #include "llinventorymodel.h"	// gInventory
 #include "llresourcedata.h"
@@ -254,8 +252,7 @@ class LLFileUploadImage : public view_listener_t
 		std::string filename = upload_pick((void *)LLFilePicker::FFLOAD_IMAGE);
 		if (!filename.empty())
 		{
-			LLFloaterImagePreview* floaterp = new LLFloaterImagePreview(filename);
-			LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_image_preview.xml");
+			LLFloaterReg::showInstance("upload_image", LLSD(filename));
 		}
 		return TRUE;
 	}
@@ -268,9 +265,7 @@ class LLFileUploadSound : public view_listener_t
 		std::string filename = upload_pick((void*)LLFilePicker::FFLOAD_WAV);
 		if (!filename.empty())
 		{
-			LLFloaterNameDesc* floaterp = new LLFloaterNameDesc(filename);
-			LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_sound_preview.xml");
-			floaterp->childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload() ));
+			LLFloaterReg::showInstance("upload_sound", LLSD(filename));
 		}
 		return true;
 	}
@@ -283,8 +278,7 @@ class LLFileUploadAnim : public view_listener_t
 		const std::string filename = upload_pick((void*)LLFilePicker::FFLOAD_ANIM);
 		if (!filename.empty())
 		{
-			LLFloaterAnimPreview* floaterp = new LLFloaterAnimPreview(filename);
-			LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_animation_preview.xml");
+			LLFloaterReg::showInstance("upload_anim", LLSD(filename));
 		}
 		return true;
 	}

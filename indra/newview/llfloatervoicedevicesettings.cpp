@@ -294,6 +294,8 @@ LLFloaterVoiceDeviceSettings::LLFloaterVoiceDeviceSettings(const LLSD& seed)
 }
 BOOL LLFloaterVoiceDeviceSettings::postBuild()
 {
+	mCloseSignal.connect(boost::bind(&LLFloaterVoiceDeviceSettings::onClose, this));
+	
 	center();
 	return TRUE;
 }
@@ -305,14 +307,12 @@ void LLFloaterVoiceDeviceSettings::onOpen(const LLSD& key)
 	}
 }
 
-void LLFloaterVoiceDeviceSettings::onClose(bool app_quitting)
+void LLFloaterVoiceDeviceSettings::onClose()
 {
 	if(mDevicePanel)
 	{
 		mDevicePanel->cleanup();
 	}
-
-	setVisible(FALSE);
 }
 
 void LLFloaterVoiceDeviceSettings::apply()

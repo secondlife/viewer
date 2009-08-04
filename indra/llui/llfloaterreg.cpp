@@ -121,8 +121,7 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 
 				res = build_func(key);
 				
-				const bool DONT_OPEN_FLOATER = false;
-				LLUICtrlFactory::getInstance()->buildFloater(res, xui_file, DONT_OPEN_FLOATER);
+				LLUICtrlFactory::getInstance()->buildFloater(res, xui_file, NULL);
 				
 				// Note: key should eventually be a non optional LLFloater arg; for now, set mKey to be safe
 				res->mKey = key;

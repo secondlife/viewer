@@ -95,11 +95,11 @@ LLUUID LLFloaterInventory::sWearNewClothingTransactionID;
 ///----------------------------------------------------------------------------
 
 LLFloaterInventoryFinder::LLFloaterInventoryFinder(LLFloaterInventory* inventory_view)
-:	LLFloater(),
+:	LLFloater(LLSD()),
 	mFloaterInventory(inventory_view),
 	mFilter(inventory_view->mActivePanel->getFilter())
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_inventory_view_finder.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_inventory_view_finder.xml", NULL);
 	updateElementsFromFilter();
 }
 
@@ -297,21 +297,6 @@ void LLFloaterInventoryFinder::draw()
 	LLFloater::draw();
 }
 
-void  LLFloaterInventoryFinder::onClose(bool app_quitting)
-{
-	gSavedSettings.setBOOL("Inventory.ShowFilters", FALSE);
-	// If you want to reset the filter on close, do it here.  This functionality was
-	// hotly debated - Paulm
-#if 0
-	if (mFloaterInventory)
-	{
-		LLFloaterInventory::onResetFilter((void *)mFloaterInventory);
-	}
-#endif
-	destroy();
-}
-
-
 BOOL LLFloaterInventoryFinder::getCheckShowEmpty()
 {
 	return childGetValue("check_show_empty");
@@ -450,7 +435,7 @@ LLFloaterInventory::LLFloaterInventory(const LLSD& key)
 	mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLAssetType::AT_TRASH));
 	mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLAssetType::AT_LOST_AND_FOUND));
 	mCommitCallbackRegistrar.add("Inventory.DoCreate", boost::bind(&LLFloaterInventory::doCreate, this, _2));
-	mCommitCallbackRegistrar.add("Inventory.NewWindow", boost::bind(&LLFloaterInventory::newWindow, this));
+// 	mCommitCallbackRegistrar.add("Inventory.NewWindow", boost::bind(&LLFloaterInventory::newWindow, this));
 	mCommitCallbackRegistrar.add("Inventory.ShowFilters", boost::bind(&LLFloaterInventory::toggleFindOptions, this));
 	mCommitCallbackRegistrar.add("Inventory.ResetFilters", boost::bind(&LLFloaterInventory::resetFilters, this));
 	mCommitCallbackRegistrar.add("Inventory.SetSortBy", boost::bind(&LLFloaterInventory::setSortBy, this, _2));
@@ -462,7 +447,6 @@ LLFloaterInventory::LLFloaterInventory(const LLSD& key)
 	BOOL sort_folders_by_name = ( sort_order & LLInventoryFilter::SO_FOLDERS_BY_NAME );
 	BOOL sort_system_folders_to_top = ( sort_order & LLInventoryFilter::SO_SYSTEM_FOLDERS_TO_TOP );
 	
-	gSavedSettings.declareBOOL("Inventory.ShowFilters", FALSE, "Declared in code", FALSE);
 	gSavedSettings.declareBOOL("Inventory.SortByName", sort_by_name, "Declared in code", FALSE);
 	gSavedSettings.declareBOOL("Inventory.SortByDate", !sort_by_name, "Declared in code", FALSE);
 	gSavedSettings.declareBOOL("Inventory.FoldersAlwaysByName", sort_folders_by_name, "Declared in code", FALSE);
@@ -597,10 +581,6 @@ void LLFloaterInventory::draw()
 		title << mFilterText;
 		setTitle(title.str());
 	}
-	if (mActivePanel && mFilterEditor)
-	{
-		mFilterEditor->setText(mActivePanel->getFilterSubString());
-	}
 	LLFloater::draw();
 }
 
@@ -678,34 +658,9 @@ void LLFloaterInventory::startSearch()
 	}
 }
 
-// virtual, from LLView
-void LLFloaterInventory::setVisible( BOOL visible )
-{
-	LLFloater::setVisible(visible);
-}
-
 void LLFloaterInventory::onOpen(const LLSD& key)
 {
 	LLFirstUse::useInventory();
-}
-
-// Destroy all but the last floater, which is made invisible.
-void LLFloaterInventory::onClose(bool app_quitting)
-{
-	if (getKey().asInteger() != 0)
-	{
-		destroy();
-	}
-	else
-	{
-		// clear filters, but save user's folder state first
-		if (!mActivePanel->getRootFolder()->isFilterModified())
-		{
-			mSavedFolderState->setApply(FALSE);
-			mActivePanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
-		}
-		setVisible(FALSE);
-	}
 }
 
 BOOL LLFloaterInventory::handleKeyHere(KEY key, MASK mask)
@@ -754,14 +709,6 @@ void LLFloaterInventory::changed(U32 mask)
 
 }
 
-//static
-LLFloaterInventory* LLFloaterInventory::newInstance()
-{
-	LLMemType mt(LLMemType::MTYPE_INVENTORY_VIEW_SHOW);
-	static S32 inst_count = 1;
-	return LLFloaterReg::getTypedInstance<LLFloaterInventory>("inventory", LLSD(inst_count++));
-}
-
 //----------------------------------------------------------------------------
 // menu callbacks
 
@@ -778,17 +725,6 @@ void LLFloaterInventory::closeAllFolders()
 void LLFloaterInventory::doCreate(const LLSD& userdata)
 {
 	menu_create_inventory_item(getPanel()->getRootFolder(), NULL, userdata);
-}
-
-void LLFloaterInventory::newWindow()
-{
-	LLFloaterInventory* iv = newInstance();
-	iv->getActivePanel()->setFilterTypes(getActivePanel()->getFilterTypes());
-	iv->getActivePanel()->setFilterSubString(getActivePanel()->getFilterSubString());
-	iv->openFloater();
-
-	// force onscreen
-	gFloaterView->adjustToFitScreen(iv, FALSE);
 }
 
 void LLFloaterInventory::resetFilters()
@@ -920,14 +856,10 @@ void LLFloaterInventory::toggleFindOptions()
 
 		// start background fetch of folders
 		gInventory.startBackgroundFetch();
-
-		gSavedSettings.setBOOL("Inventory.ShowFilters", TRUE);
 	}
 	else
 	{
 		floater->closeFloater();
-
-		gSavedSettings.setBOOL("Inventory.ShowFilters", FALSE);
 	}
 }
 
@@ -978,8 +910,7 @@ void LLFloaterInventory::onFilterEdit(const std::string& search_string )
 
 	gInventory.startBackgroundFetch();
 
-	std::string filter_text = search_string;
-	std::string uppercase_search_string = filter_text;
+	std::string uppercase_search_string = search_string;
 	LLStringUtil::toUpper(uppercase_search_string);
 	if (mActivePanel->getFilterSubString().empty() && uppercase_search_string.empty())
 	{

@@ -50,6 +50,7 @@ const S32 GESTURE_VERSION = 2;
 LLMultiGesture::LLMultiGesture()
 :	mKey(),
 	mMask(),
+	mName(),
 	mTrigger(),
 	mReplaceText(),
 	mSteps(),

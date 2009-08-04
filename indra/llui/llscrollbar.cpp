@@ -56,8 +56,10 @@ LLScrollbar::Params::Params()
 	doc_pos ("doc_pos", 0),
 	page_size ("page_size", 0),
 	step_size ("step_size", 1),
-	thumb_image("thumb_image"),
-	track_image("track_image"),
+	thumb_image_vertical("thumb_image_vertical"),
+	thumb_image_horizontal("thumb_image_horizontal"),
+	track_image_vertical("track_image_vertical"),
+	track_image_horizontal("track_image_horizontal"),
 	track_color("track_color"),
 	thumb_color("thumb_color"),
 	thickness("thickness"),
@@ -86,8 +88,10 @@ LLScrollbar::LLScrollbar(const Params & p)
 		mThumbColor ( p.thumb_color() ),
 		mOnScrollEndCallback( NULL ),
 		mOnScrollEndData( NULL ),
-		mThumbImage(p.thumb_image),
-		mTrackImage(p.track_image),
+		mThumbImageV(p.thumb_image_vertical),
+		mThumbImageH(p.thumb_image_horizontal),
+		mTrackImageV(p.track_image_vertical),
+		mTrackImageH(p.track_image_horizontal),
 		mThickness(p.thickness.isProvided() ? p.thickness : LLUI::sSettingGroups["config"]->getS32("UIScrollbarSize"))
 {
 	updateThumbRect();
@@ -493,7 +497,8 @@ void LLScrollbar::draw()
 	}
 
 	// Draw background and thumb.
-	if (mTrackImage.isNull() || mThumbImage.isNull())
+	if (   ( mOrientation == VERTICAL&&(mThumbImageV.isNull() || mThumbImageV.isNull()) ) 
+		|| (mOrientation == HORIZONTAL&&(mTrackImageH.isNull() || mThumbImageH.isNull()) ))
 	{
 		gl_rect_2d(mOrientation == HORIZONTAL ? mThickness : 0, 
 		mOrientation == VERTICAL ? getRect().getHeight() - 2 * mThickness : getRect().getHeight(),
@@ -505,30 +510,54 @@ void LLScrollbar::draw()
 	}
 	else
 	{
-		// Background
-		mTrackImage->drawSolid(mOrientation == HORIZONTAL ? mThickness : 0, 
-			mOrientation == VERTICAL ? mThickness : 0,
-			mOrientation == HORIZONTAL ? getRect().getWidth() - 2 * mThickness : getRect().getWidth(), 
-			mOrientation == VERTICAL ? getRect().getHeight() - 2 * mThickness : getRect().getHeight(),
-			mTrackColor.get());
-
 		// Thumb
 		LLRect outline_rect = mThumbRect;
 		outline_rect.stretch(2);
-
-		if (gFocusMgr.getKeyboardFocus() == this)
+		S32 rect_fix = 0;
+		// Background
+		
+		if(mOrientation == HORIZONTAL)
 		{
-			mTrackImage->draw(outline_rect, gFocusMgr.getFocusColor());
+			mTrackImageH->drawSolid(mThickness								//S32 x
+								   , 0										//S32 y
+								   , getRect().getWidth() - 2 * mThickness  //S32 width
+								   , getRect().getHeight()- rect_fix		//S32 height
+								   , mTrackColor.get());                    //const LLColor4& color
+			
+			if (gFocusMgr.getKeyboardFocus() == this)
+			{
+				mTrackImageH->draw(outline_rect, gFocusMgr.getFocusColor());
+			}
+			
+			mThumbImageH->draw(mThumbRect, mThumbColor.get());
+			if (mCurGlowStrength > 0.01f)
+			{
+				gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
+				mThumbImageH->drawSolid(mThumbRect, LLColor4(1.f, 1.f, 1.f, mCurGlowStrength));
+				gGL.setSceneBlendType(LLRender::BT_ALPHA);
+			}
+			
 		}
-
-		mThumbImage->draw(mThumbRect, mThumbColor.get());
-		if (mCurGlowStrength > 0.01f)
+		else if(mOrientation == VERTICAL)
 		{
-			gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
-			mThumbImage->drawSolid(mThumbRect, LLColor4(1.f, 1.f, 1.f, mCurGlowStrength));
-			gGL.setSceneBlendType(LLRender::BT_ALPHA);
+			mTrackImageV->drawSolid(  0+rect_fix								//S32 x
+								   , mThickness								//S32 y
+								   , getRect().getWidth()					//S32 width
+								   , getRect().getHeight() - 2 * mThickness	//S32 height
+								   , mTrackColor.get());                    //const LLColor4& color
+			if (gFocusMgr.getKeyboardFocus() == this)
+			{
+				mTrackImageV->draw(outline_rect, gFocusMgr.getFocusColor());
+			}
+			
+			mThumbImageV->draw(mThumbRect, mThumbColor.get());
+			if (mCurGlowStrength > 0.01f)
+			{
+				gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
+				mThumbImageV->drawSolid(mThumbRect, LLColor4(1.f, 1.f, 1.f, mCurGlowStrength));
+				gGL.setSceneBlendType(LLRender::BT_ALPHA);
+			}
 		}
-
 	}
 
 	BOOL was_scrolled_to_bottom = (getDocPos() == getDocPosMax());

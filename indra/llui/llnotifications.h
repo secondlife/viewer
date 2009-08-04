@@ -100,8 +100,9 @@
 // and we need this to manage the notification callbacks
 #include "llevents.h"
 #include "llfunctorregistry.h"
-#include "llui.h"
-#include "llmemory.h"
+#include "llpointer.h"
+#include "llinitparam.h"
+#include "llxmlnode.h"
 
 class LLNotification;
 typedef boost::shared_ptr<LLNotification> LLNotificationPtr;
@@ -158,7 +159,8 @@ public:
 
 	LLNotificationForm();
 	LLNotificationForm(const LLSD& sd);
-	LLNotificationForm(const std::string& name, const LLXMLNodePtr xml_node);
+	LLNotificationForm(const std::string& name, 
+		const LLPointer<LLXMLNode> xml_node);
 
 	LLSD asLLSD() const;
 
@@ -824,7 +826,7 @@ public:
 	// load notification descriptions from file; 
 	// OK to call more than once because it will reload
 	bool loadTemplates();  
-	LLXMLNodePtr checkForXMLTemplate(LLXMLNodePtr item);
+	LLPointer<class LLXMLNode> checkForXMLTemplate(LLPointer<class LLXMLNode> item);
 	
 	// Add a simple notification (from XUI)
 	void addFromCallback(const LLSD& name);
@@ -907,7 +909,7 @@ private:
 
 	std::string mFileName;
 	
-	typedef std::map<std::string, LLXMLNodePtr> XMLTemplateMap;
+	typedef std::map<std::string, LLPointer<class LLXMLNode> > XMLTemplateMap;
 	XMLTemplateMap mXmlTemplates;
 
 	LLNotificationMap mUniqueNotifications;

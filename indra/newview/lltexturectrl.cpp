@@ -110,7 +110,6 @@ public:
 	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 
 	// LLFloater overrides
-	virtual void	onClose(bool app_quitting);
 	virtual BOOL    postBuild();
 	
 	// New functions
@@ -131,6 +130,7 @@ public:
 	void commitIfImmediateSet();
 	
 	void onFilterEdit(const std::string& search_string );
+	void onClose();
 	
 	static void		onBtnSetToDefault( void* userdata );
 	static void		onBtnSelect( void* userdata );
@@ -181,7 +181,7 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	PermissionMask non_immediate_filter_perm_mask,
 	BOOL can_apply_immediately,
 	const std::string& fallback_image_name)
-:	LLFloater(),
+:	LLFloater(LLSD()),
 	mOwner( owner ),
 	mImageAssetID( owner->getImageAssetID() ),
 	mFallbackImageName( fallback_image_name ),
@@ -197,7 +197,7 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mContextConeOpacity(0.f)
 {
 	mCanApplyImmediately = can_apply_immediately;
-	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_texture_ctrl.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_texture_ctrl.xml",NULL);
 	setCanMinimize(FALSE);
 }
 
@@ -369,20 +369,20 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 	return LLFloater::handleKeyHere(key, mask);
 }
 
-// virtual
-void LLFloaterTexturePicker::onClose(bool app_quitting)
+void LLFloaterTexturePicker::onClose()
 {
 	if (mOwner)
 	{
 		mOwner->onFloaterClose();
 	}
 	stopUsingPipette();
-	destroy();
 }
 
 // virtual
 BOOL LLFloaterTexturePicker::postBuild()
 {
+	mCloseSignal.connect(boost::bind(&LLFloaterTexturePicker::onClose, this));
+	
 	LLFloater::postBuild();
 
 	if (!mLabel.empty())
@@ -522,9 +522,6 @@ void LLFloaterTexturePicker::draw()
 	childSetEnabled("Select", mActive);
 	childSetEnabled("Pipette", mActive);
 	childSetValue("Pipette", LLToolMgr::getInstance()->getCurrentTool() == LLToolPipette::getInstance());
-
-	//RN: reset search bar to reflect actual search query (all caps, for example)
-	mFilterEdit->setText(mInventoryPanel->getFilterSubString());
 
 	//BOOL allow_copy = FALSE;
 	if( mOwner ) 

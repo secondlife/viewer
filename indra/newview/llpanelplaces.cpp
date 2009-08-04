@@ -239,10 +239,9 @@ void LLPanelPlaces::onFilterEdit(const std::string& search_string)
 	{
 		mFilterSubString = search_string;
 
+		// Searches are case-insensitive
 		LLStringUtil::toUpper(mFilterSubString);
 		LLStringUtil::trimHead(mFilterSubString);
-
-		mFilterEditor->setText(mFilterSubString);
 
 		mActivePanel->onSearchEdit(mFilterSubString);
 	}
@@ -480,7 +479,7 @@ void LLPanelPlaces::showLandmarkFoldersMenu()
 {
 	if (mLandmarkFoldersMenuHandle.isDead())
 	{
-		LLMenuGL::Params menu_p;
+		LLToggleableMenu::Params menu_p;
 		menu_p.name("landmarks_folders_menu");
 		menu_p.can_tear_off(false);
 		menu_p.visible(false);

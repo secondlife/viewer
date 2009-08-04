@@ -5,6 +5,7 @@
  layout="topleft"
  min_height="50"
  name="notifications_console"
+ single_instance="true"
  title="Notifications Console"
  width="500">
     <combo_box

@@ -81,8 +81,6 @@ public:
 	static LLPanelLandObjects* getCurrentPanelLandObjects();
 	static LLPanelLandCovenant* getCurrentPanelLandCovenant();
 
-	// Destroys itself on close.
-	virtual void onClose(bool app_quitting);
 	virtual void onOpen(const LLSD& key);
 	virtual BOOL postBuild();
 
@@ -91,6 +89,8 @@ private:
 	// to allocate or destroy.
 	LLFloaterLand(const LLSD& seed);
 	virtual ~LLFloaterLand();
+		
+	void onVisibilityChange(const LLSD& visible);
 
 protected:
 

@@ -45,9 +45,11 @@ class LLModalDialog;
 class LLModalDialog : public LLFloater
 {
 public:
-	LLModalDialog( const std::string& title, S32 width, S32 height, BOOL modal = true );
+	LLModalDialog( const LLSD& key, S32 width, S32 height, BOOL modal = true );
 	/*virtual*/ ~LLModalDialog();
-
+	
+	/*virtual*/ BOOL 	postBuild();
+	
 	/*virtual*/ void	openFloater(const LLSD& key = LLSD());
 	
 	/*virtual*/ void 	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
@@ -62,8 +64,6 @@ public:
 	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask );
-
-	/*virtual*/ void	onClose(bool app_quitting);
 
 	/*virtual*/ void	setVisible(BOOL visible);
 	/*virtual*/ void	draw();

@@ -43,6 +43,7 @@
 #include "llconfirmationmanager.h"
 #include "llcurrencyuimanager.h"
 #include "llfloater.h"
+#include "llfloaterreg.h"
 #include "llfloatertools.h"
 #include "llframetimer.h"
 #include "lliconctrl.h"
@@ -75,10 +76,22 @@ const F64 CURRENCY_ESTIMATE_FREQUENCY = 0.5;
 class LLFloaterBuyLandUI
 :	public LLFloater
 {
-private:
-	LLFloaterBuyLandUI();
+public:
+	LLFloaterBuyLandUI(const LLSD& key);
 	virtual ~LLFloaterBuyLandUI();
-
+	
+private:
+	class SelectionObserver : public LLParcelObserver
+	{
+	public:
+		SelectionObserver(LLFloaterBuyLandUI* floater) : mFloater(floater) {}
+		virtual void changed();
+	private:
+		LLFloaterBuyLandUI* mFloater;
+	};
+	
+private:
+	SelectionObserver mParcelSelectionObserver;
 	LLViewerRegion*	mRegion;
 	LLParcelSelectionHandle mParcel;
 	bool			mIsClaim;
@@ -144,11 +157,7 @@ private:
 	
 	LLViewerParcelMgr::ParcelBuyInfo*	mParcelBuyInfo;
 	
-	static LLFloaterBuyLandUI* sInstance;
-	
 public:
-	static LLFloaterBuyLandUI* soleInstance(bool createIfNeeded);
-
 	void setForGroup(bool is_for_group);
 	void setParcel(LLViewerRegion* region, LLParcelSelectionHandle parcel);
 		
@@ -156,10 +165,10 @@ public:
 	void updateParcelInfo();
 	void updateCovenantInfo();
 	static void onChangeAgreeCovenant(LLUICtrl* ctrl, void* user_data);
-	void updateCovenantText(const std::string& string, const LLUUID &asset_id);
-	void updateEstateName(const std::string& name);
-	void updateLastModified(const std::string& text);
-	void updateEstateOwnerName(const std::string& name);
+	void updateFloaterCovenantText(const std::string& string, const LLUUID &asset_id);
+	void updateFloaterEstateName(const std::string& name);
+	void updateFloaterLastModified(const std::string& text);
+	void updateFloaterEstateOwnerName(const std::string& name);
 	void updateWebSiteInfo();
 	void finishWebSiteInfo();
 	
@@ -171,7 +180,7 @@ public:
 	
 	void refreshUI();
 	
-	void startTransaction(TransactionType type, LLXMLRPCValue params);
+	void startTransaction(TransactionType type, const LLXMLRPCValue& params);
 	bool checkTransaction();
 	
 	void tellUserError(const std::string& message, const std::string& uri);
@@ -181,26 +190,21 @@ public:
 	void startBuyPreConfirm();
 	void startBuyPostConfirm(const std::string& password);
 
-	static void onClickBuy(void* data);
-	static void onClickCancel(void* data);
-	static void onClickErrorWeb(void* data);
+	void onClickBuy();
+	void onClickCancel();
+	 void onClickErrorWeb();
 	
 	virtual void draw();
 	virtual BOOL canClose();
-	/*virtual*/ void setMinimized(BOOL b);
+
+	void onVisibilityChange ( const LLSD& new_visibility );
 	
-private:
-	class SelectionObserver : public LLParcelObserver
-	{
-	public:
-		virtual void changed();
-	};
 };
 
 static void cacheNameUpdateRefreshesBuyLand(const LLUUID&,
 	const std::string&, const std::string&, BOOL)
 {
-	LLFloaterBuyLandUI* ui = LLFloaterBuyLandUI::soleInstance(false);
+	LLFloaterBuyLandUI* ui = LLFloaterReg::findTypedInstance<LLFloaterBuyLandUI>("buy_land");
 	if (ui)
 	{
 		ui->updateNames();
@@ -217,101 +221,64 @@ void LLFloaterBuyLand::buyLand(
 		return;
 	}
 
-	LLFloaterBuyLandUI* ui = LLFloaterBuyLandUI::soleInstance(true);
-	ui->setForGroup(is_for_group);
-	ui->setParcel(region, parcel);
-	ui->openFloater();
+	LLFloaterBuyLandUI* ui = LLFloaterReg::showTypedInstance<LLFloaterBuyLandUI>("buy_land");
+	if (ui)
+	{
+		ui->setForGroup(is_for_group);
+		ui->setParcel(region, parcel);
+	}
 }
 
 // static
 void LLFloaterBuyLand::updateCovenantText(const std::string& string, const LLUUID &asset_id)
 {
-	LLFloaterBuyLandUI* floater = LLFloaterBuyLandUI::soleInstance(FALSE);
+	LLFloaterBuyLandUI* floater = LLFloaterReg::findTypedInstance<LLFloaterBuyLandUI>("buy_land");
 	if (floater)
 	{
-		floater->updateCovenantText(string, asset_id);
+		floater->updateFloaterCovenantText(string, asset_id);
 	}
 }
 
 // static
 void LLFloaterBuyLand::updateEstateName(const std::string& name)
 {
-	LLFloaterBuyLandUI* floater = LLFloaterBuyLandUI::soleInstance(FALSE);
+	LLFloaterBuyLandUI* floater = LLFloaterReg::findTypedInstance<LLFloaterBuyLandUI>("buy_land");
 	if (floater)
 	{
-		floater->updateEstateName(name);
+		floater->updateFloaterEstateName(name);
 	}
 }
 
 // static
 void LLFloaterBuyLand::updateLastModified(const std::string& text)
 {
-	LLFloaterBuyLandUI* floater = LLFloaterBuyLandUI::soleInstance(FALSE);
+	LLFloaterBuyLandUI* floater = LLFloaterReg::findTypedInstance<LLFloaterBuyLandUI>("buy_land");
 	if (floater)
 	{
-		floater->updateLastModified(text);
+		floater->updateFloaterLastModified(text);
 	}
 }
 
 // static
 void LLFloaterBuyLand::updateEstateOwnerName(const std::string& name)
 {
-	LLFloaterBuyLandUI* floater = LLFloaterBuyLandUI::soleInstance(FALSE);
+	LLFloaterBuyLandUI* floater = LLFloaterReg::findTypedInstance<LLFloaterBuyLandUI>("buy_land");
 	if (floater)
 	{
-		floater->updateEstateOwnerName(name);
+		floater->updateFloaterEstateOwnerName(name);
 	}
 }
 
 // static
-BOOL LLFloaterBuyLand::isOpen()
+LLFloater* LLFloaterBuyLand::buildFloater(const LLSD& key)
 {
-	LLFloaterBuyLandUI* floater = LLFloaterBuyLandUI::soleInstance(FALSE);
-	if (floater)
-	{
-		return floater->getVisible();
-	}
-	return FALSE;
+	LLFloaterBuyLandUI* floater = new LLFloaterBuyLandUI(key);
+	return floater;
 }
 
-// static
-LLFloaterBuyLandUI* LLFloaterBuyLandUI::sInstance = NULL;
-
-// static
-LLFloaterBuyLandUI* LLFloaterBuyLandUI::soleInstance(bool createIfNeeded)
-{
-#if !LL_RELEASE_FOR_DOWNLOAD
-	if (createIfNeeded)
-	{
-		delete sInstance;
-		sInstance = NULL;
-	}
-#endif
-	if (!sInstance  &&  createIfNeeded)
-	{
-		sInstance = new LLFloaterBuyLandUI();
-
-		LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_buy_land.xml");
-		sInstance->center();
-
-		static bool observingCacheName = false;
-		if (!observingCacheName)
-		{
-			gCacheName->addObserver(&cacheNameUpdateRefreshesBuyLand);
-			observingCacheName = true;
-		}
-
-		static SelectionObserver* parcelSelectionObserver = NULL;
-		if (!parcelSelectionObserver)
-		{
-			parcelSelectionObserver = new SelectionObserver;
-			LLViewerParcelMgr::getInstance()->addObserver(parcelSelectionObserver);
-		}
-	}
-	
-	return sInstance;
-}
-
+//----------------------------------------------------------------------------
+// LLFloaterBuyLandUI
+//----------------------------------------------------------------------------
 
 #if LL_WINDOWS
 // passing 'this' during construction generates a warning. The callee
@@ -320,42 +287,45 @@ LLFloaterBuyLandUI* LLFloaterBuyLandUI::soleInstance(bool createIfNeeded)
 // warning so that we can compile without generating a warning.
 #pragma warning(disable : 4355)
 #endif 
-LLFloaterBuyLandUI::LLFloaterBuyLandUI()
-:	LLFloater(),
+LLFloaterBuyLandUI::LLFloaterBuyLandUI(const LLSD& key)
+:	LLFloater(LLSD()),
+	mParcelSelectionObserver(this),
 	mParcel(0),
 	mBought(false),
 	mParcelValid(false), mSiteValid(false),
 	mChildren(*this), mCurrency(*this), mTransaction(0),
 	mParcelBuyInfo(0)
 {
+	static bool observingCacheName = false;
+	if (!observingCacheName)
+	{
+		gCacheName->addObserver(&cacheNameUpdateRefreshesBuyLand);
+		observingCacheName = true;
+	}
+	
+	LLViewerParcelMgr::getInstance()->addObserver(&mParcelSelectionObserver);
+	
+// 	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_buy_land.xml");
 }
 
 LLFloaterBuyLandUI::~LLFloaterBuyLandUI()
 {
-	delete mTransaction;
-
+	LLViewerParcelMgr::getInstance()->removeObserver(&mParcelSelectionObserver);
 	LLViewerParcelMgr::getInstance()->deleteParcelBuy(mParcelBuyInfo);
 	
-	if (sInstance == this)
-	{
-		sInstance = NULL;
-	}
+	delete mTransaction;
 }
 
 void LLFloaterBuyLandUI::SelectionObserver::changed()
 {
-	LLFloaterBuyLandUI* ui = LLFloaterBuyLandUI::soleInstance(false);
-	if (ui)
+	if (LLViewerParcelMgr::getInstance()->selectionEmpty())
 	{
-		if (LLViewerParcelMgr::getInstance()->selectionEmpty())
-		{
-			ui->closeFloater();
-		}
-		else {
-			ui->setParcel(
-				LLViewerParcelMgr::getInstance()->getSelectionRegion(),
-				LLViewerParcelMgr::getInstance()->getParcelSelection());
-		}
+		mFloater->closeFloater();
+	}
+	else
+	{
+		mFloater->setParcel(LLViewerParcelMgr::getInstance()->getSelectionRegion(),
+							LLViewerParcelMgr::getInstance()->getParcelSelection());
 	}
 }
 
@@ -593,7 +563,7 @@ void LLFloaterBuyLandUI::onChangeAgreeCovenant(LLUICtrl* ctrl, void* user_data)
 	}
 }
 
-void LLFloaterBuyLandUI::updateCovenantText(const std::string &string, const LLUUID& asset_id)
+void LLFloaterBuyLandUI::updateFloaterCovenantText(const std::string &string, const LLUUID& asset_id)
 {
 	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("covenant_editor");
 	if (editor)
@@ -625,19 +595,19 @@ void LLFloaterBuyLandUI::updateCovenantText(const std::string &string, const LLU
 	}
 }
 
-void LLFloaterBuyLandUI::updateEstateName(const std::string& name)
+void LLFloaterBuyLandUI::updateFloaterEstateName(const std::string& name)
 {
 	LLTextBox* box = getChild<LLTextBox>("estate_name_text");
 	if (box) box->setText(name);
 }
 
-void LLFloaterBuyLandUI::updateLastModified(const std::string& text)
+void LLFloaterBuyLandUI::updateFloaterLastModified(const std::string& text)
 {
 	LLTextBox* editor = getChild<LLTextBox>("covenant_timestamp_text");
 	if (editor) editor->setText(text);
 }
 
-void LLFloaterBuyLandUI::updateEstateOwnerName(const std::string& name)
+void LLFloaterBuyLandUI::updateFloaterEstateOwnerName(const std::string& name)
 {
 	LLTextBox* box = getChild<LLTextBox>("estate_owner_text");
 	if (box) box->setText(name);
@@ -834,8 +804,7 @@ void LLFloaterBuyLandUI::updateNames()
 }
 
 
-void LLFloaterBuyLandUI::startTransaction(TransactionType type,
-										  LLXMLRPCValue params)
+void LLFloaterBuyLandUI::startTransaction(TransactionType type, const LLXMLRPCValue& params)
 {
 	delete mTransaction;
 	mTransaction = NULL;
@@ -916,11 +885,15 @@ void LLFloaterBuyLandUI::tellUserError(
 // virtual
 BOOL LLFloaterBuyLandUI::postBuild()
 {
+	mVisibleSignal.connect(boost::bind(&LLFloaterBuyLandUI::onVisibilityChange, this, _2));
+	
 	mCurrency.prepare();
 	
-	childSetAction("buy_btn", onClickBuy, this);
-	childSetAction("cancel_btn", onClickCancel, this);
-	childSetAction("error_web", onClickErrorWeb, this);
+	getChild<LLUICtrl>("buy_btn")->setCommitCallback( boost::bind(&LLFloaterBuyLandUI::onClickBuy, this));
+	getChild<LLUICtrl>("cancel_btn")->setCommitCallback( boost::bind(&LLFloaterBuyLandUI::onClickCancel, this));
+	getChild<LLUICtrl>("error_web")->setCommitCallback( boost::bind(&LLFloaterBuyLandUI::onClickErrorWeb, this));
+
+	center();
 	
 	return TRUE;
 }
@@ -986,12 +959,9 @@ BOOL LLFloaterBuyLandUI::canClose()
 	return can_close;
 }
 
-// virtual
-void LLFloaterBuyLandUI::setMinimized(BOOL minimize)
+void LLFloaterBuyLandUI::onVisibilityChange ( const LLSD& new_visibility )
 {
-	bool restored = (isMinimized() && !minimize);
-	LLFloater::setMinimized(minimize);
-	if (restored)
+	if (new_visibility.asBoolean())
 	{
 		refreshUI();
 	}
@@ -1346,26 +1316,20 @@ void LLFloaterBuyLandUI::startBuyPostConfirm(const std::string& password)
 }
 
 
-// static
-void LLFloaterBuyLandUI::onClickBuy(void* data)
+void LLFloaterBuyLandUI::onClickBuy()
 {
-	LLFloaterBuyLandUI* self = (LLFloaterBuyLandUI*)data;
-	self->startBuyPreConfirm();
+	startBuyPreConfirm();
 }
 
-// static
-void LLFloaterBuyLandUI::onClickCancel(void* data)
+void LLFloaterBuyLandUI::onClickCancel()
 {
-	LLFloaterBuyLandUI* self = (LLFloaterBuyLandUI*)data;
-	self->closeFloater();
+	closeFloater();
 }
 
-// static
-void LLFloaterBuyLandUI::onClickErrorWeb(void* data)
+void LLFloaterBuyLandUI::onClickErrorWeb()
 {
-	LLFloaterBuyLandUI* self = (LLFloaterBuyLandUI*)data;
-	LLWeb::loadURLExternal(self->mCannotBuyURI);
-	self->closeFloater();
+	LLWeb::loadURLExternal(mCannotBuyURI);
+	closeFloater();
 }
 
 

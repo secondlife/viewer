@@ -262,7 +262,7 @@
      reference="White" />
      <color
      name="FilterBackgroundColor"
-     reference="FloaterDefaultBackgroundColor" />
+     reference="DkGray" />
     <color
      name="FilterTextColor"
      value="1 0.78 0.27 1" />

@@ -442,7 +442,7 @@ void LLPreview::handleReshape(const LLRect& new_rect, bool by_user)
 //
 
 LLMultiPreview::LLMultiPreview()
-	: LLMultiFloater()
+	: LLMultiFloater(LLSD())
 {
 	// *TODO: There should be a .xml file for this
 	const LLRect& nextrect = LLFloaterReg::getFloaterRect("preview"); // place where the next preview should show up

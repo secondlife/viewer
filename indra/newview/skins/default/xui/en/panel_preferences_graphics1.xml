@@ -26,7 +26,7 @@
      left="30"
      name="WindowSizeLabel"
      top="10"
-     width="128">
+     width="300">
         Window size:
     </text>
     <check_box
@@ -37,44 +37,65 @@
      left_delta="30"
      name="windowed mode"
      top_pad="4"
-     width="100">
+     width="175">
     </check_box>
-    <combo_box
+      <combo_box
 	 visiblity_control="WindowFullScreen"
-     allow_text_entry="true"
-     height="16"
-     layout="topleft"
-     left_delta="175"
-     max_chars="100"
-     name="aspect_ratio"
-     tool_tip="width / height"
-     top_delta="0"
-     width="150">
-        <combo_box.item
-         enabled="true"
-         label="4:3 (Standard CRT)"
-         name="item1"
-         value="1.333333" />
-        <combo_box.item
-         enabled="true"
-         label="5:4 (1280x1024 LCD)"
-         name="item2"
-         value="1.25" />
-        <combo_box.item
-         enabled="true"
-         label="8:5 (Widescreen)"
-         name="item3"
-         value="1.6" />
-        <combo_box.item
-         enabled="true"
-         label="16:9 (Widescreen)"
-         name="item4"
-         value="1.7777777" />
-		 <combo_box.commit_callback
-         function="setControlFalse"
-		 parameter="FullScreenAutoDetectAspectRatio" />
-    </combo_box>
-            <text
+        allow_text_entry="false"
+	enabled="true"
+	layout="topleft"
+        height="18"
+	left_delta="220"
+	max_chars="20"
+	mouse_opaque="true"
+	name="windowsize combo"
+	top_delta="-1"
+	width="150">
+      <combo_box.item
+        type="string"
+	length="1"
+	enabled="true"
+	name="640x480"
+	value="640 x 480">
+		640x480
+	</combo_box.item>
+	<combo_box.item
+        type="string"
+	length="1"
+	enabled="true"
+	name="800x600"
+	value="800 x 600">
+		800x600 
+	</combo_box.item>
+	<combo_box.item
+        type="string"
+	length="1"
+	enabled="true"
+	name="720x480"
+	value="720 x 480">
+		720x480 (NTSC)
+	</combo_box.item>
+	<combo_box.item
+        type="string"
+	length="1"
+	enabled="true"
+	name="768x576"
+	value="768 x 576">
+		768x576 (PAL)
+	</combo_box.item>
+	<combo_box.item
+        type="string"
+	length="1"
+	enabled="true"
+	name="1024x768"
+	value="1024 x 768">
+		1024x768
+	</combo_box.item>
+        <combo_box.commit_callback
+        function="setControlFalse"
+	parameter="FullScreenAutoDetectAspectRatio" />
+ 	</combo_box>
+           <text
      type="string"
      length="1"
      follows="left|top"
@@ -83,7 +104,7 @@
      left="30"
      name="UI Size:"
      top_pad="4"
-     width="100">
+     width="300">
         UI Size:
     </text>
     <slider
@@ -148,7 +169,7 @@
      left_delta="360"
      name="BetterText"
      top_delta="0"
-     width="80">
+     width="100">
         Better
     </text>
     <icon
@@ -428,30 +449,7 @@
 		name="AvatarCloth"
 		top_pad="1"
 		width="256" />
-		<text
-		type="string"
-		length="1"
-		follows="left|top"
-		height="12"
-		layout="topleft"
-		left="457"
-		name="DrawDistanceMeterText1"
-		top="3"
-		width="128">
-			m
-		</text>
-		<text
-		type="string"
-		length="1"
-		follows="left|top"
-		height="12"
-		layout="topleft"
-		left_delta="6"
-		name="DrawDistanceMeterText2"
-		top_delta="0"
-		width="128">
-			m
-		</text>
+
 		<slider
 		control_name="RenderFarClip"
 		decimal_digits="0"
@@ -462,15 +460,27 @@
 		label="Draw Distance:"
 		label_width="140"
 		layout="topleft"
-		left_delta="-248"
+		left="216"
 		max_val="512"
 		min_val="64"
 		name="DrawDistance"
-		top_delta="0"
+		top="3"
 		width="255">
 			<slider.commit_callback
 			function="Pref.UpdateMeterText" />
 		</slider>
+		<text
+		type="string"
+		length="1"
+		follows="left|top"
+		height="12"
+		layout="topleft"
+		left_delta="250"
+		name="DrawDistanceMeterText2"
+		top_delta="1"
+		width="128">
+			m
+		</text>
 		<slider
 		control_name="RenderMaxPartCount"
 		decimal_digits="0"
@@ -481,10 +491,10 @@
 		label="Max. Particle Count:"
 		label_width="140"
 		layout="topleft"
-		left_delta="0"
+		left="216"
 		max_val="8192"
 		name="MaxParticleCount"
-		top_pad="4"
+		top_pad="6"
 		width="262" />
 		<slider
 		control_name="RenderGlowResolutionPow"
@@ -830,10 +840,7 @@
      left_pad="35"
      name="Advanced"
      top_delta="0"
-     width="115">
-        <button.commit_callback
-         function="Pref.ChangeCustom" />
-    </button>
+     width="115" />
     <button
      follows="right|bottom"
      height="20"

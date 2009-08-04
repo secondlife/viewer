@@ -515,6 +515,7 @@ private:
 	S32				mDesiredXPixel;			// X pixel position where the user wants the cursor to be
 	LLRect			mTextRect;				// The rect in which text is drawn.  Excludes borders.
 	// List of offsets and segment index of the start of each line.  Always has at least one node (0).
+	struct pred;
 	struct line_info
 	{
 		line_info(S32 segment, S32 offset) : mSegment(segment), mOffset(offset) {}

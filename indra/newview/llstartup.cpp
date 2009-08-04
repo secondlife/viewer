@@ -293,8 +293,11 @@ public:
 	virtual void done()
 	{
 		// we've downloaded all the items, so repaint the dialog
-		LLFloaterGesture::refreshAll();
-
+		LLFloaterGesture* floater = LLFloaterReg::findTypedInstance<LLFloaterGesture>("gestures");
+		if (floater)
+		{
+			floater->refreshAll();
+		}
 		gInventory.removeObserver(this);
 		delete this;
 	}
@@ -1229,9 +1232,7 @@ bool idle_startup()
 					{
 						LL_DEBUGS("AppInit") << "Need tos agreement" << LL_ENDL;
 						LLStartUp::setStartupState( STATE_UPDATE_CHECK );
-						LLFloaterTOS* tos_dialog = LLFloaterTOS::show(LLFloaterTOS::TOS_TOS,
-																	message_response);
-						tos_dialog->startModal();
+						LLFloaterReg::showInstance("message_tos", LLSD(message_response));
 						// LLFloaterTOS deletes itself.
 						return false;
 					}
@@ -1246,9 +1247,7 @@ bool idle_startup()
 					{
 						LL_DEBUGS("AppInit") << "Need critical message" << LL_ENDL;
 						LLStartUp::setStartupState( STATE_UPDATE_CHECK );
-						LLFloaterTOS* tos_dialog = LLFloaterTOS::show(LLFloaterTOS::TOS_CRITICAL_MESSAGE,
-																	message_response);
-						tos_dialog->startModal();
+						LLFloaterReg::showInstance("message_critical", LLSD(message_response));
 						// LLFloaterTOS deletes itself.
 						return false;
 					}
@@ -1718,13 +1717,6 @@ bool idle_startup()
 		}	
 		gLoginMenuBarView->setVisible( FALSE );
 		gLoginMenuBarView->setEnabled( FALSE );
-		
-		LLFloaterReg::showInitialVisibleInstances();
-
-		if (gSavedSettings.getBOOL("BeaconAlwaysOn"))
-		{
-			LLFloaterReg::showInstance("beacons");
-		}
 
 		if (!gNoRender)
 		{
@@ -2171,6 +2163,7 @@ bool idle_startup()
 		// We're successfully logged in.
 		gSavedSettings.setBOOL("FirstLoginThisInstall", FALSE);
 
+		LLFloaterReg::showInitialVisibleInstances();
 
 		// based on the comments, we've successfully logged in so we can delete the 'forced'
 		// URL that the updater set in settings.ini (in a mostly paranoid fashion)
@@ -2227,7 +2220,7 @@ bool idle_startup()
 						// Could schedule and delay these for later.
 						const BOOL no_inform_server = FALSE;
 						const BOOL no_deactivate_similar = FALSE;
-						gGestureManager.activateGestureWithAsset(item_id, asset_id,
+						LLGestureManager::instance().activateGestureWithAsset(item_id, asset_id,
 											 no_inform_server,
 											 no_deactivate_similar);
 						// We need to fetch the inventory items for these gestures

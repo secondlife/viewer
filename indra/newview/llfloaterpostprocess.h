@@ -36,6 +36,8 @@
 #include "llfloater.h"
 
 class LLButton;
+class LLComboBox;
+class LLLineEditor;
 class LLSliderCtrl;
 class LLTabContainer;
 class LLPanelPermissions;
@@ -51,11 +53,9 @@ class LLFloaterPostProcess : public LLFloater
 {
 public:
 
-	LLFloaterPostProcess();
+	LLFloaterPostProcess(const LLSD& key);
 	virtual ~LLFloaterPostProcess();
 	/*virtual*/	BOOL	postBuild();
-	/// one and one instance only
-	static LLFloaterPostProcess* instance();
 
 	/// post process callbacks
 	static void onBoolToggle(LLUICtrl* ctrl, void* userData);
@@ -64,18 +64,12 @@ public:
 	static void onColorControlGMoved(LLUICtrl* ctrl, void* userData);
 	static void onColorControlBMoved(LLUICtrl* ctrl, void* userData);
 	static void onColorControlIMoved(LLUICtrl* ctrl, void* userData);
-	static void onLoadEffect(void* userData);
-	static void onSaveEffect(void* userData);
+	void onLoadEffect(LLComboBox* comboBox);
+	void onSaveEffect(LLLineEditor* editBox);
 	void onChangeEffectName(LLUICtrl* ctrl);
 
 	/// prompts a user when overwriting an effect
-	static bool saveAlertCallback(const LLSD& notification, const LLSD& response);
-
-	/// show off our menu
-	static void show();
-
-	/// stuff to do on exit
-	virtual void onClose(bool app_quitting);
+	bool saveAlertCallback(const LLSD& notification, const LLSD& response);
 
 	/// sync up sliders
 	void syncMenu();
@@ -84,8 +78,6 @@ public:
 	void refresh();
 */
 public:
-	
-	static LLFloaterPostProcess* sPostProcess;
 };
 
 #endif

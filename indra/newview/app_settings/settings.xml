@@ -584,17 +584,6 @@
       <key>Value</key>
       <integer>40</integer>
     </map>
-    <key>BeaconAlwaysOn</key>
-    <map>
-      <key>Comment</key>
-      <string>Beacons / highlighting always on</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>BottomPanelNew</key>
     <map>
       <key>Comment</key>
@@ -4593,7 +4582,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>NearMeRange</key>
     <map>
@@ -7203,7 +7192,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>ShowTangentBasis</key>
     <map>
@@ -8289,7 +8278,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>16</real>
+      <real>15</real>
     </map>
     <key>UISliderctrlHeight</key>
     <map>

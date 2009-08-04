@@ -48,7 +48,7 @@ class LLFloaterPostcard
 : public LLFloater
 {
 public:
-	LLFloaterPostcard(LLImageJPEG* jpeg, LLViewerTexture *img, const LLVector2& img_scale, const LLVector3d& pos_taken_global);
+	LLFloaterPostcard(const LLSD& key);
 	virtual ~LLFloaterPostcard();
 
 	virtual BOOL postBuild();
@@ -79,9 +79,6 @@ protected:
 	LLVector2 mImageScale;
 	LLVector3d mPosTakenGlobal;
 	boolean mHasFirstMsgFocus;
-
-	typedef std::set<LLFloaterPostcard*> instance_list_t;
-	static instance_list_t sInstances;
 };
 
 

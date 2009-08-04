@@ -10,18 +10,6 @@
  name="advanced"
  top="1"
  width="517">
-        <text
-     type="string"
-     text_color="LabelSelectedDisabledColor"
-     length="1"
-     follows="left|top"
-     layout="topleft"
-     left="8"
-     name="text status"
-     top_pad="3"
-     width="280">
-Beware the Trout!
-    </text>
         
         <!-- ADVANCED -->
 

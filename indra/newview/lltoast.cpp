@@ -42,7 +42,7 @@ using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
 LLToast::LLToast(LLPanel* panel) : 
-					LLFloater(), 
+				    LLFloater(LLSD()), 
 					mTimerValue(5),  
 					mIsViewed(false), 
 					mPanel(panel), 

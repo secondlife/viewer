@@ -37,6 +37,7 @@
 #include "pipeline.h"
 #include "llsky.h"
 
+#include "llfloaterreg.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "llcheckboxctrl.h"
@@ -377,17 +378,20 @@ void LLWLParamManager::update(LLViewerCamera * cam)
 	propagateParameters();
 	
 	// sync menus if they exist
-	if(LLFloaterWindLight::isOpen()) 
+	LLFloaterWindLight* wlfloater = LLFloaterReg::findTypedInstance<LLFloaterWindLight>("env_windlight");
+	if (wlfloater)
 	{
-		LLFloaterWindLight::instance()->syncMenu();
+		wlfloater->syncMenu();
 	}
-	if(LLFloaterDayCycle::isOpen()) 
+	LLFloaterDayCycle* dlfloater = LLFloaterReg::findTypedInstance<LLFloaterDayCycle>("env_day_cycle");
+	if (dlfloater)
 	{
-		LLFloaterDayCycle::instance()->syncMenu();
+		dlfloater->syncMenu();
 	}
-	if(LLFloaterEnvSettings::isOpen()) 
+	LLFloaterEnvSettings* envfloater = LLFloaterReg::findTypedInstance<LLFloaterEnvSettings>("env_settings");
+	if (envfloater)
 	{
-		LLFloaterEnvSettings::instance()->syncMenu();
+		envfloater->syncMenu();
 	}
 
 	F32 camYaw = cam->getYaw();

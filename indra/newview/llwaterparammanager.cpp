@@ -39,6 +39,7 @@
 #include "pipeline.h"
 #include "llsky.h"
 
+#include "llfloaterreg.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "llcheckboxctrl.h"
@@ -270,9 +271,10 @@ void LLWaterParamManager::update(LLViewerCamera * cam)
 	propagateParameters();
 	
 	// sync menus if they exist
-	if(LLFloaterWater::isOpen()) 
+	LLFloaterWater* waterfloater = LLFloaterReg::findTypedInstance<LLFloaterWater>("env_water");
+	if(waterfloater) 
 	{
-		LLFloaterWater::instance()->syncMenu();
+		waterfloater->syncMenu();
 	}
 
 	stop_glerror();

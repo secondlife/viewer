@@ -69,6 +69,8 @@ void LLPreviewAnim::endAnimCallback( void *userdata )
 // virtual
 BOOL LLPreviewAnim::postBuild()
 {
+	mCloseSignal.connect(boost::bind(&LLPreviewAnim::onClose, this));
+	
 	const LLInventoryItem* item = getItem();
 	if(item)
 	{
@@ -180,7 +182,7 @@ void LLPreviewAnim::auditionAnim( void *userdata )
 	}
 }
 
-void LLPreviewAnim::onClose(bool app_quitting)
+void LLPreviewAnim::onClose()
 {
 	const LLInventoryItem *item = getItem();
 
@@ -198,5 +200,4 @@ void LLPreviewAnim::onClose(bool app_quitting)
 			motion->setDeactivateCallback(NULL, (void *)NULL);
 		}
 	}
-	destroy();
 }

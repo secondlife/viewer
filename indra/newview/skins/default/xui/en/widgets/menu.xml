@@ -2,5 +2,6 @@
 <menu bg_color="MenuDefaultBgColor"
       bg_visible="true"
       drop_shadow="true"
-      tear_off="false">
+      tear_off="false"
+      shortcut_pad="15">
 </menu>

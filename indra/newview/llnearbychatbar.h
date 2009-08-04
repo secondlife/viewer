@@ -43,8 +43,10 @@ class LLGestureComboBox
 	: public LLComboBox
 	, public LLGestureManagerObserver
 {
+public:
+	struct Params : public LLInitParam::Block<Params, LLComboBox::Params> { };
 protected:
-	LLGestureComboBox(const LLComboBox::Params&);
+	LLGestureComboBox(const Params&);
 	friend class LLUICtrlFactory;
 public:
 	~LLGestureComboBox();

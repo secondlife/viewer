@@ -32,9 +32,10 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "lluictrlfactory.h"
 #include "llfloaterscriptdebug.h"
 
+#include "llfloaterreg.h"
+#include "lluictrlfactory.h"
 #include "llfontgl.h"
 #include "llrect.h"
 #include "llerror.h"
@@ -50,19 +51,15 @@
 //
 // Statics
 //
-LLFloaterScriptDebug*	LLFloaterScriptDebug::sInstance = NULL;
-
-void* getOutputWindow(void* data);
 
 //
 // Member Functions
 //
-LLFloaterScriptDebug::LLFloaterScriptDebug(const std::string& filename)
-  : LLMultiFloater()
+LLFloaterScriptDebug::LLFloaterScriptDebug(const LLSD& key)
+  : LLMultiFloater(key)
 {
-	mFactoryMap["all_scripts"] = LLCallbackMap(getOutputWindow, NULL);
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_script_debug.xml");
-
+// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_script_debug.xml");
+	
 	// avoid resizing of the window to match 
 	// the initial size of the tabbed-childs, whenever a tab is opened or closed
 	mAutoResize = FALSE;
@@ -70,20 +67,11 @@ LLFloaterScriptDebug::LLFloaterScriptDebug(const std::string& filename)
 
 LLFloaterScriptDebug::~LLFloaterScriptDebug()
 {
-	sInstance = NULL;
 }
 
 void LLFloaterScriptDebug::show(const LLUUID& object_id)
 {
-	LLFloater* floaterp = addOutputWindow(object_id);
-	if (sInstance)
-	{
-		sInstance->openFloater(object_id);
-		if (object_id.notNull())
-			sInstance->showFloater(floaterp, LLTabContainer::END);
-// 		else // Jump to [All scripts], but keep it on the left
-// 			sInstance->showFloater(floaterp, LLTabContainer::START);
-	}
+	addOutputWindow(object_id);
 }
 
 BOOL LLFloaterScriptDebug::postBuild()
@@ -101,25 +89,15 @@ BOOL LLFloaterScriptDebug::postBuild()
 	return FALSE;
 }
 
-void* getOutputWindow(void* data)
-{
-	return new LLFloaterScriptDebugOutput(LLUUID::null);
-}
-
 LLFloater* LLFloaterScriptDebug::addOutputWindow(const LLUUID &object_id)
 {
-	if (!sInstance)
-	{
-		sInstance = new LLFloaterScriptDebug("floater_script_debug.xml");
-		sInstance->setVisible(FALSE);
-	}
+	LLMultiFloater* host = LLFloaterReg::showTypedInstance<LLMultiFloater>("script_debug", LLSD());
+	if (!host)
+		return NULL;
 
-	LLFloater::setFloaterHost(sInstance);
-	LLFloater* floaterp = LLFloaterScriptDebugOutput::show(object_id);
+	LLFloater::setFloaterHost(host);
+	LLFloater* floaterp = LLFloaterReg::showInstance("script_debug_output", object_id);
 	LLFloater::setFloaterHost(NULL);
-
-	// Tabs sometimes overlap resize handle
-	sInstance->moveResizeHandlesToFront();
 
 	return floaterp;
 }
@@ -143,26 +121,29 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
 	addOutputWindow(source_id);
 
 	// add to "All" floater
-	LLFloaterScriptDebugOutput* floaterp = LLFloaterScriptDebugOutput::getFloaterByID(LLUUID::null);
-	floaterp->addLine(utf8mesg, user_name, color);
-
+	LLFloaterScriptDebugOutput* floaterp = 	LLFloaterReg::getTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", LLUUID::null);
+	if (floaterp)
+	{
+		floaterp->addLine(utf8mesg, user_name, color);
+	}
+	
 	// add to specific script instance floater
-	floaterp = LLFloaterScriptDebugOutput::getFloaterByID(source_id);
-	floaterp->addLine(utf8mesg, floater_label, color);
+	floaterp = LLFloaterReg::getTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", source_id);
+	if (floaterp)
+	{
+		floaterp->addLine(utf8mesg, floater_label, color);
+	}
 }
 
 //
 // LLFloaterScriptDebugOutput
 //
 
-std::map<LLUUID, LLFloaterScriptDebugOutput*> LLFloaterScriptDebugOutput::sInstanceMap;
-
-LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLUUID& object_id)
-  : LLFloater(),
-	mObjectID(object_id)
+LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLSD& object_id)
+  : LLFloater(LLSD(object_id)),
+	mObjectID(object_id.asUUID())
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_script_debug_panel.xml");
-	sInstanceMap[object_id] = this;
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_script_debug_panel.xml");
 }
 
 BOOL LLFloaterScriptDebugOutput::postBuild()
@@ -174,7 +155,6 @@ BOOL LLFloaterScriptDebugOutput::postBuild()
 
 LLFloaterScriptDebugOutput::~LLFloaterScriptDebugOutput()
 {
-	sInstanceMap.erase(mObjectID);
 }
 
 void LLFloaterScriptDebugOutput::addLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color)
@@ -193,33 +173,3 @@ void LLFloaterScriptDebugOutput::addLine(const std::string &utf8mesg, const std:
 	mHistoryEditor->appendColoredText(utf8mesg, false, true, color);
 }
 
-//static
-LLFloaterScriptDebugOutput* LLFloaterScriptDebugOutput::show(const LLUUID& object_id)
-{
-	LLFloaterScriptDebugOutput* floaterp = NULL;
-	instance_map_t::iterator found_it = sInstanceMap.find(object_id);
-	if (found_it == sInstanceMap.end())
-	{
-		floaterp = new LLFloaterScriptDebugOutput(object_id);
-		floaterp->openFloater();
-	}
-	else
-	{
-		floaterp = found_it->second;
-	}
-
-	return floaterp;
-}
-
-//static 
-LLFloaterScriptDebugOutput* LLFloaterScriptDebugOutput::getFloaterByID(const LLUUID& object_id)
-{
-	LLFloaterScriptDebugOutput* floaterp = NULL;
-	instance_map_t::iterator found_it = sInstanceMap.find(object_id);
-	if (found_it != sInstanceMap.end())
-	{
-		floaterp = found_it->second;
-	}
-
-	return floaterp;
-}

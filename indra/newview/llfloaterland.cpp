@@ -204,21 +204,16 @@ void LLFloaterLand::onOpen(const LLSD& key)
 	refresh();
 }
 
-
-// virtual
-void LLFloaterLand::onClose(bool app_quitting)
+void LLFloaterLand::onVisibilityChange(const LLSD& visible)
 {
-	LLViewerParcelMgr::getInstance()->removeObserver( sObserver );
-	delete sObserver;
-	sObserver = NULL;
+	if (!visible.asBoolean())
+	{
+		// Might have been showing owned objects
+		LLSelectMgr::getInstance()->unhighlightAll();
 
-	// Might have been showing owned objects
-	LLSelectMgr::getInstance()->unhighlightAll();
-
-	// Save which panel we had open
-	sLastTab = mTabLand->getCurrentPanelIndex();
-
-	destroy();
+		// Save which panel we had open
+		sLastTab = mTabLand->getCurrentPanelIndex();
+	}
 }
 
 
@@ -239,7 +234,9 @@ LLFloaterLand::LLFloaterLand(const LLSD& seed)
 }
 
 BOOL LLFloaterLand::postBuild()
-{
+{	
+	mVisibleSignal.connect(boost::bind(&LLFloaterLand::onVisibilityChange, this, _2));
+	
 	LLTabContainer* tab = getChild<LLTabContainer>("landtab");
 
 	mTabLand = (LLTabContainer*) tab;
@@ -256,6 +253,9 @@ BOOL LLFloaterLand::postBuild()
 // virtual
 LLFloaterLand::~LLFloaterLand()
 {
+	LLViewerParcelMgr::getInstance()->removeObserver( sObserver );
+	delete sObserver;
+	sObserver = NULL;
 }
 
 // public
@@ -781,18 +781,18 @@ void LLPanelLandGeneral::draw()
 
 void LLPanelLandGeneral::onClickSetGroup()
 {
-	LLFloaterGroupPicker* fg;
-
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
 
-	fg = LLFloaterGroupPicker::showInstance(LLSD(gAgent.getID()));
-	fg->setSelectGroupCallback( boost::bind(&LLPanelLandGeneral::setGroup, this, _1 ));
-
-	if (parent_floater)
+	LLFloaterGroupPicker* fg = 	LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
+	if (fg)
 	{
-		LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, fg);
-		fg->setOrigin(new_rect.mLeft, new_rect.mBottom);
-		parent_floater->addDependentFloater(fg);
+		fg->setSelectGroupCallback( boost::bind(&LLPanelLandGeneral::setGroup, this, _1 ));
+		if (parent_floater)
+		{
+			LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, fg);
+			fg->setOrigin(new_rect.mLeft, new_rect.mBottom);
+			parent_floater->addDependentFloater(fg);
+		}
 	}
 }
 

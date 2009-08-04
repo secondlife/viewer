@@ -69,15 +69,12 @@ const S32 PREF_BUTTON_HEIGHT = 16;
 //-----------------------------------------------------------------------------
 // LLFloaterNameDesc()
 //-----------------------------------------------------------------------------
-LLFloaterNameDesc::LLFloaterNameDesc(const std::string& filename )
-	: LLFloater()
+LLFloaterNameDesc::LLFloaterNameDesc(const LLSD& filename )
+	: LLFloater(filename),
+	  mIsAudio(FALSE)	  
 {
-	setTitle("Name/Description Floater");
-	mFilenameAndPath = filename;
-	mFilename = gDirUtilp->getBaseFileName(filename, false);
-	// SL-5521 Maintain capitalization of filename when making the inventory item. JC
-	//LLStringUtil::toLower(mFilename);
-	mIsAudio = FALSE;
+	mFilenameAndPath = filename.asString();
+	mFilename = gDirUtilp->getBaseFileName(mFilenameAndPath, false);
 }
 
 //-----------------------------------------------------------------------------
@@ -93,11 +90,6 @@ BOOL LLFloaterNameDesc::postBuild()
 	LLStringUtil::stripNonprintable(asset_name);
 	LLStringUtil::trim(asset_name);
 
-	std::string exten = gDirUtilp->getExtension(asset_name);
-	if (exten == "wav")
-	{
-		mIsAudio = TRUE;
-	}
 	asset_name = gDirUtilp->getBaseFileName(asset_name, true); // no extsntion
 
 	setTitle(mFilename);
@@ -112,7 +104,7 @@ BOOL LLFloaterNameDesc::postBuild()
 
 	r.setLeftTopAndSize( PREVIEW_HPAD, y, line_width, PREVIEW_LINE_HEIGHT );    
 
-	childSetCommitCallback("name_form", doCommit, this);
+	getChild<LLUICtrl>("name_form")->setCommitCallback(boost::bind(&LLFloaterNameDesc::doCommit, this));
 	childSetValue("name_form", LLSD(asset_name));
 
 	LLLineEditor *NameEditor = getChild<LLLineEditor>("name_form");
@@ -126,7 +118,7 @@ BOOL LLFloaterNameDesc::postBuild()
 	y -= PREVIEW_LINE_HEIGHT;
 
 	r.setLeftTopAndSize( PREVIEW_HPAD, y, line_width, PREVIEW_LINE_HEIGHT );  
-	childSetCommitCallback("description_form", doCommit, this);
+	getChild<LLUICtrl>("description_form")->setCommitCallback(boost::bind(&LLFloaterNameDesc::doCommit, this));
 	LLLineEditor *DescEditor = getChild<LLLineEditor>("description_form");
 	if (DescEditor)
 	{
@@ -137,12 +129,12 @@ BOOL LLFloaterNameDesc::postBuild()
 	y -= llfloor(PREVIEW_LINE_HEIGHT * 1.2f);
 
 	// Cancel button
-	childSetAction("cancel_btn", onBtnCancel, this);
+	getChild<LLUICtrl>("cancel_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnCancel, this));
 
-	// OK button
-	childSetAction("ok_btn", onBtnOK, this);
+	childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload() ));
+	
 	setDefaultBtn("ok_btn");
-
+	
 	return TRUE;
 }
 
@@ -162,45 +154,59 @@ void LLFloaterNameDesc::onCommit()
 {
 }
 
-// static 
 //-----------------------------------------------------------------------------
 // onCommit()
 //-----------------------------------------------------------------------------
-void LLFloaterNameDesc::doCommit( class LLUICtrl *, void* userdata )
+void LLFloaterNameDesc::doCommit()
 {
-	LLFloaterNameDesc* self = (LLFloaterNameDesc*) userdata;
-	self->onCommit();
+	onCommit();
 }
 
-// static 
 //-----------------------------------------------------------------------------
 // onBtnOK()
 //-----------------------------------------------------------------------------
-void LLFloaterNameDesc::onBtnOK( void* userdata )
+void LLFloaterNameDesc::onBtnOK( )
 {
-	LLFloaterNameDesc *fp =(LLFloaterNameDesc *)userdata;
-
-	fp->childDisable("ok_btn"); // don't allow inadvertent extra uploads
+	childDisable("ok_btn"); // don't allow inadvertent extra uploads
 	
 	LLAssetStorage::LLStoreAssetCallback callback = NULL;
 	S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload(); // kinda hack - assumes that unsubclassed LLFloaterNameDesc is only used for uploading chargeable assets, which it is right now (it's only used unsubclassed for the sound upload dialog, and THAT should be a subclass).
 	void *nruserdata = NULL;
 	std::string display_name = LLStringUtil::null;
-	upload_new_resource(fp->mFilenameAndPath, // file
-			    fp->childGetValue("name_form").asString(), 
-			    fp->childGetValue("description_form").asString(), 
+	upload_new_resource(mFilenameAndPath, // file
+			    childGetValue("name_form").asString(), 
+			    childGetValue("description_form").asString(), 
 			    0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE,
 			    LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
 			    display_name, callback, expected_upload_cost, nruserdata);
-	fp->closeFloater(false);
+	closeFloater(false);
 }
 
-// static 
 //-----------------------------------------------------------------------------
 // onBtnCancel()
 //-----------------------------------------------------------------------------
-void LLFloaterNameDesc::onBtnCancel( void* userdata )
+void LLFloaterNameDesc::onBtnCancel()
 {
-	LLFloaterNameDesc *fp =(LLFloaterNameDesc *)userdata;
-	fp->closeFloater(false);
+	closeFloater(false);
+}
+
+
+//-----------------------------------------------------------------------------
+// LLFloaterSoundPreview()
+//-----------------------------------------------------------------------------
+
+LLFloaterSoundPreview::LLFloaterSoundPreview(const LLSD& filename )
+	: LLFloaterNameDesc(filename)
+{
+	mIsAudio = TRUE;
+}
+
+BOOL LLFloaterSoundPreview::postBuild()
+{
+	if (!LLFloaterNameDesc::postBuild())
+	{
+		return FALSE;
+	}
+	getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
+	return TRUE;
 }

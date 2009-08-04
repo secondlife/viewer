@@ -719,14 +719,14 @@ LLUUID LLIMMgr::computeSessionID(
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 LLFloaterIM::LLFloaterIM()
-	: LLMultiFloater()
+	: LLMultiFloater(LLSD())
 {
 	// autoresize=false is necessary to avoid resizing of the IM window whenever 
 	// a session is opened or closed (it would otherwise resize the window to match
 	// the size of the im-sesssion when they were created.  This happens in 
 	// LLMultiFloater::resizeToContents() when called through LLMultiFloater::addFloater())
-	this->mAutoResize = FALSE;
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_im.xml");
+	mAutoResize = FALSE;
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_im.xml", NULL);
 }
 
 BOOL LLFloaterIM::postBuild()
@@ -813,10 +813,10 @@ BOOL LLFloaterIM::postBuild()
 // Class LLIncomingCallDialog
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 LLIncomingCallDialog::LLIncomingCallDialog(const LLSD& payload) :
-	LLModalDialog(LLStringUtil::null, 240, 200),
+	LLModalDialog(payload, 240, 200),
 	mPayload(payload)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_incoming_call.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_incoming_call.xml", NULL);
 }
 
 BOOL LLIncomingCallDialog::postBuild()
@@ -1186,10 +1186,6 @@ void LLIMMgr::addMessage(
 			dialog,
 			FALSE);
 
-		
-		LLIMModel::instance().newSession(new_session_id, name, dialog, other_participant_id);
-
-
 		// When we get a new IM, and if you are a god, display a bit
 		// of information about the source. This is to help liaisons
 		// when answering questions.
@@ -1351,7 +1347,10 @@ LLUUID LLIMMgr::addSession(
 			TRUE);
 
 		noteOfflineUsers(floater, ids);
-		LLFloaterReg::showInstance("communicate", session_id);
+		//LLFloaterReg::showInstance("communicate", session_id);
+		// *NOTE: Is this right?  Or should we only do it for 
+		// dialog == IM_NOTHING_SPECIAL and some group types?
+		LLIMFloater::show(session_id);
 
 		// Only warn for regular IMs - not group IMs
 		if( dialog == IM_NOTHING_SPECIAL )
@@ -1361,6 +1360,8 @@ LLUUID LLIMMgr::addSession(
 	}
 	else
 	{
+		// *TODO: Remove this?  Otherwise old communicate window opens on
+		// second initiation of IM session from People panel?
 		floater->openFloater();
 	}
 	//mTabContainer->selectTabPanel(panel);
@@ -1402,7 +1403,8 @@ LLUUID LLIMMgr::addSession(
 		if ( !floater ) return LLUUID::null;
 
 		noteOfflineUsers(floater, ids);
-		LLFloaterReg::showInstance("communicate", session_id);
+		// *BUG: Is this correct?  What do we want to spawn for group IMs?
+		// LLFloaterReg::showInstance("communicate", session_id);
 
 		// Only warn for regular IMs - not group IMs
 		if( dialog == IM_NOTHING_SPECIAL )
@@ -1762,6 +1764,7 @@ LLFloaterIMPanel* LLIMMgr::createFloater(
 	LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::RIGHT_OF_CURRENT : LLTabContainer::END;
 	LLFloaterChatterBox::getInstance()->addFloater(floater, FALSE, i_pt);
 	mFloaters.insert(floater->getHandle());
+	LLIMModel::instance().newSession(session_id, session_label, dialog, other_participant_id);
 	return floater;
 }
 
@@ -1788,6 +1791,7 @@ LLFloaterIMPanel* LLIMMgr::createFloater(
 	LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::RIGHT_OF_CURRENT : LLTabContainer::END;
 	LLFloaterChatterBox::getInstance()->addFloater(floater, FALSE, i_pt);
 	mFloaters.insert(floater->getHandle());
+	LLIMModel::instance().newSession(session_id, session_label, dialog, other_participant_id);
 	return floater;
 }
 

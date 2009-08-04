@@ -63,15 +63,15 @@ BOOL LLFloaterTestListView::postBuild()
 
 void LLFloaterTestListView::onListViewChanged()
 {
-	llinfos << "JAMESDEBUG list view changed" << llendl;
+	llinfos << "list view changed" << llendl;
 }
 
 void LLFloaterTestListView::onClickTest1()
 {
-	llinfos << "JAMESDEBUG test 1" << llendl;
+	llinfos << "test 1" << llendl;
 }
 
 void LLFloaterTestListView::onClickTest2()
 {
-	llinfos << "JAMESDEBUG test 2" << llendl;
+	llinfos << "test 2" << llendl;
 }

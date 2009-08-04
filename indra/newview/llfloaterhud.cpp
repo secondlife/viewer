@@ -101,12 +101,3 @@ BOOL LLFloaterHUD::postBuild()
 LLFloaterHUD::~LLFloaterHUD()
 {
 }
-// Save our visibility state on close in case the user accidentally
-// quit the application while the tutorial was visible.
-// virtual
-void LLFloaterHUD::onClose(bool app_quitting)
-{
-	bool stay_visible = app_quitting;
-	gSavedSettings.setBOOL("ShowTutorial", stay_visible);
-	destroy();
-}

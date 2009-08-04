@@ -58,6 +58,7 @@
 #include "lldbstrings.h"
 #include "llfloatergroupinfo.h"
 #include "llfloatergroups.h"
+#include "llfloaterreg.h"
 #include "llavataractions.h"
 #include "llnamebox.h"
 #include "llviewercontrol.h"
@@ -836,15 +837,17 @@ void LLPanelPermissions::onClickGroup()
 
 	if(owners_identical && (owner_id == gAgent.getID()))
 	{
-		LLFloaterGroupPicker* fg;
-		fg = LLFloaterGroupPicker::showInstance(LLSD(gAgent.getID()));
-		fg->setSelectGroupCallback( boost::bind(&LLPanelPermissions::cbGroupID, this, _1) );
-
-		if (parent_floater)
+		LLFloaterGroupPicker* fg = 	LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
+		if (fg)
 		{
-			LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, fg);
-			fg->setOrigin(new_rect.mLeft, new_rect.mBottom);
-			parent_floater->addDependentFloater(fg);
+			fg->setSelectGroupCallback( boost::bind(&LLPanelPermissions::cbGroupID, this, _1) );
+
+			if (parent_floater)
+			{
+				LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, fg);
+				fg->setOrigin(new_rect.mLeft, new_rect.mBottom);
+				parent_floater->addDependentFloater(fg);
+			}
 		}
 	}
 }

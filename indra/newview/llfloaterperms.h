@@ -41,7 +41,6 @@ class LLFloaterPerms : public LLFloater
 	friend class LLFloaterReg;
 	
 public:
-	/*virtual*/ void onClose(bool app_quitting = false);
 	/*virtual*/ BOOL postBuild();
 	void ok();
 	void cancel();

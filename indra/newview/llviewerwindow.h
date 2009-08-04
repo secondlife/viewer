@@ -50,6 +50,7 @@
 #include "llnotifications.h"
 #include "llmousehandler.h"
 #include "llcursortypes.h"
+#include "llhandle.h"
 
 class LLView;
 class LLViewerObject;

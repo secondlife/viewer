@@ -106,7 +106,7 @@ protected:
 	friend class LLUICtrlFactory;
 public:
 	virtual void setValue(const LLSD& value) { setLabel(value.asString()); }
-	/*virtual*/ void onVisibilityChange(BOOL new_visibility);
+	/*virtual*/ void handleVisibilityChange(BOOL new_visibility);
 
 	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
@@ -137,7 +137,7 @@ public:
 	virtual BOOL setLabelArg( const std::string& key, const LLStringExplicit& text );
 
 	// Get the parent menu for this item
-	virtual class LLMenuGL*	getMenu();
+	virtual class LLMenuGL*	getMenu() const;
 
 	// returns the normal width of this control in pixels - this is
 	// used for calculating the widest item, as well as for horizontal
@@ -383,6 +383,7 @@ public:
 										keep_fixed_size,
 										scrollable;
 		Optional<LLUIColor>				bg_color;
+		Optional<S32>					shortcut_pad;
 
 		Params()
 		:	jump_key("jump_key", KEY_NONE),
@@ -392,7 +393,8 @@ public:
 			bg_visible("bg_visible", true),
 			create_jump_keys("create_jump_keys", false),
 			bg_color("bg_color",  LLUIColorTable::instance().getColor( "MenuDefaultBgColor" )),
-			scrollable("scrollable", false)
+			scrollable("scrollable", false), 
+			shortcut_pad("shortcut_pad")
 		{
 			addSynonym(bg_visible, "opaque");
 			addSynonym(bg_color, "color");
@@ -513,6 +515,8 @@ public:
 	static void setKeyboardMode(BOOL mode) { sKeyboardMode = mode; }
 	static BOOL getKeyboardMode() { return sKeyboardMode; }
 
+	S32 getShortcutPad() { return mShortcutPad; }
+
 	void scrollItemsUp();
 	void scrollItemsDown();
 	BOOL isScrollable() const { return mScrollable; }
@@ -566,6 +570,7 @@ private:
 	LLHandle<LLFloater>	mParentFloaterHandle;
 	KEY				mJumpKey;
 	BOOL			mCreateJumpKeys;
+	S32				mShortcutPad;
 }; // end class LLMenuGL
 
 
@@ -621,7 +626,7 @@ public:
 	virtual void updateBranchParent( LLView* parentp );
 
 	// LLView Functionality
-	virtual void onVisibilityChange( BOOL curVisibilityIn );
+	virtual void handleVisibilityChange( BOOL curVisibilityIn );
 
 	virtual void draw();
 
@@ -680,11 +685,6 @@ public:
 protected:
 	BOOL			mHoveredAnyItem;
 	LLMenuItemGL*	mHoverItem;
-
-	// Cursor position when the menu was spawned, in menu-local coords
-	// Used to allow single right-click within a slop region to spawn the menu
-	S32				mSpawnMouseX;
-	S32				mSpawnMouseY;
 };
 
 
@@ -764,12 +764,18 @@ public:
 	virtual void draw();
 	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
+
+	// Close context menus on right mouse up not handled by menus.
 	/*virtual*/ BOOL handleRightMouseUp( S32 x, S32 y, MASK mask );
 
 	virtual const LLRect getMenuRect() const { return getLocalRect(); }
 	virtual BOOL hasVisibleMenu() const;
 
 	static void setActivatedItem(LLMenuItemGL* item);
+
+	// Need to detect if mouse-up after context menu spawn has moved.
+	// If not, need to keep the menu up.
+	static LLCoordGL sContextMenuSpawnPos;
 
 private:
 	static LLHandle<LLView> sItemLastSelectedHandle;
@@ -788,8 +794,10 @@ class LLTearOffMenu : public LLFloater
 {
 public:
 	static LLTearOffMenu* create(LLMenuGL* menup);
-	virtual ~LLTearOffMenu() {}
-	virtual void onClose(bool app_quitting);
+	virtual ~LLTearOffMenu();
+
+	virtual BOOL postBuild();
+	
 	virtual void draw(void);
 	virtual void onFocusReceived();
 	virtual void onFocusLost();
@@ -799,7 +807,9 @@ public:
 
 private:
 	LLTearOffMenu(LLMenuGL* menup);
-
+	
+	void closeTearOff();
+	
 	LLView*		mOldParent;
 	LLMenuGL*	mMenu;
 	F32			mTargetHeight;

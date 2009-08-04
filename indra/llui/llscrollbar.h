@@ -61,8 +61,10 @@ public:
 		Optional<S32>					step_size;
 		Optional<S32>					thickness;
 
-		Optional<LLUIImage*>			thumb_image,
-										track_image;
+		Optional<LLUIImage*>			thumb_image_vertical,
+										thumb_image_horizontal,
+										track_image_horizontal,
+										track_image_vertical;
 
 		Optional<LLUIColor>				track_color,
 										thumb_color;
@@ -155,8 +157,10 @@ private:
 	LLUIColor			mTrackColor;
 	LLUIColor			mThumbColor;
 
-	LLUIImagePtr		mThumbImage;
-	LLUIImagePtr		mTrackImage;
+	LLUIImagePtr		mThumbImageV;
+	LLUIImagePtr		mThumbImageH;
+	LLUIImagePtr		mTrackImageV;
+	LLUIImagePtr		mTrackImageH;
 
 	S32					mThickness;
 

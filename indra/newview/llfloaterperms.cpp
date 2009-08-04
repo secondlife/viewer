@@ -53,7 +53,8 @@ LLFloaterPerms::LLFloaterPerms(const LLSD& seed)
 
 BOOL LLFloaterPerms::postBuild()
 {
-
+	mCloseSignal.connect(boost::bind(&LLFloaterPerms::cancel, this));
+	
 	refresh();
 	
 	return TRUE;
@@ -104,14 +105,6 @@ void LLFloaterPerms::refresh()
 	mNextOwnerCopy     = gSavedSettings.getBOOL("NextOwnerCopy");
 	mNextOwnerModify   = gSavedSettings.getBOOL("NextOwnerModify");
 	mNextOwnerTransfer = gSavedSettings.getBOOL("NextOwnerTransfer");
-}
-
-void LLFloaterPerms::onClose(bool app_quitting)
-{
-	// Cancel any unsaved changes before closing. 
-	// Note: when closed due to the OK button this amounts to a no-op.
-	cancel();
-	destroy();
 }
 
 //static 

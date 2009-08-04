@@ -49,7 +49,7 @@ public:
 	void activate(e_activation_type type);
 	
 protected:
-	virtual void onClose(bool app_quitting);
+	void onClose();
 	
 	LLAnimPauseRequest	mPauseRequest;
 	LLUUID		mItemID;

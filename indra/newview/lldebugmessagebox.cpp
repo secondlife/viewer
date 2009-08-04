@@ -50,7 +50,7 @@
 std::map<std::string, LLDebugVarMessageBox*> LLDebugVarMessageBox::sInstances;
 
 LLDebugVarMessageBox::LLDebugVarMessageBox(const std::string& title, EDebugVarType var_type, void *var) : 
-	LLFloater(),
+	LLFloater(LLSD()),
 	mVarType(var_type), mVarData(var), mAnimate(FALSE)
 {
 	setRect(LLRect(10,160,400,10));
@@ -248,11 +248,6 @@ void LLDebugVarMessageBox::onAnimateClicked(const LLSD& data)
 {
 	mAnimate = !mAnimate;
 	mAnimateButton->setToggleState(mAnimate);
-}
-
-void LLDebugVarMessageBox::onClose(bool app_quitting)
-{
-	setVisible(FALSE);
 }
 
 void LLDebugVarMessageBox::draw()

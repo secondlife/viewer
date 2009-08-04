@@ -40,13 +40,14 @@
 #include "llnearbychatbar.h"
 #include "llsplitbutton.h"
 #include "llfloatercamera.h"
+#include "llimpanel.h"
 
 LLBottomTray::LLBottomTray(const LLSD&)
-	: mChicletPanel(NULL)
-	, mIMWell(NULL)
-	, mSysWell(NULL)
-	, mTalkBtn(NULL)
-	, mNearbyChatBar(NULL)
+:	mChicletPanel(NULL),
+	mIMWell(NULL),
+	mSysWell(NULL),
+	mTalkBtn(NULL),
+	mNearbyChatBar(NULL)
 {
 	mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
 
@@ -72,6 +73,13 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	setFocusRoot(TRUE);
 }
 
+BOOL LLBottomTray::postBuild()
+{
+	 mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
+
+	 return TRUE;
+}
+
 LLBottomTray::~LLBottomTray()
 {
 	if (!LLSingleton<LLIMMgr>::destroyed())
@@ -87,24 +95,18 @@ void LLBottomTray::onChicletClick(LLUICtrl* ctrl)
 	{
 		// Until you can type into an IM Window and have a conversation,
 		// still show the old communicate window
-		LLFloaterReg::showInstance("communicate", chiclet->getSessionId());
-		// DISABLED IN VIEWER-2 BRANCH UNTIL FEATURE IS DONE -- James
-		//// Show after comm window so it is frontmost (and hence will not
-		//// auto-hide)
-		//LLIMFloater::show(chiclet->getSessionId());
+		//LLFloaterReg::showInstance("communicate", chiclet->getSessionId());
+
+		// Show after comm window so it is frontmost (and hence will not
+		// auto-hide)
+		LLIMFloater::show(chiclet->getSessionId());
 		chiclet->setCounter(0);
 	}
 }
 
 void* LLBottomTray::createNearbyChatBar(void* userdata)
 {
-	LLBottomTray *bt = LLBottomTray::getInstance();
-	if (!bt)
-		return NULL;
-
-	bt->mNearbyChatBar = new LLNearbyChatBar();
-
-	return bt->mNearbyChatBar;
+	return new LLNearbyChatBar();
 }
 
 //virtual

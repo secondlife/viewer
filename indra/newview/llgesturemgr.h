@@ -38,6 +38,8 @@
 #include <vector>
 
 #include "llassetstorage.h"	// LLAssetType
+#include "llinventorymodel.h"
+#include "llsingleton.h"
 #include "llviewerinventory.h"
 
 class LLMultiGesture;
@@ -52,7 +54,7 @@ public:
 	virtual void changed() = 0;
 };
 
-class LLGestureManager
+class LLGestureManager : public LLSingleton<LLGestureManager>, public LLInventoryCompletionObserver
 {
 public:
 	LLGestureManager();
@@ -133,6 +135,9 @@ protected:
 	// Do a single step in a gesture
 	void runStep(LLMultiGesture* gesture, LLGestureStep* step);
 
+	// LLInventoryCompletionObserver trigger
+	void done();
+
 	// Used by loadGesture
 	static void onLoadComplete(LLVFS *vfs,
 						   const LLUUID& asset_uuid,
@@ -157,7 +162,5 @@ public:
 
 	std::vector<LLGestureManagerObserver*> mObservers;
 };
-
-extern LLGestureManager gGestureManager;
 
 #endif

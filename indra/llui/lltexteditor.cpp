@@ -286,6 +286,8 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p)
 	mReflowNeeded(FALSE),
 	mScrollNeeded(FALSE),
 	mLastSelectionY(-1),
+	mParseHTML(FALSE),
+	mParseHighlights(FALSE),
 	mTabsToNextField(p.ignore_tab),
 	mGLFont(p.font)
 {
@@ -335,7 +337,6 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p)
 
 	setHideScrollbarForShortDocs(p.hide_scrollbar);
 
-	mParseHTML=FALSE;
 	mHTML.clear();
 }
 
@@ -388,6 +389,15 @@ void LLTextEditor::setThumbColor( const LLColor4& color )
 	mScrollbar->setThumbColor(color); 
 }
 
+struct LLTextEditor::pred
+{
+	bool operator()(const std::pair<S32, S32>& b, const LLTextEditor::line_info& a)
+	{
+		return a.mSegment > 0;
+	}
+	
+};
+
 void LLTextEditor::updateLineStartList(S32 startpos)
 {
 	updateSegments();
@@ -398,11 +408,12 @@ void LLTextEditor::updateLineStartList(S32 startpos)
 	S32 seg_idx = 0;
 	S32 seg_offset = 0;
 
+
 	if (!mLineStartList.empty())
 	{
 		getSegmentAndOffset(startpos, &seg_idx, &seg_offset);
 		line_info t(seg_idx, seg_offset);
-		line_list_t::iterator iter = std::upper_bound(mLineStartList.begin(), mLineStartList.end(), t, line_info_compare());
+		line_list_t::iterator iter = std::upper_bound(mLineStartList.begin(), mLineStartList.end(), std::make_pair(seg_idx, seg_offset), pred());
 		if (iter != mLineStartList.begin()) --iter;
 		seg_idx = iter->mSegment;
 		seg_offset = iter->mOffset;

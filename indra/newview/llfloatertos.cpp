@@ -54,34 +54,9 @@
 #include "message.h"
 
 
-// static 
-LLFloaterTOS* LLFloaterTOS::sInstance = NULL;
-
-// static
-LLFloaterTOS* LLFloaterTOS::show(ETOSType type, const std::string & message)
-{
-	if( !LLFloaterTOS::sInstance )
-	{
-		LLFloaterTOS::sInstance = new LLFloaterTOS(type, message);
-	}
-
-	if (type == TOS_TOS)
-	{
-		LLUICtrlFactory::getInstance()->buildFloater(LLFloaterTOS::sInstance, "floater_tos.xml");
-	}
-	else
-	{
-		LLUICtrlFactory::getInstance()->buildFloater(LLFloaterTOS::sInstance, "floater_critical.xml");
-	}
-
-	return LLFloaterTOS::sInstance;
-}
-
-
-LLFloaterTOS::LLFloaterTOS(ETOSType type, const std::string & message)
-:	LLModalDialog( std::string(" "), 100, 100 ),
-	mType(type),
-	mMessage(message),
+LLFloaterTOS::LLFloaterTOS(const LLSD& message)
+:	LLModalDialog( message, 100, 100 ),
+	mMessage(message.asString()),
 	mWebBrowserWindowId( 0 ),
 	mLoadCompleteCount( 0 )
 {
@@ -139,8 +114,8 @@ BOOL LLFloaterTOS::postBuild()
 	childSetAction("Continue", onContinue, this);
 	childSetAction("Cancel", onCancel, this);
 	childSetCommitCallback("agree_chk", updateAgree, this);
-
-	if ( mType != TOS_TOS )
+	
+	if (hasChild("tos_text"))
 	{
 		// this displays the critical message
 		LLTextEditor *editor = getChild<LLTextEditor>("tos_text");
@@ -177,17 +152,14 @@ BOOL LLFloaterTOS::postBuild()
 void LLFloaterTOS::setSiteIsAlive( bool alive )
 {
 	// only do this for TOS pages
-	if ( mType == TOS_TOS )
+	if (hasChild("tos_html"))
 	{
 		LLWebBrowserCtrl* web_browser = getChild<LLWebBrowserCtrl>("tos_html");
 		// if the contents of the site was retrieved
 		if ( alive )
 		{
-			if ( web_browser )
-			{
-				// navigate to the "real" page 
-				web_browser->navigateTo( getString( "real_url" ) );
-			};
+			// navigate to the "real" page 
+			web_browser->navigateTo( getString( "real_url" ) );
 		}
 		else
 		{
@@ -195,8 +167,8 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 			// but if the page is unavailable, we need to do this now
 			LLCheckBoxCtrl* tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
 			tos_agreement->setEnabled( true );
-		};
-	};
+		}
+	}
 }
 
 LLFloaterTOS::~LLFloaterTOS()
@@ -211,8 +183,6 @@ LLFloaterTOS::~LLFloaterTOS()
 	// tell the responder we're not here anymore
 	if ( gResponsePtr )
 		gResponsePtr->setParent( 0 );
-
-	LLFloaterTOS::sInstance = NULL;
 }
 
 // virtual
@@ -235,7 +205,7 @@ void LLFloaterTOS::onContinue( void* userdata )
 {
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
 	llinfos << "User agrees with TOS." << llendl;
-	if (self->mType == TOS_TOS)
+	if (self->getInstanceName() == "message_tos")
 	{
 		gAcceptTOS = TRUE;
 	}

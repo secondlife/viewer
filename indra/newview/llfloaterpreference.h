@@ -72,7 +72,6 @@ public:
 	/*virtual*/ void draw();
 	virtual BOOL postBuild();
 	virtual void onOpen(const LLSD& key);
-	virtual void onClose(bool app_quitting);
 
 	// static data update, called from message handler
 	static void updateUserInfo(const std::string& visibility, bool im_via_email, const std::string& email);
@@ -81,6 +80,8 @@ public:
 	static void refreshEnabledGraphics();
 	
 protected:
+	
+	void		onClose();
 	
 	void		onBtnOK();
 	void		onBtnCancel();

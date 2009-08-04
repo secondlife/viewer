@@ -1860,10 +1860,11 @@ LLControlGroup& LLUI::getControlControlGroup (const std::string& controlname)
 	for (settings_map_t::iterator itor = sSettingGroups.begin();
 		 itor != sSettingGroups.end(); ++itor)
 	{
-		if(itor->second!= NULL)
+		LLControlGroup* control_group = itor->second;
+		if(control_group != NULL)
 		{
-			if (sSettingGroups[(itor->first)]->controlExists(controlname))
-				return *sSettingGroups[(itor->first)];
+			if (control_group->controlExists(controlname))
+				return *control_group;
 		}
 	}
 

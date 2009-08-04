@@ -330,6 +330,8 @@ LLPanelPeople::~LLPanelPeople()
 
 BOOL LLPanelPeople::postBuild()
 {
+	mVisibleSignal.connect(boost::bind(&LLPanelPeople::onVisibilityChange, this, _2));
+	
 	mFilterEditor = getChild<LLFilterEditor>("filter_input");
 	mFilterEditor->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 
@@ -589,9 +591,9 @@ void LLPanelPeople::showGroupMenu(LLMenuGL* menu)
 	LLMenuGL::showPopup(parent_panel, menu, menu_x, menu_y);
 }
 
-void LLPanelPeople::onVisibilityChange(BOOL new_visibility)
+void LLPanelPeople::onVisibilityChange(const LLSD& new_visibility)
 {
-	if (new_visibility == FALSE)
+	if (new_visibility.asBoolean() == FALSE)
 	{
 		// Don't update anything while we're invisible.
 		mNearbyListUpdater->setActive(FALSE);
@@ -618,9 +620,9 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 
 	mFilterSubString = search_string;
 
+	// Searches are case-insensitive
 	LLStringUtil::toUpper(mFilterSubString);
 	LLStringUtil::trimHead(mFilterSubString);
-	mFilterEditor->setText(mFilterSubString);
 
 	// Apply new filter to all tabs.
 	filterNearbyList();
