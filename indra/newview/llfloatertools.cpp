@@ -198,6 +198,7 @@ LLPCode toolData[]={
 
 BOOL	LLFloaterTools::postBuild()
 {
+	mCloseSignal.connect(boost::bind(&LLFloaterTools::onClose, this));
 	
 	// Hide until tool selected
 	setVisible(FALSE);
@@ -727,11 +728,8 @@ void LLFloaterTools::onOpen(const LLSD& key)
 	gMenuBarView->setItemVisible("BuildTools", TRUE);
 }
 
-// virtual
-void LLFloaterTools::onClose(bool app_quitting)
+void LLFloaterTools::onClose()
 {
-	setMinimized(FALSE);
-	setVisible(FALSE);
 	mTab->setVisible(FALSE);
 
 	LLViewerJoystick::getInstance()->moveAvatar(false);

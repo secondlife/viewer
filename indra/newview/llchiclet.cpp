@@ -40,6 +40,7 @@
 #include "llimpanel.h"				// LLFloaterIMPanel
 #include "llimview.h"
 #include "llfloatergroupinfo.h"
+#include "llfloaterreg.h"
 #include "llmenugl.h"
 #include "lloutputmonitorctrl.h"
 #include "lltextbox.h"
@@ -203,7 +204,6 @@ LLIMChiclet::LLIMChiclet(const Params& p)
 , mSpeakerCtrl(NULL)
 , mShowSpeaker(p.show_speaker)
 , mPopupMenu(NULL)
-, mDockTongueVisible(false)
 {
 	LLChicletAvatarIconCtrl::Params avatar_params = p.avatar_icon;
 	mAvatarCtrl = LLUICtrlFactory::create<LLChicletAvatarIconCtrl>(avatar_params);
@@ -228,10 +228,6 @@ LLIMChiclet::~LLIMChiclet()
 
 }
 
-void LLIMChiclet::setDockTongueVisible(bool visible)
-{
-	mDockTongueVisible = visible;
-}
 
 void LLIMChiclet::setCounter(S32 counter)
 {
@@ -326,14 +322,20 @@ void LLIMChiclet::setShowSpeaker(bool show)
 void LLIMChiclet::draw()
 {
 	LLUICtrl::draw();
-	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.0f,0.0f,0.0f,1.f), FALSE);
 
-	if (mDockTongueVisible)
+	//if we have a docked floater, we want to position it relative to us
+	LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", getSessionId());
+
+	if (im_floater && im_floater->isDocked()) 
 	{
-		LLUIImagePtr flyout_tongue = LLUI::getUIImage("windows/Flyout_Pointer.png");
-		// was previously AVATAR_WIDTH-16 and CHICLET_HEIGHT-6
-		flyout_tongue->draw( getRect().getWidth()-31, getRect().getHeight()-5);
+		S32 x, y;
+		getParent()->localPointToScreen(getRect().getCenterX(), 0, &x, &y);
+		im_floater->translate(x - im_floater->getRect().getCenterX(), 10 - im_floater->getRect().mBottom);	
+		//set this so the docked floater knows it's been positioned and can now draw
+		im_floater->setPositioned(true);
 	}
+
+	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.0f,0.0f,0.0f,1.f), FALSE);
 }
 
 BOOL LLIMChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
@@ -890,7 +892,8 @@ LLTalkButton::Params::Params()
 	show_button.image_unselected(LLUI::getUIImage("ComboButton_Off"));
 
 	monitor.name("monitor");
-	monitor.rect(LLRect(0, 10, 16, 0));
+	// *TODO: Make this data driven.
+	monitor.rect(LLRect(0, 18, 18, 0));
 }
 
 LLTalkButton::LLTalkButton(const Params& p)
@@ -953,6 +956,8 @@ void LLTalkButton::draw()
 	// Always provide speaking feedback.  User can trigger speaking
 	// with keyboard or middle-mouse shortcut.
 	mOutputMonitor->setPower(gVoiceClient->getCurrentPower(gAgent.getID()));
+	mOutputMonitor->setIsTalking( gVoiceClient->getUserPTTState() );
+	mSpeakBtn->setToggleState( gVoiceClient->getUserPTTState() );
 
 	LLUICtrl::draw();
 }

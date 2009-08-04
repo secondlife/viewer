@@ -65,10 +65,12 @@ protected:
 	const LLMultiGesture& operator=(const LLMultiGesture& rhs);
 
 public:
-	// name is stored at asset level
-	// desc is stored at asset level
 	KEY mKey;
 	MASK mMask;
+
+	// This name can be empty if the inventory item is not around and
+    // the gesture manager has not yet set the name
+	std::string mName;
 
 	// String, like "/foo" or "hello" that makes it play
 	std::string mTrigger;

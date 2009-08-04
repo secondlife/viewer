@@ -465,10 +465,10 @@ void LLUpdateAgentInventoryResponder::uploadComplete(const LLSD& content)
 	  {
 		  // If this gesture is active, then we need to update the in-memory
 		  // active map with the new pointer.				
-		  if (gGestureManager.isGestureActive(item_id))
+		  if (LLGestureManager::instance().isGestureActive(item_id))
 		  {
 			  LLUUID asset_id = new_item->getAssetUUID();
-			  gGestureManager.replaceGesture(item_id, asset_id);
+			  LLGestureManager::instance().replaceGesture(item_id, asset_id);
 			  gInventory.notifyObservers();
 		  }				
 

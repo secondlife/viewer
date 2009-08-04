@@ -76,6 +76,10 @@ public:
 	bool			getIsMuted() const { return mIsMuted; }
 	void			setIsMuted(bool val) { mIsMuted = val; }
 
+	// For the current user, need to know the PTT state to show
+	// correct button image.
+	void			setIsTalking(bool val) { mIsTalking = val; }
+
 private:
 	//static LLColor4	sColorMuted;
 	//static LLColor4	sColorNormal;
@@ -87,6 +91,7 @@ private:
 	
 	F32				mPower;
 	bool			mIsMuted;
+	bool			mIsTalking;
 	LLPointer<LLUIImage> mImageMute;
 	LLPointer<LLUIImage> mImageOff;
 	LLPointer<LLUIImage> mImageOn;

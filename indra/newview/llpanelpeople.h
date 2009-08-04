@@ -72,7 +72,7 @@ private:
 	void					buttonSetAction(const std::string& btn_name, const commit_signal_t::slot_type& cb);
 	void					showGroupMenu(LLMenuGL* menu);
 
-	/*virtual*/ void		onVisibilityChange(BOOL new_visibility);
+	void					onVisibilityChange( const LLSD& new_visibility);
 
 	void					reSelectedCurrentTab();
 
@@ -103,8 +103,6 @@ private:
 								const std::vector<std::string>& names,
 								const std::vector<LLUUID>& ids,
 								void*);
-
-	void					hideProfileView();
 
 	LLFilterEditor*			mFilterEditor;
 	LLTabContainer*			mTabContainer;

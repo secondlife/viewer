@@ -784,8 +784,13 @@ public:
 	// Sitting
 	//--------------------------------------------------------------------
 public:
+	void			sitDown(BOOL bSitting);
+	BOOL			isSitting(){return mIsSitting;}
 	void 			sitOnObject(LLViewerObject *sit_object);
 	void 			getOffObject();
+	
+private:
+	// set this property only with LLVOAvatar::sitDown method
 	BOOL 			mIsSitting;
 
 /**                    Hierarchy

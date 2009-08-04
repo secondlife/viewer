@@ -3,12 +3,12 @@
  background_visible="true"
  follows="left|top|right|bottom"
  height="660"
- label="Me"
+ label="Profile"
  layout="topleft"
  left="0"
  name="panel_target_profile"
  top="0"
- width="305">
+ width="250">
     <button 
      layout="topleft" 
      name="back" 
@@ -17,6 +17,7 @@
      width="20" 
      height="20" 
      label=""
+     tab_stop="false"
      follows="top|left"
      image_selected="navbar_bg_button.tga"
      image_unselected="navbar_bg_button.tga"

@@ -44,12 +44,11 @@
 // static
 std::list<LLModalDialog*> LLModalDialog::sModalStack;
 
-LLModalDialog::LLModalDialog( const std::string& title, S32 width, S32 height, BOOL modal )
-	: LLFloater(),
+LLModalDialog::LLModalDialog( const LLSD& key, S32 width, S32 height, BOOL modal )
+	: LLFloater(key),
 	  mModal( modal )
 {
 	setRect(LLRect( 0, height, width, 0 ));
-	setTitle(title);
 	if (modal)
 	{
 		setCanMinimize(FALSE);
@@ -59,6 +58,7 @@ LLModalDialog::LLModalDialog( const std::string& title, S32 width, S32 height, B
 	setBackgroundVisible(TRUE);
 	setBackgroundOpaque(TRUE);
 	centerOnScreen(); // default position
+	mCloseSignal.connect(boost::bind(&LLModalDialog::stopModal, this));
 }
 
 LLModalDialog::~LLModalDialog()
@@ -68,6 +68,18 @@ LLModalDialog::~LLModalDialog()
 	{
 		gFocusMgr.unlockFocus();
 	}
+	
+	std::list<LLModalDialog*>::iterator iter = std::find(sModalStack.begin(), sModalStack.end(), this);
+	if (iter != sModalStack.end())
+	{
+		llerrs << "Attempt to delete dialog while still in sModalStack!" << llendl;
+	}
+}
+
+// virtual
+BOOL LLModalDialog::postBuild()
+{
+	return LLFloater::postBuild();
 }
 
 // virtual
@@ -233,12 +245,6 @@ BOOL LLModalDialog::handleKeyHere(KEY key, MASK mask )
 		}
 		return FALSE;
 	}	
-}
-
-void LLModalDialog::onClose(bool app_quitting)
-{
-	stopModal();
-	LLFloater::onClose(app_quitting);
 }
 
 // virtual

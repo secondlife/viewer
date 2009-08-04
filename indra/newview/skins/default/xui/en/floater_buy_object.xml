@@ -7,6 +7,7 @@
  min_width="154"
  name="contents"
  save_rect="true"
+ single_instance="true"
  title="Buy Copy of Object"
  width="280">
     <floater.string

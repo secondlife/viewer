@@ -59,9 +59,6 @@
 #include "llviewertexturelist.h"
 #include "llstring.h"
 
-//static
-S32 LLFloaterImagePreview::sUploadAmount = 10;
-
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
@@ -93,9 +90,7 @@ BOOL LLFloaterImagePreview::postBuild()
 	{
 		return FALSE;
 	}
-
-	childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d",sUploadAmount));
-
+	
 	LLCtrlSelectionInterface* iface = childGetSelectionInterface("clothing_type_combo");
 	if (iface)
 	{
@@ -130,7 +125,9 @@ BOOL LLFloaterImagePreview::postBuild()
 		childDisable("clothing_type_combo");
 		childDisable("ok_btn");
 	}
-
+	
+	getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
+	
 	return TRUE;
 }
 

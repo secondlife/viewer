@@ -4,6 +4,7 @@
  height="270"
  layout="topleft"
  name="buy currency"
+ single_instance="true"
  title="Buy Currency"
  width="350">
     <floater.string

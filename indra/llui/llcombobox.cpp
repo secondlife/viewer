@@ -100,7 +100,8 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 	mPrearrangeCallback(p.prearrange_callback()),
 	mTextEntryCallback(p.text_entry_callback()),
 	mSelectionCallback(p.selection_callback()),
-	mListPosition(p.list_position)
+	mListPosition(p.list_position),
+	mLastSelectedIndex(-1)
 {
 	// Text label button
 
@@ -117,6 +118,8 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 	mArrowImage = button_params.image_unselected;
 
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
+
+	
 	if(mAllowTextEntry)
 	{
 		//redo to compensate for button hack that leaves space for a character
@@ -430,7 +433,8 @@ void LLComboBox::setButtonVisible(BOOL visible)
 		LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
 		if (visible)
 		{
-			text_entry_rect.mRight -= llmax(8,mArrowImage->getWidth()) + 2 * drop_shadow_button;
+			S32 arrow_width = mArrowImage ? mArrowImage->getWidth() : 0;
+			text_entry_rect.mRight -= llmax(8,arrow_width) + 2 * drop_shadow_button;
 		}
 		//mTextEntry->setRect(text_entry_rect);
 		mTextEntry->reshape(text_entry_rect.getWidth(), text_entry_rect.getHeight(), TRUE);
@@ -472,14 +476,15 @@ void LLComboBox::createLineEditor(const LLComboBox::Params& p)
 	LLRect rect = getLocalRect();
 	if (mAllowTextEntry)
 	{
+		S32 arrow_width = mArrowImage ? mArrowImage->getWidth() : 0;
 		S32 shadow_size = drop_shadow_button;
-		mButton->setRect(LLRect( getRect().getWidth() - llmax(8,mArrowImage->getWidth()) - 2 * shadow_size,
+		mButton->setRect(LLRect( getRect().getWidth() - llmax(8,arrow_width) - 2 * shadow_size,
 								rect.mTop, rect.mRight, rect.mBottom));
 		mButton->setTabStop(FALSE);
 		mButton->setHAlign(LLFontGL::HCENTER);
 
 		LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
-		text_entry_rect.mRight -= llmax(8,mArrowImage->getWidth()) + 2 * drop_shadow_button;
+		text_entry_rect.mRight -= llmax(8,arrow_width) + 2 * drop_shadow_button;
 		// clear label on button
 		std::string cur_label = mButton->getLabelSelected();
 		LLLineEditor::Params params = p.combo_editor;
@@ -621,15 +626,15 @@ void LLComboBox::showList()
 	mList->setVisible(TRUE);
 	
 	setUseBoundingRect(TRUE);
+
+	mList->sortItems();
+	mLastSelectedIndex = mList->getFirstSelectedIndex();
 }
 
 void LLComboBox::hideList()
 {
-	//*HACK: store the original value explicitly somewhere, not just in label
-	std::string orig_selection = mAllowTextEntry ? mTextEntry->getText() : mButton->getLabelSelected();
-
 	// assert selection in list
-	mList->selectItemByLabel(orig_selection, FALSE);
+	mList->selectNthItem(mLastSelectedIndex);
 
 	mButton->setToggleState(FALSE);
 	mList->setVisible(FALSE);
@@ -687,6 +692,7 @@ void LLComboBox::onItemSelected(const LLSD& data)
 	const std::string name = mList->getSelectedItemLabel();
 
 	S32 cur_id = getCurrentIndex();
+	mLastSelectedIndex = cur_id;
 	if (cur_id != -1)
 	{
 		setLabel(name);

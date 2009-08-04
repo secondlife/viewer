@@ -70,6 +70,7 @@ LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 :	LLView(p),
 	mPower(0),
 	mIsMuted(true),
+	mIsTalking(false),
 	mImageMute(p.image_mute),
 	mImageOff(p.image_off),
 	mImageOn(p.image_on),
@@ -116,31 +117,32 @@ void LLOutputMonitorCtrl::draw()
 	// call directly into gVoiceClient to ask if that agent-id is muted, is
 	// speaking, and what power.  This avoids duplicating data, which can get
 	// out of sync.
+	const F32 LEVEL_0 = LLVoiceClient::OVERDRIVEN_POWER_LEVEL / 3.f;
+	const F32 LEVEL_1 = LLVoiceClient::OVERDRIVEN_POWER_LEVEL * 2.f / 3.f;
+	const F32 LEVEL_2 = LLVoiceClient::OVERDRIVEN_POWER_LEVEL;
+
 	LLPointer<LLUIImage> icon;
 	if (mIsMuted)
 	{
 		icon = mImageMute;
 	}
-	else if (mPower == 0.f)
+	else if (mPower == 0.f && !mIsTalking)
 	{
+		// only show off if PTT is not engaged
 		icon = mImageOff;
 	}
-	else if (mPower < LLVoiceClient::OVERDRIVEN_POWER_LEVEL)
+	else if (mPower < LEVEL_0)
 	{
-		S32 icon_image_idx = llmin(2, llfloor((mPower / LLVoiceClient::OVERDRIVEN_POWER_LEVEL) * 3.f));
-		switch(icon_image_idx)
-		{
-		default:
-		case 0:
-			icon = mImageOn;
-			break;
-		case 1:
-			icon = mImageLevel1;
-			break;
-		case 2:
-			icon = mImageLevel2;
-			break;
-		}
+		// PTT is on, possibly with quiet background noise
+		icon = mImageOn;
+	}
+	else if (mPower < LEVEL_1)
+	{
+		icon = mImageLevel1;
+	}
+	else if (mPower < LEVEL_2)
+	{
+		icon = mImageLevel2;
 	}
 	else
 	{

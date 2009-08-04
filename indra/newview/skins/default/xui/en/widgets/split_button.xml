@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<split_button 
+ font="SansSerifSmall"
+ arrow_position="left"
+ follows="right|top">
+    <split_button.arrow_button 
+     name="Arrow Button"
+     label=""
+     font="SansSerifSmall"
+     scale_image="true"
+     image_selected="camera_presets/camera_presets_arrow.png"
+     image_unselected="camera_presets/camera_presets_arrow.png"
+     image_disabled_selected="camera_presets/camera_presets_arrow.png" 
+     image_disabled="camera_presets/camera_presets_arrow.png"
+     width="10"/>
+    <split_button.items_panel
+     background_visible="true"
+     border="true"
+     bg_alpha_color="1 1 1 1"
+     bg_opaq_color="1 1 1 1"
+     layout="topleft"
+     name="item_buttons"
+    />
+</split_button>

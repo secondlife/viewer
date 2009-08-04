@@ -42,6 +42,7 @@
 #include "llviewercontrol.h"
 #include "lldatapacker.h"
 #include "llfasttimer.h"
+#include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llframetimer.h"
 #include "llinventory.h"
@@ -2595,7 +2596,7 @@ void LLViewerObject::doInventoryCallback()
 void LLViewerObject::removeInventory(const LLUUID& item_id)
 {
 	// close any associated floater properties
-	LLFloaterProperties::closeByID(item_id, mID);
+	LLFloaterReg::hideInstance("properties", item_id);
 
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_RemoveTaskInventory);

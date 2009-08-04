@@ -50,6 +50,8 @@
 #include "llnotifications.h"
 #include "llmousehandler.h"
 #include "llcursortypes.h"
+#include "llhandle.h"
+
 #include <boost/scoped_ptr.hpp>
 
 class LLView;
@@ -269,7 +271,6 @@ public:
 	void			setProgressMessage(const std::string& msg);
 	void			setProgressCancelButtonVisible( BOOL b, const std::string& label = LLStringUtil::null );
 	LLProgressView *getProgressView() const;
-	void			handleLoginComplete();
 
 	void			updateObjectUnderCursor();
 

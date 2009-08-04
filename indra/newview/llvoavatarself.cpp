@@ -1006,6 +1006,15 @@ void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *sr
 	ETextureIndex index = data->mIndex;
 	if (!isIndexLocalTexture(index)) return;
 	LLLocalTextureObject *local_tex_obj = getLocalTextureObject(index, 0);
+
+	// fix for EXT-268. Preventing using of NULL pointer
+	if(NULL == local_tex_obj)
+	{
+		LL_WARNS("TAG") << "There is no Local Texture Object with index: " << index 
+			<< ", final: " << final
+			<< LL_ENDL;
+		return;
+	}
 	if (success)
 	{
 		if (!local_tex_obj->getBakedReady() &&

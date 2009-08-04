@@ -30,7 +30,7 @@
      max_chars="135"
      name="language_combobox"
      top_pad="10"
-     width="155">
+     width="170">
         <combo_box.item
          enabled="true"
          label="System Default"
@@ -154,7 +154,7 @@
      left_delta="50"
      name="maturity_desired_combobox"
      top_pad="10"
-     width="155">
+     width="170">
         <combo_box.item
          label="PG, Mature and Adult"
          name="Desired_Adult"
@@ -188,7 +188,7 @@
      left_delta="50"
      name="start_location_combo"
      top_pad="10"
-     width="155">
+     width="170">
         <combo_box.item
          label="My Last Location"
          name="MyLastLocation"
@@ -221,7 +221,6 @@
     width="400">
        Name tags:
    </text>
-   <!-- THIS IS A NEW RADIO GROUP ADDED BY LIS -->
    <radio_group
      control_name="AvatarNameTagMode"
      height="30"
@@ -273,7 +272,7 @@
      left_delta="0"
      name="show_all_title_checkbox"
      top_pad="5"
-     width="256" />
+     width="300" />
     <text
      type="string"
      length="1"

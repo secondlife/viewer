@@ -70,7 +70,6 @@ public:
 
 	virtual BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void draw();
 	void apply();
 	void cancel();
@@ -79,7 +78,10 @@ private:
 	
 protected:
 	static void* createPanelVoiceDeviceSettings(void* user_data);
-
+	
+	void onClose();
+	
+protected:
 	LLPanelVoiceDeviceSettings* mDevicePanel;
 };
 

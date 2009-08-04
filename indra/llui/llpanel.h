@@ -88,7 +88,9 @@ public:
 		Optional<std::string>	class_name;
 
 		Multiple<LocalizedString>	strings;
-
+		
+		Optional<CommitCallbackParam> visible_callback;
+		
 		Params();
 	};
 
@@ -111,6 +113,7 @@ public:
 	/*virtual*/ BOOL 	isPanel() const;
 	/*virtual*/ void	draw();	
 	/*virtual*/ BOOL	handleKeyHere( KEY key, MASK mask );
+	/*virtual*/ void 	handleVisibilityChange ( BOOL new_visibility );
 
 	// Override to set not found list:
 	/*virtual*/ LLView* getChildView(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
@@ -254,6 +257,8 @@ protected:
 	CommitCallbackRegistry::ScopedRegistrar mCommitCallbackRegistrar;
 	EnableCallbackRegistry::ScopedRegistrar mEnableCallbackRegistrar;
 	
+	commit_signal_t mVisibleSignal;		// Called when visibilit changes, passes new visibility as LLSD()
+	
 private:
 	// Unified error reporting for the child* functions
 	typedef std::set<std::string> expected_members_list_t;
@@ -273,7 +278,7 @@ private:
 	ui_string_map_t	mUIStrings;
 
 	std::string		mRequirementsError;
-
+	
 }; // end class LLPanel
 
 #endif

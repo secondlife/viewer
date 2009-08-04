@@ -51,6 +51,7 @@
 #include "llagent.h"
 #include "llfloaterworldmap.h"
 #include "llinventorymodel.h"
+#include "lllandmarkactions.h"
 #include "lltexturectrl.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
@@ -486,6 +487,26 @@ void LLPanelPlaceInfo::onCommitTitleOrNote(LANDMARK_INFO_TYPE type)
 		gInventory.updateItem(new_item);
 		gInventory.notifyObservers();
 	}
+}
+
+void LLPanelPlaceInfo::createLandmark(const LLUUID& folder_id)
+{
+	std::string name = mTitleEditor->getText();
+	std::string desc = mNotesEditor->getText();
+
+	LLStringUtil::trim(name);
+	LLStringUtil::trim(desc);
+
+	// If typed name is empty use the parcel name instead.
+	if (name.empty())
+	{
+		name = mParcelName->getText() + "; " + mRegionName->getText();
+	}
+
+	LLStringUtil::replaceChar(desc, '\n', ' ');
+	// If no folder chosen use the "Landmarks" folder.
+	LLLandmarkActions::createLandmarkHere(name, desc, 
+		folder_id.notNull() ? folder_id : gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK));
 }
 
 void LLPanelPlaceInfo::reshape(S32 width, S32 height, BOOL called_from_parent)

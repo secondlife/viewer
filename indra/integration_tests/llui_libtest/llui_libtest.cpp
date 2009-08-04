@@ -52,6 +52,11 @@
 // *TODO: switch to using TUT
 // *TODO: teach Parabuild about this program, run automatically after full builds
 
+// I believe these must be globals, not stack variables.  JC
+LLControlGroup gSavedSettings("Global");	// saved at end of session
+LLControlGroup gSavedPerAccountSettings("PerAccount"); // saved at end of session
+LLControlGroup gWarningSettings("Warnings"); // persists ignored dialogs/warnings
+
 // We can't create LLImageGL objects because we have no window or rendering 
 // context.  Provide enough of an LLUIImage to test the LLUI library without
 // an underlying image.
@@ -72,6 +77,7 @@ public:
 		return 16;
 	}
 };
+
 
 class LLTexture ;
 // We need to supply dummy images
@@ -95,10 +101,16 @@ public:
 	LLPointer<LLUIImage> makeImage()
 	{
 		LLPointer<LLTexture> image_gl;
-		LLPointer<LLUIImage> image = new LLUIImage( std::string(), image_gl);
+		LLPointer<LLUIImage> image = new TestUIImage(); //LLUIImage( std::string(), image_gl);
+		mImageList.push_back(image);
 		return image;
 	}
+	
+public:
+	// Unclear if we need this, hold on to one copy of each image we make
+	std::vector<LLPointer<LLUIImage> > mImageList;
 };
+TestImageProvider gTestImageProvider;
 
 static std::string get_xui_dir()
 {
@@ -117,27 +129,22 @@ void init_llui()
 	gDirUtilp->initAppDirs("SecondLife", newview_path);
 	gDirUtilp->setSkinFolder("default");
 	
+	// colors are no longer stored in a LLControlGroup file
+	LLUIColorTable::instance().loadFromSettings();
+
 	std::string config_filename = gDirUtilp->getExpandedFilename(
 																 LL_PATH_APP_SETTINGS, "settings.xml");
-	LLControlGroup config_group("config");
-	config_group.loadFromFile(config_filename);
+	gSavedSettings.loadFromFile(config_filename);
 	
-	std::string color_filename = gDirUtilp->getExpandedFilename(
-																LL_PATH_DEFAULT_SKIN, "colors.xml");
-	LLControlGroup color_group("color");
-	color_group.loadFromFile(color_filename);
-	
-	LLControlGroup floater_group("floater");
-	LLControlGroup ignores_group("ignores");
+	// See LLAppViewer::init()
 	LLUI::settings_map_t settings;
-	settings["config"] = &config_group;
-	settings["color"] = &color_group;
-	settings["floater"] = &floater_group;
-	settings["ignores"] = &ignores_group;
+	settings["config"] = &gSavedSettings;
+	settings["ignores"] = &gWarningSettings;
+	settings["floater"] = &gSavedSettings;
+	settings["account"] = &gSavedPerAccountSettings;
 	
 	// Don't use real images as we don't have a GL context
-	TestImageProvider image_provider;
-	LLUI::initClass(settings, &image_provider);
+	LLUI::initClass(settings, &gTestImageProvider);
 	
 	const bool no_register_widgets = false;
 	LLWidgetReg::initClass( no_register_widgets );
@@ -148,7 +155,7 @@ void init_llui()
 	// (tooltips for buttons)
 	std::set<std::string> default_args;
 	LLTrans::parseStrings("strings.xml", default_args);
-    
+    LLTrans::parseLanguageStrings("language_settings.xml");
 	LLFontManager::initClass();
 	
 	// Creating widgets apparently requires fonts to be initialized,
@@ -183,10 +190,10 @@ void export_test_floaters()
 		llinfos << "Converting " << filename << llendl;
 		// Build a floater and output new attributes
 		LLXMLNodePtr output_node = new LLXMLNode();
-		LLFloater* floater = new LLFloater();
+		LLFloater* floater = new LLFloater(LLSD());
 		LLUICtrlFactory::getInstance()->buildFloater(floater,
 													 filename,
-													 FALSE,	// don't open floater
+												//	 FALSE,	// don't open floater
 													 output_node);
 		std::string out_filename = xui_dir + filename;
 		std::string::size_type extension_pos = out_filename.rfind(".xml");

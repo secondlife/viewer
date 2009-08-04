@@ -96,6 +96,7 @@
 #include "llinventorymodel.h"
 #include "llfloaterinventory.h"
 #include "llmenugl.h"
+#include "llmoveview.h"
 #include "llmutelist.h"
 #include "llnotifications.h"
 #include "llnotify.h"
@@ -1184,9 +1185,6 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			{
 				opener = open_agent_offer;
 			}
-
-			// add buddy to recent people list
-			LLRecentPeople::instance().add(mFromID);
 		}
 			break;
 		case IM_TASK_INVENTORY_OFFERED:
@@ -1257,6 +1255,12 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			busy_message(msg,mFromID);
 		}
 		break;
+	}
+
+	if(IM_INVENTORY_OFFERED == mIM)
+	{
+		// add buddy to recent people list
+		LLRecentPeople::instance().add(mFromID);
 	}
 
 	if(opener)
@@ -1465,6 +1469,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	BOOL is_muted = LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat);
 	BOOL is_linden = LLMuteList::getInstance()->isLinden(name);
 	BOOL is_owned_by_me = FALSE;
+	BOOL is_friend = (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL) ? false : true;
+	BOOL accept_im_from_only_friend = gSavedSettings.getBOOL("VoiceCallsFriendsOnly");
 	
 	chat.mMuted = is_muted && !is_linden;
 	chat.mFromID = from_id;
@@ -1592,7 +1598,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
-			if (!is_muted || is_linden)
+			bool mute_im = is_muted;
+			if(accept_im_from_only_friend&&!is_friend)
+			{
+				mute_im = true;
+			}
+			if (!mute_im || is_linden) 
 			{
 				gIMMgr->addMessage(
 					session_id,
@@ -1783,7 +1794,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		// Someone has offered us some inventory.
 		{
 			LLOfferInfo* info = new LLOfferInfo;
-
+			bool mute_im = false;
 			if (IM_INVENTORY_OFFERED == dialog)
 			{
 				struct offer_agent_bucket_t
@@ -1800,6 +1811,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				bucketp = (struct offer_agent_bucket_t*) &binary_bucket[0];
 				info->mType = (LLAssetType::EType) bucketp->asset_type;
 				info->mObjectID = bucketp->object_id;
+				
+				if(accept_im_from_only_friend&&!is_friend)
+				{
+					mute_im = true;
+				}
 			}
 			else
 			{
@@ -1830,7 +1846,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			info->mDesc = message;
 			info->mHost = msg->getSender();
 			//if (((is_busy && !is_owned_by_me) || is_muted))
-			if ( is_muted )
+			if ( is_muted || mute_im)
 			{
 				// Same as closing window
 				info->forceResponse(IOR_DECLINE);
@@ -2431,12 +2447,17 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			// show on screen and add to history
 			LLNotificationsUI::LLNotificationManager::instance().onChat(
 					chat, LLNotificationsUI::NT_NEARBYCHAT);
+
+            // adding temporarily so that communications window chat bar 
+            // works until the new chat window is ready
+			LLFloaterChat::addChat(chat, FALSE, FALSE);
 		}
 		else
 		{
 			LLNotificationsUI::LLNotificationManager::instance().onChat(
 					chat, LLNotificationsUI::NT_NEARBYCHAT);
-			// just add to chat history
+			// adding temporarily
+			LLFloaterChat::addChatHistory(chat);
 		}
 	}
 }
@@ -3850,7 +3871,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	if (object)
 	{
 		LLVector3 sit_spot = object->getPositionAgent() + (sitPosition * object->getRotation());
-		if (!use_autopilot || (avatar && avatar->mIsSitting && avatar->getRoot() == object->getRoot()))
+		if (!use_autopilot || (avatar && avatar->isSitting() && avatar->getRoot() == object->getRoot()))
 		{
 			//we're already sitting on this object, so don't autopilot
 		}
@@ -4521,9 +4542,6 @@ void process_economy_data(LLMessageSystem *msg, void** /*user_data*/)
 	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 
 	LL_INFOS_ONCE("Messaging") << "EconomyData message arrived; upload cost is L$" << upload_cost << LL_ENDL;
-
-	LLFloaterImagePreview::setUploadAmount(upload_cost);
-	LLFloaterAnimPreview::setUploadAmount(upload_cost);
 
 	gMenuHolder->childSetLabelArg("Upload Image", "[COST]", llformat("%d", upload_cost));
 	gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", llformat("%d", upload_cost));

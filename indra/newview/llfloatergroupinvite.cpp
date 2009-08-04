@@ -79,7 +79,7 @@ void LLFloaterGroupInvite::impl::closeFloater(void* data)
 // Implementation
 //-----------------------------------------------------------------------------
 LLFloaterGroupInvite::LLFloaterGroupInvite(const LLUUID& group_id)
-:	LLFloater()
+:	LLFloater(group_id)
 {
 	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
 	LLRect contents;

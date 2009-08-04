@@ -74,7 +74,8 @@ LLPanel::Params::Params()
 	min_height("min_height", 100),
 	strings("string"),
 	filename("filename"),
-	class_name("class")
+	class_name("class"),
+	visible_callback("visible_callback")
 {
 	name = "panel";
 	addSynonym(background_visible, "bg_visible");
@@ -307,6 +308,12 @@ BOOL LLPanel::handleKeyHere( KEY key, MASK mask )
 	return handled;
 }
 
+void LLPanel::handleVisibilityChange ( BOOL new_visibility )
+{
+	LLUICtrl::handleVisibilityChange ( new_visibility );
+	mVisibleSignal(this, LLSD(new_visibility) ); // Pass BOOL as LLSD
+}
+
 BOOL LLPanel::checkRequirements()
 {
 	if (!mRequirementsError.empty())
@@ -426,7 +433,11 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 
 	 // control_name, tab_stop, focus_lost_callback, initial_value, rect, enabled, visible
 	LLUICtrl::initFromParams(p);
-
+	
+	// visible callback 
+	if (p.visible_callback.isProvided())
+		initCommitCallback(p.visible_callback, mVisibleSignal);
+	
 	for (LLInitParam::ParamIterator<LocalizedString>::const_iterator it = p.strings().begin();
 		it != p.strings().end();
 		++it)

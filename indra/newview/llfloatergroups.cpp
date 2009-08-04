@@ -53,9 +53,6 @@
 
 using namespace LLOldEvents;
 
-// static
-std::map<const LLUUID, LLFloaterGroupPicker*> LLFloaterGroupPicker::sInstances;
-
 // helper functions
 void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 powers_mask = GP_ALL_POWERS);
 
@@ -63,36 +60,16 @@ void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 pow
 /// Class LLFloaterGroupPicker
 ///----------------------------------------------------------------------------
 
-// static
-LLFloaterGroupPicker* LLFloaterGroupPicker::findInstance(const LLSD& seed)
-{
-	instance_map_t::iterator found_it = sInstances.find(seed.asUUID());
-	if (found_it != sInstances.end())
-	{
-		return found_it->second;
-	}
-	return NULL;
-}
-
-// static
-LLFloaterGroupPicker* LLFloaterGroupPicker::createInstance(const LLSD &seed)
-{
-	LLFloaterGroupPicker* pickerp = new LLFloaterGroupPicker(seed);
-	return pickerp;
-}
-
 LLFloaterGroupPicker::LLFloaterGroupPicker(const LLSD& seed)
-: 	LLFloater(),
-	mPowersMask(GP_ALL_POWERS)
+: 	LLFloater(seed),
+	mPowersMask(GP_ALL_POWERS),
+	mID(seed.asUUID())
 {
-	mID = seed.asUUID();
-	sInstances.insert(std::make_pair(mID, this));
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_choose_group.xml");
+// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_choose_group.xml");
 }
 
 LLFloaterGroupPicker::~LLFloaterGroupPicker()
 {
-	sInstances.erase(mID);
 }
 
 void LLFloaterGroupPicker::setPowersMask(U64 powers_mask)

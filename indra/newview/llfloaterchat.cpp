@@ -54,6 +54,7 @@
 //#include "lllineeditor.h"
 #include "llmutelist.h"
 //#include "llresizehandle.h"
+#include "llchatbar.h"
 #include "llrecentpeople.h"
 #include "llstatusbar.h"
 #include "llviewertexteditor.h"
@@ -98,6 +99,7 @@ LLFloaterChat::LLFloaterChat(const LLSD& seed)
 	: LLFloater(seed),
 	  mPanel(NULL)
 {
+	mFactoryMap["chat_panel"] = LLCallbackMap(createChatPanel, NULL);
 	mFactoryMap["active_speakers_panel"] = LLCallbackMap(createSpeakersPanel, NULL);
 	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this,"floater_chat_history.xml");
 
@@ -108,16 +110,17 @@ LLFloaterChat::~LLFloaterChat()
 	// Children all cleaned up by default view destructor.
 }
 
-void LLFloaterChat::setVisible(BOOL visible)
-{
-	LLFloater::setVisible( visible );
-}
-
 void LLFloaterChat::draw()
 {
 	// enable say and shout only when text available
 		
 	childSetValue("toggle_active_speakers_btn", childIsVisible("active_speakers_panel"));
+
+	LLChatBar* chat_barp = findChild<LLChatBar>("chat_panel", TRUE);
+	if (chat_barp)
+	{
+		chat_barp->refresh();
+	}
 
 	mPanel->refreshSpeakers();
 	LLFloater::draw();
@@ -125,6 +128,9 @@ void LLFloaterChat::draw()
 
 BOOL LLFloaterChat::postBuild()
 {
+	// Hide the chat overlay when our history is visible.
+	mVisibleSignal.connect(boost::bind(&LLFloaterChat::updateConsoleVisibility, this));
+	
 	mPanel = (LLPanelActiveSpeakers*)getChild<LLPanel>("active_speakers_panel");
 
 	childSetCommitCallback("show mutes",onClickToggleShowMute,this); //show mutes
@@ -133,34 +139,6 @@ BOOL LLFloaterChat::postBuild()
 
 	return TRUE;
 }
-
-// public virtual
-void LLFloaterChat::onClose(bool app_quitting)
-{
-	if (getHost())
-	{
-		getHost()->setVisible(FALSE);
-	}
-	else
-	{
-		setVisible(FALSE);
-	}
-}
-
-void LLFloaterChat::onVisibilityChange(BOOL new_visibility)
-{
-	// Hide the chat overlay when our history is visible.
-	updateConsoleVisibility();
-
-	LLFloater::onVisibilityChange(new_visibility);
-}
-
-void LLFloaterChat::setMinimized(BOOL minimized)
-{
-	LLFloater::setMinimized(minimized);
-	updateConsoleVisibility();
-}
-
 
 void LLFloaterChat::updateConsoleVisibility()
 {
@@ -524,6 +502,13 @@ void LLFloaterChat::chatFromLogFile(LLLogChat::ELogLineType type , std::string l
 void* LLFloaterChat::createSpeakersPanel(void* data)
 {
 	return new LLPanelActiveSpeakers(LLLocalSpeakerMgr::getInstance(), TRUE);
+}
+
+//static
+void* LLFloaterChat::createChatPanel(void* data)
+{
+	LLChatBar* chatp = new LLChatBar();
+	return chatp;
 }
 
 // static

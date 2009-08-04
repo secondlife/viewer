@@ -51,7 +51,7 @@
              name="My Land">
                 <menu_item_call.on_click
                  function="ShowFloater"
-                 parameter="my land" />
+                 parameter="land_holdings" />
             </menu_item_call>
             <menu_item_call
              label="Buy Land"
@@ -405,6 +405,15 @@
              function="Floater.Show"
              parameter="hud" />
         </menu_item_call>
+        <menu_item_check
+         label="Show Quick Tips"
+         layout="topleft"
+         name="Show Quick Tips">
+            <menu_item_check.on_check
+             function="Help.CheckShowFirstTimeTip" />
+            <menu_item_check.on_click
+             function="Help.ShowQuickTips" />
+        </menu_item_check>
         <menu_item_separator
              layout="topleft" />
         <menu_item_call
@@ -2668,6 +2677,14 @@
              name="Web Browser Test">
                 <menu_item_call.on_click
                  function="Advanced.WebBrowserTest" />
+            </menu_item_call>
+            <menu_item_call
+             label="Simple Web Browser Test"
+             layout="topleft"
+             name="Simple Web Browser Test">
+                <menu_item_call.on_click
+                 function="Floater.Show"
+				 parameter="html_simple.http://www.secondlife.com" />
             </menu_item_call>
             <menu_item_call
              label="Buy Currency Test"

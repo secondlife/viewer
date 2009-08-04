@@ -55,7 +55,6 @@
 #include "llcommandhandler.h" // for classified HTML detail page click tracking
 #include "llviewercontrol.h"
 #include "lllineeditor.h"
-#include "llfloaterclassified.h"
 #include "lltextbox.h"
 #include "llcombobox.h"
 #include "llviewertexteditor.h"
@@ -1063,7 +1062,7 @@ void LLPanelClassified::sendClassifiedClickMessage(const std::string& type)
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 LLFloaterPriceForListing::LLFloaterPriceForListing()
-:	LLFloater(),
+:	LLFloater(LLSD()),
 	mCallback(NULL),
 	mUserData(NULL)
 { }
@@ -1099,7 +1098,7 @@ void LLFloaterPriceForListing::show( void (*callback)(S32, std::string, void*), 
 	LLFloaterPriceForListing *self = new LLFloaterPriceForListing();
 
 	// Builds and adds to gFloaterView
-	LLUICtrlFactory::getInstance()->buildFloater(self, "floater_price_for_listing.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(self, "floater_price_for_listing.xml", NULL);
 	self->center();
 
 	self->mCallback = callback;

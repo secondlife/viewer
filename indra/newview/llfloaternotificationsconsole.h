@@ -46,7 +46,6 @@ public:
 
 	// LLPanel
 	BOOL postBuild();
-	void onClose(bool app_quitting);
 
 	void addChannel(const std::string& type, bool open = false);
 	void updateResizeLimits(LLLayoutStack &stack);
@@ -71,7 +70,6 @@ public:
 	// LLPanel
 	BOOL postBuild();
 	void respond();
-	void onClose(bool app_quitting) { setVisible(FALSE); }
 
 private:
 	static void onCommitResponse(LLUICtrl* ctrl, void* data) { ((LLFloaterNotification*)data)->respond(); }

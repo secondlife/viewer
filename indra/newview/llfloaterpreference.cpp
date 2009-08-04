@@ -124,9 +124,9 @@ class LLVoiceSetKeyDialog : public LLModalDialog
 	};
 
 LLVoiceSetKeyDialog::LLVoiceSetKeyDialog(LLFloaterPreference* parent)
-: LLModalDialog(LLStringUtil::null, 240, 100), mParent(parent)
+: LLModalDialog(LLSD(), 240, 100), mParent(parent)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_select_key.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_select_key.xml", NULL);
 	childSetAction("Cancel", onCancel, this);
 	childSetFocus("Cancel");
 	
@@ -367,6 +367,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 
 BOOL LLFloaterPreference::postBuild()
 {
+	mCloseSignal.connect(boost::bind(&LLFloaterPreference::onClose, this));
+	
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 		tabcontainer->selectFirstTab();
@@ -418,7 +420,11 @@ void LLFloaterPreference::apply()
 			panel->apply();
 	}
 	// hardware menu apply
-	LLFloaterHardwareSettings::instance()->apply();
+	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::findTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
+	if (hardware_settings)
+	{
+		hardware_settings->apply();
+	}
 	
 	LLFloaterVoiceDeviceSettings* voice_device_settings = LLFloaterReg::findTypedInstance<LLFloaterVoiceDeviceSettings>("pref_voicedevicesettings");
 	if(voice_device_settings)
@@ -506,7 +512,11 @@ void LLFloaterPreference::cancel()
 	LLFloaterReg::hideInstance("pref_joystick");
 	
 	// cancel hardware menu
-	LLFloaterHardwareSettings::instance()->cancel();   // TODO: angela  change the build of the floater to floater reg
+	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::findTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
+	if (hardware_settings)
+	{
+		hardware_settings->cancel();
+	}
 	
 	// reverts any changes to current skin
 	gSavedSettings.setString("SkinCurrent", sSkin);
@@ -539,16 +549,17 @@ void LLFloaterPreference::setHardwareDefaults()
 	LLFeatureManager::getInstance()->applyRecommendedSettings();
 	refreshEnabledGraphics();
 }
-void LLFloaterPreference::onClose(bool app_quitting)
+
+void LLFloaterPreference::onClose()
 {
 	gSavedSettings.setS32("LastPrefTab", getChild<LLTabContainer>("pref core")->getCurrentPanelIndex());
 	LLPanelLogin::setAlwaysRefresh(false);
 	cancel(); // will be a no-op if OK or apply was performed just prior.
-	destroy();
 }
+
 void LLFloaterPreference::onOpenHardwareSettings()
 {
-	LLFloaterHardwareSettings::show();
+	LLFloaterReg::showInstance("prefs_hardware_settings");
 }
 // static 
 void LLFloaterPreference::onBtnOK()
@@ -634,8 +645,12 @@ void LLFloaterPreference::refreshEnabledGraphics()
 	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
 	if(instance)
 	{
-		LLFloaterHardwareSettings::instance()->refreshEnabledState();
 		instance->refreshEnabledState();
+	}
+	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::findTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
+	if (hardware_settings)
+	{
+		hardware_settings->refreshEnabledState();
 	}
 }
 

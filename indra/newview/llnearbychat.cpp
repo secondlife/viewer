@@ -252,7 +252,8 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 
 void LLNearbyChat::onNearbySpeakers()
 {
-	LLSD param = "nearby_panel";
+	LLSD param;
+	param["people_panel_tab_name"] = "nearby_panel";
 	LLSideTray::getInstance()->showPanel("panel_people",param);
 }
 

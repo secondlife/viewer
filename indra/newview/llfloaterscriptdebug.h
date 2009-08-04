@@ -41,15 +41,13 @@ class LLUUID;
 class LLFloaterScriptDebug : public LLMultiFloater
 {
 public:
+	LLFloaterScriptDebug(const LLSD& key);
 	virtual ~LLFloaterScriptDebug();
-	virtual void onClose(bool app_quitting) { setVisible(FALSE); }
 	virtual BOOL postBuild();
     static void show(const LLUUID& object_id);
 	static void addScriptLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color, const LLUUID& source_id);
 
 protected:
-	LLFloaterScriptDebug(const std::string& filename);
-
 	static LLFloater* addOutputWindow(const LLUUID& object_id);
 
 protected:
@@ -59,24 +57,17 @@ protected:
 class LLFloaterScriptDebugOutput : public LLFloater
 {
 public:
-	LLFloaterScriptDebugOutput();
-	LLFloaterScriptDebugOutput(const LLUUID& object_id);
+	LLFloaterScriptDebugOutput(const LLSD& object_id);
 	~LLFloaterScriptDebugOutput();
 
 	void addLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color);
 
 	virtual BOOL postBuild();
 	
-	static LLFloaterScriptDebugOutput* show(const LLUUID& object_id);
-	static LLFloaterScriptDebugOutput* getFloaterByID(const LLUUID& id);
-
 protected:
-	LLTextEditor*			mHistoryEditor;
+	LLTextEditor* mHistoryEditor;
 
-	typedef std::map<LLUUID, LLFloaterScriptDebugOutput*> instance_map_t;
-	static instance_map_t sInstanceMap;
-
-	LLUUID		mObjectID;
+	LLUUID mObjectID;
 };
 
 #endif // LL_LLFLOATERSCRIPTDEBUG_H

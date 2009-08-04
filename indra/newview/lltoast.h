@@ -55,6 +55,7 @@ public:
 	LLToast(LLPanel* panel);
 	virtual ~LLToast();
 
+	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	//
 	bool isViewed() { return mIsViewed; }
 	
@@ -109,6 +110,7 @@ private:
 	bool		mCanFade;
 	bool		mIsModal;
 	bool		mCanBeStored;
+	bool		mHideBtnPressed;
 };
 
 }

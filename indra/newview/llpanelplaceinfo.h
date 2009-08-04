@@ -79,6 +79,10 @@ public:
 	// sets a corresponding title and contents.
 	void setInfoType(INFO_TYPE type);
 
+	// Create a landmark for the current location
+	// in a folder specified by folder_id
+	void createLandmark(const LLUUID& folder_id);
+
 	BOOL isMediaPanelVisible();
 	void toggleMediaPanel(BOOL visible);
 	void displayItemInfo(const LLInventoryItem* pItem);

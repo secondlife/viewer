@@ -76,7 +76,8 @@
 class LLPropertiesObserver : public LLInventoryObserver
 {
 public:
-	LLPropertiesObserver()
+	LLPropertiesObserver(LLFloaterProperties* floater)
+		: mFloater(floater)
 	{
 		gInventory.addObserver(this);
 	}
@@ -85,6 +86,8 @@ public:
 		gInventory.removeObserver(this);
 	}
 	virtual void changed(U32 mask);
+private:
+	LLFloaterProperties* mFloater;
 };
 
 void LLPropertiesObserver::changed(U32 mask)
@@ -92,7 +95,7 @@ void LLPropertiesObserver::changed(U32 mask)
 	// if there's a change we're interested in.
 	if((mask & (LLInventoryObserver::LABEL | LLInventoryObserver::INTERNAL | LLInventoryObserver::REMOVE)) != 0)
 	{
-		LLFloaterProperties::dirtyAll();
+		mFloater->dirty();
 	}
 }
 
@@ -102,133 +105,63 @@ void LLPropertiesObserver::changed(U32 mask)
 /// Class LLFloaterProperties
 ///----------------------------------------------------------------------------
 
-// static
-LLFloaterProperties::instance_map LLFloaterProperties::sInstances;
-LLPropertiesObserver* LLFloaterProperties::sPropertiesObserver = NULL;
-S32 LLFloaterProperties::sPropertiesObserverCount = 0;
-
-// static
-LLFloaterProperties* LLFloaterProperties::find(const LLUUID& item_id,
-											   const LLUUID& object_id)
-{
-	// for simplicity's sake, we key the properties window with a
-	// single uuid. However, the items are keyed by item and object
-	// (obj == null -> agent inventory). So, we xor the two ids, and
-	// use that as a lookup key
-	instance_map::iterator it = sInstances.find(item_id ^ object_id);
-	if(it != sInstances.end())
-	{
-		return (*it).second;
-	}
-	return NULL;
-}
-
-// static
-LLFloaterProperties* LLFloaterProperties::show(const LLUUID& item_id,
-											   const LLUUID& object_id)
-{
-	LLFloaterProperties* instance = find(item_id, object_id);
-	if(instance)
-	{
-		if (LLFloater::getFloaterHost() && LLFloater::getFloaterHost() != instance->getHost())
-		{
-			// this properties window is being opened in a new context
-			// needs to be rehosted
-			LLFloater::getFloaterHost()->addFloater(instance, TRUE);
-		}
-
-		instance->refresh();
-		instance->openFloater();
-	}
-	else
-	{
-		LLFloaterProperties* floater = new LLFloaterProperties(item_id, object_id);
-		// keep onscreen
-		gFloaterView->adjustToFitScreen(floater, FALSE);
-	}
-	return instance;
-}
-
-void LLFloaterProperties::dirtyAll()
-{
-	// ...this is more clear. Possibly more correct, because the
-	// refresh method may delete the object.
-	for(instance_map::iterator it = sInstances.begin(); it!=sInstances.end(); )
-	{
-		(*it++).second->dirty();
-	}
-}
-
 // Default constructor
-LLFloaterProperties::LLFloaterProperties(const LLUUID& item_id, const LLUUID& object_id)
-  : LLFloater(),
+LLFloaterProperties::LLFloaterProperties(const LLUUID& item_id)
+  : LLFloater(mItemID),
 	mItemID(item_id),
-	mObjectID(object_id),
 	mDirty(TRUE)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_inventory_item_properties.xml");
+	mPropertiesObserver = new LLPropertiesObserver(this);
 	
-	if (!sPropertiesObserver)
-	{
-		sPropertiesObserver = new LLPropertiesObserver;
-	}
-	sPropertiesObserverCount++;
-	
-	// add the object to the static structure
-	LLUUID key = mItemID ^ mObjectID;
-	sInstances.insert(instance_map::value_type(key, this));
-
+	//LLUICtrlFactory::getInstance()->buildFloater(this,"floater_inventory_item_properties.xml");
 }
 
 // Destroys the object
 LLFloaterProperties::~LLFloaterProperties()
 {
-	// clean up the static data.
-	instance_map::iterator it = sInstances.find(mItemID ^ mObjectID);
-	if(it != sInstances.end())
-	{
-		sInstances.erase(it);
-	}
-	sPropertiesObserverCount--;
-	if (!sPropertiesObserverCount)
-	{
-		delete sPropertiesObserver;
-		sPropertiesObserver = NULL;
-	}
+	delete mPropertiesObserver;
+	mPropertiesObserver = NULL;
 }
+
 // virtual
 BOOL LLFloaterProperties::postBuild()
 {
 	// build the UI
 	// item name & description
 	childSetPrevalidate("LabelItemName",&LLLineEditor::prevalidatePrintableNotPipe);
-	childSetCommitCallback("LabelItemName",onCommitName,this);
+	getChild<LLUICtrl>("LabelItemName")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitName,this));
 	childSetPrevalidate("LabelItemDesc",&LLLineEditor::prevalidatePrintableNotPipe);
-	childSetCommitCallback("LabelItemDesc", onCommitDescription, this);
+	getChild<LLUICtrl>("LabelItemDesc")->setCommitCallback(boost::bind(&LLFloaterProperties:: onCommitDescription, this));
 	// Creator information
-	childSetAction("BtnCreator",onClickCreator,this);
+	getChild<LLUICtrl>("BtnCreator")->setCommitCallback(boost::bind(&LLFloaterProperties::onClickCreator,this));
 	// owner information
-	childSetAction("BtnOwner",onClickOwner,this);
+	getChild<LLUICtrl>("BtnOwner")->setCommitCallback(boost::bind(&LLFloaterProperties::onClickOwner,this));
 	// acquired date
 	// owner permissions
 	// Permissions debug text
 	// group permissions
-	childSetCommitCallback("CheckShareWithGroup",&onCommitPermissions, this);
+	getChild<LLUICtrl>("CheckShareWithGroup")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitPermissions, this));
 	// everyone permissions
-	childSetCommitCallback("CheckEveryoneCopy",&onCommitPermissions, this);
+	getChild<LLUICtrl>("CheckEveryoneCopy")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitPermissions, this));
 	// next owner permissions
-	childSetCommitCallback("CheckNextOwnerModify",&onCommitPermissions, this);
-	childSetCommitCallback("CheckNextOwnerCopy",&onCommitPermissions, this);
-	childSetCommitCallback("CheckNextOwnerTransfer",&onCommitPermissions, this);
+	getChild<LLUICtrl>("CheckNextOwnerModify")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitPermissions, this));
+	getChild<LLUICtrl>("CheckNextOwnerCopy")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitPermissions, this));
+	getChild<LLUICtrl>("CheckNextOwnerTransfer")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitPermissions, this));
 	// Mark for sale or not, and sale info
-	childSetCommitCallback("CheckPurchase",&onCommitSaleInfo, this);
-	childSetCommitCallback("RadioSaleType",&onCommitSaleType, this);
+	getChild<LLUICtrl>("CheckPurchase")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitSaleInfo, this));
+	getChild<LLUICtrl>("RadioSaleType")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitSaleType, this));
 	// "Price" label for edit
-	childSetCommitCallback("EditPrice",&onCommitSaleInfo, this);
+	getChild<LLUICtrl>("EditPrice")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitSaleInfo, this));
 	// The UI has been built, now fill in all the values
 	refresh();
 
 	return TRUE;
+}
+
+// virtual
+void LLFloaterProperties::onOpen(const LLSD& key)
+{
+	refresh();
 }
 
 void LLFloaterProperties::refresh()
@@ -604,12 +537,9 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	}
 }
 
-// static
-void LLFloaterProperties::onClickCreator(void* data)
+void LLFloaterProperties::onClickCreator()
 {
-	LLFloaterProperties* self = (LLFloaterProperties*)data;
-	if(!self) return;
-	LLInventoryItem* item = self->findItem();
+	LLInventoryItem* item = findItem();
 	if(!item) return;
 	if(!item->getCreatorUUID().isNull())
 	{
@@ -618,11 +548,9 @@ void LLFloaterProperties::onClickCreator(void* data)
 }
 
 // static
-void LLFloaterProperties::onClickOwner(void* data)
+void LLFloaterProperties::onClickOwner()
 {
-	LLFloaterProperties* self = (LLFloaterProperties*)data;
-	if(!self) return;
-	LLInventoryItem* item = self->findItem();
+	LLInventoryItem* item = findItem();
 	if(!item) return;
 	if(item->getPermissions().isGroupOwned())
 	{
@@ -635,20 +563,15 @@ void LLFloaterProperties::onClickOwner(void* data)
 }
 
 // static
-void LLFloaterProperties::onCommitName(LLUICtrl* ctrl, void* data)
+void LLFloaterProperties::onCommitName()
 {
 	//llinfos << "LLFloaterProperties::onCommitName()" << llendl;
-	LLFloaterProperties* self = (LLFloaterProperties*)data;
-	if(!self)
-	{
-		return;
-	}
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)self->findItem();
+	LLViewerInventoryItem* item = (LLViewerInventoryItem*)findItem();
 	if(!item)
 	{
 		return;
 	}
-	LLLineEditor* labelItemName = self->getChild<LLLineEditor>("LabelItemName");
+	LLLineEditor* labelItemName = getChild<LLLineEditor>("LabelItemName");
 
 	if(labelItemName&&
 	   (item->getName() != labelItemName->getText()) && 
@@ -656,7 +579,7 @@ void LLFloaterProperties::onCommitName(LLUICtrl* ctrl, void* data)
 	{
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 		new_item->rename(labelItemName->getText());
-		if(self->mObjectID.isNull())
+		if(mObjectID.isNull())
 		{
 			new_item->updateServer(FALSE);
 			gInventory.updateItem(new_item);
@@ -665,7 +588,7 @@ void LLFloaterProperties::onCommitName(LLUICtrl* ctrl, void* data)
 		}
 		else
 		{
-			LLViewerObject* object = gObjectList.findObject(self->mObjectID);
+			LLViewerObject* object = gObjectList.findObject(mObjectID);
 			if(object)
 			{
 				object->updateInventory(
@@ -677,16 +600,13 @@ void LLFloaterProperties::onCommitName(LLUICtrl* ctrl, void* data)
 	}
 }
 
-// static
-void LLFloaterProperties::onCommitDescription(LLUICtrl* ctrl, void* data)
+void LLFloaterProperties::onCommitDescription()
 {
 	//llinfos << "LLFloaterProperties::onCommitDescription()" << llendl;
-	LLFloaterProperties* self = (LLFloaterProperties*)data;
-	if(!self) return;
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)self->findItem();
+	LLViewerInventoryItem* item = (LLViewerInventoryItem*)findItem();
 	if(!item) return;
 
-	LLLineEditor* labelItemDesc = self->getChild<LLLineEditor>("LabelItemDesc");
+	LLLineEditor* labelItemDesc = getChild<LLLineEditor>("LabelItemDesc");
 	if(!labelItemDesc)
 	{
 		return;
@@ -697,7 +617,7 @@ void LLFloaterProperties::onCommitDescription(LLUICtrl* ctrl, void* data)
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 
 		new_item->setDescription(labelItemDesc->getText());
-		if(self->mObjectID.isNull())
+		if(mObjectID.isNull())
 		{
 			new_item->updateServer(FALSE);
 			gInventory.updateItem(new_item);
@@ -705,7 +625,7 @@ void LLFloaterProperties::onCommitDescription(LLUICtrl* ctrl, void* data)
 		}
 		else
 		{
-			LLViewerObject* object = gObjectList.findObject(self->mObjectID);
+			LLViewerObject* object = gObjectList.findObject(mObjectID);
 			if(object)
 			{
 				object->updateInventory(
@@ -718,17 +638,15 @@ void LLFloaterProperties::onCommitDescription(LLUICtrl* ctrl, void* data)
 }
 
 // static
-void LLFloaterProperties::onCommitPermissions(LLUICtrl* ctrl, void* data)
+void LLFloaterProperties::onCommitPermissions()
 {
 	//llinfos << "LLFloaterProperties::onCommitPermissions()" << llendl;
-	LLFloaterProperties* self = (LLFloaterProperties*)data;
-	if(!self) return;
-	LLViewerInventoryItem* item = (LLViewerInventoryItem*)self->findItem();
+	LLViewerInventoryItem* item = (LLViewerInventoryItem*)findItem();
 	if(!item) return;
 	LLPermissions perm(item->getPermissions());
 
 
-	LLCheckBoxCtrl* CheckShareWithGroup = self->getChild<LLCheckBoxCtrl>("CheckShareWithGroup");
+	LLCheckBoxCtrl* CheckShareWithGroup = getChild<LLCheckBoxCtrl>("CheckShareWithGroup");
 
 	if(CheckShareWithGroup)
 	{
@@ -736,26 +654,26 @@ void LLFloaterProperties::onCommitPermissions(LLUICtrl* ctrl, void* data)
 						CheckShareWithGroup->get(),
 						PERM_MODIFY | PERM_MOVE | PERM_COPY);
 	}
-	LLCheckBoxCtrl* CheckEveryoneCopy = self->getChild<LLCheckBoxCtrl>("CheckEveryoneCopy");
+	LLCheckBoxCtrl* CheckEveryoneCopy = getChild<LLCheckBoxCtrl>("CheckEveryoneCopy");
 	if(CheckEveryoneCopy)
 	{
 		perm.setEveryoneBits(gAgent.getID(), gAgent.getGroupID(),
 						 CheckEveryoneCopy->get(), PERM_COPY);
 	}
 
-	LLCheckBoxCtrl* CheckNextOwnerModify = self->getChild<LLCheckBoxCtrl>("CheckNextOwnerModify");
+	LLCheckBoxCtrl* CheckNextOwnerModify = getChild<LLCheckBoxCtrl>("CheckNextOwnerModify");
 	if(CheckNextOwnerModify)
 	{
 		perm.setNextOwnerBits(gAgent.getID(), gAgent.getGroupID(),
 							CheckNextOwnerModify->get(), PERM_MODIFY);
 	}
-	LLCheckBoxCtrl* CheckNextOwnerCopy = self->getChild<LLCheckBoxCtrl>("CheckNextOwnerCopy");
+	LLCheckBoxCtrl* CheckNextOwnerCopy = getChild<LLCheckBoxCtrl>("CheckNextOwnerCopy");
 	if(CheckNextOwnerCopy)
 	{
 		perm.setNextOwnerBits(gAgent.getID(), gAgent.getGroupID(),
 							CheckNextOwnerCopy->get(), PERM_COPY);
 	}
-	LLCheckBoxCtrl* CheckNextOwnerTransfer = self->getChild<LLCheckBoxCtrl>("CheckNextOwnerTransfer");
+	LLCheckBoxCtrl* CheckNextOwnerTransfer = getChild<LLCheckBoxCtrl>("CheckNextOwnerTransfer");
 	if(CheckNextOwnerTransfer)
 	{
 		perm.setNextOwnerBits(gAgent.getID(), gAgent.getGroupID(),
@@ -791,7 +709,7 @@ void LLFloaterProperties::onCommitPermissions(LLUICtrl* ctrl, void* data)
 			flags |= LLInventoryItem::II_FLAGS_OBJECT_PERM_OVERWRITE_GROUP;
 		}
 		new_item->setFlags(flags);
-		if(self->mObjectID.isNull())
+		if(mObjectID.isNull())
 		{
 			new_item->updateServer(FALSE);
 			gInventory.updateItem(new_item);
@@ -799,7 +717,7 @@ void LLFloaterProperties::onCommitPermissions(LLUICtrl* ctrl, void* data)
 		}
 		else
 		{
-			LLViewerObject* object = gObjectList.findObject(self->mObjectID);
+			LLViewerObject* object = gObjectList.findObject(mObjectID);
 			if(object)
 			{
 				object->updateInventory(
@@ -812,26 +730,22 @@ void LLFloaterProperties::onCommitPermissions(LLUICtrl* ctrl, void* data)
 	else
 	{
 		// need to make sure we don't just follow the click
-		self->refresh();
+		refresh();
 	}
 }
 
 // static
-void LLFloaterProperties::onCommitSaleInfo(LLUICtrl* ctrl, void* data)
+void LLFloaterProperties::onCommitSaleInfo()
 {
 	//llinfos << "LLFloaterProperties::onCommitSaleInfo()" << llendl;
-	LLFloaterProperties* self = (LLFloaterProperties*)data;
-	if(!self) return;
-	self->updateSaleInfo();
+	updateSaleInfo();
 }
 
 // static
-void LLFloaterProperties::onCommitSaleType(LLUICtrl* ctrl, void* data)
+void LLFloaterProperties::onCommitSaleType()
 {
 	//llinfos << "LLFloaterProperties::onCommitSaleType()" << llendl;
-	LLFloaterProperties* self = (LLFloaterProperties*)data;
-	if(!self) return;
-	self->updateSaleInfo();
+	updateSaleInfo();
 }
 
 void LLFloaterProperties::updateSaleInfo()
@@ -957,13 +871,15 @@ LLInventoryItem* LLFloaterProperties::findItem() const
 	return item;
 }
 
-void LLFloaterProperties::closeByID(const LLUUID& item_id, const LLUUID &object_id)
+//static
+void LLFloaterProperties::dirtyAll()
 {
-	LLFloaterProperties* floaterp = find(item_id, object_id);
-
-	if (floaterp)
+	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("properties");
+	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
+		 iter != inst_list.end(); ++iter)
 	{
-		floaterp->closeFloater();
+		LLFloaterProperties* floater = dynamic_cast<LLFloaterProperties*>(*iter);
+		floater->dirty();
 	}
 }
 
@@ -972,7 +888,7 @@ void LLFloaterProperties::closeByID(const LLUUID& item_id, const LLUUID &object_
 ///----------------------------------------------------------------------------
 
 LLMultiProperties::LLMultiProperties()
-	: LLMultiFloater()
+	: LLMultiFloater(LLSD())
 {
 	// *TODO: There should be a .xml file for this
 	const LLRect& nextrect = LLFloaterReg::getFloaterRect("properties"); // place where the next properties should show up

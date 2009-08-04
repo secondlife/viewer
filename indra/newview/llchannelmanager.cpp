@@ -45,6 +45,8 @@ using namespace LLNotificationsUI;
 LLChannelManager::LLChannelManager()
 {
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLChannelManager::onLoginCompleted, this));
+	mChannelList.clear();
+	mStartUpChannel = NULL;
 }
 
 //--------------------------------------------------------------------------
@@ -74,7 +76,6 @@ void LLChannelManager::onLoginCompleted()
 	p.id = LLUUID(STARTUP_CHANNEL_ID);
 	p.channel_right_bound = getRootView()->getRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
 	p.channel_width = gSavedSettings.getS32("NotifyBoxWidth");
-	mStartUpChannel = NULL;
 	mStartUpChannel = createChannel(p);
 
 	if(!mStartUpChannel)
@@ -90,6 +91,7 @@ void LLChannelManager::enableShowToasts()
 {
 	LLScreenChannel::setStartUpToastShown();
 	delete mStartUpChannel;
+	mStartUpChannel = NULL;
 }
 
 //--------------------------------------------------------------------------
@@ -166,6 +168,10 @@ void LLChannelManager::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 //--------------------------------------------------------------------------
 
+LLScreenChannel* LLChannelManager::getStartUpChannel()
+{
+	return mStartUpChannel;
+}
 
 //--------------------------------------------------------------------------
 

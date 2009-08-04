@@ -267,8 +267,7 @@ public:
 		return ParamDefaults<typename T::Params, 0>::instance().get();
 	}
 
-	void buildFloater(LLFloater* floaterp, const std::string &filename, BOOL open_floater = TRUE, LLXMLNodePtr output_node = NULL);
-	LLFloater* buildFloaterFromXML(const std::string& filename, BOOL open_floater = TRUE);
+	void buildFloater(LLFloater* floaterp, const std::string &filename, LLXMLNodePtr output_node);
 	BOOL buildPanel(LLPanel* panelp, const std::string &filename, LLXMLNodePtr output_node = NULL);
 
 	// Does what you want for LLFloaters and LLPanels

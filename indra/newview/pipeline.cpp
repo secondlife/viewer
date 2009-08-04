@@ -66,6 +66,7 @@
 #include "llface.h"
 #include "llfeaturemanager.h"
 #include "llfloatertelehub.h"
+#include "llfloaterreg.h"
 #include "llgldbg.h"
 #include "llhudmanager.h"
 #include "lllightconstants.h"
@@ -2299,7 +2300,7 @@ void LLPipeline::postSort(LLCamera& camera)
 	}
 	
 	// only render if the flag is set. The flag is only set if we are in edit mode or the toggle is set in the menus
-	if (gSavedSettings.getBOOL("BeaconAlwaysOn") && !sShadowRender)
+	if (LLFloaterReg::instanceVisible("beacons") && !sShadowRender)
 	{
 		if (sRenderScriptedTouchBeacons)
 		{

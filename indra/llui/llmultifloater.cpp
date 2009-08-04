@@ -42,8 +42,8 @@
 // LLMultiFloater
 //
 
-LLMultiFloater::LLMultiFloater(const LLFloater::Params& params)
-	: LLFloater(),
+LLMultiFloater::LLMultiFloater(const LLSD& key, const LLFloater::Params& params)
+	: LLFloater(key),
 	  mTabContainer(NULL),
 	  mTabPos(LLTabContainer::TOP),
 	  mAutoResize(TRUE),
@@ -74,20 +74,12 @@ void LLMultiFloater::buildTabContainer()
 
 void LLMultiFloater::onOpen(const LLSD& key)
 {
-	if (mTabContainer->getTabCount() <= 0)
-	{
-		// for now, don't allow multifloaters
-		// without any child floaters
-		closeFloater();
-	}
-}
-
-void LLMultiFloater::onClose(bool app_quitting)
-{
-	if(closeAllFloaters() == TRUE)
-	{
-		LLFloater::onClose(app_quitting);
-	}//else not all tabs could be closed...
+// 	if (mTabContainer->getTabCount() <= 0)
+// 	{
+// 		// for now, don't allow multifloaters
+// 		// without any child floaters
+// 		closeFloater();
+// 	}
 }
 
 void LLMultiFloater::draw()
@@ -124,7 +116,8 @@ BOOL LLMultiFloater::closeAllFloaters()
 			//Tab did not actually close, possibly due to a pending Save Confirmation dialog..
 			//so try and close the next one in the list...
 			tabToClose++;
-		}else
+		}
+		else
 		{
 			//Tab closed ok.
 			lastTabCount = mTabContainer->getTabCount();
@@ -246,6 +239,9 @@ void LLMultiFloater::addFloater(LLFloater* floaterp, BOOL select_added_floater, 
 	{
 		floaterp->setVisible(FALSE);
 	}
+	
+	// Tabs sometimes overlap resize handle
+	moveResizeHandlesToFront();
 }
 
 /**
@@ -448,6 +444,8 @@ void LLMultiFloater::setCanResize(BOOL can_resize)
 
 BOOL LLMultiFloater::postBuild()
 {
+	mCloseSignal.connect(boost::bind(&LLMultiFloater::closeAllFloaters, this));
+		
 	// remember any original xml minimum size
 	getResizeLimits(&mOrigMinWidth, &mOrigMinHeight);
 

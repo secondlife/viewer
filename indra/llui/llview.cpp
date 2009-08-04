@@ -603,14 +603,14 @@ void LLView::setVisible(BOOL visible)
 		if (!getParent() || getParent()->isInVisibleChain())
 		{
 			// tell all children of this view that the visibility may have changed
-			onVisibilityChange( visible );
+			handleVisibilityChange( visible );
 		}
 		updateBoundingRect();
 	}
 }
 
 // virtual
-void LLView::onVisibilityChange ( BOOL new_visibility )
+void LLView::handleVisibilityChange ( BOOL new_visibility )
 {
 	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 	{
@@ -618,7 +618,7 @@ void LLView::onVisibilityChange ( BOOL new_visibility )
 		// only views that are themselves visible will have their overall visibility affected by their ancestors
 		if (viewp->getVisible())
 		{
-			viewp->onVisibilityChange ( new_visibility );
+			viewp->handleVisibilityChange ( new_visibility );
 		}
 	}
 }

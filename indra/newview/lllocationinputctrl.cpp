@@ -54,6 +54,7 @@
 #include "llsidetray.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
+#include "llviewercontrol.h"
 
 //============================================================================
 /*
@@ -330,6 +331,13 @@ void LLLocationInputCtrl::onFocusLost()
 	LLUICtrl::onFocusLost();
 	refreshLocation();
 }
+void	LLLocationInputCtrl::draw(){
+	
+	if(!hasFocus()){
+		refreshLocation();
+	}
+	LLComboBox::draw();
+}
 
 void LLLocationInputCtrl::onInfoButtonClicked()
 {
@@ -341,8 +349,7 @@ void LLLocationInputCtrl::onAddLandmarkButtonClicked()
 	LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
 	
 	// Floater "Add Landmark" functionality moved to Side Tray
-	// TODO* Disable floater "Add Landmark" call
-	LLFloaterReg::showInstance("add_landmark");
+	//LLFloaterReg::showInstance("add_landmark");
 }
 
 void LLLocationInputCtrl::onAgentParcelChange()
@@ -387,8 +394,10 @@ void LLLocationInputCtrl::refreshLocation()
 
 	// Update location field.
 	std::string location_name;
+	LLAgent::ELocationFormat format =  (gSavedSettings.getBOOL("ShowCoordinatesOption") ? 
+			LLAgent::LOCATION_FORMAT_FULL: LLAgent::LOCATION_FORMAT_NORMAL);
 
-	if (!gAgent.buildLocationString(location_name, LLAgent::LOCATION_FORMAT_NORMAL))
+	if (!gAgent.buildLocationString(location_name,format))
 		location_name = "Unknown";
 
 	setText(location_name);

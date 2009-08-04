@@ -1,52 +1,48 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  background_visible="true"
- follows="left|top|right|bottom"
+ follows="all"
  height="400"
  label="Places"
  layout="topleft"
- left="0"
  min_height="350"
  min_width="240"
  name="places panel"
- top="400"
  width="305">
-    <panel.string
-     name="landmarks_tab_title">
-        Landmarks
-    </panel.string>
-    <panel.string
-     name="teleport_history_tab_title">
-        Teleport History
-    </panel.string>
+    <string
+     name="landmarks_tab_title"
+     value="Landmarks" />
+    <string
+     name="teleport_history_tab_title"
+     value="Teleport History" />
     <filter_editor
+     background_image="TextField_Search_Off"
      follows="left|top|right"
+     font="SansSerif"
      height="20"
      label="Filter"
      layout="topleft"
      left="15"
      name="Filter"
-     top="3"
-     width="270"
-     font="SansSerif"
-     background_image="TextField_Search_Off"
+     text_color="black"
      text_pad_left="23"
-     text_color="black"/>
+     top="3"
+     width="270" />
     <button
-      name="landmark_search"
-      layout="topleft"
-      top="5"
-      left="23"
-      width="13"
-      height="13"
-      scale_image="false"
-      follows="left|top|right"
-      font="SansSerifBigBold"
-      image_selected="Search"
-      image_unselected="Search"
-      picture_style="true"/>
+     follows="left|top|right"
+     font="SansSerifBigBold"
+     height="13"
+     image_selected="Search"
+     image_unselected="Search"
+     layout="topleft"
+     left="23"
+     name="landmark_search"
+     picture_style="true"
+     scale_image="false"
+     top="5"
+     width="13" />
     <tab_container
-     follows="left|top|right|bottom"
+     follows="all"
      height="326"
      layout="topleft"
      left="10"
@@ -54,26 +50,42 @@
      tab_position="top"
      top_pad="19"
      width="280" />
-    <panel
-     class="panel_place_info"
-     filename="panel_place_info.xml"
-     follows="left|top|right|bottom"
-     height="675"
+    <button
+     follows="bottom|left"
+     font="SansSerifSmallBold"
+     height="25"
+     image_disabled="widgets/SegmentedBtn_Left_Disabled.png"
+     image_selected="widgets/SegmentedBtn_Left_Selected.png"
+     image_unselected="widgets/SegmentedBtn_Left_Off.png"
+     label="Create"
      layout="topleft"
-     left="0"
-     name="panel_place_info"
-     top="-310"
+     left="10"
+     name="create_landmark_btn"
+     top_pad="5"
      visible="false"
-     width="280" />
+     width="60" />
+    <button
+     follows="bottom|left"
+     font="SansSerifSmallBold"
+     height="25"
+     image_disabled="widgets/ComboButton_Disabled.png"
+     image_selected="widgets/ComboButton_Selected.png"
+     image_unselected="widgets/ComboButton_Off.png"
+     label="▼"
+     layout="topleft"
+     left_pad="0"
+     name="folder_menu_btn"
+     visible="false"
+     width="20" />
     <button
      follows="bottom|left"
      font="SansSerifSmallBold"
      height="25"
      label="Teleport"
      layout="topleft"
-     left_delta="10"
+     left="10"
      name="teleport_btn"
-     top_pad="5"
+     top_delta="0"
      width="80" />
     <button
      follows="bottom|left"
@@ -97,7 +109,6 @@
      top_delta="0"
      width="60" />
     <button
-     enabled="true"
      follows="bottom|right"
      font="SansSerifSmallBold"
      height="25"
@@ -107,4 +118,13 @@
      name="overflow_btn"
      top_delta="0"
      width="30" />
+    <panel
+     class="panel_place_info"
+     filename="panel_place_info.xml"
+     follows="all"
+     layout="topleft"
+     left="0"
+     name="panel_place_info"
+     top="-200"
+     visible="false" />
 </panel>

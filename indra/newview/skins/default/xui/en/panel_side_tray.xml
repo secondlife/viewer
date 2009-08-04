@@ -20,8 +20,6 @@
       <panel 
         name="panel_home" 
         filename="panel_sidetray_home_tab.xml" 
-        width="355" 
-        height="465" 
         label="home" 
         border="true" 
       />
@@ -31,21 +29,28 @@
     name="sidebar_people"
     tab_title="People"
     description="Find your friends, contacts and people nearby."
-    image="icn_voice-groupfocus.tga"
+    image="TabIcon_People_Off"
     mouse_opaque="false" 
     background_opaque="false" 
     background_visible="true" 
     bg_opaque_color="0.5 0.5 0.5 1.0"
   >
+    <panel_container
+      name="panel_container"
+    >
       <panel 
         class="panel_people" 
         name="panel_people" 
         filename="panel_people.xml" 
-        width="280" 
-        height="465" 
-        label="People" 
         border="true" 
       />
+      <panel 
+        class="panel_profile_view" 
+        name="panel_profile_view" 
+        filename="panel_profile_view.xml"
+        border="true"
+      />
+    </panel_container>
   </sidetray_tab>
   <!-- *TODO Vadim: isn't the sidetray_tab "label" attribute redundant since we have "tab_title" ? -->
   <sidetray_tab 
@@ -53,7 +58,7 @@
     tab_title="Places"
     label="Places"
     description="Find places to go and places you've been."
-    image="inv_item_landmark.tga" 
+    image="TabIcon_Places_Off" 
     mouse_opaque="false" 
     background_visible="true" 
     bg_opaque_color="0.5 0.5 0.5 1.0"
@@ -71,7 +76,7 @@
     name="sidebar_me"
     tab_title="Me"
     description="Change your profile, your look and quick links to your outfits."
-    image="icn_voice-pvtfocus.tga"
+    image="TabIcon_Me_Off"
     mouse_opaque="false" 
     background_visible="true" 
     bg_opaque_color="0.5 0.5 0.5 1.0"

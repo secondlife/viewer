@@ -56,7 +56,7 @@ public:
 	
 	/*virtual*/ void	draw();
 	/*virtual*/ BOOL	postBuild();
-	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);
 
 	void handleLoginComplete();
 	void clearHistoryCache();

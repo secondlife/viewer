@@ -36,19 +36,21 @@
 
 #include "llbutton.h"
 #include "llfocusmgr.h"
+#include "llviewercontrol.h"
 
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
 LLToast::LLToast(LLPanel* panel) : 
-					LLFloater(), 
+				    LLFloater(LLSD()), 
 					mTimerValue(5),  
 					mIsViewed(false), 
 					mPanel(panel), 
 					mCanFade(true),
 					mHideBtn(NULL),
 					mIsModal(false),
-					mCanBeStored(true)
+					mCanBeStored(true),
+					mHideBtnPressed(false)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_toast.xml");
 
@@ -104,8 +106,7 @@ bool LLToast::timerHasExpired()
 	if (mTimer.getStarted())
 	{
 		F32 elapsed_time = mTimer.getElapsedTimeF32();
-		// after 4 seconds a toast should start fade
-		if (elapsed_time > 4) 
+		if (elapsed_time > gSavedSettings.getS32("ToastOpaqueTime")) 
 		{
 			setBackgroundOpaque(FALSE);
 		}
@@ -218,6 +219,7 @@ void LLToast::onMouseEnter(S32 x, S32 y, MASK mask)
 //--------------------------------------------------------------------------
 void LLToast::onMouseLeave(S32 x, S32 y, MASK mask)
 {	
+	llinfos << "MOUSE LEAVE: x = " << x << "y = " << y << llendl;
 	mOnToastHover(this, MOUSE_LEAVE);
 
 	if(mCanFade && !mIsViewed)
@@ -226,14 +228,26 @@ void LLToast::onMouseLeave(S32 x, S32 y, MASK mask)
 	}
 	if(mHideBtn && mHideBtn->getEnabled())
 	{
-		if( mHideBtn->getRect().pointInRect(x, y) )
+		if( mHideBtnPressed )
+		{
+			mHideBtnPressed = false;
 			return;
-		mHideBtn->setVisible(FALSE);
+		}
+		mHideBtn->setVisible(FALSE);		
 	}
 }
 
 //--------------------------------------------------------------------------
 
+BOOL LLToast::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	if(mHideBtn && mHideBtn->getEnabled())
+	{
+		mHideBtnPressed = mHideBtn->getRect().pointInRect(x, y);
+	}
+
+	return LLFloater::handleMouseDown(x, y, mask);
+}
 
 
 

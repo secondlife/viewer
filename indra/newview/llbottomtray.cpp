@@ -38,18 +38,16 @@
 #include "llfloaterreg.h"
 #include "llflyoutbutton.h"
 #include "llnearbychatbar.h"
-
-//FIXME: temporary, for stand up proto
-#include "llselectmgr.h" 
-#include "llvoavatarself.h"
+#include "llsplitbutton.h"
+#include "llfloatercamera.h"
+#include "llimpanel.h"
 
 LLBottomTray::LLBottomTray(const LLSD&)
-	: mChicletPanel(NULL)
-	, mIMWell(NULL)
-	, mSysWell(NULL)
-	, mTalkBtn(NULL)
-	, mStandUpBtn(NULL)  ////FIXME: temporary, for stand up proto
-	, mNearbyChatBar(NULL)
+:	mChicletPanel(NULL),
+	mIMWell(NULL),
+	mSysWell(NULL),
+	mTalkBtn(NULL),
+	mNearbyChatBar(NULL)
 {
 	mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
 
@@ -61,13 +59,9 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 	mChicletPanel->setChicletClickedCallback(boost::bind(&LLBottomTray::onChicletClick,this,_1));
 
-	////FIXME: temporary, for stand up proto
-	mStandUpBtn = getChild<LLButton> ("stand", TRUE, FALSE);
-	if (mStandUpBtn)
-	{
-		mStandUpBtn->setCommitCallback(boost::bind(&LLBottomTray::onCommitStandUp, this, _1));
-	}
-	
+	LLSplitButton* presets = getChild<LLSplitButton>("presets", TRUE, FALSE);
+	if (presets) presets->setSelectionCallback(LLFloaterCamera::onClickCameraPresets);
+
 	LLIMMgr::getInstance()->addSessionObserver(this);
 
 	//this is to fix a crash that occurs because LLBottomTray is a singleton
@@ -77,6 +71,13 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 	// Necessary for focus movement among child controls
 	setFocusRoot(TRUE);
+}
+
+BOOL LLBottomTray::postBuild()
+{
+	 mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
+
+	 return TRUE;
 }
 
 LLBottomTray::~LLBottomTray()
@@ -94,54 +95,18 @@ void LLBottomTray::onChicletClick(LLUICtrl* ctrl)
 	{
 		// Until you can type into an IM Window and have a conversation,
 		// still show the old communicate window
-		LLFloaterReg::showInstance("communicate", chiclet->getSessionId());
-		// DISABLED IN VIEWER-2 BRANCH UNTIL FEATURE IS DONE -- James
-		//// Show after comm window so it is frontmost (and hence will not
-		//// auto-hide)
-		//LLIMFloater::show(chiclet->getSessionId());
+		//LLFloaterReg::showInstance("communicate", chiclet->getSessionId());
+
+		// Show after comm window so it is frontmost (and hence will not
+		// auto-hide)
+		LLIMFloater::show(chiclet->getSessionId());
+		chiclet->setCounter(0);
 	}
 }
 
 void* LLBottomTray::createNearbyChatBar(void* userdata)
 {
-	LLBottomTray *bt = LLBottomTray::getInstance();
-	if (!bt)
-		return NULL;
-
-	bt->mNearbyChatBar = new LLNearbyChatBar();
-
-	return bt->mNearbyChatBar;
-}
-
-//virtual
-void LLBottomTray::draw()
-{
-	refreshStandUp();
-	LLPanel::draw();
-}
-
-void LLBottomTray::refreshStandUp()
-{
-	//FIXME: temporary, for stand up proto
-	BOOL sitting = FALSE;
-	if (gAgent.getAvatarObject())
-	{
-		sitting = gAgent.getAvatarObject()->mIsSitting;
-	}
-	
-	if (mStandUpBtn && mStandUpBtn->getVisible() != sitting)
-	{
-		mStandUpBtn->setVisible(sitting);
-		sendChildToFront(mStandUpBtn);
-		moveChildToBackOfTabGroup(mStandUpBtn);
-	}
-}
-
-//FIXME: temporary, for stand up proto
-void LLBottomTray::onCommitStandUp(LLUICtrl* ctrl)
-{
-	LLSelectMgr::getInstance()->deselectAllForStandingUp();
-	gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
+	return new LLNearbyChatBar();
 }
 
 //virtual

@@ -4,6 +4,7 @@
  height="600"
  layout="topleft"
  name="sell land"
+ single_instance="true"
  title="Sell Land"
  width="280">
     <texture_picker

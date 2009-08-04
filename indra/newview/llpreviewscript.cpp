@@ -156,10 +156,10 @@ private:
 LLFloaterScriptSearch* LLFloaterScriptSearch::sInstance = NULL;
 
 LLFloaterScriptSearch::LLFloaterScriptSearch(LLScriptEdCore* editor_core)
-:	LLFloater(),
+:	LLFloater(LLSD()),
 	mEditorCore(editor_core)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_script_search.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_script_search.xml", NULL);
 
 	sInstance = this;
 	
@@ -640,8 +640,8 @@ void LLScriptEdCore::onBtnDynamicHelp()
 		return;
 	}
 
-	live_help_floater = new LLFloater();
-	LLUICtrlFactory::getInstance()->buildFloater(live_help_floater, "floater_lsl_guide.xml");
+	live_help_floater = new LLFloater(LLSD());
+	LLUICtrlFactory::getInstance()->buildFloater(live_help_floater, "floater_lsl_guide.xml", NULL);
 	LLFloater* parent = dynamic_cast<LLFloater*>(getParent());
 	parent->addDependentFloater(live_help_floater, TRUE);
 	live_help_floater->childSetCommitCallback("lock_check", onCheckLock, this);

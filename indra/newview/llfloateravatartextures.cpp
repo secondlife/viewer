@@ -42,29 +42,15 @@
 
 using namespace LLVOAvatarDefines;
 
-LLFloaterAvatarTextures* LLFloaterAvatarTextures::sInstance = NULL;
-LLFloaterAvatarTextures::LLFloaterAvatarTextures(const LLUUID& id)
-  : LLFloater(),
-	mID(id)
+LLFloaterAvatarTextures::LLFloaterAvatarTextures(const LLSD& id)
+  : LLFloater(id),
+	mID(id.asUUID())
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_avatar_textures.xml");
+// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_avatar_textures.xml");
 }
 
 LLFloaterAvatarTextures::~LLFloaterAvatarTextures()
 {
-	sInstance = NULL;
-}
-
-LLFloaterAvatarTextures* LLFloaterAvatarTextures::show(const LLUUID &id)
-{
-	if (!sInstance)
-	{
-		sInstance = new LLFloaterAvatarTextures(id);
-		gFloaterView->addChild(sInstance);
-		gFloaterView->adjustToFitScreen(sInstance, FALSE);
-	}
-	sInstance->openFloater();
-	return sInstance;
 }
 
 BOOL LLFloaterAvatarTextures::postBuild()

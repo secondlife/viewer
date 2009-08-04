@@ -8,14 +8,17 @@
  top="624"
  visible="false"
  width="128">
-    <menu_item_call
-     label="Copy SLurl to Clipboard"
-     layout="topleft"
-     name="Copy SLURL">
-        <menu_item_call.on_click
-         function="Navbar.Action"
-         parameter="copy_url" />
-    </menu_item_call>
+    <menu_item_check
+         label="Show Coordinates"
+         layout="topleft"
+         name="Show Coordinates">
+           <menu_item_check.on_click
+             function="Navbar.Action"
+             parameter="show_coordinates" />
+             <menu_item_check.on_check
+             function="Navbar.EnableMenuItem"
+             parameter="show_coordinates" />
+    </menu_item_check>
     <menu_item_call
      label="Add Landmark..."
      layout="topleft"

@@ -43,25 +43,22 @@ class LLTalkButton;
 class LLNearbyChatBar;
 
 class LLBottomTray 
-	: public LLUISingleton<LLBottomTray>
+	: public LLSingleton<LLBottomTray>
 	, public LLPanel
 	, public LLIMSessionObserver
 {
-	friend class LLUISingleton<LLBottomTray>;
+	friend class LLSingleton<LLBottomTray>;
 public:
 	~LLBottomTray();
+
+	BOOL postBuild();
 
 	LLChicletPanel*		getChicletPanel()	{return mChicletPanel;}
 	LLNotificationChiclet*	getIMWell()	{return mIMWell;}
 	LLNotificationChiclet*	getSysWell()	{return mSysWell;}
 	LLNearbyChatBar*		getNearbyChatBar()	{return mNearbyChatBar;}
 
-	/*virtual*/void draw();
-	void refreshStandUp();
-
 	void onCommitGesture(LLUICtrl* ctrl);
-	void onCommitStandUp(LLUICtrl* ctrl);	
-	void refreshGestures();
 
 	// LLIMSessionObserver observe triggers
 	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
@@ -82,7 +79,6 @@ protected:
 	LLNotificationChiclet* 	mIMWell;
 	LLNotificationChiclet* 	mSysWell;
 	LLTalkButton* 		mTalkBtn;
-	LLButton*           mStandUpBtn;
 	LLNearbyChatBar*	mNearbyChatBar;
 };
 

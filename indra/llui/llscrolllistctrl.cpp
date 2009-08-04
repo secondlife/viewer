@@ -163,7 +163,6 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	mSorted(FALSE),
 	mDirty(FALSE),
 	mOriginalSelection(-1),
-	mDrewSelected(FALSE),
 	mLastSelected(NULL),
 	mHeadingHeight(p.heading_height),
 	mAllowMultipleSelection(p.multi_select),
@@ -1353,8 +1352,6 @@ void LLScrollListCtrl::drawItems()
 
 		S32 cur_y = y;
 		
-		mDrewSelected = FALSE;
-
 		S32 line = 0;
 		S32 max_columns = 0;
 
@@ -1374,11 +1371,6 @@ void LLScrollListCtrl::drawItems()
 				mLineHeight );
 
 			//llinfos << item_rect.getWidth() << llendl;
-
-			if (item->getSelected())
-			{
-				mDrewSelected = TRUE;
-			}
 
 			max_columns = llmax(max_columns, item->getNumColumns());
 
@@ -1444,10 +1436,7 @@ void LLScrollListCtrl::draw()
 	LLLocalClipRect clip(getLocalRect());
 
 	// if user specifies sort, make sure it is maintained
-	if (needsSorting() && !isSorted())
-	{
-		sortItems();
-	}
+	sortItems();
 
 	if (mNeedsScroll)
 	{
@@ -2208,6 +2197,8 @@ BOOL LLScrollListCtrl::setSort(S32 column_idx, BOOL ascending)
 	sort_column->mSortDirection = ascending ? LLScrollListColumn::ASCENDING : LLScrollListColumn::DESCENDING;
 
 	sort_column_t new_sort_column(column_idx, ascending);
+	
+	setSorted(FALSE);
 
 	if (mSortColumns.empty())
 	{
@@ -2248,21 +2239,22 @@ void LLScrollListCtrl::sortByColumn(const std::string& name, BOOL ascending)
 // First column is column 0
 void  LLScrollListCtrl::sortByColumnIndex(U32 column, BOOL ascending)
 {
-	if (setSort(column, ascending))
-	{
-		sortItems();
-	}
+	setSort(column, ascending);
+	sortItems();
 }
 
 void LLScrollListCtrl::sortItems()
 {
-	// do stable sort to preserve any previous sorts
-	std::stable_sort(
-		mItemList.begin(), 
-		mItemList.end(), 
-		SortScrollListItem(mSortColumns));
+	if (hasSortOrder() && !isSorted())
+	{
+		// do stable sort to preserve any previous sorts
+		std::stable_sort(
+			mItemList.begin(), 
+			mItemList.end(), 
+			SortScrollListItem(mSortColumns));
 
-	setSorted(TRUE);
+		setSorted(TRUE);
+	}
 }
 
 // for one-shot sorts, does not save sort column/order
@@ -2318,10 +2310,7 @@ void LLScrollListCtrl::scrollToShowSelected()
 		return;
 	}
 
-	if (needsSorting() && !isSorted())
-	{
-		sortItems();
-	}	
+	sortItems();
 	
 	S32 index = getFirstSelectedIndex();
 	if (index < 0)
@@ -2562,7 +2551,7 @@ std::string LLScrollListCtrl::getSortColumnName()
 	else return "";
 }
 
-BOOL LLScrollListCtrl::needsSorting()
+BOOL LLScrollListCtrl::hasSortOrder()
 {
 	return !mSortColumns.empty();
 }

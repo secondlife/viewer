@@ -43,8 +43,10 @@ class LLGestureComboBox
 	: public LLComboBox
 	, public LLGestureManagerObserver
 {
+public:
+	struct Params : public LLInitParam::Block<Params, LLComboBox::Params> { };
 protected:
-	LLGestureComboBox(const LLComboBox::Params&);
+	LLGestureComboBox(const Params&);
 	friend class LLUICtrlFactory;
 public:
 	~LLGestureComboBox();
@@ -86,6 +88,7 @@ public:
 	static void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
 
 protected:
+	static BOOL matchChatTypeTrigger(const std::string& in_str, std::string* out_str);
 	static void onChatBoxKeystroke(LLLineEditor* caller, void* userdata);
 	static void onChatBoxFocusLost(LLFocusableElement* caller, void* userdata);
 
@@ -93,6 +96,7 @@ protected:
 	void onChatBoxCommit();
 
 	static LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
+	EChatType processChatTypeTriggers(EChatType type, std::string &str);
 
 	// Which non-zero channel did we last chat on?
 	static S32 sLastSpecialChatChannel;

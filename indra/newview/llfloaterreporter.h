@@ -82,11 +82,13 @@ class LLFloaterReporter
 :	public LLFloater
 {
 public:
-	LLFloaterReporter(EReportType = UNKNOWN_REPORT);
+	LLFloaterReporter(const LLSD& key);
 	/*virtual*/ ~LLFloaterReporter();
 	/*virtual*/ BOOL postBuild();
 	virtual void draw();
-
+	
+	void setReportType(EReportType type) { mReportType = type; }
+	
 	// Enables all buttons
 	static void showFromMenu(EReportType report_type);
 
@@ -101,10 +103,6 @@ public:
 	static void addDescription(const std::string& description, LLMeanCollisionData *mcd = NULL);
 	static void setDescription(const std::string& description, LLMeanCollisionData *mcd = NULL);
 	
-	// returns a pointer to reporter of report_type
-	static LLFloaterReporter* getReporter(EReportType report_type);
-	static LLFloaterReporter* createNewAbuseReporter();
-
 	// static
 	static void processRegionInfo(LLMessageSystem* msg);
 	
@@ -126,6 +124,7 @@ private:
 
 private:
 	EReportType		mReportType;
+	BOOL			mEmailToEstateOwner;
 	LLUUID 			mObjectID;
 	LLUUID			mScreenID;
 	LLUUID			mAbuserID;

@@ -97,7 +97,7 @@ public:
 	
 	enum EFloaterButtons
 	{
-		BUTTON_CLOSE,
+		BUTTON_CLOSE = 0,
 		BUTTON_RESTORE,
 		BUTTON_MINIMIZE,
 		BUTTON_TEAR_OFF,
@@ -107,22 +107,6 @@ public:
 		BUTTON_COUNT
 	};
 	
-	typedef boost::function<void (LLUICtrl* ctrl, const LLSD& param)> open_callback_t;
-	typedef boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param)> open_signal_t;
-	
-	typedef boost::function<void (LLUICtrl* ctrl, const LLSD& param, bool app_quitting)> close_callback_t;
-	typedef boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param, bool app_quitting)> close_signal_t;
-
-	struct OpenCallbackParam : public LLInitParam::Block<OpenCallbackParam, CallbackParam >
-	{
-		Optional<open_callback_t> function;
-	};
-
-	struct CloseCallbackParam : public LLInitParam::Block<CloseCallbackParam, CallbackParam >
-	{
-		Optional<close_callback_t> function;
-	};
-
 	struct Params 
 	:	public LLInitParam::Block<Params, LLPanel::Params>
 	{
@@ -140,8 +124,8 @@ public:
 								save_visibility,
 								can_dock;
 		
-		Optional<OpenCallbackParam> open_callback;
-		Optional<CloseCallbackParam> close_callback;
+		Optional<CommitCallbackParam> open_callback,
+									  close_callback;
 		
 		Params();
 	};
@@ -149,7 +133,10 @@ public:
 	// use this to avoid creating your own default LLFloater::Param instance
 	static const Params& getDefaultParams();
 
-	LLFloater(const LLSD& key = LLSD(), const Params& params = getDefaultParams());
+	// Load translations for tooltips for standard buttons
+	static void initClass();
+
+	LLFloater(const LLSD& key, const Params& params = getDefaultParams());
 
 	virtual ~LLFloater();
 
@@ -157,7 +144,7 @@ public:
 	static void setupParamsForExport(Params& p, LLView* parent);
 
 	void initFromParams(const LLFloater::Params& p);
-	void initFloaterXML(LLXMLNodePtr node, LLView *parent, BOOL open_floater = TRUE, LLXMLNodePtr output_node = NULL);
+	void initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
 
 	/*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);
 	/*virtual*/ BOOL canSnapTo(const LLView* other_view);
@@ -171,7 +158,6 @@ public:
 	void			openFloater(const LLSD& key = LLSD());
 
 	// If allowed, close the floater cleanly, releasing focus.
-	// app_quitting is passed to onClose() below.
 	void			closeFloater(bool app_quitting = false);
 
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
@@ -221,20 +207,16 @@ public:
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask);
 	virtual void	draw();
-
+	
+	// *TODO: Eliminate this in favor of mOpenSignal
 	virtual void	onOpen(const LLSD& key) {}
-
-	// Call destroy() to free memory, or setVisible(FALSE) to keep it
-	// If app_quitting, you might not want to save your visibility.
-	// Defaults to destroy().
-	virtual void	onClose(bool app_quitting) { destroy(); }
 
 	// This cannot be "const" until all derived floater canClose()
 	// methods are const as well.  JC
 	virtual BOOL	canClose() { return TRUE; }
 
-	virtual void	setVisible(BOOL visible);
-	virtual void	onVisibilityChange ( BOOL curVisibilityIn );
+	/*virtual*/ void setVisible(BOOL visible); // do not override
+	/*virtual*/ void handleVisibilityChange ( BOOL new_visibility ); // do not override
 	
 	void			setFrontmost(BOOL take_focus = TRUE);
 	
@@ -250,7 +232,9 @@ public:
 	LLHandle<LLFloater> getHandle() const { return mHandle; }
 	const LLSD& 	getKey() { return mKey; }
 	BOOL		 	matchesKey(const LLSD& key) { return mSingleInstance || KeyCompare::equate(key, mKey); }
-
+	
+	const std::string& getInstanceName() { return mInstanceName; }
+	
 	bool            isDockable() const { return mCanDock; }
 	void            setCanDock(bool b);
 
@@ -299,10 +283,7 @@ protected:
 	void			setAutoFocus(BOOL focus) { mAutoFocus = focus; } // whether to automatically take focus when opened
 	LLDragHandle*	getDragHandle() const { return mDragHandle; }
 
-	void			destroy() { die(); } // Don't call this directly.  You probably want to call close(). JC
-
-	void			initOpenCallback(const OpenCallbackParam& cb, open_signal_t& sig);
-	void			initCloseCallback(const CloseCallbackParam& cb, close_signal_t& sig);
+	void			destroy() { die(); } // Don't call this directly.  You probably want to call closeFloater()
 
 private:
 	void			setForeground(BOOL b);	// called only by floaterview
@@ -314,15 +295,11 @@ private:
 	void			addResizeCtrls();
 	void 			addDragHandle();
 
-public:
-	class OpenCallbackRegistry : public CallbackRegistry<open_callback_t, OpenCallbackRegistry> {};
-	class CloseCallbackRegistry : public CallbackRegistry<close_callback_t, CloseCallbackRegistry> {};
-
 protected:
 	std::string		mRectControl;
 	std::string		mVisibilityControl;
-	open_signal_t   mOpenSignal;
-	close_signal_t  mCloseSignal;
+	commit_signal_t mOpenSignal;		// Called when floater is opened, passes mKey
+	commit_signal_t mCloseSignal;		// Called when floater is closed, passes app_qitting as LLSD()
 	LLSD			mKey;				// Key used for retrieving instances; set (for now) by LLFLoaterReg
 
 	LLDragHandle*	mDragHandle;
@@ -376,6 +353,8 @@ private:
 	static BOOL		sEditModeEnabled;
 	static BOOL		sQuitting;
 	static std::string	sButtonActiveImageNames[BUTTON_COUNT];
+	// Images to use when cursor hovered over an enabled button
+	static std::string	sButtonHoveredImageNames[BUTTON_COUNT];
 	static std::string	sButtonPressedImageNames[BUTTON_COUNT];
 	static std::string	sButtonNames[BUTTON_COUNT];
 	static std::string	sButtonToolTips[BUTTON_COUNT];
@@ -465,36 +444,11 @@ private:
 	S32				mSnapOffsetRight;
 };
 
-//*******************************************************
-//* TO BE DEPRECATED
-//*******************************************************
-// visibility policy specialized for floaters
-template<>
-class VisibilityPolicy<LLFloater>
-{
-public:
-	// visibility methods
-	static bool visible(LLFloater* instance, const LLSD& key);
-
-	static void show(LLFloater* instance, const LLSD& key);
-
-	static void hide(LLFloater* instance, const LLSD& key);
-};
-
 //
 // Globals
 //
 
 extern LLFloaterView* gFloaterView;
-
-namespace LLInitParam
-{   
-    template<> 
-	bool ParamCompare<LLFloater::close_callback_t>::equals(
-		const LLFloater::close_callback_t &a, 
-		const LLFloater::close_callback_t &b); 
-}
-
 
 #endif  // LL_FLOATER_H
 

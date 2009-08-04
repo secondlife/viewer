@@ -682,13 +682,15 @@ bool LLAppViewer::init()
 	// Setup paths and LLTrans after LLUI::initClass has been called
 	LLUI::setupPaths();
 	LLTrans::parseStrings("strings.xml", default_trans_args);		
-
+	LLTrans::parseLanguageStrings("language_settings.xml");
 	LLWeb::initClass();			  // do this after LLUI
 
 	LLTextEditor::setURLCallbacks(&LLWeb::loadURL,
 				&LLURLDispatcher::dispatchFromTextEditor,
 				&LLURLDispatcher::dispatchFromTextEditor);
-	
+
+	// Load translations for tooltips
+	LLFloater::initClass();
 
 	/////////////////////////////////////////////////
 	
@@ -1762,7 +1764,7 @@ bool LLAppViewer::initConfiguration()
 	
 	LLUI::setupPaths(); // setup paths for LLTrans based on settings files only
 	LLTrans::parseStrings("strings.xml", default_trans_args);
-	
+	LLTrans::parseLanguageStrings("language_settings.xml");
 	// - set procedural settings
 	// Note: can't use LL_PATH_PER_SL_ACCOUNT for any of these since we haven't logged in yet
 	gSavedSettings.setString("ClientSettingsFile", 
@@ -1817,6 +1819,7 @@ bool LLAppViewer::initConfiguration()
 	LLControlGroupCLP clp;
 	std::string	cmd_line_config	= gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,
 														  "cmd_line.xml");
+
 	clp.configure(cmd_line_config, &gSavedSettings);
 
 	if(!initParseCommandLine(clp))
@@ -3458,7 +3461,7 @@ void LLAppViewer::idle()
 
 	{
 		// Handle pending gesture processing
-		gGestureManager.update();
+		LLGestureManager::instance().update();
 
 		gAgent.updateAgentPosition(gFrameDTClamped, yaw, current_mouse.mX, current_mouse.mY);
 	}
@@ -4031,8 +4034,6 @@ void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
 
 void LLAppViewer::handleLoginComplete()
 {
-	gViewerWindow->handleLoginComplete();
-
 	initMainloopTimeout("Mainloop Init");
 
 	// Store some data to DebugInfo in case of a freeze.

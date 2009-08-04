@@ -35,6 +35,8 @@
 
 #include "stdtypes.h"
 
+class LLFloater;
+
 class LLFloaterBuyCurrency
 {
 public:
@@ -46,6 +48,8 @@ public:
 				"Uploading costs"
 			a space and the price will be appended
 		*/
+	
+	static LLFloater* buildFloater(const LLSD& key);
 };
 
 

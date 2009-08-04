@@ -142,19 +142,11 @@ void LLViewerTextureList::doPreloadImages()
 		image->setAddressMode(LLTexUnit::TAM_WRAP);	
 		mImagePreloads.insert(image);
 	}
-	else
-	{
-		llinfos << "JAMESDEBUG" << llendl;
-	}
 	image = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryPassLines.png", MIPMAP_YES, IMMEDIATE_YES);
 	if (image) 
 	{
 		image->setAddressMode(LLTexUnit::TAM_WRAP);
 		mImagePreloads.insert(image);
-	}
-	else
-	{
-		llinfos << "JAMESDEBUG" << llendl;
 	}
 	image = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL, MIPMAP_YES, IMMEDIATE_YES);
 	if (image) 

@@ -121,7 +121,6 @@ public:
 	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
 
 	static void onMouseCaptureLostImagePreview(LLMouseHandler*);
-	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
 
 	void clearAllPreviewTextures();
 
@@ -139,7 +138,6 @@ protected:
 	LLRectf			mPreviewImageRect;
 	LLPointer<LLViewerTexture> mImagep ;
 
-	static S32		sUploadAmount;
 };
 
 #endif  // LL_LLFLOATERIMAGEPREVIEW_H
