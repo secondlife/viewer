@@ -4233,3 +4233,4 @@ void LLAppViewer::launchUpdater()
 	// *REMOVE:Mani - Saving for reference...
 	// LLAppViewer::instance()->forceQuit();
 }
+
