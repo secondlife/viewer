@@ -207,9 +207,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>6be5bca5f4b031b1b79824da5cfd4ddf</string>
+            <string>a25595e9fccdba35d8e27854db4e7bc5</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-darwin-20090702a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-darwin-20090803.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -228,9 +228,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>44d4fdf386742b94419c93ad2baa1616</string>
+            <string>76a436d78f34286a7d13faca5f522f6b</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-windows-20090702.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-windows-20090803.tar.bz2</uri>
           </map>
         </map>
       </map>
