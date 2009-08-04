@@ -389,15 +389,6 @@ void LLTextEditor::setThumbColor( const LLColor4& color )
 	mScrollbar->setThumbColor(color); 
 }
 
-struct LLTextEditor::pred
-{
-	bool operator()(const std::pair<S32, S32>& b, const LLTextEditor::line_info& a)
-	{
-		return a.mSegment > 0;
-	}
-	
-};
-
 void LLTextEditor::updateLineStartList(S32 startpos)
 {
 	updateSegments();
@@ -413,7 +404,7 @@ void LLTextEditor::updateLineStartList(S32 startpos)
 	{
 		getSegmentAndOffset(startpos, &seg_idx, &seg_offset);
 		line_info t(seg_idx, seg_offset);
-		line_list_t::iterator iter = std::upper_bound(mLineStartList.begin(), mLineStartList.end(), std::make_pair(seg_idx, seg_offset), pred());
+		line_list_t::iterator iter = std::upper_bound(mLineStartList.begin(), mLineStartList.end(), t, line_info_compare());
 		if (iter != mLineStartList.begin()) --iter;
 		seg_idx = iter->mSegment;
 		seg_offset = iter->mOffset;
