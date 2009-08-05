@@ -33,7 +33,30 @@
 
 #include "llerror.h"	// *TODO: eliminate this
 
+#include <typeinfo>
 #include <boost/noncopyable.hpp>
+#include <boost/any.hpp>
+
+/// @brief A global registry of all singletons to prevent duplicate allocations
+/// across shared library boundaries
+class LL_COMMON_API LLSingletonRegistry {
+	private:
+		typedef std::map<std::string, void *> TypeMap;
+		static TypeMap sSingletonMap;
+
+	public:
+		template<typename T> static void * & get()
+		{
+			std::string name(typeid(T).name());
+
+			if(0 == sSingletonMap.count(name))
+			{
+				sSingletonMap[name] = NULL;
+			}
+
+			return sSingletonMap[typeid(T).name()];
+		}
+};
 
 // LLSingleton implements the getInstance() method part of the Singleton
 // pattern. It can't make the derived class constructors protected, though, so
@@ -107,8 +130,16 @@ public:
 
 	static SingletonInstanceData& getData()
 	{
+		void * & registry = LLSingletonRegistry::get<DERIVED_TYPE>();
 		static SingletonInstanceData data;
-		return data;
+
+		// *TODO - look into making this threadsafe
+		if(NULL == registry)
+		{
+			registry = &data;
+		}
+
+		return *static_cast<SingletonInstanceData *>(registry);
 	}
 
 	static DERIVED_TYPE* getInstance()
