@@ -94,7 +94,7 @@
 #include "llhudmanager.h"
 #include "llimpanel.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llmenugl.h"
 #include "llmutelist.h"
 #include "llnotifications.h"
@@ -142,6 +142,9 @@
 #if LL_WINDOWS // For Windows specific error handler
 #include "llwindebug.h"	// For the invalid message handler
 #endif
+
+//#include "llnearbychathistory.h"
+#include "llnotificationmanager.h"
 
 //
 // Constants
@@ -206,6 +209,10 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	LLUUID fid;
 	LLMessageSystem* msg = gMessageSystem;
 	const LLSD& payload = notification["payload"];
+
+	// add friend to recent people list
+	LLRecentPeople::instance().add(payload["from_id"]);
+
 	switch(option)
 	{
 	case 0:
@@ -912,17 +919,17 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 		//highlight item, if it's not in the trash or lost+found
 		
 		// Don't auto-open the inventory floater
-		LLInventoryView* view = NULL;
+		LLFloaterInventory* view = NULL;
 		if(gSavedSettings.getBOOL("ShowInInventory") &&
 		   asset_type != LLAssetType::AT_CALLINGCARD &&
 		   item->getInventoryType() != LLInventoryType::IT_ATTACHMENT &&
 		   !from_name.empty())
 		{
-			view = LLInventoryView::showAgentInventory();
+			view = LLFloaterInventory::showAgentInventory();
 		}
 		else
 		{
-			view = LLInventoryView::getActiveInventory();
+			view = LLFloaterInventory::getActiveInventory();
 		}
 		if(!view)
 		{
@@ -986,7 +993,8 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 	if (LLMuteList::getInstance()->add(mute))
 	{
 		LLFloaterReg::showInstance("mute");
-		LLFloaterReg::getTypedInstance<LLFloaterMute>("mute")->selectMute(blocked_id);
+		LLFloaterMute* mute_instance = LLFloaterReg::getTypedInstance<LLFloaterMute>("mute");
+		if(mute_instance) mute_instance->selectMute(blocked_id);
 	}
 
 	// purge the message queue of any previously queued inventory offers from the same source.
@@ -1176,6 +1184,9 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			{
 				opener = open_agent_offer;
 			}
+
+			// add buddy to recent people list
+			LLRecentPeople::instance().add(mFromID);
 		}
 			break;
 		case IM_TASK_INVENTORY_OFFERED:
@@ -1527,7 +1538,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			// now store incoming IM in chat history
 
-			buffer = separator_string + message.substr(message_offset);
+			buffer = message.substr(message_offset);
 	
 			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
@@ -1577,7 +1588,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				saved = llformat("(Saved %s) ", formatted_time(timestamp).c_str());
 			}
-			buffer = separator_string + saved  + message.substr(message_offset);
+			buffer = saved + message.substr(message_offset);
 
 			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
@@ -1715,7 +1726,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				LLSD args;
 				args["SUBJECT"] = subj;
 				args["MESSAGE"] = mes;
-				LLNotifications::instance().add(LLNotification::Params("GroupNotice").substitutions(args).payload(payload).timestamp(timestamp));
+				LLNotifications::instance().add(LLNotification::Params("GroupNotice").substitutions(args).payload(payload).time_stamp(timestamp));
 			}
 
 			// Also send down the old path for now.
@@ -1876,7 +1887,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		{
 			saved = llformat("(Saved %s) ", formatted_time(timestamp).c_str());
 		}
-		buffer = separator_string + saved + message.substr(message_offset);
+		buffer = saved + message.substr(message_offset);
 		BOOL is_this_agent = FALSE;
 		if(from_id == gAgentID)
 		{
@@ -2369,15 +2380,15 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			switch(chat.mChatType)
 			{
 			case CHAT_TYPE_WHISPER:
-				verb = " " + LLTrans::getString("whisper") + " ";
+				verb = "(" + LLTrans::getString("whisper") + ")";
 				break;
 			case CHAT_TYPE_DEBUG_MSG:
 			case CHAT_TYPE_OWNER:
 			case CHAT_TYPE_NORMAL:
-				verb = ": ";
+				verb = "";
 				break;
 			case CHAT_TYPE_SHOUT:
-				verb = " " + LLTrans::getString("shout") + " ";
+				verb = "(" + LLTrans::getString("shout") + ")";
 				break;
 			case CHAT_TYPE_START:
 			case CHAT_TYPE_STOP:
@@ -2385,12 +2396,12 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 				break;
 			default:
 				LL_WARNS("Messaging") << "Unknown type " << chat.mChatType << " in chat!" << LL_ENDL;
-				verb = " say, ";
+				verb = "";
 				break;
 			}
 
 
-			chat.mText = from_name;
+			chat.mText = "";
 			chat.mText += verb;
 			chat.mText += mesg;
 		}
@@ -2418,12 +2429,14 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			&& (is_linden || !is_busy || is_owned_by_me))
 		{
 			// show on screen and add to history
-			LLFloaterChat::addChat(chat, FALSE, FALSE);
+			LLNotificationsUI::LLNotificationManager::instance().onChat(
+					chat, LLNotificationsUI::NT_NEARBYCHAT);
 		}
 		else
 		{
+			LLNotificationsUI::LLNotificationManager::instance().onChat(
+					chat, LLNotificationsUI::NT_NEARBYCHAT);
 			// just add to chat history
-			LLFloaterChat::addChatHistory(chat);
 		}
 	}
 }
@@ -4793,13 +4806,13 @@ void container_inventory_arrived(LLViewerObject* object,
 		gAgent.changeCameraToDefault();
 	}
 
-	LLInventoryView* view = LLInventoryView::getActiveInventory();
+	LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
 
 	if (inventory->size() > 2)
 	{
 		// create a new inventory category to put this in
 		LLUUID cat_id;
-		cat_id = gInventory.createNewCategory(gAgent.getInventoryRootID(),
+		cat_id = gInventory.createNewCategory(gInventory.getRootFolderID(),
 											  LLAssetType::AT_NONE,
 											  LLTrans::getString("AcquiredItems"));
 
@@ -5494,10 +5507,14 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
 	msg->getVector3("Data", "SimPosition", pos);
 	msg->getVector3("Data", "LookAt", look_at);
 
-	LLFloaterWorldMap::getInstance()->trackURL(
-		sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]);
-	LLFloaterReg::showInstance("world_map", "center");
-
+	LLFloaterWorldMap* instance = LLFloaterWorldMap::getInstance();
+	if(instance)
+	{
+		instance->trackURL(
+						   sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]);
+		LLFloaterReg::showInstance("world_map", "center");
+	}
+	
 	// remove above two lines and replace with below line
 	// to re-enable parcel browser for llMapDestination()
 	// LLURLDispatcher::dispatch(LLSLURL::buildSLURL(sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]), FALSE);

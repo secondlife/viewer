@@ -292,15 +292,16 @@ void LLFloaterLandHoldings::buttonCore(S32 which)
 	F64 global_z = gAgent.getPositionGlobal().mdV[VZ];
 
 	LLVector3d pos_global(global_x, global_y, global_z);
+	LLFloaterWorldMap* floater_world_map = LLFloaterWorldMap::getInstance();
 
 	switch(which)
 	{
 	case 0:
 		gAgent.teleportViaLocation(pos_global);
-		LLFloaterWorldMap::getInstance()->trackLocation(pos_global);
+		if(floater_world_map) floater_world_map->trackLocation(pos_global);
 		break;
 	case 1:
-		LLFloaterWorldMap::getInstance()->trackLocation(pos_global);
+		if(floater_world_map) floater_world_map->trackLocation(pos_global);
 		LLFloaterReg::showInstance("world_map", "center");
 		break;
 	default:

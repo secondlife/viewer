@@ -363,6 +363,24 @@ std::string LLFloaterReg::declareVisibilityControl(const std::string& name)
 	return controlname;
 }
 
+//static
+void LLFloaterReg::registerControlVariables()
+{
+	// Iterate through alll registered instance names and register rect and visibility control variables
+	for (build_map_t::iterator iter = sBuildMap.begin(); iter != sBuildMap.end(); ++iter)
+	{
+		const std::string& name = iter->first;
+		if (LLUI::sSettingGroups["floater"]->controlExists(getRectControlName(name)))
+		{
+			declareRectControl(name);
+		}
+		if (LLUI::sSettingGroups["floater"]->controlExists(getVisibilityControlName(name)))
+		{
+			declareVisibilityControl(name);
+		}
+	}
+}
+
 // Callbacks
 
 // static

@@ -68,6 +68,10 @@ public:
 		
 		Params();
 	};
+
+	// my valid children are stored in this registry
+	typedef LLDefaultChildRegistry child_registry_t;
+
 protected:
 	LLScrollContainer(const Params&);
 	friend class LLUICtrlFactory;
@@ -101,10 +105,8 @@ public:
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
 
-	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect);
 	virtual void	draw();
 	virtual bool	addChild(LLView* view, S32 tab_group = 0);
-	virtual const widget_registry_t& getChildRegistry() const;
 
 private:
 	// internal scrollbar handlers

@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<panel
+ border="true"
+ background_visible="true"
+ follows="left|top|right|bottom"
+ height="408"
+ layout="topleft"
+ left="102"
+ name="advanced"
+ top="1"
+ width="517">
+        <text
+     type="string"
+     text_color="LabelSelectedDisabledColor"
+     length="1"
+     follows="left|top"
+     layout="topleft"
+     left="8"
+     name="text status"
+     top_pad="3"
+     width="280">
+Beware the Trout!
+    </text>
+        
+        <!-- ADVANCED -->
+
+    <check_box
+     control_name="SmallAvatarNames"
+     height="16"
+     initial_value="true"
+     label="Small Avatar Names"
+     layout="topleft"
+     left_delta="30"
+     name="small_avatar_names_checkbox"
+     top="20"
+     width="200" />
+    <check_box
+     control_name="ArrowKeysMoveAvatar"
+     height="16"
+     label="Arrow keys always move avatar when chatting"
+     layout="topleft"
+     left_delta="0"
+     name="arrow_keys_move_avatar_check"
+     top_pad="10"
+     width="237" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left_delta="0"
+     mouse_opaque="false"
+     name="text_box7"
+     top_pad="10"
+     width="128">
+        Bubble Chat:
+    </text>
+    <slider
+     control_name="ChatBubbleOpacity"
+     follows="left|top"
+     height="12"
+     increment="0.05"
+     initial_value="1"
+     label="Opacity"
+     layout="topleft"
+     left_delta="0"
+     name="bubble_chat_opacity"
+     top_pad="10"
+     width="200" />
+    
+    <check_box
+     control_name="UIAutoScale"
+     height="16"
+     label="Resolution independent scale"
+     layout="topleft"
+     left="30"
+     name="ui_auto_scale"
+     top_pad="10"
+     width="256" />
+    <!--text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="12"
+     layout="topleft"
+     left="30"
+     name="DisplayResLabel"
+     top_pad="10"
+     width="128">
+        Display Resolution:
+    </text>
+    <combo_box
+     height="18"
+     layout="topleft"
+     left_pad="5"
+     name="fullscreen combo"
+     top_delta="-1"
+     width="150" /-->
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="12"
+     layout="topleft"
+     left="30"
+     name="AspectRatioLabel1"
+     tool_tip="width / height"
+     top_pad="5"
+     width="160">
+        Aspect Ratio:
+    </text>
+    <combo_box
+     allow_text_entry="true"
+     height="16"
+     layout="topleft"
+     left_pad="0"
+     max_chars="100"
+     name="aspect_ratio"
+     tool_tip="width / height"
+     top_delta="0"
+     width="150">
+        <combo_box.item
+         enabled="true"
+         label="4:3 (Standard CRT)"
+         name="item1"
+         value="1.333333" />
+        <combo_box.item
+         enabled="true"
+         label="5:4 (1280x1024 LCD)"
+         name="item2"
+         value="1.25" />
+        <combo_box.item
+         enabled="true"
+         label="8:5 (Widescreen)"
+         name="item3"
+         value="1.6" />
+        <combo_box.item
+         enabled="true"
+         label="16:9 (Widescreen)"
+         name="item4"
+         value="1.7777777" />
+    </combo_box>
+    <check_box
+     control_name="FullScreenAutoDetectAspectRatio"
+     height="16"
+     label="Auto-detect ratio"
+     layout="topleft"
+     left_pad="5"
+     name="aspect_auto_detect"
+     top_delta="1"
+     width="256">
+        <check_box.commit_callback
+         function="Pref.AutoDetectAspect" />
+    </check_box>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="30"
+     name=" Camera Options:"
+     top_pad="10"
+     width="266">
+        Camera Options:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="30"
+     name="camera_fov_label"
+     top_pad="10"
+     width="128">
+        Camera View Angle:
+    </text>
+    <slider 
+     can_edit_text="true"
+	 control_name="CameraAngle"
+     decimal_digits="2"
+     follows="left|top"
+     height="16"
+     increment="0.025"
+     initial_value="1.57"
+     layout="topleft"
+     left="128"
+     max_val="2.97"
+     min_val="0.17"
+     name="camera_fov"
+     show_text="false"
+     top_delta="0"
+     width="128" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="30"
+     name="Camera Follow Distance:"
+     top_pad="10"
+     width="128">
+        Camera Follow Distance:
+    </text>
+    <slider
+     can_edit_text="true"
+     control_name="CameraOffsetScale"
+     decimal_digits="2"
+     follows="left|top"
+     height="16"
+     increment="0.025"
+     initial_value="1"
+     layout="topleft"
+     left_delta="128"
+     max_val="3"
+     min_val="0.5"
+     name="camera_offset_scale"
+     show_text="false"
+     top_delta="0"
+     width="128" />
+    
+        <check_box
+     control_name="EditCameraMovement"
+     height="16"
+     label="Automatic Edit Camera Movement"
+     layout="topleft"
+     left="10"
+     name="edit_camera_movement"
+     tool_tip="Use automatic camera positioning when entering and exiting edit mode"
+     top_pad="5"
+     width="201" />
+    <check_box
+     control_name="AppearanceCameraMovement"
+     height="16"
+     label="Automatic Appearance Camera Movement"
+     layout="topleft"
+     left_pad="5"
+     name="appearance_camera_movement"
+     tool_tip="Use automatic camera positioning while in edit mode"
+     top_delta="0"
+     width="242" />
+
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="12"
+     layout="topleft"
+     left="10"
+     name="text2"
+     top_pad="5"
+     width="128">
+        Avatar Display Options:
+    </text>
+    <check_box
+     control_name="FirstPersonAvatarVisible"
+     height="16"
+     label="Show Avatar in Mouselook"
+     layout="topleft"
+     left_pad="10"
+     name="first_person_avatar_visible"
+     top_delta="0"
+     width="256" />
+
+
+</panel>

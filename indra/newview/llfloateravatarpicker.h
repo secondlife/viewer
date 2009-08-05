@@ -87,6 +87,7 @@ private:
 
 	static LLFloaterAvatarPicker* sInstance;
 
+private:	
 	// do not call these directly
 	LLFloaterAvatarPicker();
 	virtual ~LLFloaterAvatarPicker();

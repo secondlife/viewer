@@ -33,22 +33,25 @@
 
 #include "llfloateravatarpicker.h"
 
-#include "message.h"
-
+// Viewer includes
 #include "llagent.h"
-#include "llbutton.h"
 #include "llfocusmgr.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
+#include "llfoldervieweventlistener.h"
 #include "llinventorymodel.h"
+#include "llviewercontrol.h"
+#include "llworld.h"
+
+// Linden libraries
+#include "llbutton.h"
 #include "lllineeditor.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcell.h"
+#include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
-#include "llviewercontrol.h"
-#include "llworld.h"
-#include "lltabcontainer.h"
+#include "message.h"
 
 // static
 LLFloaterAvatarPicker* LLFloaterAvatarPicker::sInstance = NULL;

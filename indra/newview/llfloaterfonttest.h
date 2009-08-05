@@ -39,14 +39,10 @@
 class LLFloaterFontTest:
 	public LLFloater
 {
-public:
-	static void show(void* unused);
-
+	friend class LLFloaterReg;
 private:
-	LLFloaterFontTest();
+	LLFloaterFontTest(const LLSD& key);
 	~LLFloaterFontTest();
-
-	static LLFloaterFontTest* sInstance;
 };
 
 #endif

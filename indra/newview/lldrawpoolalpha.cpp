@@ -46,7 +46,7 @@
 #include "lldrawable.h"
 #include "llface.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"	// For debugging
+#include "llviewertexturelist.h"	// For debugging
 #include "llviewerobjectlist.h" // For debugging
 #include "llviewerwindow.h"
 #include "pipeline.h"
@@ -218,8 +218,8 @@ void LLDrawPoolAlpha::render(S32 pass)
 		}
 		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 		glColor4f(1,0,0,1);
-		LLViewerImage::sSmokeImagep->addTextureStats(1024.f*1024.f);
-		gGL.getTexUnit(0)->bind(LLViewerImage::sSmokeImagep.get());
+		LLViewerFetchedTexture::sSmokeImagep->addTextureStats(1024.f*1024.f);
+		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sSmokeImagep) ;
 		renderAlphaHighlight(LLVertexBuffer::MAP_VERTEX |
 							LLVertexBuffer::MAP_TEXCOORD0);
 	}
@@ -294,7 +294,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 				if (params.mTexture.notNull())
 				{
 					gGL.getTexUnit(0)->activate();
-					gGL.getTexUnit(0)->bind(params.mTexture.get());
+					gGL.getTexUnit(0)->bind(params.mTexture) ;
 					params.mTexture->addTextureStats(params.mVSize);
 					if (params.mTextureMatrix)
 					{

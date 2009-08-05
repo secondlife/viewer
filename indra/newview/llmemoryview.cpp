@@ -119,7 +119,7 @@ void LLMemoryView::draw()
 	const S32 UPDATE_INTERVAL = 60;
 	const S32 MARGIN_AMT = 10; 
 	static S32 curUpdate = UPDATE_INTERVAL;
-    static LLCachedControl<LLColor4> s_console_color(gSavedSkinSettings, "ConsoleBackground", LLColor4U::black);	
+    static LLUIColor s_console_color = LLUIColorTable::instance().getColor("ConsoleBackground", LLColor4U::black);	
 
 	// setup update interval
 	if (curUpdate >= UPDATE_INTERVAL)

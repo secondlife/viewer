@@ -32,6 +32,8 @@
 #ifndef LL_LLPANELPLACES_H
 #define LL_LLPANELPLACES_H
 
+#include "lltimer.h"
+
 #include "llpanel.h"
 
 #include "llinventory.h"
@@ -39,47 +41,65 @@
 #include "llinventorymodel.h"
 #include "llpanelplaceinfo.h"
 
+class LLInventoryItem;
+class LLLandmark;
 class LLPanelPlacesTab;
-class LLSearchEditor;
+class LLFilterEditor;
 class LLTabContainer;
 
 class LLPanelPlaces : public LLPanel, LLInventoryObserver
 {
 public:
-	enum PLACE_INFO_TYPE
-	{
-		AGENT,
-		LANDMARK,
-		TELEPORT_HISTORY
-	};
-
 	LLPanelPlaces();
 	virtual ~LLPanelPlaces();
 
 	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void draw();
 	/*virtual*/ void changed(U32 mask);
 	/*virtual*/ void onOpen(const LLSD& key);
 
-	void onSearchEdit(const std::string& search_string);
+	void setItem(LLInventoryItem* item);
+
+private:
+	void onLandmarkLoaded(LLLandmark* landmark);
+	void onFilterEdit(const std::string& search_string);
 	void onTabSelected();
+
 	//void onAddLandmarkButtonClicked();
 	//void onCopySLURLButtonClicked();
-	void onShareButtonClicked();
+	//void onShareButtonClicked();
 	void onTeleportButtonClicked();
 	void onShowOnMapButtonClicked();
 	void onBackButtonClicked();
+
+	void toggleMediaPanel();
 	void togglePlaceInfoPanel(BOOL visible);
 
-private:
-	LLSearchEditor*			mSearchEditor;
-	LLPanelPlacesTab*		mActivePanel;
-	LLTabContainer*			mTabContainer;
-	LLPanelPlaceInfo*		mPlaceInfo;
-	std::string				mFilterSubString;
+	void onAgentParcelChange();
+	void updateVerbs();
 
-	// Place information type currently shown in Information panel
-	S32						mPlaceInfoType;
+	LLFilterEditor*				mFilterEditor;
+	LLPanelPlacesTab*			mActivePanel;
+	LLTabContainer*				mTabContainer;
+	LLPanelPlaceInfo*			mPlaceInfo;
+
+	//LLButton*					mShareBtn;
+	LLButton*					mTeleportBtn;
+	LLButton*					mShowOnMapBtn;
+	LLButton*					mOverflowBtn;
+
+	// Pointer to a landmark item or to a linked landmark
+	LLPointer<LLInventoryItem>	mItem;
+	
+	// Absolute position of the location for teleport, may not
+	// be available (hence zero)
+	LLVector3d					mPosGlobal;
+
+	// Search string for filtering landmarks and teleport
+	// history locations
+	std::string					mFilterSubString;
+
+	// Information type currently shown in Place Information panel
+	std::string					mPlaceInfoType;
 };
 
 #endif //LL_LLPANELPLACES_H

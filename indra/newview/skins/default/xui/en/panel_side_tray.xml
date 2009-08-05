@@ -4,57 +4,60 @@
   background_visible="false" 
   bg_opaque_color="0.0 0.0 0.0 0.0" 
   mouse_opaque="true" 
-  collapsed="true"
+  width="305" 
+  collapsed="true" 
 >
   <sidetray_tab 	
-    name="sidebarpanel2" 
+    name="sidebar_home"
+    tab_title="Home"
+    description="Home."
+    image="icn_voice-groupfocus.tga"
     mouse_opaque="false" 
     background_opaque="false" 
     background_visible="true" 
     bg_opaque_color="0.5 0.5 0.5 1.0"
-    image="icn_voice-groupfocus.tga"
+  >
+      <panel 
+        name="panel_home" 
+        filename="panel_sidetray_home_tab.xml" 
+        width="355" 
+        height="465" 
+        label="home" 
+        border="true" 
+      />
+  </sidetray_tab>
+
+  <sidetray_tab 	
+    name="sidebar_people"
     tab_title="People"
     description="Find your friends, contacts and people nearby."
+    image="icn_voice-groupfocus.tga"
+    mouse_opaque="false" 
+    background_opaque="false" 
+    background_visible="true" 
+    bg_opaque_color="0.5 0.5 0.5 1.0"
   >
-    <collapsible_ctrl 
-      name="people_accordion" 
-      title="People" 
-      collapsable="true" 
-      min_width="200" 
-      min_height="200" 
-      expanded="true" 
-      header_visible="false"
-    >
       <panel 
         class="panel_people" 
         name="panel_people" 
         filename="panel_people.xml" 
-        width="355" 
+        width="280" 
         height="465" 
         label="People" 
         border="true" 
       />
-    </collapsible_ctrl>
   </sidetray_tab>
-  
+  <!-- *TODO Vadim: isn't the sidetray_tab "label" attribute redundant since we have "tab_title" ? -->
   <sidetray_tab 
-    name="sidebarpanel1" 
+    name="sidebar_places"
+    tab_title="Places"
+    label="Places"
+    description="Find places to go and places you've been."
+    image="inv_item_landmark.tga" 
     mouse_opaque="false" 
     background_visible="true" 
-    label="Places" 
     bg_opaque_color="0.5 0.5 0.5 1.0"
-    image="inv_item_landmark.tga" 
-    tab_title="Places" 
-    description="Find places to go and places you've been."
   >
-    <collapsible_ctrl 
-      name="places_accordian" 
-      title="Places" 
-      collapsable="true" 
-      min_width="355" 
-      min_height="570" 
-      header_visible="false"
-    >
       <panel 
         class="panel_places" 
         name="panel_places" 
@@ -62,34 +65,594 @@
         label="Places" 
         border="true"
       />
-    </collapsible_ctrl>
   </sidetray_tab>
   
   <sidetray_tab 
     name="sidebar_me"
+    tab_title="Me"
+    description="Change your profile, your look and quick links to your outfits."
+    image="icn_voice-pvtfocus.tga"
     mouse_opaque="false" 
     background_visible="true" 
     bg_opaque_color="0.5 0.5 0.5 1.0"
-    image="icn_voice-pvtfocus.tga"
-    tab_title="Me"
-    description="Change your profile, your look and quick links to your outfits."
   >
-    <collapsible_ctrl 
-      name="me_accordion" 
-      title="Me" 
-      collapsable="false" 
-      min_width="200" 
-      min_height="200" 
-      header_visible="false"
-    >
       <panel 
         class="panel_me_profile" 
         name="panel_me_profile" 
-        filename="panel_me_profile.xml" 
+        filename="panel_me_profile.xml"
         label="Me" 
         border="true"
       />
-    </collapsible_ctrl>
+  </sidetray_tab>
+  
+  <!--
+  <sidetray_tab 
+    name="sidebar_group"
+    mouse_opaque="false" 
+    background_visible="true" 
+    bg_opaque_color="0.5 0.5 0.5 1.0"
+    image="icn_voice-groupfocus.tga"
+    tab_title="Groups"
+    description="Manage Groups."
+  >
+    <accordion_tab 
+      name="group_accordion" 
+      title="Group General"
+      expanded="true"
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      header_visible="true"
+    >
+      <panel 
+        class="panel_group_general" 
+        name="panel_group_general" 
+        filename="panel_group_general.xml" 
+        label="Group" 
+        border="true"
+      />
+    </accordion_tab>
+     <accordion_tab 
+      name="groupland_accordion" 
+      title="Group Land and Money"
+      expanded="false"
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      header_visible="true"
+    >
+      <panel 
+        class="panel_group_land" 
+        name="panel_group_land" 
+        filename="panel_group_land_money.xml" 
+        label="Group" 
+        border="true"
+      />
+    </accordion_tab>
+     <accordion_tab 
+      name="groupnotices_accordion" 
+      title="Group Notices"
+      expanded="false"
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      header_visible="true"
+    >
+      <panel 
+        class="panel_group_roles" 
+        name="panel_group_roles" 
+        filename="panel_group_roles.xml" 
+        label="Group" 
+        border="true"
+      />
+    </accordion_tab>
+     <accordion_tab 
+      name="grouproles_accordion" 
+      title="Group Roles"
+      expanded="false"
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      header_visible="true"
+    >
+      <panel 
+        class="panel_group_roles" 
+        name="panel_group_roles" 
+        filename="panel_group_roles.xml" 
+        label="Group" 
+        border="true"
+      />
+    </accordion_tab>
   </sidetray_tab>  
+  
+
+ <sidetray_tab 	
+    name="sidebar_previews" 
+    mouse_opaque="false" 
+    background_opaque="false" 
+    background_visible="true" 
+    bg_opaque_color="0.5 0.5 0.5 1.0"
+    image="icn_voice-groupfocus.tga"
+    tab_title="Previews"
+    description="Previews."
+  >
+    <accordion_tab 
+      name="floater_preview_animation" 
+      title="Preview Animation" 
+      collapsible="true"
+      expanded="false"
+      min_width="200" 
+      min_height="200" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_preview_animation" 
+        name="floater_preview_animation" 
+        filename="floater_preview_animation.xml" 
+        width="280" 
+        height="85" 
+        label="Preview_Animation" 
+        border="true" 
+      />
+    </accordion_tab>
+    <accordion_tab 
+      name="floater_preview_gesture" 
+      title="Preview Gesture" 
+      collapsible="true"
+      expanded="false"
+      min_width="200" 
+      min_height="200" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_preview_gesture" 
+        name="floater_preview_gesture" 
+        filename="floater_preview_gesture.xml" 
+        width="280" 
+        height="400" 
+        label="Preview_Gesture" 
+        border="true" 
+      />
+    </accordion_tab>
+    <accordion_tab 
+      name="floater_preview_existing_landmark" 
+      title="Preview Existing Landmark" 
+      collapsible="true"
+      expanded="false"
+      min_width="200" 
+      min_height="200" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_preview_existing_landmark" 
+        name="floater_preview_existing_landmark" 
+        filename="floater_preview_existing_landmark.xml" 
+        width="280" 
+        height="495" 
+        label="Preview_Existing_Landmark" 
+        border="true" 
+      />
+    </accordion_tab>
+    <accordion_tab 
+      name="floater_preview_sound" 
+      title="Preview Sound" 
+      collapsible="true"
+      expanded="false"
+      min_width="200" 
+      min_height="200" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_preview_sound" 
+        name="floater_preview_sound" 
+        filename="floater_preview_sound.xml" 
+        width="280" 
+        height="85" 
+        label="Preview_Sound" 
+        border="true" 
+      />
+    </accordion_tab>
+    <accordion_tab 
+      name="floater_preview_url" 
+      title="Preview URL" 
+      collapsible="true"
+      expanded="false"
+      min_width="200" 
+      min_height="200" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_preview_url" 
+        name="floater_preview_url" 
+        filename="floater_preview_url.xml" 
+        width="280" 
+        height="465" 
+        label="Preview_URL" 
+        border="true" 
+      />
+    </accordion_tab>
+    <accordion_tab 
+      name="floater_URL_entry" 
+      title="URL Entry" 
+      collapsible="true"
+      expanded="false"
+      min_width="200" 
+      min_height="200" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_URL_entry" 
+        name="floater_URL_entry" 
+        filename="floater_URL_entry.xml" 
+        width="280" 
+        height="87" 
+        label="URL_entry" 
+        border="true" 
+      />
+    </accordion_tab>
+  </sidetray_tab>
+
+  <sidetray_tab 	
+    name="sidebar_region" 
+    mouse_opaque="false" 
+    background_opaque="false" 
+    background_visible="true" 
+    bg_opaque_color="0.5 0.5 0.5 1.0"
+    image="icn_voice-groupfocus.tga"
+    tab_title="Region"
+    description="Region."
+  >
+    <accordion_tab 
+      name="panel_region_covenant" 
+      title="Region Covenant" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="panel_region_covenant" 
+        name="panel_region_covenant" 
+        filename="panel_region_covenant.xml" 
+        width="280" 
+        height="350" 
+        label="Panel_Region_Covenant" 
+        border="true" 
+      />
+    </accordion_tab>
+    <accordion_tab 
+      name="panel_region_debug" 
+      title="Region Debug" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="panel_region_debug" 
+        name="panel_region_debug" 
+        filename="panel_region_debug.xml" 
+        width="280" 
+        height="500" 
+        label="Panel_Region_Debug" 
+        border="true" 
+      />
+    </accordion_tab>
+  <accordion_tab 
+      name="panel_region_estate" 
+      title="Region Estate" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="panel_region_estate" 
+        name="panel_region_estate" 
+        filename="panel_region_estate.xml" 
+        width="280" 
+        height="950" 
+        label="Panel_Region_Estate" 
+        border="true" 
+      />
+    </accordion_tab>
+  <accordion_tab 
+      name="panel_region_general" 
+      title="Region General" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="panel_region_general" 
+        name="panel_region_general" 
+        filename="panel_region_general.xml" 
+        width="280" 
+        height="500" 
+        label="Panel_Region_General" 
+        border="true" 
+      />
+    </accordion_tab>
+  <accordion_tab 
+      name="panel_region_terrain" 
+      title="Region Terrain" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="panel_region_terrain" 
+        name="panel_region_terrain" 
+        filename="panel_region_terrain.xml" 
+        width="280" 
+        height="340" 
+        label="Panel_Region_Terrain" 
+        border="true" 
+      />
+    </accordion_tab>
+  <accordion_tab 
+      name="panel_region_texture" 
+      title="Region Texture" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="panel_region_texture" 
+        name="panel_region_texture" 
+        filename="panel_region_texture.xml" 
+        width="280" 
+        height="575" 
+        label="Panel_Region_Texture" 
+        border="true" 
+      />
+    </accordion_tab>
+  <accordion_tab 
+      name="floater_region_info" 
+      title="Region Info" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_region_info" 
+        name="floater_region_info" 
+        filename="floater_region_info.xml" 
+        width="280" 
+        height="512" 
+        label="Floater_Region_Info" 
+        border="true" 
+      />
+    </accordion_tab>
+  </sidetray_tab>
+ 
+  <sidetray_tab 	
+    name="Build" 
+    mouse_opaque="false" 
+    background_opaque="false" 
+    background_visible="true" 
+    bg_opaque_color="0.5 0.5 0.5 1.0"
+    image="icn_voice-groupfocus.tga"
+    tab_title="Build"
+    description="Build"
+  >
+    <accordion_tab 
+      name="floater_tools" 
+      title="Tools" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_tools" 
+        name="floater_tools" 
+        filename="floater_tools.xml" 
+        width="280" 
+        height="550" 
+        label="Tools" 
+        border="true" 
+      />
+    </accordion_tab>
+    <accordion_tab 
+      name="floater_bulk_perms" 
+      title="Bulk Perms" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_bulk_perms" 
+        name="floater_bulk_perms" 
+        filename="floater_bulk_perms.xml" 
+        width="280" 
+        height="360" 
+        label="Tools" 
+        border="true" 
+      />
+    </accordion_tab>
+    <accordion_tab 
+      name="floater_build_options" 
+      title="Build Options" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_build_options" 
+        name="floater_build_options" 
+        filename="floater_build_options.xml" 
+        width="280" 
+        height="151" 
+        label="Tools" 
+        border="true" 
+      />
+    </accordion_tab>
+    
+  </sidetray_tab>
+
+ <sidetray_tab 	
+    name="othertools" 
+    mouse_opaque="false" 
+    background_opaque="false" 
+    background_visible="true" 
+    bg_opaque_color="0.5 0.5 0.5 1.0"
+    image="icn_voice-groupfocus.tga"
+    tab_title="Other Tools"
+    description="Other Tools"
+  >
+    <accordion_tab 
+      name="floater_gesture" 
+      title="Gestures" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_gesture" 
+        name="floater_gesture" 
+        filename="floater_gesture.xml" 
+        width="280" 
+        height="465" 
+        label="Gesture" 
+        border="true" 
+      />
+    </accordion_tab>
+    
+    <accordion_tab 
+      name="floater_buy_contents" 
+      title="Buy Contents" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_buy_contents" 
+        name="floater_buy_contents" 
+        filename="floater_buy_contents.xml" 
+        width="280" 
+        height="250" 
+        label="buy_contents" 
+        border="true" 
+      />
+    </accordion_tab>
+    <accordion_tab 
+      name="floater_buy_object" 
+      title="Buy Object" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_buy_object" 
+        name="floater_buy_object" 
+        filename="floater_buy_object.xml" 
+        width="280" 
+        height="250" 
+        label="buy_object" 
+        border="true" 
+      />
+    </collapsible_ctrl>
+    <accordion_tab 
+      name="floater_inventory_view_finder" 
+      title="Inventory View Finder" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_inventory_view_finder" 
+        name="floater_inventory_view_finder" 
+        filename="floater_inventory_view_finder.xml" 
+        width="280" 
+        height="408" 
+        label="view_finder" 
+        border="true" 
+      />
+    </accordion_tab>
+    <accordion_tab 
+      name="floater_mute" 
+      title="Mute" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_mute" 
+        name="floater_mute" 
+        filename="floater_mute.xml" 
+        width="280" 
+        height="300" 
+        label="mute" 
+        border="true" 
+      />
+    </accordion_tab>
+     <accordion_tab 
+      name="floater_sell_land" 
+      title="Sell Land" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_sell_land" 
+        name="floater_sell_land" 
+        filename="floater_sell_land.xml" 
+        width="280" 
+        height="600" 
+        label="sell_land" 
+        border="true" 
+      />
+    </accordion_tab>
+     <accordion_tab 
+      name="floater_telehub" 
+      title="Telehub" 
+      collapsible="true" 
+      min_width="200" 
+      min_height="200" 
+      expanded="false" 
+      header_visible="true"
+    >
+      <panel 
+        class="floater_telehub" 
+        name="floater_telehub" 
+        filename="floater_telehub.xml" 
+        width="280" 
+        height="250" 
+        label="telehub" 
+        border="true" 
+      />
+    </accordion_tab>
+    
+  </sidetray_tab>
+ --> 
 </side_tray>
 

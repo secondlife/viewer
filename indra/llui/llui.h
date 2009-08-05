@@ -39,14 +39,17 @@
 #include "llrect.h"
 #include "llcontrol.h"
 #include "llcoord.h"
-//#include "llhtmlhelp.h"
 #include "llgl.h"			// *TODO: break this dependency
 #include <stack>
 #include "lluiimage.h"		// *TODO: break this dependency, need to add #include "lluiimage.h" to all widgets that hold an Optional<LLUIImage*> in their paramblocks
 #include "llinitparam.h"
 #include "llregistry.h"
+#include "lluicolor.h"
+#include "lluicolortable.h"
 #include <boost/signals2.hpp>
 #include "lllazyvalue.h"
+#include "llhandle.h"		// *TODO: remove this dependency, added as a 
+							// convenience when LLHandle moved to llhandle.h
 
 // LLUIFactory
 #include "llsd.h"
@@ -56,7 +59,6 @@
 
 class LLColor4; 
 class LLHtmlHelp;
-class LLImageGL;
 class LLVector3;
 class LLVector2;
 class LLUIImage;
@@ -97,14 +99,14 @@ void gl_washer_2d(F32 outer_radius, F32 inner_radius, S32 steps, const LLColor4&
 void gl_washer_segment_2d(F32 outer_radius, F32 inner_radius, F32 start_radians, F32 end_radians, S32 steps, const LLColor4& inner_color, const LLColor4& outer_color);
 void gl_washer_spokes_2d(F32 outer_radius, F32 inner_radius, S32 count, const LLColor4& inner_color, const LLColor4& outer_color);
 
-void gl_draw_image(S32 x, S32 y, LLImageGL* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
-void gl_draw_scaled_image(S32 x, S32 y, S32 width, S32 height, LLImageGL* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
-void gl_draw_rotated_image(S32 x, S32 y, F32 degrees, LLImageGL* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
-void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degrees,LLImageGL* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
-void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border_height, S32 width, S32 height, LLImageGL* image, const LLColor4 &color, BOOL solid_color = FALSE, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
-void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLImageGL* image, const LLColor4 &color, BOOL solid_color = FALSE, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f), const LLRectf& scale_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
+void gl_draw_image(S32 x, S32 y, LLTexture* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
+void gl_draw_scaled_image(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
+void gl_draw_rotated_image(S32 x, S32 y, F32 degrees, LLTexture* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
+void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degrees,LLTexture* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
+void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border_height, S32 width, S32 height, LLTexture* image, const LLColor4 &color, BOOL solid_color = FALSE, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
+void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4 &color, BOOL solid_color = FALSE, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f), const LLRectf& scale_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
 // Flip vertical, used for LLFloaterHTML
-void gl_draw_scaled_image_inverted(S32 x, S32 y, S32 width, S32 height, LLImageGL* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
+void gl_draw_scaled_image_inverted(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
 
 void gl_rect_2d_xor(S32 left, S32 top, S32 right, S32 bottom);
 void gl_stippled_line_3d( const LLVector3& start, const LLVector3& end, const LLColor4& color, F32 phase = 0.f ); 
@@ -202,7 +204,6 @@ public:
 	static void screenRectToGL(const LLRect& screen, LLRect *gl);
 	static void glRectToScreen(const LLRect& gl, LLRect *screen);
 	static void setHtmlHelp(LLHtmlHelp* html_help);
-	static boost::function<const LLColor4&()> getCachedColorFunctor(const std::string& color_name);
 	// Returns the control group containing the control name, or the default group
 	static LLControlGroup& getControlControlGroup (const std::string& controlname);
 	
@@ -397,7 +398,12 @@ public:
 		delete sInstance;
 		sInstance = NULL;
 	}
+
+	static bool instanceExists() { return NULL != sInstance; }
 	
+private:
+	LLUISingleton(const LLUISingleton&){}
+	LLUISingleton& operator=(const LLUISingleton&){}
 private:
 	static T*	sInstance;
 };
@@ -428,139 +434,7 @@ public:
 	LLLocalClipRect(const LLRect& rect, BOOL enabled = TRUE);
 };
 
-template <typename T>
-class LLTombStone : public LLRefCount
-{
-public:
-	LLTombStone(T* target = NULL) : mTarget(target) {}
-	
-	void setTarget(T* target) { mTarget = target; }
-	T* getTarget() const { return mTarget; }
-private:
-	T* mTarget;
-};
-
-//	LLHandles are used to refer to objects whose lifetime you do not control or influence.  
-//	Calling get() on a handle will return a pointer to the referenced object or NULL, 
-//	if the object no longer exists.  Note that during the lifetime of the returned pointer, 
-//	you are assuming that the object will not be deleted by any action you perform, 
-//	or any other thread, as normal when using pointers, so avoid using that pointer outside of
-//	the local code block.
-// 
-//  https://wiki.lindenlab.com/mediawiki/index.php?title=LLHandle&oldid=79669
-
-template <typename T>
-class LLHandle
-{
-public:
-	LLHandle() : mTombStone(sDefaultTombStone) {}
-	const LLHandle<T>& operator =(const LLHandle<T>& other)  
-	{ 
-		mTombStone = other.mTombStone;
-		return *this; 
-	}
-
-	bool isDead() const 
-	{ 
-		return mTombStone->getTarget() == NULL; 
-	}
-
-	void markDead() 
-	{ 
-		mTombStone = sDefaultTombStone; 
-	}
-
-	T* get() const
-	{
-		return mTombStone->getTarget();
-	}
-
-	friend bool operator== (const LLHandle<T>& lhs, const LLHandle<T>& rhs)
-	{
-		return lhs.mTombStone == rhs.mTombStone;
-	}
-	friend bool operator!= (const LLHandle<T>& lhs, const LLHandle<T>& rhs)
-	{
-		return !(lhs == rhs);
-	}
-	friend bool	operator< (const LLHandle<T>& lhs, const LLHandle<T>& rhs)
-	{
-		return lhs.mTombStone < rhs.mTombStone;
-	}
-	friend bool	operator> (const LLHandle<T>& lhs, const LLHandle<T>& rhs)
-	{
-		return lhs.mTombStone > rhs.mTombStone;
-	}
-protected:
-
-protected:
-	LLPointer<LLTombStone<T> > mTombStone;
-
-private:
-	static LLPointer<LLTombStone<T> > sDefaultTombStone;
-};
-
-// initialize static "empty" tombstone pointer
-template <typename T> LLPointer<LLTombStone<T> > LLHandle<T>::sDefaultTombStone = new LLTombStone<T>();
-
-
-template <typename T>
-class LLRootHandle : public LLHandle<T>
-{
-public:
-	LLRootHandle(T* object) { bind(object); }
-	LLRootHandle() {};
-	~LLRootHandle() { unbind(); }
-
-	// this is redundant, since a LLRootHandle *is* an LLHandle
-	LLHandle<T> getHandle() { return LLHandle<T>(*this); }
-
-	void bind(T* object) 
-	{ 
-		// unbind existing tombstone
-		if (LLHandle<T>::mTombStone.notNull())
-		{
-			if (LLHandle<T>::mTombStone->getTarget() == object) return;
-			LLHandle<T>::mTombStone->setTarget(NULL);
-		}
-		// tombstone reference counted, so no paired delete
-		LLHandle<T>::mTombStone = new LLTombStone<T>(object);
-	}
-
-	void unbind() 
-	{
-		LLHandle<T>::mTombStone->setTarget(NULL);
-	}
-
-	//don't allow copying of root handles, since there should only be one
-private:
-	LLRootHandle(const LLRootHandle& other) {};
-};
-
-// Use this as a mixin for simple classes that need handles and when you don't
-// want handles at multiple points of the inheritance hierarchy
-template <typename T>
-class LLHandleProvider
-{
-protected:
-	typedef LLHandle<T> handle_type_t;
-	LLHandleProvider() 
-	{
-		// provided here to enforce T deriving from LLHandleProvider<T>
-	} 
-
-	LLHandle<T> getHandle() 
-	{ 
-		// perform lazy binding to avoid small tombstone allocations for handle
-		// providers whose handles are never referenced
-		mHandle.bind(static_cast<T*>(this)); 
-		return mHandle; 
-	}
-
-private:
-	LLRootHandle<T> mHandle;
-};
-
+// Moved all LLHandle-related code to llhandle.h
 
 //RN: maybe this needs to moved elsewhere?
 class LLImageProviderInterface
@@ -690,8 +564,6 @@ public:
 	{}
 };
 
-typedef LLLazyValue<LLColor4> LLUIColor;
-
 namespace LLInitParam
 {
 	template<>
@@ -707,7 +579,7 @@ namespace LLInitParam
 						width,
 						height;
 
-		TypedParam(BlockDescriptor& descriptor, const char* name, const LLRect& value, ParamDescriptor::validation_func_t func);
+		TypedParam(BlockDescriptor& descriptor, const char* name, const LLRect& value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);
 
 		LLRect getValueFromBlock() const;
 	};
@@ -730,7 +602,7 @@ namespace LLInitParam
 		Optional<F32> alpha;
 		Optional<std::string> control;
 
-		TypedParam(BlockDescriptor& descriptor, const char* name, const LLUIColor& value, ParamDescriptor::validation_func_t func);
+		TypedParam(BlockDescriptor& descriptor, const char* name, const LLUIColor& value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);
 		LLUIColor getValueFromBlock() const;
 	};
 
@@ -744,7 +616,7 @@ namespace LLInitParam
 		Optional<std::string> size;
 		Optional<std::string> style;
 
-		TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL* const value, ParamDescriptor::validation_func_t func);
+		TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL* const value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);
 		const LLFontGL* getValueFromBlock() const;
 	};
 
@@ -765,13 +637,6 @@ namespace LLInitParam
 	{
 		static void declareValues();
 	};
-}
-
-namespace LLInitParam
-{
-    template<>
-	bool ParamCompare<LLLazyValue<LLColor4> >::equals(
-		const LLLazyValue<LLColor4> &a, const LLLazyValue<LLColor4> &b); 
 }
 
 #endif

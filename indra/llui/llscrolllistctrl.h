@@ -44,7 +44,6 @@
 #include "llfontgl.h"
 #include "llui.h"
 #include "llstring.h"	// LLWString
-//#include "llimagegl.h"
 #include "lleditmenuhandler.h"
 #include "llframetimer.h"
 
@@ -100,7 +99,7 @@ public:
 							bg_selected_color,
 							fg_disable_color,
 							bg_writeable_color,
-							bg_read_only_color,
+							bg_readonly_color,
 							bg_stripe_color,
 							hovered_color,
 							highlighted_color;
@@ -452,12 +451,5 @@ private:
 
 	LLTextBox*		mCommentTextBox;
 }; // end class LLScrollListCtrl
-
-#ifdef LL_WINDOWS
-#ifndef INSTANTIATE_GETCHILD_SCROLLLIST
-#pragma warning (disable : 4231)
-extern template LLScrollListCtrl* LLView::getChild<LLScrollListCtrl>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-#endif
-#endif
 
 #endif  // LL_SCROLLLISTCTRL_H

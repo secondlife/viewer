@@ -36,20 +36,16 @@
 #include "llview.h"
 #include "lluictrlfactory.h"
 
-class LLRootViewRegistry : public LLWidgetRegistry<LLRootViewRegistry>
+class LLRootViewRegistry : public LLChildRegistry<LLRootViewRegistry>
 {};
 
 class LLRootView : public LLView
 {
 public:
+	typedef LLRootViewRegistry child_registry_t;
+
 	LLRootView(const Params& p)
 	:	LLView(p)
 	{}
-
-	const widget_registry_t& getChildRegistry() const
-	{
-		// use default widget registry
-		return LLRootViewRegistry::instance();
-	}
 };
 #endif //LL_LLROOTVIEW_H

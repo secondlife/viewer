@@ -126,11 +126,4 @@ protected:
 };
 
 
-#ifdef LL_WINDOWS
-#ifndef INSTANTIATE_GETCHILD_CHECKBOX
-#pragma warning (disable : 4231)
-extern template LLCheckBoxCtrl* LLView::getChild<LLCheckBoxCtrl>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-#endif
-#endif
-
 #endif  // LL_LLCHECKBOXCTRL_H

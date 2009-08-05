@@ -1,168 +1,173 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="top|left|right|bottom"
- background_visible="true"
  bevel_style="in"
- bg_alpha_color="0.5 0.5 0.5 1"
- height="705"
+ height="625"
  label="Notes and Privacy"
  layout="topleft"
  left="10"
  name="panel_notes"
  top="10"
- width="355">
- <scroll_container
-      left="1" width="354" height="690" follows="left|top|right|bottom"
-	  layout="topleft"
-      reserve_scroll_corner="false">
-	  <panel
-	  layout="topleft"
-	  width="320"
-	  height="690"
-	  left="0"
-	  top="0">
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     font="SansSerifHugeBold"
-     height="35"
+ width="305">
+    <scroll_container
+     left="8" 
+     width="260" 
+     height="570" 
+     follows="left|top|right|bottom"
      layout="topleft"
-     left="10"
-     name="pick_title"
-     text_color="white"
-     top="10"
-     width="250"
-     word_wrap="true">
-        Private Notes
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     font="SansSerif"
-     font.style="ITALIC"
-     height="15"
-     layout="topleft"
-     left="10"
-     name="status_message"
-     text_color="0.1 0.1 0.1 1"
-     top="50"
-     width="300">
-        Your notes about this user:
-    </text>
-    <text_editor
-     bg_focus_color="white"
-     bg_writeable_color="0.6 0.6 0.6 1"
-     follows="left|right"
-     font="SansSerif"
-     height="300"
-     hide_scrollbar="true"
-     layout="topleft"
-     left="10"
-     max_length="1000"
-     name="notes_edit"
-     text_color="black"
-     top="70"
-     width="280"
-     word_wrap="true" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     font="SansSerifHugeBold"
-     height="35"
-     layout="topleft"
-     left="10"
-     name="pick_title"
-     text_color="white"
-     top="410"
-     width="250"
-     word_wrap="true">
-        Private Settings
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     font="SansSerif"
-     font.style="ITALIC"
-     height="15"
-     layout="topleft"
-     left="10"
-     name="status_message"
-     text_color="0.1 0.1 0.1 1"
-     top="435"
-     width="300">
-        This user can:
-    </text>
-    <check_box
-     enabled="false"
-     follows="left|top"
-     font="SansSerifBig"
-     height="20"
-     label="See my online status"
-     layout="topleft"
-     left="10"
-     name="status_check"
-     text_disabled_color="0.1 0.1 0.1 1"
-     text_enabled_color="white"
-     top="455"
-     width="300" />
-    <check_box
-     enabled="false"
-     follows="left|top"
-     font="SansSerifBig"
-     height="20"
-     label="See me on the map"
-     layout="topleft"
-     left="10"
-     name="map_check"
-     text_disabled_color="0.1 0.1 0.1 1"
-     text_enabled_color="white"
-     top="480"
-     width="300" />
-    <check_box
-     enabled="false"
-     follows="left|top"
-     font="SansSerifBig"
-     height="20"
-     label="Edit, delite or take my objects"
-     layout="topleft"
-     left="10"
-     name="objects_check"
-     text_disabled_color="0.1 0.1 0.1 1"
-     text_enabled_color="white"
-     top="505"
-     width="300" />
+     name="profile_scroll"
+     opaque="true"
+     color="DkGray2"
+     reserve_scroll_corner="false">
+        <panel
+         layout="topleft"
+         width="260"
+         height="530"
+         left="0"
+         follows="left|right"
+         top="0">
+           <!-- <text
+             type="string"
+             length="1"
+             follows="left|top"
+             font="SansSerifHugeBold"
+             height="20"
+             layout="topleft"
+             left="10"
+             name="pick_title"
+             text_color="white"
+             top="10"
+             width="250"
+             word_wrap="true">
+                Private Notes
+            </text>-->
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             font="SansSerifBold"
+             height="15"
+             layout="topleft"
+             left="10"
+             name="status_message"
+             text_color="White"
+             top="20"
+             width="260">
+                Your private notes:
+            </text>
+            <text_editor
+             bg_focus_color="LtGray"
+             bg_writeable_color="LtGray"
+             follows="left|right"
+             font="SansSerif"
+             height="200"
+             hide_scrollbar="true"
+             layout="topleft"
+             left="10"
+             max_length="1000"
+             name="notes_edit"
+             text_color="black"
+             top_pad="10"
+             width="240"
+             word_wrap="true" />
+           <!-- <text
+             type="string"
+             length="1"
+             follows="left|top"
+             font="SansSerifHugeBold"
+             height="20"
+             layout="topleft"
+             left="10"
+             name="pick_title2"
+             text_color="white"
+             top_pad="10"
+             width="250"
+             word_wrap="true">
+                Private Settings
+            </text> -->
+           <text
+             type="string"
+             length="1"
+             follows="left|top"
+             font="SansSerifBold"
+             height="15"
+             layout="topleft"
+             left="10"
+             name="status_message2"
+             text_color="white"
+             top_pad="30"
+             width="260">
+                Allow this user to:
+            </text>
+            <check_box
+             enabled="false"
+             follows="left|top"
+             font="SansSerif"
+             height="20"
+             label="See my online status"
+             layout="topleft"
+             left="10"
+             name="status_check"
+             text_disabled_color="0.1 0.1 0.1 1"
+             text_enabled_color="white"
+             top_pad="10"
+             width="260" />
+            <check_box
+             enabled="false"
+             follows="left|top"
+             font="SansSerif"
+             height="20"
+             label="See me on the map"
+             layout="topleft"
+             left="10"
+             name="map_check"
+             text_disabled_color="0.1 0.1 0.1 1"
+             text_enabled_color="white"
+             top_pad="10"
+             width="260" />
+            <check_box
+             enabled="false"
+             follows="left|top"
+             font="SansSerif"
+             height="20"
+             label="Edit, delete or take my objects"
+             layout="topleft"
+             left="10"
+             name="objects_check"
+             text_disabled_color="0.1 0.1 0.1 1"
+             text_enabled_color="white"
+             top_pad="10"
+             width="260" />
+        </panel>
+    </scroll_container>
     <panel
 	 layout="topleft"
      follows="bottom"
      height="30"
-     left="0"
+     left="8"
      name="notes_buttons_panel"
-     bottom="690"
-     width="350">
-      <button
+     bottom="625"
+     width="280">
+        <button
          follows="bottom|left"
          font="SansSerifSmallBold"
          height="25"
          label="Add Friend"
          layout="topleft"
-         left="5"
+         left="0"
          mouse_opaque="false"
          name="add_friend"
          top="0"
-         width="75" />
+         width="90" />
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
          height="25"
          label="IM"
          layout="topleft"
-         left_pad="5"
+         left_pad="0"
          name="im"
-         top_delta="0"
+         top="0"
          width="40" />
         <button
          follows="bottom|left"
@@ -170,9 +175,9 @@
          height="25"
          label="Call"
          layout="topleft"
-         left_pad="5"
+         left_pad="0"
          name="call"
-         top_delta="0"
+         top="0"
          width="50"
          enabled="false"/>
         <button
@@ -181,22 +186,20 @@
          height="25"
          label="Teleport"
          layout="topleft"
-         left_pad="5"
+         left_pad="0"
          name="teleport"
-         top_delta="0"
-         width="65" />
+         top="0"
+         width="75" />
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
          height="25"
          label="Share"
          layout="topleft"
-         left_pad="15"
+         left_pad="0"
          name="share"
-         top_delta="0"
-         width="50"
+         top="0"
+         width="60"
          enabled="false"/>
     </panel>
-</panel>
-	</scroll_container>
 </panel>

@@ -34,6 +34,7 @@
 #ifndef LL_LLVOAVATARSELF_H
 #define LL_LLVOAVATARSELF_H
 
+#include "llviewertexture.h"
 #include "llvoavatar.h"
 
 struct LocalTextureData;
@@ -54,6 +55,7 @@ public:
 	LLVOAvatarSelf(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	virtual 				~LLVOAvatarSelf();
 	virtual void			markDead();
+	virtual void 		initInstance(); // Called after construction to initialize the class.
 protected:
 	BOOL					loadAvatarSelf();
 	BOOL					buildSkeletonSelf(const LLVOAvatarSkeletonInfo *info);
@@ -140,8 +142,8 @@ private:
 	// LLVOAvatar Constants
 	//--------------------------------------------------------------------
 public:
-	/*virtual*/ LLViewerImage::EBoostLevel 	getAvatarBoostLevel() const { return LLViewerImage::BOOST_AVATAR_SELF; }
-	/*virtual*/ LLViewerImage::EBoostLevel 	getAvatarBakedBoostLevel() const { return LLViewerImage::BOOST_AVATAR_BAKED_SELF; }
+	/*virtual*/ LLViewerTexture::EBoostLevel 	getAvatarBoostLevel() const { return LLViewerTexture::BOOST_AVATAR_SELF; }
+	/*virtual*/ LLViewerTexture::EBoostLevel 	getAvatarBakedBoostLevel() const { return LLViewerTexture::BOOST_AVATAR_BAKED_SELF; }
 	/*virtual*/ S32 						getTexImageSize() const { return LLVOAvatar::getTexImageSize()*4; }
 
 /**                    Rendering
@@ -168,18 +170,20 @@ public:
 	// Local Textures
 	//--------------------------------------------------------------------
 public:
-	BOOL				getLocalTextureGL(LLVOAvatarDefines::ETextureIndex type, LLImageGL** image_gl_pp, U32 index = 0) const;
+	BOOL				getLocalTextureGL(LLVOAvatarDefines::ETextureIndex type, LLViewerTexture** image_gl_pp, U32 index = 0) const;
 	const LLUUID&		getLocalTextureID(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
-	void				setLocalTextureTE(U8 te, LLViewerImage* image, BOOL set_by_user, U32 index = 0);
+	void				setLocalTextureTE(U8 te, LLViewerTexture* image, BOOL set_by_user, U32 index = 0);
 	const LLUUID&		grabLocalTexture(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
 	BOOL				canGrabLocalTexture(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
 protected:
-	/*virtual*/ void	setLocalTexture(LLVOAvatarDefines::ETextureIndex type, LLViewerImage* tex, BOOL baked_version_exits, U32 index = 0);
-	void				localTextureLoaded(BOOL succcess, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
+	/*virtual*/ void	setLocalTexture(LLVOAvatarDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index = 0);
+	void				localTextureLoaded(BOOL succcess, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 	void				getLocalTextureByteCount(S32* gl_byte_count) const;
-	/*virtual*/ void	addLocalTextureStats(LLVOAvatarDefines::ETextureIndex i, LLViewerImage* imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked, U32 index = 0);
+	/*virtual*/ void	addLocalTextureStats(LLVOAvatarDefines::ETextureIndex i, LLViewerFetchedTexture* imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked, U32 index = 0);
+	LLLocalTextureObject* getLocalTextureObject(LLVOAvatarDefines::ETextureIndex i, U32 index = 0) const;
+
 private:
-	static void			onLocalTextureLoaded(BOOL succcess, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
+	static void			onLocalTextureLoaded(BOOL succcess, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 
 	//--------------------------------------------------------------------
 	// Baked textures
@@ -225,20 +229,6 @@ private:
 	static LLMap< LLGLenum, LLGLuint*> sScratchTexNames;
 	static LLMap< LLGLenum, F32*> sScratchTexLastBindTime;
 
-	//--------------------------------------------------------------------
-	// Texture Data
-	//--------------------------------------------------------------------
-private:
-	typedef std::vector<LocalTextureData*> 	localtexture_vec_t; // all textures of a certain TE
-	typedef std::map<LLVOAvatarDefines::ETextureIndex, localtexture_vec_t> localtexture_map_t; // texture TE vectors arranged by texture type
-	localtexture_map_t 						mLocalTextureDatas;
-
-	const localtexture_vec_t&				getLocalTextureData(LLVOAvatarDefines::ETextureIndex index) const; // const accessor into mLocalTextureDatas
-	const LocalTextureData*					getLocalTextureData(LLVOAvatarDefines::ETextureIndex type, U32 index) const; // const accessor to individual LocalTextureData
-
-	localtexture_vec_t&				getLocalTextureData(LLVOAvatarDefines::ETextureIndex index); // accessor into mLocalTextureDatas
-	LocalTextureData*					getLocalTextureData(LLVOAvatarDefines::ETextureIndex type, U32 index); // accessor to individual LocalTextureData
-
 /**                    Textures
  **                                                                            **
  *******************************************************************************/
@@ -276,6 +266,8 @@ public:
 	// HUDs
 	//--------------------------------------------------------------------
 private:
+	U32 getNumWearables(LLVOAvatarDefines::ETextureIndex i) const;
+
 	LLViewerJoint* 		mScreenp; // special purpose joint for HUD attachments
 	
 /**                    Attachments

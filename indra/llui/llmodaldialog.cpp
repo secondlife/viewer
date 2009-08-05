@@ -244,7 +244,7 @@ void LLModalDialog::onClose(bool app_quitting)
 // virtual
 void LLModalDialog::draw()
 {
-	static LLUICachedControl<LLColor4> shadow_color ("ColorDropShadow", *(new LLColor4));
+	static LLUIColor shadow_color = LLUIColorTable::instance().getColor("ColorDropShadow");
 	static LLUICachedControl<S32> shadow_lines ("DropShadowFloater", 0);
 
 	gl_drop_shadow( 0, getRect().getHeight(), getRect().getWidth(), 0,

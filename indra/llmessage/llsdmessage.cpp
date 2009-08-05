@@ -94,7 +94,7 @@ void LLSDMessage::EventResponder::result(const LLSD& data)
     }
 }
 
-void LLSDMessage::EventResponder::error(U32 status, const std::string& reason, const LLSD& content)
+void LLSDMessage::EventResponder::errorWithContent(U32 status, const std::string& reason, const LLSD& content)
 {
     // If our caller passed an empty errorPump name, they're not
     // listening: "default error handling is acceptable." Only post to an
@@ -138,7 +138,7 @@ bool LLSDMessage::ResponderAdapter::listener(const LLSD& payload, bool success)
     }
     else
     {
-        mResponder->error(payload["status"].asInteger(), payload["reason"], payload["content"]);
+        mResponder->errorWithContent(payload["status"].asInteger(), payload["reason"], payload["content"]);
     }
 
     /*---------------- MUST BE LAST STATEMENT BEFORE RETURN ----------------*/

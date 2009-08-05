@@ -38,13 +38,16 @@
 #include "llpanel.h"
 #include "message.h"
 #include "llagent.h"
+#include "llbutton.h"
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
 #include "lltexturectrl.h"
 #include "lluiconstants.h"
+#include "llworldmap.h"
+#include "llfloaterworldmap.h"
+#include "llfloaterreg.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llpanelpick.h"
-#include "llpanelmeprofile.h"
 
 
 #define XML_PANEL_EDIT_PICK "panel_edit_pick.xml"
@@ -54,6 +57,12 @@
 #define XML_DESC		"pick_desc"
 #define XML_SNAPSHOT	"pick_snapshot"
 #define XML_LOCATION	"pick_location"
+
+#define XML_BTN_SAVE "save_changes_btn"
+
+#define SAVE_BTN_LABEL "[WHAT]"
+#define LABEL_PICK = "Pick"
+#define LABEL_CHANGES = "Changes"
 
 
 LLPanelPick::LLPanelPick(BOOL edit_mode/* = FALSE */)
@@ -78,15 +87,27 @@ LLPanelPick::LLPanelPick(BOOL edit_mode/* = FALSE */)
 
 LLPanelPick::~LLPanelPick()
 {
-	if (!mCreatorId.isNull()) 	LLAvatarPropertiesProcessor::instance().removeObserver(mCreatorId, this);
+	if (mCreatorId.notNull()) 	LLAvatarPropertiesProcessor::instance().removeObserver(mCreatorId, this);
 }
 
 void LLPanelPick::reset()
 {
+	setEditMode(FALSE);
+	
 	mPickId.setNull();
 	mCreatorId.setNull();
 	mParcelId.setNull();
 	
+	setPickName("");
+	setPickDesc("");
+	setPickLocation("");
+	mSnapshotCtrl->setImageAssetID(LLUUID::null);
+
+	//*HACK just setting asset id to NULL not enough to clear 
+	//the texture controls, w/o setValid(FALSE) it continues to 
+	//draw the previously set image
+	mSnapshotCtrl->setValid(FALSE);
+
 	mDataReceived = FALSE;
 
 	mPosGlobal.clearVec();
@@ -98,17 +119,24 @@ BOOL LLPanelPick::postBuild()
 
 	if (mEditMode)
 	{
-		childSetAction("cancel_btn", onClickCancel, this);
-		childSetAction("set_to_curr_location_btn", onClickSet, this);
-		childSetAction("save_changes_btn", onClickSave, this);
+		childSetAction("cancel_btn", boost::bind(&LLPanelPick::onClickCancel, this));
+		childSetAction("set_to_curr_location_btn", boost::bind(&LLPanelPick::onClickSet, this));
+		childSetAction(XML_BTN_SAVE, boost::bind(&LLPanelPick::onClickSave, this));
+
+		mSnapshotCtrl->setMouseEnterCallback(boost::bind(&LLPanelPick::childSetVisible, this, "edit_icon", true));
+		mSnapshotCtrl->setMouseLeaveCallback(boost::bind(&LLPanelPick::childSetVisible, this, "edit_icon", false));
 	}
 	else
 	{
-		childSetAction("edit_btn", onClickEdit, this);
-		childSetAction("teleport_btn", onClickTeleport, this);
-		childSetAction("show_on_map_btn", onClickMap, this);
-		childSetAction("back_btn", onClickBack, this);
-		//*TODO set on menu
+		childSetAction("edit_btn", boost::bind(&LLPanelPick::onClickEdit, this));
+		childSetAction("teleport_btn", boost::bind(&LLPanelPick::onClickTeleport, this));
+		childSetAction("show_on_map_btn", boost::bind(&LLPanelPick::onClickMap, this));
+
+		if (!mBackCb.empty())
+		{
+			LLButton* button = findChild<LLButton>("back_btn");
+			if (button) button->setClickedCallback(mBackCb);
+		}
 	}
 
 	return TRUE;
@@ -119,21 +147,15 @@ void LLPanelPick::init(LLUUID creator_id, LLUUID pick_id)
 	mCreatorId = creator_id;
 	mPickId = pick_id;
 
-	// on Pick Info panel (for non-Agent picks) edit_btn should be invisible
-	if (!mEditMode)
-	{
-		if (mCreatorId != gAgentID)
-		{
-			childSetEnabled("edit_btn", FALSE);
-			childSetVisible("edit_btn", FALSE);
-		}
-		else 
-		{
-			childSetEnabled("edit_btn", TRUE);
-			childSetVisible("edit_btn", TRUE);
-		}
-	}
+	//*TODO consider removing this, already called by setEditMode()
+	updateButtons();
 
+	requestData();
+}
+
+void LLPanelPick::requestData()
+{
+	mDataReceived = FALSE;
 	LLAvatarPropertiesProcessor::instance().addObserver(mCreatorId, this);
 	LLAvatarPropertiesProcessor::instance().sendDataRequest(mCreatorId, APT_PICK_INFO, &mPickId);
 }
@@ -143,10 +165,13 @@ void LLPanelPick::init(LLPickData *pick_data)
 	mPickId = pick_data->pick_id;
 	mCreatorId = pick_data->creator_id;
 
-	setName(pick_data->name);
-	setDesc(pick_data->desc);
-	setLocation(pick_data->location_text);
+	setPickName(pick_data->name);
+	setPickDesc(pick_data->desc);
+	setPickLocation(pick_data->location_text);
 	mSnapshotCtrl->setImageAssetID(pick_data->snapshot_id);
+
+	//*HACK see reset() where the texture control was set to FALSE
+	mSnapshotCtrl->setValid(TRUE);
 
 	mPosGlobal = pick_data->pos_global;
 	mSimName = pick_data->sim_name;
@@ -164,12 +189,14 @@ void LLPanelPick::createNewPick()
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (parcel)
 	{
-		setName(parcel->getName());
-		setDesc(parcel->getDesc());
+		setPickName(parcel->getName());
+		setPickDesc(parcel->getDesc());
 		mSnapshotCtrl->setImageAssetID(parcel->getSnapshotID());
 	}
 
 	sendUpdate();
+
+	childSetLabelArg(XML_BTN_SAVE, SAVE_BTN_LABEL, std::string("Pick"));
 }
 
 /*virtual*/ void LLPanelPick::processProperties(void* data, EAvatarProcessorType type)
@@ -183,7 +210,7 @@ void LLPanelPick::createNewPick()
 
 	init(pick_data);
 	mDataReceived = TRUE;
-	LLAvatarPropertiesProcessor::instance().removeObserver(gAgentID, this);
+	LLAvatarPropertiesProcessor::instance().removeObserver(mCreatorId, this);
 }
 
 
@@ -192,47 +219,36 @@ void LLPanelPick::setEditMode( BOOL edit_mode )
 	if (mEditMode == edit_mode) return;
 	mEditMode = edit_mode;
 
+	// preserve data before killing controls
+	LLUUID snapshot_id = mSnapshotCtrl->getImageAssetID();
+	LLRect old_rect = getRect();
+
+	deleteAllChildren();
+
 	if (edit_mode)
 	{
-		// preserve data before killing controls
-		std::string name = getName();
-		std::string desc = getDesc();
-		std::string location = getLocation();
-		LLUUID snapshot_id = mSnapshotCtrl->getImageAssetID();
-		LLRect old_rect = getRect();
-
-		deleteAllChildren();
-
 		LLUICtrlFactory::getInstance()->buildPanel(this, XML_PANEL_EDIT_PICK);
-
-		//*NOTE this code is from LLPanelMeProfile.togglePanel()... doubt this is a right way to do things
-		reshape(old_rect.getWidth(), old_rect.getHeight());
-		old_rect.setLeftTopAndSize(0, old_rect.getHeight(), old_rect.getWidth(), old_rect.getHeight());
-		setRect(old_rect);
-
-		// time to restore data
-		setName(name);
-		setDesc(desc);
-		setLocation(location);
-		mSnapshotCtrl->setImageAssetID(snapshot_id);
 	}
 	else
 	{
-		// returning to VIEW mode - need to perform cleanup 
-		// this is the case when that panel is reused between viewing/editing different picks
-		deleteAllChildren();
-		reset();
 		LLUICtrlFactory::getInstance()->buildPanel(this, XML_PANEL_PICK_INFO);
 	}
+
+	//*NOTE this code is from LLPanelMeProfile.togglePanel()... doubt this is a right way to do things
+	reshape(old_rect.getWidth(), old_rect.getHeight());
+	old_rect.setLeftTopAndSize(0, old_rect.getHeight(), old_rect.getWidth(), old_rect.getHeight());
+	setRect(old_rect);
+
+	// time to restore data
+	setPickName(mName);
+	setPickDesc(mDesc);
+	setPickLocation(mLocation);
+	mSnapshotCtrl->setImageAssetID(snapshot_id);
+
+	updateButtons();
 }
 
-//*HACK need to be redone - control panel toggling from parent (Me Panel/Avatar Profile Panel)
-void LLPanelPick::setPanelMeProfile(LLPanelMeProfile* meProfilePanel)
-{
-	mMeProfilePanel = meProfilePanel;
-}
-
-void LLPanelPick::setName(std::string name)
+void LLPanelPick::setPickName(std::string name)
 {
 	if (mEditMode)
 	{
@@ -242,9 +258,12 @@ void LLPanelPick::setName(std::string name)
 	{
 		childSetWrappedText(XML_NAME, name);
 	}
+	
+	//preserving non-wrapped text for info/edit modes switching
+	mName = name;
 }
 
-void LLPanelPick::setDesc(std::string desc)
+void LLPanelPick::setPickDesc(std::string desc)
 {
 	if (mEditMode)
 	{
@@ -254,24 +273,30 @@ void LLPanelPick::setDesc(std::string desc)
 	{
 		childSetWrappedText(XML_DESC, desc);
 	}
+
+	//preserving non-wrapped text for info/edit modes switching
+	mDesc = desc;
 }
 
-void LLPanelPick::setLocation(std::string location)
+void LLPanelPick::setPickLocation(std::string location)
 {
 	childSetWrappedText(XML_LOCATION, location);
+
+	//preserving non-wrapped text for info/edit modes switching
+	mLocation = location;
 }
 
-std::string LLPanelPick::getName()
+std::string LLPanelPick::getPickName()
 {
 	return childGetValue(XML_NAME).asString();
 }
 
-std::string LLPanelPick::getDesc()
+std::string LLPanelPick::getPickDesc()
 {
 	return childGetValue(XML_DESC).asString();
 }
 
-std::string LLPanelPick::getLocation()
+std::string LLPanelPick::getPickLocation()
 {
 	return childGetValue(XML_LOCATION).asString();
 }
@@ -292,12 +317,15 @@ void LLPanelPick::sendUpdate()
 	//legacy var  need to be deleted
 	pick_data.top_pick = FALSE; 
 	pick_data.parcel_id = mParcelId;
-	pick_data.name = getName();
-	pick_data.desc = getDesc();
+	pick_data.name = getPickName();
+	pick_data.desc = getPickDesc();
 	pick_data.snapshot_id = mSnapshotCtrl->getImageAssetID();
 	pick_data.pos_global = mPosGlobal;
 	pick_data.sort_order = 0;
 	pick_data.enabled = TRUE;
+
+	mDataReceived = FALSE;
+	LLAvatarPropertiesProcessor::instance().addObserver(gAgentID, this);
 
 	LLAvatarPropertiesProcessor::instance().sendDataUpdate(&pick_data, APT_PICK_INFO);
 }
@@ -308,39 +336,24 @@ void LLPanelPick::sendUpdate()
 //-----------------------------------------
 
 //static
-void LLPanelPick::onClickEdit(void* data)
+void LLPanelPick::onClickEdit()
 {
-	LLPanelPick* self = (LLPanelPick*)data;
-	if (!self) return;
-	if (self->mEditMode) return;
-	if (!self->mDataReceived) return;
-
-	self->setEditMode(TRUE);
+	if (mEditMode) return;
+	if (!mDataReceived) return;
+	setEditMode(TRUE);
 }
 
 //static
-void LLPanelPick::onClickTeleport(void* data)
+void LLPanelPick::onClickTeleport()
 {
-	//LLPanelPick* self = (LLPanelPick*)data;
-	//*TODO implement
+	teleport(mPosGlobal);
 }
 
 //static
-void LLPanelPick::onClickMap(void* data)
+void LLPanelPick::onClickMap()
 {
-	//LLPanelPick* self = (LLPanelPick*)data;
-	//*TODO implement
+	showOnMap(mPosGlobal);
 }
-
-//*HACK need to move panel toggling to parent panels
-//static
-void LLPanelPick::onClickBack(void* data)
-{
-	LLPanelPick* self = (LLPanelPick*)data;
-	if (!self) return;
-	self->mMeProfilePanel->togglePanel(self);
-}
-
 
 
 //-----------------------------------------
@@ -348,45 +361,92 @@ void LLPanelPick::onClickBack(void* data)
 //-----------------------------------------
 
 //static
-void LLPanelPick::onClickCancel(void* data)
+void LLPanelPick::onClickCancel()
 {
-	LLPanelPick* self = (LLPanelPick*) data;
-	if (!self) return;
-	if (!self->mEditMode) return;
-	self->mMeProfilePanel->togglePanel(self);
+	if (!mEditMode) return;
+	
+	LLUUID pick_id = mPickId;
+	LLUUID creator_id = mCreatorId;
+	reset();
+	init(creator_id, pick_id);
 }
 
 // static
-void LLPanelPick::onClickSet(void* data)
+void LLPanelPick::onClickSet()
 {
-	//TODO check whether pick data was received before
-
-	LLPanelPick* self = (LLPanelPick*) data;
-	if (!self) return;
-	if (!self->mEditMode) return;
+	if (!mEditMode) return;
+	if (!mDataReceived) return;
 
 	// Save location for later.
-	self->mPosGlobal = gAgent.getPositionGlobal();
+	mPosGlobal = gAgent.getPositionGlobal();
 
-	S32 region_x = llround((F32)self->mPosGlobal.mdV[VX]) % REGION_WIDTH_UNITS;
-	S32 region_y = llround((F32)self->mPosGlobal.mdV[VY]) % REGION_WIDTH_UNITS;
-	S32 region_z = llround((F32)self->mPosGlobal.mdV[VZ]);
+	S32 region_x = llround((F32)mPosGlobal.mdV[VX]) % REGION_WIDTH_UNITS;
+	S32 region_y = llround((F32)mPosGlobal.mdV[VY]) % REGION_WIDTH_UNITS;
+	S32 region_z = llround((F32)mPosGlobal.mdV[VZ]);
 
 	std::string location_text = "(will update after save), ";
-	location_text.append(self->mSimName);
+	location_text.append(mSimName);
 	location_text.append(llformat(" (%d, %d, %d)", region_x, region_y, region_z));
 
-	self->setLocation(location_text);
+	setPickLocation(location_text);
 }
 
 // static
-void LLPanelPick::onClickSave(void* data)
+void LLPanelPick::onClickSave()
 {
-	LLPanelPick* self = (LLPanelPick*)data;
-	if (!self->mEditMode) return;
-	if (!self->mDataReceived) return;
+	if (!mEditMode) return;
+	if (!mDataReceived) return;
 
-	//*TODO check if data was received before 
-	self->sendUpdate();
-	self->mMeProfilePanel->togglePanel(self);
+	sendUpdate();
+	setEditMode(FALSE);
+}
+
+void LLPanelPick::updateButtons()
+{
+
+	// on Pick Info panel (for non-Agent picks) edit_btn should be invisible
+	if (mEditMode)
+	{
+		childSetLabelArg(XML_BTN_SAVE, SAVE_BTN_LABEL, std::string("Changes"));
+	}
+	else 
+	{
+		if (mCreatorId != gAgentID)
+		{
+			childSetEnabled("edit_btn", FALSE);
+			childSetVisible("edit_btn", FALSE);
+		}
+		else 
+		{
+			childSetEnabled("edit_btn", TRUE);
+			childSetVisible("edit_btn", TRUE);
+		}
+	}
+}
+
+void LLPanelPick::setExitCallback(commit_callback_t cb)
+{
+	mBackCb = cb;
+	if (!mEditMode)
+	{
+		LLButton* button = findChild<LLButton>("back_btn");
+		if (button) button->setClickedCallback(mBackCb);
+	}
+}
+
+//static
+void LLPanelPick::teleport(const LLVector3d& position)
+{
+	if (!position.isExactlyZero())
+	{
+		gAgent.teleportViaLocation(position);
+		LLFloaterWorldMap::getInstance()->trackLocation(position);
+	}
+}
+
+//static
+void LLPanelPick::showOnMap(const LLVector3d& position)
+{
+	LLFloaterWorldMap::getInstance()->trackLocation(position);
+	LLFloaterReg::showInstance("world_map", "center");
 }

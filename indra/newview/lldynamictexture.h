@@ -1,6 +1,6 @@
 /** 
  * @file lldynamictexture.h
- * @brief Implementation of LLDynamicTexture class
+ * @brief Implementation of LLViewerDynamicTexture class
  *
  * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 
@@ -36,59 +36,52 @@
 #include "llcamera.h"
 #include "llgl.h"
 #include "llcoord.h"
-#include "llimagegl.h"
+#include "llviewertexture.h"
+#include "llcamera.h"
 
-class LLDynamicTexture
+class LLViewerDynamicTexture : public LLViewerTexture
 {
+protected:
+	/*virtual*/ ~LLViewerDynamicTexture();
+
 public:
 	enum EOrder { ORDER_FIRST = 0, ORDER_MIDDLE = 1, ORDER_LAST = 2, ORDER_RESET = 3, ORDER_COUNT = 4 };
 
-	LLDynamicTexture(S32 width,
+	LLViewerDynamicTexture(S32 width,
 					 S32 height,
 					 S32 components,		// = 4,
 					 EOrder order,			// = ORDER_MIDDLE,
 					 BOOL clamp);
-	virtual ~LLDynamicTexture();
+	
+	/*virtual*/ S8 getType() const ;
 
 	S32			getOriginX()	{ return mOrigin.mX; }
 	S32			getOriginY()	{ return mOrigin.mY; }
-	S32			getWidth()		{ return mWidth; }
-	S32			getHeight()		{ return mHeight; }
-	S32			getComponents()	{ return mComponents; }
-	S32			getSize()		{ return mWidth * mHeight * mComponents; }
+	
+	S32			getSize()		{ return mFullWidth * mFullHeight * mComponents; }
 
 	virtual BOOL needsRender() { return TRUE; }
 	virtual void preRender(BOOL clear_depth = TRUE);
 	virtual BOOL render();
 	virtual void postRender(BOOL success);
 
-	virtual void restoreGLTexture() ;
-	virtual void destroyGLTexture() ;
-
-	LLImageGL* getTexture(void) const { return mTexture; }
+	virtual void restoreGLTexture() {}
+	virtual void destroyGLTexture() {}
 
 	static BOOL	updateAllInstances();
-
-	static void destroyGL();
-	static void restoreGL();
-
+	static void destroyGL() ;
+	static void restoreGL() ;
 protected:
-	void releaseGLTexture();
 	void generateGLTexture();
 	void generateGLTexture(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format, BOOL swap_bytes = FALSE);
 
 protected:
-	S32 mWidth;
-	S32 mHeight;
-	S32 mComponents;
-	LLPointer<LLImageGL> mTexture;
-	F32 mLastBindTime;
 	BOOL mClamp;
 	LLCoordGL mOrigin;
-
 	LLCamera mCamera;
-	typedef std::set<LLDynamicTexture*> instance_list_t;
-	static instance_list_t sInstances[ LLDynamicTexture::ORDER_COUNT ];
+	
+	typedef std::set<LLViewerDynamicTexture*> instance_list_t;
+	static instance_list_t sInstances[ LLViewerDynamicTexture::ORDER_COUNT ];
 	static S32 sNumRenders;
 };
 

@@ -31,13 +31,23 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llpanelplacestab.h"
+
 #include "llwindow.h"
 
 #include "llnotifications.h"
 
+#include "llbutton.h"
 #include "llslurl.h"
-#include "llpanelplacestab.h"
 #include "llworldmap.h"
+
+bool LLPanelPlacesTab::isTabVisible()
+{
+	LLUICtrl* parent = getParentUICtrl();
+	if (!parent) return false;
+	if (!parent->getVisible()) return false;
+	return true;
+}
 
 void LLPanelPlacesTab::setPanelPlacesButtons(LLPanelPlaces* panel)
 {
@@ -74,25 +84,4 @@ void LLPanelPlacesTab::onRegionResponse(const LLVector3d& landmark_global_pos,
 	args["SLURL"] = sl_url;
 
 	LLNotifications::instance().add("CopySLURL", args);
-}
-
-void LLPanelPlacesTab::onTabSelected()
-{
-	togglePanelPlacesButtons(TRUE);
-}
-
-void LLPanelPlacesTab::togglePanelPlacesButtons(BOOL enabled)
-{
-	if (enabled)
-	{
-		//mShareBtn->setEnabled(TRUE);
-		mTeleportBtn->setEnabled(TRUE);
-		mShowOnMapBtn->setEnabled(TRUE);
-	}
-	else
-	{
-		//mShareBtn->setEnabled(FALSE);
-		mTeleportBtn->setEnabled(FALSE);
-		mShowOnMapBtn->setEnabled(FALSE);
-	}
 }

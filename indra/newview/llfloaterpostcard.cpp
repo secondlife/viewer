@@ -61,7 +61,7 @@
 #include "llimagej2c.h"
 #include "llvfile.h"
 #include "llvfs.h"
-
+#include "llviewertexture.h"
 #include "llassetuploadresponders.h"
 
 #include <boost/regex.hpp>  //boost.regex lib
@@ -77,7 +77,7 @@ LLFloaterPostcard::instance_list_t LLFloaterPostcard::sInstances;
 /// Class LLFloaterPostcard
 ///----------------------------------------------------------------------------
 
-LLFloaterPostcard::LLFloaterPostcard(LLImageJPEG* jpeg, LLImageGL *img, const LLVector2& img_scale, const LLVector3d& pos_taken_global)
+LLFloaterPostcard::LLFloaterPostcard(LLImageJPEG* jpeg, LLViewerTexture *img, const LLVector2& img_scale, const LLVector3d& pos_taken_global)
 :	LLFloater(),
 	mJPEGImage(jpeg),
 	mViewerImage(img),
@@ -130,7 +130,7 @@ BOOL LLFloaterPostcard::postBuild()
 
 
 // static
-LLFloaterPostcard* LLFloaterPostcard::showFromSnapshot(LLImageJPEG *jpeg, LLImageGL *img, const LLVector2 &image_scale, const LLVector3d& pos_taken_global)
+LLFloaterPostcard* LLFloaterPostcard::showFromSnapshot(LLImageJPEG *jpeg, LLViewerTexture *img, const LLVector2 &image_scale, const LLVector3d& pos_taken_global)
 {
 	// Take the images from the caller
 	// It's now our job to clean them up
@@ -181,7 +181,7 @@ void LLFloaterPostcard::draw()
 								 rect.mBottom,
 								 rect.getWidth(),
 								 rect.getHeight(),
-								 mViewerImage, 
+								 mViewerImage.get(), 
 								 LLColor4::white);
 		}
 		glMatrixMode(GL_TEXTURE);

@@ -39,6 +39,8 @@
 #include "llsaleinfo.h"
 #include "llassetstorage.h"
 #include "llwearabledictionary.h"
+#include "llfile.h"
+#include "lllocaltextureobject.h"
 
 class LLViewerInventoryItem;
 
@@ -60,7 +62,7 @@ public:
 	// Accessors
 	//--------------------------------------------------------------------
 public:
-	const LLAssetID&		getID() const { return mAssetID; }
+	const LLAssetID&			getAssetID() const { return mAssetID; }
 	const LLTransactionID&		getTransactionID() const { return mTransactionID; }
 	EWearableType				getType() const	{ return mType; }
 	void						setType(EWearableType type)	{ mType = type; }
@@ -99,6 +101,10 @@ public:
 	static void			setCurrentDefinitionVersion( S32 version ) { LLWearable::sCurrentDefinitionVersion = version; }
 
 	friend std::ostream& operator<<(std::ostream &s, const LLWearable &w);
+	void				setItemID(const LLUUID& item_id);
+	const LLUUID&		getItemID() const;
+	LLLocalTextureObject* getLocalTextureObject(S32 index) const;
+	void				setLocalTextureObject(S32 index, LLLocalTextureObject *lto);
 
 private:
 	static S32			sCurrentDefinitionVersion;	// Depends on the current state of the avatar_lad.xml.
@@ -113,8 +119,9 @@ private:
 
 	typedef std::map<S32, F32> param_map_t;
 	param_map_t mVisualParamMap;	// maps visual param id to weight
-	typedef std::map<S32, LLUUID> te_map_t;
-	te_map_t mTEMap;				// maps TE to Image ID
+	typedef std::map<S32, LLLocalTextureObject> te_map_t;
+	te_map_t mTEMap;				// maps TE to LocalTextureObject
+	LLUUID				mItemID;  // ID of the inventory item in the agent's inventory
 };
 
 #endif  // LL_LLWEARABLE_H

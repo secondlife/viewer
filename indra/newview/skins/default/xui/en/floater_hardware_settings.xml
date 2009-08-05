@@ -50,18 +50,23 @@
      width="64">
         <combo_box.item
          label="Disabled"
+         name="FSAADisabled"
          value="0" />
         <combo_box.item
          label="2x"
+         name="2x"
          value="2" />
         <combo_box.item
          label="4x"
+         name="4x"
          value="4" />
         <combo_box.item
          label="8x"
+         name="8x"
          value="8" />
         <combo_box.item
          label="16x"
+         name="16x"
          value="16" />
     </combo_box>
     <spinner

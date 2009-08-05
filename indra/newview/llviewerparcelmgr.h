@@ -46,7 +46,7 @@
 class LLUUID;
 class LLMessageSystem;
 class LLParcel;
-class LLViewerImage;
+class LLViewerTexture;
 class LLViewerRegion;
 
 // Constants for sendLandOwner
@@ -291,8 +291,8 @@ private:
 	static bool callbackJoinLand(const LLSD& notification, const LLSD& response);
 
 	//void	finishClaim(BOOL user_to_user_sale, U32 join);
-	LLViewerImage* getBlockedImage() const;
-	LLViewerImage* getPassImage() const;
+	LLViewerTexture* getBlockedImage() const;
+	LLViewerTexture* getPassImage() const;
 
 private:
 	BOOL						mSelected;
@@ -341,8 +341,8 @@ private:
 	BOOL						mRenderSelection;
 	S32							mCollisionBanned;     
 	LLFrameTimer				mCollisionTimer;
-	LLImageGL* 					mBlockedImage;
-	LLImageGL*					mPassImage;
+	LLViewerTexture*			mBlockedImage;
+	LLViewerTexture*			mPassImage;
 
 	// Media
 	S32 						mMediaParcelId;

@@ -86,7 +86,7 @@
      name="show_folders_check"
      top="20"
      width="201" />
-    <search_editor
+    <filter_editor
      follows="left|top|right"
      height="16"
      label="Type here to search"

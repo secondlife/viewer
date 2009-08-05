@@ -276,6 +276,17 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
+	<key>AudioSteamingMedia</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable streaming</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>AudioStreamingMusic</key>
     <map>
       <key>Comment</key>
@@ -914,17 +925,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>BulkChangeIncludeLandmarks</key>
-    <map>
-      <key>Comment</key>
-      <string>Bulk permission changes affect landmarks</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>BulkChangeIncludeNotecards</key>
     <map>
       <key>Comment</key>
@@ -1112,6 +1112,28 @@
       <key>Value</key>
       <string />
     </map>
+    <key>CacheLocationTopFolder</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls the top folder location of the local disk cache</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>	
+    <key>CacheLocationTopFolder</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls the location of the local disk cache</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>	
     <key>CacheSize</key>
     <map>
       <key>Comment</key>
@@ -2753,6 +2775,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>	
+	<key>FirstSelectedEnabledPopups</key>
+    <map>
+      <key>Comment</key>
+      <string>Return false if there is not enable popup selected in the list of floater preferences popups</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>		
     <key>FixedWeather</key>
     <map>
@@ -3328,17 +3361,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>NotFullScreen</key>
-    <map>
-      <key>Comment</key>
-      <string>Run SL in non fullscreen mode</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>FullScreenAspectRatio</key>
     <map>
@@ -4628,6 +4650,17 @@
       <key>Value</key>
       <string />
     </map>
+    <key>NewCacheLocationTopFolder</key>
+    <map>
+      <key>Comment</key>
+      <string>Change the top folder location of the local disk cache to this</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>	
     <key>NextLoginLocation</key>
     <map>
       <key>Comment</key>
@@ -4715,6 +4748,83 @@
       <string>S32</string>
       <key>Value</key>
       <integer>350</integer>
+    </map>
+    <key>NotificationToastTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Width of notification messages</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>5</integer>
+    </map>
+    <key>StartUpToastTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Width of notification messages</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>10</integer>
+    </map>
+    <key>ToastMargin</key>
+    <map>
+      <key>Comment</key>
+      <string>Width of notification messages</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>5</integer>
+    </map>
+    <key>ChannelBottomPanelMargin</key>
+    <map>
+      <key>Comment</key>
+      <string>Width of notification messages</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>35</integer>
+    </map>
+    <key>NotificationChannelRightMargin</key>
+    <map>
+      <key>Comment</key>
+      <string>Width of notification messages</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>10</integer>
+    </map>
+    <key>NavBarMargin</key>
+    <map>
+      <key>Comment</key>
+      <string>Width of notification messages</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>60</integer>
+    </map>
+    <key>OverflowToastHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>Width of notification messages</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>72</integer>
     </map>
     <key>NotifyMoneyChange</key>
     <map>
@@ -5471,17 +5581,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>RenderCustomSettings</key>
-    <map>
-      <key>Comment</key>
-      <string>Do you want to set the graphics settings yourself</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>RenderDebugAlphaMask</key>
     <map>
       <key>Comment</key>
@@ -5769,6 +5868,21 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
+    <key>RenderGlowLumWeights</key>
+    <map>
+      <key>Comment</key>
+      <string>Weights for each color channel to be used in calculating luminance (should add up to 1.0)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>0.299</real>
+        <real>0.587</real>
+        <real>0.114</real>
+      </array>
+    </map>
     <key>RenderGlowMaxExtractAlpha</key>
     <map>
       <key>Comment</key>
@@ -5823,6 +5937,21 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.0</real>
+    </map>
+    <key>RenderGlowWarmthWeights</key>
+    <map>
+      <key>Comment</key>
+      <string>Weight of each color channel used before finding the max warmth</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>0.5</real>
+        <real>0.7</real>
+      </array>
     </map>
     <key>RenderGlowWidth</key>
     <map>
@@ -5890,7 +6019,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderHideGroupTitleAll</key>
+    <key>RenderShowGroupTitleAll</key>
     <map>
       <key>Comment</key>
       <string>Show group titles in name labels</string>
@@ -5899,7 +6028,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>RenderInitError</key>
     <map>
@@ -5967,17 +6096,6 @@
       <key>Value</key>
       <integer>512</integer>
     </map>
-    <key>RenderName</key>
-    <map>
-      <key>Comment</key>
-      <string>Controls display of names above avatars (0 = never, 1 = fade, 2 = always)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>2</integer>
-    </map>
     <key>RenderNameFadeDuration</key>
     <map>
       <key>Comment</key>
@@ -5989,16 +6107,16 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>RenderNameHideSelf</key>
+    <key>RenderNameShowSelf</key>
     <map>
       <key>Comment</key>
-      <string>Don't display own name above avatar</string>
+      <string>Display own name above avatar</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>RenderNameShowTime</key>
     <map>
@@ -6589,10 +6707,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowActiveSpeakers</key>
+    <key>ShowAdvancedGraphicsSettings</key>
     <map>
       <key>Comment</key>
-      <string>Display active speakers list on login</string>
+      <string>Show advanced graphics settings</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6611,6 +6729,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+	<key>AvatarNameTagMode</key>
+    <map>
+      <key>Comment</key>
+      <string>Select Avatar Name Tag Mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ShowAxes</key>
     <map>
       <key>Comment</key>
@@ -6626,17 +6755,6 @@
     <map>
       <key>Comment</key>
       <string>Show in-world ban/access borders</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>ShowCameraControls</key>
-    <map>
-      <key>Comment</key>
-      <string>Display camera controls on login</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6677,17 +6795,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowDirectory</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>ShowEmptyFoldersWhenSearching</key>
     <map>
       <key>Comment</key>
@@ -6716,17 +6823,6 @@
       <string>Show descriptive tooltip when mouse hovers over land</string>
       <key>Persist</key>
       <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowLeaders</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -6966,17 +7062,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowMovementControls</key>
-    <map>
-      <key>Comment</key>
-      <string>Display movement controls on login</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>ShowNearClip</key>
     <map>
       <key>Comment</key>
@@ -7131,17 +7216,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ShowTools</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
 	<key>ShowTutorial</key>
 	<map>
 		<key>Comment</key>
@@ -7240,6 +7314,21 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>SkyNightColorShift</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls moonlight color (base color applied to moon as light source)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Color3</string>
+      <key>Value</key>
+      <array>
+        <real>0.67</real>
+        <real>0.67</real>
+        <real>1.0</real>
+      </array>
     </map>
     <key>SkyOverrideSimSunPosition</key>
     <map>
@@ -7574,6 +7663,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.699999988079</real>
+    </map>
+    <key>ToolTipFadeTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Seconds over which tooltip fades away</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.2</real>
     </map>
     <key>ToolboxAutoMove</key>
     <map>
@@ -8002,7 +8102,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>3</integer>
     </map>
     <key>UIMaxComboWidth</key>
     <map>
@@ -8079,7 +8179,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>1</real>
+      <integer>4</integer>
     </map>
     <key>UIPreeditMarkerThickness</key>
     <map>
@@ -8123,7 +8223,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>2</real>
+      <integer>4</integer>
     </map>
     <key>UIPreeditStandoutThickness</key>
     <map>
@@ -8134,7 +8234,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>2</real>
+      <integer>2</integer>
     </map>
     <key>UIResizeBarHeight</key>
     <map>
@@ -9325,6 +9425,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>WindowFullScreen</key>
+    <map>
+      <key>Comment</key>
+      <string>Run SL in fullscreen mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>WindowHeight</key>
     <map>
       <key>Comment</key>
@@ -9388,6 +9499,17 @@
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
+      <key>Value</key>
+      <real>150000.0</real>
+    </map>
+    <key>XUIEditor</key>
+    <map>
+      <key>Comment</key>
+      <string>Path to program used to edit XUI files</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
       <key>Value</key>
       <real>150000.0</real>
     </map>

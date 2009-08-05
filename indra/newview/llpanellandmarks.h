@@ -33,7 +33,7 @@
 #ifndef LL_LLPANELLANDMARKS_H
 #define LL_LLPANELLANDMARKS_H
 
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llinventorymodel.h"
 #include "llpanelplacestab.h"
 
@@ -48,9 +48,11 @@ public:
 	/*virtual*/ void onShowOnMap();
 	/*virtual*/ void onTeleport();
 	///*virtual*/ void onCopySLURL();
+	/*virtual*/ void updateVerbs();
 
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();
+	void setSelectedItem(const LLUUID& obj_id);
 
 private:
 	LLInventoryPanel*			mInventoryPanel;

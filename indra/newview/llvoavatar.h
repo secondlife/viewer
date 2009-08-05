@@ -94,7 +94,7 @@ public:
 	virtual void		markDead();
 	static void			initClass(); // Initialize data that's only init'd once per class.
 	static void			cleanupClass();	// Cleanup data that's only init'd once per class.
-	void 				initInstance(); // Called after construction to initialize the class.
+	virtual void 		initInstance(); // Called after construction to initialize the class.
 protected:
 	virtual				~LLVOAvatar();
 	BOOL				loadSkeletonNode();
@@ -370,7 +370,7 @@ public:
 private:
 	LLFace* 	mShadow0Facep;
 	LLFace* 	mShadow1Facep;
-	LLPointer<LLViewerImage> mShadowImagep;
+	LLPointer<LLViewerTexture> mShadowImagep;
 
 	//--------------------------------------------------------------------
 	// Impostors
@@ -432,8 +432,8 @@ private:
 	// Constants
 	//--------------------------------------------------------------------
 public:
-	virtual LLViewerImage::EBoostLevel 	getAvatarBoostLevel() const { return LLViewerImage::BOOST_AVATAR; }
-	virtual LLViewerImage::EBoostLevel 	getAvatarBakedBoostLevel() const { return LLViewerImage::BOOST_AVATAR_BAKED; }
+	virtual LLViewerTexture::EBoostLevel 	getAvatarBoostLevel() const { return LLViewerTexture::BOOST_AVATAR; }
+	virtual LLViewerTexture::EBoostLevel 	getAvatarBakedBoostLevel() const { return LLViewerTexture::BOOST_AVATAR_BAKED; }
 	virtual S32 						getTexImageSize() const;
 	virtual S32 						getTexImageArea() const { return getTexImageSize()*getTexImageSize(); }
 
@@ -450,7 +450,7 @@ public:
 	// Loading status
 	//--------------------------------------------------------------------
 public:
-	virtual BOOL            isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
+	virtual BOOL    isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
 	BOOL			isTextureVisible(LLVOAvatarDefines::ETextureIndex index) const;
 protected:
 	BOOL			isFullyBaked();
@@ -462,9 +462,9 @@ protected:
 public:
 	void			releaseComponentTextures(); // ! BACKWARDS COMPATIBILITY !
 protected:
-	static void		onBakedTextureMasksLoaded(BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
-	static void		onInitialBakedTextureLoaded(BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
-	static void		onBakedTextureLoaded(BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
+	static void		onBakedTextureMasksLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
+	static void		onInitialBakedTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
+	static void		onBakedTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 	virtual void	removeMissingBakedTextures();
 	void			useBakedTexture(const LLUUID& id);
 
@@ -489,15 +489,15 @@ protected:
 	// Local Textures
 	//--------------------------------------------------------------------
 protected:
-	virtual void	setLocalTexture(LLVOAvatarDefines::ETextureIndex type, LLViewerImage* tex, BOOL baked_version_exits, U32 index = 0);
-	virtual void	addLocalTextureStats(LLVOAvatarDefines::ETextureIndex type, LLViewerImage* imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked, U32 index = 0);
+	virtual void	setLocalTexture(LLVOAvatarDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index = 0);
+	virtual void	addLocalTextureStats(LLVOAvatarDefines::ETextureIndex type, LLViewerFetchedTexture* imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked, U32 index = 0);
 
 	//--------------------------------------------------------------------
 	// Texture accessors
 	//--------------------------------------------------------------------
 private:
-	virtual	void				setImage(const U8 te, LLViewerImage *imagep); 
-	virtual LLViewerImage*		getImage(const U8 te) const;
+	virtual	void				setImage(const U8 te, LLViewerTexture *imagep); 
+	virtual LLViewerTexture*	getImage(const U8 te) const;
 
 	virtual const LLTextureEntry* getTexEntry(const U8 te_num) const;
 	virtual void setTexEntry(const U8 index, const LLTextureEntry &te);
@@ -508,7 +508,7 @@ private:
 	//--------------------------------------------------------------------
 protected:
 	void			deleteLayerSetCaches(bool clearAll = true);
-	void			addBakedTextureStats(LLViewerImage* imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level);
+	void			addBakedTextureStats(LLViewerFetchedTexture* imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level);
 
 	//--------------------------------------------------------------------
 	// Composites

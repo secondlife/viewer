@@ -52,7 +52,7 @@
 #include "llfloaterauction.h"
 #include "llfloatergroups.h"
 #include "llfloatergroupinfo.h"
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
 #include "llnotify.h"
@@ -68,7 +68,7 @@
 #include "lltexturectrl.h"
 #include "lluiconstants.h"
 #include "lluictrlfactory.h"
-#include "llviewerimagelist.h"		// LLUIImageList
+#include "llviewertexturelist.h"		// LLUIImageList
 #include "llviewermessage.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
@@ -149,23 +149,50 @@ void send_parcel_select_objects(S32 parcel_local_id, S32 return_type,
 //static
 LLPanelLandObjects* LLFloaterLand::getCurrentPanelLandObjects()
 {
-	return LLFloaterLand::getInstance()->mPanelObjects;
+	LLFloaterLand* land_instance = LLFloaterReg::getTypedInstance<LLFloaterLand>("about_land");
+	if(land_instance)
+	{
+		return land_instance->mPanelObjects;
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 //static
 LLPanelLandCovenant* LLFloaterLand::getCurrentPanelLandCovenant()
 {
-	return LLFloaterLand::getInstance()->mPanelCovenant;
+	LLFloaterLand* land_instance = LLFloaterReg::getTypedInstance<LLFloaterLand>("about_land");
+	if(land_instance)
+	{
+		return land_instance->mPanelCovenant;
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 // static
 void LLFloaterLand::refreshAll()
 {
-	LLFloaterLand::getInstance()->refresh();
+	LLFloaterLand* land_instance = LLFloaterReg::getTypedInstance<LLFloaterLand>("about_land");
+	if(land_instance)
+	{
+		land_instance->refresh();
+	}
 }
 
 void LLFloaterLand::onOpen(const LLSD& key)
 {
+	// moved from triggering show instance in llviwermenu.cpp
+	
+	if (LLViewerParcelMgr::getInstance()->selectionEmpty())
+	{
+		LLViewerParcelMgr::getInstance()->selectParcelAt(gAgent.getPositionGlobal());
+	}
+	
 	// Done automatically when the selected parcel's properties arrive
 	// (and hence we have the local id).
 	// LLViewerParcelMgr::getInstance()->sendParcelAccessListRequest(AL_ACCESS | AL_BAN | AL_RENTER);
@@ -196,7 +223,7 @@ void LLFloaterLand::onClose(bool app_quitting)
 
 
 LLFloaterLand::LLFloaterLand(const LLSD& seed)
-:	LLFloater()
+:	LLFloater(seed)
 {
 	mFactoryMap["land_general_panel"] = LLCallbackMap(createPanelLandGeneral, this);
 	mFactoryMap["land_covenant_panel"] = LLCallbackMap(createPanelLandCovenant, this);
@@ -205,7 +232,7 @@ LLFloaterLand::LLFloaterLand(const LLSD& seed)
 	mFactoryMap["land_media_panel"] =	LLCallbackMap(createPanelLandMedia, this);
 	mFactoryMap["land_access_panel"] =	LLCallbackMap(createPanelLandAccess, this);
 
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_about_land.xml", false);
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_about_land.xml", false);
 
 	sObserver = new LLParcelSelectionObserver();
 	LLViewerParcelMgr::getInstance()->addObserver( sObserver );
@@ -784,7 +811,7 @@ void LLPanelLandGeneral::onClickProfile(void* data)
 	else
 	{
 		const LLUUID& avatar_id = parcel->getOwnerID();
-		LLFriendActions::showProfile(avatar_id);
+		LLAvatarActions::showProfile(avatar_id);
 	}
 }
 
@@ -1057,7 +1084,7 @@ void LLPanelLandObjects::onDoubleClickOwner(void *userdata)
 		}
 		else
 		{
-			LLFriendActions::showProfile(owner_id);
+			LLAvatarActions::showProfile(owner_id);
 		}
 	}
 }
@@ -1463,26 +1490,26 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 
 		if (is_group_owned)
 		{
-			item_params.cells.add().type("icon").value(self->mIconGroup->getName()).column("type");
-			item_params.cells.add().value(OWNER_GROUP).font(FONT).column("online_status");
+			item_params.columns.add().type("icon").value(self->mIconGroup->getName()).column("type");
+			item_params.columns.add().value(OWNER_GROUP).font(FONT).column("online_status");
 		}
 		else if (is_online)
 		{
-			item_params.cells.add().type("icon").value(self->mIconAvatarOnline->getName()).column("type");
-			item_params.cells.add().value(OWNER_ONLINE).font(FONT).column("online_status");
+			item_params.columns.add().type("icon").value(self->mIconAvatarOnline->getName()).column("type");
+			item_params.columns.add().value(OWNER_ONLINE).font(FONT).column("online_status");
 		}
 		else  // offline
 		{
-			item_params.cells.add().type("icon").value(self->mIconAvatarOffline->getName()).column("type");
-			item_params.cells.add().value(OWNER_OFFLINE).font(FONT).column("online_status");
+			item_params.columns.add().type("icon").value(self->mIconAvatarOffline->getName()).column("type");
+			item_params.columns.add().value(OWNER_OFFLINE).font(FONT).column("online_status");
 		}
 
 		// Placeholder for name.
-		item_params.cells.add().font(FONT).column("name");
+		item_params.columns.add().font(FONT).column("name");
 
 		object_count_str = llformat("%d", object_count);
-		item_params.cells.add().value(object_count_str).font(FONT).column("count");
-		item_params.cells.add().value(formatted_time((time_t)most_recent_time)).font(FONT).column("mostrecent");
+		item_params.columns.add().value(object_count_str).font(FONT).column("count");
+		item_params.columns.add().value(formatted_time((time_t)most_recent_time)).font(FONT).column("mostrecent");
 
 		self->mOwnerList->addRow(item_params);
 
@@ -1693,7 +1720,6 @@ LLPanelLandOptions::LLPanelLandOptions(LLParcelSelectionHandle& parcel)
 	mCheckFly(NULL),
 	mCheckGroupScripts(NULL),
 	mCheckOtherScripts(NULL),
-	mCheckLandmark(NULL),
 	mCheckShowDirectory(NULL),
 	mCategoryCombo(NULL),
 	mLandingTypeCombo(NULL),
@@ -1725,10 +1751,6 @@ BOOL LLPanelLandOptions::postBuild()
 	
 	mCheckEditLand = getChild<LLCheckBoxCtrl>( "edit land check");
 	childSetCommitCallback("edit land check", onCommitAny, this);
-
-	
-	mCheckLandmark = getChild<LLCheckBoxCtrl>( "check landmark");
-	childSetCommitCallback("check landmark", onCommitAny, this);
 
 	
 	mCheckGroupScripts = getChild<LLCheckBoxCtrl>( "check group scripts");
@@ -1856,9 +1878,6 @@ void LLPanelLandOptions::refresh()
 		mCheckFly			->set(FALSE);
 		mCheckFly			->setEnabled(FALSE);
 
-		mCheckLandmark		->set(FALSE);
-		mCheckLandmark		->setEnabled(FALSE);
-
 		mCheckGroupScripts	->set(FALSE);
 		mCheckGroupScripts	->setEnabled(FALSE);
 
@@ -1908,9 +1927,6 @@ void LLPanelLandOptions::refresh()
 
 		mCheckFly			->set( parcel->getAllowFly() );
 		mCheckFly			->setEnabled( can_change_options );
-
-		mCheckLandmark		->set( parcel->getAllowLandmark() );
-		mCheckLandmark		->setEnabled( can_change_options );
 
 		mCheckGroupScripts	->set( parcel->getAllowGroupScripts() || parcel->getAllowOtherScripts());
 		mCheckGroupScripts	->setEnabled( can_change_options && !parcel->getAllowOtherScripts());
@@ -2126,7 +2142,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	BOOL allow_terraform	= self->mCheckEditLand->get();
 	BOOL allow_damage		= !self->mCheckSafe->get();
 	BOOL allow_fly			= self->mCheckFly->get();
-	BOOL allow_landmark		= self->mCheckLandmark->get();
+	BOOL allow_landmark		= TRUE; // cannot restrict landmark creation
 	BOOL allow_group_scripts	= self->mCheckGroupScripts->get() || self->mCheckOtherScripts->get();
 	BOOL allow_other_scripts	= self->mCheckOtherScripts->get();
 	BOOL allow_publish		= FALSE;

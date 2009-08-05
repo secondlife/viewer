@@ -42,7 +42,7 @@
 #include "lltexteditor.h"
 #include "llalertdialog.h"
 #include "llerrorcontrol.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llgroupmgr.h"
 #include "llagent.h"
 #include "llagentwearables.h"
@@ -156,8 +156,9 @@
 #include "llviewerfloaterreg.h"
 #include "llcommandlineparser.h"
 #include "llfloatermemleak.h"
+#include "llfloaterreg.h"
 #include "llfloatersnapshot.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 
 // includes for idle() idleShutdown()
 #include "llviewercontrol.h"
@@ -238,9 +239,6 @@ LLFrameTimer gForegroundTime;
 LLTimer gLogoutTimer;
 static const F32 LOGOUT_REQUEST_TIME = 6.f;  // this will be cut short by the LogoutReply msg.
 F32 gLogoutMaxTime = LOGOUT_REQUEST_TIME;
-
-LLUUID gInventoryLibraryOwner;
-LLUUID gInventoryLibraryRoot;
 
 BOOL				gDisconnected = FALSE;
 
@@ -672,7 +670,6 @@ bool LLAppViewer::init()
 	// Widget construction depends on LLUI being initialized
 	LLUI::settings_map_t settings_map;
 	settings_map["config"] = &gSavedSettings;
-	settings_map["color"] = &gSavedSkinSettings;
 	settings_map["ignores"] = &gWarningSettings;
 	settings_map["floater"] = &gSavedSettings; // *TODO: New settings file
 	settings_map["account"] = &gSavedPerAccountSettings;
@@ -940,9 +937,10 @@ bool LLAppViewer::mainLoop()
 			
 #endif
 			//memory leaking simulation
-			if(LLFloaterMemLeak::getInstance())
+			LLFloaterMemLeak* mem_leak_instance = LLFloaterReg::getTypedInstance<LLFloaterMemLeak>("mem_leaking");
+			if(mem_leak_instance)
 			{
-				LLFloaterMemLeak::getInstance()->idle() ;				
+				mem_leak_instance->idle() ;				
 			}			
 
             // canonical per-frame event
@@ -1109,9 +1107,10 @@ bool LLAppViewer::mainLoop()
 		catch(std::bad_alloc)
 		{			
 			//stop memory leaking simulation
-			if(LLFloaterMemLeak::getInstance())
+			LLFloaterMemLeak* mem_leak_instance = LLFloaterReg::getTypedInstance<LLFloaterMemLeak>("mem_leaking");
+			if(mem_leak_instance)
 			{
-				LLFloaterMemLeak::getInstance()->stop() ;				
+				mem_leak_instance->stop() ;				
 				llwarns << "Bad memory allocation in LLAppViewer::mainLoop()!" << llendl ;
 			}
 			else
@@ -1136,9 +1135,10 @@ bool LLAppViewer::mainLoop()
 			llwarns << "Bad memory allocation when saveFinalSnapshot() is called!" << llendl ;
 
 			//stop memory leaking simulation
-			if(LLFloaterMemLeak::getInstance())
+			LLFloaterMemLeak* mem_leak_instance = LLFloaterReg::getTypedInstance<LLFloaterMemLeak>("mem_leaking");
+			if(mem_leak_instance)
 			{
-				LLFloaterMemLeak::getInstance()->stop() ;				
+				mem_leak_instance->stop() ;				
 			}	
 		}
 	}
@@ -1369,8 +1369,8 @@ bool LLAppViewer::cleanup()
 	// save their rects on delete.
 	gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);
 	
-	//*FIX: don't overwrite user color tweaks with *all* colors
-	gSavedSkinSettings.saveToFile(gSavedSettings.getString("SkinningSettingsFile"), TRUE);
+	LLUIColorTable::instance().saveUserSettings();
+
 	// PerAccountSettingsFile should be empty if no use has been logged on.
 	// *FIX:Mani This should get really saved in a "logoff" mode. 
 	gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
@@ -1384,7 +1384,7 @@ bool LLAppViewer::cleanup()
 	gWarningSettings.saveToFile(warnings_settings_filename, TRUE);
 
 	gSavedSettings.cleanup();
-	gSavedSkinSettings.cleanup();
+	LLUIColorTable::instance().clear();
 	gCrashSettings.cleanup();
 
 	// Save URL history file
@@ -1463,10 +1463,10 @@ bool LLAppViewer::cleanup()
 	LLMetricPerformanceTester::cleanClass() ;
 
 	//Note:
-	//LLViewerMedia::cleanupClass() has to be put before gImageList.shutdown()
+	//LLViewerMedia::cleanupClass() has to be put before gTextureList.shutdown()
 	//because some new image might be generated during cleaning up media. --bao
 	LLViewerMedia::cleanupClass();
-	gImageList.shutdown(); // shutdown again in case a callback added something
+	gTextureList.shutdown(); // shutdown again in case a callback added something
 	LLUIImageList::getInstance()->cleanUp();
 	
 	// This should eventually be done in LLAppViewer
@@ -1724,43 +1724,7 @@ std::string LLAppViewer::getSettingsFilename(const std::string& location_key,
 
 void LLAppViewer::loadColorSettings()
 {
-	gSavedSkinSettings.cleanup();
-
-	loadSettingsFromDirectory("DefaultSkin");
-	loadSettingsFromDirectory("CurrentSkin", true);
-	loadSettingsFromDirectory("UserSkin");
-
-	class ColorConverterFunctor : public LLControlGroup::ApplyFunctor
-	{
-	public:
-		explicit ColorConverterFunctor(LLUIColorTable::Params& result)
-			:mResult(result)
-		{
-		}
-
-		void apply(const std::string& name, LLControlVariable* control)
-		{
-			if(control->isType(TYPE_COL4))
-			{
-				LLUIColorTable::ColorParams color;
-				color.value = (LLColor4)control->getValue();
-
-				LLUIColorTable::ColorEntryParams color_entry;
-				color_entry.name = name;
-				color_entry.color = color;
-
-				mResult.color_entries.add(color_entry);
-			}
-		}
-
-	private:
-		LLUIColorTable::Params& mResult;
-	};
-
-	LLUIColorTable::Params params;
-	ColorConverterFunctor ccf(params);
-	LLControlGroup::getInstance("Skinning")->applyToAll(&ccf);
-	LLUIColorTable::instance().init(params);
+	LLUIColorTable::instance().loadFromSettings();
 }
 
 bool LLAppViewer::initConfiguration()
@@ -1804,9 +1768,6 @@ bool LLAppViewer::initConfiguration()
 	gSavedSettings.setString("ClientSettingsFile", 
         gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Global")));
 
-	gSavedSettings.setString("SkinningSettingsFile",
-		gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("UserSkin", "Skinning")));
-
 	gSavedSettings.setString("VersionChannelName", LL_CHANNEL);
 
 #ifndef	LL_RELEASE_FOR_DOWNLOAD
@@ -1837,7 +1798,7 @@ bool LLAppViewer::initConfiguration()
 	LLFirstUse::addConfigVariable("FirstMap");
 	LLFirstUse::addConfigVariable("FirstGoTo");
 	LLFirstUse::addConfigVariable("FirstBuild");
-	LLFirstUse::addConfigVariable("FirstLeftClickNoHit");
+//	LLFirstUse::addConfigVariable("FirstLeftClickNoHit");
 	LLFirstUse::addConfigVariable("FirstTeleport");
 	LLFirstUse::addConfigVariable("FirstOverrideKeys");
 	LLFirstUse::addConfigVariable("FirstAttach");
@@ -2061,10 +2022,9 @@ bool LLAppViewer::initConfiguration()
     const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
     if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
     {   
-        gDirUtilp->setSkinFolder(skinfolder->getValue().asString());
-
-		gSavedSettings.setString("SkinningSettingsFile",
-			gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("UserSkin", "Skinning")));
+		// hack to force the skin to default.
+        //gDirUtilp->setSkinFolder(skinfolder->getValue().asString());
+		gDirUtilp->setSkinFolder("default");
     }
 
     mYieldTime = gSavedSettings.getS32("YieldTime");
@@ -2288,10 +2248,10 @@ bool LLAppViewer::initWindow()
 		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
 		FALSE, ignorePixelDepth);
 		
-	if (!gSavedSettings.getBOOL("NotFullScreen"))
+	if (gSavedSettings.getBOOL("WindowFullScreen"))
 	{
+		// request to go full screen... which will be delayed until login
 		gViewerWindow->toggleFullscreen(FALSE);
-			// request to go full screen... which will be delayed until login
 	}
 	
 	if (gSavedSettings.getBOOL("WindowMaximized"))
@@ -2939,12 +2899,14 @@ bool LLAppViewer::initCache()
 		gDirUtilp->setCacheDir(gSavedSettings.getString("CacheLocation"));
 		purgeCache(); // purge old cache
 		gSavedSettings.setString("CacheLocation", new_cache_location);
+		gSavedSettings.setString("CacheLocationTopFolder", gDirUtilp->getBaseFileName(new_cache_location));
 	}
 	
 	if (!gDirUtilp->setCacheDir(gSavedSettings.getString("CacheLocation")))
 	{
 		LL_WARNS("AppCache") << "Unable to set cache location" << LL_ENDL;
 		gSavedSettings.setString("CacheLocation", "");
+		gSavedSettings.setString("CacheLocationTopFolder", "");
 	}
 	
 	if (mPurgeCache)
@@ -3937,20 +3899,20 @@ void LLAppViewer::disconnectViewer()
 		LLSelectMgr::getInstance()->deselectAll();
 	}
 
-	if (!gNoRender)
+	// save inventory if appropriate
+	gInventory.cache(gInventory.getRootFolderID(), gAgent.getID());
+	if (gInventory.getLibraryRootFolderID().notNull()
+		&& gInventory.getLibraryOwnerID().notNull())
 	{
-		// save inventory if appropriate
-		gInventory.cache(gAgent.getInventoryRootID(), gAgent.getID());
-		if(gInventoryLibraryRoot.notNull() && gInventoryLibraryOwner.notNull())
-		{
-			gInventory.cache(gInventoryLibraryRoot, gInventoryLibraryOwner);
-		}
+		gInventory.cache(
+			gInventory.getLibraryRootFolderID(),
+			gInventory.getLibraryOwnerID());
 	}
 
 	saveNameCache();
 
 	// close inventory interface, close all windows
-	LLInventoryView::cleanup();
+	LLFloaterInventory::cleanup();
 
 	gAgentWearables.cleanup();
 
@@ -4106,6 +4068,9 @@ void LLAppViewer::handleLoginComplete()
 	{
 		gDebugInfo["MainloopTimeoutState"] = LLAppViewer::instance()->mMainloopTimeout->getState();
 	}
+
+	mOnLoginCompleted();
+
 	writeDebugInfo();
 }
 
@@ -4268,3 +4233,4 @@ void LLAppViewer::launchUpdater()
 	// *REMOVE:Mani - Saving for reference...
 	// LLAppViewer::instance()->forceQuit();
 }
+

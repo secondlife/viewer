@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- background_visible="true"
  bevel_style="in"
- bg_alpha_color="0.5 0.5 0.5 1"
  follows="left|top|right|bottom"
- height="705"
+ height="625"
  label="Profile"
  layout="topleft"
  left="10"
  mouse_opaque="false"
  name="panel_profile"
  top="10"
- width="355">
+ width="305">
     <panel.string
      name="CaptionTextAcctInfo">
         [ACCTTYPE] [PAYMENTINFO] [AGEVERIFICATION]
@@ -52,102 +50,363 @@
      name="NotAgeVerified">
         Not Age-verified
     </panel.string>
+    <panel.string
+     name="payment_update_link_url">
+        http://www.secondlife.com/account/billing.php?lang=en
+    </panel.string>
+    <panel.string
+     name="my_account_link_url">
+        http://secondlife.com/account
+    </panel.string>
+    <panel.string
+     name="partner_edit_link_url">
+        http://www.secondlife.com/account/partners.php?lang=en
+    </panel.string>
+    <panel.string
+     name="no_partner_text">
+        None
+    </panel.string>
     <scroll_container
+     color="DkGray2"
      follows="left|top|right|bottom"
-     height="690"
+     height="570"
      layout="topleft"
-     left="1"
-	 name="profile_scroll"
-     width="354">
-        <panel
-         height="710"
+     left="8"
+     name="profile_scroll"
+     opaque="true"
+     reserve_scroll_corner="false"
+     width="260">
+         <panel
+         height="680"
          layout="topleft"
          left="0"
          top="0"
-         width="320">
-            <panel
-             follows="left|top"
-             height="120"
-             layout="topleft"
-             left="9"
-             name="lifes_images_panel"
-             top_pad="15"
+         width="280">
+            <text 
+             type="string"
+             follows="top|left|right"
+             font="SansSerifHugeBold" 
+             height="20" 
+             layout="topleft" 
+             left="9" 
+             name="user_name" 
+             text_color="white" 
+             top="0" 
+             mouse_opaque="true" 
              width="250">
-                <panel
+              (Loading...)
+            </text> 
+               <panel
                  follows="left|top"
-                 height="120"
+                 height="100"
                  layout="topleft"
-                 left="0"
+                 left="10"
                  name="second_life_image_panel"
-                 top="0"
-                 width="125">
-                    <text
-                     type="string"
-                     follows="left|top|right|bottom"
-                     font="SansSerifBold"
-                     height="20"
-                     layout="topleft"
-                     left="0"
-                     name="first_life_photo_title_text"
-                     text_color="white"
-                     top="0"
-                     width="125">
-                        Second Life photo:
-                    </text>
+                 top="20"
+                 width="250">
                     <texture_picker
                      allow_no_texture="true"
                      default_image_name="None"
                      enabled="false"
                      follows="top|left"
-                     height="105"
+                     height="100"
                      layout="topleft"
                      left="0"
                      name="2nd_life_pic"
-                     top_pad="5"
-                     width="105" />
+                     top="0"
+                     width="100" />
+                    <text
+             type="string"
+             follows="left|top"
+             font="SansSerifBold"
+             height="15"
+             layout="topleft"
+             left_pad="10"
+             name="title_sl_descr_text"
+             text_color="white"
+             top_delta="0"
+             width="125">
+                Second Life:
+            </text>
+            <text
+             type="string"
+             top_pad="4"
+             follows="left|top|right"
+             font="SansSerifSmall"
+             height="75"
+             layout="topleft"
+             left_delta="0"
+             name="sl_description_edit"
+             text_color="LtGray"
+             width="125"
+             word_wrap="true">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+            </text>
                 </panel>
                 <panel
                  follows="left|top"
-                 height="120"
+                 height="100"
                  layout="topleft"
-                 left_pad="1" 
+                 left="10" 
                  name="first_life_image_panel"
-                 top="0"
+                 top_pad="20"
                  width="125">
-                    <text
-                     type="string"
-                     follows="left|top|right|bottom"
-                     font="SansSerifBold"
-                     height="20"
-                     layout="topleft"
-                     left="0"
-                     name="second_life_photo_title_text"
-                     text_color="white"
-                     top="0"
-                     width="125">
-                        First Life photo:
-                    </text>
                     <texture_picker
                      allow_no_texture="true"
                      default_image_name="None"
                      enabled="false"
                      follows="top|left"
-                     height="105"
+                     height="100"
                      layout="topleft"
                      left="0"
-                     name="1st_life_pic"
-                     top_pad="5"
-                     width="105" />
-                </panel>
-            </panel>
+                     name="real_world_pic"
+                     top_pad="0"
+                     width="100" />
+                    <text
+             type="string"
+             follows="left|top"
+             font="SansSerifBold"
+             height="15"
+             layout="topleft"
+             left_pad="10"
+             name="title_rw_descr_text"
+             text_color="white"
+             top_delta="0"
+             width="125">
+                Real World:
+            </text>
+            <text
+             type="string"
+             follows="left|top|right"
+             font="SansSerifSmall"
+             height="45"
+             layout="topleft"
+             left_delta="0"
+             top_pad="10"
+             name="fl_description_edit"
+             text_color="LtGray"
+             width="125"
+             word_wrap="true">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+            </text>
+                  </panel>
+            <text
+             type="string"
+             follows="left|top"
+             font="SansSerifBold"
+             height="15"
+             layout="topleft"
+             halign="right"
+             left="10"
+             name="title_groups_text"
+             text_color="white"
+             top_pad="20"
+             width="100">
+                Groups:
+            </text>
+            <text
+             type="string"
+             follows="left|top|right"
+             font="SansSerifSmall"
+             height="45"
+             layout="topleft"
+             left_pad="10"
+             top_delta="0"
+             name="sl_groups"
+             text_color="LtGray"
+             width="125"
+             word_wrap="true">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
+            </text>
+            <text
+             type="string"
+             follows="left|top"
+             font="SansSerifBold"
+             height="15"
+             halign="right"
+             layout="topleft"
+             left="10"
+             name="title_homepage_text"
+             text_color="white"
+             top_pad="20"
+             width="100">
+                Homepage:
+            </text>
+            <text
+             type="string"
+             follows="left|top|right"
+             font="SansSerifSmall"
+             font.style="UNDERLINE"
+             font_shadow="hard" 
+             height="15"
+             top_delta="0"
+             layout="topleft"
+             left_pad="10"
+             name="homepage_edit"
+             text_color="0.2 0.2 1 1"
+             width="125">
+                TODO
+            </text>
+            <text
+             type="string"
+             follows="left|top"
+             font="SansSerifBold"
+             height="15"
+             halign="right"
+             layout="topleft"
+             left="10"
+             name="title_member_text"
+             text_color="white"
+             top_pad="20"
+             width="100">
+                Member since:
+            </text>
+            <text
+             type="string"
+             follows="left|top|right"
+             font="SansSerifSmall"
+             height="15"
+             layout="topleft"
+             left_pad="10"
+             top_delta="0"
+             name="register_date"
+             text_color="LtGray"
+             width="125"
+             word_wrap="true">
+                05/31/1976
+            </text>
+            <text
+             type="string"
+             follows="left|top"
+             font="SansSerifBold"
+             height="15"
+             halign="right"
+             layout="topleft"
+             left="10"
+             top_pad="20"
+             name="title_acc_status_text"
+             text_color="white"
+             width="100">
+                Account status:
+            </text>
+            <text
+             type="string"
+             follows="left|top|right"
+             font="SansSerifSmall"
+             height="30"
+             layout="topleft"
+             left_pad="10"
+             top_delta="0"
+             name="acc_status_text"
+             text_color="LtGray"
+             width="125"
+             word_wrap="true">
+                Resident. No payment info on file.
+            </text>
+           <text
+             type="string"
+             follows="left|top"
+             font="SansSerifBold"
+             height="15"
+             halign="right"
+             layout="topleft"
+             name="title_partner_text"
+             text_color="white"
+             top_pad="20"
+             left="10"
+             width="100">
+                Partner:
+            </text>
             <panel
+             follows="left|top|right"
+             height="15"
+             layout="topleft"
+             left_pad="10"
+             top_delta="0"
+             name="partner_data_panel"
+             width="125">
+                <text
+                 type="string"
+                 follows="left|top|right"
+                 font="SansSerifSmall"
+                 height="15"
+                 layout="topleft"
+                 left="0"
+                 name="partner_text"
+                 text_color="LtGray"
+                 top="0"
+                 width="125"
+                 word_wrap="true">
+                    [FIRST] [LAST]
+                </text>
+                <text
+                 type="string"
+                 follows="top|right"
+                 font="SansSerifSmall"
+                 font.style="UNDERLINE"
+                 font_shadow="hard" 
+                 height="15"
+                 layout="topleft"
+                 left_delta="0"
+                 name="partner_edit_link"
+                 text_color="0.2 0.2 1 1"
+                 top_delta="15"
+                 width="40">
+                    Edit
+                </text>
+            </panel>
+           
+           <panel
+             follows="left|top|right"
+             height="15"
+             layout="topleft"
+             left="50"
+             top_pad="40"
+             name="account_actions_panel"
+             width="200">
+                <text
+                 type="string"
+                 follows="left|top"
+                 font="SansSerif"
+                 font.style="UNDERLINE"
+                 font_shadow="hard" 
+                 height="15"
+                 layout="topleft"
+                 left="0"
+                 name="payment_update_link"
+                 text_color="0.2 0.2 1 1"
+                 top="0"
+                 width="100">
+                    Update
+                </text>
+                <text
+                 type="string"
+                 follows="left|top"
+                 font="SansSerif"
+                 font.style="UNDERLINE"
+                 font_shadow="hard" 
+                 height="15"
+                 layout="topleft"
+                 left="70"
+                 name="my_account_link"
+                 text_color="0.2 0.2 1 1"
+                 top="0"
+                 width="80">
+                    My Account
+                </text>
+            </panel>
+           
+           
+           
+           <!--
+           <panel
              follows="left|top|right"
              height="30"
              layout="topleft"
              left="0"
              name="status_panel"
-             top="135"
-             width="300">
+             top="155"
+             width="260">
                 <text
                  follows="left|top"
                  font="SansSerifBold"
@@ -160,7 +419,6 @@
                  width="100" />
                 <text
                  type="string"
-                 length="1"
                  follows="left|top"
                  font="SansSerifBold"
                  font.style="ITALIC"
@@ -169,25 +427,26 @@
                  left="9"
                  name="status_message"
                  text_color="0.1 0.1 0.1 1"
-                 width="300">
-                    <!--TBD-->
+                 width="280">
+                    TBD
                  </text>
-            </panel>
+        </panel>  -->
             <panel
              follows="left|top|right"
              height="80"
              layout="topleft"
              left="0"
              name="status_me_panel"
-             top="135"
-             width="300">
+             top_pad="20"
+             width="125">
                 <text
                  type="string"
                  follows="left|top"
                  font="SansSerifBold"
                  height="15"
+                 halign="right"
                  layout="topleft"
-                 left="9"
+                 left="10"
                  name="online_me_status_text"
                  text_color="white"
                  width="100">
@@ -197,17 +456,21 @@
                  font="SansSerifBold"
                  height="18"
                  layout="topleft"
-                 left="10"
+                 left_pad="10"
+                 top_delta="0"
                  name="status_combo"
-                 width="150">
+                 width="100">
                     <combo_box.item
                      label="Online"
+                     name="online"
                      value="online" />
                     <combo_box.item
                      label="Away"
+                     name="away"
                      value="away" />
                     <combo_box.item
                      label="Busy"
+                     name="busy"
                      value="busy" />
                 </combo_box>
                 <text
@@ -216,14 +479,14 @@
                  font="SansSerifBold"
                  height="15"
                  layout="topleft"
-                 left="9"
+                 left="10"
+                 top_pad="20"
                  name="status_me_message_text"
                  text_color="white"
-                 width="300">
+                 width="250">
                     What&apos;re you up to?
                 </text>
                 <line_editor
-                 type="string"
                  border_style="line"
                  border_thickness="1"
                  follows="left|top|right"
@@ -231,344 +494,112 @@
                  font.style="ITALIC"
                  height="20"
                  layout="topleft"
-                 left="9"
+                 left="10"
+                 top_pad="10"
                  name="status_me_message_edit"
                  select_on_focus="true"
                  text_color="0.5 0.5 0.5 1"
-                 width="300">
+                 width="250">
                     Type a message about what you&apos;re doing in SL!
                 </line_editor>
             </panel>
-            <text
-             type="string"
-
-             follows="left|top"
-             font="SansSerifBold"
-             height="15"
-             layout="topleft"
-             left="9"
-             name="title_sl_descr_text"
-             text_color="white"
-             top_pad="10"
-             width="290">
-                Second Life description:
-            </text>
-            <text
-             type="string"
-             follows="left|top|right"
-             font="SansSerif"
-             height="45"
-             layout="topleft"
-             left="9"
-             name="sl_description_edit"
-             text_color="0.1 0.1 0.1 1"
-             width="290"
-             word_wrap="true">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-            </text>
-            <text
-             type="string"
-             follows="left|top"
-             font="SansSerifBold"
-             height="15"
-             layout="topleft"
-             left="9"
-             name="title_fl_descr_text"
-             text_color="white"
-             top_pad="10"
-             width="290">
-                First Life description:
-            </text>
-            <text
-             type="string"
-             follows="left|top|right"
-             font="SansSerif"
-             height="45"
-             layout="topleft"
-             left="9"
-             name="fl_description_edit"
-             text_color="0.1 0.1 0.1 1"
-             width="290"
-             word_wrap="true">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-            </text>
-            <text
-             type="string"
-             follows="left|top"
-             font="SansSerifBold"
-             height="15"
-             layout="topleft"
-             left="9"
-             name="title_groups_text"
-             text_color="white"
-             top_pad="10"
-             width="290">
-                Second Life groups:
-            </text>
-            <text
-             type="string"
-             follows="left|top|right"
-             font="SansSerif"
-             height="45"
-             layout="topleft"
-             left="9"
-             name="sl_groups"
-             text_color="0.1 0.1 0.1 1"
-             width="290"
-             word_wrap="true">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-            </text>
-            <text
-             type="string"
-             follows="left|top"
-             font="SansSerifBold"
-             height="15"
-             layout="topleft"
-             left="9"
-             name="title_homepage_text"
-             text_color="white"
-             top_pad="10"
-             width="100">
-                Homepage:
-            </text>
-            <text
-             type="string"
-             follows="left|top|right"
-             font="SansSerif"
-             font.style="UNDERLINE"
-             height="15"
-             layout="topleft"
-             left="9"
-             name="homepage_edit"
-             text_color="0.2 0.2 1 1"
-             width="290">
-                TODO
-            </text>
-            <text
-             type="string"
-             follows="left|top"
-             font="SansSerifBold"
-             height="15"
-             layout="topleft"
-             left="9"
-             name="title_member_text"
-             text_color="white"
-             top_pad="10"
-             width="100">
-                Member since:
-            </text>
-            <text
-             type="string"
-             follows="left|top|right"
-             font="SansSerif"
-             height="15"
-             layout="topleft"
-             left="9"
-             name="register_date"
-             text_color="0.1 0.1 0.1 1"
-             width="290"
-             word_wrap="true">
-                05/31/1976
-            </text>
-            <text
-             type="string"
-             follows="left|top"
-             font="SansSerifBold"
-             height="15"
-             layout="topleft"
-             left="9"
-             name="title_acc_status_text"
-             text_color="white"
-             top_pad="10"
-             width="100">
-                Account status:
-            </text>
-            <text
-             type="string"
-             follows="left|top|right"
-             font="SansSerif"
-             height="30"
-             layout="topleft"
-             left="9"
-             name="acc_status_text"
-             text_color="0.1 0.1 0.1 1"
-             width="290"
-             word_wrap="true">
-                Resident. No payment info on file.
-            </text>
-            <panel
-             follows="left|top|right"
-             height="15"
-             layout="topleft"
-             left="9"
-             name="account_actions_panel"
-             width="335">
-                <text
-                 type="string"
-                 follows="left|top"
-                 font="SansSerif"
-                 font.style="UNDERLINE"
-                 height="15"
-                 layout="topleft"
-                 left="0"
-                 name="my_account_link"
-                 text_color="0.2 0.2 1 1"
-                 top="0"
-                 width="65">
-                    Update
-                </text>
-                <text
-                 type="string"
-                 follows="left|top"
-                 font="SansSerif"
-                 font.style="UNDERLINE"
-                 height="15"
-                 layout="topleft"
-                 left="70"
-                 name="my_account_link"
-                 text_color="0.2 0.2 1 1"
-                 top="0"
-                 width="80">
-                    My Account
-                </text>
+            
+         
+            
+            
             </panel>
-            <text
-             type="string"
-             follows="left|top"
-             font="SansSerifBold"
-             height="15"
-             layout="topleft"
-             name="title_partner_text"
-             text_color="white"
-             top_pad="10"
-             width="100">
-                Partner:
-            </text>
-            <panel
-             follows="left|top|right"
-             height="15"
-             layout="topleft"
-             left="9"
-             name="partner_data_panel"
-             width="335">
-                <text
-                 type="string"
-                 follows="left|top|right"
-                 font="SansSerif"
-                 height="15"
-                 layout="topleft"
-                 left="0"
-                 name="partner_text"
-                 text_color="0.1 0.1 0.1 1"
-                 top="0"
-                 width="290"
-                 word_wrap="true">
-                    [FIRST] [LAST]
-                </text>
-                <text
-                 type="string"
-                 follows="top|right"
-                 font="SansSerif"
-                 font.style="UNDERLINE"
-                 halign="right"
-                 height="15"
-                 layout="topleft"
-                 left="270"
-                 name="partner_edit_link"
-                 text_color="0.2 0.2 1 1"
-                 top="0"
-                 width="40">
-                    Edit
-                </text>
-            </panel>
-            <panel
-             follows="left|top"
-             height="30"
-             layout="topleft"
-             name="profile_buttons_panel"
-             width="350">
-                <button
-                 follows="bottom|left"
-                 font="SansSerifSmallBold"
-                 height="25"
-                 label="Add Friend"
-                 layout="topleft"
-                 left="5"
-                 mouse_opaque="false"
-                 name="add_friend"
-                 top="0"
-                 width="75" />
-                <button
-                 follows="bottom|left"
-                 font="SansSerifSmallBold"
-                 height="25"
-                 label="IM"
-                 layout="topleft"
-                 left_pad="5"
-                 name="im"
-                 top_delta="0"
-                 width="40" />
-                <button
-                 enabled="false"
-                 follows="bottom|left"
-                 font="SansSerifSmallBold"
-                 height="25"
-                 label="Call"
-                 layout="topleft"
-                 left_pad="5"
-                 name="call"
-                 top_delta="0"
-                 width="50" />
-                <button
-                 follows="bottom|left"
-                 font="SansSerifSmallBold"
-                 height="25"
-                 label="Teleport"
-                 layout="topleft"
-                 left_pad="5"
-                 name="teleport"
-                 top_delta="0"
-                 width="65" />
-                <button
-                 enabled="false"
-                 follows="bottom|left"
-                 font="SansSerifSmallBold"
-                 height="25"
-                 label="Share"
-                 layout="topleft"
-                 left_pad="15"
-                 name="share"
-                 top_delta="0"
-                 width="50" />
-            </panel>
-            <panel
-             follows="left|top"
-             height="30"
-             layout="topleft"
-             name="profile_me_buttons_panel"
-			 visible="false"
-             width="350">
-                <button
-                 follows="bottom|left"
-                 font="SansSerifSmallBold"
-                 height="25"
-                 label="Edit Profile"
-                 layout="topleft"
-                 left="0"
-                 name="edit_profile_btn"
-                 top="0"
-                 width="105" />
-                <button
-                 follows="bottom|left"
-                 font="SansSerifSmallBold"
-                 height="25"
-                 label="Edit Appearance"
-                 layout="topleft"
-                 left_pad="15"
-                 name="edit_appearance_btn"
-                 top_delta="0"
-                 width="130" />
-            </panel>
-        </panel>
+            
     </scroll_container>
+    <panel
+     bottom="625"
+     follows="bottom|left"
+     height="30"
+     layout="topleft"
+     left="8"
+     name="profile_buttons_panel"
+     width="280">
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Add Friend"
+         layout="topleft"
+         left="0"
+         mouse_opaque="false"
+         name="add_friend"
+         top="0"
+         width="90" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="IM"
+         layout="topleft"
+         left_pad="0"
+         name="im"
+         top="0"
+         width="40" />
+        <button
+         enabled="false"
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Call"
+         layout="topleft"
+         left_pad="0"
+         name="call"
+         top="0"
+         width="50" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Teleport"
+         layout="topleft"
+         left_pad="0"
+         name="teleport"
+         top="0"
+         width="75" />
+        <button
+         enabled="false"
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Share"
+         layout="topleft"
+         left_pad="0"
+         name="share"
+         top="0"
+         width="60" />
+    </panel> 
+   <panel
+     bottom="625"
+     follows="bottom|left"
+     height="30"
+     layout="topleft"
+     left="8"
+     name="profile_me_buttons_panel"
+     visible="false"
+     width="345">
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Edit Profile"
+         layout="topleft"
+         left="0"
+         name="edit_profile_btn"
+         top="0"
+         width="105" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Edit Appearance"
+         layout="topleft"
+         left_pad="5"
+         name="edit_appearance_btn"
+         top="0"
+         width="130" />
+    </panel> 
 </panel>

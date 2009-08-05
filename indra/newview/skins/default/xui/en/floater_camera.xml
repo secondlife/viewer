@@ -7,6 +7,7 @@
  layout="topleft"
  name="camera_floater"
  save_rect="true"
+ save_visibility="true"
  width="176">
     <floater.string
      name="rotate_tooltip">

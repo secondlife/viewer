@@ -35,7 +35,7 @@
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llfloatercustomize.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llinventorymodel.h"
 #include "llviewerregion.h"
 #include "llvoavatar.h"
@@ -156,7 +156,7 @@ BOOL LLWearable::exportFile(LLFILE* file) const
 	for (te_map_t::const_iterator iter = mTEMap.begin(); iter != mTEMap.end(); ++iter)
 	{
 		S32 te = iter->first;
-		const LLUUID& image_id = iter->second;
+		const LLUUID& image_id = iter->second.getID();
 		if( fprintf( file, "%d %s\n", te, image_id.asString().c_str()) < 0 )
 		{
 			return FALSE;
@@ -350,7 +350,8 @@ BOOL LLWearable::importFile( LLFILE* file )
 			return FALSE;
 		}
 
-		mTEMap[te] = LLUUID(text_buffer );
+		//TODO: check old values
+		mTEMap[te] = LLLocalTextureObject(NULL, NULL, NULL, LLUUID(text_buffer));
 	}
 
 	return TRUE;
@@ -459,16 +460,21 @@ BOOL LLWearable::isDirty() const
 	{
 		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
-			LLViewerImage* avatar_image = avatar->getTEImage( te );
+			LLViewerTexture* avatar_image = avatar->getTEImage( te );
 			if( !avatar_image )
 			{
 				llassert( 0 );
 				continue;
 			}
-			const LLUUID& image_id = get_if_there(mTEMap,  te, LLVOAvatarDictionary::getDefaultTextureImageID((ETextureIndex) te));
-			if( avatar_image->getID() != image_id )
+	
+			te_map_t::const_iterator iter = mTEMap.find(te);
+			if(iter != mTEMap.end())
 			{
-				return TRUE;
+ 				const LLUUID& image_id = iter->second.getID();
+ 				if (avatar_image->getID() != image_id)
+ 				{
+ 					return TRUE;
+ 				}
 			}
 		}
 	}
@@ -511,7 +517,7 @@ void LLWearable::setTexturesToDefaults()
 	{
 		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
-			mTEMap[te] = LLVOAvatarDictionary::getDefaultTextureImageID((ETextureIndex) te);
+			mTEMap[te] = LLLocalTextureObject(NULL, NULL, NULL, LLVOAvatarDictionary::getDefaultTextureImageID((ETextureIndex) te));
 		}
 	}
 }
@@ -558,8 +564,17 @@ void LLWearable::writeToAvatar( BOOL set_by_user )
 	{
 		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
-			const LLUUID& image_id = get_if_there(mTEMap, te, LLVOAvatarDictionary::getDefaultTextureImageID((ETextureIndex) te));
-			LLViewerImage* image = gImageList.getImage( image_id );
+			te_map_t::const_iterator iter = mTEMap.find(te);
+			LLUUID image_id;
+			if(iter != mTEMap.end())
+			{
+				image_id = iter->second.getID();
+			}
+			else
+			{	
+				image_id = LLVOAvatarDictionary::getDefaultTextureImageID((ETextureIndex) te);
+			}
+			LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( image_id, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE );
 			avatar->setLocalTextureTE(te, image, set_by_user);
 		}
 	}
@@ -570,7 +585,7 @@ void LLWearable::writeToAvatar( BOOL set_by_user )
 	{
 		LLViewerInventoryItem* item;
 		// MULTI_WEARABLE:
-		item = (LLViewerInventoryItem*)gInventory.getItem(gAgentWearables.getWearableItem(mType,0));
+		item = (LLViewerInventoryItem*)gInventory.getItem(gAgentWearables.getWearableItemID(mType,0));
 		U32 perm_mask = PERM_NONE;
 		BOOL is_complete = FALSE;
 		if(item)
@@ -631,7 +646,7 @@ void LLWearable::removeFromAvatar( EWearableType type, BOOL set_by_user )
 	}
 
 	// Pull textures
-	LLViewerImage* image = gImageList.getImage( IMG_DEFAULT_AVATAR );
+	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( IMG_DEFAULT_AVATAR );
 	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
 		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == type)
@@ -682,10 +697,10 @@ void LLWearable::readFromAvatar()
 	{
 		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
-			LLViewerImage* image = avatar->getTEImage( te );
+			LLViewerTexture* image = avatar->getTEImage( te );
 			if( image )
 			{
-				mTEMap[te] = image->getID();
+				mTEMap[te] = LLLocalTextureObject(NULL, NULL, NULL, image->getID());
 			}
 		}
 	}
@@ -733,9 +748,51 @@ void LLWearable::copyDataFrom(const LLWearable* src)
 	{
 		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
-			const LLUUID& image_id = get_if_there(src->mTEMap, te, LLVOAvatarDictionary::getDefaultTextureImageID((ETextureIndex) te));
-			mTEMap[te] = image_id;
+			te_map_t::const_iterator iter = mTEMap.find(te);
+			LLUUID image_id;
+			if(iter != mTEMap.end())
+			{
+				image_id = iter->second.getID();
+			}
+			else
+			{
+				image_id = LLVOAvatarDictionary::getDefaultTextureImageID((ETextureIndex) te);
+			}
+			mTEMap[te] = LLLocalTextureObject(NULL, NULL, NULL, image_id);
 		}
+	}
+}
+
+void LLWearable::setItemID(const LLUUID& item_id)
+{
+	mItemID = item_id;
+}
+
+const LLUUID& LLWearable::getItemID() const
+{
+	return mItemID;
+}
+
+LLLocalTextureObject* LLWearable::getLocalTextureObject(S32 index) const
+{
+	te_map_t::const_iterator iter = mTEMap.find(index);
+	if( iter != mTEMap.end() )
+	{
+		return (LLLocalTextureObject*) &iter->second;
+	}
+	return NULL;
+}
+
+void LLWearable::setLocalTextureObject(S32 index, LLLocalTextureObject *lto)
+{
+	if( lto )
+	{
+		LLLocalTextureObject obj(*lto);
+		mTEMap[index] = obj;
+	}
+	else
+	{
+		mTEMap.erase(index);
 	}
 }
 
@@ -849,7 +906,7 @@ std::ostream& operator<<(std::ostream &s, const LLWearable &w)
 		 iter != w.mTEMap.end(); ++iter)
 	{
 		S32 te = iter->first;
-		const LLUUID& image_id = iter->second;
+		const LLUUID& image_id = iter->second.getID();
 		s << "        " << te << " " << image_id << "\n";
 	}
 	return s;

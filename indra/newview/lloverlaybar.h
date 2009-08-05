@@ -85,7 +85,6 @@ public:
 protected:	
 	static void* createMediaRemote(void* userdata);
 	static void* createVoiceRemote(void* userdata);
-	static void* createChatBar(void* userdata);
 
 	void enableMediaButtons();
 

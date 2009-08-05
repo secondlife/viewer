@@ -3,7 +3,6 @@
  class="edit_profile_panel" 
  background_visible="true"
  bevel_style="in"
- bg_alpha_color="0.3 0.3 0.3 1"
  follows="left|top|right|bottom"
  height="690"
  label="Profile Edit"
@@ -12,7 +11,7 @@
  mouse_opaque="true"
  name="edit_profile_panel"
  top="10"
- width="355">
+ width="305">
     <text     
      top="0" 
      left="9" 
@@ -22,19 +21,19 @@
      layout="topleft"
      name="title_text"
      text_color="white"
-     width="350">
+     width="250">
       Edit Profile
     </text>
     <panel
      background_visible="true"
-     bg_alpha_color="0.6 0.6 0.6 1"
+     bg_alpha_color="DkGray2"
      follows="left|top|right|bottom"  
      height="620"
      layout="topleft"
      left="9"
      name="data_panel" 
      top_pad="10"
-     width="337">
+     width="280">
       <text
        top_pad="5" 
        left="9" 
@@ -51,10 +50,10 @@
        follows="left|top"
        height="120"
        layout="topleft"
-       left="9"
+       left="10"
        name="lifes_images_panel"
        top_pad="10"
-       width="250">
+       width="265">
           <panel
            height="120"
            layout="topleft"
@@ -70,7 +69,7 @@
                height="20"
                layout="topleft"
                left="0"
-               name="first_life_photo_title_text"
+               name="second_life_photo_title_text"
                text_color="white"
                top="0"
                width="125">
@@ -102,11 +101,11 @@
                height="20"
                layout="topleft"
                left="0"
-               name="second_life_photo_title_text"
+               name="real_world_photo_title_text"
                text_color="white"
                top="0"
                width="125">
-                  First Life photo:
+                  Real World photo:
               </text>
               <texture_picker
                allow_no_texture="true"
@@ -115,10 +114,28 @@
                height="105"
                layout="topleft"
                left="0"
-               name="1st_life_pic"
+               name="real_world_pic"
                top_pad="5"
                width="105" />
           </panel>
+          <icon
+           height="16"
+           image_name="image_edit_icon.tga"
+           layout="topleft"
+           left="75"
+           name="2nd_life_edit_icon"
+           tool_tip="Click to select an image" 
+           top="35"
+           width="16" />
+          <icon
+           height="16"
+           image_name="image_edit_icon.tga"
+           layout="topleft"
+           left="200"
+           name="real_world_edit_icon"
+           tool_tip="Click to select an image" 
+           top="35"
+           width="16" />
       </panel>
       <text
        type="string"
@@ -131,7 +148,7 @@
        name="title_sl_descr_text"
        text_color="white"
        top_pad="10" 
-       width="290">
+       width="250">
           Second Life description:
       </text>
       <text_editor
@@ -144,7 +161,7 @@
        left="9"
        name="sl_description_edit"
        text_color="0.1 0.1 0.1 1"
-       width="290"
+       width="265"
        word_wrap="true">
       </text_editor>
       <text
@@ -155,11 +172,11 @@
        height="15"
        layout="topleft"
        left="9"
-       name="title_fl_descr_text"
+       name="title_rw_descr_text"
        text_color="white"
        top_pad="10"
-       width="290">
-          First Life description:
+       width="250">
+          Real World description:
       </text>
       <text_editor
        type="string"
@@ -171,7 +188,7 @@
        left="9"
        name="fl_description_edit"
        text_color="0.1 0.1 0.1 1"
-       width="290"
+       width="265"
        word_wrap="true">
       </text_editor>
       <text
@@ -189,8 +206,6 @@
           Homepage:
       </text>
       <line_editor
-       type="string"
-       length="1"
        follows="left|top|right"
        font="SansSerif"
        font.style="UNDERLINE"
@@ -199,23 +214,25 @@
        left="9"
        name="homepage_edit"
        text_color="0.2 0.2 1 1"
-       width="290">
+       width="265">
           TODO
       </line_editor>
       <check_box
        follows="left|top"
+       font="SansSerifBold"
        label="Show me in Search results" 
        layout="topleft"
        left="9"
        name="show_in_search_checkbox"
        height="16"
+       text_enabled_color="white"
        top_pad="10" 
        width="250"/>
     </panel>
     <panel      
        follows="bottom|right"
        height="30"
-       left="96"
+       left="10"
        name="profile_me_buttons_panel"
        top_pad="8"
        width="250">

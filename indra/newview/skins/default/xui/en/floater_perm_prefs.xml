@@ -24,7 +24,11 @@
          left="260"
          name="help"
          top="7"
-         width="22" />
+         width="22">
+            <button.commit_callback
+            function="Notification.Show" 
+			parameter="ClickUploadHelpPermissions" />
+        </button>
         <check_box
          control_name="ShareWithGroup"
          height="16"
@@ -72,8 +76,12 @@
          left_delta="78"
          name="next_owner_copy"
          top_delta="0"
-         width="88" />
+         width="88" >
+		    <check_box.commit_callback
+			function="Perms.Copy" />
+		</check_box>
         <check_box
+		 enabled_control="NextOwnerCopy"
          control_name="NextOwnerTransfer"
          enabled="false"
          height="16"
@@ -93,7 +101,10 @@
      left="90"
      name="ok"
      top="150"
-     width="100" />
+     width="100">
+		<button.commit_callback
+		function="Perms.OK" />
+	</button>
     <button
      height="20"
      label="Cancel"
@@ -102,5 +113,8 @@
      left_pad="5"
      name="cancel"
      top_delta="0"
-     width="100" />
+     width="100">
+		<button.commit_callback
+		function="Perms.Cancel" />
+	</button>
 </floater>

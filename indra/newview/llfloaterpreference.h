@@ -87,8 +87,8 @@ protected:
 	void		onBtnApply();
 	void		onOpenHelp();
 
-	static void		onClickClearCache(void*);
-	static void		onClickBrowserClearCache(void*);
+//	void		onClickClearCache();
+	void		onClickBrowserClearCache();
 
 	// if the custom settings box is clicked
 	void onChangeCustom();
@@ -112,6 +112,7 @@ public:
 	void onClickSkipDialogs();
 	void onClickResetDialogs();
 	void onClickEnablePopup();
+	void onClickDisablePopup();	
 	void resetAllIgnored();
 	void setAllIgnored();
 	void onClickLogPath();	
@@ -163,6 +164,9 @@ public:
 private:
 	typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
 	control_values_map_t mSavedValues;
+
+	typedef std::map<std::string, LLColor4> string_color_map_t;
+	string_color_map_t mSavedColors;
 };
 
 #endif  // LL_LLPREFERENCEFLOATER_H

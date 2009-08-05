@@ -64,9 +64,10 @@ public:
 
 	/* virtual */ bool isAlive() const;
 	/* virtual */ void reset();
-	/* virtual */ void start(const std::string& state); 
+	/* virtual */ void start() { start(""); }
 	/* virtual */ void stop();
 
+	void start(const std::string& state); 
 	void setTimeout(F32 d);
 	void ping(const std::string& state);
 	const std::string& getState() {return mPingState; }

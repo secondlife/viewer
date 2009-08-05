@@ -34,43 +34,40 @@
 
 #include "llpanelplaceinfo.h"
 
-// *TODO: reorder includes to match the coding standard
-#include "llinventory.h"
-#include "llviewercontrol.h"
-#include "llqueryflags.h"
-#include "llui.h"
+#include "roles_constants.h"
+#include "llsdutil.h"
 #include "llsecondlifeurls.h"
-#include "llfloater.h"
-#include "llfloaterreg.h"
+
+#include "llinventory.h"
+#include "llparcel.h"
+
+#include "llqueryflags.h"
+
+#include "llbutton.h"
+#include "lllineeditor.h"
+#include "llscrollcontainer.h"
+#include "lltextbox.h"
 
 #include "llagent.h"
-#include "llviewerwindow.h"
-#include "llviewerinventory.h"
-#include "llbutton.h"
 #include "llfloaterworldmap.h"
-#include "lllineeditor.h"
 #include "llinventorymodel.h"
-#include "lluiconstants.h"
-#include "roles_constants.h"
-#include "lltextbox.h"
-#include "llviewertexteditor.h"
 #include "lltexturectrl.h"
-#include "lltrans.h"
-#include "llworldmap.h"
+#include "llviewerinventory.h"
+#include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
-#include "lluictrlfactory.h"
-#include "llweb.h"
-#include "llsdutil.h"
+#include "llviewertexteditor.h"
+#include "llworldmap.h"
 #include "llsdutil_math.h"
 
-static LLRegisterPanelClassWrapper<LLPanelPlaceInfo> t_places("panel_landmark_info");
+static LLRegisterPanelClassWrapper<LLPanelPlaceInfo> t_place_info("panel_place_info");
 
 LLPanelPlaceInfo::LLPanelPlaceInfo()
 :	LLPanel(),
 	mParcelID(),
 	mRequestedID(),
 	mPosRegion(),
-	mLandmarkID()
+	mLandmarkID(),
+	mMinHeight(0)
 {}
 
 LLPanelPlaceInfo::~LLPanelPlaceInfo()
@@ -83,6 +80,9 @@ LLPanelPlaceInfo::~LLPanelPlaceInfo()
 
 BOOL LLPanelPlaceInfo::postBuild()
 {
+	mTitle = getChild<LLTextBox>("panel_title");
+	mCurrentTitle = mTitle->getText();
+
 	// Since this is only used in the directory browser, always
 	// disable the snapshot control. Otherwise clicking on it will
 	// open a texture picker.
@@ -105,7 +105,14 @@ BOOL LLPanelPlaceInfo::postBuild()
 	mNotesEditor->setCommitCallback(boost::bind(&LLPanelPlaceInfo::onCommitTitleOrNote, this, NOTE));
 	mNotesEditor->setCommitOnFocusLost(true);
 
-	mInfoPanel = getChild<LLPanel>("info_panel");
+	LLScrollContainer* scroll_container = getChild<LLScrollContainer>("scroll_container");
+	scroll_container->setBorderVisible(FALSE);
+	mMinHeight = scroll_container->getScrolledViewRect().getHeight();
+
+	mScrollingPanel = getChild<LLPanel>("scrolling_panel");
+
+	mInfoPanel = getChild<LLPanel>("info_panel", TRUE, FALSE);
+	mMediaPanel = getChild<LLMediaPanel>("media_panel", TRUE, FALSE);
 
 	return TRUE;
 }
@@ -217,6 +224,8 @@ void LLPanelPlaceInfo::resetLocation()
 	mCreated->setText(not_available);
 	mTitleEditor->setText(LLStringUtil::null);
 	mNotesEditor->setText(LLStringUtil::null);
+	mSnapshotCtrl->setImageAssetID(LLUUID::null);
+	mSnapshotCtrl->setFallbackImageName("default_land_picture.j2c");
 }
 
 //virtual
@@ -224,6 +233,70 @@ void LLPanelPlaceInfo::setParcelID(const LLUUID& parcel_id)
 {
 	mParcelID = parcel_id;
 	sendParcelInfoRequest();
+}
+
+void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
+{
+	if (!mInfoPanel)
+	    return;
+
+	switch(type)
+	{
+		case CREATE_LANDMARK:
+			mCurrentTitle = getString("title_create_landmark");
+
+			toggleMediaPanel(FALSE);
+		break;
+
+		case PLACE:
+			mCurrentTitle = getString("title_place");
+
+			if (!isMediaPanelVisible())
+			{
+				mTitle->setText(mCurrentTitle);
+			}
+		break;
+
+		// Hide Media Panel if showing information about
+		// a landmark or a teleport history item
+		case LANDMARK:
+			mCurrentTitle = getString("title_landmark");
+
+			toggleMediaPanel(FALSE);
+		break;
+		
+		case TELEPORT_HISTORY:
+			mCurrentTitle = getString("title_place");
+ 
+			toggleMediaPanel(FALSE);
+		break;
+	}
+}
+
+BOOL LLPanelPlaceInfo::isMediaPanelVisible()
+{
+	if (!mMediaPanel)
+		return FALSE;
+	
+	return mMediaPanel->getVisible();
+}
+
+void LLPanelPlaceInfo::toggleMediaPanel(BOOL visible)
+{
+    if (!(mMediaPanel && mInfoPanel))
+        return;
+
+    if (visible)
+	{
+		mTitle->setText(getString("title_media"));
+	}
+	else
+	{
+		mTitle->setText(mCurrentTitle);
+	}
+
+    mInfoPanel->setVisible(!visible);
+    mMediaPanel->setVisible(visible);
 }
 
 void LLPanelPlaceInfo::sendParcelInfoRequest()
@@ -300,11 +373,18 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 		region_z = llround(parcel_data.global_z);
 	}
 
+	std::string name;
 	if (!parcel_data.sim_name.empty())
 	{
-		std::string name = llformat("%s (%d, %d, %d)",
-									parcel_data.sim_name.c_str(), region_x, region_y, region_z);
+		name = llformat("%s (%d, %d, %d)",
+						parcel_data.sim_name.c_str(), region_x, region_y, region_z);
 		mRegionName->setText(name);
+	}
+	
+	if (mCurrentTitle != getString("title_landmark"))
+	{
+		mTitleEditor->setText(parcel_data.name + "; " + name);
+		mNotesEditor->setText(LLStringUtil::null);
 	}
 }
 
@@ -312,9 +392,14 @@ void LLPanelPlaceInfo::displayParcelInfo(const LLVector3& pos_region,
 									 const LLUUID& region_id,
 									 const LLVector3d& pos_global)
 {
-	LLSD body;
 	mPosRegion = pos_region;
-	std::string url = gAgent.getRegion()->getCapability("RemoteParcelRequest");
+
+	LLViewerRegion* region = gAgent.getRegion();
+	if (!region)
+		return;
+
+	LLSD body;
+	std::string url = region->getCapability("RemoteParcelRequest");
 	if (!url.empty())
 	{
 		body["location"] = ll_sd_from_vector3(pos_region);
@@ -333,8 +418,29 @@ void LLPanelPlaceInfo::displayParcelInfo(const LLVector3& pos_region,
 	{
 		mDescEditor->setText(getString("server_update_text"));
 	}
-	mSnapshotCtrl->setImageAssetID(LLUUID::null);
-	mSnapshotCtrl->setFallbackImageName("default_land_picture.j2c");
+}
+
+void LLPanelPlaceInfo::displayAgentParcelInfo()
+{
+	mPosRegion = gAgent.getPositionAgent();
+
+	LLViewerRegion* region = gAgent.getRegion();
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	if (!region || !parcel)
+		return;
+
+	LLParcelData parcel_data;
+	parcel_data.desc = parcel->getDesc();
+	parcel_data.flags = parcel->getParcelFlags();
+	parcel_data.name = parcel->getName();
+	parcel_data.sim_name = gAgent.getRegion()->getName();
+	parcel_data.snapshot_id = parcel->getSnapshotID();
+	LLVector3d global_pos = gAgent.getPositionGlobal();
+	parcel_data.global_x = global_pos.mdV[0];
+	parcel_data.global_y = global_pos.mdV[1];
+	parcel_data.global_z = global_pos.mdV[2];
+
+	processParcelInfo(parcel_data);
 }
 
 void LLPanelPlaceInfo::onCommitTitleOrNote(LANDMARK_INFO_TYPE type)
@@ -380,4 +486,14 @@ void LLPanelPlaceInfo::onCommitTitleOrNote(LANDMARK_INFO_TYPE type)
 		gInventory.updateItem(new_item);
 		gInventory.notifyObservers();
 	}
+}
+
+void LLPanelPlaceInfo::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	if (mMinHeight > 0)
+	{
+		mScrollingPanel->reshape(mScrollingPanel->getRect().getWidth(), mMinHeight);
+	}
+
+	LLView::reshape(width, height, called_from_parent);
 }

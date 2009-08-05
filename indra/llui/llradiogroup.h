@@ -70,6 +70,10 @@ protected:
 	friend class LLUICtrlFactory;
 };
 
+
+struct RadioGroupRegistry : public LLChildRegistry<RadioGroupRegistry>
+{};
+
 /*
  * An invisible view containing multiple mutually exclusive toggling 
  * buttons (usually radio buttons).  Automatically handles the mutex
@@ -85,6 +89,9 @@ public:
 		Optional<bool> has_border;
 		Params();
 	};
+
+	// my valid children are stored in this registry
+	typedef RadioGroupRegistry child_registry_t;
 
 protected:
 	LLRadioGroup(const Params&);
@@ -118,8 +125,6 @@ public:
 	// Update the control as needed.  Userdata must be a pointer to the button.
 	void onClickButton(LLUICtrl* clicked_radio);
 	
-	virtual const widget_registry_t& getChildRegistry() const;
-
 	//========================================================================
 	LLCtrlSelectionInterface* getSelectionInterface()	{ return (LLCtrlSelectionInterface*)this; };
 

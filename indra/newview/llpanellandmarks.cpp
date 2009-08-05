@@ -31,12 +31,15 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llpanellandmarks.h"
+
+#include "llbutton.h"
 #include "llfloaterreg.h"
 #include "lllandmark.h"
 
 #include "llfloaterworldmap.h"
+#include "llfoldervieweventlistener.h"
 #include "lllandmarklist.h"
-#include "llpanellandmarks.h"
 #include "llsidetray.h"
 #include "lltabcontainer.h"
 #include "llworldmap.h"
@@ -138,9 +141,10 @@ void LLLandmarksPanel::onShowOnMap()
 	if (!landmark->getGlobalPos(landmark_global_pos))
 		return;
 	
-	if (!landmark_global_pos.isExactlyZero())
+	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+	if (!landmark_global_pos.isExactlyZero() && worldmap_instance)
 	{
-		LLFloaterWorldMap::getInstance()->trackLocation(landmark_global_pos);
+		worldmap_instance->trackLocation(landmark_global_pos);
 		LLFloaterReg::showInstance("world_map", "center");
 	}
 }
@@ -157,8 +161,6 @@ void LLLandmarksPanel::onTeleport()
 	{
 		listenerp->openItem();
 	}
-
-	togglePanelPlacesButtons(TRUE);
 }
 
 /*
@@ -195,6 +197,28 @@ void LLLandmarksPanel::onCopySLURL()
 }
 */
 
+// virtual
+void LLLandmarksPanel::updateVerbs()
+{
+	if (!isTabVisible()) 
+		return;
+
+	BOOL enabled = FALSE;
+
+	LLFolderViewItem* current_item = mInventoryPanel->getRootFolder()->getCurSelectedItem();
+	if (current_item)
+	{
+		LLFolderViewEventListener* listenerp = current_item->getListener();
+		if (listenerp->getInventoryType() == LLInventoryType::IT_LANDMARK)
+		{
+			enabled = TRUE;
+		}
+	}
+
+	mTeleportBtn->setEnabled(enabled);
+	mShowOnMapBtn->setEnabled(enabled);
+}
+
 void LLLandmarksPanel::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
 {
 	LLFolderViewItem* current_item = mInventoryPanel->getRootFolder()->getCurSelectedItem();
@@ -224,16 +248,14 @@ void LLLandmarksPanel::onSelectionChange(const std::deque<LLFolderViewItem*> &it
 
 		if (!mActionBtn->getVisible())
 			mActionBtn->setVisible(TRUE);
-
-		togglePanelPlacesButtons(TRUE);
 	}
 	else
 	{
 		if (mActionBtn->getVisible())
 			mActionBtn->setVisible(FALSE);
-
-		togglePanelPlacesButtons(FALSE);
 	}
+
+	updateVerbs();
 }
 
 void LLLandmarksPanel::onSelectorButtonClicked()
@@ -244,9 +266,14 @@ void LLLandmarksPanel::onSelectorButtonClicked()
 	if (listenerp->getInventoryType() == LLInventoryType::IT_LANDMARK)
 	{
 		LLSD key;
-		key["type"] = LLPanelPlaces::LANDMARK;
+		key["type"] = "landmark";
 		key["id"] = listenerp->getUUID();
 
 		LLSideTray::getInstance()->showPanel("panel_places", key);
 	}
+}
+
+void LLLandmarksPanel::setSelectedItem(const LLUUID& obj_id)
+{
+	mInventoryPanel->setSelection(obj_id, FALSE);
 }

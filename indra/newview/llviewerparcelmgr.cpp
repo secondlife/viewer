@@ -61,8 +61,8 @@
 #include "llsdutil_math.h"
 #include "llstatusbar.h"
 #include "llui.h"
-#include "llviewerimage.h"
-#include "llviewerimagelist.h"
+#include "llviewertexture.h"
+#include "llviewertexturelist.h"
 #include "llviewermenu.h"
 #include "llviewerparcelmedia.h"
 #include "llviewerparceloverlay.h"
@@ -81,8 +81,8 @@ U8* LLViewerParcelMgr::sPackedOverlay = NULL;
 
 LLUUID gCurrentMovieID = LLUUID::null;
 
-LLPointer<LLViewerImage> sBlockedImage;
-LLPointer<LLViewerImage> sPassImage;
+LLPointer<LLViewerTexture> sBlockedImage;
+LLPointer<LLViewerTexture> sPassImage;
 
 // Local functions
 void optionally_start_music(const std::string& music_url);
@@ -144,8 +144,11 @@ LLViewerParcelMgr::LLViewerParcelMgr()
 	mCollisionSegments = new U8[(mParcelsPerEdge+1)*(mParcelsPerEdge+1)];
 	resetSegments(mCollisionSegments);
 
-	mBlockedImage = gImageList.getImageFromFile("noentrylines.j2c");
-	mPassImage = gImageList.getImageFromFile("noentrypasslines.j2c");
+	// JC: Resolved a merge conflict here, eliminated
+	// mBlockedImage->setAddressMode(LLTexUnit::TAM_WRAP);
+	// because it is done in llviewertexturelist.cpp
+	mBlockedImage = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryLines.png");
+	mPassImage = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryPassLines.png");
 
 	S32 overlay_size = mParcelsPerEdge * mParcelsPerEdge / PARCEL_OVERLAY_CHUNKS;
 	sPackedOverlay = new U8[overlay_size];
@@ -763,13 +766,17 @@ BOOL LLViewerParcelMgr::canHearSound(const LLVector3d &pos_global) const
 BOOL LLViewerParcelMgr::inAgentParcel(const LLVector3d &pos_global) const
 {
 	LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosGlobal(pos_global);
-	if (region != gAgent.getRegion())
+	LLViewerRegion* agent_region = gAgent.getRegion();
+	if (!region || !agent_region)
+		return FALSE;
+
+	if (region != agent_region)
 	{
 		// Can't be in the agent parcel if you're not in the same region.
 		return FALSE;
 	}
 
-	LLVector3 pos_region = gAgent.getRegion()->getPosRegionFromGlobal(pos_global);
+	LLVector3 pos_region = agent_region->getPosRegionFromGlobal(pos_global);
 	S32 row =    S32(pos_region.mV[VY] / PARCEL_GRID_STEP_METERS);
 	S32 column = S32(pos_region.mV[VX] / PARCEL_GRID_STEP_METERS);
 
@@ -1711,7 +1718,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 
 void optionally_start_music(const std::string& music_url)
 {
-	if (gSavedSettings.getBOOL("AudioStreamingMusic"))
+	if (gSavedSettings.getBOOL("AudioStreamingMusic") && gSavedSettings.getBOOL("AudioSteamingMedia"))
 	{
 		// Make the user click the start button on the overlay bar. JC
 		//		llinfos << "Starting parcel music " << music_url << llendl;
@@ -2383,12 +2390,12 @@ void LLViewerParcelMgr::cleanupGlobals()
 	LLParcelSelection::sNullSelection = NULL;
 }
 
-LLViewerImage* LLViewerParcelMgr::getBlockedImage() const
+LLViewerTexture* LLViewerParcelMgr::getBlockedImage() const
 {
 	return sBlockedImage;
 }
 
-LLViewerImage* LLViewerParcelMgr::getPassImage() const
+LLViewerTexture* LLViewerParcelMgr::getPassImage() const
 {
 	return sPassImage;
 }

@@ -48,7 +48,7 @@
 #include "llrender.h"
 #include "lluictrlfactory.h"
 
-static LLDefaultWidgetRegistry::Register<LLScrollbar> register_scrollbar("scroll_bar");
+static LLDefaultChildRegistry::Register<LLScrollbar> register_scrollbar("scroll_bar");
 
 LLScrollbar::Params::Params()
 :	orientation ("orientation", HORIZONTAL),

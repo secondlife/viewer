@@ -39,28 +39,21 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLSEARCHEDITOR_H
-#define LL_LLSEARCHEDITOR_H
+#ifndef LL_SEARCHEDITOR_H
+#define LL_SEARCHEDITOR_H
 
 #include "lllineeditor.h"
 #include "llbutton.h"
 
-#include <boost/function.hpp>
-
-/*
- * @brief A line editor with a button to clear it and a callback to call on every edit event.
- */
 class LLSearchEditor : public LLUICtrl
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLLineEditor::Params>
 	{
-		Optional<boost::function<void(const std::string&, void*)> > search_callback;
-		
-		Optional<LLButton::Params> clear_search_button;
+		Optional<LLButton::Params> search_button;
 
 		Params()
-		: clear_search_button("clear_search_button")
+		: search_button("search_button")
 		{
 			name = "search_editor";
 		}
@@ -69,15 +62,11 @@ public:
 protected:
 	LLSearchEditor(const Params&);
 	friend class LLUICtrlFactory;
+
 public:
 	virtual ~LLSearchEditor() {}
 
-	/*virtual*/ void	draw();
-
-	void setText(const LLStringExplicit &new_text) { mSearchEdit->setText(new_text); }
-
-	typedef boost::function<void (const std::string& search_string)> search_callback_t;
-	void setSearchCallback(search_callback_t cb) { mSearchCallback = cb; }
+	void setText(const LLStringExplicit &new_text) { mSearchEditor->setText(new_text); }
 
 	// LLUICtrl interface
 	virtual void	setValue(const LLSD& value );
@@ -87,12 +76,8 @@ public:
 	virtual void	clear();
 
 private:
-	void onSearchEdit(LLLineEditor* caller );
-	void onClearSearch(const LLSD& data);
-
-	LLLineEditor* mSearchEdit;
-	LLButton* mClearSearchButton;
-	search_callback_t mSearchCallback;
+	LLLineEditor* mSearchEditor;
+	LLButton* mSearchButton;
 };
 
-#endif  // LL_LLSEARCHEDITOR_H
+#endif  // LL_SEARCHEDITOR_H

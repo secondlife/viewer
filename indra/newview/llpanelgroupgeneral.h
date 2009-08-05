@@ -87,7 +87,6 @@ private:
 	BOOL			mChanged;
 	BOOL			mFirstUse;
 	std::string		mIncompleteMemberDataStr;
-	std::string		mConfirmGroupCreateStr;
 	LLUUID			mDefaultIconID;
 
 	// Group information (include any updates in updateChanged)

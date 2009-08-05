@@ -39,7 +39,7 @@
 #include "v3math.h"
 
 class LLMessageSystem;
-class LLViewerImage;
+class LLViewerTexture;
 class LLInventoryItem;
 class LLViewerObject;
 class LLAgent;

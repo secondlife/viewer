@@ -49,12 +49,12 @@
 #include "llmath.h"
 #include "llrender.h"
 #include "llfocusmgr.h"
-#include "llfont.h"
 #include "llcoord.h"
 #include "llwindow.h"
 #include "llcriticaldamp.h"
 #include "lluictrlfactory.h"
 
+#include "llbutton.h"
 #include "llfontgl.h"
 #include "llresmgr.h"
 #include "llui.h"
@@ -119,16 +119,12 @@ const F32 PIE_SHRINK_TIME = 0.2f; // time of transition between unbounded and bo
 
 const F32 ACTIVATE_HIGHLIGHT_TIME = 0.3f;
 
-// widget registrars
-struct MenuRegistry : public LLWidgetRegistry<MenuRegistry>
-{};
-
 static MenuRegistry::Register<LLMenuItemSeparatorGL> register_separator("menu_item_separator");
 static MenuRegistry::Register<LLMenuItemCallGL> register_menu_item_call("menu_item_call");
 static MenuRegistry::Register<LLMenuItemCheckGL> register_menu_item_check("menu_item_check");
 static MenuRegistry::Register<LLMenuGL> register_menu("menu");
 
-static LLDefaultWidgetRegistry::Register<LLMenuGL> register_menu_default("menu");
+static LLDefaultChildRegistry::Register<LLMenuGL> register_menu_default("menu");
 
 
 
@@ -797,6 +793,16 @@ BOOL LLMenuItemCallGL::handleAcceleratorKey( KEY key, MASK mask )
 	return FALSE;
 }
 
+BOOL LLMenuItemCallGL::handleRightMouseUp(S32 x, S32 y, MASK mask)
+{
+	if (pointInView(x, y))
+	{
+		mRightClickSignal(this, getValue());
+	}
+
+	return TRUE;
+}
+
 ///============================================================================
 /// Class LLMenuItemCheckGL
 ///============================================================================
@@ -1457,6 +1463,7 @@ void LLMenuItemBranchDownGL::draw( void )
 	setHover(FALSE);
 }
 
+
 class LLMenuScrollItem : public LLMenuItemCallGL
 {
 public:
@@ -1465,10 +1472,18 @@ public:
 		ARROW_DOWN,
 		ARROW_UP
 	};
+	struct ArrowTypes : public LLInitParam::TypeValuesHelper<EArrowType, ArrowTypes>
+	{
+		static void declareValues()
+		{
+			declare("up", ARROW_UP);
+			declare("down", ARROW_DOWN);
+		}
+	};
 
 	struct Params : public LLInitParam::Block<Params, LLMenuItemCallGL::Params>
 	{
-		Optional<EArrowType> arrow_type;
+		Optional<EArrowType, ArrowTypes> arrow_type;
 		Optional<CommitCallbackParam> scroll_callback;
 	};
 
@@ -1646,15 +1661,17 @@ bool LLMenuGL::addChild(LLView* view, S32 tab_group)
 
 void LLMenuGL::removeChild( LLView* ctrl)
 {
-	LLMenuItemGL* itemp = dynamic_cast<LLMenuItemGL*>(ctrl);
-	if (itemp)
+	// previously a dynamic_cast with if statement to check validity
+	// unfortunately removeChild is called by ~LLView, and at that point the
+	// object being deleted is no longer a LLMenuItemGL so a dynamic_cast will fail
+	LLMenuItemGL* itemp = static_cast<LLMenuItemGL*>(ctrl);
+
+	item_list_t::iterator found_it = std::find(mItems.begin(), mItems.end(), (itemp));
+	if (found_it != mItems.end())
 	{
-		item_list_t::iterator found_it = std::find(mItems.begin(), mItems.end(), (itemp));
-		if (found_it != mItems.end())
-		{
-			mItems.erase(found_it);
-		}
+		mItems.erase(found_it);
 	}
+
 	return LLUICtrl::removeChild(ctrl);
 }
 
@@ -1663,12 +1680,6 @@ BOOL LLMenuGL::postBuild()
 	createJumpKeys();
 	return LLUICtrl::postBuild();
 }
-
-const widget_registry_t& LLMenuGL::getChildRegistry() const
-{
-	return MenuRegistry::instance();
-}
-
 
 // are we the childmost active menu and hence our jump keys should be enabled?
 // or are we a free-standing torn-off menu (which uses jump keys too)
@@ -2331,10 +2342,10 @@ BOOL LLMenuGL::appendMenu( LLMenuGL* menu )
 	p.label = menu->getLabel();
 	p.branch = menu;
 	p.jump_key = menu->getJumpKey();
-	p.enabled_color=LLUI::getCachedColorFunctor("MenuItemEnabledColor");
-	p.disabled_color=LLUI::getCachedColorFunctor("MenuItemDisabledColor");
-	p.highlight_bg_color=LLUI::getCachedColorFunctor("MenuItemHighlightBgColor");
-	p.highlight_fg_color=LLUI::getCachedColorFunctor("MenuItemHighlightFgColor");
+	p.enabled_color=LLUIColorTable::instance().getColor("MenuItemEnabledColor");
+	p.disabled_color=LLUIColorTable::instance().getColor("MenuItemDisabledColor");
+	p.highlight_bg_color=LLUIColorTable::instance().getColor("MenuItemHighlightBgColor");
+	p.highlight_fg_color=LLUIColorTable::instance().getColor("MenuItemHighlightFgColor");
 
 	LLMenuItemBranchGL* branch = LLUICtrlFactory::create<LLMenuItemBranchGL>(p);
 	success &= append( branch );
@@ -2741,7 +2752,7 @@ void LLMenuGL::draw( void )
 	if (mDropShadowed && !mTornOff)
 	{
 		static LLUICachedControl<S32> drop_shadow_floater ("DropShadowFloater", 0);
-		static LLUICachedControl<LLColor4> color_drop_shadow ("ColorDropShadow", *(new LLColor4));
+		static LLUIColor color_drop_shadow = LLUIColorTable::instance().getColor("ColorDropShadow");
 		gl_drop_shadow(0, getRect().getHeight(), getRect().getWidth(), 0, 
 			color_drop_shadow, drop_shadow_floater );
 	}
@@ -2883,7 +2894,7 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 /// Class LLMenuBarGL
 ///============================================================================
 
-static LLDefaultWidgetRegistry::Register<LLMenuBarGL> r2("menu_bar");
+static LLDefaultChildRegistry::Register<LLMenuBarGL> r2("menu_bar");
 
 LLMenuBarGL::LLMenuBarGL( const Params& p )
 :	LLMenuGL(p),
@@ -3115,10 +3126,10 @@ BOOL LLMenuBarGL::appendMenu( LLMenuGL* menu )
 	p.label = menu->getLabel();
 	p.visible = menu->getVisible();
 	p.branch = menu;
-	p.enabled_color=LLUI::getCachedColorFunctor("MenuItemEnabledColor");
-	p.disabled_color=LLUI::getCachedColorFunctor("MenuItemDisabledColor");
-	p.highlight_bg_color=LLUI::getCachedColorFunctor("MenuItemHighlightBgColor");
-	p.highlight_fg_color=LLUI::getCachedColorFunctor("MenuItemHighlightFgColor");
+	p.enabled_color=LLUIColorTable::instance().getColor("MenuItemEnabledColor");
+	p.disabled_color=LLUIColorTable::instance().getColor("MenuItemDisabledColor");
+	p.highlight_bg_color=LLUIColorTable::instance().getColor("MenuItemHighlightBgColor");
+	p.highlight_fg_color=LLUIColorTable::instance().getColor("MenuItemHighlightFgColor");
 
 	LLMenuItemBranchDownGL* branch = LLUICtrlFactory::create<LLMenuItemBranchDownGL>(p);
 	success &= branch->addToAcceleratorList(&mAccelerators);
@@ -3250,6 +3261,19 @@ BOOL LLMenuHolderGL::handleMouseDown( S32 x, S32 y, MASK mask )
 BOOL LLMenuHolderGL::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
 	BOOL handled = LLView::childrenHandleRightMouseDown(x, y, mask) != NULL;
+	if (!handled)
+	{
+		// clicked off of menu, hide them all
+		hideMenus();
+	}
+	return handled;
+}
+
+// This occurs when you mouse-down to spawn a context menu, hold the button 
+// down, move off the menu, then mouse-up.  We want this to close the menu.
+BOOL LLMenuHolderGL::handleRightMouseUp( S32 x, S32 y, MASK mask )
+{
+	BOOL handled = LLView::childrenHandleRightMouseUp(x, y, mask) != NULL;
 	if (!handled)
 	{
 		// clicked off of menu, hide them all
@@ -3540,7 +3564,7 @@ void	LLContextMenuBranch::showSubMenu()
 	S32 center_x;
 	S32 center_y;
 	localPointToScreen(getRect().getWidth(), getRect().getHeight() , &center_x, &center_y);
-	mBranch->show(	center_x, center_y, FALSE);
+	mBranch->show(	center_x, center_y);
 }
 
 // onCommit() - do the primary funcationality of the menu item.
@@ -3569,15 +3593,16 @@ void LLContextMenuBranch::setHighlight( BOOL highlight )
 // class LLContextMenu
 // A context menu
 //-----------------------------------------------------------------------------
-static LLDefaultWidgetRegistry::Register<LLContextMenu> context_menu_register("context_menu");
+static LLDefaultChildRegistry::Register<LLContextMenu> context_menu_register("context_menu");
 static MenuRegistry::Register<LLContextMenu> context_menu_register2("context_menu");
 
 
 LLContextMenu::LLContextMenu(const Params& p)
 :	LLMenuGL(p),
 	mHoveredAnyItem(FALSE),
-	mHoverItem(NULL)
-
+	mHoverItem(NULL),
+	mSpawnMouseX(S32_MAX),  // definitely not inside the window frame
+	mSpawnMouseY(S32_MAX)
 {
 	//setBackgroundVisible(TRUE);
 }
@@ -3588,7 +3613,8 @@ void LLContextMenu::setVisible(BOOL visible)
 		hide();
 }
 
-void LLContextMenu::show(S32 x, S32 y,BOOL adjustCursor)
+// Takes cursor position in screen space?
+void LLContextMenu::show(S32 x, S32 y)
 {
 	arrangeAndClear();
 
@@ -3597,12 +3623,30 @@ void LLContextMenu::show(S32 x, S32 y,BOOL adjustCursor)
 	const LLRect menu_region_rect = LLMenuGL::sMenuContainer->getMenuRect();
 	LLView* parent_view = getParent();
 
-	if(getParentMenuItem())
+	// Open upwards if menu extends past bottom
+	if (y - height < menu_region_rect.mBottom)
 	{
-		S32 parent_width = getParentMenuItem()->getRect().getWidth();
-		
-		if(x + width > menu_region_rect.getWidth())
-			x -= parent_width + width;
+		if (getParentMenuItem()) // Adjust if this is a submenu
+		{
+			y += height - getParentMenuItem()->getNominalHeight();		
+		}
+		else
+		{
+			y += height;
+		}
+	}
+
+	// Open out to the left if menu extends past right edge
+	if (x + width > menu_region_rect.mRight)
+	{
+		if (getParentMenuItem())
+		{
+			x -= getParentMenuItem()->getRect().getWidth() + width;
+		}
+		else
+		{
+			x -= width;
+		}
 	}
 
 	S32 local_x, local_y;
@@ -3612,14 +3656,12 @@ void LLContextMenu::show(S32 x, S32 y,BOOL adjustCursor)
 	const_cast<LLRect&>(getRect()).setCenterAndSize(local_x + width/2, local_y - height/2, width, height);
 	arrange();
 
-
-	if (translateIntoRect(menu_region_rect,FALSE) && adjustCursor)
-	{
-		LLUI::setCursorPositionLocal(getParent(), getRect().mLeft , getRect().mTop);
-	}
+	// Save click point for detecting cursor moves before mouse-up.
+	// Must be in local coords to compare with mouseUp events.
+	// If the mouse doesn't move, the menu will stay open ala the Mac.
+	screenPointToLocal(x, y, &mSpawnMouseX, &mSpawnMouseY);
 
 	LLView::setVisible(TRUE);
-
 }
 
 void LLContextMenu::hide()
@@ -3679,58 +3721,8 @@ BOOL LLContextMenu::handleHover( S32 x, S32 y, MASK mask )
 	return handled;
 }
 
-BOOL LLContextMenu::handleMouseDown( S32 x, S32 y, MASK mask )
-{
-	BOOL handled = FALSE;
-	// The click was somewhere within our rectangle
-	LLMenuItemGL *item = getHighlightedItem();
+// handleMouseDown and handleMouseUp are handled by LLMenuGL
 
-	if (item)
-	{
-		// lie to the item about where the click happened
-		// to make sure it's within the item's rectangle
-		handled = item->handleMouseDown( 0, 0, mask );
-	}
-	else 
-	{
-		// call hidemenus to make sure transient selections get cleared
-		((LLMenuHolderGL*)getParent())->hideMenus();
-	}
-
-	// always handle mouse down as mouse up will close open menus
-	return handled;
-}
-BOOL LLContextMenu::handleMouseUp( S32 x, S32 y, MASK mask )
-{
-	BOOL handled = FALSE;
-
-	// The click was somewhere within our rectangle
-	LLMenuItemGL *item = getHighlightedItem();
-
-	if (item)
-	{
-		// lie to the item about where the click happened
-		// to make sure it's within the item's rectangle
-		if (item->getEnabled())
-		{
-			handled = item->handleMouseUp( 0, 0, mask );
-			hide();
-		}
-	}
-	else 
-	{
-		// call hidemenus to make sure transient selections get cleared
-		((LLMenuHolderGL*)getParent())->hideMenus();
-	}
-
-	if (!handled)
-	{
-		// call hidemenus to make sure transient selections get cleared
-		sMenuContainer->hideMenus();
-	}
-
-	return handled;
-}
 
 BOOL LLContextMenu::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
@@ -3766,7 +3758,19 @@ BOOL LLContextMenu::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLContextMenu::handleRightMouseUp( S32 x, S32 y, MASK mask )
 {
-	// release mouse capture when right mouse button released, and we're past the shrink time
+	const S32 SLOP = 2;
+	S32 spawn_dx = (x - mSpawnMouseX);
+	S32 spawn_dy = (y - mSpawnMouseY);
+	if (-SLOP <= spawn_dx && spawn_dx <= SLOP
+		&& -SLOP <= spawn_dy && spawn_dy <= SLOP)
+	{
+		// we're still inside the slop region from spawning this menu
+		// so interpret the mouse-up as a single-click to show and leave on
+		// screen
+		mSpawnMouseX = S32_MAX;
+		mSpawnMouseY = S32_MAX;
+		return TRUE;
+	}
 
 	S32 local_x = x - getRect().mLeft;
 	S32 local_y = y - getRect().mBottom;
@@ -3802,10 +3806,10 @@ BOOL LLContextMenu::appendContextSubMenu(LLContextMenu *menu)
 	p.name = menu->getName();
 	p.label = menu->getLabel();
 	p.branch = menu;
-	p.enabled_color=LLUI::getCachedColorFunctor("MenuItemEnabledColor");
-	p.disabled_color=LLUI::getCachedColorFunctor("MenuItemDisabledColor");
-	p.highlight_bg_color=LLUI::getCachedColorFunctor("MenuItemHighlightBgColor");
-	p.highlight_fg_color=LLUI::getCachedColorFunctor("MenuItemHighlightFgColor");
+	p.enabled_color=LLUIColorTable::instance().getColor("MenuItemEnabledColor");
+	p.disabled_color=LLUIColorTable::instance().getColor("MenuItemDisabledColor");
+	p.highlight_bg_color=LLUIColorTable::instance().getColor("MenuItemHighlightBgColor");
+	p.highlight_fg_color=LLUIColorTable::instance().getColor("MenuItemHighlightFgColor");
 	
 	item = LLUICtrlFactory::create<LLContextMenuBranch>(p);
 	LLMenuGL::sMenuContainer->addChild(item->getBranch());

@@ -94,7 +94,7 @@ BOOL LLFloaterMap::postBuild()
 	registrar.add("Minimap.Zoom", boost::bind(&LLFloaterMap::handleZoom, this, _2));
 	registrar.add("Minimap.Tracker", boost::bind(&LLFloaterMap::handleStopTracking, this, _2));
 
-	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_minimap.xml", gMenuHolder);
+	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_minimap.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if (mPopupMenu && !LLTracker::isTracking(0))
 	{
 		mPopupMenu->setItemEnabled ("Stop Tracking", false);

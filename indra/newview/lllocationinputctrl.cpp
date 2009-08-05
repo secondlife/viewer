@@ -48,9 +48,9 @@
 #include "llagent.h"
 #include "llfloaterland.h"
 #include "llinventorymodel.h"
+#include "lllandmarkactions.h"
 #include "lllandmarklist.h"
 #include "lllocationhistory.h"
-#include "llpanelplaces.h"
 #include "llsidetray.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
@@ -83,28 +83,6 @@
  * we can determine whether the landmark refers to a point within the current parcel
  * and choose the appropriate image for the "Add landmark" button.
  */
-
-// Returns true if the given inventory item is a landmark pointing to the current parcel.
-// Used to filter inventory items.
-class LLIsAgentParcelLandmark : public LLInventoryCollectFunctor
-{
-public:
-	/*virtual*/ bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
-	{
-		if (!item || item->getType() != LLAssetType::AT_LANDMARK)
-			return false;
-
-		LLLandmark* landmark = gLandmarkList.getAsset(item->getAssetUUID());
-		if (!landmark) // the landmark not been loaded yet
-			return false;
-
-		LLVector3d landmark_global_pos;
-		if (!landmark->getGlobalPos(landmark_global_pos))
-			return false;
-
-		return LLViewerParcelMgr::getInstance()->inAgentParcel(landmark_global_pos);
-	}
-};
 
 /**
  * Initiates loading the landmarks that have been just added.
@@ -167,15 +145,14 @@ private:
 //============================================================================
 
 
-static LLDefaultWidgetRegistry::Register<LLLocationInputCtrl> r("location_input");
+static LLDefaultChildRegistry::Register<LLLocationInputCtrl> r("location_input");
 
 LLLocationInputCtrl::Params::Params()
 :	add_landmark_image_enabled("add_landmark_image_enabled"),
 	add_landmark_image_disabled("add_landmark_image_disabled"),
 	add_landmark_button("add_landmark_button"),
 	add_landmark_hpad("add_landmark_hpad", 0),
-	info_button("info_button"),
-	background("background")
+	info_button("info_button")
 {
 }
 
@@ -185,11 +162,6 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mInfoBtn(NULL),
 	mAddLandmarkBtn(NULL)
 {
-	// Background image.
-	LLButton::Params bg_params = p.background;
-	mBackground = LLUICtrlFactory::create<LLButton>(bg_params);
-	addChildInBack(mBackground);
-
 	// "Place information" button.
 	LLButton::Params info_params = p.info_button;
 	mInfoBtn = LLUICtrlFactory::create<LLButton>(info_params);
@@ -213,8 +185,6 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	enableAddLandmarkButton(true);
 	addChild(mAddLandmarkBtn);
 	
-	setFocusReceivedCallback(boost::bind(&LLLocationInputCtrl::onFocusReceived, this));
-	setFocusLostCallback(boost::bind(&LLLocationInputCtrl::onFocusLost, this));
 	setPrearrangeCallback(boost::bind(&LLLocationInputCtrl::onLocationPrearrange, this, _2));
 
 	updateWidgetlayout();
@@ -222,10 +192,10 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	// - Make the "Add landmark" button updated when either current parcel gets changed
 	//   or a landmark gets created or removed from the inventory.
 	// - Update the location string on parcel change.
-	LLViewerParcelMgr::getInstance()->setAgentParcelChangedCallback(
+	mParcelMgrConnection = LLViewerParcelMgr::getInstance()->setAgentParcelChangedCallback(
 		boost::bind(&LLLocationInputCtrl::onAgentParcelChange, this));
 
-	LLLocationHistory::getInstance()->setLoadedCallback(
+	mLocationHistoryConnection = LLLocationHistory::getInstance()->setLoadedCallback(
 			boost::bind(&LLLocationInputCtrl::onLocationHistoryLoaded, this));
 
 	mRemoveLandmarkObserver	= new LLRemoveLandmarkObserver(this);
@@ -240,6 +210,9 @@ LLLocationInputCtrl::~LLLocationInputCtrl()
 	gInventory.removeObserver(mAddLandmarkObserver);
 	delete mRemoveLandmarkObserver;
 	delete mAddLandmarkObserver;
+
+	mParcelMgrConnection.disconnect();
+	mLocationHistoryConnection.disconnect();
 }
 
 void LLLocationInputCtrl::setEnabled(BOOL enabled)
@@ -354,19 +327,21 @@ void LLLocationInputCtrl::onFocusReceived()
 
 void LLLocationInputCtrl::onFocusLost()
 {
+	LLUICtrl::onFocusLost();
 	refreshLocation();
 }
 
 void LLLocationInputCtrl::onInfoButtonClicked()
 {
-	LLSD key;
-	key["type"] = LLPanelPlaces::AGENT;
-
-	LLSideTray::getInstance()->showPanel("panel_places", key);
+	LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "agent"));
 }
 
 void LLLocationInputCtrl::onAddLandmarkButtonClicked()
 {
+	LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+	
+	// Floater "Add Landmark" functionality moved to Side Tray
+	// TODO* Disable floater "Add Landmark" call
 	LLFloaterReg::showInstance("add_landmark");
 }
 
@@ -461,40 +436,20 @@ void LLLocationInputCtrl::enableAddLandmarkButton(bool val)
 // depending on whether current parcel has been landmarked.
 void LLLocationInputCtrl::updateAddLandmarkButton()
 {
-	bool cur_parcel_landmarked = false;
-
-	// Determine whether there are landmarks pointing to the current parcel.
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	LLIsAgentParcelLandmark is_current_parcel_landmark;
-	gInventory.collectDescendentsIf(gAgent.getInventoryRootID(),
-		cats,
-		items,
-		LLInventoryModel::EXCLUDE_TRASH,
-		is_current_parcel_landmark);
-	cur_parcel_landmarked = !items.empty();
-
-	enableAddLandmarkButton(!cur_parcel_landmarked);
+	enableAddLandmarkButton(!LLLandmarkActions::landmarkAlreadyExists());
 }
 
 void LLLocationInputCtrl::updateWidgetlayout()
 {
 	const LLRect&	rect			= getLocalRect();
 	const LLRect&	hist_btn_rect	= mButton->getRect();
-	LLRect			info_btn_rect	= mButton->getRect();
+	LLRect			info_btn_rect	= mInfoBtn->getRect();
 
 	// info button
 	info_btn_rect.setOriginAndSize(
-		0, (rect.getHeight() - info_btn_rect.getHeight()) / 2,
+		2, (rect.getHeight() - info_btn_rect.getHeight()) / 2,
 		info_btn_rect.getWidth(), info_btn_rect.getHeight());
 	mInfoBtn->setRect(info_btn_rect);
-
-	// background
-	mBackground->setRect(LLRect(info_btn_rect.getWidth(), rect.mTop,
-		rect.mRight - hist_btn_rect.getWidth(), rect.mBottom));
-
-	// history button
-	mButton->setRightHPad(0);
 
 	// "Add Landmark" button
 	{
@@ -503,15 +458,5 @@ void LLLocationInputCtrl::updateWidgetlayout()
 			hist_btn_rect.mLeft - mAddLandmarkHPad - al_btn_rect.getWidth(),
 			(rect.getHeight() - al_btn_rect.getHeight()) / 2);
 		mAddLandmarkBtn->setRect(al_btn_rect);
-	}
-
-	// text entry
-	if (mTextEntry)
-	{
-		LLRect text_entry_rect(rect);
-		text_entry_rect.mLeft = info_btn_rect.getWidth();
-		text_entry_rect.mRight = mAddLandmarkBtn->getRect().mLeft;
-		text_entry_rect.stretch(0, -1); // make space for border
-		mTextEntry->setRect(text_entry_rect);
 	}
 }

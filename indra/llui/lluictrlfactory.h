@@ -41,10 +41,41 @@
 #include <boost/function.hpp>
 #include <iosfwd>
 #include <stack>
+#include <set>
 
 class LLPanel;
 class LLFloater;
 class LLView;
+
+class LLXSDWriter : public LLInitParam::Parser
+{
+	LOG_CLASS(LLXSDWriter);
+public:
+	void writeXSD(const std::string& name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace);
+
+	/*virtual*/ std::string getCurrentElementName() { return LLStringUtil::null; }
+
+	LLXSDWriter();
+
+protected:
+	void writeAttribute(const std::string& type, const Parser::name_stack_t&, S32 min_count, S32 max_count, const std::vector<std::string>* possible_values);
+	void addAttributeToSchema(LLXMLNodePtr nodep, const std::string& attribute_name, const std::string& type, bool mandatory, const std::vector<std::string>* possible_values);
+	LLXMLNodePtr mAttributeNode;
+	LLXMLNodePtr mElementNode;
+	LLXMLNodePtr mSchemaNode;
+
+	typedef std::set<std::string> string_set_t;
+	typedef std::map<LLXMLNodePtr, string_set_t> attributes_map_t;
+	attributes_map_t	mAttributesWritten;
+};
+
+// NOTE: DOES NOT WORK YET
+// should support child widgets for XUI
+class LLXUIXSDWriter : public LLXSDWriter
+{
+public:
+	void writeXSD(const std::string& name, const std::string& path, const LLInitParam::BaseBlock& block);
+};
 
 class LLXUIParser : public LLInitParam::Parser, public LLSingleton<LLXUIParser>
 {
@@ -108,6 +139,9 @@ private:
 	LLXMLNodePtr					mCurReadNode;
 	// Root of the widget XML sub-tree, for example, "line_editor"
 	LLXMLNodePtr					mWriteRootNode;
+	
+	typedef std::map<S32, LLXMLNodePtr>	out_nodes_t;
+	out_nodes_t						mOutNodes;
 	S32								mLastWriteGeneration;
 	LLXMLNodePtr					mLastWrittenChild;
 	S32								mCurReadDepth;
@@ -118,31 +152,7 @@ typedef boost::function<LLView* (LLXMLNodePtr node, LLView *parent, LLXMLNodePtr
 
 typedef LLRegistry<std::string, LLWidgetCreatorFunc> widget_registry_t;
 
-template <typename DERIVED_TYPE>
-class LLWidgetRegistry : public LLRegistrySingleton<std::string, LLWidgetCreatorFunc, DERIVED_TYPE>
-{
-public:
-	typedef LLRegistrySingleton<std::string, LLWidgetCreatorFunc, DERIVED_TYPE> super_t;
-	// local static instance for registering a particular widget
-	template<typename T, typename PARAM_BLOCK = typename T::Params>
-	class Register : public super_t::StaticRegistrar
-	{
-	public:
-		// register with either the provided builder, or the generic templated builder
-		Register(const char* tag, LLWidgetCreatorFunc func = NULL);
-	};
-
-protected:
-	LLWidgetRegistry() {}
-};
-
-class LLDefaultWidgetRegistry : public LLWidgetRegistry<LLDefaultWidgetRegistry>
-{
-protected:
-	LLDefaultWidgetRegistry() {}
-	friend class LLSingleton<LLDefaultWidgetRegistry>;
-};
-
+// sort functor for typeid maps
 struct LLCompareTypeID
 {
 	bool operator()(const std::type_info* lhs, const std::type_info* rhs) const
@@ -151,17 +161,56 @@ struct LLCompareTypeID
 	}
 };
 
+// lookup widget constructor funcs by widget name
+template <typename DERIVED_TYPE>
+class LLChildRegistry : public LLRegistrySingleton<std::string, LLWidgetCreatorFunc, DERIVED_TYPE>
+{
+public:
+	typedef LLRegistrySingleton<std::string, LLWidgetCreatorFunc, DERIVED_TYPE> super_t;
+	// local static instance for registering a particular widget
+	template<typename T>
+	class Register : public super_t::StaticRegistrar
+	{
+	public:
+		// register with either the provided builder, or the generic templated builder
+		Register(const char* tag, LLWidgetCreatorFunc func = NULL);
+	};
 
-class LLWidgetTemplateRegistry 
-:	public LLRegistrySingleton<const std::type_info*, std::string, LLWidgetTemplateRegistry, LLCompareTypeID>
+protected:
+	LLChildRegistry() {}
+};
+
+class LLDefaultChildRegistry : public LLChildRegistry<LLDefaultChildRegistry>
+{
+protected:
+	LLDefaultChildRegistry(){}
+	friend class LLSingleton<LLDefaultChildRegistry>;
+};
+
+// lookup widget name by type
+class LLWidgetNameRegistry 
+:	public LLRegistrySingleton<const std::type_info*, std::string, LLWidgetNameRegistry , LLCompareTypeID>
 {};
 
-// function used to create new default widgets via LLView::getChild<T>
-typedef LLView* (*dummy_widget_creator_func_t)(const std::string&);
+// lookup widget type by name
+class LLWidgetTypeRegistry
+:	public LLRegistrySingleton<std::string, const std::type_info*, LLWidgetTypeRegistry>
+{};
 
-// used to register factory functions for default widget instances
-class LLDummyWidgetRegistry
-:	public LLRegistrySingleton<const std::type_info*, dummy_widget_creator_func_t, LLDummyWidgetRegistry, LLCompareTypeID>
+// lookup factory functions for default widget instances by widget type
+typedef LLView* (*dummy_widget_creator_func_t)(const std::string&);
+class LLDefaultWidgetRegistry
+:	public LLRegistrySingleton<const std::type_info*, dummy_widget_creator_func_t, LLDefaultWidgetRegistry, LLCompareTypeID>
+{};
+
+// lookup function for generating empty param block by widget type
+typedef const LLInitParam::BaseBlock& (*empty_param_block_func_t)();
+class LLDefaultParamBlockRegistry
+:	public LLRegistrySingleton<const std::type_info*, empty_param_block_func_t, LLDefaultParamBlockRegistry, LLCompareTypeID>
+{};
+
+class LLChildRegistryRegistry
+: public LLRegistrySingleton<const std::type_info*, widget_registry_t, LLChildRegistryRegistry>
 {};
 
 extern LLFastTimer::DeclareTimer FTM_WIDGET_SETUP;
@@ -176,26 +225,26 @@ private:
 	~LLUICtrlFactory();
 
 	// only partial specialization allowed in inner classes, so use extra dummy parameter
-	template <typename T, int DUMMY>
-	class ParamDefaults : public LLSingleton<ParamDefaults<T, DUMMY> > 
+	template <typename PARAM_BLOCK, int DUMMY>
+	class ParamDefaults : public LLSingleton<ParamDefaults<PARAM_BLOCK, DUMMY> > 
 	{
 	public:
 		ParamDefaults()
 		{
 			// recursively initialize from base class param block
-			((typename T::base_block_t&)mPrototype).fillFrom(ParamDefaults<typename T::base_block_t, DUMMY>::instance().get());
+			((typename PARAM_BLOCK::base_block_t&)mPrototype).fillFrom(ParamDefaults<typename PARAM_BLOCK::base_block_t, DUMMY>::instance().get());
 			// after initializing base classes, look up template file for this param block
-			std::string* param_block_tag = LLWidgetTemplateRegistry::instance().getValue(&typeid(T));
+			std::string* param_block_tag = LLWidgetNameRegistry::instance().getValue(&typeid(PARAM_BLOCK));
 			if (param_block_tag)
 			{
 				LLUICtrlFactory::loadWidgetTemplate(*param_block_tag, mPrototype);
 			}
 		}
 
-		const T& get() { return mPrototype; }
+		const PARAM_BLOCK& get() { return mPrototype; }
 
 	private:
-		T mPrototype;
+		PARAM_BLOCK mPrototype;
 	};
 
 	// base case for recursion, there are NO base classes of LLInitParam::BaseBlock
@@ -210,11 +259,12 @@ private:
 
 public:
 
+	// get default parameter block for widget of a specific type
 	template<typename T>
-	static const T& getDefaultParams()
+	static const typename T::Params& getDefaultParams()
 	{
 		//#pragma message("Generating ParamDefaults")
-		return ParamDefaults<T, 0>::instance().get();
+		return ParamDefaults<typename T::Params, 0>::instance().get();
 	}
 
 	void buildFloater(LLFloater* floaterp, const std::string &filename, BOOL open_floater = TRUE, LLXMLNodePtr output_node = NULL);
@@ -252,12 +302,10 @@ public:
 		return widget;
 	}
 
-	LLView* createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename,  LLXMLNodePtr output_node, const widget_registry_t&  );
+	LLView* createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename, const widget_registry_t&, LLXMLNodePtr output_node );
 
-	static const widget_registry_t& getWidgetRegistry(LLView*);
-	
 	template<typename T>
-	static T* createFromFile(const std::string &filename, LLView *parent, LLXMLNodePtr output_node = NULL)
+	static T* createFromFile(const std::string &filename, LLView *parent, const widget_registry_t& registry, LLXMLNodePtr output_node = NULL)
 	{
 		//#pragma message("Generating LLUICtrlFactory::createFromFile")
 		T* widget = NULL;
@@ -283,7 +331,7 @@ public:
 				goto fail;
 			}
 			
-			LLView* view = getInstance()->createFromXML(root_node, parent, filename, output_node, getWidgetRegistry(parent));
+			LLView* view = getInstance()->createFromXML(root_node, parent, filename, registry, output_node);
 			if (view)
 			{
 				widget = dynamic_cast<T*>(view);
@@ -304,8 +352,8 @@ fail:
 	template<class T>
 	static T* getDefaultWidget(const std::string& name)
 	{
-		dummy_widget_creator_func_t* dummy_func = LLDummyWidgetRegistry::instance().getValue(&typeid(T));
-		return dynamic_cast<T*>((*dummy_func)(name));
+		dummy_widget_creator_func_t* dummy_func = LLDefaultWidgetRegistry::instance().getValue(&typeid(T));
+		return dummy_func ? dynamic_cast<T*>((*dummy_func)(name)) : NULL;
 	}
 
 	template <class T> 
@@ -317,23 +365,23 @@ fail:
 		return create<T>(params);
 	}
 
-	template<typename T, typename PARAM_BLOCK>
+	template<typename T>
 	static T* defaultBuilder(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 	{
 		LLFastTimer timer(FTM_WIDGET_SETUP);
 
 		//#pragma message("Generating LLUICtrlFactory::defaultBuilder")
-		PARAM_BLOCK params(getDefaultParams<PARAM_BLOCK>());
+		typename T::Params params(getDefaultParams<T>());
 
 		LLXUIParser::instance().readXUI(node, params);
 
 		if (output_node)
 		{
 			// We always want to output top-left coordinates
-			PARAM_BLOCK output_params(params);
+			typename T::Params output_params(params);
 			T::setupParamsForExport(output_params, parent);
 			// Export only the differences between this any default params
-			PARAM_BLOCK default_params(getDefaultParams<PARAM_BLOCK>());
+			typename T::Params default_params(getDefaultParams<T>());
 			output_node->setName(node->getName()->mString);
 			LLXUIParser::instance().writeXUI(
 				output_node, output_params, &default_params);
@@ -361,8 +409,10 @@ fail:
 			S32 tab_group = params.tab_group.isProvided() ? params.tab_group() : -1;
 			setCtrlParent(widget, parent, tab_group);
 		}
+		
+		typedef typename T::child_registry_t registry_t;
 
-		createChildren(widget, node, output_node);
+		createChildren(widget, node, registry_t::instance(), output_node);
 
 		if (!widget->postBuild())
 		{
@@ -373,7 +423,7 @@ fail:
 		return widget;
 	}
 
-	static void createChildren(LLView* viewp, LLXMLNodePtr node, LLXMLNodePtr output_node = NULL);
+	static void createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t&, LLXMLNodePtr output_node = NULL);
 
 	static bool getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root);
 	
@@ -395,20 +445,32 @@ private:
 	std::vector<std::string>	mFileNames;
 };
 
+template<typename T>
+const LLInitParam::BaseBlock& getEmptyParamBlock()
+{
+	static typename T::Params params;
+	return params;
+}
+
 // this is here to make gcc happy with reference to LLUICtrlFactory
 template<typename DERIVED>
-template<typename T, typename PARAM_BLOCK> 
-LLWidgetRegistry<DERIVED>::Register<T, PARAM_BLOCK>::Register(const char* tag, LLWidgetCreatorFunc func)
-:	LLWidgetRegistry<DERIVED>::StaticRegistrar(tag, func.empty() ? (LLWidgetCreatorFunc)&LLUICtrlFactory::defaultBuilder<T, PARAM_BLOCK> : func)
+template<typename T> 
+LLChildRegistry<DERIVED>::Register<T>::Register(const char* tag, LLWidgetCreatorFunc func)
+:	LLChildRegistry<DERIVED>::StaticRegistrar(tag, func.empty() ? (LLWidgetCreatorFunc)&LLUICtrlFactory::defaultBuilder<T> : func)
 {
+	const std::type_info* widget_type_infop = &typeid(T);
 	// associate parameter block type with template .xml file
-	LLWidgetTemplateRegistry::instance().defaultRegistrar().add(&typeid(PARAM_BLOCK), tag);
+	LLWidgetNameRegistry ::instance().defaultRegistrar().add(&typeid(typename T::Params), tag);
 	// associate widget type with factory function
-	LLDummyWidgetRegistry::instance().defaultRegistrar().add(&typeid(T), &LLUICtrlFactory::createDefaultWidget<T>);
+	LLDefaultWidgetRegistry::instance().defaultRegistrar().add(widget_type_infop, &LLUICtrlFactory::createDefaultWidget<T>);
+	LLWidgetTypeRegistry::instance().defaultRegistrar().add(tag, widget_type_infop);
+	LLDefaultParamBlockRegistry::instance().defaultRegistrar().add(widget_type_infop, &getEmptyParamBlock<T>);
+	typedef typename T::child_registry_t registry_t;
+	LLChildRegistryRegistry::instance().defaultRegistrar().add(widget_type_infop, registry_t::instance());
 }
 
 
-typedef boost::function<LLPanel* (void)> LLPannelClassCreatorFunc;
+typedef boost::function<LLPanel* (void)> LLPanelClassCreatorFunc;
 
 // local static instance for registering a particular panel class
 
@@ -417,15 +479,15 @@ class LLRegisterPanelClass
 {
 public:
 	// reigister with either the provided builder, or the generic templated builder
-	void addPanelClass(const std::string& tag,LLPannelClassCreatorFunc func)
+	void addPanelClass(const std::string& tag,LLPanelClassCreatorFunc func)
 	{
-		mPannelClassesNames[tag] = func;
+		mPanelClassesNames[tag] = func;
 	}
 
 	LLPanel* createPanelClass(const std::string& tag)
 	{
-		param_name_map_t::iterator iT =  mPannelClassesNames.find(tag);
-		if(iT == mPannelClassesNames.end())
+		param_name_map_t::iterator iT =  mPanelClassesNames.find(tag);
+		if(iT == mPanelClassesNames.end())
 			return 0;
 		return iT->second();
 	}
@@ -437,9 +499,9 @@ public:
 	}
 
 private:
-	typedef std::map< std::string, LLPannelClassCreatorFunc> param_name_map_t;
+	typedef std::map< std::string, LLPanelClassCreatorFunc> param_name_map_t;
 	
-	param_name_map_t mPannelClassesNames;
+	param_name_map_t mPanelClassesNames;
 };
 
 

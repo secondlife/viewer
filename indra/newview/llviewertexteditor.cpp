@@ -39,22 +39,25 @@
 #include "llinventory.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 
 #include "llviewertexteditor.h"
 
 #include "llfloaterchat.h"
+#include "llfloateravatarinfo.h"
 #include "llfloaterworldmap.h"
 #include "llnotify.h"
+#include "llpanelplaces.h"
 #include "llpreview.h"
 #include "llpreviewtexture.h"
 #include "llpreviewnotecard.h"
 #include "llpreviewlandmark.h"
 #include "llscrollbar.h"
+#include "llsidetray.h"
 #include "lltooldraganddrop.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llviewerinventory.h"
 #include "lluictrlfactory.h"
@@ -64,7 +67,7 @@
 
 #include "llappviewer.h" // for gPacificDaylightTime
 
-static LLDefaultWidgetRegistry::Register<LLViewerTextEditor> r("text_editor");
+static LLDefaultChildRegistry::Register<LLViewerTextEditor> r("text_editor");
 
 ///----------------------------------------------------------------------------
 /// Class LLEmbeddedNotecardOpener
@@ -372,47 +375,61 @@ void LLEmbeddedItems::bindEmbeddedChars( const LLFontGL* font ) const
 		const char* img_name;
 		switch( item->getType() )
 		{
-		  case LLAssetType::AT_TEXTURE:
-			if(item->getInventoryType() == LLInventoryType::IT_SNAPSHOT)
-			{
-				img_name = "inv_item_snapshot.tga";
-			}
-			else
-			{
-				img_name = "inv_item_texture.tga";
-			}
+			case LLAssetType::AT_TEXTURE:
+				if(item->getInventoryType() == LLInventoryType::IT_SNAPSHOT)
+				{
+					img_name = "inv_item_snapshot.tga";
+				}
+				else
+				{
+					img_name = "inv_item_texture.tga";
+				}
 
-			break;
-		  case LLAssetType::AT_SOUND:			img_name = "inv_item_sound.tga";	break;
-		  case LLAssetType::AT_LANDMARK:		
-			if (item->getFlags() & LLInventoryItem::II_FLAGS_LANDMARK_VISITED)
+				break;
+			case LLAssetType::AT_SOUND:			img_name = "inv_item_sound.tga";	break;
+			case LLAssetType::AT_LANDMARK:		
+				if (item->getFlags() & LLInventoryItem::II_FLAGS_LANDMARK_VISITED)
+				{
+					img_name = "inv_item_landmark_visited.tga";	
+				}
+				else
+				{
+					img_name = "inv_item_landmark.tga";	
+				}
+				break;
+			case LLAssetType::AT_CALLINGCARD:
 			{
-				img_name = "inv_item_landmark_visited.tga";	
+				BOOL online;
+				online = LLAvatarTracker::instance().isBuddyOnline(item->getCreatorUUID());				
+				if (online)
+				{
+					img_name = "inv_item_callingcard_online.tga"; break;
+				}
+				else
+				{
+					img_name = "inv_item_callingcard_offline.tga"; break;
+				}
+				break;
 			}
-			else
-			{
-				img_name = "inv_item_landmark.tga";	
-			}
-			break;
-		  case LLAssetType::AT_CLOTHING:		img_name = "inv_item_clothing.tga";	break;
-		  case LLAssetType::AT_OBJECT:			
-			if (item->getFlags() & LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS)
-			{
-				img_name = "inv_item_object_multi.tga";	
-			}
-			else
-			{
-				img_name = "inv_item_object.tga";	
-			}
-			break;
-		  case LLAssetType::AT_NOTECARD:		img_name = "inv_item_notecard.tga";	break;
-		  case LLAssetType::AT_LSL_TEXT:		img_name = "inv_item_script.tga";	break;
-		  case LLAssetType::AT_BODYPART:		img_name = "inv_item_skin.tga";	break;
-		  case LLAssetType::AT_ANIMATION:		img_name = "inv_item_animation.tga";break;
-		  case LLAssetType::AT_GESTURE:			img_name = "inv_item_gesture.tga";	break;
-		  //TODO need img_name
-		  case LLAssetType::AT_FAVORITE:		img_name = "inv_item_landmark.tga";	 break;
-		  default: llassert(0); continue;
+			case LLAssetType::AT_CLOTHING:		img_name = "inv_item_clothing.tga";	break;
+			case LLAssetType::AT_OBJECT:			
+				if (item->getFlags() & LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS)
+				{
+					img_name = "inv_item_object_multi.tga";	
+				}
+				else
+				{
+					img_name = "inv_item_object.tga";	
+				}
+				break;
+			case LLAssetType::AT_NOTECARD:		img_name = "inv_item_notecard.tga";	break;
+			case LLAssetType::AT_LSL_TEXT:		img_name = "inv_item_script.tga";	break;
+			case LLAssetType::AT_BODYPART:		img_name = "inv_item_skin.tga";	break;
+			case LLAssetType::AT_ANIMATION:		img_name = "inv_item_animation.tga";break;
+			case LLAssetType::AT_GESTURE:			img_name = "inv_item_gesture.tga";	break;
+				//TODO need img_name
+			case LLAssetType::AT_FAVORITE:		img_name = "inv_item_landmark.tga";	 break;
+			default: llassert(0); continue;
 		}
 
 		LLUIImagePtr image = LLUI::getUIImage(img_name);
@@ -1019,8 +1036,6 @@ BOOL LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 }
 
 
-// Allow calling cards to be dropped onto text fields.  Append the name and
-// a carriage return.
 // virtual
 BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 					  BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
@@ -1043,33 +1058,17 @@ BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 		{
 			switch( cargo_type )
 			{
-			case DAD_CALLINGCARD:
-				if(acceptsCallingCardNames())
-				{
-					if (drop)
-					{
-						LLInventoryItem *item = (LLInventoryItem *)cargo_data;
-						std::string name = item->getName();
-						appendText(name, true, true);
-					}
-					*accept = ACCEPT_YES_COPY_SINGLE;
-				}
-				else
-				{
-					*accept = ACCEPT_NO;
-				}
-				break;
-
-			case DAD_TEXTURE:
-			case DAD_SOUND:
-			case DAD_LANDMARK:
-			case DAD_SCRIPT:
-			case DAD_CLOTHING:
-			case DAD_OBJECT:
-			case DAD_NOTECARD:
-			case DAD_BODYPART:
-			case DAD_ANIMATION:
-			case DAD_GESTURE:
+				case DAD_CALLINGCARD:
+				case DAD_TEXTURE:
+				case DAD_SOUND:
+				case DAD_LANDMARK:
+				case DAD_SCRIPT:
+				case DAD_CLOTHING:
+				case DAD_OBJECT:
+				case DAD_NOTECARD:
+				case DAD_BODYPART:
+				case DAD_ANIMATION:
+				case DAD_GESTURE:
 				{
 					LLInventoryItem *item = (LLInventoryItem *)cargo_data;
 					if( item && allowsEmbeddedItems() )
@@ -1101,8 +1100,8 @@ BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 							{
 								// *TODO: Translate
 								tooltip_msg.assign("Only items with unrestricted\n"
-													"'next owner' permissions \n"
-													"can be attached to notecards.");
+												   "'next owner' permissions \n"
+												   "can be attached to notecards.");
 							}
 						}
 					}
@@ -1113,9 +1112,9 @@ BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 					break;
 				}
 
-			default:
-				*accept = ACCEPT_NO;
-				break;
+				default:
+					*accept = ACCEPT_NO;
+					break;
 			}
 		}
 		else
@@ -1301,32 +1300,36 @@ BOOL LLViewerTextEditor::openEmbeddedItem(LLInventoryItem* item, llwchar wc)
 
 	switch( item->getType() )
 	{
-	case LLAssetType::AT_TEXTURE:
-	  	openEmbeddedTexture( item, wc );
-		return TRUE;
+		case LLAssetType::AT_TEXTURE:
+			openEmbeddedTexture( item, wc );
+			return TRUE;
 
-	case LLAssetType::AT_SOUND:
-		openEmbeddedSound( item, wc );
-		return TRUE;
+		case LLAssetType::AT_SOUND:
+			openEmbeddedSound( item, wc );
+			return TRUE;
 
-	case LLAssetType::AT_NOTECARD:
-		openEmbeddedNotecard( item, wc );
-		return TRUE;
+		case LLAssetType::AT_NOTECARD:
+			openEmbeddedNotecard( item, wc );
+			return TRUE;
 
-	case LLAssetType::AT_LANDMARK:
-		openEmbeddedLandmark( item, wc );
-		return TRUE;
+		case LLAssetType::AT_LANDMARK:
+			openEmbeddedLandmark( item, wc );
+			return TRUE;
 
-	case LLAssetType::AT_LSL_TEXT:
-	case LLAssetType::AT_CLOTHING:
-	case LLAssetType::AT_OBJECT:
-	case LLAssetType::AT_BODYPART:
-	case LLAssetType::AT_ANIMATION:
-	case LLAssetType::AT_GESTURE:
-		showCopyToInvDialog( item, wc );
-		return TRUE;
-	default:
-		return FALSE;
+		case LLAssetType::AT_CALLINGCARD:
+			openEmbeddedCallingcard( item, wc );
+			return TRUE;
+
+		case LLAssetType::AT_LSL_TEXT:
+		case LLAssetType::AT_CLOTHING:
+		case LLAssetType::AT_OBJECT:
+		case LLAssetType::AT_BODYPART:
+		case LLAssetType::AT_ANIMATION:
+		case LLAssetType::AT_GESTURE:
+			showCopyToInvDialog( item, wc );
+			return TRUE;
+		default:
+			return FALSE;
 	}
 
 }
@@ -1364,16 +1367,37 @@ void LLViewerTextEditor::openEmbeddedLandmark( LLInventoryItem* item, llwchar wc
 {
 	if (!item)
 		return;
-	LLPreviewLandmark* preview = LLFloaterReg::showTypedInstance<LLPreviewLandmark>("preview_landmark", LLSD(item->getUUID()), TAKE_FOCUS_YES);
-	if (preview)
+
+	LLSD key;
+	key["type"] = "landmark";
+	key["id"] = item->getUUID();
+
+	LLPanelPlaces *panel = dynamic_cast<LLPanelPlaces*>(LLSideTray::getInstance()->showPanel("panel_places", key));
+	if (panel)
 	{
-		preview->setItem( item );
+		panel->setItem(item);
 	}
+
+//	LLPreviewLandmark* preview = LLFloaterReg::showTypedInstance<LLPreviewLandmark>("preview_landmark", LLSD(item->getUUID()), TAKE_FOCUS_YES);
+//	if (preview)
+//	{
+//		preview->setItem( item );
+//	}
 }
 
 void LLViewerTextEditor::openEmbeddedNotecard( LLInventoryItem* item, llwchar wc )
 {
 	copyInventory(item, gInventoryCallbacks.registerCB(mInventoryCallback));
+}
+
+void LLViewerTextEditor::openEmbeddedCallingcard( LLInventoryItem* item, llwchar wc )
+{
+	if(item && !item->getCreatorUUID().isNull())
+	{
+		BOOL online;
+		online = LLAvatarTracker::instance().isBuddyOnline(item->getCreatorUUID());
+		LLFloaterAvatarInfo::showFromFriend(item->getCreatorUUID(), online);
+	}
 }
 
 void LLViewerTextEditor::showUnsavedAlertDialog( LLInventoryItem* item )

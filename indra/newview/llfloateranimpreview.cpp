@@ -307,8 +307,9 @@ BOOL LLFloaterAnimPreview::postBuild()
 
 			motionp->setName(childGetValue("name_form").asString());
 			mAnimPreview->getDummyAvatar()->startMotion(mMotionID);
-			childSetMinValue("playback_slider", 0.0);
-			childSetMaxValue("playback_slider", 1.0);
+			
+			getChild<LLSlider>("playback_slider")->setMinValue(0.0);
+			getChild<LLSlider>("playback_slider")->setMaxValue(1.0);
 
 			childSetValue("loop_check", LLSD(motionp->getLoop()));
 			childSetValue("loop_in_point", LLSD(motionp->getLoopIn() / motionp->getDuration() * 100.f));
@@ -325,7 +326,6 @@ BOOL LLFloaterAnimPreview::postBuild()
 		}
 		else
 		{
-			delete mAnimPreview;
 			mAnimPreview = NULL;
 			mMotionID.setNull();
 			childSetValue("bad_animation_text", getString("failed_to_initialize"));
@@ -367,7 +367,6 @@ BOOL LLFloaterAnimPreview::postBuild()
 //-----------------------------------------------------------------------------
 LLFloaterAnimPreview::~LLFloaterAnimPreview()
 {
-	delete mAnimPreview;
 	mAnimPreview = NULL;
 
 	setEnabled(FALSE);
@@ -387,7 +386,7 @@ void LLFloaterAnimPreview::draw()
 	{
 		gGL.color3f(1.f, 1.f, 1.f);
 
-		gGL.getTexUnit(0)->bind(mAnimPreview->getTexture());
+		gGL.getTexUnit(0)->bind(mAnimPreview);
 
 		gGL.begin( LLRender::QUADS );
 		{
@@ -1017,7 +1016,7 @@ void LLFloaterAnimPreview::onBtnOK(void* userdata)
 //-----------------------------------------------------------------------------
 // LLPreviewAnimation
 //-----------------------------------------------------------------------------
-LLPreviewAnimation::LLPreviewAnimation(S32 width, S32 height) : LLDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE)
+LLPreviewAnimation::LLPreviewAnimation(S32 width, S32 height) : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE)
 {
 	mNeedsUpdate = TRUE;
 	mCameraDistance = PREVIEW_CAMERA_DISTANCE;
@@ -1063,7 +1062,7 @@ BOOL	LLPreviewAnimation::render()
 	glMatrixMode(GL_PROJECTION);
 	gGL.pushMatrix();
 	glLoadIdentity();
-	glOrtho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f);
+	glOrtho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
 
 	glMatrixMode(GL_MODELVIEW);
 	gGL.pushMatrix();
@@ -1073,7 +1072,7 @@ BOOL	LLPreviewAnimation::render()
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.color4f(0.15f, 0.2f, 0.3f, 1.f);
 
-	gl_rect_2d_simple( mWidth, mHeight );
+	gl_rect_2d_simple( mFullWidth, mFullHeight );
 
 	glMatrixMode(GL_PROJECTION);
 	gGL.popMatrix();
@@ -1095,7 +1094,7 @@ BOOL	LLPreviewAnimation::render()
 		target_pos + (mCameraOffset  * av_rot) );											// point of interest
 
 	LLViewerCamera::getInstance()->setView(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
-	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mWidth, mHeight, FALSE);
+	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, FALSE);
 
 	mCameraRelPos = LLViewerCamera::getInstance()->getOrigin() - avatarp->mHeadp->getWorldPosition();
 

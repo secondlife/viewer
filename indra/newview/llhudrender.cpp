@@ -40,7 +40,6 @@
 #include "v3math.h"
 #include "llquaternion.h"
 #include "llfontgl.h"
-#include "llimagegl.h"
 #include "llglheaders.h"
 #include "llviewerwindow.h"
 

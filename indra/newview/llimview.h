@@ -38,12 +38,54 @@
 #include "llinstantmessage.h"
 #include "lluuid.h"
 #include "llmultifloater.h"
+#include "llrecentpeople.h"
 
 class LLFloaterChatterBox;
 class LLUUID;
 class LLFloaterIMPanel;
 class LLFriendObserver;
 class LLFloaterIM;
+
+class LLIMModel :  public LLSingleton<LLIMModel>
+{
+public:
+
+	struct LLIMSession
+	{
+		LLIMSession(std::string name, EInstantMessage type, LLUUID other_participant_id) 
+			:mName(name), mType(type), mNumUnread(0), mOtherParticipantID(other_participant_id) {}
+		
+		std::string mName;
+		EInstantMessage mType;
+		LLUUID mOtherParticipantID;
+		S32 mNumUnread;
+		std::list<LLSD> mMsgs;
+	};
+	
+
+	LLIMModel();
+
+	static std::map<LLUUID, LLIMSession*> sSessionsMap;  //mapping session_id to session
+	boost::signals2::signal<void(const LLSD&)> mChangedSignal;
+	boost::signals2::connection addChangedCallback( boost::function<void (const LLSD& data)> cb );
+
+	bool newSession(LLUUID session_id, std::string name, EInstantMessage type, LLUUID other_participant_id);
+	std::list<LLSD> getMessages(LLUUID session_id, int start_index = 0);
+	bool addMessage(LLUUID session_id, std::string from, std::string utf8_text);
+	bool addToHistory(LLUUID session_id, std::string from, std::string utf8_text); 
+    //used to get the name of the session, for use as the title
+    //currently just the other avatar name
+	const std::string& getName(LLUUID session_id);
+	
+	static void sendLeaveSession(LLUUID session_id, LLUUID other_participant_id);
+	static bool sendStartSession(const LLUUID& temp_session_id, const LLUUID& other_participant_id,
+						  const std::vector<LLUUID>& ids, EInstantMessage dialog);
+	static void sendTypingState(LLUUID session_id, LLUUID other_participant_id, BOOL typing);
+	static void sendMessage(const std::string& utf8_text, const LLUUID& im_session_id,
+								const LLUUID& other_participant_id, EInstantMessage dialog);
+
+	void testMessages();
+};
 
 class LLIMSessionObserver
 {
@@ -53,8 +95,11 @@ public:
 	virtual void sessionRemoved(const LLUUID& session_id) = 0;
 };
 
+
 class LLIMMgr : public LLSingleton<LLIMMgr>
 {
+	friend class LLIMModel;
+
 public:
 	enum EInvitationType
 	{

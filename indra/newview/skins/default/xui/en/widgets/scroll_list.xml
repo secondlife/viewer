@@ -4,7 +4,7 @@
              bg_selected_color="ScrollSelectedBGColor"
              fg_disable_color="ScrollDisabledColor"
              bg_writeable_color="ScrollBgWriteableColor"
-             bg_read_only_color="ScrollBgReadOnlyColor"
+             bg_readonly_color="ScrollBgReadOnlyColor"
              bg_stripe_color="ScrollBGStripeColor"
              hovered_color="ScrollHoveredColor"
              highlighted_color="ScrollHighlightedColor"

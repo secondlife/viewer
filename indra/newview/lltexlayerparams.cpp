@@ -89,12 +89,12 @@ void LLTexLayerParamAlpha::getCacheByteCount(S32* gl_bytes)
 		 iter != sInstances.end(); iter++)
 	{
 		LLTexLayerParamAlpha* instance = *iter;
-		LLImageGL* image_gl = instance->mCachedProcessedImageGL;
-		if (image_gl)
+		LLViewerTexture* tex = instance->mCachedProcessedTexture;
+		if (tex)
 		{
-			S32 bytes = (S32)image_gl->getWidth() * image_gl->getHeight() * image_gl->getComponents();
+			S32 bytes = (S32)tex->getWidth() * tex->getHeight() * tex->getComponents();
 
-			if (image_gl->getHasGLTexture())
+			if (tex->hasValidGLTexture())
 			{
 				*gl_bytes += bytes;
 			}
@@ -104,7 +104,7 @@ void LLTexLayerParamAlpha::getCacheByteCount(S32* gl_bytes)
 
 LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLTexLayer* layer) :
 	LLTexLayerParam(layer),
-	mCachedProcessedImageGL(NULL),
+	mCachedProcessedTexture(NULL),
 	mNeedsCreateTexture(FALSE),
 	mStaticImageInvalid(FALSE),
 	mAvgDistortionVec(1.f, 1.f, 1.f),
@@ -115,7 +115,7 @@ LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLTexLayer* layer) :
 
 LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLVOAvatar* avatar) :
 	LLTexLayerParam(avatar),
-	mCachedProcessedImageGL(NULL),
+	mCachedProcessedTexture(NULL),
 	mNeedsCreateTexture(FALSE),
 	mStaticImageInvalid(FALSE),
 	mAvgDistortionVec(1.f, 1.f, 1.f),
@@ -134,7 +134,7 @@ LLTexLayerParamAlpha::~LLTexLayerParamAlpha()
 void LLTexLayerParamAlpha::deleteCaches()
 {
 	mStaticImageTGA = NULL; // deletes image
-	mCachedProcessedImageGL = NULL;
+	mCachedProcessedTexture = NULL;
 	mStaticImageRaw = NULL;
 	mNeedsCreateTexture = FALSE;
 }
@@ -266,22 +266,22 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 
 		const S32 image_tga_width = mStaticImageTGA->getWidth();
 		const S32 image_tga_height = mStaticImageTGA->getHeight(); 
-		if (!mCachedProcessedImageGL ||
-			(mCachedProcessedImageGL->getWidth() != image_tga_width) ||
-			(mCachedProcessedImageGL->getHeight() != image_tga_height) ||
+		if (!mCachedProcessedTexture ||
+			(mCachedProcessedTexture->getWidth() != image_tga_width) ||
+			(mCachedProcessedTexture->getHeight() != image_tga_height) ||
 			(weight_changed))
 		{
 //			llinfos << "Building Cached Alpha: " << mName << ": (" << mStaticImageRaw->getWidth() << ", " << mStaticImageRaw->getHeight() << ") " << effective_weight << llendl;
 			mCachedEffectiveWeight = effective_weight;
 
-			if (!mCachedProcessedImageGL)
+			if (!mCachedProcessedTexture)
 			{
-				mCachedProcessedImageGL = new LLImageGL(image_tga_width, image_tga_height, 1, FALSE);
+				mCachedProcessedTexture = LLViewerTextureManager::getLocalTexture(image_tga_width, image_tga_height, 1, FALSE);
 
 				// We now have something in one of our caches
-				LLTexLayerSet::sHasCaches |= mCachedProcessedImageGL ? TRUE : FALSE;
+				LLTexLayerSet::sHasCaches |= mCachedProcessedTexture ? TRUE : FALSE;
 
-				mCachedProcessedImageGL->setExplicitFormat(GL_ALPHA8, GL_ALPHA);
+				mCachedProcessedTexture->setExplicitFormat(GL_ALPHA8, GL_ALPHA);
 			}
 
 			// Applies domain and effective weight to data as it is decoded. Also resizes the raw image if needed.
@@ -291,20 +291,20 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 			mNeedsCreateTexture = TRUE;			
 		}
 
-		if (mCachedProcessedImageGL)
+		if (mCachedProcessedTexture)
 		{
 			{
 				// Create the GL texture, and then hang onto it for future use.
 				if (mNeedsCreateTexture)
 				{
-					mCachedProcessedImageGL->createGLTexture(0, mStaticImageRaw);
+					mCachedProcessedTexture->createGLTexture(0, mStaticImageRaw);
 					mNeedsCreateTexture = FALSE;
-					gGL.getTexUnit(0)->bind(mCachedProcessedImageGL);
-					mCachedProcessedImageGL->setAddressMode(LLTexUnit::TAM_CLAMP);
+					gGL.getTexUnit(0)->bind(mCachedProcessedTexture);
+					mCachedProcessedTexture->setAddressMode(LLTexUnit::TAM_CLAMP);
 				}
 
 				LLGLSNoAlphaTest gls_no_alpha_test;
-				gGL.getTexUnit(0)->bind(mCachedProcessedImageGL);
+				gGL.getTexUnit(0)->bind(mCachedProcessedTexture);
 				gl_rect_2d_simple_tex(width, height);
 				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				stop_glerror();
@@ -315,7 +315,7 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 		// (It's not really a "cache" in that case, but the logic is the same)
 		if (mAvatar->isSelf())
 		{
-			mCachedProcessedImageGL = NULL;
+			mCachedProcessedTexture = NULL;
 		}
 	}
 	else

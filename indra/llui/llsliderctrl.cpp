@@ -53,7 +53,7 @@
 
 const U32 MAX_STRING_LENGTH = 10;
 
-static LLDefaultWidgetRegistry::Register<LLSliderCtrl> r("slider");
+static LLDefaultChildRegistry::Register<LLSliderCtrl> r("slider");
 
 LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)
 :	LLF32UICtrl(p),

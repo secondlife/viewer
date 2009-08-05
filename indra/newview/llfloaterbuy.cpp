@@ -43,7 +43,7 @@
 #include "llagent.h"			// for agent id
 #include "llalertdialog.h"
 #include "llinventorymodel.h"	// for gInventory
-#include "llinventoryview.h"	// for get_item_icon
+#include "llfloaterinventory.h"	// for get_item_icon
 #include "llselectmgr.h"
 #include "llscrolllistctrl.h"
 #include "llviewerobject.h"
@@ -276,7 +276,7 @@ void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
 		std::string text = obj->getName();
 		if (!(next_owner_mask & PERM_COPY))
 		{
-			text.append(getString("no_copy"));
+			text.append(LLTrans::getString("no_copy"));
 		}
 		if (!(next_owner_mask & PERM_MODIFY))
 		{

@@ -59,11 +59,11 @@ class LLPanelRegionTerrainInfo;
 class LLPanelEstateInfo;
 class LLPanelEstateCovenant;
 
-class LLFloaterRegionInfo : public LLFloater, public LLFloaterSingleton<LLFloaterRegionInfo>
+class LLFloaterRegionInfo : public LLFloater
 {
-	friend class LLUISingleton<LLFloaterRegionInfo, VisibilityPolicy<LLFloater> >;
+	friend class LLFloaterReg;
 public:
-	~LLFloaterRegionInfo();
+
 
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ BOOL postBuild();
@@ -86,8 +86,12 @@ public:
 	
 	void requestRegionInfo();
 
-protected:
+private:
+	
 	LLFloaterRegionInfo(const LLSD& seed);
+	~LLFloaterRegionInfo();
+	
+protected:
 	void refreshFromRegion(LLViewerRegion* region);
 
 	// member data
@@ -166,7 +170,7 @@ protected:
 	bool onKickAllCommit(const LLSD& notification, const LLSD& response);
 	static void onClickMessage(void* userdata);
 	bool onMessageCommit(const LLSD& notification, const LLSD& response);
-	static void onClickManageTelehub(void* data);
+	void onClickManageTelehub();
 };
 
 /////////////////////////////////////////////////////////////////////////////

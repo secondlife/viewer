@@ -44,18 +44,15 @@ class LLJoystickAgentSlide;
 // Classes
 //
 class LLFloaterMove
-:	public LLFloater, 
-	public LLFloaterSingleton<LLFloaterMove>
+:	public LLFloater
 {
-	friend class LLUISingleton<LLFloaterMove, VisibilityPolicy<LLFloater> >;
-	
-protected:
+	friend class LLFloaterReg;
+
+private:
 	LLFloaterMove(const LLSD& key);
 	~LLFloaterMove() {}
-
 public:
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
+
 	/*virtual*/	BOOL	postBuild();
 	static F32	getYawRate(F32 time);
 

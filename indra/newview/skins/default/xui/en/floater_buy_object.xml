@@ -8,7 +8,7 @@
  name="contents"
  save_rect="true"
  title="Buy Copy of Object"
- width="300">
+ width="280">
     <floater.string
      name="title_buy_text">
         Buy
@@ -36,13 +36,13 @@
      left="15"
      name="object_list"
      top="24"
-     width="281">
+     width="250">
         <scroll_list.columns
          name="icon"
          width="16" />
         <scroll_list.columns
          name="text"
-         width="300" />
+         width="234" />
     </scroll_list>
     <text
      type="string"
@@ -54,7 +54,7 @@
      left_delta="0"
      name="contents_text"
      top_pad="4"
-     width="281">
+     width="250">
         and its contents:
     </text>
     <scroll_list
@@ -64,13 +64,13 @@
      left_delta="0"
      name="item_list"
      top_pad="4"
-     width="281">
+     width="250">
         <scroll_list.columns
          name="icon"
          width="16" />
         <scroll_list.columns
          name="text"
-         width="300" />
+         width="234" />
     </scroll_list>
     <text
      type="string"
@@ -88,21 +88,21 @@
     <button
      follows="right|bottom"
      height="20"
-     label="Cancel"
-     label_selected="Cancel"
-     layout="topleft"
-     left="216"
-     name="cancel_btn"
-     top="224"
-     width="60" />
-    <button
-     follows="right|bottom"
-     height="20"
      label="Buy"
      label_selected="Buy"
      layout="topleft"
-     left_delta="-64"
+     left="10"
      name="buy_btn"
+     top_pad="5"
+     width="125" />
+    <button
+     follows="right|bottom"
+     height="20"
+     label="Cancel"
+     label_selected="Cancel"
+     layout="topleft"
+     left_pad="5"
+     name="cancel_btn"
      top_delta="0"
-     width="60" />
+     width="125" />
 </floater>

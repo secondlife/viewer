@@ -21,7 +21,16 @@
 #include <vector>
 #include <deque>
 #include <stdexcept>
+#if LL_WINDOWS
+	#pragma warning (push)
+	#pragma warning (disable : 4263) // boost::signals2::expired_slot::what() has const mismatch
+	#pragma warning (disable : 4264) 
+#endif
 #include <boost/signals2.hpp>
+#if LL_WINDOWS
+	#pragma warning (pop)
+#endif
+
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>

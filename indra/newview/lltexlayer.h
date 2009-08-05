@@ -40,7 +40,6 @@
 
 class LLVOAvatar;
 class LLVOAvatarSelf;
-class LLImageGL;
 class LLImageTGA;
 class LLImageRaw;
 class LLXmlTreeNode;
@@ -53,6 +52,7 @@ class LLTexLayerParamColor;
 class LLTexLayerParamColorInfo;
 class LLTexLayerParamAlpha;
 class LLTexLayerParamAlphaInfo;
+
 
 typedef std::vector<LLTexLayerParamColor *> param_color_list_t;
 typedef std::vector<LLTexLayerParamAlpha *> param_alpha_list_t;
@@ -75,6 +75,7 @@ public:
 	};
 
 	LLTexLayer(LLTexLayerSet* const layer_set);
+	LLTexLayer(const LLTexLayer &layer);
 	~LLTexLayer();
 
 	const LLTexLayerInfo* 	getInfo() const { return mInfo; }
@@ -195,7 +196,7 @@ public:
 
 	LLVOAvatarSelf*		    getAvatar()	const { return mAvatar; }
 	const std::string		getBodyRegion() const;
-	BOOL					hasComposite() const { return (mComposite != NULL); }
+	BOOL					hasComposite() const { return (mComposite.notNull()); }
 	void					setBump(BOOL b) { mHasBump = b; }
 	BOOL					hasBump() const { return mHasBump; }
 	LLVOAvatarDefines::EBakedTextureIndex getBakedTexIndex() { return mBakedTexIndex; }
@@ -208,7 +209,7 @@ private:
 	typedef std::vector<LLTexLayer *> layer_list_t;
 	layer_list_t			mLayerList;
 	layer_list_t			mMaskLayerList;
-	LLTexLayerSetBuffer*	mComposite;
+	LLPointer<LLTexLayerSetBuffer>	mComposite;
 	LLVOAvatarSelf*	const	mAvatar; // Backlink only; don't make this an LLPointer.
 	BOOL					mUpdatesEnabled;
 	BOOL					mHasBump;
@@ -241,7 +242,7 @@ private:
 };
 
 // The composite image that a LLTexLayerSet writes to.  Each LLTexLayerSet has one.
-class LLTexLayerSetBuffer : public LLDynamicTexture
+class LLTexLayerSetBuffer : public LLViewerDynamicTexture
 {
 public:
 	LLTexLayerSetBuffer(LLTexLayerSet* const owner, S32 width, S32 height, BOOL has_bump);
@@ -282,7 +283,7 @@ private:
 	BOOL					mNeedsUpload;
 	BOOL					mUploadPending;
 	LLUUID					mUploadID; // Identifys the current upload process (null if none).  Used to avoid overlaps (eg, when the user rapidly makes two changes outside of Face Edit)
-	LLPointer<LLImageGL>	mBumpTex; // zero if none
+	LLPointer<LLViewerTexture>	mBumpTex; // zero if none
 
 	static S32				sGLByteCount;
 	static S32				sGLBumpByteCount;
@@ -302,7 +303,7 @@ public:
 	LLTexLayerStaticImageList();
 	~LLTexLayerStaticImageList();
 
-	LLImageGL*	getImageGL(const std::string& file_name, BOOL is_mask);
+	LLViewerTexture*	getTexture(const std::string& file_name, BOOL is_mask);
 	LLImageTGA*	getImageTGA(const std::string& file_name);
 
 	void		deleteCachedImages();
@@ -314,8 +315,8 @@ private:
 private:
 	LLStringTable mImageNames;
 
-	typedef std::map< const char*, LLPointer<LLImageGL> > image_gl_map_t;
-	image_gl_map_t mStaticImageListGL;
+	typedef std::map< const char*, LLPointer<LLViewerTexture> > texture_map_t;
+	texture_map_t mStaticImageList;
 	typedef std::map< const char*, LLPointer<LLImageTGA> > image_tga_map_t;
 	image_tga_map_t mStaticImageListTGA;
 

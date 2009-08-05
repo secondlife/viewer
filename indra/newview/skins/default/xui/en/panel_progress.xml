@@ -61,28 +61,28 @@
                      width="640" />
                     <text
                      follows="left|right|top"
-                     font="SansSerif"
+                     font="SansSerifHuge"
                      font_shadow="hard"
-                     halign="center"
+                     halign="left"
                      height="20"
                      layout="topleft"
-                     left_delta="0"
+                     left_delta="47"
                      name="title_text"
                      text_color="LoginProgressBoxTextColor"
                      top_delta="50"
-                     width="640" />
+                     width="593" />
                     <text
                      follows="left|right|top"
                      font="SansSerif"
                      font_shadow="hard"
-                     halign="center"
+                     halign="left"
                      height="20"
                      layout="topleft"
                      left_delta="0"
                      name="progress_text"
                      text_color="LoginProgressBoxTextColor"
                      top_pad="5"
-                     width="640" />
+                     width="593" />
                     <progress_bar
                      bottom="115"
                      color_bar="1 1 1 0.96"
@@ -94,17 +94,17 @@
                      right="-45" />
                     <text
                      follows="left|right|top|bottom"
-                     font="SansSerif"
+                     font="SansSerifLarge"
                      font_shadow="hard"
-                     halign="center"
+                     halign="left"
                      height="100"
                      layout="topleft"
-                     left="20"
-                     line_spacing="8"
+                     left="30"
+                     line_spacing="2"
                      name="message_text"
                      text_color="LoginProgressBoxTextColor"
                      top="145"
-                     width="600" />
+                     width="610" />
                 </layout_panel>
                 <layout_panel
                  height="200"
@@ -125,9 +125,9 @@
      follows="right|bottom"
      height="22"
      layout="topleft"
-     left="-86"
+     left="-106"
      name="cancel_btn"
      picture_style="true"
-     top="730"
-     width="70" />
+     top="700"
+     width="90" />
 </panel>

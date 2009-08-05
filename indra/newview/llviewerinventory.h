@@ -141,7 +141,6 @@ public:
 	};
 	LLTransactionID getTransactionID() const { return mTransactionID; }
 	
-protected:
 	const LLViewerInventoryItem *getLinkedItem() const;
 	const LLViewerInventoryCategory *getLinkedCategory() const;
 

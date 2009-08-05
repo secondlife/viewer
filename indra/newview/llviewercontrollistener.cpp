@@ -21,20 +21,17 @@ LLViewerControlListener::LLViewerControlListener()
 	: LLDispatchListener("LLViewerControl",  "group")
 {
 	add("Global", boost::bind(&LLViewerControlListener::set, &gSavedSettings, _1));
-	add("Skin", boost::bind(&LLViewerControlListener::set, &gSavedSkinSettings, _1));
 	add("PerAccount", boost::bind(&LLViewerControlListener::set, &gSavedPerAccountSettings, _1));
 	add("Warning", boost::bind(&LLViewerControlListener::set, &gWarningSettings, _1));
 	add("Crash", boost::bind(&LLViewerControlListener::set, &gCrashSettings, _1));
 
 #if 0
 	add(/*"toggleControl",*/ "Global", boost::bind(&LLViewerControlListener::toggleControl, &gSavedSettings, _1));
-	add(/*"toggleControl",*/ "Skin", boost::bind(&LLViewerControlListener::toggleControl, &gSavedSkinSettings, _1));
 	add(/*"toggleControl",*/ "PerAccount", boost::bind(&LLViewerControlListener::toggleControl, &gSavedPerAccountSettings, _1));
 	add(/*"toggleControl",*/ "Warning", boost::bind(&LLViewerControlListener::toggleControl, &gWarningSettings, _1));
 	add(/*"toggleControl",*/ "Crash", boost::bind(&LLViewerControlListener::toggleControl, &gCrashSettings, _1));
 
 	add(/*"setDefault",*/ "Global", boost::bind(&LLViewerControlListener::setDefault, &gSavedSettings, _1));
-	add(/*"setDefault",*/ "Skin", boost::bind(&LLViewerControlListener::setDefault, &gSavedSkinSettings, _1));
 	add(/*"setDefault",*/ "PerAccount", boost::bind(&LLViewerControlListener::setDefault, &gSavedPerAccountSettings, _1));
 	add(/*"setDefault",*/ "Warning", boost::bind(&LLViewerControlListener::setDefault, &gWarningSettings, _1));
 	add(/*"setDefault",*/ "Crash", boost::bind(&LLViewerControlListener::setDefault, &gCrashSettings, _1));

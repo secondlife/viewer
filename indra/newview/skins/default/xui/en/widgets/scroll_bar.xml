@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<scroll_bar thumb_image="rounded_square.tga"
-            track_image="rounded_square.tga"
-            track_color="ScrollbarTrackColor"
+<scroll_bar thumb_image="ScrollThumb_Vert"
+            track_image="ScrollTrack_Vert"
+	    track_color="ScrollbarTrackColor"
             thumb_color="ScrollbarThumbColor"
-            thickness="16">
-  <up_button image_unselected="scrollbutton_up_out_blue.tga"
-             image_selected="scrollbutton_up_in_blue.tga"
-             scale_image="true"/>
-  <down_button image_unselected="scrollbutton_down_out_blue.tga"
-               image_selected="scrollbutton_down_in_blue.tga"
-               scale_image="true"/>
-  <left_button image_unselected="scrollbutton_left_out_blue.tga"
-               image_selected="scrollbutton_left_in_blue.tga"
-               scale_image="true"/>
-  <right_button image_unselected="scrollbutton_right_out_blue.tga"
-               image_selected="scrollbutton_right_in_blue.tga"
-               scale_image="true"/>
+            thickness="15">
+  <up_button image_unselected="ScrollArrow_Up"
+             image_selected="ScrollArrow_Up"
+             scale_image="true" thickness="15"
+             hover_glow_amount="0.15"/>
+  <down_button image_unselected="ScrollArrow_Down"
+               image_selected="ScrollArrow_Down"
+               scale_image="true" thickness="15"
+               hover_glow_amount="0.15"/>
+  <left_button image_unselected="ScrollArrow_Left"
+               image_selected="ScrollArrow_Left"
+               scale_image="true" thickness="15"
+               hover_glow_amount="0.15"/>
+  <right_button image_unselected="ScrollArrow_Right"
+               image_selected="ScrollArrow_Right"
+               scale_image="true" thickness="15"
+               hover_glow_amount="0.15"/>
 </scroll_bar>

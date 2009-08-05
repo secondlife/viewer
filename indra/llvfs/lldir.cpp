@@ -293,11 +293,7 @@ const std::string& LLDir::getDefaultSkinDir() const
 
 const std::string LLDir::getSkinBaseDir() const
 {
-	std::string dir = getAppRODataDir();
-	dir += mDirDelimiter;
-	dir += "skins";
-
-	return dir;
+	return mSkinBaseDir;
 }
 
 
@@ -385,9 +381,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		break;
 
 	case LL_PATH_SKINS:
-		prefix = getAppRODataDir();
-		prefix += mDirDelimiter;
-		prefix += "skins";
+		prefix = getSkinBaseDir();
 		break;
 
 	case LL_PATH_LOCAL_ASSETS:
@@ -612,9 +606,7 @@ void LLDir::setPerAccountChatLogsDir(const std::string &first, const std::string
 
 void LLDir::setSkinFolder(const std::string &skin_folder)
 {
-	mSkinDir = getAppRODataDir();
-	mSkinDir += mDirDelimiter;
-	mSkinDir += "skins";
+	mSkinDir = getSkinBaseDir();
 	mSkinDir += mDirDelimiter;
 	mSkinDir += skin_folder;
 
@@ -628,9 +620,7 @@ void LLDir::setSkinFolder(const std::string &skin_folder)
 
 	// base skin which is used as fallback for all skinned files
 	// e.g. c:\program files\secondlife\skins\default
-	mDefaultSkinDir = getAppRODataDir();
-	mDefaultSkinDir += mDirDelimiter;
-	mDefaultSkinDir += "skins";
+	mDefaultSkinDir = getSkinBaseDir();
 	mDefaultSkinDir += mDirDelimiter;	
 	mDefaultSkinDir += "default";
 }
@@ -675,6 +665,7 @@ void LLDir::dumpCurrentDirectories()
 	LL_DEBUGS2("AppInit","Directories") << "  LindenUserDir:         " << getLindenUserDir() << LL_ENDL;
 	LL_DEBUGS2("AppInit","Directories") << "  TempDir:               " << getTempDir() << LL_ENDL;
 	LL_DEBUGS2("AppInit","Directories") << "  CAFile:				 " << getCAFile() << LL_ENDL;
+	LL_DEBUGS2("AppInit","Directories") << "  SkinBaseDir:           " << getSkinBaseDir() << LL_ENDL;
 	LL_DEBUGS2("AppInit","Directories") << "  SkinDir:               " << getSkinDir() << LL_ENDL;
 
 #if LL_LIBXUL_ENABLED

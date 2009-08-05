@@ -1940,11 +1940,6 @@ void LLWindowSDL::setCursor(ECursorType cursor)
 	}
 }
 
-ECursorType LLWindowSDL::getCursor()
-{
-	return mCurrentCursor;
-}
-
 void LLWindowSDL::initCursors()
 {
 	int i;

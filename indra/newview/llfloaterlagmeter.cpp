@@ -36,7 +36,7 @@
 
 #include "lluictrlfactory.h"
 #include "llviewerstats.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 #include "llviewercontrol.h"
 #include "llappviewer.h"
 
@@ -51,7 +51,7 @@ const std::string LAG_WARNING_IMAGE_NAME  = "lag_status_warning.tga";
 const std::string LAG_GOOD_IMAGE_NAME     = "lag_status_good.tga";
 
 LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
-	:	LLFloater()
+	:	LLFloater(key)
 {
 //	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_lagmeter.xml");
 	mCommitCallbackRegistrar.add("LagMeter.ClickShrink",  boost::bind(&LLFloaterLagMeter::onClickShrink, this));	
@@ -185,7 +185,7 @@ void LLFloaterLagMeter::determineClient()
 		{
 			mClientCause->setText( getString("client_texture_loading_cause_msg", mStringArgs) );
 		}
-		else if((BYTES_TO_MEGA_BYTES(LLViewerImage::sBoundTextureMemoryInBytes)) > LLViewerImage::sMaxBoundTextureMemInMegaBytes)
+		else if((BYTES_TO_MEGA_BYTES(LLViewerTexture::sBoundTextureMemoryInBytes)) > LLViewerTexture::sMaxBoundTextureMemInMegaBytes)
 		{
 			mClientCause->setText( getString("client_texture_memory_cause_msg", mStringArgs) );
 		}

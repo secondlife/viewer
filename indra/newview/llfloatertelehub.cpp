@@ -93,8 +93,6 @@ LLFloaterTelehub::LLFloaterTelehub()
 	gMessageSystem->setHandlerFunc("TelehubInfo", processTelehubInfo);
 
 	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_telehub.xml");
-
-	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 }
 BOOL LLFloaterTelehub::postBuild()
 {
@@ -112,6 +110,10 @@ BOOL LLFloaterTelehub::postBuild()
 	}
 
 	return TRUE;
+}
+void LLFloaterTelehub::onOpen(const LLSD& key)
+{
+	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 }
 LLFloaterTelehub::~LLFloaterTelehub()
 {

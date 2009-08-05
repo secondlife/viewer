@@ -2,13 +2,13 @@
 <panel
  border="true"
  follows="top|left"
- height="320"
+ height="360"
  label="Region"
  layout="topleft"
  left="0"
  name="General"
- top="320"
- width="480">
+ top="360"
+ width="280">
     <text
      type="string"
      length="1"
@@ -32,7 +32,7 @@
      left_delta="50"
      name="region_text"
      top_delta="0"
-     width="400">
+     width="200">
         unknown
     </text>
     <text
@@ -283,14 +283,17 @@
      width="85">
         <combo_box.item
          label="Adult"
+         name="Adult"
          value="42" />
         <combo_box.item
          label="Mature"
+         name="Mature"
          value="21" />
         <combo_box.item
          label="PG"
+         name="PG"
          value="13" />
-    </combo_box>
+    </combo_box> 
     <button
      follows="left|top"
      font="SansSerifSmall"
@@ -310,8 +313,11 @@
      left="108"
      name="apply_btn"
      top="320"
-     width="100" />
-    <button
+     width="100">
+        <button.commit_callback
+         function="RegionInfo.Cancel" />
+    </button>
+   <button
      follows="left|top"
      height="20"
      label="Teleport Home One User..."
@@ -343,8 +349,8 @@
      height="20"
      label="Manage Telehub..."
      layout="topleft"
-     left="250"
+     left_delta="0"
      name="manage_telehub_btn"
-     top="70"
-     width="150" />
+     top_pad="20"
+     width="150" /> 
 </panel>

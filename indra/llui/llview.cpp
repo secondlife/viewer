@@ -99,10 +99,15 @@ LLView::Params::Params()
 	left_delta("left_delta", S32_MAX),
 	center_horiz("center_horiz", false),
 	center_vert("center_vert", false),
-	serializable("", false),
+	from_xui("from_xui", false),
 	user_resize("user_resize"),
 	auto_resize("auto_resize"),
-	needs_translate("translate")
+	needs_translate("translate"),
+	xmlns("xmlns"),
+	xmlns_xsi("xmlns:xsi"),
+	xsi_schemaLocation("xsi:schemaLocation"),
+	xsi_type("xsi:type")
+
 {
 	addSynonym(rect, "");
 }
@@ -111,7 +116,7 @@ LLView::LLView(const LLView::Params& p)
 :	mName(p.name),
 	mParentView(NULL),
 	mReshapeFlags(FOLLOWS_NONE),
-	mSaveToXML(p.serializable),
+	mSaveToXML(p.from_xui),
 	mIsFocusRoot(FALSE),
 	mLastVisible(FALSE),
 	mNextInsertionOrdinal(0),
@@ -396,32 +401,28 @@ bool LLCompareByTabOrder::operator() (const LLView* const a, const LLView* const
 	return (a_score == b_score) ? a < b : a_score < b_score;
 }
 
-BOOL LLView::isInVisibleChain() const
+bool LLView::trueToRoot(const boost::function<bool (const LLView*)>& predicate) const
 {
 	const LLView* cur_view = this;
 	while(cur_view)
 	{
-		if (!cur_view->getVisible())
+		if(!predicate(cur_view))
 		{
-			return FALSE;
+			return false;
 		}
 		cur_view = cur_view->getParent();
 	}
-	return TRUE;
+	return true;
+}
+
+BOOL LLView::isInVisibleChain() const
+{
+	return trueToRoot(&LLView::getVisible);
 }
 
 BOOL LLView::isInEnabledChain() const
 {
-	const LLView* cur_view = this;
-	while(cur_view)
-	{
-		if (!cur_view->getEnabled())
-		{
-			return FALSE;
-		}
-		cur_view = cur_view->getParent();
-	}
-	return TRUE;
+	return trueToRoot(&LLView::getEnabled);
 }
 
 // virtual
@@ -738,12 +739,7 @@ BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_s
 		msg = tool_tip;
 
 		// Convert rect local to screen coordinates
-		localPointToScreen(
-			0, 0,
-			&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
-		localPointToScreen(
-			mRect.getWidth(), mRect.getHeight(),
-			&(sticky_rect_screen->mRight), &(sticky_rect_screen->mTop) );
+		*sticky_rect_screen = calcScreenRect();
 	}
 	// don't allow any siblings to handle this event
 	// even if we don't have a tooltip
@@ -1325,13 +1321,6 @@ void LLView::draw()
 		LLRect rootRect = getRootView()->getRect();
 		LLRect screenRect;
 
-		// draw focused control on top of everything else
-		LLView* focus_view = gFocusMgr.getKeyboardFocus();
-		if (focus_view && focus_view->getParent() != this)
-		{
-			focus_view = NULL;
-		}
-
 		++sDepth;
 
 		for (child_list_reverse_iter_t child_iter = mChildList.rbegin(); child_iter != mChildList.rend();)  // ++child_iter)
@@ -1339,7 +1328,7 @@ void LLView::draw()
 			child_list_reverse_iter_t child = child_iter++;
 			LLView *viewp = *child;
 
-			if (viewp->getVisible() && viewp != focus_view && viewp->getRect().isValid())
+			if (viewp->getVisible() && viewp->getRect().isValid())
 			{
 				// Only draw views that are within the root view
 				localRectToScreen(viewp->getRect(),&screenRect);
@@ -1357,11 +1346,6 @@ void LLView::draw()
 
 		}
 		--sDepth;
-
-		if (focus_view && focus_view->getVisible())
-		{
-			drawChild(focus_view);
-		}
 	}
 
 	gGL.getTexUnit(0)->disable();
@@ -1398,7 +1382,7 @@ void LLView::drawDebugRect()
 			}
 			else
 			{
-				static LLUICachedControl<LLColor4> scroll_highlighted_color ("ScrollHighlightedColor", *(new LLColor4));
+				static LLUIColor scroll_highlighted_color = LLUIColorTable::instance().getColor("ScrollHighlightedColor");
 				border_color = scroll_highlighted_color;
 			}
 		}
@@ -2303,13 +2287,6 @@ LLControlVariable *LLView::findControl(const std::string& name)
 	return control_group.getControl(name);	
 }
 
-const widget_registry_t& LLView::getChildRegistry() const
-{
-	static widget_registry_t empty_registry;
-	return empty_registry;
-}
-
-
 const S32 FLOATER_H_MARGIN = 15;
 const S32 MIN_WIDGET_HEIGHT = 10;
 const S32 VPAD = 4;
@@ -2430,7 +2407,7 @@ void LLView::setupParams(LLView::Params& p, LLView* parent)
 	const S32 VPAD = 4;
 	const S32 MIN_WIDGET_HEIGHT = 10;
 	
-	p.serializable(true);
+	p.from_xui(true);
 
 	// *NOTE:  This will confuse export of floater/panel coordinates unless
 	// the default is also "topleft".  JC

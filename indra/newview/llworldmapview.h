@@ -39,7 +39,7 @@
 #include "v3math.h"
 #include "v3dmath.h"
 #include "v4color.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 #include "llmapimagetype.h"
 #include "llworldmap.h"
 
@@ -50,7 +50,7 @@ const S32 DEFAULT_TRACKING_ARROW_SIZE = 16;
 class LLColor4;
 class LLColor4U;
 class LLCoordGL;
-class LLViewerImage;
+class LLViewerTexture;
 class LLTextBox;
 
 

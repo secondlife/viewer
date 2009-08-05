@@ -37,7 +37,7 @@
 
 #include "llcallingcard.h" // for avatar tracker
 
-class LLSearchEditor;
+class LLFilterEditor;
 class LLTabContainer;
 class LLAvatarList;
 class LLGroupList;
@@ -61,8 +61,10 @@ private:
 	bool					updateNearbyList();
 	bool					updateRecentList();
 	bool					updateGroupList();
+	bool					filterFriendList();
+	bool					filterNearbyList();
+	bool					filterRecentList();
 	void					updateButtons();
-	bool					refreshFriendNames(U32 changed_mask);
 	LLAvatarList*			getActiveAvatarList() const;
 	LLUUID					getCurrentItemID() const;
 	void					buttonSetVisible(std::string btn_name, BOOL visible);
@@ -72,8 +74,10 @@ private:
 
 	/*virtual*/ void		onVisibilityChange(BOOL new_visibility);
 
+	void					reSelectedCurrentTab();
+
 	// UI callbacks
-	void					onSearchEdit(const std::string& search_string);
+	void					onFilterEdit(const std::string& search_string);
 	void					onTabSelected(const LLSD& param);
 	void					onViewProfileButtonClicked();
 	void					onAddFriendButtonClicked();
@@ -92,7 +96,6 @@ private:
 	void					onGroupPlusButtonClicked();
 	void					onGroupMinusButtonClicked();
 	void					onGroupPlusMenuItemClicked(const LLSD& userdata);
-	void					onGroupMinusMenuItemClicked(const LLSD& userdata);
 
 	// misc callbacks
 	bool					onFriendListUpdate(U32 changed_mask);
@@ -101,7 +104,9 @@ private:
 								const std::vector<LLUUID>& ids,
 								void*);
 
-	LLSearchEditor*			mSearchEditor;
+	void					hideProfileView();
+
+	LLFilterEditor*			mFilterEditor;
 	LLTabContainer*			mTabContainer;
 	LLAvatarList*			mFriendList;
 	LLAvatarList*			mNearbyList;
@@ -109,7 +114,6 @@ private:
 	LLGroupList*			mGroupList;
 
 	LLHandle<LLView>		mGroupPlusMenuHandle;
-	LLHandle<LLView>		mGroupMinusMenuHandle;
 
 	Updater*				mFriendListUpdater;
 	Updater*				mNearbyListUpdater;
@@ -117,6 +121,17 @@ private:
 	Updater*				mGroupListUpdater;
 
 	std::string				mFilterSubString;
+
+	// The vectors below contain up-to date avatar lists
+	// for the corresponding tabs.
+	// When the user enters a filter, it gets applied
+	// to all the vectors and the result is shown in the tabs.
+	// We don't need to have such a vector for the groups tab
+	// since re-fetching the groups list is always fast.
+	typedef std::vector<LLUUID> uuid_vector_t;
+	uuid_vector_t			mNearbyVec;
+	uuid_vector_t			mFriendVec;
+	uuid_vector_t			mRecentVec;
 };
 
 #endif //LL_LLPANELPEOPLE_H

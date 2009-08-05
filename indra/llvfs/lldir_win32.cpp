@@ -130,6 +130,7 @@ LLDir_Win32::LLDir_Win32()
 	else
 		mAppRODataDir = mExecutableDir;
 
+	mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
 
 	// Build the default cache directory
 	mDefaultCacheDir = buildSLOSCacheDir();
@@ -158,6 +159,7 @@ void LLDir_Win32::initAppDirs(const std::string &app_name,
 	if (!app_read_only_data_dir.empty())
 	{
 		mAppRODataDir = app_read_only_data_dir;
+		mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
 	}
 	mAppName = app_name;
 	mOSUserAppDir = mOSUserDir;

@@ -44,7 +44,7 @@
 #include "llprimitive.h"
 #include "llsky.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llvosky.h"
@@ -61,8 +61,8 @@ LLVOClouds::LLVOClouds(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	mCloudGroupp = NULL;
 	mbCanSelect = FALSE;
 	setNumTEs(1);
-	LLViewerImage* image = gImageList.getImage(gCloudTextureID);
-	image->setBoostLevel(LLViewerImage::BOOST_CLOUDS);
+	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(gCloudTextureID);
+	image->setBoostLevel(LLViewerTexture::BOOST_CLOUDS);
 	setTEImage(0, image);
 }
 

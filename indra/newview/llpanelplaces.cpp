@@ -31,12 +31,15 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloaterreg.h"
-#include "llsearcheditor.h"
-#include "lltabcontainer.h"
-#include "lluictrlfactory.h"
+#include "llassettype.h"
 
 #include "lllandmark.h"
+
+#include "llfloaterreg.h"
+#include "llnotifications.h"
+#include "llfiltereditor.h"
+#include "lltabcontainer.h"
+#include "lluictrlfactory.h"
 
 #include "llagent.h"
 #include "lllandmarklist.h"
@@ -44,7 +47,12 @@
 #include "llpanelplaces.h"
 #include "llpanellandmarks.h"
 #include "llpanelteleporthistory.h"
+#include "llsidetray.h"
+#include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
+
+// Helper function to get local position from global
+const LLVector3 get_pos_local_from_global(const LLVector3d &pos_global);
 
 static LLRegisterPanelClassWrapper<LLPanelPlaces> t_places("panel_places");
 
@@ -52,10 +60,15 @@ LLPanelPlaces::LLPanelPlaces()
 	:	LLPanel(),
 		mFilterSubString(LLStringUtil::null),
 		mActivePanel(NULL),
-		mSearchEditor(NULL),
-		mPlaceInfo(NULL)
+		mFilterEditor(NULL),
+		mPlaceInfo(NULL),
+		mItem(NULL),
+		mPosGlobal()
 {
 	gInventory.addObserver(this);
+
+	LLViewerParcelMgr::getInstance()->setAgentParcelChangedCallback(
+			boost::bind(&LLPanelPlaces::onAgentParcelChange, this));
 
 	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_places.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
@@ -68,19 +81,30 @@ LLPanelPlaces::~LLPanelPlaces()
 
 BOOL LLPanelPlaces::postBuild()
 {
+	mTeleportBtn = getChild<LLButton>("teleport_btn");
+	mTeleportBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onTeleportButtonClicked, this));
+	
+	mShowOnMapBtn = getChild<LLButton>("map_btn");
+	mShowOnMapBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onShowOnMapButtonClicked, this));
+	
+	//mShareBtn = getChild<LLButton>("share_btn");
+	//mShareBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onShareButtonClicked, this));
+
+	mOverflowBtn = getChild<LLButton>("overflow_btn");
+
 	mTabContainer = getChild<LLTabContainer>("Places Tabs");
 	if (mTabContainer)
 	{
 		mTabContainer->setCommitCallback(boost::bind(&LLPanelPlaces::onTabSelected, this));
 	}
 
-	mSearchEditor = getChild<LLSearchEditor>("Filter");
-	if (mSearchEditor)
+	mFilterEditor = getChild<LLFilterEditor>("Filter");
+	if (mFilterEditor)
 	{
-		mSearchEditor->setSearchCallback(boost::bind(&LLPanelPlaces::onSearchEdit, this, _1));
+		mFilterEditor->setCommitCallback(boost::bind(&LLPanelPlaces::onFilterEdit, this, _2));
 	}
 
-	mPlaceInfo = dynamic_cast<LLPanelPlaceInfo*>(getChild<LLPanel>("panel_landmark_info"));
+	mPlaceInfo = getChild<LLPanelPlaceInfo>("panel_place_info", TRUE, FALSE);
 	if (mPlaceInfo)
 	{
 		LLButton* back_btn = mPlaceInfo->getChild<LLButton>("back_btn");
@@ -88,18 +112,12 @@ BOOL LLPanelPlaces::postBuild()
 		{
 			back_btn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 		}
+
+		// *TODO: Assign the action to an appropriate event.
+		mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::toggleMediaPanel, this));
 	}
 
-	//childSetAction("share_btn", boost::bind(&LLPanelPlaces::onShareButtonClicked, this), this);
-	childSetAction("teleport_btn", boost::bind(&LLPanelPlaces::onTeleportButtonClicked, this), this);
-	childSetAction("map_btn", boost::bind(&LLPanelPlaces::onShowOnMapButtonClicked, this), this);
-
 	return TRUE;
-}
-
-void LLPanelPlaces::draw()
-{
-	LLPanel::draw();
 }
 
 void LLPanelPlaces::onOpen(const LLSD& key)
@@ -107,41 +125,46 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	if(key.size() == 0)
 		return;
 
+	mPlaceInfoType = key["type"].asString();
+	mPosGlobal.setZero();
 	togglePlaceInfoPanel(TRUE);
-	
-	mPlaceInfoType = key["type"].asInteger();
+	updateVerbs();
 
-	if (mPlaceInfoType == AGENT)
+	if (mPlaceInfoType == "agent")
 	{
-		// We don't need to teleport to the current location so disable the button
-		getChild<LLButton>("teleport_btn")->setEnabled(FALSE);
-
-		mPlaceInfo->displayParcelInfo(gAgent.getPositionAgent(),
-									  gAgent.getRegion()->getRegionID(),
-									  gAgent.getPositionGlobal());
+		mPlaceInfo->setInfoType(LLPanelPlaceInfo::PLACE);
+		mPlaceInfo->displayAgentParcelInfo();
+		
+		mPosGlobal = gAgent.getPositionGlobal();
 	}
-	else if (mPlaceInfoType == LANDMARK)
+	else if (mPlaceInfoType == "create_landmark")
 	{
-		LLInventoryItem* item = gInventory.getItem(key["id"].asUUID());
+		mPlaceInfo->setInfoType(LLPanelPlaceInfo::CREATE_LANDMARK);
+		mPlaceInfo->displayAgentParcelInfo();
+		
+		mPosGlobal = gAgent.getPositionGlobal();
+	}
+	else if (mPlaceInfoType == "landmark")
+	{
+		LLUUID item_uuid = key["id"].asUUID();
+		LLInventoryItem* item = gInventory.getItem(item_uuid);
 		if (!item)
 			return;
-
-		mPlaceInfo->displayItemInfo(item);
-
-		LLLandmark* landmark = gLandmarkList.getAsset(item->getAssetUUID());
-		if (!landmark)
-			return;
-
-		LLUUID region_id;
-		landmark->getRegionID(region_id);
-		LLVector3d pos_global;
-		landmark->getGlobalPos(pos_global);
-		mPlaceInfo->displayParcelInfo(landmark->getRegionPos(),
-									  region_id,
-									  pos_global);
-
+		
+		setItem(item);
 	}
-	else if (mPlaceInfoType == TELEPORT_HISTORY)
+	else if (mPlaceInfoType == "remote_place")
+	{
+		mPosGlobal = LLVector3d(key["x"].asReal(),
+								key["y"].asReal(),
+								key["z"].asReal());
+
+		mPlaceInfo->setInfoType(LLPanelPlaceInfo::PLACE);
+		mPlaceInfo->displayParcelInfo(get_pos_local_from_global(mPosGlobal),
+									  LLUUID(),
+									  mPosGlobal);
+	}
+	else if (mPlaceInfoType == "teleport_history")
 	{
 		S32 index = key["id"].asInteger();
 
@@ -150,18 +173,48 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 		LLVector3d pos_global = hist_items[index].mGlobalPos;
 
-		F32 region_x = (F32)fmod( pos_global.mdV[VX], (F64)REGION_WIDTH_METERS );
-		F32 region_y = (F32)fmod( pos_global.mdV[VY], (F64)REGION_WIDTH_METERS );
-
-		LLVector3 pos_local(region_x, region_y, (F32)pos_global.mdV[VZ]);
-
-		mPlaceInfo->displayParcelInfo(pos_local,
+		mPlaceInfo->setInfoType(LLPanelPlaceInfo::TELEPORT_HISTORY);
+		mPlaceInfo->displayParcelInfo(get_pos_local_from_global(pos_global),
 									  hist_items[index].mRegionID,
 									  pos_global);
 	}
 }
 
-void LLPanelPlaces::onSearchEdit(const std::string& search_string)
+void LLPanelPlaces::setItem(LLInventoryItem* item)
+{
+	mItem = item;
+	
+	// If the item is a link get a linked item
+	if (mItem->getType() == LLAssetType::AT_LINK)
+	{
+		mItem = gInventory.getItem(mItem->getAssetUUID());
+		if (mItem.isNull())
+			return;
+	}
+
+	mPlaceInfo->setInfoType(LLPanelPlaceInfo::LANDMARK);
+	mPlaceInfo->displayItemInfo(mItem);
+
+	LLLandmark* lm = gLandmarkList.getAsset(mItem->getAssetUUID(),
+											boost::bind(&LLPanelPlaces::onLandmarkLoaded, this, _1));
+	if (lm)
+	{
+		onLandmarkLoaded(lm);
+	}
+}
+
+void LLPanelPlaces::onLandmarkLoaded(LLLandmark* landmark)
+{
+	LLUUID region_id;
+	landmark->getRegionID(region_id);
+	LLVector3d pos_global;
+	landmark->getGlobalPos(pos_global);
+	mPlaceInfo->displayParcelInfo(landmark->getRegionPos(),
+								  region_id,
+								  pos_global);
+}
+
+void LLPanelPlaces::onFilterEdit(const std::string& search_string)
 {
 	if (mFilterSubString != search_string)
 	{
@@ -170,7 +223,7 @@ void LLPanelPlaces::onSearchEdit(const std::string& search_string)
 		LLStringUtil::toUpper(mFilterSubString);
 		LLStringUtil::trimHead(mFilterSubString);
 
-		mSearchEditor->setText(mFilterSubString);
+		mFilterEditor->setText(mFilterSubString);
 
 		mActivePanel->onSearchEdit(mFilterSubString);
 	}
@@ -178,24 +231,20 @@ void LLPanelPlaces::onSearchEdit(const std::string& search_string)
 
 void LLPanelPlaces::onTabSelected()
 {
+	mActivePanel = dynamic_cast<LLPanelPlacesTab*>(mTabContainer->getCurrentPanel());
 	if (!mActivePanel)
 		return;
 
-	mActivePanel = dynamic_cast<LLPanelPlacesTab*>(mTabContainer->getCurrentPanel());
-
-	if (mActivePanel)
-	{
-		mActivePanel->onSearchEdit(mFilterSubString);
-		mActivePanel->onTabSelected();
-	}
+	onFilterEdit(mFilterSubString);	
+	mActivePanel->updateVerbs();
 }
 
+/*
 void LLPanelPlaces::onShareButtonClicked()
 {
 	// TODO: Launch the "Things" Share wizard
 }
 
-/*
 void LLPanelPlaces::onAddLandmarkButtonClicked()
 {
 	LLFloaterReg::showInstance("add_landmark");
@@ -209,19 +258,64 @@ void LLPanelPlaces::onCopySLURLButtonClicked()
 
 void LLPanelPlaces::onTeleportButtonClicked()
 {
-	mActivePanel->onTeleport();
+	if (mPlaceInfo->getVisible())
+	{
+		if (mPlaceInfoType == "landmark")
+		{
+			LLSD payload;
+			payload["asset_id"] = mItem->getAssetUUID();
+			LLNotifications::instance().add("TeleportFromLandmark", LLSD(), payload);
+		}
+		else if (mPlaceInfoType == "remote_place")
+		{
+			LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+			if (!mPosGlobal.isExactlyZero() && worldmap_instance)
+			{
+				gAgent.teleportViaLocation(mPosGlobal);
+				worldmap_instance->trackLocation(mPosGlobal);
+			}
+		}
+	}
+	else
+	{
+		mActivePanel->onTeleport();
+	}
 }
 
 void LLPanelPlaces::onShowOnMapButtonClicked()
 {
-	if (!mPlaceInfoType)
+	if (mPlaceInfo->getVisible())
 	{
-		LLVector3d global_pos = gAgent.getPositionGlobal();
-		if (!global_pos.isExactlyZero())
+		LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+		if(!worldmap_instance)
+			return;
+
+		if (mPlaceInfoType == "agent" ||
+			mPlaceInfoType == "create_landmark" ||
+			mPlaceInfoType == "remote_place")
+		{
+			if (!mPosGlobal.isExactlyZero())
 			{
-				LLFloaterWorldMap::getInstance()->trackLocation(global_pos);
+				worldmap_instance->trackLocation(mPosGlobal);
 				LLFloaterReg::showInstance("world_map", "center");
 			}
+		}
+		else if (mPlaceInfoType == "landmark")
+		{
+			LLLandmark* landmark = gLandmarkList.getAsset(mItem->getAssetUUID());
+			if (!landmark)
+				return;
+
+			LLVector3d landmark_global_pos;
+			if (!landmark->getGlobalPos(landmark_global_pos))
+				return;
+			
+			if (!landmark_global_pos.isExactlyZero())
+			{
+				worldmap_instance->trackLocation(landmark_global_pos);
+				LLFloaterReg::showInstance("world_map", "center");
+			}
+		}
 	}
 	else
 	{
@@ -232,6 +326,19 @@ void LLPanelPlaces::onShowOnMapButtonClicked()
 void LLPanelPlaces::onBackButtonClicked()
 {
 	togglePlaceInfoPanel(FALSE);
+
+	// Resetting mPlaceInfoType when Place Info panel is closed.
+	mPlaceInfoType = LLStringUtil::null;
+	
+	updateVerbs();
+}
+
+void LLPanelPlaces::toggleMediaPanel()
+{
+	if (!mPlaceInfo)
+			return;
+
+	mPlaceInfo->toggleMediaPanel(!mPlaceInfo->isMediaPanelVisible());
 }
 
 void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
@@ -240,7 +347,7 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 		return;
 
 	mPlaceInfo->setVisible(visible);
-	mSearchEditor->setVisible(!visible);
+	mFilterEditor->setVisible(!visible);
 	mTabContainer->setVisible(!visible);
 
 	if (visible)
@@ -249,7 +356,7 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 
 		LLRect rect = getRect();
 		LLRect new_rect = LLRect(rect.mLeft, rect.mTop, rect.mRight, mTabContainer->getRect().mBottom);
-		mPlaceInfo->reshape(new_rect.getWidth(),new_rect.getHeight());
+		mPlaceInfo->reshape(new_rect.getWidth(),new_rect.getHeight());	
 	}
 }
 
@@ -267,7 +374,7 @@ void LLPanelPlaces::changed(U32 mask)
 		mTabContainer->addTabPanel(
 			LLTabContainer::TabPanelParams().
 			panel(landmarks_panel).
-			label("Landmarks").
+			label(getString("landmarks_tab_title")).
 			insert_at(LLTabContainer::END));
 	}
 
@@ -279,7 +386,7 @@ void LLPanelPlaces::changed(U32 mask)
 		mTabContainer->addTabPanel(
 			LLTabContainer::TabPanelParams().
 			panel(teleport_history_panel).
-			label("Teleport History").
+			label(getString("teleport_history_tab_title")).
 			insert_at(LLTabContainer::END));
 	}
 
@@ -291,3 +398,51 @@ void LLPanelPlaces::changed(U32 mask)
 	// so remove the observer
 	gInventory.removeObserver(this);
 }
+
+void LLPanelPlaces::onAgentParcelChange()
+{
+	if (mPlaceInfo->getVisible() && (mPlaceInfoType == "agent" || mPlaceInfoType == "create_landmark"))
+	{
+		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", mPlaceInfoType));
+	}
+	else
+	{
+		updateVerbs();
+	}
+}
+
+void LLPanelPlaces::updateVerbs()
+{
+	bool is_place_info_visible = mPlaceInfo->getVisible();
+	bool is_agent_place_info_visible = mPlaceInfoType == "agent";
+	if (is_place_info_visible)
+	{
+		if (is_agent_place_info_visible || mPlaceInfoType == "create_landmark")
+		{
+			// We don't need to teleport to the current location so disable the button
+			mTeleportBtn->setEnabled(FALSE);
+		}
+		else if (mPlaceInfoType == "landmark" || mPlaceInfoType == "remote_place")
+		{
+			mTeleportBtn->setEnabled(TRUE);
+		}
+
+		mShowOnMapBtn->setEnabled(TRUE);
+	}
+	else
+	{
+		mActivePanel->updateVerbs();
+	}
+
+	// Enable overflow button only when showing the information about agent's current location.
+	mOverflowBtn->setEnabled(is_place_info_visible && is_agent_place_info_visible);
+}
+
+const LLVector3 get_pos_local_from_global(const LLVector3d &pos_global)
+{
+	F32 region_x = (F32)fmod( pos_global.mdV[VX], (F64)REGION_WIDTH_METERS );
+	F32 region_y = (F32)fmod( pos_global.mdV[VY], (F64)REGION_WIDTH_METERS );
+
+	LLVector3 pos_local(region_x, region_y, (F32)pos_global.mdV[VZ]);
+	return pos_local;
+}	

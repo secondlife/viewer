@@ -44,6 +44,7 @@
 #include "llcharacter.h" 			// LLAnimPauseRequest
 #include "llfollowcam.h" 			// Ventrella
 #include "llagentdata.h" 			// gAgentID, gAgentSessionID
+#include "lluicolor.h"
 #include "llvoavatardefines.h"
 
 extern const BOOL 	ANIMATE;
@@ -185,10 +186,7 @@ private:
 
 public:
  	LLVOAvatarSelf* getAvatarObject() const		{ return mAvatarObject; }
-	const LLUUID&	getInventoryRootID() const 	{ return mInventoryRootID; }
-	LLUUID&			getInventoryRootID() 		{ return mInventoryRootID; }
 private:
-	LLUUID			mInventoryRootID;
 	LLPointer<LLVOAvatarSelf> mAvatarObject; 	// NULL until avatar object sent down from simulator
 
 /**                    General Accessors
@@ -269,8 +267,6 @@ public:
 	std::string		getSLURL() const;
 	BOOL			inPrelude();
 	BOOL 			buildLocationString(std::string& str, ELocationFormat fmt = LOCATION_FORMAT_LANDMARK); // Utility to build a location string
-	static void		createLandmarkHere();
-	static void		createLandmarkHere(const std::string& name, const std::string& desc, const LLUUID& folder_id);
 private:
 	LLViewerRegion	*mRegionp;
 
@@ -833,7 +829,7 @@ public:
 	F32				mHUDTargetZoom;	// Target zoom level for HUD objects (used when editing)
 	F32				mHUDCurZoom; 	// Current animated zoom level for HUD objects
 private:
-	LLColor4 		mEffectColor;
+	LLUIColor 		mEffectColor;
 
 /**                    Camera
  **                                                                            **

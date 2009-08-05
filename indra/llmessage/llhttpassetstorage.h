@@ -62,6 +62,8 @@ public:
 
 	virtual ~LLHTTPAssetStorage();
 
+	using LLAssetStorage::storeAssetData; // Unhiding virtuals...
+
 	virtual void storeAssetData(
 		const LLUUID& uuid,
 		LLAssetType::EType atype,

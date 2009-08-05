@@ -2,6 +2,6 @@
 <slider_bar track_color="SliderTrackColor"
             thumb_outline_color="SliderThumbOutlineColor"
             thumb_center_color="SliderThumbCenterColor"
-            thumb_image="icn_slide-thumb_dark.tga"
-            track_image="icn_slide-groove_dark.tga"
-            track_highlight_image="icn_slide-highlight.tga"/>
+            thumb_image="SliderThumb_Off"
+            track_image="SliderTrack_Horiz"
+            track_highlight_image="SliderTrack_Horiz" />

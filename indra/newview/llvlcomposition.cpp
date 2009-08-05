@@ -39,8 +39,8 @@
 #include "v3math.h"
 #include "llsurface.h"
 #include "lltextureview.h"
-#include "llviewerimage.h"
-#include "llviewerimagelist.h"
+#include "llviewertexture.h"
+#include "llviewertexturelist.h"
 #include "llviewerregion.h"
 #include "noise.h"
 #include "llregionhandle.h" // for from_region_handle
@@ -106,7 +106,7 @@ void LLVLComposition::setDetailTextureID(S32 corner, const LLUUID& id)
 	{
 		return;
 	}
-	mDetailTextures[corner] = gImageList.getImage(id);
+	mDetailTextures[corner] = LLViewerTextureManager::getFetchedTexture(id);
 	mDetailTextures[corner]->setNoDelete() ;
 	mRawImages[corner] = NULL;
 }
@@ -229,7 +229,7 @@ BOOL LLVLComposition::generateComposition()
 	{
 		if (mDetailTextures[i]->getDiscardLevel() < 0)
 		{
-			mDetailTextures[i]->setBoostLevel(LLViewerImage::BOOST_TERRAIN); // in case we are at low detail
+			mDetailTextures[i]->setBoostLevel(LLViewerTexture::BOOST_TERRAIN); // in case we are at low detail
 			mDetailTextures[i]->addTextureStats(BASE_SIZE*BASE_SIZE);
 			return FALSE;
 		}
@@ -237,8 +237,8 @@ BOOL LLVLComposition::generateComposition()
 			 (mDetailTextures[i]->getWidth() < BASE_SIZE ||
 			  mDetailTextures[i]->getHeight() < BASE_SIZE)))
 		{
-			S32 width = mDetailTextures[i]->getWidth(0);
-			S32 height = mDetailTextures[i]->getHeight(0);
+			S32 width = mDetailTextures[i]->getFullWidth();
+			S32 height = mDetailTextures[i]->getFullHeight();
 			S32 min_dim = llmin(width, height);
 			S32 ddiscard = 0;
 			while (min_dim > BASE_SIZE && ddiscard < MAX_DISCARD_LEVEL)
@@ -246,7 +246,7 @@ BOOL LLVLComposition::generateComposition()
 				ddiscard++;
 				min_dim /= 2;
 			}
-			mDetailTextures[i]->setBoostLevel(LLViewerImage::BOOST_TERRAIN); // in case we are at low detail
+			mDetailTextures[i]->setBoostLevel(LLViewerTexture::BOOST_TERRAIN); // in case we are at low detail
 			mDetailTextures[i]->setMinDiscardLevel(ddiscard);
 			return FALSE;
 		}
@@ -280,7 +280,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 		{
 			// Read back a raw image for this discard level, if it exists
 			mRawImages[i] = new LLImageRaw;
-			S32 min_dim = llmin(mDetailTextures[i]->getWidth(0), mDetailTextures[i]->getHeight(0));
+			S32 min_dim = llmin(mDetailTextures[i]->getFullWidth(), mDetailTextures[i]->getFullHeight());
 			S32 ddiscard = 0;
 			while (min_dim > BASE_SIZE && ddiscard < MAX_DISCARD_LEVEL)
 			{
@@ -336,7 +336,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	//
 	//
 
-	LLViewerImage *texturep;
+	LLViewerTexture *texturep;
 	U32 tex_width, tex_height, tex_comps;
 	U32 tex_stride;
 	F32 tex_x_scalef, tex_y_scalef;
@@ -455,7 +455,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	for (S32 i = 0; i < 4; i++)
 	{
 		// Un-boost detatil textures (will get re-boosted if rendering in high detail)
-		mDetailTextures[i]->setBoostLevel(LLViewerImage::BOOST_NONE);
+		mDetailTextures[i]->setBoostLevel(LLViewerTexture::BOOST_NONE);
 		mDetailTextures[i]->setMinDiscardLevel(MAX_DISCARD_LEVEL + 1);
 	}
 	
@@ -467,7 +467,7 @@ LLUUID LLVLComposition::getDetailTextureID(S32 corner)
 	return mDetailTextures[corner]->getID();
 }
 
-LLViewerImage* LLVLComposition::getDetailTexture(S32 corner)
+LLViewerFetchedTexture* LLVLComposition::getDetailTexture(S32 corner)
 {
 	return mDetailTextures[corner];
 }

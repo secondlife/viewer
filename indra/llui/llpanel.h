@@ -37,8 +37,6 @@
 
 #include "llcallbackmap.h"
 #include "lluictrl.h"
-#include "llbutton.h"
-#include "lllineeditor.h"
 #include "llviewborder.h"
 #include "lluistring.h"
 #include "v4color.h"
@@ -49,6 +47,7 @@ const S32 LLPANEL_BORDER_WIDTH = 1;
 const BOOL BORDER_YES = TRUE;
 const BOOL BORDER_NO = FALSE;
 
+class LLButton;
 
 /*
  * General purpose concrete view base class.
@@ -62,11 +61,11 @@ public:
 	struct LocalizedString : public LLInitParam::Block<LocalizedString>
 	{
 		Mandatory<std::string>	name;
-		Mandatory<std::string>	text;
+		Mandatory<std::string>	value;
 		
 		LocalizedString()
 		:	name("name"),
-			text("value")
+			value("value")
 		{}
 	};
 
@@ -92,6 +91,9 @@ public:
 
 		Params();
 	};
+
+	// valid children for LLPanel are stored in this registry
+	typedef LLDefaultChildRegistry child_registry_t;
 
 protected:
 	friend class LLUICtrlFactory;
@@ -165,7 +167,6 @@ public:
 	
 	void initFromParams(const Params& p);
 	BOOL initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
-	/*virtual*/ const widget_registry_t& getChildRegistry() const;
 	
 	bool hasString(const std::string& name);
 	std::string getString(const std::string& name, const LLStringUtil::format_map_t& args) const;
@@ -213,10 +214,6 @@ public:
 	BOOL childSetLabelArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
 	BOOL childSetToolTipArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
 	
-	// LLSlider / LLMultiSlider / LLSpinCtrl
-	void childSetMinValue(const std::string& id, LLSD min_value);
-	void childSetMaxValue(const std::string& id, LLSD max_value);
-
 	// LLTabContainer
 	void childShowTab(const std::string& id, const std::string& tabname, bool visible = true);
 	LLPanel *childGetVisibleTab(const std::string& id) const;
@@ -235,7 +232,10 @@ public:
 
 	// LLButton
 	void childSetAction(const std::string& id, boost::function<void(void*)> function, void* value = NULL);
-	void childSetActionTextbox(const std::string& id, void(*function)(void*), void* value = NULL);
+
+	// LLTextBox
+	void childSetActionTextbox(const std::string& id, boost::function<void(void*)> function, void* value = NULL);
+
 	void childSetControlName(const std::string& id, const std::string& control_name);
 
 	// Error reporting

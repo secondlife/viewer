@@ -48,7 +48,7 @@
 #include "lldrawable.h"
 #include "llface.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 
 LLVector3 LLSprite::sCameraUp(0.0f,0.0f,1.0f);
 LLVector3 LLSprite::sCameraRight(1.0f,0.0f,0.0f);

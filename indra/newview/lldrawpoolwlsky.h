@@ -55,7 +55,7 @@ public:
 	/*virtual*/ void endPostDeferredPass(S32 pass) { endRenderPass(pass); }
 	/*virtual*/ void renderPostDeferred(S32 pass) { render(pass); }
 
-	/*virtual*/ LLViewerImage *getDebugTexture();
+	/*virtual*/ LLViewerTexture *getDebugTexture();
 	/*virtual*/ void beginRenderPass( S32 pass );
 	/*virtual*/ void endRenderPass( S32 pass );
 	/*virtual*/ S32	 getNumPasses() { return 1; }
@@ -65,11 +65,11 @@ public:
 	/*virtual*/ BOOL verify() const { return TRUE; }		// Verify that all data in the draw pool is correct!
 	/*virtual*/ S32 getVertexShaderLevel() const { return mVertexShaderLevel; }
 	
-	//static LLDrawPool* createPool(const U32 type, LLViewerImage *tex0 = NULL);
+	//static LLDrawPool* createPool(const U32 type, LLViewerTexture *tex0 = NULL);
 
 	// Create an empty new instance of the pool.
 	/*virtual*/ LLDrawPoolWLSky *instancePool();  ///< covariant override
-	/*virtual*/ LLViewerImage* getTexture();
+	/*virtual*/ LLViewerTexture* getTexture();
 	/*virtual*/ BOOL isFacePool() { return FALSE; }
 	/*virtual*/ void resetDrawOrders();
 
@@ -83,7 +83,7 @@ private:
 	void renderHeavenlyBodies();
 
 private:
-	static LLPointer<LLImageGL> sCloudNoiseTexture;
+	static LLPointer<LLViewerTexture> sCloudNoiseTexture;
 	static LLPointer<LLImageRaw> sCloudNoiseRawImage;
 };
 

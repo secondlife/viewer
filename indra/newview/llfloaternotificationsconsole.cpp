@@ -161,7 +161,7 @@ bool LLNotificationChannelPanel::update(const LLSD& payload, bool passed_filter)
 // LLFloaterNotificationConsole
 //
 LLFloaterNotificationConsole::LLFloaterNotificationConsole(const LLSD& key)
-: LLFloater()
+: LLFloater(key)
 {
 	mCommitCallbackRegistrar.add("ClickAdd",     boost::bind(&LLFloaterNotificationConsole::onClickAdd, this));	
 

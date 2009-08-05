@@ -44,10 +44,12 @@
 #include "llfirstuse.h"
 #include "llfloateravatarinfo.h"
 #include "llfloaterland.h"
+#include "llfloaterreg.h"
 #include "llfloaterscriptdebug.h"
 #include "llhoverview.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
+#include "llmediamanager.h"
 #include "llmenugl.h"
 #include "llmutelist.h"
 #include "llselectmgr.h"
@@ -100,15 +102,19 @@ void LLToolPie::leftMouseCallback(const LLPickInfo& pick_info)
 	LLToolPie::getInstance()->pickLeftMouseDownCallback();
 }
 
+// Spawn context menus on right mouse down so you can drag over and select
+// an item.
 BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
+	// don't pick transparent so users can't "pay" transparent objects
+	gViewerWindow->pickAsync(x, y, mask, rightMouseCallback, FALSE, TRUE);
+	// claim not handled so UI focus stays same
 	return FALSE;
 }
 
 BOOL LLToolPie::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLToolMgr::getInstance()->clearTransientTool();
-	gViewerWindow->pickAsync(x, y, mask, rightMouseCallback, FALSE, TRUE);
 	return LLTool::handleRightMouseUp(x, y, mask);
 }
 
@@ -116,7 +122,7 @@ BOOL LLToolPie::handleRightMouseUp(S32 x, S32 y, MASK mask)
 void LLToolPie::rightMouseCallback(const LLPickInfo& pick_info)
 {
 	LLToolPie::getInstance()->mPick = pick_info;
-	LLToolPie::getInstance()->pickRightMouseUpCallback();
+	LLToolPie::getInstance()->pickRightMouseDownCallback();
 }
 
 // True if you selected an object.
@@ -141,7 +147,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			else
 			{
 				// not selling passes, get info
-				LLFloaterLand::showInstance();
+				LLFloaterReg::showInstance("about_land");
 			}
 		}
 
@@ -286,9 +292,11 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 
 			return TRUE;
 		}
-		// Could be first left-click on nothing
-		LLFirstUse::useLeftClickNoHit();
-
+	//////////
+	//	// Could be first left-click on nothing
+	//	LLFirstUse::useLeftClickNoHit();
+	/////////
+		
 		// Eat the event
 		return LLTool::handleMouseDown(x, y, mask);
 	}
@@ -424,7 +432,7 @@ void LLToolPie::selectionPropertiesReceived()
 				handle_give_money_dialog();
 				break;
 			case CLICK_ACTION_OPEN:
-				handle_object_open();
+				LLFloaterReg::showInstance("openobject");
 				break;
 			default:
 				break;
@@ -727,8 +735,8 @@ static ECursorType cursor_from_parcel_media(U8 click_action)
 }
 
 
-// True if you selected an object.
-BOOL LLToolPie::pickRightMouseUpCallback()
+// True if we handled the event.
+BOOL LLToolPie::pickRightMouseDownCallback()
 {
 	S32 x = mPick.mMousePt.mX;
 	S32 y = mPick.mMousePt.mY;
@@ -824,7 +832,7 @@ BOOL LLToolPie::pickRightMouseUpCallback()
 		}
 	}
 
-	LLTool::handleRightMouseUp(x, y, mask);
+	LLTool::handleRightMouseDown(x, y, mask);
 	// We handled the event.
 	return TRUE;
 }

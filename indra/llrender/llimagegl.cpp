@@ -46,7 +46,6 @@
 
 
 //----------------------------------------------------------------------------
-
 const F32 MIN_TEXTURE_LIFETIME = 10.f;
 
 //statics
@@ -61,7 +60,7 @@ S32 LLImageGL::sCount					= 0;
 
 BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
 F32 LLImageGL::sLastFrameTime			= 0.f;
-
+LLImageGL* LLImageGL::sDefaultGLTexture = NULL ;
 std::set<LLImageGL*> LLImageGL::sImageList;
 
 //**************************************************************************************
@@ -264,6 +263,7 @@ void LLImageGL::restoreGL()
 
 //----------------------------------------------------------------------------
 
+//for server side use only.
 //static 
 BOOL LLImageGL::create(LLPointer<LLImageGL>& dest, BOOL usemipmaps)
 {
@@ -271,12 +271,14 @@ BOOL LLImageGL::create(LLPointer<LLImageGL>& dest, BOOL usemipmaps)
 	return TRUE;
 }
 
+//for server side use only.
 BOOL LLImageGL::create(LLPointer<LLImageGL>& dest, U32 width, U32 height, U8 components, BOOL usemipmaps)
 {
 	dest = new LLImageGL(width, height, components, usemipmaps);
 	return TRUE;
 }
 
+//for server side use only.
 BOOL LLImageGL::create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, BOOL usemipmaps)
 {
 	dest = new LLImageGL(imageraw, usemipmaps);
@@ -331,7 +333,6 @@ void LLImageGL::init(BOOL usemipmaps)
 #endif
 
 	mPickMask		  = NULL;
-	mTextureState       = NO_DELETE ;
 	mTextureMemory    = 0;
 	mLastBindTime     = 0.f;
 
@@ -351,8 +352,7 @@ void LLImageGL::init(BOOL usemipmaps)
 	mComponents			= 0;
 	
 	mMaxDiscardLevel = MAX_DISCARD_LEVEL;
-	mCurrentDiscardLevel = -1;
-	mDontDiscard = FALSE;
+	mCurrentDiscardLevel = -1;	
 	
 	mFormatInternal = -1;
 	mFormatPrimary = (LLGLenum) 0;
@@ -362,6 +362,7 @@ void LLImageGL::init(BOOL usemipmaps)
 
 	mGLTextureCreated = FALSE ;
 	mIsMask = FALSE;
+	mNeedsAlphaAndPickMask = TRUE ;
 }
 
 void LLImageGL::cleanup()
@@ -462,7 +463,7 @@ void LLImageGL::dump()
 
 //----------------------------------------------------------------------------
 
-void LLImageGL::updateBindStats(void) const
+BOOL LLImageGL::updateBindStats(S32 tex_mem) const
 {	
 	if (mTexName != 0)
 	{
@@ -474,38 +475,18 @@ void LLImageGL::updateBindStats(void) const
 		{
 			// we haven't accounted for this texture yet this frame
 			sUniqueCount++;
-			updateBoundTexMem(mTextureMemory);
+			updateBoundTexMem(tex_mem);
 			mLastBindTime = sLastFrameTime;
 
-			if(LLFastTimer::sMetricLog)
-			{
-				updateTestStats() ;
-			}
+			return TRUE ;
 		}
 	}
+	return FALSE ;
 }
 
-//virtual 
-void LLImageGL::updateTestStats(void) const
+F32 LLImageGL::getTimePassedSinceLastBound()
 {
-}
-
-//virtual
-bool LLImageGL::bindError(const S32 stage) const
-{
-	return false;
-}
-
-//virtual
-bool LLImageGL::bindDefaultImage(const S32 stage) const
-{
-	return false;
-}
-
-//virtual
-void LLImageGL::forceImmediateUpdate()
-{
-	return ;
+	return sLastFrameTime - mLastBindTime ;
 }
 
 void LLImageGL::setExplicitFormat( LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format, BOOL swap_bytes )
@@ -1052,7 +1033,6 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 
 	mTextureMemory = getMipBytes(discard_level);
 	sGlobalTextureMemoryInBytes += mTextureMemory;
-	setActive() ;
 
 	// mark this as bound at this point, so we don't throw it out immediately
 	mLastBindTime = sLastFrameTime;
@@ -1068,12 +1048,7 @@ BOOL LLImageGL::setDiscardLevel(S32 discard_level)
 
 	discard_level = llclamp(discard_level, 0, (S32)mMaxDiscardLevel);	
 
-	if (mDontDiscard)
-	{
-		// don't discard!
-		return FALSE;
-	}
-	else if (discard_level == mCurrentDiscardLevel)
+	if (discard_level == mCurrentDiscardLevel)
 	{
 		// nothing to do
 		return FALSE;
@@ -1255,8 +1230,7 @@ void LLImageGL::destroyGLTexture()
 		sGlobalTextureMemoryInBytes -= mTextureMemory;
 		mTextureMemory = 0;
 
-		LLImageGL::deleteTextures(1, &mTexName);
-		mTextureState = DELETED ;		
+		LLImageGL::deleteTextures(1, &mTexName);			
 		mTexName = 0;
 		mCurrentDiscardLevel = -1 ; //invalidate mCurrentDiscardLevel.
 		mGLTextureCreated = FALSE ;
@@ -1383,6 +1357,11 @@ void LLImageGL::setTarget(const LLGLenum target, const LLTexUnit::eTextureType b
 
 void LLImageGL::analyzeAlpha(const void* data_in, S32 w, S32 h)
 {
+	if(!mNeedsAlphaAndPickMask)
+	{
+		return ;
+	}
+
 	if (mFormatType != GL_UNSIGNED_BYTE)
 	{
 		llwarns << "Cannot analyze alpha for image with format type " << std::hex << mFormatType << std::dec << llendl;
@@ -1440,60 +1419,14 @@ void LLImageGL::analyzeAlpha(const void* data_in, S32 w, S32 h)
 	}
 }
 
-BOOL LLImageGL::isDeleted()  
-{ 
-	return mTextureState == DELETED ; 
-}
-
-BOOL LLImageGL::isInactive()  
-{ 
-	return mTextureState == INACTIVE ; 
-}
-
-BOOL LLImageGL::isDeletionCandidate()  
-{ 
-	return mTextureState == DELETION_CANDIDATE ; 
-}
-
-void LLImageGL::setDeletionCandidate()  
-{ 
-	if(mTexName && (mTextureState == INACTIVE))
-	{
-		mTextureState = DELETION_CANDIDATE ;		
-	}
-}
-
-void LLImageGL::forceActive()
-{
-	mTextureState = ACTIVE ; 
-}
-
-void LLImageGL::setActive() 
-{ 
-	if(mTextureState != NO_DELETE)
-	{
-		mTextureState = ACTIVE ; 
-	}
-}
-
-//set the texture inactive
-void LLImageGL::setInactive()
-{
-	if(mTexName && (mTextureState == ACTIVE) && !getBoundRecently())
-	{
-		mTextureState = INACTIVE ; 
-	}
-}
-
-//set the texture to stay in memory
-void LLImageGL::setNoDelete() 
-{ 
-	mTextureState = NO_DELETE ;
-}
-
 //----------------------------------------------------------------------------
 void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 {
+	if(!mNeedsAlphaAndPickMask)
+	{
+		return ;
+	}
+
 	if (mFormatType != GL_UNSIGNED_BYTE ||
 		mFormatPrimary != GL_RGBA)
 	{

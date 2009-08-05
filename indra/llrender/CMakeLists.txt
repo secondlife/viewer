@@ -26,7 +26,7 @@ include_directories(
 
 set(llrender_SOURCE_FILES
     llcubemap.cpp
-    llfont.cpp
+    llfontfreetype.cpp
     llfontgl.cpp
     llfontbitmapcache.cpp
     llfontregistry.cpp
@@ -36,6 +36,7 @@ set(llrender_SOURCE_FILES
     llpostprocess.cpp
     llrendersphere.cpp
     llshadermgr.cpp
+    lltexture.cpp
     llvertexbuffer.cpp
     )
     
@@ -44,7 +45,7 @@ set(llrender_HEADER_FILES
 
     llcubemap.h
     llfontgl.h
-    llfont.h
+    llfontfreetype.h
     llfontbitmapcache.h
     llfontregistry.h
     llgl.h
@@ -58,6 +59,7 @@ set(llrender_HEADER_FILES
     llrender.h
     llrendersphere.h
     llshadermgr.h
+    lltexture.h
     llvertexbuffer.h
     )
 

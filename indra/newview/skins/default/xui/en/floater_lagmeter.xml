@@ -201,7 +201,7 @@
         Client:
     </text>
     <text
-	 make_visible_control="LagMeterShrunk"
+	 visiblity_control="LagMeterShrunk"
      type="string"
      length="1"
      bottom="40"
@@ -215,7 +215,7 @@
         Normal
     </text>
     <text
-	 make_visible_control="LagMeterShrunk"	
+	 visiblity_control="LagMeterShrunk"	
      bottom="56"
      follows="left|top"
      height="16"
@@ -250,7 +250,7 @@
         Network:
     </text>
     <text
-	 make_visible_control="LagMeterShrunk"
+	 visiblity_control="LagMeterShrunk"
      type="string"
      length="1"
      bottom="80"
@@ -264,7 +264,7 @@
         Normal
     </text>
     <text
-	 make_visible_control="LagMeterShrunk"	
+	 visiblity_control="LagMeterShrunk"	
      bottom="96"
      follows="left|top"
      height="16"

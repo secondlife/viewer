@@ -53,8 +53,9 @@ public:
 		Optional<LLUIColor> drag_shadow_color;
 		
 		Params() 
-		:	drag_highlight_color("", LLUI::getCachedColorFunctor("DefaultHighlightLight")),
-			drag_shadow_color("", LLUI::getCachedColorFunctor("DefaultShadowDark"))
+		:	label("label"),	
+			drag_highlight_color("drag_highlight_color", LLUIColorTable::instance().getColor("DefaultHighlightLight")),
+			drag_shadow_color("drag_shadow_color", LLUIColorTable::instance().getColor("DefaultShadowDark"))
 		{
 			mouse_opaque(true);
 			follows.flags(FOLLOWS_ALL);

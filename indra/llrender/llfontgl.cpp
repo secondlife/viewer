@@ -35,7 +35,7 @@
 #include "llfontgl.h"
 
 // Linden library includes
-#include "llfont.h"
+#include "llfontfreetype.h"
 #include "llfontbitmapcache.h"
 #include "llfontregistry.h"
 #include "llgl.h"
@@ -43,6 +43,7 @@
 #include "llrender.h"
 #include "llstl.h"
 #include "v4color.h"
+#include "lltexture.h"
 
 // Third party library includes
 #include <boost/tokenizer.hpp>
@@ -72,52 +73,23 @@ const F32 PIXEL_CORRECTION_DISTANCE = 0.01f;
 const F32 PAD_UVY = 0.5f; // half of vertical padding between glyphs in the glyph texture
 const F32 DROP_SHADOW_SOFT_STRENGTH = 0.3f;
 
-F32 llfont_round_x(F32 x)
+static F32 llfont_round_x(F32 x)
 {
 	//return llfloor((x-LLFontGL::sCurOrigin.mX)/LLFontGL::sScaleX+0.5f)*LLFontGL::sScaleX+LLFontGL::sCurOrigin.mX;
 	//return llfloor(x/LLFontGL::sScaleX+0.5f)*LLFontGL::sScaleY;
 	return x;
 }
 
-F32 llfont_round_y(F32 y)
+static F32 llfont_round_y(F32 y)
 {
 	//return llfloor((y-LLFontGL::sCurOrigin.mY)/LLFontGL::sScaleY+0.5f)*LLFontGL::sScaleY+LLFontGL::sCurOrigin.mY;
 	//return llfloor(y+0.5f);
 	return y;
 }
 
-// static
-U8 LLFontGL::getStyleFromString(const std::string &style)
-{
-	S32 ret = 0;
-	if (style.find("NORMAL") != style.npos)
-	{
-		ret |= NORMAL;
-	}
-	if (style.find("BOLD") != style.npos)
-	{
-		ret |= BOLD;
-	}
-	if (style.find("ITALIC") != style.npos)
-	{
-		ret |= ITALIC;
-	}
-	if (style.find("UNDERLINE") != style.npos)
-	{
-		ret |= UNDERLINE;
-	}
-	return ret;
-}
-
 LLFontGL::LLFontGL()
-	: LLFont()
 {
 	clearEmbeddedChars();
-}
-
-LLFontGL::LLFontGL(const LLFontGL &source)
-{
-	llerrs << "Not implemented!" << llendl;
 }
 
 LLFontGL::~LLFontGL()
@@ -127,293 +99,26 @@ LLFontGL::~LLFontGL()
 
 void LLFontGL::reset()
 {
-	if (!mIsFallback)
-	{
-		// This is the head of the list - need to rebuild ourself and all fallbacks.
-		loadFace(mName,mPointSize,sVertDPI,sHorizDPI,mFontBitmapCachep->getNumComponents(),mIsFallback);
-		if (mFallbackFontp==NULL)
-		{
-			llwarns << "LLFontGL::reset(), no fallback fonts present" << llendl;
-		}
-		else
-		{
-			for (LLFontList::iterator it = mFallbackFontp->begin();
-				 it != mFallbackFontp->end();
-				 ++it)
-			{
-				(*it)->reset();
-			}
-		}
-	}
-	resetBitmapCache(); 
-}
-
-// static 
-std::string LLFontGL::getFontPathSystem()
-{
-	std::string system_path;
-
-	// Try to figure out where the system's font files are stored.
-	char *system_root = NULL;
-#if LL_WINDOWS
-	system_root = getenv("SystemRoot");	/* Flawfinder: ignore */
-	if (!system_root)
-	{
-		llwarns << "SystemRoot not found, attempting to load fonts from default path." << llendl;
-	}
-#endif
-
-	if (system_root)
-	{
-		system_path = llformat("%s/fonts/", system_root);
-	}
-	else
-	{
-#if LL_WINDOWS
-		// HACK for windows 98/Me
-		system_path = "/WINDOWS/FONTS/";
-#elif LL_DARWIN
-		// HACK for Mac OS X
-		system_path = "/System/Library/Fonts/";
-#endif
-	}
-	return system_path;
-}
-
-
-// static 
-std::string LLFontGL::getFontPathLocal()
-{
-	std::string local_path;
-
-	// Backup files if we can't load from system fonts directory.
-	// We could store this in an end-user writable directory to allow
-	// end users to switch fonts.
-	if (LLFontGL::sAppDir.length())
-	{
-		// use specified application dir to look for fonts
-		local_path = LLFontGL::sAppDir + "/fonts/";
-	}
-	else
-	{
-		// assume working directory is executable directory
-		local_path = "./fonts/";
-	}
-	return local_path;
-}
-
-bool findOrCreateFont(LLFontGL*& fontp, const LLFontDescriptor& desc)
-{
-	// Don't delete existing fonts, if any, here, because they've
-	// already been deleted by LLFontRegistry::clear()
-	fontp = LLFontGL::getFont(desc);
-	return (fontp != NULL);
-}
-
-// static
-void LLFontGL::initClass(F32 screen_dpi, F32 x_scale, F32 y_scale,
-								const std::string& app_dir,
-								const std::vector<std::string>& xui_paths,
-								bool create_gl_textures)
-{
-	sVertDPI = (F32)llfloor(screen_dpi * y_scale);
-	sHorizDPI = (F32)llfloor(screen_dpi * x_scale);
-	sScaleX = x_scale;
-	sScaleY = y_scale;
-	sAppDir = app_dir;
-
-	// Font registry init
-	if (!sFontRegistry)
-	{
-		sFontRegistry = new LLFontRegistry(xui_paths, create_gl_textures);
-		sFontRegistry->parseFontInfo("fonts.xml");
-	}
-	else
-	{
-		sFontRegistry->reset();
-	}
-}
-
-// Force standard fonts to get generated up front.
-// This is primarily for error detection purposes.
-// Don't do this during initClass because it can be slow and we want to get
-// the viewer window on screen first. JC
-// static
-bool LLFontGL::loadDefaultFonts()
-{
-	bool succ = true;
-	succ &= (NULL != getFontSansSerifSmall());
-	succ &= (NULL != getFontSansSerif());
-	succ &= (NULL != getFontSansSerifBig());
-	succ &= (NULL != getFontSansSerifHuge());
-	succ &= (NULL != getFontSansSerifBold());
-	succ &= (NULL != getFontMonospace());
-	succ &= (NULL != getFontExtChar());
-	return succ;
-}
-
-
-
-// static
-void LLFontGL::destroyDefaultFonts()
-{
-	// Remove the actual fonts.
-	delete sFontRegistry;
-	sFontRegistry = NULL;
-}
-
-//static 
-void LLFontGL::destroyAllGL()
-{
-	if (sFontRegistry)
-	{
-		sFontRegistry->destroyGL();
-	}
+	mFontFreetype->reset(sVertDPI, sHorizDPI);
 }
 
 void LLFontGL::destroyGL()
 {
-	mFontBitmapCachep->destroyGL();
+	mFontFreetype->destroyGL();
 }
 
-
-
-LLFontGL &LLFontGL::operator=(const LLFontGL &source)
+BOOL LLFontGL::loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, S32 components, BOOL is_fallback)
 {
-	llerrs << "Not implemented" << llendl;
-	return *this;
-}
-
-BOOL LLFontGL::loadFace(const std::string& filename,
-						const F32 point_size, const F32 vert_dpi, const F32 horz_dpi,
-						const S32 components, BOOL is_fallback)
-{
-	if (!LLFont::loadFace(filename, point_size, vert_dpi, horz_dpi, components, is_fallback))
+	if(mFontFreetype == reinterpret_cast<LLFontFreetype*>(NULL))
 	{
-		return FALSE;
-	}
-	return TRUE;
-}
-
-//static
-LLFontGL* LLFontGL::getFontMonospace()
-{
-	return getFont(LLFontDescriptor("Monospace","Monospace",0));
-}
-
-//static
-LLFontGL* LLFontGL::getFontSansSerifSmall()
-{
-	return getFont(LLFontDescriptor("SansSerif","Small",0));
-}
-
-//static
-LLFontGL* LLFontGL::getFontSansSerif()
-{
-	return getFont(LLFontDescriptor("SansSerif","Medium",0));
-}
-
-//static
-LLFontGL* LLFontGL::getFontSansSerifBig()
-{
-	return getFont(LLFontDescriptor("SansSerif","Large",0));
-}
-
-//static 
-LLFontGL* LLFontGL::getFontSansSerifHuge()
-{
-	return getFont(LLFontDescriptor("SansSerif","Huge",0));
-}
-
-//static 
-LLFontGL* LLFontGL::getFontSansSerifBold()
-{
-	return getFont(LLFontDescriptor("SansSerif","Medium",BOLD));
-}
-
-//static
-LLFontGL* LLFontGL::getFontExtChar()
-{
-	return getFontSansSerif();
-}
-
-//static 
-LLFontGL* LLFontGL::getFont(const LLFontDescriptor& desc)
-{
-	return sFontRegistry->getFont(desc);
-}
-
-//static
-LLFontGL* LLFontGL::getFontByName(const std::string& name)
-{
-	// check for most common fonts first
-	if (name == "SANSSERIF")
-	{
-		return getFontSansSerif();
-	}
-	else if (name == "SANSSERIF_SMALL")
-	{
-		return getFontSansSerifSmall();
-	}
-	else if (name == "SANSSERIF_BIG")
-	{
-		return getFontSansSerifBig();
-	}
-	else if (name == "SMALL" || name == "OCRA")
-	{
-		// *BUG: Should this be "MONOSPACE"?  Do we use "OCRA" anymore?
-		// Does "SMALL" mean "SERIF"?
-		return getFontMonospace();
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-BOOL LLFontGL::addChar(const llwchar wch) const
-{
-	if (!LLFont::addChar(wch))
-	{
-		return FALSE;
+		mFontFreetype = new LLFontFreetype;
 	}
 
-	stop_glerror();
-
-	LLFontGlyphInfo *glyph_info = getGlyphInfo(wch);
-	U32 bitmap_num = glyph_info->mBitmapNum;
-	LLImageGL *image_gl = mFontBitmapCachep->getImageGL(bitmap_num);
-	LLImageRaw *image_raw = mFontBitmapCachep->getImageRaw(bitmap_num);
-	image_gl->setSubImage(image_raw, 0, 0, image_gl->getWidth(), image_gl->getHeight());
-	return TRUE;
+	return mFontFreetype->loadFace(filename, point_size, vert_dpi, horz_dpi, components, is_fallback);
 }
 
-
-S32 LLFontGL::renderUTF8(const std::string &text, const S32 offset, 
-					 const F32 x, const F32 y,
-					 const LLColor4 &color,
-					 const HAlign halign, const VAlign valign,
-					 U8 style,
-					 ShadowType shadow,
-					 const S32 max_chars, const S32 max_pixels,
-					 F32* right_x,
-					 BOOL use_ellipses) const
-{
-	LLWString wstr = utf8str_to_wstring(text);
-	return render(wstr, offset, x, y, color, halign, valign, style, shadow, max_chars, max_pixels, right_x, FALSE, use_ellipses);
-}
-
-S32 LLFontGL::render(const LLWString &wstr, 
-					 const S32 begin_offset,
-					 const F32 x, const F32 y,
-					 const LLColor4 &color,
-					 const HAlign halign, const VAlign valign,
-					 U8 style,
-					 ShadowType shadow,
-					 const S32 max_chars, S32 max_pixels,
-					 F32* right_x,
-					 BOOL use_embedded,
-					 BOOL use_ellipses) const
+S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
+					 ShadowType shadow, S32 max_chars, S32 max_pixels, F32* right_x, BOOL use_embedded, BOOL use_ellipses) const
 {
 	if(!sDisplayFont) //do not display texts
 	{
@@ -429,8 +134,9 @@ S32 LLFontGL::render(const LLWString &wstr,
 
 	S32 scaled_max_pixels = max_pixels == S32_MAX ? S32_MAX : llceil((F32)max_pixels * sScaleX);
 
-	// Strip off any style bits that are already accounted for by the font.
-	style = style & (~getFontDesc().getStyle());
+	// determine which style flags need to be added programmatically by striping off the
+	// style bits that are drawn by the underlying Freetype font
+	U8 style_to_add = (style | mFontDescriptor.getStyle()) & ~mFontFreetype->getStyle();
 
 	F32 drop_shadow_strength = 0.f;
 	if (shadow != NO_SHADOW)
@@ -482,13 +188,13 @@ S32 LLFontGL::render(const LLWString &wstr,
 	switch (valign)
 	{
 	case TOP:
-		cur_y -= mAscender;
+		cur_y -= mFontFreetype->getAscenderHeight();
 		break;
 	case BOTTOM:
-		cur_y += mDescender;
+		cur_y += mFontFreetype->getDescenderHeight();
 		break;
 	case VCENTER:
-		cur_y -= ((mAscender - mDescender)/2.f);
+		cur_y -= ((mFontFreetype->getAscenderHeight() - mFontFreetype->getDescenderHeight())/2.f);
 		break;
 	case BASELINE:
 		// Baseline, do nothing.
@@ -516,10 +222,12 @@ S32 LLFontGL::render(const LLWString &wstr,
 
 	F32 start_x = cur_x;
 
-	F32 inv_width = 1.f / mFontBitmapCachep->getBitmapWidth();
-	F32 inv_height = 1.f / mFontBitmapCachep->getBitmapHeight();
+	const LLFontBitmapCache* font_bitmap_cache = mFontFreetype->getFontBitmapCache();
 
-	const S32 LAST_CHARACTER = LLFont::LAST_CHAR_FULL;
+	F32 inv_width = 1.f / font_bitmap_cache->getBitmapWidth();
+	F32 inv_height = 1.f / font_bitmap_cache->getBitmapHeight();
+
+	const S32 LAST_CHARACTER = LLFontFreetype::LAST_CHAR_FULL;
 
 
 	BOOL draw_ellipses = FALSE;
@@ -575,11 +283,11 @@ S32 LLFontGL::render(const LLWString &wstr,
 
 			// snap origin to whole screen pixel
 			const F32 ext_x = (F32)llround(cur_render_x + (EXT_X_BEARING * sScaleX));
-			const F32 ext_y = (F32)llround(cur_render_y + (EXT_Y_BEARING * sScaleY + mAscender - mLineHeight));
+			const F32 ext_y = (F32)llround(cur_render_y + (EXT_Y_BEARING * sScaleY + mFontFreetype->getAscenderHeight() - mFontFreetype->getLineHeight()));
 
 			LLRectf uv_rect(0.f, 1.f, 1.f, 0.f);
 			LLRectf screen_rect(ext_x, ext_y + ext_height, ext_x + ext_width, ext_y);
-			drawGlyph(screen_rect, uv_rect, LLColor4::white, style, shadow, drop_shadow_strength);
+			drawGlyph(screen_rect, uv_rect, LLColor4::white, style_to_add, shadow, drop_shadow_strength);
 
 			if (!label.empty())
 			{
@@ -608,19 +316,19 @@ S32 LLFontGL::render(const LLWString &wstr,
 		}
 		else
 		{
-			if (!hasGlyph(wch))
+			if (!mFontFreetype->hasGlyph(wch))
 			{
 				addChar(wch);
 			}
 
-			const LLFontGlyphInfo* fgi= getGlyphInfo(wch);
+			const LLFontGlyphInfo* fgi= mFontFreetype->getGlyphInfo(wch);
 			if (!fgi)
 			{
 				llerrs << "Missing Glyph Info" << llendl;
 				break;
 			}
 			// Per-glyph bitmap texture.
-			LLImageGL *image_gl = mFontBitmapCachep->getImageGL(fgi->mBitmapNum);
+			LLImageGL *image_gl = mFontFreetype->getFontBitmapCache()->getImageGL(fgi->mBitmapNum);
 			if (last_bound_texture != image_gl)
 			{
 				gGL.getTexUnit(0)->bind(image_gl);
@@ -645,7 +353,7 @@ S32 LLFontGL::render(const LLWString &wstr,
 					    llround(cur_render_x + (F32)fgi->mXBearing) + (F32)fgi->mWidth,
 					    llround(cur_render_y + (F32)fgi->mYBearing) - (F32)fgi->mHeight);
 			
-			drawGlyph(screen_rect, uv_rect, color, style, shadow, drop_shadow_strength);
+			drawGlyph(screen_rect, uv_rect, color, style_to_add, shadow, drop_shadow_strength);
 
 			chars_drawn++;
 			cur_x += fgi->mXAdvance;
@@ -655,11 +363,11 @@ S32 LLFontGL::render(const LLWString &wstr,
 			if (next_char && (next_char < LAST_CHARACTER))
 			{
 				// Kern this puppy.
-				if (!hasGlyph(next_char))
+				if (!mFontFreetype->hasGlyph(next_char))
 				{
 					addChar(next_char);
 				}
-				cur_x += getXKerning(wch, next_char);
+				cur_x += mFontFreetype->getXKerning(wch, next_char);
 			}
 
 			// Round after kerning.
@@ -679,12 +387,14 @@ S32 LLFontGL::render(const LLWString &wstr,
 		*right_x = cur_x / sScaleX;
 	}
 
-	if (style & UNDERLINE)
+	if (style_to_add & UNDERLINE)
 	{
+		F32 descender = mFontFreetype->getDescenderHeight();
+
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.begin(LLRender::LINES);
-		gGL.vertex2f(start_x, cur_y - (mDescender));
-		gGL.vertex2f(cur_x, cur_y - (mDescender));
+		gGL.vertex2f(start_x, cur_y - (descender));
+		gGL.vertex2f(cur_x, cur_y - (descender));
 		gGL.end();
 	}
 
@@ -702,7 +412,7 @@ S32 LLFontGL::render(const LLWString &wstr,
 				cur_x / sScaleX, (F32)y,
 				color,
 				LEFT, valign,
-				style,
+				style_to_add,
 				shadow,
 				S32_MAX, max_pixels,
 				right_x,
@@ -715,6 +425,41 @@ S32 LLFontGL::render(const LLWString &wstr,
 	return chars_drawn;
 }
 
+S32 LLFontGL::render(const LLWString &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color) const
+{
+	return render(text, begin_offset, x, y, color, LEFT, BASELINE, NORMAL, NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE, FALSE);
+}
+
+S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign,  VAlign valign, U8 style, ShadowType shadow, S32 max_chars, S32 max_pixels,  F32* right_x, BOOL use_ellipses) const
+{
+	return render(utf8str_to_wstring(text), begin_offset, x, y, color, halign, valign, style, shadow, max_chars, max_pixels, right_x, FALSE, use_ellipses);
+}
+
+S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color) const
+{
+	return renderUTF8(text, begin_offset, (F32)x, (F32)y, color, LEFT, BASELINE, NORMAL, NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE);
+}
+
+S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, ShadowType shadow) const
+{
+	return renderUTF8(text, begin_offset, (F32)x, (F32)y, color, halign, valign, style, shadow, S32_MAX, S32_MAX, NULL, FALSE);
+}
+
+// font metrics - override for LLFontFreetype that returns units of virtual pixels
+F32 LLFontGL::getLineHeight() const
+{ 
+	return (F32)llround(mFontFreetype->getLineHeight() / sScaleY); 
+}
+
+F32 LLFontGL::getAscenderHeight() const
+{ 
+	return (F32)llround(mFontFreetype->getAscenderHeight() / sScaleY); 
+}
+
+F32 LLFontGL::getDescenderHeight() const
+{ 
+	return (F32)llround(mFontFreetype->getDescenderHeight() / sScaleY); 
+}
 
 S32 LLFontGL::getWidth(const std::string& utf8text) const
 {
@@ -727,13 +472,13 @@ S32 LLFontGL::getWidth(const llwchar* wchars) const
 	return getWidth(wchars, 0, S32_MAX);
 }
 
-S32 LLFontGL::getWidth(const std::string& utf8text, const S32 begin_offset, const S32 max_chars) const
+S32 LLFontGL::getWidth(const std::string& utf8text, S32 begin_offset, S32 max_chars) const
 {
 	LLWString wtext = utf8str_to_wstring(utf8text);
 	return getWidth(wtext.c_str(), begin_offset, max_chars);
 }
 
-S32 LLFontGL::getWidth(const llwchar* wchars, const S32 begin_offset, const S32 max_chars, BOOL use_embedded) const
+S32 LLFontGL::getWidth(const llwchar* wchars, S32 begin_offset, S32 max_chars, BOOL use_embedded) const
 {
 	F32 width = getWidthF32(wchars, begin_offset, max_chars, use_embedded);
 	return llround(width);
@@ -750,15 +495,15 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars) const
 	return getWidthF32(wchars, 0, S32_MAX);
 }
 
-F32 LLFontGL::getWidthF32(const std::string& utf8text, const S32 begin_offset, const S32 max_chars ) const
+F32 LLFontGL::getWidthF32(const std::string& utf8text, S32 begin_offset, S32 max_chars ) const
 {
 	LLWString wtext = utf8str_to_wstring(utf8text);
 	return getWidthF32(wtext.c_str(), begin_offset, max_chars);
 }
 
-F32 LLFontGL::getWidthF32(const llwchar* wchars, const S32 begin_offset, const S32 max_chars, BOOL use_embedded) const
+F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars, BOOL use_embedded) const
 {
-	const S32 LAST_CHARACTER = LLFont::LAST_CHAR_FULL;
+	const S32 LAST_CHARACTER = LLFontFreetype::LAST_CHAR_FULL;
 
 	F32 cur_x = 0;
 	const S32 max_index = begin_offset + max_chars;
@@ -782,7 +527,7 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, const S32 begin_offset, const S
 		}
 		else
 		{
-			cur_x += getXAdvance(wch);
+			cur_x += mFontFreetype->getXAdvance(wch);
 			llwchar next_char = wchars[i+1];
 
 			if (((i + 1) < max_chars) 
@@ -790,7 +535,7 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, const S32 begin_offset, const S
 				&& (next_char < LAST_CHARACTER))
 			{
 				// Kern this puppy.
-				cur_x += getXKerning(wch, next_char);
+				cur_x += mFontFreetype->getXKerning(wch, next_char);
 			}
 		}
 		// Round after kerning.
@@ -800,12 +545,8 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, const S32 begin_offset, const S
 	return cur_x / sScaleX;
 }
 
-
-
 // Returns the max number of complete characters from text (up to max_chars) that can be drawn in max_pixels
-S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_chars,
-							   BOOL end_on_word_boundary, const BOOL use_embedded,
-							   F32* drawn_pixels) const
+S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_chars, BOOL end_on_word_boundary, BOOL use_embedded, F32* drawn_pixels) const
 {
 	if (!wchars || !wchars[0] || max_chars == 0)
 	{
@@ -898,7 +639,7 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 				}
 			}
 
-			cur_x += getXAdvance(wch);
+			cur_x += mFontFreetype->getXAdvance(wch);
 			
 			if (scaled_max_pixels < cur_x)
 			{
@@ -909,7 +650,7 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 			if (((i+1) < max_chars) && wchars[i+1])
 			{
 				// Kern this puppy.
-				cur_x += getXKerning(wch, wchars[i+1]);
+				cur_x += mFontFreetype->getXKerning(wch, wchars[i+1]);
 			}
 		}
 		// Round after kerning.
@@ -927,7 +668,6 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 	}
 	return i;
 }
-
 
 S32	LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_len, S32 start_pos, S32 max_chars) const
 {
@@ -947,7 +687,7 @@ S32	LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
 		llwchar wch = wchars[i];
 
 		const embedded_data_t* ext_data = getEmbeddedCharData(wch);
-		F32 char_width = ext_data ? getEmbeddedCharAdvance(ext_data) : getXAdvance(wch);
+		F32 char_width = ext_data ? getEmbeddedCharAdvance(ext_data) : mFontFreetype->getXAdvance(wch);
 
 		if( scaled_max_pixels < (total_width + char_width) )
 		{
@@ -965,7 +705,7 @@ S32	LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
 		if ( i > 0 )
 		{
 			// kerning
-			total_width += ext_data ? (EXT_KERNING * sScaleX) : getXKerning(wchars[i-1], wch);
+			total_width += ext_data ? (EXT_KERNING * sScaleX) : mFontFreetype->getXKerning(wchars[i-1], wch);
 		}
 
 		// Round after kerning.
@@ -975,8 +715,7 @@ S32	LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
 	return start_pos - drawable_chars;
 }
 
-
-S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, const S32 begin_offset, F32 target_x, F32 max_pixels, S32 max_chars, BOOL round, BOOL use_embedded) const
+S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, S32 begin_offset, F32 target_x, F32 max_pixels, S32 max_chars, BOOL round, BOOL use_embedded) const
 {
 	if (!wchars || !wchars[0] || max_chars == 0)
 	{
@@ -1040,7 +779,7 @@ S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, const S32 begin_offset,
 		}
 		else
 		{
-			F32 char_width = getXAdvance(wch);
+			F32 char_width = mFontFreetype->getXAdvance(wch);
 
 			if (round)
 			{
@@ -1069,7 +808,7 @@ S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, const S32 begin_offset,
 			{
 				llwchar next_char = wchars[i + 1];
 				// Kern this puppy.
-				cur_x += getXKerning(wch, next_char);
+				cur_x += mFontFreetype->getXKerning(wch, next_char);
 			}
 
 			// Round after kerning.
@@ -1080,8 +819,342 @@ S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, const S32 begin_offset,
 	return pos;
 }
 
+void LLFontGL::addEmbeddedChar( llwchar wc, LLTexture* image, const std::string& label ) const
+{
+	LLWString wlabel = utf8str_to_wstring(label);
+	addEmbeddedChar(wc, image, wlabel);
+}
 
-const LLFontGL::embedded_data_t* LLFontGL::getEmbeddedCharData(const llwchar wch) const
+void LLFontGL::addEmbeddedChar( llwchar wc, LLTexture* image, const LLWString& wlabel ) const
+{
+	embedded_data_t* ext_data = new embedded_data_t(image->getGLTexture(), wlabel);
+	mEmbeddedChars[wc] = ext_data;
+}
+
+void LLFontGL::removeEmbeddedChar(llwchar wc) const
+{
+	embedded_map_t::iterator iter = mEmbeddedChars.find(wc);
+	if (iter != mEmbeddedChars.end())
+	{
+		delete iter->second;
+		mEmbeddedChars.erase(wc);
+	}
+}
+
+BOOL LLFontGL::addChar(llwchar wch) const
+{
+	if (!mFontFreetype->addChar(wch))
+	{
+		return FALSE;
+	}
+
+	stop_glerror();
+
+	LLFontGlyphInfo *glyph_info = mFontFreetype->getGlyphInfo(wch);
+	U32 bitmap_num = glyph_info->mBitmapNum;
+
+	const LLFontBitmapCache* font_bitmap_cache = mFontFreetype->getFontBitmapCache();
+	LLImageGL *image_gl = font_bitmap_cache->getImageGL(bitmap_num);
+	LLImageRaw *image_raw = font_bitmap_cache->getImageRaw(bitmap_num);
+	image_gl->setSubImage(image_raw, 0, 0, image_gl->getWidth(), image_gl->getHeight());
+	return TRUE;
+}
+
+const LLFontDescriptor& LLFontGL::getFontDesc() const
+{
+	return mFontDescriptor;
+}
+
+// static
+void LLFontGL::initClass(F32 screen_dpi, F32 x_scale, F32 y_scale, const std::string& app_dir, const std::vector<std::string>& xui_paths, bool create_gl_textures)
+{
+	sVertDPI = (F32)llfloor(screen_dpi * y_scale);
+	sHorizDPI = (F32)llfloor(screen_dpi * x_scale);
+	sScaleX = x_scale;
+	sScaleY = y_scale;
+	sAppDir = app_dir;
+
+	// Font registry init
+	if (!sFontRegistry)
+	{
+		sFontRegistry = new LLFontRegistry(xui_paths, create_gl_textures);
+		sFontRegistry->parseFontInfo("fonts.xml");
+	}
+	else
+	{
+		sFontRegistry->reset();
+	}
+}
+
+// Force standard fonts to get generated up front.
+// This is primarily for error detection purposes.
+// Don't do this during initClass because it can be slow and we want to get
+// the viewer window on screen first. JC
+// static
+bool LLFontGL::loadDefaultFonts()
+{
+	bool succ = true;
+	succ &= (NULL != getFontSansSerifSmall());
+	succ &= (NULL != getFontSansSerif());
+	succ &= (NULL != getFontSansSerifBig());
+	succ &= (NULL != getFontSansSerifHuge());
+	succ &= (NULL != getFontSansSerifBold());
+	succ &= (NULL != getFontMonospace());
+	succ &= (NULL != getFontExtChar());
+	return succ;
+}
+
+// static
+void LLFontGL::destroyDefaultFonts()
+{
+	// Remove the actual fonts.
+	delete sFontRegistry;
+	sFontRegistry = NULL;
+}
+
+//static 
+void LLFontGL::destroyAllGL()
+{
+	if (sFontRegistry)
+	{
+		sFontRegistry->destroyGL();
+	}
+}
+
+// static
+U8 LLFontGL::getStyleFromString(const std::string &style)
+{
+	S32 ret = 0;
+	if (style.find("NORMAL") != style.npos)
+	{
+		ret |= NORMAL;
+	}
+	if (style.find("BOLD") != style.npos)
+	{
+		ret |= BOLD;
+	}
+	if (style.find("ITALIC") != style.npos)
+	{
+		ret |= ITALIC;
+	}
+	if (style.find("UNDERLINE") != style.npos)
+	{
+		ret |= UNDERLINE;
+	}
+	return ret;
+}
+
+// static
+std::string LLFontGL::nameFromFont(const LLFontGL* fontp)
+{
+	return fontp->mFontDescriptor.getName();
+}
+
+// static
+std::string LLFontGL::nameFromHAlign(LLFontGL::HAlign align)
+{
+	if (align == LEFT)			return std::string("left");
+	else if (align == RIGHT)	return std::string("right");
+	else if (align == HCENTER)	return std::string("center");
+	else return std::string();
+}
+
+// static
+LLFontGL::HAlign LLFontGL::hAlignFromName(const std::string& name)
+{
+	LLFontGL::HAlign gl_hfont_align = LLFontGL::LEFT;
+	if (name == "left")
+	{
+		gl_hfont_align = LLFontGL::LEFT;
+	}
+	else if (name == "right")
+	{
+		gl_hfont_align = LLFontGL::RIGHT;
+	}
+	else if (name == "center")
+	{
+		gl_hfont_align = LLFontGL::HCENTER;
+	}
+	//else leave left
+	return gl_hfont_align;
+}
+
+// static
+std::string LLFontGL::nameFromVAlign(LLFontGL::VAlign align)
+{
+	if (align == TOP)			return std::string("top");
+	else if (align == VCENTER)	return std::string("center");
+	else if (align == BASELINE)	return std::string("baseline");
+	else if (align == BOTTOM)	return std::string("bottom");
+	else return std::string();
+}
+
+// static
+LLFontGL::VAlign LLFontGL::vAlignFromName(const std::string& name)
+{
+	LLFontGL::VAlign gl_vfont_align = LLFontGL::BASELINE;
+	if (name == "top")
+	{
+		gl_vfont_align = LLFontGL::TOP;
+	}
+	else if (name == "center")
+	{
+		gl_vfont_align = LLFontGL::VCENTER;
+	}
+	else if (name == "baseline")
+	{
+		gl_vfont_align = LLFontGL::BASELINE;
+	}
+	else if (name == "bottom")
+	{
+		gl_vfont_align = LLFontGL::BOTTOM;
+	}
+	//else leave baseline
+	return gl_vfont_align;
+}
+
+//static
+LLFontGL* LLFontGL::getFontMonospace()
+{
+	return getFont(LLFontDescriptor("Monospace","Monospace",0));
+}
+
+//static
+LLFontGL* LLFontGL::getFontSansSerifSmall()
+{
+	return getFont(LLFontDescriptor("SansSerif","Small",0));
+}
+
+//static
+LLFontGL* LLFontGL::getFontSansSerif()
+{
+	return getFont(LLFontDescriptor("SansSerif","Medium",0));
+}
+
+//static
+LLFontGL* LLFontGL::getFontSansSerifBig()
+{
+	return getFont(LLFontDescriptor("SansSerif","Large",0));
+}
+
+//static 
+LLFontGL* LLFontGL::getFontSansSerifHuge()
+{
+	return getFont(LLFontDescriptor("SansSerif","Huge",0));
+}
+
+//static 
+LLFontGL* LLFontGL::getFontSansSerifBold()
+{
+	return getFont(LLFontDescriptor("SansSerif","Medium",BOLD));
+}
+
+//static
+LLFontGL* LLFontGL::getFontExtChar()
+{
+	return getFontSansSerif();
+}
+
+//static 
+LLFontGL* LLFontGL::getFont(const LLFontDescriptor& desc)
+{
+	return sFontRegistry->getFont(desc);
+}
+
+//static
+LLFontGL* LLFontGL::getFontByName(const std::string& name)
+{
+	// check for most common fonts first
+	if (name == "SANSSERIF")
+	{
+		return getFontSansSerif();
+	}
+	else if (name == "SANSSERIF_SMALL")
+	{
+		return getFontSansSerifSmall();
+	}
+	else if (name == "SANSSERIF_BIG")
+	{
+		return getFontSansSerifBig();
+	}
+	else if (name == "SMALL" || name == "OCRA")
+	{
+		// *BUG: Should this be "MONOSPACE"?  Do we use "OCRA" anymore?
+		// Does "SMALL" mean "SERIF"?
+		return getFontMonospace();
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+// static 
+std::string LLFontGL::getFontPathSystem()
+{
+	std::string system_path;
+
+	// Try to figure out where the system's font files are stored.
+	char *system_root = NULL;
+#if LL_WINDOWS
+	system_root = getenv("SystemRoot");	/* Flawfinder: ignore */
+	if (!system_root)
+	{
+		llwarns << "SystemRoot not found, attempting to load fonts from default path." << llendl;
+	}
+#endif
+
+	if (system_root)
+	{
+		system_path = llformat("%s/fonts/", system_root);
+	}
+	else
+	{
+#if LL_WINDOWS
+		// HACK for windows 98/Me
+		system_path = "/WINDOWS/FONTS/";
+#elif LL_DARWIN
+		// HACK for Mac OS X
+		system_path = "/System/Library/Fonts/";
+#endif
+	}
+	return system_path;
+}
+
+
+// static 
+std::string LLFontGL::getFontPathLocal()
+{
+	std::string local_path;
+
+	// Backup files if we can't load from system fonts directory.
+	// We could store this in an end-user writable directory to allow
+	// end users to switch fonts.
+	if (LLFontGL::sAppDir.length())
+	{
+		// use specified application dir to look for fonts
+		local_path = LLFontGL::sAppDir + "/fonts/";
+	}
+	else
+	{
+		// assume working directory is executable directory
+		local_path = "./fonts/";
+	}
+	return local_path;
+}
+
+LLFontGL::LLFontGL(const LLFontGL &source)
+{
+	llerrs << "Not implemented!" << llendl;
+}
+
+LLFontGL &LLFontGL::operator=(const LLFontGL &source)
+{
+	llerrs << "Not implemented" << llendl;
+	return *this;
+}
+
+const LLFontGL::embedded_data_t* LLFontGL::getEmbeddedCharData(llwchar wch) const
 {
 	// Handle crappy embedded hack
 	embedded_map_t::const_iterator iter = mEmbeddedChars.find(wch);
@@ -1091,7 +1164,6 @@ const LLFontGL::embedded_data_t* LLFontGL::getEmbeddedCharData(const llwchar wch
 	}
 	return NULL;
 }
-
 
 F32 LLFontGL::getEmbeddedCharAdvance(const embedded_data_t* ext_data) const
 {
@@ -1107,33 +1179,10 @@ F32 LLFontGL::getEmbeddedCharAdvance(const embedded_data_t* ext_data) const
 	return (EXT_X_BEARING * sScaleX) + ext_width;
 }
 
-
 void LLFontGL::clearEmbeddedChars()
 {
 	for_each(mEmbeddedChars.begin(), mEmbeddedChars.end(), DeletePairedPointer());
 	mEmbeddedChars.clear();
-}
-
-void LLFontGL::addEmbeddedChar( llwchar wc, LLImageGL* image, const std::string& label ) const
-{
-	LLWString wlabel = utf8str_to_wstring(label);
-	addEmbeddedChar(wc, image, wlabel);
-}
-
-void LLFontGL::addEmbeddedChar( llwchar wc, LLImageGL* image, const LLWString& wlabel ) const
-{
-	embedded_data_t* ext_data = new embedded_data_t(image, wlabel);
-	mEmbeddedChars[wc] = ext_data;
-}
-
-void LLFontGL::removeEmbeddedChar( llwchar wc ) const
-{
-	embedded_map_t::iterator iter = mEmbeddedChars.find(wc);
-	if (iter != mEmbeddedChars.end())
-	{
-		delete iter->second;
-		mEmbeddedChars.erase(wc);
-	}
 }
 
 
@@ -1159,7 +1208,7 @@ void LLFontGL::renderQuad(const LLRectf& screen_rect, const LLRectf& uv_rect, F3
 void LLFontGL::drawGlyph(const LLRectf& screen_rect, const LLRectf& uv_rect, const LLColor4& color, U8 style, ShadowType shadow, F32 drop_shadow_strength) const
 {
 	F32 slant_offset;
-	slant_offset = ((style & ITALIC) ? ( -mAscender * 0.2f) : 0.f);
+	slant_offset = ((style & ITALIC) ? ( -mFontFreetype->getAscenderHeight() * 0.2f) : 0.f);
 
 	gGL.begin(LLRender::QUADS);
 	{
@@ -1228,72 +1277,4 @@ void LLFontGL::drawGlyph(const LLRectf& screen_rect, const LLRectf& uv_rect, con
 
 	}
 	gGL.end();
-}
-
-std::string LLFontGL::nameFromFont(const LLFontGL* fontp)
-{
-	return fontp->getFontDesc().getName();
-}
-
-// static
-std::string LLFontGL::nameFromHAlign(LLFontGL::HAlign align)
-{
-	if (align == LEFT)			return std::string("left");
-	else if (align == RIGHT)	return std::string("right");
-	else if (align == HCENTER)	return std::string("center");
-	else return std::string();
-}
-
-// static
-LLFontGL::HAlign LLFontGL::hAlignFromName(const std::string& name)
-{
-	LLFontGL::HAlign gl_hfont_align = LLFontGL::LEFT;
-	if (name == "left")
-	{
-		gl_hfont_align = LLFontGL::LEFT;
-	}
-	else if (name == "right")
-	{
-		gl_hfont_align = LLFontGL::RIGHT;
-	}
-	else if (name == "center")
-	{
-		gl_hfont_align = LLFontGL::HCENTER;
-	}
-	//else leave left
-	return gl_hfont_align;
-}
-
-// static
-std::string LLFontGL::nameFromVAlign(LLFontGL::VAlign align)
-{
-	if (align == TOP)			return std::string("top");
-	else if (align == VCENTER)	return std::string("center");
-	else if (align == BASELINE)	return std::string("baseline");
-	else if (align == BOTTOM)	return std::string("bottom");
-	else return std::string();
-}
-
-// static
-LLFontGL::VAlign LLFontGL::vAlignFromName(const std::string& name)
-{
-	LLFontGL::VAlign gl_vfont_align = LLFontGL::BASELINE;
-	if (name == "top")
-	{
-		gl_vfont_align = LLFontGL::TOP;
-	}
-	else if (name == "center")
-	{
-		gl_vfont_align = LLFontGL::VCENTER;
-	}
-	else if (name == "baseline")
-	{
-		gl_vfont_align = LLFontGL::BASELINE;
-	}
-	else if (name == "bottom")
-	{
-		gl_vfont_align = LLFontGL::BOTTOM;
-	}
-	//else leave baseline
-	return gl_vfont_align;
 }

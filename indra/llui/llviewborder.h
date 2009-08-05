@@ -55,7 +55,7 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
-		Optional<EBevel, BevelValues>	bevel_type;
+		Optional<EBevel, BevelValues>	bevel_style;
 		Optional<EStyle, StyleValues>	render_style;	
 		Optional<S32>					border_thickness;
 

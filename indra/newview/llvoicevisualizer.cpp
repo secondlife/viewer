@@ -42,9 +42,8 @@
 #include "llvoicevisualizer.h"
 #include "llviewercamera.h"
 #include "llviewerobject.h"
-#include "llimagegl.h"
-#include "llviewerimage.h"
-#include "llviewerimagelist.h"
+#include "llviewertexture.h"
+#include "llviewertexturelist.h"
 #include "llvoiceclient.h"
 #include "llrender.h"
 
@@ -143,7 +142,7 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
 	for (int i=0; i<NUM_VOICE_SYMBOL_WAVES; i++)
 	{
 		mSoundSymbol.mWaveFadeOutStartTime	[i] = mCurrentTime;
-		mSoundSymbol.mTexture				[i] = gImageList.getImageFromFile(sound_level_img[i], FALSE, TRUE);
+		mSoundSymbol.mTexture				[i] = LLViewerTextureManager::getFetchedTextureFromFile(sound_level_img[i], FALSE, TRUE);
 		mSoundSymbol.mWaveActive			[i] = false;
 		mSoundSymbol.mWaveOpacity			[i] = 1.0f;
 		mSoundSymbol.mWaveExpansion			[i] = 1.0f;

@@ -310,6 +310,7 @@ LLInventoryItem::LLInventoryItem(
 {
 	LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
 	LLStringUtil::replaceChar(mDescription, '|', ' ');
+	mPermissions.initMasks(inv_type);
 }
 
 LLInventoryItem::LLInventoryItem() :
@@ -432,6 +433,9 @@ void LLInventoryItem::setDescription(const std::string& d)
 void LLInventoryItem::setPermissions(const LLPermissions& perm)
 {
 	mPermissions = perm;
+
+	// Override permissions to unrestricted if this is a landmark
+	mPermissions.initMasks(mInventoryType);
 }
 
 void LLInventoryItem::setInventoryType(LLInventoryType::EType inv_type)
@@ -503,6 +507,7 @@ BOOL LLInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32
 	mType = static_cast<LLAssetType::EType>(type);
 	msg->getS8(block, "InvType", type, block_num);
 	mInventoryType = static_cast<LLInventoryType::EType>(type);
+	mPermissions.initMasks(mInventoryType);
 
 	msg->getU32Fast(block, _PREHASH_Flags, mFlags, block_num);
 
@@ -693,6 +698,9 @@ BOOL LLInventoryItem::importFile(LLFILE* fp)
 		lldebugs << "Resetting inventory type for " << mUUID << llendl;
 		mInventoryType = LLInventoryType::defaultForAssetType(mType);
 	}
+
+	mPermissions.initMasks(mInventoryType);
+
 	return success;
 }
 
@@ -896,6 +904,9 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 		lldebugs << "Resetting inventory type for " << mUUID << llendl;
 		mInventoryType = LLInventoryType::defaultForAssetType(mType);
 	}
+
+	mPermissions.initMasks(mInventoryType);
+
 	return success;
 }
 
@@ -1117,6 +1128,8 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd)
 		lldebugs << "Resetting inventory type for " << mUUID << llendl;
 		mInventoryType = LLInventoryType::defaultForAssetType(mType);
 	}
+
+	mPermissions.initMasks(mInventoryType);
 
 	return true;
 fail:
@@ -1624,7 +1637,7 @@ LLSD ll_create_sd_from_inventory_category(LLPointer<LLInventoryCategory> cat)
 	rv[INV_PARENT_ID_LABEL] = cat->getParentUUID();
 	rv[INV_NAME_LABEL] = cat->getName();
 	rv[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(cat->getType());
-	if(LLAssetType::AT_NONE != cat->getPreferredType())
+	if(LLAssetType::lookupIsProtectedCategoryType(cat->getPreferredType()))
 	{
 		rv[INV_PREFERRED_TYPE_LABEL] =
 			LLAssetType::lookup(cat->getPreferredType());

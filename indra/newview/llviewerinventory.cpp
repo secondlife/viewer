@@ -45,7 +45,7 @@
 #include "llgesturemgr.h"
 
 #include "llinventorybridge.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 
 #include "llviewerregion.h"
 #include "llviewerobjectlist.h"
@@ -403,7 +403,8 @@ void LLViewerInventoryCategory::updateParentOnServer(BOOL restamp) const
 void LLViewerInventoryCategory::updateServer(BOOL is_new) const
 {
 	// communicate that change with the server.
-	if(LLAssetType::AT_NONE != mPreferredType)
+
+	if (LLAssetType::lookupIsProtectedCategoryType(mPreferredType))
 	{
 		LLNotifications::instance().add("CannotModifyProtectedCategories");
 		return;
@@ -427,7 +428,7 @@ void LLViewerInventoryCategory::removeFromServer( void )
 	llinfos << "Removing inventory category " << mUUID << " from server."
 			<< llendl;
 	// communicate that change with the server.
-	if(LLAssetType::AT_NONE != mPreferredType)
+	if(LLAssetType::lookupIsProtectedCategoryType(mPreferredType))
 	{
 		LLNotifications::instance().add("CannotRemoveProtectedCategories");
 		return;
@@ -870,7 +871,7 @@ void menu_create_inventory_item(LLFolderView* folder, LLFolderBridge *bridge, co
 		}
 		else
 		{
-			category = gInventory.createNewCategory(gAgent.getInventoryRootID(), LLAssetType::AT_NONE, LLStringUtil::null);
+			category = gInventory.createNewCategory(gInventory.getRootFolderID(), LLAssetType::AT_NONE, LLStringUtil::null);
 		}
 		gInventory.notifyObservers();
 		folder->setSelectionByID(category, TRUE);
@@ -977,7 +978,10 @@ LLAssetType::EType LLViewerInventoryItem::getType() const
 	{
 		return linked_item->getType();
 	}
-	
+	if (const LLViewerInventoryCategory *linked_category = getLinkedCategory())
+	{
+		return linked_category->getType();
+	}	
 	return LLInventoryItem::getType();
 }
 
@@ -996,6 +1000,10 @@ const std::string& LLViewerInventoryItem::getName() const
 	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
 	{
 		return linked_item->getName();
+	}
+	if (const LLViewerInventoryCategory *linked_category = getLinkedCategory())
+	{
+		return linked_category->getName();
 	}
 
 	return LLInventoryItem::getName();

@@ -42,18 +42,18 @@
 // Project includes
 #include "llui.h"
 #include "llagent.h"
-#include "llviewerimage.h"
-#include "llviewerimagelist.h"
+#include "llviewertexture.h"
+#include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llmoveview.h"
 
 #include "llglheaders.h"
 
-static LLDefaultWidgetRegistry::Register<LLJoystickAgentSlide> r1("joystick_slide");
-static LLDefaultWidgetRegistry::Register<LLJoystickAgentTurn> r2("joystick_turn");
-static LLDefaultWidgetRegistry::Register<LLJoystickCameraRotate> r3("joystick_rotate");
-static LLDefaultWidgetRegistry::Register<LLJoystickCameraZoom> r4("joystick_zoom");
-static LLDefaultWidgetRegistry::Register<LLJoystickCameraTrack> r5("joystick_track");
+static LLDefaultChildRegistry::Register<LLJoystickAgentSlide> r1("joystick_slide");
+static LLDefaultChildRegistry::Register<LLJoystickAgentTurn> r2("joystick_turn");
+static LLDefaultChildRegistry::Register<LLJoystickCameraRotate> r3("joystick_rotate");
+static LLDefaultChildRegistry::Register<LLJoystickCameraZoom> r4("joystick_zoom");
+static LLDefaultChildRegistry::Register<LLJoystickCameraTrack> r5("joystick_track");
 
 
 
@@ -552,7 +552,7 @@ void LLJoystickCameraRotate::draw()
 }
 
 // Draws image rotated by multiples of 90 degrees
-void LLJoystickCameraRotate::drawRotatedImage( LLImageGL* image, S32 rotations )
+void LLJoystickCameraRotate::drawRotatedImage( LLTexture* image, S32 rotations )
 {
 	S32 width = image->getWidth();
 	S32 height = image->getHeight();

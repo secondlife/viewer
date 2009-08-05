@@ -122,6 +122,10 @@ public:
 
 		TabPanelParams()
 		:	panel("panel", NULL),
+			label("label"),
+			select_tab("select_tab"),
+			is_placeholder("is_placeholder"),
+			indent("indent"),
 			insert_at("insert_at", END)
 		{}
 	};

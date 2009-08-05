@@ -33,12 +33,13 @@
 #ifndef LL_LLPANELPROFILEVIEW_H
 #define LL_LLPANELPROFILEVIEW_H
 
-#include <llpanel.h>
+#include "llpanel.h"
+#include "llpanelprofile.h"
 
+class LLPanelProfile;
 class LLPanelProfileTab;
-class LLTabContainer;
 
-class LLPanelProfileView : public LLPanel
+class LLPanelProfileView : public LLPanelProfile
 {
 	LOG_CLASS(LLPanelProfileView);
 	friend class LLUICtrlFactory;
@@ -48,22 +49,10 @@ public:
 
 	~LLPanelProfileView(void);
 
-	void onTabSelected(const LLSD& param);
-
 	void onOpen(const LLSD& key);
 	
 	BOOL postBuild();
-	
-	void initTabs(const LLSD& key);
-
 	void onBackBtnClick();
-
-private:
-	LLTabContainer*			mTabContainer;
-
-	typedef std::map<std::string, LLPanelProfileTab*> profile_tabs_t;
-	profile_tabs_t mTabs;
-	LLUUID mProfileId;
 };
 
 #endif //LL_LLPANELPROFILEVIEW_H

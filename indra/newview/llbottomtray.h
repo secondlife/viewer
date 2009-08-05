@@ -34,58 +34,56 @@
 #define LL_LLBOTTOMPANEL_H
 
 #include "llpanel.h"
-#include "llflyoutbutton.h"
 #include "llimview.h"
-#include "llchat.h"
 
 class LLChicletPanel;
-class LLNotificationChiclet;
+class LLLineEditor;
 class LLNotificationChiclet;
 class LLTalkButton;
+class LLNearbyChatBar;
 
 class LLBottomTray 
-	: public LLSingleton<LLBottomTray>
+	: public LLUISingleton<LLBottomTray>
 	, public LLPanel
 	, public LLIMSessionObserver
 {
+	friend class LLUISingleton<LLBottomTray>;
 public:
-	LLBottomTray();
-
 	~LLBottomTray();
 
-	LLLineEditor* getChatBox();
+	LLChicletPanel*		getChicletPanel()	{return mChicletPanel;}
+	LLNotificationChiclet*	getIMWell()	{return mIMWell;}
+	LLNotificationChiclet*	getSysWell()	{return mSysWell;}
+	LLNearbyChatBar*		getNearbyChatBar()	{return mNearbyChatBar;}
 
-	LLChicletPanel* getChicletPanel() {return mChicletPanel;};
+	/*virtual*/void draw();
+	void refreshStandUp();
 
-	LLNotificationChiclet* getIMWell() {return mIMWell;};
-
-	LLNotificationChiclet* getNotificationWell(){return mNotificationWell;};
-
-	void onChatBoxCommit();
-	void sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate);
-	void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
-	static void onChatBoxKeystroke(LLLineEditor* caller, void* userdata);
-	static void onChatBoxFocusLost(LLFocusableElement* caller, void* userdata);
+	void onCommitGesture(LLUICtrl* ctrl);
+	void onCommitStandUp(LLUICtrl* ctrl);	
+	void refreshGestures();
 
 	// LLIMSessionObserver observe triggers
 	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
 	virtual void sessionRemoved(const LLUUID& session_id);
 
+	virtual void onFocusLost();
+	virtual void setVisible(BOOL visible);
+
 protected:
 
-	void sendChat( EChatType type );
-	LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
+	LLBottomTray(const LLSD& key = LLSD());
 
-	// Which non-zero channel did we last chat on?
-	S32 mLastSpecialChatChannel;
+	void onChicletClick(LLUICtrl* ctrl);
 
-	LLChicletPanel* mChicletPanel;
-	LLNotificationChiclet* mIMWell;
-	LLNotificationChiclet* mNotificationWell;
-	LLTalkButton* mTalkBtn;
+	static void* createNearbyChatBar(void* userdata);
+
+	LLChicletPanel* 	mChicletPanel;
+	LLNotificationChiclet* 	mIMWell;
+	LLNotificationChiclet* 	mSysWell;
+	LLTalkButton* 		mTalkBtn;
+	LLButton*           mStandUpBtn;
+	LLNearbyChatBar*	mNearbyChatBar;
 };
-
-extern LLBottomTray* gBottomTray;
-extern S32 BOTTOM_TRAY_HEIGHT;
 
 #endif // LL_LLBOTTOMPANEL_H

@@ -19,13 +19,25 @@
   </font>
 
   <font name="SansSerif" comment="Name of san-serif font (Truetype file name)">
-    <file>"MtBkLfRg.ttf"</file>
+    <file>Helvetica.dfont</file>
+  <os name="Windows">
+      <file>arial.ttf</file>
+      </os>
+    <os name="Mac">
+      <file>Helvetica.dfont</file>
+      </os>
   </font>
 
   <font name="SansSerifBold" 
 	comment="Name of bold sans-serif font" 
 	font_style="Bold">
-    <file>MtBdLfRg.ttf</file>
+    <file>Helvetica.dfont</file>
+    <os name="Windows">
+      <file>arialbd.ttf</file>
+      </os>
+    <os name="Mac">
+      <file>Helvetica.dfont</file>
+      </os>
   </font>
 
   <font name="Monospace"

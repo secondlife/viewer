@@ -296,7 +296,7 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 {
 	// store off config state, as we might quit soon
 	gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);	
-	gSavedSkinSettings.saveToFile(gSavedSettings.getString("SkinningSettingsFile"), TRUE);
+	LLUIColorTable::instance().saveUserSettings();
 
 	std::ostringstream message;
 	std::string msg;

@@ -37,7 +37,7 @@
 #include "llfloater.h"
 #include "lluuid.h"
 #include "llpointer.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFloaterAuction
@@ -46,18 +46,20 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLParcelSelection;
 
-class LLFloaterAuction : public LLFloater, public LLFloaterSingleton<LLFloaterAuction>
+class LLFloaterAuction : public LLFloater
 {
-	friend class LLUISingleton<LLFloaterAuction, VisibilityPolicy<LLFloater> >;
+	friend class LLFloaterReg;
 public:
 	// LLFloater interface
 	/*virtual*/ void onClose(bool app_quitting) { setVisible(FALSE); }
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void draw();
+
+private:
 	
 	LLFloaterAuction(const LLSD& key);
 	~LLFloaterAuction();
-private:
+	
 	void initialize();
 
 	static void onClickSnapshot(void* data);
@@ -67,7 +69,7 @@ private:
 private:
 	LLTransactionID mTransactionID;
 	LLAssetID mImageID;
-	LLPointer<LLImageGL> mImage;
+	LLPointer<LLViewerTexture> mImage;
 	LLSafeHandle<LLParcelSelection> mParcelp;
 	S32 mParcelID;
 	LLHost mParcelHost;

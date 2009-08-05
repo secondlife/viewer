@@ -40,10 +40,9 @@
 #include "llfocusmgr.h"
 #include "llkeyboard.h"			// for the MASK constants
 #include "llcontrol.h"
-#include "llimagegl.h"
 #include "lluictrlfactory.h"
 
-static LLDefaultWidgetRegistry::Register<LLSlider> r1("slider_bar");
+static LLDefaultChildRegistry::Register<LLSlider> r1("slider_bar");
 //FIXME: make this into an unregistered template so that code constructed sliders don't
 // have ambigious template lookup problem
 

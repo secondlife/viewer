@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_im_control_panel"
+       width="96"
+       height="215"
+       border="false">
+
+  <avatar_icon name="avatar_icon"
+               width="96"
+               height="96" />
+
+  <button name="view_profile_btn"
+          label="View Profile"
+          left_delta="3"
+          width="90"
+		  height="20" />
+
+  <button name="add_friend_btn"
+          label="Add Friend"
+          width="90"
+          height="20" />
+
+  <button name="call_btn"
+          label="Call"
+          width="90"
+          height="20" />
+
+  <button name="share_btn"
+          label="Share"
+          width="90"
+          height="20" />
+
+</panel>

@@ -42,9 +42,11 @@
 
 #include "llagent.h"
 #include "llfloaterhtmlhelp.h"
+#include "lllandmarkactions.h"
 #include "lllocationhistory.h"
 #include "lllocationinputctrl.h"
 #include "llteleporthistory.h"
+#include "llsearcheditor.h"
 #include "llslurl.h"
 #include "llurlsimstring.h"
 #include "llviewerinventory.h"
@@ -174,9 +176,9 @@ LLNavigationBar::LLNavigationBar()
 	mBtnBack(NULL),
 	mBtnForward(NULL),
 	mBtnHome(NULL),
-	mBtnHelp(NULL),
 	mCmbLocation(NULL),
-	mLeSearch(NULL)
+	mLeSearch(NULL),
+	mPurgeTPHistoryItems(false)
 {
 	setIsChrome(TRUE);
 	
@@ -200,15 +202,12 @@ BOOL LLNavigationBar::postBuild()
 	mBtnBack	= getChild<LLButton>("back_btn");
 	mBtnForward	= getChild<LLButton>("forward_btn");
 	mBtnHome	= getChild<LLButton>("home_btn");
-	mBtnHelp	= getChild<LLButton>("help_btn");
 	
 	mCmbLocation= getChild<LLLocationInputCtrl>("location_combo"); 
-	mLeSearch	= getChild<LLLineEditor>("search_input");
-	
-	LLButton* search_btn = getChild<LLButton>("search_btn");
+	mLeSearch	= getChild<LLSearchEditor>("search_input");
 
-	if (!mBtnBack || !mBtnForward || !mBtnHome || !mBtnHelp ||
-		!mCmbLocation || !mLeSearch || !search_btn)
+	if (!mBtnBack || !mBtnForward || !mBtnHome ||
+		!mCmbLocation || !mLeSearch)
 	{
 		llwarns << "Malformed navigation bar" << llendl;
 		return FALSE;
@@ -223,15 +222,13 @@ BOOL LLNavigationBar::postBuild()
 	mBtnForward->setHeldDownCallback(boost::bind(&LLNavigationBar::onBackOrForwardButtonHeldDown, this, _2));
 
 	mBtnHome->setClickedCallback(boost::bind(&LLNavigationBar::onHomeButtonClicked, this));
-	mBtnHelp->setClickedCallback(boost::bind(&LLNavigationBar::onHelpButtonClicked, this));
 
 	mCmbLocation->setSelectionCallback(boost::bind(&LLNavigationBar::onLocationSelection, this));
 	
 	mLeSearch->setCommitCallback(boost::bind(&LLNavigationBar::onSearchCommit, this));
-	search_btn->setClickedCallback(boost::bind(&LLNavigationBar::onSearchCommit, this));
 
 	// Load the location field context menu
-	mLocationContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_navbar.xml", gMenuHolder);
+	mLocationContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_navbar.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if (!mLocationContextMenu)
 	{
 		llwarns << "Error loading navigation bar context menu" << llendl;
@@ -247,6 +244,12 @@ BOOL LLNavigationBar::postBuild()
 
 void LLNavigationBar::draw()
 {
+	if(mPurgeTPHistoryItems)
+	{
+		LLTeleportHistory::getInstance()->purgeItems();
+		onTeleportHistoryChanged();
+		mPurgeTPHistoryItems = false;
+	}
 	LLPanel::draw();
 }
 
@@ -292,14 +295,9 @@ void LLNavigationBar::onHomeButtonClicked()
 	gAgent.teleportHome();
 }
 
-void LLNavigationBar::onHelpButtonClicked()
-{
-	gViewerHtmlHelp.show();
-}
-
 void LLNavigationBar::onSearchCommit()
 {
-	invokeSearch(mLeSearch->getText());
+	invokeSearch(mLeSearch->getValue().asString());
 }
 
 void LLNavigationBar::onTeleportHistoryMenuItemClicked(const LLSD& userdata)
@@ -518,6 +516,10 @@ bool LLNavigationBar::onLocationContextMenuItemEnabled(const LLSD& userdata)
 	{
 		return location_entry->canSelectAll();
 	}
+	else if(item == std::string("can_landmark"))
+	{
+		return !LLLandmarkActions::landmarkAlreadyExists();
+	}
 
 	return false;
 }
@@ -530,4 +532,13 @@ void LLNavigationBar::handleLoginComplete()
 void LLNavigationBar::invokeSearch(std::string search_text)
 {
 	LLFloaterReg::showInstance("search", LLSD().insert("panel", "all").insert("id", LLSD(search_text)));
+}
+
+void LLNavigationBar::clearHistoryCache()
+{
+	mCmbLocation->removeall();
+	LLLocationHistory* lh = LLLocationHistory::getInstance();
+	lh->removeItems();
+	lh->save();	
+	mPurgeTPHistoryItems= true;
 }

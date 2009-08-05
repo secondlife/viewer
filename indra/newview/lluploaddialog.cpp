@@ -144,7 +144,7 @@ void LLUploadDialog::setMessage( const std::string& msg)
 		msg_rect.setOriginAndSize( msg_x, msg_y, max_msg_width, line_height );
 		mLabelBox[line_num]->setRect(msg_rect);
 		mLabelBox[line_num]->setText(cur_line);
-		mLabelBox[line_num]->setColor( gSavedSkinSettings.getColor( "LabelTextColor" ) );
+		mLabelBox[line_num]->setColor( LLUIColorTable::instance().getColor( "LabelTextColor" ) );
 		mLabelBox[line_num]->setVisible(TRUE);
 		msg_y -= line_height;
 		++line_num;

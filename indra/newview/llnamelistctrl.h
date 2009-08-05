@@ -57,11 +57,11 @@ public:
 
 	struct NameItem : public LLInitParam::Block<NameItem, LLScrollListItem::Params>
 	{
-		Optional<std::string>				display_name;
+		Optional<std::string>				name;
 		Optional<ENameType, NameTypeNames>	target;
 
 		NameItem()
-		:	display_name("name"),
+		:	name("name"),
 			target("target", INDIVIDUAL)
 		{}		
 	};
@@ -94,6 +94,14 @@ public:
 	void addNameItem(NameItem& item, EAddPosition pos = ADD_BOTTOM);
 
 	/*virtual*/ LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
+	LLScrollListItem* addRow(const LLScrollListItem::Params& value, EAddPosition pos = ADD_BOTTOM)
+	{
+		// *NOTE:Mani - This implementation overrides the LLScrollListItem::addRow()
+		// method to call this class's special version of addRow().
+		// The dynamic_cast of a reference type should throw 
+		// a std::bad_cast exception on failure.
+		return addRow(dynamic_cast<const NameItem&>(value), pos);
+	}
 	LLScrollListItem* addRow(const NameItem& value, EAddPosition pos = ADD_BOTTOM);
 
 	// Add a user to the list by name.  It will be added, the name 

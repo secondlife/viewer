@@ -42,8 +42,6 @@
 // Linden libs
 #include "lluictrlfactory.h"
 
-// statics 
-LLFloaterHUD* LLFloaterHUD::sInstance = 0; 
 
 ///----------------------------------------------------------------------------
 /// Class LLFloaterHUD
@@ -51,12 +49,18 @@ LLFloaterHUD* LLFloaterHUD::sInstance = 0;
 #define super LLFloater	/* superclass */
 
 // Default constructor
-LLFloaterHUD::LLFloaterHUD()
-:	LLFloater(),
+LLFloaterHUD::LLFloaterHUD(const LLSD& key)
+:	LLFloater(key),
 	mWebBrowser(0)
 {
-	// Create floater from its XML definition
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_hud.xml");
+	// do not build the floater if there the url is empty
+	if (gSavedSettings.getString("TutorialURL") == "")
+	{
+		LLNotifications::instance().add("TutorialNotFound");
+		return;
+	}
+	
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_hud.xml");
 	
 	// Don't grab the focus as it will impede performing in-world actions
 	// while using the HUD
@@ -68,62 +72,35 @@ LLFloaterHUD::LLFloaterHUD()
 	
 	// Opaque background since we never get the focus
 	setBackgroundOpaque(TRUE);
+}
 
+BOOL LLFloaterHUD::postBuild()
+{
 	mWebBrowser = getChild<LLWebBrowserCtrl>("floater_hud_browser" );
 	if (mWebBrowser)
 	{
 		// Open links in internal browser
 		mWebBrowser->setOpenInExternalBrowser(false);
-
+		
 		// This is a "chrome" floater, so we don't want anything to
 		// take focus (as the user needs to be able to walk with 
 		// arrow keys during tutorial).
 		mWebBrowser->setTakeFocusOnClick(false);
-
+		
 		std::string language = LLUI::getLanguage();
 		std::string base_url = gSavedSettings.getString("TutorialURL");
-
+		
 		std::string url = base_url + language + "/";
 		mWebBrowser->navigateTo(url);
 	}
-}
-
-// Get the instance
-LLFloaterHUD* LLFloaterHUD::getInstance()
-{
-	if (!sInstance)
-	{
-		sInstance = new LLFloaterHUD();
-	}
-	return sInstance;
+	
+	return TRUE;
 }
 
 // Destructor
 LLFloaterHUD::~LLFloaterHUD()
 {
-	// Clear out the one instance if it's ours
-	if (sInstance == this)
-	{
-		sInstance = NULL;
-	}
 }
-
-// Show the HUD
-void LLFloaterHUD::showHUD()
-{
-	// do not build the floater if there the url is empty
-	if (gSavedSettings.getString("TutorialURL") == "")
-	{
-		LLNotifications::instance().add("TutorialNotFound");
-		return;
-	}
-
-	// Create the instance if necessary
-	LLFloaterHUD* hud = getInstance();
-	hud->openFloater();
-	hud->setFrontmost(FALSE);
-}
-
 // Save our visibility state on close in case the user accidentally
 // quit the application while the tutorial was visible.
 // virtual

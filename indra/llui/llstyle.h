@@ -34,7 +34,6 @@
 #define LL_LLSTYLE_H
 
 #include "v4color.h"
-#include "llfont.h"
 #include "llui.h"
 
 class LLFontGL;
@@ -106,7 +105,7 @@ protected:
 
 private:
 	BOOL		mVisible;
-	LLColor4	mColor;
+	LLUIColor	mColor;
 	std::string	mFontName;
 	LLFontGL*   mFont;		// cached for performance
 	std::string	mLink;

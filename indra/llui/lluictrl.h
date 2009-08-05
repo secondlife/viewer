@@ -108,7 +108,7 @@ public:
 	{
 		Optional<commit_callback_t> function;
 	};
-	
+
 	struct EnableCallbackParam : public LLInitParam::Block<EnableCallbackParam, CallbackParam >
 	{
 		Optional<enable_callback_t> function;
@@ -130,8 +130,8 @@ public:
 		Alternative<std::string> invisible;
 
 		ControlVisibility()
-			: visible("make_visible_control"),
-			invisible("make_invisible_control")
+			: visible("visiblity_control"),
+			invisible("invisiblity_control")
 		{}
 	};	
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
@@ -145,6 +145,9 @@ public:
 		Optional<EnableCallbackParam>	validate_callback;
 		
 		Optional<CommitCallbackParam>	rightclick_callback;
+
+		Optional<CommitCallbackParam>	mouseenter_callback;
+		Optional<CommitCallbackParam>	mouseleave_callback;
 		
 		Optional<focus_callback_t>		focus_lost_callback;
 		
@@ -181,6 +184,8 @@ public:
 	/*virtual*/ BOOL	isCtrl() const;
 	/*virtual*/ void	setTentative(BOOL b);
 	/*virtual*/ BOOL	getTentative() const;
+	/*virtual*/ void	onMouseEnter(S32 x, S32 y, MASK mask);
+	/*virtual*/ void	onMouseLeave(S32 x, S32 y, MASK mask);
 
 	// From LLFocusableElement
 	/*virtual*/ void	setFocus( BOOL b );
@@ -227,8 +232,6 @@ public:
 	virtual void	onTabInto();
 	virtual void	clear();
 	virtual void	setColor(const LLColor4& color);
-	virtual void	setMinValue(LLSD min_value);
-	virtual void	setMaxValue(LLSD max_value);
 
 	BOOL	focusNextItem(BOOL text_entry_only);
 	BOOL	focusPrevItem(BOOL text_entry_only);
@@ -246,6 +249,9 @@ public:
 
 	boost::signals2::connection setCommitCallback( const commit_signal_t::slot_type& cb ) { return mCommitSignal.connect(cb); }
 	boost::signals2::connection setValidateCallback( const enable_signal_t::slot_type& cb ) { return mValidateSignal.connect(cb); }
+
+	boost::signals2::connection setMouseEnterCallback( const commit_signal_t::slot_type& cb ) { return mMouseEnterSignal.connect(cb); }
+	boost::signals2::connection setMouseLeaveCallback( const commit_signal_t::slot_type& cb ) { return mMouseLeaveSignal.connect(cb); }
 	
 	// *TODO: Deprecate; for backwards compatability only:
 	boost::signals2::connection setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data);	
@@ -261,11 +267,11 @@ public:
 		}
 	};
 	
-	template <typename F> class CallbackRegistry : public LLRegistrySingleton<std::string, F, CallbackRegistry<F> >
+	template <typename F, typename DERIVED> class CallbackRegistry : public LLRegistrySingleton<std::string, F, DERIVED >
 	{};	
 
-	typedef CallbackRegistry<commit_callback_t> CommitCallbackRegistry;
-	typedef CallbackRegistry<enable_callback_t> EnableCallbackRegistry;
+	class CommitCallbackRegistry : public CallbackRegistry<commit_callback_t, CommitCallbackRegistry>{};
+	class EnableCallbackRegistry : public CallbackRegistry<enable_callback_t, EnableCallbackRegistry>{};
 	
 protected:
 
@@ -274,6 +280,9 @@ protected:
 	commit_signal_t		mCommitSignal;
 	enable_signal_t		mValidateSignal;
 	commit_signal_t		mRightClickSignal;
+
+	commit_signal_t		mMouseEnterSignal;
+	commit_signal_t		mMouseLeaveSignal;
 
     LLViewModelPtr  mViewModel;
 
@@ -313,6 +322,10 @@ namespace LLInitParam
 	bool ParamCompare<LLUICtrl::focus_callback_t>::equals(
 		const LLUICtrl::focus_callback_t &a, 
 		const LLUICtrl::focus_callback_t &b); 
+	
+    template<>
+	bool ParamCompare<LLLazyValue<LLColor4> >::equals(
+		const LLLazyValue<LLColor4> &a, const LLLazyValue<LLColor4> &b); 
 }
 
 #endif  // LL_LLUICTRL_H

@@ -10,6 +10,7 @@ include_directories(
     )
 
 set(llmath_SOURCE_FILES
+    llbbox.cpp
     llbboxlocal.cpp
     llcamera.cpp
     llcoordframe.cpp
@@ -39,6 +40,7 @@ set(llmath_HEADER_FILES
 
     camera.h
     coordframe.h
+    llbbox.h
     llbboxlocal.h
     llcamera.h
     llcoord.h

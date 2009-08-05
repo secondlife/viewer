@@ -58,7 +58,8 @@ public:
 		Optional<S32>	font_size_index;
 		Params()
 		:	max_lines("max_lines", LLUI::sSettingGroups["config"]->getS32("ConsoleMaxLines")),
-			persist_time("persist_time", 0.f) // forever
+			persist_time("persist_time", 0.f), // forever
+			font_size_index("font_size_index")
 		{
 			mouse_opaque(false);
 		}

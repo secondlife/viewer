@@ -42,51 +42,44 @@
 
 
 LLFloaterPerms::LLFloaterPerms(const LLSD& seed)
-: LLFloater()
+: LLFloater(seed)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_perm_prefs.xml");
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_perm_prefs.xml");
+	mCommitCallbackRegistrar.add("Perms.Copy",	boost::bind(&LLFloaterPerms::onCommitCopy, this));
+	mCommitCallbackRegistrar.add("Perms.OK",	boost::bind(&LLFloaterPerms::onClickOK, this));
+	mCommitCallbackRegistrar.add("Perms.Cancel",	boost::bind(&LLFloaterPerms::onClickCancel, this));
+
 }
 
 BOOL LLFloaterPerms::postBuild()
 {
-	childSetEnabled("next_owner_transfer", gSavedSettings.getBOOL("NextOwnerCopy"));
-	childSetAction("help",   onClickHelp,   this);
-	childSetAction("ok",     onClickOK,     this);
-	childSetAction("cancel", onClickCancel, this);
-	childSetCommitCallback("next_owner_copy", &onCommitCopy, this);
 
 	refresh();
 	
 	return TRUE;
 }
 
-//static 
-void LLFloaterPerms::onClickOK(void* data)
+void LLFloaterPerms::onClickOK()
 {
-	LLFloaterPerms* self = static_cast<LLFloaterPerms*>(data);
-	self->ok();
-	self->closeFloater();
+	ok();
+	closeFloater();
 }
 
-//static 
-void LLFloaterPerms::onClickCancel(void* data)
+void LLFloaterPerms::onClickCancel()
 {
-	LLFloaterPerms* self = static_cast<LLFloaterPerms*>(data);
-	self->cancel();
-	self->closeFloater();
+	cancel();
+	closeFloater();
 }
 
-//static 
-void LLFloaterPerms::onCommitCopy(LLUICtrl* ctrl, void* data)
+void LLFloaterPerms::onCommitCopy()
 {
-	LLFloaterPerms* self = static_cast<LLFloaterPerms*>(data);
 	// Implements fair use
 	BOOL copyable = gSavedSettings.getBOOL("NextOwnerCopy");
 	if(!copyable)
 	{
 		gSavedSettings.setBOOL("NextOwnerTransfer", TRUE);
 	}
-	LLCheckBoxCtrl* xfer = self->getChild<LLCheckBoxCtrl>("next_owner_transfer");
+	LLCheckBoxCtrl* xfer = getChild<LLCheckBoxCtrl>("next_owner_transfer");
 	xfer->setEnabled(copyable);
 }
 
@@ -152,9 +145,3 @@ U32 LLFloaterPerms::getNextOwnerPerms(std::string prefix)
 	return flags;
 }
 
-
-//static
-void LLFloaterPerms::onClickHelp(void* data)
-{
-	LLNotifications::instance().add("ClickUploadHelpPermissions");
-}

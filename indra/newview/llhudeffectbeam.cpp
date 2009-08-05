@@ -43,7 +43,6 @@
 #include "llgl.h"
 #include "llglheaders.h"
 #include "llhudrender.h"
-#include "llimagegl.h"
 #include "llrendersphere.h"
 #include "llviewercamera.h"
 #include "llvoavatar.h"

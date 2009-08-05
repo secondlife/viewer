@@ -39,11 +39,11 @@
 #include "v3dmath.h"
 #include "v4color.h"
 #include "llimage.h"
-#include "llimagegl.h"
 
 class LLColor4U;
 class LLCoordGL;
 class LLTextBox;
+class LLViewerTexture ;
 
 class LLNetMap : public LLUICtrl
 {
@@ -106,7 +106,7 @@ private:
 	BOOL			mUpdateNow;
 	LLVector3d		mObjectImageCenterGlobal;
 	LLPointer<LLImageRaw> mObjectRawImagep;
-	LLPointer<LLImageGL>	mObjectImagep;
+	LLPointer<LLViewerTexture>	mObjectImagep;
 
 	LLUUID			mClosestAgentToCursor;
 	LLUUID			mClosestAgentAtLastRightClick;

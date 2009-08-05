@@ -46,7 +46,7 @@
 // statics
 std::set<LLNameBox*> LLNameBox::sInstances;
 
-static LLDefaultWidgetRegistry::Register<LLNameBox> r("name_box");
+static LLDefaultChildRegistry::Register<LLNameBox> r("name_box");
 
 
 LLNameBox::LLNameBox(const Params& p)

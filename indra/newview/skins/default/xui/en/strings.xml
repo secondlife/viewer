@@ -76,12 +76,14 @@
 	<string name="TooltipAltRight">Alt-Right arrow for next tab</string>	
 	
 	<!-- ButtonToolTips, llfloater.cpp -->
-	<string name="BUTTON_CLOSE_DARWIN">Close (Cmd-W)</string>
+	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;-W)</string>
 	<string name="BUTTON_CLOSE_WIN">Close (Ctrl-W)</string>
 	<string name="BUTTON_RESTORE">Restore</string>			
 	<string name="BUTTON_MINIMIZE">Minimize</string>
 	<string name="BUTTON_TEAR_OFF">Tear Off</string>
 	<string name="BUTTON_EDIT">Edit</string>
+  <string name="BUTTON_DOCK">Dock</string>
+  <string name="BUTTON_UNDOCK">Undock</string>
 
 	<!-- searching - generic -->
 	<string name="Searching">Searching...</string>
@@ -152,7 +154,7 @@
 	<string name="AvatarEditingAppearance">(Editing Appearance)</string>
 	<string name="AvatarAway">Away</string>
 	<string name="AvatarBusy">Busy</string>
-	<string name="AvatarMuted">Muted</string>
+	<string name="AvatarMuted">Blocked</string>
 
 	<!-- animations -->
 	<string name="anim_express_afraid">Afraid</string>
@@ -341,36 +343,41 @@
 		You do not have a copy of
 this texture in your inventory
 	</string>
-	<string name="no_transfer"> (no transfer)</string>
-	<string name="no_modify"> (no modify)</string>
-	<string name="no_copy"> (no copy)</string>
-	<string name="worn"> (worn)</string>
+    <!-- use value="" because they have preceding spaces -->
+	<string name="no_transfer" value=" (no transfer)" />
+	<string name="no_modify"   value=" (no modify)" />
+	<string name="no_copy"     value=" (no copy)" />
+	<string name="worn"        value=" (worn)" />
+	<string name="link"        value=" (link)" />
+	<string name="broken_link" value=" (broken_link)" />
 	<string name="LoadingContents">Loading contents...</string>
 	<string name="NoContents">No contents</string>
 
 	<!-- Gestures labels -->
-	<string name="Chat"> Chat : </string>
-	<string name="Sound"> Sound : </string>
-	<string name="Wait"> --- Wait : </string>
-	<string name="AnimFlagStop"> Stop Animation :    </string>
-	<string name="AnimFlagStart"> Start Animation :   </string>
-	<string name="Wave"> Wave </string>
-	<string name="HelloAvatar"> Hello, avatar! </string>
+    <!-- use value="" because they have preceding spaces -->
+    <string name="Chat"          value=" Chat : " />
+    <string name="Sound"         value=" Sound : " />
+	<string name="Wait"          value=" --- Wait : " />
+	<string name="AnimFlagStop"  value=" Stop Animation :    " />
+	<string name="AnimFlagStart" value=" Start Animation :   " />
+	<string name="Wave"          value=" Wave " />
+	<string name="HelloAvatar"   value=" Hello, avatar! " />
 				
 	<!-- inventory filter -->
-	<string name="Animations"> Animations,</string>
-	<string name="Calling Cards">  Calling Cards,</string>
-	<string name="Clothing"> Clothing,</string>
-	<string name="Gestures">  Gestures,</string>
-	<string name="Landmarks"> Landmarks,</string>
-	<string name="Notecards">  Notecards,</string>
-	<string name="Objects"> Objects,</string>
-	<string name="Scripts">  Scripts,</string>
-	<string name="Sounds"> Sounds,</string>
-	<string name="Textures">  Textures,</string>
-	<string name="Snapshots"> Snapshots,</string>
-	<string name="No Filters"> No </string>
-	<string name="Since Logoff"> - Since Logoff</string>
+    <!-- use value="" because they have preceding spaces -->
+	<string name="Animations"    value=" Animations," />
+	<string name="Calling Cards" value=" Calling Cards," />
+	<string name="Clothing"      value=" Clothing," />
+	<string name="Gestures"      value=" Gestures," />
+	<string name="Landmarks"     value=" Landmarks," />
+	<string name="Notecards"     value=" Notecards," />
+	<string name="Objects"       value=" Objects," />
+	<string name="Scripts"       value=" Scripts," />
+	<string name="Sounds"        value=" Sounds," />
+	<string name="Textures"      value=" Textures," />
+	<string name="Snapshots"     value=" Snapshots," />
+	<string name="No Filters"    value="No " />
+	<string name="Since Logoff"  value=" - Since Logoff" />
 
 	<!-- inventory folder -->
 	<string name="InvFolder My Inventory">My Inventory</string>
@@ -397,10 +404,6 @@ this texture in your inventory
 	<string name="InvFolder favorite">Favorites</string>
 
 	<!-- inventory FVBridge -->
-	<string name="NO_COPY"> (no copy)</string>
-	<string name="NO_MOD"> (no modify)</string>
-	<string name="NO_XFER"> (no transfer)</string>
-	
 	<string name="Buy">Buy</string>
 	<string name="BuyforL$">Buy for L$</string>
 	
@@ -486,13 +489,11 @@ this texture in your inventory
 	
 	<!-- groups -->
 	<string name="GroupsNone">none</string>
-	<string name="Group"> (group)</string>
+	<string name="Group" value=" (group)" />
 	<string name="Unknown">(Unknown)</string>
-	<string name="SummaryForTheWeek">Summary for this week, beginning on </string>
-	<string name="NextStipendDay">The next stipend day is </string>
-	<string name="GroupIndividualShare">                      Group       Individual Share
-
-	</string>
+	<string name="SummaryForTheWeek"    value="Summary for this week, beginning on " />
+	<string name="NextStipendDay"       value="The next stipend day is " />
+	<string name="GroupIndividualShare" value="                      Group       Individual Share" />
 	<string name="Balance">Balance</string>
 	<string name="Credits">Credits</string>
 	<string name="Debits">Debits</string>
@@ -544,8 +545,8 @@ you managed for [OWNER]
 	<string name="RegionNoCovenant">There is no Covenant provided for this Estate.</string>
 	<string name="RegionNoCovenantOtherOwner">There is no Covenant provided for this Estate. The land on this estate is being sold by the Estate owner, not Linden Lab.  Please contact the Estate Owner for sales details.</string>
 	<string name="covenant_last_modified">Last Modified:</string>
-	<string name="none_text"> (none) </string>
-	<string name="never_text"> (never) </string>
+	<string name="none_text"  value=" (none) " />
+	<string name="never_text" value=" (never) " />
 	
 	<!--Region Details-->
 	<string name="GroupOwned">Group Owned</string>
@@ -651,6 +652,7 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="Stage">Stage</string>	
 	<string name="Other">Other</string>	
 	<string name="Any">Any</string>	
+	<string name="You">You</string>							
 						
 	<!-- puncutations -->
 	<string name=":">:</string>			
@@ -775,7 +777,6 @@ If you continue to receive this message, contact customer support.
 	<string name="LTimeHour">hour,datetime,local</string>
 	<string name="LTimeMin">min,datetime,local</string>	
 	<string name="LTimeYear">year,datetime,local</string>	
-	<string name="LTimeSec">second,datetime,local</string>	
 	
 	<string name="UTCTimeWeek">weekday,datetime,utc</string>
 	<string name="UTCTimeDay">day,datetime,utc</string>
@@ -785,4 +786,6 @@ If you continue to receive this message, contact customer support.
 	<string name="UTCTimeMin">min,datetime,utc</string>
 	<string name="UTCTimeSec">second,datetime,utc</string>
 	<string name="UTCTimeTimezone">timezone,datetime,utc</string>							
+	
+	
 </strings>

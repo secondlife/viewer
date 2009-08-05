@@ -40,7 +40,6 @@
 #include "llrender.h"
 #include "llui.h"
 #include "llfontgl.h"
-#include "llimagegl.h"
 #include "lltimer.h"
 #include "lltextbox.h"
 #include "llglheaders.h"
@@ -51,7 +50,7 @@
 #include "llprogressbar.h"
 #include "llstartup.h"
 #include "llviewercontrol.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llappviewer.h"
 #include "llweb.h"
@@ -147,10 +146,10 @@ void LLProgressView::draw()
 
 	// Paint bitmap if we've got one
 	glPushMatrix();
-	if (gStartImageGL)
+	if (gStartTexture)
 	{
 		LLGLSUIDefault gls_ui;
-		gGL.getTexUnit(0)->bind(gStartImageGL);
+		gGL.getTexUnit(0)->bind(gStartTexture.get());
 		gGL.color4f(1.f, 1.f, 1.f, mFadeTimer.getStarted() ? clamp_rescale(mFadeTimer.getElapsedTimeF32(), 0.f, FADE_IN_TIME, 1.f, 0.f) : 1.f);
 		F32 image_aspect = (F32)gStartImageWidth / (F32)gStartImageHeight;
 		S32 width = getRect().getWidth();
@@ -186,7 +185,7 @@ void LLProgressView::draw()
 		{
 			gFocusMgr.removeTopCtrlWithoutCallback(this);
 			LLPanel::setVisible(FALSE);
-			gStartImageGL = NULL;
+			gStartTexture = NULL;
 		}
 		return;
 	}

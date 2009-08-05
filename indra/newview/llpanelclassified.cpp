@@ -42,10 +42,12 @@
 #include "lldispatcher.h"
 #include "llfloaterreg.h"
 #include "llparcel.h"
+#include "lltabcontainer.h"
 #include "message.h"
 
 #include "llagent.h"
 #include "llalertdialog.h"
+#include "llavataractions.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llclassifiedflags.h"
@@ -53,7 +55,6 @@
 #include "llcommandhandler.h" // for classified HTML detail page click tracking
 #include "llviewercontrol.h"
 #include "lllineeditor.h"
-#include "llfloateravatarinfo.h"
 #include "llfloaterclassified.h"
 #include "lltextbox.h"
 #include "llcombobox.h"
@@ -931,12 +932,12 @@ bool LLPanelClassified::confirmPublish(const LLSD& notification, const LLSD& res
 void LLPanelClassified::onClickTeleport(void* data)
 {
     LLPanelClassified* self = (LLPanelClassified*)data;
-
-    if (!self->mPosGlobal.isExactlyZero())
+	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+	
+    if (!self->mPosGlobal.isExactlyZero()&&worldmap_instance)
     {
-        gAgent.teleportViaLocation(self->mPosGlobal);
-        LLFloaterWorldMap::getInstance()->trackLocation(self->mPosGlobal);
-
+        gAgent.teleportViaLocation(self->mPosGlobal);		
+        worldmap_instance->trackLocation(self->mPosGlobal);
 		self->sendClassifiedClickMessage("teleport");
     }
 }
@@ -946,9 +947,12 @@ void LLPanelClassified::onClickTeleport(void* data)
 void LLPanelClassified::onClickMap(void* data)
 {
 	LLPanelClassified* self = (LLPanelClassified*)data;
-	LLFloaterWorldMap::getInstance()->trackLocation(self->mPosGlobal);
-	LLFloaterReg::showInstance("world_map", "center");
-
+	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+	if(worldmap_instance)
+	{
+		worldmap_instance->trackLocation(self->mPosGlobal);
+		LLFloaterReg::showInstance("world_map", "center");
+	}
 	self->sendClassifiedClickMessage("map");
 }
 
@@ -956,7 +960,7 @@ void LLPanelClassified::onClickMap(void* data)
 void LLPanelClassified::onClickProfile(void* data)
 {
 	LLPanelClassified* self = (LLPanelClassified*)data;
-	LLFloaterAvatarInfo::showFromDirectory(self->mCreatorID);
+	LLAvatarActions::showProfile(self->mCreatorID);
 	self->sendClassifiedClickMessage("profile");
 }
 

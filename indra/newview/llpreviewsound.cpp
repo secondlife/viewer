@@ -36,7 +36,7 @@
 #include "llagent.h"          // gAgent
 #include "llbutton.h"
 #include "llinventory.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "lllineeditor.h"
 #include "llpreviewsound.h"
 #include "llresmgr.h"

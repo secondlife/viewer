@@ -51,6 +51,7 @@
 #include "llresmgr.h"
 #include "llfloaterchat.h"
 #include "llfloaterchatterbox.h"
+#include "llavataractions.h"
 #include "llhttpnode.h"
 #include "llimpanel.h"
 #include "llresizebar.h"
@@ -91,15 +92,495 @@ std::map<std::string,std::string> LLFloaterIM::sEventStringsMap;
 std::map<std::string,std::string> LLFloaterIM::sErrorStringsMap;
 std::map<std::string,std::string> LLFloaterIM::sForceCloseSessionMap;
 
+std::map<LLUUID, LLIMModel::LLIMSession*> LLIMModel::sSessionsMap;
+
+
+
+void toast_callback(const LLSD& msg){
+	
+	//we send notifications to reset counter also
+	if (msg["num_unread"].asInteger())
+	{
+		LLSD args;
+		args["MESSAGE"] = msg["message"];
+		args["TIME"] = msg["time"];
+		args["FROM"] = msg["from"];
+
+		LLNotifications::instance().add("IMToast", args, LLSD(), boost::bind(&LLFloaterChatterBox::onOpen, LLFloaterChatterBox::getInstance(), msg["session_id"].asUUID()));
+	}
+}
+
+LLIMModel::LLIMModel() 
+{
+	addChangedCallback(toast_callback);
+	addChangedCallback(LLIMFloater::newIMCallback);
+}
+
+
+void LLIMModel::testMessages()
+{
+	LLUUID bot1_id("d0426ec6-6535-4c11-a5d9-526bb0c654d9");
+	LLUUID bot1_session_id;
+	std::string from = "IM Tester";
+
+	bot1_session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, bot1_id);
+	newSession(bot1_session_id, from, IM_NOTHING_SPECIAL, bot1_id);
+	addMessage(bot1_session_id, from, "Test Message: Hi from testerbot land!");
+
+	LLUUID bot2_id;
+	std::string firstname[] = {"Roflcopter", "Joe"};
+	std::string lastname[] = {"Linden", "Tester", "Resident", "Schmoe"};
+
+	S32 rand1 = ll_rand(sizeof firstname)/(sizeof firstname[0]);
+	S32 rand2 = ll_rand(sizeof lastname)/(sizeof lastname[0]);
+	
+	from = firstname[rand1] + " " + lastname[rand2];
+	bot2_id.generate(from);
+	LLUUID bot2_session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, bot2_id);
+	newSession(bot2_session_id, from, IM_NOTHING_SPECIAL, bot2_id);
+	addMessage(bot2_session_id, from, "Test Message: Can I haz bear? ");
+	addMessage(bot2_session_id, from, "Test Message: OMGWTFBBQ.");
+}
+
+
+bool LLIMModel::newSession(LLUUID session_id, std::string name, EInstantMessage type, LLUUID other_participant_id)
+{
+	if (is_in_map(sSessionsMap, session_id))
+	{
+		llwarns << "IM Session " << session_id << " already exists" << llendl;
+		return false;
+	}
+
+	LLIMSession* session = new LLIMSession(name, type, other_participant_id);
+	sSessionsMap[session_id] = session;
+
+	LLIMMgr::getInstance()->notifyObserverSessionAdded(session_id, name, other_participant_id);
+
+	return true;
+
+}
+
+std::list<LLSD> LLIMModel::getMessages(LLUUID session_id, int start_index)
+{
+	std::list<LLSD> return_list;
+
+	LLIMSession* session = get_if_there(sSessionsMap, session_id, (LLIMSession*)NULL);
+
+	if (!session) 
+	{
+		llwarns << "session " << session_id << "does not exist " << llendl;
+		return return_list;
+	}
+
+	int i = session->mMsgs.size() - start_index;
+
+	for (std::list<LLSD>::iterator iter = session->mMsgs.begin(); 
+		iter != session->mMsgs.end() && i > 0;
+		iter++)
+	{
+		LLSD msg;
+		msg = *iter;
+		return_list.push_back(*iter);
+		i--;
+	}
+
+	session->mNumUnread = 0;
+	
+	LLSD arg;
+	arg["session_id"] = session_id;
+	arg["num_unread"] = 0;
+	mChangedSignal(arg);
+
+    // TODO: in the future is there a more efficient way to return these
+	return return_list;
+
+}
+
+bool LLIMModel::addToHistory(LLUUID session_id, std::string from, std::string utf8_text) { 
+	
+	LLIMSession* session = get_if_there(sSessionsMap, session_id, (LLIMSession*)NULL);
+
+	if (!session) 
+	{
+		llwarns << "session " << session_id << "does not exist " << llendl;
+		return false;
+	}
+
+	LLSD message;
+	message["from"] = from;
+	message["message"] = utf8_text;
+	message["time"] = LLLogChat::timestamp(false);  //might want to add date separately
+	message["index"] = (LLSD::Integer)session->mMsgs.size(); 
+
+	session->mMsgs.push_front(message); 
+
+	return true;
+
+}
+
+		
+bool LLIMModel::addMessage(LLUUID session_id, std::string from, std::string utf8_text) { 
+
+	LLIMSession* session = get_if_there(sSessionsMap, session_id, (LLIMSession*)NULL);
+
+	if (!session) 
+	{
+		llwarns << "session " << session_id << "does not exist " << llendl;
+		return false;
+	}
+
+	addToHistory(session_id, from, utf8_text);
+
+	std::string agent_name;
+	gAgent.buildFullname(agent_name);
+	
+	session->mNumUnread++;
+
+	// notify listeners
+	LLSD arg;
+	arg["session_id"] = session_id;
+	arg["num_unread"] = session->mNumUnread;
+	arg["message"] = utf8_text;
+	mChangedSignal(arg);
+
+	return true;
+}
+
+
+const std::string& LLIMModel::getName(LLUUID session_id)
+{
+	LLIMSession* session = get_if_there(sSessionsMap, session_id, (LLIMSession*)NULL);
+
+	if (!session) 
+	{
+		llwarns << "session " << session_id << "does not exist " << llendl;
+		return LLStringUtil::null;
+	}
+
+	return session->mName;
+}
+
+
+// TODO get rid of other participant ID
+void LLIMModel::sendTypingState(LLUUID session_id, LLUUID other_participant_id, BOOL typing) 
+{
+	std::string name;
+	gAgent.buildFullname(name);
+
+	pack_instant_message(
+		gMessageSystem,
+		gAgent.getID(),
+		FALSE,
+		gAgent.getSessionID(),
+		other_participant_id,
+		name,
+		std::string("typing"),
+		IM_ONLINE,
+		(typing ? IM_TYPING_START : IM_TYPING_STOP),
+		session_id);
+	gAgent.sendReliableMessage();
+}
+
+void LLIMModel::sendLeaveSession(LLUUID session_id, LLUUID other_participant_id) 
+{
+	if(session_id.notNull())
+	{
+		std::string name;
+		gAgent.buildFullname(name);
+		pack_instant_message(
+			gMessageSystem,
+			gAgent.getID(),
+			FALSE,
+			gAgent.getSessionID(),
+			other_participant_id,
+			name, 
+			LLStringUtil::null,
+			IM_ONLINE,
+			IM_SESSION_LEAVE,
+			session_id);
+		gAgent.sendReliableMessage();
+	}
+}
+
+
+
+void LLIMModel::sendMessage(const std::string& utf8_text,
+					 const LLUUID& im_session_id,
+					 const LLUUID& other_participant_id,
+					 EInstantMessage dialog)
+{
+	std::string name;
+	bool sent = false;
+	gAgent.buildFullname(name);
+
+	const LLRelationship* info = NULL;
+	info = LLAvatarTracker::instance().getBuddyInfo(other_participant_id);
+	
+	U8 offline = (!info || info->isOnline()) ? IM_ONLINE : IM_OFFLINE;
+	
+	if((offline == IM_OFFLINE) && (LLVoiceClient::getInstance()->isOnlineSIP(other_participant_id)))
+	{
+		// User is online through the OOW connector, but not with a regular viewer.  Try to send the message via SLVoice.
+		sent = gVoiceClient->sendTextMessage(other_participant_id, utf8_text);
+	}
+	
+	if(!sent)
+	{
+		// Send message normally.
+
+		// default to IM_SESSION_SEND unless it's nothing special - in
+		// which case it's probably an IM to everyone.
+		U8 new_dialog = dialog;
+
+		if ( dialog != IM_NOTHING_SPECIAL )
+		{
+			new_dialog = IM_SESSION_SEND;
+		}
+		pack_instant_message(
+			gMessageSystem,
+			gAgent.getID(),
+			FALSE,
+			gAgent.getSessionID(),
+			other_participant_id,
+			name.c_str(),
+			utf8_text.c_str(),
+			offline,
+			(EInstantMessage)new_dialog,
+			im_session_id);
+		gAgent.sendReliableMessage();
+	}
+
+	// If there is a mute list and this is not a group chat...
+	if ( LLMuteList::getInstance() )
+	{
+		// ... the target should not be in our mute list for some message types.
+		// Auto-remove them if present.
+		switch( dialog )
+		{
+		case IM_NOTHING_SPECIAL:
+		case IM_GROUP_INVITATION:
+		case IM_INVENTORY_OFFERED:
+		case IM_SESSION_INVITE:
+		case IM_SESSION_P2P_INVITE:
+		case IM_SESSION_CONFERENCE_START:
+		case IM_SESSION_SEND: // This one is marginal - erring on the side of hearing.
+		case IM_LURE_USER:
+		case IM_GODLIKE_LURE_USER:
+		case IM_FRIENDSHIP_OFFERED:
+			LLMuteList::getInstance()->autoRemove(other_participant_id, LLMuteList::AR_IM);
+			break;
+		default: ; // do nothing
+		}
+	}
+
+	if((dialog == IM_NOTHING_SPECIAL) && 
+	   (other_participant_id.notNull()))
+	{
+		// Do we have to replace the /me's here?
+		std::string from;
+		gAgent.buildFullname(from);
+		LLIMModel::instance().addToHistory(im_session_id, from, utf8_text);
+	}
+
+	// Add the recipient to the recent people list.
+	LLRecentPeople::instance().add(other_participant_id);
+}
+										  
+boost::signals2::connection LLIMModel::addChangedCallback( boost::function<void (const LLSD& data)> cb )
+{
+	return mChangedSignal.connect(cb);
+}
+
+void session_starter_helper(
+	const LLUUID& temp_session_id,
+	const LLUUID& other_participant_id,
+	EInstantMessage im_type)
+{
+	LLMessageSystem *msg = gMessageSystem;
+
+	msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+
+	msg->nextBlockFast(_PREHASH_MessageBlock);
+	msg->addBOOLFast(_PREHASH_FromGroup, FALSE);
+	msg->addUUIDFast(_PREHASH_ToAgentID, other_participant_id);
+	msg->addU8Fast(_PREHASH_Offline, IM_ONLINE);
+	msg->addU8Fast(_PREHASH_Dialog, im_type);
+	msg->addUUIDFast(_PREHASH_ID, temp_session_id);
+	msg->addU32Fast(_PREHASH_Timestamp, NO_TIMESTAMP); // no timestamp necessary
+
+	std::string name;
+	gAgent.buildFullname(name);
+
+	msg->addStringFast(_PREHASH_FromAgentName, name);
+	msg->addStringFast(_PREHASH_Message, LLStringUtil::null);
+	msg->addU32Fast(_PREHASH_ParentEstateID, 0);
+	msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
+	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
+}
+
+void start_deprecated_conference_chat(
+	const LLUUID& temp_session_id,
+	const LLUUID& creator_id,
+	const LLUUID& other_participant_id,
+	const LLSD& agents_to_invite)
+{
+	U8* bucket;
+	U8* pos;
+	S32 count;
+	S32 bucket_size;
+
+	// *FIX: this could suffer from endian issues
+	count = agents_to_invite.size();
+	bucket_size = UUID_BYTES * count;
+	bucket = new U8[bucket_size];
+	pos = bucket;
+
+	for(S32 i = 0; i < count; ++i)
+	{
+		LLUUID agent_id = agents_to_invite[i].asUUID();
+		
+		memcpy(pos, &agent_id, UUID_BYTES);
+		pos += UUID_BYTES;
+	}
+
+	session_starter_helper(
+		temp_session_id,
+		other_participant_id,
+		IM_SESSION_CONFERENCE_START);
+
+	gMessageSystem->addBinaryDataFast(
+		_PREHASH_BinaryBucket,
+		bucket,
+		bucket_size);
+
+	gAgent.sendReliableMessage();
+ 
+	delete[] bucket;
+}
+
+class LLStartConferenceChatResponder : public LLHTTPClient::Responder
+{
+public:
+	LLStartConferenceChatResponder(
+		const LLUUID& temp_session_id,
+		const LLUUID& creator_id,
+		const LLUUID& other_participant_id,
+		const LLSD& agents_to_invite)
+	{
+		mTempSessionID = temp_session_id;
+		mCreatorID = creator_id;
+		mOtherParticipantID = other_participant_id;
+		mAgents = agents_to_invite;
+	}
+
+	virtual void error(U32 statusNum, const std::string& reason)
+	{
+		//try an "old school" way.
+		if ( statusNum == 400 )
+		{
+			start_deprecated_conference_chat(
+				mTempSessionID,
+				mCreatorID,
+				mOtherParticipantID,
+				mAgents);
+		}
+
+		//else throw an error back to the client?
+		//in theory we should have just have these error strings
+		//etc. set up in this file as opposed to the IMMgr,
+		//but the error string were unneeded here previously
+		//and it is not worth the effort switching over all
+		//the possible different language translations
+	}
+
+private:
+	LLUUID mTempSessionID;
+	LLUUID mCreatorID;
+	LLUUID mOtherParticipantID;
+
+	LLSD mAgents;
+};
+
+// Returns true if any messages were sent, false otherwise.
+// Is sort of equivalent to "does the server need to do anything?"
+bool LLIMModel::sendStartSession(
+	const LLUUID& temp_session_id,
+	const LLUUID& other_participant_id,
+	const std::vector<LLUUID>& ids,
+	EInstantMessage dialog)
+{
+	if ( dialog == IM_SESSION_GROUP_START )
+	{
+		session_starter_helper(
+			temp_session_id,
+			other_participant_id,
+			dialog);
+
+		switch(dialog)
+		{
+		case IM_SESSION_GROUP_START:
+			gMessageSystem->addBinaryDataFast(
+				_PREHASH_BinaryBucket,
+				EMPTY_BINARY_BUCKET,
+				EMPTY_BINARY_BUCKET_SIZE);
+			break;
+		default:
+			break;
+		}
+		gAgent.sendReliableMessage();
+
+		return true;
+	}
+	else if ( dialog == IM_SESSION_CONFERENCE_START )
+	{
+		LLSD agents;
+		for (int i = 0; i < (S32) ids.size(); i++)
+		{
+			agents.append(ids[i]);
+		}
+
+		//we have a new way of starting conference calls now
+		LLViewerRegion* region = gAgent.getRegion();
+		if (region)
+		{
+			std::string url = region->getCapability(
+				"ChatSessionRequest");
+			LLSD data;
+			data["method"] = "start conference";
+			data["session-id"] = temp_session_id;
+
+			data["params"] = agents;
+
+			LLHTTPClient::post(
+				url,
+				data,
+				new LLStartConferenceChatResponder(
+					temp_session_id,
+					gAgent.getID(),
+					other_participant_id,
+					data["params"]));
+		}
+		else
+		{
+			start_deprecated_conference_chat(
+				temp_session_id,
+				gAgent.getID(),
+				other_participant_id,
+				agents);
+		}
+	}
+
+	return false;
+}
+
+
+
 //
 // Helper Functions
 //
-
-// returns true if a should appear before b
-//static BOOL group_dictionary_sort( LLGroupData* a, LLGroupData* b )
-//{
-//	return (LLStringUtil::compareDict( a->mName, b->mName ) < 0);
-//}
 
 class LLViewerChatterBoxInvitationAcceptResponder :
 	public LLHTTPClient::Responder
@@ -614,26 +1095,6 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 }
 
 //
-// Public Static Member Functions
-//
-
-// This is a helper function to determine what kind of im session
-// should be used for the given agent.
-// static
-EInstantMessage LLIMMgr::defaultIMTypeForAgent(const LLUUID& agent_id)
-{
-	EInstantMessage type = IM_NOTHING_SPECIAL;
-	if(is_agent_friend(agent_id))
-	{
-		if(LLAvatarTracker::instance().isBuddyOnline(agent_id))
-		{
-			type = IM_SESSION_CONFERENCE_START;
-		}
-	}
-	return type;
-}
-
-//
 // Member Functions
 //
 
@@ -725,7 +1186,9 @@ void LLIMMgr::addMessage(
 			dialog,
 			FALSE);
 
-		notifyObserverSessionAdded(floater->getSessionID(), name, other_participant_id);
+		
+		LLIMModel::instance().newSession(new_session_id, name, dialog, other_participant_id);
+
 
 		// When we get a new IM, and if you are a god, display a bit
 		// of information about the source. This is to help liaisons
@@ -745,7 +1208,8 @@ void LLIMMgr::addMessage(
 			//<< "*** region_id: " << region_id << std::endl
 			//<< "*** position: " << position << std::endl;
 
-			floater->addHistoryLine(bonus_info.str(), gSavedSkinSettings.getColor4("SystemChatColor"));
+			floater->addHistoryLine(bonus_info.str(), LLUIColorTable::instance().getColor("SystemChatColor"));
+			LLIMModel::instance().addMessage(new_session_id, from, bonus_info.str());
 		}
 
 		make_ui_sound("UISndNewIncomingIMSession");
@@ -754,8 +1218,8 @@ void LLIMMgr::addMessage(
 	// now add message to floater
 	bool is_from_system = target_id.isNull() || (from == SYSTEM_FROM);
 	const LLColor4& color = ( is_from_system ? 
-							  gSavedSkinSettings.getColor4("SystemChatColor") : 
-							  gSavedSkinSettings.getColor("IMChatColor"));
+							  LLUIColorTable::instance().getColor("SystemChatColor") : 
+							  LLUIColorTable::instance().getColor("IMChatColor"));
 	if ( !link_name )
 	{
 		floater->addHistoryLine(msg,color); // No name to prepend, so just add the message normally
@@ -764,6 +1228,8 @@ void LLIMMgr::addMessage(
 	{
 		floater->addHistoryLine(msg, color, true, other_participant_id, from); // Insert linked name to front of message
 	}
+
+	LLIMModel::instance().addMessage(new_session_id, from, msg);
 
 	if( !LLFloaterReg::instanceVisible("communicate") && !floater->getVisible())
 	{
@@ -1332,7 +1798,7 @@ void LLIMMgr::noteOfflineUsers(
 	S32 count = ids.count();
 	if(count == 0)
 	{
-		floater->addHistoryLine(sOnlyUserMessage, gSavedSkinSettings.getColor4("SystemChatColor"));
+		floater->addHistoryLine(sOnlyUserMessage, LLUIColorTable::instance().getColor("SystemChatColor"));
 	}
 	else
 	{
@@ -1348,7 +1814,7 @@ void LLIMMgr::noteOfflineUsers(
 				LLUIString offline = sOfflineMessage;
 				offline.setArg("[FIRST]", first);
 				offline.setArg("[LAST]", last);
-				floater->addHistoryLine(offline, gSavedSkinSettings.getColor4("SystemChatColor"));
+				floater->addHistoryLine(offline, LLUIColorTable::instance().getColor("SystemChatColor"));
 			}
 		}
 	}
@@ -1652,7 +2118,7 @@ public:
 			{
 				saved = llformat("(Saved %s) ", formatted_time(timestamp).c_str());
 			}
-			std::string buffer = separator_string + saved + message.substr(message_offset);
+			std::string buffer = saved + message.substr(message_offset);
 
 			BOOL is_this_agent = FALSE;
 			if(from_id == gAgentID)

@@ -52,7 +52,7 @@
 #include "lluiconstants.h"
 #include "llvoavatarself.h"
 #include "lltooldraganddrop.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llfloaterchatterbox.h"
 #include "llfloaterfriends.h"
 #include "llfloatersnapshot.h"
@@ -157,7 +157,7 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	LLButton* inventory_btn = getChild<LLButton>("inventory_btn");
 	if (!inventory_btn) return FALSE;
 
-	LLInventoryView* active_inventory = LLInventoryView::getActiveInventory();
+	LLFloaterInventory* active_inventory = LLFloaterInventory::getActiveInventory();
 
 	LLRect button_screen_rect;
 	inventory_btn->localRectToScreen(inventory_btn->getRect(),&button_screen_rect);
@@ -173,7 +173,7 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			if (!(active_inventory && active_inventory->getVisible()) && 
 			mInventoryAutoOpenTimer.getElapsedTimeF32() > sInventoryAutoOpenTime)
 			{
-				LLInventoryView::showAgentInventory();
+				LLFloaterInventory::showAgentInventory();
 			}
 		}
 		else
@@ -332,8 +332,11 @@ void LLToolBar::updateCommunicateList()
 	communicate_button->addSeparator(ADD_TOP);
 	communicate_button->add(getString("Redock Windows"), LLSD("redock"), ADD_TOP);
 	communicate_button->addSeparator(ADD_TOP);
-	communicate_button->add(LLFloaterReg::getTypedInstance<LLFloaterMute>("mute")->getShortTitle(), LLSD("mute list"), ADD_TOP);
-	
+	LLFloaterMute* mute_instance = LLFloaterReg::getTypedInstance<LLFloaterMute>("mute");
+	if(mute_instance)
+	{
+		communicate_button->add(mute_instance->getShortTitle(), LLSD("mute list"), ADD_TOP);
+	}
 	std::set<LLHandle<LLFloater> >::const_iterator floater_handle_it;
 
 	if (gIMMgr->getIMFloaterHandles().size() > 0)
@@ -385,25 +388,29 @@ void LLToolBar::onClickCommunicate(LLUICtrl* ctrl, const LLSD& user_data)
 	}
 	else if (selected_option.asString() == "redock")
 	{
-		LLFloaterChatterBox::getInstance()->addFloater(LLFloaterMyFriends::getInstance(), FALSE);
-		LLFloaterChatterBox::getInstance()->addFloater(LLFloaterChat::getInstance(), FALSE);
-		LLUUID session_to_show;
-		
-		std::set<LLHandle<LLFloater> >::const_iterator floater_handle_it;
-		for(floater_handle_it = gIMMgr->getIMFloaterHandles().begin(); floater_handle_it != gIMMgr->getIMFloaterHandles().end(); ++floater_handle_it)
+		LLFloaterChatterBox* chatterbox_instance = LLFloaterChatterBox::getInstance();
+		if(chatterbox_instance)
 		{
-			LLFloater* im_floaterp = floater_handle_it->get();
-			if (im_floaterp)
+			chatterbox_instance->addFloater(LLFloaterMyFriends::getInstance(), FALSE);
+		    chatterbox_instance->addFloater(LLFloaterChat::getInstance(), FALSE);
+		
+			LLUUID session_to_show;
+		
+			std::set<LLHandle<LLFloater> >::const_iterator floater_handle_it;
+			for(floater_handle_it = gIMMgr->getIMFloaterHandles().begin(); floater_handle_it != gIMMgr->getIMFloaterHandles().end(); ++floater_handle_it)
 			{
-				if (im_floaterp->isFrontmost())
+				LLFloater* im_floaterp = floater_handle_it->get();
+				if (im_floaterp)
 				{
-					session_to_show = ((LLFloaterIMPanel*)im_floaterp)->getSessionID();
+					if (im_floaterp->isFrontmost())
+					{
+						session_to_show = ((LLFloaterIMPanel*)im_floaterp)->getSessionID();
+					}
+					chatterbox_instance->addFloater(im_floaterp, FALSE);
 				}
-				LLFloaterChatterBox::getInstance()->addFloater(im_floaterp, FALSE);
 			}
+			LLFloaterReg::showInstance("communicate", session_to_show);
 		}
-
-		LLFloaterReg::showInstance("communicate", session_to_show);
 	}
 	else if (selected_option.asString() == "mute list")
 	{

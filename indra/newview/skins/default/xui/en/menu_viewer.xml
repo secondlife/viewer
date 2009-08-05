@@ -15,7 +15,7 @@
          name="Preferences"
          shortcut="control|P">
             <menu_item_call.on_click
-             function="ShowFloater"
+             function="Floater.Show"
              parameter="preferences" />
         </menu_item_call>
         <menu_item_separator
@@ -31,6 +31,7 @@
              name="Account History">
                 <menu_item_call.on_click
                  function="PromptShowURL"
+                 name="AccountHistory_url"
                  parameter="WebLaunchAccountHistory,http://secondlife.com/account/transactions.php" />
             </menu_item_call>
             <menu_item_call
@@ -39,6 +40,7 @@
              name="Manage My Account">
                 <menu_item_call.on_click
                  function="PromptShowURL"
+                 name="ManageMyAccount_url"
                  parameter="WebLaunchJoinNow,http://secondlife.com/account/" />
             </menu_item_call>
             <menu_item_separator
@@ -179,22 +181,10 @@
              function="World.Chat" />
         </menu_item_call>
         <menu_item_check
-         label="Local Chat"
-         layout="topleft"
-         name="Chat History"
-         shortcut="control|H">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="chat" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="chat" />
-        </menu_item_check>
-        <menu_item_check
          label="Nearby Chat"
          layout="topleft"
          name="Nearby Chat"
-         shortcut="control|N">
+         shortcut="control|H">
             <menu_item_check.on_check
              function="Floater.Visible"
              parameter="nearby_chat" />
@@ -202,8 +192,34 @@
              function="Floater.Toggle"
              parameter="nearby_chat" />
         </menu_item_check>
+        <menu_item_separator
+         layout="topleft" />
         <menu_item_check
-         label="Communicate"
+         label="Active Speakers"
+         layout="topleft"
+         name="Active Speakers">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="active_speakers" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="active_speakers" />
+        </menu_item_check>
+        <menu_item_check
+         label="Block List"
+         layout="topleft"
+         name="Mute List">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="mute" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="mute" />
+        </menu_item_check>
+        <menu_item_separator
+         layout="topleft" />
+        <menu_item_check
+         label="(Legacy) Communicate"
          layout="topleft"
          name="Instant Message"
          shortcut="control|T">
@@ -214,30 +230,15 @@
              function="Floater.Toggle"
              parameter="communicate" />
         </menu_item_check>
-        <menu_item_separator
-         layout="topleft" />
-        <menu_item_check
-         label="Active Speakers"
+		<menu_item_call
+         label="(Temp) Media Remote Ctrl"
          layout="topleft"
-         name="Active Speakers">
-            <menu_item_check.on_check
-             function="FloaterVisible"
-             parameter="active speakers" />
-            <menu_item_check.on_click
-             function="ShowFloater"
-             parameter="active speakers" />
-        </menu_item_check>
-        <menu_item_check
-         label="Mute List"
-         layout="topleft"
-         name="Mute List">
-            <menu_item_check.on_check
-             function="FloaterVisible"
-             parameter="mute list" />
-            <menu_item_check.on_click
-             function="ShowFloater"
-             parameter="mute list" />
-        </menu_item_check>
+         name="Preferences"
+         shortcut="control|alt|M">
+            <menu_item_call.on_click
+             function="Floater.Toggle"
+             parameter="media_remote_ctrl" />
+        </menu_item_call>
     </menu>
     <menu
      label="World"
@@ -249,22 +250,22 @@
          layout="topleft"
          name="Camera Controls">
             <menu_item_check.on_check
-             function="FloaterVisible"
-             parameter="camera controls" />
+             function="Floater.Visible"
+             parameter="camera" />
             <menu_item_check.on_click
-             function="ShowFloater"
-             parameter="camera controls" />
+             function="Floater.Toggle"
+             parameter="camera" />
         </menu_item_check>
         <menu_item_check
          label="Movement Controls"
          layout="topleft"
          name="Movement Controls">
             <menu_item_check.on_check
-             function="FloaterVisible"
-             parameter="movement controls" />
+             function="Floater.Visible"
+             parameter="moveview" />
             <menu_item_check.on_click
-             function="ShowFloater"
-             parameter="movement controls" />
+             function="Floater.Toggle"
+             parameter="moveview" />
         </menu_item_check>
         <menu_item_separator
          layout="topleft" />
@@ -273,16 +274,16 @@
          layout="topleft"
          name="About Land">
             <menu_item_call.on_click
-             function="ShowFloater"
-             parameter="about land" />
+             function="Floater.Show"
+             parameter="about_land" />
         </menu_item_call>
         <menu_item_call
          label="Region/Estate"
          layout="topleft"
          name="Region/Estate">
             <menu_item_call.on_click
-             function="ShowFloater"
-             parameter="about region" />
+             function="Floater.Show"
+             parameter="region_info" />
         </menu_item_call>
         <menu_item_separator
          layout="topleft" />
@@ -350,9 +351,10 @@
          name="Mini-Map"
          shortcut="control|shift|M">
             <menu_item_check.on_check
-             function="FloaterVisible" />
+             function="Floater.Visible"
+			 parameter="mini_map" />
             <menu_item_check.on_click
-             function="ShowFloater"
+             function="Floater.Toggle"
              parameter="mini_map" />
         </menu_item_check>
         <menu_item_separator
@@ -400,47 +402,36 @@
          layout="topleft"
          name="Tutorial">
             <menu_item_call.on_click
-             function="ShowFloater"
-             parameter="help tutorial" />
+             function="Floater.Show"
+             parameter="hud" />
         </menu_item_call>
-        <menu
-         label="Report"
-         layout="topleft"
-         name="Report"
-         tear_off="true">
-            <menu_item_call
-             label="Report Abuse"
+        <menu_item_separator
+             layout="topleft" />
+        <menu_item_call
+             label="Report Bug..."
+             layout="topleft"
+             name="ReportBug">
+            <menu_item_call.on_click
+                 function="PromptShowURL"
+                 name="ReportBug_url"
+                 parameter="hud,http://help.secondlife.com/en/bugreport/" />
+        </menu_item_call>
+        <menu_item_call
+             label="Report Abuse..."
              layout="topleft"
              name="Report Abuse">
                 <menu_item_call.on_click
                  function="ShowFloater"
                  parameter="complaint reporter" />
             </menu_item_call>
-            <menu_item_call
-             label="Report Bug"
-             layout="topleft"
-             name="Report Bug">
-                <menu_item_call.on_click
-                 function="PromptShowURL"
-                 parameter="WebLaunchPublicIssue,http://jira.secondlife.com" />
-            </menu_item_call>
-            <menu_item_call
-             label="Bumps, Pushes &amp; Hits."
-             layout="topleft"
-             name="Bumps, Pushes &amp;amp; Hits">
-                <menu_item_call.on_click
-                 function="ShowFloater"
-                 parameter="mean events" />
-            </menu_item_call>
-            <menu_item_call
-             label="About Second Life"
-             layout="topleft"
-             name="About Second Life">
-                <menu_item_call.on_click
-                 function="ShowFloater"
-                 parameter="about" />
-            </menu_item_call>
-        </menu>
+        <menu_item_call
+         label="About Second Life"
+         layout="topleft"
+         name="About Second Life">
+            <menu_item_call.on_click
+             function="Floater.Show"
+             parameter="sl_about" />
+        </menu_item_call>
     </menu>
     <menu
      create_jump_keys="true"
@@ -573,8 +564,8 @@
              layout="topleft"
              name="perm prefs">
                 <menu_item_call.on_click
-                 function="ShowFloater"
-                 parameter="perm prefs" />
+                 function="Floater.Toggle"
+                 parameter="perm_prefs" />
             </menu_item_call>
             <menu_item_call
              label="Show Script Warning/Error Window"
@@ -702,8 +693,8 @@
                  name="Grid Options"
                  shortcut="control|shift|B">
                     <menu_item_call.on_click
-                     function="ShowFloater"
-                     parameter="grid options" />
+                     function="Floater.Show"
+                     parameter="build_options" />
                     <menu_item_call.on_enable
                      function="Tools.EnableToolNotPie" />
                 </menu_item_call>
@@ -720,10 +711,10 @@
                  name="beacons"
                  shortcut="control|alt|shift|N">
                     <menu_item_check.on_check
-                     function="FloaterVisible"
+                     function="Floater.Visible"
                      parameter="beacons" />
                     <menu_item_check.on_click
-                     function="ShowFloater"
+                     function="Floater.Toggle"
                      parameter="beacons" />
                 </menu_item_check>
                 <menu_item_check
@@ -838,6 +829,7 @@
                  function="Tools.BuyOrTake" />
                 <menu_item_call.on_enable
                  function="Tools.EnableBuyOrTake"
+                 name="EnableBuyOrTake"
                  parameter="Buy,Take" />
             </menu_item_call>
             <menu_item_call
@@ -1312,8 +1304,8 @@
              layout="topleft"
              name="Lag Meter">
                 <menu_item_call.on_click
-                 function="ShowFloater"
-                 parameter="lag meter" />
+                 function="Floater.Show"
+                 parameter="lagmeter" />
             </menu_item_call>
             <menu_item_check
              label="Statistics Bar"
@@ -1894,8 +1886,8 @@
                  function="Advanced.CheckConsole"
                  parameter="notifications" />
                 <menu_item_check.on_click
-                 function="Advanced.ToggleConsole"
-                 parameter="notifications" />
+                 function="Floater.Show"
+                 parameter="notifications_console" />
             </menu_item_check>
             <menu_item_separator
              layout="topleft" />
@@ -1999,9 +1991,17 @@
          layout="topleft"
          name="Memory Leaking Simulation">
             <menu_item_call.on_click
-             function="Advanced.MemoryLeakingSimulation"
-             parameter="" />
+             function="Floater.Show"
+             parameter="mem_leaking" />
         </menu_item_call>
+        <menu_item_call
+             label="Bumps, Pushes &amp; Hits..."
+             layout="topleft"
+             name="Bumps, Pushes &amp;amp; Hits">
+                <menu_item_call.on_click
+                 function="Floater.Show"
+                 parameter="bumps" />
+            </menu_item_call>
         <menu_item_separator
          layout="topleft" />
         <menu
@@ -2832,11 +2832,19 @@
          name="XUI"
          tear_off="true">
             <menu_item_call
+               label="Reload Color Settings"
+               layout="topleft"
+               name="Reload Color Settings">
+              <menu_item_call.on_click
+               function="Advanced.ReloadColorSettings" />
+            </menu_item_call>
+            <menu_item_call
              label="Show Font Test"
              layout="topleft"
              name="Show Font Test">
                 <menu_item_call.on_click
-                 function="Advanced.ShowFontTest" />
+                 function="Floater.Show"
+				 parameter="font_test" />
             </menu_item_call>
             <menu_item_call
              label="Load from XML..."
@@ -2862,6 +2870,13 @@
                 <menu_item_check.on_click
                  function="Advanced.ToggleXUINames" />
             </menu_item_check>
+          <menu_item_call
+           label="Send Test IMs"
+           layout="topleft"
+           name="Send Test IMs">
+            <menu_item_call.on_click
+             function="Advanced.SendTestIMs" />
+          </menu_item_call>
         </menu>
         <menu
          create_jump_keys="true"
@@ -3092,7 +3107,8 @@
                  function="Advanced.ToggleInfoDisplay"
                  parameter="agent target" />
             </menu_item_check>
-         <!--   <menu_item_check
+<!-- Appears not to exist anymore
+            <menu_item_check
              label="Debug Rotation"
              layout="topleft"
              name="Debug Rotation">
@@ -3103,6 +3119,7 @@
                  function="ToggleControl"
                  parameter="DebugAvatarRotation" />
             </menu_item_check> -->
+-->
             <menu_item_call
              label="Dump Attachments"
              layout="topleft"
@@ -3295,7 +3312,8 @@
          layout="topleft"
          name="God Tools">
             <menu_item_call.on_click
-             function="Admin.ShowGodTools" />
+             function="Floater.Show"
+			 parameter="god_tools" />
             <menu_item_call.on_enable
              function="EnableGodCustomerService" />
         </menu_item_call>
@@ -3481,6 +3499,7 @@
              name="Official Linden Blog">
                 <menu_item_call.on_click
                  function="PromptShowURL"
+                 name="OfficialLindenBlog_url"
                  parameter="WebLaunchSupportWiki,http://blog.secondlife.com/" />
             </menu_item_call>
             <menu_item_call
@@ -3489,6 +3508,7 @@
              name="Scripting Portal">
                 <menu_item_call.on_click
                  function="PromptShowURL"
+                 name="ScriptingPortal_url"
                  parameter="WebLaunchLSLWiki,http://wiki.secondlife.com/wiki/LSL_Portal" />
             </menu_item_call>
             <menu
@@ -3503,6 +3523,7 @@
                  name="Public Issue Tracker">
                     <menu_item_call.on_click
                      function="PromptShowURL"
+                     name="PublicIssueTracker_url"
                      parameter="WebLaunchPublicIssue,http://jira.secondlife.com" />
                 </menu_item_call>
                 <menu_item_call
@@ -3511,6 +3532,7 @@
                  name="Publc Issue Tracker Help">
                     <menu_item_call.on_click
                      function="PromptShowURL"
+                     name="PublicIssueTrackerHelp_url"
                      parameter="WebLaunchPublicIssueHelp,http://wiki.secondlife.com/wiki/Issue_tracker" />
                 </menu_item_call>
                 <menu_item_separator
@@ -3521,6 +3543,7 @@
                  name="Bug Reporing 101">
                     <menu_item_call.on_click
                      function="PromptShowURL"
+                     name="BugReporting101_url"
                      parameter="WebLaunchBugReport101,http://wiki.secondlife.com/wiki/Bug_Reporting_101" />
                 </menu_item_call>
                 <menu_item_call
@@ -3529,6 +3552,7 @@
                  name="Security Issues">
                     <menu_item_call.on_click
                      function="PromptShowURL"
+                     name="SecurityIssues_url"
                      parameter="WebLaunchSecurityIssues,http://wiki.secondlife.com/wiki/Security_issues" />
                 </menu_item_call>
                 <menu_item_call
@@ -3537,6 +3561,7 @@
                  name="QA Wiki">
                     <menu_item_call.on_click
                      function="PromptShowURL"
+                     name="QAWiki_url"
                      parameter="WebLaunchQAWiki,http://wiki.secondlife.com/wiki/QA_Portal" />
                 </menu_item_call>
             </menu>

@@ -38,7 +38,7 @@
 #include <map>
 
 class LLSurfacePatch;
-class LLViewerImage;
+class LLViewerTexture;
 
 
 class LLVOGrass : public LLAlphaObject

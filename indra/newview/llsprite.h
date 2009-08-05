@@ -40,7 +40,7 @@
 #include "v4color.h"
 #include "lluuid.h"
 #include "llgl.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 
 class LLViewerCamera;
 
@@ -82,7 +82,7 @@ public:
 
 public:
 	LLUUID mImageID;
-  	LLPointer<LLViewerImage> mImagep;
+  	LLPointer<LLViewerTexture> mImagep;
 private:
 	F32 mWidth;
 	F32 mHeight;

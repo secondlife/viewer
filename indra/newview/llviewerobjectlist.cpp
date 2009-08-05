@@ -66,7 +66,7 @@
 #include "lltoolpie.h"
 #include "llkeyboard.h"
 #include "u64.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "lldatapacker.h"
 #ifdef LL_STANDALONE
 #include <zlib.h>
@@ -558,7 +558,7 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	{
 		num_updates = mObjects.count() - mCurLazyUpdateIndex;
 		max_value = mObjects.count();
-		gImageList.setUpdateStats(TRUE);
+		gTextureList.setUpdateStats(TRUE);
 	}
 	else
 	{
@@ -1020,16 +1020,16 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 
 void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 {
-	LLColor4 above_water_color = gSavedSkinSettings.getColor( "NetMapOtherOwnAboveWater" );
-	LLColor4 below_water_color = gSavedSkinSettings.getColor( "NetMapOtherOwnBelowWater" );
+	LLColor4 above_water_color = LLUIColorTable::instance().getColor( "NetMapOtherOwnAboveWater" );
+	LLColor4 below_water_color = LLUIColorTable::instance().getColor( "NetMapOtherOwnBelowWater" );
 	LLColor4 you_own_above_water_color = 
-						gSavedSkinSettings.getColor( "NetMapYouOwnAboveWater" );
+						LLUIColorTable::instance().getColor( "NetMapYouOwnAboveWater" );
 	LLColor4 you_own_below_water_color = 
-						gSavedSkinSettings.getColor( "NetMapYouOwnBelowWater" );
+						LLUIColorTable::instance().getColor( "NetMapYouOwnBelowWater" );
 	LLColor4 group_own_above_water_color = 
-						gSavedSkinSettings.getColor( "NetMapGroupOwnAboveWater" );
+						LLUIColorTable::instance().getColor( "NetMapGroupOwnAboveWater" );
 	LLColor4 group_own_below_water_color = 
-						gSavedSkinSettings.getColor( "NetMapGroupOwnBelowWater" );
+						LLUIColorTable::instance().getColor( "NetMapGroupOwnBelowWater" );
 
 
 	for (S32 i = 0; i < mMapObjects.count(); i++)

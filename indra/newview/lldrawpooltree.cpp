@@ -47,11 +47,11 @@
 S32 LLDrawPoolTree::sDiffTex = 0;
 static LLGLSLShader* shader = NULL;
 
-LLDrawPoolTree::LLDrawPoolTree(LLViewerImage *texturep) :
+LLDrawPoolTree::LLDrawPoolTree(LLViewerTexture *texturep) :
 	LLFacePool(POOL_TREE),
 	mTexturep(texturep)
 {
-	gGL.getTexUnit(0)->bind(mTexturep.get());
+	gGL.getTexUnit(0)->bind(mTexturep);
 	mTexturep->setAddressMode(LLTexUnit::TAM_WRAP);
 }
 
@@ -246,7 +246,7 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 	LLGLState normalize(GL_NORMALIZE, TRUE);
 	
 	// Bind the texture for this tree.
-	gGL.getTexUnit(sDiffTex)->bind(mTexturep.get());
+	gGL.getTexUnit(sDiffTex)->bind(mTexturep);
 		
 	U32 indices_drawn = 0;
 
@@ -376,12 +376,12 @@ BOOL LLDrawPoolTree::verify() const
 	return TRUE;
 }
 
-LLViewerImage *LLDrawPoolTree::getTexture()
+LLViewerTexture *LLDrawPoolTree::getTexture()
 {
 	return mTexturep;
 }
 
-LLViewerImage *LLDrawPoolTree::getDebugTexture()
+LLViewerTexture *LLDrawPoolTree::getDebugTexture()
 {
 	return mTexturep;
 }

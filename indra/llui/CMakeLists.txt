@@ -37,6 +37,7 @@ set(llui_SOURCE_FILES
     lldraghandle.cpp
     lleditmenuhandler.cpp
     llf32uictrl.cpp
+    llfiltereditor.cpp
     llfloater.cpp
     llfloaterreg.cpp
     llflyoutbutton.cpp 
@@ -60,6 +61,7 @@ set(llui_SOURCE_FILES
     llresizebar.cpp
     llresizehandle.cpp
     llresmgr.cpp
+    llrngwriter.cpp
     llscrollbar.cpp
     llscrollcontainer.cpp
     llscrollingpanellist.cpp
@@ -68,7 +70,7 @@ set(llui_SOURCE_FILES
     llscrolllistctrl.cpp
     llscrolllistitem.cpp
     llsdparam.cpp
-    llsearcheditor.cpp 
+    llsearcheditor.cpp
     llslider.cpp
     llsliderctrl.cpp
     llspinctrl.cpp
@@ -82,6 +84,7 @@ set(llui_SOURCE_FILES
     lltextparser.cpp
     lltrans.cpp
     llui.cpp
+    lluicolor.cpp
     lluicolortable.cpp
     lluictrl.cpp
     lluictrlfactory.cpp
@@ -109,11 +112,13 @@ set(llui_HEADER_FILES
     lldraghandle.h
     lleditmenuhandler.h
     llf32uictrl.h
+    llfiltereditor.h 
     llfloater.h
     llfloaterreg.h
     llflyoutbutton.h 
     llfocusmgr.h
     llfunctorregistry.h
+    llhandle.h
     llhtmlhelp.h
     lliconctrl.h
     llinitparam.h
@@ -135,6 +140,7 @@ set(llui_HEADER_FILES
     llresizebar.h
     llresizehandle.h
     llresmgr.h
+    llrngwriter.h
     llsearcheditor.h 
     llscrollbar.h
     llscrollcontainer.h
@@ -156,6 +162,7 @@ set(llui_HEADER_FILES
     lltexteditor.h
     lltextparser.h
     lltrans.h
+    lluicolor.h
     lluicolortable.h
     lluiconstants.h
     lluictrlfactory.h

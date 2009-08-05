@@ -81,7 +81,7 @@ public:
 
 		Params()
 		:	shortcut("shortcut"),
-			jump_key("", KEY_NONE),
+			jump_key("jump_key", KEY_NONE),
 			use_mac_ctrl("use_mac_ctrl", false),
 			rect("rect"),
 			left("left"),
@@ -283,6 +283,7 @@ public:
 
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
+	virtual BOOL handleRightMouseUp(S32 x, S32 y, MASK mask);
 	
 	//virtual void draw();
 	
@@ -294,6 +295,11 @@ public:
 	boost::signals2::connection setEnableCallback( const enable_signal_t::slot_type& cb )
 	{
 		return mEnableSignal.connect(cb);
+	}
+
+	boost::signals2::connection setRightClickedCallback( const commit_signal_t::slot_type& cb )
+	{
+		return mRightClickSignal.connect(cb);
 	}
 	
 private:
@@ -356,6 +362,11 @@ private:
 // it in the appendMenu() method.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+// child widget registry
+struct MenuRegistry : public LLChildRegistry<MenuRegistry>
+{};
+
+
 class LLMenuGL 
 :	public LLUICtrl
 {
@@ -374,12 +385,13 @@ public:
 		Optional<LLUIColor>				bg_color;
 
 		Params()
-		:	jump_key("", KEY_NONE),
+		:	jump_key("jump_key", KEY_NONE),
+			horizontal_layout("horizontal_layout"),
 			can_tear_off("tear_off", false),
 			drop_shadow("drop_shadow", true),
 			bg_visible("bg_visible", true),
 			create_jump_keys("create_jump_keys", false),
-			bg_color("bg_color",  LLUI::getCachedColorFunctor( "MenuDefaultBgColor" )),
+			bg_color("bg_color",  LLUIColorTable::instance().getColor( "MenuDefaultBgColor" )),
 			scrollable("scrollable", false)
 		{
 			addSynonym(bg_visible, "opaque");
@@ -388,6 +400,10 @@ public:
 			name = "menu";
 		}
 	};
+
+	// my valid children are contained in MenuRegistry
+	typedef MenuRegistry child_registry_t;
+
 	void initFromParams(const Params&);
 
 protected:
@@ -410,7 +426,6 @@ public:
 	/*virtual*/ bool addChild(LLView* view, S32 tab_group = 0);
 	/*virtual*/ void removeChild( LLView* ctrl);
 	/*virtual*/ BOOL postBuild();
-	/*virtual*/ const widget_registry_t& getChildRegistry() const;
 
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
@@ -651,16 +666,12 @@ public:
 	
 	virtual void	draw				();
 	
-	virtual void	show				(S32 x, S32 y, BOOL adjustCursor = TRUE);
+	virtual void	show				(S32 x, S32 y);
 	virtual void	hide				();
 
-	
-
 	virtual BOOL	handleHover			( S32 x, S32 y, MASK mask );
-	virtual BOOL	handleMouseDown		( S32 x, S32 y, MASK mask );
 	virtual BOOL	handleRightMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL	handleRightMouseUp	( S32 x, S32 y, MASK mask );
-	virtual BOOL	handleMouseUp		( S32 x, S32 y, MASK mask );
 
 	virtual bool	addChild			(LLView* view, S32 tab_group = 0);
 
@@ -669,6 +680,11 @@ public:
 protected:
 	BOOL			mHoveredAnyItem;
 	LLMenuItemGL*	mHoverItem;
+
+	// Cursor position when the menu was spawned, in menu-local coords
+	// Used to allow single right-click within a slop region to spawn the menu
+	S32				mSpawnMouseX;
+	S32				mSpawnMouseY;
 };
 
 
@@ -748,6 +764,7 @@ public:
 	virtual void draw();
 	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
+	/*virtual*/ BOOL handleRightMouseUp( S32 x, S32 y, MASK mask );
 
 	virtual const LLRect getMenuRect() const { return getLocalRect(); }
 	virtual BOOL hasVisibleMenu() const;

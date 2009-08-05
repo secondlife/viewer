@@ -1,41 +1,234 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?> 
-<panel follows="left|bottom|right" name="bottom_tray" bg_opaque_color="0.25 0.25 0.25 1.0"
-		bg_alpha_color="0.25 0.25 0.25 1.0" background_visible="true" auto_resize="true"
-		left="0" bottom="0" width="1000" height="28" border_visible="false" has_border="false">
-	<layout_stack name="toolbar_stack" follows="left|right|bottom|top" 
-		bottom="0" left="0" width="1000" height="25" orientation="horizontal" border_size="0" auto_resize="false">
-	
-		<icon image_name="spacer24.tga" left="0" width="5" height="10" bottom="0" follows="left|right" auto_resize="false" color="0 0 0 0"/>
-	  <panel follows="left|right" auto_resize="true" width="250" height="28" min_height="28">
-		<line_editor name="chat_box"  follows="left|right" 
-			width="250" height="20" left="0" bottom="6" 
-			bevel_style="in" border_style="line" border_thickness="1"/>
-	  </panel>
-		<icon image_name="spacer24.tga" left="0" width="5" height="10" bottom="0" follows="left|right" auto_resize="false" color="0 0 0 0"/>
-		<view_border bevel_style="in" bottom="0" height="28" min_height="28" width="1" follows="left|right" left="270" mouse_opaque="false" auto_resize="false"/>
-		<icon image_name="spacer24.tga" left="0" width="5" height="10" bottom="0" follows="left|right" auto_resize="false" color="0 0 0 0"/>
-	  <panel follows="left|right" auto_resize="false" width="100" height="28" min_height="28">
-		<chiclet_talk name="talk" left="0" bottom="6" width="100" height="20" follows="left|right" auto_resize="false"/>	
-	  </panel>
-		<icon name="DUMMY" image_name="spacer24.tga" left="0" width="150" height="10" bottom="0" follows="left|right" auto_resize="false" color="0 0 0 0"/>
-	  <panel follows="left|right" auto_resize="true" width="250" height="28" min_height="28">
-		<chiclet_panel name="chiclet_list"  follows="left|right" 
-			width="250" height="25" left="0" bottom="2"/>
-	  </panel>
-		<icon image_name="spacer24.tga" left="0" width="5" height="10" bottom="0" follows="left|right" auto_resize="false" color="0 0 0 0"/>
-	  <panel follows="left|right" auto_resize="false" width="40" height="28" min_height="28">
-		<chiclet_notification name="im_well" follows="left|right" auto_resize="false"
-			left="0" bottom="4" width="40" height="25" 
-			image_unselected="im_notifications.tga" image_selected="im_notifications.tga"/>
-	  </panel>
-		<icon image_name="spacer24.tga" left="0" width="10" height="10" bottom="0" follows="left|right" auto_resize="false" color="0 0 0 0"/>
-		<view_border bevel_style="in" bottom="0" height="30" width="1" follows="left|right" left="270" mouse_opaque="false" auto_resize="false"/>
-		<icon image_name="spacer24.tga" left="0" width="10" height="10" bottom="0" follows="left|right" auto_resize="false" color="0 0 0 0"/>
-	  <panel follows="left|right" auto_resize="false" width="48" height="28" min_height="28">
-		<chiclet_notification name="sys_well" follows="left|right" auto_resize="false"
-			left="0" bottom="5" width="48" height="25" 
-			image_unselected="sys_notifications.tga" image_selected="sys_notifications.tga"/>
-	  </panel>
-		<icon image_name="spacer24.tga" left="0" width="5" height="10" bottom="0" follows="left|right" auto_resize="false" color="0 0 0 0"/>
-	</layout_stack>	
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_visible="true"
+ bg_alpha_color="0.25 0.25 0.25 1"
+ bg_opaque_color="0.25 0.25 0.25 1"
+ follows="left|bottom|right"
+ height="28"
+ layout="topleft"
+ left="0"
+ name="bottom_tray"
+ top="28"
+ border_visible="true"
+ width="1000">
+    <layout_stack
+     border_size="0"
+     clip="false" 
+     follows="left|right|bottom|top"
+     height="28"
+     layout="topleft"
+     left="0"
+     name="toolbar_stack"
+     orientation="horizontal"
+     top="0"
+     width="1000">
+        <icon
+         auto_resize="false"
+         color="0 0 0 0"
+         follows="left|right"
+         height="10"
+         image_name="spacer24.tga"
+         layout="topleft"
+         left="0"
+         top="0"
+         width="5" 
+         min_width="5" />
+        <layout_panel
+         follows="left|right"
+         height="28"
+         layout="topleft"
+         left="5"
+         min_height="28"
+         width="500"
+         top="0"
+         min_width="305"
+         name="chat_bar"
+         user_resize="false"
+         filename="panel_nearby_chat_bar.xml"/>
+		 <icon
+         auto_resize="false"
+         color="0 0 0 0"
+         follows="left|right"
+         height="10"
+         image_name="spacer24.tga"
+         layout="topleft"
+         left="0"
+         name="DUMMY"
+         top="0"
+         width="5" 
+         min_width="5"/>
+        <layout_panel
+         auto_resize="false"
+         follows="right"
+         height="28"
+         layout="topleft"
+		 left="5"
+         min_height="28"
+         width="90"
+         top_delta="-10"
+         min_width="90"
+         user_resize="false">
+            <button
+             bottom="22"
+             follows="right"
+             height="20"
+             label="Stand Up"
+             layout="topleft"
+             name="stand"
+             top="3"
+             width="90" />
+        </layout_panel>
+        <icon
+         auto_resize="false"
+         color="0 0 0 0"
+         follows="left|right"
+         height="10"
+         image_name="spacer24.tga"
+         layout="topleft"
+         left="0"
+         name="DUMMY"
+         top="0"
+         width="5" 
+         min_width="5" />
+        <layout_panel
+         follows="left|right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         top="0"
+         name="chiclet_list_panel"
+         width="150"
+         user_resize="false">
+            <chiclet_panel
+             follows="left|right"
+             height="25"
+             layout="topleft"
+             left="0"
+             name="chiclet_list"
+             top="1"
+             chiclet_padding="3"
+             scrolling_offset="40"
+             width="150" />
+        </layout_panel>
+        <icon
+         auto_resize="false"
+         color="0 0 0 0"
+         follows="left|right"
+         height="10"
+         image_name="spacer24.tga"
+         layout="topleft"
+         left="0"
+         top="0"
+         width="5" 
+         min_width="5" />
+        <layout_panel
+         auto_resize="false"
+         follows="right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         name="im_well_panel"
+         width="40"
+         top="0"
+         min_width="40" 
+         user_resize="false">
+            <chiclet_notification
+             follows="right"
+             height="25"
+             layout="topleft"
+             left="0"
+             name="im_well"
+             top="2"
+             width="40">
+              <button
+               image_selected="im_notifications.tga"
+               image_unselected="im_notifications.tga"/>
+              <unread_notifications
+               width="20"
+               height="20"
+               left="18"
+               top="23"/>
+			  <chiclet_notification.commit_callback
+				 function="Notification.Show"
+				 parameter="ClickUnimplemented" />
+			</chiclet_notification>
+        </layout_panel>
+        <icon
+         auto_resize="false"
+         color="0 0 0 0"
+         follows="left|right"
+         height="10"
+         image_name="spacer24.tga"
+         layout="topleft"
+         left="0"
+         top="0"
+         width="10" 
+         min_width="10"/>
+        <view_border
+         auto_resize="false"
+         bevel_style="in"
+         follows="left|right"
+         height="28"
+         layout="topleft"
+         left="270"
+         name="well_separator"
+         top="0"
+         width="1" />
+        <icon
+         auto_resize="false"
+         color="0 0 0 0"
+         follows="left|right"
+         height="10"
+         image_name="spacer24.tga"
+         layout="topleft"
+         left="0"
+         top="0"
+         width="10" 
+         min_width="10" />
+        <layout_panel
+         auto_resize="false"
+         follows="right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         top="0"
+         name="sys_well_panel"
+         width="48"
+         min_width="48"
+         user_resize="false">
+            <chiclet_notification
+             follows="right"
+             height="25"
+             layout="topleft"
+             left="0"
+             name="sys_well"
+             top="2"
+             width="48">
+              <button
+               image_selected="bottom_tray_sys_notifications.tga"
+               image_unselected="bottom_tray_sys_notifications.tga"/>
+              <unread_notifications
+               width="20"
+               height="20"
+               left="22"
+               top="23"/>
+<!-- 
+			  <chiclet_notification.commit_callback
+				 function="Notification.Show"
+				 parameter="ClickUnimplemented" />
+ -->               				 
+			</chiclet_notification>
+        </layout_panel>
+        <icon
+         auto_resize="false"
+         color="0 0 0 0"
+         follows="left|right"
+         height="10"
+         image_name="spacer24.tga"
+         layout="topleft"
+         left="0"
+         top="0"
+         width="5" 
+         min_width="5" />
+    </layout_stack>
 </panel>

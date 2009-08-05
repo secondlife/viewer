@@ -45,6 +45,7 @@
 #include "llagent.h"
 #include "llavatarconstants.h"
 #include "llcheckboxctrl.h"
+#include "llcolorswatch.h"
 #include "llcombobox.h"
 #include "llcommandhandler.h"
 #include "lldirpicker.h"
@@ -57,6 +58,7 @@
 #include "llfloatervoicedevicesettings.h"
 #include "llkeyboard.h"
 #include "llmodaldialog.h"
+#include "llnavigationbar.h"
 #include "llpanellogin.h"
 #include "llradiogroup.h"
 #include "llsky.h"
@@ -90,13 +92,8 @@
 #include "llspinctrl.h"
 #include "llstartup.h"
 #include "lltextbox.h"
-
 #include "llui.h"
-
-#include "llviewerimage.h"
-#include "llviewerimagelist.h"
 #include "llviewerobjectlist.h"
-
 #include "llvoavatar.h"
 #include "llvovolume.h"
 #include "llwindow.h"
@@ -173,6 +170,7 @@ void LLVoiceSetKeyDialog::onCancel(void* user_data)
 
 void free_web_media(LLMediaBase *media_source);
 void handleHTMLLinkColorChanged(const LLSD& newvalue);	
+void handleNameTagOptionChanged(const LLSD& newvalue);	
 LLMediaBase *get_web_media();
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response);
 
@@ -224,11 +222,20 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 	S32 option = LLNotification::getSelectedOption(notification, response);
 	if ( option == 0 ) // YES
 	{
+		// clean web
 		LLMediaBase *media_source = get_web_media();
 		if (media_source)
 			media_source->clearCache();
 		free_web_media(media_source);
+		
+		// clean nav bar history
+		LLNavigationBar::getInstance()->clearHistoryCache();
+		
+		// flag client texture cache for clearing next time the client runs
+		gSavedSettings.setBOOL("PurgeCacheOnNextStartup", TRUE);
+		LLNotifications::instance().add("CacheWillClear");
 	}
+	
 	return false;
 }
 
@@ -237,6 +244,18 @@ void handleHTMLLinkColorChanged(const LLSD& newvalue)
 	LLTextEditor::setLinkColor(LLColor4(newvalue));
 	LLStyleMap::instance().update();
 	
+}
+void handleNameTagOptionChanged(const LLSD& newvalue)
+{
+	S32 name_tag_option = S32(newvalue);
+	if(name_tag_option==2)
+	{
+		gSavedSettings.setBOOL("SmallAvatarNames", TRUE);
+	}
+	else
+	{
+		gSavedSettings.setBOOL("SmallAvatarNames", FALSE);
+	}
 }
 
 bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
@@ -318,8 +337,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.Cancel",				boost::bind(&LLFloaterPreference::onBtnCancel, this));
 	mCommitCallbackRegistrar.add("Pref.OK",					boost::bind(&LLFloaterPreference::onBtnOK, this));
 	
-	mCommitCallbackRegistrar.add("Pref.ClearCache",				boost::bind(&LLFloaterPreference::onClickClearCache, (void*)NULL));
-	mCommitCallbackRegistrar.add("Pref.WebClearCache",			boost::bind(&LLFloaterPreference::onClickBrowserClearCache, (void*)NULL));
+//	mCommitCallbackRegistrar.add("Pref.ClearCache",				boost::bind(&LLFloaterPreference::onClickClearCache, this));
+	mCommitCallbackRegistrar.add("Pref.WebClearCache",			boost::bind(&LLFloaterPreference::onClickBrowserClearCache, this));
 	mCommitCallbackRegistrar.add("Pref.SetCache",				boost::bind(&LLFloaterPreference::onClickSetCache, this));
 	mCommitCallbackRegistrar.add("Pref.ResetCache",				boost::bind(&LLFloaterPreference::onClickResetCache, this));
 	mCommitCallbackRegistrar.add("Pref.ClickSkin",				boost::bind(&LLFloaterPreference::onClickSkin, this,_1, _2));
@@ -329,10 +348,10 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ClickSkipDialogs",		boost::bind(&LLFloaterPreference::onClickSkipDialogs, this));
 	mCommitCallbackRegistrar.add("Pref.ClickResetDialogs",		boost::bind(&LLFloaterPreference::onClickResetDialogs, this));
 	mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",		boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
+	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
 	mCommitCallbackRegistrar.add("Pref.Logging",				boost::bind(&LLFloaterPreference::onCommitLogging, this));
 	mCommitCallbackRegistrar.add("Pref.OpenHelp",				boost::bind(&LLFloaterPreference::onOpenHelp, this));	
-	mCommitCallbackRegistrar.add("Pref.ChangeCustom",			boost::bind(&LLFloaterPreference::onChangeCustom, this));	
 	mCommitCallbackRegistrar.add("Pref.UpdateMeterText",		boost::bind(&LLFloaterPreference::updateMeterText, this, _1));	
 	mCommitCallbackRegistrar.add("Pref.HardwareSettings",       boost::bind(&LLFloaterPreference::onOpenHardwareSettings, this));	
 	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",       boost::bind(&LLFloaterPreference::setHardwareDefaults, this));	
@@ -342,9 +361,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.AutoDetectAspect",       boost::bind(&LLFloaterPreference::onCommitAutoDetectAspect, this));	
 	mCommitCallbackRegistrar.add("Pref.onSelectAspectRatio",    boost::bind(&LLFloaterPreference::onKeystrokeAspectRatio, this));	
 	mCommitCallbackRegistrar.add("Pref.QualityPerformance",     boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));	
-	
-	gSavedSkinSettings.getControl("HTMLLinkColor")->getCommitSignal()->connect(boost::bind(&handleHTMLLinkColorChanged,  _2));
 
+	gSavedSettings.getControl("AvatarNameTagMode")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));
 }
 
 BOOL LLFloaterPreference::postBuild()
@@ -352,6 +370,8 @@ BOOL LLFloaterPreference::postBuild()
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 		tabcontainer->selectFirstTab();
+	S32 show_avatar_nametag_options = gSavedSettings.getS32("AvatarNameTagMode");
+	handleNameTagOptionChanged(LLSD(show_avatar_nametag_options));
 	return TRUE;
 }
 
@@ -373,6 +393,10 @@ void LLFloaterPreference::draw()
 {
 	BOOL has_first_selected = (getChildRef<LLScrollListCtrl>("disabled_popups").getFirstSelected()!=NULL);
 	gSavedSettings.setBOOL("FirstSelectedDisabledPopups", has_first_selected);
+	
+	has_first_selected = (getChildRef<LLScrollListCtrl>("enabled_popups").getFirstSelected()!=NULL);
+	gSavedSettings.setBOOL("FirstSelectedEnabledPopups", has_first_selected);
+	
 	LLFloater::draw();
 }
 
@@ -459,7 +483,7 @@ void LLFloaterPreference::apply()
 	applyResolution();
 	
 	// Only set window size if we're not in fullscreen mode
-	if(gSavedSettings.getBOOL("NotFullScreen"))
+	if(!gSavedSettings.getBOOL("WindowFullScreen"))
 	{
 		applyWindowSize();
 	}
@@ -544,7 +568,7 @@ void LLFloaterPreference::onBtnOK()
 		apply();
 		closeFloater(false);
 		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
-		gSavedSkinSettings.saveToFile(gSavedSettings.getString("SkinningSettingsFile") , TRUE );
+		LLUIColorTable::instance().saveUserSettings();
 		std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
 		// save all settings, even if equals defaults
 		gCrashSettings.saveToFile(crash_settings_filename, FALSE);
@@ -605,19 +629,6 @@ void LLFloaterPreference::updateUserInfo(const std::string& visibility, bool im_
 }
 
 
-void LLFloaterPreference::onChangeCustom()
-{
-	// if custom is turned off, reset everything to defaults
-	if (this && getChild<LLCheckBoxCtrl>("CustomSettings")->getValue())
-	{
-		U32 set = (U32)getChild<LLSliderCtrl>("QualityPerformanceSelection")->getValueF32();
-		LLFeatureManager::getInstance()->setGraphicsLevel(set, true);	
-		updateMeterText(getChild<LLSliderCtrl>("DrawDistance"));
-	}
-
-	refreshEnabledGraphics();
-}
-
 void LLFloaterPreference::refreshEnabledGraphics()
 {
 	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
@@ -642,17 +653,16 @@ void LLFloaterPreference::updateMeterText(LLUICtrl* ctrl)
 	m1->setVisible(two_digits);
 	m2->setVisible(!two_digits);
 }
-
-// static
-void LLFloaterPreference::onClickClearCache(void*)
+/*
+void LLFloaterPreference::onClickClearCache()
 {
 	// flag client cache for clearing next time the client runs
 	gSavedSettings.setBOOL("PurgeCacheOnNextStartup", TRUE);
 	LLNotifications::instance().add("CacheWillClear");
 }
+*/
 
-// static
-void LLFloaterPreference::onClickBrowserClearCache(void*)
+void LLFloaterPreference::onClickBrowserClearCache()
 {
 	LLNotifications::instance().add("ConfirmClearBrowserCache", LLSD(), LLSD(), callback_clear_browser_cache);
 }
@@ -660,6 +670,8 @@ void LLFloaterPreference::onClickBrowserClearCache(void*)
 void LLFloaterPreference::onClickSetCache()
 {
 	std::string cur_name(gSavedSettings.getString("CacheLocation"));
+//	std::string cur_top_folder(gDirUtilp->getBaseFileName(cur_name));
+	
 	std::string proposed_name(cur_name);
 
 	LLDirPicker& picker = LLDirPicker::instance();
@@ -671,14 +683,17 @@ void LLFloaterPreference::onClickSetCache()
 	std::string dir_name = picker.getDirName();
 	if (!dir_name.empty() && dir_name != cur_name)
 	{
-		childSetText("cache_location", dir_name);
+		std::string new_top_folder(gDirUtilp->getBaseFileName(dir_name));	
 		LLNotifications::instance().add("CacheWillBeMoved");
 		gSavedSettings.setString("NewCacheLocation", dir_name);
+		gSavedSettings.setString("NewCacheLocationTopFolder", new_top_folder);
 	}
 	else
 	{
 		std::string cache_location = gDirUtilp->getCacheDir();
-		childSetText("cache_location", cache_location);
+		gSavedSettings.setString("CacheLocation", cache_location);
+		std::string top_folder(gDirUtilp->getBaseFileName(cache_location));
+		gSavedSettings.setString("CacheLocationTopFolder", top_folder);
 	}
 }
 
@@ -687,10 +702,13 @@ void LLFloaterPreference::onClickResetCache()
 	if (!gSavedSettings.getString("CacheLocation").empty())
 	{
 		gSavedSettings.setString("NewCacheLocation", "");
+		gSavedSettings.setString("NewCacheLocationTopFolder", "");
 		LLNotifications::instance().add("CacheWillBeMoved");
 	}
 	std::string cache_location = gDirUtilp->getCacheDir(true);
-	childSetText("cache_location", cache_location);
+	gSavedSettings.setString("CacheLocation", cache_location);
+	std::string top_folder(gDirUtilp->getBaseFileName(cache_location));
+	gSavedSettings.setString("CacheLocationTopFolder", top_folder);
 }
 
 void LLFloaterPreference::onClickSkin(LLUICtrl* ctrl, const LLSD& userdata)
@@ -780,12 +798,6 @@ void LLFloaterPreference::buildLists(void* data)
 
 void LLFloaterPreference::refreshEnabledState()
 {
-	
-	// disable graphics settings and exit if it's not set to custom
-	if(!gSavedSettings.getBOOL("RenderCustomSettings"))
-	{
-		return;
-	}
 	
 	LLCheckBoxCtrl* ctrl_reflections = getChild<LLCheckBoxCtrl>("Reflections");
 	LLRadioGroup* radio_reflection_detail = getChild<LLRadioGroup>("ReflectionDetailRadio");
@@ -1034,6 +1046,22 @@ void LLFloaterPreference::onClickEnablePopup()
 	buildLists(this);
 }
 
+void LLFloaterPreference::onClickDisablePopup()
+{	
+	LLScrollListCtrl& enabled_popups = getChildRef<LLScrollListCtrl>("enabled_popups");
+	
+	std::vector<LLScrollListItem*> items = enabled_popups.getAllSelected();
+	std::vector<LLScrollListItem*>::iterator itor;
+	for (itor = items.begin(); itor != items.end(); ++itor)
+	{
+		LLNotificationTemplatePtr templatep = LLNotifications::instance().getTemplate(*(std::string*)((*itor)->getUserdata()));
+		//gSavedSettings.setWarning(templatep->mName, TRUE);
+		std::string notification_name = templatep->mName;
+		LLUI::sSettingGroups["ignores"]->setBOOL(notification_name, FALSE);
+	}
+	
+	buildLists(this);
+}
 void LLFloaterPreference::resetAllIgnored()
 {
 	for (LLNotifications::TemplateMap::const_iterator iter = LLNotifications::instance().templatesBegin();
@@ -1062,15 +1090,17 @@ void LLFloaterPreference::setAllIgnored()
 
 void LLFloaterPreference::onClickLogPath()
 {
-	std::string proposed_name(childGetText("log_path_string"));	 
+	std::string proposed_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));	 
 	
 	LLDirPicker& picker = LLDirPicker::instance();
 	if (!picker.getDir(&proposed_name ) )
 	{
 		return; //Canceled!
 	}
-	
-	childSetText("log_path_string", picker.getDirName());	 
+	std::string chat_log_dir = picker.getDirName();
+	std::string chat_log_top_folder= gDirUtilp->getBaseFileName(chat_log_dir);
+	gSavedPerAccountSettings.setString("InstantMessageLogPath",chat_log_dir);
+	gSavedPerAccountSettings.setString("InstantMessageLogFolder",chat_log_top_folder);
 }
 
 void LLFloaterPreference::onCommitLogging()
@@ -1080,15 +1110,17 @@ void LLFloaterPreference::onCommitLogging()
 
 void LLFloaterPreference::enableHistory()
 {
-	if (childGetValue("log_instant_messages").asBoolean() || childGetValue("log_chat").asBoolean())
+	if (childGetValue("log_instant_messages").asBoolean())
 	{
-		childEnable("log_show_history");
+		childEnable("ChatIMLogs");
 		childEnable("log_path_button");
+		childEnable("show_timestamps_check_im");
 	}
 	else
 	{
-		childDisable("log_show_history");
+		childDisable("ChatIMLogs");
 		childDisable("log_path_button");
+		childDisable("show_timestamps_check_im");
 	}
 }
 
@@ -1122,10 +1154,10 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	childEnable("send_im_to_email");
 	childSetValue("send_im_to_email", im_via_email);
 	childEnable("log_instant_messages");
-	childEnable("log_chat");
+//	childEnable("log_chat");
 	childEnable("busy_response");
-	childEnable("log_instant_messages_timestamp");
-	childEnable("log_chat_timestamp");
+//	childEnable("log_instant_messages_timestamp");
+//	childEnable("log_chat_timestamp");
 	childEnable("log_chat_IM");
 	childEnable("log_date_timestamp");
 	
@@ -1245,11 +1277,16 @@ void LLFloaterPreference::applyResolution()
 	S32 num_resolutions;
 	LLWindow::LLWindowResolution* supported_resolutions = 
 	gViewerWindow->getWindow()->getSupportedResolutions(num_resolutions);
-	U32 resIndex = getChild<LLComboBox>("fullscreen combo")->getCurrentIndex();
+	S32 resIndex = getChild<LLComboBox>("fullscreen combo")->getCurrentIndex();
+	if (resIndex == -1)
+	{
+		// use highest resolution if nothing selected
+		resIndex = num_resolutions - 1;
+	}
 	gSavedSettings.setS32("FullScreenWidth", supported_resolutions[resIndex].mWidth);
 	gSavedSettings.setS32("FullScreenHeight", supported_resolutions[resIndex].mHeight);
 	
-	gViewerWindow->requestResolutionUpdate(!gSavedSettings.getBOOL("NotFullScreen"));
+	gViewerWindow->requestResolutionUpdate(gSavedSettings.getBOOL("WindowFullScreen"));
 	
 	send_agent_update(TRUE);
 	
@@ -1298,6 +1335,12 @@ LLPanelPreference::LLPanelPreference()
 	//
 	mCommitCallbackRegistrar.add("setControlFalse",		boost::bind(&LLPanelPreference::setControlFalse,this, _2));
 }
+
+static void applyUIColor(const std::string& color_name, LLUICtrl* ctrl, const LLSD& param)
+{
+	LLUIColorTable::instance().setColor(color_name, LLColor4(param));
+}
+
 //virtual
 BOOL LLPanelPreference::postBuild()
 {
@@ -1460,6 +1503,55 @@ BOOL LLPanelPreference::postBuild()
 		refresh();
 	}
 	
+
+	if(hasChild("user") && hasChild("agent") && hasChild("im") 
+	&& hasChild("system") && hasChild("script_error") && hasChild("objects") 
+	&& hasChild("owner") && hasChild("background") && hasChild("links"))
+	{
+		LLColorSwatchCtrl* color_swatch = getChild<LLColorSwatchCtrl>("user");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "UserChatColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("UserChatColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("agent");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "AgentChatColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("AgentChatColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("im");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "IMChatColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("IMChatColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("system");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "SystemChatColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("SystemChatColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("script_error");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "ScriptErrorColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("ScriptErrorColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("objects");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "ObjectChatColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("ObjectChatColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("owner");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "llOwnerSayChatColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("llOwnerSayChatColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("background");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "BackgroundChatColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("BackgroundChatColor"));
+
+		color_swatch = getChild<LLColorSwatchCtrl>("links");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "HTMLLinkColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("HTMLLinkColor"));
+	}
+
+	if(hasChild("effect_color_swatch"))
+	{
+		LLColorSwatchCtrl* color_swatch = getChild<LLColorSwatchCtrl>("effect_color_swatch");
+		color_swatch->setCommitCallback(boost::bind(&applyUIColor, "EffectColor", _1, _2));
+		color_swatch->setOriginal(LLUIColorTable::instance().getColor("EffectColor"));
+	}
+
 	apply();
 	return true;
 }
@@ -1475,16 +1567,25 @@ void LLPanelPreference::apply()
 		// Process view on top of the stack
 		LLView* curview = view_stack.front();
 		view_stack.pop_front();
-		LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
-		if (ctrl)
+
+		LLColorSwatchCtrl* color_swatch = dynamic_cast<LLColorSwatchCtrl *>(curview);
+		if (color_swatch)
 		{
-			LLControlVariable* control = ctrl->getControlVariable();
-			if (control)
+			mSavedColors[color_swatch->getName()] = color_swatch->get();
+		}
+		else
+		{
+			LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
+			if (ctrl)
 			{
-				mSavedValues[control] = control->getValue();
+				LLControlVariable* control = ctrl->getControlVariable();
+				if (control)
+				{
+					mSavedValues[control] = control->getValue();
+				}
 			}
 		}
-		
+			
 		// Push children onto the end of the work stack
 		for (child_list_t::const_iterator iter = curview->getChildList()->begin();
 			 iter != curview->getChildList()->end(); ++iter)
@@ -1503,6 +1604,17 @@ void LLPanelPreference::cancel()
 		LLControlVariable* control = iter->first;
 		LLSD ctrl_value = iter->second;
 		control->set(ctrl_value);
+	}
+
+	for (string_color_map_t::iterator iter = mSavedColors.begin();
+		 iter != mSavedColors.end(); ++iter)
+	{
+		LLColorSwatchCtrl* color_swatch = findChild<LLColorSwatchCtrl>(iter->first);
+		if(color_swatch)
+		{
+			color_swatch->set(iter->second);
+			color_swatch->onCommit();
+		}
 	}
 }
 

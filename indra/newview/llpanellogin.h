@@ -37,6 +37,7 @@
 #include "llpointer.h"			// LLPointer<>
 #include "llwebbrowserctrl.h"	// LLWebBrowserCtrlObserver
 
+class LLLineEditor;
 class LLUIImage;
 
 

@@ -99,8 +99,8 @@ struct LLPlaceHolderPanel : public LLPanel
 	LLPlaceHolderPanel(const Params& p) : LLPanel(p)
 	{}
 };
-static LLDefaultWidgetRegistry::Register<LLPlaceHolderPanel> r1("placeholder");
-static LLDefaultWidgetRegistry::Register<LLTabContainer> r2("tab_container");
+static LLDefaultChildRegistry::Register<LLPlaceHolderPanel> r1("placeholder");
+static LLDefaultChildRegistry::Register<LLTabContainer> r2("tab_container");
 
 LLTabContainer::Params::Params()
 :	tab_width("tab_width"),
@@ -108,6 +108,7 @@ LLTabContainer::Params::Params()
 	tab_min_width("tab_min_width"),
 	tab_max_width("tab_max_width"),
 	hide_tabs("hide_tabs", false),
+	tab_padding_right("tab_padding_right"),
 	tab_top_image_unselected("tab_top_image_unselected"),
 	tab_top_image_selected("tab_top_image_selected"),
 	tab_bottom_image_unselected("tab_bottom_image_unselected"),

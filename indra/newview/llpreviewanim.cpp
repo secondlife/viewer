@@ -36,7 +36,7 @@
 #include "llbutton.h"
 #include "llresmgr.h"
 #include "llinventory.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llvoavatarself.h"
 #include "llagent.h"          // gAgent
 #include "llkeyframemotion.h"

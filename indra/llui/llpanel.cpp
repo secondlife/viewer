@@ -43,6 +43,7 @@
 #include "llerror.h"
 #include "lltimer.h"
 
+#include "llbutton.h"
 #include "llmenugl.h"
 //#include "llstatusbar.h"
 #include "llui.h"
@@ -53,18 +54,18 @@
 #include "lluictrl.h"
 #include "lluictrlfactory.h"
 #include "llviewborder.h"
-#include "llbutton.h"
 #include "lltabcontainer.h"
 
-static LLDefaultWidgetRegistry::Register<LLPanel> r1("panel", &LLPanel::fromXML);
+static LLDefaultChildRegistry::Register<LLPanel> r1("panel", &LLPanel::fromXML);
 
 const LLPanel::Params& LLPanel::getDefaultParams() 
 { 
-	return LLUICtrlFactory::getDefaultParams<LLPanel::Params>(); 
+	return LLUICtrlFactory::getDefaultParams<LLPanel>(); 
 }
 
 LLPanel::Params::Params()
 :	has_border("border", false),
+	border(""),
 	bg_opaque_color("bg_opaque_color"),
 	bg_alpha_color("bg_alpha_color"),
 	background_visible("background_visible", false),
@@ -418,6 +419,11 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLXMLNodePtr output_
 
 void LLPanel::initFromParams(const LLPanel::Params& p)
 {
+    //setting these here since panel constructor not called with params
+    //and LLView::initFromParams will use them to set visible and enabled  
+	setVisible(p.visible);
+	setEnabled(p.enabled);
+
 	 // control_name, tab_stop, focus_lost_callback, initial_value, rect, enabled, visible
 	LLUICtrl::initFromParams(p);
 
@@ -425,19 +431,15 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 		it != p.strings().end();
 		++it)
 	{
-		mUIStrings[it->name] = it->text;
+		mUIStrings[it->name] = it->value;
 	}
 
-	setName(p.name());
 	setLabel(p.label());
-
 	setShape(p.rect);
 	parseFollowsFlags(p);
 
-	setEnabled(p.enabled);
-	setVisible(p.visible);
 	setToolTip(p.tool_tip());
-	setSaveToXML(p.serializable);
+	setSaveToXML(p.from_xui);
 	
 	mHoverCursor = getCursorFromString(p.hover_cursor);
 	
@@ -466,7 +468,7 @@ static LLFastTimer::DeclareTimer FTM_PANEL_POSTBUILD("Panel PostBuild");
 
 BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 {
-	const LLPanel::Params& default_params(LLUICtrlFactory::getDefaultParams<LLPanel::Params>());
+	const LLPanel::Params& default_params(LLUICtrlFactory::getDefaultParams<LLPanel>());
 	Params params(default_params);
 
 	{
@@ -503,7 +505,7 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 
 			// add children using dimensions from referenced xml for consistent layout
 			setShape(params.rect);
-			LLUICtrlFactory::createChildren(this, referenced_xml);
+			LLUICtrlFactory::createChildren(this, referenced_xml, child_registry_t::instance());
 		}
 
 		LLXUIParser::instance().readXUI(node, params);
@@ -524,7 +526,7 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 		}
 
 		// add children
-		LLUICtrlFactory::createChildren(this, node, output_node);
+		LLUICtrlFactory::createChildren(this, node, child_registry_t::instance(), output_node);
 
 		// Connect to parent after children are built, because tab containers
 		// do a reshape() on their child panels, which requires that the children
@@ -541,12 +543,6 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 		}
 	}
 	return TRUE;
-}
-
-const widget_registry_t& LLPanel::getChildRegistry() const
-{
-	// use default widget registry
-	return LLDefaultWidgetRegistry::instance();
 }
 
 bool LLPanel::hasString(const std::string& name)
@@ -804,24 +800,6 @@ BOOL LLPanel::childSetToolTipArg(const std::string& id, const std::string& key, 
 	return FALSE;
 }
 
-void LLPanel::childSetMinValue(const std::string& id, LLSD min_value)
-{
-	LLUICtrl* child = findChild<LLUICtrl>(id);
-	if (child)
-	{
-		child->setMinValue(min_value);
-	}
-}
-
-void LLPanel::childSetMaxValue(const std::string& id, LLSD max_value)
-{
-	LLUICtrl* child = findChild<LLUICtrl>(id);
-	if (child)
-	{
-		child->setMaxValue(max_value);
-	}
-}
-
 void LLPanel::childShowTab(const std::string& id, const std::string& tabname, bool visible)
 {
 	LLTabContainer* child = findChild<LLTabContainer>(id);
@@ -869,12 +847,12 @@ void LLPanel::childSetAction(const std::string& id, boost::function<void(void*)>
 	}
 }
 
-void LLPanel::childSetActionTextbox(const std::string& id, void(*function)(void*), void* value)
+void LLPanel::childSetActionTextbox(const std::string& id, boost::function<void(void*)> function, void* value)
 {
 	LLTextBox* textbox = findChild<LLTextBox>(id);
 	if (textbox)
 	{
-		textbox->setClickedCallback(function, value);
+		textbox->setClickedCallback(boost::bind(function, value));
 	}
 }
 

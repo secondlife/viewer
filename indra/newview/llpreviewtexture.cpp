@@ -39,15 +39,15 @@
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
 #include "llimagetga.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llinventory.h"
 #include "llresmgr.h"
 #include "lltrans.h"
 #include "lltextbox.h"
 #include "lltextureview.h"
 #include "llui.h"
-#include "llviewerimage.h"
-#include "llviewerimagelist.h"
+#include "llviewertexture.h"
+#include "llviewertexturelist.h"
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "lllineeditor.h"
@@ -205,7 +205,7 @@ void LLPreviewTexture::draw()
 					LLFontGL::NORMAL,
 					LLFontGL::DROP_SHADOW);
 				
-				F32 data_progress = mImage->mDownloadProgress;
+				F32 data_progress = mImage->getDownloadProgress() ;
 				
 				// Draw the progress bar.
 				const S32 BAR_HEIGHT = 12;
@@ -295,7 +295,7 @@ void LLPreviewTexture::onFocusReceived()
 
 // static
 void LLPreviewTexture::onFileLoadedForSave(BOOL success, 
-											LLViewerImage *src_vi,
+											LLViewerFetchedTexture *src_vi,
 											LLImageRaw* src, 
 											LLImageRaw* aux_src, 
 											S32 discard_level,
@@ -357,8 +357,8 @@ void LLPreviewTexture::updateDimensions()
 	
 	mUpdateDimensions = FALSE;
 	
-	S32 image_height = llmax(1, mImage->getHeight(0));
-	S32 image_width = llmax(1, mImage->getWidth(0));
+	S32 image_height = llmax(1, mImage->getFullHeight());
+	S32 image_width = llmax(1, mImage->getFullWidth());
 	// Attempt to make the image 1:1 on screen.
 	// If that fails, cut width by half.
 	S32 client_width = image_width;
@@ -379,8 +379,8 @@ void LLPreviewTexture::updateDimensions()
 	S32 view_height = client_height + vert_pad;
 	
 	// set text on dimensions display (should be moved out of here and into a callback of some sort)
-	childSetTextArg("dimensions", "[WIDTH]", llformat("%d", mImage->mFullWidth));
-	childSetTextArg("dimensions", "[HEIGHT]", llformat("%d", mImage->mFullHeight));
+	childSetTextArg("dimensions", "[WIDTH]", llformat("%d", mImage->getFullWidth()));
+	childSetTextArg("dimensions", "[HEIGHT]", llformat("%d", mImage->getFullHeight()));
 	
 	// add space for dimensions
 	S32 info_height = 0;
@@ -464,15 +464,15 @@ void LLPreviewTexture::updateDimensions()
 
 void LLPreviewTexture::loadAsset()
 {
-	mImage = gImageList.getImage(mImageID, MIPMAP_TRUE, FALSE);
-	mImage->setBoostLevel(LLViewerImage::BOOST_PREVIEW);
+	mImage = LLViewerTextureManager::getFetchedTexture(mImageID, MIPMAP_TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
+	mImage->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
 	mAssetStatus = PREVIEW_ASSET_LOADING;
 	updateDimensions();
 }
 
 LLPreview::EAssetStatus LLPreviewTexture::getAssetStatus()
 {
-	if (mImage.notNull() && (mImage->mFullWidth * mImage->mFullHeight > 0))
+	if (mImage.notNull() && (mImage->getFullWidth() * mImage->getFullHeight() > 0))
 	{
 		mAssetStatus = PREVIEW_ASSET_LOADED;
 	}

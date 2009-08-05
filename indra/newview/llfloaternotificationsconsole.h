@@ -38,11 +38,11 @@
 #include "llnotifications.h"
 
 class LLFloaterNotificationConsole : 
-	public LLFloater, 
-	public LLFloaterSingleton<LLFloaterNotificationConsole>
+	public LLFloater
 {
+	friend class LLFloaterReg;
+
 public:
-	LLFloaterNotificationConsole(const LLSD& key);
 
 	// LLPanel
 	BOOL postBuild();
@@ -55,6 +55,7 @@ public:
 	void updateResizeLimits();
 
 private:
+	LLFloaterNotificationConsole(const LLSD& key);	
 	void onClickAdd();
 };
 

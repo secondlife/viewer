@@ -49,6 +49,7 @@ public:
 
 	virtual void draw();
 	/*virtual*/	BOOL	postBuild();
+	void onOpen(const LLSD& key);
 	static BOOL renderBeacons();
 	static void addBeacons();
 

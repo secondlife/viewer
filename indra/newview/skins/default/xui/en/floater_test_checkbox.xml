@@ -69,15 +69,4 @@
      name="font_checkbox"
      top_pad="14"
      width="150" />
-    <check_box
-     height="16"
-     label="Custom Button"
-     layout="topleft"
-     left_delta="0"
-     name="check_button_checkbox"
-     top_pad="14"
-     width="150">
-        <check_box.check_button
-         image_unselected="close_in_blue.tga" />
-    </check_box>
 </floater>

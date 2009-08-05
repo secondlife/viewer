@@ -9,7 +9,7 @@
  visible="false"
  width="128">
     <menu_item_call
-     label="Copy SLURL to Clipboard"
+     label="Copy SLurl to Clipboard"
      layout="topleft"
      name="Copy SLURL">
         <menu_item_call.on_click
@@ -23,6 +23,9 @@
         <menu_item_call.on_click
          function="Navbar.Action"
          parameter="landmark" />
+        <menu_item_call.on_enable
+         function="Navbar.EnableMenuItem"
+         parameter="can_landmark" />
     </menu_item_call>
     <menu_item_separator
      layout="topleft"

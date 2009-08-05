@@ -63,7 +63,7 @@ static const F32 AUTO_SCROLL_RATE_ACCEL = 120.f;
 /// Class LLScrollContainer
 ///----------------------------------------------------------------------------
 
-static LLDefaultWidgetRegistry::Register<LLScrollContainer> r("scroll_container");
+static LLDefaultChildRegistry::Register<LLScrollContainer> r("scroll_container");
 
 LLScrollContainer::Params::Params()
 :	is_opaque("opaque"),
@@ -91,7 +91,7 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	LLViewBorder::Params params;
 	params.name("scroll border");
 	params.rect(border_rect);
-	params.bevel_type(LLViewBorder::BEVEL_IN);
+	params.bevel_style(LLViewBorder::BEVEL_IN);
 	mBorder = LLUICtrlFactory::create<LLViewBorder> (params);
 	LLView::addChild( mBorder );
 
@@ -333,34 +333,6 @@ BOOL LLScrollContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	return TRUE;
 }
 
-
-BOOL LLScrollContainer::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect)
-{
-	S32 local_x, local_y;
-	for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
-	{
-		local_x = x - mScrollbar[i]->getRect().mLeft;
-		local_y = y - mScrollbar[i]->getRect().mBottom;
-		if( mScrollbar[i]->handleToolTip(local_x, local_y, msg, sticky_rect) )
-		{
-			return TRUE;
-		}
-	}
-	// Handle 'child' view.
-	if( mScrolledView )
-	{
-		local_x = x - mScrolledView->getRect().mLeft;
-		local_y = y - mScrolledView->getRect().mBottom;
-		if( mScrolledView->handleToolTip(local_x, local_y, msg, sticky_rect) )
-		{
-			return TRUE;
-		}
-	}
-
-	// Opaque
-	return TRUE;
-}
-
 void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const
 {
 	const LLRect& rect = mScrolledView->getRect();
@@ -500,12 +472,8 @@ bool LLScrollContainer::addChild(LLView* view, S32 tab_group)
 {
 	if (!mScrolledView)
 	{
-		//*TODO: Move LLFolderView to llui and enable this check
-// 		if (dynamic_cast<LLPanel*>(view) || dynamic_cast<LLContainerView*>(view) || dynamic_cast<LLScrollingPanelList*>(view) || dynamic_cast<LLFolderView*>(view))
-		{
-			// Use the first panel or container as the scrollable view (bit of a hack)
-			mScrolledView = view;
-		}
+		// Use the first panel or container as the scrollable view (bit of a hack)
+		mScrolledView = view;
 	}
 
 	bool ret_val = LLView::addChild(view, tab_group);
@@ -515,12 +483,6 @@ bool LLScrollContainer::addChild(LLView* view, S32 tab_group)
 	sendChildToFront( mScrollbar[VERTICAL] );
 
 	return ret_val;
-}
-
-const widget_registry_t& LLScrollContainer::getChildRegistry() const
-{
-	// a scroll container can contain any default widget
-	return LLDefaultWidgetRegistry::instance();
 }
 
 void LLScrollContainer::updateScroll()

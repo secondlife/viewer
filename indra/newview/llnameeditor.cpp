@@ -43,7 +43,7 @@
 #include "llstring.h"
 #include "llui.h"
 
-static LLDefaultWidgetRegistry::Register<LLNameEditor> r("name_editor");
+static LLDefaultChildRegistry::Register<LLNameEditor> r("name_editor");
 
 // statics
 std::set<LLNameEditor*> LLNameEditor::sInstances;

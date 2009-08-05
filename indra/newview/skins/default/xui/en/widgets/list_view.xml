@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<list_view
+  fg_selected_color="ListViewSelectedFgColor"
+  bg_selected_color="ListViewSelectedBgColor"
+  bg_color="ListViewBgColor"
+  />

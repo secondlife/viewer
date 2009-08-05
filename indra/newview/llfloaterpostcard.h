@@ -41,20 +41,20 @@
 class LLTextEditor;
 class LLLineEditor;
 class LLButton;
-class LLImageGL;
+class LLViewerTexture;
 class LLImageJPEG;
 
 class LLFloaterPostcard 
 : public LLFloater
 {
 public:
-	LLFloaterPostcard(LLImageJPEG* jpeg, LLImageGL *img, const LLVector2& img_scale, const LLVector3d& pos_taken_global);
+	LLFloaterPostcard(LLImageJPEG* jpeg, LLViewerTexture *img, const LLVector2& img_scale, const LLVector3d& pos_taken_global);
 	virtual ~LLFloaterPostcard();
 
 	virtual BOOL postBuild();
 	virtual void draw();
 
-	static LLFloaterPostcard* showFromSnapshot(LLImageJPEG *jpeg, LLImageGL *img, const LLVector2& img_scale, const LLVector3d& pos_taken_global);
+	static LLFloaterPostcard* showFromSnapshot(LLImageJPEG *jpeg, LLViewerTexture *img, const LLVector2& img_scale, const LLVector3d& pos_taken_global);
 
 	static void onClickCancel(void* data);
 	static void onClickSend(void* data);
@@ -73,7 +73,7 @@ public:
 protected:
 	
 	LLPointer<LLImageJPEG> mJPEGImage;
-	LLPointer<LLImageGL> mViewerImage;
+	LLPointer<LLViewerTexture> mViewerImage;
 	LLTransactionID mTransactionID;
 	LLAssetID mAssetID;
 	LLVector2 mImageScale;

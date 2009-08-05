@@ -31,8 +31,6 @@
  * $/LicenseInfo$
  */
 
-#define INSTANTIATE_GETCHILD_SCROLLLIST
-
 #include "linden_common.h"
 
 #include "llscrolllistctrl.h"
@@ -60,9 +58,7 @@
 #include "lltextbox.h"
 #include "llsdparam.h"
 
-template LLScrollListCtrl* LLView::getChild<LLScrollListCtrl>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-
-static LLDefaultWidgetRegistry::Register<LLScrollListCtrl> r("scroll_list");
+static LLDefaultChildRegistry::Register<LLScrollListCtrl> r("scroll_list");
 
 // local structures & classes.
 struct SortScrollListItem
@@ -106,11 +102,11 @@ struct SortScrollListItem
 //---------------------------------------------------------------------------
 
 LLScrollListCtrl::Contents::Contents()
-:	columns("columns"),
-	rows("rows")
+:	columns("column"),
+	rows("row")
 {
-	addSynonym(columns, "column");
-	addSynonym(rows, "row");
+	addSynonym(columns, "columns");
+	addSynonym(rows, "rows");
 }
 
 LLScrollListCtrl::Params::Params()
@@ -130,10 +126,11 @@ LLScrollListCtrl::Params::Params()
 	bg_selected_color("bg_selected_color"),
 	fg_disable_color("fg_disable_color"),
 	bg_writeable_color("bg_writeable_color"),
-	bg_read_only_color("bg_read_only_color"),
+	bg_readonly_color("bg_readonly_color"),
 	bg_stripe_color("bg_stripe_color"),
 	hovered_color("hovered_color"),
-	highlighted_color("highlighted_color")
+	highlighted_color("highlighted_color"),
+	contents("")
 {
 	name = "scroll_list";
 	mouse_opaque = true;
@@ -174,7 +171,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	mBackgroundVisible(p.background_visible),
 	mDrawStripes(p.draw_stripes),
 	mBgWriteableColor(p.bg_writeable_color()),
-	mBgReadOnlyColor(p.bg_read_only_color()),
+	mBgReadOnlyColor(p.bg_readonly_color()),
 	mBgSelectedColor(p.bg_selected_color()),
 	mBgStripeColor(p.bg_stripe_color()),
 	mFgSelectedColor(p.fg_selected_color()),
@@ -225,7 +222,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 		LLViewBorder::Params params;
 		params.name("dig border");
 		params.rect(border_rect);
-		params.bevel_type(LLViewBorder::BEVEL_IN);
+		params.bevel_style(LLViewBorder::BEVEL_IN);
 		mBorder = LLUICtrlFactory::create<LLViewBorder> (params);
 		addChild(mBorder);
 	}
@@ -1086,12 +1083,12 @@ LLScrollListItem* LLScrollListCtrl::addSeparator(EAddPosition pos)
 {
 	LLScrollListItem::Params separator_params;
 	separator_params.enabled(false);
-	LLScrollListCell::Params cell_params;
-	cell_params.type = "icon";
-	cell_params.value = "menu_separator";
-	cell_params.color = LLColor4(0.f, 0.f, 0.f, 0.7f);
-	cell_params.font_halign = LLFontGL::HCENTER;
-	separator_params.cells.add(cell_params);
+	LLScrollListCell::Params column_params;
+	column_params.type = "icon";
+	column_params.value = "menu_separator";
+	column_params.color = LLColor4(0.f, 0.f, 0.f, 0.7f);
+	column_params.font_halign = LLFontGL::HCENTER;
+	separator_params.columns.add(column_params);
 	return addRow( separator_params, pos );
 }
 
@@ -1253,7 +1250,7 @@ LLScrollListItem* LLScrollListCtrl::addStringUUIDItem(const std::string& item_te
 		LLScrollListItem::Params item_p;
 		item_p.enabled(enabled);
 		item_p.value(id);
-		item_p.cells.add().value(item_text).type("text");
+		item_p.columns.add().value(item_text).type("text");
 
 		return addRow( item_p, pos );
 	}
@@ -1516,19 +1513,12 @@ BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sti
 		if (hit_cell 
 			&& hit_cell->isText())
 		{
-
 			S32 rect_left = getColumnOffsetFromIndex(column_index) + mItemListRect.mLeft;
 			S32 rect_bottom = getRowOffsetFromIndex(getItemIndex(hit_item));
 			LLRect cell_rect;
 			cell_rect.setOriginAndSize(rect_left, rect_bottom, rect_left + columnp->getWidth(), mLineHeight);
 			// Convert rect local to screen coordinates
-			localPointToScreen( 
-				cell_rect.mLeft, cell_rect.mBottom, 
-				&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
-			localPointToScreen(
-				cell_rect.mRight, cell_rect.mTop, 
-				&(sticky_rect_screen->mRight), &(sticky_rect_screen->mTop) );
-
+			localRectToScreen(cell_rect, sticky_rect_screen);
 			msg = hit_cell->getValue().asString();
 		}
 		handled = TRUE;
@@ -1853,8 +1843,7 @@ S32 LLScrollListCtrl::getColumnOffsetFromIndex(S32 index)
 
 S32 LLScrollListCtrl::getRowOffsetFromIndex(S32 index)
 {
-	S32 row_bottom = ((mItemListRect.mTop - (index - mScrollLines)) * mLineHeight) 
-						- mLineHeight;
+	S32 row_bottom = (mItemListRect.mTop - ((index - mScrollLines + 1) * mLineHeight) );
 	return row_bottom;
 }
 
@@ -2647,8 +2636,8 @@ LLScrollListItem* LLScrollListCtrl::addRow(const LLScrollListItem::Params& item_
 	// Add any columns we don't already have
 	S32 col_index = 0;
 
-	for(LLInitParam::ParamIterator<LLScrollListCell::Params>::const_iterator itor = item_p.cells().begin();
-		itor != item_p.cells().end();
+	for(LLInitParam::ParamIterator<LLScrollListCell::Params>::const_iterator itor = item_p.columns().begin();
+		itor != item_p.columns().end();
 		++itor)
 	{
 		LLScrollListCell::Params cell_p = *itor;
@@ -2699,7 +2688,7 @@ LLScrollListItem* LLScrollListCtrl::addRow(const LLScrollListItem::Params& item_
 		col_index++;
 	}
 
-	if (item_p.cells().empty())
+	if (item_p.columns().empty())
 	{
 		if (mColumns.empty())
 		{
@@ -2754,7 +2743,7 @@ LLScrollListItem* LLScrollListCtrl::addSimpleElement(const std::string& value, E
 
 	LLScrollListItem::Params item_params;
 	item_params.value(entry_id);
-	item_params.cells.add()
+	item_params.columns.add()
 		.value(value)
 		.font(LLFontGL::getFontSansSerifSmall());
 	

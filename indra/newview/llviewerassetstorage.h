@@ -47,6 +47,7 @@ public:
 	LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
 				   LLVFS *vfs);
 
+	using LLAssetStorage::storeAssetData;
 	virtual void storeAssetData(
 		const LLTransactionID& tid,
 		LLAssetType::EType atype,

@@ -40,12 +40,11 @@
 #include "llfocusmgr.h"
 #include "llkeyboard.h"			// for the MASK constants
 #include "llcontrol.h"
-#include "llimagegl.h"
 #include "lluictrlfactory.h"
 
 #include <sstream>
 
-static LLDefaultWidgetRegistry::Register<LLMultiSlider> r("multi_slider_bar");
+static LLDefaultChildRegistry::Register<LLMultiSlider> r("multi_slider_bar");
 
 const F32 FLOAT_THRESHOLD = 0.00001f;
 

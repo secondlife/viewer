@@ -49,6 +49,7 @@ class LLFriendObserver;
 class LLInventoryModel;
 class LLInventoryObserver;
 class LLItemInfo;
+class LLLineEditor;
 class LLTabContainer;
 
 class LLFloaterWorldMap : public LLFloater
@@ -112,29 +113,24 @@ public:
 	void			teleport();
 
 protected:
-	static void		onPanBtn( void* userdata );
+	void			onGoHome();
 
-	static void		onGoHome(void* data);
+	void			onLandmarkComboPrearrange();
+	void			onLandmarkComboCommit();
 
-	void			onLandmarkComboPrearrange( );
-	static void		onLandmarkComboCommit( LLUICtrl* ctrl, void* data );
-
-	void			onAvatarComboPrearrange( );
-	static void		onAvatarComboCommit( LLUICtrl* ctrl, void* data );
+	void			onAvatarComboPrearrange();
+	void		    onAvatarComboCommit();
 
 	void			onCommitBackground();
 
 	void			onComboTextEntry( );
 	void			onSearchTextEntry( LLLineEditor* ctrl );
 
-	static void		onClearBtn(void*);
-	static void		onFlyBtn(void*);
-	static void		onClickTeleportBtn(void*);
-	static void		onShowTargetBtn(void*);
-	static void		onShowAgentBtn(void*);
-	static void		onCopySLURL(void*);
-
-	static void onCheckEvents(LLUICtrl* ctrl, void*);
+	void			onClearBtn();
+	void			onClickTeleportBtn();
+	void			onShowTargetBtn();
+	void			onShowAgentBtn();
+	void			onCopySLURL();
 
 	void			centerOnTarget(BOOL animate);
 	void			updateLocation();
@@ -143,7 +139,6 @@ protected:
 	void			fly();
 
 	void			buildLandmarkIDLists();
-	static void		onGoToLandmarkDialog(S32 option,void* userdata);
 	void			flyToLandmark();
 	void			teleportToLandmark();
 	void			setLandmarkVisited();
@@ -152,11 +147,11 @@ protected:
 	void			flyToAvatar();
 	void			teleportToAvatar();
 
-	void			updateSearchEnabled( );
+	void			updateSearchEnabled();
 	void			onLocationFocusChanged( LLFocusableElement* ctrl );
-	static void		onLocationCommit( void* userdata );
-	static void		onCommitLocation( LLUICtrl* ctrl, void* userdata );
-	static void		onCommitSearchResult( LLUICtrl* ctrl, void* userdata );
+	void		    onLocationCommit();
+	void			onCommitLocation();
+	void		    onCommitSearchResult();
 
 	void			cacheLandmarkPosition();
 
@@ -169,7 +164,6 @@ protected:
 
 	LLDynamicArray<LLUUID>	mLandmarkAssetIDList;
 	LLDynamicArray<LLUUID>	mLandmarkItemIDList;
-	BOOL					mHasLandmarkPosition;
 
 	static const LLUUID	sHomeID;
 

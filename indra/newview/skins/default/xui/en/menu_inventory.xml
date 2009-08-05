@@ -77,6 +77,14 @@
          parameter="category" />
     </menu_item_call>
     <menu_item_call
+     label="New Current"
+     layout="topleft"
+     name="New Current">
+        <menu_item_call.on_click
+         function="Inventory.DoCreate"
+         parameter="current" />
+    </menu_item_call>
+    <menu_item_call
      label="New Script"
      layout="topleft"
      name="New Script">
@@ -230,6 +238,91 @@
              parameter="eyes" />
         </menu_item_call>
     </menu>
+    <menu
+     label="Change Type"
+     layout="topleft"
+     name="Change Type">
+        <menu_item_call
+         label="Default"
+         layout="topleft"
+         name="Default">
+            <menu_item_call.on_click
+             function="Inventory.DoToSelected"
+             parameter="change_folder_type_default" />
+        </menu_item_call>
+        <menu_item_call
+         label="Gloves"
+         layout="topleft"
+         name="Gloves">
+            <menu_item_call.on_click
+             function="Inventory.DoToSelected"
+             parameter="change_folder_type_gloves" />
+        </menu_item_call>
+        <menu_item_call
+         label="Jacket"
+         layout="topleft"
+         name="Jacket">
+            <menu_item_call.on_click
+             function="Inventory.DoToSelected"
+             parameter="change_folder_type_jacket" />
+        </menu_item_call>
+        <menu_item_call
+         label="Pants"
+         layout="topleft"
+         name="Pants">
+            <menu_item_call.on_click
+             function="Inventory.DoToSelected"
+             parameter="change_folder_type_pants" />
+        </menu_item_call>
+        <menu_item_call
+         label="Shape"
+         layout="topleft"
+         name="Shape">
+            <menu_item_call.on_click
+             function="Inventory.DoToSelected"
+             parameter="change_folder_type_shape" />
+        </menu_item_call>
+        <menu_item_call
+         label="Shoes"
+         layout="topleft"
+         name="Shoes">
+            <menu_item_call.on_click
+             function="Inventory.DoToSelected"
+             parameter="change_folder_type_shoes" />
+        </menu_item_call>
+        <menu_item_call
+         label="Shirt"
+         layout="topleft"
+         name="Shirt">
+            <menu_item_call.on_click
+             function="Inventory.DoToSelected"
+             parameter="change_folder_type_shirt" />
+        </menu_item_call>
+        <menu_item_call
+         label="Skirt"
+         layout="topleft"
+         name="Skirt">
+            <menu_item_call.on_click
+             function="Inventory.DoToSelected"
+             parameter="change_folder_type_skirt" />
+        </menu_item_call>
+        <menu_item_call
+         label="Underpants"
+         layout="topleft"
+         name="Underpants">
+            <menu_item_call.on_click
+             function="Inventory.DoToSelected"
+             parameter="change_folder_type_underpants" />
+        </menu_item_call>
+        <menu_item_call
+         label="Undershirt"
+         layout="topleft"
+         name="Undershirt">
+            <menu_item_call.on_click
+             function="Inventory.DoToSelected"
+             parameter="change_folder_type_undershirt" />
+        </menu_item_call>
+    </menu>
     <menu_item_call
      label="Teleport"
      layout="topleft"
@@ -269,6 +362,14 @@
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
          parameter="restore" />
+    </menu_item_call>
+    <menu_item_call
+     label="Goto Link"
+     layout="topleft"
+     name="Goto Link">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="goto" />
     </menu_item_call>
     <menu_item_call
      label="Open"

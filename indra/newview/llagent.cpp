@@ -38,7 +38,6 @@
 #include "llagentlistener.h"
 #include "llanimationstates.h"
 #include "llcallingcard.h"
-#include "llchatbar.h"
 #include "llconsole.h"
 #include "lldrawable.h"
 #include "llfirstuse.h"
@@ -100,6 +99,7 @@
 #include "pipeline.h"
 #include "lltrans.h"
 #include "llbottomtray.h"
+#include "llnearbychatbar.h"
 #include "stringize.h"
 #include "llcapabilitylistener.h"
 
@@ -363,7 +363,7 @@ LLAgent::LLAgent() :
 	mAutoPilotFinishedCallback(NULL),
 	mAutoPilotCallbackData(NULL),
 	
-	mEffectColor(0.f, 1.f, 1.f, 1.f),
+	mEffectColor(LLColor4(0.f, 1.f, 1.f, 1.f)),
 
 	mHaveHomePosition(FALSE),
 	mHomeRegionHandle( 0 ),
@@ -417,7 +417,7 @@ void LLAgent::init()
 	mCameraZoomFraction = 1.f;
 	mTrackFocusObject = gSavedSettings.getBOOL("TrackFocusObject");
 
-	mEffectColor = gSavedSkinSettings.getColor4("EffectColor");
+	mEffectColor = LLUIColorTable::instance().getColor("EffectColor");
 
 	gSavedSettings.getControl("PreferredMaturity")->getValidateSignal()->connect(boost::bind(&LLAgent::validateMaturity, this, _2));
 	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLAgent::handleMaturity, this, _2));
@@ -2157,7 +2157,6 @@ void LLAgent::setBusy()
 	{
 		gBusyMenu->setLabel(LLTrans::getString("AvatarSetNotBusy"));
 	}
-	LLFloaterReg::getTypedInstance<LLFloaterMute>("mute")->updateButtons();
 }
 
 //-----------------------------------------------------------------------------
@@ -2171,7 +2170,6 @@ void LLAgent::clearBusy()
 	{
 		gBusyMenu->setLabel(LLTrans::getString("AvatarSetBusy"));
 	}
-	LLFloaterReg::getTypedInstance<LLFloaterMute>("mute")->updateButtons();
 }
 
 //-----------------------------------------------------------------------------
@@ -2494,7 +2492,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 void LLAgent::propagate(const F32 dt)
 {
 	// Update UI based on agent motion
-	LLFloaterMove *floater_move = LLFloaterMove::getInstance();
+	LLFloaterMove *floater_move = LLFloaterReg::getTypedInstance<LLFloaterMove>("moveview");
 	if (floater_move)
 	{
 		floater_move->mForwardButton   ->setToggleState( mAtKey > 0 || mWalkKey > 0 );
@@ -2728,7 +2726,7 @@ void LLAgent::startTyping()
 	{
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_START);
 	}
-	LLBottomTray::getInstance()->sendChatFromViewer("", CHAT_TYPE_START, FALSE);
+	LLNearbyChatBar::getInstance()->sendChatFromViewer("", CHAT_TYPE_START, FALSE);
 }
 
 //-----------------------------------------------------------------------------
@@ -2740,7 +2738,7 @@ void LLAgent::stopTyping()
 	{
 		clearRenderState(AGENT_STATE_TYPING);
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_STOP);
-		LLBottomTray::getInstance()->sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
+		LLNearbyChatBar::getInstance()->sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
 	}
 }
 
@@ -3056,21 +3054,25 @@ void LLAgent::updateCamera()
 	}
 
 	// Update UI with our camera inputs
-	LLFloaterCamera::getInstance()->mRotate->setToggleState(
-		mOrbitRightKey > 0.f,	// left
-		mOrbitUpKey > 0.f,		// top
-		mOrbitLeftKey > 0.f,	// right
-		mOrbitDownKey > 0.f);	// bottom
+	LLFloaterCamera* camera_instance = LLFloaterReg::getTypedInstance<LLFloaterCamera>("camera");
+	if(camera_instance)
+	{
+		camera_instance->mRotate->setToggleState(
+												 mOrbitRightKey > 0.f,	// left
+												 mOrbitUpKey > 0.f,		// top
+												 mOrbitLeftKey > 0.f,	// right
+												 mOrbitDownKey > 0.f);	// bottom
 
-	LLFloaterCamera::getInstance()->mZoom->setToggleState( 
-		mOrbitInKey > 0.f,		// top
-		mOrbitOutKey > 0.f);	// bottom
+	    camera_instance->mZoom->setToggleState( 
+											   mOrbitInKey > 0.f,		// top
+											   mOrbitOutKey > 0.f);	// bottom
 
-	LLFloaterCamera::getInstance()->mTrack->setToggleState(
-		mPanLeftKey > 0.f,		// left
-		mPanUpKey > 0.f,		// top
-		mPanRightKey > 0.f,		// right
-		mPanDownKey > 0.f);		// bottom
+		camera_instance->mTrack->setToggleState(
+												mPanLeftKey > 0.f,		// left
+												mPanUpKey > 0.f,		// top
+												mPanRightKey > 0.f,		// right
+												mPanDownKey > 0.f);		// bottom
+	}
 
 	// Handle camera movement based on keyboard.
 	const F32 ORBIT_OVER_RATE = 90.f * DEG_TO_RAD;			// radians per second
@@ -5555,7 +5557,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 			!input.has("body") )
 		{
 			//what to do with badly formed message?
-			response->status(400);
+			response->statusUnknownError(400);
 			response->result(LLSD("Invalid message parameters"));
 		}
 
@@ -5628,7 +5630,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 		else
 		{
 			//what to do with badly formed message?
-			response->status(400);
+			response->statusUnknownError(400);
 			response->result(LLSD("Invalid message parameters"));
 		}
 	}
@@ -6074,7 +6076,7 @@ bool LLAgent::teleportCore(bool is_local)
 	LLFloaterReg::hideInstance("search");
 
 	// hide land floater too - it'll be out of date
-	LLFloaterLand::hideInstance();
+	LLFloaterReg::hideInstance("about_land");
 
 	LLViewerParcelMgr::getInstance()->deselectLand();
 
@@ -6448,7 +6450,7 @@ void LLAgent::sendAgentSetAppearance()
 				const LLWearable* wearable = gAgentWearables.getWearable(wearable_type,0);
 				if (wearable)
 				{
-					hash ^= wearable->getID();
+					hash ^= wearable->getAssetID();
 				}
 			}
 			if (hash.notNull())
@@ -6576,49 +6578,6 @@ void LLAgent::parseTeleportMessages(const std::string& xml_filename)
 			} //end if ( message exists and has a name)
 		} //end for (all message in set)
 	}//end for (all message sets in xml file)
-}
-
-// static
-void LLAgent::createLandmarkHere()
-{
-	std::string landmark_name, landmark_desc;
-
-	gAgent.buildLocationString(landmark_name, LLAgent::LOCATION_FORMAT_LANDMARK);
-	gAgent.buildLocationString(landmark_desc, LLAgent::LOCATION_FORMAT_FULL);
-	LLUUID folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
-
-	createLandmarkHere(landmark_name, landmark_desc, folder_id);
-}
-
-// static
-void LLAgent::createLandmarkHere(const std::string& name, const std::string& desc, const LLUUID& folder_id)
-{
-	LLViewerRegion* agent_region = gAgent.getRegion();
-	if(!agent_region)
-	{
-		llwarns << "No agent region" << llendl;
-		return;
-	}
-	LLParcel* agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-	if (!agent_parcel)
-	{
-		llwarns << "No agent parcel" << llendl;
-		return;
-	}
-	if (!agent_parcel->getAllowLandmark()
-		&& !LLViewerParcelMgr::isParcelOwnedByAgent(agent_parcel, GP_LAND_ALLOW_LANDMARK))
-	{
-		LLNotifications::instance().add("CannotCreateLandmarkNotOwner");
-		return;
-	}
-
-	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-						  folder_id, LLTransactionID::tnull,
-						  name, desc,
-						  LLAssetType::AT_LANDMARK,
-						  LLInventoryType::IT_LANDMARK,
-						  NOT_WEARABLE, PERM_ALL, 
-						  NULL);
 }
 
 void LLAgent::sendAgentUpdateUserInfo(bool im_via_email, const std::string& directory_visibility )

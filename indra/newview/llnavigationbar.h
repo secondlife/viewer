@@ -40,7 +40,7 @@ extern S32 NAVIGATION_BAR_HEIGHT;
 class LLButton;
 class LLLocationInputCtrl;
 class LLMenuGL;
-class LLLineEditor;
+class LLSearchEditor;
 
 /**
  * Web browser-like navigation bar.
@@ -59,14 +59,15 @@ public:
 	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 
 	void handleLoginComplete();
-
+	void clearHistoryCache();
+	
 private:
 	LLNavigationBar();
 
 	void rebuildTeleportHistoryMenu();
 	void showTeleportHistoryMenu();
 	void invokeSearch(std::string search_text);
-	
+
 	// callbacks
 	bool onLocationContextMenuItemEnabled(const LLSD& userdata);
 	void onLocationContextMenuItemClicked(const LLSD& userdata);
@@ -79,7 +80,6 @@ private:
 	void onHelpButtonClicked();
 	void onLocationSelection();
 	void onLocationPrearrange(const LLSD& data);
-	void onLocationHistoryLoaded();
 	void onSearchCommit();
 	void onRegionNameResponse(
 			std::string typed_location,
@@ -95,9 +95,9 @@ private:
 	LLButton*				mBtnBack;
 	LLButton*				mBtnForward;
 	LLButton*				mBtnHome;
-	LLButton*				mBtnHelp;
-	LLLineEditor*			mLeSearch;
+	LLSearchEditor*			mLeSearch;
 	LLLocationInputCtrl*	mCmbLocation;
+	bool					mPurgeTPHistoryItems;
 };
 
 #endif

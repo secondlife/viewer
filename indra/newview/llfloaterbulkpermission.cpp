@@ -58,22 +58,22 @@
 
 
 LLFloaterBulkPermission::LLFloaterBulkPermission(const LLSD& seed) 
-:	LLFloater(),
+:	LLFloater(seed),
 	mDone(FALSE)
 {
 	mID.generate();
-	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_bulk_perms.xml");
+//	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_bulk_perms.xml");
+	mCommitCallbackRegistrar.add("BulkPermission.Apply",	boost::bind(&LLFloaterBulkPermission::onApplyBtn, this));
+	mCommitCallbackRegistrar.add("BulkPermission.Close",	boost::bind(&LLFloaterBulkPermission::onCloseBtn, this));
+	mCommitCallbackRegistrar.add("BulkPermission.CheckAll",	boost::bind(&LLFloaterBulkPermission::onCheckAll, this));
+	mCommitCallbackRegistrar.add("BulkPermission.UncheckAll",	boost::bind(&LLFloaterBulkPermission::onUncheckAll, this));
+	mCommitCallbackRegistrar.add("BulkPermission.CommitCopy",	boost::bind(&LLFloaterBulkPermission::onCommitCopy, this));
 }
 
 BOOL LLFloaterBulkPermission::postBuild()
 {
-	childSetEnabled("next_owner_transfer", gSavedSettings.getBOOL("BulkChangeNextOwnerCopy"));
-	childSetAction("help", onHelpBtn, this);
-	childSetAction("apply", onApplyBtn, this);
-	childSetAction("close", onCloseBtn, this);
-	childSetAction("check_all", onCheckAll, this);
-	childSetAction("check_none", onUncheckAll, this);
-	childSetCommitCallback("next_owner_copy", &onCommitCopy, this);
+//	childSetAction("help", onHelpBtn, this);  // this is not in use
+
 	return TRUE;
 }
 
@@ -152,34 +152,32 @@ void LLFloaterBulkPermission::inventoryChanged(LLViewerObject* viewer_object,
 	}
 }
 
-void LLFloaterBulkPermission::onApplyBtn(void* user_data)
+void LLFloaterBulkPermission::onApplyBtn()
 {
-	LLFloaterBulkPermission* self = static_cast<LLFloaterBulkPermission*>(user_data);
-	self->doApply();
+	doApply();
 }
 
-void LLFloaterBulkPermission::onHelpBtn(void* user_data)
-{
-	LLNotifications::instance().add("HelpBulkPermission");
-}
+// angela -- this is not in use
+//void LLFloaterBulkPermission::onHelpBtn(void* user_data)
+//{
+//	LLNotifications::instance().add("HelpBulkPermission");
+//}
 
-void LLFloaterBulkPermission::onCloseBtn(void* user_data)
+void LLFloaterBulkPermission::onCloseBtn()
 {
-	LLFloaterBulkPermission* self = static_cast<LLFloaterBulkPermission*>(user_data);
-	self->onClose(false);
+	onClose(false);
 }
 
 //static 
-void LLFloaterBulkPermission::onCommitCopy(LLUICtrl* ctrl, void* data)
+void LLFloaterBulkPermission::onCommitCopy()
 {
-	LLFloaterBulkPermission* self = static_cast<LLFloaterBulkPermission*>(data);
 	// Implements fair use
 	BOOL copyable = gSavedSettings.getBOOL("BulkChangeNextOwnerCopy");
 	if(!copyable)
 	{
 		gSavedSettings.setBOOL("BulkChangeNextOwnerTransfer", TRUE);
 	}
-	LLCheckBoxCtrl* xfer = self->getChild<LLCheckBoxCtrl>("next_owner_transfer");
+	LLCheckBoxCtrl* xfer =getChild<LLCheckBoxCtrl>("next_owner_transfer");
 	xfer->setEnabled(copyable);
 }
 
@@ -252,7 +250,6 @@ void LLFloaterBulkPermission::doCheckUncheckAll(BOOL check)
 	gSavedSettings.setBOOL("BulkChangeIncludeBodyParts" , check);
 	gSavedSettings.setBOOL("BulkChangeIncludeClothing"  , check);
 	gSavedSettings.setBOOL("BulkChangeIncludeGestures"  , check);
-	gSavedSettings.setBOOL("BulkChangeIncludeLandmarks" , check);
 	gSavedSettings.setBOOL("BulkChangeIncludeNotecards" , check);
 	gSavedSettings.setBOOL("BulkChangeIncludeObjects"   , check);
 	gSavedSettings.setBOOL("BulkChangeIncludeScripts"   , check);
@@ -275,7 +272,6 @@ void LLFloaterBulkPermission::handleInventory(LLViewerObject* viewer_obj, Invent
 			( asstype == LLAssetType::AT_BODYPART  && gSavedSettings.getBOOL("BulkChangeIncludeBodyParts" )) ||
 			( asstype == LLAssetType::AT_CLOTHING  && gSavedSettings.getBOOL("BulkChangeIncludeClothing"  )) ||
 			( asstype == LLAssetType::AT_GESTURE   && gSavedSettings.getBOOL("BulkChangeIncludeGestures"  )) ||
-			( asstype == LLAssetType::AT_LANDMARK  && gSavedSettings.getBOOL("BulkChangeIncludeLandmarks" )) ||
 			( asstype == LLAssetType::AT_FAVORITE  && gSavedSettings.getBOOL("BulkChangeIncludeFavourite" )) ||
 			( asstype == LLAssetType::AT_NOTECARD  && gSavedSettings.getBOOL("BulkChangeIncludeNotecards" )) ||
 			( asstype == LLAssetType::AT_OBJECT    && gSavedSettings.getBOOL("BulkChangeIncludeObjects"   )) ||

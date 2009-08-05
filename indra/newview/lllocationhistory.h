@@ -46,14 +46,16 @@ class LLLocationHistory: public LLSingleton<LLLocationHistory>
 public:
 	typedef std::vector<std::string>	location_list_t;
 	typedef boost::function<void()>		loaded_callback_t;
+	typedef boost::signals2::signal<void()> loaded_signal_t;
 	
 	LLLocationHistory();
 	
 	void					addItem(std::string item);
+	void                    removeItems();
 	size_t					getItemCount() const	{ return mItems.size(); }
 	const location_list_t&	getItems() const		{ return mItems; }
 	bool					getMatchingItems(std::string substring, location_list_t& result) const;
-	void					setLoadedCallback(loaded_callback_t cb) { mLoadedCallback = cb; }
+	boost::signals2::connection	setLoadedCallback(loaded_callback_t cb) { return mLoadedSignal.connect(cb); }
 	
 	void					save() const;
 	void					load();
@@ -62,7 +64,7 @@ public:
 private:
 	std::vector<std::string>	mItems;
 	std::string					mFilename; /// File to store the history to.
-	loaded_callback_t			mLoadedCallback;
+	loaded_signal_t				mLoadedSignal;
 };
 
 #endif

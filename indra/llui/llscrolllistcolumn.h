@@ -121,7 +121,7 @@ public:
 			Alternative<F32>		relative_width;
 
 			Width()
-			:	dynamic_width("dynamicwidth", false),
+			:	dynamic_width("dynamic_width", false),
 				pixel_width("width"),
 				relative_width("relative_width", -1.f)
 			{

@@ -121,21 +121,24 @@
      label="Direct Zoom"
      layout="topleft"
      left="185"
-     name="ZoomDirect" />
+     name="ZoomDirect"
+     width="60" />
     <check_box
      bottom_delta="0"
      control_name="Cursor3D"
      label="3D Cursor"
      layout="topleft"
      left="310"
-     name="Cursor3D" />
+     name="Cursor3D"
+     width="60" />
     <check_box
      bottom_delta="0"
      control_name="AutoLeveling"
      label="Auto Level"
      layout="topleft"
      left="420"
-     name="AutoLeveling" />
+     name="AutoLeveling"
+     width="60" />
     <text
      type="string"
      length="1"

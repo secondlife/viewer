@@ -53,14 +53,16 @@
 
 const U32 MAX_STRING_LENGTH = 32;
 
-static LLDefaultWidgetRegistry::Register<LLSpinCtrl> r2("spinner");
+static LLDefaultChildRegistry::Register<LLSpinCtrl> r2("spinner");
 
 LLSpinCtrl::Params::Params()
 :	label_width("label_width"),
 	decimal_digits("decimal_digits"),
 	allow_text_entry("allow_text_entry", true),
 	text_enabled_color("text_enabled_color"),
-	text_disabled_color("text_disabled_color")
+	text_disabled_color("text_disabled_color"),
+	up_button("up_button"),
+	down_button("down_button")
 {}
 
 LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
@@ -103,38 +105,28 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 	S32 btn_right = btn_left + spinctrl_btn_width;
 	
 	// Spin buttons
-	LLButton::Params up_button_params;
-	up_button_params.name(std::string("SpinCtrl Up"));
+	LLButton::Params up_button_params(p.up_button);
 	up_button_params.rect
 					.left(btn_left)
 					.top(top)
 					.right(btn_right)
 					.height(spinctrl_btn_height);
-	up_button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM);
-	up_button_params.image_unselected.name("spin_up_out_blue.tga");
-	up_button_params.image_selected.name("spin_up_in_blue.tga");
 	up_button_params.click_callback.function(boost::bind(&LLSpinCtrl::onUpBtn, this, _2));
 	up_button_params.mouse_held_callback.function(boost::bind(&LLSpinCtrl::onUpBtn, this, _2));
-	up_button_params.tab_stop(false);
 
 	mUpBtn = LLUICtrlFactory::create<LLButton>(up_button_params);
 	addChild(mUpBtn);
 
 	LLRect down_rect( btn_left, top - spinctrl_btn_height, btn_right, bottom );
 
-	LLButton::Params down_button_params;
-	down_button_params.name(std::string("SpinCtrl Down"));
+	LLButton::Params down_button_params(p.down_button);
 	down_button_params.rect
 					.left(btn_left)
 					.right(btn_right)
 					.bottom(bottom)
 					.height(spinctrl_btn_height);
-	down_button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM);
-	down_button_params.image_unselected.name("spin_down_out_blue.tga");
-	down_button_params.image_selected.name("spin_down_in_blue.tga");
 	down_button_params.click_callback.function(boost::bind(&LLSpinCtrl::onDownBtn, this, _2));
 	down_button_params.mouse_held_callback.function(boost::bind(&LLSpinCtrl::onDownBtn, this, _2));
-	down_button_params.tab_stop(false);
 	mDownBtn = LLUICtrlFactory::create<LLButton>(down_button_params);
 	addChild(mDownBtn);
 

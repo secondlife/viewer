@@ -102,9 +102,27 @@ public:
 		BUTTON_MINIMIZE,
 		BUTTON_TEAR_OFF,
 		BUTTON_EDIT,
+		BUTTON_DOCK,
+		BUTTON_UNDOCK,
 		BUTTON_COUNT
 	};
 	
+	typedef boost::function<void (LLUICtrl* ctrl, const LLSD& param)> open_callback_t;
+	typedef boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param)> open_signal_t;
+	
+	typedef boost::function<void (LLUICtrl* ctrl, const LLSD& param, bool app_quitting)> close_callback_t;
+	typedef boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param, bool app_quitting)> close_signal_t;
+
+	struct OpenCallbackParam : public LLInitParam::Block<OpenCallbackParam, CallbackParam >
+	{
+		Optional<open_callback_t> function;
+	};
+
+	struct CloseCallbackParam : public LLInitParam::Block<CloseCallbackParam, CallbackParam >
+	{
+		Optional<close_callback_t> function;
+	};
+
 	struct Params 
 	:	public LLInitParam::Block<Params, LLPanel::Params>
 	{
@@ -119,26 +137,13 @@ public:
 								can_drag_on_left,
 								can_tear_off,
 								save_rect,
-								save_visibility;
-
-		Params() :
-			title("title"),
-			short_title("short_title"),
-			single_instance("single_instance", false),
-			auto_tile("auto_tile", false),
-			can_resize("can_resize", false),
-			can_minimize("can_minimize", true),
-			can_close("can_close", true),
-			can_drag_on_left("can_drag_on_left", false),
-			can_tear_off("can_tear_off", true),
-			save_rect("save_rect", false),
-			save_visibility("save_visibility", false)
-		{
-			name = "floater";
-			// defaults that differ from LLPanel:
-			background_visible = true;
-			visible = false;
-		}
+								save_visibility,
+								can_dock;
+		
+		Optional<OpenCallbackParam> open_callback;
+		Optional<CloseCallbackParam> close_callback;
+		
+		Params();
 	};
 	
 	// use this to avoid creating your own default LLFloater::Param instance
@@ -246,6 +251,12 @@ public:
 	const LLSD& 	getKey() { return mKey; }
 	BOOL		 	matchesKey(const LLSD& key) { return mSingleInstance || KeyCompare::equate(key, mKey); }
 
+	bool            isDockable() const { return mCanDock; }
+	void            setCanDock(bool b);
+
+	bool            isDocked() const { return mDocked; }
+	virtual void    setDocked(bool docked, bool pop_on_undock = true);
+
 	// Return a closeable floater, if any, given the current focus.
 	static LLFloater* getClosableFloaterFromFocus(); 
 
@@ -262,6 +273,7 @@ public:
 	static void		onClickMinimize(LLFloater* floater);
 	static void		onClickTearOff(LLFloater* floater);
 	static void		onClickEdit(LLFloater* floater);
+	static void     onClickDock(LLFloater* floater);
 
 	static void		setFloaterHost(LLMultiFloater* hostp) {sHostp = hostp; }
 	static void		setEditModeEnabled(BOOL enable);
@@ -289,8 +301,10 @@ protected:
 
 	void			destroy() { die(); } // Don't call this directly.  You probably want to call close(). JC
 
+	void			initOpenCallback(const OpenCallbackParam& cb, open_signal_t& sig);
+	void			initCloseCallback(const CloseCallbackParam& cb, close_signal_t& sig);
+
 private:
-	
 	void			setForeground(BOOL b);	// called only by floaterview
 	void			cleanupHandles(); // remove handles to dead floaters
 	void			createMinimizeButton();
@@ -299,18 +313,24 @@ private:
 	BOOL			offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButtons index);
 	void			addResizeCtrls();
 	void 			addDragHandle();
-	
+
+public:
+	class OpenCallbackRegistry : public CallbackRegistry<open_callback_t, OpenCallbackRegistry> {};
+	class CloseCallbackRegistry : public CallbackRegistry<close_callback_t, CloseCallbackRegistry> {};
+
 protected:
 	std::string		mRectControl;
 	std::string		mVisibilityControl;
-	
+	open_signal_t   mOpenSignal;
+	close_signal_t  mCloseSignal;
 	LLSD			mKey;				// Key used for retrieving instances; set (for now) by LLFLoaterReg
-	
-private:
-	LLRect			mExpandedRect;
+
 	LLDragHandle*	mDragHandle;
 	LLResizeBar*	mResizeBar[4];
 	LLResizeHandle*	mResizeHandle[4];
+
+private:
+	LLRect			mExpandedRect;
 	
 	LLUIString		mTitle;
 	LLUIString		mShortTitle;
@@ -349,10 +369,13 @@ private:
 	LLHandle<LLFloater> mHostHandle;
 	LLHandle<LLFloater> mLastHostHandle;
 
+	bool            mCanDock;
+	bool            mDocked;
+
 	static LLMultiFloater* sHostp;
 	static BOOL		sEditModeEnabled;
+	static BOOL		sQuitting;
 	static std::string	sButtonActiveImageNames[BUTTON_COUNT];
-	static std::string	sButtonInactiveImageNames[BUTTON_COUNT];
 	static std::string	sButtonPressedImageNames[BUTTON_COUNT];
 	static std::string	sButtonNames[BUTTON_COUNT];
 	static std::string	sButtonToolTips[BUTTON_COUNT];
@@ -377,6 +400,7 @@ private:
 	LLFloaterNotificationContext* mNotificationContext;
 	LLRootHandle<LLFloater>		mHandle;	
 };
+
 
 /////////////////////////////////////////////////////////////
 // LLFloaterView
@@ -441,9 +465,6 @@ private:
 	S32				mSnapOffsetRight;
 };
 
-// singleton implementation for floaters
-// https://wiki.lindenlab.com/mediawiki/index.php?title=LLFloaterSingleton&oldid=164990
-
 //*******************************************************
 //* TO BE DEPRECATED
 //*******************************************************
@@ -460,19 +481,20 @@ public:
 	static void hide(LLFloater* instance, const LLSD& key);
 };
 
-
-// singleton implementation for floaters (provides visibility policy)
-// https://wiki.lindenlab.com/mediawiki/index.php?title=LLFloaterSingleton&oldid=164990
-
-template <class T> class LLFloaterSingleton : public LLUISingleton<T, VisibilityPolicy<LLFloater> >
-{
-};
-
 //
 // Globals
 //
 
 extern LLFloaterView* gFloaterView;
+
+namespace LLInitParam
+{   
+    template<> 
+	bool ParamCompare<LLFloater::close_callback_t>::equals(
+		const LLFloater::close_callback_t &a, 
+		const LLFloater::close_callback_t &b); 
+}
+
 
 #endif  // LL_FLOATER_H
 

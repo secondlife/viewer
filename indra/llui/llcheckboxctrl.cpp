@@ -31,8 +31,6 @@
  */
 
 // The mutants are coming!
-#define INSTANTIATE_GETCHILD_CHECKBOX
-
 #include "linden_common.h"
 
 #include "llcheckboxctrl.h"
@@ -50,9 +48,7 @@
 
 const U32 MAX_STRING_LENGTH = 10;
 
-template LLCheckBoxCtrl* LLView::getChild<LLCheckBoxCtrl>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-
-static LLDefaultWidgetRegistry::Register<LLCheckBoxCtrl> r("check_box");
+static LLDefaultChildRegistry::Register<LLCheckBoxCtrl> r("check_box");
 
 LLCheckBoxCtrl::Params::Params()
 :	text_enabled_color("text_enabled_color"),

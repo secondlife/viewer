@@ -57,6 +57,7 @@
 #include "lldraghandle.h"
 #include "lllayoutstack.h"
 #include "llviewermenu.h"
+#include "llrngwriter.h"
 
 // Boost (for linux/unix command-line execv)
 #include <boost/tokenizer.hpp>
@@ -77,10 +78,12 @@ std::string LLFloaterUIPreview::mSavedDiffPath	  = std::string("");
 static const S32 PRIMARY_FLOATER = 1;
 static const S32 SECONDARY_FLOATER = 2;
 
+static LLDefaultChildRegistry::Register<LLOverlapPanel> register_overlap_panel("overlap_panel");
+
 static std::string get_xui_dir()
 {
 	std::string delim = gDirUtilp->getDirDelimiter();
-	return gDirUtilp->getAppRODataDir() + delim + std::string("skins") + delim + "default" + delim + "xui" + delim;
+	return gDirUtilp->getSkinBaseDir() + delim + "default" + delim + "xui" + delim;
 }
 
 // Localization reset forcer -- ensures that when localization is temporarily changed for previewed floater, it is reset
@@ -186,11 +189,6 @@ BOOL LLFadeEventTimer::tick()
 	return FALSE;
 }
 
-void* create_overlap_panel(void* data)
-{
-	return new LLOverlapPanel();
-}
-
 // Constructor
 LLFloaterUIPreview::LLFloaterUIPreview(const LLSD& key)
   : LLFloater(key),
@@ -204,7 +202,6 @@ LLFloaterUIPreview::LLFloaterUIPreview(const LLSD& key)
 
 {
 	sInstance = this;
-	mFactoryMap["overlap_panel"] = LLCallbackMap(create_overlap_panel, NULL);
 	// called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_ui_preview.xml");
 }
 
@@ -263,6 +260,8 @@ BOOL LLFloaterUIPreview::postBuild()
 	mToggleHighlightButton->setClickedCallback(onClickToggleDiffHighlighting, NULL);
 	main_panel_tmp->getChild<LLButton>("save_floater")->setClickedCallback(onClickSaveFloater, (void*)&PRIMARY_FLOATER);
 	main_panel_tmp->getChild<LLButton>("save_all_floaters")->setClickedCallback(onClickSaveAll, (void*)&PRIMARY_FLOATER);
+
+	getChild<LLButton>("export_schema")->setClickedCallback(boost::bind(&LLFloaterUIPreview::onClickExportSchema, this));
 
 	// get pointers to text fields
 	mEditorPathTextBox = editor_panel_tmp->getChild<LLLineEditor>("executable_path_field");
@@ -353,6 +352,37 @@ void LLFloaterUIPreview::onLanguageComboSelect(LLUICtrl* ctrl)
 	}
 
 }
+
+void LLFloaterUIPreview::onClickExportSchema()
+{
+	gViewerWindow->setCursor(UI_CURSOR_WAIT);
+	std::string template_path = gDirUtilp->getExpandedFilename(LL_PATH_DEFAULT_SKIN, "xui", "schema");
+
+	typedef LLWidgetTypeRegistry::Registrar::registry_map_t::const_iterator registry_it;
+	registry_it end_it = LLWidgetTypeRegistry::defaultRegistrar().endItems();
+	for(registry_it it = LLWidgetTypeRegistry::defaultRegistrar().beginItems();
+		it != end_it;
+		++it)
+	{
+		std::string widget_name = it->first;
+		const LLInitParam::BaseBlock& block = 
+			(*LLDefaultParamBlockRegistry::instance().getValue(*LLWidgetTypeRegistry::instance().getValue(widget_name)))();
+		LLXMLNodePtr root_nodep = new LLXMLNode();
+		LLRNGWriter().writeRNG(widget_name, root_nodep, block, "http://www.lindenlab.com/xui");
+
+		std::string file_name(template_path + gDirUtilp->getDirDelimiter() + widget_name + ".rng");
+
+		LLFILE* rng_file = LLFile::fopen(file_name.c_str(), "w");
+		{
+			LLXMLNode::writeHeaderToFile(rng_file);
+			const bool use_type_decorations = false;
+			root_nodep->writeToFile(rng_file, std::string(), use_type_decorations);
+		}
+		fclose(rng_file);
+	}
+	gViewerWindow->setCursor(UI_CURSOR_ARROW);
+}
+
 
 // Close click handler -- delete my displayed floater if it exists
 void LLFloaterUIPreview::onClose(bool app_quitting)
@@ -599,7 +629,8 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 				std::string full_filename = append_new_to_xml_filename(path);
 				LLFILE* floater_temp = LLFile::fopen(full_filename.c_str(), "w");
 				LLXMLNode::writeHeaderToFile(floater_temp);
-				floater_write->writeToFile(floater_temp);
+				const bool use_type_decorations = false;
+				floater_write->writeToFile(floater_temp, std::string(), use_type_decorations);
 				fclose(floater_temp);
 			}
 		}
@@ -614,14 +645,15 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		if (save)
 		{	
 			LLXMLNodePtr menu_write = new LLXMLNode();	
-			LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(path, gMenuHolder, menu_write);
+			LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(path, gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance(), menu_write);
 
 			if (!menu_write->isNull())
 			{
 				std::string full_filename = append_new_to_xml_filename(path);
 				LLFILE* menu_temp = LLFile::fopen(full_filename.c_str(), "w");
 				LLXMLNode::writeHeaderToFile(menu_temp);
-				menu_write->writeToFile(menu_temp);
+				const bool use_type_decorations = false;
+				menu_write->writeToFile(menu_temp, std::string(), use_type_decorations);
 				fclose(menu_temp);
 			}
 
@@ -645,7 +677,8 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 				std::string full_filename = append_new_to_xml_filename(path);
 				LLFILE* panel_temp = LLFile::fopen(full_filename.c_str(), "w");
 				LLXMLNode::writeHeaderToFile(panel_temp);
-				panel_write->writeToFile(panel_temp);
+				const bool use_type_decorations = false;
+				panel_write->writeToFile(panel_temp, std::string(), use_type_decorations);
 				fclose(panel_temp);
 			}
 		}
@@ -778,6 +811,10 @@ void LLFloaterUIPreview::onClickEditFloater(void*)
 	if(std::string("") != path_in_textfield)	// if the text field is not emtpy, use its path
 	{
 		exe_path_char = path_in_textfield.c_str();
+	}
+	else if (!LLUI::sSettingGroups["config"]->getString("XUIEditor").empty())
+	{
+		exe_path_char = LLUI::sSettingGroups["config"]->getString("XUIEditor").c_str();
 	}
 	else									// otherwise use the path specified by the environment variable
 	{

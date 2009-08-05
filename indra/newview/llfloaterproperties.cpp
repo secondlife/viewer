@@ -44,7 +44,7 @@
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llfloatergroupinfo.h"
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
 #include "llradiogroup.h"
@@ -303,12 +303,14 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	// do not enable the UI for incomplete items.
 	LLViewerInventoryItem* i = (LLViewerInventoryItem*)item;
 	BOOL is_complete = i->isComplete();
-
+	const BOOL cannot_restrict_permissions = LLInventoryType::cannotRestrictPermissions(i->getInventoryType());
+	const BOOL is_calling_card = (i->getInventoryType() == LLInventoryType::IT_CALLINGCARD);
 	const LLPermissions& perm = item->getPermissions();
 	const BOOL can_agent_manipulate = gAgent.allowOperation(PERM_OWNER, perm, 
 															GP_OBJECT_MANIPULATE);
 	const BOOL can_agent_sell = gAgent.allowOperation(PERM_OWNER, perm, 
-													  GP_OBJECT_SET_SALE);
+													  GP_OBJECT_SET_SALE) &&
+		!cannot_restrict_permissions;
 	const BOOL is_link = LLAssetType::lookupIsLinkType(i->getActualType());
 
 	// You need permission to modify the object to modify an inventory
@@ -325,11 +327,11 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	// ITEM NAME & DESC //
 	//////////////////////
 	BOOL is_modifiable = gAgent.allowOperation(PERM_MODIFY, perm,
-												GP_OBJECT_MANIPULATE)
-							&& is_obj_modify && is_complete;
+											   GP_OBJECT_MANIPULATE)
+		&& is_obj_modify && is_complete;
 
 	childSetEnabled("LabelItemNameTitle",TRUE);
-	childSetEnabled("LabelItemName",is_modifiable);
+	childSetEnabled("LabelItemName",is_modifiable && !is_calling_card); // for now, don't allow rename of calling cards
 	childSetText("LabelItemName",item->getName());
 	childSetEnabled("LabelItemDescTitle",TRUE);
 	childSetEnabled("LabelItemDesc",is_modifiable);
@@ -492,7 +494,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	/////////////
 
 	// Check for ability to change values.
-	if (is_link)
+	if (is_link || cannot_restrict_permissions)
 	{
 		childSetEnabled("CheckShareWithGroup",FALSE);
 		childSetEnabled("CheckEveryoneCopy",FALSE);
@@ -558,9 +560,9 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 		childSetEnabled("CheckPurchase",is_complete);
 
 		childSetEnabled("NextOwnerLabel",TRUE);
-		childSetEnabled("CheckNextOwnerModify",base_mask & PERM_MODIFY);
-		childSetEnabled("CheckNextOwnerCopy",base_mask & PERM_COPY);
-		childSetEnabled("CheckNextOwnerTransfer",next_owner_mask & PERM_COPY);
+		childSetEnabled("CheckNextOwnerModify",(base_mask & PERM_MODIFY) && !cannot_restrict_permissions);
+		childSetEnabled("CheckNextOwnerCopy",(base_mask & PERM_COPY) && !cannot_restrict_permissions);
+		childSetEnabled("CheckNextOwnerTransfer",(next_owner_mask & PERM_COPY) && !cannot_restrict_permissions);
 
 		childSetEnabled("RadioSaleType",is_complete && is_for_sale);
 		childSetEnabled("TextPrice",is_complete && is_for_sale);
@@ -611,7 +613,7 @@ void LLFloaterProperties::onClickCreator(void* data)
 	if(!item) return;
 	if(!item->getCreatorUUID().isNull())
 	{
-		LLFriendActions::showProfile(item->getCreatorUUID());
+		LLAvatarActions::showProfile(item->getCreatorUUID());
 	}
 }
 
@@ -628,7 +630,7 @@ void LLFloaterProperties::onClickOwner(void* data)
 	}
 	else
 	{
-		LLFriendActions::showProfile(item->getPermissions().getOwner());
+		LLAvatarActions::showProfile(item->getPermissions().getOwner());
 	}
 }
 
@@ -658,6 +660,7 @@ void LLFloaterProperties::onCommitName(LLUICtrl* ctrl, void* data)
 		{
 			new_item->updateServer(FALSE);
 			gInventory.updateItem(new_item);
+			gInventory.updateLinkedObjects(new_item->getUUID());
 			gInventory.notifyObservers();
 		}
 		else

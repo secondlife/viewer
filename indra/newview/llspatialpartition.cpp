@@ -577,7 +577,7 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 		return;
 	}
 
-	if (group->changeLOD())
+	if (!LLPipeline::sSkipUpdate && group->changeLOD())
 	{
 		group->mLastUpdateDistance = group->mDistance;
 		group->mLastUpdateViewAngle = group->mViewAngle;
@@ -826,7 +826,7 @@ class LLSpatialSetStateDiff : public LLSpatialSetState
 public:
 	LLSpatialSetStateDiff(U32 state) : LLSpatialSetState(state) { }
 
-	virtual void traverse(const LLSpatialGroup::TreeNode* n)
+	virtual void traverse(const LLSpatialGroup::OctreeNode* n)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) n->getListener(0);
 		
@@ -885,7 +885,7 @@ class LLSpatialClearStateDiff : public LLSpatialClearState
 public:
 	LLSpatialClearStateDiff(U32 state) : LLSpatialClearState(state) { }
 
-	virtual void traverse(const LLSpatialGroup::TreeNode* n)
+	virtual void traverse(const LLSpatialGroup::OctreeNode* n)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) n->getListener(0);
 		
@@ -1498,7 +1498,7 @@ public:
 		return false;
 	}
 	
-	virtual void traverse(const LLSpatialGroup::TreeNode* n)
+	virtual void traverse(const LLSpatialGroup::OctreeNode* n)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) n->getListener(0);
 
@@ -2356,7 +2356,7 @@ void renderTexturePriority(LLDrawable* drawable)
 		
 		LLGLDisable blend(GL_BLEND);
 		
-		//LLViewerImage* imagep = facep->getTexture();
+		//LLViewerTexture* imagep = facep->getTexture();
 		//if (imagep)
 		{
 	
@@ -2386,7 +2386,7 @@ void renderTexturePriority(LLDrawable* drawable)
 		/*S32 boost = imagep->getBoostLevel();
 		if (boost)
 		{
-			F32 t = (F32) boost / (F32) (LLViewerImage::BOOST_MAX_LEVEL-1);
+			F32 t = (F32) boost / (F32) (LLViewerTexture::BOOST_MAX_LEVEL-1);
 			LLVector4 col = lerp(boost_cold, boost_hot, t);
 			LLGLEnable blend_on(GL_BLEND);
 			gGL.blendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -2896,7 +2896,7 @@ LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector3& start, con
 }
 
 LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset, 
-					   LLViewerImage* texture, LLVertexBuffer* buffer,
+					   LLViewerTexture* texture, LLVertexBuffer* buffer,
 					   BOOL fullbright, U8 bump, BOOL particle, F32 part_size)
 :
 	mVertexBuffer(buffer),

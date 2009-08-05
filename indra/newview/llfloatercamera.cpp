@@ -48,11 +48,11 @@ const F32 CAMERA_BUTTON_DELAY = 0.0f;
 // Member functions
 //
 LLFloaterCamera::LLFloaterCamera(const LLSD& val)
-:	LLFloater()
+:	LLFloater(val)
 {
-	// For now, only used for size and tooltip strings
-	const BOOL DONT_OPEN = FALSE;
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_camera.xml", DONT_OPEN);
+	//// For now, only used for size and tooltip strings
+	//const BOOL DONT_OPEN = FALSE;
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_camera.xml", DONT_OPEN);
 }
 
 // virtual
@@ -65,22 +65,5 @@ BOOL LLFloaterCamera::postBuild()
 	mTrack = getChild<LLJoystickCameraTrack>("cam_track_stick");
 
 	return TRUE;
-}
-
-// virtual
-void LLFloaterCamera::onOpen(const LLSD& key)
-{
-	gSavedSettings.setBOOL("ShowCameraControls", TRUE);
-}
-
-// virtual
-void LLFloaterCamera::onClose(bool app_quitting)
-{
-	destroy();
-	
-	if (!app_quitting)
-	{
-		gSavedSettings.setBOOL("ShowCameraControls", FALSE);
-	}
 }
 

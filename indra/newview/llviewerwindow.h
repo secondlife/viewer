@@ -78,7 +78,6 @@ public:
 		BOOL pick_transparent, 
 		BOOL pick_surface_info,
 		void (*pick_callback)(const LLPickInfo& pick_info));
-	~LLPickInfo();
 
 	void fetchResults();
 	LLPointer<LLViewerObject> getObject() const;
@@ -280,7 +279,8 @@ public:
 	void				updateKeyboardFocus();		
 	void				updatePicking(S32 x, S32 y, MASK mask);
 
-	void			updateWorldViewRect();
+	void			updateWorldViewRect(bool use_full_window=false);
+	void			updateBottomTrayRect();
 
 	BOOL			handleKey(KEY key, MASK mask);
 	void			handleScrollWheel	(S32 clicks);
@@ -417,7 +417,9 @@ protected:
 
 	LLProgressView	*mProgressView;
 
+	LLFrameTimer	mToolTipFadeTimer;
 	LLTextBox*		mToolTip;
+	std::string		mLastToolTipMessage;
 	BOOL			mToolTipBlocked;			// True after a key press or a mouse button event.  False once the mouse moves again.
 	LLRect			mToolTipStickyRect;			// Once a tool tip is shown, it will stay visible until the mouse leaves this rect.
 

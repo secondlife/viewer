@@ -59,8 +59,8 @@ namespace tut
 	class LLSDStorageNode : public LLHTTPNode
 	{
 	public:
-		LLSD get() const					{ return storage; }
-		LLSD put(const LLSD& value) const	{ storage = value; return LLSD(); }
+		LLSD simpleGet() const					{ return storage; }
+		LLSD simplePut(const LLSD& value) const	{ storage = value; return LLSD(); }
 	};
 
 	class ErrorNode : public LLHTTPNode

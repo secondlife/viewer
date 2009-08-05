@@ -35,6 +35,7 @@
 
 
 #include "stdtypes.h"
+#include "llbutton.h"
 #include "llf32uictrl.h"
 #include "v4color.h"
 #include "llrect.h"
@@ -52,6 +53,9 @@ public:
 
 		Optional<LLUIColor> text_enabled_color;
 		Optional<LLUIColor> text_disabled_color;
+
+		Optional<LLButton::Params> up_button;
+		Optional<LLButton::Params> down_button;
 
 		Params();
 	};

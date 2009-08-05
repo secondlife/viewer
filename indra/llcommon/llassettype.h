@@ -125,7 +125,7 @@ public:
 
 		AT_SIMSTATE = 22,
 			// Simstate file.
-	
+
 		AT_FAVORITE = 23,
 			// favorite items
 
@@ -135,21 +135,35 @@ public:
 		AT_LINK_FOLDER = 25,
 			// Inventory folder link
 
-		AT_COUNT = 26,
+		AT_FOLDER_ENSEMBLE_START = 26,
+		AT_FOLDER_ENSEMBLE_END = 45,
+			// This range is reserved for special clothing folder types.
 
-			// +************************************************+
-			// |  TO ADD AN ELEMENT TO THIS ENUM:               |
-			// +************************************************+
-			// | 1. INSERT BEFORE AT_COUNT                      |
-			// | 2. INCREMENT AT_COUNT BY 1                     |
-			// | 3. ADD TO LLAssetDictionary in llassettype.cpp |
-			// +************************************************+
+		AT_CURRENT_OUTFIT = 46,
+			// Current outfit
+
+		AT_OUTFIT = 47,
+			// Predefined outfit ("look")
+
+		AT_MY_OUTFITS = 48,
+			// Folder that holds your outfits.
+
+		
+		AT_COUNT = 49,
+			// +*********************************************************+
+			// |  TO ADD AN ELEMENT TO THIS ENUM:                        |
+			// +*********************************************************+
+			// | 1. INSERT BEFORE AT_COUNT                               |
+			// | 2. INCREMENT AT_COUNT BY 1                              |
+			// | 3. ADD TO LLAssetDictionary in LLAssetType.cpp          |
+			// | 3. ADD TO DEFAULT_ASSET_FOR_INV in LLInventoryType.cpp  |
+			// +*********************************************************+
 
 		AT_NONE = -1
 	};
 
 	// machine transation between type and strings
-	static EType lookup(const char* name); // safe conversion to std::string, *TODO: deprecate
+	static EType 				lookup(const char* name); // safe conversion to std::string, *TODO: deprecate
 	static EType 				lookup(const std::string& type_name);
 	static const char*			lookup(EType asset_type);
 
@@ -157,8 +171,6 @@ public:
 	static EType 				lookupHumanReadable(const char* desc_name); // safe conversion to std::string, *TODO: deprecate
 	static EType 				lookupHumanReadable(const std::string& readable_name);
 	static const char*			lookupHumanReadable(EType asset_type);
-
-	static const char*  		lookupCategoryName(EType asset_type);
 
 	// Generate a good default description. You may want to add a verb
 	// or agent name after this depending on your application.
@@ -168,8 +180,12 @@ public:
 	static EType 				getType(const std::string& desc_name);
 	static const std::string&	getDesc(EType asset_type);
 	static EDragAndDropType   	lookupDragAndDropType(EType asset_type);
+
 	static bool 				lookupCanLink(EType asset_type);
 	static bool 				lookupIsLinkType(EType asset_type);
+
+	static const char*  		lookupCategoryName(EType asset_type);
+	static bool 				lookupIsProtectedCategoryType(EType asset_type);
 
 	/* TODO: Change return types from "const char *" to "const std::string &".
 	This is fairly straightforward, but requires changing some calls to use .c_str().
@@ -180,8 +196,8 @@ public:
 	
 private:
 	// don't instantiate or derive one of these objects
-	LLAssetType() {}
-	~LLAssetType() {}
+	LLAssetType( void ) {}
+	~LLAssetType( void ) {}
 };
 
 #endif // LL_LLASSETTYPE_H

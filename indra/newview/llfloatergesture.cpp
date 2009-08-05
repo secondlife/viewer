@@ -44,7 +44,7 @@
 #include "llcombobox.h"
 #include "llgesturemgr.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llpreviewgesture.h"
@@ -56,7 +56,7 @@
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llviewergesture.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerinventory.h"
 #include "llvoavatar.h"
 #include "llviewercontrol.h"
@@ -322,7 +322,7 @@ void LLFloaterGesture::onClickInventory(void* data)
 	if (!list) return;
 	const LLUUID& item_id = list->getCurrentID();
 
-	LLInventoryView* inv = LLInventoryView::showAgentInventory();
+	LLFloaterInventory* inv = LLFloaterInventory::showAgentInventory();
 	if (!inv) return;
 	inv->getPanel()->setSelection(item_id, TRUE);
 }

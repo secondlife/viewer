@@ -39,16 +39,14 @@
 
 #include "llagent.h"
 #include "llviewercontrol.h"
-#include "llchatbar.h"
 #include "llcriticaldamp.h"
 #include "lldrawable.h"
 #include "llfontgl.h"
 #include "llglheaders.h"
 #include "llhudrender.h"
-#include "llimagegl.h"
 #include "llui.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerobject.h"
 #include "llvovolume.h"
 #include "llviewerwindow.h"
@@ -292,7 +290,7 @@ void LLHUDText::renderText(BOOL for_select)
 	LLUIImagePtr imagep = LLUI::getUIImage("rounded_square.tga");
 
 	// *TODO: make this a per-text setting
-	LLColor4 bg_color = gSavedSkinSettings.getColor4("BackgroundChatColor");
+	LLColor4 bg_color = LLUIColorTable::instance().getColor("BackgroundChatColor");
 	bg_color.setAlpha(gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
 
 	const S32 border_height = 16;
@@ -804,10 +802,6 @@ LLVector2 LLHUDText::updateScreenPos(LLVector2 &offset)
 
 	LLRect world_rect = gViewerWindow->getVirtualWorldViewRect();
 	S32 bottom = world_rect.mBottom + STATUS_BAR_HEIGHT;
-	if (gChatBar && gChatBar->getVisible())
-	{
-		bottom += CHAT_BAR_HEIGHT;
-	}
 
 	LLVector2 screen_center;
 	screen_center.mV[VX] = llclamp((F32)screen_pos_vec.mV[VX], (F32)world_rect.mLeft + mWidth * 0.5f, (F32)world_rect.mRight - mWidth * 0.5f);

@@ -51,6 +51,14 @@ class LLLogChat;
 class LLVector3d;
 class LLWindow;
 
+enum ELogOptions
+{
+	LOG_CHAT = 0,
+	LOG_IM = 1,
+	LOG_BOTH_TOGETHER = 2,
+	LOG_BOTH_SEPARATE = 3
+};
+
 class LLFloaterChat : public LLFloater
 {
 public:
@@ -82,7 +90,6 @@ public:
 	static void chatFromLogFile(LLLogChat::ELogLineType type,std::string line, void* userdata);
 	static void loadHistory();
 	static void* createSpeakersPanel(void* data);
-	static void* createChatPanel(void* data);
 	
 	static LLFloaterChat* getInstance(); // *TODO:Skinning Deprecate
 	

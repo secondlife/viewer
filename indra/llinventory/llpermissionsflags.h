@@ -32,9 +32,6 @@
 #ifndef LL_LLPERMISSIONSFLAGS_H
 #define LL_LLPERMISSIONSFLAGS_H
 
-// llpermissionsflags.h
-// Copyright 2002, Linden Research, Inc.
-//
 // Flags for various permissions bits.
 // Shared between viewer and simulator.
 

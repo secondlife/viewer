@@ -47,7 +47,7 @@
 #include "lllightconstants.h"
 #include "llsky.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llvosky.h"
 #include "llvovolume.h"
 #include "pipeline.h"
@@ -179,6 +179,10 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 
 void LLFace::destroy()
 {
+	if(mTexture.notNull())
+	{
+		mTexture->removeFace(this) ;
+	}
 	if (mDrawPoolp)
 	{
 		mDrawPoolp->removeFace(this);
@@ -217,7 +221,7 @@ void LLFace::setWorldMatrix(const LLMatrix4 &mat)
 	llerrs << "Faces on this drawable are not independently modifiable\n" << llendl;
 }
 
-void LLFace::setPool(LLFacePool* new_pool, LLViewerImage *texturep)
+void LLFace::setPool(LLFacePool* new_pool, LLViewerTexture *texturep)
 {
 	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
 	
@@ -247,9 +251,28 @@ void LLFace::setPool(LLFacePool* new_pool, LLViewerImage *texturep)
 		}
 		mDrawPoolp = new_pool;
 	}
-	mTexture = texturep;
+	setTexture(texturep) ;
 }
 
+void LLFace::setTexture(LLViewerTexture* tex) 
+{
+	if(mTexture == tex)
+	{
+		return ;
+	}
+
+	if(mTexture.notNull())
+	{
+		mTexture->removeFace(this) ;
+	}
+	
+	mTexture = tex ;
+	
+	if(mTexture.notNull())
+	{
+		mTexture->addFace(this) ;
+	} 
+}
 
 void LLFace::setTEOffset(const S32 te_offset)
 {
@@ -422,7 +445,7 @@ void LLFace::renderForSelect(U32 data_mask)
 	}
 }
 
-void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color)
+void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 {
 	if(mDrawablep.isNull() || mVertexBuffer.isNull() || mDrawablep->getSpatialGroup() == NULL ||
 		mDrawablep->getSpatialGroup()->isState(LLSpatialGroup::GEOM_DIRTY))
@@ -463,8 +486,8 @@ void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color)
 /* removed in lieu of raycast uv detection
 void LLFace::renderSelectedUV()
 {
-	LLViewerImage* red_blue_imagep = gImageList.getImageFromFile("uv_test1.j2c", TRUE, TRUE);
-	LLViewerImage* green_imagep = gImageList.getImageFromFile("uv_test2.tga", TRUE, TRUE);
+	LLViewerTexture* red_blue_imagep = LLViewerTextureManager::getFetchedTextureFromFile("uv_test1.j2c", TRUE, TRUE);
+	LLViewerTexture* green_imagep = LLViewerTextureManager::getFetchedTextureFromFile("uv_test2.tga", TRUE, TRUE);
 
 	LLGLSUVSelect object_select;
 
@@ -998,7 +1021,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			break;
 			case BE_BRIGHTNESS:
 			case BE_DARKNESS:
-			if( mTexture.notNull() && mTexture->getHasGLTexture())
+			if( mTexture.notNull() && mTexture->hasValidGLTexture())
 			{
 				// Offset by approximately one texel
 				S32 cur_discard = mTexture->getDiscardLevel();

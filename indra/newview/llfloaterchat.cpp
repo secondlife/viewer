@@ -54,7 +54,6 @@
 //#include "lllineeditor.h"
 #include "llmutelist.h"
 //#include "llresizehandle.h"
-#include "llchatbar.h"
 #include "llrecentpeople.h"
 #include "llstatusbar.h"
 #include "llviewertexteditor.h"
@@ -63,7 +62,6 @@
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
-#include "llchatbar.h"
 #include "lllogchat.h"
 #include "lltexteditor.h"
 #include "lltextparser.h"
@@ -87,6 +85,7 @@
 const F32 INSTANT_MSG_SIZE = 8.0f;
 const F32 CHAT_MSG_SIZE = 8.0f;
 
+
 //
 // Global statics
 //
@@ -96,10 +95,9 @@ LLColor4 get_text_color(const LLChat& chat);
 // Member Functions
 //
 LLFloaterChat::LLFloaterChat(const LLSD& seed)
-	: LLFloater(),
+	: LLFloater(seed),
 	  mPanel(NULL)
 {
-	mFactoryMap["chat_panel"] = LLCallbackMap(createChatPanel, NULL);
 	mFactoryMap["active_speakers_panel"] = LLCallbackMap(createSpeakersPanel, NULL);
 	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this,"floater_chat_history.xml");
 
@@ -121,12 +119,6 @@ void LLFloaterChat::draw()
 		
 	childSetValue("toggle_active_speakers_btn", childIsVisible("active_speakers_panel"));
 
-	LLChatBar* chat_barp = findChild<LLChatBar>("chat_panel", TRUE);
-	if (chat_barp)
-	{
-		chat_barp->refresh();
-	}
-
 	mPanel->refreshSpeakers();
 	LLFloater::draw();
 }
@@ -134,12 +126,6 @@ void LLFloaterChat::draw()
 BOOL LLFloaterChat::postBuild()
 {
 	mPanel = (LLPanelActiveSpeakers*)getChild<LLPanel>("active_speakers_panel");
-
-	LLChatBar* chat_barp = findChild<LLChatBar>("chat_panel", TRUE);
-	if (chat_barp)
-	{
-		chat_barp->setGestureCombo(getChild<LLComboBox>( "Gesture"));
-	}
 
 	childSetCommitCallback("show mutes",onClickToggleShowMute,this); //show mutes
 	childSetVisible("Chat History Editor with mute",FALSE);
@@ -218,7 +204,7 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 void log_chat_text(const LLChat& chat)
 {
 		std::string histstr;
-		if (gSavedPerAccountSettings.getBOOL("LogChatTimestamp"))
+		if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
 			histstr = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate")) + chat.mText;
 		else
 			histstr = chat.mText;
@@ -228,7 +214,7 @@ void log_chat_text(const LLChat& chat)
 // static
 void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 {	
-	if ( gSavedPerAccountSettings.getBOOL("LogChat") && log_to_file) 
+	if ( (gSavedPerAccountSettings.getS32("IMLogOptions")!=LOG_IM) && log_to_file) 
 	{
 		log_chat_text(chat);
 	}
@@ -368,11 +354,11 @@ void LLFloaterChat::addChat(const LLChat& chat,
 		F32 size = CHAT_MSG_SIZE;
 		if (chat.mSourceType == CHAT_SOURCE_SYSTEM)
 		{
-			text_color = gSavedSkinSettings.getColor("SystemChatColor");
+			text_color = LLUIColorTable::instance().getColor("SystemChatColor");
 		}
 		else if(from_instant_message)
 		{
-			text_color = gSavedSkinSettings.getColor("IMChatColor");
+			text_color = LLUIColorTable::instance().getColor("IMChatColor");
 			size = INSTANT_MSG_SIZE;
 		}
 		// We display anything if it's not an IM. If it's an IM, check pref...
@@ -382,7 +368,7 @@ void LLFloaterChat::addChat(const LLChat& chat,
 		}
 	}
 
-	if(from_instant_message && gSavedPerAccountSettings.getBOOL("LogChatIM"))
+	if(from_instant_message && (gSavedPerAccountSettings.getS32("IMLogOptions")== LOG_BOTH_TOGETHER))
 		log_chat_text(chat);
 	
 	if(from_instant_message && gSavedSettings.getBOOL("IMInChatHistory")) 	 
@@ -453,37 +439,37 @@ LLColor4 get_text_color(const LLChat& chat)
 		switch(chat.mSourceType)
 		{
 		case CHAT_SOURCE_SYSTEM:
-			text_color = gSavedSkinSettings.getColor4("SystemChatColor");
+			text_color = LLUIColorTable::instance().getColor("SystemChatColor");
 			break;
 		case CHAT_SOURCE_AGENT:
 		    if (chat.mFromID.isNull())
 			{
-				text_color = gSavedSkinSettings.getColor4("SystemChatColor");
+				text_color = LLUIColorTable::instance().getColor("SystemChatColor");
 			}
 			else
 			{
 				if(gAgent.getID() == chat.mFromID)
 				{
-					text_color = gSavedSkinSettings.getColor4("UserChatColor");
+					text_color = LLUIColorTable::instance().getColor("UserChatColor");
 				}
 				else
 				{
-					text_color = gSavedSkinSettings.getColor4("AgentChatColor");
+					text_color = LLUIColorTable::instance().getColor("AgentChatColor");
 				}
 			}
 			break;
 		case CHAT_SOURCE_OBJECT:
 			if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 			{
-				text_color = gSavedSkinSettings.getColor4("ScriptErrorColor");
+				text_color = LLUIColorTable::instance().getColor("ScriptErrorColor");
 			}
 			else if ( chat.mChatType == CHAT_TYPE_OWNER )
 			{
-				text_color = gSavedSkinSettings.getColor4("llOwnerSayChatColor");
+				text_color = LLUIColorTable::instance().getColor("llOwnerSayChatColor");
 			}
 			else
 			{
-				text_color = gSavedSkinSettings.getColor4("ObjectChatColor");
+				text_color = LLUIColorTable::instance().getColor("ObjectChatColor");
 			}
 			break;
 		default:
@@ -540,13 +526,6 @@ void* LLFloaterChat::createSpeakersPanel(void* data)
 	return new LLPanelActiveSpeakers(LLLocalSpeakerMgr::getInstance(), TRUE);
 }
 
-//static
-void* LLFloaterChat::createChatPanel(void* data)
-{
-	LLChatBar* chatp = new LLChatBar();
-	return chatp;
-}
-
 // static
 void LLFloaterChat::onClickToggleActiveSpeakers(void* userdata)
 {
@@ -558,6 +537,6 @@ void LLFloaterChat::onClickToggleActiveSpeakers(void* userdata)
 //static
  LLFloaterChat* LLFloaterChat::getInstance()
  {
-	 LLFloater* inst = LLFloaterReg::getInstance("chat", LLSD()) ;
-	 return dynamic_cast<LLFloaterChat*>(inst);
+	 return LLFloaterReg::getTypedInstance<LLFloaterChat>("chat", LLSD()) ;
+	 
  }
