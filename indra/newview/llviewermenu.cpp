@@ -5373,6 +5373,19 @@ class LLAvatarAddFriend : public view_listener_t
 	}
 };
 
+class LLAvatarAddContact : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if(avatar)
+		{
+			create_inventory_callingcard(avatar->getID());
+		}
+		return true;
+	}
+};
+
 bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle handle)
 {
 	S32 option = LLNotification::getSelectedOption(notification, response);
@@ -7931,6 +7944,7 @@ void initialize_menus()
 	 // Avatar pie menu
 	view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");
 	view_listener_t::addMenu(new LLAvatarAddFriend(), "Avatar.AddFriend");
+	view_listener_t::addMenu(new LLAvatarAddContact(), "Avatar.AddContact");
 	view_listener_t::addMenu(new LLAvatarFreeze(), "Avatar.Freeze");
 	view_listener_t::addMenu(new LLAvatarDebug(), "Avatar.Debug");
 	view_listener_t::addMenu(new LLAvatarVisibleDebug(), "Avatar.VisibleDebug");

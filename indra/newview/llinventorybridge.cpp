@@ -1090,7 +1090,7 @@ LLFontGL::StyleFlags LLItemBridge::getLabelStyle() const
 	}
 
 	const LLViewerInventoryItem* item = getItem();
-	if (LLAssetType::lookupIsLinkType(item->getActualType()))
+	if (item && LLAssetType::lookupIsLinkType(item->getActualType()))
 	{
 		font |= LLFontGL::ITALIC;
 	}

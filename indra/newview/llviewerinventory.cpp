@@ -728,6 +728,16 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 	gAgent.sendReliableMessage();
 }
 
+void create_inventory_callingcard(const LLUUID& avatar_id)
+{
+	std::string item_desc = avatar_id.asString();
+	std::string item_name;
+	gCacheName->getFullName(avatar_id, item_name);
+	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
+						  LLUUID::null, LLTransactionID::tnull, item_name, item_desc, LLAssetType::AT_CALLINGCARD,
+						  LLInventoryType::IT_CALLINGCARD, NOT_WEARABLE, PERM_MOVE | PERM_TRANSFER, NULL);
+}
+
 void copy_inventory_item(
 	const LLUUID& agent_id,
 	const LLUUID& current_owner,
@@ -1102,3 +1112,13 @@ const LLViewerInventoryCategory *LLViewerInventoryItem::getLinkedCategory() cons
 	}
 	return NULL;
 }
+
+//----------
+
+void LLViewerInventoryItem::onCallingCardNameLookup(const LLUUID& id, const std::string& first_name, const std::string& last_name)
+{
+	rename(first_name + " " + last_name);
+	gInventory.addChangedMask(LLInventoryObserver::LABEL, getUUID());
+	gInventory.notifyObservers();
+}
+
