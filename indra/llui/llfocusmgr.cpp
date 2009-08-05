@@ -98,8 +98,6 @@ void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, BOOL lock, BOOL keystroke
 		return;
 	}
 
-	//llinfos << "Keyboard focus handled by " << (new_focus ? new_focus->getName() : "nothing") << llendl;
-
 	mKeystrokesOnly = keystrokes_only;
 
 	if( new_focus != mKeyboardFocus )
@@ -107,17 +105,47 @@ void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, BOOL lock, BOOL keystroke
 		mLastKeyboardFocus = mKeyboardFocus;
 		mKeyboardFocus = new_focus;
 
-		if( mLastKeyboardFocus )
+		view_handle_list_t new_focus_list;
+
+		// walk up the tree to root and add all views to the new_focus_list
+		for (LLView* ctrl = mKeyboardFocus; ctrl && ctrl != LLUI::getRootView(); ctrl = ctrl->getParent())
 		{
-			mLastKeyboardFocus->onFocusLost();
+			if (ctrl) 
+			{
+				new_focus_list.push_front(ctrl->getHandle());
+			}
 		}
 
-		// clear out any existing flash
-		if (new_focus)
+		view_handle_list_t::iterator new_focus_iter = new_focus_list.begin();
+		view_handle_list_t::iterator old_focus_iter = mCachedKeyboardFocusList.begin();
+
+		// compare the new focus sub-tree to the old focus sub-tree
+		// iterate through the lists in lockstep until we get to a non-common ancestor
+		while ((new_focus_iter != new_focus_list.end()) && 
+			   (old_focus_iter != mCachedKeyboardFocusList.end()) && 
+			   ((*new_focus_iter) == (*old_focus_iter)))
 		{
-			mFocusWeight = 0.f;
-			new_focus->onFocusReceived();
+			new_focus_iter++;
+			old_focus_iter++;
 		}
+		
+		// call onFocusLost on all remaining in the old focus list
+		while (old_focus_iter != mCachedKeyboardFocusList.end())
+		{
+			old_focus_iter->get()->onFocusLost();
+			old_focus_iter++;
+		}
+
+		// call onFocusReceived on all remaining in the new focus list
+		while (new_focus_iter != new_focus_list.end())
+		{
+			new_focus_iter->get()->onFocusReceived();
+			new_focus_iter++;
+		}
+
+		// cache the new focus list for next time
+		swap(mCachedKeyboardFocusList, new_focus_list);
+
 		mFocusTimer.reset();
 
 		#ifdef _DEBUG

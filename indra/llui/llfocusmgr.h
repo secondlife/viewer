@@ -102,6 +102,10 @@ private:
 	LLUICtrl*			mLastKeyboardFocus;			// who last had focus
 	LLUICtrl*			mDefaultKeyboardFocus;
 	BOOL				mKeystrokesOnly;
+	
+	// caching list of keyboard focus ancestors for calling onFocusReceived and onFocusLost
+	typedef std::list<LLHandle<LLView> > view_handle_list_t;
+	view_handle_list_t mCachedKeyboardFocusList;
 
 	// Top View
 	LLUICtrl*			mTopCtrl;
