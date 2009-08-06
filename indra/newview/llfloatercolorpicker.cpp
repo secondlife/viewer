@@ -56,7 +56,6 @@
 #include "llpointer.h"
 #include "llimage.h"
 #include "llmousehandler.h"
-#include "llimagegl.h"
 #include "llglheaders.h"
 #include "llcheckboxctrl.h"
 #include "lltextbox.h"
@@ -80,7 +79,7 @@ const F32 CONTEXT_FADE_TIME = 0.08f;
 //////////////////////////////////////////////////////////////////////////////
 
 LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show_apply_immediate )
-	: LLFloater(),
+	: LLFloater(LLSD()),
 	  mComponents			( 3 ),
 	  mMouseDownInLumRegion	( FALSE ),
 	  mMouseDownInHueRegion	( FALSE ),
@@ -114,6 +113,9 @@ LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show
 	  mCanApplyImmediately	( show_apply_immediate ),
 	  mContextConeOpacity	( 0.f )
 {
+	// build the majority of the gui using the factory builder
+	LLUICtrlFactory::getInstance()->buildFloater ( this, "floater_color_picker.xml", NULL );
+	
 	// create user interface for this picker
 	createUI ();
 
@@ -134,10 +136,6 @@ LLFloaterColorPicker::~LLFloaterColorPicker()
 //
 void LLFloaterColorPicker::createUI ()
 {
-	// build the majority of the gui using the factory builder
-	LLUICtrlFactory::getInstance()->buildFloater ( this, "floater_color_picker.xml" );
-	setVisible ( FALSE );
-
 	// create RGB type area (not really RGB but it's got R,G & B in it.,..
 
 	LLPointer<LLImageRaw> raw = new LLImageRaw ( mRGBViewerImageWidth, mRGBViewerImageHeight, mComponents );
@@ -161,7 +159,7 @@ void LLFloaterColorPicker::createUI ()
 			* ( bits + x + y * linesize + 2 ) = ( U8 )( bVal * 255.0f );
 		}
 	}
-	mRGBImage = new LLImageGL ( (LLImageRaw*)raw, FALSE );
+	mRGBImage = LLViewerTextureManager::getLocalTexture( (LLImageRaw*)raw, FALSE );
 	gGL.getTexUnit(0)->bind(mRGBImage);
 	mRGBImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 	
@@ -173,7 +171,7 @@ void LLFloaterColorPicker::createUI ()
 
 		// argh!
 		const std::string s ( codec.str () );
-		mPalette.push_back ( new LLColor4 ( gSavedSkinSettings.getColor4 ( s )  ) );
+		mPalette.push_back ( new LLColor4 ( LLUIColorTable::instance().getColor ( s )  ) );
 	}
 }
 
@@ -1017,7 +1015,7 @@ BOOL LLFloaterColorPicker::handleMouseUp ( S32 x, S32 y, MASK mask )
 							std::ostringstream codec;
 							codec << "ColorPaletteEntry" << std::setfill ( '0' ) << std::setw ( 2 ) << curEntry + 1;
 							const std::string s ( codec.str () );
-							gSavedSkinSettings.setColor4( s, *mPalette [ curEntry ] );
+							LLUIColorTable::instance().setColor(s, *mPalette [ curEntry ] );
 						}
 					}
 

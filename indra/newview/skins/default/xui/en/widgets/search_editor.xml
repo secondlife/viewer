@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<search_editor select_on_focus="true">
-  <clear_search_button image_unselected="icn_clear_lineeditor.tga"
-                       image_selected="close_inactive_blue.tga"
-                       image_color="TextFgTentativeColor"/>
+<search_editor
+  text_pad_left="4" 
+  select_on_focus="true"
+  background_image="TextField_Search_Off"
+  background_image_disabled="TextField_Search_Disabled"
+  background_image_focused="TextField_Search_Active" >
+  <search_button label=""
+    top_pad="4"
+    left_pad="4" 
+    width="13"
+    height="13" 
+	  image_unselected="Search"
+	  image_selected="Search" />
 </search_editor>

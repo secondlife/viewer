@@ -39,7 +39,7 @@
 #include "lluiimage.h"
 #include "llui.h"
 
-LLUIImage::LLUIImage(const std::string& name, LLPointer<LLImageGL> image) :
+LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image) :
 						mName(name),
 						mImage(image),
 						mScaleRegion(0.f, 1.f, 1.f, 0.f),
@@ -74,7 +74,7 @@ void LLUIImage::setScaleRegion(const LLRectf& region)
 //TODO: move drawing implementation inside class
 void LLUIImage::draw(S32 x, S32 y, const LLColor4& color) const
 {
-	gl_draw_image(x, y, mImage, color, mClipRegion);
+	gl_draw_scaled_image(x, y, getWidth(), getHeight(), mImage, color, mClipRegion);
 }
 
 void LLUIImage::draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const

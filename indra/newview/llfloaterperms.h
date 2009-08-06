@@ -36,18 +36,17 @@
 
 #include "llfloater.h"
 
-class LLFloaterPerms : public LLFloater, public LLFloaterSingleton<LLFloaterPerms>
+class LLFloaterPerms : public LLFloater
 {
-	friend class LLUISingleton<LLFloaterPerms, VisibilityPolicy<LLFloater> >;
+	friend class LLFloaterReg;
 	
 public:
-	/*virtual*/ void onClose(bool app_quitting = false);
 	/*virtual*/ BOOL postBuild();
 	void ok();
 	void cancel();
-	static void onClickOK(void*);
-	static void onClickCancel(void*);
-	static void onCommitCopy(LLUICtrl* ctrl, void* data);
+	void onClickOK();
+	void onClickCancel();
+	void onCommitCopy();
 	// Convenience methods to get current permission preference bitfields from saved settings:
 	static U32 getEveryonePerms(std::string prefix=""); // prefix + "EveryoneCopy"
 	static U32 getGroupPerms(std::string prefix=""); // prefix + "ShareWithGroup"
@@ -56,9 +55,6 @@ public:
 private:
 	LLFloaterPerms(const LLSD& seed);
 	void refresh();
-
-	/// callback for the menus help button
-	static void onClickHelp(void* data);
 
 	BOOL // cached values only for implementing cancel.
 		mShareWithGroup,

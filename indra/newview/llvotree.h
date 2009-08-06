@@ -39,7 +39,7 @@
 
 class LLFace;
 class LLDrawPool;
-
+class LLViewerFetchedTexture;
 
 class LLVOTree : public LLViewerObject
 {
@@ -160,7 +160,7 @@ protected:
 	LLVector3		mWind;
 
 	LLPointer<LLVertexBuffer> mReferenceBuffer; //reference geometry for generating tree mesh
-	LLPointer<LLViewerImage> mTreeImagep;	// Pointer to proper tree image
+	LLPointer<LLViewerFetchedTexture> mTreeImagep;	// Pointer to proper tree image
 
 	U8				mSpecies;		// Species of tree
 	F32				mBranchLength;	// Scale (length) of tree branches
@@ -184,7 +184,7 @@ protected:
 	// complete rebuild when not animating
 	LLVector3 mLastPosition;
 	LLQuaternion mLastRotation;
-	
+
 	U32 mFrameCount;
 
 	typedef std::map<U32, TreeSpeciesData*> SpeciesMap;

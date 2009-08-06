@@ -180,6 +180,8 @@ void LLToolMgr::setCurrentTool( LLTool* tool )
 
 	mBaseTool = tool;
 	updateToolStatus();
+
+	mSavedTool = NULL;
 }
 
 LLTool* LLToolMgr::getCurrentTool()

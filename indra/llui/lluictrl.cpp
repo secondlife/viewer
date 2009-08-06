@@ -38,21 +38,21 @@
 #include "llpanel.h"
 #include "lluictrlfactory.h"
 
-static LLDefaultWidgetRegistry::Register<LLUICtrl> r("ui_ctrl");
+static LLDefaultChildRegistry::Register<LLUICtrl> r("ui_ctrl");
 
 LLUICtrl::Params::Params()
 :	tab_stop("tab_stop", true),
 	label("label"),
-	initial_value("initial_value"),
+	initial_value("value"),
 	init_callback("init_callback"),
 	commit_callback("commit_callback"),
 	validate_callback("validate_callback"),
 	rightclick_callback("rightclick_callback"),
+	mouseenter_callback("mouseenter_callback"),
+	mouseleave_callback("mouseleave_callback"),
 	control_name("control_name")
 {
-	addSynonym(initial_value, "initial_val");
-	// this is the canonical name for text contents of an xml node
-	addSynonym(initial_value, "value");
+	addSynonym(initial_value, "initial_value");
 }
 
 LLFocusableElement::LLFocusableElement()
@@ -114,7 +114,7 @@ void LLFocusableElement::setFocus(BOOL b)
 //static 
 const LLUICtrl::Params& LLUICtrl::getDefaultParams()
 {
-	return LLUICtrlFactory::getDefaultParams<LLUICtrl::Params>();
+	return LLUICtrlFactory::getDefaultParams<LLUICtrl>();
 }
 
 
@@ -125,7 +125,9 @@ LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel)
     mViewModel(viewmodel),
 	mControlVariable(NULL),
 	mEnabledControlVariable(NULL),
-	mDisabledControlVariable(NULL)
+	mDisabledControlVariable(NULL),
+	mMakeVisibleControlVariable(NULL),
+	mMakeInvisibleControlVariable(NULL)
 {
 	mUICtrlHandle.bind(this);
 }
@@ -189,7 +191,7 @@ void LLUICtrl::initFromParams(const Params& p)
 		}
 		else
 		{
-			commit_callback_t* initfunc = (CallbackRegistry<commit_callback_t>::getValue(p.init_callback.function_name));
+			commit_callback_t* initfunc = (CommitCallbackRegistry::getValue(p.init_callback.function_name));
 			if (initfunc)
 			{
 				(*initfunc)(this, p.init_callback.parameter);
@@ -200,6 +202,11 @@ void LLUICtrl::initFromParams(const Params& p)
 	if(p.rightclick_callback.isProvided())
 		initCommitCallback(p.rightclick_callback, mRightClickSignal);
 
+	if(p.mouseenter_callback.isProvided())
+		initCommitCallback(p.mouseenter_callback, mMouseEnterSignal);
+
+	if(p.mouseleave_callback.isProvided())
+		initCommitCallback(p.mouseleave_callback, mMouseLeaveSignal);
 }
 
 
@@ -226,7 +233,7 @@ void LLUICtrl::initCommitCallback(const CommitCallbackParam& cb, commit_signal_t
 	else
 	{
 		std::string function_name = cb.function_name;
-		commit_callback_t* func = (CallbackRegistry<commit_callback_t>::getValue(function_name));
+		commit_callback_t* func = (CommitCallbackRegistry::getValue(function_name));
 		if (func)
 		{
 			if (cb.parameter.isProvided())
@@ -264,6 +271,17 @@ void LLUICtrl::initEnableCallback(const EnableCallbackParam& cb, enable_signal_t
 	}
 }
 
+// virtual
+void LLUICtrl::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+	mMouseEnterSignal(this, getValue());
+}
+
+// virtual
+void LLUICtrl::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	mMouseLeaveSignal(this, getValue());
+}
 
 void LLUICtrl::onCommit()
 {
@@ -788,38 +806,6 @@ LLUICtrl* LLUICtrl::findRootMostFocusRoot()
 	return focus_root;
 }
 
-
-/*
-// Don't let the children handle the tool tip.  Handle it here instead.
-BOOL LLUICtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
-{
-	BOOL handled = FALSE;
-	if (getVisible() && pointInView( x, y ) ) 
-	{
-		if( !mToolTipMsg.empty() )
-		{
-			msg = mToolTipMsg;
-
-			// Convert rect local to screen coordinates
-			localPointToScreen( 
-				0, 0, 
-				&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
-			localPointToScreen(
-				getRect().getWidth(), getRect().getHeight(),
-				&(sticky_rect_screen->mRight), &(sticky_rect_screen->mTop) );
-
-			handled = TRUE;
-		}
-	}
-
-	if (!handled)
-	{
-		return LLView::handleToolTip(x, y, msg, sticky_rect_screen);
-	}
-
-	return handled;
-}*/
-
 // Skip over any parents that are not LLUICtrl's
 //  Used in focus logic since only LLUICtrl elements can have focus
 LLUICtrl* LLUICtrl::getParentUICtrl() const
@@ -865,14 +851,6 @@ BOOL LLUICtrl::getTentative() const
 void LLUICtrl::setColor(const LLColor4& color)							
 { }
 
-// virtual
-void LLUICtrl::setMinValue(LLSD min_value)								
-{ }
-
-// virtual
-void LLUICtrl::setMaxValue(LLSD max_value)								
-{ }
-
 
 
 namespace LLInitParam
@@ -899,13 +877,5 @@ namespace LLInitParam
 		const LLUICtrl::enable_callback_t &b)
     {
     	return false;
-    }
-
-    template<> 
-	bool ParamCompare<LLLazyValue<LLColor4> >::equals(
-		const LLLazyValue<LLColor4> &a, 
-		const LLLazyValue<LLColor4> &b)    
-    {
-    	return a.get() == b.get();
     }
 }

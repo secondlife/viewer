@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<output_monitor
+  image_mute="mute_icon.tga"
+  image_off="VoicePTT_Off"
+  image_on="VoicePTT_On"
+  image_level_1="VoicePTT_Lvl1"
+  image_level_2="VoicePTT_Lvl2"
+  image_level_3="VoicePTT_Lvl3"
+  />

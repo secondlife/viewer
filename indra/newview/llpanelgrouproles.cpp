@@ -37,7 +37,7 @@
 #include "llagent.h"
 #include "llbutton.h"
 #include "llfloatergroupinvite.h"
-#include "llfriendactions.h"
+#include "llavataractions.h"
 #include "lliconctrl.h"
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
@@ -49,7 +49,7 @@
 #include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llfocusmgr.h"
 
@@ -144,17 +144,22 @@ BOOL LLPanelGroupRoles::postBuild()
 	if (!mSubTabContainer) return FALSE;
 
 	// Hook up each sub-tabs callback and widgets.
-	S32 i;
-	for (i = 0; i < mSubTabContainer->getTabCount(); ++i)
+	for (S32 i = 0; i < mSubTabContainer->getTabCount(); ++i)
 	{
-		LLPanelGroupSubTab* subtabp = (LLPanelGroupSubTab*) mSubTabContainer->getPanelByIndex(i);
-
+		LLPanel* panel = mSubTabContainer->getPanelByIndex(i);
+		LLPanelGroupSubTab* subtabp = dynamic_cast<LLPanelGroupSubTab*>(panel);
+		if (!subtabp)
+		{
+			llwarns << "Invalid subtab panel: " << panel->getName() << llendl;
+			return FALSE;
+		}
 		// Add click callbacks to all the tabs.
 		mSubTabContainer->setCommitCallback(boost::bind(&LLPanelGroupRoles::handleClickSubTab, this));
 
 		// Hand the subtab a pointer to this LLPanelGroupRoles, so that it can
 		// look around for the widgets it is interested in.
-		if (!subtabp->postBuildSubTab(this)) return FALSE;
+		if (!subtabp->postBuildSubTab(this))
+			return FALSE;
 
 		subtabp->addObserver(this);
 	}
@@ -1289,7 +1294,7 @@ void LLPanelGroupMembersSubTab::handleMemberDoubleClick()
 	LLScrollListItem* selected = mMembersList->getFirstSelected();
 	if (selected)
 	{
-		LLFriendActions::showProfile(selected->getUUID());
+		LLAvatarActions::showProfile(selected->getUUID());
 	}
 }
 
@@ -1711,7 +1716,18 @@ void* LLPanelGroupRolesSubTab::createTab(void* data)
 }
 
 LLPanelGroupRolesSubTab::LLPanelGroupRolesSubTab(const LLUUID& group_id)
-: LLPanelGroupSubTab(group_id), mHasRoleChange(FALSE)
+  : LLPanelGroupSubTab(group_id),
+	mRolesList(NULL),
+	mAssignedMembersList(NULL),
+	mAllowedActionsList(NULL),
+	mRoleName(NULL),
+	mRoleTitle(NULL),
+	mRoleDescription(NULL),
+	mMemberVisibleCheck(NULL),
+	mDeleteRoleButton(NULL),
+	mCreateRoleButton(NULL),
+
+	mHasRoleChange(FALSE)
 {
 }
 

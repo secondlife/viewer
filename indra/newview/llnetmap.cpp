@@ -51,12 +51,15 @@
 #include "llsurface.h"
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
+#include "llviewertexture.h"
+#include "llviewertexturelist.h"
+#include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llworld.h"
 #include "llworldmapview.h"		// shared draw code
 
-static LLDefaultWidgetRegistry::Register<LLNetMap> r1("net_map");
+static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");
 
 const F32 MAP_SCALE_MIN = 64;
 const F32 MAP_SCALE_MID = 172;
@@ -112,12 +115,12 @@ void LLNetMap::translatePan( F32 delta_x, F32 delta_y )
 void LLNetMap::draw()
 {
  	static LLFrameTimer map_timer;
-	static LLCachedControl<LLColor4> map_avatar_color(gSavedSkinSettings, "MapAvatarColor", LLColor4::white);
-	static LLCachedControl<LLColor4> map_avatar_friend_color(gSavedSkinSettings, "MapAvatarFriendColor", LLColor4::white);
-	static LLCachedControl<LLColor4> map_track_color(gSavedSkinSettings, "MapTrackColor", LLColor4::white);
-	static LLCachedControl<LLColor4> map_track_disabled_color(gSavedSkinSettings, "MapTrackDisabledColor", LLColor4::white);
-	static LLCachedControl<LLColor4> map_frustum_color(gSavedSkinSettings, "MapFrustumColor", LLColor4::white);
-	static LLCachedControl<LLColor4> map_frustum_rotating_color(gSavedSkinSettings, "MapFrustumRotatingColor", LLColor4::white);
+	static LLUIColor map_avatar_color = LLUIColorTable::instance().getColor("MapAvatarColor", LLColor4::white);
+	static LLUIColor map_avatar_friend_color = LLUIColorTable::instance().getColor("MapAvatarFriendColor", LLColor4::white);
+	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
+	static LLUIColor map_track_disabled_color = LLUIColorTable::instance().getColor("MapTrackDisabledColor", LLColor4::white);
+	static LLUIColor map_frustum_color = LLUIColorTable::instance().getColor("MapFrustumColor", LLColor4::white);
+	static LLUIColor map_frustum_rotating_color = LLUIColorTable::instance().getColor("MapFrustumRotatingColor", LLColor4::white);
 	
 	if (mObjectImagep.isNull())
 	{
@@ -664,7 +667,7 @@ void LLNetMap::createObjectImage()
 		mObjectRawImagep = new LLImageRaw(img_size, img_size, 4);
 		U8* data = mObjectRawImagep->getData();
 		memset( data, 0, img_size * img_size * 4 );
-		mObjectImagep = new LLImageGL( mObjectRawImagep, FALSE);
+		mObjectImagep = LLViewerTextureManager::getLocalTexture( mObjectRawImagep.get(), FALSE);
 		setScale(mScale);
 	}
 	mUpdateNow = TRUE;

@@ -54,7 +54,7 @@
 #include "llheadrotmotion.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llkeyframefallmotion.h"
 #include "llkeyframestandmotion.h"
 #include "llkeyframewalkmotion.h"
@@ -69,7 +69,7 @@
 #include "lltoolmorph.h"
 #include "lltrans.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
@@ -103,7 +103,7 @@ struct LocalTextureData
 		mWearableID(IMG_DEFAULT_AVATAR),
 		mTexEntry(NULL)
 	{}
-	LLPointer<LLViewerImage> mImage;
+	LLPointer<LLViewerFetchedTexture> mImage;
 	BOOL mIsBakedReady;
 	S32 mDiscard;
 	LLUUID mWearableID;	// UUID of the wearable that this texture belongs to, not of the image itself
@@ -156,14 +156,17 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 	gAgentWearables.setAvatarObject(this);
 	
 	lldebugs << "Marking avatar as self " << id << llendl;
-	
-	for (U32 i = 0; i < TEX_NUM_INDICES; i++)
-	{
-		mLocalTextureDatas[(ETextureIndex)i].push_back(new LocalTextureData);
-	}
+}
 
+void LLVOAvatarSelf::initInstance()
+{
 	BOOL status = TRUE;
+	// creates hud joint(mScreen) among other things
 	status &= loadAvatarSelf();
+
+	// adds attachment points to mScreen among other things
+	LLVOAvatar::initInstance();
+
 	status &= buildMenus();
 	if (!status)
 	{
@@ -528,19 +531,6 @@ LLVOAvatarSelf::~LLVOAvatarSelf()
 	gAgentWearables.setAvatarObject(NULL);
 	delete mScreenp;
 	mScreenp = NULL;
-
-	for (localtexture_map_t::iterator iter = mLocalTextureDatas.begin();
-		 iter != mLocalTextureDatas.end();
-		 iter++)
-	{
-		localtexture_vec_t &local_textures = iter->second;
-		for (U32 i = 0; i < local_textures.size(); i++)
-		{
-			LocalTextureData* loc_tex_data = local_textures[i];
-			delete loc_tex_data;
-			local_textures[i] = NULL;
-		}
-	}
 }
 
 /**
@@ -667,7 +657,7 @@ void LLVOAvatarSelf::stopMotionFromSource(const LLUUID& source_id)
 }
 
 // virtual
-void LLVOAvatarSelf::setLocalTextureTE(U8 te, LLViewerImage* image, BOOL set_by_user, U32 index)
+void LLVOAvatarSelf::setLocalTextureTE(U8 te, LLViewerTexture* image, BOOL set_by_user, U32 index)
 {
 	if (te >= TEX_NUM_INDICES)
 	{
@@ -708,9 +698,10 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
 		const S32 te = mBakedTextureDatas[i].mTextureIndex;
-		if (getTEImage(te)->isMissingAsset())
+		LLViewerTexture* tex = getTEImage(te) ;
+		if (!tex || tex->isMissingAsset())
 		{
-			setTEImage(te, gImageList.getImage(IMG_DEFAULT_AVATAR));
+			setTEImage(te, LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR));
 			removed = TRUE;
 		}
 	}
@@ -999,24 +990,39 @@ LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *viewer_obj
 	return attachment;
 }
 
+U32 LLVOAvatarSelf::getNumWearables(LLVOAvatarDefines::ETextureIndex i) const
+{
+	EWearableType type = LLVOAvatarDictionary::getInstance()->getTEWearableType(i);
+	return gAgentWearables.getWearableCount(type);
+}
+
 // virtual
-void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerImage *src_vi, LLImageRaw* src_raw, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src_raw, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {	
 	//llinfos << "onLocalTextureLoaded: " << src_vi->getID() << llendl;
 
 	const LLUUID& src_id = src_vi->getID();
 	LLAvatarTexData *data = (LLAvatarTexData *)userdata;
+	ETextureIndex index = data->mIndex;
+	if (!isIndexLocalTexture(index)) return;
+	LLLocalTextureObject *local_tex_obj = getLocalTextureObject(index, 0);
+
+	// fix for EXT-268. Preventing using of NULL pointer
+	if(NULL == local_tex_obj)
+	{
+		LL_WARNS("TAG") << "There is no Local Texture Object with index: " << index 
+			<< ", final: " << final
+			<< LL_ENDL;
+		return;
+	}
 	if (success)
 	{
-		ETextureIndex index = data->mIndex;
-		if (!isIndexLocalTexture(index)) return;
-		LocalTextureData *local_tex_data = getLocalTextureData(index,0);
-		if (!local_tex_data->mIsBakedReady &&
-			local_tex_data->mImage.notNull() &&
-			(local_tex_data->mImage->getID() == src_id) &&
-			discard_level < local_tex_data->mDiscard)
+		if (!local_tex_obj->getBakedReady() &&
+			local_tex_obj->getImage() != NULL &&
+			(local_tex_obj->getID() == src_id) &&
+			discard_level < local_tex_obj->getDiscard())
 		{
-			local_tex_data->mDiscard = discard_level;
+			local_tex_obj->setDiscard(discard_level);
 			if (!gAgent.cameraCustomizeAvatar())
 			{
 				requestLayerSetUpdate(index);
@@ -1030,15 +1036,12 @@ void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerImage *src_vi, LLI
 	}
 	else if (final)
 	{
-		ETextureIndex index = data->mIndex;
-		if (!isIndexLocalTexture(index)) return;
-		LocalTextureData *local_tex_data = getLocalTextureData(index,0);
 		// Failed: asset is missing
-		if (!local_tex_data->mIsBakedReady &&
-			local_tex_data->mImage.notNull() &&
-			local_tex_data->mImage->getID() == src_id)
+		if (!local_tex_obj->getBakedReady() &&
+			local_tex_obj->getImage() != NULL &&
+			local_tex_obj->getImage()->getID() == src_id)
 		{
-			local_tex_data->mDiscard = 0;
+			local_tex_obj->setDiscard(0);
 			requestLayerSetUpdate(index);
 			updateMeshTextures();
 		}
@@ -1066,19 +1069,19 @@ BOOL LLVOAvatarSelf::getLocalTextureRaw(ETextureIndex index, LLImageRaw* image_r
 */
 
 // virtual
-BOOL LLVOAvatarSelf::getLocalTextureGL(ETextureIndex type, LLImageGL** image_gl_pp, U32 index) const
+BOOL LLVOAvatarSelf::getLocalTextureGL(ETextureIndex type, LLViewerTexture** tex_pp, U32 index) const
 {
-	*image_gl_pp = NULL;
+	*tex_pp = NULL;
 
 	if (!isIndexLocalTexture(type)) return FALSE;
 	if (getLocalTextureID(type, index) == IMG_DEFAULT_AVATAR) return TRUE;
 
-	const LocalTextureData *local_tex_data = getLocalTextureData(type, index);
-	if (!local_tex_data)
+	const LLLocalTextureObject *local_tex_obj = getLocalTextureObject(type, index);
+	if (!local_tex_obj)
 	{
 		return FALSE;
 	}
-	*image_gl_pp = local_tex_data->mImage;
+	*tex_pp = local_tex_obj->getImage();
 	return TRUE;
 }
 
@@ -1086,10 +1089,10 @@ const LLUUID& LLVOAvatarSelf::getLocalTextureID(ETextureIndex type, U32 index) c
 {
 	if (!isIndexLocalTexture(type)) return IMG_DEFAULT_AVATAR;
 
-	const LocalTextureData *local_tex_data = getLocalTextureData(type,index);
-	if (local_tex_data && local_tex_data->mImage.notNull())
+	const LLLocalTextureObject *local_tex_obj = getLocalTextureObject(type, index);
+	if (local_tex_obj && local_tex_obj->getImage() != NULL)
 	{
-		return local_tex_data->mImage->getID();
+		return local_tex_obj->getImage()->getID();
 	}
 	return IMG_DEFAULT_AVATAR;
 }
@@ -1222,7 +1225,7 @@ void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL set_by_u
 		llassert(isSelf());
 
 		ETextureIndex baked_te = getBakedTE( layerset );
-		setTEImage( baked_te, gImageList.getImage(IMG_DEFAULT_AVATAR) );
+		setTEImage( baked_te, LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR) );
 		layerset->requestUpload();
 	}
 }
@@ -1279,14 +1282,14 @@ S32 LLVOAvatarSelf::getLocalDiscardLevel(ETextureIndex type, U32 index) const
 {
 	if (!isIndexLocalTexture(type)) return FALSE;
 
-	const LocalTextureData *local_tex_data = getLocalTextureData(type,index);
-	if (local_tex_data)
+	const LLLocalTextureObject *local_tex_obj = getLocalTextureObject(type, index);
+	if (local_tex_obj)
 	{
 		if (type >= 0
 			&& getLocalTextureID(type,index) != IMG_DEFAULT_AVATAR
-			&& !local_tex_data->mImage->isMissingAsset())
+			&& !local_tex_obj->getImage()->isMissingAsset())
 		{
-			return local_tex_data->mImage->getDiscardLevel();
+			return local_tex_obj->getImage()->getDiscardLevel();
 		}
 		else
 		{
@@ -1305,18 +1308,18 @@ void LLVOAvatarSelf::getLocalTextureByteCount(S32* gl_bytes) const
 	for (S32 type = 0; type < TEX_NUM_INDICES; type++)
 	{
 		if (!isIndexLocalTexture((ETextureIndex)type)) continue;
-		const localtexture_vec_t & local_tex_vec = getLocalTextureData((ETextureIndex)type);
-		for (U32 num = 0; num < local_tex_vec.size(); num++)
+		U32 max_tex = getNumWearables((ETextureIndex) type);
+		for (U32 num = 0; num < max_tex; num++)
 		{
-			const LocalTextureData *local_tex_data = local_tex_vec[num];
-			if (local_tex_data)
+			const LLLocalTextureObject *local_tex_obj = getLocalTextureObject((ETextureIndex) type, num);
+			if (local_tex_obj)
 			{
-				const LLViewerImage* image_gl = local_tex_data->mImage;
+				const LLViewerFetchedTexture* image_gl = local_tex_obj->getImage();
 				if (image_gl)
 				{
 					S32 bytes = (S32)image_gl->getWidth() * image_gl->getHeight() * image_gl->getComponents();
 					
-					if (image_gl->getHasGLTexture())
+					if (image_gl->hasValidGLTexture())
 					{
 						*gl_bytes += bytes;
 					}
@@ -1327,26 +1330,53 @@ void LLVOAvatarSelf::getLocalTextureByteCount(S32* gl_bytes) const
 }
 
 // virtual 
-void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerImage* tex, BOOL baked_version_ready, U32 index)
+void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_tex, BOOL baked_version_ready, U32 index)
 {
 	if (!isIndexLocalTexture(type)) return;
 
+	LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(src_tex, TRUE) ;
+	if(!tex)
+	{
+		return ;
+	}
+
 	S32 desired_discard = isSelf() ? 0 : 2;
-	LocalTextureData *local_tex_data = getLocalTextureData(type,index);
+	LLLocalTextureObject *local_tex_obj = getLocalTextureObject(type,index);
+	if (!local_tex_obj)
+	{
+		if (type >= TEX_NUM_INDICES)
+		{
+			llerrs << "Tried to set local texture with invalid type: (" << (U32) type << ", " << index << ")" << llendl;
+			return;
+		}
+		EWearableType wearable_type = LLVOAvatarDictionary::getInstance()->getTEWearableType(type);
+		if (!gAgentWearables.getWearable(wearable_type,0))
+		{
+			// no wearable is loaded, cannot set the texture.
+			return;
+		}
+		gAgentWearables.addLocalTextureObject(wearable_type,type,index);
+		local_tex_obj = getLocalTextureObject(type,index);
+		if (!local_tex_obj)
+		{
+			llerrs << "Unable to create LocalTextureObject for wearable type & index: (" << (U32) wearable_type << ", " << index << ")" << llendl;
+			return;
+		}
+	}
 	if (!baked_version_ready)
 	{
-		if (tex != local_tex_data->mImage || local_tex_data->mIsBakedReady)
+		if (tex != local_tex_obj->getImage() || local_tex_obj->getBakedReady())
 		{
-			local_tex_data->mDiscard = MAX_DISCARD_LEVEL+1;
+			local_tex_obj->setDiscard(MAX_DISCARD_LEVEL+1);
 		}
 		if (tex->getID() != IMG_DEFAULT_AVATAR)
 		{
-			if (local_tex_data->mDiscard > desired_discard)
+			if (local_tex_obj->getDiscard() > desired_discard)
 			{
 				S32 tex_discard = tex->getDiscardLevel();
 				if (tex_discard >= 0 && tex_discard <= desired_discard)
 				{
-					local_tex_data->mDiscard = tex_discard;
+					local_tex_obj->setDiscard(tex_discard);
 					if (isSelf() && !gAgent.cameraCustomizeAvatar())
 					{
 						requestLayerSetUpdate(type);
@@ -1364,8 +1394,8 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerImage* tex, BOO
 			tex->setMinDiscardLevel(desired_discard);
 		}
 	}
-	local_tex_data->mIsBakedReady = baked_version_ready;
-	local_tex_data->mImage = tex;
+	local_tex_obj->setBakedReady( baked_version_ready );
+	local_tex_obj->setImage(tex);
 }
 
 // virtual
@@ -1388,7 +1418,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 		const ETextureIndex baked_equiv = LLVOAvatarDictionary::getInstance()->getBakedTexture(baked_index)->mTextureIndex;
 
 		const std::string &name = texture_dict->mName;
-		const LocalTextureData *local_tex_data = getLocalTextureData(iter->first,0);
+		const LLLocalTextureObject *local_tex_obj = getLocalTextureObject(iter->first, 0);
 		if (isTextureDefined(baked_equiv))
 		{
 #if LL_RELEASE_FOR_DOWNLOAD
@@ -1399,15 +1429,15 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 			llinfos << "LocTex " << name << ": Baked " << getTEImage(baked_equiv)->getID() << llendl;
 #endif
 		}
-		else if (local_tex_data->mImage.notNull())
+		else if (local_tex_obj->getImage() != NULL)
 		{
-			if (local_tex_data->mImage->getID() == IMG_DEFAULT_AVATAR)
+			if (local_tex_obj->getImage()->getID() == IMG_DEFAULT_AVATAR)
 			{
 				llinfos << "LocTex " << name << ": None" << llendl;
 			}
 			else
 			{
-				const LLViewerImage* image = local_tex_data->mImage;
+				const LLViewerFetchedTexture* image = local_tex_obj->getImage();
 
 				llinfos << "LocTex " << name << ": "
 						<< "Discard " << image->getDiscardLevel() << ", "
@@ -1423,7 +1453,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 		}
 		else
 		{
-			llinfos << "LocTex " << name << ": No LLViewerImage" << llendl;
+			llinfos << "LocTex " << name << ": No LLViewerTexture" << llendl;
 		}
 	}
 }
@@ -1433,7 +1463,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 // onLocalTextureLoaded()
 //-----------------------------------------------------------------------------
 
-void LLVOAvatarSelf::onLocalTextureLoaded(BOOL success, LLViewerImage *src_vi, LLImageRaw* src_raw, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+void LLVOAvatarSelf::onLocalTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src_raw, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {
 	LLAvatarTexData *data = (LLAvatarTexData *)userdata;
 	LLVOAvatarSelf *self = (LLVOAvatarSelf *)gObjectList.findObject(data->mAvatarID);
@@ -1447,57 +1477,6 @@ void LLVOAvatarSelf::onLocalTextureLoaded(BOOL success, LLViewerImage *src_vi, L
 	{
 		delete data;
 	}
-}
-
-
-const LLVOAvatarSelf::localtexture_vec_t &LLVOAvatarSelf::getLocalTextureData(LLVOAvatarDefines::ETextureIndex type) const
-{
-	localtexture_map_t::const_iterator found_localtexture = mLocalTextureDatas.find(type);
-	if (found_localtexture != mLocalTextureDatas.end())
-	{
-		const localtexture_vec_t &local_tex_data = found_localtexture->second;
-		return local_tex_data;
-	}
-	llassert(0);
-	static localtexture_vec_t ret;
-	return ret;
-}
-
-const LocalTextureData*	LLVOAvatarSelf::getLocalTextureData(LLVOAvatarDefines::ETextureIndex type, U32 index ) const
-{
-	const localtexture_vec_t &local_tex_array = getLocalTextureData(type);
-
-	if (index >= local_tex_array.size())
-	{
-		return NULL;
-	}
-
-	return local_tex_array[index];
-}
-
-LLVOAvatarSelf::localtexture_vec_t &LLVOAvatarSelf::getLocalTextureData(LLVOAvatarDefines::ETextureIndex type)
-{
-	localtexture_map_t::iterator found_localtexture = mLocalTextureDatas.find(type);
-	if (found_localtexture != mLocalTextureDatas.end())
-	{
-		localtexture_vec_t &local_tex_data = found_localtexture->second;
-		return local_tex_data;
-	}
-	llassert(0);
-	static localtexture_vec_t ret;
-	return ret;
-}
-
-LocalTextureData*	LLVOAvatarSelf::getLocalTextureData(LLVOAvatarDefines::ETextureIndex type, U32 index )
-{
-	localtexture_vec_t &local_tex_array = getLocalTextureData(type);
-
-	if (index >= local_tex_array.size())
-	{
-		return NULL;
-	}
-
-	return local_tex_array[index];
 }
 
 // static
@@ -1547,8 +1526,8 @@ BOOL LLVOAvatarSelf::updateIsFullyLoaded()
 				continue;
 
 			// Check for the case that texture is defined but not sufficiently loaded to display anything.
-			LLViewerImage* baked_img = getImage( texture_data.mTextureIndex );
-			if (!baked_img || !baked_img->getHasGLTexture())
+			LLViewerTexture* baked_img = getImage( texture_data.mTextureIndex );
+			if (!baked_img || !baked_img->hasValidGLTexture())
 			{
 				loading = TRUE;
 			}
@@ -1638,7 +1617,7 @@ BOOL LLVOAvatarSelf::canGrabLocalTexture(ETextureIndex type, U32 index) const
 	return TRUE;
 }
 
-void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerImage* imagep,
+void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTexture* imagep,
 										   F32 texel_area_ratio, BOOL render_avatar, BOOL covered_by_baked, U32 index )
 {
 	if (!isIndexLocalTexture(type)) return;
@@ -1662,6 +1641,18 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerImage* im
 			mHasGrey = TRUE; // for statistics gathering
 		}
 	}
+}
+
+LLLocalTextureObject* LLVOAvatarSelf::getLocalTextureObject(LLVOAvatarDefines::ETextureIndex i, U32 wearable_index) const
+{
+	EWearableType type = LLVOAvatarDictionary::getInstance()->getTEWearableType(i);
+	LLWearable* wearable = gAgentWearables.getWearable(type, wearable_index);
+	if (wearable)
+	{
+		return wearable->getLocalTextureObject(i);
+	}
+
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -1690,7 +1681,7 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 {
 	// Baked textures live on other sims.
 	LLHost target_host = getObjectHost();	
-	setTEImage( te, gImageList.getImageFromHost( uuid, target_host ) );
+	setTEImage( te, LLViewerTextureManager::getFetchedTextureFromHost( uuid, target_host ) );
 	updateMeshTextures();
 	dirtyMesh();
 

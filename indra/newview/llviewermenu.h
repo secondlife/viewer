@@ -75,8 +75,6 @@ BOOL enable_deselect(void*);
 BOOL enable_undo(void*);
 BOOL enable_redo(void*);
 
-// returns TRUE if we have a friend relationship with agent_id
-BOOL is_agent_friend(const LLUUID& agent_id);
 BOOL is_agent_mappable(const LLUUID& agent_id);
 
 void confirm_replace_attachment(S32 option, void* user_data);
@@ -101,7 +99,6 @@ void handle_toggle_flycam();
 
 bool handle_sit_or_stand();
 bool handle_give_money_dialog();
-bool handle_object_open();
 bool handle_go_to();
 
 // Export to XML or Collada

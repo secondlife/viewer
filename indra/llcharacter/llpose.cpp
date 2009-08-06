@@ -516,9 +516,9 @@ BOOL LLPoseBlender::addMotion(LLMotion* motion)
 void LLPoseBlender::blendAndApply()
 {
 	for (blender_list_t::iterator iter = mActiveBlenders.begin();
-		 iter != mActiveBlenders.end(); ++iter)
+		 iter != mActiveBlenders.end(); )
 	{
-		LLJointStateBlender* jsbp = *iter;
+		LLJointStateBlender* jsbp = *iter++;
 		jsbp->blendJointStates();
 	}
 

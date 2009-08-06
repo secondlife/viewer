@@ -50,16 +50,13 @@
 
 // newview
 #include "llagent.h"
-#include "llchatbar.h"
 #include "lldelayedgestureerror.h"
 #include "llinventorymodel.h"
 #include "llnotify.h"
 #include "llviewermessage.h"
 #include "llvoavatarself.h"
 #include "llviewerstats.h"
-#include "llbottomtray.h"
-
-LLGestureManager gGestureManager;
+#include "llnearbychatbar.h"
 
 // Longest time, in seconds, to wait for all animations to stop playing
 const F32 MAX_WAIT_ANIM_SECS = 30.f;
@@ -72,7 +69,9 @@ LLGestureManager::LLGestureManager()
 	mPlaying(),
 	mActive(),
 	mLoadingCount(0)
-{ }
+{
+	gInventory.addObserver(this);
+}
 
 
 // We own the data for gestures, so clean them up.
@@ -86,6 +85,7 @@ LLGestureManager::~LLGestureManager()
 		delete gesture;
 		gesture = NULL;
 	}
+	gInventory.removeObserver(this);
 }
 
 
@@ -443,7 +443,7 @@ void LLGestureManager::replaceGesture(const LLUUID& item_id, LLMultiGesture* new
 
 void LLGestureManager::replaceGesture(const LLUUID& item_id, const LLUUID& new_asset_id)
 {
-	item_map_t::iterator it = gGestureManager.mActive.find(item_id);
+	item_map_t::iterator it = LLGestureManager::instance().mActive.find(item_id);
 	if (it == mActive.end())
 	{
 		llwarns << "replaceGesture for inactive gesture " << item_id << llendl;
@@ -452,7 +452,7 @@ void LLGestureManager::replaceGesture(const LLUUID& item_id, const LLUUID& new_a
 
 	// mActive owns this gesture pointer, so clean up memory.
 	LLMultiGesture* gesture = (*it).second;
-	gGestureManager.replaceGesture(item_id, gesture, new_asset_id);
+	LLGestureManager::instance().replaceGesture(item_id, gesture, new_asset_id);
 }
 
 void LLGestureManager::playGesture(LLMultiGesture* gesture)
@@ -872,7 +872,7 @@ void LLGestureManager::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 
 			const BOOL animate = FALSE;
 
-			LLBottomTray::getInstance()->sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
+			LLNearbyChatBar::getInstance()->sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
 
 			gesture->mCurrentStep++;
 			break;
@@ -922,7 +922,7 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 	delete info;
 	info = NULL;
 
-	gGestureManager.mLoadingCount--;
+	LLGestureManager::instance().mLoadingCount--;
 
 	if (0 == status)
 	{
@@ -944,22 +944,34 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 		{
 			if (deactivate_similar)
 			{
-				gGestureManager.deactivateSimilarGestures(gesture, item_id);
+				LLGestureManager::instance().deactivateSimilarGestures(gesture, item_id);
 
 				// Display deactivation message if this was the last of the bunch.
-				if (gGestureManager.mLoadingCount == 0
-					&& gGestureManager.mDeactivateSimilarNames.length() > 0)
+				if (LLGestureManager::instance().mLoadingCount == 0
+					&& LLGestureManager::instance().mDeactivateSimilarNames.length() > 0)
 				{
 					// we're done with this set of deactivations
 					LLSD args;
-					args["NAMES"] = gGestureManager.mDeactivateSimilarNames;
+					args["NAMES"] = LLGestureManager::instance().mDeactivateSimilarNames;
 					LLNotifications::instance().add("DeactivatedGesturesTrigger", args);
 				}
 			}
 
+			LLViewerInventoryItem* item = gInventory.getItem(item_id);
+			if(item)
+			{
+				gesture->mName = item->getName();
+			}
+			else
+			{
+				// Watch this item and set gesture name when item exists in inventory
+				LLGestureManager::instance().watchItem(item_id);
+			}
+			LLGestureManager::instance().mActive[item_id] = gesture;
+
 			// Everything has been successful.  Add to the active list.
-			gGestureManager.mActive[item_id] = gesture;
 			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+
 			if (inform_server)
 			{
 				// Inform the database of this change
@@ -978,13 +990,13 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 				gAgent.sendReliableMessage();
 			}
 
-			gGestureManager.notifyObservers();
+			LLGestureManager::instance().notifyObservers();
 		}
 		else
 		{
 			llwarns << "Unable to load gesture" << llendl;
 
-			gGestureManager.mActive.erase(item_id);
+			LLGestureManager::instance().mActive.erase(item_id);
 			
 			delete gesture;
 			gesture = NULL;
@@ -1006,7 +1018,7 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 
 		llwarns << "Problem loading gesture: " << status << llendl;
 		
-		gGestureManager.mActive.erase(item_id);			
+		LLGestureManager::instance().mActive.erase(item_id);			
 	}
 }
 
@@ -1133,4 +1145,20 @@ void LLGestureManager::getItemIDs(std::vector<LLUUID>* ids)
 	{
 		ids->push_back(it->first);
 	}
+}
+
+void LLGestureManager::done()
+{
+	for(item_map_t::iterator it = mActive.begin(); it != mActive.end(); ++it)
+	{
+		if(it->second->mName.empty())
+		{
+			LLViewerInventoryItem* item = gInventory.getItem(it->first);
+			if(item)
+			{
+				it->second->mName = item->getName();
+			}
+		}
+	}
+	notifyObservers();
 }

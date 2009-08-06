@@ -45,8 +45,6 @@ class LLFrameTimer;
 class LLChatBarGestureObserver;
 class LLComboBox;
 
-// legacy calllback glue
-void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
 
 class LLChatBar
 :	public LLPanel

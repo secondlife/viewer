@@ -45,7 +45,9 @@
 const S32 RESIZE_BORDER_WIDTH = 3;
 
 LLResizeHandle::Params::Params()
-:	corner("corner")
+:	corner("corner"),
+	min_width("min_width"),
+	min_height("min_height")
 {
 	name = "resize_handle";
 }
@@ -63,7 +65,7 @@ LLResizeHandle::LLResizeHandle(const LLResizeHandle::Params& p)
 {
 	if( RIGHT_BOTTOM == mCorner)
 	{
-		mImage = LLUI::getUIImage("resize_handle_bottom_right_blue.tga");
+		mImage = LLUI::getUIImage("Resize_Corner");
 	}
 	switch( p.corner )
 	{

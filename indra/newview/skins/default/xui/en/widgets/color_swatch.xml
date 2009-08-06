@@ -5,6 +5,4 @@
   <color_swatch.caption_text name="caption"
                              font="SansSerifSmall"
                              follows="left|right|bottom"/>
-  <color_swatch.border name="border"
-                       bevel_type="in"/>
 </color_swatch>

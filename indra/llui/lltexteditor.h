@@ -63,7 +63,7 @@ public:
 		Optional<S32>			max_text_length;
 
 		Optional<bool>			read_only,
-								allow_embedded_items,
+								embedded_items,
 								hide_scrollbar,
 								word_wrap,
 								ignore_tab,
@@ -86,30 +86,7 @@ public:
 								length,
 								is_unicode;
 
-
-		Params()
-		:	max_text_length("max_length", 255),
-			read_only("read_only", false),
-			allow_embedded_items("embedded_items", false),
-			hide_scrollbar("hide_scrollbar", false),
-			hide_border("hide_border", false),
-			word_wrap("word_wrap", false),
-			ignore_tab("ignore_tab", true),
-			track_bottom("track_bottom", false),
-			takes_non_scroll_clicks("takes_non_scroll_clicks", true),
-			cursor_color("cursor_color"),
-			default_color("default_color"),
-			text_color("text_color"),
-			text_readonly_color("text_readonly_color"),
-			bg_readonly_color("bg_readonly_color"),
-			bg_writeable_color("bg_writeable_color"),
-			bg_focus_color("bg_focus_color"),
-			length("length"),
-			type("type"),
-			is_unicode("is_unicode")
-		{}
-			
-			
+		Params();
 	};
 
 	void initFromParams(const Params&);
@@ -268,8 +245,6 @@ public:
 
 	void			setSourceID(const LLUUID& id) 			{ mSourceID = id; }
 	const LLUUID&	getSourceID() const						{ return mSourceID; }
-	void 			setAcceptCallingCardNames(BOOL enable)	{ mAcceptCallingCardNames = enable; }
-	BOOL			acceptsCallingCardNames() const			{ return mAcceptCallingCardNames; }
 
 	void			setHandleEditKeysDirectly( BOOL b ) 	{ mHandleEditKeysDirectly = b; }
 
@@ -512,7 +487,7 @@ private:
 	// Data
 	//
 	LLKeywords		mKeywords;
-	static LLColor4 mLinkColor;
+	static LLUIColor mLinkColor;
 	static void			(*mURLcallback) (const std::string& url);
 	static bool			(*mSecondlifeURLcallback) (const std::string& url);
 	static bool			(*mSecondlifeURLcallbackRightClick) (const std::string& url);
@@ -526,7 +501,6 @@ private:
 	S32				mMaxTextByteLength;		// Maximum length mText is allowed to be in bytes
 
 	const LLFontGL*	mGLFont;
-	U8              mGLFontStyle; // the font style from xml
 
 	class LLViewBorder*	mBorder;
 
@@ -541,6 +515,7 @@ private:
 	S32				mDesiredXPixel;			// X pixel position where the user wants the cursor to be
 	LLRect			mTextRect;				// The rect in which text is drawn.  Excludes borders.
 	// List of offsets and segment index of the start of each line.  Always has at least one node (0).
+	struct pred;
 	struct line_info
 	{
 		line_info(S32 segment, S32 offset) : mSegment(segment), mOffset(offset) {}
@@ -585,8 +560,6 @@ private:
 	BOOL			mScrolledToBottom;
 
 	BOOL			mAllowEmbeddedItems;
-
-	BOOL 			mAcceptCallingCardNames;
 
 	LLUUID			mSourceID;
 

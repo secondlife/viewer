@@ -36,7 +36,7 @@
 #include <vector>
 
 // Maintain a collection of bitmaps containing rendered glyphs.
-// Generalizes the single-bitmap logic from LLFont and LLFontGL.
+// Generalizes the single-bitmap logic from LLFontFreetype and LLFontGL.
 class LLFontBitmapCache: public LLRefCount
 {
 public:

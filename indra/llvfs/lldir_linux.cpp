@@ -99,6 +99,7 @@ LLDir_Linux::LLDir_Linux()
 #else
 	mAppRODataDir = tmp_str;
 #endif
+	mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
 	mOSUserDir = getCurrentUserHome(tmp_str);
 	mOSUserAppDir = "";
 	mLindenUserDir = tmp_str;
@@ -146,6 +147,7 @@ void LLDir_Linux::initAppDirs(const std::string &app_name,
 	if (!app_read_only_data_dir.empty())
 	{
 		mAppRODataDir = app_read_only_data_dir;
+		mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
 	}
 	mAppName = app_name;
 

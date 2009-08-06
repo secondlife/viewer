@@ -8,7 +8,7 @@
  left="0"
  name="Debug"
  top="320"
- width="480">
+ width="280">
     <text
      type="string"
      length="1"
@@ -32,7 +32,7 @@
      left_delta="50"
      name="region_text"
      top_delta="0"
-     width="400">
+     width="220">
         unknown
     </text>
     <check_box
@@ -96,12 +96,13 @@
      enabled="false"
      follows="left|top"
      height="20"
+     font="SansSerifSmall"
      label="Apply"
      layout="topleft"
      left="60"
      name="apply_btn"
      top="100"
-     width="100" />
+     width="80" />
     <text
      type="string"
      length="1"
@@ -120,7 +121,7 @@
      follows="left|top"
      height="20"
      layout="topleft"
-     left="30"
+     left="20"
      name="resident_text_lbl"
      top="175"
      width="60">
@@ -139,25 +140,26 @@
      mouse_opaque="false"
      name="target_avatar_name"
      top_delta="-2"
-     width="180">
+     width="115">
         (none)
     </line_editor>
     <button
      follows="left|top"
      height="20"
-     label="Choose..."
+     font="SansSerifSmall"
+     label="Choose"
      layout="topleft"
-     left_pad="10"
+     left_pad="5"
      name="choose_avatar_btn"
      top_delta="0"
-     width="80" />
-    <text
+     width="70" />
+   <text
      type="string"
      length="1"
      follows="left|top"
      height="20"
      layout="topleft"
-     left="30"
+     left="20"
      name="options_text_lbl"
      top="198"
      width="60">
@@ -165,7 +167,7 @@
     </text>
     <check_box
      height="20"
-     label="Return only those objects with scripts"
+     label="With scripts"
      layout="topleft"
      left_delta="60"
      name="return_scripts"
@@ -174,7 +176,7 @@
      width="80" />
     <check_box
      height="20"
-     label="Return only those objects on someone else&apos;s land"
+     label="On someone else&apos;s land"
      layout="topleft"
      left_delta="0"
      name="return_other_land"
@@ -183,7 +185,7 @@
      width="80" />
     <check_box
      height="20"
-     label="Return objects in every region of this estate"
+     label="In every region of this estate"
      layout="topleft"
      left_delta="0"
      name="return_estate_wide"
@@ -193,22 +195,24 @@
     <button
      follows="left|top"
      height="20"
+     font="SansSerifSmall"
      label="Return"
      layout="topleft"
-     left="30"
+     left="20"
      name="return_btn"
      top="263"
      width="80" />
     <button
      follows="left|top"
      height="20"
+     font="SansSerifSmall"
      label="Get Top Colliders..."
      layout="topleft"
      left="10"
      name="top_colliders_btn"
      tool_tip="List of objects experiencing the most potential collisions"
      top="313"
-     width="150" />
+     width="130" />
     <button
      follows="left|top"
      font="SansSerifSmall"
@@ -222,13 +226,14 @@
     <button
      follows="left|top"
      height="20"
+     font="SansSerifSmall"
      label="Get Top Scripts..."
      layout="topleft"
      left="10"
      name="top_scripts_btn"
      tool_tip="List of objects spending the most time running scripts"
      top_pad="5"
-     width="150" />
+     width="130" />
     <button
      follows="left|top"
      font="SansSerifSmall"
@@ -242,13 +247,14 @@
     <button
      follows="left|top"
      height="20"
+     font="SansSerifSmall"
      label="Restart Region"
      layout="topleft"
      left="10"
      name="restart_btn"
      tool_tip="Give 2 minute countdown and restart region"
      top_pad="5"
-     width="130" />
+     width="110" />
     <button
      follows="left|top"
      font="SansSerifSmall"
@@ -262,11 +268,12 @@
     <button
      follows="left|top"
      height="20"
+     font="SansSerifSmall"
      label="Delay Restart"
      layout="topleft"
      left="10"
      name="cancel_restart_btn"
      tool_tip="Delay region restart by one hour"
      top_pad="5"
-     width="130" />
+     width="110" />
 </panel>

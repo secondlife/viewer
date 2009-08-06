@@ -50,6 +50,11 @@ public:
 	{
 		Optional<bool>		is_group;
 		Optional<LLUUID>	name_id;
+
+		Params()
+		:	is_group("is_group"),
+			name_id("name_id")
+		{}
 	};
 
 protected:

@@ -35,27 +35,94 @@
 
 #include "llfloater.h"
 
+#include "llfirsttimetipmanager.h"
+
 class LLJoystickCameraRotate;
 class LLJoystickCameraZoom;
 class LLJoystickCameraTrack;
+class LLFloaterReg;
+
+enum ECameraControlMode
+{
+	CAMERA_CTRL_MODE_ORBIT,
+	CAMERA_CTRL_MODE_PAN,
+	CAMERA_CTRL_MODE_FREE_CAMERA,
+	CAMERA_CTRL_MODE_AVATAR_VIEW
+};
 
 class LLFloaterCamera
-	:	public LLFloater,
-		public LLFloaterSingleton<LLFloaterCamera>
+	:	public LLFloater
 {
-	friend class LLUISingleton<LLFloaterCamera, VisibilityPolicy<LLFloater> >;
+	friend class LLFloaterReg;
 	
-private:
-	LLFloaterCamera(const LLSD& val);
-	~LLFloaterCamera() {};
-	
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
-	/*virtual*/ BOOL postBuild();
 public:
+
+	/* whether in free camera mode */
+	static bool inFreeCameraMode();
+
+	static void toPrevModeIfInAvatarViewMode();
+
+	/* resets free camera mode to the previous mode */
+	//*TODO remove, if it won't be used by LLToolCamera::handleDeselect()
+	void resetFreeCameraMode();
+
+	/* determines actual mode and updates ui */
+	void update();
+	
+	static void updateIfNotInAvatarViewMode();
+
+	static void onClickCameraPresets(LLUICtrl* ctrl, const LLSD& param);
+
+	virtual void onOpen(const LLSD& key);
+
+	// *HACK: due to hard enough to have this control aligned with "Camera" button while resizing
+	// let update its position in each frame
+	/*virtual*/ void draw(){updatePosition(); LLFloater::draw();}
+
 	LLJoystickCameraRotate* mRotate;
 	LLJoystickCameraZoom*	mZoom;
 	LLJoystickCameraTrack*	mTrack;
+
+private:
+
+	LLFloaterCamera(const LLSD& val);
+	~LLFloaterCamera() {};
+
+	/* return instance if it exists - created by LLFloaterReg */
+	static LLFloaterCamera* findInstance();
+
+	/*virtual*/ BOOL postBuild();
+
+	ECameraControlMode determineMode();
+
+	/* whether in avatar view (first person) mode */
+	bool inAvatarViewMode();
+
+	/* resets to the previous mode */
+	void toPrevMode();
+
+	/* sets a new mode and performs related actions */
+	void switchMode(ECameraControlMode mode);
+
+	/* sets a new mode preserving previous one and updates ui*/
+	void setMode(ECameraControlMode mode);
+
+	/* updates the state (UI) according to the current mode */
+	void updateState();
+
+	void onClickBtn(ECameraControlMode mode);
+	void assignButton2Mode(ECameraControlMode mode, const std::string& button_name);
+	void initMode2TipTypeMap();
+
+	/*Updates position of the floater to be center aligned with "Camera" button.*/
+	void updatePosition();
+
+
+	ECameraControlMode mPrevMode;
+	ECameraControlMode mCurrMode;
+	std::map<ECameraControlMode, LLButton*> mMode2Button;
+	std::map<ECameraControlMode, LLFirstTimeTipsManager::EFirstTimeTipType> mMode2TipType;
+
 };
 
 #endif

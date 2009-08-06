@@ -9,6 +9,7 @@
  name="Inventory"
  save_rect="true"
  save_visibility="true"
+ single_instance="true"
  title="Inventory"
  width="467">
     <floater.string
@@ -23,7 +24,7 @@
      name="Fetched">
         Fetched
     </floater.string>
-    <search_editor
+    <filter_editor
      follows="left|top|right"
      height="16"
      label="Type here to search"

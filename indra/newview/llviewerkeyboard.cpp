@@ -36,7 +36,7 @@
 #include "llviewerkeyboard.h"
 #include "llmath.h"
 #include "llagent.h"
-#include "llchatbar.h"
+#include "llnearbychatbar.h"
 #include "llviewercontrol.h"
 #include "llfocusmgr.h"
 #include "llmorphview.h"
@@ -44,6 +44,7 @@
 #include "lltoolfocus.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
+#include "llfloatercamera.h"
 
 //
 // Constants
@@ -135,14 +136,29 @@ static void agent_push_forwardbackward( EKeystate s, S32 direction, LLAgent::EDo
 	}
 }
 
+void camera_move_forward( EKeystate s );
+
 void agent_push_forward( EKeystate s )
 {
+	//in free camera control mode we need to intercept keyboard events for avatar movements
+	if (LLFloaterCamera::inFreeCameraMode())
+	{
+		camera_move_forward(s);
+		return;
+	}
 	agent_push_forwardbackward(s, 1, LLAgent::DOUBLETAP_FORWARD);
 }
 
+void camera_move_backward( EKeystate s );
 
 void agent_push_backward( EKeystate s )
 {
+	//in free camera control mode we need to intercept keyboard events for avatar movements
+	if (LLFloaterCamera::inFreeCameraMode())
+	{
+		camera_move_backward(s);
+		return;
+	}
 	agent_push_forwardbackward(s, -1, LLAgent::DOUBLETAP_BACKWARD);
 }
 
@@ -175,8 +191,17 @@ void agent_slide_right( EKeystate s )
 	agent_slide_leftright(s, -1, LLAgent::DOUBLETAP_SLIDERIGHT);
 }
 
+void camera_spin_around_cw( EKeystate s );
+
 void agent_turn_left( EKeystate s )
 {
+	//in free camera control mode we need to intercept keyboard events for avatar movements
+	if (LLFloaterCamera::inFreeCameraMode())
+	{
+		camera_spin_around_cw(s);
+		return;
+	}
+
 	if (LLToolCamera::getInstance()->mouseSteerMode())
 	{
 		agent_slide_left(s);
@@ -189,9 +214,17 @@ void agent_turn_left( EKeystate s )
 	}
 }
 
+void camera_spin_around_ccw( EKeystate s );
 
 void agent_turn_right( EKeystate s )
 {
+	//in free camera control mode we need to intercept keyboard events for avatar movements
+	if (LLFloaterCamera::inFreeCameraMode())
+	{
+		camera_spin_around_ccw(s);
+		return;
+	}
+
 	if (LLToolCamera::getInstance()->mouseSteerMode())
 	{
 		agent_slide_right(s);
@@ -500,8 +533,7 @@ void stop_moving( EKeystate s )
 void start_chat( EKeystate s )
 {
 	// start chat
-	LLChatBar::startChat(NULL);
-//	gChatBar->startChat(NULL);
+	LLNearbyChatBar::startChat(NULL);
 }
 
 void start_gesture( EKeystate s )
@@ -509,18 +541,16 @@ void start_gesture( EKeystate s )
 	if (KEYSTATE_UP == s &&
 		!(gFocusMgr.getKeyboardFocus() && gFocusMgr.getKeyboardFocus()->acceptsTextInput()))
 	{
-		//TODO* remove DUMMY chatbar
-		LLChatBar::startChat(NULL);
-// 		if (gChatBar->getCurrentChat().empty())
-// 		{
-// 			// No existing chat in chat editor, insert '/'
-// 			gChatBar->startChat("/");
-// 		}
-// 		else
-// 		{
-// 			// Don't overwrite existing text in chat editor
-// 			gChatBar->startChat(NULL);
-// 		}
+ 		if (LLNearbyChatBar::getInstance()->getCurrentChat().empty())
+ 		{
+ 			// No existing chat in chat editor, insert '/'
+ 			LLNearbyChatBar::startChat("/");
+ 		}
+ 		else
+ 		{
+ 			// Don't overwrite existing text in chat editor
+ 			LLNearbyChatBar::startChat(NULL);
+ 		}
 	}
 }
 
@@ -845,7 +875,7 @@ EKeyboardMode LLViewerKeyboard::getMode()
 	{
 		return MODE_EDIT_AVATAR;
 	}
-	else if (gAgent.getAvatarObject() && gAgent.getAvatarObject()->mIsSitting)
+	else if (gAgent.getAvatarObject() && gAgent.getAvatarObject()->isSitting())
 	{
 		return MODE_SITTING;
 	}

@@ -36,6 +36,7 @@
 
 #include "lltexteditor.h"
 
+#include "llfontfreetype.h" // for LLFontFreetype::FIRST_CHAR
 #include "llfontgl.h"
 #include "llrender.h"
 #include "llui.h"
@@ -55,7 +56,6 @@
 #include "llundo.h"
 #include "llviewborder.h"
 #include "llcontrol.h"
-#include "llimagegl.h"
 #include "llwindow.h"
 #include "lltextparser.h"
 #include <queue>
@@ -63,7 +63,7 @@
 // 
 // Globals
 //
-static LLDefaultWidgetRegistry::Register<LLTextEditor> r("simple_text_editor");
+static LLDefaultChildRegistry::Register<LLTextEditor> r("simple_text_editor");
 
 //
 // Constants
@@ -75,7 +75,7 @@ const S32	CURSOR_THICKNESS = 2;
 const S32	SPACES_PER_TAB = 4;
 
 
-LLColor4 LLTextEditor::mLinkColor = LLColor4::blue;
+LLUIColor LLTextEditor::mLinkColor = LLColor4::blue;
 void (* LLTextEditor::mURLcallback)(const std::string&)   = NULL;
 bool (* LLTextEditor::mSecondlifeURLcallback)(const std::string&)   = NULL;
 bool (* LLTextEditor::mSecondlifeURLcallbackRightClick)(const std::string&)   = NULL;
@@ -228,6 +228,29 @@ private:
 
 
 ///////////////////////////////////////////////////////////////////
+LLTextEditor::Params::Params()
+:	default_text("default_text"),
+	max_text_length("max_length", 255),
+	read_only("read_only", false),
+	embedded_items("embedded_items", false),
+	hide_scrollbar("hide_scrollbar", false),
+	hide_border("hide_border", false),
+	word_wrap("word_wrap", false),
+	ignore_tab("ignore_tab", true),
+	track_bottom("track_bottom", false),
+	takes_non_scroll_clicks("takes_non_scroll_clicks", true),
+	cursor_color("cursor_color"),
+	default_color("default_color"),
+	text_color("text_color"),
+	text_readonly_color("text_readonly_color"),
+	bg_readonly_color("bg_readonly_color"),
+	bg_writeable_color("bg_writeable_color"),
+	bg_focus_color("bg_focus_color"),
+	length("length"),		// ignored
+	type("type"),			// ignored
+	is_unicode("is_unicode")// ignored
+{}
+
 LLTextEditor::LLTextEditor(const LLTextEditor::Params& p)
 	:	LLUICtrl(p, LLTextViewModelPtr(new LLTextViewModel)),
 	mMaxTextByteLength( p.max_text_length ),
@@ -255,8 +278,7 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p)
 	mHideScrollbarForShortDocs( FALSE ),
 	mTakesNonScrollClicks( p.takes_non_scroll_clicks ),
 	mTrackBottom( p.track_bottom ),
-	mAllowEmbeddedItems( p.allow_embedded_items ),
-	mAcceptCallingCardNames(FALSE),
+	mAllowEmbeddedItems( p.embedded_items ),
 	mHandleEditKeysDirectly( FALSE ),
 	mMouseDownX(0),
 	mMouseDownY(0),
@@ -264,9 +286,10 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p)
 	mReflowNeeded(FALSE),
 	mScrollNeeded(FALSE),
 	mLastSelectionY(-1),
+	mParseHTML(FALSE),
+	mParseHighlights(FALSE),
 	mTabsToNextField(p.ignore_tab),
-	mGLFont(p.font),
-	mGLFontStyle(LLFontGL::getStyleFromString(p.font.style))
+	mGLFont(p.font)
 {
 	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
 
@@ -304,7 +327,7 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p)
 	LLViewBorder::Params params;
 	params.name("text ed border");
 	params.rect(getLocalRect());
-	params.bevel_type(LLViewBorder::BEVEL_IN);
+	params.bevel_style(LLViewBorder::BEVEL_IN);
 	params.border_thickness(text_editor_border);
 	mBorder = LLUICtrlFactory::create<LLViewBorder> (params);
 	addChild( mBorder );
@@ -314,7 +337,6 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p)
 
 	setHideScrollbarForShortDocs(p.hide_scrollbar);
 
-	mParseHTML=FALSE;
 	mHTML.clear();
 }
 
@@ -376,6 +398,7 @@ void LLTextEditor::updateLineStartList(S32 startpos)
 	S32 seg_num = mSegments.size();
 	S32 seg_idx = 0;
 	S32 seg_offset = 0;
+
 
 	if (!mLineStartList.empty())
 	{
@@ -1932,7 +1955,7 @@ void LLTextEditor::pasteHelper(bool is_primary)
 		for( S32 i = 0; i < len; i++ )
 		{
 			llwchar wc = clean_string[i];
-			if( (wc < LLFont::FIRST_CHAR) && (wc != LF) )
+			if( (wc < LLFontFreetype::FIRST_CHAR) && (wc != LF) )
 			{
 				clean_string[i] = LL_UNKNOWN_CHAR;
 			}
@@ -3083,8 +3106,8 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 
 	if (style->getIsEmbeddedItem())
 	{
-		static LLUICachedControl<LLColor4> text_embedded_item_readonly_color ("TextEmbeddedItemReadOnlyColor", *(new LLColor4));
-		static LLUICachedControl<LLColor4> text_embedded_item_color ("TextEmbeddedItemColor", *(new LLColor4));
+		static LLUIColor text_embedded_item_readonly_color = LLUIColorTable::instance().getColor("TextEmbeddedItemReadOnlyColor");
+		static LLUIColor text_embedded_item_color = LLUIColorTable::instance().getColor("TextEmbeddedItemColor");
 		if (mReadOnly)
 		{
 			color = text_embedded_item_readonly_color;
@@ -3103,7 +3126,7 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 		S32 start = seg_start;
 		S32 end = llmin( selection_left, seg_end );
 		S32 length =  end - start;
-		font->render(text, start, x, y_top, color, LLFontGL::LEFT, LLFontGL::TOP, mGLFontStyle, LLFontGL::NO_SHADOW, length, S32_MAX, right_x, mAllowEmbeddedItems);
+		font->render(text, start, x, y_top, color, LLFontGL::LEFT, LLFontGL::TOP, 0, LLFontGL::NO_SHADOW, length, S32_MAX, right_x, mAllowEmbeddedItems);
 	}
 	x = *right_x;
 	
@@ -3116,7 +3139,7 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 
 		font->render(text, start, x, y_top,
 					 LLColor4( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], 1.f ),
-					 LLFontGL::LEFT, LLFontGL::TOP, mGLFontStyle, LLFontGL::NO_SHADOW, length, S32_MAX, right_x, mAllowEmbeddedItems);
+					 LLFontGL::LEFT, LLFontGL::TOP, 0, LLFontGL::NO_SHADOW, length, S32_MAX, right_x, mAllowEmbeddedItems);
 	}
 	x = *right_x;
 	if( selection_right < seg_end )
@@ -3125,7 +3148,7 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 		S32 start = llmax( selection_right, seg_start );
 		S32 end = seg_end;
 		S32 length = end - start;
-		font->render(text, start, x, y_top, color, LLFontGL::LEFT, LLFontGL::TOP, mGLFontStyle, LLFontGL::NO_SHADOW, length, S32_MAX, right_x, mAllowEmbeddedItems);
+		font->render(text, start, x, y_top, color, LLFontGL::LEFT, LLFontGL::TOP, 0, LLFontGL::NO_SHADOW, length, S32_MAX, right_x, mAllowEmbeddedItems);
 	}
  }
 

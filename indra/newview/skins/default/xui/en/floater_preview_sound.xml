@@ -4,7 +4,7 @@
  height="85"
  layout="topleft"
  name="preview_sound"
- width="300">
+ width="280">
     <floater.string
      name="Title">
         Sound: [NAME]
@@ -16,11 +16,11 @@
      font="SansSerif"
      height="19"
      layout="topleft"
-     left="95"
+     left="85"
      max_length="127"
      name="desc"
      top="19"
-     width="192" />
+     width="127" />
     <text
      type="string"
      length="1"
@@ -28,7 +28,7 @@
      font="SansSerif"
      height="19"
      layout="topleft"
-     left_delta="-82"
+     left="10"
      name="desc txt"
      top_delta="0"
      width="80">
@@ -37,10 +37,11 @@
     <button
      follows="left|top"
      height="19"
+     font="SansSerifSmall"
      label="Play Locally"
      label_selected="Play Locally"
      layout="topleft"
-     left="168"
+     left="145"
      name="Sound audition btn"
      sound_flags="0"
      tool_tip="Play this sound so that only you can hear it."

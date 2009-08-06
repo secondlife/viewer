@@ -34,6 +34,7 @@
 
 #include "llsafehandle.h"
 
+class LLFloater;
 class LLParcel;
 class LLViewerRegion;
 class LLParcelSelection;
@@ -43,6 +44,8 @@ class LLFloaterSellLand
 public:
 	static void sellLand(LLViewerRegion* region,
 						LLSafeHandle<LLParcelSelection> parcel);
+	
+	static LLFloater* buildFloater(const LLSD& key);
 };
 
 #endif // LL_LLFLOATERSELLLAND_H

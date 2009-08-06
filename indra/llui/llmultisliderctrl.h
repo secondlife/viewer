@@ -90,8 +90,8 @@ public:
 	void			setCurSlider(const std::string& name);		
 	void			setCurSliderValue(F32 val, BOOL from_event = false) { setSliderValue(mMultiSlider->getCurSlider(), val, from_event); }
 
-	virtual void	setMinValue(LLSD min_value)	{ setMinValue((F32)min_value.asReal()); }
-	virtual void	setMaxValue(LLSD max_value)	{ setMaxValue((F32)max_value.asReal());  }
+	virtual void	setMinValue(const LLSD& min_value)	{ setMinValue((F32)min_value.asReal()); }
+	virtual void	setMaxValue(const LLSD& max_value)	{ setMaxValue((F32)max_value.asReal());  }
 
 	BOOL			isMouseHeldDown();
 
@@ -108,8 +108,8 @@ public:
 	void			deleteSlider(const std::string& name);
 	void			deleteCurSlider()			{ deleteSlider(mMultiSlider->getCurSlider()); }
 
-	F32				getMinValue() { return mMultiSlider->getMinValue(); }
-	F32				getMaxValue() { return mMultiSlider->getMaxValue(); }
+	F32				getMinValue() const { return mMultiSlider->getMinValue(); }
+	F32				getMaxValue() const { return mMultiSlider->getMaxValue(); }
 
 	void			setLabel(const std::string& label)				{ if (mLabelBox) mLabelBox->setText(label); }
 	void			setLabelColor(const LLColor4& c)			{ mTextEnabledColor = c; }

@@ -113,7 +113,7 @@ void LLPanelVoiceDeviceSettings::draw()
 			{
 				if (power_bar_idx < discrete_power)
 				{
-					LLColor4 color = (power_bar_idx >= 3) ? gSavedSkinSettings.getColor4("OverdrivenColor") : gSavedSkinSettings.getColor4("SpeakingColor");
+					LLColor4 color = (power_bar_idx >= 3) ? LLUIColorTable::instance().getColor("OverdrivenColor") : LLUIColorTable::instance().getColor("SpeakingColor");
 					gl_rect_2d(bar_view->getRect(), color, TRUE);
 				}
 				gl_rect_2d(bar_view->getRect(), LLColor4::grey, FALSE);
@@ -284,7 +284,7 @@ void LLPanelVoiceDeviceSettings::onCommitOutputDevice(LLUICtrl* ctrl, void* user
 //
 
 LLFloaterVoiceDeviceSettings::LLFloaterVoiceDeviceSettings(const LLSD& seed)
-	: LLFloater(),
+	: LLFloater(seed),
 	  mDevicePanel(NULL)
 {
 	mFactoryMap["device_settings"] = LLCallbackMap(createPanelVoiceDeviceSettings, this);
@@ -294,6 +294,8 @@ LLFloaterVoiceDeviceSettings::LLFloaterVoiceDeviceSettings(const LLSD& seed)
 }
 BOOL LLFloaterVoiceDeviceSettings::postBuild()
 {
+	mCloseSignal.connect(boost::bind(&LLFloaterVoiceDeviceSettings::onClose, this));
+	
 	center();
 	return TRUE;
 }
@@ -305,14 +307,12 @@ void LLFloaterVoiceDeviceSettings::onOpen(const LLSD& key)
 	}
 }
 
-void LLFloaterVoiceDeviceSettings::onClose(bool app_quitting)
+void LLFloaterVoiceDeviceSettings::onClose()
 {
 	if(mDevicePanel)
 	{
 		mDevicePanel->cleanup();
 	}
-
-	setVisible(FALSE);
 }
 
 void LLFloaterVoiceDeviceSettings::apply()

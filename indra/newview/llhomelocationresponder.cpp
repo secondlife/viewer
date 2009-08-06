@@ -103,7 +103,7 @@ void LLHomeLocationResponder::result( const LLSD& content )
   }
 }
 
-void LLHomeLocationResponder::error( const LLSD& content )
+void LLHomeLocationResponder::error( U32 status, const std::string& reason )
 {
-  llinfos << "received error(" << ll_pretty_print_sd( content ) << ")" << llendl;
+  llinfos << "received error(" << reason  << ")" << llendl;
 }

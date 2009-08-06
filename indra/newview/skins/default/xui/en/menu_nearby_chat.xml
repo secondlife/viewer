@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <menu bottom="100" color="MenuDefaultBgColor" drop_shadow="true" height="101" left="100"
      mouse_opaque="false" name="NearBy Chat Menu" opaque="true" width="128" visible="false">
-	<menu_item_call bottom_delta="-18" height="18" label="Keep Visible" left="0" mouse_opaque="true"
-	     name="keep_visible" width="128">
-    <menu_item_call.on_click function="NearbyChat.Action" userdata="keep_visible" />
-	</menu_item_call>
 	<menu_item_call bottom_delta="-18" height="18" label="Show Nearby People..." left="0" mouse_opaque="true"
 	     name="nearby_people" width="128">
     <menu_item_call.on_click function="NearbyChat.Action" userdata="nearby_people" />

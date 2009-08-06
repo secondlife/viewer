@@ -106,7 +106,7 @@ public:
 	 * @return history items.
 	 */
 	const slurl_list_t&		getItems() const { return mItems; }
-	
+	void                    purgeItems();
 	/**
 	 * Is the history empty?
 	 * 
@@ -119,7 +119,6 @@ public:
 	 * Get index of the current location in the history.
 	 */
 	int						getCurrentItemIndex() const { return mCurrentItem; }
-	
 	/**
 	 * Set a callback to be called upon history changes.
 	 * 

@@ -45,7 +45,7 @@
 #include "llgesturemgr.h"
 
 #include "llinventorybridge.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 
 #include "llviewerregion.h"
 #include "llviewerobjectlist.h"
@@ -201,10 +201,19 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 	{
 		std::string url; 
 
-		if( ALEXANDRIA_LINDEN_ID.getString() == mPermissions.getOwner().getString())
-			url = gAgent.getRegion()->getCapability("FetchLib");
-		else	
-			url = gAgent.getRegion()->getCapability("FetchInventory");
+		LLViewerRegion* region = gAgent.getRegion();
+		// we have to check region. It can be null after region was destroyed. See EXT-245
+		if (region)
+		{
+			if( ALEXANDRIA_LINDEN_ID.getString() == mPermissions.getOwner().getString())
+				url = region->getCapability("FetchLib");
+			else	
+				url = region->getCapability("FetchInventory");
+		}
+		else
+		{
+			llwarns << "Agent Region is absent" << llendl;
+		}
 
 		if (!url.empty())
 		{
@@ -403,7 +412,8 @@ void LLViewerInventoryCategory::updateParentOnServer(BOOL restamp) const
 void LLViewerInventoryCategory::updateServer(BOOL is_new) const
 {
 	// communicate that change with the server.
-	if(LLAssetType::AT_NONE != mPreferredType)
+
+	if (LLAssetType::lookupIsProtectedCategoryType(mPreferredType))
 	{
 		LLNotifications::instance().add("CannotModifyProtectedCategories");
 		return;
@@ -427,7 +437,7 @@ void LLViewerInventoryCategory::removeFromServer( void )
 	llinfos << "Removing inventory category " << mUUID << " from server."
 			<< llendl;
 	// communicate that change with the server.
-	if(LLAssetType::AT_NONE != mPreferredType)
+	if(LLAssetType::lookupIsProtectedCategoryType(mPreferredType))
 	{
 		LLNotifications::instance().add("CannotRemoveProtectedCategories");
 		return;
@@ -664,13 +674,12 @@ void RezAttachmentCallback::fire(const LLUUID& inv_item)
 	}
 }
 
-extern LLGestureManager gGestureManager;
 void ActivateGestureCallback::fire(const LLUUID& inv_item)
 {
 	if (inv_item.isNull())
 		return;
 
-	gGestureManager.activateGesture(inv_item);
+	LLGestureManager::instance().activateGesture(inv_item);
 }
 
 void CreateGestureCallback::fire(const LLUUID& inv_item)
@@ -678,7 +687,7 @@ void CreateGestureCallback::fire(const LLUUID& inv_item)
 	if (inv_item.isNull())
 		return;
 
-	gGestureManager.activateGesture(inv_item);
+	LLGestureManager::instance().activateGesture(inv_item);
 	
 	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 	if (!item) return;
@@ -870,7 +879,7 @@ void menu_create_inventory_item(LLFolderView* folder, LLFolderBridge *bridge, co
 		}
 		else
 		{
-			category = gInventory.createNewCategory(gAgent.getInventoryRootID(), LLAssetType::AT_NONE, LLStringUtil::null);
+			category = gInventory.createNewCategory(gInventory.getRootFolderID(), LLAssetType::AT_NONE, LLStringUtil::null);
 		}
 		gInventory.notifyObservers();
 		folder->setSelectionByID(category, TRUE);
@@ -977,7 +986,10 @@ LLAssetType::EType LLViewerInventoryItem::getType() const
 	{
 		return linked_item->getType();
 	}
-	
+	if (const LLViewerInventoryCategory *linked_category = getLinkedCategory())
+	{
+		return linked_category->getType();
+	}	
 	return LLInventoryItem::getType();
 }
 
@@ -996,6 +1008,10 @@ const std::string& LLViewerInventoryItem::getName() const
 	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
 	{
 		return linked_item->getName();
+	}
+	if (const LLViewerInventoryCategory *linked_category = getLinkedCategory())
+	{
+		return linked_category->getName();
 	}
 
 	return LLInventoryItem::getName();

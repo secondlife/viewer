@@ -44,10 +44,11 @@ class LLGroupList: public LLAvatarList
 public:
 	struct Params : public LLInitParam::Block<Params, LLAvatarList::Params>
 	{
+		Params();
 	};
 
 	LLGroupList(const Params&);
-	BOOL updateList();
+	BOOL update(const std::string& name_filter = LLStringUtil::null);
 };
 
 #endif // LL_LLGROUPLIST_H

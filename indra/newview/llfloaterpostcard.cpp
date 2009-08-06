@@ -45,6 +45,7 @@
 #include "lllineeditor.h"
 #include "llviewertexteditor.h"
 #include "llbutton.h"
+#include "llfloaterreg.h"
 #include "llviewercontrol.h"
 #include "llviewernetwork.h"
 #include "lluictrlfactory.h"
@@ -61,7 +62,7 @@
 #include "llimagej2c.h"
 #include "llvfile.h"
 #include "llvfs.h"
-
+#include "llviewertexture.h"
 #include "llassetuploadresponders.h"
 
 #include <boost/regex.hpp>  //boost.regex lib
@@ -70,40 +71,30 @@
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
 
-//static
-LLFloaterPostcard::instance_list_t LLFloaterPostcard::sInstances;
-
 ///----------------------------------------------------------------------------
 /// Class LLFloaterPostcard
 ///----------------------------------------------------------------------------
 
-LLFloaterPostcard::LLFloaterPostcard(LLImageJPEG* jpeg, LLImageGL *img, const LLVector2& img_scale, const LLVector3d& pos_taken_global)
-:	LLFloater(),
-	mJPEGImage(jpeg),
-	mViewerImage(img),
-	mImageScale(img_scale),
-	mPosTakenGlobal(pos_taken_global),
+LLFloaterPostcard::LLFloaterPostcard(const LLSD& key)
+:	LLFloater(key),
+	mJPEGImage(NULL),
+	mViewerImage(NULL),
 	mHasFirstMsgFocus(false)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_postcard.xml");
-
-	sInstances.insert(this);
-	
-	// pick up the user's up-to-date email address
-	gAgent.sendAgentUserInfoRequest();
-
-	openFloater();
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_postcard.xml");
 }
 
 // Destroys the object
 LLFloaterPostcard::~LLFloaterPostcard()
 {
-	sInstances.erase(this);
 	mJPEGImage = NULL; // deletes image
 }
 
 BOOL LLFloaterPostcard::postBuild()
 {
+	// pick up the user's up-to-date email address
+	gAgent.sendAgentUserInfoRequest();
+
 	childSetAction("cancel_btn", onClickCancel, this);
 	childSetAction("send_btn", onClickSend, this);
 
@@ -127,15 +118,18 @@ BOOL LLFloaterPostcard::postBuild()
     return TRUE;
 }
 
-
-
 // static
-LLFloaterPostcard* LLFloaterPostcard::showFromSnapshot(LLImageJPEG *jpeg, LLImageGL *img, const LLVector2 &image_scale, const LLVector3d& pos_taken_global)
+LLFloaterPostcard* LLFloaterPostcard::showFromSnapshot(LLImageJPEG *jpeg, LLViewerTexture *img, const LLVector2 &image_scale, const LLVector3d& pos_taken_global)
 {
 	// Take the images from the caller
 	// It's now our job to clean them up
-	LLFloaterPostcard *instance = new LLFloaterPostcard(jpeg, img, image_scale, pos_taken_global);
-
+	LLFloaterPostcard* instance = LLFloaterReg::showTypedInstance<LLFloaterPostcard>("postcard", LLSD(img->getID()));
+	
+	instance->mJPEGImage = jpeg;
+	instance->mViewerImage = img;
+	instance->mImageScale = image_scale;
+	instance->mPosTakenGlobal = pos_taken_global;
+	
 	return instance;
 }
 
@@ -181,7 +175,7 @@ void LLFloaterPostcard::draw()
 								 rect.mBottom,
 								 rect.getWidth(),
 								 rect.getHeight(),
-								 mViewerImage, 
+								 mViewerImage.get(), 
 								 LLColor4::white);
 		}
 		glMatrixMode(GL_TEXTURE);
@@ -302,10 +296,11 @@ void LLFloaterPostcard::uploadCallback(const LLUUID& asset_id, void *user_data, 
 // static
 void LLFloaterPostcard::updateUserInfo(const std::string& email)
 {
-	for (instance_list_t::iterator iter = sInstances.begin();
-		 iter != sInstances.end(); ++iter)
+	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
+	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
+		 iter != inst_list.end(); ++iter)
 	{
-		LLFloaterPostcard *instance = *iter;
+		LLFloater* instance = *iter;
 		const std::string& text = instance->childGetValue("from_form").asString();
 		if (text.empty())
 		{

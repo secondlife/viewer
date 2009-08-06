@@ -48,6 +48,7 @@
 #include "llthread.h"		// LLThreadSafeRefCount
 #include "llstring.h"
 #include "llstringtable.h"
+#include "llfile.h"
 
 
 class LLVector3;
@@ -164,8 +165,8 @@ public:
 	
 	// Write XML to file with one attribute per line.
 	// XML escapes values as they are written.
-    void writeToFile(LLFILE *out_file, const std::string& indent = std::string());
-    void writeToOstream(std::ostream& output_stream, const std::string& indent = std::string());
+    void writeToFile(LLFILE *out_file, const std::string& indent = std::string(), bool use_type_decorations=true);
+    void writeToOstream(std::ostream& output_stream, const std::string& indent = std::string(), bool use_type_decorations=true);
 
     // Utility
     void findName(const std::string& name, LLXMLNodeList &results);

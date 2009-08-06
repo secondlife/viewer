@@ -40,11 +40,10 @@ class LLPanelPlace;
 class LLSD;
 class LLUUID;
 
-class LLFloaterURLDisplay : public LLFloater, public LLFloaterSingleton<LLFloaterURLDisplay>
+class LLFloaterURLDisplay : public LLFloater
 {
+	friend class LLFloaterReg;
 public:
-	LLFloaterURLDisplay(const LLSD& sd);
-	virtual ~LLFloaterURLDisplay();
 
 	void displayParcelInfo(U64 region_handle, const LLVector3& pos);
 	void setSnapshotDisplay(const LLUUID& snapshot_id);
@@ -54,6 +53,9 @@ public:
 	static void* createPlaceDetail(void* userdata);
 
 private:
+	LLFloaterURLDisplay(const LLSD& sd);
+	virtual ~LLFloaterURLDisplay();
+
 	LLVector3		mRegionPosition;
 	U64				mRegionHandle;
 	LLPanelPlace*	mPlacePanel;

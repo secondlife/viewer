@@ -57,7 +57,7 @@
 #include "lluiconstants.h"
 #include "llurlsimstring.h"
 #include "llviewerbuild.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewermenu.h"			// for handle_preferences()
 #include "llviewernetwork.h"
 #include "llviewerwindow.h"			// to link into child list
@@ -362,7 +362,7 @@ LLPanelLogin::~LLPanelLogin()
 		gResponsePtr->setParent( 0 );
 
 	//// We know we're done with the image, so be rid of it.
-	//gImageList.deleteImage( mLogoImage );
+	//gTextureList.deleteImage( mLogoImage );
 }
 
 // virtual
@@ -431,8 +431,14 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask)
 # if !LL_RELEASE_FOR_DOWNLOAD
 	if ( KEY_F2 == key )
 	{
-		llinfos << "Spawning floater TOS window" << llendl;
-		LLFloaterTOS::show(LLFloaterTOS::TOS_TOS,"", NULL);
+		llinfos << "Spawning floater TOS window (TOS)" << llendl;
+		LLFloaterReg::showInstance("message_tos",LLSD(""));
+		return TRUE;
+	}
+	if ( KEY_F3 == key )
+	{
+		llinfos << "Spawning floater TOS window (critical message)" << llendl;
+		LLFloaterReg::showInstance("message_critical",LLSD(""));
 		return TRUE;
 	}
 #endif
@@ -635,7 +641,12 @@ void LLPanelLogin::refreshLocation( bool force_visible )
 	BOOL show_start = TRUE;
 
 	if ( ! force_visible )
-		show_start = gSavedSettings.getBOOL("ShowStartLocation");
+	{
+		// Don't show on first run after install
+		// Otherwise ShowStartLocation defaults to true.
+		show_start = gSavedSettings.getBOOL("ShowStartLocation")
+					&& !gSavedSettings.getBOOL("FirstRunThisInstall");
+	}
 
 	sInstance->childSetVisible("start_location_combo", show_start);
 	sInstance->childSetVisible("start_location_text", show_start);
@@ -792,7 +803,8 @@ void LLPanelLogin::loadLoginPage()
 	{
 		oStr << "&auto_login=TRUE";
 	}
-	if (gSavedSettings.getBOOL("ShowStartLocation"))
+	if (gSavedSettings.getBOOL("ShowStartLocation")
+		&& !gSavedSettings.getBOOL("FirstRunThisInstall"))
 	{
 		oStr << "&show_start_location=TRUE";
 	}	

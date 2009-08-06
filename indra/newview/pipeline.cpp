@@ -66,6 +66,7 @@
 #include "llface.h"
 #include "llfeaturemanager.h"
 #include "llfloatertelehub.h"
+#include "llfloaterreg.h"
 #include "llgldbg.h"
 #include "llhudmanager.h"
 #include "lllightconstants.h"
@@ -76,7 +77,7 @@
 #include "lltool.h"
 #include "lltoolmgr.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
@@ -751,9 +752,9 @@ S32 LLPipeline::setLightingDetail(S32 level)
 class LLOctreeDirtyTexture : public LLOctreeTraveler<LLDrawable>
 {
 public:
-	const std::set<LLViewerImage*>& mTextures;
+	const std::set<LLViewerFetchedTexture*>& mTextures;
 
-	LLOctreeDirtyTexture(const std::set<LLViewerImage*>& textures) : mTextures(textures) { }
+	LLOctreeDirtyTexture(const std::set<LLViewerFetchedTexture*>& textures) : mTextures(textures) { }
 
 	virtual void visit(const LLOctreeNode<LLDrawable>* node)
 	{
@@ -766,7 +767,8 @@ public:
 				for (LLSpatialGroup::drawmap_elem_t::iterator j = i->second.begin(); j != i->second.end(); ++j) 
 				{
 					LLDrawInfo* params = *j;
-					if (mTextures.find(params->mTexture) != mTextures.end())
+					LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(params->mTexture);
+					if (tex && mTextures.find(tex) != mTextures.end())
 					{ 
 						group->setState(LLSpatialGroup::GEOM_DIRTY);
 					}
@@ -783,7 +785,7 @@ public:
 };
 
 // Called when a texture changes # of channels (causes faces to move to alpha pool)
-void LLPipeline::dirtyPoolObjectTextures(const std::set<LLViewerImage*>& textures)
+void LLPipeline::dirtyPoolObjectTextures(const std::set<LLViewerFetchedTexture*>& textures)
 {
 	assertInitialized();
 
@@ -815,7 +817,7 @@ void LLPipeline::dirtyPoolObjectTextures(const std::set<LLViewerImage*>& texture
 	}
 }
 
-LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerImage *tex0)
+LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerTexture *tex0)
 {
 	assertInitialized();
 
@@ -887,7 +889,7 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerImage *tex0)
 }
 
 
-LLDrawPool *LLPipeline::getPool(const U32 type,	LLViewerImage *tex0)
+LLDrawPool *LLPipeline::getPool(const U32 type,	LLViewerTexture *tex0)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 	LLDrawPool *poolp = findPool(type, tex0);
@@ -904,7 +906,7 @@ LLDrawPool *LLPipeline::getPool(const U32 type,	LLViewerImage *tex0)
 
 
 // static
-LLDrawPool* LLPipeline::getPoolFromTE(const LLTextureEntry* te, LLViewerImage* imagep)
+LLDrawPool* LLPipeline::getPoolFromTE(const LLTextureEntry* te, LLViewerTexture* imagep)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 	U32 type = getPoolTypeFromTE(te, imagep);
@@ -912,7 +914,7 @@ LLDrawPool* LLPipeline::getPoolFromTE(const LLTextureEntry* te, LLViewerImage* i
 }
 
 //static 
-U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerImage* imagep)
+U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* imagep)
 {
 	LLMemType mt_gpt(LLMemType::MTYPE_PIPELINE_GET_POOL_TYPE);
 	
@@ -924,7 +926,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerImage* image
 	bool alpha = te->getColor().mV[3] < 0.999f;
 	if (imagep)
 	{
-		alpha = alpha || (imagep->getComponents() == 4 && ! imagep->mIsMediaTexture) || (imagep->getComponents() == 2);
+		alpha = alpha || (imagep->getComponents() == 4 && imagep->getType() != LLViewerTexture::MEDIA_TEXTURE) || (imagep->getComponents() == 2);
 	}
 
 	if (alpha)
@@ -2298,7 +2300,7 @@ void LLPipeline::postSort(LLCamera& camera)
 	}
 	
 	// only render if the flag is set. The flag is only set if we are in edit mode or the toggle is set in the menus
-	if (gSavedSettings.getBOOL("BeaconAlwaysOn") && !sShadowRender)
+	if (LLFloaterReg::instanceVisible("beacons") && !sShadowRender)
 	{
 		if (sRenderScriptedTouchBeacons)
 		{
@@ -2446,7 +2448,7 @@ void LLPipeline::renderHighlights()
 		// Make sure the selection image gets downloaded and decoded
 		if (!mFaceSelectImagep)
 		{
-			mFaceSelectImagep = gImageList.getImage(IMG_FACE_SELECT);
+			mFaceSelectImagep = LLViewerTextureManager::getFetchedTexture(IMG_FACE_SELECT);
 		}
 		mFaceSelectImagep->addTextureStats((F32)MAX_IMAGE_AREA);
 
@@ -2476,7 +2478,7 @@ void LLPipeline::renderHighlights()
 		for (S32 i = 0; i < count; i++)
 		{
 			LLFace* facep = mHighlightFaces[i];
-			facep->renderSelected(LLViewerImage::sNullImagep, color);
+			facep->renderSelected(LLViewerTexture::sNullImagep, color);
 		}
 	}
 
@@ -2565,8 +2567,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		sUnderWaterRender = FALSE;
 	}
 
-	gGL.getTexUnit(0)->bind(LLViewerImage::sDefaultImagep);
-	LLViewerImage::sDefaultImagep->setAddressMode(LLTexUnit::TAM_WRAP);
+	gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sDefaultImagep);
+	LLViewerFetchedTexture::sDefaultImagep->setAddressMode(LLTexUnit::TAM_WRAP);
 	
 	//////////////////////////////////////////////
 	//
@@ -5094,8 +5096,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		F32 minLum = llmax(gSavedSettings.getF32("RenderGlowMinLuminance"), 0.0f);
 		F32 maxAlpha = gSavedSettings.getF32("RenderGlowMaxExtractAlpha");		
 		F32 warmthAmount = gSavedSettings.getF32("RenderGlowWarmthAmount");	
-		LLVector3 lumWeights = gSavedSkinSettings.getVector3("RenderGlowLumWeights");
-		LLVector3 warmthWeights = gSavedSkinSettings.getVector3("RenderGlowWarmthWeights");
+		LLVector3 lumWeights = gSavedSettings.getVector3("RenderGlowLumWeights");
+		LLVector3 warmthWeights = gSavedSettings.getVector3("RenderGlowWarmthWeights");
 		gGlowExtractProgram.uniform1f("minLuminance", minLum);
 		gGlowExtractProgram.uniform1f("maxExtractAlpha", maxAlpha);
 		gGlowExtractProgram.uniform3f("lumWeights", lumWeights.mV[0], lumWeights.mV[1], lumWeights.mV[2]);

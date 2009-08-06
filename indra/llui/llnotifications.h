@@ -100,8 +100,9 @@
 // and we need this to manage the notification callbacks
 #include "llevents.h"
 #include "llfunctorregistry.h"
-#include "llui.h"
-#include "llmemory.h"
+#include "llpointer.h"
+#include "llinitparam.h"
+#include "llxmlnode.h"
 #include "llnotificationslistener.h"
 
 class LLNotification;
@@ -159,7 +160,8 @@ public:
 
 	LLNotificationForm();
 	LLNotificationForm(const LLSD& sd);
-	LLNotificationForm(const std::string& name, const LLXMLNodePtr xml_node);
+	LLNotificationForm(const std::string& name, 
+		const LLPointer<LLXMLNode> xml_node);
 
 	LLSD asLLSD() const;
 
@@ -295,7 +297,7 @@ public:
 		Optional<LLSD>							payload;
 		Optional<ENotificationPriority>			priority;
 		Optional<LLSD>							form_elements;
-		Optional<LLDate>						timestamp;
+		Optional<LLDate>						time_stamp;
 		Optional<LLNotificationContext*>		context;
 
 		struct Functor : public LLInitParam::Choice<Functor>
@@ -313,19 +315,23 @@ public:
 		Params()
 		:	name("name"),
 			priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
-			timestamp("time_stamp")
+			time_stamp("time_stamp"),
+			payload("payload"),
+			form_elements("form_elements")
 		{
-			timestamp = LLDate::now();
+			time_stamp = LLDate::now();
 		}
 
 		Params(const std::string& _name) 
-			:	name("name"),
-				priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
-				timestamp("time_stamp")
+		:	name("name"),
+			priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
+			time_stamp("time_stamp"),
+			payload("payload"),
+			form_elements("form_elements")
 		{
 			functor.name = _name;
 			name = _name;
-			timestamp = LLDate::now();
+			time_stamp = LLDate::now();
 		}
 	};
 
@@ -690,6 +696,14 @@ public:
                                               this,
                                               _1));
     }
+	template <typename LISTENER>
+    LLBoundListener connectAtFrontChanged(const LISTENER& slot)
+    {
+        return LLEventDetail::visit_and_connect(slot,
+                                  boost::bind(&LLNotificationChannelBase::connectAtFrontChangedImpl,
+                                              this,
+                                              _1));
+    }
     template <typename LISTENER>
 	LLBoundListener connectPassedFilter(const LISTENER& slot)
     {
@@ -715,6 +729,7 @@ public:
 
 protected:
     LLBoundListener connectChangedImpl(const LLEventListener& slot);
+    LLBoundListener connectAtFrontChangedImpl(const LLEventListener& slot);
     LLBoundListener connectPassedFilterImpl(const LLEventListener& slot);
     LLBoundListener connectFailedFilterImpl(const LLEventListener& slot);
 
@@ -822,7 +837,7 @@ public:
 	// load notification descriptions from file; 
 	// OK to call more than once because it will reload
 	bool loadTemplates();  
-	LLXMLNodePtr checkForXMLTemplate(LLXMLNodePtr item);
+	LLPointer<class LLXMLNode> checkForXMLTemplate(LLPointer<class LLXMLNode> item);
 	
 	// Add a simple notification (from XUI)
 	void addFromCallback(const LLSD& name);
@@ -905,7 +920,7 @@ private:
 
 	std::string mFileName;
 	
-	typedef std::map<std::string, LLXMLNodePtr> XMLTemplateMap;
+	typedef std::map<std::string, LLPointer<class LLXMLNode> > XMLTemplateMap;
 	XMLTemplateMap mXmlTemplates;
 
 	LLNotificationMap mUniqueNotifications;

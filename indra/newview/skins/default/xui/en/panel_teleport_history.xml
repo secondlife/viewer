@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="Teleport History" bottom="0" height="326" left="0" width="380"
      border="true" follows="left|top|right|bottom">
-	<scroll_list bottom="0" can_resize="true" column_padding="0" draw_heading="true"
+	<scroll_list bottom="0" column_padding="0" draw_heading="true"
 	     draw_stripes="false" follows="left|top|bottom|right" left="0"
 	     multi_select="false" name="history_items" search_column="1"
 	     sort_column="1" height="326" width="380" >
 		<column name="landmark_icon" width="20" />
-		<column dynamicwidth="true" label="Region" name="region" />
+		<column dynamic_width="true" label="Region" name="region" />
 		<column name="index" width="0" />
 	</scroll_list>
 </panel>

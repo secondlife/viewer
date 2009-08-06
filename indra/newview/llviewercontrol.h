@@ -52,7 +52,6 @@ void create_graphics_group(LLControlGroup& group);
 
 // saved at end of session
 extern LLControlGroup gSavedSettings;
-extern LLControlGroup gSavedSkinSettings;
 extern LLControlGroup gSavedPerAccountSettings;
 extern LLControlGroup gWarningSettings;
 

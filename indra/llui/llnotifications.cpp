@@ -385,7 +385,7 @@ LLNotificationTemplate::LLNotificationTemplate() :
 }
 
 LLNotification::LLNotification(const LLNotification::Params& p) : 
-	mTimestamp(p.timestamp), 
+	mTimestamp(p.time_stamp), 
 	mSubstitutions(p.substitutions),
 	mPayload(p.payload),
 	mExpiresAt(0),
@@ -709,6 +709,15 @@ LLBoundListener LLNotificationChannelBase::connectChangedImpl(const LLEventListe
 	// and then connect the signal so that all future notifications will also be
 	// forwarded.
 	return mChanged.connect(slot);
+}
+
+LLBoundListener LLNotificationChannelBase::connectAtFrontChangedImpl(const LLEventListener& slot)
+{
+	for (LLNotificationSet::iterator it = mItems.begin(); it != mItems.end(); ++it)
+	{
+		slot(LLSD().insert("sigtype", "load").insert("id", (*it)->id()));
+	}
+	return mChanged.connect(slot, boost::signals2::at_front);
 }
 
 LLBoundListener LLNotificationChannelBase::connectPassedFilterImpl(const LLEventListener& slot)
@@ -1079,10 +1088,13 @@ void LLNotifications::createDefaultChannels()
 	// connect action methods to these channels
 	LLNotifications::instance().getChannel("Expiration")->
         connectChanged(boost::bind(&LLNotifications::expirationHandler, this, _1));
+	// uniqueHandler slot should be added as first slot of the signal due to
+	// usage LLStopWhenHandled combiner in LLStandardSignal
 	LLNotifications::instance().getChannel("Unique")->
-        connectChanged(boost::bind(&LLNotifications::uniqueHandler, this, _1));
-	LLNotifications::instance().getChannel("Unique")->
-        connectFailedFilter(boost::bind(&LLNotifications::failedUniquenessTest, this, _1));
+        connectAtFrontChanged(boost::bind(&LLNotifications::uniqueHandler, this, _1));
+// failedUniquenessTest slot isn't necessary
+//	LLNotifications::instance().getChannel("Unique")->
+//        connectFailedFilter(boost::bind(&LLNotifications::failedUniquenessTest, this, _1));
 	LLNotifications::instance().getChannel("Ignore")->
 		connectFailedFilter(&handleIgnoredNotification);
 }

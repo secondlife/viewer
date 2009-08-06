@@ -48,7 +48,7 @@
      left_delta="0"
      name="snapshot_btn"
      top_pad="4"
-     width="96" >
+     width="96">
       <button.commit_callback
          function="ClickSnapshot" />
     </button>

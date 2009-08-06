@@ -121,8 +121,7 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 
 				res = build_func(key);
 				
-				const bool DONT_OPEN_FLOATER = false;
-				LLUICtrlFactory::getInstance()->buildFloater(res, xui_file, DONT_OPEN_FLOATER);
+				LLUICtrlFactory::getInstance()->buildFloater(res, xui_file, NULL);
 				
 				// Note: key should eventually be a non optional LLFloater arg; for now, set mKey to be safe
 				res->mKey = key;
@@ -361,6 +360,24 @@ std::string LLFloaterReg::declareVisibilityControl(const std::string& name)
 												 llformat("Window Visibility for %s", name.c_str()),
 												 TRUE);
 	return controlname;
+}
+
+//static
+void LLFloaterReg::registerControlVariables()
+{
+	// Iterate through alll registered instance names and register rect and visibility control variables
+	for (build_map_t::iterator iter = sBuildMap.begin(); iter != sBuildMap.end(); ++iter)
+	{
+		const std::string& name = iter->first;
+		if (LLUI::sSettingGroups["floater"]->controlExists(getRectControlName(name)))
+		{
+			declareRectControl(name);
+		}
+		if (LLUI::sSettingGroups["floater"]->controlExists(getVisibilityControlName(name)))
+		{
+			declareVisibilityControl(name);
+		}
+	}
 }
 
 // Callbacks

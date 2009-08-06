@@ -2,13 +2,13 @@
 <panel
  border="true"
  follows="top|left"
- height="320"
+ height="950"
  label="Estate"
  layout="topleft"
  left="0"
  name="Estate"
  top="320"
- width="480">
+ width="280">
     <panel.string
      name="email_unsupported">
         Feature unsupported
@@ -287,16 +287,15 @@ regions in the estate.
      name="kick_user_from_estate_btn"
      top_pad="5"
      width="250" />
-
     <text
      type="string"
      length="1"
-     bottom="34"
+     top="490"
      follows="left|top"
      height="20"
      layout="topleft"
      name="estate_manager_label"
-     right="470"
+     left="8"
      width="200">
         Estate Managers:
     </text>
@@ -306,7 +305,7 @@ regions in the estate.
      height="18"
      label="?"
      layout="topleft"
-     left_delta="182"
+     left_delta="232"
      name="estate_manager_help"
      top_delta="-1"
      width="18" />
@@ -315,9 +314,9 @@ regions in the estate.
      follows="top|left"
      height="60"
      layout="topleft"
-     right="470"
+     left="8"
      top_pad="5"
-     width="200" />
+     width="250" />
     <name_list
      follows="left|top"
      height="60"
@@ -326,23 +325,23 @@ regions in the estate.
      multi_select="true"
      name="estate_manager_name_list"
      top_delta="0"
-     width="200" />
+     width="250" />
+    <button
+     follows="left|top"
+     height="20"
+     label="Add..."
+     layout="topleft"
+     left="8"
+     name="add_estate_manager_btn"
+     top_pad="5"
+     width="90" />
     <button
      follows="left|top"
      height="20"
      label="Remove..."
      layout="topleft"
      name="remove_estate_manager_btn"
-     right="470"
-     top_pad="5"
-     width="90" />
-    <button
-     follows="left|top"
-     height="20"
-     label="Add..."
-     layout="topleft"
-     left_delta="-110"
-     name="add_estate_manager_btn"
+     left_pad="70"
      top_delta="0"
      width="90" />
     <text
@@ -351,7 +350,7 @@ regions in the estate.
      follows="left|top"
      height="20"
      layout="topleft"
-     left_delta="0"
+     left="8"
      name="allow_resident_label"
      top_pad="5"
      width="200">
@@ -363,7 +362,7 @@ regions in the estate.
      height="18"
      label="?"
      layout="topleft"
-     left_delta="182"
+     left_delta="232"
      name="allow_resident_help"
      top_delta="-1"
      width="18" />
@@ -372,9 +371,9 @@ regions in the estate.
      follows="top|left"
      height="60"
      layout="topleft"
-     right="470"
+     left="8"
      top_pad="5"
-     width="200" />
+     width="250" />
     <name_list
      follows="left|top"
      height="60"
@@ -383,23 +382,23 @@ regions in the estate.
      multi_select="true"
      name="allowed_avatar_name_list"
      top_delta="0"
-     width="200" />
+     width="250" />
+    <button
+     follows="left|top"
+     height="20"
+     label="Add..."
+     layout="topleft"
+     left="8"
+     name="add_allowed_avatar_btn"
+     top_pad="5"
+     width="90" />
     <button
      follows="left|top"
      height="20"
      label="Remove..."
      layout="topleft"
      name="remove_allowed_avatar_btn"
-     right="470"
-     top_pad="5"
-     width="90" />
-    <button
-     follows="left|top"
-     height="20"
-     label="Add..."
-     layout="topleft"
-     left_delta="-110"
-     name="add_allowed_avatar_btn"
+     left_pad="70"
      top_delta="0"
      width="90" />
     <text
@@ -408,7 +407,7 @@ regions in the estate.
      follows="left|top"
      height="20"
      layout="topleft"
-     left_delta="0"
+     left="8"
      name="allow_group_label"
      top_pad="5"
      width="200">
@@ -420,7 +419,7 @@ regions in the estate.
      height="18"
      label="?"
      layout="topleft"
-     left_delta="182"
+     left_delta="232"
      name="allow_group_help"
      top_delta="-1"
      width="18" />
@@ -429,9 +428,9 @@ regions in the estate.
      follows="top|left"
      height="60"
      layout="topleft"
-     right="470"
+     left="8"
      top_pad="5"
-     width="200" />
+     width="250" />
     <name_list
      follows="left|top"
      height="60"
@@ -440,23 +439,23 @@ regions in the estate.
      multi_select="true"
      name="allowed_group_name_list"
      top_delta="0"
-     width="200" />
+     width="250" />
+    <button
+     follows="left|top"
+     height="20"
+     label="Add..."
+     layout="topleft"
+     left="8"
+     name="add_allowed_group_btn"
+     top_pad="5"
+     width="90" />
     <button
      follows="left|top"
      height="20"
      label="Remove..."
      layout="topleft"
      name="remove_allowed_group_btn"
-     right="470"
-     top_pad="5"
-     width="90" />
-    <button
-     follows="left|top"
-     height="20"
-     label="Add..."
-     layout="topleft"
-     left_delta="-110"
-     name="add_allowed_group_btn"
+     left_pad="70"
      top_delta="0"
      width="90" />
     <text
@@ -465,7 +464,7 @@ regions in the estate.
      follows="left|top"
      height="20"
      layout="topleft"
-     left_delta="0"
+     left="8"
      name="ban_resident_label"
      top_pad="5"
      width="200">
@@ -477,7 +476,7 @@ regions in the estate.
      height="18"
      label="?"
      layout="topleft"
-     left_delta="182"
+     left_delta="232"
      name="ban_resident_help"
      top_delta="-1"
      width="18" />
@@ -486,9 +485,9 @@ regions in the estate.
      follows="top|left"
      height="60"
      layout="topleft"
-     right="470"
+     left="8"
      top_pad="5"
-     width="200" />
+     width="250" />
     <name_list
      follows="left|top"
      height="60"
@@ -497,23 +496,23 @@ regions in the estate.
      multi_select="true"
      name="banned_avatar_name_list"
      top_delta="0"
-     width="200" />
+     width="250" />
+    <button
+     follows="left|top"
+     height="20"
+     label="Add..."
+     layout="topleft"
+     left="8"
+     name="add_banned_avatar_btn"
+     top_pad="5"
+     width="90" />
     <button
      follows="left|top"
      height="20"
      label="Remove..."
      layout="topleft"
      name="remove_banned_avatar_btn"
-     right="470"
-     top_pad="5"
-     width="90" />
-    <button
-     follows="left|top"
-     height="20"
-     label="Add..."
-     layout="topleft"
-     left_delta="-110"
-     name="add_banned_avatar_btn"
+     left_pad="70"
      top_delta="0"
      width="90" />
 </panel>

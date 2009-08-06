@@ -97,11 +97,13 @@ public:
 	
 	enum EFloaterButtons
 	{
-		BUTTON_CLOSE,
+		BUTTON_CLOSE = 0,
 		BUTTON_RESTORE,
 		BUTTON_MINIMIZE,
 		BUTTON_TEAR_OFF,
 		BUTTON_EDIT,
+		BUTTON_DOCK,
+		BUTTON_UNDOCK,
 		BUTTON_COUNT
 	};
 	
@@ -119,32 +121,22 @@ public:
 								can_drag_on_left,
 								can_tear_off,
 								save_rect,
-								save_visibility;
-
-		Params() :
-			title("title"),
-			short_title("short_title"),
-			single_instance("single_instance", false),
-			auto_tile("auto_tile", false),
-			can_resize("can_resize", false),
-			can_minimize("can_minimize", true),
-			can_close("can_close", true),
-			can_drag_on_left("can_drag_on_left", false),
-			can_tear_off("can_tear_off", true),
-			save_rect("save_rect", false),
-			save_visibility("save_visibility", false)
-		{
-			name = "floater";
-			// defaults that differ from LLPanel:
-			background_visible = true;
-			visible = false;
-		}
+								save_visibility,
+								can_dock;
+		
+		Optional<CommitCallbackParam> open_callback,
+									  close_callback;
+		
+		Params();
 	};
 	
 	// use this to avoid creating your own default LLFloater::Param instance
 	static const Params& getDefaultParams();
 
-	LLFloater(const LLSD& key = LLSD(), const Params& params = getDefaultParams());
+	// Load translations for tooltips for standard buttons
+	static void initClass();
+
+	LLFloater(const LLSD& key, const Params& params = getDefaultParams());
 
 	virtual ~LLFloater();
 
@@ -152,7 +144,7 @@ public:
 	static void setupParamsForExport(Params& p, LLView* parent);
 
 	void initFromParams(const LLFloater::Params& p);
-	void initFloaterXML(LLXMLNodePtr node, LLView *parent, BOOL open_floater = TRUE, LLXMLNodePtr output_node = NULL);
+	void initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
 
 	/*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);
 	/*virtual*/ BOOL canSnapTo(const LLView* other_view);
@@ -166,7 +158,6 @@ public:
 	void			openFloater(const LLSD& key = LLSD());
 
 	// If allowed, close the floater cleanly, releasing focus.
-	// app_quitting is passed to onClose() below.
 	void			closeFloater(bool app_quitting = false);
 
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
@@ -216,20 +207,16 @@ public:
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask);
 	virtual void	draw();
-
+	
+	// *TODO: Eliminate this in favor of mOpenSignal
 	virtual void	onOpen(const LLSD& key) {}
-
-	// Call destroy() to free memory, or setVisible(FALSE) to keep it
-	// If app_quitting, you might not want to save your visibility.
-	// Defaults to destroy().
-	virtual void	onClose(bool app_quitting) { destroy(); }
 
 	// This cannot be "const" until all derived floater canClose()
 	// methods are const as well.  JC
 	virtual BOOL	canClose() { return TRUE; }
 
-	virtual void	setVisible(BOOL visible);
-	virtual void	onVisibilityChange ( BOOL curVisibilityIn );
+	/*virtual*/ void setVisible(BOOL visible); // do not override
+	/*virtual*/ void handleVisibilityChange ( BOOL new_visibility ); // do not override
 	
 	void			setFrontmost(BOOL take_focus = TRUE);
 	
@@ -245,6 +232,14 @@ public:
 	LLHandle<LLFloater> getHandle() const { return mHandle; }
 	const LLSD& 	getKey() { return mKey; }
 	BOOL		 	matchesKey(const LLSD& key) { return mSingleInstance || KeyCompare::equate(key, mKey); }
+	
+	const std::string& getInstanceName() { return mInstanceName; }
+	
+	bool            isDockable() const { return mCanDock; }
+	void            setCanDock(bool b);
+
+	bool            isDocked() const { return mDocked; }
+	virtual void    setDocked(bool docked, bool pop_on_undock = true);
 
 	// Return a closeable floater, if any, given the current focus.
 	static LLFloater* getClosableFloaterFromFocus(); 
@@ -262,6 +257,7 @@ public:
 	static void		onClickMinimize(LLFloater* floater);
 	static void		onClickTearOff(LLFloater* floater);
 	static void		onClickEdit(LLFloater* floater);
+	static void     onClickDock(LLFloater* floater);
 
 	static void		setFloaterHost(LLMultiFloater* hostp) {sHostp = hostp; }
 	static void		setEditModeEnabled(BOOL enable);
@@ -287,10 +283,9 @@ protected:
 	void			setAutoFocus(BOOL focus) { mAutoFocus = focus; } // whether to automatically take focus when opened
 	LLDragHandle*	getDragHandle() const { return mDragHandle; }
 
-	void			destroy() { die(); } // Don't call this directly.  You probably want to call close(). JC
+	void			destroy() { die(); } // Don't call this directly.  You probably want to call closeFloater()
 
 private:
-	
 	void			setForeground(BOOL b);	// called only by floaterview
 	void			cleanupHandles(); // remove handles to dead floaters
 	void			createMinimizeButton();
@@ -299,18 +294,20 @@ private:
 	BOOL			offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButtons index);
 	void			addResizeCtrls();
 	void 			addDragHandle();
-	
+
 protected:
 	std::string		mRectControl;
 	std::string		mVisibilityControl;
-	
+	commit_signal_t mOpenSignal;		// Called when floater is opened, passes mKey
+	commit_signal_t mCloseSignal;		// Called when floater is closed, passes app_qitting as LLSD()
 	LLSD			mKey;				// Key used for retrieving instances; set (for now) by LLFLoaterReg
-	
-private:
-	LLRect			mExpandedRect;
+
 	LLDragHandle*	mDragHandle;
 	LLResizeBar*	mResizeBar[4];
 	LLResizeHandle*	mResizeHandle[4];
+
+private:
+	LLRect			mExpandedRect;
 	
 	LLUIString		mTitle;
 	LLUIString		mShortTitle;
@@ -349,10 +346,15 @@ private:
 	LLHandle<LLFloater> mHostHandle;
 	LLHandle<LLFloater> mLastHostHandle;
 
+	bool            mCanDock;
+	bool            mDocked;
+
 	static LLMultiFloater* sHostp;
 	static BOOL		sEditModeEnabled;
+	static BOOL		sQuitting;
 	static std::string	sButtonActiveImageNames[BUTTON_COUNT];
-	static std::string	sButtonInactiveImageNames[BUTTON_COUNT];
+	// Images to use when cursor hovered over an enabled button
+	static std::string	sButtonHoveredImageNames[BUTTON_COUNT];
 	static std::string	sButtonPressedImageNames[BUTTON_COUNT];
 	static std::string	sButtonNames[BUTTON_COUNT];
 	static std::string	sButtonToolTips[BUTTON_COUNT];
@@ -377,6 +379,7 @@ private:
 	LLFloaterNotificationContext* mNotificationContext;
 	LLRootHandle<LLFloater>		mHandle;	
 };
+
 
 /////////////////////////////////////////////////////////////
 // LLFloaterView
@@ -439,33 +442,6 @@ private:
 	BOOL			mFocusCycleMode;
 	S32				mSnapOffsetBottom;
 	S32				mSnapOffsetRight;
-};
-
-// singleton implementation for floaters
-// https://wiki.lindenlab.com/mediawiki/index.php?title=LLFloaterSingleton&oldid=164990
-
-//*******************************************************
-//* TO BE DEPRECATED
-//*******************************************************
-// visibility policy specialized for floaters
-template<>
-class VisibilityPolicy<LLFloater>
-{
-public:
-	// visibility methods
-	static bool visible(LLFloater* instance, const LLSD& key);
-
-	static void show(LLFloater* instance, const LLSD& key);
-
-	static void hide(LLFloater* instance, const LLSD& key);
-};
-
-
-// singleton implementation for floaters (provides visibility policy)
-// https://wiki.lindenlab.com/mediawiki/index.php?title=LLFloaterSingleton&oldid=164990
-
-template <class T> class LLFloaterSingleton : public LLUISingleton<T, VisibilityPolicy<LLFloater> >
-{
 };
 
 //

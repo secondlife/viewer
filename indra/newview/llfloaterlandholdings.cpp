@@ -56,46 +56,16 @@
 #include "llviewermessage.h"
 #include "lluictrlfactory.h"
 
-// statics
-LLFloaterLandHoldings* LLFloaterLandHoldings::sInstance = NULL;
-
-
-// static
-void LLFloaterLandHoldings::show(void*)
-{
-	LLFloaterLandHoldings* floater = new LLFloaterLandHoldings();
-	LLUICtrlFactory::getInstance()->buildFloater(floater, "floater_land_holdings.xml");
-	floater->center();
-
-	// query_id null is known to be us
-	const LLUUID& query_id = LLUUID::null;
-
-	// look only for parcels we own
-	U32 query_flags = DFQ_AGENT_OWNED;
-
-	send_places_query(query_id,
-					  LLUUID::null,
-					  "",
-					  query_flags,
-					  LLParcel::C_ANY,
-					  "");
-
-	// TODO: request updated L$ balance?
-	floater->openFloater();
-}
-
-
 // protected
-LLFloaterLandHoldings::LLFloaterLandHoldings()
-:	LLFloater(),
+LLFloaterLandHoldings::LLFloaterLandHoldings(const LLSD& key)
+:	LLFloater(key),
 	mActualArea(0),
 	mBillableArea(0),
 	mFirstPacketReceived(FALSE),
 	mSortColumn(""),
 	mSortAscending(TRUE)
 {
-	// Instance management.
-	sInstance = this;
+// 	LLUICtrlFactory::getInstance()->buildFloater(floater, "floater_land_holdings.xml");
 }
 
 BOOL LLFloaterLandHoldings::postBuild()
@@ -128,7 +98,9 @@ BOOL LLFloaterLandHoldings::postBuild()
 
 		list->addElement(element, ADD_SORTED);
 	}
-
+	
+	center();
+	
 	return TRUE;
 }
 
@@ -136,9 +108,23 @@ BOOL LLFloaterLandHoldings::postBuild()
 // protected
 LLFloaterLandHoldings::~LLFloaterLandHoldings()
 {
-	sInstance = NULL;
 }
 
+void LLFloaterLandHoldings::onOpen(const LLSD& key)
+{
+	// query_id null is known to be us
+	const LLUUID& query_id = LLUUID::null;
+
+	// look only for parcels we own
+	U32 query_flags = DFQ_AGENT_OWNED;
+
+	send_places_query(query_id,
+					  LLUUID::null,
+					  "",
+					  query_flags,
+					  LLParcel::C_ANY,
+					  "");
+}
 
 void LLFloaterLandHoldings::draw()
 {
@@ -168,7 +154,7 @@ void LLFloaterLandHoldings::refresh()
 // static
 void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 {
-	LLFloaterLandHoldings* self = sInstance;
+	LLFloaterLandHoldings* self = LLFloaterReg::findTypedInstance<LLFloaterLandHoldings>("land_holdings");
 
 	// Is this packet from an old, closed window?
 	if (!self)
@@ -224,50 +210,53 @@ void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 			land_type = LLTrans::getString("land_type_unknown");
 		}
 		
-		self->mActualArea += actual_area;
-		self->mBillableArea += billable_area;
-
-		S32 region_x = llround(global_x) % REGION_WIDTH_UNITS;
-		S32 region_y = llround(global_y) % REGION_WIDTH_UNITS;
-
-		std::string location;
-		location = llformat("%s (%d, %d)", sim_name.c_str(), region_x, region_y);
-
-		std::string area;
-		if(billable_area == actual_area)
+		if(owner_id.notNull())
 		{
-			area = llformat("%d", billable_area);
-		}
-		else
-		{
-			area = llformat("%d / %d", billable_area, actual_area);
-		}
-		
-		std::string hidden;
-		hidden = llformat("%f %f", global_x, global_y);
+			self->mActualArea += actual_area;
+			self->mBillableArea += billable_area;
 
-		LLSD element;
-		element["columns"][0]["column"] = "name";
-		element["columns"][0]["value"] = name;
-		element["columns"][0]["font"] = "SANSSERIF";
-		
-		element["columns"][1]["column"] = "location";
-		element["columns"][1]["value"] = location;
-		element["columns"][1]["font"] = "SANSSERIF";
-		
-		element["columns"][2]["column"] = "area";
-		element["columns"][2]["value"] = area;
-		element["columns"][2]["font"] = "SANSSERIF";
-		
-		element["columns"][3]["column"] = "type";
-		element["columns"][3]["value"] = land_type;
-		element["columns"][3]["font"] = "SANSSERIF";
-		
-		// hidden is always last column
-		element["columns"][4]["column"] = "hidden";
-		element["columns"][4]["value"] = hidden;
+			S32 region_x = llround(global_x) % REGION_WIDTH_UNITS;
+			S32 region_y = llround(global_y) % REGION_WIDTH_UNITS;
 
-		list->addElement(element);
+			std::string location;
+			location = llformat("%s (%d, %d)", sim_name.c_str(), region_x, region_y);
+
+			std::string area;
+			if(billable_area == actual_area)
+			{
+				area = llformat("%d", billable_area);
+			}
+			else
+			{
+				area = llformat("%d / %d", billable_area, actual_area);
+			}
+			
+			std::string hidden;
+			hidden = llformat("%f %f", global_x, global_y);
+
+			LLSD element;
+			element["columns"][0]["column"] = "name";
+			element["columns"][0]["value"] = name;
+			element["columns"][0]["font"] = "SANSSERIF";
+			
+			element["columns"][1]["column"] = "location";
+			element["columns"][1]["value"] = location;
+			element["columns"][1]["font"] = "SANSSERIF";
+			
+			element["columns"][2]["column"] = "area";
+			element["columns"][2]["value"] = area;
+			element["columns"][2]["font"] = "SANSSERIF";
+			
+			element["columns"][3]["column"] = "type";
+			element["columns"][3]["value"] = land_type;
+			element["columns"][3]["font"] = "SANSSERIF";
+			
+			// hidden is always last column
+			element["columns"][4]["column"] = "hidden";
+			element["columns"][4]["value"] = hidden;
+
+			list->addElement(element);
+		}
 	}
 	
 	self->refreshAggregates();
@@ -292,15 +281,16 @@ void LLFloaterLandHoldings::buttonCore(S32 which)
 	F64 global_z = gAgent.getPositionGlobal().mdV[VZ];
 
 	LLVector3d pos_global(global_x, global_y, global_z);
+	LLFloaterWorldMap* floater_world_map = LLFloaterWorldMap::getInstance();
 
 	switch(which)
 	{
 	case 0:
 		gAgent.teleportViaLocation(pos_global);
-		LLFloaterWorldMap::getInstance()->trackLocation(pos_global);
+		if(floater_world_map) floater_world_map->trackLocation(pos_global);
 		break;
 	case 1:
-		LLFloaterWorldMap::getInstance()->trackLocation(pos_global);
+		if(floater_world_map) floater_world_map->trackLocation(pos_global);
 		LLFloaterReg::showInstance("world_map", "center");
 		break;
 	default:

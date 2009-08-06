@@ -67,12 +67,12 @@ protected:
 	
 public:
 	LLDrawInfo(U16 start, U16 end, U32 count, U32 offset, 
-				LLViewerImage* image, LLVertexBuffer* buffer, 
+				LLViewerTexture* image, LLVertexBuffer* buffer, 
 				BOOL fullbright = FALSE, U8 bump = 0, BOOL particle = FALSE, F32 part_size = 0);
 	
 
 	LLPointer<LLVertexBuffer> mVertexBuffer;
-	LLPointer<LLViewerImage> mTexture;
+	LLPointer<LLViewerTexture> mTexture;
 	LLColor4U mGlowColor;
 	S32 mDebugColor;
 	const LLMatrix4* mTextureMatrix;
@@ -164,7 +164,7 @@ public:
 	typedef std::vector<LLPointer<LLDrawInfo> > drawmap_elem_t; 
 	typedef std::map<U32, drawmap_elem_t > draw_map_t;	
 	typedef std::vector<LLPointer<LLVertexBuffer> > buffer_list_t;
-	typedef std::map<LLPointer<LLViewerImage>, buffer_list_t> buffer_texture_map_t;
+	typedef std::map<LLPointer<LLViewerTexture>, buffer_list_t> buffer_texture_map_t;
 	typedef std::map<U32, buffer_texture_map_t> buffer_map_t;
 
 	typedef LLOctreeListener<LLDrawable>	BaseType;

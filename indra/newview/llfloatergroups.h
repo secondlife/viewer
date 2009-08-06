@@ -56,10 +56,10 @@ class LLScrollListCtrl;
 class LLButton;
 class LLFloaterGroupPicker;
 
-class LLFloaterGroupPicker : public LLFloater, public LLUIFactory<LLFloaterGroupPicker, LLFloaterGroupPicker, VisibilityPolicy<LLFloater> >
+class LLFloaterGroupPicker : public LLFloater
 {
-	friend class LLUIFactory<LLFloaterGroupPicker>;
 public:
+	LLFloaterGroupPicker(const LLSD& seed);
 	~LLFloaterGroupPicker();
 	
 	// Note: Don't return connection; use boost::bind + boost::signals2::trackable to disconnect slots
@@ -73,7 +73,6 @@ public:
 	static LLFloaterGroupPicker* createInstance(const LLSD& seed);
 
 protected:
-	LLFloaterGroupPicker(const LLSD& seed);
 	void ok();
 	static void onBtnOK(void* userdata);
 	static void onBtnCancel(void* userdata);

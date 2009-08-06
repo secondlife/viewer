@@ -46,7 +46,7 @@
 #include "llsurfacepatch.h"
 #include "llvosky.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerregion.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
@@ -106,7 +106,7 @@ void LLVOGrass::updateSpecies()
 		SpeciesMap::const_iterator it = sSpeciesTable.begin();
 		mSpecies = (*it).first;
 	}
-	setTEImage(0, gImageList.getImage(sSpeciesTable[mSpecies]->mTextureID));
+	setTEImage(0, LLViewerTextureManager::getFetchedTexture(sSpeciesTable[mSpecies]->mTextureID, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE));
 }
 
 

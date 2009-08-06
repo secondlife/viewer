@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  background_visible="true"
- bg_alpha_color="0.3 0.3 0.3 1"
  follows="left|top|right|bottom"
  height="660"
- label="Me"
+ label="Profile"
  layout="topleft"
  left="0"
  name="panel_target_profile"
  top="0"
- width="355">
-	<button 
-		layout="topleft" 
-		name="back" 
-		left="0" 
-		top="5" 
-		width="20" 
-		height="20" 
-		label=""
-		follows="top|left"
-		image_selected="navbar_bg_button.tga"
-		image_unselected="navbar_bg_button.tga"
-		image_overlay="navbar_back.tga"/>
-	<text 
-		layout="topleft" 
-		top="0" 
-		left="30" 
-		width="150" 
-		height="20" 
-		font="SansSerifHugeBold" 
-		text_color="white" 
-		follows="top|left"
-		mouse_opaque="true" 
-		name="user_name">(Loading...)</text> 
+ width="250">
+    <button 
+     layout="topleft" 
+     name="back" 
+     left="5" 
+     top="5" 
+     width="20" 
+     height="20" 
+     label=""
+     tab_stop="false"
+     follows="top|left"
+     image_selected="navbar_bg_button.tga"
+     image_unselected="navbar_bg_button.tga"
+     image_overlay="navbar_back.tga"/>
+    <text 
+     layout="topleft" 
+     top="0" 
+     left_pad="15" 
+     width="125" 
+     height="20" 
+     font="SansSerifHugeBold" 
+     text_color="white" 
+     follows="top|left|right"
+     mouse_opaque="true" 
+     name="user_name">(Loading...)</text>
     <tab_container
      follows="left|top|right|bottom"
-     height="600"
+     height="625"
      layout="topleft"
      left="0"
-     name="profile_tabs"
+     name="tabs"
      tab_position="top"
      top="35"
-     width="355">
+     width="280">
         <panel
          class="panel_profile"
          filename="panel_profile.xml"
@@ -54,7 +54,7 @@
          label="Picks"
          layout="topleft"
          name="panel_picks"/>
-		 <panel
+        <panel
          class="panel_notes"
          filename="panel_notes.xml"
          label="Notes"

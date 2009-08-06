@@ -44,7 +44,7 @@
 #include "llcombobox.h"
 #include "llgesturemgr.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llpreviewgesture.h"
@@ -56,14 +56,10 @@
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llviewergesture.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerinventory.h"
 #include "llvoavatar.h"
 #include "llviewercontrol.h"
-
-// static
-LLFloaterGesture* LLFloaterGesture::sInstance = NULL;
-LLFloaterGestureObserver* LLFloaterGesture::sObserver = NULL;
 
 BOOL item_name_precedes( LLInventoryItem* a, LLInventoryItem* b )
 {
@@ -73,29 +69,31 @@ BOOL item_name_precedes( LLInventoryItem* a, LLInventoryItem* b )
 class LLFloaterGestureObserver : public LLGestureManagerObserver
 {
 public:
-	LLFloaterGestureObserver() {}
+	LLFloaterGestureObserver(LLFloaterGesture* floater) : mFloater(floater) {}
 	virtual ~LLFloaterGestureObserver() {}
-	virtual void changed() { LLFloaterGesture::refreshAll(); }
+	virtual void changed() { mFloater->refreshAll(); }
+
+private:
+	LLFloaterGesture* mFloater;
 };
 
 //---------------------------------------------------------------------------
 // LLFloaterGesture
 //---------------------------------------------------------------------------
-LLFloaterGesture::LLFloaterGesture()
-:	LLFloater()
+LLFloaterGesture::LLFloaterGesture(const LLSD& key)
+	: LLFloater(key)
 {
-	sObserver = new LLFloaterGestureObserver;
-	gGestureManager.addObserver(sObserver);
+	mObserver = new LLFloaterGestureObserver(this);
+	LLGestureManager::instance().addObserver(mObserver);
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_gesture.xml");
 }
 
 // virtual
 LLFloaterGesture::~LLFloaterGesture()
 {
-	gGestureManager.removeObserver(sObserver);
-	delete sObserver;
-	sObserver = NULL;
-
-	sInstance = NULL;
+	LLGestureManager::instance().removeObserver(mObserver);
+	delete mObserver;
+	mObserver = NULL;
 }
 
 // virtual
@@ -107,45 +105,27 @@ BOOL LLFloaterGesture::postBuild()
 	
 	setTitle(label);
 
-	childSetCommitCallback("gesture_list", onCommitList, this);
-	getChild<LLScrollListCtrl>("gesture_list")->setDoubleClickCallback(onClickPlay, this);
+	getChild<LLUICtrl>("gesture_list")->setCommitCallback(boost::bind(&LLFloaterGesture::onCommitList, this));
+	getChild<LLScrollListCtrl>("gesture_list")->setDoubleClickCallback(boost::bind(&LLFloaterGesture::onClickPlay, this));
 
-	childSetAction("inventory_btn", onClickInventory, this);
+	getChild<LLUICtrl>("inventory_btn")->setCommitCallback(boost::bind(&LLFloaterGesture::onClickInventory, this));
 
-	childSetAction("edit_btn", onClickEdit, this);
+	getChild<LLUICtrl>("edit_btn")->setCommitCallback(boost::bind(&LLFloaterGesture::onClickEdit, this));
 
-	childSetAction("play_btn", onClickPlay, this);
-	childSetAction("stop_btn", onClickPlay, this);
+	getChild<LLUICtrl>("play_btn")->setCommitCallback(boost::bind(&LLFloaterGesture::onClickPlay, this));
+	getChild<LLUICtrl>("stop_btn")->setCommitCallback(boost::bind(&LLFloaterGesture::onClickPlay, this));
 
-	childSetAction("new_gesture_btn", onClickNew, this);
+	getChild<LLUICtrl>("new_gesture_btn")->setCommitCallback(boost::bind(&LLFloaterGesture::onClickNew, this));
 
 	childSetVisible("play_btn", true);
 	childSetVisible("stop_btn", false);
 	setDefaultBtn("play_btn");
+	
+	buildGestureList();
+	
+	childSetFocus("gesture_list");
 
-	return TRUE;
-}
-
-
-// static
-void LLFloaterGesture::show()
-{
-	if (sInstance)
-	{
-		sInstance->openFloater();
-		return;
-	}
-
-	sInstance = new LLFloaterGesture();
-
-	// Builds and adds to gFloaterView
-	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_gesture.xml");
-
-	sInstance->buildGestureList();
-
-	sInstance->childSetFocus("gesture_list");
-
-	LLCtrlListInterface *list = sInstance->childGetListInterface("gesture_list");
+	LLCtrlListInterface *list = childGetListInterface("gesture_list");
 	if (list)
 	{
 		const BOOL ascending = TRUE;
@@ -153,51 +133,34 @@ void LLFloaterGesture::show()
 		list->selectFirstItem();
 	}
 	
-	sInstance->mSelectedID = LLUUID::null;
-
 	// Update button labels
-	onCommitList(NULL, sInstance);
-	sInstance->openFloater();
+	onCommitList();
+	
+	return TRUE;
 }
 
-// static
-void LLFloaterGesture::toggleVisibility()
+
+void LLFloaterGesture::refreshAll()
 {
-	if(sInstance && sInstance->getVisible())
+	buildGestureList();
+
+	LLCtrlListInterface *list = childGetListInterface("gesture_list");
+	if (!list) return;
+
+	if (mSelectedID.isNull())
 	{
-		sInstance->closeFloater();
+		list->selectFirstItem();
 	}
 	else
 	{
-		show();
-	}
-}
-
-// static
-void LLFloaterGesture::refreshAll()
-{
-	if (sInstance)
-	{
-		sInstance->buildGestureList();
-
-		LLCtrlListInterface *list = sInstance->childGetListInterface("gesture_list");
-		if (!list) return;
-
-		if (sInstance->mSelectedID.isNull())
+		if (! list->setCurrentByID(mSelectedID))
 		{
 			list->selectFirstItem();
 		}
-		else
-		{
-			if (! list->setCurrentByID(sInstance->mSelectedID))
-			{
-				list->selectFirstItem();
-			}
-		}
-
-		// Update button labels
-		onCommitList(NULL, sInstance);
 	}
+
+	// Update button labels
+	onCommitList();
 }
 
 void LLFloaterGesture::buildGestureList()
@@ -214,7 +177,7 @@ void LLFloaterGesture::buildGestureList()
 	list->operateOnAll(LLCtrlListInterface::OP_DELETE);
 
 	LLGestureManager::item_map_t::iterator it;
-	for (it = gGestureManager.mActive.begin(); it != gGestureManager.mActive.end(); ++it)
+	for (it = LLGestureManager::instance().mActive.begin(); it != LLGestureManager::instance().mActive.end(); ++it)
 	{
 		const LLUUID& item_id = (*it).first;
 		LLMultiGesture* gesture = (*it).second;
@@ -313,36 +276,30 @@ void LLFloaterGesture::buildGestureList()
 	scroll->setScrollPos(current_scroll_pos);
 }
 
-// static
-void LLFloaterGesture::onClickInventory(void* data)
+void LLFloaterGesture::onClickInventory()
 {
-	LLFloaterGesture* self = (LLFloaterGesture*)data;
-
-	LLCtrlListInterface *list = self->childGetListInterface("gesture_list");
+	LLCtrlListInterface *list = childGetListInterface("gesture_list");
 	if (!list) return;
 	const LLUUID& item_id = list->getCurrentID();
 
-	LLInventoryView* inv = LLInventoryView::showAgentInventory();
+	LLFloaterInventory* inv = LLFloaterInventory::showAgentInventory();
 	if (!inv) return;
 	inv->getPanel()->setSelection(item_id, TRUE);
 }
 
-// static
-void LLFloaterGesture::onClickPlay(void* data)
+void LLFloaterGesture::onClickPlay()
 {
-	LLFloaterGesture* self = (LLFloaterGesture*)data;
-
-	LLCtrlListInterface *list = self->childGetListInterface("gesture_list");
+	LLCtrlListInterface *list = childGetListInterface("gesture_list");
 	if (!list) return;
 	const LLUUID& item_id = list->getCurrentID();
 
-	if (gGestureManager.isGesturePlaying(item_id))
+	if (LLGestureManager::instance().isGesturePlaying(item_id))
 	{
-		gGestureManager.stopGesture(item_id);
+		LLGestureManager::instance().stopGesture(item_id);
 	}
 	else
 	{
-		gGestureManager.playGesture(item_id);
+		LLGestureManager::instance().playGesture(item_id);
 	}
 }
 
@@ -355,8 +312,7 @@ public:
 	}
 };
 
-// static
-void LLFloaterGesture::onClickNew(void* data)
+void LLFloaterGesture::onClickNew()
 {
 	LLPointer<LLInventoryCallback> cb = new GestureShowCallback();
 	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
@@ -365,12 +321,9 @@ void LLFloaterGesture::onClickNew(void* data)
 }
 
 
-// static
-void LLFloaterGesture::onClickEdit(void* data)
+void LLFloaterGesture::onClickEdit()
 {
-	LLFloaterGesture* self = (LLFloaterGesture*)data;
-
-	LLCtrlListInterface *list = self->childGetListInterface("gesture_list");
+	LLCtrlListInterface *list = childGetListInterface("gesture_list");
 	if (!list) return;
 	const LLUUID& item_id = list->getCurrentID();
 
@@ -380,26 +333,23 @@ void LLFloaterGesture::onClickEdit(void* data)
 	LLPreviewGesture* previewp = LLPreviewGesture::show(item_id, LLUUID::null);
 	if (!previewp->getHost())
 	{
-		previewp->setRect(gFloaterView->findNeighboringPosition(self, previewp));
+		previewp->setRect(gFloaterView->findNeighboringPosition(this, previewp));
 	}
 }
 
-// static
-void LLFloaterGesture::onCommitList(LLUICtrl* ctrl, void* data)
+void LLFloaterGesture::onCommitList()
 {
-	LLFloaterGesture* self = (LLFloaterGesture*)data;
+	const LLUUID& item_id = childGetValue("gesture_list").asUUID();
 
-	const LLUUID& item_id = self->childGetValue("gesture_list").asUUID();
-
-	self->mSelectedID = item_id;
-	if (gGestureManager.isGesturePlaying(item_id))
+	mSelectedID = item_id;
+	if (LLGestureManager::instance().isGesturePlaying(item_id))
 	{
-		self->childSetVisible("play_btn", false);
-		self->childSetVisible("stop_btn", true);
+		childSetVisible("play_btn", false);
+		childSetVisible("stop_btn", true);
 	}
 	else
 	{
-		self->childSetVisible("play_btn", true);
-		self->childSetVisible("stop_btn", false);
+		childSetVisible("play_btn", true);
+		childSetVisible("stop_btn", false);
 	}
 }

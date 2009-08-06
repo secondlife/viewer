@@ -178,120 +178,159 @@
      width="356">
         <combo_box.item
          label="Select category"
+         name="Select_category"
          value="0" />
         <combo_box.item
          label="Age &gt; Age play"
+         name="Age__Age_play"
          value="31" />
         <combo_box.item
          label="Age &gt; Adult resident on Teen Second Life"
+         name="Age__Adult_resident_on_Teen_Second_Life"
          value="32" />
         <combo_box.item
          label="Age &gt; Underage resident outside of Teen Second Life"
+         name="Age__Underage_resident_outside_of_Teen_Second_Life"
          value="33" />
         <combo_box.item
          label="Assault &gt; Combat sandbox / unsafe area"
+         name="Assault__Combat_sandbox___unsafe_area"
          value="34" />
         <combo_box.item
          label="Assault &gt; Safe area"
+         name="Assault__Safe_area"
          value="35" />
         <combo_box.item
          label="Assault &gt; Weapons testing sandbox"
+         name="Assault__Weapons_testing_sandbox"
          value="36" />
         <combo_box.item
          label="Commerce &gt; Failure to deliver product or service"
+         name="Commerce__Failure_to_deliver_product_or_service"
          value="38" />
         <combo_box.item
          label="Disclosure &gt; Real world information"
+         name="Disclosure__Real_world_information"
          value="39" />
         <combo_box.item
          label="Disclosure &gt; Remotely monitoring chat"
+         name="Disclosure__Remotely_monitoring chat"
          value="40" />
         <combo_box.item
          label="Disclosure &gt; Second Life information/chat/IMs"
+         name="Disclosure__Second_Life_information_chat_IMs"
          value="41" />
         <combo_box.item
          label="Disturbing the peace &gt; Unfair use of region resources"
+         name="Disturbing_the_peace__Unfair_use_of_region_resources"
          value="42" />
         <combo_box.item
          label="Disturbing the peace &gt; Excessive scripted objects"
+         name="Disturbing_the_peace__Excessive_scripted_objects"
          value="43" />
         <combo_box.item
          label="Disturbing the peace &gt; Object littering"
+         name="Disturbing_the_peace__Object_littering"
          value="44" />
         <combo_box.item
          label="Disturbing the peace &gt; Repetitive spam"
+         name="Disturbing_the_peace__Repetitive_spam"
          value="45" />
         <combo_box.item
          label="Disturbing the peace &gt; Unwanted advert spam"
+         name="Disturbing_the_peace__Unwanted_advert_spam"
          value="46" />
         <combo_box.item
          label="Fraud &gt; L$"
+         name="Fraud__L$"
          value="47" />
         <combo_box.item
          label="Fraud &gt; Land"
+         name="Fraud__Land"
          value="48" />
         <combo_box.item
          label="Fraud &gt; Pyramid scheme or chain letter"
+         name="Fraud__Pyramid_scheme_or_chain_letter"
          value="49" />
         <combo_box.item
          label="Fraud &gt; US$"
+         name="Fraud__US$"
          value="50" />
         <combo_box.item
          label="Harassment &gt; Advert farms / visual spam"
+         name="Harassment__Advert_farms___visual_spam"
          value="51" />
         <combo_box.item
          label="Harassment &gt; Defaming individuals or groups"
+         name="Harassment__Defaming_individuals_or_groups"
          value="52" />
         <combo_box.item
          label="Harassment &gt; Impeding movement"
+         name="Harassment__Impeding_movement"
          value="53" />
         <combo_box.item
          label="Harassment &gt; Sexual harassment"
+         name="Harassment__Sexual_harassment"
          value="54" />
         <combo_box.item
          label="Harassment &gt; Solicting/inciting others to violate ToS"
+         name="Harassment__Solicting_inciting_others_to_violate_ToS"
          value="55" />
         <combo_box.item
          label="Harassment &gt; Verbal abuse"
+         name="Harassment__Verbal_abuse"
          value="56" />
         <combo_box.item
          label="Indecency &gt; Broadly offensive content or conduct"
+         name="Indecency__Broadly_offensive_content_or_conduct"
          value="57" />
         <combo_box.item
          label="Indecency &gt; Inappropriate avatar name"
+         name="Indecency__Inappropriate_avatar_name"
          value="59" />
         <combo_box.item
          label="Indecency &gt; Inappropriate content or conduct in a PG region"
+         name="Indecency__Mature_content_in_PG_region"
          value="60" />
         <combo_box.item
          label="Indecency &gt; Inappropriate content or conduct in a Mature region"
+         name="Indecency__Inappropriate_content_in_Mature_region"
          value="69" />
         <combo_box.item
          label="Intellectual property infringement &gt; Content Removal"
+         name="Intellectual_property_infringement_Content_Removal"
          value="66" />
         <combo_box.item
          label="Intellectual property infringement &gt; CopyBot or Permissions Exploit"
+         name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit"
          value="37" />
         <combo_box.item
          label="Intolerance"
+         name="Intolerance"
          value="61" />
         <combo_box.item
          label="Land &gt; Abuse of sandbox resources"
+         name="Land__Abuse_of_sandbox_resources"
          value="62" />
         <combo_box.item
          label="Land &gt; Encroachment &gt; Objects/textures"
+         name="Land__Encroachment__Objects_textures"
          value="63" />
         <combo_box.item
          label="Land &gt; Encroachment &gt; Particles"
+         name="Land__Encroachment__Particles"
          value="64" />
         <combo_box.item
          label="Land &gt; Encroachment &gt; Trees/plants"
+         name="Land__Encroachment__Trees_plants"
          value="65" />
         <combo_box.item
          label="Wagering/gambling"
+         name="Wagering_gambling"
          value="67" />
         <combo_box.item
          label="Other"
+         name="Other"
          value="68" />
     </combo_box>
     <text

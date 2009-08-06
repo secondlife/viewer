@@ -51,7 +51,7 @@
 #include "llhudmanager.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llmutelist.h"
 #include "llnotify.h"
 #include "llpreviewnotecard.h"
@@ -59,7 +59,7 @@
 #include "lltoolmgr.h"
 #include "lltrans.h"
 #include "llui.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerinventory.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
@@ -387,8 +387,8 @@ LLToolDragAndDrop::dragOrDrop3dImpl LLToolDragAndDrop::sDragAndDrop3d[DAD_COUNT]
 	{
 		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_NONE
 		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_SELF
-		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_AVATAR
-		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_OBJECT
+		&LLToolDragAndDrop::dad3dGiveInventory, // Dest: DT_AVATAR
+		&LLToolDragAndDrop::dad3dUpdateInventory, // Dest: DT_OBJECT
 		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_LAND
 	},
 	//	Source: DAD_LANDMARK
@@ -471,6 +471,14 @@ LLToolDragAndDrop::dragOrDrop3dImpl LLToolDragAndDrop::sDragAndDrop3d[DAD_COUNT]
 		&LLToolDragAndDrop::dad3dActivateGesture, // Dest: DT_SELF
 		&LLToolDragAndDrop::dad3dGiveInventory, // Dest: DT_AVATAR
 		&LLToolDragAndDrop::dad3dUpdateInventory, // Dest: DT_OBJECT
+		&LLToolDragAndDrop::dad3dNULL,//dad3dAssetOnLand, // Dest: DT_LAND
+	},
+	//	Source: DAD_LINK
+	{
+		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_NONE
+		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_SELF
+		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_AVATAR
+		&LLToolDragAndDrop::dad3dNULL, // Dest: DT_OBJECT
 		&LLToolDragAndDrop::dad3dNULL,//dad3dAssetOnLand, // Dest: DT_LAND
 	},
 };
@@ -1146,7 +1154,7 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 	{
 		return;
 	}
-	LLViewerImage* image = gImageList.getImage(asset_id);
+	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(asset_id);
 	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
 	S32 num_faces = hit_obj->getNumTEs();
 	for( S32 face = 0; face < num_faces; face++ )
@@ -1164,7 +1172,7 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 void LLToolDragAndDrop::dropTextureOneFaceAvatar(LLVOAvatar* avatar, S32 hit_face, LLInventoryItem* item)
 {
 	if (hit_face == -1) return;
-	LLViewerImage* image = gImageList.getImage(item->getAssetUUID());
+	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(item->getAssetUUID());
 	
 	avatar->userSetOptionalTE( hit_face, image);
 }
@@ -1189,7 +1197,7 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 		return;
 	}
 	// update viewer side image in anticipation of update from simulator
-	LLViewerImage* image = gImageList.getImage(asset_id);
+	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(asset_id);
 	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
 	hit_obj->setTEImage(hit_face, image);
 	dialog_refresh_all();
@@ -1598,6 +1606,8 @@ void LLToolDragAndDrop::commitGiveInventoryItem(const LLUUID& to_agent,
 		gIMMgr->addSystemMessage(im_session_id, "inventory_item_offered", args);
 	}
 
+	// add buddy to recent people list
+	LLRecentPeople::instance().add(to_agent);
 }
 
 void LLToolDragAndDrop::giveInventoryCategory(const LLUUID& to_agent,
@@ -1722,6 +1732,9 @@ void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
 	llinfos << "LLToolDragAndDrop::commitGiveInventoryCategory() - "
 			<< cat->getUUID() << llendl;
 
+	// add buddy to recent people list
+	LLRecentPeople::instance().add(to_agent);
+
 	// Test out how many items are being given.
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
@@ -1840,9 +1853,6 @@ BOOL LLToolDragAndDrop::isInventoryGiveAcceptable(LLInventoryItem* item)
 	BOOL acceptable = TRUE;
 	switch(item->getType())
 	{
-	case LLAssetType::AT_CALLINGCARD:
-		acceptable = FALSE;
-		break;
 	case LLAssetType::AT_OBJECT:
 		if(my_avatar->isWearingAttachment(item->getUUID()))
 		{
@@ -1890,11 +1900,8 @@ BOOL LLToolDragAndDrop::isInventoryGroupGiveAcceptable(LLInventoryItem* item)
 	BOOL acceptable = TRUE;
 	switch(item->getType())
 	{
-	case LLAssetType::AT_CALLINGCARD:
-		acceptable = FALSE;
-		break;
 	case LLAssetType::AT_OBJECT:
-		if(my_avatar->isWearingAttachment(item->getUUID()))
+		if(my_avatar->isWearingAttachment(item->getUUID(), TRUE))
 		{
 			acceptable = FALSE;
 		}
@@ -1995,6 +2002,7 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
 	case DAD_BODYPART:
 	case DAD_ANIMATION:
 	case DAD_GESTURE:
+	case DAD_CALLINGCARD:
 	{
 		LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
 		if(gInventory.getItem(inv_item->getUUID())
@@ -2039,7 +2047,6 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
 		}
 		break;
 	}
-	case DAD_CALLINGCARD:
 	default:
 		*accept = ACCEPT_NO;
 		break;
@@ -2456,7 +2463,7 @@ EAcceptance LLToolDragAndDrop::dad3dActivateGesture(
 			}
 			else
 			{
-				gGestureManager.activateGesture(item->getUUID());
+				LLGestureManager::instance().activateGesture(item->getUUID());
 				gInventory.updateItem(item);
 				gInventory.notifyObservers();
 			}

@@ -40,9 +40,9 @@
 #include "v3math.h"
 #include "llquaternion.h"
 #include "llfontgl.h"
-#include "llimagegl.h"
 #include "llglheaders.h"
 #include "llviewerwindow.h"
+#include "llui.h"
 
 void hud_render_utf8text(const std::string &str, const LLVector3 &pos_agent,
 					 const LLFontGL &font,

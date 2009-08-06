@@ -100,12 +100,15 @@ public:
 
 	/*virtual*/ void    setEnabled( BOOL b );
 	/*virtual*/ void	clear();
+
+	/*virtual*/ void	setMinValue(const LLSD& min_value)  { setMinValue((F32)min_value.asReal()); }
+	/*virtual*/ void	setMaxValue(const LLSD& max_value)  { setMaxValue((F32)max_value.asReal()); }
 	/*virtual*/ void	setMinValue(F32 min_value)  { mSlider->setMinValue(min_value); updateText(); }
 	/*virtual*/ void	setMaxValue(F32 max_value)  { mSlider->setMaxValue(max_value); updateText(); }
 	/*virtual*/ void	setIncrement(F32 increment) { mSlider->setIncrement(increment);}
 
-	F32				getMinValue() { return mSlider->getMinValue(); }
-	F32				getMaxValue() { return mSlider->getMaxValue(); }
+	F32				getMinValue() const { return mSlider->getMinValue(); }
+	F32				getMaxValue() const { return mSlider->getMaxValue(); }
 
 	void			setLabel(const LLStringExplicit& label)		{ if (mLabelBox) mLabelBox->setText(label); }
 	void			setLabelColor(const LLColor4& c)			{ mTextEnabledColor = c; }

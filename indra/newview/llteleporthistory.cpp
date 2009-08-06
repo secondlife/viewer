@@ -172,6 +172,14 @@ void LLTeleportHistory::onHistoryChanged()
 	mHistoryChangedSignal();
 }
 
+void LLTeleportHistory::purgeItems()
+{
+	mItems.erase(mItems.begin(), mItems.end()-1);
+	// reset the count
+	mRequestedItem = -1;
+	mCurrentItem = 0;
+}
+
 // static
 std::string LLTeleportHistory::getCurrentLocationTitle()
 {

@@ -93,7 +93,7 @@ virtual void	setEnabled(BOOL enabled)	{ mEnabled = enabled; }
 		LLCheckBoxCtrl, LLComboBox, LLLineEditor, LLMenuGL, LLRadioGroup, etc
 virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text ) { return FALSE; }
 		LLUICtrl, LLButton, LLCheckBoxCtrl, LLLineEditor, LLMenuGL, LLSliderCtrl
-virtual void	onVisibilityChange ( BOOL curVisibilityIn );
+virtual void	handleVisibilityChange ( BOOL curVisibilityIn );
 		LLMenuGL
 virtual LLRect getSnapRect() const	{ return mRect; } *TODO: Make non virtual
 		LLFloater
@@ -138,6 +138,9 @@ virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
 		*
 */
 
+class LLViewWidgetRegistry : public LLChildRegistry<LLViewWidgetRegistry>
+{};
+
 class LLView : public LLMouseHandler, public LLMortician
 {
 public:
@@ -157,15 +160,16 @@ public:
 		Mandatory<std::string>		name;
 
 		Optional<bool>				enabled,
-									visible;
-		Optional<bool>				mouse_opaque;
-		Optional<bool>				use_bounding_rect;
+									visible,
+									mouse_opaque,
+									use_bounding_rect;
+
 		Optional<S32>				tab_group,
 									default_tab_group;
 		Optional<std::string>		tool_tip;
 
 		Optional<S32>				sound_flags;
-		Optional<bool>				serializable;
+		Optional<bool>				from_xui;
 		Optional<Follows>			follows;
 		Optional<std::string>		hover_cursor;
 		
@@ -192,10 +196,17 @@ public:
 		//FIXME: get parent context involved in parsing traversal
 		Ignored						user_resize,
 									auto_resize,
-									needs_translate;
+									needs_translate,
+									xmlns,
+									xmlns_xsi,
+									xsi_schemaLocation,
+									xsi_type;
 
 		Params();
 	};
+
+	typedef LLViewWidgetRegistry child_registry_t;
+
 	void initFromParams(const LLView::Params&);
 
 protected:
@@ -310,6 +321,7 @@ public:
 	S32 getDefaultTabGroup() const				{ return mDefaultTabGroup; }
 	S32 getLastTabGroup()						{ return mLastTabGroup; }
 
+	bool        trueToRoot(const boost::function<bool (const LLView*)>& predicate) const;
 	BOOL		isInVisibleChain() const;
 	BOOL		isInEnabledChain() const;
 
@@ -337,7 +349,7 @@ public:
 
 	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 
-	virtual void	onVisibilityChange ( BOOL curVisibilityIn );
+	virtual void	handleVisibilityChange ( BOOL new_visibility );
 
 	void			pushVisible(BOOL visible)	{ mLastVisible = mVisible; setVisible(visible); }
 	void			popVisible()				{ setVisible(mLastVisible); }
@@ -496,9 +508,6 @@ public:
 		return dynamic_cast<T*>(found_it->second);
 	}
 
-	// determines allowable children when parsing XUI
-	virtual const widget_registry_t& getChildRegistry() const;
-
 	//////////////////////////////////////////////
 	// statics
 	//////////////////////////////////////////////
@@ -647,6 +656,9 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse, BO
 
 				if (result)
 				{
+					// *NOTE: You cannot call mFoo = getChild<LLFoo>("bar")
+					// in a floater or panel constructor.  The widgets will not
+					// be ready.  Instead, put it in postBuild().
 					llwarns << "Making dummy " << typeid(T).name() << " named \"" << name << "\" in " << getName() << llendl;
 				}
 				else

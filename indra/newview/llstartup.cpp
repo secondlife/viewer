@@ -94,9 +94,6 @@
 #include "llface.h"
 #include "llfeaturemanager.h"
 #include "llfirstuse.h"
-#include "llfloateractivespeakers.h"
-#include "llfloaterbeacons.h"
-#include "llfloatercamera.h"
 #include "llfloaterchat.h"
 #include "llfloatergesture.h"
 #include "llfloaterhud.h"
@@ -112,7 +109,7 @@
 #include "llimagebmp.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llkeyboard.h"
 #include "llloginhandler.h"			// gLoginHandler, SLURL support
 #include "lllogininstance.h" // Host the login module.
@@ -153,7 +150,7 @@
 #include "llviewerdisplay.h"
 #include "llviewergenericmessage.h"
 #include "llviewergesture.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewermedia.h"
 #include "llviewermenu.h"
 #include "llviewermessage.h"
@@ -207,7 +204,7 @@ bool gAgentMovementCompleted = false;
 std::string SCREEN_HOME_FILENAME = "screen_home.bmp";
 std::string SCREEN_LAST_FILENAME = "screen_last.bmp";
 
-LLPointer<LLImageGL> gStartImageGL;
+LLPointer<LLViewerTexture> gStartTexture;
 
 //
 // Imported globals
@@ -300,8 +297,11 @@ public:
 	virtual void done()
 	{
 		// we've downloaded all the items, so repaint the dialog
-		LLFloaterGesture::refreshAll();
-
+		LLFloaterGesture* floater = LLFloaterReg::findTypedInstance<LLFloaterGesture>("gestures");
+		if (floater)
+		{
+			floater->refreshAll();
+		}
 		gInventory.removeObserver(this);
 		delete this;
 	}
@@ -312,7 +312,7 @@ void update_texture_fetch()
 	LLAppViewer::getTextureCache()->update(1); // unpauses the texture cache thread
 	LLAppViewer::getImageDecodeThread()->update(1); // unpauses the image thread
 	LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
-	gImageList.updateImages(0.10f);
+	gTextureList.updateImages(0.10f);
 }
 
 // Returns false to skip other idle processing. Should only return
@@ -369,7 +369,7 @@ bool idle_startup()
 	if (!gNoRender)
 	{
 		// Update images?
-		gImageList.updateImages(0.01f);
+		gTextureList.updateImages(0.01f);
 	}
 
 	if ( STATE_FIRST == LLStartUp::getStartupState() )
@@ -453,13 +453,24 @@ bool idle_startup()
 		
 		#if LL_WINDOWS
 			// On the windows dev builds, unpackaged, the message_template.msg 
-			// file will be located in 
-			// indra/build-vc**/newview/<config>/app_settings.
+			// file will be located in:
+			// build-vc**/newview/<config>/app_settings
 			if (!found_template)
 			{
 				message_template_path = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "app_settings", "message_template.msg");
 				found_template = LLFile::fopen(message_template_path.c_str(), "r");		/* Flawfinder: ignore */
 			}	
+		#elif LL_DARWIN
+			// On Mac dev builds, message_template.msg lives in:
+			// indra/build-*/newview/<config>/Second Life/Contents/Resources/app_settings
+			if (!found_template)
+			{
+				message_template_path =
+					gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE,
+												   "../Resources/app_settings",
+												   "message_template.msg");
+				found_template = LLFile::fopen(message_template_path.c_str(), "r");		/* Flawfinder: ignore */
+			}		
 		#endif
 
 		if (found_template)
@@ -722,8 +733,10 @@ bool idle_startup()
 		std::string msg = LLTrans::getString("LoginInitializingBrowser");
 		set_startup_status(0.03f, msg.c_str(), gAgent.mMOTD.c_str());
 		display_startup();
+#if !defined(LL_WINDOWS) || !defined(LL_DEBUG)
+		// This generates an error in debug mode on Windows
 		LLViewerMedia::initBrowser();
-
+#endif
 		LLStartUp::setStartupState( STATE_LOGIN_SHOW );
 		return FALSE;
 	}
@@ -836,8 +849,6 @@ bool idle_startup()
 		gDirUtilp->setLindenUserDir(gFirstname, gLastname);
     	LLFile::mkdir(gDirUtilp->getLindenUserDir());
 
-		LLLocationHistory::getInstance()->load();
-
         // Set PerAccountSettingsFile to the default value.
 		gSavedSettings.setString("PerAccountSettingsFile",
 			gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, 
@@ -856,10 +867,13 @@ bool idle_startup()
 		}
 
 		//Default the path if one isn't set.
-		if (gSavedPerAccountSettings.getString("InstantMessageLogPath").empty())
+		if (gSavedPerAccountSettings.getString("InstantMessageLogFolder").empty())
 		{
 			gDirUtilp->setChatLogsDir(gDirUtilp->getOSUserAppDir());
-			gSavedPerAccountSettings.setString("InstantMessageLogPath",gDirUtilp->getChatLogsDir());
+			std::string chat_log_dir = gDirUtilp->getChatLogsDir();
+			std::string chat_log_top_folder=gDirUtilp->getBaseFileName(chat_log_dir);
+			gSavedPerAccountSettings.setString("InstantMessageLogPath",chat_log_dir);
+			gSavedPerAccountSettings.setString("InstantMessageLogFolder",chat_log_top_folder);
 		}
 		else
 		{
@@ -897,7 +911,7 @@ bool idle_startup()
 
 		
 		//For HTML parsing in text boxes.
-		LLTextEditor::setLinkColor( gSavedSkinSettings.getColor4("HTMLLinkColor") );
+		LLTextEditor::setLinkColor( LLUIColorTable::instance().getColor("HTMLLinkColor") );
 
 		// Load URL History File
 		LLURLHistory::loadFile("url_history.xml");
@@ -1102,12 +1116,12 @@ bool idle_startup()
 		// Since we connected, save off the settings so the user doesn't have to
 		// type the name/password again if we crash.
 		gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);
-		gSavedSkinSettings.saveToFile(gSavedSettings.getString("SkinningSettingsFile"), TRUE);
+		LLUIColorTable::instance().saveUserSettings();
 
 		//
 		// Initialize classes w/graphics stuff.
 		//
-		gImageList.doPrefetchImages();		
+		gTextureList.doPrefetchImages();		
 		LLSurface::initClasses();
 
 		LLFace::initClass();
@@ -1206,27 +1220,6 @@ bool idle_startup()
 		}	
 		gLoginMenuBarView->setVisible( FALSE );
 		gLoginMenuBarView->setEnabled( FALSE );
-		
-		LLFloaterReg::showInitialVisibleInstances();
-
-		if (gSavedSettings.getBOOL("ShowCameraControls"))
-		{
-			LLFloaterCamera::showInstance();
-		}
-		if (gSavedSettings.getBOOL("ShowMovementControls"))
-		{
-			LLFloaterMove::showInstance();
-		}
-
-		if (gSavedSettings.getBOOL("ShowActiveSpeakers"))
-		{
-			LLFloaterActiveSpeakers::showInstance();
-		}
-
-		if (gSavedSettings.getBOOL("BeaconAlwaysOn"))
-		{
-			LLFloaterBeacons::showInstance();
-		}
 
 		if (!gNoRender)
 		{
@@ -1335,7 +1328,7 @@ bool idle_startup()
 			F32 frac = (F32)i / (F32)DECODE_TIME_SEC;
 			set_startup_status(0.45f + frac*0.1f, LLTrans::getString("LoginDecodingImages"), gAgent.mMOTD);
 			display_startup();
-			gImageList.decodeAllImages(1.f);
+			gTextureList.decodeAllImages(1.f);
 		}
 		LLStartUp::setStartupState( STATE_WORLD_WAIT );
 
@@ -1479,7 +1472,7 @@ bool idle_startup()
 			LLSD id = inv_lib_root[0]["folder_id"];
 			if(id.isDefined())
 			{
-				gInventoryLibraryRoot = id.asUUID();
+				gInventory.setLibraryRootFolderID(id.asUUID());
 			}
 		}
  		
@@ -1490,14 +1483,14 @@ bool idle_startup()
 			LLSD id = inv_lib_owner[0]["agent_id"];
 			if(id.isDefined())
 			{
-				gInventoryLibraryOwner = id.asUUID();
+				gInventory.setLibraryOwnerID( LLUUID(id.asUUID()));
 			}
 		}
 
 		LLSD inv_skel_lib = response["inventory-skel-lib"];
- 		if(inv_skel_lib.isDefined() && gInventoryLibraryOwner.notNull())
+ 		if(inv_skel_lib.isDefined() && gInventory.getLibraryOwnerID().notNull())
  		{
- 			if(!gInventory.loadSkeleton(inv_skel_lib, gInventoryLibraryOwner))
+ 			if(!gInventory.loadSkeleton(inv_skel_lib, gInventory.getLibraryOwnerID()))
  			{
  				LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
  			}
@@ -1568,10 +1561,9 @@ bool idle_startup()
 		// Either we want to show tutorial because this is the first login
 		// to a Linden Help Island or the user quit with the tutorial
 		// visible.  JC
-		if (show_hud
-			|| gSavedSettings.getBOOL("ShowTutorial"))
+		if (show_hud || gSavedSettings.getBOOL("ShowTutorial"))
 		{
-			LLFloaterHUD::showHUD();
+			LLFloaterReg::showInstance("hud", LLSD(), FALSE);
 		}
 
 		LLSD event_categories = response["event_categories"];
@@ -1671,6 +1663,7 @@ bool idle_startup()
 		// We're successfully logged in.
 		gSavedSettings.setBOOL("FirstLoginThisInstall", FALSE);
 
+		LLFloaterReg::showInitialVisibleInstances();
 
 		// based on the comments, we've successfully logged in so we can delete the 'forced'
 		// URL that the updater set in settings.ini (in a mostly paranoid fashion)
@@ -1682,7 +1675,7 @@ bool idle_startup()
 
 			// and make sure it's saved
 			gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile") , TRUE );
-			gSavedSkinSettings.saveToFile( gSavedSettings.getString("SkinningSettingsFile") , TRUE );
+			LLUIColorTable::instance().saveUserSettings();
 		};
 
 		if (!gNoRender)
@@ -1713,7 +1706,7 @@ bool idle_startup()
 						// Could schedule and delay these for later.
 						const BOOL no_inform_server = FALSE;
 						const BOOL no_deactivate_similar = FALSE;
-						gGestureManager.activateGestureWithAsset(item_id, asset_id,
+						LLGestureManager::instance().activateGestureWithAsset(item_id, asset_id,
 											 no_inform_server,
 											 no_deactivate_similar);
 						// We need to fetch the inventory items for these gestures
@@ -1935,9 +1928,11 @@ bool idle_startup()
 
 		// Let the map know about the inventory.
 		LLFloaterWorldMap* floater_world_map = LLFloaterWorldMap::getInstance();
-		floater_world_map->observeInventory(&gInventory);
-		floater_world_map->observeFriends();
-
+		if(floater_world_map)
+		{
+			floater_world_map->observeInventory(&gInventory);
+			floater_world_map->observeFriends();
+		}
 		gViewerWindow->showCursor();
 		gViewerWindow->getWindow()->resetBusyCount();
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
@@ -2001,6 +1996,8 @@ bool idle_startup()
 		// reset timers now that we are running "logged in" logic
 		LLFastTimer::reset();
 
+		LLLocationHistory::getInstance()->load();
+
 		return TRUE;
 	}
 
@@ -2059,7 +2056,7 @@ void login_callback(S32 option, void *userdata)
 		{
 			// turn off the setting and write out to disk
 			gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile") , TRUE );
-			gSavedSkinSettings.saveToFile( gSavedSettings.getString("SkinningSettingsFile") , TRUE );
+			LLUIColorTable::instance().saveUserSettings();
 		}
 
 		// Next iteration through main loop should shut down the app cleanly.
@@ -2290,8 +2287,8 @@ void use_circuit_callback(void**, S32 result)
 void register_viewer_callbacks(LLMessageSystem* msg)
 {
 	msg->setHandlerFuncFast(_PREHASH_LayerData,				process_layer_data );
-	msg->setHandlerFuncFast(_PREHASH_ImageData,				LLViewerImageList::receiveImageHeader );
-	msg->setHandlerFuncFast(_PREHASH_ImagePacket,				LLViewerImageList::receiveImagePacket );
+	msg->setHandlerFuncFast(_PREHASH_ImageData,				LLViewerTextureList::receiveImageHeader );
+	msg->setHandlerFuncFast(_PREHASH_ImagePacket,				LLViewerTextureList::receiveImagePacket );
 	msg->setHandlerFuncFast(_PREHASH_ObjectUpdate,				process_object_update );
 	msg->setHandlerFunc("ObjectUpdateCompressed",				process_compressed_object_update );
 	msg->setHandlerFunc("ObjectUpdateCached",					process_cached_object_update );
@@ -2422,7 +2419,7 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFunc("TeleportFailed", process_teleport_failed, NULL);
 	msg->setHandlerFunc("TeleportLocal", process_teleport_local, NULL);
 
-	msg->setHandlerFunc("ImageNotInDatabase", LLViewerImageList::processImageNotInDatabase, NULL);
+	msg->setHandlerFunc("ImageNotInDatabase", LLViewerTextureList::processImageNotInDatabase, NULL);
 
 	msg->setHandlerFuncFast(_PREHASH_GroupMembersReply,
 						LLGroupMgr::processGroupMembersReply);
@@ -2553,9 +2550,9 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 // Loads a bitmap to display during load
 void init_start_screen(S32 location_id)
 {
-	if (gStartImageGL.notNull())
+	if (gStartTexture.notNull())
 	{
-		gStartImageGL = NULL;
+		gStartTexture = NULL;
 		LL_INFOS("AppInit") << "re-initializing start screen" << LL_ENDL;
 	}
 
@@ -2587,7 +2584,6 @@ void init_start_screen(S32 location_id)
 		return;
 	}
 
-	gStartImageGL = new LLImageGL(FALSE);
 	gStartImageWidth = start_image_bmp->getWidth();
 	gStartImageHeight = start_image_bmp->getHeight();
 
@@ -2595,12 +2591,12 @@ void init_start_screen(S32 location_id)
 	if (!start_image_bmp->decode(raw, 0.0f))
 	{
 		LL_WARNS("AppInit") << "Bitmap decode failed" << LL_ENDL;
-		gStartImageGL = NULL;
+		gStartTexture = NULL;
 		return;
 	}
 
 	raw->expandToPowerOfTwo();
-	gStartImageGL->createGLTexture(0, raw);
+	gStartTexture = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE) ;
 }
 
 
@@ -2608,7 +2604,7 @@ void init_start_screen(S32 location_id)
 void release_start_screen()
 {
 	LL_DEBUGS("AppInit") << "Releasing bitmap..." << LL_ENDL;
-	gStartImageGL = NULL;
+	gStartTexture = NULL;
 }
 
 
@@ -2916,7 +2912,7 @@ bool process_login_success_response()
 	LLUUID inv_root_folder_id = response["inventory-root"][0]["folder_id"];
 	if(inv_root_folder_id.notNull())
 	{
-		gAgent.getInventoryRootID() = inv_root_folder_id;
+		gInventory.setRootFolderID(inv_root_folder_id);
 		//gInventory.mock(gAgent.getInventoryRootID());
 	}
 
@@ -3004,7 +3000,7 @@ bool process_login_success_response()
 	   && gAgentSessionID.notNull()
 	   && gMessageSystem->mOurCircuitCode
 	   && gFirstSim.isOk()
-	   && gAgent.getInventoryRootID().notNull())
+	   && gInventory.getRootFolderID().notNull())
 	{
 		success = true;
 	}

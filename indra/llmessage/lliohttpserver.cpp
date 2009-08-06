@@ -105,6 +105,7 @@ private:
 		// from LLHTTPNode::Response
 		virtual void result(const LLSD&);
 		virtual void extendedResult(S32 code, const std::string& body, const LLSD& headers);
+		
 		virtual void status(S32 code, const std::string& message);
 
 		void nullPipe();

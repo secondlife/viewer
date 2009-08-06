@@ -58,6 +58,7 @@
 #include "llfloatergodtools.h"	// for send_sim_wide_deletes()
 #include "llfloatertopobjects.h" // added to fix SL-32336
 #include "llfloatergroups.h"
+#include "llfloaterreg.h"
 #include "llfloatertelehub.h"
 #include "llfloaterwindlight.h"
 #include "llinventorymodel.h"
@@ -75,8 +76,8 @@
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
 #include "llviewerinventory.h"
-#include "llviewerimage.h"
-#include "llviewerimagelist.h"
+#include "llviewertexture.h"
+#include "llviewertexturelist.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewertexteditor.h"
@@ -164,9 +165,9 @@ bool estate_dispatch_initialized = false;
 LLUUID LLFloaterRegionInfo::sRequestInvoice;
 
 LLFloaterRegionInfo::LLFloaterRegionInfo(const LLSD& seed)
-	: LLFloater()
+	: LLFloater(seed)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_region_info.xml", FALSE);
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_region_info.xml", FALSE);
 }
 
 BOOL LLFloaterRegionInfo::postBuild()
@@ -247,7 +248,8 @@ void LLFloaterRegionInfo::requestRegionInfo()
 void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 {
 	static LLDispatcher dispatch;
-	if(!findInstance())
+	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
+	if(!floater)
 	{
 		return;
 	}
@@ -257,7 +259,7 @@ void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 		LLPanelEstateInfo::initDispatch(dispatch);
 	}
 
-	LLTabContainer* tab = findInstance()->getChild<LLTabContainer>("region_panels");
+	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)tab->getChild<LLPanel>("Estate");
 
 	// unpack the message
@@ -283,14 +285,14 @@ void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 {
 	LLPanel* panel;
-
+	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
 	llinfos << "LLFloaterRegionInfo::processRegionInfo" << llendl;
-	if(!findInstance())
+	if(!floater)
 	{
 		return;
 	}
 	
-	LLTabContainer* tab = findInstance()->getChild<LLTabContainer>("region_panels");
+	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 
 	LLViewerRegion* region = gAgent.getRegion();
 	BOOL allow_modify = gAgent.isGodlike() || (region && region->canManageEstate());
@@ -377,13 +379,13 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel->childSetEnabled("sun_hour_slider", allow_modify && !use_estate_sun);
 	panel->setCtrlsEnabled(allow_modify);
 
-	getInstance()->refreshFromRegion( gAgent.getRegion() );
+	floater->refreshFromRegion( gAgent.getRegion() );
 }
 
 // static
 LLPanelEstateInfo* LLFloaterRegionInfo::getPanelEstate()
 {
-	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
+	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
 	if (!floater) return NULL;
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)tab->getChild<LLPanel>("Estate");
@@ -393,7 +395,7 @@ LLPanelEstateInfo* LLFloaterRegionInfo::getPanelEstate()
 // static
 LLPanelEstateCovenant* LLFloaterRegionInfo::getPanelCovenant()
 {
-	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
+	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
 	if (!floater) return NULL;
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 	LLPanelEstateCovenant* panel = (LLPanelEstateCovenant*)tab->getChild<LLPanel>("Covenant");
@@ -611,7 +613,8 @@ BOOL LLPanelRegionGeneralInfo::postBuild()
 	childSetAction("kick_btn", onClickKick, this);
 	childSetAction("kick_all_btn", onClickKickAll, this);
 	childSetAction("im_btn", onClickMessage, this);
-	childSetAction("manage_telehub_btn", onClickManageTelehub, this);
+//	childSetAction("manage_telehub_btn", onClickManageTelehub, this);
+	mCommitCallbackRegistrar.add("RegionInfo.Cancel",	boost::bind(&LLPanelRegionGeneralInfo::onClickManageTelehub, this));
 
 	return LLPanelRegionInfo::postBuild();
 }
@@ -719,12 +722,10 @@ bool LLPanelRegionGeneralInfo::onMessageCommit(const LLSD& notification, const L
 	return false;
 }
 
-// static
-void LLPanelRegionGeneralInfo::onClickManageTelehub(void* data)
+void LLPanelRegionGeneralInfo::onClickManageTelehub()
 {
-	LLFloaterRegionInfo::getInstance()->closeFloater();
-
-	LLFloaterTelehub::show();
+	LLFloaterReg::hideInstance("region_info");
+	LLFloaterReg::showInstance("telehubs");
 }
 
 // setregioninfo
@@ -958,8 +959,10 @@ void LLPanelRegionDebugInfo::onClickTopColliders(void* data)
 	strings_t strings;
 	strings.push_back("1");	// one physics step
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
-	LLFloaterTopObjects::show();
-	LLFloaterTopObjects::clearList();
+	LLFloaterTopObjects* instance = LLFloaterReg::getTypedInstance<LLFloaterTopObjects>("top_objects");
+	if(!instance) return;
+	LLFloaterReg::showInstance("top_objects");
+	instance->clearList();
 	self->sendEstateOwnerMessage(gMessageSystem, "colliders", invoice, strings);
 }
 
@@ -970,8 +973,10 @@ void LLPanelRegionDebugInfo::onClickTopScripts(void* data)
 	strings_t strings;
 	strings.push_back("6");	// top 5 scripts
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
-	LLFloaterTopObjects::show();
-	LLFloaterTopObjects::clearList();
+	LLFloaterTopObjects* instance = LLFloaterReg::getTypedInstance<LLFloaterTopObjects>("top_objects");
+	if(!instance) return;
+	LLFloaterReg::showInstance("top_objects");
+	instance->clearList();
 	self->sendEstateOwnerMessage(gMessageSystem, "scripts", invoice, strings);
 }
 
@@ -1139,11 +1144,11 @@ BOOL LLPanelRegionTextureInfo::validateTextureSizes()
 		if (!texture_ctrl) continue;
 
 		LLUUID image_asset_id = texture_ctrl->getImageAssetID();
-		LLViewerImage* img = gImageList.getImage(image_asset_id);
+		LLViewerTexture* img = LLViewerTextureManager::getFetchedTexture(image_asset_id);
 		S32 components = img->getComponents();
 		// Must ask for highest resolution version's width. JC
-		S32 width = img->getWidth(0);
-		S32 height = img->getHeight(0);
+		S32 width = img->getFullWidth();
+		S32 height = img->getFullHeight();
 
 		//llinfos << "texture detail " << i << " is " << width << "x" << height << "x" << components << llendl;
 
@@ -1254,7 +1259,7 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 
 	// Grab estate information in case the user decided to set the
 	// region back to estate time. JC
-	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
+	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
 	if (!floater) return true;
 
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
@@ -1450,12 +1455,12 @@ void LLPanelEstateInfo::onChangeFixedSun(LLUICtrl* ctrl, void* user_data)
 //---------------------------------------------------------------------------
 void LLPanelEstateInfo::onClickEditSky(void* user_data)
 {
-	LLFloaterWindLight::show();
+	LLFloaterReg::showInstance("env_windlight");
 }
 
 void LLPanelEstateInfo::onClickEditDayCycle(void* user_data)
 {
-	LLFloaterDayCycle::show();
+	LLFloaterReg::showInstance("env_day_cycle");
 }
 
 // static
@@ -1513,8 +1518,7 @@ bool LLPanelEstateInfo::addAllowedGroup(const LLSD& notification, const LLSD& re
 
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
 
-	LLFloaterGroupPicker* widget;
-	widget = LLFloaterGroupPicker::showInstance(LLSD(gAgent.getID()));
+	LLFloaterGroupPicker* widget = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
 	if (widget)
 	{
 		widget->setSelectGroupCallback(boost::bind(&LLPanelEstateInfo::addAllowedGroup2, this, _1));

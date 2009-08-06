@@ -44,14 +44,13 @@
 class LLMultiFloater : public LLFloater
 {
 public:
-	LLMultiFloater(const LLFloater::Params& params = LLFloater::getDefaultParams());
+	LLMultiFloater(const LLSD& key, const Params& params = getDefaultParams());
 	virtual ~LLMultiFloater() {};
 	
 	void buildTabContainer();
 	
 	virtual BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void draw();
 	/*virtual*/ void setVisible(BOOL visible);
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);

@@ -53,30 +53,27 @@ class LLPropertiesObserver;
 class LLFloaterProperties : public LLFloater
 {
 public:
-	static LLFloaterProperties* find(const LLUUID& item_id,
-									 const LLUUID& object_id = LLUUID::null);
-	static LLFloaterProperties* show(const LLUUID& item_id,
-									 const LLUUID& object_id = LLUUID::null);
-	static void dirtyAll();
-
-	static void closeByID(const LLUUID& item_id, const LLUUID& object_id);
-
-	LLFloaterProperties(const LLUUID& item_id, const LLUUID& object_id);
-	virtual ~LLFloaterProperties();
+	LLFloaterProperties(const LLUUID& item_id);
+	/*virtual*/ ~LLFloaterProperties();
+	
 	/*virtual*/ BOOL postBuild();
-	// do everything necessary
+	/*virtual*/ void onOpen(const LLSD& key);
+	void setObjectID(const LLUUID& object_id) { mObjectID = object_id; }
+
 	void dirty() { mDirty = TRUE; }
 	void refresh();
-
+	
+	static void dirtyAll();
+	
 protected:
 	// ui callbacks
-	static void onClickCreator(void* data);
-	static void onClickOwner(void* data);
-	static void onCommitName(LLUICtrl* ctrl, void* data);
-	static void onCommitDescription(LLUICtrl* ctrl, void* data);
-	static void onCommitPermissions(LLUICtrl* ctrl, void* data);
-	static void onCommitSaleInfo(LLUICtrl* ctrl, void* data);
-	static void onCommitSaleType(LLUICtrl* ctrl, void* data);
+	void onClickCreator();
+	void onClickOwner();
+	void onCommitName();
+	void onCommitDescription();
+	void onCommitPermissions();
+	void onCommitSaleInfo();
+	void onCommitSaleType();
 	void updateSaleInfo();
 
 	LLInventoryItem* findItem() const;
@@ -93,12 +90,9 @@ protected:
 	// inventory.
 	LLUUID mObjectID;
 
-	BOOL	mDirty;
+	BOOL mDirty;
 
-	typedef std::map<LLUUID, LLFloaterProperties*, lluuid_less> instance_map;
-	static instance_map sInstances;
-	static LLPropertiesObserver* sPropertiesObserver;
-	static S32 sPropertiesObserverCount;
+	LLPropertiesObserver* mPropertiesObserver;
 };
 
 class LLMultiProperties : public LLMultiFloater

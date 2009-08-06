@@ -40,14 +40,17 @@ class LLMeanCollisionData;
 class LLScrollListCtrl;
 
 class LLFloaterBump 
-: public LLFloater, public LLFloaterSingleton<LLFloaterBump>
+: public LLFloater
 {
-	friend class LLUISingleton<LLFloaterBump, VisibilityPolicy<LLFloater> >;
+	friend class LLFloaterReg;
 protected:
 	void add(LLScrollListCtrl* list, LLMeanCollisionData *mcd);
 
 public:
 	/*virtual*/ void onOpen(const LLSD& key);
+	
+private:
+	
 	LLFloaterBump(const LLSD& key);
 	virtual ~LLFloaterBump();
 };

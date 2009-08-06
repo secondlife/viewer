@@ -45,11 +45,10 @@
 
 
 LLFloaterURLDisplay::LLFloaterURLDisplay(const LLSD& sd)
-	: LLFloater()
+	: LLFloater(sd)
 {	
 	mFactoryMap["place_details_panel"] = LLCallbackMap(LLFloaterURLDisplay::createPlaceDetail, this);
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preview_url.xml");
-	this->setVisible(false);
+//	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preview_url.xml");
 
 	// If positioned at 0,0 the teleport button is behind the toolbar.
 	LLRect r = getRect();

@@ -56,7 +56,7 @@
             </panel.string>
             <panel.string
              name="area_size_text">
-                [AREA] sq.m.
+                [AREA] m²
             </panel.string>
             <panel.string
              name="auction_id_text">
@@ -264,7 +264,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              layout="topleft"
              left="96"
              name="check deed"
-             tool_tip="A group officer can deed this land to the group, so it will be supported by the group&amp;apos;s land allocation."
+             tool_tip="A group officer can deed this land to the group, so it will be supported by the group&apos;s land allocation."
              top="164"
              width="116" />
             <button
@@ -324,7 +324,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              name="For Sale: Price L$[PRICE]."
              top_delta="0"
              width="226">
-                Price: L$[PRICE] (L$[PRICE_PER_SQM]/sq.m.).
+                Price: L$[PRICE] (L$[PRICE_PER_SQM]/m²).
             </text>
             <text
              enabled="false"
@@ -437,7 +437,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              name="PriceText"
              top_delta="0"
              width="186">
-                4048 sq.m.
+                4048 m²
             </text>
             <text
              type="string"
@@ -1147,7 +1147,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
                  name="online_status"
                  width="-1" />
                 <name_list.columns
-                 dynamicwidth="true"
+                 dynamic_width="true"
                  label="Name"
                  name="name" />
                 <name_list.columns
@@ -1176,7 +1176,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
             </panel.string>
             <panel.string
              name="search_disabled_small_tooltip">
-                This option is disabled because this parcel&apos;s area is 128 sq.m. or smaller.
+                This option is disabled because this parcel&apos;s area is 128 m² or smaller.
 Only large parcels can be listed in search.
             </panel.string>
             <panel.string
@@ -1231,14 +1231,6 @@ Only large parcels can be listed in search.
              name="edit land check"
              tool_tip="If checked, anyone can terraform your land. It is best to leave this unchecked, as you can always edit your own land."
              top="24"
-             width="268" />
-            <check_box
-             height="16"
-             label="Create Landmarks"
-             layout="topleft"
-             left_delta="0"
-             name="check landmark"
-             top_pad="4"
              width="268" />
             <check_box
              height="16"
@@ -1383,42 +1375,55 @@ Only large parcels can be listed in search.
              width="130">
                 <combo_box.item
                  label="Any Category"
+                 name="item0"
                  value="any" />
                 <combo_box.item
                  label="Linden Location"
+                 name="item1"
                  value="linden" />
                 <combo_box.item
                  label="Adult"
+                 name="item2"
                  value="adult" />
                 <combo_box.item
                  label="Arts &amp; Culture"
+                 name="item3"
                  value="arts" />
                 <combo_box.item
                  label="Business"
+                 name="item4"
                  value="store" />
                 <combo_box.item
                  label="Educational"
+                 name="item5"
                  value="educational" />
                 <combo_box.item
                  label="Gaming"
+                 name="item6"
                  value="game" />
                 <combo_box.item
                  label="Hangout"
+                 name="item7"
                  value="gather" />
                 <combo_box.item
                  label="Newcomer Friendly"
+                 name="item8"
                  value="newcomer" />
                 <combo_box.item
                  label="Parks &amp; Nature"
+                 name="item9"
                  value="park" />
                 <combo_box.item
                  label="Residential"
+                 name="item10"
                  value="home" />
                 <combo_box.item
                  label="Shopping"
+                 name="item11"
                  value="shopping" />
                 <combo_box.item
                  label="Other"
+                 name="item12"
                  value="other" />
             </combo_box>
             <combo_box
@@ -1432,39 +1437,51 @@ Only large parcels can be listed in search.
              width="130">
                 <combo_box.item
                  label="Any Category"
+                 name="item0"
                  value="any" />
                 <combo_box.item
                  label="Linden Location"
+                 name="item1"
                  value="linden" />
                 <combo_box.item
                  label="Arts &amp; Culture"
+                 name="item3"
                  value="arts" />
                 <combo_box.item
                  label="Business"
+                 name="item4"
                  value="store" />
                 <combo_box.item
                  label="Educational"
+                 name="item5"
                  value="educational" />
                 <combo_box.item
                  label="Gaming"
+                 name="item6"
                  value="game" />
                 <combo_box.item
                  label="Hangout"
+                 name="item7"
                  value="gather" />
                 <combo_box.item
                  label="Newcomer Friendly"
+                 name="item8"
                  value="newcomer" />
                 <combo_box.item
                  label="Parks &amp; Nature"
+                 name="item9"
                  value="park" />
                 <combo_box.item
                  label="Residential"
+                 name="item10"
                  value="home" />
                 <combo_box.item
                  label="Shopping"
+                 name="item11"
                  value="shopping" />
                 <combo_box.item
                  label="Other"
+                 name="item12"
                  value="other" />
             </combo_box>
             <button
@@ -1566,14 +1583,17 @@ Only large parcels can be listed in search.
                 <combo_box.item
                  enabled="true"
                  label="Blocked"
+                 name="Blocked"
                  value="Blocked" />
                 <combo_box.item
                  enabled="true"
                  label="Landing Point"
+                 name="LandingPoint"
                  value="Landing Point" />
                 <combo_box.item
                  enabled="true"
                  label="Anywhere"
+                 name="Anywhere"
                  value="Anywhere" />
             </combo_box>
         </panel>
@@ -2004,9 +2024,11 @@ Options:
              width="100">
                 <combo_box.item
                  label="Anyone"
+                 name="Anyone"
                  value="anyone" />
                 <combo_box.item
                  label="Group"
+                 name="Group"
                  value="group" />
             </combo_box>
             <spinner

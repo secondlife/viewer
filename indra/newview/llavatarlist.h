@@ -42,22 +42,45 @@ class LLAvatarList : public LLScrollListCtrl
 public:
 	struct Params : public LLInitParam::Block<Params, LLScrollListCtrl::Params>
 	{
+		Optional<S32> volume_column_width;
+		Optional<bool> online_go_first;
 		Params();
 	};
 
-	enum AVATAR_LIST_COLUMN_ORDER
+	enum EColumnOrder
 	{
-		LIST_NAME,
+		COL_VOLUME,
+		COL_NAME,
+		COL_ONLINE,
+		COL_ID,
 	};
 
 	LLAvatarList(const Params&);
 	virtual	~LLAvatarList() {}
 
-	BOOL updateList(const std::vector<LLUUID>& all_buddies);
+	/*virtual*/ void	draw();
+	/**
+	 * Overrides base-class behavior of Mouse Down Event.
+	 * 
+	 * LLScrollListCtrl::handleMouseDown version calls setFocus which select the first item if nothing selected.
+	 * We need to deselect all items if perform click not over the any item. Otherwise calls base method.
+	 * See EXT-246
+	 */
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+
+	BOOL update(const std::vector<LLUUID>& all_buddies,
+		const std::string& name_filter = LLStringUtil::null);
 
 protected:
 	std::vector<LLUUID> getSelectedIDs();
 	void addItem(const LLUUID& id, const std::string& name, BOOL is_bold, EAddPosition pos = ADD_BOTTOM);
+
+private:
+	static std::string getVolumeIcon(const LLUUID& id); /// determine volume icon from current avatar volume
+	void updateVolume(); // update volume for all avatars
+
+	bool mHaveVolumeColumn;
+	bool mOnlineGoFirst;
 };
 
 #endif // LL_LLAVATARLIST_H

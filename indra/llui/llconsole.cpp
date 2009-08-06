@@ -177,8 +177,8 @@ void LLConsole::draw()
 
 //	F32 console_opacity = llclamp(gSavedSettings.getF32("ConsoleBackgroundOpacity"), 0.f, 1.f);
 	F32 console_opacity = llclamp(LLUI::sSettingGroups["config"]->getF32("ConsoleBackgroundOpacity"), 0.f, 1.f);
-//	LLColor4 color = gSavedSkinSettings.getColor("ConsoleBackground");
-	LLColor4 color = LLUI::sSettingGroups["color"]->getColor("ConsoleBackground");
+//	LLColor4 color = LLUIColorTable::instance().getColor("ConsoleBackground");
+	LLColor4 color = LLUIColorTable::instance().getColor("ConsoleBackground");
 	color.mV[VALPHA] *= console_opacity;
 
 	F32 line_height = mFont->getLineHeight();

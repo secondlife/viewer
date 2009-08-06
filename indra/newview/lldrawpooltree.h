@@ -37,7 +37,7 @@
 
 class LLDrawPoolTree : public LLFacePool
 {
-	LLPointer<LLViewerImage> mTexturep;
+	LLPointer<LLViewerTexture> mTexturep;
 public:
 	enum
 	{
@@ -48,7 +48,7 @@ public:
 
 	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 
-	LLDrawPoolTree(LLViewerImage *texturep);
+	LLDrawPoolTree(LLViewerTexture *texturep);
 
 	/*virtual*/ LLDrawPool *instancePool();
 
@@ -70,8 +70,8 @@ public:
 	/*virtual*/ S32	 getNumPasses() { return 1; }
 	/*virtual*/ void renderForSelect();
 	/*virtual*/ BOOL verify() const;
-	/*virtual*/ LLViewerImage *getTexture();
-	/*virtual*/ LLViewerImage *getDebugTexture();
+	/*virtual*/ LLViewerTexture *getTexture();
+	/*virtual*/ LLViewerTexture *getDebugTexture();
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
 
 	static S32 sDiffTex;

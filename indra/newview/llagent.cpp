@@ -38,13 +38,11 @@
 #include "llagentlistener.h"
 #include "llanimationstates.h"
 #include "llcallingcard.h"
-#include "llchatbar.h"
 #include "llconsole.h"
 #include "lldrawable.h"
 #include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llfloateractivespeakers.h"
-#include "llfloateravatarinfo.h"
 #include "llfloatercamera.h"
 #include "llfloatercustomize.h"
 #include "llfloaterdirectory.h"
@@ -100,6 +98,7 @@
 #include "pipeline.h"
 #include "lltrans.h"
 #include "llbottomtray.h"
+#include "llnearbychatbar.h"
 #include "stringize.h"
 #include "llcapabilitylistener.h"
 
@@ -363,7 +362,7 @@ LLAgent::LLAgent() :
 	mAutoPilotFinishedCallback(NULL),
 	mAutoPilotCallbackData(NULL),
 	
-	mEffectColor(0.f, 1.f, 1.f, 1.f),
+	mEffectColor(LLColor4(0.f, 1.f, 1.f, 1.f)),
 
 	mHaveHomePosition(FALSE),
 	mHomeRegionHandle( 0 ),
@@ -417,7 +416,7 @@ void LLAgent::init()
 	mCameraZoomFraction = 1.f;
 	mTrackFocusObject = gSavedSettings.getBOOL("TrackFocusObject");
 
-	mEffectColor = gSavedSkinSettings.getColor4("EffectColor");
+	mEffectColor = LLUIColorTable::instance().getColor("EffectColor");
 
 	gSavedSettings.getControl("PreferredMaturity")->getValidateSignal()->connect(boost::bind(&LLAgent::validateMaturity, this, _2));
 	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLAgent::handleMaturity, this, _2));
@@ -503,12 +502,16 @@ void LLAgent::resetView(BOOL reset_camera, BOOL change_camera)
 			LLViewerJoystick::getInstance()->moveAvatar(true);
 		}
 
-		LLFloaterReg::hideInstance("build");
+		//Camera Tool is needed for Free Camera Control Mode
+		if (!LLFloaterCamera::inFreeCameraMode())
+		{
+			LLFloaterReg::hideInstance("build");
+
+			// Switch back to basic toolset
+			LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
+		}
 		
 		gViewerWindow->showCursor();
-
-		// Switch back to basic toolset
-		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 	}
 
 
@@ -759,7 +762,7 @@ void LLAgent::setFlying(BOOL fly)
 		}
 
 		// don't allow taking off while sitting
-		if (fly && mAvatarObject->mIsSitting)
+		if (fly && mAvatarObject->isSitting())
 		{
 			return;
 		}
@@ -788,6 +791,11 @@ void LLAgent::setFlying(BOOL fly)
 		clearControlFlags(AGENT_CONTROL_FLY);
 		gSavedSettings.setBOOL("FlyBtnState", FALSE);
 	}
+
+
+	// Update Movement Controls according to Fly mode
+	LLFloaterMove::setFlyingMode(fly);
+
 	mbFlagsDirty = TRUE;
 }
 
@@ -811,9 +819,14 @@ bool LLAgent::enableFlying()
 	BOOL sitting = FALSE;
 	if (gAgent.getAvatarObject())
 	{
-		sitting = gAgent.getAvatarObject()->mIsSitting;
+		sitting = gAgent.getAvatarObject()->isSitting();
 	}
 	return !sitting;
+}
+
+void LLAgent::standUp()
+{
+	setControlFlags(AGENT_CONTROL_STAND_UP);
 }
 
 
@@ -1246,7 +1259,7 @@ F32 LLAgent::clampPitchToLimits(F32 angle)
 
 	F32 angle_from_skyward = acos( mFrameAgent.getAtAxis() * skyward );
 
-	if (mAvatarObject.notNull() && mAvatarObject->mIsSitting)
+	if (mAvatarObject.notNull() && mAvatarObject->isSitting())
 	{
 		look_down_limit = 130.f * DEG_TO_RAD;
 	}
@@ -2157,7 +2170,6 @@ void LLAgent::setBusy()
 	{
 		gBusyMenu->setLabel(LLTrans::getString("AvatarSetNotBusy"));
 	}
-	LLFloaterReg::getTypedInstance<LLFloaterMute>("mute")->updateButtons();
 }
 
 //-----------------------------------------------------------------------------
@@ -2171,7 +2183,6 @@ void LLAgent::clearBusy()
 	{
 		gBusyMenu->setLabel(LLTrans::getString("AvatarSetBusy"));
 	}
-	LLFloaterReg::getTypedInstance<LLFloaterMute>("mute")->updateButtons();
 }
 
 //-----------------------------------------------------------------------------
@@ -2494,13 +2505,11 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 void LLAgent::propagate(const F32 dt)
 {
 	// Update UI based on agent motion
-	LLFloaterMove *floater_move = LLFloaterMove::getInstance();
+	LLFloaterMove *floater_move = LLFloaterReg::findTypedInstance<LLFloaterMove>("moveview");
 	if (floater_move)
 	{
 		floater_move->mForwardButton   ->setToggleState( mAtKey > 0 || mWalkKey > 0 );
 		floater_move->mBackwardButton  ->setToggleState( mAtKey < 0 || mWalkKey < 0 );
-		floater_move->mSlideLeftButton ->setToggleState( mLeftKey > 0 );
-		floater_move->mSlideRightButton->setToggleState( mLeftKey < 0 );
 		floater_move->mTurnLeftButton  ->setToggleState( mYawKey > 0.f );
 		floater_move->mTurnRightButton ->setToggleState( mYawKey < 0.f );
 		floater_move->mMoveUpButton    ->setToggleState( mUpKey > 0 );
@@ -2585,7 +2594,7 @@ void LLAgent::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 		else
 		{
 			// *FIX: rotate mframeagent by sit object's rotation?
-			LLQuaternion look_rotation = mAvatarObject->mIsSitting ? mAvatarObject->getRenderRotation() : mFrameAgent.getQuaternion(); // use camera's current rotation
+			LLQuaternion look_rotation = mAvatarObject->isSitting() ? mAvatarObject->getRenderRotation() : mFrameAgent.getQuaternion(); // use camera's current rotation
 			LLVector3 look_offset = LLVector3(2.f, 0.f, 0.f) * look_rotation * av_inv_rot;
 			setLookAt(LOOKAT_TARGET_IDLE, mAvatarObject, look_offset);
 		}
@@ -2728,7 +2737,7 @@ void LLAgent::startTyping()
 	{
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_START);
 	}
-	LLBottomTray::getInstance()->sendChatFromViewer("", CHAT_TYPE_START, FALSE);
+	LLNearbyChatBar::getInstance()->sendChatFromViewer("", CHAT_TYPE_START, FALSE);
 }
 
 //-----------------------------------------------------------------------------
@@ -2740,7 +2749,7 @@ void LLAgent::stopTyping()
 	{
 		clearRenderState(AGENT_STATE_TYPING);
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_STOP);
-		LLBottomTray::getInstance()->sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
+		LLNearbyChatBar::getInstance()->sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
 	}
 }
 
@@ -2820,6 +2829,8 @@ void LLAgent::endAnimationUpdateUI()
 		LLSideTray::getInstance()->setVisible(TRUE);
 
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
+
+		LLFloaterCamera::toPrevModeIfInAvatarViewMode();
 
 		// Only pop if we have pushed...
 		if (TRUE == mViewsPushed)
@@ -2914,6 +2925,10 @@ void LLAgent::endAnimationUpdateUI()
 
 		// JC - Added for always chat in third person option
 		gFocusMgr.setKeyboardFocus(NULL);
+
+		//Making sure Camera Controls floater is in the right state 
+		//when entering Mouse Look using wheel scrolling
+		LLFloaterCamera::updateIfNotInAvatarViewMode();
 
 		LLToolMgr::getInstance()->setCurrentToolset(gMouselookToolset);
 
@@ -3025,7 +3040,7 @@ void LLAgent::updateCamera()
 	validateFocusObject();
 
 	if (mAvatarObject.notNull() && 
-		mAvatarObject->mIsSitting &&
+		mAvatarObject->isSitting() &&
 		camera_mode == CAMERA_MODE_MOUSELOOK)
 	{
 		//Ventrella
@@ -3056,21 +3071,25 @@ void LLAgent::updateCamera()
 	}
 
 	// Update UI with our camera inputs
-	LLFloaterCamera::getInstance()->mRotate->setToggleState(
+	LLFloaterCamera* camera_floater = LLFloaterReg::findTypedInstance<LLFloaterCamera>("camera");
+	if (camera_floater)
+	{
+		camera_floater->mRotate->setToggleState(
 		mOrbitRightKey > 0.f,	// left
 		mOrbitUpKey > 0.f,		// top
 		mOrbitLeftKey > 0.f,	// right
 		mOrbitDownKey > 0.f);	// bottom
 
-	LLFloaterCamera::getInstance()->mZoom->setToggleState( 
+		camera_floater->mZoom->setToggleState( 
 		mOrbitInKey > 0.f,		// top
 		mOrbitOutKey > 0.f);	// bottom
 
-	LLFloaterCamera::getInstance()->mTrack->setToggleState(
+		camera_floater->mTrack->setToggleState(
 		mPanLeftKey > 0.f,		// left
 		mPanUpKey > 0.f,		// top
 		mPanRightKey > 0.f,		// right
 		mPanDownKey > 0.f);		// bottom
+	}
 
 	// Handle camera movement based on keyboard.
 	const F32 ORBIT_OVER_RATE = 90.f * DEG_TO_RAD;			// radians per second
@@ -3146,7 +3165,7 @@ void LLAgent::updateCamera()
 			// (2) focus, and (3) upvector. They can then be queried elsewhere in llAgent.
 			//--------------------------------------------------------------------------------
 			// *TODO: use combined rotation of frameagent and sit object
-			LLQuaternion avatarRotationForFollowCam = mAvatarObject->mIsSitting ? mAvatarObject->getRenderRotation() : mFrameAgent.getQuaternion();
+			LLQuaternion avatarRotationForFollowCam = mAvatarObject->isSitting() ? mAvatarObject->getRenderRotation() : mFrameAgent.getQuaternion();
 
 			LLFollowCamParams* current_cam = LLFollowCamMgr::getActiveFollowCamParams();
 			if (current_cam)
@@ -3326,7 +3345,7 @@ void LLAgent::updateCamera()
 	}
 	mLastPositionGlobal = global_pos;
 	
-	if (LLVOAvatar::sVisibleInFirstPerson && mAvatarObject.notNull() && !mAvatarObject->mIsSitting && cameraMouselook())
+	if (LLVOAvatar::sVisibleInFirstPerson && mAvatarObject.notNull() && !mAvatarObject->isSitting() && cameraMouselook())
 	{
 		LLVector3 head_pos = mAvatarObject->mHeadp->getWorldPosition() + 
 			LLVector3(0.08f, 0.f, 0.05f) * mAvatarObject->mHeadp->getWorldRotation() + 
@@ -3506,7 +3525,7 @@ LLVector3d LLAgent::calcFocusPositionTargetGlobal()
 		}
 		return mFocusTargetGlobal;
 	}
-	else if (mSitCameraEnabled && mAvatarObject.notNull() && mAvatarObject->mIsSitting && mSitCameraReferenceObject.notNull())
+	else if (mSitCameraEnabled && mAvatarObject.notNull() && mAvatarObject->isSitting() && mSitCameraReferenceObject.notNull())
 	{
 		// sit camera
 		LLVector3 object_pos = mSitCameraReferenceObject->getRenderPosition();
@@ -3630,7 +3649,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 			return LLVector3d::zero;
 		}
 		head_offset.clearVec();
-		if (mAvatarObject->mIsSitting && mAvatarObject->getParent())
+		if (mAvatarObject->isSitting() && mAvatarObject->getParent())
 		{
 			mAvatarObject->updateHeadOffset();
 			head_offset.mdV[VX] = mAvatarObject->mHeadOffset.mV[VX];
@@ -3644,7 +3663,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 		else
 		{
 			head_offset.mdV[VZ] = mAvatarObject->mHeadOffset.mV[VZ];
-			if (mAvatarObject->mIsSitting)
+			if (mAvatarObject->isSitting())
 			{
 				head_offset.mdV[VZ] += 0.1;
 			}
@@ -3660,7 +3679,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 
 		if (mSitCameraEnabled 
 			&& mAvatarObject.notNull() 
-			&& mAvatarObject->mIsSitting 
+			&& mAvatarObject->isSitting() 
 			&& mSitCameraReferenceObject.notNull())
 		{
 			// sit camera
@@ -3692,7 +3711,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 				local_camera_offset = mFrameAgent.rotateToAbsolute( local_camera_offset );
 			}
 
-			if (!mCameraCollidePlane.isExactlyZero() && (mAvatarObject.isNull() || !mAvatarObject->mIsSitting))
+			if (!mCameraCollidePlane.isExactlyZero() && (mAvatarObject.isNull() || !mAvatarObject->isSitting()))
 			{
 				LLVector3 plane_normal;
 				plane_normal.setVec(mCameraCollidePlane.mV);
@@ -4118,7 +4137,7 @@ void LLAgent::changeCameraToThirdPerson(BOOL animate)
 
 	if (mAvatarObject.notNull())
 	{
-		if (!mAvatarObject->mIsSitting)
+		if (!mAvatarObject->isSitting())
 		{
 			mAvatarObject->mPelvisp->setPosition(LLVector3::zero);
 		}
@@ -4200,7 +4219,7 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL camera_ani
 		return;
 	}
 
-	setControlFlags(AGENT_CONTROL_STAND_UP); // force stand up
+	standUp(); // force stand up
 	gViewerWindow->getWindow()->resetBusyCount();
 
 	if (gFaceEditToolset)
@@ -5480,13 +5499,8 @@ void update_group_floaters(const LLUUID& group_id)
 {
 	LLFloaterGroupInfo::refreshGroup(group_id);
 
-	//*TODO Implement group update for Profile View
-	// update avatar info
-// 	LLFloaterAvatarInfo* fa = LLFloaterReg::findTypedInstance<LLFloaterAvatarInfo>("preview_avatar", LLSD(gAgent.getID()));
-// 	if(fa)
-// 	{
-// 		fa->resetGroupList();
-// 	}
+	//*TODO Implement group update for Profile View 
+	// still actual as of July 31, 2009 (DZ)
 
 	if (gIMMgr)
 	{
@@ -5555,7 +5569,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 			!input.has("body") )
 		{
 			//what to do with badly formed message?
-			response->status(400);
+			response->statusUnknownError(400);
 			response->result(LLSD("Invalid message parameters"));
 		}
 
@@ -5628,7 +5642,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 		else
 		{
 			//what to do with badly formed message?
-			response->status(400);
+			response->statusUnknownError(400);
 			response->result(LLSD("Invalid message parameters"));
 		}
 	}
@@ -6074,7 +6088,7 @@ bool LLAgent::teleportCore(bool is_local)
 	LLFloaterReg::hideInstance("search");
 
 	// hide land floater too - it'll be out of date
-	LLFloaterLand::hideInstance();
+	LLFloaterReg::hideInstance("about_land");
 
 	LLViewerParcelMgr::getInstance()->deselectLand();
 
@@ -6448,7 +6462,7 @@ void LLAgent::sendAgentSetAppearance()
 				const LLWearable* wearable = gAgentWearables.getWearable(wearable_type,0);
 				if (wearable)
 				{
-					hash ^= wearable->getID();
+					hash ^= wearable->getAssetID();
 				}
 			}
 			if (hash.notNull())
@@ -6576,49 +6590,6 @@ void LLAgent::parseTeleportMessages(const std::string& xml_filename)
 			} //end if ( message exists and has a name)
 		} //end for (all message in set)
 	}//end for (all message sets in xml file)
-}
-
-// static
-void LLAgent::createLandmarkHere()
-{
-	std::string landmark_name, landmark_desc;
-
-	gAgent.buildLocationString(landmark_name, LLAgent::LOCATION_FORMAT_LANDMARK);
-	gAgent.buildLocationString(landmark_desc, LLAgent::LOCATION_FORMAT_FULL);
-	LLUUID folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
-
-	createLandmarkHere(landmark_name, landmark_desc, folder_id);
-}
-
-// static
-void LLAgent::createLandmarkHere(const std::string& name, const std::string& desc, const LLUUID& folder_id)
-{
-	LLViewerRegion* agent_region = gAgent.getRegion();
-	if(!agent_region)
-	{
-		llwarns << "No agent region" << llendl;
-		return;
-	}
-	LLParcel* agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-	if (!agent_parcel)
-	{
-		llwarns << "No agent parcel" << llendl;
-		return;
-	}
-	if (!agent_parcel->getAllowLandmark()
-		&& !LLViewerParcelMgr::isParcelOwnedByAgent(agent_parcel, GP_LAND_ALLOW_LANDMARK))
-	{
-		LLNotifications::instance().add("CannotCreateLandmarkNotOwner");
-		return;
-	}
-
-	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-						  folder_id, LLTransactionID::tnull,
-						  name, desc,
-						  LLAssetType::AT_LANDMARK,
-						  LLInventoryType::IT_LANDMARK,
-						  NOT_WEARABLE, PERM_ALL, 
-						  NULL);
 }
 
 void LLAgent::sendAgentUpdateUserInfo(bool im_via_email, const std::string& directory_visibility )

@@ -32,11 +32,11 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llpanelprofileview.h"
-#include <llfloaterreg.h>
-#include <lltabcontainer.h>
-#include <lluictrlfactory.h>
+
 #include "llpanelavatar.h"
 #include "llpanelpicks.h"
+#include "llsidetraypanelcontainer.h"
+#include "llpanelprofile.h"
 
 static LLRegisterPanelClassWrapper<LLPanelProfileView> t_panel_target_profile("panel_profile_view");
 static LLRegisterPanelClassWrapper<LLPanelAvatarNotes> t_panel_notes("panel_notes");
@@ -46,7 +46,7 @@ static std::string PANEL_PICKS = "panel_picks";
 static std::string PANEL_NOTES = "panel_notes";
 
 LLPanelProfileView::LLPanelProfileView()
-: LLPanel()
+:	LLPanelProfile()
 {
 }
 
@@ -57,37 +57,31 @@ LLPanelProfileView::~LLPanelProfileView(void)
 /*virtual*/ 
 void LLPanelProfileView::onOpen(const LLSD& key)
 {
-	if (!getVisible())
-		setVisible(TRUE);
+	LLUUID id = key["id"];
+	if (key.has("open_tab_name"))
+		mTabContainer->selectTabByName(key["open_tab_name"]);
 
-	LLUUID id(key.asUUID());
-	if(id.notNull() && mProfileId.notNull() && mProfileId != id)
+	if(id.notNull() && mAvatarId != id)
 	{
+		mAvatarId = id;
+
 		mTabs[PANEL_PROFILE]->clear();
 		mTabs[PANEL_PICKS]->clear();
 		mTabs[PANEL_NOTES]->clear();
 	}
 
-	mProfileId = id;
-	mTabs[PANEL_PROFILE]->onOpen(mProfileId);
-	mTabs[PANEL_PICKS]->setAvatarId(mProfileId);
-	mTabs[PANEL_PICKS]->updateData();
-	mTabs[PANEL_NOTES]->setAvatarId(mProfileId);
-	mTabs[PANEL_NOTES]->updateData();
+	mTabContainer->getCurrentPanel()->onOpen(mAvatarId);
 
 	std::string full_name;
-	gCacheName->getFullName(key,full_name);
+	gCacheName->getFullName(mAvatarId,full_name);
 	childSetValue("user_name",full_name);
 }
 
 
 BOOL LLPanelProfileView::postBuild()
 {
-	mTabContainer = getChild<LLTabContainer>("profile_tabs");
-	mTabContainer->setCommitCallback(boost::bind(&LLPanelProfileView::onTabSelected, this, _2));
+	LLPanelProfile::postBuild();
 
-	mTabs[PANEL_PROFILE] = (getChild<LLPanelAvatarProfile>(PANEL_PROFILE));
-	mTabs[PANEL_PICKS] = (getChild<LLPanelPicks>(PANEL_PICKS));
 	mTabs[PANEL_NOTES] = (getChild<LLPanelAvatarNotes>(PANEL_NOTES));
 
 	childSetCommitCallback("back",boost::bind(&LLPanelProfileView::onBackBtnClick,this),NULL);
@@ -98,15 +92,11 @@ BOOL LLPanelProfileView::postBuild()
 
 //private
 
-void LLPanelProfileView::initTabs(const LLSD& key)
-{
-}
-
-void LLPanelProfileView::onTabSelected(const LLSD& param)
-{
-}
-
 void LLPanelProfileView::onBackBtnClick()
 {
-	setVisible(FALSE);
+	LLSideTrayPanelContainer* parent = dynamic_cast<LLSideTrayPanelContainer*>(getParent());
+	if(parent)
+	{
+		parent->openPreviousPanel();
+	}
 }

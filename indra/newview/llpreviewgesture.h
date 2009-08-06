@@ -70,8 +70,6 @@ public:
 
 	// LLFloater
 	/*virtual*/ BOOL canClose();
-	/*virtual*/ void setMinimized(BOOL minimize);
-	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void onUpdateSucceeded();
 	/*virtual*/ void refresh();
 
@@ -109,7 +107,10 @@ protected:
 	// Add a step.  Pass the name of the step, like "Animation",
 	// "Sound", "Chat", or "Wait"
 	LLScrollListItem* addStep(const enum EStepType step_type);
-
+	
+	void onClose();
+	void onVisibilityChange ( const LLSD& new_visibility );
+	
 	static std::string getLabel(std::vector<std::string> labels);
 	static void updateLabel(LLScrollListItem* item);
 

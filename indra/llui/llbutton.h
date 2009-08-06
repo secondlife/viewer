@@ -74,7 +74,7 @@ public:
 	{
 		// text label
 		Optional<std::string>	label_selected;
-		Optional<bool>			label_dropshadow;
+		Optional<bool>			label_shadow;
 		Optional<bool>			auto_resize;
 
 		// images
@@ -105,9 +105,9 @@ public:
 		
 		// callbacks
 		Optional<CommitCallbackParam>	click_callback, // alias -> commit_callback
-															mouse_down_callback,
-															mouse_up_callback,
-															mouse_held_callback;
+										mouse_down_callback,
+										mouse_up_callback,
+										mouse_held_callback;
 		
 		// misc
 		Optional<bool>			is_toggle,
@@ -352,11 +352,5 @@ private:
 	LLFrameTimer	mFlashingTimer;
 };
 
-#ifdef LL_WINDOWS
-#ifndef INSTANTIATE_GETCHILD_BUTTON
-#pragma warning (disable : 4231)
-extern template LLButton* LLView::getChild<LLButton>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-#endif
-#endif
 
 #endif  // LL_LLBUTTON_H

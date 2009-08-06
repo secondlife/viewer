@@ -37,7 +37,7 @@
 #include "string"
 
 class LLSideTray;
-class LLAccordionPanel;
+class LLAccordionCtrl;
 
 class LLSideTrayTab: public LLPanel
 {
@@ -51,21 +51,20 @@ public:
 		// image name
 		Optional<std::string>		image_path;
 		Optional<std::string>		tab_title;
-		Optional<std::string>		tab_description;
-		Params():image_path("image","")
-				,tab_title("tab_title","no title")
-				,tab_description("description","no description")
+		Optional<std::string>		description;
+		Params()
+		:	image_path("image"),
+			tab_title("tab_title","no title"),
+			description("description","no description")
 		{};
 	};
 protected:
 	LLSideTrayTab(const Params& params);
 	
 
-	S32		getMaxSideBarTabWidth();
 public:
 	virtual ~LLSideTrayTab();
 
-	void			addPanel	(LLPanel* panel);
     /*virtual*/ BOOL	postBuild	();
 	/*virtual*/ bool	addChild	(LLView* view, S32 tab_group);
 
@@ -87,7 +86,7 @@ private:
 	std::string mImagePath;
 	std::string	mDescription;
 
-	LLAccordionPanel*	mAccordionPanel;
+	LLView*	mMainPanel;
 };
 
 
@@ -110,14 +109,14 @@ public:
 		Optional<S32>				default_button_height;
 		Optional<S32>				default_button_margin;
 		
-		Params():
-			collapsed("collapsed",false)
-			,tab_btn_image_normal("tab_btn_image","sidebar_tab_left.tga")
-			,tab_btn_image_selected("tab_btn_image_selected","button_enabled_selected_32x128.tga")
-			,default_button_width("tab_btn_width",32)
-			,default_button_height("tab_btn_height",32)
-			,default_button_margin("tab_btn_margin",0)
-			{};
+		Params()
+		:	collapsed("collapsed",false),
+			tab_btn_image_normal("tab_btn_image","sidebar_tab_left.tga"),
+			tab_btn_image_selected("tab_btn_image_selected","button_enabled_selected_32x128.tga"),
+			default_button_width("tab_btn_width",32),
+			default_button_height("tab_btn_height",32),
+			default_button_margin("tab_btn_margin",0)
+		{};
 	};
 
 	static LLSideTray*	getInstance		();
@@ -163,9 +162,10 @@ public:
 
 	/**
 	 * Activate tab with "panel_name" panel
-	 * if no such tab - return false, otherwise true
+	 * if no such tab - return NULL, otherwise a pointer to the panel
+	 * Pass params as array, or they may be overwritten(example - params["name"]="nearby")
 	 */
-	bool		showPanel		(const std::string& panel_name, const LLSD& params);
+    LLPanel*	showPanel		(const std::string& panel_name, const LLSD& params);
 
 	/*
      * collapse SideBar, hiding visible tab and moving tab buttons
@@ -209,14 +209,11 @@ protected:
 
 	void		createButtons	();
 	LLButton*	createButton	(const std::string& name,const std::string& image,LLUICtrl::commit_callback_t callback);
-	void		createHomeTab	();
 	void		arrange			();
 	void		reflectCollapseChange();
 
 	void		toggleTabButton	(LLSideTrayTab* tab);
 
-
-	void		calcMaxSideBarWidth();
 
 	void		setPanelRect	();
 	
@@ -225,7 +222,6 @@ private:
 
 	std::map<std::string,LLButton*>	mTabButtons;
 	child_vector_t					mTabs;
-	LLSideTrayTab*					mHomeTab;
 	LLSideTrayTab*					mActiveTab;	
 	
 	LLButton*						mCollapseButton;

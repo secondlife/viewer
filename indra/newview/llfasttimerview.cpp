@@ -44,7 +44,7 @@
 #include "llsdserialize.h"
 
 #include "llappviewer.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llui.h"
 #include "llviewercontrol.h"
 #include "llstat.h"
@@ -80,7 +80,7 @@ static timer_tree_iterator_t end_timer_tree()
 }
 
 LLFastTimerView::LLFastTimerView(const LLRect& rect)
-:	LLFloater(),
+:	LLFloater(LLSD()),
 	mHoverTimer(NULL)
 {
 	setRect(rect);

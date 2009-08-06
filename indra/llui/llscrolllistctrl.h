@@ -44,7 +44,6 @@
 #include "llfontgl.h"
 #include "llui.h"
 #include "llstring.h"	// LLWString
-//#include "llimagegl.h"
 #include "lleditmenuhandler.h"
 #include "llframetimer.h"
 
@@ -100,7 +99,7 @@ public:
 							bg_selected_color,
 							fg_disable_color,
 							bg_writeable_color,
-							bg_read_only_color,
+							bg_readonly_color,
 							bg_stripe_color,
 							hovered_color,
 							highlighted_color;
@@ -330,7 +329,7 @@ public:
 
 	std::string     getSortColumnName();
 	BOOL			getSortAscending() { return mSortColumns.empty() ? TRUE : mSortColumns.back().second; }
-	BOOL			needsSorting();
+	BOOL			hasSortOrder();
 
 	S32		selectMultiple( std::vector<LLUUID> ids );
 	void			sortItems();
@@ -374,9 +373,6 @@ private:
 	void			deselectItem(LLScrollListItem* itemp);
 	void			commitIfChanged();
 	BOOL			setSort(S32 column, BOOL ascending);
-
-	S32				mCurIndex;			// For get[First/Next]Data
-	S32				mCurSelectedIndex;  // For get[First/Next]Selected
 
 	S32				mLineHeight;	// the max height of a single line
 	S32				mScrollLines;	// how many lines we've scrolled down
@@ -446,18 +442,6 @@ private:
 
 	typedef std::pair<S32, BOOL> sort_column_t;
 	std::vector<sort_column_t>	mSortColumns;
-
-	// HACK:  Did we draw one selected item this frame?
-	BOOL mDrewSelected;
-
-	LLTextBox*		mCommentTextBox;
 }; // end class LLScrollListCtrl
-
-#ifdef LL_WINDOWS
-#ifndef INSTANTIATE_GETCHILD_SCROLLLIST
-#pragma warning (disable : 4231)
-extern template LLScrollListCtrl* LLView::getChild<LLScrollListCtrl>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-#endif
-#endif
 
 #endif  // LL_SCROLLLISTCTRL_H

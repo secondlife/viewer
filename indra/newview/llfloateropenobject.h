@@ -46,9 +46,10 @@ class LLPanelInventory;
 class LLFloaterOpenObject
 : public LLFloater
 {
+	friend class LLFloaterReg;
 public:
-	static void show();
-	static void dirty();
+	
+	void dirty();
 	
 	struct LLCatAndWear
 	{
@@ -57,20 +58,25 @@ public:
 	};
 
 protected:
-	LLFloaterOpenObject();
-	~LLFloaterOpenObject();
+
 	/*virtual*/	BOOL	postBuild();
 	void refresh();
 	void draw();
+	virtual void onOpen(const LLSD& key);
+//	virtual void onClose();
 
 	void moveToInventory(bool wear);
 
-	static void onClickMoveToInventory(void* data);
-	static void onClickMoveAndWear(void* data);
+	void onClickMoveToInventory();
+	void onClickMoveAndWear();
 	static void callbackMoveInventory(S32 result, void* data);
 
+private:
+	
+	LLFloaterOpenObject(const LLSD& key);
+	~LLFloaterOpenObject();
+	
 protected:
-	static LLFloaterOpenObject* sInstance;
 
 	LLPanelInventory*	mPanelInventory;
 	LLSafeHandle<LLObjectSelection> mObjectSelection;

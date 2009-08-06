@@ -41,7 +41,7 @@
      font="SansSerifSmall"
      height="16"
      layout="topleft"
-     left="-130"
+     left="-150"
      name="buycurrency"
      picture_style="true"
      tool_tip="Account Balance / Buy currency"
@@ -61,7 +61,7 @@
      tool_tip="Current Time (Pacific)"
      top_delta="-1"
      v_pad="2"
-     width="60">
+     width="80">
         12:00 AM
     </text>
     <button
@@ -70,7 +70,7 @@
      image_selected="status_script_debug.tga"
      image_unselected="status_script_debug.tga"
      layout="topleft"
-     left_delta="-557"
+     left_delta="-537"
      name="scriptout"
      picture_style="true"
      scale_image="false"

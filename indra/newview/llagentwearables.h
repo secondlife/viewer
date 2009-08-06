@@ -66,32 +66,37 @@ public:
 	BOOL			isWearingItem(const LLUUID& item_id, const BOOL include_linked_items = FALSE) const;
 	BOOL			isWearableModifiable(EWearableType type, U32 index /*= 0*/) const;
 	BOOL			isWearableCopyable(EWearableType type, U32 index /*= 0*/) const;
-	BOOL			areWearablesLoaded() const { return mWearablesLoaded; } 
+	BOOL			areWearablesLoaded() const;
+	void			updateWearablesLoaded();
+	void			checkWearablesLoaded() const;
+
 	
 	//--------------------------------------------------------------------
 	// Accessors
 	//--------------------------------------------------------------------
 public:
-	const LLUUID&	getWearableItem(EWearableType type, U32 index /*= 0*/) const;
-	LLWearable*		getWearableFromWearableItem(const LLUUID& item_id) const;
+	const LLUUID	getWearableItemID(EWearableType type, U32 index /*= 0*/) const;
+	const LLWearable*		getWearableFromWearableItem(const LLUUID& item_id) const;
 	LLInventoryItem* getWearableInventoryItem(EWearableType type, U32 index /*= 0*/);
 	// MULTI-WEARABLE: assuming one per type.
-	static BOOL		selfHasWearable(void* userdata); // userdata is EWearableType
+	static BOOL		selfHasWearable(EWearableType type);
 	LLWearable*		getWearable(const EWearableType type, U32 index /*= 0*/); 
 	const LLWearable* 	getWearable(const EWearableType type, U32 index /*= 0*/) const;
 	U32				getWearableCount(const EWearableType type) const;
 
+
 private:
-	struct LLWearableInv;
-	LLWearableInv*	getWearableInv(const EWearableType type, U32 index /*= 0*/); 
-	const LLWearableInv* getWearableInv(const EWearableType type, U32 /*index = 0*/) const;
+	// Low-level data structure setter - public access is via setWearableItem, etc.
+	void 			setWearable(const EWearableType type, U32 index, LLWearable *wearable);
+	
 	//--------------------------------------------------------------------
 	// Setters
 	//--------------------------------------------------------------------
 public:
-	void			setWearable(LLInventoryItem* new_item, LLWearable* wearable, bool do_append = false);
+	void			setWearableItem(LLInventoryItem* new_item, LLWearable* wearable, bool do_append = false);
 	void			setWearableOutfit(const LLInventoryItem::item_array_t& items, const LLDynamicArray< LLWearable* >& wearables, BOOL remove);
 	void			setWearableName(const LLUUID& item_id, const std::string& new_name);
+	void			addLocalTextureObject(const EWearableType wearable_type, const LLVOAvatarDefines::ETextureIndex texture_type, U32 wearable_index);
 protected:
 	void			setWearableFinal(LLInventoryItem* new_item, LLWearable* new_wearable, bool do_append = false);
 	static bool		onSetWearableDialog(const LLSD& notification, const LLSD& response, LLWearable* wearable);
@@ -160,16 +165,20 @@ public:
 	static void		userRemoveAllClothes(void* userdata);	// userdata is NULL
 	static void		userRemoveAllAttachments(void* userdata);	// userdata is NULL 
 
+	BOOL			itemUpdatePending(const LLUUID& item_id) const;
+	U32				itemUpdatePendingCount() const;
+
 	//--------------------------------------------------------------------
 	// Member variables
 	//--------------------------------------------------------------------
 private:
-	typedef std::vector<LLWearableInv*> wearableentry_vec_t; // all wearables of a certain type (EG all shirts)
+	typedef std::vector<LLWearable*> wearableentry_vec_t; // all wearables of a certain type (EG all shirts)
 	typedef std::map<EWearableType, wearableentry_vec_t> wearableentry_map_t;	// wearable "categories" arranged by wearable type
 	wearableentry_map_t mWearableDatas;
 
 	static BOOL		mInitialWearablesUpdateReceived;
 	BOOL			mWearablesLoaded;
+	std::set<LLUUID>	mItemsAwaitingWearableUpdate;
 	LLPointer<LLVOAvatarSelf> mAvatarObject; // NULL until avatar object sent down from simulator
 	
 	//--------------------------------------------------------------------------------
@@ -214,15 +223,6 @@ private:
 		U32 mTodo;
 		LLPointer<LLRefCount> mCB;
 	};
-
-	struct LLWearableInv // Make this subclass of llwearable? 
-	{
-		LLWearableInv() : mItemID(LLUUID::null), mWearable(NULL) {}
-		// BOOL exists() const;
-		LLUUID		mItemID; // ID of the inventory item in the agent's inventory.
-		LLWearable*	mWearable;
-	};
-	const static LLWearableInv s_null_wearable;
 
 }; // LLAgentWearables
 

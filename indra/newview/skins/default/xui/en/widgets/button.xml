@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<button image_unselected="button_enabled_32x128.tga"
-        image_selected="button_enabled_selected_32x128.tga"
-        image_disabled_selected="button_disabled_32x128.tga"
-        image_disabled="button_disabled_32x128.tga"
+<button image_unselected="PushButton_Off"
+        image_selected="PushButton_Selected"
+        image_disabled_selected="PushButton_Selected_Disabled"
+        image_disabled="PushButton_Disabled"
         label_color="ButtonLabelColor"
         label_color_selected="ButtonLabelSelectedColor"
         label_color_disabled="ButtonLabelDisabledColor"

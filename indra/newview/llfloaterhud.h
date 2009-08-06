@@ -39,22 +39,18 @@ class LLWebBrowserCtrl;
 
 class LLFloaterHUD : public LLFloater
 {
+	friend class LLFloaterReg;
 public:
-	static LLFloaterHUD* getInstance(); ///< get instance creating if necessary
 
-	static void showHUD(); ///< show the HUD
-
-	// Save our visibility state during close
-	/*virtual*/ void onClose(bool app_quitting);
-
+	BOOL postBuild();
+	
 private:
 	// Handles its own construction and destruction, so private.
-	LLFloaterHUD();
+	LLFloaterHUD(const LLSD& key);
 	/*virtual*/ ~LLFloaterHUD();
 
 private:
 	LLWebBrowserCtrl* mWebBrowser; ///< the actual web browser control
-	static LLFloaterHUD* sInstance;
 };
 
 #endif // LL_LLFLOATERHUD_H

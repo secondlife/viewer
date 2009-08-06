@@ -48,7 +48,7 @@
 #include "lldrawable.h"
 #include "llface.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llworld.h"
@@ -311,10 +311,10 @@ U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
 	//
 	//  Load Species-Specific data 
 	//
-	mTreeImagep = gImageList.getImage(sSpeciesTable[mSpecies]->mTextureID);
+	mTreeImagep = LLViewerTextureManager::getFetchedTexture(sSpeciesTable[mSpecies]->mTextureID, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
 	if (mTreeImagep)
 	{
-		gGL.getTexUnit(0)->bind(mTreeImagep.get());
+		gGL.getTexUnit(0)->bind(mTreeImagep);
 	}
 	mBranchLength = sSpeciesTable[mSpecies]->mBranchLength;
 	mTrunkLength = sSpeciesTable[mSpecies]->mTrunkLength;

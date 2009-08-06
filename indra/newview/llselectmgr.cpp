@@ -57,6 +57,7 @@
 #include "llfloaterinspect.h"
 #include "llfloaterproperties.h"
 #include "llfloaterreporter.h"
+#include "llfloaterreg.h"
 #include "llfloatertools.h"
 #include "llframetimer.h"
 #include "llhudeffecttrail.h"
@@ -73,7 +74,7 @@
 #include "llui.h"
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewermenu.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
@@ -187,12 +188,12 @@ LLSelectMgr::LLSelectMgr()
 	sHighlightUAnim		= gSavedSettings.getF32("SelectionHighlightUAnim");
 	sHighlightVAnim		= gSavedSettings.getF32("SelectionHighlightVAnim");
 
-	sSilhouetteParentColor =gSavedSkinSettings.getColor("SilhouetteParentColor");
-	sSilhouetteChildColor = gSavedSkinSettings.getColor("SilhouetteChildColor");
-	sHighlightParentColor = gSavedSkinSettings.getColor("HighlightParentColor");
-	sHighlightChildColor = gSavedSkinSettings.getColor("HighlightChildColor");
-	sHighlightInspectColor = gSavedSkinSettings.getColor("HighlightInspectColor");
-	sContextSilhouetteColor = gSavedSkinSettings.getColor("ContextSilhouetteColor")*0.5f;
+	sSilhouetteParentColor =LLUIColorTable::instance().getColor("SilhouetteParentColor");
+	sSilhouetteChildColor = LLUIColorTable::instance().getColor("SilhouetteChildColor");
+	sHighlightParentColor = LLUIColorTable::instance().getColor("HighlightParentColor");
+	sHighlightChildColor = LLUIColorTable::instance().getColor("HighlightChildColor");
+	sHighlightInspectColor = LLUIColorTable::instance().getColor("HighlightInspectColor");
+	sContextSilhouetteColor = LLUIColorTable::instance().getColor("ContextSilhouetteColor")*0.5f;
 
 	sRenderLightRadius = gSavedSettings.getBOOL("RenderLightRadius");
 	
@@ -1424,7 +1425,7 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 				// Texture picker defaults aren't inventory items
 				// * Don't need to worry about permissions for them
 				// * Can just apply the texture and be done with it.
-				objectp->setTEImage(te, gImageList.getImage(mImageID, TRUE, FALSE));
+				objectp->setTEImage(te, LLViewerTextureManager::getFetchedTexture(mImageID, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE));
 			}
 			return true;
 		}
@@ -1580,7 +1581,7 @@ BOOL LLSelectMgr::selectionRevertTextures()
 					}
 					else
 					{
-						object->setTEImage(te, gImageList.getImage(id));
+						object->setTEImage(te, LLViewerTextureManager::getFetchedTexture(id, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE));
 					}
 				}
 			}
@@ -4451,8 +4452,7 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
 	// the reporter widget askes the server for info about picked objects
 	if (request_flags & COMPLAINT_REPORT_REQUEST )
 	{
-		EReportType report_type =  COMPLAINT_REPORT ;
-		LLFloaterReporter *reporterp = LLFloaterReporter::getReporter(report_type);
+		LLFloaterReporter *reporterp = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
 		if (reporterp)
 		{
 			std::string fullname;
@@ -4543,7 +4543,7 @@ void LLSelectMgr::updateSilhouettes()
 
 	if (!mSilhouetteImagep)
 	{
-		mSilhouetteImagep = gImageList.getImageFromFile("silhouette.j2c", TRUE, TRUE);
+		mSilhouetteImagep = LLViewerTextureManager::getFetchedTextureFromFile("silhouette.j2c", TRUE, TRUE);
 	}
 
 	mHighlightedObjects->cleanupNodes();
@@ -4813,7 +4813,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 		return;
 	}
 
-	gGL.getTexUnit(0)->bind(mSilhouetteImagep.get());
+	gGL.getTexUnit(0)->bind(mSilhouetteImagep);
 	LLGLSPipelineSelection gls_select;
 	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.f);
 	LLGLEnable blend(GL_BLEND);
@@ -4842,8 +4842,12 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 	}
 	if (mSelectedObjects->getNumNodes())
 	{
-		LLUUID inspect_item_id = LLFloaterInspect::getSelectedUUID();
-		
+		LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
+		LLUUID inspect_item_id= LLUUID::null;
+		if(inspect_instance)
+		{
+			inspect_item_id = inspect_instance->getSelectedUUID();
+		}
 		for (S32 pass = 0; pass < 2; pass++)
 		{
 			for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
@@ -5400,7 +5404,12 @@ void dialog_refresh_all()
 	}
 
 	LLFloaterProperties::dirtyAll();
-	LLFloaterInspect::dirty();
+	
+	LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
+	if(inspect_instance)
+	{
+		inspect_instance->dirty();
+	}
 }
 
 S32 get_family_count(LLViewerObject *parent)

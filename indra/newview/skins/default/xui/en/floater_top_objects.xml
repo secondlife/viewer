@@ -87,6 +87,8 @@
          label="Mono Time"
          name="mono_time"
          width="55" />
+		<scroll_list.commit_callback
+          function="TopObjects.CommitObjectsList" />
     </scroll_list>
     <text
      type="string"
@@ -117,7 +119,10 @@
      left_pad="10"
      name="show_beacon_btn"
      top_delta="0"
-     width="100" />
+     width="100">
+      <button.commit_callback
+          function="TopObjects.ShowBeacon" />
+    </button>
     <text
      type="string"
      length="1"
@@ -146,7 +151,10 @@
      left_pad="10"
      name="filter_object_btn"
      top_delta="0"
-     width="100" />
+     width="100">
+      <button.commit_callback
+          function="TopObjects.GetByObjectName" />
+    </button>
     <text
      type="string"
      length="1"
@@ -175,7 +183,10 @@
      left_pad="10"
      name="filter_owner_btn"
      top_delta="0"
-     width="100" />
+     width="100">
+      <button.commit_callback
+          function="TopObjects.GetByOwnerName" />
+    </button>
     <button
      follows="bottom|left"
      height="20"
@@ -184,7 +195,10 @@
      left="10"
      name="return_selected_btn"
      top="295"
-     width="130" />
+     width="130">
+      <button.commit_callback
+          function="TopObjects.ReturnSelected" />
+    </button>
     <button
      follows="bottom|left"
      height="20"
@@ -193,7 +207,10 @@
      left_pad="10"
      name="return_all_btn"
      top_delta="0"
-     width="130" />
+     width="130">
+      <button.commit_callback
+          function="TopObjects.ReturnAll" />
+    </button>
     <button
      follows="bottom|left"
      height="20"
@@ -202,7 +219,10 @@
      left="10"
      name="disable_selected_btn"
      top="320"
-     width="130" />
+     width="130">
+      <button.commit_callback
+          function="TopObjects.DisableSelected" />
+    </button>
     <button
      follows="bottom|left"
      height="20"
@@ -211,7 +231,10 @@
      left_pad="10"
      name="disable_all_btn"
      top_delta="0"
-     width="130" />
+     width="130">
+      <button.commit_callback
+          function="TopObjects.DisableAll" />
+    </button>
     <button
      bottom="315"
      follows="bottom|right"
@@ -220,5 +243,8 @@
      layout="topleft"
      name="refresh_btn"
      right="-10"
-     width="100" />
+     width="100">
+      <button.commit_callback
+          function="TopObjects.Refresh" />
+    </button>
 </floater>

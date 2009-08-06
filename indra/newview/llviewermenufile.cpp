@@ -37,17 +37,15 @@
 // project includes
 #include "llagent.h"
 #include "llfilepicker.h"
-#include "llfloateranimpreview.h"
+#include "llfloaterreg.h"
 #include "llfloaterbuycurrency.h"
-#include "llfloaterimagepreview.h"
-#include "llfloaternamedesc.h"
 #include "llfloatersnapshot.h"
 #include "llinventorymodel.h"	// gInventory
 #include "llresourcedata.h"
 #include "llfloaterperms.h"
 #include "llstatusbar.h"
 #include "llviewercontrol.h"	// gSavedSettings
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "lluictrlfactory.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"	// gMenuHolder
@@ -254,8 +252,7 @@ class LLFileUploadImage : public view_listener_t
 		std::string filename = upload_pick((void *)LLFilePicker::FFLOAD_IMAGE);
 		if (!filename.empty())
 		{
-			LLFloaterImagePreview* floaterp = new LLFloaterImagePreview(filename);
-			LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_image_preview.xml");
+			LLFloaterReg::showInstance("upload_image", LLSD(filename));
 		}
 		return TRUE;
 	}
@@ -268,9 +265,7 @@ class LLFileUploadSound : public view_listener_t
 		std::string filename = upload_pick((void*)LLFilePicker::FFLOAD_WAV);
 		if (!filename.empty())
 		{
-			LLFloaterNameDesc* floaterp = new LLFloaterNameDesc(filename);
-			LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_sound_preview.xml");
-			floaterp->childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload() ));
+			LLFloaterReg::showInstance("upload_sound", LLSD(filename));
 		}
 		return true;
 	}
@@ -283,8 +278,7 @@ class LLFileUploadAnim : public view_listener_t
 		const std::string filename = upload_pick((void*)LLFilePicker::FFLOAD_ANIM);
 		if (!filename.empty())
 		{
-			LLFloaterAnimPreview* floaterp = new LLFloaterAnimPreview(filename);
-			LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_animation_preview.xml");
+			LLFloaterReg::showInstance("upload_anim", LLSD(filename));
 		}
 		return true;
 	}
@@ -481,7 +475,7 @@ void handle_compress_image(void*)
 
 			BOOL success;
 
-			success = LLViewerImageList::createUploadFile(infile, outfile, IMG_CODEC_TGA);
+			success = LLViewerTextureList::createUploadFile(infile, outfile, IMG_CODEC_TGA);
 
 			if (success)
 			{
@@ -537,7 +531,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 	else if( exten == "bmp")
 	{
 		asset_type = LLAssetType::AT_TEXTURE;
-		if (!LLViewerImageList::createUploadFile(src_filename,
+		if (!LLViewerTextureList::createUploadFile(src_filename,
 												 filename,
 												 IMG_CODEC_BMP ))
 		{
@@ -552,7 +546,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 	else if( exten == "tga")
 	{
 		asset_type = LLAssetType::AT_TEXTURE;
-		if (!LLViewerImageList::createUploadFile(src_filename,
+		if (!LLViewerTextureList::createUploadFile(src_filename,
 												 filename,
 												 IMG_CODEC_TGA ))
 		{
@@ -567,7 +561,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
 	else if( exten == "jpg" || exten == "jpeg")
 	{
 		asset_type = LLAssetType::AT_TEXTURE;
-		if (!LLViewerImageList::createUploadFile(src_filename,
+		if (!LLViewerTextureList::createUploadFile(src_filename,
 												 filename,
 												 IMG_CODEC_JPEG ))
 		{
@@ -582,7 +576,7 @@ void upload_new_resource(const std::string& src_filename, std::string name,
  	else if( exten == "png")
  	{
  		asset_type = LLAssetType::AT_TEXTURE;
- 		if (!LLViewerImageList::createUploadFile(src_filename,
+ 		if (!LLViewerTextureList::createUploadFile(src_filename,
  												 filename,
  												 IMG_CODEC_PNG ))
  		{

@@ -4,7 +4,7 @@
  height="140"
  layout="topleft"
  name="mute by name"
- title="Mute object by name"
+ title="Block object by name"
  width="375">
     <text
      type="string"
@@ -18,7 +18,7 @@
      left_delta="25"
      name="message"
      right="380">
-        Mute by name only affects object chat and IM, not sounds.
+        Block by name only affects object chat and IM, not sounds.
 You must type the object&apos;s name exactly.
     </text>
     <line_editor

@@ -30,17 +30,13 @@
  * $/LicenseInfo$
  */
 
-#define INSTANTIATE_GETCHILD_TEXTBOX
-
 #include "linden_common.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
 #include "llfocusmgr.h"
 #include "llwindow.h"
 
-template LLTextBox* LLView::getChild<LLTextBox>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-
-static LLDefaultWidgetRegistry::Register<LLTextBox> r("text");
+static LLDefaultChildRegistry::Register<LLTextBox> r("text");
 
 LLTextBox::Params::Params()
 :	text_color("text_color"),
@@ -86,8 +82,7 @@ LLTextBox::LLTextBox(const LLTextBox::Params& p)
 	mHAlign(p.font_halign),
 	mLineSpacing(p.line_spacing),
 	mWordWrap( p.word_wrap ),
-	mDidWordWrap(FALSE),
-	mFontStyle(LLFontGL::getStyleFromString(p.font.style))
+	mDidWordWrap(FALSE)
 {
 	setText( p.text() );
 }
@@ -314,7 +309,7 @@ void LLTextBox::draw()
 
 	if( mBorderDropShadowVisible )
 	{
-		static LLUICachedControl<LLColor4> color_drop_shadow ("ColorDropShadow", *(new LLColor4));
+		static LLUIColor color_drop_shadow = LLUIColorTable::instance().getColor("ColorDropShadow");
 		static LLUICachedControl<S32> drop_shadow_tooltip ("DropShadowTooltip", 0);
 		gl_drop_shadow(0, getRect().getHeight(), getRect().getWidth(), 0,
 			color_drop_shadow, drop_shadow_tooltip);
@@ -386,7 +381,7 @@ void LLTextBox::drawText( S32 x, S32 y, const LLColor4& color )
 	{
 		mFontGL->render(mText.getWString(), 0, (F32)x, (F32)y, color,
 						mHAlign, mVAlign, 
-						mFontStyle,
+						0,
 						mShadowType,
 						S32_MAX, getRect().getWidth(), NULL, TRUE, mUseEllipses);
 	}
@@ -399,7 +394,7 @@ void LLTextBox::drawText( S32 x, S32 y, const LLColor4& color )
 			S32 line_length = *iter;
 			mFontGL->render(mText.getWString(), cur_pos, (F32)x, (F32)y, color,
 							mHAlign, mVAlign,
-							mFontStyle,
+							0,
 							mShadowType,
 							line_length, getRect().getWidth(), NULL, TRUE, mUseEllipses );
 			cur_pos += line_length + 1;

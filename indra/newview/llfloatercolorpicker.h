@@ -175,7 +175,7 @@ class LLFloaterColorPicker
 		const S32 mPaletteRegionHeight;
 
 		// image used to compose color grid
-		LLPointer<LLImageGL> mRGBImage;
+		LLPointer<LLViewerTexture> mRGBImage;
 
 		// current swatch in use
 		LLColorSwatchCtrl* mSwatch;

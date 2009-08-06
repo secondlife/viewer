@@ -4,10 +4,10 @@
  height="465"
  layout="topleft"
  min_height="200"
- min_width="350"
+ min_width="280"
  name="gestures"
  title="Active Gestures"
- width="350">
+ width="280">
     <floater.string
      name="loading">
         Loading...
@@ -24,7 +24,7 @@
      layout="topleft"
      left="15"
      name="help_label">
-        Double-click a gesture to play animations and sounds.
+        Double-click a gesture to play.
     </text>
     <scroll_list
      bottom_delta="390"
@@ -36,21 +36,21 @@
      name="gesture_list"
      right="-15">
         <scroll_list.columns
+         label="Name"
+         name="name"
+         width="90" />
+        <scroll_list.columns
          label="Trigger"
          name="trigger"
-         width="70" />
-        <scroll_list.columns
-         label="Key"
-         name="shortcut"
-         width="70" />
-        <scroll_list.columns
+         width="80" />
+       <scroll_list.columns
          label=""
          name="key"
          width="-1" />
         <scroll_list.columns
-         label="Name"
-         name="name"
-         width="160" />
+         label="Key"
+         name="shortcut"
+         width="50" />
     </scroll_list>
     <button
      follows="bottom|right"
@@ -89,3 +89,4 @@
      top_delta="0"
      width="83" />
 </floater>
+

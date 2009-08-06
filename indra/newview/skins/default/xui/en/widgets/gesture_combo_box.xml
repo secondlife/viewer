@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<gesture_combo_box font="SansSerifSmall"
+           list_position="below"
+           max_chars="20"
+           follows="right|top">
+  <gesture_combo_box.combo_button name="Combobox Button"
+                          label=""
+                          hover_glow_amount="0.15"
+                          font="SansSerifSmall"
+                          scale_image="true"
+                          image_unselected="ComboButton_Off"
+                          image_selected="ComboButton_Selected"
+                          image_disabled="ComboButton_Disabled"
+                          image_disabled_selected="ComboButton_Disabled_Selected" />
+  <gesture_combo_box.drop_down_button name="Drop Down Button"
+                              label=""
+                              hover_glow_amount="0.15"
+                              font="SansSerifSmall"
+                              scale_image="true"
+                              pad_right="24"
+                              image_unselected="DropDown_Off"
+                              image_selected="DropDown_Selected"
+                              image_disabled="DropDown_Disabled"
+                              image_disabled_selected="DropDown_Disabled_Selected" />
+  <gesture_combo_box.combo_list bg_writeable_color="MenuDefaultBgColor" />
+  <gesture_combo_box.combo_editor name="Combo Text Entry"
+                          select_on_focus="true"
+                          font="SansSerifSmall" />
+  <gesture_combo_box.item label="Gestures" />
+</gesture_combo_box>

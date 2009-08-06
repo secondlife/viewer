@@ -102,6 +102,7 @@ void LLAvatarPropertiesProcessor::sendDataRequest(const LLUUID& avatar_id, EAvat
 		if (data) {
 			sendPickInfoRequest(avatar_id, *static_cast<const LLUUID*>(data));
 		}
+		break;
 	case APT_NOTES:
 		sendGenericRequest(avatar_id, "avatarnotesrequest");
 		break;
@@ -305,7 +306,7 @@ void LLAvatarPropertiesProcessor::processPickInfoReply(LLMessageSystem* msg, voi
 	msg->getS32(_PREHASH_Data, _PREHASH_SortOrder, pick_data.sort_order);
 	msg->getBOOL(_PREHASH_Data, _PREHASH_Enabled, pick_data.enabled);
 
-	notifyObservers(pick_data.agent_id, &pick_data, APT_PICK_INFO);
+	notifyObservers(pick_data.creator_id, &pick_data, APT_PICK_INFO);
 }
 
 void LLAvatarPropertiesProcessor::processAvatarGroupsReply(LLMessageSystem* msg, void**)

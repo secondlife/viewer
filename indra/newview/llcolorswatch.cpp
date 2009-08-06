@@ -48,10 +48,10 @@
 #include "lltextbox.h"
 #include "llfloatercolorpicker.h"
 #include "llviewborder.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llfocusmgr.h"
 
-static LLDefaultWidgetRegistry::Register<LLColorSwatchCtrl> r("color_swatch");
+static LLDefaultChildRegistry::Register<LLColorSwatchCtrl> r("color_swatch");
 
 LLColorSwatchCtrl::Params::Params()
 :	color("color", LLColor4::white),
@@ -227,7 +227,7 @@ void LLColorSwatchCtrl::draw()
 	{
 		if (!mFallbackImageName.empty())
 		{
-			LLPointer<LLViewerImage> fallback_image = gImageList.getImageFromFile(mFallbackImageName);
+			LLPointer<LLViewerTexture> fallback_image = LLViewerTextureManager::getFetchedTextureFromFile(mFallbackImageName, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
 			if( fallback_image->getComponents() == 4 )
 			{	
 				gl_rect_2d_checkerboard( interior );

@@ -43,7 +43,6 @@
 #include "v4color.h"
 #include "llrender.h"
 #include "llrect.h"
-#include "llimagegl.h"
 #include "lldir.h"
 #include "llfontgl.h"
 
@@ -59,8 +58,9 @@
 #include "llwindow.h"
 
 // for registration
-#include "llsearcheditor.h"
+#include "llfiltereditor.h"
 #include "llflyoutbutton.h"
+#include "llsearcheditor.h"
 
 // for XUIParse
 #include "llquaternion.h"
@@ -89,9 +89,10 @@ std::list<std::string> gUntranslated;
 
 /*static*/ std::vector<std::string> LLUI::sXUIPaths;
 
-// register searcheditor here
-static LLDefaultWidgetRegistry::Register<LLSearchEditor> register_search_editor("search_editor");
-static LLDefaultWidgetRegistry::Register<LLFlyoutButton> register_flyout_button("flyout_button");
+// register filtereditor here
+static LLDefaultChildRegistry::Register<LLFilterEditor> register_filter_editor("filter_editor");
+static LLDefaultChildRegistry::Register<LLFlyoutButton> register_flyout_button("flyout_button");
+static LLDefaultChildRegistry::Register<LLSearchEditor> register_search_editor("search_editor");
 
 
 //
@@ -424,7 +425,7 @@ void gl_corners_2d(S32 left, S32 top, S32 right, S32 bottom, S32 length, F32 max
 }
 
 
-void gl_draw_image( S32 x, S32 y, LLImageGL* image, const LLColor4& color, const LLRectf& uv_rect )
+void gl_draw_image( S32 x, S32 y, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect )
 {
 	if (NULL == image)
 	{
@@ -434,7 +435,7 @@ void gl_draw_image( S32 x, S32 y, LLImageGL* image, const LLColor4& color, const
 	gl_draw_scaled_rotated_image( x, y, image->getWidth(0), image->getHeight(0), 0.f, image, color, uv_rect );
 }
 
-void gl_draw_scaled_image(S32 x, S32 y, S32 width, S32 height, LLImageGL* image, const LLColor4& color, const LLRectf& uv_rect)
+void gl_draw_scaled_image(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect)
 {
 	if (NULL == image)
 	{
@@ -444,7 +445,7 @@ void gl_draw_scaled_image(S32 x, S32 y, S32 width, S32 height, LLImageGL* image,
 	gl_draw_scaled_rotated_image( x, y, width, height, 0.f, image, color, uv_rect );
 }
 
-void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border_height, S32 width, S32 height, LLImageGL* image, const LLColor4& color, BOOL solid_color, const LLRectf& uv_rect)
+void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border_height, S32 width, S32 height, LLTexture* image, const LLColor4& color, BOOL solid_color, const LLRectf& uv_rect)
 {
 	if (NULL == image)
 	{
@@ -460,7 +461,7 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border
 	gl_draw_scaled_image_with_border(x, y, width, height, image, color, solid_color, uv_rect, scale_rect);
 }
 
-void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLImageGL* image, const LLColor4& color, BOOL solid_color, const LLRectf& uv_rect, const LLRectf& scale_rect)
+void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4& color, BOOL solid_color, const LLRectf& uv_rect, const LLRectf& scale_rect)
 {
 	stop_glerror();
 
@@ -646,12 +647,12 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLIma
 	}
 }
 
-void gl_draw_rotated_image(S32 x, S32 y, F32 degrees, LLImageGL* image, const LLColor4& color, const LLRectf& uv_rect)
+void gl_draw_rotated_image(S32 x, S32 y, F32 degrees, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect)
 {
 	gl_draw_scaled_rotated_image( x, y, image->getWidth(0), image->getHeight(0), degrees, image, color, uv_rect );
 }
 
-void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degrees, LLImageGL* image, const LLColor4& color, const LLRectf& uv_rect)
+void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degrees, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect)
 {
 	if (NULL == image)
 	{
@@ -697,7 +698,7 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 }
 
 
-void gl_draw_scaled_image_inverted(S32 x, S32 y, S32 width, S32 height, LLImageGL* image, const LLColor4& color, const LLRectf& uv_rect)
+void gl_draw_scaled_image_inverted(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect)
 {
 	if (NULL == image)
 	{
@@ -1579,7 +1580,6 @@ void LLUI::initClass(const settings_map_t& settings,
 	sSettingGroups = settings;
 
 	if ((get_ptr_in_map(sSettingGroups, std::string("config")) == NULL) ||
-		(get_ptr_in_map(sSettingGroups, std::string("color")) == NULL) ||
 		(get_ptr_in_map(sSettingGroups, std::string("floater")) == NULL) ||
 		(get_ptr_in_map(sSettingGroups, std::string("ignores")) == NULL))
 	{
@@ -1590,7 +1590,7 @@ void LLUI::initClass(const settings_map_t& settings,
 	sAudioCallback = audio_callback;
 	sGLScaleFactor = (scale_factor == NULL) ? LLVector2(1.f, 1.f) : *scale_factor;
 	sWindow = NULL; // set later in startup
-	LLFontGL::sShadowColor = LLUI::sSettingGroups["color"]->getColor("ColorDropShadow");
+	LLFontGL::sShadowColor = LLUIColorTable::instance().getColor("ColorDropShadow");
 
 	static LLUICachedControl<bool> show_xui_names ("ShowXUINames", false);
 	LLUI::sShowXUINames = show_xui_names;
@@ -1855,22 +1855,16 @@ void LLUI::setHtmlHelp(LLHtmlHelp* html_help)
 	LLUI::sHtmlHelp = html_help;
 }
 
-// static
-boost::function<const LLColor4&()> LLUI::getCachedColorFunctor(const std::string& color_name)
-{
-	return LLCachedControl<LLColor4>(*sSettingGroups["color"], color_name, LLColor4::magenta);
-}
-
-// static
 LLControlGroup& LLUI::getControlControlGroup (const std::string& controlname)
 {
 	for (settings_map_t::iterator itor = sSettingGroups.begin();
 		 itor != sSettingGroups.end(); ++itor)
 	{
-		if(itor->second!= NULL)
+		LLControlGroup* control_group = itor->second;
+		if(control_group != NULL)
 		{
-			if (sSettingGroups[(itor->first)]->controlExists(controlname))
-				return *sSettingGroups[(itor->first)];
+			if (control_group->controlExists(controlname))
+				return *control_group;
 		}
 	}
 
@@ -1942,8 +1936,8 @@ LLLocalClipRect::LLLocalClipRect(const LLRect &rect, BOOL enabled)
 
 namespace LLInitParam
 {
-	TypedParam<LLUIColor >::TypedParam(BlockDescriptor& descriptor, const char* name, const LLUIColor& value, ParamDescriptor::validation_func_t func)
-	:	super_t(descriptor, name, value, func),
+	TypedParam<LLUIColor >::TypedParam(BlockDescriptor& descriptor, const char* name, const LLUIColor& value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
+	:	super_t(descriptor, name, value, func, min_count, max_count),
 		red("red"),
 		green("green"),
 		blue("blue"),
@@ -1972,11 +1966,22 @@ namespace LLInitParam
 		declare("blue", LLColor4::blue);
 	}
 
-	TypedParam<const LLFontGL*>::TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL*const value, ParamDescriptor::validation_func_t func)
-	:	super_t(descriptor, name, value, func),
-		name("", std::string("")),
-		size("size", std::string("")),
-		style("style", std::string(""))
+	template<>
+	class ParamCompare<const LLFontGL*>
+	{
+	public:
+		static bool equals(const LLFontGL* a, const LLFontGL* b)
+		{
+			return !(a->getFontDesc() < b->getFontDesc())
+				&& !(b->getFontDesc() < a->getFontDesc());
+		}
+	};
+
+	TypedParam<const LLFontGL*>::TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL*const value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
+	:	super_t(descriptor, name, value, func, min_count, max_count),
+		name(""),
+		size("size"),
+		style("style")
 	{}
 
 	const LLFontGL* TypedParam<const LLFontGL*>::getValueFromBlock() const
@@ -2003,8 +2008,8 @@ namespace LLInitParam
 		return mData.mValue;
 	}
 
-	TypedParam<LLRect>::TypedParam(BlockDescriptor& descriptor, const char* name, const LLRect& value, ParamDescriptor::validation_func_t func)
-	:	super_t(descriptor, name, value, func),
+	TypedParam<LLRect>::TypedParam(BlockDescriptor& descriptor, const char* name, const LLRect& value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
+	:	super_t(descriptor, name, value, func, min_count, max_count),
 		left("left"),
 		top("top"),
 		right("right"),

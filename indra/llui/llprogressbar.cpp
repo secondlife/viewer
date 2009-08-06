@@ -39,22 +39,18 @@
 #include "llgl.h"
 #include "llui.h"
 #include "llfontgl.h"
-#include "llimagegl.h"
 #include "lltimer.h"
 #include "llglheaders.h"
 
 #include "llfocusmgr.h"
 #include "lluictrlfactory.h"
 
-static LLDefaultWidgetRegistry::Register<LLProgressBar> r("progress_bar");
+static LLDefaultChildRegistry::Register<LLProgressBar> r("progress_bar");
 
 LLProgressBar::Params::Params()
 :	image_bar("image_bar"),
 	image_fill("image_fill"),
-	image_shadow("image_shadow"),
 	color_bar("color_bar"),
-	color_bar2("color_bar2"),
-	color_shadow("color_shadow"),
 	color_bg("color_bg")
 {}
 
@@ -62,12 +58,9 @@ LLProgressBar::Params::Params()
 LLProgressBar::LLProgressBar(const LLProgressBar::Params& p) 
 :	LLView(p),
 	mImageBar(p.image_bar),
-	mImageShadow(p.image_shadow),
 	mImageFill(p.image_fill),
 	mColorBackground(p.color_bg()),
 	mColorBar(p.color_bar()),
-	mColorBar2(p.color_bar2()),
-	mColorShadow(p.color_shadow()),
 	mPercentDone(0.f)
 {}
 
@@ -86,10 +79,10 @@ void LLProgressBar::draw()
 
 	F32 alpha = 0.5f + 0.5f*0.5f*(1.f + (F32)sin(3.f*timer.getElapsedTimeF32()));
 	LLColor4 bar_color = mColorBar.get();
-	bar_color.mV[3] = alpha;
+	bar_color.mV[VALPHA] *= alpha; // modulate alpha
 	LLRect progress_rect = getLocalRect();
 	progress_rect.mRight = llround(getRect().getWidth() * (mPercentDone / 100.f));
-	mImageFill->draw(progress_rect);
+	mImageFill->draw(progress_rect, bar_color);
 }
 
 void LLProgressBar::setPercent(const F32 percent)

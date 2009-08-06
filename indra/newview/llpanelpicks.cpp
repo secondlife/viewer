@@ -36,37 +36,43 @@
 #include "llavatarconstants.h"
 #include "lltexturectrl.h"
 #include "llviewergenericmessage.h"	// send_generic_message
-#include "llworldmap.h"
-#include "llfloaterworldmap.h"
-#include "llpanelmeprofile.h"
-#include "llfloaterreg.h"
+#include "llmenugl.h"
+#include "llviewermenu.h"
+#include "llregistry.h"
+
 #include "llpanelpicks.h"
 #include "llavatarpropertiesprocessor.h"
+#include "llpanelavatar.h"
+#include "llpanelprofile.h"
 #include "llpanelpick.h"
+#include "llscrollcontainer.h"
 
-#define XML_BTN_NEW "new_btn"
-#define XML_BTN_DELETE "trash_btn"
-#define XML_BTN_INFO "info_btn"
+static const std::string XML_BTN_NEW = "new_btn";
+static const std::string XML_BTN_DELETE = "trash_btn";
+static const std::string XML_BTN_INFO = "info_btn";
+static const std::string XML_BTN_TELEPORT = "teleport_btn";
+static const std::string XML_BTN_SHOW_ON_MAP = "show_on_map_btn";
+
+static const std::string XML_PICKS_LIST = "back_panel";
+
+#define PICK_ITEMS_BETWEEN 5
 
 
 //-----------------------------------------------------------------------------
 // LLPanelPicks
 //-----------------------------------------------------------------------------
-LLPanelPicks::LLPanelPicks(const LLUUID& avatar_id /* = LLUUID::null */)
-:LLPanelProfileTab(avatar_id), mMeProfilePanel(NULL)
+LLPanelPicks::LLPanelPicks()
+:	LLPanelProfileTab(LLUUID::null),
+	mPopupMenu(NULL),
+	mSelectedPickItem(NULL),
+	mProfilePanel(NULL),
+	mPickPanel(NULL)
 {
-	updateData();
-}
-
-LLPanelPicks::LLPanelPicks(const Params& params)
-:LLPanelProfileTab(params), mMeProfilePanel(NULL)
-{
-
 }
 
 LLPanelPicks::~LLPanelPicks()
 {
-	if(!getAvatarId().isNull())
+	if(getAvatarId().notNull())
 	{
 		LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
 	}
@@ -74,12 +80,6 @@ LLPanelPicks::~LLPanelPicks()
 
 void* LLPanelPicks::create(void* data /* = NULL */)
 {
-	LLSD* id = NULL;
-	if(data)
-	{
-		id = static_cast<LLSD*>(data);
-		return new LLPanelPicks(LLUUID(id->asUUID()));
-	}
 	return new LLPanelPicks();
 }
 
@@ -99,8 +99,13 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 			gCacheName->getName(getAvatarId(),name,second_name);
 			childSetTextArg("pick_title", "[NAME]",name);
 
-			LLView* picks_list = getChild<LLView>("back_panel",TRUE,FALSE);
+			LLView* picks_list = getPicksList();
 			if(!picks_list) return;
+			
+			// to restore selection of the same item later
+			LLUUID pick_id_selected(LLUUID::null);
+			if (mSelectedPickItem) pick_id_selected = mSelectedPickItem->getPickId();
+
 			clear();
 
 			//*TODO move it somewhere else?
@@ -108,13 +113,9 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 			childSetEnabled(XML_BTN_NEW, false);
 			childSetEnabled(XML_BTN_DELETE, false);
 			childSetEnabled(XML_BTN_INFO, false);
+			childSetEnabled(XML_BTN_TELEPORT,!avatar_picks->picks_list.empty());
+			childSetEnabled(XML_BTN_SHOW_ON_MAP,!avatar_picks->picks_list.empty());
 						
-			S32 height = avatar_picks->picks_list.size() * 85;
-			LLRect rc = picks_list->getRect();
-			rc.setLeftTopAndSize(rc.mLeft,rc.mTop,rc.getWidth(),height);
-			picks_list->setRect(rc);
-			picks_list->reshape(rc.getWidth(),rc.getHeight());
-
 			LLAvatarPicks::picks_list_t::const_iterator it = avatar_picks->picks_list.begin();
 			for(; avatar_picks->picks_list.end() != it; ++it)
 			{
@@ -122,32 +123,26 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 				std::string pick_name = it->second;
 
 				LLPickItem* picture = LLPickItem::create();
+				picture->childSetAction("info_chevron", boost::bind(&LLPanelPicks::onClickInfo, this));
+				
 				picks_list->addChild(picture);
 
-				picture->setPictureName(pick_name);
-				picture->setPictureId(pick_id);
+				picture->setPickName(pick_name);
+				picture->setPickId(pick_id);
 				picture->setCreatorId(getAvatarId());
 
-				S32 last_bottom = picks_list->getRect().getHeight();
-				if(mPickItemList.size() > 0)
-				{
-					last_bottom = mPickItemList[mPickItemList.size()-1]->getRect().mBottom;
-					last_bottom -= 5;
-				}
-				LLRect rc = picture->getRect();
-				rc.mBottom = last_bottom - rc.getHeight();
-				rc.mTop = last_bottom;
-				picture->reshape(rc.getWidth(),rc.getHeight());
-				picture->setRect(rc);
-
-				
 				LLAvatarPropertiesProcessor::instance().addObserver(mAvatarId, picture);
 				picture->update();
 				mPickItemList.push_back(picture);
+				if (pick_id_selected != LLUUID::null && 
+					pick_id == pick_id_selected) setSelectedPickItem(picture);
 			}
+
+			reshapePicksList();
 			LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
 
 			updateButtons();
+			if (!mSelectedPickItem && mPickItemList.size()) setSelectedPickItem(mPickItemList.back());
 			picks_list->setEnabled(TRUE);
 
 		}
@@ -156,7 +151,7 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 
 void LLPanelPicks::clear()
 {
-	LLView* scroll = getChild<LLView>("back_panel",TRUE,FALSE);
+	LLView* scroll = getPicksList();
 	if(scroll)
 	{
 		picture_list_t::const_iterator it = mPickItemList.begin();
@@ -167,26 +162,109 @@ void LLPanelPicks::clear()
 		}
 	}
 	mPickItemList.clear();
+	mSelectedPickItem = NULL;
 }
 
-BOOL LLPanelPicks::postBuild(void)
-{
-	childSetAction(XML_BTN_INFO, onClickInfo, this);
-	childSetAction(XML_BTN_NEW, onClickNew, this);
-	childSetAction(XML_BTN_DELETE, onClickDelete, this);
 
-	childSetAction("teleport_btn", onClickTeleport, this);
-	childSetAction("show_on_map_btn", onClickMap, this);
+LLPickItem* LLPanelPicks::getSelectedPickItem()
+{
+	return mSelectedPickItem;
+}
+
+
+void LLPanelPicks::removePickItem( LLPickItem* pick_item )
+{
+	LLView* scroll = getPicksList();
+	scroll->removeChild(pick_item);
+	mPickItemList.remove(pick_item);
+	if (mPickItemList.size() == 0)
+	{
+		mSelectedPickItem = NULL;
+	}
+	else 
+	{
+		setSelectedPickItem(mPickItemList.back());
+	}
+
+	reshapePicksList();
+}
+
+void LLPanelPicks::reshapePicksList()
+{
+	if (!mPickItemList.size()) return;
+	LLView* pickList = getPicksList();
+
+	S32 last_bottom = pickList->getRect().getHeight();
+	child_list_const_iter_t child_it, child_first_it = pickList->getChildList()->begin();
+	for ( child_it = child_first_it; child_it != pickList->getChildList()->end(); ++child_it)
+	{
+		LLView* const childp = *child_it;
+		if(child_it != child_first_it)
+		{
+			last_bottom -= childp->getRect().getHeight();
+			last_bottom -= PICK_ITEMS_BETWEEN;
+		}
+		reshapePickItem(childp, last_bottom,pickList->getRect().getWidth());
+	}
+
+	S32 height = pickList->getChildCount() * ((*child_first_it)->getRect().getHeight() + PICK_ITEMS_BETWEEN);
+	LLRect rc = pickList->getRect();
+	rc.setLeftTopAndSize(rc.mLeft, rc.mTop, rc.getWidth(), height);
+	pickList->reshape(rc.getWidth(), rc.getHeight());
+	pickList->setRect(rc);
+}
+
+void LLPanelPicks::reshapePickItem(LLView* const pick_item, const S32 last_bottom, const S32 newWidth)
+{
+	LLRect rc = pick_item->getRect();
+	rc.mBottom = last_bottom - rc.getHeight();
+	rc.mTop = last_bottom;
+	pick_item->setRect(rc);
+	pick_item->reshape(newWidth, rc.getHeight());
+}
+
+LLView* LLPanelPicks::getPicksList() const
+{
+	return getChild<LLView>(XML_PICKS_LIST, TRUE, FALSE);
+}
+
+BOOL LLPanelPicks::postBuild()
+{
+	childSetAction(XML_BTN_DELETE, boost::bind(&LLPanelPicks::onClickDelete, this));
+
+	childSetAction("teleport_btn", boost::bind(&LLPanelPicks::onClickTeleport, this));
+	childSetAction("show_on_map_btn", boost::bind(&LLPanelPicks::onClickMap, this));
+
+	childSetAction("info_btn", boost::bind(&LLPanelPicks::onClickInfo, this));
+	childSetAction("new_btn", boost::bind(&LLPanelPicks::onClickNew, this));
+	
+	CommitCallbackRegistry::ScopedRegistrar registar;
+	registar.add("Pick.Info", boost::bind(&LLPanelPicks::onClickInfo, this));
+	registar.add("Pick.Edit", boost::bind(&LLPanelPicks::onClickMenuEdit, this)); 
+	registar.add("Pick.Teleport", boost::bind(&LLPanelPicks::onClickTeleport, this));
+	registar.add("Pick.Map", boost::bind(&LLPanelPicks::onClickMap, this));
+	registar.add("Pick.Delete", boost::bind(&LLPanelPicks::onClickDelete, this));
+	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_picks.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	
 	return TRUE;
 }
 
-void LLPanelPicks::onActivate(const LLUUID& id)
+void LLPanelPicks::onOpen(const LLSD& key)
 {
+	const LLUUID id(key.asUUID());
 	BOOL self = (gAgent.getID() == id);
 
 	// only agent can edit her picks 
 	childSetEnabled("edit_panel", self);
 	childSetVisible("edit_panel", self);
+
+	// Disable buttons when viewing profile for first time
+	if(getAvatarId() != id)
+	{
+		childSetEnabled(XML_BTN_INFO,FALSE);
+		childSetEnabled(XML_BTN_TELEPORT,FALSE);
+		childSetEnabled(XML_BTN_SHOW_ON_MAP,FALSE);
+	}
 
 	// and see a special title - set as invisible by default in xml file
 	if (self)
@@ -195,144 +273,99 @@ void LLPanelPicks::onActivate(const LLUUID& id)
 		childSetVisible("pick_title_agent", self);
 	}
 
-	LLPanelProfileTab::onActivate(id);
-}
-
-
-//static
-void LLPanelPicks::onClickInfo(void *data)
-{
-	LLPanelPicks* self = (LLPanelPicks*) data;
-	if (self)
-	{
-		LLPanelPick* panel_pick_info = new LLPanelPick();
-		
-		//*TODO redo, use the selected pick from List View, but not the first (last) one
-		LLView* scroll = self->getChild<LLView>("back_panel", TRUE, FALSE);
-		LLPickItem* pick = static_cast<LLPickItem*>(scroll->getFirstChild());
-		if (!pick) return;
-
-		panel_pick_info->init(pick->getCreatorId(), pick->getPickId());
-
-		//*HACK redo toggling of panels (should work on both "profiles")
-		if (self->mMeProfilePanel)
-		{
-			panel_pick_info->setPanelMeProfile(self->mMeProfilePanel);
-			//self->mMeProfilePanel->addChildInBack(panel_pick_info);
-			self->mMeProfilePanel->togglePanel(panel_pick_info);
-		}
-	}
+	LLPanelProfileTab::onOpen(key);
 }
 
 //static
-void LLPanelPicks::onClickNew(void *data)
+void LLPanelPicks::onClickDelete()
 {
-	LLPanelPicks* self = (LLPanelPicks*) data;
-	if(self && self->mMeProfilePanel)
-	{
-		if (self->mPickItemList.size() >= MAX_AVATAR_PICKS)
-		{
-			//*TODO show warning message
-			return;
-		}
-				
-		//in edit mode
-		LLPanelPick* panel_edit_pick = new LLPanelPick(TRUE);
-		panel_edit_pick->createNewPick();
-
-		//*HACK redo toggling of panels
-		panel_edit_pick->setPanelMeProfile(self->mMeProfilePanel);
-		self->mMeProfilePanel->togglePanel(panel_edit_pick);
-	}
-}
-
-//static
-void LLPanelPicks::onClickDelete(void *data)
-{
-	LLPanelPicks* self = (LLPanelPicks*) data;
-	if(self && self->mMeProfilePanel)
-	{
-	//*TODO redo, use the selected pick from List View, but not the first (last) one
-	LLView* scroll = self->getChild<LLView>("back_panel", TRUE, FALSE);
-	LLPickItem* first_pick = static_cast<LLPickItem*>(scroll->getFirstChild());
-	if (!first_pick) return;
+	LLPickItem* pick_item = getSelectedPickItem();
+	if (!pick_item) return;
 
 	LLSD args; 
-	args["PICK"] = first_pick->getPickName(); 
-	LLNotifications::instance().add("DeleteAvatarPick", args, LLSD(), boost::bind(&LLPanelPicks::callbackDelete, self, _1, _2)); 
-	}
+	args["PICK"] = pick_item->getPickName(); 
+	LLNotifications::instance().add("DeleteAvatarPick", args, LLSD(), boost::bind(&LLPanelPicks::callbackDelete, this, _1, _2)); 
 }
 
 bool LLPanelPicks::callbackDelete(const LLSD& notification, const LLSD& response) 
 {
 	S32 option = LLNotification::getSelectedOption(notification, response);
 
-	//*TODO redo, use the selected pick from List View, but not the first (last) one
-	LLView* scroll = getChild<LLView>("back_panel",TRUE,FALSE);
-	LLPickItem* first_pick = static_cast<LLPickItem*>(scroll->getFirstChild());
-	if (!first_pick) return false;
+	LLPickItem* pick_item = getSelectedPickItem();
 
 	if (0 == option)
 	{
-		LLAvatarPropertiesProcessor::instance().sendPickDelete(first_pick->getPickId());
-
-		scroll->removeChild(first_pick);
-		mPickItemList.pop_back();
-		first_pick = NULL;
+		LLAvatarPropertiesProcessor::instance().sendPickDelete(pick_item->getPickId());
+		removePickItem(pick_item);
 	}
 	updateButtons();
 	return false;
 }
 
-void LLPanelPicks::setPanelMeProfile(LLPanelMeProfile* meProfilePanel)
+bool LLPanelPicks::callbackTeleport( const LLSD& notification, const LLSD& response )
 {
-	mMeProfilePanel = meProfilePanel;
-}
+	S32 option = LLNotification::getSelectedOption(notification, response);
 
-//static
-void LLPanelPicks::teleport(const LLVector3d& position)
-{
-	if (!position.isExactlyZero())
+	if (0 == option)
 	{
-		gAgent.teleportViaLocation(position);
-		LLFloaterWorldMap::getInstance()->trackLocation(position);
+		onClickTeleport();
 	}
+	return false;
 }
 
 //static
-void LLPanelPicks::onClickTeleport(void* data)
+void LLPanelPicks::onClickTeleport()
 {
-	LLPanelPicks* self = (LLPanelPicks*)data;
-
-	if (!self->mPickItemList.size()) return;
-
-	//*TODO use the selected Pick instead of the last one in the list of Picks
-	LLPickItem* last_pick = self->mPickItemList.back();
-	if (!last_pick) return;
-
-	teleport(last_pick->getPosGlobal());
+	LLPickItem* pick_item = getSelectedPickItem();
+	if (!pick_item) return;
+	LLPanelPick::teleport(pick_item->getPosGlobal());
 }
 
 //static
-void LLPanelPicks::onClickMap(void* data)
+void LLPanelPicks::onClickMap()
 {
-	LLPanelPicks* self = (LLPanelPicks*)data;
-	
-	if (!self->mPickItemList.size()) return;
-	
-	//*TODO use the selected Pick instead of the last one in the list of Picks
-	LLPickItem* last_pick = self->mPickItemList.back();
-	if (!last_pick) return;
-
-	showOnMap(last_pick->getPosGlobal());
-
+	LLPickItem* pick_item = getSelectedPickItem();
+	if (!pick_item) return;
+	LLPanelPick::showOnMap(pick_item->getPosGlobal());
 }
 
-//static
-void LLPanelPicks::showOnMap(const LLVector3d& position)
+
+BOOL LLPanelPicks::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	LLFloaterWorldMap::getInstance()->trackLocation(position);
-	LLFloaterReg::showInstance("world_map", "center");
+	if (isMouseInPick(x, y))
+	{
+		if (mPopupMenu)
+		{
+			mPopupMenu->buildDrawLabels();
+			mPopupMenu->updateParent(LLMenuGL::sMenuContainer);
+			((LLContextMenu*)mPopupMenu)->show(x, y);
+			LLMenuGL::showPopup(this, mPopupMenu, x, y);
+		}
+		return TRUE;
+	}
+	return LLPanel::handleRightMouseDown(x, y, mask);
+}
+
+BOOL LLPanelPicks::handleMouseDown( S32 x, S32 y, MASK mask )
+{
+	isMouseInPick(x, y);
+	return LLPanel::handleMouseDown(x, y, mask);
+}
+
+BOOL LLPanelPicks::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	if (isMouseInPick(x, y))
+	{
+		LLPickItem* pick_item = getSelectedPickItem();
+		if (pick_item) 
+		{
+			LLSD args; 
+			args["PICK"] = pick_item->getPickName(); 
+			LLNotifications::instance().add("TeleportToPick", args, LLSD(), boost::bind(&LLPanelPicks::callbackTeleport, this, _1, _2)); 
+		}
+		return TRUE;
+	}
+	return LLPanel::handleDoubleClick(x, y, mask);
 }
 
 void LLPanelPicks::updateButtons()
@@ -344,27 +377,127 @@ void LLPanelPicks::updateButtons()
 	{
 		childSetEnabled(XML_BTN_NEW, picks_num < MAX_AVATAR_PICKS);
 		childSetEnabled(XML_BTN_DELETE, picks_num > 0);
+
+		//*TODO move somewhere this calls
+		// we'd better set them up earlier when a panel was being constructed
+		mPopupMenu->setItemVisible("pick_delete", TRUE);
+		mPopupMenu->setItemVisible("pick_edit", TRUE);
+		mPopupMenu->setItemVisible("pick_separator", TRUE);
+	}
+
+	//*TODO update buttons like Show on Map, Teleport etc.
+
+}
+
+void LLPanelPicks::setSelectedPickItem(LLPickItem* item)
+{
+	if (!item) return;
+	if (mSelectedPickItem == item) return;
+	if (mSelectedPickItem && mSelectedPickItem->isBackgroundVisible())
+	{
+		mSelectedPickItem->setBackgroundVisible(FALSE);
+	}
+	item->setBackgroundVisible(TRUE);
+	mSelectedPickItem = item;
+}
+
+BOOL LLPanelPicks::isMouseInPick( S32 x, S32 y )
+{
+	LLScrollContainer* scroll = getChild<LLScrollContainer>("profile_scroll");
+	if (!scroll->parentPointInView(x, y)) return FALSE;
+
+	S32 x_l = x;
+	S32 y_l = y;
+	
+	picture_list_t::const_iterator it = mPickItemList.begin();
+	for(; mPickItemList.end() != it; ++it)
+	{
+		localPointToOtherView(x, y, &x_l, &y_l, (*it));
+		if ((*it)->pointInView(x_l, y_l))
+		{
+			setSelectedPickItem(*it);
+			return TRUE;
+		}
+	}	
+	return FALSE;
+}
+
+
+void LLPanelPicks::setProfilePanel(LLPanelProfile* profile_panel)
+{
+	mProfilePanel = profile_panel;
+}
+
+
+void LLPanelPicks::buildPickPanel()
+{
+	if (mPickPanel == NULL)
+	{
+		mPickPanel = new LLPanelPick();
+		mPickPanel->setExitCallback(boost::bind(&LLPanelPicks::onClickBack, this));
 	}
 }
 
+void LLPanelPicks::onClickNew()
+{
+	buildPickPanel();
+	mPickPanel->setEditMode(TRUE);
+	mPickPanel->createNewPick();
+	getProfilePanel()->togglePanel(mPickPanel);
+}
+
+void LLPanelPicks::onClickInfo()
+{
+	LLPickItem* pick = getSelectedPickItem();
+	if (!pick) return;
+
+	buildPickPanel();
+	mPickPanel->reset();
+	mPickPanel->init(pick->getCreatorId(), pick->getPickId());
+	getProfilePanel()->togglePanel(mPickPanel);
+}
+
+void LLPanelPicks::onClickBack()
+{
+	getProfilePanel()->togglePanel(mPickPanel);
+}
+
+void LLPanelPicks::onClickMenuEdit()
+{
+	//*TODO, refactor - most of that is similar to onClickInfo
+	LLPickItem* pick = getSelectedPickItem();
+	if (!pick) return;
+
+	buildPickPanel();
+	mPickPanel->reset();
+	mPickPanel->init(pick->getCreatorId(), pick->getPickId());
+	mPickPanel->setEditMode(TRUE);
+	getProfilePanel()->togglePanel(mPickPanel);
+}
+
+inline LLPanelProfile* LLPanelPicks::getProfilePanel()
+{
+	llassert_always(NULL != mProfilePanel);
+	return mProfilePanel;
+}
 
 //-----------------------------------------------------------------------------
 // LLPanelPicks
 //-----------------------------------------------------------------------------
 LLPickItem::LLPickItem()
 : LLPanel()
-, mPicID(LLUUID::null)
+, mPickID(LLUUID::null)
 , mCreatorID(LLUUID::null)
 , mParcelID(LLUUID::null)
 , mSnapshotID(LLUUID::null)
 , mNeedData(true)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_pic_list_item.xml");
+	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_pick_list_item.xml");
 }
 
 LLPickItem::~LLPickItem()
 {
-	if (!mCreatorID.isNull())
+	if (mCreatorID.notNull())
 	{
 		LLAvatarPropertiesProcessor::instance().removeObserver(mCreatorID, this);
 	}
@@ -378,7 +511,7 @@ LLPickItem* LLPickItem::create()
 
 void LLPickItem::init(LLPickData* pick_data)
 {
-	setPictureDescription(pick_data->desc);
+	setPickDesc(pick_data->desc);
 	setSnapshotId(pick_data->snapshot_id);
 	mPosGlobal = pick_data->pos_global;
 	mLocation = pick_data->location_text;
@@ -390,12 +523,7 @@ void LLPickItem::init(LLPickData* pick_data)
 	}
 }
 
-void LLPickItem::setPicture()
-{
-
-}
-
-void LLPickItem::setPictureName(const std::string& name)
+void LLPickItem::setPickName(const std::string& name)
 {
 	mPickName = name;
 	childSetValue("picture_name",name);
@@ -417,19 +545,19 @@ const LLUUID& LLPickItem::getSnapshotId()
 	return mSnapshotID;
 }
 
-void LLPickItem::setPictureDescription(const std::string& descr)
+void LLPickItem::setPickDesc(const std::string& descr)
 {
 	childSetValue("picture_descr",descr);
 }
 
-void LLPickItem::setPictureId(const LLUUID& id)
+void LLPickItem::setPickId(const LLUUID& id)
 {
-	mPicID = id;
+	mPickID = id;
 }
 
 const LLUUID& LLPickItem::getPickId()
 {
-	return mPicID;
+	return mPickID;
 }
 
 const LLVector3d& LLPickItem::getPosGlobal()
@@ -450,7 +578,7 @@ const std::string LLPickItem::getDescription()
 void LLPickItem::update()
 {
 	mNeedData = true;
-	LLAvatarPropertiesProcessor::instance().sendDataRequest(mCreatorID, APT_PICK_INFO, &mPicID);
+	LLAvatarPropertiesProcessor::instance().sendDataRequest(mCreatorID, APT_PICK_INFO, &mPickID);
 	mNeedData = false;
 }
 
@@ -461,9 +589,9 @@ void LLPickItem::processProperties(void *data, EAvatarProcessorType type)
 
 	LLPickData* pick_data = static_cast<LLPickData *>(data);
 	if (!pick_data) return;
-	if (mPicID != pick_data->pick_id) return;
+	if (mPickID != pick_data->pick_id) return;
 
 	init(pick_data);
-	LLAvatarPropertiesProcessor::instance().removeObserver(pick_data->agent_id, this);
+	LLAvatarPropertiesProcessor::instance().removeObserver(mCreatorID, this);
 }
 

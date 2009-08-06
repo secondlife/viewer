@@ -38,6 +38,7 @@
 #include "lluuid.h"
 #include "llxmlnode.h"
 #include "reflective.h"
+#include "llinventorytype.h"
 
 // prototypes
 class LLMessageSystem;
@@ -129,6 +130,8 @@ public:
 	void initMasks(PermissionMask base, PermissionMask owner,
 				   PermissionMask everyone, PermissionMask group,
 				   PermissionMask next);
+	// adjust permissions based on inventory type.
+	void initMasks(LLInventoryType::EType type);
 
 	//
 	// ACCESSORS

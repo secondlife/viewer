@@ -39,6 +39,10 @@
 
 class LLStatBar;
 
+// widget registrars
+struct StatViewRegistry : public LLChildRegistry<StatViewRegistry>
+{};
+
 class LLStatView : public LLContainerView
 {
 public:
@@ -51,9 +55,11 @@ public:
 			follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT);
 		}
 	};
-	~LLStatView();
 
-	virtual const widget_registry_t& getChildRegistry() const;
+	// my valid children are stored in this registry
+	typedef StatViewRegistry child_registry_t;
+
+	~LLStatView();
 
 protected:
 	LLStatView(const Params&);

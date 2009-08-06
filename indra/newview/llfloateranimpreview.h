@@ -41,11 +41,13 @@
 class LLVOAvatar;
 class LLViewerJointMesh;
 
-class LLPreviewAnimation : public LLDynamicTexture
+class LLPreviewAnimation : public LLViewerDynamicTexture
 {
-public:
-	LLPreviewAnimation(S32 width, S32 height);
+protected:
 	virtual ~LLPreviewAnimation();
+
+public:
+	LLPreviewAnimation(S32 width, S32 height);	
 
 	BOOL	render();
 	void	requestUpdate();
@@ -86,7 +88,6 @@ public:
 
 	static void	onBtnPlay(void*);
 	static void	onBtnStop(void*);
-	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
 	static void onSliderMove(LLUICtrl*, void*);
 	static void onCommitBaseAnim(LLUICtrl*, void*);
 	static void onCommitLoop(LLUICtrl*, void*);
@@ -114,7 +115,7 @@ protected:
 	void			draw();
 	void			resetMotion();
 
-	LLPreviewAnimation* mAnimPreview;
+	LLPointer< LLPreviewAnimation > mAnimPreview;
 	S32					mLastMouseX;
 	S32					mLastMouseY;
 	LLButton*			mPlayButton;
@@ -127,8 +128,6 @@ protected:
 	LLAnimPauseRequest	mPauseRequest;
 
 	std::map<std::string, LLUUID>	mIDList;
-
-	static S32 sUploadAmount;
 };
 
 #endif  // LL_LLFLOATERANIMPREVIEW_H

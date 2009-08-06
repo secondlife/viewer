@@ -163,6 +163,13 @@ public:
 
     LLAllocator & getAllocator() { return mAlloc; }
 
+	// On LoginCompleted callback
+	typedef boost::signals2::signal<void (void)> login_completed_signal_t;
+	login_completed_signal_t mOnLoginCompleted;
+	boost::signals2::connection setOnLoginCompletedCallback( const login_completed_signal_t::slot_type& cb ) { return mOnLoginCompleted.connect(cb); } 
+
+	void purgeCache(); // Clear the local cache. 
+	
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
 	virtual bool initLogging(); // Initialize log files, logging system, return false on failure.
@@ -184,7 +191,7 @@ private:
 	void initGridChoice();
 
 	bool initCache(); // Initialize local client cache.
-	void purgeCache(); // Clear the local cache. 
+
 
 	// We have switched locations of both Mac and Windows cache, make sure
 	// files migrate and old cache is cleared out.
@@ -316,9 +323,6 @@ extern LLTimer gLogoutTimer;
 
 extern F32 gSimLastTime; 
 extern F32 gSimFrames;
-
-extern LLUUID gInventoryLibraryOwner;
-extern LLUUID gInventoryLibraryRoot;
 
 extern BOOL		gDisconnected;
 

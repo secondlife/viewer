@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<side_tray tab_btn_image="sidebar_tab_left.tga"
-        tab_btn_image_selected="sidebar_tab_left_selected.tga"
-		tab_btn_width = "32"
-		tab_btn_height = "32"
-		tab_btn_margin = "0"
+<side_tray tab_btn_image="TaskPanel_Tab_Off"
+        tab_btn_image_selected="TaskPanel_Tab_Selected"
+		tab_btn_width="32"
+		tab_btn_height="40"
+		tab_btn_margin="1"
         >
 </side_tray>

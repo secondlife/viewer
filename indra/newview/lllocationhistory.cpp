@@ -39,8 +39,7 @@
 #include "llui.h"
 
 LLLocationHistory::LLLocationHistory() :
-	mFilename("typed_locations.txt"),
-	mLoadedCallback(NULL)
+	mFilename("typed_locations.txt")
 {
 }
 
@@ -48,11 +47,22 @@ void LLLocationHistory::addItem(std::string item)
 {
 	static LLUICachedControl<S32> max_items("LocationHistoryMaxSize", 100);
 	
+	std::vector<std::string>::iterator item_iter = std::find(mItems.begin(), mItems.end(), item);
+
+	if (item_iter != mItems.end()) {
+		mItems.erase(item_iter);
+	}
+
 	mItems.push_back(item);
 
 	// If the vector size exceeds the maximum, purge the oldest items.
 	if ((S32)mItems.size() > max_items)
 		mItems.erase(mItems.begin(), mItems.end()-max_items);
+}
+
+void LLLocationHistory::removeItems()
+{
+	mItems.clear();
 }
 
 
@@ -129,6 +139,5 @@ void LLLocationHistory::load()
 
 	file.close();
 	
-	if (mLoadedCallback)
-		mLoadedCallback();
+	mLoadedSignal();
 }

@@ -42,10 +42,10 @@
 
 
 class LLFloaterBuildOptions
-	:	public LLFloater, public LLFloaterSingleton<LLFloaterBuildOptions>
+	:	public LLFloater
 {
-	friend class LLUISingleton<LLFloaterBuildOptions, VisibilityPolicy<LLFloater> >;
-public:
+	friend class LLFloaterReg;
+private:
 	LLFloaterBuildOptions(const LLSD& key);
 	~LLFloaterBuildOptions();
 };

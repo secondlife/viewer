@@ -49,7 +49,7 @@
 
 #include "llsky.h"
 #include "llvieweraudio.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerthrottle.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
@@ -78,7 +78,6 @@ BOOL 				gHackGodmode = FALSE;
 
 
 LLControlGroup gSavedSettings("Global");	// saved at end of session
-LLControlGroup gSavedSkinSettings("Skinning");	// saved at end of session
 LLControlGroup gSavedPerAccountSettings("PerAccount"); // saved at end of session
 LLControlGroup gCrashSettings("CrashSettings");	// saved at end of session
 LLControlGroup gWarningSettings("Warnings"); // persists ignored dialogs/warnings
@@ -213,7 +212,7 @@ static bool handleMaxPartCountChanged(const LLSD& newvalue)
 
 static bool handleVideoMemoryChanged(const LLSD& newvalue)
 {
-	gImageList.updateMaxResidentTexMem(newvalue.asInteger());
+	gTextureList.updateMaxResidentTexMem(newvalue.asInteger());
 	return true;
 }
 
@@ -585,7 +584,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("DebugViews")->getSignal()->connect(boost::bind(&handleDebugViewsChanged, _2));
 	gSavedSettings.getControl("UserLogFile")->getSignal()->connect(boost::bind(&handleLogFileChanged, _2));
 	gSavedSettings.getControl("RenderHideGroupTitle")->getSignal()->connect(boost::bind(handleHideGroupTitleChanged, _2));
-	gSavedSkinSettings.getControl("EffectColor")->getSignal()->connect(boost::bind(handleEffectColorChanged, _2));
 	gSavedSettings.getControl("HighResSnapshot")->getSignal()->connect(boost::bind(handleHighResSnapshotChanged, _2));
 	gSavedSettings.getControl("VectorizePerfTest")->getSignal()->connect(boost::bind(&handleVectorizeChanged, _2));
 	gSavedSettings.getControl("VectorizeEnable")->getSignal()->connect(boost::bind(&handleVectorizeChanged, _2));
@@ -602,7 +600,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("LipSyncEnabled")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _2));	
 	gSavedSettings.getControl("VelocityInterpolate")->getSignal()->connect(boost::bind(&handleVelocityInterpolate, _2));
 }
-
 
 #if TEST_CACHED_CONTROL
 

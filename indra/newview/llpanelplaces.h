@@ -32,6 +32,8 @@
 #ifndef LL_LLPANELPLACES_H
 #define LL_LLPANELPLACES_H
 
+#include "lltimer.h"
+
 #include "llpanel.h"
 
 #include "llinventory.h"
@@ -39,47 +41,86 @@
 #include "llinventorymodel.h"
 #include "llpanelplaceinfo.h"
 
+class LLInventoryItem;
+class LLLandmark;
 class LLPanelPlacesTab;
-class LLSearchEditor;
+class LLFilterEditor;
 class LLTabContainer;
+
+typedef std::pair<LLUUID, std::string>	folder_pair_t;
 
 class LLPanelPlaces : public LLPanel, LLInventoryObserver
 {
 public:
-	enum PLACE_INFO_TYPE
-	{
-		AGENT,
-		LANDMARK,
-		TELEPORT_HISTORY
-	};
-
 	LLPanelPlaces();
 	virtual ~LLPanelPlaces();
 
 	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void draw();
 	/*virtual*/ void changed(U32 mask);
 	/*virtual*/ void onOpen(const LLSD& key);
 
-	void onSearchEdit(const std::string& search_string);
-	void onTabSelected();
-	//void onAddLandmarkButtonClicked();
-	//void onCopySLURLButtonClicked();
-	void onShareButtonClicked();
-	void onTeleportButtonClicked();
-	void onShowOnMapButtonClicked();
-	void onBackButtonClicked();
-	void togglePlaceInfoPanel(BOOL visible);
+	void setItem(LLInventoryItem* item);
 
 private:
-	LLSearchEditor*			mSearchEditor;
-	LLPanelPlacesTab*		mActivePanel;
-	LLTabContainer*			mTabContainer;
-	LLPanelPlaceInfo*		mPlaceInfo;
-	std::string				mFilterSubString;
+	void onLandmarkLoaded(LLLandmark* landmark);
+	void onFilterEdit(const std::string& search_string);
+	void onTabSelected();
 
-	// Place information type currently shown in Information panel
-	S32						mPlaceInfoType;
+	//void onAddLandmarkButtonClicked();
+	//void onCopySLURLButtonClicked();
+	//void onShareButtonClicked();
+	void onTeleportButtonClicked();
+	void onShowOnMapButtonClicked();
+	void onCreateLandmarkButtonClicked(const LLUUID& folder_id);
+	void onBackButtonClicked();
+
+	void toggleMediaPanel();
+	void togglePlaceInfoPanel(BOOL visible);
+
+	void onAgentParcelChange();
+	void updateVerbs();
+	
+	void showLandmarkFoldersMenu();
+
+	LLFilterEditor*				mFilterEditor;
+	LLPanelPlacesTab*			mActivePanel;
+	LLTabContainer*				mTabContainer;
+	LLPanelPlaceInfo*			mPlaceInfo;
+
+	LLButton*					mCreateLandmarkBtn;
+	LLButton*					mFolderMenuBtn;
+	LLButton*					mTeleportBtn;
+	LLButton*					mShowOnMapBtn;
+	LLButton*					mShareBtn;
+	LLButton*					mOverflowBtn;
+
+	// Pointer to a landmark item or to a linked landmark
+	LLPointer<LLInventoryItem>	mItem;
+	
+	// Absolute position of the location for teleport, may not
+	// be available (hence zero)
+	LLVector3d					mPosGlobal;
+
+	// Search string for filtering landmarks and teleport
+	// history locations
+	std::string					mFilterSubString;
+
+	// Information type currently shown in Place Information panel
+	std::string					mPlaceInfoType;
+
+	// Menu handle for pop-up menu to chose a landmark saving
+	// folder when creating a new landmark
+	LLHandle<LLView> 			mLandmarkFoldersMenuHandle;
+
+	typedef std::vector<folder_pair_t>	folder_vec_t;
+
+	// List of folders to choose from when creating a landmark
+	folder_vec_t				mLandmarkFoldersCache;
+	
+	// If root view width or height is changed
+	// the pop-up menu must be updated
+	S32							mRootViewWidth;
+	S32							mRootViewHeight;
 };
 
 #endif //LL_LLPANELPLACES_H

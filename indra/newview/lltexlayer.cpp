@@ -72,7 +72,7 @@ LLTexLayerSetBuffer::LLTexLayerSetBuffer(LLTexLayerSet* const owner,
 										 S32 width, S32 height, 
 										 BOOL has_bump) :
 	// ORDER_LAST => must render these after the hints are created.
-	LLDynamicTexture( width, height, 4, LLDynamicTexture::ORDER_LAST, TRUE ), 
+	LLViewerDynamicTexture( width, height, 4, LLViewerDynamicTexture::ORDER_LAST, TRUE ), 
 	mNeedsUpdate( TRUE ),
 	mNeedsUpload( FALSE ),
 	mUploadPending( FALSE ), // Not used for any logic here, just to sync sending of updates
@@ -91,8 +91,8 @@ LLTexLayerSetBuffer::~LLTexLayerSetBuffer()
 	if( mBumpTex.notNull())
 	{
 		mBumpTex = NULL ;
-		LLImageGL::sGlobalTextureMemoryInBytes -= mWidth * mHeight * 4;
-		LLTexLayerSetBuffer::sGLBumpByteCount -= mWidth * mHeight * 4;
+		LLImageGL::sGlobalTextureMemoryInBytes -= mFullWidth * mFullHeight * 4;
+		LLTexLayerSetBuffer::sGLBumpByteCount -= mFullWidth * mFullHeight * 4;
 	}
 }
 
@@ -100,7 +100,7 @@ LLTexLayerSetBuffer::~LLTexLayerSetBuffer()
 void LLTexLayerSetBuffer::restoreGLTexture() 
 {	
 	createBumpTexture() ;
-	LLDynamicTexture::restoreGLTexture() ;
+	LLViewerDynamicTexture::restoreGLTexture() ;
 }
 
 //virtual 
@@ -109,11 +109,11 @@ void LLTexLayerSetBuffer::destroyGLTexture()
 	if( mBumpTex.notNull() )
 	{
 		mBumpTex = NULL ;
-		LLImageGL::sGlobalTextureMemoryInBytes -= mWidth * mHeight * 4;
-		LLTexLayerSetBuffer::sGLBumpByteCount -= mWidth * mHeight * 4;
+		LLImageGL::sGlobalTextureMemoryInBytes -= mFullWidth * mFullHeight * 4;
+		LLTexLayerSetBuffer::sGLBumpByteCount -= mFullWidth * mFullHeight * 4;
 	}
 
-	LLDynamicTexture::destroyGLTexture() ;
+	LLViewerDynamicTexture::destroyGLTexture() ;
 }
 
 void LLTexLayerSetBuffer::createBumpTexture()
@@ -121,7 +121,7 @@ void LLTexLayerSetBuffer::createBumpTexture()
 	if( mHasBump )
 	{
 		LLGLSUIDefault gls_ui;
-		mBumpTex = new LLImageGL(FALSE) ;
+		mBumpTex = LLViewerTextureManager::getLocalTexture(FALSE) ;
 		if(!mBumpTex->createGLTexture())
 		{
 			mBumpTex = NULL ;
@@ -135,13 +135,13 @@ void LLTexLayerSetBuffer::createBumpTexture()
 
 		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 
-		LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_RGBA8, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_RGBA8, mFullWidth, mFullHeight, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 		stop_glerror();
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-		LLImageGL::sGlobalTextureMemoryInBytes += mWidth * mHeight * 4;
-		LLTexLayerSetBuffer::sGLBumpByteCount += mWidth * mHeight * 4;
+		LLImageGL::sGlobalTextureMemoryInBytes += mFullWidth * mFullHeight * 4;
+		LLTexLayerSetBuffer::sGLBumpByteCount += mFullWidth * mFullHeight * 4;
 	}
 }
 
@@ -184,7 +184,7 @@ void LLTexLayerSetBuffer::pushProjection() const
 	glMatrixMode(GL_PROJECTION);
 	gGL.pushMatrix();
 	glLoadIdentity();
-	glOrtho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f);
+	glOrtho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
 
 	glMatrixMode(GL_MODELVIEW);
 	gGL.pushMatrix();
@@ -230,14 +230,14 @@ void LLTexLayerSetBuffer::preRender(BOOL clear_depth)
 	pushProjection();
 	
 	// keep depth buffer, we don't need to clear it
-	LLDynamicTexture::preRender(FALSE);
+	LLViewerDynamicTexture::preRender(FALSE);
 }
 
 void LLTexLayerSetBuffer::postRender(BOOL success)
 {
 	popProjection();
 
-	LLDynamicTexture::postRender(success);
+	LLViewerDynamicTexture::postRender(success);
 }
 
 BOOL LLTexLayerSetBuffer::render()
@@ -256,7 +256,7 @@ BOOL LLTexLayerSetBuffer::render()
 	if( mBumpTex.notNull() )
 	{
 		// Composite the bump data
-		success &= mTexLayerSet->renderBump( mOrigin.mX, mOrigin.mY, mWidth, mHeight );
+		success &= mTexLayerSet->renderBump( mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight );
 		stop_glerror();
 
 		if (success)
@@ -267,14 +267,14 @@ BOOL LLTexLayerSetBuffer::render()
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mBumpTex->getTexName());
 			stop_glerror();
 
-			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mOrigin.mX, mOrigin.mY, mWidth, mHeight);
+			glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight);
 			stop_glerror();
 
 			// if we need to upload the data, read it back into a buffer
 			if( upload_now )
 			{
-				baked_bump_data = new U8[ mWidth * mHeight * 4 ];
-				glReadPixels(mOrigin.mX, mOrigin.mY, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, baked_bump_data );
+				baked_bump_data = new U8[ mFullWidth * mFullHeight * 4 ];
+				glReadPixels(mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, GL_RGBA, GL_UNSIGNED_BYTE, baked_bump_data );
 				stop_glerror();
 			}
 		}
@@ -282,7 +282,7 @@ BOOL LLTexLayerSetBuffer::render()
 
 	// Composite the color data
 	LLGLSUIDefault gls_ui;
-	success &= mTexLayerSet->render( mOrigin.mX, mOrigin.mY, mWidth, mHeight );
+	success &= mTexLayerSet->render( mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight );
 	gGL.flush();
 
 	if( upload_now )
@@ -303,7 +303,7 @@ BOOL LLTexLayerSetBuffer::render()
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 	// we have valid texture data now
-	mTexture->setGLTextureCreated(true);
+	mGLTexturep->setGLTextureCreated(true);
 	mNeedsUpdate = FALSE;
 
 	delete [] baked_bump_data;
@@ -312,7 +312,7 @@ BOOL LLTexLayerSetBuffer::render()
 
 bool LLTexLayerSetBuffer::isInitialized(void) const
 {
-	return mTexture.notNull() && mTexture->isGLTextureCreated();
+	return mGLTexturep.notNull() && mGLTexturep->isGLTextureCreated();
 }
 
 BOOL LLTexLayerSetBuffer::updateImmediate()
@@ -333,9 +333,9 @@ BOOL LLTexLayerSetBuffer::updateImmediate()
 void LLTexLayerSetBuffer::readBackAndUpload(const U8* baked_bump_data)
 {
 	// pointers for storing data to upload
-	U8* baked_color_data = new U8[ mWidth * mHeight * 4 ];
+	U8* baked_color_data = new U8[ mFullWidth * mFullHeight * 4 ];
 	
-	glReadPixels(mOrigin.mX, mOrigin.mY, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, baked_color_data );
+	glReadPixels(mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, GL_RGBA, GL_UNSIGNED_BYTE, baked_color_data );
 	stop_glerror();
 
 	llinfos << "Baked " << mTexLayerSet->getBodyRegion() << llendl;
@@ -350,16 +350,16 @@ void LLTexLayerSetBuffer::readBackAndUpload(const U8* baked_bump_data)
 
 	LLGLSUIDefault gls_ui;
 
-	LLPointer<LLImageRaw> baked_mask_image = new LLImageRaw(mWidth, mHeight, 1 );
+	LLPointer<LLImageRaw> baked_mask_image = new LLImageRaw(mFullWidth, mFullHeight, 1 );
 	U8* baked_mask_data = baked_mask_image->getData(); 
 	
-	mTexLayerSet->gatherMorphMaskAlpha(baked_mask_data, mWidth, mHeight);
+	mTexLayerSet->gatherMorphMaskAlpha(baked_mask_data, mFullWidth, mFullHeight);
 
 	// writes into baked_color_data
 	const char* comment_text = NULL;
 
 	S32 baked_image_components = mBumpTex.notNull() ? 5 : 4; // red green blue [bump] clothing
-	LLPointer<LLImageRaw> baked_image = new LLImageRaw( mWidth, mHeight, baked_image_components );
+	LLPointer<LLImageRaw> baked_image = new LLImageRaw( mFullWidth, mFullHeight, baked_image_components );
 	U8* baked_image_data = baked_image->getData();
 	
 	
@@ -368,9 +368,9 @@ void LLTexLayerSetBuffer::readBackAndUpload(const U8* baked_bump_data)
 		comment_text = LINDEN_J2C_COMMENT_PREFIX "RGBHM"; // 5 channels: rgb, heightfield/alpha, mask
 
 			S32 i = 0;
-			for( S32 u = 0; u < mWidth; u++ )
+			for( S32 u = 0; u < mFullWidth; u++ )
 			{
-				for( S32 v = 0; v < mHeight; v++ )
+				for( S32 v = 0; v < mFullHeight; v++ )
 				{
 					baked_image_data[5*i + 0] = baked_color_data[4*i + 0];
 					baked_image_data[5*i + 1] = baked_color_data[4*i + 1];
@@ -384,9 +384,9 @@ void LLTexLayerSetBuffer::readBackAndUpload(const U8* baked_bump_data)
 		else
 		{
 			S32 i = 0;
-			for( S32 u = 0; u < mWidth; u++ )
+			for( S32 u = 0; u < mFullWidth; u++ )
 			{
-				for( S32 v = 0; v < mHeight; v++ )
+				for( S32 v = 0; v < mFullHeight; v++ )
 				{
 					baked_image_data[4*i + 0] = baked_color_data[4*i + 0];
 					baked_image_data[4*i + 1] = baked_color_data[4*i + 1];
@@ -555,11 +555,7 @@ void LLTexLayerSetBuffer::bindBumpTexture( U32 stage )
 		gGL.getTexUnit(stage)->bindManual(LLTexUnit::TT_TEXTURE, mBumpTex->getTexName());
 		gGL.getTexUnit(0)->activate();
 	
-		if( mLastBindTime != LLImageGL::sLastFrameTime )
-		{
-			mLastBindTime = LLImageGL::sLastFrameTime;
-			LLImageGL::updateBoundTexMem(mWidth * mHeight * 4);
-		}
+		mGLTexturep->updateBindStats(mFullWidth * mFullHeight * 4);
 	}
 	else
 	{
@@ -673,7 +669,6 @@ LLTexLayerSet::~LLTexLayerSet()
 	deleteCaches();
 	std::for_each(mLayerList.begin(), mLayerList.end(), DeletePointer());
 	std::for_each(mMaskLayerList.begin(), mMaskLayerList.end(), DeletePointer());
-	delete mComposite;
 }
 
 //-----------------------------------------------------------------------------
@@ -886,7 +881,6 @@ void LLTexLayerSet::destroyComposite()
 {
 	if( mComposite )
 	{
-		delete mComposite;
 		mComposite = NULL;
 	}
 }
@@ -960,11 +954,11 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 width, S32 height, bool forceCle
 		LLGLSNoAlphaTest gls_no_alpha_test;
 		gGL.flush();
 		{
-			LLImageGL* image_gl = LLTexLayerStaticImageList::getInstance()->getImageGL(info->mStaticAlphaFileName, TRUE);
-			if( image_gl )
+			LLViewerTexture* tex = LLTexLayerStaticImageList::getInstance()->getTexture(info->mStaticAlphaFileName, TRUE);
+			if( tex )
 			{
 				LLGLSUIDefault gls_ui;
-				gGL.getTexUnit(0)->bind(image_gl);
+				gGL.getTexUnit(0)->bind(tex);
 				gGL.getTexUnit(0)->setTextureBlendType( LLTexUnit::TB_REPLACE );
 				gl_rect_2d_simple_tex( width, height );
 			}
@@ -1243,6 +1237,16 @@ LLTexLayer::LLTexLayer(LLTexLayerSet* layer_set) :
 {
 }
 
+LLTexLayer::LLTexLayer(const LLTexLayer &layer) :
+	mTexLayerSet( layer.mTexLayerSet )
+{
+	setInfo(layer.getInfo());
+
+	
+	mHasMorph = layer.mHasMorph;
+
+}
+
 LLTexLayer::~LLTexLayer()
 {
 	// mParamAlphaList and mParamColorList are LLViewerVisualParam's and get
@@ -1409,16 +1413,16 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height, BOOL render_morph)
 	if( (getInfo()->mLocalTexture != -1) && !getInfo()->mUseLocalTextureAlphaOnly )
 	{
 		{
-			LLImageGL* image_gl = NULL;
-			if( mTexLayerSet->getAvatar()->getLocalTextureGL((ETextureIndex)getInfo()->mLocalTexture, &image_gl ) )
+			LLViewerTexture* tex = NULL;
+			if( mTexLayerSet->getAvatar()->getLocalTextureGL((ETextureIndex)getInfo()->mLocalTexture, &tex ) )
 			{
-				if( image_gl )
+				if( tex )
 				{
 					LLGLDisable alpha_test(getInfo()->mWriteAllChannels ? GL_ALPHA_TEST : 0);
 
-					LLTexUnit::eTextureAddressMode old_mode = image_gl->getAddressMode();
+					LLTexUnit::eTextureAddressMode old_mode = tex->getAddressMode();
 					
-					gGL.getTexUnit(0)->bind(image_gl);
+					gGL.getTexUnit(0)->bind(tex);
 					gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 
 					gl_rect_2d_simple_tex( width, height );
@@ -1437,10 +1441,10 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height, BOOL render_morph)
 	if( !getInfo()->mStaticImageFileName.empty() )
 	{
 		{
-			LLImageGL* image_gl = LLTexLayerStaticImageList::getInstance()->getImageGL(getInfo()->mStaticImageFileName, getInfo()->mStaticImageIsMask);
-			if( image_gl )
+			LLViewerTexture* tex = LLTexLayerStaticImageList::getInstance()->getTexture(getInfo()->mStaticImageFileName, getInfo()->mStaticImageIsMask);
+			if( tex )
 			{
-				gGL.getTexUnit(0)->bind(image_gl);
+				gGL.getTexUnit(0)->bind(tex);
 				gl_rect_2d_simple_tex( width, height );
 				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			}
@@ -1548,11 +1552,11 @@ BOOL LLTexLayer::blendAlphaTexture(S32 width, S32 height)
 	
 	if( !getInfo()->mStaticImageFileName.empty() )
 	{
-		LLImageGL* image_gl = LLTexLayerStaticImageList::getInstance()->getImageGL( getInfo()->mStaticImageFileName, getInfo()->mStaticImageIsMask );
-		if( image_gl )
+		LLViewerTexture* tex = LLTexLayerStaticImageList::getInstance()->getTexture( getInfo()->mStaticImageFileName, getInfo()->mStaticImageIsMask );
+		if( tex )
 		{
 			LLGLSNoAlphaTest gls_no_alpha_test;
-			gGL.getTexUnit(0)->bind(image_gl);
+			gGL.getTexUnit(0)->bind(tex);
 			gl_rect_2d_simple_tex( width, height );
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		}
@@ -1565,13 +1569,13 @@ BOOL LLTexLayer::blendAlphaTexture(S32 width, S32 height)
 	{
 		if (getInfo()->mLocalTexture >=0 && getInfo()->mLocalTexture < TEX_NUM_INDICES)
 		{
-			LLImageGL* image_gl = NULL;
-			if (mTexLayerSet->getAvatar()->getLocalTextureGL((ETextureIndex)getInfo()->mLocalTexture, &image_gl))
+			LLViewerTexture* tex = NULL;
+			if (mTexLayerSet->getAvatar()->getLocalTextureGL((ETextureIndex)getInfo()->mLocalTexture, &tex))
 			{
-				if (image_gl)
+				if (tex)
 				{
 					LLGLSNoAlphaTest gls_no_alpha_test;
-					gGL.getTexUnit(0)->bind(image_gl);
+					gGL.getTexUnit(0)->bind(tex);
 					gl_rect_2d_simple_tex( width, height );
 					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 					success = TRUE;
@@ -1623,16 +1627,16 @@ BOOL LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 	// Accumulate the alpha component of the texture
 	if( getInfo()->mLocalTexture != -1 )
 	{
-			LLImageGL* image_gl = NULL;
-			if( mTexLayerSet->getAvatar()->getLocalTextureGL((ETextureIndex)getInfo()->mLocalTexture, &image_gl ) )
+			LLViewerTexture* tex = NULL;
+			if( mTexLayerSet->getAvatar()->getLocalTextureGL((ETextureIndex)getInfo()->mLocalTexture, &tex ) )
 			{
-				if( image_gl && (image_gl->getComponents() == 4) )
+				if( tex && (tex->getComponents() == 4) )
 				{
 					LLGLSNoAlphaTest gls_no_alpha_test;
 
-					LLTexUnit::eTextureAddressMode old_mode = image_gl->getAddressMode();
+					LLTexUnit::eTextureAddressMode old_mode = tex->getAddressMode();
 					
-					gGL.getTexUnit(0)->bind(image_gl);
+					gGL.getTexUnit(0)->bind(tex);
 					gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 
 					gl_rect_2d_simple_tex( width, height );
@@ -1649,14 +1653,14 @@ BOOL LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 
 	if( !getInfo()->mStaticImageFileName.empty() )
 	{
-			LLImageGL* image_gl = LLTexLayerStaticImageList::getInstance()->getImageGL(getInfo()->mStaticImageFileName, getInfo()->mStaticImageIsMask);
-			if( image_gl )
+			LLViewerTexture* tex = LLTexLayerStaticImageList::getInstance()->getTexture(getInfo()->mStaticImageFileName, getInfo()->mStaticImageIsMask);
+			if( tex )
 			{
-				if(	(image_gl->getComponents() == 4) ||
-					( (image_gl->getComponents() == 1) && getInfo()->mStaticImageIsMask ) )
+				if(	(tex->getComponents() == 4) ||
+					( (tex->getComponents() == 1) && getInfo()->mStaticImageIsMask ) )
 				{
 					LLGLSNoAlphaTest gls_no_alpha_test;
-					gGL.getTexUnit(0)->bind(image_gl);
+					gGL.getTexUnit(0)->bind(tex);
 					gl_rect_2d_simple_tex( width, height );
 					gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				}
@@ -1856,16 +1860,16 @@ void LLTexLayerStaticImageList::deleteCachedImages()
 		//mStaticImageLists uses LLPointers, clear() will cause deletion
 		
 		mStaticImageListTGA.clear();
-		mStaticImageListGL.clear();
+		mStaticImageList.clear();
 		
 		mGLBytes = 0;
 		mTGABytes = 0;
 	}
 }
 
-// Note: in general, for a given image image we'll call either getImageTga() or getImageGL().
+// Note: in general, for a given image image we'll call either getImageTga() or getTexture().
 // We call getImageTga() if the image is used as an alpha gradient.
-// Otherwise, we call getImageGL()
+// Otherwise, we call getTexture()
 
 // Returns an LLImageTGA that contains the encoded data from a tga file named file_name.
 // Caches the result to speed identical subsequent requests.
@@ -1897,19 +1901,19 @@ LLImageTGA* LLTexLayerStaticImageList::getImageTGA(const std::string& file_name)
 
 // Returns a GL Image (without a backing ImageRaw) that contains the decoded data from a tga file named file_name.
 // Caches the result to speed identical subsequent requests.
-LLImageGL* LLTexLayerStaticImageList::getImageGL(const std::string& file_name, BOOL is_mask)
+LLViewerTexture* LLTexLayerStaticImageList::getTexture(const std::string& file_name, BOOL is_mask)
 {
-	LLPointer<LLImageGL> image_gl;
+	LLPointer<LLViewerTexture> tex;
 	const char *namekey = mImageNames.addString(file_name);
 
-	image_gl_map_t::const_iterator iter = mStaticImageListGL.find(namekey);
-	if( iter != mStaticImageListGL.end() )
+	texture_map_t::const_iterator iter = mStaticImageList.find(namekey);
+	if( iter != mStaticImageList.end() )
 	{
-		image_gl = iter->second;
+		tex = iter->second;
 	}
 	else
 	{
-		image_gl = new LLImageGL( FALSE );
+		tex = LLViewerTextureManager::getLocalTexture( FALSE );
 		LLPointer<LLImageRaw> image_raw = new LLImageRaw;
 		if( loadImageRaw( file_name, image_raw ) )
 		{
@@ -1917,23 +1921,23 @@ LLImageGL* LLTexLayerStaticImageList::getImageGL(const std::string& file_name, B
 			{
 				// Note: these are static, unchanging images so it's ok to assume
 				// that once an image is a mask it's always a mask.
-				image_gl->setExplicitFormat( GL_ALPHA8, GL_ALPHA );
+				tex->setExplicitFormat( GL_ALPHA8, GL_ALPHA );
 			}
-			image_gl->createGLTexture(0, image_raw);
+			tex->createGLTexture(0, image_raw);
 
-			gGL.getTexUnit(0)->bind(image_gl);
-			image_gl->setAddressMode(LLTexUnit::TAM_CLAMP);
+			gGL.getTexUnit(0)->bind(tex);
+			tex->setAddressMode(LLTexUnit::TAM_CLAMP);
 
-			mStaticImageListGL [ namekey ] = image_gl;
-			mGLBytes += (S32)image_gl->getWidth() * image_gl->getHeight() * image_gl->getComponents();
+			mStaticImageList [ namekey ] = tex;
+			mGLBytes += (S32)tex->getWidth() * tex->getHeight() * tex->getComponents();
 		}
 		else
 		{
-			image_gl = NULL;
+			tex = NULL;
 		}
 	}
 
-	return image_gl;
+	return tex;
 }
 
 // Reads a .tga file, decodes it, and puts the decoded data in image_raw.

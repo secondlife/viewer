@@ -51,18 +51,23 @@ class LLLogChat;
 class LLVector3d;
 class LLWindow;
 
+enum ELogOptions
+{
+	LOG_CHAT = 0,
+	LOG_IM = 1,
+	LOG_BOTH_TOGETHER = 2,
+	LOG_BOTH_SEPARATE = 3
+};
+
 class LLFloaterChat : public LLFloater
 {
 public:
 	LLFloaterChat(const LLSD& seed);
 	~LLFloaterChat();
 
-	virtual void setVisible( BOOL b );
 	virtual void draw();
 	virtual BOOL postBuild();
-	virtual void onClose(bool app_quitting);
-	virtual void onVisibilityChange(BOOL cur_visibility);
-	virtual void setMinimized(BOOL);
+
 	void updateConsoleVisibility();
 
 	static void setHistoryCursorAndScrollToEnd();

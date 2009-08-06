@@ -62,20 +62,26 @@ protected:
 	BOOL mDevicesUpdated;
 };
 
-class LLFloaterVoiceDeviceSettings : public LLFloater, public LLFloaterSingleton<LLFloaterVoiceDeviceSettings>
+class LLFloaterVoiceDeviceSettings : public LLFloater
 {
+	friend class LLFloaterReg;
+
 public:
-	LLFloaterVoiceDeviceSettings(const LLSD& seed);
+
 	virtual BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void draw();
 	void apply();
 	void cancel();
-
+private:
+	LLFloaterVoiceDeviceSettings(const LLSD& seed);
+	
 protected:
 	static void* createPanelVoiceDeviceSettings(void* user_data);
-
+	
+	void onClose();
+	
+protected:
 	LLPanelVoiceDeviceSettings* mDevicePanel;
 };
 

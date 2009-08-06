@@ -40,9 +40,9 @@
 
 
 LLFloaterBeacons::LLFloaterBeacons(const LLSD& seed)
-:	LLFloater()
+:	LLFloater(seed)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_beacons.xml");
+//	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_beacons.xml");
 
 	// Initialize pipeline states from saved settings.
 	// OK to do at floater constructor time because beacons do not display unless the floater is open
@@ -56,43 +56,21 @@ LLFloaterBeacons::LLFloaterBeacons(const LLSD& seed)
 	LLPipeline::setRenderParticleBeacons(     gSavedSettings.getBOOL("particlesbeacon"));
 	LLPipeline::setRenderHighlights(          gSavedSettings.getBOOL("renderhighlights"));
 	LLPipeline::setRenderBeacons(             gSavedSettings.getBOOL("renderbeacons"));
+	mCommitCallbackRegistrar.add("Beacons.UICheck",	boost::bind(&LLFloaterBeacons::onClickUICheck, this,_1));
 }
 
 BOOL LLFloaterBeacons::postBuild()
 {
-	childSetCommitCallback("touch_only",      onClickUICheck, this);
-	childSetCommitCallback("scripted",        onClickUICheck, this);
-	childSetCommitCallback("physical",        onClickUICheck, this);
-	childSetCommitCallback("sounds",          onClickUICheck, this);
-	childSetCommitCallback("particles",       onClickUICheck, this);
-	childSetCommitCallback("highlights",      onClickUICheck, this);
-	childSetCommitCallback("beacons",         onClickUICheck, this);
 	return TRUE;
-}
-
-// Needed to make the floater visibility toggle the beacons.
-// Too bad we can't just add control_name="BeaconAlwaysOn" to the XML.
-void LLFloaterBeacons::onOpen(const LLSD& key)
-{
-	gSavedSettings.setBOOL( "BeaconAlwaysOn", TRUE);
-}
-void LLFloaterBeacons::onClose(bool app_quitting)
-{
-	destroy();
-	if(!app_quitting)
-	{
-		gSavedSettings.setBOOL( "BeaconAlwaysOn", FALSE);
-	}
 }
 
 // Callback attached to each check box control to both affect their main purpose
 // and to implement the couple screwy interdependency rules that some have.
-//static 
-void LLFloaterBeacons::onClickUICheck(LLUICtrl *ctrl, void* data)
+
+void LLFloaterBeacons::onClickUICheck(LLUICtrl *ctrl)
 {
 	LLCheckBoxCtrl *check = (LLCheckBoxCtrl *)ctrl;
 	std::string name = check->getName();
-	LLFloaterBeacons* view = (LLFloaterBeacons*)data;
 	if(     name == "touch_only")
 	{
 		LLPipeline::toggleRenderScriptedTouchBeacons(NULL);
@@ -102,8 +80,8 @@ void LLFloaterBeacons::onClickUICheck(LLUICtrl *ctrl, void* data)
 			LLPipeline::getRenderScriptedBeacons(NULL) )
 		{
 			LLPipeline::setRenderScriptedBeacons(FALSE);
-			view->getChild<LLCheckBoxCtrl>("scripted")->setControlValue(LLSD(FALSE));
-			view->getChild<LLCheckBoxCtrl>("touch_only")->setControlValue(LLSD(TRUE)); // just to be sure it's in sync with llpipeline
+			getChild<LLCheckBoxCtrl>("scripted")->setControlValue(LLSD(FALSE));
+			getChild<LLCheckBoxCtrl>("touch_only")->setControlValue(LLSD(TRUE)); // just to be sure it's in sync with llpipeline
 		}
 	}
 	else if(name == "scripted")
@@ -115,8 +93,8 @@ void LLFloaterBeacons::onClickUICheck(LLUICtrl *ctrl, void* data)
 			LLPipeline::getRenderScriptedBeacons(NULL) )
 		{
 			LLPipeline::setRenderScriptedTouchBeacons(FALSE);
-			view->getChild<LLCheckBoxCtrl>("touch_only")->setControlValue(LLSD(FALSE));
-			view->getChild<LLCheckBoxCtrl>("scripted")->setControlValue(LLSD(TRUE)); // just to be sure it's in sync with llpipeline
+			getChild<LLCheckBoxCtrl>("touch_only")->setControlValue(LLSD(FALSE));
+			getChild<LLCheckBoxCtrl>("scripted")->setControlValue(LLSD(TRUE)); // just to be sure it's in sync with llpipeline
 		}
 	}
 	else if(name == "physical")       LLPipeline::setRenderPhysicalBeacons(check->get());
@@ -131,8 +109,8 @@ void LLFloaterBeacons::onClickUICheck(LLUICtrl *ctrl, void* data)
 			!LLPipeline::getRenderHighlights(NULL) )
 		{
 			LLPipeline::setRenderBeacons(TRUE);
-			view->getChild<LLCheckBoxCtrl>("beacons")->setControlValue(LLSD(TRUE));
-			view->getChild<LLCheckBoxCtrl>("highlights")->setControlValue(LLSD(FALSE)); // just to be sure it's in sync with llpipeline
+			getChild<LLCheckBoxCtrl>("beacons")->setControlValue(LLSD(TRUE));
+			getChild<LLCheckBoxCtrl>("highlights")->setControlValue(LLSD(FALSE)); // just to be sure it's in sync with llpipeline
 		}
 	}
 	else if(name == "beacons")
@@ -144,8 +122,8 @@ void LLFloaterBeacons::onClickUICheck(LLUICtrl *ctrl, void* data)
 			!LLPipeline::getRenderHighlights(NULL) )
 		{
 			LLPipeline::setRenderHighlights(TRUE);
-			view->getChild<LLCheckBoxCtrl>("highlights")->setControlValue(LLSD(TRUE));
-			view->getChild<LLCheckBoxCtrl>("beacons")->setControlValue(LLSD(FALSE)); // just to be sure it's in sync with llpipeline
+			getChild<LLCheckBoxCtrl>("highlights")->setControlValue(LLSD(TRUE));
+			getChild<LLCheckBoxCtrl>("beacons")->setControlValue(LLSD(FALSE)); // just to be sure it's in sync with llpipeline
 		}
 	}
 }

@@ -73,7 +73,6 @@ public:
 	virtual ~LLFloaterTools();
 
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ BOOL canClose();
 	/*virtual*/ void draw();
 	/*virtual*/ void onFocusReceived();
@@ -103,10 +102,10 @@ public:
 	static void setEditTool(void* data);
 	void saveLastTool();
 private:
-	static void setObjectType( LLPCode pcode );
-	
+	void onClose();
 	void refresh();
 
+	static void setObjectType( LLPCode pcode );
 	static void onClickGridOptions(void* data);
 
 public:

@@ -48,6 +48,10 @@ public:
 									   void* userdata,
 									   BOOL allow_multiple = FALSE,
 									   BOOL closeOnSelect = FALSE);
+
+	LLFloaterAvatarPicker(const LLSD& key);
+	virtual ~LLFloaterAvatarPicker();
+	
 	virtual	BOOL postBuild();
 
 	static void processAvatarPickerReply(class LLMessageSystem* msg, void**);
@@ -84,12 +88,6 @@ private:
 
 	void (*mCallback)(const std::vector<std::string>& name, const std::vector<LLUUID>& id, void* userdata);
 	void* mCallbackUserdata;
-
-	static LLFloaterAvatarPicker* sInstance;
-
-	// do not call these directly
-	LLFloaterAvatarPicker();
-	virtual ~LLFloaterAvatarPicker();
 };
 
 #endif

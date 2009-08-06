@@ -44,10 +44,8 @@
 #include "llfocusmgr.h"
 #include "lluictrlfactory.h"
 
-static LLDefaultWidgetRegistry::Register<LLRadioGroup> r1("radio_group");
+static LLDefaultChildRegistry::Register<LLRadioGroup> r1("radio_group");
 
-struct RadioGroupRegistry : public LLWidgetRegistry<RadioGroupRegistry>
-{};
 
 static RadioGroupRegistry::Register<LLRadioCtrl> register_radio_ctrl("radio_item");
 
@@ -72,7 +70,7 @@ LLRadioGroup::LLRadioGroup(const LLRadioGroup::Params& p)
 		LLViewBorder::Params params;
 		params.name("radio group border");
 		params.rect(LLRect(0, getRect().getHeight(), getRect().getWidth(), 0));
-		params.bevel_type(LLViewBorder::BEVEL_NONE);
+		params.bevel_style(LLViewBorder::BEVEL_NONE);
 		LLViewBorder * vb = LLUICtrlFactory::create<LLViewBorder> (params);
 		addChild (vb);
 	}
@@ -80,11 +78,6 @@ LLRadioGroup::LLRadioGroup(const LLRadioGroup::Params& p)
 
 LLRadioGroup::~LLRadioGroup()
 {
-}
-
-const widget_registry_t& LLRadioGroup::getChildRegistry() const
-{
-	return RadioGroupRegistry::instance();
 }
 
 // virtual

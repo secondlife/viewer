@@ -143,7 +143,6 @@ private:
 	BOOL			mWordWrap;
 	BOOL            mDidWordWrap;
 	
-	U8				mFontStyle; // style bit flags for font
 	LLFontGL::ShadowType mShadowType;
 	BOOL			mBorderDropShadowVisible;
 	BOOL			mUseEllipses;
@@ -158,12 +157,5 @@ private:
 	std::vector<S32> mLineLengthList;
 	callback_t		mClickedCallback;
 };
-
-#ifdef LL_WINDOWS
-#ifndef INSTANTIATE_GETCHILD_TEXTBOX
-#pragma warning (disable : 4231)
-extern template LLTextBox* LLView::getChild<LLTextBox>( const std::string& name, BOOL recurse, BOOL create_if_missing ) const;
-#endif
-#endif
 
 #endif

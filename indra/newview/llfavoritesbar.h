@@ -34,7 +34,7 @@
 #define LL_LLFAVORITESBARCTRL_H
 
 #include "lluictrl.h"
-#include "lliconctrl.h"
+
 #include "llinventorymodel.h"
 
 class LLFavoritesBarCtrl : public LLUICtrl, public LLInventoryObserver

@@ -40,9 +40,11 @@
      width="100">
         <combo_box.item
          label="TRUE"
+         name="TRUE"
          value="true" />
         <combo_box.item
          label="FALSE"
+         name="FALSE"
          value="" />
          <combo_box.commit_callback
            function="CommitSettings" />

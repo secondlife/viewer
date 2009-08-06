@@ -85,7 +85,7 @@ public:
 			return((200 <= status) && (status < 300));
 		}
 		
-		virtual void error(
+		virtual void errorWithContent(
 			U32 status,
 			const std::string& reason,
 			const LLSD& content);

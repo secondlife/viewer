@@ -65,8 +65,6 @@ LLScrollColumnHeader::LLScrollColumnHeader(const LLScrollColumnHeader::Params& p
 	resize_bar_p.enabled(false);
 	mResizeBar = LLUICtrlFactory::create<LLResizeBar>(resize_bar_p);
 	addChild(mResizeBar);
-
-	setToolTip(p.label());
 }
 
 LLScrollColumnHeader::~LLScrollColumnHeader()
@@ -291,7 +289,7 @@ void LLScrollListColumn::SortNames::declareValues()
 //static 
 const LLScrollListColumn::Params& LLScrollListColumn::getDefaultParams()
 {
-	return LLUICtrlFactory::getDefaultParams<LLScrollListColumn::Params>();
+	return LLUICtrlFactory::getDefaultParams<LLScrollListColumn>();
 }
 
 

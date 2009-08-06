@@ -4,7 +4,7 @@
  layout="topleft"
  name="telehub"
  title="Telehub"
- width="272">
+ width="280">
     <text
      type="string"
      length="1"

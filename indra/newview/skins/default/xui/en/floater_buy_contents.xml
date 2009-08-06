@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_resize="true"
- height="250"
+ height="300"
  layout="topleft"
  min_height="150"
  min_width="200"
  name="floater_buy_contents"
  save_rect="true"
  title="Buy Contents"
- width="300">
+ width="280">
     <floater.string
      name="no_copy_text">
         (no copy)
@@ -41,7 +41,7 @@
      left_delta="0"
      name="item_list"
      top_pad="4"
-     width="281">
+     width="250">
         <scroll_list.columns
          name="icon"
          width="16" />
@@ -62,33 +62,33 @@
      width="281">
         Buy for L$[AMOUNT] from [NAME]?
     </text>
-    <button
-     follows="right|bottom"
+    <check_box
+     follows="left|bottom"
      height="20"
-     label="Cancel"
-     label_selected="Cancel"
+     label="Wear clothing now"
      layout="topleft"
-     left="216"
-     name="cancel_btn"
+     left_delta="0"
+     name="wear_check"
      top="224"
-     width="60" />
+     width="135" />
     <button
      follows="right|bottom"
      height="20"
      label="Buy"
      label_selected="Buy"
      layout="topleft"
-     left_delta="-64"
+     left_delta="0"
      name="buy_btn"
-     top_delta="0"
-     width="60" />
-    <check_box
-     follows="left|bottom"
+     top_pad="10"
+     width="125" />
+    <button
+     follows="right|bottom"
      height="20"
-     label="Wear clothing now"
+     label="Cancel"
+     label_selected="Cancel"
      layout="topleft"
-     left_delta="-139"
-     name="wear_check"
+     left_pad="5"
+     name="cancel_btn"
      top_delta="0"
-     width="135" />
+     width="125" />
 </floater>

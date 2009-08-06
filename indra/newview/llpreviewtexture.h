@@ -36,7 +36,7 @@
 #include "llpreview.h"
 #include "llbutton.h"
 #include "llframetimer.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 
 class LLImageRaw;
 
@@ -60,7 +60,7 @@ public:
 	static void			saveToFile(void* userdata);
 	static void			onFileLoadedForSave( 
 							BOOL success,
-							LLViewerImage *src_vi,
+							LLViewerFetchedTexture *src_vi,
 							LLImageRaw* src, 
 							LLImageRaw* aux_src,
 							S32 discard_level, 
@@ -75,7 +75,7 @@ protected:
 private:
 	void				updateDimensions();
 	LLUUID						mImageID;
-	LLPointer<LLViewerImage>		mImage;
+	LLPointer<LLViewerFetchedTexture>		mImage;
 	BOOL				mLoadingFullImage;
 	std::string			mSaveFileName;
 	LLFrameTimer		mSavedFileTimer;

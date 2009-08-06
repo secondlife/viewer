@@ -33,66 +33,54 @@
 
 #include "llfloateravatarpicker.h"
 
-#include "message.h"
-
+// Viewer includes
 #include "llagent.h"
-#include "llbutton.h"
 #include "llfocusmgr.h"
-#include "llinventoryview.h"
+#include "llfloaterreg.h"
+#include "llfloaterinventory.h"
+#include "llfoldervieweventlistener.h"
 #include "llinventorymodel.h"
+#include "llviewercontrol.h"
+#include "llworld.h"
+
+// Linden libraries
+#include "llbutton.h"
 #include "lllineeditor.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcell.h"
+#include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
-#include "llviewercontrol.h"
-#include "llworld.h"
-#include "lltabcontainer.h"
-
-// static
-LLFloaterAvatarPicker* LLFloaterAvatarPicker::sInstance = NULL;
-
+#include "message.h"
 
 LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(callback_t callback, 
 												   void* userdata,
 												   BOOL allow_multiple,
 												   BOOL closeOnSelect)
 {
-	// TODO: This class should not be a singleton as it's used in multiple places
-	// and therefore can't be used simultaneously. -MG
-	if (!sInstance)
-	{
-		sInstance = new LLFloaterAvatarPicker();
-		sInstance->mCallback = callback;
-		sInstance->mCallbackUserdata = userdata;
-		sInstance->mCloseOnSelect = FALSE;
-
-		sInstance->openFloater();
-		sInstance->center();
-		sInstance->setAllowMultiple(allow_multiple);
-	}
-	else
-	{
-		sInstance->openFloater();
-		sInstance->mCallback = callback;
-		sInstance->mCallbackUserdata = userdata;
-		sInstance->setAllowMultiple(allow_multiple);
-	}
+	// *TODO: Use a key to allow this not to be an effective singleton
+	LLFloaterAvatarPicker* floater = LLFloaterReg::showTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
 	
-	sInstance->mNearMeListComplete = FALSE;
-	sInstance->mCloseOnSelect = closeOnSelect;
-	return sInstance;
+	floater->mCallback = callback;
+	floater->mCallbackUserdata = userdata;
+	floater->setAllowMultiple(allow_multiple);
+	floater->mNearMeListComplete = FALSE;
+	floater->mCloseOnSelect = closeOnSelect;
+	
+	return floater;
 }
 
 // Default constructor
-LLFloaterAvatarPicker::LLFloaterAvatarPicker()
-  : LLFloater(),
+LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
+  : LLFloater(key),
 	mResultsReturned(FALSE),
 	mCallback(NULL),
-	mCallbackUserdata(NULL)
+	mCallbackUserdata(NULL),
+	mNearMeListComplete(FALSE),
+	mCloseOnSelect(FALSE)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_avatar_picker.xml");
+// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_avatar_picker.xml");
 }
 
 BOOL LLFloaterAvatarPicker::postBuild()
@@ -140,7 +128,9 @@ BOOL LLFloaterAvatarPicker::postBuild()
 		boost::bind(&LLFloaterAvatarPicker::onTabChanged, this));
 	
 	setAllowMultiple(FALSE);
-
+	
+	center();
+	
 	return TRUE;
 }
 
@@ -153,8 +143,6 @@ void LLFloaterAvatarPicker::onTabChanged()
 LLFloaterAvatarPicker::~LLFloaterAvatarPicker()
 {
 	gFocusMgr.releaseFocusIfNeeded( this );
-
-	sInstance = NULL;
 }
 
 void LLFloaterAvatarPicker::onBtnFind(void* userdata)
@@ -405,23 +393,21 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 
 	// Not for us
 	if (agent_id != gAgent.getID()) return;
-
-	// Dialog already closed
-	LLFloaterAvatarPicker *self = sInstance;
-	if (!self) return;
+	
+	LLFloaterAvatarPicker* floater = LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
 
 	// these are not results from our last request
-	if (query_id != self->mQueryID)
+	if (query_id != floater->mQueryID)
 	{
 		return;
 	}
 
-	LLScrollListCtrl* search_results = self->getChild<LLScrollListCtrl>("SearchResults");
+	LLScrollListCtrl* search_results = floater->getChild<LLScrollListCtrl>("SearchResults");
 
 	// clear "Searching" label on first results
 	search_results->deleteAllItems();
 
-	self->mResultsReturned = TRUE;
+	floater->mResultsReturned = TRUE;
 
 	BOOL found_one = FALSE;
 	S32 num_new_rows = msg->getNumberOfBlocks("Data");
@@ -435,10 +421,10 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 		if (avatar_id.isNull())
 		{
 			LLStringUtil::format_map_t map;
-			map["[TEXT]"] = self->childGetText("Edit");
-			avatar_name = self->getString("not_found", map);
+			map["[TEXT]"] = floater->childGetText("Edit");
+			avatar_name = floater->getString("not_found", map);
 			search_results->setEnabled(FALSE);
-			self->childDisable("Select");
+			floater->childDisable("Select");
 		}
 		else
 		{
@@ -454,9 +440,9 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 
 	if (found_one)
 	{
-		self->childEnable("Select");
+		floater->childEnable("Select");
 		search_results->selectFirstItem();
-		self->onList(search_results, self);
+		floater->onList(search_results, floater);
 		search_results->setFocus(TRUE);
 	}
 }

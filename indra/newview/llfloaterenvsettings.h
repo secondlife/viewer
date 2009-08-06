@@ -39,58 +39,45 @@
 
 #include "llfloater.h"
 
+struct WaterColorControl;
+struct WaterExpFloatControl;
 
 /// Menuing system for all of windlight's functionality
 class LLFloaterEnvSettings : public LLFloater
 {
 public:
 
-	LLFloaterEnvSettings();
+	LLFloaterEnvSettings(const LLSD& key);
 	/*virtual*/ ~LLFloaterEnvSettings();
 	/*virtual*/	BOOL	postBuild();	
 	/// initialize all the callbacks for the menu
 	void initCallbacks(void);
 
-	/// one and one instance only
-	static LLFloaterEnvSettings* instance();
-	
 	/// callback for the menus help button
-	static void onClickHelp(void* data);
+	void onClickHelp();
 	
 	/// handle if time of day is changed
-	static void onChangeDayTime(LLUICtrl* ctrl, void* userData);
+	void onChangeDayTime(LLUICtrl* ctrl);
 
 	/// handle if cloud coverage is changed
-	static void onChangeCloudCoverage(LLUICtrl* ctrl, void* userData);
+	void onChangeCloudCoverage(LLUICtrl* ctrl);
 
 	/// handle change in water fog density
-	static void onChangeWaterFogDensity(LLUICtrl* ctrl, void* userData);
-
-	/// handle change in under water fog density
-	static void onChangeUnderWaterFogMod(LLUICtrl* ctrl, void* userData);
+	void onChangeWaterFogDensity(LLUICtrl* ctrl, WaterExpFloatControl* expFloatControl);
 
 	/// handle change in water fog color
-	static void onChangeWaterColor(LLUICtrl* ctrl, void* userData);
+	void onChangeWaterColor(LLUICtrl* ctrl, WaterColorControl* colorControl);
 
 	/// open the advanced sky settings menu
-	static void onOpenAdvancedSky(void* userData);
+	void onOpenAdvancedSky();
 
 	/// open the advanced water settings menu
-	static void onOpenAdvancedWater(void* userData);
+	void onOpenAdvancedWater();
 
 	/// sync time with the server
-	static void onUseEstateTime(void* userData);
+	void onUseEstateTime();
 
 	//// menu management
-
-	/// show off our menu
-	static void show();
-
-	/// return if the menu exists or not
-	static bool isOpen();
-
-	/// stuff to do on exit
-	virtual void onClose(bool app_quitting);
 
 	/// sync up sliders with parameters
 	void syncMenu();
@@ -99,8 +86,6 @@ public:
 	std::string timeToString(F32 curTime);
 
 private:
-	// one instance on the inside
-	static LLFloaterEnvSettings* sEnvSettings;
 };
 
 

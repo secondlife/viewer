@@ -9,179 +9,130 @@
  name="general_panel"
  top="1"
  width="517">
+   <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="30"
+     name="language_textbox"
+     top="10"
+     width="400">
+        Language:
+    </text>
     <combo_box
-     control_name="LoginLocation"
+     control_name="Language"
      follows="left|bottom"
      height="18"
      layout="topleft"
-     left_delta="151"
-     name="start_location_combo"
-     top="7"
-     width="155">
+     left_delta="50"
+     max_chars="135"
+     name="language_combobox"
+     top_pad="10"
+     width="170">
         <combo_box.item
-         label="My Last Location"
-         value="last" />
+         enabled="true"
+         label="System Default"
+         name="System Default Language"
+         value="default" />
         <combo_box.item
-         label="My Home"
-         value="home" />
+         enabled="true"
+         label="English"
+         name="English"
+         value="en" />
+        <combo_box.item
+         enabled="true"
+         label="Dansk (Danish) - Beta"
+         name="Danish"
+         value="da" />
+        <combo_box.item
+         enabled="true"
+         label="Deutsch (German) - Beta"
+         name="Deutsch(German)"
+         value="de" />
+        <combo_box.item
+         enabled="true"
+         label="Español (Spanish) - Beta"
+         name="Spanish"
+         value="es" />
+        <combo_box.item
+         enabled="true"
+         label="Français (French) - Beta"
+         name="French"
+         value="fr" />
+        <combo_box.item
+         enabled="true"
+         label="Italiano (Italian) - Beta"
+         name="Italian"
+         value="it" />
+        <combo_box.item
+         enabled="true"
+         label="Magyar (Hungarian) - Beta"
+         name="Hungarian"
+         value="hu" />
+        <combo_box.item
+         enabled="true"
+         label="Nederlands (Dutch) - Beta"
+         name="Dutch"
+         value="nl" />
+        <combo_box.item
+         enabled="true"
+         label="Polski (Polish) - Beta"
+         name="Polish"
+         value="pl" />
+        <combo_box.item
+         enabled="true"
+         label="Portugués (Portuguese) - Beta"
+         name="Portugese"
+         value="pt" />
+        <combo_box.item
+         enabled="true"
+         label="Русский (Russian) - Beta"
+         name="Russian"
+         value="ru" />
+        <combo_box.item
+         enabled="true"
+         label="Türkçe (Turkish) - Beta"
+         name="Turkish"
+         value="tr" />
+        <combo_box.item
+         enabled="true"
+         label="Українська (Ukrainian) - Beta"
+         name="Ukrainian"
+         value="uk" />
+        <combo_box.item
+         enabled="true"
+         label="中文 (简体) (Chinese) - Beta"
+         name="Chinese"
+         value="zh" />
+        <combo_box.item
+         enabled="true"
+         label="日本語 (Japanese) - Beta"
+         name="(Japanese)"
+         value="ja" />
+        <combo_box.item
+         enabled="true"
+         label="한국어 (Korean) - Beta"
+         name="(Korean)"
+         value="ko" />
+        <combo_box.item
+         enabled="true"
+         label="Test Language"
+         name="TestLanguage"
+         value="test" />
     </combo_box>
-    <check_box
-     control_name="ShowStartLocation"
-     height="16"
-     initial_value="true"
-     label="Show Start Location on Login Screen"
-     layout="topleft"
-     left_delta="0"
-     name="show_location_checkbox"
-     top_pad="3"
-     width="256" />
-    <combo_box
-     control_name="RenderName"
-     height="18"
-     layout="topleft"
-     left_delta="4"
-     name="fade_out_combobox"
-     top_pad="7"
-     width="146">
-        <combo_box.item
-         label="Never"
-         value="0" />
-        <combo_box.item
-         label="Show Temporarily"
-         value="1" />
-        <combo_box.item
-         label="Always"
-         value="2" />
-    </combo_box>
-    <check_box
-     control_name="SmallAvatarNames"
-     height="16"
-     initial_value="true"
-     label="Small Avatar Names"
-     layout="topleft"
-     left_delta="-4"
-     name="small_avatar_names_checkbox"
-     top_pad="9"
-     width="200" />
-    <check_box
-     control_name="RenderNameHideSelf"
-     height="16"
-     label="Hide My Name On My Screen"
-     layout="topleft"
-     left_delta="0"
-     name="show_my_name_checkbox"
-     top_pad="2"
-     width="200" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="16"
-     layout="topleft"
-     left="10"
-     name="group_titles_textbox"
-     top="120"
-     width="394">
-        Group Titles:
-    </text>
-    <check_box
-     control_name="RenderHideGroupTitleAll"
-     height="16"
-     label="Hide All Group Titles"
-     layout="topleft"
-     left_delta="141"
-     name="show_all_title_checkbox"
-     top_delta="0"
-     width="256" />
-    <check_box
-     control_name="RenderHideGroupTitle"
-     height="16"
-     label="Hide My Group Title"
-     layout="topleft"
-     left_delta="0"
-     name="show_my_title_checkbox"
-     top_pad="2"
-     width="256" />
-    <color_swatch
-     border_color="0.45098 0.517647 0.607843 1"
-     control_name="EffectColor"
-     follows="left|top"
-     height="48"
-     layout="topleft"
-     left_delta="2"
-     name="effect_color_swatch"
-     tool_tip="Click to open Color Picker"
-     top_pad="8"
-     width="32" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="12"
-     layout="topleft"
-     left="10"
-     name="UI Size:"
-     top="203"
-     width="128">
-        UI Size:
-    </text>
-    <spinner
-     control_name="UIScaleFactor"
-     height="16"
-     increment="0.025"
-     initial_value="1"
-     layout="topleft"
-     left_pad="16"
-     max_val="1.4"
-     min_val="0.75"
-     name="ui_scale_slider"
-     top_delta="-2"
-     width="58" />
-    <check_box
-     control_name="UIAutoScale"
-     height="16"
-     label="Use resolution independent scale"
-     layout="topleft"
-     left_delta="-3"
-     name="ui_auto_scale"
-     top_pad="3"
-     width="256" />
-    <spinner
-     control_name="AFKTimeout"
-     decimal_digits="0"
-     follows="left|top"
-     height="16"
-     increment="1"
-     initial_value="300"
-     label="Away Timeout:"
-     label_width="141"
-     layout="topleft"
-     left="10"
-     max_val="600"
-     min_val="30"
-     name="afk_timeout_spinner"
-     top="244"
-     width="202" />
-    <check_box
-     control_name="NotifyMoneyChange"
-     height="16"
-     label="Notify when Linden dollars (L$) spent or received"
-     layout="topleft"
-     left="151"
-     name="notify_money_change_checkbox"
-     top="270"
-     width="256" />
     <text
      type="string"
      length="1"
      follows="left|top"
      height="10"
      layout="topleft"
-     left="10"
-     name="maturity_desired_label"
-     top="312"
-     width="394">
-        Rating:
+     left_delta="175"
+     name="language_textbox2"
+     top_delta="1"
+     width="400">
+        (Requires restart)
     </text>
     <text
      type="string"
@@ -189,28 +140,32 @@
      follows="left|top"
      height="10"
      layout="topleft"
-     left_delta="141"
+     left="30"
      name="maturity_desired_prompt"
-     top_delta="0"
-     width="394">
+     top_pad="10"
+     width="400">
         I want to access content rated:
     </text>
     <combo_box
      control_name="PreferredMaturity"
+     follows="left|bottom"
      height="18"
      layout="topleft"
-     left_delta="164"
+     left_delta="50"
      name="maturity_desired_combobox"
-     top_delta="-2"
-     width="150">
+     top_pad="10"
+     width="170">
         <combo_box.item
          label="PG, Mature and Adult"
+         name="Desired_Adult"
          value="42" />
         <combo_box.item
          label="PG and Mature"
+         name="Desired_Mature"
          value="21" />
         <combo_box.item
-         label="PG only"
+         label="PG"
+         name="Desired_PG"
          value="13" />
     </combo_box>
     <text
@@ -219,209 +174,127 @@
      follows="left|top"
      height="10"
      layout="topleft"
-     left_delta="0"
-     name="maturity_desired_textbox"
-     top_delta="2"
-     width="150">
-        PG only
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left="10"
+     left="30"
      name="start_location_textbox"
-     top="10"
+     top_delta="20"
      width="394">
         Start Location:
     </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left_delta="0"
-     name="show_names_textbox"
-     top_pad="34"
-     width="394">
-        Show Names:
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left_delta="0"
-     name="effects_color_textbox"
-     top_pad="110"
-     width="394">
-        Color For My Effects:
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left="220"
-     name="seconds_textbox"
-     top="244"
-     width="128">
-        seconds
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="18"
-     layout="topleft"
-     left="10"
-     name="crash_report_textbox"
-     top="344"
-     width="394">
-        Crash reports:
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="18"
-     layout="topleft"
-     left_delta="0"
-     name="language_textbox"
-     top_pad="4"
-     width="394">
-        Language:
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="18"
-     layout="topleft"
-     left_delta="293"
-     name="language_textbox2"
-     top_delta="1"
-     width="400">
-        (Requires restart for full effect)
-    </text>
     <combo_box
-     control_name="CrashSubmitBehavior"
-     height="18"
-     layout="topleft"
-     left="153"
-     name="crash_behavior_combobox"
-     top="344"
-     width="146">
-        <combo_box.item
-         enabled="true"
-         label="Ask before sending"
-         value="Ask before sending" />
-        <combo_box.item
-         enabled="true"
-         label="Always send"
-         value="Always send" />
-        <combo_box.item
-         enabled="true"
-         label="Never send"
-         value="Never send" />
-    </combo_box>
-    <combo_box
-     allow_text_entry="true"
-     control_name="Language"
+     control_name="LoginLocation"
      follows="left|bottom"
-     height="16"
+     height="18"
      layout="topleft"
-     left_delta="0"
-     max_chars="135"
-     name="language_combobox"
-     top_pad="4"
-     width="146">
+     left_delta="50"
+     name="start_location_combo"
+     top_pad="10"
+     width="170">
         <combo_box.item
-         enabled="true"
-         label="System Default"
-         value="default" />
+         label="My Last Location"
+         name="MyLastLocation"
+         value="last" />
         <combo_box.item
-         enabled="true"
-         label="English"
-         value="en" />
-        <combo_box.item
-         enabled="true"
-         label="Dansk (Danish) - Beta"
-         value="da" />
-        <combo_box.item
-         enabled="true"
-         label="Deutsch (German) - Beta"
-         value="de" />
-        <combo_box.item
-         enabled="true"
-         label="Español (Spanish) - Beta"
-         value="es" />
-        <combo_box.item
-         enabled="true"
-         label="Français (French) - Beta"
-         value="fr" />
-        <combo_box.item
-         enabled="true"
-         label="Italiano (Italian) - Beta"
-         value="it" />
-        <combo_box.item
-         enabled="true"
-         label="Magyar (Hungarian) - Beta"
-         value="hu" />
-        <combo_box.item
-         enabled="true"
-         label="Nederlands (Dutch) - Beta"
-         value="nl" />
-        <combo_box.item
-         enabled="true"
-         label="Polski (Polish) - Beta"
-         value="pl" />
-        <combo_box.item
-         enabled="true"
-         label="Portugués (Portuguese) - Beta"
-         value="pt" />
-        <combo_box.item
-         enabled="true"
-         label="Русский (Russian) - Beta"
-         value="ru" />
-        <combo_box.item
-         enabled="true"
-         label="Türkçe (Turkish) - Beta"
-         value="tr" />
-        <combo_box.item
-         enabled="true"
-         label="Українська (Ukrainian) - Beta"
-         value="uk" />
-        <combo_box.item
-         enabled="true"
-         label="中文 (简体) (Chinese) - Beta"
-         value="zh" />
-        <combo_box.item
-         enabled="true"
-         label="日本語 (Japanese) - Beta"
-         value="ja" />
-        <combo_box.item
-         enabled="true"
-         label="한국어 (Korean) - Beta"
-         value="ko" />
-        <combo_box.item
-         enabled="true"
-         label="Test Language"
-         value="test" />
+         label="My Home"
+         name="MyHome"
+         value="home" />
     </combo_box>
     <check_box
-     control_name="LanguageIsPublic"
+     control_name="ShowStartLocation"
      height="16"
-     label="Share language with objects"
+     initial_value="true"
+     label="Show on Login"
      layout="topleft"
-     left_delta="-2"
-     name="language_is_public"
-     tool_tip="This lets in-world objects know your preferred language."
-     top_pad="2"
-     width="256" />
+     left_delta="175"
+     name="show_location_checkbox"
+     top_delta="1"
+     width="256" />        
+        
+   <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="10"
+    layout="topleft"
+    left="30"
+    name="name_tags_textbox"
+    top_pad="10"
+    width="400">
+       Name tags:
+   </text>
+   <radio_group
+     control_name="AvatarNameTagMode"
+     height="30"
+     layout="topleft"
+     left_delta="50"
+     name="Name_Tag_Preference"
+     top_pad="10">
+        <radio_item
+         height="16"
+         label="Off"
+         layout="topleft"
+         left="0"
+         name="radio"
+         top_pad="0"
+         width="98" />
+        <radio_item
+         height="16"
+         label="On"
+         layout="topleft"
+         left_pad="12"
+         name="radio2"
+         top_delta="0"
+         width="98" />
+        <radio_item
+         height="16"
+         label="Show briefly"
+         layout="topleft"
+         left_pad="12"
+         name="radio3"
+         top_delta="0"
+         width="98" />
+    </radio_group>
+    <check_box
+	 enabled_control="AvatarNameTagMode"
+     control_name="RenderNameShowSelf"
+     height="16"
+     label="Show my name"
+     layout="topleft"
+     left_delta="0"
+     name="show_my_name_checkbox"
+     top_pad="5"
+     width="300" />
+   <check_box
+	 enabled_control="AvatarNameTagMode"
+     control_name="RenderShowGroupTitleAll"
+     height="16"
+     label="Show group titles"
+     layout="topleft"
+     left_delta="0"
+     name="show_all_title_checkbox"
+     top_pad="5"
+     width="300" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="30"
+     name="effects_color_textbox"
+     top_pad="10"
+     width="400">
+        My Effects:
+    </text>
+    <color_swatch
+     border_color="0.45098 0.517647 0.607843 1"
+     control_name="EffectColor"
+     follows="left|top"
+     height="48"
+     layout="topleft"
+     left_delta="50"
+     name="effect_color_swatch"
+     tool_tip="Click to open Color Picker"
+     top_pad="10"
+     width="32" />
+    
 </panel>

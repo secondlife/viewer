@@ -46,14 +46,16 @@
 
 #include "llviewerinventory.h"
 
-class LLFloaterBulkPermission : public LLFloater, public LLVOInventoryListener, public LLFloaterSingleton<LLFloaterBulkPermission>
+class LLFloaterBulkPermission : public LLFloater, public LLVOInventoryListener
 {
+	friend class LLFloaterReg;
 public:
 
-	LLFloaterBulkPermission(const LLSD& seed);
 	BOOL postBuild();
 
 private:
+	
+	LLFloaterBulkPermission(const LLSD& seed);	
 	virtual ~LLFloaterBulkPermission() {}
 
 	BOOL start(); // returns TRUE if the queue has started, otherwise FALSE.
@@ -77,12 +79,12 @@ private:
 								U8 key,
 								bool is_new);
 
-	static void onHelpBtn(void* user_data);
-	static void onCloseBtn(void* user_data);
-	static void onApplyBtn(void* user_data);
-	static void onCommitCopy(LLUICtrl* ctrl, void* data);
-	static void onCheckAll(  void* user_data) { ((LLFloaterBulkPermission*)user_data)->doCheckUncheckAll(TRUE); }
-	static void onUncheckAll(void* user_data) { ((LLFloaterBulkPermission*)user_data)->doCheckUncheckAll(FALSE); }
+//	static void onHelpBtn(void* user_data);
+	void onCloseBtn();
+	void onApplyBtn();
+	void onCommitCopy();
+	void onCheckAll() { doCheckUncheckAll(TRUE); }
+	void onUncheckAll() { doCheckUncheckAll(FALSE); }
 	
 	// returns true if this is done
 	BOOL isDone() const { return (mCurrentObjectID.isNull() || (mObjectIDs.count() == 0)); }

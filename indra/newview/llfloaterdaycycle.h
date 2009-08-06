@@ -56,86 +56,68 @@ class LLFloaterDayCycle : public LLFloater
 {
 public:
 
-	LLFloaterDayCycle();
+	LLFloaterDayCycle(const LLSD& key);
 	virtual ~LLFloaterDayCycle();
 	/*virtual*/	BOOL	postBuild();
 	/// help button stuff
-	static void onClickHelp(void* data);
+	void onClickHelp(std::string xml_alert);
 	void initHelpBtn(const std::string& name, const std::string& xml_alert);
 
 	/// initialize all
 	void initCallbacks(void);
 
-	/// one and one instance only
-	static LLFloaterDayCycle* instance();
-
 	/// on time slider moved
-	static void onTimeSliderMoved(LLUICtrl* ctrl, void* userData);
+	void onTimeSliderMoved(LLUICtrl* ctrl);
 
 	/// what happens when you move the key frame
-	static void onKeyTimeMoved(LLUICtrl* ctrl, void* userData);
+	void onKeyTimeMoved(LLUICtrl* ctrl);
 
 	/// what happens when you change the key frame's time
-	static void onKeyTimeChanged(LLUICtrl* ctrl, void* userData);
+	void onKeyTimeChanged(LLUICtrl* ctrl);
 
 	/// if you change the combo box, change the frame
-	static void onKeyPresetChanged(LLUICtrl* ctrl, void* userData);
+	void onKeyPresetChanged(LLUICtrl* ctrl);
 	
 	/// run this when user says to run the sky animation
-	static void onRunAnimSky(void* userData);
+	void onRunAnimSky(LLUICtrl* ctrl);
 
 	/// run this when user says to stop the sky animation
-	static void onStopAnimSky(void* userData);
+	void onStopAnimSky(LLUICtrl* ctrl);
 
 	/// if you change the combo box, change the frame
-	static void onTimeRateChanged(LLUICtrl* ctrl, void* userData);
+	void onTimeRateChanged(LLUICtrl* ctrl);
 
 	/// add a new key on slider
-	static void onAddKey(void* userData);
+	void onAddKey(LLUICtrl* ctrl);
 
 	/// delete any and all reference to a preset
 	void deletePreset(std::string& presetName);
 
 	/// delete a key frame
-	static void onDeleteKey(void* userData);
+	void onDeleteKey(LLUICtrl* ctrl);
 
 	/// button to load day
-	static void onLoadDayCycle(void* userData);
+	void onLoadDayCycle(LLUICtrl* ctrl);
 
 	/// button to save day
-	static void onSaveDayCycle(void* userData);
+	void onSaveDayCycle(LLUICtrl* ctrl);
 
 	/// toggle for Linden time
-	static void onUseLindenTime(void* userData);
-
-
-	//// menu management
-
-	/// show off our menu
-	static void show();
-
-	/// return if the menu exists or not
-	static bool isOpen();
-
-	/// stuff to do on exit
-	virtual void onClose(bool app_quitting);
+	void onUseLindenTime(LLUICtrl* ctrl);
 
 	/// sync up sliders with day cycle structure
-	static void syncMenu();
+	void syncMenu();
 
 	// 	makes sure key slider has what's in day cycle
-	static void syncSliderTrack();
+	void syncSliderTrack();
 
 	/// makes sure day cycle data structure has what's in menu
-	static void syncTrack();
+	void syncTrack();
 
 	/// add a slider to the track
-	static void addSliderKey(F32 time, const std::string& presetName);
+	void addSliderKey(F32 time, const std::string& presetName);
 
 private:
-
-	// one instance on the inside
-	static LLFloaterDayCycle* sDayCycle;
 
 	// map of sliders to parameters
 	static std::map<std::string, LLWLSkyKey> sSliderToKey;

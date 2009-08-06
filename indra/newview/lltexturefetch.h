@@ -38,7 +38,7 @@
 #include "lluuid.h"
 #include "llworkerthread.h"
 
-class LLViewerImage;
+class LLViewerTexture;
 class LLTextureFetchWorker;
 class LLTextureCache;
 class LLHost;

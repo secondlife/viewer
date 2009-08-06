@@ -38,11 +38,11 @@
 
 class LLCheckBoxCtrl;
 
-class LLFloaterJoystick : public LLFloater, public LLFloaterSingleton<LLFloaterJoystick >
+class LLFloaterJoystick : public LLFloater
 {
+	friend class LLFloaterReg;
+
 public:
-	LLFloaterJoystick(const LLSD& data);
-	virtual ~LLFloaterJoystick();
 
 	virtual BOOL postBuild();
 	virtual void refresh();
@@ -52,6 +52,10 @@ public:
 	static  void setSNDefaults();
 
 private:
+
+	LLFloaterJoystick(const LLSD& data);
+	virtual ~LLFloaterJoystick();
+	
 	static void onCommitJoystickEnabled(LLUICtrl*, void*);
 	static void onClickRestoreSNDefaults(void*);
 	static void onClickCancel(void*);

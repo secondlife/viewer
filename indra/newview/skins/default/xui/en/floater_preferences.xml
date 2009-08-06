@@ -15,7 +15,7 @@
      label="OK"
      label_selected="OK"
      layout="topleft"
-     left="335"
+     left="427"
      name="OK"
      top="435"
      width="90">
@@ -35,44 +35,6 @@
         <button.commit_callback
          function="Pref.Cancel" />
     </button>
-    <button
-     follows="right|bottom"
-     height="20"
-     label="Apply"
-     label_selected="Apply"
-     layout="topleft"
-     left_pad="3"
-     name="Apply"
-     top_delta="0"
-     width="90">
-        <button.commit_callback
-         function="Pref.Apply" />
-    </button>
-    <button
-     follows="left|bottom"
-     height="20"
-     label="About"
-     label_selected="About"
-     layout="topleft"
-     left_delta="-512"
-     name="About..."
-     top_delta="0"
-     width="90">
-        <button.commit_callback
-         function="Floater.Show"
-         parameter="sl_about" />
-    </button>
-    <button
-     follows="left|bottom"
-     height="20"
-     help_url="https://support.secondlife.com/ics/support/default.asp?deptID=4417"
-     label="Help"
-     label_selected="Help"
-     layout="topleft"
-     left_pad="3"
-     name="Help"
-     top_delta="0"
-     width="90" />
     <tab_container
      follows="left|top|right|bottom"
      height="410"
@@ -91,64 +53,60 @@
          layout="topleft"
          name="general" />
         <panel
-		 class="panel_preference"
-         filename="panel_preferences_input.xml"
-         label="Input &amp; Camera"
-         layout="topleft"
-         name="input" />
-        <panel
-		 class="panel_preference"
-         filename="panel_preferences_network.xml"
-         label="Network"
-         layout="topleft"
-         name="network" />
-        <panel
-		 class="panel_preference"
-         filename="panel_preferences_web.xml"
-         label="Web"
-         layout="topleft"
-         name="web" />
-        <panel
-		 class="panel_preference"
          filename="panel_preferences_graphics1.xml"
          label="Graphics"
          layout="topleft"
          name="display" />
         <panel
 		 class="panel_preference"
+         filename="panel_preferences_im.xml"
+         label="Privacy"
+         layout="topleft"
+         name="im" />
+        <panel
+		 class="panel_preference"
          filename="panel_preferences_audio.xml"
-         label="Audio &amp; Video"
+         label="Sound"
          layout="topleft"
          name="audio" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_chat.xml"
-         label="Text Chat"
+         label="Chat"
          layout="topleft"
          name="chat" />
         <panel
 		 class="panel_preference"
-         filename="panel_preferences_voice.xml"
-         label="Voice Chat"
-         layout="topleft"
-         name="voice" />
-        <panel
-		 class="panel_preference"
-         filename="panel_preferences_im.xml"
-         label="Communication"
-         layout="topleft"
-         name="im" />
-        <panel
-		 class="panel_preference"
          filename="panel_preferences_popups.xml"
-         label="Popups"
+         label="Alerts"
          layout="topleft"
          name="msgs" />
         <panel
 		 class="panel_preference"
-         filename="panel_preferences_skins.xml"
-         label="Skins"
+         filename="panel_preferences_input.xml"
+         label="Setup"
          layout="topleft"
-         name="skins" />
+         name="input" />
+		<!-- I put back the commented out panels for now, pending 
+		implementation of new default settings. James -->
+        <panel
+		 class="panel_preference"
+         filename="panel_preferences_advanced.xml"
+         label="Advanced"
+         layout="topleft"
+         name="advanced1" />
+        <panel
+		 class="panel_preference"
+         filename="panel_preferences_advanced2.xml"
+         label="Move, not to Advanced"
+         layout="topleft"
+         name="advanced2" />
+        <panel
+		 class="panel_preference"
+         filename="panel_preferences_advanced4.xml"
+         label="Storage/Kill"
+         layout="topleft"
+         name="advanced4" />
     </tab_container>
+     
 </floater>

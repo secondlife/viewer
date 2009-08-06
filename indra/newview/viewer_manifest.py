@@ -77,6 +77,10 @@ class ViewerManifest(LLManifest):
                 self.path("paths.xml")
                 # include the entire textures directory recursively
                 if self.prefix(src="*/textures"):
+                        self.path("*/*.tga")
+                        self.path("*/*.j2c")
+                        self.path("*/*.jpg")
+                        self.path("*/*.png")
                         self.path("*.tga")
                         self.path("*.j2c")
                         self.path("*.jpg")
@@ -490,7 +494,9 @@ class DarwinManifest(ViewerManifest):
                         dylibs[lib] = True
 
                 if dylibs["llcommon"]:
-                    for libfile in ("libapr-1.0.3.7.dylib", "libaprutil-1.0.3.8.dylib"):
+                    for libfile in ("libapr-1.0.3.7.dylib",
+                                    "libaprutil-1.0.3.8.dylib",
+                                    "libexpat.0.5.0.dylib"):
                         self.path(os.path.join(libdir, libfile), libfile)
 
                 #libfmodwrapper.dylib

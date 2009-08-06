@@ -92,8 +92,15 @@ void LLTeleportHistoryPanel::onShowOnMap()
 
 	S32 index = itemp->getColumn(LIST_INDEX)->getValue().asInteger();
 
-	// teleport to existing item in history, so we don't add it again
-	mTeleportHistory->goToItem(index);
+	const LLTeleportHistory::slurl_list_t& hist_items = mTeleportHistory->getItems();
+
+	LLVector3d global_pos = hist_items[index].mGlobalPos;
+	
+	if (!global_pos.isExactlyZero())
+	{
+		LLFloaterWorldMap::getInstance()->trackLocation(global_pos);
+		LLFloaterReg::showInstance("world_map", "center");
+	}
 }
 
 // virtual
@@ -104,7 +111,8 @@ void LLTeleportHistoryPanel::onTeleport()
 		return;
 
 	S32 index = itemp->getColumn(LIST_INDEX)->getValue().asInteger();
-	
+
+	// teleport to existing item in history, so we don't add it again
 	mTeleportHistory->goToItem(index);
 }
 
@@ -131,6 +139,26 @@ void LLTeleportHistoryPanel::onCopySLURL()
 	LLWorldMap::getInstance()->sendHandleRegionRequest(new_region_handle, cb, std::string("unused"), false);
 }
 */
+
+// virtual
+void LLTeleportHistoryPanel::updateVerbs()
+{
+	if (!isTabVisible()) 
+		return;
+
+	S32 index = 0;
+	S32 cur_item = 0;
+
+	LLScrollListItem* itemp = mHistoryItems->getFirstSelected();
+	if (itemp)
+	{
+		index = itemp->getColumn(LIST_INDEX)->getValue().asInteger();
+		cur_item = mTeleportHistory->getCurrentItemIndex();
+	}
+
+	mTeleportBtn->setEnabled(index != cur_item);
+	mShowOnMapBtn->setEnabled(itemp != NULL);
+}
 
 void LLTeleportHistoryPanel::showTeleportHistory()
 {
@@ -181,17 +209,12 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 		}
 	}
 
-	togglePanelPlacesButtons(mHistoryItems->getFirstSelected() != NULL);
+	updateVerbs();
 }
 
 void LLTeleportHistoryPanel::handleItemSelect(const LLSD& data)
 {
-	LLScrollListItem* itemp = mHistoryItems->getFirstSelected();
-
-	if (!itemp)
-		return;
-
-	togglePanelPlacesButtons(TRUE);
+	updateVerbs();
 }
 
 //static
@@ -204,7 +227,7 @@ void LLTeleportHistoryPanel::onDoubleClickItem(void* user_data)
 		return;
 
 	LLSD key;
-	key["type"] = LLPanelPlaces::TELEPORT_HISTORY;
+	key["type"] = "teleport_history";
 	key["id"] = itemp->getColumn(LIST_INDEX)->getValue().asInteger();
 
 	LLSideTray::getInstance()->showPanel("panel_places", key);

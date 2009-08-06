@@ -45,7 +45,7 @@
 //
 //
 
-class LLViewerImage;
+class LLViewerTexture;
 class LLViewerObject;
 class LLViewerPart;
 
@@ -90,7 +90,7 @@ protected:
 	F32			mLastUpdateTime;
 	F32			mLastPartTime;
 	LLUUID		mOwnerUUID;
-	LLPointer<LLViewerImage>	mImagep;
+	LLPointer<LLViewerTexture>	mImagep;
 
 	// Particle information
 	U32			mPartFlags; // Flags for the particle
@@ -123,8 +123,8 @@ public:
 	static LLPointer<LLViewerPartSourceScript> unpackPSS(LLViewerObject *source_objp, LLPointer<LLViewerPartSourceScript> pssp, LLDataPacker &dp);
 	static LLPointer<LLViewerPartSourceScript> createPSS(LLViewerObject *source_objp, const LLPartSysData& particle_parameters);
 
-	LLViewerImage *getImage() const				{ return mImagep; }
-	void setImage(LLViewerImage *imagep);
+	LLViewerTexture *getImage() const				{ return mImagep; }
+	void setImage(LLViewerTexture *imagep);
 	LLPartSysData				mPartSysData;
 
 	void setTargetObject(LLViewerObject *objp);

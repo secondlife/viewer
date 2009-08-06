@@ -39,6 +39,7 @@
 
 #include "llfloater.h"
 #include "llpointer.h"	// LLPointer<>
+//#include "llviewertexturelist.h"
 #include "llsafehandle.h"
 
 typedef std::set<LLUUID, lluuid_less> uuid_list_t;
@@ -71,26 +72,27 @@ class LLPanelLandRenters;
 class LLPanelLandCovenant;
 
 class LLFloaterLand
-:	public LLFloater, public LLFloaterSingleton<LLFloaterLand>
+:	public LLFloater
 {
-	friend class LLUISingleton<LLFloaterLand, VisibilityPolicy<LLFloater> >;
+	friend class LLFloaterReg;
 public:
 	static void refreshAll();
 
 	static LLPanelLandObjects* getCurrentPanelLandObjects();
 	static LLPanelLandCovenant* getCurrentPanelLandCovenant();
 
-	// Destroys itself on close.
-	virtual void onClose(bool app_quitting);
 	virtual void onOpen(const LLSD& key);
 	virtual BOOL postBuild();
 
-protected:
-
+private:
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
 	LLFloaterLand(const LLSD& seed);
 	virtual ~LLFloaterLand();
+		
+	void onVisibilityChange(const LLSD& visible);
+
+protected:
 
 	/*virtual*/ void refresh();
 
@@ -328,7 +330,6 @@ private:
 	LLCheckBoxCtrl*	mCheckFly;
 	LLCheckBoxCtrl*	mCheckGroupScripts;
 	LLCheckBoxCtrl*	mCheckOtherScripts;
-	LLCheckBoxCtrl*	mCheckLandmark;
 
 	LLCheckBoxCtrl*	mCheckShowDirectory;
 	LLComboBox*		mCategoryCombo;

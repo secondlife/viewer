@@ -49,21 +49,10 @@ class LLFloaterTOS :
 	public LLWebBrowserCtrlObserver
 {
 public:
+	LLFloaterTOS(const LLSD& message);
 	virtual ~LLFloaterTOS();
 
-	// Types of dialog.
-	enum ETOSType
-	{
-		TOS_TOS = 0,
-		TOS_CRITICAL_MESSAGE = 1
-	};
-
 	typedef boost::function<void(bool)> YesNoCallback;
-
-	// Asset_id is overwritten with LLUUID::null when agree is clicked.
-	static LLFloaterTOS* show(ETOSType type, 
-							  const std::string & message, 
-							  const YesNoCallback& callback);
 
 	BOOL postBuild();
 	
@@ -77,20 +66,14 @@ public:
 
 	virtual void onNavigateComplete( const EventType& eventIn );
 
-private:
-	// Asset_id is overwritten with LLUUID::null when agree is clicked.
-	LLFloaterTOS(ETOSType type, 
-				 const std::string & message, 
-				 const YesNoCallback& callback);
+	// *TODO - consider getting rid of this in favor of using an event pump. -brad
+	void setTOSCallback(YesNoCallback const & callback);
 
 private:
-	ETOSType		mType;
 	std::string		mMessage;
 	int				mWebBrowserWindowId;
 	int				mLoadCompleteCount;
 	YesNoCallback	mCallback;
-
-	static LLFloaterTOS* sInstance;
 };
 
 #endif // LL_LLFLOATERTOS_H

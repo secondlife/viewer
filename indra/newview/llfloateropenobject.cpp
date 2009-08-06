@@ -46,9 +46,10 @@
 #include "llagent.h"			// for agent id
 #include "llalertdialog.h"
 #include "llinventorybridge.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llinventorymodel.h"
 #include "llpanelinventory.h"
+#include "llfloaterreg.h"
 #include "llselectmgr.h"
 #include "lluiconstants.h"
 #include "llviewerobject.h"
@@ -56,28 +57,43 @@
 #include "llviewerwindow.h"
 
 
-LLFloaterOpenObject* LLFloaterOpenObject::sInstance = NULL;
-
-LLFloaterOpenObject::LLFloaterOpenObject()
-:	LLFloater(),
+LLFloaterOpenObject::LLFloaterOpenObject(const LLSD& key)
+:	LLFloater(key),
 	mPanelInventory(NULL),
 	mDirty(TRUE)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_openobject.xml");
+//	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_openobject.xml");
+	mCommitCallbackRegistrar.add("OpenObject.MoveToInventory",	boost::bind(&LLFloaterOpenObject::onClickMoveToInventory, this));
+	mCommitCallbackRegistrar.add("OpenObject.MoveAndWear",		boost::bind(&LLFloaterOpenObject::onClickMoveAndWear, this));
 }
 
 LLFloaterOpenObject::~LLFloaterOpenObject()
 {
-	sInstance = NULL;
+//	sInstance = NULL;
 }
 // virtual
 BOOL LLFloaterOpenObject::postBuild()
 {
-	childSetAction("copy_to_inventory_button", onClickMoveToInventory, this);
-	childSetAction("copy_and_wear_button", onClickMoveAndWear, this);
 	childSetTextArg("object_name", "[DESC]", std::string("Object") ); // *Note: probably do not want to translate this
 	mPanelInventory = getChild<LLPanelInventory>("object_contents");
 	return TRUE;
+}
+
+void LLFloaterOpenObject::onOpen(const LLSD& key)
+{
+	LLObjectSelectionHandle object_selection = LLSelectMgr::getInstance()->getSelection();
+	if (object_selection->getRootObjectCount() != 1)
+	{
+		LLNotifications::instance().add("UnableToViewContentsMoreThanOne");
+		closeFloater();
+		return;
+	}
+	if(!(object_selection->getPrimaryObject())) 
+	{
+		closeFloater();
+		return;
+	}
+	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 }
 void LLFloaterOpenObject::refresh()
 {
@@ -99,7 +115,6 @@ void LLFloaterOpenObject::refresh()
 	}
 
 	childSetTextArg("object_name", "[DESC]", name);
-	
 	childSetEnabled("copy_to_inventory_button", enabled);
 	childSetEnabled("copy_and_wear_button", enabled);
 
@@ -115,34 +130,11 @@ void LLFloaterOpenObject::draw()
 	LLFloater::draw();
 }
 
-// static
 void LLFloaterOpenObject::dirty()
 {
-	if (sInstance) sInstance->mDirty = TRUE;
+	mDirty = TRUE;
 }
 
-// static
-void LLFloaterOpenObject::show()
-{
-	LLObjectSelectionHandle object_selection = LLSelectMgr::getInstance()->getSelection();
-	if (object_selection->getRootObjectCount() != 1)
-	{
-		LLNotifications::instance().add("UnableToViewContentsMoreThanOne");
-		return;
-	}
-
-	// Create a new instance only if needed
-	if (!sInstance)
-	{
-		sInstance = new LLFloaterOpenObject();
-		sInstance->center();
-	}
-
-	sInstance->openFloater();
-	sInstance->setFocus(TRUE);
-
-	sInstance->mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
-}
 
 
 void LLFloaterOpenObject::moveToInventory(bool wear)
@@ -170,7 +162,7 @@ void LLFloaterOpenObject::moveToInventory(bool wear)
 	}
 	else
 	{
-		parent_category_id = gAgent.getInventoryRootID();
+		parent_category_id = gInventory.getRootFolderID();
 	}
 	LLUUID category_id = gInventory.createNewCategory(parent_category_id, 
 		LLAssetType::AT_NONE, 
@@ -201,8 +193,8 @@ void LLFloaterOpenObject::callbackMoveInventory(S32 result, void* data)
 
 	if (result == 0)
 	{
-		LLInventoryView::showAgentInventory();
-		LLInventoryView* view = LLInventoryView::getActiveInventory();
+		LLFloaterInventory::showAgentInventory();
+		LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
 		if (view)
 		{
 			view->getPanel()->setSelection(cat->mCatID, TAKE_FOCUS_NO);
@@ -212,20 +204,15 @@ void LLFloaterOpenObject::callbackMoveInventory(S32 result, void* data)
 	delete cat;
 }
 
-
-// static
-void LLFloaterOpenObject::onClickMoveToInventory(void* data)
+void LLFloaterOpenObject::onClickMoveToInventory()
 {
-	LLFloaterOpenObject* self = (LLFloaterOpenObject*)data;
-	self->moveToInventory(false);
-	self->closeFloater();
+	moveToInventory(false);
+	closeFloater();
 }
 
-// static
-void LLFloaterOpenObject::onClickMoveAndWear(void* data)
+void LLFloaterOpenObject::onClickMoveAndWear()
 {
-	LLFloaterOpenObject* self = (LLFloaterOpenObject*)data;
-	self->moveToInventory(true);
-	self->closeFloater();
+	moveToInventory(true);
+	closeFloater();
 }
 

@@ -36,7 +36,7 @@
 #include "lluictrl.h"
 #include "v4color.h"
 #include "llfloater.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 #include "lltextbox.h"
 
 //
@@ -45,7 +45,7 @@
 class LLColor4;
 class LLTextBox;
 class LLFloaterColorPicker;
-class LLViewerImage;
+class LLViewerTexture;
 
 class LLColorSwatchCtrl
 : public LLUICtrl
@@ -60,13 +60,13 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Optional<LLColor4>			color;
-		Optional<bool>				can_apply_immediately;
-		Optional<LLUIImage*>		alpha_background_image;
-		Optional<commit_callback_t> cancel_callback;
-		Optional<commit_callback_t> select_callback;
-		Optional<LLUIColor>			border_color;
-		Optional<S32>				label_width;
+		Optional<LLColor4>				color;
+		Optional<bool>					can_apply_immediately;
+		Optional<LLUIImage*>			alpha_background_image;
+		Optional<commit_callback_t> 	cancel_callback;
+		Optional<commit_callback_t> 	select_callback;
+		Optional<LLUIColor>				border_color;
+		Optional<S32>					label_width;
 		
 		Optional<LLTextBox::Params>		caption_text;
 		Optional<LLViewBorder::Params>	border;

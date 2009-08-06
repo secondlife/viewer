@@ -95,6 +95,10 @@ public:
 protected:
 	void addEntry(Index index, Entry *entry)
 	{
+		if (lookup(index))
+		{
+			llerrs << "Dictionary entry already added (attempted to add duplicate entry)" << llendl;
+		}
 		(*this)[index] = entry;
 	}
 };

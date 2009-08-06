@@ -54,8 +54,8 @@
 #include "lltextureview.h"
 #include "lltracker.h"
 #include "llviewercamera.h"
-#include "llviewerimage.h"
-#include "llviewerimagelist.h"
+#include "llviewertexture.h"
+#include "llviewertexturelist.h"
 #include "llviewermenu.h"
 #include "llviewerparceloverlay.h"
 #include "llviewerregion.h"
@@ -284,7 +284,7 @@ BOOL is_agent_in_region(LLViewerRegion* region, LLSimInfo* info)
 
 void LLWorldMapView::draw()
 {
-	static LLCachedControl<LLColor4> map_track_color(gSavedSkinSettings, "MapTrackColor", LLColor4::white);
+	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
 	
 	LLTextureView::clearDebugImages();
 
@@ -332,7 +332,7 @@ void LLWorldMapView::draw()
 			continue;
 		}
 		LLWorldMapLayer *layer = &LLWorldMap::getInstance()->mMapLayers[LLWorldMap::getInstance()->mCurrentMap][layer_idx];
-		LLViewerImage *current_image = layer->LayerImage;
+		LLViewerFetchedTexture *current_image = layer->LayerImage;
 
 		if (current_image->isMissingAsset())
 		{
@@ -367,10 +367,10 @@ void LLWorldMapView::draw()
 			continue;
 		}
 		
-		current_image->setBoostLevel(LLViewerImage::BOOST_MAP_LAYER);
+		current_image->setBoostLevel(LLViewerTexture::BOOST_MAP_LAYER);
 		current_image->setKnownDrawSize(llround(pix_width * LLUI::sGLScaleFactor.mV[VX]), llround(pix_height * LLUI::sGLScaleFactor.mV[VY]));
 		
-		if (!current_image->getHasGLTexture())
+		if (!current_image->hasValidGLTexture())
 		{
 			continue; // better to draw nothing than the default image
 		}
@@ -434,8 +434,8 @@ void LLWorldMapView::draw()
 		U64 handle = (*it).first;
 		LLSimInfo* info = (*it).second;
 
-		LLViewerImage* simimage = info->mCurrentImage;
-		LLViewerImage* overlayimage = info->mOverlayImage;
+		LLViewerFetchedTexture* simimage = info->mCurrentImage;
+		LLViewerFetchedTexture* overlayimage = info->mOverlayImage;
 
 		if (gMapScale < SIM_MAP_SCALE)
 		{
@@ -472,7 +472,7 @@ void LLWorldMapView::draw()
 		bool sim_visible =
 			(gMapScale >= map_scale_cutoff) &&
 			(simimage != NULL) &&
-			(simimage->getHasGLTexture());
+			(simimage->hasValidGLTexture());
 
 		if (sim_visible)
 		{
@@ -510,7 +510,7 @@ void LLWorldMapView::draw()
 				 (textures_requested_this_tick < MAX_REQUEST_PER_TICK)))
 			{
 				textures_requested_this_tick++;
-				info->mCurrentImage = gImageList.getImage(info->mMapImageID[LLWorldMap::getInstance()->mCurrentMap], MIPMAP_TRUE, FALSE);
+				info->mCurrentImage = LLViewerTextureManager::getFetchedTexture(info->mMapImageID[LLWorldMap::getInstance()->mCurrentMap], MIPMAP_TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
                 info->mCurrentImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 				simimage = info->mCurrentImage;
 				gGL.getTexUnit(0)->bind(simimage);
@@ -523,7 +523,7 @@ void LLWorldMapView::draw()
 				 (textures_requested_this_tick < MAX_REQUEST_PER_TICK)))
 			{
 				textures_requested_this_tick++;
-				info->mOverlayImage = gImageList.getImage(info->mMapImageID[2], MIPMAP_TRUE, FALSE);
+				info->mOverlayImage = LLViewerTextureManager::getFetchedTexture(info->mMapImageID[2], MIPMAP_TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
 				info->mOverlayImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 				overlayimage = info->mOverlayImage;
 				gGL.getTexUnit(0)->bind(overlayimage);
@@ -546,13 +546,13 @@ void LLWorldMapView::draw()
 		S32 draw_size = llround(gMapScale);
 		if (simimage != NULL)
 		{
-			simimage->setBoostLevel(LLViewerImage::BOOST_MAP);
+			simimage->setBoostLevel(LLViewerTexture::BOOST_MAP);
 			simimage->setKnownDrawSize(llround(draw_size * LLUI::sGLScaleFactor.mV[VX]), llround(draw_size * LLUI::sGLScaleFactor.mV[VY]));
 		}
 
 		if (overlayimage != NULL)
 		{
-			overlayimage->setBoostLevel(LLViewerImage::BOOST_MAP);
+			overlayimage->setBoostLevel(LLViewerTexture::BOOST_MAP);
 			overlayimage->setKnownDrawSize(llround(draw_size * LLUI::sGLScaleFactor.mV[VX]), llround(draw_size * LLUI::sGLScaleFactor.mV[VY]));
 		}
 			
@@ -581,7 +581,7 @@ void LLWorldMapView::draw()
 				gGL.vertex3f(right, top, 0.f);
 			gGL.end();
 
-			if (gSavedSettings.getBOOL("MapShowLandForSale") && overlayimage && overlayimage->getHasGLTexture())
+			if (gSavedSettings.getBOOL("MapShowLandForSale") && overlayimage && overlayimage->hasValidGLTexture())
 			{
 				gGL.getTexUnit(0)->bind(overlayimage);
 				gGL.color4f(1.f, 1.f, 1.f, alpha);
@@ -908,8 +908,8 @@ void LLWorldMapView::drawImageStack(const LLVector3d& global_pos, LLUIImagePtr i
 
 void LLWorldMapView::drawAgents()
 {
-	static LLCachedControl<LLColor4> map_avatar_color(gSavedSkinSettings, "MapAvatarColor", LLColor4::white);
-	static LLCachedControl<LLColor4> map_avatar_friend_color(gSavedSkinSettings, "MapAvatarFriendColor", LLColor4::white);
+	static LLUIColor map_avatar_color = LLUIColorTable::instance().getColor("MapAvatarColor", LLColor4::white);
+	static LLUIColor map_avatar_friend_color = LLUIColorTable::instance().getColor("MapAvatarFriendColor", LLColor4::white);
 	
 	F32 agents_scale = (gMapScale * 0.9f) / 256.f;
 
@@ -1228,12 +1228,11 @@ BOOL LLWorldMapView::handleToolTip( S32 x, S32 y, std::string& msg, LLRect* stic
 			msg += region_flags;
 		}
 					
-		S32 SLOP = 4;
-		localPointToScreen( 
-			x - SLOP, y - SLOP, 
-			&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
-		sticky_rect_screen->mRight = sticky_rect_screen->mLeft + 2 * SLOP;
-		sticky_rect_screen->mTop = sticky_rect_screen->mBottom + 2 * SLOP;
+		const S32 SLOP = 9;
+		S32 screen_x, screen_y;
+
+		localPointToScreen(x, y, &screen_x, &screen_y);
+		sticky_rect_screen->setCenterAndSize(screen_x, screen_y, SLOP, SLOP);
 	}
 	return TRUE;
 }

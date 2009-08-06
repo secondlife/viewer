@@ -41,7 +41,7 @@
 #include "llfilepicker.h"
 #include "llnotify.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
+#include "llfloaterinventory.h"
 #include "llpermissionsflags.h"
 #include "llpreviewnotecard.h"
 #include "llpreviewscript.h"
@@ -285,7 +285,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 
 		// Show the preview panel for textures and sounds to let
 		// user know that the image (or snapshot) arrived intact.
-		LLInventoryView* view = LLInventoryView::getActiveInventory();
+		LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
 		if(view)
 		{
 			LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus();
@@ -295,7 +295,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 			{
 				view->getPanel()->openSelected();
 			}
-			//LLInventoryView::dumpSelectionInformation((void*)view);
+			//LLFloaterInventory::dumpSelectionInformation((void*)view);
 			// restore keyboard focus
 			gFocusMgr.setKeyboardFocus(focus_ctrl);
 		}
@@ -465,10 +465,10 @@ void LLUpdateAgentInventoryResponder::uploadComplete(const LLSD& content)
 	  {
 		  // If this gesture is active, then we need to update the in-memory
 		  // active map with the new pointer.				
-		  if (gGestureManager.isGestureActive(item_id))
+		  if (LLGestureManager::instance().isGestureActive(item_id))
 		  {
 			  LLUUID asset_id = new_item->getAssetUUID();
-			  gGestureManager.replaceGesture(item_id, asset_id);
+			  LLGestureManager::instance().replaceGesture(item_id, asset_id);
 			  gInventory.notifyObservers();
 		  }				
 

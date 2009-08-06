@@ -42,7 +42,7 @@
 #include "llresmgr.h"
 #include "llfontgl.h"
 #include "llui.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewercamera.h"
 #include "llhudmanager.h"
 #include "lltoolmgr.h"
@@ -137,7 +137,7 @@ void LLToolGun::draw()
 	{
 		LLUIImagePtr crosshair = LLUI::getUIImage("crosshairs.tga");
 		crosshair->draw(
-			( gViewerWindow->getWindowWidth() - crosshair->getWidth() ) / 2,
-			( gViewerWindow->getWindowHeight() - crosshair->getHeight() ) / 2);
+			( gViewerWindow->getWorldViewWidth() - crosshair->getWidth() ) / 2,
+			( gViewerWindow->getWorldViewHeight() - crosshair->getHeight() ) / 2);
 	}
 }

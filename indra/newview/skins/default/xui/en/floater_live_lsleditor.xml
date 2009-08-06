@@ -14,7 +14,7 @@
  width="500">
     <floater.string
      name="not_allowed">
-        You are not allowed to view this script.
+        You can not view or edit this script, since it has been set as &quot;no copy&quot;. You need full permissions to view or edit a script inside an object.
     </floater.string>
     <floater.string
      name="script_running">

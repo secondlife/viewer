@@ -33,26 +33,28 @@
 #ifndef LL_LLUIIMAGE_H
 #define LL_LLUIIMAGE_H
 
-//#include "llgl.h"
-#include "llimagegl.h"
+#include "v4color.h"
+#include "llpointer.h"
+#include "llrefcount.h"
 #include "llrefcount.h"
 #include "llrect.h"
 #include <boost/function.hpp>
 #include "llinitparam.h"
+#include "lltexture.h"
 
 extern const LLColor4 UI_VERTEX_COLOR;
 
 class LLUIImage : public LLRefCount
 {
 public:
-	LLUIImage(const std::string& name, LLPointer<LLImageGL> image);
+	LLUIImage(const std::string& name, LLPointer<LLTexture> image);
 	virtual ~LLUIImage();
 
 	void setClipRegion(const LLRectf& region);
 	void setScaleRegion(const LLRectf& region);
 
-	LLPointer<LLImageGL> getImage() { return mImage; }
-	const LLPointer<LLImageGL>& getImage() const { return mImage; }
+	LLPointer<LLTexture> getImage() { return mImage; }
+	const LLPointer<LLTexture>& getImage() const { return mImage; }
 
 	void draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color = UI_VERTEX_COLOR) const;
 	void draw(S32 x, S32 y, const LLColor4& color = UI_VERTEX_COLOR) const;
@@ -60,11 +62,11 @@ public:
 	
 	void drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const;
 	void drawSolid(const LLRect& rect, const LLColor4& color) const { drawSolid(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color); }
-	void drawSolid(S32 x, S32 y, const LLColor4& color) const { drawSolid(x, y, mImage->getWidth(0), mImage->getHeight(0), color); }
+	void drawSolid(S32 x, S32 y, const LLColor4& color) const { drawSolid(x, y, getWidth(), getHeight(), color); }
 
 	void drawBorder(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, S32 border_width) const;
 	void drawBorder(const LLRect& rect, const LLColor4& color, S32 border_width) const { drawBorder(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color, border_width); }
-	void drawBorder(S32 x, S32 y, const LLColor4& color, S32 border_width) const { drawBorder(x, y, mImage->getWidth(0), mImage->getHeight(0), color, border_width); }
+	void drawBorder(S32 x, S32 y, const LLColor4& color, S32 border_width) const { drawBorder(x, y, getWidth(), getHeight(), color, border_width); }
 	
 	const std::string& getName() const { return mName; }
 
@@ -79,7 +81,7 @@ protected:
 	std::string			mName;
 	LLRectf				mScaleRegion;
 	LLRectf				mClipRegion;
-	LLPointer<LLImageGL> mImage;
+	LLPointer<LLTexture> mImage;
 	BOOL				mUniformScaling;
 	BOOL				mNoClip;
 };
@@ -95,8 +97,8 @@ namespace LLInitParam
 	public:
 		Optional<std::string> name;
 
-		TypedParam(BlockDescriptor& descriptor, const char* name, super_t::value_assignment_t value, ParamDescriptor::validation_func_t func)
-		:	super_t(descriptor, name, value, func)
+		TypedParam(BlockDescriptor& descriptor, const char* name, super_t::value_assignment_t value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
+		:	super_t(descriptor, name, value, func, min_count, max_count)
 		{
 		}
 

@@ -52,7 +52,6 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void draw();
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
 	
 	static void update();
 	

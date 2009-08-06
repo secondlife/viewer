@@ -57,11 +57,11 @@ public:
 
 	struct NameItem : public LLInitParam::Block<NameItem, LLScrollListItem::Params>
 	{
-		Optional<std::string>				display_name;
+		Optional<std::string>				name;
 		Optional<ENameType, NameTypeNames>	target;
 
 		NameItem()
-		:	display_name("name"),
+		:	name("name"),
 			target("target", INDIVIDUAL)
 		{}		
 	};
@@ -94,7 +94,7 @@ public:
 	void addNameItem(NameItem& item, EAddPosition pos = ADD_BOTTOM);
 
 	/*virtual*/ LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
-	LLScrollListItem* addRow(const NameItem& value, EAddPosition pos = ADD_BOTTOM);
+	LLScrollListItem* addNameItemRow(const NameItem& value, EAddPosition pos = ADD_BOTTOM);
 
 	// Add a user to the list by name.  It will be added, the name 
 	// requested from the cache, and updated as necessary.

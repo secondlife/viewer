@@ -50,14 +50,14 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
 		Optional<bool>	draw_border;
+		Mandatory<LLUIImage*>	image_mute,
+								image_off,
+								image_on,
+								image_level_1,
+								image_level_2,
+								image_level_3;
 
-		Params()
-		{
-			draw_border = true;
-			name = "output_monitor";
-			follows.flags(FOLLOWS_LEFT|FOLLOWS_TOP);
-			mouse_opaque = false;
-		};
+		Params();
 	};
 protected:
 	bool	mBorder;
@@ -76,17 +76,28 @@ public:
 	bool			getIsMuted() const { return mIsMuted; }
 	void			setIsMuted(bool val) { mIsMuted = val; }
 
+	// For the current user, need to know the PTT state to show
+	// correct button image.
+	void			setIsTalking(bool val) { mIsTalking = val; }
+
 private:
-	static LLColor4	sColorMuted;
-	static LLColor4	sColorNormal;
-	static LLColor4	sColorOverdriven;
+	//static LLColor4	sColorMuted;
+	//static LLColor4	sColorNormal;
+	//static LLColor4	sColorOverdriven;
 	static LLColor4	sColorBound;
-	static S32		sRectsNumber;
-	static F32		sRectWidthRatio;
-	static F32		sRectHeightRatio;
+	//static S32		sRectsNumber;
+	//static F32		sRectWidthRatio;
+	//static F32		sRectHeightRatio;
 	
 	F32				mPower;
 	bool			mIsMuted;
+	bool			mIsTalking;
+	LLPointer<LLUIImage> mImageMute;
+	LLPointer<LLUIImage> mImageOff;
+	LLPointer<LLUIImage> mImageOn;
+	LLPointer<LLUIImage> mImageLevel1;
+	LLPointer<LLUIImage> mImageLevel2;
+	LLPointer<LLUIImage> mImageLevel3;
 };
 
 #endif

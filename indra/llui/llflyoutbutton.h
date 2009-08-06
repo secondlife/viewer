@@ -46,10 +46,14 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLComboBox::Params>
 	{
 		Optional<LLButton::Params> action_button;
+		Deprecated                 allow_text_entry;
 
 		Params()
-		:	action_button("action_button")
-		{}
+		:	action_button("action_button"),
+		    allow_text_entry("allow_text_entry")
+		{
+			LLComboBox::Params::allow_text_entry = false;
+		}
 
 	};
 protected:

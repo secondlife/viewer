@@ -41,7 +41,6 @@
 #include "llrender.h"
 #include "llagent.h"
 #include "llbutton.h"
-#include "llchatbar.h"
 #include "llfocusmgr.h"
 #include "llimview.h"
 #include "llmediaremotectrl.h"
@@ -49,7 +48,7 @@
 #include "lltextbox.h"
 #include "llui.h"
 #include "llviewercontrol.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerjoystick.h"
 #include "llviewermedia.h"
 #include "llviewermenu.h"	// handle_reset_view()
@@ -92,12 +91,6 @@ void* LLOverlayBar::createVoiceRemote(void* userdata)
 	return self->mVoiceRemote;
 }
 
-void* LLOverlayBar::createChatBar(void* userdata)
-{
-	gChatBar = new LLChatBar();
-	return gChatBar;
-}
-
 LLOverlayBar::LLOverlayBar()
 	:	LLPanel(),
 		mMediaRemote(NULL),
@@ -111,7 +104,6 @@ LLOverlayBar::LLOverlayBar()
 
 	mFactoryMap["media_remote"] = LLCallbackMap(LLOverlayBar::createMediaRemote, this);
 	mFactoryMap["voice_remote"] = LLCallbackMap(LLOverlayBar::createVoiceRemote, this);
-	mFactoryMap["chat_bar"] = LLCallbackMap(LLOverlayBar::createChatBar, this);
 	
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_overlaybar.xml");
 }
@@ -239,7 +231,7 @@ void LLOverlayBar::refresh()
 	BOOL sitting = FALSE;
 	if (gAgent.getAvatarObject())
 	{
-		sitting = gAgent.getAvatarObject()->mIsSitting;
+		sitting = gAgent.getAvatarObject()->isSitting();
 	}
 	button = getChild<LLButton>("Stand Up");
 

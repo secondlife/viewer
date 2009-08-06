@@ -317,6 +317,23 @@ BOOL LLDragHandle::handleHover(S32 x, S32 y, MASK mask)
 		S32 delta_x = screen_x - mDragLastScreenX;
 		S32 delta_y = screen_y - mDragLastScreenY;
 
+		// if dragging a docked floater we want to undock
+		if (((LLFloater*)getParent())->isDocked())
+		{
+			const S32 SLOP = 12;
+
+			if (delta_y <= -SLOP || 
+				delta_y >= SLOP)
+			{
+				((LLFloater*)getParent())->setDocked(false, false);
+				return TRUE;
+			}
+			else
+			{
+				return FALSE;
+			}
+		}
+
 		LLRect original_rect = getParent()->getRect();
 		LLRect translated_rect = getParent()->getRect();
 		translated_rect.translate(delta_x, delta_y);

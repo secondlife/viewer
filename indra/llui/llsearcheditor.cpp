@@ -1,6 +1,6 @@
 /** 
- * @file lllineeditor.cpp
- * @brief LLLineEditor base class
+ * @file llsearcheditor.cpp
+ * @brief LLSearchEditor implementation
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -36,89 +36,63 @@
  
 #include "llsearcheditor.h"
 
-//static LLDefaultWidgetRegistry::Register<LLSearchEditor> r2("search_editor");
-
 LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 :	LLUICtrl(p)
 {
-	LLLineEditor::Params line_editor_p(p);
-	line_editor_p.name("search edit box");
-	line_editor_p.rect(getLocalRect());
-	line_editor_p.follows.flags(FOLLOWS_ALL);
-	line_editor_p.text_pad_right(getRect().getHeight());
-	line_editor_p.keystroke_callback(boost::bind(&LLSearchEditor::onSearchEdit, this, _1));
+	S32 btn_top = p.search_button.top_pad + p.search_button.rect.height;
+	S32 btn_right = p.search_button.rect.width + p.search_button.left_pad;
+	LLRect search_btn_rect(p.search_button.left_pad, btn_top, btn_right, p.search_button.top_pad);
 
-	mSearchEdit = LLUICtrlFactory::create<LLLineEditor>(line_editor_p);
-	addChild(mSearchEdit);
+	LLLineEditor::Params line_editor_params(p);
+	line_editor_params.name("filter edit box");
+	line_editor_params.rect(getLocalRect());
+	line_editor_params.follows.flags(FOLLOWS_ALL);
+	line_editor_params.text_pad_left(p.text_pad_left + search_btn_rect.getWidth());
+	line_editor_params.commit_callback.function(boost::bind(&LLUICtrl::onCommit, this));
 
-	S32 btn_width = getRect().getHeight(); // button is square, and as tall as search editor
-	LLRect clear_btn_rect(getRect().getWidth() - btn_width, getRect().getHeight(), getRect().getWidth(), 0);
-	LLButton::Params button_params(p.clear_search_button);
-	button_params.name(std::string("clear search"));
-	button_params.rect(clear_btn_rect) ;
+	mSearchEditor = LLUICtrlFactory::create<LLLineEditor>(line_editor_params);
+	addChild(mSearchEditor);
+
+	LLButton::Params button_params(p.search_button);
+	button_params.name(std::string("clear filter"));
+	button_params.rect(search_btn_rect) ;
 	button_params.follows.flags(FOLLOWS_RIGHT|FOLLOWS_TOP);
 	button_params.tab_stop(false);
-	button_params.click_callback.function(boost::bind(&LLSearchEditor::onClearSearch, this, _2));
+	button_params.click_callback.function(boost::bind(&LLUICtrl::onCommit, this));
 
-	mClearSearchButton = LLUICtrlFactory::create<LLButton>(button_params);
-	mSearchEdit->addChild(mClearSearchButton);
+	mSearchButton = LLUICtrlFactory::create<LLButton>(button_params);
+	mSearchEditor->addChild(mSearchButton);
 }
 
 //virtual
 void LLSearchEditor::setValue(const LLSD& value )
 {
-	mSearchEdit->setValue(value);
+	mSearchEditor->setValue(value);
 }
 
 //virtual
 LLSD LLSearchEditor::getValue() const
 {
-	return mSearchEdit->getValue();
+	return mSearchEditor->getValue();
 }
 
 //virtual
 BOOL LLSearchEditor::setTextArg( const std::string& key, const LLStringExplicit& text )
 {
-	return mSearchEdit->setTextArg(key, text);
+	return mSearchEditor->setTextArg(key, text);
 }
 
 //virtual
 BOOL LLSearchEditor::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
-	return mSearchEdit->setLabelArg(key, text);
+	return mSearchEditor->setLabelArg(key, text);
 }
 
 //virtual
 void LLSearchEditor::clear()
 {
-	if (mSearchEdit)
+	if (mSearchEditor)
 	{
-		mSearchEdit->clear();
+		mSearchEditor->clear();
 	}
 }
-
-void LLSearchEditor::draw()
-{
-	mClearSearchButton->setVisible(!mSearchEdit->getWText().empty());
-
-	LLUICtrl::draw();
-}
-
-
-void LLSearchEditor::onSearchEdit(LLLineEditor* caller )
-{
-	if (mSearchCallback)
-	{
-		mSearchCallback(caller->getText());
-	}
-}
-
-void LLSearchEditor::onClearSearch(const LLSD& data)
-{
-	setText(LLStringUtil::null);
-	if (mSearchCallback)
-	{
-		mSearchCallback(LLStringUtil::null);
-	}
-}
-

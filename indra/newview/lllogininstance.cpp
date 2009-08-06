@@ -49,6 +49,7 @@
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
 #include "llurlsimstring.h"
+#include "llfloaterreg.h"
 #include "llfloatertos.h"
 #include "llwindow.h"
 #if LL_LINUX || LL_SOLARIS
@@ -221,18 +222,19 @@ bool LLLoginInstance::handleLoginFailure(const LLSD& event)
 		// to reconnect or to end the attempt in failure.
 		if(reason_response == "tos")
 		{
-			LLFloaterTOS::show(LLFloaterTOS::TOS_TOS,
-								message_response,
-								boost::bind(&LLLoginInstance::handleTOSResponse, 
+			LLFloaterTOS * tos =
+				LLFloaterReg::showTypedInstance<LLFloaterTOS>("message_tos", LLSD(message_response));
+
+			tos->setTOSCallback(boost::bind(&LLLoginInstance::handleTOSResponse,
 											this, _1, "agree_to_tos"));
 		}
 		else if(reason_response == "critical")
 		{
-			LLFloaterTOS::show(LLFloaterTOS::TOS_CRITICAL_MESSAGE,
-								message_response,
-								boost::bind(&LLLoginInstance::handleTOSResponse, 
-												this, _1, "read_critical")
-											);
+			LLFloaterTOS * tos =
+				LLFloaterReg::showTypedInstance<LLFloaterTOS>("message_critical",LLSD(message_response));
+
+			tos->setTOSCallback(boost::bind(&LLLoginInstance::handleTOSResponse,
+											this, _1, "read_critical"));
 		}
 		else if(reason_response == "update" || gSavedSettings.getBOOL("ForceMandatoryUpdate"))
 		{
@@ -296,7 +298,7 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 {
 	// store off config state, as we might quit soon
 	gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);	
-	gSavedSkinSettings.saveToFile(gSavedSettings.getString("SkinningSettingsFile"), TRUE);
+	LLUIColorTable::instance().saveUserSettings();
 
 	std::ostringstream message;
 	std::string msg;

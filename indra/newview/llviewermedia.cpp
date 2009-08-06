@@ -34,12 +34,20 @@
 
 #include "llviewermedia.h"
 
+#include "audioengine.h"
+
+#include "llparcel.h"
+
 #include "llmimetypes.h"
 #include "llviewercontrol.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
+#include "llviewerparcelmedia.h"
+#include "llviewerparcelmgr.h"
+#include "llviewerparcelmedia.h"
+#include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
 #include "llversionviewer.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 
 #include "llevent.h"		// LLSimpleListener
 #include "llmediamanager.h"
@@ -53,58 +61,58 @@
 class LLViewerMediaImpl
 	:	public LLMediaObserver
 {
-	public:
-		LLViewerMediaImpl()
-		:	mMediaSource( NULL ),
-			mMovieImageID(),
-			mMovieImageHasMips(false)
-		{ }
+public:
+	LLViewerMediaImpl()
+	:	mMediaSource( NULL ),
+		mMovieImageID(),
+		mMovieImageHasMips(false)
+	{ }
 
-		void destroyMediaSource();
+	void destroyMediaSource();
 
-	    void play(const std::string& media_url,
-				  const std::string& mime_type,
-				  const LLUUID& placeholder_texture_id,
-				  S32 media_width, S32 media_height, U8 media_auto_scale,
-				  U8 media_loop);
+    void play(const std::string& media_url,
+			  const std::string& mime_type,
+			  const LLUUID& placeholder_texture_id,
+			  S32 media_width, S32 media_height, U8 media_auto_scale,
+			  U8 media_loop);
 
-		void stop();
-		void pause();
-		void start();
-    	void seek(F32 time);
-    	void setVolume(F32 volume);
-		LLMediaBase::EStatus getStatus();
+	void stop();
+	void pause();
+	void start();
+	void seek(F32 time);
+	void setVolume(F32 volume);
+	LLMediaBase::EStatus getStatus();
 
-		/*virtual*/ void onMediaSizeChange(const EventType& event_in);
-		/*virtual*/ void onMediaContentsChange(const EventType& event_in);
+	/*virtual*/ void onMediaSizeChange(const EventType& event_in);
+	/*virtual*/ void onMediaContentsChange(const EventType& event_in);
 
-		void updateMovieImage(const LLUUID& image_id, BOOL active);
-		void updateImagesMediaStreams();
-		LLUUID getMediaTextureID();
+	void restoreMovieImage();
+	void updateImagesMediaStreams();
+	LLUUID getMediaTextureID();
 
-		// Internally set our desired browser user agent string, including
-		// the Second Life version and skin name.  Used because we can
-		// switch skins without restarting the app.
-		static void updateBrowserUserAgent();
+	// Internally set our desired browser user agent string, including
+	// the Second Life version and skin name.  Used because we can
+	// switch skins without restarting the app.
+	static void updateBrowserUserAgent();
 
-		// Callback for when the SkinCurrent control is changed to
-		// switch the user agent string to indicate the new skin.
-		static bool handleSkinCurrentChanged(const LLSD& newvalue);
+	// Callback for when the SkinCurrent control is changed to
+	// switch the user agent string to indicate the new skin.
+	static bool handleSkinCurrentChanged(const LLSD& newvalue);
 
-	public:
+public:
 
-		// a single media url with some data and an impl.
-		LLMediaBase* mMediaSource;
-		LLUUID mMovieImageID;
-		bool  mMovieImageHasMips;
-		std::string mMediaURL;
-		std::string mMimeType;
-    private:
-	    void initializePlaceholderImage(LLViewerImage *placeholder_image, LLMediaBase *media_source);
+	// a single media url with some data and an impl.
+	LLMediaBase* mMediaSource;
+	LLUUID mMovieImageID;
+	bool  mMovieImageHasMips;
+	std::string mMediaURL;
+	std::string mMimeType;
+
+private:
+	void initializePlaceholderImage(LLViewerMediaTexture *placeholder_image, LLMediaBase *media_source);	
 };
 
 static LLViewerMediaImpl sViewerMediaImpl;
-
 //////////////////////////////////////////////////////////////////////////////////////////
 
 void LLViewerMediaImpl::destroyMediaSource()
@@ -112,12 +120,11 @@ void LLViewerMediaImpl::destroyMediaSource()
 	LLMediaManager* mgr = LLMediaManager::getInstance();
 	if ( mMediaSource )
 	{
-		bool was_playing = LLViewerMedia::isMediaPlaying();
 		mMediaSource->remObserver(this);
 		mgr->destroySource( mMediaSource );
 
 		// Restore the texture
-		updateMovieImage(LLUUID::null, was_playing);
+		restoreMovieImage();
 
 	}
 	mMediaSource = NULL;
@@ -223,49 +230,36 @@ LLMediaBase::EStatus LLViewerMediaImpl::getStatus()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// static
-void LLViewerMediaImpl::updateMovieImage(const LLUUID& uuid, BOOL active)
+void LLViewerMediaImpl::restoreMovieImage()
 {
 	// IF the media image hasn't changed, do nothing
-	if (mMovieImageID == uuid)
+	if (mMovieImageID.isNull())
 	{
 		return;
 	}
-	// If we have changed media uuid, restore the old one
-	if (!mMovieImageID.isNull())
+
+	//restore the movie image to the old one
+	LLViewerMediaTexture* media = LLViewerTextureManager::findMediaTexture( mMovieImageID ) ;
+	if (media)
 	{
-		LLViewerImage* oldImage = LLViewerImage::getImage( mMovieImageID );
-		if (oldImage)
+		if(media->getOldTexture())//set back to the old texture if it exists
 		{
-			oldImage->reinit(mMovieImageHasMips);
-			oldImage->mIsMediaTexture = FALSE;
+			media->switchToTexture(media->getOldTexture()) ;
+			media->setPlaying(FALSE) ;
 		}
-		mMovieImageID.setNull();
+		media->reinit(mMovieImageHasMips);
 	}
-	// If the movie is playing, set the new media image
-	if (active && !uuid.isNull())
-	{
-		LLViewerImage* viewerImage = LLViewerImage::getImage( uuid );
-		if( viewerImage )
-		{
-			mMovieImageID = uuid;
-			// Can't use mipmaps for movies because they don't update the full image
-			mMovieImageHasMips = viewerImage->getUseMipMaps();
-			viewerImage->reinit(FALSE);
-			viewerImage->mIsMediaTexture = TRUE;
-		}
-	}
+	mMovieImageID.setNull();
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// static
 void LLViewerMediaImpl::updateImagesMediaStreams()
 {
 	LLMediaManager::updateClass();
 }
 
-void LLViewerMediaImpl::initializePlaceholderImage(LLViewerImage *placeholder_image, LLMediaBase *media_source)
+void LLViewerMediaImpl::initializePlaceholderImage(LLViewerMediaTexture *placeholder_image, LLMediaBase *media_source)
 {
 	int media_width = media_source->getMediaWidth();
 	int media_height = media_source->getMediaHeight();
@@ -302,19 +296,14 @@ void LLViewerMediaImpl::initializePlaceholderImage(LLViewerImage *placeholder_im
 
 	// placeholder_image->setExplicitFormat()
 	placeholder_image->setUseMipMaps(FALSE);
-
-	// MEDIAOPT: set this dynamically on play/stop
-	placeholder_image->mIsMediaTexture = true;
 }
-
-
 
 // virtual
 void LLViewerMediaImpl::onMediaContentsChange(const EventType& event_in)
 {
 	LLMediaBase* media_source = event_in.getSubject();
-	LLViewerImage* placeholder_image = gImageList.getImage( mMovieImageID );
-	if ((placeholder_image) && (placeholder_image->getHasGLTexture()))
+	LLViewerMediaTexture* placeholder_image = LLViewerTextureManager::getMediaTexture( mMovieImageID ) ;
+	if (placeholder_image && placeholder_image->hasValidGLTexture())
 	{
 		if (placeholder_image->getUseMipMaps())
 		{
@@ -339,7 +328,7 @@ void LLViewerMediaImpl::onMediaContentsChange(const EventType& event_in)
 void LLViewerMediaImpl::onMediaSizeChange(const EventType& event_in)
 {
 	LLMediaBase* media_source = event_in.getSubject();
-	LLViewerImage* placeholder_image = gImageList.getImage( mMovieImageID );
+	LLViewerMediaTexture* placeholder_image = LLViewerTextureManager::getMediaTexture( mMovieImageID ) ;
 	if (placeholder_image)
 	{
 		initializePlaceholderImage(placeholder_image, media_source);
@@ -349,75 +338,6 @@ void LLViewerMediaImpl::onMediaSizeChange(const EventType& event_in)
 		llinfos << "no placeholder image" << llendl;
 	}
 }
-
-
-		// Get the image we're using
-
-	/*
-	// update media stream if required
-	LLMediaEngine* media_engine = LLMediaEngine::getInstance();
-	if (media_engine)
-	{
-		if ( media_engine->update() )
-		{
-			LLUUID media_uuid = media_engine->getImageUUID();
-			updateMovieImage(media_uuid, TRUE);
-			if (!media_uuid.isNull())
-			{
-				LLViewerImage* viewerImage = getImage( media_uuid );
-				if( viewerImage )
-				{
-					LLMediaBase* renderer = media_engine->getMediaRenderer();
-					if ((renderer->getTextureWidth() != viewerImage->getWidth()) ||
-						(renderer->getTextureHeight() != viewerImage->getHeight()) ||
-						(renderer->getTextureDepth() != viewerImage->getComponents()) ||
-						(viewerImage->getHasGLTexture() == FALSE))
-					{
-						// destroy existing GL image
-						viewerImage->destroyGLTexture();
-
-						// set new size
-						viewerImage->setSize( renderer->getTextureWidth(),
-												renderer->getTextureHeight(),
-												renderer->getTextureDepth() );
-
-						LLPointer<LLImageRaw> raw = new LLImageRaw(renderer->getTextureWidth(),
-																	renderer->getTextureHeight(),
-																	renderer->getTextureDepth());
-						raw->clear(0x7f,0x7f,0x7f,0xff);
-						viewerImage->createGLTexture(0, raw);
-					}
-
-					// Set the explicit format the instance wants
-					viewerImage->setExplicitFormat(renderer->getTextureFormatInternal(),
-													renderer->getTextureFormatPrimary(),
-													renderer->getTextureFormatType(),
-													renderer->getTextureFormatSwapBytes());
-					// This should be redundant, but just in case:
-					viewerImage->setUseMipMaps(FALSE);
-
-					LLImageRaw* rawImage = media_engine->getImageRaw();
-					if ( rawImage )
-					{
-						viewerImage->setSubImage(rawImage, 0, 0,
-													renderer->getMediaWidth(),
-													renderer->getMediaHeight());
-					}
-				}
-				else
-				{
-					llwarns << "MediaEngine update unable to get viewer image for GL texture" << llendl;
-				}
-			}
-		}
-		else
-		{
-			LLUUID media_uuid = media_engine->getImageUUID();
-			updateMovieImage(media_uuid, FALSE);
-		}
-	}
-	*/
-
 
 LLUUID LLViewerMediaImpl::getMediaTextureID()
 {
@@ -461,7 +381,7 @@ bool LLViewerMediaImpl::handleSkinCurrentChanged(const LLSD& /*newvalue*/)
 // Wrapper class
 //////////////////////////////////////////////////////////////////////////////////////////
 
-
+S32 LLViewerMedia::mMusicState = LLViewerMedia::STOPPED;
 //////////////////////////////////////////////////////////////////////////////////////////
 // The viewer takes a long time to load the start screen.  Part of the problem
 // is media initialization -- in particular, QuickTime loads many DLLs and
@@ -692,6 +612,13 @@ bool LLViewerMedia::isActiveMediaTexture(const LLUUID& id)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+//static
+bool LLViewerMedia::isMusicPlaying()
+{
+	return mMusicState == PLAYING; 
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 // static
 std::string LLViewerMedia::getMediaURL()
 {
@@ -708,4 +635,59 @@ std::string LLViewerMedia::getMimeType()
 void LLViewerMedia::setMimeType(std::string mime_type)
 {
 	sViewerMediaImpl.mMimeType = mime_type;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//static
+void LLViewerMedia::toggleMusicPlay(void*)
+{
+	if (mMusicState != PLAYING)
+	{
+		mMusicState = PLAYING; // desired state
+		if (gAudiop)
+		{
+			LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+			if ( parcel )
+			{
+				gAudiop->startInternetStream(parcel->getMusicURL());
+			}
+		}
+	}
+	else
+	{
+		mMusicState = STOPPED; // desired state
+		if (gAudiop)
+		{
+			gAudiop->stopInternetStream();
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//static
+void LLViewerMedia::toggleMediaPlay(void*)
+{
+	if (LLViewerMedia::isMediaPaused())
+	{
+		LLViewerParcelMedia::start();
+	}
+	else if(LLViewerMedia::isMediaPlaying())
+	{
+		LLViewerParcelMedia::pause();
+	}
+	else
+	{
+		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+		if (parcel)
+		{
+			LLViewerParcelMedia::play(parcel);
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//static
+void LLViewerMedia::mediaStop(void*)
+{
+	LLViewerParcelMedia::stop();
 }

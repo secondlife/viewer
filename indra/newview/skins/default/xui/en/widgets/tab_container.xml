@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <tab_container tab_min_width="60"
                tab_max_width="150"
-               tab_top_image_unselected="tab_top_blue.tga"
-               tab_top_image_selected="tab_top_selected_blue.tga"
+               tab_top_image_unselected="TabTop_Middle_Off"
+               tab_top_image_selected="TabTop_Middle_Selected"
                tab_bottom_image_unselected="tab_bottom_blue.tga"
                tab_bottom_image_selected="tab_bottom_selected_blue.tga"
-               tab_left_image_unselected="tab_left.tga"
-               tab_left_image_selected="tab_left_selected.tga"/>
+               tab_left_image_unselected="TabTop_Left_Off"
+               tab_left_image_selected="TabTop_Left_Selected"/>

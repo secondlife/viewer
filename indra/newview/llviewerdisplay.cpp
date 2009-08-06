@@ -48,7 +48,6 @@
 #include "llfirstuse.h"
 #include "llhudmanager.h"
 #include "llimagebmp.h"
-#include "llimagegl.h"
 #include "llmemory.h"
 #include "llselectmgr.h"
 #include "llsky.h"
@@ -74,7 +73,7 @@
 #include "llviewershadermgr.h"
 #include "llfasttimer.h"
 #include "llfloatertools.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llfocusmgr.h"
 #include "llcubemap.h"
 #include "llviewerregion.h"
@@ -84,9 +83,9 @@
 #include "llwaterparammanager.h"
 #include "llpostprocess.h"
 
-extern LLPointer<LLImageGL> gStartImageGL;
+extern LLPointer<LLViewerTexture> gStartTexture;
 
-LLPointer<LLImageGL> gDisconnectedImagep = NULL;
+LLPointer<LLViewerTexture> gDisconnectedImagep = NULL;
 
 // used to toggle renderer back on after teleport
 const F32 TELEPORT_RENDER_DELAY = 20.f; // Max time a teleport is allowed to take before we raise the curtain
@@ -136,7 +135,7 @@ void display_startup()
 
 	if (frame_count++ > 1) // make sure we have rendered a frame first
 	{
-		LLDynamicTexture::updateAllInstances();
+		LLViewerDynamicTexture::updateAllInstances();
 	}
 
 	LLGLState::checkStates();
@@ -313,8 +312,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 	LLImageGL::updateStats(gFrameTimeSeconds);
 	
-	LLVOAvatar::sRenderName = gSavedSettings.getS32("RenderName");
-	LLVOAvatar::sRenderGroupTitles = !gSavedSettings.getBOOL("RenderHideGroupTitleAll");
+	LLVOAvatar::sRenderName = gSavedSettings.getS32("AvatarNameTagMode");
+	LLVOAvatar::sRenderGroupTitles = (gSavedSettings.getBOOL("RenderShowGroupTitleAll") && gSavedSettings.getS32("AvatarNameTagMode"));
 	
 	gPipeline.mBackfaceCull = TRUE;
 	gFrameCount++;
@@ -383,7 +382,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gAgent.setTeleportState( LLAgent::TELEPORT_ARRIVING );
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["arriving"]);
-			gImageList.mForceResetTextureStats = TRUE;
+			gTextureList.mForceResetTextureStats = TRUE;
 			gAgent.resetView(TRUE, TRUE);
 			break;
 
@@ -506,7 +505,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	{
 		LLAppViewer::instance()->pingMainloopTimeout("Display:DynamicTextures");
 		LLFastTimer t(LLFastTimer::FTM_UPDATE_TEXTURES);
-		if (LLDynamicTexture::updateAllInstances())
+		if (LLViewerDynamicTexture::updateAllInstances())
 		{
 			gGL.setColorMask(true, true);
 			glClear(GL_DEPTH_BUFFER_BIT);
@@ -690,13 +689,13 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			LLMemType mt_iu(LLMemType::MTYPE_DISPLAY_IMAGE_UPDATE);
 			LLFastTimer t(LLFastTimer::FTM_IMAGE_UPDATE);
 			
-			LLViewerImage::updateClass(LLViewerCamera::getInstance()->getVelocityStat()->getMean(),
+			LLViewerTexture::updateClass(LLViewerCamera::getInstance()->getVelocityStat()->getMean(),
 										LLViewerCamera::getInstance()->getAngularVelocityStat()->getMean());
 
-			gBumpImageList.updateImages();  // must be called before gImageList version so that it's textures are thrown out first.
+			gBumpImageList.updateImages();  // must be called before gTextureList version so that it's textures are thrown out first.
 
 			const F32 max_image_decode_time = llmin(0.005f, 0.005f*10.f*gFrameIntervalSeconds); // 50 ms/second decode time (no more than 5ms/frame)
-			gImageList.updateImages(max_image_decode_time);
+			gTextureList.updateImages(max_image_decode_time);
 			stop_glerror();
 		}
 		llpushcallstacks ;
@@ -1279,8 +1278,7 @@ void render_disconnected_background()
 			//llinfos << "Bitmap load failed" << llendl;
 			return;
 		}
-
-		gDisconnectedImagep = new LLImageGL( FALSE );
+		
 		LLPointer<LLImageRaw> raw = new LLImageRaw;
 		if (!image_bmp->decode(raw, 0.0f))
 		{
@@ -1306,8 +1304,8 @@ void render_disconnected_background()
 
 		
 		raw->expandToPowerOfTwo();
-		gDisconnectedImagep->createGLTexture(0, raw);
-		gStartImageGL = gDisconnectedImagep;
+		gDisconnectedImagep = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE );
+		gStartTexture = gDisconnectedImagep;
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	}
 

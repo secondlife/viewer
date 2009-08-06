@@ -44,7 +44,7 @@
 #include "llscrolllistcolumn.h"
 #include "llsdparam.h"
 
-static LLDefaultWidgetRegistry::Register<LLNameListCtrl> r("name_list");
+static LLDefaultChildRegistry::Register<LLNameListCtrl> r("name_list");
 
 void LLNameListCtrl::NameTypeNames::declareValues()
 {
@@ -138,20 +138,20 @@ void LLNameListCtrl::addGroupNameItem(const LLUUID& group_id, EAddPosition pos,
 	item.enabled = enabled;
 	item.target = GROUP;
 
-	addRow(item, pos);
+	addNameItemRow(item, pos);
 }
 
 // public
 void LLNameListCtrl::addGroupNameItem(LLNameListCtrl::NameItem& item, EAddPosition pos)
 {
 	item.target = GROUP;
-	addRow(item, pos);
+	addNameItemRow(item, pos);
 }
 
 void LLNameListCtrl::addNameItem(LLNameListCtrl::NameItem& item, EAddPosition pos)
 {
 	item.target = INDIVIDUAL;
-	addRow(item, pos);
+	addNameItemRow(item, pos);
 }
 
 LLScrollListItem* LLNameListCtrl::addElement(const LLSD& element, EAddPosition pos, void* userdata)
@@ -159,17 +159,17 @@ LLScrollListItem* LLNameListCtrl::addElement(const LLSD& element, EAddPosition p
 	LLNameListCtrl::NameItem item_params;
 	LLParamSDParser::instance().readSD(element, item_params);
 	item_params.userdata = userdata;
-	return addRow(item_params, pos);
+	return addNameItemRow(item_params, pos);
 }
 
 
-LLScrollListItem* LLNameListCtrl::addRow(const LLNameListCtrl::NameItem& name_item, EAddPosition pos)
+LLScrollListItem* LLNameListCtrl::addNameItemRow(const LLNameListCtrl::NameItem& name_item, EAddPosition pos)
 {
 	LLScrollListItem* item = LLScrollListCtrl::addRow(name_item, pos);
 	if (!item) return NULL;
 
 	// use supplied name by default
-	std::string fullname = name_item.display_name;
+	std::string fullname = name_item.name;
 	switch(name_item.target)
 	{
 	case GROUP:

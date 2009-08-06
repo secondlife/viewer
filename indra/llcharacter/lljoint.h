@@ -174,7 +174,7 @@ public:
 
 	void clampRotation(LLQuaternion old_rot, LLQuaternion new_rot);
 
-	virtual BOOL isAnimatable() { return TRUE; }
+	virtual BOOL isAnimatable() const { return TRUE; }
 
 	S32 getJointNum() const { return mJointNum; }
 	void setJointNum(S32 joint_num) { mJointNum = joint_num; }

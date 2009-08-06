@@ -45,7 +45,7 @@
 #include "llsurface.h"
 #include "llvosky.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerregion.h"
 #include "llworld.h"
 #include "pipeline.h"

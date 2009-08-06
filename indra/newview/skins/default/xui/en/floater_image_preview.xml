@@ -61,25 +61,35 @@
      top_delta="3"
      width="160">
         <combo_box.item
-         label="Image" />
+         label="Image"
+         name="Image" />
         <combo_box.item
-         label="Hair" />
+         label="Hair"
+         name="Hair" />
         <combo_box.item
-         label="Female Head" />
+         label="Female Head"
+         name="FemaleHead" />
         <combo_box.item
-         label="Female Upper Body" />
+         label="Female Upper Body"
+         name="FemaleUpperBody" />
         <combo_box.item
-         label="Female Lower Body" />
+         label="Female Lower Body"
+         name="FemaleLowerBody" />
         <combo_box.item
-         label="Male Head" />
+         label="Male Head"
+         name="MaleHead" />
         <combo_box.item
-         label="Male Upper Body" />
+         label="Male Upper Body"
+         name="MaleUpperBody" />
         <combo_box.item
-         label="Male Lower Body" />
+         label="Male Lower Body"
+         name="MaleLowerBody" />
         <combo_box.item
-         label="Skirt" />
+         label="Skirt"
+         name="Skirt" />
         <combo_box.item
-         label="Sculpted Prim" />
+         label="Sculpted Prim"
+         name="SculptedPrim" />
     </combo_box>
     <text
      type="string"

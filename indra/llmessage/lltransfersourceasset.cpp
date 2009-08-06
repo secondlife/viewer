@@ -296,10 +296,10 @@ bool is_asset_id_knowable(LLAssetType::EType type)
 		case LLAssetType::AT_FAVORITE:
 		case LLAssetType::AT_LINK:
 		case LLAssetType::AT_LINK_FOLDER:
-		rv = true;
-		break;
-	default:
-		break;
+			rv = true;
+			break;
+		default:
+			break;
 	}
 	return rv;
 }
