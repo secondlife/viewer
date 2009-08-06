@@ -57,7 +57,7 @@ LLFloaterTOS::LLFloaterTOS(const LLSD& message)
 	mMessage(message.asString()),
 	mWebBrowserWindowId( 0 ),
 	mLoadCompleteCount( 0 ),
-	mCallback(callback)
+	mCallback()
 {
 }
 
@@ -239,4 +239,9 @@ void LLFloaterTOS::onNavigateComplete( const EventType& eventIn )
 		LLCheckBoxCtrl * tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
 		tos_agreement->setEnabled( true );
 	};
+}
+
+void LLFloaterTOS::setTOSCallback(LLFloaterTOS::YesNoCallback const & callback)
+{
+	mCallback = callback;
 }

@@ -66,6 +66,9 @@ public:
 
 	virtual void onNavigateComplete( const EventType& eventIn );
 
+	// *TODO - consider getting rid of this in favor of using an event pump. -brad
+	void setTOSCallback(YesNoCallback const & callback);
+
 private:
 	std::string		mMessage;
 	int				mWebBrowserWindowId;
