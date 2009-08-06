@@ -42,19 +42,30 @@
 class LL_COMMON_API LLSingletonRegistry {
 	private:
 		typedef std::map<std::string, void *> TypeMap;
-		static TypeMap sSingletonMap;
+		static TypeMap * sSingletonMap;
+
+		static void checkInit()
+		{
+			if(sSingletonMap == NULL)
+			{
+				sSingletonMap = new TypeMap();
+			}
+		}
 
 	public:
 		template<typename T> static void * & get()
 		{
 			std::string name(typeid(T).name());
 
-			if(0 == sSingletonMap.count(name))
-			{
-				sSingletonMap[name] = NULL;
-			}
+			checkInit();
 
-			return sSingletonMap[typeid(T).name()];
+			// the first entry of the pair returned by insert will be either the existing
+			// iterator matching our key, or the newly inserted NULL initialized entry
+			// see "Insert element" in http://www.sgi.com/tech/stl/UniqueAssociativeContainer.html
+			TypeMap::iterator result =
+				sSingletonMap->insert(std::make_pair(name, (void*)NULL)).first;
+
+			return result->second;
 		}
 };
 
@@ -130,12 +141,13 @@ public:
 
 	static SingletonInstanceData& getData()
 	{
-		void * & registry = LLSingletonRegistry::get<DERIVED_TYPE>();
-		static SingletonInstanceData data;
+		// this is static to cache the lookup results
+		static void * & registry = LLSingletonRegistry::get<DERIVED_TYPE>();
 
 		// *TODO - look into making this threadsafe
 		if(NULL == registry)
 		{
+			static SingletonInstanceData data;
 			registry = &data;
 		}
 
