@@ -231,7 +231,7 @@ void LLOverlayBar::refresh()
 	BOOL sitting = FALSE;
 	if (gAgent.getAvatarObject())
 	{
-		sitting = gAgent.getAvatarObject()->mIsSitting;
+		sitting = gAgent.getAvatarObject()->isSitting();
 	}
 	button = getChild<LLButton>("Stand Up");
 

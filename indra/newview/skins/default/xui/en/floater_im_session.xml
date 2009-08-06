@@ -9,7 +9,7 @@
  top="0"
  can_dock="true"
  can_minimize="false"
- visible="false" 
+ visible="true" 
  width="315">
   <layout_stack follows="left|top|right|bottom"
                 height="235"

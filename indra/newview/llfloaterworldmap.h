@@ -65,7 +65,6 @@ public:
 	BOOL postBuild();
 
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
 
 	static void reloadIcons(void*);
 
@@ -113,6 +112,8 @@ public:
 	void			teleport();
 
 protected:
+	void			onClose();
+	
 	void			onGoHome();
 
 	void			onLandmarkComboPrearrange();

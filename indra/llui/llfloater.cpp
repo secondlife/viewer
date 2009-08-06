@@ -75,6 +75,19 @@ std::string	LLFloater::sButtonActiveImageNames[BUTTON_COUNT] =
 	"Icon_Undock_Foreground"
 };
 
+// Empty string means programmatic glow effect, achieved by
+// not setting explicit image.
+std::string	LLFloater::sButtonHoveredImageNames[BUTTON_COUNT] = 
+{
+	"",						//BUTTON_CLOSE
+	"restore_pressed.tga",	//BUTTON_RESTORE
+	"minimize_pressed.tga",	//BUTTON_MINIMIZE
+	"tearoff_pressed.tga",	//BUTTON_TEAR_OFF
+	"close_in_blue.tga",	//BUTTON_EDIT
+	"",						//BUTTON_DOCK
+	"",						//BUTTON_UNDOCK
+};
+
 std::string	LLFloater::sButtonPressedImageNames[BUTTON_COUNT] = 
 {
 	"Icon_Close_Press",		//BUTTON_CLOSE
@@ -97,20 +110,19 @@ std::string	LLFloater::sButtonNames[BUTTON_COUNT] =
 	"llfloater_undock_btn"
 };
 
-std::string LLFloater::sButtonToolTips[BUTTON_COUNT] = {};
-
+std::string LLFloater::sButtonToolTips[BUTTON_COUNT];
 
 std::string LLFloater::sButtonToolTipsIndex[BUTTON_COUNT]=
 {
 #ifdef LL_DARWIN
-	"BUTTON_CLOSE_DARWIN",//LLTrans::getString("BUTTON_CLOSE_DARWIN"), //"Close (Cmd-W)",	//BUTTON_CLOSE
+	"BUTTON_CLOSE_DARWIN",	//"Close (Cmd-W)",	//BUTTON_CLOSE
 #else
-	"BUTTON_CLOSE_WIN", //LLTrans::getString("BUTTON_CLOSE_WIN"), //"Close (Ctrl-W)",	//BUTTON_CLOSE
+	"BUTTON_CLOSE_WIN",		//"Close (Ctrl-W)",	//BUTTON_CLOSE
 #endif
-	"BUTTON_RESTORE",//LLTrans::getString("BUTTON_RESTORE"), //"Restore",	//BUTTON_RESTORE
-	"BUTTON_MINIMIZE",//LLTrans::getString("BUTTON_MINIMIZE"),	//"Minimize",	//BUTTON_MINIMIZE
-	"BUTTON_TEAR_OFF",//LLTrans::getString("BUTTON_TEAR_OFF"),	//"Tear Off",	//BUTTON_TEAR_OFF
-	"BUTTON_EDIT", //LLTrans::getString("BUTTON_EDIT"), //	"Edit",		//BUTTON_EDIT
+	"BUTTON_RESTORE",		//"Restore",	//BUTTON_RESTORE
+	"BUTTON_MINIMIZE",		//"Minimize",	//BUTTON_MINIMIZE
+	"BUTTON_TEAR_OFF",		//"Tear Off",	//BUTTON_TEAR_OFF
+	"BUTTON_EDIT",			//"Edit",		//BUTTON_EDIT
 	"BUTTON_DOCK",
 	"BUTTON_UNDOCK"
 };
@@ -128,7 +140,7 @@ LLFloater::click_callback LLFloater::sButtonCallbacks[BUTTON_COUNT] =
 
 LLMultiFloater* LLFloater::sHostp = NULL;
 BOOL			LLFloater::sEditModeEnabled = FALSE;
-BOOL			LLFloater::sQuitting = FALSE; // Temporary hack until onClose() behavior becomes data driven
+BOOL			LLFloater::sQuitting = FALSE; // Flag to prevent storing visibility controls while quitting
 LLFloater::handle_map_t	LLFloater::sFloaterMap;
 
 LLFloaterView* gFloaterView = NULL;
@@ -219,6 +231,15 @@ const LLFloater::Params& LLFloater::getDefaultParams()
 	return LLUICtrlFactory::getDefaultParams<LLFloater>();
 }
 
+//static
+void LLFloater::initClass()
+{
+	// translate tooltips for floater buttons
+	for (S32 i = 0; i < BUTTON_COUNT; i++)
+	{
+		sButtonToolTips[i] = LLTrans::getString( sButtonToolTipsIndex[i] );
+	}
+}
 
 LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	:	LLPanel(),
@@ -251,21 +272,10 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	static LLUIColor default_background_color = LLUIColorTable::instance().getColor("FloaterDefaultBackgroundColor");
 	static LLUIColor focus_background_color = LLUIColorTable::instance().getColor("FloaterFocusBackgroundColor");
 	
-	for (S32 i = 0; i < BUTTON_COUNT; i++)
-	{
-		sButtonToolTips[i] =LLTrans::getString( sButtonToolTipsIndex[i]);
-	}
-	
 	mHandle.bind(this);
 	mNotificationContext = new LLFloaterNotificationContext(getHandle());
 	mBgColorAlpha        = default_background_color;
 	mBgColorOpaque       = focus_background_color;
-
-	for (S32 i = 0; i < 4; i++) 
-	{
-		mResizeBar[i] = NULL;
-		mResizeHandle[i] = NULL;
-	}
 
 	// Clicks stop here.
 	setMouseOpaque(TRUE);
@@ -431,6 +441,9 @@ void LLFloater::addResizeCtrls()
 
 	// Resize handles (corners)
 	LLResizeHandle::Params handle_p;
+	// handles must not be mouse-opaque, otherwise they block hover events
+	// to other buttons like the close box. JC
+	handle_p.mouse_opaque(false);
 	handle_p.rect(LLRect( getRect().getWidth() - RESIZE_HANDLE_WIDTH, RESIZE_HANDLE_HEIGHT, getRect().getWidth(), 0));
 	handle_p.min_width(mMinWidth);
 	handle_p.min_height(mMinHeight);
@@ -505,7 +518,6 @@ void LLFloater::storeRectControl()
 
 void LLFloater::storeVisibilityControl()
 {
-	// sQuitting is a temp hack until we standardize onClose() behavior so that it won't call this when quitting
 	if( !sQuitting && mVisibilityControl.size() > 1 )
 	{
 		LLUI::sSettingGroups["floater"]->setBOOL( mVisibilityControl, getVisible() );
@@ -514,7 +526,7 @@ void LLFloater::storeVisibilityControl()
 
 void LLFloater::setVisible( BOOL visible )
 {
-	LLPanel::setVisible(visible);
+	LLPanel::setVisible(visible); // calls handleVisibilityChange()
 	if( visible && mFirstLook )
 	{
 		mFirstLook = FALSE;
@@ -549,14 +561,14 @@ void LLFloater::setVisible( BOOL visible )
 }
 
 // virtual
-void LLFloater::onVisibilityChange ( BOOL new_visibility )
+void LLFloater::handleVisibilityChange ( BOOL new_visibility )
 {
 	if (new_visibility)
 	{
 		if (getHost())
 			getHost()->setFloaterFlashing(this, FALSE);
 	}
-	LLPanel::onVisibilityChange ( new_visibility );
+	LLPanel::handleVisibilityChange ( new_visibility );
 }
 
 void LLFloater::openFloater(const LLSD& key)
@@ -593,7 +605,7 @@ void LLFloater::openFloater(const LLSD& key)
 		setVisibleAndFrontmost(mAutoFocus);
 	}
 
-	mOpenSignal(this, getValue());
+	mOpenSignal(this, key);
 	onOpen(key);
 }
 
@@ -601,7 +613,7 @@ void LLFloater::closeFloater(bool app_quitting)
 {
 	if (app_quitting)
 	{
-		LLFloater::sQuitting = true; // Temp hack until we standardize onClose()	
+		LLFloater::sQuitting = true;
 	}
 	
 	// Always unminimize before trying to close.
@@ -661,9 +673,27 @@ void LLFloater::closeFloater(bool app_quitting)
 			}
 		}
 		
-		// Let floater do cleanup.
-		mCloseSignal(this, getValue(), app_quitting);
-		onClose(app_quitting);
+		// Close callback
+		mCloseSignal(this, LLSD(app_quitting));
+		
+		// Hide or Destroy
+		if (mSingleInstance)
+		{
+			// Hide the instance
+			if (getHost())
+			{
+				getHost()->setVisible(FALSE);
+			}
+			else
+			{
+				setVisible(FALSE);
+			}
+		}
+		else
+		{
+			setVisible(FALSE); // hide before destroying (so handleVisibilityChange() gets called)
+			destroy();
+		}
 	}
 }
 
@@ -1771,9 +1801,20 @@ void LLFloater::buildButtons()
 		p.rect(btn_rect);
 		p.label("");
 		p.image_unselected.name(sButtonActiveImageNames[i]);
+		// Selected, no matter if hovered or not, is "pressed"
 		p.image_selected.name(sButtonPressedImageNames[i]);
 		p.image_hover_selected.name(sButtonPressedImageNames[i]);
-		p.image_hover_unselected.name(sButtonPressedImageNames[i]);
+		// Empty string means programmatic glow effect, achieved by
+		// not setting explicit image.
+		if (sButtonHoveredImageNames[i].empty())
+		{
+			// These icons are really small, need glow amount increased
+			p.hover_glow_amount( 0.22f );
+		}
+		else
+		{
+			p.image_hover_unselected.name(sButtonHoveredImageNames[i]);
+		}
 		p.click_callback.function(boost::bind(sButtonCallbacks[i], this));
 		p.tab_stop(false);
 		p.follows.flags(FOLLOWS_TOP|FOLLOWS_RIGHT);
@@ -1787,72 +1828,6 @@ void LLFloater::buildButtons()
 
 	updateButtons();
 }
-
-void LLFloater::initOpenCallback(const OpenCallbackParam& cb, open_signal_t& sig)
-{
-	if (cb.function.isProvided())
-	{
-		if (cb.parameter.isProvided())
-			sig.connect(boost::bind(cb.function(), _1, cb.parameter));
-		else
-			sig.connect(cb.function());
-	}
-	else
-	{
-		std::string function_name = cb.function_name;
-		open_callback_t* func = (OpenCallbackRegistry::getValue(function_name));
-		if (func)
-		{
-			if (cb.parameter.isProvided())
-				sig.connect(boost::bind((*func), _1, cb.parameter));
-			else
-				sig.connect(*func);
-		}
-		else if (!function_name.empty())
-		{
-			llwarns << "No callback found for: '" << function_name << "' in control: " << getName() << llendl;
-		}			
-	}
-}
-
-void LLFloater::initCloseCallback(const CloseCallbackParam& cb, close_signal_t& sig)
-{
-	if (cb.function.isProvided())
-	{
-		if (cb.parameter.isProvided())
-			sig.connect(boost::bind(cb.function(), _1, cb.parameter, _3));
-		else
-			sig.connect(cb.function());
-	}
-	else
-	{
-		std::string function_name = cb.function_name;
-		close_callback_t* func = (CloseCallbackRegistry::getValue(function_name)); 
-		if (func)
-		{
-			if (cb.parameter.isProvided())
-				sig.connect(boost::bind((*func), _1, cb.parameter,_3));
-			else
-				sig.connect(*func);
-		}
-		else if (!function_name.empty())
-		{
-			llwarns << "No callback found for: '" << function_name << "' in control: " << getName() << llendl;
-		}			
-	}
-}
-
-namespace LLInitParam
-{
-    
-    template<> 
-	bool ParamCompare<LLFloater::close_callback_t>::equals(
-												  const LLFloater::close_callback_t &a, 
-												  const LLFloater::close_callback_t &b)
-    {
-    	return false;
-    }
-}    
 
 /////////////////////////////////////////////////////
 // LLFloaterView
@@ -2612,13 +2587,13 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	
 	// open callback 
 	if (p.open_callback.isProvided())
-		initOpenCallback(p.open_callback, mOpenSignal);
+		initCommitCallback(p.open_callback, mOpenSignal);
 	// close callback 
 	if (p.close_callback.isProvided())
-		initCloseCallback(p.close_callback, mCloseSignal);
+		initCommitCallback(p.close_callback, mCloseSignal);
 }
 
-void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, BOOL open_floater, LLXMLNodePtr output_node)
+void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 {
 	Params params(LLUICtrlFactory::getDefaultParams<LLFloater>());
 	LLXUIParser::instance().readXUI(node, params);
@@ -2661,38 +2636,6 @@ void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, BOOL open_floa
 	applyRectControl(); // If we have a saved rect control, apply it
 	gFloaterView->adjustToFitScreen(this, FALSE); // Floaters loaded from XML should all fit on screen	
 
-	if (open_floater)
-	{
-		this->openFloater(getKey());
-	}
-
 	moveResizeHandlesToFront();
-}
-
-// visibility methods
-bool VisibilityPolicy<LLFloater>::visible(LLFloater* instance, const LLSD& key)
-{
-	if (instance) 
-	{
-		return !instance->isMinimized() && instance->isInVisibleChain();
-	}
-	return FALSE;
-}
-
-void VisibilityPolicy<LLFloater>::show(LLFloater* instance, const LLSD& key)
-{
-	if (instance) 
-	{
-		instance->openFloater(key);
-		if (instance->getHost())
-		{
-			instance->getHost()->openFloater(key);
-		}
-	}
-}
-
-void VisibilityPolicy<LLFloater>::hide(LLFloater* instance, const LLSD& key)
-{
-	if (instance) instance->closeFloater();
 }
 

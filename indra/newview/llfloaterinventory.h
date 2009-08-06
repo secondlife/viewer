@@ -188,7 +188,6 @@ class LLFloaterInventoryFinder : public LLFloater
 public:
 	LLFloaterInventoryFinder( LLFloaterInventory* inventory_view);
 	virtual void draw();
-	virtual void onClose(bool app_quitting);
 	/*virtual*/	BOOL	postBuild();
 	void changeFilter(LLInventoryFilter* filter);
 	void updateElementsFromFilter();
@@ -226,9 +225,6 @@ public:
 	void setFilterTextFromFilter() { mFilterText = mActivePanel->getFilter()->getFilterText(); }
 	void startSearch();
 	
-	// Spawn a new inventory view
-	static LLFloaterInventory* newInstance();
-	
 	// This method makes sure that an inventory view exists, is
 	// visible, and has focus. The view chosen is returned.
 	static LLFloaterInventory* showAgentInventory();
@@ -248,8 +244,6 @@ public:
 
 	// LLView & LLFloater functionality
 	virtual void onOpen(const LLSD& key);
-	virtual void onClose(bool app_quitting);
-	virtual void setVisible(BOOL visible);
 	virtual void draw();
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
@@ -278,7 +272,6 @@ public:
 	void doToSelected(const LLSD& userdata);
 	void closeAllFolders();
 	void doCreate(const LLSD& userdata);
-	void newWindow();
 	void resetFilters();
 	void setSortBy(const LLSD& userdata);
 	

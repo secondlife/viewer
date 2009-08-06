@@ -80,7 +80,7 @@ static timer_tree_iterator_t end_timer_tree()
 }
 
 LLFastTimerView::LLFastTimerView(const LLRect& rect)
-:	LLFloater(),
+:	LLFloater(LLSD()),
 	mHoverTimer(NULL)
 {
 	setRect(rect);

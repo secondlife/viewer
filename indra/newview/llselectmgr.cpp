@@ -4452,8 +4452,7 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
 	// the reporter widget askes the server for info about picked objects
 	if (request_flags & COMPLAINT_REPORT_REQUEST )
 	{
-		EReportType report_type =  COMPLAINT_REPORT ;
-		LLFloaterReporter *reporterp = LLFloaterReporter::getReporter(report_type);
+		LLFloaterReporter *reporterp = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
 		if (reporterp)
 		{
 			std::string fullname;
@@ -5405,6 +5404,7 @@ void dialog_refresh_all()
 	}
 
 	LLFloaterProperties::dirtyAll();
+	
 	LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
 	if(inspect_instance)
 	{

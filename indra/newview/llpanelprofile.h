@@ -46,7 +46,7 @@ class LLPanelProfile : public LLPanel
 public:
 	virtual BOOL postBuild();
 
-	virtual void onOpen(const LLSD& key);
+	virtual void onOpen(const LLSD& key) {};
 
 	virtual void togglePanel(LLPanel*);
 

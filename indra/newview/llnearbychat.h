@@ -54,12 +54,6 @@ public:
 	LLNearbyChat(const LLSD& key);
 	~LLNearbyChat();
 
-	LLNearbyChat():mEChatTearofState(CHAT_PINNED){};
-	LLNearbyChat(const Params& params):mEChatTearofState(CHAT_PINNED){};
-
-	//static LLNearbyChat* createInstance();
-	//static LLNearbyChat* getInstance		();
-
 	BOOL	postBuild			();
 	void	reshape				(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	

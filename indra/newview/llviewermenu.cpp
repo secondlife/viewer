@@ -81,6 +81,7 @@
 #include "lldrawpooltree.h"
 #include "llface.h"
 #include "llfirstuse.h"
+#include "llfirsttimetipmanager.h"
 #include "llfloater.h"
 #include "llfloaterabout.h"
 #include "llfloaterbuycurrency.h"
@@ -3048,7 +3049,7 @@ class LLAvatarDebug : public view_listener_t
 			strings.push_back(avatar->getID().asString());
 			LLUUID invoice;
 			send_generic_message("dumptempassetdata", strings, invoice);
-			LLFloaterAvatarTextures::show( avatar->getID() );
+			LLFloaterReg::showInstance( "avatar_tetures", LLSD(avatar->getID()) );
 		}
 		return true;
 	}
@@ -3439,7 +3440,7 @@ class LLSelfStandUp : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
+		gAgent.standUp();
 		return true;
 	}
 };
@@ -3448,7 +3449,7 @@ class LLSelfEnableStandUp : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gAgent.getAvatarObject() && gAgent.getAvatarObject()->mIsSitting;
+		bool new_value = gAgent.getAvatarObject() && gAgent.getAvatarObject()->isSitting();
 		return new_value;
 	}
 };
@@ -3676,7 +3677,7 @@ bool handle_sit_or_stand()
 
 	if (sitting_on_selection())
 	{
-		gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
+		gAgent.standUp();
 		return true;
 	}
 
@@ -3722,7 +3723,7 @@ class LLLandSit : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
+		gAgent.standUp();
 		LLViewerParcelMgr::getInstance()->deselectLand();
 
 		LLVector3d posGlobal = LLToolPie::getInstance()->getPick().mPosGlobal;
@@ -4630,7 +4631,7 @@ BOOL sitting_on_selection()
 		return FALSE;
 	}
 
-	return (avatar->mIsSitting && avatar->getRoot() == root_object);
+	return (avatar->isSitting() && avatar->getRoot() == root_object);
 }
 
 class LLToolsSaveToInventory : public view_listener_t
@@ -5225,6 +5226,9 @@ class LLWorldAlwaysRun : public view_listener_t
 		// tell the simulator.
 		gAgent.sendWalkRun(gAgent.getAlwaysRun());
 
+		// Update Movement Controls according to AlwaysRun mode
+		LLFloaterMove::setAlwaysRunMode(gAgent.getAlwaysRun());
+
 		return true;
 	}
 };
@@ -5275,7 +5279,10 @@ class LLWorldCreateLandmark : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterReg::showInstance("add_landmark");
+		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+			
+		// Floater "Add Landmark" functionality moved to Side Tray
+		//LLFloaterReg::showInstance("add_landmark");
 		return true;
 	}
 };
@@ -5330,8 +5337,7 @@ void invite_to_group(const LLUUID& dest_id)
 	LLViewerObject* dest = gObjectList.findObject(dest_id);
 	if(dest && dest->isAvatar())
 	{
-		LLFloaterGroupPicker* widget;
-		widget = LLFloaterGroupPicker::showInstance(LLSD(gAgent.getID()));
+		LLFloaterGroupPicker* widget = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
 		if (widget)
 		{
 			widget->center();
@@ -5533,11 +5539,7 @@ class LLShowFloater : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string floater_name = userdata.asString();
-		if (floater_name == "gestures")
-		{
-			LLFloaterGesture::toggleVisibility();
-		}
-		else if (floater_name == "appearance")
+		if (floater_name == "appearance")
 		{
 			if (gAgentWearables.areWearablesLoaded())
 			{
@@ -5547,10 +5549,6 @@ class LLShowFloater : public view_listener_t
 		else if (floater_name == "toolbar")
 		{
 			LLToolBar::toggle(NULL);
-		}
-		else if (floater_name == "my land")
-		{
-			LLFloaterLandHoldings::show(NULL);
 		}
 		else if (floater_name == "buy land")
 		{
@@ -6808,7 +6806,7 @@ void handle_debug_avatar_textures(void*)
 	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
 	if (objectp)
 	{
-		LLFloaterAvatarTextures::show(objectp->getID());
+		LLFloaterReg::showInstance( "avatar_tetures", LLSD(objectp->getID()) );
 	}
 }
 
@@ -7063,8 +7061,8 @@ void handle_load_from_xml(void*)
 	if (picker.getOpenFile(LLFilePicker::FFLOAD_XML))
 	{
 		std::string filename = picker.getFirstFile();
-		LLFloater* floater = new LLFloater();
-		LLUICtrlFactory::getInstance()->buildFloater(floater, filename);
+		LLFloater* floater = new LLFloater(LLSD());
+		LLUICtrlFactory::getInstance()->buildFloater(floater, filename, NULL);
 	}
 }
 
@@ -7110,14 +7108,7 @@ void handle_buy_currency_test(void*)
 
 	llinfos << "buy currency url " << url << llendl;
 
-	LLFloaterHtmlCurrency* floater =LLFloaterReg::getTypedInstance<LLFloaterHtmlCurrency>("html_currency", LLSD(url));
-	if(floater)
-	{
-		LLFloaterReg::showInstance("html_currency", LLSD(url));
-		// Needed so we can use secondlife:///app/floater/self/close SLURLs
-		floater->setTrusted(true);
-		floater->center();
-	}
+	LLFloaterReg::showInstance("buy_currency_html", LLSD(url));
 }
 
 void handle_rebake_textures(void*)
@@ -7517,16 +7508,7 @@ class LLWorldEnvSettings : public view_listener_t
 		if (tod == "editor")
 		{
 			// if not there or is hidden, show it
-			if(	!LLFloaterEnvSettings::isOpen() || 
-				!LLFloaterEnvSettings::instance()->getVisible()) {
-				LLFloaterEnvSettings::show();
-				
-			// otherwise, close it button acts like a toggle
-			} 
-			else 
-			{
-				LLFloaterEnvSettings::instance()->closeFloater();
-			}
+			LLFloaterReg::toggleInstance("env_settings");
 			return true;
 		}
 		
@@ -7588,17 +7570,7 @@ class LLWorldWaterSettings : public view_listener_t
 {	
 	bool handleEvent(const LLSD& userdata)
 	{
-		// if not there or is hidden, show it
-		if(	!LLFloaterWater::isOpen() || 
-			!LLFloaterWater::instance()->getVisible()) {
-			LLFloaterWater::show();
-				
-		// otherwise, close it button acts like a toggle
-		} 
-		else 
-		{
-			LLFloaterWater::instance()->closeFloater();
-		}
+		LLFloaterReg::toggleInstance("env_water");
 		return true;
 	}
 };
@@ -7608,7 +7580,7 @@ class LLWorldPostProcess : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterPostProcess::show();
+		LLFloaterReg::showInstance("env_post_process");
 		return true;
 	}
 };
@@ -7618,12 +7590,28 @@ class LLWorldDayCycle : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterDayCycle::show();
+		LLFloaterReg::showInstance("env_day_cycle");
 		return true;
 	}
 };
 
+/// Show First Time Tips calbacks
+class LLHelpCheckShowFirstTimeTip : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return LLFirstTimeTipsManager::tipsEnabled();
+	}
+};
 
+class LLHelpShowFirstTimeTip : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLFirstTimeTipsManager::enabledTip(!userdata.asBoolean());
+		return true;
+	}
+};
 
 void initialize_menus()
 {
@@ -7727,6 +7715,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldWaterSettings(), "World.WaterSettings");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
 	view_listener_t::addMenu(new LLWorldDayCycle(), "World.DayCycle");
+
+	view_listener_t::addMenu(new LLHelpCheckShowFirstTimeTip(), "Help.CheckShowFirstTimeTip");
+	view_listener_t::addMenu(new LLHelpShowFirstTimeTip(), "Help.ShowQuickTips");
 
 	// Tools menu
 	view_listener_t::addMenu(new LLToolsSelectTool(), "Tools.SelectTool");

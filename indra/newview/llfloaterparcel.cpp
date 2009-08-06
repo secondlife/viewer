@@ -35,6 +35,8 @@
 
 #include "llfloaterparcel.h"
 
+#include "llfloaterreg.h"
+
 // viewer project includes
 #include "llcommandhandler.h"
 #include "llpanelplace.h"
@@ -46,8 +48,6 @@
 //-----------------------------------------------------------------------------
 // Globals
 //-----------------------------------------------------------------------------
-
-LLMap< const LLUUID, LLFloaterParcelInfo* > gPlaceInfoInstances;
 
 class LLParcelHandler : public LLCommandHandler
 {
@@ -68,8 +68,11 @@ public:
 		}
 		if (params[1].asString() == "about")
 		{
-			LLFloaterParcelInfo::show(parcel_id);
-			return true;
+			if (parcel_id.notNull())
+			{
+				LLFloaterReg::showInstance("parcel_info", LLSD(parcel_id));
+				return true;
+			}
 		}
 		return false;
 	}
@@ -82,7 +85,7 @@ LLParcelHandler gParcelHandler;
 
 //----------------------------------------------------------------------------
 
-void*	LLFloaterParcelInfo::createPanelPlace(void*	data)
+void* LLFloaterParcelInfo::createPanelPlace(void* data)
 {
 	LLFloaterParcelInfo* self = (LLFloaterParcelInfo*)data;
 	self->mPanelParcelp = new LLPanelPlace(); // allow edit self
@@ -93,54 +96,29 @@ void*	LLFloaterParcelInfo::createPanelPlace(void*	data)
 //----------------------------------------------------------------------------
 
 
-LLFloaterParcelInfo::LLFloaterParcelInfo(const LLUUID &parcel_id)
-:	LLFloater(),
-	mParcelID( parcel_id )
+LLFloaterParcelInfo::LLFloaterParcelInfo(const LLSD& parcel_id)
+:	LLFloater(parcel_id),
+	mParcelID( parcel_id.asUUID() ),
+	mPanelParcelp(NULL)
 {
 	mFactoryMap["place_details_panel"] = LLCallbackMap(LLFloaterParcelInfo::createPanelPlace, this);
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preview_url.xml");
-	gPlaceInfoInstances.addData(parcel_id, this);
+// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preview_url.xml");
 }
 
 // virtual
 LLFloaterParcelInfo::~LLFloaterParcelInfo()
 {
-	// child views automatically deleted
-	gPlaceInfoInstances.removeData(mParcelID);
 
 }
 
-void LLFloaterParcelInfo::displayParcelInfo(const LLUUID& parcel_id)
+BOOL LLFloaterParcelInfo::postBuild()
 {
-	mPanelParcelp->setParcelID(parcel_id);
-}
-
-// static
-LLFloaterParcelInfo* LLFloaterParcelInfo::show(const LLUUID &parcel_id)
-{
-	if (parcel_id.isNull())
+	if (mPanelParcelp)
 	{
-		return NULL;
+		mPanelParcelp->setParcelID(mParcelID);
 	}
-
-	LLFloaterParcelInfo *floater;
-	if (gPlaceInfoInstances.checkData(parcel_id))
-	{
-		// ...bring that window to front
-		floater = gPlaceInfoInstances.getData(parcel_id);
-		floater->openFloater();
-		floater->setFrontmost(true);
-	}
-	else
-	{
-		floater =  new LLFloaterParcelInfo( parcel_id );
-		floater->center();
-		floater->openFloater();
-		floater->displayParcelInfo(parcel_id);
-		floater->setFrontmost(true);
-	}
-
-	return floater;
+	center();
+	return LLFloater::postBuild();
 }
 
 

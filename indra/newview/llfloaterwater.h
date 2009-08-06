@@ -42,91 +42,74 @@
 #include <vector>
 #include "llwlparamset.h"
 
+struct WaterVector2Control;
+struct WaterVector3Control;
 struct WaterColorControl;
-struct WaterloatControl;
-
+struct WaterFloatControl;
+struct WaterExpFloatControl;
 
 /// Menuing system for all of windlight's functionality
 class LLFloaterWater : public LLFloater
 {
 public:
 
-	LLFloaterWater();
+	LLFloaterWater(const LLSD& key);
 	virtual ~LLFloaterWater();
 	/*virtual*/	BOOL	postBuild();
 	/// initialize all
 	void initCallbacks(void);
 
-	/// one and one instance only
-	static LLFloaterWater* instance();
-
 	// help button stuff
-	static void onClickHelp(void* data);
+	void onClickHelp(std::string xml_alert);
 	void initHelpBtn(const std::string& name, const std::string& xml_alert);
 
-	static bool newPromptCallback(const LLSD& notification, const LLSD& response);
+	bool newPromptCallback(const LLSD& notification, const LLSD& response);
 
 	/// general purpose callbacks for dealing with color controllers
-	static void onColorControlRMoved(LLUICtrl* ctrl, void* userData);
-	static void onColorControlGMoved(LLUICtrl* ctrl, void* userData);
-	static void onColorControlBMoved(LLUICtrl* ctrl, void* userData);
-	static void onColorControlAMoved(LLUICtrl* ctrl, void* userData);
-	static void onColorControlIMoved(LLUICtrl* ctrl, void* userData);
+	void onColorControlRMoved(LLUICtrl* ctrl, WaterColorControl* colorControl);
+	void onColorControlGMoved(LLUICtrl* ctrl, WaterColorControl* colorControl);
+	void onColorControlBMoved(LLUICtrl* ctrl, WaterColorControl* colorControl);
+	void onColorControlAMoved(LLUICtrl* ctrl, WaterColorControl* colorControl);
+	void onColorControlIMoved(LLUICtrl* ctrl, WaterColorControl* colorControl);
 
-	static void onVector3ControlXMoved(LLUICtrl* ctrl, void* userData);
-	static void onVector3ControlYMoved(LLUICtrl* ctrl, void* userData);
-	static void onVector3ControlZMoved(LLUICtrl* ctrl, void* userData);
+	void onVector3ControlXMoved(LLUICtrl* ctrl, WaterVector3Control* vectorControl);
+	void onVector3ControlYMoved(LLUICtrl* ctrl, WaterVector3Control* vectorControl);
+	void onVector3ControlZMoved(LLUICtrl* ctrl, WaterVector3Control* vectorControl);
 
-	static void onVector2ControlXMoved(LLUICtrl* ctrl, void* userData);
-	static void onVector2ControlYMoved(LLUICtrl* ctrl, void* userData);
+	void onVector2ControlXMoved(LLUICtrl* ctrl, WaterVector2Control* vectorControl);
+	void onVector2ControlYMoved(LLUICtrl* ctrl, WaterVector2Control* vectorControl);
+	
+	void onFloatControlMoved(LLUICtrl* ctrl, WaterFloatControl* floatControl);
 
-	static void onFloatControlMoved(LLUICtrl* ctrl, void* userData);
+	void onExpFloatControlMoved(LLUICtrl* ctrl, WaterExpFloatControl* expFloatControl);
 
-	static void onExpFloatControlMoved(LLUICtrl* ctrl, void* userData);
-
-	static void onWaterFogColorMoved(LLUICtrl* ctrl, void* userData);
-
-	static void onBoolToggle(LLUICtrl* ctrl, void* userData);
+	void onWaterFogColorMoved(LLUICtrl* ctrl, WaterColorControl* colorControl);
 
 	/// handle if they choose a new normal map
-	static void onNormalMapPicked(LLUICtrl* ctrl, void* userData);
+	void onNormalMapPicked(LLUICtrl* ctrl);
 
 	/// when user hits the load preset button
-	static void onNewPreset(void* userData);
+	void onNewPreset();
 
 	/// when user hits the save preset button
-	static void onSavePreset(void* userData);
+	void onSavePreset();
 
 	/// prompts a user when overwriting a preset
-	static bool saveAlertCallback(const LLSD& notification, const LLSD& response);
+	bool saveAlertCallback(const LLSD& notification, const LLSD& response);
 
 	/// when user hits the save preset button
-	static void onDeletePreset(void* userData);
+	void onDeletePreset();
 
 	/// prompts a user when overwriting a preset
-	static bool deleteAlertCallback(const LLSD& notification, const LLSD& response);
+	bool deleteAlertCallback(const LLSD& notification, const LLSD& response);
 
 	/// what to do when you change the preset name
 	void onChangePresetName(LLUICtrl* ctrl);
-
-	//// menu management
-
-	/// show off our menu
-	static void show();
-
-	/// return if the menu exists or not
-	static bool isOpen();
-
-	/// stuff to do on exit
-	virtual void onClose(bool app_quitting);
 
 	/// sync up sliders with parameters
 	void syncMenu();
 
 private:
-	// one instance on the inside
-	static LLFloaterWater* sWaterMenu;
-
 	static std::set<std::string> sDefaultPresets;
 };
 

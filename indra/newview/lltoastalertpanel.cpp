@@ -66,7 +66,8 @@ static const S32 HPAD = 25;
 static const S32 BTN_HPAD = 8;
 
 LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal)
-	:	LLToastPanel(notification),
+	  : LLFloater(LLSD()),
+		LLToastPanel(notification),
 		mDefaultOption( 0 ),
 		mCheck(NULL),
 		mCaution(notification->getPriority() >= NOTIFICATION_PRIORITY_HIGH),
@@ -357,11 +358,6 @@ void LLToastAlertPanel::setVisible( BOOL visible )
 	{
 		make_ui_sound("UISndAlert");
 	}
-}
-
-void LLToastAlertPanel::onClose(bool app_quitting)
-{
-	LLFloater::onClose(app_quitting);
 }
 
 LLToastAlertPanel::~LLToastAlertPanel()

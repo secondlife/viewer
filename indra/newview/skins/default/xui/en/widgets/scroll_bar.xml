@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<scroll_bar thumb_image="ScrollThumb_Vert"
-            track_image="ScrollTrack_Vert"
-	    track_color="ScrollbarTrackColor"
+<scroll_bar thumb_image_vertical ="ScrollThumb_Vert"
+			thumb_image_horizontal ="ScrollThumb_Horiz"
+            track_image_vertical ="ScrollTrack_Vert"
+			track_image_horizontal ="ScrollTrack_Horiz"
+			track_color="ScrollbarTrackColor"
             thumb_color="ScrollbarThumbColor"
             thickness="15">
   <up_button image_unselected="ScrollArrow_Up"

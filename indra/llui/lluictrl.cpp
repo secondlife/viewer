@@ -125,7 +125,9 @@ LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel)
     mViewModel(viewmodel),
 	mControlVariable(NULL),
 	mEnabledControlVariable(NULL),
-	mDisabledControlVariable(NULL)
+	mDisabledControlVariable(NULL),
+	mMakeVisibleControlVariable(NULL),
+	mMakeInvisibleControlVariable(NULL)
 {
 	mUICtrlHandle.bind(this);
 }

@@ -42,8 +42,6 @@ class LLFloaterHUD : public LLFloater
 	friend class LLFloaterReg;
 public:
 
-	// Save our visibility state during close
-	/*virtual*/ void onClose(bool app_quitting);
 	BOOL postBuild();
 	
 private:

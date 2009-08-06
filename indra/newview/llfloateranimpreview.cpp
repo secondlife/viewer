@@ -37,6 +37,7 @@
 #include "llbvhloader.h"
 #include "lldatapacker.h"
 #include "lldir.h"
+#include "lleconomy.h"
 #include "llvfile.h"
 #include "llapr.h"
 #include "llstring.h"
@@ -68,8 +69,6 @@
 #include "pipeline.h"
 #include "lluictrlfactory.h"
 #include "lltrans.h"
-
-S32 LLFloaterAnimPreview::sUploadAmount = 10;
 
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
@@ -197,7 +196,6 @@ BOOL LLFloaterAnimPreview::postBuild()
 
 	childSetCommitCallback("name_form", onCommitName, this);
 
-	childSetLabelArg("ok_btn", "[AMOUNT]", llformat("%d",sUploadAmount));
 	childSetAction("ok_btn", onBtnOK, this);
 	setDefaultBtn();
 
@@ -733,7 +731,7 @@ void LLFloaterAnimPreview::onCommitName(LLUICtrl* ctrl, void* data)
 		motionp->setName(previewp->childGetValue("name_form").asString());
 	}
 
-	LLFloaterNameDesc::doCommit(ctrl, data);
+	previewp->doCommit();
 }
 
 //-----------------------------------------------------------------------------
@@ -984,7 +982,7 @@ void LLFloaterAnimPreview::onBtnOK(void* userdata)
 				std::string name = floaterp->childGetValue("name_form").asString();
 				std::string desc = floaterp->childGetValue("description_form").asString();
 				LLAssetStorage::LLStoreAssetCallback callback = NULL;
-				S32 expected_upload_cost = sUploadAmount;
+				S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 				void *userdata = NULL;
 				upload_new_resource(floaterp->mTransactionID, // tid
 						    LLAssetType::AT_ANIMATION,

@@ -196,7 +196,7 @@ static LLFastTimer::DeclareTimer BUILD_FLOATERS("Build Floaters");
 //-----------------------------------------------------------------------------
 // buildFloater()
 //-----------------------------------------------------------------------------
-void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filename, BOOL open_floater, LLXMLNodePtr output_node)
+void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filename, LLXMLNodePtr output_node)
 {
 	LLFastTimer timer(BUILD_FLOATERS);
 	LLXMLNodePtr root;
@@ -236,7 +236,7 @@ void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 		floaterp->getCommitCallbackRegistrar().pushScope();
 		floaterp->getEnableCallbackRegistrar().pushScope();
 		
-		floaterp->initFloaterXML(root, floaterp->getParent(), open_floater, output_node);
+		floaterp->initFloaterXML(root, floaterp->getParent(), output_node);
 
 		if (LLUI::sShowXUINames)
 		{
@@ -252,13 +252,6 @@ void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 		}
 	}
 	mFileNames.pop_back();
-}
-
-LLFloater* LLUICtrlFactory::buildFloaterFromXML(const std::string& filename, BOOL open_floater)
-{
-	LLFloater* floater = new LLFloater();
-	buildFloater(floater, filename, open_floater);
-	return floater;
 }
 
 //-----------------------------------------------------------------------------

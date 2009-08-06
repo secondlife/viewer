@@ -59,6 +59,14 @@ public:
 	virtual	~LLAvatarList() {}
 
 	/*virtual*/ void	draw();
+	/**
+	 * Overrides base-class behavior of Mouse Down Event.
+	 * 
+	 * LLScrollListCtrl::handleMouseDown version calls setFocus which select the first item if nothing selected.
+	 * We need to deselect all items if perform click not over the any item. Otherwise calls base method.
+	 * See EXT-246
+	 */
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 
 	BOOL update(const std::vector<LLUUID>& all_buddies,
 		const std::string& name_filter = LLStringUtil::null);

@@ -44,7 +44,6 @@
 #include "llviewertexteditor.h"
 
 #include "llfloaterchat.h"
-#include "llfloateravatarinfo.h"
 #include "llfloaterworldmap.h"
 #include "llnotify.h"
 #include "llpanelplaces.h"
@@ -64,6 +63,7 @@
 #include "llnotecard.h"
 #include "llmemorystream.h"
 #include "llmenugl.h"
+#include "llavataractions.h"
 
 #include "llappviewer.h" // for gPacificDaylightTime
 
@@ -1394,9 +1394,7 @@ void LLViewerTextEditor::openEmbeddedCallingcard( LLInventoryItem* item, llwchar
 {
 	if(item && !item->getCreatorUUID().isNull())
 	{
-		BOOL online;
-		online = LLAvatarTracker::instance().isBuddyOnline(item->getCreatorUUID());
-		LLFloaterAvatarInfo::showFromFriend(item->getCreatorUUID(), online);
+		LLAvatarActions::showProfile(item->getCreatorUUID());
 	}
 }
 

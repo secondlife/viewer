@@ -50,7 +50,7 @@
 //
 
 LLFloaterMyFriends::LLFloaterMyFriends(const LLSD& seed)
-	: LLFloater()
+	: LLFloater(seed)
 {
 	mFactoryMap["friends_panel"] = LLCallbackMap(LLFloaterMyFriends::createFriendsPanel, NULL);
 	mFactoryMap["groups_panel"] = LLCallbackMap(LLFloaterMyFriends::createGroupsPanel, NULL);
@@ -78,11 +78,6 @@ void LLFloaterMyFriends::onOpen(const LLSD& key)
 	}
 }
 
-void LLFloaterMyFriends::onClose(bool app_quitting)
-{
-	setVisible(FALSE);
-}
-
 //static
 void* LLFloaterMyFriends::createFriendsPanel(void* data)
 {
@@ -105,8 +100,8 @@ LLFloaterMyFriends* LLFloaterMyFriends::getInstance()
 // LLFloaterChatterBox
 //
 LLFloaterChatterBox::LLFloaterChatterBox(const LLSD& seed)
-	:	LLMultiFloater(),
-		mActiveVoiceFloater(NULL)
+:	LLMultiFloater(seed),
+	mActiveVoiceFloater(NULL)
 {
 	mAutoResize = FALSE;
 
@@ -119,6 +114,8 @@ LLFloaterChatterBox::~LLFloaterChatterBox()
 
 BOOL LLFloaterChatterBox::postBuild()
 {
+	mVisibleSignal.connect(boost::bind(&LLFloaterChatterBox::onVisibilityChange, this, _2));
+	
 	if (gSavedSettings.getBOOL("ContactsTornOff"))
 	{
 		LLFloaterMyFriends* floater_contacts = LLFloaterMyFriends::getInstance();
@@ -245,14 +242,8 @@ void LLFloaterChatterBox::onOpen(const LLSD& key)
 	}
 }
 
-void LLFloaterChatterBox::onClose(bool app_quitting)
+void LLFloaterChatterBox::onVisibilityChange ( const LLSD& new_visibility )
 {
-	setVisible(FALSE);
-}
-
-void LLFloaterChatterBox::setMinimized(BOOL minimized)
-{
-	LLFloater::setMinimized(minimized);
 	// HACK: potentially need to toggle console
 	LLFloaterChat* instance = LLFloaterChat::getInstance();
 	if(instance)
@@ -332,7 +323,7 @@ void LLFloaterChatterBox::addFloater(LLFloater* floaterp,
 	else
 	{
 		LLMultiFloater::addFloater(floaterp, select_added_floater, insertion_point);
-		openFloater(floaterp->getKey());
+		// openFloater(floaterp->getKey());
 	}
 
 	// make sure active voice icon shows up for new tab

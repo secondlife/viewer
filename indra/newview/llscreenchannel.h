@@ -73,6 +73,7 @@ public:
 	void		setHovering(bool hovering) { mIsHovering = hovering; }
 
 	void		removeToastsFromChannel();
+	void 		closeUnreadToastsPanel();
 	void		hideToastsFromScreen();
 
 	void		setStoreToasts(bool store) { mStoreToasts = store; }
@@ -125,7 +126,7 @@ private:
 	void	showToastsCentre();
 	void	showToastsTop();
 	
-	void	createOverflowToast(S32 bottom, F32 timer = 0);
+	void	createOverflowToast(S32 bottom, F32 timer);
 	void	onOverflowToastHide();
 
 	static bool	mWasStartUpToastShown;

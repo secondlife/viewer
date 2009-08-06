@@ -286,6 +286,8 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p)
 	mReflowNeeded(FALSE),
 	mScrollNeeded(FALSE),
 	mLastSelectionY(-1),
+	mParseHTML(FALSE),
+	mParseHighlights(FALSE),
 	mTabsToNextField(p.ignore_tab),
 	mGLFont(p.font)
 {
@@ -335,7 +337,6 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p)
 
 	setHideScrollbarForShortDocs(p.hide_scrollbar);
 
-	mParseHTML=FALSE;
 	mHTML.clear();
 }
 
@@ -397,6 +398,7 @@ void LLTextEditor::updateLineStartList(S32 startpos)
 	S32 seg_num = mSegments.size();
 	S32 seg_idx = 0;
 	S32 seg_offset = 0;
+
 
 	if (!mLineStartList.empty())
 	{

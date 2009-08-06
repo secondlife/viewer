@@ -50,7 +50,17 @@ void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32
 
 static LLDefaultChildRegistry::Register<LLGestureComboBox> r("gesture_combo_box");
 
-LLGestureComboBox::LLGestureComboBox(const LLComboBox::Params& p)
+struct LLChatTypeTrigger {
+	std::string name;
+	EChatType type;
+};
+
+static LLChatTypeTrigger sChatTypeTriggers[] = {
+	{ "/whisper"	, CHAT_TYPE_WHISPER},
+	{ "/shout"	, CHAT_TYPE_SHOUT}
+};
+
+LLGestureComboBox::LLGestureComboBox(const LLGestureComboBox::Params& p)
 	: LLComboBox(p)
 	, mGestureLabelTimer()
 	, mLabel(p.label)
@@ -58,7 +68,7 @@ LLGestureComboBox::LLGestureComboBox(const LLComboBox::Params& p)
 	setCommitCallback(boost::bind(&LLGestureComboBox::onCommitGesture, this, _1));
 
 	// now register us as observer since we have a place to put the results
-	gGestureManager.addObserver(this);
+	LLGestureManager::instance().addObserver(this);
 
 	// refresh list from current active gestures
 	refreshGestures();
@@ -66,7 +76,7 @@ LLGestureComboBox::LLGestureComboBox(const LLComboBox::Params& p)
 
 LLGestureComboBox::~LLGestureComboBox()
 {
-	gGestureManager.removeObserver(this);
+	LLGestureManager::instance().removeObserver(this);
 }
 
 void LLGestureComboBox::refreshGestures()
@@ -80,7 +90,7 @@ void LLGestureComboBox::refreshGestures()
 	// collect list of unique gestures
 	std::map <std::string, BOOL> unique;
 	LLGestureManager::item_map_t::iterator it;
-	for (it = gGestureManager.mActive.begin(); it != gGestureManager.mActive.end(); ++it)
+	for (it = LLGestureManager::instance().mActive.begin(); it != LLGestureManager::instance().mActive.end(); ++it)
 	{
 		LLMultiGesture* gesture = (*it).second;
 		if (gesture)
@@ -130,7 +140,7 @@ void LLGestureComboBox::onCommitGesture(LLUICtrl* ctrl)
 		// substitution and logging.
 		std::string text(trigger);
 		std::string revised_text;
-		gGestureManager.triggerAndReviseString(text, &revised_text);
+		LLGestureManager::instance().triggerAndReviseString(text, &revised_text);
 
 		revised_text = utf8str_trim(revised_text);
 		if (!revised_text.empty())
@@ -219,12 +229,38 @@ BOOL LLNearbyChatBar::handleKeyHere( KEY key, MASK mask )
 	return handled;
 }
 
+BOOL LLNearbyChatBar::matchChatTypeTrigger(const std::string& in_str, std::string* out_str)
+{
+	U32 in_len = in_str.length();
+	S32 cnt = sizeof(sChatTypeTriggers) / sizeof(*sChatTypeTriggers);
+	
+	for (S32 n = 0; n < cnt; n++)
+	{
+		if (in_len > sChatTypeTriggers[n].name.length())
+			continue;
+
+		std::string trigger_trunc = sChatTypeTriggers[n].name;
+		LLStringUtil::truncate(trigger_trunc, in_len);
+
+		if (!LLStringUtil::compareInsensitive(in_str, trigger_trunc))
+		{
+			*out_str = sChatTypeTriggers[n].name;
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 void LLNearbyChatBar::onChatBoxKeystroke(LLLineEditor* caller, void* userdata)
 {
+
 	LLNearbyChatBar* self = (LLNearbyChatBar *)userdata;
 
-	LLWString raw_text;
-	if (self->mChatBox) raw_text = self->mChatBox->getWText();
+	if (!self->mChatBox)
+		return;
+
+	LLWString raw_text = self->mChatBox->getWText();
 
 	// Can't trim the end, because that will cause autocompletion
 	// to eat trailing spaces that might be part of a gesture.
@@ -268,18 +304,21 @@ void LLNearbyChatBar::onChatBoxKeystroke(LLLineEditor* caller, void* userdata)
 		std::string utf8_trigger = wstring_to_utf8str(raw_text);
 		std::string utf8_out_str(utf8_trigger);
 
-		if (gGestureManager.matchPrefix(utf8_trigger, &utf8_out_str))
+		if (LLGestureManager::instance().matchPrefix(utf8_trigger, &utf8_out_str))
 		{
-			if (self->mChatBox)
-			{
-				std::string rest_of_match = utf8_out_str.substr(utf8_trigger.size());
-				self->mChatBox->setText(utf8_trigger + rest_of_match); // keep original capitalization for user-entered part
-				S32 outlength = self->mChatBox->getLength(); // in characters
-			
-				// Select to end of line, starting from the character
-				// after the last one the user typed.
-				self->mChatBox->setSelection(length, outlength);
-			}
+			std::string rest_of_match = utf8_out_str.substr(utf8_trigger.size());
+			self->mChatBox->setText(utf8_trigger + rest_of_match); // keep original capitalization for user-entered part
+			S32 outlength = self->mChatBox->getLength(); // in characters
+
+			// Select to end of line, starting from the character
+			// after the last one the user typed.
+			self->mChatBox->setSelection(length, outlength);
+		}
+		else if (matchChatTypeTrigger(utf8_trigger, &utf8_out_str))
+		{
+			std::string rest_of_match = utf8_out_str.substr(utf8_trigger.size());
+			self->mChatBox->setText(utf8_trigger + rest_of_match + " "); // keep original capitalization for user-entered part
+			self->mChatBox->setCursorToEnd();
 		}
 
 		//llinfos << "GESTUREDEBUG " << trigger 
@@ -294,6 +333,38 @@ void LLNearbyChatBar::onChatBoxFocusLost(LLFocusableElement* caller, void* userd
 {
 	// stop typing animation
 	gAgent.stopTyping();
+}
+
+EChatType LLNearbyChatBar::processChatTypeTriggers(EChatType type, std::string &str)
+{
+	U32 length = str.length();
+	S32 cnt = sizeof(sChatTypeTriggers) / sizeof(*sChatTypeTriggers);
+	
+	for (S32 n = 0; n < cnt; n++)
+	{
+		if (length >= sChatTypeTriggers[n].name.length())
+		{
+			std::string trigger = str.substr(0, sChatTypeTriggers[n].name.length());
+
+			if (!LLStringUtil::compareInsensitive(trigger, sChatTypeTriggers[n].name))
+			{
+				U32 trigger_length = sChatTypeTriggers[n].name.length();
+
+				// It's to remove space after trigger name
+				if (length > trigger_length && str[trigger_length] == ' ')
+					trigger_length++;
+
+				str = str.substr(trigger_length, length);
+
+				if (CHAT_TYPE_NORMAL == type)
+					return sChatTypeTriggers[n].type;
+				else
+					break;
+			}
+		}
+	}
+
+	return type;
 }
 
 void LLNearbyChatBar::sendChat( EChatType type )
@@ -315,7 +386,7 @@ void LLNearbyChatBar::sendChat( EChatType type )
 			if (0 == channel)
 			{
 				// discard returned "found" boolean
-				gGestureManager.triggerAndReviseString(utf8text, &utf8_revised_text);
+				LLGestureManager::instance().triggerAndReviseString(utf8text, &utf8_revised_text);
 			}
 			else
 			{
@@ -323,6 +394,8 @@ void LLNearbyChatBar::sendChat( EChatType type )
 			}
 
 			utf8_revised_text = utf8str_trim(utf8_revised_text);
+
+			type = processChatTypeTriggers(type, utf8_revised_text);
 
 			if (!utf8_revised_text.empty())
 			{

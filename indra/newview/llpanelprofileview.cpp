@@ -35,6 +35,7 @@
 
 #include "llpanelavatar.h"
 #include "llpanelpicks.h"
+#include "llsidetraypanelcontainer.h"
 #include "llpanelprofile.h"
 
 static LLRegisterPanelClassWrapper<LLPanelProfileView> t_panel_target_profile("panel_profile_view");
@@ -56,15 +57,23 @@ LLPanelProfileView::~LLPanelProfileView(void)
 /*virtual*/ 
 void LLPanelProfileView::onOpen(const LLSD& key)
 {
-	LLPanelProfile::onOpen(key);
-	
-	//*NOTE profile view panel doesn't have own side tray tab and 
-	//is usually opened over People side tray tab. By Back button
-	// Profile View panel just becomes invisible, see onBackBtnClick()
-	setVisible(TRUE);
+	LLUUID id = key["id"];
+	if (key.has("open_tab_name"))
+		mTabContainer->selectTabByName(key["open_tab_name"]);
+
+	if(id.notNull() && mAvatarId != id)
+	{
+		mAvatarId = id;
+
+		mTabs[PANEL_PROFILE]->clear();
+		mTabs[PANEL_PICKS]->clear();
+		mTabs[PANEL_NOTES]->clear();
+	}
+
+	mTabContainer->getCurrentPanel()->onOpen(mAvatarId);
 
 	std::string full_name;
-	gCacheName->getFullName(key["id"],full_name);
+	gCacheName->getFullName(mAvatarId,full_name);
 	childSetValue("user_name",full_name);
 }
 
@@ -85,5 +94,9 @@ BOOL LLPanelProfileView::postBuild()
 
 void LLPanelProfileView::onBackBtnClick()
 {
-	setVisible(FALSE);
+	LLSideTrayPanelContainer* parent = dynamic_cast<LLSideTrayPanelContainer*>(getParent());
+	if(parent)
+	{
+		parent->openPreviousPanel();
+	}
 }

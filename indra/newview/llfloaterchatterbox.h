@@ -52,8 +52,6 @@ public:
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ void draw();
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
-	/*virtual*/ void setMinimized(BOOL minimized);
 
 	/*virtual*/ void removeFloater(LLFloater* floaterp);
 	/*virtual*/ void addFloater(LLFloater* floaterp, 
@@ -64,6 +62,8 @@ public:
 	static LLFloater* getCurrentVoiceFloater();
 	
 protected:
+	void onVisibilityChange ( const LLSD& new_visibility );
+	
 	LLFloater* mActiveVoiceFloater;
 };
 
@@ -76,7 +76,6 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
 
 	static LLFloaterMyFriends* getInstance(); // *TODO:Skinning Deprecate
 	

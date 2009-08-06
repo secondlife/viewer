@@ -49,12 +49,10 @@
 #include "llwindow.h"
 #include "llslider.h"
 
-LLFloaterHardwareSettings* LLFloaterHardwareSettings::sHardwareSettings = NULL;
-
-LLFloaterHardwareSettings::LLFloaterHardwareSettings()
-  : LLFloater()
+LLFloaterHardwareSettings::LLFloaterHardwareSettings(const LLSD& key)
+  : LLFloater(key)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_hardware_settings.xml");
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_hardware_settings.xml");
 }
 
 LLFloaterHardwareSettings::~LLFloaterHardwareSettings()
@@ -109,48 +107,6 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 
 }
 
-// static instance of it
-LLFloaterHardwareSettings* LLFloaterHardwareSettings::instance()
-{
-	if (!sHardwareSettings)
-	{
-		sHardwareSettings = new LLFloaterHardwareSettings();
-		sHardwareSettings->closeFloater();
-	}
-	return sHardwareSettings;
-}
-void LLFloaterHardwareSettings::show()
-{
-	LLFloaterHardwareSettings* hardSettings = instance();
-	hardSettings->refresh();
-	hardSettings->center();
-
-	// comment in if you want the menu to rebuild each time
-	//LLUICtrlFactory::getInstance()->buildFloater(hardSettings, "floater_hardware_settings.xml");
-	//hardSettings->initCallbacks();
-
-	hardSettings->openFloater();
-}
-
-bool LLFloaterHardwareSettings::isOpen()
-{
-	if (sHardwareSettings != NULL) 
-	{
-		return true;
-	}
-	return false;
-}
-
-// virtual
-void LLFloaterHardwareSettings::onClose(bool app_quitting)
-{
-	if (sHardwareSettings)
-	{
-		sHardwareSettings->setVisible(FALSE);
-	}
-}
-
-
 //============================================================================
 
 BOOL LLFloaterHardwareSettings::postBuild()
@@ -158,6 +114,7 @@ BOOL LLFloaterHardwareSettings::postBuild()
 	childSetAction("OK", onBtnOK, this);
 
 	refresh();
+	center();
 
 	// load it up
 	initCallbacks();

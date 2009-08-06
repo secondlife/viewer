@@ -81,7 +81,6 @@ public:
 	void showPanel(const std::string& panel_name);
 
 	virtual void onOpen(const LLSD& key);
-	virtual void onClose(bool app_quitting);
 
 	virtual void draw();
 

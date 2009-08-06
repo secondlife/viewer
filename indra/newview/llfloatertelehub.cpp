@@ -39,6 +39,7 @@
 #include "llfontgl.h"
 
 #include "llagent.h"
+#include "llfloaterreg.h"
 #include "llfloatertools.h"
 #include "llscrolllistctrl.h"
 #include "llselectmgr.h"
@@ -48,59 +49,25 @@
 #include "llviewerobjectlist.h"
 #include "lluictrlfactory.h"
 
-LLFloaterTelehub* LLFloaterTelehub::sInstance = NULL;
-
-
-// static
-void LLFloaterTelehub::show()
-{
-	if (sInstance)
-	{
-		sInstance->setVisibleAndFrontmost();
-		return;
-	}
-
-	sInstance = new LLFloaterTelehub();
-
-	// Show tools floater by selecting translate (select) tool
-	LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
-	LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolCompTranslate::getInstance() );
-
-	// Find tools floater, glue to bottom
-	if (gFloaterTools)
-	{
-		LLRect tools_rect = gFloaterTools->getRect();
-		S32 our_width = sInstance->getRect().getWidth();
-		S32 our_height = sInstance->getRect().getHeight();
-		LLRect our_rect;
-		our_rect.setLeftTopAndSize(tools_rect.mLeft, tools_rect.mBottom, our_width, our_height);
-		sInstance->setRect(our_rect);
-	}
-
-	sInstance->sendTelehubInfoRequest();
-}
-
-LLFloaterTelehub::LLFloaterTelehub()
-:	LLFloater(),
+LLFloaterTelehub::LLFloaterTelehub(const LLSD& key)
+:	LLFloater(key),
 	mTelehubObjectID(),
 	mTelehubObjectName(),
 	mTelehubPos(),
 	mTelehubRot(),
 	mNumSpawn(0)
 {
-	sInstance = this;
-
-	gMessageSystem->setHandlerFunc("TelehubInfo", processTelehubInfo);
-
-	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_telehub.xml");
+	//LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_telehub.xml");
 }
+
 BOOL LLFloaterTelehub::postBuild()
 {
+	gMessageSystem->setHandlerFunc("TelehubInfo", processTelehubInfo);
 
-	childSetAction("connect_btn", onClickConnect, this);
-	childSetAction("disconnect_btn", onClickDisconnect, this);
-	childSetAction("add_spawn_point_btn", onClickAddSpawnPoint, this);
-	childSetAction("remove_spawn_point_btn", onClickRemoveSpawnPoint, this);
+	getChild<LLUICtrl>("connect_btn")->setCommitCallback(boost::bind(&LLFloaterTelehub::onClickConnect, this));
+	getChild<LLUICtrl>("disconnect_btn")->setCommitCallback(boost::bind(&LLFloaterTelehub::onClickDisconnect, this));
+	getChild<LLUICtrl>("add_spawn_point_btn")->setCommitCallback(boost::bind(&LLFloaterTelehub::onClickAddSpawnPoint, this));
+	getChild<LLUICtrl>("remove_spawn_point_btn")->setCommitCallback(boost::bind(&LLFloaterTelehub::onClickRemoveSpawnPoint, this));
 
 	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("spawn_points_list");
 	if (list)
@@ -113,12 +80,28 @@ BOOL LLFloaterTelehub::postBuild()
 }
 void LLFloaterTelehub::onOpen(const LLSD& key)
 {
+	// Show tools floater by selecting translate (select) tool
+	LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
+	LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolCompTranslate::getInstance() );
+
+	// Find tools floater, glue to bottom
+	if (gFloaterTools)
+	{
+		LLRect tools_rect = gFloaterTools->getRect();
+		S32 our_width = getRect().getWidth();
+		S32 our_height = getRect().getHeight();
+		LLRect our_rect;
+		our_rect.setLeftTopAndSize(tools_rect.mLeft, tools_rect.mBottom, our_width, our_height);
+		setRect(our_rect);
+	}
+
+	sendTelehubInfoRequest();
+	
 	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 }
+
 LLFloaterTelehub::~LLFloaterTelehub()
 {
-	sInstance = NULL;
-
 	// no longer interested in this message
 	gMessageSystem->setHandlerFunc("TelehubInfo", NULL);
 }
@@ -160,19 +143,22 @@ void LLFloaterTelehub::refresh()
 BOOL LLFloaterTelehub::renderBeacons()
 {
 	// only render if we've got a telehub
-	return sInstance && sInstance->mTelehubObjectID.notNull();
+	LLFloaterTelehub* floater = LLFloaterReg::findTypedInstance<LLFloaterTelehub>("telehubs");
+	return floater && floater->mTelehubObjectID.notNull();
 }
 
 // static
 void LLFloaterTelehub::addBeacons()
 {
-	if (!sInstance) return;
-
+	LLFloaterTelehub* floater = LLFloaterReg::findTypedInstance<LLFloaterTelehub>("telehubs");
+	if (!floater)
+		return;
+	
 	// Find the telehub position, either our cached old position, or
 	// an updated one based on the actual object position.
-	LLVector3 hub_pos_region = sInstance->mTelehubPos;
-	LLQuaternion hub_rot = sInstance->mTelehubRot;
-	LLViewerObject* obj = gObjectList.findObject(sInstance->mTelehubObjectID);
+	LLVector3 hub_pos_region = floater->mTelehubPos;
+	LLQuaternion hub_rot = floater->mTelehubRot;
+	LLViewerObject* obj = gObjectList.findObject(floater->mTelehubObjectID);
 	if (obj)
 	{
 		hub_pos_region = obj->getPositionRegion();
@@ -181,13 +167,13 @@ void LLFloaterTelehub::addBeacons()
 	// Draw nice thick 3-pixel lines.
 	gObjectList.addDebugBeacon(hub_pos_region, "", LLColor4::yellow, LLColor4::white, 4);
 
-	LLScrollListCtrl* list = sInstance->getChild<LLScrollListCtrl>("spawn_points_list");
+	LLScrollListCtrl* list = floater->getChild<LLScrollListCtrl>("spawn_points_list");
 	if (list)
 	{
 		S32 spawn_index = list->getFirstSelectedIndex();
 		if (spawn_index >= 0)
 		{
-			LLVector3 spawn_pos = hub_pos_region  + (sInstance->mSpawnPointPos[spawn_index] * hub_rot);
+			LLVector3 spawn_pos = hub_pos_region  + (floater->mSpawnPointPos[spawn_index] * hub_rot);
 			gObjectList.addDebugBeacon(spawn_pos, "", LLColor4::orange, LLColor4::white, 4);
 		}
 	}
@@ -198,32 +184,27 @@ void LLFloaterTelehub::sendTelehubInfoRequest()
 	LLSelectMgr::getInstance()->sendGodlikeRequest("telehub", "info ui");
 }
 
-// static 
-void LLFloaterTelehub::onClickConnect(void* data)
+void LLFloaterTelehub::onClickConnect()
 {
 	LLSelectMgr::getInstance()->sendGodlikeRequest("telehub", "connect");
 }
 
-// static 
-void LLFloaterTelehub::onClickDisconnect(void* data)
+void LLFloaterTelehub::onClickDisconnect()
 {
 	LLSelectMgr::getInstance()->sendGodlikeRequest("telehub", "delete");
 }
 
-// static 
-void LLFloaterTelehub::onClickAddSpawnPoint(void* data)
+void LLFloaterTelehub::onClickAddSpawnPoint()
 {
 	LLSelectMgr::getInstance()->sendGodlikeRequest("telehub", "spawnpoint add");
 	LLSelectMgr::getInstance()->deselectAll();
 }
 
-// static 
-void LLFloaterTelehub::onClickRemoveSpawnPoint(void* data)
+void LLFloaterTelehub::onClickRemoveSpawnPoint()
 {
-	if (!sInstance) return;
-
-	LLScrollListCtrl* list = sInstance->getChild<LLScrollListCtrl>("spawn_points_list");
-	if (!list) return;
+	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("spawn_points_list");
+	if (!list)
+		return;
 
 	S32 spawn_index = list->getFirstSelectedIndex();
 	if (spawn_index < 0) return;  // nothing selected
@@ -261,9 +242,10 @@ void LLFloaterTelehub::onClickRemoveSpawnPoint(void* data)
 // static 
 void LLFloaterTelehub::processTelehubInfo(LLMessageSystem* msg, void**)
 {
-	if (sInstance)
+	LLFloaterTelehub* floater = LLFloaterReg::findTypedInstance<LLFloaterTelehub>("telehubs");
+	if (floater)
 	{
-		sInstance->unpackTelehubInfo(msg);
+		floater->unpackTelehubInfo(msg);
 	}
 }
 

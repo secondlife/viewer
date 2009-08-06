@@ -43,15 +43,13 @@ class LLTextureCtrl;
 class LLFloaterAvatarTextures : public LLFloater
 {
 public:
-	LLFloaterAvatarTextures(const LLUUID& id);
+	LLFloaterAvatarTextures(const LLSD& id);
 	virtual ~LLFloaterAvatarTextures();
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void draw();
 
 	void refresh();
-
-	static LLFloaterAvatarTextures* show(const LLUUID& id);
 
 private:
 	static void onClickDump(void*);
@@ -60,7 +58,6 @@ private:
 	LLUUID	mID;
 	std::string mTitle;
 	LLTextureCtrl* mTextures[LLVOAvatarDefines::TEX_NUM_INDICES];
-	static LLFloaterAvatarTextures* sInstance;
 };
 
 #endif

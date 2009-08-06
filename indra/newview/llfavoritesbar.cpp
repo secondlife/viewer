@@ -374,7 +374,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 {
 	if (mPopupMenuHandle.isDead())
 	{
-		LLMenuGL::Params menu_p;
+		LLToggleableMenu::Params menu_p;
 		menu_p.name("favorites menu");
 		menu_p.can_tear_off(false);
 		menu_p.visible(false);

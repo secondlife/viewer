@@ -88,7 +88,6 @@ public:
 
 	static void	onBtnPlay(void*);
 	static void	onBtnStop(void*);
-	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
 	static void onSliderMove(LLUICtrl*, void*);
 	static void onCommitBaseAnim(LLUICtrl*, void*);
 	static void onCommitLoop(LLUICtrl*, void*);
@@ -129,8 +128,6 @@ protected:
 	LLAnimPauseRequest	mPauseRequest;
 
 	std::map<std::string, LLUUID>	mIDList;
-
-	static S32 sUploadAmount;
 };
 
 #endif  // LL_LLFLOATERANIMPREVIEW_H

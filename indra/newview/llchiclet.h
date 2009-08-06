@@ -41,6 +41,7 @@
 
 class LLVoiceControlPanel;
 class LLMenuGL;
+class LLIMFloater;
 
 /*
  * Class for displaying amount of messages/notifications(unread).
@@ -267,8 +268,6 @@ public:
 	*/
 	virtual void setShowSpeaker(bool show);
 
-	void setDockTongueVisible(bool visible);
-
 	/*
 	 * Returns voice chat status control visibility.
 	*/
@@ -335,7 +334,6 @@ protected:
 	LLMenuGL* mPopupMenu;
 
 	bool mShowSpeaker;
-	bool mDockTongueVisible;
 };
 
 /*

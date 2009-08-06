@@ -44,6 +44,7 @@
 
 #include "llfloater.h" //for gFloaterView
 #include "lliconctrl.h"//for Home tab icon
+#include "llsidetraypanelcontainer.h"
 #include "llwindow.h"//for SetCursor
 
 //#include "llscrollcontainer.h"
@@ -609,9 +610,22 @@ LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& para
 		if(view)
 		{
 			onTabButtonClick((*child_it)->getName());
+
+			LLSideTrayPanelContainer* container = dynamic_cast<LLSideTrayPanelContainer*>(view->getParent());
+			if(container)
+			{
+				LLSD new_params = params;
+				new_params[LLSideTrayPanelContainer::PARAM_SUB_PANEL_NAME] = panel_name;
+				container->onOpen(new_params);
+
+				return container->getCurrentPanel();
+			}
+
 			LLPanel* panel = dynamic_cast<LLPanel*>(view);
 			if(panel)
+			{
 				panel->onOpen(params);
+			}
 			return panel;
 		}
 	}

@@ -35,6 +35,8 @@
 #include "lltabcontainer.h"
 #include "llpanelpicks.h"
 #include "llagent.h"
+#include "llcommandhandler.h"
+#include "llavataractions.h"
 
 static const std::string PANEL_PICKS = "panel_picks";
 static const std::string PANEL_NOTES = "panel_notes";
@@ -42,6 +44,33 @@ static const std::string PANEL_PROFILE = "panel_profile";
 
 static LLRegisterPanelClassWrapper<LLPanelAvatarProfile> t_panel_profile(PANEL_PROFILE);
 static LLRegisterPanelClassWrapper<LLPanelPicks> t_panel_picks(PANEL_PICKS);
+
+
+class LLAgentHandler : public LLCommandHandler
+{
+public:
+	// requires trusted browser to trigger
+	LLAgentHandler() : LLCommandHandler("agent", true) { }
+
+	bool handle(const LLSD& params, const LLSD& query_map,
+		LLWebBrowserCtrl* web)
+	{
+		if (params.size() < 2) return false;
+		LLUUID agent_id;
+		if (!agent_id.set(params[0], FALSE))
+		{
+			return false;
+		}
+
+		if (params[1].asString() == "about")
+		{
+			LLAvatarActions::showProfile(agent_id);
+			return true;
+		}
+		return false;
+	}
+};
+LLAgentHandler gAgentHandler;
 
 
 LLPanelProfile::LLPanelProfile()
@@ -66,25 +95,6 @@ BOOL LLPanelProfile::postBuild()
 	mTabs[PANEL_PROFILE] = getChild<LLPanelAvatarProfile>(PANEL_PROFILE);
 
 	return TRUE;
-}
-
-void LLPanelProfile::onOpen(const LLSD& key)
-{
-	//*NOTE LLUUID::null in this context means Agent related stuff
-	LLUUID id(key.has("id") ? key["id"].asUUID() : gAgentID);
-	if (key.has("open_tab_name"))
-		mTabContainer->selectTabByName(key["open_tab_name"]);
-
-	if(id.notNull() && mAvatarId.notNull() && mAvatarId != id)
-	{
-		mTabs[PANEL_PROFILE]->clear();
-		mTabs[PANEL_PICKS]->clear();
-		mTabs[PANEL_NOTES]->clear();
-	}
-
-	mAvatarId = id;
-
-	mTabContainer->getCurrentPanel()->onOpen(mAvatarId);
 }
 
 //*TODO redo panel toggling

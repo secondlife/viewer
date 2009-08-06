@@ -165,7 +165,7 @@ void LLFloaterBulkPermission::onApplyBtn()
 
 void LLFloaterBulkPermission::onCloseBtn()
 {
-	onClose(false);
+	closeFloater();
 }
 
 //static 

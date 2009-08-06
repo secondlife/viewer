@@ -232,5 +232,6 @@ private:
 	commit_callback_t	mPrearrangeCallback;
 	commit_callback_t	mTextEntryCallback;
 	commit_callback_t	mSelectionCallback;
+	S32                 mLastSelectedIndex;
 };
 #endif

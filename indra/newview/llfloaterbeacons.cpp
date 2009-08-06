@@ -64,21 +64,6 @@ BOOL LLFloaterBeacons::postBuild()
 	return TRUE;
 }
 
-// Needed to make the floater visibility toggle the beacons.
-// Too bad we can't just add control_name="BeaconAlwaysOn" to the XML.
-void LLFloaterBeacons::onOpen(const LLSD& key)
-{
-	gSavedSettings.setBOOL( "BeaconAlwaysOn", TRUE);
-}
-void LLFloaterBeacons::onClose(bool app_quitting)
-{
-	destroy();
-	if(!app_quitting)
-	{
-		gSavedSettings.setBOOL( "BeaconAlwaysOn", FALSE);
-	}
-}
-
 // Callback attached to each check box control to both affect their main purpose
 // and to implement the couple screwy interdependency rules that some have.
 

@@ -11,7 +11,7 @@
      <button
      follows="left|top"
      font="SansSerifSmall"
-     height="20"
+     height="23"
      image_disabled="PushButton_Disabled"
      image_disabled_selected="PushButton_Disabled"
      image_overlay="Arrow_Left_Off"
@@ -19,17 +19,17 @@
      image_unselected="PushButton_Off"
      hover_glow_amount="0.15"
      layout="topleft"
-     left="5"
+     left="10"
      name="back_btn"
      picture_style="true"
      tool_tip="Go back to previous location"
      top="8"
-     width="20" />
+     width="31" />
 
     <button
      follows="left|top"
      font="SansSerifSmall"
-     height="20"
+     height="23"
      image_disabled="PushButton_Disabled"
      image_disabled_selected="PushButton_Disabled"
      image_overlay="Arrow_Right_Off"
@@ -37,16 +37,16 @@
      image_unselected="PushButton_Off"
      hover_glow_amount="0.15"
      layout="topleft"
-     left_pad="2"
+     left_pad="0"
      name="forward_btn"
      picture_style="true"
      tool_tip="Go forward one location"
      top_delta="0"
-     width="20" />
+     width="31" />
     <button
      follows="left|top"
      font="SansSerifSmall"
-     height="20"
+     height="23"
      image_disabled="PushButton_Disabled"
      image_disabled_selected="PushButton_Disabled"
      image_overlay="Home_Off"
@@ -54,24 +54,24 @@
      image_unselected="PushButton_Off"
      hover_glow_amount="0.15"
      layout="topleft"
-     left_pad="5"
+     left_pad="7"
      name="home_btn"
      picture_style="true"
      tool_tip="Teleport to your home location"
      top_delta="0"
-     width="20" />
+     width="32" />
     <location_input
      follows="left|right|top"
      halign="right"
-     height="20"
+     height="22"
      label="Location"
      layout="topleft"
-     left_pad="5"
+     left_pad="7"
      max_chars="254"
      mouse_opaque="false"
      name="location_combo"
      top_delta="0"
-     width="320">
+     width="266">
      <!-- *TODO: Delete.  Let the location_input use the correct art sizes.
         <location_input.add_landmark_button
          height="18"
@@ -108,33 +108,17 @@
      commit_on_focus_lost="false"
      follows="right|top"
      halign="right"
-     height="20"
+     height="22"
      label="Search All"
      layout="topleft"
-     left_pad="5"
+     left_pad="7"
      mouse_opaque="false"
      name="search_input"
      tool_tip="Search All"
      top_delta="0"
-     width="135" /> 
+     width="200" /> 
     
-    <button
-     follows="right|top"
-     font="SansSerifSmall"
-     height="20"
-     image_disabled="PushButton_Disabled"
-     image_disabled_selected="PushButton_Disabled"
-     image_overlay="Help_Off"
-     image_selected="PushButton_Selected"
-     image_unselected="PushButton_Off"
-     hover_glow_amount="0.15"
-     layout="topleft"
-     left_pad="15"
-     name="help_btn"
-     picture_style="true"
-     tool_tip="Help"
-     top_delta="0"
-     width="20" />
+    
 
     <favorites_bar
      follows="left|right|top"

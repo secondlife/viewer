@@ -35,6 +35,7 @@
 #include "llimpanel.h"
 
 #include "indra_constants.h"
+#include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llfontgl.h"
 #include "llrect.h"
@@ -448,13 +449,17 @@ void LLVoiceChannel::setState(EState state)
 void LLVoiceChannel::toggleCallWindowIfNeeded(EState state)
 {
 	if (state == STATE_CONNECTED)
-		LLFloaterCall::openInstance(mSessionID);
+	{
+		LLFloaterReg::showInstance("voice_call", mSessionID);
+	}
 	// By checking that current state is CONNECTED we make sure that the call window
 	// has been shown, hence there's something to hide. This helps when user presses
 	// the "End call" button right after initiating the call.
 	// *TODO: move this check to LLFloaterCall?
 	else if (state == STATE_HUNG_UP && mState == STATE_CONNECTED)
-		LLFloaterCall::closeInstance(mSessionID);
+	{
+		LLFloaterReg::hideInstance("voice_call", mSessionID);
+	}
 }
 
 //static
@@ -1005,7 +1010,7 @@ LLFloaterIMPanel::LLFloaterIMPanel(const std::string& session_label,
 	// All participants will be added to the list of people we've recently interacted with.
 	mSpeakers->addListener(&LLRecentPeople::instance(), "add");
 
-	LLUICtrlFactory::getInstance()->buildFloater(this, xml_filename, FALSE);
+	LLUICtrlFactory::getInstance()->buildFloater(this, xml_filename, NULL);
 
 	setTitle(mSessionLabel);
 	mInputEditor->setMaxTextLength(1023);
@@ -1088,6 +1093,10 @@ LLFloaterIMPanel::~LLFloaterIMPanel()
 
 BOOL LLFloaterIMPanel::postBuild() 
 {
+	mCloseSignal.connect(boost::bind(&LLFloaterIMPanel::onClose, this));
+	
+	mVisibleSignal.connect(boost::bind(&LLFloaterIMPanel::onVisibilityChange, this, _2));
+	
 	requires<LLLineEditor>("chat_editor");
 	requires<LLTextEditor>("im_history");
 
@@ -1414,24 +1423,6 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 }
 
 
-void LLFloaterIMPanel::setVisible(BOOL b)
-{
-	LLPanel::setVisible(b);
-
-	LLMultiFloater* hostp = getHost();
-	if( b && hostp )
-	{
-		hostp->setFloaterFlashing(this, FALSE);
-
-		/* Don't change containing floater title - leave it "Instant Message" JC
-		LLUIString title = sTitleString;
-		title.setArg("[NAME]", mSessionLabel);
-		hostp->setTitle( title );
-		*/
-	}
-}
-
-
 void LLFloaterIMPanel::setInputFocus( BOOL b )
 {
 	mInputEditor->setFocus( b );
@@ -1671,7 +1662,7 @@ void LLFloaterIMPanel::onInputEditorKeystroke(LLLineEditor* caller, void* userda
 	}
 }
 
-void LLFloaterIMPanel::onClose(bool app_quitting)
+void LLFloaterIMPanel::onClose()
 {
 	setTyping(FALSE);
 
@@ -1680,21 +1671,20 @@ void LLFloaterIMPanel::onClose(bool app_quitting)
 	gIMMgr->removeSession(mSessionUUID);
 
 	// *HACK hide the voice floater
-	LLFloaterCall::toggleInstanceVisibility(FALSE, mSessionUUID);
-
-	destroy();
+	LLFloaterReg::hideInstance("voice_call", mSessionUUID);
 }
 
-void LLFloaterIMPanel::onVisibilityChange(BOOL new_visibility)
+void LLFloaterIMPanel::onVisibilityChange(const LLSD& new_visibility)
 {
-	if (new_visibility)
+	if (new_visibility.asBoolean())
 	{
 		mNumUnreadMessages = 0;
 	}
-
-	LLFloaterCall::toggleInstanceVisibility(
-		new_visibility && mVoiceChannel->getState() == LLVoiceChannel::STATE_CONNECTED,
-		mSessionUUID);
+	
+	if (new_visibility.asBoolean() && mVoiceChannel->getState() == LLVoiceChannel::STATE_CONNECTED)
+		LLFloaterReg::showInstance("voice_call", mSessionUUID);
+	else
+		LLFloaterReg::hideInstance("voice_call", mSessionUUID);
 }
 
 void LLFloaterIMPanel::sendMsg()
@@ -2047,53 +2037,16 @@ bool LLFloaterIMPanel::onConfirmForceCloseError(const LLSD& notification, const 
 }
 	
 
-std::map<LLUUID, LLIMFloater*> LLIMFloater::sIMFloaterMap;
-
-LLIMFloater::LLIMFloater(const LLUUID& session_id,
-					 const std::string title,
-					 EInstantMessage dialog)
-:	mSessionID(session_id),
+LLIMFloater::LLIMFloater(const LLUUID& session_id)
+  : LLFloater(session_id),
+	mSessionID(session_id),
 	mLastMessageIndex(-1),
-	mDialog(dialog)
+	mDialog(IM_NOTHING_SPECIAL),
+	mHistoryEditor(NULL),
+	mInputEditor(NULL), 
+	mPositioned(false)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_im_session.xml");
-	sIMFloaterMap[mSessionID] = this;
-
-	LLPanelIMControlPanel* im_control_panel = getChild<LLPanelIMControlPanel>("panel_im_control_panel");
-
-	LLIMModel::LLIMSession* session = get_if_there(LLIMModel::instance().sSessionsMap, session_id, (LLIMModel::LLIMSession*)NULL);
-	if(session)
-	{
-		mOtherParticipantUUID = session->mOtherParticipantID;
-		im_control_panel->setAvatarId(session->mOtherParticipantID);
-	}
-
-	LLButton* slide_left = getChild<LLButton>("slide_left_btn");
-	slide_left->setVisible(im_control_panel->getVisible());
-	slide_left->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
-
-	LLButton* slide_right = getChild<LLButton>("slide_right_btn");
-	slide_right->setVisible(!im_control_panel->getVisible());
-	slide_right->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
-
-	setTitle(title);
-	setDocked(true);
-
-	mInputEditor = getChild<LLLineEditor>("chat_editor");
-
-	
-	mInputEditor->setMaxTextLength(1023);
-	// enable line history support for instant message bar
-	mInputEditor->setEnableLineHistory(TRUE);
-	
-	mInputEditor->setFocusReceivedCallback( onInputEditorFocusReceived, this );
-	mInputEditor->setFocusLostCallback( onInputEditorFocusLost, this );
-	mInputEditor->setKeystrokeCallback( onInputEditorKeystroke, this );
-	mInputEditor->setCommitOnFocusLost( FALSE );
-	mInputEditor->setRevertOnEsc( FALSE );
-	mInputEditor->setReplaceNewlinesWithSpaces( FALSE );
-
-	childSetCommitCallback("chat_editor", onSendMsg, this);
+// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_im_session.xml");
 }
 
 /* static */
@@ -2103,8 +2056,7 @@ void LLIMFloater::newIMCallback(const LLSD& data){
 	{
 		LLUUID session_id = data["session_id"].asUUID();
 
-		LLIMFloater* floater = get_if_there(sIMFloaterMap, session_id, (LLIMFloater*)NULL);
-		
+		LLIMFloater* floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
 		if (floater == NULL)
 		{
 			llwarns << "new_im_callback for non-existent session_id " << session_id << llendl;
@@ -2160,20 +2112,50 @@ void LLIMFloater::sendMsg()
 
 LLIMFloater::~LLIMFloater()
 {
-	sIMFloaterMap.erase(mSessionID);
 }
 
 //virtual
 BOOL LLIMFloater::postBuild()
 {
-	mHistoryEditor = getChild<LLViewerTextEditor>("im_text", true, false);
-	mChiclet = LLBottomTray::getInstance()->getChicletPanel()->findChiclet<LLIMChiclet>(mSessionID);
+	LLPanelIMControlPanel* im_control_panel = getChild<LLPanelIMControlPanel>("panel_im_control_panel");
 
-	if (!mChiclet)
+	LLIMModel::LLIMSession* session = get_if_there(LLIMModel::instance().sSessionsMap, mSessionID, (LLIMModel::LLIMSession*)NULL);
+	if(session)
 	{
-		llwarns << "No chiclet found for the IMFloter" << llendl;
+		mOtherParticipantUUID = session->mOtherParticipantID;
+		im_control_panel->setAvatarId(session->mOtherParticipantID);
+		mDialog = session->mType;
 	}
-	setDocked(false);
+
+	LLButton* slide_left = getChild<LLButton>("slide_left_btn");
+	slide_left->setVisible(im_control_panel->getVisible());
+	slide_left->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
+
+	LLButton* slide_right = getChild<LLButton>("slide_right_btn");
+	slide_right->setVisible(!im_control_panel->getVisible());
+	slide_right->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
+
+	mInputEditor = getChild<LLLineEditor>("chat_editor");
+	mInputEditor->setMaxTextLength(1023);
+	// enable line history support for instant message bar
+	mInputEditor->setEnableLineHistory(TRUE);
+	
+	mInputEditor->setFocusReceivedCallback( onInputEditorFocusReceived, this );
+	mInputEditor->setFocusLostCallback( onInputEditorFocusLost, this );
+	mInputEditor->setKeystrokeCallback( onInputEditorKeystroke, this );
+	mInputEditor->setCommitOnFocusLost( FALSE );
+	mInputEditor->setRevertOnEsc( FALSE );
+	mInputEditor->setReplaceNewlinesWithSpaces( FALSE );
+
+	childSetCommitCallback("chat_editor", onSendMsg, this);
+	
+	mHistoryEditor = getChild<LLViewerTextEditor>("im_text", true, false);
+		
+	setTitle(LLIMModel::instance().getName(mSessionID));
+	setDocked(true);
+	
+	mDockTongue = LLUI::getUIImage("windows/Flyout_Pointer.png");
+	
 	return TRUE;
 }
 
@@ -2197,25 +2179,12 @@ void LLIMFloater::onFocusLost()
 void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 {
 	LLFloater::setDocked(docked);
-	mChiclet->setDockTongueVisible(docked);
-	if (docked)
-	{
-		S32 x, y;
-		mChiclet->localPointToScreen((mChiclet->getRect().getWidth())/2, 0, &x, &y);
-		translate(x - getRect().getCenterX(), DOCK_ICON_HEIGHT - getRect().mBottom);	
-	}
-	else if (pop_on_undock)
+	
+	if (!docked && pop_on_undock)
 	{
 		// visually pop up a little bit to emphasize the undocking
 		translate(0, UNDOCK_LEAP_HEIGHT);
 	}
-}
-
-
-void LLIMFloater::onClose(bool app_quitting)
-{
-	mChiclet->setDockTongueVisible(false);
-	LLFloater::onClose(app_quitting);
 }
 
 void LLIMFloater::onSlide()
@@ -2230,31 +2199,22 @@ void LLIMFloater::onSlide()
 //static
 LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 {
-	LLIMFloater* floater = get_if_there(sIMFloaterMap, session_id, (LLIMFloater*)NULL);
-	
-	if (floater == NULL)
-	{
-		floater = new LLIMFloater(session_id, LLIMModel::instance().getName(session_id), IM_NOTHING_SPECIAL);
-	}
-
 	//hide all
-	for (std::map<LLUUID, LLIMFloater*>::iterator iter = sIMFloaterMap.begin();
-		 iter != sIMFloaterMap.end(); ++iter)
+	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
+	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
+		 iter != inst_list.end(); ++iter)
 	{
-		LLIMFloater* floater = (*iter).second;
-		floater->setVisible(false);
-		floater->mChiclet->setDockTongueVisible(false);
-	
+		LLIMFloater* floater = dynamic_cast<LLIMFloater*>(*iter);
+		if (floater)
+		{
+			floater->setVisible(false);
+		}
 	}
 
-	floater->setVisibleAndFrontmost(true);
-
-	if (floater->isDocked()) 
-	{
-		floater->mChiclet->setDockTongueVisible(true);
-	}
+	LLIMFloater* floater = LLFloaterReg::showTypedInstance<LLIMFloater>("impanel", session_id);
 
 	floater->updateMessages();
+	floater->mInputEditor->setFocus(TRUE);
 	return floater;
 }
 
@@ -2312,7 +2272,24 @@ void LLIMFloater::onInputEditorKeystroke(LLLineEditor* caller, void* userdata)
 	}
 }
 
+
 //just a stub for now
 void LLIMFloater::setTyping(BOOL typing)
 {
 }
+
+
+void LLIMFloater::draw()
+{
+	//if we are docked, make sure we've been positioned by the chiclet
+	if (!isDocked() || mPositioned)
+	{
+		LLFloater::draw();
+
+		if (isDocked())
+		{
+			mDockTongue->draw( (getRect().getWidth()/2) - mDockTongue->getWidth()/2, -mDockTongue->getHeight());
+		}
+	}
+}
+

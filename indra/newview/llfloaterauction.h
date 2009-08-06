@@ -51,7 +51,6 @@ class LLFloaterAuction : public LLFloater
 	friend class LLFloaterReg;
 public:
 	// LLFloater interface
-	/*virtual*/ void onClose(bool app_quitting) { setVisible(FALSE); }
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void draw();
 

@@ -237,7 +237,7 @@ F32 LLFontFreetype::getXAdvance(llwchar wch) const
 	if (mFTFace == NULL)
 		return 0.0;
 
-	llassert(!mIsFallback);
+	//llassert(!mIsFallback);
 	U32 glyph_index;
 
 	// Return existing info only if it is current
@@ -308,7 +308,7 @@ F32 LLFontFreetype::getXKerning(llwchar char_left, llwchar char_right) const
 	if (mFTFace == NULL)
 		return 0.0;
 
-	llassert(!mIsFallback);
+	//llassert(!mIsFallback);
 	LLFontGlyphInfo* left_glyph_info = get_if_there(mCharGlyphInfoMap, char_left, (LLFontGlyphInfo*)NULL);
 	U32 left_glyph = left_glyph_info ? left_glyph_info->mGlyphIndex : 0;
 	// Kern this puppy.

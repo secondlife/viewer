@@ -85,9 +85,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>30e3b60d596801a4f4c74c56ece059dc</string>
+            <string>115d8ac44a91efdb173e9b3e478c46b6</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.3.7-darwin-20090731.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.3.7-darwin-20090805.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -207,9 +207,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>a25595e9fccdba35d8e27854db4e7bc5</string>
+            <string>74f3a765644927c93fa3bc7acc730552</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-darwin-20090803.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-darwin-20090805.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -340,9 +340,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>9c5603e328e9f543e0a599d6b25be973</string>
+            <string>c457a0a041ac4946265889a503d26c3d</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-darwin-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/expat-1.95.8-darwin-20090805.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>

@@ -89,7 +89,6 @@ const U32 RIGHT_PAD_PIXELS = 2;
 const U32 RIGHT_WIDTH_PIXELS = 15;
 const U32 RIGHT_PLAIN_PIXELS = RIGHT_PAD_PIXELS + RIGHT_WIDTH_PIXELS;
 
-const U32 ACCEL_PAD_PIXELS = 10;
 const U32 PLAIN_PAD_PIXELS = LEFT_PAD_PIXELS + LEFT_WIDTH_PIXELS + RIGHT_PAD_PIXELS + RIGHT_WIDTH_PIXELS;
 
 const U32 BRIEF_PAD_PIXELS = 2;
@@ -302,7 +301,7 @@ U32 LLMenuItemGL::getNominalHeight( void ) const
 
 
 // Get the parent menu for this item
-LLMenuGL* LLMenuItemGL::getMenu()
+LLMenuGL* LLMenuItemGL::getMenu() const
 {
 	return (LLMenuGL*) getParent();
 }
@@ -326,7 +325,7 @@ U32 LLMenuItemGL::getNominalWidth( void ) const
 
 	if( KEY_NONE != mAcceleratorKey )
 	{
-		width += ACCEL_PAD_PIXELS;
+		width += getMenu()->getShortcutPad();
 		std::string temp;
 		appendAcceleratorString( temp );
 		width += mFont->getWidth( temp );
@@ -515,12 +514,13 @@ BOOL LLMenuItemGL::setLabelArg( const std::string& key, const LLStringExplicit& 
 	return TRUE;
 }
 
-void LLMenuItemGL::onVisibilityChange(BOOL new_visibility)
+void LLMenuItemGL::handleVisibilityChange(BOOL new_visibility)
 {
 	if (getMenu())
 	{
 		getMenu()->needsArrange();
 	}
+	LLView::handleVisibilityChange(new_visibility);
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1067,13 +1067,13 @@ void LLMenuItemBranchGL::updateBranchParent(LLView* parentp)
 	}
 }
 
-void LLMenuItemBranchGL::onVisibilityChange( BOOL new_visibility )
+void LLMenuItemBranchGL::handleVisibilityChange( BOOL new_visibility )
 {
 	if (new_visibility == FALSE && getBranch() && !getBranch()->getTornOff())
 	{
 		getBranch()->setVisible(FALSE);
 	}
-	LLMenuItemGL::onVisibilityChange(new_visibility);
+	LLMenuItemGL::handleVisibilityChange(new_visibility);
 }
 
 BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )
@@ -1587,7 +1587,8 @@ LLMenuGL::LLMenuGL(const LLMenuGL::Params& p)
 	mJumpKey(p.jump_key),
 	mCreateJumpKeys(p.create_jump_keys),
 	mParentFloaterHandle(p.parent_floater),
-	mNeedsArrange(FALSE)
+	mNeedsArrange(FALSE), 
+	mShortcutPad(p.shortcut_pad)
 {
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> sep("_");
@@ -3213,6 +3214,8 @@ BOOL LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
 ///============================================================================
 /// Class LLMenuHolderGL
 ///============================================================================
+LLCoordGL LLMenuHolderGL::sContextMenuSpawnPos(S32_MAX, S32_MAX);
+
 LLMenuHolderGL::LLMenuHolderGL()
 	: LLPanel()
 {
@@ -3273,6 +3276,19 @@ BOOL LLMenuHolderGL::handleRightMouseDown( S32 x, S32 y, MASK mask )
 // down, move off the menu, then mouse-up.  We want this to close the menu.
 BOOL LLMenuHolderGL::handleRightMouseUp( S32 x, S32 y, MASK mask )
 {
+	const S32 SLOP = 2;
+	S32 spawn_dx = (x - sContextMenuSpawnPos.mX);
+	S32 spawn_dy = (y - sContextMenuSpawnPos.mY);
+	if (-SLOP <= spawn_dx && spawn_dx <= SLOP
+		&& -SLOP <= spawn_dy && spawn_dy <= SLOP)
+	{
+		// we're still inside the slop region from spawning this menu
+		// so interpret the mouse-up as a single-click to show and leave on
+		// screen
+		sContextMenuSpawnPos.set(S32_MAX, S32_MAX);
+		return TRUE;
+	}
+
 	BOOL handled = LLView::childrenHandleRightMouseUp(x, y, mask) != NULL;
 	if (!handled)
 	{
@@ -3344,7 +3360,7 @@ void LLMenuHolderGL::setActivatedItem(LLMenuItemGL* item)
 /// Class LLTearOffMenu
 ///============================================================================
 LLTearOffMenu::LLTearOffMenu(LLMenuGL* menup) : 
-	LLFloater()
+	LLFloater(LLSD())
 {
 	static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
 
@@ -3377,6 +3393,16 @@ LLTearOffMenu::LLTearOffMenu(LLMenuGL* menup) :
 	mMenu->highlightNextItem(NULL);
 }
 
+LLTearOffMenu::~LLTearOffMenu()
+{
+}
+
+// virtual
+BOOL LLTearOffMenu::postBuild()
+{
+	mCloseSignal.connect(boost::bind(&LLTearOffMenu::closeTearOff, this));
+	return TRUE;
+}
 
 void LLTearOffMenu::draw()
 {
@@ -3476,7 +3502,7 @@ LLTearOffMenu* LLTearOffMenu::create(LLMenuGL* menup)
 	return tearoffp;
 }
 
-void LLTearOffMenu::onClose(bool app_quitting)
+void LLTearOffMenu::closeTearOff()
 {
 	removeChild(mMenu);
 	mOldParent->addChild(mMenu);
@@ -3486,7 +3512,6 @@ void LLTearOffMenu::onClose(bool app_quitting)
 	mMenu->setVisible(FALSE);
 	mMenu->setTornOff(FALSE);
 	mMenu->setDropShadowed(TRUE);
-	destroy();
 }
 
 
@@ -3600,9 +3625,7 @@ static MenuRegistry::Register<LLContextMenu> context_menu_register2("context_men
 LLContextMenu::LLContextMenu(const Params& p)
 :	LLMenuGL(p),
 	mHoveredAnyItem(FALSE),
-	mHoverItem(NULL),
-	mSpawnMouseX(S32_MAX),  // definitely not inside the window frame
-	mSpawnMouseY(S32_MAX)
+	mHoverItem(NULL)
 {
 	//setBackgroundVisible(TRUE);
 }
@@ -3616,6 +3639,11 @@ void LLContextMenu::setVisible(BOOL visible)
 // Takes cursor position in screen space?
 void LLContextMenu::show(S32 x, S32 y)
 {
+	// Save click point for detecting cursor moves before mouse-up.
+	// Must be in local coords to compare with mouseUp events.
+	// If the mouse doesn't move, the menu will stay open ala the Mac.
+	LLMenuHolderGL::sContextMenuSpawnPos.set(x,y);
+
 	arrangeAndClear();
 
 	S32 width = getRect().getWidth();
@@ -3652,14 +3680,10 @@ void LLContextMenu::show(S32 x, S32 y)
 	S32 local_x, local_y;
 	parent_view->screenPointToLocal(x, y, &local_x, &local_y);
 
-	// HACK: casting away const.  Should use setRect or some helper function instead.
-	const_cast<LLRect&>(getRect()).setCenterAndSize(local_x + width/2, local_y - height/2, width, height);
+	LLRect rect;
+	rect.setLeftTopAndSize(local_x, local_y, width, height);
+	setRect(rect);
 	arrange();
-
-	// Save click point for detecting cursor moves before mouse-up.
-	// Must be in local coords to compare with mouseUp events.
-	// If the mouse doesn't move, the menu will stay open ala the Mac.
-	screenPointToLocal(x, y, &mSpawnMouseX, &mSpawnMouseY);
 
 	LLView::setVisible(TRUE);
 }
@@ -3758,20 +3782,6 @@ BOOL LLContextMenu::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLContextMenu::handleRightMouseUp( S32 x, S32 y, MASK mask )
 {
-	const S32 SLOP = 2;
-	S32 spawn_dx = (x - mSpawnMouseX);
-	S32 spawn_dy = (y - mSpawnMouseY);
-	if (-SLOP <= spawn_dx && spawn_dx <= SLOP
-		&& -SLOP <= spawn_dy && spawn_dy <= SLOP)
-	{
-		// we're still inside the slop region from spawning this menu
-		// so interpret the mouse-up as a single-click to show and leave on
-		// screen
-		mSpawnMouseX = S32_MAX;
-		mSpawnMouseY = S32_MAX;
-		return TRUE;
-	}
-
 	S32 local_x = x - getRect().mLeft;
 	S32 local_y = y - getRect().mBottom;
 

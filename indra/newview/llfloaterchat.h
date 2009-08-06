@@ -65,12 +65,9 @@ public:
 	LLFloaterChat(const LLSD& seed);
 	~LLFloaterChat();
 
-	virtual void setVisible( BOOL b );
 	virtual void draw();
 	virtual BOOL postBuild();
-	virtual void onClose(bool app_quitting);
-	virtual void onVisibilityChange(BOOL cur_visibility);
-	virtual void setMinimized(BOOL);
+
 	void updateConsoleVisibility();
 
 	static void setHistoryCursorAndScrollToEnd();
@@ -90,6 +87,7 @@ public:
 	static void chatFromLogFile(LLLogChat::ELogLineType type,std::string line, void* userdata);
 	static void loadHistory();
 	static void* createSpeakersPanel(void* data);
+	static void* createChatPanel(void* data);
 	
 	static LLFloaterChat* getInstance(); // *TODO:Skinning Deprecate
 	

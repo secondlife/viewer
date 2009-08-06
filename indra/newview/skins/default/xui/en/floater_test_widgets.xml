@@ -15,6 +15,7 @@
     Otherwise specify location with left and top attributes.
 -->
 <floater
+ can_dock="true" 
  can_resize="true"
  title="Test Floater"
  height="500"

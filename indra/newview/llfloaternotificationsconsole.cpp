@@ -168,13 +168,6 @@ LLFloaterNotificationConsole::LLFloaterNotificationConsole(const LLSD& key)
 	//LLUICtrlFactory::instance().buildFloater(this, "floater_notifications_console.xml");
 }
 
-void LLFloaterNotificationConsole::onClose(bool app_quitting)
-{
-	setVisible(FALSE);
-	//destroy();
-}
-
-
 BOOL LLFloaterNotificationConsole::postBuild()
 {
 	// these are in the order of processing
@@ -251,10 +244,10 @@ void LLFloaterNotificationConsole::onClickAdd()
 //=============== LLFloaterNotification ================
 
 LLFloaterNotification::LLFloaterNotification(LLNotification* note) 
-:	LLFloater(),
+:	LLFloater(LLSD()),
 	mNote(note)
 {
-	LLUICtrlFactory::instance().buildFloater(this, "floater_notification.xml");
+	LLUICtrlFactory::instance().buildFloater(this, "floater_notification.xml", NULL);
 }
 
 BOOL LLFloaterNotification::postBuild()

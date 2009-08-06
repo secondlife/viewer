@@ -47,12 +47,15 @@
 #include "lllocationinputctrl.h"
 #include "llteleporthistory.h"
 #include "llsearcheditor.h"
+#include "llsidetray.h"
 #include "llslurl.h"
 #include "llurlsimstring.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
 #include "llworldmap.h"
+#include "llappviewer.h"
+#include "llviewercontrol.h"
 
 //-- LLTeleportHistoryMenuItem -----------------------------------------------
 
@@ -190,6 +193,9 @@ LLNavigationBar::LLNavigationBar()
 
 	// navigation bar can never get a tab
 	setFocusRoot(FALSE);
+
+	// set a listener function for LoginComplete event
+	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLNavigationBar::handleLoginComplete, this));
 }
 
 LLNavigationBar::~LLNavigationBar()
@@ -253,7 +259,7 @@ void LLNavigationBar::draw()
 	LLPanel::draw();
 }
 
-BOOL LLNavigationBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
+BOOL LLNavigationBar::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
 	// *HACK. We should use mCmbLocation's right click callback instead.
 
@@ -271,7 +277,7 @@ BOOL LLNavigationBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		}
 		return TRUE;
 	}
-	return LLPanel:: handleRightMouseDown(x, y, mask);
+	return LLPanel:: handleRightMouseUp(x, y, mask);
 }
 
 void LLNavigationBar::onBackButtonClicked()
@@ -410,21 +416,26 @@ void LLNavigationBar::onRegionNameResponse(
 	}
 
 	// Location is valid. Add it to the typed locations history.
+	// If user has typed text this variable will contain -1.
 	S32 selected_item = mCmbLocation->getCurrentIndex();
-	if (selected_item == -1) // user has typed text
-	{
-		LLLocationHistory* lh = LLLocationHistory::getInstance();
-		mCmbLocation->add(typed_location);
-		lh->addItem(typed_location);
-		lh->save();
-	}
+
+	/*
+	LLLocationHistory* lh = LLLocationHistory::getInstance();
+	lh->addItem(selected_item == -1 ? typed_location : mCmbLocation->getSelectedItemLabel());
+	lh->save();
+	*/
 
 	// Teleport to the location.
 	LLVector3d region_pos = from_region_handle(region_handle);
 	LLVector3d global_pos = region_pos + (LLVector3d) local_coords;
+
 	
 	llinfos << "Teleporting to: " << global_pos  << llendl;
 	gAgent.teleportViaLocation(global_pos);
+
+	LLLocationHistory* lh = LLLocationHistory::getInstance();
+	lh->addItem(selected_item == -1 ? typed_location : mCmbLocation->getSelectedItemLabel());
+	lh->save();
 }
 
 void	LLNavigationBar::showTeleportHistoryMenu()
@@ -456,18 +467,16 @@ void LLNavigationBar::onLocationContextMenuItemClicked(const LLSD& userdata)
 	std::string item = userdata.asString();
 	LLLineEditor* location_entry = mCmbLocation->getTextEntry();
 
-	if (item == std::string("copy_url"))
+	if (item == std::string("show_coordinates"))
 	{
-		std::string sl_url = gAgent.getSLURL();
-		LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(sl_url));
-		
-		LLSD args;
-		args["SLURL"] = sl_url;
-		LLNotifications::instance().add("CopySLURL", args);
+		gSavedSettings.setBOOL("ShowCoordinatesOption",!gSavedSettings.getBOOL("ShowCoordinatesOption"));
 	}
 	else if (item == std::string("landmark"))
 	{
-		LLFloaterReg::showInstance("add_landmark");
+		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+
+		// Floater "Add Landmark" functionality moved to Side Tray
+		//LLFloaterReg::showInstance("add_landmark");
 	}
 	else if (item == std::string("cut"))
 	{
@@ -519,6 +528,9 @@ bool LLNavigationBar::onLocationContextMenuItemEnabled(const LLSD& userdata)
 	else if(item == std::string("can_landmark"))
 	{
 		return !LLLandmarkActions::landmarkAlreadyExists();
+	}else if(item == std::string("show_coordinates")){
+	
+		return gSavedSettings.getBOOL("ShowCoordinatesOption");
 	}
 
 	return false;

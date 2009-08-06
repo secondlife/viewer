@@ -1940,6 +1940,8 @@ LLViewerMediaTexture::LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps, LL
 	{
 		generateGLTexture() ;
 	}
+	mGLTexturep->setNeedsAlphaAndPickMask(FALSE) ;
+
 	mIsPlaying = FALSE ;
 }
 
@@ -1952,6 +1954,7 @@ void LLViewerMediaTexture::reinit(BOOL usemipmaps /* = TRUE */)
 	getLastReferencedTimer()->reset() ;
 
 	generateGLTexture() ;
+	mGLTexturep->setNeedsAlphaAndPickMask(FALSE) ;
 }
 
 void LLViewerMediaTexture::setUseMipMaps(BOOL mipmap) 

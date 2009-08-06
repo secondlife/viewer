@@ -79,7 +79,7 @@ const F32 CONTEXT_FADE_TIME = 0.08f;
 //////////////////////////////////////////////////////////////////////////////
 
 LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show_apply_immediate )
-	: LLFloater(),
+	: LLFloater(LLSD()),
 	  mComponents			( 3 ),
 	  mMouseDownInLumRegion	( FALSE ),
 	  mMouseDownInHueRegion	( FALSE ),
@@ -113,6 +113,9 @@ LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show
 	  mCanApplyImmediately	( show_apply_immediate ),
 	  mContextConeOpacity	( 0.f )
 {
+	// build the majority of the gui using the factory builder
+	LLUICtrlFactory::getInstance()->buildFloater ( this, "floater_color_picker.xml", NULL );
+	
 	// create user interface for this picker
 	createUI ();
 
@@ -133,10 +136,6 @@ LLFloaterColorPicker::~LLFloaterColorPicker()
 //
 void LLFloaterColorPicker::createUI ()
 {
-	// build the majority of the gui using the factory builder
-	LLUICtrlFactory::getInstance()->buildFloater ( this, "floater_color_picker.xml" );
-	setVisible ( FALSE );
-
 	// create RGB type area (not really RGB but it's got R,G & B in it.,..
 
 	LLPointer<LLImageRaw> raw = new LLImageRaw ( mRGBViewerImageWidth, mRGBViewerImageHeight, mComponents );

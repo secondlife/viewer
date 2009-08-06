@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- control_name="BeaconAlwaysOn"
  height="225"
  layout="topleft"
  name="beacons"
  save_rect="true"
+ save_visibility="true"
+ single_instance="true"
  title="Beacons"
  width="250">
     <panel

@@ -59,6 +59,7 @@ LLScreenChannel::LLScreenChannel(): mUnreadToastsPanel(NULL),
 	//TODO: load as a resource string
 	mOverflowFormatString = "You have %d more notification";
 
+	mToastList.clear();
 	setMouseOpaque( false );
 }
 
@@ -266,7 +267,7 @@ void LLScreenChannel::showToastsBottom()
 		{
 			mHiddenToastsNum++;
 		}
-		createOverflowToast(bottom);
+		createOverflowToast(bottom, gSavedSettings.getS32("NotificationToastTime"));
 	}	
 }
 
@@ -319,7 +320,7 @@ void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 	mUnreadToastsPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
 	toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastMargin"), getRect().getWidth(), toast_rect.getHeight());	
 	mUnreadToastsPanel->setRect(toast_rect);
-	mUnreadToastsPanel->setAndStartTimer(timer ? timer : gSavedSettings.getS32("NotificationToastTime"));
+	mUnreadToastsPanel->setAndStartTimer(timer);
 	getRootView()->addChild(mUnreadToastsPanel);
 
 	text_box->setValue(text);
@@ -337,14 +338,19 @@ void LLScreenChannel::onOverflowToastHide()
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::hideToastsFromScreen()
+void LLScreenChannel::closeUnreadToastsPanel()
 {
-	if(mUnreadToastsPanel)
+	if(mUnreadToastsPanel != NULL)
 	{
 		mUnreadToastsPanel->close();
-		delete mUnreadToastsPanel;
 		mUnreadToastsPanel = NULL;
 	}
+}
+
+//--------------------------------------------------------------------------
+void LLScreenChannel::hideToastsFromScreen()
+{
+	closeUnreadToastsPanel();
 	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end(); it++)
 		(*it).toast->setVisible(FALSE);
 }

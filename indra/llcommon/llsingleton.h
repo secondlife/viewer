@@ -174,7 +174,14 @@ public:
 	{
 		return *getInstance();
 	}
-
+	
+	// Has this singleton been created uet?
+	// Use this to avoid accessing singletons before the can safely be constructed
+	static bool instanceExists()
+	{
+		return getData().mInitState == INITIALIZED;
+	}
+	
 	// Has this singleton already been deleted?
 	// Use this to avoid accessing singletons from a static object's destructor
 	static bool destroyed()

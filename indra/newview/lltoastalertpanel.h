@@ -78,7 +78,6 @@ public:
 
 	virtual void	draw();
 	virtual void	setVisible( BOOL visible );
-	virtual void	onClose(bool app_quitting);
 
 	bool 			setCheckBox( const std::string&, const std::string& );	
 	void			setCaution(BOOL val = TRUE) { mCaution = val; }

@@ -186,15 +186,6 @@ void LLFloaterGodTools::updatePopup(LLCoordGL center, MASK mask)
 }
 
 // virtual
-void LLFloaterGodTools::onClose(bool app_quitting)
-{
-	LLFloaterGodTools* god_tools = LLFloaterReg::getTypedInstance<LLFloaterGodTools>("god_tools");
-	if(!god_tools) return;
-	god_tools->setVisible(FALSE);
-	
-}
-
-// virtual
 void LLFloaterGodTools::draw()
 {
 	if (mCurrentHost == LLHost::invalid)

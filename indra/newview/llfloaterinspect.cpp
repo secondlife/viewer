@@ -35,7 +35,6 @@
 #include "llfloaterinspect.h"
 
 #include "llfloaterreg.h"
-#include "llfloateravatarinfo.h"
 #include "llfloatertools.h"
 #include "llavataractions.h"
 #include "llcachename.h"

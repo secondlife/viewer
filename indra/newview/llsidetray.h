@@ -163,6 +163,7 @@ public:
 	/**
 	 * Activate tab with "panel_name" panel
 	 * if no such tab - return NULL, otherwise a pointer to the panel
+	 * Pass params as array, or they may be overwritten(example - params["name"]="nearby")
 	 */
     LLPanel*	showPanel		(const std::string& panel_name, const LLSD& params);
 

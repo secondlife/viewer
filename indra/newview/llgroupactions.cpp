@@ -39,6 +39,127 @@
 #include "llfloatergroupinfo.h"
 #include "llfloaterreg.h"
 #include "llimview.h" // for gIMMgr
+#include "llgroupmgr.h"
+#include "llavataractions.h"
+#include "llviewercontrol.h"
+
+// LLGroupActions::teleport helper
+//
+// Method is offerTeleport should be called.
+// First it checks, whether LLGroupMgr contains LLGroupMgrGroupData for this group already.
+// If it's there, processMembersList can be called, which builds vector of ID's for online members and
+// calls LLAvatarActions::offerTeleport.
+// If LLGroupMgr doesn't contain LLGroupMgrGroupData, then ID of group should be saved in
+// mID or queue, if mID is not empty. After that processQueue uses ID from mID or queue,
+// registers LLGroupTeleporter as observer at LLGroupMgr and sends request for group members.
+// LLGroupMgr notifies about response on this request by calling method 'changed'.
+// It calls processMembersList, sets mID to null, to indicate that current group is processed,
+// and calls processQueue to process remaining groups.
+// The reason of calling of LLGroupMgr::addObserver and LLGroupMgr::removeObserver in
+// processQueue and 'changed' methods is that LLGroupMgr notifies observers of only particular group,
+// so, for each group mID should be updated and addObserver/removeObserver is called.
+
+class LLGroupTeleporter : public LLGroupMgrObserver
+{
+public:
+	LLGroupTeleporter() : LLGroupMgrObserver(LLUUID()) {}
+
+	void offerTeleport(const LLUUID& group_id);
+
+	// LLGroupMgrObserver trigger
+	virtual void changed(LLGroupChange gc);
+private:
+	void processQueue();
+	void processMembersList(LLGroupMgrGroupData* gdatap);
+
+	std::queue<LLUUID> mGroupsQueue;
+};
+
+void LLGroupTeleporter::offerTeleport(const LLUUID& group_id)
+{
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(group_id);
+
+	if (!gdatap || !gdatap->isMemberDataComplete())
+	{
+		if (mID.isNull())
+			mID = group_id;
+		else
+			// Not null mID means that user requested next group teleport before
+			// previous group is processed, so this group goes to queue
+			mGroupsQueue.push(group_id);
+
+		processQueue();
+	}
+	else
+	{
+		processMembersList(gdatap);
+	}
+}
+
+// Sends request for group in mID or one group in queue
+void LLGroupTeleporter::processQueue()
+{
+	// Get group from queue, if mID is empty
+	if (mID.isNull() && !mGroupsQueue.empty())
+	{
+		mID = mGroupsQueue.front();
+		mGroupsQueue.pop();
+	}
+
+	if (mID.notNull())
+	{
+		LLGroupMgr::getInstance()->addObserver(this);
+		LLGroupMgr::getInstance()->sendGroupMembersRequest(mID);
+	}
+}
+
+// Collects all online members of group and offers teleport to them
+void LLGroupTeleporter::processMembersList(LLGroupMgrGroupData* gdatap)
+{
+	U32 limit = gSavedSettings.getU32("GroupTeleportMembersLimit");
+
+	LLDynamicArray<LLUUID> ids;
+	for (LLGroupMgrGroupData::member_list_t::iterator iter = gdatap->mMembers.begin(); iter != gdatap->mMembers.end(); iter++)
+	{
+		LLGroupMemberData* member = iter->second;
+		if (!member)
+			continue;
+
+		if (member->getID() == gAgent.getID())
+			// No need to teleport own avatar
+			continue;
+
+		if (member->getOnlineStatus() == "Online")
+			ids.push_back(member->getID());
+
+		if ((U32)ids.size() >= limit)
+			break;
+	}
+
+	LLAvatarActions::offerTeleport(ids);
+}
+
+// LLGroupMgrObserver trigger
+void LLGroupTeleporter::changed(LLGroupChange gc)
+{
+	if (gc == GC_MEMBER_DATA)
+	{
+		LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mID);
+
+		if (gdatap && gdatap->isMemberDataComplete())
+			processMembersList(gdatap);
+
+		LLGroupMgr::getInstance()->removeObserver(this);
+
+		// group in mID is processed
+		mID.setNull();
+
+		// process other groups in queue, if any
+		processQueue();
+	}
+}
+
+static LLGroupTeleporter sGroupTeleporter;
 
 // static
 void LLGroupActions::search()
@@ -117,6 +238,12 @@ void LLGroupActions::startChat(const LLUUID& group_id)
 		// relies on you belonging to the group and hence having the group data
 		make_ui_sound("UISndInvalidOp");
 	}
+}
+
+// static
+void LLGroupActions::offerTeleport(const LLUUID& group_id)
+{
+	sGroupTeleporter.offerTeleport(group_id);
 }
 
 //-- Private methods ----------------------------------------------------------
