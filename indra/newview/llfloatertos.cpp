@@ -240,8 +240,3 @@ void LLFloaterTOS::onNavigateComplete( const EventType& eventIn )
 		tos_agreement->setEnabled( true );
 	};
 }
-
-void LLFloaterTOS::setTOSCallback(LLFloaterTOS::YesNoCallback const & callback)
-{
-	mCallback = callback;
-}

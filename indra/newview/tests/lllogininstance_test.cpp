@@ -91,23 +91,15 @@ LLURLSimString LLURLSimString::sInstance;
 bool LLURLSimString::parse() { return true; }
 
 //-----------------------------------------------------------------------------
-#include "llfloaterreg.h"
 #include "../llfloatertos.h"
-static std::string gTOSType;
+static LLFloaterTOS::ETOSType gTOSType;
 static LLFloaterTOS::YesNoCallback gTOSCallback;
-
-void LLFloaterTOS::setTOSCallback(YesNoCallback const & callback)
+LLFloaterTOS* LLFloaterTOS::show(LLFloaterTOS::ETOSType type, 
+							  const std::string & message, 
+							  const YesNoCallback& callback)
 {
+	gTOSType = type;
 	gTOSCallback = callback;
-}
-
-//static
-LLFloater* LLFloaterReg::showInstance(const std::string & name, 
-							          const LLSD & key, 
-							          BOOL focus)
-{
-	gTOSType = name;
-	gTOSCallback = LLFloaterTOS::YesNoCallback();
 	return NULL;
 }
 
@@ -190,7 +182,7 @@ namespace tut
 			gLoginCreds.clear();
 			gDisconnectCalled = false;
 
-			gTOSType = ""; // Set to invalid value.
+			// gTOSType = -1; // Set to invalid value.
 			gTOSCallback = 0; // clear the callback.
 
 
@@ -279,7 +271,7 @@ namespace tut
 		response["data"]["reason"] = "tos";
 		gTestPump.post(response);
 
-		ensure_equals("TOS Dialog type", gTOSType, "message_tos");
+		ensure_equals("TOS Dialog type", gTOSType, LLFloaterTOS::TOS_TOS);
 		ensure("TOS callback given", gTOSCallback != 0);
 		gTOSCallback(false); // Call callback denying TOS.
 		ensure("No TOS, failed auth", logininstance->authFailure());
@@ -305,7 +297,7 @@ namespace tut
 		response["data"]["reason"] = "critical"; // Change response to "critical message"
 		gTestPump.post(response);
 
-		ensure_equals("TOS Dialog type", gTOSType, "message_critical");
+		ensure_equals("TOS Dialog type", gTOSType, LLFloaterTOS::TOS_CRITICAL_MESSAGE);
 		ensure("TOS callback given", gTOSCallback != 0);
 		gTOSCallback(true); 
 		ensure_equals("Accepted read critical message", gLoginCreds["params"]["read_critical"].asBoolean(), true);
