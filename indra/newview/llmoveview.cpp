@@ -435,7 +435,7 @@ void LLFloaterMove::showQuickTips(const EMovementMode mode)
 	default: llwarns << "Quick Tip type was not detected, FTT_MOVE_WALK will be used" << llendl;
 	}
 
-	LLFirstTimeTipsManager::showTipsFor(tipType, this);
+	LLFirstTimeTipsManager::showTipsFor(tipType, this, LLFirstTimeTipsManager::TPA_POS_LEFT_ALIGN_TOP);
 }
 
 void LLFloaterMove::setModeButtonToggleState(const EMovementMode mode)

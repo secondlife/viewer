@@ -106,6 +106,9 @@ BOOL LLPanelPlaces::postBuild()
 
 	mOverflowBtn = getChild<LLButton>("overflow_btn");
 
+	// *TODO: Assign the action to an appropriate event.
+	mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::toggleMediaPanel, this));
+
 	mTabContainer = getChild<LLTabContainer>("Places Tabs");
 	if (mTabContainer)
 	{
@@ -118,17 +121,14 @@ BOOL LLPanelPlaces::postBuild()
 		mFilterEditor->setCommitCallback(boost::bind(&LLPanelPlaces::onFilterEdit, this, _2));
 	}
 
-	mPlaceInfo = getChild<LLPanelPlaceInfo>("panel_place_info", TRUE, FALSE);
-	if (mPlaceInfo)
+	mPlaceInfo = getChild<LLPanelPlaceInfo>("panel_place_info");
+	if (!mPlaceInfo)
+		return FALSE;
+	
+	LLButton* back_btn = mPlaceInfo->getChild<LLButton>("back_btn");
+	if (back_btn)
 	{
-		LLButton* back_btn = mPlaceInfo->getChild<LLButton>("back_btn");
-		if (back_btn)
-		{
-			back_btn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
-		}
-
-		// *TODO: Assign the action to an appropriate event.
-		mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::toggleMediaPanel, this));
+		back_btn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 	}
 
 	return TRUE;
@@ -136,7 +136,7 @@ BOOL LLPanelPlaces::postBuild()
 
 void LLPanelPlaces::onOpen(const LLSD& key)
 {
-	if(key.size() == 0)
+	if(mPlaceInfo == NULL || key.size() == 0)
 		return;
 
 	mPlaceInfoType = key["type"].asString();
@@ -201,6 +201,9 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 void LLPanelPlaces::setItem(LLInventoryItem* item)
 {
+	if (!mPlaceInfo)
+		return;
+
 	mItem = item;
 	
 	// If the item is a link get a linked item
@@ -224,6 +227,9 @@ void LLPanelPlaces::setItem(LLInventoryItem* item)
 
 void LLPanelPlaces::onLandmarkLoaded(LLLandmark* landmark)
 {
+	if (!mPlaceInfo)
+		return;
+
 	LLUUID region_id;
 	landmark->getRegionID(region_id);
 	LLVector3d pos_global;
@@ -263,11 +269,6 @@ void LLPanelPlaces::onShareButtonClicked()
 	// TODO: Launch the "Things" Share wizard
 }
 
-void LLPanelPlaces::onAddLandmarkButtonClicked()
-{
-	LLFloaterReg::showInstance("add_landmark");
-}
-
 void LLPanelPlaces::onCopySLURLButtonClicked()
 {
 	mActivePanel->onCopySLURL();
@@ -276,6 +277,9 @@ void LLPanelPlaces::onCopySLURLButtonClicked()
 
 void LLPanelPlaces::onTeleportButtonClicked()
 {
+	if (!mPlaceInfo)
+		return;
+
 	if (mPlaceInfo->getVisible())
 	{
 		if (mPlaceInfoType == "landmark")
@@ -302,6 +306,9 @@ void LLPanelPlaces::onTeleportButtonClicked()
 
 void LLPanelPlaces::onShowOnMapButtonClicked()
 {
+	if (!mPlaceInfo)
+		return;
+
 	if (mPlaceInfo->getVisible())
 	{
 		LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
@@ -430,6 +437,9 @@ void LLPanelPlaces::changed(U32 mask)
 
 void LLPanelPlaces::onAgentParcelChange()
 {
+	if (!mPlaceInfo)
+		return;
+
 	if (mPlaceInfo->getVisible() && (mPlaceInfoType == "agent" || mPlaceInfoType == "create_landmark"))
 	{
 		onOpen(LLSD().insert("type", mPlaceInfoType));
@@ -442,6 +452,9 @@ void LLPanelPlaces::onAgentParcelChange()
 
 void LLPanelPlaces::updateVerbs()
 {
+	if (!mPlaceInfo)
+		return;
+
 	bool is_place_info_visible = mPlaceInfo->getVisible();
 	bool is_agent_place_info_visible = mPlaceInfoType == "agent";
 	bool is_create_landmark_visible = mPlaceInfoType == "create_landmark";

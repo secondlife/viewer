@@ -234,6 +234,13 @@ BOOL LLLocationInputCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* 
 	// Let the buttons show their tooltips.
 	if (LLUICtrl::handleToolTip(x, y, msg, sticky_rect_screen) && !msg.empty())
 	{
+		LLLocationHistory* lh = LLLocationHistory::getInstance();
+		const std::string tooltip = lh->getToolTip(msg);
+
+		if (!tooltip.empty()) {
+			msg = tooltip;
+		}
+
 		return TRUE;
 	}
 
@@ -347,9 +354,6 @@ void LLLocationInputCtrl::onInfoButtonClicked()
 void LLLocationInputCtrl::onAddLandmarkButtonClicked()
 {
 	LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
-	
-	// Floater "Add Landmark" functionality moved to Side Tray
-	//LLFloaterReg::showInstance("add_landmark");
 }
 
 void LLLocationInputCtrl::onAgentParcelChange()

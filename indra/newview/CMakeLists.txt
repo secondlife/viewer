@@ -135,7 +135,6 @@ set(viewer_SOURCE_FILES
     llflexibleobject.cpp
     llfloaterabout.cpp
     llfloateractivespeakers.cpp
-    llfloateraddlandmark.cpp
     llfloateranimpreview.cpp
     llfloaterauction.cpp
     llfloateravatarpicker.cpp
@@ -283,7 +282,6 @@ set(viewer_SOURCE_FILES
     llpanelavatarrow.cpp
     llpanelavatartag.cpp
     llpanelclassified.cpp
-    llsidetraypanelcontainer.cpp
     llpanelcontents.cpp
     llpaneldirbrowser.cpp
     llpaneldirclassified.cpp
@@ -344,6 +342,7 @@ set(viewer_SOURCE_FILES
     llscreenchannel.cpp
     llselectmgr.cpp
     llsidetray.cpp
+    llsidetraypanelcontainer.cpp
     llsky.cpp
     llslurl.cpp
     llspatialpartition.cpp
@@ -577,7 +576,6 @@ set(viewer_HEADER_FILES
     llflexibleobject.h
     llfloaterabout.h
     llfloateractivespeakers.h
-    llfloateraddlandmark.h
     llfloateranimpreview.h
     llfloaterauction.h
     llfloateravatarpicker.h
@@ -724,7 +722,6 @@ set(viewer_HEADER_FILES
     llpanelavatarrow.h
     llpanelavatartag.h
     llpanelclassified.h
-    llsidetraypanelcontainer.h
     llpanelcontents.h
     llpaneldirbrowser.h
     llpaneldirclassified.h
@@ -787,6 +784,7 @@ set(viewer_HEADER_FILES
     llsavedsettingsglue.h
     llselectmgr.h
     llsidetray.h
+    llsidetraypanelcontainer.h
     llsky.h
     llslurl.h
     llspatialpartition.h

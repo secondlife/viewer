@@ -40,7 +40,6 @@
 #include "llcompilequeue.h"
 #include "llfloaterabout.h"
 #include "llfloateractivespeakers.h"
-#include "llfloateraddlandmark.h"
 #include "llfloateranimpreview.h"
 #include "llfloaterauction.h"
 #include "llfloateravatarpicker.h"
@@ -129,7 +128,6 @@ void LLViewerFloaterReg::registerFloaters()
 	
 	LLFloaterReg::add("about_land", "floater_about_land.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLand>);
 	LLFloaterReg::add("active_speakers", "floater_active_speakers.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterActiveSpeakers>);
-	LLFloaterReg::add("add_landmark", "floater_add_landmark.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAddLandmark>);
 	LLFloaterReg::add("auction", "floater_auction.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAuction>);
 	LLFloaterReg::add("avatar_picker", "floater_avatar_picker.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAvatarPicker>);
 	LLFloaterReg::add("avatar_textures", "floater_avatar_textures.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAvatarTextures>);

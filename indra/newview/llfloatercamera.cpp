@@ -53,6 +53,11 @@ const F32 CAMERA_BUTTON_DELAY = 0.0f;
 #define PAN "cam_track_stick"
 #define CONTROLS "controls"
 
+
+void show_tip(LLFirstTimeTipsManager::EFirstTimeTipType tipType, LLView* anchorView)
+{
+	LLFirstTimeTipsManager::showTipsFor(tipType, anchorView, LLFirstTimeTipsManager::TPA_POS_RIGHT_ALIGN_TOP);
+}
 //
 // Member functions
 //
@@ -93,7 +98,8 @@ void LLFloaterCamera::update()
 {
 	ECameraControlMode mode = determineMode();
 	if (mode != mCurrMode) setMode(mode);
-	LLFirstTimeTipsManager::showTipsFor(mMode2TipType[mode], this);
+	updatePosition();
+	show_tip(mMode2TipType[mode], this);
 }
 
 
@@ -270,7 +276,7 @@ void LLFloaterCamera::onClickBtn(ECameraControlMode mode)
 	
 	switchMode(mode);
 
-	LLFirstTimeTipsManager::showTipsFor(mMode2TipType[mode], mMode2Button[mode]);
+	show_tip(mMode2TipType[mode], this);
 }
 
 void LLFloaterCamera::assignButton2Mode(ECameraControlMode mode, const std::string& button_name)
