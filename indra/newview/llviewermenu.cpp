@@ -5106,13 +5106,13 @@ void print_agent_nvpairs(void*)
 
 void show_debug_menus()
 {
-	// this can get called at login screen where there is no menu so only toggle it if one exists
+	// this might get called at login screen where there is no menu so only toggle it if one exists
 	if ( gMenuBarView )
 	{
 		BOOL debug = gSavedSettings.getBOOL("UseDebugMenus");
 
 		gMenuBarView->setItemVisible("Advanced", debug);
-		gMenuBarView->setItemEnabled("Advanced", debug);
+// 		gMenuBarView->setItemEnabled("Advanced", debug); // Don't disable Advanced keyboard shortcuts when hidden
 		
 		gMenuBarView->setItemVisible("Debug", debug);
 		gMenuBarView->setItemEnabled("Debug", debug);
