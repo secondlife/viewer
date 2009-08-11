@@ -483,8 +483,10 @@ class DarwinManifest(ViewerManifest):
                 for lib in "llkdu", "llcommon":
                     libfile = "lib%s.dylib" % lib
                     try:
-                        self.path(self.find_existing_file('../%s/%s/%s' %
-                                                          (lib, self.args['configuration'], libfile),
+                        self.path(self.find_existing_file(os.path.join(os.pardir,
+                                                                       lib,
+                                                                       self.args['configuration'],
+                                                                       libfile),
                                                           os.path.join(libdir, libfile)),
                                   dst=libfile)
                     except RuntimeError:
@@ -674,15 +676,17 @@ class Linux_i686Manifest(LinuxManifest):
 
         # install either the libllkdu we just built, or a prebuilt one, in
         # decreasing order of preference.  for linux package, this goes to bin/
-        try:
-            self.path(self.find_existing_file('../llkdu/libllkdu.so',
-                '../../libraries/i686-linux/lib_release_client/libllkdu.so'), 
-                  dst='bin/libllkdu.so')
-            # keep this one to preserve syntax, open source mangling removes previous lines
-            pass
-        except:
-            print "Skipping libllkdu.so - not found"
-            pass
+        for lib, destdir in ("llkdu", "bin"), ("llcommon", "lib"):
+            libfile = "lib%s.so" % lib
+            try:
+                self.path(self.find_existing_file(os.path.join(os.pardir, lib, libfile),
+                    '../../libraries/i686-linux/lib_release_client/%s' % libfile), 
+                      dst=os.path.join(destdir, libfile))
+                # keep this one to preserve syntax, open source mangling removes previous lines
+                pass
+            except RuntimeError:
+                print "Skipping %s - not found" % libfile
+                pass
 
         self.path("secondlife-stripped","bin/do-not-directly-run-secondlife-bin")
         self.path("../linux_crash_logger/linux-crash-logger-stripped","linux-crash-logger.bin")
