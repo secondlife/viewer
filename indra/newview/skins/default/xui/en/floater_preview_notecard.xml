@@ -83,23 +83,11 @@
     <button
      follows="left|bottom"
      height="20"
-     label="Discard"
+     label="Save"
      label_selected="Discard"
      layout="topleft"
      left="9"
-     name="Discard"
+     name="Save"
      top="332"
-     width="100" />
-    <button
-     enabled="false"
-     follows="left|bottom"
-     height="20"
-     label="Keep"
-     label_selected="Keep"
-     layout="topleft"
-     left_pad="5"
-     mouse_opaque="false"
-     name="Keep"
-     top_delta="0"
      width="100" />
 </floater>
