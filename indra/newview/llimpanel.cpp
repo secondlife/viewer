@@ -1713,35 +1713,6 @@ void LLFloaterIMPanel::sendMsg()
 								mOtherParticipantUUID,
 								mDialog);
 
-				// local echo
-				if((mDialog == IM_NOTHING_SPECIAL) && 
-				   (mOtherParticipantUUID.notNull()))
-				{
-					std::string history_echo;
-					gAgent.buildFullname(history_echo);
-
-					// Look for IRC-style emotes here.
-					std::string prefix = utf8_text.substr(0, 4);
-					if (prefix == "/me " || prefix == "/me'")
-					{
-						utf8_text.replace(0,3,"");
-					}
-					else
-					{
-						history_echo += ": ";
-					}
-					history_echo += utf8_text;
-
-					BOOL other_was_typing = mOtherTyping;
-
-					addHistoryLine(history_echo, LLUIColorTable::instance().getColor("IMChatColor"), true, gAgent.getID());
-
-					if (other_was_typing) 
-					{
-						addTypingIndicator(mOtherTypingName);
-					}
-
-				}
 			}
 			else
 			{

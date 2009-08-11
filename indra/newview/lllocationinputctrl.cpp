@@ -245,7 +245,7 @@ BOOL LLLocationInputCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* 
 	}
 
 	// Cursor is above the text entry.
-	msg = LLUI::sShowXUINames ? getShowNamesToolTip() : gAgent.getSLURL();
+	msg = LLUI::sShowXUINames ? getShowNamesToolTip() : "";
 	if (mTextEntry && sticky_rect_screen)
 	{
 		*sticky_rect_screen = mTextEntry->calcScreenRect();

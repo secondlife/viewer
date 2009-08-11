@@ -49,7 +49,6 @@ LLFocusMgr::LLFocusMgr()
 	mDefaultKeyboardFocus( NULL ),
 	mKeystrokesOnly(FALSE),
 	mTopCtrl( NULL ),
-	mFocusWeight(0.f),
 	mAppHasFocus(TRUE)   // Macs don't seem to notify us that we've gotten focus, so default to true
 	#ifdef _DEBUG
 		, mMouseCaptorName("none")
@@ -145,8 +144,6 @@ void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, BOOL lock, BOOL keystroke
 
 		// cache the new focus list for next time
 		swap(mCachedKeyboardFocusList, new_focus_list);
-
-		mFocusTimer.reset();
 
 		#ifdef _DEBUG
 			mKeyboardFocusName = new_focus ? new_focus->getName() : std::string("none");
@@ -346,7 +343,7 @@ void LLFocusMgr::unlockFocus()
 
 F32 LLFocusMgr::getFocusFlashAmt() const
 {
-	return clamp_rescale(getFocusTime(), 0.f, FOCUS_FADE_TIME, mFocusWeight, 0.f);
+	return clamp_rescale(mFocusFlashTimer.getElapsedTimeF32(), 0.f, FOCUS_FADE_TIME, 1.f, 0.f);
 }
 
 LLColor4 LLFocusMgr::getFocusColor() const
@@ -363,8 +360,7 @@ LLColor4 LLFocusMgr::getFocusColor() const
 
 void LLFocusMgr::triggerFocusFlash()
 {
-	mFocusTimer.reset();
-	mFocusWeight = 1.f;
+	mFocusFlashTimer.reset();
 }
 
 void LLFocusMgr::setAppHasFocus(BOOL focus) 

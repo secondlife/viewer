@@ -15,6 +15,9 @@
   <texture name="Arrow_Right_Off" file_name="navbar/Arrow_Right_Off.png" preload="true"/>
   <texture name="Arrow_Right_Press" file_name="navbar/Arrow_Right_Press.png" preload="true"/>
 
+  <texture name="Arrow_Up" file_name="widgets/Arrow_Up.png" preload="true" />
+  <texture name="Arrow_Down" file_name="widgets/Arrow_Down.png" preload="true" />
+
   <texture name="BackArrow_Off" file_name="icons/BackArrow_Off.png" preload="false" />
   <texture name="BackArrow_Press" file_name="icons/BackArrow_Press.png" preload="false" />
 
@@ -56,9 +59,12 @@
   <texture name="FileMenu_BarSelect" file_name="navbar/FileMenu_BarSelect.png" preload="false" />
   <texture name="FileMenu_BG" file_name="navbar/FileMenu_BG.png" preload="false" />
 
+  <texture name="ForwardArrow_Off" file_name="icons/ForwardArrow_Off.png" preload="false" />
+  <texture name="ForwardArrow_Press" file_name="icons/ForwardArrow_Press.png" preload="false" />
+
   <texture name="Help_Off" file_name="navbar/Help_Off.png" preload="false"/>
   <texture name="Help_Press" file_name="navbar/Help_Press.png" preload="false"/>
-  
+
   <texture name="History_Arrow" file_name="navbar/History_Arrow.png" preload="true"/>
 
   <texture name="Home_Off" file_name="navbar/Home_Off.png" preload="false"/>
@@ -110,7 +116,8 @@
   <texture name="PushButton_Selected" file_name="widgets/PushButton_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
   <texture name="PushButton_Selected_Press" file_name="widgets/PushButton_Selected_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
   <texture name="PushButton_Selected_Disabled" file_name="widgets/PushButton_Selected_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
-
+  
+  <texture name="RadioButton_Press" file_name="widgets/RadioButton_Press.png" preload="true" />
   <texture name="RadioButton_On_Press" file_name="widgets/RadioButton_On_Press.png" preload="true" />
   <texture name="RadioButton_Off" file_name="widgets/RadioButton_Off.png" preload="true" />
   <texture name="RadioButton_On" file_name="widgets/RadioButton_On.png" preload="true" />
@@ -240,7 +247,7 @@
 
   <texture name="Window_Background" file_name="windows/Window_Background.png" preload="true" />
   <texture name="Window_Foreground" file_name="windows/Window_Foreground.png" preload="true" />
- 
+
 
 
 
@@ -249,7 +256,7 @@
 
   <texture name="btn_chatbar.tga" scale.left="20" scale.top="24" scale.right="44" scale.bottom="0"/>
   <texture name="btn_chatbar_selected.tga" scale.left="20" scale.top="24" scale.right="44" scale.bottom="0"/>
-  
+
   <texture name="cam_rotate_out.tga" preload="false"/>
   <texture name="cam_rotate_in.tga" preload="false"/>
   <texture name="cam_zoom_out.tga" preload="false"/>
@@ -333,7 +340,7 @@
   <texture name="minimize_pressed.tga"	preload="true"/>
 
   <texture name="sm_rounded_corners_simple.tga" scale.left="4" scale.top="4" scale.bottom="4" scale.right="4"/>
- 
+
   <texture name="rounded_square.tga"	file_name="rounded_square.j2c" preload="true" scale.left="16" scale.top="16" scale.right="112" scale.bottom="16" />
 
   <texture name="rounded_square_soft.tga"	file_name="rounded_square_soft.j2c" preload="true" scale.left="16" scale.top="16" scale.right="112" scale.bottom="16"/>

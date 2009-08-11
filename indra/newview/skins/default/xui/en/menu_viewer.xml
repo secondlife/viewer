@@ -205,7 +205,7 @@
              function="Floater.Toggle"
              parameter="active_speakers" />
         </menu_item_check>
-        <menu_item_check
+        <!--menu_item_check
          label="Block List"
          layout="topleft"
          name="Mute List">
@@ -215,7 +215,7 @@
             <menu_item_check.on_click
              function="Floater.Toggle"
              parameter="mute" />
-        </menu_item_check>
+        </menu_item_check-->
         <menu_item_separator
          layout="topleft" />
         <menu_item_check

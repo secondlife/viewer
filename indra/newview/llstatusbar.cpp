@@ -479,9 +479,11 @@ void LLStatusBar::creditBalance(S32 credit)
 void LLStatusBar::setBalance(S32 balance)
 {
 	std::string money_str = LLResMgr::getInstance()->getMonetaryString( balance );
-	std::string balance_str = "L$";
-	balance_str += money_str;
-	mBtnBuyCurrency->setLabel( balance_str );
+
+	LLStringUtil::format_map_t string_args;
+	string_args["[AMT]"] = llformat("%s", money_str.c_str());
+	std::string labe_str = getString("buycurrencylabel", string_args);
+	mBtnBuyCurrency->setLabel(labe_str);
 
 	// Resize the balance button so that the label fits it, and the button expands to the left.
 	// *TODO: LLButton should have an option where to expand.

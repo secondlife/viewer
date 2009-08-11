@@ -2,78 +2,64 @@
 <panel
  bevel_style="in"
  follows="left|top|right|bottom"
- height="625"
- label="Picks"
+ height="570"
+ width="295"
+ border="false"
  layout="topleft"
  left="0"
- name="panel_picks"
  top="0"
- width="305">
-    <!--<text
-     type="string"
-     length="1"
-     follows="top|left|right"
-     font="SansSerifHugeBold"
-     height="50"
+ label="Picks"
+ name="panel_picks">
+    <scroll_container
+     color="DkGray2"
+     follows="left|top|right|bottom"
+     height="570"
+     width="265"
      layout="topleft"
-     left="10"
-     name="pick_title"
-     text_color="white"
-     top="10"
-     width="270"
-     word_wrap="true">
-        [NAME]&apos;s favorite places in Second Life...
-    </text>-->
-    <!-- below is a special title shown for the Agent on the "Picks" tab-->
+     left="5"
+     top_pad="0"
+ bevel_style="in"
+     opaque="true"
+     name="profile_scroll"
+     reserve_scroll_corner="false">
+<!-- below is a special title shown for the Agent on the "Picks" tab
     <text
      type="string"
      length="1"
      follows="top"
      font="SansSerifBold"
      height="35"
+     width="250"
      layout="topleft"
      left="10"
      name="pick_title_agent"
      text_color="white"
-     top="10"
-     visible="false" 
-     width="270"
+     top_pad="25"
+     visible="false"
      word_wrap="true">
         Tell everyone about your favorite Second Life places...
-    </text>
-    <scroll_container
-     follows="left|top|right|bottom"
-     height="495"
-     layout="topleft"
-     left="8"
-     name="profile_scroll"
-     opaque="true"
-     color="DkGray2"
-     reserve_scroll_corner="false"
-     top_pad="0"
-     width="260">
+    </text>-->
         <panel
-         bevel_style="in"
-         height="40"
+         height="115"
+     width="265"
          layout="topleft"
          left="0"
          name="back_panel"
-         top="0"
-         width="260" />
+         top="0" />
     </scroll_container>
-    <panel
+   <panel
      background_visible="true"
-     bevel_style="in"
+     bevel_style="none"
      enabled="false"
      follows="left|right|bottom"
-     height="25"
+     height="30"
      label="bottom_panel"
      layout="topleft"
-     left="8"
+     left="0"
      name="edit_panel"
      visible="false"
      top_pad="0"
-     width="260">
+     width="280">
         <button
          enabled="false"
          follows="bottom|left"
@@ -123,29 +109,18 @@
     <panel
      follows="bottom|left"
      height="30"
+     width="280"
      layout="topleft"
-     left="8"
-     name="buttons_cucks"
-     bottom="625"
-     width="280">
-        <button
-         follows="bottom|left"
-         font="SansSerifSmallBold"
-         height="25"
-         label="Info"
-         layout="topleft"
-         left="0"
-         name="info_btn"
-         enabled="false"
-         top="0"
-         width="60" />
+     left="10"
+     top_pad="5"
+     name="buttons_cucks">
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
          height="25"
          label="Teleport"
          layout="topleft"
-         left_pad="0"
+         left="0"
          name="teleport_btn"
          enabled="false"
          top="0"
@@ -161,16 +136,5 @@
          enabled="false"
          top="0"
          width="105" />
-        <button
-         enabled="false"
-         follows="bottom|right"
-         font="SansSerifSmallBold"
-         height="25"
-         label="Verb"
-         layout="topleft"
-         left_pad="0"
-         name="verb_btn"
-         top="0"
-         width="60" />
     </panel>
 </panel>

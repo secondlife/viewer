@@ -120,4 +120,4 @@ protected:
 	commit_signal_t	mMouseUpSignal;
 };
 
-#endif  // LL_LLSLIDER_H
+#endif  // LL_MULTI_SLIDER_H

@@ -49,6 +49,8 @@ LLSlider::Params::Params()
 	thumb_outline_color("thumb_outline_color"),
 	thumb_center_color("thumb_center_color"),
 	thumb_image("thumb_image"),
+	thumb_image_pressed("thumb_image_pressed"),
+	thumb_image_disabled("thumb_image_disabled"),
 	track_image("track_image"),
 	track_highlight_image("track_highlight_image"),
 	mouse_down_callback("mouse_down_callback"),
@@ -64,6 +66,8 @@ LLSlider::LLSlider(const LLSlider::Params& p)
 	mThumbOutlineColor(p.thumb_outline_color()),
 	mThumbCenterColor(p.thumb_center_color()),
 	mThumbImage(p.thumb_image),
+	mThumbImagePressed(p.thumb_image_pressed),
+	mThumbImageDisabled(p.thumb_image_disabled),
 	mTrackImage(p.track_image),
 	mTrackHighlightImage(p.track_highlight_image)
 {
@@ -243,10 +247,6 @@ void LLSlider::draw()
 	// drawing solids requires texturing be disabled
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-	F32 opacity = getEnabled() ? 1.f : 0.3f;
-	LLColor4 center_color = (mThumbCenterColor.get() % opacity);
-	LLColor4 track_color = (mTrackColor.get() % opacity);
-
 	// Track
 	LLRect track_rect(mThumbImage->getWidth() / 2, 
 						getLocalRect().getCenterY() + (mTrackImage->getHeight() / 2), 
@@ -257,18 +257,38 @@ void LLSlider::draw()
 	mTrackHighlightImage->draw(highlight_rect);
 
 	// Thumb
-	if( hasMouseCapture() )
-	{
-		// Show ghost where thumb was before dragging began.
-		mThumbImage->draw(mDragStartThumbRect, mThumbCenterColor.get() % 0.3f);
-	}
 	if (hasFocus())
 	{
 		// Draw focus highlighting.
 		mThumbImage->drawBorder(mThumbRect, gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
 	}
-	// Fill in the thumb.
-	mThumbImage->draw(mThumbRect, hasMouseCapture() ? mThumbOutlineColor.get() : center_color);
 
+	if( hasMouseCapture() ) // currently clicking on slider
+	{
+		// Show ghost where thumb was before dragging began.
+		if (mThumbImage.notNull())
+		{
+			mThumbImage->draw(mDragStartThumbRect, mThumbCenterColor.get() % 0.3f);
+		}
+		if (mThumbImagePressed.notNull())
+		{
+			mThumbImagePressed->draw(mThumbRect, mThumbOutlineColor);
+		}
+	}
+	else if (!isInEnabledChain())
+	{
+		if (mThumbImageDisabled.notNull())
+		{
+			mThumbImageDisabled->draw(mThumbRect, mThumbCenterColor);
+		}
+	}
+	else
+	{
+		if (mThumbImage.notNull())
+		{
+			mThumbImage->draw(mThumbRect, mThumbCenterColor);
+		}
+	}
+	
 	LLUICtrl::draw();
 }

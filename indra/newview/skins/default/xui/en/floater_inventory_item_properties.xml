@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  auto_tile="true"
- height="320"
+ height="340"
  layout="topleft"
  name="item properties"
  save_rect="true"
@@ -185,33 +185,160 @@
      name="OwnerLabel"
      top="125"
      width="78">
-        You can:
+        You:
     </text>
     <check_box
      height="16"
-     label="Modify"
+     label="Edit"
      layout="topleft"
-     left_delta="0"
+     left_pad="5"
      name="CheckOwnerModify"
-     top_pad="4"
+     top_delta="0"
      width="78" />
     <check_box
      height="16"
      label="Copy"
      layout="topleft"
-     left_delta="78"
+     left_delta="0"
      name="CheckOwnerCopy"
-     top_delta="0"
+     top_pad="5"
      width="88" />
     <check_box
      height="16"
-     label="Resell/Give away"
+     label="Resell"
      layout="topleft"
-     left_delta="88"
+     left_delta="0"
      name="CheckOwnerTransfer"
-     top_delta="0"
+     top_pad="5"
      width="106" />
     <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="10"
+     name="AnyoneLabel"
+     top_pad="5"
+     width="78">
+        Anyone:
+    </text>
+    <check_box
+     height="16"
+     label="Copy"
+     layout="topleft"
+     left_pad="5"
+     name="CheckEveryoneCopy"
+     top_delta="0"
+     width="130" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="10"
+     name="GroupLabel"
+     top_pad="5"
+     width="78">
+        Group:
+    </text>
+    <check_box
+     height="16"
+     label="Share"
+     layout="topleft"
+     left_pad="5"
+     name="CheckShareWithGroup"
+     top_delta="5"
+     width="106" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="10"
+     name="NextOwnerLabel"
+     top_pad="5"
+     width="78">
+        Next owner:
+    </text>
+    <check_box
+     height="16"
+     label="Edit"
+     layout="topleft"
+     left_pad="5"
+     name="CheckNextOwnerModify"
+     top_delta="0"
+     width="78" />
+    <check_box
+     height="16"
+     label="Copy"
+     layout="topleft"
+     left_delta="0"
+     name="CheckNextOwnerCopy"
+     top_pad="5"
+     width="88" />
+    <check_box
+     height="16"
+     label="Resell"
+     layout="topleft"
+     left_delta="0"
+     name="CheckNextOwnerTransfer"
+     top_pad="5"
+     width="106" />
+    <check_box
+     height="16"
+     label="For Sale"
+     layout="topleft"
+     left="10"
+     name="CheckPurchase"
+     top_pad="5"
+     width="78" />
+     <combo_box
+     height="19"
+     left_pad="5"
+     layout="topleft"
+     follows="left|top"
+     name="combobox sale copy"
+     width="90">
+        <combo_box.item
+         label="Copy"
+         name="Copy"
+         value="Copy" />
+        <combo_box.item
+         label="Original"
+         name="Original"
+         value="Original" />
+    </combo_box>
+    <spinner
+        follows="left|top"
+        decimal_digits="0"
+        increment="1"
+        control_name="Edit Cost"
+        name="Edit Cost"
+        label="Price: L$"
+        label_width="60"
+        left="10"
+        width="180"
+        min_val="1"
+        height="19"
+        max_val="999999999"
+        top_pad="5"/>
+
+    <!--line_editor
+     border_style="line"
+     border_thickness="1"
+     follows="left|top|right"
+     height="16"
+     layout="topleft"
+     left_pad="5"
+     max_length="25"
+     name="EditPrice"
+     top_delta="0"
+     width="242" /-->
+
+    <!--text
      type="string"
      length="1"
      follows="left|top"
@@ -270,60 +397,8 @@
      top_delta="0"
      width="90">
         N:
-    </text>
-    <check_box
-     height="16"
-     label="Share with group"
-     layout="topleft"
-     left="10"
-     name="CheckShareWithGroup"
-     top="171"
-     width="106" />
-    <check_box
-     height="16"
-     label="Allow anyone to copy"
-     layout="topleft"
-     left_delta="0"
-     name="CheckEveryoneCopy"
-     top_pad="16"
-     width="130" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left_delta="0"
-     name="NextOwnerLabel"
-     top_pad="16"
-     width="88">
-        Next owner can:
-    </text>
-    <check_box
-     height="16"
-     label="Modify"
-     layout="topleft"
-     left_delta="0"
-     name="CheckNextOwnerModify"
-     top_pad="4"
-     width="78" />
-    <check_box
-     height="16"
-     label="Copy"
-     layout="topleft"
-     left_delta="78"
-     name="CheckNextOwnerCopy"
-     top_delta="0"
-     width="88" />
-    <check_box
-     height="16"
-     label="Resell/Give away"
-     layout="topleft"
-     left_delta="88"
-     name="CheckNextOwnerTransfer"
-     top_delta="0"
-     width="106" />
-    <text
+    </text-->
+        <!--text
      type="string"
      length="1"
      follows="left|top"
@@ -331,19 +406,13 @@
      layout="topleft"
      left="10"
      name="SaleLabel"
-     top="265"
+     top_pad="5"
      width="330">
         Mark Item:
-    </text>
-    <check_box
-     height="16"
-     label="For Sale"
-     layout="topleft"
-     left_delta="0"
-     name="CheckPurchase"
-     top_pad="4"
-     width="78" />
-    <radio_group
+    </text-->
+    
+
+    <!--radio_group
      draw_border="false"
      follows="left|top|right"
      height="16"
@@ -368,28 +437,19 @@
          name="radio2"
          top_delta="0"
          width="70" />
-    </radio_group>
-    <text
+    </radio_group-->
+    
+    <!--text
      type="string"
      length="1"
      follows="left|top"
      height="16"
      layout="topleft"
-     left="42"
+     left="10"
      name="TextPrice"
-     top="299"
-     width="56">
-        Price:  L$
-    </text>
-    <line_editor
-     border_style="line"
-     border_thickness="1"
-     follows="left|top|right"
-     height="16"
-     layout="topleft"
-     left_delta="56"
-     max_length="25"
-     name="EditPrice"
-     top_delta="0"
-     width="242" />
+     top_pad="5"
+     width="78">
+        Price: L$
+    </text-->
+
 </floater>

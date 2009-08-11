@@ -508,6 +508,8 @@ void LLSideTray::expandSideBar	()
 {
 	mCollapsed = false;
 	mCollapseButton->setLabel(EXPANDED_NAME);
+	LLSD key;//empty
+	mActiveTab->onOpen(key);
 	mActiveTab->setVisible(TRUE);
 
 	reflectCollapseChange();

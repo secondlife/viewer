@@ -380,6 +380,28 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 		std::string from;
 		gAgent.buildFullname(from);
 		LLIMModel::instance().addToHistory(im_session_id, from, utf8_text);
+
+		//local echo for the legacy communicate panel
+		std::string history_echo;
+		std::string utf8_copy = utf8_text;
+		gAgent.buildFullname(history_echo);
+
+		// Look for IRC-style emotes here.
+
+		std::string prefix = utf8_copy.substr(0, 4);
+		if (prefix == "/me " || prefix == "/me'")
+		{
+			utf8_copy.replace(0,3,"");
+		}
+		else
+		{
+			history_echo += ": ";
+		}
+		history_echo += utf8_copy;
+		
+		LLFloaterIMPanel* floater = gIMMgr->findFloaterBySession(im_session_id);
+		if (floater) floater->addHistoryLine(history_echo, LLUIColorTable::instance().getColor("IMChatColor"), true, gAgent.getID());
+
 	}
 
 	// Add the recipient to the recent people list.
@@ -1362,7 +1384,7 @@ LLUUID LLIMMgr::addSession(
 	{
 		// *TODO: Remove this?  Otherwise old communicate window opens on
 		// second initiation of IM session from People panel?
-		floater->openFloater();
+		// floater->openFloater();
 	}
 	//mTabContainer->selectTabPanel(panel);
 	floater->setInputFocus(TRUE);

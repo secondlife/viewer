@@ -263,13 +263,23 @@
      name="show_my_name_checkbox"
      top_pad="5"
      width="300" />
+    <check_box
+     control_name="SmallAvatarNames"
+     height="16"
+     initial_value="true"
+     label="Small name tags"
+     layout="topleft"
+     left_delta="175"
+     name="small_avatar_names_checkbox"
+     top_delta="0"
+     width="200" />
    <check_box
 	 enabled_control="AvatarNameTagMode"
      control_name="RenderShowGroupTitleAll"
      height="16"
      label="Show group titles"
      layout="topleft"
-     left_delta="0"
+     left_delta="-175"
      name="show_all_title_checkbox"
      top_pad="5"
      width="300" />

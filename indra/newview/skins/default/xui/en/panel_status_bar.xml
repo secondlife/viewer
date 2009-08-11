@@ -35,6 +35,10 @@
      name="timeTooltip">
         [weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
     </panel.string>
+	<panel.string
+     name="buycurrencylabel">
+        L$ [AMT]
+    </panel.string>
     <button
      auto_resize="true"
      follows="right|bottom"

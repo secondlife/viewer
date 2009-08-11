@@ -136,6 +136,9 @@ BOOL LLPanelPlaces::postBuild()
 
 void LLPanelPlaces::onOpen(const LLSD& key)
 {
+	mFilterEditor->clear();
+	onFilterEdit("");
+	
 	if(mPlaceInfo == NULL || key.size() == 0)
 		return;
 
@@ -197,6 +200,8 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 									  hist_items[index].mRegionID,
 									  pos_global);
 	}
+	
+
 }
 
 void LLPanelPlaces::setItem(LLInventoryItem* item)

@@ -2905,7 +2905,9 @@ void LLViewerWindow::updateKeyboardFocus()
 	{
 		if (!cur_focus->isInVisibleChain() || !cur_focus->isInEnabledChain())
 		{
-			gFocusMgr.releaseFocusIfNeeded(cur_focus);
+            // don't release focus, just reassign so that if being given
+            // to a sibling won't call onFocusLost on all the ancestors
+			// gFocusMgr.releaseFocusIfNeeded(cur_focus);
 
 			LLUICtrl* parent = cur_focus->getParentUICtrl();
 			const LLUICtrl* focus_root = cur_focus->findRootMostFocusRoot();
