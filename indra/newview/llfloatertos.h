@@ -49,10 +49,8 @@ class LLFloaterTOS :
 	public LLWebBrowserCtrlObserver
 {
 public:
-	LLFloaterTOS(const LLSD& message);
+	LLFloaterTOS(const LLSD& data);
 	virtual ~LLFloaterTOS();
-
-	typedef boost::function<void(bool)> YesNoCallback;
 
 	BOOL postBuild();
 	
@@ -70,7 +68,7 @@ private:
 	std::string		mMessage;
 	int				mWebBrowserWindowId;
 	int				mLoadCompleteCount;
-	YesNoCallback	mCallback;
+	std::string		mReplyPumpName;
 };
 
 #endif // LL_LLFLOATERTOS_H

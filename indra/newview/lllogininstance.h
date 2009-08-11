@@ -88,7 +88,7 @@ private:
 	bool handleLoginFailure(const LLSD& event);
 	bool handleLoginSuccess(const LLSD& event);
 
-	void handleTOSResponse(bool v, const std::string& key);
+	bool handleTOSResponse(bool v, const std::string& key);
 
 	void attemptComplete() { mAttemptComplete = true; } // In the future an event?
 

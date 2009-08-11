@@ -92,14 +92,15 @@ bool LLURLSimString::parse() { return true; }
 
 //-----------------------------------------------------------------------------
 #include "../llfloatertos.h"
-static LLFloaterTOS::ETOSType gTOSType;
-static LLFloaterTOS::YesNoCallback gTOSCallback;
-LLFloaterTOS* LLFloaterTOS::show(LLFloaterTOS::ETOSType type, 
-							  const std::string & message, 
-							  const YesNoCallback& callback)
+#include "llfloaterreg.h"
+static std::string gTOSType;
+static LLEventPump * gTOSReplyPump = NULL;
+
+//static
+LLFloater* LLFloaterReg::showInstance(const std::string& name, const LLSD& key, BOOL focus)
 {
-	gTOSType = type;
-	gTOSCallback = callback;
+	gTOSType = name;
+	gTOSReplyPump = &LLEventPumps::instance().obtain(key["reply_pump"]);
 	return NULL;
 }
 
@@ -182,8 +183,8 @@ namespace tut
 			gLoginCreds.clear();
 			gDisconnectCalled = false;
 
-			// gTOSType = -1; // Set to invalid value.
-			gTOSCallback = 0; // clear the callback.
+			gTOSType = ""; // Set to invalid value.
+			gTOSReplyPump = 0; // clear the callback.
 
 
 			gSavedSettings.declareBOOL("NoInventoryLibrary", FALSE, "", FALSE);
@@ -271,15 +272,15 @@ namespace tut
 		response["data"]["reason"] = "tos";
 		gTestPump.post(response);
 
-		ensure_equals("TOS Dialog type", gTOSType, LLFloaterTOS::TOS_TOS);
-		ensure("TOS callback given", gTOSCallback != 0);
-		gTOSCallback(false); // Call callback denying TOS.
+		ensure_equals("TOS Dialog type", gTOSType, "message_tos");
+		ensure("TOS callback given", gTOSReplyPump != 0);
+		gTOSReplyPump->post(false); // Call callback denying TOS.
 		ensure("No TOS, failed auth", logininstance->authFailure());
 
 		// Start again.
 		logininstance->connect(test_uri, credentials);
 		gTestPump.post(response); // Fail for tos again.
-		gTOSCallback(true); // Accept tos, should reconnect w/ agree_to_tos.
+		gTOSReplyPump->post(true); // Accept tos, should reconnect w/ agree_to_tos.
 		ensure_equals("Accepted agree to tos", gLoginCreds["params"]["agree_to_tos"].asBoolean(), true);
 		ensure("Incomplete login status", !logininstance->authFailure() && !logininstance->authSuccess());
 	
@@ -297,9 +298,9 @@ namespace tut
 		response["data"]["reason"] = "critical"; // Change response to "critical message"
 		gTestPump.post(response);
 
-		ensure_equals("TOS Dialog type", gTOSType, LLFloaterTOS::TOS_CRITICAL_MESSAGE);
-		ensure("TOS callback given", gTOSCallback != 0);
-		gTOSCallback(true); 
+		ensure_equals("TOS Dialog type", gTOSType, "message_critical");
+		ensure("TOS callback given", gTOSReplyPump != 0);
+		gTOSReplyPump->post(true); 
 		ensure_equals("Accepted read critical message", gLoginCreds["params"]["read_critical"].asBoolean(), true);
 		ensure("Incomplete login status", !logininstance->authFailure() && !logininstance->authSuccess());
 
