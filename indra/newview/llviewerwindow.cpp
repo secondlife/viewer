@@ -41,6 +41,7 @@
 #include "llfloaterreg.h"
 #include "llpanellogin.h"
 #include "llviewerkeyboard.h"
+#include "llviewermenu.h"
 #include "llviewerwindow.h"
 
 #include "llviewquery.h"
@@ -250,8 +251,6 @@ std::string	LLViewerWindow::sSnapshotBaseName;
 std::string	LLViewerWindow::sSnapshotDir;
 
 std::string	LLViewerWindow::sMovieBaseName;
-
-extern void toggle_debug_menus(void*);
 
 class RecordToChatConsole : public LLError::Recorder, public LLSingleton<RecordToChatConsole>
 {

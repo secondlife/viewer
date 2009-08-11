@@ -5110,15 +5110,16 @@ void show_debug_menus()
 	if ( gMenuBarView )
 	{
 		BOOL debug = gSavedSettings.getBOOL("UseDebugMenus");
+		BOOL qamode = gSavedSettings.getBOOL("QAMode");
 
 		gMenuBarView->setItemVisible("Advanced", debug);
 // 		gMenuBarView->setItemEnabled("Advanced", debug); // Don't disable Advanced keyboard shortcuts when hidden
 		
-		gMenuBarView->setItemVisible("Debug", debug);
-		gMenuBarView->setItemEnabled("Debug", debug);
+		gMenuBarView->setItemVisible("Debug", qamode);
+		gMenuBarView->setItemEnabled("Debug", qamode);
 
-		gMenuBarView->setItemVisible("Develop", debug);
-		gMenuBarView->setItemEnabled("Develop", debug);
+		gMenuBarView->setItemVisible("Develop", qamode);
+		gMenuBarView->setItemEnabled("Develop", qamode);
 
 		// Server ('Admin') menu hidden when not in godmode.
 		const bool show_server_menu = debug && (gAgent.getGodLevel() > GOD_NOT);
