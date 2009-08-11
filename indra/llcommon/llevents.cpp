@@ -59,14 +59,12 @@ const char* queue_names[] =
 /*****************************************************************************
 *   If there's a "mainloop" pump, listen on that to flush all LLEventQueues
 *****************************************************************************/
-struct RegisterFlush
+struct RegisterFlush : public LLEventTrackable
 {
     RegisterFlush():
-        pumps(LLEventPumps::instance()),
-        mainloop(pumps.obtain("mainloop")),
-        name("flushLLEventQueues")
+        pumps(LLEventPumps::instance())
     {
-        mainloop.listen(name, boost::bind(&RegisterFlush::flush, this, _1));
+        pumps.obtain("mainloop").listen("flushLLEventQueues", boost::bind(&RegisterFlush::flush, this, _1));
     }
     bool flush(const LLSD&)
     {
@@ -75,11 +73,9 @@ struct RegisterFlush
     }
     ~RegisterFlush()
     {
-        mainloop.stopListening(name);
+        // LLEventTrackable handles stopListening for us.
     }
     LLEventPumps& pumps;
-    LLEventPump& mainloop;
-    const std::string name;
 };
 static RegisterFlush registerFlush;
 

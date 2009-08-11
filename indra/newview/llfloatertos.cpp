@@ -52,12 +52,12 @@
 #include "message.h"
 
 
-LLFloaterTOS::LLFloaterTOS(const LLSD& message)
-:	LLModalDialog( message, 100, 100 ),
-	mMessage(message.asString()),
+LLFloaterTOS::LLFloaterTOS(const LLSD& data)
+:	LLModalDialog( data["message"].asString(), 100, 100 ),
+	mMessage(data["message"].asString()),
 	mWebBrowserWindowId( 0 ),
 	mLoadCompleteCount( 0 ),
-	mCallback()
+	mReplyPumpName(data["reply_pump"].asString())
 {
 }
 
@@ -205,9 +205,9 @@ void LLFloaterTOS::onContinue( void* userdata )
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
 	llinfos << "User agrees with TOS." << llendl;
 
-	if(self->mCallback)
+	if(self->mReplyPumpName != "")
 	{
-		self->mCallback(true);
+		LLEventPumps::instance().obtain(self->mReplyPumpName).post(LLSD(true));
 	}
 
 	self->closeFloater(); // destroys this object
@@ -219,9 +219,9 @@ void LLFloaterTOS::onCancel( void* userdata )
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
 	llinfos << "User disagrees with TOS." << llendl;
 
-	if(self->mCallback)
+	if(self->mReplyPumpName != "")
 	{
-		self->mCallback(false);
+		LLEventPumps::instance().obtain(self->mReplyPumpName).post(LLSD(false));
 	}
 
 	self->mLoadCompleteCount = 0;  // reset counter for next time we come to TOS
@@ -241,7 +241,3 @@ void LLFloaterTOS::onNavigateComplete( const EventType& eventIn )
 	};
 }
 
-void LLFloaterTOS::setTOSCallback(LLFloaterTOS::YesNoCallback const & callback)
-{
-	mCallback = callback;
-}

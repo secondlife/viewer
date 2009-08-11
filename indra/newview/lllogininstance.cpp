@@ -56,6 +56,9 @@
 #include "lltrans.h"
 #endif
 
+static const char * const TOS_REPLY_PUMP = "lllogininstance_tos_callback";
+static const char * const TOS_LISTENER_NAME = "lllogininstance_tos";
+
 std::string construct_start_string();
 
 LLLoginInstance::LLLoginInstance() :
@@ -222,19 +225,25 @@ bool LLLoginInstance::handleLoginFailure(const LLSD& event)
 		// to reconnect or to end the attempt in failure.
 		if(reason_response == "tos")
 		{
-			LLFloaterTOS * tos =
-				LLFloaterReg::showTypedInstance<LLFloaterTOS>("message_tos", LLSD(message_response));
-
-			tos->setTOSCallback(boost::bind(&LLLoginInstance::handleTOSResponse,
-											this, _1, "agree_to_tos"));
+			LLSD data(LLSD::emptyMap());
+			data["message"] = message_response;
+			data["reply_pump"] = TOS_REPLY_PUMP;
+			LLFloaterReg::showInstance("message_tos", data);
+			LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
+				.listen(TOS_LISTENER_NAME,
+						boost::bind(&LLLoginInstance::handleTOSResponse, 
+									this, _1, "agree_to_tos"));
 		}
 		else if(reason_response == "critical")
 		{
-			LLFloaterTOS * tos =
-				LLFloaterReg::showTypedInstance<LLFloaterTOS>("message_critical",LLSD(message_response));
-
-			tos->setTOSCallback(boost::bind(&LLLoginInstance::handleTOSResponse,
-											this, _1, "read_critical"));
+			LLSD data(LLSD::emptyMap());
+			data["message"] = message_response;
+			data["reply_pump"] = TOS_REPLY_PUMP;
+			LLFloaterReg::showInstance("message_critical", data);
+			LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
+				.listen(TOS_LISTENER_NAME,
+						boost::bind(&LLLoginInstance::handleTOSResponse, 
+									this, _1, "read_critical"));
 		}
 		else if(reason_response == "update" || gSavedSettings.getBOOL("ForceMandatoryUpdate"))
 		{
@@ -279,7 +288,7 @@ bool LLLoginInstance::handleLoginSuccess(const LLSD& event)
 	return false;
 }
 
-void LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
+bool LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
 {
 	if(accepted)
 	{	
@@ -291,6 +300,9 @@ void LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
 	{
 		attemptComplete();
 	}
+
+	LLEventPumps::instance().obtain(TOS_REPLY_PUMP).stopListening(TOS_LISTENER_NAME);
+	return true;
 }
 
 
@@ -453,3 +465,4 @@ std::string construct_start_string()
 	}
 	return start;
 }
+
