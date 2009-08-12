@@ -388,11 +388,14 @@
   <texture name="inv_folder_bodypart.tga"/>
   <texture name="inv_folder_callingcard.tga"/>
   <texture name="inv_folder_clothing.tga"/>
+  <texture name="inv_folder_current_outfit.tga"/>
   <texture name="inv_folder_gesture.tga"/>
   <texture name="inv_folder_landmark.tga"/>
   <texture name="inv_folder_lostandfound.tga"/>
+  <texture name="inv_folder_my_outfits.tga"/>
   <texture name="inv_folder_notecard.tga"/>
   <texture name="inv_folder_object.tga"/>
+  <texture name="inv_folder_outfit.tga"/>
   <texture name="inv_folder_plain_closed.tga"/>
   <texture name="inv_folder_script.tga"/>
   <texture name="inv_folder_snapshot.tga"/>
