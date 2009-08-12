@@ -1182,7 +1182,7 @@ void LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name,
 					}
 
 					LLViewerInventoryItem* item = gInventory.getItem(getWearableItemID((EWearableType) type, j));
-					// BAP TODO
+					if (!item) continue;
 					LLPointer<LLInventoryCallback> cb = NULL;
 					link_inventory_item(gAgent.getID(),
 										item->getUUID(),
@@ -1214,7 +1214,6 @@ void LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name,
 			LLInventoryItem* item = gInventory.getItem(item_id);
 			if (!item) continue;
 
-			// BAP link here
 			LLPointer<LLInventoryCallback> cb = NULL;
 			link_inventory_item(gAgent.getID(),
 								item->getUUID(),
