@@ -244,7 +244,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	const BOOL can_agent_sell = gAgent.allowOperation(PERM_OWNER, perm, 
 													  GP_OBJECT_SET_SALE) &&
 		!cannot_restrict_permissions;
-	const BOOL is_link = LLAssetType::lookupIsLinkType(i->getActualType());
+	const BOOL is_link = i->getIsLinkType();
 
 	// You need permission to modify the object to modify an inventory
 	// item in it.

@@ -206,7 +206,8 @@ public:
 	// other than cacheing.
 	bool exportFileLocal(LLFILE* fp) const;
 	bool importFileLocal(LLFILE* fp);
-
+	void determineFolderType();
+	void changeType(LLAssetType::EType new_folder_type);
 protected:
 	LLUUID mOwnerID;
 	S32 mVersion;

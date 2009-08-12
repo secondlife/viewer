@@ -36,14 +36,33 @@
 #include "llmemory.h"
 #include "lluuid.h"
 #include "llinventory.h"
+#include "llinventorymodel.h"
 #include "llviewerinventory.h"
+#include "llvoavatardefines.h"
 
 class LLInventoryItem;
 class LLVOAvatarSelf;
 class LLWearable;
 
+// Forward Declaration
+class LLInventoryFetchDescendentsObserver;
+
 class LLAgentWearables
 {
+	//--------------------------------------------------------------------
+	// Data Types
+	//--------------------------------------------------------------------
+	typedef struct _InitialWearableData
+	{
+		EWearableType mType;
+		U32 mIndex;
+		LLUUID mItemID;
+		LLUUID mAssetID;
+		_InitialWearableData(EWearableType type, U32 index, LLUUID itemID, LLUUID assetID) :
+		mType(type), mIndex(index), mItemID(itemID), mAssetID(assetID) { }
+	} InitialWearableData;
+	typedef std::vector<InitialWearableData *> initial_wearable_data_vec_t;
+	
 	//--------------------------------------------------------------------
 	// Constructors / destructors / Initializers
 	//--------------------------------------------------------------------
@@ -85,13 +104,14 @@ public:
 	U32				getWearableCount(const EWearableType type) const;
 
 
+	//--------------------------------------------------------------------
+	// Setters
+	//--------------------------------------------------------------------
+
 private:
 	// Low-level data structure setter - public access is via setWearableItem, etc.
 	void 			setWearable(const EWearableType type, U32 index, LLWearable *wearable);
 	
-	//--------------------------------------------------------------------
-	// Setters
-	//--------------------------------------------------------------------
 public:
 	void			setWearableItem(LLInventoryItem* new_item, LLWearable* wearable, bool do_append = false);
 	void			setWearableOutfit(const LLInventoryItem::item_array_t& items, const LLDynamicArray< LLWearable* >& wearables, BOOL remove);
@@ -127,7 +147,9 @@ protected:
 	// Server Communication
 	//--------------------------------------------------------------------
 public:
+	// Processes the initial wearables update message (if necessary, since the outfit folder makes it redundant)
 	static void		processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data);
+	static void		fetchInitialWearables(initial_wearable_data_vec_t & current_outfit_links, initial_wearable_data_vec_t & message_wearables);
 protected:
 	void			sendAgentWearablesUpdate();
 	void			sendAgentWearablesRequest();
@@ -139,10 +161,19 @@ protected:
 	// Outfits
 	//--------------------------------------------------------------------
 public:
+	// Note:	wearables_to_include should be a list of EWearableType types
+	//			attachments_to_include should be a list of attachment points
 	void			makeNewOutfit(const std::string& new_folder_name,
 								  const LLDynamicArray<S32>& wearables_to_include,
 								  const LLDynamicArray<S32>& attachments_to_include,
-								  BOOL rename_clothing);protected:
+								  BOOL rename_clothing);
+	
+	// Note:	wearables_to_include should be a list of EWearableType types
+	//			attachments_to_include should be a list of attachment points
+	void			makeNewOutfitLinks(const std::string& new_folder_name,
+									   const LLDynamicArray<S32>& wearables_to_include,
+									   const LLDynamicArray<S32>& attachments_to_include,
+									   BOOL rename_clothing);
 private:
 	void			makeNewOutfitDone(S32 type, U32 index); 
 
@@ -222,6 +253,17 @@ private:
 		LLWearable* mWearable;
 		U32 mTodo;
 		LLPointer<LLRefCount> mCB;
+	};
+	
+	// Outfit folder fetching callback structure.
+	class LLOutfitFolderFetch : public LLInventoryFetchDescendentsObserver
+	{
+	public:
+		LLOutfitFolderFetch() {}
+		~LLOutfitFolderFetch() {}
+		virtual void done();
+		
+		LLAgentWearables::initial_wearable_data_vec_t mAgentInitialWearables;
 	};
 
 }; // LLAgentWearables

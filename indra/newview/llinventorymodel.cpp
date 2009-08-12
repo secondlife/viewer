@@ -434,7 +434,8 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 											cat_array_t& cats,
 											item_array_t& items,
 											BOOL include_trash,
-											LLInventoryCollectFunctor& add)
+											LLInventoryCollectFunctor& add,
+											BOOL follow_folder_links)
 {
 	// Start with categories
 	if(!include_trash)
@@ -458,9 +459,38 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 		}
 	}
 
-	// Move onto items
 	LLViewerInventoryItem* item = NULL;
 	item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, id);
+
+	// Follow folder links recursively.  Currently never goes more
+	// than one level deep (for current outfit support)
+	// Note: if making it fully recursive, need more checking against infinite loops.
+	if (follow_folder_links && item_array)
+	{
+		S32 count = item_array->count();
+		for(S32 i = 0; i < count; ++i)
+		{
+			item = item_array->get(i);
+			if (item->getActualType() == LLAssetType::AT_LINK_FOLDER)
+			{
+				// BAP either getLinkedCategory() should return non-const, or the functor should take const.
+				LLViewerInventoryCategory *linked_cat = const_cast<LLViewerInventoryCategory*>(item->getLinkedCategory());
+				if (linked_cat)
+				{
+					if(add(linked_cat,NULL))
+					{
+						// BAP should this be added here?  May not
+						// matter if it's only being used in current
+						// outfit traversal.
+						cats.put(LLPointer<LLViewerInventoryCategory>(linked_cat));
+					}
+					collectDescendentsIf(linked_cat->getUUID(), cats, items, include_trash, add, FALSE);
+				}
+			}
+		}
+	}
+	
+	// Move onto items
 	if(item_array)
 	{
 		S32 count = item_array->count();
@@ -872,7 +902,7 @@ void LLInventoryModel::purgeLinkedObjects(const LLUUID &id)
 	LLInventoryObject* objectp = getObject(id);
 	if (!objectp) return;
 
-	if (LLAssetType::lookupIsLinkType(objectp->getActualType()))
+	if (objectp->getIsLinkType())
 	{
 		return;
 	}
@@ -1196,14 +1226,14 @@ void LLInventoryModel::fetchInventoryResponder::error(U32 status, const std::str
 	gInventory.notifyObservers("fetchinventory");
 }
 
-void LLInventoryModel::fetchDescendentsOf(const LLUUID& folder_id)
+bool LLInventoryModel::fetchDescendentsOf(const LLUUID& folder_id)
 {
 	LLViewerInventoryCategory* cat = getCategory(folder_id);
 	if(!cat)
 	{
 		llwarns << "Asked to fetch descendents of non-existent folder: "
 				<< folder_id << llendl;
-		return;
+		return false;
 	}
 	//S32 known_descendents = 0;
 	///cat_array_t* categories = get_ptr_in_map(mParentChildCategoryTree, folder_id);
@@ -1216,10 +1246,7 @@ void LLInventoryModel::fetchDescendentsOf(const LLUUID& folder_id)
 	//{
 	//	known_descendents += items->count();
 	//}
-	if(!cat->fetchDescendents())
-	{
-		//llinfos << "Not fetching descendents" << llendl;
-	}
+	return cat->fetchDescendents();
 }
 
 //Initialize statics.
@@ -1337,6 +1364,7 @@ void  fetchDescendentsResponder::result(const LLSD& content)
 			{
 				cat->setVersion(version);
 				cat->setDescendentCount(descendents);
+				cat->determineFolderType();
 			}
 
 		}
@@ -4059,7 +4087,7 @@ bool LLAssetIDMatches::operator()(LLInventoryCategory* cat, LLInventoryItem* ite
 bool LLLinkedItemIDMatches::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 {
 	return (item && 
-			(LLAssetType::lookupIsLinkType(item->getActualType())) &&
+			(item->getIsLinkType()) &&
 			(item->getLinkedUUID() == mBaseItemID)); // A linked item's assetID will be the compared-to item's itemID.
 }
 

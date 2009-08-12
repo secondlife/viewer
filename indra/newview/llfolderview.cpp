@@ -1103,26 +1103,7 @@ void LLFolderView::changeType(LLInventoryModel *model, LLAssetType::EType new_fo
 	if (!folder_bridge) return;
 	LLViewerInventoryCategory *cat = folder_bridge->getCategory();
 	if (!cat) return;
-		
-	const LLUUID &folder_id = cat->getUUID();
-	const LLUUID &parent_id = cat->getParentUUID();
-	const std::string &name = cat->getName();
-		
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessageFast(_PREHASH_UpdateInventoryFolder);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->nextBlockFast(_PREHASH_FolderData);
-	msg->addUUIDFast(_PREHASH_FolderID, folder_id);
-	msg->addUUIDFast(_PREHASH_ParentID, parent_id);
-	msg->addS8Fast(_PREHASH_Type, new_folder_type);
-	msg->addStringFast(_PREHASH_Name, name);
-	gAgent.sendReliableMessage();
-
-	cat->setPreferredType(new_folder_type);
-	gInventory.addChangedMask(LLInventoryObserver::LABEL, folder_id);
-	gInventory.updateLinkedObjects(folder_id);
+	cat->changeType(new_folder_type);
 }
 
 void LLFolderView::autoOpenItem( LLFolderViewFolder* item )

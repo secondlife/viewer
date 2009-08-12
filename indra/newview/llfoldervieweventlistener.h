@@ -62,6 +62,7 @@ public:
 	virtual LLFontGL::StyleFlags getLabelStyle() const = 0;
 	virtual std::string getLabelSuffix() const = 0;
 	virtual void openItem( void ) = 0;
+	virtual void closeItem( void ) = 0;
 	virtual void previewItem( void ) = 0;
 	virtual void selectItem(void) = 0;
 	virtual void showProperties(void) = 0;

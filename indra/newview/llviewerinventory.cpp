@@ -37,6 +37,7 @@
 #include "indra_constants.h"
 
 #include "llagent.h"
+#include "llfoldertype.h"
 #include "llviewercontrol.h"
 #include "llconsole.h"
 #include "llinventorymodel.h"
@@ -587,6 +588,79 @@ bool LLViewerInventoryCategory::exportFileLocal(LLFILE* fp) const
 	return true;
 }
 
+void LLViewerInventoryCategory::determineFolderType()
+{
+	LLAssetType::EType original_type = getPreferredType();
+	if (LLAssetType::lookupIsProtectedCategoryType(original_type))
+		return;
+
+	U64 folder_valid = 0;
+	U64 folder_invalid = 0;
+	LLInventoryModel::cat_array_t category_array;
+	LLInventoryModel::item_array_t item_array;
+	gInventory.collectDescendents(getUUID(),category_array,item_array,FALSE);
+
+	// For ensembles
+	if (category_array.empty())
+	{
+		for (LLInventoryModel::item_array_t::iterator item_iter = item_array.begin();
+			 item_iter != item_array.end();
+			 item_iter++)
+		{
+			const LLViewerInventoryItem *item = (*item_iter);
+			if (item->getIsLinkType())
+				return;
+			if (item->getInventoryType() == LLInventoryType::IT_WEARABLE)
+			{
+				U32 flags = item->getFlags();
+				if (flags > WT_COUNT)
+					return;
+				const EWearableType wearable_type = EWearableType(flags);
+				const std::string& wearable_name = LLWearableDictionary::getTypeName(wearable_type);
+				U64 valid_folder_types = LLFolderType::lookupValidFolderTypes(wearable_name);
+				folder_valid |= valid_folder_types;
+				folder_invalid |= ~valid_folder_types;
+			}
+		}
+		for (U8 i = LLAssetType::AT_FOLDER_ENSEMBLE_START; i <= LLAssetType::AT_FOLDER_ENSEMBLE_END; i++)
+		{
+			if ((folder_valid & (1LL << i)) &&
+				!(folder_invalid & (1LL << i)))
+			{
+				changeType((LLAssetType::EType)i);
+				return;
+			}
+		}
+	}
+	if (LLAssetType::lookupIsEnsembleCategoryType(original_type))
+	{
+		changeType(LLAssetType::AT_NONE);
+	}
+}
+
+void LLViewerInventoryCategory::changeType(LLAssetType::EType new_folder_type)
+{
+	const LLUUID &folder_id = getUUID();
+	const LLUUID &parent_id = getParentUUID();
+	const std::string &name = getName();
+		
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_UpdateInventoryFolder);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->nextBlockFast(_PREHASH_FolderData);
+	msg->addUUIDFast(_PREHASH_FolderID, folder_id);
+	msg->addUUIDFast(_PREHASH_ParentID, parent_id);
+	msg->addS8Fast(_PREHASH_Type, new_folder_type);
+	msg->addStringFast(_PREHASH_Name, name);
+	gAgent.sendReliableMessage();
+
+	setPreferredType(new_folder_type);
+	gInventory.addChangedMask(LLInventoryObserver::LABEL, folder_id);
+	gInventory.updateLinkedObjects(folder_id);	
+}
+
 ///----------------------------------------------------------------------------
 /// Local function definitions
 ///----------------------------------------------------------------------------
@@ -880,16 +954,23 @@ void menu_create_inventory_item(LLFolderView* folder, LLFolderBridge *bridge, co
 {
 	std::string type = userdata.asString();
 	
-	if ("category" == type)
+	if (("category" == type) || ("current" == type) || ("outfit" == type) || ("my_otfts" == type) )
 	{
+		LLAssetType::EType a_type = LLAssetType::AT_NONE;
+		if ("current" == type)
+			a_type = LLAssetType::AT_CURRENT_OUTFIT;
+		if ("outfit" == type)
+			a_type = LLAssetType::AT_OUTFIT;
+		if ("my_otfts" == type)
+			a_type = LLAssetType::AT_MY_OUTFITS;
 		LLUUID category;
 		if (bridge)
 		{
-			category = gInventory.createNewCategory(bridge->getUUID(), LLAssetType::AT_NONE, LLStringUtil::null);
+			category = gInventory.createNewCategory(bridge->getUUID(), a_type, LLStringUtil::null);
 		}
 		else
 		{
-			category = gInventory.createNewCategory(gInventory.getRootFolderID(), LLAssetType::AT_NONE, LLStringUtil::null);
+			category = gInventory.createNewCategory(gInventory.getRootFolderID(), a_type, LLStringUtil::null);
 		}
 		gInventory.notifyObservers();
 		folder->setSelectionByID(category, TRUE);
@@ -1029,6 +1110,11 @@ const std::string& LLViewerInventoryItem::getName() const
 
 const LLPermissions& LLViewerInventoryItem::getPermissions() const
 {
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getPermissions();
+	}
+
 	// Use the actual permissions of the symlink, not its parent.
 	return LLInventoryItem::getPermissions();	
 }
@@ -1070,6 +1156,13 @@ LLInventoryType::EType LLViewerInventoryItem::getInventoryType() const
 		return linked_item->getInventoryType();
 	}
 
+	// Categories don't have types.  If this item is an AT_FOLDER_LINK,
+	// treat it as a category.
+	if (getLinkedCategory())
+	{
+		return LLInventoryType::IT_CATEGORY;
+	}
+
 	return LLInventoryItem::getInventoryType();
 }
 
@@ -1079,7 +1172,6 @@ U32 LLViewerInventoryItem::getFlags() const
 	{
 		return linked_item->getFlags();
 	}
-
 	return LLInventoryItem::getFlags();
 }
 

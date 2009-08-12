@@ -74,7 +74,7 @@
         class="panel_places" 
         name="panel_places" 
         filename="panel_places.xml" 
-        label="Places" 
+        label="Places"
         border="true"
       />
   </sidetray_tab>
@@ -586,5 +586,25 @@
     
   </sidetray_tab>
  --> 
+
+  <sidetray_tab
+    name="sidebar_appearance"
+    tab_title="Appearance"
+    description="Change your looks and appearance."
+    image="TabIcon_Appearance_Off"
+    mouse_opaque="false" 
+    background_opaque="false" 
+    background_visible="true" 
+    bg_opaque_color="0.5 0.5 0.5 1.0"
+  >
+      <panel 
+        class="panel_appearance"
+        name="panel_appearance" 
+        filename="panel_appearance.xml" 
+        border="true" 
+      />
+  </sidetray_tab>
+
+
 </side_tray>
 

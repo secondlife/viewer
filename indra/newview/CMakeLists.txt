@@ -278,6 +278,8 @@ set(viewer_SOURCE_FILES
     llnotify.cpp
     lloutputmonitorctrl.cpp
     lloverlaybar.cpp
+    llpanelappearance.cpp
+    llpanelappearancetab.cpp
     llpanelavatar.cpp
     llpanelavatarrow.cpp
     llpanelavatartag.cpp
@@ -305,6 +307,8 @@ set(viewer_SOURCE_FILES
     llpanellandmarks.cpp
     llpanellandmedia.cpp
     llpanellogin.cpp
+    llpanellookinfo.cpp
+    llpanellooks.cpp
     llpanelmedia.cpp
     llpanelmeprofile.cpp
     llpanelmovetip.cpp
@@ -719,6 +723,8 @@ set(viewer_HEADER_FILES
     llnotify.h
     lloutputmonitorctrl.h
     lloverlaybar.h
+    llpanelappearance.h
+    llpanelappearancetab.h
     llpanelavatar.h
     llpanelavatarrow.h
     llpanelavatartag.h
@@ -746,6 +752,8 @@ set(viewer_HEADER_FILES
     llpanellandmarks.h
     llpanellandmedia.h
     llpanellogin.h
+    llpanellookinfo.h
+    llpanellooks.h
     llpanelmedia.h
     llpanelmeprofile.h
     llpanelmovetip.h

@@ -282,6 +282,12 @@ bool LLAssetType::lookupIsProtectedCategoryType(EType asset_type)
 	return true;
 }
 
+// static
+bool LLAssetType::lookupIsEnsembleCategoryType(EType asset_type)
+{
+	return (asset_type >= AT_FOLDER_ENSEMBLE_START &&
+			asset_type <= AT_FOLDER_ENSEMBLE_END);
+}
 
 // static. Generate a good default description
 void LLAssetType::generateDescriptionFor(LLAssetType::EType asset_type,

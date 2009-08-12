@@ -1274,9 +1274,9 @@ void LLInventoryPanel::draw()
 	LLPanel::draw();
 }
 
-void LLInventoryPanel::setFilterTypes(U32 filter_types)
+void LLInventoryPanel::setFilterTypes(U64 filter_types, BOOL filter_for_categories)
 {
-	mFolders->getFilter()->setFilterTypes(filter_types);
+	mFolders->getFilter()->setFilterTypes(filter_types, filter_for_categories);
 }	
 
 void LLInventoryPanel::setFilterPermMask(PermissionMask filter_perm_mask)

@@ -185,7 +185,8 @@ public:
 							  cat_array_t& categories,
 							  item_array_t& items,
 							  BOOL include_trash,
-							  LLInventoryCollectFunctor& add);
+							  LLInventoryCollectFunctor& add,
+							  BOOL follow_folder_links = FALSE);
 
 	// Collect all items in inventory that are linked to item_id.
 	// Assumes item_id is itself not a linked item.
@@ -296,8 +297,9 @@ public:
 	// minimal functionality before the actual arrival of inventory.
 	//void mock(const LLUUID& root_id);
 
-	// make sure we have the descendents in the structure.
-	void fetchDescendentsOf(const LLUUID& folder_id);
+	// Make sure we have the descendents in the structure.  Returns true
+	// if a fetch was performed.
+	bool fetchDescendentsOf(const LLUUID& folder_id);
 	
 	// Add categories to a list to be fetched in bulk.
 	static void bulkFetch(std::string url);

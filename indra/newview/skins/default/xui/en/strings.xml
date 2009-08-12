@@ -409,6 +409,8 @@ this texture in your inventory
 	<string name="InvFolder Animations">Animations</string>
 	<string name="InvFolder Gestures">Gestures</string>
 	<string name="InvFolder favorite">Favorites</string>
+	<string name="InvFolder Current Outfit">Current Outfit</string>
+	<string name="InvFolder My Outfits">My Outfits</string>
 
 	<!-- inventory FVBridge -->
 	<string name="Buy">Buy</string>
