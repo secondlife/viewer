@@ -132,13 +132,6 @@ void LLImageGL::checkTexSize() const
 //**************************************************************************************
 
 //----------------------------------------------------------------------------
-BOOL is_little_endian()
-{
-	S32 a = 0x12345678;
-    U8 *c = (U8*)(&a);
-    
-	return (*c == 0x78) ;
-}
 
 //static
 S32 LLImageGL::dataFormatBits(S32 dataformat)
@@ -370,8 +363,6 @@ void LLImageGL::init(BOOL usemipmaps)
 	mGLTextureCreated = FALSE ;
 	mIsMask = FALSE;
 	mNeedsAlphaAndPickMask = TRUE ;
-	mAlphaStride = 0 ;
-	mAlphaOffset = 0 ;
 }
 
 void LLImageGL::cleanup()
@@ -510,8 +501,6 @@ void LLImageGL::setExplicitFormat( LLGLint internal_format, LLGLenum primary_for
 	else
 		mFormatType = type_format;
 	mFormatSwapBytes = swap_bytes;
-
-	calcAlphaChannelOffsetAndStride() ;
 }
 
 //----------------------------------------------------------------------------
@@ -962,8 +951,6 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 		  default:
 			llerrs << "Bad number of components for texture: " << (U32)getComponents() << llendl;
 		}
-
-		calcAlphaChannelOffsetAndStride() ;
 	}
 
  	const U8* rawdata = imageraw->getData();
@@ -1368,96 +1355,6 @@ void LLImageGL::setTarget(const LLGLenum target, const LLTexUnit::eTextureType b
 	mBindTarget = bind_target;
 }
 
-const S8 INVALID_OFFSET = -99 ;
-void LLImageGL::setNeedsAlphaAndPickMask(BOOL need_mask) 
-{
-	if(mNeedsAlphaAndPickMask != need_mask)
-	{
-		mNeedsAlphaAndPickMask = need_mask;
-
-		if(mNeedsAlphaAndPickMask)
-		{
-			mAlphaOffset = 0 ;
-		}
-		else //do not need alpha mask
-		{
-			mAlphaOffset = INVALID_OFFSET ;
-			mIsMask = FALSE;
-		}
-	}
-}
-
-void LLImageGL::calcAlphaChannelOffsetAndStride()
-{
-	if(mAlphaOffset == INVALID_OFFSET)//do not need alpha mask
-	{
-		return ;
-	}
-
-	mAlphaOffset = -1 ;
-
-	if (mFormatType == GL_UNSIGNED_BYTE)
-	{
-		mAlphaOffset = 3 ;
-	}
-	else if(is_little_endian())
-	{
-		if (mFormatType == GL_UNSIGNED_INT_8_8_8_8)
-		{
-			mAlphaOffset = 0 ;
-		}
-		else if (mFormatType == GL_UNSIGNED_INT_8_8_8_8_REV)
-		{
-			mAlphaOffset = 3 ;
-		}
-	}
-	else //big endian
-	{
-		if (mFormatType == GL_UNSIGNED_INT_8_8_8_8)
-		{
-			mAlphaOffset = 3 ;
-		}
-		else if (mFormatType == GL_UNSIGNED_INT_8_8_8_8_REV)
-		{
-			mAlphaOffset = 0 ;
-		}
-	}
-
-	mAlphaStride = -1 ;
-	switch (mFormatPrimary)
-	{
-	case GL_LUMINANCE:
-	case GL_ALPHA:
-		mAlphaStride = 1;
-		break;
-	case GL_LUMINANCE_ALPHA:
-		mAlphaStride = 2;
-		break;
-	case GL_RGB:
-		mNeedsAlphaAndPickMask = FALSE ;
-		mIsMask = FALSE;
-		return ; //no alpha channel.
-	case GL_RGBA:
-		mAlphaStride = 4;
-		break;
-	case GL_BGRA_EXT:
-		mAlphaStride = 4;
-		break;
-	default:
-		break;
-	}
-
-	if( mAlphaStride < 1 || //unsupported format
-		mAlphaOffset < 0 || //unsupported type
-		(mFormatPrimary == GL_BGRA_EXT && mFormatType != GL_UNSIGNED_BYTE)) //unknown situation
-	{
-		llwarns << "Cannot analyze alpha for image with format type " << std::hex << mFormatType << std::dec << llendl;
-
-		mNeedsAlphaAndPickMask = FALSE ;
-		mIsMask = FALSE;
-	}
-}
-
 void LLImageGL::analyzeAlpha(const void* data_in, S32 w, S32 h)
 {
 	if(!mNeedsAlphaAndPickMask)
@@ -1465,8 +1362,37 @@ void LLImageGL::analyzeAlpha(const void* data_in, S32 w, S32 h)
 		return ;
 	}
 
+	if (mFormatType != GL_UNSIGNED_BYTE)
+	{
+		llwarns << "Cannot analyze alpha for image with format type " << std::hex << mFormatType << std::dec << llendl;
+	}
+
+	U32 stride = 0;
+	switch (mFormatPrimary)
+	{
+	case GL_LUMINANCE:
+	case GL_ALPHA:
+		stride = 1;
+		break;
+	case GL_LUMINANCE_ALPHA:
+		stride = 2;
+		break;
+	case GL_RGB:
+		//no alpha
+		mIsMask = FALSE;
+		return;
+	case GL_RGBA:
+		stride = 4;
+		break;
+	case GL_BGRA_EXT:
+		stride = 4;
+		break;
+	default:
+		return;
+	}
+
 	U32 length = w * h;
-	const GLubyte* current = ((const GLubyte*) data_in) + mAlphaOffset ;
+	const GLubyte* current = ((const GLubyte*) data_in)+stride-1;
 	
 	S32 sample[16];
 	memset(sample, 0, sizeof(S32)*16);
@@ -1474,7 +1400,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, S32 w, S32 h)
 	for (U32 i = 0; i < length; i++)
 	{
 		++sample[*current/16];
-		current += mAlphaStride ;
+		current += stride;
 	}
 
 	U32 total = 0;

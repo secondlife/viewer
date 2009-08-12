@@ -88,7 +88,6 @@ protected:
 	virtual ~LLImageGL();
 
 	void analyzeAlpha(const void* data_in, S32 w, S32 h);
-	void calcAlphaChannelOffsetAndStride();
 
 public:
 	virtual void dump();	// debugging info to llinfos
@@ -168,7 +167,7 @@ public:
 	void init(BOOL usemipmaps);
 	virtual void cleanup(); // Clean up the LLImageGL so it can be reinitialized.  Be careful when using this in derived class destructors
 
-	void setNeedsAlphaAndPickMask(BOOL need_mask);
+	void setNeedsAlphaAndPickMask(BOOL need_mask) {mNeedsAlphaAndPickMask = need_mask;}
 public:
 	// Various GL/Rendering options
 	S32 mTextureMemory;
@@ -183,9 +182,7 @@ private:
 
 	BOOL mIsMask;
 	BOOL mNeedsAlphaAndPickMask;
-	S8   mAlphaStride ;
-	S8   mAlphaOffset ;
-
+	
 	bool     mGLTextureCreated ;
 	LLGLuint mTexName;
 	U16      mWidth;
