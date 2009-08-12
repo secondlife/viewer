@@ -49,11 +49,10 @@ class LLTextEditor;
 
 typedef std::map<std::string,std::string> icon_map_t;
 
-class LLPanelGroupRoles : public LLPanelGroupTab,
-						  public LLPanelGroupTabObserver
+class LLPanelGroupRoles : public LLPanelGroupTab
 {
 public:
-	LLPanelGroupRoles(const LLUUID& group_id);
+	LLPanelGroupRoles();
 	virtual ~LLPanelGroupRoles();
 
 	// Allow sub tabs to ask for sibling controls.
@@ -64,7 +63,7 @@ public:
 	virtual BOOL postBuild();
 	virtual BOOL isVisibleByAgent(LLAgent* agentp);
 
-	static void* createTab(void* data);
+	
 	void handleClickSubTab();
 
 	// Checks if the current tab needs to be applied, and tries to switch to the requested tab.
@@ -87,8 +86,7 @@ public:
 	virtual void cancel();
 	virtual void update(LLGroupChange gc);
 
-	// PanelGroupTab observer trigger
-	virtual void tabChanged();
+	virtual void setGroupID(const LLUUID& id);
 
 protected:
 	LLPanelGroupTab*		mCurrentTab;
@@ -104,7 +102,7 @@ protected:
 class LLPanelGroupSubTab : public LLPanelGroupTab
 {
 public:
-	LLPanelGroupSubTab(const LLUUID& group_id);
+	LLPanelGroupSubTab();
 	virtual ~LLPanelGroupSubTab();
 
 	virtual BOOL postBuild();
@@ -164,12 +162,10 @@ protected:
 class LLPanelGroupMembersSubTab : public LLPanelGroupSubTab
 {
 public:
-	LLPanelGroupMembersSubTab(const LLUUID& group_id);
+	LLPanelGroupMembersSubTab();
 	virtual ~LLPanelGroupMembersSubTab();
 
 	virtual BOOL postBuildSubTab(LLView* root);
-
-	static void* createTab(void* data);
 
 	static void onMemberSelect(LLUICtrl*, void*);
 	void handleMemberSelect();
@@ -229,12 +225,10 @@ protected:
 class LLPanelGroupRolesSubTab : public LLPanelGroupSubTab
 {
 public:
-	LLPanelGroupRolesSubTab(const LLUUID& group_id);
+	LLPanelGroupRolesSubTab();
 	virtual ~LLPanelGroupRolesSubTab();
 
 	virtual BOOL postBuildSubTab(LLView* root);
-
-	static void* createTab(void* data);
 
 	virtual void activate();
 	virtual void deactivate();
@@ -290,12 +284,11 @@ protected:
 class LLPanelGroupActionsSubTab : public LLPanelGroupSubTab
 {
 public:
-	LLPanelGroupActionsSubTab(const LLUUID& group_id);
+	LLPanelGroupActionsSubTab();
 	virtual ~LLPanelGroupActionsSubTab();
 
 	virtual BOOL postBuildSubTab(LLView* root);
 
-	static void* createTab(void* data);
 
 	virtual void activate();
 	virtual void deactivate();

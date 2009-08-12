@@ -67,7 +67,6 @@
 #include "llmenugl.h"
 #include "llpreviewanim.h"
 #include "llpreviewgesture.h"
-#include "llpreviewlandmark.h"
 #include "llpreviewnotecard.h"
 #include "llpreviewscript.h"
 #include "llpreviewsound.h"
@@ -2899,10 +2898,6 @@ void LLLandmarkBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 			key["id"] = item->getUUID();
 
 			LLSideTray::getInstance()->showPanel("panel_places", key);
-			
-			// Floater preview_landmark disabled, 
-			// its functionality moved to Side Tray Places Panel 
-			//LLFloaterReg::showInstance("preview_landmark", LLSD(item->getUUID()), TAKE_FOCUS_YES);
 		}
 	}
 	else 

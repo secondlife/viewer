@@ -35,24 +35,46 @@
 
 #include "llpanel.h"
 #include "llpanelprofile.h"
+#include "llavatarpropertiesprocessor.h"
 
 class LLPanelProfile;
 class LLPanelProfileTab;
 
+
+/**
+* Panel for displaying Avatar's profile. It consists of three sub panels - Profile,
+* Picks and Notes.
+*/
 class LLPanelProfileView : public LLPanelProfile
 {
 	LOG_CLASS(LLPanelProfileView);
 	friend class LLUICtrlFactory;
 
 public:
+
 	LLPanelProfileView();
 
-	~LLPanelProfileView(void);
+	/*virtual*/ ~LLPanelProfileView();
 
-	void onOpen(const LLSD& key);
+	/*virtual*/ void onOpen(const LLSD& key);
 	
-	BOOL postBuild();
+	/*virtual*/ BOOL postBuild();
+
+	// LLCacheName will call this function when avatar name is loaded from server.
+	// This is required to display names that have not been cached yet.
+	void cacheNameCallback(
+		const LLUUID& id, 
+		const std::string& first_name,
+		const std::string& last_name,
+		BOOL is_group);
+
+protected:
+
 	void onBackBtnClick();
+
+private:
+
+	bool mCacheNameCallbackConnected;
 };
 
 #endif //LL_LLPANELPROFILEVIEW_H

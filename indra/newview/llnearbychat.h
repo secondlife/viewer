@@ -38,6 +38,7 @@
 #include "llchat.h"
 
 class LLResizeBar;
+class LLViewerTextEditor;
 
 class LLNearbyChat: public LLFloater
 {
@@ -87,6 +88,8 @@ private:
 
 	//LLResizeBar*		mResizeBar[RESIZE_BAR_COUNT];
 	LLHandle<LLView>	mPopupMenuHandle;
+	LLPanel*			mChatCaptionPanel;
+	LLViewerTextEditor*	mChatHistoryEditor;
 };
 
 #endif

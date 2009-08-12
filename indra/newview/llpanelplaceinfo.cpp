@@ -115,7 +115,7 @@ BOOL LLPanelPlaceInfo::postBuild()
 	mScrollingPanel = getChild<LLPanel>("scrolling_panel");
 	mInfoPanel = getChild<LLPanel>("info_panel");
 	mMediaPanel = getChild<LLMediaPanel>("media_panel");
-	if (!(mMediaPanel && mInfoPanel && mScrollingPanel))
+	if (!mMediaPanel)
 		return FALSE;
 
 	return TRUE;
@@ -241,9 +241,6 @@ void LLPanelPlaceInfo::setParcelID(const LLUUID& parcel_id)
 
 void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 {
-	if (!mInfoPanel)
-	    return;
-
 	if (type != PLACE)
 		toggleMediaPanel(FALSE);
 	
@@ -291,7 +288,7 @@ BOOL LLPanelPlaceInfo::isMediaPanelVisible()
 
 void LLPanelPlaceInfo::toggleMediaPanel(BOOL visible)
 {
-    if (!(mMediaPanel && mInfoPanel))
+    if (!mMediaPanel)
         return;
 
     if (visible)
@@ -439,7 +436,7 @@ void LLPanelPlaceInfo::displayAgentParcelInfo()
 
 	LLParcelData parcel_data;
 	parcel_data.desc = parcel->getDesc();
-	parcel_data.flags = parcel->getParcelFlags();
+	parcel_data.flags = region->getSimAccess();
 	parcel_data.name = parcel->getName();
 	parcel_data.sim_name = gAgent.getRegion()->getName();
 	parcel_data.snapshot_id = parcel->getSnapshotID();

@@ -38,6 +38,7 @@
 
 class LLChicletPanel;
 class LLLineEditor;
+class LLLayoutStack;
 class LLNotificationChiclet;
 class LLTalkButton;
 class LLNearbyChatBar;
@@ -80,6 +81,8 @@ protected:
 	LLNotificationChiclet* 	mSysWell;
 	LLTalkButton* 		mTalkBtn;
 	LLNearbyChatBar*	mNearbyChatBar;
+	LLLayoutStack*		mToolbarStack;
+
 };
 
 #endif // LL_LLBOTTOMPANEL_H

@@ -320,7 +320,14 @@
 	<string name="GroupNotifyViewPastNotices">View past notices or opt-out of receiving these messages here.</string>
 	<string name="GroupNotifyOpenAttachment">Open Attachment</string>
 	<string name="GroupNotifySaveAttachment">Save Attachment</string>
-	
+  <string name="TeleportOffer">Teleport offering</string>
+  <!-- start-up toast's string-->
+  <string name="StartUpNotification">%d new notification arrived while you were away...</string>
+  <string name="StartUpNotifications">%d new notifications arrived while you were away...</string>
+  <!-- overflow toast's string-->
+  <string name="OverflowInfoChannelString">You have %d more notification</string>
+  
+  
 	<!-- body parts -->
 	<string name="BodyPartsRightArm">Right Arm</string>
 	<string name="BodyPartsHead">Head</string>

@@ -1559,9 +1559,6 @@ void LLViewerWindow::initWorldUI()
 	getRootView()->sendChildToFront(gSnapshotFloaterView);
 
 	// new bottom panel
-	getRootView()->addChild(LLBottomTray::getInstance());
-	// Make sure Bottom Tray is behind Side Tray regardless "addChild" order.
-	getRootView()->sendChildToBack(LLBottomTray::getInstance());
 	LLRect rc = LLBottomTray::getInstance()->getRect();
 	rc.mLeft = 0;
 	rc.mRight = mRootView->getRect().getWidth();
@@ -1634,6 +1631,16 @@ void LLViewerWindow::initWorldUI()
 	navbar->translate(0, root_rect.getHeight() - menu_bar_height - navbar->getRect().getHeight()); // FIXME
 	navbar->setBackgroundColor(gMenuBarView->getBackgroundColor().get());
 	
+	if (!gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
+	{
+		navbar->showNavigationPanel(FALSE);
+	}
+
+	if (!gSavedSettings.getBOOL("ShowNavbarFavoritesPanel"))
+	{
+		navbar->showFavoritesPanel(FALSE);
+	}
+
 	getRootView()->addChild(gStatusBar);
 	getRootView()->addChild(navbar);
 

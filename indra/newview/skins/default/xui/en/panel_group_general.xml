@@ -4,6 +4,7 @@
  follows="all"
  height="514"
  label="General"
+ class="panel_group_general"
  layout="topleft"
  left="1"
  name="general_tab"

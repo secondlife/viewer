@@ -131,7 +131,9 @@ void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, BOOL lock, BOOL keystroke
 		// call onFocusLost on all remaining in the old focus list
 		while (old_focus_iter != mCachedKeyboardFocusList.end())
 		{
-			old_focus_iter->get()->onFocusLost();
+			if (old_focus_iter->get() != NULL) {
+				old_focus_iter->get()->onFocusLost();
+			}
 			old_focus_iter++;
 		}
 

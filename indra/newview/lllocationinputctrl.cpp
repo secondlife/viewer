@@ -55,7 +55,7 @@
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewercontrol.h"
-
+#include "llurllineeditorctrl.h"
 //============================================================================
 /*
  * "ADD LANDMARK" BUTTON UPDATING LOGIC
@@ -163,12 +163,38 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mInfoBtn(NULL),
 	mAddLandmarkBtn(NULL)
 {
+	// Lets replace default LLLineEditor with LLLocationLineEditor
+	// to make needed escaping while copying and cutting url
+	this->removeChild(mTextEntry);
+	delete mTextEntry;
+
+	// Can't access old mTextEntry fields as they are protected, so lets build new params
+	// That is C&P from LLComboBox::createLineEditor function
+	static LLUICachedControl<S32> drop_shadow_button ("DropShadowButton", 0);
+	S32 arrow_width = mArrowImage ? mArrowImage->getWidth() : 0;
+	LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
+	text_entry_rect.mRight -= llmax(8,arrow_width) + 2 * drop_shadow_button;
+
+	LLLineEditor::Params params = p.combo_editor;
+	params.rect(text_entry_rect);
+	params.default_text(LLStringUtil::null);
+	params.max_length_bytes(p.max_chars);
+	params.commit_callback.function(boost::bind(&LLComboBox::onTextCommit, this, _2));
+	params.keystroke_callback(boost::bind(&LLComboBox::onTextEntry, this, _1));
+	params.focus_lost_callback(NULL);
+	params.handle_edit_keys_directly(true);
+	params.commit_on_focus_lost(false);
+	params.follows.flags(FOLLOWS_ALL);
+	mTextEntry = LLUICtrlFactory::create<LLURLLineEditor>(params);
+	this->addChild(mTextEntry);
+	// LLLineEditor is replaced with LLLocationLineEditor
+
 	// "Place information" button.
 	LLButton::Params info_params = p.info_button;
 	mInfoBtn = LLUICtrlFactory::create<LLButton>(info_params);
 	mInfoBtn->setClickedCallback(boost::bind(&LLLocationInputCtrl::onInfoButtonClicked, this));
 	addChild(mInfoBtn);
-	
+
 	// "Add landmark" button.
 	LLButton::Params al_params = p.add_landmark_button;
 	if (p.add_landmark_image_enabled())
@@ -187,6 +213,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	addChild(mAddLandmarkBtn);
 	
 	setPrearrangeCallback(boost::bind(&LLLocationInputCtrl::onLocationPrearrange, this, _2));
+	getTextEntry()->setMouseUpCallback(boost::bind(&LLLocationInputCtrl::onTextEditorMouseUp, this, _2,_3,_4));
 
 	updateWidgetlayout();
 
@@ -234,24 +261,20 @@ BOOL LLLocationInputCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* 
 	// Let the buttons show their tooltips.
 	if (LLUICtrl::handleToolTip(x, y, msg, sticky_rect_screen) && !msg.empty())
 	{
-		LLLocationHistory* lh = LLLocationHistory::getInstance();
-		const std::string tooltip = lh->getToolTip(msg);
+		if (mList->getRect().pointInRect(x, y)) {
+			LLLocationHistory* lh = LLLocationHistory::getInstance();
+			const std::string tooltip = lh->getToolTip(msg);
 
-		if (!tooltip.empty()) {
-			msg = tooltip;
+			if (!tooltip.empty()) {
+				msg = tooltip;
+			}
 		}
 
 		return TRUE;
 	}
 
-	// Cursor is above the text entry.
 	msg = LLUI::sShowXUINames ? getShowNamesToolTip() : "";
-	if (mTextEntry && sticky_rect_screen)
-	{
-		*sticky_rect_screen = mTextEntry->calcScreenRect();
-	}
-
-	return TRUE;
+	return mTextEntry->getRect().pointInRect(x, y);
 }
 
 BOOL LLLocationInputCtrl::handleKeyHere(KEY key, MASK mask)
@@ -328,19 +351,19 @@ void LLLocationInputCtrl::handleLoginComplete()
 void LLLocationInputCtrl::onFocusReceived()
 {
 	prearrangeList();
-	setText(gAgent.getSLURL());
-	if (mTextEntry)
-		mTextEntry->endSelection(); // we don't want handleMouseUp() to "finish" the selection
 }
 
 void LLLocationInputCtrl::onFocusLost()
 {
 	LLUICtrl::onFocusLost();
 	refreshLocation();
+	if(mTextEntry->hasSelection()){
+		mTextEntry->deselect();
+	}
 }
 void	LLLocationInputCtrl::draw(){
 	
-	if(!hasFocus()){
+	if(!hasFocus() && gSavedSettings.getBOOL("ShowCoordinatesOption")){
 		refreshLocation();
 	}
 	LLComboBox::draw();
@@ -377,6 +400,13 @@ void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
 	std::string filter = data.asString();
 	rebuildLocationHistory(filter);
 	mList->mouseOverHighlightNthItem(-1); // Clear highlight on the last selected item.
+}
+void LLLocationInputCtrl::onTextEditorMouseUp(S32 x, S32 y, MASK mask)
+{
+	if (!mTextEntry->hasSelection()) {
+			setText(gAgent.getUnescapedSLURL());
+			mTextEntry->selectAll();
+	}
 }
 
 void LLLocationInputCtrl::refresh()

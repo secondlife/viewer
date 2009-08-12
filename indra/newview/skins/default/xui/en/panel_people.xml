@@ -20,7 +20,6 @@
     height="23"
     follows="left|top|right"
     max_length="270"
-    label="Filter People"
     name="filter_input"
     font="SansSerif"
     background_image="TextField_Search_Off"
@@ -493,5 +492,11 @@
   </string>
   <string name="no_groups">
     No groups
+  </string>
+  <string name="people_filter_label">
+    Filter People
+  </string>
+  <string name="groups_filter_label">
+    Filter Groups
   </string>
 </panel>

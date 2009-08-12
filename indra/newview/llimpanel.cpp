@@ -51,9 +51,9 @@
 #include "llchat.h"
 #include "llchiclet.h"
 #include "llconsole.h"
+#include "llgroupactions.h"
 #include "llfloater.h"
 #include "llfloatercall.h"
-#include "llfloatergroupinfo.h"
 #include "llavataractions.h"
 #include "llimview.h"
 #include "llinventory.h"
@@ -1581,7 +1581,8 @@ void LLFloaterIMPanel::onClickGroupInfo( void* userdata )
 	//  Bring up the Profile window
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*) userdata;
 
-	LLFloaterGroupInfo::showFromUUID(self->mSessionUUID);
+	LLGroupActions::show(self->mSessionUUID);
+
 }
 
 // static
@@ -2120,7 +2121,7 @@ BOOL LLIMFloater::postBuild()
 
 	childSetCommitCallback("chat_editor", onSendMsg, this);
 	
-	mHistoryEditor = getChild<LLViewerTextEditor>("im_text", true, false);
+	mHistoryEditor = getChild<LLViewerTextEditor>("im_text");
 		
 	setTitle(LLIMModel::instance().getName(mSessionID));
 	setDocked(true);

@@ -61,10 +61,12 @@ public:
 
 protected:
 	void updateButtons(U32 bar_width);
+	void createButtons(const LLInventoryModel::item_array_t &items, const LLXMLNodePtr &root, S32 buttonWidth, S32 buttonHGap);
+	LLXMLNodePtr getButtonXMLNode();
 	BOOL collectFavoriteItems(LLInventoryModel::item_array_t &items);
 
 	void onButtonClick(LLUUID id);
-	void onButtonRightClick(LLUUID id);
+	void onButtonRightClick(LLUUID id,LLView* button,S32 x,S32 y,MASK mask);
 	
 	void doToSelected(const LLSD& userdata);
 	

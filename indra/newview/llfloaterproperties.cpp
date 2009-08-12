@@ -43,7 +43,6 @@
 #include "llagent.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
-#include "llfloatergroupinfo.h"
 #include "llavataractions.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
@@ -59,6 +58,7 @@
 #include "llviewerregion.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
+#include "llgroupactions.h"
 
 #include "lluictrlfactory.h"
 
@@ -554,7 +554,7 @@ void LLFloaterProperties::onClickOwner()
 	if(!item) return;
 	if(item->getPermissions().isGroupOwned())
 	{
-		LLFloaterGroupInfo::showFromUUID(item->getPermissions().getGroup());
+		LLGroupActions::show(item->getPermissions().getGroup());
 	}
 	else
 	{

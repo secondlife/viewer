@@ -76,6 +76,7 @@ public:
 		Optional<std::string>	label_selected;
 		Optional<bool>			label_shadow;
 		Optional<bool>			auto_resize;
+		Optional<bool>			use_ellipses;
 
 		// images
 		Optional<LLUIImage*>	image_unselected,
@@ -152,14 +153,14 @@ public:
 
 	void			setUnselectedLabelColor( const LLColor4& c )		{ mUnselectedLabelColor = c; }
 	void			setSelectedLabelColor( const LLColor4& c )			{ mSelectedLabelColor = c; }
+	void			setUseEllipses( BOOL use_ellipses )					{ mUseEllipses = use_ellipses; }
+
 
 	boost::signals2::connection setClickedCallback( const commit_signal_t::slot_type& cb ); // mouse down and up within button
 	boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb );
 	boost::signals2::connection setMouseUpCallback( const commit_signal_t::slot_type& cb ); // mouse up, EVEN IF NOT IN BUTTON
 	// Passes a 'count' parameter in the commit param payload, i.e. param["count"])
 	boost::signals2::connection setHeldDownCallback( const commit_signal_t::slot_type& cb ); // Mouse button held down and in button
-	boost::signals2::connection setRightClickedCallback( const commit_signal_t::slot_type& cb ); // right mouse down and up within button
-
 
 	
 	// *TODO: Deprecate (for backwards compatability only)
@@ -297,6 +298,7 @@ private:
 
 	BOOL						mDropShadowedText;
 	BOOL						mAutoResize;
+	BOOL						mUseEllipses;
 	BOOL						mBorderEnabled;
 
 	BOOL						mFlashing;

@@ -373,8 +373,7 @@ void LLFloaterMove::updatePosition()
 	LLBottomTray* tray = LLBottomTray::getInstance();
 	if (!tray) return;
 
-	LLButton* movement_btn = tray->getChild<LLButton>(BOTTOM_TRAY_BUTTON_NAME, TRUE, FALSE);
-	if (!movement_btn) return;
+	LLButton* movement_btn = tray->getChild<LLButton>(BOTTOM_TRAY_BUTTON_NAME);
 
 	//align centers of a button and a floater
 	S32 x = movement_btn->calcScreenRect().getCenterX() - getRect().getWidth()/2;
@@ -569,8 +568,7 @@ void LLPanelStandStopFlying::updatePosition()
 	LLBottomTray* tray = LLBottomTray::getInstance();
 	if (!tray) return;
 
-	LLButton* movement_btn = tray->getChild<LLButton>(BOTTOM_TRAY_BUTTON_NAME, TRUE, FALSE);
-	if (!movement_btn) return;
+	LLButton* movement_btn = tray->getChild<LLButton>(BOTTOM_TRAY_BUTTON_NAME);
 
 	//align centers of a button and a floater
 	S32 x = movement_btn->calcScreenRect().getCenterX() - getRect().getWidth()/2;

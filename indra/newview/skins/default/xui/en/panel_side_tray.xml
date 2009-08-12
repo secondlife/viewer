@@ -50,9 +50,16 @@
         filename="panel_profile_view.xml"
         border="true"
       />
+      <panel 
+        class="panel_group_info_sidetray" 
+        name="panel_group_info_sidetray" 
+        filename="panel_group_info_sidetray.xml" 
+        label="Group Info" 
+        border="true"
+      />
+
     </panel_container>
   </sidetray_tab>
-  <!-- *TODO Vadim: isn't the sidetray_tab "label" attribute redundant since we have "tab_title" ? -->
   <sidetray_tab 
     name="sidebar_places"
     tab_title="Places"
@@ -82,94 +89,14 @@
     bg_opaque_color="0.5 0.5 0.5 1.0"
   >
       <panel 
-        class="panel_me_profile" 
+        class="panel_me_profile_view" 
         name="panel_me_profile" 
         filename="panel_me_profile.xml"
         label="Me" 
         border="true"
       />
   </sidetray_tab>
-  
   <!--
-  <sidetray_tab 
-    name="sidebar_group"
-    mouse_opaque="false" 
-    background_visible="true" 
-    bg_opaque_color="0.5 0.5 0.5 1.0"
-    image="icn_voice-groupfocus.tga"
-    tab_title="Groups"
-    description="Manage Groups."
-  >
-    <accordion_tab 
-      name="group_accordion" 
-      title="Group General"
-      expanded="true"
-      collapsible="true" 
-      min_width="200" 
-      min_height="200" 
-      header_visible="true"
-    >
-      <panel 
-        class="panel_group_general" 
-        name="panel_group_general" 
-        filename="panel_group_general.xml" 
-        label="Group" 
-        border="true"
-      />
-    </accordion_tab>
-     <accordion_tab 
-      name="groupland_accordion" 
-      title="Group Land and Money"
-      expanded="false"
-      collapsible="true" 
-      min_width="200" 
-      min_height="200" 
-      header_visible="true"
-    >
-      <panel 
-        class="panel_group_land" 
-        name="panel_group_land" 
-        filename="panel_group_land_money.xml" 
-        label="Group" 
-        border="true"
-      />
-    </accordion_tab>
-     <accordion_tab 
-      name="groupnotices_accordion" 
-      title="Group Notices"
-      expanded="false"
-      collapsible="true" 
-      min_width="200" 
-      min_height="200" 
-      header_visible="true"
-    >
-      <panel 
-        class="panel_group_roles" 
-        name="panel_group_roles" 
-        filename="panel_group_roles.xml" 
-        label="Group" 
-        border="true"
-      />
-    </accordion_tab>
-     <accordion_tab 
-      name="grouproles_accordion" 
-      title="Group Roles"
-      expanded="false"
-      collapsible="true" 
-      min_width="200" 
-      min_height="200" 
-      header_visible="true"
-    >
-      <panel 
-        class="panel_group_roles" 
-        name="panel_group_roles" 
-        filename="panel_group_roles.xml" 
-        label="Group" 
-        border="true"
-      />
-    </accordion_tab>
-  </sidetray_tab>  
-  
 
  <sidetray_tab 	
     name="sidebar_previews" 

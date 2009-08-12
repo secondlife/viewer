@@ -89,10 +89,13 @@ private:
 	LLView*	mMainPanel;
 };
 
-
-class LLSideTray : public LLPanel
+// added inheritance from LLDestroyClass<LLSideTray> to enable Side Tray perform necessary actions 
+// while disconnecting viewer in LLAppViewer::disconnectViewer().
+// LLDestroyClassList::instance().fireCallbacks() calls destroyClass method. See EXT-245.
+class LLSideTray : public LLPanel, private LLDestroyClass<LLSideTray>
 {
 	friend class LLUICtrlFactory;
+	friend class LLDestroyClass<LLSideTray>;
 public:
 
 	LOG_CLASS(LLSideTray);
@@ -216,6 +219,15 @@ protected:
 
 
 	void		setPanelRect	();
+
+private:
+	// Implementation of LLDestroyClass<LLSideTray>
+	static void destroyClass()
+	{
+		// Disable SideTray to avoid crashes. EXT-245
+		if (LLSideTray::instanceCreated())
+			LLSideTray::getInstance()->setEnabled(FALSE);
+	}
 	
 
 private:

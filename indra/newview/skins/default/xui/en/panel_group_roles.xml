@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  border="true"
- height="530"
+ height="380"
  label="Members &amp; Roles"
  layout="topleft"
  left="1"
  name="roles_tab"
- top="530"
  width="280">
     <panel.string
      name="default_needs_apply_text">
@@ -31,7 +30,7 @@
     -->
     <panel
      follows="left|top"
-     height="24"
+     height="80"
      layout="topleft"
      left="10"
      name="members_header"
@@ -174,7 +173,7 @@
      left_delta="0"
      name="roles_tab_container"
      tab_position="top"
-     top="70"
+     top="80"
      width="265">
         <panel
          border="true"
@@ -185,6 +184,7 @@
          name="members_sub_tab"
          tool_tip="Members"
          top="16"
+         class="panel_group_members_subtab"
          width="265">
             <panel.string
              name="help_text">
@@ -279,6 +279,7 @@ clicking on their names.
          layout="topleft"
          left_delta="0"
          name="roles_sub_tab"
+         class="panel_group_roles_subtab"
          top_delta="0"
          width="265">
             <panel.string
@@ -384,6 +385,7 @@ including the Everyone and Owner Roles.
          layout="topleft"
          left_delta="0"
          name="actions_sub_tab"
+         class="panel_group_actions_subtab"
          top_delta="0"
          width="265">
             <panel.string

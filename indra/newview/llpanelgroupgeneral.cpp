@@ -37,7 +37,6 @@
 #include "lluictrlfactory.h"
 #include "llagent.h"
 #include "roles_constants.h"
-#include "llfloatergroupinfo.h"
 
 // UI elements
 #include "llbutton.h"
@@ -45,6 +44,7 @@
 #include "llcombobox.h"
 #include "lldbstrings.h"
 #include "llavataractions.h"
+#include "llgroupactions.h"
 #include "lllineeditor.h"
 #include "llnamebox.h"
 #include "llnamelistctrl.h"
@@ -57,21 +57,16 @@
 #include "lltrans.h"
 #include "llviewerwindow.h"
 
+static LLRegisterPanelClassWrapper<LLPanelGroupGeneral> t_panel_group_general("panel_group_general");
+
 // consts
 const S32 MATURE_CONTENT = 1;
 const S32 NON_MATURE_CONTENT = 2;
 const S32 DECLINE_TO_STATE = 0;
 
-// static
-void* LLPanelGroupGeneral::createTab(void* data)
-{
-	LLUUID* group_id = static_cast<LLUUID*>(data);
-	return new LLPanelGroupGeneral(*group_id);
-}
 
-
-LLPanelGroupGeneral::LLPanelGroupGeneral(const LLUUID& group_id)
-:	LLPanelGroupTab(group_id),
+LLPanelGroupGeneral::LLPanelGroupGeneral()
+:	LLPanelGroupTab(),
 	mPendingMemberUpdate(FALSE),
 	mChanged(FALSE),
 	mFirstUse(TRUE),
@@ -311,7 +306,8 @@ void LLPanelGroupGeneral::onClickInfo(void *userdata)
 
 	lldebugs << "open group info: " << self->mGroupID << llendl;
 
-	LLFloaterGroupInfo::showFromUUID(self->mGroupID);
+	LLGroupActions::show(self->mGroupID);
+
 }
 
 // static
@@ -888,3 +884,150 @@ void LLPanelGroupGeneral::updateChanged()
 		}
 	}
 }
+
+void LLPanelGroupGeneral::reset()
+{
+	mCtrlReceiveNotices->set(false);
+	
+	
+	mCtrlListGroup->set(true);
+	
+	mCtrlReceiveNotices->setEnabled(true);
+	mCtrlReceiveNotices->setVisible(true);
+
+	mCtrlListGroup->setEnabled(true);
+
+	mGroupNameEditor->setEnabled(TRUE);
+	mEditCharter->setEnabled(TRUE);
+
+	mCtrlShowInGroupList->setEnabled(TRUE);
+	mComboMature->setEnabled(TRUE);
+	
+	mCtrlOpenEnrollment->setEnabled(TRUE);
+	
+	mCtrlEnrollmentFee->setEnabled(TRUE);
+	
+	mSpinEnrollmentFee->setEnabled(TRUE);
+	mSpinEnrollmentFee->set((F32)0);
+
+	mBtnJoinGroup->setVisible(FALSE);
+	mBtnInfo->setVisible(FALSE);
+	mGroupName->setVisible(FALSE);
+
+	mGroupNameEditor->setVisible(true);
+
+	mComboActiveTitle->setVisible(false);
+	mInsignia->setImageAssetID(mDefaultIconID);
+
+	{
+		std::string empty_str = "";
+		mEditCharter->setText(empty_str);
+	}
+	
+	{
+		LLSD row;
+		row["columns"][0]["value"] = "no members yet";
+
+		mListVisibleMembers->deleteAllItems();
+		mListVisibleMembers->setEnabled(FALSE);
+		mListVisibleMembers->addElement(row);
+	}
+
+	mBtnJoinGroup->setVisible(false);
+
+	{
+		mComboMature->setEnabled(true);
+		mComboMature->setVisible( !gAgent.isTeen() );
+	}
+
+
+	resetDirty();
+}
+
+void	LLPanelGroupGeneral::resetDirty()
+{
+	// List all the controls we want to check for changes...
+	LLUICtrl *check_list[] =
+	{
+		mGroupNameEditor,
+		mGroupName,
+		mFounderName,
+		mInsignia,
+		mEditCharter,
+		mCtrlShowInGroupList,
+		mComboMature,
+		mCtrlOpenEnrollment,
+		mCtrlEnrollmentFee,
+		mSpinEnrollmentFee,
+		mCtrlReceiveNotices,
+		mCtrlListGroup,
+		mActiveTitleLabel,
+		mComboActiveTitle
+	};
+
+	for( size_t i=0; i<LL_ARRAY_SIZE(check_list); i++ )
+	{
+		if( check_list[i] )
+			check_list[i]->resetDirty() ;
+	}
+
+
+}
+
+void LLPanelGroupGeneral::setGroupID(const LLUUID& id)
+{
+	LLPanelGroupTab::setGroupID(id);
+
+	if(id == LLUUID::null)
+	{
+		reset();
+		return;
+	}
+
+	BOOL accept_notices = FALSE;
+	BOOL list_in_profile = FALSE;
+	LLGroupData data;
+	if(gAgent.getGroupData(mGroupID,data))
+	{
+		accept_notices = data.mAcceptNotices;
+		list_in_profile = data.mListInProfile;
+	}
+	mCtrlReceiveNotices = getChild<LLCheckBoxCtrl>("receive_notices");
+	if (mCtrlReceiveNotices)
+	{
+		mCtrlReceiveNotices->set(accept_notices);
+		mCtrlReceiveNotices->setEnabled(data.mID.notNull());
+	}
+	
+	mCtrlListGroup = getChild<LLCheckBoxCtrl>("list_groups_in_profile");
+	if (mCtrlListGroup)
+	{
+		mCtrlListGroup->set(list_in_profile);
+		mCtrlListGroup->setEnabled(data.mID.notNull());
+	}
+
+	mActiveTitleLabel = getChild<LLTextBox>("active_title_label");
+	
+	mComboActiveTitle = getChild<LLComboBox>("active_title");
+
+	if (mGroupID.isNull())
+	{
+		mGroupNameEditor->setEnabled(TRUE);
+		mEditCharter->setEnabled(TRUE);
+
+		mCtrlShowInGroupList->setEnabled(TRUE);
+		mComboMature->setEnabled(TRUE);
+		mCtrlOpenEnrollment->setEnabled(TRUE);
+		mCtrlEnrollmentFee->setEnabled(TRUE);
+		mSpinEnrollmentFee->setEnabled(TRUE);
+
+		mBtnJoinGroup->setVisible(FALSE);
+		mBtnInfo->setVisible(FALSE);
+		mGroupName->setVisible(FALSE);
+	}
+
+	resetDirty();
+
+	activate();
+}
+

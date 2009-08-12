@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- All our XML is utf-8 encoded. -->
+
+<panel
+	name="sys_well_item"
+	title="sys_well_item"
+  visible="false"
+  top="0" 
+  left="0" 
+	width="318"
+	height="35"
+  layout="topleft"
+  follows="top"
+  background_opaque="false"
+  background_visible="true"
+  bg_alpha_color="0.0 0.0 0.0 0.0" >
+
+  <icon
+    top="8"
+    left="8"
+    width="20"
+    height="20"
+    layout="topleft"
+    follows="left"
+    name="icon"
+    label=""
+    mouse_opaque="false"
+    image_name="lag_status_warning.tga" 
+    />
+
+  <text
+    top="2" 
+    left_pad="8" 
+    width="255" 
+    height="28" 
+    layout="topleft"
+    follows="right|left"
+    font="SansSerifBold" 
+    text_color="white"
+    use_ellipses="true" 
+    word_wrap="true"
+    mouse_opaque="false"
+    name="title" >
+    Select your streaming media preference. Select your streaming media preference.
+  </text>  
+  
+  <button
+    top="5" 
+    left_pad="5" 
+    width="15" 
+    height="15" 
+    layout="topleft"
+    follows="right"
+    name="close_btn" 
+    mouse_opaque="true"
+    label=""
+    image_unselected="toast_hide_btn.tga" 
+    image_disabled="toast_hide_btn.tga"
+    image_selected="toast_hide_btn.tga" 
+    image_hover_selected="toast_hide_btn.tga"
+    image_disabled_selected="toast_hide_btn.tga" 
+  />
+
+</panel> 

@@ -102,7 +102,6 @@
 #include "llfloaterfonttest.h"
 #include "llfloatergesture.h"
 #include "llfloatergodtools.h"
-#include "llfloatergroupinfo.h"
 #include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
 #include "llfloaterhtml.h"

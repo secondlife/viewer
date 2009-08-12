@@ -181,7 +181,7 @@
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
             </text>
                   </panel>
-            <text
+            <link
              type="string"
              follows="left|top|right"
              font="SansSerifSmall"
@@ -191,9 +191,10 @@
              left="10"
              name="homepage_edit"
              text_color="HTMLLinkColor"
+             hover_color="0.5 0.4 1 1"
              width="280">
                 TODO
-            </text>
+            </link>
             <text
              type="string"
              follows="left|top"
@@ -286,7 +287,7 @@
                  word_wrap="true">
                     [FIRST] [LAST]
                 </text>
-                <text
+                <link
                  type="string"
                  follows="top|right"
                  font="SansSerifSmall"
@@ -295,10 +296,11 @@
                  left_delta="0"
                  name="partner_edit_link"
                  text_color="HTMLLinkColor"
+                 hover_color="0.5 0.4 1 1"
                  top_delta="15"
                  width="40">
                     Edit
-                </text>
+                </link>
             </panel>
             <text
              type="string"
@@ -336,7 +338,7 @@
              top_pad="30"
              name="account_actions_panel"
              width="200">
-                <text
+                <link
                  type="string"
                  follows="left|top"
                  font="SansSerif"
@@ -345,12 +347,12 @@
                  left="0"
                  name="payment_update_link"
                  text_color="HTMLLinkColor"
+                 hover_color="0.5 0.4 1 1"
                  top="0"
                  width="100">
                     Update
-                </text>
-                <text
-                 type="string"
+                </link>
+                <link
                  follows="left|top"
                  font="SansSerif"
                  height="15"
@@ -358,10 +360,11 @@
                  left="70"
                  name="my_account_link"
                  text_color="HTMLLinkColor"
+                 hover_color="0.5 0.4 1 1"
                  top="0"
                  width="80">
                     My Account
-                </text>
+                </link>
             </panel-->
 
 

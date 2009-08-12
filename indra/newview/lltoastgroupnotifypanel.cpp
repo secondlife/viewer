@@ -44,7 +44,6 @@
 #include "lluiconstants.h"
 #include "llui.h"
 #include "llviewercontrol.h"
-#include "llfloatergroupinfo.h"
 #include "lltrans.h"
 #include "llinitparam.h"
 
@@ -76,14 +75,14 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	const std::string& from_name = payload["sender_name"].asString();
 	std::stringstream from;
 	from << from_name << "/" << groupData.mName;
-	LLTextBox* pTitleText = this->getChild<LLTextBox>("title", TRUE, FALSE);
+	LLTextBox* pTitleText = this->getChild<LLTextBox>("title");
 	pTitleText->setValue(from.str());
 
 	//message body
 	const std::string& subject = payload["subject"].asString();
 	const std::string& message = payload["message"].asString();
 
-	LLTextEditor* pMessageText = getChild<	LLTextEditor>("message", TRUE, FALSE);
+	LLTextEditor* pMessageText = getChild<	LLTextEditor>("message");
 	pMessageText->setValue("");
 	pMessageText->setEnabled(FALSE);
 	pMessageText->setTakesFocus(FALSE);
@@ -113,7 +112,7 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 
 	//attachment
 	BOOL hasInventory = payload["inventory_offer"].isDefined();
-	LLTextBox * pAttachLink = getChild<LLTextBox>("attachment", TRUE, FALSE);
+	LLTextBox * pAttachLink = getChild<LLTextBox>("attachment");
 	pAttachLink->setVisible(hasInventory);
 	if (hasInventory) {
 		pAttachLink->setValue(payload["inventory_name"]);
@@ -130,7 +129,7 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	}
 
 	//ok button
-	LLButton* pOkBtn = getChild<LLButton>("btn_ok", TRUE, FALSE);
+	LLButton* pOkBtn = getChild<LLButton>("btn_ok");
 	pOkBtn->setClickedCallback((boost::bind(&LLToastGroupNotifyPanel::onClickOk, this)));
 	setDefaultBtn(pOkBtn);
 }
@@ -167,8 +166,7 @@ void LLToastGroupNotifyPanel::onClickAttachment()
 	if (mInventoryOffer != NULL) {
 		mInventoryOffer->forceResponse(IOR_ACCEPT);
 
-		LLTextBox * pAttachLink = getChild<LLTextBox> ("attachment", TRUE,
-				FALSE);
+		LLTextBox * pAttachLink = getChild<LLTextBox> ("attachment");
 		static const LLUIColor textColor = LLUIColorTable::instance().getColor(
 				"GroupNotifyDimmedTextColor");
 		pAttachLink->setColor(textColor);

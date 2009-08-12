@@ -45,12 +45,14 @@
 #include "llfloatercamera.h"
 #include "llfloatercustomize.h"
 #include "llfloaterdirectory.h"
-#include "llfloatergroupinfo.h"
+
 #include "llfloaterland.h"
 #include "llfloatermute.h"
 #include "llfloatersnapshot.h"
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
+
+#include "llgroupactions.h"
 
 #include "llfocusmgr.h"
 #include "llgroupmgr.h"
@@ -280,6 +282,8 @@ LLAgent::LLAgent() :
 	mLastCameraMode( CAMERA_MODE_THIRD_PERSON ),
 	mViewsPushed(FALSE),
 
+	mCameraPreset(CAMERA_PRESET_REAR_VIEW),
+
 	mCustomAnim(FALSE),
 	mShowAvatar(TRUE),
 	mCameraAnimating( FALSE ),
@@ -293,7 +297,6 @@ LLAgent::LLAgent() :
 	mCameraFocusOffset(),
 	mCameraFOVDefault(DEFAULT_FIELD_OF_VIEW),
 
-	mCameraOffsetDefault(),
 	mCameraCollidePlane(),
 
 	mCurrentCameraDistance(2.f),		// meters, set in init()
@@ -405,9 +408,19 @@ void LLAgent::init()
 	setFlying( gSavedSettings.getBOOL("FlyingAtExit") );
 
 	mCameraFocusOffsetTarget = LLVector4(gSavedSettings.getVector3("CameraOffsetBuild"));
-	mCameraOffsetDefault = gSavedSettings.getVector3("CameraOffsetDefault");
+	
+	mCameraPreset = (ECameraPreset) gSavedSettings.getU32("CameraPreset");
+
+	mCameraOffsetInitial[CAMERA_PRESET_REAR_VIEW] = gSavedSettings.getVector3("CameraOffsetRearView");
+	mCameraOffsetInitial[CAMERA_PRESET_FRONT_VIEW] = gSavedSettings.getVector3("CameraOffsetFrontView");
+	mCameraOffsetInitial[CAMERA_PRESET_GROUP_VIEW] = gSavedSettings.getVector3("CameraOffsetGroupView");
+
+	mFocusOffsetInitial[CAMERA_PRESET_REAR_VIEW] = gSavedSettings.getVector3d("FocusOffsetRearView");
+	mFocusOffsetInitial[CAMERA_PRESET_FRONT_VIEW] = gSavedSettings.getVector3d("FocusOffsetFrontView");
+	mFocusOffsetInitial[CAMERA_PRESET_GROUP_VIEW] = gSavedSettings.getVector3d("FocusOffsetGroupView");
+
 	mCameraCollidePlane.clearVec();
-	mCurrentCameraDistance = mCameraOffsetDefault.magVec() * gSavedSettings.getF32("CameraOffsetScale");
+	mCurrentCameraDistance = getCameraOffsetInitial().magVec() * gSavedSettings.getF32("CameraOffsetScale");
 	mTargetCameraDistance = mCurrentCameraDistance;
 	mCameraZoomFraction = 1.f;
 	mTrackFocusObject = gSavedSettings.getBOOL("TrackFocusObject");
@@ -929,6 +942,20 @@ LLHost LLAgent::getRegionHost() const
 //-----------------------------------------------------------------------------
 std::string LLAgent::getSLURL() const
 {
+	return buildSLURL(true);
+}
+
+//-----------------------------------------------------------------------------
+// getUnescapedSLURL()
+// returns empty() if getRegion() == NULL
+//-----------------------------------------------------------------------------
+std::string LLAgent::getUnescapedSLURL() const
+{
+	return buildSLURL(false);
+}
+
+std::string LLAgent::buildSLURL(const bool escape) const
+{
 	std::string slurl;
 	LLViewerRegion *regionp = getRegion();
 	if (regionp)
@@ -937,7 +964,10 @@ std::string LLAgent::getSLURL() const
 		S32 x = llround( (F32)fmod( agentPos.mdV[VX], (F64)REGION_WIDTH_METERS ) );
 		S32 y = llround( (F32)fmod( agentPos.mdV[VY], (F64)REGION_WIDTH_METERS ) );
 		S32 z = llround( (F32)agentPos.mdV[VZ] );
-		slurl = LLSLURL::buildSLURL(regionp->getName(), x, y, z);
+		if (escape)
+			slurl = LLSLURL::buildSLURL(regionp->getName(), x, y, z);
+		else
+			slurl = LLSLURL::buildUnescapedSLURL(regionp->getName(), x, y, z);
 	}
 	return slurl;
 }
@@ -1885,7 +1915,7 @@ void LLAgent::cameraOrbitIn(const F32 meters)
 {
 	if (mFocusOnAvatar && mCameraMode == CAMERA_MODE_THIRD_PERSON)
 	{
-		F32 camera_offset_dist = llmax(0.001f, mCameraOffsetDefault.magVec() * gSavedSettings.getF32("CameraOffsetScale"));
+		F32 camera_offset_dist = llmax(0.001f, getCameraOffsetInitial().magVec() * gSavedSettings.getF32("CameraOffsetScale"));
 		
 		mCameraZoomFraction = (mTargetCameraDistance - meters) / camera_offset_dist;
 
@@ -3540,7 +3570,6 @@ LLVector3d LLAgent::calcThirdPersonFocusOffset()
 {
 	// ...offset from avatar
 	LLVector3d focus_offset;
-	focus_offset.setVec(gSavedSettings.getVector3("FocusOffsetDefault"));
 
 	LLQuaternion agent_rot = mFrameAgent.getQuaternion();
 	if (!mAvatarObject.isNull() && mAvatarObject->getParent())
@@ -3548,7 +3577,7 @@ LLVector3d LLAgent::calcThirdPersonFocusOffset()
 		agent_rot *= ((LLViewerObject*)(mAvatarObject->getParent()))->getRenderRotation();
 	}
 
-	focus_offset = focus_offset * agent_rot;
+	focus_offset = mFocusOffsetInitial[mCameraPreset] * agent_rot;
 	return focus_offset;
 }
 
@@ -3625,7 +3654,6 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 	LLVector3d	frame_center_global = mAvatarObject.isNull() ? getPositionGlobal() 
 															 : getPosGlobalFromAgent(mAvatarObject->mRoot.getWorldPosition());
 		
-	LLVector3   upAxis = getUpAxis();
 	BOOL		isConstrained = FALSE;
 	LLVector3d	head_offset;
 	head_offset.setVec(mThirdPersonHeadOffset);
@@ -3688,7 +3716,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 		}
 		else
 		{
-			local_camera_offset = mCameraZoomFraction * mCameraOffsetDefault * gSavedSettings.getF32("CameraOffsetScale");
+			local_camera_offset = mCameraZoomFraction * getCameraOffsetInitial() * gSavedSettings.getF32("CameraOffsetScale");
 			
 			// are we sitting down?
 			if (mAvatarObject.notNull() && mAvatarObject->getParent())
@@ -3885,6 +3913,12 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 }
 
 
+LLVector3 LLAgent::getCameraOffsetInitial()
+{
+	return mCameraOffsetInitial[mCameraPreset];
+}
+
+
 //-----------------------------------------------------------------------------
 // handleScrollWheel()
 //-----------------------------------------------------------------------------
@@ -3919,10 +3953,12 @@ void LLAgent::handleScrollWheel(S32 clicks)
 		}
 		else if (mFocusOnAvatar && mCameraMode == CAMERA_MODE_THIRD_PERSON)
 		{
-			F32 current_zoom_fraction = mTargetCameraDistance / (mCameraOffsetDefault.magVec() * gSavedSettings.getF32("CameraOffsetScale"));
+			F32 camera_offset_initial_mag = getCameraOffsetInitial().magVec();
+			
+			F32 current_zoom_fraction = mTargetCameraDistance / (camera_offset_initial_mag * gSavedSettings.getF32("CameraOffsetScale"));
 			current_zoom_fraction *= 1.f - pow(ROOT_ROOT_TWO, clicks);
 			
-			cameraOrbitIn(current_zoom_fraction * mCameraOffsetDefault.magVec() * gSavedSettings.getF32("CameraOffsetScale"));
+			cameraOrbitIn(current_zoom_fraction * camera_offset_initial_mag * gSavedSettings.getF32("CameraOffsetScale"));
 		}
 		else
 		{
@@ -4292,6 +4328,20 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL camera_ani
 		endAnimationUpdateUI();
 	}
 
+}
+
+
+void LLAgent::switchCameraPreset(ECameraPreset preset)
+{
+	//zoom is supposed to be reset for the front and group views
+	mCameraZoomFraction = 1.f;
+
+	//focusing on avatar in that case means following him on movements
+	mFocusOnAvatar = TRUE;
+
+	mCameraPreset = preset;
+
+	gSavedSettings.setU32("CameraPreset", mCameraPreset);
 }
 
 
@@ -5493,8 +5543,8 @@ BOOL LLAgent::downGrabbed() const
 
 void update_group_floaters(const LLUUID& group_id)
 {
-	LLFloaterGroupInfo::refreshGroup(group_id);
-
+	
+	LLGroupActions::refresh(group_id);
 	//*TODO Implement group update for Profile View 
 	// still actual as of July 31, 2009 (DZ)
 
@@ -5542,7 +5592,7 @@ void LLAgent::processAgentDropGroup(LLMessageSystem *msg, void **)
 
 		LLGroupMgr::getInstance()->clearGroupData(group_id);
 		// close the floater for this group, if any.
-		LLFloaterGroupInfo::closeGroup(group_id);
+		LLGroupActions::closeGroup(group_id);
 		// refresh the group panel of the search window, if necessary.
 		LLFloaterDirectory::refreshGroup(group_id);
 	}
@@ -5621,7 +5671,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 
 				LLGroupMgr::getInstance()->clearGroupData(group_id);
 				// close the floater for this group, if any.
-				LLFloaterGroupInfo::closeGroup(group_id);
+				LLGroupActions::closeGroup(group_id);
 				// refresh the group panel of the search window,
 				//if necessary.
 				LLFloaterDirectory::refreshGroup(group_id);

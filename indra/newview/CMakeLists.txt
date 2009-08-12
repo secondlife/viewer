@@ -161,7 +161,6 @@ set(viewer_SOURCE_FILES
     llfloaterfonttest.cpp
     llfloatergesture.cpp
     llfloatergodtools.cpp
-    llfloatergroupinfo.cpp
     llfloatergroupinvite.cpp
     llfloatergroups.cpp
     llfloaterhandler.cpp
@@ -248,6 +247,7 @@ set(viewer_SOURCE_FILES
     lllocaltextureobject.cpp
     lllocationhistory.cpp
     lllocationinputctrl.cpp
+    llurllineeditorctrl.cpp
     lllogchat.cpp
     llloginhandler.cpp
     llmanip.cpp
@@ -328,7 +328,6 @@ set(viewer_SOURCE_FILES
     llpreviewanim.cpp
     llpreview.cpp
     llpreviewgesture.cpp
-    llpreviewlandmark.cpp
     llpreviewnotecard.cpp
     llpreviewscript.cpp
     llpreviewsound.cpp
@@ -354,6 +353,8 @@ set(viewer_SOURCE_FILES
     llstylemap.cpp
     llsurface.cpp
     llsurfacepatch.cpp
+    llsyswellitem.cpp
+    llsyswellwindow.cpp
     llteleporthistory.cpp
     lltexglobalcolor.cpp
     lltexlayer.cpp
@@ -602,7 +603,6 @@ set(viewer_HEADER_FILES
     llfloaterfriends.h
     llfloatergesture.h
     llfloatergodtools.h
-    llfloatergroupinfo.h
     llfloatergroupinvite.h
     llfloatergroups.h
     llfloaterhandler.h
@@ -690,6 +690,7 @@ set(viewer_HEADER_FILES
     lllocaltextureobject.h
     lllocationhistory.h
     lllocationinputctrl.h
+    llurllineeditorctrl.h
     lllogchat.h
     llloginhandler.h
     llmanip.h
@@ -768,7 +769,6 @@ set(viewer_HEADER_FILES
     llpreview.h
     llpreviewanim.h
     llpreviewgesture.h
-    llpreviewlandmark.h
     llpreviewnotecard.h
     llpreviewscript.h
     llpreviewsound.h
@@ -796,6 +796,8 @@ set(viewer_HEADER_FILES
     llstylemap.h
     llsurface.h
     llsurfacepatch.h
+    llsyswellitem.h
+    llsyswellwindow.h    
     lltable.h
     llteleporthistory.h
     lltexglobalcolor.h

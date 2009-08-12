@@ -638,6 +638,11 @@ void LLPanelPeople::onTabSelected(const LLSD& param)
 	std::string tab_name = getChild<LLPanel>(param.asString())->getName();
 	mNearbyListUpdater->setActive(tab_name == NEARBY_TAB_NAME);
 	updateButtons();
+
+	if (GROUP_TAB_NAME == tab_name)
+		mFilterEditor->setLabel(getString("groups_filter_label"));
+	else
+		mFilterEditor->setLabel(getString("people_filter_label"));
 }
 
 void LLPanelPeople::onAvatarListDoubleClicked(LLAvatarList* list)
@@ -669,9 +674,7 @@ void LLPanelPeople::onAddFriendButtonClicked()
 	LLUUID id = getCurrentItemID();
 	if (id.notNull())
 	{
-		std::string name;
-		gCacheName->getFullName(id, name);
-		LLAvatarActions::requestFriendshipDialog(id, name);
+		LLAvatarActions::requestFriendshipDialog(id);
 	}
 }
 
@@ -693,9 +696,7 @@ void LLPanelPeople::onDeleteFriendButtonClicked()
 
 void LLPanelPeople::onGroupInfoButtonClicked()
 {
-	LLUUID group_id = getCurrentItemID();
-	if (group_id.notNull())
-		LLGroupActions::info(group_id);
+	LLGroupActions::show(getCurrentItemID());
 }
 
 void LLPanelPeople::onChatButtonClicked()
@@ -763,7 +764,7 @@ void LLPanelPeople::onGroupPlusMenuItemClicked(const LLSD& userdata)
 	if (chosen_item == "join_group")
 		LLGroupActions::search();
 	else if (chosen_item == "new_group")
-		LLGroupActions::create();
+		LLGroupActions::createGroup();
 }
 
 void LLPanelPeople::onCallButtonClicked()

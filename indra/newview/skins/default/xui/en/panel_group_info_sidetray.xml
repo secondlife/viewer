@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+
+<panel
+ 	follows="left|top|right|bottom"
+	height="660"
+	label="Group Info"
+ 	layout="topleft"
+	name="panel_group_info"
+	border="false"
+	width="300">
+    <panel.string
+     name="default_needs_apply_text">
+        There are unapplied changes on the current tab.
+    </panel.string>
+    <panel.string
+     name="want_apply_text">
+        Do you want to apply these changes?
+    </panel.string>
+
+	<button 
+     layout="topleft" 
+     name="back" 
+     left="5" 
+     top="5" 
+     width="20" 
+     height="20" 
+     label=""
+     follows="top|left"
+     image_selected="navbar_bg_button.tga"
+     image_unselected="navbar_bg_button.tga"
+     image_overlay="navbar_back.tga"/>
+    <text 
+     layout="topleft" 
+     top="5" 
+     left_pad="15" 
+     width="200" 
+     height="20" 
+     font="SansSerifBold" 
+     text_color="white" 
+     follows="top|left|right"
+     mouse_opaque="true" 
+     name="group_name">(Loading...)</text>
+    <button
+     top="632"
+     height="20"
+     font="SansSerifSmall"
+     label="Apply"
+     label_selected="Apply"
+     name="btn_apply"
+     left="5"
+     width="65" />
+    <button
+	 top="632"
+	 left="75"	 
+	 height="20"
+     ont="SansSerifSmall"
+     label="Refresh"
+     label_selected="Refresh"
+     name="btn_refresh"
+	 follows="top|left"
+     width="65" />
+    <button
+     top="632"
+     height="20"
+     font="SansSerifSmall"
+     label="Create"
+     label_selected="Create"
+     name="btn_create"
+     left="5"
+     visible="false"
+     width="65" />
+      <accordion layout="topleft" left="2" width="296" top="28" height="600" follows="all" name="panel_me_profile">
+		<accordion_tab min_height="515" title="Group General" name="group_general_tab">
+        	<panel class="panel_group_general" filename="panel_group_general.xml" name="group_general_tab_panel"/>
+		</accordion_tab>
+		<accordion_tab min_height="380" title="Group Roles" name="group_roles_tab" can_resize="false">
+        	<panel class="panel_group_roles" filename="panel_group_roles.xml" name="group_roles_tab_panel"/>
+		</accordion_tab>
+		<accordion_tab min_height="530" title="Group Notices" name="group_notices_tab" can_resize="false">
+			<panel class="panel_group_notices" filename="panel_group_notices.xml" name="group_notices_tab_panel"/>
+		</accordion_tab>
+		<accordion_tab min_height="270" title="Group Land Money" name="group_land_tab" can_resize="false">
+			<panel class="panel_group_land_money" filename="panel_group_land_money.xml" name="group_land_tab_panel"/>
+		</accordion_tab>
+	  </accordion>
+
+
+</panel>

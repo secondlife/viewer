@@ -42,7 +42,6 @@
 
 #include "llagent.h"
 #include "llfloaterreg.h"
-#include "llfloatergroupinfo.h"
 #include "llfloaterworldmap.h"
 #include "llproductinforequest.h"
 #include "llscrolllistctrl.h"
@@ -55,6 +54,8 @@
 #include "lluiconstants.h"
 #include "llviewermessage.h"
 #include "lluictrlfactory.h"
+
+#include "llgroupactions.h"
 
 // protected
 LLFloaterLandHoldings::LLFloaterLandHoldings(const LLSD& key)
@@ -323,7 +324,7 @@ void LLFloaterLandHoldings::onGrantList(void* data)
 	LLUUID group_id = list->getCurrentID();
 	if (group_id.notNull())
 	{
-		LLFloaterGroupInfo::showFromUUID(group_id);
+		LLGroupActions::show(group_id);
 	}
 }
 

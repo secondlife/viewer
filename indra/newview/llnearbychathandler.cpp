@@ -62,7 +62,7 @@ LLNearbyChatHandler::LLNearbyChatHandler(e_notification_type type, const LLSD& i
 	mChannel = LLChannelManager::getInstance()->createChannel(p);
 	mChannel->setFollows(FOLLOWS_LEFT | FOLLOWS_BOTTOM | FOLLOWS_TOP); 
 	mChannel->setOverflowFormatString("You have %d unread nearby chat messages");
-	mChannel->setStoreToasts(false);
+	mChannel->setCanStoreToasts(false);
 }
 LLNearbyChatHandler::~LLNearbyChatHandler()
 {
@@ -93,11 +93,11 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 	
 	item->setVisible(true);
 
-
-	LLToast* toast = mChannel->addToast(id, item);
-	
-	toast->setOnMouseEnterCallback(boost::bind(&LLNearbyChatHandler::onToastDestroy, this, toast));
-	toast->setAndStartTimer(gSavedSettings.getS32("NotificationToastTime"));
+	LLToast::Params p;
+	p.id = id;
+	p.panel = item;
+	p.on_mouse_enter = boost::bind(&LLNearbyChatHandler::onToastDestroy, this, _1);
+	mChannel->addToast(p);	
 }
 
 void LLNearbyChatHandler::onToastDestroy(LLToast* toast)

@@ -38,6 +38,7 @@
 #include "llgesturemgr.h"
 #include "llchat.h"
 #include "llchiclet.h"
+#include "llvoiceclient.h"
 
 class LLGestureComboBox
 	: public LLComboBox
@@ -65,6 +66,7 @@ protected:
 
 class LLNearbyChatBar
 :	public LLPanel
+,   public LLVoiceClientStatusObserver
 {
 public:
 	// constructor for inline chat-bars (e.g. hosted in chat history window)
@@ -74,6 +76,8 @@ public:
 	virtual BOOL postBuild();
 
 	static LLNearbyChatBar* getInstance();
+
+	static bool instanceExists();
 
 	LLLineEditor* getChatBox() { return mChatBox; }
 
@@ -86,6 +90,11 @@ public:
 
 	static void sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate);
 	static void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
+
+	/**
+	 * Implements LLVoiceClientStatusObserver::onChange()
+	 */
+	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
 
 protected:
 	static BOOL matchChatTypeTrigger(const std::string& in_str, std::string* out_str);

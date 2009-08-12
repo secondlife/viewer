@@ -60,6 +60,9 @@ public:
 
 	void handleLoginComplete();
 	void clearHistoryCache();
+
+	void showNavigationPanel(BOOL visible);
+	void showFavoritesPanel(BOOL visible);
 	
 private:
 	LLNavigationBar();
@@ -101,6 +104,8 @@ private:
 	LLButton*					mBtnHome;
 	LLSearchEditor*				mLeSearch;
 	LLLocationInputCtrl*		mCmbLocation;
+	LLRect						mDefaultNbRect;
+	LLRect						mDefaultFpRect;
 	boost::signals2::connection	mParcelMgrConnection;
 	bool						mPurgeTPHistoryItems;
 	bool						mUpdateTypedLocationHistory;

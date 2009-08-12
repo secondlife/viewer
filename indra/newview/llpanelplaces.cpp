@@ -293,7 +293,7 @@ void LLPanelPlaces::onTeleportButtonClicked()
 			payload["asset_id"] = mItem->getAssetUUID();
 			LLNotifications::instance().add("TeleportFromLandmark", LLSD(), payload);
 		}
-		else if (mPlaceInfoType == "remote_place")
+		else if (mPlaceInfoType == "remote_place" || mPlaceInfoType == "agent")
 		{
 			LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
 			if (!mPosGlobal.isExactlyZero() && worldmap_instance)
@@ -380,6 +380,11 @@ void LLPanelPlaces::toggleMediaPanel()
 		return;
 
 	mPlaceInfo->toggleMediaPanel(!mPlaceInfo->isMediaPanelVisible());
+	
+	// Refresh the current place info because
+	// the media panel controls can't refer to
+	// the remote parcel media.
+	onOpen(LLSD().insert("type", "agent"));
 }
 
 void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
@@ -445,9 +450,13 @@ void LLPanelPlaces::onAgentParcelChange()
 	if (!mPlaceInfo)
 		return;
 
-	if (mPlaceInfo->getVisible() && (mPlaceInfoType == "agent" || mPlaceInfoType == "create_landmark"))
+	if (mPlaceInfo->getVisible() && mPlaceInfoType == "create_landmark")
 	{
 		onOpen(LLSD().insert("type", mPlaceInfoType));
+	}
+	else if (mPlaceInfo->isMediaPanelVisible())
+	{
+		onOpen(LLSD().insert("type", "agent"));
 	}
 	else
 	{
@@ -463,6 +472,7 @@ void LLPanelPlaces::updateVerbs()
 	bool is_place_info_visible = mPlaceInfo->getVisible();
 	bool is_agent_place_info_visible = mPlaceInfoType == "agent";
 	bool is_create_landmark_visible = mPlaceInfoType == "create_landmark";
+	bool is_media_panel_visible = mPlaceInfo->isMediaPanelVisible();
 	
 	mTeleportBtn->setVisible(!is_create_landmark_visible);
 	mShareBtn->setVisible(!is_create_landmark_visible);
@@ -477,15 +487,18 @@ void LLPanelPlaces::updateVerbs()
 	{
 		if (is_agent_place_info_visible)
 		{
-			// We don't need to teleport to the current location so disable the button
-			mTeleportBtn->setEnabled(FALSE);
+			// We don't need to teleport to the current location
+			// so check if the location is not within the current parcel.
+			mTeleportBtn->setEnabled(!is_media_panel_visible &&
+									 !mPosGlobal.isExactlyZero() &&
+									 !LLViewerParcelMgr::getInstance()->inAgentParcel(mPosGlobal));
 		}
 		else if (mPlaceInfoType == "landmark" || mPlaceInfoType == "remote_place")
 		{
 			mTeleportBtn->setEnabled(TRUE);
 		}
 
-		mShowOnMapBtn->setEnabled(TRUE);
+		mShowOnMapBtn->setEnabled(!is_media_panel_visible);
 	}
 	else
 	{

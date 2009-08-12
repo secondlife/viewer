@@ -39,14 +39,12 @@
 #include "llpanelprofile.h"
 
 static LLRegisterPanelClassWrapper<LLPanelProfileView> t_panel_target_profile("panel_profile_view");
-static LLRegisterPanelClassWrapper<LLPanelAvatarNotes> t_panel_notes("panel_notes");
 
-static std::string PANEL_PROFILE = "panel_profile";
-static std::string PANEL_PICKS = "panel_picks";
 static std::string PANEL_NOTES = "panel_notes";
 
 LLPanelProfileView::LLPanelProfileView()
 :	LLPanelProfile()
+,	mCacheNameCallbackConnected(false)
 {
 }
 
@@ -57,32 +55,39 @@ LLPanelProfileView::~LLPanelProfileView(void)
 /*virtual*/ 
 void LLPanelProfileView::onOpen(const LLSD& key)
 {
-	LLUUID id = key["id"];
-	if (key.has("open_tab_name"))
-		mTabContainer->selectTabByName(key["open_tab_name"]);
-
-	if(id.notNull() && mAvatarId != id)
+	LLUUID id;
+	if(key.has("id"))
 	{
-		mAvatarId = id;
-
-		mTabs[PANEL_PROFILE]->clear();
-		mTabs[PANEL_PICKS]->clear();
-		mTabs[PANEL_NOTES]->clear();
+		id = key["id"];
+	}
+	if(id.notNull() && getAvatarId() != id)
+	{
+		setAvatarId(id);
 	}
 
-	mTabContainer->getCurrentPanel()->onOpen(mAvatarId);
+	LLPanelProfile::onOpen(key);
 
+	// *HACK Profile View is created before gCacheName, as a result we can't call addObserver()
+	// in postBuild() and have to connect callback here.
+	// This will call addObserver() once per LLPanelProfileView instance.
+	if(!mCacheNameCallbackConnected)
+	{
+		gCacheName->addObserver(boost::bind(&LLPanelProfileView::cacheNameCallback, this, _1, _2, _3, _4));
+		mCacheNameCallbackConnected = true;
+	}
+
+	// getFullName() will return "(Loading...)" for non cached names, 
+	// in this case cacheNameCallback() will resolve the name.
 	std::string full_name;
-	gCacheName->getFullName(mAvatarId,full_name);
+	gCacheName->getFullName(getAvatarId(),full_name);
 	childSetValue("user_name",full_name);
 }
-
 
 BOOL LLPanelProfileView::postBuild()
 {
 	LLPanelProfile::postBuild();
 
-	mTabs[PANEL_NOTES] = (getChild<LLPanelAvatarNotes>(PANEL_NOTES));
+	getTabContainer()[PANEL_NOTES] = getChild<LLPanelAvatarNotes>(PANEL_NOTES);
 
 	childSetCommitCallback("back",boost::bind(&LLPanelProfileView::onBackBtnClick,this),NULL);
 	
@@ -98,5 +103,13 @@ void LLPanelProfileView::onBackBtnClick()
 	if(parent)
 	{
 		parent->openPreviousPanel();
+	}
+}
+
+void LLPanelProfileView::cacheNameCallback(const LLUUID& id, const std::string& first_name, const std::string& last_name, BOOL is_group)
+{
+	if(getAvatarId() == id)
+	{
+		childSetValue("user_name", first_name + " " + last_name);
 	}
 }

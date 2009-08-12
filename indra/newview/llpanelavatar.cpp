@@ -31,14 +31,13 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llpanelavatar.h"
 
 #include "llagent.h"
+#include "llavataractions.h"
 #include "llavatarconstants.h"
 #include "llcallingcard.h"
 #include "llcombobox.h"
-#include "llavataractions.h"
 #include "llimview.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
@@ -117,136 +116,240 @@ BOOL LLDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 static LLDefaultChildRegistry::Register<LLDropTarget> r("drop_target");
 
-//////////////////////////////////////////////////////////////////////////
+static LLRegisterPanelClassWrapper<LLPanelAvatarProfile> t_panel_profile("panel_profile");
+static LLRegisterPanelClassWrapper<LLPanelAvatarMeProfile> t_panel_me_profile("panel_me_profile");
+static LLRegisterPanelClassWrapper<LLPanelAvatarNotes> t_panel_notes("panel_notes");
+
 //-----------------------------------------------------------------------------
-// LLPanelProfileTab()
+// LLPanelAvatarNotes()
 //-----------------------------------------------------------------------------
-//////////////////////////////////////////////////////////////////////////
-LLPanelProfileTab::LLPanelProfileTab(const LLUUID& avatar_id) 
- : LLPanel()
- , mAvatarId(LLUUID::null)
- , mProfileType(PT_UNKNOWN)
+LLPanelAvatarNotes::LLPanelAvatarNotes()
+: LLPanelProfileTab()
 {
-	setAvatarId(avatar_id);
+
 }
 
-LLPanelProfileTab::LLPanelProfileTab(const Params& params )
- : LLPanel()
- , mAvatarId(LLUUID::null)
- , mProfileType(PT_UNKNOWN)
+void LLPanelAvatarNotes::updateData()
 {
+	LLAvatarPropertiesProcessor::getInstance()->sendDataRequest(getAvatarId(),APT_NOTES);
+}
 
+BOOL LLPanelAvatarNotes::postBuild()
+{
+	childSetCommitCallback("status_check", boost::bind(&LLPanelAvatarNotes::onCommitRights, this), NULL);
+	childSetCommitCallback("map_check", boost::bind(&LLPanelAvatarNotes::onCommitRights, this), NULL);
+	childSetCommitCallback("objects_check", boost::bind(&LLPanelAvatarNotes::onCommitRights, this), NULL);
+
+	childSetCommitCallback("add_friend", boost::bind(&LLPanelAvatarNotes::onAddFriendButtonClick, this),NULL);
+	childSetCommitCallback("im", boost::bind(&LLPanelAvatarNotes::onIMButtonClick, this), NULL);
+	childSetCommitCallback("call", boost::bind(&LLPanelAvatarNotes::onCallButtonClick, this), NULL);
+	childSetCommitCallback("teleport", boost::bind(&LLPanelAvatarNotes::onTeleportButtonClick, this), NULL);
+	childSetCommitCallback("share", boost::bind(&LLPanelAvatarNotes::onShareButtonClick, this), NULL);
+
+	LLTextEditor* te = getChild<LLTextEditor>("notes_edit");
+	te->setCommitCallback(boost::bind(&LLPanelAvatarNotes::onCommitNotes,this));
+	te->setCommitOnFocusLost(TRUE);
+
+	resetControls();
+	resetData();
+
+	return TRUE;
+}
+
+void LLPanelAvatarNotes::onOpen(const LLSD& key)
+{
+	LLPanelProfileTab::onOpen(key);
+
+	fillRightsData();
+
+	//Disable "Add Friend" button for friends.
+	childSetEnabled("add_friend", !LLAvatarActions::isFriend(getAvatarId()));
+}
+
+void LLPanelAvatarNotes::fillRightsData()
+{
+	const LLRelationship* relation = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
+	// If true - we are viewing friend's profile, enable check boxes and set values.
+	if(relation)
+	{
+		S32 rights = relation->getRightsGrantedTo();
+
+		childSetValue("status_check",LLRelationship::GRANT_ONLINE_STATUS & rights ? TRUE : FALSE);
+		childSetValue("map_check",LLRelationship::GRANT_MAP_LOCATION & rights ? TRUE : FALSE);
+		childSetValue("objects_check",LLRelationship::GRANT_MODIFY_OBJECTS & rights ? TRUE : FALSE);
+
+		childSetEnabled("status_check",TRUE);
+		childSetEnabled("map_check",TRUE);
+		childSetEnabled("objects_check",TRUE);
+	}
+}
+
+void LLPanelAvatarNotes::onCommitNotes()
+{
+	std::string notes = childGetValue("notes_edit").asString();
+	LLAvatarPropertiesProcessor::getInstance()-> sendNotes(getAvatarId(),notes);
+}
+
+void LLPanelAvatarNotes::onCommitRights()
+{
+	S32 rights = 0;
+
+	if(childGetValue("status_check").asBoolean())
+		rights |= LLRelationship::GRANT_ONLINE_STATUS;
+	if(childGetValue("map_check").asBoolean())
+		rights |= LLRelationship::GRANT_MAP_LOCATION;
+	if(childGetValue("objects_check").asBoolean())
+		rights |= LLRelationship::GRANT_MODIFY_OBJECTS;
+
+	LLAvatarPropertiesProcessor::getInstance()->sendFriendRights(getAvatarId(),rights);
+}
+
+void LLPanelAvatarNotes::processProperties(void* data, EAvatarProcessorType type)
+{
+	if(APT_NOTES == type)
+	{
+		LLAvatarNotes* avatar_notes = static_cast<LLAvatarNotes*>(data);
+		if(avatar_notes && getAvatarId() == avatar_notes->target_id)
+		{
+			childSetValue("notes_edit",avatar_notes->notes);
+			childSetEnabled("notes edit", true);
+
+			LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
+		}
+	}
+}
+
+void LLPanelAvatarNotes::resetData()
+{
+	childSetValue("notes_edit",LLStringUtil::null);
+	// Default value is TRUE
+	childSetValue("status_check", TRUE);
+}
+
+void LLPanelAvatarNotes::resetControls()
+{
+	//Disable "Add Friend" button for friends.
+	childSetEnabled("add_friend", TRUE);
+
+	childSetEnabled("status_check",FALSE);
+	childSetEnabled("map_check",FALSE);
+	childSetEnabled("objects_check",FALSE);
+}
+
+void LLPanelAvatarNotes::onAddFriendButtonClick()
+{
+	LLAvatarActions::requestFriendshipDialog(getAvatarId());
+}
+
+void LLPanelAvatarNotes::onIMButtonClick()
+{
+	LLAvatarActions::startIM(getAvatarId());
+}
+
+void LLPanelAvatarNotes::onTeleportButtonClick()
+{
+	LLAvatarActions::offerTeleport(getAvatarId());
+}
+
+void LLPanelAvatarNotes::onCallButtonClick()
+{
+	//*TODO not implemented.
+}
+
+void LLPanelAvatarNotes::onShareButtonClick()
+{
+	//*TODO not implemented.
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+LLPanelProfileTab::LLPanelProfileTab()
+: LLPanel()
+, mAvatarId(LLUUID::null)
+{
 }
 
 LLPanelProfileTab::~LLPanelProfileTab()
 {
-	if(mAvatarId.notNull())
+	if(getAvatarId().notNull())
 	{
 		LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
 	}
 }
 
-void LLPanelProfileTab::setAvatarId(const LLUUID& avatar_id)
+void LLPanelProfileTab::setAvatarId(const LLUUID& id)
 {
-	if(avatar_id.notNull())
+	if(id.notNull())
 	{
-		if(mAvatarId.notNull())
+		if(getAvatarId().notNull())
 		{
 			LLAvatarPropertiesProcessor::getInstance()->removeObserver(mAvatarId,this);
 		}
-		mAvatarId = avatar_id;
+		mAvatarId = id;
 		LLAvatarPropertiesProcessor::getInstance()->addObserver(getAvatarId(),this);
-		setProfileType();
 	}
-}
-
-void LLPanelProfileTab::setProfileType()
-{
-	mProfileType = (gAgentID == mAvatarId) ? PT_OWN : PT_OTHER;
 }
 
 void LLPanelProfileTab::onOpen(const LLSD& key)
 {
-	onActivate(key);
-}
+	// Don't reset panel if we are opening it for same avatar.
+	if(getAvatarId() != key.asUUID())
+	{
+		resetControls();
+		resetData();
 
-void LLPanelProfileTab::onActivate(const LLUUID& id)
-{
-	setAvatarId(id);
-	scrollToTop();
+		scrollToTop();
+	}
+
+	// Update data even if we are viewing same avatar profile as some data might been changed.
+	setAvatarId(key.asUUID());
 	updateData();
-}
-
-void LLPanelProfileTab::onAddFriend()
-{
-	if (getAvatarId().notNull())
-	{
-		std::string name;
-		gCacheName->getFullName(getAvatarId(),name);
-		LLAvatarActions::requestFriendshipDialog(getAvatarId(), name);
-	}
-}
-
-void LLPanelProfileTab::onIM()
-{
-	if (getAvatarId().notNull())
-	{
-		std::string name;
-		gCacheName->getFullName(getAvatarId(), name);
-		gIMMgr->addSession(name, IM_NOTHING_SPECIAL, getAvatarId());
-	}
-}
-
-void LLPanelProfileTab::onTeleport()
-{
-	if(getAvatarId().notNull())
-	{
-		LLAvatarActions::offerTeleport(getAvatarId());
-	}
 }
 
 void LLPanelProfileTab::scrollToTop()
 {
-	LLScrollContainer* scrollContainer = getChild<LLScrollContainer>("profile_scroll", FALSE, FALSE);
-	if (NULL != scrollContainer)
-	{
-		scrollContainer->goToTop();
-	}
+	LLScrollContainer* scrollContainer = getChild<LLScrollContainer>("profile_scroll");
+	scrollContainer->goToTop();
 }
 
 //////////////////////////////////////////////////////////////////////////
-//-----------------------------------------------------------------------------
-// LLPanelAvatarProfile()
-//-----------------------------------------------------------------------------
 //////////////////////////////////////////////////////////////////////////
-LLPanelAvatarProfile::LLPanelAvatarProfile(const LLUUID& avatar_id /* = LLUUID::null */)
- : LLPanelProfileTab(avatar_id), mUpdated(false), mEditMode(false), mStatusCombobox(NULL), mStatusMessage(NULL)
-{
-	updateData();
-}
+//////////////////////////////////////////////////////////////////////////
 
-LLPanelAvatarProfile::LLPanelAvatarProfile(const Params& params )
- : LLPanelProfileTab(params), mUpdated(false), mEditMode(false), mStatusCombobox(NULL), mStatusMessage(NULL)
+LLPanelAvatarProfile::LLPanelAvatarProfile()
+: LLPanelProfileTab()
 {
 }
 
-LLPanelAvatarProfile::~LLPanelAvatarProfile()
+BOOL LLPanelAvatarProfile::postBuild()
 {
-	if(getAvatarId().notNull())
-	{
-		LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
-	}
+	childSetActionTextbox("homepage_edit", boost::bind(&LLPanelAvatarProfile::onHomepageTextboxClicked, this));
+	childSetCommitCallback("add_friend",(boost::bind(&LLPanelAvatarProfile::onAddFriendButtonClick,this)),NULL);
+	childSetCommitCallback("im",(boost::bind(&LLPanelAvatarProfile::onIMButtonClick,this)),NULL);
+	childSetCommitCallback("call",(boost::bind(&LLPanelAvatarProfile::onCallButtonClick,this)),NULL);
+	childSetCommitCallback("teleport",(boost::bind(&LLPanelAvatarProfile::onTeleportButtonClick,this)),NULL);
+	childSetCommitCallback("share",(boost::bind(&LLPanelAvatarProfile::onShareButtonClick,this)),NULL);
+
+	LLTextureCtrl* pic = getChild<LLTextureCtrl>("2nd_life_pic");
+	pic->setFallbackImageName("default_land_picture.j2c");
+
+	pic = getChild<LLTextureCtrl>("real_world_pic");
+	pic->setFallbackImageName("default_land_picture.j2c");
+
+	resetControls();
+	resetData();
+
+	return TRUE;
 }
 
-void* LLPanelAvatarProfile::create(void* data /* = NULL */)
+void LLPanelAvatarProfile::onOpen(const LLSD& key)
 {
-	LLSD* id = NULL;
-	if(data)
-	{
-		id = static_cast<LLSD*>(data);
-		return new LLPanelAvatarProfile(LLUUID(id->asUUID()));
-	}
-	return new LLPanelAvatarProfile();
+	LLPanelProfileTab::onOpen(key);
+
+	//Disable "Add Friend" button for friends.
+	childSetEnabled("add_friend", !LLAvatarActions::isFriend(getAvatarId()));
 }
 
 void LLPanelAvatarProfile::updateData()
@@ -258,111 +361,22 @@ void LLPanelAvatarProfile::updateData()
 	}
 }
 
-void LLPanelAvatarProfile::processProperties(void* data, EAvatarProcessorType type)
+void LLPanelAvatarProfile::resetControls()
 {
-	if(APT_PROPERTIES == type)
-	{
-		const LLAvatarData* avatar_data = static_cast<const LLAvatarData*>(data);
-		if(avatar_data && getAvatarId() == avatar_data->avatar_id)
-		{
-			childSetValue("register_date", avatar_data->born_on);
-			childSetValue("sl_description_edit", avatar_data->about_text);
-			childSetValue("fl_description_edit",avatar_data->fl_about_text);
-			childSetValue("2nd_life_pic", avatar_data->image_id);
-			childSetValue("real_world_pic", avatar_data->fl_image_id);
-			childSetValue("homepage_edit", avatar_data->profile_url);
+	childSetVisible("status_panel", true);
+	childSetVisible("profile_buttons_panel", true);
+	childSetVisible("title_groups_text", true);
+	childSetVisible("sl_groups", true);
+	childSetEnabled("add_friend", true);
 
-			if (!isEditMode())
-			{
-				setCaptionText(avatar_data);
-				if (avatar_data->partner_id.notNull())
-				{
-					std::string first, last;
-					BOOL found = gCacheName->getName(avatar_data->partner_id, first, last);
-					if (found)
-					{
-						childSetTextArg("partner_text", "[FIRST]", first);
-						childSetTextArg("partner_text", "[LAST]", last);
-					}
-				}
-				else
-				{
-					childSetTextArg("partner_text", "[FIRST]", getString("no_partner_text"));
-				}
-			}
-			else
-			{
-				childSetValue("show_in_search_checkbox", (BOOL)(avatar_data->flags & AVATAR_ALLOW_PUBLISH));
-			}
-
-
-			bool online = avatar_data->flags & AVATAR_ONLINE;
-			if(LLAvatarActions::isFriend(avatar_data->avatar_id))
-			{
-				// Online status NO could be because they are hidden
-				// If they are a friend, we may know the truth!
-				online = LLAvatarTracker::instance().isBuddyOnline(avatar_data->avatar_id);
-			}
-			childSetValue("online_status", online ?
-				"Online" : "Offline");
-			childSetColor("online_status", online ? 
-				LLColor4::green : LLColor4::red);
-
-			LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
-		}
-		if (isOwnProfile() && NULL != mStatusCombobox)
-		{
-			std::string status;
-			if (gAgent.getAFK())
-			{
-				status = "away";
-			}
-			else if (gAgent.getBusy())
-			{
-				status = "busy";
-			}
-			else
-			{
-				status = "online";
-			}
-			mStatusCombobox->setValue(status);
-		}
-		if (isOwnProfile())
-		{
-			std::string full_name;
-			gCacheName->getFullName(mAvatarId, full_name);
-			childSetValue("user_name", full_name);
-		}
-	}
-	else if(APT_GROUPS == type)
-	{
-		LLAvatarGroups* avatar_groups = static_cast<LLAvatarGroups*>(data);
-		if(avatar_groups)
-		{
-			std::string groups;
-			if (!avatar_groups->group_list.empty()) {
-				LLAvatarGroups::group_list_t::const_iterator it = avatar_groups->group_list.begin();
-				LLAvatarGroups::LLGroupData group_data = *it;
-				groups+= group_data.group_name;
-				while (++it != avatar_groups->group_list.end())
-				{
-					group_data = *it;				
-					groups += ", ";
-					groups += group_data.group_name;
-					
-				}
-			}
-			childSetValue("sl_groups",groups);
-		}
-	}
+	childSetVisible("user_name", false);
+	childSetVisible("status_me_panel", false);
+	childSetVisible("profile_me_buttons_panel", false);
+	childSetVisible("account_actions_panel", false);
+	childSetVisible("partner_edit_link", false);
 }
 
-void LLPanelAvatarProfile::clear()
-{
-	clearControls();
-}
-
-void LLPanelAvatarProfile::clearControls()
+void LLPanelAvatarProfile::resetData()
 {
 	childSetValue("2nd_life_pic",LLUUID::null);
 	childSetValue("real_world_pic",LLUUID::null);
@@ -378,7 +392,101 @@ void LLPanelAvatarProfile::clearControls()
 	childSetTextArg("partner_text", "[LAST]", LLStringUtil::null);
 }
 
-void LLPanelAvatarProfile::setCaptionText(const LLAvatarData* avatar_data)
+void LLPanelAvatarProfile::processProperties(void* data, EAvatarProcessorType type)
+{
+	if(APT_PROPERTIES == type)
+	{
+		const LLAvatarData* avatar_data = static_cast<const LLAvatarData*>(data);
+		if(avatar_data && getAvatarId() == avatar_data->avatar_id)
+		{
+			processProfileProperties(avatar_data);
+		}
+	}
+	else if(APT_GROUPS == type)
+	{
+		LLAvatarGroups* avatar_groups = static_cast<LLAvatarGroups*>(data);
+		if(avatar_groups && getAvatarId() == avatar_groups->avatar_id)
+		{
+			processGroupProperties(avatar_groups);
+		}
+	}
+}
+
+void LLPanelAvatarProfile::processProfileProperties(const LLAvatarData* avatar_data)
+{
+	fillCommonData(avatar_data);
+
+	fillPartnerData(avatar_data);
+
+	fillOnlineStatus(avatar_data);
+
+	fillAccountStatus(avatar_data);
+}
+
+void LLPanelAvatarProfile::processGroupProperties(const LLAvatarGroups* avatar_groups)
+{
+	std::string groups;
+	LLAvatarGroups::group_list_t::const_iterator it = avatar_groups->group_list.begin();
+	const LLAvatarGroups::group_list_t::const_iterator it_end = avatar_groups->group_list.end();
+
+	if(it_end != it)
+	{
+		groups = (*it).group_name;
+		++it;
+	}
+	for(; it_end != it; ++it)
+	{
+		LLAvatarGroups::LLGroupData group_data = *it;
+		groups += ", ";
+		groups += group_data.group_name;
+	}
+	childSetValue("sl_groups",groups);
+}
+
+void LLPanelAvatarProfile::fillCommonData(const LLAvatarData* avatar_data)
+{
+	childSetValue("register_date", avatar_data->born_on);
+	childSetValue("sl_description_edit", avatar_data->about_text);
+	childSetValue("fl_description_edit",avatar_data->fl_about_text);
+	childSetValue("2nd_life_pic", avatar_data->image_id);
+	childSetValue("real_world_pic", avatar_data->fl_image_id);
+	childSetValue("homepage_edit", avatar_data->profile_url);
+}
+
+void LLPanelAvatarProfile::fillPartnerData(const LLAvatarData* avatar_data)
+{
+	if (avatar_data->partner_id.notNull())
+	{
+		std::string first, last;
+		BOOL found = gCacheName->getName(avatar_data->partner_id, first, last);
+		if (found)
+		{
+			childSetTextArg("partner_text", "[FIRST]", first);
+			childSetTextArg("partner_text", "[LAST]", last);
+		}
+	}
+	else
+	{
+		childSetTextArg("partner_text", "[FIRST]", getString("no_partner_text"));
+	}
+}
+
+void LLPanelAvatarProfile::fillOnlineStatus(const LLAvatarData* avatar_data)
+{
+	bool online = avatar_data->flags & AVATAR_ONLINE;
+	if(LLAvatarActions::isFriend(avatar_data->avatar_id))
+	{
+		// Online status NO could be because they are hidden
+		// If they are a friend, we may know the truth!
+		online = LLAvatarTracker::instance().isBuddyOnline(avatar_data->avatar_id);
+	}
+	childSetValue("online_status", online ?
+		"Online" : "Offline");
+	childSetColor("online_status", online ? 
+		LLColor4::green : LLColor4::red);
+}
+
+void LLPanelAvatarProfile::fillAccountStatus(const LLAvatarData* avatar_data)
 {
 	std::string caption_text = avatar_data->caption_text;
 	if(caption_text.empty())
@@ -432,130 +540,126 @@ void LLPanelAvatarProfile::setCaptionText(const LLAvatarData* avatar_data)
 	childSetValue("acc_status_text", caption_text);
 }
 
+void LLPanelAvatarProfile::onUrlTextboxClicked(std::string url)
+{
+	LLWeb::loadURL(url);
+}
+
+void LLPanelAvatarProfile::onHomepageTextboxClicked()
+{
+	std::string url = childGetValue("homepage_edit").asString();
+	if(!url.empty())
+	{
+		onUrlTextboxClicked(url);
+	}
+}
+
 void LLPanelAvatarProfile::onAddFriendButtonClick()
 {
-	onAddFriend();
+	LLAvatarActions::requestFriendshipDialog(getAvatarId());
 }
 
 void LLPanelAvatarProfile::onIMButtonClick()
 {
-	onIM();
+	LLAvatarActions::startIM(getAvatarId());
 }
 
 void LLPanelAvatarProfile::onTeleportButtonClick()
 {
-	onTeleport();
+	LLAvatarActions::offerTeleport(getAvatarId());
 }
 
 void LLPanelAvatarProfile::onCallButtonClick()
 {
-
+	//*TODO not implemented
 }
 
 void LLPanelAvatarProfile::onShareButtonClick()
 {
-
+	//*TODO not implemented
 }
 
-/*virtual*/ BOOL LLPanelAvatarProfile::postBuild(void)
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+LLPanelAvatarMeProfile::LLPanelAvatarMeProfile()
+: LLPanelAvatarProfile()
 {
-	mStatusCombobox = getChild<LLComboBox>("status_combo", TRUE, FALSE);
-	if (NULL != mStatusCombobox)
-	{
-		mStatusCombobox->setCommitCallback(boost::bind(&LLPanelAvatarProfile::onStatusChanged, this));
-	}
-	mStatusMessage =  getChild<LLLineEditor>("status_me_message_edit", TRUE, FALSE);
-	if (NULL != mStatusMessage)
-	{
-		mStatusMessage->setCommitCallback(boost::bind(&LLPanelAvatarProfile::onStatusMessageChanged, this));
-	}
+}
 
-	if (!isEditMode())
-	{
-		childSetActionTextbox("homepage_edit", boost::bind(&LLPanelAvatarProfile::onHomepageTextboxClicked, this));
-		childSetActionTextbox("payment_update_link", boost::bind(&LLPanelAvatarProfile::onUpdateAccountTextboxClicked, this));
-		childSetActionTextbox("my_account_link", boost::bind(&LLPanelAvatarProfile::onMyAccountTextboxClicked, this));
-		childSetActionTextbox("partner_edit_link", boost::bind(&LLPanelAvatarProfile::onPartnerEditTextboxClicked, this));
-	}
+BOOL LLPanelAvatarMeProfile::postBuild()
+{
+	LLPanelAvatarProfile::postBuild();
 
-	childSetCommitCallback("add_friend",(boost::bind(&LLPanelAvatarProfile::onAddFriendButtonClick,this)),NULL);
-	childSetCommitCallback("im",(boost::bind(&LLPanelAvatarProfile::onIMButtonClick,this)),NULL);
-	childSetCommitCallback("call",(boost::bind(&LLPanelAvatarProfile::onCallButtonClick,this)),NULL);
-	childSetCommitCallback("teleport",(boost::bind(&LLPanelAvatarProfile::onTeleportButtonClick,this)),NULL);
-	childSetCommitCallback("share",(boost::bind(&LLPanelAvatarProfile::onShareButtonClick,this)),NULL);
+	mStatusCombobox = getChild<LLComboBox>("status_combo");
 
-	LLTextureCtrl* pic = getChild<LLTextureCtrl>("2nd_life_pic",TRUE,FALSE);
-	if(pic)
-	{
-		pic->setFallbackImageName("default_land_picture.j2c");
-	}
-	pic = getChild<LLTextureCtrl>("real_world_pic",TRUE,FALSE);
-	if(pic)
-	{
-		pic->setFallbackImageName("default_land_picture.j2c");
-	}
+	childSetCommitCallback("status_combo", boost::bind(&LLPanelAvatarMeProfile::onStatusChanged, this), NULL);
+	childSetCommitCallback("status_me_message_text", boost::bind(&LLPanelAvatarMeProfile::onStatusMessageChanged, this), NULL);
+	childSetActionTextbox("payment_update_link", boost::bind(&LLPanelAvatarMeProfile::onUpdateAccountTextboxClicked, this));
+	childSetActionTextbox("my_account_link", boost::bind(&LLPanelAvatarMeProfile::onMyAccountTextboxClicked, this));
+	childSetActionTextbox("partner_edit_link", boost::bind(&LLPanelAvatarMeProfile::onPartnerEditTextboxClicked, this));
 
-	clearControls();
-	updateChildrenList();
+	resetControls();
+	resetData();
 
 	return TRUE;
 }
 
-void LLPanelAvatarProfile::onOpen(const LLSD& key)
+void LLPanelAvatarMeProfile::onOpen(const LLSD& key)
 {
-	onActivate(key);
-	updateChildrenList();
+	LLPanelProfileTab::onOpen(key);
+
+	std::string full_name;
+	gCacheName->getFullName(getAvatarId(), full_name);
+	childSetValue("user_name", full_name);
 }
 
-
-void LLPanelAvatarProfile::updateChildrenList()
+void LLPanelAvatarMeProfile::processProfileProperties(const LLAvatarData* avatar_data)
 {
-	switch (mProfileType)
+	fillCommonData(avatar_data);
+
+	fillPartnerData(avatar_data);
+
+	fillStatusData(avatar_data);
+
+	fillAccountStatus(avatar_data);
+}
+
+void LLPanelAvatarMeProfile::fillStatusData(const LLAvatarData* avatar_data)
+{
+	std::string status;
+	if (gAgent.getAFK())
 	{
-	case PT_OWN:
-		if (mUpdated || isEditMode())
-		{
-			return;
-		}
-		childSetVisible("user_name", true);
-		childSetVisible("status_panel", false);
-		childSetVisible("profile_buttons_panel", false);
-		childSetVisible("title_groups_text", false);
-		childSetVisible("sl_groups", false);
-		mUpdated = true;
-		childSetVisible("status_me_panel", true);
-		childSetVisible("profile_me_buttons_panel", true);
-
-		break;
-	case PT_OTHER:
-		childSetVisible("user_name", false);
-		childSetVisible("status_me_panel", false);
-		childSetVisible("profile_me_buttons_panel", false);
-
-		childSetVisible("status_panel", true);
-		childSetVisible("profile_buttons_panel", true);
-		childSetVisible("title_groups_text", true);
-		childSetVisible("sl_groups", true);
-
-		// account actions
-		childSetVisible("account_actions_panel", false);
-		childSetVisible("partner_edit_link", false);
-
-		//hide for friends
-		childSetEnabled("add_friend", !LLAvatarActions::isFriend(getAvatarId()));
-
-		//need to update profile view on every activate
-		mUpdated = false;
-		break;
-	case PT_UNKNOWN: break;//do nothing 
-	default:
-		llassert(false);
+		status = "away";
 	}
+	else if (gAgent.getBusy())
+	{
+		status = "busy";
+	}
+	else
+	{
+		status = "online";
+	}
+
+	mStatusCombobox->setValue(status);
 }
-void LLPanelAvatarProfile::onStatusChanged()
+
+void LLPanelAvatarMeProfile::resetControls()
+{
+	childSetVisible("user_name", true);
+	childSetVisible("status_panel", false);
+	childSetVisible("profile_buttons_panel", false);
+	childSetVisible("title_groups_text", false);
+	childSetVisible("sl_groups", false);
+	childSetVisible("status_me_panel", true);
+	childSetVisible("profile_me_buttons_panel", true);
+}
+
+void LLPanelAvatarMeProfile::onStatusChanged()
 {
 	LLSD::String status = mStatusCombobox->getValue().asString();
-	
+
 	if ("online" == status)
 	{
 		gAgent.clearAFK();
@@ -572,169 +676,24 @@ void LLPanelAvatarProfile::onStatusChanged()
 		gAgent.setBusy();
 		LLNotifications::instance().add("BusyModeSet");
 	}
-	else
-	{
-	}
-
 }
 
-void LLPanelAvatarProfile::onStatusMessageChanged()
+void LLPanelAvatarMeProfile::onStatusMessageChanged()
 {
 	updateData();
 }
 
-//static
-void LLPanelAvatarProfile::onUrlTextboxClicked(std::string url)
-{
-	LLWeb::loadURL(url);
-}
-
-void LLPanelAvatarProfile::onHomepageTextboxClicked()
-{
-	onUrlTextboxClicked(childGetValue("homepage_edit").asString());
-}
-
-void LLPanelAvatarProfile::onUpdateAccountTextboxClicked()
+void LLPanelAvatarMeProfile::onUpdateAccountTextboxClicked()
 {
 	onUrlTextboxClicked(getString("payment_update_link_url"));
 }
 
-void LLPanelAvatarProfile::onMyAccountTextboxClicked()
+void LLPanelAvatarMeProfile::onMyAccountTextboxClicked()
 {
 	onUrlTextboxClicked(getString("my_account_link_url"));
 }
 
-void LLPanelAvatarProfile::onPartnerEditTextboxClicked()
+void LLPanelAvatarMeProfile::onPartnerEditTextboxClicked()
 {
 	onUrlTextboxClicked(getString("partner_edit_link_url"));
-}
-
-//-----------------------------------------------------------------------------
-// LLPanelAvatarNotes()
-//-----------------------------------------------------------------------------
-LLPanelAvatarNotes::LLPanelAvatarNotes(const LLUUID& id /* = LLUUID::null */)
-:LLPanelProfileTab(id)
-{
-	updateData();
-}
-
-LLPanelAvatarNotes::LLPanelAvatarNotes(const Params& params)
-: LLPanelProfileTab(params)
-{
-
-}
-
-LLPanelAvatarNotes::~LLPanelAvatarNotes()
-{
-	if(getAvatarId().notNull())
-	{
-		LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
-	}
-}
-
-void* LLPanelAvatarNotes::create(void* data)
-{
-	if(data)
-	{
-		LLSD* id = static_cast<LLSD*>(data);
-		return new LLPanelAvatarNotes(LLUUID(id->asUUID()));
-	}
-	return new LLPanelAvatarNotes();
-}
-
-void LLPanelAvatarNotes::updateData()
-{
-	LLAvatarPropertiesProcessor::getInstance()->sendDataRequest(getAvatarId(),APT_NOTES);
-
-	const LLRelationship* relation = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
-	if(relation)
-	{
-		childSetEnabled("status_check",TRUE);
-		childSetEnabled("map_check",TRUE);
-		childSetEnabled("objects_check",TRUE);
-
-		S32 rights = relation->getRightsGrantedTo();
-
-		childSetValue("status_check",LLRelationship::GRANT_ONLINE_STATUS & rights ? TRUE : FALSE);
-		childSetValue("map_check",LLRelationship::GRANT_MAP_LOCATION & rights ? TRUE : FALSE);
-		childSetValue("objects_check",LLRelationship::GRANT_MODIFY_OBJECTS & rights ? TRUE : FALSE);
-	}
-}
-
-BOOL LLPanelAvatarNotes::postBuild()
-{
-	childSetCommitCallback("status_check",boost::bind(&LLPanelAvatarNotes::onCommitRights,this),NULL);
-	childSetCommitCallback("map_check",boost::bind(&LLPanelAvatarNotes::onCommitRights,this),NULL);
-	childSetCommitCallback("objects_check",boost::bind(&LLPanelAvatarNotes::onCommitRights,this),NULL);
-
-	childSetCommitCallback("add_friend",(boost::bind(&LLPanelAvatarProfile::onAddFriend,this)),NULL);
-	childSetCommitCallback("im",(boost::bind(&LLPanelAvatarProfile::onIM,this)),NULL);
-//	childSetCommitCallback("call",(boost::bind(&LLPanelAvatarProfile::onCallButtonClick,this)));
-	childSetCommitCallback("teleport",(boost::bind(&LLPanelAvatarProfile::onTeleport,this)),NULL);
-//	childSetCommitCallback("share",(boost::bind(&LLPanelAvatarProfile::onShareButtonClick,this)));
-
-	LLTextEditor* te = getChild<LLTextEditor>("notes_edit",TRUE,FALSE);
-	if(te) 
-	{
-		te->setCommitCallback(boost::bind(&LLPanelAvatarNotes::onCommitNotes,this));
-		te->setCommitOnFocusLost(TRUE);
-	}
-
-	return TRUE;
-}
-
-void LLPanelAvatarNotes::onCommitNotes()
-{
-	std::string notes = childGetValue("notes_edit").asString();
-	LLAvatarPropertiesProcessor::getInstance()-> sendNotes(getAvatarId(),notes);
-}
-
-void LLPanelAvatarNotes::onCommitRights()
-{
-	S32 rights = 0;
-
-	if(childGetValue("status_check").asBoolean())
-		rights |= LLRelationship::GRANT_ONLINE_STATUS;
-	if(childGetValue("map_check").asBoolean())
-		rights |= LLRelationship::GRANT_MAP_LOCATION;
-	if(childGetValue("objects_check").asBoolean())
-		rights |= LLRelationship::GRANT_MODIFY_OBJECTS;
-
-	LLAvatarPropertiesProcessor::getInstance()->sendFriendRights(getAvatarId(),rights);
-}
-
-void LLPanelAvatarNotes::clear()
-{
-	childSetValue("notes_edit",LLStringUtil::null);
-
-	childSetEnabled("status_check",FALSE);
-	childSetEnabled("map_check",FALSE);
-	childSetEnabled("objects_check",FALSE);
-}
-
-void LLPanelAvatarNotes::processProperties(void* data, EAvatarProcessorType type)
-{
-	if(APT_NOTES == type)
-	{
-		LLAvatarNotes* avatar_notes = static_cast<LLAvatarNotes*>(data);
-		if(avatar_notes && getAvatarId() == avatar_notes->target_id)
-		{
-			childSetValue("notes_edit",avatar_notes->notes);
-			childSetEnabled("notes edit", true);
-
-			LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
-		}
-	}
-}
-
-void LLPanelAvatarNotes::onActivate(const LLUUID& id)
-{
-	LLPanelProfileTab::onActivate(id);
-	updateChildrenList();
-}
-
-void LLPanelAvatarNotes::updateChildrenList()
-{
-	//hide for friends
-	childSetEnabled("add_friend", !LLAvatarActions::isFriend(getAvatarId()));
 }

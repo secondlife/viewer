@@ -363,9 +363,14 @@ public:
 
 	/*virtual*/ ~ LLNotificationChiclet();
 
+	// Notification Chiclet Window
+	void	setNotificationChicletWindow(LLFloater* wnd) { mNotificationChicletWindow = wnd; }
+
 protected:
 	LLNotificationChiclet(const Params& p);
 	friend class LLUICtrlFactory;
+
+	LLFloater*	mNotificationChicletWindow;
 
 protected:
 	LLButton* mButton;

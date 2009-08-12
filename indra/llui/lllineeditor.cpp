@@ -623,6 +623,8 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	// delay cursor flashing
 	mKeystrokeTimer.reset();
+	
+	LLUICtrl::handleMouseDown(x,y,mask);
 
 	return TRUE;
 }
@@ -736,7 +738,9 @@ BOOL LLLineEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 		// take selection to 'primary' clipboard
 		updatePrimary();
 	}
-
+	
+	// We won't call LLUICtrl::handleMouseUp to avoid double calls of  childrenHandleMouseUp().Just invoke the signal manually.
+	mMouseUpSignal(this,x,y, mask);
 	return handled;
 }
 

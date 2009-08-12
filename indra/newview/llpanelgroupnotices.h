@@ -47,11 +47,10 @@ class LLScrollListCtrl;
 class LLPanelGroupNotices : public LLPanelGroupTab
 {
 public:
-	LLPanelGroupNotices(const LLUUID& group_id);
+	LLPanelGroupNotices();
 	virtual ~LLPanelGroupNotices();
 
 	// LLPanelGroupTab
-	static void* createTab(void* data);
 	virtual void activate();
 	//virtual bool needsApply(std::string& mesg);
 	//virtual bool apply(std::string& mesg);
@@ -69,6 +68,8 @@ public:
 					const bool& has_inventory,
 					const std::string& inventory_name,
 					LLOfferInfo* inventory_offer);
+
+	virtual void setGroupID(const LLUUID& id);
 
 private:
 	static void onClickRemoveAttachment(void* data);

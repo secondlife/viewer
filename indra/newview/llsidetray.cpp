@@ -281,7 +281,7 @@ bool        LLSideTray::addTab          ( const std::string& tab_name
 
 LLSideTrayTab* LLSideTray::getTab(const std::string& name)
 {
-	return getChild<LLSideTrayTab>(name,false,false);
+	return getChild<LLSideTrayTab>(name,false);
 }
 
 
@@ -311,7 +311,7 @@ bool LLSideTray::selectTabByName	(const std::string& name)
 {
 	LLSideTrayTab* side_bar = getTab(name);
 
-	if(side_bar == NULL || side_bar == mActiveTab)
+	if(side_bar == mActiveTab)
 		return false;
 	//deselect old tab
 	toggleTabButton(mActiveTab);

@@ -64,6 +64,7 @@ LLButton::Params::Params()
 :	label_selected("label_selected"),				// requires is_toggle true
 	label_shadow("label_shadow", true),
 	auto_resize("auto_resize", false),
+	use_ellipses("use_ellipses", false),
 	image_unselected("image_unselected"),
 	image_selected("image_selected"),
 	image_hover_selected("image_hover_selected"),
@@ -138,6 +139,7 @@ LLButton::LLButton(const LLButton::Params& p)
 	mScaleImage(p.scale_image),
 	mDropShadowedText(p.label_shadow),
 	mAutoResize(p.auto_resize),
+	mUseEllipses( p.use_ellipses ),
 	mHAlign(p.font_halign),
 	mLeftHPad(p.pad_left),
 	mRightHPad(p.pad_right),
@@ -279,11 +281,6 @@ boost::signals2::connection LLButton::setMouseUpCallback( const commit_signal_t:
 boost::signals2::connection LLButton::setHeldDownCallback( const commit_signal_t::slot_type& cb )
 {
 	return mHeldDownSignal.connect(cb);
-}
-														  
-boost::signals2::connection LLButton::setRightClickedCallback( const commit_signal_t::slot_type& cb )
-{
-	return mRightClickSignal.connect(cb);
 }
 
 
@@ -437,7 +434,7 @@ BOOL	LLButton::handleRightMouseUp(S32 x, S32 y, MASK mask)
 
 		if (pointInView(x, y))
 		{
-			mRightClickSignal(this, getValue());
+			mRightClickSignal(this, x,y,mask);
 		}
 	}
 	else 
@@ -780,13 +777,18 @@ void LLButton::draw()
 			x++;
 		}
 
+		// *NOTE: mantipov: before mUseEllipses is implemented in EXT-279 U32_MAX has been passed as
+		// max_chars.
+		// LLFontGL::render expects S32 max_chars variable but process in a separate way -1 value.
+		// Due to U32_MAX is equal to S32 -1 value I have rest this value for non-ellipses mode.
+		// Not sure if it is really needed. Probably S32_MAX should be always passed as max_chars.
 		mGLFont->render(label, 0, (F32)x, (F32)(LLBUTTON_V_PAD + y_offset), 
 			label_color,
 			mHAlign, LLFontGL::BOTTOM,
 			LLFontGL::NORMAL,
 			mDropShadowedText ? LLFontGL::DROP_SHADOW_SOFT : LLFontGL::NO_SHADOW,
-			U32_MAX, text_width,
-			NULL, FALSE, FALSE);
+			S32_MAX, text_width,
+			NULL, FALSE, mUseEllipses);
 	}
 
 	LLUICtrl::draw();

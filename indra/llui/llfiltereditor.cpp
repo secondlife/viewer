@@ -87,6 +87,12 @@ BOOL LLFilterEditor::setLabelArg( const std::string& key, const LLStringExplicit
 }
 
 //virtual
+void LLFilterEditor::setLabel( const LLStringExplicit &new_label )
+{
+	mFilterEditor->setLabel(new_label);
+}
+
+//virtual
 void LLFilterEditor::clear()
 {
 	if (mFilterEditor)

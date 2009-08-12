@@ -48,11 +48,6 @@ public:
 	static void search();
 
 	/**
-	 * Invokes group creation floater.
-	 */
-	static void create();
-
-	/**
 	 * Invokes "Leave Group" floater.
 	 */
 	static void leave(const LLUUID& group_id);
@@ -63,9 +58,24 @@ public:
 	static void activate(const LLUUID& group_id);
 
 	/**
-	 * Show group information dialog.
+	 * Show group information panel.
 	 */
-	static void info(const LLUUID& group_id);
+	static void show(const LLUUID& group_id);
+
+	/**
+	 * Refresh group information panel.
+	 */
+	static void refresh(const LLUUID& group_id);
+
+	/**
+	 * Refresh group information panel.
+	 */
+	static void createGroup();
+
+	/**
+	 * Close group information panel.
+	 */
+	static void closeGroup		(const LLUUID& group_id);
 
 	/**
 	 * Start group instant messaging session.

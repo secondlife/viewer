@@ -71,7 +71,7 @@ public:
 	
 	// Operating with toasts
 	// add a toast to a channel
-	LLToast*	addToast(LLUUID id, LLPanel* panel, bool is_not_tip = true);
+	void		addToast(LLToast::Params p);
 	// kill or modify a toast by its ID
 	void		killToastByNotificationID(LLUUID id);
 	void		modifyToastByNotificationID(LLUUID id, LLPanel* panel);
@@ -83,8 +83,16 @@ public:
 	void		showToasts();
 	//
 	void		loadStoredToastsToChannel();
-	// 
-	void 		closeUnreadToastsPanel();
+	// finds a toast among stored by its ID and throws it on a screen to a channel
+	void		loadStoredToastByIDToChannel(LLUUID id);
+	// removes a toast from stored finding it by its ID 
+	void		removeStoredToastByID(LLUUID id);
+	// remove all toasts from screen and store them
+	void		removeAndStoreAllVisibleToasts();
+	// close the Overflow Toast
+	void 		closeOverflowToastPanel();
+	// close the StartUp Toast
+	void		closeStartUpToast();
 
 	// Channel's behavior-functions
 	// set whether a channel will control hovering inside itself or not
@@ -92,14 +100,17 @@ public:
 	// set Hovering flag for a channel
 	void		setHovering(bool hovering) { mIsHovering = hovering; }
 	// set whether a channel will store faded toasts or not
-	void		setStoreToasts(bool store) { mStoreToasts = store; }
+	void		setCanStoreToasts(bool store) { mCanStoreToasts = store; }
 	// tell all channels that the StartUp toast was shown and allow them showing of toasts
 	static void	setStartUpToastShown() { mWasStartUpToastShown = true; }
+	//
+	static bool	getStartUpToastShown() { return mWasStartUpToastShown; }
 
 	// Channel's other interface functions functions
-	S32			getNumberOfHiddenToasts() { return mHiddenToastsNum;}
-	// TODO: split StartUp and Overflow toasts
-	void		setNumberOfHiddenToasts(S32 num) { mHiddenToastsNum = num;}
+	// get number of hidden notifications from a channel
+	S32		getNumberOfHiddenToasts() { return mHiddenToastsNum;}
+	// update number of notifications in the StartUp Toast
+	void	updateStartUpString(S32 num);
 	e_notification_toast_alignment getToastAlignment() {return mToastAlignment;}
 
 	// Channel's callbacks
@@ -114,9 +125,10 @@ private:
 	{
 		LLUUID		id;
 		LLToast*	toast;
-		ToastElem(LLUUID lluuid, LLPanel* panel) : id(lluuid)
+
+		ToastElem(LLToast::Params p) : id(p.id)
 		{
-			toast = new LLToast(panel);
+			toast = new LLToast(p);
 		}
 
 		ToastElem(const ToastElem& toast_elem)
@@ -140,6 +152,7 @@ private:
 	void	onToastHover(LLToast* toast, bool mouse_enter);
 	void	onToastFade(LLToast* toast);
 	void	onOverflowToastHide();
+	void	onStartUpToastHide();
 
 	//
 	void	storeToast(ToastElem& toast_elem);
@@ -149,21 +162,28 @@ private:
 	void	showToastsCentre();
 	void	showToastsTop();
 	
-	// create the OverflowToast
+	// create the Overflow Toast
 	void	createOverflowToast(S32 bottom, F32 timer);
+
+	// create the StartUp Toast
+	void	createStartUpToast(S32 notif_num, S32 bottom, F32 timer);
 
 	// Channel's flags
 	static bool	mWasStartUpToastShown;
 	bool		mControlHovering;
 	bool		mIsHovering;
-	bool		mStoreToasts;
+	bool		mCanStoreToasts;
 	bool		mOverflowToastHidden;
 	// 
 	e_notification_toast_alignment	mToastAlignment;
 
+	// attributes for the Overflow Toast
 	S32			mHiddenToastsNum;
-	LLToast*	mUnreadToastsPanel;
+	LLToast*	mOverflowToastPanel;	
 	std::string mOverflowFormatString;
+
+	// attributes for the StartUp Toast	
+	LLToast* mStartUpToastPanel;
 
 	std::vector<ToastElem>		mToastList;
 	std::vector<ToastElem>		mStoredToastList;

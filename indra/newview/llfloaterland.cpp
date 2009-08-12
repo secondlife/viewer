@@ -51,7 +51,6 @@
 #include "llfloateravatarpicker.h"
 #include "llfloaterauction.h"
 #include "llfloatergroups.h"
-#include "llfloatergroupinfo.h"
 #include "llavataractions.h"
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
@@ -78,6 +77,8 @@
 #include "llviewercontrol.h"
 #include "roles_constants.h"
 #include "lltrans.h"
+
+#include "llgroupactions.h"
 
 static std::string OWNER_ONLINE 	= "0";
 static std::string OWNER_OFFLINE	= "1";
@@ -806,7 +807,7 @@ void LLPanelLandGeneral::onClickProfile(void* data)
 	if (parcel->getIsGroupOwned())
 	{
 		const LLUUID& group_id = parcel->getGroupID();
-		LLFloaterGroupInfo::showFromUUID(group_id);
+		LLGroupActions::show(group_id);
 	}
 	else
 	{
@@ -1080,7 +1081,7 @@ void LLPanelLandObjects::onDoubleClickOwner(void *userdata)
 		BOOL is_group = cell->getValue().asString() == OWNER_GROUP;
 		if (is_group)
 		{
-			LLFloaterGroupInfo::showFromUUID(owner_id);
+			LLGroupActions::show(owner_id);
 		}
 		else
 		{

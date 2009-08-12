@@ -56,7 +56,6 @@
 #include "llcombobox.h"
 #include "lluiconstants.h"
 #include "lldbstrings.h"
-#include "llfloatergroupinfo.h"
 #include "llfloatergroups.h"
 #include "llfloaterreg.h"
 #include "llavataractions.h"
@@ -65,6 +64,7 @@
 #include "lluictrlfactory.h"
 #include "llspinctrl.h"
 #include "roles_constants.h"
+#include "llgroupactions.h"
 
 ///----------------------------------------------------------------------------
 /// Class llpanelpermissions
@@ -820,7 +820,7 @@ void LLPanelPermissions::onClickOwner(void *data)
 	{
 		LLUUID group_id;
 		LLSelectMgr::getInstance()->selectGetGroup(group_id);
-		LLFloaterGroupInfo::showFromUUID(group_id);
+		LLGroupActions::show(group_id);
 	}
 	else
 	{

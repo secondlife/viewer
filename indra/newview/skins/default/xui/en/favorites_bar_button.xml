@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- *NOTE: mantipov: to use the "use_ellipses" attribute label should be LEFT aligned 
+untill LLFontGL::render() is fixed to avoid this requirement-->
+<!-- *NOTE: mantipov: top & height should be synchronized with <favorites_bar> in the panel_navigation_bar.xml-->
+<!-- All buttons in the Favorites bar will be created from this one -->
+<button
+ follows="left|bottom"
+ halign="left"
+ height="23"
+ image_disabled="transparent.j2c"
+ image_disabled_selected="PushButton_Selected"
+ image_hover_selected="PushButton_Selected"
+ image_hover_unselected="PushButton_Off"
+ image_selected="PushButton_Selected"
+ image_unselected="transparent.j2c"
+ layout="topleft"
+ left="2"
+ name="favorites_bar_btn"
+ tab_stop="false"
+ top="2"
+ use_ellipses="true"
+ width="120" />
