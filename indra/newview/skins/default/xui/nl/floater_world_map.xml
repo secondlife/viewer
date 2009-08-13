@@ -49,6 +49,6 @@
 	<button label="Toon bestemming" label_selected="Toon bestemming" name="Show Destination" tool_tip="Centreer kaart op geselecteerde locatie"/>
 	<button label="Verwijder" label_selected="Verwijder" name="Clear" tool_tip="Stop volgen"/>
 	<button label="Toon mijn locatie" label_selected="Toon mijn locatie" name="Show My Location" tool_tip="Centreer kaart op de locatie van uw avatar"/>
-	<button label="Kopieer SLURL naar klembord" name="copy_slurl" tool_tip="Kopieert huidige locatie als SLURL, zodat deze op het web gebruikt kan worden."/>
+	<button label="Kopieer SLurl naar klembord" name="copy_slurl" tool_tip="Kopieert huidige locatie als SLurl, zodat deze op het web gebruikt kan worden."/>
 	<slider label="Zoom" name="zoom slider"/>
 </floater>

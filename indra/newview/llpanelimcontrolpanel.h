@@ -35,7 +35,19 @@
 
 #include "llpanel.h"
 
-class LLPanelIMControlPanel : public LLPanel
+
+class LLPanelChatControlPanel : public LLPanel
+{
+public:
+	LLPanelChatControlPanel() {};
+	~LLPanelChatControlPanel() {};
+
+	// sets the group or avatar UUID
+	virtual void setID(const LLUUID& avatar_id)= 0;
+};
+
+
+class LLPanelIMControlPanel : public LLPanelChatControlPanel
 {
 public:
 	LLPanelIMControlPanel();
@@ -43,7 +55,7 @@ public:
 
 	BOOL postBuild();
 
-	void setAvatarId(const LLUUID& avatar_id);
+	void setID(const LLUUID& avatar_id);
 
 private:
 	void onViewProfileButtonClicked();
@@ -51,5 +63,25 @@ private:
 	void onCallButtonClicked();
 	void onShareButtonClicked();
 };
+
+
+class LLPanelGroupControlPanel : public LLPanelChatControlPanel
+{
+public:
+	LLPanelGroupControlPanel() {};
+	~LLPanelGroupControlPanel() {};
+
+	BOOL postBuild();
+
+	void setID(const LLUUID& id);
+
+private:
+	void onGroupInfoButtonClicked();
+	void onCallButtonClicked();
+
+	LLUUID mGroupID;
+};
+
+
 
 #endif // LL_LLPANELIMCONTROLPANEL_H

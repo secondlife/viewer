@@ -48,6 +48,6 @@
 	<button font="SansSerifSmall" left_delta="91" width="135" label="Mostrar destino" label_selected="Mostrar Destino" name="Show Destination" tool_tip="Centralizar mapa na posição selecionada"/>
 	<button font="SansSerifSmall" label="Limpar" label_selected="Limpar" name="Clear" tool_tip="Parar de percorrer"/>
 	<button font="SansSerifSmall" left_delta="91" width="135" label="Mostra minha localização" label_selected="Mostra minha localização" name="Show My Location" tool_tip="Centraliza o mapa na posição do seu Avatar"/>
-	<button font="SansSerifSmall" label="Copiar SLURL para área de transferência" name="copy_slurl" tool_tip="Copia a posição atual como SLURL para ser usada na Web"/>
+	<button font="SansSerifSmall" label="Copiar SLurl para área de transferência" name="copy_slurl" tool_tip="Copia a posição atual como SLurl para ser usada na Web"/>
 	<slider label="Zoom" name="zoom slider"/>
 </floater>

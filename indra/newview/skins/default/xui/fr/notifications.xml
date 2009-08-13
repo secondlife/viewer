@@ -2068,12 +2068,12 @@ Souhaitez-vous quitter le mode occupé avant de terminer cette transaction ?
 		<usetemplate ignoretext="Losque vous videz le dossier Objets trouvés dans votre inventaire" name="okcancelignore" notext="Non" yestext="Oui"/>
 	</notification>
 	<notification name="CopySLURL">
-		La SLURL suivante a été copiée dans votre presse-papiers :
+		La SLurl suivante a été copiée dans votre presse-papiers :
  [SLURL]
 
 Mettez-la dans une page web pour permettre aux autres résidents d&apos;accéder facilement à cet endroit ou bien collez-la dans la barre d&apos;adresse de votre navigateur.
 		<form name="form">
-			<ignore name="ignore" text="Lorsque vous copiez une SLURL dans votre presse-papier"/>
+			<ignore name="ignore" text="Lorsque vous copiez une SLurl dans votre presse-papier"/>
 		</form>
 	</notification>
 	<notification name="GraphicsPreferencesHelp">
@@ -2595,7 +2595,7 @@ Pour répéter le didacticiel, veuillez aller sur Help Island Public.
 	<notification name="ImproperPaymentStatus">
 		Vous n&apos;avez pas le statut de paiement approprié pour pénétrer dans cette région.
 	</notification>
-	<notification name="MustGetAgeRgion">
+	<notification name="MustGetAgeRegion">
 		Pour pouvoir pénétrer dans cette région, vous devez avoir procédé à la vérification de votre âge.
 	</notification>
 	<notification name="MustGetAgeParcel">

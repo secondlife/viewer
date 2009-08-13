@@ -54,6 +54,6 @@
 	<button font="SansSerifSmall" left_delta="91" width="135" label="Mostra destinazione" label_selected="Mostra destinazione" name="Show Destination" tool_tip="Centra la mappa sul luogo prescelto"/>
 	<button font="SansSerifSmall" label="Pulisci" label_selected="Pulisci" name="Clear" tool_tip="Togli traccia"/>
 	<button font="SansSerifSmall" left_delta="91" width="135" label="Mostra la mia posizione" label_selected="Mostra la mia posizione" name="Show My Location" tool_tip="Centra la mappa alla posizione del tuo avatar"/>
-	<button font="SansSerifSmall" label="Copia lo SLURL negli appunti" name="copy_slurl" tool_tip="Copia l&apos;attuale posizione quale SLURL utilizzabile nel web."/>
+	<button font="SansSerifSmall" label="Copia lo SLurl negli appunti" name="copy_slurl" tool_tip="Copia l&apos;attuale posizione quale SLurl utilizzabile nel web."/>
 	<slider label="Zoom" name="zoom slider"/>
 </floater>

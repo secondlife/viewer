@@ -20,9 +20,7 @@
                 top="16"
                 left="2">
     <layout_panel
-      class="panel_im_control_panel"
       name="panel_im_control_panel"
-      filename="panel_im_control_panel.xml"
       layout="topleft"
       top_delta="-3"
       min_width="96" 

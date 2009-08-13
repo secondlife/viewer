@@ -52,6 +52,6 @@
 	<button label="Vis destination" label_selected="Vis destination" name="Show Destination" tool_tip="Centrér kortet på valgte lokation"/>
 	<button label="Slet" label_selected="Slet" name="Clear" tool_tip="Stop søg"/>
 	<button label="Vis min position" label_selected="Vis min position" name="Show My Location" tool_tip="Centrer kortet på din avatars lokation"/>
-	<button label="Kopiér SLURL til udklipsholder" name="copy_slurl" tool_tip="Kopierer den nuværende lokation som et SLURL, så det kan bruges på nettet."/>
+	<button label="Kopiér SLurl til udklipsholder" name="copy_slurl" tool_tip="Kopierer den nuværende lokation som et SLurl, så det kan bruges på nettet."/>
 	<slider label="Zoom" name="zoom slider"/>
 </floater>

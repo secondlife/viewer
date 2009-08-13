@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel name="panel_im_control_panel"
+       width="96"
+       height="215"
+       border="false">
+  <avatar_list
+           width="90"
+           column_padding="0"
+           draw_heading="true"
+           draw_stripes="false"
+           follows="left|top|bottom|right"
+           layout="topleft"
+           left="3"
+           name="speakers_list"
+           search_column="1"
+           sort_column="2"
+           top="10"
+           height="150" />
+
+  <button name="group_info_btn"
+          label="Group Info"
+          left_delta="3"
+          width="90"
+		  height="20" />
+
+  <button name="call_btn"
+          label="Call"
+          width="90"
+          height="20" />
+
+</panel>

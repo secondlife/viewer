@@ -1,53 +1,32 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- bevel_style="in"
  follows="left|top|right|bottom"
- height="570"
- width="295"
- border="false"
+ height="420"
+ label="Picks"
  layout="topleft"
  left="0"
+ name="panel_picks"
  top="0"
- label="Picks"
- name="panel_picks">
+ width="285">
     <scroll_container
      color="DkGray2"
      follows="left|top|right|bottom"
-     height="570"
-     width="265"
+     height="350"
      layout="topleft"
-     left="5"
-     top_pad="0"
- bevel_style="in"
-     opaque="true"
+     left="2"
      name="profile_scroll"
-     reserve_scroll_corner="false">
-<!-- below is a special title shown for the Agent on the "Picks" tab
-    <text
-     type="string"
-     length="1"
-     follows="top"
-     font="SansSerifBold"
-     height="35"
-     width="250"
-     layout="topleft"
-     left="10"
-     name="pick_title_agent"
-     text_color="white"
-     top_pad="25"
-     visible="false"
-     word_wrap="true">
-        Tell everyone about your favorite Second Life places...
-    </text>-->
+     opaque="true"
+     top="0"
+     width="284">
         <panel
          height="115"
-     width="265"
          layout="topleft"
          left="0"
          name="back_panel"
-         top="0" />
+         top="0"
+         width="284" />
     </scroll_container>
-   <panel
+    <panel
      background_visible="true"
      bevel_style="none"
      enabled="false"
@@ -55,17 +34,14 @@
      height="30"
      label="bottom_panel"
      layout="topleft"
-     left="0"
      name="edit_panel"
-     visible="false"
-     top_pad="0"
-     width="280">
+     top_pad="5"
+     width="284">
         <button
          enabled="false"
          follows="bottom|left"
          font="SansSerifBigBold"
          height="18"
-         hover_glow_amount="0.15"
          image_selected="OptionsMenu_Press"
          image_unselected="OptionsMenu_Off"
          layout="topleft"
@@ -80,7 +56,6 @@
          height="18"
          image_disabled="AddItem_Off"
          image_disabled_selected="AddItem_Press"
-         hover_glow_amount="0.15"
          image_selected="AddItem_Press"
          image_unselected="AddItem_Off"
          layout="topleft"
@@ -96,7 +71,6 @@
          height="18"
          image_disabled="TrashItem_Off"
          image_disabled_selected="TrashItem_Press"
-         hover_glow_amount="0.15"
          image_selected="TrashItem_Press"
          image_unselected="TrashItem_Off"
          layout="topleft"
@@ -109,32 +83,17 @@
     <panel
      follows="bottom|left"
      height="30"
-     width="280"
      layout="topleft"
-     left="10"
-     top_pad="5"
-     name="buttons_cucks">
+     name="buttons_cucks"
+     width="284">
         <button
-         follows="bottom|left"
-         font="SansSerifSmallBold"
-         height="25"
-         label="Teleport"
-         layout="topleft"
-         left="0"
-         name="teleport_btn"
          enabled="false"
-         top="0"
-         width="75" />
-        <button
          follows="bottom|left"
          font="SansSerifSmallBold"
          height="25"
-         label="Show on Map"
+         label="Map"
          layout="topleft"
-         left_pad="0"
          name="show_on_map_btn"
-         enabled="false"
-         top="0"
-         width="105" />
+         width="85" />
     </panel>
 </panel>

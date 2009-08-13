@@ -745,6 +745,7 @@ You need to enter both the First and Last name of your avatar.
 You need an account to enter [SECOND_LIFE]. Would you like to create one now?
     <url 
 	option="0"
+	name="url"
 	openexternally = "1">
 
 			http://secondlife.com/registration/
@@ -810,7 +811,7 @@ Delete pick [PICK]?
    name="PromptGoToEventsPage"
    type="alertmodal">
 Go to the [SECOND_LIFE] events web page?
-    <url option="0">
+    <url option="0" name="url">
 
 			http://secondlife.com/events/
     </url>
@@ -890,7 +891,7 @@ The new skin will appear after you restart [SECOND_LIFE].
    name="GoToAuctionPage"
    type="alertmodal">
 Go to the [SECOND_LIFE] web page to see auction details or make a bid?
-    <url option="0">
+    <url option="0" name="url">
 
 			http://secondlife.com/auctions/auction-detail.php?id=[AUCTION_ID]
     </url>
@@ -1205,7 +1206,7 @@ Please move all objects to be acquired onto the same region.
 [EXTRA]
 
 Go to [_URL] for information on purchasing currency?
-    <url option="0">
+    <url option="0" name="url">
 
 			http://secondlife.com/app/currency/
     </url>
@@ -2360,7 +2361,7 @@ Return to www.secondlife.com to create a new account?
 We&apos;re having trouble connecting. There may be a problem with your internet connection or the Second Life servers.
 
 You can either check your internet connection and try again in a few minutes, click Help to connect to our support site, or click Teleport to attempt to teleport home.
-    <url option="1">
+    <url option="1" name="url">
 
 			http://secondlife.com/support/
     </url>	 
@@ -4958,7 +4959,7 @@ Automatically wear the clothing you create?
 You must be age-verified to visit this area.  Visit the Second Life website and verify your age?
 
 [_URL]
-    <url option="0">
+    <url option="0" name="url">
 
 	    https://secondlife.com/account/verification.php
     </url>

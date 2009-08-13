@@ -37,11 +37,9 @@
 #include "llavataractions.h"
 #include "llavatariconctrl.h"
 #include "llbutton.h"
-
-static LLRegisterPanelClassWrapper<LLPanelIMControlPanel> t_im_control_panel("panel_im_control_panel");
+#include "llfloatergroupinfo.h"
 
 LLPanelIMControlPanel::LLPanelIMControlPanel()
-: LLPanel()
 {
 }
 
@@ -81,7 +79,34 @@ void LLPanelIMControlPanel::onShareButtonClicked()
 	// *TODO: Implement
 }
 
-void LLPanelIMControlPanel::setAvatarId(const LLUUID& avatar_id)
+void LLPanelIMControlPanel::setID(const LLUUID& avatar_id)
 {
 	getChild<LLAvatarIconCtrl>("avatar_icon")->setValue(avatar_id);
+}
+
+
+
+BOOL LLPanelGroupControlPanel::postBuild()
+{
+	childSetAction("group_info_btn", boost::bind(&LLPanelGroupControlPanel::onGroupInfoButtonClicked, this));
+	childSetAction("call_btn", boost::bind(&LLPanelGroupControlPanel::onCallButtonClicked, this));
+
+	return TRUE;
+}
+
+void LLPanelGroupControlPanel::onGroupInfoButtonClicked()
+{
+	LLFloaterGroupInfo::showFromUUID(mGroupID);
+}
+
+
+void LLPanelGroupControlPanel::onCallButtonClicked()
+{
+	// *TODO: Implement
+}
+
+
+void LLPanelGroupControlPanel::setID(const LLUUID& id)
+{
+	mGroupID = id;
 }

@@ -2,12 +2,12 @@
 <panel
  border="true"
  follows="all"
- height="530"
+ height="485"
  label="Notices"
  layout="topleft"
  left="1"
  name="notices_tab"
- top="530"
+ top="485"
  width="280">
     <panel.string
      name="help_text">
@@ -32,7 +32,7 @@ the General tab.
      name="help_button"
      top="8"
      width="20" /> -->
-     <text
+     <!--<text
       follows="left|top"
      type="string"
      length="1"
@@ -44,19 +44,19 @@ the General tab.
      top_pad="10"
      width="269">
         Group Notices Archive
-    </text>
+    </text> -->
     <text
       follows="left|top"
      type="string"
      length="1"
      word_wrap="true"
-     height="73"
+     height="40"
      layout="topleft"
-     left_delta="0"
+     left_delta="10"
      name="lbl2"
-     top_pad="4"
+     top_pad="10"
      width="270">
-        Notices are kept for 14 days. Click the notice below if you wish to view. Click the &apos;Refresh&apos; button to check if new notices have been received. Notice lists are limited to 200 notices per group on a daily basis.
+        Notices are kept for 14 days. Notice lists are limited to 200 notices per group on a daily basis.
     </text>
     <scroll_list
       follows="left|top"
@@ -127,7 +127,7 @@ the General tab.
      layout="topleft"
      left="0"
      name="panel_create_new_notice"
-     top="250"
+     top_pad="10"
      width="265">
         <text
          follows="left|top"
@@ -153,8 +153,8 @@ the General tab.
          left_delta="0"
          name="lbl2"
          top_pad="4"
-         width="196">
-            You must enter a subject to send a notice. You can add a single item to a notice by dragging it from your inventory to this panel. Attached items must be copiable and transferrable, and you can&apos;t send a folder.
+         width="195">
+            You can add a single item to a notice by dragging it from your inventory to this panel. Attached items must be copiable and transferrable, and you can&apos;t send a folder.
         </text>
         <text
          follows="left|top"
@@ -288,7 +288,7 @@ the General tab.
      layout="topleft"
      left="0"
      name="panel_view_past_notice"
-     top="250"
+     top="197"
      width="265">
         <text
          type="string"

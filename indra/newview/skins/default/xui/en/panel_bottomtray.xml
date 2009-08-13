@@ -166,8 +166,8 @@
                  image_unselected="camera_presets/camera_presets_arrow_right.png"
                  image_disabled_selected="camera_presets/camera_presets_arrow_right.png" 
                  image_disabled="camera_presets/camera_presets_arrow_right.png"
+                 name="snapshot_settings"
                  tool_tip="Snapshot Settings" />
-                 />
                 <split_button.item
                  image_selected="camera_presets/camera_presets_snapshot.png"
                  image_unselected="camera_presets/camera_presets_snapshot.png"

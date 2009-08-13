@@ -93,7 +93,7 @@
              function="Edit.EnableCustomizeAvatar" />
         </menu_item_call>
         <menu_item_check
-         label="My Inventory"
+         label="My Things"
          layout="topleft"
          name="Inventory"
          shortcut="control|I">
@@ -138,7 +138,7 @@
         <menu_item_separator
          layout="topleft" />
         <menu_item_call
-         label="Exit Second Life"
+         label="Quit Second Life"
          layout="topleft"
          name="Quit"
          shortcut="control|Q">
@@ -173,15 +173,15 @@
         </menu_item_call>
         <menu_item_separator
          layout="topleft" />
-        <menu_item_call
+        <!--menu_item_call
          label="Chat"
          layout="topleft"
          name="Chat">
             <menu_item_call.on_click
              function="World.Chat" />
-        </menu_item_call>
+        </menu_item_call-->
         <menu_item_check
-         label="Nearby Chat"
+         label="Local Chat"
          layout="topleft"
          name="Nearby Chat"
          shortcut="control|H">
@@ -192,10 +192,8 @@
              function="Floater.Toggle"
              parameter="nearby_chat" />
         </menu_item_check>
-        <menu_item_separator
-         layout="topleft" />
         <menu_item_check
-         label="Active Speakers"
+         label="Nearby Speakers"
          layout="topleft"
          name="Active Speakers">
             <menu_item_check.on_check
@@ -270,7 +268,7 @@
         <menu_item_separator
          layout="topleft" />
         <menu_item_call
-         label="About Land"
+         label="Place Information"
          layout="topleft"
          name="About Land">
             <menu_item_call.on_click
@@ -353,8 +351,7 @@
             <menu_item_check.on_check
              function="Floater.Visible"
 			 parameter="mini_map" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
+            <menu_item_check.on_clickde
              parameter="mini_map" />
         </menu_item_check>
         <menu_item_separator
@@ -370,7 +367,68 @@
         </menu_item_call>
         <menu_item_separator
          layout="topleft" />
-        <menu_item_check
+	<menu
+         create_jump_keys="true"
+         label="Sun Settings"
+         layout="topleft"
+         name="Environment Settings"
+         tear_off="true">
+            <menu_item_call
+             label="Sunrise"
+             layout="topleft"
+             name="Sunrise">
+                <menu_item_call.on_click
+                 function="World.EnvSettings"
+                 parameter="sunrise" />
+            </menu_item_call>
+            <menu_item_call
+             label="Midday"
+             layout="topleft"
+             name="Noon"
+             shortcut="control|shift|Y">
+                <menu_item_call.on_click
+                 function="World.EnvSettings"
+                 parameter="noon" />
+            </menu_item_call>
+            <menu_item_call
+             label="Sunset"
+             layout="topleft"
+             name="Sunset"
+             shortcut="control|shift|N">
+                <menu_item_call.on_click
+                 function="World.EnvSettings"
+                 parameter="sunset" />
+            </menu_item_call>
+            <menu_item_call
+             label="Midnight"
+             layout="topleft"
+             name="Midnight">
+                <menu_item_call.on_click
+                 function="World.EnvSettings"
+                 parameter="midnight" />
+            </menu_item_call>
+            <menu_item_call
+             label="Use region settings"
+             layout="topleft"
+             name="Revert to Region Default">
+                <menu_item_call.on_click
+                 function="World.EnvSettings"
+                 parameter="default" />
+            </menu_item_call>
+            <menu_item_separator
+             layout="topleft" />
+            <menu_item_call
+             label="Environment Editor"
+             layout="topleft"
+             name="Environment Editor">
+                <menu_item_call.on_click
+                 function="World.EnvSettings"
+                 parameter="editor" />
+            </menu_item_call>
+        </menu>
+       <menu_item_separator
+         layout="topleft" />
+	<menu_item_check
          label="Build"
          layout="topleft"
          name="Build"
@@ -433,6 +491,8 @@
                  function="ShowFloater"
                  parameter="complaint reporter" />
             </menu_item_call>
+        <menu_item_separator
+             layout="topleft" />
         <menu_item_call
          label="About Second Life"
          layout="topleft"
@@ -1245,65 +1305,6 @@
          layout="topleft" />
         <menu
          create_jump_keys="true"
-         label="Environment Settings"
-         layout="topleft"
-         name="Environment Settings"
-         tear_off="true">
-            <menu_item_call
-             label="Sunrise"
-             layout="topleft"
-             name="Sunrise">
-                <menu_item_call.on_click
-                 function="World.EnvSettings"
-                 parameter="sunrise" />
-            </menu_item_call>
-            <menu_item_call
-             label="Midday"
-             layout="topleft"
-             name="Noon"
-             shortcut="control|shift|Y">
-                <menu_item_call.on_click
-                 function="World.EnvSettings"
-                 parameter="noon" />
-            </menu_item_call>
-            <menu_item_call
-             label="Sunset"
-             layout="topleft"
-             name="Sunset"
-             shortcut="control|shift|N">
-                <menu_item_call.on_click
-                 function="World.EnvSettings"
-                 parameter="sunset" />
-            </menu_item_call>
-            <menu_item_call
-             label="Midnight"
-             layout="topleft"
-             name="Midnight">
-                <menu_item_call.on_click
-                 function="World.EnvSettings"
-                 parameter="midnight" />
-            </menu_item_call>
-            <menu_item_call
-             label="Revert to Region Default"
-             layout="topleft"
-             name="Revert to Region Default">
-                <menu_item_call.on_click
-                 function="World.EnvSettings"
-                 parameter="default" />
-            </menu_item_call>
-            <menu_item_separator
-             layout="topleft" />
-            <menu_item_call
-             label="Environment Editor"
-             layout="topleft"
-             name="Environment Editor">
-                <menu_item_call.on_click
-                 function="World.EnvSettings"
-                 parameter="editor" />
-            </menu_item_call>
-        </menu>
-        <menu
-         create_jump_keys="true"
          label="Performance Tools"
          layout="topleft"
          name="Performance Tools"
@@ -1824,7 +1825,7 @@
              function="Advanced.ShowDebugSettings"
              parameter="all" />
         </menu_item_call>
-        <menu_item_check
+	 <menu_item_check
          label="Debug (QA) Mode"
          layout="topleft"
          name="Debug Mode"

@@ -66,6 +66,6 @@
 	<button label="Afficher la destination" label_selected="Afficher la destination" name="Show Destination" tool_tip="Centrer la carte sur l&apos;endroit sélectionné" width="165"/>
 	<button label="Effacer" label_selected="Effacer" left="-270" name="Clear" tool_tip="Arrêter de suivre"/>
 	<button label="Afficher mon emplacement" label_selected="Afficher mon emplacement" name="Show My Location" tool_tip="Centrer la carte sur l&apos;emplacement de votre avatar" width="165"/>
-	<button label="Copier la SLURL dans le presse-papiers" left="-270" name="copy_slurl" tool_tip="Copier l&apos;emplacement actuel comme SLURL pour l&apos;utiliser sur le Web." width="262"/>
+	<button label="Copier la SLurl dans le presse-papiers" left="-270" name="copy_slurl" tool_tip="Copier l&apos;emplacement actuel comme SLurl pour l&apos;utiliser sur le Web." width="262"/>
 	<slider label="Zoom" left="-270" name="zoom slider"/>
 </floater>

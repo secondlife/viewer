@@ -47,6 +47,7 @@ class LLInventoryItem;
 class LLInventoryCategory;
 class LLIMSpeakerMgr;
 class LLPanelActiveSpeakers;
+class LLPanelChatControlPanel;
 
 class LLVoiceChannel : public LLVoiceClientStatusObserver
 {
@@ -405,9 +406,11 @@ private:
 	static void		onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
 	static void		onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
 	void			setTyping(BOOL typing);
-
-	void onSlide();
+	void			onSlide();
+	static void*	createPanelIMControl(void* userdata);
+	static void*	createPanelGroupControl(void* userdata);
 	
+	LLPanelChatControlPanel* mControlPanel;
 	LLUUID mSessionID;
 	S32 mLastMessageIndex;
 	EInstantMessage mDialog;

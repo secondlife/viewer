@@ -53,6 +53,6 @@
 	<button label="目的地を表示" label_selected="目的地を表示" name="Show Destination" tool_tip="選択したロケーションを地図の中心にする"/>
 	<button label="クリア" label_selected="クリア" name="Clear" tool_tip="トラッキングを停止"/>
 	<button label="現在地を表示" label_selected="現在地を表示" name="Show My Location" tool_tip="あなたのアバターのロケーションを地図の中心にする"/>
-	<button label="SLURLをクリップボードにコピー" name="copy_slurl" tool_tip="現在地をSLURLとしてコピーし、ウェブで使用"/>
+	<button label="SLurlをクリップボードにコピー" name="copy_slurl" tool_tip="現在地をSLurlとしてコピーし、ウェブで使用"/>
 	<slider label="ズーム" name="zoom slider"/>
 </floater>

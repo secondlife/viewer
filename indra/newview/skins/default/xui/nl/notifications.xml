@@ -245,7 +245,7 @@ Naar de Second Life website gaan voor meer informatie over partner schap?
 * Klik op Laden &gt; &apos;Thuis pagina URL&apos; om terug te keren naar het web profiel van deze Inwoner indien U verder genavigeerd bent.
 
 Indien u uw eigen profiel bekijkt, kunt U elke willekeurige URL opgeven als uw web profiel en op OK klikken om het in te stellen.
-Andere Inwoners kunnen de door U opgegeven URL bezoeken indien zijn uw profiel bekijken.
+Andere Inwoners kunnen de door U opgegeven URL bezoeken indien zij uw profiel bekijken.
 	</notification>
 	<notification name="JoinGroupCanAfford">
 		Deelname aan deze groep kost L$[COST].
@@ -418,10 +418,10 @@ Betaalde advertentiekosten zullen niet worden terug gestort.
 		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
 	</notification>
 	<notification name="CacheWillClear">
-		De Cache zal geleegd worden als u [SECOND_LIFE] opnieuw start.
+		De cache zal geleegd worden als u [SECOND_LIFE] opnieuw start.
 	</notification>
 	<notification name="CacheWillBeMoved">
-		De Cache zal verplaatst worden als u [SECOND_LIFE] opnieuw start.
+		De cache zal verplaatst worden als u [SECOND_LIFE] opnieuw start.
 Opmerking: Dit zal de Cache legen.
 	</notification>
 	<notification name="ChangeConnectionPort">
@@ -1541,7 +1541,7 @@ Ga naar de kennisbank voor meer informatie over inhoudscategorieën?
 		U wordt niet in die regio toegelaten vanwege uw inhoudscategorie.
 
 U kunt klikken op &apos;Wijzig voorkeur&apos; om uw inhoudscategorie voorkeur nu te verhogen en toegelaten te worden. U zult in staat zijn om [REGIONMATURITY] inhoud te zoeken en benaderen vanaf dit moment. Wanneer u later deze instelling wilt wijzigen, ga dan naar Bewerken &gt; Voorkeuren... &gt; Algemeen.
-	 <form>
+	 <form name="form">
       <button
        name="OK"
        text="Wijzig voorkeur"/>
@@ -1549,7 +1549,7 @@ U kunt klikken op &apos;Wijzig voorkeur&apos; om uw inhoudscategorie voorkeur nu
        default="true"
        name="Cancel"
        text="Sluiten"/>
-       <ignore text="Wanneer regiotoegang wordt geblokkeerd vanwege de inhoudscategorie voorkeur"/>
+       <ignore name="ignore" text="Wanneer regiotoegang wordt geblokkeerd vanwege de inhoudscategorie voorkeur"/>
     </form>
 	</notification>
 	<notification name="LandClaimAccessBlocked">
@@ -2137,7 +2137,7 @@ Wilt u de Niet Storen Modus verlaten voordat u deze transactie completeert?
 		<usetemplate ignoretext="Bij verwijderen van de inhoud uit de inventaris vuilnisbak map" name="okcancelignore" notext="Annuleren" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmClearBrowserCache">
-		Weet u zeker dat u uw browser cache wilt legen?
+		Weet u zeker dat u uw browsercache wilt legen?
 		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="Ja"/>
 	</notification>
 	<notification name="ConfirmClearCookies">
@@ -2153,34 +2153,34 @@ Wilt u de Niet Storen Modus verlaten voordat u deze transactie completeert?
 		<usetemplate ignoretext="Bij legen van uw inventaris Verloren en Gevonden map" name="okcancelignore" notext="Nee" yestext="Ja"/>
 	</notification>
 	<notification name="CopySLURL">
-		De volgende SLURL is gekopieerd naar uw klem bord:
+		De volgende SLurl is gekopieerd naar uw klem bord:
 [SLURL]
 
 Plaats het in een web pagina om anderen eenvoudig toegang te verschaffen naar de locatie of test het zelf door het te plakken in de adres balk van uw web browser.
 		<form name="form">
-			<ignore name="ignore" text="Bij kopiëren van een SLURL naar het klem bord"/>
+			<ignore name="ignore" text="Bij kopiëren van een SLurl naar het klem bord"/>
 		</form>
 	</notification>
 	<notification name="GraphicsPreferencesHelp">
-		Dit venster bepaald de venster afmetingen, resolutie en kwaliteit van de client&apos;s grafische weergave. De Voorkeuren &gt; Grafische interface laat u kiezen uit vier grafische niveaus: Laag, Middel, Hoog en Ultra. U kunt ook uw grafische instellingen aanpassen met het aan vinken van het Custom vakje en de volgende instellingen manipuleren:
+		Dit venster bepaald de venster afmetingen, resolutie en kwaliteit van de client&apos;s grafische weergave. De Voorkeuren &gt; Grafische interface laat u kiezen uit vier grafische niveaus: Laag, Middel, Hoog en Ultra. U kunt ook uw grafische instellingen aanpassen met het aan vinken van het Aangepast vakje en de volgende instellingen manipuleren:
 
 Shaders: In of uitschakelen van de verschillende typen pixel shaders.
 
-Reflectie Detail: Stelt het type objecten in hetgeen water kan reflecteren.
+Reflectiedetail: Stelt het type objecten in hetgeen water kan reflecteren.
 
-Avatar Weergave: Stelt de opties in die van invloed zijn op hoe de client een avatar zal renderen.
+Avatarweergave: Stelt de opties in die van invloed zijn op hoe de client een avatar zal renderen.
 
-Zicht bereik: Beïnvloed tot hoe ver objecten vanaf uw zichtpunt worden weergegeven in de scène.
+Zichtbereik: Beïnvloed tot hoe ver objecten vanaf uw zichtpunt worden weergegeven in de scène.
 
 Maximaal Aantal Particles: Stelt het maximaal aantal particles in die u tegelijk kunt zien op uw scherm.
 
-Nabewerking Kwaliteit: Stelt de resolutie in waarmee Gloei wordt weergegeven.
+Nabewerkingskwaliteit: Stelt de resolutie in waarmee Gloei wordt weergegeven.
 
-Maas Detail: Stelt de hoeveelheid detail of het aantal driehoeken in gebruikt voor de weergave van bepaalde objecten. Een hogere waarde zal langer nemen om weer te gegeven, maar zorgen voor objecten met meer detail.
+Maasdetail: Stelt de hoeveelheid detail of het aantal driehoeken in gebruikt voor de weergave van bepaalde objecten. Een hogere waarde zal langer nemen om weer te gegeven, maar zorgen voor objecten met meer detail.
 
-Licht Detail: Bepaald welke typen lichten u wenst weer te geven.
+Lichtdetail: Bepaald welke typen lichten u wenst weer te geven.
 
-Terrein Detail: Stelt de hoeveelheid detail in die u wilt zien voor het terrein textuur.
+Terreindetail: Stelt de hoeveelheid detail in die u wilt zien voor het terrein textuur.
 	</notification>
 	<notification name="WLSavePresetAlert">
 		Wilt u de opgeslagen voor instellingen overschrijven?
@@ -2671,7 +2671,7 @@ Gaat u alstublieft naar de kennisbank voor details over het betreden van gebiede
 	<notification name="ImproperPaymentStatus">
 		U heeft niet de juiste betalingstatus om deze regio binnen te gaan.
 	</notification>
-	<notification name="MustGetAgeRgion">
+	<notification name="MustGetAgeRegion">
 		U moet leeftijd geverifieerd zijn om deze regio binnen te gaan.
 	</notification>
 	<notification name="MustGetAgeParcel">

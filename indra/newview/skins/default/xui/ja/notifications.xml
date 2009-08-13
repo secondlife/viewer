@@ -2299,13 +2299,13 @@ Linden Lab
 		<usetemplate ignoretext="持ち物内の「遺失物」フォルダを空にするとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="CopySLURL">
-		以下のSLURLがクリップボードにコピーされました。
+		以下のSLurlがクリップボードにコピーされました。
  [SLURL]
 
 他の人がアクセスしやすいようにウェブ・ページに載せたり、
 ブラウザのアドレス・バーに貼り付けて、自分でアクセスしてみましょう。
 		<form name="form">
-			<ignore name="ignore" text="SLURLをクリップボードにコピーするとき"/>
+			<ignore name="ignore" text="SLurlをクリップボードにコピーするとき"/>
 		</form>
 	</notification>
 	<notification name="GraphicsPreferencesHelp">
@@ -2869,7 +2869,7 @@ Second Life のウェブサイトにアクセスして、設定しますか？
 	<notification name="ImproperPaymentStatus">
 		この地域（リージョン）に入るために適した支払いステータスがありません。
 	</notification>
-	<notification name="MustGetAgeRgion">
+	<notification name="MustGetAgeRegion">
 		この地域（リージョン）に入るには年齢確認済みである必要があります。
 	</notification>
 	<notification name="MustGetAgeParcel">
@@ -3200,7 +3200,7 @@ Macの場合は、Cmd-Opt-Shift-Dを押してください。
 		[FIRST] [LAST]に持ち物を渡したため、 無視設定が自動的に解除されました。
 	</notification>
 	<notification name="VoiceInviteGroup">
-		[NAME]が、グループ[GROUP]とのボイスチャットコールに参加しました。
+		[NAME]が、 グループ[GROUP]とのボイスチャットコールに参加しました。
 コールに参加するには「受け入れる」をクリックし、招待を断るときは「拒否」をクリックしてください。このコールをしている人をミュートにする場合は「ミュート」をクリックしてください。
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
@@ -3209,7 +3209,7 @@ Macの場合は、Cmd-Opt-Shift-Dを押してください。
 		</form>
 	</notification>
 	<notification name="VoiceInviteAdHoc">
-		[NAME]が、会議チャットでボイスチャットコールに参加しました。
+		[NAME]が、 会議チャットでボイスチャットコールに参加しました。
 コールに参加するには「受け入れる」をクリックし、招待を断るときは「拒否」をクリックしてください。 このユーザーをミュート（消声）する場合は「ミュート」をクリックしてください。
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
@@ -3218,7 +3218,7 @@ Macの場合は、Cmd-Opt-Shift-Dを押してください。
 		</form>
 	</notification>
 	<notification name="InviteAdHoc">
-		[NAME]が、あなたを会議チャットに招待しています。
+		[NAME]が、 あなたを会議チャットに招待しています。
 チャットに参加するには「受け入れる」をクリックし、招待を断るときは「拒否」をクリックしてください。このユーザーをミュート（消声）する場合は「ミュート」をクリックしてください。
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>

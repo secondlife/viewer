@@ -162,13 +162,4 @@
      name="EnvAdvancedWaterButton"
      top_delta="0"
      width="137" />
-    <button
-     follows="left|top"
-     height="18"
-     label="?"
-     layout="topleft"
-     left="570"
-     name="EnvSettingsHelpButton"
-     top="22"
-     width="18" />
 </floater>

@@ -174,7 +174,7 @@ Você deseja permitir que os residentes selecionados tenham direito de edição?
 Membros não podem ser removidos dessa função.
 Os membros podem, eles próprios, recusar a função.
 Deseja continuar?
-		<usetemplate ignoretext="Quando adcionar membro ao grupo como dono" name="okcancelignore" notext="Não" yestext="Sim"/>
+		<usetemplate ignoretext="Quando adicionar membro ao grupo como dono" name="okcancelignore" notext="Não" yestext="Sim"/>
 	</notification>
 	<notification name="AssignDangerousActionWarning">
 		Você está prestes a adicionar a habilidade &apos;[ACTION_NAME]&apos; para a função &apos;[ROLE_NAME]&apos;
@@ -954,7 +954,7 @@ Se o problema persistir, por favor clicar sobre &apos;Ferramentas &gt; Bug Repor
 		Você foi deslogado do [SECOND_LIFE]:
             [MESSAGE]
 Você ainda pode olhar o bate-papo e as mensagens instantâneas existentes, clicando em &apos;Exibir IM &amp; bate-papo&apos;. Caso contrário, clique em &apos;Sair&apos; para sair do [SECOND_LIFE] imediatamente.
-		<usetemplate name="okcancelbuttons" notext="Sair" yestext="Ver Mensagem Instantânea &amp; Bate- Papo"/>
+		<usetemplate name="okcancelbuttons" notext="Sair" yestext="Exibir IM &amp; bate-papo"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
 		Não é possível comprar o terreno para o grupo:
@@ -1100,7 +1100,7 @@ Transferir propriedade destes [AREA] m² de terreno para o grupo &apos;[GROUP_NA
 		Configurações de display foram ajustadas para níveis de segurança porque você especificou -- opção de segurança.
 	</notification>
 	<notification name="DisplaySetToRecommended">
-		Configurações de display foram ajustadas para nível recomendado basedo na configuração do seu sistema.
+		Configurações de display foram ajustadas para nível recomendado baseado na configuração do seu sistema.
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1517,7 +1517,7 @@ Ir para o Banco de Conhecimento para maiores informações sobre Classificaçõe
 		Você não é permitido nessa região devido à sua preferência de Classificação de maturidade.
 
 Você pode clicar em  &apos;Mudar Preferência&apos; para aumentar sua preferência de Classificação de maturidade agora e permitir sua entrada. Você estará habilitado a buscar e acessar conteúdo [REGIONMATURITY] a partir de agora. Se você desejar mais tarde voltar à configuração anterior, vá para Editar &gt; Preferencias... &gt; Geral.
-	 <form>
+	 <form name="form">
       <button
        name="OK"
        text="Mudar Preferência"/>
@@ -1525,7 +1525,7 @@ Você pode clicar em  &apos;Mudar Preferência&apos; para aumentar sua preferên
        default="true"
        name="Cancel"
        text="Fechar"/>
-       <ignore text="Quando a entrada na Região está bloqueada devido à preferência de Classificação de maturidade"/>
+       <ignore name="ignore" text="Quando a entrada na Região está bloqueada devido à preferência de Classificação de maturidade"/>
     </form>
 	</notification>
 	<notification name="LandClaimAccessBlocked">
@@ -2109,7 +2109,7 @@ Você gostaria de deixar o modo Ocupado antes de completar esta transação?
 		<usetemplate ignoretext="Ao esvaziar pasta Achados e Perdidos do seu inventário" name="okcancelignore" notext="Não" yestext="Sim"/>
 	</notification>
 	<notification name="CopySLURL">
-		A seguinte SLURL foi copiada para o seu clipboard:
+		A seguinte SLurl foi copiada para o seu clipboard:
  [SLURL]
 
 Coloque-a em uma página web para dar aos outros um fácil acesso a este local ou tente você, colando-a na barra de endereços do seu navegador.
@@ -2118,9 +2118,9 @@ Coloque-a em uma página web para dar aos outros um fácil acesso a este local o
 		</form>
 	</notification>
 	<notification name="GraphicsPreferencesHelp">
-		Este painel controla o tamanho da janela, resolução e a qualidade dos gráficos do computador cliente. O Preferências &gt; Interface Gráfica permite escolher entre quatro níveis gráficos: Baixo, Médio, Alto e Ultra. Você também pode personalizar suas configurações de gráficos selecionando a opção Custom e manipulando as seguintes definições:
+		Este painel controla o tamanho da janela, resolução e a qualidade dos gráficos do computador cliente. O Preferências &gt; Interface Gráfica permite escolher entre quatro níveis gráficos: Baixo, Médio, Alto e Ultra. Você também pode personalizar suas configurações de gráficos selecionando a opção Padrão e manipulando as seguintes definições:
 
-Sombreamento: Ativar ou desativar vários tipos de sobreadores de pixel.
+Sombreamento: Ativar ou desativar vários tipos de sombreadores de pixel.
 
 Detalhes de Reflexão: Define os tipos de objetos que a água pode refletir.
 
@@ -2360,7 +2360,7 @@ Gostaria de visitar o site do Second Life para verificação de idade?
 
 [_URL]
 		<url name="url" option="0">
-			https://secondlife.com/account/verification.php
+			https://secondlife.com/account/verification.php?lang=pt
 		</url>
 		<usetemplate ignoretext="Alertar sobre a falta de verificação de idade" name="okcancelignore" notext="Não" yestext="Sim"/>
 	</notification>
@@ -2370,7 +2370,7 @@ Gostaria de visitar o site do Second Life para configurá-lo?
 
 [_URL]
 		<url name="url" option="0">
-			https://secondlife.com/account/
+			https://secondlife.com/account/index.php?lang=pt
 		</url>
 		<usetemplate ignoretext="Avisar sobre a falta de informação de pagamento." name="okcancelignore" notext="Não" yestext="Sim"/>
 	</notification>
@@ -2627,7 +2627,7 @@ Vá para a Ilha de Ajuda Pública para repetir este tutorial.
 	<notification name="ImproperPaymentStatus">
 		Você não tem o status de pagamento adequado para entrar nesta região.
 	</notification>
-	<notification name="MustGetAgeRgion">
+	<notification name="MustGetAgeRegion">
 		Você precisa ter sua idade verificada para entrar nesta região.
 	</notification>
 	<notification name="MustGetAgeParcel">

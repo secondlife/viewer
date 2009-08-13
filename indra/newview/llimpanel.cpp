@@ -2011,6 +2011,7 @@ bool LLFloaterIMPanel::onConfirmForceCloseError(const LLSD& notification, const 
 
 LLIMFloater::LLIMFloater(const LLUUID& session_id)
   : LLFloater(session_id),
+	mControlPanel(NULL),
 	mSessionID(session_id),
 	mLastMessageIndex(-1),
 	mDialog(IM_NOTHING_SPECIAL),
@@ -2018,6 +2019,20 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	mInputEditor(NULL), 
 	mPositioned(false)
 {
+	LLIMModel::LLIMSession* session = get_if_there(LLIMModel::instance().sSessionsMap, mSessionID, (LLIMModel::LLIMSession*)NULL);
+	if(session)
+	{
+		mDialog = session->mType;
+	}
+
+	if (mDialog == IM_NOTHING_SPECIAL)
+	{
+		mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelIMControl, this);
+	}
+	else
+	{
+		mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelGroupControl, this);
+	}
 // 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_im_session.xml");
 }
 
@@ -2089,22 +2104,19 @@ LLIMFloater::~LLIMFloater()
 //virtual
 BOOL LLIMFloater::postBuild()
 {
-	LLPanelIMControlPanel* im_control_panel = getChild<LLPanelIMControlPanel>("panel_im_control_panel");
-
 	LLIMModel::LLIMSession* session = get_if_there(LLIMModel::instance().sSessionsMap, mSessionID, (LLIMModel::LLIMSession*)NULL);
 	if(session)
 	{
 		mOtherParticipantUUID = session->mOtherParticipantID;
-		im_control_panel->setAvatarId(session->mOtherParticipantID);
-		mDialog = session->mType;
+		mControlPanel->setID(session->mOtherParticipantID);
 	}
 
 	LLButton* slide_left = getChild<LLButton>("slide_left_btn");
-	slide_left->setVisible(im_control_panel->getVisible());
+	slide_left->setVisible(mControlPanel->getVisible());
 	slide_left->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
 
 	LLButton* slide_right = getChild<LLButton>("slide_right_btn");
-	slide_right->setVisible(!im_control_panel->getVisible());
+	slide_right->setVisible(!mControlPanel->getVisible());
 	slide_right->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
 
 	mInputEditor = getChild<LLLineEditor>("chat_editor");
@@ -2131,6 +2143,30 @@ BOOL LLIMFloater::postBuild()
 	return TRUE;
 }
 
+
+
+// static
+void* LLIMFloater::createPanelIMControl(void* userdata)
+{
+	LLIMFloater *self = (LLIMFloater*)userdata;
+	self->mControlPanel = new LLPanelIMControlPanel();
+	LLUICtrlFactory::getInstance()->buildPanel(self->mControlPanel, "panel_im_control_panel.xml");
+	self->mControlPanel->setVisible(FALSE);
+	return self->mControlPanel;
+}
+
+
+// static
+void* LLIMFloater::createPanelGroupControl(void* userdata)
+{
+	LLIMFloater *self = (LLIMFloater*)userdata;
+	self->mControlPanel = new LLPanelGroupControlPanel();
+	LLUICtrlFactory::getInstance()->buildPanel(self->mControlPanel, "panel_group_control_panel.xml");
+	self->mControlPanel->setVisible(FALSE);
+	return self->mControlPanel;
+}
+
+
 const U32 UNDOCK_LEAP_HEIGHT = 12;
 const U32 DOCK_ICON_HEIGHT = 6;
 
@@ -2145,6 +2181,7 @@ void LLIMFloater::onFocusLost()
 		closeFloater(false);
 	}
 }
+
 
 
 //virtual
@@ -2203,17 +2240,22 @@ void LLIMFloater::updateMessages()
 	    for (; iter != iter_end; ++iter)
 		{
 			LLSD msg = *iter;
-			
-			message << msg["from"].asString() << " : " << msg["time"].asString() << "\n   " << msg["message"].asString() << "\n"; 
-			
+
+			message << "["  << msg["time"].asString() << "] " << msg["from"].asString() << ": \n";
+			mHistoryEditor->appendColoredText(message.str(), false, false, LLUIColorTable::instance().getColor("LtGray_50"));
+			message.str("");
+
+			message << msg["message"].asString() << "\n"; 
+			mHistoryEditor->appendColoredText(message.str(), false, false, LLUIColorTable::instance().getColor("IMChatColor"));
+			message.str("");
+
 			mLastMessageIndex = msg["index"].asInteger();
 		}
 
-		mHistoryEditor->appendText(message.str(), false, false);
 		mHistoryEditor->setCursorAndScrollToEnd();
 	}
-
 }
+
 // static
 void LLIMFloater::onInputEditorFocusReceived( LLFocusableElement* caller, void* userdata )
 {

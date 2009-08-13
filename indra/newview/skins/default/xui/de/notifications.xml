@@ -2072,12 +2072,12 @@ Möchten Sie den Bechäftigt-Modus verlassen, bevor Sie diese Transaktion abschl
 		<usetemplate ignoretext="Beim Leeren von Inventar und Fundstückeordner-" name="okcancelignore" notext="Nein" yestext="Ja"/>
 	</notification>
 	<notification name="CopySLURL">
-		Die folgende SLURL wurde in die Zwischenablage kopiert:
+		Die folgende SLurl wurde in die Zwischenablage kopiert:
  [SLURL]
 
 Veröffentlichen Sie sie auf einer Website, um anderen den Zugang zu diesem Ort zu erleichtern, oder testen Sie sie, indem Sie sie in die Adressleiste Ihres Browsers kopieren.
 		<form name="form">
-			<ignore name="ignore" text="Beim Kopieren einer SLURL in die Zwischenablage"/>
+			<ignore name="ignore" text="Beim Kopieren einer SLurl in die Zwischenablage"/>
 		</form>
 	</notification>
 	<notification name="GraphicsPreferencesHelp">
@@ -2598,7 +2598,7 @@ Gehen Sie zu „Help Island Public“ und wiederholen sie das Tutorial.
 	<notification name="ImproperPaymentStatus">
 		Die für den Zutritt zu dieser Region erforderlichen Zahlungsinformationen liegen nicht vor.
 	</notification>
-	<notification name="MustGetAgeRgion">
+	<notification name="MustGetAgeRegion">
 		Sie müssen alterüberprüft sein, um diese Region betreten zu können.
 	</notification>
 	<notification name="MustGetAgeParcel">

@@ -52,6 +52,6 @@
 	<button label="Gesuchte Position" label_selected="Ziel anzeigen" name="Show Destination" tool_tip="Karte auf ausgewählte Position zentrieren"/>
 	<button label="Löschen" label_selected="Löschen" name="Clear" tool_tip="Verfolgung abschalten"/>
 	<button label="Meine Position" label_selected="Wo bin ich?" name="Show My Location" tool_tip="Karte auf Position Ihres Avatars zentrieren"/>
-	<button font="SansSerifSmall" label="SLURL in die Zwischenablage kopieren" name="copy_slurl" tool_tip="Kopiert die aktuelle Position als SLURL zur Verwendung im Web."/>
+	<button font="SansSerifSmall" label="SLurl in die Zwischenablage kopieren" name="copy_slurl" tool_tip="Kopiert die aktuelle Position als SLurl zur Verwendung im Web."/>
 	<slider label="Zoom" name="zoom slider"/>
 </floater>
