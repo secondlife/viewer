@@ -1,115 +1,201 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<!-- All our XML is utf-8 encoded. -->
-
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
-  name="home_tab"
-  title="home_tab"
-  visible="true"
-  width="300"
-  height="420"
-  background_opaque="false"
-  background_visible="true"
-  bevel_style="in"
-  follows="left|top|right|bottom">
-		<panel 
-			left="10" width="280" height="130" 
-			background_visible="true" 
-			background_opaque="false" 
-			bg_alpha_color="0.3 0.3 0.3 1.0" 
-			name="sidebar_people"
-			follows="left|top|right"
-			class="panel_sidetray_home_info">
-    			<text
-        			top="-10" width="200" left="5" height="30" follows="left|right|top"
-        			font="SansSerifHugeBold" text_color="white" word_wrap="true"
-        			mouse_opaque="false" name="tab_name" >
-					People
-    			</text>
-    			<icon
-      				top="-10" right="-10" width="20" height="20" follows="top|right"
-      				color="1 1 1 1" enabled="true" image_name="icn_voice-groupfocus.tga"
-      				mouse_opaque="false" name="tab_icon"/>
-  				<text
-      				top="-40" left="10" right="-10" height="120" follows="left|right|bottom"
-      				font="SansSerifBig" text_color="white" word_wrap="true"
-      				mouse_opaque="false" name="tab_description" >    
-					Find your friends, contacts and people nearby.
-  				</text>
-		</panel> 
-		<panel 
-			left="10" width="280" height="130" 
-			background_visible="true" 
-			background_opaque="false" 
-			bg_alpha_color="0.3 0.3 0.3 1.0" 
-			name="sidebar_places"
-			follows="left|top|right"
-			class="panel_sidetray_home_info">
-    			<text
-        			top="-10" width="200" left="5" height="30" follows="left|right|top"
-        			font="SansSerifHugeBold" text_color="white" word_wrap="true"
-        			mouse_opaque="false" name="tab_name" >
-					Places
-    			</text>
-    			<icon
-      				top="-10" right="-10" width="20" height="20" follows="top|right"
-      				color="1 1 1 1" enabled="true" image_name="inv_item_landmark.tga"
-      				mouse_opaque="false" name="tab_icon"/>
-  				<text
-      				top="-40" left="10" right="-10" height="120" follows="left|right|bottom|top"
-      				font="SansSerifBig" text_color="white" word_wrap="true"
-      				mouse_opaque="false" name="tab_description" >    
-					Find your friends, contacts and people nearby.
-  				</text>
-		</panel> 
-		<panel 
-			left="10" width="280" height="130" 
-			background_visible="true" 
-			background_opaque="false" 
-			bg_alpha_color="0.3 0.3 0.3 1.0" 
-			name="sidebar_me"
-			follows="left|top|right"
-			class="panel_sidetray_home_info">
-    			<text
-        			top="-10" width="200" left="5" height="30" follows="left|right|top"
-        			font="SansSerifHugeBold" text_color="white" word_wrap="true"
-        			mouse_opaque="false" name="tab_name" >
-					Me
-    			</text>
-    			<icon
-      				top="-10" right="-10" width="20" height="20" follows="top|right"
-      				color="1 1 1 1" enabled="true" image_name="icn_voice-pvtfocus.tga"
-      				mouse_opaque="false" name="tab_icon"/>
-  				<text
-      				top="-40" left="10" right="-10" height="120" follows="left|right|bottom"
-      				font="SansSerifBig" text_color="white" word_wrap="true"
-      				mouse_opaque="false" name="tab_description" >    
-					Change your profile, your look and quick links to your outfits.
-  				</text>
-		</panel>
-		<panel 
-			left="10" width="280" height="130" 
-			background_visible="true" 
-			background_opaque="false" 
-			bg_alpha_color="0.3 0.3 0.3 1.0" 
-			name="sidebar_appearance"
-			follows="left|top|right"
-			class="panel_sidetray_home_info">
-    			<text
-        			top="-10" width="200" left="5" height="30" follows="left|right|top"
-        			font="SansSerifHugeBold" text_color="white" word_wrap="true"
-        			mouse_opaque="false" name="tab_name" >
-					Appearance
-    			</text>
-    			<icon
-      				top="-10" right="-10" width="20" height="20" follows="top|right"
-      				color="1 1 1 1" enabled="true" image_name="inv_item_shirt.tga"
-      				mouse_opaque="false" name="tab_icon"/>
-  				<text
-      				top="-40" left="10" right="-10" height="120" follows="left|right|bottom"
-      				font="SansSerifBig" text_color="white" word_wrap="true"
-      				mouse_opaque="false" name="tab_description" >    
-					Change your appearance.
-  				</text>
-		</panel> 
-</panel> 
-  
+ background_visible="true"
+ bevel_style="in"
+ follows="left|top|right|bottom"
+ height="420"
+ label="home_tab"
+ layout="topleft"
+ name="home_tab"
+ width="300">
+    <panel
+     background_visible="true"
+     bg_alpha_color="DkGray2"
+     class="panel_sidetray_home_info"
+     follows="left|top|right"
+     height="130"
+     layout="topleft"
+     left="10"
+     name="sidebar_people"
+     width="280">
+        <text
+         follows="left|right|top"
+         font="SansSerifBigBold"
+         height="30"
+         layout="topleft"
+         left="5"
+         mouse_opaque="false"
+         name="tab_name"
+         text_color="white"
+         top="10"
+         value="People"
+         width="200"
+         word_wrap="true" />
+        <icon
+         color="DkGray"
+         follows="top|right"
+         height="20"
+         layout="topleft"
+         name="tab_icon"
+         right="-10"
+         top="10"
+         width="20" />
+        <text
+         follows="left|right|bottom"
+         font="SansSerifBold"
+         height="120"
+         layout="topleft"
+         left="10"
+         mouse_opaque="false"
+         name="tab_description"
+         right="-10"
+         text_color="white"
+         top="40"
+         word_wrap="true">
+            Find your friends, contacts and people nearby.
+        </text>
+    </panel>
+    <panel
+     background_visible="true"
+     bg_alpha_color="DkGray2"
+     class="panel_sidetray_home_info"
+     follows="left|top|right"
+     height="130"
+     layout="topleft"
+     left="10"
+     name="sidebar_places"
+     width="280">
+        <text
+         follows="left|right|top"
+         font="SansSerifBigBold"
+         height="30"
+         layout="topleft"
+         left="5"
+         mouse_opaque="false"
+         name="tab_name"
+         text_color="white"
+         top="10"
+         value="Places"
+         width="200"
+         word_wrap="true" />
+        <icon
+         color="DkGray"
+         follows="top|right"
+         height="20"
+         image_name="TabIcon_Places_Off"
+         layout="topleft"
+         name="tab_icon"
+         right="-10"
+         top="10"
+         width="20" />
+        <text
+         follows="left|right|bottom|top"
+         font="SansSerifBold"
+         height="120"
+         layout="topleft"
+         left="10"
+         mouse_opaque="false"
+         name="tab_description"
+         right="-10"
+         text_color="white"
+         top="40"
+         word_wrap="true">
+            Find your friends, contacts and people nearby.
+        </text>
+    </panel>
+    <panel
+     background_visible="true"
+     bg_alpha_color="DkGray2"
+     class="panel_sidetray_home_info"
+     follows="left|top|right"
+     height="130"
+     layout="topleft"
+     left="10"
+     name="sidebar_me"
+     width="280">
+        <text
+         follows="left|right|top"
+         font="SansSerifBigBold"
+         height="30"
+         layout="topleft"
+         left="5"
+         mouse_opaque="false"
+         name="tab_name"
+         text_color="white"
+         top="10"
+         value="My Profile"
+         width="200"
+         word_wrap="true" />
+        <icon
+         color="DkGray"
+         follows="top|right"
+         height="20"
+         layout="topleft"
+         name="tab_icon"
+         right="-10"
+         top="10"
+         width="20" />
+        <text
+         follows="left|right|bottom"
+         font="SansSerifBold"
+         height="120"
+         layout="topleft"
+         left="10"
+         mouse_opaque="false"
+         name="tab_description"
+         right="-10"
+         text_color="white"
+         top="40"
+         word_wrap="true">
+            Change your profile, your look and quick links to your outfits.
+        </text>
+    </panel>
+    <panel 
+     background_opaque="false" 
+     background_visible="true" 
+     bg_alpha_color="0.3 0.3 0.3 1.0" 
+     class="panel_sidetray_home_info">
+     follows="left|top|right"
+     height="130" 
+     left="10" 
+     name="sidebar_appearance"
+     width="280" 
+        <text
+         follows="left|right|top"
+         font="SansSerifHugeBold" 
+         height="30" 
+         left="5" 
+         mouse_opaque="false" 
+         name="tab_name" >
+         text_color="white" 
+         width="200" 
+         word_wrap="true"
+         top="-10" 
+            Appearance
+        </text>
+        <icon
+         top="-10" 
+         right="-10" 
+         width="20" 
+         height="20" 
+         follows="top|right"
+         color="1 1 1 1" 
+         enabled="true" 
+         image_name="inv_item_shirt.tga"
+         mouse_opaque="false" 
+         name="tab_icon"/>
+        <text
+           top="-40" 
+           left="10" 
+           right="-10" 
+           height="120" 
+           follows="left|right|bottom"
+           font="SansSerifBig" 
+           text_color="white" 
+           word_wrap="true"
+           mouse_opaque="false" 
+           name="tab_description" >    
+              Change your appearance.
+        </text>
+    </panel> 
+</panel>

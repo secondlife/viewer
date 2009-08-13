@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  border="true"
- height="380"
+ height="490"
  label="Members &amp; Roles"
  layout="topleft"
  left="1"
  name="roles_tab"
+ top="490"
  width="280">
     <panel.string
      name="default_needs_apply_text">
@@ -28,7 +29,7 @@
      top="8"
      width="20" />
     -->
-    <panel
+    <!--<panel
      follows="left|top"
      height="80"
      layout="topleft"
@@ -44,7 +45,7 @@
          layout="topleft"
          left="0"
          name="static"
-         top="4"
+         top="0"
          width="270">
             Members &amp; Roles
         </text>
@@ -78,7 +79,7 @@
          layout="topleft"
          left="0"
          name="static"
-         top="4"
+         top="0"
          width="270">
             Roles
         </text>
@@ -139,7 +140,7 @@
      layout="topleft"
      left_delta="0"
      name="actions_header"
-     top_delta="20"
+     top_delta="0"
      visible="false"
      width="270">
         <text
@@ -150,7 +151,7 @@
          layout="topleft"
          left="0"
          name="static"
-         top="-16"
+         top="0"
          width="270">
             Abilities
         </text>
@@ -166,14 +167,15 @@
          width="270">
             You can view an Ability&apos;s Description and which Roles and Members can execute the Ability.
         </text>
-    </panel>
+    </panel> -->
     <tab_container
+     follows="left|top"
      height="180"
      layout="topleft"
-     left_delta="0"
+     left="5"
      name="roles_tab_container"
      tab_position="top"
-     top="80"
+     top="10"
      width="265">
         <panel
          border="true"
@@ -183,7 +185,7 @@
          left="1"
          name="members_sub_tab"
          tool_tip="Members"
-         top="16"
+         top="17"
          class="panel_group_members_subtab"
          width="265">
             <panel.string
@@ -192,7 +194,26 @@
 Select multiple Members by holding the Ctrl key and
 clicking on their names.
             </panel.string>
-            <line_editor
+         <search_editor
+         layout="topleft"
+         top="10"
+         left="4"
+         width="255"
+         height="20"
+         follows="left|top|right"
+         max_length="250"
+         label="Filter Roles"
+         name="filter_input"
+         font="SansSerif"
+         background_image="TextField_Search_Off"
+         text_pad_left="10"
+         text_color="black">
+           <search_button label=""
+           top_pad="4"
+           left_pad="6" 
+               />
+         </search_editor>
+            <!--<line_editor
              border_style="line"
              border_thickness="1"
              follows="left|top"
@@ -221,17 +242,18 @@ clicking on their names.
              left_pad="0"
              name="show_all_button"
              top_delta="0"
-             width="80" />
+             width="80" /> -->
             <name_list
              column_padding="0"
              draw_heading="true"
              heading_height="14"
              height="100"
+             follows="left|top"
              layout="topleft"
              left="4"
              multi_select="true"
              name="member_list"
-             top_pad="4"
+             top_pad="6"
              width="255">
                 <name_list.columns
                  label="Member"
@@ -280,7 +302,7 @@ clicking on their names.
          left_delta="0"
          name="roles_sub_tab"
          class="panel_group_roles_subtab"
-         top_delta="0"
+         top="17"
          width="265">
             <panel.string
              name="help_text">
@@ -305,7 +327,26 @@ including the Everyone and Owner Roles.
              name="power_partial_icon">
                 checkbox_enabled_false.tga
             </panel.string>
-            <line_editor
+            <search_editor
+            layout="topleft"
+            top="10"
+            left="4"
+            width="255"
+            height="20"
+            follows="left|top|right"
+            max_length="250"
+            label="Filter People"
+            name="filter_input"
+            font="SansSerif"
+            background_image="TextField_Search_Off"
+            text_pad_left="10"
+            text_color="black">
+                 <search_button label=""
+                 top_pad="4"
+                 left_pad="6" 
+                    />
+            </search_editor>
+            <!--<line_editor
              border_style="line"
              border_thickness="1"
              follows="left|top"
@@ -334,7 +375,7 @@ including the Everyone and Owner Roles.
              left_pad="0"
              name="show_all_button"
              top_delta="0"
-             width="80" />
+             width="80" /> -->
             <scroll_list
              column_padding="0"
              draw_heading="true"
@@ -362,7 +403,7 @@ including the Everyone and Owner Roles.
             <button
              height="20"
              font="SansSerifSmall"
-             label="Create New Role"
+             label="Add Role"
              layout="topleft"
              left_delta="0"
              name="role_create"
@@ -386,14 +427,34 @@ including the Everyone and Owner Roles.
          left_delta="0"
          name="actions_sub_tab"
          class="panel_group_actions_subtab"
-         top_delta="0"
+         top="17"
+         tool_tip="You can view an Ability&apos;s Description and which Roles and Members can execute the Ability."
          width="265">
             <panel.string
              name="help_text">
                 Abilities allow Members in Roles to do specific
 things in this group. There&apos;s a broad variety of Abilities.
             </panel.string>
-            <line_editor
+            <search_editor
+            layout="topleft"
+            top="10"
+            left="4"
+            width="255"
+            height="20"
+            follows="left|top|right"
+            max_length="250"
+            label="Filter Abilities"
+            name="filter_input"
+            font="SansSerif"
+            background_image="TextField_Search_Off"
+            text_pad_left="10"
+            text_color="black">
+                 <search_button label=""
+                 top_pad="4"
+                 left_pad="6" 
+                  />
+            </search_editor>
+            <!--<line_editor
              border_style="line"
              border_thickness="1"
              follows="left|top"
@@ -422,7 +483,7 @@ things in this group. There&apos;s a broad variety of Abilities.
              left_pad="0"
              name="show_all_button"
              top_delta="0"
-             width="80" />
+             width="80" /> -->
             <scroll_list
              column_padding="0"
              draw_stripes="false"
@@ -457,6 +518,7 @@ things in this group. There&apos;s a broad variety of Abilities.
     <panel
      height="50"
      layout="topleft"
+     follows="left|top"
      left="10"
      name="members_footer"
      top_pad="10"
@@ -467,6 +529,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          font="SansSerif"
          height="16"
          layout="topleft"
+         follows="left|top"
          left="0"
          name="static"
          top_pad="0"
@@ -479,6 +542,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          font="SansSerif"
          height="16"
          layout="topleft"
+         follows="left|top"
          left_pad="35"
          name="static2"
          top_delta="0"
@@ -488,7 +552,8 @@ things in this group. There&apos;s a broad variety of Abilities.
         <scroll_list
          draw_stripes="false"
          enabled="false"
-         height="75"
+         follows="left|top"
+         height="150"
          layout="topleft"
          left="0"
          name="member_assigned_roles"
@@ -506,8 +571,9 @@ things in this group. There&apos;s a broad variety of Abilities.
         <scroll_list
          draw_stripes="false"
          enabled="false"
-         height="75"
+         height="150"
          layout="topleft"
+         follows="left|top"
          left_pad="5"
          name="member_allowed_actions"
          tool_tip="For Details of each Allowed Ability see the Abilities tab."
@@ -561,7 +627,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          border_style="line"
          border_thickness="1"
          follows="left|top"
-         height="16"
+         height="20"
          layout="topleft"
          left="0"
          max_length="20"
@@ -588,7 +654,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          border_style="line"
          border_thickness="1"
          follows="left|top"
-         height="16"
+         height="20"
          layout="topleft"
          left_delta="0"
          max_length="20"
@@ -640,7 +706,7 @@ things in this group. There&apos;s a broad variety of Abilities.
         <name_list
          draw_stripes="false"
          enabled="false"
-         height="75"
+         height="150"
          layout="topleft"
          left="0"
          name="role_assigned_members"
@@ -657,7 +723,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          width="130" />
         <scroll_list
          draw_stripes="false"
-         height="75"
+         height="150"
          layout="topleft"
          left="135"
          name="role_allowed_actions"
@@ -741,7 +807,7 @@ things in this group. There&apos;s a broad variety of Abilities.
         </text>
         <scroll_list
          enabled="false"
-         height="75"
+         height="150"
          layout="topleft"
          left="0"
          name="action_roles"
@@ -749,7 +815,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          width="130" />
         <name_list
          enabled="false"
-         height="75"
+         height="150"
          layout="topleft"
          left_pad="5"
          name="action_members"
