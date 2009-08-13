@@ -195,7 +195,8 @@
         <menu_item_check
          label="Nearby Speakers"
          layout="topleft"
-         name="Active Speakers">
+         name="Active Speakers"
+         shortcut="control|shift|A">
             <menu_item_check.on_check
              function="Floater.Visible"
              parameter="active_speakers" />
