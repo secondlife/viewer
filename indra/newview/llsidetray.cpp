@@ -152,6 +152,9 @@ static const S32 splitter_margin = 1;
 //virtual 
 void	LLSideTrayTab::arrange(S32 width, S32 height )
 {
+	if(!mMainPanel)
+		return;
+	
 	S32 offset = 0;
 
 	LLView* title_panel = getChildView(TAB_PANEL_CAPTION_NAME, true, false);

@@ -101,25 +101,6 @@ color="DkGray"
       />
   </sidetray_tab>
 
-  <sidetray_tab 
-      name="sidebar_group_temp"
-      tab_title="Group Temp"
-      description="Group Information."
-      image="TabIcon_Me_Off"
-      mouse_opaque="false" 
-      background_visible="true" 
-      bg_opaque_color="0.5 0.5 0.5 1.0"
-    >
-      <panel 
-        class="panel_group_info" 
-        name="panel_group_info" 
-        filename="floater_groupinfo.xml"
-        label="Groups" 
-        border="true"
-      />
-  </sidetray_tab>
-
-
   <sidetray_tab
     name="sidebar_appearance"
     tab_title="Appearance"
