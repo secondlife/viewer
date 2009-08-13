@@ -5345,6 +5345,7 @@ void LLLinkFolderBridge::gotoItem(LLFolderView *folder)
 			}
 			base_folder->setOpen(TRUE);
 			folder->setSelectionFromRoot(base_folder,TRUE);
+			folder->scrollToShowSelection();
 		}
 	}
 }
