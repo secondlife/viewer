@@ -141,6 +141,7 @@ public:
 	};
 	LLTransactionID getTransactionID() const { return mTransactionID; }
 	
+	bool getIsBrokenLink() const; // true if the baseitem this points to doesn't exist in memory.
 	const LLViewerInventoryItem *getLinkedItem() const;
 	const LLViewerInventoryCategory *getLinkedCategory() const;
 

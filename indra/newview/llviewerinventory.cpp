@@ -1185,6 +1185,17 @@ U32 LLViewerInventoryItem::getCRC32() const
 	return LLInventoryItem::getCRC32();	
 }
 
+// This returns true if the item that this item points to 
+// doesn't exist in memory (i.e. LLInventoryModel).  The baseitem
+// might still be in the database but just not loaded yet.
+bool LLViewerInventoryItem::getIsBrokenLink() const
+{
+	// If the item's type resolves to be a link, that means either:
+	// A. It wasn't able to perform indirection, i.e. the baseobj doesn't exist in memory.
+	// B. It's pointing to another link, which is illegal.
+	return LLAssetType::lookupIsLinkType(getType());
+}
+
 const LLViewerInventoryItem *LLViewerInventoryItem::getLinkedItem() const
 {
 	if (mType == LLAssetType::AT_LINK)

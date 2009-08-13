@@ -1786,6 +1786,12 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 	//llinfos << "LLInventoryModel::addItem()" << llendl;
 	if(item)
 	{
+		// This condition means that we tried to add a link without the baseobj being in memory.
+		// The item will show up as a broken link.
+		if (item->getIsBrokenLink())
+		{
+			llwarns << "Add link item without baseobj present ( itemID: " << item->getUUID() << " assetID: " << item->getAssetUUID() << " ) " << llendl;
+		}
 		mItemMap[item->getUUID()] = item;
 		//mInventory[item->getUUID()] = item;
 	}
@@ -2122,16 +2128,28 @@ bool LLInventoryModel::loadSkeleton(
 			cat_map_t::iterator unparented = mCategoryMap.end();
 			for(int i = 0; i < count; ++i)
 			{
-				cat_map_t::iterator cit = mCategoryMap.find(items[i]->getParentUUID());
+				LLViewerInventoryItem *item = items[i].get();
+				cat_map_t::iterator cit = mCategoryMap.find(item->getParentUUID());
 				
 				if(cit != unparented)
 				{
 					LLViewerInventoryCategory* cat = cit->second;
 					if(cat->getVersion() != NO_VERSION)
 					{
-						addItem(items[i]);
+						if (item->getIsBrokenLink())
+						{
+							llinfos << "Attempted to cached link item without baseobj present ( itemID: " << item->getUUID() << " assetID: " << item->getAssetUUID() << " ) " << llendl;
+							child_counts[cat->getUUID()].mValue = -1; // Invalidate this category's cache.
+							continue;
+						}
+						addItem(item);
 						cached_item_count += 1;
-						++child_counts[cat->getUUID()];
+
+						// If this category had any broken links, keep it invalidated.
+						if (child_counts[cat->getUUID()].mValue != -1)
+						{
+							++child_counts[cat->getUUID()];
+						}
 					}
 				}
 			}
@@ -2161,12 +2179,16 @@ bool LLInventoryModel::loadSkeleton(
 				the_count = child_counts.find(cat->getUUID());
 				if(the_count != no_child_counts)
 				{
-					cat->setDescendentCount((*the_count).second.mValue);
+					S32 num_descendents = (*the_count).second.mValue;
+
+					// -1 means that one of the children was a broken link, so we can't consider this folder successfully cached.
+					if (num_descendents != -1) 
+					{
+						cat->setDescendentCount(num_descendents);
+						continue;
+					}
 				}
-				else
-				{
-					cat->setDescendentCount(0);
-				}
+				cat->setDescendentCount(0);
 			}
 		}
 
