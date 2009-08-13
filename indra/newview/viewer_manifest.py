@@ -701,10 +701,6 @@ class Linux_i686Manifest(LinuxManifest):
 
         self.path("app_settings/mozilla-runtime-linux-i686")
 
-        if self.prefix("../../libraries/i686-linux/lib_release", dst="lib"):
-            self.path("libgobject-2.0.so.0")
-            self.end_prefix("lib")
-
         if self.prefix("../../libraries/i686-linux/lib_release_client", dst="lib"):
             #self.path("libkdu_v42R.so", "libkdu.so")
             self.path("libfmod-3.75.so")
