@@ -67,21 +67,20 @@ LLAlertHandler::~LLAlertHandler()
 //--------------------------------------------------------------------------
 void LLAlertHandler::processNotification(const LLSD& notify)
 {
-	LLToast* toast = NULL;
-	
 	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
 
 	if (notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "load")
 	{
 		LLToastAlertPanel* alert_dialog = new LLToastAlertPanel(notification, mIsModal);
-		
-		toast = mChannel->addToast(notification->getID(), (LLToastPanel*)alert_dialog);
-		if(!toast)
-			return;
-		toast->setHideButtonEnabled(false);
-		toast->setOnToastDestroyCallback((boost::bind(&LLAlertHandler::onToastDestroy, this, toast)));
-		toast->setCanFade(false);
-		toast->setModal(mIsModal);
+		LLToast::Params p;
+		p.id = notification->getID();
+		p.notification = notification;
+		p.panel = dynamic_cast<LLToastPanel*>(alert_dialog);
+		p.enable_hide_btn = false;
+		p.can_fade = false;
+		p.is_modal = mIsModal;
+		p.on_toast_destroy = boost::bind(&LLAlertHandler::onToastDestroy, this, _1);
+		mChannel->addToast(p);
 	}
 	else if (notify["sigtype"].asString() == "change")
 	{

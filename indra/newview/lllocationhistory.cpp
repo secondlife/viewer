@@ -38,33 +38,58 @@
 
 #include "llui.h"
 
+const char LLLocationHistory::delimiter = '\t';
+
 LLLocationHistory::LLLocationHistory() :
 	mFilename("typed_locations.txt")
 {
 }
 
-void LLLocationHistory::addItem(std::string item)
-{
+void LLLocationHistory::addItem(const std::string & item, const std::string & tooltip) {
 	static LLUICachedControl<S32> max_items("LocationHistoryMaxSize", 100);
-	
-	std::vector<std::string>::iterator item_iter = std::find(mItems.begin(), mItems.end(), item);
 
-	if (item_iter != mItems.end()) {
-		mItems.erase(item_iter);
+	// check if this item doesn't duplicate any existing one
+	if (touchItem(item)) {
+		return;
 	}
 
 	mItems.push_back(item);
+	mToolTips[item] = tooltip;
 
 	// If the vector size exceeds the maximum, purge the oldest items.
-	if ((S32)mItems.size() > max_items)
-		mItems.erase(mItems.begin(), mItems.end()-max_items);
+	if ((S32)mItems.size() > max_items) {
+		for(std::vector<std::string>::iterator i = mItems.begin(); i != mItems.end()-max_items; ++i) {
+			mToolTips.erase(*i);
+			mItems.erase(i);
+		}
+	}
+}
+
+bool LLLocationHistory::touchItem(const std::string & item) {
+	bool result = false;
+	std::vector<std::string>::iterator item_iter = std::find(mItems.begin(), mItems.end(), item);
+
+	// the last used item should be the first in the history
+	if (item_iter != mItems.end()) {
+		mItems.erase(item_iter);
+		mItems.push_back(item);
+		result = true;
+	}
+
+	return result;
 }
 
 void LLLocationHistory::removeItems()
 {
 	mItems.clear();
+	mToolTips.clear();
 }
 
+std::string LLLocationHistory::getToolTip(const std::string & item) const {
+	std::map<std::string, std::string>::const_iterator i = mToolTips.find(item);
+
+	return i != mToolTips.end() ? i->second : "";
+}
 
 bool LLLocationHistory::getMatchingItems(std::string substring, location_list_t& result) const
 {
@@ -110,7 +135,7 @@ void LLLocationHistory::save() const
 	}
 
 	for (location_list_t::const_iterator it = mItems.begin(); it != mItems.end(); ++it)
-		file << (*it) << std::endl;
+		file << (*it) << delimiter << mToolTips.find(*it)->second << std::endl;
 
 	file.close();
 }
@@ -129,13 +154,21 @@ void LLLocationHistory::load()
 		return;
 	}
 	
-	// remove current entries before we load over them
-	mItems.clear();
+	removeItems();
 	
 	// add each line in the file to the list
 	std::string line;
-	while (std::getline(file, line))
-		addItem(line);
+
+	while (std::getline(file, line)) {
+		size_t dp = line.find(delimiter);
+
+		if (dp != std::string::npos) {
+			const std::string reg_name = line.substr(0, dp);
+			const std::string tooltip = line.substr(dp + 1, std::string::npos);
+
+			addItem(reg_name, tooltip);
+		}
+	}
 
 	file.close();
 	

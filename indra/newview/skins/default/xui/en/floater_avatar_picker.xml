@@ -157,7 +157,7 @@
              label="Range"
              layout="topleft"
              left="10"
-             max_val="40"
+             max_val="130"
              min_val="5"
              name="near_me_range"
              top="32"

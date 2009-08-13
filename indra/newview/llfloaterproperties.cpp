@@ -43,7 +43,6 @@
 #include "llagent.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
-#include "llfloatergroupinfo.h"
 #include "llavataractions.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
@@ -59,6 +58,7 @@
 #include "llviewerregion.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
+#include "llgroupactions.h"
 
 #include "lluictrlfactory.h"
 
@@ -244,7 +244,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	const BOOL can_agent_sell = gAgent.allowOperation(PERM_OWNER, perm, 
 													  GP_OBJECT_SET_SALE) &&
 		!cannot_restrict_permissions;
-	const BOOL is_link = LLAssetType::lookupIsLinkType(i->getActualType());
+	const BOOL is_link = i->getIsLinkType();
 
 	// You need permission to modify the object to modify an inventory
 	// item in it.
@@ -554,7 +554,7 @@ void LLFloaterProperties::onClickOwner()
 	if(!item) return;
 	if(item->getPermissions().isGroupOwned())
 	{
-		LLFloaterGroupInfo::showFromUUID(item->getPermissions().getGroup());
+		LLGroupActions::show(item->getPermissions().getGroup());
 	}
 	else
 	{

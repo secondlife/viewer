@@ -127,8 +127,8 @@
                 <split_button.item
                  image_selected="camera_presets/camera_presets_34_view.png"
                  image_unselected="camera_presets/camera_presets_34_view.png"
-                 name="3/4_view"
-                 tool_tip="3/4 View" 
+                 name="group_view"
+                 tool_tip="Group View" 
                 />
                 <split_button.item
                  image_selected="camera_presets/camera_presets_fron_view.png"

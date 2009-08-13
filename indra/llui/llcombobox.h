@@ -110,10 +110,7 @@ protected:
 
 public:
 	// LLView interface
-	virtual void	draw();
 	virtual void	onFocusLost();
-
-	virtual void	setEnabled(BOOL enabled);
 
 	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect);
 	virtual BOOL	handleKeyHere(KEY key, MASK mask);

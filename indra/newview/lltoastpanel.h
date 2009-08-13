@@ -36,6 +36,8 @@
 #include "llpanel.h"
 #include "llnotifications.h"
 
+#include <string>
+
 /**
  * Base class for all panels that can be added to the toast.
  * All toast panels should contain necessary logic for representing certain notification
@@ -46,6 +48,9 @@ class LLToastPanel: public LLPanel {
 public:
 	LLToastPanel(LLNotificationPtr&);
 	virtual ~LLToastPanel() = 0;
+
+	virtual std::string getTitle();
+	virtual const LLUUID& getID() { return mNotification->id();}
 protected:
 	LLNotificationPtr mNotification;
 };

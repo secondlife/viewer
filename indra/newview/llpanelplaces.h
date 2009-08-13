@@ -66,7 +66,6 @@ private:
 	void onFilterEdit(const std::string& search_string);
 	void onTabSelected();
 
-	//void onAddLandmarkButtonClicked();
 	//void onCopySLURLButtonClicked();
 	//void onShareButtonClicked();
 	void onTeleportButtonClicked();

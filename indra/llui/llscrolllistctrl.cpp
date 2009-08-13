@@ -1684,7 +1684,8 @@ BOOL LLScrollListCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
 		// so the scroll bars will work.
 		if (NULL == LLView::childrenHandleDoubleClick(x, y, mask))
 		{
-			if( mCanSelect && mOnDoubleClickCallback )
+			// Run the callback only if an item is being double-clicked.
+			if( mCanSelect && hitItem(x, y) && mOnDoubleClickCallback )
 			{
 				mOnDoubleClickCallback();
 			}

@@ -48,7 +48,7 @@ class LLViewerInventoryCategory;
 // their inventory.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLViewerInventoryItem : public LLInventoryItem
+class LLViewerInventoryItem : public LLInventoryItem, public boost::signals2::trackable
 {
 public:
 	typedef LLDynamicArray<LLPointer<LLViewerInventoryItem> > item_array_t;
@@ -144,6 +144,10 @@ public:
 	const LLViewerInventoryItem *getLinkedItem() const;
 	const LLViewerInventoryCategory *getLinkedCategory() const;
 
+	// callback
+	void onCallingCardNameLookup(const LLUUID& id, const std::string& first_name, const std::string& last_name);
+	
+public:
 	BOOL mIsComplete;
 	LLTransactionID mTransactionID;
 };
@@ -202,7 +206,8 @@ public:
 	// other than cacheing.
 	bool exportFileLocal(LLFILE* fp) const;
 	bool importFileLocal(LLFILE* fp);
-
+	void determineFolderType();
+	void changeType(LLAssetType::EType new_folder_type);
 protected:
 	LLUUID mOwnerID;
 	S32 mVersion;
@@ -271,6 +276,7 @@ extern LLInventoryCallbackManager gInventoryCallbacks;
 
 #define NOT_WEARABLE (EWearableType)0
 
+// *TODO: Find a home for these
 void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 						   const LLUUID& parent, const LLTransactionID& transaction_id,
 						   const std::string& name,
@@ -278,6 +284,8 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 						   LLInventoryType::EType inv_type, EWearableType wtype,
 						   U32 next_owner_perm,
 						   LLPointer<LLInventoryCallback> cb);
+
+void create_inventory_callingcard(const LLUUID& avatar_id);
 
 /**
  * @brief Securely create a new inventory item by copying from another.

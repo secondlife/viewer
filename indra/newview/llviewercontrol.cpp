@@ -49,6 +49,7 @@
 
 #include "llsky.h"
 #include "llvieweraudio.h"
+#include "llviewermenu.h"
 #include "llviewertexturelist.h"
 #include "llviewerthrottle.h"
 #include "llviewerwindow.h"
@@ -599,6 +600,8 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("AudioLevelMic")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _2));
 	gSavedSettings.getControl("LipSyncEnabled")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _2));	
 	gSavedSettings.getControl("VelocityInterpolate")->getSignal()->connect(boost::bind(&handleVelocityInterpolate, _2));
+	gSavedSettings.getControl("QAMode")->getSignal()->connect(boost::bind(&show_debug_menus));
+	gSavedSettings.getControl("UseDebugMenus")->getSignal()->connect(boost::bind(&show_debug_menus));
 }
 
 #if TEST_CACHED_CONTROL

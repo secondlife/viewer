@@ -40,7 +40,6 @@
 #include "llcompilequeue.h"
 #include "llfloaterabout.h"
 #include "llfloateractivespeakers.h"
-#include "llfloateraddlandmark.h"
 #include "llfloateranimpreview.h"
 #include "llfloaterauction.h"
 #include "llfloateravatarpicker.h"
@@ -64,7 +63,6 @@
 #include "llfloaterfonttest.h"
 #include "llfloatergesture.h"
 #include "llfloatergodtools.h"
-#include "llfloatergroupinfo.h"
 #include "llfloatergroups.h"
 #include "llfloaterhardwaresettings.h"
 #include "llfloaterhtmlcurrency.h"
@@ -114,12 +112,12 @@
 
 #include "llpreviewanim.h"
 #include "llpreviewgesture.h"
-#include "llpreviewlandmark.h"
 #include "llpreviewnotecard.h"
 #include "llpreviewscript.h"
 #include "llpreviewsound.h"
 #include "llpreviewtexture.h"
 #include "llfloaterminiinspector.h"
+#include "llsyswellwindow.h"
 
 //class LLLLFloaterObjectIMInfo;
 
@@ -129,7 +127,6 @@ void LLViewerFloaterReg::registerFloaters()
 	
 	LLFloaterReg::add("about_land", "floater_about_land.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLand>);
 	LLFloaterReg::add("active_speakers", "floater_active_speakers.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterActiveSpeakers>);
-	LLFloaterReg::add("add_landmark", "floater_add_landmark.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAddLandmark>);
 	LLFloaterReg::add("auction", "floater_auction.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAuction>);
 	LLFloaterReg::add("avatar_picker", "floater_avatar_picker.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAvatarPicker>);
 	LLFloaterReg::add("avatar_textures", "floater_avatar_textures.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAvatarTextures>);
@@ -162,7 +159,6 @@ void LLViewerFloaterReg::registerFloaters()
 
 	LLFloaterReg::add("gestures", "floater_gesture.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGesture>);
 	LLFloaterReg::add("god_tools", "floater_god_tools.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGodTools>);
-	LLFloaterReg::add("group_info", "floater_groupinfo.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGroupInfo>);
 	LLFloaterReg::add("group_picker", "floater_choose_group.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGroupPicker>);
 
 	LLFloaterReg::add("hud", "floater_hud.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterHUD>);
@@ -184,6 +180,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("mute_object", "floater_mute_object.xml", &LLFloaterMute::buildFloaterMuteObjectUI);
 	LLFloaterReg::add("mini_map", "floater_map.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMap>);
 	LLFloaterReg::add("mini_inspector", "panel_mini_inspector.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMiniInspector>);
+	LLFloaterReg::add("syswell_window", "floater_sys_well.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLSysWellWindow>);
 	
 	LLFloaterReg::add("notifications_console", "floater_notifications_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterNotificationConsole>);
 	LLFloaterReg::add("nearby_chat", "floater_nearby_chat.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLNearbyChat>);
@@ -203,7 +200,6 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("pref_voicedevicesettings", "floater_device_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterVoiceDeviceSettings>);
 	LLFloaterReg::add("preview_anim", "floater_preview_animation.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLPreviewAnim>, "preview");
 	LLFloaterReg::add("preview_gesture", "floater_preview_gesture.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLPreviewGesture>, "preview");
-	LLFloaterReg::add("preview_landmark", "floater_preview_existing_landmark.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLPreviewLandmark>, "preview");
 	LLFloaterReg::add("preview_notecard", "floater_preview_notecard.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLPreviewNotecard>, "preview");
 	LLFloaterReg::add("preview_script", "floater_script_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLPreviewLSL>, "preview");
 	LLFloaterReg::add("preview_scriptedit", "floater_live_lsleditor.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLLiveLSLEditor>, "preview");

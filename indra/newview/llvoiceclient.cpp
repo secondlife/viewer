@@ -1510,6 +1510,7 @@ std::string LLVoiceClientStatusObserver::status2string(LLVoiceClientStatusObserv
 		CASE(STATUS_JOINED);
 		CASE(STATUS_LEFT_CHANNEL);
 		CASE(STATUS_VOICE_DISABLED);
+		CASE(STATUS_VOICE_ENABLED);
 		CASE(BEGIN_ERROR_STATUS);
 		CASE(ERROR_CHANNEL_FULL);
 		CASE(ERROR_CHANNEL_LOCKED);
@@ -5786,7 +5787,7 @@ bool LLVoiceClient::getMuteMic() const
 void LLVoiceClient::setUserPTTState(bool ptt)
 {
 	mUserPTTState = ptt;
-	LLNearbyChatBar::getInstance()->setPTTState(ptt);
+	if (LLNearbyChatBar::instanceExists()) LLNearbyChatBar::getInstance()->setPTTState(ptt);
 }
 
 bool LLVoiceClient::getUserPTTState()
@@ -5797,7 +5798,7 @@ bool LLVoiceClient::getUserPTTState()
 void LLVoiceClient::toggleUserPTTState(void)
 {
 	mUserPTTState = !mUserPTTState;
-	LLNearbyChatBar::getInstance()->setPTTState(mUserPTTState);
+	if (LLNearbyChatBar::instanceExists()) LLNearbyChatBar::getInstance()->setPTTState(mUserPTTState);
 }
 
 void LLVoiceClient::setVoiceEnabled(bool enabled)
@@ -5805,15 +5806,21 @@ void LLVoiceClient::setVoiceEnabled(bool enabled)
 	if (enabled != mVoiceEnabled)
 	{
 		mVoiceEnabled = enabled;
+		LLVoiceClientStatusObserver::EStatusType status;
+
 		if (enabled)
 		{
 			LLVoiceChannel::getCurrentVoiceChannel()->activate();
+			status = LLVoiceClientStatusObserver::STATUS_VOICE_ENABLED;
 		}
 		else
 		{
 			// Turning voice off looses your current channel -- this makes sure the UI isn't out of sync when you re-enable it.
 			LLVoiceChannel::getCurrentVoiceChannel()->deactivate();
+			status = LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED;
 		}
+
+		notifyStatusObservers(status);
 	}
 }
 

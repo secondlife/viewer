@@ -48,6 +48,7 @@
 #include "llviewermessage.h"	// for handle_lure
 #include "llviewerregion.h"
 
+
 // static
 void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::string& name)
 {
@@ -76,6 +77,19 @@ void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::strin
 
 	// add friend to recent people list
 	LLRecentPeople::instance().add(id);
+}
+
+// static
+void LLAvatarActions::requestFriendshipDialog(const LLUUID& id)
+{
+	if(id.isNull())
+	{
+		return;
+	}
+
+	std::string full_name;
+	gCacheName->getFullName(id, full_name);
+	requestFriendshipDialog(id, full_name);
 }
 
 // static

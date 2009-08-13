@@ -127,12 +127,14 @@ public:
 	LLInfoHandler(e_notification_type type, const LLSD& id);
 	virtual ~LLInfoHandler();
 
-
+	// base interface functions
 	virtual void processNotification(const LLSD& notify);
 	virtual void onToastDestroy(LLToast* toast);
 	virtual void onChicletClick(void);
 	virtual void onChicletClose(void);
 
+	// own handlers
+	void onStoreToast(LLPanel* info_panel, LLUUID id);
 protected:
 };
 

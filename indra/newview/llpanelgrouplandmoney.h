@@ -44,12 +44,10 @@
 class LLPanelGroupLandMoney : public LLPanelGroupTab
 {
 public:
-	LLPanelGroupLandMoney(const LLUUID& group_id);
+	LLPanelGroupLandMoney();
 	virtual ~LLPanelGroupLandMoney();
 	virtual BOOL postBuild();
 	virtual BOOL isVisibleByAgent(LLAgent* agentp);
-
-	static void* createTab(void* data);
 
 	virtual void activate();
 	virtual bool needsApply(std::string& mesg);
@@ -64,6 +62,8 @@ public:
 	static void processGroupAccountDetailsReply(LLMessageSystem* msg,  void** data);
 	static void processGroupAccountTransactionsReply(LLMessageSystem* msg, void** data);
 	static void processGroupAccountSummaryReply(LLMessageSystem* msg, void** data);
+
+	virtual void setGroupID(const LLUUID& id);
 	
 protected:
 	class impl;

@@ -57,12 +57,13 @@ static const std::string XML_PICKS_LIST = "back_panel";
 
 #define PICK_ITEMS_BETWEEN 5
 
+static LLRegisterPanelClassWrapper<LLPanelPicks> t_panel_picks("panel_picks");
 
 //-----------------------------------------------------------------------------
 // LLPanelPicks
 //-----------------------------------------------------------------------------
 LLPanelPicks::LLPanelPicks()
-:	LLPanelProfileTab(LLUUID::null),
+:	LLPanelProfileTab(),
 	mPopupMenu(NULL),
 	mSelectedPickItem(NULL),
 	mProfilePanel(NULL),
@@ -100,7 +101,6 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 			childSetTextArg("pick_title", "[NAME]",name);
 
 			LLView* picks_list = getPicksList();
-			if(!picks_list) return;
 			
 			// to restore selection of the same item later
 			LLUUID pick_id_selected(LLUUID::null);
@@ -131,7 +131,7 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 				picture->setPickId(pick_id);
 				picture->setCreatorId(getAvatarId());
 
-				LLAvatarPropertiesProcessor::instance().addObserver(mAvatarId, picture);
+				LLAvatarPropertiesProcessor::instance().addObserver(getAvatarId(), picture);
 				picture->update();
 				mPickItemList.push_back(picture);
 				if (pick_id_selected != LLUUID::null && 
@@ -152,14 +152,11 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 void LLPanelPicks::clear()
 {
 	LLView* scroll = getPicksList();
-	if(scroll)
+	picture_list_t::const_iterator it = mPickItemList.begin();
+	for(; mPickItemList.end() != it; ++it)
 	{
-		picture_list_t::const_iterator it = mPickItemList.begin();
-		for(; mPickItemList.end() != it; ++it)
-		{
-			scroll->removeChild(*it);
-			delete *it;
-		}
+		scroll->removeChild(*it);
+		delete *it;
 	}
 	mPickItemList.clear();
 	mSelectedPickItem = NULL;
@@ -225,7 +222,7 @@ void LLPanelPicks::reshapePickItem(LLView* const pick_item, const S32 last_botto
 
 LLView* LLPanelPicks::getPicksList() const
 {
-	return getChild<LLView>(XML_PICKS_LIST, TRUE, FALSE);
+	return getChild<LLView>(XML_PICKS_LIST);
 }
 
 BOOL LLPanelPicks::postBuild()
@@ -261,6 +258,8 @@ void LLPanelPicks::onOpen(const LLSD& key)
 	// Disable buttons when viewing profile for first time
 	if(getAvatarId() != id)
 	{
+		clear();
+
 		childSetEnabled(XML_BTN_INFO,FALSE);
 		childSetEnabled(XML_BTN_TELEPORT,FALSE);
 		childSetEnabled(XML_BTN_SHOW_ON_MAP,FALSE);
@@ -373,7 +372,7 @@ void LLPanelPicks::updateButtons()
 	int picks_num = mPickItemList.size();
 	childSetEnabled(XML_BTN_INFO, picks_num > 0);
 
-	if (mAvatarId == gAgentID)
+	if (getAvatarId() == gAgentID)
 	{
 		childSetEnabled(XML_BTN_NEW, picks_num < MAX_AVATAR_PICKS);
 		childSetEnabled(XML_BTN_DELETE, picks_num > 0);
@@ -403,12 +402,14 @@ void LLPanelPicks::setSelectedPickItem(LLPickItem* item)
 
 BOOL LLPanelPicks::isMouseInPick( S32 x, S32 y )
 {
-	LLScrollContainer* scroll = getChild<LLScrollContainer>("profile_scroll");
-	if (!scroll->parentPointInView(x, y)) return FALSE;
-
 	S32 x_l = x;
 	S32 y_l = y;
 	
+	if(!getChild<LLUICtrl>("profile_scroll")->getRect().pointInRect(x, y))
+	{
+		return FALSE;
+	}
+
 	picture_list_t::const_iterator it = mPickItemList.begin();
 	for(; mPickItemList.end() != it; ++it)
 	{
@@ -516,11 +517,8 @@ void LLPickItem::init(LLPickData* pick_data)
 	mPosGlobal = pick_data->pos_global;
 	mLocation = pick_data->location_text;
 
-	LLTextureCtrl* picture = getChild<LLTextureCtrl>("picture", TRUE, FALSE);
-	if (picture)
-	{
-		picture->setImageAssetID(pick_data->snapshot_id);
-	}
+	LLTextureCtrl* picture = getChild<LLTextureCtrl>("picture");
+	picture->setImageAssetID(pick_data->snapshot_id);
 }
 
 void LLPickItem::setPickName(const std::string& name)

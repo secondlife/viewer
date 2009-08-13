@@ -106,6 +106,13 @@ std::string LLSLURL::buildSLURL(const std::string& regionname, S32 x, S32 y, S32
 }
 
 // static
+std::string LLSLURL::buildUnescapedSLURL(const std::string& regionname, S32 x, S32 y, S32 z)
+{
+	std::string unescapedslurl = PREFIX_SLURL + regionname + llformat("/%d/%d/%d",x,y,z);
+	return unescapedslurl;
+}
+
+// static
 bool LLSLURL::matchPrefix(const std::string& url, const std::string& prefix)
 {
 	std::string test_prefix = url.substr(0, prefix.length());

@@ -106,6 +106,9 @@ BOOL LLPanelPlaces::postBuild()
 
 	mOverflowBtn = getChild<LLButton>("overflow_btn");
 
+	// *TODO: Assign the action to an appropriate event.
+	mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::toggleMediaPanel, this));
+
 	mTabContainer = getChild<LLTabContainer>("Places Tabs");
 	if (mTabContainer)
 	{
@@ -118,17 +121,14 @@ BOOL LLPanelPlaces::postBuild()
 		mFilterEditor->setCommitCallback(boost::bind(&LLPanelPlaces::onFilterEdit, this, _2));
 	}
 
-	mPlaceInfo = getChild<LLPanelPlaceInfo>("panel_place_info", TRUE, FALSE);
-	if (mPlaceInfo)
+	mPlaceInfo = getChild<LLPanelPlaceInfo>("panel_place_info");
+	if (!mPlaceInfo)
+		return FALSE;
+	
+	LLButton* back_btn = mPlaceInfo->getChild<LLButton>("back_btn");
+	if (back_btn)
 	{
-		LLButton* back_btn = mPlaceInfo->getChild<LLButton>("back_btn");
-		if (back_btn)
-		{
-			back_btn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
-		}
-
-		// *TODO: Assign the action to an appropriate event.
-		mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::toggleMediaPanel, this));
+		back_btn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 	}
 
 	return TRUE;
@@ -136,7 +136,10 @@ BOOL LLPanelPlaces::postBuild()
 
 void LLPanelPlaces::onOpen(const LLSD& key)
 {
-	if(key.size() == 0)
+	mFilterEditor->clear();
+	onFilterEdit("");
+	
+	if(mPlaceInfo == NULL || key.size() == 0)
 		return;
 
 	mPlaceInfoType = key["type"].asString();
@@ -197,10 +200,15 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 									  hist_items[index].mRegionID,
 									  pos_global);
 	}
+	
+
 }
 
 void LLPanelPlaces::setItem(LLInventoryItem* item)
 {
+	if (!mPlaceInfo)
+		return;
+
 	mItem = item;
 	
 	// If the item is a link get a linked item
@@ -224,6 +232,9 @@ void LLPanelPlaces::setItem(LLInventoryItem* item)
 
 void LLPanelPlaces::onLandmarkLoaded(LLLandmark* landmark)
 {
+	if (!mPlaceInfo)
+		return;
+
 	LLUUID region_id;
 	landmark->getRegionID(region_id);
 	LLVector3d pos_global;
@@ -263,11 +274,6 @@ void LLPanelPlaces::onShareButtonClicked()
 	// TODO: Launch the "Things" Share wizard
 }
 
-void LLPanelPlaces::onAddLandmarkButtonClicked()
-{
-	LLFloaterReg::showInstance("add_landmark");
-}
-
 void LLPanelPlaces::onCopySLURLButtonClicked()
 {
 	mActivePanel->onCopySLURL();
@@ -276,6 +282,9 @@ void LLPanelPlaces::onCopySLURLButtonClicked()
 
 void LLPanelPlaces::onTeleportButtonClicked()
 {
+	if (!mPlaceInfo)
+		return;
+
 	if (mPlaceInfo->getVisible())
 	{
 		if (mPlaceInfoType == "landmark")
@@ -284,7 +293,7 @@ void LLPanelPlaces::onTeleportButtonClicked()
 			payload["asset_id"] = mItem->getAssetUUID();
 			LLNotifications::instance().add("TeleportFromLandmark", LLSD(), payload);
 		}
-		else if (mPlaceInfoType == "remote_place")
+		else if (mPlaceInfoType == "remote_place" || mPlaceInfoType == "agent")
 		{
 			LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
 			if (!mPosGlobal.isExactlyZero() && worldmap_instance)
@@ -302,6 +311,9 @@ void LLPanelPlaces::onTeleportButtonClicked()
 
 void LLPanelPlaces::onShowOnMapButtonClicked()
 {
+	if (!mPlaceInfo)
+		return;
+
 	if (mPlaceInfo->getVisible())
 	{
 		LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
@@ -368,6 +380,11 @@ void LLPanelPlaces::toggleMediaPanel()
 		return;
 
 	mPlaceInfo->toggleMediaPanel(!mPlaceInfo->isMediaPanelVisible());
+	
+	// Refresh the current place info because
+	// the media panel controls can't refer to
+	// the remote parcel media.
+	onOpen(LLSD().insert("type", "agent"));
 }
 
 void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
@@ -430,9 +447,16 @@ void LLPanelPlaces::changed(U32 mask)
 
 void LLPanelPlaces::onAgentParcelChange()
 {
-	if (mPlaceInfo->getVisible() && (mPlaceInfoType == "agent" || mPlaceInfoType == "create_landmark"))
+	if (!mPlaceInfo)
+		return;
+
+	if (mPlaceInfo->getVisible() && mPlaceInfoType == "create_landmark")
 	{
 		onOpen(LLSD().insert("type", mPlaceInfoType));
+	}
+	else if (mPlaceInfo->isMediaPanelVisible())
+	{
+		onOpen(LLSD().insert("type", "agent"));
 	}
 	else
 	{
@@ -442,9 +466,13 @@ void LLPanelPlaces::onAgentParcelChange()
 
 void LLPanelPlaces::updateVerbs()
 {
+	if (!mPlaceInfo)
+		return;
+
 	bool is_place_info_visible = mPlaceInfo->getVisible();
 	bool is_agent_place_info_visible = mPlaceInfoType == "agent";
 	bool is_create_landmark_visible = mPlaceInfoType == "create_landmark";
+	bool is_media_panel_visible = mPlaceInfo->isMediaPanelVisible();
 	
 	mTeleportBtn->setVisible(!is_create_landmark_visible);
 	mShareBtn->setVisible(!is_create_landmark_visible);
@@ -459,15 +487,18 @@ void LLPanelPlaces::updateVerbs()
 	{
 		if (is_agent_place_info_visible)
 		{
-			// We don't need to teleport to the current location so disable the button
-			mTeleportBtn->setEnabled(FALSE);
+			// We don't need to teleport to the current location
+			// so check if the location is not within the current parcel.
+			mTeleportBtn->setEnabled(!is_media_panel_visible &&
+									 !mPosGlobal.isExactlyZero() &&
+									 !LLViewerParcelMgr::getInstance()->inAgentParcel(mPosGlobal));
 		}
 		else if (mPlaceInfoType == "landmark" || mPlaceInfoType == "remote_place")
 		{
 			mTeleportBtn->setEnabled(TRUE);
 		}
 
-		mShowOnMapBtn->setEnabled(TRUE);
+		mShowOnMapBtn->setEnabled(!is_media_panel_visible);
 	}
 	else
 	{

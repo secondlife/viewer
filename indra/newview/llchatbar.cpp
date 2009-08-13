@@ -122,6 +122,8 @@ BOOL LLChatBar::postBuild()
 {
 	getChild<LLUICtrl>("Say")->setCommitCallback(boost::bind(&LLChatBar::onClickSay, this, _1));
 
+	// * NOTE: mantipov: getChild with default parameters returns dummy widget.
+	// Seems this class will be completle removed
 	// attempt to bind to an existing combo box named gesture
 	setGestureCombo(getChild<LLComboBox>( "Gesture", TRUE, FALSE));
 

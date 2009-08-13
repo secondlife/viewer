@@ -64,7 +64,7 @@ public:
 	LLInventoryFilter(const std::string& name);
 	virtual ~LLInventoryFilter();
 
-	void setFilterTypes(U32 types);
+	void setFilterTypes(U64 types, BOOL filter_for_categories = FALSE); // if filter_for_categories is true, operate on folder preferred asset type
 	U32 getFilterTypes() const { return mFilterOps.mFilterTypes; }
 
 	void setFilterSubString(const std::string& string);
@@ -120,7 +120,8 @@ public:
 protected:
 	struct filter_ops
 	{
-		U32			mFilterTypes;
+		U64			mFilterTypes;
+		BOOL        mFilterForCategories;
 		time_t		mMinDate;
 		time_t		mMaxDate;
 		U32			mHoursAgo;

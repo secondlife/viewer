@@ -1,28 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
   layout="topleft"
+  font="SansSerifBigBold"
   top="0"
   left="0"
   width="305"
   height="465"
-  follows="left|top|right|bottom"  
-  background_visible="true"
+  follows="left|top|right|bottom"
+     background_visible="true"
+     bg_alpha_color="DkGray2"
+ bevel_style="in"
   label="People"
   name="people_panel">
   <filter_editor
     layout="topleft"
     top="3"
-    left="15"
-    width="270"
-    height="20"
+    left="10"
+    width="256"
+    height="23"
     follows="left|top|right"
     max_length="270"
-    label="Filter People"
     name="filter_input"
     font="SansSerif"
     background_image="TextField_Search_Off"
     text_pad_left="23"
-    text_color="black"/>
+    text_color="black" />
   <button
           name="people_search"
           layout="topleft"
@@ -39,8 +41,8 @@
   <tab_container
     layout="topleft"
     top="30"
-    left="10"
-    width="280"
+     left="10"
+    width="295"
     height="400"
     follows="left|top|right|bottom"
     name="tabs"
@@ -50,8 +52,8 @@
       height="390"
       width="280"
       follows="left|top|right|bottom"
-      background_visible="true"
-      bevel_style="bright" 
+      background_visible="false"
+      bevel_style="none"
       label="Nearby"
       name="nearby_panel">
       <avatar_list
@@ -62,7 +64,7 @@
         height="357"
         follows="left|top|right|bottom"
         name="avatar_list"
-		volume_column_width="20"/>
+	volume_column_width="20"/>
       <panel
         layout="topleft"
         bottom="390"
@@ -71,7 +73,7 @@
         height="30"
         follows="left|right|bottom"
         background_visible="true"
-        bevel_style="bright"
+        bevel_style="none"
         label="bottom_panel"
         name="bottom_panel">
         <button
@@ -96,7 +98,7 @@
       width="280"
       follows="left|top|right|bottom"
       background_visible="true"
-      bevel_style="bright" 
+      bevel_style="none"
       label="Friends"
       name="friends_panel">
       <avatar_list
@@ -115,7 +117,7 @@
         height="30"
         follows="left|right|bottom"
         background_visible="true"
-        bevel_style="in"
+        bevel_style="none"
         label="bottom_panel"
         name="bottom_panel">
          <button
@@ -163,10 +165,10 @@
     <panel
       layout="topleft"
       height="390"
-      width="280"  
+      width="280"
       follows="left|top|right|bottom"
       background_visible="true"
-      bevel_style="bright" 
+      bevel_style="none"
       label="Groups"
       name="groups_panel">
       <group_list
@@ -185,7 +187,7 @@
         height="30"
         follows="left|right|bottom"
         background_visible="true"
-        bevel_style="in"
+        bevel_style="none"
         label="bottom_panel"
         name="bottom_panel">
         <button
@@ -240,7 +242,7 @@
           hover_glow_amount="0.15"
           image_selected="TrashItem_Press"
           image_unselected="TrashItem_Off"
-          picture_style="true"/> 
+          picture_style="true"/>
         </panel>
     </panel>
     <panel
@@ -249,8 +251,8 @@
       width="280"
       follows="left|top|right|bottom"
       background_visible="true"
-      bevel_style="bright"
-      label="Recent"
+      bevel_style="none"
+      label="History"
       name="recent_panel">
       <avatar_list
         layout="topleft"
@@ -268,7 +270,7 @@
         height="30"
         follows="left|right|bottom"
         background_visible="true"
-        bevel_style="in"
+        bevel_style="none"
         label="bottom_panel"
         name="bottom_panel">
         <button
@@ -293,7 +295,7 @@
     follows="left|right|bottom"
     bottom="6"
     left="6"
-    width="280"
+    width="295"
     height="27"
     orientation="horizontal"
     animate="false"
@@ -478,7 +480,7 @@
         follows="top|right"
         font="SansSerifSmallBold"/>
     </layout_panel>
-  </layout_stack> 
+  </layout_stack>
   <string name="no_people">
     No people
   </string>
@@ -490,5 +492,11 @@
   </string>
   <string name="no_groups">
     No groups
+  </string>
+  <string name="people_filter_label">
+    Filter People
+  </string>
+  <string name="groups_filter_label">
+    Filter Groups
   </string>
 </panel>

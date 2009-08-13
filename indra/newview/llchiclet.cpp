@@ -39,7 +39,6 @@
 #include "lliconctrl.h"
 #include "llimpanel.h"				// LLFloaterIMPanel
 #include "llimview.h"
-#include "llfloatergroupinfo.h"
 #include "llfloaterreg.h"
 #include "llmenugl.h"
 #include "lloutputmonitorctrl.h"
@@ -78,6 +77,7 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 : LLChiclet(p)
 , mButton(NULL)
 , mCounterCtrl(NULL)
+, mNotificationChicletWindow(NULL)
 {
 	LLButton::Params button_params = p.button;
 	button_params.rect(p.rect());
@@ -403,9 +403,7 @@ void LLIMChiclet::onMenuItemClicked(const LLSD& user_data)
 	}
 	else if("add" == level)
 	{
-		std::string name;
-		gCacheName->getFullName(other_participant_id,name);
-		LLAvatarActions::requestFriendshipDialog(other_participant_id,name);
+		LLAvatarActions::requestFriendshipDialog(other_participant_id);
 	}
 	else if("remove" == level)
 	{
@@ -417,7 +415,7 @@ void LLIMChiclet::onMenuItemClicked(const LLSD& user_data)
 	}
 	else if("info" == level)
 	{
-		LLFloaterGroupInfo::showFromUUID(other_participant_id);
+		LLGroupActions::show(other_participant_id);
 	}
 }
 

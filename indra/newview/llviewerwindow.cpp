@@ -45,6 +45,7 @@
 #include "llfloaterreg.h"
 #include "llpanellogin.h"
 #include "llviewerkeyboard.h"
+#include "llviewermenu.h"
 #include "llviewerwindow.h"
 
 #include "llviewquery.h"
@@ -255,8 +256,6 @@ std::string	LLViewerWindow::sSnapshotBaseName;
 std::string	LLViewerWindow::sSnapshotDir;
 
 std::string	LLViewerWindow::sMovieBaseName;
-
-extern void toggle_debug_menus(void*);
 
 class RecordToChatConsole : public LLError::Recorder, public LLSingleton<RecordToChatConsole>
 {
@@ -1566,9 +1565,6 @@ void LLViewerWindow::initWorldUI()
 	getRootView()->sendChildToFront(gSnapshotFloaterView);
 
 	// new bottom panel
-	getRootView()->addChild(LLBottomTray::getInstance());
-	// Make sure Bottom Tray is behind Side Tray regardless "addChild" order.
-	getRootView()->sendChildToBack(LLBottomTray::getInstance());
 	LLRect rc = LLBottomTray::getInstance()->getRect();
 	rc.mLeft = 0;
 	rc.mRight = mRootView->getRect().getWidth();
@@ -1641,6 +1637,16 @@ void LLViewerWindow::initWorldUI()
 	navbar->translate(0, root_rect.getHeight() - menu_bar_height - navbar->getRect().getHeight()); // FIXME
 	navbar->setBackgroundColor(gMenuBarView->getBackgroundColor().get());
 	
+	if (!gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
+	{
+		navbar->showNavigationPanel(FALSE);
+	}
+
+	if (!gSavedSettings.getBOOL("ShowNavbarFavoritesPanel"))
+	{
+		navbar->showFavoritesPanel(FALSE);
+	}
+
 	getRootView()->addChild(gStatusBar);
 	getRootView()->addChild(navbar);
 
@@ -2912,7 +2918,9 @@ void LLViewerWindow::updateKeyboardFocus()
 	{
 		if (!cur_focus->isInVisibleChain() || !cur_focus->isInEnabledChain())
 		{
-			gFocusMgr.releaseFocusIfNeeded(cur_focus);
+            // don't release focus, just reassign so that if being given
+            // to a sibling won't call onFocusLost on all the ancestors
+			// gFocusMgr.releaseFocusIfNeeded(cur_focus);
 
 			LLUICtrl* parent = cur_focus->getParentUICtrl();
 			const LLUICtrl* focus_root = cur_focus->findRootMostFocusRoot();

@@ -60,6 +60,9 @@ public:
 
 	void handleLoginComplete();
 	void clearHistoryCache();
+
+	void showNavigationPanel(BOOL visible);
+	void showFavoritesPanel(BOOL visible);
 	
 private:
 	LLNavigationBar();
@@ -67,6 +70,9 @@ private:
 	void rebuildTeleportHistoryMenu();
 	void showTeleportHistoryMenu();
 	void invokeSearch(std::string search_text);
+
+	static void appendLocalCoordsToRegName(std::string* reg_name, S32 x, S32 y, S32 z);
+	static std::string extractLocalCoordsFromRegName(const std::string & reg_name, S32* x, S32* y, S32* z);
 
 	// callbacks
 	bool onLocationContextMenuItemEnabled(const LLSD& userdata);
@@ -81,6 +87,7 @@ private:
 	void onLocationSelection();
 	void onLocationPrearrange(const LLSD& data);
 	void onSearchCommit();
+	void onTeleportFinished();
 	void onRegionNameResponse(
 			std::string typed_location,
 			std::string region_name,
@@ -90,14 +97,18 @@ private:
 
 	static LLNavigationBar *sInstance;
 	
-	LLMenuGL*				mLocationContextMenu;
-	LLMenuGL*				mTeleportHistoryMenu;
-	LLButton*				mBtnBack;
-	LLButton*				mBtnForward;
-	LLButton*				mBtnHome;
-	LLSearchEditor*			mLeSearch;
-	LLLocationInputCtrl*	mCmbLocation;
-	bool					mPurgeTPHistoryItems;
+	LLMenuGL*					mLocationContextMenu;
+	LLMenuGL*					mTeleportHistoryMenu;
+	LLButton*					mBtnBack;
+	LLButton*					mBtnForward;
+	LLButton*					mBtnHome;
+	LLSearchEditor*				mLeSearch;
+	LLLocationInputCtrl*		mCmbLocation;
+	LLRect						mDefaultNbRect;
+	LLRect						mDefaultFpRect;
+	boost::signals2::connection	mParcelMgrConnection;
+	bool						mPurgeTPHistoryItems;
+	bool						mUpdateTypedLocationHistory;
 };
 
 #endif

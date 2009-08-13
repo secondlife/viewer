@@ -58,6 +58,9 @@
 #include "llviewermessage.h"
 #include "llnotifications.h"
 
+static LLRegisterPanelClassWrapper<LLPanelGroupNotices> t_panel_group_notices("panel_group_notices");
+
+
 /////////////////////////
 // LLPanelGroupNotices //
 /////////////////////////
@@ -207,12 +210,13 @@ std::string build_notice_date(const U32& the_time)
 	return dateStr;
 }
 
-LLPanelGroupNotices::LLPanelGroupNotices(const LLUUID& group_id) :
-	LLPanelGroupTab(group_id),
+LLPanelGroupNotices::LLPanelGroupNotices() :
+	LLPanelGroupTab(),
 	mInventoryItem(NULL),
 	mInventoryOffer(NULL)
 {
-	sInstances[group_id] = this;
+	
+	
 }
 
 LLPanelGroupNotices::~LLPanelGroupNotices()
@@ -228,12 +232,6 @@ LLPanelGroupNotices::~LLPanelGroupNotices()
 	}
 }
 
-// static
-void* LLPanelGroupNotices::createTab(void* data)
-{
-	LLUUID* group_id = static_cast<LLUUID*>(data);
-	return new LLPanelGroupNotices(*group_id);
-}
 
 BOOL LLPanelGroupNotices::isVisibleByAgent(LLAgent* agentp)
 {
@@ -589,4 +587,18 @@ void LLPanelGroupNotices::arrangeNoticeView(ENoticeView view_type)
 		mPanelViewNotice->setVisible(TRUE);
 		mBtnOpenAttachment->setEnabled(FALSE);
 	}
+}
+void LLPanelGroupNotices::setGroupID(const LLUUID& id)
+{
+	sInstances.erase(mGroupID);
+	LLPanelGroupTab::setGroupID(id);
+	sInstances[mGroupID] = this;
+
+	mBtnNewMessage->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_NOTICES_SEND));
+
+	LLGroupDropTarget* target = getChild<LLGroupDropTarget> ("drop_target");
+	target->setPanel (this);
+	target->setGroup (mGroupID);
+	
+	activate();
 }

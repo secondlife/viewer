@@ -37,6 +37,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 #include <boost/function.hpp>
 
 class LLLocationHistory: public LLSingleton<LLLocationHistory>
@@ -50,8 +51,10 @@ public:
 	
 	LLLocationHistory();
 	
-	void					addItem(std::string item);
+	void					addItem(const std::string & item, const std::string & tooltip);
+	bool					touchItem(const std::string & item);
 	void                    removeItems();
+	std::string				getToolTip(const std::string & item) const;
 	size_t					getItemCount() const	{ return mItems.size(); }
 	const location_list_t&	getItems() const		{ return mItems; }
 	bool					getMatchingItems(std::string substring, location_list_t& result) const;
@@ -62,9 +65,11 @@ public:
 	void					dump() const;
 
 private:
-	std::vector<std::string>	mItems;
-	std::string					mFilename; /// File to store the history to.
-	loaded_signal_t				mLoadedSignal;
+	const static char delimiter;
+	std::vector<std::string>			mItems;
+	std::map<std::string, std::string>	mToolTips;
+	std::string							mFilename; /// File to store the history to.
+	loaded_signal_t						mLoadedSignal;
 };
 
 #endif

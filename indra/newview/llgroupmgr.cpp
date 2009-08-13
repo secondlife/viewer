@@ -51,7 +51,8 @@
 #include "lleconomy.h"
 #include "llviewerwindow.h"
 #include "llfloaterdirectory.h"
-#include "llfloatergroupinfo.h"
+#include "llpanelgroup.h"
+#include "llgroupactions.h"
 #include "lluictrlfactory.h"
 #include <boost/regex.hpp>
 
@@ -1210,7 +1211,7 @@ void LLGroupMgr::processEjectGroupMemberReply(LLMessageSystem* msg, void ** data
 	// If we had a failure, the group panel needs to be updated.
 	if (!success)
 	{
-		LLFloaterGroupInfo::refreshGroup(group_id);
+		LLGroupActions::refresh(group_id);
 	}
 }
 
@@ -1230,7 +1231,7 @@ void LLGroupMgr::processJoinGroupReply(LLMessageSystem* msg, void ** data)
 
 		LLGroupMgr::getInstance()->clearGroupData(group_id);
 		// refresh the floater for this group, if any.
-		LLFloaterGroupInfo::refreshGroup(group_id);
+		LLGroupActions::refresh(group_id);
 		// refresh the group panel of the search window, if necessary.
 		LLFloaterDirectory::refreshGroup(group_id);
 	}
@@ -1252,7 +1253,7 @@ void LLGroupMgr::processLeaveGroupReply(LLMessageSystem* msg, void ** data)
 
 		LLGroupMgr::getInstance()->clearGroupData(group_id);
 		// close the floater for this group, if any.
-		LLFloaterGroupInfo::closeGroup(group_id);
+		LLGroupActions::closeGroup(group_id);
 		// refresh the group panel of the search window, if necessary.
 		LLFloaterDirectory::refreshGroup(group_id);
 	}
@@ -1288,8 +1289,10 @@ void LLGroupMgr::processCreateGroupReply(LLMessageSystem* msg, void ** data)
 
 		gAgent.mGroups.push_back(gd);
 
-		LLFloaterGroupInfo::closeCreateGroup();
-		LLFloaterGroupInfo::showFromUUID(group_id,"roles_tab");
+		LLPanelGroup::refreshCreatedGroup(group_id);
+		//FIXME
+		//LLFloaterGroupInfo::closeCreateGroup();
+		//LLFloaterGroupInfo::showFromUUID(group_id,"roles_tab");
 	}
 	else
 	{

@@ -1,205 +1,121 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- follows="top|left|right|bottom"
  bevel_style="in"
- height="625"
- label="Notes and Privacy"
+ follows="left|top|right|bottom"
+ height="570"
+ width="295"
+ border="false"
  layout="topleft"
- left="10"
- name="panel_notes"
- top="10"
- width="305">
+ left="0"
+ top="0"
+ label="Notes &amp; Privacy"
+ name="panel_notes">
     <scroll_container
-     left="8" 
-     width="260" 
-     height="570" 
-     follows="left|top|right|bottom"
-     layout="topleft"
-     name="profile_scroll"
-     opaque="true"
      color="DkGray2"
+     follows="left|top|right|bottom"
+     height="570"
+     width="265"
+     layout="topleft"
+     left="5"
+     top_pad="0"
+ bevel_style="in"
+     opaque="true"
+     name="profile_scroll"
      reserve_scroll_corner="false">
-        <panel
-         layout="topleft"
-         width="260"
-         height="530"
-         left="0"
-         follows="left|right"
-         top="0">
-           <!-- <text
-             type="string"
-             length="1"
-             follows="left|top"
-             font="SansSerifHugeBold"
-             height="20"
-             layout="topleft"
-             left="10"
-             name="pick_title"
-             text_color="white"
-             top="10"
-             width="250"
-             word_wrap="true">
-                Private Notes
-            </text>-->
             <text
              type="string"
              length="1"
              follows="left|top"
              font="SansSerifBold"
-             height="15"
-             layout="topleft"
-             left="10"
+             height="16"
+             width="225"
+             left="0"
              name="status_message"
-             text_color="White"
-             top="20"
-             width="260">
-                Your private notes:
+             text_color="white"
+             top="">
+               My private notes:
             </text>
             <text_editor
-             bg_focus_color="LtGray"
-             bg_writeable_color="LtGray"
-             follows="left|right"
-             font="SansSerif"
              height="200"
+             follows="left|top"
+             width="243"
              hide_scrollbar="true"
-             layout="topleft"
              left="10"
              max_length="1000"
              name="notes_edit"
              text_color="black"
              top_pad="10"
-             width="240"
              word_wrap="true" />
-           <!-- <text
-             type="string"
-             length="1"
-             follows="left|top"
-             font="SansSerifHugeBold"
-             height="20"
-             layout="topleft"
-             left="10"
-             name="pick_title2"
-             text_color="white"
-             top_pad="10"
-             width="250"
-             word_wrap="true">
-                Private Settings
-            </text> -->
            <text
              type="string"
              length="1"
              follows="left|top"
              font="SansSerifBold"
-             height="15"
-             layout="topleft"
+             height="16"
+             width="225"
              left="10"
              name="status_message2"
              text_color="white"
-             top_pad="30"
-             width="260">
-                Allow this user to:
+             top_pad="30">
+                Let this person:
             </text>
             <check_box
              enabled="false"
              follows="left|top"
-             font="SansSerif"
+             width="230"
              height="20"
              label="See my online status"
-             layout="topleft"
-             left="10"
-             name="status_check"
-             text_disabled_color="0.1 0.1 0.1 1"
-             text_enabled_color="white"
+             left="20"
              top_pad="10"
-             width="260" />
+             name="status_check" />
             <check_box
              enabled="false"
              follows="left|top"
-             font="SansSerif"
+             width="230"
              height="20"
              label="See me on the map"
-             layout="topleft"
-             left="10"
-             name="map_check"
-             text_disabled_color="0.1 0.1 0.1 1"
-             text_enabled_color="white"
+             left="20"
              top_pad="10"
-             width="260" />
+             name="map_check"/>
             <check_box
              enabled="false"
              follows="left|top"
-             font="SansSerif"
+             width="230"
              height="20"
              label="Edit, delete or take my objects"
-             layout="topleft"
-             left="10"
-             name="objects_check"
-             text_disabled_color="0.1 0.1 0.1 1"
-             text_enabled_color="white"
+             left="20"
              top_pad="10"
-             width="260" />
-        </panel>
+             name="objects_check" />
     </scroll_container>
     <panel
-	 layout="topleft"
-     follows="bottom"
+     follows="bottom|left"
      height="30"
-     left="8"
-     name="notes_buttons_panel"
-     bottom="625"
-     width="280">
-        <button
-         follows="bottom|left"
-         font="SansSerifSmallBold"
-         height="25"
-         label="Add Friend"
-         layout="topleft"
-         left="0"
-         mouse_opaque="false"
-         name="add_friend"
-         top="0"
-         width="90" />
-        <button
-         follows="bottom|left"
-         font="SansSerifSmallBold"
-         height="25"
-         label="IM"
-         layout="topleft"
-         left_pad="0"
-         name="im"
-         top="0"
-         width="40" />
-        <button
-         follows="bottom|left"
-         font="SansSerifSmallBold"
-         height="25"
-         label="Call"
-         layout="topleft"
-         left_pad="0"
-         name="call"
-         top="0"
-         width="50"
-         enabled="false"/>
+     width="280"
+     layout="topleft"
+     left="10"
+     top_pad="5"
+     name="notes_buttons_panel">
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
          height="25"
          label="Teleport"
          layout="topleft"
-         left_pad="0"
-         name="teleport"
+         left="0"
+         name="teleport_btn"
+         enabled="false"
          top="0"
          width="75" />
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
          height="25"
-         label="Share"
+         label="Show on Map"
          layout="topleft"
          left_pad="0"
-         name="share"
+         name="show_on_map_btn"
+         enabled="false"
          top="0"
-         width="60"
-         enabled="false"/>
+         width="105" />
     </panel>
 </panel>

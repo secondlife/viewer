@@ -102,7 +102,7 @@ public:
 
 	// On LoginCompleted - show StartUp toast
 	void onLoginCompleted();
-	void enableShowToasts();
+	void removeStartUpChannel();
 
 	//TODO: make protected? in order to be shure that channels are created only by notification handlers
 	LLScreenChannel*	createChannel(LLChannelManager::Params& p);

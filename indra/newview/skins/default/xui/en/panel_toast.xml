@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- All our XML is utf-8 encoded. -->
 
-<panel
+<floater
 	name="toast"
-	title="toast"
+	title=""
   visible="false"
   layout="topleft"
 	width="350"
@@ -14,6 +14,12 @@
   background_opaque="true"
   background_visible="true"
   bevel_style="in"
+  can_minimize="false"
+  can_tear_off="false"
+  can_resize="false"
+  can_drag_on_left="false"
+  can_close="false"
+  can_dock="false"  
   bg_alpha_color="0.3 0.3 0.3 1.0">
 
   <text
@@ -62,4 +68,4 @@
     image_hover_selected="toast_hide_btn.tga"
     image_disabled_selected="toast_hide_btn.tga"
   />
-</panel> 
+</floater> 

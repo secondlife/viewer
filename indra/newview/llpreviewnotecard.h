@@ -102,7 +102,6 @@ protected:
 	LLUUID mAssetID;
 
 	LLUUID mObjectID;
-	BOOL mShowKeepDiscard;
 };
 
 

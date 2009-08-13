@@ -133,6 +133,11 @@ LLAssetType::EType LLInventoryObject::getActualType() const
 	return mType;
 }
 
+BOOL LLInventoryObject::getIsLinkType() const
+{
+	return LLAssetType::lookupIsLinkType(mType);
+}
+
 // See LLInventoryItem override.
 // virtual
 const LLUUID& LLInventoryObject::getLinkedUUID() const

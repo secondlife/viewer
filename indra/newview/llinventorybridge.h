@@ -157,6 +157,7 @@ public:
 	}
 	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
 	virtual void openItem() {}
+	virtual void closeItem() {}
 	virtual void gotoItem(LLFolderView *folder) {} // for links
 	virtual void previewItem() {openItem();}
 	virtual void showProperties();
@@ -271,6 +272,7 @@ public:
 								BOOL drop);
 	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
 	virtual void openItem();
+	virtual void closeItem();
 	virtual BOOL isItemRenameable() const;
 	virtual void selectItem();
 	virtual void restoreItem();
@@ -325,6 +327,8 @@ protected:
 	BOOL checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& typeToCheck);
 
 	void modifyOutfit(BOOL append);
+	void determineFolderType();
+
 public:
 	static LLFolderBridge* sSelf;
 	static void staticFolderOptionsMenu();

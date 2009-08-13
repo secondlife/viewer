@@ -1,24 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
+ follows="left|top|right|bottom"
  bevel_style="in"
- height="660"
+ height="625"
+ width="280"
  layout="topleft"
  left="0"
  name="panel_pick_info"
- top="0"
- width="305">
-    <button
-     follows="top|left"
-     height="20"
-     image_overlay="navbar_back.tga"
-     image_selected="navbar_bg_button.tga"
-     image_unselected="navbar_bg_button.tga"
-     layout="topleft"
-     left="10"
-     name="back_btn"
-     picture_style="true"
-     top="5"
-     width="20" />
+ top="0">
     <text
      type="string"
      length="1"
@@ -33,15 +22,24 @@
      width="150">
         Pick Info
     </text>
+   <button
+     follows="top|right"
+     right="-25"
+     top="10"
+     width="20"
+     height="20"
+     image_overlay="BackArrow_Off"
+     layout="topleft"
+     name="back_btn"
+     picture_style="true" />
     <panel
      follows="left|right|top|bottom"
-     height="580"
+     min_height="300"
      width="280"
      layout="topleft"
      background_visible="true"
      bg_alpha_color="DkGray2"
      left="10"
-     right="-10"
      top="30">
         <texture_picker
          enabled="false"

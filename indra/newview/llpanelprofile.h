@@ -39,34 +39,42 @@
 
 class LLTabContainer;
 
+/**
+* Base class for Profile View and Me Profile.
+*/
 class LLPanelProfile : public LLPanel
 {
 	LOG_CLASS(LLPanelProfile);
 
 public:
-	virtual BOOL postBuild();
+	/*virtual*/ BOOL postBuild();
 
-	virtual void onOpen(const LLSD& key) {};
+	/*virtual*/ void onOpen(const LLSD& key);
 
 	virtual void togglePanel(LLPanel*);
 
 protected:
+
 	LLPanelProfile();
-	~LLPanelProfile();
 
-	void onTabSelected(const LLSD& param);
+	virtual void onTabSelected(const LLSD& param);
 
-	void setAllChildrenVisible(BOOL visible);
+	virtual void setAllChildrenVisible(BOOL visible);
 
+	LLTabContainer* getTabCtrl() { return mTabCtrl; }
 
-	LLTabContainer* mTabContainer;
-	
+	const LLUUID& getAvatarId() { return mAvatarId; }
+
+	void setAvatarId(const LLUUID& avatar_id) { mAvatarId = avatar_id; }
+
 	typedef std::map<std::string, LLPanelProfileTab*> profile_tabs_t;
-	profile_tabs_t mTabs;
 
+	profile_tabs_t& getTabContainer() { return mTabContainer; }
+
+private:
+	LLTabContainer* mTabCtrl;	
+	profile_tabs_t mTabContainer;
 	LLUUID mAvatarId;
 };
-
-
 
 #endif //LL_LLPANELPROFILE_H

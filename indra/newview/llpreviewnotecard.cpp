@@ -73,10 +73,9 @@ LLPreviewNotecard::LLPreviewNotecard(const LLSD& key) //const LLUUID& item_id,
 	const LLInventoryItem *item = getItem();
 	if (item)
 	{
-		mShowKeepDiscard = item->getPermissions().getCreator() != gAgent.getID();
-		//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this,"floater_preview_notecard.xml", FALSE);
 		mAssetID = item->getAssetUUID();
 	}	
+	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this,"floater_preview_notecard.xml", FALSE);
 }
 
 LLPreviewNotecard::~LLPreviewNotecard()
@@ -91,18 +90,8 @@ BOOL LLPreviewNotecard::postBuild()
 		ed->setNotecardInfo(mItemUUID, mObjectID, getKey());
 		ed->makePristine();
 	}
-	if (mShowKeepDiscard)
-	{
-		childSetAction("Keep",onKeepBtn,this);
-		childSetAction("Discard",onDiscardBtn,this);
-	}
-	else
-	{
-		getChild<LLButton>("Keep")->setLabel(getString("Save"));
-		childSetAction("Keep",onClickSave,this);
-		childSetVisible("Discard", false);
-	}
 
+	childSetAction("Save", onClickSave, this);
 	childSetVisible("lock", FALSE);	
 
 	const LLInventoryItem* item = getItem();
@@ -137,18 +126,16 @@ void LLPreviewNotecard::setEnabled( BOOL enabled )
 	childSetEnabled("Notecard Editor", enabled);
 	childSetVisible("lock", !enabled);
 	childSetEnabled("desc", enabled);
-	childSetEnabled("Keep", enabled && editor && (!editor->isPristine()));
-
+	childSetEnabled("Save", enabled && editor && (!editor->isPristine()));
 }
 
 
 void LLPreviewNotecard::draw()
 {
-	
 	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
-	BOOL script_changed = !editor->isPristine();
+	BOOL changed = !editor->isPristine();
 	
-	childSetEnabled("Keep", script_changed && getEnabled());
+	childSetEnabled("Save", changed && getEnabled());
 	
 	LLPreview::draw();
 }
@@ -293,7 +280,9 @@ void LLPreviewNotecard::loadAsset()
 		editor->setText(LLStringUtil::null);
 		editor->makePristine();
 		editor->setEnabled(TRUE);
-		mAssetStatus = PREVIEW_ASSET_LOADED;
+		// Don't set asset status here; we may not have set the item id yet
+		// (e.g. when this gets called initially)
+		//mAssetStatus = PREVIEW_ASSET_LOADED;
 	}
 }
 

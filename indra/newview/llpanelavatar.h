@@ -45,137 +45,199 @@ enum EOnlineStatus
 	ONLINE_STATUS_YES     = 1
 };
 
-
-class LLPanelProfileTab 
+/**
+* Base class for any Profile View or Me Profile Panel.
+*/
+class LLPanelProfileTab
 	: public LLPanel
 	, public LLAvatarPropertiesObserver
 {
 public:
-	
-	LLPanelProfileTab(const LLUUID& avatar_id);
-	LLPanelProfileTab(const Params& params );
 
-	void setAvatarId(const LLUUID& avatar_id);
+	/**
+	 * Sets avatar ID, sets panel as observer of avatar related info replies from server.
+	 */
+	virtual void setAvatarId(const LLUUID& id);
 
-	const LLUUID& getAvatarId(){return mAvatarId;}
+	/**
+	 * Returns avatar ID.
+	 */
+	virtual const LLUUID& getAvatarId() { return mAvatarId; }
 
+	/**
+	 * Sends update data request to server.
+	 */
 	virtual void updateData() = 0;
 
+	/**
+	 * Clears panel data if viewing avatar info for first time and sends update data request.
+	 */
 	virtual void onOpen(const LLSD& key);
 
-	virtual void onActivate(const LLUUID& id);
+	/**
+	 * Resets controls visibility, state, etc.
+	 */
+	virtual void resetControls(){};
 
-	typedef enum e_profile_type
-	{
-		PT_UNKNOWN,
-		PT_OWN,
-		PT_OTHER
-	} EProfileType;
+	/**
+	 * Clears all data received from server.
+	 */
+	virtual void resetData(){};
 
-	virtual void onAddFriend();
-
-	virtual void onIM();
-
-	virtual void onTeleport();
-
-	virtual void clear(){};
+	/*virtual*/ ~LLPanelProfileTab();
 
 protected:
-	virtual ~LLPanelProfileTab();
-	void setProfileType();
 
-private:
+	LLPanelProfileTab();
+
+	/**
+	 * Scrolls panel to top when viewing avatar info for first time.
+	 */
 	void scrollToTop();
 
-protected:
-	e_profile_type mProfileType;
+private:
+
 	LLUUID mAvatarId;
 };
 
-class LLPanelAvatarProfile 
+/**
+* Panel for displaying Avatar's first and second life related info.
+*/
+class LLPanelAvatarProfile
 	: public LLPanelProfileTab
 {
 public:
-	LLPanelAvatarProfile(const LLUUID& avatar_id = LLUUID::null);
-	LLPanelAvatarProfile(const Params& params );
-	~LLPanelAvatarProfile();
-	
-	static void* create(void* data);
+	LLPanelAvatarProfile();
 
-	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
-
-	void updateData();
-
-	void clear();
-
-	virtual void clearControls();
-
-	/*virtual*/ BOOL postBuild(void);
 	/*virtual*/ void onOpen(const LLSD& key);
 
-private:
-	bool isOwnProfile(){return PT_OWN == mProfileType;}
-	bool isEditMode(){return mEditMode;}
-	void updateChildrenList();
+	/**
+	 * Processes data received from server.
+	 */
+	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
+
+	/*virtual*/ BOOL postBuild();
+
+	/*virtual*/ void updateData();
+
+	/*virtual*/ void resetControls();
+
+	/*virtual*/ void resetData();
+
+protected:
+
+	/**
+	 * Process profile related data received from server.
+	 */
+	virtual void processProfileProperties(const LLAvatarData* avatar_data);
+
+	/**
+	 * Processes group related data received from server.
+	 */
+	virtual void processGroupProperties(const LLAvatarGroups* avatar_groups);
+
+	/**
+	 * Fills common for Avatar profile and Me Profile fields.
+	 */
+	virtual void fillCommonData(const LLAvatarData* avatar_data);
+
+	/**
+	 * Fills partner data.
+	 */
+	virtual void fillPartnerData(const LLAvatarData* avatar_data);
+
+	/**
+	 * Fills Avatar's online status.
+	 */
+	virtual void fillOnlineStatus(const LLAvatarData* avatar_data);
+	
+	/**
+	 * Fills account status.
+	 */
+	virtual void fillAccountStatus(const LLAvatarData* avatar_data);
+
+	void onUrlTextboxClicked(std::string url);
+	void onHomepageTextboxClicked();
+	void onAddFriendButtonClick();
+	void onIMButtonClick();
+	void onCallButtonClick();
+	void onTeleportButtonClick();
+	void onShareButtonClick();
+};
+
+/**
+ * Panel for displaying own first and second life related info.
+ */
+class LLPanelAvatarMeProfile
+	: public LLPanelAvatarProfile
+{
+public:
+	LLPanelAvatarMeProfile();
+
+	/*virtual*/ BOOL postBuild();
+
+protected:
+
+	/*virtual*/ void onOpen(const LLSD& key);
+
+	/*virtual*/ void processProfileProperties(const LLAvatarData* avatar_data);
+
+	/**
+	 * Fills Avatar status data.
+	 */
+	virtual void fillStatusData(const LLAvatarData* avatar_data);
+
+	/*virtual*/ void resetControls();
+
+protected:
+
 	void onStatusChanged();
 	void onStatusMessageChanged();
-	void setCaptionText(const LLAvatarData* avatar_data);
-
-	static void onUrlTextboxClicked(std::string url);
-	void onHomepageTextboxClicked();
 	void onUpdateAccountTextboxClicked();
 	void onMyAccountTextboxClicked();
 	void onPartnerEditTextboxClicked();
+
+private:
+
+	LLComboBox* mStatusCombobox;
+};
+
+/**
+* Panel for displaying Avatar's notes and modifying friend's rights.
+*/
+class LLPanelAvatarNotes 
+	: public LLPanelProfileTab
+{
+public:
+	LLPanelAvatarNotes();
+
+	/*virtual*/ void onOpen(const LLSD& key);
+
+	/*virtual*/ BOOL postBuild();
+
+	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
+
+	/*virtual*/ void updateData();
+
+protected:
+
+	/*virtual*/ void resetControls();
+
+	/*virtual*/ void resetData();
+
+	/**
+	 * Fills rights data for friends.
+	 */
+	void fillRightsData();
+
+	void onCommitRights();
+	void onCommitNotes();
 
 	void onAddFriendButtonClick();
 	void onIMButtonClick();
 	void onCallButtonClick();
 	void onTeleportButtonClick();
 	void onShareButtonClick();
-
-
-protected:
-	bool mEditMode;
-
-private:
-	bool mUpdated;
-	LLComboBox * mStatusCombobox;
-	LLLineEditor * mStatusMessage;
 };
-
-
-class LLPanelAvatarNotes 
-	: public LLPanelProfileTab
-{
-public:
-	LLPanelAvatarNotes(const LLUUID& id = LLUUID::null);
-	LLPanelAvatarNotes(const Params& params );
-	~LLPanelAvatarNotes();
-
-	static void* create(void* data);
-
-	void onActivate(const LLUUID& id);
-
-	BOOL postBuild(void);
-
-	void onCommitRights();
-
-	void onCommitNotes();
-
-	void clear();
-
-	void processProperties(void* data, EAvatarProcessorType type);
-
-	void updateData();
-
-protected:
-
-	void updateChildrenList();
-};
-
-
-
-// helper funcs
-void add_left_label(LLPanel *panel, const std::string& name, S32 y);
 
 #endif // LL_LLPANELAVATAR_H

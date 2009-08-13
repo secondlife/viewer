@@ -37,7 +37,10 @@
 #include "lltextbox.h"
 #include "llscreenchannel.h"
 
+#include "lltoastpanel.h"
 #include "llviewercontrol.h"
+#include "llfloaterreg.h"
+#include "lltrans.h"
 
 #include <algorithm>
 
@@ -46,9 +49,10 @@ using namespace LLNotificationsUI;
 bool LLScreenChannel::mWasStartUpToastShown = false;
 
 //--------------------------------------------------------------------------
-LLScreenChannel::LLScreenChannel(): mUnreadToastsPanel(NULL), 
+LLScreenChannel::LLScreenChannel(): mOverflowToastPanel(NULL), 
+									mStartUpToastPanel(NULL),
 									mToastAlignment(NA_BOTTOM), 
-									mStoreToasts(true),
+									mCanStoreToasts(true),
 									mHiddenToastsNum(0),
 									mOverflowToastHidden(false),
 									mIsHovering(false),
@@ -56,10 +60,8 @@ LLScreenChannel::LLScreenChannel(): mUnreadToastsPanel(NULL),
 {	
 	setFollows(FOLLOWS_RIGHT | FOLLOWS_BOTTOM | FOLLOWS_TOP);  
 
-	//TODO: load as a resource string
-	mOverflowFormatString = "You have %d more notification";
+	mOverflowFormatString = LLTrans::getString("OverflowInfoChannelString");
 
-	mToastList.clear();
 	setMouseOpaque( false );
 }
 
@@ -85,44 +87,48 @@ void LLScreenChannel::reshape(S32 width, S32 height, BOOL called_from_parent)
 }
 
 //--------------------------------------------------------------------------
-LLToast* LLScreenChannel::addToast(LLUUID id, LLPanel* panel, bool is_not_tip)
-{	
-	ToastElem new_toast_elem(id, panel);
+void LLScreenChannel::addToast(LLToast::Params p)
+{
+	bool isSysWellWndShown = LLFloaterReg::getInstance("syswell_window")->getVisible();
+	// we show toast in the following cases:
+	//	- the StartUp Toast is already hidden and the SysWell's window is hidden
+	//  - the SysWell's window is shown, but notification is a tip. We can't store it, so we show it
+	//	- the channel has a CENTRE allignment, so it is intended for alerts. We always show alerts
+	bool show_toast = (mWasStartUpToastShown && !isSysWellWndShown) || (isSysWellWndShown && p.is_tip) || mToastAlignment == NA_CENTRE;
+	bool store_toast = !show_toast && !p.is_tip && mCanStoreToasts;
+
+	// if we can't show or store a toast, then do nothing, just send ignore to a notification 
+	if(!show_toast && !store_toast)
+	{
+		if(p.notification)
+		{
+			p.notification->setIgnored(TRUE);
+			p.notification->respond(p.notification->getResponseTemplate());
+		}
+		return;
+	}
+
+	ToastElem new_toast_elem(p);
 
 	mOverflowToastHidden = false;
 	
-	mToastList.push_back(new_toast_elem);
 	getRootView()->addChild(new_toast_elem.toast);
 	new_toast_elem.toast->setOnFadeCallback(boost::bind(&LLScreenChannel::onToastFade, this, new_toast_elem.toast));
 	if(mControlHovering)
 	{
 		new_toast_elem.toast->setOnToastHoverCallback(boost::bind(&LLScreenChannel::onToastHover, this, _1, _2));
 	}
-
-	// don't show toasts until StartUp toast will fade, but show alerts
-	if(!mWasStartUpToastShown && mToastAlignment != NA_CENTRE)
+	
+	if(show_toast)
 	{
-		new_toast_elem.toast->stopTimer();
-		// Count and store only non tip notifications
-		if(is_not_tip)
-		{
-			mHiddenToastsNum++;			
-			storeToast(new_toast_elem);
-		}
-		else
-		{
-			// destroy tip toasts at once
-			new_toast_elem.toast->close();			
-		}
-		// remove toast from channel
-		mToastList.pop_back();
-	}
-	else
-	{
+		mToastList.push_back(new_toast_elem);
 		showToasts();
+	}	
+	else // store_toast
+	{
+		mHiddenToastsNum++;
+		storeToast(new_toast_elem);
 	}
-
-	return new_toast_elem.toast;
 }
 
 //--------------------------------------------------------------------------
@@ -130,11 +136,12 @@ void LLScreenChannel::onToastFade(LLToast* toast)
 {	
 	std::vector<ToastElem>::iterator it = find(mToastList.begin(), mToastList.end(), static_cast<LLPanel*>(toast));
 		
-	bool destroy_toast = toast->isViewed() || !mStoreToasts || !toast->getCanBeStored();
+	// *TODO: toast->isViewed() - seems unnecessary
+	bool destroy_toast = toast->isViewed() || !mCanStoreToasts || !toast->getCanBeStored();
 	if(destroy_toast)
 	{
 		mToastList.erase(it);
-		toast->mOnToastDestroy(toast, LLSD());
+		toast->mOnToastDestroy(toast);
 	}
 	else
 	{
@@ -149,7 +156,14 @@ void LLScreenChannel::onToastFade(LLToast* toast)
 
 void LLScreenChannel::storeToast(ToastElem& toast_elem)
 {
+	// do not store clones
+	std::vector<ToastElem>::iterator it = find(mStoredToastList.begin(), mStoredToastList.end(), toast_elem.id);
+	if( it != mStoredToastList.end() )
+		return;
+
+	toast_elem.toast->stopTimer();
 	mStoredToastList.push_back(toast_elem);
+	mOnStoreToast(toast_elem.toast->getPanel(), toast_elem.id);
 }
 
 //--------------------------------------------------------------------------
@@ -173,16 +187,74 @@ void LLScreenChannel::loadStoredToastsToChannel()
 }
 
 //--------------------------------------------------------------------------
+void LLScreenChannel::loadStoredToastByIDToChannel(LLUUID id)
+{
+	std::vector<ToastElem>::iterator it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
+
+	if( it == mStoredToastList.end() )
+		return;
+
+	mOverflowToastHidden = false;
+
+	LLToast* toast = (*it).toast;
+	toast->resetTimer();
+	mToastList.push_back((*it));
+	mStoredToastList.erase(it);
+
+	showToasts();
+}
+
+//--------------------------------------------------------------------------
+void LLScreenChannel::removeStoredToastByID(LLUUID id)
+{
+	// *TODO: may be remove this function
+	std::vector<ToastElem>::iterator it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
+
+	if( it == mStoredToastList.end() )
+		return;
+
+	LLToast* toast = (*it).toast;
+	mStoredToastList.erase(it);
+	toast->discardNotification();
+}
+
+//--------------------------------------------------------------------------
 void LLScreenChannel::killToastByNotificationID(LLUUID id)
 {
+	// searching among toasts on a screen
 	std::vector<ToastElem>::iterator it = find(mToastList.begin(), mToastList.end(), id);
 	
 	if( it != mToastList.end())
 	{
 		LLToast* toast = (*it).toast;
-		mToastList.erase(it);
-		toast->mOnToastDestroy(toast, LLSD());
-		showToasts();
+		// if it is a notification toast and notification is UnResponded - then respond on it
+		// else - simply destroy a toast
+		//
+		// NOTE:	if a notification is unresponded this function will be called twice for the same toast.
+		//			At first, the notification will be discarded, at second (it will be caused by discarding),
+		//			the toast will be destroyed.
+		if(toast->getIsNotificationUnResponded())
+		{
+			toast->discardNotification();
+		}
+		else
+		{
+			mToastList.erase(it);
+			toast->mOnToastDestroy(toast);
+			showToasts();
+		}
+		return;
+	}
+
+	// searching among stored toasts
+	it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
+
+	if( it != mStoredToastList.end() )
+	{
+		LLToast* toast = (*it).toast;
+		mStoredToastList.erase(it);
+		toast->discardNotification();
+		toast->mOnToastDestroy(toast);
 	}
 }
 
@@ -197,7 +269,7 @@ void LLScreenChannel::modifyToastByNotificationID(LLUUID id, LLPanel* panel)
 		LLPanel* old_panel = toast->getPanel();
 		toast->removeChild(old_panel);
 		delete old_panel;
-		toast->arrange(panel);
+		toast->insertPanel(panel);
 		toast->resetTimer();
 		showToasts();
 	}
@@ -297,15 +369,16 @@ void LLScreenChannel::showToastsTop()
 void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 {
 	LLRect toast_rect;
-	mUnreadToastsPanel = new LLToast(NULL);
+	LLToast::Params p; // *TODO: fill structure
+	mOverflowToastPanel = new LLToast(p);
 
-	if(!mUnreadToastsPanel)
+	if(!mOverflowToastPanel)
 		return;
 
-	mUnreadToastsPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::onOverflowToastHide, this));
+	mOverflowToastPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::onOverflowToastHide, this));
 
-	LLTextBox* text_box = mUnreadToastsPanel->getChild<LLTextBox>("toast_text");
-	LLIconCtrl* icon = mUnreadToastsPanel->getChild<LLIconCtrl>("icon");
+	LLTextBox* text_box = mOverflowToastPanel->getChild<LLTextBox>("toast_text");
+	LLIconCtrl* icon = mOverflowToastPanel->getChild<LLIconCtrl>("icon");
 	std::string	text = llformat(mOverflowFormatString.c_str(),mHiddenToastsNum);
 	if(mHiddenToastsNum == 1)
 	{
@@ -316,41 +389,107 @@ void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 		text += "s.";
 	}
 
-	toast_rect = mUnreadToastsPanel->getRect();
-	mUnreadToastsPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
+	toast_rect = mOverflowToastPanel->getRect();
+	mOverflowToastPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
 	toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastMargin"), getRect().getWidth(), toast_rect.getHeight());	
-	mUnreadToastsPanel->setRect(toast_rect);
-	mUnreadToastsPanel->setAndStartTimer(timer);
-	getRootView()->addChild(mUnreadToastsPanel);
+	mOverflowToastPanel->setRect(toast_rect);
+	mOverflowToastPanel->setAndStartTimer(timer);
+	getRootView()->addChild(mOverflowToastPanel);
 
 	text_box->setValue(text);
 	text_box->setVisible(TRUE);
 	icon->setVisible(TRUE);
 
-	mUnreadToastsPanel->setVisible(TRUE);
+	mOverflowToastPanel->setVisible(TRUE);
 }
 
 //--------------------------------------------------------------------------
 void LLScreenChannel::onOverflowToastHide()
 {
 	mOverflowToastHidden = true;
+	// *TODO: check whether it is needed: closeOverflowToastPanel();	
+}
+
+//--------------------------------------------------------------------------
+void LLScreenChannel::closeOverflowToastPanel()
+{
+	if(mOverflowToastPanel != NULL)
+	{
+		mOverflowToastPanel->close();
+		mOverflowToastPanel = NULL;
+	}
+}
+
+//--------------------------------------------------------------------------
+void LLScreenChannel::createStartUpToast(S32 notif_num, S32 bottom, F32 timer)
+{
+	LLRect toast_rect;
+	LLToast::Params p; // *TODO: fill structure
+	mStartUpToastPanel = new LLToast(p);
+
+	if(!mStartUpToastPanel)
+		return;
+
+	mStartUpToastPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::onStartUpToastHide, this));
+
+	LLTextBox* text_box = mStartUpToastPanel->getChild<LLTextBox>("toast_text");
+	LLIconCtrl* icon = mStartUpToastPanel->getChild<LLIconCtrl>("icon");
+
+	std::string mStartUpFormatString;
+
+	if(notif_num == 1)
+	{
+		mStartUpFormatString = LLTrans::getString("StartUpNotification");
+	}
+	else
+	{
+		mStartUpFormatString = LLTrans::getString("StartUpNotifications");
+	}
+	
+
+	std::string	text = llformat(mStartUpFormatString.c_str(), notif_num);
+
+	toast_rect = mStartUpToastPanel->getRect();
+	mStartUpToastPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
+	toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastMargin"), getRect().getWidth(), toast_rect.getHeight());	
+	mStartUpToastPanel->setRect(toast_rect);
+	mStartUpToastPanel->setAndStartTimer(timer);
+	getRootView()->addChild(mStartUpToastPanel);
+
+	text_box->setValue(text);
+	text_box->setVisible(TRUE);
+	icon->setVisible(TRUE);
+
+	mStartUpToastPanel->setVisible(TRUE);
+}
+
+//--------------------------------------------------------------------------
+void LLScreenChannel::updateStartUpString(S32 num)
+{
+	// *TODO: update string if notifications are arriving while the StartUp toast is on a screen
+}
+
+//--------------------------------------------------------------------------
+void LLScreenChannel::onStartUpToastHide()
+{
 	onCommit();
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::closeUnreadToastsPanel()
+void LLScreenChannel::closeStartUpToast()
 {
-	if(mUnreadToastsPanel != NULL)
+	if(mStartUpToastPanel != NULL)
 	{
-		mUnreadToastsPanel->close();
-		mUnreadToastsPanel = NULL;
+		LLScreenChannel::setStartUpToastShown();
+		mStartUpToastPanel->close();
+		mStartUpToastPanel = NULL;
 	}
 }
 
 //--------------------------------------------------------------------------
 void LLScreenChannel::hideToastsFromScreen()
 {
-	closeUnreadToastsPanel();
+	closeOverflowToastPanel();
 	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end(); it++)
 		(*it).toast->setVisible(FALSE);
 }
@@ -364,6 +503,24 @@ void LLScreenChannel::removeToastsFromChannel()
 		(*it).toast->close();
 		//toast->mOnToastDestroy(toast, LLSD()); //TODO: check OnToastDestroy handler for chat
 	}
+	mToastList.clear();
+}
+
+//--------------------------------------------------------------------------
+void LLScreenChannel::removeAndStoreAllVisibleToasts()
+{
+	if(mToastList.size() == 0)
+		return;
+
+	hideToastsFromScreen();
+	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end(); it++)
+	{
+		mStoredToastList.push_back(*it);
+		mOnStoreToast((*it).toast->getPanel(), (*it).id);
+		(*it).toast->stopTimer();
+		(*it).toast->setVisible(FALSE);
+	}
+
 	mToastList.clear();
 }
 

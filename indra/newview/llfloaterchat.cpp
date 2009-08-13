@@ -339,11 +339,14 @@ void LLFloaterChat::addChat(const LLChat& chat,
 			text_color = LLUIColorTable::instance().getColor("IMChatColor");
 			size = INSTANT_MSG_SIZE;
 		}
+		// Disabling the console for 2.0 - SJB
+#if 0
 		// We display anything if it's not an IM. If it's an IM, check pref...
 		if	( !from_instant_message || gSavedSettings.getBOOL("IMInChatConsole") ) 
 		{
 			gConsole->addLine(chat.mText, size, text_color);
 		}
+#endif
 	}
 
 	if(from_instant_message && (gSavedPerAccountSettings.getS32("IMLogOptions")== LOG_BOTH_TOGETHER))

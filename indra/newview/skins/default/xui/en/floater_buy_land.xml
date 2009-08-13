@@ -374,9 +374,11 @@ supports [AMOUNT2] objects
      length="1"
      bottom_delta="-119"
      follows="top|left"
+     height="16"
      layout="topleft"
      left="204"
      name="info_parcel_label"
+     top="30"
      width="48">
         Parcel:
     </text>
@@ -389,7 +391,7 @@ supports [AMOUNT2] objects
      layout="topleft"
      left_delta="16"
      name="info_parcel"
-     top_delta="-1"
+     top_pad="1"
      width="180">
         Scotopteryx 138,204
     </text>
@@ -397,9 +399,11 @@ supports [AMOUNT2] objects
      type="string"
      length="1"
      follows="top|left"
+     height="16"
      layout="topleft"
      left="204"
      name="info_size_label"
+     top_pad="1"
      width="48">
         Size:
     </text>
@@ -412,7 +416,7 @@ supports [AMOUNT2] objects
      layout="topleft"
      left_delta="16"
      name="info_size"
-     top_delta="-1"
+     top_pad="1"
      width="180">
         1024 m²
     </text>
@@ -420,9 +424,11 @@ supports [AMOUNT2] objects
      type="string"
      length="1"
      follows="top|left"
+     height="16"
      layout="topleft"
      left="204"
      name="info_price_label"
+     top_pad="1"
      width="48">
         Price:
     </text>
@@ -435,7 +441,7 @@ supports [AMOUNT2] objects
      layout="topleft"
      left_delta="16"
      name="info_price"
-     top_delta="-1"
+     top_pad="1"
      width="180">
         L$ 1500
 (L$ 1.1/m²)
@@ -450,7 +456,7 @@ sold with objects
      layout="topleft"
      left="16"
      name="info_action"
-     top="156"
+     top="166"
      width="350">
         Buying this land will:
     </text>
@@ -485,7 +491,7 @@ sold with objects
      layout="topleft"
      left_delta="0"
      name="error_web"
-     top_delta="144"
+     top_delta="154"
      width="120" />
     <locate
      height="-200"
@@ -508,7 +514,7 @@ sold with objects
      left="72"
      name="account_action"
      right="438"
-     top="190"
+     top="200"
      width="218">
         Upgrade you to premium membership.
     </text>
@@ -562,7 +568,7 @@ sold with objects
      left="72"
      name="land_use_action"
      right="438"
-     top="274"
+     top="284"
      width="218">
         Increase your monthly land use fees to US$ 40/month.
     </text>
@@ -638,7 +644,7 @@ sold with objects
      layout="topleft"
      left="170"
      name="currency_amt"
-     top="398"
+     top="408"
      width="80">
         1000
     </line_editor>
@@ -654,7 +660,7 @@ sold with objects
      layout="topleft"
      left="260"
      name="currency_est"
-     top="399"
+     top="409"
      width="178">
         for approx. US$ [AMOUNT2]
     </text>

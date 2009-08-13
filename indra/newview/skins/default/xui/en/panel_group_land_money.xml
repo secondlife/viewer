@@ -2,7 +2,7 @@
 <panel
  border="true"
  follows="all"
- height="514"
+ height="420"
  label="Land &amp; L$"
  layout="topleft"
  left="1"
@@ -281,7 +281,7 @@
              bg_readonly_color="0.784314 0.819608 0.8 1"
              follows="all"
              font="Monospace"
-             height="150"
+             height="180"
              layout="topleft"
              left="8"
              max_length="4096"

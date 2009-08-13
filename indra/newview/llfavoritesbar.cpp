@@ -168,6 +168,18 @@ void LLFavoritesBarCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 	LLUICtrl::reshape(width, height, called_from_parent);
 }
 
+LLXMLNodePtr LLFavoritesBarCtrl::getButtonXMLNode()
+{
+	LLXMLNodePtr buttonXMLNode = NULL;
+	bool success = LLUICtrlFactory::getLayeredXMLNode("favorites_bar_button.xml", buttonXMLNode);
+	if (!success)
+	{
+		llwarns << "Unable to read xml file with button for Favorites Bar: favorites_bar_button.xml" << llendl;
+		buttonXMLNode = NULL;
+	}
+	return buttonXMLNode;
+}
+
 void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 {
 	LLInventoryModel::item_array_t items;
@@ -177,21 +189,25 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 		return;
 	}
 
-	const S32 buttonHPad = LLUI::sSettingGroups["config"]->getS32("ButtonHPad");
-	const S32 buttonHGap = 2;
-	const S32 buttonVGap = 2;
-	static LLButton::Params default_button_params(LLUICtrlFactory::getDefaultParams<LLButton>());
-	std::string flat_icon			= "transparent.j2c";
-	std::string hover_icon			= default_button_params.image_unselected.name;
-	std::string hover_icon_selected	= default_button_params.image_selected.name;
-	
-	S32 curr_x = buttonHGap;
+	static LLXMLNodePtr buttonXMLNode = getButtonXMLNode();
+	if (buttonXMLNode.isNull())
+	{
+		return;
+	}
 
+	S32 buttonWidth = 120; //default value
+	buttonXMLNode->getAttributeS32("width", buttonWidth);
+	S32 buttonHGap = 2; // default value
+	buttonXMLNode->getAttributeS32("left", buttonHGap);
+
+	const S32 buttonVGap = 2;
+	
 	S32 count = items.count();
 
+	const S32 buttonHPad = LLUI::sSettingGroups["config"]->getS32("ButtonHPad");
 	const S32 chevron_button_width = mFont->getWidth(">>") + buttonHPad * 2;
 
-	S32 buttons_space = bar_width - curr_x;
+	S32 buttons_space = bar_width - buttonHGap;
 
 	S32 first_drop_down_item = count;
 
@@ -199,7 +215,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 	S32 buttons_width = 0;
 	for (S32 i = 0; i < count; ++i)
 	{
-		buttons_width += mFont->getWidth(items.get(i)->getName()) + buttonHPad * 2 + buttonHGap;
+		buttons_width += buttonWidth + buttonHGap;
 		if (buttons_width > buttons_space)
 		{
 			// There is no space for all buttons.
@@ -207,7 +223,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 			buttons_space -= chevron_button_width + buttonHGap;
 			while (i >= 0 && buttons_width > buttons_space)
 			{
-				buttons_width -= mFont->getWidth(items.get(i)->getName()) + buttonHPad * 2 + buttonHGap;
+				buttons_width -= buttonWidth + buttonHGap;
 				i--;
 			}
 			first_drop_down_item = i + 1; // First item behind visible items
@@ -259,37 +275,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 			}
 		}
 
-		// Adding buttons
-		for(S32 i = mFirstDropDownItem -1; i >= 0; i--)
-		{
-
-			LLInventoryItem* item = items.get(i);
-
-			S32 buttonWidth = mFont->getWidth(item->getName()) + buttonHPad * 2;
-
-			LLRect rect;
-			rect.setOriginAndSize(curr_x, buttonVGap, buttonWidth, getRect().getHeight()-buttonVGap);
-
-			LLButton::Params bparams;
-			bparams.image_unselected.name(flat_icon);
-			bparams.image_disabled.name(flat_icon);
-			bparams.image_selected.name(hover_icon_selected);
-			bparams.image_hover_selected.name(hover_icon_selected);
-			bparams.image_disabled_selected.name(hover_icon_selected);
-			bparams.image_hover_unselected.name(hover_icon);
-			bparams.follows.flags (FOLLOWS_LEFT | FOLLOWS_BOTTOM);
-			bparams.rect (rect);
-			bparams.tab_stop(false);
-			bparams.font(mFont);
-			bparams.name(item->getName());
-			bparams.tool_tip(item->getName());
-			bparams.click_callback.function(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
-			bparams.rightclick_callback.function(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID()));
-
-			addChildInBack(LLUICtrlFactory::create<LLButton> (bparams));
-
-			curr_x += buttonWidth + buttonHGap;
-		}
+		createButtons(items, buttonXMLNode, buttonWidth, buttonHGap);
 	}
 
 	// Chevron button
@@ -307,6 +293,11 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 		}
 		else
 		{
+			static LLButton::Params default_button_params(LLUICtrlFactory::getDefaultParams<LLButton>());
+			std::string flat_icon			= "transparent.j2c";
+			std::string hover_icon			= default_button_params.image_unselected.name;
+			std::string hover_icon_selected	= default_button_params.image_selected.name;
+
 			LLButton::Params bparams;
 
 			LLRect rect;
@@ -340,6 +331,37 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 		}
 	}
 }
+
+
+void LLFavoritesBarCtrl::createButtons(const LLInventoryModel::item_array_t &items, const LLXMLNodePtr &buttonXMLNode, S32 buttonWidth, S32 buttonHGap)
+{
+	S32 curr_x = buttonHGap;
+	// Adding buttons
+	for(S32 i = mFirstDropDownItem -1; i >= 0; i--)
+	{
+		LLInventoryItem* item = items.get(i);
+
+		LLButton* fav_btn = LLUICtrlFactory::defaultBuilder<LLButton>(buttonXMLNode, this, NULL);
+		if (NULL == fav_btn)
+		{
+			llwarns << "Unable to create button for landmark: " << item->getName() << llendl;
+			continue;
+		}
+
+		// change only left and save bottom
+		fav_btn->setOrigin(curr_x, fav_btn->getRect().mBottom);
+		fav_btn->setFont(mFont);
+		fav_btn->setName(item->getName());
+		fav_btn->setLabel(item->getName());
+		fav_btn->setToolTip(item->getName());
+		fav_btn->setCommitCallback(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
+		fav_btn->setRightClickedCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID(), _1, _2, _3,_4 ));
+		sendChildToBack(fav_btn);
+
+		curr_x += buttonWidth + buttonHGap;
+	}
+}
+
 
 BOOL LLFavoritesBarCtrl::postBuild()
 {
@@ -462,10 +484,8 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 			item_params.label(item_name);
 			
 			item_params.on_click.function(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
-			item_params.rightclick_callback.function(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID()));
-
 			LLMenuItemCallGL *menu_item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
-
+			menu_item->setRightClickedCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this,item->getUUID(),_1,_2,_3,_4));
 			// Check whether item name wider than menu
 			if ((S32) menu_item->getNominalWidth() > bar_width)
 			{
@@ -514,7 +534,7 @@ void LLFavoritesBarCtrl::onButtonClick(LLUUID item_id)
 	LLInvFVBridgeAction::doAction(item_id,&gInventory);
 }
 
-void LLFavoritesBarCtrl::onButtonRightClick(LLUUID item_id)
+void LLFavoritesBarCtrl::onButtonRightClick( LLUUID item_id,LLView* fav_button,S32 x,S32 y,MASK mask)
 {
 	mSelectedItemID = item_id;
 	
@@ -525,10 +545,7 @@ void LLFavoritesBarCtrl::onButtonRightClick(LLUUID item_id)
 	}
 	
 	menu->updateParent(LLMenuGL::sMenuContainer);
-
-	S32 x,y;
-	LLUI::getCursorPositionLocal(this, &x, &y);
-	LLMenuGL::showPopup(this, menu, x, y);
+	LLMenuGL::showPopup(fav_button, menu, x, y);
 }
 
 void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)

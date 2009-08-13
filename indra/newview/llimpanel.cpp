@@ -51,9 +51,9 @@
 #include "llchat.h"
 #include "llchiclet.h"
 #include "llconsole.h"
+#include "llgroupactions.h"
 #include "llfloater.h"
 #include "llfloatercall.h"
-#include "llfloatergroupinfo.h"
 #include "llavataractions.h"
 #include "llimview.h"
 #include "llinventory.h"
@@ -1581,7 +1581,8 @@ void LLFloaterIMPanel::onClickGroupInfo( void* userdata )
 	//  Bring up the Profile window
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*) userdata;
 
-	LLFloaterGroupInfo::showFromUUID(self->mSessionUUID);
+	LLGroupActions::show(self->mSessionUUID);
+
 }
 
 // static
@@ -1713,35 +1714,6 @@ void LLFloaterIMPanel::sendMsg()
 								mOtherParticipantUUID,
 								mDialog);
 
-				// local echo
-				if((mDialog == IM_NOTHING_SPECIAL) && 
-				   (mOtherParticipantUUID.notNull()))
-				{
-					std::string history_echo;
-					gAgent.buildFullname(history_echo);
-
-					// Look for IRC-style emotes here.
-					std::string prefix = utf8_text.substr(0, 4);
-					if (prefix == "/me " || prefix == "/me'")
-					{
-						utf8_text.replace(0,3,"");
-					}
-					else
-					{
-						history_echo += ": ";
-					}
-					history_echo += utf8_text;
-
-					BOOL other_was_typing = mOtherTyping;
-
-					addHistoryLine(history_echo, LLUIColorTable::instance().getColor("IMChatColor"), true, gAgent.getID());
-
-					if (other_was_typing) 
-					{
-						addTypingIndicator(mOtherTypingName);
-					}
-
-				}
 			}
 			else
 			{
@@ -2149,7 +2121,7 @@ BOOL LLIMFloater::postBuild()
 
 	childSetCommitCallback("chat_editor", onSendMsg, this);
 	
-	mHistoryEditor = getChild<LLViewerTextEditor>("im_text", true, false);
+	mHistoryEditor = getChild<LLViewerTextEditor>("im_text");
 		
 	setTitle(LLIMModel::instance().getName(mSessionID));
 	setDocked(true);

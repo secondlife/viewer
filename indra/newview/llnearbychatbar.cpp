@@ -179,25 +179,29 @@ LLNearbyChatBar::LLNearbyChatBar()
 //virtual
 BOOL LLNearbyChatBar::postBuild()
 {
-	mChatBox = getChild<LLLineEditor>("chat_box",TRUE,FALSE);
+	mChatBox = getChild<LLLineEditor>("chat_box");
 
-	if (mChatBox)
-	{
-		mChatBox->setCommitCallback(boost::bind(&LLNearbyChatBar::onChatBoxCommit, this));
-		mChatBox->setKeystrokeCallback(&onChatBoxKeystroke, this);
-		mChatBox->setFocusLostCallback(&onChatBoxFocusLost, this);
+	mChatBox->setCommitCallback(boost::bind(&LLNearbyChatBar::onChatBoxCommit, this));
+	mChatBox->setKeystrokeCallback(&onChatBoxKeystroke, this);
+	mChatBox->setFocusLostCallback(&onChatBoxFocusLost, this);
 
-		mChatBox->setIgnoreArrowKeys(TRUE);
-		mChatBox->setCommitOnFocusLost( FALSE );
-		mChatBox->setRevertOnEsc( FALSE );
-		mChatBox->setIgnoreTab(TRUE);
-		mChatBox->setPassDelete(TRUE);
-		mChatBox->setReplaceNewlinesWithSpaces(FALSE);
-		mChatBox->setMaxTextLength(1023);
-		mChatBox->setEnableLineHistory(TRUE);
-	}
+	mChatBox->setIgnoreArrowKeys(TRUE);
+	mChatBox->setCommitOnFocusLost( FALSE );
+	mChatBox->setRevertOnEsc( FALSE );
+	mChatBox->setIgnoreTab(TRUE);
+	mChatBox->setPassDelete(TRUE);
+	mChatBox->setReplaceNewlinesWithSpaces(FALSE);
+	mChatBox->setMaxTextLength(1023);
+	mChatBox->setEnableLineHistory(TRUE);
 
-	mTalkBtn = getChild<LLTalkButton>("talk",TRUE,FALSE);
+	mTalkBtn = getChild<LLTalkButton>("talk");
+
+	// Speak button should be initially disabled because
+	// it takes some time between logging in to world and connecting to voice channel.
+	mTalkBtn->setEnabled(FALSE);
+
+	// Registering Chat Bar to receive Voice client status change notifications.
+	gVoiceClient->addObserver(this);
 
 	return TRUE;
 }
@@ -206,6 +210,12 @@ BOOL LLNearbyChatBar::postBuild()
 LLNearbyChatBar* LLNearbyChatBar::getInstance()
 {
 	return LLBottomTray::getInstance() ? LLBottomTray::getInstance()->getNearbyChatBar() : NULL;
+}
+
+//static
+bool LLNearbyChatBar::instanceExists()
+{
+	return LLBottomTray::instanceExists() && LLBottomTray::getInstance()->getNearbyChatBar() != NULL;
 }
 
 std::string LLNearbyChatBar::getCurrentChat()
@@ -615,6 +625,27 @@ public:
 		return true;
 	}
 };
+
+void LLNearbyChatBar::onChange(EStatusType status, const std::string &channelURI, bool proximal)
+{
+	// Time it takes to connect to voice channel might be pretty long,
+	// so don't expect user login or STATUS_VOICE_ENABLED to be followed by STATUS_JOINED.
+	BOOL enable = FALSE;
+
+	switch (status)
+	{
+	// Do not add STATUS_VOICE_ENABLED because voice chat is 
+	// inactive until STATUS_JOINED
+	case STATUS_JOINED:
+		enable = TRUE;
+		break;
+	default:
+		enable = FALSE;
+		break;
+	}
+
+	mTalkBtn->setEnabled(enable);
+}
 
 // Creating the object registers with the dispatcher.
 LLChatHandler gChatHandler;

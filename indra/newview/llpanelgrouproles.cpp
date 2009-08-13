@@ -55,6 +55,8 @@
 
 #include "roles_constants.h"
 
+static LLRegisterPanelClassWrapper<LLPanelGroupRoles> t_panel_group_roles("panel_group_roles");
+
 bool agentCanRemoveFromRole(const LLUUID& group_id,
 							const LLUUID& role_id)
 {
@@ -108,14 +110,9 @@ bool agentCanAddToRole(const LLUUID& group_id,
 }
 
 // static
-void* LLPanelGroupRoles::createTab(void* data)
-{
-	LLUUID* group_id = static_cast<LLUUID*>(data);
-	return new LLPanelGroupRoles(*group_id);
-}
 
-LLPanelGroupRoles::LLPanelGroupRoles(const LLUUID& group_id)
-:	LLPanelGroupTab(group_id),
+LLPanelGroupRoles::LLPanelGroupRoles()
+:	LLPanelGroupTab(),
 	mCurrentTab(NULL),
 	mRequestedTab( NULL ),
 	mSubTabContainer( NULL ),
@@ -126,13 +123,6 @@ LLPanelGroupRoles::LLPanelGroupRoles(const LLUUID& group_id)
 
 LLPanelGroupRoles::~LLPanelGroupRoles()
 {
-	int i;
-	for (i = 0; i < mSubTabContainer->getTabCount(); ++i)
-	{
-		LLPanelGroupSubTab* subtabp = (LLPanelGroupSubTab*) mSubTabContainer->getPanelByIndex(i);
-
-		subtabp->removeObserver(this);
-	}
 }
 
 BOOL LLPanelGroupRoles::postBuild()
@@ -161,7 +151,7 @@ BOOL LLPanelGroupRoles::postBuild()
 		if (!subtabp->postBuildSubTab(this))
 			return FALSE;
 
-		subtabp->addObserver(this);
+		//subtabp->addObserver(this);
 	}
 
 	// Set the current tab to whatever is currently being shown.
@@ -387,7 +377,8 @@ std::string LLPanelGroupRoles::getHelpText() const
 void LLPanelGroupRoles::update(LLGroupChange gc)
 {
 	if (mGroupID.isNull()) return;
-
+	
+	
 	LLPanelGroupTab* panelp = (LLPanelGroupTab*) mSubTabContainer->getCurrentPanel();
 	if (panelp)
 	{
@@ -397,6 +388,7 @@ void LLPanelGroupRoles::update(LLGroupChange gc)
 	{
 		llwarns << "LLPanelGroupRoles::update() -- No subtab to update!" << llendl;
 	}
+	
 }
 
 void LLPanelGroupRoles::activate()
@@ -464,17 +456,12 @@ BOOL LLPanelGroupRoles::hasModal()
 	return panelp->hasModal();
 }
 
-// PanelGroupTab observer trigger
-void LLPanelGroupRoles::tabChanged()
-{
-	notifyObservers();
-}
 
 ////////////////////////////
 // LLPanelGroupSubTab
 ////////////////////////////
-LLPanelGroupSubTab::LLPanelGroupSubTab(const LLUUID& group_id)
-:	LLPanelGroupTab(group_id),
+LLPanelGroupSubTab::LLPanelGroupSubTab()
+:	LLPanelGroupTab(),
 	mHeader(NULL),
 	mFooter(NULL),
 	mSearchLineEditor(NULL),
@@ -847,15 +834,11 @@ void LLPanelGroupSubTab::setFooterEnabled(BOOL enable)
 // LLPanelGroupMembersSubTab
 ////////////////////////////
 
-// static
-void* LLPanelGroupMembersSubTab::createTab(void* data)
-{
-	LLUUID* group_id = static_cast<LLUUID*>(data);
-	return new LLPanelGroupMembersSubTab(*group_id);
-}
 
-LLPanelGroupMembersSubTab::LLPanelGroupMembersSubTab(const LLUUID& group_id)
-: 	LLPanelGroupSubTab(group_id),
+static LLRegisterPanelClassWrapper<LLPanelGroupMembersSubTab> t_panel_group_members_subtab("panel_group_members_subtab");
+
+LLPanelGroupMembersSubTab::LLPanelGroupMembersSubTab()
+: 	LLPanelGroupSubTab(),
 	mMembersList(NULL),
 	mAssignedRolesList(NULL),
 	mAllowedActionsList(NULL),
@@ -1708,15 +1691,10 @@ void LLPanelGroupMembersSubTab::updateMembers()
 // LLPanelGroupRolesSubTab
 ////////////////////////////
 
-// static
-void* LLPanelGroupRolesSubTab::createTab(void* data)
-{
-	LLUUID* group_id = static_cast<LLUUID*>(data);
-	return new LLPanelGroupRolesSubTab(*group_id);
-}
+static LLRegisterPanelClassWrapper<LLPanelGroupRolesSubTab> t_panel_group_roles_subtab("panel_group_roles_subtab");
 
-LLPanelGroupRolesSubTab::LLPanelGroupRolesSubTab(const LLUUID& group_id)
-  : LLPanelGroupSubTab(group_id),
+LLPanelGroupRolesSubTab::LLPanelGroupRolesSubTab()
+  : LLPanelGroupSubTab(),
 	mRolesList(NULL),
 	mAssignedMembersList(NULL),
 	mAllowedActionsList(NULL),
@@ -2418,15 +2396,11 @@ void LLPanelGroupRolesSubTab::saveRoleChanges()
 // LLPanelGroupActionsSubTab
 ////////////////////////////
 
-// static
-void* LLPanelGroupActionsSubTab::createTab(void* data)
-{
-	LLUUID* group_id = static_cast<LLUUID*>(data);
-	return new LLPanelGroupActionsSubTab(*group_id);
-}
+static LLRegisterPanelClassWrapper<LLPanelGroupActionsSubTab> t_panel_group_actions_subtab("panel_group_actions_subtab");
 
-LLPanelGroupActionsSubTab::LLPanelGroupActionsSubTab(const LLUUID& group_id)
-: LLPanelGroupSubTab(group_id)
+
+LLPanelGroupActionsSubTab::LLPanelGroupActionsSubTab()
+: LLPanelGroupSubTab()
 {
 }
 
@@ -2598,3 +2572,30 @@ void LLPanelGroupActionsSubTab::handleActionSelect()
 		LLGroupMgr::getInstance()->sendGroupRoleDataRequest(mGroupID);
 	}
 }
+void LLPanelGroupRoles::setGroupID(const LLUUID& id)
+{
+	LLPanelGroupTab::setGroupID(id);
+	
+	LLPanelGroupMembersSubTab* group_members_tab = findChild<LLPanelGroupMembersSubTab>("members_sub_tab");
+	LLPanelGroupRolesSubTab*  group_roles_tab = findChild<LLPanelGroupRolesSubTab>("roles_sub_tab");
+	LLPanelGroupActionsSubTab* group_actions_tab = findChild<LLPanelGroupActionsSubTab>("actions_sub_tab");
+
+	if(group_members_tab) group_members_tab->setGroupID(id);
+	if(group_roles_tab) group_roles_tab->setGroupID(id);
+	if(group_actions_tab) group_actions_tab->setGroupID(id);
+	
+	activate();
+
+	if (!mSubTabContainer) return ;
+
+	// Hook up each sub-tabs callback and widgets.
+	for (S32 i = 0; i < mSubTabContainer->getTabCount(); ++i)
+	{
+		LLPanel* panel = mSubTabContainer->getPanelByIndex(i);
+		LLPanelGroupSubTab* subtabp = dynamic_cast<LLPanelGroupSubTab*>(panel);
+		if (subtabp)
+			subtabp->postBuildSubTab(this);
+	}
+}
+
+

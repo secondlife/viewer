@@ -48,11 +48,20 @@
 #include "llnearbychathandler.h"
 #include "llchannelmanager.h"
 
+//for LLViewerTextEditor support
+#include "llagent.h" 			// gAgent
+#include "llfloaterscriptdebug.h"
+#include "llviewertexteditor.h"
+#include "llstylemap.h"
+
+
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
 LLNearbyChat::LLNearbyChat(const LLSD& key) :
 	LLFloater(key),
-	mEChatTearofState(CHAT_PINNED)
+	mEChatTearofState(CHAT_PINNED),
+	mChatCaptionPanel(NULL),
+	mChatHistoryEditor(NULL)
 {
 }
 
@@ -94,23 +103,14 @@ BOOL LLNearbyChat::postBuild()
 
 	gSavedSettings.declareS32("nearbychat_showicons_and_names",2,"NearByChat header settings",true);
 
-	/*
-	LLChatItemsContainerCtrl* panel = getChild<LLChatItemsContainerCtrl>("chat_history",false,false);
-	if(panel)
-	{
-		panel->setHeaderVisibility((EShowItemHeader)gSavedSettings.getS32("nearbychat_showicons_and_names"));
-	}
-	*/
-	
+	mChatCaptionPanel = getChild<LLPanel>("chat_caption", false);
+	mChatHistoryEditor = getChild<LLViewerTextEditor>("Chat History Editor");
+
 	reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
 	
 	return LLFloater::postBuild();
 }
 
-#include "llagent.h" 			// gAgent
-#include "llfloaterscriptdebug.h"
-#include "llviewertexteditor.h"
-#include "llstylemap.h"
 
 LLColor4 nearbychat_get_text_color(const LLChat& chat)
 {
@@ -215,15 +215,6 @@ void nearbychat_add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, cons
 
 void	LLNearbyChat::addMessage(const LLChat& chat)
 {
-	/*
-	LLChatItemsContainerCtrl* panel = getChild<LLChatItemsContainerCtrl>("chat_history",false,false);
-	if(!panel)
-		return;
-	panel->addMessage(message);
-	*/
-
-	//"Chat History Editor" !!!!!
-
 	LLColor4 color = nearbychat_get_text_color(chat);
 	
 
@@ -241,13 +232,12 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 	
 	// could flash the chat button in the status bar here. JC
 
-	LLViewerTextEditor*	history_editor = getChild<LLViewerTextEditor>("Chat History Editor");
 
-	history_editor->setParseHTML(TRUE);
-	history_editor->setParseHighlights(TRUE);
+	mChatHistoryEditor->setParseHTML(TRUE);
+	mChatHistoryEditor->setParseHighlights(TRUE);
 	
 	if (!chat.mMuted)
-		nearbychat_add_timestamped_line(history_editor, chat, color);
+		nearbychat_add_timestamped_line(mChatHistoryEditor, chat, color);
 }
 
 void LLNearbyChat::onNearbySpeakers()
@@ -269,8 +259,6 @@ void LLNearbyChat::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	
 	LLFloater::reshape(width, height, called_from_parent);
-
-	LLPanel* caption = getChild<LLPanel>("chat_caption",false,false);
 
 	LLRect resize_rect;
 	resize_rect.setLeftTopAndSize( 0, height, width, RESIZE_BAR_THICKNESS);
@@ -301,25 +289,23 @@ void LLNearbyChat::reshape(S32 width, S32 height, BOOL called_from_parent)
 		mResizeBar[LLResizeBar::RIGHT]->setRect(resize_rect);
 	}
 
-
+	// *NOTE: we must check mChatCaptionPanel and mChatHistoryEditor against NULL because reshape is called from the 
+	// LLView::initFromParams BEFORE postBuild is called and child controls are not exist yet
 	LLRect caption_rect;
-	if (caption)
+	if (NULL != mChatCaptionPanel)
 	{
-		caption_rect = caption->getRect();
+		caption_rect = mChatCaptionPanel->getRect();
 		caption_rect.setLeftTopAndSize( 2, height - RESIZE_BAR_THICKNESS, width - 4, caption_rect.getHeight());
-		caption->reshape( width - 4, caption_rect.getHeight(), 1);
-		caption->setRect(caption_rect);
+		mChatCaptionPanel->reshape( width - 4, caption_rect.getHeight(), 1);
+		mChatCaptionPanel->setRect(caption_rect);
 	}
 	
-	//LLPanel* scroll_panel = getChild<LLPanel>("chat_history",false,false);
-	LLViewerTextEditor*	scroll_panel = getChild<LLViewerTextEditor>("Chat History Editor");
-	
-	if (scroll_panel)
+	if (NULL != mChatHistoryEditor)
 	{
-		LLRect scroll_rect = scroll_panel->getRect();
+		LLRect scroll_rect = mChatHistoryEditor->getRect();
 		scroll_rect.setLeftTopAndSize( 2, height - caption_rect.getHeight() - RESIZE_BAR_THICKNESS, width - 4, height - caption_rect.getHeight() - RESIZE_BAR_THICKNESS*2);
-		scroll_panel->reshape( width - 4, height - caption_rect.getHeight() - RESIZE_BAR_THICKNESS*2, 1);
-		scroll_panel->setRect(scroll_rect);
+		mChatHistoryEditor->reshape( width - 4, height - caption_rect.getHeight() - RESIZE_BAR_THICKNESS*2, 1);
+		mChatHistoryEditor->setRect(scroll_rect);
 	}
 	
 	//
@@ -342,57 +328,47 @@ void LLNearbyChat::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 BOOL	LLNearbyChat::handleMouseDown	(S32 x, S32 y, MASK mask)
 {
-	LLPanel* caption = getChild<LLPanel>("chat_caption",false,false);
-	if(caption)
+	LLUICtrl* nearby_speakers_btn = mChatCaptionPanel->getChild<LLUICtrl>("nearby_speakers_btn");
+	LLUICtrl* tearoff_btn = mChatCaptionPanel->getChild<LLUICtrl>("tearoff_btn");
+	LLUICtrl* close_btn = mChatCaptionPanel->getChild<LLUICtrl>("close_btn");
+	
+	S32 caption_local_x = x - mChatCaptionPanel->getRect().mLeft;
+	S32 caption_local_y = y - mChatCaptionPanel->getRect().mBottom;
+	
+	S32 local_x = caption_local_x - nearby_speakers_btn->getRect().mLeft;
+	S32 local_y = caption_local_y - nearby_speakers_btn->getRect().mBottom;
+	if(nearby_speakers_btn->pointInView(local_x, local_y))
 	{
-		LLUICtrl* nearby_speakers_btn = caption->getChild<LLUICtrl>("nearby_speakers_btn");
-		LLUICtrl* tearoff_btn = caption->getChild<LLUICtrl>("tearoff_btn");
-		LLUICtrl* close_btn = caption->getChild<LLUICtrl>("close_btn");
-		
-		S32 caption_local_x = x - caption->getRect().mLeft;
-		S32 caption_local_y = y - caption->getRect().mBottom;
-		
-		if(nearby_speakers_btn && tearoff_btn)
-		{
-			S32 local_x = caption_local_x - nearby_speakers_btn->getRect().mLeft;
-			S32 local_y = caption_local_y - nearby_speakers_btn->getRect().mBottom;
-			if(nearby_speakers_btn->pointInView(local_x, local_y))
-			{
-				onNearbySpeakers();
-				bringToFront( x, y );
-				return true;
-			}
-			local_x = caption_local_x - tearoff_btn->getRect().mLeft;
-			local_y = caption_local_y- tearoff_btn->getRect().mBottom;
-			if(tearoff_btn->pointInView(local_x, local_y))
-			{
-				onTearOff();
-				bringToFront( x, y );
-				return true;
-			}
+		onNearbySpeakers();
+		bringToFront( x, y );
+		return true;
+	}
+	local_x = caption_local_x - tearoff_btn->getRect().mLeft;
+	local_y = caption_local_y- tearoff_btn->getRect().mBottom;
+	if(tearoff_btn->pointInView(local_x, local_y))
+	{
+		onTearOff();
+		bringToFront( x, y );
+		return true;
+	}
 
-			if(close_btn)
-			{
-				local_x = caption_local_x - close_btn->getRect().mLeft;
-				local_y = caption_local_y - close_btn->getRect().mBottom;
-				if(close_btn->pointInView(local_x, local_y))
-				{
-					setVisible(false);
-					bringToFront( x, y );
-					return true;
-				}
-			}
-		}
+	local_x = caption_local_x - close_btn->getRect().mLeft;
+	local_y = caption_local_y - close_btn->getRect().mBottom;
+	if(close_btn->pointInView(local_x, local_y))
+	{
+		setVisible(false);
+		bringToFront( x, y );
+		return true;
+	}
 
-		if(mEChatTearofState == CHAT_UNPINNED && caption->pointInView(caption_local_x, caption_local_y) )
-		{
-			//start draggind
-			gFocusMgr.setMouseCapture(this);
-			mStart_Y = y;
-			mStart_X = x;
-			bringToFront( x, y );
-			return true;
-		}
+	if(mEChatTearofState == CHAT_UNPINNED && mChatCaptionPanel->pointInView(caption_local_x, caption_local_y) )
+	{
+		//start draggind
+		gFocusMgr.setMouseCapture(this);
+		mStart_Y = y;
+		mStart_X = x;
+		bringToFront( x, y );
+		return true;
 	}
 	
 	return LLFloater::handleMouseDown(x,y,mask);
@@ -425,8 +401,7 @@ BOOL	LLNearbyChat::handleHover(S32 x, S32 y, MASK mask)
 void	LLNearbyChat::pinn_panel()
 {
 	mEChatTearofState = CHAT_PINNED;
-	LLPanel* caption = getChild<LLPanel>("chat_caption",false,false);
-	LLIconCtrl* tearoff_btn = caption->getChild<LLIconCtrl>("tearoff_btn",false,false);
+	LLIconCtrl* tearoff_btn = mChatCaptionPanel->getChild<LLIconCtrl>("tearoff_btn",false);
 	
 	tearoff_btn->setValue("inv_item_landmark_visited.tga");
 
@@ -445,8 +420,7 @@ void	LLNearbyChat::pinn_panel()
 void	LLNearbyChat::float_panel()
 {
 	mEChatTearofState = CHAT_UNPINNED;
-	LLPanel* caption = getChild<LLPanel>("chat_caption",false,false);
-	LLIconCtrl* tearoff_btn = caption->getChild<LLIconCtrl>("tearoff_btn",false,false);
+	LLIconCtrl* tearoff_btn = mChatCaptionPanel->getChild<LLIconCtrl>("tearoff_btn", false);
 	
 	tearoff_btn->setValue("inv_item_landmark.tga");
 	mResizeBar[LLResizeBar::BOTTOM]->setVisible(true);
@@ -456,50 +430,20 @@ void	LLNearbyChat::float_panel()
 	translate(4,4);
 }
 
-void LLNearbyChat::onNearbyChatContextMenuItemClicked(const LLSD& userdata)
+void	LLNearbyChat::onNearbyChatContextMenuItemClicked(const LLSD& userdata)
 {
-	/*
-	LLChatItemsContainerCtrl* panel = getChild<LLChatItemsContainerCtrl>("chat_history",false,false);
-	if(!panel)
-		return;
-
-	std::string str = userdata.asString();
-	if(str == "show_buddy_icons")
-		panel->setHeaderVisibility(CHATITEMHEADER_SHOW_ONLY_ICON);
-	else if(str == "show_names")
-		panel->setHeaderVisibility(CHATITEMHEADER_SHOW_ONLY_NAME);
-	else if(str == "show_icons_and_names")
-		panel->setHeaderVisibility(CHATITEMHEADER_SHOW_BOTH);
-
-	gSavedSettings.setS32("nearbychat_showicons_and_names", (S32)panel->getHeaderVisibility());
-	*/
 }
 bool	LLNearbyChat::onNearbyChatCheckContextMenuItem(const LLSD& userdata)
 {
 	std::string str = userdata.asString();
 	if(str == "nearby_people")
 		onNearbySpeakers();	
-	/*
-	LLChatItemsContainerCtrl* panel = getChild<LLChatItemsContainerCtrl>("chat_history",false,false);
-	if(!panel)
-		return false;
-	
-	if(str == "show_buddy_icons")
-		return panel->getHeaderVisibility() == CHATITEMHEADER_SHOW_ONLY_ICON;
-	else if(str == "show_names")
-		return panel->getHeaderVisibility() == CHATITEMHEADER_SHOW_ONLY_NAME;
-	else if(str == "show_icons_and_names")
-		return panel->getHeaderVisibility() == CHATITEMHEADER_SHOW_BOTH;
-	else if(str == "nearby_people")
-		onNearbySpeakers();
-	*/
 	return false;
 }
 
 BOOL LLNearbyChat::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	LLPanel* caption = getChild<LLPanel>("chat_caption",false,false);
-	if(caption && caption->pointInView(x - caption->getRect().mLeft, y - caption->getRect().mBottom) )
+	if(mChatCaptionPanel->pointInView(x - mChatCaptionPanel->getRect().mLeft, y - mChatCaptionPanel->getRect().mBottom) )
 	{
 		LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
 

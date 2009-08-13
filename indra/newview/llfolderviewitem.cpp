@@ -1912,11 +1912,15 @@ void LLFolderViewFolder::setOpenArrangeRecursively(BOOL openitem, ERecurseType r
 {
 	BOOL was_open = mIsOpen;
 	mIsOpen = openitem;
-	if(!was_open && openitem)
+	if (mListener)
 	{
-		if(mListener)
+		if(!was_open && openitem)
 		{
 			mListener->openItem();
+		}
+		else if(was_open && !openitem)
+		{
+			mListener->closeItem();
 		}
 	}
 

@@ -48,6 +48,7 @@ set(llui_SOURCE_FILES
     llkeywords.cpp
     lllayoutstack.cpp
     lllineeditor.cpp
+    lllink.cpp
     llmenugl.cpp
     llmodaldialog.cpp
     llmultifloater.cpp 
@@ -126,6 +127,7 @@ set(llui_HEADER_FILES
     lllayoutstack.h
     lllazyvalue.h
     lllineeditor.h
+    lllink.h
     llmenugl.h
     llmodaldialog.h
     llmultifloater.h 

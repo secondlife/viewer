@@ -205,7 +205,7 @@
              function="Floater.Toggle"
              parameter="active_speakers" />
         </menu_item_check>
-        <menu_item_check
+        <!--menu_item_check
          label="Block List"
          layout="topleft"
          name="Mute List">
@@ -215,7 +215,7 @@
             <menu_item_check.on_click
              function="Floater.Toggle"
              parameter="mute" />
-        </menu_item_check>
+        </menu_item_check-->
         <menu_item_separator
          layout="topleft" />
         <menu_item_check
@@ -930,7 +930,7 @@
         </menu>
     </menu>
     <menu
-     label="Geek"
+     label="Advanced"
      layout="topleft"
      name="Advanced"
      tear_off="true"
@@ -1824,6 +1824,18 @@
              function="Advanced.ShowDebugSettings"
              parameter="all" />
         </menu_item_call>
+        <menu_item_check
+         label="Debug (QA) Mode"
+         layout="topleft"
+         name="Debug Mode"
+         shortcut="control|alt|Q">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="QAMode" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="QAMode" />
+        </menu_item_check>
     </menu>
     <menu
      create_jump_keys="true"
