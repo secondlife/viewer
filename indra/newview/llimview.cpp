@@ -1372,7 +1372,6 @@ LLUUID LLIMMgr::addSession(
 		//LLFloaterReg::showInstance("communicate", session_id);
 		// *NOTE: Is this right?  Or should we only do it for 
 		// dialog == IM_NOTHING_SPECIAL and some group types?
-		LLIMFloater::show(session_id);
 
 		// Only warn for regular IMs - not group IMs
 		if( dialog == IM_NOTHING_SPECIAL )
@@ -1388,6 +1387,7 @@ LLUUID LLIMMgr::addSession(
 	}
 	//mTabContainer->selectTabPanel(panel);
 	floater->setInputFocus(TRUE);
+	LLIMFloater::show(session_id);
 	notifyObserverSessionAdded(floater->getSessionID(), name, other_participant_id);
 	return floater->getSessionID();
 }

@@ -651,10 +651,14 @@ void LLPanelPeople::onAvatarListDoubleClicked(LLAvatarList* list)
 
 	if (clicked_id.isNull())
 		return;
-
+	
+#if 0 // SJB: Useful for testing, but not currently functional or to spec
 	// Open mini-inspector for the avatar being clicked
 	LLFloaterReg::showInstance("mini_inspector", clicked_id);
 	// inspector will delete itself on close
+#else // spec says open IM window
+	LLAvatarActions::startIM(clicked_id);
+#endif
 }
 
 void LLPanelPeople::onAvatarListCommitted(LLAvatarList* list)

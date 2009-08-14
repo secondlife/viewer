@@ -136,7 +136,7 @@
          top="10"
          width="20" />
         <text
-         follows="left|right|bottom"
+         follows="left|right|bottom|top"
          font="SansSerifBold"
          height="120"
          layout="topleft"
@@ -150,52 +150,51 @@
             Change your profile, your look and quick links to your outfits.
         </text>
     </panel>
-    <panel 
-     background_opaque="false" 
+    <panel
      background_visible="true" 
-     bg_alpha_color="0.3 0.3 0.3 1.0" 
-     class="panel_sidetray_home_info">
+     bg_alpha_color="DkGray2"
+     class="panel_sidetray_home_info"
      follows="left|top|right"
-     height="130" 
-     left="10" 
+     height="130"
+     layout="topleft"
+     left="10"
      name="sidebar_appearance"
-     width="280" 
+     width="280">
         <text
          follows="left|right|top"
-         font="SansSerifHugeBold" 
-         height="30" 
-         left="5" 
-         mouse_opaque="false" 
-         name="tab_name" >
-         text_color="white" 
-         width="200" 
-         word_wrap="true"
-         top="-10" 
-            Appearance
-        </text>
+         font="SansSerifBigBold"
+         height="30"
+         layout="topleft"
+         left="5"
+         mouse_opaque="false"
+         name="tab_name"
+         text_color="white"
+         top="10"
+         value="My Appearance"
+         width="200"
+         word_wrap="true" />
         <icon
-         top="-10" 
-         right="-10" 
-         width="20" 
-         height="20" 
+         color="DkGray"
          follows="top|right"
-         color="1 1 1 1" 
-         enabled="true" 
-         image_name="inv_item_shirt.tga"
-         mouse_opaque="false" 
-         name="tab_icon"/>
+         height="20"
+         layout="topleft"
+         name="tab_icon"
+         right="-10"
+         top="10"
+         width="20" />
         <text
-           top="-40" 
-           left="10" 
-           right="-10" 
-           height="120" 
-           follows="left|right|bottom"
-           font="SansSerifBig" 
-           text_color="white" 
-           word_wrap="true"
-           mouse_opaque="false" 
-           name="tab_description" >    
-              Change your appearance.
+         follows="left|right|bottom|top"
+         font="SansSerifBold"
+         height="120"
+         layout="topleft"
+         left="10"
+         mouse_opaque="false"
+         name="tab_description"
+         right="-10"
+         text_color="white"
+         top="40"
+         word_wrap="true">
+            Change your appearance.
         </text>
     </panel> 
 </panel>

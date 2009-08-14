@@ -202,7 +202,7 @@ BOOL LLScrollContainer::handleKeyHere(KEY key, MASK mask)
 	// NOTE: this should not recurse indefinitely as handleKeyHere
 	// should not propagate to parent controls, so mScrolledView should *not*
 	// call LLScrollContainer::handleKeyHere in turn
-	if (mScrolledView->handleKeyHere(key, mask))
+	if (mScrolledView && mScrolledView->handleKeyHere(key, mask))
 	{
 		return TRUE;
 	}
@@ -335,7 +335,7 @@ BOOL LLScrollContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,
 
 void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const
 {
-	const LLRect& rect = mScrolledView->getRect();
+	const LLRect& rect = getScrolledViewRect();
 	calcVisibleSize(rect, visible_width, visible_height, show_h_scrollbar, show_v_scrollbar);
 }
 
