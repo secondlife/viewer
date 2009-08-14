@@ -182,12 +182,6 @@ LLComboBox::~LLComboBox()
 }
 
 
-void LLComboBox::setEnabled(BOOL enabled)
-{
-	LLView::setEnabled(enabled);
-	mButton->setEnabled(enabled);
-}
-
 void LLComboBox::clear()
 { 
 	if (mTextEntry)
@@ -196,8 +190,6 @@ void LLComboBox::clear()
 	}
 	mButton->setLabelSelected(LLStringUtil::null);
 	mButton->setLabelUnselected(LLStringUtil::null);
-	mButton->setDisabledLabel(LLStringUtil::null);
-	mButton->setDisabledSelectedLabel(LLStringUtil::null);
 	mList->deselectAllItems();
 }
 
@@ -376,10 +368,7 @@ void LLComboBox::setLabel(const LLStringExplicit& name)
 	
 	if (!mAllowTextEntry)
 	{
-		mButton->setLabelUnselected(name);
-		mButton->setLabelSelected(name);
-		mButton->setDisabledLabel(name);
-		mButton->setDisabledSelectedLabel(name);
+		mButton->setLabel(name);
 	}
 }
 
@@ -439,14 +428,6 @@ void LLComboBox::setButtonVisible(BOOL visible)
 		//mTextEntry->setRect(text_entry_rect);
 		mTextEntry->reshape(text_entry_rect.getWidth(), text_entry_rect.getHeight(), TRUE);
 	}
-}
-
-void LLComboBox::draw()
-{
-	mButton->setEnabled(getEnabled() /*&& !mList->isEmpty()*/);
-
-	// Draw children normally
-	LLUICtrl::draw();
 }
 
 BOOL LLComboBox::setCurrentByIndex( S32 index )

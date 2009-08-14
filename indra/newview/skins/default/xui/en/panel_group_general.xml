@@ -4,6 +4,7 @@
  follows="all"
  height="514"
  label="General"
+ class="panel_group_general"
  layout="topleft"
  left="1"
  name="general_tab"
@@ -42,6 +43,7 @@ Hover your mouse over the options for more help.
     <line_editor
      follows="left|top"
      font="SansSerifSmall"
+     prevalidate_callback="asci"
      halign="left"
      height="16"
      label="Type your new group name here"

@@ -8,118 +8,124 @@
  layout="topleft"
  name="navigation_bar"
  width="600">
-     <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="23"
-     image_disabled="PushButton_Disabled"
-     image_disabled_selected="PushButton_Disabled"
-     image_overlay="Arrow_Left_Off"
-     image_selected="PushButton_Selected"
-     image_unselected="PushButton_Off"
-     hover_glow_amount="0.15"
-     layout="topleft"
-     left="10"
-     name="back_btn"
-     picture_style="true"
-     tool_tip="Go back to previous location"
-     top="8"
-     width="31" />
-
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="23"
-     image_disabled="PushButton_Disabled"
-     image_disabled_selected="PushButton_Disabled"
-     image_overlay="Arrow_Right_Off"
-     image_selected="PushButton_Selected"
-     image_unselected="PushButton_Off"
-     hover_glow_amount="0.15"
-     layout="topleft"
-     left_pad="0"
-     name="forward_btn"
-     picture_style="true"
-     tool_tip="Go forward one location"
-     top_delta="0"
-     width="31" />
-    <button
-     follows="left|top"
-     font="SansSerifSmall"
-     height="23"
-     image_disabled="PushButton_Disabled"
-     image_disabled_selected="PushButton_Disabled"
-     image_overlay="Home_Off"
-     image_selected="PushButton_Selected"
-     image_unselected="PushButton_Off"
-     hover_glow_amount="0.15"
-     layout="topleft"
-     left_pad="7"
-     name="home_btn"
-     picture_style="true"
-     tool_tip="Teleport to your home location"
-     top_delta="0"
-     width="32" />
-    <location_input
-     follows="left|right|top"
-     halign="right"
-     height="22"
-     label="Location"
-     layout="topleft"
-     left_pad="7"
-     max_chars="254"
-     mouse_opaque="false"
-     name="location_combo"
-     top_delta="0"
-     width="266">
-     <!-- *TODO: Delete.  Let the location_input use the correct art sizes.
-        <location_input.add_landmark_button
-         height="18"
-         name="location_combo_add"
-         width="20" />
-        <location_input.info_button
-         height="18"
-         name="location_combo_info"
-         width="20" />
-      -->
-    </location_input>
-
-<!--     <button -->
-<!--      follows="right|top" -->
-<!--      height="20" -->
-<!--      image_disabled="TextField_Search_Off" -->
-<!--      image_disabled_selected="TextField_Search_Off" -->
-<!--      image_hover_selected="TextField_Search_Off" -->
-<!--      image_hover_unselected="TextField_Search_Off" -->
-<!--      image_selected="TextField_Search_Off" -->
-<!--      image_unselected="TextField_Search_Off" -->
-<!--      layout="topleft" -->
-<!--      left_pad="5" -->
-<!--      mouse_opaque="false" -->
-<!--      name="search_bg" -->
-<!--      picture_style="true" -->
-<!--      top_delta="0" -->
-<!--      width="168" /> -->
-    
-    <search_editor
-     bevel_style="none"
-     border_style="line"
-     border.border_thickness="0"
-     commit_on_focus_lost="false"
-     follows="right|top"
-     halign="right"
-     height="22"
-     label="Search All"
-     layout="topleft"
-     left_pad="7"
-     mouse_opaque="false"
-     name="search_input"
-     tool_tip="Search All"
-     top_delta="0"
-     width="200" /> 
-    
-    
-
+	<panel
+	 background_visible="false"
+	 follows="left|top|right"
+	 height="60"
+	 layout="topleft"
+	 name="navigation_panel"
+	 width="600">	 
+	     <button
+	     follows="left|top"
+	     font="SansSerifSmall"
+	     height="23"
+	     image_disabled="PushButton_Disabled"
+	     image_disabled_selected="PushButton_Disabled"
+	     image_overlay="Arrow_Left_Off"
+	     image_selected="PushButton_Selected"
+	     image_unselected="PushButton_Off"
+	     hover_glow_amount="0.15"
+	     layout="topleft"
+	     left="10"
+	     name="back_btn"
+	     picture_style="true"
+	     tool_tip="Go back to previous location"
+	     top="3"
+	     width="31" />
+	
+	    <button
+	     follows="left|top"
+	     font="SansSerifSmall"
+	     height="23"
+	     image_disabled="PushButton_Disabled"
+	     image_disabled_selected="PushButton_Disabled"
+	     image_overlay="Arrow_Right_Off"
+	     image_selected="PushButton_Selected"
+	     image_unselected="PushButton_Off"
+	     hover_glow_amount="0.15"
+	     layout="topleft"
+	     left_pad="0"
+	     name="forward_btn"
+	     picture_style="true"
+	     tool_tip="Go forward one location"
+	     top_delta="0"
+	     width="31" />
+	    <button
+	     follows="left|top"
+	     font="SansSerifSmall"
+	     height="23"
+	     image_disabled="PushButton_Disabled"
+	     image_disabled_selected="PushButton_Disabled"
+	     image_overlay="Home_Off"
+	     image_selected="PushButton_Selected"
+	     image_unselected="PushButton_Off"
+	     hover_glow_amount="0.15"
+	     layout="topleft"
+	     left_pad="7"
+	     name="home_btn"
+	     picture_style="true"
+	     tool_tip="Teleport to your home location"
+	     top_delta="0"
+	     width="32" />
+	    <location_input
+	     follows="left|right|top"
+	     halign="right"
+	     height="22"
+	     label="Location"
+	     layout="topleft"
+	     left_pad="7"
+	     max_chars="254"
+	     mouse_opaque="false"
+	     name="location_combo"
+	     top_delta="0"
+	     width="266">
+	     <!-- *TODO: Delete.  Let the location_input use the correct art sizes.
+	        <location_input.add_landmark_button
+	         height="18"
+	         name="location_combo_add"
+	         width="20" />
+	        <location_input.info_button
+	         height="18"
+	         name="location_combo_info"
+	         width="20" />
+	      -->
+	    </location_input>
+	
+	<!--     <button -->
+	<!--      follows="right|top" -->
+	<!--      height="20" -->
+	<!--      image_disabled="TextField_Search_Off" -->
+	<!--      image_disabled_selected="TextField_Search_Off" -->
+	<!--      image_hover_selected="TextField_Search_Off" -->
+	<!--      image_hover_unselected="TextField_Search_Off" -->
+	<!--      image_selected="TextField_Search_Off" -->
+	<!--      image_unselected="TextField_Search_Off" -->
+	<!--      layout="topleft" -->
+	<!--      left_pad="5" -->
+	<!--      mouse_opaque="false" -->
+	<!--      name="search_bg" -->
+	<!--      picture_style="true" -->
+	<!--      top_delta="0" -->
+	<!--      width="168" /> -->
+	    
+	    <search_editor
+	     bevel_style="none"
+	     border_style="line"
+	     border.border_thickness="0"
+	     commit_on_focus_lost="false"
+	     follows="right|top"
+	     halign="right"
+	     height="22"
+	     label="Search All"
+	     layout="topleft"
+	     left_pad="7"
+	     mouse_opaque="false"
+	     name="search_input"
+	     tool_tip="Search All"
+	     top_delta="0"
+	     width="200" />        
+	</panel>
+	
     <favorites_bar
      follows="left|right|top"
      height="25"

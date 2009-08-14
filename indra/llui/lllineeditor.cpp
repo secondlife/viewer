@@ -318,10 +318,8 @@ void LLLineEditor::setMaxTextLength(S32 max_text_length)
 void LLLineEditor::updateTextPadding()
 {
 	static LLUICachedControl<S32> line_editor_hpad ("UILineEditorHPad", 0);
-	mTextPadLeft = llclamp(mTextPadLeft, 0, getRect().getWidth());
-	mTextPadRight = llclamp(mTextPadRight, 0, getRect().getWidth());
-	mMinHPixels = line_editor_hpad + mTextPadLeft;
-	mMaxHPixels = getRect().getWidth() - mMinHPixels - mTextPadRight;
+	mMinHPixels = line_editor_hpad + llclamp(mTextPadLeft, 0, getRect().getWidth());;
+	mMaxHPixels = getRect().getWidth() - mMinHPixels - llclamp(mTextPadRight, 0, getRect().getWidth());
 }
 
 
@@ -625,6 +623,8 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	// delay cursor flashing
 	mKeystrokeTimer.reset();
+	
+	LLUICtrl::handleMouseDown(x,y,mask);
 
 	return TRUE;
 }
@@ -738,7 +738,9 @@ BOOL LLLineEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 		// take selection to 'primary' clipboard
 		updatePrimary();
 	}
-
+	
+	// We won't call LLUICtrl::handleMouseUp to avoid double calls of  childrenHandleMouseUp().Just invoke the signal manually.
+	mMouseUpSignal(this,x,y, mask);
 	return handled;
 }
 

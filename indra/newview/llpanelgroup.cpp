@@ -35,10 +35,6 @@
 
 #include "llagent.h"
 #include "llbutton.h"
-#include "llpanelgroupgeneral.h"
-#include "llpanelgrouproles.h"
-#include "llpanelgrouplandmoney.h"
-#include "llpanelgroupnotices.h"
 #include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "llviewermessage.h"
@@ -46,26 +42,31 @@
 #include "llviewerwindow.h"
 #include "llappviewer.h"
 #include "llnotifications.h"
+#include "llfloaterreg.h"
 #include "llfloater.h"
 
-// static
-void* LLPanelGroupTab::createTab(void* data)
-{
-	LLUUID* group_id = static_cast<LLUUID*>(data);
-	return new LLPanelGroupTab(*group_id);
-}
+#include "llsidetraypanelcontainer.h"
 
-LLPanelGroupTab::LLPanelGroupTab(const LLUUID& group_id)
+#include "llpanelgroupnotices.h"
+#include "llpanelgroupgeneral.h"
+
+#include "llsidetray.h"
+#include "llaccordionctrltab.h"
+
+static LLRegisterPanelClassWrapper<LLPanelGroup> t_panel_group("panel_group_info_sidetray");
+
+
+
+LLPanelGroupTab::LLPanelGroupTab()
 	: LLPanel(),
-	  mGroupID(group_id),
 	  mAllowEdit(TRUE),
 	  mHasModal(FALSE)
 {
+	mGroupID = LLUUID::null;
 }
 
 LLPanelGroupTab::~LLPanelGroupTab()
 {
-	mObservers.clear();
 }
 
 BOOL LLPanelGroupTab::isVisibleByAgent(LLAgent* agentp)
@@ -76,39 +77,10 @@ BOOL LLPanelGroupTab::isVisibleByAgent(LLAgent* agentp)
 
 BOOL LLPanelGroupTab::postBuild()
 {
-	// Hook up the help button callback.
-	LLButton* button = findChild<LLButton>("help_button");
-	if (button)
-	{
-		button->setCommitCallback(boost::bind(&LLPanelGroupTab::handleClickHelp, this));
-	}
-	mHelpText = getString("help_text");
 	return TRUE;
 }
 
-void LLPanelGroupTab::addObserver(LLPanelGroupTabObserver *obs)
-{
-	mObservers.insert(obs);
-}
 
-void LLPanelGroupTab::removeObserver(LLPanelGroupTabObserver *obs)
-{
-	mObservers.erase(obs);
-}
-
-void LLPanelGroupTab::notifyObservers()
-{
-
-	for (observer_list_t::iterator iter = mObservers.begin();
-		 iter != mObservers.end(); )
-	{
-		LLPanelGroupTabObserver* observer = *iter;
-		observer->tabChanged();
-
-		// safe way to incrament since changed may delete entries! (@!##%@!@&*!)
-		iter = mObservers.upper_bound(observer); 
-	}
-}
 
 void LLPanelGroupTab::handleClickHelp()
 {
@@ -125,383 +97,239 @@ void LLPanelGroupTab::handleClickHelp()
 	}
 }
 
-LLPanelGroup::LLPanelGroup(const LLUUID& group_id)
-:	LLPanel(),
-	LLGroupMgrObserver( group_id ),
-	mCurrentTab( NULL ),
-	mRequestedTab( NULL ),
-	mTabContainer( NULL ),
-	mIgnoreTransition( FALSE ),
-	mApplyBtn( NULL ),
-	mForceClose( FALSE ),
-	mAllowEdit( TRUE ),
-	mShowingNotifyDialog( FALSE )
+LLPanelGroup::LLPanelGroup()
+:	LLPanel()
+	,LLGroupMgrObserver( LLUUID() )
+	,mAllowEdit(TRUE)
 {
 	// Set up the factory callbacks.
-	mFactoryMap["general_tab"]	= LLCallbackMap(LLPanelGroupGeneral::createTab, &mID);
-	mFactoryMap["roles_tab"]	= LLCallbackMap(LLPanelGroupRoles::createTab, &mID);
-	mFactoryMap["notices_tab"]	= LLCallbackMap(LLPanelGroupNotices::createTab, &mID);
-	mFactoryMap["land_money_tab"]= LLCallbackMap(LLPanelGroupLandMoney::createTab, &mID);
 	// Roles sub tabs
-	mFactoryMap["members_sub_tab"] = LLCallbackMap(LLPanelGroupMembersSubTab::createTab, &mID);
-	mFactoryMap["roles_sub_tab"] = LLCallbackMap(LLPanelGroupRolesSubTab::createTab, &mID);
-	mFactoryMap["actions_sub_tab"] = LLCallbackMap(LLPanelGroupActionsSubTab::createTab, &mID);
-
 	LLGroupMgr::getInstance()->addObserver(this);
+
 }
+
 
 LLPanelGroup::~LLPanelGroup()
 {
 	LLGroupMgr::getInstance()->removeObserver(this);
-
-	for (S32 i=mTabContainer->getTabCount() - 1; i >=0; --i)
-	{
-		LLPanelGroupTab* panelp = (LLPanelGroupTab*) mTabContainer->getPanelByIndex(i);
-		if ( panelp )
-			panelp->removeObserver(this);
-	}
 }
 
-void LLPanelGroup::updateTabVisibility()
+void LLPanelGroup::onOpen(const LLSD& key)
 {
-	for (S32 i = mTabContainer->getTabCount() - 1; i >=0; --i)
+	LLUUID group_id = key["group_id"];
+	if(!key.has("action"))
 	{
-		LLPanelGroupTab* panelp = (LLPanelGroupTab*) mTabContainer->getPanelByIndex(i);
-
-		BOOL visible = panelp->isVisibleByAgent(&gAgent) || gAgent.isGodlike();
-		mTabContainer->enableTabButton(i, visible);
-
-		if ( !visible && mCurrentTab == panelp )
-		{
-			//we are disabling the currently selected tab
-			//select the previous one
-			mTabContainer->selectPrevTab();
-			mCurrentTab = (LLPanelGroupTab*) mTabContainer->getCurrentPanel();
-		}
+		setGroupID(group_id);
+		return;
 	}
+
+	std::string str_action = key["action"];
+
+	if(str_action == "refresh")
+	{
+		if(mID == group_id)
+			refreshData();
+	}
+	else if(str_action == "close")
+	{
+		onBackBtnClick();
+	}
+	else if(str_action == "create")
+	{
+		setGroupID(LLUUID::null);
+	}
+
 }
-
-
 
 BOOL LLPanelGroup::postBuild()
 {
-	mTabContainer = getChild<LLTabContainer>("group_tab_container");
-
-	if (mTabContainer)
-	{
-		mCurrentTab = dynamic_cast<LLPanelGroupTab*>(mTabContainer->getCurrentPanel());
-		llassert_always(mCurrentTab);
-		
-		// Add click callback.
-		mTabContainer->setCommitCallback(boost::bind(&LLPanelGroup::handleClickTab, this));
-		
-		// Setup pabels
-		for (S32 i = mTabContainer->getTabCount() - 1; i >=0; --i)
-		{
-			LLPanel* tab_panel = mTabContainer->getPanelByIndex(i);
-			LLPanelGroupTab* panelp = dynamic_cast<LLPanelGroupTab*>(tab_panel);
-			if (panelp)
-			{
-				// Pass on whether or not to allow edit to tabs.
-				panelp->setAllowEdit(mAllowEdit);
-				panelp->addObserver(this);
-			}
-		}
-		updateTabVisibility();
-
-		// Act as though this tab was just activated.
-		mCurrentTab->activate();
-	}
-
 	mDefaultNeedsApplyMesg = getString("default_needs_apply_text");
 	mWantApplyMesg = getString("want_apply_text");
 
-	LLButton* button = getChild<LLButton>("btn_ok");
-	button->setClickedCallback(onBtnOK, this);
-	button->setVisible(mAllowEdit);
-	
-	button = getChild<LLButton>("btn_cancel");
-	button->setClickedCallback(onBtnCancel, this);
-	button->setVisible(mAllowEdit);
+	LLButton* button;
 
 	button = getChild<LLButton>("btn_apply");
 	button->setClickedCallback(onBtnApply, this);
-	button->setVisible(mAllowEdit);
-	button->setEnabled(FALSE);
-	mApplyBtn = button;
+	button->setVisible(true);
+	button->setEnabled(false);
+
 
 	button = getChild<LLButton>("btn_refresh");
 	button->setClickedCallback(onBtnRefresh, this);
 	button->setVisible(mAllowEdit);
 
+	getChild<LLButton>("btn_create")->setVisible(false);
+
+	childSetCommitCallback("btn_create",boost::bind(&LLPanelGroup::onBtnCreate,this),NULL);
+	childSetCommitCallback("back",boost::bind(&LLPanelGroup::onBackBtnClick,this),NULL);
+
+	LLPanelGroupTab* panel_general = findChild<LLPanelGroupTab>("group_general_tab_panel");
+	LLPanelGroupTab* panel_roles = findChild<LLPanelGroupTab>("group_roles_tab_panel");
+	LLPanelGroupTab* panel_notices = findChild<LLPanelGroupTab>("group_notices_tab_panel");
+	LLPanelGroupTab* panel_land = findChild<LLPanelGroupTab>("group_land_tab_panel");
+
+	if(panel_general)	mTabs.push_back(panel_general);
+	if(panel_roles)		mTabs.push_back(panel_roles);
+	if(panel_notices)	mTabs.push_back(panel_notices);
+	if(panel_land)		mTabs.push_back(panel_land);
+	
 	return TRUE;
 }
 
-void LLPanelGroup::changed(LLGroupChange gc)
+void LLPanelGroup::reshape(S32 width, S32 height, BOOL called_from_parent )
 {
-	updateTabVisibility();
-	// Notify the currently active panel that group manager information has changed.
-	LLPanelGroupTab* panelp = (LLPanelGroupTab*) mTabContainer->getCurrentPanel();
+	LLPanel::reshape(width, height, called_from_parent );
 
-	if (panelp)
+	LLButton* button = getChild<LLButton>("btn_apply");
+	LLRect btn_rect = button->getRect();
+	btn_rect.setLeftTopAndSize( btn_rect.mLeft, 28, btn_rect.getWidth(), btn_rect.getHeight());
+	button->setRect(btn_rect);
+
+	button = getChild<LLButton>("btn_create");
+	btn_rect = button->getRect();
+	btn_rect.setLeftTopAndSize( btn_rect.mLeft, 28, btn_rect.getWidth(), btn_rect.getHeight());
+	button->setRect(btn_rect);
+
+
+	button = getChild<LLButton>("btn_refresh");
+	btn_rect = button->getRect();
+	btn_rect.setLeftTopAndSize( btn_rect.mLeft, 28, btn_rect.getWidth(), btn_rect.getHeight());
+	button->setRect(btn_rect);
+}
+
+void LLPanelGroup::onBackBtnClick()
+{
+	LLSideTrayPanelContainer* parent = dynamic_cast<LLSideTrayPanelContainer*>(getParent());
+	if(parent)
 	{
-		panelp->update(gc);
+		parent->openPreviousPanel();
 	}
 }
 
-// PanelGroupTab observer trigger
-void LLPanelGroup::tabChanged()
+void LLPanelGroup::onBtnCreate()
 {
-	//some tab information has changed,....enable/disable the apply button
-	//based on if they need an apply
-	if ( mApplyBtn )
-	{
-		std::string mesg;
-		mApplyBtn->setEnabled(mCurrentTab->needsApply(mesg));
-	}
-}
-
-void LLPanelGroup::handleClickTab()
-{
-	// If we are already handling a transition,
-	// ignore this.
-	if (mIgnoreTransition)
-	{
+	LLPanelGroupGeneral* panel_general = findChild<LLPanelGroupGeneral>("group_general_tab_panel");
+	if(!panel_general)
 		return;
-	}
-
-	mRequestedTab = (LLPanelGroupTab*) mTabContainer->getCurrentPanel();
-
-	// Make sure they aren't just clicking the same tab...
-	if (mRequestedTab == mCurrentTab)
-	{
-		return;
-	}
-
-	// Try to switch from the current panel to the panel the user selected.
-	attemptTransition();
+	std::string apply_mesg;
+	panel_general->apply(apply_mesg);//yes yes you need to call apply to create...
 }
 
-void LLPanelGroup::setGroupID(const LLUUID& group_id)
-{
-	LLRect rect(getRect());
-
-	LLGroupMgr::getInstance()->removeObserver(this);
-	mID = group_id;
-	LLGroupMgr::getInstance()->addObserver(this);
-
-	//*TODO:  this is really bad, we should add a method
-	// where the panels can just update themselves
-	// on a group id change.  Similar to update() but with a group
-	// id change.
-
-	// For now, rebuild panel
-	//delete children and rebuild panel
-	deleteAllChildren();
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_group.xml");
-}
-
-void LLPanelGroup::selectTab(std::string tab_name)
-{
-	const BOOL recurse = TRUE;
-
-	LLPanelGroupTab* tabp = findChild<LLPanelGroupTab>(tab_name, recurse);
-
-	if ( tabp && mTabContainer )
-	{
-		mTabContainer->selectTabPanel(tabp);
-		handleClickTab();
-	}
-}
-
-BOOL LLPanelGroup::canClose()
-{
-	if (mShowingNotifyDialog) return FALSE;
-	if (mCurrentTab && mCurrentTab->hasModal()) return FALSE;
-	if (mForceClose || !mAllowEdit) return TRUE;
-
-	// Try to switch from the current panel to nothing, indicating a close action.
-	mRequestedTab = NULL;
-	return attemptTransition();
-}
-
-BOOL LLPanelGroup::attemptTransition()
-{
-	// Check if the current tab needs to be applied.
-	std::string mesg;
-	if (mCurrentTab && mCurrentTab->needsApply(mesg))
-	{
-		// If no message was provided, give a generic one.
-		if (mesg.empty())
-		{
-			mesg = mDefaultNeedsApplyMesg;
-		}
-		// Create a notify box, telling the user about the unapplied tab.
-		LLSD args;
-		args["NEEDS_APPLY_MESSAGE"] = mesg;
-		args["WANT_APPLY_MESSAGE"] = mWantApplyMesg;
-		LLNotifications::instance().add("PanelGroupApply", args, LLSD(),
-			boost::bind(&LLPanelGroup::handleNotifyCallback, this, _1, _2));
-		mShowingNotifyDialog = TRUE;
-		
-		// We need to reselect the current tab, since it isn't finished.
-		if (mTabContainer)
-		{
-			// selectTabPanel is going to trigger another
-			// click event.  We want to ignore it so that
-			// mRequestedTab is not updated.
-			mIgnoreTransition = TRUE;
-			mTabContainer->selectTabPanel( mCurrentTab );
-			mIgnoreTransition = FALSE;
-		}
-		// Returning FALSE will block a close action from finishing until
-		// we get a response back from the user.
-		return FALSE;
-	}
-	else
-	{
-		// The current panel didn't have anything it needed to apply.
-		if ( mRequestedTab )
-		{
-			transitionToTab();
-		}
-		// Returning TRUE will allow any close action to proceed.
-		return TRUE;
-	}
-}
-
-void LLPanelGroup::transitionToTab()
-{
-	// Tell the current panel that it is being deactivated.
-	if (mCurrentTab)
-	{
-		mCurrentTab->deactivate();
-	}
-	
-	// If the requested panel exists, activate it.
-	if (mRequestedTab)
-	{
-		// This is now the current tab;
-		mCurrentTab = mRequestedTab;
-		mCurrentTab->activate();
-	}
-	else // NULL requested indicates a close action.
-	{
-		closePanel();
-	}
-}
-
-bool LLPanelGroup::handleNotifyCallback(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-	mShowingNotifyDialog = FALSE;
-	switch (option)
-	{
-	case 0: // "Apply Changes"
-		// Try to apply changes, and switch to the requested tab.
-		if ( !apply() )
-		{
-			// There was a problem doing the apply.
-			// Skip switching tabs.
-			break;
-		}
-
-		// This panel's info successfully applied.
-		// Switch to the next panel.
-		mIgnoreTransition = TRUE;
-		mTabContainer->selectTabPanel( mRequestedTab );
-		mIgnoreTransition = FALSE;
-		transitionToTab();
-		break;
-	case 1: // "Ignore Changes"
-		// Switch to the requested panel without applying changes
-		// (Changes may already have been applied in the previous block)
-		mCurrentTab->cancel();
-		mIgnoreTransition = TRUE;
-		mTabContainer->selectTabPanel( mRequestedTab );
-		mIgnoreTransition = FALSE;
-		transitionToTab();
-		break;
-	case 2: // "Cancel"
-	default:
-		// Do nothing.  The user is canceling the action.
-		// If we were quitting, we didn't really mean it.
-		LLAppViewer::instance()->abortQuit();
-		break;
-	}
-	return false;
-}
-
-// static
-void LLPanelGroup::onBtnOK(void* user_data)
+void LLPanelGroup::onBtnRefresh(void* user_data)
 {
 	LLPanelGroup* self = static_cast<LLPanelGroup*>(user_data);
-	// If we are able to apply changes, then close.
-	if(self->apply())
-	{
-		self->closePanel();
-	}
+	self->refreshData();
 }
 
-// static
-void LLPanelGroup::onBtnCancel(void* user_data)
-{
-	LLPanelGroup* self = static_cast<LLPanelGroup*>(user_data);
-	self->closePanel();
-}
-
-// static
 void LLPanelGroup::onBtnApply(void* user_data)
 {
 	LLPanelGroup* self = static_cast<LLPanelGroup*>(user_data);
 	self->apply();
 }
 
-bool LLPanelGroup::apply()
+
+void LLPanelGroup::changed(LLGroupChange gc)
 {
-	// Pass this along to the currently visible tab.
-	if (!mTabContainer)
-		return false;
+	for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
+		(*it)->update(gc);
 
-	LLPanelGroupTab* panelp = dynamic_cast<LLPanelGroupTab*>(mTabContainer->getCurrentPanel());
-	if (!panelp)
-		return false;
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mID);
+	if(gdatap)
+		childSetValue("group_name", gdatap->mName);
+}
+
+void LLPanelGroup::notifyObservers()
+{
+	for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
+		(*it)->update(GC_ALL);
+
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mID);
+	if(gdatap)
+		childSetValue("group_name", gdatap->mName);
+}
+
+
+
+void LLPanelGroup::setGroupID(const LLUUID& group_id)
+{
+	LLGroupMgr::getInstance()->removeObserver(this);
+	mID = group_id;
+	LLGroupMgr::getInstance()->addObserver(this);
+
+	for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
+		(*it)->setGroupID(group_id);
+
+	LLButton* button_apply = getChild<LLButton>("btn_apply");
+	LLButton* button_refresh = getChild<LLButton>("btn_refresh");
+	LLButton* button_create = getChild<LLButton>("btn_create");
+
+
+	bool is_null_group_id = group_id == LLUUID::null;
 	
+	button_apply->setVisible(!is_null_group_id);
+	button_refresh->setVisible(!is_null_group_id);
+	button_create->setVisible(is_null_group_id);
+
+	LLAccordionCtrlTab* tab_general = findChild<LLAccordionCtrlTab>("group_general_tab");
+	LLAccordionCtrlTab* tab_roles = findChild<LLAccordionCtrlTab>("group_roles_tab");
+	LLAccordionCtrlTab* tab_notices = findChild<LLAccordionCtrlTab>("group_notices_tab");
+	LLAccordionCtrlTab* tab_land = findChild<LLAccordionCtrlTab>("group_land_tab");
+
+	if(is_null_group_id)//creating new group
+	{
+		if(!tab_general->getDisplayChildren())
+			tab_general->changeOpenClose(tab_general->getDisplayChildren());
+		
+		if(tab_roles->getDisplayChildren())
+			tab_roles->changeOpenClose(tab_roles->getDisplayChildren());
+		if(tab_notices->getDisplayChildren())
+			tab_notices->changeOpenClose(tab_notices->getDisplayChildren());
+		if(tab_land->getDisplayChildren())
+			tab_land->changeOpenClose(tab_land->getDisplayChildren());
+
+		tab_roles->canOpenClose(false);
+		tab_notices->canOpenClose(false);
+		tab_land->canOpenClose(false);
+	}
+	else
+	{
+		tab_roles->canOpenClose(true);
+		tab_notices->canOpenClose(true);
+		tab_land->canOpenClose(true);
+	}
+}
+
+bool	LLPanelGroup::apply(LLPanelGroupTab* tab)
+{
+	if(!tab)
+		return false;
+
 	std::string mesg;
-	if ( !panelp->needsApply(mesg) )
-	{
-		// We don't need to apply anything.
-		// We're done.
+	if ( !tab->needsApply(mesg) )
 		return true;
-	}
-
-	// Ignore the needs apply message.
-	// Try to do the actual apply.
+	
 	std::string apply_mesg;
-	if ( panelp->apply( apply_mesg ) )
-	{
-		// Everything worked.  We're done.
+	if(tab->apply( apply_mesg ) )
 		return true;
-	}
-
-	// There was a problem doing the actual apply.
-	// Inform the user.
+		
 	if ( !apply_mesg.empty() )
 	{
 		LLSD args;
 		args["MESSAGE"] = apply_mesg;
 		LLNotifications::instance().add("GenericAlert", args);
 	}
-
 	return false;
 }
 
-// static
-void LLPanelGroup::onBtnRefresh(void* user_data)
+bool LLPanelGroup::apply()
 {
-	LLPanelGroup* self = static_cast<LLPanelGroup*>(user_data);
-	self->refreshData();
+	return apply(findChild<LLPanelGroupTab>("group_general_tab_panel")) 
+		&& apply(findChild<LLPanelGroupTab>("group_roles_tab_panel"))
+		&& apply(findChild<LLPanelGroupTab>("group_notices_tab_panel"))
+		&& apply(findChild<LLPanelGroupTab>("group_land_tab_panel"))
+		;
 }
+
 
 // virtual
 void LLPanelGroup::draw()
@@ -513,18 +341,22 @@ void LLPanelGroup::draw()
 		mRefreshTimer.stop();
 		childEnable("btn_refresh");
 	}
-	if (mCurrentTab)
-	{
-		std::string mesg;
-		childSetEnabled("btn_apply", mCurrentTab->needsApply(mesg));
-	}
 
+	bool enable = false;
+	std::string mesg;
+	for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
+		enable = enable || (*it)->needsApply(mesg);
+
+	childSetEnabled("btn_apply", enable);
 }
 
 void LLPanelGroup::refreshData()
 {
 	LLGroupMgr::getInstance()->clearGroupData(getID());
-	mCurrentTab->activate();
+	
+	for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
+		(*it)->activate();
+	
 
 	// 5 second timeout
 	childDisable("btn_refresh");
@@ -532,20 +364,6 @@ void LLPanelGroup::refreshData()
 	mRefreshTimer.setTimerExpirySec(5);
 }
 
-void LLPanelGroup::closePanel()
-{
-	// Pass this to the parent, if it is a floater.
-	LLView* viewp = getParent();
-	LLFloater* floaterp = dynamic_cast<LLFloater*>(viewp);
-	if (floaterp)
-	{
-		// First, set the force close flag, since the floater
-		// will be asking us whether it can close.
-		mForceClose = TRUE;
-		// Tell the parent floater to close.
-		floaterp->closeFloater();
-	}
-}
 
 void LLPanelGroup::showNotice(const std::string& subject,
 							  const std::string& message,
@@ -553,7 +371,8 @@ void LLPanelGroup::showNotice(const std::string& subject,
 							  const std::string& inventory_name,
 							  LLOfferInfo* inventory_offer)
 {
-	if (mCurrentTab->getName() != "notices_tab")
+	LLPanelGroupNotices* panel_notices = findChild<LLPanelGroupNotices>("group_notices_tab_panel");
+	if(!panel_notices)
 	{
 		// We need to clean up that inventory offer.
 		if (inventory_offer)
@@ -562,8 +381,37 @@ void LLPanelGroup::showNotice(const std::string& subject,
 		}
 		return;
 	}
-
-	LLPanelGroupNotices* notices = static_cast<LLPanelGroupNotices*>(mCurrentTab);
-
-	notices->showNotice(subject,message,has_inventory,inventory_name,inventory_offer);
+	panel_notices->showNotice(subject,message,has_inventory,inventory_name,inventory_offer);
 }
+
+
+
+
+//static
+void LLPanelGroup::refreshCreatedGroup(const LLUUID& group_id)
+{
+	LLPanelGroup* panel = LLSideTray::getInstance()->findChild<LLPanelGroup>("panel_group_info_sidetray");
+	if(!panel)
+		return;
+	panel->setGroupID(group_id);
+}
+
+//static
+
+void LLPanelGroup::showNotice(const std::string& subject,
+					   const std::string& message,
+					   const LLUUID& group_id,
+					   const bool& has_inventory,
+					   const std::string& inventory_name,
+					   LLOfferInfo* inventory_offer)
+{
+	LLPanelGroup* panel = LLSideTray::getInstance()->findChild<LLPanelGroup>("panel_group_info_sidetray");
+	if(!panel)
+		return;
+
+	if(panel->getID() != group_id)//???? only for current group_id or switch panels? FIXME
+		return;
+	panel->showNotice(subject,message,has_inventory,inventory_name,inventory_offer);
+
+}
+

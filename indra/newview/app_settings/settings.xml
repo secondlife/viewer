@@ -1193,10 +1193,10 @@
         <real>6.0</real>
       </array>
     </map>
-    <key>CameraOffsetDefault</key>
+    <key>CameraOffsetRearView</key>
     <map>
       <key>Comment</key>
-      <string>Default camera offset from avatar</string>
+      <string>Initial camera offset from avatar in Rear View</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -1206,6 +1206,36 @@
         <real>-3.0</real>
         <real>0.0</real>
         <real>0.75</real>
+      </array>
+    </map>
+    <key>CameraOffsetFrontView</key>
+    <map>
+      <key>Comment</key>
+      <string>Initial camera offset from avatar in Front View</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>2.2</real>
+        <real>0.0</real>
+        <real>0.0</real>
+      </array>
+    </map>
+    <key>CameraOffsetGroupView</key>
+    <map>
+      <key>Comment</key>
+      <string>Initial camera offset from avatar in Group View</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>-1.0</real>
+        <real>0.7</real>
+        <real>0.5</real>
       </array>
     </map>
     <key>CameraOffsetScale</key>
@@ -1244,6 +1274,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>1.0</real>
+    </map>
+    <key>CameraPreset</key>
+    <map>
+      <key>Comment</key>
+      <string>Preset camera position - view (0 - rear, 1 - front, 2 - group)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>ChatBarStealsFocus</key>
     <map>
@@ -3134,18 +3175,48 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>FocusOffsetDefault</key>
+    <key>FocusOffsetRearView</key>
     <map>
       <key>Comment</key>
-      <string>Default focus point offset relative to avatar (x-axis is forward)</string>
+      <string>Initial focus point offset relative to avatar for the camera preset Rear View (x-axis is forward)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Vector3</string>
+      <string>Vector3D</string>
       <key>Value</key>
       <array>
         <real>1.0</real>
         <real>0.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
+    <key>FocusOffsetFrontView</key>
+    <map>
+      <key>Comment</key>
+      <string>Initial focus point offset relative to avatar for the camera preset Front View</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3D</string>
+      <key>Value</key>
+      <array>
+        <real>0.0</real>
+        <real>0.0</real>
+        <real>0.0</real>
+      </array>
+    </map>
+    <key>FocusOffsetGroupView</key>
+    <map>
+      <key>Comment</key>
+      <string>Initial focus point offset relative to avatar for the camera preset Group View</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3D</string>
+      <key>Value</key>
+      <array>
+        <real>1.5</real>
+        <real>0.5</real>
         <real>1.0</real>
       </array>
     </map>
@@ -4593,7 +4664,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>20</integer>
+      <integer>130</integer>
     </map>
     <key>NextOwnerCopy</key>
     <map>
@@ -6838,8 +6909,30 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>    
+    <key>ShowPGSearchAll</key>    
+    <map>
+      <key>Comment</key>
+      <string>Show/Hide Navigation Bar Favorites Panel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>   
     </map>
-    <key>ShowPGSearchAll</key>
+    <key>ShowNavbarFavoritesPanel</key>    
+    <map>
+      <key>Comment</key>
+      <string>Show/Hide Navigation Bar Navigation Panel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>   
+    </map>
+    <key>ShowNavbarNavigationPanel</key>        
     <map>
       <key>Comment</key>
       <string>Display results of search All that are flagged as PG</string>

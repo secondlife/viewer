@@ -297,10 +297,6 @@ public:
 		return mEnableSignal.connect(cb);
 	}
 
-	boost::signals2::connection setRightClickedCallback( const commit_signal_t::slot_type& cb )
-	{
-		return mRightClickSignal.connect(cb);
-	}
 	
 private:
 	enable_signal_t mEnableSignal;
@@ -491,9 +487,6 @@ public:
 
 	void buildDrawLabels();
 	void createJumpKeys();
-
-	// Show popup in global screen space based on last mouse location.
-	static void showPopup(LLMenuGL* menu);
 
 	// Show popup at a specific location.
 	static void showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y);
@@ -716,7 +709,9 @@ public:
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ BOOL handleJumpKey(KEY key);
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+//	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
+
 
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL jumpKeysActive();

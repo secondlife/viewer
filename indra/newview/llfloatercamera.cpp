@@ -53,6 +53,11 @@ const F32 CAMERA_BUTTON_DELAY = 0.0f;
 #define PAN "cam_track_stick"
 #define CONTROLS "controls"
 
+
+void show_tip(LLFirstTimeTipsManager::EFirstTimeTipType tipType, LLView* anchorView)
+{
+	LLFirstTimeTipsManager::showTipsFor(tipType, anchorView, LLFirstTimeTipsManager::TPA_POS_RIGHT_ALIGN_TOP);
+}
 //
 // Member functions
 //
@@ -93,7 +98,8 @@ void LLFloaterCamera::update()
 {
 	ECameraControlMode mode = determineMode();
 	if (mode != mCurrMode) setMode(mode);
-	LLFirstTimeTipsManager::showTipsFor(mMode2TipType[mode], this);
+	updatePosition();
+	show_tip(mMode2TipType[mode], this);
 }
 
 
@@ -134,17 +140,17 @@ void LLFloaterCamera::onClickCameraPresets(LLUICtrl* ctrl, const LLSD& param)
 	if ("rear_view" == name)
 	{
 		LLFirstTimeTipsManager::showTipsFor(LLFirstTimeTipsManager::FTT_CAMERA_PRESET_REAR, ctrl);
-		gAgent.resetView(TRUE, TRUE);
+		gAgent.switchCameraPreset(CAMERA_PRESET_REAR_VIEW);
 	}
-	else if ("3/4_view" == name)
+	else if ("group_view" == name)
 	{
 		LLFirstTimeTipsManager::showTipsFor(LLFirstTimeTipsManager::FTT_CAMERA_PRESET_GROUP);
-		//*TODO implement 3/4 view
+		gAgent.switchCameraPreset(CAMERA_PRESET_GROUP_VIEW);
 	}
 	else if ("front_view" == name)
 	{
 		LLFirstTimeTipsManager::showTipsFor(LLFirstTimeTipsManager::FTT_CAMERA_PRESET_FRONT);
-		//*TODO implement front view
+		gAgent.switchCameraPreset(CAMERA_PRESET_FRONT_VIEW);
 	}
 
 }
@@ -159,8 +165,7 @@ void LLFloaterCamera::updatePosition()
 	LLBottomTray* tray = LLBottomTray::getInstance();
 	if (!tray) return;
 
-	LLButton* camera_button = tray->getChild<LLButton>("camera_btn", TRUE, FALSE);
-	if (!camera_button) return;
+	LLButton* camera_button = tray->getChild<LLButton>("camera_btn");
 
 	//align centers of a button and a floater
 	S32 x = camera_button->calcScreenRect().getCenterX() - getRect().getWidth()/2;
@@ -270,19 +275,15 @@ void LLFloaterCamera::onClickBtn(ECameraControlMode mode)
 	
 	switchMode(mode);
 
-	LLFirstTimeTipsManager::showTipsFor(mMode2TipType[mode], mMode2Button[mode]);
+	show_tip(mMode2TipType[mode], this);
 }
 
 void LLFloaterCamera::assignButton2Mode(ECameraControlMode mode, const std::string& button_name)
 {
-	LLButton* button = getChild<LLButton>(button_name, TRUE, FALSE);
-	llassert_always(button);
+	LLButton* button = getChild<LLButton>(button_name);
 	
-	if (button)
-	{
-		button->setClickedCallback(boost::bind(&LLFloaterCamera::onClickBtn, this, mode));
-		mMode2Button[mode] = button;
-	}
+	button->setClickedCallback(boost::bind(&LLFloaterCamera::onClickBtn, this, mode));
+	mMode2Button[mode] = button;
 }
 
 void LLFloaterCamera::initMode2TipTypeMap()

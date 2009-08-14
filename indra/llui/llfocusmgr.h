@@ -63,7 +63,6 @@ public:
 	BOOL			getKeystrokesOnly() { return mKeystrokesOnly; }
 	void			setKeystrokesOnly(BOOL keystrokes_only) { mKeystrokesOnly = keystrokes_only; }
 
-	F32				getFocusTime() const { return mFocusTimer.getElapsedTimeF32(); }
 	F32				getFocusFlashAmt() const;
 	S32				getFocusFlashWidth() const { return llround(lerp(1.f, 3.f, getFocusFlashAmt())); }
 	LLColor4		getFocusColor() const;
@@ -102,12 +101,15 @@ private:
 	LLUICtrl*			mLastKeyboardFocus;			// who last had focus
 	LLUICtrl*			mDefaultKeyboardFocus;
 	BOOL				mKeystrokesOnly;
+	
+	// caching list of keyboard focus ancestors for calling onFocusReceived and onFocusLost
+	typedef std::list<LLHandle<LLView> > view_handle_list_t;
+	view_handle_list_t mCachedKeyboardFocusList;
 
 	// Top View
 	LLUICtrl*			mTopCtrl;
 
-	LLFrameTimer		mFocusTimer;
-	F32					mFocusWeight;
+	LLFrameTimer		mFocusFlashTimer;
 
 	BOOL				mAppHasFocus;
 

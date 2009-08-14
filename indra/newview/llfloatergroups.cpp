@@ -273,7 +273,7 @@ void LLPanelGroups::onBtnSearch(void* userdata)
 
 void LLPanelGroups::create()
 {
-	LLGroupActions::create();
+	LLGroupActions::createGroup();
 }
 
 void LLPanelGroups::activate()
@@ -293,7 +293,7 @@ void LLPanelGroups::info()
 	LLUUID group_id;
 	if (group_list && (group_id = group_list->getCurrentID()).notNull())
 	{
-		LLGroupActions::info(group_id);
+		LLGroupActions::show(group_id);
 	}
 }
 

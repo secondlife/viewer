@@ -135,7 +135,6 @@ set(viewer_SOURCE_FILES
     llflexibleobject.cpp
     llfloaterabout.cpp
     llfloateractivespeakers.cpp
-    llfloateraddlandmark.cpp
     llfloateranimpreview.cpp
     llfloaterauction.cpp
     llfloateravatarpicker.cpp
@@ -162,7 +161,6 @@ set(viewer_SOURCE_FILES
     llfloaterfonttest.cpp
     llfloatergesture.cpp
     llfloatergodtools.cpp
-    llfloatergroupinfo.cpp
     llfloatergroupinvite.cpp
     llfloatergroups.cpp
     llfloaterhandler.cpp
@@ -249,6 +247,7 @@ set(viewer_SOURCE_FILES
     lllocaltextureobject.cpp
     lllocationhistory.cpp
     lllocationinputctrl.cpp
+    llurllineeditorctrl.cpp
     lllogchat.cpp
     llloginhandler.cpp
     lllogininstance.cpp
@@ -280,11 +279,12 @@ set(viewer_SOURCE_FILES
     llnotify.cpp
     lloutputmonitorctrl.cpp
     lloverlaybar.cpp
+    llpanelappearance.cpp
+    llpanelappearancetab.cpp
     llpanelavatar.cpp
     llpanelavatarrow.cpp
     llpanelavatartag.cpp
     llpanelclassified.cpp
-    llsidetraypanelcontainer.cpp
     llpanelcontents.cpp
     llpaneldirbrowser.cpp
     llpaneldirclassified.cpp
@@ -308,6 +308,8 @@ set(viewer_SOURCE_FILES
     llpanellandmarks.cpp
     llpanellandmedia.cpp
     llpanellogin.cpp
+    llpanellookinfo.cpp
+    llpanellooks.cpp
     llpanelmedia.cpp
     llpanelmeprofile.cpp
     llpanelmovetip.cpp
@@ -332,7 +334,6 @@ set(viewer_SOURCE_FILES
     llpreviewanim.cpp
     llpreview.cpp
     llpreviewgesture.cpp
-    llpreviewlandmark.cpp
     llpreviewnotecard.cpp
     llpreviewscript.cpp
     llpreviewsound.cpp
@@ -346,6 +347,7 @@ set(viewer_SOURCE_FILES
     llscreenchannel.cpp
     llselectmgr.cpp
     llsidetray.cpp
+    llsidetraypanelcontainer.cpp
     llsky.cpp
     llslurl.cpp
     llspatialpartition.cpp
@@ -356,6 +358,8 @@ set(viewer_SOURCE_FILES
     llstylemap.cpp
     llsurface.cpp
     llsurfacepatch.cpp
+    llsyswellitem.cpp
+    llsyswellwindow.cpp
     llteleporthistory.cpp
     lltexglobalcolor.cpp
     lltexlayer.cpp
@@ -582,7 +586,6 @@ set(viewer_HEADER_FILES
     llflexibleobject.h
     llfloaterabout.h
     llfloateractivespeakers.h
-    llfloateraddlandmark.h
     llfloateranimpreview.h
     llfloaterauction.h
     llfloateravatarpicker.h
@@ -609,7 +612,6 @@ set(viewer_HEADER_FILES
     llfloaterfriends.h
     llfloatergesture.h
     llfloatergodtools.h
-    llfloatergroupinfo.h
     llfloatergroupinvite.h
     llfloatergroups.h
     llfloaterhandler.h
@@ -697,6 +699,7 @@ set(viewer_HEADER_FILES
     lllocaltextureobject.h
     lllocationhistory.h
     lllocationinputctrl.h
+    llurllineeditorctrl.h
     lllogchat.h
     llloginhandler.h
     lllogininstance.h
@@ -726,11 +729,12 @@ set(viewer_HEADER_FILES
     llnotify.h
     lloutputmonitorctrl.h
     lloverlaybar.h
+    llpanelappearance.h
+    llpanelappearancetab.h
     llpanelavatar.h
     llpanelavatarrow.h
     llpanelavatartag.h
     llpanelclassified.h
-    llsidetraypanelcontainer.h
     llpanelcontents.h
     llpaneldirbrowser.h
     llpaneldirclassified.h
@@ -754,6 +758,8 @@ set(viewer_HEADER_FILES
     llpanellandmarks.h
     llpanellandmedia.h
     llpanellogin.h
+    llpanellookinfo.h
+    llpanellooks.h
     llpanelmedia.h
     llpanelmeprofile.h
     llpanelmovetip.h
@@ -778,7 +784,6 @@ set(viewer_HEADER_FILES
     llpreview.h
     llpreviewanim.h
     llpreviewgesture.h
-    llpreviewlandmark.h
     llpreviewnotecard.h
     llpreviewscript.h
     llpreviewsound.h
@@ -794,6 +799,7 @@ set(viewer_HEADER_FILES
     llsavedsettingsglue.h
     llselectmgr.h
     llsidetray.h
+    llsidetraypanelcontainer.h
     llsky.h
     llslurl.h
     llspatialpartition.h
@@ -804,6 +810,8 @@ set(viewer_HEADER_FILES
     llstylemap.h
     llsurface.h
     llsurfacepatch.h
+    llsyswellitem.h
+    llsyswellwindow.h    
     lltable.h
     llteleporthistory.h
     lltexglobalcolor.h
@@ -1324,9 +1332,27 @@ if (WINDOWS)
          ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
         COMMENT "Copying staged dlls."
         )
-    endif(WINDOWS)
-    
-    
+
+      add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${VIEWER_BINARY_NAME}.exe.config
+        COMMAND ${PYTHON_EXECUTABLE}
+        ARGS
+          ${CMAKE_CURRENT_SOURCE_DIR}/build_win32_appConfig.py
+          ${CMAKE_CFG_INTDIR}
+          ${CMAKE_CURRENT_SOURCE_DIR}
+	  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+	  ${VIEWER_BINARY_NAME}.exe.config
+        COMMENT "Creating app.config file"
+        )
+
+      add_custom_target(create_app_config_file ALL 
+	DEPENDS
+	  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${VIEWER_BINARY_NAME}.exe.config
+	)
+
+      add_dependencies(${VIEWER_BINARY_NAME} create_app_config_file)
+      
+    endif(WINDOWS)    
 
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)

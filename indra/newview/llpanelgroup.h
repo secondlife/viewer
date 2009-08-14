@@ -45,92 +45,78 @@ class LLPanelGroupTab;
 class LLTabContainer;
 class LLAgent;
 
-class LLPanelGroupTabObserver
-{
-public:
-	LLPanelGroupTabObserver() {};
-	virtual ~LLPanelGroupTabObserver(){};
-	virtual void tabChanged() = 0;
-};
 
 class LLPanelGroup : public LLPanel,
-					 public LLGroupMgrObserver, 
-					 public LLPanelGroupTabObserver
+					 public LLGroupMgrObserver 
 {
 public:
-	LLPanelGroup(const LLUUID& group_id);
+	LLPanelGroup();
 	virtual ~LLPanelGroup();
 
 	virtual BOOL postBuild();
 
-	static void onBtnOK(void*);
-	static void onBtnCancel(void*);
-	static void onBtnApply(void*);
-	static void onBtnRefresh(void*);
-	void handleClickTab();
-
 	void setGroupID(const LLUUID& group_id);
-	void selectTab(std::string tab_name);
 
-	// Called when embedded in a floater during a close attempt.
-	BOOL canClose();
-	
-	// Checks if the current tab needs to be applied, and tries to switch to the requested tab.
-	BOOL attemptTransition();
-	
-	// Switches to the requested tab (will close() if requested is NULL)
-	void transitionToTab();
-
-	void updateTabVisibility();
-
-	// Used by attemptTransition to query the user's response to a tab that needs to apply. 
-	bool handleNotifyCallback(const LLSD& notification, const LLSD& response);
-
-	bool apply();
-	void refreshData();
-	void closePanel();
 	void draw();
+
+	void onOpen(const LLSD& key);
 
 	// Group manager observer trigger.
 	virtual void changed(LLGroupChange gc);
-
-	// PanelGroupTab observer trigger
-	virtual void tabChanged();
-
-	void setAllowEdit(BOOL v) { mAllowEdit = v; }
 
 	void showNotice(const std::string& subject,
 					const std::string& message,
 					const bool& has_inventory,
 					const std::string& inventory_name,
 					LLOfferInfo* inventory_offer);
-protected:
-	LLPanelGroupTab*		mCurrentTab;
-	LLPanelGroupTab*		mRequestedTab;
-	LLTabContainer*	mTabContainer;
-	BOOL mIgnoreTransition;
 
-	LLButton* mApplyBtn;
+	void notifyObservers();
+
+	bool apply();
+	void refreshData();
+
+	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+
+	void setAllowEdit(BOOL v) { mAllowEdit = v; }
+
+	
+	static void refreshCreatedGroup(const LLUUID& group_id);
+
+	static void showNotice(const std::string& subject,
+						   const std::string& message,
+						   const LLUUID& group_id,
+						   const bool& has_inventory,
+						   const std::string& inventory_name,
+						   LLOfferInfo* inventory_offer);
+
+	
+protected:
+	void onBtnCreate();
+	void onBackBtnClick();
+
+	static void onBtnApply(void*);
+	static void onBtnRefresh(void*);
+
+
+protected:
+	bool	apply(LLPanelGroupTab* tab);
 
 	LLTimer mRefreshTimer;
 
-	BOOL mForceClose;
+	BOOL mAllowEdit;
 
 	std::string mDefaultNeedsApplyMesg;
 	std::string mWantApplyMesg;
 
-	BOOL mAllowEdit;
-	BOOL mShowingNotifyDialog;
+	std::vector<LLPanelGroupTab* > mTabs;
+
 };
 
 class LLPanelGroupTab : public LLPanel
 {
 public:
-	LLPanelGroupTab(const LLUUID& group_id);
+	LLPanelGroupTab();
 	virtual ~LLPanelGroupTab();
-
-	// Factory that returns a new LLPanelGroupFoo tab.
-	static void* createTab(void* data);
 
 	// Triggered when the tab becomes active.
 	virtual void activate() { }
@@ -168,20 +154,19 @@ public:
 
 	void setAllowEdit(BOOL v) { mAllowEdit = v; }
 
-	void addObserver(LLPanelGroupTabObserver *obs);
-	void removeObserver(LLPanelGroupTabObserver *obs);
-	void notifyObservers();
+	virtual void setGroupID(const LLUUID& id) {mGroupID = id;};
+
+	void notifyObservers() {};
+
+	const LLUUID& getGroupID() const { return mGroupID;}
 
 protected:
 	LLUUID	mGroupID;
-	LLTabContainer*	mTabContainer;
 	std::string	mHelpText;
 
 	BOOL mAllowEdit;
 	BOOL mHasModal;
 
-	typedef std::set<LLPanelGroupTabObserver*> observer_list_t;
-	observer_list_t mObservers;
 };
 
 #endif // LL_LLPANELGROUP_H

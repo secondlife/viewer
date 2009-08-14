@@ -1,34 +1,34 @@
 /** 
-* @file llbottomtray.cpp
-* @brief LLBottomTray class implementation
-*
-* $LicenseInfo:firstyear=2009&license=viewergpl$
-* 
-* Copyright (c) 2009, Linden Research, Inc.
-* 
-* Second Life Viewer Source Code
-* The source code in this file ("Source Code") is provided by Linden Lab
-* to you under the terms of the GNU General Public License, version 2.0
-* ("GPL"), unless you have obtained a separate licensing agreement
-* ("Other License"), formally executed by you and Linden Lab.  Terms of
-* the GPL can be found in doc/GPL-license.txt in this distribution, or
-* online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
-* 
-* There are special exceptions to the terms and conditions of the GPL as
-* it is applied to this Source Code. View the full text of the exception
-* in the file doc/FLOSS-exception.txt in this software distribution, or
-* online at
-* http://secondlifegrid.net/programs/open_source/licensing/flossexception
-* 
-* By copying, modifying or distributing this software, you acknowledge
-* that you have read and understood your obligations described above,
-* and agree to abide by those obligations.
-* 
-* ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
-* WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
-* COMPLETENESS OR PERFORMANCE.
-* $/LicenseInfo$
-*/
+ * @file llbottomtray.cpp
+ * @brief LLBottomTray class implementation
+ *
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009, Linden Research, Inc.
+ * 
+ * Second Life Viewer Source Code
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+ * 
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ * 
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+ * 
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
+ * $/LicenseInfo$
+ */
 
 #include "llviewerprecompiledheaders.h" // must be first include
 #include "llbottomtray.h"
@@ -37,6 +37,7 @@
 #include "llchiclet.h"
 #include "llfloaterreg.h"
 #include "llflyoutbutton.h"
+#include "lllayoutstack.h"
 #include "llnearbychatbar.h"
 #include "llsplitbutton.h"
 #include "llfloatercamera.h"
@@ -47,20 +48,23 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	mIMWell(NULL),
 	mSysWell(NULL),
 	mTalkBtn(NULL),
-	mNearbyChatBar(NULL)
+	mNearbyChatBar(NULL),
+	mToolbarStack(NULL)
+
 {
 	mFactoryMap["chat_bar"] = LLCallbackMap(LLBottomTray::createNearbyChatBar, NULL);
 
 	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_bottomtray.xml");
 
-	mChicletPanel = getChild<LLChicletPanel>("chiclet_list",TRUE,FALSE);
-	mIMWell = getChild<LLNotificationChiclet>("im_well",TRUE,FALSE);
-	mSysWell = getChild<LLNotificationChiclet>("sys_well",TRUE,FALSE);
+	mChicletPanel = getChild<LLChicletPanel>("chiclet_list");
+	mIMWell = getChild<LLNotificationChiclet>("im_well");
+	mSysWell = getChild<LLNotificationChiclet>("sys_well");
 
+	mSysWell->setNotificationChicletWindow(LLFloaterReg::getInstance("syswell_window"));
 	mChicletPanel->setChicletClickedCallback(boost::bind(&LLBottomTray::onChicletClick,this,_1));
 
-	LLSplitButton* presets = getChild<LLSplitButton>("presets", TRUE, FALSE);
-	if (presets) presets->setSelectionCallback(LLFloaterCamera::onClickCameraPresets);
+	LLSplitButton* presets = getChild<LLSplitButton>("presets");
+	presets->setSelectionCallback(LLFloaterCamera::onClickCameraPresets);
 
 	LLIMMgr::getInstance()->addSessionObserver(this);
 
@@ -75,9 +79,10 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 BOOL LLBottomTray::postBuild()
 {
-	 mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
+	mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
+	mToolbarStack = getChild<LLLayoutStack>("toolbar_stack");
 
-	 return TRUE;
+	return TRUE;
 }
 
 LLBottomTray::~LLBottomTray()
@@ -152,13 +157,14 @@ void LLBottomTray::setVisible(BOOL visible)
 {
 	LLPanel::setVisible(visible);
 
-	LLView* stack = getChild<LLView>("toolbar_stack",TRUE,FALSE);
-
-	if (stack)
+	// *NOTE: we must check mToolbarStack against NULL because sewtVisible is called from the 
+	// LLPanel::initFromParams BEFORE postBuild is called and child controls are not exist yet
+	if (NULL != mToolbarStack)
 	{
 		BOOL visibility = gAgent.cameraMouselook() ? false : true;
 
-		for ( child_list_const_iter_t child_it = stack->getChildList()->begin(); child_it != stack->getChildList()->end(); child_it++)
+		for ( child_list_const_iter_t child_it = mToolbarStack->getChildList()->begin(); 
+			child_it != mToolbarStack->getChildList()->end(); child_it++)
 		{
 			LLView* viewp = *child_it;
 			

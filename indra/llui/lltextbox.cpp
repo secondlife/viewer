@@ -32,11 +32,17 @@
 
 #include "linden_common.h"
 #include "lltextbox.h"
+#include "lllink.h"
 #include "lluictrlfactory.h"
 #include "llfocusmgr.h"
 #include "llwindow.h"
 
 static LLDefaultChildRegistry::Register<LLTextBox> r("text");
+
+//*NOTE
+// LLLink is not used in code for now, therefor Visual Studio doesn't build it.
+// "link" is registered here to force Visual Studio to build LLLink class.
+static LLDefaultChildRegistry::Register<LLLink>	register_link("link");
 
 LLTextBox::Params::Params()
 :	text_color("text_color"),

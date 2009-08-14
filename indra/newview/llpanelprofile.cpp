@@ -32,19 +32,15 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llpanelprofile.h"
-#include "lltabcontainer.h"
-#include "llpanelpicks.h"
+
 #include "llagent.h"
-#include "llcommandhandler.h"
 #include "llavataractions.h"
+#include "llcommandhandler.h"
+#include "llpanelpicks.h"
+#include "lltabcontainer.h"
 
 static const std::string PANEL_PICKS = "panel_picks";
-static const std::string PANEL_NOTES = "panel_notes";
 static const std::string PANEL_PROFILE = "panel_profile";
-
-static LLRegisterPanelClassWrapper<LLPanelAvatarProfile> t_panel_profile(PANEL_PROFILE);
-static LLRegisterPanelClassWrapper<LLPanelPicks> t_panel_picks(PANEL_PICKS);
-
 
 class LLAgentHandler : public LLCommandHandler
 {
@@ -74,34 +70,45 @@ LLAgentHandler gAgentHandler;
 
 
 LLPanelProfile::LLPanelProfile()
-:	LLPanel(),
-	mTabContainer(NULL)
-{
-}
-
-LLPanelProfile::~LLPanelProfile()
+ : LLPanel()
+ , mTabCtrl(NULL)
+ , mAvatarId(LLUUID::null)
 {
 }
 
 BOOL LLPanelProfile::postBuild()
 {
-	mTabContainer = getChild<LLTabContainer>("tabs");
-	mTabContainer->setCommitCallback(boost::bind(&LLPanelProfile::onTabSelected, this, _2));
+	mTabCtrl = getChild<LLTabContainer>("tabs");
+
+	getTabCtrl()->setCommitCallback(boost::bind(&LLPanelProfile::onTabSelected, this, _2));
 
 	LLPanelPicks* panel_picks = getChild<LLPanelPicks>(PANEL_PICKS);
 	panel_picks->setProfilePanel(this);
-	mTabs[PANEL_PICKS] = panel_picks;
 
-	mTabs[PANEL_PROFILE] = getChild<LLPanelAvatarProfile>(PANEL_PROFILE);
+	getTabContainer()[PANEL_PICKS] = panel_picks;
+	getTabContainer()[PANEL_PROFILE] = getChild<LLPanelAvatarProfile>(PANEL_PROFILE);
 
 	return TRUE;
+}
+
+void LLPanelProfile::onOpen(const LLSD& key)
+{
+	if (key.has("open_tab_name"))
+	{
+		// onOpen from selected panel will be called from onTabSelected callback
+		getTabCtrl()->selectTabByName(key["open_tab_name"]);
+	}
+	else
+	{
+		getTabCtrl()->getCurrentPanel()->onOpen(getAvatarId());
+	}
 }
 
 //*TODO redo panel toggling
 void LLPanelProfile::togglePanel(LLPanel* panel)
 {
 	// TRUE - we need to open/expand "panel"
-	BOOL expand = this->getChildList()->back() != panel;  // mTabContainer->getVisible();
+	bool expand = getChildList()->back() != panel;  // mTabCtrl->getVisible();
 
 	if (expand)
 	{
@@ -128,29 +135,31 @@ void LLPanelProfile::togglePanel(LLPanel* panel)
 	else 
 	{
 		this->setAllChildrenVisible(TRUE);
-		if (panel->getParent() == this) removeChild(panel);
-		sendChildToBack(mTabContainer);
-		mTabContainer->getCurrentPanel()->onOpen(mAvatarId);
+		if (panel->getParent() == this) 
+		{
+			removeChild(panel);
+		}
+		sendChildToBack(getTabCtrl());
+		getTabCtrl()->getCurrentPanel()->onOpen(getAvatarId());
 	}
 }
-
 
 void LLPanelProfile::onTabSelected(const LLSD& param)
 {
 	std::string tab_name = param.asString();
-	if (NULL != mTabs[tab_name])
+	if (NULL != getTabContainer()[tab_name])
 	{
-		mTabs[tab_name]->onOpen(mAvatarId);
+		getTabContainer()[tab_name]->onOpen(getAvatarId());
 	}
 }
 
 void LLPanelProfile::setAllChildrenVisible(BOOL visible)
 {
 	const child_list_t* child_list = getChildList();
-	for (child_list_const_iter_t child_it = child_list->begin(); child_it != child_list->end(); ++child_it)
+	child_list_const_iter_t child_it = child_list->begin();
+	for (; child_it != child_list->end(); ++child_it)
 	{
 		LLView* viewp = *child_it;
 		viewp->setVisible(visible);
 	}
 }
-

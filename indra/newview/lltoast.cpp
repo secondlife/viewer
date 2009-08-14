@@ -41,36 +41,61 @@
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
-LLToast::LLToast(LLPanel* panel) : 
-				    LLFloater(LLSD()), 
-					mTimerValue(5),  
-					mIsViewed(false), 
-					mPanel(panel), 
-					mCanFade(true),
-					mHideBtn(NULL),
-					mIsModal(false),
-					mCanBeStored(true),
-					mHideBtnPressed(false)
+LLToast::LLToast(LLToast::Params p) :	LLFloater(LLSD()), 
+										mPanel(p.panel), 
+										mTimerValue(p.timer_period),  
+										mID(p.id),  
+										mCanFade(p.can_fade),
+										mCanBeStored(p.can_be_stored),
+										mHideBtnEnabled(p.enable_hide_btn),
+										mIsModal(p.is_modal),
+										mIsTipNotification(p.is_tip),
+										mHideBtn(NULL),
+										mNotification(p.notification),
+										mIsViewed(false), 
+										mHideBtnPressed(false)
 {
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_toast.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "panel_toast.xml", NULL);
 
-	mHideBtn = getChild<LLButton>("hide_btn");
-	if(mHideBtn)
-	{
-		mHideBtn->setClickedCallback(boost::bind(&LLToast::hide,this));
-	}
 	if(mPanel)
 	{
-		arrange(mPanel);
+		insertPanel(mPanel);
 	}
 
-	// disable unnecessary Floater's functionality
-	setTitleVisible(FALSE);
-	setCanMinimize(FALSE);
-	setCanClose(FALSE);
-	setCanTearOff(FALSE);
-	setCanResize(FALSE);
-	setCanDrag(FALSE);
+	if(mHideBtnEnabled)
+	{
+		mHideBtn = getChild<LLButton>("hide_btn");
+		mHideBtn->setClickedCallback(boost::bind(&LLToast::hide,this));
+	}
+
+	if(mIsModal)
+	{
+		gFocusMgr.setMouseCapture( this );
+		gFocusMgr.setTopCtrl( this );
+		setFocus(TRUE);
+	}
+
+
+	if(!p.on_toast_destroy.empty())
+		mOnToastDestroy.connect(p.on_toast_destroy);
+
+	if(!p.on_mouse_enter.empty())
+		mOnMousEnter.connect(p.on_mouse_enter);
+}
+
+//--------------------------------------------------------------------------
+BOOL LLToast::postBuild()
+{
+	if(mCanFade)
+	{
+		mTimer.start();
+	}
+	else
+	{
+		mTimer.stop();
+	}
+
+	return TRUE;
 }
 
 //--------------------------------------------------------------------------
@@ -124,7 +149,7 @@ void LLToast::hide()
 	setVisible(FALSE);
 	mIsViewed = false;
 	mTimer.stop();
-	mOnFade(this, LLSD());
+	mOnFade(this);
 }
 
 //--------------------------------------------------------------------------
@@ -142,12 +167,12 @@ void LLToast::tick()
 	{
 		setVisible(FALSE);
 		mTimer.stop();
-		mOnFade(this, LLSD()); 
+		mOnFade(this); 
 	}
 }
 
 //--------------------------------------------------------------------------
-void LLToast::arrange(LLPanel* panel)
+void LLToast::insertPanel(LLPanel* panel)
 {
 	LLRect panel_rect, toast_rect;
 
@@ -213,13 +238,12 @@ void LLToast::onMouseEnter(S32 x, S32 y, MASK mask)
 	sendChildToFront(mHideBtn);
 	if(mHideBtn && mHideBtn->getEnabled())
 		mHideBtn->setVisible(TRUE);
-	mOnMousEnter(this, LLSD());
+	mOnMousEnter(this);
 }
 
 //--------------------------------------------------------------------------
 void LLToast::onMouseLeave(S32 x, S32 y, MASK mask)
 {	
-	llinfos << "MOUSE LEAVE: x = " << x << "y = " << y << llendl;
 	mOnToastHover(this, MOUSE_LEAVE);
 
 	if(mCanFade && !mIsViewed)
@@ -249,5 +273,26 @@ BOOL LLToast::handleMouseDown(S32 x, S32 y, MASK mask)
 	return LLFloater::handleMouseDown(x, y, mask);
 }
 
+//--------------------------------------------------------------------------
+void LLToast::discardNotification()
+{
+	if(mNotification)
+	{
+		mNotification->setIgnored(TRUE);
+		mNotification->respond(mNotification->getResponseTemplate());
+	}
+}
+
+//--------------------------------------------------------------------------
+bool LLToast::getIsNotificationUnResponded()
+{
+	if(mNotification)
+	{
+		return !mNotification->isRespondedTo();
+	}
+	return false;
+}
+
+//--------------------------------------------------------------------------
 
 

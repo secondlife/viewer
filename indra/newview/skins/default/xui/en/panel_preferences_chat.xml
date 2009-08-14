@@ -278,15 +278,6 @@
      top_pad="40"
      width="400" />
     <check_box
-     control_name="UseChatBubbles"
-     height="16"
-     label="Show chat bubbles"
-     layout="topleft"
-     left_delta="0"
-     name="bubble_text_chat"
-     top_pad="5"
-     width="400" />
-    <check_box
      enabled="false"
      height="16"
      label="Email me IMs when I'm offline"

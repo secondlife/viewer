@@ -117,24 +117,6 @@ void LLAvatarList::draw()
 	}
 }
 
-//virtual
-BOOL LLAvatarList::handleMouseDown(S32 x, S32 y, MASK mask)
-{
-	LLScrollListItem* hit_item = hitItem(x, y);
-	if (NULL == hit_item)
-	{
-		std::vector<LLScrollListItem*> selectedItems = getAllSelected();
-		std::vector<LLScrollListItem*>::const_iterator it = selectedItems.begin();
-
-		for (; it != selectedItems.end(); ++it)
-		{
-			(*it)->setSelected(FALSE);
-		}
-		return TRUE;
-	}
-	return LLScrollListCtrl::handleMouseDown(x, y, mask);
-}
-
 std::vector<LLUUID> LLAvatarList::getSelectedIDs()
 {
 	LLUUID selected_id;

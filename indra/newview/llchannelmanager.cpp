@@ -58,15 +58,14 @@ LLChannelManager::~LLChannelManager()
 //--------------------------------------------------------------------------
 void LLChannelManager::onLoginCompleted()
 {
-	S32 hidden_notifications = 0;
+	S32 away_notifications = 0;
 
 	for(std::vector<ChannelElem>::iterator it = mChannelList.begin(); it !=  mChannelList.end(); ++it)
 	{
-		//(*it).channel->showToasts();
-		hidden_notifications +=(*it).channel->getNumberOfHiddenToasts();
+		away_notifications +=(*it).channel->getNumberOfHiddenToasts();
 	}
 
-	if(!hidden_notifications)
+	if(!away_notifications)
 	{
 		LLScreenChannel::setStartUpToastShown();
 		return;
@@ -81,15 +80,19 @@ void LLChannelManager::onLoginCompleted()
 	if(!mStartUpChannel)
 		return;
 
-	static_cast<LLUICtrl*>(mStartUpChannel)->setCommitCallback(boost::bind(&LLChannelManager::enableShowToasts, this));
-	mStartUpChannel->setNumberOfHiddenToasts(hidden_notifications);
-	mStartUpChannel->createOverflowToast(gSavedSettings.getS32("ChannelBottomPanelMargin"), gSavedSettings.getS32("StartUpToastTime"));
+	static_cast<LLUICtrl*>(mStartUpChannel)->setCommitCallback(boost::bind(&LLChannelManager::removeStartUpChannel, this));
+	mStartUpChannel->createStartUpToast(away_notifications, gSavedSettings.getS32("ChannelBottomPanelMargin"), gSavedSettings.getS32("StartUpToastTime"));
 }
 
 //--------------------------------------------------------------------------
-void LLChannelManager::enableShowToasts()
+void LLChannelManager::removeStartUpChannel()
 {
-	LLScreenChannel::setStartUpToastShown();
+	if(!mStartUpChannel)
+		return;
+
+	mStartUpChannel->setVisible(FALSE);
+	mStartUpChannel->closeStartUpToast();
+	getRootView()->removeChild(mStartUpChannel);
 	delete mStartUpChannel;
 	mStartUpChannel = NULL;
 }

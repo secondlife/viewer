@@ -42,7 +42,7 @@
   <combo_list bg_writeable_color="MenuDefaultBgColor"/>
   <combo_editor name="Combo Text Entry"
                 text_pad_left="20"
-                select_on_focus="true"
+                select_on_focus="false"
                 font="SansSerifSmall"
                 bevel_style="none"
                 border_style="line"

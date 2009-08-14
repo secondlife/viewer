@@ -61,7 +61,6 @@ protected:
 	friend class LLUICtrlFactory;
 public:
 	virtual void	draw();
-	virtual void	setEnabled(BOOL enabled);
 
 	void setToggleState(BOOL state);
 

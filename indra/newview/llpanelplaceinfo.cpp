@@ -68,7 +68,10 @@ LLPanelPlaceInfo::LLPanelPlaceInfo()
 	mRequestedID(),
 	mPosRegion(),
 	mLandmarkID(),
-	mMinHeight(0)
+	mMinHeight(0),
+	mScrollingPanel(NULL),
+	mInfoPanel(NULL),
+	mMediaPanel(NULL)
 {}
 
 LLPanelPlaceInfo::~LLPanelPlaceInfo()
@@ -111,9 +114,10 @@ BOOL LLPanelPlaceInfo::postBuild()
 	mMinHeight = scroll_container->getScrolledViewRect().getHeight();
 
 	mScrollingPanel = getChild<LLPanel>("scrolling_panel");
-
-	mInfoPanel = getChild<LLPanel>("info_panel", TRUE, FALSE);
-	mMediaPanel = getChild<LLMediaPanel>("media_panel", TRUE, FALSE);
+	mInfoPanel = getChild<LLPanel>("info_panel");
+	mMediaPanel = getChild<LLMediaPanel>("media_panel");
+	if (!mMediaPanel)
+		return FALSE;
 
 	return TRUE;
 }
@@ -238,15 +242,20 @@ void LLPanelPlaceInfo::setParcelID(const LLUUID& parcel_id)
 
 void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 {
-	if (!mInfoPanel)
-	    return;
+	if (type != PLACE)
+		toggleMediaPanel(FALSE);
+	
+	bool is_landmark_info_type = type == LANDMARK;
+	LLPanel* landmark_info_panel = getChild<LLPanel>("landmark_info_panel");
+	if (landmark_info_panel)
+	{
+		landmark_info_panel->setVisible(is_landmark_info_type);
+	}
 
 	switch(type)
 	{
 		case CREATE_LANDMARK:
 			mCurrentTitle = getString("title_create_landmark");
-
-			toggleMediaPanel(FALSE);
 		break;
 
 		case PLACE:
@@ -262,14 +271,10 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 		// a landmark or a teleport history item
 		case LANDMARK:
 			mCurrentTitle = getString("title_landmark");
-
-			toggleMediaPanel(FALSE);
 		break;
-		
+
 		case TELEPORT_HISTORY:
 			mCurrentTitle = getString("title_place");
- 
-			toggleMediaPanel(FALSE);
 		break;
 	}
 }
@@ -284,7 +289,7 @@ BOOL LLPanelPlaceInfo::isMediaPanelVisible()
 
 void LLPanelPlaceInfo::toggleMediaPanel(BOOL visible)
 {
-    if (!(mMediaPanel && mInfoPanel))
+    if (!mMediaPanel)
         return;
 
     if (visible)
@@ -384,7 +389,7 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 	
 	if (mCurrentTitle != getString("title_landmark"))
 	{
-		mTitleEditor->setText(parcel_data.name + "; " + name);
+		mTitleEditor->setText(parcel_data.name);
 		mNotesEditor->setText(LLStringUtil::null);
 	}
 }
@@ -432,7 +437,7 @@ void LLPanelPlaceInfo::displayAgentParcelInfo()
 
 	LLParcelData parcel_data;
 	parcel_data.desc = parcel->getDesc();
-	parcel_data.flags = parcel->getParcelFlags();
+	parcel_data.flags = region->getSimAccess();
 	parcel_data.name = parcel->getName();
 	parcel_data.sim_name = gAgent.getRegion()->getName();
 	parcel_data.snapshot_id = parcel->getSnapshotID();
@@ -500,7 +505,7 @@ void LLPanelPlaceInfo::createLandmark(const LLUUID& folder_id)
 	// If typed name is empty use the parcel name instead.
 	if (name.empty())
 	{
-		name = mParcelName->getText() + "; " + mRegionName->getText();
+		name = mParcelName->getText();
 	}
 
 	LLStringUtil::replaceChar(desc, '\n', ' ');
@@ -511,7 +516,7 @@ void LLPanelPlaceInfo::createLandmark(const LLUUID& folder_id)
 
 void LLPanelPlaceInfo::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	if (mMinHeight > 0)
+	if (mMinHeight > 0 && mScrollingPanel != NULL)
 	{
 		mScrollingPanel->reshape(mScrollingPanel->getRect().getWidth(), mMinHeight);
 	}

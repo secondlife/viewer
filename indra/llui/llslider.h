@@ -46,6 +46,8 @@ public:
 							thumb_center_color;
 
 		Optional<LLUIImage*>	thumb_image,
+								thumb_image_pressed,
+								thumb_image_disabled,
 								track_image,
 								track_highlight_image;
 
@@ -85,9 +87,11 @@ private:
 	S32				mMouseOffset;
 	LLRect			mDragStartThumbRect;
 
-	LLUIImage*		mThumbImage;
-	LLUIImage*		mTrackImage;
-	LLUIImage*		mTrackHighlightImage;
+	LLPointer<LLUIImage>	mThumbImage;
+	LLPointer<LLUIImage>	mThumbImagePressed;
+	LLPointer<LLUIImage>	mThumbImageDisabled;
+	LLPointer<LLUIImage>	mTrackImage;
+	LLPointer<LLUIImage>	mTrackHighlightImage;
 
 	LLRect			mThumbRect;
 	LLUIColor	mTrackColor;

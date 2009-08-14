@@ -102,7 +102,6 @@
 #include "llfloaterfonttest.h"
 #include "llfloatergesture.h"
 #include "llfloatergodtools.h"
-#include "llfloatergroupinfo.h"
 #include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
 #include "llfloaterhtml.h"
@@ -5106,19 +5105,20 @@ void print_agent_nvpairs(void*)
 
 void show_debug_menus()
 {
-	// this can get called at login screen where there is no menu so only toggle it if one exists
+	// this might get called at login screen where there is no menu so only toggle it if one exists
 	if ( gMenuBarView )
 	{
 		BOOL debug = gSavedSettings.getBOOL("UseDebugMenus");
+		BOOL qamode = gSavedSettings.getBOOL("QAMode");
 
 		gMenuBarView->setItemVisible("Advanced", debug);
-		gMenuBarView->setItemEnabled("Advanced", debug);
+// 		gMenuBarView->setItemEnabled("Advanced", debug); // Don't disable Advanced keyboard shortcuts when hidden
 		
-		gMenuBarView->setItemVisible("Debug", debug);
-		gMenuBarView->setItemEnabled("Debug", debug);
+		gMenuBarView->setItemVisible("Debug", qamode);
+		gMenuBarView->setItemEnabled("Debug", qamode);
 
-		gMenuBarView->setItemVisible("Develop", debug);
-		gMenuBarView->setItemEnabled("Develop", debug);
+		gMenuBarView->setItemVisible("Develop", qamode);
+		gMenuBarView->setItemEnabled("Develop", qamode);
 
 		// Server ('Admin') menu hidden when not in godmode.
 		const bool show_server_menu = debug && (gAgent.getGodLevel() > GOD_NOT);
@@ -5280,9 +5280,7 @@ class LLWorldCreateLandmark : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
-			
-		// Floater "Add Landmark" functionality moved to Side Tray
-		//LLFloaterReg::showInstance("add_landmark");
+
 		return true;
 	}
 };
@@ -5368,6 +5366,19 @@ class LLAvatarAddFriend : public view_listener_t
 		if(avatar && !LLAvatarActions::isFriend(avatar->getID()))
 		{
 			request_friendship(avatar->getID());
+		}
+		return true;
+	}
+};
+
+class LLAvatarAddContact : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		if(avatar)
+		{
+			create_inventory_callingcard(avatar->getID());
 		}
 		return true;
 	}
@@ -7931,6 +7942,7 @@ void initialize_menus()
 	 // Avatar pie menu
 	view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");
 	view_listener_t::addMenu(new LLAvatarAddFriend(), "Avatar.AddFriend");
+	view_listener_t::addMenu(new LLAvatarAddContact(), "Avatar.AddContact");
 	view_listener_t::addMenu(new LLAvatarFreeze(), "Avatar.Freeze");
 	view_listener_t::addMenu(new LLAvatarDebug(), "Avatar.Debug");
 	view_listener_t::addMenu(new LLAvatarVisibleDebug(), "Avatar.VisibleDebug");

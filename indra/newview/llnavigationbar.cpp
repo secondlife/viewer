@@ -56,6 +56,7 @@
 #include "llworldmap.h"
 #include "llappviewer.h"
 #include "llviewercontrol.h"
+#include "llfavoritesbar.h"
 
 //-- LLTeleportHistoryMenuItem -----------------------------------------------
 
@@ -181,10 +182,14 @@ LLNavigationBar::LLNavigationBar()
 	mBtnHome(NULL),
 	mCmbLocation(NULL),
 	mLeSearch(NULL),
-	mPurgeTPHistoryItems(false)
+	mPurgeTPHistoryItems(false),
+	mUpdateTypedLocationHistory(false)
 {
 	setIsChrome(TRUE);
 	
+	mParcelMgrConnection = LLViewerParcelMgr::getInstance()->setAgentParcelChangedCallback(
+			boost::bind(&LLNavigationBar::onTeleportFinished, this));
+
 	// Register callbacks and load the location field context menu (NB: the order matters).
 	mCommitCallbackRegistrar.add("Navbar.Action", boost::bind(&LLNavigationBar::onLocationContextMenuItemClicked, this, _2));
 	mEnableCallbackRegistrar.add("Navbar.EnableMenuItem", boost::bind(&LLNavigationBar::onLocationContextMenuItemEnabled, this, _2));
@@ -196,10 +201,14 @@ LLNavigationBar::LLNavigationBar()
 
 	// set a listener function for LoginComplete event
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLNavigationBar::handleLoginComplete, this));
+
+	// Necessary for focus movement among child controls
+	setFocusRoot(TRUE);
 }
 
 LLNavigationBar::~LLNavigationBar()
 {
+	mParcelMgrConnection.disconnect();
 	sInstance = 0;
 }
 
@@ -241,6 +250,9 @@ BOOL LLNavigationBar::postBuild()
 		return FALSE;
 	}
 
+	mDefaultNbRect = getRect();
+	mDefaultFpRect = getChild<LLFavoritesBarCtrl>("favorite")->getRect();
+
 	// we'll be notified on teleport history changes
 	LLTeleportHistory::getInstance()->setHistoryChangedCallback(
 			boost::bind(&LLNavigationBar::onTeleportHistoryChanged, this));
@@ -273,6 +285,11 @@ BOOL LLNavigationBar::handleRightMouseUp(S32 x, S32 y, MASK mask)
 		{
 			mLocationContextMenu->buildDrawLabels();
 			mLocationContextMenu->updateParent(LLMenuGL::sMenuContainer);
+			LLLineEditor* textEntry =mCmbLocation->getTextEntry();  
+			if(textEntry && !textEntry->hasSelection() ){
+				textEntry->setText(gAgent.getUnescapedSLURL());
+				textEntry->selectAll();
+			}
 			LLMenuGL::showPopup(this, mLocationContextMenu, x, y);
 		}
 		return TRUE;
@@ -324,12 +341,12 @@ void LLNavigationBar::onLocationSelection()
 
 	std::string region_name;
 	LLVector3 local_coords(128, 128, 0);
+	S32 x = 0, y = 0, z = 0;
 
 	// Is the typed location a SLURL?
 	if (LLSLURL::isSLURL(typed_location))
 	{
 		// Yes. Extract region name and local coordinates from it.
-		S32 x = 0, y = 0, z = 0;
 		if (LLURLSimString::parse(LLSLURL::stripProtocol(typed_location), &region_name, &x, &y, &z))
 			local_coords.set(x, y, z);
 		else
@@ -337,8 +354,13 @@ void LLNavigationBar::onLocationSelection()
 	}
 	else
 	{
+		region_name = extractLocalCoordsFromRegName(typed_location, &x, &y, &z);
+
+		if (region_name != typed_location) {
+			local_coords.set(x, y, z);
+		}
 		// Treat it as region name.
-		region_name = typed_location;
+		// region_name = typed_location;
 	}
 
 	// Resolve the region name to its global coordinates.
@@ -347,6 +369,32 @@ void LLNavigationBar::onLocationSelection()
 			&LLNavigationBar::onRegionNameResponse, this,
 			typed_location, region_name, local_coords, _1, _2, _3, _4);
 	LLWorldMap::getInstance()->sendNamedRegionRequest(region_name, cb, std::string("unused"), false);
+}
+
+void LLNavigationBar::onTeleportFinished() {
+
+	if (mUpdateTypedLocationHistory) {
+		LLLocationHistory* lh = LLLocationHistory::getInstance();
+
+		// Location is valid. Add it to the typed locations history.
+		// If user has typed text this variable will contain -1.
+		if (mCmbLocation->getCurrentIndex() != -1) {
+			lh->touchItem(mCmbLocation->getSelectedItemLabel());
+		} else {
+			std::string region_name;
+			std::string url = gAgent.getSLURL();
+			S32 x = 0, y = 0, z = 0;
+
+			if (LLSLURL::isSLURL(url)) {
+				LLURLSimString::parse(LLSLURL::stripProtocol(url), &region_name, &x, &y, &z);
+				appendLocalCoordsToRegName(&region_name, x, y, z);
+				lh->addItem(region_name, url);
+			}
+		}
+
+		lh->save();
+		mUpdateTypedLocationHistory = false;
+	}
 }
 
 void LLNavigationBar::onTeleportHistoryChanged()
@@ -415,27 +463,13 @@ void LLNavigationBar::onRegionNameResponse(
 		return;
 	}
 
-	// Location is valid. Add it to the typed locations history.
-	// If user has typed text this variable will contain -1.
-	S32 selected_item = mCmbLocation->getCurrentIndex();
-
-	/*
-	LLLocationHistory* lh = LLLocationHistory::getInstance();
-	lh->addItem(selected_item == -1 ? typed_location : mCmbLocation->getSelectedItemLabel());
-	lh->save();
-	*/
-
 	// Teleport to the location.
 	LLVector3d region_pos = from_region_handle(region_handle);
 	LLVector3d global_pos = region_pos + (LLVector3d) local_coords;
-
 	
+	mUpdateTypedLocationHistory = true;
 	llinfos << "Teleporting to: " << global_pos  << llendl;
 	gAgent.teleportViaLocation(global_pos);
-
-	LLLocationHistory* lh = LLLocationHistory::getInstance();
-	lh->addItem(selected_item == -1 ? typed_location : mCmbLocation->getSelectedItemLabel());
-	lh->save();
 }
 
 void	LLNavigationBar::showTeleportHistoryMenu()
@@ -474,9 +508,6 @@ void LLNavigationBar::onLocationContextMenuItemClicked(const LLSD& userdata)
 	else if (item == std::string("landmark"))
 	{
 		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
-
-		// Floater "Add Landmark" functionality moved to Side Tray
-		//LLFloaterReg::showInstance("add_landmark");
 	}
 	else if (item == std::string("cut"))
 	{
@@ -546,6 +577,38 @@ void LLNavigationBar::invokeSearch(std::string search_text)
 	LLFloaterReg::showInstance("search", LLSD().insert("panel", "all").insert("id", LLSD(search_text)));
 }
 
+void LLNavigationBar::appendLocalCoordsToRegName(std::string* reg_name, S32 x, S32 y, S32 z) {
+	std::string fmt = *reg_name + " (%d, %d, %d)";
+	*reg_name = llformat(fmt.c_str(), x, y, z);
+}
+
+std::string LLNavigationBar::extractLocalCoordsFromRegName(const std::string & reg_name, S32* x, S32* y, S32* z) {
+	/*
+	 * This regular expression extracts numbers from the following string
+	 * construct: "(num1, num2, num3)", where num1, num2 and num3 are decimal
+	 * numbers. Leading and trailing spaces are also caught by the expression.
+	 */
+	const boost::regex re("\\s*\\((\\d+),\\s*(\\d+),\\s*(\\d+)\\)\\s*");
+
+	boost::smatch m;
+	if (boost::regex_search(reg_name, m, re)) {
+		// string representations of parsed by regex++ numbers
+		std::string xstr(m[1].first, m[1].second);
+		std::string ystr(m[2].first, m[2].second);
+		std::string zstr(m[3].first, m[3].second);
+
+		*x = atoi(xstr.c_str());
+		*y = atoi(ystr.c_str());
+		*z = atoi(zstr.c_str());
+
+		return boost::regex_replace(reg_name, re, "");
+	}
+
+	*x = *y = *z = 0;
+
+	return reg_name;
+}
+
 void LLNavigationBar::clearHistoryCache()
 {
 	mCmbLocation->removeall();
@@ -553,4 +616,132 @@ void LLNavigationBar::clearHistoryCache()
 	lh->removeItems();
 	lh->save();	
 	mPurgeTPHistoryItems= true;
+}
+
+void LLNavigationBar::showNavigationPanel(BOOL visible)
+{
+	bool fpVisible = gSavedSettings.getBOOL("ShowNavbarFavoritesPanel");
+
+	LLFavoritesBarCtrl* fb = getChild<LLFavoritesBarCtrl>("favorite");
+	LLPanel* navPanel = getChild<LLPanel>("navigation_panel");
+
+	LLRect nbRect(getRect());
+	LLRect fbRect(fb->getRect());
+
+	navPanel->setVisible(visible);
+
+	if (visible)
+	{
+		if (fpVisible)
+		{
+			// Navigation Panel must be shown. Favorites Panel is visible.
+
+			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), mDefaultNbRect.getHeight());
+			fbRect.setLeftTopAndSize(fbRect.mLeft, mDefaultFpRect.mTop, fbRect.getWidth(), fbRect.getHeight());
+
+			// this is duplicated in 'else' section because it should be called BEFORE fb->reshape
+			reshape(nbRect.getWidth(), nbRect.getHeight());
+			setRect(nbRect);
+
+			fb->reshape(fbRect.getWidth(), fbRect.getHeight());
+			fb->setRect(fbRect);
+		}
+		else
+		{
+			// Navigation Panel must be shown. Favorites Panel is hidden.
+
+			S32 height = mDefaultNbRect.getHeight() - mDefaultFpRect.getHeight();
+			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), height);
+
+			reshape(nbRect.getWidth(), nbRect.getHeight());
+			setRect(nbRect);
+		}
+	}
+	else
+	{
+		if (fpVisible)
+		{
+			// Navigation Panel must be hidden. Favorites Panel is visible.
+
+			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), fbRect.getHeight());
+			fbRect.setLeftTopAndSize(fbRect.mLeft, fbRect.getHeight(), fbRect.getWidth(), fbRect.getHeight());
+
+			// this is duplicated in 'else' section because it should be called BEFORE fb->reshape
+			reshape(nbRect.getWidth(), nbRect.getHeight());
+			setRect(nbRect);
+
+			fb->reshape(fbRect.getWidth(), fbRect.getHeight());
+			fb->setRect(fbRect);
+		}
+		else
+		{
+			// Navigation Panel must be hidden. Favorites Panel is hidden.
+
+			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), 0);
+
+			reshape(nbRect.getWidth(), nbRect.getHeight());
+			setRect(nbRect);
+		}
+	}
+}
+
+void LLNavigationBar::showFavoritesPanel(BOOL visible)
+{
+	bool npVisible = gSavedSettings.getBOOL("ShowNavbarNavigationPanel");
+
+	LLFavoritesBarCtrl* fb = getChild<LLFavoritesBarCtrl>("favorite");
+
+	LLRect nbRect(getRect());
+	LLRect fbRect(fb->getRect());
+
+	if (visible)
+	{
+		if (npVisible)
+		{
+			// Favorites Panel must be shown. Navigation Panel is visible.
+
+			S32 fbHeight = fbRect.getHeight();
+			S32 newHeight = nbRect.getHeight() + fbHeight;
+
+			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), newHeight);
+			fbRect.setLeftTopAndSize(mDefaultFpRect.mLeft, mDefaultFpRect.mTop, fbRect.getWidth(), fbRect.getHeight());
+		}
+		else
+		{
+			// Favorites Panel must be shown. Navigation Panel is hidden.
+
+			S32 fpHeight = mDefaultFpRect.getHeight();
+			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), fpHeight);
+			fbRect.setLeftTopAndSize(fbRect.mLeft, fpHeight, fbRect.getWidth(), fpHeight);
+		}
+
+		reshape(nbRect.getWidth(), nbRect.getHeight());
+		setRect(nbRect);
+
+		fb->reshape(fbRect.getWidth(), fbRect.getHeight());
+		fb->setRect(fbRect);
+	}
+	else
+	{
+		if (npVisible)
+		{
+			// Favorites Panel must be hidden. Navigation Panel is visible.
+
+			S32 fbHeight = fbRect.getHeight();
+			S32 newHeight = nbRect.getHeight() - fbHeight;
+
+			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), newHeight);
+		}
+		else
+		{
+			// Favorites Panel must be hidden. Navigation Panel is hidden.
+
+			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), 0);
+		}
+
+		reshape(nbRect.getWidth(), nbRect.getHeight());
+		setRect(nbRect);
+	}
+
+	fb->setVisible(visible);
 }

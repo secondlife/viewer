@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater 
+ background_opaque="false"
+ background_visible="true" 
+ bevel_style="in"
+ bg_alpha_color="0.0 0.0 0.0 0.0"
+ height="60"
+ left="0"
+ top="0" 
+ follows="right|bottom"
+ layout="topleft"
+ name="notification_chiclet"
+ save_rect="true"
+ title=""
+ width="320"
+ can_minimize="false"
+ can_tear_off="false"
+ can_resize="false"
+ can_drag_on_left="false"
+ can_close="false"
+ can_dock="false"
+>
+  <scroll_container
+   follows="top|bottom"
+   layout="topleft"
+   name="notification_list_container"
+   left="1"
+   top="30"
+   width="336"
+   height="30">
+    <scrolling_panel_list
+     follows="left|right"
+     layout="topleft"
+     name="notification_list"
+     left="0"
+     top="0"
+     height="20"
+     width="320" />
+  </scroll_container>
+
+  <panel 
+    top="0" 
+    width="320" 
+    height="30"
+    layout="topleft"
+    follows="top|left|right"
+    background_visible="true" 
+    background_opaque="false" 
+    bg_alpha_color="0.0 0.0 0.0 1.0" 
+    name="notification_caption"
+  >
+    <text
+      width="255" 
+      left="25" 
+      height="20" 
+      layout="topleft"
+      follows="left|right|top"
+      font="SansSerifBoldBig" 
+      text_color="white" 
+      word_wrap="true"
+      mouse_opaque="true" 
+      name="sender_name"
+    >
+      NOTIFICATIONS  
+    </text>
+    <button
+      top="5"
+      left="270"
+      width="15"
+      height="15"
+      layout="topleft"
+      follows="right"
+      label=""
+      toggle="true" 
+      image_unselected="arrow_up.tga"
+      image_disabled="arrow_up.tga"
+      image_selected="arrow_down.tga"
+      image_hover_selected="arrow_down.tga"
+      image_disabled_selected="arrow_down.tga"
+      name="tear_btn"
+    />    
+    <button 
+      top="5" 
+      left="300"
+      width="15" 
+      height="15"
+      layout="topleft"
+      follows="right"
+      label="" 
+      image_unselected="closebox.tga" 
+      image_disabled="closebox.tga"
+      image_selected="closebox.tga" 
+      image_hover_selected="closebox.tga"
+      image_disabled_selected="closebox.tga"
+      name="close_btn"
+    />
+  </panel>
+
+</floater>

@@ -81,6 +81,8 @@ public:
 
 	typedef boost::function<void (LLUICtrl* ctrl, const LLSD& param)> commit_callback_t;
 	typedef boost::signals2::signal<void (LLUICtrl* ctrl, const LLSD& param)> commit_signal_t;
+	// *TODO: add xml support for this type of signal in the future
+	typedef boost::signals2::signal<void (LLUICtrl* ctrl, S32 x, S32 y, MASK mask)> mouse_signal_t;
 	
 	typedef boost::function<bool (LLUICtrl* ctrl, const LLSD& param)> enable_callback_t;
 	typedef boost::signals2::signal<bool (LLUICtrl* ctrl, const LLSD& param), boost_boolean_combiner> enable_signal_t;
@@ -144,8 +146,6 @@ public:
 										commit_callback;
 		Optional<EnableCallbackParam>	validate_callback;
 		
-		Optional<CommitCallbackParam>	rightclick_callback;
-
 		Optional<CommitCallbackParam>	mouseenter_callback;
 		Optional<CommitCallbackParam>	mouseleave_callback;
 		
@@ -186,6 +186,9 @@ public:
 	/*virtual*/ BOOL	getTentative() const;
 	/*virtual*/ void	onMouseEnter(S32 x, S32 y, MASK mask);
 	/*virtual*/ void	onMouseLeave(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL 	handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL 	handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);
 
 	// From LLFocusableElement
 	/*virtual*/ void	setFocus( BOOL b );
@@ -253,6 +256,10 @@ public:
 	boost::signals2::connection setMouseEnterCallback( const commit_signal_t::slot_type& cb ) { return mMouseEnterSignal.connect(cb); }
 	boost::signals2::connection setMouseLeaveCallback( const commit_signal_t::slot_type& cb ) { return mMouseLeaveSignal.connect(cb); }
 	
+	boost::signals2::connection setMouseDownCallback( const mouse_signal_t::slot_type& cb ) { return mMouseDownSignal.connect(cb); }
+	boost::signals2::connection setMouseUpCallback( const mouse_signal_t::slot_type& cb ) { return mMouseUpSignal.connect(cb); }
+	boost::signals2::connection setRightClickedCallback( const mouse_signal_t::slot_type& cb ) { return mRightClickSignal.connect(cb); }
+	
 	// *TODO: Deprecate; for backwards compatability only:
 	boost::signals2::connection setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data);	
 	boost::signals2::connection setValidateBeforeCommit( boost::function<bool (const LLSD& data)> cb );
@@ -279,11 +286,14 @@ protected:
 
 	commit_signal_t		mCommitSignal;
 	enable_signal_t		mValidateSignal;
-	commit_signal_t		mRightClickSignal;
 
 	commit_signal_t		mMouseEnterSignal;
 	commit_signal_t		mMouseLeaveSignal;
-
+	
+	mouse_signal_t		mMouseDownSignal;
+	mouse_signal_t		mMouseUpSignal;
+	mouse_signal_t		mRightClickSignal;
+	
     LLViewModelPtr  mViewModel;
 
 	LLControlVariable* mControlVariable;

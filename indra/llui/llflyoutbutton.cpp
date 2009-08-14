@@ -74,13 +74,6 @@ void LLFlyoutButton::draw()
 	LLComboBox::draw();	
 }
 
-void LLFlyoutButton::setEnabled(BOOL enabled)
-{
-	mActionButton->setEnabled(enabled);
-	LLComboBox::setEnabled(enabled);
-}
-
-
 void LLFlyoutButton::setToggleState(BOOL state)
 {
 	mToggleState = state;

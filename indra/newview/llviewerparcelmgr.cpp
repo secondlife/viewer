@@ -45,7 +45,6 @@
 
 // Viewer includes
 #include "llagent.h"
-#include "llfloatergroupinfo.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
 #include "llfirstuse.h"

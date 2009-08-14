@@ -69,9 +69,14 @@ public:
 	static bool isSLURLHelp(const std::string& url);
 
 	/**
-	 * builds: http://slurl.com/secondlife/RegionName/x/y/z/
+	 * builds: http://slurl.com/secondlife/Region%20Name/x/y/z/ escaping result url.
 	 */
 	static std::string buildSLURL(const std::string& regionname, S32 x, S32 y, S32 z);
+
+	/**
+	 * builds: http://slurl.com/secondlife/Region Name/x/y/z/ without escaping result url.
+	 */
+	static std::string buildUnescapedSLURL(const std::string& regionname, S32 x, S32 y, S32 z);
 
 	/**
 	 * Strip protocol part from the URL.

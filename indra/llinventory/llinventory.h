@@ -97,7 +97,7 @@ public:
 	virtual const std::string& getName() const;
 	virtual LLAssetType::EType getType() const;
 	LLAssetType::EType getActualType() const; // bypasses indirection for linked items
-
+	BOOL getIsLinkType() const;
 	// mutators - will not call updateServer();
 	void setUUID(const LLUUID& new_uuid);
 	void rename(const std::string& new_name);
@@ -263,6 +263,10 @@ public:
 	void setInventoryType(LLInventoryType::EType inv_type);
 	void setFlags(U32 flags);
 	void setCreationDate(time_t creation_date_utc);
+	
+	// This is currently only used in the Viewer to handle calling cards
+	// where the creator is actually used to store the target.
+	void setCreator(const LLUUID& creator) { mPermissions.setCreator(creator); }
 
 	// Put this inventory item onto the current outgoing mesage. It
 	// assumes you have already called nextBlock().

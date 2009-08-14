@@ -497,8 +497,8 @@ void LLScrollbar::draw()
 	}
 
 	// Draw background and thumb.
-	if (   ( mOrientation == VERTICAL&&(mThumbImageV.isNull() || mThumbImageV.isNull()) ) 
-		|| (mOrientation == HORIZONTAL&&(mTrackImageH.isNull() || mThumbImageH.isNull()) ))
+	if (   ( mOrientation == VERTICAL&&(mThumbImageV.isNull() || mThumbImageH.isNull()) ) 
+		|| (mOrientation == HORIZONTAL&&(mTrackImageH.isNull() || mTrackImageV.isNull()) ))
 	{
 		gl_rect_2d(mOrientation == HORIZONTAL ? mThickness : 0, 
 		mOrientation == VERTICAL ? getRect().getHeight() - 2 * mThickness : getRect().getHeight(),
@@ -513,7 +513,6 @@ void LLScrollbar::draw()
 		// Thumb
 		LLRect outline_rect = mThumbRect;
 		outline_rect.stretch(2);
-		S32 rect_fix = 0;
 		// Background
 		
 		if(mOrientation == HORIZONTAL)
@@ -521,7 +520,7 @@ void LLScrollbar::draw()
 			mTrackImageH->drawSolid(mThickness								//S32 x
 								   , 0										//S32 y
 								   , getRect().getWidth() - 2 * mThickness  //S32 width
-								   , getRect().getHeight()- rect_fix		//S32 height
+								   , getRect().getHeight()					//S32 height
 								   , mTrackColor.get());                    //const LLColor4& color
 			
 			if (gFocusMgr.getKeyboardFocus() == this)
@@ -540,7 +539,7 @@ void LLScrollbar::draw()
 		}
 		else if(mOrientation == VERTICAL)
 		{
-			mTrackImageV->drawSolid(  0+rect_fix								//S32 x
+			mTrackImageV->drawSolid(  0										//S32 x
 								   , mThickness								//S32 y
 								   , getRect().getWidth()					//S32 width
 								   , getRect().getHeight() - 2 * mThickness	//S32 height

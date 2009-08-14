@@ -39,6 +39,7 @@
 #include "llfolderviewitem.h"
 #include "llinventorymodel.h"	// gInventory.backgroundFetchActive()
 #include "llviewercontrol.h"
+#include "llviewerinventory.h"
 
 // linden library includes
 #include "lltrans.h"
@@ -51,12 +52,13 @@ LLInventoryFilter::LLInventoryFilter(const std::string& name)
 	mModified(FALSE),
 	mNeedTextRebuild(TRUE)
 {
-	mFilterOps.mFilterTypes = 0xffffffff;
+	mFilterOps.mFilterTypes = 0xffffffffffffffffULL;
 	mFilterOps.mMinDate = time_min();
 	mFilterOps.mMaxDate = time_max();
 	mFilterOps.mHoursAgo = 0;
 	mFilterOps.mShowFolderState = SHOW_NON_EMPTY_FOLDERS;
 	mFilterOps.mPermissions = PERM_NONE;
+	mFilterOps.mFilterForCategories = FALSE;
 
 	mOrder = SO_FOLDERS_BY_NAME; // This gets overridden by a pref immediately
 
@@ -94,7 +96,25 @@ BOOL LLInventoryFilter::check(LLFolderViewItem* item)
 	}
 	LLFolderViewEventListener* listener = item->getListener();
 	mSubStringMatchOffset = mFilterSubString.size() ? item->getSearchableLabel().find(mFilterSubString) : std::string::npos;
-	BOOL passed = (0x1 << listener->getInventoryType() & mFilterOps.mFilterTypes || listener->getInventoryType() == LLInventoryType::IT_NONE)
+
+	bool passed_type = false;
+	if (mFilterOps.mFilterForCategories)
+	{
+		if (listener->getInventoryType() == LLInventoryType::IT_CATEGORY)
+		{
+			LLViewerInventoryCategory *cat = gInventory.getCategory(listener->getUUID());
+			if (cat)
+			{
+				passed_type |= ((1LL << cat->getPreferredType() & mFilterOps.mFilterTypes) != U64(0));
+			}
+		}
+	}
+	else
+	{
+		passed_type |= ((1LL << listener->getInventoryType() & mFilterOps.mFilterTypes) != U64(0)) || listener->getInventoryType() == LLInventoryType::IT_NONE;
+	}
+
+	BOOL passed = passed_type
 		&& (mFilterSubString.size() == 0 || mSubStringMatchOffset != std::string::npos)
 		&& ((listener->getPermissionMask() & mFilterOps.mPermissions) == mFilterOps.mPermissions)
 		&& (listener->getCreationDate() >= earliest && listener->getCreationDate() <= mFilterOps.mMaxDate);
@@ -124,7 +144,7 @@ BOOL LLInventoryFilter::isNotDefault()
 
 BOOL LLInventoryFilter::isActive()
 {
-	return mFilterOps.mFilterTypes != 0xffffffff 
+	return mFilterOps.mFilterTypes != 0xffffffffffffffffULL 
 		|| mFilterSubString.size() 
 		|| mFilterOps.mPermissions != PERM_NONE 
 		|| mFilterOps.mMinDate != time_min()
@@ -144,7 +164,7 @@ BOOL LLInventoryFilter::isModifiedAndClear()
 	return ret;
 }
 
-void LLInventoryFilter::setFilterTypes(U32 types)
+void LLInventoryFilter::setFilterTypes(U64 types, BOOL filter_for_categories)
 {
 	if (mFilterOps.mFilterTypes != types)
 	{
@@ -168,8 +188,8 @@ void LLInventoryFilter::setFilterTypes(U32 types)
 		{
 			setModified(FILTER_MORE_RESTRICTIVE);
 		}
-
 	}
+	mFilterOps.mFilterForCategories = filter_for_categories;
 }
 
 void LLInventoryFilter::setFilterSubString(const std::string& string)
@@ -374,7 +394,7 @@ void LLInventoryFilter::setModified(EFilterBehavior behavior)
 
 BOOL LLInventoryFilter::isFilterWith(LLInventoryType::EType t)
 {
-	return mFilterOps.mFilterTypes & (0x01 << t);
+	return mFilterOps.mFilterTypes & (1LL << t);
 }
 
 std::string LLInventoryFilter::getFilterText()

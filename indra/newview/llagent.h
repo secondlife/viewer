@@ -75,6 +75,19 @@ enum ECameraMode
 	CAMERA_MODE_FOLLOW
 };
 
+/** Camera Presets for CAMERA_MODE_THIRD_PERSON */
+enum ECameraPreset 
+{
+	/** Default preset, what the Third Person Mode actually was */
+	CAMERA_PRESET_REAR_VIEW,
+	
+	/** "Looking at the Avatar from the front" */
+	CAMERA_PRESET_FRONT_VIEW, 
+
+	/** "Above and to the left, over the shoulder, pulled back a little on the zoom" */
+	CAMERA_PRESET_GROUP_VIEW
+};
+
 enum EAnimRequest
 {
 	ANIM_REQUEST_START,
@@ -265,10 +278,12 @@ public:
 	LLViewerRegion	*getRegion() const;
 	LLHost			getRegionHost() const;
 	std::string		getSLURL() const;
+	std::string		getUnescapedSLURL() const;
 	BOOL			inPrelude();
 	BOOL 			buildLocationString(std::string& str, ELocationFormat fmt = LOCATION_FORMAT_LANDMARK); // Utility to build a location string
 private:
 	LLViewerRegion	*mRegionp;
+	std::string  	buildSLURL(const bool escape) const;
 
 	//--------------------------------------------------------------------
 	// History
@@ -661,6 +676,27 @@ private:
 	ECameraMode		mLastCameraMode;
 
 	//--------------------------------------------------------------------
+	// Preset
+	//--------------------------------------------------------------------
+public:
+	void switchCameraPreset(ECameraPreset preset);
+
+private:
+	
+	/** Determines default camera offset depending on the current camera preset */
+	LLVector3 getCameraOffsetInitial();
+
+	/** Camera preset in Third Person Mode */
+	ECameraPreset mCameraPreset; 
+
+	/** Initial camera offsets */
+	std::map<ECameraPreset, LLVector3> mCameraOffsetInitial;
+
+	/** Initial focus offsets */
+	std::map<ECameraPreset, LLVector3d> mFocusOffsetInitial;
+
+
+	//--------------------------------------------------------------------
 	// Position
 	//--------------------------------------------------------------------
 public:
@@ -678,7 +714,6 @@ private:
 	F32				mCameraFOVZoomFactor;			// Amount of fov zoom applied to camera when zeroing in on an object
 	F32				mCameraCurrentFOVZoomFactor;	// Interpolated fov zoom
 	F32				mCameraFOVDefault;				// Default field of view that is basis for FOV zoom effect
-	LLVector3		mCameraOffsetDefault;			// Default third-person camera offset
 	LLVector4		mCameraCollidePlane;			// Colliding plane for camera
 	F32				mCameraZoomFraction;			// Mousewheel driven fraction of zoom
 	LLVector3		mCameraPositionAgent;			// Camera position in agent coordinates

@@ -13,24 +13,15 @@
         
         <!-- ADVANCED -->
 
-    <check_box
-     control_name="SmallAvatarNames"
-     height="16"
-     initial_value="true"
-     label="Small Avatar Names"
-     layout="topleft"
-     left_delta="30"
-     name="small_avatar_names_checkbox"
-     top="20"
-     width="200" />
+
     <check_box
      control_name="ArrowKeysMoveAvatar"
      height="16"
      label="Arrow keys always move avatar when chatting"
      layout="topleft"
-     left_delta="0"
+     left_delta="30"
      name="arrow_keys_move_avatar_check"
-     top_pad="10"
+     top="20"
      width="237" />
     <text
      type="string"
@@ -253,6 +244,17 @@
      name="first_person_avatar_visible"
      top_delta="0"
      width="256" />
+    
+        <check_box
+     control_name="UseChatBubbles"
+     height="16"
+     label="Show chat bubbles"
+     layout="topleft"
+     left="30"
+     name="bubble_text_chat"
+     top_pad="5"
+     width="400" />
+
 
 
 </panel>

@@ -2,63 +2,76 @@
 <panel
  background_visible="true"
  follows="left|top|right|bottom"
- height="660"
+  width="305"
+  height="650"
  label="Profile"
+ bevel_style="in"
  layout="topleft"
  left="0"
  name="panel_target_profile"
- top="0"
- width="250">
-    <button 
-     layout="topleft" 
-     name="back" 
-     left="5" 
-     top="5" 
-     width="20" 
-     height="20" 
+ top="0">
+    <text
+     layout="topleft"
+     top="0"
+     left="10"
+     width="250"
+     height="20"
+     font="SansSerifHugeBold"
+     text_color="white"
+     follows="top|left|right"
+     mouse_opaque="true"
+     name="user_name">(Loading...)</text>
+    <text
+     layout="topleft"
+     width="100"
+     height="16"
+     left="10"
+     top_pad="5"
+     font="SansSerifTiny"
+     text_color="LtGray_50"
+     follows="top|left"
+     mouse_opaque="true"
+     name="status">Online</text>
+    <button
+     layout="topleft"
+     name="back"
+     right="-10"
+     top="0"
+     width="25"
+     height="25"
      label=""
      tab_stop="false"
-     follows="top|left"
-     image_selected="navbar_bg_button.tga"
-     image_unselected="navbar_bg_button.tga"
-     image_overlay="navbar_back.tga"/>
-    <text 
-     layout="topleft" 
-     top="0" 
-     left_pad="15" 
-     width="125" 
-     height="20" 
-     font="SansSerifHugeBold" 
-     text_color="white" 
-     follows="top|left|right"
-     mouse_opaque="true" 
-     name="user_name">(Loading...)</text>
+     follows="top|right"
+     image_selected=""
+     image_unselected=""
+     image_overlay="BackArrow_Off" />
     <tab_container
      follows="left|top|right|bottom"
-     height="625"
+     height="550"
+     width="306"
+     tab_min_width="75"
      layout="topleft"
-     left="0"
+     left="10"
      name="tabs"
      tab_position="top"
-     top="35"
-     width="280">
+     top_pad="20">
         <panel
          class="panel_profile"
          filename="panel_profile.xml"
          label="Profile"
          layout="topleft"
-         name="panel_profile"/>
+         name="panel_profile" />
         <panel
          class="panel_picks"
          filename="panel_picks.xml"
          label="Picks"
          layout="topleft"
-         name="panel_picks"/>
+         name="panel_picks" />
         <panel
          class="panel_notes"
          filename="panel_notes.xml"
-         label="Notes"
+         label="Notes &amp; Privacy"
          layout="topleft"
-         name="panel_notes"/>
+         name="panel_notes" />
     </tab_container>
 </panel>

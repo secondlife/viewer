@@ -103,6 +103,7 @@ private:
 	void					onInfoButtonClicked();
 	void					onLocationHistoryLoaded();
 	void					onLocationPrearrange(const LLSD& data);
+	void 					onTextEditorMouseUp(S32 x, S32 y, MASK mask);
 	void					onLandmarkLoaded(LLLandmark* lm);
 	void					onAddLandmarkButtonClicked();
 	void					onAgentParcelChange();

@@ -459,6 +459,14 @@ LLChildRegistry<DERIVED>::Register<T>::Register(const char* tag, LLWidgetCreator
 {
 	const std::type_info* widget_type_infop = &typeid(T);
 	// associate parameter block type with template .xml file
+	std::string* existing_tag = LLWidgetNameRegistry ::instance().getValue(&typeid(typename T::Params));
+	if (existing_tag != NULL && *existing_tag != tag)
+	{
+		// duplicate entry for T::Params
+		// try creating empty param block in derived classes that inherit T::Params
+		int* crash = 0;
+		*crash = 0;
+	}
 	LLWidgetNameRegistry ::instance().defaultRegistrar().add(&typeid(typename T::Params), tag);
 	// associate widget type with factory function
 	LLDefaultWidgetRegistry::instance().defaultRegistrar().add(widget_type_infop, &LLUICtrlFactory::createDefaultWidget<T>);

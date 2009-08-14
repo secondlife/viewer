@@ -75,6 +75,8 @@ S32		LLView::sLastBottomXML = S32_MIN;
 BOOL LLView::sIsDrawing = FALSE;
 #endif
 
+static LLDefaultChildRegistry::Register<LLView> r("view");
+
 LLView::Params::Params()
 :	name("name", std::string("unnamed")),
 	enabled("enabled", true),

@@ -45,6 +45,11 @@ public:
 	static void requestFriendshipDialog(const LLUUID& id, const std::string& name);
 
 	/**
+	 * Show a dialog explaining what friendship entails, then request friendship.
+	 */
+	static void requestFriendshipDialog(const LLUUID& id);
+
+	/**
 	 * Show a friend removal dialog.
 	 */
 	static void removeFriendDialog(const LLUUID& id);

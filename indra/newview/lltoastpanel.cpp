@@ -34,9 +34,28 @@
 
 #include "lltoastpanel.h"
 
-LLToastPanel::LLToastPanel(LLNotificationPtr& notification) {
+LLToastPanel::LLToastPanel(LLNotificationPtr& notification) 
+{
 	mNotification = notification;
 }
 
-LLToastPanel::~LLToastPanel() {
+LLToastPanel::~LLToastPanel() 
+{
 }
+
+std::string LLToastPanel::getTitle()
+{
+// *TODO: localize header of Title
+/*	std::string title;
+	std::string notification_type = mNotification->getType();
+
+	if( notification_type == "groupnotify" )
+	{
+		title = LLTrans::getString("TitleGroup");
+	}
+*/
+	return (mNotification->getName() + "\n" + mNotification->getMessage());
+}
+
+
+

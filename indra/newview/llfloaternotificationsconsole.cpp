@@ -212,12 +212,9 @@ void LLFloaterNotificationConsole::addChannel(const std::string& name, bool open
 
 void LLFloaterNotificationConsole::removeChannel(const std::string& name)
 {
-	LLPanel* panelp = getChild<LLPanel>(name, TRUE, FALSE);
-	if (panelp)
-	{
-		getChildRef<LLLayoutStack>("notification_channels").removePanel(panelp);
-		delete panelp;
-	}
+	LLPanel* panelp = getChild<LLPanel>(name);
+	getChildRef<LLLayoutStack>("notification_channels").removePanel(panelp);
+	delete panelp;
 
 	updateResizeLimits();
 }

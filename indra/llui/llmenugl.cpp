@@ -176,6 +176,12 @@ LLMenuItemGL::LLMenuItemGL(const LLMenuItemGL::Params& p)
 	std::string key_str = shortcut.substr(pipe_pos+1);
 
 	LLKeyboard::keyFromString(key_str, &mAcceleratorKey);
+
+	LL_DEBUGS("HotKeys") << "Process short cut key: shortcut: " << shortcut
+		<< ", key str: " << key_str
+		<< ", accelerator mask: " << mAcceleratorMask
+		<< ", accelerator key: " << mAcceleratorKey
+		<< LL_ENDL;
 }
 
 BOOL LLMenuItemGL::handleAcceleratorKey(KEY key, MASK mask)
@@ -285,6 +291,7 @@ void LLMenuItemGL::appendAcceleratorString( std::string& st ) const
 		st.append( " " );
 	}
 	st.append( keystr );
+	LL_DEBUGS("HotKeys") << "appendAcceleratorString: " << st << LL_ENDL;
 }
 
 void LLMenuItemGL::setJumpKey(KEY key)
@@ -797,7 +804,7 @@ BOOL LLMenuItemCallGL::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
 	if (pointInView(x, y))
 	{
-		mRightClickSignal(this, getValue());
+		mRightClickSignal(this,x,y, mask);
 	}
 
 	return TRUE;
@@ -2996,6 +3003,7 @@ BOOL LLMenuBarGL::handleMouseDown(S32 x, S32 y, MASK mask)
 	return LLMenuGL::handleMouseDown(x, y, mask);
 }
 
+/*
 BOOL LLMenuBarGL::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	// clicks on menu bar closes existing menus from other contexts but leave
@@ -3007,6 +3015,7 @@ BOOL LLMenuBarGL::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 	return LLMenuGL::handleMouseDown(x, y, mask);
 }
+*/
 
 
 void LLMenuBarGL::draw()

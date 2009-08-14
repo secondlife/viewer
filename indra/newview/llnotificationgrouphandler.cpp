@@ -37,6 +37,8 @@
 #include "llagent.h"
 #include "llbottomtray.h"
 #include "llviewercontrol.h"
+#include "llfloaterreg.h"
+#include "llsyswellwindow.h"
 
 using namespace LLNotificationsUI;
 
@@ -65,18 +67,17 @@ LLGroupHandler::~LLGroupHandler()
 //--------------------------------------------------------------------------
 void LLGroupHandler::processNotification(const LLSD& notify)
 {
-	LLToast* toast = NULL;
-
 	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
 	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
 	{
-			LLPanel* notify_box = new LLToastGroupNotifyPanel(notification);
-			toast = mChannel->addToast(notification->getID(), notify_box);
-			if(!toast)
-				return;			
-			toast->setAndStartTimer(gSavedSettings.getS32("NotificationToastTime")); 
-			toast->setOnToastDestroyCallback((boost::bind(&LLGroupHandler::onToastDestroy, this, toast)));
-			mChiclet->setCounter(mChiclet->getCounter() + 1);
+		LLPanel* notify_box = new LLToastGroupNotifyPanel(notification);
+		LLToast::Params p;
+		p.id = notification->getID();
+		p.notification = notification;
+		p.panel = notify_box;
+		p.on_toast_destroy = boost::bind(&LLGroupHandler::onToastDestroy, this, _1);
+		mChannel->addToast(p);
+		mChiclet->setCounter(mChiclet->getCounter() + 1);
 	}
 	else if (notify["sigtype"].asString() == "delete")
 	{
@@ -88,6 +89,14 @@ void LLGroupHandler::processNotification(const LLSD& notify)
 void LLGroupHandler::onToastDestroy(LLToast* toast)
 {
 	mChiclet->setCounter(mChiclet->getCounter() - 1);
+
+	LLToastPanel* panel = dynamic_cast<LLToastPanel*>(toast->getPanel());
+	LLFloaterReg::getTypedInstance<LLSysWellWindow>("syswell_window")->removeItemByID(panel->getID());
+
+	// turning hovering off mannualy because onMouseLeave won't happen if a toast was closed using a keyboard
+	if(toast->hasFocus())
+		mChannel->setHovering(false);
+
 	toast->close();
 }
 

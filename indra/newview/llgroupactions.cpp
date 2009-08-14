@@ -36,12 +36,74 @@
 #include "llgroupactions.h"
 
 #include "llagent.h"
-#include "llfloatergroupinfo.h"
 #include "llfloaterreg.h"
 #include "llimview.h" // for gIMMgr
 #include "llgroupmgr.h"
 #include "llavataractions.h"
 #include "llviewercontrol.h"
+#include "llsidetray.h"
+
+#include "llcommandhandler.h"
+
+//
+// Globals
+//
+
+class LLGroupHandler : public LLCommandHandler
+{
+public:
+	// requires trusted browser to trigger
+	LLGroupHandler() : LLCommandHandler("group", true) { }
+	bool handle(const LLSD& tokens, const LLSD& query_map,
+				LLWebBrowserCtrl* web)
+	{
+		if (tokens.size() < 1)
+		{
+			return false;
+		}
+
+		if (tokens[0].asString() == "create")
+		{
+			LLGroupActions::createGroup();
+			return true;
+		}
+
+		if (tokens.size() < 2)
+		{
+			return false;
+		}
+
+		if (tokens[0].asString() == "list")
+		{
+			if (tokens[1].asString() == "show")
+			{
+				LLFloaterReg::showInstance("contacts", "groups");
+				return true;
+			}
+            return false;
+		}
+
+		LLUUID group_id;
+		if (!group_id.set(tokens[0], FALSE))
+		{
+			return false;
+		}
+
+		if (tokens[1].asString() == "about")
+		{
+			if (group_id.isNull())
+				return true;
+
+			LLGroupActions::show(group_id);
+
+			return true;
+		}
+		return false;
+	}
+};
+LLGroupHandler gGroupHandler;
+
+
 
 // LLGroupActions::teleport helper
 //
@@ -168,12 +230,6 @@ void LLGroupActions::search()
 }
 
 // static
-void LLGroupActions::create()
-{
-	LLFloaterGroupInfo::showCreateGroup(NULL);
-}
-
-// static
 void LLGroupActions::leave(const LLUUID& group_id)
 {
 	if (group_id.isNull())
@@ -208,14 +264,66 @@ void LLGroupActions::activate(const LLUUID& group_id)
 	gAgent.sendReliableMessage();
 }
 
+bool	isGroupUIVisible()
+{
+	LLPanel* panel = LLSideTray::getInstance()->findChild<LLPanel>("panel_group_info_sidetray");
+	if(!panel)
+		return false;
+	return panel->getVisible();
+}
+
 // static
-void LLGroupActions::info(const LLUUID& group_id)
+void LLGroupActions::show(const LLUUID& group_id)
 {
 	if (group_id.isNull())
 		return;
 
-	LLFloaterGroupInfo::showFromUUID(group_id);	
+	LLSD params;
+	params["group_id"] = group_id;
+	params["open_tab_name"] = "panel_group_info_sidetray";
+
+	LLSideTray::getInstance()->showPanel("panel_group_info_sidetray", params);
 }
+
+//static 
+void LLGroupActions::refresh(const LLUUID& group_id)
+{
+	if(!isGroupUIVisible())
+		return;
+
+	LLSD params;
+	params["group_id"] = group_id;
+	params["open_tab_name"] = "panel_group_info_sidetray";
+	params["action"] = "refresh";
+
+	LLSideTray::getInstance()->showPanel("panel_group_info_sidetray", params);
+}
+
+//static 
+void LLGroupActions::createGroup()
+{
+	LLSD params;
+	params["group_id"] = LLUUID::null;
+	params["open_tab_name"] = "panel_group_info_sidetray";
+	params["action"] = "create";
+
+	LLSideTray::getInstance()->showPanel("panel_group_info_sidetray", params);
+
+}
+//static
+void LLGroupActions::closeGroup(const LLUUID& group_id)
+{
+	if(!isGroupUIVisible())
+		return;
+
+	LLSD params;
+	params["group_id"] = group_id;
+	params["open_tab_name"] = "panel_group_info_sidetray";
+	params["action"] = "close";
+
+	LLSideTray::getInstance()->showPanel("panel_group_info_sidetray", params);
+}
+
 
 // static
 void LLGroupActions::startChat(const LLUUID& group_id)

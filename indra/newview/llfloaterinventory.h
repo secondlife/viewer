@@ -133,7 +133,7 @@ public:
 	void setSelectCallback(const LLFolderView::signal_t::slot_type& cb) { if (mFolders) mFolders->setSelectCallback(cb); }
 	void clearSelection();
 	LLInventoryFilter* getFilter() { return mFolders->getFilter(); }
-	void setFilterTypes(U32 filter);
+	void setFilterTypes(U64 filter, BOOL filter_for_categories = FALSE); // if filter_for_categories is true, operate on folder preferred asset type
 	U32 getFilterTypes() const { return mFolders->getFilterTypes(); }
 	void setFilterPermMask(PermissionMask filter_perm_mask);
 	U32 getFilterPermMask() const { return mFolders->getFilterPermissions(); }
