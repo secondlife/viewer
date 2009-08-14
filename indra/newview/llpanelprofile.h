@@ -72,6 +72,14 @@ protected:
 	profile_tabs_t& getTabContainer() { return mTabContainer; }
 
 private:
+	// LLCacheName will call this function when avatar name is loaded from server.
+	// This is required to display names that have not been cached yet.
+	void onAvatarNameCached(
+		const LLUUID& id, 
+		const std::string& first_name,
+		const std::string& last_name,
+		BOOL is_group);
+
 	LLTabContainer* mTabCtrl;	
 	profile_tabs_t mTabContainer;
 	LLUUID mAvatarId;

@@ -2,7 +2,7 @@
 <panel
  bevel_style="out"
  follows="left|top|right|bottom"
- height="570"
+ height="420"
  label="Profile"
  layout="topleft"
  left="0"
@@ -57,15 +57,25 @@
     <scroll_container
      color="DkGray2"
      follows="left|top|right|bottom"
-     height="570"
+     height="300"
      layout="topleft"
      left="0"
      name="profile_scroll"
+     reserve_scroll_corner="true"
      opaque="true"
      width="255">
+      
+     	<panel
+     	 name="scroll_content_panel"
+	     follows="left|top|right"
+	     layout="topleft"
+	     top="0"
+	     left="0"
+     	 width="240"
+	     height="500">
+	          		
         <panel
-         bevel_style="in"
-         follows="left|top"
+	     follows="left|top"
          height="125"
          layout="topleft"
          left="10"
@@ -79,7 +89,7 @@
              follows="top|left"
              height="125"
              layout="topleft"
-             left="10"
+             left="0"
              name="2nd_life_pic"
              top="10"
              width="125" />
@@ -263,6 +273,10 @@
          word_wrap="true">
             Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
         </text>
+        
+ 
+        </panel>
+        
     </scroll_container>
     <panel
      follows="bottom|left"
@@ -316,7 +330,6 @@
          width="75" />
     </panel>
     <panel
-     follows="bottom|left"
      height="30"
      layout="topleft"
      left="10"

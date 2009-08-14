@@ -240,10 +240,7 @@ void LLPanelPlaceInfo::setParcelID(const LLUUID& parcel_id)
 }
 
 void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
-{
-	if (type != PLACE)
-		toggleMediaPanel(FALSE);
-	
+{	
 	bool is_landmark_info_type = type == LANDMARK;
 	LLPanel* landmark_info_panel = getChild<LLPanel>("landmark_info_panel");
 	if (landmark_info_panel)
@@ -276,6 +273,9 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 			mCurrentTitle = getString("title_place");
 		break;
 	}
+
+	if (type != PLACE)
+		toggleMediaPanel(FALSE);
 }
 
 BOOL LLPanelPlaceInfo::isMediaPanelVisible()

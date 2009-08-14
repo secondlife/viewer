@@ -182,7 +182,7 @@ void LLLandmarkActions::createLandmarkHere()
 	createLandmarkHere(landmark_name, landmark_desc, folder_id);
 }
 
-void LLLandmarkActions::getSLURLfromPosGlobal(const LLVector3d& global_pos, slurl_signal_t signal)
+void LLLandmarkActions::getSLURLfromPosGlobal(const LLVector3d& global_pos, slurl_callback_t cb)
 {
 	std::string sim_name;
 	bool gotSimName = LLWorldMap::getInstance()->simNameFromPosGlobal(global_pos, sim_name);
@@ -190,7 +190,7 @@ void LLLandmarkActions::getSLURLfromPosGlobal(const LLVector3d& global_pos, slur
 	{
 		std::string slurl = LLSLURL::buildSLURLfromPosGlobal(sim_name, global_pos);
 
-		signal(global_pos, slurl);
+		cb(slurl);
 
 		return;
 	}
@@ -198,16 +198,16 @@ void LLLandmarkActions::getSLURLfromPosGlobal(const LLVector3d& global_pos, slur
 	{
 		U64 new_region_handle = to_region_handle(global_pos);
 
-		LLWorldMap::url_callback_t cb = boost::bind(&LLLandmarkActions::onRegionResponse,
-													signal,
-													global_pos,
-													_1, _2, _3, _4);
+		LLWorldMap::url_callback_t url_cb = boost::bind(&LLLandmarkActions::onRegionResponse,
+														cb,
+														global_pos,
+														_1, _2, _3, _4);
 
-		LLWorldMap::getInstance()->sendHandleRegionRequest(new_region_handle, cb, std::string("unused"), false);
+		LLWorldMap::getInstance()->sendHandleRegionRequest(new_region_handle, url_cb, std::string("unused"), false);
 	}
 }
 
-void LLLandmarkActions::onRegionResponse(slurl_signal_t signal,
+void LLLandmarkActions::onRegionResponse(slurl_callback_t cb,
 										 const LLVector3d& global_pos,
 										 U64 region_handle,
 										 const std::string& url,
@@ -226,7 +226,7 @@ void LLLandmarkActions::onRegionResponse(slurl_signal_t signal,
 		slurl = "";
 	}
 
-	signal(global_pos, slurl);
+	cb(slurl);
 }
 
 bool LLLandmarkActions::getLandmarkGlobalPos(const LLUUID& landmarkInventoryItemID, LLVector3d& posGlobal)

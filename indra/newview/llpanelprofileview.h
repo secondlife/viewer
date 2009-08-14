@@ -60,21 +60,9 @@ public:
 	
 	/*virtual*/ BOOL postBuild();
 
-	// LLCacheName will call this function when avatar name is loaded from server.
-	// This is required to display names that have not been cached yet.
-	void cacheNameCallback(
-		const LLUUID& id, 
-		const std::string& first_name,
-		const std::string& last_name,
-		BOOL is_group);
-
 protected:
 
 	void onBackBtnClick();
-
-private:
-
-	bool mCacheNameCallbackConnected;
 };
 
 #endif //LL_LLPANELPROFILEVIEW_H

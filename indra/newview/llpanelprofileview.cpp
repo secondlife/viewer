@@ -44,7 +44,6 @@ static std::string PANEL_NOTES = "panel_notes";
 
 LLPanelProfileView::LLPanelProfileView()
 :	LLPanelProfile()
-,	mCacheNameCallbackConnected(false)
 {
 }
 
@@ -66,21 +65,6 @@ void LLPanelProfileView::onOpen(const LLSD& key)
 	}
 
 	LLPanelProfile::onOpen(key);
-
-	// *HACK Profile View is created before gCacheName, as a result we can't call addObserver()
-	// in postBuild() and have to connect callback here.
-	// This will call addObserver() once per LLPanelProfileView instance.
-	if(!mCacheNameCallbackConnected)
-	{
-		gCacheName->addObserver(boost::bind(&LLPanelProfileView::cacheNameCallback, this, _1, _2, _3, _4));
-		mCacheNameCallbackConnected = true;
-	}
-
-	// getFullName() will return "(Loading...)" for non cached names, 
-	// in this case cacheNameCallback() will resolve the name.
-	std::string full_name;
-	gCacheName->getFullName(getAvatarId(),full_name);
-	childSetValue("user_name",full_name);
 }
 
 BOOL LLPanelProfileView::postBuild()
@@ -103,13 +87,5 @@ void LLPanelProfileView::onBackBtnClick()
 	if(parent)
 	{
 		parent->openPreviousPanel();
-	}
-}
-
-void LLPanelProfileView::cacheNameCallback(const LLUUID& id, const std::string& first_name, const std::string& last_name, BOOL is_group)
-{
-	if(getAvatarId() == id)
-	{
-		childSetValue("user_name", first_name + " " + last_name);
 	}
 }

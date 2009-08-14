@@ -204,6 +204,7 @@ void LLPanelPicks::reshapePicksList()
 		reshapePickItem(childp, last_bottom,pickList->getRect().getWidth());
 	}
 
+	//*TODO move back panel reshaping before reshaping pick items, so it will be more durable to xui xml changes
 	S32 height = pickList->getChildCount() * ((*child_first_it)->getRect().getHeight() + PICK_ITEMS_BETWEEN);
 	LLRect rc = pickList->getRect();
 	rc.setLeftTopAndSize(rc.mLeft, rc.mTop, rc.getWidth(), height);

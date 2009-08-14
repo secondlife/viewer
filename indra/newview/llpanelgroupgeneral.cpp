@@ -887,6 +887,10 @@ void LLPanelGroupGeneral::updateChanged()
 
 void LLPanelGroupGeneral::reset()
 {
+	mFounderName->setVisible(false);
+
+	getChild<LLUICtrl>("prepend_founded_by")->setVisible(false);
+	
 	mCtrlReceiveNotices->set(false);
 	
 	
@@ -1010,21 +1014,8 @@ void LLPanelGroupGeneral::setGroupID(const LLUUID& id)
 	
 	mComboActiveTitle = getChild<LLComboBox>("active_title");
 
-	if (mGroupID.isNull())
-	{
-		mGroupNameEditor->setEnabled(TRUE);
-		mEditCharter->setEnabled(TRUE);
-
-		mCtrlShowInGroupList->setEnabled(TRUE);
-		mComboMature->setEnabled(TRUE);
-		mCtrlOpenEnrollment->setEnabled(TRUE);
-		mCtrlEnrollmentFee->setEnabled(TRUE);
-		mSpinEnrollmentFee->setEnabled(TRUE);
-
-		mBtnJoinGroup->setVisible(FALSE);
-		mBtnInfo->setVisible(FALSE);
-		mGroupName->setVisible(FALSE);
-	}
+	mFounderName->setVisible(true);
+	getChild<LLUICtrl>("prepend_founded_by")->setVisible(true);
 
 	resetDirty();
 

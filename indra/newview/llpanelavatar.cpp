@@ -369,7 +369,6 @@ void LLPanelAvatarProfile::resetControls()
 	childSetVisible("sl_groups", true);
 	childSetEnabled("add_friend", true);
 
-	childSetVisible("user_name", false);
 	childSetVisible("status_me_panel", false);
 	childSetVisible("profile_me_buttons_panel", false);
 	childSetVisible("account_actions_panel", false);
@@ -609,10 +608,6 @@ BOOL LLPanelAvatarMeProfile::postBuild()
 void LLPanelAvatarMeProfile::onOpen(const LLSD& key)
 {
 	LLPanelProfileTab::onOpen(key);
-
-	std::string full_name;
-	gCacheName->getFullName(getAvatarId(), full_name);
-	childSetValue("user_name", full_name);
 }
 
 void LLPanelAvatarMeProfile::processProfileProperties(const LLAvatarData* avatar_data)
@@ -647,7 +642,6 @@ void LLPanelAvatarMeProfile::fillStatusData(const LLAvatarData* avatar_data)
 
 void LLPanelAvatarMeProfile::resetControls()
 {
-	childSetVisible("user_name", true);
 	childSetVisible("status_panel", false);
 	childSetVisible("profile_buttons_panel", false);
 	childSetVisible("title_groups_text", false);

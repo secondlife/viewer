@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  bevel_style="none"
- follows="top|left|right|bottom"
+ follows="top|left|right"
  height="120"
  layout="topleft"
  left="0"

@@ -41,7 +41,7 @@
 class LLLandmarkActions
 {
 public:
-	typedef boost::function<void(const LLVector3d& global_pos, std::string& slurl)> slurl_signal_t;
+	typedef boost::function<void(std::string& slurl)> slurl_callback_t;
 
 	/**
 	 * @brief Fetches landmark LLViewerInventoryItems for the given landmark name. 
@@ -80,7 +80,7 @@ public:
 	/**
 	 * @brief Creates SLURL for given global position.
 	 */
-	static void getSLURLfromPosGlobal(const LLVector3d& global_pos, slurl_signal_t signal);
+	static void getSLURLfromPosGlobal(const LLVector3d& global_pos, slurl_callback_t cb);
 
     /**
      * @brief Gets landmark global position specified by inventory LLUUID.
@@ -96,7 +96,7 @@ private:
     LLLandmarkActions();
     LLLandmarkActions(const LLLandmarkActions&);
 
-	static void onRegionResponse(slurl_signal_t signal,
+	static void onRegionResponse(slurl_callback_t cb,
 								 const LLVector3d& global_pos,
 								 U64 region_handle,
 								 const std::string& url,

@@ -39,6 +39,7 @@
          name="tab_icon"
          right="-10"
          top="10"
+         image_name="TabIcon_Home_Selected"
          width="20" />
         <text
          follows="left|right|bottom"
@@ -82,12 +83,12 @@
          color="DkGray"
          follows="top|right"
          height="20"
-         image_name="TabIcon_Places_Off"
          layout="topleft"
          name="tab_icon"
          right="-10"
          top="10"
-         width="20" />
+         width="20" 
+         image_name="TabIcon_Places_Selected"/>
         <text
          follows="left|right|bottom|top"
          font="SansSerifBold"
@@ -134,7 +135,8 @@
          name="tab_icon"
          right="-10"
          top="10"
-         width="20" />
+         width="20" 
+         image_name="TabIcon_Me_Selected"/>
         <text
          follows="left|right|bottom|top"
          font="SansSerifBold"
@@ -181,7 +183,8 @@
          name="tab_icon"
          right="-10"
          top="10"
-         width="20" />
+         width="20" 
+         image_name="TabIcon_Things_Selected"/>
         <text
          follows="left|right|bottom|top"
          font="SansSerifBold"

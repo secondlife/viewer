@@ -40,7 +40,6 @@
      scale_image="false"
      top="8"
      width="13" />
-
     <tab_container
      follows="all"
      height="326"
@@ -54,18 +53,17 @@
      class="panel_place_info"
      filename="panel_place_info.xml"
      follows="all"
-     layout="topleft"
-     top="30"
      height="326"
+     layout="topleft"
      left="0"
      name="panel_place_info"
+     top="30"
      visible="false" />
-    
     <panel
-     name="button_panel"
-     layout="topleft"
      height="25"
+     layout="topleft"
      left="0"
+     name="button_panel"
      top_pad="10"
      width="305">
         <button
@@ -75,8 +73,8 @@
          label="Teleport"
          layout="topleft"
          left="5"
-         top="0"
          name="teleport_btn"
+         top="0"
          width="80" />
         <button
          follows="bottom|left"
@@ -84,8 +82,8 @@
          height="25"
          label="Map"
          layout="topleft"
-         name="map_btn"
          left_pad="5"
+         name="map_btn"
          top="0"
          width="80" />
         <button
@@ -93,13 +91,22 @@
          follows="bottom|left"
          font="SansSerifSmallBold"
          height="25"
-         left_pad="5"
-         top="0"
          label="Share"
          layout="topleft"
+         left_pad="5"
          name="share_btn"
+         top="0"
          width="60" />
-
+        <button
+         follows="bottom|right"
+         font="SansSerifSmallBold"
+         height="25"
+         label="▼"
+         layout="topleft"
+         left_pad="5"
+         name="overflow_btn"
+         top="0"
+         width="30" />
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
@@ -110,8 +117,8 @@
          label="Create"
          layout="topleft"
          left="5"
-         top="0"
          name="create_landmark_btn"
+         top="0"
          width="60" />
         <button
          follows="bottom|left"
@@ -122,8 +129,8 @@
          image_unselected="widgets/ComboButton_Off.png"
          label="▼"
          layout="topleft"
-         name="folder_menu_btn"
          left_pad="0"
+         name="folder_menu_btn"
          top="0"
          width="20" />
     </panel>

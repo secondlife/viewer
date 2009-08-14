@@ -422,18 +422,8 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 
 	if(menu)
 	{
-		if (menu->getClosedByButtonClick())
-		{
-			menu->resetClosedByButtonClick();
+		if (!menu->toggleVisibility())
 			return;
-		}
-
-		if (menu->getVisible())
-		{
-			menu->setVisible(FALSE);
-			menu->resetClosedByButtonClick();
-			return;
-		}
 
 		LLInventoryModel::item_array_t items;
 
@@ -559,7 +549,7 @@ void LLFavoritesBarCtrl::onButtonRightClick( LLUUID item_id,LLView* fav_button,S
 	LLMenuGL::showPopup(fav_button, menu, x, y);
 }
 
-void copy_slurl_to_clipboard_cb(const LLVector3d& posGlobal, std::string& slurl)
+void copy_slurl_to_clipboard_cb(std::string& slurl)
 {
 	gClipboard.copyFromString(utf8str_to_wstring(slurl));
 }
