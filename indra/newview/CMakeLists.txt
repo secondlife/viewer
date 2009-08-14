@@ -1332,9 +1332,27 @@ if (WINDOWS)
          ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
         COMMENT "Copying staged dlls."
         )
-    endif(WINDOWS)
-    
-    
+
+      add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${VIEWER_BINARY_NAME}.exe.config
+        COMMAND ${PYTHON_EXECUTABLE}
+        ARGS
+          ${CMAKE_CURRENT_SOURCE_DIR}/build_win32_appConfig.py
+          ${CMAKE_CFG_INTDIR}
+          ${CMAKE_CURRENT_SOURCE_DIR}
+	  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+	  ${VIEWER_BINARY_NAME}.exe.config
+        COMMENT "Creating app.config file"
+        )
+
+      add_custom_target(create_app_config_file ALL 
+	DEPENDS
+	  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${VIEWER_BINARY_NAME}.exe.config
+	)
+
+      add_dependencies(${VIEWER_BINARY_NAME} create_app_config_file)
+      
+    endif(WINDOWS)    
 
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
