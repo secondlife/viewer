@@ -40,6 +40,7 @@ set(llui_SOURCE_FILES
     llfiltereditor.cpp
     llfloater.cpp
     llfloaterreg.cpp
+    llfloaterreglistener.cpp
     llflyoutbutton.cpp 
     llfocusmgr.cpp
     llfunctorregistry.cpp
@@ -115,6 +116,7 @@ set(llui_HEADER_FILES
     llfiltereditor.h 
     llfloater.h
     llfloaterreg.h
+    llfloaterreglistener.h
     llflyoutbutton.h 
     llfocusmgr.h
     llfunctorregistry.h

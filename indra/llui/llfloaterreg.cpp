@@ -36,6 +36,7 @@
 
 #include "llfloater.h"
 #include "llmultifloater.h"
+#include "llfloaterreglistener.h"
 
 //*******************************************************
 
@@ -44,6 +45,8 @@ LLFloaterReg::instance_list_t LLFloaterReg::sNullInstanceList;
 LLFloaterReg::instance_map_t LLFloaterReg::sInstanceMap;
 LLFloaterReg::build_map_t LLFloaterReg::sBuildMap;
 std::map<std::string,std::string> LLFloaterReg::sGroupMap;
+
+static LLFloaterRegListener sFloaterRegListener("LLFloaterReg");
 
 //*******************************************************
 
