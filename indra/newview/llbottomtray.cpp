@@ -42,6 +42,7 @@
 #include "llsplitbutton.h"
 #include "llfloatercamera.h"
 #include "llimpanel.h"
+#include "llactiveimwindow.h"
 
 LLBottomTray::LLBottomTray(const LLSD&)
 :	mChicletPanel(NULL),
@@ -75,6 +76,8 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 	// Necessary for focus movement among child controls
 	setFocusRoot(TRUE);
+
+	LLActiveIMWindow::init(mIMWell);
 }
 
 BOOL LLBottomTray::postBuild()
@@ -104,8 +107,10 @@ void LLBottomTray::onChicletClick(LLUICtrl* ctrl)
 
 		// Show after comm window so it is frontmost (and hence will not
 		// auto-hide)
-		LLIMFloater::show(chiclet->getSessionId());
-		chiclet->setCounter(0);
+
+// this logic has been moved to LLIMChiclet::handleMouseDown
+//		LLIMFloater::show(chiclet->getSessionId());
+//		chiclet->setCounter(0);
 	}
 }
 
@@ -130,6 +135,7 @@ void LLBottomTray::sessionAdded(const LLUUID& session_id, const std::string& nam
 			chiclet->setOtherParticipantId(other_participant_id);
 		}
 	}
+	updateImChicletCount();
 }
 
 //virtual
@@ -139,6 +145,7 @@ void LLBottomTray::sessionRemoved(const LLUUID& session_id)
 	{
 		getChicletPanel()->removeChiclet(session_id);
 	}
+	updateImChicletCount();
 }
 
 //virtual
@@ -176,4 +183,9 @@ void LLBottomTray::setVisible(BOOL visible)
 			}
 		}
 	}
+}
+
+void LLBottomTray::updateImChicletCount() {
+	U32 chicletCount = mChicletPanel->getChicletCount();
+	mIMWell->setCounter(chicletCount);
 }

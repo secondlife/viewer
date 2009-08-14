@@ -186,6 +186,12 @@ public:
 	/*virtual*/ std::string translateString(const char* tag);
 	/*virtual*/ std::string translateString(const char* tag,
 					const std::map<std::string, std::string>& args);
+	
+	// signal on bottom tray width changed
+	typedef boost::function<void (void)> bottom_tray_callback_t;
+	typedef boost::signals2::signal<void (void)> bottom_tray_signal_t;
+	bottom_tray_signal_t mOnBottomTrayWidthChanged;
+	boost::signals2::connection setOnBottomTrayWidthChanged(bottom_tray_callback_t cb) { return mOnBottomTrayWidthChanged.connect(cb); }
 
 	//
 	// ACCESSORS

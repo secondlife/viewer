@@ -41,8 +41,12 @@
 #include "llmenugl.h"
 
 #include "llagent.h"
+#include "llclipboard.h"
+#include "llinventoryclipboard.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
+#include "llfloaterworldmap.h"
+#include "lllandmarkactions.h"
 #include "llsidetray.h"
 #include "lltoggleablemenu.h"
 #include "llviewerinventory.h"
@@ -71,11 +75,17 @@ struct LLFavoritesSort
 	}
 };
 
+LLFavoritesBarCtrl::Params::Params()
+: chevron_button_tool_tip("chevron_button_tool_tip")
+{
+}
+
 LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 :	LLUICtrl(p),
 	mFont(p.font.isProvided() ? p.font() : LLFontGL::getFontSansSerifSmall()),
 	mPopupMenuHandle(),
-	mInventoryItemsPopupMenuHandle()
+	mInventoryItemsPopupMenuHandle(),
+	mChevronButtonToolTip(p.chevron_button_tool_tip)
 {
 	// Register callback for menus with current registrar (will be parent panel's registrar)
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Favorites.DoToSelected",
@@ -314,6 +324,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 			bparams.tab_stop(false);
 			bparams.font(mFont);
 			bparams.name(">>");
+			bparams.tool_tip(mChevronButtonToolTip);
 			bparams.click_callback.function(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));
 
 			addChildInBack(LLUICtrlFactory::create<LLButton> (bparams));
@@ -548,6 +559,12 @@ void LLFavoritesBarCtrl::onButtonRightClick( LLUUID item_id,LLView* fav_button,S
 	LLMenuGL::showPopup(fav_button, menu, x, y);
 }
 
+void copy_slurl_to_clipboard_cb(const LLVector3d& posGlobal, std::string& slurl)
+{
+	gClipboard.copyFromString(utf8str_to_wstring(slurl));
+}
+
+
 void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 {
 	std::string action = userdata.asString();
@@ -569,13 +586,102 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 
 		LLSideTray::getInstance()->showPanel("panel_places", key);
 	}
-	else if (action == "rename")
+	else if (action == "copy_slurl")
 	{
-		// Would need to re-implement this:
-		// folder->startRenamingSelectedItem();
+		LLVector3d posGlobal;
+		LLLandmarkActions::getLandmarkGlobalPos(mSelectedItemID, posGlobal);
+
+		if (!posGlobal.isExactlyZero())
+		{
+			LLLandmarkActions::getSLURLfromPosGlobal(posGlobal, copy_slurl_to_clipboard_cb);
+		}
+	}
+	else if (action == "show_on_map")
+	{
+		LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+
+		LLVector3d posGlobal;
+		LLLandmarkActions::getLandmarkGlobalPos(mSelectedItemID, posGlobal);
+
+		if (!posGlobal.isExactlyZero() && worldmap_instance)
+		{
+			worldmap_instance->trackLocation(posGlobal);
+			LLFloaterReg::showInstance("world_map", "center");
+		}
+	}
+	else if (action == "cut")
+	{
+	}
+	else if (action == "copy")
+	{
+		LLInventoryClipboard::instance().add(mSelectedItemID);
+	}
+	else if (action == "paste")
+	{
+		pastFromClipboard();
 	}
 	else if (action == "delete")
 	{
 		gInventory.removeItem(mSelectedItemID);
 	}
 }
+
+BOOL LLFavoritesBarCtrl::isClipboardPasteable() const
+{
+	if (!LLInventoryClipboard::instance().hasContents())
+	{
+		return FALSE;
+	}
+
+	LLDynamicArray<LLUUID> objects;
+	LLInventoryClipboard::instance().retrieve(objects);
+	S32 count = objects.count();
+	for(S32 i = 0; i < count; i++)
+	{
+		const LLUUID &item_id = objects.get(i);
+
+		// Can't paste folders
+		const LLInventoryCategory *cat = gInventory.getCategory(item_id);
+		if (cat)
+		{
+			return FALSE;
+		}
+
+		const LLInventoryItem *item = gInventory.getItem(item_id);
+		if (item && LLAssetType::AT_LANDMARK != item->getType())
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+void LLFavoritesBarCtrl::pastFromClipboard() const
+{
+	LLInventoryModel* model = &gInventory;
+	if(model && isClipboardPasteable())
+	{
+		LLInventoryItem* item = NULL;
+		LLDynamicArray<LLUUID> objects;
+		LLInventoryClipboard::instance().retrieve(objects);
+		S32 count = objects.count();
+		LLUUID parent_id(mFavoriteFolderId);
+		for(S32 i = 0; i < count; i++)
+		{
+			item = model->getItem(objects.get(i));
+			if (item)
+			{
+				copy_inventory_item(
+					gAgent.getID(),
+					item->getPermissions().getOwner(),
+					item->getUUID(),
+					parent_id,
+					std::string(),
+					LLPointer<LLInventoryCallback>(NULL));
+			}
+		}
+	}
+}
+
+
+// EOF

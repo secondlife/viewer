@@ -40,78 +40,91 @@
      scale_image="false"
      top="8"
      width="13" />
+
     <tab_container
-     follows="left|top|right|bottom"
+     follows="all"
      height="326"
      layout="topleft"
      left="9"
      name="Places Tabs"
      tab_position="top"
-     top_pad="15"
+     top="30"
      width="285" />
-    <button
-     follows="bottom|left"
-     font="SansSerifSmallBold"
-     height="25"
-     image_disabled="widgets/SegmentedBtn_Left_Disabled.png"
-     image_selected="widgets/SegmentedBtn_Left_Selected.png"
-     image_unselected="widgets/SegmentedBtn_Left_Off.png"
-     label="Create"
-     layout="topleft"
-     left="10"
-     name="create_landmark_btn"
-     top_pad="5"
-     visible="false"
-     width="60" />
-    <button
-     follows="bottom|left"
-     font="SansSerifSmallBold"
-     height="25"
-     image_disabled="widgets/ComboButton_Disabled.png"
-     image_selected="widgets/ComboButton_Selected.png"
-     image_unselected="widgets/ComboButton_Off.png"
-     label="▼"
-     layout="topleft"
-     top_pad="0"
-     name="folder_menu_btn"
-     visible="false"
-     left_pad="5"
-     width="20" />
-    <button
-     follows="bottom|left"
-     font="SansSerifSmallBold"
-     height="25"
-     label="Teleport"
-     layout="topleft"
-     left="10"
-     top_pad="0"
-     name="teleport_btn"
-     width="80" />
-    <button
-     follows="bottom|left"
-     font="SansSerifSmallBold"
-     height="25"
-     label="Map"
-     layout="topleft"
-     name="map_btn"
-     left_pad="5"
-     width="80" />
-    <button
-     enabled="false"
-     follows="bottom|left"
-     font="SansSerifSmallBold"
-     height="25"
-     left_pad="5"
-     label="Share"
-     layout="topleft"
-     name="share_btn"
-     width="60" />
     <panel
      class="panel_place_info"
      filename="panel_place_info.xml"
      follows="all"
      layout="topleft"
+     top="30"
+     height="326"
      left="0"
      name="panel_place_info"
      visible="false" />
+    
+    <panel
+     name="button_panel"
+     layout="topleft"
+     height="25"
+     left="0"
+     top_pad="10"
+     width="305">
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Teleport"
+         layout="topleft"
+         left="5"
+         top="0"
+         name="teleport_btn"
+         width="80" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Map"
+         layout="topleft"
+         name="map_btn"
+         left_pad="5"
+         top="0"
+         width="80" />
+        <button
+         enabled="false"
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         left_pad="5"
+         top="0"
+         label="Share"
+         layout="topleft"
+         name="share_btn"
+         width="60" />
+
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         image_disabled="widgets/SegmentedBtn_Left_Disabled.png"
+         image_selected="widgets/SegmentedBtn_Left_Selected.png"
+         image_unselected="widgets/SegmentedBtn_Left_Off.png"
+         label="Create"
+         layout="topleft"
+         left="5"
+         top="0"
+         name="create_landmark_btn"
+         width="60" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         image_disabled="widgets/ComboButton_Disabled.png"
+         image_selected="widgets/ComboButton_Selected.png"
+         image_unselected="widgets/ComboButton_Off.png"
+         label="▼"
+         layout="topleft"
+         name="folder_menu_btn"
+         left_pad="0"
+         top="0"
+         width="20" />
+    </panel>
 </panel>

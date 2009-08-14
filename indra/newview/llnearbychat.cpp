@@ -54,6 +54,8 @@
 #include "llviewertexteditor.h"
 #include "llstylemap.h"
 
+#include "lldraghandle.h"
+
 
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
@@ -87,6 +89,8 @@ BOOL LLNearbyChat::postBuild()
 	mResizeHandle[1]->setVisible(false);
 	mResizeHandle[2]->setVisible(false);
 	mResizeHandle[3]->setVisible(false);
+
+	getDragHandle()->setVisible(false);
 
 	//menu
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -415,6 +419,8 @@ void	LLNearbyChat::pinn_panel()
 	mResizeBar[LLResizeBar::LEFT]->setVisible(false);
 	mResizeBar[LLResizeBar::RIGHT]->setVisible(false);
 
+	getDragHandle()->setVisible(false);
+
 }
 
 void	LLNearbyChat::float_panel()
@@ -426,6 +432,8 @@ void	LLNearbyChat::float_panel()
 	mResizeBar[LLResizeBar::BOTTOM]->setVisible(true);
 	mResizeBar[LLResizeBar::LEFT]->setVisible(true);
 	mResizeBar[LLResizeBar::RIGHT]->setVisible(true);
+
+	getDragHandle()->setVisible(true);
 
 	translate(4,4);
 }

@@ -3003,21 +3003,6 @@ BOOL LLMenuBarGL::handleMouseDown(S32 x, S32 y, MASK mask)
 	return LLMenuGL::handleMouseDown(x, y, mask);
 }
 
-/*
-BOOL LLMenuBarGL::handleRightMouseDown(S32 x, S32 y, MASK mask)
-{
-	// clicks on menu bar closes existing menus from other contexts but leave
-	// own menu open so that we get toggle behavior
-	if (!getHighlightedItem() || !getHighlightedItem()->isActive())
-	{
-		LLMenuGL::sMenuContainer->hideMenus();
-	}
-
-	return LLMenuGL::handleMouseDown(x, y, mask);
-}
-*/
-
-
 void LLMenuBarGL::draw()
 {
 	LLMenuItemGL* itemp = getHighlightedItem();

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="Teleport History" bottom="0" height="326" left="0" width="380"
      border="true" follows="left|top|right|bottom">
-	<scroll_list bottom="0" column_padding="0" draw_heading="true"
+	<scroll_list bottom="0" column_padding="0" draw_heading="false"
 	     draw_stripes="false" follows="left|top|bottom|right" left="0"
 	     multi_select="false" name="history_items" search_column="1"
 	     sort_column="1" height="326" width="380" >

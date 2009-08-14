@@ -45,16 +45,8 @@ LLToastPanel::~LLToastPanel()
 
 std::string LLToastPanel::getTitle()
 {
-// *TODO: localize header of Title
-/*	std::string title;
-	std::string notification_type = mNotification->getType();
-
-	if( notification_type == "groupnotify" )
-	{
-		title = LLTrans::getString("TitleGroup");
-	}
-*/
-	return (mNotification->getName() + "\n" + mNotification->getMessage());
+	// *TODO: create Title and localize it. If it will be required.
+	return mNotification->getMessage();
 }
 
 

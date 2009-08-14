@@ -56,7 +56,6 @@ public:
 	
 	/*virtual*/ void	draw();
 	/*virtual*/ BOOL	postBuild();
-	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);
 
 	void handleLoginComplete();
 	void clearHistoryCache();
@@ -75,8 +74,6 @@ private:
 	static std::string extractLocalCoordsFromRegName(const std::string & reg_name, S32* x, S32* y, S32* z);
 
 	// callbacks
-	bool onLocationContextMenuItemEnabled(const LLSD& userdata);
-	void onLocationContextMenuItemClicked(const LLSD& userdata);
 	void onTeleportHistoryMenuItemClicked(const LLSD& userdata);
 	void onTeleportHistoryChanged();
 	void onBackButtonClicked();
@@ -97,7 +94,6 @@ private:
 
 	static LLNavigationBar *sInstance;
 	
-	LLMenuGL*					mLocationContextMenu;
 	LLMenuGL*					mTeleportHistoryMenu;
 	LLButton*					mBtnBack;
 	LLButton*					mBtnForward;

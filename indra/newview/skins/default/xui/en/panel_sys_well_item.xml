@@ -10,7 +10,7 @@
 	width="318"
 	height="35"
   layout="topleft"
-  follows="top"
+  follows="left|right"
   background_opaque="false"
   background_visible="true"
   bg_alpha_color="0.0 0.0 0.0 0.0" >

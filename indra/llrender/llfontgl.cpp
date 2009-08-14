@@ -231,7 +231,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 
 	BOOL draw_ellipses = FALSE;
-	if (use_ellipses && halign == LEFT)
+	if (use_ellipses)
 	{
 		// check for too long of a string
 		if (getWidthF32(wstr.c_str(), 0, max_chars) * sScaleX > scaled_max_pixels)
@@ -398,9 +398,9 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		gGL.end();
 	}
 
-	// *FIX: get this working in all alignment cases, etc.
 	if (draw_ellipses)
 	{
+		
 		// recursively render ellipses at end of string
 		// we've already reserved enough room
 		gGL.pushMatrix();

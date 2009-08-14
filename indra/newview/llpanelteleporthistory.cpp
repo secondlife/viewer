@@ -200,7 +200,7 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 		index_column["type"] = "text";
 		index_column["value"] = index;
 
-		mHistoryItems->addElement(row);
+		mHistoryItems->addElement(row, ADD_TOP);
 
 		if (cur_item == index)
 		{

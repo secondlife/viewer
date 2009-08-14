@@ -68,6 +68,9 @@ public:
 	virtual void onFocusLost();
 	virtual void setVisible(BOOL visible);
 
+private:
+	void updateImChicletCount();
+
 protected:
 
 	LLBottomTray(const LLSD& key = LLSD());

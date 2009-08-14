@@ -113,6 +113,19 @@ std::string LLSLURL::buildUnescapedSLURL(const std::string& regionname, S32 x, S
 }
 
 // static
+std::string LLSLURL::buildSLURLfromPosGlobal(const std::string& regionname,
+											 const LLVector3d& global_pos)
+{
+	F32 region_x = (F32)fmod(global_pos.mdV[VX], (F64)REGION_WIDTH_METERS);
+	F32 region_y = (F32)fmod(global_pos.mdV[VY], (F64)REGION_WIDTH_METERS);
+
+	return buildSLURL(regionname,
+					  llround(region_x),
+					  llround(region_y),
+					  llround((F32)global_pos.mdV[VZ]));
+}
+
+// static
 bool LLSLURL::matchPrefix(const std::string& url, const std::string& prefix)
 {
 	std::string test_prefix = url.substr(0, prefix.length());

@@ -264,6 +264,11 @@ public:
 	virtual void setOtherParticipantId(const LLUUID& other_participant_id);
 
 	/*
+	 * Gets id of person/group user is chatting with.
+	 */
+	virtual LLUUID getOtherParticipantId();
+
+	/*
 	 * Shows/hides voice chat status control.
 	*/
 	virtual void setShowSpeaker(bool show);
@@ -326,6 +331,8 @@ protected:
 	*/
 	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+
 protected:
 	LLChicletAvatarIconCtrl* mAvatarCtrl;
 	LLChicletNotificationCounterCtrl* mCounterCtrl;
@@ -334,6 +341,27 @@ protected:
 	LLMenuGL* mPopupMenu;
 
 	bool mShowSpeaker;
+
+	template<typename Container>
+	struct CollectChicletCombiner {
+		typedef Container result_type;
+
+		template<typename InputIterator>
+		Container operator()(InputIterator first, InputIterator last) const {
+			Container c = Container();
+			for (InputIterator iter = first; iter != last; iter++) {
+				if (*iter != NULL) {
+					c.push_back(*iter);
+				}
+			}
+			return c;
+		}
+	};
+
+public:
+	static boost::signals2::signal<LLChiclet* (const LLUUID&),
+			CollectChicletCombiner<std::list<LLChiclet*> > >
+			sFindChicletsSignal;
 };
 
 /*

@@ -3216,7 +3216,7 @@
       <key>Value</key>
       <array>
         <real>1.5</real>
-        <real>0.5</real>
+        <real>0.7</real>
         <real>1.0</real>
       </array>
     </map>
@@ -9726,17 +9726,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>GroupTeleportMembersLimit</key>
-    <map>
-      <key>Comment</key>
-      <string>Max number of members of group to offer teleport</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>100</integer>
     </map>
   </map>
 </llsd>

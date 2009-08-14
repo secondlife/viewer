@@ -19,16 +19,15 @@
              function="Navbar.EnableMenuItem"
              parameter="show_coordinates" />
     </menu_item_check>
+    <!-- Label of 'Landmark' item is changing in runtime, 
+    see  AddLandmarkNavBarMenu/EditLandmarkNavBarMenu in strings.xml -->
     <menu_item_call
-     label="Add Landmark..."
+     label="Landmark"
      layout="topleft"
-     name="Add Landmark">
+     name="Landmark">
         <menu_item_call.on_click
          function="Navbar.Action"
          parameter="landmark" />
-        <menu_item_call.on_enable
-         function="Navbar.EnableMenuItem"
-         parameter="can_landmark" />
     </menu_item_call>
     <menu_item_separator
      layout="topleft"

@@ -46,8 +46,6 @@
 
 class LLSysWellWindow : public LLFloater
 {
-	friend class LLFloaterReg;
-
 public:
     LLSysWellWindow(const LLSD& key);
     ~LLSysWellWindow();
@@ -65,20 +63,25 @@ public:
 	// Operating with outfit
 	virtual void setVisible(BOOL visible);
 	void adjustWindowPosition();
+	void toggleWindow();
 
 	// Handlers
 	void onItemClick(LLSysWellItem* item);
 	void onItemClose(LLSysWellItem* item);
 
+	// size constants for the window and for its elements
+	static const S32 MAX_WINDOW_HEIGHT		= 200;
+	static const S32 MIN_WINDOW_WIDTH		= 320;
+	static const S32 MIN_PANELLIST_WIDTH	= 318;
+
 private:
 
-	void onClickCloseBtn();
 	void reshapeWindow();
 
 	// pointer to a corresponding channel's instance
 	LLNotificationsUI::LLScreenChannel*	mChannel;
 
-	LLButton*				mCloseBtn;
+	LLUIImagePtr			mDockTongue;
 	LLScrollContainer*		mScrollContainer;
 	LLScrollingPanelList*	mNotificationList;
 };

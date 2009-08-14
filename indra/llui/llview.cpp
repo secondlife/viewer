@@ -947,16 +947,11 @@ BOOL LLView::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 BOOL LLView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	BOOL handled = FALSE;
 	if( getVisible() && getEnabled() )
 	{
-		handled = childrenHandleScrollWheel( x, y, clicks ) != NULL;
-		if( !handled && blockMouseEvent(x, y) )
-		{
-			handled = TRUE;
-		}
+		return childrenHandleScrollWheel( x, y, clicks ) != NULL;
 	}
-	return handled;
+	return FALSE;
 }
 
 BOOL LLView::handleRightMouseDown(S32 x, S32 y, MASK mask)

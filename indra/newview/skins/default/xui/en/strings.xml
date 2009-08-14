@@ -610,6 +610,8 @@ you managed for [OWNER]
 		Unknown file extension .%s
 Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	</string>		
+	<string name="AddLandmarkNavBarMenu">Add Landmark...</string>	 
+	<string name="EditLandmarkNavBarMenu">Edit Landmark...</string>
 	
 	<!-- Previews -->
 	<string name="FileSaved">File Saved</string>	

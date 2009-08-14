@@ -54,6 +54,9 @@ static LLDefaultChildRegistry::Register<LLTalkButton> t2("chiclet_talk");
 static LLDefaultChildRegistry::Register<LLNotificationChiclet> t3("chiclet_notification");
 static LLDefaultChildRegistry::Register<LLIMChiclet> t4("chiclet_im");
 
+boost::signals2::signal<LLChiclet* (const LLUUID&),
+		LLIMChiclet::CollectChicletCombiner<std::list<LLChiclet*> > >
+		LLIMChiclet::sFindChicletsSignal;
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -290,6 +293,16 @@ void LLIMChiclet::setOtherParticipantId(const LLUUID& other_participant_id)
 	}
 }
 
+LLUUID LLIMChiclet::getOtherParticipantId()
+{
+	LLUUID res = LLUUID::null;
+	if (mAvatarCtrl)
+	{
+		res = mAvatarCtrl->getAvatarId();
+	}
+	return res;
+}
+
 void LLIMChiclet::updateMenuItems()
 {
 	if(!mPopupMenu)
@@ -304,6 +317,13 @@ void LLIMChiclet::updateMenuItems()
 		mPopupMenu->getChild<LLUICtrl>("Add Friend")->setEnabled(!is_friend);
 		mPopupMenu->getChild<LLUICtrl>("Remove Friend")->setEnabled(is_friend);
 	}
+}
+
+BOOL LLIMChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	LLIMFloater::show(getSessionId());
+	setCounter(0);
+	return LLChiclet::handleMouseDown(x, y, mask);
 }
 
 void LLIMChiclet::setShowSpeaker(bool show)
@@ -491,16 +511,20 @@ LLChicletPanel::~LLChicletPanel()
 void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	
 	LLUUID session_id = data["session_id"].asUUID();
-	LLChiclet* chiclet = panel->findChiclet<LLChiclet>(session_id);
-
-	if (chiclet)
-	{
-		chiclet->setCounter(data["num_unread"].asInteger());
+	std::list<LLChiclet*> chiclets = LLIMChiclet::sFindChicletsSignal(session_id);
+	std::list<LLChiclet *>::iterator iter;
+	for (iter = chiclets.begin(); iter != chiclets.end(); iter++) {
+		LLChiclet* chiclet = *iter;
+		if (chiclet != NULL)
+		{
+			chiclet->setCounter(data["num_unread"].asInteger());
+		}
+	    else
+	    {
+	    	llwarns << "Unable to set counter for chiclet " << session_id << llendl;
+	    }
 	}
-    else
-    {
-    	llwarns << "Unable to set counter for chiclet " << session_id << llendl;
-    }
+
 }
 
 
@@ -508,6 +532,7 @@ BOOL LLChicletPanel::postBuild()
 {
 	LLPanel::postBuild();
 	LLIMModel::instance().addChangedCallback(boost::bind(im_chiclet_callback, this, _1));
+	LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLChicletPanel::findChiclet<LLChiclet>, this, _1));
 
 	return TRUE;
 }

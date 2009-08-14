@@ -33,16 +33,23 @@
 #include "llviewerprecompiledheaders.h"
 #include "lllandmarkactions.h"
 
-#include "llagent.h"
+#include "roles_constants.h"
+
 #include "llinventory.h"
-#include "llinventorymodel.h"
 #include "lllandmark.h"
-#include "lllandmarklist.h"
-#include "llnotifications.h"
 #include "llparcel.h"
+
+#include "llnotifications.h"
+
+#include "llagent.h"
+#include "llinventorymodel.h"
+#include "lllandmarklist.h"
+#include "llslurl.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
-#include "roles_constants.h"
+#include "llworldmap.h"
+#include "lllandmark.h"
+#include "llinventorymodel.h"
 
 // Returns true if the given inventory item is a landmark pointing to the current parcel.
 // Used to filter inventory items.
@@ -66,18 +73,53 @@ public:
 	}
 };
 
+class LLFetchLandmarksByName : public LLInventoryCollectFunctor
+{
+private:
+	std::string name;
+
+public:
+LLFetchLandmarksByName(std::string &landmark_name)
+:name(landmark_name)
+	{
+	}
+
+public:
+	/*virtual*/ bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+	{
+		if (!item || item->getType() != LLAssetType::AT_LANDMARK)
+			return false;
+
+		LLLandmark* landmark = gLandmarkList.getAsset(item->getAssetUUID());
+		if (!landmark) // the landmark not been loaded yet
+			return false;
+
+		if (item->getName() == name)
+		{
+			return true;
+		}
+
+		return false;
+	}
+};
+
+LLInventoryModel::item_array_t LLLandmarkActions::fetchLandmarksByName(std::string& name)
+{
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLFetchLandmarksByName fetchLandmarks(name);
+	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
+			cats,
+			items,
+			LLInventoryModel::EXCLUDE_TRASH,
+			fetchLandmarks);
+	return items;
+}
 bool LLLandmarkActions::landmarkAlreadyExists()
 {
 	// Determine whether there are landmarks pointing to the current parcel.
-	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
-	LLIsAgentParcelLandmark is_current_parcel_landmark;
-	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
-		cats,
-		items,
-		LLInventoryModel::EXCLUDE_TRASH,
-		is_current_parcel_landmark);
-
+	collectParcelLandmark(items);
 	return !items.empty();
 }
 
@@ -138,4 +180,76 @@ void LLLandmarkActions::createLandmarkHere()
 	LLUUID folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
 
 	createLandmarkHere(landmark_name, landmark_desc, folder_id);
+}
+
+void LLLandmarkActions::getSLURLfromPosGlobal(const LLVector3d& global_pos, slurl_signal_t signal)
+{
+	std::string sim_name;
+	bool gotSimName = LLWorldMap::getInstance()->simNameFromPosGlobal(global_pos, sim_name);
+	if (gotSimName)
+	{
+		std::string slurl = LLSLURL::buildSLURLfromPosGlobal(sim_name, global_pos);
+
+		signal(global_pos, slurl);
+
+		return;
+	}
+	else
+	{
+		U64 new_region_handle = to_region_handle(global_pos);
+
+		LLWorldMap::url_callback_t cb = boost::bind(&LLLandmarkActions::onRegionResponse,
+													signal,
+													global_pos,
+													_1, _2, _3, _4);
+
+		LLWorldMap::getInstance()->sendHandleRegionRequest(new_region_handle, cb, std::string("unused"), false);
+	}
+}
+
+void LLLandmarkActions::onRegionResponse(slurl_signal_t signal,
+										 const LLVector3d& global_pos,
+										 U64 region_handle,
+										 const std::string& url,
+										 const LLUUID& snapshot_id,
+										 bool teleport)
+{
+	std::string sim_name;
+	std::string slurl;
+	bool gotSimName = LLWorldMap::getInstance()->simNameFromPosGlobal(global_pos, sim_name);
+	if (gotSimName)
+	{
+		slurl = LLSLURL::buildSLURLfromPosGlobal(sim_name, global_pos);
+	}
+	else
+	{
+		slurl = "";
+	}
+
+	signal(global_pos, slurl);
+}
+
+bool LLLandmarkActions::getLandmarkGlobalPos(const LLUUID& landmarkInventoryItemID, LLVector3d& posGlobal)
+{
+	LLViewerInventoryItem* item = gInventory.getItem(landmarkInventoryItemID);
+	if (NULL == item)
+		return false;
+
+	const LLUUID& asset_id = item->getAssetUUID();
+	LLLandmark* landmark = gLandmarkList.getAsset(asset_id, NULL);
+
+	if (NULL == landmark)
+		return false;
+
+	return landmark->getGlobalPos(posGlobal);
+}
+
+void LLLandmarkActions::collectParcelLandmark(LLInventoryModel::item_array_t& items){
+	LLInventoryModel::cat_array_t cats;
+	LLIsAgentParcelLandmark is_current_parcel_landmark;
+	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		is_current_parcel_landmark);
 }

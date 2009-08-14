@@ -36,7 +36,7 @@
 
 #include "llbottomtray.h"
 #include "llviewercontrol.h"
-
+#include "llviewerwindow.h"
 
 //---------------------------------------------------------------------------------
 LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLFloater(LLSD()),
@@ -44,19 +44,18 @@ LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLFloater(LLSD()),
 													mScrollContainer(NULL),
 													mNotificationList(NULL)
 {
-	// Ho to use:
-	// LLFloaterReg::showInstance("syswell_window");
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_sys_well.xml", NULL);
 }
 
 //---------------------------------------------------------------------------------
 BOOL LLSysWellWindow::postBuild()
 {
-	mCloseBtn = getChild<LLButton>("close_btn");
 	mScrollContainer = getChild<LLScrollContainer>("notification_list_container");
 	mNotificationList = getChild<LLScrollingPanelList>("notification_list");
 
-	mCloseBtn->setClickedCallback(boost::bind(&LLSysWellWindow::onClickCloseBtn,this));
+	//gViewerWindow->setOnBottomTrayWidthChanged(boost::bind(&LLSysWellWindow::adjustWindowPosition, this)); // *TODO: won't be necessary after docking is realized
+	mScrollContainer->setBorderVisible(FALSE);
+
+	mDockTongue = LLUI::getUIImage("windows/Flyout_Pointer.png");
 
 	return TRUE;
 }
@@ -76,7 +75,7 @@ void LLSysWellWindow::addItem(LLSysWellItem::Params p)
 	LLSysWellItem* new_item = new LLSysWellItem(p);
 	mNotificationList->addPanel(dynamic_cast<LLScrollingPanel*>(new_item));
 	reshapeWindow();
-	adjustWindowPosition();
+	//adjustWindowPosition();	// *TODO: won't be necessary after docking is realized
 
 	new_item->setOnItemCloseCallback(boost::bind(&LLSysWellWindow::onItemClose, this, _1));
 	new_item->setOnItemClickCallback(boost::bind(&LLSysWellWindow::onItemClick, this, _1));
@@ -95,14 +94,12 @@ S32 LLSysWellWindow::findItemByID(const LLUUID& id)
 	if(list.size() == 0)
 		return -1;
 
-	LLScrollingPanelList::panel_list_t::const_iterator it = list.begin(); 
+	LLScrollingPanelList::panel_list_t::const_iterator it; 
 	S32 index = 0;
-	while(it != list.end())
+	for(it = list.begin(); it != list.end(); ++it, ++index)
 	{
 		if( dynamic_cast<LLSysWellItem*>(*it)->getID() == id )
 			break;
-		++it;
-		++index;
 	}
 
 	if(it == list.end())
@@ -123,7 +120,7 @@ void LLSysWellWindow::removeItemByID(const LLUUID& id)
 		return;
 
 	reshapeWindow();
-	adjustWindowPosition();
+	//adjustWindowPosition();	// *TODO: won't be necessary after docking is realized
 	// hide chiclet window if there are no items left
 	S32 items_left = mNotificationList->getPanelList().size();
 	if(items_left == 0)
@@ -146,9 +143,9 @@ void LLSysWellWindow::onItemClose(LLSysWellItem* item)
 }
 
 //---------------------------------------------------------------------------------
-void LLSysWellWindow::onClickCloseBtn()
+void LLSysWellWindow::toggleWindow()
 {
-	setVisible(false);
+	setVisible(!getVisible());
 }
 
 //---------------------------------------------------------------------------------
@@ -158,14 +155,14 @@ void LLSysWellWindow::setVisible(BOOL visible)
 	if(visible)
 	{
 		mChannel->removeAndStoreAllVisibleToasts();
-		adjustWindowPosition();
+		//adjustWindowPosition();	// *TODO: won't be necessary after docking is realized
 	}
 
 	LLFloater::setVisible(visible);
 }
 
 //---------------------------------------------------------------------------------
-void LLSysWellWindow::adjustWindowPosition()
+void LLSysWellWindow::adjustWindowPosition()	// *TODO: won't be necessary after docking is realized
 {
 	const S32 WINDOW_MARGIN	= 5;
 
@@ -176,32 +173,31 @@ void LLSysWellWindow::adjustWindowPosition()
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::reshapeWindow()
 {
-	// Get scrollbar size
+	// Get size for scrollbar and floater's header
 	const LLUICachedControl<S32> SCROLLBAR_SIZE("UIScrollbarSize", 0);
+	const LLUICachedControl<S32> HEADER_SIZE("UIFloaterHeaderSize", 0);
 
 	// Get item list	
 	const LLScrollingPanelList::panel_list_t list = mNotificationList->getPanelList();
 
-	// window's size constants
-	const S32 WINDOW_HEADER_HEIGHT	= 30;
-	const S32 MAX_WINDOW_HEIGHT		= 200;
-	const S32 MIN_WINDOW_WIDTH		= 320;
-
-	// Get height and border's width for a scrolling panel list
-	S32 list_height			= mNotificationList->getRect().getHeight();
-	S32 list_border_width	= mScrollContainer->getBorderWidth() * 2;
+	// Get height for a scrolling panel list
+	S32 list_height	= mNotificationList->getRect().getHeight();
 
 	// Check that the floater doesn't exceed its parent view limits after reshape
-	S32 new_height = list_height + WINDOW_HEADER_HEIGHT + list_border_width;
+	S32 new_height = list_height + LLScrollingPanelList::GAP_BETWEEN_PANELS + HEADER_SIZE;
 
 	if(new_height > MAX_WINDOW_HEIGHT)
 	{
-		reshape(MIN_WINDOW_WIDTH + SCROLLBAR_SIZE, MAX_WINDOW_HEIGHT, FALSE);
+		reshape(MIN_WINDOW_WIDTH, MAX_WINDOW_HEIGHT, FALSE);
+		mNotificationList->reshape(MIN_PANELLIST_WIDTH - SCROLLBAR_SIZE, list_height, TRUE);
 	}
 	else
 	{
 		reshape(MIN_WINDOW_WIDTH, new_height, FALSE);
+		mNotificationList->reshape(MIN_PANELLIST_WIDTH, list_height, TRUE);
 	}
+	
+	mNotificationList->updatePanels(TRUE);
 }
 
 //---------------------------------------------------------------------------------

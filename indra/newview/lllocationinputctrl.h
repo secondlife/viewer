@@ -40,6 +40,7 @@ class LLLandmark;
 // internals
 class LLAddLandmarkObserver;
 class LLRemoveLandmarkObserver;
+class LLMenuGL;
 
 /**
  * Location input control.
@@ -98,16 +99,22 @@ private:
 	void					rebuildLocationHistory(std::string filter = "");
 	void					setText(const LLStringExplicit& text);
 	void					updateAddLandmarkButton();
+	void 					updateContextMenu();
 	void					updateWidgetlayout();
+	void					changeLocationPresentation();
 
 	void					onInfoButtonClicked();
 	void					onLocationHistoryLoaded();
 	void					onLocationPrearrange(const LLSD& data);
-	void 					onTextEditorMouseUp(S32 x, S32 y, MASK mask);
+	void 					onTextEditorRightClicked(S32 x, S32 y, MASK mask);
 	void					onLandmarkLoaded(LLLandmark* lm);
 	void					onAddLandmarkButtonClicked();
 	void					onAgentParcelChange();
+	// callbacks
+	bool					onLocationContextMenuItemEnabled(const LLSD& userdata);
+	void 					onLocationContextMenuItemClicked(const LLSD& userdata);
 
+	LLMenuGL*				mLocationContextMenu;
 	LLButton*				mAddLandmarkBtn;
 	LLButton*				mInfoBtn;
 	S32						mAddLandmarkHPad;

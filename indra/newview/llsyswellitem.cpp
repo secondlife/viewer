@@ -37,6 +37,7 @@
 
 #include "llwindow.h"
 #include "v4color.h"
+#include "lluicolortable.h"
 
 //---------------------------------------------------------------------------------
 LLSysWellItem::LLSysWellItem(const Params& p) : LLScrollingPanel(p),
@@ -76,7 +77,10 @@ void LLSysWellItem::onClickCloseBtn()
 //---------------------------------------------------------------------------------
 void LLSysWellItem::updatePanel(BOOL allow_modify)
 {
-	//nothing to do here
+	S32 parent_width = getParent()->getRect().getWidth();
+	S32 panel_height = getRect().getHeight();
+
+	reshape(parent_width, panel_height, TRUE);
 }
 
 //---------------------------------------------------------------------------------
@@ -91,13 +95,13 @@ BOOL LLSysWellItem::handleMouseDown(S32 x, S32 y, MASK mask)
 //---------------------------------------------------------------------------------
 void LLSysWellItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	setTransparentColor(LLColor4(0.3f, 0.3f, 0.3f, 1.0f));
+	setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemSelected" ));
 }
 
 //---------------------------------------------------------------------------------
 void LLSysWellItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	setTransparentColor(LLColor4(0.0f, 0.0f, 0.0f, 0.0f));
+	setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemUnselected" ));
 }
 
 //---------------------------------------------------------------------------------

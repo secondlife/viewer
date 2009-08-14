@@ -37,24 +37,23 @@
 
 // common includes
 #include "llbutton.h"
-#include "llfloaterreg.h"
 #include "llfocusmgr.h"
-#include "llkeyboard.h"
+#include "llmenugl.h"
 #include "llstring.h"
 #include "lluictrlfactory.h"
-#include "v2math.h"
 
 // newview includes
 #include "llagent.h"
-#include "llfloaterland.h"
 #include "llinventorymodel.h"
 #include "lllandmarkactions.h"
 #include "lllandmarklist.h"
 #include "lllocationhistory.h"
 #include "llsidetray.h"
+#include "lltrans.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewercontrol.h"
+#include "llviewermenu.h"
 #include "llurllineeditorctrl.h"
 //============================================================================
 /*
@@ -161,6 +160,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 :	LLComboBox(p),
 	mAddLandmarkHPad(p.add_landmark_hpad),
 	mInfoBtn(NULL),
+	mLocationContextMenu(NULL),
 	mAddLandmarkBtn(NULL)
 {
 	// Lets replace default LLLineEditor with LLLocationLineEditor
@@ -212,9 +212,21 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	enableAddLandmarkButton(true);
 	addChild(mAddLandmarkBtn);
 	
+	// Register callbacks and load the location field context menu (NB: the order matters).
+	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Navbar.Action", boost::bind(&LLLocationInputCtrl::onLocationContextMenuItemClicked, this, _2));
+	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Navbar.EnableMenuItem", boost::bind(&LLLocationInputCtrl::onLocationContextMenuItemEnabled, this, _2));
+		
 	setPrearrangeCallback(boost::bind(&LLLocationInputCtrl::onLocationPrearrange, this, _2));
-	getTextEntry()->setMouseUpCallback(boost::bind(&LLLocationInputCtrl::onTextEditorMouseUp, this, _2,_3,_4));
+	getTextEntry()->setMouseUpCallback(boost::bind(&LLLocationInputCtrl::changeLocationPresentation, this));
 
+	// Load the location field context menu
+	mLocationContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_navbar.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	if (!mLocationContextMenu)
+	{
+		llwarns << "Error loading navigation bar context menu" << llendl;
+		
+	}
+	getTextEntry()->setRightClickedCallback(boost::bind(&LLLocationInputCtrl::onTextEditorRightClicked,this,_2,_3,_4));
 	updateWidgetlayout();
 
 	// - Make the "Add landmark" button updated when either current parcel gets changed
@@ -401,11 +413,18 @@ void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
 	rebuildLocationHistory(filter);
 	mList->mouseOverHighlightNthItem(-1); // Clear highlight on the last selected item.
 }
-void LLLocationInputCtrl::onTextEditorMouseUp(S32 x, S32 y, MASK mask)
+
+void LLLocationInputCtrl::onTextEditorRightClicked(S32 x, S32 y, MASK mask)
 {
-	if (!mTextEntry->hasSelection()) {
-			setText(gAgent.getUnescapedSLURL());
-			mTextEntry->selectAll();
+	if (mLocationContextMenu)
+	{
+		updateContextMenu();
+		mLocationContextMenu->buildDrawLabels();
+		mLocationContextMenu->updateParent(LLMenuGL::sMenuContainer);
+		hideList();
+		setFocus(true);
+		changeLocationPresentation();
+		LLMenuGL::showPopup(this, mLocationContextMenu, x, y);
 	}
 }
 
@@ -429,7 +448,7 @@ void LLLocationInputCtrl::refreshLocation()
 	// Update location field.
 	std::string location_name;
 	LLAgent::ELocationFormat format =  (gSavedSettings.getBOOL("ShowCoordinatesOption") ? 
-			LLAgent::LOCATION_FORMAT_FULL: LLAgent::LOCATION_FORMAT_NORMAL);
+			LLAgent::LOCATION_FORMAT_WITHOUT_SIM: LLAgent::LOCATION_FORMAT_NORMAL);
 
 	if (!gAgent.buildLocationString(location_name,format))
 		location_name = "Unknown";
@@ -482,6 +501,21 @@ void LLLocationInputCtrl::updateAddLandmarkButton()
 	enableAddLandmarkButton(!LLLandmarkActions::landmarkAlreadyExists());
 }
 
+void LLLocationInputCtrl::updateContextMenu(){
+
+	if (mLocationContextMenu)
+	{
+		LLMenuItemGL* landmarkItem = mLocationContextMenu->getChild<LLMenuItemGL>("Landmark");
+		if (!LLLandmarkActions::landmarkAlreadyExists())
+		{
+			landmarkItem->setLabel(LLTrans::getString("AddLandmarkNavBarMenu"));
+		}
+		else
+		{
+			landmarkItem->setLabel(LLTrans::getString("EditLandmarkNavBarMenu"));
+		}
+	}
+}
 void LLLocationInputCtrl::updateWidgetlayout()
 {
 	const LLRect&	rect			= getLocalRect();
@@ -502,4 +536,89 @@ void LLLocationInputCtrl::updateWidgetlayout()
 			(rect.getHeight() - al_btn_rect.getHeight()) / 2);
 		mAddLandmarkBtn->setRect(al_btn_rect);
 	}
+}
+
+void LLLocationInputCtrl::changeLocationPresentation()
+{
+	// change location presentation only if user select anything. 
+	if(mTextEntry && !mTextEntry->hasSelection() )
+	{
+		mTextEntry->setText(gAgent.getUnescapedSLURL());
+		mTextEntry->selectAll();
+	}	
+}
+
+void LLLocationInputCtrl::onLocationContextMenuItemClicked(const LLSD& userdata)
+{
+	std::string item = userdata.asString();
+
+	if (item == std::string("show_coordinates"))
+	{
+		gSavedSettings.setBOOL("ShowCoordinatesOption",!gSavedSettings.getBOOL("ShowCoordinatesOption"));
+	}
+	else if (item == std::string("landmark"))
+	{
+		LLInventoryModel::item_array_t items;
+		LLLandmarkActions::collectParcelLandmark(items);
+		
+		if(items.empty())
+		{
+			LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+		}else{
+			LLSideTray::getInstance()->showPanel("panel_places", 
+					LLSD().insert("type", "landmark").insert("id",items.get(0)->getUUID()));
+		}
+	}
+	else if (item == std::string("cut"))
+	{
+		mTextEntry->cut();
+	}
+	else if (item == std::string("copy"))
+	{
+		mTextEntry->copy();
+	}
+	else if (item == std::string("paste"))
+	{
+		mTextEntry->paste();
+	}
+	else if (item == std::string("delete"))
+	{
+		mTextEntry->deleteSelection();
+	}
+	else if (item == std::string("select_all"))
+	{
+		mTextEntry->selectAll();
+	}
+}
+
+bool LLLocationInputCtrl::onLocationContextMenuItemEnabled(const LLSD& userdata)
+{
+	std::string item = userdata.asString();
+	
+	if (item == std::string("can_cut"))
+	{
+		return mTextEntry->canCut();
+	}
+	else if (item == std::string("can_copy"))
+	{
+		return mTextEntry->canCopy();
+	}
+	else if (item == std::string("can_paste"))
+	{
+		return mTextEntry->canPaste();
+	}
+	else if (item == std::string("can_delete"))
+	{
+		return mTextEntry->canDeselect();
+	}
+	else if (item == std::string("can_select_all"))
+	{
+		return mTextEntry->canSelectAll();
+	}
+	else if(item == std::string("show_coordinates")){
+	
+		return gSavedSettings.getBOOL("ShowCoordinatesOption");
+	}
+
+	return false;
 }

@@ -53,7 +53,7 @@
 	 top="632"
 	 left="75"	 
 	 height="20"
-     ont="SansSerifSmall"
+     font="SansSerifSmall"
      label="Refresh"
      label_selected="Refresh"
      name="btn_refresh"
@@ -69,7 +69,7 @@
      left="5"
      visible="false"
      width="65" />
-      <accordion layout="topleft" left="2" width="296" top="28" height="600" follows="all" name="panel_me_profile">
+      <accordion layout="topleft" left="2" width="296" top="28" height="600" follows="all" name="group_general_tab">
 		<accordion_tab min_height="515" title="Group General" name="group_general_tab">
         	<panel class="panel_group_general" filename="panel_group_general.xml" name="group_general_tab_panel"/>
 		</accordion_tab>

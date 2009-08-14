@@ -3458,7 +3458,10 @@ class LLSelfFriends : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		// Open "Friends" tab of the "People" panel in side tray.
-		LLSideTray::getInstance()->showPanel("panel_people", "friends_panel");
+		LLSD param;
+		param["people_panel_tab_name"] = "friends_panel";
+
+		LLSideTray::getInstance()->showPanel("panel_people", param);
 		return true;
 	}
 };
@@ -3468,7 +3471,9 @@ class LLSelfGroups : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		// Open "Groups" tab of the "People" panel in side tray.
-		LLSideTray::getInstance()->showPanel("panel_people", "groups_panel");
+		LLSD param;
+		param["people_panel_tab_name"] = "groups_panel";
+		LLSideTray::getInstance()->showPanel("panel_people", param);
 		return true;
 	}
 };

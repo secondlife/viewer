@@ -5272,6 +5272,7 @@ BOOL LLAgent::buildLocationString(std::string& str, ELocationFormat fmt)
 		case LOCATION_FORMAT_NORMAL:
 			buffer = llformat("%s", region_name.c_str());
 			break;
+		case LOCATION_FORMAT_WITHOUT_SIM:
 		case LOCATION_FORMAT_FULL:
 			buffer = llformat("%s (%d, %d, %d)",
 							  region_name.c_str(),
@@ -5291,6 +5292,12 @@ BOOL LLAgent::buildLocationString(std::string& str, ELocationFormat fmt)
 			buffer = llformat("%s, %s",
 							  region_name.c_str(),
 							  parcel_name.c_str());
+			break;
+		case LOCATION_FORMAT_WITHOUT_SIM:
+			buffer = llformat("%s, %s (%d, %d, %d)",
+									  region_name.c_str(),
+									  parcel_name.c_str(),
+									  pos_x, pos_y, pos_z);
 			break;
 		case LOCATION_FORMAT_FULL:
 			std::string sim_access_string = region->getSimAccessString();

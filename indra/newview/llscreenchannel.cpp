@@ -136,8 +136,7 @@ void LLScreenChannel::onToastFade(LLToast* toast)
 {	
 	std::vector<ToastElem>::iterator it = find(mToastList.begin(), mToastList.end(), static_cast<LLPanel*>(toast));
 		
-	// *TODO: toast->isViewed() - seems unnecessary
-	bool destroy_toast = toast->isViewed() || !mCanStoreToasts || !toast->getCanBeStored();
+	bool destroy_toast = !mCanStoreToasts || !toast->getCanBeStored();
 	if(destroy_toast)
 	{
 		mToastList.erase(it);
@@ -369,7 +368,8 @@ void LLScreenChannel::showToastsTop()
 void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 {
 	LLRect toast_rect;
-	LLToast::Params p; // *TODO: fill structure
+	LLToast::Params p;
+	p.timer_period = timer;
 	mOverflowToastPanel = new LLToast(p);
 
 	if(!mOverflowToastPanel)
@@ -393,7 +393,6 @@ void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 	mOverflowToastPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
 	toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastMargin"), getRect().getWidth(), toast_rect.getHeight());	
 	mOverflowToastPanel->setRect(toast_rect);
-	mOverflowToastPanel->setAndStartTimer(timer);
 	getRootView()->addChild(mOverflowToastPanel);
 
 	text_box->setValue(text);
@@ -424,7 +423,8 @@ void LLScreenChannel::closeOverflowToastPanel()
 void LLScreenChannel::createStartUpToast(S32 notif_num, S32 bottom, F32 timer)
 {
 	LLRect toast_rect;
-	LLToast::Params p; // *TODO: fill structure
+	LLToast::Params p;
+	p.timer_period = timer;
 	mStartUpToastPanel = new LLToast(p);
 
 	if(!mStartUpToastPanel)
@@ -453,7 +453,6 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, S32 bottom, F32 timer)
 	mStartUpToastPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
 	toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastMargin"), getRect().getWidth(), toast_rect.getHeight());	
 	mStartUpToastPanel->setRect(toast_rect);
-	mStartUpToastPanel->setAndStartTimer(timer);
 	getRootView()->addChild(mStartUpToastPanel);
 
 	text_box->setValue(text);
@@ -515,9 +514,12 @@ void LLScreenChannel::removeAndStoreAllVisibleToasts()
 	hideToastsFromScreen();
 	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end(); it++)
 	{
-		mStoredToastList.push_back(*it);
-		mOnStoreToast((*it).toast->getPanel(), (*it).id);
-		(*it).toast->stopTimer();
+		if((*it).toast->getCanBeStored())
+		{
+			mStoredToastList.push_back(*it);
+			mOnStoreToast((*it).toast->getPanel(), (*it).id);
+			(*it).toast->stopTimer();
+		}
 		(*it).toast->setVisible(FALSE);
 	}
 

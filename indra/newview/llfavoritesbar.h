@@ -40,7 +40,12 @@
 class LLFavoritesBarCtrl : public LLUICtrl, public LLInventoryObserver
 {
 public:
-	struct Params : public LLUICtrl::Params{};
+	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Optional<std::string> chevron_button_tool_tip;
+		Params();
+	};
+
 protected:
 	LLFavoritesBarCtrl(const Params&);
 	friend class LLUICtrlFactory;
@@ -69,6 +74,9 @@ protected:
 	void onButtonRightClick(LLUUID id,LLView* button,S32 x,S32 y,MASK mask);
 	
 	void doToSelected(const LLSD& userdata);
+	BOOL isClipboardPasteable() const;
+	void pastFromClipboard() const;
+
 	
 	void showDropDownMenu();
 
@@ -84,6 +92,8 @@ protected:
 
 	LLUUID mSelectedItemID;
 	LLRect mChevronRect;
+
+	std::string mChevronButtonToolTip;
 };
 
 

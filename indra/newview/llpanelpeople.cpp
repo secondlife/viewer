@@ -92,7 +92,10 @@ public:
 	 * 
 	 * This may start repeated updates until all names are complete.
 	 */
-	virtual void forceUpdate() {}
+	virtual void forceUpdate()
+	{
+		updateList();
+	}
 
 	/**
 	 * Activate/deactivate updater.
@@ -209,11 +212,6 @@ public:
 		}
 	}
 
-	/*virtual*/ void forceUpdate()
-	{
-		updateList();
-	}
-
 	/*virtual*/ BOOL tick()
 	{
 		updateList();
@@ -283,11 +281,6 @@ public:
 		gAgent.removeListener(this);
 	}
 
-	/*virtual*/ void forceUpdate()
-	{
-		updateList();
-	}
-
 	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		// Why is "new group" sufficient?
@@ -308,7 +301,8 @@ LLPanelPeople::LLPanelPeople()
 		mFilterSubString(LLStringUtil::null),
 		mFilterEditor(NULL),
 		mTabContainer(NULL),
-		mFriendList(NULL),
+		mOnlineFriendList(NULL),
+		mOfflineFriendList(NULL),
 		mNearbyList(NULL),
 		mRecentList(NULL)
 {
@@ -337,9 +331,10 @@ BOOL LLPanelPeople::postBuild()
 
 	mTabContainer = getChild<LLTabContainer>("tabs");
 	mTabContainer->setCommitCallback(boost::bind(&LLPanelPeople::onTabSelected, this, _2));
-	mTabContainer->selectTabByName(FRIENDS_TAB_NAME); // must go after setting commit callback
 
-	mFriendList = getChild<LLPanel>(FRIENDS_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
+	mOnlineFriendList = getChild<LLPanel>(FRIENDS_TAB_NAME)->getChild<LLAvatarList>("avatars_online");
+	mOfflineFriendList = getChild<LLPanel>(FRIENDS_TAB_NAME)->getChild<LLAvatarList>("avatars_offline");
+
 	mNearbyList = getChild<LLPanel>(NEARBY_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
 	mRecentList = getChild<LLPanel>(RECENT_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
 	mGroupList = getChild<LLGroupList>("group_list");
@@ -353,10 +348,12 @@ BOOL LLPanelPeople::postBuild()
 	friends_panel->childSetAction("add_btn",	boost::bind(&LLPanelPeople::onAddFriendWizButtonClicked,	this));
 	friends_panel->childSetAction("del_btn",	boost::bind(&LLPanelPeople::onDeleteFriendButtonClicked,	this));
 
-	mFriendList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mFriendList));
+	mOnlineFriendList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mOnlineFriendList));
+	mOfflineFriendList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mOfflineFriendList));
 	mNearbyList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mNearbyList));
 	mRecentList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mRecentList));
-	mFriendList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mFriendList));
+	mOnlineFriendList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mOnlineFriendList));
+	mOfflineFriendList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mOfflineFriendList));
 	mNearbyList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mNearbyList));
 	mRecentList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mRecentList));
 
@@ -373,6 +370,9 @@ BOOL LLPanelPeople::postBuild()
 	buttonSetAction("share_btn",		boost::bind(&LLPanelPeople::onShareButtonClicked,		this));
 	buttonSetAction("more_btn",			boost::bind(&LLPanelPeople::onMoreButtonClicked,		this));
 
+	// Must go after setting commit callback and initializing all pointers to children.
+	mTabContainer->selectTabByName(FRIENDS_TAB_NAME);
+
 	// Create menus.
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	registrar.add("People.Group.Plus.Action",  boost::bind(&LLPanelPeople::onGroupPlusMenuItemClicked,  this, _2));
@@ -381,8 +381,9 @@ BOOL LLPanelPeople::postBuild()
 
 	// Perform initial update.
 	mFriendListUpdater->forceUpdate();
-	updateGroupList();
-	updateRecentList();
+	mRecentListUpdater->forceUpdate();
+	mGroupListUpdater->forceUpdate();
+	mRecentListUpdater->forceUpdate();
 
 	return TRUE;
 }
@@ -393,16 +394,24 @@ bool LLPanelPeople::updateFriendList(U32 changed_mask)
 	if (changed_mask & (LLFriendObserver::ADD | LLFriendObserver::REMOVE | LLFriendObserver::ONLINE))
 	{
 		// get all buddies we know about
+		const LLAvatarTracker& av_tracker = LLAvatarTracker::instance();
 		LLAvatarTracker::buddy_map_t all_buddies;
-		LLAvatarTracker::instance().copyBuddyList(all_buddies);
+		av_tracker.copyBuddyList(all_buddies);
 
-		// *TODO: it's suboptimal to rebuild the whole list on online status change.
+		// *TODO: it's suboptimal to rebuild the whole lists on online status change.
 
-		// convert the buddy map to vector
-		mFriendVec.clear();
+		// save them to the online and offline friends vectors
+		mOnlineFriendVec.clear();
+		mOfflineFriendVec.clear();
 		LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();
 		for (; buddy_it != all_buddies.end(); ++buddy_it)
-			mFriendVec.push_back(buddy_it->first);
+		{
+			LLUUID buddy_id = buddy_it->first;
+			if (av_tracker.isBuddyOnline(buddy_id))
+				mOnlineFriendVec.push_back(buddy_id);
+			else
+				mOfflineFriendVec.push_back(buddy_id);
+		}
 
 		return filterFriendList();
 	}
@@ -428,6 +437,9 @@ bool LLPanelPeople::updateRecentList()
 
 bool LLPanelPeople::updateGroupList()
 {
+	if (!mGroupList)
+		return true; // there's no point in further updates
+
 	bool have_names = mGroupList->update(mFilterSubString);
 
 	if (mGroupList->isEmpty())
@@ -438,11 +450,19 @@ bool LLPanelPeople::updateGroupList()
 
 bool LLPanelPeople::filterFriendList()
 {
-	// We must always update Friends list to clear the latest removed friend.
-	bool have_names = mFriendList->update(mFriendVec, mFilterSubString);
+	if (!mOnlineFriendList || !mOfflineFriendList)
+		return true; // there's no point in further updates
 
-	if (mFriendVec.size() == 0)
-		mFriendList->setCommentText(getString("no_friends"));
+	// We must always update Friends list to clear the latest removed friend.
+	bool have_names =
+			mOnlineFriendList->update(mOnlineFriendVec, mFilterSubString) &
+			mOfflineFriendList->update(mOfflineFriendVec, mFilterSubString);
+
+	if (mOnlineFriendVec.size() == 0)
+		mOnlineFriendList->setCommentText(getString("no_friends_online"));
+
+	if (mOfflineFriendVec.size() == 0)
+		mOfflineFriendList->setCommentText(getString("no_friends_offline"));
 
 	return have_names;
 }
@@ -459,6 +479,9 @@ bool LLPanelPeople::filterNearbyList()
 
 bool LLPanelPeople::filterRecentList()
 {
+	if (!mRecentList)
+		return true;
+
 	if (mRecentVec.size() > 0)
 		return mRecentList->update(mRecentVec, mFilterSubString);
 
@@ -495,7 +518,7 @@ void LLPanelPeople::buttonSetAction(const std::string& btn_name, const commit_si
 
 void LLPanelPeople::updateButtons()
 {
-	std::string cur_tab		= mTabContainer->getCurrentPanel()->getName();
+	std::string cur_tab		= getActiveTabName();
 	bool nearby_tab_active	= (cur_tab == NEARBY_TAB_NAME);
 	bool friends_tab_active = (cur_tab == FRIENDS_TAB_NAME);
 	bool group_tab_active	= (cur_tab == GROUP_TAB_NAME);
@@ -507,7 +530,7 @@ void LLPanelPeople::updateButtons()
 	buttonSetVisible("add_friend_btn",		nearby_tab_active || recent_tab_active);
 	buttonSetVisible("view_profile_btn",	!group_tab_active);
 	buttonSetVisible("im_btn",				!group_tab_active);
-	buttonSetVisible("teleport_btn",		friends_tab_active || group_tab_active);
+	buttonSetVisible("teleport_btn",		friends_tab_active);
 	buttonSetVisible("share_btn",			!recent_tab_active && false); // not implemented yet
 
 	if (group_tab_active)
@@ -529,10 +552,9 @@ void LLPanelPeople::updateButtons()
 	else
 	{
 		bool is_friend = true;
-		LLAvatarList* list;
 
 		// Check whether selected avatar is our friend.
-		if ((list = getActiveAvatarList()) && (selected_id = list->getCurrentID()).notNull())
+		if ((selected_id = getCurrentItemID()).notNull())
 		{
 			is_friend = LLAvatarTracker::instance().getBuddyInfo(selected_id) != NULL;
 		}
@@ -541,7 +563,7 @@ void LLPanelPeople::updateButtons()
 	}
 
 	bool item_selected = selected_id.notNull();
-	buttonSetEnabled("teleport_btn",		(friends_tab_active || group_tab_active) && item_selected);
+	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected);
 	buttonSetEnabled("view_profile_btn",	item_selected);
 	buttonSetEnabled("im_btn",				item_selected);
 	buttonSetEnabled("call_btn",			item_selected && false); // not implemented yet
@@ -550,26 +572,36 @@ void LLPanelPeople::updateButtons()
 	buttonSetEnabled("chat_btn",			item_selected);
 }
 
-LLAvatarList* LLPanelPeople::getActiveAvatarList() const
+const std::string& LLPanelPeople::getActiveTabName() const
 {
-	std::string cur_tab = mTabContainer->getCurrentPanel()->getName();
-
-	if (cur_tab == FRIENDS_TAB_NAME)
-		return mFriendList;
-	if (cur_tab == NEARBY_TAB_NAME)
-		return mNearbyList;
-	if (cur_tab == RECENT_TAB_NAME)
-		return mRecentList;
-
-	return NULL;
+	return mTabContainer->getCurrentPanel()->getName();
 }
 
 LLUUID LLPanelPeople::getCurrentItemID() const
 {
-	LLAvatarList* alist = getActiveAvatarList();
-	if (alist)
-		return alist->getCurrentID();
-	return mGroupList->getCurrentID();
+	std::string cur_tab = getActiveTabName();
+
+	if (cur_tab == FRIENDS_TAB_NAME) // this tab has two lists
+	{
+		LLUUID cur_online_friend;
+
+		if ((cur_online_friend = mOnlineFriendList->getCurrentID()).notNull())
+			return cur_online_friend;
+
+		return mOfflineFriendList->getCurrentID();
+	}
+
+	if (cur_tab == NEARBY_TAB_NAME)
+		return mNearbyList->getCurrentID();
+
+	if (cur_tab == RECENT_TAB_NAME)
+		return mRecentList->getCurrentID();
+
+	if (cur_tab == GROUP_TAB_NAME)
+		return mGroupList->getCurrentID();
+
+	llassert(0 && "unknown tab selected");
+	return LLUUID::null;
 }
 
 void LLPanelPeople::showGroupMenu(LLMenuGL* menu)
@@ -653,9 +685,7 @@ void LLPanelPeople::onAvatarListDoubleClicked(LLAvatarList* list)
 		return;
 	
 #if 0 // SJB: Useful for testing, but not currently functional or to spec
-	// Open mini-inspector for the avatar being clicked
-	LLFloaterReg::showInstance("mini_inspector", clicked_id);
-	// inspector will delete itself on close
+	LLAvatarActions::showProfile(clicked_id);
 #else // spec says open IM window
 	LLAvatarActions::startIM(clicked_id);
 #endif
@@ -663,7 +693,17 @@ void LLPanelPeople::onAvatarListDoubleClicked(LLAvatarList* list)
 
 void LLPanelPeople::onAvatarListCommitted(LLAvatarList* list)
 {
-	(void) list;
+	// Make sure only one of the friends lists (online/offline) has selection.
+	if (getActiveTabName() == FRIENDS_TAB_NAME)
+	{
+		if (list == mOnlineFriendList)
+			mOfflineFriendList->deselectAllItems(TRUE);
+		else if (list == mOfflineFriendList)
+			mOnlineFriendList->deselectAllItems(TRUE);
+		else
+			llassert(0 && "commit on unknown friends list");
+	}
+
 	updateButtons();
 }
 
@@ -778,16 +818,7 @@ void LLPanelPeople::onCallButtonClicked()
 
 void LLPanelPeople::onTeleportButtonClicked()
 {
-	std::string cur_tab = mTabContainer->getCurrentPanel()->getName();
-
-	if (cur_tab == FRIENDS_TAB_NAME)
-	{
-		LLAvatarActions::offerTeleport(getCurrentItemID());
-	}
-	else if (cur_tab == GROUP_TAB_NAME)
-	{
-		LLGroupActions::offerTeleport(getCurrentItemID());
-	}
+	LLAvatarActions::offerTeleport(getCurrentItemID());
 }
 
 void LLPanelPeople::onShareButtonClicked()

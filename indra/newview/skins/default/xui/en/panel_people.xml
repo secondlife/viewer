@@ -16,11 +16,20 @@
      name="no_one_near"
      value="No-one near" />
     <string
-     name="no_friends"
-     value="No friends" />
+     name="no_friends_online"
+     value="No friends online" />
+    <string
+     name="no_friends_offline"
+     value="No friends offline" />
     <string
      name="no_groups"
      value="No groups" />
+    <string
+     name="people_filter_label"
+     value="Filter People" />
+    <string
+     name="groups_filter_label"
+     value="Filter Groups" />
     <filter_editor
      background_image="TextField_Search_Off"
      follows="left|top|right"
@@ -85,7 +94,7 @@
              width="285">
                 <button
                  enabled="false"
-                 follows="bottom|right"
+                 follows="bottom|left"
                  font="SansSerifBigBold"
                  height="18"
                  image_selected="OptionsMenu_Press"
@@ -107,14 +116,65 @@
          layout="topleft"
          name="friends_panel"
          width="285">
-            <avatar_list
+            <accordion
              follows="left|top|right|bottom"
              height="357"
              layout="topleft"
              left="0"
-             name="avatar_list"
+             name="friends_accordion"
              top="2"
-             width="285" />
+             width="285">
+                <accordion_tab
+                 can_resize="false"
+                 layout="topleft"
+                 min_height="100"
+                 name="tab_online"
+                 title="Online">
+                    <panel
+                     follows="all"
+                     height="150"
+                     layout="topleft"
+                     left="0"
+                     name="tab_online_panel"
+                     top="100"
+                     width="285">
+                        <avatar_list
+                         draw_heading="false"
+                         follows="all"
+                         height="145"
+                         layout="topleft"
+                         left="0"
+                         name="avatars_online"
+                         top="0"
+                         width="285" />
+                    </panel>
+                </accordion_tab>
+                <accordion_tab
+                 can_resize="false"
+                 layout="topleft"
+                 min_height="100"
+                 name="tab_offline"
+                 title="Offline">
+                    <panel
+                     follows="all"
+                     height="260"
+                     layout="topleft"
+                     left="0"
+                     name="tab_offline_panel"
+                     top="100"
+                     width="285">
+                        <avatar_list
+                         draw_heading="false"
+                         follows="all"
+                         height="255"
+                         layout="topleft"
+                         left="0"
+                         name="avatars_offline"
+                         top="0"
+                         width="285" />
+                    </panel>
+                </accordion_tab>
+            </accordion>
             <panel
              background_visible="true"
              bevel_style="none"
@@ -128,7 +188,7 @@
              width="285">
                 <button
                  enabled="false"
-                 follows="bottom|right"
+                 follows="bottom|left"
                  font="SansSerifBigBold"
                  height="18"
                  image_selected="OptionsMenu_Press"
@@ -195,7 +255,7 @@
              width="285">
                 <button
                  enabled="false"
-                 follows="bottom|right"
+                 follows="bottom|left"
                  font="SansSerifBigBold"
                  height="18"
                  image_selected="OptionsMenu_Press"
@@ -275,7 +335,7 @@
              width="285">
                 <button
                  enabled="false"
-                 follows="bottom|right"
+                 follows="bottom|left"
                  font="SansSerifBigBold"
                  height="18"
                  image_selected="OptionsMenu_Press"
@@ -298,7 +358,6 @@
      left="10"
      name="button_bar"
      orientation="horizontal"
-     top_pad="0"
      width="295">
         <layout_panel
          default_tab_group="1"
@@ -318,17 +377,17 @@
              name="view_profile_btn"
              width="65" />
         </layout_panel>
-<!--        <layout_panel
+        <layout_panel
          default_tab_group="1"
          follows="left|top|right"
          height="25"
          layout="topleft"
-         left_pad="0"
+         left_delta="0"
          min_width="85"
          name="add_friend_btn_panel"
          top_delta="0"
          width="85">
-           <button
+            <button
              follows="top|left|right"
              font="SansSerifSmallBold"
              height="25"
@@ -336,13 +395,12 @@
              layout="topleft"
              name="add_friend_btn"
              width="85" />
-        </layout_panel>-->
+        </layout_panel>
         <layout_panel
          default_tab_group="1"
          follows="left|top|right"
          height="25"
          layout="topleft"
-         left_pad="0"
          min_width="80"
          name="group_info_btn_panel"
          width="80">
@@ -360,7 +418,6 @@
          follows="left|top|right"
          height="25"
          layout="topleft"
-         left_pad="0"
          min_width="45"
          name="chat_btn_panel"
          top_delta="0"
@@ -379,7 +436,6 @@
          follows="left|top|right"
          height="25"
          layout="topleft"
-         left_pad="0"
          min_width="35"
          name="im_btn_panel"
          top_delta="0"
@@ -398,7 +454,6 @@
          follows="left|top|right"
          height="25"
          layout="topleft"
-         left_pad="0"
          min_width="40"
          name="call_btn_panel"
          top_delta="0"
@@ -419,7 +474,6 @@
          follows="left|top|right"
          height="25"
          layout="topleft"
-         left_pad="0"
          min_width="65"
          name="teleport_btn_panel"
          top_delta="0"
@@ -439,7 +493,6 @@
          follows="left|top|right"
          height="25"
          layout="topleft"
-         left_pad="0"
          min_width="50"
          name="share_btn_panel"
          top_delta="0"
@@ -455,31 +508,5 @@
              name="share_btn"
              width="50" />
         </layout_panel>
-<!--        <layout_panel
-         default_tab_group="1"
-         follows="left|top|right"
-         height="25"
-         layout="topleft"
-         left_pad="0"
-         min_width="40"
-         name="more_btn_panel"
-         top_delta="0"
-         width="40">
-            <button
-             enabled="false"
-             follows="top|right"
-             font="SansSerifSmallBold"
-             height="25"
-             label="&gt;&gt;"
-             layout="topleft"
-             name="more_btn"
-             width="40" />
-        </layout_panel>-->
     </layout_stack>
-  <string name="people_filter_label">
-    Filter People
-  </string>
-  <string name="groups_filter_label">
-    Filter Groups
-  </string>
 </panel>

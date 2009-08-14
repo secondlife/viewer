@@ -246,7 +246,9 @@ void	LLChatItemCtrl::setHeaderVisibility(EShowItemHeader e)
 
 bool	LLChatItemCtrl::canAddText	()
 {
-	LLChatMsgBox* msg_text = getChild<LLChatMsgBox>("msg_text", false);
+	LLChatMsgBox* msg_text = findChild<LLChatMsgBox>("msg_text");
+	if(!msg_text)
+		return false;
 	return msg_text->getTextLinesNum()<10;
 }
 

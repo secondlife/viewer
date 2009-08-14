@@ -79,6 +79,11 @@ public:
 	static std::string buildUnescapedSLURL(const std::string& regionname, S32 x, S32 y, S32 z);
 
 	/**
+	 * builds SLURL from global position escaping result url.
+	 */
+	static std::string buildSLURLfromPosGlobal(const std::string& regionname,
+											   const LLVector3d& global_pos);
+	/**
 	 * Strip protocol part from the URL.
 	 */
 	static std::string stripProtocol(const std::string& url);

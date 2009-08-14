@@ -549,6 +549,7 @@ void LLPanelStandStopFlying::onStandButtonClick()
 	LLSelectMgr::getInstance()->deselectAllForStandingUp();
 	gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 
+	setFocus(FALSE); // EXT-482
 	setVisible(FALSE);
 }
 
@@ -556,6 +557,7 @@ void LLPanelStandStopFlying::onStopFlyingButtonClick()
 {
 	gAgent.setFlying(FALSE);
 
+	setFocus(FALSE); // EXT-482
 	setVisible(FALSE);
 }
 

@@ -57,15 +57,17 @@ public:
 	class Updater;
 
 private:
+	// methods indirectly called by the updaters
 	bool					updateFriendList(U32 changed_mask);
 	bool					updateNearbyList();
 	bool					updateRecentList();
 	bool					updateGroupList();
+
 	bool					filterFriendList();
 	bool					filterNearbyList();
 	bool					filterRecentList();
 	void					updateButtons();
-	LLAvatarList*			getActiveAvatarList() const;
+	const std::string&		getActiveTabName() const;
 	LLUUID					getCurrentItemID() const;
 	void					buttonSetVisible(std::string btn_name, BOOL visible);
 	void					buttonSetEnabled(const std::string& btn_name, bool enabled);
@@ -106,7 +108,8 @@ private:
 
 	LLFilterEditor*			mFilterEditor;
 	LLTabContainer*			mTabContainer;
-	LLAvatarList*			mFriendList;
+	LLAvatarList*			mOnlineFriendList;
+	LLAvatarList*			mOfflineFriendList;
 	LLAvatarList*			mNearbyList;
 	LLAvatarList*			mRecentList;
 	LLGroupList*			mGroupList;
@@ -128,7 +131,8 @@ private:
 	// since re-fetching the groups list is always fast.
 	typedef std::vector<LLUUID> uuid_vector_t;
 	uuid_vector_t			mNearbyVec;
-	uuid_vector_t			mFriendVec;
+	uuid_vector_t			mOnlineFriendVec;
+	uuid_vector_t			mOfflineFriendVec;
 	uuid_vector_t			mRecentVec;
 };
 

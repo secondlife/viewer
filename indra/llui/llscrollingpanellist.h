@@ -68,6 +68,8 @@ public:
 	:	LLUICtrl(p) 
 	{}
 	
+	static const S32 GAP_BETWEEN_PANELS = 6;
+
 	typedef std::deque<LLScrollingPanel*>	panel_list_t;
 
 	virtual void setValue(const LLSD& value) {};
@@ -76,6 +78,7 @@ public:
 
 	void				clearPanels();
 	void				addPanel( LLScrollingPanel* panel );
+	void				removePanel( LLScrollingPanel* panel );
 	void				removePanel( U32 panel_index );
 	void				updatePanels(BOOL allow_modify);
 	const panel_list_t&	getPanelList() { return mPanelList; }

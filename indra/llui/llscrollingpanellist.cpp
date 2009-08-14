@@ -55,8 +55,6 @@ void LLScrollingPanelList::addPanel( LLScrollingPanel* panel )
 	addChildInBack( panel );
 	mPanelList.push_front( panel );
 
-	const S32 GAP_BETWEEN_PANELS = 6;
-
 	// Resize this view
 	S32 total_height = 0;
 	S32 max_width = 0;
@@ -80,6 +78,27 @@ void LLScrollingPanelList::addPanel( LLScrollingPanel* panel )
 		cur_y -= childp->getRect().getHeight();
 		childp->translate( -childp->getRect().mLeft, cur_y - childp->getRect().mBottom);
 		cur_y -= GAP_BETWEEN_PANELS;
+	}
+}
+
+void LLScrollingPanelList::removePanel(LLScrollingPanel* panel) 
+{
+	U32 index = 0;
+	LLScrollingPanelList::panel_list_t::const_iterator iter;
+
+	if (!mPanelList.empty()) 
+	{
+		for (iter = mPanelList.begin(); iter != mPanelList.end(); ++iter, ++index) 
+		{
+			if (*iter == panel) 
+			{
+				break;
+			}
+		}
+		if(iter != mPanelList.end())
+		{
+			removePanel(index);
+		}
 	}
 }
 

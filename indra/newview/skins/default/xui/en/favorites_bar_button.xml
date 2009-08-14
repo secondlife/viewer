@@ -5,7 +5,7 @@ untill LLFontGL::render() is fixed to avoid this requirement-->
 <!-- All buttons in the Favorites bar will be created from this one -->
 <button
  follows="left|bottom"
- halign="left"
+ halign="center"
  height="23"
  image_disabled="transparent.j2c"
  image_disabled_selected="PushButton_Selected"

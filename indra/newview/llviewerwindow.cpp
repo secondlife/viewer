@@ -2422,6 +2422,7 @@ void LLViewerWindow::updateBottomTrayRect()
 			rc.mRight = right;
 			bottom_tray->reshape(rc.getWidth(), rc.getHeight(), FALSE);
 			bottom_tray->setRect(rc);
+			mOnBottomTrayWidthChanged();
 		}
 	}
 }

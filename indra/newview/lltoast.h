@@ -121,8 +121,6 @@ public:
 	// get information whether the notification corresponding to the toast is responded or not
 	bool getIsNotificationUnResponded();
 	//
-	bool isViewed() { return mIsViewed; }
-	//
 	void setCanFade(bool can_fade);
 	//
 	void setCanBeStored(bool can_be_stored) { mCanBeStored = can_be_stored; }
@@ -163,8 +161,6 @@ private:
 	LLButton*	mHideBtn;
 
 	LLColor4	mBgColor;
-	bool		mIsViewed;
-	bool		mIsTipNotification;
 	bool		mCanFade;
 	bool		mIsModal;
 	bool		mCanBeStored;

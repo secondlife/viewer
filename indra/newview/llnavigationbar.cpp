@@ -38,11 +38,8 @@
 #include <llfocusmgr.h>
 #include <lliconctrl.h>
 #include <llmenugl.h>
-#include <llwindow.h>
 
 #include "llagent.h"
-#include "llfloaterhtmlhelp.h"
-#include "lllandmarkactions.h"
 #include "lllocationhistory.h"
 #include "lllocationinputctrl.h"
 #include "llteleporthistory.h"
@@ -51,11 +48,14 @@
 #include "llslurl.h"
 #include "llurlsimstring.h"
 #include "llviewerinventory.h"
-#include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
 #include "llworldmap.h"
 #include "llappviewer.h"
 #include "llviewercontrol.h"
+
+#include "llinventorymodel.h"
+#include "lllandmarkactions.h"
+
 #include "llfavoritesbar.h"
 
 //-- LLTeleportHistoryMenuItem -----------------------------------------------
@@ -176,7 +176,6 @@ LLNavigationBar* LLNavigationBar::getInstance()
 
 LLNavigationBar::LLNavigationBar()
 :	mTeleportHistoryMenu(NULL),
-	mLocationContextMenu(NULL),
 	mBtnBack(NULL),
 	mBtnForward(NULL),
 	mBtnHome(NULL),
@@ -190,10 +189,6 @@ LLNavigationBar::LLNavigationBar()
 	mParcelMgrConnection = LLViewerParcelMgr::getInstance()->setAgentParcelChangedCallback(
 			boost::bind(&LLNavigationBar::onTeleportFinished, this));
 
-	// Register callbacks and load the location field context menu (NB: the order matters).
-	mCommitCallbackRegistrar.add("Navbar.Action", boost::bind(&LLNavigationBar::onLocationContextMenuItemClicked, this, _2));
-	mEnableCallbackRegistrar.add("Navbar.EnableMenuItem", boost::bind(&LLNavigationBar::onLocationContextMenuItemEnabled, this, _2));
-	
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_navigation_bar.xml");
 
 	// navigation bar can never get a tab
@@ -242,14 +237,6 @@ BOOL LLNavigationBar::postBuild()
 	
 	mLeSearch->setCommitCallback(boost::bind(&LLNavigationBar::onSearchCommit, this));
 
-	// Load the location field context menu
-	mLocationContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_navbar.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	if (!mLocationContextMenu)
-	{
-		llwarns << "Error loading navigation bar context menu" << llendl;
-		return FALSE;
-	}
-
 	mDefaultNbRect = getRect();
 	mDefaultFpRect = getChild<LLFavoritesBarCtrl>("favorite")->getRect();
 
@@ -269,32 +256,6 @@ void LLNavigationBar::draw()
 		mPurgeTPHistoryItems = false;
 	}
 	LLPanel::draw();
-}
-
-BOOL LLNavigationBar::handleRightMouseUp(S32 x, S32 y, MASK mask)
-{
-	// *HACK. We should use mCmbLocation's right click callback instead.
-
-	// If the location field is clicked then show its context menu.
-	if (mCmbLocation->getRect().pointInRect(x, y))
-	{
-		// Pass the focus to the line editor when it is right-clicked
-		mCmbLocation->setFocus(TRUE);
-
-		if (mLocationContextMenu)
-		{
-			mLocationContextMenu->buildDrawLabels();
-			mLocationContextMenu->updateParent(LLMenuGL::sMenuContainer);
-			LLLineEditor* textEntry =mCmbLocation->getTextEntry();  
-			if(textEntry && !textEntry->hasSelection() ){
-				textEntry->setText(gAgent.getUnescapedSLURL());
-				textEntry->selectAll();
-			}
-			LLMenuGL::showPopup(this, mLocationContextMenu, x, y);
-		}
-		return TRUE;
-	}
-	return LLPanel:: handleRightMouseUp(x, y, mask);
 }
 
 void LLNavigationBar::onBackButtonClicked()
@@ -358,6 +319,22 @@ void LLNavigationBar::onLocationSelection()
 
 		if (region_name != typed_location) {
 			local_coords.set(x, y, z);
+		} 
+		else
+		{
+			LLInventoryModel::item_array_t landmark_items = LLLandmarkActions::fetchLandmarksByName(typed_location);
+			LLViewerInventoryItem* item = NULL;
+			if ( !landmark_items.empty() )
+			{
+				item = landmark_items[0];
+			}
+
+			if (item)
+			{
+				mUpdateTypedLocationHistory = true;
+				gAgent.teleportViaLandmark(item->getAssetUUID());
+				return;
+			}
 		}
 		// Treat it as region name.
 		// region_name = typed_location;
@@ -371,7 +348,8 @@ void LLNavigationBar::onLocationSelection()
 	LLWorldMap::getInstance()->sendNamedRegionRequest(region_name, cb, std::string("unused"), false);
 }
 
-void LLNavigationBar::onTeleportFinished() {
+void LLNavigationBar::onTeleportFinished()
+{
 
 	if (mUpdateTypedLocationHistory) {
 		LLLocationHistory* lh = LLLocationHistory::getInstance();
@@ -494,77 +472,6 @@ void	LLNavigationBar::showTeleportHistoryMenu()
 
 	// *HACK pass the mouse capturing to the drop-down menu
 	gFocusMgr.setMouseCapture( NULL );
-}
-
-void LLNavigationBar::onLocationContextMenuItemClicked(const LLSD& userdata)
-{
-	std::string item = userdata.asString();
-	LLLineEditor* location_entry = mCmbLocation->getTextEntry();
-
-	if (item == std::string("show_coordinates"))
-	{
-		gSavedSettings.setBOOL("ShowCoordinatesOption",!gSavedSettings.getBOOL("ShowCoordinatesOption"));
-	}
-	else if (item == std::string("landmark"))
-	{
-		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
-	}
-	else if (item == std::string("cut"))
-	{
-		location_entry->cut();
-	}
-	else if (item == std::string("copy"))
-	{
-		location_entry->copy();
-	}
-	else if (item == std::string("paste"))
-	{
-		location_entry->paste();
-	}
-	else if (item == std::string("delete"))
-	{
-		location_entry->deleteSelection();
-	}
-	else if (item == std::string("select_all"))
-	{
-		location_entry->selectAll();
-	}
-}
-
-bool LLNavigationBar::onLocationContextMenuItemEnabled(const LLSD& userdata)
-{
-	std::string item = userdata.asString();
-	const LLLineEditor* location_entry = mCmbLocation->getTextEntry();
-
-	if (item == std::string("can_cut"))
-	{
-		return location_entry->canCut();
-	}
-	else if (item == std::string("can_copy"))
-	{
-		return location_entry->canCopy();
-	}
-	else if (item == std::string("can_paste"))
-	{
-		return location_entry->canPaste();
-	}
-	else if (item == std::string("can_delete"))
-	{
-		return location_entry->canDeselect();
-	}
-	else if (item == std::string("can_select_all"))
-	{
-		return location_entry->canSelectAll();
-	}
-	else if(item == std::string("can_landmark"))
-	{
-		return !LLLandmarkActions::landmarkAlreadyExists();
-	}else if(item == std::string("show_coordinates")){
-	
-		return gSavedSettings.getBOOL("ShowCoordinatesOption");
-	}
-
-	return false;
 }
 
 void LLNavigationBar::handleLoginComplete()

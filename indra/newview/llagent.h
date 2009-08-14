@@ -268,6 +268,7 @@ public:
 	{
 		LOCATION_FORMAT_NORMAL,
 		LOCATION_FORMAT_LANDMARK,
+		LOCATION_FORMAT_WITHOUT_SIM,
 		LOCATION_FORMAT_FULL,
 	};
 	void			setRegion(LLViewerRegion *regionp);
