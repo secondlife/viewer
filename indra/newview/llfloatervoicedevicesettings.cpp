@@ -311,6 +311,7 @@ void LLFloaterVoiceDeviceSettings::onClose()
 {
 	if(mDevicePanel)
 	{
+		mDevicePanel->apply();
 		mDevicePanel->cleanup();
 	}
 }

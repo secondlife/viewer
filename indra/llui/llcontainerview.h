@@ -36,8 +36,12 @@
 #include "stdtypes.h"
 #include "lltextbox.h"
 #include "llstatbar.h"
+#include "llview.h"
 
 class LLScrollContainer;
+
+struct ContainerViewRegistry : public LLChildRegistry<ContainerViewRegistry>
+{};
 
 class LLContainerView : public LLView
 {
@@ -55,6 +59,10 @@ public:
 			mouse_opaque(false);
 		}
 	};
+
+	// my valid children are stored in this registry
+ 	typedef ContainerViewRegistry child_registry_t;
+	
 protected:
 	LLContainerView(const Params& p);
 	friend class LLUICtrlFactory;

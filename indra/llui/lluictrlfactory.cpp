@@ -84,12 +84,6 @@ LLFastTimer::DeclareTimer FTM_INIT_FROM_PARAMS("Widget InitFromParams");
 LLFastTimer::DeclareTimer FTM_WIDGET_SETUP("Widget Setup");
 
 //-----------------------------------------------------------------------------
-// Register widgets that are purely data driven here so they get linked in
-#include "llstatview.h"
-static LLDefaultChildRegistry::Register<LLStatView>
-	register_stat_view("stat_view");
-
-//-----------------------------------------------------------------------------
 
 // UI Ctrl class for padding
 class LLUICtrlLocate : public LLUICtrl

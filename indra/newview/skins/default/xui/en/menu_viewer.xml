@@ -352,7 +352,8 @@
             <menu_item_check.on_check
              function="Floater.Visible"
 			 parameter="mini_map" />
-            <menu_item_check.on_clickde
+            <menu_item_check.on_click
+             function="Floater.Toggle"
              parameter="mini_map" />
         </menu_item_check>
         <menu_item_separator

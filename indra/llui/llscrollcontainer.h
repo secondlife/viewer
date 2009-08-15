@@ -53,6 +53,10 @@ class LLUICtrlFactory;
  * the width and height of the view you're scrolling.
  *
  *****************************************************************************/
+
+struct ScrollContainerRegistry : public LLChildRegistry<ScrollContainerRegistry>
+{};
+
 class LLScrollContainer : public LLUICtrl
 {
 public:
@@ -70,7 +74,7 @@ public:
 	};
 
 	// my valid children are stored in this registry
-	typedef LLDefaultChildRegistry child_registry_t;
+ 	typedef ScrollContainerRegistry child_registry_t;
 
 protected:
 	LLScrollContainer(const Params&);

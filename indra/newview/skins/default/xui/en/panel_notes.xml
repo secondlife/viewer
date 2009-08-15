@@ -19,6 +19,12 @@
      opaque="true"
      top="0"
      width="284">
+      <panel
+		 height="350"
+		 layout="topleft"
+		 name="profile_scroll_panel"
+		 top="0"
+		 width="284">
         <text
          follows="left|top"
          font="SansSerifBold"
@@ -80,6 +86,7 @@
          name="objects_check"
          top_pad="0"
          width="230" />
+      </panel>
     </scroll_container>
     <panel
      follows="bottom|left"

@@ -42,7 +42,12 @@
 #include "llscrollcontainer.h"
 #include "lluictrlfactory.h"
 
-static LLDefaultChildRegistry::Register<LLContainerView> r("container_view");
+static LLDefaultChildRegistry::Register<LLContainerView> r1("container_view");
+
+#include "llpanel.h"
+#include "llstatview.h"
+static ContainerViewRegistry::Register<LLStatView> r2("stat_view");
+static ContainerViewRegistry::Register<LLPanel> r3("panel", &LLPanel::fromXML);
 
 LLContainerView::LLContainerView(const LLContainerView::Params& p)
 :	LLView(p),
