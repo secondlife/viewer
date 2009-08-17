@@ -468,7 +468,7 @@ BOOL LLNearbyChat::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 void	LLNearbyChat::onOpen(const LLSD& key )
 {
-	LLNotificationsUI::LLScreenChannel* chat_channel = LLNotificationsUI::LLChannelManager::getInstance()->getChannelByID(LLUUID(NEARBY_CHAT_ID));
+	LLNotificationsUI::LLScreenChannel* chat_channel = LLNotificationsUI::LLChannelManager::getInstance()->getChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
 	if(chat_channel)
 	{
 		chat_channel->removeToastsFromChannel();

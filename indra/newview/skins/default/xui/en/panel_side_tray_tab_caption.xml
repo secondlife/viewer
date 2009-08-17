@@ -3,7 +3,7 @@
  background_visible="true"
  bottom="0"
  follows="left|top|right"
- height="20"
+ height="30"
  layout="topleft"
  left="0"
  name="sidetray_tab_panel">

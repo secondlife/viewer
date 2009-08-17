@@ -52,6 +52,7 @@ LLAlertHandler::LLAlertHandler(e_notification_type type, const LLSD& id) : mIsMo
 	p.id = LLUUID(ALERT_CHANNEL_ID);
 	p.channel_right_bound = tray->getRect().getWidth() / 2;
 	p.channel_width = 0;
+	p.display_toasts_always = true;
 	p.align = NA_CENTRE;
 
 	// Getting a Channel for our notifications

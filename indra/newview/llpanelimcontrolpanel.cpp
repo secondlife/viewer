@@ -37,6 +37,7 @@
 #include "llavataractions.h"
 #include "llavatariconctrl.h"
 #include "llbutton.h"
+#include "llgroupactions.h"
 
 LLPanelIMControlPanel::LLPanelIMControlPanel()
 {
@@ -95,7 +96,7 @@ BOOL LLPanelGroupControlPanel::postBuild()
 
 void LLPanelGroupControlPanel::onGroupInfoButtonClicked()
 {
-	//LLFloaterGroupInfo::showFromUUID(mGroupID);
+	LLGroupActions::show(mGroupID);
 }
 
 

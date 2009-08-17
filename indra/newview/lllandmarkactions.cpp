@@ -77,11 +77,14 @@ class LLFetchLandmarksByName : public LLInventoryCollectFunctor
 {
 private:
 	std::string name;
+	BOOL use_substring;
 
 public:
-LLFetchLandmarksByName(std::string &landmark_name)
-:name(landmark_name)
+LLFetchLandmarksByName(std::string &landmark_name, BOOL if_use_substring)
+:name(landmark_name),
+use_substring(if_use_substring)
 	{
+	LLStringUtil::toLower(name);
 	}
 
 public:
@@ -94,20 +97,28 @@ public:
 		if (!landmark) // the landmark not been loaded yet
 			return false;
 
-		if (item->getName() == name)
+		std::string landmark_name = item->getName();
+		LLStringUtil::toLower(landmark_name);
+		if(use_substring)
 		{
-			return true;
+			if ( landmark_name.find( name ) != std::string::npos)
+				return true;
+		}
+		else
+		{
+			if ( landmark_name == name )
+				return true;
 		}
 
 		return false;
 	}
 };
 
-LLInventoryModel::item_array_t LLLandmarkActions::fetchLandmarksByName(std::string& name)
+LLInventoryModel::item_array_t LLLandmarkActions::fetchLandmarksByName(std::string& name, BOOL if_starts_with)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
-	LLFetchLandmarksByName fetchLandmarks(name);
+	LLFetchLandmarksByName fetchLandmarks(name, if_starts_with);
 	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
 			cats,
 			items,
@@ -115,6 +126,7 @@ LLInventoryModel::item_array_t LLLandmarkActions::fetchLandmarksByName(std::stri
 			fetchLandmarks);
 	return items;
 }
+
 bool LLLandmarkActions::landmarkAlreadyExists()
 {
 	// Determine whether there are landmarks pointing to the current parcel.

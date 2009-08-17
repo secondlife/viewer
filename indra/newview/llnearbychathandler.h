@@ -35,8 +35,6 @@
 
 #include "llnotificationhandler.h"
 
-#define NEARBY_CHAT_ID "E1158BD6-661C-4981-9DAD-4DCBFF062502"
-
 //add LLNearbyChatHandler to LLNotificationsUI namespace
 namespace LLNotificationsUI{
 

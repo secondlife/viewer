@@ -624,7 +624,7 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 	// delay cursor flashing
 	mKeystrokeTimer.reset();
 	
-	LLUICtrl::handleMouseDown(x,y,mask);
+	mMouseDownSignal(this,x,y,mask);
 
 	return TRUE;
 }

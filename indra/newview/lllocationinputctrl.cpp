@@ -49,6 +49,7 @@
 #include "lllandmarklist.h"
 #include "lllocationhistory.h"
 #include "llsidetray.h"
+#include "llslurl.h"
 #include "lltrans.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
@@ -411,6 +412,14 @@ void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
 {
 	std::string filter = data.asString();
 	rebuildLocationHistory(filter);
+
+	//Let's add landmarks to the top of the list if any
+	LLInventoryModel::item_array_t landmark_items = LLLandmarkActions::fetchLandmarksByName(filter, TRUE);
+
+	for(U32 i=0; i < landmark_items.size(); i++)
+	{
+		mList->addSimpleElement(landmark_items[i]->getName(), ADD_TOP);
+	}
 	mList->mouseOverHighlightNthItem(-1); // Clear highlight on the last selected item.
 }
 
@@ -540,8 +549,10 @@ void LLLocationInputCtrl::updateWidgetlayout()
 
 void LLLocationInputCtrl::changeLocationPresentation()
 {
-	// change location presentation only if user select anything. 
-	if(mTextEntry && !mTextEntry->hasSelection() )
+	//change location presentation only if user does not  select anything and 
+	//human-readable region name  is being displayed
+	if(mTextEntry && !mTextEntry->hasSelection() && 
+		!LLSLURL::isSLURL(mTextEntry->getText()))
 	{
 		mTextEntry->setText(gAgent.getUnescapedSLURL());
 		mTextEntry->selectAll();

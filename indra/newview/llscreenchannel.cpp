@@ -93,8 +93,8 @@ void LLScreenChannel::addToast(LLToast::Params p)
 	// we show toast in the following cases:
 	//	- the StartUp Toast is already hidden and the SysWell's window is hidden
 	//  - the SysWell's window is shown, but notification is a tip. We can't store it, so we show it
-	//	- the channel has a CENTRE allignment, so it is intended for alerts. We always show alerts
-	bool show_toast = (mWasStartUpToastShown && !isSysWellWndShown) || (isSysWellWndShown && p.is_tip) || mToastAlignment == NA_CENTRE;
+	//	- the channel is intended for displaying of toasts always, e.g. alerts
+	bool show_toast = (mWasStartUpToastShown && !isSysWellWndShown) || (isSysWellWndShown && p.is_tip) || mDisplayToastsAlways;
 	bool store_toast = !show_toast && !p.is_tip && mCanStoreToasts;
 
 	// if we can't show or store a toast, then do nothing, just send ignore to a notification 

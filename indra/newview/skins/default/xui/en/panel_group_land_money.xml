@@ -281,13 +281,13 @@
              bg_readonly_color="0.784314 0.819608 0.8 1"
              follows="all"
              font="Monospace"
-             height="180"
+             height="172"
              layout="topleft"
              left="8"
              max_length="4096"
              name="group_money_planning_text"
              top="5"
-             width="260">
+             width="250">
                 Computing...
             </text_editor>
         </panel>
@@ -313,7 +313,7 @@
              max_length="4096"
              name="group_money_details_text"
              top="7"
-             width="260">
+             width="250">
                 Computing...
             </text_editor> 
           <button
@@ -359,7 +359,7 @@
              max_length="4096"
              name="group_money_sales_text"
              top="7"
-             width="260">
+             width="250">
                 Computing...
             </text_editor>
             <button

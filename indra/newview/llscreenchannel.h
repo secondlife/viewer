@@ -103,8 +103,12 @@ public:
 	void		setCanStoreToasts(bool store) { mCanStoreToasts = store; }
 	// tell all channels that the StartUp toast was shown and allow them showing of toasts
 	static void	setStartUpToastShown() { mWasStartUpToastShown = true; }
-	//
+	// get StartUp Toast's state
 	static bool	getStartUpToastShown() { return mWasStartUpToastShown; }
+	// set mode for dislaying of toasts
+	void setDisplayToastsAlways(bool display_toasts) { mDisplayToastsAlways = display_toasts; }
+	// get mode for dislaying of toasts
+	bool getDisplayToastsAlways() { return mDisplayToastsAlways; }
 
 	// Channel's other interface functions functions
 	// get number of hidden notifications from a channel
@@ -173,6 +177,7 @@ private:
 	bool		mControlHovering;
 	bool		mIsHovering;
 	bool		mCanStoreToasts;
+	bool		mDisplayToastsAlways;
 	bool		mOverflowToastHidden;
 	// 
 	e_notification_toast_alignment	mToastAlignment;

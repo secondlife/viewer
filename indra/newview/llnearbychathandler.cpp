@@ -52,7 +52,7 @@ LLNearbyChatHandler::LLNearbyChatHandler(e_notification_type type, const LLSD& i
 	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 	/////////////////////////////////////////////////////
 	LLChannelManager::Params p;														  //TODO: check and correct
-	p.id = LLUUID(NEARBY_CHAT_ID);
+	p.id = LLUUID(gSavedSettings.getString("NearByChatChannelUUID"));
 	p.channel_right_bound = nearby_chat->getRect().mRight;
 	p.channel_width = nearby_chat->getRect().mRight - 16;   //HACK: 16 - ?
 	/////////////////////////////////////////////////////
@@ -62,7 +62,6 @@ LLNearbyChatHandler::LLNearbyChatHandler(e_notification_type type, const LLSD& i
 	mChannel = LLChannelManager::getInstance()->createChannel(p);
 	mChannel->setFollows(FOLLOWS_LEFT | FOLLOWS_BOTTOM | FOLLOWS_TOP); 
 	mChannel->setOverflowFormatString("You have %d unread nearby chat messages");
-	mChannel->setCanStoreToasts(false);
 }
 LLNearbyChatHandler::~LLNearbyChatHandler()
 {

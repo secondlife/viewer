@@ -191,25 +191,24 @@ void LLPanelPicks::reshapePicksList()
 	if (!mPickItemList.size()) return;
 	LLView* pickList = getPicksList();
 
-	S32 last_bottom = pickList->getRect().getHeight();
-	child_list_const_iter_t child_it, child_first_it = pickList->getChildList()->begin();
-	for ( child_it = child_first_it; child_it != pickList->getChildList()->end(); ++child_it)
-	{
-		LLView* const childp = *child_it;
-		if(child_it != child_first_it)
-		{
-			last_bottom -= childp->getRect().getHeight();
-			last_bottom -= PICK_ITEMS_BETWEEN;
-		}
-		reshapePickItem(childp, last_bottom,pickList->getRect().getWidth());
-	}
-
-	//*TODO move back panel reshaping before reshaping pick items, so it will be more durable to xui xml changes
-	S32 height = pickList->getChildCount() * ((*child_first_it)->getRect().getHeight() + PICK_ITEMS_BETWEEN);
+	//We don't need to update size of the 'pick list' before reshaping pick items. Don't need to reshape the pick list
+	S32 height = mPickItemList.size() * (mPickItemList.front()->getRect().getHeight() + PICK_ITEMS_BETWEEN);
 	LLRect rc = pickList->getRect();
 	rc.setLeftTopAndSize(rc.mLeft, rc.mTop, rc.getWidth(), height);
-	pickList->reshape(rc.getWidth(), rc.getHeight());
 	pickList->setRect(rc);
+
+	S32 last_bottom = pickList->getRect().getHeight();
+	std::list<LLPickItem*>::const_iterator pick_it, pick_first_it = mPickItemList.begin();
+	for ( pick_it = pick_first_it; pick_it != mPickItemList.end(); ++pick_it)
+	{
+		LLView* const pick = *pick_it;
+		if(pick_it != pick_first_it)
+		{
+			last_bottom -= pick->getRect().getHeight();
+			last_bottom -= PICK_ITEMS_BETWEEN;
+		}
+		reshapePickItem(pick, last_bottom,pickList->getRect().getWidth());
+	}
 }
 
 void LLPanelPicks::reshapePickItem(LLView* const pick_item, const S32 last_bottom, const S32 newWidth)

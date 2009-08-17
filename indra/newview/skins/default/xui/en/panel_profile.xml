@@ -222,7 +222,7 @@
          width="100" />
         <panel
          follows="left|top|right"
-         height="15"
+         height="50"
          layout="topleft"
          left_pad="10"
          name="partner_data_panel"
@@ -230,7 +230,7 @@
          width="125">
             <text
              follows="left|top|right"
-             height="15"
+             height="30"
              layout="topleft"
              left="0"
              name="partner_text"

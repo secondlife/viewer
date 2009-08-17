@@ -62,7 +62,10 @@ void LLChannelManager::onLoginCompleted()
 
 	for(std::vector<ChannelElem>::iterator it = mChannelList.begin(); it !=  mChannelList.end(); ++it)
 	{
-		away_notifications +=(*it).channel->getNumberOfHiddenToasts();
+		if(!(*it).channel->getDisplayToastsAlways())
+		{
+			away_notifications +=(*it).channel->getNumberOfHiddenToasts();
+		}
 	}
 
 	if(!away_notifications)
@@ -95,6 +98,11 @@ void LLChannelManager::removeStartUpChannel()
 	getRootView()->removeChild(mStartUpChannel);
 	delete mStartUpChannel;
 	mStartUpChannel = NULL;
+
+	//force NEARBY CHAT CHANNEL to repost all toasts if present
+	LLScreenChannel* nearby_channel = getChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
+	nearby_channel->loadStoredToastsToChannel();
+	nearby_channel->setCanStoreToasts(false);
 }
 
 //--------------------------------------------------------------------------
@@ -118,6 +126,7 @@ LLScreenChannel* LLChannelManager::createChannel(LLChannelManager::Params& p)
 	getRootView()->addChild(new_channel);
 	new_channel->init(p.channel_right_bound - p.channel_width, p.channel_right_bound);
 	new_channel->setToastAlignment(p.align);
+	new_channel->setDisplayToastsAlways(p.display_toasts_always);
 
 	ChannelElem new_elem;
 	new_elem.id = p.id;

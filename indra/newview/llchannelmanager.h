@@ -60,12 +60,14 @@ public:
 		Optional<LLChiclet*>		chiclet;
 		Optional<S32>				channel_right_bound;
 		Optional<S32>				channel_width;
+		Optional<bool>				display_toasts_always;
 		Optional<EToastAlignment>	align;
 
 		Params():	id("id", LLUUID("")),
 					chiclet("chiclet", NULL), 
 					channel_right_bound("channel_right_bound", 0), 
 					channel_width("channel_width", 0), 
+					display_toasts_always("display_toasts_always", false),
 					align("align", NA_BOTTOM)
 		{}
 	};

@@ -315,26 +315,18 @@ void LLNavigationBar::onLocationSelection()
 	}
 	else
 	{
-		region_name = extractLocalCoordsFromRegName(typed_location, &x, &y, &z);
-
-		if (region_name != typed_location) {
-			local_coords.set(x, y, z);
-		} 
+		LLInventoryModel::item_array_t landmark_items = LLLandmarkActions::fetchLandmarksByName(typed_location, FALSE);
+		if ( !landmark_items.empty() )
+		{
+			mUpdateTypedLocationHistory = true;
+			gAgent.teleportViaLandmark(landmark_items[0]->getAssetUUID());
+			return;
+		}
 		else
 		{
-			LLInventoryModel::item_array_t landmark_items = LLLandmarkActions::fetchLandmarksByName(typed_location);
-			LLViewerInventoryItem* item = NULL;
-			if ( !landmark_items.empty() )
-			{
-				item = landmark_items[0];
-			}
-
-			if (item)
-			{
-				mUpdateTypedLocationHistory = true;
-				gAgent.teleportViaLandmark(item->getAssetUUID());
-				return;
-			}
+			region_name = extractLocalCoordsFromRegName(typed_location, &x, &y, &z);
+			if (region_name != typed_location)
+				local_coords.set(x, y, z);
 		}
 		// Treat it as region name.
 		// region_name = typed_location;

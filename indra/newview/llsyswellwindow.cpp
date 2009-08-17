@@ -52,7 +52,7 @@ BOOL LLSysWellWindow::postBuild()
 	mScrollContainer = getChild<LLScrollContainer>("notification_list_container");
 	mNotificationList = getChild<LLScrollingPanelList>("notification_list");
 
-	//gViewerWindow->setOnBottomTrayWidthChanged(boost::bind(&LLSysWellWindow::adjustWindowPosition, this)); // *TODO: won't be necessary after docking is realized
+	gViewerWindow->setOnBottomTrayWidthChanged(boost::bind(&LLSysWellWindow::adjustWindowPosition, this)); // *TODO: won't be necessary after docking is realized
 	mScrollContainer->setBorderVisible(FALSE);
 
 	mDockTongue = LLUI::getUIImage("windows/Flyout_Pointer.png");
@@ -75,7 +75,7 @@ void LLSysWellWindow::addItem(LLSysWellItem::Params p)
 	LLSysWellItem* new_item = new LLSysWellItem(p);
 	mNotificationList->addPanel(dynamic_cast<LLScrollingPanel*>(new_item));
 	reshapeWindow();
-	//adjustWindowPosition();	// *TODO: won't be necessary after docking is realized
+	adjustWindowPosition();	// *TODO: won't be necessary after docking is realized
 
 	new_item->setOnItemCloseCallback(boost::bind(&LLSysWellWindow::onItemClose, this, _1));
 	new_item->setOnItemClickCallback(boost::bind(&LLSysWellWindow::onItemClick, this, _1));
@@ -120,7 +120,7 @@ void LLSysWellWindow::removeItemByID(const LLUUID& id)
 		return;
 
 	reshapeWindow();
-	//adjustWindowPosition();	// *TODO: won't be necessary after docking is realized
+	adjustWindowPosition();	// *TODO: won't be necessary after docking is realized
 	// hide chiclet window if there are no items left
 	S32 items_left = mNotificationList->getPanelList().size();
 	if(items_left == 0)
@@ -155,7 +155,7 @@ void LLSysWellWindow::setVisible(BOOL visible)
 	if(visible)
 	{
 		mChannel->removeAndStoreAllVisibleToasts();
-		//adjustWindowPosition();	// *TODO: won't be necessary after docking is realized
+		adjustWindowPosition();	// *TODO: won't be necessary after docking is realized
 	}
 
 	LLFloater::setVisible(visible);
