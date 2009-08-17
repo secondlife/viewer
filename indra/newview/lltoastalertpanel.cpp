@@ -352,12 +352,14 @@ bool LLToastAlertPanel::setCheckBox( const std::string& check_title, const std::
 
 void LLToastAlertPanel::setVisible( BOOL visible )
 {
-	LLToastPanel::setVisible( visible );
-	
-	if( visible )
+	// only make the "ding" sound if it's newly visible
+	if( visible && !LLToastPanel::getVisible() )
 	{
 		make_ui_sound("UISndAlert");
 	}
+
+	LLToastPanel::setVisible( visible );
+	
 }
 
 LLToastAlertPanel::~LLToastAlertPanel()
