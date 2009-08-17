@@ -104,15 +104,15 @@
              top_delta="0"
              value="Second Life:"
              width="140" />
-            <text_editor
+            <text
              follows="left|top|right"
              height="90"
              layout="topleft"
              name="sl_description_edit"
-             width="180"
+             width="130"
              word_wrap="true">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-            </text_editor>
+            </text>
         </panel>
         <panel
          follows="left|top"
@@ -142,15 +142,15 @@
              top_delta="0"
              value="Real World:"
              width="140" />
-            <text_editor
+            <text
              follows="left|top|right"
              height="90"
              layout="topleft"
              name="fl_description_edit"
-             width="180"
+             width="130"
              word_wrap="true">
                 Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-            </text_editor>
+            </text>
         </panel>
         <link
          follows="left|top|right"
