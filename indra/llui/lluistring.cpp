@@ -37,6 +37,8 @@
 
 const LLStringUtil::format_map_t LLUIString::sNullArgs;
 
+LLFastTimer::DeclareTimer FTM_UI_STRING("UI String");
+
 
 LLUIString::LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args)
 	: mOrig(instring),
@@ -59,6 +61,8 @@ void LLUIString::setArgList(const LLStringUtil::format_map_t& args)
 
 void LLUIString::setArgs(const LLSD& sd)
 {
+	LLFastTimer timer(FTM_UI_STRING);
+	
 	if (!sd.isMap()) return;
 	for(LLSD::map_const_iterator sd_it = sd.beginMap();
 		sd_it != sd.endMap();
@@ -112,6 +116,8 @@ void LLUIString::clear()
 
 void LLUIString::format()
 {
+	LLFastTimer timer(FTM_UI_STRING);
+	
 	// optimize for empty strings (don't attempt string replacement)
 	if (mOrig.empty())
 	{

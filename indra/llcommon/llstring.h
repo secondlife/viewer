@@ -232,9 +232,10 @@ public:
 	typedef std::map<LLFormatMapString, LLFormatMapString> format_map_t;
 	static void getTokens (std::basic_string<T> input, std::vector<std::basic_string<T> >& tokens);
 	static void formatNumber(std::basic_string<T>& numStr, std::basic_string<T> decimals);
-	static bool formatDatetime(std::basic_string<T>& replacement, std::basic_string<T> token, std::basic_string<T> param, const LLSD& substitutions);
+	static bool formatDatetime(std::basic_string<T>& replacement, std::basic_string<T> token, std::basic_string<T> param, S32 secFromEpoch);
+	static S32 format(std::basic_string<T>& s, const format_map_t& substitutions);
 	static S32 format(std::basic_string<T>& s, const LLSD& substitutions);
-	static S32 format(std::basic_string<T>& s, const format_map_t& fmt_map);
+	static bool simpleReplacement(std::basic_string<T>& replacement, std::basic_string<T> token, const format_map_t& substitutions);
 	static bool simpleReplacement(std::basic_string<T>& replacement, std::basic_string<T> token, const LLSD& substitutions);
 	static void setLocale (std::string inLocale) {sLocale = inLocale;};
 	static std::string getLocale (void) {return sLocale;};
@@ -618,18 +619,76 @@ void LLStringUtilBase<T>::getTokens (std::basic_string<T> input, std::vector<std
 
 // static
 template<class T> 
-S32 LLStringUtilBase<T>::format(std::basic_string<T>& s, const format_map_t& fmt_map)
+S32 LLStringUtilBase<T>::format(std::basic_string<T>& s, const format_map_t& substitutions)
 {
-	LLSD llsdMap;
+	S32 res = 0;
 
-	for (format_map_t::const_iterator iter = fmt_map.begin();
-		 iter != fmt_map.end();
-		 ++iter)
+	std::basic_ostringstream<T> output;
+	// match strings like [NAME,number,3]
+	const boost::regex key("\\[((\\s)*([0-9_A-Za-z]+)((\\s)*,(\\s)*[0-9_A-Za-z\\s]*){0,2}(\\s)*)]");
+
+
+	typename std::basic_string<T>::const_iterator start = s.begin();
+	typename std::basic_string<T>::const_iterator end = s.end();
+	boost::smatch match;
+	
+
+	while (boost::regex_search(start, end, match, key, boost::match_default))
 	{
-		llsdMap[iter->first] = iter->second;
-	}
+		bool found_replacement = false;
+		std::vector<std::basic_string<T> > tokens;
+		std::basic_string<T> replacement;
 
-	return format (s, llsdMap);
+		getTokens (std::basic_string<T>(match[1].first, match[1].second), tokens);
+
+		if (tokens.size() == 1)
+		{
+			found_replacement = simpleReplacement (replacement, tokens[0], substitutions);
+		}
+		else if (tokens[1] == "number")
+		{
+			std::basic_string<T> param = "0";
+
+			if (tokens.size() > 2) param = tokens[2];
+			found_replacement = simpleReplacement (replacement, tokens[0], substitutions);
+			if (found_replacement) formatNumber (replacement, param);
+		}
+		else if (tokens[1] == "datetime")
+		{
+			std::basic_string<T> param;
+			if (tokens.size() > 2) param = tokens[2];
+			
+			format_map_t::const_iterator iter = substitutions.find("datetime");
+			if (iter != substitutions.end())
+			{
+				S32 secFromEpoch = 0;
+				BOOL r = LLStringUtil::convertToS32(iter->second, secFromEpoch);
+				if (r)
+				{
+					found_replacement = formatDatetime(replacement, tokens[0], param, secFromEpoch);
+				}
+			}
+		}
+
+		if (found_replacement)
+		{
+			output << std::basic_string<T>(start, match[0].first) << replacement;
+			res++;
+		}
+		else
+		{
+			// we had no replacement, so leave the string we searched for so that it gets noticed by QA
+			// "hello [NAME_NOT_FOUND]" is output
+			output << std::basic_string<T>(start, match[0].second);
+		}
+		
+		// update search position 
+		start = match[0].second; 
+	}
+	// send the remainder of the string (with no further matches for bracketed names)
+	output << std::basic_string<T>(start, end);
+	s = output.str();
+	return res;
 }
 
 //static
@@ -704,7 +763,32 @@ S32 LLStringUtilBase<T>::format(std::basic_string<T>& s, const LLSD& substitutio
 
 // static
 template<class T>
-bool LLStringUtilBase<T>::simpleReplacement(std::basic_string<T> &replacement, std::basic_string<T> token, const LLSD &substitutions)
+bool LLStringUtilBase<T>::simpleReplacement(std::basic_string<T> &replacement, std::basic_string<T> token, const format_map_t& substitutions)
+{
+	// see if we have a replacement for the bracketed string (without the brackets)
+	// test first using has() because if we just look up with operator[] we get back an
+	// empty string even if the value is missing. We want to distinguish between 
+	// missing replacements and deliberately empty replacement strings.
+	format_map_t::const_iterator iter = substitutions.find(token);
+	if (iter != substitutions.end())
+	{
+		replacement = iter->second;
+		return true;
+	}
+	// if not, see if there's one WITH brackets
+	iter = substitutions.find(std::basic_string<T>("[" + token + "]"));
+	if (iter != substitutions.end())
+	{
+		replacement = iter->second;
+		return true;
+	}
+
+	return false;
+}
+
+// static
+template<class T>
+bool LLStringUtilBase<T>::simpleReplacement(std::basic_string<T> &replacement, std::basic_string<T> token, const LLSD& substitutions)
 {
 	// see if we have a replacement for the bracketed string (without the brackets)
 	// test first using has() because if we just look up with operator[] we get back an
@@ -764,10 +848,8 @@ void LLStringUtilBase<T>::formatNumber(std::basic_string<T>& numStr, std::basic_
 // static
 template<class T>
 bool LLStringUtilBase<T>::formatDatetime(std::basic_string<T>& replacement, std::basic_string<T> token,
-										 std::basic_string<T> param, const LLSD& substitutions)
+										 std::basic_string<T> param, S32 secFromEpoch)
 {
-	S32 secFromEpoch = (long) substitutions["datetime"].asInteger();
-
 	if (param == "local")   // local
 	{
 		secFromEpoch -= LLStringOps::getLocalTimeOffset();
