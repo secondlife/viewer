@@ -726,6 +726,20 @@ protected:
 	std::string mName;
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLFindWearables
+//
+// Collects wearables based on item type.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLFindWearables : public LLInventoryCollectFunctor
+{
+public:
+	LLFindWearables() {}
+	virtual ~LLFindWearables() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item);
+};
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryCompletionObserver

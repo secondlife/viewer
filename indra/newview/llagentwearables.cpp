@@ -1816,10 +1816,13 @@ void LLInitialWearablesFetch::done()
 	// and set up an observer that will wait for that to happen.
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
-	gInventory.collectDescendents(mCompleteFolders.front(),
-								  cat_array,
-								  item_array,
-								  LLInventoryModel::EXCLUDE_TRASH);
+
+	LLFindWearables is_wearable;
+	gInventory.collectDescendentsIf(mCompleteFolders.front(),
+									cat_array,
+									item_array,
+									LLInventoryModel::EXCLUDE_TRASH,
+									is_wearable);
 	S32 count = item_array.count();
 	mCOFInitialWearables.reserve(count);
 	
@@ -1856,10 +1859,18 @@ void LLInitialWearablesFetch::processInitialWearables()
 		{
 			// Fetch the wearables in the current outfit folder
 			InitialWearableData *wearable_data = new InitialWearableData(mCOFInitialWearables[i]); // This will be deleted in the callback.
-			LLWearableList::instance().getAsset(wearable_data->mAssetID,
-												LLStringUtil::null,
-												LLWearableDictionary::getAssetType(wearable_data->mType),
-												LLAgentWearables::onInitialWearableAssetArrived, (void*)(wearable_data));			
+			if (wearable_data->mAssetID.notNull())
+			{
+				LLWearableList::instance().getAsset(wearable_data->mAssetID,
+													LLStringUtil::null,
+													LLWearableDictionary::getAssetType(wearable_data->mType),
+													LLAgentWearables::onInitialWearableAssetArrived, (void*)(wearable_data));			
+			}
+			else
+			{
+				llinfos << "Invalid wearable, type " << wearable_data->mType << " itemID "
+						<< wearable_data->mItemID << " assetID " << wearable_data->mAssetID << llendl;
+			}
 		}
 	}
 	else 
@@ -1871,16 +1882,25 @@ void LLInitialWearablesFetch::processInitialWearables()
 		{
 			// Populate the current outfit folder with links to the wearables passed in the message
 			InitialWearableData *wearable_data = new InitialWearableData(mAgentInitialWearables[i]); // This will be deleted in the callback.
+
+			if (wearable_data->mAssetID.notNull())
+			{
 #ifdef USE_CURRENT_OUTFIT_FOLDER
-			const std::string link_name = "WearableLink"; // Unimportant what this is named, it isn't exposed.
-			link_inventory_item(gAgent.getID(), wearable_data->mItemID, current_outfit_id, link_name,
-								LLAssetType::AT_LINK, LLPointer<LLInventoryCallback>(NULL));
+				const std::string link_name = "WearableLink"; // Unimportant what this is named, it isn't exposed.
+				link_inventory_item(gAgent.getID(), wearable_data->mItemID, current_outfit_id, link_name,
+									LLAssetType::AT_LINK, LLPointer<LLInventoryCallback>(NULL));
 #endif
-			// Fetch the wearables
-			LLWearableList::instance().getAsset(wearable_data->mAssetID,
-												LLStringUtil::null,
-												LLWearableDictionary::getAssetType(wearable_data->mType),
-												LLAgentWearables::onInitialWearableAssetArrived, (void*)(wearable_data));
+				// Fetch the wearables
+				LLWearableList::instance().getAsset(wearable_data->mAssetID,
+													LLStringUtil::null,
+													LLWearableDictionary::getAssetType(wearable_data->mType),
+													LLAgentWearables::onInitialWearableAssetArrived, (void*)(wearable_data));
+			}
+			else
+			{
+				llinfos << "Invalid wearable, type " << wearable_data->mType << " itemID "
+						<< wearable_data->mItemID << " assetID " << wearable_data->mAssetID << llendl;
+			}
 		}
 	}
 	else
