@@ -155,6 +155,9 @@ std::string ICON_NAME[ICON_NAME_COUNT] =
 
 	"inv_item_animation.tga",
 	"inv_item_gesture.tga",
+
+	"inv_item_linkitem.tga",
+	"inv_item_linkfolder.tga"
 };
 
 BOOL gAddToOutfit = FALSE;
@@ -2309,8 +2312,6 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	else if(isAgentInventory()) // do not allow creating in library
 	{
 		mItems.push_back(std::string("New Folder"));
-		mItems.push_back(std::string("New Outfit"));
-		mItems.push_back(std::string("New My Outfits"));
 		mItems.push_back(std::string("New Script"));
 		mItems.push_back(std::string("New Note"));
 		mItems.push_back(std::string("New Gesture"));
@@ -4157,6 +4158,58 @@ void wear_inventory_category_on_avatar( LLInventoryCategory* category, BOOL appe
 	}
 }
 
+void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventoryModel::item_array_t& src)
+{
+	LLInventoryModel::item_array_t new_dst;
+	std::set<LLUUID> mark_inventory;
+	std::set<LLUUID> mark_asset;
+
+	S32 inventory_dups = 0;
+	S32 asset_dups = 0;
+	
+	for (LLInventoryModel::item_array_t::const_iterator src_pos = src.begin();
+		  src_pos != src.end();
+		  ++src_pos)
+	{
+		LLUUID src_item_id = (*src_pos)->getLinkedUUID();
+		mark_inventory.insert(src_item_id);
+		LLUUID src_asset_id = (*src_pos)->getAssetUUID();
+		mark_asset.insert(src_asset_id);
+	}
+
+	for (LLInventoryModel::item_array_t::const_iterator dst_pos = dst.begin();
+		  dst_pos != dst.end();
+		  ++dst_pos)
+	{
+		LLUUID dst_item_id = (*dst_pos)->getLinkedUUID();
+
+		if (mark_inventory.find(dst_item_id) == mark_inventory.end())
+		{
+		}
+		else
+		{
+			inventory_dups++;
+		}
+
+		LLUUID dst_asset_id = (*dst_pos)->getAssetUUID();
+
+		if (mark_asset.find(dst_asset_id) == mark_asset.end())
+		{
+			// Item is not already present in COF.
+			new_dst.put(*dst_pos);
+			mark_asset.insert(dst_item_id);
+		}
+		else
+		{
+			asset_dups++;
+		}
+	}
+	llinfos << "removeDups, original " << dst.count() << " final " << new_dst.count()
+			<< " inventory dups " << inventory_dups << " asset_dups " << asset_dups << llendl;
+	
+	dst = new_dst;
+}
+
 void wear_inventory_category_on_avatar_step2( BOOL proceed, LLUUID category, BOOL append, BOOL follow_folder_links )
 {
 	// Find all the wearables that are in the category's subtree.	
@@ -4205,22 +4258,35 @@ void wear_inventory_category_on_avatar_step2( BOOL proceed, LLUUID category, BOO
 		}
 		
 		const LLUUID &current_outfit_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CURRENT_OUTFIT);
+		// Processes that take time should show the busy cursor
+		inc_busy_count();
+		
+		LLInventoryModel::cat_array_t co_cat_array;
+		LLInventoryModel::item_array_t co_item_array;
+		gInventory.collectDescendents(current_outfit_id, co_cat_array, co_item_array,
+									  LLInventoryModel::EXCLUDE_TRASH);
+		if (append)
+		{
+			// Remove duplicates and update counts.
+			removeDuplicateItems(item_array,co_item_array);
+			wearable_count = item_array.count();
+
+			removeDuplicateItems(obj_item_array,co_item_array);
+			obj_count = obj_item_array.count();
+
+			removeDuplicateItems(gest_item_array,co_item_array);
+			gest_count = gest_item_array.count();
+		}
+			
 
 		if (wearable_count > 0 || obj_count > 0)
 		{
-			// Processes that take time should show the busy cursor
-			inc_busy_count();
-			
-			// Remove all current outfit folder links if we're now replacing the contents.
-			if (!append)
+			if (!append) 
 			{
-				LLInventoryModel::cat_array_t cat_array;
-				LLInventoryModel::item_array_t item_array;
-				gInventory.collectDescendents(current_outfit_id, cat_array, item_array,
-											  LLInventoryModel::EXCLUDE_TRASH);
-				for (i = 0; i < item_array.count(); ++i)
+				// Remove all current outfit folder links if we're now replacing the contents.
+				for (i = 0; i < co_item_array.count(); ++i)
 				{
-					gInventory.purgeObject(item_array.get(i)->getUUID());
+					gInventory.purgeObject(co_item_array.get(i)->getUUID());
 				}
 			}
 		}
@@ -4272,10 +4338,10 @@ void wear_inventory_category_on_avatar_step2( BOOL proceed, LLUUID category, BOO
 
 				// Fetch the wearables about to be worn.
 				LLWearableList::instance().getAsset(found->mAssetID,
-										found->mName,
-									   found->mAssetType,
-									   wear_inventory_category_on_avatar_loop,
-									   (void*)holder);
+													found->mName,
+													found->mAssetType,
+													wear_inventory_category_on_avatar_loop,
+													(void*)holder);
 			}
 		}
 
@@ -4352,9 +4418,10 @@ void wear_inventory_category_on_avatar_step2( BOOL proceed, LLUUID category, BOO
 			}
 		}
 
-		// Create a link to the folder that we wore.
+		// In the particular case that we're switching to a different outfit,
+		// create a link to the folder that we wore.
 		LLViewerInventoryCategory* catp = gInventory.getCategory(category);
-		if (catp)
+		if (!append && catp && catp->getPreferredType() == LLAssetType::AT_OUTFIT)
 		{
 			link_inventory_item(gAgent.getID(), category, current_outfit_id, catp->getName(),
 								LLAssetType::AT_LINK_FOLDER, LLPointer<LLInventoryCallback>(NULL));
@@ -5240,6 +5307,10 @@ std::string LLLinkItemBridge::sPrefix("Link: ");
 
 LLUIImagePtr LLLinkItemBridge::getIcon() const
 {
+	if (LLViewerInventoryItem *item = getItem())
+	{
+		return get_item_icon(item->getActualType(), LLInventoryType::IT_NONE, 0, FALSE);
+	}
 	return get_item_icon(LLAssetType::AT_LINK, LLInventoryType::IT_NONE, 0, FALSE);
 }
 

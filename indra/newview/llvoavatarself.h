@@ -261,6 +261,7 @@ public:
 	LLViewerObject* 	getWornAttachment(const LLUUID& inv_item_id ) const;
 	const std::string   getAttachedPointName(const LLUUID& inv_item_id) const;
 	/*virtual*/ LLViewerJointAttachment *attachObject(LLViewerObject *viewer_object);
+	void				getAllAttachmentsArray(LLDynamicArray<S32>& attachments);
 
 	//--------------------------------------------------------------------
 	// HUDs

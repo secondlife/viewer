@@ -3561,14 +3561,4 @@ scratch and wear it.
      name="Ok"
      right="-116"
      width="100" />
-    <button
-     follows="left|bottom"
-     height="20"
-     label="Make Outfit..."
-     label_selected="Make Outfit..."
-     layout="topleft"
-     left_delta="-178"
-     name="Make Outfit"
-     top_delta="0"
-     width="100" />
 </floater>

@@ -111,7 +111,15 @@ BOOL LLInventoryFilter::check(LLFolderViewItem* item)
 	}
 	else
 	{
-		passed_type |= ((1LL << listener->getInventoryType() & mFilterOps.mFilterTypes) != U64(0)) || listener->getInventoryType() == LLInventoryType::IT_NONE;
+		passed_type |= ((1LL << listener->getInventoryType() & mFilterOps.mFilterTypes) != U64(0));
+		if (listener->getInventoryType() == LLInventoryType::IT_NONE)
+		{
+			const LLInventoryObject *obj = gInventory.getObject(listener->getUUID());
+			if (!obj->getIsLinkType())
+			{
+				passed_type = TRUE;
+			}
+		}
 	}
 
 	BOOL passed = passed_type

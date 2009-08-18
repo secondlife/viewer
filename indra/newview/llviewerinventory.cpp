@@ -612,10 +612,7 @@ void LLViewerInventoryCategory::determineFolderType()
 				return;
 			if (item->getInventoryType() == LLInventoryType::IT_WEARABLE)
 			{
-				U32 flags = item->getFlags();
-				if (flags > WT_COUNT)
-					return;
-				const EWearableType wearable_type = EWearableType(flags);
+				const EWearableType wearable_type = EWearableType(item->getFlags() & LLInventoryItem::II_FLAGS_WEARABLES_MASK);
 				const std::string& wearable_name = LLWearableDictionary::getTypeName(wearable_type);
 				U64 valid_folder_types = LLFolderType::lookupValidFolderTypes(wearable_name);
 				folder_valid |= valid_folder_types;

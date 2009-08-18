@@ -43,30 +43,16 @@
 class LLInventoryItem;
 class LLVOAvatarSelf;
 class LLWearable;
-
-// Forward Declaration
-class LLInventoryFetchDescendentsObserver;
+class LLInitialWearablesFetch;
 
 class LLAgentWearables
 {
 	//--------------------------------------------------------------------
-	// Data Types
-	//--------------------------------------------------------------------
-	typedef struct _InitialWearableData
-	{
-		EWearableType mType;
-		U32 mIndex;
-		LLUUID mItemID;
-		LLUUID mAssetID;
-		_InitialWearableData(EWearableType type, U32 index, LLUUID itemID, LLUUID assetID) :
-		mType(type), mIndex(index), mItemID(itemID), mAssetID(assetID) { }
-	} InitialWearableData;
-	typedef std::vector<InitialWearableData *> initial_wearable_data_vec_t;
-	
-	//--------------------------------------------------------------------
 	// Constructors / destructors / Initializers
 	//--------------------------------------------------------------------
 public:
+	friend class LLInitialWearablesFetch;
+
 	LLAgentWearables();
 	virtual ~LLAgentWearables();
 	void 			setAvatarObject(LLVOAvatarSelf *avatar);
@@ -149,7 +135,6 @@ protected:
 public:
 	// Processes the initial wearables update message (if necessary, since the outfit folder makes it redundant)
 	static void		processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data);
-	static void		fetchInitialWearables(initial_wearable_data_vec_t & current_outfit_links, initial_wearable_data_vec_t & message_wearables);
 protected:
 	void			sendAgentWearablesUpdate();
 	void			sendAgentWearablesRequest();
@@ -161,6 +146,8 @@ protected:
 	// Outfits
 	//--------------------------------------------------------------------
 public:
+	void 			getAllWearablesArray(LLDynamicArray<S32>& wearables);
+	
 	// Note:	wearables_to_include should be a list of EWearableType types
 	//			attachments_to_include should be a list of attachment points
 	void			makeNewOutfit(const std::string& new_folder_name,
@@ -170,10 +157,10 @@ public:
 	
 	// Note:	wearables_to_include should be a list of EWearableType types
 	//			attachments_to_include should be a list of attachment points
-	void			makeNewOutfitLinks(const std::string& new_folder_name,
+	LLUUID			makeNewOutfitLinks(const std::string& new_folder_name);
+	LLUUID			makeNewOutfitLinks(const std::string& new_folder_name,
 									   const LLDynamicArray<S32>& wearables_to_include,
-									   const LLDynamicArray<S32>& attachments_to_include,
-									   BOOL rename_clothing);
+									   const LLDynamicArray<S32>& attachments_to_include);
 private:
 	void			makeNewOutfitDone(S32 type, U32 index); 
 
@@ -253,17 +240,6 @@ private:
 		LLWearable* mWearable;
 		U32 mTodo;
 		LLPointer<LLRefCount> mCB;
-	};
-	
-	// Outfit folder fetching callback structure.
-	class LLOutfitFolderFetch : public LLInventoryFetchDescendentsObserver
-	{
-	public:
-		LLOutfitFolderFetch() {}
-		~LLOutfitFolderFetch() {}
-		virtual void done();
-		
-		LLAgentWearables::initial_wearable_data_vec_t mAgentInitialWearables;
 	};
 
 }; // LLAgentWearables

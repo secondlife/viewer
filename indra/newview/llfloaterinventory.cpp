@@ -1138,10 +1138,10 @@ const std::string& get_item_icon_name(LLAssetType::EType asset_type,
 		idx = LANDMARK_ICON_NAME;
 		break;
 	case LLAssetType::AT_LINK:
-		idx = BODYPART_ICON_NAME; // Seraph replace this with broken item link icon
+		idx = LINKITEM_ICON_NAME;
 		break;
 	case LLAssetType::AT_LINK_FOLDER:
-		idx = BODYPART_ICON_NAME; // Seraph replace this with broken folder link icon
+		idx = LINKFOLDER_ICON_NAME;
 		break;
 	default:
 		break;
@@ -1684,6 +1684,7 @@ void LLInventoryPanel::onSelectionChange(const std::deque<LLFolderViewItem*>& it
 			fv->startRenamingSelectedItem();
 		}
 	}
+	// Seraph - Put determineFolderType in here for ensemble typing?
 }
 
 //----------------------------------------------------------------------------

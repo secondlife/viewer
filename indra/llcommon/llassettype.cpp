@@ -101,7 +101,7 @@ LLAssetDictionary::LLAssetDictionary()
 	addEntry(LLAssetType::AT_IMAGE_TGA, 		new AssetEntry("IMAGE_TGA",			"img_tga",	"targa image",		"Uncompressed Images", DAD_NONE,	FALSE,		TRUE));
 	addEntry(LLAssetType::AT_IMAGE_JPEG, 		new AssetEntry("IMAGE_JPEG",		"jpeg",		"jpeg image",		"Uncompressed Images", DAD_NONE,	FALSE,		TRUE));
 	addEntry(LLAssetType::AT_ANIMATION, 		new AssetEntry("ANIMATION",			"animatn",	"animation",		"Animations", 		DAD_ANIMATION,	FALSE,		TRUE));
-	addEntry(LLAssetType::AT_GESTURE, 			new AssetEntry("GESTURE",			"gesture",	"gesture",			"Gestures", 		DAD_GESTURE,	FALSE,		TRUE));
+	addEntry(LLAssetType::AT_GESTURE, 			new AssetEntry("GESTURE",			"gesture",	"gesture",			"Gestures", 		DAD_GESTURE,	TRUE,		TRUE));
 	addEntry(LLAssetType::AT_SIMSTATE, 			new AssetEntry("SIMSTATE",			"simstate",	"simstate",			"New Folder", 		DAD_NONE,		FALSE,		TRUE));
 	addEntry(LLAssetType::AT_FAVORITE, 			new AssetEntry("FAVORITE",			"favorite",	"favorite",			"favorite", 		DAD_NONE,		FALSE,		TRUE));
 
@@ -116,7 +116,7 @@ LLAssetDictionary::LLAssetDictionary()
 	}
 
 	addEntry(LLAssetType::AT_CURRENT_OUTFIT, 	new AssetEntry("CURRENT",			"current",	"current outfit",	"Current Outfit", 	DAD_CATEGORY,	FALSE,		TRUE));
-	addEntry(LLAssetType::AT_OUTFIT, 			new AssetEntry("OUTFIT",			"outfit",	"outfit",			"Outfit", 			DAD_CATEGORY,	TRUE,		FALSE));
+	addEntry(LLAssetType::AT_OUTFIT, 			new AssetEntry("OUTFIT",			"outfit",	"outfit",			"New Outfit", 		DAD_CATEGORY,	TRUE,		FALSE));
 	addEntry(LLAssetType::AT_MY_OUTFITS, 		new AssetEntry("MY_OUTFITS",		"my_otfts",	"my outfits",		"My Outfits", 		DAD_CATEGORY,	FALSE,		TRUE));
 		 
 	addEntry(LLAssetType::AT_NONE, 				new AssetEntry("NONE",				"-1",		NULL,		  		"New Folder", 		DAD_NONE,		FALSE,		FALSE));

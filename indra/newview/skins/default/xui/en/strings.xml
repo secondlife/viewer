@@ -149,6 +149,7 @@
 	<string name="gesture">gesture</string>															
 	<string name="simstate">simstate</string>																
 	<string name="favorite">favorite</string>															
+	<string name="symbolic link">link</string>															
 	
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
 	<string name="AvatarEditingAppearance">(Editing Appearance)</string>

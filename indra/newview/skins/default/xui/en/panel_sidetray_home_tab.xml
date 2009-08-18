@@ -149,11 +149,11 @@
          text_color="white"
          top="40"
          word_wrap="true">
-            Change your profile, your look and quick links to your outfits.
+            Change your profile.
         </text>
     </panel>
     <panel
-     background_visible="true" 
+     background_visible="true"
      bg_alpha_color="DkGray2"
      class="panel_sidetray_home_info"
      follows="left|top|right"
@@ -197,7 +197,7 @@
          text_color="white"
          top="40"
          word_wrap="true">
-            Change your appearance.
+            Change your apperance and looks.
         </text>
-    </panel> 
+    </panel>
 </panel>

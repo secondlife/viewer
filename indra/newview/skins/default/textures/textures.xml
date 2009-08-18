@@ -414,6 +414,8 @@
   <texture name="inv_item_jacket.tga"/>
   <texture name="inv_item_landmark.tga"/>
   <texture name="inv_item_landmark_visited.tga"/>
+  <texture name="inv_item_linkitem.tga"/>
+  <texture name="inv_item_linkfolder.tga"/>
   <texture name="inv_item_notecard.tga"/>
   <texture name="inv_item_object.tga"/>
   <texture name="inv_item_object_multi.tga"/>

@@ -207,22 +207,6 @@
                  parameter="category" />
             </menu_item_call>
             <menu_item_call
-             label="New Outfit"
-             layout="topleft"
-             name="New Outfit">
-                <menu_item_call.on_click
-                 function="Inventory.DoCreate"
-                 parameter="outfit" />
-            </menu_item_call>
-            <menu_item_call
-             label="New My Outfits"
-             layout="topleft"
-             name="New My Outfits">
-                <menu_item_call.on_click
-                 function="Inventory.DoCreate"
-                 parameter="my_otfts" />
-            </menu_item_call>
-            <menu_item_call
              label="New Script"
              layout="topleft"
              name="New Script">
