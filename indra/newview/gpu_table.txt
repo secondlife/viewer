@@ -70,8 +70,8 @@ ATI M72							.*ATI.*M72.*						1		1
 ATI M76							.*ATI.*M76.*						3		1
 ATI Mobility Radeon 7xxx		.*ATI.*Mobility.*Radeon 7.*			0		1
 ATI Mobility Radeon 8xxx		.*ATI.*Mobility.*Radeon 8.*			0		1
-ATI Mobility Radeon 9800		.*ATI.*Mobility.*98.*				1		1
-ATI Mobility Radeon 9700		.*ATI.*Mobility.*97.*				1		1
+ATI Mobility Radeon 9800		.*ATI.*Mobility.*98.*				0		1
+ATI Mobility Radeon 9700		.*ATI.*Mobility.*97.*				0		1
 ATI Mobility Radeon 9600		.*ATI.*Mobility.*96.*				0		1
 ATI Mobility Radeon HD 2300		.*ATI.*Mobility.*HD.*23.*			1		1
 ATI Mobility Radeon HD 2400		.*ATI.*Mobility.*HD.*24.*			1		1
@@ -162,7 +162,10 @@ Intel Montara					.*Intel.*Montara.*					0		0
 Intel Springdale				.*Intel.*Springdale.*				0		0
 Matrox							.*Matrox.*							0		0
 Mesa							.*Mesa.*							0		0
+NVIDIA GT 120                   .*NVIDIA.*GeForce.*GT.*12.*		    3		1
+NVIDIA GT 130                   .*NVIDIA.*GeForce.*GT.*13.*		    3		1
 NVIDIA GTX 260					.*NVIDIA.*GeForce.*GTX.*26.*		3		1
+NVIDIA GTX 270					.*NVIDIA.*GeForce.*GTX.*27.*		3		1
 NVIDIA GTX 280					.*NVIDIA.*GeForce.*GTX.*28.*		3		1
 NVIDIA GTX 290					.*NVIDIA.*GeForce.*GTX.*29.*		3		1
 NVIDIA C51						.*NVIDIA.*C51.*						0		1
@@ -263,7 +266,6 @@ NVIDIA Quadro FX 4500			.*Quadro.*FX.*4500.*				3		1
 NVIDIA Quadro FX				.*Quadro FX.*						1		1
 NVIDIA Quadro NVS				.*Quadro NVS.*						0		1
 NVIDIA RIVA TNT					.*RIVA TNT.*						0		0
-NVIDIA PCI						.*NVIDIA.*/PCI/SSE2					0		0
 S3								.*S3 Graphics.*						0		0
 SiS								SiS.*								0		0
 Trident							Trident.*							0		0
