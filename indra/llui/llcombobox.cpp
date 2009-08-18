@@ -614,17 +614,20 @@ void LLComboBox::showList()
 
 void LLComboBox::hideList()
 {
-	// assert selection in list
-	mList->selectNthItem(mLastSelectedIndex);
-
-	mButton->setToggleState(FALSE);
-	mList->setVisible(FALSE);
-	mList->mouseOverHighlightNthItem(-1);
-
-	setUseBoundingRect(FALSE);
-	if( gFocusMgr.getTopCtrl() == this )
+	if (mList->getVisible())
 	{
-		gFocusMgr.setTopCtrl(NULL);
+		// assert selection in list
+		mList->selectNthItem(mLastSelectedIndex);
+
+		mButton->setToggleState(FALSE);
+		mList->setVisible(FALSE);
+		mList->mouseOverHighlightNthItem(-1);
+
+		setUseBoundingRect(FALSE);
+		if( gFocusMgr.getTopCtrl() == this )
+		{
+			gFocusMgr.setTopCtrl(NULL);
+		}
 	}
 }
 
