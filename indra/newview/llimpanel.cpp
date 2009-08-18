@@ -2177,8 +2177,11 @@ void LLIMFloater::onFocusLost()
 	// (hence we are no longer focused)
 	if (isDocked())
 	{
-		// app not quitting
-		closeFloater(false);
+		LLIMFloater* floater = LLFloaterReg::getTypedInstance<LLIMFloater>("impanel", mSessionID);
+		if (floater)
+		{
+			floater->setVisible(false);
+		}	
 	}
 }
 
@@ -2214,7 +2217,7 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 		 iter != inst_list.end(); ++iter)
 	{
 		LLIMFloater* floater = dynamic_cast<LLIMFloater*>(*iter);
-		if (floater)
+		if (floater && floater->isDocked())
 		{
 			floater->setVisible(false);
 		}
