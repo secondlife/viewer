@@ -43,7 +43,7 @@
      name="pref core"
      tab_group="1"
      tab_position="left"
-     tab_width="120"
+     tab_width="115"
      top="21"
      width="620">
         <panel
@@ -87,8 +87,6 @@
          label="Setup"
          layout="topleft"
          name="input" />
-		<!-- I put back the commented out panels for now, pending 
-		implementation of new default settings. James -->
         <panel
 		 class="panel_preference"
          filename="panel_preferences_advanced.xml"
@@ -98,15 +96,9 @@
         <panel
 		 class="panel_preference"
          filename="panel_preferences_advanced2.xml"
-         label="Move, not to Advanced"
+         label="Move or Kill"
          layout="topleft"
          name="advanced2" />
-        <panel
-		 class="panel_preference"
-         filename="panel_preferences_advanced4.xml"
-         label="Storage/Kill"
-         layout="topleft"
-         name="advanced4" />
     </tab_container>
-     
+
 </floater>
