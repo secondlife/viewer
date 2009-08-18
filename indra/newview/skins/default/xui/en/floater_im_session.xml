@@ -55,6 +55,7 @@
        layout="topleft"
        max_length="2147483647"
        name="im_text"
+       track_bottom="true" 
        width="195"
        word_wrap="true">
       </text_editor>

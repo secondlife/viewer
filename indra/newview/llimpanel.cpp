@@ -2014,6 +2014,7 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	mControlPanel(NULL),
 	mSessionID(session_id),
 	mLastMessageIndex(-1),
+	mLastFromName(),
 	mDialog(IM_NOTHING_SPECIAL),
 	mHistoryEditor(NULL),
 	mInputEditor(NULL), 
@@ -2232,11 +2233,13 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 
 void LLIMFloater::updateMessages()
 {
-
 	std::list<LLSD> messages = LLIMModel::instance().getMessages(mSessionID, mLastMessageIndex+1);
 
 	if (messages.size())
 	{
+		LLUIColor divider_color = LLUIColorTable::instance().getColor("LtGray_50");
+		LLUIColor chat_color = LLUIColorTable::instance().getColor("IMChatColor");
+
 		std::ostringstream message;
 		std::list<LLSD>::const_reverse_iterator iter = messages.rbegin();
 		std::list<LLSD>::const_reverse_iterator iter_end = messages.rend();
@@ -2244,12 +2247,20 @@ void LLIMFloater::updateMessages()
 		{
 			LLSD msg = *iter;
 
-			message << "["  << msg["time"].asString() << "] " << msg["from"].asString() << ": \n";
-			mHistoryEditor->appendColoredText(message.str(), false, false, LLUIColorTable::instance().getColor("LtGray_50"));
-			message.str("");
+			const bool prepend_newline = true;
+			std::string from = msg["from"].asString();
+			if (mLastFromName != from)
+			{
+				message << from << " ----- " << msg["time"].asString();
+				mHistoryEditor->appendColoredText(message.str(), false,
+					prepend_newline, divider_color);
+				message.str("");
+				mLastFromName = from;
+			}
 
-			message << msg["message"].asString() << "\n"; 
-			mHistoryEditor->appendColoredText(message.str(), false, false, LLUIColorTable::instance().getColor("IMChatColor"));
+			message << msg["message"].asString(); 
+			mHistoryEditor->appendColoredText(message.str(), false,
+				prepend_newline, chat_color);
 			message.str("");
 
 			mLastMessageIndex = msg["index"].asInteger();
