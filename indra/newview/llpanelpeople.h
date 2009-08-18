@@ -93,11 +93,18 @@ private:
 	void					onShareButtonClicked();
 	void					onMoreButtonClicked();
 	void					onActivateButtonClicked();
+	void					onRecentViewSortButtonClicked();
+	void					onNearbyViewSortButtonClicked();
+	void					onFriendsViewSortButtonClicked();
 	void					onAvatarListDoubleClicked(LLAvatarList* list);
 	void					onAvatarListCommitted(LLAvatarList* list);
 	void					onGroupPlusButtonClicked();
 	void					onGroupMinusButtonClicked();
 	void					onGroupPlusMenuItemClicked(const LLSD& userdata);
+
+	void					onFriendsViewSortMenuItemClicked(const LLSD& userdata);
+	void					onNearbyViewSortMenuItemClicked(const LLSD& userdata);
+	void					onRecentViewSortMenuItemClicked(const LLSD& userdata);
 
 	// misc callbacks
 	bool					onFriendListUpdate(U32 changed_mask);
@@ -115,6 +122,9 @@ private:
 	LLGroupList*			mGroupList;
 
 	LLHandle<LLView>		mGroupPlusMenuHandle;
+	LLHandle<LLView>		mNearbyViewSortMenuHandle;
+	LLHandle<LLView>		mFriendsViewSortMenuHandle;
+	LLHandle<LLView>		mRecentViewSortMenuHandle;
 
 	Updater*				mFriendListUpdater;
 	Updater*				mNearbyListUpdater;

@@ -81,9 +81,6 @@ private:
 	void updateVerbs();
 	
 	void showLandmarkFoldersMenu();
-	
-	void copySLURL();
-	void deleteLandmark();
 
 	LLFilterEditor*				mFilterEditor;
 	LLPanelPlacesTab*			mActivePanel;

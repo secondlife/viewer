@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <filter_editor select_on_focus="true"
-               background="TextField_Search_Off"
                background_image_disabled="TextField_Search_Disabled"
                background_image_focused="TextField_Search_Active">
   <clear_filter_button label="" 

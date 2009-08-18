@@ -361,6 +361,7 @@ set(viewer_SOURCE_FILES
     llsyswellitem.cpp
     llsyswellwindow.cpp
     llteleporthistory.cpp
+    llteleporthistorystorage.cpp
     lltexglobalcolor.cpp
     lltexlayer.cpp
     lltexlayerparams.cpp
@@ -810,6 +811,7 @@ set(viewer_HEADER_FILES
     llsyswellwindow.h    
     lltable.h
     llteleporthistory.h
+    llteleporthistorystorage.h
     lltexglobalcolor.h
     lltexlayer.h
     lltexlayerparams.h

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu name="menu_group_plus"
+     left="0" bottom="0" visible="false"
+     mouse_opaque="false" opaque="true" color="MenuDefaultBgColor" drop_shadow="true">
+  <menu_item_call name="sort_recent" label="Sort by Recent Speakers">
+    <menu_item_call.on_click function="People.Nearby.ViewSort.Action" userdata="sort_recent" />
+  </menu_item_call>
+  <menu_item_call name="sort_name" label="Sort by Name">
+    <menu_item_call.on_click function="People.Nearby.ViewSort.Action" userdata="sort_name" />
+  </menu_item_call>
+  <menu_item_call name="sort_distance" label="Sort by Distance">
+    <menu_item_call.on_click function="People.Nearby.ViewSort.Action" userdata="sort_distance" />
+  </menu_item_call>
+  <menu_item_separator layout="topleft" />
+  <menu_item_call name="view_icons" label="View People Icons">
+    <menu_item_call.on_click function="People.Nearby.ViewSort.Action" userdata="view_icons" />
+  </menu_item_call>
+</menu>

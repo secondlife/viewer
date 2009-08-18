@@ -31,8 +31,7 @@
          layout="topleft"
          left="0"
          top="0"
-         width="5" 
-         min_width="5" />
+         width="5"/>
         <layout_panel
          follows="left|right"
          height="28"
@@ -55,8 +54,7 @@
          left="0"
          name="DUMMY"
          top="0"
-         width="3" 
-         min_width="3"/>
+         width="3"/>
         <layout_panel
          auto_resize="false"
          follows="right"
@@ -94,8 +92,7 @@
          left="0"
          name="DUMMY"
          top="0"
-         width="8" 
-         min_width="8"/>
+         width="8"/>
         <layout_panel
          auto_resize="false"
          follows="right"
@@ -185,8 +182,7 @@
          left="0"
          name="DUMMY"
          top="0"
-         width="5" 
-         min_width="5" />
+         width="5"/>
         <layout_panel
          follows="left|right"
          height="28"
@@ -216,8 +212,7 @@
          layout="topleft"
          left="0"
          top="0"
-         width="5" 
-         min_width="5" />
+         width="5"/>
         <layout_panel
          auto_resize="false"
          follows="right"
@@ -261,8 +256,7 @@
          layout="topleft"
          left="0"
          top="0"
-         width="10" 
-         min_width="10"/>
+         width="10"/>
         <view_border
          auto_resize="false"
          bevel_style="in"
@@ -282,8 +276,7 @@
          layout="topleft"
          left="0"
          top="0"
-         width="10" 
-         min_width="10" />
+         width="10"/>
         <layout_panel
          auto_resize="false"
          follows="right"
@@ -327,7 +320,6 @@
          layout="topleft"
          left="0"
          top="0"
-         width="5" 
-         min_width="5" />
+         width="5"/>
     </layout_stack>
 </panel>

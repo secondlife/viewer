@@ -386,6 +386,9 @@ public:
 
 	static LLIMFloater* show(const LLUUID& session_id);
 
+	// Toggle panel specified by session_id
+	static BOOL toggle(const LLUUID& session_id);
+
 	// get new messages from LLIMModel
 	void updateMessages();
 	static void onSendMsg( LLUICtrl*, void*);

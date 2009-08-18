@@ -93,7 +93,6 @@
              name="bottom_panel"
              width="285">
                 <button
-                 enabled="false"
                  follows="bottom|left"
                  font="SansSerifBigBold"
                  height="18"
@@ -101,7 +100,7 @@
                  image_unselected="OptionsMenu_Off"
                  layout="topleft"
                  left="20"
-                 name="gear_btn"
+                 name="nearby_view_sort_btn"
                  picture_style="true"
                  top="7"
                  width="18" />
@@ -187,7 +186,6 @@
              name="bottom_panel"
              width="285">
                 <button
-                 enabled="false"
                  follows="bottom|left"
                  font="SansSerifBigBold"
                  height="18"
@@ -195,7 +193,7 @@
                  image_unselected="OptionsMenu_Off"
                  layout="topleft"
                  left="20"
-                 name="gear_btn"
+                 name="friends_viewsort_btn"
                  picture_style="true"
                  top="7"
                  width="18" />
@@ -334,7 +332,6 @@
              name="bottom_panel"
              width="285">
                 <button
-                 enabled="false"
                  follows="bottom|left"
                  font="SansSerifBigBold"
                  height="18"
@@ -342,7 +339,7 @@
                  image_unselected="OptionsMenu_Off"
                  layout="topleft"
                  left="20"
-                 name="gear_btn"
+                 name="recent_viewsort_btn"
                  picture_style="true"
                  top="7"
                  width="18" />

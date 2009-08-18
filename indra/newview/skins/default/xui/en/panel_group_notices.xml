@@ -35,7 +35,6 @@ the General tab.
      <!--<text
       follows="left|top"
      type="string"
-     length="1"
      font="SansSerifBig"
      height="16"
      layout="topleft"
@@ -48,7 +47,6 @@ the General tab.
     <text
       follows="left|top"
      type="string"
-     length="1"
      word_wrap="true"
      height="40"
      layout="topleft"
@@ -92,7 +90,6 @@ the General tab.
     <text
      follows="left|top"
      type="string"
-     length="1"
      layout="topleft"
      name="notice_list_none_found"
      visible="false">
@@ -132,7 +129,6 @@ the General tab.
         <text
          follows="left|top"
          type="string"
-         length="1"
          font="SansSerifBig"
          height="16"
          layout="topleft"
@@ -147,7 +143,6 @@ the General tab.
          follows="left|top"
          type="string"
          word_wrap="true"
-         length="1"
          height="90"
          layout="topleft"
          left_delta="0"
@@ -159,7 +154,6 @@ the General tab.
         <text
          follows="left|top"
          type="string"
-         length="1"
          halign="left"
          height="16"
          layout="topleft"
@@ -182,7 +176,6 @@ the General tab.
         <text
          follows="left|top"
          type="string"
-         length="1"
          halign="left"
          height="16"
          layout="topleft"
@@ -205,7 +198,6 @@ the General tab.
         <text
          follows="left|top"
          type="string"
-         length="1"
          halign="left"
          height="16"
          layout="topleft"
@@ -292,7 +284,6 @@ the General tab.
      width="265">
         <text
          type="string"
-         length="1"
          font="SansSerifBig"
          height="16"
          layout="topleft"
@@ -305,7 +296,6 @@ the General tab.
         </text>
         <text
          type="string"
-         length="1"
          height="16"
          word_wrap="true"
          layout="topleft"
@@ -317,7 +307,6 @@ the General tab.
         </text>
         <text
          type="string"
-         length="1"
          halign="left"
          height="16"
          layout="topleft"
@@ -342,7 +331,6 @@ the General tab.
          width="200" />
         <text
          type="string"
-         length="1"
          halign="left"
          height="16"
          layout="topleft"

@@ -72,7 +72,7 @@
 	     top="0"
 	     left="0"
      	 width="240"
-	     height="500">
+	     height="520">
 	          		
         <panel
 	     follows="left|top"
@@ -250,6 +250,41 @@
              value="Edit"
              width="40" />
         </panel>
+        <text
+         type="string"
+         follows="left|top"
+         font="SansSerifBold"
+         height="15"
+         halign="right"
+         layout="topleft"
+         left="10"
+         name="online_me_status_text"
+         text_color="white"
+         top_pad="20" 
+         width="100">
+             Status:
+        </text>
+        <combo_box
+         font="SansSerifBold"
+         height="18"
+         layout="topleft"
+         left_pad="0"
+         top_delta="0"
+         name="status_combo"
+         width="100">
+            <combo_box.item
+             label="Online"
+             name="online"
+             value="online" />
+            <combo_box.item
+             label="Away"
+             name="away"
+             value="away" />
+            <combo_box.item
+             label="Busy"
+             name="busy"
+             value="busy" />
+        </combo_box>
         <text
          follows="left|top"
          font="SansSerifBold"

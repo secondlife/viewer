@@ -9,7 +9,6 @@
 <location_input font="SansSerifSmall"
                 add_landmark_image_enabled="Favorite_Star_Active"
                 add_landmark_image_disabled="Favorite_Star_Off"
-                hover_glow_amount="0.15"
                 add_landmark_hpad="2"
                 allow_text_entry="true"
                 list_position="below"

@@ -301,16 +301,6 @@ void LLPanelPlaces::onShareButtonClicked()
 }
 */
 
-void LLPanelPlaces::copySLURL()
-{
-	LLLandmarkActions::getSLURLfromPosGlobal(mPosGlobal, boost::bind(&onSLURLBuilt, _1));
-}
-
-void LLPanelPlaces::deleteLandmark()
-{
-	gInventory.removeItem(mItem->getUUID());
-}
-
 void LLPanelPlaces::onTeleportButtonClicked()
 {
 	if (!mPlaceInfo)
@@ -398,6 +388,17 @@ void LLPanelPlaces::onOverflowButtonClicked()
 	else if (is_landmark_info_visible && mLandmarkMenu != NULL)
 	{
 		menu = mLandmarkMenu;
+
+		BOOL is_landmark_removable = FALSE;
+		if (mItem.notNull())
+		{
+			const LLUUID& item_id = mItem->getUUID();
+			const LLUUID& trash_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
+			is_landmark_removable = gInventory.isObjectDescendentOf(item_id, gInventory.getRootFolderID()) &&
+									!gInventory.isObjectDescendentOf(item_id, trash_id);
+		}
+
+		menu->getChild<LLMenuItemCallGL>("delete")->setEnabled(is_landmark_removable);
 	}
 	else
 	{
@@ -422,11 +423,22 @@ void LLPanelPlaces::onOverflowMenuItemClicked(const LLSD& param)
 	}
 	else if (item == "copy")
 	{
-		copySLURL();
+		LLLandmarkActions::getSLURLfromPosGlobal(mPosGlobal, boost::bind(&onSLURLBuilt, _1));
 	}
 	else if (item == "delete")
 	{
-		deleteLandmark();
+		gInventory.removeItem(mItem->getUUID());
+
+		onBackButtonClicked();
+	}
+	else if (item == "pick")
+	{
+		if (!mPlaceInfo)
+			return;
+		
+		mPlaceInfo->createPick(mPosGlobal);
+
+		onBackButtonClicked();
 	}
 }
 

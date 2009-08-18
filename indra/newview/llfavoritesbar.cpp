@@ -604,7 +604,7 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 	}
 	else if (action == "copy")
 	{
-		LLInventoryClipboard::instance().add(mSelectedItemID);
+		LLInventoryClipboard::instance().store(mSelectedItemID);
 	}
 	else if (action == "paste")
 	{

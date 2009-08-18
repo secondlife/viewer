@@ -38,6 +38,7 @@
 #include "llpanel.h"
 #include "lltextbox.h"
 #include "lloutputmonitorctrl.h"
+#include "llgroupmgr.h"
 
 class LLVoiceControlPanel;
 class LLMenuGL;
@@ -235,12 +236,14 @@ private:
 * IMChiclet displays avatar's icon, number of unread messages(optional)
 * and voice chat status(optional).
 */
-class LLIMChiclet : public LLChiclet
+class LLIMChiclet : public LLChiclet, LLGroupMgrObserver
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLChiclet::Params>
 	{
 		Optional<LLChicletAvatarIconCtrl::Params> avatar_icon;
+
+		Optional<LLIconCtrl::Params> group_insignia;
 
 		Optional<LLChicletNotificationCounterCtrl::Params> unread_notifications;
 
@@ -260,6 +263,7 @@ public:
 
 	/*
 	 * Sets id of person/group user is chatting with.
+	 * Session id should be set before calling this
 	*/
 	virtual void setOtherParticipantId(const LLUUID& other_participant_id);
 
@@ -305,6 +309,9 @@ public:
 	*/
 	/*virtual*/ LLRect getRequiredRect();
 
+	/** comes from LLGroupMgrObserver */
+	virtual void changed(LLGroupChange gc);
+
 protected:
 
 	LLIMChiclet(const Params& p);
@@ -335,12 +342,18 @@ protected:
 
 protected:
 	LLChicletAvatarIconCtrl* mAvatarCtrl;
+
+	/** the icon of a group in case of group chat */
+	LLIconCtrl* mGroupInsignia;
 	LLChicletNotificationCounterCtrl* mCounterCtrl;
 	LLChicletSpeakerCtrl* mSpeakerCtrl;
 
 	LLMenuGL* mPopupMenu;
 
 	bool mShowSpeaker;
+
+	/** the id of another participant, either an avatar id or a group id*/
+	LLUUID mOtherParticipantId;
 
 	template<typename Container>
 	struct CollectChicletCombiner {

@@ -49,6 +49,7 @@
 #include "lltextbox.h"
 
 #include "llagent.h"
+#include "llavatarpropertiesprocessor.h"
 #include "llfloaterworldmap.h"
 #include "llinventorymodel.h"
 #include "lllandmarkactions.h"
@@ -511,6 +512,28 @@ void LLPanelPlaceInfo::createLandmark(const LLUUID& folder_id)
 	// If no folder chosen use the "Landmarks" folder.
 	LLLandmarkActions::createLandmarkHere(name, desc, 
 		folder_id.notNull() ? folder_id : gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK));
+}
+
+void LLPanelPlaceInfo::createPick(const LLVector3d& global_pos)
+{
+	LLPickData pick_data;
+
+	pick_data.agent_id = gAgent.getID();
+	pick_data.session_id = gAgent.getSessionID();
+	pick_data.pick_id = LLUUID::generateNewID();
+	pick_data.creator_id = gAgentID;
+
+	//legacy var  need to be deleted
+	pick_data.top_pick = FALSE;
+	pick_data.parcel_id = mParcelID;
+	pick_data.name = mParcelName->getText();
+	pick_data.desc = mDescEditor->getText();
+	pick_data.snapshot_id = mSnapshotCtrl->getImageAssetID();
+	pick_data.pos_global = global_pos;
+	pick_data.sort_order = 0;
+	pick_data.enabled = TRUE;
+
+	LLAvatarPropertiesProcessor::instance().sendDataUpdate(&pick_data, APT_PICK_INFO);
 }
 
 void LLPanelPlaceInfo::reshape(S32 width, S32 height, BOOL called_from_parent)

@@ -43,7 +43,7 @@ Hover your mouse over the options for more help.
     <line_editor
      follows="left|top"
      font="SansSerifSmall"
-     prevalidate_callback="asci"
+     prevalidate_callback="ascii"
      halign="left"
      height="16"
      label="Type your new group name here"
@@ -65,7 +65,6 @@ Hover your mouse over the options for more help.
      width="100" />
     <text
      type="string"
-     length="1"
      follows="left|top"
      height="16"
      layout="topleft"
@@ -78,7 +77,6 @@ Hover your mouse over the options for more help.
     
     <text_editor
      type="string"
-     length="1"
      follows="left|top"
      left="10"
      height="75"
@@ -116,7 +114,6 @@ Hover your mouse over the options for more help.
     <text
       follows="left|top"
      type="string"
-     length="1"
      font="SansSerifBig"
      tool_tip="Owners are shown in bold."
      height="16"
@@ -151,7 +148,6 @@ Hover your mouse over the options for more help.
       follows="left|top"
       height="16"
      type="string"
-     length="1"
      top_pad="10"
      font="SansSerifBig"
      layout="topleft"
@@ -161,7 +157,6 @@ Hover your mouse over the options for more help.
          <text
          follows="left|top"
          type="string"
-         length="1"
          height="16"
          layout="topleft"
          left_delta="0"

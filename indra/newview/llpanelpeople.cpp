@@ -320,6 +320,10 @@ LLPanelPeople::~LLPanelPeople()
 	delete mGroupListUpdater;
 
 	LLView::deleteViewByHandle(mGroupPlusMenuHandle);
+	LLView::deleteViewByHandle(mNearbyViewSortMenuHandle);
+	LLView::deleteViewByHandle(mFriendsViewSortMenuHandle);
+	LLView::deleteViewByHandle(mRecentViewSortMenuHandle);
+
 }
 
 BOOL LLPanelPeople::postBuild()
@@ -336,6 +340,7 @@ BOOL LLPanelPeople::postBuild()
 	mOfflineFriendList = getChild<LLPanel>(FRIENDS_TAB_NAME)->getChild<LLAvatarList>("avatars_offline");
 
 	mNearbyList = getChild<LLPanel>(NEARBY_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
+
 	mRecentList = getChild<LLPanel>(RECENT_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
 	mGroupList = getChild<LLGroupList>("group_list");
 
@@ -370,14 +375,37 @@ BOOL LLPanelPeople::postBuild()
 	buttonSetAction("share_btn",		boost::bind(&LLPanelPeople::onShareButtonClicked,		this));
 	buttonSetAction("more_btn",			boost::bind(&LLPanelPeople::onMoreButtonClicked,		this));
 
+	getChild<LLPanel>(NEARBY_TAB_NAME)->childSetAction("nearby_view_sort_btn",boost::bind(&LLPanelPeople::onNearbyViewSortButtonClicked,		this));
+	getChild<LLPanel>(RECENT_TAB_NAME)->childSetAction("recent_viewsort_btn",boost::bind(&LLPanelPeople::onRecentViewSortButtonClicked,		this));
+	getChild<LLPanel>(FRIENDS_TAB_NAME)->childSetAction("friends_viewsort_btn",boost::bind(&LLPanelPeople::onFriendsViewSortButtonClicked,		this));
+
 	// Must go after setting commit callback and initializing all pointers to children.
 	mTabContainer->selectTabByName(FRIENDS_TAB_NAME);
 
 	// Create menus.
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+	
 	registrar.add("People.Group.Plus.Action",  boost::bind(&LLPanelPeople::onGroupPlusMenuItemClicked,  this, _2));
+	registrar.add("People.Friends.ViewSort.Action",  boost::bind(&LLPanelPeople::onFriendsViewSortMenuItemClicked,  this, _2));
+	registrar.add("People.Nearby.ViewSort.Action",  boost::bind(&LLPanelPeople::onNearbyViewSortMenuItemClicked,  this, _2));
+	registrar.add("People.Recent.ViewSort.Action",  boost::bind(&LLPanelPeople::onRecentViewSortMenuItemClicked,  this, _2));
+	
 	LLMenuGL* plus_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_group_plus.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGroupPlusMenuHandle  = plus_menu->getHandle();
+
+	LLMenuGL* nearby_view_sort  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_people_nearby_view_sort.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	if(nearby_view_sort)
+		mNearbyViewSortMenuHandle  = nearby_view_sort->getHandle();
+
+	LLMenuGL* friend_view_sort  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_people_friends_view_sort.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	if(friend_view_sort)
+		mFriendsViewSortMenuHandle  = friend_view_sort->getHandle();
+
+	LLMenuGL* recent_view_sort  = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_people_recent_view_sort.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	if(recent_view_sort)
+		mRecentViewSortMenuHandle  = recent_view_sort->getHandle();
+
+
 
 	// Perform initial update.
 	mFriendListUpdater->forceUpdate();
@@ -811,6 +839,56 @@ void LLPanelPeople::onGroupPlusMenuItemClicked(const LLSD& userdata)
 		LLGroupActions::createGroup();
 }
 
+void LLPanelPeople::onFriendsViewSortMenuItemClicked(const LLSD& userdata)
+{
+	std::string chosen_item = userdata.asString();
+
+	if (chosen_item == "sort_name")
+	{
+	}
+	else if (chosen_item == "sort_status")
+	{
+	}
+	else if (chosen_item == "view_icons")
+	{
+	}
+	else if (chosen_item == "organize_offline")
+	{
+	}
+}
+void LLPanelPeople::onNearbyViewSortMenuItemClicked(const LLSD& userdata)
+{
+	std::string chosen_item = userdata.asString();
+
+	if (chosen_item == "sort_recent")
+	{
+	}
+	else if (chosen_item == "sort_name")
+	{
+	}
+	else if (chosen_item == "view_icons")
+	{
+	}
+	else if (chosen_item == "sort_distance")
+	{
+	}
+}
+void LLPanelPeople::onRecentViewSortMenuItemClicked(const LLSD& userdata)
+{
+	std::string chosen_item = userdata.asString();
+
+	if (chosen_item == "sort_most")
+	{
+	}
+	else if (chosen_item == "sort_name")
+	{
+	}
+	else if (chosen_item == "view_icons")
+	{
+	}
+}
+
+
 void LLPanelPeople::onCallButtonClicked()
 {
 	// *TODO: not implemented yet
@@ -829,6 +907,27 @@ void LLPanelPeople::onShareButtonClicked()
 void LLPanelPeople::onMoreButtonClicked()
 {
 	// *TODO: not implemented yet
+}
+void LLPanelPeople::onFriendsViewSortButtonClicked()
+{
+	LLMenuGL* menu = (LLMenuGL*)mFriendsViewSortMenuHandle.get();
+	if (!menu)
+		return;
+	showGroupMenu(menu);
+}
+void LLPanelPeople::onRecentViewSortButtonClicked()
+{
+	LLMenuGL* menu = (LLMenuGL*)mRecentViewSortMenuHandle.get();
+	if (!menu)
+		return;
+	showGroupMenu(menu);
+}
+void LLPanelPeople::onNearbyViewSortButtonClicked()
+{
+	LLMenuGL* menu = (LLMenuGL*)mNearbyViewSortMenuHandle.get();
+	if (!menu)
+		return;
+	showGroupMenu(menu);
 }
 
 void	LLPanelPeople::onOpen(const LLSD& key)

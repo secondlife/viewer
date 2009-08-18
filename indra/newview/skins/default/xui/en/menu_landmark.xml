@@ -22,7 +22,6 @@
          parameter="delete" />
     </menu_item_call>
     <menu_item_call
-     enabled="false"
      label="Create Pick"
      layout="topleft"
      name="pick">

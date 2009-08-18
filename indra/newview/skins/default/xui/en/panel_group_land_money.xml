@@ -42,7 +42,6 @@
     -->
    <!-- <text
      type="string"
-     length="1"
      follows="left|top"
      font="SansSerifBig"
      height="16"
@@ -98,7 +97,6 @@
      enabled="false" />
     <text
      type="string"
-     length="1"
      follows="left|top"
      halign="right"
      height="16"
@@ -111,7 +109,6 @@
     </text>
     <text
      type="string"
-     length="1"
      follows="left|top"
      height="16"
      layout="topleft"
@@ -123,7 +120,6 @@
     </text>
     <text
      type="string"
-     length="1"
      follows="left|top"
      halign="right"
      height="16"
@@ -136,7 +132,6 @@
     </text>
     <text
      type="string"
-     length="1"
      follows="left|top"
      height="16"
      layout="topleft"
@@ -148,7 +143,6 @@
     </text>
     <text
      type="string"
-     length="1"
      follows="left|top"
      halign="right"
      height="16"
@@ -161,7 +155,6 @@
     </text>
     <text
      type="string"
-     length="1"
      follows="left|top"
      height="16"
      layout="topleft"
@@ -173,7 +166,6 @@
     </text>
     <text
      type="string"
-     length="1"
      follows="left|top"
      halign="right"
      height="16"
@@ -197,7 +189,6 @@
      width="95" />
     <text
      type="string"
-     length="1"
      follows="left|top"
      height="16"
      layout="topleft"
@@ -208,7 +199,6 @@
     </text>
      <text
      type="string"
-     length="1"
      follows="left|top"
      halign="right"
      height="16"
@@ -231,7 +221,6 @@
     <text
       follows="left|top"
      type="string"
-     length="1"
      word_wrap="true"
      font="SansSerifSmall"
      height="40"
@@ -245,7 +234,6 @@
     </text> 
     <text
      type="string"
-     length="1"
      follows="left|top"
      font="SansSerifBig"
      height="16"
@@ -277,7 +265,6 @@
          width="265">
             <text_editor
              type="string"
-             length="1"
              bg_readonly_color="0.784314 0.819608 0.8 1"
              follows="all"
              font="Monospace"
@@ -303,7 +290,6 @@
          width="265">
           <text_editor
              type="string"
-             length="1"
              bg_readonly_color="0.784314 0.819608 0.8 1"
              follows="all"
              font="Monospace"
@@ -349,7 +335,6 @@
          width="265">
             <text_editor
              type="string"
-             length="1"
              bg_readonly_color="0.784314 0.819608 0.8 1"
              follows="all"
              font="Monospace"

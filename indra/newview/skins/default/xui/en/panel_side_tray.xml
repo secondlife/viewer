@@ -2,7 +2,6 @@
 <side_tray
   name="sidebar"
   background_visible="false"
-  color="DkGray"
   mouse_opaque="true"
   width="305"
   collapsed="true"
@@ -15,7 +14,6 @@
     mouse_opaque="false"
     background_opaque="false"
     background_visible="true"
-color="DkGray"
   >
       <panel
         name="panel_home"
@@ -34,7 +32,6 @@ color="DkGray"
     mouse_opaque="false"
     background_opaque="false"
     background_visible="true"
-color="DkGray"
   >
     <panel_container
       name="panel_container"
@@ -71,7 +68,6 @@ color="DkGray"
     image="TabIcon_Places_Off"
     mouse_opaque="false"
     background_visible="true"
-    color="DkGray"
   >
       <panel
         class="panel_places"
@@ -89,7 +85,6 @@ color="DkGray"
     image="TabIcon_Me_Off"
     mouse_opaque="false"
     background_visible="true"
-    color="DkGray"
   >
       <panel
         class="panel_me_profile_view"

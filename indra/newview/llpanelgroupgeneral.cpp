@@ -71,11 +71,9 @@ LLPanelGroupGeneral::LLPanelGroupGeneral()
 	mChanged(FALSE),
 	mFirstUse(TRUE),
 	mGroupNameEditor(NULL),
-	mGroupName(NULL),
 	mFounderName(NULL),
 	mInsignia(NULL),
 	mEditCharter(NULL),
-	mBtnJoinGroup(NULL),
 	mListVisibleMembers(NULL),
 	mCtrlShowInGroupList(NULL),
 	mComboMature(NULL),
@@ -100,7 +98,6 @@ BOOL LLPanelGroupGeneral::postBuild()
 
 	// General info
 	mGroupNameEditor = getChild<LLLineEditor>("group_name_editor", recurse);
-	mGroupName = getChild<LLTextBox>("group_name", recurse);
 	
 	mInsignia = getChild<LLTextureCtrl>("insignia", recurse);
 	if (mInsignia)
@@ -117,17 +114,6 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mEditCharter->setFocusChangedCallback(onFocusEdit, this);
 	}
 
-	mBtnJoinGroup = getChild<LLButton>("join_button", recurse);
-	if ( mBtnJoinGroup )
-	{
-		mBtnJoinGroup->setClickedCallback(onClickJoin, this);
-	}
-
-	mBtnInfo = getChild<LLButton>("info_button", recurse);
-	if ( mBtnInfo )
-	{
-		mBtnInfo->setClickedCallback(onClickInfo, this);
-	}
 
 	mFounderName = getChild<LLNameBox>("founder_name");
 
@@ -224,9 +210,6 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mCtrlEnrollmentFee->setEnabled(TRUE);
 		mSpinEnrollmentFee->setEnabled(TRUE);
 
-		mBtnJoinGroup->setVisible(FALSE);
-		mBtnInfo->setVisible(FALSE);
-		mGroupName->setVisible(FALSE);
 	}
 
 	return LLPanelGroupTab::postBuild();
@@ -692,28 +675,6 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 						can_change_member_opts);
 		mSpinEnrollmentFee->resetDirty();
 	}
-	if ( mBtnJoinGroup )
-	{
-		std::string fee_buff;
-		bool visible;
-
-		visible = !is_member && gdatap->mOpenEnrollment;
-		mBtnJoinGroup->setVisible(visible);
-
-		if ( visible )
-		{
-			LLStringUtil::format_map_t string_args;
-			string_args["[AMOUNT]"] = llformat("%d", gdatap->mMembershipFee);
-			fee_buff = getString("group_join_btn", string_args);
-			mBtnJoinGroup->setLabelSelected(fee_buff);
-			mBtnJoinGroup->setLabelUnselected(fee_buff);
-		}
-	}
-	if ( mBtnInfo )
-	{
-		mBtnInfo->setVisible(is_member && !mAllowEdit);
-	}
-
 	if (mCtrlReceiveNotices)
 	{
 		mCtrlReceiveNotices->setVisible(is_member);
@@ -728,7 +689,6 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 	if (mInsignia) mInsignia->setEnabled(mAllowEdit && can_change_ident);
 	if (mEditCharter) mEditCharter->setEnabled(mAllowEdit && can_change_ident);
 	
-	if (mGroupName) mGroupName->setText(gdatap->mName);
 	if (mGroupNameEditor) mGroupNameEditor->setVisible(FALSE);
 	if (mFounderName) mFounderName->setNameID(gdatap->mFounderID,FALSE);
 	if (mInsignia)
@@ -858,7 +818,6 @@ void LLPanelGroupGeneral::updateChanged()
 	LLUICtrl *check_list[] =
 	{
 		mGroupNameEditor,
-		mGroupName,
 		mFounderName,
 		mInsignia,
 		mEditCharter,
@@ -914,10 +873,6 @@ void LLPanelGroupGeneral::reset()
 	mSpinEnrollmentFee->setEnabled(TRUE);
 	mSpinEnrollmentFee->set((F32)0);
 
-	mBtnJoinGroup->setVisible(FALSE);
-	mBtnInfo->setVisible(FALSE);
-	mGroupName->setVisible(FALSE);
-
 	mGroupNameEditor->setVisible(true);
 
 	mComboActiveTitle->setVisible(false);
@@ -937,7 +892,6 @@ void LLPanelGroupGeneral::reset()
 		mListVisibleMembers->addElement(row);
 	}
 
-	mBtnJoinGroup->setVisible(false);
 
 	{
 		mComboMature->setEnabled(true);
@@ -954,7 +908,6 @@ void	LLPanelGroupGeneral::resetDirty()
 	LLUICtrl *check_list[] =
 	{
 		mGroupNameEditor,
-		mGroupName,
 		mFounderName,
 		mInsignia,
 		mEditCharter,

@@ -2231,6 +2231,12 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 	return floater;
 }
 
+//static
+BOOL LLIMFloater::toggle(const LLUUID& session_id)
+{
+	return LLFloaterReg::toggleInstance("impanel", session_id);
+}
+
 void LLIMFloater::updateMessages()
 {
 	std::list<LLSD> messages = LLIMModel::instance().getMessages(mSessionID, mLastMessageIndex+1);

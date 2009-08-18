@@ -13,10 +13,10 @@
      font="SansSerifHugeBold"
      height="15"
      layout="topleft"
-     left="0"
+     left="10"
      name="title"
      text_color="white"
-     top="0"
+     top="5"
      value="Pick Info"
      width="150" />
     <button
@@ -26,13 +26,14 @@
      layout="topleft"
      name="back_btn"
      picture_style="true"
-     right="-25"
-     top="10"
+     right="-20"
+     top="7"
      width="20" />
     <panel
      background_visible="true"
      bg_alpha_color="DkGray2"
      follows="left|right|top|bottom"
+     height="550"
      layout="topleft"
      left="0"
      min_height="300"
@@ -46,7 +47,7 @@
          left="10"
          name="pick_snapshot"
          top="10"
-         width="260" />
+         width="245" />
         <text
          follows="left|top"
          font="SansSerifBigBold"
@@ -111,10 +112,10 @@
          value="[loading...]" />
     </panel>
     <panel
-     bottom="660"
      follows="left|right|bottom"
      height="30"
      layout="topleft"
+     top_pad="2"
      left="8"
      name="buttons"
      right="-10">
@@ -134,6 +135,7 @@
          height="25"
          label="Teleport"
          layout="topleft"
+         left_pad="2"
          name="teleport_btn"
          top="0"
          width="80" />
@@ -143,6 +145,7 @@
          height="25"
          label="Show on Map"
          layout="topleft"
+         left_pad="2"
          name="show_on_map_btn"
          top="0"
          width="100" />

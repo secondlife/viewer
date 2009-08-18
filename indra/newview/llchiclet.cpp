@@ -45,6 +45,7 @@
 #include "lltextbox.h"
 #include "llvoiceclient.h"
 #include "llvoicecontrolpanel.h"
+#include "llgroupmgr.h"
 
 static const std::string P2P_MENU_NAME = "IMChiclet P2P Menu";
 static const std::string GROUP_MENU_NAME = "IMChiclet Group Menu";
@@ -178,6 +179,7 @@ void LLChiclet::setValue(const LLSD& value)
 
 LLIMChiclet::Params::Params()
 : avatar_icon("avatar_icon")
+, group_insignia("group_insignia")
 , unread_notifications("unread_notifications")
 , speaker("speaker")
 , show_speaker("show_speaker")
@@ -185,7 +187,13 @@ LLIMChiclet::Params::Params()
 	rect(LLRect(0, 25, 45, 0));
 
 	avatar_icon.name("avatar_icon");
+	avatar_icon.visible(false);
 	avatar_icon.rect(LLRect(0, 25, 25, 0));
+
+	//it's an icon for a group in case there is a group chat created
+	group_insignia.name("group_icon");
+	group_insignia.visible(false);
+	group_insignia.rect(LLRect(0, 25, 25, 0));
 
 	unread_notifications.name("unread");
 	unread_notifications.rect(LLRect(25, 25, 45, 0));
@@ -202,7 +210,9 @@ LLIMChiclet::Params::Params()
 
 LLIMChiclet::LLIMChiclet(const Params& p)
 : LLChiclet(p)
+, LLGroupMgrObserver(LLUUID())
 , mAvatarCtrl(NULL)
+, mGroupInsignia(NULL)
 , mCounterCtrl(NULL)
 , mSpeakerCtrl(NULL)
 , mShowSpeaker(p.show_speaker)
@@ -211,6 +221,12 @@ LLIMChiclet::LLIMChiclet(const Params& p)
 	LLChicletAvatarIconCtrl::Params avatar_params = p.avatar_icon;
 	mAvatarCtrl = LLUICtrlFactory::create<LLChicletAvatarIconCtrl>(avatar_params);
 	addChild(mAvatarCtrl);
+
+	//Before setOtherParticipantId() we are UNAWARE which dialog type will it be
+	//so keeping both icons for all both p2p and group chat cases
+	LLIconCtrl::Params grop_icon_params = p.group_insignia;
+	mGroupInsignia = LLUICtrlFactory::create<LLIconCtrl>(grop_icon_params);
+	addChild(mGroupInsignia);
 
 	LLChicletNotificationCounterCtrl::Params unread_params = p.unread_notifications;
 	mCounterCtrl = LLUICtrlFactory::create<LLChicletNotificationCounterCtrl>(unread_params);
@@ -228,7 +244,7 @@ LLIMChiclet::LLIMChiclet(const Params& p)
 
 LLIMChiclet::~LLIMChiclet()
 {
-
+	LLGroupMgr::getInstance()->removeObserver(this);
 }
 
 
@@ -285,22 +301,80 @@ void LLIMChiclet::setIMSessionName(const std::string& name)
 	setToolTip(name);
 }
 
+//session id should be set before calling this
 void LLIMChiclet::setOtherParticipantId(const LLUUID& other_participant_id)
 {
-	if (mAvatarCtrl)
+	llassert(getSessionId().notNull());
+
+	LLFloaterIMPanel*floater = gIMMgr->findFloaterBySession(getSessionId());
+
+	//all alive sessions have alive floater, haven't they?
+	llassert(floater);
+
+	//in case participant id is being replaced with different id for a group chat
+	if (mOtherParticipantId.notNull() && mOtherParticipantId != other_participant_id && 
+		mID.notNull() && mGroupInsignia->getValue().isUUID())
 	{
-		mAvatarCtrl->setValue(other_participant_id);
+		LLGroupMgr::getInstance()->removeObserver(this);
+	}
+
+	mOtherParticipantId = other_participant_id;
+
+	switch (floater->getDialogType())
+	{
+		case IM_NOTHING_SPECIAL: 
+			if (mAvatarCtrl) {
+				mAvatarCtrl->setVisible(TRUE);
+				mAvatarCtrl->setValue(other_participant_id);
+			}
+			break;
+		case IM_SESSION_GROUP_START:
+			{
+				if (mGroupInsignia) {
+					LLGroupMgr* grp_mgr = LLGroupMgr::getInstance();
+					LLGroupMgrGroupData* group_data = grp_mgr->getGroupData(other_participant_id);
+					if (group_data && group_data->mInsigniaID.notNull())
+					{
+						mGroupInsignia->setVisible(TRUE);
+						mGroupInsignia->setValue(group_data->mInsigniaID);
+					}
+					else
+					{
+						mID = mOtherParticipantId; //needed for LLGroupMgrObserver
+						grp_mgr->addObserver(this);
+						grp_mgr->sendGroupPropertiesRequest(mOtherParticipantId);
+					}
+				}
+			}
+			
+			break;
+		default:
+			llwarning("Unsupported dialog type", 0); 
+			break;
+	}
+
+}
+
+
+void LLIMChiclet::changed(LLGroupChange gc)
+{
+	LLSD group_insignia = mGroupInsignia->getValue();
+	if (group_insignia.isUUID() && group_insignia.asUUID().notNull()) return;
+
+	if (GC_PROPERTIES == gc)
+	{
+		LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->getGroupData(mOtherParticipantId);
+		if (group_data && group_data->mInsigniaID.notNull())
+		{
+			mGroupInsignia->setVisible(TRUE);
+			mGroupInsignia->setValue(group_data->mInsigniaID);
+		}
 	}
 }
 
 LLUUID LLIMChiclet::getOtherParticipantId()
 {
-	LLUUID res = LLUUID::null;
-	if (mAvatarCtrl)
-	{
-		res = mAvatarCtrl->getAvatarId();
-	}
-	return res;
+	return mOtherParticipantId;
 }
 
 void LLIMChiclet::updateMenuItems()
@@ -312,7 +386,7 @@ void LLIMChiclet::updateMenuItems()
 
 	if(P2P_MENU_NAME == mPopupMenu->getName())
 	{
-		bool is_friend = LLAvatarActions::isFriend(mAvatarCtrl->getAvatarId());
+		bool is_friend = LLAvatarActions::isFriend(getOtherParticipantId());
 
 		mPopupMenu->getChild<LLUICtrl>("Add Friend")->setEnabled(!is_friend);
 		mPopupMenu->getChild<LLUICtrl>("Remove Friend")->setEnabled(is_friend);
@@ -321,7 +395,7 @@ void LLIMChiclet::updateMenuItems()
 
 BOOL LLIMChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	LLIMFloater::show(getSessionId());
+	LLIMFloater::toggle(getSessionId());
 	setCounter(0);
 	return LLChiclet::handleMouseDown(x, y, mask);
 }
@@ -411,7 +485,7 @@ void LLIMChiclet::createPopupMenu()
 void LLIMChiclet::onMenuItemClicked(const LLSD& user_data)
 {
 	std::string level = user_data.asString();
-	LLUUID other_participant_id = mAvatarCtrl->getAvatarId();
+	LLUUID other_participant_id = getOtherParticipantId();
 
 	if("profile" == level)
 	{
@@ -424,10 +498,6 @@ void LLIMChiclet::onMenuItemClicked(const LLSD& user_data)
 	else if("add" == level)
 	{
 		LLAvatarActions::requestFriendshipDialog(other_participant_id);
-	}
-	else if("remove" == level)
-	{
-		LLAvatarActions::removeFriendDialog(other_participant_id);
 	}
 	else if("group chat" == level)
 	{

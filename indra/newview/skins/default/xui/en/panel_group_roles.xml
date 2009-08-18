@@ -39,7 +39,6 @@
      width="270">
         <text
          type="string"
-         length="1"
          font="SansSerifBig"
          height="16"
          layout="topleft"
@@ -51,7 +50,6 @@
         </text>
         <text
          type="string"
-         length="1"
          word_wrap="true"
          height="40"
          layout="topleft"
@@ -73,7 +71,6 @@
      width="270">
         <text
          type="string"
-         length="1"
          font="SansSerifBig"
          height="16"
          layout="topleft"
@@ -85,7 +82,6 @@
         </text>
         <text
          type="string"
-         length="1"
          word_wrap="true"
          height="40"
          layout="topleft"
@@ -98,7 +94,6 @@
         </text>
         <text
          type="string"
-         length="1"
          word_wrap="true"
          height="40"
          layout="topleft"
@@ -110,7 +105,6 @@
         </text>
         <text
          type="string"
-         length="1"
          word_wrap="true"
          height="16"
          layout="topleft"
@@ -123,7 +117,6 @@
         </text>
         <text
          type="string"
-         length="1"
          word_wrap="true"
          height="16"
          layout="topleft"
@@ -145,7 +138,6 @@
      width="270">
         <text
          type="string"
-         length="1"
          font="SansSerifBig"
          height="16"
          layout="topleft"
@@ -157,7 +149,6 @@
         </text>
         <text
          type="string"
-         length="1"
          word_wrap="true"
          height="40"
          layout="topleft"
@@ -525,7 +516,6 @@ things in this group. There&apos;s a broad variety of Abilities.
      width="265">
         <text
          type="string"
-         length="1"
          font="SansSerif"
          height="16"
          layout="topleft"
@@ -538,7 +528,6 @@ things in this group. There&apos;s a broad variety of Abilities.
         </text>
         <text
          type="string"
-         length="1"
          font="SansSerif"
          height="16"
          layout="topleft"
@@ -599,7 +588,6 @@ things in this group. There&apos;s a broad variety of Abilities.
      width="270">
         <text
          type="string"
-         length="1"
          font="SansSerif"
          height="16"
          layout="topleft"
@@ -611,7 +599,6 @@ things in this group. There&apos;s a broad variety of Abilities.
         </text>
         <text
          type="string"
-         length="1"
          font="SansSerif"
          height="16"
          layout="topleft"
@@ -623,7 +610,6 @@ things in this group. There&apos;s a broad variety of Abilities.
         </text>
         <line_editor
          type="string"
-         length="1"
          border_style="line"
          border_thickness="1"
          follows="left|top"
@@ -638,7 +624,6 @@ things in this group. There&apos;s a broad variety of Abilities.
         </line_editor>
         <text
          type="string"
-         length="1"
          font="SansSerif"
          height="16"
          layout="topleft"
@@ -650,7 +635,6 @@ things in this group. There&apos;s a broad variety of Abilities.
         </text>
         <line_editor
          type="string"
-         length="1"
          border_style="line"
          border_thickness="1"
          follows="left|top"
@@ -665,7 +649,6 @@ things in this group. There&apos;s a broad variety of Abilities.
         </line_editor>
         <text_editor
          type="string"
-         length="1"
          halign="left"
          height="48"
          hide_scrollbar="true"
@@ -680,7 +663,6 @@ things in this group. There&apos;s a broad variety of Abilities.
         </text_editor>
         <text
          type="string"
-         length="1"
          font="SansSerif"
          height="16"
          layout="topleft"
@@ -692,7 +674,6 @@ things in this group. There&apos;s a broad variety of Abilities.
         </text>
         <text
          type="string"
-         length="1"
          font="SansSerif"
          height="16"
          layout="topleft"
@@ -755,7 +736,6 @@ things in this group. There&apos;s a broad variety of Abilities.
      width="265">
         <text
          type="string"
-         length="1"
          font="SansSerif"
          height="16"
          layout="topleft"
@@ -767,7 +747,6 @@ things in this group. There&apos;s a broad variety of Abilities.
         </text>
         <text_editor
          type="string"
-         length="1"
          enabled="false"
          halign="left"
          height="48"
@@ -783,7 +762,6 @@ things in this group. There&apos;s a broad variety of Abilities.
         </text_editor>
         <text
          type="string"
-         length="1"
          font="SansSerif"
          height="16"
          layout="topleft"
@@ -795,7 +773,6 @@ things in this group. There&apos;s a broad variety of Abilities.
         </text>
         <text
          type="string"
-         length="1"
          font="SansSerif"
          height="16"
          layout="topleft"
