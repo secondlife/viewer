@@ -3385,17 +3385,14 @@ LLTearOffMenu::LLTearOffMenu(LLMenuGL* menup) :
 
 	// highlight first item (tear off item will be disabled)
 	mMenu->highlightNextItem(NULL);
+
+	// Can't do this in postBuild() because that is only called for floaters
+	// constructed from XML.
+	mCloseSignal.connect(boost::bind(&LLTearOffMenu::closeTearOff, this));
 }
 
 LLTearOffMenu::~LLTearOffMenu()
 {
-}
-
-// virtual
-BOOL LLTearOffMenu::postBuild()
-{
-	mCloseSignal.connect(boost::bind(&LLTearOffMenu::closeTearOff, this));
-	return TRUE;
 }
 
 void LLTearOffMenu::draw()

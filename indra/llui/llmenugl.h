@@ -788,8 +788,6 @@ public:
 	static LLTearOffMenu* create(LLMenuGL* menup);
 	virtual ~LLTearOffMenu();
 
-	virtual BOOL postBuild();
-	
 	virtual void draw(void);
 	virtual void onFocusReceived();
 	virtual void onFocusLost();
