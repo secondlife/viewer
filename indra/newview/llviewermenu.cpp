@@ -210,6 +210,7 @@
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llfloaternotificationsconsole.h"
+#include "lluilistener.h"
 
 #include "lltexlayer.h"
 
@@ -419,6 +420,8 @@ public:
 };
 
 static LLMenuParcelObserver* gMenuParcelObserver = NULL;
+
+static LLUIListener sUIListener("UI");
 
 LLMenuParcelObserver::LLMenuParcelObserver()
 {

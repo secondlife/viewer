@@ -394,6 +394,7 @@ set(viewer_SOURCE_FILES
     lltoolselectland.cpp
     lltoolselectrect.cpp
     lltracker.cpp
+    lluilistener.cpp
     lluploaddialog.cpp
     llurl.cpp
     llurldispatcher.cpp
@@ -848,6 +849,7 @@ set(viewer_HEADER_FILES
     lltoolselectrect.h
     lltracker.h
     lluiconstants.h
+    lluilistener.h
     lluploaddialog.h
     llurl.h
     llurldispatcher.h
