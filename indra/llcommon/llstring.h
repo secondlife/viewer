@@ -736,8 +736,9 @@ S32 LLStringUtilBase<T>::format(std::basic_string<T>& s, const LLSD& substitutio
 		{
 			std::basic_string<T> param;
 			if (tokens.size() > 2) param = tokens[2];
-
-			found_replacement = formatDatetime (replacement, tokens[0], param, substitutions);
+			
+			S32 secFromEpoch = (S32) substitutions["datetime"].asInteger();
+			found_replacement = formatDatetime (replacement, tokens[0], param, secFromEpoch);
 		}
 
 		if (found_replacement)
