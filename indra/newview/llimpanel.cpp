@@ -2232,9 +2232,22 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 }
 
 //static
-BOOL LLIMFloater::toggle(const LLUUID& session_id)
+bool LLIMFloater::toggle(const LLUUID& session_id)
 {
-	return LLFloaterReg::toggleInstance("impanel", session_id);
+	LLIMFloater* floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
+	if (floater && floater->getVisible())
+	{
+		// clicking on chiclet to close floater just hides it to maintain existing
+		// scroll/text entry state
+		floater->setVisible(false);
+		return false;
+	}
+	else
+	{
+		// ensure the list of messages is updated when floater is made visible
+		show(session_id);
+		return true;
+	}
 }
 
 void LLIMFloater::updateMessages()
