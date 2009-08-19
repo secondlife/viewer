@@ -27,6 +27,7 @@ LLFloaterRegListener::LLFloaterRegListener(const std::string& pumpName):
     requiredName["name"] = LLSD();
     add("showInstance", &LLFloaterRegListener::showInstance, requiredName);
     add("hideInstance", &LLFloaterRegListener::hideInstance, requiredName);
+    add("toggleInstance", &LLFloaterRegListener::toggleInstance, requiredName);
 }
 
 void LLFloaterRegListener::getBuildMap(const LLSD& event) const
@@ -57,4 +58,9 @@ void LLFloaterRegListener::showInstance(const LLSD& event) const
 void LLFloaterRegListener::hideInstance(const LLSD& event) const
 {
     LLFloaterReg::hideInstance(event["name"], event["key"]);
+}
+
+void LLFloaterRegListener::toggleInstance(const LLSD& event) const
+{
+    LLFloaterReg::toggleInstance(event["name"], event["key"]);
 }
