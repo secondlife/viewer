@@ -2151,8 +2151,7 @@ void* LLIMFloater::createPanelIMControl(void* userdata)
 {
 	LLIMFloater *self = (LLIMFloater*)userdata;
 	self->mControlPanel = new LLPanelIMControlPanel();
-	LLUICtrlFactory::getInstance()->buildPanel(self->mControlPanel, "panel_im_control_panel.xml");
-	self->mControlPanel->setVisible(FALSE);
+	self->mControlPanel->setXMLFilename("panel_im_control_panel.xml");
 	return self->mControlPanel;
 }
 
@@ -2162,8 +2161,7 @@ void* LLIMFloater::createPanelGroupControl(void* userdata)
 {
 	LLIMFloater *self = (LLIMFloater*)userdata;
 	self->mControlPanel = new LLPanelGroupControlPanel();
-	LLUICtrlFactory::getInstance()->buildPanel(self->mControlPanel, "panel_group_control_panel.xml");
-	self->mControlPanel->setVisible(FALSE);
+	self->mControlPanel->setXMLFilename("panel_group_control_panel.xml");
 	return self->mControlPanel;
 }
 

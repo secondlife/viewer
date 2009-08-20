@@ -53,6 +53,7 @@ BOOL LLPanelIMControlPanel::postBuild()
 	childSetAction("add_friend_btn", boost::bind(&LLPanelIMControlPanel::onAddFriendButtonClicked, this));
 	childSetAction("call_btn", boost::bind(&LLPanelIMControlPanel::onCallButtonClicked, this));
 	childSetAction("share_btn", boost::bind(&LLPanelIMControlPanel::onShareButtonClicked, this));
+	childSetEnabled("add_friend_btn", !LLAvatarActions::isFriend(getChild<LLAvatarIconCtrl>("avatar_icon")->getAvatarId()));
 
 	return TRUE;
 }

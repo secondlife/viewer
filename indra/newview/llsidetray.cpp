@@ -34,6 +34,7 @@
 
 #include "lltextbox.h"
 
+#include "llbottomtray.h"
 #include "llsidetray.h"
 #include "llviewerwindow.h"
 #include "llaccordionctrl.h"
@@ -650,7 +651,7 @@ void	LLSideTray::setPanelRect	()
 	if(!mCollapsed)
 		panel_width+=mMaxBarWidth;
 
-	S32 panel_height = parent_rect.getHeight()-fake_top_offset;
+	S32 panel_height = parent_rect.getHeight() - fake_top_offset - LLBottomTray::getInstance()->getRect().getHeight();
 	LLRect panel_rect;
 	panel_rect.setLeftTopAndSize( parent_rect.mRight-panel_width, parent_rect.mTop-fake_top_offset, panel_width, panel_height);
 	setRect(panel_rect);

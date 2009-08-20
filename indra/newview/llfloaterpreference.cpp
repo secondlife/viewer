@@ -422,7 +422,7 @@ void LLFloaterPreference::apply()
 			panel->apply();
 	}
 	// hardware menu apply
-	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::findTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
+	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::getTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
 	if (hardware_settings)
 	{
 		hardware_settings->apply();
@@ -514,7 +514,7 @@ void LLFloaterPreference::cancel()
 	LLFloaterReg::hideInstance("pref_joystick");
 	
 	// cancel hardware menu
-	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::findTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
+	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::getTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
 	if (hardware_settings)
 	{
 		hardware_settings->cancel();
@@ -649,7 +649,7 @@ void LLFloaterPreference::refreshEnabledGraphics()
 	{
 		instance->refreshEnabledState();
 	}
-	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::findTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
+	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::getTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
 	if (hardware_settings)
 	{
 		hardware_settings->refreshEnabledState();

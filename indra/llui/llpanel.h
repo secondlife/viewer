@@ -249,6 +249,8 @@ public:
 
 	//call onOpen to let panel know when it's about to be shown or activated
 	virtual void	onOpen(const LLSD& key) {}
+
+	void setXMLFilename(std::string filename) { mXMLFilename = filename; };
 	
 protected:
 	// Override to set not found list
@@ -278,6 +280,9 @@ private:
 	ui_string_map_t	mUIStrings;
 
 	std::string		mRequirementsError;
+
+	// for setting the xml filename when building panel in context dependent cases
+	std::string		mXMLFilename;
 	
 }; // end class LLPanel
 

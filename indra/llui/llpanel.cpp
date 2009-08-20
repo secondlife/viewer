@@ -94,7 +94,8 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 	mBorder(NULL),
 	mLabel(p.label),
 	mCommitCallbackRegistrar(false),
-	mEnableCallbackRegistrar(false)
+	mEnableCallbackRegistrar(false),
+	mXMLFilename("")
 {
 	setIsChrome(FALSE);
 
@@ -486,8 +487,13 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 		LLFastTimer timer(FTM_PANEL_SETUP);
 
 		LLXMLNodePtr referenced_xml;
-		std::string xml_filename;
-		node->getAttributeString("filename", xml_filename);
+		std::string xml_filename = mXMLFilename;
+		
+		// if the panel didn't provide a filename, check the node
+		if (xml_filename.empty())
+		{
+			node->getAttributeString("filename", xml_filename);
+		}
 
 		if (!xml_filename.empty())
 		{
