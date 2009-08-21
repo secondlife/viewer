@@ -2628,6 +2628,45 @@ This update is not required, but we suggest you install it to improve performanc
 
   <notification
    icon="alertmodal.tga"
+   name="DownloadLinuxMandatory"
+   type="alertmodal">
+A new version of [SECOND_LIFE] is available.
+[MESSAGE]
+You must download this update to use [SECOND_LIFE].
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Quit"
+     yestext="Download"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DownloadLinux"
+   type="alertmodal">
+An updated version of [SECOND_LIFE] is available.
+[MESSAGE]
+This update is not required, but we suggest you install it to improve performance and stability.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Continue"
+     yestext="Download"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DownloadLinuxReleaseForDownload"
+   type="alertmodal">
+An updated version of [SECOND_LIFE] is available.
+[MESSAGE]
+This update is not required, but we suggest you install it to improve performance and stability.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Continue"
+     yestext="Download"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="DownloadMacMandatory"
    type="alertmodal">
 A new version of [SECOND_LIFE] is available.

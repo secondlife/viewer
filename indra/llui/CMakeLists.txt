@@ -12,6 +12,7 @@ include(LLRender)
 include(LLWindow)
 include(LLVFS)
 include(LLXML)
+include(LLXUIXML)
 
 include_directories(
     ${LLAUDIO_INCLUDE_DIRS}
@@ -23,6 +24,7 @@ include_directories(
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
+    ${LLXUIXML_INCLUDE_DIRS}
     )
 
 set(llui_SOURCE_FILES
@@ -44,7 +46,6 @@ set(llui_SOURCE_FILES
     llfocusmgr.cpp
     llfunctorregistry.cpp
     lliconctrl.cpp
-    llinitparam.cpp
     llkeywords.cpp
     lllayoutstack.cpp
     lllineeditor.cpp
@@ -82,9 +83,8 @@ set(llui_SOURCE_FILES
     lltextbox.cpp
     lltexteditor.cpp
     lltextparser.cpp
-    lltrans.cpp
+    lltransutil.cpp
     llui.cpp
-    lluicolor.cpp
     lluicolortable.cpp
     lluictrl.cpp
     lluictrlfactory.cpp
@@ -121,7 +121,6 @@ set(llui_HEADER_FILES
     llhandle.h
     llhtmlhelp.h
     lliconctrl.h
-    llinitparam.h
     llkeywords.h
     lllayoutstack.h
     lllazyvalue.h
@@ -136,7 +135,6 @@ set(llui_HEADER_FILES
     llpanel.h
     llprogressbar.h
     llradiogroup.h
-    llregistry.h
     llresizebar.h
     llresizehandle.h
     llresmgr.h
@@ -161,8 +159,7 @@ set(llui_HEADER_FILES
     lltextbox.h
     lltexteditor.h
     lltextparser.h
-    lltrans.h
-    lluicolor.h
+    lltransutil.h
     lluicolortable.h
     lluiconstants.h
     lluictrlfactory.h
@@ -191,6 +188,7 @@ target_link_libraries(llui
     llwindow
     llimage
     llvfs       # ugh, just for LLDir
+    llxuixml
     llxml
     llcommon    # must be after llimage, llwindow, llrender
     llmath

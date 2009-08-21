@@ -40,6 +40,12 @@
 #	include <sys/stat.h>		// mkdir()
 #endif
 
+#if LL_LINUX && LL_GTK
+extern "C" {
+#	include "glib.h"		// g_spawn_command_line_async()
+}
+#endif
+
 #include "audioengine.h"
 
 #ifdef LL_FMOD
@@ -2872,10 +2878,12 @@ void update_app(BOOL mandatory, const std::string& auth_msg)
 	
 #if LL_WINDOWS
 	notification_name += "Windows";
-#else
+#elif LL_DARWIN
 	notification_name += "Mac";
+#else
+	notification_name += "Linux";	
 #endif
-	
+
 	if (mandatory)
 	{
 		notification_name += "Mandatory";
@@ -2888,7 +2896,6 @@ void update_app(BOOL mandatory, const std::string& auth_msg)
 	}
 	
 	LLNotifications::instance().add(notification_name, args, payload, update_dialog_callback);
-	
 }
 
 bool update_dialog_callback(const LLSD& notification, const LLSD& response)
@@ -2919,6 +2926,13 @@ bool update_dialog_callback(const LLSD& notification, const LLSD& response)
 			LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
 		}
 		return false;
+	}
+
+	// if a sim name was passed in via command line parameter (typically through a SLURL)
+	if ( LLURLSimString::sInstance.mSimString.length() )
+	{
+		// record the location to start at next time
+		gSavedSettings.setString("NextLoginLocation", LLURLSimString::sInstance.mSimString);
 	}
 	
 	LLSD query_map = LLSD::emptyMap();
@@ -2980,13 +2994,6 @@ bool update_dialog_callback(const LLSD& notification, const LLSD& response)
 		return false;
 	}
 
-	// if a sim name was passed in via command line parameter (typically through a SLURL)
-	if ( LLURLSimString::sInstance.mSimString.length() )
-	{
-		// record the location to start at next time
-		gSavedSettings.setString( "NextLoginLocation", LLURLSimString::sInstance.mSimString ); 
-	};
-
 	LLAppViewer::sUpdaterInfo->mParams << "-url \"" << update_url.asString() << "\"";
 
 	LL_DEBUGS("AppInit") << "Calling updater: " << LLAppViewer::sUpdaterInfo->mUpdateExePath << " " << LLAppViewer::sUpdaterInfo->mParams.str() << LL_ENDL;
@@ -2995,13 +3002,6 @@ bool update_dialog_callback(const LLSD& notification, const LLSD& response)
 	LLAppViewer::instance()->removeMarkerFile(); // In case updater fails
 	
 #elif LL_DARWIN
-	// if a sim name was passed in via command line parameter (typically through a SLURL)
-	if ( LLURLSimString::sInstance.mSimString.length() )
-	{
-		// record the location to start at next time
-		gSavedSettings.setString( "NextLoginLocation", LLURLSimString::sInstance.mSimString ); 
-	};
-	
 	LLAppViewer::sUpdaterInfo->mUpdateExePath = "'";
 	LLAppViewer::sUpdaterInfo->mUpdateExePath += gDirUtilp->getAppRODataDir();
 	LLAppViewer::sUpdaterInfo->mUpdateExePath += "/mac-updater.app/Contents/MacOS/mac-updater' -url \"";
@@ -3015,7 +3015,49 @@ bool update_dialog_callback(const LLSD& notification, const LLSD& response)
 	// Run the auto-updater.
 	system(LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str()); /* Flawfinder: ignore */
 
-#elif LL_LINUX || LL_SOLARIS
+#elif (LL_LINUX || LL_SOLARIS) && LL_GTK
+	// we tell the updater where to find the xml containing string
+	// translations which it can use for its own UI
+	std::string xml_strings_file = "strings.xml";
+	std::vector<std::string> xui_path_vec = LLUI::getXUIPaths();
+	std::string xml_search_paths;
+	std::vector<std::string>::const_iterator iter;
+	// build comma-delimited list of xml paths to pass to updater
+	for (iter = xui_path_vec.begin(); iter != xui_path_vec.end(); )
+	{
+		std::string this_skin_dir = gDirUtilp->getDefaultSkinDir()
+			+ gDirUtilp->getDirDelimiter()
+			+ (*iter);
+		llinfos << "Got a XUI path: " << this_skin_dir << llendl;
+		xml_search_paths.append(this_skin_dir);
+		++iter;
+		if (iter != xui_path_vec.end())
+			xml_search_paths.append(","); // comma-delimit
+	}
+	// build the overall command-line to run the updater correctly
+	update_exe_path = 
+		gDirUtilp->getExecutableDir() + "/" + "linux-updater.bin" + 
+		" --url \"" + update_url.asString() + "\"" +
+		" --name \"" + LLAppViewer::instance()->getSecondLifeTitle() + "\"" +
+		" --dest \"" + gDirUtilp->getAppRODataDir() + "\"" +
+		" --stringsdir \"" + xml_search_paths + "\"" +
+		" --stringsfile \"" + xml_strings_file + "\"";
+
+	LL_INFOS("AppInit") << "Calling updater: " 
+			    << update_exe_path << LL_ENDL;
+
+	// *TODO: we could use the gdk equivilant to ensure the updater
+	// gets started on the same screen.
+	GError *error = NULL;
+	if (!g_spawn_command_line_async(update_exe_path.c_str(), &error))
+	{
+		llerrs << "Failed to launch updater: "
+		       << error->message
+		       << llendl;
+	}
+	if (error)
+		g_error_free(error);
+#else
 	OSMessageBox(LLTrans::getString("MBNoAutoUpdate"), LLStringUtil::null, OSMB_OK);
 #endif
 	LLAppViewer::instance()->forceQuit();

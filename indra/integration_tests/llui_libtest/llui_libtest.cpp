@@ -43,7 +43,7 @@
 #include "llfloater.h"
 #include "llfontfreetype.h"
 #include "llfontgl.h"
-#include "lltrans.h"
+#include "lltransutil.h"
 #include "llui.h"
 #include "lluictrlfactory.h"
 
@@ -154,8 +154,8 @@ void init_llui()
 	// Otherwise we get translation warnings when setting up floaters
 	// (tooltips for buttons)
 	std::set<std::string> default_args;
-	LLTrans::parseStrings("strings.xml", default_args);
-    LLTrans::parseLanguageStrings("language_settings.xml");
+	LLTransUtil::parseStrings("strings.xml", default_args);
+	LLTransUtil::parseLanguageStrings("language_settings.xml");
 	LLFontManager::initClass();
 	
 	// Creating widgets apparently requires fonts to be initialized,

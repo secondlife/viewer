@@ -32,6 +32,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include <sys/stat.h>
+
 #include "llviewertexturelist.h"
 
 #include "imageids.h"
@@ -61,8 +63,7 @@
 #include "llviewerstats.h"
 #include "pipeline.h"
 #include "llappviewer.h"
-#include "lluictrlfactory.h" // for LLXUIParser
-#include <sys/stat.h>
+#include "llxuiparser.h"
 
 ////////////////////////////////////////////////////////////////////////////
 

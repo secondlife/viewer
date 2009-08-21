@@ -11,7 +11,7 @@ if [ -z "$URL" ]; then
 fi
 
 RUN_PATH=`dirname "$0" || echo .`
-cd "${RUN_PATH}"
+cd "${RUN_PATH}/.."
 
 exec ./secondlife -url \'"${URL}"\'
 

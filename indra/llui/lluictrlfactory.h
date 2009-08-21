@@ -35,8 +35,11 @@
 
 #include "llcallbackmap.h"
 #include "llinitparam.h"
+#include "llregistry.h"
 #include "llxmlnode.h"
 #include "llfasttimer.h"
+
+#include "llxuiparser.h"
 
 #include <boost/function.hpp>
 #include <iosfwd>
@@ -47,110 +50,6 @@ class LLPanel;
 class LLFloater;
 class LLView;
 
-class LLXSDWriter : public LLInitParam::Parser
-{
-	LOG_CLASS(LLXSDWriter);
-public:
-	void writeXSD(const std::string& name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace);
-
-	/*virtual*/ std::string getCurrentElementName() { return LLStringUtil::null; }
-
-	LLXSDWriter();
-
-protected:
-	void writeAttribute(const std::string& type, const Parser::name_stack_t&, S32 min_count, S32 max_count, const std::vector<std::string>* possible_values);
-	void addAttributeToSchema(LLXMLNodePtr nodep, const std::string& attribute_name, const std::string& type, bool mandatory, const std::vector<std::string>* possible_values);
-	LLXMLNodePtr mAttributeNode;
-	LLXMLNodePtr mElementNode;
-	LLXMLNodePtr mSchemaNode;
-
-	typedef std::set<std::string> string_set_t;
-	typedef std::map<LLXMLNodePtr, string_set_t> attributes_map_t;
-	attributes_map_t	mAttributesWritten;
-};
-
-// NOTE: DOES NOT WORK YET
-// should support child widgets for XUI
-class LLXUIXSDWriter : public LLXSDWriter
-{
-public:
-	void writeXSD(const std::string& name, const std::string& path, const LLInitParam::BaseBlock& block);
-};
-
-class LLXUIParser : public LLInitParam::Parser, public LLSingleton<LLXUIParser>
-{
-LOG_CLASS(LLXUIParser);
-
-protected:
-	LLXUIParser();
-	friend class LLSingleton<LLXUIParser>;
-public:
-	typedef LLInitParam::Parser::name_stack_t name_stack_t;
-
-	/*virtual*/ std::string getCurrentElementName();
-	/*virtual*/ void parserWarning(const std::string& message);
-	/*virtual*/ void parserError(const std::string& message);
-
-	void readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, bool silent=false);
-	void writeXUI(LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const LLInitParam::BaseBlock* diff_block = NULL);
-
-private:
-	typedef std::list<std::pair<std::string, bool> >	token_list_t;
-
-	bool readXUIImpl(LLXMLNodePtr node, const std::string& scope, LLInitParam::BaseBlock& block);
-	bool readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block);
-
-	//reader helper functions
-	bool readBoolValue(void* val_ptr);
-	bool readStringValue(void* val_ptr);
-	bool readU8Value(void* val_ptr);
-	bool readS8Value(void* val_ptr);
-	bool readU16Value(void* val_ptr);
-	bool readS16Value(void* val_ptr);
-	bool readU32Value(void* val_ptr);
-	bool readS32Value(void* val_ptr);
-	bool readF32Value(void* val_ptr);
-	bool readF64Value(void* val_ptr);
-	bool readColor4Value(void* val_ptr);
-	bool readUIColorValue(void* val_ptr);
-	bool readUUIDValue(void* val_ptr);
-	bool readSDValue(void* val_ptr);
-
-	//writer helper functions
-	bool writeBoolValue(const void* val_ptr, const name_stack_t&);
-	bool writeStringValue(const void* val_ptr, const name_stack_t&);
-	bool writeU8Value(const void* val_ptr, const name_stack_t&);
-	bool writeS8Value(const void* val_ptr, const name_stack_t&);
-	bool writeU16Value(const void* val_ptr, const name_stack_t&);
-	bool writeS16Value(const void* val_ptr, const name_stack_t&);
-	bool writeU32Value(const void* val_ptr, const name_stack_t&);
-	bool writeS32Value(const void* val_ptr, const name_stack_t&);
-	bool writeF32Value(const void* val_ptr, const name_stack_t&);
-	bool writeF64Value(const void* val_ptr, const name_stack_t&);
-	bool writeColor4Value(const void* val_ptr, const name_stack_t&);
-	bool writeUIColorValue(const void* val_ptr, const name_stack_t&);
-	bool writeUUIDValue(const void* val_ptr, const name_stack_t&);
-	bool writeSDValue(const void* val_ptr, const name_stack_t&);
-
-	LLXMLNodePtr getNode(const name_stack_t& stack);
-
-private:
-	Parser::name_stack_t			mNameStack;
-	LLXMLNodePtr					mCurReadNode;
-	// Root of the widget XML sub-tree, for example, "line_editor"
-	LLXMLNodePtr					mWriteRootNode;
-	
-	typedef std::map<S32, LLXMLNodePtr>	out_nodes_t;
-	out_nodes_t						mOutNodes;
-	S32								mLastWriteGeneration;
-	LLXMLNodePtr					mLastWrittenChild;
-	S32								mCurReadDepth;
-};
-
-// global static instance for registering all widget types
-typedef boost::function<LLView* (LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)> LLWidgetCreatorFunc;
-
-typedef LLRegistry<std::string, LLWidgetCreatorFunc> widget_registry_t;
 
 // sort functor for typeid maps
 struct LLCompareTypeID
@@ -192,11 +91,6 @@ class LLWidgetNameRegistry
 :	public LLRegistrySingleton<const std::type_info*, std::string, LLWidgetNameRegistry , LLCompareTypeID>
 {};
 
-// lookup widget type by name
-class LLWidgetTypeRegistry
-:	public LLRegistrySingleton<std::string, const std::type_info*, LLWidgetTypeRegistry>
-{};
-
 // lookup factory functions for default widget instances by widget type
 typedef LLView* (*dummy_widget_creator_func_t)(const std::string&);
 class LLDefaultWidgetRegistry
@@ -207,10 +101,6 @@ class LLDefaultWidgetRegistry
 typedef const LLInitParam::BaseBlock& (*empty_param_block_func_t)();
 class LLDefaultParamBlockRegistry
 :	public LLRegistrySingleton<const std::type_info*, empty_param_block_func_t, LLDefaultParamBlockRegistry, LLCompareTypeID>
-{};
-
-class LLChildRegistryRegistry
-: public LLRegistrySingleton<const std::type_info*, widget_registry_t, LLChildRegistryRegistry>
 {};
 
 extern LLFastTimer::DeclareTimer FTM_WIDGET_SETUP;

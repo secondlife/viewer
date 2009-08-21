@@ -593,12 +593,15 @@ class LinuxManifest(ViewerManifest):
             self.path("client-readme-voice.txt","README-linux-voice.txt")
             self.path("client-readme-joystick.txt","README-linux-joystick.txt")
             self.path("wrapper.sh","secondlife")
-            self.path("handle_secondlifeprotocol.sh")
-            self.path("register_secondlifeprotocol.sh")
+            self.path("handle_secondlifeprotocol.sh", "etc/handle_secondlifeprotocol.sh")
+            self.path("register_secondlifeprotocol.sh", "etc/register_secondlifeprotocol.sh")
+            self.path("refresh_desktop_app_entry.sh", "etc/refresh_desktop_app_entry.sh")
+            self.path("launch_url.sh","etc/launch_url.sh")
+            self.path("install.sh")
             self.end_prefix("linux_tools")
 
         # Create an appropriate gridargs.dat for this package, denoting required grid.
-        self.put_in_file(self.flags_list(), 'gridargs.dat')
+        self.put_in_file(self.flags_list(), 'etc/gridargs.dat')
 
 
     def package_finish(self):
@@ -659,8 +662,8 @@ class Linux_i686Manifest(LinuxManifest):
             pass
 
         self.path("secondlife-stripped","bin/do-not-directly-run-secondlife-bin")
-        self.path("../linux_crash_logger/linux-crash-logger-stripped","linux-crash-logger.bin")
-        self.path("linux_tools/launch_url.sh","launch_url.sh")
+        self.path("../linux_crash_logger/linux-crash-logger-stripped","bin/linux-crash-logger.bin")
+        self.path("../linux_updater/linux-updater-stripped", "bin/linux-updater.bin")
         if self.prefix("res-sdl"):
             self.path("*")
             # recurse
@@ -702,7 +705,6 @@ class Linux_x86_64Manifest(LinuxManifest):
         super(Linux_x86_64Manifest, self).construct()
         self.path("secondlife-stripped","bin/do-not-directly-run-secondlife-bin")
         self.path("../linux_crash_logger/linux-crash-logger-stripped","linux-crash-logger.bin")
-        self.path("linux_tools/launch_url.sh","launch_url.sh")
         if self.prefix("res-sdl"):
             self.path("*")
             # recurse

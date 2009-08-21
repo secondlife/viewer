@@ -553,7 +553,7 @@ void LLAppViewerLinux::handleSyncCrashTrace()
 
 void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
 {
-	std::string cmd =gDirUtilp->getAppRODataDir();
+	std::string cmd =gDirUtilp->getExecutableDir();
 	cmd += gDirUtilp->getDirDelimiter();
 #if LL_LINUX
 	cmd += "linux-crash-logger.bin";

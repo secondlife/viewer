@@ -113,6 +113,7 @@
 #include "llviewermenu.h"
 #include "llselectmgr.h"
 #include "lltrans.h"
+#include "lltransutil.h"
 #include "lltracker.h"
 #include "llviewerparcelmgr.h"
 #include "llworldmapview.h"
@@ -677,8 +678,8 @@ bool LLAppViewer::init()
 	
 	// Setup paths and LLTrans after LLUI::initClass has been called
 	LLUI::setupPaths();
-	LLTrans::parseStrings("strings.xml", default_trans_args);		
-	LLTrans::parseLanguageStrings("language_settings.xml");
+	LLTransUtil::parseStrings("strings.xml", default_trans_args);		
+	LLTransUtil::parseLanguageStrings("language_settings.xml");
 	LLWeb::initClass();			  // do this after LLUI
 
 	LLTextEditor::setURLCallbacks(&LLWeb::loadURL,
@@ -1740,8 +1741,8 @@ bool LLAppViewer::initConfiguration()
 	}
 	
 	LLUI::setupPaths(); // setup paths for LLTrans based on settings files only
-	LLTrans::parseStrings("strings.xml", default_trans_args);
-	LLTrans::parseLanguageStrings("language_settings.xml");
+	LLTransUtil::parseStrings("strings.xml", default_trans_args);
+	LLTransUtil::parseLanguageStrings("language_settings.xml");
 	// - set procedural settings
 	// Note: can't use LL_PATH_PER_SL_ACCOUNT for any of these since we haven't logged in yet
 	gSavedSettings.setString("ClientSettingsFile", 
