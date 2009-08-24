@@ -6,6 +6,9 @@
 	<global name="alwayschoose">
 		常にこのオプションを選択
 	</global>
+	<global name="implicitclosebutton">
+		閉じる
+	</global>
   <template name="okbutton">
     <form>
       <button
@@ -3165,7 +3168,7 @@ Second Life をデバッグするデベロッパーにとって
 有用な機能があります。
 このメニューを切り替えるには、
 WindowsではCtrl-Alt-Dを押します。
-Macの場合は、Cmd-Opt-Shift-Dを押してください。
+Macの場合は、&#8984;-Opt-Shift-Dを押してください。
 	</notification>
 	<notification name="FirstSculptedPrim">
 		スカルプトプリムを編集しています。

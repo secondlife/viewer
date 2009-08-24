@@ -141,10 +141,20 @@ public:
 
 	// Note: Does NOT follow GL_QUAD conventions: the top and right edges ARE considered part of the rect
 	// returns TRUE if any part of rect is is inside this LLRect
-	BOOL		rectInRect(const LLRectBase* rect) const
+	BOOL		overlaps(const LLRectBase& rect) const
 	{
-		return mLeft <= rect->mRight && rect->mLeft <= mRight && 
-			   mBottom <= rect->mTop && rect->mBottom <= mTop ;
+		return !(mLeft > rect.mRight 
+			|| mRight < rect.mLeft
+			|| mBottom > rect.mTop 
+			|| mTop < rect.mBottom);
+	}
+
+	BOOL		contains(const LLRectBase& rect) const
+	{
+		return mLeft <= rect.mLeft
+			&& mRight >= rect.mRight
+			&& mBottom <= rect.mBottom
+			&& mTop >= rect.mTop;
 	}
 
 	LLRectBase& set(Type left, Type top, Type right, Type bottom)
@@ -223,26 +233,25 @@ public:
 		return mLeft <= mRight && mBottom <= mTop;
 	}
 
-	bool isNull() const
+	bool isEmpty() const
 	{
 		return mLeft == mRight || mBottom == mTop;
 	}
 
-	bool notNull() const
+	bool notEmpty() const
 	{
-		return !isNull();
+		return !isEmpty();
 	}
 
-	LLRectBase& unionWith(const LLRectBase &other)
+	void unionWith(const LLRectBase &other)
 	{
 		mLeft = llmin(mLeft, other.mLeft);
 		mRight = llmax(mRight, other.mRight);
 		mBottom = llmin(mBottom, other.mBottom);
 		mTop = llmax(mTop, other.mTop);
-		return *this;
 	}
 
-	LLRectBase& intersectWith(const LLRectBase &other)
+	void intersectWith(const LLRectBase &other)
 	{
 		mLeft = llmax(mLeft, other.mLeft);
 		mRight = llmin(mRight, other.mRight);
@@ -256,7 +265,6 @@ public:
 		{
 			mBottom = mTop;
 		}
-		return *this;
 	}
 
 	friend std::ostream &operator<<(std::ostream &s, const LLRectBase &rect)

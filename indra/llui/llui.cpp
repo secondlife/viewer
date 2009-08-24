@@ -71,9 +71,6 @@
 //
 const LLColor4 UI_VERTEX_COLOR(1.f, 1.f, 1.f, 1.f);
 
-// Used to hide the flashing text cursor when window doesn't have focus.
-BOOL gShowTextEditCursor = TRUE;
-
 // Language for UI construction
 std::map<std::string, std::string> gTranslation;
 std::list<std::string> gUntranslated;
@@ -1898,6 +1895,12 @@ void LLScreenClipRect::pushClipRect(const LLRect& rect)
 	{
 		LLRect top = sClipRectStack.top();
 		combined_clip_rect.intersectWith(top);
+
+		if(combined_clip_rect.isEmpty())
+		{
+			// avoid artifacts where zero area rects show up as lines
+			combined_clip_rect = LLRect::null;
+		}
 	}
 	sClipRectStack.push(combined_clip_rect);
 }

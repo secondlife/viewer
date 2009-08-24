@@ -39,7 +39,6 @@
 #include "llscrolllistitem.h"
 #include "llpanel.h"
 #include "llcombobox.h"
-#include "llviewertexteditor.h"
 
 const S32 NOTIFICATION_PANEL_HEADER_HEIGHT = 20;
 const S32 HEADER_PADDING = 38;
@@ -250,7 +249,7 @@ LLFloaterNotification::LLFloaterNotification(LLNotification* note)
 BOOL LLFloaterNotification::postBuild()
 {
 	setTitle(mNote->getName());
-	getChild<LLViewerTextEditor>("payload")->setText(mNote->getMessage());
+	getChild<LLUICtrl>("payload")->setValue(mNote->getMessage());
 
 	LLComboBox* responses_combo = getChild<LLComboBox>("response");
 	LLCtrlListInterface* response_list = responses_combo->getListInterface();

@@ -36,6 +36,7 @@
 
 #include "llbutton.h"
 #include "llfloaterreg.h"
+#include "llfocusmgr.h"
 #include "llinventory.h"
 #include "lluictrlfactory.h"
 #include "llmenugl.h"
@@ -292,7 +293,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 	if (mFirstDropDownItem != count)
 	{
 		// Chevron button should stay right aligned
-		LLView *chevron_button = getChildView(std::string(">>"), FALSE, FALSE);
+		LLView *chevron_button = findChildView(std::string(">>"), FALSE);
 		if (chevron_button)
 		{
 			LLRect rect;
@@ -335,7 +336,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 	else
 	{
 		// Hide chevron button if all items are visible on bar
-		LLView *chevron_button = getChildView(std::string(">>"), FALSE, FALSE);
+		LLView *chevron_button = findChildView(std::string(">>"), FALSE);
 		if (chevron_button)
 		{
 			chevron_button->setVisible(FALSE);
@@ -366,7 +367,7 @@ void LLFavoritesBarCtrl::createButtons(const LLInventoryModel::item_array_t &ite
 		fav_btn->setLabel(item->getName());
 		fav_btn->setToolTip(item->getName());
 		fav_btn->setCommitCallback(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
-		fav_btn->setRightClickedCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID(), _1, _2, _3,_4 ));
+		fav_btn->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID(), _1, _2, _3,_4 ));
 		sendChildToBack(fav_btn);
 
 		curr_x += buttonWidth + buttonHGap;
@@ -486,7 +487,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 			
 			item_params.on_click.function(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
 			LLMenuItemCallGL *menu_item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
-			menu_item->setRightClickedCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this,item->getUUID(),_1,_2,_3,_4));
+			menu_item->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this,item->getUUID(),_1,_2,_3,_4));
 			// Check whether item name wider than menu
 			if ((S32) menu_item->getNominalWidth() > bar_width)
 			{
@@ -545,6 +546,10 @@ void LLFavoritesBarCtrl::onButtonRightClick( LLUUID item_id,LLView* fav_button,S
 		return;
 	}
 	
+	// Release mouse capture so hover events go to the popup menu
+	// because this is happening during a mouse down.
+	gFocusMgr.setMouseCapture(NULL);
+
 	menu->updateParent(LLMenuGL::sMenuContainer);
 	LLMenuGL::showPopup(fav_button, menu, x, y);
 }

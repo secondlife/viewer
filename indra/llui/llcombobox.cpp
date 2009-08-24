@@ -191,6 +191,7 @@ void LLComboBox::clear()
 	mButton->setLabelSelected(LLStringUtil::null);
 	mButton->setLabelUnselected(LLStringUtil::null);
 	mList->deselectAllItems();
+	mLastSelectedIndex = -1;
 }
 
 void LLComboBox::onCommit()
@@ -296,6 +297,7 @@ BOOL LLComboBox::setSimple(const LLStringExplicit& name)
 	if (found)
 	{
 		setLabel(name);
+		mLastSelectedIndex = mList->getFirstSelectedIndex();
 	}
 
 	return found;
@@ -312,6 +314,7 @@ void LLComboBox::setValue(const LLSD& value)
 		{
 			setLabel( mList->getSelectedItemLabel() );
 		}
+		mLastSelectedIndex = mList->getFirstSelectedIndex();
 	}
 }
 
@@ -359,6 +362,7 @@ void LLComboBox::setLabel(const LLStringExplicit& name)
 		if (mList->selectItemByLabel(name, FALSE))
 		{
 			mTextEntry->setTentative(FALSE);
+			mLastSelectedIndex = mList->getFirstSelectedIndex();
 		}
 		else
 		{
@@ -384,6 +388,7 @@ BOOL LLComboBox::remove(const std::string& name)
 		{
 			mList->deleteSingleItem(mList->getItemIndex(item));
 		}
+		mLastSelectedIndex = mList->getFirstSelectedIndex();
 	}
 
 	return found;
@@ -436,6 +441,7 @@ BOOL LLComboBox::setCurrentByIndex( S32 index )
 	if (found)
 	{
 		setLabel(mList->getSelectedItemLabel());
+		mLastSelectedIndex = index;
 	}
 	return found;
 }
@@ -607,9 +613,6 @@ void LLComboBox::showList()
 	mList->setVisible(TRUE);
 	
 	setUseBoundingRect(TRUE);
-
-	mList->sortItems();
-	mLastSelectedIndex = mList->getFirstSelectedIndex();
 }
 
 void LLComboBox::hideList()
@@ -819,11 +822,13 @@ void LLComboBox::onTextEntry(LLLineEditor* line_editor)
 		if (mList->selectItemByLabel(line_editor->getText(), FALSE))
 		{
 			line_editor->setTentative(FALSE);
+			mLastSelectedIndex = mList->getFirstSelectedIndex();
 		}
 		else
 		{
 			line_editor->setTentative(mTextEntryTentative);
 			mList->deselectAllItems();
+			mLastSelectedIndex = -1;
 		}
 		return;
 	}
@@ -890,6 +895,7 @@ void LLComboBox::updateSelection()
 	if (mList->selectItemByLabel(full_string, FALSE))
 	{
 		mTextEntry->setTentative(FALSE);
+		mLastSelectedIndex = mList->getFirstSelectedIndex();
 	}
 	else if (mList->selectItemByPrefix(left_wstring, FALSE))
 	{
@@ -900,6 +906,7 @@ void LLComboBox::updateSelection()
 		mTextEntry->endSelection();
 		mTextEntry->setTentative(FALSE);
 		mHasAutocompletedText = TRUE;
+		mLastSelectedIndex = mList->getFirstSelectedIndex();
 	}
 	else // no matching items found
 	{
@@ -907,6 +914,7 @@ void LLComboBox::updateSelection()
 		mTextEntry->setText(wstring_to_utf8str(user_wstring)); // removes text added by autocompletion
 		mTextEntry->setTentative(mTextEntryTentative);
 		mHasAutocompletedText = FALSE;
+		mLastSelectedIndex = -1;
 	}
 }
 
@@ -994,6 +1002,7 @@ BOOL LLComboBox::setCurrentByID(const LLUUID& id)
 	if (found)
 	{
 		setLabel(mList->getSelectedItemLabel());
+		mLastSelectedIndex = mList->getFirstSelectedIndex();
 	}
 
 	return found;

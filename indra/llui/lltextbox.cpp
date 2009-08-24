@@ -389,7 +389,7 @@ void LLTextBox::drawText( S32 x, S32 y, const LLColor4& color )
 						mHAlign, mVAlign, 
 						0,
 						mShadowType,
-						S32_MAX, getRect().getWidth(), NULL, TRUE, mUseEllipses);
+						S32_MAX, getRect().getWidth(), NULL, mUseEllipses);
 	}
 	else
 	{
@@ -402,7 +402,7 @@ void LLTextBox::drawText( S32 x, S32 y, const LLColor4& color )
 							mHAlign, mVAlign,
 							0,
 							mShadowType,
-							line_length, getRect().getWidth(), NULL, TRUE, mUseEllipses );
+							line_length, getRect().getWidth(), NULL, mUseEllipses );
 			cur_pos += line_length + 1;
 			y -= llfloor(mFontGL->getLineHeight()) + mLineSpacing;
 		}

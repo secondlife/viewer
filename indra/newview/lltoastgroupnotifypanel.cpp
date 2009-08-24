@@ -40,12 +40,12 @@
 #include "lliconctrl.h"
 #include "llnotify.h"
 #include "lltextbox.h"
-#include "llviewertexteditor.h"
+#include "lltexteditor.h"
 #include "lluiconstants.h"
 #include "llui.h"
 #include "llviewercontrol.h"
 #include "lltrans.h"
-#include "llinitparam.h"
+#include "llstyle.h"
 
 #include "llglheaders.h"
 #include "llagent.h"
@@ -75,23 +75,25 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	const std::string& from_name = payload["sender_name"].asString();
 	std::stringstream from;
 	from << from_name << "/" << groupData.mName;
-	LLTextBox* pTitleText = this->getChild<LLTextBox>("title");
+	LLTextBox* pTitleText = getChild<LLTextBox>("title");
 	pTitleText->setValue(from.str());
 
 	//message body
 	const std::string& subject = payload["subject"].asString();
 	const std::string& message = payload["message"].asString();
 
-	LLTextEditor* pMessageText = getChild<	LLTextEditor>("message");
+	LLTextEditor* pMessageText = getChild<LLTextEditor>("message");
 	pMessageText->setValue("");
 	pMessageText->setEnabled(FALSE);
-	pMessageText->setTakesFocus(FALSE);
 
-	static const LLStyleSP headerstyle(new LLStyle(true, textColor,
-			"SansSerifBig"));
-	static const LLStyleSP datestyle(new LLStyle(true, textColor, "serif"));
+	LLStyle::Params date_style;
+	date_style.color = textColor;
+	date_style.font.name = "SANSSERIF";
 
-	pMessageText->appendStyledText(subject + "\n",false,false,headerstyle);
+	LLStyle::Params header_style_params;
+	header_style_params.color = textColor;
+	header_style_params.font = LLFontGL::getFontSansSerifBig();
+	pMessageText->appendStyledText(subject + "\n",false,false,header_style_params);
 
 	std::string timeStr = "["+LLTrans::getString("UTCTimeWeek")+"],["
 							+LLTrans::getString("UTCTimeDay")+"] ["
@@ -106,7 +108,10 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	LLSD substitution;
 	substitution["datetime"] = (S32) notice_date.secondsSinceEpoch();
 	LLStringUtil::format(timeStr, substitution);
-	pMessageText->appendStyledText(timeStr, false, false, datestyle);
+	LLStyle::Params date_style_params;
+	date_style_params.color = textColor;
+	date_style_params.font = LLFontGL::getFontMonospace();
+	pMessageText->appendStyledText(timeStr, false, false, date_style);
 	pMessageText->appendColoredText(std::string("\n\n") + message, false,
 			false, textColor);
 

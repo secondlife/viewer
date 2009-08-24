@@ -6,6 +6,9 @@
 	<global name="alwayschoose">
 		Sempre escolher esta opção
 	</global>
+	<global name="implicitclosebutton">
+		Fechar
+	</global>
   <template name="okbutton">
     <form>
       <button
@@ -2118,7 +2121,7 @@ Coloque-a em uma página web para dar aos outros um fácil acesso a este local o
 		</form>
 	</notification>
 	<notification name="GraphicsPreferencesHelp">
-		Este painel controla o tamanho da janela, resolução e a qualidade dos gráficos do computador cliente. O Preferências &gt; Interface Gráfica permite escolher entre quatro níveis gráficos: Baixo, Médio, Alto e Ultra. Você também pode personalizar suas configurações de gráficos selecionando a opção Padrão e manipulando as seguintes definições:
+		Este painel controla o tamanho da janela, resolução e a qualidade dos gráficos do computador cliente. O Preferências &gt; Interface Gráfica permite escolher entre quatro níveis gráficos: Baixo, Médio, Alto e Ultra. Você também pode personalizar suas configurações de gráficos selecionando a opção Personalizar e manipulando as seguintes definições:
 
 Sombreamento: Ativar ou desativar vários tipos de sombreadores de pixel.
 
@@ -2910,7 +2913,7 @@ Objetos flexíveis não podem ser físicos e devem ser fantasmas até que a caix
 	<notification name="FirstDebugMenus">
 		Você ativou o menu Avançado.
 Este menu contém funcionalidades úteis para desenvolvedores debugarem o Second Life.
-Para mostrar esse menu no Windows pressione Ctrl-Alt-D. No Mac pressione Cmd-Opt-Shift-D.
+Para mostrar esse menu no Windows pressione Ctrl-Alt-D. No Mac pressione &#8984;-Opt-D.
 	</notification>
 	<notification name="FirstSculptedPrim">
 		Você está editando uma primitiva esculpida.

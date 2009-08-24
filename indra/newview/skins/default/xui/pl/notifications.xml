@@ -6,6 +6,9 @@
 	<global name="alwayschoose">
 		Pozwalaj na wybór tej opcji
 	</global>
+	<global name="implicitclosebutton">
+		Zamknij
+	</global>
   <template name="okbutton">
     <form>
       <button
@@ -2718,7 +2721,7 @@ Spróbuj ponowanie za kilka minut.
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME] proponuje Ci teleportcję do siebie:
+		[NAME] proponuje Ci teleportację do siebie:
 
 [MESSAGE]
 		<form name="form">
@@ -2899,8 +2902,8 @@ Obiekty elastyczne nie mogą być fizyczne i muszą być typu fantom.
 	</notification>
 	<notification name="FirstDebugMenus">
 		Zaawansowane menu zostało włączone.
-To menu zawiera funkcje użyteczne dla programistów analizujących Secon Life.
-To menu jest włączne przez Ctrl-Alt-D pod Windows. Mac używa Cmd-Opt-Shift-D.
+To menu zawiera funkcje użyteczne dla programistów analizujących Second Life.
+To menu jest aktywowane dzięki kombinacji klawiszy Ctrl-Alt-D (Windows) lub &#8984;-Opt-D (Mac).
 	</notification>
 	<notification name="FirstSculptedPrim">
 		Edytujesz sculpt.

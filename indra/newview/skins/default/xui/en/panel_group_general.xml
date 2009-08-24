@@ -40,41 +40,6 @@ Hover your mouse over the options for more help.
      name="help_button"
      top="8"
      width="20" /> -->
-    <line_editor
-     follows="left|top"
-     font="SansSerifSmall"
-     prevalidate_callback="ascii"
-     halign="left"
-     height="16"
-     label="Type your new group name here"
-     layout="topleft"
-     left="10"
-     max_length="35"
-     name="group_name_editor"
-     top="10"
-     visible="false"
-     width="235" />
-    <name_box
-     follows="left|top"
-     height="16"
-     initial_value="(retrieving)"
-     layout="topleft"
-     left="10"
-     name="founder_name"
-     top="10"
-     width="100" />
-    <text
-     type="string"
-     follows="left|top"
-     height="16"
-     layout="topleft"
-     left_pad="10"
-     name="prepend_founded_by"
-     top_delta="0"
-     width="140">
-        , Founder
-    </text>
-    
     <text_editor
      type="string"
      follows="left|top"

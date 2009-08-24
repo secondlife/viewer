@@ -69,7 +69,6 @@
 #include "llviewerwindow.h"
 #include "llnotify.h"
 #include "llviewerregion.h"
-#include "llviewertexteditor.h"
 #include "lltrans.h"
 
 #include "llfirstuse.h"
@@ -847,8 +846,13 @@ BOOL LLIncomingCallDialog::postBuild()
 	EInstantMessage type = (EInstantMessage)mPayload["type"].asInteger();
 
 	std::string call_type = getString("VoiceInviteP2P");
-	std::string caller_name = mPayload["caller_name"].asString() + " ";
-	setTitle(caller_name + call_type);
+	std::string caller_name = mPayload["caller_name"].asString();
+	if (caller_name == "anonymous")
+	{
+		caller_name = getString("anonymous");
+	}
+	
+	setTitle(caller_name + " " + call_type);
 	
 	// If it is not a P2P invite, then it's an AdHoc invite
 	if ( type != IM_SESSION_P2P_INVITE )
@@ -856,8 +860,8 @@ BOOL LLIncomingCallDialog::postBuild()
 		call_type = getString("VoiceInviteAdHoc");
 	}
 
-	LLViewerTextEditor* text = getChild<LLViewerTextEditor>("caller name");
-	text->setEmbeddedText(caller_name + call_type);
+	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
+	caller_name_widget->setValue(caller_name + " " + call_type);
 	LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 	icon->setValue(caller_id);
 

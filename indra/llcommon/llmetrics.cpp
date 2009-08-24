@@ -71,7 +71,7 @@ void LLMetricsImpl::recordEventDetails(const std::string& location,
 	metrics["location"] = location;
 	metrics["stats"]  = stats;
 	
-	llinfos << "LLMETRICS: " << LLSDNotationStreamer(metrics) << llendl; 
+	llinfos << "LLMETRICS: " << (LLSDNotationStreamer(metrics)) << llendl; 
 }
 
 // Store this:

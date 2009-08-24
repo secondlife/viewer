@@ -477,7 +477,6 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 
 	if (result)
 	{
-		result->mFontFreetype->setStyle(match_desc->getStyle());
 		result->mFontDescriptor = desc;
 	}
 	else

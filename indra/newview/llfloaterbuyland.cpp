@@ -566,32 +566,25 @@ void LLFloaterBuyLandUI::onChangeAgreeCovenant(LLUICtrl* ctrl, void* user_data)
 void LLFloaterBuyLandUI::updateFloaterCovenantText(const std::string &string, const LLUUID& asset_id)
 {
 	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("covenant_editor");
-	if (editor)
+	editor->setText(string);
+
+	LLCheckBoxCtrl* check = getChild<LLCheckBoxCtrl>("agree_covenant");
+	LLTextBox* box = getChild<LLTextBox>("covenant_text");
+	if (asset_id.isNull())
 	{
-		editor->setHandleEditKeysDirectly(FALSE);
-		editor->setText(string);
+		check->set(true);
+		check->setEnabled(false);
+		refreshUI();
 
-		LLCheckBoxCtrl* check = getChild<LLCheckBoxCtrl>("agree_covenant");
-		LLTextBox* box = getChild<LLTextBox>("covenant_text");
-		if(check && box)
-		{
-			if (asset_id.isNull())
-			{
-				check->set(true);
-				check->setEnabled(false);
-				refreshUI();
+		// remove the line stating that you must agree
+		box->setVisible(FALSE);
+	}
+	else
+	{
+		check->setEnabled(true);
 
-				// remove the line stating that you must agree
-				box->setVisible(FALSE);
-			}
-			else
-			{
-				check->setEnabled(true);
-
-				// remove the line stating that you must agree
-				box->setVisible(TRUE);
-			}
-		}
+		// remove the line stating that you must agree
+		box->setVisible(TRUE);
 	}
 }
 

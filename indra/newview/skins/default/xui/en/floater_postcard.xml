@@ -12,7 +12,7 @@
  width="450">
     <floater.string
      name="default_subject">
-        Postcard from Second Life.
+        Postcard from [SECOND_LIFE].
     </floater.string>
     <floater.string
      name="default_message">
@@ -121,6 +121,7 @@
      left_delta="0"
      max_length="700"
      name="msg_form"
+     word_wrap="true" 
      top_pad="10"
      width="420">
         Type your message here.

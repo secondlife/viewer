@@ -258,13 +258,15 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_PROCESS_OBJECTS("Process Objects");
+
 void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 											 void **user_data,
 											 const EObjectUpdateType update_type,
 											 bool cached, bool compressed)
 {
 	LLMemType mt(LLMemType::MTYPE_OBJECT_PROCESS_UPDATE);
-	LLFastTimer t(LLFastTimer::FTM_PROCESS_OBJECTS);	
+	LLFastTimer t(FTM_PROCESS_OBJECTS);	
 	
 	LLVector3d camera_global = gAgent.getCameraPositionGlobal();
 	LLViewerObject *objectp;
@@ -1304,12 +1306,13 @@ LLViewerObject *LLViewerObjectList::createObjectViewer(const LLPCode pcode, LLVi
 }
 
 
+static LLFastTimer::DeclareTimer FTM_CREATE_OBJECT("Create Object");
 
 LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRegion *regionp,
 												 const LLUUID &uuid, const U32 local_id, const LLHost &sender)
 {
 	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	LLFastTimer t(LLFastTimer::FTM_CREATE_OBJECT);
+	LLFastTimer t(FTM_CREATE_OBJECT);
 	
 	LLUUID fullid;
 	if (uuid == LLUUID::null)

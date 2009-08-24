@@ -59,7 +59,6 @@ class LLTextBox;
 class LLTextEditor;
 class LLTextureCtrl;
 class LLUIImage;
-class LLViewerTextEditor;
 class LLParcelSelection;
 
 class LLPanelLandGeneral;

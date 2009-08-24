@@ -200,7 +200,7 @@ BOOL LLAvatarList::update(const std::vector<LLUUID>& all_buddies, const std::str
 	// Changed item in place, need to request sort and update columns
 	// because we might have changed data in a column on which the user
 	// has already sorted. JC
-	sortItems();
+	updateSort();
 
 	// re-select items
 	selectMultiple(selected_ids);

@@ -73,7 +73,7 @@
                text_color="white"
                top="0"
                width="125">
-                  Second Life photo:
+                  [SECOND_LIFE] photo:
               </text>
               <texture_picker
                allow_no_texture="true"
@@ -149,7 +149,7 @@
        text_color="white"
        top_pad="10" 
        width="250">
-          Second Life description:
+          [SECOND_LIFE] description:
       </text>
       <text_editor
        type="string"

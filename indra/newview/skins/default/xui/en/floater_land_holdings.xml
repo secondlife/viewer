@@ -52,8 +52,8 @@
     <button
      height="20"
      font="SansSerifSmall"
-     label="Show on Map"
-     label_selected="Show on Map"
+     label="Map"
+     label_selected="Map"
      layout="topleft"
      left_pad="4"
      name="Show on Map"

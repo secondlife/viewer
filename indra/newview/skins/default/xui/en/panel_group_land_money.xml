@@ -87,8 +87,8 @@
     <button
      follows="top"
      height="20"
-     label="Show on Map"
-     label_selected="Show on Map"
+     label="Map"
+     label_selected="Map"
      layout="topleft"
      left="150"
      name="map_button"

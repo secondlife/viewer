@@ -747,8 +747,8 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 			panel->setUseBoundingRect(TRUE);								// enable the use of its outer bounding rect (normally disabled because it's O(n) on the number of sub-elements)
 			panel->updateBoundingRect();									// update bounding rect
 			LLRect bounding_rect = panel->getBoundingRect();				// get the bounding rect
-			LLRect panel_rect = panel->getRect();							// get the panel's rect
-			LLRect new_rect = panel_rect.unionWith(bounding_rect);			// union them to make sure we get the biggest one possible
+			LLRect new_rect = panel->getRect();								// get the panel's rect
+			new_rect.unionWith(bounding_rect);								// union them to make sure we get the biggest one possible
 			(*floaterp)->reshape(new_rect.getWidth(), new_rect.getHeight() + floater_header_size);	// reshape floater to match the union rect's dimensions
 			panel->reshape(new_rect.getWidth(), new_rect.getHeight());		// reshape panel to match the union rect's dimensions as well (both are needed)
 			(*floaterp)->addChild(panel);					// add panel as child
@@ -1274,7 +1274,7 @@ void LLFloaterUIPreview::highlightChangedElements()
 		BOOL failed = FALSE;
 		for(token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
 		{
-			element = element->getChild<LLView>(*token_iter,FALSE,FALSE);	// try to find element: don't recur, and don't create if missing
+			element = element->findChild<LLView>(*token_iter,FALSE);	// try to find element: don't recur, and don't create if missing
 
 			// if we still didn't find it...
 			if(NULL == element)												

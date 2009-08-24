@@ -48,7 +48,7 @@
 #include "lllineeditor.h"
 #include "lluiconstants.h"
 #include "lltextbox.h"
-#include "llviewertexteditor.h"
+#include "lltexteditor.h"
 #include "lltexturectrl.h"
 #include "lltrans.h"
 #include "llworldmap.h"

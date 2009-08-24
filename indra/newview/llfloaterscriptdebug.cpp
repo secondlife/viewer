@@ -80,9 +80,6 @@ BOOL LLFloaterScriptDebug::postBuild()
 
 	if (mTabContainer)
 	{
-		// *FIX: apparantly fails for tab containers?
-// 		mTabContainer->requires<LLFloater>("all_scripts");
-// 		mTabContainer->checkRequirements();
 		return TRUE;
 	}
 

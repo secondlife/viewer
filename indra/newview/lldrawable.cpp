@@ -60,6 +60,9 @@ const F32 MAX_INTERPOLATE_DISTANCE_SQUARED = 10.f * 10.f;
 const F32 OBJECT_DAMPING_TIME_CONSTANT = 0.06f;
 const F32 MIN_SHADOW_CASTER_RADIUS = 2.0f;
 
+static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
+
+
 ////////////////////////
 //
 // Inline implementations.
@@ -188,7 +191,7 @@ BOOL LLDrawable::isLight() const
 
 void LLDrawable::cleanupReferences()
 {
-	LLFastTimer t(LLFastTimer::FTM_PIPELINE);
+	LLFastTimer t(FTM_PIPELINE);
 	
 	std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
 	mFaces.clear();
@@ -1033,7 +1036,7 @@ void LLSpatialBridge::updateSpatialExtents()
 	LLSpatialGroup* root = (LLSpatialGroup*) mOctree->getListener(0);
 	
 	{
-		LLFastTimer ftm(LLFastTimer::FTM_CULL_REBOUND);
+		LLFastTimer ftm(FTM_CULL_REBOUND);
 		root->rebound();
 	}
 	

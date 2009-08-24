@@ -89,12 +89,10 @@ static F32 llfont_round_y(F32 y)
 
 LLFontGL::LLFontGL()
 {
-	clearEmbeddedChars();
 }
 
 LLFontGL::~LLFontGL()
 {
-	clearEmbeddedChars();
 }
 
 void LLFontGL::reset()
@@ -117,8 +115,10 @@ BOOL LLFontGL::loadFace(const std::string& filename, F32 point_size, F32 vert_dp
 	return mFontFreetype->loadFace(filename, point_size, vert_dpi, horz_dpi, components, is_fallback);
 }
 
+static LLFastTimer::DeclareTimer FTM_RENDER_FONTS("Fonts");
+
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
-					 ShadowType shadow, S32 max_chars, S32 max_pixels, F32* right_x, BOOL use_embedded, BOOL use_ellipses) const
+					 ShadowType shadow, S32 max_chars, S32 max_pixels, F32* right_x, BOOL use_ellipses) const
 {
 	if(!sDisplayFont) //do not display texts
 	{
@@ -159,7 +159,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	F32 pixel_offset_y = llround((F32)sCurOrigin.mY) - (sCurOrigin.mY);
 	gGL.translatef(-pixel_offset_x, -pixel_offset_y, 0.f);
 
-	LLFastTimer t(LLFastTimer::FTM_RENDER_FONTS);
+	LLFastTimer t(FTM_RENDER_FONTS);
 
 	gGL.color4fv( color.mV );
 
@@ -251,135 +251,69 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	{
 		llwchar wch = wstr[i];
 
-		// Handle embedded characters first, if they're enabled.
-		// Embedded characters are a hack for notecards
-		const embedded_data_t* ext_data = use_embedded ? getEmbeddedCharData(wch) : NULL;
-		if (ext_data)
+		if (!mFontFreetype->hasGlyph(wch))
 		{
-			LLImageGL* ext_image = ext_data->mImage;
-			const LLWString& label = ext_data->mLabel;
-
-			F32 ext_height = (F32)ext_image->getHeight() * sScaleY;
-
-			F32 ext_width = (F32)ext_image->getWidth() * sScaleX;
-			F32 ext_advance = (EXT_X_BEARING * sScaleX) + ext_width;
-
-			if (!label.empty())
-			{
-				ext_advance += (EXT_X_BEARING + getFontExtChar()->getWidthF32( label.c_str() )) * sScaleX;
-			}
-
-			if (start_x + scaled_max_pixels < cur_x + ext_advance)
-			{
-				// Not enough room for this character.
-				break;
-			}
-
-			if (last_bound_texture != ext_image)
-			{
-				gGL.getTexUnit(0)->bind(ext_image);
-				last_bound_texture = ext_image;
-			}
-
-			// snap origin to whole screen pixel
-			const F32 ext_x = (F32)llround(cur_render_x + (EXT_X_BEARING * sScaleX));
-			const F32 ext_y = (F32)llround(cur_render_y + (EXT_Y_BEARING * sScaleY + mFontFreetype->getAscenderHeight() - mFontFreetype->getLineHeight()));
-
-			LLRectf uv_rect(0.f, 1.f, 1.f, 0.f);
-			LLRectf screen_rect(ext_x, ext_y + ext_height, ext_x + ext_width, ext_y);
-			drawGlyph(screen_rect, uv_rect, LLColor4::white, style_to_add, shadow, drop_shadow_strength);
-
-			if (!label.empty())
-			{
-				gGL.pushMatrix();
-				//glLoadIdentity();
-				//gGL.translatef(sCurOrigin.mX, sCurOrigin.mY, 0.0f);
-				//glScalef(sScaleX, sScaleY, 1.f);
-				getFontExtChar()->render(label, 0,
-									 /*llfloor*/((ext_x + (F32)ext_image->getWidth() + EXT_X_BEARING) / sScaleX), 
-									 /*llfloor*/(cur_y / sScaleY),
-									 color,
-									 halign, BASELINE, NORMAL, NO_SHADOW, S32_MAX, S32_MAX, NULL,
-									 TRUE );
-				gGL.popMatrix();
-			}
-
-			gGL.color4fv(color.mV);
-
-			chars_drawn++;
-			cur_x += ext_advance;
-			if (((i + 1) < length) && wstr[i+1])
-			{
-				cur_x += EXT_KERNING * sScaleX;
-			}
-			cur_render_x = cur_x;
+			addChar(wch);
 		}
-		else
+
+		const LLFontGlyphInfo* fgi= mFontFreetype->getGlyphInfo(wch);
+		if (!fgi)
 		{
-			if (!mFontFreetype->hasGlyph(wch))
-			{
-				addChar(wch);
-			}
-
-			const LLFontGlyphInfo* fgi= mFontFreetype->getGlyphInfo(wch);
-			if (!fgi)
-			{
-				llerrs << "Missing Glyph Info" << llendl;
-				break;
-			}
-			// Per-glyph bitmap texture.
-			LLImageGL *image_gl = mFontFreetype->getFontBitmapCache()->getImageGL(fgi->mBitmapNum);
-			if (last_bound_texture != image_gl)
-			{
-				gGL.getTexUnit(0)->bind(image_gl);
-				last_bound_texture = image_gl;
-			}
-
-			if ((start_x + scaled_max_pixels) < (cur_x + fgi->mXBearing + fgi->mWidth))
-			{
-				// Not enough room for this character.
-				break;
-			}
-
-			// Draw the text at the appropriate location
-			//Specify vertices and texture coordinates
-			LLRectf uv_rect((fgi->mXBitmapOffset) * inv_width,
-					(fgi->mYBitmapOffset + fgi->mHeight + PAD_UVY) * inv_height,
-					(fgi->mXBitmapOffset + fgi->mWidth) * inv_width,
-					(fgi->mYBitmapOffset - PAD_UVY) * inv_height);
-			// snap glyph origin to whole screen pixel
-			LLRectf screen_rect(llround(cur_render_x + (F32)fgi->mXBearing),
-					    llround(cur_render_y + (F32)fgi->mYBearing),
-					    llround(cur_render_x + (F32)fgi->mXBearing) + (F32)fgi->mWidth,
-					    llround(cur_render_y + (F32)fgi->mYBearing) - (F32)fgi->mHeight);
-			
-			drawGlyph(screen_rect, uv_rect, color, style_to_add, shadow, drop_shadow_strength);
-
-			chars_drawn++;
-			cur_x += fgi->mXAdvance;
-			cur_y += fgi->mYAdvance;
-
-			llwchar next_char = wstr[i+1];
-			if (next_char && (next_char < LAST_CHARACTER))
-			{
-				// Kern this puppy.
-				if (!mFontFreetype->hasGlyph(next_char))
-				{
-					addChar(next_char);
-				}
-				cur_x += mFontFreetype->getXKerning(wch, next_char);
-			}
-
-			// Round after kerning.
-			// Must do this to cur_x, not just to cur_render_x, otherwise you
-			// will squish sub-pixel kerned characters too close together.
-			// For example, "CCCCC" looks bad.
-			cur_x = (F32)llfloor(cur_x + 0.5f);
-			//cur_y = (F32)llfloor(cur_y + 0.5f);
-
-			cur_render_x = cur_x;
-			cur_render_y = cur_y;
+			llerrs << "Missing Glyph Info" << llendl;
+			break;
 		}
+		// Per-glyph bitmap texture.
+		LLImageGL *image_gl = mFontFreetype->getFontBitmapCache()->getImageGL(fgi->mBitmapNum);
+		if (last_bound_texture != image_gl)
+		{
+			gGL.getTexUnit(0)->bind(image_gl);
+			last_bound_texture = image_gl;
+		}
+
+		if ((start_x + scaled_max_pixels) < (cur_x + fgi->mXBearing + fgi->mWidth))
+		{
+			// Not enough room for this character.
+			break;
+		}
+
+		// Draw the text at the appropriate location
+		//Specify vertices and texture coordinates
+		LLRectf uv_rect((fgi->mXBitmapOffset) * inv_width,
+				(fgi->mYBitmapOffset + fgi->mHeight + PAD_UVY) * inv_height,
+				(fgi->mXBitmapOffset + fgi->mWidth) * inv_width,
+				(fgi->mYBitmapOffset - PAD_UVY) * inv_height);
+		// snap glyph origin to whole screen pixel
+		LLRectf screen_rect(llround(cur_render_x + (F32)fgi->mXBearing),
+				    llround(cur_render_y + (F32)fgi->mYBearing),
+				    llround(cur_render_x + (F32)fgi->mXBearing) + (F32)fgi->mWidth,
+				    llround(cur_render_y + (F32)fgi->mYBearing) - (F32)fgi->mHeight);
+		
+		drawGlyph(screen_rect, uv_rect, color, style_to_add, shadow, drop_shadow_strength);
+
+		chars_drawn++;
+		cur_x += fgi->mXAdvance;
+		cur_y += fgi->mYAdvance;
+
+		llwchar next_char = wstr[i+1];
+		if (next_char && (next_char < LAST_CHARACTER))
+		{
+			// Kern this puppy.
+			if (!mFontFreetype->hasGlyph(next_char))
+			{
+				addChar(next_char);
+			}
+			cur_x += mFontFreetype->getXKerning(wch, next_char);
+		}
+
+		// Round after kerning.
+		// Must do this to cur_x, not just to cur_render_x, otherwise you
+		// will squish sub-pixel kerned characters too close together.
+		// For example, "CCCCC" looks bad.
+		cur_x = (F32)llfloor(cur_x + 0.5f);
+		//cur_y = (F32)llfloor(cur_y + 0.5f);
+
+		cur_render_x = cur_x;
+		cur_render_y = cur_y;
 	}
 
 	if (right_x)
@@ -427,12 +361,12 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 S32 LLFontGL::render(const LLWString &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color) const
 {
-	return render(text, begin_offset, x, y, color, LEFT, BASELINE, NORMAL, NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE, FALSE);
+	return render(text, begin_offset, x, y, color, LEFT, BASELINE, NORMAL, NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE);
 }
 
 S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign,  VAlign valign, U8 style, ShadowType shadow, S32 max_chars, S32 max_pixels,  F32* right_x, BOOL use_ellipses) const
 {
-	return render(utf8str_to_wstring(text), begin_offset, x, y, color, halign, valign, style, shadow, max_chars, max_pixels, right_x, FALSE, use_ellipses);
+	return render(utf8str_to_wstring(text), begin_offset, x, y, color, halign, valign, style, shadow, max_chars, max_pixels, right_x, use_ellipses);
 }
 
 S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color) const
@@ -478,9 +412,9 @@ S32 LLFontGL::getWidth(const std::string& utf8text, S32 begin_offset, S32 max_ch
 	return getWidth(wtext.c_str(), begin_offset, max_chars);
 }
 
-S32 LLFontGL::getWidth(const llwchar* wchars, S32 begin_offset, S32 max_chars, BOOL use_embedded) const
+S32 LLFontGL::getWidth(const llwchar* wchars, S32 begin_offset, S32 max_chars) const
 {
-	F32 width = getWidthF32(wchars, begin_offset, max_chars, use_embedded);
+	F32 width = getWidthF32(wchars, begin_offset, max_chars);
 	return llround(width);
 }
 
@@ -501,7 +435,7 @@ F32 LLFontGL::getWidthF32(const std::string& utf8text, S32 begin_offset, S32 max
 	return getWidthF32(wtext.c_str(), begin_offset, max_chars);
 }
 
-F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars, BOOL use_embedded) const
+F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars) const
 {
 	const S32 LAST_CHARACTER = LLFontFreetype::LAST_CHAR_FULL;
 
@@ -509,34 +443,21 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars
 	const S32 max_index = begin_offset + max_chars;
 	for (S32 i = begin_offset; i < max_index; i++)
 	{
-		const llwchar wch = wchars[i];
+		llwchar wch = wchars[i];
 		if (wch == 0)
 		{
 			break; // done
 		}
-		const embedded_data_t* ext_data = use_embedded ? getEmbeddedCharData(wch) : NULL;
-		if (ext_data)
-		{
-			// Handle crappy embedded hack
-			cur_x += getEmbeddedCharAdvance(ext_data);
 
-			if( ((i+1) < max_chars) && (i+1 < max_index))
-			{
-				cur_x += EXT_KERNING * sScaleX;
-			}
-		}
-		else
-		{
-			cur_x += mFontFreetype->getXAdvance(wch);
-			llwchar next_char = wchars[i+1];
+		cur_x += mFontFreetype->getXAdvance(wch);
+		llwchar next_char = wchars[i+1];
 
-			if (((i + 1) < max_chars) 
-				&& next_char 
-				&& (next_char < LAST_CHARACTER))
-			{
-				// Kern this puppy.
-				cur_x += mFontFreetype->getXKerning(wch, next_char);
-			}
+		if (((i + 1) < begin_offset + max_chars) 
+			&& next_char 
+			&& (next_char < LAST_CHARACTER))
+		{
+			// Kern this puppy.
+			cur_x += mFontFreetype->getXKerning(wch, next_char);
 		}
 		// Round after kerning.
 		cur_x = (F32)llfloor(cur_x + 0.5f);
@@ -546,7 +467,7 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars
 }
 
 // Returns the max number of complete characters from text (up to max_chars) that can be drawn in max_pixels
-S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_chars, BOOL end_on_word_boundary, BOOL use_embedded, F32* drawn_pixels) const
+S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_chars, BOOL end_on_word_boundary) const
 {
 	if (!wchars || !wchars[0] || max_chars == 0)
 	{
@@ -576,83 +497,51 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 			break;
 		}
 			
-		const embedded_data_t* ext_data = use_embedded ? getEmbeddedCharData(wch) : NULL;
-		if (ext_data)
+		if (in_word)
 		{
-			if (in_word)
+			if (iswspace(wch))
 			{
-				in_word = FALSE;
+				if(wch !=(0x00A0))
+				{
+					in_word = FALSE;
+				}
 			}
-			else
+			if (iswindividual(wch))
 			{
-				start_of_last_word = i;
-			}
-			cur_x += getEmbeddedCharAdvance(ext_data);
-			
-			if (scaled_max_pixels < cur_x)
-			{
-				clip = TRUE;
-				break;
-			}
-			
-			if (((i+1) < max_chars) && wchars[i+1])
-			{
-				cur_x += EXT_KERNING * sScaleX;
-			}
-
-			if( scaled_max_pixels < cur_x )
-			{
-				clip = TRUE;
-				break;
+				if (iswpunct(wchars[i+1]))
+				{
+					in_word=TRUE;
+				}
+				else
+				{
+					in_word=FALSE;
+					start_of_last_word = i;
+				}
 			}
 		}
 		else
 		{
-			if (in_word)
+			start_of_last_word = i;
+			if (!iswspace(wch)||!iswindividual(wch))
 			{
-				if (iswspace(wch))
-				{
-					if(wch !=(0x00A0))
-					{
-						in_word = FALSE;
-					}
-				}
-				if (iswindividual(wch))
-				{
-					if (iswpunct(wchars[i+1]))
-					{
-						in_word=TRUE;
-					}
-					else
-					{
-						in_word=FALSE;
-						start_of_last_word = i;
-					}
-				}
-			}
-			else
-			{
-				start_of_last_word = i;
-				if (!iswspace(wch)||!iswindividual(wch))
-				{
-					in_word = TRUE;
-				}
-			}
-
-			cur_x += mFontFreetype->getXAdvance(wch);
-			
-			if (scaled_max_pixels < cur_x)
-			{
-				clip = TRUE;
-				break;
-			}
-
-			if (((i+1) < max_chars) && wchars[i+1])
-			{
-				// Kern this puppy.
-				cur_x += mFontFreetype->getXKerning(wch, wchars[i+1]);
+				in_word = TRUE;
 			}
 		}
+
+		cur_x += mFontFreetype->getXAdvance(wch);
+		
+		if (scaled_max_pixels < cur_x)
+		{
+			clip = TRUE;
+			break;
+		}
+
+		if (((i+1) < max_chars) && wchars[i+1])
+		{
+			// Kern this puppy.
+			cur_x += mFontFreetype->getXKerning(wch, wchars[i+1]);
+		}
+
 		// Round after kerning.
 		cur_x = (F32)llfloor(cur_x + 0.5f);
 		drawn_x = cur_x;
@@ -661,10 +550,6 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 	if( clip && end_on_word_boundary && (start_of_last_word != 0) )
 	{
 		i = start_of_last_word;
-	}
-	if (drawn_pixels)
-	{
-		*drawn_pixels = drawn_x;
 	}
 	return i;
 }
@@ -686,8 +571,7 @@ S32	LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
 	{
 		llwchar wch = wchars[i];
 
-		const embedded_data_t* ext_data = getEmbeddedCharData(wch);
-		F32 char_width = ext_data ? getEmbeddedCharAdvance(ext_data) : mFontFreetype->getXAdvance(wch);
+		F32 char_width = mFontFreetype->getXAdvance(wch);
 
 		if( scaled_max_pixels < (total_width + char_width) )
 		{
@@ -705,7 +589,7 @@ S32	LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
 		if ( i > 0 )
 		{
 			// kerning
-			total_width += ext_data ? (EXT_KERNING * sScaleX) : mFontFreetype->getXKerning(wchars[i-1], wch);
+			total_width += mFontFreetype->getXKerning(wchars[i-1], wch);
 		}
 
 		// Round after kerning.
@@ -715,7 +599,7 @@ S32	LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
 	return start_pos - drawable_chars;
 }
 
-S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, S32 begin_offset, F32 target_x, F32 max_pixels, S32 max_chars, BOOL round, BOOL use_embedded) const
+S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, S32 begin_offset, F32 target_x, F32 max_pixels, S32 max_chars, BOOL round) const
 {
 	if (!wchars || !wchars[0] || max_chars == 0)
 	{
@@ -723,7 +607,6 @@ S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, S32 begin_offset, F32 t
 	}
 	
 	F32 cur_x = 0;
-	S32 pos = 0;
 
 	target_x *= sScaleX;
 
@@ -732,113 +615,50 @@ S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, S32 begin_offset, F32 t
 
 	F32 scaled_max_pixels =	max_pixels * sScaleX;
 
-	for (S32 i = begin_offset; (i < max_index); i++)
+	S32 pos;
+	for (pos = begin_offset; pos < max_index; pos++)
 	{
-		llwchar wch = wchars[i];
+		llwchar wch = wchars[pos];
 		if (!wch)
 		{
 			break; // done
 		}
-		const embedded_data_t* ext_data = use_embedded ? getEmbeddedCharData(wch) : NULL;
-		if (ext_data)
+		F32 char_width = mFontFreetype->getXAdvance(wch);
+
+		if (round)
 		{
-			F32 ext_advance = getEmbeddedCharAdvance(ext_data);
-
-			if (round)
-			{
-				// Note: if the mouse is on the left half of the character, the pick is to the character's left
-				// If it's on the right half, the pick is to the right.
-				if (target_x  < cur_x + ext_advance/2)
-				{
-					break;
-				}
-			}
-			else
-			{
-				if (target_x  < cur_x + ext_advance)
-				{
-					break;
-				}
-			}
-
-			if (scaled_max_pixels < cur_x + ext_advance)
+			// Note: if the mouse is on the left half of the character, the pick is to the character's left
+			// If it's on the right half, the pick is to the right.
+			if (target_x  < cur_x + char_width*0.5f)
 			{
 				break;
 			}
-
-			pos++;
-			cur_x += ext_advance;
-
-			if (((i + 1) < max_index)
-				&& (wchars[(i + 1)]))
-			{
-				cur_x += EXT_KERNING * sScaleX;
-			}
-			// Round after kerning.
-			cur_x = (F32)llfloor(cur_x + 0.5f);
 		}
-		else
+		else if (target_x  < cur_x + char_width)
 		{
-			F32 char_width = mFontFreetype->getXAdvance(wch);
-
-			if (round)
-			{
-				// Note: if the mouse is on the left half of the character, the pick is to the character's left
-				// If it's on the right half, the pick is to the right.
-				if (target_x  < cur_x + char_width*0.5f)
-				{
-					break;
-				}
-			}
-			else if (target_x  < cur_x + char_width)
-			{
-				break;
-			}
-
-			if (scaled_max_pixels < cur_x + char_width)
-			{
-				break;
-			}
-
-			pos++;
-			cur_x += char_width;
-
-			if (((i + 1) < max_index)
-				&& (wchars[(i + 1)]))
-			{
-				llwchar next_char = wchars[i + 1];
-				// Kern this puppy.
-				cur_x += mFontFreetype->getXKerning(wch, next_char);
-			}
-
-			// Round after kerning.
-			cur_x = (F32)llfloor(cur_x + 0.5f);
+			break;
 		}
+
+		if (scaled_max_pixels < cur_x + char_width)
+		{
+			break;
+		}
+
+		cur_x += char_width;
+
+		if (((pos + 1) < max_index)
+			&& (wchars[(pos + 1)]))
+		{
+			llwchar next_char = wchars[pos + 1];
+			// Kern this puppy.
+			cur_x += mFontFreetype->getXKerning(wch, next_char);
+		}
+
+		// Round after kerning.
+		cur_x = (F32)llfloor(cur_x + 0.5f);
 	}
 
-	return pos;
-}
-
-void LLFontGL::addEmbeddedChar( llwchar wc, LLTexture* image, const std::string& label ) const
-{
-	LLWString wlabel = utf8str_to_wstring(label);
-	addEmbeddedChar(wc, image, wlabel);
-}
-
-void LLFontGL::addEmbeddedChar( llwchar wc, LLTexture* image, const LLWString& wlabel ) const
-{
-	embedded_data_t* ext_data = new embedded_data_t(image->getGLTexture(), wlabel);
-	mEmbeddedChars[wc] = ext_data;
-}
-
-void LLFontGL::removeEmbeddedChar(llwchar wc) const
-{
-	embedded_map_t::iterator iter = mEmbeddedChars.find(wc);
-	if (iter != mEmbeddedChars.end())
-	{
-		delete iter->second;
-		mEmbeddedChars.erase(wc);
-	}
+	return llmin(max_chars, pos - begin_offset);
 }
 
 BOOL LLFontGL::addChar(llwchar wch) const
@@ -1153,38 +973,6 @@ LLFontGL &LLFontGL::operator=(const LLFontGL &source)
 	llerrs << "Not implemented" << llendl;
 	return *this;
 }
-
-const LLFontGL::embedded_data_t* LLFontGL::getEmbeddedCharData(llwchar wch) const
-{
-	// Handle crappy embedded hack
-	embedded_map_t::const_iterator iter = mEmbeddedChars.find(wch);
-	if (iter != mEmbeddedChars.end())
-	{
-		return iter->second;
-	}
-	return NULL;
-}
-
-F32 LLFontGL::getEmbeddedCharAdvance(const embedded_data_t* ext_data) const
-{
-	const LLWString& label = ext_data->mLabel;
-	LLImageGL* ext_image = ext_data->mImage;
-
-	F32 ext_width = (F32)ext_image->getWidth();
-	if( !label.empty() )
-	{
-		ext_width += (EXT_X_BEARING + getFontExtChar()->getWidthF32(label.c_str())) * sScaleX;
-	}
-
-	return (EXT_X_BEARING * sScaleX) + ext_width;
-}
-
-void LLFontGL::clearEmbeddedChars()
-{
-	for_each(mEmbeddedChars.begin(), mEmbeddedChars.end(), DeletePairedPointer());
-	mEmbeddedChars.clear();
-}
-
 
 void LLFontGL::renderQuad(const LLRectf& screen_rect, const LLRectf& uv_rect, F32 slant_amt) const
 {

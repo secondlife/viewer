@@ -164,7 +164,7 @@ void LLBottomTray::setVisible(BOOL visible)
 {
 	LLPanel::setVisible(visible);
 
-	// *NOTE: we must check mToolbarStack against NULL because sewtVisible is called from the 
+	// *NOTE: we must check mToolbarStack against NULL because setVisible is called from the 
 	// LLPanel::initFromParams BEFORE postBuild is called and child controls are not exist yet
 	if (NULL != mToolbarStack)
 	{

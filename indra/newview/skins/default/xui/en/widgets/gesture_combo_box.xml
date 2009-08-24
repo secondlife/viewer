@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <gesture_combo_box font="SansSerifSmall"
+           label="Gestures" 
            list_position="below"
            max_chars="20"
            follows="right|top">
@@ -26,5 +27,4 @@
   <gesture_combo_box.combo_editor name="Combo Text Entry"
                           select_on_focus="true"
                           font="SansSerifSmall" />
-  <gesture_combo_box.item label="Gestures" />
 </gesture_combo_box>

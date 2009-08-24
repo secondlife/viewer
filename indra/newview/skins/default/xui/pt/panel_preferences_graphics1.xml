@@ -3,7 +3,7 @@
 	<button label="?" name="GraphicsPreferencesHelpButton"/>
 	<check_box label="Execute Second Life em uma janela" name="windowed mode"/>
 	<text_editor bottom="-56" height="40" name="FullScreenInfo" width="480">
-		Se desmarcado, o visualizador irá exibir em tela inteira quando fizer o acesso.
+		Se desmarcado, o visualizador exibirá tela inteira quando fizer o acesso.
 	</text_editor>
 	<text name="WindowSizeLabel">
 		Tamanho da Janela:
@@ -56,7 +56,7 @@ rápido
 	<text name="QualityText2">
 		Qualidade
 	</text>
-	<check_box label="Padrão" left="395" name="CustomSettings"/>
+	<check_box label="Personalizar" left="395" name="CustomSettings"/>
 	<text name="ShadersText">
 		Sombreadores:
 	</text>

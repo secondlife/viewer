@@ -32,6 +32,8 @@
 #ifndef LLREFCOUNT_H
 #define LLREFCOUNT_H
 
+#include <boost/noncopyable.hpp>
+
 //----------------------------------------------------------------------------
 // RefCount objects should generally only be accessed by way of LLPointer<>'s
 // see llthread.h for LLThreadSafeRefCount
@@ -40,10 +42,9 @@
 class LLRefCount
 {
 protected:
-	LLRefCount(const LLRefCount&); // not implemented
+	LLRefCount(const LLRefCount& other); // no implementation
 private:
-	LLRefCount&operator=(const LLRefCount&); // not implemented
-
+	LLRefCount& operator=(const LLRefCount&); // no implementation
 protected:
 	virtual ~LLRefCount(); // use unref()
 	

@@ -1301,6 +1301,11 @@ LLView* LLView::childrenHandleMiddleMouseUp(S32 x, S32 y, MASK mask)
 
 void LLView::draw()
 {
+	drawChildren();
+}
+
+void LLView::drawChildren()
+{
 	if (sDebugRects)
 	{
 		drawDebugRect();
@@ -1329,7 +1334,7 @@ void LLView::draw()
 			{
 				// Only draw views that are within the root view
 				localRectToScreen(viewp->getRect(),&screenRect);
-				if ( rootRect.rectInRect(&screenRect) )
+				if ( rootRect.overlaps(screenRect) )
 				{
 					glMatrixMode(GL_MODELVIEW);
 					LLUI::pushMatrix();
@@ -1540,7 +1545,7 @@ void LLView::updateBoundingRect()
 
 			LLRect child_bounding_rect = childp->getBoundingRect();
 
-			if (local_bounding_rect.isNull())
+			if (local_bounding_rect.isEmpty())
 			{
 				// start out with bounding rect equal to first visible child's bounding rect
 				local_bounding_rect = child_bounding_rect;
@@ -1548,7 +1553,7 @@ void LLView::updateBoundingRect()
 			else
 			{
 				// accumulate non-null children rectangles
-				if (!child_bounding_rect.isNull())
+				if (!child_bounding_rect.isEmpty())
 				{
 					local_bounding_rect.unionWith(child_bounding_rect);
 				}
@@ -1639,7 +1644,7 @@ BOOL LLView::hasAncestor(const LLView* parentp) const
 
 BOOL LLView::childHasKeyboardFocus( const std::string& childname ) const
 {
-	LLView *child = getChildView(childname, TRUE, FALSE);
+	LLView *child = findChildView(childname, TRUE);
 	if (child)
 	{
 		return gFocusMgr.childHasKeyboardFocus(child);
@@ -1654,13 +1659,27 @@ BOOL LLView::childHasKeyboardFocus( const std::string& childname ) const
 
 BOOL LLView::hasChild(const std::string& childname, BOOL recurse) const
 {
-	return getChildView(childname, recurse, FALSE) != NULL;
+	return findChildView(childname, recurse) != NULL;
 }
 
 //-----------------------------------------------------------------------------
 // getChildView()
 //-----------------------------------------------------------------------------
-LLView* LLView::getChildView(const std::string& name, BOOL recurse, BOOL create_if_missing) const
+LLView* LLView::getChildView(const std::string& name, BOOL recurse) const
+{
+	LLView* child = findChildView(name, recurse);
+	if (!child)
+	{
+		child = getDefaultWidget<LLView>(name);
+		if (!child)
+		{
+			 child = LLUICtrlFactory::createDefaultWidget<LLView>(name);
+		}
+	}
+	return child;
+}
+
+LLView* LLView::findChildView(const std::string& name, BOOL recurse) const
 {
 	//richard: should we allow empty names?
 	//if(name.empty())
@@ -1681,22 +1700,12 @@ LLView* LLView::getChildView(const std::string& name, BOOL recurse, BOOL create_
 		for ( child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 		{
 			LLView* childp = *child_it;
-			LLView* viewp = childp->getChildView(name, recurse, FALSE);
+			LLView* viewp = childp->findChildView(name, recurse);
 			if ( viewp )
 			{
 				return viewp;
 			}
 		}
-	}
-
-	if (create_if_missing)
-	{
-		LLView* view = getDefaultWidget<LLView>(name);
-		if (!view)
-		{
-			 view = LLUICtrlFactory::createDefaultWidget<LLView>(name);
-		}
-		return view;
 	}
 	return NULL;
 }

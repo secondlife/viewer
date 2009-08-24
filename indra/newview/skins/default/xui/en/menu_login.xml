@@ -43,7 +43,7 @@
      layout="topleft"
      name="Help">
         <menu_item_call
-         label="Second Life Help"
+         label="[SECOND_LIFE] Help"
          layout="topleft"
          name="Second Life Help"
          shortcut="F1">
@@ -52,7 +52,7 @@
              parameter="help f1" />
         </menu_item_call>
         <menu_item_call
-         label="About Second Life"
+         label="About [APP_NAME]"
          layout="topleft"
          name="About Second Life">
             <menu_item_call.on_click

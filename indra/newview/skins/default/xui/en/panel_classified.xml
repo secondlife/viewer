@@ -84,7 +84,7 @@
     <button
      follows="left|top"
      height="20"
-     label="Show on Map"
+     label="Map"
      layout="topleft"
      left_pad="5"
      name="classified_map_btn"

@@ -39,6 +39,7 @@
 #include "llspinctrl.h"
 #include "llcolorswatch.h"
 #include "llviewercontrol.h"
+#include "lltexteditor.h"
 
 
 LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key) 

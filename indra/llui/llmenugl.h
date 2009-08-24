@@ -105,10 +105,15 @@ protected:
 	LLMenuItemGL(const Params&);
 	friend class LLUICtrlFactory;
 public:
-	virtual void setValue(const LLSD& value) { setLabel(value.asString()); }
+	// LLView overrides
 	/*virtual*/ void handleVisibilityChange(BOOL new_visibility);
+	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleRightMouseUp(S32 x, S32 y, MASK mask);
 
-	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
+	// LLUICtrl overrides
+	/*virtual*/ void setValue(const LLSD& value);
+
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
 	LLColor4 getHighlightBgColor() { return mHighlightBackground.get(); }
@@ -124,8 +129,8 @@ public:
 	virtual U32 getNominalHeight( void ) const;
 	
 	// Marks item as not needing space for check marks or accelerator keys
-	virtual void setBriefItem(BOOL brief) { mBriefItem = brief; }
-	virtual BOOL isBriefItem() const { return mBriefItem; }
+	virtual void setBriefItem(BOOL brief);
+	virtual BOOL isBriefItem() const;
 
 	virtual BOOL addToAcceleratorList(std::list<LLKeyBinding*> *listp);
 	void setAllowKeyRepeat(BOOL allow) { mAllowKeyRepeat = allow; }
@@ -283,7 +288,6 @@ public:
 
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
-	virtual BOOL handleRightMouseUp(S32 x, S32 y, MASK mask);
 	
 	//virtual void draw();
 	
@@ -427,7 +431,7 @@ public:
 
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
-	LLMenuGL* getChildMenuByName(const std::string& name, BOOL recurse) const;
+	LLMenuGL* findChildMenuByName(const std::string& name, BOOL recurse) const;
 	
 	BOOL clearHoverItem();
 
@@ -610,9 +614,9 @@ public:
 
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
-	virtual BOOL isActive() const { return isOpen() && getBranch() && getBranch()->getHighlightedItem(); }
+	virtual BOOL isActive() const;
 
-	virtual BOOL isOpen() const { return getBranch() && getBranch()->isOpen(); }
+	virtual BOOL isOpen() const;
 
 	LLMenuGL* getBranch() const { return (LLMenuGL*)mBranchHandle.get(); }
 
@@ -627,7 +631,8 @@ public:
 
 	virtual void openMenu();
 
-	virtual LLView* getChildView(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
+	virtual LLView* getChildView(const std::string& name, BOOL recurse = TRUE) const;
+	virtual LLView* findChildView(const std::string& name, BOOL recurse = TRUE) const;
 
 private:
 	LLHandle<LLView> mBranchHandle;

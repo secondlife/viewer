@@ -957,7 +957,7 @@ void LLHUDText::updateAll()
 				{
 					continue;
 				}
-				if (src_textp->mSoftScreenRect.rectInRect(&dst_textp->mSoftScreenRect))
+				if (src_textp->mSoftScreenRect.overlaps(dst_textp->mSoftScreenRect))
 				{
 					LLRectf intersect_rect = src_textp->mSoftScreenRect;
 					intersect_rect.intersectWith(dst_textp->mSoftScreenRect);

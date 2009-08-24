@@ -1000,7 +1000,7 @@ BOOL LLFloaterInventory::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 {
 	// Check to see if we are auto scrolling from the last frame
 	LLInventoryPanel* panel = (LLInventoryPanel*)this->getActivePanel();
-	BOOL needsToScroll = panel->getScrollableContainer()->needsToScroll(x, y, LLScrollContainer::VERTICAL);
+	BOOL needsToScroll = panel->getScrollableContainer()->autoScroll(x, y);
 	if(mFilterTabs)
 	{
 		if(needsToScroll)
@@ -1320,9 +1320,11 @@ LLInventoryFilter::EFolderShow LLInventoryPanel::getShowFolderState()
 	return mFolders->getFilter()->getShowFolderState();
 }
 
+static LLFastTimer::DeclareTimer FTM_REFRESH("Inventory Refresh");
+
 void LLInventoryPanel::modelChanged(U32 mask)
 {
-	LLFastTimer t2(LLFastTimer::FTM_REFRESH);
+	LLFastTimer t2(FTM_REFRESH);
 
 	bool handled = false;
 	if(mask & LLInventoryObserver::LABEL)

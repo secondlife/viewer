@@ -6,6 +6,9 @@
 	<global name="alwayschoose">
 		Scegli sempre questa opzione
 	</global>
+	<global name="implicitclosebutton">
+		Chiudi
+	</global>
   <template name="okbutton">
     <form>
       <button
@@ -2957,7 +2960,7 @@ Gli oggetti flessibili non possono essere fisici e devano essere fantasma fino a
 	<notification name="FirstDebugMenus">
 		Hai attivato il menu Avanzato.
 Questo menu contiene funzioni utili per gli sviluppatori per il debug di Second Life.
-Per attivare o disattivare questo menu su Windows premere Ctrl-Alt-D. Su Mac premere Cmd-Opt-Shift-D.
+Per attivare o disattivare questo menu su Windows premere Ctrl-Alt-D. Su Mac premere &#8984;-Opt-D.
 	</notification>
 	<notification name="FirstSculptedPrim">
 		Si sta modificando uno sculpted prim.

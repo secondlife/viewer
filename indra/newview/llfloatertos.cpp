@@ -39,7 +39,6 @@
 #include "llappviewer.h"
 #include "llstartup.h"
 #include "llviewerstats.h"
-#include "llviewertexteditor.h"
 #include "llviewerwindow.h"
 
 // linden library includes
@@ -118,12 +117,10 @@ BOOL LLFloaterTOS::postBuild()
 	if (hasChild("tos_text"))
 	{
 		// this displays the critical message
-		LLTextEditor *editor = getChild<LLTextEditor>("tos_text");
-		editor->setHandleEditKeysDirectly( TRUE );
-		editor->setEnabled( FALSE );
-		editor->setWordWrap(TRUE);
-		editor->setFocus(TRUE);
-		editor->setValue(LLSD(mMessage));
+		LLUICtrl *tos_text = getChild<LLUICtrl>("tos_text");
+		tos_text->setEnabled( FALSE );
+		tos_text->setFocus(TRUE);
+		tos_text->setValue(LLSD(mMessage));
 
 		return TRUE;
 	}
@@ -133,7 +130,7 @@ BOOL LLFloaterTOS::postBuild()
 	tos_agreement->setEnabled( false );
 
 	// hide the SL text widget if we're displaying TOS with using a browser widget.
-	LLTextEditor *editor = getChild<LLTextEditor>("tos_text");
+	LLUICtrl *editor = getChild<LLUICtrl>("tos_text");
 	editor->setVisible( FALSE );
 
 	LLWebBrowserCtrl* web_browser = getChild<LLWebBrowserCtrl>("tos_html");

@@ -224,7 +224,7 @@
      left_delta="1"
      name="search_editor"
      tab_group="1"
-     tool_tip="Search Second Life"
+     tool_tip="Search [SECOND_LIFE]"
      top_delta="4"
      width="78" />
     <button
@@ -240,7 +240,7 @@
      name="search_btn"
      picture_style="true"
      scale_image="false"
-     tool_tip="Search Second Life"
+     tool_tip="Search [SECOND_LIFE]"
      top_delta="-4"
      width="16" />
     <text

@@ -48,6 +48,7 @@
 #include "llversionviewer.h"
 #include "message.h"
 #include "v3math.h"
+#include "lltexteditor.h"
 
 // viewer project includes
 #include "llagent.h"
@@ -61,7 +62,6 @@
 #include "llimview.h"
 #include "lltextbox.h"
 #include "lldispatcher.h"
-#include "llviewertexteditor.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"
 #include "llcombobox.h"

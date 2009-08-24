@@ -1097,66 +1097,58 @@ BOOL LLFloaterIMPanel::postBuild()
 	
 	mVisibleSignal.connect(boost::bind(&LLFloaterIMPanel::onVisibilityChange, this, _2));
 	
-	requires<LLLineEditor>("chat_editor");
-	requires<LLTextEditor>("im_history");
+	mInputEditor = getChild<LLLineEditor>("chat_editor");
+	mInputEditor->setFocusReceivedCallback( onInputEditorFocusReceived, this );
+	mInputEditor->setFocusLostCallback( onInputEditorFocusLost, this );
+	mInputEditor->setKeystrokeCallback( onInputEditorKeystroke, this );
+	mInputEditor->setCommitCallback( onCommitChat, this );
+	mInputEditor->setCommitOnFocusLost( FALSE );
+	mInputEditor->setRevertOnEsc( FALSE );
+	mInputEditor->setReplaceNewlinesWithSpaces( FALSE );
 
-	if (checkRequirements())
+	childSetAction("profile_callee_btn", onClickProfile, this);
+	childSetAction("group_info_btn", onClickGroupInfo, this);
+
+	childSetAction("start_call_btn", onClickStartCall, this);
+	childSetAction("end_call_btn", onClickEndCall, this);
+	childSetAction("send_btn", onClickSend, this);
+	childSetAction("toggle_active_speakers_btn", onClickToggleActiveSpeakers, this);
+
+	childSetAction("moderator_kick_speaker", onKickSpeaker, this);
+	//LLButton* close_btn = getChild<LLButton>("close_btn");
+	//close_btn->setClickedCallback(&LLFloaterIMPanel::onClickClose, this);
+
+	mHistoryEditor = getChild<LLViewerTextEditor>("im_history");
+	mHistoryEditor->setParseHTML(TRUE);
+	mHistoryEditor->setParseHighlights(TRUE);
+
+	if ( IM_SESSION_GROUP_START == mDialog )
 	{
-		mInputEditor = getChild<LLLineEditor>("chat_editor");
-		mInputEditor->setFocusReceivedCallback( onInputEditorFocusReceived, this );
-		mInputEditor->setFocusLostCallback( onInputEditorFocusLost, this );
-		mInputEditor->setKeystrokeCallback( onInputEditorKeystroke, this );
-		mInputEditor->setCommitCallback( onCommitChat, this );
-		mInputEditor->setCommitOnFocusLost( FALSE );
-		mInputEditor->setRevertOnEsc( FALSE );
-		mInputEditor->setReplaceNewlinesWithSpaces( FALSE );
-
-		childSetAction("profile_callee_btn", onClickProfile, this);
-		childSetAction("group_info_btn", onClickGroupInfo, this);
-
-		childSetAction("start_call_btn", onClickStartCall, this);
-		childSetAction("end_call_btn", onClickEndCall, this);
-		childSetAction("send_btn", onClickSend, this);
-		childSetAction("toggle_active_speakers_btn", onClickToggleActiveSpeakers, this);
-
-		childSetAction("moderator_kick_speaker", onKickSpeaker, this);
-		//LLButton* close_btn = getChild<LLButton>("close_btn");
-		//close_btn->setClickedCallback(&LLFloaterIMPanel::onClickClose, this);
-
-		mHistoryEditor = getChild<LLViewerTextEditor>("im_history");
-		mHistoryEditor->setParseHTML(TRUE);
-		mHistoryEditor->setParseHighlights(TRUE);
-
-		if ( IM_SESSION_GROUP_START == mDialog )
-		{
-			childSetEnabled("profile_btn", FALSE);
-		}
-		
-		if(!mProfileButtonEnabled)
-		{
-			childSetEnabled("profile_callee_btn", FALSE);
-		}
-
-		sTitleString = getString("title_string");
-		sTypingStartString = getString("typing_start_string");
-		sSessionStartString = getString("session_start_string");
-
-		if (mSpeakerPanel)
-		{
-			mSpeakerPanel->refreshSpeakers();
-		}
-
-		if (mDialog == IM_NOTHING_SPECIAL)
-		{
-			childSetAction("mute_btn", onClickMuteVoice, this);
-			childSetCommitCallback("speaker_volume", onVolumeChange, this);
-		}
-
-		setDefaultBtn("send_btn");
-		return TRUE;
+		childSetEnabled("profile_btn", FALSE);
+	}
+	
+	if(!mProfileButtonEnabled)
+	{
+		childSetEnabled("profile_callee_btn", FALSE);
 	}
 
-	return FALSE;
+	sTitleString = getString("title_string");
+	sTypingStartString = getString("typing_start_string");
+	sSessionStartString = getString("session_start_string");
+
+	if (mSpeakerPanel)
+	{
+		mSpeakerPanel->refreshSpeakers();
+	}
+
+	if (mDialog == IM_NOTHING_SPECIAL)
+	{
+		childSetAction("mute_btn", onClickMuteVoice, this);
+		childSetCommitCallback("speaker_volume", onVolumeChange, this);
+	}
+
+	setDefaultBtn("send_btn");
+	return TRUE;
 }
 
 void* LLFloaterIMPanel::createSpeakersPanel(void* data)
@@ -1385,8 +1377,7 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 		else
 		{
 			// Convert the name to a hotlink and add to message.
-			const LLStyleSP &source_style = LLStyleMap::instance().lookupAgent(source);
-			mHistoryEditor->appendStyledText(name + separator_string, false, prepend_newline, source_style);
+			mHistoryEditor->appendStyledText(name + separator_string, false, prepend_newline, LLStyleMap::instance().lookupAgent(source));
 		}
 		prepend_newline = false;
 	}

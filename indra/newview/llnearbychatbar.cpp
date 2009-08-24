@@ -65,7 +65,7 @@ LLGestureComboBox::LLGestureComboBox(const LLGestureComboBox::Params& p)
 	, mGestureLabelTimer()
 	, mLabel(p.label)
 {
-	setCommitCallback(boost::bind(&LLGestureComboBox::onCommitGesture, this, _1));
+	setCommitCallback(boost::bind(&LLGestureComboBox::onCommitGesture, this));
 
 	// now register us as observer since we have a place to put the results
 	LLGestureManager::instance().addObserver(this);
@@ -82,31 +82,23 @@ LLGestureComboBox::~LLGestureComboBox()
 void LLGestureComboBox::refreshGestures()
 {
 	//store current selection so we can maintain it
-	std::string cur_gesture = getValue().asString();
+	LLSD cur_gesture = getValue();
 	selectFirstItem();
 	// clear
 	clearRows();
+	mGestures.clear();
 
-	// collect list of unique gestures
-	std::map <std::string, BOOL> unique;
 	LLGestureManager::item_map_t::iterator it;
+	LLSD::Integer idx(0);
 	for (it = LLGestureManager::instance().mActive.begin(); it != LLGestureManager::instance().mActive.end(); ++it)
 	{
 		LLMultiGesture* gesture = (*it).second;
 		if (gesture)
 		{
-			if (!gesture->mTrigger.empty())
-			{
-				unique[gesture->mTrigger] = TRUE;
-			}
+			addSimpleElement(gesture->mName, ADD_BOTTOM, LLSD(idx));
+			mGestures.push_back(gesture);
+			idx++;
 		}
-	}
-
-	// add unique gestures
-	std::map <std::string, BOOL>::iterator it2;
-	for (it2 = unique.begin(); it2 != unique.end(); ++it2)
-	{
-		addSimpleElement((*it2).first);
 	}
 
 	sortByName();
@@ -114,9 +106,9 @@ void LLGestureComboBox::refreshGestures()
 	addSeparator(ADD_TOP);		
 	addSimpleElement(mLabel, ADD_TOP);
 
-	if (!cur_gesture.empty())
+	if (cur_gesture.isDefined())
 	{ 
-		selectByValue(LLSD(cur_gesture));
+		selectByValue(cur_gesture);
 	}
 	else
 	{
@@ -124,7 +116,7 @@ void LLGestureComboBox::refreshGestures()
 	}
 }
 
-void LLGestureComboBox::onCommitGesture(LLUICtrl* ctrl)
+void LLGestureComboBox::onCommitGesture()
 {
 	LLCtrlListInterface* gestures = getListInterface();
 	if (gestures)
@@ -134,19 +126,16 @@ void LLGestureComboBox::onCommitGesture(LLUICtrl* ctrl)
 		{
 			return;
 		}
-		const std::string& trigger = gestures->getSelectedValue().asString();
 
-		// pretend the user chatted the trigger string, to invoke
-		// substitution and logging.
-		std::string text(trigger);
-		std::string revised_text;
-		LLGestureManager::instance().triggerAndReviseString(text, &revised_text);
-
-		revised_text = utf8str_trim(revised_text);
-		if (!revised_text.empty())
+		index = gestures->getSelectedValue().asInteger();
+		LLMultiGesture* gesture = mGestures.at(index);
+		if(gesture)
 		{
-			// Don't play nodding animation
-			LLNearbyChatBar::sendChatFromViewer(revised_text, CHAT_TYPE_NORMAL, FALSE);
+			LLGestureManager::instance().playGesture(gesture);
+			if(!gesture->mReplaceText.empty())
+			{
+				LLNearbyChatBar::sendChatFromViewer(gesture->mReplaceText, CHAT_TYPE_NORMAL, FALSE);
+			}
 		}
 	}
 
@@ -266,9 +255,6 @@ void LLNearbyChatBar::onChatBoxKeystroke(LLLineEditor* caller, void* userdata)
 {
 
 	LLNearbyChatBar* self = (LLNearbyChatBar *)userdata;
-
-	if (!self->mChatBox)
-		return;
 
 	LLWString raw_text = self->mChatBox->getWText();
 
@@ -429,7 +415,7 @@ void LLNearbyChatBar::sendChat( EChatType type )
 
 void LLNearbyChatBar::onChatBoxCommit()
 {
-	if (mChatBox && mChatBox->getText().length() > 0)
+	if (mChatBox->getText().length() > 0)
 	{
 		sendChat(CHAT_TYPE_NORMAL);
 	}
@@ -501,7 +487,7 @@ void LLNearbyChatBar::startChat(const char* line)
 
 	LLNearbyChatBar* cb = bt->getNearbyChatBar();
 
-	if (!cb || !cb->mChatBox)
+	if (!cb )
 		return;
 
 	bt->setVisible(TRUE);
@@ -527,7 +513,7 @@ void LLNearbyChatBar::stopChat()
 
 	LLNearbyChatBar* cb = bt->getNearbyChatBar();
 
-	if (!cb || !cb->mChatBox)
+	if (!cb)
 		return;
 
 	cb->mChatBox->setFocus(FALSE);

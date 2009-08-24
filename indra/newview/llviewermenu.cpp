@@ -458,13 +458,13 @@ void set_underclothes_menu_options()
 {
 	if (gMenuHolder && gAgent.isTeen())
 	{
-		gMenuHolder->getChild<LLView>("Self Underpants", TRUE)->setVisible(FALSE);
-		gMenuHolder->getChild<LLView>("Self Undershirt", TRUE)->setVisible(FALSE);
+		gMenuHolder->getChild<LLView>("Self Underpants")->setVisible(FALSE);
+		gMenuHolder->getChild<LLView>("Self Undershirt")->setVisible(FALSE);
 	}
 	if (gMenuBarView && gAgent.isTeen())
 	{
-		gMenuBarView->getChild<LLView>("Menu Underpants", TRUE)->setVisible(FALSE);
-		gMenuBarView->getChild<LLView>("Menu Undershirt", TRUE)->setVisible(FALSE);
+		gMenuBarView->getChild<LLView>("Menu Underpants")->setVisible(FALSE);
+		gMenuBarView->getChild<LLView>("Menu Undershirt")->setVisible(FALSE);
 	}
 }
 
@@ -567,8 +567,8 @@ void init_menus()
 
 	gAFKMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Away", TRUE);
 	gBusyMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Busy", TRUE);
-	gAttachSubMenu = gMenuBarView->getChildMenuByName("Attach Object", TRUE);
-	gDetachSubMenu = gMenuBarView->getChildMenuByName("Detach Object", TRUE);
+	gAttachSubMenu = gMenuBarView->findChildMenuByName("Attach Object", TRUE);
+	gDetachSubMenu = gMenuBarView->findChildMenuByName("Detach Object", TRUE);
 
 	gMenuBarView->createJumpKeys();
 

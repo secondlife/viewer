@@ -207,11 +207,17 @@ void display_stats()
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_PICK("Picking");
+static LLFastTimer::DeclareTimer FTM_RENDER("Render", true);
+static LLFastTimer::DeclareTimer FTM_UPDATE_SKY("Update Sky");
+static LLFastTimer::DeclareTimer FTM_UPDATE_TEXTURES("Update Textures");
+static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE("Update Images");
+
 // Paint the display!
 void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 {
 	LLMemType mt_render(LLMemType::MTYPE_RENDER);
-	LLFastTimer t(LLFastTimer::FTM_RENDER);
+	LLFastTimer t(FTM_RENDER);
 
 	if (LLPipeline::sRenderFrameTest)
 	{
@@ -258,7 +264,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	gViewerWindow->checkSettings();
 	
 	{
-		LLFastTimer ftm(LLFastTimer::FTM_PICK);
+		LLFastTimer ftm(FTM_PICK);
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Pick");
 		gViewerWindow->performPick();
 	}
@@ -504,7 +510,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES))
 	{
 		LLAppViewer::instance()->pingMainloopTimeout("Display:DynamicTextures");
-		LLFastTimer t(LLFastTimer::FTM_UPDATE_TEXTURES);
+		LLFastTimer t(FTM_UPDATE_TEXTURES);
 		if (LLViewerDynamicTexture::updateAllInstances())
 		{
 			gGL.setColorMask(true, true);
@@ -616,7 +622,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		{ 
 			LLMemType mt_ds(LLMemType::MTYPE_DISPLAY_SWAP);
 			{
- 				LLFastTimer ftm(LLFastTimer::FTM_CLIENT_COPY);
+ 				LLFastTimer ftm(FTM_CLIENT_COPY);
 				LLVertexBuffer::clientCopy(0.016);
 			}
 
@@ -687,7 +693,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		{
 			LLMemType mt_iu(LLMemType::MTYPE_DISPLAY_IMAGE_UPDATE);
-			LLFastTimer t(LLFastTimer::FTM_IMAGE_UPDATE);
+			LLFastTimer t(FTM_IMAGE_UPDATE);
 			
 			LLViewerTexture::updateClass(LLViewerCamera::getInstance()->getVelocityStat()->getMean(),
 										LLViewerCamera::getInstance()->getAngularVelocityStat()->getMean());
@@ -730,7 +736,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		{
 			LLMemType mt_ds(LLMemType::MTYPE_DISPLAY_SKY);
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Sky");
-			LLFastTimer t(LLFastTimer::FTM_UPDATE_SKY);	
+			LLFastTimer t(FTM_UPDATE_SKY);	
 			gSky.updateSky();
 		}
 
@@ -860,7 +866,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderUI");
 		if (!for_snapshot)
 		{
-			LLFastTimer t(LLFastTimer::FTM_RENDER_UI);
+			LLFastTimer t(FTM_RENDER_UI);
 			render_ui();
 		}
 
@@ -1040,6 +1046,7 @@ BOOL setup_hud_matrices(const LLRect& screen_region)
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_SWAP("Swap");
 
 void render_ui(F32 zoom_factor, int subfield)
 {
@@ -1075,7 +1082,7 @@ void render_ui(F32 zoom_factor, int subfield)
 		gGL.color4f(1,1,1,1);
 		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 		{
-			LLFastTimer t(LLFastTimer::FTM_RENDER_UI);
+			LLFastTimer t(FTM_RENDER_UI);
 
 			if (!gDisconnected)
 			{
@@ -1102,7 +1109,7 @@ void render_ui(F32 zoom_factor, int subfield)
 
 	if (gDisplaySwapBuffers)
 	{
-		LLFastTimer t(LLFastTimer::FTM_SWAP);
+		LLFastTimer t(FTM_SWAP);
 		gViewerWindow->mWindow->swapBuffers();
 	}
 	gDisplaySwapBuffers = TRUE;

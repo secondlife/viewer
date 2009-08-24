@@ -494,19 +494,19 @@ BOOL LLLineEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 		BOOL doSelectAll = TRUE;
 
 		// Select the word we're on
-		if( LLTextEditor::isPartOfWord( wtext[mCursorPos] ) )
+		if( LLWStringUtil::isPartOfWord( wtext[mCursorPos] ) )
 		{
 			S32 old_selection_start = mLastSelectionStart;
 			S32 old_selection_end = mLastSelectionEnd;
 
 			// Select word the cursor is over
-			while ((mCursorPos > 0) && LLTextEditor::isPartOfWord( wtext[mCursorPos-1] ))
+			while ((mCursorPos > 0) && LLWStringUtil::isPartOfWord( wtext[mCursorPos-1] ))
 			{	// Find the start of the word
 				mCursorPos--;
 			}
 			startSelection();	
 
-			while ((mCursorPos < (S32)wtext.length()) && LLTextEditor::isPartOfWord( wtext[mCursorPos] ) )
+			while ((mCursorPos < (S32)wtext.length()) && LLWStringUtil::isPartOfWord( wtext[mCursorPos] ) )
 			{	// Find the end of the word
 				mCursorPos++;
 			}
@@ -840,7 +840,7 @@ S32 LLLineEditor::prevWordPos(S32 cursorPos) const
 	{
 		cursorPos--;
 	}
-	while( (cursorPos > 0) && LLTextEditor::isPartOfWord( wtext[cursorPos-1] ) )
+	while( (cursorPos > 0) && LLWStringUtil::isPartOfWord( wtext[cursorPos-1] ) )
 	{
 		cursorPos--;
 	}
@@ -850,7 +850,7 @@ S32 LLLineEditor::prevWordPos(S32 cursorPos) const
 S32 LLLineEditor::nextWordPos(S32 cursorPos) const
 {
 	const LLWString& wtext = mText.getWString();
-	while( (cursorPos < getLength()) && LLTextEditor::isPartOfWord( wtext[cursorPos] ) )
+	while( (cursorPos < getLength()) && LLWStringUtil::isPartOfWord( wtext[cursorPos] ) )
 	{
 		cursorPos++;
 	} 
@@ -1732,11 +1732,11 @@ void LLLineEditor::draw()
 #endif
 
 	// If we're editing...
-	if( gFocusMgr.getKeyboardFocus() == this)
+	if( hasFocus())
 	{
 		//mBorder->setVisible(TRUE); // ok, programmer art just this once.
 		// (Flash the cursor every half second)
-		if (gShowTextEditCursor && !mReadOnly)
+		if (!mReadOnly && gFocusMgr.getAppHasFocus())
 		{
 			F32 elapsed = mKeystrokeTimer.getElapsedTimeF32();
 			if( (elapsed < CURSOR_FLASH_DELAY ) || (S32(elapsed * 2) & 1) )

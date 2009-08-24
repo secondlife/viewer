@@ -7,9 +7,9 @@
 
 	<!-- Default Args - these arguments will be replaced in all strings -->
 	<string name="SECOND_LIFE">Second Life</string>
-	<string name="SECOND_LIFE_VIEWER">Second Life</string>
-	<string name="SECOND_LIFE_GRID">Second Life</string>
-	<string name="SECOND_LIFE_SUPPORT">Second Life Support Portal</string>
+	<string name="APP_NAME">Second Life</string>
+	<string name="SECOND_LIFE_GRID">Second Life Grid</string>
+	<string name="SUPPORT_SITE">Second Life Support Portal</string>
 
 	<!-- starting up -->
 	<string name="StartupDetectingHardware">Detecting hardware...</string>
@@ -19,7 +19,7 @@
 	<string name="CacheNobody">(nobody)</string>
 	<string name="CacheNone">(none)</string>	
 	<!-- Login -->
-	<string name="LoginInProgress">Logging in. [SECOND_LIFE_VIEWER] may appear frozen.  Please wait.</string>
+	<string name="LoginInProgress">Logging in. [APP_NAME] may appear frozen.  Please wait.</string>
 	<string name="LoginInProgressNoFrozen">Logging in...</string>
 	<string name="LoginAuthenticating">Authenticating</string>
 	<string name="LoginMaintenance">Performing account maintenance...</string>
@@ -683,29 +683,29 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 Please see: http://wiki.secondlife.com/wiki/Client_parameters
 Error:
 	</string>
-	<string name="MBCmdLineUsg">[SECOND_LIFE] Command line usage:</string>
+	<string name="MBCmdLineUsg">[APP_NAME] Command line usage:</string>
 	<string name="MBUnableToAccessFile">
-		[SECOND_LIFE] is unable to access a file that it needs.
+		[APP_NAME] is unable to access a file that it needs.
 
 This can be because you somehow have multiple copies running, or your system incorrectly thinks a file is open.
 If this message persists, restart your computer and try again.
-If it continues to persist, you may need to completely uninstall [SECOND_LIFE] and reinstall it.
+If it continues to persist, you may need to completely uninstall [APP_NAME] and reinstall it.
 	</string>
 	<string name="MBFatalError">Fatal Error</string>
-	<string name="MBRequiresAltiVec"> [SECOND_LIFE] requires a processor with AltiVec (G4 or later).</string>
+	<string name="MBRequiresAltiVec"> [APP_NAME] requires a processor with AltiVec (G4 or later).</string>
 	<string name="MBAlreadyRunning">
-		[SECOND_LIFE] is already running.
+		[APP_NAME] is already running.
 Check your task bar for a minimized copy of the program.
 If this message persists, restart your computer.
 	</string>
 	<string name="MBFrozenCrashed">
-		[SECOND_LIFE] appears to have frozen or crashed on the previous run.
+		[APP_NAME] appears to have frozen or crashed on the previous run.
 Would you like to send a crash report?
 	</string>
 	<string name="MBAlert">Alert</string>
 	<string name="MBNoDirectX">
-		[SECOND_LIFE] is unable to detect DirectX 9.0b or greater.
-[SECOND_LIFE] uses DirectX to detect hardware and/or outdated drivers that can cause stability problems, poor performance and crashes.  While you can run [SECOND_LIFE] without it, we highly recommend running with DirectX 9.0b.
+		[APP_NAME] is unable to detect DirectX 9.0b or greater.
+[APP_NAME] uses DirectX to detect hardware and/or outdated drivers that can cause stability problems, poor performance and crashes.  While you can run [APP_NAME] without it, we highly recommend running with DirectX 9.0b.
 
 Do you wish to continue?
 	</string>
@@ -726,23 +726,23 @@ Running in window.
 	<string name="MBPixelFmtErr">Can't find suitable pixel format</string>
 	<string name="MBPixelFmtDescErr">Can't get pixel format description</string>
 	<string name="MBTrueColorWindow">
-		[SECOND_LIFE] requires True Color (32-bit) to run in a window.
+		[APP_NAME] requires True Color (32-bit) to run in a window.
 Please go to Control Panels &gt; Display &gt; Settings and set the screen to 32-bit color.
-Alternately, if you choose to run fullscreen, [SECOND_LIFE] will automatically adjust the screen each time it runs.
+Alternately, if you choose to run fullscreen, [APP_NAME] will automatically adjust the screen each time it runs.
 	</string>
 	<string name="MBAlpha">
-		[SECOND_LIFE] is unable to run because it can't get an 8 bit alpha channel.  Usually this is due to video card driver issues.
+		[APP_NAME] is unable to run because it can't get an 8 bit alpha channel.  Usually this is due to video card driver issues.
 Please make sure you have the latest video card drivers installed.
 Also be sure your monitor is set to True Color (32-bit) in Control Panels &gt; Display &gt; Settings.
-If you continue to receive this message, contact customer support.
+If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="MBPixelFmtSetErr">Can't set pixel format</string>
 	<string name="MBGLContextErr">Can't create GL rendering context</string>
 	<string name="MBGLContextActErr">Can't activate GL rendering context</string>
 	<string name="MBVideoDrvErr">
-		[SECOND_LIFE] is unable to run because your video card drivers did not install properly, are out of date, or are for unsupported hardware. Please make sure you have the latest video card drivers and even if you do have the latest, try reinstalling them.
+		[APP_NAME] is unable to run because your video card drivers did not install properly, are out of date, or are for unsupported hardware. Please make sure you have the latest video card drivers and even if you do have the latest, try reinstalling them.
 
-If you continue to receive this message, contact customer support.
+If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 
 	<!-- Avatar Shape Information -->

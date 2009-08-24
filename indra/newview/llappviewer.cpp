@@ -290,9 +290,9 @@ static std::set<std::string> default_trans_args;
 void init_default_trans_args()
 {
 	default_trans_args.insert("SECOND_LIFE"); // World
-	default_trans_args.insert("SECOND_LIFE_VIEWER");
+	default_trans_args.insert("APP_NAME");
 	default_trans_args.insert("SECOND_LIFE_GRID");
-	default_trans_args.insert("SECOND_LIFE_SUPPORT");
+	default_trans_args.insert("SUPPORT_SITE");
 }
 
 //----------------------------------------------------------------------------
@@ -863,6 +863,11 @@ bool LLAppViewer::init()
 	return true;
 }
 
+static LLFastTimer::DeclareTimer FTM_MESSAGES("System Messages");
+static LLFastTimer::DeclareTimer FTM_SLEEP("Sleep");
+static LLFastTimer::DeclareTimer FTM_IDLE("Idle");
+static LLFastTimer::DeclareTimer FTM_PUMP("Pump");
+
 bool LLAppViewer::mainLoop()
 {
 	LLMemType mt1(LLMemType::MTYPE_MAIN);
@@ -905,7 +910,7 @@ bool LLAppViewer::mainLoop()
 
 			if (gViewerWindow)
 			{
-				LLFastTimer t2(LLFastTimer::FTM_MESSAGES);
+				LLFastTimer t2(FTM_MESSAGES);
 				gViewerWindow->mWindow->processMiscNativeEvents();
 			}
 			
@@ -913,7 +918,7 @@ bool LLAppViewer::mainLoop()
 			
 			if (gViewerWindow)
 			{
-				LLFastTimer t2(LLFastTimer::FTM_MESSAGES);
+				LLFastTimer t2(FTM_MESSAGES);
 				if (!restoreErrorTrap())
 				{
 					llwarns << " Someone took over my signal/exception handler (post messagehandling)!" << llendl;
@@ -963,14 +968,14 @@ bool LLAppViewer::mainLoop()
 				{
 					pauseMainloopTimeout(); // *TODO: Remove. Messages shouldn't be stalling for 20+ seconds!
 					
-					LLFastTimer t3(LLFastTimer::FTM_IDLE);
+					LLFastTimer t3(FTM_IDLE);
 					idle();
 
 					if (gAres != NULL && gAres->isInitialized())
 					{
 						LLMemType mt_ip(LLMemType::MTYPE_IDLE_PUMP);
 						pingMainloopTimeout("Main:ServicePump");				
-						LLFastTimer t4(LLFastTimer::FTM_PUMP);
+						LLFastTimer t4(FTM_PUMP);
 						gAres->process();
 						// this pump is necessary to make the login screen show up
 						gServicePump->pump();
@@ -1007,7 +1012,7 @@ bool LLAppViewer::mainLoop()
 			// Sleep and run background threads
 			{
 				LLMemType mt_sleep(LLMemType::MTYPE_SLEEP);
-				LLFastTimer t2(LLFastTimer::FTM_SLEEP);
+				LLFastTimer t2(FTM_SLEEP);
 				bool run_multiple_threads = gSavedSettings.getBOOL("RunMultipleThreads");
 
 				// yield some time to the os based on command line option
@@ -2025,7 +2030,7 @@ bool LLAppViewer::initConfiguration()
 
 #if LL_DARWIN
 	// Initialize apple menubar and various callbacks
-	init_apple_menu(LLTrans::getString("SECOND_LIFE_VIEWER").c_str());
+	init_apple_menu(LLTrans::getString("APP_NAME").c_str());
 
 #if __ppc__
 	// If the CPU doesn't have Altivec (i.e. it's not at least a G4), don't go any further.
@@ -2064,7 +2069,7 @@ bool LLAppViewer::initConfiguration()
 	//
 	// Set the name of the window
 	//
-	gWindowTitle = LLTrans::getString("SECOND_LIFE_VIEWER");
+	gWindowTitle = LLTrans::getString("APP_NAME");
 #if LL_DEBUG
 	gWindowTitle += std::string(" [DEBUG] ") + gArgs;
 #else
@@ -2181,7 +2186,7 @@ void LLAppViewer::checkForCrash(void)
         {
             std::ostringstream msg;
 			msg << LLTrans::getString("MBFrozenCrashed");
-			std::string alert = LLTrans::getString("SECOND_LIFE_VIEWER") + " " + LLTrans::getString("MBAlert");
+			std::string alert = LLTrans::getString("APP_NAME") + " " + LLTrans::getString("MBAlert");
             choice = OSMessageBox(msg.str(),
                                   alert,
                                   OSMB_YESNO);
@@ -2391,7 +2396,7 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)true;
 	
 	// Dump some debugging info
-	LL_INFOS("SystemInfo") << LLTrans::getString("SECOND_LIFE_VIEWER")
+	LL_INFOS("SystemInfo") << LLTrans::getString("APP_NAME")
 			<< " version " << LL_VERSION_MAJOR << "." << LL_VERSION_MINOR << "." << LL_VERSION_PATCH
 			<< LL_ENDL;
 
@@ -3069,7 +3074,7 @@ void LLAppViewer::purgeCache()
 
 std::string LLAppViewer::getSecondLifeTitle() const
 {
-	return LLTrans::getString("SECOND_LIFE_VIEWER");
+	return LLTrans::getString("APP_NAME");
 }
 
 std::string LLAppViewer::getWindowTitle() const 
@@ -3234,6 +3239,15 @@ public:
 		}
 };
 
+static LLFastTimer::DeclareTimer FTM_AUDIO_UPDATE("Update Audio");
+static LLFastTimer::DeclareTimer FTM_CLEANUP("Cleanup");
+static LLFastTimer::DeclareTimer FTM_IDLE_CB("Idle Callbacks");
+static LLFastTimer::DeclareTimer FTM_LOD_UPDATE("Update LOD");
+static LLFastTimer::DeclareTimer FTM_OBJECTLIST_UPDATE("Update Objectlist");
+static LLFastTimer::DeclareTimer FTM_REGION_UPDATE("Update Region");
+static LLFastTimer::DeclareTimer FTM_WORLD_UPDATE("Update World");
+static LLFastTimer::DeclareTimer FTM_NETWORK("Network");
+
 ///////////////////////////////////////////////////////
 // idle()
 //
@@ -3300,7 +3314,7 @@ void LLAppViewer::idle()
 
 	if (!gDisconnected)
 	{
-		LLFastTimer t(LLFastTimer::FTM_NETWORK);
+		LLFastTimer t(FTM_NETWORK);
 		// Update spaceserver timeinfo
 	    LLWorld::getInstance()->setSpaceTimeUSec(LLWorld::getInstance()->getSpaceTimeUSec() + (U32)(dt_raw * SEC_TO_MICROSEC));
     
@@ -3381,7 +3395,7 @@ void LLAppViewer::idle()
 
 	if (!gDisconnected)
 	{
-		LLFastTimer t(LLFastTimer::FTM_NETWORK);
+		LLFastTimer t(FTM_NETWORK);
 	
 	    ////////////////////////////////////////////////
 	    //
@@ -3410,7 +3424,7 @@ void LLAppViewer::idle()
 	//
 
 	{
-// 		LLFastTimer t(LLFastTimer::FTM_IDLE_CB);
+// 		LLFastTimer t(FTM_IDLE_CB);
 
 		// Do event notifications if necessary.  Yes, we may want to move this elsewhere.
 		gEventNotifier.update();
@@ -3445,7 +3459,7 @@ void LLAppViewer::idle()
 	}
 
 	{
-		LLFastTimer t(LLFastTimer::FTM_OBJECTLIST_UPDATE); // Actually "object update"
+		LLFastTimer t(FTM_OBJECTLIST_UPDATE); // Actually "object update"
 		
         if (!(logoutRequestSent() && hasSavedFinalSnapshot()))
 		{
@@ -3460,7 +3474,7 @@ void LLAppViewer::idle()
 	//
 
 	{
-		LLFastTimer t(LLFastTimer::FTM_CLEANUP);
+		LLFastTimer t(FTM_CLEANUP);
 		gObjectList.cleanDeadObjects();
 		LLDrawable::cleanupDeadDrawables();
 	}
@@ -3492,7 +3506,7 @@ void LLAppViewer::idle()
 	//
 
 	{
-		LLFastTimer t(LLFastTimer::FTM_NETWORK);
+		LLFastTimer t(FTM_NETWORK);
 		gVLManager.unpackData();
 	}
 	
@@ -3504,7 +3518,7 @@ void LLAppViewer::idle()
 	LLWorld::getInstance()->updateVisibilities();
 	{
 		const F32 max_region_update_time = .001f; // 1ms
-		LLFastTimer t(LLFastTimer::FTM_REGION_UPDATE);
+		LLFastTimer t(FTM_REGION_UPDATE);
 		LLWorld::getInstance()->updateRegions(max_region_update_time);
 	}
 	
@@ -3551,7 +3565,7 @@ void LLAppViewer::idle()
 	
 	if (!gNoRender)
 	{
-		LLFastTimer t(LLFastTimer::FTM_WORLD_UPDATE);
+		LLFastTimer t(FTM_WORLD_UPDATE);
 		gPipeline.updateMove();
 
 		LLWorld::getInstance()->updateParticles();
@@ -3574,12 +3588,12 @@ void LLAppViewer::idle()
 
 	// objects and camera should be in sync, do LOD calculations now
 	{
-		LLFastTimer t(LLFastTimer::FTM_LOD_UPDATE);
+		LLFastTimer t(FTM_LOD_UPDATE);
 		gObjectList.updateApparentAngles(gAgent);
 	}
 
 	{
-		LLFastTimer t(LLFastTimer::FTM_AUDIO_UPDATE);
+		LLFastTimer t(FTM_AUDIO_UPDATE);
 		
 		if (gAudiop)
 		{
@@ -3719,6 +3733,8 @@ void LLAppViewer::sendLogoutRequest()
 static F32 CheckMessagesMaxTime = CHECK_MESSAGES_DEFAULT_MAX_TIME;
 #endif
 
+static LLFastTimer::DeclareTimer FTM_IDLE_NETWORK("Network");
+
 void LLAppViewer::idleNetwork()
 {
 	LLMemType mt_in(LLMemType::MTYPE_IDLE_NETWORK);
@@ -3731,7 +3747,7 @@ void LLAppViewer::idleNetwork()
 
 	if (!gSavedSettings.getBOOL("SpeedTest"))
 	{
-		LLFastTimer t(LLFastTimer::FTM_IDLE_NETWORK); // decode
+		LLFastTimer t(FTM_IDLE_NETWORK); // decode
 		
 		// deal with any queued name requests and replies.
 		gCacheName->processPending();

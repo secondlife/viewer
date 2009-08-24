@@ -371,7 +371,7 @@ void LLChatMsgBox::drawText( S32 x, S32 y, const LLColor4& color )
 							mHAlign, mVAlign,
 							mFontStyle,
 							mShadowType,
-							line_length, getRect().getWidth(), NULL, TRUE, mUseEllipses );
+							line_length, getRect().getWidth(), NULL, mUseEllipses );
 			cur_pos += line_length + 1;
 			y -= llfloor(mFontGL->getLineHeight()) + mLineSpacing;
 

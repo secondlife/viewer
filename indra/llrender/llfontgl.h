@@ -97,7 +97,7 @@ public:
 	BOOL loadFace(const std::string& filename, F32 point_size, const F32 vert_dpi, const F32 horz_dpi, const S32 components, BOOL is_fallback);
 
 	S32 render(const LLWString &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign = LEFT,  VAlign valign = BASELINE, U8 style = NORMAL,
-	           ShadowType shadow = NO_SHADOW, S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX, F32* right_x=NULL, BOOL use_embedded = FALSE, BOOL use_ellipses = FALSE) const;
+	           ShadowType shadow = NO_SHADOW, S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX, F32* right_x=NULL, BOOL use_ellipses = FALSE) const;
 	S32 render(const LLWString &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color) const;
 
 	// renderUTF8 does a conversion, so is slower!
@@ -113,28 +113,24 @@ public:
 	S32 getWidth(const std::string& utf8text) const;
 	S32 getWidth(const llwchar* wchars) const;
 	S32 getWidth(const std::string& utf8text, S32 offset, S32 max_chars ) const;
-	S32 getWidth(const llwchar* wchars, S32 offset, S32 max_chars, BOOL use_embedded = FALSE) const;
+	S32 getWidth(const llwchar* wchars, S32 offset, S32 max_chars) const;
 
 	F32 getWidthF32(const std::string& utf8text) const;
 	F32 getWidthF32(const llwchar* wchars) const;
 	F32 getWidthF32(const std::string& text, S32 offset, S32 max_chars ) const;
-	F32 getWidthF32(const llwchar* wchars, S32 offset, S32 max_chars, BOOL use_embedded = FALSE ) const;
+	F32 getWidthF32(const llwchar* wchars, S32 offset, S32 max_chars) const;
 
 	// The following are called often, frequently with large buffers, so do not use a string interface
 	
 	// Returns the max number of complete characters from text (up to max_chars) that can be drawn in max_pixels
-	S32	maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_chars = S32_MAX, BOOL end_on_word_boundary = FALSE, BOOL use_embedded = FALSE, F32* drawn_pixels = NULL) const;
+	S32	maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_chars = S32_MAX, BOOL end_on_word_boundary = FALSE) const;
 
 	// Returns the index of the first complete characters from text that can be drawn in max_pixels
 	// given that the character at start_pos should be the last character (or as close to last as possible).
 	S32	firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_len, S32 start_pos=S32_MAX, S32 max_chars = S32_MAX) const;
 
 	// Returns the index of the character closest to pixel position x (ignoring text to the right of max_pixels and max_chars)
-	S32 charFromPixelOffset(const llwchar* wchars, S32 char_offset, F32 x, F32 max_pixels=F32_MAX, S32 max_chars = S32_MAX, BOOL round = TRUE, BOOL use_embedded = FALSE) const;
-
-	void addEmbeddedChar( llwchar wc, LLTexture* image, const std::string& label) const;
-	void addEmbeddedChar( llwchar wc, LLTexture* image, const LLWString& label) const;
-	void removeEmbeddedChar( llwchar wc ) const;
+	S32 charFromPixelOffset(const llwchar* wchars, S32 char_offset, F32 x, F32 max_pixels=F32_MAX, S32 max_chars = S32_MAX, BOOL round = TRUE) const;
 
 	BOOL addChar(const llwchar wch) const;
 
@@ -199,19 +195,6 @@ private:
 	LLFontDescriptor mFontDescriptor;
 	LLPointer<LLFontFreetype> mFontFreetype;
 
-	struct embedded_data_t
-	{
-		embedded_data_t(LLImageGL* image, const LLWString& label) : mImage(image), mLabel(label) {}
-		LLPointer<LLImageGL> mImage;
-		LLWString			 mLabel;
-	};
-
-	typedef std::map<llwchar,embedded_data_t*> embedded_map_t;
-	mutable embedded_map_t mEmbeddedChars;
-
-	const embedded_data_t* getEmbeddedCharData(llwchar wch) const;
-	F32 getEmbeddedCharAdvance(const embedded_data_t* ext_data) const;
-	void clearEmbeddedChars();
 	void renderQuad(const LLRectf& screen_rect, const LLRectf& uv_rect, F32 slant_amt) const;
 	void drawGlyph(const LLRectf& screen_rect, const LLRectf& uv_rect, const LLColor4& color, U8 style, ShadowType shadow, F32 drop_shadow_fade) const;
 

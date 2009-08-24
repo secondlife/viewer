@@ -192,10 +192,6 @@ void LLPanel::draw()
 
 void LLPanel::updateDefaultBtn()
 {
-	// This method does not call LLView::draw() so callers will need
-	// to take care of that themselves at the appropriate place in
-	// their rendering sequence
-
 	if( mDefaultBtn)
 	{
 		if (gFocusMgr.childHasKeyboardFocus( this ) && mDefaultBtn->getEnabled())
@@ -254,7 +250,7 @@ BOOL LLPanel::handleKeyHere( KEY key, MASK mask )
 	// handle user hitting ESC to defocus
 	if (key == KEY_ESCAPE)
 	{
-		gFocusMgr.setKeyboardFocus(NULL);
+		setFocus(FALSE);
 		return TRUE;
 	}
 	else if( (mask == MASK_SHIFT) && (KEY_TAB == key))
@@ -315,53 +311,18 @@ void LLPanel::handleVisibilityChange ( BOOL new_visibility )
 	mVisibleSignal(this, LLSD(new_visibility) ); // Pass BOOL as LLSD
 }
 
-BOOL LLPanel::checkRequirements()
-{
-	if (!mRequirementsError.empty())
-	{
-		LLSD args;
-		args["COMPONENTS"] = mRequirementsError;
-		args["FLOATER"] = getName();
-
-		llwarns << getName() << " failed requirements check on: \n"  
-				<< mRequirementsError << llendl;
-		
-		LLNotifications::instance().add(LLNotification::Params("FailedRequirementsCheck").payload(args));
-		mRequirementsError.clear();
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
 void LLPanel::setFocus(BOOL b)
 {
-	if( b )
+	if( b && !hasFocus())
 	{
-		if (!gFocusMgr.childHasKeyboardFocus(this))
-		{
-			// give ourselves focus preemptively, to avoid infinite loop
-			LLUICtrl::setFocus(TRUE);
-			// then try to pass to first valid child
-			focusFirstItem();
-		}
+		// give ourselves focus preemptively, to avoid infinite loop
+		LLUICtrl::setFocus(TRUE);
+		// then try to pass to first valid child
+		focusFirstItem();
 	}
 	else
 	{
-		if( this == gFocusMgr.getKeyboardFocus() )
-		{
-			gFocusMgr.setKeyboardFocus( NULL );
-		}
-		else
-		{
-			//RN: why is this here?
-			LLView::ctrl_list_t ctrls = getCtrlList();
-			for (LLView::ctrl_list_t::iterator ctrl_it = ctrls.begin(); ctrl_it != ctrls.end(); ++ctrl_it)
-			{
-				LLUICtrl* ctrl = *ctrl_it;
-				ctrl->setFocus( FALSE );
-			}
-		}
+		LLUICtrl::setFocus(b);
 	}
 }
 
@@ -704,7 +665,6 @@ BOOL LLPanel::childHasFocus(const std::string& id)
 	}
 	else
 	{
-		childNotFound(id);
 		return FALSE;
 	}
 }
@@ -881,58 +841,3 @@ void LLPanel::childSetControlName(const std::string& id, const std::string& cont
 		view->setControlName(control_name, NULL);
 	}
 }
-
-//virtual
-LLView* LLPanel::getChildView(const std::string& name, BOOL recurse, BOOL create_if_missing) const
-{
-	// just get child, don't try to create a dummy one
-	LLView* view = LLUICtrl::getChildView(name, recurse, FALSE);
-	if (!view && !recurse)
-	{
-		childNotFound(name);
-	}
-	if (!view && create_if_missing)
-	{
-		view = getDefaultWidget<LLView>(name);
-		if (!view)
-		{
-			// create LLViews explicitly, as they are not registered widget types
-			view = LLUICtrlFactory::createDefaultWidget<LLView>(name);
-		}
-	}
-	return view;
-}
-
-void LLPanel::childNotFound(const std::string& id) const
-{
-	if (mExpectedMembers.find(id) == mExpectedMembers.end())
-	{
-		mNewExpectedMembers.insert(id);
-	}
-}
-
-void LLPanel::childDisplayNotFound()
-{
-	if (mNewExpectedMembers.empty())
-	{
-		return;
-	}
-	std::string msg;
-	expected_members_list_t::iterator itor;
-	for (itor=mNewExpectedMembers.begin(); itor!=mNewExpectedMembers.end(); ++itor)
-	{
-		msg.append(*itor);
-		msg.append("\n");
-		mExpectedMembers.insert(*itor);
-	}
-	mNewExpectedMembers.clear();
-	LLSD args;
-	args["CONTROLS"] = msg;
-	LLNotifications::instance().add("FloaterNotFound", args);
-}
-
-void LLPanel::requires(const std::string& name)
-{
-	requires<LLView>(name);
-}
-

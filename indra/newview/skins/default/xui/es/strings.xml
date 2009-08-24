@@ -55,6 +55,9 @@
 	<string name="LoginDownloadingClothing">
 		Descargando la ropa...
 	</string>
+	<string name="Quit">
+		Salir
+	</string>
 	<string name="AgentLostConnection">
 		Esta región puede estar teniendo problemas. Por favor, compruebe su conexión a internet.
 	</string>

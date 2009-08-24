@@ -195,7 +195,8 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 
 	if(LLFastTimer::sPauseHistory && mBarRect.pointInRect(x, y))
 	{
-		mHoverBarIndex = llmin(LLFastTimer::getCurFrameIndex() - 1, MAX_VISIBLE_HISTORY - ((y - mBarRect.mBottom) * (MAX_VISIBLE_HISTORY + 2) / mBarRect.getHeight()));
+		mHoverBarIndex = llmin(LLFastTimer::getCurFrameIndex() - 1, 
+								MAX_VISIBLE_HISTORY - ((y - mBarRect.mBottom) * (MAX_VISIBLE_HISTORY + 2) / mBarRect.getHeight()));
 		if (mHoverBarIndex == 0)
 		{
 			return TRUE;
@@ -217,9 +218,9 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 				mHoverID = (*it);
 				mHoverTimer = (*it);	
 				mToolTipRect.set(mBarStart[mHoverBarIndex][i], 
-					mBarRect.mBottom + llround(((F32)mHoverBarIndex + 1.f) * ((F32)mBarRect.getHeight() / ((F32)MAX_VISIBLE_HISTORY + 2.f))),
+					mBarRect.mBottom + llround(((F32)(MAX_VISIBLE_HISTORY - mHoverBarIndex + 1)) * ((F32)mBarRect.getHeight() / ((F32)MAX_VISIBLE_HISTORY + 2.f))),
 					mBarEnd[mHoverBarIndex][i],
-					mBarRect.mBottom + llround((F32)mHoverBarIndex * ((F32)mBarRect.getHeight() / ((F32)MAX_VISIBLE_HISTORY + 2.f))));
+					mBarRect.mBottom + llround((F32)(MAX_VISIBLE_HISTORY - mHoverBarIndex) * ((F32)mBarRect.getHeight() / ((F32)MAX_VISIBLE_HISTORY + 2.f))));
 			}
 
 			if ((*it)->getCollapsed())
@@ -248,6 +249,7 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* stic
 		// tooltips for timer bars
 		if (mHoverTimer)
 		{
+			localRectToScreen(mToolTipRect, sticky_rect_screen);
 			msg = mHoverTimer->getToolTip(LLFastTimer::NamedTimer::HISTORY_NUM - mScrollIndex - mHoverBarIndex);
 			return TRUE;
 		}
@@ -960,9 +962,14 @@ void LLFastTimerView::draw()
 	LLView::draw();
 }
 
-F64 LLFastTimerView::getTime(LLFastTimer::NamedTimer::FrameState& id)
+F64 LLFastTimerView::getTime(const std::string& name)
 {
-	return (F64)id.mTimer->getCountAverage() / (F64)LLFastTimer::countsPerSecond();
+	const LLFastTimer::NamedTimer* timerp = LLFastTimer::getTimerByName(name);
+	if (timerp)
+	{
+		return (F64)timerp->getCountAverage() / (F64)LLFastTimer::countsPerSecond();
+	}
+	return 0.0;
 }
 
 //static

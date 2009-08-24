@@ -454,14 +454,8 @@ BOOL LLMultiFloater::postBuild()
 		return TRUE;
 	}
 
-	requires<LLTabContainer>("Preview Tabs");
-	if (checkRequirements())
-	{
-		mTabContainer = getChild<LLTabContainer>("Preview Tabs");
-		return TRUE;
-	}
-
-	return FALSE;
+	mTabContainer = getChild<LLTabContainer>("Preview Tabs");
+	return TRUE;
 }
 
 void LLMultiFloater::updateResizeLimits()

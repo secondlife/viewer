@@ -394,7 +394,7 @@ BOOL LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
 	}
 	else
 	{
-		handled = childrenHandleMouseUp( x, y, mask ) != NULL;
+		handled = childrenHandleHover( x, y, mask ) != NULL;
 	}
 
 	// Opaque

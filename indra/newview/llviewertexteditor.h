@@ -65,8 +65,6 @@ public:
 	// mousehandler overrides
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMiddleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask );
@@ -80,6 +78,8 @@ public:
 	virtual BOOL 	importBuffer(const char* buffer, S32 length);
 	virtual bool	importStream(std::istream& str);
 	virtual BOOL 	exportBuffer(std::string& buffer);
+	virtual void	onValueChange(S32 start, S32 end);
+
 	void setNotecardInfo(const LLUUID& notecard_item_id, const LLUUID& object_id, const LLUUID& preview_id)
 	{
 		mNotecardInventoryID = notecard_item_id;
@@ -106,11 +106,9 @@ public:
 
 private:
 	// Embedded object operations
+	void findEmbeddedItemSegments(S32 start, S32 end);
 	virtual llwchar	pasteEmbeddedItem(llwchar ext_char);
-	virtual void	bindEmbeddedChars(const LLFontGL* font) const;
-	virtual void	unbindEmbeddedChars(const LLFontGL* font) const;
 
-	BOOL			getEmbeddedItemToolTipAtPos(S32 pos, LLWString &wmsg) const;
 	BOOL			openEmbeddedItemAtPos( S32 pos );
 	BOOL			openEmbeddedItem(LLInventoryItem* item, llwchar wc);
 
@@ -128,6 +126,7 @@ private:
 	static bool		onNotecardDialog(const LLSD& notification, const LLSD& response );
 	
 	LLPointer<LLInventoryItem> mDragItem;
+	LLTextSegment* mDragSegment;
 	llwchar mDragItemChar;
 	BOOL mDragItemSaved;
 	class LLEmbeddedItems* mEmbeddedItemList;

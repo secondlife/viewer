@@ -504,9 +504,11 @@ LLDrawable* LLVOTree::createDrawable(LLPipeline *pipeline)
 const S32 LEAF_INDICES = 24;
 const S32 LEAF_VERTICES = 16;
 
+static LLFastTimer::DeclareTimer FTM_UPDATE_TREE("Update Tree");
+
 BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 {
-	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_TREE);
+	LLFastTimer ftm(FTM_UPDATE_TREE);
 
 	if (mReferenceBuffer.isNull() || mDrawable->getFace(0)->mVertexBuffer.isNull())
 	{

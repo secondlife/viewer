@@ -35,7 +35,6 @@
 
 class LLFloater;
 class LLViewerRegion;
-class LLViewerTextEditor;
 class LLParcelSelection;
 
 class LLFloaterBuyLand

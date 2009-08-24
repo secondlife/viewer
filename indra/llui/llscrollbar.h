@@ -127,11 +127,6 @@ public:
 	void				onLineUpBtnPressed(const LLSD& data);
 	void				onLineDownBtnPressed(const LLSD& data);
 
-	void setTrackColor( const LLColor4& color ) { mTrackColor = color; }
-	void setThumbColor( const LLColor4& color ) { mThumbColor = color; }
-
-	void setOnScrollEndCallback(void (*callback)(void*), void* userdata) { mOnScrollEndCallback = callback; mOnScrollEndData = userdata;}
-
 private:
 	void				updateThumbRect();
 	void				changeLine(S32 delta, BOOL update_thumb );

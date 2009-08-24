@@ -90,18 +90,6 @@ BOOL LLRadioGroup::postBuild()
 	return TRUE;
 }
 
-// virtual
-void LLRadioGroup::setEnabled(BOOL enabled)
-{
-	for (child_list_const_iter_t child_iter = getChildList()->begin();
-		 child_iter != getChildList()->end(); ++child_iter)
-	{
-		LLView *child = *child_iter;
-		child->setEnabled(enabled);
-	}
-	LLView::setEnabled(enabled);
-}
-
 void LLRadioGroup::setIndexEnabled(S32 index, BOOL enabled)
 {
 	S32 count = 0;

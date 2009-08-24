@@ -42,7 +42,7 @@
 			<line_editor left_delta="45" name="redirecty" width="35" />
 			<spinner name="billable factor"/>
 			<text name="billable factor text">
-				Czynnik Płatnośći:
+				Czynnik Płatności:
 			</text>
 			<spinner name="land cost"/>
 			<text name="land cost text">
@@ -68,8 +68,8 @@
 			<text name="target_avatar_name">
 				(brak)
 			</text>
-			<button label="Usuń cel &apos;s skryptowane obiekty na innych posiadłościach" label_selected="Usuń cel &apos;s skryptowane obiekty na innych posiadłościach" name="Delete Target&apos;s Scripted Objects On Others Land" />
-			<button label="Usuń cel &apos;s skryptowane obiekty na jakichkolwiek posiadłościach" label_selected="Usuń cel &apos;s skryptowane obiekty na jakichkolwiek posiadłościach" name="Delete Target&apos;s Scripted Objects On *Any* Land" />
+			<button label="Usuń cel z oskryptowanych obiektów na innych posiadłościach" label_selected="Usuń cel &apos;s skryptowane obiekty na innych posiadłościach" name="Delete Target&apos;s Scripted Objects On Others Land" />
+			<button label="Usuń cel z oskryptowanych obiektów na jakichkolwiek posiadłościach" label_selected="Usuń cel &apos;s skryptowane obiekty na jakichkolwiek posiadłościach" name="Delete Target&apos;s Scripted Objects On *Any* Land" />
 			<button label="Usuń wszystkie cele i obiekty" label_selected="Usuń wszystkie cele i obiekty" name="Delete *ALL* Of Target&apos;s Objects" />
 			<button label="Główne Kolizje" label_selected="Główne Kolizje" name="Get Top Colliders" />
 			<button label="Główne Skrypty" label_selected="Główne Skrypty" name="Get Top Scripts" />

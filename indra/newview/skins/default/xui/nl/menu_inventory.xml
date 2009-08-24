@@ -12,7 +12,7 @@
 	<menu_item_call label="Nieuw script" name="New Script"/>
 	<menu_item_call label="Nieuwe notitie" name="New Note"/>
 	<menu_item_call label="Nieuw gebaar" name="New Gesture"/>
-	<menu name="New Clothes">
+	<menu name="New Clothes" label="Nieuwe Kleding">
 		<menu_item_call label="Nieuw shirt" name="New Shirt"/>
 		<menu_item_call label="Nieuwe broek" name="New Pants"/>
 		<menu_item_call label="Nieuwe schoenen" name="New Shoes"/>
@@ -23,7 +23,7 @@
 		<menu_item_call label="Nieuw onderhemd" name="New Undershirt"/>
 		<menu_item_call label="Nieuwe onderbroek" name="New Underpants"/>
 	</menu>
-	<menu name="New Body Parts">
+	<menu name="New Body Parts" label="Nieuwe Lichaamsdelen">
 		<menu_item_call label="Nieuwe postuur" name="New Shape"/>
 		<menu_item_call label="Nieuwe huid" name="New Skin"/>
 		<menu_item_call label="Nieuw haar" name="New Hair"/>

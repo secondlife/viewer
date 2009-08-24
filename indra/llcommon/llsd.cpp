@@ -819,9 +819,15 @@ static const char *llsd_dump(const LLSD &llsd, bool useXMLFormat)
 	{
 		std::ostringstream out;
 		if (useXMLFormat)
-			out << LLSDXMLStreamer(llsd);
+		{
+			LLSDXMLStreamer xml_streamer(llsd);
+			out << xml_streamer;
+		}
 		else
-			out << LLSDNotationStreamer(llsd);
+		{
+			LLSDNotationStreamer notation_streamer(llsd);
+			out << notation_streamer;
+		}
 		out_string = out.str();
 	}
 	int len = out_string.length();

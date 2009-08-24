@@ -140,6 +140,7 @@
      max_length="65535"
      name="covenant_editor"
      top_delta="30"
+     handle_edit_keys_directly="true"
      width="193"
      word_wrap="true">
         There is no Covenant provided for this Estate.

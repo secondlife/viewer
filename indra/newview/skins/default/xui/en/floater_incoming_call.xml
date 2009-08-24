@@ -8,6 +8,10 @@
  name="incoming call"
  title="Unknown Person is calling"
  width="240">
+     <floater.string
+     name="anonymous">
+        anonymous
+    </floater.string>
     <floater.string
      name="VoiceInviteP2P">
         is calling.

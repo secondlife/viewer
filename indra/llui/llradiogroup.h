@@ -106,9 +106,7 @@ public:
 	
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
-	virtual void setEnabled(BOOL enabled);
 	void setIndexEnabled(S32 index, BOOL enabled);
-	
 	// return the index value of the selected item
 	S32 getSelectedIndex() const { return mSelectedIndex; }
 	

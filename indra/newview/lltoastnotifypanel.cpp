@@ -107,7 +107,6 @@ LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification) : LLToas
 	common_params.rect(LLRect(x, y, x+32, TOP-32));
 	common_params.mouse_opaque(false);
 	common_params.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
-	common_params.tab_stop(false);
 
 	if (mIsTip)
 	{
@@ -180,8 +179,6 @@ LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification) : LLToas
 		params.mouse_opaque(false);
 		params.bg_readonly_color(LLColor4::transparent);
 		params.text_readonly_color(LLUIColorTable::instance().getColor("NotifyTextColor"));
-		params.takes_non_scroll_clicks(false);
-		params.hide_scrollbar(true);
 		params.enabled(false);
 		params.hide_border(true);
 		text = LLUICtrlFactory::create<LLTextEditor> (params);

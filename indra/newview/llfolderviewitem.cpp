@@ -233,7 +233,7 @@ void LLFolderViewItem::refreshFromListener()
 		// temporary attempt to display the inventory folder in the user locale.
 		if (LLAssetType::lookupIsProtectedCategoryType(preferred_type))
 		{
-			mLabel = LLTrans::getString("InvFolder " + mLabel);
+			LLTrans::findString(mLabel, "InvFolder " + mLabel);
 		};
 
 		setIcon(mListener->getIcon());

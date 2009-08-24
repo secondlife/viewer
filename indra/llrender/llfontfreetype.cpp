@@ -33,6 +33,7 @@
 #include "linden_common.h"
 
 #include "llfontfreetype.h"
+#include "llfontgl.h"
 
 // Freetype stuff
 #include <ft2build.h>
@@ -203,6 +204,19 @@ BOOL LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
 
 	mName = filename;
 	mPointSize = point_size;
+
+	mStyle = LLFontGL::NORMAL;
+	if(mFTFace->style_flags & FT_STYLE_FLAG_BOLD)
+	{
+		mStyle |= LLFontGL::BOLD;
+		mStyle &= ~LLFontGL::NORMAL;
+	}
+
+	if(mFTFace->style_flags & FT_STYLE_FLAG_ITALIC)
+	{
+		mStyle |= LLFontGL::ITALIC;
+		mStyle &= ~LLFontGL::NORMAL;
+	}
 
 	return TRUE;
 }

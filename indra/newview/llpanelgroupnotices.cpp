@@ -508,7 +508,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		mNoticesList->addElement(row, ADD_BOTTOM);
 	}
 
-	mNoticesList->sortItems();
+	mNoticesList->updateSort();
 }
 
 void LLPanelGroupNotices::onSelectNotice(LLUICtrl* ctrl, void* data)

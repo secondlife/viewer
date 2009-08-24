@@ -42,6 +42,9 @@
 #include <winnls.h> // for WideCharToMultiByte
 #endif
 
+LLFastTimer::DeclareTimer STRING_LOCALIZATION("String Localization");
+
+
 std::string ll_safe_string(const char* in)
 {
 	if(in) return std::string(in);

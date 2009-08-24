@@ -36,24 +36,22 @@
 
 #include "llstyle.h"
 #include "lluuid.h"
+#include "llsingleton.h"
 
 // Lightweight class for holding and managing mappings between UUIDs and links.
 // Used (for example) to create clickable name links off of IM chat.
 
-typedef std::map<LLUUID, LLStyleSP> style_map_t;
+typedef std::map<LLUUID, LLStyle::Params> style_map_t;
 
-class LLStyleMap : public style_map_t
+class LLStyleMap : public LLSingleton<LLStyleMap>
 {
 public:
-	LLStyleMap();
-	~LLStyleMap();
 	// Just like the [] accessor but it will add the entry in if it doesn't exist.
-	const LLStyleSP &lookupAgent(const LLUUID &source); 
-	const LLStyleSP &lookup(const LLUUID &source, const std::string& link); 
-	static LLStyleMap &instance();
+	const LLStyle::Params &lookupAgent(const LLUUID &source); 
+	const LLStyle::Params &lookup(const LLUUID &source, const std::string& link); 
 
-	// Forces refresh of the entries, call when something changes (e.g. link color).
-	void update();
+private:
+	style_map_t mMap;
 };
 
 #endif  // LL_LLSTYLE_MAP_H

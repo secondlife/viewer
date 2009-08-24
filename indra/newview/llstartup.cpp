@@ -1001,9 +1001,6 @@ bool idle_startup()
 		}
 
 		
-		//For HTML parsing in text boxes.
-		LLTextEditor::setLinkColor( LLUIColorTable::instance().getColor("HTMLLinkColor") );
-
 		// Load URL History File
 		LLURLHistory::loadFile("url_history.xml");
 

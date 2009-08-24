@@ -115,9 +115,6 @@ public:
 	/*virtual*/ BOOL	handleKeyHere( KEY key, MASK mask );
 	/*virtual*/ void 	handleVisibilityChange ( BOOL new_visibility );
 
-	// Override to set not found list:
-	/*virtual*/ LLView* getChildView(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
-
 	// From LLFocusableElement
 	/*virtual*/ void	setFocus( BOOL b );
 	
@@ -131,19 +128,6 @@ public:
 	void			removeBorder();
 	BOOL			hasBorder() const { return mBorder != NULL; }
 	void			setBorderVisible( BOOL b );
-
-	template <class T> void requires(const std::string& name)
-	{
-		// check for widget with matching type and name
-		if (LLView::getChild<T>(name) == NULL)
-		{
-			mRequirementsError += name + "\n";
-		}
-	}
-	
-	// requires LLView by default
-	void requires(const std::string& name);
-	BOOL			checkRequirements();
 
 	void			setBackgroundColor( const LLColor4& color ) { mBgColorOpaque = color; }
 	const LLColor4&	getBackgroundColor() const { return mBgColorOpaque; }
@@ -241,10 +225,6 @@ public:
 
 	void childSetControlName(const std::string& id, const std::string& control_name);
 
-	// Error reporting
-	void childNotFound(const std::string& id) const;
-	void childDisplayNotFound();
-
 	static LLView*	fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
 
 	//call onOpen to let panel know when it's about to be shown or activated
@@ -278,8 +258,6 @@ private:
 
 	typedef std::map<std::string, std::string> ui_string_map_t;
 	ui_string_map_t	mUIStrings;
-
-	std::string		mRequirementsError;
 
 	// for setting the xml filename when building panel in context dependent cases
 	std::string		mXMLFilename;

@@ -2847,11 +2847,7 @@ void LLPanelLandCovenant::updateCovenantText(const std::string &string)
 	if (self)
 	{
 		LLViewerTextEditor* editor = self->getChild<LLViewerTextEditor>("covenant_editor");
-		if (editor)
-		{
-			editor->setHandleEditKeysDirectly(TRUE);
-			editor->setText(string);
-		}
+		editor->setText(string);
 	}
 }
 

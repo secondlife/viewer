@@ -66,9 +66,13 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Optional<bool>		is_opaque;
+		Optional<bool>		is_opaque,
+							reserve_scroll_corner,
+							border_visible;
+		Optional<F32>		min_auto_scroll_rate,
+							max_auto_scroll_rate;
 		Optional<LLUIColor>	bg_color;
-		Optional<bool>		reserve_scroll_corner;
+		Optional<LLScrollbar::callback_t> scroll_callback;
 		
 		Params();
 	};
@@ -84,20 +88,22 @@ public:
 
 	virtual void 	setValue(const LLSD& value) { mInnerRect.setValue(value); }
 
-	void			calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
-	void			calcVisibleSize( const LLRect& doc_rect, S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
 	void			setBorderVisible( BOOL b );
 
-	void			scrollToShowRect( const LLRect& rect, const LLCoordGL& desired_offset );
+	void			scrollToShowRect( const LLRect& rect, const LLRect& constraint);
+	void			scrollToShowRect( const LLRect& rect) { scrollToShowRect(rect, LLRect(0, mInnerRect.getHeight(), mInnerRect.getWidth(), 0)); }
+
 	void			setReserveScrollCorner( BOOL b ) { mReserveScrollCorner = b; }
+	LLRect			getVisibleContentRect();
+	LLRect			getContentWindowRect() const;
 	const LLRect&	getScrolledViewRect() const { return mScrolledView ? mScrolledView->getRect() : LLRect::null; }
 	void			pageUp(S32 overlap = 0);
 	void			pageDown(S32 overlap = 0);
 	void			goToTop();
 	void			goToBottom();
+	bool			isAtTop() { return mScrollbar[VERTICAL]->isAtBeginning(); }
+	bool			isAtBottom() { return mScrollbar[VERTICAL]->isAtEnd(); }
 	S32				getBorderWidth() const;
-
-	BOOL			needsToScroll(S32 x, S32 y, SCROLL_ORIENTATION axis) const;
 
 	// LLView functionality
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
@@ -111,12 +117,15 @@ public:
 
 	virtual void	draw();
 	virtual bool	addChild(LLView* view, S32 tab_group = 0);
+	
+	bool autoScroll(S32 x, S32 y);
 
 private:
 	// internal scrollbar handlers
 	virtual void scrollHorizontal( S32 new_pos );
 	virtual void scrollVertical( S32 new_pos );
 	void updateScroll();
+	void calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
 
 	LLScrollbar* mScrollbar[SCROLLBAR_COUNT];
 	LLView*		mScrolledView;
@@ -128,6 +137,8 @@ private:
 	BOOL		mReserveScrollCorner;
 	BOOL		mAutoScrolling;
 	F32			mAutoScrollRate;
+	F32			mMinAutoScrollRate;
+	F32			mMaxAutoScrollRate;
 };
 
 

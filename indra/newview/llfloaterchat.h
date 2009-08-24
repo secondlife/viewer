@@ -42,14 +42,8 @@
 #include "lllogchat.h"
 
 class LLChat;
-class LLViewerTextEditor;
-class LLMessageSystem;
-class LLUUID;
-class LLCheckBoxCtrl;
 class LLPanelActiveSpeakers;
 class LLLogChat;
-class LLVector3d;
-class LLWindow;
 
 enum ELogOptions
 {

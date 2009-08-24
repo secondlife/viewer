@@ -329,15 +329,16 @@ public:
 
 	std::string     getSortColumnName();
 	BOOL			getSortAscending() { return mSortColumns.empty() ? TRUE : mSortColumns.back().second; }
-	BOOL			hasSortOrder();
+	BOOL			hasSortOrder() const;
 
 	S32		selectMultiple( std::vector<LLUUID> ids );
-	void			sortItems();
+	// conceptually const, but mutates mItemList
+	void			updateSort() const;
 	// sorts a list without affecting the permanent sort order (so further list insertions can be unsorted, for example)
 	void			sortOnce(S32 column, BOOL ascending);
 
 	// manually call this whenever editing list items in place to flag need for resorting
-	void			setSorted(BOOL sorted) { mSorted = sorted; }
+	void			setNeedsSort() { mSorted = false; }
 	void			dirtyColumns(); // some operation has potentially affected column layout or ordering
 
 protected:
@@ -390,7 +391,7 @@ private:
 	const BOOL		mDisplayColumnHeaders;
 	BOOL			mColumnsDirty;
 
-	item_list		mItemList;
+	mutable item_list	mItemList;
 
 	LLScrollListItem *mLastSelected;
 
@@ -429,7 +430,7 @@ private:
 	S32				mTotalStaticColumnWidth;
 	S32				mTotalColumnPadding;
 
-	BOOL			mSorted;
+	mutable bool	mSorted;
 	
 	typedef std::map<std::string, LLScrollListColumn> column_map_t;
 	column_map_t mColumns;

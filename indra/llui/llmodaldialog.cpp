@@ -279,10 +279,7 @@ void LLModalDialog::onAppFocusLost()
 			gFocusMgr.setMouseCapture( NULL );
 		}
 
-		if( gFocusMgr.childHasKeyboardFocus( instance ) )
-		{
-			gFocusMgr.setKeyboardFocus( NULL );
-		}
+		instance->setFocus(FALSE);
 	}
 }
 

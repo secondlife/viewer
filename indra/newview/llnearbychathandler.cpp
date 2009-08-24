@@ -68,6 +68,8 @@ LLNearbyChatHandler::~LLNearbyChatHandler()
 }
 void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 {
+	if(chat_msg.mMuted == TRUE)
+		return;
 	if(chat_msg.mSourceType == CHAT_SOURCE_AGENT && chat_msg.mFromID.notNull())
          LLRecentPeople::instance().add(chat_msg.mFromID);
 

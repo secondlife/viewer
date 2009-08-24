@@ -138,7 +138,7 @@
         <menu_item_separator
          layout="topleft" />
         <menu_item_call
-         label="Quit Second Life"
+         label="Quit [APP_NAME]"
          layout="topleft"
          name="Quit"
          shortcut="control|Q">
@@ -449,7 +449,7 @@
      name="Help"
      tear_off="true">
         <menu_item_call
-         label="Second Life Help"
+         label="[SECOND_LIFE] Help"
          layout="topleft"
          name="Second Life Help"
          shortcut="F1">
@@ -496,7 +496,7 @@
         <menu_item_separator
              layout="topleft" />
         <menu_item_call
-         label="About Second Life"
+         label="About [APP_NAME]"
          layout="topleft"
          name="About Second Life">
             <menu_item_call.on_click

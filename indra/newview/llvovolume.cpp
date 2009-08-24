@@ -79,6 +79,9 @@ F32	LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectiv
 F32 LLVOVolume::sDistanceFactor = 1.0f;
 S32 LLVOVolume::sNumLODChanges = 0;
 
+static LLFastTimer::DeclareTimer FTM_GEN_TRIANGLES("Generate Triangles");
+static LLFastTimer::DeclareTimer FTM_GEN_VOLUME("Generate Volumes");
+
 LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	: LLViewerObject(id, pcode, regionp),
 	  mVolumeImpl(NULL)
@@ -1130,15 +1133,18 @@ void LLVOVolume::updateRelativeXform()
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_GEN_FLEX("Generate Flexies");
+static LLFastTimer::DeclareTimer FTM_UPDATE_PRIMITIVES("Update Primitives");
+
 BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 {
-	LLFastTimer t(LLFastTimer::FTM_UPDATE_PRIMITIVES);
+	LLFastTimer t(FTM_UPDATE_PRIMITIVES);
 	
 	if (mVolumeImpl != NULL)
 	{
 		BOOL res;
 		{
-			LLFastTimer t(LLFastTimer::FTM_GEN_FLEX);
+			LLFastTimer t(FTM_GEN_FLEX);
 			res = mVolumeImpl->doUpdateGeometry(drawable);
 		}
 		updateFaceFlags();
@@ -1162,14 +1168,14 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 
 		if (mVolumeChanged)
 		{
-			LLFastTimer ftm(LLFastTimer::FTM_GEN_VOLUME);
+			LLFastTimer ftm(FTM_GEN_VOLUME);
 			LLVolumeParams volume_params = getVolume()->getParams();
 			setVolume(volume_params, 0);
 			drawable->setState(LLDrawable::REBUILD_VOLUME);
 		}
 
 		{
-			LLFastTimer t(LLFastTimer::FTM_GEN_TRIANGLES);
+			LLFastTimer t(FTM_GEN_TRIANGLES);
 			regenFaces();
 			genBBoxes(FALSE);
 		}
@@ -1186,7 +1192,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 		old_volumep = NULL ;
 
 		{
-			LLFastTimer ftm(LLFastTimer::FTM_GEN_VOLUME);
+			LLFastTimer ftm(FTM_GEN_VOLUME);
 			LLVolumeParams volume_params = getVolume()->getParams();
 			setVolume(volume_params, 0);
 		}
@@ -1204,7 +1210,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 			drawable->setState(LLDrawable::REBUILD_VOLUME); // for face->genVolumeTriangles()
 
 			{
-				LLFastTimer t(LLFastTimer::FTM_GEN_TRIANGLES);
+				LLFastTimer t(FTM_GEN_TRIANGLES);
 				if (new_num_faces != old_num_faces)
 				{
 					regenFaces();
@@ -1218,7 +1224,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	{
 		compiled = TRUE;
 		// All it did was move or we changed the texture coordinate offset
-		LLFastTimer t(LLFastTimer::FTM_GEN_TRIANGLES);
+		LLFastTimer t(FTM_GEN_TRIANGLES);
 		genBBoxes(FALSE);
 	}
 
@@ -2235,6 +2241,9 @@ void LLVolumeGeometryManager::getGeometry(LLSpatialGroup* group)
 
 }
 
+static LLFastTimer::DeclareTimer FTM_REBUILD_VOLUME_VB("Volume");
+static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
+
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
 	if (LLPipeline::sSkipUpdate)
@@ -2253,8 +2262,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	{
 		if (group->isState(LLSpatialGroup::MESH_DIRTY) && !LLPipeline::sDelayVBUpdate)
 		{
-			LLFastTimer ftm(LLFastTimer::FTM_REBUILD_VBO);	
-			LLFastTimer ftm2(LLFastTimer::FTM_REBUILD_VOLUME_VB);
+			LLFastTimer ftm(FTM_REBUILD_VBO);	
+			LLFastTimer ftm2(FTM_REBUILD_VOLUME_VB);
 		
 			rebuildMesh(group);
 		}
@@ -2262,9 +2271,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	}
 
 	group->mBuilt = 1.f;
-	LLFastTimer ftm(LLFastTimer::FTM_REBUILD_VBO);	
+	LLFastTimer ftm(FTM_REBUILD_VBO);	
 
-	LLFastTimer ftm2(LLFastTimer::FTM_REBUILD_VOLUME_VB);
+	LLFastTimer ftm2(FTM_REBUILD_VOLUME_VB);
 
 	group->clearDrawMap();
 

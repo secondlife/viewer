@@ -38,6 +38,7 @@
 #include <iomanip>
 #include <boost/regex.hpp>
 #include "llsd.h"
+#include "llfasttimer.h"
 
 #if LL_LINUX || LL_SOLARIS
 #include <wctype.h>
@@ -337,6 +338,9 @@ public:
 	// Copies src into dst at a given offset.  
 	static void		copyInto(std::basic_string<T>& dst, const std::basic_string<T>& src, size_type offset);
 	
+	static bool		isPartOfWord(T c) { return (c == (T)'_') || LLStringOps::isAlnum(c); }
+
+
 #ifdef _DEBUG	
 	static void		testHarness();
 #endif
@@ -617,10 +621,13 @@ void LLStringUtilBase<T>::getTokens (std::basic_string<T> input, std::vector<std
 	}
 }
 
+extern LLFastTimer::DeclareTimer STRING_LOCALIZATION;
+
 // static
 template<class T> 
 S32 LLStringUtilBase<T>::format(std::basic_string<T>& s, const format_map_t& substitutions)
 {
+	LLFastTimer ft(STRING_LOCALIZATION);
 	S32 res = 0;
 
 	std::basic_ostringstream<T> output;
@@ -695,6 +702,8 @@ S32 LLStringUtilBase<T>::format(std::basic_string<T>& s, const format_map_t& sub
 template<class T>
 S32 LLStringUtilBase<T>::format(std::basic_string<T>& s, const LLSD& substitutions)
 {
+	LLFastTimer ft(STRING_LOCALIZATION);
+
 	S32 res = 0;
 
 	if (!substitutions.isMap()) 

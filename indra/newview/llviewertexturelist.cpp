@@ -75,6 +75,7 @@ const S32 IMAGES_MAX_PACKET_UPDATES = 1; // Only send N packets of IMAGES_PER_RE
 const F32 RESEND_IMAGE_REQUEST_TIME = 15.f; // seconds
 
 LLViewerTextureList gTextureList;
+static LLFastTimer::DeclareTimer FTM_PROCESS_IMAGES("Process Images");
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -542,6 +543,7 @@ void LLViewerTextureList::dirtyImage(LLViewerFetchedTexture *image)
 }
 
 ////////////////////////////////////////////////////////////////////////////
+static LLFastTimer::DeclareTimer FTM_IMAGE_MARK_DIRTY("Dirty Images");
 
 void LLViewerTextureList::updateImages(F32 max_time)
 {
@@ -559,7 +561,7 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	max_time = llmin(llmax(max_time, 0.001f*10.f*gFrameIntervalSeconds), 0.001f);
 	if (!mDirtyTextureList.empty())
 	{
-		LLFastTimer t(LLFastTimer::FTM_IMAGE_MARK_DIRTY);
+		LLFastTimer t(FTM_IMAGE_MARK_DIRTY);
 		gPipeline.dirtyPoolObjectTextures(mDirtyTextureList);
 		mDirtyTextureList.clear();
 	}
@@ -697,6 +699,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
  return type_from_host;
  }
  */
+static LLFastTimer::DeclareTimer FTM_IMAGE_CREATE("Create Images");
 
 F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 {
@@ -706,7 +709,7 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 	// Create GL textures for all textures that need them (images which have been
 	// decoded, but haven't been pushed into GL).
 	//
-	LLFastTimer t(LLFastTimer::FTM_IMAGE_CREATE);
+	LLFastTimer t(FTM_IMAGE_CREATE);
 	
 	LLTimer create_timer;
 	image_list_t::iterator enditer = mCreateTextureList.begin();
@@ -1115,7 +1118,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 // static
 void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_data)
 {
-	LLFastTimer t(LLFastTimer::FTM_PROCESS_IMAGES);
+	LLFastTimer t(FTM_PROCESS_IMAGES);
 	
 	// Receive image header, copy into image object and decompresses 
 	// if this is a one-packet image. 
@@ -1179,7 +1182,7 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_data)
 {
 	LLMemType mt1(LLMemType::MTYPE_APPFMTIMAGE);
-	LLFastTimer t(LLFastTimer::FTM_PROCESS_IMAGES);
+	LLFastTimer t(FTM_PROCESS_IMAGES);
 	
 	// Receives image packet, copy into image object,
 	// checks if all packets received, decompresses if so. 
@@ -1244,7 +1247,7 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 // static
 void LLViewerTextureList::processImageNotInDatabase(LLMessageSystem *msg,void **user_data)
 {
-	LLFastTimer t(LLFastTimer::FTM_PROCESS_IMAGES);
+	LLFastTimer t(FTM_PROCESS_IMAGES);
 	LLUUID image_id;
 	msg->getUUIDFast(_PREHASH_ImageID, _PREHASH_ID, image_id);
 	

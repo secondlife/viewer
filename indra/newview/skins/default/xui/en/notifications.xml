@@ -102,7 +102,7 @@
    name="MissingAlert"
    label="Unknown Alert Message"
    type="alertmodal">
-Your version of Second Life does not know how to display the alert it just received.  Please verify that you have the latest Viewer installed.
+Your version of [APP_NAME] does not know how to display the alert it just received.  Please verify that you have the latest Viewer installed.
 
 Error details: The alert called &apos;[_NAME]&apos; was not found in notifications.xml.
     <usetemplate
@@ -154,7 +154,7 @@ No tutorial is currently available.
    icon="alertmodal.tga"
    name="BadInstallation"
    type="alertmodal">
- An error occurred while updating Second Life.  Please download the latest version of the Viewer. http://get.secondlife.com
+ An error occurred while updating [APP_NAME].  Please download the latest version of the Viewer. http://get.secondlife.com
     <usetemplate
      name="okbutton"
      yestext="Ok"/>
@@ -164,7 +164,7 @@ No tutorial is currently available.
    icon="alertmodal.tga"
    name="LoginFailedNoNetwork"
    type="alertmodal">
-Could not connect to the Second Life Grid.
+Could not connect to the [SECOND_LIFE_GRID].
 &apos;[DIAGNOSTIC]&apos;
 Make sure your Internet connection is working properly.
 	<usetemplate
@@ -331,7 +331,7 @@ Members cannot be removed from that role.
 The members must resign from the role themselves.
 Are you sure you want to continue?
     <usetemplate
-     ignoretext="When adding group members to the owner role"
+     ignoretext="Confirm before I add a new group Owner"
      name="okcancelignore"
      notext="No"
      yestext="Yes"/>
@@ -429,7 +429,7 @@ Selecting &quot;Show in Search&quot; will show:
    type="alertmodal">
 You can propose to another Resident or dissolve an existing partnership through the [SECOND_LIFE] website.
 
-Go to the Second Life web site for more information on partnering?
+Go to the [SECOND_LIFE] web site for more information on partnering?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -519,7 +519,7 @@ Your selling price will be L$[SALE_PRICE] and will be authorized for sale to [NA
    icon="alertmodal.tga"
    name="ConfirmLandSaleToAnyoneChange"
    type="alertmodal">
-ATTENTION: Clicking &apos;sell to anyone&apos; makes your land available to the entire Second Life community, even those not in this region.
+ATTENTION: Clicking &apos;sell to anyone&apos; makes your land available to the entire [SECOND_LIFE] community, even those not in this region.
 
 The selected [LAND_SIZE] m² land is being set for sale.
 Your selling price will be L$[SALE_PRICE] and will be authorized for sale to [NAME].
@@ -765,7 +765,7 @@ Fill out your ad, then click &apos;Publish...&apos; to add it to the directory.
 You&apos;ll be asked for a price to pay when clicking Publish.
 Paying more makes your ad appear higher in the list, and also appear higher when people search for keywords.
     <usetemplate
-     ignoretext="When adding a new Classified"
+     ignoretext="How to create a new Classified ad"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -861,14 +861,14 @@ Would you like to disable all popups which can be skipped?
    icon="alertmodal.tga"
    name="CacheWillClear"
    type="alertmodal">
-Cache will be cleared after you restart [SECOND_LIFE].
+Cache will be cleared after you restart [APP_NAME].
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="CacheWillBeMoved"
    type="alertmodal">
-Cache will be moved after you restart [SECOND_LIFE].
+Cache will be moved after you restart [APP_NAME].
 Note: This will clear the cache.
   </notification>
 
@@ -876,14 +876,14 @@ Note: This will clear the cache.
    icon="alertmodal.tga"
    name="ChangeConnectionPort"
    type="alertmodal">
-Port settings take effect after you restart [SECOND_LIFE].
+Port settings take effect after you restart [APP_NAME].
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="ChangeSkin"
    type="alertmodal">
-The new skin will appear after you restart [SECOND_LIFE].
+The new skin will appear after you restart [APP_NAME].
   </notification>
 
   <notification
@@ -1020,7 +1020,7 @@ Unable to write file [[FILE]]
    icon="alertmodal.tga"
    name="UnsupportedHardware"
    type="alertmodal">
-Warning: Your system does not meet Second Life&apos;s minimum system requirements. If you continue using Second Life, you may experience poor performance. Unfortunately, we cannot provide technical support for unsupported system configurations.
+Warning: Your system does not meet [APP_NAME]&apos;s minimum system requirements. If you continue using [APP_NAME], you may experience poor performance. Unfortunately, the [SUPPORT_SITE] cannot provide technical support for unsupported system configurations.
 
 MINSPECS
 Do you wish to visit [_URL] for more information?
@@ -1029,7 +1029,7 @@ Do you wish to visit [_URL] for more information?
 			http://www.secondlife.com/corporate/sysreqs.php
     </url>
     <usetemplate
-     ignoretext="When detecting unsupported hardware"
+     ignoretext="My computer hardware is not supported"
      name="okcancelignore"
      notext="No"
      yestext="Yes"/>
@@ -1039,12 +1039,12 @@ Do you wish to visit [_URL] for more information?
    icon="alertmodal.tga"
    name="UnknownGPU"
    type="alertmodal">
-Your system contains a graphics card that is unknown to us at this time.
-This is often the case with new hardware we haven&apos;t had a chance to test.  Second Life will most likely run properly, but you may need to adjust your graphics settings to something more appropriate.
+Your system contains a graphics card that is unknown to [APP_NAME] at this time.
+This is often the case with new hardware that hasn&apos;t been tested yet with [APP_NAME].  [APP_NAME] will most likely run properly, but you may need to adjust your graphics settings to something more appropriate.
 (Edit menu &gt; Preferences &gt; Graphics).
     <form name="form">
       <ignore name="ignore"
-       text="When detecting an unknown graphics card"/>
+       text="My graphics card could not be identified"/>
     </form>
   </notification>
 
@@ -1052,9 +1052,8 @@ This is often the case with new hardware we haven&apos;t had a chance to test.  
    icon="alertmodal.tga"
    name="DisplaySettingsNoShaders"
    type="alertmodal">
-[SECOND_LIFE] crashed while initializing graphics drivers.
-Graphics Quality will be set to low to avoid some common driver errors.
-This will disable some graphics features.
+[APP_NAME] crashed while initializing graphics drivers.
+Graphics Quality will be set to Low to avoid some common driver errors. This will disable some graphics features.
 We recommend updating your graphics card drivers.
 Graphics Quality can be raised in Preferences &gt; Graphics.
   </notification>
@@ -1388,7 +1387,7 @@ Unable to create output file: [FILE]
    icon="alertmodal.tga"
    name="DoNotSupportBulkAnimationUpload"
    type="alertmodal">
-We do not currently support bulk upload of animation files.
+[APP_NAME] does not currently support bulk upload of animation files.
   </notification>
 
   <notification
@@ -1507,15 +1506,15 @@ Could not teleport.
    icon="alertmodal.tga"
    name="invalid_tport"
    type="alertmodal">
-Problem encountered processing your teleport request. You may need to log back in before you can teleport. If you continue to get this message, please check the Tech Support FAQ at:
-www.secondlife.com/support
+Problem encountered processing your teleport request. You may need to log back in before you can teleport.
+If you continue to get this message, please check the [SUPPORT_SITE].
   </notification>
   <notification
    icon="alertmodal.tga"
    name="invalid_region_handoff"
    type="alertmodal">
-Problem encountered processing your region crossing. You may need to log back in before you can cross regions. If you continue to get this message, please check the Tech Support FAQ at:
-www.secondlife.com/support
+Problem encountered processing your region crossing. You may need to log back in before you can cross regions.
+If you continue to get this message, please check the [SUPPORT_SITE].
   </notification>
   <notification
    icon="alertmodal.tga"
@@ -1656,7 +1655,7 @@ Cannot find the region this land is in.
    icon="alertmodal.tga"
    name="CannotCloseFloaterBuyLand"
    type="alertmodal">
-You cannot close the Buy Land window until Second Life estimates the price of this transaction.
+You cannot close the Buy Land window until [APP_NAME] estimates the price of this transaction.
   </notification>
 
   <notification
@@ -1974,7 +1973,7 @@ and provide details about your network setup.
    type="alertmodal">
 You have been logged out of [SECOND_LIFE]:
             [MESSAGE]
-You can still look at existing IM and chat by clicking &apos;View IM &amp; Chat&apos;. Otherwise, click &apos;Quit&apos; to exit [SECOND_LIFE] immediately.
+You can still look at existing IM and chat by clicking &apos;View IM &amp; Chat&apos;. Otherwise, click &apos;Quit&apos; to exit [APP_NAME] immediately.
     <usetemplate
      name="okcancelbuttons"
      notext="Quit"
@@ -2332,10 +2331,10 @@ You may want to set a new home location.
    name="ClothingLoading"
    type="alertmodal">
 Your clothing is still downloading.
-You can use [SECOND_LIFE] normally and other users will see you correctly.
+You can use [SECOND_LIFE] normally and other people will see you correctly.
     <form name="form">
       <ignore name="ignore"
-       text="When clothing is taking a long time to download"/>
+       text="Clothing is taking a long time to download"/>
     </form>
   </notification>
 
@@ -2344,7 +2343,7 @@ You can use [SECOND_LIFE] normally and other users will see you correctly.
    name="FirstRun"
    type="alertmodal">
 
-[SECOND_LIFE] installation is complete.
+[APP_NAME] installation is complete.
 
 If this is your first time using [SECOND_LIFE], you will need to create an account before you can log in.
 Return to www.secondlife.com to create a new account?
@@ -2358,9 +2357,9 @@ Return to www.secondlife.com to create a new account?
    icon="alertmodal.tga"
    name="LoginPacketNeverReceived"
    type="alertmodal">
-We&apos;re having trouble connecting. There may be a problem with your internet connection or the Second Life servers.
+We&apos;re having trouble connecting. There may be a problem with your Internet connection or the [SECOND_LIFE_GRID].
 
-You can either check your internet connection and try again in a few minutes, click Help to connect to our support site, or click Teleport to attempt to teleport home.
+You can either check your Internet connection and try again in a few minutes, click Help to view the [SUPPORT_SITE], or click Teleport to attempt to teleport home.
     <url option="1" name="url">
 
 			http://secondlife.com/support/
@@ -2591,9 +2590,9 @@ Finished download of raw terrain file to:
    icon="alertmodal.tga"
    name="DownloadWindowsMandatory"
    type="alertmodal">
-A new version of [SECOND_LIFE] is available.
+A new version of [APP_NAME] is available.
 [MESSAGE]
-You must download this update to use [SECOND_LIFE].
+You must download this update to use [APP_NAME].
     <usetemplate
      name="okcancelbuttons"
      notext="Quit"
@@ -2604,7 +2603,7 @@ You must download this update to use [SECOND_LIFE].
    icon="alertmodal.tga"
    name="DownloadWindows"
    type="alertmodal">
-An updated version of [SECOND_LIFE] is available.
+An updated version of [APP_NAME] is available.
 [MESSAGE]
 This update is not required, but we suggest you install it to improve performance and stability.
     <usetemplate
@@ -2617,7 +2616,7 @@ This update is not required, but we suggest you install it to improve performanc
    icon="alertmodal.tga"
    name="DownloadWindowsReleaseForDownload"
    type="alertmodal">
-An updated version of [SECOND_LIFE] is available.
+An updated version of [APP_NAME] is available.
 [MESSAGE]
 This update is not required, but we suggest you install it to improve performance and stability.
     <usetemplate
@@ -2669,9 +2668,9 @@ This update is not required, but we suggest you install it to improve performanc
    icon="alertmodal.tga"
    name="DownloadMacMandatory"
    type="alertmodal">
-A new version of [SECOND_LIFE] is available.
+A new version of [APP_NAME] is available.
 [MESSAGE]
-You must download this update to use [SECOND_LIFE].
+You must download this update to use [APP_NAME].
 
 Download to your Applications folder?
     <usetemplate
@@ -2684,7 +2683,7 @@ Download to your Applications folder?
    icon="alertmodal.tga"
    name="DownloadMac"
    type="alertmodal">
-An updated version of [SECOND_LIFE] is available.
+An updated version of [APP_NAME] is available.
 [MESSAGE]
 This update is not required, but we suggest you install it to improve performance and stability.
 
@@ -2699,7 +2698,7 @@ Download to your Applications folder?
    icon="alertmodal.tga"
    name="DownloadMacReleaseForDownload"
    type="alertmodal">
-An updated version of [SECOND_LIFE] is available.
+An updated version of [APP_NAME] is available.
 [MESSAGE]
 This update is not required, but we suggest you install it to improve performance and stability.
 
@@ -2717,7 +2716,7 @@ Download to your Applications folder?
 Deeding this object will cause the group to:
 * Receive L$ paid into the object
     <usetemplate
-     ignoretext="When deeding objects to groups"
+     ignoretext="Confirm before I deed an object to a group"
      name="okcancelignore"
      notext="Cancel"
      yestext="Deed"/>
@@ -2727,9 +2726,9 @@ Deeding this object will cause the group to:
    icon="alertmodal.tga"
    name="WebLaunchExternalTarget"
    type="alertmodal">
-Open your system Web browser to view this content?
+Do you want to open your Web browser to view this content?
     <usetemplate
-     ignoretext="When opening your system browser to view a Web page"
+     ignoretext="Launch my browser to view a web page"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -2739,9 +2738,9 @@ Open your system Web browser to view this content?
    icon="alertmodal.tga"
    name="WebLaunchJoinNow"
    type="alertmodal">
-Go to www.secondlife.com to manage your account?
+Go to secondlife.com to manage your account?
     <usetemplate
-     ignoretext="When launching web browser to manage your account"
+     ignoretext="Launch my browser to manage my account"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -2753,7 +2752,7 @@ Go to www.secondlife.com to manage your account?
    type="alertmodal">
 Visit the [SECOND_LIFE] Wiki and learn how to report bugs correctly.
     <usetemplate
-     ignoretext="When launching web browser to view the Bug Reporting 101 Wiki"
+     ignoretext="Launch my browser to learn how to report a Bug"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -2765,7 +2764,7 @@ Visit the [SECOND_LIFE] Wiki and learn how to report bugs correctly.
    type="alertmodal">
 Visit the [SECOND_LIFE] Wiki for details of how to report a security issue.
     <usetemplate
-     ignoretext="When launching web browser to view Security Issues Wiki"
+     ignoretext="Launch my browser to learn how to report a Security Issue"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -2777,7 +2776,7 @@ Visit the [SECOND_LIFE] Wiki for details of how to report a security issue.
    type="alertmodal">
 Visit the [SECOND_LIFE] QA Wiki.
     <usetemplate
-     ignoretext="When launching web browser to view the QA Wiki"
+     ignoretext="Launch my browser to view the QA Wiki"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -2789,7 +2788,7 @@ Visit the [SECOND_LIFE] QA Wiki.
    type="alertmodal">
 Visit the [SECOND_LIFE] Public Issue Tracker, where you can report bugs and other issues.
     <usetemplate
-     ignoretext="When launching web browser to view the Public Issue Tracker"
+     ignoretext="Launch my browser to use the Public Issue Tracker"
      name="okcancelignore"
      notext="Cancel"
      yestext="Go to page"/>
@@ -2801,7 +2800,7 @@ Visit the [SECOND_LIFE] Public Issue Tracker, where you can report bugs and othe
    type="alertmodal">
 Visit the [SECOND_LIFE] Wiki for info on how to use the Public Issue Tracker.
     <usetemplate
-     ignoretext="When launching web browser to view Public Issue Tracker Wiki"
+     ignoretext="Launch my browser to view instructions for the Public Issue Tracker"
      name="okcancelignore"
      notext="Cancel"
      yestext="Go to page"/>
@@ -2813,7 +2812,7 @@ Visit the [SECOND_LIFE] Wiki for info on how to use the Public Issue Tracker.
    type="alertmodal">
 Go to the Official Linden Blog, for the latest news and information.
     <usetemplate
-     ignoretext="When launching web browser to view the blog"
+     ignoretext="Launch my browser to view the blog"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -2823,9 +2822,9 @@ Go to the Official Linden Blog, for the latest news and information.
    icon="alertmodal.tga"
    name="WebLaunchLSLGuide"
    type="alertmodal">
-Go to the Scripting Guide for scripting help?
+Do you want to open the Scripting Guide for help with scripting?
     <usetemplate
-     ignoretext="When launching web browser to view the Scripting Guide"
+     ignoretext="Launch my browser to view the Scripting Guide"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -2835,9 +2834,9 @@ Go to the Scripting Guide for scripting help?
    icon="alertmodal.tga"
    name="WebLaunchLSLWiki"
    type="alertmodal">
-Go to the LSL Portal for scripting help?
+Do you want to visit the LSL Portal for help with scripting?
     <usetemplate
-     ignoretext="When launching web browser to view the LSL Portal"
+     ignoretext="Launch my browser to view the LSL Portal"
      name="okcancelignore"
      notext="Cancel"
      yestext="Go to page"/>
@@ -2851,7 +2850,7 @@ Are you sure you want to return the selected objects to their owners? Transferab
 
 *WARNING* No-transfer deeded objects will be deleted!
     <usetemplate
-     ignoretext="When returning objects to their owners"
+     ignoretext="Confirm before I return objects to their owners"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -2943,10 +2942,10 @@ Cannot offer friendship at this time. Please try again in a moment.
    icon="alert.tga"
    name="BusyModeSet"
    type="alert">
-Busy mode set.
+Busy mode is set.
 Chat and instant messages will be hidden. Instant messages will get your Busy mode response. All teleportation offers will be declined. All inventory offers will go to your Trash.
     <usetemplate
-     ignoretext="When setting busy mode"
+     ignoretext="I change my status to Busy mode"
      name="okignore"
      yestext="OK"/>
   </notification>
@@ -3096,7 +3095,7 @@ Join me in [REGION]
    type="alertmodal">
 Are you sure you want to teleport?
     <usetemplate
-     ignoretext="When teleporting from a landmark in inventory"
+     ignoretext="Confirm that I want to teleport to a landmark"
      name="okcancelignore"
      notext="Cancel"
      yestext="Teleport"/>
@@ -3108,7 +3107,7 @@ Are you sure you want to teleport?
    type="alertmodal">
 Teleport to [PICK]?
     <usetemplate
-     ignoretext="When teleporting from double-clicking a pick"
+     ignoretext="Confirm that I want to teleport to a location in Picks"
      name="okcancelignore"
      notext="Cancel"
      yestext="Teleport"/>
@@ -3318,7 +3317,7 @@ Go to the Knowledge Base for more information about maturity Ratings?
      name="okcancelignore"
      yestext="Go to Knowledge Base"
 	 notext="Close"
-	 ignoretext="When Region entry is blocked due to maturity Rating"/>
+	 ignoretext="I can&apos;t enter this Region, due to restrictions of the maturity Rating"/>
   </notification>
 
   <notification
@@ -3345,7 +3344,7 @@ You can click &apos;Change Preference&apos; to raise your maturity Rating prefer
        index="1"
        name="Cancel"
        text="Close"/>
-       <ignore name="ignore" text="When Region entry is blocked due to maturity Rating preference"/>
+       <ignore name="ignore" text="My chosen Rating preference prevents me from entering a Region"/>
     </form>
   </notification>
 
@@ -3375,7 +3374,7 @@ Go to the Knowledge Base for more information about maturity Ratings?
      name="okcancelignore"
      yestext="Go to Knowledge Base"
 	 notext="Close"
-	 ignoretext="When claiming land is blocked due to maturity Rating"/>
+	 ignoretext="I can&apos;t claim this Land, due to restrictions of the maturity Rating"/>
   </notification>
 
   <notification
@@ -3396,7 +3395,7 @@ You can click &apos;Change Preference&apos; to raise your maturity Rating prefer
      name="okcancelignore"
      yestext="Change Preference"
 	 notext="Close"
-	 ignoretext="When claiming land is blocked due to maturity Rating preference"/>
+	 ignoretext="My chosen Rating preference prevents me from claiming Land"/>
   </notification>
 
   <notification
@@ -3425,7 +3424,7 @@ Go to the Knowledge Base for more information about maturity Ratings?
      name="okcancelignore"
      yestext="Go to Knowledge Base"
 	 notext="Close"
-	 ignoretext="When a Land purchase is blocked due to maturity Rating"/>
+	 ignoretext="I can&apos;t buy this Land, due to restrictions of the maturity Rating"/>
   </notification>
 
   <notification
@@ -3446,7 +3445,7 @@ You can click &apos;Change Preference&apos; to raise your maturity Rating prefer
      name="okcancelignore"
      yestext="Change Preference"
 	 notext="Close"
-	 ignoretext="When a Land purchase is blocked due to maturity Rating preference"/>
+	 ignoretext="My chosen Rating preference prevents me from buying Land"/>
   </notification>
 
 	<notification
@@ -3969,7 +3968,7 @@ Default: off
    label="Voice Version Mismatch"
    name="VoiceVersionMismatch"
    type="alertmodal">
-This version of Second Life is not compatible with the Voice Chat feature in this region. In order for Voice Chat to function correctly you will need to update Second Life.
+This version of [APP_NAME] is not compatible with the Voice Chat feature in this region. In order for Voice Chat to function correctly you will need to update [APP_NAME].
   </notification>
 
   <notification
@@ -4158,7 +4157,7 @@ These items will be moved to your inventory, not copied.
 
 Move the inventory item(s)?
     <usetemplate
-     ignoretext="When moving no-copy inventory from objects"
+     ignoretext="Warn me before I move &apos;no-copy&apos; items from an object"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -4173,7 +4172,7 @@ Because this object is scripted, moving these items to your inventory may cause 
 
 Move the inventory item(s)?
     <usetemplate
-     ignoretext="When moving no-copy inventory from scripted objects"
+     ignoretext="Warn me before I move &apos;no-copy&apos; items which might break a scripted object"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -4183,10 +4182,10 @@ Move the inventory item(s)?
    icon="alert.tga"
    name="ClickActionNotPayable"
    type="alert">
-Warning: The Pay Object click action has been set, but it will only work if a script is added with a money() event.
+Warning: The &apos;Pay object&apos; click action has been set, but it will only work if a script is added with a money() event.
     <form name="form">
       <ignore name="ignore"
-       text="When Setting &apos;Pay&apos; on objects without money() events"/>
+       text="I set the action &apos;Pay object&apos; when building an object without a money() script"/>
     </form>
   </notification>
 
@@ -4201,9 +4200,9 @@ There are no items in this object that you are allowed to copy.
    icon="alertmodal.tga"
    name="WebLaunchAccountHistory"
    type="alertmodal">
-Go to the Second Life web site to see your account history?
+Go to secondlife.com to see your account history?
     <usetemplate
-     ignoretext="When loading account history web page"
+     ignoretext="Launch my browser to see my account history"
      name="okcancelignore"
      notext="Cancel"
      yestext="Go to page"/>
@@ -4213,9 +4212,9 @@ Go to the Second Life web site to see your account history?
    icon="alertmodal.tga"
    name="ClickOpenF1Help"
    type="alertmodal">
-View Second Life help?
+Do you want to visit [SECOND_LIFE] help?
     <usetemplate
-     ignoretext="When visiting the Second Life Support Website."
+     ignoretext="Launch my browser to view Help/Support"
      name="okcancelignore"
      notext="Cancel"
      yestext="Go"/>
@@ -4227,7 +4226,7 @@ View Second Life help?
    type="alertmodal">
 Are you sure you want to quit?
     <usetemplate
-     ignoretext="When Quitting Second Life."
+     ignoretext="Confirm before I quit"
      name="okcancelignore"
      notext="Don&apos;t Quit"
      yestext="Quit"/>
@@ -4259,7 +4258,7 @@ As a service to residents and visitors, the owner of the region you are in has e
 The region owner will resolve reports based on the local rules of this region as outlined in the estate Covenant.
 (View covenants by going to the World menu and selecting About Land.)
 
-The resolution of this report applies only to this Region; Residents access to other areas of Second Life will not be affected by the outcome of this report. Only Linden Lab can restrict access to the entirety of Second Life.
+The resolution of this report applies only to this Region. Residents&apos; access to other areas of [SECOND_LIFE] will not be affected by the outcome of this report. Only Linden Lab can restrict access to the entirety of [SECOND_LIFE].
   </notification>
 
   <notification
@@ -4352,9 +4351,9 @@ Dear Resident,
 
 You appear to be reporting intellectual property infringement. Please make sure you are reporting it correctly:
 
-(1) The Abuse Process. You may submit an abuse report if you believe a Resident is exploiting the Second Life permissions system, for example, by using CopyBot or similar copying tools, to infringe intellectual property rights. The Abuse Team investigates and issues appropriate disciplinary action for behavior that violates the Second Life Community Standards or Terms of Service. However, the Abuse Team does not handle and will not respond to requests to remove content from the Second Life world.
+(1) The Abuse Process. You may submit an abuse report if you believe a Resident is exploiting the [SECOND_LIFE] permissions system, for example, by using CopyBot or similar copying tools, to infringe intellectual property rights. The Abuse Team investigates and issues appropriate disciplinary action for behavior that violates the [SECOND_LIFE] Community Standards or Terms of Service. However, the Abuse Team does not handle and will not respond to requests to remove content from the [SECOND_LIFE] world.
 
-(2) The DMCA or Content Removal Process. To request removal of content from Second Life, you MUST submit a valid notification of infringement as provided in our DMCA Policy at http://secondlife.com/corporate/dmca.php.
+(2) The DMCA or Content Removal Process. To request removal of content from [SECOND_LIFE], you MUST submit a valid notification of infringement as provided in our DMCA Policy at http://secondlife.com/corporate/dmca.php.
 
 If you still wish to continue with the abuse process, please close this window and finish submitting your report.  You may need to select the specific category &apos;CopyBot or Permissions Exploit&apos;.
 
@@ -4381,7 +4380,7 @@ Do you want to replace it with the selected object?
     <form name="form">
       <ignore name="ignore"
        save_option="true"
-       text="When replacing existing attachments"/>
+       text="Replace an existing attachment with the selected item"/>
       <button
        default="true"
        ignore="Replace Automatically"
@@ -4407,7 +4406,7 @@ Would you like to leave Busy Mode before completing this transaction?
     <form name="form">
       <ignore name="ignore"
        save_option="true"
-       text="When paying a person or object in busy mode"/>
+       text="I am about to pay a person or object while I am in Busy mode"/>
       <button
        default="true"
        ignore="Always leave Busy Mode"
@@ -4428,7 +4427,7 @@ Would you like to leave Busy Mode before completing this transaction?
    type="alertmodal">
 Are you sure you want to permanently delete the contents of your Trash?
     <usetemplate
-     ignoretext="When emptying your inventory trash folder"
+     ignoretext="Confirm before I empty the inventory Trash folder"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -4438,7 +4437,7 @@ Are you sure you want to permanently delete the contents of your Trash?
    icon="alertmodal.tga"
    name="ConfirmClearBrowserCache"
    type="alertmodal">
-Are you sure you want to clear your browser cache?
+Delete your travel, web, and search history?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -4473,7 +4472,7 @@ Are you sure you want to clear your list of saved URLs?
    type="alertmodal">
 Are you sure you want to permanently delete the contents of your Lost And Found?
     <usetemplate
-     ignoretext="When emptying your inventory Lost And Found folder"
+     ignoretext="Confirm before I empty the inventory Lost And Found folder"
      name="okcancelignore"
      notext="No"
      yestext="Yes"/>
@@ -4486,10 +4485,10 @@ Are you sure you want to permanently delete the contents of your Lost And Found?
 The following SLurl has been copied to your clipboard:
  [SLURL]
 
-Put it in a web page to give others easy access to this location or try it out yourself by pasting it into the address bar of your web browser.
+Link to this from a web page to give others easy access to this location, or try it out yourself by pasting it into the address bar of any web browser.
     <form name="form">
       <ignore name="ignore"
-       text="When copying a SLurl to your clipboard"/>
+       text="SLurl is copied to my clipboard"/>
     </form>
   </notification>
 
@@ -4604,7 +4603,7 @@ Click &quot;Advanced Water&quot; to bring up an editor with more advanced settin
    icon="alertmodal.tga"
    name="HelpDayCycle"
    type="alertmodal">
-The Day Cycle Editor gives you control over the sky during Second Life&apos;s day/night cycle. This is the cycle that is used by the Basic Environment Editor&apos;s Time of Day slider.
+The Day Cycle Editor gives you control over the sky during [SECOND_LIFE]&apos;s day/night cycle. This is the cycle that is used by the Basic Environment Editor&apos;s Time of Day slider.
 
 The Day Cycle Editor works by setting keyframes. These are nodes (represented by the gray blips on the time graph) that have Sky Presets associated with them. As the Time of Day progresses, the WindLight sky &quot;animates&quot; as it interpolates between these keyframes.
 
@@ -4771,7 +4770,7 @@ Controls the speed of the clouds as they move in the Y direction.
    icon="alertmodal.tga"
    name="HelpClassicClouds"
    type="alertmodal">
-Check this box to enable rendering of Second Life&apos;s older classic clouds in addition to WindLight&apos;s clouds.
+Check this box to enable rendering of [SECOND_LIFE]&apos;s older classic clouds in addition to WindLight&apos;s clouds.
   </notification>
 
   <notification
@@ -4983,9 +4982,9 @@ Granting this request gives a script ongoing permission to take Linden dollars (
    icon="alertmodal.tga"
    name="AutoWearNewClothing"
    type="alertmodal">
-Automatically wear the clothing you create?
+Would you like to automatically wear the clothing you are about to create?
     <usetemplate
-     ignoretext="Automatically wear new clothing"
+     ignoretext="Wear the clothing I create while editing My Appearance"
      name="okcancelignore"
      notext="No"
      yestext="Yes"/>
@@ -4995,7 +4994,7 @@ Automatically wear the clothing you create?
    icon="alertmodal.tga"
    name="NotAgeVerified"
    type="alertmodal">
-You must be age-verified to visit this area.  Visit the Second Life website and verify your age?
+You must be age-verified to visit this area.  Do you want to go to the [SECOND_LIFE] website and verify your age?
 
 [_URL]
     <url option="0" name="url">
@@ -5003,7 +5002,7 @@ You must be age-verified to visit this area.  Visit the Second Life website and 
 	    https://secondlife.com/account/verification.php
     </url>
     <usetemplate
-     ignoretext="Warn about lack of age verification"
+     ignoretext="I have not verified my age"
      name="okcancelignore"
      notext="No"
      yestext="Yes"/>
@@ -5013,7 +5012,7 @@ You must be age-verified to visit this area.  Visit the Second Life website and 
    icon="alertmodal.tga"
    name="Cannot enter parcel: no payment info on file"
    type="alertmodal">
-You must have payment information on file to visit this area.  Visit the Second Life website and set this up?
+You must have payment information on file to visit this area.  Do you want to go to the [SECOND_LIFE] website and set this up?
 
 [_URL]
     <url option="0" name="url">
@@ -5021,7 +5020,7 @@ You must have payment information on file to visit this area.  Visit the Second 
 			https://secondlife.com/account/
     </url>
     <usetemplate
-     ignoretext="Warn about lack of payment info"
+     ignoretext="I lack payment information on file"
      name="okcancelignore"
      notext="No"
      yestext="Yes"/>
@@ -5773,7 +5772,7 @@ How odd. The string [STRING_NAME] is missing from strings.xml
    icon="notify.tga"
    name="ObjectGiveItemUnknownUser"
    type="notify">
-    An object named [OBJECTFROMNAME] owned by (an unknown user) has given you a [OBJECTTYPE] named [OBJECTNAME].
+    An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you a [OBJECTTYPE] named [OBJECTNAME].
     <form name="form">
       <button
        index="0"
@@ -6008,7 +6007,7 @@ How odd. The string [STRING_NAME] is missing from strings.xml
    icon="notify.tga"
    name="InvalidWearable"
    type="notify">
-    The item you are trying to wear uses a feature that your viewer can&apos;t read. Please upgrade your version of Second Life to wear this item.
+    The item you are trying to wear uses a feature that your Viewer can&apos;t read. Please upgrade your version of [APP_NAME] to wear this item.
   </notification>
 
   <notification
@@ -6146,7 +6145,7 @@ How odd. The string [STRING_NAME] is missing from strings.xml
    icon="notify.tga"
    name="FirstTeleport"
    type="notify">
-    You can only teleport to certain areas in this region. The arrow points to your specific destination. Click to dismiss it.
+    You can only teleport to certain areas in this region. The arrow points to your specific destination. Click the arrow to dismiss it.
   </notification>
 
   <notification
@@ -6185,7 +6184,7 @@ When you are done, press &apos;Save All&apos;.
    type="notify">
    This is a sandbox area, and is meant to help Residents learn how to build.
 
-   Things you build here will be deleted after you leave, so don&apos;t forget to right-click and choose &apos;take&apos; to move your creation to your Inventory.
+   Things you build here will be deleted after you leave, so don&apos;t forget to right-click and choose &apos;Take&apos; to move your creation to your Inventory.
   </notification>
 
   <notification
@@ -6214,12 +6213,12 @@ When you are done, press &apos;Save All&apos;.
     You are editing a Sculpted prim. Sculpties require a special texture to define their shape.
   </notification>
 
-  <notification
+  <!--notification
    icon="notify.tga"
    name="FirstMedia"
    type="notify">
     You have begun playing media.  Media can set to play automatically in the preferences window under Audio / Video. Note that this can be a security risk for media sites you do not trust.
-  </notification>
+  </notification-->
 
   <notification
    icon="notifytip.tga"
@@ -6305,7 +6304,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    name="VoiceInviteAdHoc"
    type="notify">
 [NAME] has joined a voice chat call with a conference chat.
-Click Accept to join the call or Decline to decline the invitation. Click Block to block this user.
+Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
     <unique>
       <context key="NAME"/>
     </unique>
@@ -6330,7 +6329,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    name="InviteAdHoc"
    type="notify">
 [NAME] is inviting you to a conference chat.
-Click Accept to join the chat or Decline to decline the invitation. Click Block to block this user.
+Click Accept to join the chat or Decline to decline the invitation. Click Block to block this caller.
     <unique>
       <context key="NAME"/>
     </unique>
@@ -6516,9 +6515,9 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
   </global>
 
   <global name="UnsupportedGLRequirements">
-You do not appear to have the proper hardware requirements for Second Life. Second Life requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
+You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
 
-If you continue to have problems, please visit: http://www.secondlife.com/support
+If you continue to have problems, please visit the [SUPPORT_SITE].
   </global>
 
   <global name="UnsupportedCPUAmount">

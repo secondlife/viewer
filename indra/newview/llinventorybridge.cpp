@@ -3684,8 +3684,8 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				// commented out for DEV-32347
 				//items.push_back(std::string("Restore to Last Position"));
 
-				LLMenuGL* attach_menu = menu.getChildMenuByName("Attach To", TRUE);
-				LLMenuGL* attach_hud_menu = menu.getChildMenuByName("Attach To HUD", TRUE);
+				LLMenuGL* attach_menu = menu.findChildMenuByName("Attach To", TRUE);
+				LLMenuGL* attach_hud_menu = menu.findChildMenuByName("Attach To HUD", TRUE);
 				LLVOAvatar *avatarp = gAgent.getAvatarObject();
 				if (attach_menu 
 					&& (attach_menu->getChildCount() == 0) 

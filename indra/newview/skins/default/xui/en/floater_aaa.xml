@@ -4,7 +4,8 @@
  layout="topleft"
  name="floater_aaa"
  save_rect="true"
- title="About [SECOND_LIFE_VIEWER]"
+ can_resize="true" 
+ title="About [APP_NAME]"
  width="470">
     <text_editor
      follows="left|top|right|bottom"
@@ -16,9 +17,6 @@
      top="25"
      width="458"
      word_wrap="true">
-  This is line 1a
-
-
-  This is line 4
+This is line 4
     </text_editor>
 </floater>

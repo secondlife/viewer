@@ -310,17 +310,16 @@ void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_col
 		break;
 	}
 	mFont->render(mText.getWString(), 0, 
-						start_x, 2.f,
-						display_color,
-						mFontAlignment,
-						LLFontGL::BOTTOM, 
-						0,
-						LLFontGL::NO_SHADOW,
-						string_chars, 
-						getWidth(),
-						&right_x, 
-						FALSE, 
-						TRUE);
+					start_x, 2.f,
+					display_color,
+					mFontAlignment,
+					LLFontGL::BOTTOM, 
+					0,
+					LLFontGL::NO_SHADOW,
+					string_chars, 
+					getWidth(),
+					&right_x, 
+					TRUE);
 }
 
 //

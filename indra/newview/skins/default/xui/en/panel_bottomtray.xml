@@ -65,6 +65,7 @@
          width="70"
          top_delta="-10"
          min_width="70"
+         name="movement_panel"
          user_resize="false">
             <button
              follows="right"
@@ -100,6 +101,7 @@
          layout="topleft"
          min_height="28"
          min_width="150"
+         name="cam_panel"
          top_delta="-10"
          width="150">
             <split_button
@@ -113,6 +115,7 @@
                  image_unselected="camera_presets/camera_presets_arrow.png"
                  image_disabled_selected="camera_presets/camera_presets_arrow.png" 
                  image_disabled="camera_presets/camera_presets_arrow.png"
+                 name="camera_presets"
                  tool_tip="Camera Presets" 
                  />
                 <split_button.item

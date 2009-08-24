@@ -76,8 +76,8 @@ private:
 	const ECorner	mCorner;
 };
 
-const S32 RESIZE_HANDLE_HEIGHT = 16;
-const S32 RESIZE_HANDLE_WIDTH = 16;
+const S32 RESIZE_HANDLE_HEIGHT = 11;
+const S32 RESIZE_HANDLE_WIDTH = 11;
 
 #endif  // LL_RESIZEHANDLE_H
 

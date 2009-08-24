@@ -50,6 +50,7 @@
 #include "llscrolllistcell.h"
 #include "lltextbox.h"
 #include "lltabcontainer.h"
+#include "lltexteditor.h"
 #include "lltrans.h"
 #include "lltransactiontypes.h"
 #include "lltrans.h"

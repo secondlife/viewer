@@ -231,11 +231,13 @@ LLColor3 LLKeywords::readColor( const std::string& s )
 	return LLColor3( r, g, b );
 }
 
+LLFastTimer::DeclareTimer FTM_SYNTAX_COLORING("Syntax Coloring");
+
 // Walk through a string, applying the rules specified by the keyword token list and
 // create a list of color segments.
-void LLKeywords::findSegments(std::vector<LLTextSegment *>* seg_list, const LLWString& wtext, const LLColor4 &defaultColor)
+void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLWString& wtext, const LLColor4 &defaultColor, LLTextEditor& editor)
 {
-	std::for_each(seg_list->begin(), seg_list->end(), DeletePointer());
+	LLFastTimer ft(FTM_SYNTAX_COLORING);
 	seg_list->clear();
 
 	if( wtext.empty() )
@@ -245,7 +247,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegment *>* seg_list, const LLWS
 	
 	S32 text_len = wtext.size();
 
-	seg_list->push_back( new LLTextSegment( LLColor3(defaultColor), 0, text_len ) ); 
+	seg_list->push_back( new LLNormalTextSegment( defaultColor, 0, text_len, editor ) ); 
 
 	const llwchar* base = wtext.c_str();
 	const llwchar* cur = base;
@@ -296,9 +298,9 @@ void LLKeywords::findSegments(std::vector<LLTextSegment *>* seg_list, const LLWS
 						}
 						S32 seg_end = cur - base;
 						
-						LLTextSegment* text_segment = new LLTextSegment( cur_token->getColor(), seg_start, seg_end );
+						LLTextSegmentPtr text_segment = new LLNormalTextSegment( cur_token->getColor(), seg_start, seg_end, editor );
 						text_segment->setToken( cur_token );
-						insertSegment( seg_list, text_segment, text_len, defaultColor);
+						insertSegment( seg_list, text_segment, text_len, defaultColor, editor);
 						line_done = TRUE; // to break out of second loop.
 						break;
 					}
@@ -405,9 +407,9 @@ void LLKeywords::findSegments(std::vector<LLTextSegment *>* seg_list, const LLWS
 					}
 
 
-					LLTextSegment* text_segment = new LLTextSegment( cur_delimiter->getColor(), seg_start, seg_end );
+					LLTextSegmentPtr text_segment = new LLNormalTextSegment( cur_delimiter->getColor(), seg_start, seg_end, editor );
 					text_segment->setToken( cur_delimiter );
-					insertSegment( seg_list, text_segment, text_len, defaultColor);
+					insertSegment( seg_list, text_segment, text_len, defaultColor, editor);
 
 					// Note: we don't increment cur, since the end of one delimited seg may be immediately
 					// followed by the start of another one.
@@ -438,9 +440,9 @@ void LLKeywords::findSegments(std::vector<LLTextSegment *>* seg_list, const LLWS
 						// llinfos << "Seg: [" << word.c_str() << "]" << llendl;
 
 
-						LLTextSegment* text_segment = new LLTextSegment( cur_token->getColor(), seg_start, seg_end );
+						LLTextSegmentPtr text_segment = new LLNormalTextSegment( cur_token->getColor(), seg_start, seg_end, editor );
 						text_segment->setToken( cur_token );
-						insertSegment( seg_list, text_segment, text_len, defaultColor);
+						insertSegment( seg_list, text_segment, text_len, defaultColor, editor);
 					}
 					cur += seg_len; 
 					continue;
@@ -455,25 +457,24 @@ void LLKeywords::findSegments(std::vector<LLTextSegment *>* seg_list, const LLWS
 	}
 }
 
-void LLKeywords::insertSegment(std::vector<LLTextSegment*>* seg_list, LLTextSegment* new_segment, S32 text_len, const LLColor4 &defaultColor )
+void LLKeywords::insertSegment(std::vector<LLTextSegmentPtr>* seg_list, LLTextSegmentPtr new_segment, S32 text_len, const LLColor4 &defaultColor, LLTextEditor& editor )
 {
-	LLTextSegment* last = seg_list->back();
+	LLTextSegmentPtr last = seg_list->back();
 	S32 new_seg_end = new_segment->getEnd();
 
 	if( new_segment->getStart() == last->getStart() )
 	{
-		*last = *new_segment;
-		delete new_segment;
+		seg_list->pop_back();
 	}
 	else
 	{
 		last->setEnd( new_segment->getStart() );
-		seg_list->push_back( new_segment );
 	}
+	seg_list->push_back( new_segment );
 
 	if( new_seg_end < text_len )
 	{
-		seg_list->push_back( new LLTextSegment( defaultColor, new_seg_end, text_len ) );
+		seg_list->push_back( new LLNormalTextSegment( defaultColor, new_seg_end, text_len, editor ) );
 	}
 }
 

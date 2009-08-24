@@ -49,7 +49,7 @@
      name="tos_heading"
      top_delta="-399"
      width="552">
-        Please read the following Terms of Service carefully. To continue logging in to Second Life,
+        Please read the following Terms of Service carefully. To continue logging in to [SECOND_LIFE],
 you must accept the agreement.
     </text>
     <text_editor
@@ -64,6 +64,7 @@ you must accept the agreement.
      name="tos_text"
      top_pad="43"
      width="568"
+     handle_edit_keys_directly="true" 
      word_wrap="true">
         TOS_TEXT
     </text_editor>

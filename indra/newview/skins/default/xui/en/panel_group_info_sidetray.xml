@@ -40,6 +40,37 @@
      follows="top|left|right"
      mouse_opaque="true" 
      name="group_name">(Loading...)</text>
+    <texture_picker
+     follows="left|top"
+     height="113"
+     label=""
+     layout="topleft"
+     left_delta="-10"
+     name="insignia"
+     tool_tip="Click to choose a picture"
+     top_pad="5"
+     width="100" />
+    <text
+     type="string"
+     follows="left|top"
+     height="16"
+     length="1"
+     layout="topleft"
+     left_pad="10"
+     name="prepend_founded_by"
+     top_delta="0"
+     width="140">
+      Founded by:
+    </text>
+    <name_box
+     follows="left|top"
+     height="16"
+     initial_value="(retrieving)"
+     layout="topleft"
+     left_delta="0"
+     name="founder_name"
+     top_pad="10"
+     width="140" />
     <button
      top="632"
      height="20"
@@ -69,17 +100,17 @@
      left="5"
      visible="false"
      width="65" />
-      <accordion layout="topleft" left="2" width="296" top="28" height="600" follows="all" name="group_accordion">
+      <accordion layout="topleft" left="2" width="296" top="135" height="600" follows="all" name="panel_me_profile">
 		<accordion_tab min_height="515" title="Group General" name="group_general_tab">
         	<panel class="panel_group_general" filename="panel_group_general.xml" name="group_general_tab_panel"/>
 		</accordion_tab>
-		<accordion_tab min_height="380" title="Group Roles" name="group_roles_tab" can_resize="false">
+		<accordion_tab min_height="380" title="Group Roles" name="group_roles_tab" expanded="False" can_resize="false">
         	<panel class="panel_group_roles" filename="panel_group_roles.xml" name="group_roles_tab_panel"/>
 		</accordion_tab>
-		<accordion_tab min_height="530" title="Group Notices" name="group_notices_tab" can_resize="false">
+		<accordion_tab min_height="530" title="Group Notices" name="group_notices_tab" expanded="False" can_resize="false">
 			<panel class="panel_group_notices" filename="panel_group_notices.xml" name="group_notices_tab_panel"/>
 		</accordion_tab>
-		<accordion_tab min_height="270" title="Group Land Money" name="group_land_tab" can_resize="false">
+		<accordion_tab min_height="270" title="Group Land Money" name="group_land_tab" expanded="False" can_resize="false">
 			<panel class="panel_group_land_money" filename="panel_group_land_money.xml" name="group_land_tab_panel"/>
 		</accordion_tab>
 	  </accordion>

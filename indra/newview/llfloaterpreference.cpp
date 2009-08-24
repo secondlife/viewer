@@ -62,13 +62,11 @@
 #include "llpanellogin.h"
 #include "llradiogroup.h"
 #include "llsky.h"
-#include "llstylemap.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llsliderctrl.h"
 #include "lltabcontainer.h"
 #include "lltrans.h"
-#include "lltexteditor.h"
 #include "llviewercontrol.h"
 #include "llviewercamera.h"
 #include "llviewerwindow.h"
@@ -169,7 +167,6 @@ void LLVoiceSetKeyDialog::onCancel(void* user_data)
 // a static member and update all our static callbacks
 
 void free_web_media(LLMediaBase *media_source);
-void handleHTMLLinkColorChanged(const LLSD& newvalue);	
 void handleNameTagOptionChanged(const LLSD& newvalue);	
 LLMediaBase *get_web_media();
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response);
@@ -239,12 +236,6 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 	return false;
 }
 
-void handleHTMLLinkColorChanged(const LLSD& newvalue)
-{
-	LLTextEditor::setLinkColor(LLColor4(newvalue));
-	LLStyleMap::instance().update();
-	
-}
 void handleNameTagOptionChanged(const LLSD& newvalue)
 {
 	S32 name_tag_option = S32(newvalue);
@@ -458,14 +449,12 @@ void LLFloaterPreference::apply()
 	}
 	free_web_media(media_source);
 	
-	LLTextEditor* busy = getChild<LLTextEditor>("busy_response");
-	LLWString busy_response;
-	if (busy) busy_response = busy->getWText(); 
-	LLWStringUtil::replaceTabsWithSpaces(busy_response, 4);
+//	LLWString busy_response = utf8str_to_wstring(getChild<LLUICtrl>("busy_response")->getValue().asString());
+//	LLWStringUtil::replaceTabsWithSpaces(busy_response, 4);
 	
 	if(mGotPersonalInfo)
 	{ 
-		gSavedPerAccountSettings.setString("BusyModeResponse2", std::string(wstring_to_utf8str(busy_response)));
+//		gSavedSettings.setString("BusyModeResponse2", std::string(wstring_to_utf8str(busy_response)));
 		bool new_im_via_email = childGetValue("send_im_to_email").asBoolean();
 		bool new_hide_online = childGetValue("online_visibility").asBoolean();		
 	
@@ -1172,13 +1161,13 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	childSetValue("send_im_to_email", im_via_email);
 	childEnable("log_instant_messages");
 //	childEnable("log_chat");
-	childEnable("busy_response");
+//	childEnable("busy_response");
 //	childEnable("log_instant_messages_timestamp");
 //	childEnable("log_chat_timestamp");
 	childEnable("log_chat_IM");
 	childEnable("log_date_timestamp");
 	
-	childSetText("busy_response", gSavedPerAccountSettings.getString("BusyModeResponse2"));
+//	childSetText("busy_response", gSavedSettings.getString("BusyModeResponse2"));
 	
 	enableHistory();
 	std::string display_email(email);
@@ -1349,8 +1338,7 @@ static LLRegisterPanelClassWrapper<LLPanelPreference> t_places("panel_preference
 LLPanelPreference::LLPanelPreference()
 : LLPanel()
 {
-	//
-	mCommitCallbackRegistrar.add("setControlFalse",		boost::bind(&LLPanelPreference::setControlFalse,this, _2));
+	mCommitCallbackRegistrar.add("Pref.setControlFalse",		boost::bind(&LLPanelPreference::setControlFalse,this, _2));
 }
 
 static void applyUIColor(const std::string& color_name, LLUICtrl* ctrl, const LLSD& param)
@@ -1422,23 +1410,17 @@ BOOL LLPanelPreference::postBuild()
 	//////
 	if(hasChild("online_visibility") && hasChild("send_im_to_email"))
 	{
-		requires("online_visibility");
-		requires("send_im_to_email");
-		if (!checkRequirements())
-		{
-			return FALSE;
-		}
 		childSetText("email_address",getString("log_in_to_change") );
-		childSetText("busy_response", getString("log_in_to_change"));
+//		childSetText("busy_response", getString("log_in_to_change"));
 		
 	}
 
 
-	if(hasChild("fullscreen combo"))
+	if(hasChild("aspect_ratio"))
 	{
 		//============================================================================
 		// Resolution
-
+/*
 		S32 num_resolutions = 0;
 		LLWindow::LLWindowResolution* supported_resolutions = gViewerWindow->getWindow()->getSupportedResolutions(num_resolutions);
 		
@@ -1481,7 +1463,7 @@ BOOL LLPanelPreference::postBuild()
 				ctrl_full_screen->setCurrentByIndex(0);
 			}
 		}
-		
+	*/	
 		LLFloaterPreference::initWindowSizeControls(this);
 		
 		if (gSavedSettings.getBOOL("FullScreenAutoDetectAspectRatio"))

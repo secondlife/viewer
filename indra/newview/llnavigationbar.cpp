@@ -103,7 +103,7 @@ const std::string LLTeleportHistoryMenuItem::ICON_IMG_FORWARD("teleport_history_
 LLTeleportHistoryMenuItem::Params::Params(EType type, std::string title)
 {
 	item_type(type);
-	font.name("SansSerif");
+	font.name("SANSSERIF");
 
 	if (type == TYPE_CURRENT)
 		font.style("BOLD");
@@ -123,7 +123,6 @@ LLTeleportHistoryMenuItem::LLTeleportHistoryMenuItem(const Params& p)
 	icon_params.rect(LLRect(0, ICON_HEIGHT, ICON_WIDTH, 0));
 	icon_params.mouse_opaque(false);
 	icon_params.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
-	icon_params.tab_stop(false);
 	icon_params.visible(false);
 
 	mArrowIcon = LLUICtrlFactory::create<LLIconCtrl> (icon_params);

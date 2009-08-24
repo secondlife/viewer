@@ -265,7 +265,7 @@ BOOL LLStatusBar::postBuild()
 	mHideNavbarContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_hide_navbar.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	gMenuHolder->addChild(mHideNavbarContextMenu);
 
-	gMenuBarView->setRightClickedCallback(boost::bind(&LLStatusBar::onMainMenuRightClicked, this, _1, _2, _3, _4));
+	gMenuBarView->setRightMouseDownCallback(boost::bind(&LLStatusBar::onMainMenuRightClicked, this, _1, _2, _3, _4));
 
 	return TRUE;
 }

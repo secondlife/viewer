@@ -160,7 +160,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	mNumDynamicWidthColumns(0),
 	mTotalStaticColumnWidth(0),
 	mTotalColumnPadding(0),
-	mSorted(FALSE),
+	mSorted(false),
 	mDirty(FALSE),
 	mOriginalSelection(-1),
 	mLastSelected(NULL),
@@ -374,6 +374,10 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllSelected() const
 S32 LLScrollListCtrl::getFirstSelectedIndex() const
 {
 	S32 CurSelectedIndex = 0;
+
+	// make sure sort is up to date before returning an index
+	updateSort();
+
 	item_list::const_iterator iter;
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
@@ -507,7 +511,7 @@ BOOL LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos, BOOL r
 		{
 		case ADD_TOP:
 			mItemList.push_front(item);
-			setSorted(FALSE);
+			setNeedsSort();
 			break;
 	
 		case ADD_SORTED:
@@ -524,18 +528,18 @@ BOOL LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos, BOOL r
 				
 				// ADD_SORTED just sorts by first column...
 				// this might not match user sort criteria, so flag list as being in unsorted state
-				setSorted(FALSE);
+				setNeedsSort();
 				break;
 			}	
 		case ADD_BOTTOM:
 			mItemList.push_back(item);
-			setSorted(FALSE);
+			setNeedsSort();
 			break;
 	
 		default:
 			llassert(0);
 			mItemList.push_back(item);
-			setSorted(FALSE);
+			setNeedsSort();
 			break;
 		}
 	
@@ -759,6 +763,9 @@ BOOL LLScrollListCtrl::selectItemRange( S32 first_index, S32 last_index )
 		return FALSE;
 	}
 
+	// make sure sort is up to date
+	updateSort();
+
 	S32 listlen = (S32)mItemList.size();
 	first_index = llclamp(first_index, 0, listlen-1);
 	
@@ -812,6 +819,7 @@ void LLScrollListCtrl::swapWithNext(S32 index)
 		// At end of list, doesn't do anything
 		return;
 	}
+	updateSort();
 	LLScrollListItem *cur_itemp = mItemList[index];
 	mItemList[index] = mItemList[index + 1];
 	mItemList[index + 1] = cur_itemp;
@@ -825,6 +833,7 @@ void LLScrollListCtrl::swapWithPrevious(S32 index)
 		// At beginning of list, don't do anything
 	}
 
+	updateSort();
 	LLScrollListItem *cur_itemp = mItemList[index];
 	mItemList[index] = mItemList[index - 1];
 	mItemList[index - 1] = cur_itemp;
@@ -837,6 +846,8 @@ void LLScrollListCtrl::deleteSingleItem(S32 target_index)
 	{
 		return;
 	}
+
+	updateSort();
 
 	LLScrollListItem *itemp;
 	itemp = mItemList[target_index];
@@ -939,6 +950,8 @@ S32	LLScrollListCtrl::selectMultiple( std::vector<LLUUID> ids )
 
 S32 LLScrollListCtrl::getItemIndex( LLScrollListItem* target_item ) const
 {
+	updateSort();
+
 	S32 index = 0;
 	item_list::const_iterator iter;
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
@@ -955,6 +968,8 @@ S32 LLScrollListCtrl::getItemIndex( LLScrollListItem* target_item ) const
 
 S32 LLScrollListCtrl::getItemIndex( const LLUUID& target_id ) const
 {
+	updateSort();
+
 	S32 index = 0;
 	item_list::const_iterator iter;
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
@@ -980,6 +995,8 @@ void LLScrollListCtrl::selectPrevItem( BOOL extend_selection)
 	}
 	else
 	{
+		updateSort();
+
 		item_list::iterator iter;
 		for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 		{
@@ -1022,6 +1039,8 @@ void LLScrollListCtrl::selectNextItem( BOOL extend_selection)
 	}
 	else
 	{
+		updateSort();
+
 		item_list::reverse_iterator iter;
 		for (iter = mItemList.rbegin(); iter != mItemList.rend(); iter++)
 		{
@@ -1436,7 +1455,7 @@ void LLScrollListCtrl::draw()
 	LLLocalClipRect clip(getLocalRect());
 
 	// if user specifies sort, make sure it is maintained
-	sortItems();
+	updateSort();
 
 	if (mNeedsScroll)
 	{
@@ -1463,7 +1482,7 @@ void LLScrollListCtrl::draw()
 
 	if (mBorder)
 	{
-		mBorder->setKeyboardFocusHighlight(gFocusMgr.getKeyboardFocus() == this);
+		mBorder->setKeyboardFocusHighlight(hasFocus());
 	}
 
 	LLUICtrl::draw();
@@ -1753,6 +1772,8 @@ LLScrollListItem* LLScrollListCtrl::hitItem( S32 x, S32 y )
 {
 	// Excludes disabled items.
 	LLScrollListItem* hit_item = NULL;
+
+	updateSort();
 
 	LLRect item_rect;
 	item_rect.setLeftTopAndSize( 
@@ -2199,7 +2220,7 @@ BOOL LLScrollListCtrl::setSort(S32 column_idx, BOOL ascending)
 
 	sort_column_t new_sort_column(column_idx, ascending);
 	
-	setSorted(FALSE);
+	setNeedsSort();
 
 	if (mSortColumns.empty())
 	{
@@ -2241,10 +2262,10 @@ void LLScrollListCtrl::sortByColumn(const std::string& name, BOOL ascending)
 void  LLScrollListCtrl::sortByColumnIndex(U32 column, BOOL ascending)
 {
 	setSort(column, ascending);
-	sortItems();
+	updateSort();
 }
 
-void LLScrollListCtrl::sortItems()
+void LLScrollListCtrl::updateSort() const
 {
 	if (hasSortOrder() && !isSorted())
 	{
@@ -2254,7 +2275,7 @@ void LLScrollListCtrl::sortItems()
 			mItemList.end(), 
 			SortScrollListItem(mSortColumns));
 
-		setSorted(TRUE);
+		mSorted = true;
 	}
 }
 
@@ -2311,7 +2332,7 @@ void LLScrollListCtrl::scrollToShowSelected()
 		return;
 	}
 
-	sortItems();
+	updateSort();
 	
 	S32 index = getFirstSelectedIndex();
 	if (index < 0)
@@ -2552,7 +2573,7 @@ std::string LLScrollListCtrl::getSortColumnName()
 	else return "";
 }
 
-BOOL LLScrollListCtrl::hasSortOrder()
+BOOL LLScrollListCtrl::hasSortOrder() const
 {
 	return !mSortColumns.empty();
 }

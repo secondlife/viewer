@@ -89,11 +89,12 @@ S32 AVATAR_OFFSET_TEX0 = 32;
 S32 AVATAR_OFFSET_TEX1 = 40;
 S32 AVATAR_VERTEX_BYTES = 48;
 
-
 BOOL gAvatarEmbossBumpMap = FALSE;
 static BOOL sRenderingSkinned = FALSE;
 S32 normal_channel = -1;
 S32 specular_channel = -1;
+
+static LLFastTimer::DeclareTimer FTM_SHADOW_AVATAR("Avatar Shadow");
 
 LLDrawPoolAvatar::LLDrawPoolAvatar() : 
 	LLFacePool(POOL_AVATAR)	
@@ -154,7 +155,7 @@ S32 LLDrawPoolAvatar::getNumDeferredPasses()
 
 void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_CHARACTERS);
+	LLFastTimer t(FTM_RENDER_CHARACTERS);
 	
 	if (LLPipeline::sImpostorRender)
 	{
@@ -178,7 +179,7 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 
 void LLDrawPoolAvatar::endDeferredPass(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_CHARACTERS);
+	LLFastTimer t(FTM_RENDER_CHARACTERS);
 
 	if (LLPipeline::sImpostorRender)
 	{
@@ -248,7 +249,7 @@ S32 LLDrawPoolAvatar::getNumShadowPasses()
 
 void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_SHADOW_AVATAR);
+	LLFastTimer t(FTM_SHADOW_AVATAR);
 	
 	sVertexProgram = &gDeferredAvatarShadowProgram;
 	if (sShaderLevel > 0)
@@ -270,7 +271,7 @@ void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 
 void LLDrawPoolAvatar::endShadowPass(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_SHADOW_AVATAR);
+	LLFastTimer t(FTM_SHADOW_AVATAR);
 
 	if (sShaderLevel > 0)
 	{
@@ -284,7 +285,7 @@ void LLDrawPoolAvatar::endShadowPass(S32 pass)
 
 void LLDrawPoolAvatar::renderShadow(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_SHADOW_AVATAR);
+	LLFastTimer t(FTM_SHADOW_AVATAR);
 
 	if (mDrawFace.empty())
 	{
@@ -320,7 +321,7 @@ S32 LLDrawPoolAvatar::getNumPasses()
 
 void LLDrawPoolAvatar::render(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_CHARACTERS);
+	LLFastTimer t(FTM_RENDER_CHARACTERS);
 	if (LLPipeline::sImpostorRender)
 	{
 		renderAvatars(NULL, 2);
@@ -332,7 +333,7 @@ void LLDrawPoolAvatar::render(S32 pass)
 
 void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_CHARACTERS);
+	LLFastTimer t(FTM_RENDER_CHARACTERS);
 	//reset vertex buffer mappings
 	LLVertexBuffer::unbind();
 
@@ -358,7 +359,7 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 
 void LLDrawPoolAvatar::endRenderPass(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_CHARACTERS);
+	LLFastTimer t(FTM_RENDER_CHARACTERS);
 
 	if (LLPipeline::sImpostorRender)
 	{

@@ -62,10 +62,11 @@ LLHUDManager::~LLHUDManager()
 {
 }
 
+static LLFastTimer::DeclareTimer FTM_HUD_EFFECTS("Hud Effects");
 
 void LLHUDManager::updateEffects()
 {
-	LLFastTimer ftm(LLFastTimer::FTM_HUD_EFFECTS);
+	LLFastTimer ftm(FTM_HUD_EFFECTS);
 	S32 i;
 	for (i = 0; i < mHUDEffects.count(); i++)
 	{

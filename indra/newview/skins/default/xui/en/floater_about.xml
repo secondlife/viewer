@@ -4,7 +4,7 @@
  layout="topleft"
  name="floater_about"
  save_rect="true"
- title="About [SECOND_LIFE_VIEWER]"
+ title="About [APP_NAME]"
  width="470">
     <floater.string
      name="you_are_at">

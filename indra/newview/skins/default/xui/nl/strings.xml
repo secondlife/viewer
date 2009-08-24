@@ -55,6 +55,9 @@
 	<string name="LoginDownloadingClothing">
 		Kleding downloaden...
 	</string>
+	<string name="Quit">
+		Afsluiten
+	</string>
 	<string name="AgentLostConnection">
 		Deze regio kan problemen ondervinden. Controleer alstublieft uw verbinding met het internet.
 	</string>

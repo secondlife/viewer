@@ -69,13 +69,13 @@ public:
 		std::vector<NamedTimer*>& getChildren();
 
 		void setCollapsed(bool collapsed) { mCollapsed = collapsed; }
-		bool getCollapsed() { return mCollapsed; }
+		bool getCollapsed() const { return mCollapsed; }
 
-		U64 getCountAverage() { return mCountAverage; }
-		U64 getCallAverage() { return mCallAverage; }
+		U64 getCountAverage() const { return mCountAverage; }
+		U64 getCallAverage() const { return mCallAverage; }
 
-		U64 getHistoricalCount(S32 history_index = 0);
-		U64 getHistoricalCalls(S32 history_index = 0);
+		U64 getHistoricalCount(S32 history_index = 0) const;
+		U64 getHistoricalCalls(S32 history_index = 0) const;
 
 		static NamedTimer& getRootNamedTimer();
 
@@ -162,117 +162,6 @@ public:
 		NamedTimer& mNamedTimer;
 	};
 
-	static DeclareTimer FTM_ARRANGE;
-	static DeclareTimer FTM_ATTACHMENT_UPDATE;
-	static DeclareTimer FTM_AUDIO_UPDATE;
-	static DeclareTimer FTM_AUTO_SELECT;
-	static DeclareTimer FTM_AVATAR_UPDATE;
-	static DeclareTimer FTM_CLEANUP;
-	static DeclareTimer FTM_CLIENT_COPY;
-	static DeclareTimer FTM_CREATE_OBJECT;
-	static DeclareTimer FTM_CULL;
-	static DeclareTimer FTM_CULL_REBOUND;
-	static DeclareTimer FTM_FILTER;
-	static DeclareTimer FTM_FLEXIBLE_UPDATE;
-	static DeclareTimer FTM_FRAME;
-	static DeclareTimer FTM_FRUSTUM_CULL;
-	static DeclareTimer FTM_GEN_FLEX;
-	static DeclareTimer FTM_GEN_TRIANGLES;
-	static DeclareTimer FTM_GEN_VOLUME;
-	static DeclareTimer FTM_GEO_SKY;
-	static DeclareTimer FTM_GEO_UPDATE;
-	static DeclareTimer FTM_HUD_EFFECTS;
-	static DeclareTimer FTM_HUD_UPDATE;
-	static DeclareTimer FTM_IDLE;
-	static DeclareTimer FTM_IDLE_CB;
-	static DeclareTimer FTM_IDLE_NETWORK;
-	static DeclareTimer FTM_IMAGE_CREATE;
-	static DeclareTimer FTM_IMAGE_MARK_DIRTY;
-	static DeclareTimer FTM_IMAGE_UPDATE;
-	static DeclareTimer FTM_INVENTORY;
-	static DeclareTimer FTM_JOINT_UPDATE;
-	static DeclareTimer FTM_KEYHANDLER;
-	static DeclareTimer FTM_LOAD_AVATAR;
-	static DeclareTimer FTM_LOD_UPDATE;
-	static DeclareTimer FTM_MESSAGES;
-	static DeclareTimer FTM_MOUSEHANDLER;
-	static DeclareTimer FTM_NETWORK;
-	static DeclareTimer FTM_OBJECTLIST_UPDATE;
-	static DeclareTimer FTM_OCCLUSION_READBACK;
-	static DeclareTimer FTM_OCTREE_BALANCE;
-	static DeclareTimer FTM_PICK;
-	static DeclareTimer FTM_PIPELINE;
-	static DeclareTimer FTM_POOLRENDER;
-	static DeclareTimer FTM_POOLS;
-	static DeclareTimer FTM_PROCESS_IMAGES;
-	static DeclareTimer FTM_PROCESS_MESSAGES;
-	static DeclareTimer FTM_PROCESS_OBJECTS;
-	static DeclareTimer FTM_PUMP;
-	static DeclareTimer FTM_REBUILD_GRASS_VB;
-	static DeclareTimer FTM_REBUILD_PARTICLE_VB;
-	static DeclareTimer FTM_REBUILD_TERRAIN_VB;
-	static DeclareTimer FTM_REBUILD_VBO;
-	static DeclareTimer FTM_REBUILD_VOLUME_VB;
-	static DeclareTimer FTM_REFRESH;
-	static DeclareTimer FTM_REGION_UPDATE;
-	static DeclareTimer FTM_RENDER;
-	static DeclareTimer FTM_RENDER_ALPHA;
-	static DeclareTimer FTM_RENDER_BLOOM;
-	static DeclareTimer FTM_RENDER_BLOOM_FBO;
-	static DeclareTimer FTM_RENDER_BUMP;
-	static DeclareTimer FTM_RENDER_CHARACTERS;
-	static DeclareTimer FTM_RENDER_FAKE_VBO_UPDATE;
-	static DeclareTimer FTM_RENDER_FONTS;
-	static DeclareTimer FTM_RENDER_FULLBRIGHT;
-	static DeclareTimer FTM_RENDER_GEOMETRY;
-	static DeclareTimer FTM_RENDER_GLOW;
-	static DeclareTimer FTM_RENDER_GRASS;
-	static DeclareTimer FTM_RENDER_INVISIBLE;
-	static DeclareTimer FTM_RENDER_OCCLUSION;
-	static DeclareTimer FTM_RENDER_SHINY;
-	static DeclareTimer FTM_RENDER_SIMPLE;
-	static DeclareTimer FTM_RENDER_TERRAIN;
-	static DeclareTimer FTM_RENDER_TREES;
-	static DeclareTimer FTM_RENDER_UI;
-	static DeclareTimer FTM_RENDER_WATER;
-	static DeclareTimer FTM_RENDER_WL_SKY;
-	static DeclareTimer FTM_RESET_DRAWORDER;
-	static DeclareTimer FTM_SHADOW_ALPHA;
-	static DeclareTimer FTM_SHADOW_AVATAR;
-	static DeclareTimer FTM_SHADOW_RENDER;
-	static DeclareTimer FTM_SHADOW_SIMPLE;
-	static DeclareTimer FTM_SHADOW_TERRAIN;
-	static DeclareTimer FTM_SHADOW_TREE;
-	static DeclareTimer FTM_SIMULATE_PARTICLES;
-	static DeclareTimer FTM_SLEEP;
-	static DeclareTimer FTM_SORT;
-	static DeclareTimer FTM_STATESORT;
-	static DeclareTimer FTM_STATESORT_DRAWABLE;
-	static DeclareTimer FTM_STATESORT_POSTSORT;
-	static DeclareTimer FTM_SWAP;
-	static DeclareTimer FTM_TEMP1;
-	static DeclareTimer FTM_TEMP2;
-	static DeclareTimer FTM_TEMP3;
-	static DeclareTimer FTM_TEMP4;
-	static DeclareTimer FTM_TEMP5;
-	static DeclareTimer FTM_TEMP6;
-	static DeclareTimer FTM_TEMP7;
-	static DeclareTimer FTM_TEMP8;
-	static DeclareTimer FTM_UPDATE_ANIMATION;
-	static DeclareTimer FTM_UPDATE_AVATAR;
-	static DeclareTimer FTM_UPDATE_CLOUDS;
-	static DeclareTimer FTM_UPDATE_GRASS;
-	static DeclareTimer FTM_UPDATE_MOVE;
-	static DeclareTimer FTM_UPDATE_PARTICLES;
-	static DeclareTimer FTM_UPDATE_PRIMITIVES;
-	static DeclareTimer FTM_UPDATE_SKY;
-	static DeclareTimer FTM_UPDATE_TERRAIN;
-	static DeclareTimer FTM_UPDATE_TEXTURES;
-	static DeclareTimer FTM_UPDATE_TREE;
-	static DeclareTimer FTM_UPDATE_WATER;
-	static DeclareTimer FTM_UPDATE_WLPARAM;
-	static DeclareTimer FTM_VFILE_WAIT;
-	static DeclareTimer FTM_WORLD_UPDATE;
 
 public:
 	enum RootTimerMarker { ROOT };
@@ -287,6 +176,7 @@ public:
 	LLFastTimer(NamedTimer::FrameState& timer)
 	:	mFrameState(&timer)
 	{
+#if FAST_TIMER_ON
 		NamedTimer::FrameState* frame_state = mFrameState;
 		frame_state->mLastStartTime = get_cpu_clock_count();
 		mStartSelfTime = frame_state->mLastStartTime;
@@ -298,6 +188,7 @@ public:
 	
 		mLastTimer = sCurTimer;
 		sCurTimer = this;
+#endif
 	}
 
 	~LLFastTimer()
@@ -332,6 +223,7 @@ public:
 	static S32 getCurFrameIndex() { return sCurFrameIndex; }
 
 	static void writeLog(std::ostream& os);
+	static const NamedTimer* getTimerByName(const std::string& name);
 
 public:
 	static bool 		sPauseHistory;

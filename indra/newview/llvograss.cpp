@@ -382,9 +382,11 @@ LLDrawable* LLVOGrass::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
+static LLFastTimer::DeclareTimer FTM_UPDATE_GRASS("Update Grass");
+
 BOOL LLVOGrass::updateGeometry(LLDrawable *drawable)
 {
-	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_GRASS);
+	LLFastTimer ftm(FTM_UPDATE_GRASS);
 	dirtySpatialGroup();
 	plantBlades();
 	return TRUE;

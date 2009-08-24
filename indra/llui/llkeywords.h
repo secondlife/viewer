@@ -39,9 +39,10 @@
 #include <map>
 #include <list>
 #include <deque>
+#include "llpointer.h"
 
 class LLTextSegment;
-
+typedef LLPointer<LLTextSegment> LLTextSegmentPtr;
 
 class LLKeywordToken
 {
@@ -84,7 +85,7 @@ public:
 	BOOL		loadFromFile(const std::string& filename);
 	BOOL		isLoaded() const	{ return mLoaded; }
 
-	void		findSegments(std::vector<LLTextSegment *> *seg_list, const LLWString& text, const LLColor4 &defaultColor );
+	void		findSegments(std::vector<LLTextSegmentPtr> *seg_list, const LLWString& text, const LLColor4 &defaultColor, class LLTextEditor& editor );
 
 	// Add the token as described
 	void addToken(LLKeywordToken::TOKEN_TYPE type,
@@ -103,7 +104,7 @@ public:
 
 private:
 	LLColor3	readColor(const std::string& s);
-	void		insertSegment(std::vector<LLTextSegment *> *seg_list, LLTextSegment* new_segment, S32 text_len, const LLColor4 &defaultColor);
+	void		insertSegment(std::vector<LLTextSegmentPtr> *seg_list, LLTextSegmentPtr new_segment, S32 text_len, const LLColor4 &defaultColor, class LLTextEditor& editor);
 
 	BOOL		mLoaded;
 	word_token_map_t mWordTokenMap;

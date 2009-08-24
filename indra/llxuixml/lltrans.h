@@ -78,6 +78,7 @@ public:
 	 * @returns Translated string
 	 */
 	static std::string getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args);
+	static bool findString(std::string &result, const std::string &xml_desc, const LLStringUtil::format_map_t& args);
 
 	/**
 	 * @brief Returns a translated string
@@ -89,7 +90,14 @@ public:
 		LLStringUtil::format_map_t empty;
 		return getString(xml_desc, empty);
 	}
-	
+
+	static bool findString(std::string &result, const std::string &xml_desc)
+	{
+		LLStringUtil::format_map_t empty;
+		return findString(result, xml_desc, empty);
+	}
+
+
 	// get the default args
 	static const LLStringUtil::format_map_t& getDefaultArgs()
 	{

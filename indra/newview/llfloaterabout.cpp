@@ -61,6 +61,8 @@
 #include "llmediamanager.h"
 #include "llwindow.h"
 
+#include "llbutton.h"
+
 #if LL_WINDOWS
 #include "lldxhardware.h"
 #endif
@@ -102,20 +104,18 @@ BOOL LLFloaterAbout::postBuild()
 	support_widget->setParseHTML(TRUE);
 
 	// Text styles for release notes hyperlinks
-	LLStyleSP viewer_link_style(new LLStyle);
-	viewer_link_style->setVisible(true);
-	viewer_link_style->setFontName(LLStringUtil::null);
-	viewer_link_style->setLinkHREF(get_viewer_release_notes_url());
-	viewer_link_style->setColor(LLUIColorTable::instance().getColor("HTMLLinkColor"));
+	LLStyle::Params link_style_params;
+	link_style_params.color.control = "HTMLLinkColor";
+	link_style_params.link_href = get_viewer_release_notes_url();
 
 	// Version string
-	std::string version = LLTrans::getString("SECOND_LIFE_VIEWER")
+	std::string version = LLTrans::getString("APP_NAME")
 		+ llformat(" %d.%d.%d (%d) %s %s (%s)\n",
 				   LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VIEWER_BUILD,
 				   __DATE__, __TIME__,
 				   gSavedSettings.getString("VersionChannelName").c_str());
 	support_widget->appendColoredText(version, FALSE, FALSE, LLUIColorTable::instance().getColor("TextFgReadOnlyColor"));
-	support_widget->appendStyledText(LLTrans::getString("ReleaseNotes"), false, false, viewer_link_style);
+	support_widget->appendStyledText(LLTrans::getString("ReleaseNotes"), false, false, link_style_params);
 
 	std::string support;
 	support.append("\n\n");
@@ -132,11 +132,9 @@ BOOL LLFloaterAbout::postBuild()
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{
-		LLStyleSP server_link_style(new LLStyle);
-		server_link_style->setVisible(true);
-		server_link_style->setFontName(LLStringUtil::null);
-		server_link_style->setLinkHREF(region->getCapability("ServerReleaseNotes"));
-		server_link_style->setColor(LLUIColorTable::instance().getColor("HTMLLinkColor"));
+		LLStyle::Params server_link_style_params;
+		server_link_style_params.color.control = "HTMLLinkColor";
+		server_link_style_params.link_href = region->getCapability("ServerReleaseNotes");
 
 		const LLVector3d &pos = gAgent.getPositionGlobal();
 		LLUIString pos_text = getString("you_are_at");
@@ -159,7 +157,7 @@ BOOL LLFloaterAbout::postBuild()
 		support.append("\n");
 
 		support_widget->appendColoredText(support, FALSE, FALSE, LLUIColorTable::instance().getColor("TextFgReadOnlyColor"));
-		support_widget->appendStyledText(LLTrans::getString("ReleaseNotes"), false, false, server_link_style);
+		support_widget->appendStyledText(LLTrans::getString("ReleaseNotes"), false, false, server_link_style_params);
 
 		support = "\n\n";
 	}
@@ -251,13 +249,9 @@ BOOL LLFloaterAbout::postBuild()
 	// Fix views
 	support_widget->setCursorPos(0);
 	support_widget->setEnabled(FALSE);
-	support_widget->setTakesFocus(TRUE);
-	support_widget->setHandleEditKeysDirectly(TRUE);
 
 	credits_widget->setCursorPos(0);
 	credits_widget->setEnabled(FALSE);
-	credits_widget->setTakesFocus(TRUE);
-	credits_widget->setHandleEditKeysDirectly(TRUE);
 
 	return TRUE;
 }

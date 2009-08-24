@@ -49,6 +49,9 @@
 #include "lloctree.h"
 #include "llvoavatar.h"
 
+static LLFastTimer::DeclareTimer FTM_FRUSTUM_CULL("Frustum Culling");
+static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
+
 const F32 SG_OCCLUSION_FUDGE = 0.25f;
 #define SG_DISCARD_TOLERANCE 0.01f
 
@@ -570,6 +573,8 @@ void LLSpatialGroup::rebuildMesh()
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
+
 void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 {
 	if (!gPipeline.hasRenderType(mDrawableType))
@@ -588,7 +593,7 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 		return;
 	}
 
-	LLFastTimer ftm(LLFastTimer::FTM_REBUILD_VBO);	
+	LLFastTimer ftm(FTM_REBUILD_VBO);	
 
 	group->clearDrawMap();
 	
@@ -1256,6 +1261,7 @@ BOOL LLSpatialGroup::rebound()
 	return TRUE;
 }
 
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_READBACK("Readback Occlusion");
 void LLSpatialGroup::checkOcclusion()
 {
 	if (LLPipeline::sUseOcclusion > 1)
@@ -1267,7 +1273,7 @@ void LLSpatialGroup::checkOcclusion()
 		}
 		else if (isState(QUERY_PENDING))
 		{	//otherwise, if a query is pending, read it back
-			LLFastTimer t(LLFastTimer::FTM_OCCLUSION_READBACK);
+			LLFastTimer t(FTM_OCCLUSION_READBACK);
 			GLuint res = 1;
 			if (!isState(DISCARD_QUERY) && mOcclusionQuery)
 			{
@@ -1312,7 +1318,7 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 		else
 		{
 			{
-				LLFastTimer t(LLFastTimer::FTM_RENDER_OCCLUSION);
+				LLFastTimer t(FTM_RENDER_OCCLUSION);
 
 				if (!mOcclusionQuery)
 				{
@@ -1873,7 +1879,7 @@ S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* result
 	{
 		BOOL temp = sFreezeState;
 		sFreezeState = FALSE;
-		LLFastTimer ftm(LLFastTimer::FTM_CULL_REBOUND);		
+		LLFastTimer ftm(FTM_CULL_REBOUND);		
 		LLSpatialGroup* group = (LLSpatialGroup*) mOctree->getListener(0);
 		group->rebound();
 		sFreezeState = temp;
@@ -1891,19 +1897,19 @@ S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* result
 	}
 	else if (LLPipeline::sShadowRender)
 	{
-		LLFastTimer ftm(LLFastTimer::FTM_FRUSTUM_CULL);
+		LLFastTimer ftm(FTM_FRUSTUM_CULL);
 		LLOctreeCullShadow culler(&camera);
 		culler.traverse(mOctree);
 	}
 	else if (mInfiniteFarClip || !LLPipeline::sUseFarClip)
 	{
-		LLFastTimer ftm(LLFastTimer::FTM_FRUSTUM_CULL);		
+		LLFastTimer ftm(FTM_FRUSTUM_CULL);		
 		LLOctreeCullNoFarClip culler(&camera);
 		culler.traverse(mOctree);
 	}
 	else
 	{
-		LLFastTimer ftm(LLFastTimer::FTM_FRUSTUM_CULL);		
+		LLFastTimer ftm(FTM_FRUSTUM_CULL);		
 		LLOctreeCull culler(&camera);
 		culler.traverse(mOctree);
 	}

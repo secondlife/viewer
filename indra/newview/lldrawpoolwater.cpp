@@ -138,7 +138,7 @@ void LLDrawPoolWater::endPostDeferredPass(S32 pass)
 
 void LLDrawPoolWater::render(S32 pass)
 {
-	LLFastTimer ftm(LLFastTimer::FTM_RENDER_WATER);
+	LLFastTimer ftm(FTM_RENDER_WATER);
 	if (mDrawFace.empty() || LLDrawable::getCurrentFrame() <= 1)
 	{
 		return;

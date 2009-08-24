@@ -132,35 +132,31 @@ void LLContainerView::draw()
 
 void LLContainerView::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	S32 desired_width = width;
-	S32 desired_height = height;
+	LLRect scroller_rect;
+	scroller_rect.setOriginAndSize(0, 0, width, height);
 
 	if (mScrollContainer)
 	{
-		BOOL dum_bool;
-		mScrollContainer->calcVisibleSize(&desired_width, &desired_height, &dum_bool, &dum_bool);
+		scroller_rect = mScrollContainer->getContentWindowRect();
 	}
 	else
 	{
 		// if we're uncontained - make height as small as possible
-		desired_height = 0;
+		scroller_rect.mTop = 0;
 	}
 
-	arrange(desired_width, desired_height, called_from_parent);
+	arrange(scroller_rect.getWidth(), scroller_rect.getHeight(), called_from_parent);
 
 	// sometimes, after layout, our container will change size (scrollbars popping in and out)
 	// if so, attempt another layout
 	if (mScrollContainer)
 	{
-		S32 new_container_width;
-		S32 new_container_height;
-		BOOL dum_bool;
-		mScrollContainer->calcVisibleSize(&new_container_width, &new_container_height, &dum_bool, &dum_bool);
+		LLRect new_container_rect = mScrollContainer->getContentWindowRect();
 
-		if ((new_container_width != desired_width) ||
-			(new_container_height != desired_height))  // the container size has changed, attempt to arrange again
+		if ((new_container_rect.getWidth() != scroller_rect.getWidth()) ||
+			(new_container_rect.getHeight() != scroller_rect.getHeight()))  // the container size has changed, attempt to arrange again
 		{
-			arrange(new_container_width, new_container_height, called_from_parent);
+			arrange(new_container_rect.getWidth(), new_container_rect.getHeight(), called_from_parent);
 		}
 	}
 }

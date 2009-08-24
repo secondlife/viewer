@@ -6,6 +6,9 @@
 	<global name="alwayschoose">
 		Toujours choisir cette option
 	</global>
+	<global name="implicitclosebutton">
+		Fermer
+	</global>
   <template name="okbutton">
     <form>
       <button
@@ -2877,7 +2880,7 @@ Les objets flexibles ne peuvent pas avoir de propriétés physiques et doivent r
 	<notification name="FirstDebugMenus">
 		Vous avez activé le menu Avancé.
 Ce menu contient des fonctionnalités utiles pour les développeurs qui travaillent sur Second Life.
-Pour activer/désactiver ce menu sous Windows, appuyez sur Ctrl-Alt-D. Sur un Mac, appuyez sur Cmd-Opt-Maj-D
+Pour activer/désactiver ce menu sous Windows, appuyez sur Ctrl-Alt-D. Sur un Mac, appuyez sur &#8984;-Opt-Maj-D
 	</notification>
 	<notification name="FirstSculptedPrim">
 		Vous êtes en train d&apos;éditer un sculptie.

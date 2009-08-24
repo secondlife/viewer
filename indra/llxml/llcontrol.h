@@ -96,7 +96,7 @@ typedef enum e_control_type
 	TYPE_COUNT
 } eControlType;
 
-class LLControlVariable : public LLRefCount, boost::noncopyable
+class LLControlVariable : public LLRefCount
 {
 	friend class LLControlGroup;
 	

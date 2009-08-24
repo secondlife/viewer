@@ -419,8 +419,16 @@ BOOL	LLButton::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		{
 			setFocus(TRUE);
 		}
-	}
 
+//		if (pointInView(x, y))
+//		{
+//		}
+	}
+	// send the mouse down signal
+	LLUICtrl::handleRightMouseDown(x,y,mask);
+	// *TODO: Return result of LLUICtrl call above?  Should defer to base class
+	// but this might change the mouse handling of existing buttons in a bad way
+	// if they are not mouse opaque.
 	return TRUE;
 }
 
@@ -432,15 +440,20 @@ BOOL	LLButton::handleRightMouseUp(S32 x, S32 y, MASK mask)
 		// Always release the mouse
 		gFocusMgr.setMouseCapture( NULL );
 
-		if (pointInView(x, y))
-		{
-			mRightClickSignal(this, x,y,mask);
-		}
+//		if (pointInView(x, y))
+//		{
+//			mRightMouseUpSignal(this, x,y,mask);
+//		}
 	}
 	else 
 	{
 		childrenHandleRightMouseUp(x, y, mask);
 	}
+	// send the mouse up signal
+	LLUICtrl::handleRightMouseUp(x,y,mask);
+	// *TODO: Return result of LLUICtrl call above?  Should defer to base class
+	// but this might change the mouse handling of existing buttons in a bad way.
+	// if they are not mouse opaque.
 	return TRUE;
 }
 
@@ -788,7 +801,7 @@ void LLButton::draw()
 			LLFontGL::NORMAL,
 			mDropShadowedText ? LLFontGL::DROP_SHADOW_SOFT : LLFontGL::NO_SHADOW,
 			S32_MAX, text_width,
-			NULL, FALSE, mUseEllipses);
+			NULL, mUseEllipses);
 	}
 
 	LLUICtrl::draw();

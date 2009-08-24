@@ -190,7 +190,7 @@ void LLTabContainer::reshape(S32 width, S32 height, BOOL called_from_parent)
 }
 
 //virtual
-LLView* LLTabContainer::getChildView(const std::string& name, BOOL recurse, BOOL create_if_missing) const
+LLView* LLTabContainer::getChildView(const std::string& name, BOOL recurse) const
 {
 	tuple_list_t::const_iterator itor;
 	for (itor = mTabList.begin(); itor != mTabList.end(); ++itor)
@@ -207,14 +207,42 @@ LLView* LLTabContainer::getChildView(const std::string& name, BOOL recurse, BOOL
 		for (itor = mTabList.begin(); itor != mTabList.end(); ++itor)
 		{
 			LLPanel *panel = (*itor)->mTabPanel;
-			LLView *child = panel->getChildView(name, recurse, FALSE);
+			LLView *child = panel->getChildView(name, recurse);
 			if (child)
 			{
 				return child;
 			}
 		}
 	}
-	return LLView::getChildView(name, recurse, create_if_missing);
+	return LLView::getChildView(name, recurse);
+}
+
+//virtual
+LLView* LLTabContainer::findChildView(const std::string& name, BOOL recurse) const
+{
+	tuple_list_t::const_iterator itor;
+	for (itor = mTabList.begin(); itor != mTabList.end(); ++itor)
+	{
+		LLPanel *panel = (*itor)->mTabPanel;
+		if (panel->getName() == name)
+		{
+			return panel;
+		}
+	}
+
+	if (recurse)
+	{
+		for (itor = mTabList.begin(); itor != mTabList.end(); ++itor)
+		{
+			LLPanel *panel = (*itor)->mTabPanel;
+			LLView *child = panel->findChildView(name, recurse);
+			if (child)
+			{
+				return child;
+			}
+		}
+	}
+	return LLView::findChildView(name, recurse);
 }
 
 bool LLTabContainer::addChild(LLView* view, S32 tab_group)
@@ -457,7 +485,7 @@ BOOL LLTabContainer::handleMouseDown( S32 x, S32 y, MASK mask )
 			index = llclamp(index, 0, tab_count-1);
 			LLButton* tab_button = getTab(index)->mButton;
 			gFocusMgr.setMouseCapture(this);
-			gFocusMgr.setKeyboardFocus(tab_button);
+			tab_button->setFocus(TRUE);
 		}
 	}
 	return handled;

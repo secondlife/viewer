@@ -2746,7 +2746,6 @@ BOOL LLPanelEstateCovenant::postBuild()
 	mEstateOwnerText = getChild<LLTextBox>("estate_owner_text");
 	mLastModifiedText = getChild<LLTextBox>("covenant_timestamp_text");
 	mEditor = getChild<LLViewerTextEditor>("covenant_editor");
-	if (mEditor) mEditor->setHandleEditKeysDirectly(TRUE);
 	LLButton* reset_button = getChild<LLButton>("reset_covenant");
 	reset_button->setEnabled(gAgent.canManageEstate());
 	reset_button->setClickedCallback(LLPanelEstateCovenant::resetCovenantID, NULL);

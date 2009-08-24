@@ -101,14 +101,6 @@ BOOL LLPreviewNotecard::postBuild()
 		childSetText("desc", item->getDescription());
 	childSetPrevalidate("desc", &LLLineEditor::prevalidatePrintableNotPipe);
 
-	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
-
-	if (editor)
-	{
-		editor->setWordWrap(TRUE);
-		editor->setHandleEditKeysDirectly(TRUE);
-	}
-	
 	return LLPreview::postBuild();
 }
 

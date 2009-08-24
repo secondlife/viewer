@@ -208,8 +208,7 @@ void nearbychat_add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, cons
 	{
 		std::string start_line = line.substr(0, chat.mFromName.length() + 1);
 		line = line.substr(chat.mFromName.length() + 1);
-		const LLStyleSP &sourceStyle = LLStyleMap::instance().lookup(chat.mFromID,chat.mURL);
-		edit->appendStyledText(start_line, false, prepend_newline, sourceStyle);
+		edit->appendStyledText(start_line, false, prepend_newline, LLStyleMap::instance().lookup(chat.mFromID,chat.mURL));
 		prepend_newline = false;
 	}
 	edit->appendColoredText(line, false, prepend_newline, color);
@@ -343,6 +342,7 @@ BOOL	LLNearbyChat::handleMouseDown	(S32 x, S32 y, MASK mask)
 	S32 local_y = caption_local_y - nearby_speakers_btn->getRect().mBottom;
 	if(nearby_speakers_btn->pointInView(local_x, local_y))
 	{
+
 		onNearbySpeakers();
 		bringToFront( x, y );
 		return true;

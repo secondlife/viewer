@@ -6,6 +6,9 @@
 	<global name="alwayschoose">
 		Diese Option immer auswählen
 	</global>
+	<global name="implicitclosebutton">
+		Schließen
+	</global>
   <template name="okbutton">
     <form>
       <button

@@ -9,14 +9,6 @@
  name="Display panel"
  top="1"
  width="517">
-    <panel.string
-     name="resolution_format">
-        [RES_X] x [RES_Y]
-    </panel.string>
-    <panel.string
-     name="aspect_ratio_text">
-        [NUM]:[DEN]
-    </panel.string>
     <text
      type="string"
      length="1"
@@ -39,63 +31,63 @@
      top_pad="4"
      width="175">
     </check_box>
-      <combo_box
+	<combo_box
 	 visiblity_control="WindowFullScreen"
-        allow_text_entry="false"
-	enabled="true"
-	layout="topleft"
-        height="18"
-	left_delta="220"
-	max_chars="20"
-	mouse_opaque="true"
-	name="windowsize combo"
-	top_delta="-1"
-	width="150">
-      <combo_box.item
-        type="string"
-	length="1"
-	enabled="true"
-	name="640x480"
-	value="640 x 480">
-		640x480
-	</combo_box.item>
-	<combo_box.item
-        type="string"
-	length="1"
-	enabled="true"
-	name="800x600"
-	value="800 x 600">
-		800x600 
-	</combo_box.item>
-	<combo_box.item
-        type="string"
-	length="1"
-	enabled="true"
-	name="720x480"
-	value="720 x 480">
-		720x480 (NTSC)
-	</combo_box.item>
-	<combo_box.item
-        type="string"
-	length="1"
-	enabled="true"
-	name="768x576"
-	value="768 x 576">
-		768x576 (PAL)
-	</combo_box.item>
-	<combo_box.item
-        type="string"
-	length="1"
-	enabled="true"
-	name="1024x768"
-	value="1024 x 768">
-		1024x768
-	</combo_box.item>
-        <combo_box.commit_callback
-        function="setControlFalse"
-	parameter="FullScreenAutoDetectAspectRatio" />
+	 allow_text_entry="false"
+	 enabled="true"
+	 layout="topleft"
+	 height="18"
+	 left_delta="220"
+	 max_chars="20"
+	 mouse_opaque="true"
+	 name="windowsize combo"
+	 top_delta="-1"
+	 width="150">
+		<combo_box.item
+		 type="string"
+	     length="1"
+	     enabled="true"
+	     name="640x480"
+	     value="640 x 480">
+		 640x480
+	    </combo_box.item>
+	    <combo_box.item
+	     type="string"
+	     length="1"
+	     enabled="true"
+	     name="800x600"
+	     value="800 x 600">
+		 800x600 
+	    </combo_box.item>
+	    <combo_box.item
+	     type="string"
+	     length="1"
+	     enabled="true"
+	     name="720x480"
+	     value="720 x 480">
+		 720x480 (NTSC)
+	    </combo_box.item>
+	    <combo_box.item
+	     type="string"
+	     length="1"
+	     enabled="true"
+	     name="768x576"
+	     value="768 x 576">
+		  768x576 (PAL)
+	    </combo_box.item>
+	    <combo_box.item
+	     type="string"
+	     length="1"
+	     enabled="true"
+	     name="1024x768"
+	     value="1024 x 768">
+		  1024x768
+	    </combo_box.item>
+	    <combo_box.commit_callback
+	     function="Pref.setControlFalse"
+	     parameter="FullScreenAutoDetectAspectRatio" />
  	</combo_box>
-           <text
+	<text
      type="string"
      length="1"
      follows="left|top"
@@ -134,7 +126,6 @@
      name="ui_scale_slider"
      top_delta="0"
      width="58" />
-
      <text
      type="string"
      length="1"

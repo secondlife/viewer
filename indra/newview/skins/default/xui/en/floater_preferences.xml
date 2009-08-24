@@ -53,6 +53,7 @@
          layout="topleft"
          name="general" />
         <panel
+		 class="panel_preference"
          filename="panel_preferences_graphics1.xml"
          label="Graphics"
          layout="topleft"

@@ -404,7 +404,7 @@ void LLPanelFriends::refreshNames(U32 changed_mask)
 	// Changed item in place, need to request sort and update columns
 	// because we might have changed data in a column on which the user
 	// has already sorted. JC
-	mFriendsList->sortItems();
+	mFriendsList->updateSort();
 
 	// re-select items
 	mFriendsList->selectMultiple(selected_ids);

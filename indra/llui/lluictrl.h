@@ -186,8 +186,10 @@ public:
 	/*virtual*/ BOOL	getTentative() const;
 	/*virtual*/ void	onMouseEnter(S32 x, S32 y, MASK mask);
 	/*virtual*/ void	onMouseLeave(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	canFocusChildren() const;
 	/*virtual*/ BOOL 	handleMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL 	handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);
 
 	// From LLFocusableElement
@@ -258,7 +260,8 @@ public:
 	
 	boost::signals2::connection setMouseDownCallback( const mouse_signal_t::slot_type& cb ) { return mMouseDownSignal.connect(cb); }
 	boost::signals2::connection setMouseUpCallback( const mouse_signal_t::slot_type& cb ) { return mMouseUpSignal.connect(cb); }
-	boost::signals2::connection setRightClickedCallback( const mouse_signal_t::slot_type& cb ) { return mRightClickSignal.connect(cb); }
+	boost::signals2::connection setRightMouseDownCallback( const mouse_signal_t::slot_type& cb ) { return mRightMouseDownSignal.connect(cb); }
+	boost::signals2::connection setRightMouseUpCallback( const mouse_signal_t::slot_type& cb ) { return mRightMouseUpSignal.connect(cb); }
 	
 	// *TODO: Deprecate; for backwards compatability only:
 	boost::signals2::connection setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data);	
@@ -292,7 +295,8 @@ protected:
 	
 	mouse_signal_t		mMouseDownSignal;
 	mouse_signal_t		mMouseUpSignal;
-	mouse_signal_t		mRightClickSignal;
+	mouse_signal_t		mRightMouseDownSignal;
+	mouse_signal_t		mRightMouseUpSignal;
 	
     LLViewModelPtr  mViewModel;
 

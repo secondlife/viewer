@@ -627,6 +627,7 @@ Go to World menu &gt; About Land or select another parcel to show its details.
              length="1"
              enabled="false"
              follows="left|top|right|bottom"
+             handle_edit_keys_directly="true" 
              height="115"
              layout="topleft"
              left_delta="0"
@@ -1993,7 +1994,7 @@ Options:
              layout="topleft"
              left_delta="0"
              name="limit_age_verified"
-             tool_tip="Ban residents who have not verified their age. See support.secondlife.com for more information."
+             tool_tip="Ban residents who have not verified their age. See the [SUPPORT_SITE] for more information."
              top_pad="4"
              width="278" />
             <check_box

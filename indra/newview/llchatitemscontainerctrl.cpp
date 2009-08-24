@@ -93,13 +93,11 @@ void	LLChatItemCtrl::reshape		(S32 width, S32 height, BOOL called_from_parent )
 		caption->reshape( width - 4, caption_rect.getHeight(), 1);
 		caption->setRect(caption_rect);
 
-		
 		LLRect msg_text_rect = msg_text->getRect();
 		msg_text_rect.setLeftTopAndSize( msg_left_offset, height - caption_rect.getHeight() , width - msg_left_offset - msg_right_offset, height - caption_rect.getHeight());
 		msg_text->reshape( width - msg_left_offset - msg_right_offset, height - caption_rect.getHeight(), 1);
 		msg_text->setRect(msg_text_rect);
 	}
-		
 }
 
 BOOL LLChatItemCtrl::postBuild()

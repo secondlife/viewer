@@ -44,6 +44,8 @@
      max_length="65536"
      name="Script Editor"
      width="492"
+     show_line_numbers="true" 
+     handle_edit_keys_directly="true" 
      word_wrap="true">
         Loading...
     </text_editor>

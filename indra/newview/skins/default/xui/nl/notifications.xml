@@ -6,6 +6,9 @@
 	<global name="alwayschoose">
 		Kies altijd deze optie
 	</global>
+	<global name="implicitclosebutton">
+		Sluiten
+	</global>
   <template name="okbutton">
     <form>
       <button
@@ -2953,7 +2956,7 @@ Flexibele objecten mogen niet fysiek zijn en moeten fantoom zijn tot de &apos;fl
 	<notification name="FirstDebugMenus">
 		U heeft het menu Geavanceerd geactiveerd.
 Dit menu bevat opties die handig zijn voor ontwikkelaars tijdens het debuggen van Second Life.
-Om dit menu in en uit te schakelen drukt u binnen Windows Ctrl-Alt-D. Met een Mac drukt u Cmd-Opt-Shift-D.
+Om dit menu in en uit te schakelen drukt u binnen Windows Ctrl-Alt-D. Met een Mac drukt u &#8984;-Opt-D.
 	</notification>
 	<notification name="FirstSculptedPrim">
 		U bent een sculpted prim aan het bewerken.

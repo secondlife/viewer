@@ -169,3 +169,28 @@ std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::
 	}
 }
 
+//static 
+bool LLTrans::findString(std::string &result, const std::string &xml_desc, const LLStringUtil::format_map_t& msg_args)
+{
+	LLFastTimer timer(FTM_GET_TRANS);
+	
+	template_map_t::iterator iter = sStringTemplates.find(xml_desc);
+	if (iter != sStringTemplates.end())
+	{
+		std::string text = iter->second.mText;
+		LLStringUtil::format_map_t args = sDefaultArgs;
+		args.insert(msg_args.begin(), msg_args.end());
+		LLStringUtil::format(text, args);
+		result = text;
+		return true;
+	}
+	else
+	{
+		LLSD args;
+		args["STRING_NAME"] = xml_desc;
+		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;
+		//LLNotifications::instance().add("MissingString", args);
+		
+		return false;
+	}
+}

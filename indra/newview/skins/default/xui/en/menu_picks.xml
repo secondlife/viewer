@@ -25,7 +25,7 @@
          function="Pick.Teleport" />
     </menu_item_call>
     <menu_item_call
-     label="Show on Map"
+     label="Map"
      layout="topleft"
      name="pick_map">
         <menu_item_call.on_click

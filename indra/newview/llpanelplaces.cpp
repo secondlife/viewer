@@ -149,14 +149,12 @@ BOOL LLPanelPlaces::postBuild()
 	}
 
 	mPlaceInfo = getChild<LLPanelPlaceInfo>("panel_place_info");
-	if (!mPlaceInfo)
-		return FALSE;
 	
 	LLButton* back_btn = mPlaceInfo->getChild<LLButton>("back_btn");
-	if (back_btn)
-	{
-		back_btn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
-	}
+	back_btn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
+
+	// *TODO: Assign the action to an appropriate event.
+	mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::toggleMediaPanel, this));
 
 	return TRUE;
 }

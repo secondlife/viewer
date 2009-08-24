@@ -340,10 +340,6 @@ BOOL LLScriptEdCore::postBuild()
 	childSetCommitCallback("Insert...", &LLScriptEdCore::onBtnInsertFunction, this);
 
 	mEditor = getChild<LLViewerTextEditor>("Script Editor");
-	mEditor->setFollowsAll();
-	mEditor->setHandleEditKeysDirectly(TRUE);
-	mEditor->setEnabled(TRUE);
-	mEditor->setWordWrap(TRUE);
 
 	childSetCommitCallback("lsl errors", &LLScriptEdCore::onErrorList, this);
 	childSetAction("Save_btn", boost::bind(&LLScriptEdCore::doSave,this,FALSE));
@@ -459,12 +455,12 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 		return;
 	}
 
-	const LLTextSegment* segment = NULL;
-	std::vector<const LLTextSegment*> selected_segments;
+	LLTextSegmentPtr segment = NULL;
+	std::vector<LLTextSegmentPtr> selected_segments;
 	mEditor->getSelectedSegments(selected_segments);
 
 	// try segments in selection range first
-	std::vector<const LLTextSegment*>::iterator segment_iter;
+	std::vector<LLTextSegmentPtr>::iterator segment_iter;
 	for (segment_iter = selected_segments.begin(); segment_iter != selected_segments.end(); ++segment_iter)
 	{
 		if((*segment_iter)->getToken() && (*segment_iter)->getToken()->getType() == LLKeywordToken::WORD)
@@ -477,7 +473,7 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 	// then try previous segment in case we just typed it
 	if (!segment)
 	{
-		const LLTextSegment* test_segment = mEditor->getPreviousSegment();
+		const LLTextSegmentPtr test_segment = mEditor->getPreviousSegment();
 		if(test_segment->getToken() && test_segment->getToken()->getType() == LLKeywordToken::WORD)
 		{
 			segment = test_segment;

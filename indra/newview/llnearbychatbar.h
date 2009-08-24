@@ -53,7 +53,7 @@ public:
 	~LLGestureComboBox();
 
 	void refreshGestures();
-	void onCommitGesture(LLUICtrl* ctrl);
+	void onCommitGesture();
 	virtual void draw();
 
 	// LLGestureManagerObserver trigger
@@ -61,6 +61,7 @@ public:
 
 protected:
 	LLFrameTimer mGestureLabelTimer;
+	std::vector<LLMultiGesture*> mGestures;
 	std::string mLabel;
 };
 

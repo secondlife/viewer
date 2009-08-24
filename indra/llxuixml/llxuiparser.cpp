@@ -399,11 +399,11 @@ LLXUIParser::LLXUIParser()
 								boost::bind(&LLXUIParser::writeSDValue, this, _1, _2));
 }
 
-static LLFastTimer::DeclareTimer PARSE_XUI("XUI Parsing");
+static LLFastTimer::DeclareTimer FTM_PARSE_XUI("XUI Parsing");
 
 void LLXUIParser::readXUI(LLXMLNodePtr node, LLInitParam::BaseBlock& block, bool silent)
 {
-	LLFastTimer timer(PARSE_XUI);
+	LLFastTimer timer(FTM_PARSE_XUI);
 	mNameStack.clear();
 	mCurReadDepth = 0;
 	setParseSilently(silent);

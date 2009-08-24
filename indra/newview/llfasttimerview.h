@@ -62,7 +62,7 @@ public:
 	virtual void draw();
 
 	LLFastTimer::NamedTimer* getLegendID(S32 y);
-	F64 getTime(LLFastTimer::NamedTimer::FrameState& id);
+	F64 getTime(const std::string& name);
 	
 private:	
 	typedef std::vector<std::vector<S32> > bar_positions_t;

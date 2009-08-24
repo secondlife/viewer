@@ -38,119 +38,34 @@
 #include "llstring.h"
 #include "llui.h"
 
+LLStyle::Params::Params()
+:	visible("visible", true),
+	drop_shadow("drop_shadow", false),
+	color("color", LLColor4::black),
+	font("font", LLFontGL::getFontMonospace()),
+	image("image"),
+	link_href("href")
+{}
 
-LLStyle::LLStyle()
-{
-	init(TRUE, LLColor4(0,0,0,1),LLStringUtil::null);
-}
 
-LLStyle::LLStyle(const LLStyle &style)
-{
-	if (this != &style)
-	{
-		init(style.isVisible(),style.getColor(),style.getFontString());
-		if (style.isLink())
-		{
-			setLinkHREF(style.getLinkHREF());
-		}
-		mItalic = style.mItalic;
-		mBold = style.mBold;
-		mUnderline = style.mUnderline;
-		mDropShadow = style.mDropShadow;
-		mImageHeight = style.mImageHeight;
-		mImageWidth = style.mImageWidth;
-		mImagep = style.mImagep;
-		mIsEmbeddedItem = style.mIsEmbeddedItem;
-	}
-	else
-	{
-		init(TRUE, LLColor4(0,0,0,1),LLStringUtil::null);
-	}
-}
+LLStyle::LLStyle(const LLStyle::Params& p)
+:	mVisible(p.visible),
+	mColor(p.color()),
+	mFont(p.font()),
+	mLink(p.link_href),
+	mDropShadow(p.drop_shadow),
+	mImageHeight(0),
+	mImageWidth(0),
+	mImagep(p.image())
+{}
 
-LLStyle::LLStyle(BOOL is_visible, const LLColor4 &color, const std::string& font_name)
+void LLStyle::setFont(const LLFontGL* font)
 {
-	init(is_visible, color, font_name);
-}
-
-void LLStyle::init(BOOL is_visible, const LLColor4 &color, const std::string& font_name)
-{
-	mVisible = is_visible;
-	mColor = color;
-	setFontName(font_name);
-	setLinkHREF(LLStringUtil::null);
-	mItalic = FALSE;
-	mBold = FALSE;
-	mUnderline = FALSE;
-	mDropShadow = FALSE;
-	mImageHeight = 0;
-	mImageWidth = 0;
-	mIsEmbeddedItem = FALSE;
+	mFont = font;
 }
 
 
-// Copy assignment
-LLStyle &LLStyle::operator=(const LLStyle &rhs)
-{
-	if (this != &rhs)
-	{
-		setVisible(rhs.isVisible());
-		setColor(rhs.getColor());
-		this->mFontName = rhs.getFontString();
-		this->mLink = rhs.getLinkHREF();
-		mImagep = rhs.mImagep;
-		mImageHeight = rhs.mImageHeight;
-		mImageWidth = rhs.mImageWidth;
-		mItalic = rhs.mItalic;
-		mBold = rhs.mBold;
-		mUnderline = rhs.mUnderline;
-		mDropShadow = rhs.mDropShadow;
-		mIsEmbeddedItem = rhs.mIsEmbeddedItem;
-	}
-	
-	return *this;
-}
-
-//virtual
-const std::string& LLStyle::getFontString() const
-{
-	return mFontName;
-}
-
-//virtual
-void LLStyle::setFontName(const std::string& fontname)
-{
-	mFontName = fontname;
-
-	std::string fontname_lc = fontname;
-	LLStringUtil::toLower(fontname_lc);
-	
-	// cache the font pointer for speed when rendering text
-	if ((fontname_lc == "sansserif") || (fontname_lc == "sans-serif"))
-	{
-		mFont = LLFontGL::getFontSansSerif();
-	}
-	else if ((fontname_lc == "serif"))
-	{
-		// *TODO: Do we have a real serif font?
-		mFont = LLFontGL::getFontMonospace();
-	}
-	else if ((fontname_lc == "sansserifbig"))
-	{
-		mFont = LLFontGL::getFontSansSerifBig();
-	}
-	else if (fontname_lc ==  "small")
-	{
-		mFont = LLFontGL::getFontSansSerifSmall();
-	}
-	else
-	{
-		mFont = LLFontGL::getFontMonospace();
-	}
-}
-
-//virtual
-LLFontGL* LLStyle::getFont() const
+const LLFontGL* LLStyle::getFont() const
 {
 	return mFont;
 }

@@ -711,10 +711,7 @@ void LLFloater::releaseFocus()
 		gFocusMgr.setTopCtrl(NULL);
 	}
 
-	if( gFocusMgr.childHasKeyboardFocus( this ) )
-	{
-		gFocusMgr.setKeyboardFocus(NULL);
-	}
+	setFocus(FALSE);
 
 	if( gFocusMgr.childHasMouseCapture( this ) )
 	{
@@ -1074,7 +1071,7 @@ void LLFloater::setFocus( BOOL b )
 	}
 	LLUICtrl* last_focus = gFocusMgr.getLastFocusForGroup(this);
 	// a descendent already has focus
-	BOOL child_had_focus = gFocusMgr.childHasKeyboardFocus(this);
+	BOOL child_had_focus = hasFocus();
 
 	// give focus to first valid descendent
 	LLPanel::setFocus(b);
@@ -1948,7 +1945,7 @@ LLRect LLFloaterView::findNeighboringPosition( LLFloater* reference_floater, LLF
 		if (sibling && 
 			sibling != neighbor && 
 			sibling->getVisible() && 
-			expanded_base_rect.rectInRect(&sibling->getRect()))
+			expanded_base_rect.overlaps(sibling->getRect()))
 		{
 			base_rect.unionWith(sibling->getRect());
 		}
@@ -2593,6 +2590,8 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 		initCommitCallback(p.close_callback, mCloseSignal);
 }
 
+LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");
+
 void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 {
 	Params params(LLUICtrlFactory::getDefaultParams<LLFloater>());
@@ -2626,7 +2625,12 @@ void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 		LLFloater::setFloaterHost(last_host);
 	}
 	
-	BOOL result = postBuild();
+	BOOL result;
+	{
+		LLFastTimer ft(POST_BUILD);
+
+		result = postBuild();
+	}
 
 	if (!result)
 	{

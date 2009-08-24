@@ -158,7 +158,7 @@ void	LLSideTrayTab::arrange(S32 width, S32 height )
 	
 	S32 offset = 0;
 
-	LLView* title_panel = getChildView(TAB_PANEL_CAPTION_NAME, true, false);
+	LLView* title_panel = findChildView(TAB_PANEL_CAPTION_NAME, true);
 
 	if(title_panel)
 	{
@@ -181,7 +181,7 @@ void LLSideTrayTab::reshape		(S32 width, S32 height, BOOL called_from_parent )
 		return;
 	S32 offset = 0;
 
-	LLView* title_panel = getChildView(TAB_PANEL_CAPTION_NAME, true, false);
+	LLView* title_panel = findChildView(TAB_PANEL_CAPTION_NAME, true);
 
 	if(title_panel)
 	{
@@ -612,7 +612,7 @@ LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& para
 	child_vector_const_iter_t child_it;
 	for ( child_it = mTabs.begin(); child_it != mTabs.end(); ++child_it)
 	{
-		LLView* view = (*child_it)->getChildView(panel_name,true,false);
+		LLView* view = (*child_it)->findChildView(panel_name,true);
 		if(view)
 		{
 			onTabButtonClick((*child_it)->getName());

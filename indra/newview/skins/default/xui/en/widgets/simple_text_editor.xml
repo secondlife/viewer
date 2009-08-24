@@ -9,14 +9,14 @@
   word_wrap="false" 
   ignore_tab="true"
   track_bottom="false" 
-  takes_non_scroll_clicks="true" 
   cursor_color="TextCursorColor"
   default_color="TextDefaultColor"
   text_color="TextFgColor"
   text_readonly_color="TextFgReadOnlyColor"
   bg_readonly_color="TextBgReadOnlyColor"
   bg_writeable_color="TextBgWriteableColor"
-  bg_focus_color="TextBgFocusColor">
+  bg_focus_color="TextBgFocusColor"
+  link_color="HTMLLinkColor">
   <simple_text_editor.border
     bevel_style="in"
     follows="all" />

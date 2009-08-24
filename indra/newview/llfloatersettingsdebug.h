@@ -35,7 +35,6 @@
 
 #include "llcontrol.h"
 #include "llfloater.h"
-#include "lltexteditor.h"
 
 class LLFloaterSettingsDebug 
 :	public LLFloater
@@ -60,7 +59,7 @@ private:
 	virtual ~LLFloaterSettingsDebug();
 	
 protected:
-	LLTextEditor* mComment;
+	class LLTextEditor* mComment;
 };
 
 #endif //LLFLOATERDEBUGSETTINGS_H

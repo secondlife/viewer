@@ -41,7 +41,6 @@
 #include "llcallbacklist.h"
 #include "llcriticaldamp.h"
 #include "llui.h"
-#include "llviewertexteditor.h"
 #include "llfocusmgr.h"
 #include "llbutton.h"
 #include "llcombobox.h"

@@ -430,6 +430,7 @@ namespace LLInitParam
 
 		const Param* getLastChangedParam() const { return mLastChangedParam ? getParamFromHandle(mLastChangedParam) : NULL; }
 		S32 getLastChangeVersion() const { return mChangeVersion; }
+		bool isDefault() const { return mChangeVersion == 0; }
 
 		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack);
 		bool serializeBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), const BaseBlock* diff_block = NULL) const;

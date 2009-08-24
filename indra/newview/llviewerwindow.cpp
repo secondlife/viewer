@@ -935,8 +935,6 @@ void LLViewerWindow::handleFocus(LLWindow *window)
 	gAgent.onAppFocusGained();
 	LLToolMgr::getInstance()->onAppFocusGained();
 
-	gShowTextEditCursor = TRUE;
-
 	// See if we're coming in with modifier keys held down
 	if (gKeyboard)
 	{
@@ -965,11 +963,6 @@ void LLViewerWindow::handleFocusLost(LLWindow *window)
 	// restore mouse cursor
 	showCursor();
 	getWindow()->setMouseClipping(FALSE);
-
-	// JC - Leave keyboard focus, so if you're popping in and out editing
-	// a script, you don't have to click in the editor again and again.
-	// gFocusMgr.setKeyboardFocus( NULL );
-	gShowTextEditCursor = FALSE;
 
 	// If losing focus while keys are down, reset them.
 	if (gKeyboard)
@@ -2019,6 +2012,11 @@ void LLViewerWindow::draw()
 		// Draw all nested UI views.
 		// No translation needed, this view is glued to 0,0
 		mRootView->draw();
+
+		if (mToolTip->getVisible() && LLView::sDebugRects)
+		{
+			gl_rect_2d(mToolTipStickyRect, LLColor4::white, false);
+		}
 
 		// Draw optional on-top-of-everyone view
 		LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
@@ -3320,7 +3318,7 @@ void LLViewerWindow::schedulePick(LLPickInfo& pick_info)
 	
 		return;
 	}
-	llassert_always(pick_info.mScreenRegion.notNull());
+	llassert_always(pick_info.mScreenRegion.notEmpty());
 	mPicks.push_back(pick_info);
 	
 	// delay further event processing until we receive results of pick

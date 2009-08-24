@@ -4280,7 +4280,6 @@ BOOL run_calllib(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 	}
 
 	{
-		// LLFastTimer time_in_libraries1(LLFastTimer::FTM_TEMP7);
 		gScriptLibrary.mFunctions[arg]->mExecFunc(returnvalue, arguments, id);
 	}
 	add_register_fp(buffer, LREG_ESR, -gScriptLibrary.mFunctions[arg]->mEnergyUse);
@@ -4351,7 +4350,6 @@ BOOL run_calllib_two_byte(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &i
 	}
 
 	{
-		// LLFastTimer time_in_libraries2(LLFastTimer::FTM_TEMP8);
 		gScriptLibrary.mFunctions[arg]->mExecFunc(returnvalue, arguments, id);
 	}
 	add_register_fp(buffer, LREG_ESR, -gScriptLibrary.mFunctions[arg]->mEnergyUse);

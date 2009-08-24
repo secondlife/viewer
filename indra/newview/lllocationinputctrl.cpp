@@ -227,7 +227,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 		llwarns << "Error loading navigation bar context menu" << llendl;
 		
 	}
-	getTextEntry()->setRightClickedCallback(boost::bind(&LLLocationInputCtrl::onTextEditorRightClicked,this,_2,_3,_4));
+	getTextEntry()->setRightMouseUpCallback(boost::bind(&LLLocationInputCtrl::onTextEditorRightClicked,this,_2,_3,_4));
 	updateWidgetlayout();
 
 	// - Make the "Add landmark" button updated when either current parcel gets changed

@@ -240,7 +240,7 @@ public:
 	virtual void deleteAllChildren();
 
 	void scrollToShowSelection();
-	void scrollToShowItem(LLFolderViewItem* item);
+	void scrollToShowItem(LLFolderViewItem* item, const LLRect& constraint_rect);
 	void setScrollContainer( LLScrollContainer* parent ) { mScrollContainer = parent; }
 	LLRect getVisibleRect();
 
@@ -299,8 +299,8 @@ protected:
 	LLLineEditor*					mRenamer;
 
 	BOOL							mNeedsScroll;
-	LLFolderViewItem*				mLastScrollItem;
-	LLCoordGL						mLastScrollOffset;
+	BOOL							mPinningSelectedItem;
+	LLRect							mScrollConstraintRect;
 	BOOL							mNeedsAutoSelect;
 	BOOL							mAutoSelectOverride;
 	BOOL							mNeedsAutoRename;

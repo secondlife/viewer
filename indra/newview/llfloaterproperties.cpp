@@ -46,6 +46,7 @@
 #include "llavataractions.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
+#include "llspinctrl.h"
 #include "llradiogroup.h"
 #include "llresmgr.h"
 #include "roles_constants.h"
@@ -151,7 +152,7 @@ BOOL LLFloaterProperties::postBuild()
 	getChild<LLUICtrl>("CheckPurchase")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitSaleInfo, this));
 	getChild<LLUICtrl>("RadioSaleType")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitSaleType, this));
 	// "Price" label for edit
-	getChild<LLUICtrl>("EditPrice")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitSaleInfo, this));
+	getChild<LLUICtrl>("Edit Cost")->setCommitCallback(boost::bind(&LLFloaterProperties::onCommitSaleInfo, this));
 	// The UI has been built, now fill in all the values
 	refresh();
 
@@ -195,7 +196,7 @@ void LLFloaterProperties::refresh()
 			"CheckNextOwnerTransfer",
 			"CheckPurchase",
 			"RadioSaleType",
-			"EditPrice"
+			"Edit Cost"
 		};
 		for(size_t t=0; t<LL_ARRAY_SIZE(enableNames); ++t)
 		{
@@ -499,7 +500,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 
 		childSetEnabled("RadioSaleType",is_complete && is_for_sale);
 		childSetEnabled("TextPrice",is_complete && is_for_sale);
-		childSetEnabled("EditPrice",is_complete && is_for_sale);
+		childSetEnabled("Edit Cost",is_complete && is_for_sale);
 	}
 	else
 	{
@@ -513,11 +514,13 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 
 		childSetEnabled("RadioSaleType",FALSE);
 		childSetEnabled("TextPrice",FALSE);
-		childSetEnabled("EditPrice",FALSE);
+		childSetEnabled("Edit Cost",FALSE);
 	}
 
 	// Set values.
 	childSetValue("CheckPurchase", is_for_sale);
+	childSetEnabled("combobox sale copy", is_for_sale);
+	childSetEnabled("Edit Cost", is_for_sale);
 	childSetValue("CheckNextOwnerModify",LLSD(BOOL(next_owner_mask & PERM_MODIFY)));
 	childSetValue("CheckNextOwnerCopy",LLSD(BOOL(next_owner_mask & PERM_COPY)));
 	childSetValue("CheckNextOwnerTransfer",LLSD(BOOL(next_owner_mask & PERM_TRANSFER)));
@@ -528,12 +531,12 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 		radioSaleType->setSelectedIndex((S32)sale_info.getSaleType() - 1);
 		S32 numerical_price;
 		numerical_price = sale_info.getSalePrice();
-		childSetText("EditPrice",llformat("%d",numerical_price));
+		childSetText("Edit Cost",llformat("%d",numerical_price));
 	}
 	else
 	{
 		radioSaleType->setSelectedIndex(-1);
-		childSetText("EditPrice",llformat("%d",0));
+		childSetText("Edit Cost",llformat("%d",0));
 	}
 }
 
@@ -790,12 +793,13 @@ void LLFloaterProperties::updateSaleInfo()
 			sale_type = LLSaleInfo::FS_ORIGINAL;
 		}
 
-		LLLineEditor* EditPrice = getChild<LLLineEditor>("EditPrice");
+	//	LLLineEditor* EditPrice = getChild<LLLineEditor>("EditPrice");
+		LLSpinCtrl *EditPrice = getChild<LLSpinCtrl>("Edit Cost");
 		
 		S32 price = -1;
 		if(EditPrice)
 		{
-			price = atoi(EditPrice->getText().c_str());
+			price =  EditPrice->getValue().asInteger();;
 		}
 		// Invalid data - turn off the sale
 		if (price < 0)

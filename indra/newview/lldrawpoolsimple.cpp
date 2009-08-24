@@ -50,7 +50,7 @@ static LLGLSLShader* fullbright_shader = NULL;
 
 void LLDrawPoolGlow::render(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_GLOW);
+	LLFastTimer t(FTM_RENDER_GLOW);
 	LLGLEnable blend(GL_BLEND);
 	LLGLDisable test(GL_ALPHA_TEST);
 	gGL.setSceneBlendType(LLRender::BT_ADD);
@@ -98,7 +98,7 @@ void LLDrawPoolSimple::prerender()
 
 void LLDrawPoolSimple::beginRenderPass(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_SIMPLE);
+	LLFastTimer t(FTM_RENDER_SIMPLE);
 
 	if (LLPipeline::sUnderWaterRender)
 	{
@@ -125,7 +125,7 @@ void LLDrawPoolSimple::beginRenderPass(S32 pass)
 
 void LLDrawPoolSimple::endRenderPass(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_SIMPLE);
+	LLFastTimer t(FTM_RENDER_SIMPLE);
 	LLRenderPass::endRenderPass(pass);
 
 	if (mVertexShaderLevel > 0){
@@ -140,7 +140,7 @@ void LLDrawPoolSimple::render(S32 pass)
 	LLGLDisable alpha_test(GL_ALPHA_TEST);
 	
 	{ //render simple
-		LLFastTimer t(LLFastTimer::FTM_RENDER_SIMPLE);
+		LLFastTimer t(FTM_RENDER_SIMPLE);
 		gPipeline.enableLightsDynamic();
 		renderTexture(LLRenderPass::PASS_SIMPLE, getVertexDataMask());
 
@@ -157,13 +157,13 @@ void LLDrawPoolSimple::render(S32 pass)
 
 void LLDrawPoolSimple::beginDeferredPass(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_SIMPLE);
+	LLFastTimer t(FTM_RENDER_SIMPLE);
 	gDeferredDiffuseProgram.bind();
 }
 
 void LLDrawPoolSimple::endDeferredPass(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_SIMPLE);
+	LLFastTimer t(FTM_RENDER_SIMPLE);
 	LLRenderPass::endRenderPass(pass);
 
 	gDeferredDiffuseProgram.unbind();
@@ -175,7 +175,7 @@ void LLDrawPoolSimple::renderDeferred(S32 pass)
 	LLGLDisable alpha_test(GL_ALPHA_TEST);
 
 	{ //render simple
-		LLFastTimer t(LLFastTimer::FTM_RENDER_SIMPLE);
+		LLFastTimer t(FTM_RENDER_SIMPLE);
 		renderTexture(LLRenderPass::PASS_SIMPLE, getVertexDataMask());
 	}
 }
@@ -195,7 +195,7 @@ void LLDrawPoolGrass::prerender()
 
 void LLDrawPoolGrass::beginRenderPass(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_GRASS);
+	LLFastTimer t(FTM_RENDER_GRASS);
 
 	if (LLPipeline::sUnderWaterRender)
 	{
@@ -222,7 +222,7 @@ void LLDrawPoolGrass::beginRenderPass(S32 pass)
 
 void LLDrawPoolGrass::endRenderPass(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_GRASS);
+	LLFastTimer t(FTM_RENDER_GRASS);
 	LLRenderPass::endRenderPass(pass);
 
 	if (mVertexShaderLevel > 0)
@@ -237,7 +237,7 @@ void LLDrawPoolGrass::render(S32 pass)
 	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 
 	{
-		LLFastTimer t(LLFastTimer::FTM_RENDER_GRASS);
+		LLFastTimer t(FTM_RENDER_GRASS);
 		LLGLEnable test(GL_ALPHA_TEST);
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		//render grass
@@ -262,7 +262,7 @@ void LLDrawPoolGrass::renderDeferred(S32 pass)
 	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 
 	{
-		LLFastTimer t(LLFastTimer::FTM_RENDER_GRASS);
+		LLFastTimer t(FTM_RENDER_GRASS);
 		gDeferredTreeProgram.bind();
 		LLGLEnable test(GL_ALPHA_TEST);
 		//render grass
@@ -286,7 +286,7 @@ void LLDrawPoolFullbright::prerender()
 
 void LLDrawPoolFullbright::beginRenderPass(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_FULLBRIGHT);
+	LLFastTimer t(FTM_RENDER_FULLBRIGHT);
 	
 	if (LLPipeline::sUnderWaterRender)
 	{
@@ -300,7 +300,7 @@ void LLDrawPoolFullbright::beginRenderPass(S32 pass)
 
 void LLDrawPoolFullbright::endRenderPass(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_FULLBRIGHT);
+	LLFastTimer t(FTM_RENDER_FULLBRIGHT);
 	LLRenderPass::endRenderPass(pass);
 
 	if (mVertexShaderLevel > 0)
@@ -311,7 +311,7 @@ void LLDrawPoolFullbright::endRenderPass(S32 pass)
 
 void LLDrawPoolFullbright::render(S32 pass)
 { //render fullbright
-	LLFastTimer t(LLFastTimer::FTM_RENDER_FULLBRIGHT);
+	LLFastTimer t(FTM_RENDER_FULLBRIGHT);
 	if (mVertexShaderLevel > 0)
 	{
 		fullbright_shader->bind();

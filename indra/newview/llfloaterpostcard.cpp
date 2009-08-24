@@ -43,8 +43,8 @@
 #include "llagent.h"
 #include "llui.h"
 #include "lllineeditor.h"
-#include "llviewertexteditor.h"
 #include "llbutton.h"
+#include "lltexteditor.h"
 #include "llfloaterreg.h"
 #include "llviewercontrol.h"
 #include "llviewernetwork.h"
@@ -104,14 +104,8 @@ BOOL LLFloaterPostcard::postBuild()
 	gAgent.buildFullname(name_string);
 	childSetValue("name_form", LLSD(name_string));
 
-	LLTextEditor* MsgField = getChild<LLTextEditor>("msg_form");
-	if (MsgField)
-	{
-		MsgField->setWordWrap(TRUE);
-
-		// For the first time a user focusess to .the msg box, all text will be selected.
-		MsgField->setFocusChangedCallback(onMsgFormFocusRecieved, this);
-	}
+	// For the first time a user focusess to .the msg box, all text will be selected.
+	getChild<LLUICtrl>("msg_form")->setFocusChangedCallback(onMsgFormFocusRecieved, this);
 	
 	childSetFocus("to_form", TRUE);
 

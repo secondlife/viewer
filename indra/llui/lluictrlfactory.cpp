@@ -45,31 +45,7 @@
 #include "llquaternion.h"
 
 // this library includes
-#include "llbutton.h"
-#include "llcheckboxctrl.h"
-//#include "llcolorswatch.h"
-#include "llcombobox.h"
-#include "llcontrol.h"
-#include "lldir.h"
-#include "llevent.h"
 #include "llfloater.h"
-#include "lliconctrl.h"
-#include "lllineeditor.h"
-#include "llmenugl.h"
-#include "llradiogroup.h"
-#include "llscrollcontainer.h"
-#include "llscrollingpanellist.h"
-#include "llscrolllistctrl.h"
-#include "llslider.h"
-#include "llsliderctrl.h"
-#include "llmultislider.h"
-#include "llmultisliderctrl.h"
-#include "llspinctrl.h"
-#include "lltabcontainer.h"
-#include "lltextbox.h"
-#include "lltexteditor.h"
-#include "llui.h"
-#include "llviewborder.h"
 
 LLFastTimer::DeclareTimer FTM_WIDGET_CONSTRUCTION("Widget Construction");
 LLFastTimer::DeclareTimer FTM_INIT_FROM_PARAMS("Widget InitFromParams");
@@ -149,7 +125,7 @@ void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const wid
 
 }
 
-LLFastTimer::DeclareTimer FTM_XML_PARSE("XML Reading/Parsing");
+static LLFastTimer::DeclareTimer FTM_XML_PARSE("XML Reading/Parsing");
 //-----------------------------------------------------------------------------
 // getLayeredXMLNode()
 //-----------------------------------------------------------------------------
@@ -177,14 +153,14 @@ bool LLUICtrlFactory::getLocalizedXMLNode(const std::string &xui_filename, LLXML
 	}
 }
 
-static LLFastTimer::DeclareTimer BUILD_FLOATERS("Build Floaters");
+static LLFastTimer::DeclareTimer FTM_BUILD_FLOATERS("Build Floaters");
 
 //-----------------------------------------------------------------------------
 // buildFloater()
 //-----------------------------------------------------------------------------
 void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filename, LLXMLNodePtr output_node)
 {
-	LLFastTimer timer(BUILD_FLOATERS);
+	LLFastTimer timer(FTM_BUILD_FLOATERS);
 	LLXMLNodePtr root;
 
 	//if exporting, only load the language being exported, 
@@ -248,14 +224,14 @@ S32 LLUICtrlFactory::saveToXML(LLView* viewp, const std::string& filename)
 	return 0;
 }
 
-static LLFastTimer::DeclareTimer BUILD_PANELS("Build Panels");
+static LLFastTimer::DeclareTimer FTM_BUILD_PANELS("Build Panels");
 
 //-----------------------------------------------------------------------------
 // buildPanel()
 //-----------------------------------------------------------------------------
 BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const std::string& filename, LLXMLNodePtr output_node)
 {
-	LLFastTimer timer(BUILD_PANELS);
+	LLFastTimer timer(FTM_BUILD_PANELS);
 	BOOL didPost = FALSE;
 	LLXMLNodePtr root;
 
@@ -317,7 +293,7 @@ BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const std::string& filename, L
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-LLFastTimer::DeclareTimer FTM_CREATE_FROM_XML("Create child widget");
+static LLFastTimer::DeclareTimer FTM_CREATE_FROM_XML("Create child widget");
 
 LLView *LLUICtrlFactory::createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename, const widget_registry_t& registry, LLXMLNodePtr output_node)
 {
