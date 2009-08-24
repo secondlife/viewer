@@ -186,6 +186,7 @@
 #include "llinventorybridge.h"
 
 #include "lllogin.h"
+#include "llevents.h"
 
 #if LL_LIBXUL_ENABLED
 #include "llmozlib.h"
@@ -234,6 +235,7 @@ static std::string gFirstSimSeedCap;
 static LLVector3 gAgentStartLookAt(1.0f, 0.f, 0.f);
 static std::string gAgentStartLocation = "safe";
 
+static LLEventStream sStartupStateWatcher("StartupState");
 
 //
 // local function declaration
@@ -2637,14 +2639,17 @@ std::string LLStartUp::startupStateToString(EStartupState state)
 #undef RTNENUM
 }
 
-
 // static
 void LLStartUp::setStartupState( EStartupState state )
 {
 	LL_INFOS("AppInit") << "Startup state changing from " <<  
-		startupStateToString(gStartupState) << " to " <<  
+		getStartupStateString() << " to " <<  
 		startupStateToString(state) << LL_ENDL;
 	gStartupState = state;
+	LLSD stateInfo;
+	stateInfo["str"] = getStartupStateString();
+	stateInfo["enum"] = state;
+	sStartupStateWatcher.post(stateInfo);
 }
 
 
