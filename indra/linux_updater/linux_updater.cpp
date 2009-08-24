@@ -258,7 +258,7 @@ void display_error(GtkWidget *parent, std::string title, std::string message)
 					GTK_DIALOG_DESTROY_WITH_PARENT,
 					GTK_MESSAGE_ERROR,
 					GTK_BUTTONS_OK,
-					message.c_str());
+					"%s", message.c_str());
 	gtk_window_set_title(GTK_WINDOW(dialog), title.c_str());
 	gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
@@ -538,12 +538,12 @@ gboolean install_package(std::string package_file, std::string destination)
 
 	char *package_file_string_copy = g_strdup(package_file.c_str());
 	char *tmp_dest_dir_string_copy = g_strdup(tmp_dest_dir.c_str());
-	char *argv[8] = {
+	gchar *argv[8] = {
 		tar_cmd,
-		"--strip", "1",
-		"-xjf",
+		const_cast<gchar*>("--strip"), const_cast<gchar*>("1"),
+		const_cast<gchar*>("-xjf"),
 		package_file_string_copy,
-		"-C", tmp_dest_dir_string_copy,
+		const_cast<gchar*>("-C"), tmp_dest_dir_string_copy,
 		NULL,
 	};
 
