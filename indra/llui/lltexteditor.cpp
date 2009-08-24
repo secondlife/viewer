@@ -94,6 +94,12 @@ struct LLTextEditor::compare_bottom
 	{
 		return a.mBottom > b; // bottom of a is higher than bottom of b
 	}
+
+	bool operator()(const LLTextEditor::line_info& a, const LLTextEditor::line_info& b) const
+	{
+		return a.mBottom > b.mBottom; // bottom of a is higher than bottom of b
+	}
+
 };
 
 // helper functors
@@ -108,6 +114,11 @@ struct LLTextEditor::compare_top
 	{
 		return a.mTop > b; // top of a is higher than top of b
 	}
+
+	bool operator()(const LLTextEditor::line_info& a, const LLTextEditor::line_info& b) const
+	{
+		return a.mTop > b.mTop; // top of a is higher than top of b
+	}
 };
 
 struct LLTextEditor::line_end_compare
@@ -120,6 +131,11 @@ struct LLTextEditor::line_end_compare
 	bool operator()(const LLTextEditor::line_info& info, const S32& pos) const
 	{
 		return (info.mDocIndexEnd < pos);
+	}
+
+	bool operator()(const LLTextEditor::line_info& a, const LLTextEditor::line_info& b) const
+	{
+		return (a.mDocIndexEnd < b.mDocIndexEnd);
 	}
 
 };
