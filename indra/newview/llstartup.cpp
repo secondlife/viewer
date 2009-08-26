@@ -1088,6 +1088,7 @@ bool idle_startup()
 		requested_options.push_back("event_categories");
 		requested_options.push_back("event_notifications");
 		requested_options.push_back("classified_categories");
+		requested_options.push_back("adult_compliant"); 
 		//requested_options.push_back("inventory-targets");
 		requested_options.push_back("buddy-list");
 		requested_options.push_back("ui-config");
