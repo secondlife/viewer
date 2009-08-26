@@ -192,6 +192,8 @@ public:
 
 public:
 	virtual bool 	isSelf() const { return false; } // True if this avatar is for this viewer's agent
+	bool isBuilt() const { return mIsBuilt; }
+	
 private:
 	BOOL			mSupportsAlphaLayers; // For backwards compatibility, TRUE for 1.23+ clients
 
