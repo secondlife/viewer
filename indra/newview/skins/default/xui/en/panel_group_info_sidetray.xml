@@ -16,26 +16,25 @@
      name="want_apply_text">
         Do you want to apply these changes?
     </panel.string>
-
-	<button 
+    
+    <button 
      layout="topleft" 
      name="back" 
-     left="5" 
-     top="5" 
-     width="20" 
-     height="20" 
+     right="-9" 
+     top="0" 
+     width="25" 
+     height="25" 
      label=""
      follows="top|left"
-     image_selected="navbar_bg_button.tga"
-     image_unselected="navbar_bg_button.tga"
-     image_overlay="navbar_back.tga"/>
+     image_overlay="BackArrow_Off"
+     tab_stop="false" />
     <text 
      layout="topleft" 
-     top="5" 
-     left_pad="15" 
-     width="200" 
+     top="0" 
+     left="10" 
+     width="250" 
      height="20" 
-     font="SansSerifBold" 
+     font="SansSerifHugeBold" 
      text_color="white" 
      follows="top|left|right"
      mouse_opaque="true" 
@@ -100,7 +99,7 @@
      left="5"
      visible="false"
      width="65" />
-      <accordion layout="topleft" left="2" width="296" top="135" height="600" follows="all" name="panel_me_profile">
+      <accordion layout="topleft" left="2" width="296" top="135" height="600" follows="all" name="group_accordion">
 		<accordion_tab min_height="515" title="Group General" name="group_general_tab">
         	<panel class="panel_group_general" filename="panel_group_general.xml" name="group_general_tab_panel"/>
 		</accordion_tab>

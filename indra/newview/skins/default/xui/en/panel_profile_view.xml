@@ -40,33 +40,53 @@
      tab_stop="false"
      top="0"
      width="25" />
-    <tab_container
-     follows="left|top|right|bottom"
-     height="420"
-     layout="topleft"
-     left="10"
-     name="tabs"
-     tab_min_width="75"
-     tab_position="top"
-     top_pad="15"
-     width="285">
-        <panel
-         class="panel_profile"
-         filename="panel_profile.xml"
-         label="Profile"
+        <layout_stack
+         name="layout_stack"
+         orientation="vertical"
          layout="topleft"
-         name="panel_profile" />
-        <panel
-         class="panel_picks"
-         filename="panel_picks.xml"
-         label="Picks"
-         layout="topleft"
-         name="panel_picks" />
-        <panel
-         class="panel_notes"
-         filename="panel_notes.xml"
-         label="Notes &amp; Privacy"
-         layout="topleft"
-         name="panel_notes" />
-    </tab_container>
+         follows="all"
+         left="0"
+         top="50"
+         height="500"
+         width="305" 
+         border_size="0">
+            <panel
+             name="stack_panel"
+             follows="all"
+             layout="topleft"
+             top="0"
+             left="0"
+             height="500"
+             width="305">
+            <tab_container
+             follows="all"
+             height="500"
+             layout="topleft"
+             left="10"
+             name="tabs"
+             tab_min_width="75"
+             tab_position="top"
+             top="0"
+             width="280">
+                <panel
+                 class="panel_profile"
+                 filename="panel_profile.xml"
+                 label="Profile"
+                 layout="topleft"
+                 name="panel_profile" />
+                <panel
+                 class="panel_picks"
+                 filename="panel_picks.xml"
+                 label="Picks"
+                 layout="topleft"
+                 name="panel_picks" />
+                <panel
+                 class="panel_notes"
+                 filename="panel_notes.xml"
+                 label="Notes &amp; Privacy"
+                 layout="topleft"
+                 name="panel_notes" />
+            </tab_container>
+        </panel>
+    </layout_stack>
 </panel>

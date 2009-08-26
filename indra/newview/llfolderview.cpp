@@ -34,7 +34,6 @@
 
 #include "llfolderview.h"
 
-#include "llagent.h"
 #include "llcallbacklist.h"
 #include "llinventorybridge.h"
 #include "llinventoryclipboard.h" // *TODO: remove this once hack below gone.

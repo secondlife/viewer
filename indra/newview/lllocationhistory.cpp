@@ -49,8 +49,15 @@ void LLLocationHistory::addItem(const std::string & item, const std::string & to
 	static LLUICachedControl<S32> max_items("LocationHistoryMaxSize", 100);
 
 	// check if this item doesn't duplicate any existing one
-	if (touchItem(item)) {
-		return;
+	std::vector<std::string>::iterator item_iter = std::find_if(mItems.begin(), mItems.end(),
+			boost::bind(&LLLocationHistory::equalByRegionParcel,this,_1,item));
+	if(item_iter != mItems.end()){
+	/*replace duplicate.
+	 * If an item's region and item's parcel are  equal.
+	 */
+		mToolTips.erase(*item_iter);
+		mItems.erase(item_iter);	
+		
 	}
 
 	mItems.push_back(item);
@@ -65,6 +72,21 @@ void LLLocationHistory::addItem(const std::string & item, const std::string & to
 	}
 }
 
+/**
+ * check if the history item is equal.
+ * @return  true - if region name and parcel is equal.  
+ */
+bool LLLocationHistory::equalByRegionParcel(const std::string& item, const std::string& newItem){
+
+	
+	S32 itemIndex = item.find('(');
+	S32 newItemIndex = newItem.find('(');
+	
+	std::string region_parcel  = item.substr(0,itemIndex);
+	std::string new_region_parcel  = newItem.substr(0,newItemIndex);
+	
+	return region_parcel == new_region_parcel;
+}
 bool LLLocationHistory::touchItem(const std::string & item) {
 	bool result = false;
 	std::vector<std::string>::iterator item_iter = std::find(mItems.begin(), mItems.end(), item);
@@ -135,7 +157,13 @@ void LLLocationHistory::save() const
 	}
 
 	for (location_list_t::const_iterator it = mItems.begin(); it != mItems.end(); ++it)
-		file << (*it) << delimiter << mToolTips.find(*it)->second << std::endl;
+	{
+		std::string tooltip =  getToolTip(*it);
+		if(!tooltip.empty())
+		{
+			file << (*it) << delimiter << tooltip << std::endl;
+		}
+	}
 
 	file.close();
 }

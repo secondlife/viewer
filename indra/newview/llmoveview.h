@@ -67,6 +67,7 @@ public:
 	// let update its position in each frame
 	/*virtual*/ void draw(){updatePosition(); LLFloater::draw();}
 
+	static void sUpdateFlyingStatus();
 
 protected:
 	void turnLeft();

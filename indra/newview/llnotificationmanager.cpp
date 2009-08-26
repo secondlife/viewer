@@ -62,18 +62,21 @@ void LLNotificationManager::init()
 	LLNotificationChannel::buildChannel("Group Notifications", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "groupnotify"));
 	LLNotificationChannel::buildChannel("Alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert"));
 	LLNotificationChannel::buildChannel("AlertModal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal"));
+	LLNotificationChannel::buildChannel("IM Notifications", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "notifytoast"));
   
 	LLNotifications::instance().getChannel("Notifications")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
 	LLNotifications::instance().getChannel("NotificationTips")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
 	LLNotifications::instance().getChannel("Group Notifications")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
 	LLNotifications::instance().getChannel("Alerts")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
 	LLNotifications::instance().getChannel("AlertModal")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
+	LLNotifications::instance().getChannel("IM Notifications")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
 
 	mNotifyHandlers["notify"] = boost::shared_ptr<LLEventHandler>(new LLInfoHandler(NT_NOTIFY, LLSD()));
 	mNotifyHandlers["notifytip"] =  mNotifyHandlers["notify"];
 	mNotifyHandlers["groupnotify"] = boost::shared_ptr<LLEventHandler>(new LLGroupHandler(NT_GROUPNOTIFY, LLSD()));
 	mNotifyHandlers["alert"] = boost::shared_ptr<LLEventHandler>(new LLAlertHandler(NT_ALERT, LLSD()));
 	mNotifyHandlers["alertmodal"] = mNotifyHandlers["alert"];
+	mNotifyHandlers["notifytoast"] = boost::shared_ptr<LLEventHandler>(new LLIMHandler());
 	
 	mNotifyHandlers["nearbychat"] = boost::shared_ptr<LLEventHandler>(new LLNearbyChatHandler(NT_NEARBYCHAT, LLSD()));
 }

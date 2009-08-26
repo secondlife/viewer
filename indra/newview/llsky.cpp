@@ -52,7 +52,6 @@
 #include "llviewerobject.h"
 #include "llviewercamera.h"
 #include "pipeline.h"
-#include "llagent.h"
 #include "lldrawpool.h"
 
 #include "llvosky.h"
@@ -422,20 +421,6 @@ void LLSky::updateFog(const F32 distance)
 
 void LLSky::updateCull()
 {
-	/*if (mVOSkyp.notNull() && mVOSkyp->mDrawable.notNull())
-	{
-		gPipeline.markVisible(mVOSkyp->mDrawable);
-	}
-	else
-	{
-		llinfos << "No sky drawable!" << llendl;
-	}*/
-
-	/*if (mVOGroundp.notNull() && mVOGroundp->mDrawable.notNull())
-	{
-		gPipeline.markVisible(mVOGroundp->mDrawable);
-	}*/
-
 	// *TODO: do culling for wl sky properly -Brad
 }
 

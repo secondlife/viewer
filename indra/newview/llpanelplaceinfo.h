@@ -55,9 +55,10 @@ class LLPanelPlaceInfo : public LLPanel, LLRemoteParcelInfoObserver
 public:
 	enum INFO_TYPE
 	{
+		AGENT,
 		CREATE_LANDMARK,
-		PLACE,
 		LANDMARK,
+		PLACE,
 		TELEPORT_HISTORY
 	};
 
@@ -133,6 +134,8 @@ private:
 	LLTextBox*			mParcelName;
 	LLTextEditor*		mDescEditor;
 	LLIconCtrl*			mRating;
+	LLButton*			mRegionInfoDrillIn;
+	LLButton*			mMediaDrillIn;
 	LLTextBox*			mOwner;
 	LLTextBox*			mCreator;
 	LLTextBox*			mCreated;

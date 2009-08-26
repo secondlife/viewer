@@ -382,6 +382,7 @@ public:
 										create_jump_keys,
 										keep_fixed_size,
 										scrollable;
+		Optional<U32>					max_scrollable_items;
 		Optional<LLUIColor>				bg_color;
 		Optional<S32>					shortcut_pad;
 
@@ -394,6 +395,7 @@ public:
 			create_jump_keys("create_jump_keys", false),
 			bg_color("bg_color",  LLUIColorTable::instance().getColor( "MenuDefaultBgColor" )),
 			scrollable("scrollable", false), 
+			max_scrollable_items("max_scrollable_items", U32_MAX),
 			shortcut_pad("shortcut_pad")
 		{
 			addSynonym(bg_visible, "opaque");
@@ -541,6 +543,7 @@ protected:
 	S32				mLastMouseY;
 	S32				mMouseVelX;
 	S32				mMouseVelY;
+	U32				mMaxScrollableItems;
 	BOOL			mHorizontalLayout;
 	BOOL			mScrollable;
 	BOOL			mKeepFixedSize;

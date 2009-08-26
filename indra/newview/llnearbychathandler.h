@@ -51,6 +51,7 @@ public:
 	virtual void onChicletClose(void);
 
 protected:
+	void removeNearbyToastsAndShowChat();
 };
 
 }

@@ -41,7 +41,6 @@
 #include "lluuid.h"
 
 #include "llcachename.h"
-#include "llagent.h"
 
 // statics
 std::set<LLNameBox*> LLNameBox::sInstances;

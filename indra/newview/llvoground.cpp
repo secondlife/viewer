@@ -37,7 +37,6 @@
 
 #include "llviewercontrol.h"
 
-#include "llagent.h"
 #include "lldrawable.h"
 #include "llface.h"
 #include "llsky.h"

@@ -72,7 +72,7 @@
 #include "object_flags.h"
 #include "llimview.h"
 #include "llrootview.h"
-
+#include "llagentui.h"
 
 // MAX ITEMS is based on (sizeof(uuid)+2) * count must be < MTUBYTES
 // or 18 * count < 1200 => count < 1200/18 => 66. I've cut it down a
@@ -1563,7 +1563,7 @@ void LLToolDragAndDrop::commitGiveInventoryItem(const LLUUID& to_agent,
 {
 	if(!item) return;
 	std::string name;
-	gAgent.buildFullname(name);
+	LLAgentUI::buildFullname(name);
 	LLUUID transaction_id;
 	transaction_id.generate();
 	const S32 BUCKET_SIZE = sizeof(U8) + UUID_BYTES;
@@ -1762,7 +1762,7 @@ void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
 	else
 	{
 		std::string name;
-		gAgent.buildFullname(name);
+		LLAgentUI::buildFullname(name);
 		LLUUID transaction_id;
 		transaction_id.generate();
 		S32 bucket_size = (sizeof(U8) + UUID_BYTES) * (count + 1);

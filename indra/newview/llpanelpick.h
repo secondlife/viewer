@@ -38,12 +38,13 @@
 #define LL_LLPANELPICK_H
 
 #include "llpanel.h"
+#include "llremoteparcelrequest.h"
 
 class LLTextureCtrl;
 class LLMessageSystem;
 class LLAvatarPropertiesObserver;
 
-class LLPanelPick : public LLPanel, public LLAvatarPropertiesObserver
+class LLPanelPick : public LLPanel, public LLAvatarPropertiesObserver, LLRemoteParcelInfoObserver
 {
 	LOG_CLASS(LLPanelPick);
 public:
@@ -79,6 +80,10 @@ public:
 	static void teleport(const LLVector3d& position);
 	static void showOnMap(const LLVector3d& position);
 
+	//This stuff we got from LLRemoteParcelObserver, in the last two we intentionally do nothing
+	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
+	/*virtual*/ void setParcelID(const LLUUID& parcel_id) {};
+	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason) {};
 
 protected:
 

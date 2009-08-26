@@ -49,6 +49,7 @@
 #include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"
+#include "llsearcheditor.h"
 #include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llfocusmgr.h"
@@ -464,9 +465,7 @@ LLPanelGroupSubTab::LLPanelGroupSubTab()
 :	LLPanelGroupTab(),
 	mHeader(NULL),
 	mFooter(NULL),
-	mSearchLineEditor(NULL),
-	mSearchButton(NULL),
-	mShowAllButton(NULL)
+	mSearchEditor(NULL)
 {
 }
 
@@ -478,22 +477,14 @@ BOOL LLPanelGroupSubTab::postBuild()
 {
 	// Hook up the search widgets.
 	bool recurse = true;
-	mSearchLineEditor = getChild<LLLineEditor>("search_text", recurse);
+	mSearchEditor = getChild<LLSearchEditor>("filter_input", recurse);
 
-	if (!mSearchLineEditor) return FALSE;
-	mSearchLineEditor->setKeystrokeCallback(onSearchKeystroke, this);
+	if (!mSearchEditor) 
+		return FALSE;
 
-	mSearchButton = getChild<LLButton>("search_button", recurse);
+	mSearchEditor->setCommitCallback(boost::bind(&LLPanelGroupSubTab::onClickSearch, this));
+	mSearchEditor->setKeystrokeCallback(onSearchKeystroke, this);
 
-	if (!mSearchButton) return FALSE;
-	mSearchButton->setClickedCallback(onClickSearch, this);
-	mSearchButton->setEnabled(FALSE);
-
-	mShowAllButton = getChild<LLButton>("show_all_button", recurse);
-
-	if (!mShowAllButton) return FALSE;
-	mShowAllButton->setClickedCallback(onClickShowAll, this);
-	mShowAllButton->setEnabled(FALSE);
 	
 	// Get icons for later use.
 	mActionIcons.clear();
@@ -516,63 +507,35 @@ BOOL LLPanelGroupSubTab::postBuild()
 	return LLPanelGroupTab::postBuild();
 }
 
+void LLPanelGroupSubTab::setGroupID(const LLUUID& id)
+{
+	LLPanelGroupTab::setGroupID(id);
+	if(mSearchEditor)
+	{
+		mSearchEditor->clear();
+		setSearchFilter("");
+	}
+}
+
 // static
 void LLPanelGroupSubTab::onSearchKeystroke(LLLineEditor* caller, void* user_data)
 {
 	LLPanelGroupSubTab* self = static_cast<LLPanelGroupSubTab*>(user_data);
 	self->handleSearchKeystroke(caller);
+
 }
 
 void LLPanelGroupSubTab::handleSearchKeystroke(LLLineEditor* caller)
 {
-	if (caller->getText().size())
-	{
-		setDefaultBtn( mSearchButton );
-		mSearchButton->setEnabled(TRUE);
-	}
-	else
-	{
-		setDefaultBtn( NULL );
-		mSearchButton->setEnabled(FALSE);
-	}
+	setSearchFilter( caller->getText() );
 }
 
 // static 
-void LLPanelGroupSubTab::onClickSearch(void* user_data)
+void LLPanelGroupSubTab::onClickSearch()
 {
-	LLPanelGroupSubTab* self = static_cast<LLPanelGroupSubTab*>(user_data);
-	self->handleClickSearch();
+	setSearchFilter( mSearchEditor->getText() );
 }
  
-void LLPanelGroupSubTab::handleClickSearch()
-{
-	lldebugs << "LLPanelGroupSubTab::handleClickSearch()" << llendl;
-
-	if (0 == mSearchLineEditor->getText().size())
-	{
-		// No search text.  (This shouldn't happen... the search button should have been disabled).
-		llwarns << "handleClickSearch with no search text!" << llendl;
-		mSearchButton->setEnabled(FALSE);
-		return;
-	}
-
-	setSearchFilter( mSearchLineEditor->getText() );
-	mShowAllButton->setEnabled(TRUE);
-}
-
-// static
-void LLPanelGroupSubTab::onClickShowAll(void* user_data)
-{
-	LLPanelGroupSubTab* self = static_cast<LLPanelGroupSubTab*>(user_data);
-	self->handleClickShowAll();
-}
-
-void LLPanelGroupSubTab::handleClickShowAll()
-{
-	lldebugs << "LLPanelGroupSubTab::handleClickShowAll()" << llendl;
-	setSearchFilter( LLStringUtil::null );
-	mShowAllButton->setEnabled(FALSE);
-}
 
 void LLPanelGroupSubTab::setSearchFilter(const std::string& filter)
 {
@@ -890,6 +853,12 @@ BOOL LLPanelGroupMembersSubTab::postBuildSubTab(LLView* root)
 	}
 
 	return TRUE;
+}
+
+void LLPanelGroupMembersSubTab::setGroupID(const LLUUID& id)
+{
+	LLPanelGroupSubTab::setGroupID(id);
+
 }
 
 
@@ -2583,19 +2552,15 @@ void LLPanelGroupRoles::setGroupID(const LLUUID& id)
 	if(group_members_tab) group_members_tab->setGroupID(id);
 	if(group_roles_tab) group_roles_tab->setGroupID(id);
 	if(group_actions_tab) group_actions_tab->setGroupID(id);
-	
+
+	LLButton* button = getChild<LLButton>("member_invite");
+	if ( button )
+		button->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_MEMBER_INVITE));
+
+	if(mSubTabContainer)
+		mSubTabContainer->selectTab(0);
+
 	activate();
-
-	if (!mSubTabContainer) return ;
-
-	// Hook up each sub-tabs callback and widgets.
-	for (S32 i = 0; i < mSubTabContainer->getTabCount(); ++i)
-	{
-		LLPanel* panel = mSubTabContainer->getPanelByIndex(i);
-		LLPanelGroupSubTab* subtabp = dynamic_cast<LLPanelGroupSubTab*>(panel);
-		if (subtabp)
-			subtabp->postBuildSubTab(this);
-	}
 }
 
 

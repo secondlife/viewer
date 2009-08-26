@@ -55,6 +55,10 @@ static LLDefaultChildRegistry::Register<LLTalkButton> t2("chiclet_talk");
 static LLDefaultChildRegistry::Register<LLNotificationChiclet> t3("chiclet_notification");
 static LLDefaultChildRegistry::Register<LLIMChiclet> t4("chiclet_im");
 
+S32 LLNotificationChiclet::mUreadSystemNotifications = 0;
+S32 LLNotificationChiclet::mUreadIMNotifications = 0;
+
+
 boost::signals2::signal<LLChiclet* (const LLUUID&),
 		LLIMChiclet::CollectChicletCombiner<std::list<LLChiclet*> > >
 		LLIMChiclet::sFindChicletsSignal;
@@ -113,6 +117,12 @@ boost::signals2::connection LLNotificationChiclet::setClickCallback(
 	const commit_callback_t& cb)
 {
 	return mButton->setClickedCallback(cb);
+}
+
+void LLNotificationChiclet::updateUreadIMNotifications()
+{
+	mUreadIMNotifications = gIMMgr->getNumberOfUnreadIM();
+	setCounter(mUreadSystemNotifications + mUreadIMNotifications);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -269,6 +279,12 @@ void LLIMChiclet::setCounter(S32 counter)
 	}
 }
 
+void LLIMChiclet::onMouseDown()
+{
+	LLIMFloater::toggle(getSessionId());
+	setCounter(0);
+}
+
 LLRect LLIMChiclet::getRequiredRect()
 {
 	LLRect rect(0, 0, mAvatarCtrl->getRect().getWidth(), 0);
@@ -296,6 +312,38 @@ void LLIMChiclet::setShowCounter(bool show)
 	}
 }
 
+
+void LLIMChiclet::setSessionId(const LLUUID& session_id)
+{
+	LLChiclet::setSessionId(session_id);
+
+	//for a group chat session_id = group_id
+	LLFloaterIMPanel* im = LLIMMgr::getInstance()->findFloaterBySession(session_id);
+	if (!im) return; //should never happen
+	
+	EInstantMessage type = im->getDialogType();
+	if (type == IM_SESSION_INVITE || type == IM_SESSION_GROUP_START)
+	{
+		if (!gAgent.isInGroup(session_id)) return;
+
+		if (mGroupInsignia) {
+			LLGroupMgr* grp_mgr = LLGroupMgr::getInstance();
+			LLGroupMgrGroupData* group_data = grp_mgr->getGroupData(session_id);
+			if (group_data && group_data->mInsigniaID.notNull())
+			{
+				mGroupInsignia->setVisible(TRUE);
+				mGroupInsignia->setValue(group_data->mInsigniaID);
+			}
+			else
+			{
+				mID = session_id; //needed for LLGroupMgrObserver
+				grp_mgr->addObserver(this);
+				grp_mgr->sendGroupPropertiesRequest(session_id);
+			}
+		}
+	}	
+}
+
 void LLIMChiclet::setIMSessionName(const std::string& name)
 {
 	setToolTip(name);
@@ -311,48 +359,13 @@ void LLIMChiclet::setOtherParticipantId(const LLUUID& other_participant_id)
 	//all alive sessions have alive floater, haven't they?
 	llassert(floater);
 
-	//in case participant id is being replaced with different id for a group chat
-	if (mOtherParticipantId.notNull() && mOtherParticipantId != other_participant_id && 
-		mID.notNull() && mGroupInsignia->getValue().isUUID())
-	{
-		LLGroupMgr::getInstance()->removeObserver(this);
-	}
-
 	mOtherParticipantId = other_participant_id;
 
-	switch (floater->getDialogType())
+	if (mAvatarCtrl && floater->getDialogType() == IM_NOTHING_SPECIAL)
 	{
-		case IM_NOTHING_SPECIAL: 
-			if (mAvatarCtrl) {
-				mAvatarCtrl->setVisible(TRUE);
-				mAvatarCtrl->setValue(other_participant_id);
-			}
-			break;
-		case IM_SESSION_GROUP_START:
-			{
-				if (mGroupInsignia) {
-					LLGroupMgr* grp_mgr = LLGroupMgr::getInstance();
-					LLGroupMgrGroupData* group_data = grp_mgr->getGroupData(other_participant_id);
-					if (group_data && group_data->mInsigniaID.notNull())
-					{
-						mGroupInsignia->setVisible(TRUE);
-						mGroupInsignia->setValue(group_data->mInsigniaID);
-					}
-					else
-					{
-						mID = mOtherParticipantId; //needed for LLGroupMgrObserver
-						grp_mgr->addObserver(this);
-						grp_mgr->sendGroupPropertiesRequest(mOtherParticipantId);
-					}
-				}
-			}
-			
-			break;
-		default:
-			llwarning("Unsupported dialog type", 0); 
-			break;
+		mAvatarCtrl->setVisible(TRUE);
+		mAvatarCtrl->setValue(other_participant_id);
 	}
-
 }
 
 
@@ -363,7 +376,7 @@ void LLIMChiclet::changed(LLGroupChange gc)
 
 	if (GC_PROPERTIES == gc)
 	{
-		LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->getGroupData(mOtherParticipantId);
+		LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->getGroupData(getSessionId());
 		if (group_data && group_data->mInsigniaID.notNull())
 		{
 			mGroupInsignia->setVisible(TRUE);
@@ -395,8 +408,7 @@ void LLIMChiclet::updateMenuItems()
 
 BOOL LLIMChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	LLIMFloater::toggle(getSessionId());
-	setCounter(0);
+	onMouseDown();
 	return LLChiclet::handleMouseDown(x, y, mask);
 }
 

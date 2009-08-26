@@ -52,8 +52,7 @@ class LLLineEditor;
  */
 
 class LLToastAlertPanel
-	: public LLToastPanel,
-	  public LLFloater
+	: public LLToastPanel
 {
 public:
 	typedef bool (*display_callback_t)(S32 modal);

@@ -147,6 +147,10 @@ private:
 	/**
 	 * Update current location.
 	 * 
+	 * @param new_pos Current agent global position. After local teleports we
+	 *                cannot rely on gAgent.getPositionGlobal(),
+	 *                so the new position gets passed explicitly.
+	 * 
 	 * Called when a teleport finishes.
 	 * Called via callback set on the LLViewerParcelMgr "teleport finished" signal.
 	 *
@@ -158,7 +162,7 @@ private:
 	 * @see mRequestedItem
 	 * @see mGotInitialUpdate
 	 */
-	void					updateCurrentLocation();
+	void					updateCurrentLocation(const LLVector3d& new_pos);
 	
 	/**
 	 * Invokes the "history changed" callback(s).

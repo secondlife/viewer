@@ -43,6 +43,7 @@ class LLPanelGroupActionsSubTab;
 class LLScrollListCtrl;
 class LLScrollListItem;
 class LLTextEditor;
+class LLSearchEditor;
 
 // Forward declare for friend usage.
 //virtual BOOL LLPanelGroupSubTab::postBuildSubTab(LLView*);
@@ -113,10 +114,7 @@ public:
 	static void onSearchKeystroke(LLLineEditor* caller, void* user_data);
 	void handleSearchKeystroke(LLLineEditor* caller);
 
-	static void onClickSearch(void*);
-	void handleClickSearch();
-	static void onClickShowAll(void*);
-	void handleClickShowAll();
+	void onClickSearch();
 
 	virtual void setSearchFilter( const std::string& filter );
 
@@ -144,13 +142,13 @@ public:
 									BOOL is_owner_role);
 
 	void setFooterEnabled(BOOL enable);
+
+	virtual void setGroupID(const LLUUID& id);
 protected:
 	LLPanel* mHeader;
 	LLPanel* mFooter;
 
-	LLLineEditor*	mSearchLineEditor;
-	LLButton*		mSearchButton;
-	LLButton*		mShowAllButton;
+	LLSearchEditor*	mSearchEditor;
 
 	std::string mSearchFilter;
 
@@ -195,6 +193,8 @@ public:
 	void updateMembers();
 
 	virtual void draw();
+
+	virtual void setGroupID(const LLUUID& id);
 
 protected:
 	typedef std::map<LLUUID, LLRoleMemberChangeType> role_change_data_map_t;

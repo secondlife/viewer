@@ -40,6 +40,7 @@
 #include "llfocusmgr.h"
 #include "llmenugl.h"
 #include "llstring.h"
+#include "lltrans.h"
 #include "lluictrlfactory.h"
 
 // newview includes
@@ -56,6 +57,8 @@
 #include "llviewercontrol.h"
 #include "llviewermenu.h"
 #include "llurllineeditorctrl.h"
+#include "llagentui.h"
+
 //============================================================================
 /*
  * "ADD LANDMARK" BUTTON UPDATING LOGIC
@@ -151,6 +154,8 @@ static LLDefaultChildRegistry::Register<LLLocationInputCtrl> r("location_input")
 LLLocationInputCtrl::Params::Params()
 :	add_landmark_image_enabled("add_landmark_image_enabled"),
 	add_landmark_image_disabled("add_landmark_image_disabled"),
+	add_landmark_image_hover("add_landmark_image_hover"),
+	add_landmark_image_selected("add_landmark_image_selected"),
 	add_landmark_button("add_landmark_button"),
 	add_landmark_hpad("add_landmark_hpad", 0),
 	info_button("info_button")
@@ -162,7 +167,9 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mAddLandmarkHPad(p.add_landmark_hpad),
 	mInfoBtn(NULL),
 	mLocationContextMenu(NULL),
-	mAddLandmarkBtn(NULL)
+	mAddLandmarkBtn(NULL),
+	mLandmarkImageOn(NULL),
+	mLandmarkImageOff(NULL)
 {
 	// Lets replace default LLLineEditor with LLLocationLineEditor
 	// to make needed escaping while copying and cutting url
@@ -198,16 +205,27 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 
 	// "Add landmark" button.
 	LLButton::Params al_params = p.add_landmark_button;
+
+	// Image for unselected state will be set in updateAddLandmarkButton(),
+	// it will be either mLandmarkOn or mLandmarkOff
 	if (p.add_landmark_image_enabled())
 	{
-		al_params.image_unselected = p.add_landmark_image_enabled;
-		al_params.image_selected = p.add_landmark_image_enabled;
+		mLandmarkImageOn = p.add_landmark_image_enabled;
 	}
 	if (p.add_landmark_image_disabled())
 	{
-		al_params.image_disabled = p.add_landmark_image_disabled;
-		al_params.image_disabled_selected = p.add_landmark_image_disabled;
+		mLandmarkImageOff = p.add_landmark_image_disabled;
 	}
+
+	if(p.add_landmark_image_selected)
+	{
+		al_params.image_selected = p.add_landmark_image_selected;
+	}
+	if (p.add_landmark_image_hover())
+	{
+		al_params.image_hover_unselected = p.add_landmark_image_hover;
+	}
+
 	al_params.click_callback.function(boost::bind(&LLLocationInputCtrl::onAddLandmarkButtonClicked, this));
 	mAddLandmarkBtn = LLUICtrlFactory::create<LLButton>(al_params);
 	enableAddLandmarkButton(true);
@@ -233,7 +251,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	// - Make the "Add landmark" button updated when either current parcel gets changed
 	//   or a landmark gets created or removed from the inventory.
 	// - Update the location string on parcel change.
-	mParcelMgrConnection = LLViewerParcelMgr::getInstance()->setAgentParcelChangedCallback(
+	mParcelMgrConnection = LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(
 		boost::bind(&LLLocationInputCtrl::onAgentParcelChange, this));
 
 	mLocationHistoryConnection = LLLocationHistory::getInstance()->setLoadedCallback(
@@ -243,6 +261,9 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	mAddLandmarkObserver	= new LLAddLandmarkObserver(this);
 	gInventory.addObserver(mRemoveLandmarkObserver);
 	gInventory.addObserver(mAddLandmarkObserver);
+
+	mAddLandmarkTooltip = LLTrans::getString("location_ctrl_add_landmark");
+	mEditLandmarkTooltip = LLTrans::getString("location_ctrl_edit_landmark");
 }
 
 LLLocationInputCtrl::~LLLocationInputCtrl()
@@ -389,7 +410,21 @@ void LLLocationInputCtrl::onInfoButtonClicked()
 
 void LLLocationInputCtrl::onAddLandmarkButtonClicked()
 {
-	LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+	LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentParcel();
+	
+	// Landmark exists, open it for preview and edit
+	if(landmark && landmark->getUUID().notNull())
+	{
+		LLSD key;
+		key["type"] = "landmark";
+		key["id"] = landmark->getUUID();
+
+		LLSideTray::getInstance()->showPanel("panel_places", key);
+	}
+	else
+	{
+		LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
+	}
 }
 
 void LLLocationInputCtrl::onAgentParcelChange()
@@ -414,11 +449,14 @@ void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
 	rebuildLocationHistory(filter);
 
 	//Let's add landmarks to the top of the list if any
-	LLInventoryModel::item_array_t landmark_items = LLLandmarkActions::fetchLandmarksByName(filter, TRUE);
-
-	for(U32 i=0; i < landmark_items.size(); i++)
+	if( filter.size() !=0 )
 	{
-		mList->addSimpleElement(landmark_items[i]->getName(), ADD_TOP);
+		LLInventoryModel::item_array_t landmark_items = LLLandmarkActions::fetchLandmarksByName(filter, TRUE);
+
+		for(U32 i=0; i < landmark_items.size(); i++)
+		{
+			mList->addSimpleElement(landmark_items[i]->getName(), ADD_TOP);
+		}
 	}
 	mList->mouseOverHighlightNthItem(-1); // Clear highlight on the last selected item.
 }
@@ -459,9 +497,7 @@ void LLLocationInputCtrl::refreshLocation()
 	LLAgent::ELocationFormat format =  (gSavedSettings.getBOOL("ShowCoordinatesOption") ? 
 			LLAgent::LOCATION_FORMAT_WITHOUT_SIM: LLAgent::LOCATION_FORMAT_NORMAL);
 
-	if (!gAgent.buildLocationString(location_name,format))
-		location_name = "Unknown";
-
+	if (!LLAgentUI::buildLocationString(location_name, format)) location_name = "Unknown";
 	setText(location_name);
 }
 
@@ -499,15 +535,32 @@ void LLLocationInputCtrl::focusTextEntry()
 
 void LLLocationInputCtrl::enableAddLandmarkButton(bool val)
 {
-	// Enable/disable the button.
-	mAddLandmarkBtn->setEnabled(val);
+	// We don't want to disable the button because it should be click able at any time, 
+	// instead switch images.
+	LLUIImage* img = val ? mLandmarkImageOn : mLandmarkImageOff;
+	if(img)
+	{
+		mAddLandmarkBtn->setImageUnselected(img);
+	}
 }
 
 // Change the "Add landmark" button image
 // depending on whether current parcel has been landmarked.
 void LLLocationInputCtrl::updateAddLandmarkButton()
 {
-	enableAddLandmarkButton(!LLLandmarkActions::landmarkAlreadyExists());
+	bool landmark_exists = LLLandmarkActions::landmarkAlreadyExists();
+	enableAddLandmarkButton(!landmark_exists);
+
+	std::string tooltip;
+	if(landmark_exists)
+	{
+		tooltip = mEditLandmarkTooltip;
+	}
+	else
+	{
+		tooltip = mAddLandmarkTooltip;
+	}
+	mAddLandmarkBtn->setToolTip(tooltip);
 }
 
 void LLLocationInputCtrl::updateContextMenu(){
@@ -554,7 +607,8 @@ void LLLocationInputCtrl::changeLocationPresentation()
 	if(mTextEntry && !mTextEntry->hasSelection() && 
 		!LLSLURL::isSLURL(mTextEntry->getText()))
 	{
-		mTextEntry->setText(gAgent.getUnescapedSLURL());
+		//needs unescaped one
+		mTextEntry->setText(LLAgentUI::buildSLURL(false));
 		mTextEntry->selectAll();
 	}	
 }

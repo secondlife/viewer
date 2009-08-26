@@ -42,7 +42,6 @@
 #include "llwlparammanager.h"
 #include "llsky.h"
 #include "llvowlsky.h"
-#include "llagent.h"
 #include "llviewerregion.h"
 #include "llface.h"
 #include "llrender.h"

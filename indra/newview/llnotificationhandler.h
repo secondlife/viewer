@@ -42,9 +42,6 @@
 
 namespace LLNotificationsUI
 {
-// ID for channel that displays Alert Notifications
-#define ALERT_CHANNEL_ID	"F3E07BC8-A973-476D-8C7F-F3B7293975D1"
-
 // ENotificationType enumerates all possible types of notifications that could be met
 // 
 typedef enum e_notification_type
@@ -118,6 +115,25 @@ public:
 };
 
 /**
+ * Handler for IM notifications.
+ * It manages life time of tip and script notices.
+ */
+class LLIMHandler : public LLSysHandler
+{
+public:
+	LLIMHandler();
+	virtual ~LLIMHandler();
+
+	// base interface functions
+	virtual void processNotification(const LLSD& notify);
+	virtual void onToastDestroy(LLToast* toast);
+	virtual void onChicletClick(void);
+	virtual void onChicletClose(void);
+
+protected:
+};
+
+/**
  * Handler for system informational notices.
  * It manages life time of tip and script notices.
  */
@@ -135,6 +151,7 @@ public:
 
 	// own handlers
 	void onStoreToast(LLPanel* info_panel, LLUUID id);
+	void onRejectToast(LLToast::Params p);
 protected:
 };
 

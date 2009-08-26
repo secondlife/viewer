@@ -40,7 +40,6 @@
 #include "v3math.h"
 
 // Viewer includes
-#include "llagent.h"
 #include "llviewercontrol.h"
 #include "llselectmgr.h"
 #include "llviewerobject.h"

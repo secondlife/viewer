@@ -107,8 +107,6 @@ public:
 	//
 	void stopTimer() { mTimer.stop(); }
 	//
-	void close() { die(); }
-	//
 	virtual void draw();
 	//
 	virtual void setVisible(BOOL show);

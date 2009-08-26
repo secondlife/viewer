@@ -72,6 +72,7 @@
 #include "lltrans.h"
 
 #include "llfirstuse.h"
+#include "llagentui.h"
 
 //
 // Globals
@@ -104,6 +105,8 @@ void toast_callback(const LLSD& msg){
 		args["MESSAGE"] = msg["message"];
 		args["TIME"] = msg["time"];
 		args["FROM"] = msg["from"];
+		args["FROM_ID"] = msg["from_id"];
+		args["SESSION_ID"] = msg["session_id"];
 
 		LLNotifications::instance().add("IMToast", args, LLSD(), boost::bind(&LLFloaterChatterBox::onOpen, LLFloaterChatterBox::getInstance(), msg["session_id"].asUUID()));
 	}
@@ -124,7 +127,7 @@ void LLIMModel::testMessages()
 
 	bot1_session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, bot1_id);
 	newSession(bot1_session_id, from, IM_NOTHING_SPECIAL, bot1_id);
-	addMessage(bot1_session_id, from, "Test Message: Hi from testerbot land!");
+	addMessage(bot1_session_id, from, bot1_id, "Test Message: Hi from testerbot land!");
 
 	LLUUID bot2_id;
 	std::string firstname[] = {"Roflcopter", "Joe"};
@@ -137,8 +140,8 @@ void LLIMModel::testMessages()
 	bot2_id.generate(from);
 	LLUUID bot2_session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, bot2_id);
 	newSession(bot2_session_id, from, IM_NOTHING_SPECIAL, bot2_id);
-	addMessage(bot2_session_id, from, "Test Message: Can I haz bear? ");
-	addMessage(bot2_session_id, from, "Test Message: OMGWTFBBQ.");
+	addMessage(bot2_session_id, from, bot2_id, "Test Message: Can I haz bear? ");
+	addMessage(bot2_session_id, from, bot2_id, "Test Message: OMGWTFBBQ.");
 }
 
 
@@ -218,7 +221,7 @@ bool LLIMModel::addToHistory(LLUUID session_id, std::string from, std::string ut
 }
 
 		
-bool LLIMModel::addMessage(LLUUID session_id, std::string from, std::string utf8_text) { 
+bool LLIMModel::addMessage(LLUUID session_id, std::string from, LLUUID from_id, std::string utf8_text) { 
 
 	LLIMSession* session = get_if_there(sSessionsMap, session_id, (LLIMSession*)NULL);
 
@@ -231,7 +234,7 @@ bool LLIMModel::addMessage(LLUUID session_id, std::string from, std::string utf8
 	addToHistory(session_id, from, utf8_text);
 
 	std::string agent_name;
-	gAgent.buildFullname(agent_name);
+	LLAgentUI::buildFullname(agent_name);
 	
 	session->mNumUnread++;
 
@@ -240,6 +243,9 @@ bool LLIMModel::addMessage(LLUUID session_id, std::string from, std::string utf8
 	arg["session_id"] = session_id;
 	arg["num_unread"] = session->mNumUnread;
 	arg["message"] = utf8_text;
+	arg["from"] = from;
+	arg["from_id"] = from_id;
+	arg["time"] = LLLogChat::timestamp(false);
 	mChangedSignal(arg);
 
 	return true;
@@ -264,7 +270,7 @@ const std::string& LLIMModel::getName(LLUUID session_id)
 void LLIMModel::sendTypingState(LLUUID session_id, LLUUID other_participant_id, BOOL typing) 
 {
 	std::string name;
-	gAgent.buildFullname(name);
+	LLAgentUI::buildFullname(name);
 
 	pack_instant_message(
 		gMessageSystem,
@@ -285,7 +291,7 @@ void LLIMModel::sendLeaveSession(LLUUID session_id, LLUUID other_participant_id)
 	if(session_id.notNull())
 	{
 		std::string name;
-		gAgent.buildFullname(name);
+		LLAgentUI::buildFullname(name);
 		pack_instant_message(
 			gMessageSystem,
 			gAgent.getID(),
@@ -310,7 +316,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 {
 	std::string name;
 	bool sent = false;
-	gAgent.buildFullname(name);
+	LLAgentUI::buildFullname(name);
 
 	const LLRelationship* info = NULL;
 	info = LLAvatarTracker::instance().getBuddyInfo(other_participant_id);
@@ -377,13 +383,13 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 	{
 		// Do we have to replace the /me's here?
 		std::string from;
-		gAgent.buildFullname(from);
+		LLAgentUI::buildFullname(from);
 		LLIMModel::instance().addToHistory(im_session_id, from, utf8_text);
 
 		//local echo for the legacy communicate panel
 		std::string history_echo;
 		std::string utf8_copy = utf8_text;
-		gAgent.buildFullname(history_echo);
+		LLAgentUI::buildFullname(history_echo);
 
 		// Look for IRC-style emotes here.
 
@@ -433,7 +439,7 @@ void session_starter_helper(
 	msg->addU32Fast(_PREHASH_Timestamp, NO_TIMESTAMP); // no timestamp necessary
 
 	std::string name;
-	gAgent.buildFullname(name);
+	LLAgentUI::buildFullname(name);
 
 	msg->addStringFast(_PREHASH_FromAgentName, name);
 	msg->addStringFast(_PREHASH_Message, LLStringUtil::null);
@@ -1231,7 +1237,7 @@ void LLIMMgr::addMessage(
 			//<< "*** position: " << position << std::endl;
 
 			floater->addHistoryLine(bonus_info.str(), LLUIColorTable::instance().getColor("SystemChatColor"));
-			LLIMModel::instance().addMessage(new_session_id, from, bonus_info.str());
+			LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, bonus_info.str());
 		}
 
 		make_ui_sound("UISndNewIncomingIMSession");
@@ -1251,7 +1257,7 @@ void LLIMMgr::addMessage(
 		floater->addHistoryLine(msg, color, true, other_participant_id, from); // Insert linked name to front of message
 	}
 
-	LLIMModel::instance().addMessage(new_session_id, from, msg);
+	LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg);
 
 	if( !LLFloaterReg::instanceVisible("communicate") && !floater->getVisible())
 	{
@@ -1311,6 +1317,19 @@ void LLIMMgr::notifyNewIM()
 	}
 }
 
+S32 LLIMMgr::getNumberOfUnreadIM()
+{
+	std::map<LLUUID, LLIMModel::LLIMSession*>::iterator it;
+	
+	S32 num = 0;
+	for(it = LLIMModel::sSessionsMap.begin(); it != LLIMModel::sSessionsMap.end(); ++it)
+	{
+		num += (*it).second->mNumUnread;
+	}
+
+	return num;
+}
+
 void LLIMMgr::clearNewIMNotification()
 {
 	mIMReceived = FALSE;
@@ -1356,26 +1375,42 @@ LLUUID LLIMMgr::addSession(
 	EInstantMessage dialog,
 	const LLUUID& other_participant_id)
 {
-	LLUUID session_id = computeSessionID(dialog, other_participant_id);
+	LLDynamicArray<LLUUID> ids;
+	ids.put(other_participant_id);
+	return addSession(name, dialog, other_participant_id, ids);
+}
+
+// Adds a session using the given session_id.  If the session already exists 
+// the dialog type is assumed correct. Returns the uuid of the session.
+LLUUID LLIMMgr::addSession(
+	const std::string& name,
+	EInstantMessage dialog,
+	const LLUUID& other_participant_id,
+	const LLDynamicArray<LLUUID>& ids)
+{
+	if (0 == ids.getLength())
+	{
+		return LLUUID::null;
+	}
+
+	LLUUID session_id = computeSessionID(dialog,other_participant_id);
 
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
 	if(!floater)
 	{
-		LLDynamicArray<LLUUID> ids;
-		ids.put(other_participant_id);
-
+		// On creation, use the first element of ids as the
+		// "other_participant_id"
 		floater = createFloater(
 			session_id,
 			other_participant_id,
 			name,
-			ids,
 			dialog,
-			TRUE);
+			TRUE,
+			ids);
+
+		if ( !floater ) return LLUUID::null;
 
 		noteOfflineUsers(floater, ids);
-		//LLFloaterReg::showInstance("communicate", session_id);
-		// *NOTE: Is this right?  Or should we only do it for 
-		// dialog == IM_NOTHING_SPECIAL and some group types?
 
 		// Only warn for regular IMs - not group IMs
 		if( dialog == IM_NOTHING_SPECIAL )
@@ -1392,58 +1427,6 @@ LLUUID LLIMMgr::addSession(
 	//mTabContainer->selectTabPanel(panel);
 	floater->setInputFocus(TRUE);
 	LLIMFloater::show(session_id);
-	notifyObserverSessionAdded(floater->getSessionID(), name, other_participant_id);
-	return floater->getSessionID();
-}
-
-// Adds a session using the given session_id.  If the session already exists 
-// the dialog type is assumed correct. Returns the uuid of the session.
-LLUUID LLIMMgr::addSession(
-	const std::string& name,
-	EInstantMessage dialog,
-	const LLUUID& other_participant_id,
-	const LLDynamicArray<LLUUID>& ids)
-{
-	if (0 == ids.getLength())
-	{
-		return LLUUID::null;
-	}
-
-	LLUUID session_id = computeSessionID(
-		dialog,
-		other_participant_id);
-
-	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
-	if(!floater)
-	{
-		// On creation, use the first element of ids as the
-		// "other_participant_id"
-		floater = createFloater(
-			session_id,
-			other_participant_id,
-			name,
-			ids,
-			dialog,
-			TRUE);
-
-		if ( !floater ) return LLUUID::null;
-
-		noteOfflineUsers(floater, ids);
-		// *BUG: Is this correct?  What do we want to spawn for group IMs?
-		// LLFloaterReg::showInstance("communicate", session_id);
-
-		// Only warn for regular IMs - not group IMs
-		if( dialog == IM_NOTHING_SPECIAL )
-		{
-			noteMutedUsers(floater, ids);
-		}
-	}
-	else
-	{
-		floater->openFloater();
-	}
-	//mTabContainer->selectTabPanel(panel);
-	floater->setInputFocus(TRUE);
 	notifyObserverSessionAdded(floater->getSessionID(), name, other_participant_id);
 	return floater->getSessionID();
 }
@@ -1772,35 +1755,8 @@ LLFloaterIMPanel* LLIMMgr::createFloater(
 	const LLUUID& other_participant_id,
 	const std::string& session_label,
 	EInstantMessage dialog,
-	BOOL user_initiated)
-{
-	if (session_id.isNull())
-	{
-		llwarns << "Creating LLFloaterIMPanel with null session ID" << llendl;
-	}
-
-	llinfos << "LLIMMgr::createFloater: from " << other_participant_id 
-			<< " in session " << session_id << llendl;
-	std::vector<LLUUID> ids;
-	LLFloaterIMPanel* floater = new LLFloaterIMPanel(session_label,
-													 session_id,
-													 other_participant_id,
-													 ids,
-													 dialog);
-	LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::RIGHT_OF_CURRENT : LLTabContainer::END;
-	LLFloaterChatterBox::getInstance()->addFloater(floater, FALSE, i_pt);
-	mFloaters.insert(floater->getHandle());
-	LLIMModel::instance().newSession(session_id, session_label, dialog, other_participant_id);
-	return floater;
-}
-
-LLFloaterIMPanel* LLIMMgr::createFloater(
-	const LLUUID& session_id,
-	const LLUUID& other_participant_id,
-	const std::string& session_label,
-	const LLDynamicArray<LLUUID>& ids,
-	EInstantMessage dialog,
-	BOOL user_initiated)
+	BOOL user_initiated,
+	const LLDynamicArray<LLUUID>& ids)
 {
 	if (session_id.isNull())
 	{

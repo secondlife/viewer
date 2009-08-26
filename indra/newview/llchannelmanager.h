@@ -44,9 +44,6 @@
 
 namespace LLNotificationsUI
 {
-
-#define STARTUP_CHANNEL_ID		"AEED3193-8709-4693-8558-7452CCA97AE5"
-
 /**
  * Manager for screen channels.
  * Responsible for instantiating and retrieving screen channels.
@@ -56,19 +53,16 @@ class LLChannelManager : public LLUICtrl, public LLSingleton<LLChannelManager>
 public:	
 	struct Params  : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Optional<LLUUID>			id;
-		Optional<LLChiclet*>		chiclet;
-		Optional<S32>				channel_right_bound;
-		Optional<S32>				channel_width;
-		Optional<bool>				display_toasts_always;
-		Optional<EToastAlignment>	align;
+		LLUUID			id;
+		LLChiclet*		chiclet;
+		S32				channel_right_bound;
+		S32				channel_width;
+		bool			display_toasts_always;
+		EToastAlignment	align;
 
-		Params():	id("id", LLUUID("")),
-					chiclet("chiclet", NULL), 
-					channel_right_bound("channel_right_bound", 0), 
-					channel_width("channel_width", 0), 
-					display_toasts_always("display_toasts_always", false),
-					align("align", NA_BOTTOM)
+		Params():	id(LLUUID("")), chiclet(NULL), 
+					channel_right_bound(0), channel_width(0), 
+					display_toasts_always(false), align(NA_BOTTOM)
 		{}
 	};
 
@@ -104,7 +98,8 @@ public:
 
 	// On LoginCompleted - show StartUp toast
 	void onLoginCompleted();
-	void removeStartUpChannel();
+	// removes a channel intended for the startup toast and allows other channels to show their toasts
+	void onStartUpToastClose();
 
 	//TODO: make protected? in order to be shure that channels are created only by notification handlers
 	LLScreenChannel*	createChannel(LLChannelManager::Params& p);
@@ -112,9 +107,11 @@ public:
 	LLScreenChannel*	getChannelByID(const LLUUID id);
 	LLScreenChannel*	getChannelByChiclet(const LLChiclet* chiclet);
 
-	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	// remove channel methods
+	void	removeChannelByID(const LLUUID id);
+	void	removeChannelByChiclet(const LLChiclet* chiclet);
 
-	LLScreenChannel* getStartUpChannel();
+	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 private:
 

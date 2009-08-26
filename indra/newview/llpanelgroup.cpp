@@ -33,7 +33,6 @@
 
 #include "llpanelgroup.h"
 
-#include "llagent.h"
 #include "llbutton.h"
 #include "lltabcontainer.h"
 #include "lltextbox.h"
@@ -116,6 +115,9 @@ LLPanelGroup::~LLPanelGroup()
 
 void LLPanelGroup::onOpen(const LLSD& key)
 {
+	if(!key.has("group_id"))
+		return;
+	
 	LLUUID group_id = key["group_id"];
 	if(!key.has("action"))
 	{
@@ -127,7 +129,7 @@ void LLPanelGroup::onOpen(const LLSD& key)
 
 	if(str_action == "refresh")
 	{
-		if(mID == group_id)
+		if(mID == group_id || group_id == LLUUID::null)
 			refreshData();
 	}
 	else if(str_action == "close")
@@ -137,6 +139,12 @@ void LLPanelGroup::onOpen(const LLSD& key)
 	else if(str_action == "create")
 	{
 		setGroupID(LLUUID::null);
+	}
+	else if(str_action == "refresh_notices")
+	{
+		LLPanelGroupNotices* panel_notices = findChild<LLPanelGroupNotices>("group_notices_tab_panel");
+		if(panel_notices)
+			panel_notices->refreshNotices();
 	}
 
 }
@@ -314,6 +322,15 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	}
 	else
 	{
+		if(!tab_general->getDisplayChildren())
+			tab_general->changeOpenClose(tab_general->getDisplayChildren());
+		if(!tab_roles->getDisplayChildren())
+			tab_roles->changeOpenClose(tab_roles->getDisplayChildren());
+		if(!tab_notices->getDisplayChildren())
+			tab_notices->changeOpenClose(tab_notices->getDisplayChildren());
+		if(!tab_land->getDisplayChildren())
+			tab_land->changeOpenClose(tab_land->getDisplayChildren());
+		
 		tab_roles->canOpenClose(true);
 		tab_notices->canOpenClose(true);
 		tab_land->canOpenClose(true);

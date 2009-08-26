@@ -64,6 +64,7 @@
 #include "llvfs.h"
 #include "llviewertexture.h"
 #include "llassetuploadresponders.h"
+#include "llagentui.h"
 
 #include <boost/regex.hpp>  //boost.regex lib
 
@@ -101,7 +102,7 @@ BOOL LLFloaterPostcard::postBuild()
 	childDisable("from_form");
 
 	std::string name_string;
-	gAgent.buildFullname(name_string);
+	LLAgentUI::buildFullname(name_string);
 	childSetValue("name_form", LLSD(name_string));
 
 	// For the first time a user focusess to .the msg box, all text will be selected.

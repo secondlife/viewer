@@ -56,7 +56,7 @@ class LLScreenChannel : public LLUICtrl
 {
 	friend class LLChannelManager;
 public:
-	LLScreenChannel();
+	LLScreenChannel(LLUUID& id);
 	virtual ~LLScreenChannel();
 
 	// Channel's outfit-functions
@@ -96,11 +96,11 @@ public:
 
 	// Channel's behavior-functions
 	// set whether a channel will control hovering inside itself or not
-	void		setControlHovering(bool control) { mControlHovering = control; }
+	void setControlHovering(bool control) { mControlHovering = control; }
 	// set Hovering flag for a channel
-	void		setHovering(bool hovering) { mIsHovering = hovering; }
+	void setHovering(bool hovering) { mIsHovering = hovering; }
 	// set whether a channel will store faded toasts or not
-	void		setCanStoreToasts(bool store) { mCanStoreToasts = store; }
+	void setCanStoreToasts(bool store) { mCanStoreToasts = store; }
 	// tell all channels that the StartUp toast was shown and allow them showing of toasts
 	static void	setStartUpToastShown() { mWasStartUpToastShown = true; }
 	// get StartUp Toast's state
@@ -109,13 +109,20 @@ public:
 	void setDisplayToastsAlways(bool display_toasts) { mDisplayToastsAlways = display_toasts; }
 	// get mode for dislaying of toasts
 	bool getDisplayToastsAlways() { return mDisplayToastsAlways; }
+	// tell a channel to show toasts or not
+	void setShowToasts(bool show) { mShowToasts = show; }
+	// determine whether channel shows toasts or not
+	bool getShowToasts() { return mShowToasts; }
 
 	// Channel's other interface functions functions
 	// get number of hidden notifications from a channel
 	S32		getNumberOfHiddenToasts() { return mHiddenToastsNum;}
 	// update number of notifications in the StartUp Toast
 	void	updateStartUpString(S32 num);
+	// get toast allignment preset for a channel
 	e_notification_toast_alignment getToastAlignment() {return mToastAlignment;}
+	// get ID of a channel
+	LLUUID	getChannelID() { return mID; }
 
 	// Channel's callbacks
 	// callback for storing of faded toasts
@@ -123,6 +130,11 @@ public:
 	typedef boost::signals2::signal<void (LLPanel* info_panel, const LLUUID id)> store_tost_signal_t;
 	store_tost_signal_t mOnStoreToast;	
 	boost::signals2::connection setOnStoreToastCallback(store_tost_callback_t cb) { return mOnStoreToast.connect(cb); }
+	// callback for discarding of a rejected toast
+	typedef boost::function<void (LLToast::Params p)> reject_tost_callback_t;
+	typedef boost::signals2::signal<void (LLToast::Params p)> reject_tost_signal_t;
+	reject_tost_signal_t mOnRejectToast;	
+	boost::signals2::connection setOnRejectToastCallback(reject_tost_callback_t cb) { return mOnRejectToast.connect(cb); }
 
 private:
 	struct ToastElem
@@ -179,6 +191,8 @@ private:
 	bool		mCanStoreToasts;
 	bool		mDisplayToastsAlways;
 	bool		mOverflowToastHidden;
+	// controls whether a channel shows toasts or not
+	bool		mShowToasts;
 	// 
 	e_notification_toast_alignment	mToastAlignment;
 
@@ -189,6 +203,9 @@ private:
 
 	// attributes for the StartUp Toast	
 	LLToast* mStartUpToastPanel;
+
+	// channel's ID
+	LLUUID	mID;
 
 	std::vector<ToastElem>		mToastList;
 	std::vector<ToastElem>		mStoredToastList;

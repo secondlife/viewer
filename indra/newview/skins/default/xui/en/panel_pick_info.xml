@@ -2,7 +2,7 @@
 <panel
  bevel_style="in"
  follows="left|top|right|bottom"
- height="625"
+ height="480"
  layout="topleft"
  left="0"
  name="panel_pick_info"
@@ -16,29 +16,41 @@
      left="10"
      name="title"
      text_color="white"
-     top="5"
+     top="16"
      value="Pick Info"
      width="150" />
     <button
      follows="top|right"
-     height="20"
+     height="25"
      image_overlay="BackArrow_Off"
      layout="topleft"
      name="back_btn"
      picture_style="true"
-     right="-20"
-     top="7"
-     width="20" />
+     right="-11"
+     top="16"
+     width="25" 
+     tab_stop="false" />
+  
+    <scroll_container
+     color="DkGray2"
+     follows="left|top|right|bottom"
+     height="400"
+     layout="topleft"
+     left="0"
+     name="pick_info_scroll"
+     opaque="true"
+     reserve_scroll_corner="true"
+     width="265">
     <panel
      background_visible="true"
      bg_alpha_color="DkGray2"
-     follows="left|right|top|bottom"
+     follows="left|right|top"
      height="550"
      layout="topleft"
      left="0"
-     min_height="300"
-     top="30"
-     width="265">
+     min_height="550"
+     top_pad="0"
+     width="263">
         <texture_picker
          enabled="false"
          follows="left|top|right"
@@ -110,7 +122,16 @@
          text_color="white"
          valign="center"
          value="[loading...]" />
+        <icon
+         follows="top|left"
+         height="15"
+         image_name=""
+         layout="topleft"
+         mouse_opaque="true"
+         name="maturity"
+         width="15" />
     </panel>
+    </scroll_container>
     <panel
      follows="left|right|bottom"
      height="30"

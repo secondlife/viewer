@@ -114,15 +114,19 @@ std::string LLSLURL::buildUnescapedSLURL(const std::string& regionname, S32 x, S
 
 // static
 std::string LLSLURL::buildSLURLfromPosGlobal(const std::string& regionname,
-											 const LLVector3d& global_pos)
+											 const LLVector3d& global_pos,
+											 bool escaped /*= true*/)
 {
-	F32 region_x = (F32)fmod(global_pos.mdV[VX], (F64)REGION_WIDTH_METERS);
-	F32 region_y = (F32)fmod(global_pos.mdV[VY], (F64)REGION_WIDTH_METERS);
-
-	return buildSLURL(regionname,
-					  llround(region_x),
-					  llround(region_y),
-					  llround((F32)global_pos.mdV[VZ]));
+	S32 x, y, z;
+	globalPosToXYZ(global_pos, x, y, z);
+	if(escaped)
+	{
+		return buildSLURL(regionname, x, y, z);
+	}
+	else
+	{
+		return buildUnescapedSLURL(regionname, x, y, z);
+	}
 }
 
 // static
@@ -131,4 +135,11 @@ bool LLSLURL::matchPrefix(const std::string& url, const std::string& prefix)
 	std::string test_prefix = url.substr(0, prefix.length());
 	LLStringUtil::toLower(test_prefix);
 	return test_prefix == prefix;
+}
+
+void LLSLURL::globalPosToXYZ(const LLVector3d& pos, S32& x, S32& y, S32& z)
+{
+	x = llround((F32)fmod(pos.mdV[VX], (F64)REGION_WIDTH_METERS));
+	y = llround((F32)fmod(pos.mdV[VY], (F64)REGION_WIDTH_METERS));
+	z = llround((F32)pos.mdV[VZ]);
 }

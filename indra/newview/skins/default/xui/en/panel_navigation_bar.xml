@@ -116,12 +116,12 @@
 	     follows="right|top"
 	     halign="right"
 	     height="22"
-	     label="Search All"
+	     label="Search"
 	     layout="topleft"
 	     left_pad="7"
 	     mouse_opaque="false"
 	     name="search_input"
-	     tool_tip="Search All"
+	     tool_tip="Search"
 	     top_delta="0"
 	     width="200" />        
 	</panel>

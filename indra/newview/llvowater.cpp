@@ -37,7 +37,6 @@
 #include "imageids.h"
 #include "llviewercontrol.h"
 
-#include "llagent.h"
 #include "lldrawable.h"
 #include "lldrawpoolwater.h"
 #include "llface.h"

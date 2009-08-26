@@ -49,7 +49,7 @@ LLAlertHandler::LLAlertHandler(e_notification_type type, const LLSD& id) : mIsMo
 
 	LLBottomTray* tray = LLBottomTray::getInstance();
 	LLChannelManager::Params p;
-	p.id = LLUUID(ALERT_CHANNEL_ID);
+	p.id = LLUUID(gSavedSettings.getString("AlertChannelUUID"));
 	p.channel_right_bound = tray->getRect().getWidth() / 2;
 	p.channel_width = 0;
 	p.display_toasts_always = true;
@@ -58,6 +58,7 @@ LLAlertHandler::LLAlertHandler(e_notification_type type, const LLSD& id) : mIsMo
 	// Getting a Channel for our notifications
 	mChannel = LLChannelManager::getInstance()->createChannel(p);
 	mChannel->setFollows(FOLLOWS_BOTTOM | FOLLOWS_TOP); 
+	mChannel->setShowToasts(true);
 }
 
 //--------------------------------------------------------------------------
@@ -98,7 +99,7 @@ void LLAlertHandler::processNotification(const LLSD& notify)
 
 void LLAlertHandler::onToastDestroy(LLToast* toast)
 {
-	toast->close();
+	toast->closeFloater();
 }
 
 //--------------------------------------------------------------------------

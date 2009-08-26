@@ -69,6 +69,8 @@ public:
 					const std::string& inventory_name,
 					LLOfferInfo* inventory_offer);
 
+	void refreshNotices();
+
 	virtual void setGroupID(const LLUUID& id);
 
 private:

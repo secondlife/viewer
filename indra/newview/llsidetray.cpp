@@ -110,12 +110,15 @@ bool	LLSideTray::instanceCreated	()
 }
 
 LLSideTrayTab::LLSideTrayTab(const Params& params):mMainPanel(0)
-												
 {
 	mImagePath = params.image_path;
 	mTabTitle = params.tab_title;
 	mDescription = params.description;
+
+	// Necessary for focus movement among child controls
+	setFocusRoot(TRUE);
 }
+
 LLSideTrayTab::~LLSideTrayTab()
 {
 }

@@ -35,7 +35,6 @@
 #include "llfloatertos.h"
 
 // viewer includes
-#include "llagent.h"
 #include "llappviewer.h"
 #include "llstartup.h"
 #include "llviewerstats.h"

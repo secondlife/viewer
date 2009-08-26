@@ -1003,6 +1003,8 @@ bool idle_startup()
 		
 		// Load URL History File
 		LLURLHistory::loadFile("url_history.xml");
+		// Load location history 
+		LLLocationHistory::getInstance()->load();
 
 		//-------------------------------------------------
 		// Handle startup progress screen
@@ -2571,7 +2573,7 @@ bool idle_startup()
 		// reset timers now that we are running "logged in" logic
 		LLFastTimer::reset();
 
-		LLLocationHistory::getInstance()->load();
+		
 
 		return TRUE;
 	}

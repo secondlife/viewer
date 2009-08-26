@@ -42,7 +42,6 @@
 
 #include "llcubemap.h"
 #include "llsky.h"
-#include "llagent.h"
 #include "lldrawable.h"
 #include "llface.h"
 #include "llviewercamera.h"

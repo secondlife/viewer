@@ -65,6 +65,7 @@ public:
 	void					dump() const;
 
 private:
+	bool equalByRegionParcel(const std::string& item, const  std::string& item_to_add);
 	const static char delimiter;
 	std::vector<std::string>			mItems;
 	std::map<std::string, std::string>	mToolTips;

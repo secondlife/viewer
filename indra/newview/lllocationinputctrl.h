@@ -59,7 +59,9 @@ public:
 	:	public LLInitParam::Block<Params, LLComboBox::Params>
 	{
 		Optional<LLUIImage*>				add_landmark_image_enabled,
-											add_landmark_image_disabled;
+											add_landmark_image_disabled,
+											add_landmark_image_hover,
+											add_landmark_image_selected;
 		Optional<S32>						add_landmark_hpad;
 		Optional<LLButton::Params>			add_landmark_button,
 											info_button;
@@ -93,6 +95,10 @@ private:
 	virtual ~LLLocationInputCtrl();
 
 	void					focusTextEntry();
+	/**
+	 * Changes the "Add landmark" button image
+	 * depending on whether current parcel has been landmarked.
+	 */
 	void					enableAddLandmarkButton(bool val);
 	void					refresh();
 	void					refreshLocation();
@@ -124,6 +130,11 @@ private:
 
 	boost::signals2::connection	mParcelMgrConnection;
 	boost::signals2::connection	mLocationHistoryConnection;
+	LLUIImage* mLandmarkImageOn;
+	LLUIImage* mLandmarkImageOff;
+
+	std::string mAddLandmarkTooltip;
+	std::string mEditLandmarkTooltip;
 };
 
 #endif

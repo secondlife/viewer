@@ -37,6 +37,7 @@
 #include "llfloateravatarpicker.h"
 #include "llbutton.h"
 #include "llcombobox.h"
+#include "llgroupactions.h"
 #include "llgroupmgr.h"
 #include "llnamelistctrl.h"
 #include "llscrolllistitem.h"
@@ -80,6 +81,7 @@ public:
  	LLButton		*mRemoveButton;
 	LLTextBox		*mGroupName;
 	std::string		mOwnerWarning;
+	std::string		mAlreadyInGroup;
 	bool		mConfirmedOwnerInvite;
 
 	void (*mCloseCallback)(void* data);
@@ -167,16 +169,29 @@ void LLPanelGroupInvite::impl::submitInvitations()
 		}
 	}
 
+	bool already_in_group = false;
 	//loop over the users
 	std::vector<LLScrollListItem*> items = mInvitees->getAllData();
 	for (std::vector<LLScrollListItem*>::iterator iter = items.begin();
 		 iter != items.end(); ++iter)
 	{
 		LLScrollListItem* item = *iter;
+		if(LLGroupActions::isAvatarMemberOfGroup(mGroupID, item->getUUID()))
+		{
+			already_in_group = true;
+			continue;
+		}
 		role_member_pairs[item->getUUID()] = role_id;
 	}
-
+	
 	LLGroupMgr::getInstance()->sendGroupMemberInvites(mGroupID, role_member_pairs);
+	
+	if(already_in_group)
+	{
+		LLSD msg;
+		msg["MESSAGE"] = mAlreadyInGroup;
+		LLNotifications::instance().add("GenericAlert", msg);
+	}
 
 	//then close
 	(*mCloseCallback)(mCloseCallbackUserData);
@@ -550,6 +565,7 @@ BOOL LLPanelGroupInvite::postBuild()
 	}
 
 	mImplementation->mOwnerWarning = getString("confirm_invite_owner_str");
+	mImplementation->mAlreadyInGroup = getString("already_in_group");
 
 	update();
 	

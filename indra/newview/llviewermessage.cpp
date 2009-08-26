@@ -101,6 +101,7 @@
 #include "llnotify.h"
 #include "llpanelgrouplandmoney.h"
 #include "llselectmgr.h"
+#include "llsidetray.h"
 #include "llstartup.h"
 #include "llsky.h"
 #include "llstatenums.h"
@@ -136,6 +137,7 @@
 #include "llviewerdisplay.h"
 #include "llkeythrottle.h"
 #include "llgroupactions.h"
+#include "llagentui.h"
 
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -902,12 +904,17 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 				break;
 			  case LLAssetType::AT_LANDMARK:
 			  	{
-					// *TODO: Embed a link to the Places panel so that user can edit the landmark right away.
 					LLInventoryCategory* parent_folder = gInventory.getCategory(item->getParentUUID());
 					LLSD args;
 					args["LANDMARK_NAME"] = item->getName();
 					args["FOLDER_NAME"] = std::string(parent_folder ? parent_folder->getName() : "unnkown");
 					LLNotifications::instance().add("LandmarkCreated", args);
+					
+					// Open new landmark for editing in Places panel.
+					LLSD key;
+					key["type"] = "landmark";
+					key["id"] = item->getUUID();
+					LLSideTray::getInstance()->showPanel("panel_places", key);
 			  	}
 				break;
 			  case LLAssetType::AT_TEXTURE:
@@ -1079,7 +1086,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	msg->addUUIDFast(_PREHASH_ID, mTransactionID);
 	msg->addU32Fast(_PREHASH_Timestamp, NO_TIMESTAMP); // no timestamp necessary
 	std::string name;
-	gAgent.buildFullname(name);
+	LLAgentUI::buildFullname(name);
 	msg->addStringFast(_PREHASH_FromAgentName, name);
 	msg->addStringFast(_PREHASH_Message, ""); 
 	msg->addU32Fast(_PREHASH_ParentEstateID, 0);
@@ -1526,7 +1533,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				// if there is not a panel for this conversation (i.e. it is a new IM conversation
 				// initiated by the other party) then...
 				std::string my_name;
-				gAgent.buildFullname(my_name);
+				LLAgentUI::buildFullname(my_name);
 				std::string response = gSavedPerAccountSettings.getString("BusyModeResponse2");
 				pack_instant_message(
 					gMessageSystem,
@@ -2131,7 +2138,7 @@ void busy_message (LLMessageSystem* msg, LLUUID from_id)
 	if (gAgent.getBusy())
 	{
 		std::string my_name;
-		gAgent.buildFullname(my_name);
+		LLAgentUI::buildFullname(my_name);
 		std::string response = gSavedPerAccountSettings.getString("BusyModeResponse2");
 		pack_instant_message(
 			gMessageSystem,
@@ -4735,7 +4742,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	// so we'll reuse the same namespace for both throttle types.
 	std::string throttle_name = owner_name;
 	std::string self_name;
-	gAgent.getName( self_name );
+	LLAgentUI::buildName( self_name );
 	if( owner_name == self_name )
 	{
 		throttle_name = taskid.getString();
@@ -5040,9 +5047,6 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 		gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 	}
 
-	// Let the interested parties know we've teleported.
-	LLViewerParcelMgr::getInstance()->onTeleportFinished();
-
 	// Sim tells us whether the new position is off the ground
 	if (teleport_flags & TELEPORT_FLAGS_IS_FLYING)
 	{
@@ -5063,6 +5067,11 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 	gAgent.updateCamera();
 
 	send_agent_update(TRUE, TRUE);
+
+	// Let the interested parties know we've teleported.
+	// Vadim *HACK: Agent position seems to get reset (to render position?)
+	//              on each frame, so we have to pass the new position manually.
+	LLViewerParcelMgr::getInstance()->onTeleportFinished(true, gAgent.getPosGlobalFromAgent(pos));
 }
 
 void send_simple_im(const LLUUID& to_id,
@@ -5071,7 +5080,7 @@ void send_simple_im(const LLUUID& to_id,
 					const LLUUID& id)
 {
 	std::string my_name;
-	gAgent.buildFullname(my_name);
+	LLAgentUI::buildFullname(my_name);
 	send_improved_im(to_id,
 					 my_name,
 					 message,
@@ -5092,7 +5101,7 @@ void send_group_notice(const LLUUID& group_id,
 	// This will mean converting the item to a binary bucket,
 	// and the subject/message into a single field.
 	std::string my_name;
-	gAgent.buildFullname(my_name);
+	LLAgentUI::buildFullname(my_name);
 
 	// Combine subject + message into a single string.
 	std::ostringstream subject_and_message;

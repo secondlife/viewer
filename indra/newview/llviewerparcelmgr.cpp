@@ -1530,7 +1530,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			if (instance->mTeleportInProgress)
 			{
 				instance->mTeleportInProgress = FALSE;
-				instance->mTeleportFinishedSignal();
+				instance->mTeleportFinishedSignal(gAgent.getPositionGlobal());
 			}
 		}
 	}
@@ -2398,12 +2398,19 @@ LLViewerTexture* LLViewerParcelMgr::getPassImage() const
 	return sPassImage;
 }
 
-boost::signals2::connection LLViewerParcelMgr::setAgentParcelChangedCallback(parcel_changed_callback_t cb)
+boost::signals2::connection LLViewerParcelMgr::addAgentParcelChangedCallback(parcel_changed_callback_t cb)
 {
 	return mAgentParcelChangedSignal.connect(cb);
 }
-
-boost::signals2::connection LLViewerParcelMgr::setTeleportFinishedCallback(parcel_changed_callback_t cb)
+/*
+ * Set finish teleport callback. You can use it to observe all  teleport events.
+ * NOTE:
+ * After local( in one region) teleports we
+ *  cannot rely on gAgent.getPositionGlobal(),
+ *  so the new position gets passed explicitly.
+ *  Use args of this callback to get global position of avatar after teleport event.
+ */
+boost::signals2::connection LLViewerParcelMgr::setTeleportFinishedCallback(teleport_finished_callback_t cb)
 {
 	return mTeleportFinishedSignal.connect(cb);
 }
@@ -2416,12 +2423,22 @@ boost::signals2::connection LLViewerParcelMgr::setTeleportFailedCallback(parcel_
 /* Ok, we're notified that teleport has been finished.
  * We should now propagate the notification via mTeleportFinishedSignal
  * to all interested parties.
- * However the agent parcel data has not been updated yet.
- * Let's wait for the update and then emit the signal.
  */
-void LLViewerParcelMgr::onTeleportFinished()
+void LLViewerParcelMgr::onTeleportFinished(bool local, const LLVector3d& new_pos)
 {
-	mTeleportInProgress = TRUE;
+	if (local)
+	{
+		// Local teleport. We already have the agent parcel data.
+		// Emit the signal immediately.
+		getInstance()->mTeleportFinishedSignal(new_pos);
+	}
+	else
+	{
+		// Non-local teleport.
+		// The agent parcel data has not been updated yet.
+		// Let's wait for the update and then emit the signal.
+		mTeleportInProgress = TRUE;
+	}
 }
 
 void LLViewerParcelMgr::onTeleportFailed()

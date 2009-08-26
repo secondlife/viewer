@@ -43,7 +43,6 @@
 #include "llbutton.h"
 #include "lltextbox.h"
 
-#include "llagent.h"			// for agent id
 #include "llalertdialog.h"
 #include "llinventorybridge.h"
 #include "llfloaterinventory.h"

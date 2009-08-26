@@ -53,7 +53,6 @@
 #include "llxmltree.h"
 #include "message.h"
 
-#include "llagent.h"
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
 #include "llviewercontrol.h"

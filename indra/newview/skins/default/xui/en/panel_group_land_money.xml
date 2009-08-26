@@ -2,7 +2,7 @@
 <panel
  border="true"
  follows="all"
- height="490"
+ height="410"
  label="Land &amp; L$"
  layout="topleft"
  left="1"
@@ -59,7 +59,7 @@
      heading_height="14"
      height="100"
      layout="topleft"
-     left_delta="0"
+     left="5"
      name="group_parcel_list"
      top_pad="10"
      width="265">

@@ -38,6 +38,8 @@
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llinventory.h"
+#include "lllandmarkactions.h"
+#include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llmenugl.h"
 
@@ -55,6 +57,71 @@
 #include "llviewermenu.h"
 
 static LLDefaultChildRegistry::Register<LLFavoritesBarCtrl> r("favorites_bar");
+
+const S32 DROP_DOWN_MENU_WIDTH = 250;
+
+/**
+ * This class is needed to override LLButton default handleToolTip function and
+ * show SLURL as button tooltip.
+ * *NOTE: dzaporozhan: This is a workaround. We could set tooltips for buttons
+ * in createButtons function but landmark data is not available when Favorites Bar is
+ * created. Thats why we are requesting landmark data after 
+ */
+class LLFavoriteLandmarkButton : public LLButton
+{
+public:
+
+	/**
+	 * Requests landmark data from server and shows landmark SLURL as tooltip.
+	 */
+	BOOL handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect)
+	{
+		if(LLUI::sShowXUINames)
+		{
+			return LLButton::handleToolTip(x, y, msg, sticky_rect);
+		}
+
+		if(!mLoaded)
+		{
+			LLVector3d g_pos;
+			if(LLLandmarkActions::getLandmarkGlobalPos(mLandmarkID, g_pos))
+			{
+				LLLandmarkActions::getSLURLfromPosGlobal(g_pos, 
+					boost::bind(&LLFavoriteLandmarkButton::landmarkNameCallback, this, _1), false);
+			}
+		}
+
+		msg = mSLURL;
+		return TRUE;
+	}
+
+	void landmarkNameCallback(const std::string& name)
+	{
+		mSLURL = name;
+		mLoaded = true;
+	}
+	
+	void setLandmarkID(const LLUUID& id){ mLandmarkID = id; }
+
+protected:
+
+	LLFavoriteLandmarkButton(const LLButton::Params& p)
+		: LLButton(p)
+		, mLandmarkID(LLUUID::null)
+		, mSLURL("(Loading...)")
+		, mLoaded(false)
+	{
+		static std::string loading_tooltip = LLTrans::getString("favorite_landmark_loading_tooltip");
+		mSLURL = loading_tooltip;
+	}
+
+	friend class LLUICtrlFactory;
+
+private:
+	LLUUID mLandmarkID;
+	std::string mSLURL;
+	bool mLoaded;
+};
 
 // updateButtons's helper
 struct LLFavoritesSort
@@ -353,13 +420,15 @@ void LLFavoritesBarCtrl::createButtons(const LLInventoryModel::item_array_t &ite
 	{
 		LLInventoryItem* item = items.get(i);
 
-		LLButton* fav_btn = LLUICtrlFactory::defaultBuilder<LLButton>(buttonXMLNode, this, NULL);
+		LLFavoriteLandmarkButton* fav_btn = LLUICtrlFactory::defaultBuilder<LLFavoriteLandmarkButton>(buttonXMLNode, this, NULL);
 		if (NULL == fav_btn)
 		{
 			llwarns << "Unable to create button for landmark: " << item->getName() << llendl;
 			continue;
 		}
 
+		fav_btn->setLandmarkID(item->getUUID());
+		
 		// change only left and save bottom
 		fav_btn->setOrigin(curr_x, fav_btn->getRect().mBottom);
 		fav_btn->setFont(mFont);
@@ -413,6 +482,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 		menu_p.can_tear_off(false);
 		menu_p.visible(false);
 		menu_p.scrollable(true);
+		menu_p.max_scrollable_items = 10;
 
 		LLToggleableMenu* menu = LLUICtrlFactory::create<LLToggleableMenu>(menu_p);
 
@@ -471,10 +541,8 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 
 		menu->empty();
 
-		U32 max_width = 0;
-
-		// Menu will not be wider, than bar
-		S32 bar_width = getRect().getWidth();
+		U32 max_width = llmin(DROP_DOWN_MENU_WIDTH, getRect().getWidth());
+		U32 widest_item = 0;
 
 		for(S32 i = mFirstDropDownItem; i < count; i++)
 		{
@@ -489,12 +557,12 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 			LLMenuItemCallGL *menu_item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 			menu_item->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this,item->getUUID(),_1,_2,_3,_4));
 			// Check whether item name wider than menu
-			if ((S32) menu_item->getNominalWidth() > bar_width)
+			if (menu_item->getNominalWidth() > max_width)
 			{
 				S32 chars_total = item_name.length();
 				S32 chars_fitted = 1;
 				menu_item->setLabel(LLStringExplicit(""));
-				S32 label_space = bar_width - menu_item->getFont()->getWidth("...") -
+				S32 label_space = max_width - menu_item->getFont()->getWidth("...") -
 					menu_item->getNominalWidth(); // This returns width of menu item with empty label (pad pixels)
 
 				while (chars_fitted < chars_total && menu_item->getFont()->getWidth(item_name, 0, chars_fitted) < label_space)
@@ -505,21 +573,17 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 
 				menu_item->setLabel(item_name.substr(0, chars_fitted) + "...");
 			}
-
-			max_width = llmax(max_width, menu_item->getNominalWidth());
+			widest_item = llmax(widest_item, menu_item->getNominalWidth());
 
 			menu->addChild(menu_item);
 		}
-
-		// Menu will not be wider, than bar
-		max_width = llmin((S32)max_width, bar_width);
 
 		menu->buildDrawLabels();
 		menu->updateParent(LLMenuGL::sMenuContainer);
 
 		menu->setButtonRect(mChevronRect, this);
 
-		LLMenuGL::showPopup(this, menu, getRect().getWidth() - max_width, 0);
+		LLMenuGL::showPopup(this, menu, getRect().getWidth() - widest_item, 0);
 	}
 }
 

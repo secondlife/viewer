@@ -43,7 +43,6 @@
 #include "llglheaders.h"
 #include "llrender.h"
 
-#include "llagent.h"
 #include "llcubemap.h"
 #include "lldrawable.h"
 #include "llface.h"

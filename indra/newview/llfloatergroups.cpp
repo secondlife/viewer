@@ -81,7 +81,18 @@ void LLFloaterGroupPicker::setPowersMask(U64 powers_mask)
 
 BOOL LLFloaterGroupPicker::postBuild()
 {
-	init_group_list(getChild<LLScrollListCtrl>("group list"), gAgent.getGroupID(), mPowersMask);
+	LLScrollListCtrl* list_ctrl = getChild<LLScrollListCtrl>("group list");
+	init_group_list(list_ctrl, gAgent.getGroupID(), mPowersMask);
+	
+	// Remove group "none" from list. Group "none" is added in init_group_list(). 
+	// Some UI elements use group "none", we need to manually delete it here.
+	// Group "none" ID is LLUUID:null.
+	LLCtrlListInterface* group_list = list_ctrl->getListInterface();
+	if(group_list)
+	{
+		group_list->selectByValue(LLUUID::null);
+		group_list->operateOnSelection(LLCtrlListInterface::OP_DELETE);
+	}
 
 	childSetAction("OK", onBtnOK, this);
 

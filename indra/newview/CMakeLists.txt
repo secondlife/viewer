@@ -73,6 +73,7 @@ set(viewer_SOURCE_FILES
     llagentdata.cpp
     llagentlanguage.cpp
     llagentpilot.cpp
+    llagentui.cpp
     llagentwearables.cpp
     llanimstatelabels.cpp
     llappviewer.cpp
@@ -235,6 +236,7 @@ set(viewer_SOURCE_FILES
     llhudrender.cpp
     llhudtext.cpp
     llhudview.cpp
+    llimhandler.cpp
     llimpanel.cpp
     llimview.cpp
     llimcontrolpanel.cpp
@@ -374,6 +376,7 @@ set(viewer_SOURCE_FILES
     lltoast.cpp
     lltoastalertpanel.cpp
     lltoastgroupnotifypanel.cpp
+    lltoastimpanel.cpp
     lltoastnotifypanel.cpp
     lltoastpanel.cpp
     lltoggleablemenu.cpp
@@ -518,6 +521,7 @@ set(viewer_HEADER_FILES
     llagentdata.h
     llagentlanguage.h
     llagentpilot.h
+    llagentui.h
     llagentwearables.h
     llanimstatelabels.h
     llappearance.h
@@ -824,6 +828,7 @@ set(viewer_HEADER_FILES
     lltoast.h
     lltoastalertpanel.h
     lltoastgroupnotifypanel.h
+    lltoastimpanel.h
     lltoastnotifypanel.h
     lltoastpanel.h
     lltoggleablemenu.h

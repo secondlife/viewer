@@ -1353,23 +1353,26 @@ void LLMenuItemBranchDownGL::openMenu( void )
 // set the hover status (called by it's menu)
 void LLMenuItemBranchDownGL::setHighlight( BOOL highlight )
 {
-	if (highlight == getHighlight()) return;
-
-	LLMenuGL* branch = getBranch();
-	if (!branch) return;
+ 	if (highlight == getHighlight())
+		return;
 
 	//NOTE: Purposely calling all the way to the base to bypass auto-open.
 	LLMenuItemGL::setHighlight(highlight);
+
+	LLMenuGL* branch = getBranch();
+	if (!branch)
+		return;
+	
 	if( !highlight)
 	{
-		if (getBranch()->getTornOff())
+		if (branch->getTornOff())
 		{
-			((LLFloater*)getBranch()->getParent())->setFocus(FALSE);
-			getBranch()->clearHoverItem();
+			((LLFloater*)branch->getParent())->setFocus(FALSE);
+			branch->clearHoverItem();
 		}
 		else
 		{
-			getBranch()->setVisible( FALSE );
+			branch->setVisible( FALSE );
 		}
 	}
 }
@@ -1638,6 +1641,7 @@ LLMenuGL::LLMenuGL(const LLMenuGL::Params& p)
 	mDropShadowed( p.drop_shadow ),
 	mHorizontalLayout( p.horizontal_layout ),
 	mScrollable(mHorizontalLayout ? FALSE : p.scrollable), // Scrolling is supported only for vertical layout
+	mMaxScrollableItems(p.max_scrollable_items),
 	mKeepFixedSize( p.keep_fixed_size ),
 	mLabel (p.label),
 	mLastMouseX(0),
@@ -1911,6 +1915,7 @@ void LLMenuGL::arrange( void )
 		item_list_t::iterator first_hidden_item_iter = mItems.end();
 		S32 height_before_first_visible_item = -1;
 		S32 visible_items_height = 0;
+		U32 scrollable_items_cnt = 0;
 		
 		if (mHorizontalLayout)
 		{
@@ -2005,12 +2010,16 @@ void LLMenuGL::arrange( void )
 						{
 							height_before_first_visible_item = height - (*item_iter)->getNominalHeight();
 							first_visible_item_iter = item_iter;
+							scrollable_items_cnt = 0;
 						}
 
-						if (-1 != height_before_first_visible_item && 0 == visible_items_height && height - height_before_first_visible_item > max_height - spillover_item_height * 2)
+						if (-1 != height_before_first_visible_item && 0 == visible_items_height &&
+						    (++scrollable_items_cnt > mMaxScrollableItems ||
+						     height - height_before_first_visible_item > max_height - spillover_item_height * 2 ))
 						{
 							first_hidden_item_iter = item_iter;
 							visible_items_height = height - height_before_first_visible_item - (*item_iter)->getNominalHeight();
+							scrollable_items_cnt--;
 						}
 					}
 				}
@@ -2020,16 +2029,16 @@ void LLMenuGL::arrange( void )
 			{
 				S32 max_items_height = max_height - spillover_item_height * 2;
 
-				// Fix mFirstVisibleItem value, if it doesn't allow to display all items, that can fit
-				if (visible_items_height < max_items_height)
-				{
-					if (visible_items_height == 0)
-					{
-						visible_items_height = height - height_before_first_visible_item;
-					}
+				if (visible_items_height == 0)
+					visible_items_height = height - height_before_first_visible_item;
 
+				// Fix mFirstVisibleItem value, if it doesn't allow to display all items, that can fit
+				if (visible_items_height < max_items_height && scrollable_items_cnt < mMaxScrollableItems)
+				{
 					item_list_t::iterator tmp_iter(first_visible_item_iter);
-					while (visible_items_height < max_items_height && first_visible_item_iter != mItems.begin())
+					while (visible_items_height < max_items_height &&
+					       scrollable_items_cnt < mMaxScrollableItems &&
+					       first_visible_item_iter != mItems.begin())
 					{
 						if ((*first_visible_item_iter)->getVisible())
 						{
@@ -2043,6 +2052,7 @@ void LLMenuGL::arrange( void )
 						{
 							visible_items_height += (*first_visible_item_iter)->getNominalHeight();
 							height_before_first_visible_item -= (*first_visible_item_iter)->getNominalHeight();
+							scrollable_items_cnt++;
 						}
 					}
 
@@ -2051,6 +2061,7 @@ void LLMenuGL::arrange( void )
 					{
 						visible_items_height -= (*first_visible_item_iter)->getNominalHeight();
 						height_before_first_visible_item += (*first_visible_item_iter)->getNominalHeight();
+						scrollable_items_cnt--;
 						first_visible_item_iter = tmp_iter;
 					}
 					if (!(*first_visible_item_iter)->getVisible())

@@ -43,7 +43,6 @@
 #include "llfloaterchat.h"
 #include "llfloaterdirectory.h"		// to spawn search
 #include "llfloaterlagmeter.h"
-#include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterscriptdebug.h"
 #include "llhudicon.h"
@@ -70,7 +69,6 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerthrottle.h"
 #include "lluictrlfactory.h"
-#include "llvoiceclient.h"	// for gVoiceClient
 
 #include "lltoolmgr.h"
 #include "llfocusmgr.h"
@@ -112,12 +110,6 @@ const S32 TEXT_HEIGHT = 18;
 
 static void onClickBuyCurrency(void*);
 static void onClickHealth(void*);
-static void onClickFly(void*);
-static void onClickPush(void*);
-static void onClickVoice(void*);
-static void onClickBuild(void*);
-static void onClickScripts(void*);
-static void onClickBuyLand(void*);
 static void onClickScriptDebug(void*);
 
 std::vector<std::string> LLStatusBar::sDays;
@@ -160,19 +152,6 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 
 	childSetAction("scriptout", onClickScriptDebug, this);
 	childSetAction("health", onClickHealth, this);
-	childSetAction("no_fly", onClickFly, this);
-	childSetAction("buyland", onClickBuyLand, this );
-	childSetAction("no_build", onClickBuild, this );
-	childSetAction("no_scripts", onClickScripts, this );
-	childSetAction("restrictpush", onClickPush, this );
-	childSetAction("status_no_voice", onClickVoice, this );
-
-	childSetCommitCallback("search_editor", onCommitSearch, this);
-	childSetAction("search_btn", onClickSearch, this);
-
-	childSetVisible("search_editor", gSavedSettings.getBOOL("ShowSearchBar"));
-	childSetVisible("search_btn", gSavedSettings.getBOOL("ShowSearchBar"));
-	childSetVisible("menubar_search_bevel_bg", gSavedSettings.getBOOL("ShowSearchBar"));
 
 	// Adding Net Stat Graph
 	S32 x = getRect().getWidth() - 2;
@@ -331,8 +310,8 @@ void LLStatusBar::refresh()
 		childSetVisible("scriptout", false);
 	}
 
-	if ((region && region->getAllowDamage()) ||
-		(parcel && parcel->getAllowDamage()) )
+	if (gAgent.getCameraMode() == CAMERA_MODE_MOUSELOOK &&
+		((region && region->getAllowDamage()) || (parcel && parcel->getAllowDamage())))
 	{
 		// set visibility based on flashing
 		if( mHealthTimer->hasExpired() )
@@ -364,116 +343,6 @@ void LLStatusBar::refresh()
 		mTextHealth->setVisible(FALSE);
 	}
 
-	if ((region && region->getBlockFly()) ||
-		(parcel && !parcel->getAllowFly()) )
-	{
-		// No Fly Zone
-		childGetRect( "no_fly", buttonRect );
-		childSetVisible( "no_fly", true );
-		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
-		childSetRect( "no_fly", r );
-		x += buttonRect.getWidth();
-	}
-	else
-	{
-		// Fly Zone
-		childSetVisible("no_fly", false);
-	}
-
-	BOOL no_build = parcel && !parcel->getAllowModify();
-	if (no_build)
-	{
-		childSetVisible("no_build", TRUE);
-		childGetRect( "no_build", buttonRect );
-		// No Build Zone
-		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
-		childSetRect( "no_build", r );
-		x += buttonRect.getWidth();
-	}
-	else
-	{
-		childSetVisible("no_build", FALSE);
-	}
-
-	BOOL no_scripts = FALSE;
-	if((region
-		&& ((region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS)
-		|| (region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS)))
-		|| (parcel && !parcel->getAllowOtherScripts()))
-	{
-		no_scripts = TRUE;
-	}
-	if (no_scripts)
-	{
-		// No scripts
-		childSetVisible("no_scripts", TRUE);
-		childGetRect( "no_scripts", buttonRect );
-		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
-		childSetRect( "no_scripts", r );
-		x += buttonRect.getWidth();
-	}
-	else
-	{
-		// Yes scripts
-		childSetVisible("no_scripts", FALSE);
-	}
-
-	BOOL no_region_push = (region && region->getRestrictPushObject());
-	BOOL no_push = no_region_push || (parcel && parcel->getRestrictPushObject());
-	if (no_push)
-	{
-		childSetVisible("restrictpush", TRUE);
-		childGetRect( "restrictpush", buttonRect );
-		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
-		childSetRect( "restrictpush", r );
-		x += buttonRect.getWidth();
-	}
-	else
-	{
-		childSetVisible("restrictpush", FALSE);
-	}
-
-	BOOL have_voice = parcel && parcel->getParcelFlagAllowVoice(); 
-	if (have_voice)
-	{
-		childSetVisible("status_no_voice", FALSE);
-	}
-	else
-	{
-		childSetVisible("status_no_voice", TRUE);
-		childGetRect( "status_no_voice", buttonRect );
-		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
-		childSetRect( "status_no_voice", r );
-		x += buttonRect.getWidth();
-	}
-
-	BOOL canBuyLand = parcel
-		&& !parcel->isPublic()
-		&& LLViewerParcelMgr::getInstance()->canAgentBuyParcel(parcel, false);
-	childSetVisible("buyland", canBuyLand);
-	if (canBuyLand)
-	{
-		//HACK: layout tweak until this is all xml
-		x += 9;
-		childGetRect( "buyland", buttonRect );
-		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
-		childSetRect( "buyland", r );
-		x += buttonRect.getWidth();
-	}
-
-	bool search_visible = gSavedSettings.getBOOL("ShowSearchBar");
-	
-	// Set search bar visibility
-
-	if (gAgent.getCameraMode() != CAMERA_MODE_MOUSELOOK)
-	{
-		// don't monkey with search visibility in mouselook - it will be set
-		// with setVisibleForMouselook() below
-		childSetVisible("search_editor", search_visible);
-		childSetVisible("search_btn", search_visible);
-		childSetVisible("menubar_search_bevel_bg", search_visible);
-	}
-	
 	mSGBandwidth->setVisible(net_stats_visible);
 	mSGPacketLoss->setVisible(net_stats_visible);
 	childSetEnabled("stat_btn", net_stats_visible);
@@ -483,9 +352,6 @@ void LLStatusBar::setVisibleForMouselook(bool visible)
 {
 	mTextTime->setVisible(visible);
 	mBtnBuyCurrency->setVisible(visible);
-	childSetVisible("search_editor", visible);
-	childSetVisible("search_btn", visible);
-	childSetVisible("menubar_search_bevel_bg", visible);
 	mSGBandwidth->setVisible(visible);
 	mSGPacketLoss->setVisible(visible);
 	setBackgroundVisible(visible);
@@ -635,49 +501,6 @@ static void onClickScriptDebug(void*)
 	LLFloaterScriptDebug::show(LLUUID::null);
 }
 
-static void onClickFly(void* )
-{
-	LLNotifications::instance().add("NoFly");
-}
-
-static void onClickPush(void* )
-{
-	LLNotifications::instance().add("PushRestricted");
-}
-
-static void onClickVoice(void* )
-{
-	LLNotifications::instance().add("NoVoice");
-}
-
-static void onClickBuild(void*)
-{
-	LLNotifications::instance().add("NoBuild");
-}
-
-static void onClickScripts(void*)
-{
-	LLViewerRegion* region = gAgent.getRegion();
-	if(region && region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS)
-	{
-		LLNotifications::instance().add("ScriptsStopped");
-	}
-	else if(region && region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS)
-	{
-		LLNotifications::instance().add("ScriptsNotRunning");
-	}
-	else
-	{
-		LLNotifications::instance().add("NoOutsideScripts");
-	}
-}
-
-static void onClickBuyLand(void*)
-{
-	LLViewerParcelMgr::getInstance()->selectParcelAt(gAgent.getPositionGlobal());
-	LLViewerParcelMgr::getInstance()->startBuyLand();
-}
-
 // sets the static variables necessary for the date
 void LLStatusBar::setupDate()
 {
@@ -781,21 +604,6 @@ void LLStatusBar::onHideNavbarContextMenuItemClicked(const LLSD& userdata)
 void LLStatusBar::onMainMenuRightClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
 {
 	handleRightMouseUp(x, y, mask);
-}
-
-// static
-void LLStatusBar::onCommitSearch(LLUICtrl*, void* data)
-{
-	// committing is the same as clicking "search"
-	onClickSearch(data);
-}
-
-// static
-void LLStatusBar::onClickSearch(void* data)
-{
-	LLStatusBar* self = (LLStatusBar*)data;
-	std::string search_text = self->childGetText("search_editor");
-	LLFloaterReg::showInstance("search", LLSD().insert("panel", "all").insert("id", LLSD(search_text)));
 }
 
 // static

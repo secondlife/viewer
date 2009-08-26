@@ -937,6 +937,11 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     <string name="tight skirt">tight skirt</string>	
 	<string name="wrinkles">wrinkles</string>	
 	
+    <!-- Favorites Bar -->
+    <string name="location_ctrl_add_landmark">Add to My Landmarks</string>
+    <string name="location_ctrl_edit_landmark">Edit My Landmark</string>
+    <string name="favorite_landmark_loading_tooltip">(Loading...)</string>
+	
 	<!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">
 	  [SECOND_LIFE_VIEWER] Update

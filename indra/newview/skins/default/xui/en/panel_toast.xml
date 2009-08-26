@@ -62,6 +62,7 @@
     mouse_opaque="true" 
     name="hide_btn" 
     label="" 
+    tab_stop="false"
     image_unselected="toast_hide_btn.tga" 
     image_disabled="toast_hide_btn.tga"
     image_selected="toast_hide_btn.tga" 

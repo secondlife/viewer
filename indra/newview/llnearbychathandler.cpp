@@ -97,20 +97,15 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 	LLToast::Params p;
 	p.id = id;
 	p.panel = item;
-	p.on_mouse_enter = boost::bind(&LLNearbyChatHandler::onToastDestroy, this, _1);
+	p.on_toast_destroy = boost::bind(&LLNearbyChatHandler::onToastDestroy, this, _1);
+	p.on_mouse_enter = boost::bind(&LLNearbyChatHandler::removeNearbyToastsAndShowChat, this);
 	mChannel->addToast(p);	
 }
 
 void LLNearbyChatHandler::onToastDestroy(LLToast* toast)
 {
-	//TODO: what should be done to toasts here? may be htey are to be destroyed?
-	//toast->hide();
-	if(mChannel)
-		mChannel->removeToastsFromChannel();
-	else if(toast)
-		toast->hide();
-
-	LLFloaterReg::showTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	if(toast)
+		toast->closeFloater();
 }
 
 void LLNearbyChatHandler::onChicletClick(void)
@@ -118,7 +113,16 @@ void LLNearbyChatHandler::onChicletClick(void)
 }
 void LLNearbyChatHandler::onChicletClose(void)
 {
+}
 
+void LLNearbyChatHandler::removeNearbyToastsAndShowChat()
+{
+	/*
+	if(mChannel)
+		mChannel->removeToastsFromChannel();
+	
+	LLFloaterReg::showTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	*/
 }
 
 }

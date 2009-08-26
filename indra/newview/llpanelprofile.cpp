@@ -95,6 +95,8 @@ void LLPanelProfile::onOpen(const LLSD& key)
 {
 	if (key.has("open_tab_name"))
 	{
+		getTabContainer()[PANEL_PICKS]->onClose();
+
 		// onOpen from selected panel will be called from onTabSelected callback
 		getTabCtrl()->selectTabByName(key["open_tab_name"]);
 	}
@@ -139,6 +141,7 @@ void LLPanelProfile::togglePanel(LLPanel* panel)
 	else 
 	{
 		this->setAllChildrenVisible(TRUE);
+		panel->setVisible(FALSE);
 		if (panel->getParent() == this) 
 		{
 			removeChild(panel);

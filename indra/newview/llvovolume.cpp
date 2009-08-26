@@ -47,7 +47,7 @@
 #include "material_codes.h"
 #include "message.h"
 #include "object_flags.h"
-#include "llagent.h"
+#include "llagentconstants.h"
 #include "lldrawable.h"
 #include "lldrawpoolbump.h"
 #include "llface.h"

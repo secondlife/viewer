@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_visible="true"
+ bevel_style="in"
+ bg_alpha_color="0.3 0.3 0.3 0"
+ height="140"
+ label="im_panel"
+ layout="topleft"
+ left="0"
+ name="im_panel"
+ top="0"
+ width="350">
+    <panel
+     background_visible="true"
+     bevel_style="in"
+     bg_alpha_color="black"
+     follows="top"
+     height="30"
+     label="im_header"
+     layout="topleft"
+     left="5"
+     name="im_header"
+     top="5"
+     width="340">
+        <avatar_icon
+         follows="right"
+         height="20"
+         image_name="icon_avatar_online.tga"
+         layout="topleft"
+         left="5"
+         mouse_opaque="true"
+         name="avatar"
+         top="5"
+         width="20" />
+        <text
+         follows="left|right"
+         font="SansSerifBigBold"
+         height="20"
+         layout="topleft"
+         left_pad="10"
+         name="user_name"
+         text_color="white"
+         top="5"
+         value="Darth Vader"
+         width="250" />
+        <text
+         follows="right"
+         font="SansSerifBig"
+         height="20"
+         layout="topleft"
+         left_pad="10"
+         name="time_box"
+         text_color="white"
+         top="5"
+         value="23:30"
+         width="50" />
+    </panel>
+    <text
+     follows="left|bottom|right"
+     height="60"
+     layout="topleft"
+     left="10"
+     name="message"
+     text_color="white"
+     top="40"
+     use_ellipses="true"
+     value="MESSAGE"
+     width="330"
+     word_wrap="true" />
+    <button
+     follows="bottom"
+     font="SansSerifBigBold"
+     height="25"
+     label="reply"
+     layout="topleft"
+     left="120"
+     name="reply"
+     top="110"
+     width="110" />
+</panel>

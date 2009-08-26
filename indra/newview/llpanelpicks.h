@@ -83,6 +83,11 @@ public:
 	// parent panels failed to work (picks related code was in me profile panel)
 	void setProfilePanel(LLPanelProfile* profile_panel);
 
+	/**
+	 * Closes LLPanelPick if it is visible.
+	 */
+	/*virtual*/ void onClose();
+
 private:
 	void onClickDelete();
 	void onClickTeleport();

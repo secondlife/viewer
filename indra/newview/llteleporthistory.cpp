@@ -43,6 +43,7 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llworldmap.h"
+#include "llagentui.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // LLTeleportHistoryItem
@@ -74,7 +75,7 @@ LLTeleportHistory::LLTeleportHistory():
 	mGotInitialUpdate(false)
 {
 	mTeleportFinishedConn = LLViewerParcelMgr::getInstance()->
-		setTeleportFinishedCallback(boost::bind(&LLTeleportHistory::updateCurrentLocation, this));
+		setTeleportFinishedCallback(boost::bind(&LLTeleportHistory::updateCurrentLocation, this, _1));
 	mTeleportFailedConn = LLViewerParcelMgr::getInstance()->
 		setTeleportFailedCallback(boost::bind(&LLTeleportHistory::onTeleportFailed, this));
 }
@@ -118,7 +119,7 @@ void LLTeleportHistory::onTeleportFailed()
 	}
 }
 
-void LLTeleportHistory::updateCurrentLocation()
+void LLTeleportHistory::updateCurrentLocation(const LLVector3d& new_pos)
 {
 	if (mRequestedItem != -1) // teleport within the history in progress?
 	{
@@ -149,7 +150,7 @@ void LLTeleportHistory::updateCurrentLocation()
 			return;
 		}
 		mItems[mCurrentItem].mTitle = getCurrentLocationTitle();
-		mItems[mCurrentItem].mGlobalPos	= gAgent.getPositionGlobal();
+		mItems[mCurrentItem].mGlobalPos	= new_pos;
 		mItems[mCurrentItem].mRegionID = gAgent.getRegion()->getRegionID();
 	}
 
@@ -184,10 +185,7 @@ void LLTeleportHistory::purgeItems()
 std::string LLTeleportHistory::getCurrentLocationTitle()
 {
 	std::string location_name;
-
-	if (!gAgent.buildLocationString(location_name, LLAgent::LOCATION_FORMAT_NORMAL))
-		location_name = "Unknown";
-
+	if (!LLAgentUI::buildLocationString(location_name, LLAgent::LOCATION_FORMAT_NORMAL)) location_name = "Unknown";
 	return location_name;
 }
 
@@ -201,6 +199,7 @@ void LLTeleportHistory::dump() const
 		line << ((i == mCurrentItem) ? " * " : "   ");
 		line << i << ": " << mItems[i].mTitle;
 		line << " REGION_ID: " << mItems[i].mRegionID;
+		line << ", pos: " << mItems[i].mGlobalPos;
 		llinfos << line.str() << llendl;
 	}
 }

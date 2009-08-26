@@ -41,6 +41,7 @@
 static LLRegisterPanelClassWrapper<LLPanelProfileView> t_panel_target_profile("panel_profile_view");
 
 static std::string PANEL_NOTES = "panel_notes";
+static const std::string PANEL_PROFILE = "panel_profile";
 
 LLPanelProfileView::LLPanelProfileView()
 :	LLPanelProfile()
@@ -72,6 +73,10 @@ BOOL LLPanelProfileView::postBuild()
 	LLPanelProfile::postBuild();
 
 	getTabContainer()[PANEL_NOTES] = getChild<LLPanelAvatarNotes>(PANEL_NOTES);
+	
+	//*TODO remove this, according to style guide we don't use status combobox
+	getTabContainer()[PANEL_PROFILE]->childSetVisible("online_me_status_text", FALSE);
+	getTabContainer()[PANEL_PROFILE]->childSetVisible("status_combo", FALSE);
 
 	childSetCommitCallback("back",boost::bind(&LLPanelProfileView::onBackBtnClick,this),NULL);
 	

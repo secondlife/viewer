@@ -256,6 +256,8 @@ public:
 
 	/*virtual*/ ~LLIMChiclet();
 
+	virtual void setSessionId(const LLUUID& session_id);
+
 	/*
 	 * Sets IM session name. This name will be displayed in chiclet tooltip.
 	*/
@@ -302,6 +304,14 @@ public:
 	 * Draws border around chiclet.
 	*/
 	/*virtual*/ void draw();
+
+	/**
+	 * The action taken on mouse down event.
+	 * 
+	 * Made public so that it can be triggered from outside
+	 * (more specifically, from the Active IM window).
+	 */
+	void onMouseDown();
 
 	/*
 	 * Returns rect, required to display chiclet.
@@ -407,11 +417,19 @@ public:
 	// Notification Chiclet Window
 	void	setNotificationChicletWindow(LLFloater* wnd) { mNotificationChicletWindow = wnd; }
 
+	// methods for updating a number of unread System or IM notifications
+	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications + mUreadIMNotifications); }
+	void decUreadSystemNotifications() { setCounter(--mUreadSystemNotifications + mUreadIMNotifications); }
+	void updateUreadIMNotifications();
+
 protected:
 	LLNotificationChiclet(const Params& p);
 	friend class LLUICtrlFactory;
 
 	LLFloater*	mNotificationChicletWindow;
+
+	static S32 mUreadSystemNotifications;
+	static S32 mUreadIMNotifications;
 
 protected:
 	LLButton* mButton;

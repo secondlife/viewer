@@ -52,7 +52,6 @@
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
 #include "lldrawpoolwater.h"
-#include "llagent.h"
 #include "llviewerregion.h"
 
 #include "llwlparamset.h"

@@ -381,6 +381,7 @@
   <texture name="icon_groupnoticeinventory.tga"/>
   <texture name="icon_lock.tga"/>
   <texture name="icon_place.tga"/>
+  <texture name="icon_place_for_sale.tga"/>
   <texture name="icon_popular.tga"/>
   <texture name="icon_top_pick.tga"/>
 

@@ -66,8 +66,7 @@ static const S32 HPAD = 25;
 static const S32 BTN_HPAD = 8;
 
 LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal)
-	  : LLFloater(LLSD()),
-		LLToastPanel(notification),
+	  : LLToastPanel(notification),
 		mDefaultOption( 0 ),
 		mCheck(NULL),
 		mCaution(notification->getPriority() >= NOTIFICATION_PRIORITY_HIGH),
@@ -304,8 +303,8 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 		setCheckBox(LLNotifications::instance().getGlobalString("alwayschoose"), ignore_label);
 	}
 
-	gFloaterView->adjustToFitScreen(this, FALSE);
- 	LLFloater::setFocus(TRUE);
+	// *TODO: check necessity of this code
+	//gFloaterView->adjustToFitScreen(this, FALSE);
 	if (mLineEditor)
 	{
 		mLineEditor->setFocus(TRUE);
@@ -368,9 +367,13 @@ LLToastAlertPanel::~LLToastAlertPanel()
 
 BOOL LLToastAlertPanel::hasTitleBar() const
 {
+	// *TODO: check necessity of this code
+	/*
 	return (getCurrentTitle() != "" && getCurrentTitle() != " ")	// has title
 			|| isMinimizeable()
 			|| isCloseable();
+	*/
+	return false;
 }
 
 BOOL LLToastAlertPanel::handleKeyHere(KEY key, MASK mask )
@@ -455,7 +458,6 @@ void LLToastAlertPanel::onButtonPressed( const LLSD& data, S32 button )
 	}
 
 	mNotification->respond(response); // new notification reponse
-	closeFloater(); // deletes self
 }
 
 void LLToastAlertPanel::onClickIgnore(LLUICtrl* ctrl)

@@ -68,6 +68,11 @@ public:
 	static void refresh(const LLUUID& group_id);
 
 	/**
+	 * Refresh group notices panel.
+	 */
+	static void refresh_notices();
+
+	/**
 	 * Refresh group information panel.
 	 */
 	static void createGroup();
@@ -81,6 +86,15 @@ public:
 	 * Start group instant messaging session.
 	 */
 	static void startChat(const LLUUID& group_id);
+
+	/**
+	 * Returns true if avatar is in group.
+	 *
+	 * Note that data about group members is loaded from server.
+	 * If data has not been loaded yet, function will return inaccurate result.
+	 * See LLGroupMgr::sendGroupMembersRequest
+	 */
+	static bool isAvatarMemberOfGroup(const LLUUID& group_id, const LLUUID& avatar_id);
 	
 private:
 	static bool onLeaveGroup(const LLSD& notification, const LLSD& response);

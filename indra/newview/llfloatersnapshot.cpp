@@ -59,6 +59,7 @@
 #include "lltoolfocus.h"
 #include "lltoolmgr.h"
 #include "llworld.h"
+#include "llagentui.h"
 
 // Linden library includes
 #include "llfontgl.h"
@@ -967,9 +968,9 @@ void LLSnapshotLivePreview::saveTexture()
 	{
 		LLVFile::writeFile(formatted->getData(), formatted->getDataSize(), gVFS, new_asset_id, LLAssetType::AT_TEXTURE);
 		std::string pos_string;
-		gAgent.buildLocationString(pos_string, LLAgent::LOCATION_FORMAT_FULL);
+		LLAgentUI::buildLocationString(pos_string, LLAgent::LOCATION_FORMAT_FULL);
 		std::string who_took_it;
-		gAgent.buildFullname(who_took_it);
+		LLAgentUI::buildFullname(who_took_it);
 		LLAssetStorage::LLStoreAssetCallback callback = NULL;
 		S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 		void *userdata = NULL;

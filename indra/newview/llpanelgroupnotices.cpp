@@ -41,6 +41,7 @@
 #include "llinventorymodel.h"
 #include "llfloaterinventory.h"
 #include "llagent.h"
+#include "llagentui.h"
 #include "lltooldraganddrop.h"
 
 #include "lllineeditor.h"
@@ -379,13 +380,38 @@ void LLPanelGroupNotices::onClickSendMessage(void* data)
 			self->mCreateMessage->getText(),
 			self->mInventoryItem);
 
+
+	//instantly add new notice. actual notice will be added after ferreshNotices call
+	LLUUID id = LLUUID::generateNewID();
+	std::string subj = self->mCreateSubject->getText();
+	std::string name ;
+	LLAgentUI::buildFullname(name);
+	U32 timestamp = 0;
+
+	LLSD row;
+	row["id"] = id;
+	
+	row["columns"][0]["column"] = "icon";
+
+	row["columns"][1]["column"] = "subject";
+	row["columns"][1]["value"] = subj;
+
+	row["columns"][2]["column"] = "from";
+	row["columns"][2]["value"] = name;
+
+	row["columns"][3]["column"] = "date";
+	row["columns"][3]["value"] = build_notice_date(timestamp);
+
+	row["columns"][4]["column"] = "sort";
+	row["columns"][4]["value"] = llformat( "%u", timestamp);
+
+	self->mNoticesList->addElement(row, ADD_BOTTOM);
+
 	self->mCreateMessage->clear();
 	self->mCreateSubject->clear();
 	onClickRemoveAttachment(data);
 
 	self->arrangeNoticeView(VIEW_PAST_NOTICE);
-	onClickRefreshNotices(self);
-
 }
 
 //static 
@@ -405,6 +431,26 @@ void LLPanelGroupNotices::onClickNewMessage(void* data)
 	self->mCreateMessage->clear();
 	if (self->mInventoryItem) onClickRemoveAttachment(self);
 	self->mNoticesList->deselectAllItems(TRUE); // TRUE == don't commit on chnage
+}
+
+void LLPanelGroupNotices::refreshNotices()
+{
+	onClickRefreshNotices(this);
+	/*
+	lldebugs << "LLPanelGroupNotices::onClickGetPastNotices" << llendl;
+	
+	mNoticesList->deleteAllItems();
+
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessage("GroupNoticesListRequest");
+	msg->nextBlock("AgentData");
+	msg->addUUID("AgentID",gAgent.getID());
+	msg->addUUID("SessionID",gAgent.getSessionID());
+	msg->nextBlock("Data");
+	msg->addUUID("GroupID",self->mGroupID);
+	gAgent.sendReliableMessage();
+	*/
+	
 }
 
 void LLPanelGroupNotices::onClickRefreshNotices(void* data)

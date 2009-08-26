@@ -53,6 +53,14 @@ public:
 	static bool landmarkAlreadyExists();
 
 	/**
+	 * @brief Searches landmark for parcel agent is currently in.
+	 * @return Returns landmark for agent parcel or NULL.
+	 * 
+	 * *TODO: dzaporozhan: There can be many landmarks for single parcel.
+	 */
+	static LLViewerInventoryItem* findLandmarkForAgentParcel();
+
+	/**
 	 * @brief Checks whether agent has rights to create landmark for current parcel.
 	 */
 	static bool canCreateLandmarkHere();
@@ -80,7 +88,7 @@ public:
 	/**
 	 * @brief Creates SLURL for given global position.
 	 */
-	static void getSLURLfromPosGlobal(const LLVector3d& global_pos, slurl_callback_t cb);
+	static void getSLURLfromPosGlobal(const LLVector3d& global_pos, slurl_callback_t cb, bool escaped = true);
 
     /**
      * @brief Gets landmark global position specified by inventory LLUUID.
@@ -98,6 +106,7 @@ private:
 
 	static void onRegionResponse(slurl_callback_t cb,
 								 const LLVector3d& global_pos,
+								 bool escaped,
 								 U64 region_handle,
 								 const std::string& url,
 								 const LLUUID& snapshot_id,

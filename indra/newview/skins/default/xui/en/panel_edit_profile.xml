@@ -13,8 +13,8 @@
  top="10"
  width="305">
     <text     
-     top="0" 
-     left="9" 
+     top="16" 
+     left="11" 
      height="20" 
      follows="left|top"
      font="SansSerifHugeBold" 
@@ -28,7 +28,7 @@
      background_visible="true"
      bg_alpha_color="DkGray2"
      follows="left|top|right|bottom"  
-     height="620"
+     height="604"
      layout="topleft"
      left="9"
      name="data_panel" 

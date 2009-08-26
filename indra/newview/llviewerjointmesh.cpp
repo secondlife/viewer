@@ -39,7 +39,6 @@
 #include "llfasttimer.h"
 #include "llrender.h"
 
-#include "llagent.h"
 #include "llapr.h"
 #include "llbox.h"
 #include "lldrawable.h"

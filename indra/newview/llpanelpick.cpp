@@ -66,7 +66,7 @@
 
 
 LLPanelPick::LLPanelPick(BOOL edit_mode/* = FALSE */)
-:	LLPanel(), LLAvatarPropertiesObserver(),
+:	LLPanel(), LLAvatarPropertiesObserver(), LLRemoteParcelInfoObserver(),
 	mEditMode(edit_mode),
 	mSnapshotCtrl(NULL),
 	mPickId(LLUUID::null),
@@ -111,6 +111,8 @@ void LLPanelPick::reset()
 	mDataReceived = FALSE;
 
 	mPosGlobal.clearVec();
+
+	childSetValue("maturity", "");
 }
 
 BOOL LLPanelPick::postBuild()
@@ -211,6 +213,12 @@ void LLPanelPick::createNewPick()
 	init(pick_data);
 	mDataReceived = TRUE;
 	LLAvatarPropertiesProcessor::instance().removeObserver(mCreatorId, this);
+
+	if (!mEditMode) 
+	{
+		LLRemoteParcelInfoProcessor::getInstance()->addObserver(pick_data->parcel_id, this);
+		LLRemoteParcelInfoProcessor::getInstance()->sendParcelInfoRequest(pick_data->parcel_id);
+	}
 }
 
 
@@ -449,4 +457,25 @@ void LLPanelPick::showOnMap(const LLVector3d& position)
 {
 	LLFloaterWorldMap::getInstance()->trackLocation(position);
 	LLFloaterReg::showInstance("world_map", "center");
+}
+
+void LLPanelPick::processParcelInfo(const LLParcelData& parcel_data)
+{
+	if (mEditMode) return;
+
+	// HACK: Flag 0x2 == adult region,
+	// Flag 0x1 == mature region, otherwise assume PG
+	std::string rating_icon = "icon_event.tga";
+	if (parcel_data.flags & 0x2)
+	{
+		rating_icon = "icon_event_adult.tga";
+	}
+	else if (parcel_data.flags & 0x1)
+	{
+		rating_icon = "icon_event_mature.tga";
+	}
+	
+	childSetValue("maturity", rating_icon);
+
+	//*NOTE we don't removeObserver(...) ourselves cause LLRemoveParcelProcessor does it for us
 }

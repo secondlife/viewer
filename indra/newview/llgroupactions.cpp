@@ -37,6 +37,7 @@
 
 #include "llagent.h"
 #include "llfloaterreg.h"
+#include "llgroupmgr.h"
 #include "llimview.h" // for gIMMgr
 #include "llsidetray.h"
 
@@ -162,6 +163,19 @@ void LLGroupActions::show(const LLUUID& group_id)
 	LLSideTray::getInstance()->showPanel("panel_group_info_sidetray", params);
 }
 
+void LLGroupActions::refresh_notices()
+{
+	if(!isGroupUIVisible())
+		return;
+
+	LLSD params;
+	params["group_id"] = LLUUID::null;
+	params["open_tab_name"] = "panel_group_info_sidetray";
+	params["action"] = "refresh_notices";
+
+	LLSideTray::getInstance()->showPanel("panel_group_info_sidetray", params);
+}
+
 //static 
 void LLGroupActions::refresh(const LLUUID& group_id)
 {
@@ -223,6 +237,28 @@ void LLGroupActions::startChat(const LLUUID& group_id)
 		// relies on you belonging to the group and hence having the group data
 		make_ui_sound("UISndInvalidOp");
 	}
+}
+
+// static
+bool LLGroupActions::isAvatarMemberOfGroup(const LLUUID& group_id, const LLUUID& avatar_id)
+{
+	if(group_id.isNull() || avatar_id.isNull())
+	{
+		return false;
+	}
+
+	LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->getGroupData(group_id);
+	if(!group_data)
+	{
+		return false;
+	}
+
+	if(group_data->mMembers.end() == group_data->mMembers.find(avatar_id))
+	{
+		return false;
+	}
+
+	return true;
 }
 
 //-- Private methods ----------------------------------------------------------

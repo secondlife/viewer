@@ -19,7 +19,7 @@
      left="10"
      name="title"
      text_color="white"
-     top="0"
+     top="17"
      width="250">
         Edit Pick
     </text>
@@ -28,11 +28,11 @@
      bg_alpha_color="DkGray2"
      width="280"
      follows="left|right|top|bottom"
-     height="570"
+     height="560"
      layout="topleft"
      left="10"
      right="-10"
-     top="30">
+     top_pad="5">
         <panel
          follows="left|top|right"
          height="150"

@@ -75,6 +75,16 @@ public:
 	virtual void onOpen(const LLSD& key);
 
 	/**
+	 * Profile tabs should close any opened panels here.
+	 *
+	 * Called from LLPanelProfile::onOpen() before opening new profile.
+	 * See LLPanelpicks::onClose for example. LLPanelPicks closes picture info panel
+	 * before new profile is displayed, otherwise new profile will 
+	 * be hidden behind picture info panel.
+	 */
+	virtual void onClose() {}
+
+	/**
 	 * Resets controls visibility, state, etc.
 	 */
 	virtual void resetControls(){};

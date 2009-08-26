@@ -593,3 +593,11 @@ void LLPickItem::processProperties(void *data, EAvatarProcessorType type)
 	LLAvatarPropertiesProcessor::instance().removeObserver(mCreatorID, this);
 }
 
+void LLPanelPicks::onClose()
+{
+	// Toggle off Pick Info panel if it is visible.
+	if(mPickPanel && mPickPanel->getVisible())
+	{
+		getProfilePanel()->togglePanel(mPickPanel);
+	}
+}

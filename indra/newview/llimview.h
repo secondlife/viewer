@@ -71,7 +71,7 @@ public:
 
 	bool newSession(LLUUID session_id, std::string name, EInstantMessage type, LLUUID other_participant_id);
 	std::list<LLSD> getMessages(LLUUID session_id, int start_index = 0);
-	bool addMessage(LLUUID session_id, std::string from, std::string utf8_text);
+	bool addMessage(LLUUID session_id, std::string from, LLUUID other_participant_id, std::string utf8_text);
 	bool addToHistory(LLUUID session_id, std::string from, std::string utf8_text); 
     //used to get the name of the session, for use as the title
     //currently just the other avatar name
@@ -189,6 +189,9 @@ public:
 	// IM received that you haven't seen yet
 	BOOL getIMReceived() const;
 
+	// Calc number of unread IMs
+	S32 getNumberOfUnreadIM();
+
 	// This method is used to go through all active sessions and
 	// disable all of them. This method is usally called when you are
 	// forced to log out or similar situations where you do not have a
@@ -231,14 +234,8 @@ private:
 									const LLUUID& target_id,
 									const std::string& name,
 									EInstantMessage dialog,
-									BOOL user_initiated = FALSE);
-
-	LLFloaterIMPanel* createFloater(const LLUUID& session_id,
-									const LLUUID& target_id,
-									const std::string& name,
-									const LLDynamicArray<LLUUID>& ids,
-									EInstantMessage dialog,
-									BOOL user_initiated = FALSE);
+									BOOL user_initiated = FALSE, 
+									const LLDynamicArray<LLUUID>& ids = LLDynamicArray<LLUUID>());
 
 	// This simple method just iterates through all of the ids, and
 	// prints a simple message if they are not online. Used to help

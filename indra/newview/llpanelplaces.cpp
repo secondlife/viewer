@@ -55,6 +55,7 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 
+static const S32 LANDMARK_FOLDERS_MENU_WIDTH = 250;
 static const std::string AGENT_INFO_TYPE			= "agent";
 static const std::string CREATE_LANDMARK_INFO_TYPE	= "create_landmark";
 static const std::string LANDMARK_INFO_TYPE			= "landmark";
@@ -84,7 +85,7 @@ LLPanelPlaces::LLPanelPlaces()
 {
 	gInventory.addObserver(this);
 
-	LLViewerParcelMgr::getInstance()->setAgentParcelChangedCallback(
+	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(
 			boost::bind(&LLPanelPlaces::onAgentParcelChange, this));
 
 	//LLUICtrlFactory::getInstance()->buildPanel(this, "panel_places.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
@@ -174,7 +175,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 	if (mPlaceInfoType == AGENT_INFO_TYPE)
 	{
-		mPlaceInfo->setInfoType(LLPanelPlaceInfo::PLACE);
+		mPlaceInfo->setInfoType(LLPanelPlaceInfo::AGENT);
 		mPlaceInfo->displayAgentParcelInfo();
 		
 		mPosGlobal = gAgent.getPositionGlobal();
@@ -218,12 +219,12 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 		const LLTeleportHistory::slurl_list_t& hist_items =
 			LLTeleportHistory::getInstance()->getItems();
 
-		LLVector3d pos_global = hist_items[index].mGlobalPos;
+		mPosGlobal = hist_items[index].mGlobalPos;
 
 		mPlaceInfo->setInfoType(LLPanelPlaceInfo::TELEPORT_HISTORY);
-		mPlaceInfo->displayParcelInfo(get_pos_local_from_global(pos_global),
+		mPlaceInfo->displayParcelInfo(get_pos_local_from_global(mPosGlobal),
 									  hist_items[index].mRegionID,
-									  pos_global);
+									  mPosGlobal);
 	}
 	
 
@@ -312,7 +313,9 @@ void LLPanelPlaces::onTeleportButtonClicked()
 			payload["asset_id"] = mItem->getAssetUUID();
 			LLNotifications::instance().add("TeleportFromLandmark", LLSD(), payload);
 		}
-		else if (mPlaceInfoType == AGENT_INFO_TYPE || mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
+		else if (mPlaceInfoType == AGENT_INFO_TYPE ||
+				 mPlaceInfoType == REMOTE_PLACE_INFO_TYPE ||
+				 mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE)
 		{
 			LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
 			if (!mPosGlobal.isExactlyZero() && worldmap_instance)
@@ -341,7 +344,8 @@ void LLPanelPlaces::onShowOnMapButtonClicked()
 
 		if (mPlaceInfoType == AGENT_INFO_TYPE ||
 			mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE ||
-			mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
+			mPlaceInfoType == REMOTE_PLACE_INFO_TYPE ||
+			mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE)
 		{
 			if (!mPosGlobal.isExactlyZero())
 			{
@@ -374,16 +378,22 @@ void LLPanelPlaces::onShowOnMapButtonClicked()
 
 void LLPanelPlaces::onOverflowButtonClicked()
 {
-	bool is_agent_place_info_visible = mPlaceInfoType == AGENT_INFO_TYPE;
-	bool is_landmark_info_visible = mPlaceInfoType == LANDMARK_INFO_TYPE;
-
 	LLToggleableMenu* menu;
 
-	if (is_agent_place_info_visible && mPlaceMenu != NULL)
+	bool is_agent_place_info_visible = mPlaceInfoType == AGENT_INFO_TYPE;
+
+	if ((is_agent_place_info_visible ||
+		 mPlaceInfoType == "remote_place" ||
+		 mPlaceInfoType == "teleport_history") && mPlaceMenu != NULL)
 	{
 		menu = mPlaceMenu;
+		
+		// Enable adding a landmark only for agent current parcel and if
+		// there is no landmark already pointing to that parcel in agent's inventory.
+		menu->getChild<LLMenuItemCallGL>("landmark")->setEnabled(is_agent_place_info_visible &&
+																 !LLLandmarkActions::landmarkAlreadyExists());
 	}
-	else if (is_landmark_info_visible && mLandmarkMenu != NULL)
+	else if (mPlaceInfoType == LANDMARK_INFO_TYPE && mLandmarkMenu != NULL)
 	{
 		menu = mLandmarkMenu;
 
@@ -446,17 +456,24 @@ void LLPanelPlaces::onCreateLandmarkButtonClicked(const LLUUID& folder_id)
 		return;
 
 	mPlaceInfo->createLandmark(folder_id);
-
-	onBackButtonClicked();
-	LLSideTray::getInstance()->collapseSideBar();
 }
 
 void LLPanelPlaces::onBackButtonClicked()
 {
-	togglePlaceInfoPanel(FALSE);
+	if (!mPlaceInfo)
+		return;
+	
+	if (mPlaceInfo->isMediaPanelVisible())
+	{
+		toggleMediaPanel();
+	}
+	else
+	{
+		togglePlaceInfoPanel(FALSE);
 
-	// Resetting mPlaceInfoType when Place Info panel is closed.
-	mPlaceInfoType = LLStringUtil::null;
+		// Resetting mPlaceInfoType when Place Info panel is closed.
+		mPlaceInfoType = LLStringUtil::null;
+	}
 
 	updateVerbs();
 }
@@ -578,6 +595,14 @@ void LLPanelPlaces::updateVerbs()
 									 !mPosGlobal.isExactlyZero() &&
 									 !LLViewerParcelMgr::getInstance()->inAgentParcel(mPosGlobal));
 		}
+		else if (is_create_landmark_visible)
+		{
+			// Enable "Create Landmark" only if there is no landmark
+			// for the current parcel.
+			bool no_landmark = !LLLandmarkActions::landmarkAlreadyExists();
+			mCreateLandmarkBtn->setEnabled(no_landmark);
+			mFolderMenuBtn->setEnabled(no_landmark);
+		}
 		else if (mPlaceInfoType == LANDMARK_INFO_TYPE || mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
 		{
 			mTeleportBtn->setEnabled(TRUE);
@@ -600,6 +625,7 @@ void LLPanelPlaces::showLandmarkFoldersMenu()
 		menu_p.can_tear_off(false);
 		menu_p.visible(false);
 		menu_p.scrollable(true);
+		menu_p.max_scrollable_items = 10;
 
 		LLToggleableMenu* menu = LLUICtrlFactory::create<LLToggleableMenu>(menu_p);
 
@@ -666,7 +692,6 @@ void LLPanelPlaces::showLandmarkFoldersMenu()
 	mLandmarkFoldersCache = folders;
 
 	menu->empty();
-	U32 max_width = 0;
 
 	// Menu width must not exceed the root view limits,
 	// so we assume the space between the left edge of
@@ -674,6 +699,7 @@ void LLPanelPlaces::showLandmarkFoldersMenu()
 	LLRect screen_btn_rect;
 	localRectToScreen(btn_rect, &screen_btn_rect);
 	S32 free_space = screen_btn_rect.mRight;
+	U32 max_width = llmin(LANDMARK_FOLDERS_MENU_WIDTH, free_space);
 
 	for(folder_vec_t::const_iterator it = mLandmarkFoldersCache.begin(); it != mLandmarkFoldersCache.end(); it++)
 	{
@@ -687,13 +713,14 @@ void LLPanelPlaces::showLandmarkFoldersMenu()
 
 		LLMenuItemCallGL *menu_item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 
+		// *TODO: Use a separate method for menu width calculation.
 		// Check whether item name wider than menu
-		if ((S32) menu_item->getNominalWidth() > free_space)
+		if (menu_item->getNominalWidth() > max_width)
 		{
 			S32 chars_total = item_name.length();
 			S32 chars_fitted = 1;
 			menu_item->setLabel(LLStringExplicit(""));
-			S32 label_space = free_space - menu_item->getFont()->getWidth("...") -
+			S32 label_space = max_width - menu_item->getFont()->getWidth("...") -
 				menu_item->getNominalWidth(); // This returns width of menu item with empty label (pad pixels)
 
 			while (chars_fitted < chars_total && menu_item->getFont()->getWidth(item_name, 0, chars_fitted) < label_space)
@@ -704,8 +731,6 @@ void LLPanelPlaces::showLandmarkFoldersMenu()
 
 			menu_item->setLabel(item_name.substr(0, chars_fitted) + "...");
 		}
-
-		max_width = llmax(max_width, menu_item->getNominalWidth());
 
 		menu->addChild(menu_item);
 	}

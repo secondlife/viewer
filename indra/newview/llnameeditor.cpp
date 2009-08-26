@@ -34,7 +34,6 @@
  
 #include "llnameeditor.h"
 #include "llcachename.h"
-#include "llagent.h"
 
 #include "llfontgl.h"
 

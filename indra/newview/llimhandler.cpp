@@ -1,6 +1,6 @@
 /** 
- * @file llnotificationgrouphandler.cpp
- * @brief Notification Handler Class for Group Notifications
+ * @file llimhandler.cpp
+ * @brief Notification Handler Class for IM notifications
  *
  * $LicenseInfo:firstyear=2000&license=viewergpl$
  * 
@@ -30,57 +30,73 @@
  * $/LicenseInfo$
  */
 
+
 #include "llviewerprecompiledheaders.h" // must be first include
 
 #include "llnotificationhandler.h"
-#include "lltoastgroupnotifypanel.h"
+
 #include "llbottomtray.h"
-#include "llgroupactions.h"
 #include "llviewercontrol.h"
-#include "llfloaterreg.h"
-#include "llsyswellwindow.h"
+#include "lltoastimpanel.h"
 
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
-LLGroupHandler::LLGroupHandler(e_notification_type type, const LLSD& id)
+LLIMHandler::LLIMHandler()
 {
-	mType = type;
-
+	
 	// getting a Chiclet and creating params for a channel
 	LLBottomTray* tray = LLBottomTray::getInstance();
 	mChiclet = tray->getSysWell();
+
 	LLChannelManager::Params p;
+	// *TODO: createNotificationChannel method
 	p.id = LLUUID(gSavedSettings.getString("NotificationChannelUUID"));
-	p.channel_right_bound = tray->getRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin");
+	p.channel_right_bound = tray->getRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
 	p.channel_width = gSavedSettings.getS32("NotifyBoxWidth");
 
 	// Getting a Channel for our notifications
 	mChannel = LLChannelManager::getInstance()->createChannel(p);
+
 }
 
 //--------------------------------------------------------------------------
-LLGroupHandler::~LLGroupHandler()
+LLIMHandler::~LLIMHandler()
 {
 }
 
 //--------------------------------------------------------------------------
-void LLGroupHandler::processNotification(const LLSD& notify)
+void LLIMHandler::processNotification(const LLSD& notify)
 {
 	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
+
+	if(!notification)
+		return;
+
 	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
 	{
-		LLPanel* notify_box = new LLToastGroupNotifyPanel(notification);
+		LLSD substitutions = notification->getSubstitutions();
+
+		LLToastIMPanel::Params im_p;
+		im_p.notification = notification;
+		im_p.avatar_id = substitutions["FROM_ID"].asUUID();
+		im_p.from = substitutions["FROM"].asString();
+		im_p.time = substitutions["TIME"].asString();
+		im_p.message = substitutions["MESSAGE"].asString();
+		im_p.session_id = substitutions["SESSION_ID"].asUUID();
+
+		LLToastIMPanel* im_box = new LLToastIMPanel(im_p);
+
 		LLToast::Params p;
 		p.id = notification->getID();
 		p.notification = notification;
-		p.panel = notify_box;
-		p.on_toast_destroy = boost::bind(&LLGroupHandler::onToastDestroy, this, _1);
+		p.panel = im_box;
+		p.can_be_stored = false;
+		p.on_toast_destroy = boost::bind(&LLIMHandler::onToastDestroy, this, _1);
 		mChannel->addToast(p);
-		static_cast<LLNotificationChiclet*>(mChiclet)->incUreadSystemNotifications();
-		
-		LLGroupActions::refresh_notices();
 
+
+		static_cast<LLNotificationChiclet*>(mChiclet)->updateUreadIMNotifications();
 	}
 	else if (notify["sigtype"].asString() == "delete")
 	{
@@ -89,30 +105,23 @@ void LLGroupHandler::processNotification(const LLSD& notify)
 }
 
 //--------------------------------------------------------------------------
-void LLGroupHandler::onToastDestroy(LLToast* toast)
+void LLIMHandler::onToastDestroy(LLToast* toast)
 {
-	static_cast<LLNotificationChiclet*>(mChiclet)->decUreadSystemNotifications();
-
-	LLToastPanel* panel = dynamic_cast<LLToastPanel*>(toast->getPanel());
-	LLFloaterReg::getTypedInstance<LLSysWellWindow>("syswell_window")->removeItemByID(panel->getID());
-
-	// turning hovering off mannualy because onMouseLeave won't happen if a toast was closed using a keyboard
-	if(toast->hasFocus())
-		mChannel->setHovering(false);
-
 	toast->closeFloater();
+	static_cast<LLNotificationChiclet*>(mChiclet)->updateUreadIMNotifications();
 }
 
 //--------------------------------------------------------------------------
-void LLGroupHandler::onChicletClick(void)
+void LLIMHandler::onChicletClick(void)
 {
 }
 
 //--------------------------------------------------------------------------
-void LLGroupHandler::onChicletClose(void)
+void LLIMHandler::onChicletClose(void)
 {
 }
 
 //--------------------------------------------------------------------------
+
 
 

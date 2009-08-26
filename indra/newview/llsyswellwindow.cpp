@@ -131,7 +131,8 @@ void LLSysWellWindow::removeItemByID(const LLUUID& id)
 void LLSysWellWindow::onItemClick(LLSysWellItem* item)
 {
 	LLUUID id = item->getID();
-	mChannel->loadStoredToastByIDToChannel(id);
+	if(mChannel)
+		mChannel->loadStoredToastByIDToChannel(id);
 }
 
 //---------------------------------------------------------------------------------
@@ -139,7 +140,8 @@ void LLSysWellWindow::onItemClose(LLSysWellItem* item)
 {
 	LLUUID id = item->getID();
 	removeItemByID(id);
-	mChannel->killToastByNotificationID(id);
+	if(mChannel)
+		mChannel->killToastByNotificationID(id);
 }
 
 //---------------------------------------------------------------------------------
@@ -154,9 +156,14 @@ void LLSysWellWindow::setVisible(BOOL visible)
 	// on Show adjust position of SysWell chiclet's window
 	if(visible)
 	{
-		mChannel->removeAndStoreAllVisibleToasts();
+		if(mChannel)
+			mChannel->removeAndStoreAllVisibleToasts();
+
 		adjustWindowPosition();	// *TODO: won't be necessary after docking is realized
 	}
+
+	if(mChannel)
+		mChannel->setShowToasts(!visible);
 
 	LLFloater::setVisible(visible);
 }

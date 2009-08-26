@@ -2235,6 +2235,8 @@ bool LLIMFloater::toggle(const LLUUID& session_id)
 	{
 		// ensure the list of messages is updated when floater is made visible
 		show(session_id);
+		// update number of unread notifications in the SysWell
+		LLBottomTray::getInstance()->getSysWell()->updateUreadIMNotifications();
 		return true;
 	}
 }

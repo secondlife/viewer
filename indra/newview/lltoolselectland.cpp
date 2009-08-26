@@ -38,7 +38,6 @@
 #include "llparcel.h"
 
 // Viewer includes
-#include "llagent.h"
 #include "llviewercontrol.h"
 #include "llfloatertools.h"
 #include "llselectmgr.h"

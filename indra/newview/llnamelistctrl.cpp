@@ -37,7 +37,6 @@
 #include "llnamelistctrl.h"
 
 #include "llcachename.h"
-#include "llagent.h"
 #include "llinventory.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcell.h"

@@ -36,7 +36,6 @@
 #include "llfloatervoicedevicesettings.h"
 
 // Viewer includes
-#include "llagent.h"
 #include "llbutton.h"
 #include "llcombobox.h"
 #include "llfocusmgr.h"

@@ -104,6 +104,7 @@
 #include "llcapabilitylistener.h"
 
 #include "llnavigationbar.h" //to show/hide navigation bar when changing mouse look state
+#include "llagentui.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -912,6 +913,8 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	mRegionsVisited.insert(handle);
 
 	LLSelectMgr::getInstance()->updateSelectionCenter();
+
+	LLFloaterMove::sUpdateFlyingStatus();
 }
 
 
@@ -934,42 +937,6 @@ LLHost LLAgent::getRegionHost() const
 	{
 		return LLHost::invalid;
 	}
-}
-
-//-----------------------------------------------------------------------------
-// getSLURL()
-// returns empty() if getRegion() == NULL
-//-----------------------------------------------------------------------------
-std::string LLAgent::getSLURL() const
-{
-	return buildSLURL(true);
-}
-
-//-----------------------------------------------------------------------------
-// getUnescapedSLURL()
-// returns empty() if getRegion() == NULL
-//-----------------------------------------------------------------------------
-std::string LLAgent::getUnescapedSLURL() const
-{
-	return buildSLURL(false);
-}
-
-std::string LLAgent::buildSLURL(const bool escape) const
-{
-	std::string slurl;
-	LLViewerRegion *regionp = getRegion();
-	if (regionp)
-	{
-		LLVector3d agentPos = getPositionGlobal();
-		S32 x = llround( (F32)fmod( agentPos.mdV[VX], (F64)REGION_WIDTH_METERS ) );
-		S32 y = llround( (F32)fmod( agentPos.mdV[VY], (F64)REGION_WIDTH_METERS ) );
-		S32 z = llround( (F32)agentPos.mdV[VZ] );
-		if (escape)
-			slurl = LLSLURL::buildSLURL(regionp->getName(), x, y, z);
-		else
-			slurl = LLSLURL::buildUnescapedSLURL(regionp->getName(), x, y, z);
-	}
-	return slurl;
 }
 
 //-----------------------------------------------------------------------------
@@ -2854,6 +2821,8 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLSideTray::getInstance()->setVisible(TRUE);
 
+		LLPanelStandStopFlying::getInstance()->setVisible(TRUE);
+
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 
 		LLFloaterCamera::toPrevModeIfInAvatarViewMode();
@@ -2945,6 +2914,8 @@ void LLAgent::endAnimationUpdateUI()
 		LLBottomTray::getInstance()->setVisible(FALSE);
 
 		LLSideTray::getInstance()->setVisible(FALSE);
+
+		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
 
 		// clear out camera lag effect
 		mCameraLag.clearVec();
@@ -5062,14 +5033,7 @@ void LLAgent::handleMaturity(const LLSD& newvalue)
 
 //----------------------------------------------------------------------------
 
-void LLAgent::buildFullname(std::string& name) const
-{
-	if (mAvatarObject.notNull())
-	{
-		name = mAvatarObject->getFullname();
-	}
-}
-
+//*TODO remove, is not used anywhere as of August 20, 2009
 void LLAgent::buildFullnameAndTitle(std::string& name) const
 {
 	if (isGroupMember())
@@ -5221,97 +5185,6 @@ BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOO
 		}
 	}
 	return FALSE;
-}
-
-// utility to build a location string
-BOOL LLAgent::buildLocationString(std::string& str, ELocationFormat fmt)
-{
-	LLViewerRegion* region = getRegion();
-	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-
-	if (!region || !parcel)
-		return FALSE;
-
-	const LLVector3& agent_pos_region = getPositionAgent();
-	S32 pos_x = S32(agent_pos_region.mV[VX]);
-	S32 pos_y = S32(agent_pos_region.mV[VY]);
-	S32 pos_z = S32(agent_pos_region.mV[VZ]);
-
-	// Round the numbers based on the velocity
-	LLVector3 agent_velocity = getVelocity();
-	F32 velocity_mag_sq = agent_velocity.magVecSquared();
-
-	const F32 FLY_CUTOFF = 6.f;		// meters/sec
-	const F32 FLY_CUTOFF_SQ = FLY_CUTOFF * FLY_CUTOFF;
-	const F32 WALK_CUTOFF = 1.5f;	// meters/sec
-	const F32 WALK_CUTOFF_SQ = WALK_CUTOFF * WALK_CUTOFF;
-
-	if (velocity_mag_sq > FLY_CUTOFF_SQ)
-	{
-		pos_x -= pos_x % 4;
-		pos_y -= pos_y % 4;
-	}
-	else if (velocity_mag_sq > WALK_CUTOFF_SQ)
-	{
-		pos_x -= pos_x % 2;
-		pos_y -= pos_y % 2;
-	}
-
-	// create a defult name and description for the landmark
-	std::string parcel_name = LLViewerParcelMgr::getInstance()->getAgentParcelName();
-	std::string region_name = region->getName();
-	std::string buffer;
-	if( LLViewerParcelMgr::getInstance()->getAgentParcelName().empty() )
-	{
-		// the parcel doesn't have a name
-		switch (fmt)
-		{
-		case LOCATION_FORMAT_LANDMARK:
-			buffer = llformat("%.100s", region_name.c_str());
-			break;
-		case LOCATION_FORMAT_NORMAL:
-			buffer = llformat("%s", region_name.c_str());
-			break;
-		case LOCATION_FORMAT_WITHOUT_SIM:
-		case LOCATION_FORMAT_FULL:
-			buffer = llformat("%s (%d, %d, %d)",
-							  region_name.c_str(),
-						  pos_x, pos_y, pos_z);
-			break;
-		}
-	}
-	else
-	{
-		// the parcel has a name, so include it in the landmark name
-		switch (fmt)
-		{
-		case LOCATION_FORMAT_LANDMARK:
-			buffer = llformat("%.100s", parcel_name.c_str());
-			break;
-		case LOCATION_FORMAT_NORMAL:
-			buffer = llformat("%s, %s",
-							  region_name.c_str(),
-							  parcel_name.c_str());
-			break;
-		case LOCATION_FORMAT_WITHOUT_SIM:
-			buffer = llformat("%s, %s (%d, %d, %d)",
-									  region_name.c_str(),
-									  parcel_name.c_str(),
-									  pos_x, pos_y, pos_z);
-			break;
-		case LOCATION_FORMAT_FULL:
-			std::string sim_access_string = region->getSimAccessString();
-			buffer = llformat("%s, %s (%d, %d, %d)%s%s",
-							  region_name.c_str(),
-							  parcel_name.c_str(),
-							  pos_x, pos_y, pos_z,
-							  sim_access_string.empty() ? "" : " - ",
-							  sim_access_string.c_str());
-			break;
-		}
-	}
-	str = buffer;
-	return TRUE;
 }
 
 LLQuaternion LLAgent::getHeadRotation()
@@ -5473,30 +5346,6 @@ BOOL LLAgent::allowOperation(PermissionBit op,
 	}
 
 	return perm.allowOperationBy(op, agent_proxy, group_proxy);
-}
-
-
-void LLAgent::getName(std::string& name) const
-{
-	name.clear();
-
-	if (mAvatarObject.notNull())
-	{
-		LLNameValue *first_nv = mAvatarObject->getNVPair("FirstName");
-		LLNameValue *last_nv = mAvatarObject->getNVPair("LastName");
-		if (first_nv && last_nv)
-		{
-			name = first_nv->printData() + " " + last_nv->printData();
-		}
-		else
-		{
-			llwarns << "Agent is missing FirstName and/or LastName nv pair." << llendl;
-		}
-	}
-	else
-	{
-		name = gSavedSettings.getString("FirstName") + " " + gSavedSettings.getString("LastName");
-	}
 }
 
 const LLColor4 &LLAgent::getEffectColor()
@@ -6308,12 +6157,12 @@ void LLAgent::setTeleportState(ETeleportState state)
 	if (mTeleportState == TELEPORT_MOVING)
 	{
 		// We're outa here. Save "back" slurl.
-		mTeleportSourceSLURL = getSLURL();
+		mTeleportSourceSLURL = LLAgentUI::buildSLURL();
 	}
 	else if(mTeleportState == TELEPORT_ARRIVING)
 	{
 		// Let the interested parties know we've teleported.
-		LLViewerParcelMgr::getInstance()->onTeleportFinished();
+		LLViewerParcelMgr::getInstance()->onTeleportFinished(false, getPositionGlobal());
 	}
 }
 

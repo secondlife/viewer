@@ -1,10 +1,10 @@
-/** 
- * @file llhudview.cpp
- * @brief 2D HUD overlay
+/**
+ * @file lltoastimpanel.h
+ * @brief Panel for IM toasts.
  *
- * $LicenseInfo:firstyear=2003&license=viewergpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2003-2009, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,63 +30,50 @@
  * $/LicenseInfo$
  */
 
-#include "llviewerprecompiledheaders.h"
+#ifndef LLTOASTIMPANEL_H_
+#define LLTOASTIMPANEL_H_
 
-#include "llhudview.h"
 
-// library includes
-#include "v4color.h"
-#include "llcoord.h"
+#include "lltoastpanel.h"
+#include "lltextbox.h"
+#include "llbutton.h"
+#include "llavatariconctrl.h"
 
-// viewer includes
-#include "llcallingcard.h"
-#include "llviewercontrol.h"
-#include "llfloaterworldmap.h"
-#include "llworldmapview.h"
-#include "lltracker.h"
-#include "llviewercamera.h"
-#include "llui.h"
 
-LLHUDView *gHUDView = NULL;
-
-const S32 HUD_ARROW_SIZE = 32;
-
-LLHUDView::LLHUDView()
-:	LLPanel()
+class LLToastIMPanel: public LLToastPanel 
 {
-}
-
-LLHUDView::~LLHUDView()
-{
-}
-
-// virtual
-void LLHUDView::draw()
-{
-	LLTracker::drawHUDArrow();
-}
-
-
-// public
-const LLColor4& LLHUDView::colorFromType(S32 type)
-{
-	switch (type)
+public:
+	struct Params :	public LLInitParam::Block<Params>
 	{
-	case 0:
-		return LLColor4::green;
-	default:
-		return LLColor4::black;
-	}
-}
+		LLNotificationPtr	notification;
+		LLUUID				avatar_id;
+		LLUUID				session_id;
+		std::string			from;
+		std::string			time;
+		std::string			message;
 
+		Params() {}
+	};
 
-/*virtual*/
-BOOL LLHUDView::handleMouseDown(S32 x, S32 y, MASK mask)
-{
-	if (LLTracker::handleMouseDown(x, y))
-	{
-		return TRUE;
-	}
-	return LLView::handleMouseDown(x, y, mask);
-}
+	LLToastIMPanel(LLToastIMPanel::Params &p);
+	virtual ~LLToastIMPanel();
+
+private:
+	static const S32 MAX_MESSAGE_HEIGHT;
+	static const S32 CAPTION_HEIGHT;
+	static const S32 TOP_PAD;
+
+	void onClickReplyBtn();
+	void snapToMessageHeight();
+
+	LLUUID				mSessionID;
+	LLAvatarIconCtrl*	mAvatar;
+	LLTextBox*			mUserName;
+	LLTextBox*			mTime;
+	LLTextBox*			mMessage;
+	LLButton*			mReplyBtn;
+};
+
+#endif // LLTOASTIMPANEL_H_
+
 

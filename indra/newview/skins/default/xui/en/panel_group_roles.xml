@@ -193,7 +193,7 @@ clicking on their names.
          height="20"
          follows="left|top|right"
          max_length="250"
-         label="Filter Roles"
+         label="Filter People"
          name="filter_input"
          font="SansSerif"
          background_image="TextField_Search_Off"
@@ -326,7 +326,7 @@ including the Everyone and Owner Roles.
             height="20"
             follows="left|top|right"
             max_length="250"
-            label="Filter People"
+            label="Filter Roles"
             name="filter_input"
             font="SansSerif"
             background_image="TextField_Search_Off"
@@ -507,7 +507,7 @@ things in this group. There&apos;s a broad variety of Abilities.
         </panel>
     </tab_container>
     <panel
-     height="50"
+     height="170"
      layout="topleft"
      follows="left|top"
      left="10"
@@ -540,7 +540,6 @@ things in this group. There&apos;s a broad variety of Abilities.
         </text>
         <scroll_list
          draw_stripes="false"
-         enabled="false"
          follows="left|top"
          height="150"
          layout="topleft"
@@ -559,7 +558,6 @@ things in this group. There&apos;s a broad variety of Abilities.
         </scroll_list>
         <scroll_list
          draw_stripes="false"
-         enabled="false"
          height="150"
          layout="topleft"
          follows="left|top"
@@ -686,7 +684,6 @@ things in this group. There&apos;s a broad variety of Abilities.
         </text>
         <name_list
          draw_stripes="false"
-         enabled="false"
          height="150"
          layout="topleft"
          left="0"
@@ -783,7 +780,6 @@ things in this group. There&apos;s a broad variety of Abilities.
             Members with Ability
         </text>
         <scroll_list
-         enabled="false"
          height="150"
          layout="topleft"
          left="0"
@@ -791,7 +787,6 @@ things in this group. There&apos;s a broad variety of Abilities.
          top="90"
          width="130" />
         <name_list
-         enabled="false"
          height="150"
          layout="topleft"
          left_pad="5"

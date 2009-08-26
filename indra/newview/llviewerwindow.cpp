@@ -186,6 +186,7 @@
 #include "llpostprocess.h"
 #include "llbottomtray.h"
 #include "llnearbychatbar.h"
+#include "llagentui.h"
 
 #include "llnotificationmanager.h"
 
@@ -1105,7 +1106,7 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 		FillRect(hdc, &wnd_rect, CreateSolidBrush(RGB(255, 255, 255)));
 
 		std::string name_str;
-		gAgent.getName(name_str);
+		LLAgentUI::buildName(name_str);
 
 		std::string temp_str;
 		temp_str = llformat( "%s FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */

@@ -40,6 +40,7 @@
 #include <llmenugl.h>
 
 #include "llagent.h"
+#include "llviewerregion.h"
 #include "lllocationhistory.h"
 #include "lllocationinputctrl.h"
 #include "llteleporthistory.h"
@@ -57,6 +58,7 @@
 #include "lllandmarkactions.h"
 
 #include "llfavoritesbar.h"
+#include "llagentui.h"
 
 //-- LLTeleportHistoryMenuItem -----------------------------------------------
 
@@ -180,18 +182,14 @@ LLNavigationBar::LLNavigationBar()
 	mBtnHome(NULL),
 	mCmbLocation(NULL),
 	mLeSearch(NULL),
-	mPurgeTPHistoryItems(false),
-	mUpdateTypedLocationHistory(false)
+	mPurgeTPHistoryItems(false)
 {
 	setIsChrome(TRUE);
 	
-	mParcelMgrConnection = LLViewerParcelMgr::getInstance()->setAgentParcelChangedCallback(
-			boost::bind(&LLNavigationBar::onTeleportFinished, this));
+	mParcelMgrConnection = LLViewerParcelMgr::getInstance()->setTeleportFinishedCallback(
+			boost::bind(&LLNavigationBar::onTeleportFinished, this, _1));
 
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_navigation_bar.xml");
-
-	// navigation bar can never get a tab
-	setFocusRoot(FALSE);
 
 	// set a listener function for LoginComplete event
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLNavigationBar::handleLoginComplete, this));
@@ -314,19 +312,18 @@ void LLNavigationBar::onLocationSelection()
 	}
 	else
 	{
+		//If it is not slurl let's look for landmarks
 		LLInventoryModel::item_array_t landmark_items = LLLandmarkActions::fetchLandmarksByName(typed_location, FALSE);
 		if ( !landmark_items.empty() )
 		{
-			mUpdateTypedLocationHistory = true;
 			gAgent.teleportViaLandmark(landmark_items[0]->getAssetUUID());
 			return;
 		}
-		else
-		{
-			region_name = extractLocalCoordsFromRegName(typed_location, &x, &y, &z);
-			if (region_name != typed_location)
-				local_coords.set(x, y, z);
-		}
+		//No landmark match, check if it is a region name
+		region_name = parseLocation(typed_location, &x, &y, &z);
+		if (region_name != typed_location)
+			local_coords.set(x, y, z);
+
 		// Treat it as region name.
 		// region_name = typed_location;
 	}
@@ -339,31 +336,30 @@ void LLNavigationBar::onLocationSelection()
 	LLWorldMap::getInstance()->sendNamedRegionRequest(region_name, cb, std::string("unused"), false);
 }
 
-void LLNavigationBar::onTeleportFinished()
+void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos)
 {
+	// Location is valid. Add it to the typed locations history.
+	LLLocationHistory* lh = LLLocationHistory::getInstance();
 
-	if (mUpdateTypedLocationHistory) {
-		LLLocationHistory* lh = LLLocationHistory::getInstance();
-
-		// Location is valid. Add it to the typed locations history.
-		// If user has typed text this variable will contain -1.
-		if (mCmbLocation->getCurrentIndex() != -1) {
-			lh->touchItem(mCmbLocation->getSelectedItemLabel());
-		} else {
-			std::string region_name;
-			std::string url = gAgent.getSLURL();
-			S32 x = 0, y = 0, z = 0;
-
-			if (LLSLURL::isSLURL(url)) {
-				LLURLSimString::parse(LLSLURL::stripProtocol(url), &region_name, &x, &y, &z);
-				appendLocalCoordsToRegName(&region_name, x, y, z);
-				lh->addItem(region_name, url);
-			}
-		}
-
-		lh->save();
-		mUpdateTypedLocationHistory = false;
+	std::string location;
+	/*NOTE:
+	 * We can't use gAgent.getPositionAgent() in case of local teleport to build location.
+	 * At this moment gAgent.getPositionAgent() contains previous coordinates.
+	 * according to EXT-65 agent position is being reseted on each frame.  
+	 */
+	LLAgentUI::buildLocationString(location, LLAgent::LOCATION_FORMAT_WITHOUT_SIM,
+			gAgent.getPosAgentFromGlobal(global_agent_pos));
+	
+	//Touch it, if it is at list already, add new location otherwise
+	if ( !lh->touchItem(location) ) {
+		std::string tooltip = LLSLURL::buildSLURLfromPosGlobal(
+				gAgent.getRegion()->getName(), global_agent_pos, false);
+		
+		lh->addItem(location, tooltip);
 	}
+	llinfos << "Saving after on teleport finish" << llendl;
+	lh->save();
+
 }
 
 void LLNavigationBar::onTeleportHistoryChanged()
@@ -436,7 +432,6 @@ void LLNavigationBar::onRegionNameResponse(
 	LLVector3d region_pos = from_region_handle(region_handle);
 	LLVector3d global_pos = region_pos + (LLVector3d) local_coords;
 	
-	mUpdateTypedLocationHistory = true;
 	llinfos << "Teleporting to: " << global_pos  << llendl;
 	gAgent.teleportViaLocation(global_pos);
 }
@@ -475,12 +470,7 @@ void LLNavigationBar::invokeSearch(std::string search_text)
 	LLFloaterReg::showInstance("search", LLSD().insert("panel", "all").insert("id", LLSD(search_text)));
 }
 
-void LLNavigationBar::appendLocalCoordsToRegName(std::string* reg_name, S32 x, S32 y, S32 z) {
-	std::string fmt = *reg_name + " (%d, %d, %d)";
-	*reg_name = llformat(fmt.c_str(), x, y, z);
-}
-
-std::string LLNavigationBar::extractLocalCoordsFromRegName(const std::string & reg_name, S32* x, S32* y, S32* z) {
+std::string LLNavigationBar::parseLocation(const std::string & location, S32* x, S32* y, S32* z) {
 	/*
 	 * This regular expression extracts numbers from the following string
 	 * construct: "(num1, num2, num3)", where num1, num2 and num3 are decimal
@@ -489,7 +479,7 @@ std::string LLNavigationBar::extractLocalCoordsFromRegName(const std::string & r
 	const boost::regex re("\\s*\\((\\d+),\\s*(\\d+),\\s*(\\d+)\\)\\s*");
 
 	boost::smatch m;
-	if (boost::regex_search(reg_name, m, re)) {
+	if (boost::regex_search(location, m, re)) {
 		// string representations of parsed by regex++ numbers
 		std::string xstr(m[1].first, m[1].second);
 		std::string ystr(m[2].first, m[2].second);
@@ -498,13 +488,15 @@ std::string LLNavigationBar::extractLocalCoordsFromRegName(const std::string & r
 		*x = atoi(xstr.c_str());
 		*y = atoi(ystr.c_str());
 		*z = atoi(zstr.c_str());
-
-		return boost::regex_replace(reg_name, re, "");
+		//erase commas in coordinates
+		std::string region_parcel = boost::regex_replace(location, re, "");
+		// cut region name
+		return region_parcel.substr(0, region_parcel.find_first_of(','));
 	}
 
 	*x = *y = *z = 0;
 
-	return reg_name;
+	return location;
 }
 
 void LLNavigationBar::clearHistoryCache()

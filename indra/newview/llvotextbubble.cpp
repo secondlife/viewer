@@ -39,7 +39,6 @@
 #include "llprimitive.h"
 #include "llrendersphere.h"
 
-#include "llagent.h"
 #include "llbox.h"
 #include "lldrawable.h"
 #include "llface.h"

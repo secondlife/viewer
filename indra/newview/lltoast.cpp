@@ -225,7 +225,6 @@ void LLToast::onMouseEnter(S32 x, S32 y, MASK mask)
 {
 	mOnToastHover(this, MOUSE_ENTER);
 
-	setVisibleAndFrontmost();
 	setBackgroundOpaque(TRUE);
 	if(mCanFade)
 	{

@@ -41,7 +41,6 @@
 #include "llviewercamera.h"
 #include "llface.h"
 #include "llviewercontrol.h"
-#include "llagent.h"
 #include "llviewerregion.h"
 #include "llcamera.h"
 #include "pipeline.h"

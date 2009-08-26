@@ -39,7 +39,6 @@
 #include "llcharacter.h"
 #include "m3math.h"
 #include "llvoavatar.h"
-#include "llagent.h"
 
 //-----------------------------------------------------------------------------
 // Constants

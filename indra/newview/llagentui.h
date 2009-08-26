@@ -1,10 +1,10 @@
 /** 
- * @file llhudview.cpp
- * @brief 2D HUD overlay
+ * @file llagentui.h
+ * @brief Utility methods to process agent's data as slurl's etc. before displaying
  *
- * $LicenseInfo:firstyear=2003&license=viewergpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2003-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,63 +30,22 @@
  * $/LicenseInfo$
  */
 
-#include "llviewerprecompiledheaders.h"
+#ifndef LLAGENTUI_H
+#define LLAGENTUI_H
 
-#include "llhudview.h"
+#include "llagent.h"
 
-// library includes
-#include "v4color.h"
-#include "llcoord.h"
-
-// viewer includes
-#include "llcallingcard.h"
-#include "llviewercontrol.h"
-#include "llfloaterworldmap.h"
-#include "llworldmapview.h"
-#include "lltracker.h"
-#include "llviewercamera.h"
-#include "llui.h"
-
-LLHUDView *gHUDView = NULL;
-
-const S32 HUD_ARROW_SIZE = 32;
-
-LLHUDView::LLHUDView()
-:	LLPanel()
+class LLAgentUI
 {
-}
+public:
+	static void buildName(std::string& name);
+	static void buildFullname(std::string &name);
 
-LLHUDView::~LLHUDView()
-{
-}
+	static std::string buildSLURL(const bool escaped = true);
+	//build location string using the current position of gAgent.
+	static BOOL buildLocationString(std::string& str, LLAgent::ELocationFormat fmt = LLAgent::LOCATION_FORMAT_LANDMARK);
+	//build location string using a region position of the avatar. 
+	static BOOL buildLocationString(std::string& str, LLAgent::ELocationFormat fmt,const LLVector3& agent_pos_region);
+};
 
-// virtual
-void LLHUDView::draw()
-{
-	LLTracker::drawHUDArrow();
-}
-
-
-// public
-const LLColor4& LLHUDView::colorFromType(S32 type)
-{
-	switch (type)
-	{
-	case 0:
-		return LLColor4::green;
-	default:
-		return LLColor4::black;
-	}
-}
-
-
-/*virtual*/
-BOOL LLHUDView::handleMouseDown(S32 x, S32 y, MASK mask)
-{
-	if (LLTracker::handleMouseDown(x, y))
-	{
-		return TRUE;
-	}
-	return LLView::handleMouseDown(x, y, mask);
-}
-
+#endif //LLAGENTUI_H

@@ -15,6 +15,10 @@
      name="loading">
         (loading...)
     </panel.string>
+    <panel.string
+     name="already_in_group">
+        Some avatars are already in group and were not invited.
+    </panel.string>
     <text
      type="string"
      length="1"

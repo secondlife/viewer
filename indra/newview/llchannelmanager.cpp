@@ -36,6 +36,7 @@
 
 #include "llappviewer.h"
 #include "llviewercontrol.h"
+#include "llimview.h"
 
 #include <algorithm>
 
@@ -62,44 +63,66 @@ void LLChannelManager::onLoginCompleted()
 
 	for(std::vector<ChannelElem>::iterator it = mChannelList.begin(); it !=  mChannelList.end(); ++it)
 	{
+		if((*it).channel->getChannelID() == LLUUID(gSavedSettings.getString("NearByChatChannelUUID")))
+		{
+			continue;
+		}
+
 		if(!(*it).channel->getDisplayToastsAlways())
 		{
 			away_notifications +=(*it).channel->getNumberOfHiddenToasts();
 		}
 	}
 
+	// *TODO: calculate IM notifications
+	away_notifications += gIMMgr->getNumberOfUnreadIM();
+
 	if(!away_notifications)
 	{
-		LLScreenChannel::setStartUpToastShown();
+		onStartUpToastClose();
 		return;
 	}
 	
 	LLChannelManager::Params p;
-	p.id = LLUUID(STARTUP_CHANNEL_ID);
+	p.id = LLUUID(gSavedSettings.getString("StartUpChannelUUID"));
 	p.channel_right_bound = getRootView()->getRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
 	p.channel_width = gSavedSettings.getS32("NotifyBoxWidth");
 	mStartUpChannel = createChannel(p);
 
 	if(!mStartUpChannel)
+	{
+		onStartUpToastClose();
 		return;
+	}
 
-	static_cast<LLUICtrl*>(mStartUpChannel)->setCommitCallback(boost::bind(&LLChannelManager::removeStartUpChannel, this));
+	mStartUpChannel->setShowToasts(true);
+	static_cast<LLUICtrl*>(mStartUpChannel)->setCommitCallback(boost::bind(&LLChannelManager::onStartUpToastClose, this));
 	mStartUpChannel->createStartUpToast(away_notifications, gSavedSettings.getS32("ChannelBottomPanelMargin"), gSavedSettings.getS32("StartUpToastTime"));
 }
 
 //--------------------------------------------------------------------------
-void LLChannelManager::removeStartUpChannel()
+void LLChannelManager::onStartUpToastClose()
 {
-	if(!mStartUpChannel)
-		return;
+	if(mStartUpChannel)
+	{
+		mStartUpChannel->setVisible(FALSE);
+		mStartUpChannel->closeStartUpToast();
+		getRootView()->removeChild(mStartUpChannel);
+		removeChannelByID(LLUUID(gSavedSettings.getString("StartUpChannelUUID")));
+		delete mStartUpChannel;
+		mStartUpChannel = NULL;
+	}
 
-	mStartUpChannel->setVisible(FALSE);
-	mStartUpChannel->closeStartUpToast();
-	getRootView()->removeChild(mStartUpChannel);
-	delete mStartUpChannel;
-	mStartUpChannel = NULL;
+	// set StartUp Toast Flag
+	LLScreenChannel::setStartUpToastShown();
 
-	//force NEARBY CHAT CHANNEL to repost all toasts if present
+	// allow all other channels to show incoming toasts
+	for(std::vector<ChannelElem>::iterator it = mChannelList.begin(); it !=  mChannelList.end(); ++it)
+	{
+		(*it).channel->setShowToasts(true);
+	}
+
+	// force NEARBY CHAT CHANNEL to repost all toasts if present
 	LLScreenChannel* nearby_channel = getChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
 	nearby_channel->loadStoredToastsToChannel();
 	nearby_channel->setCanStoreToasts(false);
@@ -122,7 +145,7 @@ LLScreenChannel* LLChannelManager::createChannel(LLChannelManager::Params& p)
 	if(new_channel)
 		return new_channel;
 
-	new_channel = new LLScreenChannel(); 
+	new_channel = new LLScreenChannel(p.id); 
 	getRootView()->addChild(new_channel);
 	new_channel->init(p.channel_right_bound - p.channel_width, p.channel_right_bound);
 	new_channel->setToastAlignment(p.align);
@@ -179,15 +202,26 @@ void LLChannelManager::reshape(S32 width, S32 height, BOOL called_from_parent)
 }
 
 //--------------------------------------------------------------------------
-
-LLScreenChannel* LLChannelManager::getStartUpChannel()
+void LLChannelManager::removeChannelByID(const LLUUID id)
 {
-	return mStartUpChannel;
+	std::vector<ChannelElem>::iterator it = find(mChannelList.begin(), mChannelList.end(), id); 
+	if(it != mChannelList.end())
+	{
+		mChannelList.erase(it);
+	}
 }
 
 //--------------------------------------------------------------------------
+void LLChannelManager::removeChannelByChiclet(const LLChiclet* chiclet)
+{
+	std::vector<ChannelElem>::iterator it = find(mChannelList.begin(), mChannelList.end(), chiclet); 
+	if(it != mChannelList.end())
+	{
+		mChannelList.erase(it);
+	}
+}
 
-
+//--------------------------------------------------------------------------
 
 
 

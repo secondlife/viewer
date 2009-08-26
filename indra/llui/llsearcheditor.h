@@ -67,6 +67,8 @@ public:
 	virtual ~LLSearchEditor() {}
 
 	void setText(const LLStringExplicit &new_text) { mSearchEditor->setText(new_text); }
+	const std::string& getText() const		{ return mSearchEditor->getText(); }
+
 
 	// LLUICtrl interface
 	virtual void	setValue(const LLSD& value );
@@ -74,6 +76,12 @@ public:
 	virtual BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
 	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 	virtual void	clear();
+
+	void	setKeystrokeCallback(LLLineEditor::callback_t callback, void* user_data)
+	{
+		if(mSearchEditor)
+			mSearchEditor->setKeystrokeCallback(callback,user_data);
+	}
 
 private:
 	LLLineEditor* mSearchEditor;

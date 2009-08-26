@@ -211,7 +211,17 @@ void nearbychat_add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, cons
 		edit->appendStyledText(start_line, false, prepend_newline, LLStyleMap::instance().lookup(chat.mFromID,chat.mURL));
 		prepend_newline = false;
 	}
-	edit->appendColoredText(line, false, prepend_newline, color);
+
+	S32 font_size = gSavedSettings.getS32("ChatFontSize");
+
+	std::string font_name = "";
+
+	if (0 == font_size)
+		font_name = "small";
+	else if (2 == font_size)
+		font_name = "sansserifbig";
+
+	edit->appendColoredText(line, false, prepend_newline, color, font_name);
 }
 
 

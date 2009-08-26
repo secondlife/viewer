@@ -49,7 +49,6 @@
 #include "material_codes.h"
 
 // project includes
-#include "llagent.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llcolorswatch.h"
