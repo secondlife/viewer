@@ -288,7 +288,8 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		LLFloaterInventory* view = LLFloaterInventory::getActiveInventory();
 		if(view)
 		{
-			LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus();
+			LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
+
 			view->getPanel()->setSelection(content["new_inventory_item"].asUUID(), TAKE_FOCUS_NO);
 			if((LLAssetType::AT_TEXTURE == asset_type || LLAssetType::AT_SOUND == asset_type)
 				&& LLFilePicker::instance().getFileCount() <= FILE_COUNT_DISPLAY_THRESHOLD)
@@ -297,7 +298,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 			}
 			//LLFloaterInventory::dumpSelectionInformation((void*)view);
 			// restore keyboard focus
-			gFocusMgr.setKeyboardFocus(focus_ctrl);
+			gFocusMgr.setKeyboardFocus(focus);
 		}
 	}
 	else

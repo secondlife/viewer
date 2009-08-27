@@ -47,7 +47,7 @@ public:
 
     // Your code here
 	bool handle(const LLSD& tokens, const LLSD& query_map,
-				LLWebBrowserCtrl* web)
+				LLMediaCtrl* web)
 	{
 		if (tokens.size() < 1) return false;
 		LLUUID id( tokens[0] );
@@ -60,7 +60,7 @@ LLFooHandler gFooHandler;
 
 */
 
-class LLWebBrowserCtrl;
+class LLMediaCtrl;
 
 class LLCommandHandler
 {
@@ -68,14 +68,14 @@ public:
 	LLCommandHandler(const char* command, bool allow_from_untrusted_browser);
 		// Automatically registers object to get called when 
 		// command is executed.  All commands can be processed
-		// in links from LLWebBrowserCtrl, but some (like teleport)
+		// in links from LLMediaCtrl, but some (like teleport)
 		// should not be allowed from outside the app.
 		
 	virtual ~LLCommandHandler();
 
 	virtual bool handle(const LLSD& params,
 						const LLSD& query_map,
-						LLWebBrowserCtrl* web) = 0;
+						LLMediaCtrl* web) = 0;
 		// For URL secondlife:///app/foo/bar/baz?cat=1&dog=2
 		// @params - array of "bar", "baz", possibly empty
 		// @query_map - map of "cat" -> 1, "dog" -> 2, possibly empty
@@ -91,7 +91,7 @@ public:
 	static bool dispatch(const std::string& cmd,
 						 const LLSD& params,
 						 const LLSD& query_map,
-						 LLWebBrowserCtrl* web,
+						 LLMediaCtrl* web,
 						 bool trusted_browser);
 		// Execute a command registered via the above mechanism,
 		// passing string parameters.

@@ -46,7 +46,6 @@
 #include "lltimer.h"
 #include "llmath.h"
 
-#include "audioengine.h"
 #include "llclipboard.h"
 #include "llscrollbar.h"
 #include "llstl.h"
@@ -60,6 +59,7 @@
 #include "lltextparser.h"
 #include "llscrollcontainer.h"
 #include "llpanel.h"
+
 #include <queue>
 #include "llcombobox.h"
 

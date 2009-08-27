@@ -117,6 +117,8 @@ public:
 
 	// From LLFocusableElement
 	/*virtual*/ void	setFocus( BOOL b );
+	virtual void setAlpha(F32 alpha);
+
 	
 	// New virtuals
 	virtual 	void	refresh();	// called in setFocus()
@@ -144,6 +146,7 @@ public:
 	std::string		getLabel() const { return mLabel; }
 	
 	void			setCtrlsEnabled(BOOL b);
+
 
 	LLHandle<LLPanel>	getHandle() const { return mPanelHandle; }
 
@@ -186,6 +189,7 @@ public:
 	void childSetValidate(const std::string& id, boost::function<bool (const LLSD& data)> cb );
 
 	void childSetColor(const std::string& id, const LLColor4& color);
+	void childSetAlpha(const std::string& id, F32 alpha);
 
 	LLCtrlSelectionInterface* childGetSelectionInterface(const std::string& id) const;
 	LLCtrlListInterface* childGetListInterface(const std::string& id) const;
@@ -239,7 +243,7 @@ protected:
 	CommitCallbackRegistry::ScopedRegistrar mCommitCallbackRegistrar;
 	EnableCallbackRegistry::ScopedRegistrar mEnableCallbackRegistrar;
 	
-	commit_signal_t mVisibleSignal;		// Called when visibilit changes, passes new visibility as LLSD()
+	commit_signal_t mVisibleSignal;		// Called when visibility changes, passes new visibility as LLSD()
 	
 private:
 	// Unified error reporting for the child* functions

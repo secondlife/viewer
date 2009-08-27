@@ -40,7 +40,7 @@
 #include <sstream>
 
 // linden library includes
-#include "audioengine.h"
+#include "llaudioengine.h"
 #include "llfloaterreg.h"
 #include "indra_constants.h"
 #include "llassetstorage.h"
@@ -104,9 +104,8 @@
 #include "llfloatergodtools.h"
 #include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
-#include "llfloaterhtml.h"
 #include "llfloaterhtmlcurrency.h"
-#include "llfloaterhtmlhelp.h"			// gViewerHtmlHelp
+#include "llfloatermediabrowser.h"			// gViewerHtmlHelp
 #include "llfloaterhtmlsimple.h"
 #include "llfloaterhud.h"
 #include "llfloaterinspect.h"
@@ -150,6 +149,7 @@
 #include "llpanellogin.h"
 #include "llmenucommands.h"
 #include "llmenugl.h"
+#include "llmimetypes.h"
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llmutelist.h"
@@ -5581,6 +5581,7 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "help f1")
 		{
+			llinfos << "Spawning HTML help window" << llendl;
 			gViewerHtmlHelp.show();
 		}
 		else if (floater_name == "complaint reporter")
@@ -6885,7 +6886,7 @@ void handle_grab_texture(void* data)
 			// user know that the image is now in inventory.
 			if(view)
 			{
-				LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus();
+				LLFocusableElement* focus_ctrl = gFocusMgr.getKeyboardFocus();
 
 				view->getPanel()->setSelection(item_id, TAKE_FOCUS_NO);
 				view->getPanel()->openSelected();
@@ -7084,13 +7085,7 @@ void handle_load_from_xml(void*)
 
 void handle_web_browser_test(void*)
 {
-	const bool open_links_externally = false;
-	const bool open_app_slurls = true;
-	LLFloaterHtml::getInstance()->show(
-		"http://secondlife.com/app/search/slurls.html",
-		"Web Browser Test", 
-		open_links_externally, 
-		open_app_slurls);
+	LLWeb::loadURL("http://secondlife.com/app/search/slurls.html");
 }
 
 void handle_buy_currency_test(void*)

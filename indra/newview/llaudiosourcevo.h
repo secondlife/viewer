@@ -34,7 +34,7 @@
 #ifndef LL_LLAUDIOSOURCEVO_H
 #define LL_LLAUDIOSOURCEVO_H
 
-#include "audioengine.h"
+#include "llaudioengine.h"
 #include "llviewerobject.h"
 
 class LLViewerObject;

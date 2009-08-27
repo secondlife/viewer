@@ -38,7 +38,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include "audioengine.h"
+#include "llaudioengine.h"
 #include "noise.h"
 
 // TODO: Seraph - Remove unnecessary headers.  These are copied from llvoavatar.h.

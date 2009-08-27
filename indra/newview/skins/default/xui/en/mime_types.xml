@@ -7,7 +7,7 @@
 		none
 	</defaultwidget>
 	<defaultimpl>
-		LLMediaImplLLMozLib
+		media_plugin_webkit
 	</defaultimpl>
 	<widgetset name="web">
 		<label name="web_label">
@@ -53,27 +53,6 @@
 		</allow_resize>
 		<allow_looping>
 			true
-		</allow_looping>
-	</widgetset>
-	<widgetset name="none">
-		<label name="none_label">
-			No Content
-		</label>
-		<default_type>
-			none/none
-		</default_type>
-		<icon>
-			icn_media_web.tga
-		</icon>
-		<tooltip name="none_tooltip">
-			No media here
-		</tooltip>
-		<playtip name="none_playtip" />
-		<allow_resize>
-			false
-		</allow_resize>
-		<allow_looping>
-			false
 		</allow_looping>
 	</widgetset>
 	<widgetset name="image">
@@ -129,6 +108,9 @@
 		<widgettype>
 			movie
 		</widgettype>
+		<impl>
+			media_plugin_quicktime
+		</impl>
 	</scheme>
 	<mimetype name="blank">
 		<label name="blank_label">
@@ -138,7 +120,7 @@
 			none
 		</widgettype>
 		<impl>
-			LLMediaImplQuickTime
+			media_plugin_quicktime
 		</impl>
 	</mimetype>
 	<mimetype name="none/none">
@@ -181,8 +163,8 @@
 			movie
 		</widgettype>
 		<impl>
-			LLMediaImplQuickTime
-		</impl>
+      media_plugin_quicktime
+    </impl>
 	</mimetype>
 	<mimetype name="application/javascript">
 		<label name="application/javascript_label">
@@ -255,6 +237,9 @@
 		<widgettype>
 			image
 		</widgettype>
+		<impl>
+			media_plugin_flash_activex
+		</impl>
 	</mimetype>
 	<mimetype name="audio/mid">
 		<label name="audio/mid_label">
@@ -263,6 +248,9 @@
 		<widgettype>
 			audio
 		</widgettype>
+		<impl>
+			media_plugin_quicktime
+		</impl>
 	</mimetype>
 	<mimetype name="audio/mpeg">
 		<label name="audio/mpeg_label">
@@ -271,6 +259,9 @@
 		<widgettype>
 			audio
 		</widgettype>
+		<impl>
+			media_plugin_quicktime
+		</impl>
 	</mimetype>
 	<mimetype name="audio/x-aiff">
 		<label name="audio/x-aiff_label">
@@ -279,6 +270,9 @@
 		<widgettype>
 			audio
 		</widgettype>
+		<impl>
+			media_plugin_quicktime
+		</impl>
 	</mimetype>
 	<mimetype name="audio/x-wav">
 		<label name="audio/x-wav_label">
@@ -287,6 +281,9 @@
 		<widgettype>
 			audio
 		</widgettype>
+		<impl>
+			media_plugin_quicktime
+		</impl>
 	</mimetype>
 	<mimetype menu="1" name="image/bmp">
 		<label name="image/bmp_label">
@@ -296,7 +293,7 @@
 			image
 		</widgettype>
 		<impl>
-			LLMediaImplLLMozLib
+			media_plugin_webkit
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="image/gif">
@@ -307,7 +304,7 @@
 			image
 		</widgettype>
 		<impl>
-			LLMediaImplLLMozLib
+			media_plugin_webkit
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="image/jpeg">
@@ -318,7 +315,7 @@
 			image
 		</widgettype>
 		<impl>
-			LLMediaImplLLMozLib
+			media_plugin_webkit
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="image/png">
@@ -329,7 +326,7 @@
 			image
 		</widgettype>
 		<impl>
-			LLMediaImplLLMozLib
+			media_plugin_webkit
 		</impl>
 	</mimetype>
 	<mimetype name="image/svg+xml">
@@ -340,7 +337,7 @@
 			image
 		</widgettype>
 		<impl>
-			LLMediaImplLLMozLib
+			media_plugin_webkit
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="image/tiff">
@@ -351,7 +348,7 @@
 			image
 		</widgettype>
 		<impl>
-			LLMediaImplLLMozLib
+			media_plugin_webkit
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="text/html">
@@ -362,8 +359,8 @@
 			web
 		</widgettype>
 		<impl>
-			LLMediaImplLLMozLib
-		</impl>
+      media_plugin_webkit
+    </impl>
 	</mimetype>
 	<mimetype menu="1" name="text/plain">
 		<label name="text/plain_label">
@@ -373,7 +370,7 @@
 			text
 		</widgettype>
 		<impl>
-			LLMediaImplLLMozLib
+			media_plugin_webkit
 		</impl>
 	</mimetype>
 	<mimetype name="text/xml">
@@ -384,7 +381,7 @@
 			text
 		</widgettype>
 		<impl>
-			LLMediaImplLLMozLib
+			media_plugin_webkit
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="video/mpeg">
@@ -395,8 +392,8 @@
 			movie
 		</widgettype>
 		<impl>
-			LLMediaImplQuickTime
-		</impl>
+      media_plugin_quicktime
+    </impl>
 	</mimetype>
 	<mimetype name="video/mp4">
 		<label name="video/mp4_label">
@@ -406,8 +403,8 @@
 			movie
 		</widgettype>
 		<impl>
-			LLMediaImplQuickTime
-		</impl>
+      media_plugin_quicktime
+    </impl>
 	</mimetype>
 	<mimetype menu="1" name="video/quicktime">
 		<label name="video/quicktime_label">
@@ -417,8 +414,8 @@
 			movie
 		</widgettype>
 		<impl>
-			LLMediaImplQuickTime
-		</impl>
+      media_plugin_quicktime
+    </impl>
 	</mimetype>
 	<mimetype name="video/x-ms-asf">
 		<label name="video/x-ms-asf_label">
@@ -428,8 +425,8 @@
 			movie
 		</widgettype>
 		<impl>
-			LLMediaImplQuickTime
-		</impl>
+      media_plugin_quicktime
+    </impl>
 	</mimetype>
 	<mimetype name="video/x-ms-wmv">
 		<label name="video/x-ms-wmv_label">
@@ -439,8 +436,8 @@
 			movie
 		</widgettype>
 		<impl>
-			LLMediaImplQuickTime
-		</impl>
+      media_plugin_quicktime
+    </impl>
 	</mimetype>
 	<mimetype menu="1" name="video/x-msvideo">
 		<label name="video/x-msvideo_label">
@@ -450,7 +447,7 @@
 			movie
 		</widgettype>
 		<impl>
-			LLMediaImplQuickTime
-		</impl>
+      media_plugin_quicktime
+    </impl>
 	</mimetype>
 </mimetypes>

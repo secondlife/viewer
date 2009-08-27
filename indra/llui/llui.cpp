@@ -38,7 +38,6 @@
 #include <map>
 
 // Linden library includes
-#include "audioengine.h"
 #include "v2math.h"
 #include "v4color.h"
 #include "llrender.h"

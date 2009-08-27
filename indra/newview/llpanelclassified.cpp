@@ -142,7 +142,7 @@ public:
 		const bool from_search = true;
 		LLPanelClassified::sendClassifiedClickMessage(classified_id, "teleport", from_search);
 		// Invoke teleport
-		LLWebBrowserCtrl* web = NULL;
+		LLMediaCtrl* web = NULL;
 		const bool trusted_browser = true;
 		return LLURLDispatcher::dispatch(url, web, trusted_browser);
 	}

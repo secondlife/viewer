@@ -765,10 +765,6 @@ void LLToolCompGun::onMouseCaptureLost()
 		return;
 	}
 	mCur->onMouseCaptureLost();
-
-	// JC - I don't know if this is necessary.  Maybe we could lose capture
-	// if someone ALT-Tab's out when in mouselook.
-	setCurrentTool( (LLTool*) mGun );
 }
 
 void	LLToolCompGun::handleSelect()

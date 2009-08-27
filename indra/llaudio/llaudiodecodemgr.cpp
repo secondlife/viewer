@@ -33,8 +33,8 @@
 
 #include "llaudiodecodemgr.h"
 
-#include "vorbisdecode.h"
-#include "audioengine.h"
+#include "llvorbisdecode.h"
+#include "llaudioengine.h"
 #include "lllfsthread.h"
 #include "llvfile.h"
 #include "llstring.h"

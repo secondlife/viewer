@@ -66,11 +66,10 @@
 #include "lluictrlfactory.h"
 #include "llhttpclient.h"
 #include "llweb.h"
-#include "llwebbrowserctrl.h"
-#include "llfloaterhtml.h"
+#include "llmediactrl.h"
 #include "llrootview.h"
 
-#include "llfloaterhtmlhelp.h"
+#include "llfloatermediabrowser.h"
 #include "llfloatertos.h"
 #include "lltrans.h"
 #include "llglheaders.h"
@@ -89,7 +88,7 @@ class LLLoginRefreshHandler : public LLCommandHandler
 public:
 	// don't allow from external browsers
 	LLLoginRefreshHandler() : LLCommandHandler("login_refresh", true) { }
-	bool handle(const LLSD& tokens, const LLSD& query_map, LLWebBrowserCtrl* web)
+	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
 	{	
 		if (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)
 		{
@@ -257,16 +256,15 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 #endif    
 	
 	// get the web browser control
-	LLWebBrowserCtrl* web_browser = getChild<LLWebBrowserCtrl>("login_html");
+	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
+	web_browser->addObserver(this);
+
 	// Need to handle login secondlife:///app/ URLs
 	web_browser->setTrusted( true );
 
-	// observe browser events
-	web_browser->addObserver( this );
-
 	// don't make it a tab stop until SL-27594 is fixed
 	web_browser->setTabStop(FALSE);
-	web_browser->navigateToLocalPage( "loading", "loading.html" );
+	// web_browser->navigateToLocalPage( "loading", "loading.html" );
 
 	// make links open in external browser
 	web_browser->setOpenInExternalBrowser( true );
@@ -300,7 +298,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 void LLPanelLogin::setSiteIsAlive( bool alive )
 {
-	LLWebBrowserCtrl* web_browser = getChild<LLWebBrowserCtrl>("login_html");
+	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
 	// if the contents of the site was retrieved
 	if ( alive )
 	{
@@ -680,7 +678,7 @@ void LLPanelLogin::setAlwaysRefresh(bool refresh)
 {
 	if (LLStartUp::getStartupState() >= STATE_LOGIN_CLEANUP) return;
 
-	LLWebBrowserCtrl* web_browser = sInstance->getChild<LLWebBrowserCtrl>("login_html");
+	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
 
 	if (web_browser)
 	{
@@ -820,25 +818,28 @@ void LLPanelLogin::loadLoginPage()
 #endif
 #endif
 	
-	LLWebBrowserCtrl* web_browser = sInstance->getChild<LLWebBrowserCtrl>("login_html");
+	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
 	
 	// navigate to the "real" page 
-	web_browser->navigateTo( oStr.str() );
+	web_browser->navigateTo( oStr.str(), "text/html" );
 }
 
-void LLPanelLogin::onNavigateComplete( const EventType& eventIn )
+void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent event)
 {
-	LLWebBrowserCtrl* web_browser = sInstance->getChild<LLWebBrowserCtrl>("login_html");
-	if (web_browser)
+	if(event == MEDIA_EVENT_NAVIGATE_COMPLETE)
 	{
-		// *HACK HACK HACK HACK!
-		/* Stuff a Tab key into the browser now so that the first field will
-		** get the focus!  The embedded javascript on the page that properly
-		** sets the initial focus in a real web browser is not working inside
-		** the viewer, so this is an UGLY HACK WORKAROUND for now.
-		*/
-		// Commented out as it's not reliable
-		//web_browser->handleKey(KEY_TAB, MASK_NONE, false);
+		LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
+		if (web_browser)
+		{
+			// *HACK HACK HACK HACK!
+			/* Stuff a Tab key into the browser now so that the first field will
+			** get the focus!  The embedded javascript on the page that properly
+			** sets the initial focus in a real web browser is not working inside
+			** the viewer, so this is an UGLY HACK WORKAROUND for now.
+			*/
+			// Commented out as it's not reliable
+			//web_browser->handleKey(KEY_TAB, MASK_NONE, false);
+		}
 	}
 }
 

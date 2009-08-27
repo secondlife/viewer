@@ -129,6 +129,8 @@ LLDir_Linux::LLDir_Linux()
 		}
 	}
 
+	mLLPluginDir = mExecutableDir + mDirDelimiter + "llplugin";
+
 	// *TODO: don't use /tmp, use $HOME/.secondlife/tmp or something.
 	mTempDir = "/tmp";
 }
@@ -378,3 +380,15 @@ BOOL LLDir_Linux::fileExists(const std::string &filename) const
 	}
 }
 
+
+/*virtual*/ std::string LLDir_Linux::getLLPluginLauncher()
+{
+	return gDirUtilp->getLLPluginDir() + gDirUtilp->getDirDelimiter() +
+		"SLPlugin";
+}
+
+/*virtual*/ std::string LLDir_Linux::getLLPluginFilename(std::string base_name)
+{
+	return gDirUtilp->getLLPluginDir() + gDirUtilp->getDirDelimiter() +
+		"lib" + base_name + ".so";
+}

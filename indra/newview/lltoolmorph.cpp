@@ -37,7 +37,7 @@
 #include "llrender.h"
 
 // Library includes
-#include "audioengine.h"
+#include "llaudioengine.h"
 #include "llviewercontrol.h"
 #include "llfontgl.h"
 #include "sound_ids.h"

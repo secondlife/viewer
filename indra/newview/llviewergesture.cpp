@@ -34,7 +34,7 @@
 
 #include "llviewergesture.h"
 
-#include "audioengine.h"
+#include "llaudioengine.h"
 #include "lldir.h"
 #include "llviewerinventory.h"
 #include "sound_ids.h"		// for testing

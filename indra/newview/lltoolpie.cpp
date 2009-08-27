@@ -36,11 +36,11 @@
 
 #include "indra_constants.h"
 #include "llclickaction.h"
-#include "llmediabase.h"	// for status codes
 #include "llparcel.h"
 
 #include "llagent.h"
 #include "llviewercontrol.h"
+#include "llfocusmgr.h"
 #include "llfirstuse.h"
 #include "llfloaterland.h"
 #include "llfloaterreg.h"
@@ -48,7 +48,6 @@
 #include "llhoverview.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
-#include "llmediamanager.h"
 #include "llmenugl.h"
 #include "llmutelist.h"
 #include "llselectmgr.h"
@@ -65,6 +64,7 @@
 #include "llviewerwindow.h"
 #include "llviewermedia.h"
 #include "llvoavatarself.h"
+#include "llviewermediafocus.h"
 #include "llworld.h"
 #include "llui.h"
 #include "llweb.h"
@@ -73,13 +73,15 @@ extern void handle_buy(void*);
 
 extern BOOL gDebugClicks;
 
+static bool handle_media_click(const LLPickInfo& info);
+static bool handle_media_hover(const LLPickInfo& info);
 static void handle_click_action_play();
 static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp);
 static ECursorType cursor_from_parcel_media(U8 click_action);
 
 
 LLToolPie::LLToolPie()
-:	LLTool(std::string("Select")),
+:	LLTool(std::string("Pie")),
 	mGrabMouseButtonDown( FALSE ),
 	mMouseOutsideSlop( FALSE ),
 	mClickAction(0)
@@ -117,6 +119,11 @@ BOOL LLToolPie::handleRightMouseUp(S32 x, S32 y, MASK mask)
 	return LLTool::handleRightMouseUp(x, y, mask);
 }
 
+BOOL LLToolPie::handleScrollWheel(S32 x, S32 y, S32 clicks)
+{
+	return LLViewerMediaFocus::getInstance()->handleScrollWheel(x, y, clicks);
+}
+
 // static
 void LLToolPie::rightMouseCallback(const LLPickInfo& pick_info)
 {
@@ -150,6 +157,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			}
 		}
 
+		gFocusMgr.setKeyboardFocus(NULL);
 		return LLTool::handleMouseDown(x, y, mask);
 	}
 
@@ -167,8 +175,10 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 		parent = object->getRootEdit();
 	}
 
+
 	BOOL touchable = (object && object->flagHandleTouch()) 
 					 || (parent && parent->flagHandleTouch());
+
 
 	// If it's a left-click, and we have a special action, do it.
 	if (useClickAction(mask, object, parent))
@@ -192,6 +202,8 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // agent not already sitting
 			{
 				handle_sit_or_stand();
+				// put focus in world when sitting on an object
+				gFocusMgr.setKeyboardFocus(NULL);
 				return TRUE;
 			} // else nothing (fall through to touch)
 			
@@ -243,6 +255,14 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			break;
 		}
 	}
+
+	if (handle_media_click(mPick))
+	{
+		return FALSE;
+	}
+
+	// put focus back "in world"
+	gFocusMgr.setKeyboardFocus(NULL);
 
 	// Switch to grab tool if physical or triggerable
 	if (object && 
@@ -461,13 +481,13 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		mMouseOutsideSlop = TRUE;
 	}
 	*/
-	
+
+	// FIXME: This was in the pluginapi branch, but I don't think it's correct.
+//	gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
+
 	LLViewerObject *object = NULL;
 	LLViewerObject *parent = NULL;
-	if (gHoverView)
-	{
-		object = gViewerWindow->getHoverPick().getObject();
-	}
+	object = gViewerWindow->getHoverPick().getObject();
 
 	if (object)
 	{
@@ -478,6 +498,11 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	{
 		ECursorType cursor = cursor_from_object(object);
 		gViewerWindow->setCursor(cursor);
+		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+	}
+	else if (handle_media_hover(gViewerWindow->getHoverPick()))
+	{
+		// cursor set by media object
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
 	else if ((object && !object->isAvatar() && object->usePhysics()) 
@@ -496,6 +521,15 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	{
 		gViewerWindow->setCursor(UI_CURSOR_ARROW);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+
+		if(!object)
+		{
+			// We need to clear media hover flag
+			if (LLViewerMediaFocus::getInstance()->getMouseOverFlag())
+			{
+				LLViewerMediaFocus::getInstance()->setMouseOverFlag(false);
+			}
+		}
 	}
 
 	return TRUE;
@@ -644,14 +678,14 @@ static void handle_click_action_play()
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (!parcel) return;
 
-	LLMediaBase::EStatus status = LLViewerParcelMedia::getStatus();
+	LLViewerMediaImpl::EMediaStatus status = LLViewerParcelMedia::getStatus();
 	switch(status)
 	{
-		case LLMediaBase::STATUS_STARTED:
+		case LLViewerMediaImpl::MEDIA_PLAYING:
 			LLViewerParcelMedia::pause();
 			break;
 
-		case LLMediaBase::STATUS_PAUSED:
+		case LLViewerMediaImpl::MEDIA_PAUSED:
 			LLViewerParcelMedia::start();
 			break;
 
@@ -660,6 +694,111 @@ static void handle_click_action_play()
 			break;
 	}
 }
+
+static bool handle_media_click(const LLPickInfo& pick)
+{
+	//FIXME: how do we handle object in different parcel than us?
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	LLPointer<LLViewerObject> objectp = pick.getObject();
+
+
+	if (!parcel ||
+		objectp.isNull() ||
+		pick.mObjectFace < 0 || 
+		pick.mObjectFace >= objectp->getNumTEs()) 
+	{
+		LLSelectMgr::getInstance()->deselect();
+		LLViewerMediaFocus::getInstance()->clearFocus();
+
+		return false;
+	}
+
+
+
+	// HACK: This is directly referencing an impl name.  BAD!
+	// This can be removed when we have a truly generic media browser that only 
+	// builds an impl based on the type of url it is passed.
+
+	// is media playing on this face?
+	const LLTextureEntry* tep = objectp->getTE(pick.mObjectFace);
+
+	viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(tep->getID());
+	if (tep
+		&& media_impl.notNull()
+		&& media_impl->hasMedia()
+		&& gSavedSettings.getBOOL("MediaOnAPrimUI"))
+	{
+		LLObjectSelectionHandle selection = LLViewerMediaFocus::getInstance()->getSelection(); 
+		if (! selection->contains(pick.getObject(), pick.mObjectFace))
+		{
+			LLViewerMediaFocus::getInstance()->setFocusFace(TRUE, pick.getObject(), pick.mObjectFace, media_impl);
+		}
+		else
+		{
+			media_impl->mouseDown(pick.mXYCoords.mX, pick.mXYCoords.mY);
+			media_impl->mouseCapture(); // the mouse-up will happen when capture is lost
+		}
+
+		return true;
+	}
+
+	LLSelectMgr::getInstance()->deselect();
+	LLViewerMediaFocus::getInstance()->clearFocus();
+
+	return false;
+}
+
+static bool handle_media_hover(const LLPickInfo& pick)
+{
+	//FIXME: how do we handle object in different parcel than us?
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	if (!parcel) return false;
+
+	LLPointer<LLViewerObject> objectp = pick.getObject();
+
+	// Early out cases.  Must clear mouse over media focus flag
+	// did not hit an object or did not hit a valid face
+	if ( objectp.isNull() ||
+		pick.mObjectFace < 0 || 
+		pick.mObjectFace >= objectp->getNumTEs() )
+	{
+		LLViewerMediaFocus::getInstance()->setMouseOverFlag(false);
+		return false;
+	}
+
+
+	// HACK: This is directly referencing an impl name.  BAD!
+	// This can be removed when we have a truly generic media browser that only 
+	// builds an impl based on the type of url it is passed.
+
+	// is media playing on this face?
+	const LLTextureEntry* tep = objectp->getTE(pick.mObjectFace);
+	viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(tep->getID());
+	if (tep
+		&& media_impl.notNull()
+		&& media_impl->hasMedia()
+		&& gSavedSettings.getBOOL("MediaOnAPrimUI"))
+	{
+		if(LLViewerMediaFocus::getInstance()->getFocus())
+		{
+			media_impl->mouseMove(pick.mXYCoords.mX, pick.mXYCoords.mY);
+		}
+
+		// Set mouse over flag if unset
+		if (! LLViewerMediaFocus::getInstance()->getMouseOverFlag())
+		{
+			LLSelectMgr::getInstance()->setHoverObject(objectp, pick.mObjectFace);
+			LLViewerMediaFocus::getInstance()->setMouseOverFlag(true, media_impl);
+			LLViewerMediaFocus::getInstance()->setPickInfo(pick);
+		}
+
+		return true;
+	}
+	LLViewerMediaFocus::getInstance()->setMouseOverFlag(false);
+
+	return false;
+}
+
 
 static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp)
 {
@@ -675,7 +814,7 @@ static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp)
 	if( face < 0 || face >= objectp->getNumTEs() ) return;
 		
 	// is media playing on this face?
-	if (!LLViewerMedia::isActiveMediaTexture(objectp->getTE(face)->getID()))
+	if (LLViewerMedia::getMediaImplFromTextureID(objectp->getTE(face)->getID()) != NULL)
 	{
 		handle_click_action_play();
 		return;
@@ -685,18 +824,7 @@ static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp)
 	std::string media_type = std::string ( parcel->getMediaType() );
 	LLStringUtil::trim(media_url);
 
-	// Get the scheme, see if that is handled as well.
-	LLURI uri(media_url);
-	std::string media_scheme = uri.scheme() != "" ? uri.scheme() : "http";
-
-	// HACK: This is directly referencing an impl name.  BAD!
-	// This can be removed when we have a truly generic media browser that only 
-	// builds an impl based on the type of url it is passed.
-
-	if(	LLMediaManager::getInstance()->supportsMediaType( "LLMediaImplLLMozLib", media_scheme, media_type ) )
-	{
-		LLWeb::loadURL(media_url);
-	}
+	LLWeb::loadURL(media_url);
 }
 
 static ECursorType cursor_from_parcel_media(U8 click_action)
@@ -714,19 +842,12 @@ static ECursorType cursor_from_parcel_media(U8 click_action)
 	std::string media_type = std::string ( parcel->getMediaType() );
 	LLStringUtil::trim(media_url);
 
-	// Get the scheme, see if that is handled as well.
-	LLURI uri(media_url);
-	std::string media_scheme = uri.scheme() != "" ? uri.scheme() : "http";
+	open_cursor = UI_CURSOR_TOOLMEDIAOPEN;
 
-	if(	LLMediaManager::getInstance()->supportsMediaType( "LLMediaImplLLMozLib", media_scheme, media_type ) )
-	{
-		open_cursor = UI_CURSOR_TOOLMEDIAOPEN;
-	}
-
-	LLMediaBase::EStatus status = LLViewerParcelMedia::getStatus();
+	LLViewerMediaImpl::EMediaStatus status = LLViewerParcelMedia::getStatus();
 	switch(status)
 	{
-		case LLMediaBase::STATUS_STARTED:
+		case LLViewerMediaImpl::MEDIA_PLAYING:
 			return click_action == CLICK_ACTION_PLAY ? UI_CURSOR_TOOLPAUSE : open_cursor;
 		default:
 			return UI_CURSOR_TOOLPLAY;

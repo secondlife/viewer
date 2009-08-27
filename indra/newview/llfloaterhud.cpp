@@ -36,7 +36,7 @@
 
 // Viewer libs
 #include "llviewercontrol.h"
-#include "llwebbrowserctrl.h"
+#include "llmediactrl.h"
 #include "llalertdialog.h"
 
 // Linden libs
@@ -76,7 +76,7 @@ LLFloaterHUD::LLFloaterHUD(const LLSD& key)
 
 BOOL LLFloaterHUD::postBuild()
 {
-	mWebBrowser = getChild<LLWebBrowserCtrl>("floater_hud_browser" );
+	mWebBrowser = getChild<LLMediaCtrl>("floater_hud_browser" );
 	if (mWebBrowser)
 	{
 		// Open links in internal browser

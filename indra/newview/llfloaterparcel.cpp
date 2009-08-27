@@ -55,7 +55,7 @@ public:
 	// requires trusted browser to trigger
 	LLParcelHandler() : LLCommandHandler("parcel", true) { }
 	bool handle(const LLSD& params, const LLSD& query_map,
-				LLWebBrowserCtrl* web)
+				LLMediaCtrl* web)
 	{
 		if (params.size() < 2)
 		{

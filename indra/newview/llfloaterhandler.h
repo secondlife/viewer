@@ -39,7 +39,7 @@ class LLFloaterHandler
 {
 public:
 	LLFloaterHandler() : LLCommandHandler("floater", true) { }
-	bool handle(const LLSD& params, const LLSD& query_map, LLWebBrowserCtrl* web);
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web);
 };
 
 #endif

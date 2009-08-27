@@ -99,6 +99,8 @@
 #include "pipeline.h"
 #include "lluictrlfactory.h"
 #include "llboost.h"
+#include "llviewermedia.h"
+#include "llpluginclassmedia.h"
 
 
 //RN temporary includes for resolution switching
@@ -166,9 +168,8 @@ void LLVoiceSetKeyDialog::onCancel(void* user_data)
 // if creating/destroying these is too slow, we'll need to create
 // a static member and update all our static callbacks
 
-void free_web_media(LLMediaBase *media_source);
 void handleNameTagOptionChanged(const LLSD& newvalue);	
-LLMediaBase *get_web_media();
+viewer_media_t get_web_media();
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response);
 
 bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
@@ -177,40 +178,11 @@ bool callback_reset_dialogs(const LLSD& notification, const LLSD& response, LLFl
 bool extractWindowSizeFromString(const std::string& instr, U32 &width, U32 &height);
 void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
 
-LLMediaBase *get_web_media()
+viewer_media_t get_web_media()
 {
-	LLMediaBase *media_source;
-	LLMediaManager *mgr = LLMediaManager::getInstance();
-	
-	if (!mgr)
-	{
-		llwarns << "cannot get media manager" << llendl;
-		return NULL;
-	}
-	
-	media_source = mgr->createSourceFromMimeType("http", "text/html" );
-	if ( !media_source )
-	{
-		llwarns << "media source create failed " << llendl;
-		return NULL;
-	}
+	viewer_media_t media_source = LLViewerMedia::newMediaImpl("", LLUUID::null, 0, 0, 0, 0, "text/html");
 	
 	return media_source;
-}
-
-void free_web_media(LLMediaBase *media_source)
-{
-	if (!media_source)
-		return;
-	
-	LLMediaManager *mgr = LLMediaManager::getInstance();
-	if (!mgr)
-	{
-		llwarns << "cannot get media manager" << llendl;
-		return;
-	}
-	
-	mgr->destroySource(media_source);
 }
 
 
@@ -220,10 +192,9 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 	if ( option == 0 ) // YES
 	{
 		// clean web
-		LLMediaBase *media_source = get_web_media();
-		if (media_source)
-			media_source->clearCache();
-		free_web_media(media_source);
+		viewer_media_t media_source = get_web_media();
+		if (media_source && media_source->hasMedia())
+			media_source->getMediaPlugin()->clear_cache();
 		
 		// clean nav bar history
 		LLNavigationBar::getInstance()->clearHistoryCache();
@@ -434,20 +405,18 @@ void LLFloaterPreference::apply()
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
 	childSetText("cache_location", cache_location);		
 	
-	LLMediaBase *media_source = get_web_media();
-	if (media_source)
+	viewer_media_t media_source = get_web_media();
+	if (media_source && media_source->hasMedia())
 	{
-		media_source->enableCookies(childGetValue("cookies_enabled"));
+		media_source->getMediaPlugin()->enable_cookies(childGetValue("cookies_enabled"));
 		if(hasChild("web_proxy_enabled") &&hasChild("web_proxy_editor") && hasChild("web_proxy_port"))
 		{
 			bool proxy_enable = childGetValue("web_proxy_enabled");
 			std::string proxy_address = childGetValue("web_proxy_editor");
-			
 			int proxy_port = childGetValue("web_proxy_port");
-			media_source->enableProxy(proxy_enable, proxy_address, proxy_port);
+			media_source->getMediaPlugin()->proxy_setup(proxy_enable, proxy_address, proxy_port);
 		}
 	}
-	free_web_media(media_source);
 	
 //	LLWString busy_response = utf8str_to_wstring(getChild<LLUICtrl>("busy_response")->getValue().asString());
 //	LLWStringUtil::replaceTabsWithSpaces(busy_response, 4);
@@ -558,7 +527,7 @@ void LLFloaterPreference::onBtnOK()
 	// commit any outstanding text entry
 	if (hasFocus())
 	{
-		LLUICtrl* cur_focus = gFocusMgr.getKeyboardFocus();
+		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
 		if (cur_focus->acceptsTextInput())
 		{
 			cur_focus->onCommit();
@@ -595,7 +564,7 @@ void LLFloaterPreference::onBtnApply( )
 {
 	if (hasFocus())
 	{
-		LLUICtrl* cur_focus = gFocusMgr.getKeyboardFocus();
+		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
 		if (cur_focus->acceptsTextInput())
 		{
 			cur_focus->onCommit();
@@ -611,7 +580,7 @@ void LLFloaterPreference::onBtnCancel()
 {
 	if (hasFocus())
 	{
-		LLUICtrl* cur_focus = gFocusMgr.getKeyboardFocus();
+		LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
 		if (cur_focus->acceptsTextInput())
 		{
 			cur_focus->onCommit();

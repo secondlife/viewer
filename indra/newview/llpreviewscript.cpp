@@ -83,7 +83,7 @@
 #include "llviewertexteditor.h"
 #include "llviewerwindow.h"
 #include "lluictrlfactory.h"
-#include "llwebbrowserctrl.h"
+#include "llmediactrl.h"
 #include "lluictrlfactory.h"
 
 #include "llviewercontrol.h"
@@ -446,7 +446,7 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 	// update back and forward buttons
 	LLButton* fwd_button = help_floater->getChild<LLButton>("fwd_btn");
 	LLButton* back_button = help_floater->getChild<LLButton>("back_btn");
-	LLWebBrowserCtrl* browser = help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
+	LLMediaCtrl* browser = help_floater->getChild<LLMediaCtrl>("lsl_guide_html");
 	back_button->setEnabled(browser->canNavigateBack());
 	fwd_button->setEnabled(browser->canNavigateForward());
 
@@ -505,7 +505,7 @@ void LLScriptEdCore::setHelpPage(const std::string& help_string)
 	LLFloater* help_floater = mLiveHelpHandle.get();
 	if (!help_floater) return;
 	
-	LLWebBrowserCtrl* web_browser = help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
+	LLMediaCtrl* web_browser = help_floater->getChild<LLMediaCtrl>("lsl_guide_html");
 	if (!web_browser) return;
 
 	LLComboBox* history_combo = help_floater->getChild<LLComboBox>("history_combo");
@@ -646,7 +646,7 @@ void LLScriptEdCore::onBtnDynamicHelp()
 	live_help_floater->childSetAction("back_btn", onClickBack, this);
 	live_help_floater->childSetAction("fwd_btn", onClickForward, this);
 
-	LLWebBrowserCtrl* browser = live_help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
+	LLMediaCtrl* browser = live_help_floater->getChild<LLMediaCtrl>("lsl_guide_html");
 	browser->setAlwaysRefresh(TRUE);
 
 	LLComboBox* help_combo = live_help_floater->getChild<LLComboBox>("history_combo");
@@ -675,7 +675,7 @@ void LLScriptEdCore::onClickBack(void* userdata)
 	LLFloater* live_help_floater = corep->mLiveHelpHandle.get();
 	if (live_help_floater)
 	{
-		LLWebBrowserCtrl* browserp = live_help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
+		LLMediaCtrl* browserp = live_help_floater->getChild<LLMediaCtrl>("lsl_guide_html");
 		if (browserp)
 		{
 			browserp->navigateBack();
@@ -690,7 +690,7 @@ void LLScriptEdCore::onClickForward(void* userdata)
 	LLFloater* live_help_floater = corep->mLiveHelpHandle.get();
 	if (live_help_floater)
 	{
-		LLWebBrowserCtrl* browserp = live_help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
+		LLMediaCtrl* browserp = live_help_floater->getChild<LLMediaCtrl>("lsl_guide_html");
 		if (browserp)
 		{
 			browserp->navigateForward();
@@ -732,7 +732,7 @@ void LLScriptEdCore::onHelpComboCommit(LLUICtrl* ctrl, void* userdata)
 
 		corep->addHelpItemToHistory(help_string);
 
-		LLWebBrowserCtrl* web_browser = live_help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
+		LLMediaCtrl* web_browser = live_help_floater->getChild<LLMediaCtrl>("lsl_guide_html");
 		LLUIString url_string = gSavedSettings.getString("LSLHelpURL");
 		url_string.setArg("[LSL_STRING]", help_string);
 		web_browser->navigateTo(url_string);

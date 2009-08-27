@@ -41,6 +41,7 @@
 
 #include "llagent.h"
 #include "llviewerregion.h"
+#include "lllandmarkactions.h"
 #include "lllocationhistory.h"
 #include "lllocationinputctrl.h"
 #include "llteleporthistory.h"
@@ -53,6 +54,7 @@
 #include "llworldmap.h"
 #include "llappviewer.h"
 #include "llviewercontrol.h"
+#include "llfloatermediabrowser.h"
 
 #include "llinventorymodel.h"
 #include "lllandmarkactions.h"

@@ -80,6 +80,14 @@ void LLIconCtrl::draw()
 	LLUICtrl::draw();
 }
 
+// virtual 
+void LLIconCtrl::setAlpha(F32 alpha)
+{
+	LLColor4 temp = mColor.get();
+	temp.setAlpha(alpha);
+	mColor.set(temp);
+}
+
 // virtual
 // value might be a string or a UUID
 void LLIconCtrl::setValue(const LLSD& value )

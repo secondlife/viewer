@@ -32,7 +32,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "audioengine.h"
+#include "llaudioengine.h"
 #include "llagent.h"          // gAgent
 #include "llbutton.h"
 #include "llinventory.h"

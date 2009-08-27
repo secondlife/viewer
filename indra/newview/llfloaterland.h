@@ -64,6 +64,7 @@ class LLParcelSelection;
 class LLPanelLandGeneral;
 class LLPanelLandObjects;
 class LLPanelLandOptions;
+class LLPanelLandAudio;
 class LLPanelLandMedia;
 class LLPanelLandAccess;
 class LLPanelLandBan;
@@ -99,6 +100,7 @@ protected:
 	static void* createPanelLandCovenant(void* data);
 	static void* createPanelLandObjects(void* data);
 	static void* createPanelLandOptions(void* data);
+	static void* createPanelLandAudio(void* data);
 	static void* createPanelLandMedia(void* data);
 	static void* createPanelLandAccess(void* data);
 	static void* createPanelLandBan(void* data);
@@ -112,6 +114,7 @@ protected:
 	LLPanelLandGeneral*		mPanelGeneral;
 	LLPanelLandObjects*		mPanelObjects;
 	LLPanelLandOptions*		mPanelOptions;
+	LLPanelLandAudio*		mPanelAudio;
 	LLPanelLandMedia*		mPanelMedia;
 	LLPanelLandAccess*		mPanelAccess;
 	LLPanelLandCovenant*	mPanelCovenant;

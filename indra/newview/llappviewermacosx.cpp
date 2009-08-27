@@ -50,7 +50,7 @@
 #include <Carbon/Carbon.h>
 #include "lldir.h"
 #include <signal.h>
-class LLWebBrowserCtrl;		// for LLURLDispatcher
+class LLMediaCtrl;		// for LLURLDispatcher
 
 namespace 
 {
@@ -476,7 +476,7 @@ OSErr AEGURLHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn)
 			url.replace(0, prefix.length(), "secondlife:///app/");
 		}
 		
-		LLWebBrowserCtrl* web = NULL;
+		LLMediaCtrl* web = NULL;
 		const bool trusted_browser = false;
 		LLURLDispatcher::dispatch(url, web, trusted_browser);
 	}

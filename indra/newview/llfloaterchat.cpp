@@ -71,7 +71,7 @@
 #include "llstylemap.h"
 
 // linden library includes
-#include "audioengine.h"
+#include "llaudioengine.h"
 #include "llchat.h"
 #include "llfontgl.h"
 #include "llrect.h"

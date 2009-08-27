@@ -34,7 +34,7 @@
 
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
-#include "audioengine.h"
+#include "llaudioengine.h"
 #include "llagent.h"
 #include "llinventory.h"
 #include "llinventorybridge.h"

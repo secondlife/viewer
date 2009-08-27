@@ -132,12 +132,10 @@ BOOL LLFloaterTOS::postBuild()
 	LLUICtrl *editor = getChild<LLUICtrl>("tos_text");
 	editor->setVisible( FALSE );
 
-	LLWebBrowserCtrl* web_browser = getChild<LLWebBrowserCtrl>("tos_html");
+	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("tos_html");
 	if ( web_browser )
 	{
-		// start to observe it so we see navigate complete events
-		web_browser->addObserver( this );
-
+		web_browser->addObserver(this);
 		gResponsePtr = LLIamHere::build( this );
 		LLHTTPClient::get( getString( "real_url" ), gResponsePtr );
 	}
@@ -150,7 +148,7 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 	// only do this for TOS pages
 	if (hasChild("tos_html"))
 	{
-		LLWebBrowserCtrl* web_browser = getChild<LLWebBrowserCtrl>("tos_html");
+		LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("tos_html");
 		// if the contents of the site was retrieved
 		if ( alive )
 		{
@@ -169,12 +167,6 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 
 LLFloaterTOS::~LLFloaterTOS()
 {
-	// stop obsaerving events
-	LLWebBrowserCtrl* web_browser = getChild<LLWebBrowserCtrl>("tos_html");
-	if ( web_browser )
-	{
-		web_browser->remObserver( this );		
-	};
 
 	// tell the responder we're not here anymore
 	if ( gResponsePtr )
@@ -235,14 +227,17 @@ void LLFloaterTOS::onCancel( void* userdata )
 }
 
 //virtual 
-void LLFloaterTOS::onNavigateComplete( const EventType& eventIn )
+void LLFloaterTOS::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent event)
 {
-	// skip past the loading screen navigate complete
-	if ( ++mLoadCompleteCount == 2 )
+	if(event == MEDIA_EVENT_NAVIGATE_COMPLETE)
 	{
-		llinfos << "NAVIGATE COMPLETE" << llendl;
-		// enable Agree to TOS radio button now that page has loaded
-		LLCheckBoxCtrl * tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
-		tos_agreement->setEnabled( true );
-	};
+		// skip past the loading screen navigate complete
+		if ( ++mLoadCompleteCount == 2 )
+		{
+			llinfos << "NAVIGATE COMPLETE" << llendl;
+			// enable Agree to TOS radio button now that page has loaded
+			LLCheckBoxCtrl * tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
+			tos_agreement->setEnabled( true );
+		}
+	}
 }

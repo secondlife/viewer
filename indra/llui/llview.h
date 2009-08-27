@@ -54,6 +54,7 @@
 #include "llcursortypes.h"
 #include "lluictrlfactory.h"
 #include "lltreeiterators.h"
+#include "llfocusmgr.h"
 
 #include <list>
 
@@ -141,7 +142,7 @@ virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
 class LLViewWidgetRegistry : public LLChildRegistry<LLViewWidgetRegistry>
 {};
 
-class LLView : public LLMouseHandler, public LLMortician
+class LLView : public LLMouseHandler, public LLMortician, public LLFocusableElement
 {
 public:
 	struct Follows : public LLInitParam::Choice<Follows>
@@ -413,8 +414,10 @@ public:
 	virtual BOOL	canSnapTo(const LLView* other_view);
 	virtual void	setSnappedTo(const LLView* snap_view);
 
-	virtual BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
-	virtual BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
+	// inherited from LLFocusableElement
+	/* virtual */ BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
+	/* virtual */ BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
+
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									  EDragAndDropType cargo_type,
 									  void* cargo_data,
@@ -432,8 +435,9 @@ public:
 	BOOL getSaveToXML() const { return mSaveToXML; }
 	void setSaveToXML(BOOL b) { mSaveToXML = b; }
 
-	virtual void onFocusLost();
-	virtual void onFocusReceived();
+	// inherited from LLFocusableElement
+	/* virtual */ void onFocusLost();
+	/* virtual */ void onFocusReceived();
 
 	typedef enum e_hit_test_type
 	{

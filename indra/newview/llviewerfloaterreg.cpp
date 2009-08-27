@@ -66,7 +66,7 @@
 #include "llfloatergroups.h"
 #include "llfloaterhardwaresettings.h"
 #include "llfloaterhtmlcurrency.h"
-#include "llfloaterhtmlhelp.h"
+#include "llfloatermediabrowser.h"
 #include "llfloaterhud.h"
 #include "llfloaterimagepreview.h"
 #include "llimpanel.h"

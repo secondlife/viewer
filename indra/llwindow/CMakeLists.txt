@@ -19,7 +19,6 @@ include(LLRender)
 include(LLVFS)
 include(LLWindow)
 include(LLXML)
-include(Mozlib)
 include(UI)
 
 include_directories(

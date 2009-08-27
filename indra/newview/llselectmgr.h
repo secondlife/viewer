@@ -139,6 +139,7 @@ public:
 	void selectTE(S32 te_index, BOOL selected);
 	BOOL isTESelected(S32 te_index);
 	S32 getLastSelectedTE();
+	S32 getTESelectMask() { return mTESelectMask; }
 	void renderOneSilhouette(const LLColor4 &color);
 	void setTransient(BOOL transient) { mTransient = transient; }
 	BOOL isTransient() { return mTransient; }
@@ -191,7 +192,7 @@ public:
 
 protected:
 	LLPointer<LLViewerObject>	mObject;
-	BOOL			mTESelected[SELECT_MAX_TES];
+	S32				mTESelectMask;
 	S32				mLastTESelected;
 };
 
@@ -409,7 +410,7 @@ public:
 	// converts all objects currently highlighted to a selection, and returns it
 	LLObjectSelectionHandle selectHighlightedObjects();
 
-	LLObjectSelectionHandle setHoverObject(LLViewerObject *objectp);
+	LLObjectSelectionHandle setHoverObject(LLViewerObject *objectp, S32 face = -1);
 
 	void highlightObjectOnly(LLViewerObject *objectp);
 	void highlightObjectAndFamily(LLViewerObject *objectp);
@@ -649,12 +650,14 @@ private:
 	ESelectType getSelectTypeForObject(LLViewerObject* object);
 	void addAsFamily(std::vector<LLViewerObject*>& objects, BOOL add_to_end = FALSE);
 	void generateSilhouette(LLSelectNode *nodep, const LLVector3& view_point);
+	void updateSelectionSilhouette(LLObjectSelectionHandle object_handle, S32& num_sils_genned, std::vector<LLViewerObject*>& changed_objects);
 	// Send one message to each region containing an object on selection list.
 	void sendListToRegions(	const std::string& message_name,
 							void (*pack_header)(void *user_data), 
 							void (*pack_body)(LLSelectNode* node, void *user_data), 
 							void *user_data,
 							ESendType send_type);
+
 
 	static void packAgentID(	void *);
 	static void packAgentAndSessionID(void* user_data);

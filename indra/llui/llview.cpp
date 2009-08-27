@@ -145,12 +145,6 @@ LLView::~LLView()
 	
 //	llassert_always(sDepth == 0); // avoid deleting views while drawing! It can subtly break list iterators
 	
-	if( gFocusMgr.getKeyboardFocus() == this )
-	{
-		//llwarns << "View holding keyboard focus deleted: " << getName() << ".  Keyboard focus removed." << llendl;
-		gFocusMgr.removeKeyboardFocusWithoutCallback( this );
-	}
-
 	if( hasMouseCapture() )
 	{
 		//llwarns << "View holding mouse capture deleted: " << getName() << ".  Mouse capture removed." << llendl;

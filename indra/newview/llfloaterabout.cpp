@@ -42,7 +42,7 @@
 
 #include "llcurl.h"
 #include "llimagej2c.h"
-#include "audioengine.h"
+#include "llaudioengine.h"
 
 #include "llviewertexteditor.h"
 #include "llviewercontrol.h"
@@ -58,7 +58,6 @@
 #include "lltrans.h"
 #include "llappviewer.h" 
 #include "llglheaders.h"
-#include "llmediamanager.h"
 #include "llwindow.h"
 
 #include "llbutton.h"
@@ -223,18 +222,10 @@ BOOL LLFloaterAbout::postBuild()
 	support.append( gAudiop ? gAudiop->getDriverName(want_fullname) : getString("none") );
 	support.append("\n");
 
-	LLMediaManager *mgr = LLMediaManager::getInstance();
-	if (mgr)
-	{
-		LLMediaBase *media_source = mgr->createSourceFromMimeType("http", "text/html");
-		if (media_source)
-		{
-			support.append(getString("LLMozLibVersion") + " ");
-			support.append(media_source->getVersion());
-			support.append("\n");
-			mgr->destroySource(media_source);
-		}
-	}
+	// TODO: Implement media plugin version query
+
+	support.append(getString("LLQtWebkitVersion") + " ");
+	support.append("\n");
 
 	if (gPacketsIn > 0)
 	{

@@ -84,6 +84,7 @@
 
 #include "llviewercamera.h"
 #include "llviewerdisplay.h"
+#include "llviewermediafocus.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerstats.h"
@@ -5993,6 +5994,7 @@ bool LLAgent::teleportCore(bool is_local)
 	LLFloaterReg::hideInstance("about_land");
 
 	LLViewerParcelMgr::getInstance()->deselectLand();
+	LLViewerMediaFocus::getInstance()->setFocusFace(false, NULL, 0, NULL);
 
 	// Close all pie menus, deselect land, etc.
 	// Don't change the camera until we know teleport succeeded. JC

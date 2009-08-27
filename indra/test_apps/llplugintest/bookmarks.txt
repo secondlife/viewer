@@ -1,0 +1,38 @@
+# format is description, url (don't put ',' chars in description :)
+# if no ',' found, whole line is used for both description and url
+(WK) Google Home Page,http://www.google.com
+(WK) BBC News Home Page,http://news.bbc.co.uk
+(WK) Second Life,http://secondlife.com
+(WK) WebKit Home ,http://www.webkit.org
+(WK) Yahoo News,http://news.yahoo.com
+(WK) Canvas Paint (DHTML version of MS Paint),http://www.canvaspaint.org
+(WK) DHTML Lemmings!,http://www.elizium.nu/scripts/lemmings/
+(WK) DHTML graphics demos,http://www.dhteumeuleu.com/
+(WK) Neat Javascript 3D,http://gyu.que.jp/jscloth/
+(QT) Local sample,file:///C|/Program Files/QuickTime/Sample.mov
+(FLASH) Falling Bush,http://de.fishki.net/video/bush.swf
+(FLASH) Bubble Shooter,http://www.wiicade.com/Data/72/game.swf
+(FLASH) MAME,http://yvern.com/fMAME/testDecryptLoader.swf
+(FLASH) Scribd doc,http://documents.scribd.com/ScribdViewer.swf?document_id=7470987&access_key=key-gemg40ut1qjepsgrx9y&page=&version=1&auto_size=true&viewMode=
+(FLASH) GE Whiteboard,http://imagination3.com/pen_main.swf
+(FLASH) DabbleBoard,http://www.dabbleboard.com/swf/db.swf
+(FLASH) Countdown,http://itv.jaildog.com/sites/itv/ivbg/countdown.swf
+(FLASH) Blockbusters,http://itv.jaildog.com/sites/itv/ivbg/blockbusters.swf
+(FLASH) Clock Block,http://www.subliminalmessages.com/images/clockblock.swf
+(FLASH) Devil Cat YouYube movie,http://www.youtube.com/swf/l.swf?swf=http%3A//s.ytimg.com/yt/swf/cps-vfl99456.swf&video_id=YRyK_1g4VWQ&rel=1&eurl=&iurl=http%3A//i2.ytimg.com/vi/YRyK_1g4VWQ/hqdefault.jpg&sk=70SiFZ9wC2NTIYkBXg_bK8xZB6OHmmfwC&fexp=900503%2C900037&fs=1&hl=en&autoplay=1&cr=US&avg_rating=4.56172839506&length_seconds=22&allow_ratings=1&allow_embed=1&title=devil%20cat 
+(QT) Movie - Watchmen Trailer,http://movies.apple.com/movies/wb/watchmen/watchmen-tlr2_480p.mov
+(QT) Movie - Transformers - Revenge of the Fallen,http://movies.apple.com/movies/paramount/transformers2/transformersrevengeofthefallen-tlr1_h.320.mov
+(QT) Movie - Terminator Salvation,http://movies.apple.com/movies/wb/terminatorsalvation/terminatorsalvation-tlr3_h.320.mov
+(QT) Movie - Angels and Demons,http://movies.apple.com/movies/sony_pictures/angelsanddemons/angelsanddemons-video_h.320.mov
+(QT) Movie - Sin City Trailer,http://movies.apple.com/movies/miramax/sin_city/sin_city_480.mov
+(QT) Movie - The Incredibles Trailer,http://movies.apple.com/movies/disney/the_incredibles/the_incredibles-tlr_a480.mov
+(QT) Movie - Streaming Apple Event,http://stream.qtv.apple.com/events/mar/0903lajkszg/m_090374535329zdwg_650_ref.mov
+(QT) Movie - MPEG-4 from Amazon S3,http://s3.amazonaws.com/callum-linden/flashdemo/interactive_flash_demo.mp4
+(QT) Movie - Star Trek,http://movies.apple.com/movies/paramount/star_trek/startrek-tlr3_h.320.mov
+(QT) Movie - Ice Age 3,http://movies.apple.com/movies/fox/ice_age_iii/iceage3-tlrd_h.320.mov
+(QT) Movie - AstroBoy,http://movies.apple.com/movies/summit/astroboy/astroboy-tsr_h.320.mov
+(QT) Movie - Ante Up,http://movies.apple.com/movies/independent/anteup/anteup_h.320.mov
+(QT) Movie - Every Little Step,http://movies.apple.com/movies/sony/everylittlestep/everylittlestep-clip_h.320.mov
+(QT) Movie - The Informers,http://movies.apple.com/movies/independent/theinformers/theinformers_h.320.mov
+(QT) Animated GIF,http://upload.wikimedia.org/wikipedia/commons/4/44/Optical.greysquares.arp-animated.gif
+(QT) Apple Text Descriptors,http://ubrowser.com/tmp/apple_text.txt

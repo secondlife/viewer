@@ -161,6 +161,8 @@ LLDir_Solaris::LLDir_Solaris()
 		}
 	}
 	
+	mLLPluginDir = mExecutableDir + mDirDelimiter + "llplugin";
+
 	// *TODO: don't use /tmp, use $HOME/.secondlife/tmp or something.
 	mTempDir = "/tmp";
 }

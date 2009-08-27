@@ -164,7 +164,7 @@ void LLLoginHandler::parse(const LLSD& queryMap)
 
 bool LLLoginHandler::handle(const LLSD& tokens,
 							const LLSD& query_map,
-							LLWebBrowserCtrl* web)
+							LLMediaCtrl* web)
 {	
 	parse(query_map);
 	

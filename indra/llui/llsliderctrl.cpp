@@ -34,8 +34,6 @@
 
 #include "llsliderctrl.h"
 
-#include "audioengine.h"
-
 #include "llmath.h"
 #include "llfontgl.h"
 #include "llgl.h"

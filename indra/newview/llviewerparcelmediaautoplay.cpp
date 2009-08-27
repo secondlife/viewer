@@ -109,7 +109,7 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 	if ((!mPlayed) &&                         // if we've never played
 		(mTimeInParcel > AUTOPLAY_TIME) &&    // and if we've been here for so many seconds
 		(this_media_url.size() != 0) &&       // and if the parcel has media
-		(!LLViewerMedia::isMediaPlaying()))   // and if the media is not already playing
+		(LLViewerParcelMedia::sMediaImpl.isNull()))   // and if the media is not already playing
 	{
 		if (this_media_texture_id.notNull())  // and if the media texture is good
 		{

@@ -52,6 +52,8 @@ public:
 
 	virtual LLTool*	getOverrideTool(MASK mask) { return NULL; }
 	virtual BOOL	clipMouseWhenDown()		{ return FALSE; }
+private:
+	BOOL mIsSelected;
 };
 
 #endif

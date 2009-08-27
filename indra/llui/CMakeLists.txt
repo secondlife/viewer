@@ -3,7 +3,6 @@
 project(llui)
 
 include(00-Common)
-include(LLAudio)
 include(LLCommon)
 include(LLImage)
 include(LLMath)
@@ -15,7 +14,6 @@ include(LLXML)
 include(LLXUIXML)
 
 include_directories(
-    ${LLAUDIO_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLIMAGE_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}

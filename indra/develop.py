@@ -384,16 +384,20 @@ class LinuxSetup(UnixSetup):
 
         if job_count is None:
             hosts, job_count = count_distcc_hosts()
+            hostname = socket.gethostname()
             if hosts == 1:
-                hostname = socket.gethostname()
                 if hostname.startswith('station'):
                     hosts, job_count = mk_distcc_hosts('station', 36, 2)
                     os.environ['DISTCC_HOSTS'] = hosts
                 if hostname.startswith('eniac'):
                     hosts, job_count = mk_distcc_hosts('eniac', 71, 2)
                     os.environ['DISTCC_HOSTS'] = hosts
-            if job_count > 12:
-                job_count = 12;
+            if hostname.startswith('build'):
+                max_jobs = 6
+            else:
+                max_jobs = 12
+            if job_count > max_jobs:
+                job_count = max_jobs;
             opts.extend(['-j', str(job_count)])
 
         if targets:
@@ -453,9 +457,7 @@ class DarwinSetup(UnixSetup):
             targets = ' '.join(['-target ' + repr(t) for t in targets])
         else:
             targets = ''
-        # cmd = ('xcodebuild -parallelizeTargets ' # parallelizeTargets is suspected of non-deterministic build failures. + poppy 2009-06-05
-        cmd = ('xcodebuild '
-               '-configuration %s %s %s' %
+        cmd = ('xcodebuild -configuration %s %s %s' %
                (self.build_type, ' '.join(opts), targets))
         for d in self.build_dirs():
             try:

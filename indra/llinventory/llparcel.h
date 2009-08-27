@@ -248,6 +248,14 @@ public:
 	void	setObscureMusic( U8 flagIn ) { mObscureMusic = flagIn; }
 	void setMediaWidth(S32 width);
 	void setMediaHeight(S32 height);
+	void setMediaCurrentURL(const std::string& url);
+	void setMediaURLFilterEnable(U8 enable) { mMediaURLFilterEnable = enable; }
+	void setMediaURLFilterList(LLSD list);
+	void setMediaAllowNavigate(U8 enable) { mMediaAllowNavigate = enable; }
+	void setMediaURLTimeout(F32 timeout) { mMediaURLTimeout = timeout; }
+	void setMediaPreventCameraZoom(U8 enable) { mMediaPreventCameraZoom = enable; }
+
+	void setMediaURLResetTimer(F32 time);
 	virtual void	setLocalID(S32 local_id);
 
 	// blow away all the extra crap lurking in parcels, including urls, access lists, etc
@@ -300,7 +308,8 @@ public:
 
 //	BOOL	importStream(std::istream& input_stream);
 	BOOL	importAccessEntry(std::istream& input_stream, LLAccessEntry* entry);
-//	BOOL	exportStream(std::ostream& output_stream);
+	BOOL    importMediaURLFilter(std::istream& input_stream, std::string& url);
+	// BOOL	exportStream(std::ostream& output_stream);
 
 	void	packMessage(LLMessageSystem* msg);
 	void	packMessage(LLSD& msg);
@@ -342,8 +351,15 @@ public:
 	S32				getMediaHeight() const		{ return mMediaHeight; }
 	U8				getMediaAutoScale() const	{ return mMediaAutoScale; }
 	U8              getMediaLoop() const        { return mMediaLoop; }
+	const std::string&  getMediaCurrentURL() const { return mMediaCurrentURL; }
 	U8				getObscureMedia() const		{ return mObscureMedia; }
 	U8				getObscureMusic() const		{ return mObscureMusic; }
+	U8              getMediaURLFilterEnable() const   { return mMediaURLFilterEnable; }
+	LLSD            getMediaURLFilterList() const     { return mMediaURLFilterList; }
+	U8              getMediaAllowNavigate() const { return mMediaAllowNavigate; }
+	F32				getMediaURLTimeout() const { return mMediaURLTimeout; }
+	U8              getMediaPreventCameraZoom() const { return mMediaPreventCameraZoom; }
+
 	S32				getLocalID() const			{ return mLocalID; }
 	const LLUUID&	getOwnerID() const			{ return mOwnerID; }
 	const LLUUID&	getGroupID() const			{ return mGroupID; }
@@ -413,6 +429,10 @@ public:
 	void expireSale(U32& type, U8& flags, LLUUID& from_id, LLUUID& to_id);
 	void completeSale(U32& type, U8& flags, LLUUID& to_id);
 	void clearSale();
+
+
+	BOOL isMediaResetTimerExpired(const U64& time);
+
 
 	// more accessors
 	U32		getParcelFlags() const			{ return mParcelFlags; }
@@ -592,6 +612,8 @@ protected:
 	LLVector3 mUserLookAt;
 	ELandingType mLandingType;
 	LLTimer mSaleTimerExpires;
+	LLTimer mMediaResetTimer;
+
 	S32 mGraceExtension;
 
 	// This value is non-zero if there is an auction associated with
@@ -619,9 +641,15 @@ protected:
 	S32					mMediaHeight;
 	U8					mMediaAutoScale;
 	U8                  mMediaLoop;
+	std::string         mMediaCurrentURL;
 	U8					mObscureMedia;
 	U8					mObscureMusic;
 	LLUUID				mMediaID;
+	U8                  mMediaURLFilterEnable;
+	LLSD                mMediaURLFilterList;
+	U8                  mMediaAllowNavigate;
+	U8					mMediaPreventCameraZoom;
+	F32					mMediaURLTimeout;
 	S32					mPassPrice;
 	F32					mPassHours;
 	LLVector3			mAABBMin;
@@ -651,6 +679,7 @@ public:
 	std::map<LLUUID,LLAccessEntry>	mBanList;
 	std::map<LLUUID,LLAccessEntry>	mTempBanList;
 	std::map<LLUUID,LLAccessEntry>	mTempAccessList;
+
 };
 
 

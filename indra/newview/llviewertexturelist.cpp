@@ -583,7 +583,7 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	}
 	if (!gNoRender && !gGLManager.mIsDisabled)
 	{
-		LLViewerMedia::updateImagesMediaStreams();
+		LLViewerMedia::updateMedia();
 	}
 	updateImagesUpdateStats();
 }

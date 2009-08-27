@@ -166,17 +166,6 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
-    <key>AudioLevelDistance</key>
-    <map>
-      <key>Comment</key>
-      <string>Scale factor for audio engine (multiple of world scale, 2.0 = audio falls off twice as fast)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>1.0</real>
-    </map>
     <key>AudioLevelDoppler</key>
     <map>
       <key>Comment</key>
@@ -1666,6 +1655,17 @@
     <map>
       <key>Comment</key>
       <string>Log permissions for selected inventory items</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>DebugPluginDisableTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Disable the code which watches for plugins that are crashed or hung</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -4435,7 +4435,40 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>MemoryLogFrequency</key>
+  <key>MediaControlFadeTime</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount of time (in seconds) that the media control fades</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.5</real>
+  </map>
+  <key>MediaControlTimeout</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount of time (in seconds) for media controls to fade with no mouse activity</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>3.0</real>
+  </map>
+  <key>MediaOnAPrimUI</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether or not to show the "link sharing" UI</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MemoryLogFrequency</key>
         <map>
         <key>Comment</key>
             <string>Seconds between display of Memory in log (0 for never)</string>

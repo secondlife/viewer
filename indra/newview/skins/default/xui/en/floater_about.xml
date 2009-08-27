@@ -58,7 +58,11 @@
      name="LLMozLibVersion">
         LLMozLib Version:
     </floater.string>
-    <floater.string
+  <floater.string
+     name="LLQtWebkitVersion">
+        Qt Webkit Version: 4.5.2
+  </floater.string>
+  <floater.string
      name="PacketsLost">
         Packets Lost: [LOST]/[IN] ([PCT]%)
     </floater.string>

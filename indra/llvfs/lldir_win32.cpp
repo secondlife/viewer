@@ -144,6 +144,8 @@ LLDir_Win32::LLDir_Win32()
 			llwarns << "Couldn't create LL_PATH_CACHE dir " << mDefaultCacheDir << llendl;
 		}
 	}
+
+	mLLPluginDir = mExecutableDir + mDirDelimiter + "llplugin";
 }
 
 LLDir_Win32::~LLDir_Win32()
@@ -390,6 +392,19 @@ BOOL LLDir_Win32::fileExists(const std::string &filename) const
 	{
 		return FALSE;
 	}
+}
+
+
+/*virtual*/ std::string LLDir_Win32::getLLPluginLauncher()
+{
+	return gDirUtilp->getLLPluginDir() + gDirUtilp->getDirDelimiter() +
+		"SLPlugin.exe";
+}
+
+/*virtual*/ std::string LLDir_Win32::getLLPluginFilename(std::string base_name)
+{
+	return gDirUtilp->getLLPluginDir() + gDirUtilp->getDirDelimiter() +
+		base_name + ".dll";
 }
 
 

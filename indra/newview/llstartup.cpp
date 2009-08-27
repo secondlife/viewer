@@ -40,20 +40,15 @@
 #	include <sys/stat.h>		// mkdir()
 #endif
 
-#if LL_LINUX && LL_GTK
-extern "C" {
-#	include "glib.h"		// g_spawn_command_line_async()
-}
-#endif
-
-#include "audioengine.h"
+#include "llviewermedia_streamingaudio.h"
+#include "llaudioengine.h"
 
 #ifdef LL_FMOD
-# include "audioengine_fmod.h"
+# include "llaudioengine_fmod.h"
 #endif
 
 #ifdef LL_OPENAL
-#include "audioengine_openal.h"
+#include "llaudioengine_openal.h"
 #endif
 
 #include "llares.h"
@@ -192,10 +187,6 @@ extern "C" {
 #include "llagentlanguage.h"
 #include "llwearable.h"
 #include "llinventorybridge.h"
-
-#if LL_LIBXUL_ENABLED
-#include "llmozlib.h"
-#endif // LL_LIBXUL_ENABLED
 
 #if LL_WINDOWS
 #include "llwindebug.h"
@@ -724,6 +715,16 @@ bool idle_startup()
 					delete gAudiop;
 					gAudiop = NULL;
 				}
+
+				if (gAudiop)
+				{
+					// if the audio engine hasn't set up its own preferred handler for streaming audio then set up the generic streaming audio implementation which uses media plugins
+					if (NULL == gAudiop->getStreamingAudioImpl())
+					{
+						LL_INFOS("AppInit") << "Using media plugins to render streaming audio" << LL_ENDL;
+						gAudiop->setStreamingAudioImpl(new LLStreamingAudio_MediaPlugins());
+					}
+				}
 			}
 		}
 		
@@ -809,10 +810,7 @@ bool idle_startup()
 		std::string msg = LLTrans::getString("LoginInitializingBrowser");
 		set_startup_status(0.03f, msg.c_str(), gAgent.mMOTD.c_str());
 		display_startup();
-#if !defined(LL_WINDOWS) || !defined(LL_DEBUG)
-		// This generates an error in debug mode on Windows
-		LLViewerMedia::initBrowser();
-#endif
+		// LLViewerMedia::initBrowser();
 		LLStartUp::setStartupState( STATE_LOGIN_SHOW );
 		return FALSE;
 	}
@@ -3486,7 +3484,7 @@ void LLStartUp::multimediaInit()
 	set_startup_status(0.42f, msg.c_str(), gAgent.mMOTD.c_str());
 	display_startup();
 
-	LLViewerMedia::initClass();
+	// LLViewerMedia::initClass();
 	LLViewerParcelMedia::initClass();
 }
 
@@ -3505,7 +3503,7 @@ bool LLStartUp::dispatchURL()
 	// ok, if we've gotten this far and have a startup URL
 	if (!sSLURLCommand.empty())
 	{
-		LLWebBrowserCtrl* web = NULL;
+		LLMediaCtrl* web = NULL;
 		const bool trusted_browser = false;
 		LLURLDispatcher::dispatch(sSLURLCommand, web, trusted_browser);
 	}
@@ -3523,7 +3521,7 @@ bool LLStartUp::dispatchURL()
 			|| (dy*dy > SLOP*SLOP) )
 		{
 			std::string url = LLURLSimString::getURL();
-			LLWebBrowserCtrl* web = NULL;
+			LLMediaCtrl* web = NULL;
 			const bool trusted_browser = false;
 			LLURLDispatcher::dispatch(url, web, trusted_browser);
 		}

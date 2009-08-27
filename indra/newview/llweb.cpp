@@ -40,7 +40,7 @@
 
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
-#include "llfloaterhtmlhelp.h"
+#include "llfloatermediabrowser.h"
 #include "llfloaterreg.h"
 #include "llalertdialog.h"
 

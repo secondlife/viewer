@@ -77,7 +77,6 @@
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "lllogchat.h"
-#include "llfloaterhtml.h"
 #include "llweb.h"
 #include "llhttpclient.h"
 #include "llmutelist.h"

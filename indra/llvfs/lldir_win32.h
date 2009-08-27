@@ -50,6 +50,9 @@ public:
 	/*virtual*/ void getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname);
 	/*virtual*/ BOOL fileExists(const std::string &filename) const;
 
+	/*virtual*/ std::string getLLPluginLauncher();
+	/*virtual*/ std::string getLLPluginFilename(std::string base_name);
+
 private:
 	BOOL LLDir_Win32::getNextFileInDir(const llutf16string &dirname, const std::string &mask, std::string &fname, BOOL wrap);
 	

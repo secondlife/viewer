@@ -49,7 +49,7 @@ public:
 	LLAgentHandler() : LLCommandHandler("agent", true) { }
 
 	bool handle(const LLSD& params, const LLSD& query_map,
-		LLWebBrowserCtrl* web)
+		LLMediaCtrl* web)
 	{
 		if (params.size() < 2) return false;
 		LLUUID agent_id;

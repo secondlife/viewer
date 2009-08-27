@@ -46,35 +46,10 @@
 const BOOL TAKE_FOCUS_YES = TRUE;
 const BOOL TAKE_FOCUS_NO  = FALSE;
 
-class LLFocusableElement
-{
-	friend class LLFocusMgr; // allow access to focus change handlers
-public:
-	LLFocusableElement();
-	virtual ~LLFocusableElement();
-
-	virtual void	setFocus( BOOL b );
-	virtual BOOL	hasFocus() const;
-
-	typedef boost::function<void(LLFocusableElement*, void*)> focus_callback_t;
-	void	setFocusLostCallback(focus_callback_t cb, void* user_data = NULL)	{ mFocusLostCallback = cb; mFocusCallbackUserData = user_data; }
-	void	setFocusReceivedCallback(focus_callback_t cb, void* user_data = NULL)	{ mFocusReceivedCallback = cb; mFocusCallbackUserData = user_data; }
-	void	setFocusChangedCallback(focus_callback_t cb, void* user_data = NULL )	{ mFocusChangedCallback = cb; mFocusCallbackUserData = user_data; }
-	void	setTopLostCallback(focus_callback_t cb, void* user_data = NULL )	{ mTopLostCallback = cb; mFocusCallbackUserData = user_data; }
-
-protected:
-	virtual void	onFocusReceived();
-	virtual void	onFocusLost();
-	virtual void	onTopLost();	// called when registered as top ctrl and user clicks elsewhere
-	focus_callback_t mFocusLostCallback;
-	focus_callback_t mFocusReceivedCallback;
-	focus_callback_t mFocusChangedCallback;
-	focus_callback_t mTopLostCallback;
-	void*			mFocusCallbackUserData;
-};
+// NOTE: the LLFocusableElement class declaration has been moved from here to llfocusmgr.h.
 
 class LLUICtrl
-	: public LLView, public LLFocusableElement, public boost::signals2::trackable
+	: public LLView, public boost::signals2::trackable
 {
 public:
 
@@ -237,6 +212,7 @@ public:
 	virtual void	onTabInto();
 	virtual void	clear();
 	virtual void	setColor(const LLColor4& color);
+	virtual void	setAlpha(F32 alpha);
 
 	BOOL	focusNextItem(BOOL text_entry_only);
 	BOOL	focusPrevItem(BOOL text_entry_only);
@@ -266,7 +242,7 @@ public:
 	// *TODO: Deprecate; for backwards compatability only:
 	boost::signals2::connection setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data);	
 	boost::signals2::connection setValidateBeforeCommit( boost::function<bool (const LLSD& data)> cb );
-	
+
 	LLUICtrl* findRootMostFocusRoot();
 
 	class LLTextInputFilter : public LLQueryFilter, public LLSingleton<LLTextInputFilter>

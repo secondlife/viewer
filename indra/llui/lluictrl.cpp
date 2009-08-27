@@ -54,61 +54,7 @@ LLUICtrl::Params::Params()
 	addSynonym(initial_value, "initial_value");
 }
 
-LLFocusableElement::LLFocusableElement()
-:	mFocusLostCallback(NULL),
-	mFocusReceivedCallback(NULL),
-	mFocusChangedCallback(NULL),
-	mTopLostCallback(NULL),
-	mFocusCallbackUserData(NULL)
-{
-}
-
-//virtual
-LLFocusableElement::~LLFocusableElement()
-{
-}
-
-void LLFocusableElement::onFocusReceived()
-{
-	if( mFocusReceivedCallback )
-	{
-		mFocusReceivedCallback( this, mFocusCallbackUserData );
-	}
-	if( mFocusChangedCallback )
-	{
-		mFocusChangedCallback( this, mFocusCallbackUserData );
-	}
-}
-
-void LLFocusableElement::onFocusLost()
-{
-	if( mFocusLostCallback )
-	{
-		mFocusLostCallback( this, mFocusCallbackUserData );
-	}
-
-	if( mFocusChangedCallback )
-	{
-		mFocusChangedCallback( this, mFocusCallbackUserData );
-	}
-}
-
-void LLFocusableElement::onTopLost()
-{
-	if (mTopLostCallback)
-	{
-		mTopLostCallback(this, mFocusCallbackUserData);
-	}
-}
-
-BOOL LLFocusableElement::hasFocus() const
-{
-	return FALSE;
-}
-
-void LLFocusableElement::setFocus(BOOL b)
-{
-}
+// NOTE: the LLFocusableElement implementation has been moved from here to llfocusmgr.cpp.
 
 //static 
 const LLUICtrl::Params& LLUICtrl::getDefaultParams()
@@ -560,7 +506,7 @@ void LLUICtrl::onFocusReceived()
 
 	// find first view in hierarchy above new focus that is a LLUICtrl
 	LLView* viewp = getParent();
-	LLUICtrl* last_focus = gFocusMgr.getLastKeyboardFocus();
+	LLUICtrl* last_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getLastKeyboardFocus());
 
 	while (viewp && !viewp->isCtrl()) 
 	{
@@ -886,6 +832,9 @@ BOOL LLUICtrl::getTentative() const
 void LLUICtrl::setColor(const LLColor4& color)							
 { }
 
+// virtual
+void LLUICtrl::setAlpha(F32 alpha)							
+{ }
 
 
 namespace LLInitParam

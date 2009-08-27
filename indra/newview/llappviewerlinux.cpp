@@ -451,7 +451,7 @@ gboolean viewer_app_api_GoSLURL(ViewerAppAPI *obj, gchar *slurl, gboolean **succ
 	llinfos << "Was asked to go to slurl: " << slurl << llendl;
 
 	std::string url = slurl;
-	LLWebBrowserCtrl* web = NULL;
+	LLMediaCtrl* web = NULL;
 	const bool trusted_browser = false;
 	if (LLURLDispatcher::dispatch(url, web, trusted_browser))
 	{

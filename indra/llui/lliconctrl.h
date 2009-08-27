@@ -71,6 +71,8 @@ public:
 
 	std::string	getImageName() const;
 
+	/*virtual*/ void	setAlpha(F32 alpha);
+
 	void			setColor(const LLColor4& color) { mColor = color; }
 
 private:

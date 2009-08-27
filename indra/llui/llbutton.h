@@ -190,7 +190,8 @@ public:
 
 	void			setImageColor(const std::string& color_control);
 	void			setImageColor(const LLColor4& c);
-	virtual void	setColor(const LLColor4& c);
+	/*virtual*/ void	setColor(const LLColor4& c);
+	/*virtual*/ void	setAlpha(F32 alpha);
 
 	void			setImages(const std::string &image_name, const std::string &selected_name);
 	

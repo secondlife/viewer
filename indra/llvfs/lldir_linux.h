@@ -53,6 +53,9 @@ public:
 	virtual void getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname);
 	/*virtual*/ BOOL fileExists(const std::string &filename) const;
 
+	/*virtual*/ std::string getLLPluginLauncher();
+	/*virtual*/ std::string getLLPluginFilename(std::string base_name);
+
 private:
 	DIR *mDirp;
 	int mCurrentDirIndex;

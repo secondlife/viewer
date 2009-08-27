@@ -1436,6 +1436,8 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("MapLayerGod");
 	capabilityNames.append("NewFileAgentInventory");
 	capabilityNames.append("ParcelPropertiesUpdate");
+	capabilityNames.append("ParcelMediaURLFilterList");
+	capabilityNames.append("ParcelNavigateMedia");
 	capabilityNames.append("ParcelVoiceInfoRequest");
 	capabilityNames.append("ProductInfoRequest");
 	capabilityNames.append("ProvisionVoiceAccountRequest");

@@ -53,7 +53,7 @@ public:
 	// requires trusted browser to trigger
 	LLGroupHandler() : LLCommandHandler("group", true) { }
 	bool handle(const LLSD& tokens, const LLSD& query_map,
-				LLWebBrowserCtrl* web)
+				LLMediaCtrl* web)
 	{
 		if (tokens.size() < 1)
 		{

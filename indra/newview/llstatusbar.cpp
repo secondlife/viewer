@@ -625,7 +625,7 @@ class LLBalanceHandler : public LLCommandHandler
 public:
 	// Requires "trusted" browser/URL source
 	LLBalanceHandler() : LLCommandHandler("balance", true) { }
-	bool handle(const LLSD& tokens, const LLSD& query_map, LLWebBrowserCtrl* web)
+	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
 	{
 		if (tokens.size() == 1
 			&& tokens[0].asString() == "request")

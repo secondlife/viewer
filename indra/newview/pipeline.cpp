@@ -35,7 +35,7 @@
 #include "pipeline.h"
 
 // library includes
-#include "audioengine.h" // For MAX_BUFFERS for debugging.
+#include "llaudioengine.h" // For MAX_BUFFERS for debugging.
 #include "imageids.h"
 #include "llerror.h"
 #include "llviewercontrol.h"

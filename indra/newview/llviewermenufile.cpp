@@ -65,7 +65,7 @@
 #include "llstring.h"
 #include "lltransactiontypes.h"
 #include "lluuid.h"
-#include "vorbisencode.h"
+#include "llvorbisencode.h"
 
 // system libraries
 #include <boost/tokenizer.hpp>

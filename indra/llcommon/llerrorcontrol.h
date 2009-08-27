@@ -73,6 +73,7 @@ namespace LLError
 	void setFunctionLevel(const std::string& function_name, LLError::ELevel);
 	void setClassLevel(const std::string& class_name, LLError::ELevel);
 	void setFileLevel(const std::string& file_name, LLError::ELevel);
+	void setTagLevel(const std::string& file_name, LLError::ELevel);
 	
 	void configure(const LLSD&);
 		// the LLSD can configure all of the settings

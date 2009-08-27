@@ -37,7 +37,7 @@
 
 #include <deque>
 
-#include "audioengine.h" 
+#include "llaudioengine.h" 
 #include "indra_constants.h"
 #include "lscript_byteformat.h"
 #include "mean_collision_data.h"
@@ -971,7 +971,7 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 
 		if (view->getPanel())
 		{
-			LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus();
+			LLFocusableElement* focus_ctrl = gFocusMgr.getKeyboardFocus();
 			view->getPanel()->setSelection(item->getUUID(), TAKE_FOCUS_NO);
 			gFocusMgr.setKeyboardFocus(focus_ctrl);
 		}

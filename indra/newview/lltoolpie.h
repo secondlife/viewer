@@ -51,6 +51,7 @@ public:
 	virtual BOOL		handleRightMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL		handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL		handleDoubleClick(S32 x, S32 y, MASK mask);
+	virtual BOOL		handleScrollWheel(S32 x, S32 y, S32 clicks);
 
 	virtual void		render();
 

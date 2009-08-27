@@ -5451,7 +5451,25 @@ How odd. The string [STRING_NAME] is missing from strings.xml
     Apple&apos;s QuickTime software does not appear to be installed on your system.
     If you want to view streaming media on parcels that support it you should go to the QuickTime site (http://www.apple.com/quicktime) and install the QuickTime Player.
   </notification>
+  <notification
+   icon="notify.tga"
+   name="NoPlugin"
+   type="notify">
+    No Media Plugin was found to handle the "[MIME_TYPE]" mime type.  Media of this type will be unavailable.
+  </notification>
+  <notification
+   icon="alertmodal.tga"
+   name="MediaPluginFailed"
+   type="alertmodal">
+    The following Media Plugin has failed:
+    [PLUGIN]
 
+Please re-install the plugin or contact the vendor if you continue to experience problems.
+    <form name="form">
+      <ignore name="ignore"
+       text="When a Media Plugin fails"/>
+    </form>
+  </notification>
   <notification
    icon="notify.tga"
    name="OwnedObjectsReturned"

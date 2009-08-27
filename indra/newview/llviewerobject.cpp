@@ -34,7 +34,7 @@
 
 #include "llviewerobject.h"
 
-#include "audioengine.h"
+#include "llaudioengine.h"
 #include "imageids.h"
 #include "indra_constants.h"
 #include "llmath.h"
