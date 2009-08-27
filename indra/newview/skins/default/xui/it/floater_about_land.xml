@@ -345,42 +345,18 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				</combo_item>
 			</combo_box>
 			<combo_box name="land category">
-				<combo_item name="AnyCategory">
-					Tutte le categorie
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Luogo dei Linden
-				</combo_item>
-				<combo_item name="Arts&amp;Culture">
-					Arte &amp; Cultura
-				</combo_item>
-				<combo_item name="Business">
-					Affari
-				</combo_item>
-				<combo_item name="Educational">
-					Educazione
-				</combo_item>
-				<combo_item name="Gaming">
-					Gioco
-				</combo_item>
-				<combo_item name="Hangout">
-					Divertimento
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					Accoglienza nuovi residenti
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					Parchi &amp; Natura
-				</combo_item>
-				<combo_item name="Residential">
-					Residenziale
-				</combo_item>
-				<combo_item name="Shopping">
-					Shopping
-				</combo_item>
-				<combo_item name="Other">
-					Altro
-				</combo_item>
+				<combo_box.item name="AnyCategory" label="Tutte le categorie"/>
+				<combo_box.item name="LindenLocation" label="Luogo dei Linden"/>
+				<combo_box.item name="Arts&amp;Culture" label="Arte &amp; Cultura"/>
+				<combo_box.item name="Business" label="Affari"/>
+				<combo_box.item name="Educational" label="Educazione"/>
+				<combo_box.item name="Gaming" label="Gioco"/>
+				<combo_box.item name="Hangout" label="Divertimento"/>
+				<combo_box.item name="NewcomerFriendly" label="Accoglienza nuovi residenti"/>
+				<combo_box.item name="Parks&amp;Nature" label="Parchi &amp; Natura"/>
+				<combo_box.item name="Residential" label="Residenziale"/>
+				<combo_box.item name="Shopping" label="Shopping"/>
+				<combo_box.item name="Other" label="Altro"/>
 			</combo_box>
 			<button label="?" label_selected="?" name="?"/>
 			<check_box label="Contenuto Mature" name="MatureCheck" tool_tip=" "/>
@@ -412,15 +388,9 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				Rotte dei teleport:
 			</text>
 			<combo_box width="140" name="landing type" tool_tip="Rotte dei teleport -- seleziona come vuoi organizzare i teleport nella tua terra.">
-				<combo_item name="Blocked">
-					Bloccati
-				</combo_item>
-				<combo_item name="LandingPoint">
-					Punto di atterraggio
-				</combo_item>
-				<combo_item name="Anywhere">
-					Ovunque
-				</combo_item>
+				<combo_box.item name="Blocked" label="Bloccati"/>
+				<combo_box.item name="LandingPoint" label="Punto di atterraggio"/>
+				<combo_box.item name="Anywhere" label="Ovunque"/>
 			</combo_box>
 			<string name="push_restrict_text">
 				Nessuna spinta
@@ -501,12 +471,8 @@ Media:
 			<check_box label="Permetti accesso al gruppo: [GROUP]" name="GroupCheck" tool_tip="Imposta il gruppo nel pannello generale."/>
 			<check_box label="Vendi pass a:" name="PassCheck" tool_tip="Permetti in questo terreno l&apos;accesso temporaneo"/>
 			<combo_box name="pass_combo">
-				<combo_item name="Anyone">
-					Chiunque
-				</combo_item>
-				<combo_item name="Group">
-					Gruppo
-				</combo_item>
+				<combo_box.item name="Anyone" label="Chiunque"/>
+				<combo_box.item name="Group" label="Gruppo"/>
 			</combo_box>
 			<spinner label="Prezzo in L$:" name="PriceSpin"/>
 			<spinner label="Ore di accesso:" name="HoursSpin"/>

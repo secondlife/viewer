@@ -52,6 +52,8 @@
 #include "llcursortypes.h"
 #include "llhandle.h"
 
+#include <boost/scoped_ptr.hpp>
+
 class LLView;
 class LLViewerObject;
 class LLUUID;
@@ -63,6 +65,7 @@ class LLImageRaw;
 class LLHUDIcon;
 class LLWindow;
 class LLRootView;
+class LLViewerWindowListener;
 
 #define PICK_HALF_WIDTH 5
 #define PICK_DIAMETER (2 * PICK_HALF_WIDTH + 1)
@@ -457,6 +460,8 @@ protected:
 	bool			mStatesDirty;
 	bool			mIsFullscreenChecked; // Did the user check the fullscreen checkbox in the display settings
 	U32			mCurrResolutionIndex;
+
+    boost::scoped_ptr<LLViewerWindowListener> mViewerWindowListener;
 
 protected:
 	static std::string sSnapshotBaseName;

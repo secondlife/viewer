@@ -32,6 +32,10 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#if LL_WINDOWS
+#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
+#endif
+
 // system library includes
 #include <stdio.h>
 #include <iostream>
@@ -195,6 +199,7 @@
 #include "llfloaternotificationsconsole.h"
 
 #include "llnearbychat.h"
+#include "llviewerwindowlistener.h"
 
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
@@ -1259,7 +1264,8 @@ LLViewerWindow::LLViewerWindow(
 	mResDirty(false),
 	mStatesDirty(false),
 	mIsFullscreenChecked(false),
-	mCurrResolutionIndex(0)
+	mCurrResolutionIndex(0),
+    mViewerWindowListener(new LLViewerWindowListener("LLViewerWindow", this))
 {
 	LLNotificationChannel::buildChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert"));
 	LLNotificationChannel::buildChannel("VW_alertmodal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal"));

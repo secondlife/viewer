@@ -1982,63 +1982,56 @@ bool LLInventoryModel::isCategoryComplete(const LLUUID& cat_id) const
 }
 
 bool LLInventoryModel::loadSkeleton(
-	const LLInventoryModel::options_t& options,
+	const LLSD& options,
 	const LLUUID& owner_id)
 {
 	lldebugs << "importing inventory skeleton for " << owner_id << llendl;
 
 	typedef std::set<LLPointer<LLViewerInventoryCategory>, InventoryIDPtrLess> cat_set_t;
 	cat_set_t temp_cats;
-
-	update_map_t child_counts;
-
-	LLUUID id;
-	LLAssetType::EType preferred_type;
 	bool rv = true;
-	for(options_t::const_iterator it = options.begin(); it < options.end(); ++it)
+
+	for(LLSD::array_const_iterator it = options.beginArray(),
+		end = options.endArray(); it != end; ++it)
 	{
-		LLPointer<LLViewerInventoryCategory> cat = new LLViewerInventoryCategory(owner_id);
-		response_t::const_iterator no_response = (*it).end();
-		response_t::const_iterator skel;
-		skel = (*it).find("name");
-		if(skel == no_response) goto clean_cat;
-		cat->rename(std::string((*skel).second));
-		skel = (*it).find("folder_id");
-		if(skel == no_response) goto clean_cat;
-		id.set((*skel).second);
-		// if an id is null, it locks the viewer.
-		if(id.isNull()) goto clean_cat;
-		cat->setUUID(id);
-		skel = (*it).find("parent_id");
-		if(skel == no_response) goto clean_cat;
-		id.set((*skel).second);
-		cat->setParent(id);
-		skel = (*it).find("type_default");
-		if(skel == no_response)
+		LLSD name = (*it)["name"];
+		LLSD folder_id = (*it)["folder_id"];
+		LLSD parent_id = (*it)["parent_id"];
+		LLSD version = (*it)["version"];
+		if(name.isDefined()
+			&& folder_id.isDefined()
+			&& parent_id.isDefined()
+			&& version.isDefined()
+			&& folder_id.asUUID().notNull() // if an id is null, it locks the viewer.
+			) 		
 		{
-			preferred_type = LLAssetType::AT_NONE;
+			LLPointer<LLViewerInventoryCategory> cat = new LLViewerInventoryCategory(owner_id);
+			cat->rename(name.asString());
+			cat->setUUID(folder_id.asUUID());
+			cat->setParent(parent_id.asUUID());
+
+			LLAssetType::EType preferred_type = LLAssetType::AT_NONE;
+			LLSD type_default = (*it)["type_default"];
+			if(type_default.isDefined())
+            {
+				preferred_type = (LLAssetType::EType)type_default.asInteger();
+            }
+            cat->setPreferredType(preferred_type);
+			cat->setVersion(version.asInteger());
+            temp_cats.insert(cat);
 		}
 		else
 		{
-			S32 t = atoi((*skel).second.c_str());
-			preferred_type = (LLAssetType::EType)t;
+			llwarns << "Unable to import near " << name.asString() << llendl;
+            rv = false;
 		}
-		cat->setPreferredType(preferred_type);
-		skel = (*it).find("version");
-		if(skel == no_response) goto clean_cat;
-		cat->setVersion(atoi((*skel).second.c_str()));
-		temp_cats.insert(cat);
-		continue;
-	clean_cat:
-		llwarns << "Unable to import near " << cat->getName() << llendl;
-		rv = false;
-		//delete cat; // automatic when cat is reasigned or destroyed
 	}
 
 	S32 cached_category_count = 0;
 	S32 cached_item_count = 0;
 	if(!temp_cats.empty())
 	{
+		update_map_t child_counts;
 		cat_array_t categories;
 		item_array_t items;
 		cat_set_t invalid_categories; // Used to mark categories that weren't successfully loaded.
@@ -2212,85 +2205,84 @@ bool LLInventoryModel::loadSkeleton(
 	return rv;
 }
 
-bool LLInventoryModel::loadMeat(
-	const LLInventoryModel::options_t& options, const LLUUID& owner_id)
+bool LLInventoryModel::loadMeat(const LLSD& options, const LLUUID& owner_id)
 {
 	llinfos << "importing inventory for " << owner_id << llendl;
-	LLPermissions default_perm;
-	default_perm.init(LLUUID::null, owner_id, LLUUID::null, LLUUID::null);
-	LLPointer<LLViewerInventoryItem> item;
-	LLUUID id;
-	LLAssetType::EType type;
-	LLInventoryType::EType inv_type;
 	bool rv = true;
-	for(options_t::const_iterator it = options.begin(); it < options.end(); ++it)
+	for(LLSD::array_const_iterator it = options.beginArray(),
+		end = options.endArray(); it != end; ++it)
 	{
-		item = new LLViewerInventoryItem;
-		response_t::const_iterator no_response = (*it).end();
-		response_t::const_iterator meat;
-		meat = (*it).find("name");
-		if(meat == no_response) goto clean_item;
-		item->rename(std::string((*meat).second));
-		meat = (*it).find("item_id");
-		if(meat == no_response) goto clean_item;
-		id.set((*meat).second);
-		item->setUUID(id);
-		meat = (*it).find("parent_id");
-		if(meat == no_response) goto clean_item;
-		id.set((*meat).second);
-		item->setParent(id);
-		meat = (*it).find("type");
-		if(meat == no_response) goto clean_item;
-		type = (LLAssetType::EType)atoi((*meat).second.c_str());
-		item->setType(type);
-		meat = (*it).find("inv_type");
-		if(meat != no_response)
+		LLSD name = (*it)["name"];
+		LLSD item_id = (*it)["item_id"];
+		LLSD parent_id = (*it)["parent_id"];
+		LLSD asset_type = (*it)["type"];
+		LLSD data_id = (*it)["data_id"];
+		if(name.isDefined() 
+			&& item_id.isDefined()
+			&& parent_id.isDefined()
+			&& asset_type.isDefined()
+			&& data_id.isDefined())
 		{
-			inv_type = (LLInventoryType::EType)atoi((*meat).second.c_str());
-			item->setInventoryType(inv_type);
-		}
-		meat = (*it).find("data_id");
-		if(meat == no_response) goto clean_item;
-		id.set((*meat).second);
-		if(LLAssetType::AT_CALLINGCARD == type)
-		{
-			LLPermissions perm;
-			perm.init(id, owner_id, LLUUID::null, LLUUID::null);
-			item->setPermissions(perm);
+			LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem;
+			item->rename(name.asString());
+			item->setUUID(item_id.asUUID());
+			item->setParent(parent_id.asUUID());
+			LLAssetType::EType type = (LLAssetType::EType)asset_type.asInteger();
+            item->setType(type);
+
+			LLSD llsd_inv_type = (*it)["inv_type"];
+			if(llsd_inv_type.isDefined())
+            {
+				LLInventoryType::EType inv_type = (LLInventoryType::EType)llsd_inv_type.asInteger();
+                item->setInventoryType(inv_type);
+            }
+
+            if(LLAssetType::AT_CALLINGCARD == type)
+            {
+                LLPermissions perm;
+				perm.init(data_id.asUUID(), owner_id, LLUUID::null, LLUUID::null);
+                item->setPermissions(perm);
+            }
+            else
+            {
+				LLPermissions default_perm;
+				default_perm.init(LLUUID::null, owner_id, LLUUID::null, LLUUID::null);
+				LLSD llsd_perm_mask = (*it)["perm_mask"];
+				if(llsd_perm_mask.isDefined())
+                {
+					PermissionMask perm_mask = llsd_perm_mask.asInteger();
+					default_perm.initMasks(
+						perm_mask, perm_mask, perm_mask, perm_mask, perm_mask);
+				}
+				else
+				{
+					default_perm.initMasks(
+						PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE);
+				}
+				item->setPermissions(default_perm);
+				item->setAssetUUID(data_id.asUUID());
+            }
+
+			LLSD flags = (*it)["flags"];
+			if(flags.isDefined())
+            {
+				// Not sure how well LLSD.asInteger() maps to 
+				// unsigned long - using strtoul()
+				item->setFlags(strtoul(flags.asString().c_str(), NULL, 0));
+            }
+
+			LLSD time = (*it)["time"];
+			if(time.isDefined())
+            {
+				item->setCreationDate(time.asInteger());
+            }
+            addItem(item);
 		}
 		else
 		{
-			meat = (*it).find("perm_mask");
-			if(meat != no_response)
-			{
-				PermissionMask perm_mask = atoi((*meat).second.c_str());
-				default_perm.initMasks(
-					perm_mask, perm_mask, perm_mask, perm_mask, perm_mask);
-			}
-			else
-			{
-				default_perm.initMasks(
-					PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE, PERM_NONE);
-			}
-			item->setPermissions(default_perm);
-			item->setAssetUUID(id);
+			llwarns << "Unable to import near " << name.asString() << llendl;
+            rv = false;
 		}
-		meat = (*it).find("flags");
-		if(meat != no_response)
-		{
-			item->setFlags(strtoul((*meat).second.c_str(), NULL, 0));
-		}
-		meat = (*it).find("time");
-		if(meat != no_response)
-		{
-			item->setCreationDate(atoi((*meat).second.c_str()));
-		}
-		addItem(item);
-		continue;
-	clean_item:
-		llwarns << "Unable to import near " << item->getName() << llendl;
-		rv = false;
-		//delete item; // automatic when item is reassigned or destroyed
 	}
 	return rv;
 }

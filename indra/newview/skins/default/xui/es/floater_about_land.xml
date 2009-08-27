@@ -341,42 +341,18 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				</combo_item>
 			</combo_box>
 			<combo_box name="land category">
-				<combo_item name="AnyCategory">
-					Cualquier categoría
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Localización Linden
-				</combo_item>
-				<combo_item name="Arts&amp;Culture">
-					Arte y Cultura
-				</combo_item>
-				<combo_item name="Business">
-					Negocios
-				</combo_item>
-				<combo_item name="Educational">
-					Educativo
-				</combo_item>
-				<combo_item name="Gaming">
-					Juegos de azar
-				</combo_item>
-				<combo_item name="Hangout">
-					Entretenimiento
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					Para recién llegados
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					Parques y Naturaleza
-				</combo_item>
-				<combo_item name="Residential">
-					Residencial
-				</combo_item>
-				<combo_item name="Shopping">
-					Compras
-				</combo_item>
-				<combo_item name="Other">
-					Otra
-				</combo_item>
+				<combo_box.item name="AnyCategory" label="Cualquier categoría"/>
+				<combo_box.item name="LindenLocation" label="Localización Linden"/>
+				<combo_box.item name="Arts&amp;Culture" label="Arte y Cultura"/>
+				<combo_box.item name="Business" label="Negocios"/>
+				<combo_box.item name="Educational" label="Educativo"/>
+				<combo_box.item name="Gaming" label="Juegos de azar"/>
+				<combo_box.item name="Hangout" label="Entretenimiento"/>
+				<combo_box.item name="NewcomerFriendly" label="Para recién llegados"/>
+				<combo_box.item name="Parks&amp;Nature" label="Parques y Naturaleza"/>
+				<combo_box.item name="Residential" label="Residencial"/>
+				<combo_box.item name="Shopping" label="Compras"/>
+				<combo_box.item name="Other" label="Otra"/>
 			</combo_box>
 			<button label="?" label_selected="?" name="?"/>
 			<check_box label="Contenido &apos;Mature&apos;" name="MatureCheck" tool_tip=""/>
@@ -408,15 +384,9 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				Punto de teleporte:
 			</text>
 			<combo_box name="landing type" tool_tip="Punto de teleporte: defina cómo manejar en su terreno los teleportes.">
-				<combo_item length="1" name="Blocked" type="string">
-					Bloqueado
-				</combo_item>
-				<combo_item length="1" name="LandingPoint" type="string">
-					Punto de llegada
-				</combo_item>
-				<combo_item length="1" name="Anywhere" type="string">
-					Cualquiera
-				</combo_item>
+				<combo_box.item length="1" name="Blocked" type="string" label="Bloqueado"/>
+				<combo_box.item length="1" name="LandingPoint" type="string" label="Punto de llegada"/>
+				<combo_box.item length="1" name="Anywhere" type="string" label="Cualquiera"/>
 			</combo_box>
 			<string name="push_restrict_text">
 				Sin &apos;empujones&apos;
@@ -497,12 +467,8 @@ música:
 			<check_box label="Acceso permitido al grupo: [GROUP]" name="GroupCheck" tool_tip="Elija el grupo en la pestaña General."/>
 			<check_box label="Vender pases a:" name="PassCheck" tool_tip="Permitir acceso temporal a esta parcela"/>
 			<combo_box name="pass_combo">
-				<combo_item name="Anyone">
-					Cualquiera
-				</combo_item>
-				<combo_item name="Group">
-					Grupo
-				</combo_item>
+				<combo_box.item name="Anyone" label="Cualquiera"/>
+				<combo_box.item name="Group" label="Grupo"/>
 			</combo_box>
 			<spinner label="Precio en L$:" name="PriceSpin"/>
 			<spinner label="Horas de acceso:" name="HoursSpin"/>

@@ -68,7 +68,6 @@
 #include "llworldmap.h"
 #include "llfocusmgr.h"
 #include "llnearbychatbar.h"
-
 void handle_pay_by_id(const LLUUID& agent_id)
 {
 	const BOOL is_group = FALSE;

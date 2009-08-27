@@ -36,14 +36,12 @@
 #include "lldrawpool.h"
 
 class LLSkyTex;
-class LLHeavenBody;
 class LLGLSLShader;
 
 class LLDrawPoolSky : public LLFacePool
 {
 private:
 	LLSkyTex			*mSkyTex;
-	LLHeavenBody		*mHB[2]; // Sun and Moon
 	LLGLSLShader		*mShader;
 
 public:
@@ -69,8 +67,6 @@ public:
 	/*virtual*/ void renderForSelect();
 	/*virtual*/ void endRenderPass(S32 pass);
 	void setSkyTex(LLSkyTex* const st) { mSkyTex = st; }
-	void setSun(LLHeavenBody* sun_flag) { mHB[0] = sun_flag; }
-	void setMoon(LLHeavenBody* moon) { mHB[1] = moon; }
 
 	void renderSkyCubeFace(U8 side);
 	void renderHeavenlyBody(U8 hb, LLFace* face);

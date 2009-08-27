@@ -128,8 +128,16 @@ LLOSInfo::LLOSInfo() :
 					mOSStringSimple = "Microsoft Windows Vista ";
 				 else mOSStringSimple = "Microsoft Windows Vista Server ";
 			}
+			else if(osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 1)
+			{
+				 if(osvi.wProductType == VER_NT_WORKSTATION)
+					mOSStringSimple = "Microsoft Windows 7 ";
+				 else mOSStringSimple = "Microsoft Windows 7 Server ";
+			}
 			else   // Use the registry on early versions of Windows NT.
 			{
+				mOSStringSimple = "Microsoft Windows (unrecognized) ";
+
 				HKEY hKey;
 				WCHAR szProductType[80];
 				DWORD dwBufLen;

@@ -36,10 +36,7 @@ include(UI)
 include(UnixInstall)
 include(LLKDU)
 include(ViewerMiscLibs)
-
-if (WINDOWS)
-    include(CopyWinLibs)
-endif (WINDOWS)
+include(LLLogin)
 
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
@@ -61,6 +58,7 @@ include_directories(
     ${LLXUIXML_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}/lscript_compile
+    ${LLLOGIN_INCLUDE_DIRS}
     )
 
 set(viewer_SOURCE_FILES
@@ -68,6 +66,7 @@ set(viewer_SOURCE_FILES
     llaccordionctrl.cpp
     llactiveimwindow.cpp
     llagent.cpp
+    llagentlistener.cpp
     llagentaccess.cpp
     llagentdata.cpp
     llagentlanguage.cpp
@@ -76,6 +75,7 @@ set(viewer_SOURCE_FILES
     llagentwearables.cpp
     llanimstatelabels.cpp
     llappviewer.cpp
+    llappviewerlistener.cpp
     llassetuploadresponders.cpp
     llassetuploadqueue.cpp
     llaudiosourcevo.cpp
@@ -253,6 +253,7 @@ set(viewer_SOURCE_FILES
     llurllineeditorctrl.cpp
     lllogchat.cpp
     llloginhandler.cpp
+    lllogininstance.cpp
     llmanip.cpp
     llmaniprotate.cpp
     llmanipscale.cpp
@@ -324,6 +325,7 @@ set(viewer_SOURCE_FILES
     llpanelpicks.cpp
     llpanelplace.cpp
     llpanelplaceinfo.cpp
+    llpanelshower.cpp
     llpanelplaces.cpp
     llpanelplacestab.cpp
     llpanelprofile.cpp
@@ -356,7 +358,6 @@ set(viewer_SOURCE_FILES
     llspatialpartition.cpp
     llsplitbutton.cpp
     llsprite.cpp
-    llsrv.cpp
     llstartup.cpp
     llstatusbar.cpp
     llstylemap.cpp
@@ -400,19 +401,20 @@ set(viewer_SOURCE_FILES
     lltoolselectland.cpp
     lltoolselectrect.cpp
     lltracker.cpp
+    lluilistener.cpp
     lluploaddialog.cpp
     llurl.cpp
     llurldispatcher.cpp
     llurlhistory.cpp
     llurlsimstring.cpp
     llurlwhitelist.cpp
-    lluserauth.cpp
     llvectorperfoptions.cpp
     llviewchildren.cpp
     llviewerassetstorage.cpp
     llvieweraudio.cpp
     llviewercamera.cpp
     llviewercontrol.cpp
+    llviewercontrollistener.cpp
     llviewerdisplay.cpp
     llviewerfloaterreg.cpp
     llviewergenericmessage.cpp
@@ -452,6 +454,7 @@ set(viewer_SOURCE_FILES
     llviewerthrottle.cpp
     llviewervisualparam.cpp
     llviewerwindow.cpp
+    llviewerwindowlistener.cpp
     llvlcomposition.cpp
     llvlmanager.cpp
     llvoavatar.cpp
@@ -490,6 +493,7 @@ set(viewer_SOURCE_FILES
     llworld.cpp
     llworldmap.cpp
     llworldmapview.cpp
+    llxmlrpclistener.cpp
     llxmlrpctransaction.cpp
     noise.cpp
     pipeline.cpp
@@ -519,6 +523,7 @@ set(viewer_HEADER_FILES
     llaccordionctrl.h
     llactiveimwindow.h
     llagent.h
+    llagentlistener.h
     llagentaccess.h
     llagentdata.h
     llagentlanguage.h
@@ -528,6 +533,7 @@ set(viewer_HEADER_FILES
     llanimstatelabels.h
     llappearance.h
     llappviewer.h
+    llappviewerlistener.h
     llassetuploadresponders.h
     llassetuploadqueue.h
     llaudiosourcevo.h
@@ -707,6 +713,7 @@ set(viewer_HEADER_FILES
     llurllineeditorctrl.h
     lllogchat.h
     llloginhandler.h
+    lllogininstance.h
     llmanip.h
     llmaniprotate.h
     llmanipscale.h
@@ -776,6 +783,7 @@ set(viewer_HEADER_FILES
     llpanelpicks.h
     llpanelplace.h
     llpanelplaceinfo.h
+    llpanelshower.h
     llpanelplaces.h
     llpanelplacestab.h
     llpanelprofile.h
@@ -810,7 +818,6 @@ set(viewer_HEADER_FILES
     llspatialpartition.h
     llsplitbutton.h
     llsprite.h
-    llsrv.h
     llstartup.h
     llstatusbar.h
     llstylemap.h
@@ -856,13 +863,13 @@ set(viewer_HEADER_FILES
     lltoolselectrect.h
     lltracker.h
     lluiconstants.h
+    lluilistener.h
     lluploaddialog.h
     llurl.h
     llurldispatcher.h
     llurlhistory.h
     llurlsimstring.h
     llurlwhitelist.h
-    lluserauth.h
     llvectorperfoptions.h
     llviewchildren.h
     llviewerassetstorage.h
@@ -870,6 +877,7 @@ set(viewer_HEADER_FILES
     llviewerbuild.h
     llviewercamera.h
     llviewercontrol.h
+    llviewercontrollistener.h
     llviewerdisplay.h
     llviewerfloaterreg.h
     llviewergenericmessage.h
@@ -907,6 +915,7 @@ set(viewer_HEADER_FILES
     llviewerthrottle.h
     llviewervisualparam.h
     llviewerwindow.h
+    llviewerwindowlistener.h
     llvlcomposition.h
     llvlmanager.h
     llvoavatar.h
@@ -947,6 +956,7 @@ set(viewer_HEADER_FILES
     llworld.h
     llworldmap.h
     llworldmapview.h
+    llxmlrpclistener.h
     llxmlrpctransaction.h
     macmain.h
     noise.h
@@ -1149,6 +1159,15 @@ file(GLOB DEFAULT_WIDGET_FILE_GLOB_LIST
      ${CMAKE_CURRENT_SOURCE_DIR}/skins/default/xui/en/widgets/*.xml)
 list(APPEND viewer_XUI_FILES ${DEFAULT_WIDGET_FILE_GLOB_LIST})
 
+file(GLOB SILVER_XUI_FILE_GLOB_LIST
+     ${CMAKE_CURRENT_SOURCE_DIR}/skins/silver/xui/en-us/*.xml)
+list(APPEND viewer_XUI_FILES ${SILVER_XUI_FILE_GLOB_LIST})
+
+# Cannot append empty lists in CMake, wait until we have files here.
+#file(GLOB SILVER_WIDGET_FILE_GLOB_LIST
+#     ${CMAKE_CURRENT_SOURCE_DIR}/skins/silver/xui/en-us/widgets/*.xml)
+#list(APPEND viewer_XUI_FILES ${SILVER_WIDGET_FILE_GLOB_LIST})
+
 list(SORT viewer_XUI_FILES)
 
 source_group("XUI Files" FILES ${viewer_XUI_FILES})
@@ -1259,6 +1278,11 @@ if (LLKDU_LIBRARY)
   add_dependencies(${VIEWER_BINARY_NAME} ${LLKDU_LIBRARY})
 endif (LLKDU_LIBRARY)
 
+# add package files
+file(GLOB EVENT_HOST_SCRIPT_GLOB_LIST
+     ${CMAKE_CURRENT_SOURCE_DIR}/../viewer_components/*.py)
+list(APPEND EVENT_HOST_SCRIPTS ${EVENT_HOST_SCRIPT_GLOB_LIST})
+
 set(PACKAGE OFF CACHE BOOL
     "Add a package target that builds an installer package.")
 
@@ -1315,7 +1339,41 @@ if (WINDOWS)
         COMMENT "Copying message.xml to the runtime folder."
         )
        
-    add_dependencies(${VIEWER_BINARY_NAME} copy_win_libs)
+    if(WINDOWS)
+      # Copy Win Libs...
+      # This happens at build time, not config time. We can't glob files in this cmake.
+      # *FIX:Mani Write a sub script to glob the files...
+      add_custom_command(
+        TARGET ${VIEWER_BINARY_NAME} PRE_BUILD
+        COMMAND ${CMAKE_COMMAND}
+        ARGS
+          -E
+          copy_directory
+          ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}
+         ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+        COMMENT "Copying staged dlls."
+        )
+
+      add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${VIEWER_BINARY_NAME}.exe.config
+        COMMAND ${PYTHON_EXECUTABLE}
+        ARGS
+          ${CMAKE_CURRENT_SOURCE_DIR}/build_win32_appConfig.py
+          ${CMAKE_CFG_INTDIR}
+          ${CMAKE_CURRENT_SOURCE_DIR}
+	  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+	  ${VIEWER_BINARY_NAME}.exe.config
+        COMMENT "Creating app.config file"
+        )
+
+      add_custom_target(create_app_config_file ALL 
+	DEPENDS
+	  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${VIEWER_BINARY_NAME}.exe.config
+	)
+
+      add_dependencies(${VIEWER_BINARY_NAME} create_app_config_file)
+      
+    endif(WINDOWS)    
 
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
@@ -1341,8 +1399,27 @@ if (WINDOWS)
     add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_webkit media_plugin_flash_activex media_plugin_awesomium)
 
     if (PACKAGE)
-      add_custom_target(package ALL DEPENDS ${CMAKE_CFG_INTDIR}/touched.bat)
+      add_custom_command(
+          OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2
+          COMMAND ${PYTHON_EXECUTABLE}
+          ARGS
+            ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
+            ${CMAKE_CURRENT_SOURCE_DIR}/..
+            ${CMAKE_CURRENT_BINARY_DIR}
+            ${CMAKE_CFG_INTDIR}
+
+          DEPENDS 
+            lleventhost 
+            ${EVENT_HOST_SCRIPTS}
+            ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py)
+
+      add_custom_target(package ALL 
+          DEPENDS 
+            ${CMAKE_CFG_INTDIR}/touched.bat
+            ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)
       add_dependencies(package windows-updater windows-crash-logger)
+
+
     endif (PACKAGE)
 endif (WINDOWS)
 
@@ -1379,6 +1456,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${WINDOWS_LIBRARIES}
     ${XMLRPCEPI_LIBRARIES}
     ${ELFIO_LIBRARIES}
+    ${LLLOGIN_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
 
@@ -1509,6 +1587,7 @@ endif (INSTALL)
 include(LLAddBuildTest)
 SET(viewer_TEST_SOURCE_FILES
   llagentaccess.cpp
+  lllogininstance.cpp
   # Not *actually* a unit test, it's an integration test.
   # Because it won't work in the new unit test iface, i've commented out
   # and notified Nat. Delete this when it's replaced!
