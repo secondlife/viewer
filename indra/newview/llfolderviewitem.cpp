@@ -231,6 +231,8 @@ void LLFolderViewItem::refreshFromListener()
 
 		// *TODO: to be removed when database supports multi language. This is a
 		// temporary attempt to display the inventory folder in the user locale.
+		// mantipov: *NOTE: be sure this code is synchronized with LLFriendCardsManager::findChildFolderUUID
+		//		it uses the same way to find localized string
 		if (LLAssetType::lookupIsProtectedCategoryType(preferred_type))
 		{
 			LLTrans::findString(mLabel, "InvFolder " + mLabel);

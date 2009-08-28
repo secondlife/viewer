@@ -39,7 +39,6 @@
 #include "llinventory.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
-#include "llfloaterinventory.h"
 
 #include "llviewertexteditor.h"
 

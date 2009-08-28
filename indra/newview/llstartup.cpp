@@ -77,6 +77,7 @@
 #include "llviewercontrol.h"
 #include "llvfs.h"
 #include "llxorcipher.h"	// saved password, MAC address
+#include "llwindow.h"
 #include "imageids.h"
 #include "message.h"
 #include "v3math.h"
@@ -111,7 +112,7 @@
 #include "llimagebmp.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
-#include "llfloaterinventory.h"
+#include "llfriendcard.h"
 #include "llkeyboard.h"
 #include "llloginhandler.h"			// gLoginHandler, SLURL support
 #include "llpanellogin.h"
@@ -2142,10 +2143,15 @@ bool idle_startup()
 		}
 
 
+		// This method MUST be called before gInventory.findCategoryUUIDForType because of 
+		// gInventory.mIsAgentInvUsable is set to true in the gInventory.buildParentChildMap.
+		gInventory.buildParentChildMap();
+
 		//all categories loaded. lets create "My Favorites" category
 		gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE,true);
 
-		gInventory.buildParentChildMap();
+		// lets create "Friends" and "Friends/All" in the Inventory "Calling Cards" and fill it with buddies
+		LLFriendCardsManager::instance().syncFriendsFolder();
 
 		llinfos << "Setting Inventory changed mask and notifying observers" << llendl;
 		gInventory.addChangedMask(LLInventoryObserver::ALL, LLUUID::null);

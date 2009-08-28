@@ -1642,6 +1642,7 @@ LLMenuGL::LLMenuGL(const LLMenuGL::Params& p)
 	mHorizontalLayout( p.horizontal_layout ),
 	mScrollable(mHorizontalLayout ? FALSE : p.scrollable), // Scrolling is supported only for vertical layout
 	mMaxScrollableItems(p.max_scrollable_items),
+	mPreferredWidth(p.preferred_width),
 	mKeepFixedSize( p.keep_fixed_size ),
 	mLabel (p.label),
 	mLastMouseX(0),
@@ -2025,6 +2026,9 @@ void LLMenuGL::arrange( void )
 				}
 			}
 
+			if (mPreferredWidth < U32_MAX)
+				width = llmin(mPreferredWidth, max_width);
+			
 			if (mScrollable)
 			{
 				S32 max_items_height = max_height - spillover_item_height * 2;

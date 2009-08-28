@@ -642,20 +642,18 @@ LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& para
 	return NULL;
 }
 
+// *TODO: Eliminate magic constants.
 static const S32	fake_offset = 132;
 static const S32	fake_top_offset = 18;
 
 void LLSideTray::resetPanelRect	()
 {
-	LLNavigationBar* nav_bar = LLNavigationBar::getInstance();
-	LLRect nav_rect = nav_bar->getRect();
 	const LLRect& parent_rect = gViewerWindow->getRootView()->getRect();
 
 	static LLSideTray::Params sidetray_params(LLUICtrlFactory::getDefaultParams<LLSideTray>());	
 
-	S32 panel_width = sidetray_params.default_button_width+sidetray_params.default_button_margin;
-	if(!mCollapsed)
-		panel_width+=mMaxBarWidth;
+	S32 panel_width = sidetray_params.default_button_width;
+	panel_width += mCollapsed ? sidetray_params.default_button_margin : mMaxBarWidth;
 
 	S32 panel_height = parent_rect.getHeight()-fake_top_offset;
 
@@ -671,9 +669,8 @@ void	LLSideTray::setPanelRect	()
 
 	const LLRect& parent_rect = gViewerWindow->getRootView()->getRect();
 
-	S32 panel_width = sidetray_params.default_button_width+sidetray_params.default_button_margin;
-	if(!mCollapsed)
-		panel_width+=mMaxBarWidth;
+	S32 panel_width = sidetray_params.default_button_width;
+	panel_width += mCollapsed ? sidetray_params.default_button_margin : mMaxBarWidth;
 
 	S32 panel_height = parent_rect.getHeight()-fake_top_offset - nav_rect.getHeight();
 	S32 panel_top = parent_rect.mTop-fake_top_offset - nav_rect.getHeight();

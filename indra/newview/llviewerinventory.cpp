@@ -799,14 +799,14 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 	gAgent.sendReliableMessage();
 }
 
-void create_inventory_callingcard(const LLUUID& avatar_id)
+void create_inventory_callingcard(const LLUUID& avatar_id, const LLUUID& parent /*= LLUUID::null*/, LLPointer<LLInventoryCallback> cb/*=NULL*/)
 {
 	std::string item_desc = avatar_id.asString();
 	std::string item_name;
 	gCacheName->getFullName(avatar_id, item_name);
 	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-						  LLUUID::null, LLTransactionID::tnull, item_name, item_desc, LLAssetType::AT_CALLINGCARD,
-						  LLInventoryType::IT_CALLINGCARD, NOT_WEARABLE, PERM_MOVE | PERM_TRANSFER, NULL);
+						  parent, LLTransactionID::tnull, item_name, item_desc, LLAssetType::AT_CALLINGCARD,
+						  LLInventoryType::IT_CALLINGCARD, NOT_WEARABLE, PERM_MOVE | PERM_TRANSFER, cb);
 }
 
 void copy_inventory_item(

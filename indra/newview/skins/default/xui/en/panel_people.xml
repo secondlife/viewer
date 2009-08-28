@@ -19,8 +19,8 @@
      name="no_friends_online"
      value="No friends online" />
     <string
-     name="no_friends_offline"
-     value="No friends offline" />
+     name="no_friends"
+     value="No friends" />
     <string
      name="no_groups"
      value="No groups" />
@@ -153,14 +153,14 @@
                  can_resize="false"
                  layout="topleft"
                  min_height="100"
-                 name="tab_offline"
-                 title="Offline">
+                 name="tab_all"
+                 title="All">
                     <panel
                      follows="all"
                      height="260"
                      layout="topleft"
                      left="0"
-                     name="tab_offline_panel"
+                     name="tab_all_panel"
                      top="100"
                      width="285">
                         <avatar_list
@@ -169,7 +169,7 @@
                          height="255"
                          layout="topleft"
                          left="0"
-                         name="avatars_offline"
+                         name="avatars_all"
                          top="0"
                          width="285" />
                     </panel>

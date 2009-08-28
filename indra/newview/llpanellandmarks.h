@@ -33,9 +33,12 @@
 #ifndef LL_LLPANELLANDMARKS_H
 #define LL_LLPANELLANDMARKS_H
 
-#include "llfloaterinventory.h"
 #include "llinventorymodel.h"
 #include "llpanelplacestab.h"
+
+class LLFolderViewItem;
+class LLInventoryPanel;
+class LLSaveFolderState;
 
 class LLLandmarksPanel : public LLPanelPlacesTab
 {

@@ -95,29 +95,8 @@ const F32 OFFLINE_SECONDS = FIND_FREQUENCY + 8.0f;
 // static
 LLAvatarTracker LLAvatarTracker::sInstance;
 
-/*
-class LLAvatarTrackerInventoryObserver : public LLInventoryObserver
-{
-public:
-	LLAvatarTrackerInventoryObserver(LLAvatarTracker* at) :
-		mAT(at) {}
-	virtual ~LLAvatarTrackerInventoryObserver() {}
-	virtual void changed(U32 mask);
-protected:
-	LLAvatarTracker* mAT;
-};
-*/
 
-/*
-void LLAvatarTrackerInventoryObserver::changed(U32 mask)
-{
-	// if there's a calling card change, just do it.
-	if((mask & LLInventoryObserver::CALLING_CARD) != 0)
-	{
-		mAT->inventoryChanged();
-	}
-}
-*/
+
 
 ///----------------------------------------------------------------------------
 /// Class LLAvatarTracker
@@ -329,7 +308,8 @@ void LLAvatarTracker::terminateBuddy(const LLUUID& id)
 	msg->nextBlock("ExBlock");
 	msg->addUUID("OtherID", id);
 	gAgent.sendReliableMessage();
-	mModifyMask |= LLFriendObserver::REMOVE;
+	 
+	addChangedMask(LLFriendObserver::REMOVE, id);
 	delete buddy;
 }
 
@@ -503,6 +483,18 @@ void LLAvatarTracker::notifyObservers()
 		(*it)->changed(mModifyMask);
 	}
 	mModifyMask = LLFriendObserver::NONE;
+	mChangedBuddyIDs.clear();
+}
+
+// store flag for change
+// and id of object change applies to
+void LLAvatarTracker::addChangedMask(U32 mask, const LLUUID& referent)
+{ 
+	mModifyMask |= mask; 
+	if (referent.notNull())
+	{
+		mChangedBuddyIDs.insert(referent);
+	}
 }
 
 void LLAvatarTracker::applyFunctor(LLRelationshipFunctor& f)
@@ -706,7 +698,7 @@ void LLAvatarTracker::formFriendship(const LLUUID& id)
 			//visible online to each other.
 			buddy_info = new LLRelationship(LLRelationship::GRANT_ONLINE_STATUS,LLRelationship::GRANT_ONLINE_STATUS, false);
 			at.mBuddyInfo[id] = buddy_info;
-			at.mModifyMask |= LLFriendObserver::ADD;
+			at.addChangedMask(LLFriendObserver::ADD, id);
 			at.notifyObservers();
 		}
 	}
@@ -722,7 +714,7 @@ void LLAvatarTracker::processTerminateFriendship(LLMessageSystem* msg, void**)
 		LLRelationship* buddy = get_ptr_in_map(at.mBuddyInfo, id);
 		if(!buddy) return;
 		at.mBuddyInfo.erase(id);
-		at.mModifyMask |= LLFriendObserver::REMOVE;
+		at.addChangedMask(LLFriendObserver::REMOVE, id);
 		delete buddy;
 		at.notifyObservers();
 	}

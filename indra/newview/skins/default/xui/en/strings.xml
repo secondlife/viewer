@@ -413,6 +413,10 @@ this texture in your inventory
 	<string name="InvFolder Current Outfit">Current Outfit</string>
 	<string name="InvFolder My Outfits">My Outfits</string>
 
+  <!-- are used for Friends and Friends/All folders in Inventory "Calling cards" folder. See EXT-694-->
+	<string name="InvFolder Friends">Friends</string>
+	<string name="InvFolder All">All</string>
+
 	<!-- inventory FVBridge -->
 	<string name="Buy">Buy</string>
 	<string name="BuyforL$">Buy for L$</string>

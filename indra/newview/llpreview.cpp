@@ -51,7 +51,6 @@
 #include "llagent.h"
 #include "llvoavatarself.h"
 #include "llselectmgr.h"
-#include "llfloaterinventory.h"
 #include "llviewerinventory.h"
 #include "llviewerwindow.h"
 #include "lltrans.h"

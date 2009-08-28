@@ -54,7 +54,6 @@
 #include "llagent.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
-#include "llfloaterinventory.h"
 #include "llfloaterreg.h"
 #include "lllineeditor.h"
 #include "lltexturectrl.h"

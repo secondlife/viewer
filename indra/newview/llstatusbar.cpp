@@ -46,7 +46,6 @@
 #include "llfloaterregioninfo.h"
 #include "llfloaterscriptdebug.h"
 #include "llhudicon.h"
-#include "llfloaterinventory.h"
 #include "llnavigationbar.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
@@ -224,7 +223,7 @@ void LLStatusBar::draw()
 	LLPanel::draw();
 }
 
-BOOL LLStatusBar::handleRightMouseUp(S32 x, S32 y, MASK mask)
+BOOL LLStatusBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (mHideNavbarContextMenu)
 	{
@@ -603,7 +602,7 @@ void LLStatusBar::onHideNavbarContextMenuItemClicked(const LLSD& userdata)
 
 void LLStatusBar::onMainMenuRightClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
 {
-	handleRightMouseUp(x, y, mask);
+	handleRightMouseDown(x, y, mask);
 }
 
 // static

@@ -38,6 +38,7 @@
 #include "lllandmark.h"
 
 #include "llfloaterworldmap.h"
+#include "llfloaterinventory.h"
 #include "llfoldervieweventlistener.h"
 #include "lllandmarklist.h"
 #include "llsidetray.h"

@@ -51,7 +51,6 @@
 #include "llhudmanager.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
-#include "llfloaterinventory.h"
 #include "llmutelist.h"
 #include "llnotify.h"
 #include "llpreviewnotecard.h"

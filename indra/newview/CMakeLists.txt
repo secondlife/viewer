@@ -213,6 +213,7 @@ set(viewer_SOURCE_FILES
     llfolderview.cpp
     llfolderviewitem.cpp
     llfollowcam.cpp
+    llfriendcard.cpp
     llgesturemgr.cpp
     llgivemoney.cpp
     llglsandbox.cpp
@@ -668,6 +669,7 @@ set(viewer_HEADER_FILES
     llfoldervieweventlistener.h
     llfolderviewitem.h
     llfollowcam.h
+    llfriendcard.h
     llgesturemgr.h
     llgivemoney.h
     llgroupactions.h

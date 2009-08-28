@@ -47,6 +47,7 @@
 #include "llcallingcard.h"			// for LLAvatarTracker
 #include "llfloateravatarpicker.h"
 //#include "llfloaterminiinspector.h"
+#include "llfriendcard.h"
 #include "llavataractions.h"
 #include "llgroupactions.h"
 #include "llgrouplist.h"
@@ -302,7 +303,7 @@ LLPanelPeople::LLPanelPeople()
 		mFilterEditor(NULL),
 		mTabContainer(NULL),
 		mOnlineFriendList(NULL),
-		mOfflineFriendList(NULL),
+		mAllFriendList(NULL),
 		mNearbyList(NULL),
 		mRecentList(NULL)
 {
@@ -337,7 +338,7 @@ BOOL LLPanelPeople::postBuild()
 	mTabContainer->setCommitCallback(boost::bind(&LLPanelPeople::onTabSelected, this, _2));
 
 	mOnlineFriendList = getChild<LLPanel>(FRIENDS_TAB_NAME)->getChild<LLAvatarList>("avatars_online");
-	mOfflineFriendList = getChild<LLPanel>(FRIENDS_TAB_NAME)->getChild<LLAvatarList>("avatars_offline");
+	mAllFriendList = getChild<LLPanel>(FRIENDS_TAB_NAME)->getChild<LLAvatarList>("avatars_all");
 
 	mNearbyList = getChild<LLPanel>(NEARBY_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
 
@@ -354,11 +355,11 @@ BOOL LLPanelPeople::postBuild()
 	friends_panel->childSetAction("del_btn",	boost::bind(&LLPanelPeople::onDeleteFriendButtonClicked,	this));
 
 	mOnlineFriendList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mOnlineFriendList));
-	mOfflineFriendList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mOfflineFriendList));
+	mAllFriendList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mAllFriendList));
 	mNearbyList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mNearbyList));
 	mRecentList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mRecentList));
 	mOnlineFriendList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mOnlineFriendList));
-	mOfflineFriendList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mOfflineFriendList));
+	mAllFriendList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mAllFriendList));
 	mNearbyList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mNearbyList));
 	mRecentList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mRecentList));
 
@@ -427,17 +428,25 @@ bool LLPanelPeople::updateFriendList(U32 changed_mask)
 
 		// *TODO: it's suboptimal to rebuild the whole lists on online status change.
 
-		// save them to the online and offline friends vectors
+		// save them to the online and all friends vectors
 		mOnlineFriendVec.clear();
-		mOfflineFriendVec.clear();
+		mAllFriendVec.clear();
+
+		LLFriendCardsManager::folderid_buddies_map_t listMap;
+
+		// *NOTE: For now collectFriendsLists returns data only for Friends/All folder. EXT-694.
+		LLFriendCardsManager::instance().collectFriendsLists(listMap);
+		if (listMap.size() > 0)
+		{
+			mAllFriendVec = listMap.begin()->second;
+		}
+
 		LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();
 		for (; buddy_it != all_buddies.end(); ++buddy_it)
 		{
 			LLUUID buddy_id = buddy_it->first;
 			if (av_tracker.isBuddyOnline(buddy_id))
 				mOnlineFriendVec.push_back(buddy_id);
-			else
-				mOfflineFriendVec.push_back(buddy_id);
 		}
 
 		return filterFriendList();
@@ -477,19 +486,19 @@ bool LLPanelPeople::updateGroupList()
 
 bool LLPanelPeople::filterFriendList()
 {
-	if (!mOnlineFriendList || !mOfflineFriendList)
+	if (!mOnlineFriendList || !mAllFriendList)
 		return true; // there's no point in further updates
 
 	// We must always update Friends list to clear the latest removed friend.
 	bool have_names =
 			mOnlineFriendList->update(mOnlineFriendVec, mFilterSubString) &
-			mOfflineFriendList->update(mOfflineFriendVec, mFilterSubString);
+			mAllFriendList->update(mAllFriendVec, mFilterSubString);
 
 	if (mOnlineFriendVec.size() == 0)
 		mOnlineFriendList->setCommentText(getString("no_friends_online"));
 
-	if (mOfflineFriendVec.size() == 0)
-		mOfflineFriendList->setCommentText(getString("no_friends_offline"));
+	if (mAllFriendVec.size() == 0)
+		mAllFriendList->setCommentText(getString("no_friends"));
 
 	return have_names;
 }
@@ -615,7 +624,7 @@ LLUUID LLPanelPeople::getCurrentItemID() const
 		if ((cur_online_friend = mOnlineFriendList->getCurrentID()).notNull())
 			return cur_online_friend;
 
-		return mOfflineFriendList->getCurrentID();
+		return mAllFriendList->getCurrentID();
 	}
 
 	if (cur_tab == NEARBY_TAB_NAME)
@@ -720,12 +729,12 @@ void LLPanelPeople::onAvatarListDoubleClicked(LLAvatarList* list)
 
 void LLPanelPeople::onAvatarListCommitted(LLAvatarList* list)
 {
-	// Make sure only one of the friends lists (online/offline) has selection.
+	// Make sure only one of the friends lists (online/all) has selection.
 	if (getActiveTabName() == FRIENDS_TAB_NAME)
 	{
 		if (list == mOnlineFriendList)
-			mOfflineFriendList->deselectAllItems(TRUE);
-		else if (list == mOfflineFriendList)
+			mAllFriendList->deselectAllItems(TRUE);
+		else if (list == mAllFriendList)
 			mOnlineFriendList->deselectAllItems(TRUE);
 		else
 			llassert(0 && "commit on unknown friends list");

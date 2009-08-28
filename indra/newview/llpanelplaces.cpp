@@ -32,6 +32,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llassettype.h"
+#include "llwindow.h"
 
 #include "lllandmark.h"
 
@@ -51,6 +52,7 @@
 #include "llpanelteleporthistory.h"
 #include "llsidetray.h"
 #include "lltoggleablemenu.h"
+#include "llviewerinventory.h"
 #include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"

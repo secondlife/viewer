@@ -32,6 +32,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llwindow.h"
+
 #include "llpreviewtexture.h"
 
 #include "llagent.h"
@@ -39,7 +41,6 @@
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
 #include "llimagetga.h"
-#include "llfloaterinventory.h"
 #include "llinventory.h"
 #include "llresmgr.h"
 #include "lltrans.h"

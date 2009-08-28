@@ -61,6 +61,55 @@ static LLDefaultChildRegistry::Register<LLFavoritesBarCtrl> r("favorites_bar");
 const S32 DROP_DOWN_MENU_WIDTH = 250;
 
 /**
+ * Helper for LLFavoriteLandmarkButton and LLFavoriteLandmarkMenuItem.
+ * Performing requests for SLURL for given Landmark ID
+ */
+class LLSLURLGetter
+{
+public:
+	LLSLURLGetter()
+		: mLandmarkID(LLUUID::null)
+		, mSLURL("(Loading...)")
+		, mLoaded(false) {}
+
+	void setLandmarkID(const LLUUID& id) { mLandmarkID = id; }
+
+	const std::string& getSLURL()
+	{
+		if(!mLoaded)
+			requestSLURL();
+
+		return mSLURL;
+	}
+private:
+	/**
+	 * Requests landmark data from server.
+	 */
+	void requestSLURL()
+	{
+		if (mLandmarkID.isNull())
+			return;
+
+		LLVector3d g_pos;
+		if(LLLandmarkActions::getLandmarkGlobalPos(mLandmarkID, g_pos))
+		{
+			LLLandmarkActions::getSLURLfromPosGlobal(g_pos,
+				boost::bind(&LLSLURLGetter::landmarkNameCallback, this, _1), false);
+		}
+	}
+
+	void landmarkNameCallback(const std::string& name)
+	{
+		mSLURL = name;
+		mLoaded = true;
+	}
+
+	LLUUID mLandmarkID;
+	std::string mSLURL;
+	bool mLoaded;
+};
+
+/**
  * This class is needed to override LLButton default handleToolTip function and
  * show SLURL as button tooltip.
  * *NOTE: dzaporozhan: This is a workaround. We could set tooltips for buttons
@@ -71,9 +120,6 @@ class LLFavoriteLandmarkButton : public LLButton
 {
 public:
 
-	/**
-	 * Requests landmark data from server and shows landmark SLURL as tooltip.
-	 */
 	BOOL handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect)
 	{
 		if(LLUI::sShowXUINames)
@@ -81,47 +127,52 @@ public:
 			return LLButton::handleToolTip(x, y, msg, sticky_rect);
 		}
 
-		if(!mLoaded)
-		{
-			LLVector3d g_pos;
-			if(LLLandmarkActions::getLandmarkGlobalPos(mLandmarkID, g_pos))
-			{
-				LLLandmarkActions::getSLURLfromPosGlobal(g_pos, 
-					boost::bind(&LLFavoriteLandmarkButton::landmarkNameCallback, this, _1), false);
-			}
-		}
-
-		msg = mSLURL;
+		msg = mUrlGetter.getSLURL();
 		return TRUE;
 	}
-
-	void landmarkNameCallback(const std::string& name)
-	{
-		mSLURL = name;
-		mLoaded = true;
-	}
 	
-	void setLandmarkID(const LLUUID& id){ mLandmarkID = id; }
+	void setLandmarkID(const LLUUID& id){ mUrlGetter.setLandmarkID(id); }
 
 protected:
-
-	LLFavoriteLandmarkButton(const LLButton::Params& p)
-		: LLButton(p)
-		, mLandmarkID(LLUUID::null)
-		, mSLURL("(Loading...)")
-		, mLoaded(false)
-	{
-		static std::string loading_tooltip = LLTrans::getString("favorite_landmark_loading_tooltip");
-		mSLURL = loading_tooltip;
-	}
-
+	LLFavoriteLandmarkButton(const LLButton::Params& p) : LLButton(p) {}
 	friend class LLUICtrlFactory;
 
 private:
-	LLUUID mLandmarkID;
-	std::string mSLURL;
-	bool mLoaded;
+	LLSLURLGetter mUrlGetter;
 };
+
+/**
+ * This class is needed to override LLMenuItemCallGL default handleToolTip function and
+ * show SLURL as button tooltip.
+ * *NOTE: dzaporozhan: This is a workaround. We could set tooltips for buttons
+ * in showDropDownMenu function but landmark data is not available when Favorites Bar is
+ * created. Thats why we are requesting landmark data after 
+ */
+class LLFavoriteLandmarkMenuItem : public LLMenuItemCallGL
+{
+public:
+	BOOL handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect)
+	{
+		if(LLUI::sShowXUINames)
+		{
+			return LLMenuItemCallGL::handleToolTip(x, y, msg, sticky_rect);
+		}
+
+		msg = mUrlGetter.getSLURL();
+		return TRUE;
+	}
+	
+	void setLandmarkID(const LLUUID& id){ mUrlGetter.setLandmarkID(id); }
+
+protected:
+
+	LLFavoriteLandmarkMenuItem(const LLMenuItemCallGL::Params& p) : LLMenuItemCallGL(p) {}
+	friend class LLUICtrlFactory;
+
+private:
+	LLSLURLGetter mUrlGetter;
+};
+
 
 // updateButtons's helper
 struct LLFavoritesSort
@@ -483,6 +534,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 		menu_p.visible(false);
 		menu_p.scrollable(true);
 		menu_p.max_scrollable_items = 10;
+		menu_p.preferred_width = DROP_DOWN_MENU_WIDTH;
 
 		LLToggleableMenu* menu = LLUICtrlFactory::create<LLToggleableMenu>(menu_p);
 
@@ -554,8 +606,10 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 			item_params.label(item_name);
 			
 			item_params.on_click.function(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
-			LLMenuItemCallGL *menu_item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
+			LLFavoriteLandmarkMenuItem *menu_item = LLUICtrlFactory::create<LLFavoriteLandmarkMenuItem>(item_params);
 			menu_item->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this,item->getUUID(),_1,_2,_3,_4));
+			menu_item->setLandmarkID(item->getUUID());
+
 			// Check whether item name wider than menu
 			if (menu_item->getNominalWidth() > max_width)
 			{
@@ -583,7 +637,8 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 
 		menu->setButtonRect(mChevronRect, this);
 
-		LLMenuGL::showPopup(this, menu, getRect().getWidth() - widest_item, 0);
+		LLMenuGL::showPopup(this, menu, getRect().getWidth() - max_width, 0);
+		
 	}
 }
 

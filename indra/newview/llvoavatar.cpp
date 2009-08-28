@@ -52,7 +52,6 @@
 #include "llheadrotmotion.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
-#include "llfloaterinventory.h"
 #include "llkeyframefallmotion.h"
 #include "llkeyframestandmotion.h"
 #include "llkeyframewalkmotion.h"
@@ -5510,6 +5509,24 @@ void LLVOAvatar::sitDown(BOOL bSitting)
 //-----------------------------------------------------------------------------
 void LLVOAvatar::sitOnObject(LLViewerObject *sit_object)
 {
+	if (isSelf())
+	{
+		// Might be first sit
+		LLFirstUse::useSit();
+
+		gAgent.setFlying(FALSE);
+		gAgent.setThirdPersonHeadOffset(LLVector3::zero);
+		//interpolate to new camera position
+		gAgent.startCameraAnimation();
+		// make sure we are not trying to autopilot
+		gAgent.stopAutoPilot();
+		gAgent.setupSitCamera();
+		if (gAgent.getForceMouselook())
+		{
+			gAgent.changeCameraToMouselook();
+		}
+	}
+
 	if (mDrawable.isNull())
 	{
 		return;
@@ -5531,23 +5548,6 @@ void LLVOAvatar::sitOnObject(LLViewerObject *sit_object)
 
 	stopMotion(ANIM_AGENT_BODY_NOISE);
 
-	if (isSelf())
-	{
-		// Might be first sit
-		LLFirstUse::useSit();
-
-		gAgent.setFlying(FALSE);
-		gAgent.setThirdPersonHeadOffset(LLVector3::zero);
-		//interpolate to new camera position
-		gAgent.startCameraAnimation();
-		// make sure we are not trying to autopilot
-		gAgent.stopAutoPilot();
-		gAgent.setupSitCamera();
-		if (gAgent.getForceMouselook())
-		{
-			gAgent.changeCameraToMouselook();
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------

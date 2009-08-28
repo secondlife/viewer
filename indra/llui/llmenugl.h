@@ -383,6 +383,7 @@ public:
 										keep_fixed_size,
 										scrollable;
 		Optional<U32>					max_scrollable_items;
+		Optional<U32>					preferred_width;
 		Optional<LLUIColor>				bg_color;
 		Optional<S32>					shortcut_pad;
 
@@ -396,7 +397,9 @@ public:
 			bg_color("bg_color",  LLUIColorTable::instance().getColor( "MenuDefaultBgColor" )),
 			scrollable("scrollable", false), 
 			max_scrollable_items("max_scrollable_items", U32_MAX),
+			preferred_width("preferred_width", U32_MAX),
 			shortcut_pad("shortcut_pad")
+			
 		{
 			addSynonym(bg_visible, "opaque");
 			addSynonym(bg_color, "color");
@@ -544,6 +547,7 @@ protected:
 	S32				mMouseVelX;
 	S32				mMouseVelY;
 	U32				mMaxScrollableItems;
+	U32				mPreferredWidth;
 	BOOL			mHorizontalLayout;
 	BOOL			mScrollable;
 	BOOL			mKeepFixedSize;

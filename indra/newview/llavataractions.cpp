@@ -42,7 +42,7 @@
 #include "llagent.h"
 #include "llappviewer.h"		// for gLastVersionChannel
 #include "llcallingcard.h"		// for LLAvatarTracker
-#include "llinventorymodel.h"
+#include "llinventorymodel.h"	// for gInventory.findCategoryUUIDForType
 #include "llimview.h"			// for gIMMgr
 #include "llsidetray.h"
 #include "llviewermessage.h"	// for handle_lure
@@ -229,8 +229,6 @@ bool LLAvatarActions::handleRemove(const LLSD& notification, const LLSD& respons
 				}
 				LLAvatarTracker::instance().terminateBuddy(id);
 				LLAvatarTracker::instance().notifyObservers();
-				gInventory.addChangedMask(LLInventoryObserver::LABEL | LLInventoryObserver::CALLING_CARD, LLUUID::null);
-				gInventory.notifyObservers();
 				break;
 
 			case 1: // NO

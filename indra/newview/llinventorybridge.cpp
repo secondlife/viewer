@@ -58,6 +58,7 @@
 #include "llfloaterworldmap.h"
 #include "llfocusmgr.h"
 #include "llfolderview.h"
+#include "llfriendcard.h"
 #include "llavataractions.h"
 #include "llgesturemgr.h"
 #include "lliconctrl.h"
@@ -162,9 +163,25 @@ std::string ICON_NAME[ICON_NAME_COUNT] =
 
 BOOL gAddToOutfit = FALSE;
 
+
+// +=================================================+
+// |        LLInventoryPanelObserver                 |
+// +=================================================+
+void LLInventoryPanelObserver::changed(U32 mask)
+{
+	mIP->modelChanged(mask);
+}
+
+
 // +=================================================+
 // |        LLInvFVBridge                            |
 // +=================================================+
+
+LLInvFVBridge::LLInvFVBridge(LLInventoryPanel* inventory, const LLUUID& uuid) :
+mUUID(uuid), mInvType(LLInventoryType::IT_NONE)
+{
+	mInventoryPanel = inventory->getHandle();
+}
 
 const std::string& LLInvFVBridge::getName() const
 {
@@ -2302,7 +2319,11 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else if(isAgentInventory()) // do not allow creating in library
 	{
-		mItems.push_back(std::string("New Folder"));
+		LLViewerInventoryCategory *cat =  getCategory();
+
+		// Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
+		if (!LLFriendCardsManager::instance().isCategoryInFriendFolder(cat))
+			mItems.push_back(std::string("New Folder"));
 		mItems.push_back(std::string("New Script"));
 		mItems.push_back(std::string("New Note"));
 		mItems.push_back(std::string("New Gesture"));
@@ -2310,7 +2331,6 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		mItems.push_back(std::string("New Body Parts"));
 		mItems.push_back(std::string("Change Type"));
 
-		LLViewerInventoryCategory *cat =  getCategory();
 		if (cat && LLAssetType::lookupIsProtectedCategoryType(cat->getPreferredType()))
 		{
 			mDisabledItems.push_back(std::string("Change Type"));
@@ -2879,6 +2899,16 @@ void LLSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 // |        LLLandmarkBridge                         |
 // +=================================================+
 
+LLLandmarkBridge::LLLandmarkBridge(LLInventoryPanel* inventory, const LLUUID& uuid, U32 flags/* = 0x00*/) :
+LLItemBridge(inventory, uuid) 
+{
+	mVisited = FALSE;
+	if (flags & LLInventoryItem::II_FLAGS_LANDMARK_VISITED)
+	{
+		mVisited = TRUE;
+	}
+}
+
 LLUIImagePtr LLLandmarkBridge::getIcon() const
 {
 	return get_item_icon(LLAssetType::AT_LANDMARK, LLInventoryType::IT_LANDMARK, mVisited, FALSE);
@@ -3216,6 +3246,18 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 	return rv;
 }
 
+BOOL LLCallingCardBridge::removeItem()
+{
+	if (LLFriendCardsManager::instance().isItemInAnyFriendsList(getItem()))
+	{
+		LLAvatarActions::removeFriendDialog(getItem()->getCreatorUUID());
+		return FALSE;
+	}
+	else 
+	{
+		return LLItemBridge::removeItem();
+	}
+}
 // +=================================================+
 // |        LLNotecardBridge                         |
 // +=================================================+
@@ -3449,6 +3491,14 @@ void LLAnimationBridge::openItem()
 
 // static
 LLUUID LLObjectBridge::sContextMenuItemID;
+
+LLObjectBridge::LLObjectBridge(LLInventoryPanel* inventory, const LLUUID& uuid, LLInventoryType::EType type, U32 flags) :
+LLItemBridge(inventory, uuid), mInvType(type)
+{
+	mAttachPt = (flags & 0xff); // low bye of inventory flags
+
+	mIsMultiObject = ( flags & LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS ) ?  TRUE: FALSE;
+}
 
 BOOL LLObjectBridge::isItemRemovable()
 {

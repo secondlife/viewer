@@ -116,7 +116,6 @@
 #include "llhudview.h"
 #include "llimagebmp.h"
 #include "llimagej2c.h"
-#include "llfloaterinventory.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"

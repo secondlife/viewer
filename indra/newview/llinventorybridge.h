@@ -38,8 +38,9 @@
 #include "llviewercontrol.h"
 #include "llcallingcard.h"
 #include "llinventorymodel.h"
-#include "llfloaterinventory.h"
 #include "llfoldervieweventlistener.h"
+
+class LLInventoryPanel;
 
 enum EInventoryIcon
 {
@@ -114,7 +115,7 @@ class LLInventoryPanelObserver : public LLInventoryObserver
 public:
 	LLInventoryPanelObserver(LLInventoryPanel* ip) : mIP(ip) {}
 	virtual ~LLInventoryPanelObserver() {}
-	virtual void changed(U32 mask) { mIP->modelChanged(mask); }
+	virtual void changed(U32 mask);
 protected:
 	LLInventoryPanel* mIP;
 };
@@ -191,11 +192,7 @@ public:
 	virtual void clearDisplayName() {}
 
 protected:
-	LLInvFVBridge(LLInventoryPanel* inventory, const LLUUID& uuid) :
-		mUUID(uuid), mInvType(LLInventoryType::IT_NONE)
-	{
-		mInventoryPanel = inventory->getHandle();
-	}
+	LLInvFVBridge(LLInventoryPanel* inventory, const LLUUID& uuid);
 
 	LLInventoryObject* getInventoryObject() const;
 	LLInventoryModel* getInventoryModel() const;
@@ -395,15 +392,7 @@ public:
 	virtual void openItem();
 
 protected:
-	LLLandmarkBridge(LLInventoryPanel* inventory, const LLUUID& uuid, U32 flags = 0x00) :
-		LLItemBridge(inventory, uuid) 
-	{
-		mVisited = FALSE;
-		if (flags & LLInventoryItem::II_FLAGS_LANDMARK_VISITED)
-		{
-			mVisited = TRUE;
-		}
-	}
+	LLLandmarkBridge(LLInventoryPanel* inventory, const LLUUID& uuid, U32 flags = 0x00);
 
 protected:
 	BOOL mVisited;
@@ -438,6 +427,7 @@ public:
 							EDragAndDropType cargo_type,
 							void* cargo_data);
 	void refreshFolderViewItem();
+	BOOL removeItem();
 
 protected:
 	LLCallingCardBridge( LLInventoryPanel* inventory, const LLUUID& uuid );
@@ -515,13 +505,7 @@ public:
 	LLInventoryObject* getObject() const;
 
 protected:
-	LLObjectBridge(LLInventoryPanel* inventory, const LLUUID& uuid, LLInventoryType::EType type, U32 flags) :
-		LLItemBridge(inventory, uuid), mInvType(type)
-	{
-		mAttachPt = (flags & 0xff); // low bye of inventory flags
-
-		mIsMultiObject = ( flags & LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS ) ?  TRUE: FALSE;
-	}
+	LLObjectBridge(LLInventoryPanel* inventory, const LLUUID& uuid, LLInventoryType::EType type, U32 flags);
 
 protected:
 	static LLUUID	sContextMenuItemID;  // Only valid while the context menu is open.
@@ -788,6 +772,7 @@ void wear_inventory_item_on_avatar(LLInventoryItem* item);
 void wear_outfit_by_name(const std::string& name);
 void wear_inventory_category(LLInventoryCategory* category, bool copy, bool append);
 
+class LLViewerJointAttachment;
 void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attachment);
 
 // Move items from an in-world object's "Contents" folder to a specified

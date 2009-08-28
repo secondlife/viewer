@@ -116,7 +116,7 @@ private:
 	LLFilterEditor*			mFilterEditor;
 	LLTabContainer*			mTabContainer;
 	LLAvatarList*			mOnlineFriendList;
-	LLAvatarList*			mOfflineFriendList;
+	LLAvatarList*			mAllFriendList;
 	LLAvatarList*			mNearbyList;
 	LLAvatarList*			mRecentList;
 	LLGroupList*			mGroupList;
@@ -142,7 +142,7 @@ private:
 	typedef std::vector<LLUUID> uuid_vector_t;
 	uuid_vector_t			mNearbyVec;
 	uuid_vector_t			mOnlineFriendVec;
-	uuid_vector_t			mOfflineFriendVec;
+	uuid_vector_t			mAllFriendVec;
 	uuid_vector_t			mRecentVec;
 };
 
