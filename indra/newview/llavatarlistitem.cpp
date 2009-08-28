@@ -48,7 +48,7 @@ LLAvatarListItem::LLAvatarListItem(const Params& p) : LLPanel()
 	mStatus = NULL;
 	mInfo = NULL;
 	mProfile = NULL;
-	mini_inspector = NULL;
+	mInspector = NULL;
 
 	mAvatar = getChild<LLAvatarIconCtrl>("avatar_icon");
 	//mAvatar->setValue(p.avatar_icon);
@@ -242,9 +242,9 @@ void LLAvatarListItem::setAvatar(LLSD& data)
 //---------------------------------------------------------------------------------
 void LLAvatarListItem::onInfoBtnClick()
 {
-	mini_inspector = LLFloaterReg::showInstance("mini_inspector", gAgent.getID());
+	mInspector = LLFloaterReg::showInstance("inspect_avatar", gAgent.getID());
 
-	if (!mini_inspector)
+	if (!mInspector)
 		return;
 
 	LLRect rect;
@@ -252,16 +252,17 @@ void LLAvatarListItem::onInfoBtnClick()
 	
 
 	// *TODO Vadim: rewrite this. "+= -" looks weird.
-	S32 delta = mYPos - mini_inspector->getRect().getHeight();
+	S32 delta = mYPos - mInspector->getRect().getHeight();
 	if(delta < 0)
 	{
 		mYPos += -delta;
 	}
 
-	rect.setLeftTopAndSize(mXPos, mYPos, mini_inspector->getRect().getWidth(), mini_inspector->getRect().getHeight()); 
-	mini_inspector->setRect(rect);
-	mini_inspector->setFrontmost(true);
-	mini_inspector->setVisible(true);
+	rect.setLeftTopAndSize(mXPos, mYPos,
+		mInspector->getRect().getWidth(), mInspector->getRect().getHeight()); 
+	mInspector->setRect(rect);
+	mInspector->setFrontmost(true);
+	mInspector->setVisible(true);
 
 }
 

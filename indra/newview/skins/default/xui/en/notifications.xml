@@ -1041,7 +1041,7 @@ Do you wish to visit [_URL] for more information?
    type="alertmodal">
 Your system contains a graphics card that is unknown to [APP_NAME] at this time.
 This is often the case with new hardware that hasn&apos;t been tested yet with [APP_NAME].  [APP_NAME] will most likely run properly, but you may need to adjust your graphics settings to something more appropriate.
-(Edit menu &gt; Preferences &gt; Graphics).
+(Me &gt; Preferences &gt; Graphics).
     <form name="form">
       <ignore name="ignore"
        text="My graphics card could not be identified"/>
@@ -1680,7 +1680,7 @@ No Group selected.
    type="alertmodal">
 Unable to deed land:
 Cannot find the region this land is in.
-Please use Tools -&gt; Report Bug to report this.
+Please use Help &gt; Report Bug to report this.
   </notification>
 
   <notification
@@ -1762,7 +1762,7 @@ Parcels you own appear in green.
 Unable to abandon land:
 Cannot find the region this land is in.
 
-Please use Tools -&gt; Report Bug to report this.
+Please use Help &gt; Report Bug to report this.
   </notification>
 
   <notification
@@ -1836,7 +1836,7 @@ Divide land?
 Unable to divide land:
 Cannot find the region this land is in.
 
-Please use Tools -&gt; Report Bug to report this.
+Please use Help &gt; Report Bug to report this.
   </notification>
 
   <notification
@@ -1846,7 +1846,7 @@ Please use Tools -&gt; Report Bug to report this.
 Unable to join land:
 Cannot find the region this land is in.
 
-Please use Tools -&gt; Report Bug to report this.
+Please use Help &gt; Report Bug to report this.
   </notification>
 
   <notification
@@ -1963,8 +1963,7 @@ Unable to save &apos;[NAME]&apos; to wearable file.  You will need to free up so
 Unable to save [NAME] to central asset store.
 This is usually a temporary failure. Please customize and save the wearable again in a few minutes.
 
-If this problem persists, please click on the &apos;Tools &gt; Report Bug&apos; pull down menu
-and provide details about your network setup.
+If this problem persists, please click on Help &gt; Report Bug and provide details about your network setup.
   </notification>
 
   <notification
@@ -2629,9 +2628,9 @@ This update is not required, but we suggest you install it to improve performanc
    icon="alertmodal.tga"
    name="DownloadLinuxMandatory"
    type="alertmodal">
-A new version of [SECOND_LIFE] is available.
+A new version of [APP_NAME] is available.
 [MESSAGE]
-You must download this update to use [SECOND_LIFE].
+You must download this update to use [APP_NAME].
     <usetemplate
      name="okcancelbuttons"
      notext="Quit"
@@ -2642,7 +2641,7 @@ You must download this update to use [SECOND_LIFE].
    icon="alertmodal.tga"
    name="DownloadLinux"
    type="alertmodal">
-An updated version of [SECOND_LIFE] is available.
+An updated version of [APP_NAME] is available.
 [MESSAGE]
 This update is not required, but we suggest you install it to improve performance and stability.
     <usetemplate
@@ -2655,7 +2654,7 @@ This update is not required, but we suggest you install it to improve performanc
    icon="alertmodal.tga"
    name="DownloadLinuxReleaseForDownload"
    type="alertmodal">
-An updated version of [SECOND_LIFE] is available.
+An updated version of [APP_NAME] is available.
 [MESSAGE]
 This update is not required, but we suggest you install it to improve performance and stability.
     <usetemplate
@@ -3333,7 +3332,7 @@ You are not allowed in that region due to your maturity Rating.
    type="alertmodal">
 You are not allowed in that Region due to your maturity Rating preference.
 
-You can click &apos;Change Preference&apos; to raise your maturity Rating preference now and allow you to enter. You will be able to search and access [REGIONMATURITY] content from now on. If you later want to change this setting back, go to Edit &gt; Preferences... &gt; General.
+You can click &apos;Change Preference&apos; to raise your maturity Rating preference now and allow you to enter. You will be able to search and access [REGIONMATURITY] content from now on. If you later want to change this setting back, go to Me &gt; Preferences &gt; General.
 	 <form name="form">
       <button
        index="0"
@@ -3390,7 +3389,7 @@ You cannot claim this land due to your maturity Rating.
    type="alertmodal">
 You cannot claim this land due to your maturity Rating preference.
 
-You can click &apos;Change Preference&apos; to raise your maturity Rating preference now and allow you to enter. You will be able to search and access [REGIONMATURITY] content from now on. If you later want to change this setting back, go to Edit &gt; Preferences... &gt; General.
+You can click &apos;Change Preference&apos; to raise your maturity Rating preference now and allow you to enter. You will be able to search and access [REGIONMATURITY] content from now on. If you later want to change this setting back, go to Me &gt; Preferences &gt; General.
     <usetemplate
      name="okcancelignore"
      yestext="Change Preference"
@@ -3440,7 +3439,7 @@ You cannot buy this land due to your maturity Rating.
    type="alertmodal">
 You cannot buy this land due to your maturity Rating preference.
 
-You can click &apos;Change Preference&apos; to raise your maturity Rating preference now and allow you to enter. You will be able to search and access [REGIONMATURITY] content from now on. If you later want to change this setting back, go to Edit &gt; Preferences... &gt; General.
+You can click &apos;Change Preference&apos; to raise your maturity Rating preference now and allow you to enter. You will be able to search and access [REGIONMATURITY] content from now on. If you later want to change this setting back, go to Me &gt; Preferences &gt; General.
     <usetemplate
      name="okcancelignore"
      yestext="Change Preference"
@@ -3769,7 +3768,7 @@ Default: off
    label="Top Colliders"
    name="HelpRegionTopColliders"
    type="alertmodal">
-Show a list of objects experiencing the greatest number of potential object-object collisions.  These objects can slow performance.  Select View &gt; Statistics Bar and look under Simulator &gt; Time &gt; Sim Time (Physics) to see if more than 20 ms is being spent in physics.
+Show a list of objects experiencing the greatest number of potential object-object collisions.  These objects can slow performance.  Select Advanced &gt; Performance Tools &gt; Statistics Bar and look under Simulator &gt; Time &gt; Physics Time to see if more than 20 ms is being spent in physics.
   </notification>
 
   <notification
@@ -3778,7 +3777,7 @@ Show a list of objects experiencing the greatest number of potential object-obje
    name="HelpRegionTopScripts"
    type="alertmodal">
 Show a list of objects spending the most time running LSL scripts.  These objects can slow performance.
-Select View &gt; Statistics Bar and look under Simulator &gt; Time &gt; Script Time to see if more than 25 ms is being spent in scripts.
+Select Advanced &gt; Performance Tools &gt; Statistics Bar and look under Simulator &gt; Time &gt; Script Time to see if more than 25 ms is being spent in scripts.
   </notification>
 
   <notification
@@ -4437,7 +4436,7 @@ Are you sure you want to permanently delete the contents of your Trash?
    icon="alertmodal.tga"
    name="ConfirmClearBrowserCache"
    type="alertmodal">
-Delete your travel, web, and search history?
+Are you sure you want to delete your travel, web, and search history?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -6561,5 +6560,12 @@ Yes
   <global name="PermNo">
 No
   </global>
+<!-- this is alert string from server. the name needs to match entire the server string, and needs to be changed 
+	whenever the server string changes --> 
+   <global name="You can only set your 'Home Location' on your land or at a mainland Infohub.">
+If you own a piece of land, you can make it your home location. 
+Otherwise, you can look at the Map and find places marked &quot;Infohub&quot;.
+  </global> 
+  
 </notifications>
 

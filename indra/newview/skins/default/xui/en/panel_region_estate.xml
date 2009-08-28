@@ -10,6 +10,7 @@
   <scroll_container
    follows="top|left|right|bottom"
    height="508"
+   name="container1"
    layout="topleft"
    width="280">
     <panel

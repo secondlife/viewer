@@ -120,7 +120,7 @@
      layout="topleft"
      left="32"
      name="start_location_text"
-     top="574"
+     top="576"
      width="95">
         Start Location:
     </text>
@@ -133,7 +133,7 @@
      left_pad="2"
      max_chars="128"
      name="start_location_combo"
-     top_delta="0"
+     top_delta="-2"
      width="155">
         <combo_box.item
          label="My Last Location"
@@ -154,9 +154,9 @@
      height="16"
      label="Remember password"
      layout="topleft"
-     left_pad="8"
+     left_pad="10"
      name="remember_check"
-     top_delta="0"
+     top_delta="3"
      width="138" />
     <button
      follows="left|bottom"

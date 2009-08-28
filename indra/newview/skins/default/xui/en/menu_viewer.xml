@@ -2277,219 +2277,6 @@
          layout="topleft"
          name="Rendering"
          tear_off="true">
-            <menu
-             create_jump_keys="true"
-             label="Info Displays"
-             layout="topleft"
-             name="Info Displays"
-             tear_off="true">
-                <menu_item_check
-                 label="Verify"
-                 layout="topleft"
-                 name="Verify">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="verify" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="verify" />
-                </menu_item_check>
-                <menu_item_check
-                 label="BBoxes"
-                 layout="topleft"
-                 name="BBoxes">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="bboxes" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="bboxes" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Points"
-                 layout="topleft"
-                 name="Points">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="points" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="points" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Octree"
-                 layout="topleft"
-                 name="Octree">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="octree" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="octree" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Shadow Frusta"
-                 layout="topleft"
-                 name="Shadow Frusta">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="shadow frusta" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="shadow frusta" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Occlusion"
-                 layout="topleft"
-                 name="Occlusion">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="occlusion" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="occlusion" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Render Batches"
-                 layout="topleft"
-                 name="Render Batches">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="render batches" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="render batches" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Animated Textures"
-                 layout="topleft"
-                 name="Animated Textures">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="texture anim" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="texture anim" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Texture Priority"
-                 layout="topleft"
-                 name="Texture Priority">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="texture priority" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="texture priority" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Avatar Rendering Cost"
-                 layout="topleft"
-                 name="Avatar Rendering Cost">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="shame" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="shame" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Texture Area (sqrt(A))"
-                 layout="topleft"
-                 name="Texture Area (sqrt(A))">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="texture area" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="texture area" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Face Area (sqrt(A))"
-                 layout="topleft"
-                 name="Face Area (sqrt(A))">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="face area" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="face area" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Lights"
-                 layout="topleft"
-                 name="Lights">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="lights" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="lights" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Particles"
-                 layout="topleft"
-                 name="Particles">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="particles" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="particles" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Composition"
-                 layout="topleft"
-                 name="Composition">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="composition" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="composition" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Glow"
-                 layout="topleft"
-                 name="Glow">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="glow" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="glow" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Show Depth Buffer"
-                 layout="topleft"
-                 name="Show Depth Buffer">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="ShowDepthBuffer" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="ShowDepthBuffer" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Pick Render"
-                 layout="topleft"
-                 name="Pick Render">
-                    <menu_item_check.on_check
-                     function="Advanced.CheckInfoDisplay"
-                     parameter="picking" />
-                    <menu_item_check.on_click
-                     function="Advanced.ToggleInfoDisplay"
-                     parameter="picking" />
-                </menu_item_check>
-                <menu_item_call
-                 label="Vectorize Perf Test"
-                 layout="topleft"
-                 name="Vectorize Perf Test">
-                    <menu_item_call.on_click
-                     function="Advanced.VectorizePerfTest"
-                     parameter="" />
-                </menu_item_call>
-            </menu>
             <menu_item_check
              label="Axes"
              layout="topleft"
@@ -2702,13 +2489,6 @@
 				 parameter="html_simple.http://www.secondlife.com" />
             </menu_item_call>
             <menu_item_call
-             label="Buy Currency Test"
-             layout="topleft"
-             name="Buy Currency Test">
-                <menu_item_call.on_click
-                 function="Advanced.BuyCurrencyTest" />
-            </menu_item_call>
-            <menu_item_call
              label="UI/Color Settings"
              layout="topleft"
              name="UI/Color Settings">
@@ -2860,7 +2640,6 @@
         <menu
          create_jump_keys="true"
          label="XUI"
-         layout="topleft"
          name="XUI"
          tear_off="true">
             <menu_item_call
@@ -2908,6 +2687,15 @@
            name="Send Test IMs">
             <menu_item_call.on_click
              function="Advanced.SendTestIMs" />
+          </menu_item_call>
+          <!-- *HACK: Hard code James Tester's UUID -->
+          <menu_item_call
+           label="Avatar Inspector"
+           name="Avatar Inspector"
+           shortcut="control|shift|I">
+            <menu_item_call.on_click
+             function="Advanced.AvatarInspector"
+             parameter="22df1dcb-810a-4975-aab9-0159958fe155" />
           </menu_item_call>
         </menu>
         <menu

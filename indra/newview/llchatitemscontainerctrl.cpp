@@ -225,7 +225,7 @@ BOOL	LLChatItemCtrl::handleMouseDown	(S32 x, S32 y, MASK mask)
 	S32 local_y = y - msg_inspector->getRect().mBottom - caption->getRect().mBottom;
 	if(msg_inspector->pointInView(local_x, local_y))
 	{
-		LLFloaterReg::showInstance("mini_inspector", mOriginalMessage.mFromID);
+		LLFloaterReg::showInstance("inspect_avatar", mOriginalMessage.mFromID);
 	}
 	return LLPanel::handleMouseDown(x,y,mask);
 }

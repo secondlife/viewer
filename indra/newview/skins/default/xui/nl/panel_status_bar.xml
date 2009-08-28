@@ -27,8 +27,8 @@
 	<button label="" label_selected="" name="restrictpush" tool_tip="Niet duwen"/>
 	<button label="" label_selected="" name="status_no_voice" tool_tip="Voice is niet beschikbaar hier"/>
 	<button label="" label_selected="" name="buyland" tool_tip="Koop dit perceel"/>
-	<line_editor label="Zoeken" name="search_editor" tool_tip="Doorzoek Second Life"/>
-	<button label="" label_selected="" name="search_btn" tool_tip="Doorzoek Second Life"/>
+	<line_editor label="Zoeken" name="search_editor" tool_tip="Doorzoek [SECOND_LIFE]"/>
+	<button label="" label_selected="" name="search_btn" tool_tip="Doorzoek [SECOND_LIFE]"/>
 	<string name="packet_loss_tooltip">
 		Pakketten verlies
 	</string>

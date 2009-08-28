@@ -169,7 +169,9 @@
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu_item_call label="選択対象に視点移動" name="Focus on Selection"/>
 		<menu_item_call label="選択範囲にズームイン" name="Zoom to Selection"/>
-		<menu_item_call label="オブジェクトを購入" name="Menu Object Take"/>
+		<menu_item_call label="オブジェクトを購入" name="Menu Object Take">
+			<on_enable userdata="購入,取る" name="EnableBuyOrTake"/>
+		</menu_item_call>
 		<menu_item_call label="コピーを取る" name="Take Copy"/>
 		<menu_item_call label="オブジェクトをオブジェクト・コンテンツに戻して保存" name="Save Object Back to Object Contents"/>
 		<menu_item_separator label="-----------" name="separator6"/>
@@ -183,7 +185,7 @@
 		<menu_item_call label="選択したオブジェクトの中のスクリプトを停止する" name="Set Scripts to Not Running in Selection"/>
 	</menu>
 	<menu label="ヘルプ" name="Help">
-		<menu_item_call label="Second Life ヘルプ" name="Second Life Help"/>
+		<menu_item_call label="[SECOND_LIFE] ヘルプ" name="Second Life Help"/>
 		<menu_item_call label="チュートリアル" name="Tutorial"/>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Linden公式ブログ..." name="Official Linden Blog..."/>
@@ -212,6 +214,6 @@
 			<menu_item_separator label="-----------" name="separator9"/>
 			<menu_item_call label="バグの報告..." name="Report Bug..."/>
 		</menu>
-		<menu_item_call label="Second Lifeについて" name="About Second Life..."/>
+		<menu_item_call label="[APP_NAME]について" name="About Second Life..."/>
 	</menu>
 </menu_bar>

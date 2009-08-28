@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Postcard" title="Invia la fotografia via email">
-	<text name="to_label">
+	<text name="to_label" width="135">
 		Email del destinatario:
 	</text>
+	<line_editor name="to_form" left="143" width="127" />
 	<text name="from_label">
 		La tua email:
 	</text>
+	<line_editor name="from_form" left="143" width="127" />
 	<text name="name_label">
 		Il tuo nome:
 	</text>
+	<line_editor name="name_form" left="143" width="127" />
 	<text name="subject_label">
 		Soggetto:
 	</text>
+	<line_editor name="subject_form" left="143" width="127" />
 	<line_editor label="Scrivi il soggetto qui." name="subject_form"/>
 	<text name="msg_label">
 		Messaggio:
@@ -20,12 +24,12 @@
 		Scrivi il messaggio qui.
 	</text_editor>
 	<text name="fine_print">
-		Se il tuo destinatario si registrerà in SL, riceverai il relativo bonus.
+		Se il tuo destinatario si registrerà in [SECOND_LIFE], riceverai il relativo bonus.
 	</text>
 	<button label="Annulla" name="cancel_btn"/>
 	<button label="Invia" name="send_btn"/>
 	<string name="default_subject">
-		Cartolina da Second Life.
+		Cartolina da [SECOND_LIFE]
 	</string>
 	<string name="default_message">
 		Vieni a vedere!

@@ -74,7 +74,7 @@
     </form>
   </template>
 	<notification functor="GenericAcknowledge" label="Unbekannter Warnhinweis" name="MissingAlert">
-		Ihre Version von Second Life kann den gerade empfangenen Warnhinweis nicht anzeigen.
+		Ihre Version von [APP_NAME] kann den gerade empfangenen Warnhinweis nicht anzeigen.
 
 Fehlerdetails: Der Warnhinweis „[_NAME]“ wurde in notifications.xml nicht gefunden.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -97,7 +97,7 @@ Fehlerdetails: Der Warnhinweis „[_NAME]“ wurde in notifications.xml nicht ge
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Ja"/>
 	</notification>
 	<notification name="BadInstallation">
-		Beim Aktualisieren von Second Life ist ein Fehler aufgetreten. Bitte laden Sie die aktuellste Version von secondlife.com herunter.
+		Beim Aktualisieren von [APP_NAME] ist ein Fehler aufgetreten. Bitte laden Sie die aktuellste Version von secondlife.com herunter.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LoginFailedNoNetwork">
@@ -135,12 +135,12 @@ Wählen Sie ein einzelnes Objekt aus und versuchen Sie es erneut.
 		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Nicht speichern" yestext="Alles speichern"/>
 	</notification>
 	<notification name="GrantModifyRights">
-		Die Gewährung von Änderungsrechten an andere Einwohner ermöglicht es diesen, JEDES BELIEBIGE Objekt zu ändern oder an sich zu nehmen, das Sie in der Second Life-Welt besitzen. Seien Sie SEHR vorsichtig beim Erteilen dieser Erlaubnis.
+		Die Gewährung von Änderungsrechten an andere Einwohner ermöglicht es diesen, JEDES BELIEBIGE Objekt zu ändern oder an sich zu nehmen, das Sie in der [SECOND_LIFE]-Welt besitzen. Seien Sie SEHR vorsichtig beim Erteilen dieser Erlaubnis.
 Möchten Sie [FIRST_NAME] [LAST_NAME] Änderungsrechte gewähren?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
 	</notification>
 	<notification name="GrantModifyRightsMultiple">
-		Die Gewährung von Änderungsrechten an andere Einwohner ermöglicht es diesen, JEDES BELIEBIGE Objekt zu ändern, das Sie in der Second Life-Welt besitzen. Seien Sie SEHR vorsichtig beim Erteilen dieser Erlaubnis.
+		Die Gewährung von Änderungsrechten an andere Einwohner ermöglicht es diesen, JEDES BELIEBIGE Objekt zu ändern, das Sie in der [SECOND_LIFE]-Welt besitzen. Seien Sie SEHR vorsichtig beim Erteilen dieser Erlaubnis.
 Möchten Sie den ausgewählten Einwohnern Änderungsrechte gewähren?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
 	</notification>
@@ -229,7 +229,7 @@ Dieses Kontrollkästchen zeigt Folgendes an:
 	<notification name="ClickPartnerHelpAvatar">
 		Auf der [SECOND_LIFE] Website können Sie anderen Einwohnern eine Partnerschaft vorschlagen und bestehende Partnerschaften lösen.
 
-Die Second Life Website für weitere Informationen über Partnerschaften öffnen?
+Die [SECOND_LIFE] Website für weitere Informationen über Partnerschaften öffnen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Gehe zu Seite"/>
 	</notification>
 	<notification name="ClickUploadHelpPermissions">
@@ -268,7 +268,7 @@ Der Verkaufspreis beträgt [SALE_PRICE] L$ und wird automatisch für den Verkauf
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmLandSaleToAnyoneChange">
-		ACHTUNG: Wenn Sie auf „An jeden verkaufen“ klicken, kann jeder in Second Life Ihr Land kaufen, auch Einwohner in anderen Regionen.
+		ACHTUNG: Wenn Sie auf „An jeden verkaufen“ klicken, kann jeder in [SECOND_LIFE] Ihr Land kaufen, auch Einwohner in anderen Regionen.
 
 Die ausgewählten [LAND_SIZE] qm Land werden zum Verkauf freigegeben.
 Der Verkaufspreis beträgt [SALE_PRICE] L$ und wird automatisch für den Verkauf an [NAME] autorisiert.
@@ -412,17 +412,17 @@ Gebühren werden nicht rückerstattet.
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="CacheWillClear">
-		Der Cache wird nach einem Neustart von [SECOND_LIFE] geleert.
+		Der Cache wird nach einem Neustart von [APP_NAME] geleert.
 	</notification>
 	<notification name="CacheWillBeMoved">
-		Der Cache wird nach einem Neustart von [SECOND_LIFE] verschoben.
+		Der Cache wird nach einem Neustart von [APP_NAME] verschoben.
 Hinweis: Der Cache wird dabei gelöscht/geleert.
 	</notification>
 	<notification name="ChangeConnectionPort">
-		Die Port-Einstellungen werden nach einem Neustart von [SECOND_LIFE] wirksam.
+		Die Port-Einstellungen werden nach einem Neustart von [APP_NAME] wirksam.
 	</notification>
 	<notification name="ChangeSkin">
-		Die neue Benutzeroberfläche wird nach einem Neustart von [SECOND_LIFE] angewendet.
+		Die neue Benutzeroberfläche wird nach einem Neustart von [APP_NAME] angewendet.
 	</notification>
 	<notification name="GoToAuctionPage">
 		Zur [SECOND_LIFE]-Webseite, um Auktionen anzuzeigen oder ein Gebot abzugeben?
@@ -481,7 +481,7 @@ Das Objekt ist möglicherweise außer Reichweite oder wurde gelöscht.
 		Datei [[FILE]] kann nicht geschrieben werden
 	</notification>
 	<notification name="UnsupportedHardware">
-		Achtung: Ihr System erfüllt nicht die Mindestanforderungen von Second Life. Dies kann eine schlechte Darstellungsleistung in Second Life zur Folge haben. Für nicht unterstützte Systemkonfigurationen bieten wir keinen technischen Support.
+		Achtung: Ihr System erfüllt nicht die Mindestanforderungen von [APP_NAME]. Dies kann eine schlechte Darstellungsleistung in [APP_NAME] zur Folge haben. Für nicht unterstützte Systemkonfigurationen bieten wir keinen technischen Support.
 
 MINSPECS
 Die Seite [_URL] für weitere Informationen öffnen?
@@ -493,14 +493,14 @@ Die Seite [_URL] für weitere Informationen öffnen?
 	<notification name="UnknownGPU">
 		Ihr System verwendet eine uns zurzeit unbekannte Grafikkarte.
 Dies ist häufig der Fall bei neuer Hardware, die wir noch nicht testen konnten.
-Second Life funktioniert aller Voraussicht nach normal, möglicherweise müssen Sie aber die Grafikeinstellungen anpassen.
+[APP_NAME] funktioniert aller Voraussicht nach normal, möglicherweise müssen Sie aber die Grafikeinstellungen anpassen.
 (Bearbeiten &gt; Einstellungen &gt; Grafik).
 		<form name="form">
 			<ignore name="ignore" text="Bei Entdeckung einer unbekannten Grafikkarte"/>
 		</form>
 	</notification>
 	<notification name="DisplaySettingsNoShaders">
-		[SECOND_LIFE] ist bei der Initialisierung der Grafiktreiber abgestürzt.
+		[APP_NAME] ist bei der Initialisierung der Grafiktreiber abgestürzt.
 Die Grafikqualität wird auf eine niedrige Stufe zurückgesetzt, um einige typische Treiberfehler zu vermeiden.
 Einige Grafikfunktionen werden ausgeschaltet.
 Wir empfehlen die Aktualisierung Ihrer Grafikkartentreiber.
@@ -783,8 +783,7 @@ Keine Parzelle ausgewählt.
 Kann die Region nicht finden, in der sich dieses Land befindet.
 	</notification>
 	<notification name="CannotCloseFloaterBuyLand">
-		Das Fenster „Land kaufen“ kann erst geschlossen werden,
-nachdem Second Life den Transaktionspreis geschätzt hat.
+		Das Fenster „Land kaufen“ kann erst geschlossen werden, nachdem [APP_NAME] den Transaktionspreis geschätzt hat.
 	</notification>
 	<notification name="CannotDeedLandNothingSelected">
 		Land kann nicht übertragen werden:
@@ -956,7 +955,7 @@ Tritt dieses Problem wiederholt auf, klicken Sie auf das Pulldown-Menü „Hilfe
 	<notification name="YouHaveBeenLoggedOut">
 		Sie wurden von [SECOND_LIFE] abgemeldet:
             [MESSAGE]
-Klicken Sie auf „IM &amp; Chat anzeigen“, um vorhandene Nachrichten und Chat weiterhin anzuzeigen. Klicken Sie andernfalls auf „Beenden“, um [SECOND_LIFE] sofort zu beenden.
+Klicken Sie auf „IM &amp; Chat anzeigen“, um vorhandene Nachrichten und Chat weiterhin anzuzeigen. Klicken Sie andernfalls auf „Beenden“, um [APP_NAME] sofort zu beenden.
 		<usetemplate name="okcancelbuttons" notext="Beenden" yestext="IM &amp; Chat anzeigen"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1127,14 +1126,14 @@ Sie können [SECOND_LIFE] normal verwenden. Andere Benutzer können Sie korrekt 
 		</form>
 	</notification>
 	<notification name="FirstRun">
-		Die Installation von [SECOND_LIFE] ist abgeschlossen.
+		Die Installation von [APP_NAME] ist abgeschlossen.
 
 Wenn Sie [SECOND_LIFE] das erste Mal verwenden, müssen Sie ein Konto anlegen, bevor Sie sich anmelden können.
 Möchten Sie auf www.secondlife.com ein Konto erstellen?
 		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Neues Konto..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
-		Die Verbindung kann nicht hergestellt werden. Möglicherweise besteht ein Problem mit Ihrer Internetverbindung oder den Second Life-Servern.
+		Die Verbindung kann nicht hergestellt werden. Möglicherweise besteht ein Problem mit Ihrer Internetverbindung oder den [SECOND_LIFE]-Servern.
 
 Überprüfen Sie Ihre Internetverbindung und versuchen Sie es dann erneut, oder klicken Sie auf „Hilfe“, um zu unserer Supportseite zu gelangen, oder klicken Sie auf „Teleportieren“, um nach Hause zu teleportieren.
 		<form name="form">
@@ -1237,33 +1236,33 @@ Geben Sie das Objekt zum Verkauf frei und versuchen Sie es erneut.
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="DownloadWindowsMandatory">
-		Eine neue Version von [SECOND_LIFE] ist verfügbar.
+		Eine neue Version von [APP_NAME] ist verfügbar.
 [MESSAGE]
-Sie müssen das Update herunterladen, um [SECOND_LIFE] weiter verwenden zu können.
+Sie müssen das Update herunterladen, um [APP_NAME] weiter verwenden zu können.
 		<usetemplate name="okcancelbuttons" notext="Beenden" yestext="Herunterladen"/>
 	</notification>
 	<notification name="DownloadWindows">
-		Eine aktualisierte Version von [SECOND_LIFE] ist verfügbar.
+		Eine aktualisierte Version von [APP_NAME] ist verfügbar.
 [MESSAGE]
 Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
 		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Herunterladen"/>
 	</notification>
 	<notification name="DownloadWindowsReleaseForDownload">
-		Eine aktualisierte Version von [SECOND_LIFE] ist verfügbar.
+		Eine aktualisierte Version von [APP_NAME] ist verfügbar.
 [MESSAGE]
 Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
 		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Herunterladen"/>
 	</notification>
 	<notification name="DownloadMacMandatory">
-		Eine neue Version von [SECOND_LIFE] ist verfügbar.
+		Eine neue Version von [APP_NAME] ist verfügbar.
 [MESSAGE]
-Sie müssen das Update herunterladen, um [SECOND_LIFE] weiter verwenden zu können.
+Sie müssen das Update herunterladen, um [APP_NAME] weiter verwenden zu können.
 
 In Ihren Anwendungsordner herunterladen?
 		<usetemplate name="okcancelbuttons" notext="Beenden" yestext="Herunterladen"/>
 	</notification>
 	<notification name="DownloadMac">
-		Eine aktualisierte Version von [SECOND_LIFE] ist verfügbar.
+		Eine aktualisierte Version von [APP_NAME] ist verfügbar.
 [MESSAGE]
 Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
 
@@ -1271,7 +1270,7 @@ In Ihren Anwendungsordner herunterladen?
 		<usetemplate name="okcancelbuttons" notext="Weiter" yestext="Herunterladen"/>
 	</notification>
 	<notification name="DownloadMacReleaseForDownload">
-		Eine aktualisierte Version von [SECOND_LIFE] ist verfügbar.
+		Eine aktualisierte Version von [APP_NAME] ist verfügbar.
 [MESSAGE]
 Dieses Update ist nicht erforderlich, für bessere Leistung und Stabilität sollte es jedoch installiert werden.
 
@@ -1831,7 +1830,7 @@ Wenn dieses Feld leer ist, werden Missbrauchsmeldungen nur an Linden Lab gesende
 Standard: deaktiviert
 	</notification>
 	<notification label="Falsche Voice-Version" name="VoiceVersionMismatch">
-		Diese Version von Second ist mit dem Voice-Chat-Feature in dieser Region nicht kompatibel. Damit Voice-Chat funktioniert, müssen Sie Second Life aktualisieren.
+		Diese Version von [APP_NAME] mit dem Voice-Chat-Feature in dieser Region nicht kompatibel. Damit Voice-Chat funktioniert, müssen Sie [APP_NAME] aktualisieren.
 	</notification>
 	<notification label="Grunstücksvertrag" name="HelpEstateCovenant">
 		Ein Grundstücksvertrag ermöglicht es Ihnen, Grundstücksparzellen zu verkaufen. Ohne Vertrag können Sie kein Land verkaufen. Wenn Sie keine Regeln festlegen oder Käufern vor dem Kauf keine anderen Informationen über das Land bereitstellen möchten, können Sie die Vertrags-Notizkarte auch leer lassen.
@@ -1946,16 +1945,16 @@ Inventarobjekt(e) verschieben?
 		Sie haben keine Berechtigung zum Kopieren von Elementen in diesem Objekt.
 	</notification>
 	<notification name="WebLaunchAccountHistory">
-		Zur Second Life-Website, um Ihre Kontostatistik anzuzeigen?
+		Zur [SECOND_LIFE]-Website, um Ihre Kontostatistik anzuzeigen?
 		<usetemplate ignoretext="Beim Laden der Kontostatistik-Website" name="okcancelignore" notext="Abbrechen" yestext="Gehe zu Seite"/>
 	</notification>
 	<notification name="ClickOpenF1Help">
-		Die Support-Website von Second Life öffnen?
-		<usetemplate ignoretext="Bei Besuch der Second Life Support-Website." name="okcancelignore" notext="Abbrechen" yestext="Los"/>
+		Die Support-Website von [SECOND_LIFE] öffnen?
+		<usetemplate ignoretext="Bei Besuch der [SECOND_LIFE] Support-Website." name="okcancelignore" notext="Abbrechen" yestext="Los"/>
 	</notification>
 	<notification name="ConfirmQuit">
 		Wirklich beenden?
-		<usetemplate ignoretext="Beim Beenden von Second Life." name="okcancelignore" notext="Weiter" yestext="Beenden"/>
+		<usetemplate ignoretext="Beim Beenden von [APP_NAME]." name="okcancelignore" notext="Weiter" yestext="Beenden"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		Verwenden Sie dieses Tool, um Verletzungen der Servicebedingungen und Community-Standards zu melden. Siehe:
@@ -1973,7 +1972,7 @@ http://secondlife.com/support/incidentreport.php
 Als besonderen Service für Einwohner und Besucher übernimmt der Eigentümer dieser Region die Bearbeitung aller anfallenden Meldungen. Von diesem Standort aus eingereichte Meldungen werden nicht von Linden Lab bearbeitet. Der Eigentümer der Region bearbeitet Meldungen auf Grundlage der Richtlinien, die im für diese Region geltenden Grundstücksvertrag festgelegt sind.
 (Den Vertrag können Sie unter „Welt“ &gt; „Land-Info“ einsehen.)
 -
-Das Resultat, das sich aus dieser Meldung ergibt, betrifft nur diese Region; der Einwohnerzugang zu anderen Bereichen von Second Life ist davon nicht betroffen. Nur Linden Lab kann den Zugang zu Second Life beschränken.
+Das Resultat, das sich aus dieser Meldung ergibt, betrifft nur diese Region; der Einwohnerzugang zu anderen Bereichen von [SECOND_LIFE] ist davon nicht betroffen. Nur Linden Lab kann den Zugang zu [SECOND_LIFE] beschränken.
 	</notification>
 	<notification name="HelpReportBug">
 		Verwenden Sie dieses Tool *nur*, um technische Features zu melden, die nicht wie beschrieben oder erwartet funktionieren. Bitte machen Sie so viele Angaben wie möglich. Sie können auf die automatische Antwort-E-Mail antworten, um Ihre Meldung noch zu ergänzen.
@@ -2021,9 +2020,9 @@ Eine möglichst genaue Beschreibung mit Schritten zur Reproduktion des Fehlers h
 
 Sie melden eine Urheberrechtsverletzung. Sind Sie wirklich sicher, dass Sie eine Verletzung des Urheberrechts melden möchten?
 
-1. Missbrauch melden. Wenn Sie der Meinung sind, ein Einwohner nutzt das Berechtigungssystem von Second Life auf unerlaubte Weise zu seinem Vorteil aus, indem er zum Beispiel einen CopyBot oder ähnliche Kopiertools verwendet und damit eine Urheberrechtsverletzung begeht, können Sie diesen Missbrauch melden. Das Missbrauchsteam untersucht etwaige Verstöße gegen die Second Life Community Standards oder die Nutzungsbedingungen und verhängt entsprechende Strafen. Das Missbrauchsteam ist jedoch nicht dafür zuständig, Inhalte aus der Second Life-Welt zu entfernen und reagiert auch nicht auf entsprechende Anfragen.
+1. Missbrauch melden. Wenn Sie der Meinung sind, ein Einwohner nutzt das Berechtigungssystem von [SECOND_LIFE] auf unerlaubte Weise zu seinem Vorteil aus, indem er zum Beispiel einen CopyBot oder ähnliche Kopiertools verwendet und damit eine Urheberrechtsverletzung begeht, können Sie diesen Missbrauch melden. Das Missbrauchsteam untersucht etwaige Verstöße gegen die [SECOND_LIFE] Community Standards oder die Nutzungsbedingungen und verhängt entsprechende Strafen. Das Missbrauchsteam ist jedoch nicht dafür zuständig, Inhalte aus der [SECOND_LIFE]-Welt zu entfernen und reagiert auch nicht auf entsprechende Anfragen.
 
-2. Der DMCA oder das Entfernen von Inhalten. Sie können das Entfernen von Inhalten aus Second Life beantragen. Dazu MÜSSEN Sie eine Urheberrechtsverletzung gemäß den in unserer DMCA-Richtlinie unter http://secondlife.com/corporate/dmca.php dargelegten Anweisungen einreichen.
+2. Der DMCA oder das Entfernen von Inhalten. Sie können das Entfernen von Inhalten aus [SECOND_LIFE] beantragen. Dazu MÜSSEN Sie eine Urheberrechtsverletzung gemäß den in unserer DMCA-Richtlinie unter http://secondlife.com/corporate/dmca.php dargelegten Anweisungen einreichen.
 
 Wenn Sie mit der Missbrauchmeldung jetzt fortfahren möchten, schließen Sie bitte dieses Fenster und senden Sie Ihren Bericht ein.  Möglicherweise müssen Sie Kategorie „CopyBot oder Berechtigungs-Exploit“ auswählen.
 
@@ -2146,7 +2145,7 @@ Klicken Sie auf „Himmel (erweitert)“, um einen Editor mit erweiterten Einste
 Klicken Sie auf „Wasser (erweitert)“, um einen Editor mit erweiterten Einstellungen für die Wasserdarstellung anzuzeigen.
 	</notification>
 	<notification name="HelpDayCycle">
-		Im Tageszyklus-Editor steuern Sie den Tag-/Nachtzyklus am Second Life Himmel. Dabei handelt es sich um den Zyklus, der mit dem Tageszeit-Regler im Umwelt-Basiseditor gesteuert wird.
+		Im Tageszyklus-Editor steuern Sie den Tag-/Nachtzyklus am [SECOND_LIFE] Himmel. Dabei handelt es sich um den Zyklus, der mit dem Tageszeit-Regler im Umwelt-Basiseditor gesteuert wird.
 
 Der Tageszyklus-Editor verwendet sogenannte Keyframes zur Steuerung des Tag-/Nachtablaufs. Dabei handelt es sich um „Schlüsselbilder“ (die grauen Kreise auf der Zeitskala), für die bestimmte Himmelseinstellungen definiert wurden. Bei voranschreitender Tageszeit interpoliert WindLight den Übergang zwischen diesen Keyframes und erzeugt eine entsprechende Himmelsanimation.
 
@@ -2225,7 +2224,7 @@ Entspricht dem Azimut.
 		Steuert die Bewegungsgeschwindigkeit der Wolken in Y-Richtung.
 	</notification>
 	<notification name="HelpClassicClouds">
-		Aktivieren Sie dieses Kontrollkästchen, um die Darstellung der klassischen Second Life Wolken zusätzlich zu den WindLight-Wolken zu erzwingen.
+		Aktivieren Sie dieses Kontrollkästchen, um die Darstellung der klassischen [SECOND_LIFE] Wolken zusätzlich zu den WindLight-Wolken zu erzwingen.
 	</notification>
 	<notification name="HelpWaterFogColor">
 		Steuert die Farbe der Wassertrübung
@@ -2323,7 +2322,7 @@ Entspricht dem Azimut.
 	</notification>
 	<notification name="NotAgeVerified">
 		Um Zugang zu dieser Parzelle zu erhalten, müssen Sie sich einer Altersprüfung unterziehen.
-Möchten Sie auf der Second Life Website eine Altersüberprüfung durchführen?
+Möchten Sie auf der [SECOND_LIFE] Website eine Altersüberprüfung durchführen?
 
 [_URL]
 		<url name="url" option="0">
@@ -2333,7 +2332,7 @@ Möchten Sie auf der Second Life Website eine Altersüberprüfung durchführen?
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		Um Zugang zu dieser Parzelle zu erhalten, müssen Sie Zahlungsinformationen hinterlegt haben.
-Möchten Sie die Second Life Website öffnen, um diese Angaben zu hinterlegen?
+Möchten Sie die [SECOND_LIFE] Website öffnen, um diese Angaben zu hinterlegen?
 
 [_URL]
 		<url name="url" option="0">
@@ -2778,7 +2777,7 @@ Von Objekt: [OBJECTNAME], Eigentümer: [NAME]?
 		[TYPE] namens [DESC] nicht in Datenbank.
 	</notification>
 	<notification name="InvalidWearable">
-		Dieser Artikel verwendet eine Funktion, die Ihr Viewer nicht unterstützt. Bitte aktualisieren Sie Ihre Version von Second Life, um diesen Artikel anziehen zu können.
+		Dieser Artikel verwendet eine Funktion, die Ihr Viewer nicht unterstützt. Bitte aktualisieren Sie Ihre Version von [APP_NAME], um diesen Artikel anziehen zu können.
 	</notification>
 	<notification name="ScriptQuestion">
 		Das Objekt „[OBJECTNAME]“, Eigentum von „[NAME]“, möchte:
@@ -2883,7 +2882,7 @@ Ein flexibles Objekt ist ein Phantom und nicht physisch, bis die Option „Flexi
 	</notification>
 	<notification name="FirstDebugMenus">
 		Sie haben das Advanced-Menü aktiviert.
-Dieses Menü enthält nützliche Funktionen zum Debuggen von Second Life.
+Dieses Menü enthält nützliche Funktionen zum Debuggen von [SECOND_LIFE].
 Drücken Sie in Windows Strg-Alt-D (Mac: Befehl-Opt-Umschalt-D) zum Ein- und Ausschalten dieses Menüs.
 	</notification>
 	<notification name="FirstSculptedPrim">
@@ -2992,7 +2991,7 @@ Klicken Sie auf „Akzeptieren“, um dem Chat beizutreten, oder auf „Ablehnen
 		- Ihre CPU-Geschwindigkeit entspricht nicht den Mindestanforderungen.
 	</global>
 	<global name="UnsupportedGLRequirements">
-		Ihr Computer entspricht nicht den Hardwareanforderungen von Second Life. Second Life setzt eine OpenGL-Grafikkarte mit Multitextur-Unterstützung voraus. Falls Ihre Grafikkarte diese Funktion unterstützt, installieren Sie die neuesten Treiber sowie die aktuellen Service Packs und Patches für Ihr Betriebssystem.
+		Ihr Computer entspricht nicht den Hardwareanforderungen von [APP_NAME]. [APP_NAME] setzt eine OpenGL-Grafikkarte mit Multitextur-Unterstützung voraus. Falls Ihre Grafikkarte diese Funktion unterstützt, installieren Sie die neuesten Treiber sowie die aktuellen Service Packs und Patches für Ihr Betriebssystem.
 
 Sollte das Problem fortbestehen, finden Sie weitere Hilfestellung unter: http://www.secondlife.com/support
 	</global>

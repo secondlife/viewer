@@ -45,13 +45,9 @@ public:
 	{
 		Optional <LLUUID> avatar_id;
 		Optional <bool> draw_tooltip;
-		Params()
-		:	avatar_id("avatar_id"),
-			draw_tooltip("draw_tooltip", true)
-		{
-			name = "avatar_icon";
-		}
+		Params();
 	};
+	
 protected:
 	LLAvatarIconCtrl(const Params&);
 	friend class LLUICtrlFactory;

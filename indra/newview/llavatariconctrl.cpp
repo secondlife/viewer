@@ -51,6 +51,15 @@ static LLDefaultChildRegistry::Register<LLAvatarIconCtrl> r("avatar_icon");
 
 LLAvatarIconCtrl::avatar_image_map_t LLAvatarIconCtrl::sImagesCache;
 
+
+LLAvatarIconCtrl::Params::Params()
+:	avatar_id("avatar_id"),
+	draw_tooltip("draw_tooltip", true)
+{
+	name = "avatar_icon";
+}
+
+
 LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 :	LLIconCtrl(p),
 	mDrawTooltip(p.draw_tooltip)

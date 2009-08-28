@@ -245,7 +245,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 		return;
 	}
 	
-	S32 text_len = wtext.size();
+	S32 text_len = wtext.size() + 1;
 
 	seg_list->push_back( new LLNormalTextSegment( defaultColor, 0, text_len, editor ) ); 
 

@@ -185,7 +185,7 @@
 		<menu_item_call label="Désactiver les scripts dans la sélection" name="Set Scripts to Not Running in Selection"/>
 	</menu>
 	<menu label="Aide" name="Help">
-		<menu_item_call label="Aide de Second Life" name="Second Life Help"/>
+		<menu_item_call label="Aide de [SECOND_LIFE]" name="Second Life Help"/>
 		<menu_item_call label="Didacticiel" name="Tutorial"/>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Blog officiel..." name="Official Linden Blog..."/>
@@ -214,6 +214,6 @@
 			<menu_item_separator label="-----------" name="separator9"/>
 			<menu_item_call label="Signaler un bug..." name="Report Bug..."/>
 		</menu>
-		<menu_item_call label="À propos de Second Life..." name="About Second Life..."/>
+		<menu_item_call label="À propos de [APP_NAME]..." name="About Second Life..."/>
 	</menu>
 </menu_bar>

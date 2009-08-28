@@ -38,7 +38,7 @@
 #include <llbutton.h>
 #include <lluuid.h>
 
-#include "llfloaterminiinspector.h"
+//#include "llfloaterminiinspector.h"
 
 class LLAvatarListItem : public LLPanel 
 {
@@ -96,7 +96,7 @@ private:
 	S32 mYPos;
 	S32 mXPos;
 
-	LLFloater*	mini_inspector;
+	LLFloater*	mInspector;
     bool        mNeedsArrange;
 
     //

@@ -46,7 +46,7 @@
 #include "llavatarlist.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
 #include "llfloateravatarpicker.h"
-#include "llfloaterminiinspector.h"
+//#include "llfloaterminiinspector.h"
 #include "llavataractions.h"
 #include "llgroupactions.h"
 #include "llgrouplist.h"

@@ -4409,23 +4409,23 @@ void process_alert_core(const std::string& message, BOOL modal)
 		}
 		else
 		{
-			// *TODO: Translate
-			args["MESSAGE"] = text;
+			std::string new_msg =LLNotifications::instance().getGlobalString(text);
+			args["MESSAGE"] = new_msg;
 			LLNotifications::instance().add("SystemMessage", args);
 		}
 	}
 	else if (modal)
 	{
-		// *TODO: Translate
 		LLSD args;
-		args["ERROR_MESSAGE"] = message;
+		std::string new_msg =LLNotifications::instance().getGlobalString(message);
+		args["ERROR_MESSAGE"] = new_msg;
 		LLNotifications::instance().add("ErrorMessage", args);
 	}
 	else
 	{
-		// *TODO: Translate
 		LLSD args;
-		args["MESSAGE"] = message;
+		std::string new_msg =LLNotifications::instance().getGlobalString(message);
+		args["MESSAGE"] = new_msg;
 		LLNotifications::instance().add("SystemMessageTip", args);
 	}
 }

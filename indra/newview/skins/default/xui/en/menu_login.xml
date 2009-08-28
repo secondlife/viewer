@@ -81,8 +81,7 @@
              function="Advanced.ShowDebugSettings"
              parameter="skin" />
         </menu_item_call>
-        <menu_item_separator
-         layout="topleft" />
+        <menu_item_separator />
         <menu_item_call
          label="UI Preview Tool"
          layout="topleft"
@@ -92,7 +91,8 @@
              function="ShowFloater"
              parameter="ui_preview" />
         </menu_item_call>
-        <menu_item_call
+      <menu_item_separator />
+      <menu_item_call
          label="Widget Test"
          layout="topleft"
          name="Widget Test"
@@ -102,12 +102,12 @@
              parameter="test_widgets" />
         </menu_item_call>
         <menu_item_call
-         label="List View Test"
-         name="List View Test"
-         shortcut="control|shift|L">
+         label="Avatar Inspector"
+         name="Avatar Inspector"
+         shortcut="control|shift|I">
             <menu_item_call.on_click
              function="ShowFloater"
-             parameter="test_list_view" />
+             parameter="inspect_avatar" />
         </menu_item_call>
         <menu_item_call
          label="Show TOS"

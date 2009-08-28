@@ -516,6 +516,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 {
 	gAgent.sendAgentUserInfoRequest();
 	LLPanelLogin::setAlwaysRefresh(true);
+	refresh();
 }
 
 void LLFloaterPreference::onVertexShaderEnable()
@@ -604,6 +605,7 @@ void LLFloaterPreference::onBtnCancel()
 		{
 			cur_focus->onCommit();
 		}
+		refresh();
 	}
 	closeFloater(); // side effect will also cancel any unsaved changes.
 }
@@ -962,13 +964,13 @@ void LLFloaterPreference::refresh()
 	// sliders and their text boxes
 	//	mPostProcess = gSavedSettings.getS32("RenderGlowResolutionPow");
 	// slider text boxes
-	updateSliderText(getChild<LLSliderCtrl>("ObjectMeshDetail"), getChild<LLTextBox>("ObjectMeshDetailText"));
-	updateSliderText(getChild<LLSliderCtrl>("FlexibleMeshDetail"), getChild<LLTextBox>("FlexibleMeshDetailText"));
-	updateSliderText(getChild<LLSliderCtrl>("TreeMeshDetail"), getChild<LLTextBox>("TreeMeshDetailText"));
-	updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail"), getChild<LLTextBox>("AvatarMeshDetailText"));
-	updateSliderText(getChild<LLSliderCtrl>("TerrainMeshDetail"), getChild<LLTextBox>("TerrainMeshDetailText"));
-	updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess"), getChild<LLTextBox>("PostProcessText"));
-	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail"), getChild<LLTextBox>("SkyMeshDetailText"));
+	updateSliderText(getChild<LLSliderCtrl>("ObjectMeshDetail",		true), getChild<LLTextBox>("ObjectMeshDetailText",		true));
+	updateSliderText(getChild<LLSliderCtrl>("FlexibleMeshDetail",	true), getChild<LLTextBox>("FlexibleMeshDetailText",	true));
+	updateSliderText(getChild<LLSliderCtrl>("TreeMeshDetail",		true), getChild<LLTextBox>("TreeMeshDetailText",		true));
+	updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail",		true), getChild<LLTextBox>("AvatarMeshDetailText",		true));
+	updateSliderText(getChild<LLSliderCtrl>("TerrainMeshDetail",	true), getChild<LLTextBox>("TerrainMeshDetailText",		true));
+	updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess",	true), getChild<LLTextBox>("PostProcessText",			true));
+	updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",		true), getChild<LLTextBox>("SkyMeshDetailText",			true));
 	
 	refreshEnabledState();
 }
@@ -1168,7 +1170,9 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 
 void LLFloaterPreference::onUpdateSliderText(LLUICtrl* ctrl, const LLSD& name)
 {
-	if(name.asString() =="" || !hasChild("name"))
+	std::string ctrl_name = name.asString();
+	
+	if((ctrl_name =="" )|| !hasChild(ctrl_name, true))
 		return;
 	
 	LLTextBox* text_box = getChild<LLTextBox>(name.asString());

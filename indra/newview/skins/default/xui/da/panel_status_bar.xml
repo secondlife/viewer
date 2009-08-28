@@ -8,7 +8,7 @@
 		Henter...
 	</text>
 	<button label="" label_selected="" name="buycurrency" tool_tip="Køb valuta" />
-	<text type="string" length="12" name="TimeText" tool_tip="Nuværende Second Life tid">
+	<text type="string" length="12" name="TimeText" tool_tip="Nuværende [SECOND_LIFE] tid">
 		12:00
 	</text>
 	<string name="StatBarDaysOfWeek">
@@ -33,8 +33,8 @@
 	     tool_tip="Stemme chat ikke tilgængelig" />
 	<button label="" label_selected="" name="buyland" tool_tip="Køb denne parcel" />
 	<button label="" name="menubar_search_bevel_bg" />
-	<line_editor label="Søg" name="search_editor" tool_tip="Søg Second Life" />
-	<button label="" label_selected="" name="search_btn" tool_tip="Søg Second Life" />
+	<line_editor label="Søg" name="search_editor" tool_tip="Søg [SECOND_LIFE]" />
+	<button label="" label_selected="" name="search_btn" tool_tip="Søg [SECOND_LIFE]" />
 	<string name="packet_loss_tooltip">
 		Packet Loss
 	</string>

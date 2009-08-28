@@ -33,7 +33,7 @@
 	<button label="Abbrechen" name="cancel_btn" />
 	<button label="Senden" name="send_btn" />
 	<text name="default_subject">
-		Postkarte aus Second Life.
+		Postkarte aus [SECOND_LIFE]
 	</text>
 	<text name="default_message">
 		Sehen Sie hier!

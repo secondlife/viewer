@@ -74,7 +74,7 @@
     </form>
   </template>
 	<notification functor="GenericAcknowledge" label="Ukendt advarsels-besked" name="MissingAlert">
-		Din version af Second Life kan ikke vise den advarselsbesked den modtog.
+		Din version af [APP_NAME] kan ikke vise den advarselsbesked den modtog.
 
 Fejl detaljer: Advarslen &apos;[_NAME]&apos; blev ikke fundet i notifications.xml.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -97,7 +97,7 @@ Fejl detaljer: Advarslen &apos;[_NAME]&apos; blev ikke fundet i notifications.xm
 		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="Ja"/>
 	</notification>
 	<notification name="BadInstallation">
-		Der opstod en fejl ved opdatering af Second Life. Hent venligst den nyeste version fra secondlife.com.
+		Der opstod en fejl ved opdatering af [APP_NAME]. Hent venligst den nyeste version fra secondlife.com.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -253,7 +253,7 @@ Du har brug for en konto for at logge ind i [SECOND_LIFE]. Vil du oprette en nu?
 		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
 	</notification>
 	<notification name="ChangeSkin">
-		Det nye udseende vil vises efter du har genstartet [SECOND_LIFE].
+		Det nye udseende vil vises efter du har genstartet [APP_NAME].
 	</notification>
 	<notification name="UnsupportedHardware"/>
 	<notification name="UnknownGPU">
@@ -331,7 +331,7 @@ Grå = Offentligt ejet
 	<notification name="YouHaveBeenLoggedOut">
 		Du er blevet logget ud af [SECOND_LIFE]:
             [MESSAGE]
-Du kan stadig se eksiterende PB&apos;er og chat ved at klikke&apos;Se PB &amp; Chat&apos;. Ellers, klik &apos;Afslut&apos; for at afslutte [SECOND_LIFE] nu.
+Du kan stadig se eksiterende PB&apos;er og chat ved at klikke&apos;Se PB &amp; Chat&apos;. Ellers, klik &apos;Afslut&apos; for at afslutte [APP_NAME] nu.
 		<usetemplate name="okcancelbuttons" notext="Afslut" yestext="Se PB &amp; Chat"/>
 	</notification>
 	<notification label="Tilføj ven" name="AddFriend">
@@ -375,7 +375,7 @@ Tilbyd venskab til [NAME]?
 	<notification name="RegionEntryAccessBlocked">
 		Du har ikke adgang til denne region på grund af din valgte indholdsrating. Dette kan skyldes manglende validering af din alder.
 
-Undersøg venligst om du har installeret den nyeste Second Life klient, og gå til &apos;Knowledge Base&apos; for yderligere detaljer om adgang til områder med denne indholdsrating.
+Undersøg venligst om du har installeret den nyeste [APP_NAME] klient, og gå til &apos;Knowledge Base&apos; for yderligere detaljer om adgang til områder med denne indholdsrating.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -413,7 +413,7 @@ Du kan vælge &apos;Indstillinger&apos; for at hæve din indholdsrating nu og de
 	<notification name="LandClaimAccessBlocked">
 		Du kan ikke kræve dette land på grund af din nuværende indholdsrating indstillinge . Dette kan skyldes manglende validering af din alder.
 
-Undersøg om du har den nyeste Second Life klient og gå venligst til &apos;Knowledge Base&apos; for yderligere detaljer om adgang til områder med denne indholdsrating.
+Undersøg om du har den nyeste [APP_NAME] klient og gå venligst til &apos;Knowledge Base&apos; for yderligere detaljer om adgang til områder med denne indholdsrating.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -447,7 +447,7 @@ Du kan vælge &apos;Indstillinger&apos; for at hæve din indholdsrating nu og de
 	<notification name="LandBuyAccessBlocked">
 		Du kan ikke købe dette land på grund af din nuværende indholdsrating indstillinge . Dette kan skyldes manglende validering af din alder.
 
-Undersøg om du har den nyeste Second Life klient og gå venligst til &apos;Knowledge Base&apos; for yderligere detaljer om adgang til områder med denne indholdsrating.
+Undersøg om du har den nyeste [APP_NAME] klient og gå venligst til &apos;Knowledge Base&apos; for yderligere detaljer om adgang til områder med denne indholdsrating.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -518,9 +518,9 @@ http://secondlife.com/support/incidentreport.php
 
 Du ser ud til at være ved at rapportere noget vedr. krænkelse af intellektuelle ejendomsrettigheder. Sørg for, at du rapporterer dette korrekt:
 
-(1) Misbrugs processen. Du kan indsende en misbrugs rapport, hvis du mener, at en Beboer udnytter Second Life&apos;s rettigheds system, for eksempel ved hjælp af en CopyBot eller lignende kopierings værktøjer, at de krænker intellektuelle ejendomsrettigheder. Det team vil undersøge og spørgsmål passende disciplinære sanktioner for adfærd, der overtræder Second Life EF-standarderne eller Servicevilkår. Men det team vil ikke håndtere og vil ikke reagere på anmodninger om at fjerne indhold fra Second Life&apos;s verden.
+(1) Misbrugs processen. Du kan indsende en misbrugs rapport, hvis du mener, at en Beboer udnytter [SECOND_LIFE]&apos;s rettigheds system, for eksempel ved hjælp af en CopyBot eller lignende kopierings værktøjer, at de krænker intellektuelle ejendomsrettigheder. Det team vil undersøge og spørgsmål passende disciplinære sanktioner for adfærd, der overtræder [SECOND_LIFE] EF-standarderne eller Servicevilkår. Men det team vil ikke håndtere og vil ikke reagere på anmodninger om at fjerne indhold fra [SECOND_LIFE]&apos;s verden.
 
-(2) DMCA eller Indholds fjernelses processen. For at anmode om fjernelse af indhold fra Second Life, skal du sende en gyldig anmeldelse af overtrædelsen som beskrevet i vores DMCA-politik på http://secondlife.com/corporate/dmca.php.
+(2) DMCA eller Indholds fjernelses processen. For at anmode om fjernelse af indhold fra [SECOND_LIFE], skal du sende en gyldig anmeldelse af overtrædelsen som beskrevet i vores DMCA-politik på http://secondlife.com/corporate/dmca.php.
 
 Hvis du stadig ønsker at fortsætte med misbrugs processen, luk da venligst dette vindue og færdiggør indsendelsen af din rapport. Du kan være nødt til at vælge den særlige kategori »CopyBot eller Tilladelses Ydnyttelse.
 
@@ -792,7 +792,7 @@ Ingen scripts vil køre på nær dem, som tilhører ejeren af landet.
 		Du kan kun gøre krav på offentlig land i den region, du befinder dig i.
 	</notification>
 	<notification name="RegionTPAccessBlocked">
-		Du har ikke adgang til denne region på grund af din valgte indholdsrating. Dette kan skyldes manglende validering af din alder eller at du ikke benytter den nyeste Second Life klient.
+		Du har ikke adgang til denne region på grund af din valgte indholdsrating. Dette kan skyldes manglende validering af din alder eller at du ikke benytter den nyeste [APP_NAME] klient.
 
 Gå venligst til &apos;Knowledge Base&apos; for yderligere detaljer om adgang til områder med denne indholdsrating.
 	</notification>
@@ -859,13 +859,13 @@ Prøv igen om lidt.
 		Kunne ikke skabe fast forbindelse.
 	</notification>
 	<notification name="InternalUsherError">
-		Der opstod en intern fejl ved teleportering til din teleport destination.. Der kan være generelle problemer med Second Life lige nu.
+		Der opstod en intern fejl ved teleportering til din teleport destination.. Der kan være generelle problemer med [SECOND_LIFE] lige nu.
 	</notification>
 	<notification name="NoGoodTPDestination">
 		Kunne ikke finde et egnet teleport sted i denne region.
 	</notification>
 	<notification name="InternalErrorRegionResolver">
-		Der opstod en intern fejl ved beregning af globale koordinater for din teleport forespørgsel. Der kan være generelle problemer med Second Life lige nu.
+		Der opstod en intern fejl ved beregning af globale koordinater for din teleport forespørgsel. Der kan være generelle problemer med [SECOND_LIFE] lige nu.
 	</notification>
 	<notification name="NoValidLanding">
 		Kunne ikke finde et gyldigt landingspunkt.
@@ -975,7 +975,7 @@ Fra genstand: [OBJECTNAME], ejer: [NAME]?
 		Det lykkedes ikke at finde [TYPE] med navnet [DESC] i databasen.
 	</notification>
 	<notification name="InvalidWearable">
-		Den genstand du prøver at tage på benytter funktioner som din klient ikke kan forstå. Opdatér din version af Second Life for at tage genstanden på.
+		Den genstand du prøver at tage på benytter funktioner som din klient ikke kan forstå. Opdatér din version af [APP_NAME] for at tage genstanden på.
 	</notification>
 	<notification name="ScriptQuestion">
 		&apos;[OBJECTNAME]&apos;, en genstand, ejet af &apos;[NAME]&apos;, vil gerne:
@@ -1078,7 +1078,7 @@ Fleksible genstande er ikke fysiske og man kan gå igennem dem, indtil fleksibel
 	</notification>
 	<notification name="FirstDebugMenus">
 		Du har sat avanceret menu til.
-Denne menu indeholder funktioner brugbare for udviklere, der udbedrer fejl i Second Life.
+Denne menu indeholder funktioner brugbare for udviklere, der udbedrer fejl i [SECOND_LIFE].
 For at vise denne menu, skal man i Windows trykke Ctrl-Alt-D. På Mac tryk &#8984;-Opt-Shift-D.
 	</notification>
 	<notification name="FirstSculptedPrim">

@@ -3,12 +3,14 @@
  border="true"
  follows="top|left"
  height="512"
+ name="TextureWrapper"
  label="Ground Textures"
  layout="topleft"
  width="280">
   <scroll_container
    follows="top|left|right|bottom"
    height="508"
+   name="container1"
    layout="topleft"
    width="280">
     <panel

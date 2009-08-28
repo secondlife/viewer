@@ -174,23 +174,33 @@ void LLSpinCtrl::onUpBtn( const LLSD& data )
 {
 	if( getEnabled() )
 	{
-		// use getValue()/setValue() to force reload from/to control
-		F32 val = (F32)getValue().asReal() + mIncrement;
-		val = clamp_precision(val, mPrecision);
-		val = llmin( val, mMaxValue );
-		
-		F32 saved_val = (F32)getValue().asReal();
-		setValue(val);
-		if( !mValidateSignal( this, val ) )
+		std::string text = mEditor->getText();
+		if( LLLineEditor::postvalidateFloat( text ) )
 		{
-			setValue( saved_val );
-			reportInvalidData();
-			updateEditor();
-			return;
-		}
+			
+			LLLocale locale(LLLocale::USER_LOCALE);
+			F32 cur_val = (F32) atof(text.c_str());
+		
+			// use getValue()/setValue() to force reload from/to control
+			F32 val = cur_val + mIncrement;
+			val = clamp_precision(val, mPrecision);
+			val = llmin( val, mMaxValue );
+			if (val < mMinValue) val = mMinValue;
+			if (val > mMaxValue) val = mMaxValue;
+		
+			F32 saved_val = (F32)getValue().asReal();
+			setValue(val);
+			if( !mValidateSignal( this, val ) )
+			{
+				setValue( saved_val );
+				reportInvalidData();
+				updateEditor();
+				return;
+			}
 
 		updateEditor();
 		onCommit();
+		}
 	}
 }
 
@@ -198,22 +208,33 @@ void LLSpinCtrl::onDownBtn( const LLSD& data )
 {
 	if( getEnabled() )
 	{
-		F32 val = (F32)getValue().asReal() - mIncrement;
-		val = clamp_precision(val, mPrecision);
-		val = llmax( val, mMinValue );
-
-		F32 saved_val = (F32)getValue().asReal();
-		setValue(val);
-		if( !mValidateSignal( this, val ) )
+		std::string text = mEditor->getText();
+		if( LLLineEditor::postvalidateFloat( text ) )
 		{
-			setValue( saved_val );
-			reportInvalidData();
-			updateEditor();
-			return;
-		}
+
+			LLLocale locale(LLLocale::USER_LOCALE);
+			F32 cur_val = (F32) atof(text.c_str());
 		
-		updateEditor();
-		onCommit();
+			F32 val = cur_val - mIncrement;
+			val = clamp_precision(val, mPrecision);
+			val = llmax( val, mMinValue );
+
+			if (val < mMinValue) val = mMinValue;
+			if (val > mMaxValue) val = mMaxValue;
+			
+			F32 saved_val = (F32)getValue().asReal();
+			setValue(val);
+			if( !mValidateSignal( this, val ) )
+			{
+				setValue( saved_val );
+				reportInvalidData();
+				updateEditor();
+				return;
+			}
+		
+			updateEditor();
+			onCommit();
+		}
 	}
 }
 

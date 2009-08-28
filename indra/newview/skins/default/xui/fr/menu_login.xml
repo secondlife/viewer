@@ -7,7 +7,7 @@
 		<menu_item_call label="Préférences..." name="Preferences..." />
 	</menu>
 	<menu label="Aide" name="Help">
-		<menu_item_call label="Aide de Second Life" name="Second Life Help" />
-		<menu_item_call label="À propos de Second Life..." name="About Second Life..." />
+		<menu_item_call label="Aide de [SECOND_LIFE]" name="Second Life Help" />
+		<menu_item_call label="À propos de [APP_NAME]..." name="About Second Life..." />
 	</menu>
 </menu_bar>

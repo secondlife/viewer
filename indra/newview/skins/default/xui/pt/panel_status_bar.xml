@@ -27,8 +27,8 @@
 	<button label="" label_selected="" name="restrictpush" tool_tip="Não Empurrar"/>
 	<button label="" label_selected="" name="status_no_voice" tool_tip="Voz não disponível aqui"/>
 	<button label="" label_selected="" name="buyland" tool_tip="Comprar este lote"/>
-	<line_editor label="Buscar" name="search_editor" tool_tip="Buscar no Second Life"/>
-	<button label="" label_selected="" name="search_btn" tool_tip="Buscar no Second Life"/>
+	<line_editor label="Buscar" name="search_editor" tool_tip="Buscar no [SECOND_LIFE]"/>
+	<button label="" label_selected="" name="search_btn" tool_tip="Buscar no [SECOND_LIFE]"/>
 	<string name="packet_loss_tooltip">
 		Perda de pacote
 	</string>

@@ -2,12 +2,30 @@
 <panel
  bevel_style="in"
  follows="left|top|right|bottom"
- height="480"
+ height="420"
  layout="topleft"
  left="0"
  name="panel_pick_info"
  top="0"
- width="265">
+ width="255">
+   <scroll_container
+     color="DkGray2"
+     follows="left|top|right|bottom"
+     height="300"
+     layout="topleft"
+     left="0"
+     name="profile_scroll"
+     reserve_scroll_corner="true"
+     opaque="true"
+     width="255">
+    <panel
+     name="scroll_content_panel"
+     follows="left|top|right"
+     layout="topleft"
+     top="0"
+     left="0"
+     width="240"
+     height="575">
     <text
      follows="top"
      font="SansSerifHugeBold"
@@ -16,41 +34,29 @@
      left="10"
      name="title"
      text_color="white"
-     top="16"
+     top="5"
      value="Pick Info"
      width="150" />
     <button
      follows="top|right"
-     height="25"
+     height="20"
      image_overlay="BackArrow_Off"
      layout="topleft"
      name="back_btn"
      picture_style="true"
-     right="-11"
-     top="16"
-     width="25" 
-     tab_stop="false" />
-  
-    <scroll_container
-     color="DkGray2"
-     follows="left|top|right|bottom"
-     height="400"
-     layout="topleft"
-     left="0"
-     name="pick_info_scroll"
-     opaque="true"
-     reserve_scroll_corner="true"
-     width="265">
+     right="-20"
+     top="7"
+     width="20" />
     <panel
      background_visible="true"
      bg_alpha_color="DkGray2"
-     follows="left|right|top"
+     follows="left|right|top|bottom"
      height="550"
      layout="topleft"
      left="0"
-     min_height="550"
-     top_pad="0"
-     width="263">
+     min_height="300"
+     top="30"
+     width="255">
         <texture_picker
          enabled="false"
          follows="left|top|right"
@@ -100,7 +106,7 @@
          text_color="white"
          valign="center"
          value="[description]"
-         width="260"
+         width="255"
          word_wrap="true" />
         <text
          follows="left|top"
@@ -122,14 +128,7 @@
          text_color="white"
          valign="center"
          value="[loading...]" />
-        <icon
-         follows="top|left"
-         height="15"
-         image_name=""
-         layout="topleft"
-         mouse_opaque="true"
-         name="maturity"
-         width="15" />
+    </panel>
     </panel>
     </scroll_container>
     <panel

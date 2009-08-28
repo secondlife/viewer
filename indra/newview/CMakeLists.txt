@@ -181,7 +181,6 @@ set(viewer_SOURCE_FILES
     llfloaterlandholdings.cpp
     llfloatermap.cpp
     llfloatermemleak.cpp
-    llfloaterminiinspector.cpp
     llfloatermute.cpp
     llfloaternamedesc.cpp
     llfloaternotificationsconsole.cpp
@@ -238,6 +237,7 @@ set(viewer_SOURCE_FILES
     llimpanel.cpp
     llimview.cpp
     llimcontrolpanel.cpp
+    llinspectavatar.cpp
     llinventorybridge.cpp
     llinventoryclipboard.cpp
     llinventoryfilter.cpp
@@ -635,7 +635,6 @@ set(viewer_HEADER_FILES
     llfloaterlandholdings.h
     llfloatermap.h
     llfloatermemleak.h
-    llfloaterminiinspector.h
     llfloatermute.h
     llfloaternamedesc.h
     llfloaternotificationsconsole.h
@@ -691,6 +690,7 @@ set(viewer_HEADER_FILES
     llimpanel.h
     llimview.h
     llimcontrolpanel.h
+    llinspectavatar.h
     llinventorybridge.h
     llinventoryclipboard.h
     llinventoryfilter.h

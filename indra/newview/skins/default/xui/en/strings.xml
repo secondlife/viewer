@@ -944,16 +944,16 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	
 	<!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">
-	  [SECOND_LIFE_VIEWER] Update
+	  [APP_NAME] Update
 	</string>
 	<string name="UpdaterNowUpdating">
-	  Now updating [SECOND_LIFE_VIEWER]...
+	  Now updating [APP_NAME]...
 	</string>
 	<string name="UpdaterNowInstalling">
-	  Installing [SECOND_LIFE_VIEWER]...
+	  Installing [APP_NAME]...
 	</string>
 	<string name="UpdaterUpdatingDescriptive">
-	  Your [SECOND_LIFE_VIEWER] Viewer is being updated to the latest release.  This may take some time, so please be patient.
+	  Your [APP_NAME] Viewer is being updated to the latest release.  This may take some time, so please be patient.
 	</string>
 	<string name="UpdaterProgressBarTextWithEllipses">
 	  Downloading update...
@@ -965,7 +965,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	  Failed to download update
 	</string>
 	<string name="UpdaterFailUpdateDescriptive">
-	  An error occurred while updating Second Life. Please download the latest version from www.secondlife.com.
+	  An error occurred while updating [APP_NAME]. Please download the latest version from www.secondlife.com.
 	</string>
 	<string name="UpdaterFailInstallTitle">
 	  Failed to install update
@@ -973,5 +973,4 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="UpdaterFailStartTitle">
 	  Failed to start viewer
 	</string>
-	
 </strings>

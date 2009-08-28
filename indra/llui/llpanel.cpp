@@ -58,6 +58,11 @@
 
 static LLDefaultChildRegistry::Register<LLPanel> r1("panel", &LLPanel::fromXML);
 
+LLPanel::LocalizedString::LocalizedString()
+:	name("name"),
+	value("value")
+{}
+
 const LLPanel::Params& LLPanel::getDefaultParams() 
 { 
 	return LLUICtrlFactory::getDefaultParams<LLPanel>(); 
@@ -675,6 +680,9 @@ BOOL LLPanel::childHasFocus(const std::string& id)
 }
 
 // *TODO: Deprecate; for backwards compatability only:
+// Prefer getChild<LLUICtrl>("foo")->setCommitCallback(boost:bind(...)),
+// which takes a generic slot.  Or use mCommitCallbackRegistrar.add() with
+// a named callback and reference it in XML.
 void LLPanel::childSetCommitCallback(const std::string& id, boost::function<void (LLUICtrl*,void*)> cb, void* data)
 {
 	LLUICtrl* child = findChild<LLUICtrl>(id);

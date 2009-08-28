@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  auto_tile="true"
- height="600"
+ height="700"
  layout="topleft"
  name="gesture_preview"
  width="280">
@@ -45,7 +45,7 @@
      height="10"
      layout="topleft"
      left="10"
-     name="desc_label"
+     name="Name"
      top="25"
      width="100">
         Name (not working yet):
@@ -79,132 +79,75 @@
      name="desc"
      top_delta="-4"
      width="180" />
-    <!--ACCORDION GOES HERE -->
-      <text
-     type="string"
-     length="1"
-     follows="top|left"
-     font="SansSerifSmall"
-     height="10"
-     layout="topleft"
-     left="10"
-     name="trigger_label"
-     top_pad="10"
-     width="100">
-        Chat:
-    </text>
-    <line_editor
-     follows="left|top"
-     height="20"
-     layout="topleft"
-     left_pad="5"
-     max_length="31"
-     name="trigger_editor"
-     top_delta="-4"
-     width="135" />
-    <text
-     type="string"
-     length="1"
-     follows="top|left"
-     font="SansSerifSmall"
-     height="10"
-     layout="topleft"
-     left="10"
-     name="key_label"
-     top_pad="10"
-     width="100">
-        Keyboard:
-    </text>
-    <combo_box
-     height="20"
-     label="None"
-     layout="topleft"
-     left_pad="5"
-     name="modifier_combo"
-     top_delta="-4"
-     width="50" />
-    <combo_box
-     height="20"
-     label="None"
-     layout="topleft"
-     left_pad="5"
-     name="key_combo"
-     top_delta="0"
-     width="45" />
-    <text
-     type="string"
-     length="1"
-     follows="top|left"
-     font="SansSerifSmall"
-     height="10"
-     layout="topleft"
-     left="10"
-     name="replace_text"
-     tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture!"
-     top_pad="10"
-     width="100">
-        Replace:
-    </text>
-    <line_editor
-     follows="left|top"
-     height="20"
-     layout="topleft"
-     left_pad="5"
-     max_length="31"
-     name="replace_editor"
-     tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture"
-     top_delta="-4"
-     width="135" />
-
-    <!--ACCORDION GOES HERE -->
-    <scroll_list
-     follows="top|left"
-     height="110"
-     layout="topleft"
-     left="10"
-     name="step_list"
-     top_pad="10"
-     width="260" />
-    <button
-     follows="top|left"
-     height="20"
-     font="SansSerifSmall"
-     label="Add"
-     layout="topleft"
-     left_pad="-100"
-     name="add_btn"
-     top_pad="5"
-     width="100" />
     
-    
-    <scroll_list
-     follows="top|left"
-     height="110"
+    <accordion
      layout="topleft"
-     left="10"
-     name="library_list"
-     top_pad="10"
-     width="260">
-        <scroll_list.rows
-         value="Animation" />
-        <scroll_list.rows
-         value="Sound" />
-        <scroll_list.rows
-         value="Chat" />
-        <scroll_list.rows
-         value="Wait" />
-    </scroll_list>
-
-    
+     left="2"
+     width="276"
+     top="95"
+     height="580"
+     follows="all"
+     name="group_accordion">
+    <accordion_tab
+     min_height="75"
+     title="Shortcuts"
+     name="snapshot_destination_tab" 
+     an_resize="false">
+    <panel
+     class="floater_snapshot_destination"
+     filename="floater_preview_gesture_shortcut.xml"
+     name="snapshot_destination_tab"/>
+    </accordion_tab>
+    <accordion_tab
+     min_height="400"
+     title="Steps"
+     name="snapshot_file_settings_tab"
+     can_resize="false">
+    <panel
+     class="floater_snapshot_file_settings"
+     filename="floater_preview_gesture_steps.xml"
+     name="snapshot_file_settings_tab"/> 
+    </accordion_tab>
+    <accordion_tab
+     min_height="100"
+     title="Info"
+     name="snapshot_capture_tab"
+     can_resize="false">
+    <panel
+     class="floater_snapshot_capture"
+     filename="floater_snapshot_Info.xml"
+     name="snapshot_capture_tab"/> 
+    </accordion_tab>
+    <accordion_tab
+     min_height="100"
+     title="Permissions"
+     name="snapshot_capture_tab"
+     can_resize="false">
+    <panel
+     class="floater_snapshot_capture"
+     filename="floater_snapshot_Permissions.xml"
+     name="snapshot_capture_tab"/> 
+    </accordion_tab>
+    </accordion>
+    <!--check_box
+     follows="top|left"
+     height="20"
+     label="Active"
+     layout="topleft"
+     left="20"
+     name="active_check"
+     tool_tip="Active gestures can be triggered by chatting their trigger phrases or pressing their hot keys.  Gestures usually become inactive when there is a key binding conflict."
+     top="365"
+     width="100" /-->  
     
     <button
-     follows="top|left"
+     follows="bottom|left"
      height="20"
      label="Preview"
      layout="topleft"
      left="20"
      name="preview_btn"
-     top_pad="50"
+     top_pad="-80"
      width="80" />
     <button
      follows="top|left"
@@ -225,183 +168,4 @@
      top_delta="0"
      width="80" />   
 
-
-
-    <text
-     type="string"
-     length="1"
-     follows="top|left"
-     font="SansSerifSmall"
-     height="60"
-     layout="topleft"
-     left="10"
-     name="help_label"
-     top_pad="10"
-     width="200">
-        All steps happen simultaneously, 
-unless you add wait steps.
-    </text>
-    <text
-     follows="top|left"
-     height="60"
-     layout="topleft"
-     left="10"
-     name="options_text"
-     top_pad="10"
-     width="205" />
-    <combo_box
-     follows="top|left"
-     height="20"
-     layout="topleft"
-     left_delta="10"
-     name="animation_list"
-     top_pad="10"
-     width="100" />
-    <combo_box
-     follows="top|left"
-     height="20"
-     layout="topleft"
-     left_delta="0"
-     name="sound_list"
-     top_delta="0"
-     width="100" />
-    <line_editor
-     follows="top|left"
-     height="20"
-     layout="topleft"
-     left_delta="0"
-     max_length="127"
-     name="chat_editor"
-     top_delta="0"
-     width="100" />
-    <radio_group
-     draw_border="false"
-     follows="top|left"
-     height="40"
-     layout="topleft"
-     left_pad="8"
-     name="animation_trigger_type"
-     top="445"
-     width="80">
-        <radio_item
-         height="16"
-         label="Start"
-         layout="topleft"
-         left="3"
-         name="start"
-         top="-11"
-         width="80" />
-        <radio_item
-         height="16"
-         label="Stop"
-         layout="topleft"
-         left_delta="0"
-         name="stop"
-         top_pad="10"
-         width="80" />
-    </radio_group>
-    <check_box
-     follows="top|left"
-     height="20"
-     label="until animations are done"
-     layout="topleft"
-     left="16"
-     name="wait_anim_check"
-     top="430"
-     width="100" />
-    <check_box
-     follows="top|left"
-     height="20"
-     label="time in seconds"
-     layout="topleft"
-     left_delta="0"
-     name="wait_time_check"
-     top_delta="20"
-     width="100" />
-    <line_editor
-     follows="top|left"
-     height="20"
-     layout="topleft"
-     left_pad="5"
-     max_length="15"
-     name="wait_time_editor"
-     top_delta="0"
-     width="50" />
-
-
-    
-    <!--accordion
-      layout="topleft"
-      left="2"
-      width="280"
-      top_pad="10"
-      height="600"
-      follows="all"
-      name="preview_gesture_shortcuts">
-     <accordion_tab
-      min_height="515"
-      title="Shortcuts"
-      name="preview_gesture_shortcuts">
-     <panel
-      class="preview_gesture_shortcuts"
-      filename="floater_preview_gesture_shortcuts"
-      name="preview_gesture_shortcuts" />
-     </accordion_tab>
-     <accordion_tab
-      min_height="380"
-      title="Group Roles"
-      name="group_roles_tab"
-      can_resize="false">
-     <panel
-      class="panel_group_roles"
-      filename="panel_group_roles.xml"
-      name="group_roles_tab_panel"/>
-     </accordion_tab>
-     <accordion_tab
-      min_height="530"
-      title="Group Notices"
-      name="group_notices_tab"
-      can_resize="false">
-     <panel
-      class="panel_group_notices"
-      filename="panel_group_notices.xml"
-      name="group_notices_tab_panel"/>
-     </accordion_tab>
-     <accordion_tab
-      min_height="270"
-      title="Group Land Money"
-      name="group_land_tab"
-      can_resize="false">
-     <panel
-      class="panel_group_land_money"
-      filename="panel_group_land_money.xml"
-      name="group_land_tab_panel"/>
-     </accordion_tab>
-     </accordion-->
-
-    
-    
-    <!--text
-     type="string"
-     length="1"
-     follows="top|left"
-     font="SansSerifSmall"
-     height="10"
-     layout="topleft"
-     left="10"
-     name="library_label"
-     top_pad="10"
-     width="100">
-        Library:
-    </text>
-    <check_box
-     follows="top|left"
-     height="20"
-     label="Active"
-     layout="topleft"
-     left="20"
-     name="active_check"
-     tool_tip="Active gestures can be triggered by chatting their trigger phrases or pressing their hot keys.  Gestures usually become inactive when there is a key binding conflict."
-     top="365"
-     width="100" /-->
 </floater>

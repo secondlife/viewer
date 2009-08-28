@@ -46,7 +46,7 @@
 #include "llavataractions.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
-#include "llspinctrl.h"
+//#include "llspinctrl.h"
 #include "llradiogroup.h"
 #include "llresmgr.h"
 #include "roles_constants.h"
@@ -793,14 +793,11 @@ void LLFloaterProperties::updateSaleInfo()
 			sale_type = LLSaleInfo::FS_ORIGINAL;
 		}
 
-	//	LLLineEditor* EditPrice = getChild<LLLineEditor>("EditPrice");
-		LLSpinCtrl *EditPrice = getChild<LLSpinCtrl>("Edit Cost");
+	     
 		
 		S32 price = -1;
-		if(EditPrice)
-		{
-			price =  EditPrice->getValue().asInteger();;
-		}
+		price =  getChild<LLUICtrl>("Edit Cost")->getValue().asInteger();;
+
 		// Invalid data - turn off the sale
 		if (price < 0)
 		{

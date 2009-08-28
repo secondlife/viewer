@@ -165,7 +165,9 @@
 		<menu_item_separator label="-----------" name="separator4"/>
 		<menu_item_call label="Focus op selectie" name="Focus on Selection"/>
 		<menu_item_call label="Zoom naar selectie" name="Zoom to Selection"/>
-		<menu_item_call label="Koop object" name="Menu Object Take"/>
+		<menu_item_call label="Koop object" name="Menu Object Take">
+			<on_enable userdata="Koop,Neem" name="EnableBuyOrTake"/>
+		</menu_item_call>
 		<menu_item_call label="Neem kopie" name="Take Copy"/>
 		<menu_item_call label="Object terug opslaan in objectinhoud" name="Save Object Back to Object Contents"/>
 		<menu_item_separator label="-----------" name="separator6"/>
@@ -179,7 +181,7 @@
 		<menu_item_call label="Scripts in selectie instellen op niet uitvoeren" name="Set Scripts to Not Running in Selection"/>
 	</menu>
 	<menu label="Help" name="Help">
-		<menu_item_call label="Second Life Help" name="Second Life Help"/>
+		<menu_item_call label="[SECOND_LIFE] Help" name="Second Life Help"/>
 		<menu_item_call label="Handleiding" name="Tutorial"/>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Officiële Linden blog..." name="Official Linden Blog..."/>
@@ -200,6 +202,6 @@
 			<menu_item_separator label="-----------" name="separator9"/>
 			<menu_item_call label="Rapporteer bug..." name="Report Bug..."/>
 		</menu>
-		<menu_item_call label="Over Second Life..." name="About Second Life..."/>
+		<menu_item_call label="Over [APP_NAME]..." name="About Second Life..."/>
 	</menu>
 </menu_bar>

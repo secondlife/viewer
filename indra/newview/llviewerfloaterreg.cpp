@@ -106,20 +106,19 @@
 #include "llfloaterwater.h"
 #include "llfloaterwindlight.h"
 #include "llfloaterworldmap.h"
+#include "llinspectavatar.h"
 #include "llmediaremotectrl.h"
 #include "llmoveview.h"
 #include "llnearbychat.h"
-
 #include "llpreviewanim.h"
 #include "llpreviewgesture.h"
 #include "llpreviewnotecard.h"
 #include "llpreviewscript.h"
 #include "llpreviewsound.h"
 #include "llpreviewtexture.h"
-#include "llfloaterminiinspector.h"
 #include "llsyswellwindow.h"
+// *NOTE: Please add files in alphabetical order to keep merges easy.
 
-//class LLLLFloaterObjectIMInfo;
 
 void LLViewerFloaterReg::registerFloaters()
 {
@@ -167,6 +166,8 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("impanel", "floater_im_session.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIMFloater>);
 	LLFloaterReg::add("inventory", "floater_inventory.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterInventory>);
 	LLFloaterReg::add("inspect", "floater_inspect.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterInspect>);
+	LLFloaterReg::add("inspect_avatar", "inspect_avatar.xml",
+		&LLFloaterReg::build<LLInspectAvatar>);
 	
 	LLFloaterReg::add("lagmeter", "floater_lagmeter.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLagMeter>);
 	LLFloaterReg::add("land_holdings", "floater_land_holdings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLandHoldings>);
@@ -179,7 +180,6 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("mute", "floater_mute.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMute>);
 	LLFloaterReg::add("mute_object", "floater_mute_object.xml", &LLFloaterMute::buildFloaterMuteObjectUI);
 	LLFloaterReg::add("mini_map", "floater_map.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMap>);
-	LLFloaterReg::add("mini_inspector", "panel_mini_inspector.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMiniInspector>);
 	LLFloaterReg::add("syswell_window", "floater_sys_well.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLSysWellWindow>);
 	
 	LLFloaterReg::add("notifications_console", "floater_notifications_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterNotificationConsole>);

@@ -63,10 +63,7 @@ public:
 		Mandatory<std::string>	name;
 		Mandatory<std::string>	value;
 		
-		LocalizedString()
-		:	name("name"),
-			value("value")
-		{}
+		LocalizedString();
 	};
 
 	struct Params 
@@ -185,7 +182,11 @@ public:
 	BOOL childHasFocus(const std::string& id);
 	
 	// *TODO: Deprecate; for backwards compatability only:
+	// Prefer getChild<LLUICtrl>("foo")->setCommitCallback(boost:bind(...)),
+	// which takes a generic slot.  Or use mCommitCallbackRegistrar.add() with
+	// a named callback and reference it in XML.
 	void childSetCommitCallback(const std::string& id, boost::function<void (LLUICtrl*,void*)> cb, void* data);	
+	
 	void childSetValidate(const std::string& id, boost::function<bool (const LLSD& data)> cb );
 
 	void childSetColor(const std::string& id, const LLColor4& color);

@@ -21,7 +21,7 @@
          parameter="about" />
     </menu_item_call>
     <menu_item_call
-     label="Copy SLURL"
+     label="Copy SLurl"
      layout="topleft"
      name="Copy slurl">
         <menu_item_call.on_click

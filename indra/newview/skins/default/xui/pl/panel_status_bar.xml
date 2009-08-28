@@ -28,8 +28,8 @@
 	<button label="" label_selected="" name="status_no_voice" tool_tip="Używanie komunikacji głosowej jest niedozwolone" />
 	<button label="" label_selected="" name="buyland" tool_tip="Kup tą posiadłość" />
 	<button label="" name="menubar_search_bevel_bg" />
-	<line_editor label="Szukaj" name="search_editor" tool_tip="Szukaj w Second Life" />
-	<button label="" label_selected="" name="search_btn" tool_tip="Szukaj w Second Life" />
+	<line_editor label="Szukaj" name="search_editor" tool_tip="Szukaj w [SECOND_LIFE]" />
+	<button label="" label_selected="" name="search_btn" tool_tip="Szukaj w [SECOND_LIFE]" />
 	<string name="packet_loss_tooltip">
 		Utracone Pakiety
 	</string>

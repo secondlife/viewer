@@ -1517,6 +1517,14 @@ class LLAdvancedSendTestIms : public view_listener_t
 }
 };
 
+class LLAdvancedAvatarInspector : public view_listener_t
+{
+	bool handleEvent(const LLSD& avatar_id)
+	{
+		LLFloaterReg::showInstance("inspect_avatar", avatar_id);
+		return true;
+	}
+};
 
 ///////////////
 // XUI NAMES //
@@ -7844,6 +7852,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleXUINames(), "Advanced.ToggleXUINames");
 	view_listener_t::addMenu(new LLAdvancedCheckXUINames(), "Advanced.CheckXUINames");
 	view_listener_t::addMenu(new LLAdvancedSendTestIms(), "Advanced.SendTestIMs");
+	view_listener_t::addMenu(new LLAdvancedAvatarInspector(), "Advanced.AvatarInspector");
 
 	// Advanced > Character > Grab Baked Texture
 	view_listener_t::addMenu(new LLAdvancedGrabBakedTexture(), "Advanced.GrabBakedTexture");

@@ -755,7 +755,7 @@ static std::string getFullFolderName(const LLViewerInventoryCategory* cat)
 	// FIXME: it can throw notification about non existent string in strings.xml
 	if (cat->getParentUUID().notNull() && cat->getParentUUID() == gInventory.getRootFolderID())
 	{
-		name = LLTrans::getString("InvFolder " + name);
+		LLTrans::findString(name, "InvFolder " + name);
 	}
 
 	// we don't want "My Inventory" to appear in the name
