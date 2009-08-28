@@ -180,6 +180,8 @@ BOOL LLPanelGroup::postBuild()
 	if(panel_roles)		mTabs.push_back(panel_roles);
 	if(panel_notices)	mTabs.push_back(panel_notices);
 	if(panel_land)		mTabs.push_back(panel_land);
+
+	panel_general->setupCtrls(this);
 	
 	return TRUE;
 }
@@ -194,7 +196,7 @@ void LLPanelGroup::reshape(S32 width, S32 height, BOOL called_from_parent )
 	if(button)
 	{
 		btn_rect = button->getRect();
-		btn_rect.setLeftTopAndSize( btn_rect.mLeft, 28, btn_rect.getWidth(), btn_rect.getHeight());
+		btn_rect.setLeftTopAndSize( btn_rect.mLeft, btn_rect.getHeight() + 2, btn_rect.getWidth(), btn_rect.getHeight());
 		button->setRect(btn_rect);
 	}
 
@@ -202,7 +204,7 @@ void LLPanelGroup::reshape(S32 width, S32 height, BOOL called_from_parent )
 	if(button)
 	{
 		btn_rect = button->getRect();
-		btn_rect.setLeftTopAndSize( btn_rect.mLeft, 28, btn_rect.getWidth(), btn_rect.getHeight());
+		btn_rect.setLeftTopAndSize( btn_rect.mLeft, btn_rect.getHeight() + 2, btn_rect.getWidth(), btn_rect.getHeight());
 		button->setRect(btn_rect);
 	}
 
@@ -211,7 +213,7 @@ void LLPanelGroup::reshape(S32 width, S32 height, BOOL called_from_parent )
 	if(button)
 	{
 		btn_rect = button->getRect();
-		btn_rect.setLeftTopAndSize( btn_rect.mLeft, 28, btn_rect.getWidth(), btn_rect.getHeight());
+		btn_rect.setLeftTopAndSize( btn_rect.mLeft, btn_rect.getHeight() + 2, btn_rect.getWidth(), btn_rect.getHeight());
 		button->setRect(btn_rect);
 	}
 }

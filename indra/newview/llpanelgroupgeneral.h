@@ -67,6 +67,8 @@ public:
 
 	virtual void setGroupID(const LLUUID& id);
 
+	virtual void setupCtrls	(LLPanel* parent);
+
 private:
 	void	reset();
 

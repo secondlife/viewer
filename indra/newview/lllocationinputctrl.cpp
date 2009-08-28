@@ -44,7 +44,6 @@
 #include "lluictrlfactory.h"
 
 // newview includes
-#include "llagent.h"
 #include "llinventorymodel.h"
 #include "lllandmarkactions.h"
 #include "lllandmarklist.h"
@@ -494,8 +493,8 @@ void LLLocationInputCtrl::refreshLocation()
 
 	// Update location field.
 	std::string location_name;
-	LLAgent::ELocationFormat format =  (gSavedSettings.getBOOL("ShowCoordinatesOption") ? 
-			LLAgent::LOCATION_FORMAT_WITHOUT_SIM: LLAgent::LOCATION_FORMAT_NORMAL);
+	LLAgentUI::ELocationFormat format =  (gSavedSettings.getBOOL("ShowCoordinatesOption") ? 
+			LLAgentUI::LOCATION_FORMAT_WITHOUT_SIM: LLAgentUI::LOCATION_FORMAT_NORMAL);
 
 	if (!LLAgentUI::buildLocationString(location_name, format)) location_name = "Unknown";
 	setText(location_name);

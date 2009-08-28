@@ -55,11 +55,14 @@ public:
 	LLTeleportHistoryItem(std::string title, LLVector3d global_pos)
 		: mTitle(title), mGlobalPos(global_pos)
 	{}
-	
-	LLTeleportHistoryItem(const LLSD& val);
-	LLSD toLLSD() const;
 
+	/**
+	 * @return title formatted according to the current value of the ShowCoordinatesOption setting.
+	 */
+	const std::string& getTitle() const;
+	
 	std::string	mTitle;		// human-readable location title
+	std::string mFullTitle; // human-readable location title including coordinates
 	LLVector3d	mGlobalPos; // global position
 	LLUUID		mRegionID;	// region ID for getting the region info 
 };
@@ -168,8 +171,15 @@ private:
 	 * Invokes the "history changed" callback(s).
 	 */
 	void					onHistoryChanged();
-	
-	static std::string		getCurrentLocationTitle();
+
+	/**
+	 * Format current agent location in a human-readable manner.
+	 * 
+	 * @param full whether to include coordinates
+	 * @param local_pos_override hack: see description of updateCurrentLocation()
+	 * @return
+	 */
+	static std::string		getCurrentLocationTitle(bool full, const LLVector3& local_pos_override);
 	
 	/**
 	 * Actually, the teleport history.

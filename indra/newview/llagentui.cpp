@@ -89,7 +89,7 @@ std::string LLAgentUI::buildSLURL(const bool escaped /*= true*/)
 	return slurl;
 }
 
-BOOL LLAgentUI::buildLocationString(std::string& str, LLAgent::ELocationFormat fmt,const LLVector3& agent_pos_region)
+BOOL LLAgentUI::buildLocationString(std::string& str, ELocationFormat fmt,const LLVector3& agent_pos_region)
 {
 	LLViewerRegion* region = gAgent.getRegion();
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
@@ -128,14 +128,14 @@ BOOL LLAgentUI::buildLocationString(std::string& str, LLAgent::ELocationFormat f
 		// the parcel doesn't have a name
 		switch (fmt)
 		{
-		case LLAgent::LOCATION_FORMAT_LANDMARK:
+		case LOCATION_FORMAT_LANDMARK:
 			buffer = llformat("%.100s", region_name.c_str());
 			break;
-		case LLAgent::LOCATION_FORMAT_NORMAL:
+		case LOCATION_FORMAT_NORMAL:
 			buffer = llformat("%s", region_name.c_str());
 			break;
-		case LLAgent::LOCATION_FORMAT_WITHOUT_SIM:
-		case LLAgent::LOCATION_FORMAT_FULL:
+		case LOCATION_FORMAT_WITHOUT_SIM:
+		case LOCATION_FORMAT_FULL:
 			buffer = llformat("%s (%d, %d, %d)",
 				region_name.c_str(),
 				pos_x, pos_y, pos_z);
@@ -147,19 +147,19 @@ BOOL LLAgentUI::buildLocationString(std::string& str, LLAgent::ELocationFormat f
 		// the parcel has a name, so include it in the landmark name
 		switch (fmt)
 		{
-		case LLAgent::LOCATION_FORMAT_LANDMARK:
+		case LOCATION_FORMAT_LANDMARK:
 			buffer = llformat("%.100s", parcel_name.c_str());
 			break;
-		case LLAgent::LOCATION_FORMAT_NORMAL:
+		case LOCATION_FORMAT_NORMAL:
 			buffer = llformat("%s, %s", region_name.c_str(), parcel_name.c_str());
 			break;
-		case LLAgent::LOCATION_FORMAT_WITHOUT_SIM:
+		case LOCATION_FORMAT_WITHOUT_SIM:
 			buffer = llformat("%s, %s (%d, %d, %d)",
 				region_name.c_str(),
 				parcel_name.c_str(),
 				pos_x, pos_y, pos_z);
 			break;
-		case LLAgent::LOCATION_FORMAT_FULL:
+		case LOCATION_FORMAT_FULL:
 			std::string sim_access_string = region->getSimAccessString();
 			buffer = llformat("%s, %s (%d, %d, %d)%s%s",
 				region_name.c_str(),
@@ -173,7 +173,7 @@ BOOL LLAgentUI::buildLocationString(std::string& str, LLAgent::ELocationFormat f
 	str = buffer;
 	return TRUE;
 }
-BOOL LLAgentUI::buildLocationString(std::string& str, LLAgent::ELocationFormat fmt)
+BOOL LLAgentUI::buildLocationString(std::string& str, ELocationFormat fmt)
 {
 	return buildLocationString(str,fmt, gAgent.getPositionAgent());
 }

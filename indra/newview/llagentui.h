@@ -33,19 +33,25 @@
 #ifndef LLAGENTUI_H
 #define LLAGENTUI_H
 
-#include "llagent.h"
-
 class LLAgentUI
 {
 public:
+	enum ELocationFormat
+	{
+		LOCATION_FORMAT_NORMAL,
+		LOCATION_FORMAT_LANDMARK,
+		LOCATION_FORMAT_WITHOUT_SIM,
+		LOCATION_FORMAT_FULL,
+	};
+
 	static void buildName(std::string& name);
 	static void buildFullname(std::string &name);
 
 	static std::string buildSLURL(const bool escaped = true);
 	//build location string using the current position of gAgent.
-	static BOOL buildLocationString(std::string& str, LLAgent::ELocationFormat fmt = LLAgent::LOCATION_FORMAT_LANDMARK);
+	static BOOL buildLocationString(std::string& str, ELocationFormat fmt = LOCATION_FORMAT_LANDMARK);
 	//build location string using a region position of the avatar. 
-	static BOOL buildLocationString(std::string& str, LLAgent::ELocationFormat fmt,const LLVector3& agent_pos_region);
+	static BOOL buildLocationString(std::string& str, ELocationFormat fmt,const LLVector3& agent_pos_region);
 };
 
 #endif //LLAGENTUI_H

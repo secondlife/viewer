@@ -820,20 +820,29 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	// Tab panel
 	S32 tab_panel_top;
 	S32 tab_panel_bottom;
-	if( getTabPosition() == LLTabContainer::TOP )
+	if (!getTabsHidden()) 
 	{
-		S32 tab_height = mIsVertical ? BTN_HEIGHT : tabcntr_tab_height;
-		tab_panel_top = getRect().getHeight() - getTopBorderHeight() - (tab_height - tabcntr_button_panel_overlap);	
-		tab_panel_bottom = LLPANEL_BORDER_WIDTH;
+		if( getTabPosition() == LLTabContainer::TOP )
+		{
+			S32 tab_height = mIsVertical ? BTN_HEIGHT : tabcntr_tab_height;
+			tab_panel_top = getRect().getHeight() - getTopBorderHeight() - (tab_height - tabcntr_button_panel_overlap);	
+			tab_panel_bottom = LLPANEL_BORDER_WIDTH;
+		}
+		else
+		{
+			tab_panel_top = getRect().getHeight() - getTopBorderHeight();
+			tab_panel_bottom = (tabcntr_tab_height - tabcntr_button_panel_overlap);  // Run to the edge, covering up the border
+		}
 	}
 	else
 	{
-		tab_panel_top = getRect().getHeight() - getTopBorderHeight();
-		tab_panel_bottom = (tabcntr_tab_height - tabcntr_button_panel_overlap);  // Run to the edge, covering up the border
+		//Scip tab button space if they are invisible(EXT - 576)
+		tab_panel_top = getRect().getHeight();
+		tab_panel_bottom = LLPANEL_BORDER_WIDTH;
 	}
-	
+
 	LLRect tab_panel_rect;
-	if (mIsVertical)
+	if (!getTabsHidden() && mIsVertical)
 	{
 		tab_panel_rect = LLRect(mMinTabWidth + (LLPANEL_BORDER_WIDTH * 2) + tabcntrv_pad, 
 								getRect().getHeight() - LLPANEL_BORDER_WIDTH,
@@ -967,16 +976,21 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	LLTabTuple* tuple = new LLTabTuple( this, child, btn, textbox );
 	insertTuple( tuple, insertion_point );
 
-	if (textbox)
+	//Don't add button and textbox if tab buttons are invisible(EXT - 576)
+	if (!getTabsHidden())
 	{
-		textbox->setSaveToXML(false);
-		addChild( textbox, 0 );
+		if (textbox)
+		{
+			textbox->setSaveToXML(false);
+			addChild( textbox, 0 );
+		}
+		if (btn)
+		{
+			btn->setSaveToXML(false);
+			addChild( btn, 0 );
+		}
 	}
-	if (btn)
-	{
-		btn->setSaveToXML(false);
-		addChild( btn, 0 );
-	}
+
 	if (child)
 	{
 		LLUICtrl::addChild(child, 1);

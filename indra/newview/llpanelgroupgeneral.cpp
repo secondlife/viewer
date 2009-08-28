@@ -99,13 +99,6 @@ BOOL LLPanelGroupGeneral::postBuild()
 	// General info
 	mGroupNameEditor = getChild<LLLineEditor>("group_name_editor", recurse);
 	
-	mInsignia = getChild<LLTextureCtrl>("insignia", recurse);
-	if (mInsignia)
-	{
-		mInsignia->setCommitCallback(onCommitAny, this);
-		mDefaultIconID = mInsignia->getImageAssetID();
-	}
-	
 	mEditCharter = getChild<LLTextEditor>("charter", recurse);
 	if(mEditCharter)
 	{
@@ -115,7 +108,6 @@ BOOL LLPanelGroupGeneral::postBuild()
 	}
 
 
-	mFounderName = getChild<LLNameBox>("founder_name");
 
 	mListVisibleMembers = getChild<LLNameListCtrl>("visible_members", recurse);
 	if (mListVisibleMembers)
@@ -213,6 +205,17 @@ BOOL LLPanelGroupGeneral::postBuild()
 	}
 
 	return LLPanelGroupTab::postBuild();
+}
+
+void LLPanelGroupGeneral::setupCtrls(LLPanel* panel_group)
+{
+	mInsignia = panel_group->getChild<LLTextureCtrl>("insignia");
+	if (mInsignia)
+	{
+		mInsignia->setCommitCallback(onCommitAny, this);
+		mDefaultIconID = mInsignia->getImageAssetID();
+	}
+	mFounderName = panel_group->getChild<LLNameBox>("founder_name");
 }
 
 // static
@@ -848,7 +851,6 @@ void LLPanelGroupGeneral::reset()
 {
 	mFounderName->setVisible(false);
 
-	getChild<LLUICtrl>("prepend_founded_by")->setVisible(false);
 	
 	mCtrlReceiveNotices->set(false);
 	
@@ -876,7 +878,8 @@ void LLPanelGroupGeneral::reset()
 	mGroupNameEditor->setVisible(true);
 
 	mComboActiveTitle->setVisible(false);
-	mInsignia->setImageAssetID(mDefaultIconID);
+
+	mInsignia->setImageAssetID(LLUUID::null);
 
 	{
 		std::string empty_str = "";
@@ -968,7 +971,8 @@ void LLPanelGroupGeneral::setGroupID(const LLUUID& id)
 	mComboActiveTitle = getChild<LLComboBox>("active_title");
 
 	mFounderName->setVisible(true);
-	getChild<LLUICtrl>("prepend_founded_by")->setVisible(true);
+
+	mInsignia->setImageAssetID(LLUUID::null);
 
 	resetDirty();
 

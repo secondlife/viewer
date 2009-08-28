@@ -70,6 +70,7 @@ public:
 	boost::signals2::connection addChangedCallback( boost::function<void (const LLSD& data)> cb );
 
 	bool newSession(LLUUID session_id, std::string name, EInstantMessage type, LLUUID other_participant_id);
+	bool clearSession(LLUUID session_id);
 	std::list<LLSD> getMessages(LLUUID session_id, int start_index = 0);
 	bool addMessage(LLUUID session_id, std::string from, LLUUID other_participant_id, std::string utf8_text);
 	bool addToHistory(LLUUID session_id, std::string from, std::string utf8_text); 

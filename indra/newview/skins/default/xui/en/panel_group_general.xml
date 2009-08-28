@@ -2,7 +2,7 @@
 <panel
  border="true"
  follows="all"
- height="470"
+ height="445"
  label="General"
  class="panel_group_general"
  layout="topleft"
@@ -43,14 +43,14 @@ Hover your mouse over the options for more help.
     <text_editor
      type="string"
      follows="left|top"
-     left="95"
+     left="5"
      height="75"
      hide_scrollbar="true"
      layout="topleft"
      max_length="511"
      name="charter"
-     top="30"
-     width="170"
+     top="5"
+     width="260"
      word_wrap="true">
         Group Charter
     </text_editor>

@@ -160,6 +160,8 @@ public:
 
 	const LLUUID& getGroupID() const { return mGroupID;}
 
+	virtual void setupCtrls	(LLPanel* parent) {};
+
 protected:
 	LLUUID	mGroupID;
 	std::string	mHelpText;

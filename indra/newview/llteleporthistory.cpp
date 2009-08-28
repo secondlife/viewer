@@ -40,6 +40,7 @@
 #include "llagent.h"
 #include "llslurl.h"
 #include "llurlsimstring.h"
+#include "llviewercontrol.h"        // for gSavedSettings
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llworldmap.h"
@@ -49,20 +50,9 @@
 // LLTeleportHistoryItem
 //////////////////////////////////////////////////////////////////////////////
 
-LLTeleportHistoryItem::LLTeleportHistoryItem(const LLSD& val)
+const std::string& LLTeleportHistoryItem::getTitle() const
 {
-	mTitle = val["title"].asString();
-	mGlobalPos.setValue(val["global_pos"]);
-}
-
-LLSD LLTeleportHistoryItem::toLLSD() const
-{
-	LLSD val;
-
-	val["title"]		= mTitle;
-	val["global_pos"]	= mGlobalPos.getValue();
-	
-	return val;
+	return gSavedSettings.getBOOL("ShowCoordinatesOption") ? mFullTitle : mTitle;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -149,7 +139,9 @@ void LLTeleportHistory::updateCurrentLocation(const LLVector3d& new_pos)
 			llwarns << "Invalid current item. (this should not happen)" << llendl;
 			return;
 		}
-		mItems[mCurrentItem].mTitle = getCurrentLocationTitle();
+		LLVector3 new_pos_local = gAgent.getPosAgentFromGlobal(new_pos);
+		mItems[mCurrentItem].mFullTitle = getCurrentLocationTitle(true, new_pos_local);
+		mItems[mCurrentItem].mTitle = getCurrentLocationTitle(false, new_pos_local);
 		mItems[mCurrentItem].mGlobalPos	= new_pos;
 		mItems[mCurrentItem].mRegionID = gAgent.getRegion()->getRegionID();
 	}
@@ -182,10 +174,12 @@ void LLTeleportHistory::purgeItems()
 }
 
 // static
-std::string LLTeleportHistory::getCurrentLocationTitle()
+std::string LLTeleportHistory::getCurrentLocationTitle(bool full, const LLVector3& local_pos_override)
 {
 	std::string location_name;
-	if (!LLAgentUI::buildLocationString(location_name, LLAgent::LOCATION_FORMAT_NORMAL)) location_name = "Unknown";
+	LLAgentUI::ELocationFormat fmt = full ? LLAgentUI::LOCATION_FORMAT_WITHOUT_SIM : LLAgentUI::LOCATION_FORMAT_NORMAL;
+
+	if (!LLAgentUI::buildLocationString(location_name, fmt, local_pos_override)) location_name = "Unknown";
 	return location_name;
 }
 

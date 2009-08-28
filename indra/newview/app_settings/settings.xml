@@ -6866,7 +6866,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowCrosshairs</key>
+    <key>ShowCoordinatesOption</key>
     <map>
       <key>Comment</key>
       <string>Show Coordinates in  Location Input Field</string>
@@ -6877,7 +6877,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowCoordinatesOption</key>
+    <key>ShowCrosshairs</key>
     <map>
       <key>Comment</key>
       <string>Display crosshairs when in mouselook mode</string>

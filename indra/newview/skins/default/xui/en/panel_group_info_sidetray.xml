@@ -44,10 +44,10 @@
      height="113"
      label=""
      layout="topleft"
-     left_delta="-10"
+	 left="10"
      name="insignia"
      tool_tip="Click to choose a picture"
-     top_pad="5"
+     top_pad="15"
      width="100" />
     <text
      type="string"
@@ -99,8 +99,8 @@
      left="5"
      visible="false"
      width="65" />
-      <accordion layout="topleft" left="2" width="296" top="135" height="600" follows="all" name="group_accordion">
-		<accordion_tab min_height="515" title="Group General" name="group_general_tab">
+      <accordion layout="topleft" left="2" width="296" top="135" height="500" follows="all" name="group_accordion">
+		<accordion_tab min_height="445" title="Group General" name="group_general_tab">
         	<panel class="panel_group_general" filename="panel_group_general.xml" name="group_general_tab_panel"/>
 		</accordion_tab>
 		<accordion_tab min_height="380" title="Group Roles" name="group_roles_tab" expanded="False" can_resize="false">

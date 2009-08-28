@@ -349,7 +349,7 @@ void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos)
 	 * At this moment gAgent.getPositionAgent() contains previous coordinates.
 	 * according to EXT-65 agent position is being reseted on each frame.  
 	 */
-	LLAgentUI::buildLocationString(location, LLAgent::LOCATION_FORMAT_WITHOUT_SIM,
+	LLAgentUI::buildLocationString(location, LLAgentUI::LOCATION_FORMAT_WITHOUT_SIM,
 			gAgent.getPosAgentFromGlobal(global_agent_pos));
 	
 	//Touch it, if it is at list already, add new location otherwise
@@ -411,7 +411,7 @@ void LLNavigationBar::rebuildTeleportHistoryMenu()
 		else
 			type = LLTeleportHistoryMenuItem::TYPE_CURRENT;
 
-		LLTeleportHistoryMenuItem::Params item_params(type, hist_items[i].mTitle);
+		LLTeleportHistoryMenuItem::Params item_params(type, hist_items[i].getTitle());
 		item_params.on_click.function(boost::bind(&LLNavigationBar::onTeleportHistoryMenuItemClicked, this, i));
 		mTeleportHistoryMenu->addChild(LLUICtrlFactory::create<LLTeleportHistoryMenuItem>(item_params));
 	}
@@ -575,6 +575,11 @@ void LLNavigationBar::showNavigationPanel(BOOL visible)
 			setRect(nbRect);
 		}
 	}
+
+	if(LLSideTray::instanceCreated())
+	{
+		LLSideTray::getInstance()->resetPanelRect();
+	}
 }
 
 void LLNavigationBar::showFavoritesPanel(BOOL visible)
@@ -636,4 +641,8 @@ void LLNavigationBar::showFavoritesPanel(BOOL visible)
 	}
 
 	fb->setVisible(visible);
+	if(LLSideTray::instanceCreated())
+	{
+		LLSideTray::getInstance()->resetPanelRect();
+	}
 }

@@ -162,6 +162,14 @@ bool LLIMModel::newSession(LLUUID session_id, std::string name, EInstantMessage 
 
 }
 
+bool LLIMModel::clearSession(LLUUID session_id)
+{
+	if (sSessionsMap.find(session_id) == sSessionsMap.end()) return false;
+	delete (sSessionsMap[session_id]);
+	sSessionsMap.erase(session_id);
+	return true;
+}
+
 std::list<LLSD> LLIMModel::getMessages(LLUUID session_id, int start_index)
 {
 	std::list<LLSD> return_list;
@@ -1438,7 +1446,8 @@ LLUUID LLIMMgr::addSession(
 }
 
 // This removes the panel referenced by the uuid, and then restores
-// internal consistency. The internal pointer is not deleted.
+// internal consistency. The internal pointer is not deleted? Did you mean
+// a pointer to the corresponding LLIMSession? Session data is cleared now.
 void LLIMMgr::removeSession(const LLUUID& session_id)
 {
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
@@ -1452,6 +1461,12 @@ void LLIMMgr::removeSession(const LLUUID& session_id)
 		clearPendingAgentListUpdates(session_id);
 	}
 	notifyObserverSessionRemoved(session_id);
+
+	//if we don't clear session data on removing the session
+	//we can't use LLBottomTray as observer of session creation/delettion and 
+	//creating chiclets only on session created even, we need to handle chiclets creation
+	//the same way as LLFloaterIMPanels were managed.
+	LLIMModel::getInstance()->clearSession(session_id);
 }
 
 void LLIMMgr::inviteToSession(

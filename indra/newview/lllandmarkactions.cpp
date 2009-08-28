@@ -218,8 +218,8 @@ void LLLandmarkActions::createLandmarkHere()
 {
 	std::string landmark_name, landmark_desc;
 
-	LLAgentUI::buildLocationString(landmark_name, LLAgent::LOCATION_FORMAT_LANDMARK);
-	LLAgentUI::buildLocationString(landmark_desc, LLAgent::LOCATION_FORMAT_FULL);
+	LLAgentUI::buildLocationString(landmark_name, LLAgentUI::LOCATION_FORMAT_LANDMARK);
+	LLAgentUI::buildLocationString(landmark_desc, LLAgentUI::LOCATION_FORMAT_FULL);
 	LLUUID folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
 
 	createLandmarkHere(landmark_name, landmark_desc, folder_id);
