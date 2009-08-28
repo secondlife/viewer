@@ -1522,6 +1522,23 @@ set_source_files_properties(
   )
 LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
 
+#set(TEST_DEBUG on)
+set(test_sources llcapabilitylistener.cpp llviewerprecompiledheaders.cpp)
+set(test_libs 
+  ${LLMESSAGE_LIBRARIES} 
+  ${WINDOWS_LIBRARIES} 
+  ${LLVFS_LIBRARIES}
+  ${LLMATH_LIBRARIES}
+  ${LLCOMMON_LIBRARIES} 
+  )
+
+LL_ADD_INTEGRATION_TEST(llcapabilitylistener 
+  "${test_sources}" 
+  "${test_libs}"
+  ${PYTHON_EXECUTABLE}
+  "${CMAKE_SOURCE_DIR}/llmessage/tests/test_llsdmessage_peer.py"
+  )
+
 #ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
 
 

@@ -222,6 +222,23 @@ IF (NOT LINUX AND VIEWER)
       lltrustedmessageservice.cpp
       lltemplatemessagedispatcher.cpp
       )
+#    set(TEST_DEBUG on)
+    set(test_libs
+      ${LLMESSAGE_LIBRARIES}
+      ${WINDOWS_LIBRARIES}
+      ${LLVFS_LIBRARIES}
+      ${LLMATH_LIBRARIES}
+      ${LLCOMMON_LIBRARIES}
+      )
+
+    LL_ADD_INTEGRATION_TEST(
+      llsdmessage
+      "llsdmessage.cpp"
+      "${test_libs}"
+      ${PYTHON_EXECUTABLE}
+      "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py"
+      )
+
     LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")
     
     # Commented out - see rationale at bottom of newview's build file + poppy 2009-06-05

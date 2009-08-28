@@ -148,3 +148,79 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   ADD_DEPENDENCIES(${project} ${project}_tests)
 ENDMACRO(LL_ADD_PROJECT_UNIT_TESTS)
 
+FUNCTION(LL_ADD_INTEGRATION_TEST 
+    testname
+    additional_source_files
+    library_dependencies
+# variable args
+    )
+  if(TEST_DEBUG)
+    message(STATUS "Adding INTEGRATION_TEST_${testname} - debug output is on")
+  endif(TEST_DEBUG)
+  
+  SET(source_files
+    tests/${testname}_test.cpp
+    ${CMAKE_SOURCE_DIR}/test/test.cpp
+    ${CMAKE_SOURCE_DIR}/test/lltut.cpp
+    ${additional_source_files}
+    )
+
+  SET(libraries
+    ${library_dependencies}
+    ${PTHREAD_LIBRARY}
+    )
+
+  # Add test executable build target
+  if(TEST_DEBUG)
+    message(STATUS "ADD_EXECUTABLE(INTEGRATION_TEST_${testname} ${source_files})")
+  endif(TEST_DEBUG)
+  ADD_EXECUTABLE(INTEGRATION_TEST_${testname} ${source_files})
+
+  # Add link deps to the executable
+  if(TEST_DEBUG)
+    message(STATUS "TARGET_LINK_LIBRARIES(INTEGRATION_TEST_${testname} ${libraries})")
+  endif(TEST_DEBUG)
+  TARGET_LINK_LIBRARIES(INTEGRATION_TEST_${testname} ${libraries})
+
+  # Create the test running command
+  SET(test_command ${ARGN})
+  GET_TARGET_PROPERTY(TEST_EXE INTEGRATION_TEST_${testname} LOCATION)
+  LIST(FIND test_command "{}" test_exe_pos)
+  IF(test_exe_pos LESS 0)
+    # The {} marker means "the full pathname of the test executable."
+    # test_exe_pos -1 means we didn't find it -- so append the test executable
+    # name to $ARGN, the variable part of the arg list. This is convenient
+    # shorthand for both straightforward execution of the test program (empty
+    # $ARGN) and for running a "wrapper" program of some kind accepting the
+    # pathname of the test program as the last of its args. You need specify
+    # {} only if the test program's pathname isn't the last argument in the
+    # desired command line.
+    LIST(APPEND test_command "${TEST_EXE}")
+  ELSE (test_exe_pos LESS 0)
+    # Found {} marker at test_exe_pos. Remove the {}...
+    LIST(REMOVE_AT test_command test_exe_pos)
+    # ...and replace it with the actual name of the test executable.
+    LIST(INSERT test_command test_exe_pos "${TEST_EXE}")
+  ENDIF (test_exe_pos LESS 0)
+
+  SET(TEST_SCRIPT_CMD 
+    ${CMAKE_COMMAND} 
+    -DLD_LIBRARY_PATH=${ARCH_PREBUILT_DIRS}:/usr/lib
+    -DTEST_CMD:STRING="${test_command}" 
+    -P ${CMAKE_SOURCE_DIR}/cmake/RunBuildTest.cmake
+    )
+
+  if(TEST_DEBUG)
+    message(STATUS "TEST_SCRIPT_CMD: ${TEST_SCRIPT_CMD}")
+  endif(TEST_DEBUG)
+
+  ADD_CUSTOM_COMMAND(
+    TARGET INTEGRATION_TEST_${testname}
+    POST_BUILD
+    COMMAND ${TEST_SCRIPT_CMD}
+    )
+
+  # Use CTEST? Not sure how to yet...
+  # ADD_TEST(INTEGRATION_TEST_RUNNER_${testname} ${TEST_SCRIPT_CMD})
+
+ENDFUNCTION(LL_ADD_INTEGRATION_TEST)
