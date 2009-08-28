@@ -53,7 +53,7 @@
 
 
 LLFloaterTOS::LLFloaterTOS(const LLSD& message)
-:	LLModalDialog( message, 100, 100 ),
+:	LLModalDialog( message ),
 	mMessage(message.asString()),
 	mWebBrowserWindowId( 0 ),
 	mLoadCompleteCount( 0 )

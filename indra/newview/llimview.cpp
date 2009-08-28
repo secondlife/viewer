@@ -840,10 +840,9 @@ BOOL LLFloaterIM::postBuild()
 // Class LLIncomingCallDialog
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 LLIncomingCallDialog::LLIncomingCallDialog(const LLSD& payload) :
-	LLModalDialog(payload, 240, 200),
+	LLModalDialog(payload),
 	mPayload(payload)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_incoming_call.xml", NULL);
 }
 
 BOOL LLIncomingCallDialog::postBuild()
@@ -1134,6 +1133,13 @@ LLIMMgr::LLIMMgr() :
 	mFriendObserver(NULL),
 	mIMReceived(FALSE)
 {
+	static bool registered_dialog = false;
+	if (!registered_dialog)
+	{
+		LLFloaterReg::add("incoming_call", "floater_incoming_call.xml.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIncomingCallDialog>);
+		registered_dialog = true;
+	}
+		
 	mFriendObserver = new LLIMViewFriendObserver(this);
 	LLAvatarTracker::instance().addObserver(mFriendObserver);
 
@@ -1535,8 +1541,7 @@ void LLIMMgr::inviteToSession(
 		{
 			if (notify_box_type == "VoiceInviteP2P" || notify_box_type == "VoiceInviteAdHoc")
 			{
-				LLIncomingCallDialog *dialog = new LLIncomingCallDialog(payload);
-				dialog->startModal();
+				LLFloaterReg::showInstance("incoming_call", payload, TRUE);
 			}
 			else
 			{
@@ -1544,10 +1549,7 @@ void LLIMMgr::inviteToSession(
 				args["NAME"] = caller_name;
 				args["GROUP"] = session_name;
 
-				LLNotifications::instance().add(notify_box_type, 
-						args, 
-							payload,
-							&inviteUserResponse);
+				LLNotifications::instance().add(notify_box_type, args, payload, &inviteUserResponse);
 			}
 		}
 		mPendingInvitations[session_id.asString()] = LLSD();
@@ -1563,8 +1565,7 @@ void LLIMMgr::onInviteNameLookup(LLSD payload, const LLUUID& id, const std::stri
 
 	if (notify_box_type == "VoiceInviteP2P" || notify_box_type == "VoiceInviteAdHoc")
 	{
-		LLIncomingCallDialog *dialog = new LLIncomingCallDialog(payload);
-		dialog->startModal();
+		LLFloaterReg::showInstance("incoming_call", payload, TRUE);
 	}
 	else
 	{

@@ -410,36 +410,12 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask)
 		return TRUE;
 	}
 
-	if (('T' == key) && (MASK_CONTROL == mask))
-	{	// previously was "Test Floater"
-		if(gSavedSettings.getBOOL("QAMode"))
-		{
-			LLFloaterReg::showInstance("ui_preview", LLSD(), TRUE);
-			return TRUE;
-		}
-	}
-	
 	if ( KEY_F1 == key )
 	{
 		llinfos << "Spawning HTML help window" << llendl;
 		gViewerHtmlHelp.show();
 		return TRUE;
 	}
-
-# if !LL_RELEASE_FOR_DOWNLOAD
-	if ( KEY_F2 == key )
-	{
-		llinfos << "Spawning floater TOS window (TOS)" << llendl;
-		LLFloaterReg::showInstance("message_tos",LLSD(""));
-		return TRUE;
-	}
-	if ( KEY_F3 == key )
-	{
-		llinfos << "Spawning floater TOS window (critical message)" << llendl;
-		LLFloaterReg::showInstance("message_critical",LLSD(""));
-		return TRUE;
-	}
-#endif
 
 	if (KEY_RETURN == key && MASK_NONE == mask)
 	{

@@ -44,11 +44,10 @@
 // static
 std::list<LLModalDialog*> LLModalDialog::sModalStack;
 
-LLModalDialog::LLModalDialog( const LLSD& key, S32 width, S32 height, BOOL modal )
+LLModalDialog::LLModalDialog( const LLSD& key, BOOL modal )
 	: LLFloater(key),
 	  mModal( modal )
 {
-	setRect(LLRect( 0, height, width, 0 ));
 	if (modal)
 	{
 		setCanMinimize(FALSE);
@@ -98,7 +97,8 @@ void LLModalDialog::reshape(S32 width, S32 height, BOOL called_from_parent)
 	centerOnScreen();
 }
 
-void LLModalDialog::startModal()
+// virtual
+void LLModalDialog::onOpen(const LLSD& key)
 {
 	if (mModal)
 	{
@@ -116,8 +116,6 @@ void LLModalDialog::startModal()
 
 		sModalStack.push_front( this );
 	}
-
-	setVisible( TRUE );
 }
 
 void LLModalDialog::stopModal()

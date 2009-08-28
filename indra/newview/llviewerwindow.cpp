@@ -1686,6 +1686,10 @@ void LLViewerWindow::shutdownViews()
 		gMorphView->setVisible(FALSE);
 	}
 	
+	// Delete Tool Tip
+	delete mToolTip;
+	mToolTip = NULL;
+	
 	// Delete all child views.
 	delete mRootView;
 	mRootView = NULL;
@@ -1695,15 +1699,12 @@ void LLViewerWindow::shutdownViews()
 	gIMMgr = NULL;
 	gHoverView = NULL;
 
-	gFloaterView		= NULL;
-	gMorphView			= NULL;
+	gFloaterView = NULL;
+	gMorphView = NULL;
 
 	gHUDView = NULL;
 
 	gNotifyBoxView = NULL;
-
-	delete mToolTip;
-	mToolTip = NULL;
 }
 
 void LLViewerWindow::shutdownGL()

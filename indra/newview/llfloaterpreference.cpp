@@ -111,26 +111,38 @@ const F32 MIN_USER_FAR_CLIP = 64.f;
 const S32 ASPECT_RATIO_STR_LEN = 100;
 
 class LLVoiceSetKeyDialog : public LLModalDialog
-	{
-	public:
-		LLVoiceSetKeyDialog(LLFloaterPreference* parent);
-		~LLVoiceSetKeyDialog();
-		
-		BOOL handleKeyHere(KEY key, MASK mask);
-		static void onCancel(void* user_data);
-		
-	private:
-		LLFloaterPreference* mParent;
-	};
-
-LLVoiceSetKeyDialog::LLVoiceSetKeyDialog(LLFloaterPreference* parent)
-: LLModalDialog(LLSD(), 240, 100), mParent(parent)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_select_key.xml", NULL);
+public:
+	LLVoiceSetKeyDialog(const LLSD& key);
+	~LLVoiceSetKeyDialog();
+	
+	/*virtual*/ BOOL postBuild();
+	
+	void setParent(LLFloaterPreference* parent) { mParent = parent; }
+	
+	BOOL handleKeyHere(KEY key, MASK mask);
+	static void onCancel(void* user_data);
+		
+private:
+	LLFloaterPreference* mParent;
+};
+
+LLVoiceSetKeyDialog::LLVoiceSetKeyDialog(const LLSD& key)
+  : LLModalDialog(key),
+	mParent(NULL)
+{
+// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_select_key.xml", NULL);
+}
+
+//virtual
+BOOL LLVoiceSetKeyDialog::postBuild()
+{
 	childSetAction("Cancel", onCancel, this);
 	childSetFocus("Cancel");
 	
 	gFocusMgr.setKeystrokesOnly(TRUE);
+	
+	return TRUE;
 }
 
 LLVoiceSetKeyDialog::~LLVoiceSetKeyDialog()
@@ -145,7 +157,7 @@ BOOL LLVoiceSetKeyDialog::handleKeyHere(KEY key, MASK mask)
 	{
 		result = FALSE;
 	}
-	else
+	else if (mParent)
 	{
 		mParent->setKey(key);
 	}
@@ -294,7 +306,14 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mOriginalIMViaEmail(false)
 {
 	//Build Floater is now Called from 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);
-          
+	
+	static bool registered_dialog = false;
+	if (!registered_dialog)
+	{
+		LLFloaterReg::add("voice_set_key", "floater_select_key.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLVoiceSetKeyDialog>);
+		registered_dialog = true;
+	}
+	
 	mCommitCallbackRegistrar.add("Pref.Apply",				boost::bind(&LLFloaterPreference::onBtnApply, this));
 	mCommitCallbackRegistrar.add("Pref.Cancel",				boost::bind(&LLFloaterPreference::onBtnCancel, this));
 	mCommitCallbackRegistrar.add("Pref.OK",					boost::bind(&LLFloaterPreference::onBtnOK, this));
@@ -980,8 +999,11 @@ void LLFloaterPreference::cleanupBadSetting()
 
 void LLFloaterPreference::onClickSetKey()
 {
-	LLVoiceSetKeyDialog* dialog = new LLVoiceSetKeyDialog(this);
-	dialog->startModal();
+	LLVoiceSetKeyDialog* dialog = LLFloaterReg::showTypedInstance<LLVoiceSetKeyDialog>("voice_set_key", LLSD(), TRUE);
+	if (dialog)
+	{
+		dialog->setParent(this);
+	}
 }
 
 void LLFloaterPreference::setKey(KEY key)
