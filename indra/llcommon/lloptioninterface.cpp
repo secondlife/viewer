@@ -1,10 +1,10 @@
 /** 
- * @file llfixedbuffer.h
- * @brief A fixed size buffer of lines.
+ * @file lloptioninterface.cpp
+ * @brief 
  *
- * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2001-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,41 +30,10 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFIXEDBUFFER_H
-#define LL_LLFIXEDBUFFER_H
+#include "lloptioninterface.h"
 
-#include "timer.h"
-#include <deque>
-#include <string>
-#include "llstring.h"
-#include "llthread.h"
-#include "llerrorcontrol.h"
 
-//  fixed buffer implementation
-class LLFixedBuffer : public LLLineBuffer
+LLOptionInterface::~LLOptionInterface()
 {
-public:
-	LLFixedBuffer(const U32 max_lines = 20);
-	~LLFixedBuffer();
 
-	LLTimer	mTimer;
-	U32		mMaxLines;
-	std::deque<LLWString>	mLines;
-	std::deque<F32>			mAddTimes;
-	std::deque<S32>			mLineLengths;
-
-	/*virtual*/ void clear(); // Clear the buffer, and reset it.
-
-	/*virtual*/ void addLine(const std::string& utf8line);
-
-	void setMaxLines(S32 max_lines);
-	
-protected:
-	void removeExtraLines();
-	void addWLine(const LLWString& line);
-
-protected:
-	LLMutex mMutex ;
-};
-
-#endif //LL_FIXED_BUFFER_H
+}

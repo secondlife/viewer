@@ -4240,13 +4240,13 @@ BOOL run_calllib(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 		printf("[0x%X]\tCALLLIB ", offset);
 	offset++;
 	U8 arg = safe_instruction_bytestream2byte(buffer, offset);
-	if (arg >= gScriptLibrary.mNextNumber)
+	if (arg >= (U8)gScriptLibrary.mFunctions.size())
 	{
 		set_fault(buffer, LSRF_BOUND_CHECK_ERROR);
 		return FALSE;
 	}
 	if (b_print)
-		printf("%d (%s)\n", (U32)arg, gScriptLibrary.mFunctions[arg]->mName);
+		printf("%d (%s)\n", (U32)arg, gScriptLibrary.mFunctions[arg].mName);
 
 	// pull out the arguments and the return values
 	LLScriptLibData	*arguments = NULL;
@@ -4254,14 +4254,14 @@ BOOL run_calllib(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 
 	S32 i, number;
 
-	if (gScriptLibrary.mFunctions[arg]->mReturnType)
+	if (gScriptLibrary.mFunctions[arg].mReturnType)
 	{
 		returnvalue = new LLScriptLibData;
 	}
 
-	if (gScriptLibrary.mFunctions[arg]->mArgs)
+	if (gScriptLibrary.mFunctions[arg].mArgs)
 	{
-		number = (S32)strlen(gScriptLibrary.mFunctions[arg]->mArgs);		/*Flawfinder: ignore*/
+		number = (S32)strlen(gScriptLibrary.mFunctions[arg].mArgs);		/*Flawfinder: ignore*/
 		arguments = new LLScriptLibData[number];
 	}
 	else
@@ -4271,23 +4271,23 @@ BOOL run_calllib(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 
 	for (i = number - 1; i >= 0; i--)
 	{
-		lscript_pop_variable(&arguments[i], buffer, gScriptLibrary.mFunctions[arg]->mArgs[i]);
+		lscript_pop_variable(&arguments[i], buffer, gScriptLibrary.mFunctions[arg].mArgs[i]);
 	}
 
 	if (b_print)
 	{
-		printf("%s\n", gScriptLibrary.mFunctions[arg]->mDesc);
+		printf("See LSLTipText_%s in strings.xml for usage\n", gScriptLibrary.mFunctions[arg].mName);
 	}
 
 	{
-		gScriptLibrary.mFunctions[arg]->mExecFunc(returnvalue, arguments, id);
+		gScriptLibrary.mFunctions[arg].mExecFunc(returnvalue, arguments, id);
 	}
-	add_register_fp(buffer, LREG_ESR, -gScriptLibrary.mFunctions[arg]->mEnergyUse);
-	add_register_fp(buffer, LREG_SLR, gScriptLibrary.mFunctions[arg]->mSleepTime);
+	add_register_fp(buffer, LREG_ESR, -gScriptLibrary.mFunctions[arg].mEnergyUse);
+	add_register_fp(buffer, LREG_SLR, gScriptLibrary.mFunctions[arg].mSleepTime);
 
 	if (returnvalue)
 	{
-		returnvalue->mType = char2type(*gScriptLibrary.mFunctions[arg]->mReturnType);
+		returnvalue->mType = char2type(*gScriptLibrary.mFunctions[arg].mReturnType);
 		lscript_push_return_variable(returnvalue, buffer);
 	}
 
@@ -4310,13 +4310,13 @@ BOOL run_calllib_two_byte(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &i
 		printf("[0x%X]\tCALLLIB ", offset);
 	offset++;
 	U16 arg = safe_instruction_bytestream2u16(buffer, offset);
-	if (arg >= gScriptLibrary.mNextNumber)
+	if (arg >= (U16)gScriptLibrary.mFunctions.size())
 	{
 		set_fault(buffer, LSRF_BOUND_CHECK_ERROR);
 		return FALSE;
 	}
 	if (b_print)
-		printf("%d (%s)\n", (U32)arg, gScriptLibrary.mFunctions[arg]->mName);
+		printf("%d (%s)\n", (U32)arg, gScriptLibrary.mFunctions[arg].mName);
 
 	// pull out the arguments and the return values
 	LLScriptLibData	*arguments = NULL;
@@ -4324,14 +4324,14 @@ BOOL run_calllib_two_byte(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &i
 
 	S32 i, number;
 
-	if (gScriptLibrary.mFunctions[arg]->mReturnType)
+	if (gScriptLibrary.mFunctions[arg].mReturnType)
 	{
 		returnvalue = new LLScriptLibData;
 	}
 
-	if (gScriptLibrary.mFunctions[arg]->mArgs)
+	if (gScriptLibrary.mFunctions[arg].mArgs)
 	{
-		number = (S32)strlen(gScriptLibrary.mFunctions[arg]->mArgs);		/*Flawfinder: ignore*/
+		number = (S32)strlen(gScriptLibrary.mFunctions[arg].mArgs);		/*Flawfinder: ignore*/
 		arguments = new LLScriptLibData[number];
 	}
 	else
@@ -4341,23 +4341,23 @@ BOOL run_calllib_two_byte(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &i
 
 	for (i = number - 1; i >= 0; i--)
 	{
-		lscript_pop_variable(&arguments[i], buffer, gScriptLibrary.mFunctions[arg]->mArgs[i]);
+		lscript_pop_variable(&arguments[i], buffer, gScriptLibrary.mFunctions[arg].mArgs[i]);
 	}
 
 	if (b_print)
 	{
-		printf("%s\n", gScriptLibrary.mFunctions[arg]->mDesc);
+		printf("See LSLTipText_%s in strings.xml for usage\n", gScriptLibrary.mFunctions[arg].mName);
 	}
 
 	{
-		gScriptLibrary.mFunctions[arg]->mExecFunc(returnvalue, arguments, id);
+		gScriptLibrary.mFunctions[arg].mExecFunc(returnvalue, arguments, id);
 	}
-	add_register_fp(buffer, LREG_ESR, -gScriptLibrary.mFunctions[arg]->mEnergyUse);
-	add_register_fp(buffer, LREG_SLR, gScriptLibrary.mFunctions[arg]->mSleepTime);
+	add_register_fp(buffer, LREG_ESR, -gScriptLibrary.mFunctions[arg].mEnergyUse);
+	add_register_fp(buffer, LREG_SLR, gScriptLibrary.mFunctions[arg].mSleepTime);
 
 	if (returnvalue)
 	{
-		returnvalue->mType = char2type(*gScriptLibrary.mFunctions[arg]->mReturnType);
+		returnvalue->mType = char2type(*gScriptLibrary.mFunctions[arg].mReturnType);
 		lscript_push_return_variable(returnvalue, buffer);
 	}
 

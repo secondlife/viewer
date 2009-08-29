@@ -1579,7 +1579,7 @@ void print_calllib(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tCALLLIB ", offset++);
 	arg = *(buffer + offset++);
-	fprintf(fp, "%d (%s)\n", (U32)arg, gScriptLibrary.mFunctions[arg]->mName);
+	fprintf(fp, "%d (%s)\n", (U32)arg, gScriptLibrary.mFunctions[arg].mName);
 }
 
 
@@ -1589,6 +1589,6 @@ void print_calllib_two_byte(LLFILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tCALLLIB_TWO_BYTE ", offset++);
 	arg = bytestream2u16(buffer, offset);
-	fprintf(fp, "%d (%s)\n", (U32)arg, gScriptLibrary.mFunctions[arg]->mName);
+	fprintf(fp, "%d (%s)\n", (U32)arg, gScriptLibrary.mFunctions[arg].mName);
 }
 

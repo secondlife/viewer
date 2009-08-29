@@ -1379,10 +1379,6 @@ bool LLAppViewer::cleanup()
 	std::string warnings_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Warnings"));
 	gWarningSettings.saveToFile(warnings_settings_filename, TRUE);
 
-	gSavedSettings.cleanup();
-	LLUIColorTable::instance().clear();
-	gCrashSettings.cleanup();
-
 	// Save URL history file
 	LLURLHistory::saveFile("url_history.xml");
 
@@ -1485,6 +1481,10 @@ bool LLAppViewer::cleanup()
 	gStaticVFS = NULL;
 	delete gVFS;
 	gVFS = NULL;
+	
+	gSavedSettings.cleanup();
+	LLUIColorTable::instance().clear();
+	gCrashSettings.cleanup();
 
 	LLWatchdog::getInstance()->cleanup();
 

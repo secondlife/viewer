@@ -52,6 +52,7 @@ set(llcommon_SOURCE_FILES
     llmemtype.cpp
     llmetrics.cpp
     llmortician.cpp
+    lloptioninterface.cpp
     llptrto.cpp 
     llprocesslauncher.cpp
     llprocessor.cpp
@@ -157,6 +158,7 @@ set(llcommon_HEADER_FILES
     llmetrics.h
     llmortician.h
     llnametable.h
+    lloptioninterface.h
     llpointer.h
     llpreprocessor.h
     llpriqueuemap.h

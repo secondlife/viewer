@@ -85,12 +85,10 @@
 #include "lluictrlfactory.h"
 #include "llmediactrl.h"
 #include "lluictrlfactory.h"
-
+#include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llappviewer.h"
-
 #include "llpanelinventory.h"
-#include "lltrans.h"
 
 const std::string HELLO_LSL =
 	"default\n"
@@ -250,9 +248,19 @@ void LLFloaterScriptSearch::handleBtnReplaceAll()
 	mEditorCore->mEditor->replaceTextAll(childGetText("search_text"), childGetText("replace_text"), caseChk->get());
 }
 
+
+
 /// ---------------------------------------------------------------------------
 /// LLScriptEdCore
 /// ---------------------------------------------------------------------------
+
+struct LLSECKeywordCompare
+{
+	bool operator()(const std::string& lhs, const std::string& rhs)
+	{
+		return (LLStringUtil::compareDictInsensitive( lhs, rhs ) < 0 );
+	}
+};
 
 LLScriptEdCore::LLScriptEdCore(
 	const std::string& sample,
@@ -286,34 +294,71 @@ LLScriptEdCore::LLScriptEdCore(
 
 	std::vector<std::string> funcs;
 	std::vector<std::string> tooltips;
-	for (S32 i = 0; i < gScriptLibrary.mNextNumber; i++)
+	for (std::vector<LLScriptLibraryFunction>::const_iterator i = gScriptLibrary.mFunctions.begin();
+	i != gScriptLibrary.mFunctions.end(); ++i)
 	{
 		// Make sure this isn't a god only function, or the agent is a god.
-		if (!gScriptLibrary.mFunctions[i]->mGodOnly || gAgent.isGodlike())
+		if (!i->mGodOnly || gAgent.isGodlike())
 		{
-			funcs.push_back(ll_safe_string(gScriptLibrary.mFunctions[i]->mName));
-			tooltips.push_back(ll_safe_string(gScriptLibrary.mFunctions[i]->mDesc));
+			std::string name = i->mName;
+			funcs.push_back(name);
+			
+			std::string desc_name = "LSLTipText_";
+			desc_name += name;
+			std::string desc = LLTrans::getString(desc_name);
+			
+			F32 sleep_time = i->mSleepTime;
+			if( sleep_time )
+			{
+				desc += "\n";
+				
+				LLStringUtil::format_map_t args;
+				args["[SLEEP_TIME]"] = llformat("%.1f", sleep_time );
+				desc += LLTrans::getString("LSLTipSleepTime", args);
+			}
+			
+			// A \n linefeed is not part of xml. Let's add one to keep all
+			// the tips one-per-line in strings.xml
+			LLStringUtil::replaceString( desc, "\\n", "\n" );
+			
+			tooltips.push_back(desc);
 		}
 	}
+	
 	LLColor3 color(0.5f, 0.0f, 0.15f);
-		
 	mEditor->loadKeywords(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"keywords.ini"), funcs, tooltips, color);
 
-	
+	std::vector<std::string> primary_keywords;
+	std::vector<std::string> secondary_keywords;
 	LLKeywordToken *token;
 	LLKeywords::keyword_iterator_t token_it;
 	for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
 	{
 		token = token_it->second;
-		if (token->getColor() == color)
-			mFunctions->add(wstring_to_utf8str(token->getToken()));
+		if (token->getColor() == color) // Wow, what a disgusting hack.
+		{
+			primary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+		}
+		else
+		{
+			secondary_keywords.push_back( wstring_to_utf8str(token->getToken()) );
+		}
 	}
 
-	for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
+	// Case-insensitive dictionary sort for primary keywords. We don't sort the secondary
+	// keywords. They're intelligently grouped in keywords.ini.
+	std::stable_sort( primary_keywords.begin(), primary_keywords.end(), LLSECKeywordCompare() );
+
+	for (std::vector<std::string>::const_iterator iter= primary_keywords.begin();
+			iter!= primary_keywords.end(); ++iter)
 	{
-		token = token_it->second;
-		if (token->getColor() != color)
-			mFunctions->add(wstring_to_utf8str(token->getToken()));
+		mFunctions->add(*iter);
+	}
+
+	for (std::vector<std::string>::const_iterator iter= secondary_keywords.begin();
+			iter!= secondary_keywords.end(); ++iter)
+	{
+		mFunctions->add(*iter);
 	}
 }
 

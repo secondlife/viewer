@@ -10673,20 +10673,21 @@ void LLScriptScript::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 		{
 			mGlobalScope = new LLScriptScope(gScopeStringTable);
 			// zeroth, add library functions to global scope
-			S32 i;
+			U16 function_index = 0;
 			const char *arg;
 			LLScriptScopeEntry *sentry;
-			for (i = 0; i < gScriptLibrary.mNextNumber; i++)
+			for (std::vector<LLScriptLibraryFunction>::const_iterator i = gScriptLibrary.mFunctions.begin();
+				 i != gScriptLibrary.mFunctions.end(); ++i)
 			{
 				// First, check to make sure this isn't a god only function, or that the viewer's agent is a god.
-				if (!gScriptLibrary.mFunctions[i]->mGodOnly || mGodLike)
+				if (!i->mGodOnly || mGodLike)
 				{
-					if (gScriptLibrary.mFunctions[i]->mReturnType)
-						sentry = mGlobalScope->addEntry(gScriptLibrary.mFunctions[i]->mName, LIT_LIBRARY_FUNCTION, char2type(*gScriptLibrary.mFunctions[i]->mReturnType));
+					if (i->mReturnType)
+						sentry = mGlobalScope->addEntry(i->mName, LIT_LIBRARY_FUNCTION, char2type(*i->mReturnType));
 					else
-						sentry = mGlobalScope->addEntry(gScriptLibrary.mFunctions[i]->mName, LIT_LIBRARY_FUNCTION, LST_NULL);
-					sentry->mLibraryNumber = i;
-					arg = gScriptLibrary.mFunctions[i]->mArgs;
+						sentry = mGlobalScope->addEntry(i->mName, LIT_LIBRARY_FUNCTION, LST_NULL);
+					sentry->mLibraryNumber = function_index;
+					arg = i->mArgs;
 					if (arg)
 					{
 						while (*arg)
@@ -10698,6 +10699,7 @@ void LLScriptScript::recurse(LLFILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 						}
 					}
 				}
+				function_index++;
 			}
 			// first go and collect all the global variables
 			if (mGlobals)
