@@ -4,53 +4,54 @@
  layout="topleft"
  left="100"
  mouse_opaque="false"
- name="popup"
+ name="Popup"
  top="724"
+ visible="false"
  width="128">
     <menu_item_call
      label="Zoom Close"
      layout="topleft"
      name="Zoom Close">
         <menu_item_call.on_click
-         function="MiniMap.ZoomLevel"
-         parameter="2" />
+         function="Minimap.Zoom"
+         parameter="close" />
     </menu_item_call>
     <menu_item_call
      label="Zoom Medium"
      layout="topleft"
      name="Zoom Medium">
         <menu_item_call.on_click
-         function="MiniMap.ZoomLevel"
-         parameter="1" />
+         function="Minimap.Zoom"
+         parameter="medium" />
     </menu_item_call>
     <menu_item_call
      label="Zoom Far"
      layout="topleft"
      name="Zoom Far">
         <menu_item_call.on_click
-         function="MiniMap.ZoomLevel"
-         parameter="0" />
+         function="Minimap.Zoom"
+         parameter="far" />
     </menu_item_call>
     <menu_item_separator
-     layout="topleft" />
+     layout="topleft"
+     name="Tracking Separator" />
     <menu_item_call
-     enabled="false"
      label="Stop Tracking"
      layout="topleft"
      name="Stop Tracking">
         <menu_item_call.on_click
-         function="MiniMap.StopTracking" />
-        <menu_item_call.on_enable
-         function="MiniMap.EnableTracking" />
+         function="Minimap.Tracker"
+         parameter="task_properties" />
     </menu_item_call>
-    <menu_item_call
-     enabled="false"
-     label="Profile..."
+    <menu_item_separator
      layout="topleft"
-     name="Profile">
+     name="Tracking Separator" />
+    <menu_item_call
+     label="World Map"
+     layout="topleft"
+     name="World Map">
         <menu_item_call.on_click
-         function="MiniMap.ShowProfile" />
-        <menu_item_call.on_enable
-         function="MiniMap.EnableProfile" />
+         function="ShowFloater"
+         parameter="world_map" />
     </menu_item_call>
 </menu>
