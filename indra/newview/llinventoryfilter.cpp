@@ -111,11 +111,16 @@ BOOL LLInventoryFilter::check(LLFolderViewItem* item)
 	}
 	else
 	{
-		passed_type |= ((1LL << listener->getInventoryType() & mFilterOps.mFilterTypes) != U64(0));
-		if (listener->getInventoryType() == LLInventoryType::IT_NONE)
+		LLInventoryType::EType type = listener->getInventoryType();
+		passed_type |= ((1LL << type & mFilterOps.mFilterTypes) != U64(0));
+		if (type == LLInventoryType::IT_NONE)
 		{
 			const LLInventoryObject *obj = gInventory.getObject(listener->getUUID());
-			if (obj && !obj->getIsLinkType())
+			if (obj && obj->getIsLinkType())
+			{
+				passed_type = FALSE;
+			}
+			else
 			{
 				passed_type = TRUE;
 			}

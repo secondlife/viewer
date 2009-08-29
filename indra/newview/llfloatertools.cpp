@@ -446,7 +446,7 @@ void LLFloaterTools::draw()
 void LLFloaterTools::dirty()
 {
 	mDirty = TRUE; 
-	LLFloaterOpenObject* instance = LLFloaterReg::getTypedInstance<LLFloaterOpenObject>("openobject");
+	LLFloaterOpenObject* instance = LLFloaterReg::findTypedInstance<LLFloaterOpenObject>("openobject");
 	if (instance) instance->dirty();
 }
 
