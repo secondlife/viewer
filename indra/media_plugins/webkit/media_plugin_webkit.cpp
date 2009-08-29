@@ -145,8 +145,13 @@ private:
 			// create single browser window
 			mBrowserWindowId = LLMozLib::getInstance()->createBrowserWindow( mWidth, mHeight );
 
+#if LL_WINDOWS
 			// Enable plugins
 			LLMozLib::getInstance()->enablePlugins(true);
+#else
+			// Disable plugins
+			LLMozLib::getInstance()->enablePlugins(false);
+#endif
             
 			// tell LLMozLib about the size of the browser window
 			LLMozLib::getInstance()->setSize( mBrowserWindowId, mWidth, mHeight );
