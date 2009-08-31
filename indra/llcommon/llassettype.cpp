@@ -287,8 +287,6 @@ bool LLAssetType::lookupIsEnsembleCategoryType(EType asset_type)
 {
 	return (asset_type >= AT_FOLDER_ENSEMBLE_START &&
 			asset_type <= AT_FOLDER_ENSEMBLE_END);
-	}
-	return true;
 }
 
 

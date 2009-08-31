@@ -242,7 +242,7 @@ SET(llcommon_TEST_SOURCE_FILES
 LL_ADD_PROJECT_UNIT_TESTS(llcommon "${llcommon_TEST_SOURCE_FILES}")
 
 #set(TEST_DEBUG on)
-set(test_libs llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
+set(test_libs llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES} gmock gtest)
 LL_ADD_INTEGRATION_TEST(lllazy lllazy.cpp "${test_libs}")
 
 # *TODO - reenable these once tcmalloc libs no longer break the build.
