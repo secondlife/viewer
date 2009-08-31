@@ -74,7 +74,7 @@
 	    height="780">
 	 <panel
 	    follows="left|top"
-	    height="125"
+	    height="117"
 	    layout="topleft"
 	    left="10"
 	    name="second_life_image_panel"
@@ -85,15 +85,16 @@
              default_image_name="None"
              enabled="false"
              follows="top|left"
-             height="125"
+             height="117"
              layout="topleft"
              left="0"
              name="2nd_life_pic"
              top="10"
-             width="125" />
+             width="102" />
             <text
              follows="left|top|right"
-             font="SansSerifBold"
+             font="SansSerifSmall"
+	     font.style="BOLD"
              height="15"
              layout="topleft"
              left_pad="10"
@@ -101,10 +102,10 @@
              text_color="white"
              top_delta="0"
              value="[SECOND_LIFE]:"
-             width="140" />
+             width="130" />
             <text
              follows="left|top|right"
-             height="90"
+             height="70"
              layout="topleft"
              name="sl_description_edit"
              width="130"
@@ -114,8 +115,9 @@
         </panel>
         <panel
          follows="left|top"
-         height="125"
+         height="117"
          layout="topleft"
+	 top_pad="10"
          left="10"
          name="first_life_image_panel"
          width="260">
@@ -124,14 +126,15 @@
              default_image_name="None"
              enabled="false"
              follows="top|left"
-             height="125"
+             height="117"
              layout="topleft"
              left="0"
              name="real_world_pic"
-             width="125" />
+             width="102" />
             <text
              follows="left|top|right"
-             font="SansSerifBold"
+             font="SansSerifSmall"
+	     font.style="BOLD"
              height="15"
              layout="topleft"
              left_pad="10"
@@ -139,10 +142,10 @@
              text_color="white"
              top_delta="0"
              value="Real World:"
-             width="140" />
+             width="130" />
             <text
              follows="left|top|right"
-             height="90"
+             height="70"
              layout="topleft"
              name="fl_description_edit"
              width="130"
@@ -150,136 +153,117 @@
                 Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
             </text>
         </panel>
+        <text
+         type="string"
+         follows="left|top"
+         font="SansSerifSmall"
+	 font.style="BOLD"
+         height="15"
+         layout="topleft"
+         left="10"
+         name="me_homepage_text"
+         text_color="white"
+         top_pad="10"
+         width="255">
+             Homepage:
+        </text>
         <link
          follows="left|top|right"
          height="15"
-         hover_color="0.5 0.4 1 1"
          layout="topleft"
+	 font.style="UNDERLINE"
          left="10"
          name="homepage_edit"
-         text_color="HTMLLinkColor"
          top_pad="5"
          value="http://librarianavengers.org"
-         width="265"
-         word_wrap="true" />
+         width="225"
+         word_wrap="false" />
         <text
          follows="left|top"
-         font="SansSerifBold"
-         halign="right"
+         font="SansSerifSmall"
+	 font.style="BOLD"
          height="15"
          layout="topleft"
          left="10"
          name="title_member_text"
          text_color="white"
-         top_pad="10"
-         value="Member since:"
-         width="100" />
+         top_pad="20"
+         value="Member Since:"
+         width="255" />
         <text
          follows="left|top|right"
          height="15"
          layout="topleft"
-         left_pad="10"
+         left="10"
          name="register_date"
-         top_delta="0"
+         top_pad="5"
          value="05/31/1976"
          width="160"
          word_wrap="true" />
         <text
          follows="left|top"
-         font="SansSerifBold"
-         halign="right"
+         font="SansSerifSmall"
+	 font.style="BOLD"
          height="15"
          layout="topleft"
          left="10"
          name="title_acc_status_text"
          text_color="white"
-         top_pad="20"
-         value="Status:"
+         top_pad="15"
+         value="Account Status:"
          width="100" />
-        <text
-         follows="left|top|right"
-         height="30"
+        <link
+         type="string"
+         follows="left|top"
+         font="SansSerifSmall"
+	 font.style="UNDERLINE"
+         height="15"
          layout="topleft"
          left_pad="10"
+         name="my_account_link"
+         top_delta="0"
+	 value="Go to Dashboard"
+         width="100"/>
+        <text
+         follows="left|top|right"
+         height="15"
+         layout="topleft"
+         left="10"
          name="acc_status_text"
-         top_delta="0"
+         top_pad="5"
          value="Resident. No payment info on file."
-         width="160"
+         width="255"
          word_wrap="true" />
-		<spinner
-		 control_name="AFKTimeout"
-		 decimal_digits="0"
-		 follows="left|top"
-		 height="16"
-		 increment="1"
-		 initial_value="300"
-		 label="Away Timeout:"
-		 label_width="141"
-		 layout="topleft"
-		 left="10"
-		 max_val="600"
-		 min_val="30"
-		 name="afk_timeout_spinner"
-		 top_pad="10"
-		 width="202" />
-		<text
-		 type="string"
-		 length="1"
-		 follows="left|top"
-		 height="10"
-		 layout="topleft"
-		 left="220"
-         name="seconds_textbox"
-         top_delta="0"
-         width="128">
-          seconds
-		</text>
-		<text
-		 type="string"
-		 length="1"
-		 follows="left|top"
-		 height="10"
-		 layout="topleft"
-		 left="12"
-		 mouse_opaque="false"
-		 name="text_box3"
-		 top_pad="10"
-		 width="128">
-			Busy Mode Response:
-		</text>
-		<text_editor
-		 control_name="BusyModeResponse2"
-		 commit_on_focus_lost = "true"
-		 follows="left|top"
-		 height="70"
-		 layout="topleft"
-		 left="12"
-		 name="busy_response"
-		 top_pad="5"
-		 width="250"
-		 word_wrap="true">
-			log_in_to_change
-		</text_editor>		 
         <text
          follows="left|top"
-         font="SansSerifBold"
-         halign="right"
+         font="SansSerifSmall"
+	 font.style="BOLD"
          height="15"
          layout="topleft"
          left="10"
          name="title_partner_text"
          text_color="white"
-         top_pad="20"
+         top_pad="15"
          value="Partner:"
+         width="100" />
+	<link
+         follows="left|top"
+         height="15"
+	 font.style="UNDERLINE"
+         layout="topleft"
+         left_pad="10"
+         name="partner_edit_link"
+         top_delta="0"
+         value="Edit"
          width="100" />
         <panel
          follows="left|top|right"
-         height="50"
+         height="15"
          layout="topleft"
-         left_pad="10"
+         left="10"
          name="partner_data_panel"
-         top_delta="0"
-         width="125">
+         top_pad="10"
+         width="255">
             <text
              follows="left|top|right"
              height="30"
@@ -288,74 +272,28 @@
              name="partner_text"
              top="0"
              value="[FIRST] [LAST]"
-             width="160"
+             width="240"
              word_wrap="true" />
-            <link
-             follows="top|right"
-             height="15"
-             hover_color="0.5 0.4 1 1"
-             layout="topleft"
-             left_delta="0"
-             name="partner_edit_link"
-             text_color="HTMLLinkColor"
-             top_delta="15"
-             value="Edit"
-             width="40" />
-        </panel>
-        <text
-         type="string"
-         follows="left|top"
-         font="SansSerifBold"
-         height="15"
-         halign="right"
-         layout="topleft"
-         left="10"
-         name="online_me_status_text"
-         text_color="white"
-         top_pad="20"
-         width="100">
-             Status:
-        </text>
-        <combo_box
-         font="SansSerifBold"
-         height="18"
-         layout="topleft"
-         left_pad="0"
-         top_delta="0"
-         name="status_combo"
-         width="100">
-            <combo_box.item
-             label="Online"
-             name="online"
-             value="online" />
-            <combo_box.item
-             label="Away"
-             name="away"
-             value="away" />
-            <combo_box.item
-             label="Busy"
-             name="busy"
-             value="busy" />
-        </combo_box>
+         </panel>
         <text
          follows="left|top"
-         font="SansSerifBold"
-         halign="right"
+         font="SansSerifSmall"
+	 font.style="BOLD"
          height="15"
          layout="topleft"
          left="10"
          name="title_groups_text"
          text_color="white"
-         top_pad="20"
+         top_pad="15"
          value="Groups:"
-         width="100" />
+         width="255" />
         <text
          follows="left|top|right|bottom"
          height="160"
          layout="topleft"
-         left_pad="10"
+         left="10"
          name="sl_groups"
-         top_delta="0"
+         top_pad="5"
          width="130"
          word_wrap="true">
             Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
@@ -430,7 +368,7 @@
          left="0"
          name="edit_profile_btn"
          top="0"
-         width="105" />
+         width="130" />
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
