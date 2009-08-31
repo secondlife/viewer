@@ -628,7 +628,7 @@ void LLStringUtilBase<T>::getTokens (std::basic_string<T> input, std::vector<std
 	}
 }
 
-extern LLFastTimer::DeclareTimer STRING_LOCALIZATION;
+extern LL_COMMON_API LLFastTimer::DeclareTimer STRING_LOCALIZATION;
 
 // static
 template<class T> 
