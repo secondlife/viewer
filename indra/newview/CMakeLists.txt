@@ -1583,10 +1583,3 @@ if (WINDOWS)
         )
 endif (WINDOWS)
 
-if (DARWIN)
-# Don't do this here -- it's taken care of by viewer_manifest.py
-#  add_custom_command(TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-#    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llplugin/
-#    DEPENDS ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib
-#  )
-endif (DARWIN)

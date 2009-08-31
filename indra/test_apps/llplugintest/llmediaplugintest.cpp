@@ -1,5 +1,5 @@
 /**
- * @file LLMediaPluginTest2.cpp
+ * @file LLMediaPluginTest.cpp
  * @brief Primary test application for LLMedia (Separate Process) Plugin system
  *
  * $LicenseInfo:firstyear=2008&license=viewergpl$
@@ -222,14 +222,13 @@ LLMediaPluginTest::LLMediaPluginTest( int app_window, int window_width, int wind
 	resetView();
 
 	// initial media panel
-	//const int num_initial_panels = 4;
-	//for( int i = 0; i < num_initial_panels; ++i )
-	//{
-	//	addMediaPanel( mBookmarks[ rand() % ( mBookmarks.size() - 1 ) + 1 ].second );
-	//};
 
-	// always add a Web panel for testing
-	addMediaPanel( "http://www.google.com" );
+	const int num_initial_panels = 1;
+	for( int i = 0; i < num_initial_panels; ++i )
+	{
+		//addMediaPanel( mBookmarks[ rand() % ( mBookmarks.size() - 1 ) + 1 ].second );
+		addMediaPanel( mHomeWebUrl );
+	};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2113,13 +2112,13 @@ int main( int argc, char* argv[] )
 
 	const int app_window_x = 80;
 	const int app_window_y = 0;
-	const int app_window_width = 964;
-	const int app_window_height = 964;
+	const int app_window_width = 960;
+	const int app_window_height = 960;
 
 	glutInitWindowPosition( app_window_x, app_window_y );
 	glutInitWindowSize( app_window_width, app_window_height );
 
-	int app_window_handle = glutCreateWindow( "LLMediaPluginTest2" );
+	int app_window_handle = glutCreateWindow( "LLMediaPluginTest" );
 
 	glutDisplayFunc( glutDisplay );
 
