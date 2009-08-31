@@ -198,11 +198,6 @@ class WindowsManifest(ViewerManifest):
             self.path("slplugin.exe")
             self.end_prefix()
 
-        # Media plugins - Flash (ActiveX)
-        if self.prefix(src='../media_plugins/flash_activex/%s' % self.args['configuration'], dst="llplugin"):
-            self.path("media_plugin_flash_activex.dll")
-            self.end_prefix()
-
         # Media plugins - QuickTime
         if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_quicktime.dll")
