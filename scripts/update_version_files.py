@@ -37,6 +37,8 @@ add_indra_lib_path()
 import getopt, os, re, commands
 from indra.util import llversion
 
+hg = os.path.expandvars("${HG}")
+if not hg or hg == "${HG}": hg = "hg"
 svn = os.path.expandvars("${SVN}")
 if not svn or svn == "${SVN}": svn = "svn"
 
@@ -152,6 +154,8 @@ re_map['indra/newview/English.lproj/InfoPlist.strings'] = \
 version_re      = re.compile('(\d+).(\d+).(\d+).(\d+)')
 svn_branch_re   = re.compile('^URL:\s+\S+/([^/\s]+)$', re.MULTILINE)
 svn_revision_re = re.compile('^Last Changed Rev: (\d+)$', re.MULTILINE)
+hg_branch_re    = re.compile('^.*_([^_\s]*)\s*$', re.MULTILINE)
+hg_revision_re  = re.compile('^changeset:\s+(\d+):', re.MULTILINE)
 
 def main():
     script_path = os.path.dirname(__file__)
@@ -244,14 +248,24 @@ def main():
         # Assume we're updating just the build number
         cl = '%s info "%s"' % (svn, src_root)
         status, output = _getstatusoutput(cl)
+        branch_match = None
+        revision_match = None
+        if status == 0:
+            branch_match = svn_branch_re.search(output)
+            revision_match = svn_revision_re.search(output)
+        else:
+            cl = '%s log --limit 1' % hg
+            status, output = _getstatusoutput(cl)
+            if status == 0:
+                branch_match = hg_branch_re.search(os.path.expandvars("${PARABUILD_BUILD_NAME}"))
+                revision_match = hg_revision_re.search(output)
+
         if verbose:
             print
             print "svn info output:"
             print "----------------"
             print output
 
-        branch_match = svn_branch_re.search(output)
-        revision_match = svn_revision_re.search(output)
         if not branch_match or not revision_match:
             print "Failed to execute svn info, output follows:"
             print output
