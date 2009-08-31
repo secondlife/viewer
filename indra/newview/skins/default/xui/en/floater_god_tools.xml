@@ -33,8 +33,8 @@
              layout="topleft"
              left="10"
              name="Kick all users"
-             top="8"
-             width="100">
+             top="30"
+             width="120">
 				<button.commit_callback
 				function="GridTools.KickAll" />
 			</button>
@@ -44,10 +44,10 @@
              label="Flush This Region&apos;s Map Visibility Caches"
              label_selected="Flush This Region&apos;s Map Visibility Caches"
              layout="topleft"
-             left_delta="0"
+             left="10"
              name="Flush This Region&apos;s Map Visibility Caches"
-             top_pad="8"
-             width="250">
+             top_pad="30"
+             width="350">
 				<button.commit_callback
 				function="GridTools.FlushMapVisibilityCaches" />
 			</button>
@@ -71,21 +71,21 @@
              layout="topleft"
              left="10"
              name="Sim Name:"
-             top="10"
-             width="50">
+             top="12"
+             width="80">
                 Sim Name:
             </text>
             <line_editor
              border_style="line"
              border_thickness="1"
              follows="left|top|right"
-             height="16"
+             height="20"
              layout="topleft"
-             left_pad="10"
+             left_pad="0"
              max_length="63"
              name="region name"
              top_delta="0"
-             width="208">
+             width="250">
 			       <line_editor.commit_callback
 					function="RegionTools.ChangeAnything" />
 			</line_editor>
@@ -96,7 +96,7 @@
              left="10"
              name="check prelude"
              tool_tip="Set this to make the region a prelude."
-             top="30"
+             top_pad="10"
              width="180">
 			       <check_box.commit_callback
 					function="RegionTools.ChangePrelude" />
@@ -188,11 +188,11 @@
             <button
              follows="top|right"
              font="SansSerifSmall"
-             height="20"
+             height="22"
              label="Bake Terrain"
              label_selected="Bake Terrain"
              layout="topleft"
-             left_delta="-2"
+             left="12"
              name="Bake Terrain"
              tool_tip="Save the current terrain as default."
              top_pad="32"
@@ -203,14 +203,13 @@
             <button
              follows="top|right"
              font="SansSerifSmall"
-             height="20"
+             height="22"
              label="Revert Terrain"
              label_selected="Revert Terrain"
              layout="topleft"
-             left_delta="0"
              name="Revert Terrain"
              tool_tip="Replace the current terrain with default."
-             top_pad="4"
+             top_pad="10"
              width="110">
 			       <button.commit_callback
 					function="RegionTools.RevertTerrain" />
@@ -218,14 +217,13 @@
             <button
              follows="top|right"
              font="SansSerifSmall"
-             height="20"
+             height="22"
              label="Swap Terrain"
              label_selected="Swap Terrain"
              layout="topleft"
-             left_delta="0"
              name="Swap Terrain"
              tool_tip="Swap current terrain with default."
-             top_pad="4"
+             top_pad="10"
              width="110">
 			       <button.commit_callback
 					function="RegionTools.SwapTerrain" />
@@ -239,7 +237,7 @@
              layout="topleft"
              left="200"
              name="estate id"
-             top="30"
+             top="40"
              width="190">
                 Estate ID:
             </text>
@@ -263,7 +261,7 @@
              layout="topleft"
              left="200"
              name="parent id"
-             top="50"
+             top_pad="4"
              width="190">
                 Parent ID:
             </text>
@@ -290,7 +288,7 @@
              layout="topleft"
              left="200"
              name="Grid Pos: "
-             top="70"
+             top_pad="4"
              width="190">
                 Grid Pos:
             </text>
@@ -332,8 +330,8 @@
              layout="topleft"
              left="200"
              name="Redirect to Grid: "
-             top="90"
-             width="190">
+             top_pad="4"
+             width="88">
                 Redirect to Grid:
             </text>
             <line_editor
@@ -342,10 +340,9 @@
              follows="top|right"
              height="16"
              layout="topleft"
-             left_delta="88"
+             left_pad="0"
              max_length="10"
              name="redirectx"
-             top_delta="0"
              width="50">
 			       <line_editor.commit_callback
 					function="RegionTools.ChangeAnything" />
@@ -364,15 +361,27 @@
 			       <line_editor.commit_callback
 					function="RegionTools.ChangeAnything" />
 			</line_editor>
-            <spinner
+              <text
+             type="string"
+             length="1"
+             follows="left|top"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="200"
+             name="billable factor text"
+             top_pad="10"
+             width="110">
+                Billable Factor:
+            </text>
+	      <spinner
              follows="top|right"
              height="16"
              initial_value="1"
              layout="topleft"
-             left="308"
              max_val="4"
              name="billable factor"
-             top="110"
+             left_pad="0"
              width="80">
 			       <spinner.commit_callback
 					function="RegionTools.ChangeAnything" />
@@ -384,11 +393,11 @@
              font="SansSerif"
              height="16"
              layout="topleft"
-             left_delta="-108"
-             name="billable factor text"
-             top_delta="0"
+             left="200"
+             name="land cost text"
+             top_pad="10"
              width="110">
-                Billable Factor:
+                L$ per m²:
             </text>
             <spinner
              follows="top|right"
@@ -396,38 +405,25 @@
              increment="1"
              initial_value="1"
              layout="topleft"
-             left="308"
+             left_pad="0"
              max_val="100"
              name="land cost"
-             top="130"
              width="80">
 			       <spinner.commit_callback
 					function="RegionTools.ChangeAnything" />
 			</spinner>
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             font="SansSerif"
-             height="16"
-             layout="topleft"
-             left_delta="-108"
-             name="land cost text"
-             top_delta="0"
-             width="110">
-                L$ per m²:
-            </text>
+
             <button
              follows="top|right"
              font="SansSerifSmall"
-             height="20"
+             height="22"
              label="Refresh"
              label_selected="Refresh"
              layout="topleft"
              left="278"
              name="Refresh"
              tool_tip="Click here to refresh the above information."
-             top="150"
+             top_pad="10"
              width="110">
 				<button.commit_callback
 				function="RegionTools.Refresh" />
@@ -435,14 +431,14 @@
             <button
              follows="top|right"
              font="SansSerifSmall"
-             height="20"
+             height="22"
              label="Apply"
              label_selected="Apply"
              layout="topleft"
-             left_delta="0"
+             left="278"
              name="Apply"
              tool_tip="Click here to apply any changes from above."
-             top_pad="36"
+             top="317"
              width="110">
 				<button.commit_callback
 				function="RegionTools.ApplyChanges" />
@@ -450,11 +446,11 @@
             <button
              follows="top|right"
              font="SansSerifSmall"
-             height="20"
+             height="22"
              label="Select Region"
              label_selected="Select Region"
              layout="topleft"
-             left="128"
+             left="130"
              name="Select Region"
              tool_tip="Select the whole region with the land tool."
              top="238"
@@ -465,14 +461,14 @@
             <button
              follows="top|right"
              font="SansSerifSmall"
-             height="20"
+             height="22"
              label="Autosave now"
              label_selected="Autosave now"
              layout="topleft"
              left_delta="0"
              name="Autosave now"
              tool_tip="Save gzipped state to autosave directory."
-             top_pad="4"
+             top_pad="10"
              width="110">
 				<button.commit_callback
 				function="RegionTools.SaveState" />
@@ -502,7 +498,7 @@
              left="10"
              name="Sim Name:"
              top="10"
-             width="50">
+             width="80">
                 Sim Name:
             </text>
             <text
@@ -556,7 +552,7 @@
             <button
              follows="top|right"
              font="SansSerifSmall"
-             height="20"
+             height="22"
              label="Apply"
              label_selected="Apply"
              layout="topleft"
@@ -567,11 +563,11 @@
              width="110">
 				<button.commit_callback
 				function="ObjectTools.ApplyChanges" />
-			</button>            
+			</button>
 			<button
              follows="top|right"
              font="SansSerifSmall"
-             height="20"
+             height="22"
              label="Set Target"
              label_selected="Set Target"
              layout="topleft"
@@ -582,7 +578,7 @@
              width="110">
 				<button.commit_callback
 				function="ObjectTools.Set" />
-			</button>  
+			</button>
             <text
              type="string"
              length="1"
@@ -598,7 +594,7 @@
             <button
              follows="top|right"
              font="SansSerifSmall"
-             height="20"
+             height="22"
              label="Delete Target&apos;s Scripted Objects On Others Land"
              label_selected="Delete Target&apos;s Scripted Objects On Others Land"
              layout="topleft"
@@ -609,11 +605,11 @@
              width="380">
 				<button.commit_callback
 				function="ObjectTools.DeletePublicOwnedBy" />
-			</button>    
+			</button>
             <button
              follows="top|right"
              font="SansSerifSmall"
-             height="20"
+             height="22"
              label="Delete Target&apos;s Scripted Objects On *Any* Land"
              label_selected="Delete Target&apos;s Scripted Objects On *Any* Land"
              layout="topleft"
@@ -624,11 +620,11 @@
              width="380">
 				<button.commit_callback
 				function="ObjectTools.DeleteAllScriptedOwnedBy" />
-			</button>   
+			</button>
             <button
              follows="top|right"
              font="SansSerifSmall"
-             height="20"
+             height="22"
              label="Delete *ALL* Of Target&apos;s Objects"
              label_selected="Delete *ALL* Of Target&apos;s Objects"
              layout="topleft"
@@ -639,7 +635,7 @@
              width="380">
 				<button.commit_callback
 				function="ObjectTools.DeleteAllOwnedBy" />
-			</button>   
+			</button>
 			<button
              follows="top|right"
              font="SansSerifSmall"
@@ -647,14 +643,14 @@
              label="Get Top Colliders"
              label_selected="Get Top Colliders"
              layout="topleft"
-             left_delta="0"
+             left="12"
              name="Get Top Colliders"
              tool_tip="Gets list of objects experiencing the most narrowphase callbacks."
-             top_pad="28"
-             width="110">
+             top_pad="20"
+             width="130">
 				<button.commit_callback
 				function="ObjectTools.GetTopColliders" />
-			</button>   
+			</button>
             <button
              follows="top|right"
              font="SansSerifSmall"
@@ -665,11 +661,11 @@
              left_delta="0"
              name="Get Top Scripts"
              tool_tip="Gets list of objects spending the most time running scripts."
-             top_pad="4"
-             width="110">
+             top_pad="5"
+             width="130">
 				<button.commit_callback
 				function="ObjectTools.GetTopScripts" />
-			</button>  
+			</button>
             <button
              follows="top|right"
              font="SansSerifSmall"
@@ -680,11 +676,11 @@
              left_delta="0"
              name="Scripts digest"
              tool_tip="Gets a list of all scripts and number of occurences of each."
-             top_pad="4"
-             width="110" >
+             top_pad="5"
+             width="130" >
 				<button.commit_callback
 				function="ObjectTools.GetScriptDigest" />
-			</button>  
+			</button>
         </panel>
         <panel
          border="true"
@@ -700,16 +696,16 @@
              type="string"
              length="1"
              follows="left|top"
-             height="10"
+             height="22"
              layout="topleft"
              left="10"
              name="Destination:"
-             top="4"
+             top="12"
              width="80">
                 Destination:
             </text>
             <combo_box
-             height="16"
+             height="22"
              layout="topleft"
              left_pad="10"
              name="destination"
@@ -728,17 +724,17 @@
              type="string"
              length="1"
              follows="left|top"
-             height="10"
+             height="22"
              layout="topleft"
              left="10"
              name="Request:"
-             top="28"
+             top_pad="10"
              width="80">
                 Request:
             </text>
             <combo_box
              allow_text_entry="true"
-             height="16"
+             height="22"
              layout="topleft"
              left_pad="10"
              name="request"
@@ -769,7 +765,7 @@
              layout="topleft"
              left="10"
              name="Parameter:"
-             top="52"
+             top_pad="10"
              width="80">
                 Parameter:
             </text>
@@ -777,7 +773,7 @@
              border_style="line"
              border_thickness="1"
              follows="left|top"
-             height="16"
+             height="22"
              layout="topleft"
              left_pad="10"
              max_length="63"
@@ -792,8 +788,8 @@
              layout="topleft"
              left="10"
              name="Make Request"
-             top="96"
-             width="100">
+             top_pad="10"
+             width="140">
 				<button.commit_callback
 					function="GodTools.Request" />
 			</button>

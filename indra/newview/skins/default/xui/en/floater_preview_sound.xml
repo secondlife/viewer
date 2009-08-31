@@ -9,18 +9,6 @@
      name="Title">
         Sound: [NAME]
     </floater.string>
-    <line_editor
-     border_style="line"
-     border_thickness="1"
-     follows="left|top|right"
-     font="SansSerif"
-     height="19"
-     layout="topleft"
-     left="85"
-     max_length="127"
-     name="desc"
-     top="19"
-     width="127" />
     <text
      type="string"
      length="1"
@@ -29,34 +17,45 @@
      height="19"
      layout="topleft"
      left="10"
+     top="22"
      name="desc txt"
-     top_delta="0"
-     width="80">
+     width="90">
         Description:
     </text>
+    <line_editor
+     border_style="line"
+     border_thickness="1"
+     follows="left|top|right"
+     font="SansSerif"
+     height="19"
+     layout="topleft"
+     left_pad="0"
+     max_length="127"
+     name="desc"
+     width="170" />
     <button
      follows="left|top"
-     height="19"
+     height="22"
+     label="Play in World"
+     label_selected="Play in World"
+     layout="topleft"
+     name="Sound play btn"
+     sound_flags="0"
+     top="55"
+     left="10"
+     tool_tip="Play this sound so that others can hear it."
+     width="125" />
+    <button
+     follows="left|top"
+     height="22"
      font="SansSerifSmall"
      label="Play Locally"
      label_selected="Play Locally"
      layout="topleft"
-     left="145"
      name="Sound audition btn"
      sound_flags="0"
      tool_tip="Play this sound so that only you can hear it."
-     top="51"
-     width="120" />
-    <button
-     follows="left|top"
-     height="19"
-     label="Play in World"
-     label_selected="Play in World"
-     layout="topleft"
-     left_delta="-126"
-     name="Sound play btn"
-     sound_flags="0"
-     tool_tip="Play this sound so that others can hear it."
-     top_delta="0"
-     width="120" />
+     left_pad="10"
+     width="125" />
+
 </floater>

@@ -166,40 +166,37 @@
     <check_box
      follows="left|bottom"
      height="20"
-     label="Apply Immediately"
+     label="Apply Now"
      layout="topleft"
      left="12"
      name="apply_immediate"
-     top="353"
+     top_pad="185"
      width="100" />
     <button
      follows="left|top"
      height="32"
      layout="topleft"
-     left_delta="130"
+     left_pad="30"
      name="color_pipette"
      picture_style="true"
-     top="341"
      width="32" />
+    <button
+     follows="right|bottom"
+     height="20"
+     label="Ok"
+     label_selected="Select"
+     layout="topleft"
+     left_pad="50"
+     name="select_btn"
+     width="100" />
     <button
      follows="right|bottom"
      height="20"
      label="Cancel"
      label_selected="Cancel"
      layout="topleft"
-     left_delta="75"
+     left_pad="5"
      name="cancel_btn"
-     top="353"
-     width="100" />
-    <button
-     follows="right|bottom"
-     height="20"
-     label="Select"
-     label_selected="Select"
-     layout="topleft"
-     left_pad="4"
-     name="select_btn"
-     top_delta="0"
      width="100" />
     <text
      type="string"
@@ -219,10 +216,10 @@
      follows="left|top"
      height="16"
      layout="topleft"
-     left_delta="0"
+     left="12"
      name="(Drag below to save.)"
      top_pad="66"
-     width="110">
-        (Drag below to save.)
+     width="130">
+        (Drag below to save)
     </text>
 </floater>

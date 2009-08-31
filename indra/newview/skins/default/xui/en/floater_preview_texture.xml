@@ -24,10 +24,10 @@
      font="SansSerif"
      height="19"
      layout="topleft"
-     left="13"
+     left="10"
      name="desc txt"
      top="21"
-     width="80">
+     width="90">
         Description:
     </text>
     <line_editor
@@ -37,26 +37,23 @@
      font="SansSerif"
      height="19"
      layout="topleft"
-     left_delta="80"
+     left_pad="0"
      max_length="127"
      name="desc"
-     top_delta="-2"
-     width="194" />
+     width="190" />
     <button
      follows="left|bottom"
-     height="20"
-     label="Discard"
-     label_selected="Discard"
+     height="22"
+     label="Delete"
      layout="topleft"
-     left="9"
+     left="80"
      name="Discard"
      top="302"
      width="100" />
     <button
      follows="left|bottom"
-     height="20"
-     label="Keep"
-     label_selected="Keep"
+     height="22"
+     label="Save"
      layout="topleft"
      left_pad="5"
      name="Keep"
@@ -66,12 +63,12 @@
      type="string"
      length="1"
      follows="left|bottom"
-     height="14"
+     height="16"
      layout="topleft"
      left="13"
      name="dimensions"
      top="287"
-     width="163">
-        Dimensions: [WIDTH] x [HEIGHT]
+     width="303">
+        [WIDTH]px x [HEIGHT]px
     </text>
 </floater>

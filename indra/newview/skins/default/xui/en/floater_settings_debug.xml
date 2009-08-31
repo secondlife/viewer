@@ -9,13 +9,13 @@
     <combo_box
      allow_text_entry="true"
      follows="top|left"
-     height="20"
+     height="22"
      layout="topleft"
      left="15"
      max_chars="255"
      name="settings_combo"
      top="30"
-     width="200">
+     width="320">
       <combo_box.commit_callback
        function="SettingSelect" />
     </combo_box>
@@ -26,7 +26,7 @@
      layout="topleft"
      left_delta="0"
      name="comment_text"
-     top_pad="15"
+     top_pad="10"
      width="320"
      word_wrap="true" />
     <combo_box
@@ -64,7 +64,7 @@
      bottom="185"
      can_apply_immediately="true"
      height="55"
-     name="val_color_swatch" 
+     name="val_color_swatch"
      label="Color"
      layout="topleft"
      width="37" >
@@ -124,12 +124,12 @@
        function="CommitSettings" />
     </spinner>
     <button
-     height="20"
+     height="22"
      label="Reset to default"
      layout="topleft"
      left="15"
      name="default_btn"
-     top="190"
+     top="186"
      width="150" >
       <button.commit_callback
        function="ClickDefault" />

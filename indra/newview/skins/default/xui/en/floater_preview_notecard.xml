@@ -17,7 +17,7 @@
     </floater.string>
     <floater.string
      name="not_allowed">
-        You are not allowed to view this note.
+        You do not have permission to view this note.
     </floater.string>
     <floater.string
      name="Title">
@@ -32,10 +32,10 @@
      height="16"
      image_name="icon_lock.tga"
      layout="topleft"
-     left="344"
+     left="340"
      mouse_opaque="true"
      name="lock"
-     top="3"
+     top="1"
      width="16" />
     <text
      type="string"
@@ -44,10 +44,10 @@
      font="SansSerif"
      height="19"
      layout="topleft"
-     left="13"
+     left="10"
      name="desc txt"
-     top="19"
-     width="80">
+     top="22"
+     width="90">
         Description:
     </text>
     <line_editor
@@ -55,13 +55,12 @@
      border_thickness="1"
      follows="left|top|right"
      font="SansSerif"
-     height="19"
+     height="22"
      layout="topleft"
-     left_delta="80"
+     left_pad="0"
      max_length="127"
      name="desc"
-     top_delta="0"
-     width="294" />
+     width="296" />
     <text_editor
      type="string"
      length="1"
@@ -74,7 +73,7 @@
      left="4"
      max_length="65536"
      name="Notecard Editor"
-     handle_edit_keys_directly="true" 
+     handle_edit_keys_directly="true"
      tab_group="1"
      top="46"
      width="392"
@@ -83,11 +82,11 @@
     </text_editor>
     <button
      follows="left|bottom"
-     height="20"
+     height="22"
      label="Save"
      label_selected="Discard"
      layout="topleft"
-     left="9"
+     left="288"
      name="Save"
      top="332"
      width="100" />
