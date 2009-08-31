@@ -58,7 +58,9 @@ public:
 	LLTool*			getCurrentTool(); // returns active tool, taking into account keyboard state
 	LLTool*			getBaseTool(); // returns active tool when overrides are deactivated
 
-	BOOL			inEdit();
+	bool			inEdit();
+	bool			canEdit();
+	void			toggleBuildMode();
 	
 	/* Determines if we are in Build mode or not. */
 	bool			inBuildMode();
@@ -114,10 +116,6 @@ protected:
 	typedef std::vector<LLTool*> tool_list_t;
 	tool_list_t 	mToolList;
 };
-
-// Handy callbacks for switching tools
-void select_tool(void *tool);
-
 
 // Globals
 

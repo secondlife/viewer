@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<fonts>
+
+  <font name="default" comment="default font files (global fallbacks)">
+    <file>DejaVuSansCondensed.ttf</file>
+    <os name="Windows">
+      <file>MSGOTHIC.TTC</file>
+      <file>gulim.ttc</file>
+      <file>simhei.ttf</file>
+      <file>ArialUni.ttf</file>
+    </os>
+    <os name="Mac">
+      <file>ヒラギノ角ゴ Pro W3.otf</file>
+      <file>ヒラギノ角ゴ ProN W3.otf</file>
+      <file>AppleGothic.dfont</file>
+      <file>AppleGothic.ttf</file>
+      <file>华文细黑.ttf</file>
+    </os>
+  </font>
+
+  <font name="SansSerif" comment="Name of san-serif font (Truetype file name)">
+    <file>Helvetica.dfont</file>
+  <os name="Windows">
+      <file>arial.ttf</file>
+      </os>
+    <os name="Mac">
+      <file>Helvetica.dfont</file>
+      </os>
+  </font>
+
+  <font name="SansSerifBold" 
+	comment="Name of bold sans-serif font" 
+	font_style="Bold">
+    <file>Helvetica.dfont</file>
+    <os name="Windows">
+      <file>arialbd.ttf</file>
+      </os>
+    <os name="Mac">
+      <file>Helvetica.dfont</file>
+      </os>
+  </font>
+
+  <font name="Monospace"
+	comment="Name of monospace font">
+    <file>DejaVuSansMono.ttf</file>
+  </font>
+
+  <font name="DejaVu"
+	comment="Name of DejaVu font">
+    <file>DejaVuSans.ttf</file>
+  </font>
+
+  <font name="DejaVu"
+	comment="Name of DejaVu font (bold)"
+	font_style="BOLD">
+    <file>DejaVuSansBold.ttf</file>
+  </font>
+
+  <font name="DejaVu"
+	comment="Name of DejaVu font (italic)"
+	font_style="ITALIC">
+    <file>DejaVuSansOblique.ttf</file>
+  </font>
+
+  <font name="DejaVu"
+	comment="Name of DejaVu font (bold italic)"
+	font_style="BOLD|ITALIC">
+    <file>DejaVuSansBoldOblique.ttf</file>
+  </font>
+
+  <font name="Helvetica"
+	comment="Name of Helvetica font">
+    <file>arial.ttf</file>
+  </font>
+
+  <font name="Helvetica"
+	comment="Name of Helvetica font (bold)"
+	font_style="BOLD">
+    <file>arialbd.ttf</file>
+  </font>
+
+  <font name="Helvetica"
+	comment="Name of Helvetica font (italic)"
+	font_style="ITALIC">
+    <file>ariali.ttf</file>
+  </font>
+
+  <font name="Helvetica"
+	comment="Name of Helvetica font (bold italic)"
+	font_style="BOLD|ITALIC">
+    <file>arialbi.ttf</file>
+  </font>
+
+  <font name="OverrideTest"
+	comment="Name of font to test overriding">
+    <file>times.ttf</file>
+  </font>
+
+  <font_size name="Monospace"
+	     comment="Size for monospaced font (points, or 1/72 of an inch)"
+	     size="9.0"
+	     />
+  <font_size name="Huge"
+	     comment="Size of huge font (points, or 1/72 of an inch)"
+	     size="16.0"
+	     />
+  <font_size name="Large"
+	     comment="Size of large font (points, or 1/72 of an inch)"
+	     size="12.0"
+	     />
+  <font_size name="Medium"
+	     comment="Size of medium font (points, or 1/72 of an inch)"
+	     size="10.0"
+	     />
+  <font_size name="Small"
+	     comment="Size of small font (points, or 1/72 of an inch)"
+	     size="9"
+	     />
+</fonts>
+

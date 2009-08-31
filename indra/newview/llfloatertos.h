@@ -35,7 +35,7 @@
 
 #include "llmodaldialog.h"
 #include "llassetstorage.h"
-#include "llwebbrowserctrl.h"
+#include "llmediactrl.h"
 
 class LLButton;
 class LLRadioGroup;
@@ -45,20 +45,11 @@ class LLUUID;
 
 class LLFloaterTOS : 
 	public LLModalDialog,
-	public LLWebBrowserCtrlObserver
+	public LLViewerMediaObserver
 {
 public:
+	LLFloaterTOS(const LLSD& message);
 	virtual ~LLFloaterTOS();
-
-	// Types of dialog.
-	enum ETOSType
-	{
-		TOS_TOS = 0,
-		TOS_CRITICAL_MESSAGE = 1
-	};
-
-	// Asset_id is overwritten with LLUUID::null when agree is clicked.
-	static LLFloaterTOS* show(ETOSType type, const std::string & message);
 
 	BOOL postBuild();
 	
@@ -70,19 +61,13 @@ public:
 
 	void			setSiteIsAlive( bool alive );
 
-	virtual void onNavigateComplete( const EventType& eventIn );
+	// inherited from LLViewerMediaObserver
+	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
 private:
-	// Asset_id is overwritten with LLUUID::null when agree is clicked.
-	LLFloaterTOS(ETOSType type, const std::string & message);
-
-private:
-	ETOSType		mType;
 	std::string		mMessage;
 	int				mWebBrowserWindowId;
 	int				mLoadCompleteCount;
-
-	static LLFloaterTOS* sInstance;
 };
 
 #endif // LL_LLFLOATERTOS_H

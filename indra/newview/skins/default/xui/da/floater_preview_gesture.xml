@@ -45,12 +45,8 @@ Vent
 medmindre du tilføjer vente trin.
 	</text>
 	<radio_group name="animation_trigger_type">
-		<radio_item name="start">
-			Start
-		</radio_item>
-		<radio_item name="stop">
-			Stop
-		</radio_item>
+		<radio_item name="start" label="Start" />
+		<radio_item name="stop" label="Stop" />
 	</radio_group>
 	<check_box label="Indtil animation er færdig" name="wait_anim_check"/>
 	<check_box label="tid i sekunder" name="wait_time_check"/>

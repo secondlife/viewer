@@ -34,12 +34,11 @@
 
 #include "llviewergesture.h"
 
-#include "audioengine.h"
+#include "llaudioengine.h"
 #include "lldir.h"
 #include "llviewerinventory.h"
 #include "sound_ids.h"		// for testing
 
-#include "llchatbar.h"
 #include "llkeyboard.h"		// for key shortcuts for testing
 #include "llinventorymodel.h"
 #include "llvoavatar.h"
@@ -47,6 +46,7 @@
 #include "llviewermessage.h" // send_guid_sound_trigger
 #include "llviewernetwork.h"
 #include "llagent.h"
+#include "llnearbychatbar.h"
 
 // Globals
 LLViewerGestureList gGestureList;
@@ -132,11 +132,11 @@ void LLViewerGesture::doTrigger( BOOL send_chat )
 		}
 	}
 
-	if ( send_chat && !mOutputString.empty())
+	if (send_chat && !mOutputString.empty())
 	{
 		// Don't play nodding animation, since that might not blend
 		// with the gesture animation.
-		gChatBar->sendChatFromViewer(mOutputString, CHAT_TYPE_NORMAL, FALSE);
+		LLNearbyChatBar::getInstance()->sendChatFromViewer(mOutputString, CHAT_TYPE_NORMAL, FALSE);
 	}
 }
 

@@ -35,7 +35,7 @@
 
 #include "llcontainerview.h"
 
-class LLViewerImage;
+class LLViewerFetchedTexture;
 class LLTextureBar;
 class LLGLTexMemBar;
 
@@ -43,8 +43,10 @@ class LLTextureView : public LLContainerView
 {
 	friend class LLTextureBar;
 	friend class LLGLTexMemBar;
+protected:
+	LLTextureView(const Params&);
+	friend class LLUICtrlFactory;
 public:
-	LLTextureView(const std::string& name, const LLRect& rect);
 	~LLTextureView();
 
 	/*virtual*/ void draw();
@@ -52,12 +54,12 @@ public:
 	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
 
-	static void addDebugImage(LLViewerImage* image) { sDebugImages.insert(image); }
-	static void removeDebugImage(LLViewerImage* image) { sDebugImages.insert(image); }
+	static void addDebugImage(LLViewerFetchedTexture* image) { sDebugImages.insert(image); }
+	static void removeDebugImage(LLViewerFetchedTexture* image) { sDebugImages.insert(image); }
 	static void clearDebugImages() { sDebugImages.clear(); }
 
 private:
-	BOOL addBar(LLViewerImage *image, BOOL hilight = FALSE);
+	BOOL addBar(LLViewerFetchedTexture *image, BOOL hilight = FALSE);
 	void removeAllBars();
 
 private:
@@ -73,7 +75,7 @@ private:
 	LLGLTexMemBar* mGLTexMemBar;
 	
 public:
-	static std::set<LLViewerImage*> sDebugImages;
+	static std::set<LLViewerFetchedTexture*> sDebugImages;
 };
 
 extern LLTextureView *gTextureView;

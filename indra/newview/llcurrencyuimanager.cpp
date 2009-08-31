@@ -46,6 +46,7 @@
 #include "llviewchildren.h"
 #include "llxmlrpctransaction.h"
 #include "llviewernetwork.h"
+#include "llpanel.h"
 
 
 const F64 CURRENCY_ESTIMATE_FREQUENCY = 2.0;
@@ -356,8 +357,7 @@ void LLCurrencyUIManager::Impl::prepare()
 	if (lindenAmount)
 	{
 		lindenAmount->setPrevalidate(LLLineEditor::prevalidateNonNegativeS32);
-		lindenAmount->setKeystrokeCallback(onCurrencyKey);
-		lindenAmount->setCallbackUserData(this);
+		lindenAmount->setKeystrokeCallback(onCurrencyKey, this);
 	}
 }
 

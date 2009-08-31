@@ -33,6 +33,11 @@
 #ifndef LL_LINDEN_COMMON_H
 #define LL_LINDEN_COMMON_H
 
+// *NOTE:  Please keep includes here to a minimum!
+//
+// Files included here are included in every library .cpp file and
+// are not precompiled.
+
 #if defined(LL_WINDOWS) && defined(_DEBUG)
 # if _MSC_VER >= 1400 // Visual C++ 2005 or later
 #  define _CRTDBG_MAP_ALLOC
@@ -51,23 +56,22 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#include <iostream>
-#include <fstream>
+#include <iosfwd>
 
-// Work Microsoft compiler warnings
+// Work around Microsoft compiler warnings in STL headers
 #ifdef LL_WINDOWS
 #pragma warning (disable : 4702) // unreachable code
 #pragma warning (disable : 4244) // conversion from time_t to S32
 #endif	//	LL_WINDOWS
 
-#include <algorithm>
 #include <list>
 #include <map>
 #include <vector>
 #include <string>
 
 #ifdef LL_WINDOWS
-#pragma warning (3 : 4702) // we like level 3, not 4
+// Reenable warnings we disabled above
+#pragma warning (3 : 4702) // unreachable code, we like level 3, not 4
 // level 4 warnings that we need to disable:
 #pragma warning (disable : 4100) // unreferenced formal parameter
 #pragma warning (disable : 4127) // conditional expression is constant (e.g. while(1) )
@@ -78,6 +82,7 @@
 #endif	//	LL_WINDOWS
 
 // Linden only libs in alpha-order other than stdtypes.h
+// *NOTE: Please keep includes here to a minimum, see above.
 #include "stdtypes.h"
 #include "lldefs.h"
 #include "llerror.h"
@@ -85,8 +90,5 @@
 #include "llfasttimer.h"
 #include "llfile.h"
 #include "llformat.h"
-#include "llstring.h"
-#include "llsys.h"
-#include "lltimer.h"
 
 #endif

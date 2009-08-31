@@ -33,32 +33,40 @@
 #ifndef LL_MULTI_SLIDER_H
 #define LL_MULTI_SLIDER_H
 
-#include "lluictrl.h"
+#include "llf32uictrl.h"
 #include "v4color.h"
 
 class LLUICtrlFactory;
 
-class LLMultiSlider : public LLUICtrl
+class LLMultiSlider : public LLF32UICtrl
 {
 public:
-	LLMultiSlider( 
-		const std::string& name,
-		const LLRect& rect,
-		void (*on_commit_callback)(LLUICtrl* ctrl, void* userdata),
-		void* callback_userdata,
-		F32 initial_value,
-		F32 min_value,
-		F32 max_value,
-		F32 increment,
-		S32 max_sliders,
-		BOOL allow_overlap,
-		BOOL draw_track,
-		BOOL use_triangle,
-		const std::string& control_name = LLStringUtil::null );
+	struct Params : public LLInitParam::Block<Params, LLF32UICtrl::Params>
+	{
+		Optional<S32>	max_sliders;
 
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static  LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
+		Optional<bool>	allow_overlap,
+						draw_track,
+						use_triangle;
 
+		Optional<LLUIColor>	track_color,
+							thumb_disabled_color,
+							thumb_outline_color,
+							thumb_center_color,
+							thumb_center_selected_color,
+							triangle_color;
+
+		Optional<CommitCallbackParam>	mouse_down_callback,
+										mouse_up_callback;
+		Optional<S32>		thumb_width;
+
+		Params();
+	};
+
+protected:
+	LLMultiSlider(const Params&);
+	friend class LLUICtrlFactory;
+public:
 	void			setSliderValue(const std::string& name, F32 value, BOOL from_event = FALSE);
 	F32				getSliderValue(const std::string& name) const;
 
@@ -67,41 +75,27 @@ public:
 	void			setCurSlider(const std::string& name);
 	void			setCurSliderValue(F32 val, BOOL from_event = false) { setSliderValue(mCurSlider, val, from_event); }
 
-	virtual void	setValue(const LLSD& value);
-	virtual LLSD	getValue() const		{ return mValue; }
+	/*virtual*/ void	setValue(const LLSD& value);
+	/*virtual*/ LLSD	getValue() const		{ return mValue; }
 
-	virtual void	setMinValue(LLSD min_value)	{ setMinValue((F32)min_value.asReal()); }
-	virtual void	setMaxValue(LLSD max_value)	{ setMaxValue((F32)max_value.asReal());  }
+	boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb ) { return mMouseDownSignal.connect(cb); }
+	boost::signals2::connection setMouseUpCallback(	const commit_signal_t::slot_type& cb )   { return mMouseUpSignal.connect(cb); }
 
-	F32				getInitialValue() const { return mInitialValue; }
-	F32				getMinValue() const		{ return mMinValue; }
-	F32				getMaxValue() const		{ return mMaxValue; }
-	F32				getIncrement() const	{ return mIncrement; }
-	void			setMinValue(F32 min_value) { mMinValue = min_value; }
-	void			setMaxValue(F32 max_value) { mMaxValue = max_value; }
-	void			setIncrement(F32 increment) { mIncrement = increment; }
-	void			setMouseDownCallback( void (*cb)(LLUICtrl* ctrl, void* userdata) ) { mMouseDownCallback = cb; }
-	void			setMouseUpCallback(	void (*cb)(LLUICtrl* ctrl, void* userdata) ) { mMouseUpCallback = cb; }
-
-	bool findUnusedValue(F32& initVal);
+	bool			findUnusedValue(F32& initVal);
 	const std::string&	addSlider();
 	const std::string&	addSlider(F32 val);
 	void			deleteSlider(const std::string& name);
 	void			deleteCurSlider()			{ deleteSlider(mCurSlider); }
 	void			clear();
 
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleKeyHere(KEY key, MASK mask);
-	virtual void	draw();
+	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask);
+	/*virtual*/ void	draw();
 
 protected:
 	LLSD			mValue;
-	F32				mInitialValue;
-	F32				mMinValue;
-	F32				mMaxValue;
-	F32				mIncrement;
 	std::string		mCurSlider;
 	static S32		mNameCounter;
 
@@ -112,17 +106,18 @@ protected:
 
 	S32				mMouseOffset;
 	LLRect			mDragStartThumbRect;
+	S32				mThumbWidth;
 
 	std::map<std::string, LLRect>	mThumbRects;
-	LLColor4		mTrackColor;
-	LLColor4		mThumbOutlineColor;
-	LLColor4		mThumbCenterColor;
-	LLColor4		mThumbCenterSelectedColor;
-	LLColor4		mDisabledThumbColor;
-	LLColor4		mTriangleColor;
+	LLUIColor		mTrackColor;
+	LLUIColor		mThumbOutlineColor;
+	LLUIColor		mThumbCenterColor;
+	LLUIColor		mThumbCenterSelectedColor;
+	LLUIColor		mDisabledThumbColor;
+	LLUIColor		mTriangleColor;
 	
-	void			(*mMouseDownCallback)(LLUICtrl* ctrl, void* userdata);
-	void			(*mMouseUpCallback)(LLUICtrl* ctrl, void* userdata);
+	commit_signal_t	mMouseDownSignal;
+	commit_signal_t	mMouseUpSignal;
 };
 
-#endif  // LL_LLSLIDER_H
+#endif  // LL_MULTI_SLIDER_H

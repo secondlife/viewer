@@ -38,7 +38,6 @@
 #include "llgl.h"
 #include "llagent.h"
 #include "llrendersphere.h"
-#include "llimagegl.h"
 
 #include "llviewerobjectlist.h"
 #include "lldrawable.h"

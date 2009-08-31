@@ -40,65 +40,59 @@
 #include "llfocusmgr.h"
 #include "llkeyboard.h"			// for the MASK constants
 #include "llcontrol.h"
-#include "llimagegl.h"
+#include "lluictrlfactory.h"
 
 #include <sstream>
 
-static LLRegisterWidget<LLMultiSlider> r("multi_slider_bar");
+static LLDefaultChildRegistry::Register<LLMultiSlider> r("multi_slider_bar");
 
-const S32 MULTI_THUMB_WIDTH = 8;
-const S32 MULTI_TRACK_HEIGHT = 6;
 const F32 FLOAT_THRESHOLD = 0.00001f;
-const S32 EXTRA_TRIANGLE_WIDTH = 2;
-const S32 EXTRA_TRIANGLE_HEIGHT = -2;
 
 S32 LLMultiSlider::mNameCounter = 0;
 
-LLMultiSlider::LLMultiSlider( 
-	const std::string& name,
-	const LLRect& rect,
-	void (*on_commit_callback)(LLUICtrl* ctrl, void* userdata),
-	void* callback_userdata,
-	F32 initial_value,
-	F32 min_value,
-	F32 max_value,
-	F32 increment,
-	S32 max_sliders,
-	BOOL allow_overlap,
-	BOOL draw_track,
-	BOOL use_triangle,
-	const std::string& control_name)
-	:
-	LLUICtrl( name, rect, TRUE,	on_commit_callback, callback_userdata, 
-		FOLLOWS_LEFT | FOLLOWS_TOP),
+LLMultiSlider::Params::Params()
+:	max_sliders("max_sliders", 1),
+	allow_overlap("allow_overlap", false),
+	draw_track("draw_track", true),
+	use_triangle("use_triangle", false),
+	track_color("track_color"),
+	thumb_disabled_color("thumb_disabled_color"),
+	thumb_outline_color("thumb_outline_color"),
+	thumb_center_color("thumb_center_color"),
+	thumb_center_selected_color("thumb_center_selected_color"),
+	triangle_color("triangle_color"),
+	mouse_down_callback("mouse_down_callback"),
+	mouse_up_callback("mouse_up_callback"),
+	thumb_width("thumb_width")
+{
+	name = "multi_slider_bar";
+	mouse_opaque(true);
+	follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
+}
 
-	mInitialValue( initial_value ),
-	mMinValue( min_value ),
-	mMaxValue( max_value ),
-	mIncrement( increment ),
-	mMaxNumSliders(max_sliders),
-	mAllowOverlap(allow_overlap),
-	mDrawTrack(draw_track),
-	mUseTriangle(use_triangle),
+LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
+:	LLF32UICtrl(p),
 	mMouseOffset( 0 ),
-	mDragStartThumbRect( 0, getRect().getHeight(), MULTI_THUMB_WIDTH, 0 ),
-	mTrackColor(		LLUI::sColorsGroup->getColor( "MultiSliderTrackColor" ) ),
-	mThumbOutlineColor(	LLUI::sColorsGroup->getColor( "MultiSliderThumbOutlineColor" ) ),
-	mThumbCenterColor(	LLUI::sColorsGroup->getColor( "MultiSliderThumbCenterColor" ) ),
-	mThumbCenterSelectedColor(	LLUI::sColorsGroup->getColor( "MultiSliderThumbCenterSelectedColor" ) ),
-	mDisabledThumbColor(LLUI::sColorsGroup->getColor( "MultiSliderDisabledThumbColor" ) ),
-	mTriangleColor(LLUI::sColorsGroup->getColor( "MultiSliderTriangleColor" ) ),
-	mMouseDownCallback( NULL ),
-	mMouseUpCallback( NULL )
+	mDragStartThumbRect( 0, getRect().getHeight(), p.thumb_width, 0 ),
+	mMaxNumSliders(p.max_sliders),
+	mAllowOverlap(p.allow_overlap),
+	mDrawTrack(p.draw_track),
+	mUseTriangle(p.use_triangle),
+	mTrackColor(p.track_color()),
+	mThumbOutlineColor(p.thumb_outline_color()),
+	mThumbCenterColor(p.thumb_center_color()),
+	mThumbCenterSelectedColor(p.thumb_center_selected_color()),
+	mDisabledThumbColor(p.thumb_disabled_color()),
+	mTriangleColor(p.triangle_color()),
+	mThumbWidth(p.thumb_width)
 {
 	mValue.emptyMap();
 	mCurSlider = LLStringUtil::null;
-
-	// properly handle setting the starting thumb rect
-	// do it this way to handle both the operating-on-settings
-	// and standalone ways of using this
-	setControlName(control_name, NULL);
-	setValue(getValue());
+	
+	if (p.mouse_down_callback.isProvided())
+		initCommitCallback(p.mouse_down_callback, mMouseDownSignal);
+	if (p.mouse_up_callback.isProvided())
+		initCommitCallback(p.mouse_up_callback, mMouseUpSignal);
 }
 
 void LLMultiSlider::setSliderValue(const std::string& name, F32 value, BOOL from_event)
@@ -152,12 +146,12 @@ void LLMultiSlider::setSliderValue(const std::string& name, F32 value, BOOL from
 	
 	F32 t = (newValue - mMinValue) / (mMaxValue - mMinValue);
 
-	S32 left_edge = MULTI_THUMB_WIDTH/2;
-	S32 right_edge = getRect().getWidth() - (MULTI_THUMB_WIDTH/2);
+	S32 left_edge = mThumbWidth/2;
+	S32 right_edge = getRect().getWidth() - (mThumbWidth/2);
 
 	S32 x = left_edge + S32( t * (right_edge - left_edge) );
-	mThumbRects[name].mLeft = x - (MULTI_THUMB_WIDTH/2);
-	mThumbRects[name].mRight = x + (MULTI_THUMB_WIDTH/2);
+	mThumbRects[name].mLeft = x - (mThumbWidth/2);
+	mThumbRects[name].mRight = x + (mThumbWidth/2);
 }
 
 void LLMultiSlider::setValue(const LLSD& value)
@@ -211,7 +205,7 @@ const std::string& LLMultiSlider::addSlider(F32 val)
 	}
 
 	// add a new thumb rect
-	mThumbRects[newName.str()] = LLRect( 0, getRect().getHeight(), MULTI_THUMB_WIDTH, 0 );
+	mThumbRects[newName.str()] = LLRect( 0, getRect().getHeight(), mThumbWidth, 0 );
 
 	// add the value and set the current slider to this one
 	mValue.insert(newName.str(), initVal);
@@ -295,15 +289,15 @@ void LLMultiSlider::clear()
 		deleteCurSlider();
 	}
 
-	LLUICtrl::clear();
+	LLF32UICtrl::clear();
 }
 
 BOOL LLMultiSlider::handleHover(S32 x, S32 y, MASK mask)
 {
 	if( gFocusMgr.getMouseCapture() == this )
 	{
-		S32 left_edge = MULTI_THUMB_WIDTH/2;
-		S32 right_edge = getRect().getWidth() - (MULTI_THUMB_WIDTH/2);
+		S32 left_edge = mThumbWidth/2;
+		S32 right_edge = getRect().getWidth() - (mThumbWidth/2);
 
 		x += mMouseOffset;
 		x = llclamp( x, left_edge, right_edge );
@@ -331,10 +325,8 @@ BOOL LLMultiSlider::handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		gFocusMgr.setMouseCapture( NULL );
 
-		if( mMouseUpCallback )
-		{
-			mMouseUpCallback( this, mCallbackUserData );
-		}
+		mMouseUpSignal( this, LLSD() );
+
 		handled = TRUE;
 		make_ui_sound("UISndClickRelease");
 	}
@@ -353,10 +345,7 @@ BOOL LLMultiSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 	{
 		setFocus(TRUE);
 	}
-	if( mMouseDownCallback )
-	{
-		mMouseDownCallback( this, mCallbackUserData );
-	}
+	mMouseDownSignal( this, LLSD() );
 
 	if (MASK_CONTROL & mask) // if CTRL is modifying
 	{
@@ -379,7 +368,7 @@ BOOL LLMultiSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 		// Find the offset of the actual mouse location from the center of the thumb.
 		if (mThumbRects[mCurSlider].pointInRect(x,y))
 		{
-			mMouseOffset = (mThumbRects[mCurSlider].mLeft + MULTI_THUMB_WIDTH/2) - x;
+			mMouseOffset = (mThumbRects[mCurSlider].mLeft + mThumbWidth/2) - x;
 		}
 		else
 		{
@@ -424,6 +413,8 @@ BOOL	LLMultiSlider::handleKeyHere(KEY key, MASK mask)
 
 void LLMultiSlider::draw()
 {
+	static LLUICachedControl<S32> extra_triangle_height ("UIExtraTriangleHeight", 0);
+	static LLUICachedControl<S32> extra_triangle_width ("UIExtraTriangleWidth", 0);
 	LLColor4 curThumbColor;
 
 	std::map<std::string, LLRect>::iterator mIt;
@@ -439,16 +430,17 @@ void LLMultiSlider::draw()
 	F32 opacity = getEnabled() ? 1.f : 0.3f;
 
 	// Track
-	LLUIImagePtr thumb_imagep = LLUI::sImageProvider->getUIImage("rounded_square.tga");
+	LLUIImagePtr thumb_imagep = LLUI::getUIImage("rounded_square.tga");
 
-	S32 height_offset = (getRect().getHeight() - MULTI_TRACK_HEIGHT) / 2;
+	static LLUICachedControl<S32> multi_track_height ("UIMultiTrackHeight", 0);
+	S32 height_offset = (getRect().getHeight() - multi_track_height) / 2;
 	LLRect track_rect(0, getRect().getHeight() - height_offset, getRect().getWidth(), height_offset );
 
 
 	if(mDrawTrack)
 	{
 		track_rect.stretch(-1);
-		thumb_imagep->draw(track_rect, mTrackColor % opacity);
+		thumb_imagep->draw(track_rect, mTrackColor.get() % opacity);
 	}
 
 	// if we're supposed to use a drawn triangle
@@ -458,13 +450,13 @@ void LLMultiSlider::draw()
 		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) {
 
 			gl_triangle_2d(
-				mIt->second.mLeft - EXTRA_TRIANGLE_WIDTH, 
-				mIt->second.mTop + EXTRA_TRIANGLE_HEIGHT,
-				mIt->second.mRight + EXTRA_TRIANGLE_WIDTH, 
-				mIt->second.mTop + EXTRA_TRIANGLE_HEIGHT,
+				mIt->second.mLeft - extra_triangle_width, 
+				mIt->second.mTop + extra_triangle_height,
+				mIt->second.mRight + extra_triangle_width, 
+				mIt->second.mTop + extra_triangle_height,
 				mIt->second.mLeft + mIt->second.getWidth() / 2, 
-				mIt->second.mBottom - EXTRA_TRIANGLE_HEIGHT,
-				mTriangleColor, TRUE);
+				mIt->second.mBottom - extra_triangle_height,
+				mTriangleColor.get(), TRUE);
 		}
 	}
 	else if (!thumb_imagep)
@@ -474,7 +466,7 @@ void LLMultiSlider::draw()
 		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) {
 			
 			// choose the color
-			curThumbColor = mThumbCenterColor;
+			curThumbColor = mThumbCenterColor.get();
 			if(mIt->first == mCurSlider) {
 				
 				curSldrIt = mIt;
@@ -488,19 +480,19 @@ void LLMultiSlider::draw()
 
 		// now draw the current slider
 		if(curSldrIt != mThumbRects.end()) {
-			gl_rect_2d(curSldrIt->second, mThumbCenterSelectedColor, TRUE);
+			gl_rect_2d(curSldrIt->second, mThumbCenterSelectedColor.get(), TRUE);
 		}
 
 		// and draw the drag start
 		if (gFocusMgr.getMouseCapture() == this)
 		{
-			gl_rect_2d(mDragStartThumbRect, mThumbCenterColor % opacity, FALSE);
+			gl_rect_2d(mDragStartThumbRect, mThumbCenterColor.get() % opacity, FALSE);
 		}
 	}
 	else if( gFocusMgr.getMouseCapture() == this )
 	{
 		// draw drag start
-		thumb_imagep->drawSolid(mDragStartThumbRect, mThumbCenterColor % 0.3f);
+		thumb_imagep->drawSolid(mDragStartThumbRect, mThumbCenterColor.get() % 0.3f);
 
 		// draw the highlight
 		if (hasFocus())
@@ -513,7 +505,7 @@ void LLMultiSlider::draw()
 		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) 
 		{
 			// choose the color
-			curThumbColor = mThumbCenterColor;
+			curThumbColor = mThumbCenterColor.get();
 			if(mIt->first == mCurSlider) 
 			{
 				// don't draw now, draw last
@@ -528,7 +520,7 @@ void LLMultiSlider::draw()
 		// draw cur slider last
 		if(curSldrIt != mThumbRects.end()) 
 		{
-			thumb_imagep->drawSolid(curSldrIt->second, mThumbCenterSelectedColor);
+			thumb_imagep->drawSolid(curSldrIt->second, mThumbCenterSelectedColor.get());
 		}
 		
 	}
@@ -546,7 +538,7 @@ void LLMultiSlider::draw()
 		{
 			
 			// choose the color
-			curThumbColor = mThumbCenterColor;
+			curThumbColor = mThumbCenterColor.get();
 			if(mIt->first == mCurSlider) 
 			{
 				curSldrIt = mIt;
@@ -559,74 +551,9 @@ void LLMultiSlider::draw()
 
 		if(curSldrIt != mThumbRects.end()) 
 		{
-			thumb_imagep->drawSolid(curSldrIt->second, mThumbCenterSelectedColor % opacity);
+			thumb_imagep->drawSolid(curSldrIt->second, mThumbCenterSelectedColor.get() % opacity);
 		}
 	}
 
-	LLUICtrl::draw();
-}
-
-// virtual
-LLXMLNodePtr LLMultiSlider::getXML(bool save_children) const
-{
-	LLXMLNodePtr node = LLUICtrl::getXML();
-
-	node->createChild("initial_val", TRUE)->setFloatValue(getInitialValue());
-	node->createChild("min_val", TRUE)->setFloatValue(getMinValue());
-	node->createChild("max_val", TRUE)->setFloatValue(getMaxValue());
-	node->createChild("increment", TRUE)->setFloatValue(getIncrement());
-
-	return node;
-}
-
-
-//static
-LLView* LLMultiSlider::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
-{
-	std::string name("multi_slider_bar");
-	node->getAttributeString("name", name);
-
-	LLRect rect;
-	createRect(node, rect, parent, LLRect());
-
-	F32 initial_value = 0.f;
-	node->getAttributeF32("initial_val", initial_value);
-
-	F32 min_value = 0.f;
-	node->getAttributeF32("min_val", min_value);
-
-	F32 max_value = 1.f; 
-	node->getAttributeF32("max_val", max_value);
-
-	F32 increment = 0.1f;
-	node->getAttributeF32("increment", increment);
-
-	S32 max_sliders = 1;
-	node->getAttributeS32("max_sliders", max_sliders);
-
-	BOOL allow_overlap = FALSE;
-	node->getAttributeBOOL("allow_overlap", allow_overlap);
-
-	BOOL draw_track = TRUE;
-	node->getAttributeBOOL("draw_track", draw_track);
-
-	BOOL use_triangle = FALSE;
-	node->getAttributeBOOL("use_triangle", use_triangle);
-
-	LLMultiSlider* multiSlider = new LLMultiSlider(name,
-							rect,
-							NULL,
-							NULL,
-							initial_value,
-							min_value,
-							max_value,
-							increment,
-							max_sliders,
-							allow_overlap,
-							draw_track,
-							use_triangle);
-
-	multiSlider->initFromXML(node, parent);
-
-	return multiSlider;
+	LLF32UICtrl::draw();
 }

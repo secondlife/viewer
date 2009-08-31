@@ -38,83 +38,99 @@
 #include "llslider.h"
 #include "lltextbox.h"
 #include "llrect.h"
-
-//
-// Constants
-//
-const S32	SLIDERCTRL_SPACING		=  4;				// space between label, slider, and text
-const S32	SLIDERCTRL_HEIGHT		=  16;
+#include "lllineeditor.h"
 
 
-class LLSliderCtrl : public LLUICtrl
+class LLSliderCtrl : public LLF32UICtrl
 {
 public:
-	LLSliderCtrl(const std::string& name, 
-		const LLRect& rect, 
-		const std::string& label, 
-		const LLFontGL* font,
-		S32 slider_left,
-		S32 text_left,
-		BOOL show_text,
-		BOOL can_edit_text,
-		BOOL volume, //TODO: create a "volume" slider sub-class or just use image art, no?  -MG
-		void (*commit_callback)(LLUICtrl*, void*),
-		void* callback_userdata,
-		F32 initial_value, F32 min_value, F32 max_value, F32 increment,
-		const std::string& control_which = LLStringUtil::null );
+	struct Params : public LLInitParam::Block<Params, LLF32UICtrl::Params>
+	{
+		Optional<S32>			label_width;
+		Optional<S32>			text_width;
+		Optional<bool>			show_text;
+		Optional<bool>			can_edit_text;
+		Optional<bool>			is_volume_slider;
+		Optional<S32>			decimal_digits;
 
+		Optional<LLUIColor>		text_color,
+								text_disabled_color;
+
+		Optional<CommitCallbackParam>	mouse_down_callback,
+										mouse_up_callback;
+
+		Optional<LLSlider::Params>		slider_bar;
+		Optional<LLLineEditor::Params>	value_editor;
+		Optional<LLTextBox::Params>		value_text;
+		Optional<LLTextBox::Params>		slider_label;
+
+		Params()
+		:	text_width("text_width"),
+			label_width("label_width"),
+			show_text("show_text"),
+			can_edit_text("can_edit_text"),
+			is_volume_slider("volume"),
+			decimal_digits("decimal_digits", 3),
+			text_color("text_color"),
+			text_disabled_color("text_disabled_color"),
+			slider_bar("slider_bar"),
+			value_editor("value_editor"),
+			value_text("value_text"),
+			slider_label("slider_label"),
+			mouse_down_callback("mouse_down_callback"),
+			mouse_up_callback("mouse_up_callback")
+		{}
+	};
+protected:
+	LLSliderCtrl(const Params&);
+	friend class LLUICtrlFactory;
+public:
 	virtual ~LLSliderCtrl() {} // Children all cleaned up by default view destructor.
 
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
-
-	F32				getValueF32() const { return mSlider->getValueF32(); }
+	/*virtual*/ F32	getValueF32() const { return mSlider->getValueF32(); }
 	void			setValue(F32 v, BOOL from_event = FALSE);
 
-	virtual void	setValue(const LLSD& value)	{ setValue((F32)value.asReal(), TRUE); }
-	virtual LLSD	getValue() const			{ return LLSD(getValueF32()); }
-	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
-
-	virtual void	setMinValue(LLSD min_value)	{ setMinValue((F32)min_value.asReal()); }
-	virtual void	setMaxValue(LLSD max_value)	{ setMaxValue((F32)max_value.asReal()); }
+	/*virtual*/ void	setValue(const LLSD& value)	{ setValue((F32)value.asReal(), TRUE); }
+	/*virtual*/ LLSD	getValue() const			{ return LLSD(getValueF32()); }
+	/*virtual*/ BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 
 	BOOL			isMouseHeldDown() const { return mSlider->hasMouseCapture(); }
 
-	virtual void    setEnabled( BOOL b );
-	virtual void	clear();
 	virtual void	setPrecision(S32 precision);
-	void			setMinValue(F32 min_value)  { mSlider->setMinValue(min_value); updateText(); }
-	void			setMaxValue(F32 max_value)  { mSlider->setMaxValue(max_value); updateText(); }
-	void			setIncrement(F32 increment) { mSlider->setIncrement(increment);}
 
-	F32				getMinValue() { return mSlider->getMinValue(); }
-	F32				getMaxValue() { return mSlider->getMaxValue(); }
+	/*virtual*/ void    setEnabled( BOOL b );
+	/*virtual*/ void	clear();
+
+	/*virtual*/ void	setMinValue(const LLSD& min_value)  { setMinValue((F32)min_value.asReal()); }
+	/*virtual*/ void	setMaxValue(const LLSD& max_value)  { setMaxValue((F32)max_value.asReal()); }
+	/*virtual*/ void	setMinValue(F32 min_value)  { mSlider->setMinValue(min_value); updateText(); }
+	/*virtual*/ void	setMaxValue(F32 max_value)  { mSlider->setMaxValue(max_value); updateText(); }
+	/*virtual*/ void	setIncrement(F32 increment) { mSlider->setIncrement(increment);}
+
+	F32				getMinValue() const { return mSlider->getMinValue(); }
+	F32				getMaxValue() const { return mSlider->getMaxValue(); }
 
 	void			setLabel(const LLStringExplicit& label)		{ if (mLabelBox) mLabelBox->setText(label); }
 	void			setLabelColor(const LLColor4& c)			{ mTextEnabledColor = c; }
 	void			setDisabledLabelColor(const LLColor4& c)	{ mTextDisabledColor = c; }
 
-	void			setSliderMouseDownCallback(	void (*slider_mousedown_callback)(LLUICtrl* caller, void* userdata) );
-	void			setSliderMouseUpCallback(	void (*slider_mouseup_callback)(LLUICtrl* caller, void* userdata) );
+	boost::signals2::connection setSliderMouseDownCallback(	const commit_signal_t::slot_type& cb );
+	boost::signals2::connection setSliderMouseUpCallback( const commit_signal_t::slot_type& cb );
 
-	virtual void	onTabInto();
+	/*virtual*/ void	onTabInto();
 
-	virtual void	setTentative(BOOL b);			// marks value as tentative
-	virtual void	onCommit();						// mark not tentative, then commit
+	/*virtual*/ void	setTentative(BOOL b);			// marks value as tentative
+	/*virtual*/ void	onCommit();						// mark not tentative, then commit
 
-	virtual void		setControlName(const std::string& control_name, LLView* context)
+	/*virtual*/ void	setControlName(const std::string& control_name, LLView* context)
 	{
-		LLView::setControlName(control_name, context);
+		LLUICtrl::setControlName(control_name, context);
 		mSlider->setControlName(control_name, context);
 	}
 
-	virtual std::string getControlName() const { return mSlider->getControlName(); }
+	static void		onSliderCommit(LLUICtrl* caller, const LLSD& userdata);
 	
-	static void		onSliderCommit(LLUICtrl* caller, void* userdata);
-	static void		onSliderMouseDown(LLUICtrl* caller,void* userdata);
-	static void		onSliderMouseUp(LLUICtrl* caller,void* userdata);
-
-	static void		onEditorCommit(LLUICtrl* caller, void* userdata);
+	static void		onEditorCommit(LLUICtrl* ctrl, const LLSD& userdata);
 	static void		onEditorGainFocus(LLFocusableElement* caller, void *userdata);
 	static void		onEditorChangeFocus(LLUICtrl* caller, S32 direction, void *userdata);
 
@@ -125,7 +141,6 @@ private:
 	const LLFontGL*	mFont;
 	BOOL			mShowText;
 	BOOL			mCanEditText;
-	BOOL			mVolumeSlider;
 	
 	S32				mPrecision;
 	LLTextBox*		mLabelBox;
@@ -136,11 +151,8 @@ private:
 	class LLLineEditor*	mEditor;
 	LLTextBox*		mTextBox;
 
-	LLColor4		mTextEnabledColor;
-	LLColor4		mTextDisabledColor;
-
-	void			(*mSliderMouseUpCallback)( LLUICtrl* ctrl, void* userdata );
-	void			(*mSliderMouseDownCallback)( LLUICtrl* ctrl, void* userdata );
+	LLUIColor	mTextEnabledColor;
+	LLUIColor	mTextDisabledColor;
 };
 
 #endif  // LL_LLSLIDERCTRL_H

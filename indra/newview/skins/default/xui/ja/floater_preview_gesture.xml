@@ -46,12 +46,8 @@
 ます。
 	</text>
 	<radio_group name="animation_trigger_type">
-		<radio_item name="start">
-			開始
-		</radio_item>
-		<radio_item name="stop">
-			停止
-		</radio_item>
+		<radio_item name="start" label="開始" />
+		<radio_item name="stop" label="停止" />
 	</radio_group>
 	<check_box label="アニメーションが完了するまで" name="wait_anim_check"/>
 	<check_box label="秒表示の時間" name="wait_time_check"/>

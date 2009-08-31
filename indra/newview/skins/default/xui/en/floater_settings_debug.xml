@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_minimize="false"
+ height="215"
+ layout="topleft"
+ name="settings_debug"
+ title="Debug Settings"
+ width="350">
+    <combo_box
+     allow_text_entry="true"
+     follows="top|left"
+     height="22"
+     layout="topleft"
+     left="15"
+     max_chars="255"
+     name="settings_combo"
+     top="30"
+     width="320">
+      <combo_box.commit_callback
+       function="SettingSelect" />
+    </combo_box>
+    <text_editor
+     enabled="false"
+     height="60"
+     hide_scrollbar="true"
+     layout="topleft"
+     left_delta="0"
+     name="comment_text"
+     top_pad="10"
+     width="320"
+     word_wrap="true" />
+    <combo_box
+     follows="top|left"
+     height="20"
+     layout="topleft"
+     left_delta="0"
+     name="boolean_combo"
+     top_pad="10"
+     visible="false"
+     width="100">
+        <combo_box.item
+         label="TRUE"
+         name="TRUE"
+         value="true" />
+        <combo_box.item
+         label="FALSE"
+         name="FALSE"
+         value="" />
+         <combo_box.commit_callback
+           function="CommitSettings" />
+    </combo_box>
+    <line_editor
+     height="20"
+     layout="topleft"
+     left_delta="0"
+     name="val_text"
+     top_delta="0"
+     visible="false"
+     width="300" >
+      <line_editor.commit_callback
+       function="CommitSettings" />
+    </line_editor>
+    <color_swatch
+     bottom="185"
+     can_apply_immediately="true"
+     height="55"
+     name="val_color_swatch"
+     label="Color"
+     layout="topleft"
+     width="37" >
+      <color_swatch.commit_callback
+       function="CommitSettings" />
+    </color_swatch>
+    <spinner
+     height="20"
+     label="x"
+     layout="topleft"
+     left_delta="0"
+     max_val="1e+007"
+     name="val_spinner_1"
+     top_delta="10"
+     visible="false"
+     width="120" >
+      <spinner.commit_callback
+       function="CommitSettings" />
+    </spinner>
+    <spinner
+     height="20"
+     label="x"
+     layout="topleft"
+     left_pad="15"
+     max_val="1e+007"
+     name="val_spinner_2"
+     top_delta="0"
+     visible="false"
+     width="120">
+      <spinner.commit_callback
+       function="CommitSettings" />
+    </spinner>
+    <spinner
+     height="20"
+     label="x"
+     layout="topleft"
+     left="15"
+     max_val="1e+007"
+     name="val_spinner_3"
+     top="160"
+     visible="false"
+     width="120">
+      <spinner.commit_callback
+       function="CommitSettings" />
+    </spinner>
+    <spinner
+     height="20"
+     label="x"
+     layout="topleft"
+     left_pad="15"
+     max_val="1e+007"
+     name="val_spinner_4"
+     top_delta="0"
+     visible="false"
+     width="120" >
+      <spinner.commit_callback
+       function="CommitSettings" />
+    </spinner>
+    <button
+     height="22"
+     label="Reset to default"
+     layout="topleft"
+     left="15"
+     name="default_btn"
+     top="186"
+     width="150" >
+      <button.commit_callback
+       function="ClickDefault" />
+    </button>
+</floater>

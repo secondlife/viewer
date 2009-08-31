@@ -3,12 +3,8 @@
 	<button label="続行" label_selected="続行" name="Continue" />
 	<button label="取り消し" label_selected="取り消し" name="Cancel" />
 	<radio_group name="tos_agreement">
-		<radio_item name="radio_disagree">
-			利用規約に同意しません
-		</radio_item>
-		<radio_item name="radio_agree">
-			利用規約に同意します
-		</radio_item>
+		<radio_item name="radio_disagree" label="利用規約に同意しません" />
+		<radio_item name="radio_agree" label="利用規約に同意します" />
 	</radio_group>
 	<text name="tos_title">
 		利用規約

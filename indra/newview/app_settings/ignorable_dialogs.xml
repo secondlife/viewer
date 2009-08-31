@@ -1,0 +1,291 @@
+<?xml version="1.0" ?>
+<llsd>
+<map>
+    <key>FirstAppearance</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstAppearance warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstAttach</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstAttach warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstBalanceDecrease</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstBalanceDecrease warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstBalanceIncrease</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstBalanceIncrease warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstBuild</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstBuild warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstDebugMenus</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstDebugMenus warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstFlexible</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstFlexible warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstGoTo</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstGoTo warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstInventory</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstInventory warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstLeftClickNoHit</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstLeftClickNoHit warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstMap</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstMap warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstMedia</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstMedia warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstOverrideKeys</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstOverrideKeys warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstSandbox</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstSandbox warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstSculptedPrim</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstSculptedPrim warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstSit</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstSit warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstStreamingMusic</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstStreamingMusic warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstStreamingVideo</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstStreamingVideo warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstTeleport</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstTeleport warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>FirstVoice</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables FirstVoice warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>AboutDirectX9</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables AboutDirectX9 warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BrowserLaunch</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables BrowserLaunch warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>DeedObject</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables DeedObject warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+  <key>NewClassified</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables NewClassified warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>QuickTimeInstalled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables QuickTimeInstalled warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>ReturnToOwner</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables ReturnToOwner warning dialog</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+  </map>
+</llsd>

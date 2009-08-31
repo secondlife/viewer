@@ -156,21 +156,15 @@ void LLLoginHandler::parse(const LLSD& queryMap)
 	{
 		LLURLSimString::setString(queryMap["region"].asString());
 	}
-	else if (startLocation == "home")
+	else if (!startLocation.empty()) // "last" or "home" or ??? (let LLURLSimString figure it out)
 	{
-		gSavedSettings.setBOOL("LoginLastLocation", FALSE);
-		LLURLSimString::setString(LLStringUtil::null);
-	}
-	else if (startLocation == "last")
-	{
-		gSavedSettings.setBOOL("LoginLastLocation", TRUE);
-		LLURLSimString::setString(LLStringUtil::null);
+		LLURLSimString::setString(startLocation);
 	}
 }
 
 bool LLLoginHandler::handle(const LLSD& tokens,
 							const LLSD& query_map,
-							LLWebBrowserCtrl* web)
+							LLMediaCtrl* web)
 {	
 	parse(query_map);
 	

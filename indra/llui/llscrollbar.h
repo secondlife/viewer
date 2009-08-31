@@ -36,12 +36,7 @@
 #include "stdtypes.h"
 #include "lluictrl.h"
 #include "v4color.h"
-
-//
-// Constants
-//
-const S32 SCROLLBAR_SIZE = 16;
-
+#include "llbutton.h"
 
 //
 // Classes
@@ -50,15 +45,43 @@ class LLScrollbar
 : public LLUICtrl
 {
 public:
+
 	enum ORIENTATION { HORIZONTAL, VERTICAL };
+	
+	typedef boost::function<void (S32, LLScrollbar*)> callback_t;
+	struct Params 
+	:	public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Mandatory<ORIENTATION>			orientation;
+		Mandatory<S32>					doc_size;
+		Mandatory<S32>					doc_pos;
+		Mandatory<S32>					page_size;
 
-	LLScrollbar(const std::string& name, LLRect rect,
-		ORIENTATION orientation,
-		S32 doc_size, S32 doc_pos, S32 page_size,
-		void(*change_callback)( S32 new_pos, LLScrollbar* self, void* userdata ),
-		void* callback_user_data = NULL,
-		S32 step_size = 1);
+		Optional<callback_t> 			change_callback;
+		Optional<S32>					step_size;
+		Optional<S32>					thickness;
 
+		Optional<LLUIImage*>			thumb_image_vertical,
+										thumb_image_horizontal,
+										track_image_horizontal,
+										track_image_vertical;
+
+		Optional<LLUIColor>				track_color,
+										thumb_color;
+
+		Optional<LLButton::Params>		up_button;
+		Optional<LLButton::Params>		down_button;
+		Optional<LLButton::Params>		left_button;
+		Optional<LLButton::Params>		right_button;
+
+		Params();
+	};
+
+protected:
+	LLScrollbar (const Params & p);
+	friend class LLUICtrlFactory;
+
+public:
 	virtual ~LLScrollbar();
 
 	virtual void setValue(const LLSD& value);
@@ -101,22 +124,14 @@ public:
 	void				pageUp(S32 overlap);
 	void				pageDown(S32 overlap);
 
-	static void			onLineUpBtnPressed(void* userdata);
-	static void			onLineDownBtnPressed(void* userdata);
-
-	void setTrackColor( const LLColor4& color ) { mTrackColor = color; }
-	void setThumbColor( const LLColor4& color ) { mThumbColor = color; }
-	void setHighlightColor( const LLColor4& color ) { mHighlightColor = color; }
-	void setShadowColor( const LLColor4& color ) { mShadowColor = color; }
-
-	void setOnScrollEndCallback(void (*callback)(void*), void* userdata) { mOnScrollEndCallback = callback; mOnScrollEndData = userdata;}
+	void				onLineUpBtnPressed(const LLSD& data);
+	void				onLineDownBtnPressed(const LLSD& data);
 
 private:
 	void				updateThumbRect();
 	void				changeLine(S32 delta, BOOL update_thumb );
 
-	void				(*mChangeCallback)( S32 new_pos, LLScrollbar* self, void* userdata );
-	void*				mCallbackUserData;
+	callback_t			mChangeCallback;
 
 	const ORIENTATION	mOrientation;	
 	S32					mDocSize;		// Size of the document that the scrollbar is modeling.  Units depend on the user.  0 <= mDocSize.
@@ -134,16 +149,26 @@ private:
 	LLRect				mOrigRect;
 	S32					mLastDelta;
 
-	LLColor4			mTrackColor;
-	LLColor4			mThumbColor;
-	LLColor4			mFocusColor;
-	LLColor4			mHighlightColor;
-	LLColor4			mShadowColor;
+	LLUIColor			mTrackColor;
+	LLUIColor			mThumbColor;
+
+	LLUIImagePtr		mThumbImageV;
+	LLUIImagePtr		mThumbImageH;
+	LLUIImagePtr		mTrackImageV;
+	LLUIImagePtr		mTrackImageH;
+
+	S32					mThickness;
 
 	void			(*mOnScrollEndCallback)(void*);
 	void			*mOnScrollEndData;
 };
 
 
+namespace LLInitParam
+{
+    template<>
+	bool ParamCompare<boost::function<void (S32, LLScrollbar*)> >::equals(
+		const boost::function<void (S32, LLScrollbar*)> &a, const boost::function<void (S32, LLScrollbar*)> &b); 
+}
 
 #endif  // LL_SCROLLBAR_H

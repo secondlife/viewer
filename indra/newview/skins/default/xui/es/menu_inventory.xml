@@ -12,7 +12,7 @@
 	<menu_item_call label="Script nuevo" name="New Script"/>
 	<menu_item_call label="Nota nueva" name="New Note"/>
 	<menu_item_call label="Gesto nuevo" name="New Gesture"/>
-	<menu name="New Clothes">
+	<menu name="New Clothes" label="Nueva ropa">
 		<menu_item_call label="Camisa nueva" name="New Shirt"/>
 		<menu_item_call label="Pantalones nuevos" name="New Pants"/>
 		<menu_item_call label="Zapatos nuevos" name="New Shoes"/>
@@ -23,7 +23,7 @@
 		<menu_item_call label="Camiseta nueva" name="New Undershirt"/>
 		<menu_item_call label="Ropa interior nueva" name="New Underpants"/>
 	</menu>
-	<menu name="New Body Parts">
+	<menu name="New Body Parts" label="Nuevas partes del cuerpo">
 		<menu_item_call label="Forma nueva" name="New Shape"/>
 		<menu_item_call label="Piel nueva" name="New Skin"/>
 		<menu_item_call label="Pelo nuevo" name="New Hair"/>

@@ -34,6 +34,11 @@
 #define LL_LLSTRING_H
 
 #include <string>
+#include <locale>
+#include <iomanip>
+#include <boost/regex.hpp>
+#include "llsd.h"
+#include "llfasttimer.h"
 
 #if LL_LINUX || LL_SOLARIS
 #include <wctype.h>
@@ -145,6 +150,12 @@ struct char_traits<U16>
 
 class LLStringOps
 {
+private:
+	static long sltOffset;
+	static long localTimeOffset;
+	static bool daylightSavings;
+	static std::map<std::string, std::string> datetimeToCodes;
+
 public:
 	static char toUpper(char elem) { return toupper((unsigned char)elem); }
 	static llwchar toUpper(llwchar elem) { return towupper(elem); }
@@ -172,6 +183,12 @@ public:
 
 	static S32	collate(const char* a, const char* b) { return strcoll(a, b); }
 	static S32	collate(const llwchar* a, const llwchar* b);
+
+	static void setupDatetimeInfo (bool daylight);
+	static long getSltOffset (void) {return sltOffset;}
+	static long getLocalTimeOffset (void) {return localTimeOffset;}
+	static bool getDaylightSavings (void) {return daylightSavings;}
+	static std::string getDatetimeCode (std::string key);
 };
 
 /**
@@ -201,6 +218,9 @@ private:
 template <class T>
 class LLStringUtilBase
 {
+private:
+	static std::string sLocale;
+
 public:
 	typedef typename std::basic_string<T>::size_type size_type;
 	
@@ -211,7 +231,15 @@ public:
 	static std::basic_string<T> null;
 	
 	typedef std::map<LLFormatMapString, LLFormatMapString> format_map_t;
-	static S32 format(std::basic_string<T>& s, const format_map_t& fmt_map);
+	static void getTokens (std::basic_string<T> input, std::vector<std::basic_string<T> >& tokens);
+	static void formatNumber(std::basic_string<T>& numStr, std::basic_string<T> decimals);
+	static bool formatDatetime(std::basic_string<T>& replacement, std::basic_string<T> token, std::basic_string<T> param, S32 secFromEpoch);
+	static S32 format(std::basic_string<T>& s, const format_map_t& substitutions);
+	static S32 format(std::basic_string<T>& s, const LLSD& substitutions);
+	static bool simpleReplacement(std::basic_string<T>& replacement, std::basic_string<T> token, const format_map_t& substitutions);
+	static bool simpleReplacement(std::basic_string<T>& replacement, std::basic_string<T> token, const LLSD& substitutions);
+	static void setLocale (std::string inLocale) {sLocale = inLocale;};
+	static std::string getLocale (void) {return sLocale;};
 	
 	static bool isValidIndex(const std::basic_string<T>& string, size_type i)
 	{
@@ -253,7 +281,8 @@ public:
 	static void	replaceTabsWithSpaces( std::basic_string<T>& string, size_type spaces_per_tab );
 	static void	replaceNonstandardASCII( std::basic_string<T>& string, T replacement );
 	static void	replaceChar( std::basic_string<T>& string, T target, T replacement );
-
+	static void replaceString( std::basic_string<T>& string, std::basic_string<T> target, std::basic_string<T> replacement );
+	
 	static BOOL	containsNonprintable(const std::basic_string<T>& string);
 	static void	stripNonprintable(std::basic_string<T>& string);
 
@@ -310,6 +339,9 @@ public:
 	// Copies src into dst at a given offset.  
 	static void		copyInto(std::basic_string<T>& dst, const std::basic_string<T>& src, size_type offset);
 	
+	static bool		isPartOfWord(T c) { return (c == (T)'_') || LLStringOps::isAlnum(c); }
+
+
 #ifdef _DEBUG	
 	static void		testHarness();
 #endif
@@ -317,6 +349,7 @@ public:
 };
 
 template<class T> std::basic_string<T> LLStringUtilBase<T>::null;
+template<class T> std::string LLStringUtilBase<T>::sLocale;
 
 typedef LLStringUtilBase<char> LLStringUtil;
 typedef LLStringUtilBase<llwchar> LLWStringUtil;
@@ -378,6 +411,7 @@ U8 hex_as_nybble(char hex);
  * @return Returns true on success. If false, str is unmodified.
  */
 bool _read_file_into_string(std::string& str, const std::string& filename);
+bool iswindividual(llwchar elem);
 
 /**
  * Unicode support
@@ -564,61 +598,300 @@ namespace LLStringFn
 
 ////////////////////////////////////////////////////////////
 
-// LLStringBase::format()
-//
-// This function takes a string 's' and a map 'fmt_map' of strings-to-strings.
-// All occurances of strings in 's' from the left-hand side of 'fmt_map' are
-// then replaced with the corresponding right-hand side of 'fmt_map', non-
-// recursively.  The function returns the number of substitutions made.
+//static
+template<class T>
+void LLStringUtilBase<T>::getTokens (std::basic_string<T> input, std::vector<std::basic_string<T> >& tokens)
+{
+	const std::basic_string<T> delims (",");
+	std::basic_string<T> currToken;
+	size_type begIdx, endIdx;
+
+	begIdx = input.find_first_not_of (delims);
+	while (begIdx != std::basic_string<T>::npos)
+	{
+		endIdx = input.find_first_of (delims, begIdx);
+		if (endIdx == std::basic_string<T>::npos)
+		{
+			endIdx = input.length();
+		}
+
+		currToken = input.substr(begIdx, endIdx - begIdx);
+		trim (currToken);
+		tokens.push_back(currToken);
+		begIdx = input.find_first_not_of (delims, endIdx);
+	}
+}
+
+extern LLFastTimer::DeclareTimer STRING_LOCALIZATION;
 
 // static
 template<class T> 
-S32 LLStringUtilBase<T>::format(std::basic_string<T>& s, const format_map_t& fmt_map)
+S32 LLStringUtilBase<T>::format(std::basic_string<T>& s, const format_map_t& substitutions)
 {
-	typedef typename std::basic_string<T>::size_type string_size_type_t;
-	string_size_type_t scanstart = 0;
+	LLFastTimer ft(STRING_LOCALIZATION);
 	S32 res = 0;
 
-	// Look for the first match of any keyword, replace that keyword,
-	// repeat from the end of the replacement string.  This avoids
-	// accidentally performing substitution on a substituted string.
-	while (1)
-	{
-		string_size_type_t first_match_pos = scanstart;
-		string_size_type_t first_match_str_length = 0;
-		std::basic_string<T> first_match_str_replacement;
+	std::basic_ostringstream<T> output;
+	// match strings like [NAME,number,3]
+	const boost::regex key("\\[((\\s)*([0-9_A-Za-z]+)((\\s)*,(\\s)*[0-9_A-Za-z\\s]*){0,2}(\\s)*)]");
 
-		for (format_map_t::const_iterator iter = fmt_map.begin();
-		     iter != fmt_map.end();
-		     ++iter)
+
+	typename std::basic_string<T>::const_iterator start = s.begin();
+	typename std::basic_string<T>::const_iterator end = s.end();
+	boost::smatch match;
+	
+
+	while (boost::regex_search(start, end, match, key, boost::match_default))
+	{
+		bool found_replacement = false;
+		std::vector<std::basic_string<T> > tokens;
+		std::basic_string<T> replacement;
+
+		getTokens (std::basic_string<T>(match[1].first, match[1].second), tokens);
+
+		if (tokens.size() == 1)
 		{
-			string_size_type_t n = s.find(iter->first, scanstart);
-			if (n != std::basic_string<T>::npos &&
-			    (n < first_match_pos ||
-			     0 == first_match_str_length))
+			found_replacement = simpleReplacement (replacement, tokens[0], substitutions);
+		}
+		else if (tokens[1] == "number")
+		{
+			std::basic_string<T> param = "0";
+
+			if (tokens.size() > 2) param = tokens[2];
+			found_replacement = simpleReplacement (replacement, tokens[0], substitutions);
+			if (found_replacement) formatNumber (replacement, param);
+		}
+		else if (tokens[1] == "datetime")
+		{
+			std::basic_string<T> param;
+			if (tokens.size() > 2) param = tokens[2];
+			
+			format_map_t::const_iterator iter = substitutions.find("datetime");
+			if (iter != substitutions.end())
 			{
-				first_match_pos = n;
-				first_match_str_length = iter->first.length();
-				first_match_str_replacement = iter->second;
+				S32 secFromEpoch = 0;
+				BOOL r = LLStringUtil::convertToS32(iter->second, secFromEpoch);
+				if (r)
+				{
+					found_replacement = formatDatetime(replacement, tokens[0], param, secFromEpoch);
+				}
 			}
 		}
 
-		if (0 == first_match_str_length)
+		if (found_replacement)
 		{
-			// no more keys found to substitute from this point
-			// in the string forward.
-			break;
+			output << std::basic_string<T>(start, match[0].first) << replacement;
+			res++;
 		}
 		else
 		{
-			s.erase(first_match_pos, first_match_str_length);
-			s.insert(first_match_pos, first_match_str_replacement);
-			scanstart = first_match_pos +
-				first_match_str_replacement.length();
-			++res;
+			// we had no replacement, so leave the string we searched for so that it gets noticed by QA
+			// "hello [NAME_NOT_FOUND]" is output
+			output << std::basic_string<T>(start, match[0].second);
+		}
+		
+		// update search position 
+		start = match[0].second; 
+	}
+	// send the remainder of the string (with no further matches for bracketed names)
+	output << std::basic_string<T>(start, end);
+	s = output.str();
+	return res;
+}
+
+//static
+template<class T>
+S32 LLStringUtilBase<T>::format(std::basic_string<T>& s, const LLSD& substitutions)
+{
+	LLFastTimer ft(STRING_LOCALIZATION);
+
+	S32 res = 0;
+
+	if (!substitutions.isMap()) 
+	{
+		return res;
+	}
+
+	std::basic_ostringstream<T> output;
+	// match strings like [NAME,number,3]
+	const boost::regex key("\\[((\\s)*([0-9_A-Za-z]+)((\\s)*,(\\s)*[0-9_A-Za-z\\s]*){0,2}(\\s)*)]");
+
+
+	typename std::basic_string<T>::const_iterator start = s.begin();
+	typename std::basic_string<T>::const_iterator end = s.end();
+	boost::smatch match;
+	
+
+	while (boost::regex_search(start, end, match, key, boost::match_default))
+	{
+		bool found_replacement = false;
+		std::vector<std::basic_string<T> > tokens;
+		std::basic_string<T> replacement;
+
+		getTokens (std::basic_string<T>(match[1].first, match[1].second), tokens);
+
+		if (tokens.size() == 1)
+		{
+			found_replacement = simpleReplacement (replacement, tokens[0], substitutions);
+		}
+		else if (tokens[1] == "number")
+		{
+			std::basic_string<T> param = "0";
+
+			if (tokens.size() > 2) param = tokens[2];
+			found_replacement = simpleReplacement (replacement, tokens[0], substitutions);
+			if (found_replacement) formatNumber (replacement, param);
+		}
+		else if (tokens[1] == "datetime")
+		{
+			std::basic_string<T> param;
+			if (tokens.size() > 2) param = tokens[2];
+			
+			S32 secFromEpoch = (S32) substitutions["datetime"].asInteger();
+			found_replacement = formatDatetime (replacement, tokens[0], param, secFromEpoch);
+		}
+
+		if (found_replacement)
+		{
+			output << std::basic_string<T>(start, match[0].first) << replacement;
+			res++;
+		}
+		else
+		{
+			// we had no replacement, so leave the string we searched for so that it gets noticed by QA
+			// "hello [NAME_NOT_FOUND]" is output
+			output << std::basic_string<T>(start, match[0].second);
+		}
+		
+		// update search position 
+		start = match[0].second; 
+	}
+	// send the remainder of the string (with no further matches for bracketed names)
+	output << std::basic_string<T>(start, end);
+	s = output.str();
+	return res;
+}
+
+// static
+template<class T>
+bool LLStringUtilBase<T>::simpleReplacement(std::basic_string<T> &replacement, std::basic_string<T> token, const format_map_t& substitutions)
+{
+	// see if we have a replacement for the bracketed string (without the brackets)
+	// test first using has() because if we just look up with operator[] we get back an
+	// empty string even if the value is missing. We want to distinguish between 
+	// missing replacements and deliberately empty replacement strings.
+	format_map_t::const_iterator iter = substitutions.find(token);
+	if (iter != substitutions.end())
+	{
+		replacement = iter->second;
+		return true;
+	}
+	// if not, see if there's one WITH brackets
+	iter = substitutions.find(std::basic_string<T>("[" + token + "]"));
+	if (iter != substitutions.end())
+	{
+		replacement = iter->second;
+		return true;
+	}
+
+	return false;
+}
+
+// static
+template<class T>
+bool LLStringUtilBase<T>::simpleReplacement(std::basic_string<T> &replacement, std::basic_string<T> token, const LLSD& substitutions)
+{
+	// see if we have a replacement for the bracketed string (without the brackets)
+	// test first using has() because if we just look up with operator[] we get back an
+	// empty string even if the value is missing. We want to distinguish between 
+	// missing replacements and deliberately empty replacement strings.
+	if (substitutions.has(token))
+	{
+		replacement = substitutions[token].asString();
+		return true;
+	}
+	// if not, see if there's one WITH brackets
+	else if (substitutions.has(std::basic_string<T>("[" + token + "]")))
+	{
+		replacement = substitutions[std::basic_string<T>("[" + token + "]")].asString();
+		return true;
+	}
+
+	return false;
+}
+
+// static
+template<class T>
+void LLStringUtilBase<T>::formatNumber(std::basic_string<T>& numStr, std::basic_string<T> decimals)
+{
+	typedef typename std::basic_string<T>::size_type string_size_type_t;
+	std::basic_stringstream<T> strStream;
+	S32 intDecimals = 0;
+
+	convertToS32 (decimals, intDecimals);
+	if (!sLocale.empty())
+	{
+		strStream.imbue (std::locale(sLocale.c_str()));
+	}
+
+	if (!intDecimals)
+	{
+		S32 intStr;
+
+		if (convertToS32(numStr, intStr))
+		{
+			strStream << intStr;
+			numStr = strStream.str();
 		}
 	}
-	return res;
+	else
+	{
+		F32 floatStr;
+
+		if (convertToF32(numStr, floatStr))
+		{
+			strStream << std::fixed << std::showpoint << std::setprecision(intDecimals) << floatStr;
+			numStr = strStream.str();
+		}
+	}
+}
+
+// static
+template<class T>
+bool LLStringUtilBase<T>::formatDatetime(std::basic_string<T>& replacement, std::basic_string<T> token,
+										 std::basic_string<T> param, S32 secFromEpoch)
+{
+	if (param == "local")   // local
+	{
+		secFromEpoch -= LLStringOps::getLocalTimeOffset();
+	}
+	else if (param != "utc") // slt
+	{
+		secFromEpoch -= LLStringOps::getSltOffset();
+	}
+		
+	// if never fell into those two ifs above, param must be utc
+	if (secFromEpoch < 0) secFromEpoch = 0;
+
+	LLDate * datetime = new LLDate((F64)secFromEpoch);
+	std::string code = LLStringOps::getDatetimeCode (token);
+
+	// special case to handle timezone
+	if (code == "%Z") {
+		if (param == "utc") replacement = "GMT";
+		else if (param != "local") replacement = LLStringOps::getDaylightSavings()? "PDT" : "PST";
+		return true;
+	}
+
+	replacement = datetime->toHTTPDateString(code);
+	if (code.empty())
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }
 
 // static
@@ -917,11 +1190,22 @@ template<class T>
 void LLStringUtilBase<T>::replaceChar( std::basic_string<T>& string, T target, T replacement )
 {
 	size_type found_pos = 0;
-	for (found_pos = string.find(target, found_pos); 
-		found_pos != std::basic_string<T>::npos; 
-		found_pos = string.find(target, found_pos))
+	while( (found_pos = string.find(target, found_pos)) != std::basic_string<T>::npos ) 
 	{
 		string[found_pos] = replacement;
+		found_pos++; // avoid infinite defeat if target == replacement
+	}
+}
+
+//static
+template<class T> 
+void LLStringUtilBase<T>::replaceString( std::basic_string<T>& string, std::basic_string<T> target, std::basic_string<T> replacement )
+{
+	size_type found_pos = 0;
+	while( (found_pos = string.find(target, found_pos)) != std::basic_string<T>::npos )
+	{
+		string.replace( found_pos, target.length(), replacement );
+		found_pos += replacement.length(); // avoid infinite defeat if replacement contains target
 	}
 }
 

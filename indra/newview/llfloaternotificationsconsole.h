@@ -34,18 +34,18 @@
 #define LL_LLFLOATER_NOTIFICATIONS_CONSOLE_H
 
 #include "llfloater.h"
+#include "lllayoutstack.h"
 #include "llnotifications.h"
 
 class LLFloaterNotificationConsole : 
-	public LLFloater, 
-	public LLFloaterSingleton<LLFloaterNotificationConsole>
+	public LLFloater
 {
+	friend class LLFloaterReg;
+
 public:
-	LLFloaterNotificationConsole(const LLSD& key);
 
 	// LLPanel
 	BOOL postBuild();
-	void onClose(bool app_quitting);
 
 	void addChannel(const std::string& type, bool open = false);
 	void updateResizeLimits(LLLayoutStack &stack);
@@ -54,7 +54,8 @@ public:
 	void updateResizeLimits();
 
 private:
-	static void onClickAdd(void* user_data);
+	LLFloaterNotificationConsole(const LLSD& key);	
+	void onClickAdd();
 };
 
 
@@ -69,7 +70,6 @@ public:
 	// LLPanel
 	BOOL postBuild();
 	void respond();
-	void onClose(bool app_quitting) { setVisible(FALSE); }
 
 private:
 	static void onCommitResponse(LLUICtrl* ctrl, void* data) { ((LLFloaterNotification*)data)->respond(); }

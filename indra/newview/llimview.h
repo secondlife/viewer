@@ -33,9 +33,12 @@
 #ifndef LL_LLIMVIEW_H
 #define LL_LLIMVIEW_H
 
-#include "llfloater.h"
+#include "lldarray.h"
+#include "llmodaldialog.h"
 #include "llinstantmessage.h"
 #include "lluuid.h"
+#include "llmultifloater.h"
+#include "llrecentpeople.h"
 
 class LLFloaterChatterBox;
 class LLUUID;
@@ -43,8 +46,61 @@ class LLFloaterIMPanel;
 class LLFriendObserver;
 class LLFloaterIM;
 
+class LLIMModel :  public LLSingleton<LLIMModel>
+{
+public:
+
+	struct LLIMSession
+	{
+		LLIMSession(std::string name, EInstantMessage type, LLUUID other_participant_id) 
+			:mName(name), mType(type), mNumUnread(0), mOtherParticipantID(other_participant_id) {}
+		
+		std::string mName;
+		EInstantMessage mType;
+		LLUUID mOtherParticipantID;
+		S32 mNumUnread;
+		std::list<LLSD> mMsgs;
+	};
+	
+
+	LLIMModel();
+
+	static std::map<LLUUID, LLIMSession*> sSessionsMap;  //mapping session_id to session
+	boost::signals2::signal<void(const LLSD&)> mChangedSignal;
+	boost::signals2::connection addChangedCallback( boost::function<void (const LLSD& data)> cb );
+
+	bool newSession(LLUUID session_id, std::string name, EInstantMessage type, LLUUID other_participant_id);
+	bool clearSession(LLUUID session_id);
+	std::list<LLSD> getMessages(LLUUID session_id, int start_index = 0);
+	bool addMessage(LLUUID session_id, std::string from, LLUUID other_participant_id, std::string utf8_text);
+	bool addToHistory(LLUUID session_id, std::string from, std::string utf8_text); 
+    //used to get the name of the session, for use as the title
+    //currently just the other avatar name
+	const std::string& getName(LLUUID session_id);
+	
+	static void sendLeaveSession(LLUUID session_id, LLUUID other_participant_id);
+	static bool sendStartSession(const LLUUID& temp_session_id, const LLUUID& other_participant_id,
+						  const std::vector<LLUUID>& ids, EInstantMessage dialog);
+	static void sendTypingState(LLUUID session_id, LLUUID other_participant_id, BOOL typing);
+	static void sendMessage(const std::string& utf8_text, const LLUUID& im_session_id,
+								const LLUUID& other_participant_id, EInstantMessage dialog);
+
+	void testMessages();
+};
+
+class LLIMSessionObserver
+{
+public:
+	virtual ~LLIMSessionObserver() {}
+	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) = 0;
+	virtual void sessionRemoved(const LLUUID& session_id) = 0;
+};
+
+
 class LLIMMgr : public LLSingleton<LLIMMgr>
 {
+	friend class LLIMModel;
+
 public:
 	enum EInvitationType
 	{
@@ -134,18 +190,14 @@ public:
 	// IM received that you haven't seen yet
 	BOOL getIMReceived() const;
 
-	void		setFloaterOpen(BOOL open);		/*Flawfinder: ignore*/
-	BOOL		getFloaterOpen();
-
-	LLFloaterChatterBox* getFloater();
+	// Calc number of unread IMs
+	S32 getNumberOfUnreadIM();
 
 	// This method is used to go through all active sessions and
 	// disable all of them. This method is usally called when you are
 	// forced to log out or similar situations where you do not have a
 	// good connection.
 	void disconnectAllSessions();
-
-	static void	toggle(void*);
 
 	// This is a helper function to determine what kind of im session
 	// should be used for the given agent.
@@ -171,6 +223,9 @@ public:
 	//HACK: need a better way of enumerating existing session, or listening to session create/destroy events
 	const std::set<LLHandle<LLFloater> >& getIMFloaterHandles() { return mFloaters; }
 
+	void addSessionObserver(LLIMSessionObserver *);
+	void removeSessionObserver(LLIMSessionObserver *);
+
 private:
 	// create a panel and update internal representation for
 	// consistency. Returns the pointer, caller (the class instance
@@ -180,14 +235,8 @@ private:
 									const LLUUID& target_id,
 									const std::string& name,
 									EInstantMessage dialog,
-									BOOL user_initiated = FALSE);
-
-	LLFloaterIMPanel* createFloater(const LLUUID& session_id,
-									const LLUUID& target_id,
-									const std::string& name,
-									const LLDynamicArray<LLUUID>& ids,
-									EInstantMessage dialog,
-									BOOL user_initiated = FALSE);
+									BOOL user_initiated = FALSE, 
+									const LLDynamicArray<LLUUID>& ids = LLDynamicArray<LLUUID>());
 
 	// This simple method just iterates through all of the ids, and
 	// prints a simple message if they are not online. Used to help
@@ -198,11 +247,17 @@ private:
 
 	void processIMTypingCore(const LLIMInfo* im_info, BOOL typing);
 
-	static void onInviteNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* userdata);
+	static void onInviteNameLookup(LLSD payload, const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
+
+	void notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
+	void notifyObserverSessionRemoved(const LLUUID& session_id);
 
 private:
 	std::set<LLHandle<LLFloater> > mFloaters;
 	LLFriendObserver* mFriendObserver;
+
+	typedef std::list <LLIMSessionObserver *> session_observers_list_t;
+	session_observers_list_t mSessionObservers;
 
 	// An IM has been received that you haven't seen yet.
 	BOOL mIMReceived;
@@ -221,6 +276,23 @@ public:
 	static std::map<std::string,std::string> sEventStringsMap;
 	static std::map<std::string,std::string> sErrorStringsMap;
 	static std::map<std::string,std::string> sForceCloseSessionMap;
+};
+
+class LLIncomingCallDialog : public LLModalDialog
+{
+public:
+	LLIncomingCallDialog(const LLSD& payload);
+
+	/*virtual*/ BOOL postBuild();
+
+	static void onAccept(void* user_data);
+	static void onReject(void* user_data);
+	static void onStartIM(void* user_data);
+
+private:
+	void processCallResponse(S32 response);
+
+	LLSD mPayload;
 };
 
 // Globals

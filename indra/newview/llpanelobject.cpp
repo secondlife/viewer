@@ -52,7 +52,6 @@
 #include "llcombobox.h"
 #include "llfocusmgr.h"
 #include "llmanipscale.h"
-#include "llpanelinventory.h"
 #include "llpreviewscript.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
@@ -62,6 +61,7 @@
 #include "lltool.h"
 #include "lltoolcomp.h"
 #include "lltoolmgr.h"
+#include "lltrans.h"
 #include "llui.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"
@@ -99,13 +99,23 @@ enum {
 	MI_HOLE_COUNT
 };
 
-//*TODO:translate (depricated, so very low priority)
-static const std::string LEGACY_FULLBRIGHT_DESC("Fullbright (Legacy)");
+//static const std::string LEGACY_FULLBRIGHT_DESC =LLTrans::getString("Fullbright");
 
 BOOL	LLPanelObject::postBuild()
 {
 	setMouseOpaque(FALSE);
-
+	
+	std::map<std::string, std::string> material_name_map;
+	material_name_map["Stone"]= LLTrans::getString("Stone");
+	material_name_map["Metal"]= LLTrans::getString("Metal");	
+	material_name_map["Glass"]= LLTrans::getString("Glass");	
+	material_name_map["Wood"]= LLTrans::getString("Wood");	
+	material_name_map["Flesh"]= LLTrans::getString("Flesh");
+	material_name_map["Plastic"]= LLTrans::getString("Plastic");
+	material_name_map["Rubber"]= LLTrans::getString("Rubber");	
+	material_name_map["Light"]= LLTrans::getString("Light");		
+	
+	LLMaterialTable::basic.initTableTransNames(material_name_map);
 	//--------------------------------------------------------
 	// Top
 	//--------------------------------------------------------
@@ -164,14 +174,14 @@ BOOL	LLPanelObject::postBuild()
 	mComboMaterial = getChild<LLComboBox>("material");
 	childSetCommitCallback("material",onCommitMaterial,this);
 	mComboMaterial->removeall();
-	// *TODO:translate
+
 	for (LLMaterialTable::info_list_t::iterator iter = LLMaterialTable::basic.mMaterialInfoList.begin();
 		 iter != LLMaterialTable::basic.mMaterialInfoList.end(); ++iter)
 	{
 		LLMaterialInfo* minfop = *iter;
 		if (minfop->mMCode != LL_MCODE_LIGHT)
 		{
-			mComboMaterial->add(minfop->mName);
+			mComboMaterial->add(minfop->mName);  
 		}
 	}
 	mComboMaterialItemCount = mComboMaterial->getItemCount();
@@ -263,11 +273,10 @@ BOOL	LLPanelObject::postBuild()
 	if (mCtrlSculptTexture)
 	{
 		mCtrlSculptTexture->setDefaultImageAssetID(LLUUID(SCULPT_DEFAULT_TEXTURE));
-		mCtrlSculptTexture->setCommitCallback( LLPanelObject::onCommitSculpt );
-		mCtrlSculptTexture->setOnCancelCallback( LLPanelObject::onCancelSculpt );
-		mCtrlSculptTexture->setOnSelectCallback( LLPanelObject::onSelectSculpt );
-		mCtrlSculptTexture->setDropCallback(LLPanelObject::onDropSculpt);
-		mCtrlSculptTexture->setCallbackUserData( this );
+		mCtrlSculptTexture->setCommitCallback( boost::bind(&LLPanelObject::onCommitSculpt, this, _2 ));
+		mCtrlSculptTexture->setOnCancelCallback( boost::bind(&LLPanelObject::onCancelSculpt, this, _2 ));
+		mCtrlSculptTexture->setOnSelectCallback( boost::bind(&LLPanelObject::onSelectSculpt, this, _2 ));
+		mCtrlSculptTexture->setDropCallback( boost::bind(&LLPanelObject::onDropSculpt, this, _2 ));
 		// Don't allow (no copy) or (no transfer) textures to be selected during immediate mode
 		mCtrlSculptTexture->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
 		// Allow any texture to be used during non-immediate mode.
@@ -303,8 +312,8 @@ BOOL	LLPanelObject::postBuild()
 	return TRUE;
 }
 
-LLPanelObject::LLPanelObject(const std::string& name)
-:	LLPanel(name),
+LLPanelObject::LLPanelObject()
+:	LLPanel(),
 	mIsPhysical(FALSE),
 	mIsTemporary(FALSE),
 	mIsPhantom(FALSE),
@@ -530,7 +539,7 @@ void LLPanelObject::getState( )
 		}
 	} func;
 	bool material_same = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, material_code );
-	
+	std::string LEGACY_FULLBRIGHT_DESC = LLTrans::getString("Fullbright");
 	if (editable && single_volume && material_same)
 	{
 		mComboMaterial->setEnabled( TRUE );
@@ -549,7 +558,7 @@ void LLPanelObject::getState( )
 			{
 				mComboMaterial->remove(LEGACY_FULLBRIGHT_DESC);
 			}
-			// *TODO:Translate
+			
 			mComboMaterial->setSimple(std::string(LLMaterialTable::basic.getName(material_code)));
 		}
 	}
@@ -1163,7 +1172,7 @@ void LLPanelObject::getState( )
 }
 
 // static
-BOOL LLPanelObject::precommitValidate( LLUICtrl* ctrl, void* userdata )
+bool LLPanelObject::precommitValidate( const LLSD& data )
 {
 	// TODO: Richard will fill this in later.  
 	return TRUE; // FALSE means that validation failed and new value should not be commited.
@@ -1244,6 +1253,7 @@ void LLPanelObject::onCommitMaterial( LLUICtrl* ctrl, void* userdata )
 	{
 		// apply the currently selected material to the object
 		const std::string& material_name = box->getSimple();
+		std::string LEGACY_FULLBRIGHT_DESC = LLTrans::getString("Fullbright");
 		if (material_name != LEGACY_FULLBRIGHT_DESC)
 		{
 			U8 material_code = LLMaterialTable::basic.getMCode(material_name);
@@ -1992,60 +2002,49 @@ void LLPanelObject::onCommitCastShadows( LLUICtrl* ctrl, void* userdata )
 }
 
 
-// static
-void LLPanelObject::onSelectSculpt(LLUICtrl* ctrl, void* userdata)
+void LLPanelObject::onSelectSculpt(const LLSD& data)
 {
-	LLPanelObject* self = (LLPanelObject*) userdata;
-
-    LLTextureCtrl* mTextureCtrl = self->getChild<LLTextureCtrl>("sculpt texture control");
+    LLTextureCtrl* mTextureCtrl = getChild<LLTextureCtrl>("sculpt texture control");
 
 	if (mTextureCtrl)
 	{
-		self->mSculptTextureRevert = mTextureCtrl->getImageAssetID();
+		mSculptTextureRevert = mTextureCtrl->getImageAssetID();
 	}
 	
-	self->sendSculpt();
+	sendSculpt();
 }
 
 
-void LLPanelObject::onCommitSculpt( LLUICtrl* ctrl, void* userdata )
+void LLPanelObject::onCommitSculpt( const LLSD& data )
 {
-	LLPanelObject* self = (LLPanelObject*) userdata;
-
-	self->sendSculpt();
+	sendSculpt();
 }
 
-// static
-BOOL LLPanelObject::onDropSculpt(LLUICtrl*, LLInventoryItem* item, void* userdata)
+BOOL LLPanelObject::onDropSculpt(LLInventoryItem* item)
 {
-	LLPanelObject* self = (LLPanelObject*) userdata;
-
-    LLTextureCtrl* mTextureCtrl = self->getChild<LLTextureCtrl>("sculpt texture control");
+    LLTextureCtrl* mTextureCtrl = getChild<LLTextureCtrl>("sculpt texture control");
 
 	if (mTextureCtrl)
 	{
 		LLUUID asset = item->getAssetUUID();
 
 		mTextureCtrl->setImageAssetID(asset);
-		self->mSculptTextureRevert = asset;
+		mSculptTextureRevert = asset;
 	}
 
 	return TRUE;
 }
 
 
-// static
-void LLPanelObject::onCancelSculpt(LLUICtrl* ctrl, void* userdata)
+void LLPanelObject::onCancelSculpt(const LLSD& data)
 {
-	LLPanelObject* self = (LLPanelObject*) userdata;
-
-	LLTextureCtrl* mTextureCtrl = self->getChild<LLTextureCtrl>("sculpt texture control");
+	LLTextureCtrl* mTextureCtrl = getChild<LLTextureCtrl>("sculpt texture control");
 	if(!mTextureCtrl)
 		return;
 	
-	mTextureCtrl->setImageAssetID(self->mSculptTextureRevert);
+	mTextureCtrl->setImageAssetID(mSculptTextureRevert);
 	
-	self->sendSculpt();
+	sendSculpt();
 }
 
 // static

@@ -40,9 +40,7 @@
 
 // declarations
 class LLButton;
-class LLToolView;
 class LLStatusPanel;
-class LLFrameStatView;
 class LLFastTimerView;
 class LLMemoryView;
 class LLConsole;
@@ -52,10 +50,18 @@ class LLFloaterStats;
 class LLDebugView : public LLView
 {
 public:
-	LLDebugView(const std::string& name, const LLRect &rect);
+	struct Params : public LLInitParam::Block<Params, LLView::Params>
+	{
+		Params()
+		{
+			mouse_opaque = false;
+		}
+	};
+	LLDebugView(const Params&);
 	~LLDebugView();
 
-	LLFrameStatView* mFrameStatView;
+	void setStatsVisible(BOOL visible);
+	
 	LLFastTimerView* mFastTimerView;
 	LLMemoryView*	 mMemoryView;
 	LLConsole*		 mDebugConsolep;

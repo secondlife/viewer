@@ -39,11 +39,10 @@
 #include "llglheaders.h"
 #include "llrendersphere.h"
 #include "llviewerobject.h"
-#include "llimagegl.h"
 #include "llagent.h"
 #include "llsky.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
@@ -262,6 +261,7 @@ void LLVolumeImplFlexible::onSetVolume(const LLVolumeParams &volume_params, cons
 // updated every time step. In the future, perhaps there could be an 
 // optimization similar to what Havok does for objects that are stationary. 
 //---------------------------------------------------------------------------------
+static LLFastTimer::DeclareTimer FTM_FLEXIBLE_UPDATE("Update Flexies");
 BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
 	if (mVO->mDrawable.isNull())
@@ -280,7 +280,7 @@ BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F6
 		parent->mDrawable->mQuietCount = 0;
 	}
 
-	LLFastTimer ftm(LLFastTimer::FTM_FLEXIBLE_UPDATE);
+	LLFastTimer ftm(FTM_FLEXIBLE_UPDATE);
 		
 	S32 new_res = mAttributes->getSimulateLOD();
 

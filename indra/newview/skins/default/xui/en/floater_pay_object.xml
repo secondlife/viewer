@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_minimize="false"
+ height="140"
+ layout="topleft"
+ name="Give Money"
+ save_rect="true"
+ width="300">
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     halign="right"
+     height="18"
+     layout="topleft"
+     left="5"
+     name="payee_group"
+     top="7"
+     width="75">
+        Pay group:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     halign="right"
+     height="18"
+     layout="topleft"
+     left_delta="0"
+     name="payee_resident"
+     top_delta="0"
+     width="75">
+        Pay resident:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="18"
+     layout="topleft"
+     left_pad="5"
+     name="payee_name"
+     top_delta="0"
+     width="210">
+        [FIRST] [LAST]
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     halign="right"
+     height="18"
+     layout="topleft"
+     left="5"
+     name="object_name_label"
+     top="32"
+     width="75">
+        Via object:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="18"
+     layout="topleft"
+     left_pad="5"
+     name="object_name_text"
+     top_delta="0"
+     width="210">
+        ...
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     halign="right"
+     height="18"
+     layout="topleft"
+     left="5"
+     name="fastpay text"
+     top="54"
+     width="75">
+        Fast Pay:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     halign="right"
+     height="18"
+     layout="topleft"
+     left_delta="0"
+     name="amount text"
+     top_pad="40"
+     width="75">
+        Amount:
+    </text>
+    <button
+     height="20"
+     label="L$1"
+     label_selected="L$1"
+     layout="topleft"
+     left="85"
+     name="fastpay 1"
+     top="54"
+     width="80" />
+    <button
+     height="20"
+     label="L$5"
+     label_selected="L$5"
+     layout="topleft"
+     left_pad="5"
+     name="fastpay 5"
+     top_delta="0"
+     width="80" />
+    <button
+     height="20"
+     label="L$10"
+     label_selected="L$10"
+     layout="topleft"
+     left="85"
+     name="fastpay 10"
+     top="78"
+     width="80" />
+    <button
+     height="20"
+     label="L$20"
+     label_selected="L$20"
+     layout="topleft"
+     left_pad="5"
+     name="fastpay 20"
+     top_delta="0"
+     width="80" />
+    <button
+     enabled="false"
+     follows="right|bottom"
+     height="20"
+     label="Pay"
+     label_selected="Pay"
+     layout="topleft"
+     left="140"
+     name="pay btn"
+     top="112"
+     width="70" />
+    <button
+     follows="right|bottom"
+     height="20"
+     label="Cancel"
+     label_selected="Cancel"
+     layout="topleft"
+     left_pad="5"
+     name="cancel btn"
+     top_delta="0"
+     width="70" />
+    <line_editor
+     border_style="line"
+     border_thickness="1"
+     follows="left|top|right"
+     font="SansSerif"
+     height="18"
+     layout="topleft"
+     left_delta="-130"
+     max_length="9"
+     name="amount"
+     top_delta="0"
+     width="50" />
+</floater>

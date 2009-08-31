@@ -40,6 +40,7 @@
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llfloaterland.h"
+#include "llfloaterreg.h"
 #include "lltextbox.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
@@ -79,8 +80,8 @@ BOOL	LLPanelLandInfo::postBuild()
 //
 // Methods
 //
-LLPanelLandInfo::LLPanelLandInfo(const std::string& name)
-:	LLPanel(name),
+LLPanelLandInfo::LLPanelLandInfo()
+:	LLPanel(),
 	mCheckShowOwners(NULL)
 {
 	if (!sInstance)
@@ -262,7 +263,7 @@ void LLPanelLandInfo::onClickAbout(void*)
 		LLViewerParcelMgr::getInstance()->selectParcelInRectangle();
 	}
 
-	LLFloaterLand::showInstance();
+	LLFloaterReg::showInstance("about_land");
 }
 
 void LLPanelLandInfo::onShowOwnersHelp(void* user_data)

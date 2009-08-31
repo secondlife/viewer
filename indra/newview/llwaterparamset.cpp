@@ -39,7 +39,7 @@
 #include "llwaterparammanager.h"
 #include "lluictrlfactory.h"
 #include "llsliderctrl.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewercontrol.h"
 #include "lluuid.h"
 

@@ -60,12 +60,8 @@
 	</text>
 	<check_box label="In vendita" name="CheckPurchase"/>
 	<radio_group name="RadioSaleType" left_delta="88" >
-		<radio_item name="radio">
-			Originale
-		</radio_item>
-		<radio_item name="radio2">
-			Copia
-		</radio_item>
+		<radio_item name="radio" label="Originale" />
+		<radio_item name="radio2" label="Copia" />
 	</radio_group>
 	<text name="TextPrice">
 		Prezzo:  L$

@@ -36,123 +36,51 @@
 		Hendrerit Vulputate
 	</text>
 	<combo_box name="category_combo" tool_tip="Categorie -- selecteer de categorie die dit rapport het best beschrijft">
-		<combo_item name="Select_category">
-			Selecteer categorie
-		</combo_item>
-		<combo_item name="Age__Age_play">
-			Leeftijd &gt; Leeftijd spelen
-		</combo_item>
-		<combo_item name="Age__Adult_resident_on_Teen_Second_Life">
-			Leeftijd &gt; Volwassen inwoner in Teen Second Life
-		</combo_item>
+		<combo_box.item name="Select_category" label="Selecteer categorie"/>
+		<combo_box.item name="Age__Age_play" label="Leeftijd &gt; Leeftijd spelen"/>
+		<combo_box.item name="Age__Adult_resident_on_Teen_Second_Life" label="Leeftijd &gt; Volwassen inwoner in Teen Second Life"/>
 		<combo_item name="Age__Underage_resident_outside_of_Teen_Second_Life">
 			Leeftijd &gt; Minderjarige inwoner buiten Teen Second Life
 		</combo_item>
-		<combo_item name="Assault__Combat_sandbox___unsafe_area">
-			Aanval &gt; Gevechtszandbak / onveilig gebied
-		</combo_item>
-		<combo_item name="Assault__Safe_area">
-			Aanval &gt; Veilig gebied
-		</combo_item>
-		<combo_item name="Assault__Weapons_testing_sandbox">
-			Aanval &gt; Zandbak voor het testen van wapens
-		</combo_item>
-		<combo_item name="Commerce__Failure_to_deliver_product_or_service">
-			Handel &gt; Product of dienst is niet geleverd
-		</combo_item>
-		<combo_item name="Disclosure__Real_world_information">
-			Openbaring &gt; Echte wereld informatie
-		</combo_item>
-		<combo_item name="Disclosure__Remotely_monitoring chat">
-			Openbaring &gt; Op afstand chat afluisteren
-		</combo_item>
-		<combo_item name="Disclosure__Second_Life_information_chat_IMs">
-			Openbaring &gt; Second Life informatie/chat/IMs
-		</combo_item>
-		<combo_item name="Disturbing_the_peace__Unfair_use_of_region_resources">
-			Vredebreuk &gt; Oneerlijk gebruik van regiomiddelen
-		</combo_item>
-		<combo_item name="Disturbing_the_peace__Excessive_scripted_objects">
-			Vredebreuk &gt; Excessieve gescripte objecten
-		</combo_item>
-		<combo_item name="Disturbing_the_peace__Object_littering">
-			Vredebreuk &gt; Objecten laten rondslingeren
-		</combo_item>
-		<combo_item name="Disturbing_the_peace__Repetitive_spam">
-			Vredebreuk &gt; Herhaalde spam
-		</combo_item>
-		<combo_item name="Disturbing_the_peace__Unwanted_advert_spam">
-			Vredebreuk &gt; Ongewenste reclame-spam
-		</combo_item>
-		<combo_item name="Fraud__L$">
-			Fraude &gt; L$
-		</combo_item>
-		<combo_item name="Fraud__Land">
-			Fraude &gt; Land
-		</combo_item>
-		<combo_item name="Fraud__Pyramid_scheme_or_chain_letter">
-			Fraude &gt; Piramideschema of kettingbrief
-		</combo_item>
-		<combo_item name="Fraud__US$">
-			Fraude &gt; US$
-		</combo_item>
-		<combo_item name="Harassment__Advert_farms___visual_spam">
-			Intimidatie &gt; Reclameverzamelingen / visuele spam
-		</combo_item>
-		<combo_item name="Harassment__Defaming_individuals_or_groups">
-			Intimidatie &gt; Individuen of groepen in diskrediet brengen
-		</combo_item>
-		<combo_item name="Harassment__Impeding_movement">
-			Intimidatie &gt; Beweging verhinderen
-		</combo_item>
-		<combo_item name="Harassment__Sexual_harassment">
-			Intimidatie &gt; Seksuele intimidatie
-		</combo_item>
-		<combo_item name="Harassment__Solicting_inciting_others_to_violate_ToS">
-			Intimidatie &gt; Anderen uitnodigen/aanzetten tot het schenden van de ToS
-		</combo_item>
-		<combo_item name="Harassment__Verbal_abuse">
-			Intimidatie &gt; Verbaal misbruik
-		</combo_item>
-		<combo_item name="Indecency__Broadly_offensive_content_or_conduct">
-			Onfatsoenlijkheid &gt; Globaal beledigende inhoud of gedrag
-		</combo_item>
-		<combo_item name="Indecency__Inappropriate_avatar_name">
-			Onfatsoenlijkheid &gt; Ongepaste avatar naam
-		</combo_item>
+		<combo_box.item name="Assault__Combat_sandbox___unsafe_area" label="Aanval &gt; Gevechtszandbak / onveilig gebied"/>
+		<combo_box.item name="Assault__Safe_area" label="Aanval &gt; Veilig gebied"/>
+		<combo_box.item name="Assault__Weapons_testing_sandbox" label="Aanval &gt; Zandbak voor het testen van wapens"/>
+		<combo_box.item name="Commerce__Failure_to_deliver_product_or_service" label="Handel &gt; Product of dienst is niet geleverd"/>
+		<combo_box.item name="Disclosure__Real_world_information" label="Openbaring &gt; Echte wereld informatie"/>
+		<combo_box.item name="Disclosure__Remotely_monitoring chat" label="Openbaring &gt; Op afstand chat afluisteren"/>
+		<combo_box.item name="Disclosure__Second_Life_information_chat_IMs" label="Openbaring &gt; Second Life informatie/chat/IMs"/>
+		<combo_box.item name="Disturbing_the_peace__Unfair_use_of_region_resources" label="Vredebreuk &gt; Oneerlijk gebruik van regiomiddelen"/>
+		<combo_box.item name="Disturbing_the_peace__Excessive_scripted_objects" label="Vredebreuk &gt; Excessieve gescripte objecten"/>
+		<combo_box.item name="Disturbing_the_peace__Object_littering" label="Vredebreuk &gt; Objecten laten rondslingeren"/>
+		<combo_box.item name="Disturbing_the_peace__Repetitive_spam" label="Vredebreuk &gt; Herhaalde spam"/>
+		<combo_box.item name="Disturbing_the_peace__Unwanted_advert_spam" label="Vredebreuk &gt; Ongewenste reclame-spam"/>
+		<combo_box.item name="Fraud__L$" label="Fraude &gt; L$"/>
+		<combo_box.item name="Fraud__Land" label="Fraude &gt; Land"/>
+		<combo_box.item name="Fraud__Pyramid_scheme_or_chain_letter" label="Fraude &gt; Piramideschema of kettingbrief"/>
+		<combo_box.item name="Fraud__US$" label="Fraude &gt; US$"/>
+		<combo_box.item name="Harassment__Advert_farms___visual_spam" label="Intimidatie &gt; Reclameverzamelingen / visuele spam"/>
+		<combo_box.item name="Harassment__Defaming_individuals_or_groups" label="Intimidatie &gt; Individuen of groepen in diskrediet brengen"/>
+		<combo_box.item name="Harassment__Impeding_movement" label="Intimidatie &gt; Beweging verhinderen"/>
+		<combo_box.item name="Harassment__Sexual_harassment" label="Intimidatie &gt; Seksuele intimidatie"/>
+		<combo_box.item name="Harassment__Solicting_inciting_others_to_violate_ToS" label="Intimidatie &gt; Anderen uitnodigen/aanzetten tot het schenden van de ToS"/>
+		<combo_box.item name="Harassment__Verbal_abuse" label="Intimidatie &gt; Verbaal misbruik"/>
+		<combo_box.item name="Indecency__Broadly_offensive_content_or_conduct" label="Onfatsoenlijkheid &gt; Globaal beledigende inhoud of gedrag"/>
+		<combo_box.item name="Indecency__Inappropriate_avatar_name" label="Onfatsoenlijkheid &gt; Ongepaste avatar naam"/>
 		<combo_item name="Indecency__Mature_content_in_PG_region">
 			Onfatsoenlijkheid &gt; Ongepaste inhoud of gedrag in een PG regio
 		</combo_item>
 		<combo_item name="Indecency__Inappropriate_content_in_Mature_region">
 			Onfatsoenlijkheid &gt; Ongepaste inhoud of gedrag in een Mature regio
 		</combo_item>
-		<combo_item name="Intellectual_property_infringement_Content_Removal">
-			Inbreuk op intellectueel eigendom &gt; Verwijderen van inhoud
-		</combo_item>
-		<combo_item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit">
-			Inbreuk op intellectueel eigendom &gt; CopyBot of misbruik van permissies
-		</combo_item>
-		<combo_item name="Intolerance">
-			Intolerantie
-		</combo_item>
-		<combo_item name="Land__Abuse_of_sandbox_resources">
-			Land &gt; Misbruik van zandbakmiddelen
-		</combo_item>
-		<combo_item name="Land__Encroachment__Objects_textures">
-			Land &gt; Indringing &gt; Objecten/texturen
-		</combo_item>
-		<combo_item name="Land__Encroachment__Particles">
-			Land &gt; Indringing &gt; Particles
-		</combo_item>
-		<combo_item name="Land__Encroachment__Trees_plants">
-			Land &gt; Indringing &gt; Bomen/planten
-		</combo_item>
-		<combo_item name="Wagering_gambling">
-			Weddenschappen/gokken
-		</combo_item>
-		<combo_item name="Other">
-			Anders
-		</combo_item>
+		<combo_box.item name="Intellectual_property_infringement_Content_Removal" label="Inbreuk op intellectueel eigendom &gt; Verwijderen van inhoud"/>
+		<combo_box.item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit" label="Inbreuk op intellectueel eigendom &gt; CopyBot of misbruik van permissies"/>
+		<combo_box.item name="Intolerance" label="Intolerantie"/>
+		<combo_box.item name="Land__Abuse_of_sandbox_resources" label="Land &gt; Misbruik van zandbakmiddelen"/>
+		<combo_box.item name="Land__Encroachment__Objects_textures" label="Land &gt; Indringing &gt; Objecten/texturen"/>
+		<combo_box.item name="Land__Encroachment__Particles" label="Land &gt; Indringing &gt; Particles"/>
+		<combo_box.item name="Land__Encroachment__Trees_plants" label="Land &gt; Indringing &gt; Bomen/planten"/>
+		<combo_box.item name="Wagering_gambling" label="Weddenschappen/gokken"/>
+		<combo_box.item name="Other" label="Anders"/>
 	</combo_box>
 	<text name="abuser_name_title">
 		Misbruikernaam:

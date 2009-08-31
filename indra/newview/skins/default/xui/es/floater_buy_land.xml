@@ -75,15 +75,9 @@ incluyendo los objetos
 		Sólo pueden ser propietarios de terreno los miembros premium.
 	</text>
 	<combo_box name="account_level">
-		<combo_item name="US$9.95/month,billedmonthly">
-			9.95 US$/mes, facturados mensualmente
-		</combo_item>
-		<combo_item name="US$7.50/month,billedquarterly">
-			7.50 US$/mes, facturados cuatrimestralmente
-		</combo_item>
-		<combo_item name="US$6.00/month,billedannually">
-			6.00 US$/mes, facturados anualmente
-		</combo_item>
+		<combo_box.item name="US$9.95/month,billedmonthly" label="9.95 US$/mes, facturados mensualmente" />
+		<combo_box.item name="US$7.50/month,billedquarterly" label="7.50 US$/mes, facturados cuatrimestralmente" />
+		<combo_box.item name="US$6.00/month,billedannually" label="6.00 US$/mes, facturados anualmente" />
 	</combo_box>
 	<text name="land_use_action">
 		Aumenta su cuota mensual por uso de terreno a 40 US$/mes.

@@ -38,6 +38,7 @@
 #include "llcubemap.h"
 #include "llimagegl.h"
 #include "llrendertarget.h"
+#include "lltexture.h"
 
 LLRender gGL;
 
@@ -177,20 +178,21 @@ void LLTexUnit::disable(void)
 	}
 }
 
-bool LLTexUnit::bind(LLImageGL* texture, bool forceBind)
+bool LLTexUnit::bind(LLTexture* texture, bool forceBind)
 {
 	stop_glerror();
 	if (mIndex < 0) return false;
 
 	gGL.flush();
 
-	if (texture == NULL)
+	LLImageGL* gl_tex = NULL ;
+	if (texture == NULL || !(gl_tex = texture->getGLTexture()))
 	{
 		llwarns << "NULL LLTexUnit::bind texture" << llendl;
 		return false;
 	}
-	
-	if (!texture->getTexName()) //if texture does not exist
+
+	if (!gl_tex->getTexName()) //if texture does not exist
 	{
 		//if deleted, will re-generate it immediately
 		texture->forceImmediateUpdate() ;
@@ -198,14 +200,57 @@ bool LLTexUnit::bind(LLImageGL* texture, bool forceBind)
 		return texture->bindDefaultImage(mIndex);
 	}
 
+	if ((mCurrTexture != gl_tex->getTexName()) || forceBind)
+	{
+		activate();
+		enable(gl_tex->getTarget());
+		mCurrTexture = gl_tex->getTexName();
+		glBindTexture(sGLTextureType[gl_tex->getTarget()], mCurrTexture);
+		if(gl_tex->updateBindStats(gl_tex->mTextureMemory))
+		{
+			texture->setActive() ;
+			texture->updateBindStatsForTester() ;
+		}
+		mHasMipMaps = gl_tex->mHasMipMaps;
+		if (gl_tex->mTexOptionsDirty)
+		{
+			gl_tex->mTexOptionsDirty = false;
+			setTextureAddressMode(gl_tex->mAddressMode);
+			setTextureFilteringOption(gl_tex->mFilterOption);
+		}
+	}
+	return true;
+}
+
+bool LLTexUnit::bind(LLImageGL* texture, bool forceBind)
+{
+	stop_glerror();
+	if (mIndex < 0) return false;
+
+	if(!texture)
+	{
+		llwarns << "NULL LLTexUnit::bind texture" << llendl;
+		return false;
+	}
+
+	if(!texture->getTexName())
+	{
+		if(LLImageGL::sDefaultGLTexture && LLImageGL::sDefaultGLTexture->getTexName())
+		{
+			return bind(LLImageGL::sDefaultGLTexture) ;
+		}
+		return false ;
+	}
+
+	gGL.flush();
+
 	if ((mCurrTexture != texture->getTexName()) || forceBind)
 	{
 		activate();
 		enable(texture->getTarget());
 		mCurrTexture = texture->getTexName();
 		glBindTexture(sGLTextureType[texture->getTarget()], mCurrTexture);
-		texture->updateBindStats();
-		texture->setActive() ;
+		texture->updateBindStats(texture->mTextureMemory);		
 		mHasMipMaps = texture->mHasMipMaps;
 		if (texture->mTexOptionsDirty)
 		{
@@ -238,7 +283,7 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
 			mCurrTexture = cubeMap->mImages[0]->getTexName();
 			glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, mCurrTexture);
 			mHasMipMaps = cubeMap->mImages[0]->mHasMipMaps;
-			cubeMap->mImages[0]->updateBindStats();
+			cubeMap->mImages[0]->updateBindStats(cubeMap->mImages[0]->mTextureMemory);
 			if (cubeMap->mImages[0]->mTexOptionsDirty)
 			{
 				cubeMap->mImages[0]->mTexOptionsDirty = false;
@@ -279,15 +324,21 @@ bool LLTexUnit::bind(LLRenderTarget* renderTarget, bool bindDepth)
 
 bool LLTexUnit::bindManual(eTextureType type, U32 texture, bool hasMips)
 {
-	if (mIndex < 0 || mCurrTexture == texture) return false;
+	if (mIndex < 0)  
+	{
+		return false;
+	}
 
-	gGL.flush();
-	
-	activate();
-	enable(type);
-	mCurrTexture = texture;
-	glBindTexture(sGLTextureType[type], texture);
-	mHasMipMaps = hasMips;
+	if(mCurrTexture != texture)
+	{
+		gGL.flush();
+		
+		activate();
+		enable(type);
+		mCurrTexture = texture;
+		glBindTexture(sGLTextureType[type], texture);
+		mHasMipMaps = hasMips;
+	}
 	return true;
 }
 
@@ -784,6 +835,9 @@ void LLRender::setSceneBlendType(eBlendType type)
 			break;
 		case BT_MULT:
 			glBlendFunc(GL_DST_COLOR, GL_ZERO);
+			break;
+		case BT_MULT_ALPHA:
+			glBlendFunc(GL_DST_ALPHA, GL_ZERO);
 			break;
 		case BT_MULT_X2:
 			glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);

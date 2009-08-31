@@ -347,8 +347,11 @@ BOOL LLKeyframeMotionParam::loadMotions()
 	// Load named file by concatenating the character prefix with the motion name.
 	// Load data into a buffer to be parsed.
 	//-------------------------------------------------------------------------
-	std::string path = gDirUtilp->getExpandedFilename(LL_PATH_MOTIONS,mCharacter->getAnimationPrefix())
-		+ "_" + getName() + ".llp";
+	//std::string path = gDirUtilp->getExpandedFilename(LL_PATH_MOTIONS,mCharacter->getAnimationPrefix())
+	//	+ "_" + getName() + ".llp";
+	//RN: deprecated unused reference to "motion" directory
+	std::string path;
+
 
 	//-------------------------------------------------------------------------
 	// open the file

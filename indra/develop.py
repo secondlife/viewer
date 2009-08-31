@@ -76,6 +76,7 @@ class PlatformSetup(object):
     build_type = build_types['relwithdebinfo']
     standalone = 'OFF'
     unattended = 'OFF'
+    universal = 'OFF'
     project_name = 'SecondLife'
     distcc = True
     cmake_opts = []
@@ -419,7 +420,7 @@ class DarwinSetup(UnixSetup):
         return 'darwin'
 
     def arch(self):
-        if self.unattended == 'ON':
+        if self.universal == 'ON':
             return 'universal'
         else:
             return UnixSetup.arch(self)
@@ -433,11 +434,12 @@ class DarwinSetup(UnixSetup):
             word_size=self.word_size,
             unattended=self.unattended,
             project_name=self.project_name,
-            universal='',
+            universal=self.universal,
             type=self.build_type.upper(),
             )
-        if self.unattended == 'ON':
+        if self.universal == 'ON':
             args['universal'] = '-DCMAKE_OSX_ARCHITECTURES:STRING=\'i386;ppc\''
+            pass
         #if simple:
         #    return 'cmake %(opts)s %(dir)r' % args
         return ('cmake -G %(generator)r '
@@ -676,6 +678,7 @@ Options:
        --standalone     build standalone, without Linden prebuild libraries
        --unattended     build unattended, do not invoke any tools requiring
                         a human response
+       --universal      build a universal binary on Mac OS X (unsupported)
   -t | --type=NAME      build type ("Debug", "Release", or "RelWithDebInfo")
   -m32 | -m64           build architecture (32-bit or 64-bit)
   -N | --no-distcc      disable use of distcc
@@ -721,7 +724,7 @@ def main(arguments):
         opts, args = getopt.getopt(
             arguments,
             '?hNt:p:G:m:',
-            ['help', 'standalone', 'no-distcc', 'unattended', 'type=', 'incredibuild', 'generator=', 'project='])
+            ['help', 'standalone', 'no-distcc', 'unattended', 'universal', 'type=', 'incredibuild', 'generator=', 'project='])
     except getopt.GetoptError, err:
         print >> sys.stderr, 'Error:', err
         print >> sys.stderr, """
@@ -738,6 +741,8 @@ For example: develop.py configure -DSERVER:BOOL=OFF"""
             setup.standalone = 'ON'
         elif o in ('--unattended',):
             setup.unattended = 'ON'
+        elif o in ('--universal',):
+            setup.universal = 'ON'
         elif o in ('-m',):
             if a in ('32', '64'):
                 setup.word_size = int(a)

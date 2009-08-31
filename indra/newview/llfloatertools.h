@@ -38,18 +38,20 @@
 #include "llparcelselection.h"
 
 class LLButton;
-class LLTextBox;
-class LLTool;
+class LLComboBox;
 class LLCheckBoxCtrl;
-class LLTabContainer;
 class LLPanelPermissions;
 class LLPanelObject;
 class LLPanelVolume;
 class LLPanelContents;
 class LLPanelFace;
 class LLPanelLandInfo;
-class LLComboBox;
+class LLRadioCtrl;
+class LLRadioGroup;
 class LLSlider;
+class LLTabContainer;
+class LLTextBox;
+class LLTool;
 class LLParcelSelection;
 class LLObjectSelection;
 
@@ -65,15 +67,15 @@ public:
 	static	void*	createPanelVolume(void*	vdata);
 	static	void*	createPanelFace(void*	vdata);
 	static	void*	createPanelContents(void*	vdata);
-	static	void*	createPanelContentsInventory(void*	vdata);
 	static	void*	createPanelLandInfo(void*	vdata);
 
-	LLFloaterTools();
+	LLFloaterTools(const LLSD& key);
 	virtual ~LLFloaterTools();
 
-	virtual void onOpen();
-	virtual void onClose(bool app_quitting);
-	virtual BOOL canClose();
+	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ BOOL canClose();
+	/*virtual*/ void draw();
+	/*virtual*/ void onFocusReceived();
 
 	// call this once per frame to handle visibility, rect location,
 	// button highlights, etc.
@@ -93,24 +95,20 @@ public:
 		PANEL_COUNT
 	};
 
-	/*virtual*/  void draw();
-
 	void dirty();
 	void showPanel(EInfoPanel panel);
 
 	void setStatusText(const std::string& text);
-	virtual void onFocusReceived();
 	static void setEditTool(void* data);
 	void saveLastTool();
 private:
-	static void setObjectType( void* data );
-	
+	void onClose();
 	void refresh();
 
+	static void setObjectType( LLPCode pcode );
 	static void onClickGridOptions(void* data);
 
 public:
-
 	LLButton		*mBtnFocus;
 	LLButton		*mBtnMove;
 	LLButton		*mBtnEdit;
@@ -120,20 +118,13 @@ public:
 	LLTextBox		*mTextStatus;
 
 	// Focus buttons
-	LLCheckBoxCtrl	*mRadioOrbit;
-	LLCheckBoxCtrl	*mRadioZoom;
-	LLCheckBoxCtrl	*mRadioPan;
+	LLRadioGroup*	mRadioGroupFocus;
 
 	// Move buttons
-	LLCheckBoxCtrl	*mRadioMove;
-	LLCheckBoxCtrl	*mRadioLift;
-	LLCheckBoxCtrl	*mRadioSpin;
+	LLRadioGroup*	mRadioGroupMove;
 
 	// Edit buttons
-	LLCheckBoxCtrl	*mRadioPosition;
-	LLCheckBoxCtrl	*mRadioRotate;
-	LLCheckBoxCtrl	*mRadioStretch;
-	LLCheckBoxCtrl	*mRadioSelectFace;
+	LLRadioGroup*	mRadioGroupEdit;
 
 	LLCheckBoxCtrl	*mCheckSelectIndividual;
 
@@ -159,15 +150,7 @@ public:
 	LLCheckBoxCtrl	*mCheckCopyRotates;
 
 	// Land buttons
-//	LLCheckBoxCtrl	*mRadioEditLand;
-	LLCheckBoxCtrl	*mRadioSelectLand;
-
-	LLCheckBoxCtrl	*mRadioDozerFlatten;
-	LLCheckBoxCtrl	*mRadioDozerRaise;
-	LLCheckBoxCtrl	*mRadioDozerLower;
-	LLCheckBoxCtrl	*mRadioDozerSmooth;
-	LLCheckBoxCtrl	*mRadioDozerNoise;
-	LLCheckBoxCtrl	*mRadioDozerRevert;
+	LLRadioGroup*	mRadioGroupLand;
 	LLSlider		*mSliderDozerSize;
 	LLSlider		*mSliderDozerForce;
 

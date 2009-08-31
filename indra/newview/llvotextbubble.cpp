@@ -39,11 +39,10 @@
 #include "llprimitive.h"
 #include "llrendersphere.h"
 
-#include "llagent.h"
 #include "llbox.h"
 #include "lldrawable.h"
 #include "llface.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llvolume.h"
 #include "pipeline.h"
 #include "llviewerregion.h"
@@ -125,7 +124,7 @@ void LLVOTextBubble::updateTextures(LLAgent &agent)
 		const LLTextureEntry *te = getTE(i);
 		F32 texel_area_ratio = fabs(te->mScaleS * te->mScaleT);
 		texel_area_ratio = llclamp(texel_area_ratio, .125f, 16.f);
-		LLViewerImage *imagep = getTEImage(i);
+		LLViewerTexture *imagep = getTEImage(i);
 		if (imagep)
 		{
 			imagep->addTextureStats(mPixelArea / texel_area_ratio);
@@ -142,9 +141,9 @@ LLDrawable *LLVOTextBubble::createDrawable(LLPipeline *pipeline)
 	
 	for (U32 i = 0; i < getNumTEs(); i++)
 	{
-		LLViewerImage *imagep;
+		LLViewerTexture *imagep;
 		const LLTextureEntry *texture_entry = getTE(i);
-		imagep = gImageList.getImage(texture_entry->getID());
+		imagep = LLViewerTextureManager::getFetchedTexture(texture_entry->getID());
 
 		mDrawable->addFace((LLFacePool*) NULL, imagep);
 	}
@@ -194,7 +193,7 @@ BOOL LLVOTextBubble::updateGeometry(LLDrawable *drawable)
 	{
 		LLFace *face = drawable->getFace(i);
 		face->setTEOffset(i);
-		face->setTexture(LLViewerImage::sSmokeImagep);
+		face->setTexture(LLViewerFetchedTexture::sSmokeImagep);
 		face->setState(LLFace::FULLBRIGHT);
 	}
 

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu_bar
+ follows="left|top|right"
+ height="18"
+ layout="topleft"
+ left_delta="0"
+ name="Login Menu"
+ top_delta="0"
+ width="802">
+    <menu
+     create_jump_keys="true"
+     label="File"
+     layout="topleft"
+     name="File">
+        <menu_item_call
+         label="Quit"
+         layout="topleft"
+         name="Quit"
+         shortcut="control|Q">
+            <menu_item_call.on_click
+             function="File.Quit" />
+        </menu_item_call>
+    </menu>
+    <menu
+     create_jump_keys="true"
+     label="Edit"
+     layout="topleft"
+     name="Edit"
+     width="153">
+        <menu_item_call
+         label="Preferences..."
+         layout="topleft"
+         name="Preferences..."
+         shortcut="control|P">
+            <menu_item_call.on_click
+             function="ShowFloater"
+             parameter="preferences" />
+        </menu_item_call>
+    </menu>
+    <menu
+     create_jump_keys="true"
+     label="Help"
+     layout="topleft"
+     name="Help">
+        <menu_item_call
+         label="[SECOND_LIFE] Help"
+         layout="topleft"
+         name="Second Life Help"
+         shortcut="F1">
+            <menu_item_call.on_click
+             function="ShowFloater"
+             parameter="help f1" />
+        </menu_item_call>
+        <menu_item_call
+         label="About [APP_NAME]"
+         layout="topleft"
+         name="About Second Life">
+            <menu_item_call.on_click
+             function="ShowFloater"
+             parameter="sl_about" />
+        </menu_item_call>
+    </menu>
+    <menu
+     create_jump_keys="true"
+     label="Debug"
+     layout="topleft"
+     name="Debug">
+        <menu_item_call
+         label="Debug Settings"
+         layout="topleft"
+         name="Debug Settings">
+            <menu_item_call.on_click
+             function="Advanced.ShowDebugSettings"
+             parameter="all" />
+        </menu_item_call>
+        <menu_item_call
+         label="UI/Color Settings"
+         layout="topleft"
+         name="UI/Color Settings">
+            <menu_item_call.on_click
+             function="Advanced.ShowDebugSettings"
+             parameter="skin" />
+        </menu_item_call>
+        <menu_item_separator />
+        <menu_item_call
+         label="UI Preview Tool"
+         layout="topleft"
+         name="UI Preview Tool"
+         shortcut="control|T">
+            <menu_item_call.on_click
+             function="ShowFloater"
+             parameter="ui_preview" />
+        </menu_item_call>
+      <menu_item_separator />
+      <menu_item_call
+         label="Widget Test"
+         layout="topleft"
+         name="Widget Test"
+         shortcut="control|shift|T">
+            <menu_item_call.on_click
+             function="ShowFloater"
+             parameter="test_widgets" />
+        </menu_item_call>
+        <menu_item_call
+         label="Avatar Inspector"
+         name="Avatar Inspector"
+         shortcut="control|shift|I">
+            <menu_item_call.on_click
+             function="ShowFloater"
+             parameter="inspect_avatar" />
+        </menu_item_call>
+        <menu_item_call
+         label="Show TOS"
+         layout="topleft"
+         name="TOS">
+            <menu_item_call.on_click
+             function="ShowFloater"
+             parameter="message_tos" />
+        </menu_item_call>
+        <menu_item_call
+         label="Show Critical Message"
+         layout="topleft"
+         name="TOS">
+            <menu_item_call.on_click
+             function="ShowFloater"
+             parameter="message_critical" />
+        </menu_item_call>
+    </menu>
+</menu_bar>

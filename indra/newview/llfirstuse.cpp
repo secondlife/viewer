@@ -51,8 +51,6 @@ std::set<std::string> LLFirstUse::sConfigVariables;
 // static
 void LLFirstUse::addConfigVariable(const std::string& var)
 {
-	//Don't add the warning, now that we're storing the default in the settings_default.xml file
-	//gSavedSettings.addWarning(var);
 	sConfigVariables.insert(var);
 }
 
@@ -63,7 +61,7 @@ void LLFirstUse::disableFirstUse()
 	for (std::set<std::string>::iterator iter = sConfigVariables.begin();
 		 iter != sConfigVariables.end(); ++iter)
 	{
-		gSavedSettings.setWarning(*iter, FALSE);
+		gWarningSettings.setBOOL(*iter, FALSE);
 	}
 }
 
@@ -74,7 +72,7 @@ void LLFirstUse::resetFirstUse()
 	for (std::set<std::string>::iterator iter = sConfigVariables.begin();
 		 iter != sConfigVariables.end(); ++iter)
 	{
-		gSavedSettings.setWarning(*iter, TRUE);
+		gWarningSettings.setBOOL(*iter, TRUE);
 	}
 }
 
@@ -82,9 +80,9 @@ void LLFirstUse::resetFirstUse()
 // Called whenever the viewer detects that your balance went up
 void LLFirstUse::useBalanceIncrease(S32 delta)
 {
-	if (gSavedSettings.getWarning("FirstBalanceIncrease"))
+	if (gWarningSettings.getBOOL("FirstBalanceIncrease"))
 	{
-		gSavedSettings.setWarning("FirstBalanceIncrease", FALSE);
+		gWarningSettings.setBOOL("FirstBalanceIncrease", FALSE);
 
 		LLSD args;
 		args["AMOUNT"] = llformat("%d",delta);
@@ -96,9 +94,9 @@ void LLFirstUse::useBalanceIncrease(S32 delta)
 // Called whenever the viewer detects your balance went down
 void LLFirstUse::useBalanceDecrease(S32 delta)
 {
-	if (gSavedSettings.getWarning("FirstBalanceDecrease"))
+	if (gWarningSettings.getBOOL("FirstBalanceDecrease"))
 	{
-		gSavedSettings.setWarning("FirstBalanceDecrease", FALSE);
+		gWarningSettings.setBOOL("FirstBalanceDecrease", FALSE);
 
 		LLSD args;
 		args["AMOUNT"] = llformat("%d",-delta);
@@ -112,9 +110,9 @@ void LLFirstUse::useSit()
 {
 	// Our orientation island uses sitting to teach vehicle driving
 	// so just never show this message. JC
-	//if (gSavedSettings.getWarning("FirstSit"))
+	//if (gWarningSettings.getBOOL("FirstSit"))
 	//{
-	//	gSavedSettings.setWarning("FirstSit", FALSE);
+	//	gWarningSettings.setBOOL("FirstSit", FALSE);
         //
 	//	LLNotifications::instance().add("FirstSit");
 	//}
@@ -123,9 +121,9 @@ void LLFirstUse::useSit()
 // static
 void LLFirstUse::useMap()
 {
-	if (gSavedSettings.getWarning("FirstMap"))
+	if (gWarningSettings.getBOOL("FirstMap"))
 	{
-		gSavedSettings.setWarning("FirstMap", FALSE);
+		gWarningSettings.setBOOL("FirstMap", FALSE);
 
 		LLNotifications::instance().add("FirstMap");
 	}
@@ -140,34 +138,34 @@ void LLFirstUse::useGoTo()
 // static
 void LLFirstUse::useBuild()
 {
-	if (gSavedSettings.getWarning("FirstBuild"))
+	if (gWarningSettings.getBOOL("FirstBuild"))
 	{
-		gSavedSettings.setWarning("FirstBuild", FALSE);
+		gWarningSettings.setBOOL("FirstBuild", FALSE);
 
 		LLNotifications::instance().add("FirstBuild");
 	}
 }
-
+/*
 // static
 void LLFirstUse::useLeftClickNoHit()
 { 
-	if (gSavedSettings.getWarning("FirstLeftClickNoHit"))
+	if (gWarningSettings.getBOOL("FirstLeftClickNoHit"))
 	{
-		gSavedSettings.setWarning("FirstLeftClickNoHit", FALSE);
+		gWarningSettings.setBOOL("FirstLeftClickNoHit", FALSE);
 
 		LLNotifications::instance().add("FirstLeftClickNoHit");
 	}
 }
-
+*/
 // static
 void LLFirstUse::useTeleport()
 {
-	if (gSavedSettings.getWarning("FirstTeleport"))
+	if (gWarningSettings.getBOOL("FirstTeleport"))
 	{
 		LLVector3d teleportDestination = LLTracker::getTrackedPositionGlobal();
 		if(teleportDestination != LLVector3d::zero)
 		{
-			gSavedSettings.setWarning("FirstTeleport", FALSE);
+			gWarningSettings.setBOOL("FirstTeleport", FALSE);
 
 		        LLNotifications::instance().add("FirstTeleport");
 		}
@@ -181,9 +179,9 @@ void LLFirstUse::useOverrideKeys()
 	// so don't show this message until you get off OI. JC
 	if (!gAgent.inPrelude())
 	{
-		if (gSavedSettings.getWarning("FirstOverrideKeys"))
+		if (gWarningSettings.getBOOL("FirstOverrideKeys"))
 		{
-			gSavedSettings.setWarning("FirstOverrideKeys", FALSE);
+			gWarningSettings.setBOOL("FirstOverrideKeys", FALSE);
 
 			LLNotifications::instance().add("FirstOverrideKeys");
 		}
@@ -199,9 +197,9 @@ void LLFirstUse::useAttach()
 // static
 void LLFirstUse::useAppearance()
 {
-	if (gSavedSettings.getWarning("FirstAppearance"))
+	if (gWarningSettings.getBOOL("FirstAppearance"))
 	{
-		gSavedSettings.setWarning("FirstAppearance", FALSE);
+		gWarningSettings.setBOOL("FirstAppearance", FALSE);
 
 		LLNotifications::instance().add("FirstAppearance");
 	}
@@ -210,9 +208,9 @@ void LLFirstUse::useAppearance()
 // static
 void LLFirstUse::useInventory()
 {
-	if (gSavedSettings.getWarning("FirstInventory"))
+	if (gWarningSettings.getBOOL("FirstInventory"))
 	{
-		gSavedSettings.setWarning("FirstInventory", FALSE);
+		gWarningSettings.setBOOL("FirstInventory", FALSE);
 
 		LLNotifications::instance().add("FirstInventory");
 	}
@@ -222,9 +220,9 @@ void LLFirstUse::useInventory()
 // static
 void LLFirstUse::useSandbox()
 {
-	if (gSavedSettings.getWarning("FirstSandbox"))
+	if (gWarningSettings.getBOOL("FirstSandbox"))
 	{
-		gSavedSettings.setWarning("FirstSandbox", FALSE);
+		gWarningSettings.setBOOL("FirstSandbox", FALSE);
 
 		LLSD args;
 		args["HOURS"] = llformat("%d",SANDBOX_CLEAN_FREQ);
@@ -236,9 +234,9 @@ void LLFirstUse::useSandbox()
 // static
 void LLFirstUse::useFlexible()
 {
-	if (gSavedSettings.getWarning("FirstFlexible"))
+	if (gWarningSettings.getBOOL("FirstFlexible"))
 	{
-		gSavedSettings.setWarning("FirstFlexible", FALSE);
+		gWarningSettings.setBOOL("FirstFlexible", FALSE);
 
 		LLNotifications::instance().add("FirstFlexible");
 	}
@@ -247,9 +245,9 @@ void LLFirstUse::useFlexible()
 // static
 void LLFirstUse::useDebugMenus()
 {
-	if (gSavedSettings.getWarning("FirstDebugMenus"))
+	if (gWarningSettings.getBOOL("FirstDebugMenus"))
 	{
-		gSavedSettings.setWarning("FirstDebugMenus", FALSE);
+		gWarningSettings.setBOOL("FirstDebugMenus", FALSE);
 
 		LLNotifications::instance().add("FirstDebugMenus");
 	}
@@ -258,9 +256,9 @@ void LLFirstUse::useDebugMenus()
 // static
 void LLFirstUse::useSculptedPrim()
 {
-	if (gSavedSettings.getWarning("FirstSculptedPrim"))
+	if (gWarningSettings.getBOOL("FirstSculptedPrim"))
 	{
-		gSavedSettings.setWarning("FirstSculptedPrim", FALSE);
+		gWarningSettings.setBOOL("FirstSculptedPrim", FALSE);
 
 		LLNotifications::instance().add("FirstSculptedPrim");
 		
@@ -270,9 +268,9 @@ void LLFirstUse::useSculptedPrim()
 // static 
 void LLFirstUse::useMedia()
 {
-	if (gSavedSettings.getWarning("FirstMedia"))
+	if (gWarningSettings.getBOOL("FirstMedia"))
 	{
-		gSavedSettings.setWarning("FirstMedia", FALSE);
+		gWarningSettings.setBOOL("FirstMedia", FALSE);
 
 		LLNotifications::instance().add("FirstMedia");
 	}

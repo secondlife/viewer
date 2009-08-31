@@ -60,6 +60,9 @@ const F32 MAX_INTERPOLATE_DISTANCE_SQUARED = 10.f * 10.f;
 const F32 OBJECT_DAMPING_TIME_CONSTANT = 0.06f;
 const F32 MIN_SHADOW_CASTER_RADIUS = 2.0f;
 
+static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
+
+
 ////////////////////////
 //
 // Inline implementations.
@@ -188,7 +191,7 @@ BOOL LLDrawable::isLight() const
 
 void LLDrawable::cleanupReferences()
 {
-	LLFastTimer t(LLFastTimer::FTM_PIPELINE);
+	LLFastTimer t(FTM_PIPELINE);
 	
 	std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
 	mFaces.clear();
@@ -229,7 +232,7 @@ S32 LLDrawable::findReferences(LLDrawable *drawablep)
 	return count;
 }
 
-LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerImage *texturep)
+LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 {
 	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
 	
@@ -253,7 +256,7 @@ LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerImage *texturep)
 	return face;
 }
 
-LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerImage *texturep)
+LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep)
 {
 	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
 	
@@ -275,7 +278,7 @@ LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerImage *texturep)
 
 }
 
-void LLDrawable::setNumFaces(const S32 newFaces, LLFacePool *poolp, LLViewerImage *texturep)
+void LLDrawable::setNumFaces(const S32 newFaces, LLFacePool *poolp, LLViewerTexture *texturep)
 {
 	if (newFaces == (S32)mFaces.size())
 	{
@@ -298,7 +301,7 @@ void LLDrawable::setNumFaces(const S32 newFaces, LLFacePool *poolp, LLViewerImag
 	llassert_always(mFaces.size() == newFaces);
 }
 
-void LLDrawable::setNumFacesFast(const S32 newFaces, LLFacePool *poolp, LLViewerImage *texturep)
+void LLDrawable::setNumFacesFast(const S32 newFaces, LLFacePool *poolp, LLViewerTexture *texturep)
 {
 	if (newFaces <= (S32)mFaces.size() && newFaces >= (S32)mFaces.size()/2)
 	{
@@ -1033,7 +1036,7 @@ void LLSpatialBridge::updateSpatialExtents()
 	LLSpatialGroup* root = (LLSpatialGroup*) mOctree->getListener(0);
 	
 	{
-		LLFastTimer ftm(LLFastTimer::FTM_CULL_REBOUND);
+		LLFastTimer ftm(FTM_CULL_REBOUND);
 		root->rebound();
 	}
 	

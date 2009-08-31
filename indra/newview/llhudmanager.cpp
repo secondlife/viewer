@@ -40,6 +40,7 @@
 #include "llagent.h"
 #include "llhudeffect.h"
 #include "pipeline.h"
+#include "llui.h"
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 
@@ -52,19 +53,20 @@ LLColor4 LLHUDManager::sChildColor;
 LLHUDManager::LLHUDManager()
 {
 
-	LLHUDManager::sParentColor = gColors.getColor("FocusColor");
+	LLHUDManager::sParentColor = LLUIColorTable::instance().getColor("FocusColor");
 	// rdw commented out since it's not used.  Also removed from colors_base.xml
-	//LLHUDManager::sChildColor = gColors.getColor("FocusSecondaryColor");
+	//LLHUDManager::sChildColor =LLUIColorTable::instance().getColor("FocusSecondaryColor");
 }
 
 LLHUDManager::~LLHUDManager()
 {
 }
 
+static LLFastTimer::DeclareTimer FTM_HUD_EFFECTS("Hud Effects");
 
 void LLHUDManager::updateEffects()
 {
-	LLFastTimer ftm(LLFastTimer::FTM_HUD_EFFECTS);
+	LLFastTimer ftm(FTM_HUD_EFFECTS);
 	S32 i;
 	for (i = 0; i < mHUDEffects.count(); i++)
 	{

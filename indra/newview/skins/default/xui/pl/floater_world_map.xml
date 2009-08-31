@@ -30,14 +30,10 @@
 	<check_box label="&apos;Adult&apos;" name="event_adult_chk"/>
 	<icon bottom="-196" name="avatar_icon"/>
 	<combo_box label="Dostępni Znajomi" name="friend combo" tool_tip="Znajomi na mapie">
-		<combo_item name="none_selected">
-			Dostępni Znajomi
-		</combo_item>
+		<combo_box.item name="none_selected" label="Dostępni Znajomi" />
 	</combo_box>
 	<combo_box label="Zapisane Miejsca" name="landmark combo" tool_tip="Zapisane miejsca na mapie">
-		<combo_item name="none_selected">
-			Zapisane Miejsca
-		</combo_item>
+		<combo_box.item name="none_selected" label="Zapisane Miejsca" />
 	</combo_box>
 	<line_editor label="Szukaj po nazwie regionu" name="location" tool_tip="Wpisz nazwę regionu"/>
 	<button label="Szukaj" name="DoSearch" tool_tip="Wyszukiwaie regionu"/>
@@ -58,6 +54,6 @@
 	<button label="Pokaż Cel" label_selected="Pokaż Cel" name="Show Destination" tool_tip="Wycentruj miejsce celu na mapie"/>
 	<button label="Wyczyść" label_selected="Wyczyść" name="Clear" tool_tip="Stop tracking"/>
 	<button label="Pokaż moje miejsce" label_selected="Pokaż moje miejsce" name="Show My Location" tool_tip="Wycentruj pozcję awatara na mapie"/>
-	<button label="Kopiuj SLURL do schowka" name="copy_slurl" tool_tip="Kopie SLURL obecnego miejsca będę mogły zostać użyte na stronie internetowej."/>
+	<button label="Kopiuj SLurl do schowka" name="copy_slurl" tool_tip="Kopie SLurl obecnego miejsca będę mogły zostać użyte na stronie internetowej."/>
 	<slider label="Skala" name="zoom slider"/>
 </floater>

@@ -43,12 +43,12 @@ class LLFloaterParcelInfo
 public:
 	static	void*	createPanelPlace(void*	data);
 
-	LLFloaterParcelInfo(const std::string& name, const LLUUID &parcel_id );
+	LLFloaterParcelInfo( const LLSD& parcel_id );
 	/*virtual*/ ~LLFloaterParcelInfo();
-
+	
+	/*virtual*/ BOOL postBuild();
+	
 	void displayParcelInfo(const LLUUID& parcel_id);
-
-	static LLFloaterParcelInfo* show(const LLUUID& parcel_id);
 
 private:
 	LLUUID			mParcelID;			// for which parcel is this window?

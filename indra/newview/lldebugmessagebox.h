@@ -66,8 +66,8 @@ protected:
 	~LLDebugVarMessageBox();
 
 	static LLDebugVarMessageBox* show(const std::string& title, EDebugVarType var_type, void *var);
-	static void slider_changed(LLUICtrl* ctrl, void* user_data);
-	static void onAnimateClicked(void* user_data);
+	void sliderChanged(const LLSD& data);
+	void onAnimateClicked(const LLSD& data);
 
 public:
 	static void show(const std::string& title, F32 *var, F32 max_value = 100.f, F32 increment = 0.1f);
@@ -76,7 +76,6 @@ public:
 	static void show(const std::string& title, LLVector3 *var, LLVector3 max_value = LLVector3(100.f, 100.f, 100.f), LLVector3 increment = LLVector3(0.1f, 0.1f, 0.1f));
 	//static void show(const std::string& title, LLVector4 *var, LLVector4 max_value = LLVector4(100.f, 100.f, 100.f, 100.f), LLVector4 increment = LLVector4(0.1f, 0.1f, 0.1f, 0.1f));	
 		
-	virtual void onClose(bool app_quitting);
 	virtual void	draw();
 
 protected:

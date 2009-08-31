@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_opaque="true"
+ background_visible="true"
+ bg_opaque_color="0.25 0.25 0.25 1"
+ follows="top|left|right"
+ height="18"
+ layout="topleft"
+ left="0"
+ mouse_opaque="false"
+ name="status"
+ top="18"
+ width="1000">
+    <panel.string
+     name="StatBarDaysOfWeek">
+        Sunday:Monday:Tuesday:Wednesday:Thursday:Friday:Saturday
+    </panel.string>
+    <panel.string
+     name="StatBarMonthsOfYear">
+        January:February:March:April:May:June:July:August:September:October:November:December
+    </panel.string>
+    <panel.string
+     name="packet_loss_tooltip">
+        Packet Loss
+    </panel.string>
+    <panel.string
+     name="bandwidth_tooltip">
+        Bandwidth
+    </panel.string>
+    <panel.string
+     name="time">
+        [hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+    </panel.string>
+    <panel.string
+     name="timeTooltip">
+        [weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+    </panel.string>
+	<panel.string
+     name="buycurrencylabel">
+        L$ [AMT]
+    </panel.string>
+    <button
+     auto_resize="true"
+     follows="right|bottom"
+     font="SansSerifSmall"
+     height="16"
+     layout="topleft"
+     left="-150"
+     name="buycurrency"
+     picture_style="true"
+     tool_tip="Account Balance / Buy currency"
+     top="1"
+     width="60" />
+    <text
+     type="string"
+     length="1"
+     disabled_color="TimeTextColor"
+     follows="right|bottom"
+     halign="right"
+     height="20"
+     layout="topleft"
+     left_pad="5"
+     name="TimeText"
+     text_color="TimeTextColor"
+     tool_tip="Current Time (Pacific)"
+     top_delta="-1"
+     v_pad="2"
+     width="80">
+        12:00 AM
+    </text>
+    <button
+     follows="right|bottom"
+     height="16"
+     image_selected="status_script_debug.tga"
+     image_unselected="status_script_debug.tga"
+     layout="topleft"
+     left_delta="-537"
+     name="scriptout"
+     picture_style="true"
+     scale_image="false"
+     tool_tip="Script Warnings and Errors"
+     top_delta="2"
+     visible="false"
+     width="16" />
+    <button
+     follows="right|bottom"
+     height="18"
+     image_selected="status_health.tga"
+     image_unselected="status_health.tga"
+     layout="topleft"
+     left_delta="16"
+     name="health"
+     picture_style="true"
+     scale_image="false"
+     tool_tip="Health"
+     top_delta="2"
+     visible="false"
+     width="24" />
+    <text
+     type="string"
+     length="1"
+     disabled_color="HealthTextColor"
+     follows="rsight|bottom"
+     font_shadow="hard"
+     height="18"
+     layout="topleft"
+     left_delta="24"
+     name="HealthText"
+     text_color="HealthTextColor"
+     tool_tip="Health"
+     top_delta="-4"
+     v_pad="2"
+     visible="false"
+     width="31">
+        100%
+    </text>
+    <button
+     follows="right|bottom"
+     height="18"
+     image_selected="status_no_fly.tga"
+     image_unselected="status_no_fly.tga"
+     layout="topleft"
+     left_delta="31"
+     name="no_fly"
+     picture_style="true"
+     scale_image="false"
+     tool_tip="Flying not allowed"
+     top_delta="4"
+     visible="false"
+     width="24" />
+    <button
+     follows="right|bottom"
+     height="18"
+     image_selected="status_no_build.tga"
+     image_unselected="status_no_build.tga"
+     layout="topleft"
+     left_delta="24"
+     name="no_build"
+     picture_style="true"
+     scale_image="false"
+     tool_tip="Building/Rezzing not allowed"
+     top_delta="0"
+     visible="false"
+     width="24" />
+    <button
+     follows="right|bottom"
+     height="18"
+     image_selected="status_no_scripts.tga"
+     image_unselected="status_no_scripts.tga"
+     layout="topleft"
+     left_delta="24"
+     name="no_scripts"
+     picture_style="true"
+     scale_image="false"
+     tool_tip="Scripts not allowed"
+     top_delta="0"
+     visible="false"
+     width="24" />
+    <button
+     follows="right|bottom"
+     height="18"
+     image_selected="status_no_push.tga"
+     image_unselected="status_no_push.tga"
+     layout="topleft"
+     left_delta="24"
+     name="restrictpush"
+     picture_style="true"
+     scale_image="false"
+     tool_tip="No Pushing"
+     top_delta="0"
+     visible="false"
+     width="24" />
+    <button
+     follows="right|bottom"
+     height="18"
+     image_selected="status_no_voice.tga"
+     image_unselected="status_no_voice.tga"
+     layout="topleft"
+     left_delta="24"
+     name="status_no_voice"
+     picture_style="true"
+     scale_image="false"
+     tool_tip="Voice not available here"
+     top_delta="0"
+     visible="false"
+     width="24" />
+    <button
+     follows="right|bottom"
+     height="16"
+     image_selected="status_buy_land_pressed.tga"
+     image_unselected="status_buy_land.tga"
+     layout="topleft"
+     left_pad="7"
+     name="buyland"
+     picture_style="true"
+     tool_tip="Buy this parcel"
+     top_delta="-3"
+     visible="false"
+     width="16" />
+    <text
+     enabled="false"
+     follows="right|bottom"
+     halign="center"
+     height="12"
+     layout="topleft"
+     left_delta="-4"
+     name="stat_btn"
+     top_delta="3"
+     width="20" />
+</panel>

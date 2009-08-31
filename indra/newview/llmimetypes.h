@@ -72,6 +72,12 @@ public:
 	static bool findAllowLooping(const std::string& mime_type);
 		// accessor for flag to enable/disable media looping checkbox
 
+	static bool isTypeHandled(const std::string& mime_type);
+		// determines if the specific mime type is handled by the media system
+
+	static void reload(void*);
+		// re-loads the MIME types file from the file path last passed into parseMIMETypes
+
 public:
 	struct LLMIMEInfo
 	{

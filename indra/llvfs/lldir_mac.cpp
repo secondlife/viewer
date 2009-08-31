@@ -142,8 +142,33 @@ LLDir_Mac::LLDir_Mac()
 		CFURLRefToLLString(executableParentURLRef, mExecutableDir, true);
 		
 		// mAppRODataDir
-		CFURLRef	resourcesURLRef = CFBundleCopyResourcesDirectoryURL(mainBundleRef);
+
+		
+		// *NOTE: When running in a dev tree, use the copy of
+		// skins in indra/newview/ rather than in the application bundle.  This
+		// mirrors Windows dev environment behavior and allows direct checkin
+		// of edited skins/xui files. JC
+		
+		// MBW -- This keeps the mac application from finding other things.
+		// If this is really for skins, it should JUST apply to skins.
+
+		CFURLRef resourcesURLRef = CFBundleCopyResourcesDirectoryURL(mainBundleRef);
 		CFURLRefToLLString(resourcesURLRef, mAppRODataDir, true);
+		
+		U32 indra_pos = mExecutableDir.find("/indra");
+		if (indra_pos != std::string::npos)
+		{
+			// ...we're in a dev checkout
+			mSkinBaseDir = mExecutableDir.substr(0, indra_pos)
+				+ "/indra/newview/skins";
+			llinfos << "Running in dev checkout with mSkinBaseDir "
+				<< mSkinBaseDir << llendl;
+		}
+		else
+		{
+			// ...normal installation running
+			mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
+		}
 		
 		// mOSUserDir
 		error = FSFindFolder(kUserDomain, kApplicationSupportFolderType, true, &fileRef);
@@ -190,6 +215,8 @@ LLDir_Mac::LLDir_Mac()
 		}
 		
 		mWorkingDir = getCurPath();
+
+		mLLPluginDir = mAppRODataDir + mDirDelimiter + "llplugin";
 				
 		CFRelease(executableURLRef);
 		executableURLRef = NULL;
@@ -203,8 +230,15 @@ LLDir_Mac::~LLDir_Mac()
 // Implementation
 
 
-void LLDir_Mac::initAppDirs(const std::string &app_name)
+void LLDir_Mac::initAppDirs(const std::string &app_name,
+							const std::string& app_read_only_data_dir)
 {
+	// Allow override so test apps can read newview directory
+	if (!app_read_only_data_dir.empty())
+	{
+		mAppRODataDir = app_read_only_data_dir;
+		mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
+	}
 	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
 
 	//dumpCurrentDirectories();
@@ -385,6 +419,19 @@ BOOL LLDir_Mac::fileExists(const std::string &filename) const
 	{
 		return FALSE;
 	}
+}
+
+
+/*virtual*/ std::string LLDir_Mac::getLLPluginLauncher()
+{
+	return gDirUtilp->getLLPluginDir() + gDirUtilp->getDirDelimiter() +
+		"SLPlugin";
+}
+
+/*virtual*/ std::string LLDir_Mac::getLLPluginFilename(std::string base_name)
+{
+	return gDirUtilp->getLLPluginDir() + gDirUtilp->getDirDelimiter() +
+		base_name + ".dylib";
 }
 
 

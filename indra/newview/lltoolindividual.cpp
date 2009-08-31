@@ -41,6 +41,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "lltoolindividual.h"
 
+#include "llfloaterreg.h"
 #include "llselectmgr.h"
 #include "llviewerobject.h"
 #include "llviewerwindow.h"
@@ -93,9 +94,7 @@ BOOL LLToolIndividual::handleDoubleClick(S32 x, S32 y, MASK mask)
 	{
 		// You should already have an object selected from the mousedown.
 		// If so, show its inventory. 
-		//gBuildView->showInventoryPanel();
-		//gBuildView->showPanel(LLBuildView::PANEL_CONTENTS);
-		gFloaterTools->showPanel(LLFloaterTools::PANEL_CONTENTS);
+		LLFloaterReg::showInstance("build", "Content");
 		return TRUE;
 	}
 	else

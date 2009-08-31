@@ -1,10 +1,9 @@
 /** 
- * @file lltexteditor.cpp
- * @brief LLTextEditor base class
+ * @file lltextparser.cpp
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2001-2007, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -12,12 +11,13 @@
  * ("GPL"), unless you have obtained a separate licensing agreement
  * ("Other License"), formally executed by you and Linden Lab.  Terms of
  * the GPL can be found in doc/GPL-license.txt in this distribution, or
- * online at http://secondlife.com/developers/opensource/gplv2
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
- * online at http://secondlife.com/developers/opensource/flossexception
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
@@ -31,6 +31,8 @@
 
 #include "linden_common.h"
 
+#include "lltextparser.h"
+
 #include "llsd.h"
 #include "llsdserialize.h"
 #include "llerror.h"
@@ -39,21 +41,11 @@
 #include "message.h"
 #include "llmath.h"
 #include "v4color.h"
-#include "audioengine.h"
-#include "llwindow.h"
 #include "lldir.h"
-
-#include "lltextparser.h"
-//#include "lltexttospeech.h"
 
 // Routines used for parsing text for TextParsers and html
 
 LLTextParser* LLTextParser::sInstance = NULL;
-
-//
-// Constants
-//
-const F32 SOUND_GAIN = 1.0f;
 
 //
 // Member Functions
@@ -75,38 +67,7 @@ LLTextParser* LLTextParser::getInstance()
 	return sInstance;
 }
 
-void LLTextParser::triggerAlerts(LLUUID agent_id, LLVector3d position, std::string text, LLWindow* viewer_window)
-{
-//    bool spoken=FALSE;
-	for (S32 i=0;i<mHighlights.size();i++)
-	{
-		if (findPattern(text,mHighlights[i]) >= 0 )
-		{
-			if(gAudiop)
-			{
-				if ((std::string)mHighlights[i]["sound_lluuid"] != LLUUID::null.asString())
-				{
-					gAudiop->triggerSound(mHighlights[i]["sound_lluuid"].asUUID(), agent_id, SOUND_GAIN, LLAudioEngine::AUDIO_TYPE_UI, position);
-				}
-/*				
-				if (!spoken) 
-				{
-					LLTextToSpeech* text_to_speech = NULL;
-					text_to_speech = LLTextToSpeech::getInstance();
-					spoken = text_to_speech->speak((LLString)mHighlights[i]["voice"],text); 
-				}
- */
-			}
-			if (mHighlights[i]["flash"])
-			{
-				if (viewer_window && viewer_window->getMinimized())
-				{
-					viewer_window->flashIcon(5.f);
-				}
-			}
-		}
-	}
-}
+// Moved triggerAlerts() to llfloaterchat.cpp to break llui/llaudio library dependency.
 
 S32 LLTextParser::findPattern(const std::string &text, LLSD highlight)
 {

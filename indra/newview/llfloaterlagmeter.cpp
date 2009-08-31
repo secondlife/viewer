@@ -36,7 +36,7 @@
 
 #include "lluictrlfactory.h"
 #include "llviewerstats.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 #include "llviewercontrol.h"
 #include "llappviewer.h"
 
@@ -51,14 +51,24 @@ const std::string LAG_WARNING_IMAGE_NAME  = "lag_status_warning.tga";
 const std::string LAG_GOOD_IMAGE_NAME     = "lag_status_good.tga";
 
 LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
-	:	LLFloater(std::string("floater_lagmeter"))
+	:	LLFloater(key)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_lagmeter.xml");
+//	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_lagmeter.xml");
+	mCommitCallbackRegistrar.add("LagMeter.ClickShrink",  boost::bind(&LLFloaterLagMeter::onClickShrink, this));	
+}
 
+BOOL LLFloaterLagMeter::postBuild()
+{
 	// Don't let this window take keyboard focus -- it's confusing to
 	// lose arrow-key driving when testing lag.
 	setIsChrome(TRUE);
-
+	
+	// were we shrunk last time?
+	if (gSavedSettings.getBOOL("LagMeterShrunk"))
+	{
+		onClickShrink();
+	}
+	
 	mClientButton = getChild<LLButton>("client_lagmeter");
 	mClientText = getChild<LLTextBox>("client_text");
 	mClientCause = getChild<LLTextBox>("client_lag_cause");
@@ -93,7 +103,7 @@ LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
 	config_string = getString("server_single_process_max_time_ms", mStringArgs);
 	mServerSingleProcessMaxTime = (float)atof( config_string.c_str() );
 
-	mShrunk = false;
+//	mShrunk = false;
 	config_string = getString("max_width_px", mStringArgs);
 	mMaxWidth = atoi( config_string.c_str() );
 	config_string = getString("min_width_px", mStringArgs);
@@ -111,23 +121,18 @@ LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
 	mStringArgs["[SERVER_FRAME_RATE_CRITICAL]"] = getString("server_frame_rate_critical_fps");
 	mStringArgs["[SERVER_FRAME_RATE_WARNING]"] = getString("server_frame_rate_warning_fps");
 
-	childSetAction("minimize", onClickShrink, this);
+//	childSetAction("minimize", onClickShrink, this);
 
-	// were we shrunk last time?
-	if (gSavedSettings.getBOOL("LagMeterShrunk"))
-	{
-		onClickShrink(this);
-	}
+	return TRUE;
 }
-
 LLFloaterLagMeter::~LLFloaterLagMeter()
 {
 	// save shrunk status for next time
-	gSavedSettings.setBOOL("LagMeterShrunk", mShrunk);
+//	gSavedSettings.setBOOL("LagMeterShrunk", mShrunk);
 	// expand so we save the large window rectangle
-	if (mShrunk)
+	if (gSavedSettings.getBOOL("LagMeterShrunk"))
 	{
-		onClickShrink(this);
+		onClickShrink();
 	}
 }
 
@@ -147,25 +152,25 @@ void LLFloaterLagMeter::determineClient()
 
 	if (!gFocusMgr.getAppHasFocus())
 	{
-		mClientButton->setImageUnselected(LAG_GOOD_IMAGE_NAME);
+		mClientButton->setImageUnselected(LLUI::getUIImage(LAG_GOOD_IMAGE_NAME));
 		mClientText->setText( getString("client_frame_time_window_bg_msg", mStringArgs) );
 		mClientCause->setText( LLStringUtil::null );
 	}
 	else if(client_frame_time >= mClientFrameTimeCritical)
 	{
-		mClientButton->setImageUnselected(LAG_CRITICAL_IMAGE_NAME);
+		mClientButton->setImageUnselected(LLUI::getUIImage(LAG_CRITICAL_IMAGE_NAME));
 		mClientText->setText( getString("client_frame_time_critical_msg", mStringArgs) );
 		find_cause = true;
 	}
 	else if(client_frame_time >= mClientFrameTimeWarning)
 	{
-		mClientButton->setImageUnselected(LAG_WARNING_IMAGE_NAME);
+		mClientButton->setImageUnselected(LLUI::getUIImage(LAG_WARNING_IMAGE_NAME));
 		mClientText->setText( getString("client_frame_time_warning_msg", mStringArgs) );
 		find_cause = true;
 	}
 	else
 	{
-		mClientButton->setImageUnselected(LAG_GOOD_IMAGE_NAME);
+		mClientButton->setImageUnselected(LLUI::getUIImage(LAG_GOOD_IMAGE_NAME));
 		mClientText->setText( getString("client_frame_time_normal_msg", mStringArgs) );
 		mClientCause->setText( LLStringUtil::null );
 	}	
@@ -180,7 +185,7 @@ void LLFloaterLagMeter::determineClient()
 		{
 			mClientCause->setText( getString("client_texture_loading_cause_msg", mStringArgs) );
 		}
-		else if((BYTES_TO_MEGA_BYTES(LLViewerImage::sBoundTextureMemoryInBytes)) > LLViewerImage::sMaxBoundTextureMemInMegaBytes)
+		else if((BYTES_TO_MEGA_BYTES(LLViewerTexture::sBoundTextureMemoryInBytes)) > LLViewerTexture::sMaxBoundTextureMemInMegaBytes)
 		{
 			mClientCause->setText( getString("client_texture_memory_cause_msg", mStringArgs) );
 		}
@@ -206,13 +211,13 @@ void LLFloaterLagMeter::determineNetwork()
 	
 	if(packet_loss >= mNetworkPacketLossCritical)
 	{
-		mNetworkButton->setImageUnselected(LAG_CRITICAL_IMAGE_NAME);
+		mNetworkButton->setImageUnselected(LLUI::getUIImage(LAG_CRITICAL_IMAGE_NAME));
 		mNetworkText->setText( getString("network_packet_loss_critical_msg", mStringArgs) );
 		find_cause_loss = true;
 	}
 	else if(ping_time >= mNetworkPingCritical)
 	{
-		mNetworkButton->setImageUnselected(LAG_CRITICAL_IMAGE_NAME);
+		mNetworkButton->setImageUnselected(LLUI::getUIImage(LAG_CRITICAL_IMAGE_NAME));
 		if (client_frame_time_ms < mNetworkPingCritical)
 		{
 			mNetworkText->setText( getString("network_ping_critical_msg", mStringArgs) );
@@ -221,13 +226,13 @@ void LLFloaterLagMeter::determineNetwork()
 	}
 	else if(packet_loss >= mNetworkPacketLossWarning)
 	{
-		mNetworkButton->setImageUnselected(LAG_WARNING_IMAGE_NAME);
+		mNetworkButton->setImageUnselected(LLUI::getUIImage(LAG_WARNING_IMAGE_NAME));
 		mNetworkText->setText( getString("network_packet_loss_warning_msg", mStringArgs) );
 		find_cause_loss = true;
 	}
 	else if(ping_time >= mNetworkPingWarning)
 	{
-		mNetworkButton->setImageUnselected(LAG_WARNING_IMAGE_NAME);
+		mNetworkButton->setImageUnselected(LLUI::getUIImage(LAG_WARNING_IMAGE_NAME));
 		if (client_frame_time_ms < mNetworkPingWarning)
 		{
 			mNetworkText->setText( getString("network_ping_warning_msg", mStringArgs) );
@@ -236,7 +241,7 @@ void LLFloaterLagMeter::determineNetwork()
 	}
 	else
 	{
-		mNetworkButton->setImageUnselected(LAG_GOOD_IMAGE_NAME);
+		mNetworkButton->setImageUnselected(LLUI::getUIImage(LAG_GOOD_IMAGE_NAME));
 		mNetworkText->setText( getString("network_performance_normal_msg", mStringArgs) );
 	}
 
@@ -261,19 +266,19 @@ void LLFloaterLagMeter::determineServer()
 
 	if(sim_frame_time >= mServerFrameTimeCritical)
 	{
-		mServerButton->setImageUnselected(LAG_CRITICAL_IMAGE_NAME);
+		mServerButton->setImageUnselected(LLUI::getUIImage(LAG_CRITICAL_IMAGE_NAME));
 		mServerText->setText( getString("server_frame_time_critical_msg", mStringArgs) );
 		find_cause = true;
 	}
 	else if(sim_frame_time >= mServerFrameTimeWarning)
 	{
-		mServerButton->setImageUnselected(LAG_WARNING_IMAGE_NAME);
+		mServerButton->setImageUnselected(LLUI::getUIImage(LAG_WARNING_IMAGE_NAME));
 		mServerText->setText( getString("server_frame_time_warning_msg", mStringArgs) );
 		find_cause = true;
 	}
 	else
 	{
-		mServerButton->setImageUnselected(LAG_GOOD_IMAGE_NAME);
+		mServerButton->setImageUnselected(LLUI::getUIImage(LAG_GOOD_IMAGE_NAME));
 		mServerText->setText( getString("server_frame_time_normal_msg", mStringArgs) );
 		mServerCause->setText( LLStringUtil::null );
 	}	
@@ -307,58 +312,61 @@ void LLFloaterLagMeter::determineServer()
 	}
 }
 
-//static
-void LLFloaterLagMeter::onClickShrink(void * data)
-{
-	LLFloaterLagMeter * self = (LLFloaterLagMeter*)data;
 
-	LLButton * button = self->getChild<LLButton>("minimize");
-	S32 delta_width = self->mMaxWidth - self->mMinWidth;
-	LLRect r = self->getRect();
-	if(self->mShrunk)
+void LLFloaterLagMeter::onClickShrink()  // toggle "LagMeterShrunk"
+{
+//	LLFloaterLagMeter * self = (LLFloaterLagMeter*)data;
+
+	LLButton * button = getChild<LLButton>("minimize");
+	S32 delta_width = mMaxWidth -mMinWidth;
+	LLRect r = getRect();
+	bool shrunk = gSavedSettings.getBOOL("LagMeterShrunk");
+
+	if(shrunk)
 	{
-		self->setTitle( self->getString("max_title_msg", self->mStringArgs) );
+		setTitle(getString("max_title_msg", mStringArgs) );
 		// make left edge appear to expand
 		r.translate(-delta_width, 0);
-		self->setRect(r);
-		self->reshape(self->mMaxWidth, self->getRect().getHeight());
+		setRect(r);
+		reshape(mMaxWidth, getRect().getHeight());
 		
-		self->childSetText("client", self->getString("client_text_msg", self->mStringArgs) + ":");
-		self->childSetText("network", self->getString("network_text_msg", self->mStringArgs) + ":");
-		self->childSetText("server", self->getString("server_text_msg", self->mStringArgs) + ":");
+		childSetText("client", getString("client_text_msg", mStringArgs) + ":");
+		childSetText("network", getString("network_text_msg",mStringArgs) + ":");
+		childSetText("server", getString("server_text_msg", mStringArgs) + ":");
 
 		// usually "<<"
-		button->setLabel( self->getString("smaller_label", self->mStringArgs) );
+		button->setLabel( getString("smaller_label", mStringArgs) );
 	}
 	else
 	{
-		self->setTitle( self->getString("min_title_msg", self->mStringArgs) );
+		setTitle( getString("min_title_msg", mStringArgs) );
 		// make left edge appear to collapse
 		r.translate(delta_width, 0);
-		self->setRect(r);
-		self->reshape(self->mMinWidth, self->getRect().getHeight());
+		setRect(r);
+		reshape(mMinWidth, getRect().getHeight());
 		
-		self->childSetText("client", self->getString("client_text_msg", self->mStringArgs) );
-		self->childSetText("network", self->getString("network_text_msg", self->mStringArgs) );
-		self->childSetText("server", self->getString("server_text_msg", self->mStringArgs) );
+		childSetText("client", getString("client_text_msg", mStringArgs) );
+		childSetText("network",getString("network_text_msg",mStringArgs) );
+		childSetText("server", getString("server_text_msg", mStringArgs) );
 
 		// usually ">>"
-		button->setLabel( self->getString("bigger_label", self->mStringArgs) );
+		button->setLabel( getString("bigger_label", mStringArgs) );
 	}
 	// Don't put keyboard focus on the button
 	button->setFocus(FALSE);
 
-	self->mClientText->setVisible(self->mShrunk);
-	self->mClientCause->setVisible(self->mShrunk);
-	self->childSetVisible("client_help", self->mShrunk);
+//	self->mClientText->setVisible(self->mShrunk);
+//	self->mClientCause->setVisible(self->mShrunk);
+//	self->childSetVisible("client_help", self->mShrunk);
 
-	self->mNetworkText->setVisible(self->mShrunk);
-	self->mNetworkCause->setVisible(self->mShrunk);
-	self->childSetVisible("network_help", self->mShrunk);
+//	self->mNetworkText->setVisible(self->mShrunk);
+//	self->mNetworkCause->setVisible(self->mShrunk);
+//	self->childSetVisible("network_help", self->mShrunk);
 
-	self->mServerText->setVisible(self->mShrunk);
-	self->mServerCause->setVisible(self->mShrunk);
-	self->childSetVisible("server_help", self->mShrunk);
+//	self->mServerText->setVisible(self->mShrunk);
+//	self->mServerCause->setVisible(self->mShrunk);
+//	self->childSetVisible("server_help", self->mShrunk);
 
-	self->mShrunk = !self->mShrunk;
+//	self->mShrunk = !self->mShrunk;
+	gSavedSettings.setBOOL("LagMeterShrunk", !gSavedSettings.getBOOL("LagMeterShrunk"));
 }

@@ -11,36 +11,16 @@
 immagine come:
 	</text>
 	<combo_box label="Tipo d&apos;abito" name="clothing_type_combo" left="120" width="166">
-		<combo_item name="Image">
-			Immagine
-		</combo_item>
-		<combo_item name="Hair">
-			Capelli
-		</combo_item>
-		<combo_item name="FemaleHead">
-			Testa femminile
-		</combo_item>
-		<combo_item name="FemaleUpperBody">
-			Corpo femminile superiore
-		</combo_item>
-		<combo_item name="FemaleLowerBody">
-			Corpo femminile inferiore
-		</combo_item>
-		<combo_item name="MaleHead">
-			Testa maschile
-		</combo_item>
-		<combo_item name="MaleUpperBody">
-			Corpo maschile superiore
-		</combo_item>
-		<combo_item name="MaleLowerBody">
-			Corpo maschile inferiore
-		</combo_item>
-		<combo_item name="Skirt">
-			Gonna
-		</combo_item>
-		<combo_item name="SculptedPrim">
-			Oggetto sculpt
-		</combo_item>
+		<combo_box.item name="Image" label="Immagine"/>
+		<combo_box.item name="Hair" label="Capelli"/>
+		<combo_box.item name="FemaleHead" label="Testa femminile"/>
+		<combo_box.item name="FemaleUpperBody" label="Corpo femminile superiore"/>
+		<combo_box.item name="FemaleLowerBody" label="Corpo femminile inferiore"/>
+		<combo_box.item name="MaleHead" label="Testa maschile"/>
+		<combo_box.item name="MaleUpperBody" label="Corpo maschile superiore"/>
+		<combo_box.item name="MaleLowerBody" label="Corpo maschile inferiore"/>
+		<combo_box.item name="Skirt" label="Gonna"/>
+		<combo_box.item name="SculptedPrim" label="Oggetto sculpt"/>
 	</combo_box>
 	<text name="bad_image_text">
 		Non è stato possibile leggere l&apos;immagine.

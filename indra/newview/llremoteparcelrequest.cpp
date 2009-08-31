@@ -34,8 +34,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llagent.h"
-#include "llremoteparcelrequest.h"
+#include "message.h"
 
 #include "llpanelplace.h"
 #include "llpanel.h"
@@ -43,37 +42,132 @@
 #include "llsdserialize.h"
 #include "llviewerregion.h"
 #include "llview.h"
-#include "message.h"
 
-LLRemoteParcelRequestResponder::LLRemoteParcelRequestResponder(LLHandle<LLPanel> place_panel_handle)
-{
-	 mPlacePanelHandle = place_panel_handle;
-}
-/*virtual*/
+#include "llagent.h"
+#include "llremoteparcelrequest.h"
+
+
+LLRemoteParcelRequestResponder::LLRemoteParcelRequestResponder(LLHandle<LLRemoteParcelInfoObserver> observer_handle)
+	 : mObserverHandle(observer_handle)
+{}
+
+//If we get back a normal response, handle it here
+//virtual
 void LLRemoteParcelRequestResponder::result(const LLSD& content)
 {
 	LLUUID parcel_id = content["parcel_id"];
 
-	LLPanelPlace* place_panelp = (LLPanelPlace*)mPlacePanelHandle.get();
-
-	if(place_panelp)
+	// Panel inspecting the information may be closed and destroyed
+	// before this response is received.
+	LLRemoteParcelInfoObserver* observer = mObserverHandle.get();
+	if (observer)
 	{
-		place_panelp->setParcelID(parcel_id);
+		observer->setParcelID(parcel_id);
 	}
-
 }
 
-/*virtual*/
+//If we get back an error (not found, etc...), handle it here
+//virtual
 void LLRemoteParcelRequestResponder::error(U32 status, const std::string& reason)
 {
 	llinfos << "LLRemoteParcelRequest::error("
 		<< status << ": " << reason << ")" << llendl;
-	LLPanelPlace* place_panelp = (LLPanelPlace*)mPlacePanelHandle.get();
 
-	if(place_panelp)
+	// Panel inspecting the information may be closed and destroyed
+	// before this response is received.
+	LLRemoteParcelInfoObserver* observer = mObserverHandle.get();
+	if (observer)
 	{
-		place_panelp->setErrorStatus(status, reason);
+		observer->setErrorStatus(status, reason);
 	}
-
 }
 
+void LLRemoteParcelInfoProcessor::addObserver(const LLUUID& parcel_id, LLRemoteParcelInfoObserver* observer)
+{
+	// Check if the observer is alredy in observsrs list for this UUID
+	observer_multimap_t::iterator it;
+
+	it = mObservers.find(parcel_id);
+	while (it != mObservers.end())
+	{
+		if (it->second == observer)
+		{
+			return;
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	mObservers.insert(std::pair<LLUUID, LLRemoteParcelInfoObserver*>(parcel_id, observer));
+}
+
+void LLRemoteParcelInfoProcessor::removeObserver(const LLUUID& parcel_id, LLRemoteParcelInfoObserver* observer)
+{
+	if (!observer)
+	{
+		return;
+	}
+
+	observer_multimap_t::iterator it;
+
+	it = mObservers.find(parcel_id);
+	while (it != mObservers.end())
+	{
+		if (it->second == observer)
+		{
+			mObservers.erase(it);
+			break;
+		}
+		else
+		{
+			++it;
+		}
+	}
+}
+
+//static
+void LLRemoteParcelInfoProcessor::processParcelInfoReply(LLMessageSystem* msg, void**)
+{
+	LLParcelData parcel_data;
+
+	msg->getUUID	("Data", "ParcelID", parcel_data.parcel_id);
+	msg->getUUID	("Data", "OwnerID", parcel_data.owner_id);
+	msg->getString	("Data", "Name", parcel_data.name);
+	msg->getString	("Data", "Desc", parcel_data.desc);
+	msg->getS32		("Data", "ActualArea", parcel_data.actual_area);
+	msg->getS32		("Data", "BillableArea", parcel_data.billable_area);
+	msg->getU8		("Data", "Flags", parcel_data.flags);
+	msg->getF32		("Data", "GlobalX", parcel_data.global_x);
+	msg->getF32		("Data", "GlobalY", parcel_data.global_y);
+	msg->getF32		("Data", "GlobalZ", parcel_data.global_z);
+	msg->getString	("Data", "SimName", parcel_data.sim_name);
+	msg->getUUID	("Data", "SnapshotID", parcel_data.snapshot_id);
+	msg->getF32		("Data", "Dwell", parcel_data.dwell);
+	msg->getS32		("Data", "SalePrice", parcel_data.sale_price);
+	msg->getS32		("Data", "AuctionID", parcel_data.auction_id);
+
+	LLRemoteParcelInfoProcessor::observer_multimap_t observers = LLRemoteParcelInfoProcessor::getInstance()->mObservers;
+
+	observer_multimap_t::iterator oi = observers.find(parcel_data.parcel_id);
+	observer_multimap_t::iterator end = observers.upper_bound(parcel_data.parcel_id);
+	for (; oi != end; ++oi)
+	{
+		oi->second->processParcelInfo(parcel_data);
+		LLRemoteParcelInfoProcessor::getInstance()->removeObserver(parcel_data.parcel_id, oi->second);
+	}
+}
+
+void LLRemoteParcelInfoProcessor::sendParcelInfoRequest(const LLUUID& parcel_id)
+{
+	LLMessageSystem *msg = gMessageSystem;
+
+	msg->newMessage("ParcelInfoRequest");
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
+	msg->addUUID("SessionID", gAgent.getSessionID());
+	msg->nextBlock("Data");
+	msg->addUUID("ParcelID", parcel_id);
+	gAgent.sendReliableMessage();
+}

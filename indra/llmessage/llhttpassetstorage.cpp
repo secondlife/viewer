@@ -626,7 +626,7 @@ LLSD LLHTTPAssetStorage::getPendingRequest(LLAssetStorage::ERequestType rt,
 	const request_list_t* running = getRunningList(rt);
 	if (running)
 	{
-		LLSD sd = LLAssetStorage::getPendingRequest(running, asset_type, asset_id);
+		LLSD sd = LLAssetStorage::getPendingRequestImpl(running, asset_type, asset_id);
 		if (sd)
 		{
 			sd["is_running"] = true;

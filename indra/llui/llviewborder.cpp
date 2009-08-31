@@ -33,24 +33,53 @@
 #include "llviewborder.h"
 #include "llrender.h"
 #include "llfocusmgr.h"
+#include "lluictrlfactory.h"
 
-static LLRegisterWidget<LLViewBorder> r("view_border");
+static LLDefaultChildRegistry::Register<LLViewBorder> r("view_border");
 
-LLViewBorder::LLViewBorder( const std::string& name, const LLRect& rect, EBevel bevel, EStyle style, S32 width )
-	:
-	LLView( name, rect, FALSE ),
-	mBevel( bevel ),
-	mStyle( style ),
-	mHighlightLight( LLUI::sColorsGroup->getColor( "DefaultHighlightLight" ) ),
-	mHighlightDark(	LLUI::sColorsGroup->getColor( "DefaultHighlightDark" ) ),
-	mShadowLight( LLUI::sColorsGroup->getColor( "DefaultShadowLight" ) ),
-	mShadowDark( LLUI::sColorsGroup->getColor( "DefaultShadowDark" ) ),
-	mBorderWidth( width ),
-	mTexture( NULL ),
-	mHasKeyboardFocus( FALSE )
+void LLViewBorder::BevelValues::declareValues()
 {
-	setFollowsAll();
+	declare("in", LLViewBorder::BEVEL_IN);
+	declare("out", LLViewBorder::BEVEL_OUT);
+	declare("bright", LLViewBorder::BEVEL_BRIGHT);
+	declare("none", LLViewBorder::BEVEL_NONE);
 }
+
+void LLViewBorder::StyleValues::declareValues()
+{
+	declare("line", LLViewBorder::STYLE_LINE);
+	declare("texture", LLViewBorder::STYLE_TEXTURE);
+}
+
+LLViewBorder::Params::Params()
+:	bevel_style("bevel_style", BEVEL_OUT),
+	render_style("border_style", STYLE_LINE),
+	border_thickness("border_thickness"),
+	highlight_light_color("highlight_light_color"),
+	highlight_dark_color("highlight_dark_color"),
+	shadow_light_color("shadow_light_color"),
+	shadow_dark_color("shadow_dark_color")
+{
+	addSynonym(border_thickness, "thickness");
+	addSynonym(render_style, "style");
+	name = "view_border";
+	mouse_opaque = false;
+	follows.flags = FOLLOWS_ALL;
+}
+
+
+LLViewBorder::LLViewBorder(const LLViewBorder::Params& p)
+:	LLView(p),
+	mTexture( NULL ),
+	mHasKeyboardFocus( FALSE ),
+	mBorderWidth(p.border_thickness),
+	mHighlightLight(p.highlight_light_color()),
+	mHighlightDark(p.highlight_dark_color()),
+	mShadowLight(p.shadow_light_color()),
+	mShadowDark(p.shadow_dark_color()),
+	mBevel(p.bevel_style),
+	mStyle(p.render_style)
+{}
 
 void LLViewBorder::setColors( const LLColor4& shadow_dark, const LLColor4& highlight_light )
 {
@@ -69,7 +98,7 @@ void LLViewBorder::setColorsExtended( const LLColor4& shadow_light, const LLColo
 
 void LLViewBorder::setTexture( const LLUUID &image_id )
 {
-	mTexture = LLUI::sImageProvider->getUIImageByID(image_id);
+	mTexture = LLUI::getUIImageByID(image_id);
 }
 
 
@@ -105,26 +134,24 @@ void LLViewBorder::draw()
 		}
 	}
 
-	// draw the children
-	LLView::draw();
-
+	drawChildren();
 }
 
 void LLViewBorder::drawOnePixelLines()
 {
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-	LLColor4 top_color = mHighlightLight;
-	LLColor4 bottom_color = mHighlightLight;
+	LLColor4 top_color = mHighlightLight.get();
+	LLColor4 bottom_color = mHighlightLight.get();
 	switch( mBevel )
 	{
 	case BEVEL_OUT:
-		top_color		= mHighlightLight;
-		bottom_color	= mShadowDark;
+		top_color		= mHighlightLight.get();
+		bottom_color	= mShadowDark.get();
 		break;
 	case BEVEL_IN:
-		top_color		= mShadowDark;
-		bottom_color	= mHighlightLight;
+		top_color		= mShadowDark.get();
+		bottom_color	= mHighlightLight.get();
 		break;
 	case BEVEL_NONE:
 		// use defaults
@@ -163,31 +190,36 @@ void LLViewBorder::drawTwoPixelLines()
 	
 	LLColor4 focus_color = gFocusMgr.getFocusColor();
 
-	F32* top_in_color		= mShadowDark.mV;
-	F32* top_out_color		= mShadowDark.mV;
-	F32* bottom_in_color	= mShadowDark.mV;
-	F32* bottom_out_color	= mShadowDark.mV;
+	LLColor4 top_in_color;
+	LLColor4 top_out_color;
+	LLColor4 bottom_in_color;
+	LLColor4 bottom_out_color;
+
 	switch( mBevel )
 	{
 	case BEVEL_OUT:
-		top_in_color		= mHighlightLight.mV;
-		top_out_color		= mHighlightDark.mV;
-		bottom_in_color		= mShadowLight.mV;
-		bottom_out_color	= mShadowDark.mV;
+		top_in_color		= mHighlightLight.get();
+		top_out_color		= mHighlightDark.get();
+		bottom_in_color		= mShadowLight.get();
+		bottom_out_color	= mShadowDark.get();
 		break;
 	case BEVEL_IN:
-		top_in_color		= mShadowDark.mV;
-		top_out_color		= mShadowLight.mV;
-		bottom_in_color		= mHighlightDark.mV;
-		bottom_out_color	= mHighlightLight.mV;
+		top_in_color		= mShadowDark.get();
+		top_out_color		= mShadowLight.get();
+		bottom_in_color		= mHighlightDark.get();
+		bottom_out_color	= mHighlightLight.get();
 		break;
 	case BEVEL_BRIGHT:
-		top_in_color		= mHighlightLight.mV;
-		top_out_color		= mHighlightLight.mV;
-		bottom_in_color		= mHighlightLight.mV;
-		bottom_out_color	= mHighlightLight.mV;
+		top_in_color		= mHighlightLight.get();
+		top_out_color		= mHighlightLight.get();
+		bottom_in_color		= mHighlightLight.get();
+		bottom_out_color	= mHighlightLight.get();
 		break;
 	case BEVEL_NONE:
+		top_in_color		= mShadowDark.get();
+		top_out_color		= mShadowDark.get();
+		bottom_in_color		= mShadowDark.get();
+		bottom_out_color	= mShadowDark.get();
 		// use defaults
 		break;
 	default:
@@ -196,8 +228,8 @@ void LLViewBorder::drawTwoPixelLines()
 
 	if( mHasKeyboardFocus )
 	{
-		top_out_color = focus_color.mV;
-		bottom_out_color = focus_color.mV;
+		top_out_color = focus_color;
+		bottom_out_color = focus_color;
 	}
 
 	S32 left	= 0;
@@ -206,19 +238,19 @@ void LLViewBorder::drawTwoPixelLines()
 	S32 bottom	= 0;
 
 	// draw borders
-	gGL.color3fv( top_out_color );
+	gGL.color3fv( top_out_color.mV );
 	gl_line_2d(left, bottom, left, top-1);
 	gl_line_2d(left, top-1, right, top-1);
 
-	gGL.color3fv( top_in_color );
+	gGL.color3fv( top_in_color.mV );
 	gl_line_2d(left+1, bottom+1, left+1, top-2);
 	gl_line_2d(left+1, top-2, right-1, top-2);
 
-	gGL.color3fv( bottom_out_color );
+	gGL.color3fv( bottom_out_color.mV );
 	gl_line_2d(right-1, top-1, right-1, bottom);
 	gl_line_2d(left, bottom, right, bottom);
 
-	gGL.color3fv( bottom_in_color );
+	gGL.color3fv( bottom_in_color.mV );
 	gl_line_2d(right-2, top-2, right-2, bottom+1);
 	gl_line_2d(left+1, bottom+1, right-1, bottom+1);
 }
@@ -302,26 +334,3 @@ BOOL LLViewBorder::getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel
 	return FALSE;
 }
 
-
-// static
-LLView* LLViewBorder::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
-{
-	std::string name("view_border");
-	node->getAttributeString("name", name);
-
-	LLViewBorder::EBevel bevel_style = LLViewBorder::BEVEL_IN;
-	getBevelFromAttribute(node, bevel_style);
-
-	S32 border_thickness = 1;
-	node->getAttributeS32("border_thickness", border_thickness);
-
-	LLViewBorder* border = new LLViewBorder(name, 
-									LLRect(), 
-									bevel_style,
-									LLViewBorder::STYLE_LINE,
-									border_thickness);
-
-	border->initFromXML(node, parent);
-	
-	return border;
-}

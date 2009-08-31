@@ -37,123 +37,51 @@
 		Hendrerit Vulputate
 	</text>
 	<combo_box name="category_combo" tool_tip="Wybór kategorii - wybierz kategorię, której dotyczy raport">
-		<combo_item name="Select_category">
-			Wybierz Kategorię:
-		</combo_item>
-		<combo_item name="Age__Age_play">
-			Wiek &gt; Udawanie Nieletniej Osoby
-		</combo_item>
-		<combo_item name="Age__Adult_resident_on_Teen_Second_Life">
-			Wiek &gt; Dorosły Rezydent w Teen Second Life
-		</combo_item>
+		<combo_box.item name="Select_category" label="Wybierz Kategorię:"/>
+		<combo_box.item name="Age__Age_play" label="Wiek &gt; Udawanie Nieletniej Osoby"/>
+		<combo_box.item name="Age__Adult_resident_on_Teen_Second_Life" label="Wiek &gt; Dorosły Rezydent w Teen Second Life"/>
 		<combo_item name="Age__Underage_resident_outside_of_Teen_Second_Life">
 			Wiek &gt; Nieletni Rezydent poza Teen Second Life
 		</combo_item>
-		<combo_item name="Assault__Combat_sandbox___unsafe_area">
-			Napaść &gt; Strefa Militarna / Niebezpieczny Obszar
-		</combo_item>
-		<combo_item name="Assault__Safe_area">
-			Napaść &gt; Bezpieczny Obszar
-		</combo_item>
-		<combo_item name="Assault__Weapons_testing_sandbox">
-			Napaść &gt; Obszar do Testowania Broni
-		</combo_item>
-		<combo_item name="Commerce__Failure_to_deliver_product_or_service">
-			Handel &gt; Niedostarczenie Produktu lub Usługi
-		</combo_item>
-		<combo_item name="Disclosure__Real_world_information">
-			Naruszenie Prywatności &gt; Dane Osobiste
-		</combo_item>
-		<combo_item name="Disclosure__Remotely_monitoring chat">
-			Ujawnienie &gt; Monitorowanie Czatu
-		</combo_item>
-		<combo_item name="Disclosure__Second_Life_information_chat_IMs">
-			Ujawnienie &gt; Dane z Second Life / Czatu / IM
-		</combo_item>
-		<combo_item name="Disturbing_the_peace__Unfair_use_of_region_resources">
-			Zakłócanie Spokoju &gt; Nieuczciwe Używanie Zasobów Regionu
-		</combo_item>
-		<combo_item name="Disturbing_the_peace__Excessive_scripted_objects">
-			Zakłócanie Spokoju &gt; Przesadnie Skryptowane Obiekty
-		</combo_item>
-		<combo_item name="Disturbing_the_peace__Object_littering">
-			Zakłócanie Spokoju &gt; Śmiecenie Obiektami
-		</combo_item>
-		<combo_item name="Disturbing_the_peace__Repetitive_spam">
-			Zakłócanie Spokoju &gt; Ciągły Spam
-		</combo_item>
-		<combo_item name="Disturbing_the_peace__Unwanted_advert_spam">
-			Zakłócanie Spokoju &gt; Nieporządany Spam Reklamowy
-		</combo_item>
-		<combo_item name="Fraud__L$">
-			Oszustwo &gt; L$
-		</combo_item>
-		<combo_item name="Fraud__Land">
-			Oszustwo &gt; Posiadłości
-		</combo_item>
-		<combo_item name="Fraud__Pyramid_scheme_or_chain_letter">
-			Oszustwo &gt; Piramidy albo Listy Łańcuchowe
-		</combo_item>
-		<combo_item name="Fraud__US$">
-			Oszustwo &gt; US$
-		</combo_item>
-		<combo_item name="Harassment__Advert_farms___visual_spam">
-			Prześladowanie &gt; Farmy Reklamowe / Wizualny Spam
-		</combo_item>
-		<combo_item name="Harassment__Defaming_individuals_or_groups">
-			Prześladowanie &gt; Zniesławianie Jedostek lub Grup
-		</combo_item>
-		<combo_item name="Harassment__Impeding_movement">
-			Prześladowanie &gt; Ograniczanie Ruchu
-		</combo_item>
-		<combo_item name="Harassment__Sexual_harassment">
-			Prześladowanie &gt; Molestowanie Seksualne
-		</combo_item>
-		<combo_item name="Harassment__Solicting_inciting_others_to_violate_ToS">
-			Prześladowanie &gt; Namawianie/Zachęcanie Innych do Łamania Warunków Umowy
-		</combo_item>
-		<combo_item name="Harassment__Verbal_abuse">
-			Prześladowanie &gt; Znieważanie Słowne
-		</combo_item>
-		<combo_item name="Indecency__Broadly_offensive_content_or_conduct">
-			Nieprzyzwoitość &gt; Obraźliwa Treść lub Postępowanie
-		</combo_item>
-		<combo_item name="Indecency__Inappropriate_avatar_name">
-			Nieprzyzwoitość &gt; Niestosowne Imię Awatara
-		</combo_item>
+		<combo_box.item name="Assault__Combat_sandbox___unsafe_area" label="Napaść &gt; Strefa Militarna / Niebezpieczny Obszar"/>
+		<combo_box.item name="Assault__Safe_area" label="Napaść &gt; Bezpieczny Obszar"/>
+		<combo_box.item name="Assault__Weapons_testing_sandbox" label="Napaść &gt; Obszar do Testowania Broni"/>
+		<combo_box.item name="Commerce__Failure_to_deliver_product_or_service" label="Handel &gt; Niedostarczenie Produktu lub Usługi"/>
+		<combo_box.item name="Disclosure__Real_world_information" label="Naruszenie Prywatności &gt; Dane Osobiste"/>
+		<combo_box.item name="Disclosure__Remotely_monitoring chat" label="Ujawnienie &gt; Monitorowanie Czatu"/>
+		<combo_box.item name="Disclosure__Second_Life_information_chat_IMs" label="Ujawnienie &gt; Dane z Second Life / Czatu / IM"/>
+		<combo_box.item name="Disturbing_the_peace__Unfair_use_of_region_resources" label="Zakłócanie Spokoju &gt; Nieuczciwe Używanie Zasobów Regionu"/>
+		<combo_box.item name="Disturbing_the_peace__Excessive_scripted_objects" label="Zakłócanie Spokoju &gt; Przesadnie Skryptowane Obiekty"/>
+		<combo_box.item name="Disturbing_the_peace__Object_littering" label="Zakłócanie Spokoju &gt; Śmiecenie Obiektami"/>
+		<combo_box.item name="Disturbing_the_peace__Repetitive_spam" label="Zakłócanie Spokoju &gt; Ciągły Spam"/>
+		<combo_box.item name="Disturbing_the_peace__Unwanted_advert_spam" label="Zakłócanie Spokoju &gt; Nieporządany Spam Reklamowy"/>
+		<combo_box.item name="Fraud__L$" label="Oszustwo &gt; L$"/>
+		<combo_box.item name="Fraud__Land" label="Oszustwo &gt; Posiadłości"/>
+		<combo_box.item name="Fraud__Pyramid_scheme_or_chain_letter" label="Oszustwo &gt; Piramidy albo Listy Łańcuchowe"/>
+		<combo_box.item name="Fraud__US$" label="Oszustwo &gt; US$"/>
+		<combo_box.item name="Harassment__Advert_farms___visual_spam" label="Prześladowanie &gt; Farmy Reklamowe / Wizualny Spam"/>
+		<combo_box.item name="Harassment__Defaming_individuals_or_groups" label="Prześladowanie &gt; Zniesławianie Jedostek lub Grup"/>
+		<combo_box.item name="Harassment__Impeding_movement" label="Prześladowanie &gt; Ograniczanie Ruchu"/>
+		<combo_box.item name="Harassment__Sexual_harassment" label="Prześladowanie &gt; Molestowanie Seksualne"/>
+		<combo_box.item name="Harassment__Solicting_inciting_others_to_violate_ToS" label="Prześladowanie &gt; Namawianie/Zachęcanie Innych do Łamania Warunków Umowy (ToS)"/>
+		<combo_box.item name="Harassment__Verbal_abuse" label="Prześladowanie &gt; Znieważanie Słowne"/>
+		<combo_box.item name="Indecency__Broadly_offensive_content_or_conduct" label="Nieprzyzwoitość &gt; Obraźliwa Treść lub Postępowanie"/>
+		<combo_box.item name="Indecency__Inappropriate_avatar_name" label="Nieprzyzwoitość &gt; Niestosowne Imię Awatara"/>
 		<combo_item name="Indecency__Mature_content_in_PG_region">
 			Nieprzyzwoitość &gt; Obraźliwa treść i postępowanie w regionie &apos;PG&apos;
 		</combo_item>
 		<combo_item name="Indecency__Inappropriate_content_in_Mature_region">
 			Nieprzyzwoitość &gt; Obraźliwa treść i postępowanie w regionie &apos;Mature&apos;
 		</combo_item>
-		<combo_item name="Intellectual_property_infringement_Content_Removal">
-			Naruszenie Własności Intelektualnej &gt; Usunięcie Treści
-		</combo_item>
-		<combo_item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit">
-			Naruszenie Własności Intelektualnej &gt; CopyBot albo Nadużycie Przywilejów
-		</combo_item>
-		<combo_item name="Intolerance">
-			Nietolerancja
-		</combo_item>
-		<combo_item name="Land__Abuse_of_sandbox_resources">
-			Posiadłości &gt; Nadużywanie Piaskownicy
-		</combo_item>
-		<combo_item name="Land__Encroachment__Objects_textures">
-			Posiadłości &gt; Naruszenie &gt; Obiekty/Tekstury
-		</combo_item>
-		<combo_item name="Land__Encroachment__Particles">
-			Posiadłości &gt; Naruszenie &gt; Cząsteczki
-		</combo_item>
-		<combo_item name="Land__Encroachment__Trees_plants">
-			Posiadłości &gt; Naruszenie &gt; Drzewa/Rośliny
-		</combo_item>
-		<combo_item name="Wagering_gambling">
-			Zakłady/Hazard
-		</combo_item>
-		<combo_item name="Other">
-			Inne
-		</combo_item>
+		<combo_box.item name="Intellectual_property_infringement_Content_Removal" label="Naruszenie Własności Intelektualnej &gt; Usunięcie Treści"/>
+		<combo_box.item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit" label="Naruszenie Własności Intelektualnej &gt; CopyBot albo Nadużycie Przywilejów"/>
+		<combo_box.item name="Intolerance" label="Nietolerancja"/>
+		<combo_box.item name="Land__Abuse_of_sandbox_resources" label="Posiadłości &gt; Nadużywanie Piaskownicy"/>
+		<combo_box.item name="Land__Encroachment__Objects_textures" label="Posiadłości &gt; Naruszenie &gt; Obiekty/Tekstury"/>
+		<combo_box.item name="Land__Encroachment__Particles" label="Posiadłości &gt; Naruszenie &gt; Cząsteczki"/>
+		<combo_box.item name="Land__Encroachment__Trees_plants" label="Posiadłości &gt; Naruszenie &gt; Drzewa/Rośliny"/>
+		<combo_box.item name="Wagering_gambling" label="Zakłady/Hazard"/>
+		<combo_box.item name="Other" label="Inne"/>
 	</combo_box>
 	<text name="abuser_name_title">
 		Dane osobowe:

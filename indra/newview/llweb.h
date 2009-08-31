@@ -35,7 +35,6 @@
 #define LL_LLWEB_H
 
 #include <string>
-#include "llalertdialog.h"
 
 class LLWeb
 {
@@ -54,12 +53,6 @@ public:
 	// Returns escaped (eg, " " to "%20") url
 	static std::string escapeURL(const std::string& url);
 
-	class URLLoader : public LLAlertDialog::URLLoader
-	{
-		virtual void load(const std::string& url);
-	};
-
-	static URLLoader sAlertURLLoader;
 };
 
 #endif

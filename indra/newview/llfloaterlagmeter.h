@@ -35,22 +35,24 @@
 
 #include "llfloater.h"
 
-class LLFloaterLagMeter : public LLFloater, public LLFloaterSingleton<LLFloaterLagMeter>
+class LLTextBox;
+
+class LLFloaterLagMeter : public LLFloater
 {
-	friend class LLUISingleton<LLFloaterLagMeter, VisibilityPolicy<LLFloater> >;
+	friend class LLFloaterReg;
 	
 public:
 	/*virtual*/ void draw();
-
+	/*virtual*/ BOOL postBuild();	
 private:
+	
 	LLFloaterLagMeter(const LLSD& key);
 	/*virtual*/ ~LLFloaterLagMeter();
-
 	void determineClient();
 	void determineNetwork();
 	void determineServer();
 
-	static void onClickShrink(void * data);
+	void onClickShrink();
 
 	bool mShrunk;
 	S32 mMaxWidth, mMinWidth;

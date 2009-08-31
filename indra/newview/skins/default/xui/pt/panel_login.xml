@@ -13,15 +13,9 @@
 		Posição inicial:
 	</text>
 	<combo_box name="start_location_combo">
-		<combo_item name="MyHome">
-			Minha casa
-		</combo_item>
-		<combo_item name="MyLastLocation">
-			Minha última localização
-		</combo_item>
-		<combo_item name="Typeregionname">
-			&lt;Digite o nome da região&gt;
-		</combo_item>
+		<combo_box.item name="MyHome" label="Minha casa" />
+		<combo_box.item name="MyLastLocation" label="Minha última localização" />
+		<combo_box.item name="Typeregionname" label="lt; Digite o nome da região;" />
 	</combo_box>
 	<check_box label="Lembrar senha" name="remember_check"/>
 	<button label="Entrar" label_selected="Entrar" name="connect_btn"/>

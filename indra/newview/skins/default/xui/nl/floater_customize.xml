@@ -14,12 +14,8 @@
 			<button label="Torso" label_selected="Torso" name="Torso"/>
 			<button label="Benen" label_selected="Benen" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item name="radio">
-					Vrouw
-				</radio_item>
-				<radio_item name="radio2">
-					Man
-				</radio_item>
+				<radio_item name="radio" label="Vrouw" />
+				<radio_item name="radio2" label="Man" />
 			</radio_group>
 			<text name="title">
 				[DESC]

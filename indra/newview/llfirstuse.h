@@ -95,7 +95,7 @@ public:
 	static void useMap();
 	static void useGoTo();
 	static void useBuild();
-	static void useLeftClickNoHit();
+//	static void useLeftClickNoHit();
 	static void useTeleport();
 	static void useOverrideKeys();
 	static void useAttach();

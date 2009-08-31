@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="true"
+ follows="left|top|right|bottom"
+ height="200"
+ layout="topleft"
+ name="script"
+ short_title="[All scripts]"
+ title="[All scripts]"
+ width="440">
+    <text_editor
+     bottom="197"
+     follows="left|top|right|bottom"
+     height="176"
+     layout="topleft"
+     max_length="10000"
+     name="Chat History Editor"
+     width="420"
+     word_wrap="true" />
+</floater>

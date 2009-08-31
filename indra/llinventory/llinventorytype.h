@@ -92,11 +92,10 @@ private:
 	~LLInventoryType( void );
 };
 
-// helper function which returns true if inventory type and asset type
+// helper function that returns true if inventory type and asset type
 // are potentially compatible. For example, an attachment must be an
 // object, but a wearable can be a bodypart or clothing asset.
-bool inventory_and_asset_types_match(
-	LLInventoryType::EType inventory_type,
-	LLAssetType::EType asset_type);
+bool inventory_and_asset_types_match(LLInventoryType::EType inventory_type,
+									 LLAssetType::EType asset_type);
 
 #endif

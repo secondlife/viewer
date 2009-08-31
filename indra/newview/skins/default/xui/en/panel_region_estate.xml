@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ border="true"
+ follows="top|left"
+ height="512"
+ name="EstateWrapper"
+ label="Estate"
+ layout="topleft"
+ width="280">
+  <scroll_container
+   follows="top|left|right|bottom"
+   height="508"
+   name="container1"
+   layout="topleft"
+   width="280">
+    <panel
+     follows="top|left"
+     height="950"
+     label="Estate"
+     layout="topleft"
+     name="Estate"
+     width="258">
+      <panel.string
+       name="email_unsupported">
+        Feature unsupported
+      </panel.string>
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="32"
+       layout="topleft"
+       left="10"
+       name="estate_help_text"
+       top="14"
+       width="300">
+        Changes to settings on this tab will affect all
+        regions in the estate.
+      </text>
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       font="SansSerif"
+       height="20"
+       layout="topleft"
+       left_delta="0"
+       name="estate_text"
+       top_pad="2"
+       width="80">
+        Estate:
+      </text>
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       font="SansSerif"
+       height="20"
+       layout="topleft"
+       left_delta="0"
+       name="estate_name"
+       top_delta="16"
+       width="150">
+        (unknown)
+      </text>
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       font="SansSerif"
+       height="20"
+       layout="topleft"
+       left_delta="0"
+       name="owner_text"
+       top_pad="2"
+       width="80">
+        Owner:
+      </text>
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       font="SansSerif"
+       height="20"
+       layout="topleft"
+       left_delta="0"
+       name="estate_owner"
+       top_delta="16"
+       width="150">
+        (unknown)
+      </text>
+      <view_border
+       bevel_style="in"
+       follows="top|left"
+       height="290"
+       layout="topleft"
+       left_delta="-4"
+       top_pad="5"
+       width="250" />
+      <check_box
+       height="20"
+       label="Use Global Time"
+       layout="topleft"
+       left="12"
+       name="use_global_time_check"
+       top="132"
+       width="200" />
+      <button
+       follows="left|top"
+       font="SansSerifSmall"
+       height="18"
+       label="?"
+       layout="topleft"
+       left_pad="20"
+       name="use_global_time_help"
+       top_delta="2"
+       width="18" />
+      <check_box
+       height="20"
+       label="Fixed Sun"
+       layout="topleft"
+       left="12"
+       name="fixed_sun_check"
+       top="152"
+       width="100" />
+      <button
+       follows="left|top"
+       font="SansSerifSmall"
+       height="18"
+       label="?"
+       layout="topleft"
+       left_pad="120"
+       name="fixed_sun_help"
+       top_delta="2"
+       width="18" />
+      <icon
+       height="20"
+       image_name="icon_day_cycle.tga"
+       layout="topleft"
+       left="47"
+       name="daycycle"
+       top="177"
+       width="165" />
+      <slider
+       follows="left|top"
+       height="20"
+       increment="0.001"
+       label="Phase"
+       layout="topleft"
+       left="12"
+       max_val="30"
+       min_val="6"
+       name="sun_hour_slider"
+       show_text="false"
+       top="202"
+       width="200" />
+      <check_box
+       height="20"
+       label="Allow Public Access"
+       layout="topleft"
+       left_delta="0"
+       name="externally_visible_check"
+       top_pad="6"
+       width="200" />
+      <button
+       follows="left|top"
+       font="SansSerifSmall"
+       height="18"
+       label="?"
+       layout="topleft"
+       left_pad="20"
+       name="externally_visible_help"
+       top_delta="2"
+       width="18" />
+      <text
+       type="string"
+       length="1"
+       follows="top|left"
+       height="16"
+       layout="topleft"
+       left="32"
+       name="Only Allow"
+       top="250"
+       width="278">
+        Restrict Access To:
+      </text>
+      <check_box
+       follows="top|left"
+       height="16"
+       label="Residents with payment info on file"
+       layout="topleft"
+       left_delta="0"
+       name="limit_payment"
+       tool_tip="Ban unidentified residents."
+       top_pad="2"
+       width="278" />
+      <check_box
+       follows="top|left"
+       height="16"
+       label="Age-verified adults"
+       layout="topleft"
+       left_delta="0"
+       name="limit_age_verified"
+       tool_tip="Ban residents who have not verified their age. See the [SUPPORT_SITE] for more information."
+       top_pad="2"
+       width="278" />
+      <check_box
+       height="20"
+       label="Allow Voice Chat"
+       layout="topleft"
+       left="12"
+       name="voice_chat_check"
+       top="304"
+       width="200" />
+      <button
+       follows="left|top"
+       font="SansSerifSmall"
+       height="18"
+       label="?"
+       layout="topleft"
+       left_pad="20"
+       name="voice_chat_help"
+       top_delta="2"
+       width="18" />
+      <check_box
+       height="20"
+       label="Allow Direct Teleport"
+       layout="topleft"
+       left="12"
+       name="allow_direct_teleport"
+       top_pad="4"
+       width="80" />
+      <button
+       follows="left|top"
+       font="SansSerifSmall"
+       height="18"
+       label="?"
+       layout="topleft"
+       left_pad="140"
+       name="allow_direct_teleport_help"
+       top_delta="2"
+       width="18" />
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="20"
+       layout="topleft"
+       left="10"
+       name="abuse_email_text"
+       top_pad="5"
+       width="180">
+        Abuse email address:
+      </text>
+      <line_editor
+       follows="top|left"
+       height="19"
+       layout="topleft"
+       left="15"
+       name="abuse_email_address"
+       top_pad="5"
+       width="205" />
+      <button
+       follows="left|top"
+       font="SansSerifSmall"
+       height="18"
+       label="?"
+       layout="topleft"
+       left_pad="12"
+       name="abuse_email_address_help"
+       top_delta="0"
+       width="18" />
+      <button
+       enabled="false"
+       follows="left|top"
+       height="20"
+       label="Apply"
+       layout="topleft"
+       name="apply_btn"
+       right="250"
+       top_pad="4"
+       width="90" />
+      <button
+       follows="left|top"
+       height="20"
+       label="Send Message To Estate..."
+       layout="topleft"
+       left="8"
+       name="message_estate_btn"
+       top_pad="5"
+       width="250" />
+      <button
+       follows="left|top"
+       height="20"
+       label="Kick User from Estate..."
+       layout="topleft"
+       left="8"
+       name="kick_user_from_estate_btn"
+       top_pad="5"
+       width="250" />
+      <text
+       type="string"
+       length="1"
+       top="490"
+       follows="left|top"
+       height="20"
+       layout="topleft"
+       name="estate_manager_label"
+       left="8"
+       width="200">
+        Estate Managers:
+      </text>
+      <button
+       follows="left|top"
+       font="SansSerifSmall"
+       height="18"
+       label="?"
+       layout="topleft"
+       left_delta="232"
+       name="estate_manager_help"
+       top_delta="-1"
+       width="18" />
+      <view_border
+       bevel_style="none"
+       follows="top|left"
+       height="60"
+       layout="topleft"
+       left="8"
+       top_pad="5"
+       width="250" />
+      <name_list
+       follows="left|top"
+       height="60"
+       layout="topleft"
+       left_delta="0"
+       multi_select="true"
+       name="estate_manager_name_list"
+       top_delta="0"
+       width="250" />
+      <button
+       follows="left|top"
+       height="20"
+       label="Add..."
+       layout="topleft"
+       left="8"
+       name="add_estate_manager_btn"
+       top_pad="5"
+       width="90" />
+      <button
+       follows="left|top"
+       height="20"
+       label="Remove..."
+       layout="topleft"
+       name="remove_estate_manager_btn"
+       left_pad="70"
+       top_delta="0"
+       width="90" />
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="20"
+       layout="topleft"
+       left="8"
+       name="allow_resident_label"
+       top_pad="5"
+       width="200">
+        Allowed Residents:
+      </text>
+      <button
+       follows="left|top"
+       font="SansSerifSmall"
+       height="18"
+       label="?"
+       layout="topleft"
+       left_delta="232"
+       name="allow_resident_help"
+       top_delta="-1"
+       width="18" />
+      <view_border
+       bevel_style="none"
+       follows="top|left"
+       height="60"
+       layout="topleft"
+       left="8"
+       top_pad="5"
+       width="250" />
+      <name_list
+       follows="left|top"
+       height="60"
+       layout="topleft"
+       left_delta="0"
+       multi_select="true"
+       name="allowed_avatar_name_list"
+       top_delta="0"
+       width="250" />
+      <button
+       follows="left|top"
+       height="20"
+       label="Add..."
+       layout="topleft"
+       left="8"
+       name="add_allowed_avatar_btn"
+       top_pad="5"
+       width="90" />
+      <button
+       follows="left|top"
+       height="20"
+       label="Remove..."
+       layout="topleft"
+       name="remove_allowed_avatar_btn"
+       left_pad="70"
+       top_delta="0"
+       width="90" />
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="20"
+       layout="topleft"
+       left="8"
+       name="allow_group_label"
+       top_pad="5"
+       width="200">
+        Allowed Groups:
+      </text>
+      <button
+       follows="left|top"
+       font="SansSerifSmall"
+       height="18"
+       label="?"
+       layout="topleft"
+       left_delta="232"
+       name="allow_group_help"
+       top_delta="-1"
+       width="18" />
+      <view_border
+       bevel_style="none"
+       follows="top|left"
+       height="60"
+       layout="topleft"
+       left="8"
+       top_pad="5"
+       width="250" />
+      <name_list
+       follows="left|top"
+       height="60"
+       layout="topleft"
+       left_delta="0"
+       multi_select="true"
+       name="allowed_group_name_list"
+       top_delta="0"
+       width="250" />
+      <button
+       follows="left|top"
+       height="20"
+       label="Add..."
+       layout="topleft"
+       left="8"
+       name="add_allowed_group_btn"
+       top_pad="5"
+       width="90" />
+      <button
+       follows="left|top"
+       height="20"
+       label="Remove..."
+       layout="topleft"
+       name="remove_allowed_group_btn"
+       left_pad="70"
+       top_delta="0"
+       width="90" />
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="20"
+       layout="topleft"
+       left="8"
+       name="ban_resident_label"
+       top_pad="5"
+       width="200">
+        Banned Residents:
+      </text>
+      <button
+       follows="left|top"
+       font="SansSerifSmall"
+       height="18"
+       label="?"
+       layout="topleft"
+       left_delta="232"
+       name="ban_resident_help"
+       top_delta="-1"
+       width="18" />
+      <view_border
+       bevel_style="none"
+       follows="top|left"
+       height="60"
+       layout="topleft"
+       left="8"
+       top_pad="5"
+       width="250" />
+      <name_list
+       follows="left|top"
+       height="60"
+       layout="topleft"
+       left_delta="0"
+       multi_select="true"
+       name="banned_avatar_name_list"
+       top_delta="0"
+       width="250" />
+      <button
+       follows="left|top"
+       height="20"
+       label="Add..."
+       layout="topleft"
+       left="8"
+       name="add_banned_avatar_btn"
+       top_pad="5"
+       width="90" />
+      <button
+       follows="left|top"
+       height="20"
+       label="Remove..."
+       layout="topleft"
+       name="remove_banned_avatar_btn"
+       left_pad="70"
+       top_delta="0"
+       width="90" />
+    </panel>
+  </scroll_container>
+</panel>

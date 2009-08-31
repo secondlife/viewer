@@ -66,7 +66,7 @@ public:
 	LLColor4U(U8 r, U8 g, U8 b);		// Initializes LLColor4U to (r, g, b, 1)
 	LLColor4U(U8 r, U8 g, U8 b, U8 a);		// Initializes LLColor4U to (r. g, b, a)
 	LLColor4U(const U8 *vec);			// Initializes LLColor4U to (vec[0]. vec[1], vec[2], 1)
-	LLColor4U(const LLSD& sd)
+	explicit LLColor4U(const LLSD& sd)
 	{
 		setValue(sd);
 	}
@@ -77,12 +77,6 @@ public:
 		mV[1] = sd[1].asInteger();
 		mV[2] = sd[2].asInteger();
 		mV[3] = sd[3].asInteger();
-	}
-
-	const LLColor4U& operator=(const LLSD& sd)
-	{
-		setValue(sd);
-		return *this;
 	}
 
 	LLSD getValue() const
@@ -137,6 +131,12 @@ public:
 	inline void setVecScaleClamp(const LLColor4 &color);
 
 	static BOOL parseColor4U(const std::string& buf, LLColor4U* value);
+
+	// conversion
+	operator const LLColor4() const
+	{
+		return LLColor4(*this);
+	}
 
 	static LLColor4U white;
 	static LLColor4U black;

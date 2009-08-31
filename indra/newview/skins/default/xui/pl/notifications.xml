@@ -6,6 +6,9 @@
 	<global name="alwayschoose">
 		Pozwalaj na wybór tej opcji
 	</global>
+	<global name="implicitclosebutton">
+		Zamknij
+	</global>
   <template name="okbutton">
     <form>
       <button
@@ -71,7 +74,7 @@
     </form>
   </template>
 	<notification functor="GenericAcknowledge" label="Nieznany rodzaj komunikatu" name="MissingAlert">
-		Twoja wersja klienta Second Life nie może wyświetlić odebranej wiadomości.
+		Twoja wersja klienta [APP_NAME] nie może wyświetlić odebranej wiadomości.
 
 Szczegóły błędu: Błąd o nazwie &apos;[_NAME]&apos; nie został odnaleziony w pliku notifications.xml.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -94,7 +97,7 @@ Szczegóły błędu: Błąd o nazwie &apos;[_NAME]&apos; nie został odnaleziony
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Tak"/>
 	</notification>
 	<notification name="BadInstallation">
-		Podczas aktualizacji klienta Second Life wystąpił błąd. Proszę odwiedzić stronę secondlife.com by ściągnąć najnowszą wersje klienta.
+		Podczas aktualizacji klienta [APP_NAME] wystąpił błąd. Proszę odwiedzić stronę secondlife.com by ściągnąć najnowszą wersje klienta.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -205,23 +208,23 @@ Dodać ten przywilej do funkcji [ROLE_NAME]?
 - tej posiadłości w przeglądarce internetowej
 	</notification>
 	<notification name="ClickSoundHelpLand">
-		Media oraz muzyka są aktywne według ustawień posiadłości dla mediów. Dźwięk oraz komunikacja głosowa mogą być ograniczone w danej posiadłości, w zależności od ustawień rodzaju treści jaką zawiera. Skorzystaj z Second Life:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
+		Media oraz muzyka są aktywne według ustawień posiadłości dla mediów. Dźwięk oraz komunikacja głosowa mogą być ograniczone w danej posiadłości, w zależności od ustawień rodzaju treści jaką zawiera. Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
 		<url name="url">
 			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=5046
 		</url>
     <usetemplate
      name="okcancelbuttons"
-     yestext="Second Life:Pomoc"
+     yestext="[SECOND_LIFE]:Pomoc"
 	 notext="Zamknij" />
 	</notification>
 	<notification name="ClickSearchHelpAll">
-		Wyniki wyszukiwania wyświetlają się na podstawie rodzaju zakładki wyszukiwarki, z której korzystasz, rodzaju statusu Twojego wieku, wybranej kategorii, oraz innych czynników. By uzyskać wiecej szczegółów skorzystaj z Second Life: Pomoc.
+		Wyniki wyszukiwania wyświetlają się na podstawie rodzaju zakładki wyszukiwarki, z której korzystasz, rodzaju statusu Twojego wieku, wybranej kategorii, oraz innych czynników. By uzyskać wiecej szczegółów skorzystaj z [SECOND_LIFE]:Pomoc.
 		<url name="url">
 			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=4722
 		</url>
     <usetemplate
      name="okcancelbuttons"
-     yestext="Second Life:Pomoc"
+     yestext="[SECOND_LIFE]:Pomoc"
 	 notext="Zamknij" />
 	</notification>
 	<notification name="ClickPublishHelpLandDisabled">
@@ -235,7 +238,7 @@ Dodać ten przywilej do funkcji [ROLE_NAME]?
 	<notification name="ClickPartnerHelpAvatar">
 		Możesz zaproponować związek innemu Rezydentowi lub rozwiązać istniejący związek na stronie internetowej [SECOND_LIFE].
 
-Chcesz dowiedzieć się więcej na temat związków w Second Life?
+Chcesz dowiedzieć się więcej na temat związków w [SECOND_LIFE]?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="Idź na stronę"/>
 	</notification>
 	<notification name="ClickUploadHelpPermissions">
@@ -273,7 +276,7 @@ Cena wynosi [SALE_PRICE]L$ i sprzedaż będzie autoryzowana dla [NAME].
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmLandSaleToAnyoneChange">
-		UWAGA: Wybierając Sprzedaż dla Kogokolwiek umożliwiasz zakup posiadłości wszystkim Rezydentom Second Life.
+		UWAGA: Wybierając Sprzedaż dla Kogokolwiek umożliwiasz zakup posiadłości wszystkim Rezydentom [SECOND_LIFE].
 
 Posiadłość o powierzchni [LAND_SIZE] m zostaje wystawiona na sprzedaż.
 Cena wynosi [SALE_PRICE]L$ i sprzedaż będzie autoryzowana dla [NAME].
@@ -417,17 +420,17 @@ Pamiętaj! Nie ma rekompensaty za poniesione koszta.
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="CacheWillClear">
-		Bufor danych na dysku zostanie zresetowany po relogu do [SECOND_LIFE].
+		Bufor danych na dysku zostanie zresetowany po relogu do [APP_NAME].
 	</notification>
 	<notification name="CacheWillBeMoved">
-		Bufor danych na dysku zostanie przemieszczony po relogu do [SECOND_LIFE].
+		Bufor danych na dysku zostanie przemieszczony po relogu do [APP_NAME].
 Bufor będzie również wyczyszczony.
 	</notification>
 	<notification name="ChangeConnectionPort">
-		Ustawienia portu zostaną wprowadzone po relogu do [SECOND_LIFE].
+		Ustawienia portu zostaną wprowadzone po relogu do [APP_NAME].
 	</notification>
 	<notification name="ChangeSkin">
-		Nowa skórka zostanie wprowadzona po relogu do [SECOND_LIFE].
+		Nowa skórka zostanie wprowadzona po relogu do [APP_NAME].
 	</notification>
 	<notification name="GoToAuctionPage">
 		Odwiedzić stronę internetową [SECOND_LIFE] żeby zobaczyć szczgóły aukcji lub zrobić ofertę?
@@ -486,7 +489,7 @@ Obiekt może znajdować się zbyt daleko albo został usuniety.
 		Nie można zapisać pliku [[FILE]]
 	</notification>
 	<notification name="UnsupportedHardware">
-		Uwaga: Twój system nie spełnia minimalnych wymagań sprzętowych Second Life. Jakość i prędkość Second Life mogą być pogorszone. Niestety, nie będziemy w stanie udzielić Ci technicznej pomocy, ponieważ konfiguracja Twojego systemu nie spełnia wymagań sprzętowych.
+		Uwaga: Twój system nie spełnia minimalnych wymagań sprzętowych [APP_NAME]. Jakość i prędkość [APP_NAME] mogą być pogorszone. Niestety, nie będziemy w stanie udzielić Ci technicznej pomocy, ponieważ konfiguracja Twojego systemu nie spełnia wymagań sprzętowych.
 
 MINSPECS
 Czy chcesz odwiedzić stronę [_URL] po dodatkowe informacje?
@@ -498,14 +501,14 @@ Czy chcesz odwiedzić stronę [_URL] po dodatkowe informacje?
 	<notification name="UnknownGPU">
 		Twój system jest wyposażony w kartę graficzną której jeszcze nie znamy.
 To się często zdarza z nowym sprzętem, którego jeszcze nie testowaliśmy.
-Second Life najprawdopodobniej będzie działało poprawnie. Możliwe, że będziesz musiał wyregulować ustawienia grafiki.
+[APP_NAME] najprawdopodobniej będzie działało poprawnie. Możliwe, że będziesz musiał wyregulować ustawienia grafiki.
 (Edycja &gt; Ustawienia &gt; Grafika).
 		<form name="form">
 			<ignore name="ignore" text="Zignoruj ostrzeżenie"/>
 		</form>
 	</notification>
 	<notification name="DisplaySettingsNoShaders">
-		[SECOND_LIFE] zawiesił się podczas inicjalizacji sterowników graficznych. Jakość grafiki została zmniejszona - może pomoże. Pewne funkcje graficzne zostały wyłączone. Zalecamy aktualizcje strerowników grapicznych.
+		[APP_NAME] zawiesił się podczas inicjalizacji sterowników graficznych. Jakość grafiki została zmniejszona - może pomoże. Pewne funkcje graficzne zostały wyłączone. Zalecamy aktualizcje strerowników grapicznych.
 Możesz podnieść jakość grafiki pod Ustawienia &gt; Grafika.
 	</notification>
 	<notification name="RegionNoTerraforming">
@@ -776,7 +779,7 @@ Posiadłość nie została wybrana.
 Region nie znaleziony.
 	</notification>
 	<notification name="CannotCloseFloaterBuyLand">
-		Dialog Kup Posiadłość nie może zostać zamknięty dopóki Second Life nie oszacuje ceny tej tranzakcji.
+		Dialog Kup Posiadłość nie może zostać zamknięty dopóki [APP_NAME] nie oszacuje ceny tej tranzakcji.
 	</notification>
 	<notification name="CannotDeedLandNothingSelected">
 		Nie można przekazać posiadłości:
@@ -950,7 +953,7 @@ Jeżeli wciąż masz ten problem, wybierz Pomoc &gt; Zgłoś Błędy Klienta i p
 [MESSAGE]
 
 Kliknij Kontynuuj żeby zobaczyć IMy i czat.
-Żadne inne operacje nie będą dozwolone. Kliknij Wyłącz w celu natychmiastowego opuszczenia [SECOND_LIFE].
+Żadne inne operacje nie będą dozwolone. Kliknij Wyłącz w celu natychmiastowego opuszczenia [APP_NAME].
 		<usetemplate name="okcancelbuttons" notext="Wyłącz" yestext="Kontynuuj"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1116,14 +1119,14 @@ Możesz normalnie używać [SECOND_LIFE], inni użytkownicy będą Cię widzieli
 		</form>
 	</notification>
 	<notification name="FirstRun">
-		Instalacja [SECOND_LIFE] zakończona.
+		Instalacja [APP_NAME] zakończona.
 
 Jeżeli używasz [SECOND_LIFE] po raz pierwszy to musisz stworzyć konto żeby móc się zalogować.
 Przejść na stronę www.secondlife.com żeby stworzyć nowe konto?
 		<usetemplate name="okcancelbuttons" notext="Kontynuuj" yestext="Nowe Konto..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
-		Problemy z połączeniem. Problem może być spowodowany Twoim połączeniem z Internetem albo może istnieć po stronie serwerów Second Life.
+		Problemy z połączeniem. Problem może być spowodowany Twoim połączeniem z Internetem albo może istnieć po stronie serwerów [SECOND_LIFE].
 
 Możesz sprawdzić swoje połączenie z Internetem i spróbować ponownie za kilka minut albo kliknij Pomoc żeby połączyć się ze stroną pomocy technicznej albo wybierz Teleportuj żeby spróbować teleportacji do Twojego miejsca startu.
 		<form name="form">
@@ -1225,33 +1228,33 @@ Wybierz obiekt na sprzedaż i spróbuj jeszcze raz.
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="DownloadWindowsMandatory">
-		Nowa wersja [SECOND_LIFE] została opublikowana.
+		Nowa wersja [APP_NAME] została opublikowana.
 [MESSAGE]
-Musisz zainstalować nową wersję żeby używać [SECOND_LIFE].
+Musisz zainstalować nową wersję żeby używać [APP_NAME].
 		<usetemplate name="okcancelbuttons" notext="Wyłącz program" yestext="Załaduj"/>
 	</notification>
 	<notification name="DownloadWindows">
-		Uaktualniona wersja [SECOND_LIFE] została opublikowana.
+		Uaktualniona wersja [APP_NAME] została opublikowana.
 [MESSAGE]
 Aktualizacja nie jest wymagana ale jest zalecana w celu poprawy prędkości i stabilności.
 		<usetemplate name="okcancelbuttons" notext="Kontynuuj" yestext="Załaduj"/>
 	</notification>
 	<notification name="DownloadWindowsReleaseForDownload">
-		Uaktualniona wersja [SECOND_LIFE] została opublikowana.
+		Uaktualniona wersja [APP_NAME] została opublikowana.
 [MESSAGE]
 Aktualizacja nie jest wymagana ale jest zalecana w celu poprawy prędkości i stabilności.
 		<usetemplate name="okcancelbuttons" notext="Kontynuuj" yestext="Załaduj"/>
 	</notification>
 	<notification name="DownloadMacMandatory">
-		Nowa wersja [SECOND_LIFE] została opublikowana.
+		Nowa wersja [APP_NAME] została opublikowana.
 [MESSAGE]
-Musisz zainstalować nową wersję żeby używać [SECOND_LIFE].
+Musisz zainstalować nową wersję żeby używać [APP_NAME].
 
 Załadować do foldera Aplikacji?
 		<usetemplate name="okcancelbuttons" notext="Wyłącz program" yestext="Załaduj"/>
 	</notification>
 	<notification name="DownloadMac">
-		Uaktualniona wersja [SECOND_LIFE] została opublikowana.
+		Uaktualniona wersja [APP_NAME] została opublikowana.
 [MESSAGE]
 Aktualizacja nie jest wymagana ale jest zalecana w celu poprawy prędkości i stabilności.
 
@@ -1259,7 +1262,7 @@ Załadować do foldera Aplikacji?
 		<usetemplate name="okcancelbuttons" notext="Kontynuuj" yestext="Załaduj"/>
 	</notification>
 	<notification name="DownloadMacReleaseForDownload">
-		Uaktualniona wersja [SECOND_LIFE] została opublikowana.
+		Uaktualniona wersja [APP_NAME] została opublikowana.
 [MESSAGE]
 Aktualizacja nie jest wymagana ale jest zalecana w celu poprawy prędkości i stabilności.
 
@@ -1494,7 +1497,7 @@ Kontynuować?
 	<notification name="RegionEntryAccessBlocked">
 		Ze względu na Twój wiek, nie jesteś uprawniony do przebywania w tym regionie. Może być to wynikiem braku informacji na temat weryfikacji Twojego wieku.
 
-Upewnij się, że masz zainstalowaną najnowszą wersję klienta i skorzystaj z Second Life:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
+Upewnij się, że masz zainstalowaną najnowszą wersję klienta i skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -1502,13 +1505,13 @@ Upewnij się, że masz zainstalowaną najnowszą wersję klienta i skorzystaj z 
 	<notification name="RegionEntryAccessBlocked_KB">
 		Ze względu na Twój wiek, nie jesteś uprawniony do przebywania w tym regionie. 
 
-Skorzystaj z Second Life:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
+Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
 		<url name="url">
 			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
 		</url>
     <usetemplate
      name="okcancelignore"
-     yestext="Second Life:Pomoc"
+     yestext="[SECOND_LIFE]:Pomoc"
 	 notext="Zamknij"
 	 ignoretext="Dostęp do posiadłości jest zablokowany ze względu na rodzaj treści jaką zawiera"/>
 	</notification>
@@ -1533,7 +1536,7 @@ Możeszy wybrać &apos;Zmień Ustawienia&apos; by dokonać zmian w ustawieniach 
 	<notification name="LandClaimAccessBlocked">
 		W związku ze statusem ustawień Twojego wieku, nie możesz odzyskać tej posiadłości. Możesz potrzebować weryfikacji wieku bądź instalacji najnowszej wersji klienta.
 
-Upewnij się, że masz zainstalowaną najnowszą wersję klienta i skorzystaj z Second Life:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
+Upewnij się, że masz zainstalowaną najnowszą wersję klienta i skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -1541,13 +1544,13 @@ Upewnij się, że masz zainstalowaną najnowszą wersję klienta i skorzystaj z 
 	<notification name="LandClaimAccessBlocked_KB">
 		Ze względu na Twój wiek, nie możesz odzyskać tej posiadłości. 
 
-Skorzystaj z Second Life:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
+Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
 		<url name="url">
 			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
 		</url>
     <usetemplate
      name="okcancelignore"
-     yestext="Second Life:Pomoc"
+     yestext="[SECOND_LIFE]:Pomoc"
 	 notext="Zamknij"
 	 ignoretext="Odzyskanie posiadłości jest zablokowane ze względu na rodzaj treści jaką zwiera"/>
 	</notification>
@@ -1567,7 +1570,7 @@ Możeszy wybrać &apos;Zmień Ustawienia&apos; by dokonać zmian w ustawieniach 
 	<notification name="LandBuyAccessBlocked">
 		Ze względu na Twój wiek, nie możesz kupić tej posiadłości. Może być to wynikiem braku informacji na temat weryfikacji Twojego wieku.
 
-Upewnij się, że masz zainstalowaną najnowszą wersję klienta i skorzystaj z Second Life:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
+Upewnij się, że masz zainstalowaną najnowszą wersję klienta i skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -1575,13 +1578,13 @@ Upewnij się, że masz zainstalowaną najnowszą wersję klienta i skorzystaj z 
 	<notification name="LandBuyAccessBlocked_KB">
 		Ze względu na Twój wiek, nie możesz kupić tej posiadłości. 
 
-Skorzystaj z Second Life:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
+Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
 		<url name="url">
 			https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=6010
 		</url>
     <usetemplate
      name="okcancelignore"
-     yestext="Second Life:Pomoc"
+     yestext="[SECOND_LIFE]:Pomoc"
 	 notext="Zamknij"
 	 ignoretext="Zakup posiadłości jest zablokowany ze względu na rodzaj treści jaką zawiera"/>
 	</notification>
@@ -1841,7 +1844,7 @@ Domyślnie: nie włączona
 Domyślnie: nie włączone
 	</notification>
 	<notification label="Wersja Niezgodna z Systemem Rozmów" name="VoiceVersionMismatch">
-		Ta wersja Second Life nie jest kompatybilna z systemem Rozmów w tym regionie. Musisz zainstalować aktualną wersję Second Life żeby Rozmowy działały porawnie.
+		Ta wersja [APP_NAME] nie jest kompatybilna z systemem Rozmów w tym regionie. Musisz zainstalować aktualną wersję [APP_NAME] żeby Rozmowy działały porawnie.
 	</notification>
 	<notification label="Umowa Majątku" name="HelpEstateCovenant">
 		Włączenie opcji umowy majątku jest wymagane w celu umożliwienia sprzedaży posiadłości w obrębie majątku.
@@ -1955,16 +1958,16 @@ Przenieść obiekty szafy?
 		W tym obiekcie nie ma elementów które możesz skopiować.
 	</notification>
 	<notification name="WebLaunchAccountHistory">
-		Przejść na stronę Second Life żeby zobaczyć historię konta?
+		Przejść na stronę [SECOND_LIFE] żeby zobaczyć historię konta?
 		<usetemplate ignoretext="Ładując stronę historii konta." name="okcancelignore" notext="Anuluj" yestext="Idź na stronę"/>
 	</notification>
 	<notification name="ClickOpenF1Help">
-		Przejść na stronę Second Life?
-		<usetemplate ignoretext="Odwiedzając stronę Second Life." name="okcancelignore" notext="Anuluj" yestext="Idź"/>
+		Przejść na stronę [SECOND_LIFE]?
+		<usetemplate ignoretext="Odwiedzając stronę [SECOND_LIFE]." name="okcancelignore" notext="Anuluj" yestext="Idź"/>
 	</notification>
 	<notification name="ConfirmQuit">
 		Na pewno chcesz skończyć?
-		<usetemplate ignoretext="Wyłączając Second Life." name="okcancelignore" notext="Kontynuuj" yestext="Wyłącz"/>
+		<usetemplate ignoretext="Wyłączając [APP_NAME]." name="okcancelignore" notext="Kontynuuj" yestext="Wyłącz"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		Używaj tej opcji do zgłaszania nadużyć Warunków Umowy (Terms of Service) i Standardów Społeczeństwa (Community Standards). Zobacz:
@@ -1983,7 +1986,7 @@ W ramach serwisu dla Rezydentów i gości właściciel tego regionu postanowił 
 
 Właściciel regionu będzie rozpatrywał raporty w oparciu o lokalne prawa tego regionu zdefiniowane w umowie majątku. (Możesz zobaczyć umowę wybierając opcję O Posiadłości z menu Świat.)
 
-Rozwiązanie tego raportu odnosi się wyłącznie do tego regionu; konkluzja tego raportu nie będzie miała wpływu na dostęp Rezydentów do innych regionów w Second Life. Wyłącznie Linden Lab może całkowicie odebrać dostęp do Second Life.
+Rozwiązanie tego raportu odnosi się wyłącznie do tego regionu; konkluzja tego raportu nie będzie miała wpływu na dostęp Rezydentów do innych regionów w [SECOND_LIFE]. Wyłącznie Linden Lab może całkowicie odebrać dostęp do [SECOND_LIFE].
 	</notification>
 	<notification name="HelpReportBug">
 		Używaj tej opcji *wyłącznie* w celu zgłaszania technicznych problemów, dołączając szczegółowy opis problemu. Możesz odpowiedzieć na automatyczną email z odpowiedzią żeby dodać więcej szczegółów do Twojego raportu.
@@ -2034,9 +2037,9 @@ Dokładne dane pomogą nam w klasyfikacji i prztwarzaniu raportu.
 
 Jeżeli składasz raport dotyczący naruszenia praw autorskich proszę się upewnić, że robisz to poprawnie:
 
-(1) Przypadek Nadużycia. Możesz złożyć raport jeżeli sądzisz, że Rezydent narusza system przywilejów Second Life, na przykład używając CopyBot lub podobnych narzędzi robiących kopie, naruszając prawa autorskie. Komisja Nadużyć bada wykrocznia i stosuje akcje dyscyplinarne za zachowania sprzeczne z zasadami Warunków Umowy (Terms of Service) i Standardów Społeczeństwa (Community Standards) Second Life. Komisja Nadużyć nie zajmuje się i nie odpowiada na żądania usunięcia treści ze środowiska Second Life.
+(1) Przypadek Nadużycia. Możesz złożyć raport jeżeli sądzisz, że Rezydent narusza system przywilejów [SECOND_LIFE], na przykład używając CopyBot lub podobnych narzędzi robiących kopie, naruszając prawa autorskie. Komisja Nadużyć bada wykrocznia i stosuje akcje dyscyplinarne za zachowania sprzeczne z zasadami Warunków Umowy (Terms of Service) i Standardów Społeczeństwa (Community Standards) [SECOND_LIFE]. Komisja Nadużyć nie zajmuje się i nie odpowiada na żądania usunięcia treści ze środowiska [SECOND_LIFE].
 
-(2) Przypadek DMCA lub Usuwanie Treści. Aby wystąpić z żądaniem o usunięcie treści ze środowiska Second Life MUSISZ przedłożyć ważne zawiadomienie o nadużyciu zgodne z naszą polisą DMCA pod http://secondlife.com/corporate/dmca.php.
+(2) Przypadek DMCA lub Usuwanie Treści. Aby wystąpić z żądaniem o usunięcie treści ze środowiska [SECOND_LIFE] MUSISZ przedłożyć ważne zawiadomienie o nadużyciu zgodne z naszą polisą DMCA pod http://secondlife.com/corporate/dmca.php.
 
 Jeżeli chcesz kontynuować dalej zamknij to okno i dokończ wysyłanie raportu. Może być potrzebny wybór kategorii &apos;CopyBot albo Nadużycie Przywilejów&apos;.
 
@@ -2088,12 +2091,12 @@ Chcesz wyłączyć Tryb Pracy przed zakończeniem tej tranzakcji?
 		<usetemplate ignoretext="Usuwając szafę z Twojego foldera Zgubione i Znalezione" name="okcancelignore" notext="Nie" yestext="Tak"/>
 	</notification>
 	<notification name="CopySLURL">
-		Następujący link SLURL został skopiowany do pamięci podręcznej:
+		Następujący link SLurl został skopiowany do pamięci podręcznej:
  [SLURL]
 
 Zamieść go na stronie Internetowej żeby umożliwić innym łatwy dostęp do tego miejsca, albo wklej go do panela adresu Twojej przeglądarki żeby go wypróbować.
 		<form name="form">
-			<ignore name="ignore" text="Kopiując SLURL do pamięci podręcznej"/>
+			<ignore name="ignore" text="Kopiując SLurl do pamięci podręcznej"/>
 		</form>
 	</notification>
 	<notification name="GraphicsPreferencesHelp">
@@ -2159,7 +2162,7 @@ Kliknij &quot;Zaawansowane Niebo&quot; żeby wybrać bardziej szczegółowy edyt
 Kliknij &quot;Zaawansowana Woda&quot; żeby wybrać bardziej szczegółowy edytor ustawień wody.
 	</notification>
 	<notification name="HelpDayCycle">
-		Edytor Cyklu Dnia pozwala na kontrolę nieba podczas cyklu dnia/nocy w Second Life. Ten cykl jest używany przez suwak Pora Dnia w podstawowym Edytorze Środowiska.
+		Edytor Cyklu Dnia pozwala na kontrolę nieba podczas cyklu dnia/nocy w [SECOND_LIFE]. Ten cykl jest używany przez suwak Pora Dnia w podstawowym Edytorze Środowiska.
 
 Edytor Cyklu Dnia ustala klatki odniesienia. Są to punkty (widoczne jako szare plamki na wykresie czasu) które mają przypisane Ustawienia Nieba. W miarę upływu czasu niebo jest animowane używając średnich pomiędzy klatkami odniesienia.
 
@@ -2240,7 +2243,7 @@ Suwak G (Gęstość) kontroluje gęstość chmur.
 		Kontroluje prędkość przemieszczania chmur wzdłuż osi Y.
 	</notification>
 	<notification name="HelpClassicClouds">
-		Wybierz tą opcję w celu używania dodatkowo starszej, klasycznej wersji chmur Second Life.
+		Wybierz tą opcję w celu używania dodatkowo starszej, klasycznej wersji chmur [SECOND_LIFE].
 	</notification>
 	<notification name="HelpWaterFogColor">
 		Kontroluje kolor podwodnej mgły.
@@ -2339,7 +2342,7 @@ Suwak G (Gęstość) kontroluje gęstość chmur.
 	</notification>
 	<notification name="NotAgeVerified">
 		Nie masz dostępu do tej posiadłości ze względu na brak weryfikacji Twojego wieku.
-Czy chcesz odwiedzić stronę Second Life żeby to zmienić?
+Czy chcesz odwiedzić stronę [SECOND_LIFE] żeby to zmienić?
 
 [_URL]
 		<url name="url" option="0">
@@ -2349,7 +2352,7 @@ Czy chcesz odwiedzić stronę Second Life żeby to zmienić?
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		Nie masz dostępu do tej posiadłości ze względu na brak danych o Twoim koncie.
-Czy chcesz odwiedzić stronę Second Life żeby to zmienić?
+Czy chcesz odwiedzić stronę [SECOND_LIFE] żeby to zmienić?
 
 [_URL]
 		<url name="url" option="0">
@@ -2379,10 +2382,10 @@ Czy chcesz odwiedzić stronę Second Life żeby to zmienić?
 		Temat: [SUBJECT], Treść: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[FIRST] [LAST] jest w Second Life
+		[FIRST] [LAST] jest w [SECOND_LIFE]
 	</notification>
 	<notification name="FriendOffline">
-		[FIRST] [LAST] opuszcza Second Life
+		[FIRST] [LAST] opuszcza [SECOND_LIFE]
 	</notification>
 	<notification name="AddSelfFriend">
 		Nie możesz dodać siebie do listy znajomych.
@@ -2602,7 +2605,7 @@ Nie możesz tworzyć tutaj obiektów.
 	<notification name="RegionTPAccessBlocked">
 		Ze względu na Twój wiek, nie jesteś uprawniony do przebywania w tym regionie. Możesz potrzebować weryfikacji wieku bądź instalacji najnowszej wersji klienta.
 
-Skorzystaj z Second Life:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
+Skorzystaj z [SECOND_LIFE]:Pomoc by uzyskać więcej informacji na temat dostępu do regionów z podanym rodzajem treści jaką zawiera.
 	</notification>
 	<notification name="URBannedFromRegion">
 		Zostałeś zbanowany w regionie.
@@ -2718,7 +2721,7 @@ Spróbuj ponowanie za kilka minut.
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME] proponuje Ci teleportcję do siebie:
+		[NAME] proponuje Ci teleportację do siebie:
 
 [MESSAGE]
 		<form name="form">
@@ -2794,7 +2797,7 @@ Obiekt: [OBJECTNAME], właściciel: [NAME]?
 		[TYPE] [DESC] - nie znaleziono w bazie danych.
 	</notification>
 	<notification name="InvalidWearable">
-		Obiekt, który chcesz założyć używa narzędzia nieobecnego w wersji klienta, którą używasz. By go założyć ściągnij najnowszą wersję klienta Second Life.
+		Obiekt, który chcesz założyć używa narzędzia nieobecnego w wersji klienta, którą używasz. By go założyć ściągnij najnowszą wersję klienta [APP_NAME].
 	</notification>
 	<notification name="ScriptQuestion">
 		&apos;[OBJECTNAME]&apos;, właściciel: &apos;[NAME]&apos;, chciał by:
@@ -2899,8 +2902,8 @@ Obiekty elastyczne nie mogą być fizyczne i muszą być typu fantom.
 	</notification>
 	<notification name="FirstDebugMenus">
 		Zaawansowane menu zostało włączone.
-To menu zawiera funkcje użyteczne dla programistów analizujących Secon Life.
-To menu jest włączne przez Ctrl-Alt-D pod Windows. Mac używa Cmd-Opt-Shift-D.
+To menu zawiera funkcje użyteczne dla programistów analizujących [SECOND_LIFE].
+To menu jest aktywowane dzięki kombinacji klawiszy Ctrl-Alt-D (Windows) lub &#8984;-Opt-D (Mac).
 	</notification>
 	<notification name="FirstSculptedPrim">
 		Edytujesz sculpt.
@@ -3012,7 +3015,7 @@ Wybierz Wycisz żeby wyciszyć tą osobę.
 		- Prędkość Twojego CPU nie spełnia minimalnych wymagań.
 	</global>
 	<global name="UnsupportedGLRequirements">
-		Wygląda na to, że Twój system nie spełnia wymagań sprzętowych Second Life. Second Life wymaga karty graficznej kompatybilnej z OpenGL z multiteksturami. Jeżeli masz taką kartę zainstaluj najnowsze sterowniki do niej i uaktualnienia systemu operacyjnego.
+		Wygląda na to, że Twój system nie spełnia wymagań sprzętowych [APP_NAME]. [APP_NAME] wymaga karty graficznej kompatybilnej z OpenGL z multiteksturami. Jeżeli masz taką kartę zainstaluj najnowsze sterowniki do niej i uaktualnienia systemu operacyjnego.
 
 Jeżeli wciąż masz problemy sprawdź: http://www.secondlife.com/support
 	</global>

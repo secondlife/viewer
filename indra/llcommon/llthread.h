@@ -35,7 +35,6 @@
 
 #include "llapr.h"
 #include "llapp.h"
-#include "llmemory.h"
 
 #include "apr_thread_cond.h"
 

@@ -41,13 +41,15 @@
 #include "llviewercamera.h"
 #include "llface.h"
 #include "llviewercontrol.h"
-#include "llagent.h"
 #include "llviewerregion.h"
 #include "llcamera.h"
 #include "pipeline.h"
 #include "llrender.h"
 #include "lloctree.h"
 #include "llvoavatar.h"
+
+static LLFastTimer::DeclareTimer FTM_FRUSTUM_CULL("Frustum Culling");
+static LLFastTimer::DeclareTimer FTM_CULL_REBOUND("Cull Rebound");
 
 const F32 SG_OCCLUSION_FUDGE = 0.25f;
 #define SG_DISCARD_TOLERANCE 0.01f
@@ -570,6 +572,8 @@ void LLSpatialGroup::rebuildMesh()
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
+
 void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 {
 	if (!gPipeline.hasRenderType(mDrawableType))
@@ -577,7 +581,7 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 		return;
 	}
 
-	if (group->changeLOD())
+	if (!LLPipeline::sSkipUpdate && group->changeLOD())
 	{
 		group->mLastUpdateDistance = group->mDistance;
 		group->mLastUpdateViewAngle = group->mViewAngle;
@@ -588,7 +592,7 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 		return;
 	}
 
-	LLFastTimer ftm(LLFastTimer::FTM_REBUILD_VBO);	
+	LLFastTimer ftm(FTM_REBUILD_VBO);	
 
 	group->clearDrawMap();
 	
@@ -826,7 +830,7 @@ class LLSpatialSetStateDiff : public LLSpatialSetState
 public:
 	LLSpatialSetStateDiff(U32 state) : LLSpatialSetState(state) { }
 
-	virtual void traverse(const LLSpatialGroup::TreeNode* n)
+	virtual void traverse(const LLSpatialGroup::OctreeNode* n)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) n->getListener(0);
 		
@@ -885,7 +889,7 @@ class LLSpatialClearStateDiff : public LLSpatialClearState
 public:
 	LLSpatialClearStateDiff(U32 state) : LLSpatialClearState(state) { }
 
-	virtual void traverse(const LLSpatialGroup::TreeNode* n)
+	virtual void traverse(const LLSpatialGroup::OctreeNode* n)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) n->getListener(0);
 		
@@ -1256,6 +1260,7 @@ BOOL LLSpatialGroup::rebound()
 	return TRUE;
 }
 
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_READBACK("Readback Occlusion");
 void LLSpatialGroup::checkOcclusion()
 {
 	if (LLPipeline::sUseOcclusion > 1)
@@ -1267,7 +1272,7 @@ void LLSpatialGroup::checkOcclusion()
 		}
 		else if (isState(QUERY_PENDING))
 		{	//otherwise, if a query is pending, read it back
-			LLFastTimer t(LLFastTimer::FTM_OCCLUSION_READBACK);
+			LLFastTimer t(FTM_OCCLUSION_READBACK);
 			GLuint res = 1;
 			if (!isState(DISCARD_QUERY) && mOcclusionQuery)
 			{
@@ -1312,7 +1317,7 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 		else
 		{
 			{
-				LLFastTimer t(LLFastTimer::FTM_RENDER_OCCLUSION);
+				LLFastTimer t(FTM_RENDER_OCCLUSION);
 
 				if (!mOcclusionQuery)
 				{
@@ -1498,7 +1503,7 @@ public:
 		return false;
 	}
 	
-	virtual void traverse(const LLSpatialGroup::TreeNode* n)
+	virtual void traverse(const LLSpatialGroup::OctreeNode* n)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) n->getListener(0);
 
@@ -1873,7 +1878,7 @@ S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* result
 	{
 		BOOL temp = sFreezeState;
 		sFreezeState = FALSE;
-		LLFastTimer ftm(LLFastTimer::FTM_CULL_REBOUND);		
+		LLFastTimer ftm(FTM_CULL_REBOUND);		
 		LLSpatialGroup* group = (LLSpatialGroup*) mOctree->getListener(0);
 		group->rebound();
 		sFreezeState = temp;
@@ -1891,19 +1896,19 @@ S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* result
 	}
 	else if (LLPipeline::sShadowRender)
 	{
-		LLFastTimer ftm(LLFastTimer::FTM_FRUSTUM_CULL);
+		LLFastTimer ftm(FTM_FRUSTUM_CULL);
 		LLOctreeCullShadow culler(&camera);
 		culler.traverse(mOctree);
 	}
 	else if (mInfiniteFarClip || !LLPipeline::sUseFarClip)
 	{
-		LLFastTimer ftm(LLFastTimer::FTM_FRUSTUM_CULL);		
+		LLFastTimer ftm(FTM_FRUSTUM_CULL);		
 		LLOctreeCullNoFarClip culler(&camera);
 		culler.traverse(mOctree);
 	}
 	else
 	{
-		LLFastTimer ftm(LLFastTimer::FTM_FRUSTUM_CULL);		
+		LLFastTimer ftm(FTM_FRUSTUM_CULL);		
 		LLOctreeCull culler(&camera);
 		culler.traverse(mOctree);
 	}
@@ -2356,7 +2361,7 @@ void renderTexturePriority(LLDrawable* drawable)
 		
 		LLGLDisable blend(GL_BLEND);
 		
-		//LLViewerImage* imagep = facep->getTexture();
+		//LLViewerTexture* imagep = facep->getTexture();
 		//if (imagep)
 		{
 	
@@ -2386,7 +2391,7 @@ void renderTexturePriority(LLDrawable* drawable)
 		/*S32 boost = imagep->getBoostLevel();
 		if (boost)
 		{
-			F32 t = (F32) boost / (F32) (LLViewerImage::BOOST_MAX_LEVEL-1);
+			F32 t = (F32) boost / (F32) (LLViewerTexture::BOOST_MAX_LEVEL-1);
 			LLVector4 col = lerp(boost_cold, boost_hot, t);
 			LLGLEnable blend_on(GL_BLEND);
 			gGL.blendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -2896,7 +2901,7 @@ LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector3& start, con
 }
 
 LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset, 
-					   LLViewerImage* texture, LLVertexBuffer* buffer,
+					   LLViewerTexture* texture, LLVertexBuffer* buffer,
 					   BOOL fullbright, U8 bump, BOOL particle, F32 part_size)
 :
 	mVertexBuffer(buffer),

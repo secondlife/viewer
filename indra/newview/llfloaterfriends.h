@@ -74,15 +74,6 @@ public:
 
 	virtual BOOL postBuild();
 
-	// Show a dialog explaining what friendship entails, then request
-	// friendship. JC
-	static void requestFriendshipDialog(const LLUUID& target_id, 
-										const std::string& target_name);
-
-	// Just request friendship, no dialog.
-	static void requestFriendship(const LLUUID& target_id,
-								  const std::string& target_name, const std::string& message);
-
 private:
 
 	enum FRIENDS_COLUMN_ORDER
@@ -115,15 +106,15 @@ private:
 	void confirmModifyRights(rights_map_t& ids, EGrantRevoke command);
 	void sendRightsGrant(rights_map_t& ids);
 
-	// return LLUUID::null if nothing is selected
-	LLDynamicArray<LLUUID> getSelectedIDs();
+	// return empty vector if nothing is selected
+	std::vector<LLUUID> getSelectedIDs();
 
 	// callback methods
 	static void onSelectName(LLUICtrl* ctrl, void* user_data);
 	static bool callbackAddFriend(const LLSD& notification, const LLSD& response);
 	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);
 	static void onPickAvatar(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* user_data);
-	static void onMaximumSelect(void* user_data);
+	static void onMaximumSelect();
 
 	static void onClickIM(void* user_data);
 	static void onClickProfile(void* user_data);
@@ -135,7 +126,6 @@ private:
 
 	static void onClickModifyStatus(LLUICtrl* ctrl, void* user_data);
 
-	static bool handleRemove(const LLSD& notification, const LLSD& response);
 	bool modifyRightsConfirmation(const LLSD& notification, const LLSD& response, rights_map_t* rights);
 
 private:

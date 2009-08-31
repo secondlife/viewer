@@ -147,6 +147,17 @@ public:
 	void removeObserver(LLFriendObserver* observer);
 	void notifyObservers();
 
+	/**
+	 * Stores flag for change and id of object change applies to
+	 *
+	 * This allows outsiders to tell the AvatarTracker if something has
+	 * been changed 'under the hood',
+	 * and next notification will have exact avatar IDs have been changed.
+	 */
+	void addChangedMask(U32 mask, const LLUUID& referent);
+
+	const std::set<LLUUID>& getChangedIDs() { return mChangedBuddyIDs; }
+
 	// Apply the functor to every buddy. Do not actually modify the
 	// buddy list in the functor or bad things will happen.
 	void applyFunctor(LLRelationshipFunctor& f);
@@ -178,6 +189,9 @@ protected:
 	//LLInventoryObserver* mInventoryObserver;
 
 	buddy_map_t mBuddyInfo;
+
+	typedef std::set<LLUUID> changed_buddy_t;
+	changed_buddy_t mChangedBuddyIDs;
 
 	typedef std::vector<LLFriendObserver*> observer_list_t;
 	observer_list_t mObservers;

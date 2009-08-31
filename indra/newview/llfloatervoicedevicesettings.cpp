@@ -36,12 +36,10 @@
 #include "llfloatervoicedevicesettings.h"
 
 // Viewer includes
-#include "llagent.h"
 #include "llbutton.h"
 #include "llcombobox.h"
 #include "llfocusmgr.h"
 #include "lliconctrl.h"
-#include "llprefsvoice.h"
 #include "llsliderctrl.h"
 #include "llviewercontrol.h"
 #include "llvoiceclient.h"
@@ -52,6 +50,7 @@
 
 
 LLPanelVoiceDeviceSettings::LLPanelVoiceDeviceSettings()
+	: LLPanel()
 {
 	mCtrlInputDevices = NULL;
 	mCtrlOutputDevices = NULL;
@@ -113,7 +112,7 @@ void LLPanelVoiceDeviceSettings::draw()
 			{
 				if (power_bar_idx < discrete_power)
 				{
-					LLColor4 color = (power_bar_idx >= 3) ? gSavedSettings.getColor4("OverdrivenColor") : gSavedSettings.getColor4("SpeakingColor");
+					LLColor4 color = (power_bar_idx >= 3) ? LLUIColorTable::instance().getColor("OverdrivenColor") : LLUIColorTable::instance().getColor("SpeakingColor");
 					gl_rect_2d(bar_view->getRect(), color, TRUE);
 				}
 				gl_rect_2d(bar_view->getRect(), LLColor4::grey, FALSE);
@@ -240,7 +239,7 @@ void LLPanelVoiceDeviceSettings::refresh()
 	}	
 }
 
-void LLPanelVoiceDeviceSettings::onOpen()
+void LLPanelVoiceDeviceSettings::initialize()
 {
 	mInputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
 	mOutputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
@@ -255,7 +254,7 @@ void LLPanelVoiceDeviceSettings::onOpen()
 	LLVoiceChannel::suspend();
 }
 
-void LLPanelVoiceDeviceSettings::onClose(bool app_quitting)
+void LLPanelVoiceDeviceSettings::cleanup()
 {
 	gVoiceClient->tuningStop();
 	LLVoiceChannel::resume();
@@ -284,34 +283,36 @@ void LLPanelVoiceDeviceSettings::onCommitOutputDevice(LLUICtrl* ctrl, void* user
 //
 
 LLFloaterVoiceDeviceSettings::LLFloaterVoiceDeviceSettings(const LLSD& seed)
-	: LLFloater(std::string("floater_device_settings")),
+	: LLFloater(seed),
 	  mDevicePanel(NULL)
 {
 	mFactoryMap["device_settings"] = LLCallbackMap(createPanelVoiceDeviceSettings, this);
 	// do not automatically open singleton floaters (as result of getInstance())
-	BOOL no_open = FALSE;
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_device_settings.xml", &mFactoryMap, no_open);
+//	BOOL no_open = FALSE;
+//	Called from floater reg:  LLUICtrlFactory::getInstance()->buildFloater(this, "floater_device_settings.xml", no_open);	
+}
+BOOL LLFloaterVoiceDeviceSettings::postBuild()
+{
+	mCloseSignal.connect(boost::bind(&LLFloaterVoiceDeviceSettings::onClose, this));
+	
 	center();
+	return TRUE;
 }
-
-void LLFloaterVoiceDeviceSettings::onOpen()
+void LLFloaterVoiceDeviceSettings::onOpen(const LLSD& key)
 {
 	if(mDevicePanel)
 	{
-		mDevicePanel->onOpen();
+		mDevicePanel->initialize();
 	}
-
-	LLFloater::onOpen();
 }
 
-void LLFloaterVoiceDeviceSettings::onClose(bool app_quitting)
+void LLFloaterVoiceDeviceSettings::onClose()
 {
 	if(mDevicePanel)
 	{
-		mDevicePanel->onClose(app_quitting);
+		mDevicePanel->apply();
+		mDevicePanel->cleanup();
 	}
-
-	setVisible(FALSE);
 }
 
 void LLFloaterVoiceDeviceSettings::apply()

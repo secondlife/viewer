@@ -581,6 +581,8 @@ public:
         return sorted_range(begin, end);
     }
 
+	using LLDependenciesBase::describe; // unhide virtual std::string describe(bool full=true) const;
+
     /// Override base-class describe() with actual implementation
     virtual std::ostream& describe(std::ostream& out, bool full=true) const
     {
@@ -596,6 +598,7 @@ public:
         }
         return out;
     }
+
 
     /// describe() helper: report a DepNodeEntry
     static std::ostream& describe(std::ostream& out, std::string& sep,

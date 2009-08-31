@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_minimize="false"
+ height="140"
+ layout="topleft"
+ name="mute by name"
+ title="Block object by name"
+ width="375">
+    <text
+     type="string"
+     length="1"
+     bottom_delta="50"
+     follows="top|left"
+     font="SansSerif"
+     height="16"
+     layout="topleft"
+     left="20"
+     left_delta="25"
+     name="message"
+     right="380">
+        Block by name only affects object chat and IM, not sounds.
+You must type the object&apos;s name exactly.
+    </text>
+    <line_editor
+     type="string"
+     length="1"
+     follows="top|right"
+     font="SansSerif"
+     height="18"
+     layout="topleft"
+     left_delta="0"
+     name="object_name"
+     top_pad="22"
+     width="320">
+        Object name
+    </line_editor>
+    <button
+     follows="bottom|left"
+     height="20"
+     label="Ok"
+     layout="topleft"
+     left="108"
+     name="OK"
+     top="100"
+     width="75" />
+    <button
+     follows="bottom|right"
+     height="20"
+     label="Cancel"
+     layout="topleft"
+     left_pad="7"
+     name="Cancel"
+     top_delta="0"
+     width="75" />
+</floater>

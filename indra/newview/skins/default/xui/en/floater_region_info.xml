@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ height="512"
+ layout="topleft"
+ name="regioninfo"
+ save_rect="true"
+ title="Region/Estate"
+ width="280">
+    <tab_container
+     bottom="512"
+     follows="left|right|top|bottom"
+     layout="topleft"
+     left="1"
+     name="region_panels"
+     right="-1"
+     tab_position="top"
+     top="20" />
+</floater>

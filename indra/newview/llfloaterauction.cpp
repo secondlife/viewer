@@ -41,12 +41,13 @@
 #include "llparcel.h"
 #include "llvfile.h"
 #include "llvfs.h"
+#include "llwindow.h"
 
 #include "llagent.h"
 #include "llcombobox.h"
 #include "llnotify.h"
 #include "llsavedsettingsglue.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "lluictrlfactory.h"
@@ -69,41 +70,29 @@ void auction_tga_upload_done(const LLUUID& asset_id,
 /// Class llfloaterauction
 ///----------------------------------------------------------------------------
 
-LLFloaterAuction* LLFloaterAuction::sInstance = NULL;
-
 // Default constructor
-LLFloaterAuction::LLFloaterAuction() :
-	LLFloater(std::string("floater_auction")),
+LLFloaterAuction::LLFloaterAuction(const LLSD& key)
+  : LLFloater(key),
 	mParcelID(-1)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_auction.xml");
-
-	childSetValue("fence_check",
-		LLSD( gSavedSettings.getBOOL("AuctionShowFence") ) );
-	childSetCommitCallback("fence_check",
-		LLSavedSettingsGlue::setBOOL, (void*)"AuctionShowFence");
-
-	childSetAction("snapshot_btn", onClickSnapshot, this);
-	childSetAction("ok_btn", onClickOK, this);
+//	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_auction.xml");
+	mCommitCallbackRegistrar.add("ClickSnapshot",	boost::bind(&LLFloaterAuction::onClickSnapshot, this));
+	mCommitCallbackRegistrar.add("ClickOK",		boost::bind(&LLFloaterAuction::onClickOK, this));
 }
 
 // Destroys the object
 LLFloaterAuction::~LLFloaterAuction()
 {
-	sInstance = NULL;
 }
 
-// static
-void LLFloaterAuction::show()
+BOOL LLFloaterAuction::postBuild()
 {
-	if(!sInstance)
-	{
-		sInstance = new LLFloaterAuction();
-		sInstance->center();
-		sInstance->setFocus(TRUE);
-	}
-	sInstance->initialize();
-	sInstance->open();	/*Flawfinder: ignore*/
+	return TRUE;
+}
+
+void LLFloaterAuction::onOpen(const LLSD& key)
+{
+	initialize();
 }
 
 void LLFloaterAuction::initialize()
@@ -197,7 +186,7 @@ void LLFloaterAuction::onClickSnapshot(void* data)
 		tga->encode(raw);
 		LLVFile::writeFile(tga->getData(), tga->getDataSize(), gVFS, self->mImageID, LLAssetType::AT_IMAGE_TGA);
 		
-		raw->biasedScaleToPowerOfTwo(LLViewerImage::MAX_IMAGE_SIZE_DEFAULT);
+		raw->biasedScaleToPowerOfTwo(LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT);
 
 		llinfos << "Writing J2C..." << llendl;
 
@@ -205,7 +194,7 @@ void LLFloaterAuction::onClickSnapshot(void* data)
 		j2c->encode(raw, 0.0f);
 		LLVFile::writeFile(j2c->getData(), j2c->getDataSize(), gVFS, self->mImageID, LLAssetType::AT_TEXTURE);
 
-		self->mImage = new LLImageGL((LLImageRaw*)raw, FALSE);
+		self->mImage = LLViewerTextureManager::getLocalTexture((LLImageRaw*)raw, FALSE);
 		gGL.getTexUnit(0)->bind(self->mImage);
 		self->mImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
@@ -259,7 +248,7 @@ void LLFloaterAuction::onClickOK(void* data)
 	self->mImage = NULL;
 	self->mParcelID = -1;
 	self->mParcelHost.invalidate();
-	self->close();
+	self->closeFloater();
 }
 
 

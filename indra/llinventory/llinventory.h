@@ -40,6 +40,7 @@
 #include "llinventorytype.h"
 #include "llmemtype.h"
 #include "llpermissions.h"
+#include "llrefcount.h"
 #include "llsaleinfo.h"
 #include "llsd.h"
 #include "lluuid.h"
@@ -92,11 +93,14 @@ public:
 	virtual const LLUUID& getUUID() const;
 	const LLUUID& getParentUUID() const;
 	virtual const LLUUID& getLinkedUUID() const; // get the inventoryID that this item points to, else this item's inventoryID
-
 	virtual const std::string& getName() const;
 	virtual LLAssetType::EType getType() const;
 	LLAssetType::EType getActualType() const; // bypasses indirection for linked items
 
+	virtual const std::string& getName() const;
+	virtual LLAssetType::EType getType() const;
+	LLAssetType::EType getActualType() const; // bypasses indirection for linked items
+	BOOL getIsLinkType() const;
 	// mutators - will not call updateServer();
 	void setUUID(const LLUUID& new_uuid);
 	void rename(const std::string& new_name);
@@ -219,6 +223,7 @@ protected:
 	~LLInventoryItem(); // ref counted
 
 public:
+
 	MEM_TYPE_NEW(LLMemType::MTYPE_INVENTORY);
 	LLInventoryItem(const LLUUID& uuid,
 					const LLUUID& parent_uuid,
@@ -265,6 +270,10 @@ public:
 	// Check for changes in permissions masks and sale info
 	// and set the corresponding bits in mFlags
 	void accumulatePermissionSlamBits(const LLInventoryItem& old_item);
+	
+	// This is currently only used in the Viewer to handle calling cards
+	// where the creator is actually used to store the target.
+	void setCreator(const LLUUID& creator) { mPermissions.setCreator(creator); }
 
 	// Put this inventory item onto the current outgoing mesage. It
 	// assumes you have already called nextBlock().
@@ -280,9 +289,6 @@ public:
 
 	virtual BOOL importLegacyStream(std::istream& input_stream);
 	virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
-
-	virtual LLXMLNode *exportFileXML(BOOL include_asset_key = TRUE) const;
-	BOOL importXML(LLXMLNode* node);
 
 	// helper functions
 

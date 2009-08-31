@@ -61,7 +61,7 @@
 #include "llviewerjoint.h"
 #include "llviewerobject.h"
 #include "llviewerwindow.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llworld.h"
 #include "llui.h"
 #include "pipeline.h"
@@ -78,7 +78,7 @@ const F32 PLANE_TICK_SIZE = 0.4f;
 const F32 MANIPULATOR_SCALE_HALF_LIFE = 0.07f;
 const F32 SNAP_ARROW_SCALE = 0.7f;
 
-static LLPointer<LLImageGL> sGridTex = NULL ;
+static LLPointer<LLViewerTexture> sGridTex = NULL ;
 
 const LLManip::EManipPart MANIPULATOR_IDS[9] = 
 {
@@ -154,7 +154,7 @@ void LLManipTranslate::restoreGL()
 	U32 mip = 0;
 
 	destroyGL() ;
-	sGridTex = new LLImageGL() ;
+	sGridTex = LLViewerTextureManager::getLocalTexture() ;
 	if(!sGridTex->createGLTexture())
 	{
 		sGridTex = NULL ;
@@ -414,7 +414,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 	
 	// Handle auto-rotation if necessary.
 	const F32 ROTATE_ANGLE_PER_SECOND = 30.f * DEG_TO_RAD;
-	const S32 ROTATE_H_MARGIN = gViewerWindow->getWindowWidth() / 20;
+	const S32 ROTATE_H_MARGIN = gViewerWindow->getWorldViewWidth() / 20;
 	const F32 rotate_angle = ROTATE_ANGLE_PER_SECOND / gFPSClamped;
 	BOOL rotated = FALSE;
 
@@ -426,7 +426,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 			gAgent.cameraOrbitAround(rotate_angle);
 			rotated = TRUE;
 		}
-		else if (x > gViewerWindow->getWindowWidth() - ROTATE_H_MARGIN)
+		else if (x > gViewerWindow->getWorldViewWidth() - ROTATE_H_MARGIN)
 		{
 			gAgent.cameraOrbitAround(-rotate_angle);
 			rotated = TRUE;
@@ -960,8 +960,8 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 	LLVector2 manip_start_2d;
 	LLVector2 manip_end_2d;
 	LLVector2 manip_dir;
-	F32 half_width = gViewerWindow->getWindowWidth() / 2.f;
-	F32 half_height = gViewerWindow->getWindowHeight() / 2.f;
+	F32 half_width = gViewerWindow->getWorldViewWidth() / 2.f;
+	F32 half_height = gViewerWindow->getWorldViewHeight() / 2.f;
 	LLVector2 mousePos((F32)x - half_width, (F32)y - half_height);
 	LLVector2 mouse_delta;
 
@@ -1225,7 +1225,7 @@ void LLManipTranslate::renderSnapGuides()
 		{
 			LLVector3 cam_to_selection = getPivotPoint() - LLViewerCamera::getInstance()->getOrigin();
 			F32 current_range = cam_to_selection.normVec();
-			guide_size_meters = SNAP_GUIDE_SCREEN_SIZE * gViewerWindow->getWindowHeight() * current_range / LLViewerCamera::getInstance()->getPixelMeterRatio();
+			guide_size_meters = SNAP_GUIDE_SCREEN_SIZE * gViewerWindow->getWorldViewHeight() * current_range / LLViewerCamera::getInstance()->getPixelMeterRatio();
 	
 			F32 fraction_of_fov = mAxisArrowLength / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
 			F32 apparent_angle = fraction_of_fov * LLViewerCamera::getInstance()->getView();  // radians
@@ -1441,10 +1441,10 @@ void LLManipTranslate::renderSnapGuides()
 				std::string help_text = "Move mouse cursor over ruler to snap";
 				LLColor4 help_text_color = LLColor4::white;
 				help_text_color.mV[VALPHA] = clamp_rescale(mHelpTextTimer.getElapsedTimeF32(), sHelpTextVisibleTime, sHelpTextVisibleTime + sHelpTextFadeTime, line_alpha, 0.f);
-				hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
+				hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
 				help_text = "to snap to grid";
 				help_text_pos -= LLViewerCamera::getInstance()->getUpAxis() * mSnapOffsetMeters * 0.2f;
-				hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
+				hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
 			}
 		}
 	}
@@ -1522,7 +1522,7 @@ void LLManipTranslate::renderSnapGuides()
 		
 		float a = line_alpha;
 
-		LLColor4 col = gColors.getColor("SilhouetteChildColor");
+		LLColor4 col = LLUIColorTable::instance().getColor("SilhouetteChildColor");
 		{
 			//draw grid behind objects
 			LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
@@ -1800,7 +1800,7 @@ void LLManipTranslate::renderTranslationHandles()
 	// Drag handles 	
 	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
-		mArrowLengthMeters = mAxisArrowLength / gViewerWindow->getWindowHeight();
+		mArrowLengthMeters = mAxisArrowLength / gViewerWindow->getWorldViewHeight();
 		mArrowLengthMeters /= gAgent.mHUDCurZoom;
 	}
 	else

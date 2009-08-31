@@ -39,8 +39,8 @@
 #include "llvertexbuffer.h"
 
 class LLFace;
-class LLImageGL;
-class LLViewerImage;
+class LLViewerTexture;
+class LLViewerFetchedTexture;
 class LLSpatialGroup;
 class LLDrawInfo;
 
@@ -77,7 +77,7 @@ public:
 	S32 getId() const { return mId; }
 	U32 getType() const { return mType; }
 
-	virtual LLViewerImage *getDebugTexture();
+	virtual LLViewerTexture *getDebugTexture();
 	virtual void beginRenderPass( S32 pass );
 	virtual void endRenderPass( S32 pass );
 	virtual S32	 getNumPasses();
@@ -103,9 +103,9 @@ public:
 	virtual BOOL verify() const { return TRUE; }		// Verify that all data in the draw pool is correct!
 	virtual S32 getVertexShaderLevel() const { return mVertexShaderLevel; }
 	
-	static LLDrawPool* createPool(const U32 type, LLViewerImage *tex0 = NULL);
+	static LLDrawPool* createPool(const U32 type, LLViewerTexture *tex0 = NULL);
 	virtual LLDrawPool *instancePool() = 0;	// Create an empty new instance of the pool.
-	virtual LLViewerImage* getTexture() = 0;
+	virtual LLViewerTexture* getTexture() = 0;
 	virtual BOOL isFacePool() { return FALSE; }
 	virtual void resetDrawOrders() = 0;
 
@@ -139,8 +139,8 @@ public:
 	LLRenderPass(const U32 type);
 	virtual ~LLRenderPass();
 	/*virtual*/ LLDrawPool* instancePool();
-	/*virtual*/ LLViewerImage* getDebugTexture() { return NULL; }
-	LLViewerImage* getTexture() { return NULL; }
+	/*virtual*/ LLViewerTexture* getDebugTexture() { return NULL; }
+	LLViewerTexture* getTexture() { return NULL; }
 	BOOL isDead() { return FALSE; }
 	void resetDrawOrders() { }
 
@@ -169,11 +169,9 @@ public:
 	
 	virtual void renderForSelect() = 0;
 	BOOL isDead() { return mReferences.empty(); }
-	virtual void renderFaceSelected(LLFace *facep, LLImageGL *image, const LLColor4 &color,
-									const S32 index_offset = 0, const S32 index_count = 0);
-
-	virtual LLViewerImage *getTexture();
-	virtual void dirtyTextures(const std::set<LLViewerImage*>& textures);
+	
+	virtual LLViewerTexture *getTexture();
+	virtual void dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures);
 
 	virtual void enqueue(LLFace *face);
 	virtual BOOL addFace(LLFace *face);

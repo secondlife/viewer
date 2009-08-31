@@ -33,7 +33,7 @@
 #ifndef LL_LLFLOATERSCRIPTDEBUG_H
 #define LL_LLFLOATERSCRIPTDEBUG_H
 
-#include "llfloater.h"
+#include "llmultifloater.h"
 
 class LLTextEditor;
 class LLUUID;
@@ -41,15 +41,13 @@ class LLUUID;
 class LLFloaterScriptDebug : public LLMultiFloater
 {
 public:
+	LLFloaterScriptDebug(const LLSD& key);
 	virtual ~LLFloaterScriptDebug();
-	virtual void onClose(bool app_quitting) { setVisible(FALSE); }
 	virtual BOOL postBuild();
     static void show(const LLUUID& object_id);
 	static void addScriptLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color, const LLUUID& source_id);
 
 protected:
-	LLFloaterScriptDebug();
-
 	static LLFloater* addOutputWindow(const LLUUID& object_id);
 
 protected:
@@ -59,26 +57,17 @@ protected:
 class LLFloaterScriptDebugOutput : public LLFloater
 {
 public:
-	LLFloaterScriptDebugOutput();
-	LLFloaterScriptDebugOutput(const LLUUID& object_id);
+	LLFloaterScriptDebugOutput(const LLSD& object_id);
 	~LLFloaterScriptDebugOutput();
-
-	virtual void		initFloater(const std::string& title, BOOL resizable, 
-						S32 min_width, S32 min_height, BOOL drag_on_left,
-						BOOL minimizable, BOOL close_btn);
 
 	void addLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color);
 
-	static LLFloaterScriptDebugOutput* show(const LLUUID& object_id);
-	static LLFloaterScriptDebugOutput* getFloaterByID(const LLUUID& id);
-
+	virtual BOOL postBuild();
+	
 protected:
-	LLTextEditor*			mHistoryEditor;
+	LLTextEditor* mHistoryEditor;
 
-	typedef std::map<LLUUID, LLFloaterScriptDebugOutput*> instance_map_t;
-	static instance_map_t sInstanceMap;
-
-	LLUUID		mObjectID;
+	LLUUID mObjectID;
 };
 
 #endif // LL_LLFLOATERSCRIPTDEBUG_H

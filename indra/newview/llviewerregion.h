@@ -51,6 +51,7 @@
 #include "llweb.h"
 #include "llcapabilityprovider.h"
 #include "llcapabilitylistener.h"
+#include "m4math.h"					// LLMatrix4
 
 // Surface id's
 #define LAND  1
@@ -287,9 +288,6 @@ public:
 	friend std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region);
     /// implements LLCapabilityProvider
     virtual std::string getDescription() const;
-
-	// used by LCD to get details for debug screen
-	U32 getNetDetailsForLCD();
 
 	LLSpatialPartition* getSpatialPartition(U32 type);
 public:

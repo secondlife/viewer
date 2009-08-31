@@ -39,7 +39,7 @@
 #include "llgl.h"
 #include "llrender.h"
 #include "llinventory.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llstring.h"
 #include "lluuid.h"
 #include "v3math.h"
@@ -51,7 +51,6 @@
 #include "lltracker.h"
 #include "llagent.h"
 #include "llcallingcard.h"
-#include "llcolorscheme.h"
 #include "llfloaterworldmap.h"
 #include "llhudtext.h"
 #include "llhudview.h"
@@ -113,12 +112,14 @@ void LLTracker::stopTracking(void* userdata)
 // static virtual
 void LLTracker::drawHUDArrow()
 {
+	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
+	
 	/* tracking autopilot destination has been disabled 
 	   -- 2004.01.09, Leviathan
 	// Draw dot for autopilot target
 	if (gAgent.getAutoPilot())
 	{
-		instance()->drawMarker( gAgent.getAutoPilotTargetGlobal(), gTrackColor );
+		instance()->drawMarker( gAgent.getAutoPilotTargetGlobal(), map_track_color );
 		return;
 	}
 	*/
@@ -128,12 +129,12 @@ void LLTracker::drawHUDArrow()
 		// Tracked avatar
 		if(LLAvatarTracker::instance().haveTrackingInfo())
 		{
-			instance()->drawMarker( LLAvatarTracker::instance().getGlobalPos(), gTrackColor );
+			instance()->drawMarker( LLAvatarTracker::instance().getGlobalPos(), map_track_color );
 		} 
 		break;
 
 	case TRACKING_LANDMARK:
-		instance()->drawMarker( getTrackedPositionGlobal(), gTrackColor );
+		instance()->drawMarker( getTrackedPositionGlobal(), map_track_color );
 		break;
 
 	case TRACKING_LOCATION:
@@ -145,7 +146,7 @@ void LLTracker::drawHUDArrow()
 				+ 0.1f * (LLWorld::getInstance()->resolveLandHeightGlobal(getTrackedPositionGlobal()) + 1.5f);
 #endif
 		instance()->mTrackedPositionGlobal.mdV[VZ] = llclamp((F32)instance()->mTrackedPositionGlobal.mdV[VZ], LLWorld::getInstance()->resolveLandHeightGlobal(getTrackedPositionGlobal()) + 1.5f, (F32)instance()->getTrackedPositionGlobal().mdV[VZ]);
-		instance()->drawMarker( getTrackedPositionGlobal(), gTrackColor );
+		instance()->drawMarker( getTrackedPositionGlobal(), map_track_color );
 		break;
 
 	default:
@@ -161,7 +162,9 @@ void LLTracker::render3D()
 	{
 		return;
 	}
-
+	
+	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
+	
 	// Arbitary location beacon
 	if( instance()->mIsTrackingLocation )
  	{
@@ -181,7 +184,7 @@ void LLTracker::render3D()
 		}
 		else
 		{
-			renderBeacon( instance()->mTrackedPositionGlobal, gTrackColor, 
+			renderBeacon( instance()->mTrackedPositionGlobal, map_track_color, 
 					  	instance()->mBeaconText, instance()->mTrackedLocationName );
 		}
 	}
@@ -223,7 +226,7 @@ void LLTracker::render3D()
 					// and back again
 					instance()->mHasReachedLandmark = FALSE;
 				}
-				renderBeacon( instance()->mTrackedPositionGlobal, gTrackColor, 
+				renderBeacon( instance()->mTrackedPositionGlobal, map_track_color, 
 							  instance()->mBeaconText, instance()->mTrackedLandmarkName );
 			}
 		}
@@ -252,7 +255,7 @@ void LLTracker::render3D()
 			}
 			else
 			{
-				renderBeacon( av_tracker.getGlobalPos(), gTrackColor, 
+				renderBeacon( av_tracker.getGlobalPos(), map_track_color, 
 						  	instance()->mBeaconText, av_tracker.getName() );
 			}
 		}

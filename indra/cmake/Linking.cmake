@@ -42,6 +42,7 @@ if (WINDOWS)
       wldap32
       gdi32
       user32
+      dbghelp
       )
 else (WINDOWS)
   set(WINDOWS_LIBRARIES "")

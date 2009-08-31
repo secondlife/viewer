@@ -37,7 +37,7 @@
 #include "v3math.h"
 #include "xform.h"
 #include "message.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llvolume.h"
 #include "lltextureentry.h"
 #include "llprimtexturelist.h"

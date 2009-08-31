@@ -40,7 +40,7 @@
 #include "llhudtext.h"
 #include "llhudicon.h"
 #include "llinventory.h"
-#include "llmemory.h"
+#include "llrefcount.h"
 #include "llmemtype.h"
 #include "llprimitive.h"
 #include "lluuid.h"
@@ -64,10 +64,11 @@ class LLWorld;
 class LLNameValue;
 class LLNetMap;
 class LLMessageSystem;
+class LLPartSysData;
 class LLPrimitive;
 class LLPipeline;
 class LLTextureEntry;
-class LLViewerImage;
+class LLViewerTexture;
 class LLViewerInventoryItem;
 class LLViewerObject;
 class LLViewerPartSourceScript;
@@ -236,7 +237,7 @@ public:
 	BOOL isProbablyModifiable() const;
 	*/
 
-	virtual void setParent(LLViewerObject* parent);
+	virtual BOOL setParent(LLViewerObject* parent);
 	virtual void addChild(LLViewerObject *childp);
 	virtual void removeChild(LLViewerObject *childp);
 	const_child_list_t& getChildren() const { 	return mChildList; }
@@ -311,8 +312,9 @@ public:
 	/*virtual*/	S32		setTEMediaFlags(const U8 te, const U8 media_flags );
 	/*virtual*/ S32     setTEGlow(const U8 te, const F32 glow);
 	/*virtual*/	BOOL	setMaterial(const U8 material);
-	virtual		void	setTEImage(const U8 te, LLViewerImage *imagep); // Not derived from LLPrimitive
-	LLViewerImage		*getTEImage(const U8 te) const;
+	virtual		void	setTEImage(const U8 te, LLViewerTexture *imagep); // Not derived from LLPrimitive
+	void                changeTEImage(const LLViewerTexture* old_image, LLViewerTexture* new_image)  ;
+	LLViewerTexture		*getTEImage(const U8 te) const;
 	
 	void fitFaceTexture(const U8 face);
 	void sendTEUpdate() const;			// Sends packed representation of all texture entry information
@@ -353,7 +355,7 @@ public:
 	void setCanSelect(BOOL canSelect);
 
 	void setDebugText(const std::string &utf8text);
-	void setIcon(LLViewerImage* icon_image);
+	void setIcon(LLViewerTexture* icon_image);
 	void clearIcon();
 
 	void markForUpdate(BOOL priority);
@@ -526,7 +528,7 @@ public:
 	// Last total CRC received from sim, used for caching
 	U32				mTotalCRC;
 
-	LLPointer<LLViewerImage> *mTEImages;
+	LLPointer<LLViewerTexture> *mTEImages;
 
 	// Selection, picking and rendering variables
 	U32				mGLName;			// GL "name" used by selection code

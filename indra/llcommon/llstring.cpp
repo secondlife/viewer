@@ -42,6 +42,9 @@
 #include <winnls.h> // for WideCharToMultiByte
 #endif
 
+LLFastTimer::DeclareTimer STRING_LOCALIZATION("String Localization");
+
+
 std::string ll_safe_string(const char* in)
 {
 	if(in) return std::string(in);
@@ -71,6 +74,24 @@ U8 hex_as_nybble(char hex)
 	return 0; // uh - oh, not hex any more...
 }
 
+bool iswindividual(llwchar elem)
+{   
+	U32 cur_char = (U32)elem;
+	bool result = false;
+	if (0x2E80<= cur_char && cur_char <= 0x9FFF)
+	{
+		result = true;
+	}
+	else if (0xAC00<= cur_char && cur_char <= 0xD7A0 )
+	{
+		result = true;
+	}
+	else if (0xF900<= cur_char && cur_char <= 0xFA60 )
+	{
+		result = true;
+	}
+	return result;
+}
 
 bool _read_file_into_string(std::string& str, const std::string& filename)
 {
@@ -650,6 +671,11 @@ std::string ll_convert_wide_to_string(const wchar_t* in)
 }
 #endif // LL_WINDOWS
 
+long LLStringOps::sltOffset;
+long LLStringOps::localTimeOffset;
+bool LLStringOps::daylightSavings;
+std::map<std::string, std::string> LLStringOps::datetimeToCodes;
+
 S32	LLStringOps::collate(const llwchar* a, const llwchar* b)
 { 
 	#if LL_WINDOWS
@@ -660,6 +686,59 @@ S32	LLStringOps::collate(const llwchar* a, const llwchar* b)
 		return wcscoll(a, b);
 	#endif
 }
+
+void LLStringOps::setupDatetimeInfo (bool daylight)
+{
+	time_t nowT, localT, gmtT;
+	struct tm * tmpT;
+
+	nowT = time (NULL);
+
+	tmpT = localtime (&nowT);
+	localT = mktime (tmpT);
+
+	tmpT = gmtime (&nowT);
+	gmtT = mktime (tmpT);
+
+	localTimeOffset = (long) (gmtT - localT);
+
+
+	daylightSavings = daylight;
+	sltOffset = (daylightSavings? 7 : 8 ) * 60 * 60;
+
+	datetimeToCodes["wkday"]	= "%a";		// Thu
+	datetimeToCodes["weekday"]	= "%A";		// Thursday
+	datetimeToCodes["year4"]	= "%Y";		// 2009
+	datetimeToCodes["year"]		= "%Y";		// 2009
+	datetimeToCodes["year2"]	= "%y";		// 09
+	datetimeToCodes["mth"]		= "%b";		// Aug
+	datetimeToCodes["month"]	= "%B";		// August
+	datetimeToCodes["mthnum"]	= "%m";		// 08
+	datetimeToCodes["day"]		= "%d";		// 31
+	datetimeToCodes["hour24"]	= "%H";		// 14
+	datetimeToCodes["hour"]		= "%H";		// 14
+	datetimeToCodes["hour12"]	= "%I";		// 02
+	datetimeToCodes["min"]		= "%M";		// 59
+	datetimeToCodes["ampm"]		= "%p";		// AM
+	datetimeToCodes["second"]	= "%S";		// 59
+	datetimeToCodes["timezone"]	= "%Z";		// PST
+}
+
+std::string LLStringOps::getDatetimeCode (std::string key)
+{
+	std::map<std::string, std::string>::iterator iter;
+
+	iter = datetimeToCodes.find (key);
+	if (iter != datetimeToCodes.end())
+	{
+		return iter->second;
+	}
+	else
+	{
+		return std::string("");
+	}
+}
+
 
 namespace LLStringFn
 {

@@ -33,7 +33,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llagent.h"
 #include "llclassifiedstatsresponder.h"
 
 #include "llpanelclassified.h"

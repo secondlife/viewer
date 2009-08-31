@@ -52,13 +52,14 @@ class LLFloaterBuy
 : public LLFloater, public LLVOInventoryListener
 {
 public:
+	LLFloaterBuy(const LLSD& key);
+	~LLFloaterBuy();
+	
+	/*virtual*/	BOOL postBuild();
+	
 	static void show(const LLSaleInfo& sale_info);
 
 protected:
-	LLFloaterBuy();
-	~LLFloaterBuy();
-
-	/*virtual*/ void onClose(bool app_quitting);
 	void reset();
 
 	void requestObjectInventories();
@@ -67,12 +68,10 @@ protected:
 								 S32 serial_num,
 								 void* data);
 
-	static void onClickBuy(void*);
-	static void onClickCancel(void*);
+	void onClickBuy();
+	void onClickCancel();
 
 private:
-	static LLFloaterBuy* sInstance;
-
 	LLSafeHandle<LLObjectSelection>	mObjectSelection;
 	LLSaleInfo mSaleInfo;
 };

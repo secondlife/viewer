@@ -36,14 +36,17 @@
 #include "v3dmath.h"
 #include "lldarray.h"
 #include "llframetimer.h"
-#include "llmemory.h"
+#include "llsingleton.h"
 #include "llparcelselection.h"
 #include "llui.h"
+
+#include <boost/function.hpp>
+#include <boost/signals2.hpp>
 
 class LLUUID;
 class LLMessageSystem;
 class LLParcel;
-class LLViewerImage;
+class LLViewerTexture;
 class LLViewerRegion;
 
 // Constants for sendLandOwner
@@ -79,6 +82,11 @@ class LLViewerParcelMgr : public LLSingleton<LLViewerParcelMgr>
 {
 
 public:
+	typedef boost::function<void (const LLVector3d&)> teleport_finished_callback_t;
+	typedef boost::signals2::signal<void (const LLVector3d&)> teleport_finished_signal_t;
+	typedef boost::function<void()> parcel_changed_callback_t;
+	typedef boost::signals2::signal<void()> parcel_changed_signal_t;
+
 	LLViewerParcelMgr();
 	~LLViewerParcelMgr();
 
@@ -163,7 +171,7 @@ public:
 	BOOL	agentCanTakeDamage() const;
 	BOOL	agentCanFly() const;
 	F32		agentDrawDistance() const;
-	BOOL	agentCanBuild() const;
+	bool	agentCanBuild() const;
 
 	F32		getHoverParcelWidth() const		
 				{ return F32(mHoverEastNorth.mdV[VX] - mHoverWestSouth.mdV[VX]); }
@@ -198,6 +206,11 @@ public:
 	// Takes an Access List flag, like AL_ACCESS or AL_BAN
 	void	sendParcelAccessListRequest(U32 flags);
 
+	// asks for the parcel's media url filter list
+	void    requestParcelMediaURLFilter();
+	// receive the response
+	void    receiveParcelMediaURLFilter(const LLSD &content);
+	
 	// Dwell is not part of the usual parcel update information because the
 	// simulator doesn't actually know the per-parcel dwell.  Ack!  We have
 	// to get it out of the database.
@@ -256,6 +269,12 @@ public:
 	// the agent is banned or not in the allowed group
 	BOOL isCollisionBanned();
 
+	boost::signals2::connection addAgentParcelChangedCallback(parcel_changed_callback_t cb);
+	boost::signals2::connection setTeleportFinishedCallback(teleport_finished_callback_t cb);
+	boost::signals2::connection setTeleportFailedCallback(parcel_changed_callback_t cb);
+	void onTeleportFinished(bool local, const LLVector3d& new_pos);
+	void onTeleportFailed();
+
 	static BOOL isParcelOwnedByAgent(const LLParcel* parcelp, U64 group_proxy_power);
 	static BOOL isParcelModifiableByAgent(const LLParcel* parcelp, U64 group_proxy_power);
 
@@ -279,8 +298,8 @@ private:
 	static bool callbackJoinLand(const LLSD& notification, const LLSD& response);
 
 	//void	finishClaim(BOOL user_to_user_sale, U32 join);
-	LLViewerImage* getBlockedImage() const;
-	LLViewerImage* getPassImage() const;
+	LLViewerTexture* getBlockedImage() const;
+	LLViewerTexture* getPassImage() const;
 
 private:
 	BOOL						mSelected;
@@ -303,6 +322,11 @@ private:
 
 	LLDynamicArray<LLParcelObserver*> mObservers;
 
+	BOOL						mTeleportInProgress;
+	teleport_finished_signal_t	mTeleportFinishedSignal;
+	parcel_changed_signal_t		mTeleportFailedSignal;
+	parcel_changed_signal_t		mAgentParcelChangedSignal;
+
 	// Array of pieces of parcel edges to potentially draw
 	// Has (parcels_per_edge + 1) * (parcels_per_edge + 1) elements so
 	// we can represent edges of the grid.
@@ -324,8 +348,8 @@ private:
 	BOOL						mRenderSelection;
 	S32							mCollisionBanned;     
 	LLFrameTimer				mCollisionTimer;
-	LLImageGL* 					mBlockedImage;
-	LLImageGL*					mPassImage;
+	LLViewerTexture*			mBlockedImage;
+	LLViewerTexture*			mPassImage;
 
 	// Media
 	S32 						mMediaParcelId;

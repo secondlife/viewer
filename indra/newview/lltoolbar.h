@@ -37,12 +37,7 @@
 
 #include "llframetimer.h"
 
-// "Constants" loaded from settings.xml at start time
-extern S32 TOOL_BAR_HEIGHT;
-
-#if LL_DARWIN
-	class LLFakeResizeHandle;
-#endif // LL_DARWIN
+class LLResizeHandle;
 
 class LLToolBar
 :	public LLPanel
@@ -71,17 +66,7 @@ public:
 	void refresh();
 
 	// callbacks
-	static void onClickCommunicate(LLUICtrl*, void*);
-	static void onClickChat(void* data);
-	static void onClickAppearance(void* data);
-	static void onClickFly(void*);
-	static void onClickSit(void*);
-	static void onClickSnapshot(void* data);
-	static void onClickDirectory(void* data);
-	static void onClickBuild(void* data);
-	static void onClickRadar(void* data);
-	static void onClickMap(void* data);
-	static void onClickInventory(void* data);
+	static void onClickCommunicate(LLUICtrl*, const LLSD&);
 
 	static F32 sInventoryAutoOpenTime;
 
@@ -94,7 +79,7 @@ private:
 	LLFrameTimer mInventoryAutoOpenTimer;
 	S32			mNumUnreadIMs;
 #if LL_DARWIN
-	LLFakeResizeHandle *mResizeHandle;
+	LLResizeHandle *mResizeHandle;
 #endif // LL_DARWIN
 };
 

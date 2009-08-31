@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ bevel_style="none"
+ border_style="line"
+ can_resize="true"
+ follows="left|top"
+ height="550"
+ layout="topleft"
+ min_height="271"
+ min_width="290"
+ name="script ed float"
+ save_rect="true"
+ title="Script: New Script"
+ width="500">
+    <floater.string
+     name="not_allowed">
+        You can not view or edit this script, since it has been set as &quot;no copy&quot;. You need full permissions to view or edit a script inside an object.
+    </floater.string>
+    <floater.string
+     name="script_running">
+        Running
+    </floater.string>
+    <floater.string
+     name="Title">
+        Script: [NAME]
+    </floater.string>
+    <button
+     follows="right|bottom"
+     height="20"
+     label="Reset"
+     label_selected="Reset"
+     layout="topleft"
+     left="362"
+     name="Reset"
+     top="525"
+     width="128" />
+    <check_box
+     enabled="false"
+     follows="left|bottom"
+     font="SansSerif"
+     height="18"
+     initial_value="true"
+     label="Running"
+     layout="topleft"
+     left_delta="-350"
+     name="running"
+     top_delta="2"
+     width="100" />
+    <check_box
+     enabled="false"
+     follows="left|bottom"
+     font="SansSerif"
+     height="18"
+     initial_value="true"
+     label="Mono"
+     layout="topleft"
+     left_delta="70"
+     name="mono"
+     top_delta="0"
+     width="100" />
+    <panel
+     bevel_style="none"
+     border_style="line"
+     follows="left|top|right|bottom"
+     height="506"
+     layout="topleft"
+     left="1"
+     name="script ed panel"
+     top="18"
+     width="497" />
+</floater>

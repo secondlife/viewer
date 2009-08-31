@@ -46,7 +46,6 @@
 
 // newview headers
 #include "llagent.h"
-//#include "llfloateravatarinfo.h"
 #include "lldrawable.h"
 #include "llfloatertools.h"
 #include "llhudeffect.h"
@@ -61,7 +60,7 @@
 #include "llviewerobjectlist.h" 
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llworld.h"
 
 const S32 SLOP_DIST_SQ = 4;
@@ -511,8 +510,8 @@ void LLToolGrab::handleHoverActive(S32 x, S32 y, MASK mask)
 	const F32 RADIANS_PER_PIXEL_X = 0.01f;
 	const F32 RADIANS_PER_PIXEL_Y = 0.01f;
 
-	S32 dx = x - (gViewerWindow->getWindowWidth() / 2);
-	S32 dy = y - (gViewerWindow->getWindowHeight() / 2);
+	S32 dx = x - (gViewerWindow->getWorldViewWidth() / 2);
+	S32 dy = y - (gViewerWindow->getWorldViewHeight() / 2);
 
 	if (dx != 0 || dy != 0)
 	{
@@ -632,10 +631,10 @@ void LLToolGrab::handleHoverActive(S32 x, S32 y, MASK mask)
 			// Handle auto-rotation at screen edge.
 			LLVector3 grab_pos_agent = gAgent.getPosAgentFromGlobal( grab_point_global );
 
-			LLCoordGL grab_center_gl( gViewerWindow->getWindowWidth() / 2, gViewerWindow->getWindowHeight() / 2);
+			LLCoordGL grab_center_gl( gViewerWindow->getWorldViewWidth() / 2, gViewerWindow->getWorldViewHeight() / 2);
 			LLViewerCamera::getInstance()->projectPosAgentToScreen(grab_pos_agent, grab_center_gl);
 
-			const S32 ROTATE_H_MARGIN = gViewerWindow->getWindowWidth() / 20;
+			const S32 ROTATE_H_MARGIN = gViewerWindow->getWorldViewWidth() / 20;
 			const F32 ROTATE_ANGLE_PER_SECOND = 30.f * DEG_TO_RAD;
 			const F32 rotate_angle = ROTATE_ANGLE_PER_SECOND / gFPSClamped;
 			// ...build mode moves camera about focus point
@@ -650,7 +649,7 @@ void LLToolGrab::handleHoverActive(S32 x, S32 y, MASK mask)
 					gAgent.cameraOrbitAround(rotate_angle);
 				}
 			}
-			else if (grab_center_gl.mX > gViewerWindow->getWindowWidth() - ROTATE_H_MARGIN)
+			else if (grab_center_gl.mX > gViewerWindow->getWorldViewWidth() - ROTATE_H_MARGIN)
 			{
 				if (gAgent.getFocusOnAvatar())
 				{
@@ -663,7 +662,7 @@ void LLToolGrab::handleHoverActive(S32 x, S32 y, MASK mask)
 			}
 
 			// Don't move above top of screen or below bottom
-			if ((grab_center_gl.mY < gViewerWindow->getWindowHeight() - 6)
+			if ((grab_center_gl.mY < gViewerWindow->getWorldViewHeight() - 6)
 				&& (grab_center_gl.mY > 24))
 			{
 				// Transmit update to simulator
@@ -885,7 +884,7 @@ void LLToolGrab::handleHoverInactive(S32 x, S32 y, MASK mask)
 
 	// Look for cursor against the edge of the screen
 	// Only works in fullscreen
-	if (gSavedSettings.getBOOL("FullScreen"))
+	if (gSavedSettings.getBOOL("WindowFullScreen"))
 	{
 		if (gAgent.cameraThirdPerson() )
 		{
@@ -894,7 +893,7 @@ void LLToolGrab::handleHoverInactive(S32 x, S32 y, MASK mask)
 				gAgent.yaw(rotate_angle);
 				//gAgent.setControlFlags(AGENT_CONTROL_YAW_POS);
 			}
-			else if (x == (gViewerWindow->getWindowWidth() - 1) )
+			else if (x == (gViewerWindow->getWorldViewWidth() - 1) )
 			{
 				gAgent.yaw(-rotate_angle);
 				//gAgent.setControlFlags(AGENT_CONTROL_YAW_NEG);

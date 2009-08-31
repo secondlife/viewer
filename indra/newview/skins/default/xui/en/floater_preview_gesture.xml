@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ auto_tile="true"
+ height="700"
+ layout="topleft"
+ name="gesture_preview"
+ width="280">
+    <floater.string
+     name="step_anim">
+        Animation to play:
+    </floater.string>
+    <floater.string
+     name="step_sound">
+        Sound to play:
+    </floater.string>
+    <floater.string
+     name="step_chat">
+        Chat to say:
+    </floater.string>
+    <floater.string
+     name="step_wait">
+        Wait:
+    </floater.string>
+    <floater.string
+     name="stop_txt">
+        Stop
+    </floater.string>
+    <floater.string
+     name="preview_txt">
+        Preview
+    </floater.string>
+    <floater.string
+     name="none_text">
+        -- None --
+    </floater.string>
+    <floater.string
+     name="Title">
+        Gesture: [NAME]
+    </floater.string>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     font="SansSerifSmall"
+     height="10"
+     layout="topleft"
+     left="10"
+     name="Name"
+     top="25"
+     width="100">
+        Name (not working yet):
+    </text>
+    <line_editor
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     left_delta="84"
+     name="desc"
+     top_delta="-4"
+     width="180" />
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     font="SansSerifSmall"
+     height="10"
+     layout="topleft"
+     left="10"
+     name="desc_label"
+     top_pad="10"
+     width="100">
+        Description:
+    </text>
+    <line_editor
+     follows="left|top"
+     height="40"
+     layout="topleft"
+     left_delta="84"
+     name="desc"
+     top_delta="-4"
+     width="180" />
+    
+    <accordion
+     layout="topleft"
+     left="2"
+     width="276"
+     top="95"
+     height="580"
+     follows="all"
+     name="group_accordion">
+    <accordion_tab
+     min_height="75"
+     title="Shortcuts"
+     name="snapshot_destination_tab" 
+     an_resize="false">
+    <panel
+     class="floater_snapshot_destination"
+     filename="floater_preview_gesture_shortcut.xml"
+     name="snapshot_destination_tab"/>
+    </accordion_tab>
+    <accordion_tab
+     min_height="400"
+     title="Steps"
+     name="snapshot_file_settings_tab"
+     can_resize="false">
+    <panel
+     class="floater_snapshot_file_settings"
+     filename="floater_preview_gesture_steps.xml"
+     name="snapshot_file_settings_tab"/> 
+    </accordion_tab>
+    <accordion_tab
+     min_height="100"
+     title="Info"
+     name="snapshot_capture_tab"
+     can_resize="false">
+    <panel
+     class="floater_snapshot_capture"
+     filename="floater_snapshot_Info.xml"
+     name="snapshot_capture_tab"/> 
+    </accordion_tab>
+    <accordion_tab
+     min_height="100"
+     title="Permissions"
+     name="snapshot_capture_tab"
+     can_resize="false">
+    <panel
+     class="floater_snapshot_capture"
+     filename="floater_snapshot_Permissions.xml"
+     name="snapshot_capture_tab"/> 
+    </accordion_tab>
+    </accordion>
+    <!--check_box
+     follows="top|left"
+     height="20"
+     label="Active"
+     layout="topleft"
+     left="20"
+     name="active_check"
+     tool_tip="Active gestures can be triggered by chatting their trigger phrases or pressing their hot keys.  Gestures usually become inactive when there is a key binding conflict."
+     top="365"
+     width="100" /-->  
+    
+    <button
+     follows="bottom|left"
+     height="20"
+     label="Preview"
+     layout="topleft"
+     left="20"
+     name="preview_btn"
+     top_pad="-80"
+     width="80" />
+    <button
+     follows="top|left"
+     height="20"
+     label="Save"
+     layout="topleft"
+     left_pad="5"
+     name="save_btn"
+     top_delta="0"
+     width="80" />
+    <button
+     follows="top|left"
+     height="20"
+     label="Cancel (not working)"
+     layout="topleft"
+     left_pad="5"
+     name="save_btn"
+     top_delta="0"
+     width="80" />   
+
+</floater>

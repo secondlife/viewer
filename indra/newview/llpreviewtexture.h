@@ -36,26 +36,14 @@
 #include "llpreview.h"
 #include "llbutton.h"
 #include "llframetimer.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 
 class LLImageRaw;
 
 class LLPreviewTexture : public LLPreview
 {
 public:
-	LLPreviewTexture(
-		const std::string& name,
-		const LLRect& rect,
-		const std::string& title,
-		const LLUUID& item_uuid,
-		const LLUUID& object_id,
-		BOOL show_keep_discard = FALSE);
-	LLPreviewTexture(
-		const std::string& name,
-		const LLRect& rect,
-		const std::string& title,
-		const LLUUID& asset_id,
-		BOOL copy_to_inv = FALSE);
+	LLPreviewTexture(const LLSD& key);
 	~LLPreviewTexture();
 
 	virtual void		draw();
@@ -65,11 +53,14 @@ public:
 
 	virtual void		loadAsset();
 	virtual EAssetStatus	getAssetStatus();
-
+	
+	virtual void		reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	virtual void 		onFocusReceived();
+	
 	static void			saveToFile(void* userdata);
 	static void			onFileLoadedForSave( 
 							BOOL success,
-							LLViewerImage *src_vi,
+							LLViewerFetchedTexture *src_vi,
 							LLImageRaw* src, 
 							LLImageRaw* aux_src,
 							S32 discard_level, 
@@ -79,25 +70,25 @@ public:
 
 protected:
 	void				init();
+	/* virtual */ BOOL	postBuild();
 
-	virtual const char *getTitleName() const { return "Texture"; }
-	
 private:
 	void				updateDimensions();
 	LLUUID						mImageID;
-	LLPointer<LLViewerImage>		mImage;
+	LLPointer<LLViewerFetchedTexture>		mImage;
 	BOOL				mLoadingFullImage;
 	std::string			mSaveFileName;
 	LLFrameTimer		mSavedFileTimer;
 	BOOL                mShowKeepDiscard;
 	BOOL                mCopyToInv;
-
+	
 	// This is stored off in a member variable, because the save-as
 	// button and drag and drop functionality need to know.
 	BOOL mIsCopyable;
 
 	S32 mLastHeight;
 	S32 mLastWidth;
+	BOOL mUpdateDimensions;
 };
 
 

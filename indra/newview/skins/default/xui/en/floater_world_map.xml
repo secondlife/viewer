@@ -1,0 +1,576 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="true"
+ center_horiz="true"
+ center_vert="true"
+ height="600"
+ layout="topleft"
+ min_height="520"
+ min_width="520"
+ name="worldmap"
+ save_rect="true"
+ save_visibility="true"
+ single_instance="true"
+ title="World Map"
+ width="800">
+    <tab_container
+     follows="left|top|right|bottom"
+     height="565"
+     layout="topleft"
+     left="15"
+     name="maptab"
+     tab_position="top"
+     top="25"
+     width="542">
+        <panel
+         filename="panel_world_map.xml"
+         follows="left|top|right|bottom"
+         height="550"
+         label="Objects"
+         layout="topleft"
+         left="1"
+         name="objects_mapview"
+         top="19"
+         width="540" />
+        <panel
+         filename="panel_world_map.xml"
+         follows="left|top|right|bottom"
+         height="550"
+         label="Terrain"
+         layout="topleft"
+         left_delta="0"
+         name="terrain_mapview"
+         top_delta="3"
+         width="540" />
+    </tab_container>
+    <icon
+     follows="top|right"
+     height="16"
+     image_name="map_avatar_16.tga"
+     layout="topleft"
+     left="-230"
+     mouse_opaque="true"
+     name="self"
+     top="34"
+     width="16" />
+    <text
+     type="string"
+     length="1"
+     follows="top|right"
+     height="16"
+     layout="topleft"
+     left_pad="4"
+     name="you_label"
+     top_delta="0"
+     width="145">
+        You
+    </text>
+    <icon
+     follows="top|right"
+     height="16"
+     image_name="map_home.tga"
+     layout="topleft"
+     left_delta="50"
+     mouse_opaque="true"
+     name="home"
+     top_delta="0"
+     width="16" />
+    <text
+     type="string"
+     length="1"
+     follows="top|right"
+     height="16"
+     layout="topleft"
+     left_pad="4"
+     name="home_label"
+     top_delta="0"
+     width="145">
+        Home
+    </text>
+    <icon
+     color="0.5 0.25 1 1"
+     follows="top|right"
+     height="16"
+     image_name="legend.tga"
+     layout="topleft"
+     left="-230"
+     mouse_opaque="true"
+     name="square2"
+     top="54"
+     width="16" />
+    <text
+     type="string"
+     length="1"
+     follows="top|right"
+     height="16"
+     layout="topleft"
+     left_pad="4"
+     name="auction_label"
+     top_delta="0"
+     width="145">
+        Auction
+    </text>
+    <icon
+     color="1 1 0.25 1"
+     follows="top|right"
+     height="16"
+     image_name="legend.tga"
+     layout="topleft"
+     left_delta="50"
+     mouse_opaque="true"
+     name="square"
+     top_delta="0"
+     width="16" />
+    <text
+     type="string"
+     length="1"
+     follows="top|right"
+     height="16"
+     layout="topleft"
+     left_pad="4"
+     name="land_for_sale_label"
+     top_delta="0"
+     width="145">
+        Land For Sale
+    </text>
+    <button
+     follows="top|right"
+     font="SansSerifSmall"
+     height="16"
+     label="Go Home"
+     label_selected="Go Home"
+     layout="topleft"
+     left="-90"
+     name="Go Home"
+     tool_tip="Teleport to your home"
+     top="34"
+     width="88" >
+		<button.commit_callback
+		function="WMap.GoHome" />
+	</button>
+    <icon
+     color="0 1 0 1"
+     follows="top|right"
+     height="8"
+     image_name="map_avatar_8.tga"
+     layout="topleft"
+     left="-226"
+     mouse_opaque="true"
+     name="person"
+     top="84"
+     width="8" />
+    <check_box
+     control_name="MapShowPeople"
+     follows="top|right"
+     height="16"
+     label="Resident"
+     layout="topleft"
+     left_pad="8"
+     name="people_chk"
+     top_delta="-4"
+     width="110" />
+    <icon
+     follows="top|right"
+     height="16"
+     image_name="map_infohub.tga"
+     layout="topleft"
+     left="-230"
+     mouse_opaque="true"
+     name="infohub"
+     top="100"
+     width="16" />
+    <check_box
+     control_name="MapShowInfohubs"
+     follows="top|right"
+     height="16"
+     label="Infohub"
+     layout="topleft"
+     left_pad="4"
+     name="infohub_chk"
+     top_delta="0"
+     width="110" />
+    <icon
+     follows="top|right"
+     height="16"
+     image_name="map_telehub.tga"
+     layout="topleft"
+     left="-230"
+     mouse_opaque="true"
+     name="telehub"
+     top="120"
+     width="16" />
+    <check_box
+     control_name="MapShowTelehubs"
+     follows="top|right"
+     height="16"
+     label="Telehub"
+     layout="topleft"
+     left_pad="4"
+     name="telehubchk"
+     top_delta="0"
+     width="110" />
+    <icon
+     follows="top|right"
+     height="16"
+     image_name="icon_for_sale.tga"
+     layout="topleft"
+     left="-230"
+     mouse_opaque="true"
+     name="landforsale"
+     top="140"
+     width="16" />
+    <check_box
+     control_name="MapShowLandForSale"
+     follows="top|right"
+     height="16"
+     label="Land for Sale"
+     layout="topleft"
+     left_pad="4"
+     name="land_for_sale_chk"
+     top_delta="0"
+     width="110" />
+    <text
+     type="string"
+     length="1"
+     follows="top|right"
+     height="16"
+     layout="topleft"
+     left="-104"
+     name="events_label"
+     top="80"
+     width="145">
+        Events:
+    </text>
+    <icon
+     follows="top|right"
+     height="16"
+     image_name="map_event.tga"
+     layout="topleft"
+     left="-92"
+     mouse_opaque="true"
+     name="event"
+     top="100"
+     width="16" />
+    <check_box
+     control_name="MapShowEvents"
+     follows="top|right"
+     height="16"
+     label="PG"
+     layout="topleft"
+     left_pad="4"
+     name="event_chk"
+     top_delta="0"
+     width="55" />
+    <icon
+     follows="top|right"
+     height="16"
+     image_name="map_event_mature.tga"
+     layout="topleft"
+     left="-92"
+     mouse_opaque="true"
+     name="events_mature_icon"
+     top="120"
+     width="16" />
+    <check_box
+     control_name="ShowMatureEvents"
+     follows="top|right"
+     height="16"
+     initial_value="true"
+     label="Mature"
+     layout="topleft"
+     left_pad="4"
+     name="event_mature_chk"
+     top_delta="0"
+     width="55" />
+    <icon
+     follows="top|right"
+     height="16"
+     image_name="map_event_adult.tga"
+     layout="topleft"
+     left="-92"
+     mouse_opaque="true"
+     name="events_adult_icon"
+     top="140"
+     width="16" />
+    <check_box
+     control_name="ShowAdultEvents"
+     follows="top|right"
+     height="16"
+     label="Adult"
+     layout="topleft"
+     left_pad="4"
+     name="event_adult_chk"
+     top_delta="0"
+     width="55" />
+    <icon
+     color="0.5 0 0 1"
+     follows="top|right"
+     height="16"
+     image_name="map_track_16.tga"
+     layout="topleft"
+     left="-230"
+     mouse_opaque="true"
+     name="avatar_icon"
+     top="164"
+     width="16" />
+    <combo_box
+     allow_text_entry="true"
+     follows="top|right"
+     height="20"
+     label="Online Friends"
+     layout="topleft"
+     left_pad="4"
+     max_chars="60"
+     name="friend combo"
+     tool_tip="Friend to Show on Map"
+     top_delta="-4"
+     width="202">
+        <combo_box.item
+         label="Online Friends"
+         name="item1"
+         value="None" />
+		<combo_box.commit_callback
+		function="WMap.AvatarCombo"/>
+    </combo_box>
+    <icon
+     color="0.5 0 0 1"
+     follows="top|right"
+     height="16"
+     image_name="map_track_16.tga"
+     layout="topleft"
+     left="-230"
+     mouse_opaque="true"
+     name="landmark_icon"
+     top="189"
+     width="16" />
+    <combo_box
+     allow_text_entry="true"
+     follows="top|right"
+     height="20"
+     label="Landmarks"
+     layout="topleft"
+     left_pad="4"
+     max_chars="64"
+     name="landmark combo"
+     tool_tip="Landmark to Show on Map"
+     top_delta="-4"
+     width="202">
+        <combo_box.item
+         label="Landmarks"
+         name="item1"
+         value="None" />
+    </combo_box>
+    <icon
+     color="0.5 0 0 1"
+     follows="top|right"
+     height="16"
+     image_name="map_track_16.tga"
+     layout="topleft"
+     left="-230"
+     mouse_opaque="true"
+     name="location_icon"
+     top="214"
+     width="16" />
+    <line_editor
+     follows="top|right"
+     height="20"
+     label="Search by Region Name"
+     layout="topleft"
+     left_pad="4"
+     name="location"
+     select_on_focus="true"
+     tool_tip="Type the name of a region"
+     top_delta="-4"
+     width="140" />
+    <button
+     follows="top|right"
+     height="20"
+     label="Search"
+     layout="topleft"
+     left_pad="5"
+     name="DoSearch"
+     tool_tip="Search for region"
+     top_delta="0"
+     width="60">
+		<button.commit_callback
+		function="WMap.Location" />
+	</button>
+    <text
+     type="string"
+     length="1"
+     follows="top|right"
+     font="SansSerif"
+     height="16"
+     layout="topleft"
+     left="-230"
+     name="search_label"
+     top="234"
+     width="222">
+        Search Results:
+    </text>
+    <scroll_list
+     draw_stripes="false"
+     follows="top|right|bottom"
+     height="200"
+     layout="topleft"
+     left_delta="0"
+     name="search_results"
+     top_pad="10"
+     width="222">
+        <scroll_list.columns
+         label=""
+         name="icon"
+         width="16" />
+        <scroll_list.columns
+         label=""
+         name="sim_name"
+         width="206" />
+		<scroll_list.commit_callback
+		function="WMap.SearchResult" />
+    </scroll_list>
+    <text
+     type="string"
+     length="1"
+     follows="bottom|right"
+     font="SansSerif"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     name="location_label"
+     top_pad="4"
+     width="98">
+        Location:
+    </text>
+    <spinner
+     decimal_digits="0"
+     follows="bottom|right"
+     height="16"
+     increment="1"
+     initial_value="128"
+     layout="topleft"
+     left_delta="70"
+     max_val="255"
+     name="spin x"
+     tool_tip="X coordinate of location to show on map"
+     top_delta="0"
+     width="48">
+		<spinner.commit_callback
+		function="WMap.CommitLocation" />
+    </spinner>
+    <spinner
+     decimal_digits="0"
+     follows="bottom|right"
+     height="16"
+     increment="1"
+     initial_value="128"
+     layout="topleft"
+     left_pad="2"
+     max_val="255"
+     name="spin y"
+     tool_tip="Y coordinate of location to show on map"
+     top_delta="0"
+     width="48" >
+		<spinner.commit_callback
+		function="WMap.CommitLocation" />
+    </spinner>
+    <spinner
+     decimal_digits="0"
+     follows="bottom|right"
+     height="16"
+     increment="1"
+     initial_value="0"
+     layout="topleft"
+     left_pad="2"
+     max_val="4096"
+     name="spin z"
+     tool_tip="Z coordinate of location to show on map"
+     top_delta="0"
+     width="48">
+		<spinner.commit_callback
+		function="WMap.CommitLocation" />
+    </spinner>
+    <button
+     follows="right|bottom"
+     height="20"
+     label="Teleport"
+     label_selected="Teleport"
+     layout="topleft"
+     left="-230"
+     name="Teleport"
+     tool_tip="Teleport to selected location"
+     top="494"
+     width="90">
+		<button.commit_callback
+		function="WMap.Teleport" />
+    </button>
+    <button
+     follows="right|bottom"
+     height="20"
+     label="Show Destination"
+     label_selected="Show Destination"
+     layout="topleft"
+     left_pad="10"
+     name="Show Destination"
+     tool_tip="Center map on selected location"
+     top_delta="0"
+     width="125">
+		<button.commit_callback
+		function="WMap.ShowTarget" />
+    </button>
+    <button
+     follows="right|bottom"
+     height="20"
+     label="Clear"
+     label_selected="Clear"
+     layout="topleft"
+     left="-230"
+     name="Clear"
+     tool_tip="Stop tracking"
+     top="518"
+     width="90">
+		<button.commit_callback
+		function="WMap.Clear" />
+    </button>
+    <button
+     follows="right|bottom"
+     height="20"
+     label="Show My Location"
+     label_selected="Show My Location"
+     layout="topleft"
+     left_pad="10"
+     name="Show My Location"
+     tool_tip="Center map on your avatar&apos;s location"
+     top_delta="0"
+     width="125" >
+		<button.commit_callback
+		function="WMap.ShowAgent" />
+    </button>
+    <button
+     enabled="false"
+     follows="bottom|right"
+     height="20"
+     label="Copy SLurl to clipboard"
+     layout="topleft"
+     left="-230"
+     name="copy_slurl"
+     tool_tip="Copies current location as SLurl to be used on the web."
+     top="542"
+     width="222">
+		<button.commit_callback
+		function="WMap.CopySLURL" />
+    </button>
+    <slider
+     follows="right|bottom"
+     height="16"
+     increment="0.2"
+     initial_value="48.5029"
+     label="Zoom"
+     layout="topleft"
+     left_delta="0"
+     max_val="0"
+     min_val="-8"
+     name="zoom slider"
+     show_text="false"
+     top_pad="8"
+     width="222" />
+</floater>

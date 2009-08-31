@@ -4,15 +4,16 @@ project(llaudio)
 
 include(00-Common)
 include(Audio)
+include(LLAudio)
 include(FMOD)
 include(OPENAL)
 include(LLCommon)
 include(LLMath)
 include(LLMessage)
 include(LLVFS)
-include(LLMedia)
 
 include_directories(
+    ${LLAUDIO_INCLUDE_DIRS}
     ${FMOD_INCLUDE_DIR}
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
@@ -24,42 +25,43 @@ include_directories(
     ${VORBIS_INCLUDE_DIRS}
     ${OPENAL_LIB_INCLUDE_DIRS}
     ${FREEAULT_LIB_INCLUDE_DIRS}
-    ${LLMEDIA_INCLUDE_DIRS}
     )
 
 set(llaudio_SOURCE_FILES
-    audioengine.cpp
-    listener.cpp
+    llaudioengine.cpp
+    lllistener.cpp
     llaudiodecodemgr.cpp
-    vorbisdecode.cpp
-    vorbisencode.cpp
+    llvorbisdecode.cpp
+    llvorbisencode.cpp
     )
 
 set(llaudio_HEADER_FILES
     CMakeLists.txt
 
-    audioengine.h
-    listener.h
+    llaudioengine.h
+    lllistener.h
     llaudiodecodemgr.h
-    vorbisdecode.h
-    vorbisencode.h
-    windgen.h
+    llvorbisdecode.h
+    llvorbisencode.h
+    llwindgen.h
     )
 
 if (FMOD)
     list(APPEND llaudio_SOURCE_FILES
-         audioengine_fmod.cpp
-         listener_fmod.cpp
+         llaudioengine_fmod.cpp
+         lllistener_fmod.cpp
+         llstreamingaudio_fmod.cpp
          )
 
     list(APPEND llaudio_HEADER_FILES
-         audioengine_fmod.h
-         listener_fmod.h
+         llaudioengine_fmod.h
+         lllistener_fmod.h
+         llstreamingaudio_fmod.h
          )
 
     if (LINUX)
       if (${CXX_VERSION} MATCHES "4.[23]")
-        set_source_files_properties(audioengine_fmod.cpp
+        set_source_files_properties(llaudioengine_fmod.cpp
                                     COMPILE_FLAGS -Wno-error=write-strings)
       endif (${CXX_VERSION} MATCHES "4.[23]")
     endif (LINUX)
@@ -67,13 +69,13 @@ endif (FMOD)
 
 if (OPENAL)
   list(APPEND llaudio_SOURCE_FILES
-    audioengine_openal.cpp
-    listener_openal.cpp
+    llaudioengine_openal.cpp
+    lllistener_openal.cpp
     )
   
   list(APPEND llaudio_HEADER_FILES
-    audioengine_openal.h
-    listener_openal.h
+    llaudioengine_openal.h
+    lllistener_openal.h
     )
 endif (OPENAL)
 

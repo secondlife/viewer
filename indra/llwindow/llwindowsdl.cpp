@@ -36,14 +36,15 @@
 #include "linden_common.h"
 
 #include "llwindowsdl.h"
+
+#include "llwindowcallbacks.h"
 #include "llkeyboardsdl.h"
+
 #include "llerror.h"
 #include "llgl.h"
 #include "llstring.h"
 #include "lldir.h"
 #include "llfindlocale.h"
-
-#include "indra_constants.h"
 
 #if LL_GTK
 extern "C" {
@@ -187,16 +188,19 @@ Display* LLWindowSDL::get_SDL_Display(void)
 #endif // LL_X11
 
 
-LLWindowSDL::LLWindowSDL(const std::string& title, S32 x, S32 y, S32 width,
+LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
+			 const std::string& title, S32 x, S32 y, S32 width,
 			 S32 height, U32 flags,
 			 BOOL fullscreen, BOOL clearBg,
 			 BOOL disable_vsync, BOOL use_gl,
 			 BOOL ignore_pixel_depth, U32 fsaa_samples)
-	: LLWindow(fullscreen, flags), Lock_Display(NULL),
+	: LLWindow(callbacks, fullscreen, flags),
+	  Lock_Display(NULL),
 	  Unlock_Display(NULL), mGamma(1.0f)
 {
 	// Initialize the keyboard
 	gKeyboard = new LLKeyboardSDL();
+	gKeyboard->setCallbacks(callbacks);
 	// Note that we can't set up key-repeat until after SDL has init'd video
 
 	// Ignore use_gl for now, only used for drones on PC
@@ -1936,11 +1940,6 @@ void LLWindowSDL::setCursor(ECursorType cursor)
 	}
 }
 
-ECursorType LLWindowSDL::getCursor()
-{
-	return mCurrentCursor;
-}
-
 void LLWindowSDL::initCursors()
 {
 	int i;
@@ -2229,7 +2228,7 @@ static void color_changed_callback(GtkWidget *widget,
 	gtk_color_selection_get_current_color(colorsel, colorp);
 }
 
-BOOL LLWindowSDL::dialog_color_picker ( F32 *r, F32 *g, F32 *b)
+BOOL LLWindowSDL::dialogColorPicker( F32 *r, F32 *g, F32 *b)
 {
 	BOOL rtn = FALSE;
 
@@ -2306,7 +2305,7 @@ S32 OSMessageBoxSDL(const std::string& text, const std::string& caption, U32 typ
 	return 0;
 }
 
-BOOL LLWindowSDL::dialog_color_picker ( F32 *r, F32 *g, F32 *b)
+BOOL LLWindowSDL::dialogColorPicker( F32 *r, F32 *g, F32 *b)
 {
 	return (FALSE);
 }
@@ -2363,8 +2362,10 @@ void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url)
 # endif // LL_X11
 
 	std::string cmd, arg;
-	cmd  = gDirUtilp->getAppRODataDir().c_str();
-	cmd += gDirUtilp->getDirDelimiter().c_str();
+	cmd  = gDirUtilp->getAppRODataDir();
+	cmd += gDirUtilp->getDirDelimiter();
+	cmd += "etc";
+	cmd += gDirUtilp->getDirDelimiter();
 	cmd += "launch_url.sh";
 	arg = escaped_url;
 	exec_cmd(cmd, arg);

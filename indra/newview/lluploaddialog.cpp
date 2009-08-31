@@ -41,6 +41,7 @@
 #include "llkeyboard.h"
 #include "llfocusmgr.h"
 #include "llviewercontrol.h"
+#include "llrootview.h"
 
 // static
 LLUploadDialog*	LLUploadDialog::sDialog = NULL;
@@ -64,8 +65,7 @@ void LLUploadDialog::modalUploadFinished()
 // Private methods
 
 LLUploadDialog::LLUploadDialog( const std::string& msg)
-	:
-	LLPanel( std::string("Uploading..."), LLRect(0,100,100,0) )  // dummy rect.  Will reshape below.
+  : LLPanel()
 {
 	setBackgroundVisible( TRUE );
 
@@ -75,11 +75,16 @@ LLUploadDialog::LLUploadDialog( const std::string& msg)
 	}
 	LLUploadDialog::sDialog = this;
 
-	const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
+	const LLFontGL* font = LLFontGL::getFontSansSerif();
 	LLRect msg_rect;
 	for (int line_num=0; line_num<16; ++line_num)
 	{
-		mLabelBox[line_num] = new LLTextBox( std::string("Filename"), msg_rect, std::string("Filename"), font );
+		LLTextBox::Params params;
+		params.name("Filename");
+		params.rect(msg_rect);
+		params.text("Filename");
+		params.font(font);
+		mLabelBox[line_num] = LLUICtrlFactory::create<LLTextBox> (params);
 		addChild(mLabelBox[line_num]);
 	}
 
@@ -91,7 +96,7 @@ LLUploadDialog::LLUploadDialog( const std::string& msg)
 
 void LLUploadDialog::setMessage( const std::string& msg)
 {
-	const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
+	const LLFontGL* font = LLFontGL::getFontSansSerif();
 
 	const S32 VPAD = 16;
 	const S32 HPAD = 25;
@@ -139,7 +144,7 @@ void LLUploadDialog::setMessage( const std::string& msg)
 		msg_rect.setOriginAndSize( msg_x, msg_y, max_msg_width, line_height );
 		mLabelBox[line_num]->setRect(msg_rect);
 		mLabelBox[line_num]->setText(cur_line);
-		mLabelBox[line_num]->setColor( gColors.getColor( "LabelTextColor" ) );
+		mLabelBox[line_num]->setColor( LLUIColorTable::instance().getColor( "LabelTextColor" ) );
 		mLabelBox[line_num]->setVisible(TRUE);
 		msg_y -= line_height;
 		++line_num;

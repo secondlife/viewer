@@ -32,9 +32,10 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "lluictrlfactory.h"
 #include "llfloaterscriptdebug.h"
 
+#include "llfloaterreg.h"
+#include "lluictrlfactory.h"
 #include "llfontgl.h"
 #include "llrect.h"
 #include "llerror.h"
@@ -45,19 +46,20 @@
 #include "llviewertexteditor.h"
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 
 //
 // Statics
 //
-LLFloaterScriptDebug*	LLFloaterScriptDebug::sInstance = NULL;
 
 //
 // Member Functions
 //
-LLFloaterScriptDebug::LLFloaterScriptDebug() : 
-	LLMultiFloater()
+LLFloaterScriptDebug::LLFloaterScriptDebug(const LLSD& key)
+  : LLMultiFloater(key)
 {
+// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_script_debug.xml");
+	
 	// avoid resizing of the window to match 
 	// the initial size of the tabbed-childs, whenever a tab is opened or closed
 	mAutoResize = FALSE;
@@ -65,17 +67,11 @@ LLFloaterScriptDebug::LLFloaterScriptDebug() :
 
 LLFloaterScriptDebug::~LLFloaterScriptDebug()
 {
-	sInstance = NULL;
 }
 
 void LLFloaterScriptDebug::show(const LLUUID& object_id)
 {
-	LLFloater* floaterp = addOutputWindow(object_id);
-	if (sInstance)
-	{
-		sInstance->open();		/* Flawfinder: ignore */
-		sInstance->showFloater(floaterp);
-	}
+	addOutputWindow(object_id);
 }
 
 BOOL LLFloaterScriptDebug::postBuild()
@@ -84,40 +80,21 @@ BOOL LLFloaterScriptDebug::postBuild()
 
 	if (mTabContainer)
 	{
-		// *FIX: apparantly fails for tab containers?
-// 		mTabContainer->requires<LLFloater>("all_scripts");
-// 		mTabContainer->checkRequirements();
 		return TRUE;
 	}
 
 	return FALSE;
 }
 
-void* getOutputWindow(void* data)
-{
-	return new LLFloaterScriptDebugOutput();
-}
-
 LLFloater* LLFloaterScriptDebug::addOutputWindow(const LLUUID &object_id)
 {
-	if (!sInstance)
-	{
-		sInstance = new LLFloaterScriptDebug();
-		LLCallbackMap::map_t factory_map;
-		factory_map["all_scripts"] = LLCallbackMap(getOutputWindow, NULL);
-		LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_script_debug.xml", &factory_map);
-		sInstance->setVisible(FALSE);
-	}
+	LLMultiFloater* host = LLFloaterReg::showTypedInstance<LLMultiFloater>("script_debug", LLSD());
+	if (!host)
+		return NULL;
 
-	LLFloater* floaterp = NULL;
-	LLFloater::setFloaterHost(sInstance);
-	{
-		floaterp = LLFloaterScriptDebugOutput::show(object_id);
-	}
+	LLFloater::setFloaterHost(host);
+	LLFloater* floaterp = LLFloaterReg::showInstance("script_debug_output", object_id);
 	LLFloater::setFloaterHost(NULL);
-
-	// Tabs sometimes overlap resize handle
-	sInstance->moveResizeHandlesToFront();
 
 	return floaterp;
 }
@@ -129,7 +106,7 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
 
 	if (objectp)
 	{
-		objectp->setIcon(gImageList.getImageFromFile("script_error.j2c", TRUE, TRUE));
+		objectp->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", TRUE, TRUE));
 		floater_label = llformat("%s(%.2f, %.2f)", user_name.c_str(), objectp->getPositionRegion().mV[VX], objectp->getPositionRegion().mV[VY]);
 	}
 	else
@@ -141,119 +118,55 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
 	addOutputWindow(source_id);
 
 	// add to "All" floater
-	LLFloaterScriptDebugOutput* floaterp = LLFloaterScriptDebugOutput::getFloaterByID(LLUUID::null);
-	floaterp->addLine(utf8mesg, user_name, color);
-
+	LLFloaterScriptDebugOutput* floaterp = 	LLFloaterReg::getTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", LLUUID::null);
+	if (floaterp)
+	{
+		floaterp->addLine(utf8mesg, user_name, color);
+	}
+	
 	// add to specific script instance floater
-	floaterp = LLFloaterScriptDebugOutput::getFloaterByID(source_id);
-	floaterp->addLine(utf8mesg, floater_label, color);
+	floaterp = LLFloaterReg::getTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", source_id);
+	if (floaterp)
+	{
+		floaterp->addLine(utf8mesg, floater_label, color);
+	}
 }
 
 //
 // LLFloaterScriptDebugOutput
 //
 
-std::map<LLUUID, LLFloaterScriptDebugOutput*> LLFloaterScriptDebugOutput::sInstanceMap;
-
-LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput()
-: mObjectID(LLUUID::null)
+LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLSD& object_id)
+  : LLFloater(LLSD(object_id)),
+	mObjectID(object_id.asUUID())
 {
-	sInstanceMap[mObjectID] = this;
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_script_debug_panel.xml");
 }
 
-LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLUUID& object_id)
-: LLFloater(std::string("script instance floater"), LLRect(0, 200, 200, 0), std::string("Script"), TRUE), mObjectID(object_id)
+BOOL LLFloaterScriptDebugOutput::postBuild()
 {
-	S32 y = getRect().getHeight() - LLFLOATER_HEADER_SIZE - LLFLOATER_VPAD;
-	S32 x = LLFLOATER_HPAD;
-	// History editor
-	// Give it a border on the top
-	LLRect history_editor_rect(
-		x,
-		y,
-		getRect().getWidth() - LLFLOATER_HPAD,
-				LLFLOATER_VPAD );
-	mHistoryEditor = new LLViewerTextEditor( std::string("Chat History Editor"), 
-										history_editor_rect, S32_MAX, LLStringUtil::null, LLFontGL::getFontSansSerif());
-	mHistoryEditor->setWordWrap( TRUE );
-	mHistoryEditor->setFollowsAll();
-	mHistoryEditor->setEnabled( FALSE );
-	mHistoryEditor->setTabStop( TRUE );  // We want to be able to cut or copy from the history.
-	addChild(mHistoryEditor);
-}
-
-void LLFloaterScriptDebugOutput::initFloater(const std::string& title, BOOL resizable, 
-						S32 min_width, S32 min_height, BOOL drag_on_left,
-						BOOL minimizable, BOOL close_btn)
-{
-	LLFloater::initFloater(title, resizable, min_width, min_height, drag_on_left, minimizable, close_btn);
-	S32 y = getRect().getHeight() - LLFLOATER_HEADER_SIZE - LLFLOATER_VPAD;
-	S32 x = LLFLOATER_HPAD;
-	// History editor
-	// Give it a border on the top
-	LLRect history_editor_rect(
-		x,
-		y,
-		getRect().getWidth() - LLFLOATER_HPAD,
-				LLFLOATER_VPAD );
-	mHistoryEditor = new LLViewerTextEditor( std::string("Chat History Editor"), 
-										history_editor_rect, S32_MAX, LLStringUtil::null, LLFontGL::getFontSansSerif());
-	mHistoryEditor->setWordWrap( TRUE );
-	mHistoryEditor->setFollowsAll();
-	mHistoryEditor->setEnabled( FALSE );
-	mHistoryEditor->setTabStop( TRUE );  // We want to be able to cut or copy from the history.
-	addChild(mHistoryEditor);
+	LLFloater::postBuild();
+	mHistoryEditor = getChild<LLViewerTextEditor>("Chat History Editor");
+	return TRUE;
 }
 
 LLFloaterScriptDebugOutput::~LLFloaterScriptDebugOutput()
 {
-	sInstanceMap.erase(mObjectID);
 }
 
 void LLFloaterScriptDebugOutput::addLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color)
 {
 	if (mObjectID.isNull())
 	{
-		//setTitle("[All scripts]");
 		setCanTearOff(FALSE);
 		setCanClose(FALSE);
 	}
 	else
 	{
 		setTitle(user_name);
+		setShortTitle(user_name);
 	}
 
 	mHistoryEditor->appendColoredText(utf8mesg, false, true, color);
 }
 
-//static
-LLFloaterScriptDebugOutput* LLFloaterScriptDebugOutput::show(const LLUUID& object_id)
-{
-	LLFloaterScriptDebugOutput* floaterp = NULL;
-	instance_map_t::iterator found_it = sInstanceMap.find(object_id);
-	if (found_it == sInstanceMap.end())
-	{
-		floaterp = new LLFloaterScriptDebugOutput(object_id);
-		sInstanceMap[object_id] = floaterp;
-		floaterp->open();		/* Flawfinder: ignore*/
-	}
-	else
-	{
-		floaterp = found_it->second;
-	}
-
-	return floaterp;
-}
-
-//static 
-LLFloaterScriptDebugOutput* LLFloaterScriptDebugOutput::getFloaterByID(const LLUUID& object_id)
-{
-	LLFloaterScriptDebugOutput* floaterp = NULL;
-	instance_map_t::iterator found_it = sInstanceMap.find(object_id);
-	if (found_it != sInstanceMap.end())
-	{
-		floaterp = found_it->second;
-	}
-
-	return floaterp;
-}

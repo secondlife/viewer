@@ -46,6 +46,7 @@
 S32	            LLPerfBlock::sStatsFlags = LLPerfBlock::LLSTATS_NO_OPTIONAL_STATS;       // Control what is being recorded
 LLPerfBlock::stat_map_t    LLPerfBlock::sStatMap;    // Map full path string to LLStatTime objects, tracks all active objects
 std::string        LLPerfBlock::sCurrentStatPath = "";    // Something like "/total_time/physics/physics step"
+LLStat::stat_map_t LLStat::sStatList;
 
 //------------------------------------------------------------------------
 // Live config file to trigger stats logging
@@ -754,28 +755,48 @@ void LLPerfBlock::addStatsToLLSDandReset( LLSD & stats,
 LLTimer LLStat::sTimer;
 LLFrameTimer LLStat::sFrameTimer;
 
-LLStat::LLStat(const U32 num_bins, const BOOL use_frame_timer)
+void LLStat::init()
 {
-	llassert(num_bins > 0);
-	U32 i;
-	mUseFrameTimer = use_frame_timer;
+	llassert(mNumBins > 0);
 	mNumValues = 0;
 	mLastValue = 0.f;
 	mLastTime = 0.f;
-	mNumBins = num_bins;
 	mCurBin = (mNumBins-1);
 	mNextBin = 0;
 	mBins      = new F32[mNumBins];
 	mBeginTime = new F64[mNumBins];
 	mTime      = new F64[mNumBins];
 	mDT        = new F32[mNumBins];
-	for (i = 0; i < mNumBins; i++)
+	for (U32 i = 0; i < mNumBins; i++)
 	{
 		mBins[i]      = 0.f;
 		mBeginTime[i] = 0.0;
 		mTime[i]      = 0.0;
 		mDT[i]        = 0.f;
 	}
+
+	if (!mName.empty())
+	{
+		stat_map_t::iterator iter = sStatList.find(mName);
+		if (iter != sStatList.end())
+			llwarns << "LLStat with duplicate name: " << mName << llendl;
+		sStatList.insert(std::make_pair(mName, this));
+	}
+}
+
+LLStat::LLStat(const U32 num_bins, const BOOL use_frame_timer)
+	: mUseFrameTimer(use_frame_timer),
+	  mNumBins(num_bins)
+{
+	init();
+}
+
+LLStat::LLStat(std::string name, U32 num_bins, BOOL use_frame_timer)
+	: mUseFrameTimer(use_frame_timer),
+	  mNumBins(num_bins),
+	  mName(name)
+{
+	init();
 }
 
 LLStat::~LLStat()
@@ -784,6 +805,15 @@ LLStat::~LLStat()
 	delete[] mBeginTime;
 	delete[] mTime;
 	delete[] mDT;
+
+	if (!mName.empty())
+	{
+		// handle multiple entries with the same name
+		stat_map_t::iterator iter = sStatList.find(mName);
+		while (iter != sStatList.end() && iter->second != this)
+			++iter;
+		sStatList.erase(iter);
+	}
 }
 
 void LLStat::reset()

@@ -36,6 +36,9 @@
 #include "llrender.h"
 #include "llgl.h"
 
+LLRenderTarget* LLRenderTarget::sBoundTarget = NULL;
+
+
 
 void check_framebuffer_status()
 {
@@ -46,11 +49,9 @@ void check_framebuffer_status()
 		{
 		case GL_FRAMEBUFFER_COMPLETE_EXT:
 			break;
-		case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-			llerrs << "WTF?" << llendl;
-			break;
 		default:
-			llerrs << "WTF?" << llendl;
+			ll_fail("check_framebuffer_status failed");	
+			break;
 		}
 	}
 }
@@ -273,6 +274,7 @@ void LLRenderTarget::release()
 	}
 
 	mSampleBuffer = NULL;
+	sBoundTarget = NULL;
 }
 
 void LLRenderTarget::bindTarget()
@@ -311,6 +313,7 @@ void LLRenderTarget::bindTarget()
 	}
 
 	glViewport(0, 0, mResX, mResY);
+	sBoundTarget = this;
 }
 
 // static
@@ -320,6 +323,7 @@ void LLRenderTarget::unbindTarget()
 	{
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	}
+	sBoundTarget = NULL;
 }
 
 void LLRenderTarget::clear(U32 mask_in)
@@ -532,6 +536,7 @@ void LLMultisampleBuffer::bindTarget(LLRenderTarget* ref)
 
 	glViewport(0, 0, mResX, mResY);
 
+	sBoundTarget = this;
 }
 
 void LLMultisampleBuffer::allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, BOOL stencil,  LLTexUnit::eTextureType usage, BOOL use_fbo )

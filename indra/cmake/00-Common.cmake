@@ -192,7 +192,7 @@ endif (DARWIN)
 
 
 if (LINUX OR DARWIN)
-  set(GCC_WARNINGS "-Wall -Wno-sign-compare -Wno-trigraphs -Wno-non-virtual-dtor")
+  set(GCC_WARNINGS "-Wall -Wno-sign-compare -Wno-trigraphs -Wno-non-virtual-dtor -Woverloaded-virtual")
 
   if (NOT GCC_DISABLE_FATAL_WARNINGS)
     set(GCC_WARNINGS "${GCC_WARNINGS} -Werror")
@@ -227,7 +227,6 @@ else (STANDALONE)
       glib-2.0
       gstreamer-0.10
       gtk-2.0
-      llfreetype2
       pango-1.0
       )
 endif (STANDALONE)

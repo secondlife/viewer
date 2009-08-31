@@ -41,7 +41,7 @@
 
 #include "lldarray.h"
 
-class LLScrollableContainerView;
+class LLScrollContainer;
 class LLView;
 class LLButton;
 class LLLineEditor;
@@ -56,32 +56,28 @@ class LLFloaterGesture
 :	public LLFloater
 {
 public:
-	LLFloaterGesture();
+	LLFloaterGesture(const LLSD& key);
 	virtual ~LLFloaterGesture();
 
 	virtual BOOL postBuild();
 
-	static void show();
-	static void toggleVisibility();
-	static void refreshAll();
+	void refreshAll();
 
 protected:
 	// Reads from the gesture manager's list of active gestures
 	// and puts them in this list.
 	void buildGestureList();
 
-	static void onClickInventory(void* data);
-	static void onClickEdit(void* data);
-	static void onClickPlay(void* data);
-	static void onClickNew(void* data);
-	static void onCommitList(LLUICtrl* ctrl, void* data);
+	void onClickInventory();
+	void onClickEdit();
+	void onClickPlay();
+	void onClickNew();
+	void onCommitList();
 
 protected:
 	LLUUID mSelectedID;
 
-	static LLFloaterGesture* sInstance;
-	static LLFloaterGestureObserver* sObserver;
-	static LLFloaterGestureInventoryObserver* sInventoryObserver;
+	LLFloaterGestureObserver* mObserver;
 };
 
 

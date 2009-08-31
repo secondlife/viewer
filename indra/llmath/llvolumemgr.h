@@ -36,7 +36,7 @@
 #include <map>
 
 #include "llvolume.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llthread.h"
 
 class LLVolumeParams;
@@ -92,8 +92,8 @@ public:
 	// whatever calls getVolume() never owns the LLVolume* and
 	// cannot keep references for long since it may be deleted
 	// later.  For best results hold it in an LLPointer<LLVolume>.
-	LLVolume *refVolume(const LLVolumeParams &volume_params, const S32 detail);
-	void unrefVolume(LLVolume *volumep);
+	virtual LLVolume *refVolume(const LLVolumeParams &volume_params, const S32 detail);
+	virtual void unrefVolume(LLVolume *volumep);
 
 	void dump();
 

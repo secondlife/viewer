@@ -44,6 +44,7 @@ Aleric Inglewood
 	VWR-10001
 	VWR-10759
 	VWR-10837
+	VWR-13996
 Ales Beaumont
     VWR-9352
 Alissa Sabre
@@ -275,6 +276,9 @@ Jacek Antonelli
 	VWR-597
 	VWR-2054
 	VWR-2448
+	VWR-2896
+	VWR-2947
+	VWR-2948
 	VWR-3605
 JB Kraft
 	VWR-5283

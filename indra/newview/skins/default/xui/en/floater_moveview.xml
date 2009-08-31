@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_close="false"
+ can_minimize="false"
+ center_horiz="true"
+ follows="bottom"
+ height="95"
+ layout="topleft"
+ name="move_floater"
+ save_rect="true"
+ save_visibility="true"
+ width="115">
+    <string
+     name="walk_forward_tooltip">
+        Walk Forward (press Up Arrow or W)
+    </string>
+    <string
+     name="walk_back_tooltip">
+        Walk Backwards (press Down Arrow or S)
+    </string>
+    <string
+     name="run_forward_tooltip">
+        Run Forward (press Up Arrow or W)
+    </string>
+    <string
+     name="run_back_tooltip">
+        Run Backwards (press Down Arrow or S)
+    </string>
+    <string
+     name="fly_forward_tooltip">
+        Fly Forward (press Up Arrow or W)
+    </string>
+    <string
+     name="fly_back_tooltip">
+        Fly Backwards (press Down Arrow or S)
+    </string>
+    <panel
+     border="true" 
+     height="70"
+     follows="left|top" 
+     layout="topleft"
+     left="0"
+     name="panel_actions"
+     top="0"
+     width="115">
+        <button
+         follows="left|bottom"
+         height="25"
+         image_selected="move_turn_left_in.tga"
+         image_unselected="move_turn_left_out.tga"
+         layout="topleft"
+         left="10"
+         name="turn left btn"
+         picture_style="true"
+         scale_image="false"
+         tool_tip="Turn Left (press Left Arrow or A)"
+         top="35"
+         width="25" />
+        <button
+         follows="left|bottom"
+         height="25"
+         image_selected="move_turn_right_in.tga"
+         image_unselected="move_turn_right_out.tga"
+         layout="topleft"
+         left_pad="45"
+         name="turn right btn"
+         picture_style="true"
+         scale_image="false"
+         tool_tip="Turn Right (press Right Arrow or D)"
+         top_delta="0"
+         width="25" />
+        <button
+         follows="left|bottom"
+         height="25"
+         image_selected="move_up_in.tga"
+         image_unselected="move_up_out.tga"
+         layout="topleft"
+         left="10"
+         name="move up btn"
+         picture_style="true"
+         scale_image="false"
+         tool_tip="Fly Up, Press &quot;E&quot;"
+         top="4"
+         width="25" />
+        <button
+         follows="left|bottom"
+         height="25"
+         image_selected="move_down_in.tga"
+         image_unselected="move_down_out.tga"
+         layout="topleft"
+         left_pad="45"
+         name="move down btn"
+         picture_style="true"
+         scale_image="false"
+         tool_tip="Fly Down, Press &quot;C&quot;"
+         top_delta="0"
+         width="25" />
+        <joystick_turn
+         follows="left|bottom"
+         height="25"
+         image_selected="move_forward_in.tga"
+         image_unselected="move_forward_out.tga"
+         layout="topleft"
+         left="47"
+         name="forward btn"
+         picture_style="true"
+         quadrant="up"
+         scale_image="false"
+         tool_tip="Walk Forward (press Up Arrow or W)"
+         top_delta="10"
+         width="21" />
+        <joystick_turn
+         follows="left|bottom"
+         height="25"
+         image_selected="move_backward_in.tga"
+         image_unselected="move_backward_out.tga"
+         layout="topleft"
+         left_delta="0"
+         name="backward btn"
+         picture_style="true"
+         quadrant="down"
+         scale_image="false"
+         tool_tip="Walk Backward (press Down Arrow or S)"
+         top_delta="30"
+         width="21" />
+    </panel>
+<!-- Width and height of this panel should be synchronized with panel_stand_stop_flying.xml -->
+    <panel
+     border="true" 
+     height="25"
+     layout="topleft"
+     left="0"
+     name="panel_modes"
+     top_pad="1"
+     width="115">
+        <button
+         follows="left|bottom"
+         height="20"
+         label="Walk"
+         layout="topleft"
+         name="mode_walk_btn"
+         pad_left="0"
+         pad_right="0"
+         tool_tip="Walking Mode"
+         top="2"
+         width="43" />
+        <button
+         follows="left|bottom"
+         font="SansSerifSmall" 
+         height="20"
+         label="Run"
+         layout="topleft"
+         left_pad="0"
+         name="mode_run_btn"
+         pad_left="0"
+         pad_right="0"
+         tool_tip="Running Mode"
+         top="2"
+         width="37" />
+        <button
+         follows="left|bottom"
+         height="20"
+         label="Fly"
+         layout="topleft"
+         left_pad="0"
+         name="mode_fly_btn"
+         pad_left="0"
+         pad_right="0"
+         tool_tip="Flying Mode"
+         top="2"
+         width="35" />
+        <button
+         visible="false" 
+         follows="left|bottom"
+         height="20"
+         label="Stop Flying"
+         layout="topleft"
+         left="0"
+         name="stop_fly_btn"
+         tool_tip="Stop Flying"
+         top="2"
+         width="115" />
+    </panel>
+</floater>

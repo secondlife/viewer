@@ -37,9 +37,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>e6ba152b7edd4ad2c9db4f9ff7bd38e1</string>
+            <string>91155239b02f576384603795d41eb971</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-windows-20080613.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/GL-windows-20090505.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -207,30 +207,30 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>081ef195a856c708cc473c4421b4b290</string>
+            <string>6be5bca5f4b031b1b79824da5cfd4ddf</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-darwin-20090223.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-darwin-20090702a.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>b516a8576ecad0f957db7fc2cd972aac</string>
+            <string>113ca35011c916660a8aa55bc1ca462a</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-linux-20090223a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-linux-20090702.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
             <key>md5sum</key>
-            <string>6db62bb7f141b3a1b3107e1f9aad0eb0</string>
+            <string>270f64d3aa416cec96f445d58dfcfb6d</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-linux64-20090223a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-linux64-20090702.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>3b56fe9e8d2975c612639d0a5370ffe7</string>
+            <string>44d4fdf386742b94419c93ad2baa1616</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-windows-20090225.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.34.1-windows-20090702.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -415,6 +415,21 @@
           </map>
         </map>
       </map>
+      <key>freeglut</key>
+      <map>
+        <key>license</key>
+        <string>mit</string>
+        <key>packages</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>fcbb695ff203775fad96d184bf5f34fc</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freeglut-2.4.0-windows-20090608.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
       <key>freetype</key>
       <map>
         <key>copyright</key>
@@ -435,9 +450,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>eeffb03bd6672b6e7751448e5306d874</string>
+            <string>978ad7c67fe4a2419bfc841e2956ff9f</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.1.5-linux-20081201.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-linux-20090521c.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -526,6 +541,28 @@
           </map>
         </map>
       </map>
+      <key>glui</key>
+      <map>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>84f792a860691d0fad6d1de6eeb31baa</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glui-2.36-darwin-20090623a.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>5b8631fe510d4ebaeb965c673937e1e7</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/glui-2.3.6-windows-freeglut-20090608.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
       <key>google</key>
       <map>
         <key>license</key>
@@ -541,36 +578,22 @@
           </map>
         </map>
       </map>
-      <key>googlemock</key>
+      <key>google-perftools</key>
       <map>
         <key>copyright</key>
-        <string>Copyright 2008, Google Inc.</string>
+        <string>Copyright (c) 2005, Google Inc.</string>
         <key>description</key>
-        <string>Google C++ Mocking Framework (or Google Mock for short) is a library for writing and using C++ mock classes.</string>
+        <string>Heap performance and validity checking tools from google. Includes TCMalloc, heap-checker, heap-profiler and cpu-profiler.</string>
         <key>license</key>
         <string>bsd</string>
         <key>packages</key>
         <map>
-          <key>darwin</key>
-          <map>
-            <key>md5sum</key>
-            <string>4863e9fea433d0a4be761ea5d3e8346a</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-darwin-20090626.tar.bz2</uri>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>md5sum</key>
-            <string>877dabecf84339690191c6115c76366e</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-linux32-20090527.tar.bz2</uri>
-          </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>be37695d9f26552aec81c8e97ded0212</string>
+            <string>32dba32ddd460a08e082898ebba6315c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-windows-20090529.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-perftools-1.0-windows-20090406.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -897,39 +920,32 @@ anguage Infrstructure (CLI) international standard</string>
           </map>
         </map>
       </map>
-      <key>llmozlib</key>
+      <key>llqtwebkit</key>
       <map>
         <key>license</key>
-        <string>mozillaPL</string>
+        <string>lgpl</string>
         <key>packages</key>
         <map>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>c951587726618d33646f2b169c290bd3</string>
+            <string>1859f5f6335d702cc42aeb602669b55e</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-2_0_0_21-darwin-20090304.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-darwin-20090827.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>b7ebcf0fb764ed4fa57c62d068b4a769</string>
+            <string>5e91fba63006aa5e6266496cf7497100</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-linux-20090304prfhk.tar.bz2</uri>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>md5sum</key>
-            <string>c2ae53462b56e0999ba386774ab0b789</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-linux64-20080909.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-20090819a.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>e9454e258b99668782d8570481b5eda1</string>
+            <string>0edde7f54c0229cd6f615917198becaf</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llmozlib-windows-20090306.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-windows-20090920.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1365,9 +1381,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>80ee8d5a30563ce0f55d37fed6dfc744</string>
+            <string>1804b54034ef7f82832506a44acb06b8</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-linux-20090417.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-linux-20090603.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -1379,9 +1395,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>9ad657cc5146fef77ffa8dd1c069018f</string>
+            <string>ddb09c2dd7d2caed1bd7cc1686c4214c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-windows-20080723.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-windows-20090505.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1583,7 +1599,7 @@ your work.
       <key>glh_linear</key>
       <map>
         <key>text</key>
-        <string>glh - is a platform-indepenedent C++ OpenGL helper library 
+        <string>glh - is a platform-indepenedent C++ OpenGL helper library
 
 Copyright (c) 2000 Cass Everitt
 Copyright (c) 2000 NVIDIA Corporation
@@ -1595,14 +1611,14 @@ conditions are met:
 
 Redistributions of source code must retain the above
 copyright notice, this list of conditions and the following
-disclaimer. 
+disclaimer.
 Redistributions in binary form must reproduce the above
 copyright notice, this list of conditions and the following
 disclaimer in the documentation and/or other materials
-provided with the distribution. 
+provided with the distribution.
 The names of contributors to this software may not be used
 to endorse or promote products derived from this software
-without specific prior written permission. 
+without specific prior written permission.
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -1613,12 +1629,17 @@ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
-POSSIBILITY OF SUCH DAMAGE. 
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 
 Cass Everitt - cass@r3.nu
 
 </string>
+      </map>
+      <key>glut</key>
+      <map>
+        <key>url</key>
+        <string>http://www.xmission.com/~nate/glut/README-win32.txt</string>
       </map>
       <key>gpl</key>
       <map>
@@ -1671,11 +1692,6 @@ Cass Everitt - cass@r3.nu
         <key>text</key>
         <string>http://www.jclark.com/xml/copying.txt</string>
       </map>
-      <key>mozillaPL</key>
-      <map>
-        <key>url</key>
-        <string>http://www.mozilla.org/MPL/MPL-1.1.html</string>
-      </map>
       <key>ogg-vorbis</key>
       <map>
         <key>url</key>
@@ -1697,26 +1713,26 @@ Cass Everitt - cass@r3.nu
         <string>ENGLISH
 
 Apple Computer, Inc.
-QuickTime 7 Software Developer Kit (SDK) 
+QuickTime 7 Software Developer Kit (SDK)
 Software License Agreement
 
 PLEASE READ THIS SOFTWARE LICENSE AGREEMENT ("LICENSE") BEFORE USING THE SOFTWARE.  BY USING THE SOFTWARE, YOU ARE AGREEING TO BE BOUND BY THE TERMS OF THIS LICENSE.  IF YOU ARE ACCESSING THE SOFTWARE ELECTRONICALLY, SIGNIFY YOUR AGREEMENT TO BE BOUND BY THE TERMS OF THIS LICENSE BY CLICKING THE "AGREE/ACCEPT" BUTTON. IF YOU DO NOT AGREE TO THE TERMS OF THIS LICENSE, RETURN THE APPLE SOFTWARE TO THE PLACE WHERE YOU OBTAINED IT FOR A REFUND OR, IF THE SOFTWARE WAS ACCESSED ELECTRONICALLY, CLICK "DISAGREE/DECLINE".
 
-IMPORTANT NOTE: To the extent this software may be used to reproduce materials, it is licensed to you only for reproduction of materials you are authorized or legally permitted to reproduce.  
+IMPORTANT NOTE: To the extent this software may be used to reproduce materials, it is licensed to you only for reproduction of materials you are authorized or legally permitted to reproduce.
 
-1. License.  Any software, tools, utilities, sample code, documentation, fonts, API?s, header files and other materials accompanying this License, whether on disk, print or electronic documentation, in read only memory, or any other media, (collectively, the "Apple Software") are licensed, not sold, to you by Apple Computer, Inc. ("Apple") for use only under the terms of this License, and Apple reserves all rights not expressly granted to you.  The rights granted herein are limited to Apple's and its licensors' intellectual property rights in the Apple Software and do not include any other patents or intellectual property rights.   You own the media on which the Apple Software is recorded but Apple and/or Apple's licensor(s) retain ownership of the Apple Software itself.  The Apple Software in this package and any copies, modifications and derivative works that this License authorizes you to make are subject to this License.  
+1. License.  Any software, tools, utilities, sample code, documentation, fonts, API?s, header files and other materials accompanying this License, whether on disk, print or electronic documentation, in read only memory, or any other media, (collectively, the "Apple Software") are licensed, not sold, to you by Apple Computer, Inc. ("Apple") for use only under the terms of this License, and Apple reserves all rights not expressly granted to you.  The rights granted herein are limited to Apple's and its licensors' intellectual property rights in the Apple Software and do not include any other patents or intellectual property rights.   You own the media on which the Apple Software is recorded but Apple and/or Apple's licensor(s) retain ownership of the Apple Software itself.  The Apple Software in this package and any copies, modifications and derivative works that this License authorizes you to make are subject to this License.
 
-2. Permitted Uses and Restrictions.  You may use the Apple Software to develop application software that is compatible with, and runs only on Mac OS X and/or Windows platforms with QuickTime installed.  Except for compiling header files and linking libraries as necessary to build your application software, you have no right to modify, incorporate into or include in combination with your own programs, license or otherwise redistribute any portion of the Apple Software. Your software application may not interfere with the functionality of QuickTime Player or the QuickTime Plug-in, including but not limited to file type or MIME type associations that are registered to QuickTime. You may make only as many internal use copies of the Apple Software as reasonably necessary to use the Apple Software as permitted in this paragraph and distribute such copies only to your employees whose job duties require them to so use the Apple Software. You must reproduce on each copy of the Apple Software or portion thereof, the Apple copyright notice and any other proprietary legends that were on the original copy of the Apple Software.  Except as expressly permitted in this License, you may not decompile, reverse engineer, disassemble, modify, rent, lease, loan, sublicense, distribute or create derivative works based upon the Apple Software in whole or part.  Your rights under this License will terminate automatically without notice from Apple if you fail to comply with any term(s) of this License. In addition, Apple reserves the right to terminate this License if a new version of Apple's operating system software or the Apple Software is released which is incompatible with the Apple Software.  
+2. Permitted Uses and Restrictions.  You may use the Apple Software to develop application software that is compatible with, and runs only on Mac OS X and/or Windows platforms with QuickTime installed.  Except for compiling header files and linking libraries as necessary to build your application software, you have no right to modify, incorporate into or include in combination with your own programs, license or otherwise redistribute any portion of the Apple Software. Your software application may not interfere with the functionality of QuickTime Player or the QuickTime Plug-in, including but not limited to file type or MIME type associations that are registered to QuickTime. You may make only as many internal use copies of the Apple Software as reasonably necessary to use the Apple Software as permitted in this paragraph and distribute such copies only to your employees whose job duties require them to so use the Apple Software. You must reproduce on each copy of the Apple Software or portion thereof, the Apple copyright notice and any other proprietary legends that were on the original copy of the Apple Software.  Except as expressly permitted in this License, you may not decompile, reverse engineer, disassemble, modify, rent, lease, loan, sublicense, distribute or create derivative works based upon the Apple Software in whole or part.  Your rights under this License will terminate automatically without notice from Apple if you fail to comply with any term(s) of this License. In addition, Apple reserves the right to terminate this License if a new version of Apple's operating system software or the Apple Software is released which is incompatible with the Apple Software.
 
-3. Disclaimer Of Warranty.  The Apple Software may be "alpha", "beta", "development", pre-release, untested, and/or not fully tested and may contain errors that could cause failures or loss of data, be incomplete or contain inaccuracies.  YOU EXPRESSLY ACKNOWLEDGE AND AGREE THAT USE OF THE APPLE SOFTWARE IS AT YOUR SOLE RISK AND THAT THE ENTIRE RISK AS TO SATISFACTORY QUALITY, PERFORMANCE, ACCURACY AND EFFORT IS WITH YOU. EXCEPT FOR THE LIMITED WARRANTY ON MEDIA SET FORTH ABOVE AND TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE APPLE SOFTWARE IS PROVIDED "AS IS", WITH ALL FAULTS AND WITHOUT WARRANTY OF ANY KIND, AND APPLE AND APPLE'S LICENSORS (COLLECTIVELY REFERRED TO AS "APPLE" FOR THE PURPOSES OF SECTIONS 4 AND 5) HEREBY DISCLAIM ALL WARRANTIES AND CONDITIONS WITH RESPECT TO THE APPLE SOFTWARE, EITHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES AND/OR CONDITIONS OF MERCHANTABILITY, OF SATISFACTORY QUALITY, OF FITNESS FOR A PARTICULAR PURPOSE, OF ACCURACY, OF QUIET ENJOYMENT, AND NON-INFRINGEMENT OF THIRD PARTY RIGHTS.  APPLE DOES NOT WARRANT AGAINST INTERFERENCE WITH YOUR ENJOYMENT OF THE APPLE SOFTWARE, THAT THE FUNCTIONS CONTAINED IN THE APPLE SOFTWARE WILL MEET YOUR REQUIREMENTS, THAT THE OPERATION OF THE APPLE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE, OR THAT DEFECTS IN THE APPLE SOFTWARE WILL BE CORRECTED. NO ORAL OR WRITTEN INFORMATION OR ADVICE GIVEN BY APPLE OR AN APPLE AUTHORIZED REPRESENTATIVE SHALL CREATE A WARRANTY.  SHOULD THE APPLE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE ENTIRE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.  SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF IMPLIED WARRANTIES OR LIMITATIONS ON APPLICABLE STATUTORY RIGHTS OF A CONSUMER, SO THE ABOVE EXCLUSION AND LIMITATIONS MAY NOT APPLY TO YOU.  
+3. Disclaimer Of Warranty.  The Apple Software may be "alpha", "beta", "development", pre-release, untested, and/or not fully tested and may contain errors that could cause failures or loss of data, be incomplete or contain inaccuracies.  YOU EXPRESSLY ACKNOWLEDGE AND AGREE THAT USE OF THE APPLE SOFTWARE IS AT YOUR SOLE RISK AND THAT THE ENTIRE RISK AS TO SATISFACTORY QUALITY, PERFORMANCE, ACCURACY AND EFFORT IS WITH YOU. EXCEPT FOR THE LIMITED WARRANTY ON MEDIA SET FORTH ABOVE AND TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE APPLE SOFTWARE IS PROVIDED "AS IS", WITH ALL FAULTS AND WITHOUT WARRANTY OF ANY KIND, AND APPLE AND APPLE'S LICENSORS (COLLECTIVELY REFERRED TO AS "APPLE" FOR THE PURPOSES OF SECTIONS 4 AND 5) HEREBY DISCLAIM ALL WARRANTIES AND CONDITIONS WITH RESPECT TO THE APPLE SOFTWARE, EITHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES AND/OR CONDITIONS OF MERCHANTABILITY, OF SATISFACTORY QUALITY, OF FITNESS FOR A PARTICULAR PURPOSE, OF ACCURACY, OF QUIET ENJOYMENT, AND NON-INFRINGEMENT OF THIRD PARTY RIGHTS.  APPLE DOES NOT WARRANT AGAINST INTERFERENCE WITH YOUR ENJOYMENT OF THE APPLE SOFTWARE, THAT THE FUNCTIONS CONTAINED IN THE APPLE SOFTWARE WILL MEET YOUR REQUIREMENTS, THAT THE OPERATION OF THE APPLE SOFTWARE WILL BE UNINTERRUPTED OR ERROR-FREE, OR THAT DEFECTS IN THE APPLE SOFTWARE WILL BE CORRECTED. NO ORAL OR WRITTEN INFORMATION OR ADVICE GIVEN BY APPLE OR AN APPLE AUTHORIZED REPRESENTATIVE SHALL CREATE A WARRANTY.  SHOULD THE APPLE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE ENTIRE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.  SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF IMPLIED WARRANTIES OR LIMITATIONS ON APPLICABLE STATUTORY RIGHTS OF A CONSUMER, SO THE ABOVE EXCLUSION AND LIMITATIONS MAY NOT APPLY TO YOU.
 
 4. Limitation Of Liability. TO THE EXTENT NOT PROHIBITED BY LAW, IN NO EVENT SHALL APPLE BE LIABLE FOR PERSONAL INJURY, OR ANY INCIDENTAL, SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES WHATSOEVER, INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF PROFITS, LOSS OF DATA, BUSINESS INTERRUPTION OR ANY OTHER COMMERCIAL DAMAGES OR LOSSES, ARISING OUT OF OR RELATED TO YOUR USE OR INABILITY TO USE THE APPLE SOFTWARE, HOWEVER CAUSED, REGARDLESS OF THE THEORY OF LIABILITY (CONTRACT, TORT OR OTHERWISE) AND EVEN IF APPLE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. SOME JURISDICTIONS DO NOT ALLOW THE LIMITATION OF LIABILITY FOR PERSONAL INJURY, OR OF INCIDENTAL OR CONSEQUENTIAL DAMAGES, SO THIS LIMITATION MAY NOT APPLY TO YOU.  In no event shall Apple's total liability to you for all damages (other than as may be required by applicable law in cases involving personal injury) exceed the amount of fifty dollars ($50.00).  The foregoing limitations will apply even if the above stated remedy fails of its essential purpose.
 
-5. Export Control. You may not use or otherwise export or reexport the Apple Product except as authorized by United States law and the laws of the jurisdiction in which the Apple Product was obtained. In particular, but without limitation, the Apple Product may not be exported or re-exported (a) into any U.S. embargoed countries or (b) to anyone on the U.S. Treasury Department's list of Specially Designated Nationals or the U.S. Department of Commerce Denied Person?s List or Entity List.  By using the Apple Product, you represent and warrant that you are not located in any such country or on any such list. 
+5. Export Control. You may not use or otherwise export or reexport the Apple Product except as authorized by United States law and the laws of the jurisdiction in which the Apple Product was obtained. In particular, but without limitation, the Apple Product may not be exported or re-exported (a) into any U.S. embargoed countries or (b) to anyone on the U.S. Treasury Department's list of Specially Designated Nationals or the U.S. Department of Commerce Denied Person?s List or Entity List.  By using the Apple Product, you represent and warrant that you are not located in any such country or on any such list.
 
 6. Government End Users.  The Apple Software and related documentation are "Commercial Items", as that term is defined at 48 C.F.R. ?2.101, consisting of "Commercial Computer Software" and "Commercial Computer Software Documentation", as such terms are used in 48 C.F.R. ?12.212 or 48 C.F.R. ?227.7202, as applicable.  Consistent with 48 C.F.R. ?12.212 or 48 C.F.R. ?227.7202-1through 227.7202-4, as applicable, the Commercial Computer Software and Commercial Computer Software Documentation are being licensed to U.S. Government end users (a) only as Commercial Items and (b) with only those rights as are granted to all other end users pursuant to the terms and conditions herein.  Unpublished-rights reserved under the copyright laws of the United States.
 
-7. Controlling Law and Severability.  This License will be governed by and construed in accordance with the laws of the State of California, as applied to agreements entered into and to be performed entirely within California between California residents. This License shall not be governed by the United Nations Convention on Contracts for the International Sale of Goods, the application of which is expressly excluded. If for any reason a court of competent jurisdiction finds any provision, or portion thereof, to be unenforceable, the remainder of this License shall continue in full force and effect.  
+7. Controlling Law and Severability.  This License will be governed by and construed in accordance with the laws of the State of California, as applied to agreements entered into and to be performed entirely within California between California residents. This License shall not be governed by the United Nations Convention on Contracts for the International Sale of Goods, the application of which is expressly excluded. If for any reason a court of competent jurisdiction finds any provision, or portion thereof, to be unenforceable, the remainder of this License shall continue in full force and effect.
 
 8. Complete Agreement.  This License constitutes the entire agreement between the parties with respect to the use of the Apple Software licensed hereunder and supersedes all prior or contemporaneous understandings regarding such subject matter.  No amendment to or modification of this License will be binding unless in writing and signed by Apple. Any translation of this License is done for local requirements and in the event of a dispute between the English and any non-English versions, the English version of this License shall govern.
 

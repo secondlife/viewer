@@ -38,83 +38,53 @@
 #include "llviewercontrol.h"
 #include "llagent.h"
 
-LLStyleMap::LLStyleMap()
-{
-}
-
-LLStyleMap::~LLStyleMap()
-{
-}
-
-LLStyleMap &LLStyleMap::instance()
-{
-	static LLStyleMap style_map;
-	return style_map;
-}
-
-// This is similar to the [] accessor except that if the entry doesn't already exist,
-// then this will create the entry.
-const LLStyleSP &LLStyleMap::lookupAgent(const LLUUID &source)
+const LLStyle::Params &LLStyleMap::lookupAgent(const LLUUID &source)
 {
 	// Find this style in the map or add it if not.  This map holds links to residents' profiles.
-	if (find(source) == end())
+	if (mMap.find(source) == mMap.end())
 	{
-		LLStyleSP style(new LLStyle);
-		style->setVisible(true);
-		style->setFontName(LLStringUtil::null);
+		LLStyle::Params style_params;
 		if (source != LLUUID::null && source != gAgent.getID() )
 		{
-			style->setColor(gSavedSettings.getColor4("HTMLLinkColor"));
-			std::string link = llformat("secondlife:///app/agent/%s/about",source.asString().c_str());
-			style->setLinkHREF(link);
+			style_params.color.control = "HTMLLinkColor";
+			style_params.link_href = llformat("secondlife:///app/agent/%s/about",source.asString().c_str());
 		}
 		else
 		{
 			// Make the resident's own name white and don't make the name clickable.
-			style->setColor(LLColor4::white);
+			style_params.color = LLColor4::white;
 		}
-		(*this)[source] = style;
+
+		mMap[source] = LLStyle::Params();
 	}
-	return (*this)[source];
+	return mMap[source];
 }
 
 // This is similar to lookupAgent for any generic URL encoded style.
-const LLStyleSP &LLStyleMap::lookup(const LLUUID& id, const std::string& link)
+const LLStyle::Params &LLStyleMap::lookup(const LLUUID& id, const std::string& link)
 {
 	// Find this style in the map or add it if not.
-	iterator iter = find(id);
-	if (iter == end())
+	style_map_t::iterator iter = mMap.find(id);
+	if (iter == mMap.end())
 	{
-		LLStyleSP style(new LLStyle);
-		style->setVisible(true);
-		style->setFontName(LLStringUtil::null);
+		LLStyle::Params style_params;
+
 		if (id != LLUUID::null && !link.empty())
 		{
-			style->setColor(gSavedSettings.getColor4("HTMLLinkColor"));
-			style->setLinkHREF(link);
+			style_params.color.control = "HTMLLinkColor";
+			style_params.link_href = link;
 		}
 		else
-			style->setColor(LLColor4::white);
-		(*this)[id] = style;
+		{
+			style_params.color = LLColor4::white;
+		}
+		mMap[id] = style_params;
 	}
 	else 
 	{
-		LLStyleSP style = (*iter).second;
-		if ( style->getLinkHREF() != link )
-		{
-			style->setLinkHREF(link);
-		}
+		iter->second.link_href = link;
 	}
 
-	return (*this)[id];
+	return mMap[id];
 }
 
-void LLStyleMap::update()
-{
-	for (style_map_t::iterator iter = begin(); iter != end(); ++iter)
-	{
-		LLStyleSP &style = iter->second;
-		// Update the link color in case it has been changed.
-		style->setColor(gSavedSettings.getColor4("HTMLLinkColor"));
-	}
-}

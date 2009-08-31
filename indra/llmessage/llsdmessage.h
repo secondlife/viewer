@@ -131,7 +131,7 @@ private:
         {}
     
         virtual void result(const LLSD& data);
-        virtual void error(U32 status, const std::string& reason, const LLSD& content);
+        virtual void errorWithContent(U32 status, const std::string& reason, const LLSD& content);
     
     private:
         LLEventPumps& mPumps;

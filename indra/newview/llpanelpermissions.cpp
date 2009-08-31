@@ -53,73 +53,64 @@
 #include "llagent.h"
 #include "llstatusbar.h"		// for getBalance()
 #include "lllineeditor.h"
-#include "llradiogroup.h"
 #include "llcombobox.h"
-#include "llfloateravatarinfo.h"
 #include "lluiconstants.h"
 #include "lldbstrings.h"
-#include "llfloatergroupinfo.h"
 #include "llfloatergroups.h"
+#include "llfloaterreg.h"
+#include "llavataractions.h"
 #include "llnamebox.h"
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
+#include "llspinctrl.h"
 #include "roles_constants.h"
+#include "llgroupactions.h"
 
 ///----------------------------------------------------------------------------
 /// Class llpanelpermissions
 ///----------------------------------------------------------------------------
 
 // Default constructor
-LLPanelPermissions::LLPanelPermissions(const std::string& title) :
-	LLPanel(title)
+LLPanelPermissions::LLPanelPermissions() :
+	LLPanel()
 {
 	setMouseOpaque(FALSE);
 }
 
 BOOL LLPanelPermissions::postBuild()
 {
-	this->childSetCommitCallback("Object Name",LLPanelPermissions::onCommitName,this);
-	this->childSetPrevalidate("Object Name",LLLineEditor::prevalidatePrintableNotPipe);
-	this->childSetCommitCallback("Object Description",LLPanelPermissions::onCommitDesc,this);
-	this->childSetPrevalidate("Object Description",LLLineEditor::prevalidatePrintableNotPipe);
+	childSetCommitCallback("Object Name",LLPanelPermissions::onCommitName,this);
+	childSetPrevalidate("Object Name",LLLineEditor::prevalidatePrintableNotPipe);
+	childSetCommitCallback("Object Description",LLPanelPermissions::onCommitDesc,this);
+	childSetPrevalidate("Object Description",LLLineEditor::prevalidatePrintableNotPipe);
 
 	
-	this->childSetAction("button owner profile",LLPanelPermissions::onClickOwner,this);
-	this->childSetAction("button creator profile",LLPanelPermissions::onClickCreator,this);
+	childSetAction("button owner profile",LLPanelPermissions::onClickOwner,this);
+	childSetAction("button creator profile",LLPanelPermissions::onClickCreator,this);
 
-	this->childSetAction("button set group",LLPanelPermissions::onClickGroup,this);
+	getChild<LLUICtrl>("button set group")->setCommitCallback(boost::bind(&LLPanelPermissions::onClickGroup,this));
 
-	this->childSetCommitCallback("checkbox share with group",LLPanelPermissions::onCommitGroupShare,this);
+	childSetCommitCallback("checkbox share with group",LLPanelPermissions::onCommitGroupShare,this);
 
-	this->childSetAction("button deed",LLPanelPermissions::onClickDeedToGroup,this);
+	childSetAction("button deed",LLPanelPermissions::onClickDeedToGroup,this);
 
-	this->childSetCommitCallback("checkbox allow everyone move",LLPanelPermissions::onCommitEveryoneMove,this);
+	childSetCommitCallback("checkbox allow everyone move",LLPanelPermissions::onCommitEveryoneMove,this);
 
-	this->childSetCommitCallback("checkbox allow everyone copy",LLPanelPermissions::onCommitEveryoneCopy,this);
+	childSetCommitCallback("checkbox allow everyone copy",LLPanelPermissions::onCommitEveryoneCopy,this);
 	
-	this->childSetCommitCallback("checkbox for sale",LLPanelPermissions::onCommitSaleInfo,this);
+	childSetCommitCallback("checkbox for sale",LLPanelPermissions::onCommitSaleInfo,this);
 
-	this->childSetCommitCallback("Edit Cost",LLPanelPermissions::onCommitSaleInfo,this);
-	this->childSetPrevalidate("Edit Cost",LLLineEditor::prevalidateNonNegativeS32);
+	childSetCommitCallback("sale type",LLPanelPermissions::onCommitSaleType,this);
 
-	this->childSetCommitCallback("sale type",LLPanelPermissions::onCommitSaleType,this);
+	childSetCommitCallback("Edit Cost", LLPanelPermissions::onCommitSaleInfo, this);
 	
-	this->childSetCommitCallback("checkbox next owner can modify",LLPanelPermissions::onCommitNextOwnerModify,this);
-	this->childSetCommitCallback("checkbox next owner can copy",LLPanelPermissions::onCommitNextOwnerCopy,this);
-	this->childSetCommitCallback("checkbox next owner can transfer",LLPanelPermissions::onCommitNextOwnerTransfer,this);
-	this->childSetCommitCallback("clickaction",LLPanelPermissions::onCommitClickAction,this);
-	this->childSetCommitCallback("search_check",LLPanelPermissions::onCommitIncludeInSearch,this);
+	childSetCommitCallback("checkbox next owner can modify",LLPanelPermissions::onCommitNextOwnerModify,this);
+	childSetCommitCallback("checkbox next owner can copy",LLPanelPermissions::onCommitNextOwnerCopy,this);
+	childSetCommitCallback("checkbox next owner can transfer",LLPanelPermissions::onCommitNextOwnerTransfer,this);
+	childSetCommitCallback("clickaction",LLPanelPermissions::onCommitClickAction,this);
+	childSetCommitCallback("search_check",LLPanelPermissions::onCommitIncludeInSearch,this);
 	
-	LLTextBox* group_rect_proxy = getChild<LLTextBox>("Group Name Proxy");
-	if(group_rect_proxy )
-	{
-		mLabelGroupName = new LLNameBox("Group Name", group_rect_proxy->getRect());
-		addChild(mLabelGroupName);
-	}
-	else
-	{
-		mLabelGroupName = NULL;
-	}
+	mLabelGroupName = getChild<LLNameBox>("Group Name Proxy");
 
 	return TRUE;
 }
@@ -137,7 +128,7 @@ void LLPanelPermissions::refresh()
 	if(BtnDeedToGroup)
 	{	
 		std::string deedText;
-		if (gSavedSettings.getWarning("DeedObject"))
+		if (gWarningSettings.getBOOL("DeedObject"))
 		{
 			deedText = getString("text deed continued");
 		}
@@ -220,12 +211,9 @@ void LLPanelPermissions::refresh()
 		childSetValue("search_check", FALSE);
 		childSetEnabled("search_check", false);
 		
-		LLRadioGroup*	RadioSaleType = getChild<LLRadioGroup>("sale type");
-		if(RadioSaleType)
-		{
-			RadioSaleType->setSelectedIndex(-1);
-			RadioSaleType->setEnabled(FALSE);
-		}
+		LLComboBox*	combo_sale_type = getChild<LLComboBox>("sale type");
+		combo_sale_type->setValue(LLSaleInfo::FS_COPY);
+		combo_sale_type->setEnabled(FALSE);
 		
 		childSetEnabled("Cost",false);
 		childSetText("Cost",getString("Cost Default"));
@@ -256,7 +244,7 @@ void LLPanelPermissions::refresh()
 	BOOL is_perm_modify = (LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
 							&& LLSelectMgr::getInstance()->selectGetRootsModify()) 
 							|| LLSelectMgr::getInstance()->selectGetModify();
-	const LLView* keyboard_focus_view = gFocusMgr.getKeyboardFocus();
+	const LLFocusableElement* keyboard_focus_view = gFocusMgr.getKeyboardFocus();
 	S32 string_index = 0;
 	std::string MODIFY_INFO_STRINGS[] =
 	{
@@ -429,22 +417,22 @@ void LLPanelPermissions::refresh()
 			childSetText("Cost",getString("Cost Default"));
 		}
 		
-		LLLineEditor *editPrice = getChild<LLLineEditor>("Edit Cost");
-		if(keyboard_focus_view != editPrice)
+		LLSpinCtrl *edit_price = getChild<LLSpinCtrl>("Edit Cost");
+		if(!edit_price->hasFocus())
 		{
 			// If the sale price is mixed then set the cost to MIXED, otherwise
 			// set to the actual cost.
 			if (num_for_sale > 0 && is_for_sale_mixed)
 			{
-				childSetText("Edit Cost",getString("Sale Mixed"));
+				edit_price->setTentative(TRUE);
 			}
 			else if (num_for_sale > 0 && is_sale_price_mixed)
 			{
-				childSetText("Edit Cost",getString("Cost Mixed"));
+				edit_price->setTentative(TRUE);
 			}
 			else 
 			{
-				childSetText("Edit Cost",llformat("%d",individual_sale_price));
+				edit_price->setValue(individual_sale_price);
 			}
 		}
 		// The edit fields are only enabled if you can sell this object
@@ -754,20 +742,17 @@ void LLPanelPermissions::refresh()
 	BOOL valid_sale_info = LLSelectMgr::getInstance()->selectGetSaleInfo(sale_info);
 	LLSaleInfo::EForSale sale_type = sale_info.getSaleType();
 
-	LLRadioGroup* RadioSaleType = getChild<LLRadioGroup>("sale type");
-	if(RadioSaleType)
+	LLComboBox* combo_sale_type = getChild<LLComboBox>("sale type");
+	if (valid_sale_info)
 	{
-		if (valid_sale_info)
-		{
-			RadioSaleType->setSelectedIndex((S32)sale_type - 1);
-			RadioSaleType->setTentative(FALSE); // unfortunately this doesn't do anything at the moment.
-		}
-		else
-		{
-			// default option is sell copy, determined to be safest
-			RadioSaleType->setSelectedIndex((S32)LLSaleInfo::FS_COPY - 1);
-			RadioSaleType->setTentative(TRUE); // unfortunately this doesn't do anything at the moment.
-		}
+		combo_sale_type->setValue(sale_type == LLSaleInfo::FS_NOT ? LLSaleInfo::FS_COPY : sale_type);
+		combo_sale_type->setTentative(FALSE); // unfortunately this doesn't do anything at the moment.
+	}
+	else
+	{
+		// default option is sell copy, determined to be safest
+		combo_sale_type->setValue(LLSaleInfo::FS_COPY);
+		combo_sale_type->setTentative(TRUE); // unfortunately this doesn't do anything at the moment.
 	}
 
 	childSetValue("checkbox for sale", num_for_sale != 0);
@@ -823,7 +808,7 @@ void LLPanelPermissions::onClickCreator(void *data)
 {
 	LLPanelPermissions *self = (LLPanelPermissions *)data;
 
-	LLFloaterAvatarInfo::showFromObject(self->mCreatorID);
+	LLAvatarActions::showProfile(self->mCreatorID);
 }
 
 // static
@@ -835,44 +820,43 @@ void LLPanelPermissions::onClickOwner(void *data)
 	{
 		LLUUID group_id;
 		LLSelectMgr::getInstance()->selectGetGroup(group_id);
-		LLFloaterGroupInfo::showFromUUID(group_id);
+		LLGroupActions::show(group_id);
 	}
 	else
 	{
-		LLFloaterAvatarInfo::showFromObject(self->mOwnerID);
+		LLAvatarActions::showProfile(self->mOwnerID);
 	}
 }
 
-void LLPanelPermissions::onClickGroup(void* data)
+void LLPanelPermissions::onClickGroup()
 {
-	LLPanelPermissions* panelp = (LLPanelPermissions*)data;
 	LLUUID owner_id;
 	std::string name;
 	BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, name);
-	LLFloater* parent_floater = gFloaterView->getParentFloater(panelp);
+	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
 
 	if(owners_identical && (owner_id == gAgent.getID()))
 	{
-		LLFloaterGroupPicker* fg;
-		fg = LLFloaterGroupPicker::showInstance(LLSD(gAgent.getID()));
-		fg->setSelectCallback( cbGroupID, data );
-
-		if (parent_floater)
+		LLFloaterGroupPicker* fg = 	LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
+		if (fg)
 		{
-			LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, fg);
-			fg->setOrigin(new_rect.mLeft, new_rect.mBottom);
-			parent_floater->addDependentFloater(fg);
+			fg->setSelectGroupCallback( boost::bind(&LLPanelPermissions::cbGroupID, this, _1) );
+
+			if (parent_floater)
+			{
+				LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, fg);
+				fg->setOrigin(new_rect.mLeft, new_rect.mBottom);
+				parent_floater->addDependentFloater(fg);
+			}
 		}
 	}
 }
 
-// static
-void LLPanelPermissions::cbGroupID(LLUUID group_id, void* userdata)
+void LLPanelPermissions::cbGroupID(LLUUID group_id)
 {
-	LLPanelPermissions* self = (LLPanelPermissions*)userdata;
-	if(self->mLabelGroupName)
+	if(mLabelGroupName)
 	{
-		self->mLabelGroupName->setNameID(group_id, TRUE);
+		mLabelGroupName->setNameID(group_id, TRUE);
 	}
 	LLSelectMgr::getInstance()->sendGroup(group_id);
 }
@@ -1006,44 +990,14 @@ void LLPanelPermissions::setAllSaleInfo()
 	// Set the sale type if the object(s) are for sale.
 	if(checkPurchase && checkPurchase->get())
 	{
-		LLRadioGroup* RadioSaleType = getChild<LLRadioGroup>("sale type");
-		if(RadioSaleType)
-		{
-			switch(RadioSaleType->getSelectedIndex())
-			{
-			case 0:
-				sale_type = LLSaleInfo::FS_ORIGINAL;
-				break;
-			case 1:
-				sale_type = LLSaleInfo::FS_COPY;
-				break;
-			case 2:
-				sale_type = LLSaleInfo::FS_CONTENTS;
-				break;
-			default:
-				sale_type = LLSaleInfo::FS_COPY;
-				break;
-			}
-		}
+		sale_type = static_cast<LLSaleInfo::EForSale>(getChild<LLComboBox>("sale type")->getValue().asInteger());
 	}
 
 	S32 price = -1;
 	
-	LLLineEditor *editPrice = getChild<LLLineEditor>("Edit Cost");
-	if (editPrice)
-	{
-		// Don't extract the price if it's labeled as MIXED or is empty.
-		const std::string& editPriceString = editPrice->getText();
-		if (editPriceString != getString("Cost Mixed") && editPriceString != getString("Sale Mixed") &&
-			!editPriceString.empty())
-		{
-			price = atoi(editPriceString.c_str());
-		}
-		else
-		{
-			price = DEFAULT_PRICE;
-		}
-	}
+	LLSpinCtrl *edit_price = getChild<LLSpinCtrl>("Edit Cost");
+	price = (edit_price->getTentative()) ? DEFAULT_PRICE : edit_price->getValue().asInteger();
+
 	// If somehow an invalid price, turn the sale off.
 	if (price < 0)
 		sale_type = LLSaleInfo::FS_NOT;

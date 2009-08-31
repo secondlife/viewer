@@ -86,6 +86,7 @@ void LLCrashLoggerText::updateApplication(const std::string& message)
 LLCrashLogger::LLCrashLogger() :
 	mCrashBehavior(CRASH_BEHAVIOR_ASK),
 	mCrashInPreviousExec(false),
+	mCrashSettings("CrashSettings"),
 	mSentCrashLogs(false),
 	mCrashHost("")
 {

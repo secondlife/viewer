@@ -42,12 +42,11 @@
 #include "llwlparammanager.h"
 #include "llsky.h"
 #include "llvowlsky.h"
-#include "llagent.h"
 #include "llviewerregion.h"
 #include "llface.h"
 #include "llrender.h"
 
-LLPointer<LLImageGL> LLDrawPoolWLSky::sCloudNoiseTexture = NULL;
+LLPointer<LLViewerTexture> LLDrawPoolWLSky::sCloudNoiseTexture = NULL;
 
 LLPointer<LLImageRaw> LLDrawPoolWLSky::sCloudNoiseRawImage = NULL;
 
@@ -71,7 +70,7 @@ LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 
 	cloudNoiseFile->decode(sCloudNoiseRawImage, 0.0f);
 
-	LLImageGL::create(sCloudNoiseTexture, sCloudNoiseRawImage, TRUE);
+	sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
 
 	LLWLParamManager::instance()->propagateParameters();
 }
@@ -83,7 +82,7 @@ LLDrawPoolWLSky::~LLDrawPoolWLSky()
 	sCloudNoiseRawImage = NULL;
 }
 
-LLViewerImage *LLDrawPoolWLSky::getDebugTexture()
+LLViewerTexture *LLDrawPoolWLSky::getDebugTexture()
 {
 	return NULL;
 }
@@ -224,7 +223,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 	LLFace * face = gSky.mVOSkyp->mFace[LLVOSky::FACE_SUN];
 	if (gSky.mVOSkyp->getSun().getDraw() && face->getGeomCount())
 	{
-		LLImageGL * tex  = face->getTexture();
+		LLViewerTexture * tex  = face->getTexture();
 		gGL.getTexUnit(0)->bind(tex);
 		LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());
 		LLFacePool::LLOverrideFaceColor color_override(this, color);
@@ -239,8 +238,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		// *NOTE: even though we already bound this texture above for the
 		// stars register combiners, we bind again here for defensive reasons,
 		// since LLImageGL::bind detects that it's a noop, and optimizes it out.
-		LLImageGL * tex  = face->getTexture();
-		gGL.getTexUnit(0)->bind(tex);
+		gGL.getTexUnit(0)->bind(face->getTexture());
 		LLColor4 color(gSky.mVOSkyp->getMoon().getInterpColor());
 		F32 a = gSky.mVOSkyp->getMoon().getDirection().mV[2];
 		if (a > 0.f)
@@ -261,7 +259,7 @@ void LLDrawPoolWLSky::render(S32 pass)
 	{
 		return;
 	}
-	LLFastTimer ftm(LLFastTimer::FTM_RENDER_WL_SKY);
+	LLFastTimer ftm(FTM_RENDER_WL_SKY);
 
 	const F32 camHeightLocal = LLWLParamManager::instance()->getDomeOffset() * LLWLParamManager::instance()->getDomeRadius();
 
@@ -280,9 +278,8 @@ void LLDrawPoolWLSky::render(S32 pass)
 
 		// *NOTE: have to bind a texture here since register combiners blending in
 		// renderStars() requires something to be bound and we might as well only
-		// bind the moon's texture once.
-		LLImageGL * tex  = gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture();
-		gGL.getTexUnit(0)->bind(tex);
+		// bind the moon's texture once.		
+		gGL.getTexUnit(0)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture());
 
 		renderHeavenlyBodies();
 
@@ -306,7 +303,7 @@ LLDrawPoolWLSky *LLDrawPoolWLSky::instancePool()
 	return new LLDrawPoolWLSky();
 }
 
-LLViewerImage* LLDrawPoolWLSky::getTexture()
+LLViewerTexture* LLDrawPoolWLSky::getTexture()
 {
 	return NULL;
 }
@@ -324,5 +321,5 @@ void LLDrawPoolWLSky::cleanupGL()
 //static
 void LLDrawPoolWLSky::restoreGL()
 {
-	LLImageGL::create(sCloudNoiseTexture, sCloudNoiseRawImage, TRUE);
+	sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
 }

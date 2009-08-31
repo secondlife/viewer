@@ -45,16 +45,16 @@ class LLModalDialog;
 class LLModalDialog : public LLFloater
 {
 public:
-	LLModalDialog( const std::string& title, S32 width, S32 height, BOOL modal = true );
+	LLModalDialog( const LLSD& key, BOOL modal = true );
 	/*virtual*/ ~LLModalDialog();
-
-	/*virtual*/ void	open();	/* Flawfinder: ignore */
+	
+	/*virtual*/ BOOL 	postBuild();
+	
+	/*virtual*/ void	openFloater(const LLSD& key = LLSD());
+	/*virtual*/ void	onOpen(const LLSD& key);
 	
 	/*virtual*/ void 	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	
-	/*virtual*/ void	startModal();
-	/*virtual*/ void	stopModal();
-
 	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
@@ -63,12 +63,11 @@ public:
 	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask );
 
-	/*virtual*/ void	onClose(bool app_quitting);
-
 	/*virtual*/ void	setVisible(BOOL visible);
 	/*virtual*/ void	draw();
 
-	BOOL isModal() const { return mModal; }
+	BOOL 			isModal() const { return mModal; }
+	void			stopModal();
 
 	static void		onAppFocusLost();
 	static void		onAppFocusGained();
@@ -79,6 +78,7 @@ protected:
 	void			centerOnScreen();
 
 private:
+	
 	LLFrameTimer 	mVisibleTime;
 	const BOOL		mModal;
 

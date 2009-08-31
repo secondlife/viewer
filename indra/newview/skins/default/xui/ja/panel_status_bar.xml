@@ -37,6 +37,6 @@
 	<text name="bandwidth_tooltip">
 		帯域幅
 	</text>
-	<line_editor label="検索" name="search_editor" tool_tip="Second Lifeを検索"/>
-	<button name="search_btn" tool_tip="Second Lifeを検索"/>
+	<line_editor label="検索" name="search_editor" tool_tip="[SECOND_LIFE]を検索"/>
+	<button name="search_btn" tool_tip="[SECOND_LIFE]を検索"/>
 </panel>

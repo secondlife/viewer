@@ -47,6 +47,7 @@ class LLInventoryItem;
 class LLInventoryCategory;
 class LLIMSpeakerMgr;
 class LLPanelActiveSpeakers;
+class LLPanelChatControlPanel;
 
 class LLVoiceChannel : public LLVoiceClientStatusObserver
 {
@@ -77,6 +78,7 @@ public:
 	virtual void getChannelInfo();
 	virtual BOOL isActive();
 	virtual BOOL callStarted();
+	const std::string& getSessionName() const { return mSessionName; }
 
 	const LLUUID getSessionID() { return mSessionID; }
 	EState getState() { return mState; }
@@ -94,6 +96,7 @@ public:
 
 protected:
 	virtual void setState(EState state);
+	void toggleCallWindowIfNeeded(EState state);
 	void setURI(std::string uri);
 
 	std::string	mURI;
@@ -185,11 +188,7 @@ public:
 	LLFloaterIMPanel(const std::string& session_label,
 					 const LLUUID& session_id,
 					 const LLUUID& target_id,
-					 EInstantMessage dialog);
-	LLFloaterIMPanel(const std::string& session_label,
-					 const LLUUID& session_id,
-					 const LLUUID& target_id,
-					 const LLDynamicArray<LLUUID>& ids,
+					 const std::vector<LLUUID>& ids,
 					 EInstantMessage dialog);
 	virtual ~LLFloaterIMPanel();
 
@@ -197,12 +196,13 @@ public:
 
 	// Check typing timeout timer.
 	/*virtual*/ void draw();
-	/*virtual*/ void onClose(bool app_quitting = FALSE);
-	/*virtual*/ void onVisibilityChange(BOOL new_visibility);
+
+	void onClose();
+	void onVisibilityChange(const LLSD& new_visibility);
 
 	// add target ids to the session. 
 	// Return TRUE if successful, otherwise FALSE.
-	BOOL inviteToSession(const LLDynamicArray<LLUUID>& agent_ids);
+	BOOL inviteToSession(const std::vector<LLUUID>& agent_ids);
 
 	void addHistoryLine(const std::string &utf8msg, 
 						const LLColor4& color = LLColor4::white, 
@@ -214,7 +214,6 @@ public:
 
 	void selectAll();
 	void selectNone();
-	void setVisible(BOOL b);
 
 	S32 getNumUnreadMessages() { return mNumUnreadMessages; }
 
@@ -246,11 +245,13 @@ public:
 
 	const LLUUID& getSessionID() const { return mSessionUUID; }
 	const LLUUID& getOtherParticipantID() const { return mOtherParticipantUUID; }
+	LLIMSpeakerMgr* getSpeakerManager() const { return mSpeakers; }
 	void updateSpeakersList(const LLSD& speaker_updates);
 	void processSessionUpdate(const LLSD& update);
 	void setSpeakers(const LLSD& speaker_list);
 	LLVoiceChannel* getVoiceChannel() { return mVoiceChannel; }
 	EInstantMessage getDialogType() const { return mDialog; }
+	void setDialogType(EInstantMessage dialog) { mDialog = dialog; }
 
 	void requestAutoConnect();
 
@@ -270,9 +271,6 @@ public:
 	static bool onConfirmForceCloseError(const LLSD& notification, const LLSD& response);
 
 private:
-	// called by constructors
-	void init(const std::string& session_label);
-
 	// Called by UI methods.
 	void sendMsg();
 
@@ -318,7 +316,7 @@ private:
 	//   inventory folder ==> first target id in list
 	//   911 ==> sender
 	LLUUID mOtherParticipantUUID;
-	LLDynamicArray<LLUUID> mSessionInitialTargetIDs;
+	std::vector<LLUUID> mSessionInitialTargetIDs;
 
 	EInstantMessage mDialog;
 
@@ -360,10 +358,78 @@ private:
 	LLFrameTimer mLastKeystrokeTimer;
 
 	void disableWhileSessionStarting();
-
-	typedef std::map<LLUUID, LLStyleSP> styleMap;
-	static styleMap mStyleMap;
 };
+
+
+// Individual IM window that appears at the bottom of the screen,
+// optionally "docked" to the bottom tray.
+class LLIMFloater : public LLFloater
+{
+public:
+	LLIMFloater(const LLUUID& session_id);
+
+	virtual ~LLIMFloater();
+	
+	// LLView overrides
+	/*virtual*/ BOOL postBuild();
+	
+	// LLView overrides for drawing dock tongue
+	/*virtual*/ 
+	void draw();
+
+	// Floater should close when user clicks away to other UI area,
+	// hence causing focus loss.
+	/*virtual*/ void onFocusLost();
+
+	// LLFloater overrides
+	/*virtual*/ void setDocked(bool docked,  bool pop_on_undock = true);
+
+	// Make IM conversion visible and update the message history
+	static LLIMFloater* show(const LLUUID& session_id);
+
+	// Toggle panel specified by session_id
+	// Returns true iff panel became visible
+	static bool toggle(const LLUUID& session_id);
+
+	// get new messages from LLIMModel
+	void updateMessages();
+	static void onSendMsg( LLUICtrl*, void*);
+	void sendMsg();
+
+	// callback for LLIMModel on new messages
+	// route to specific floater if it is visible
+	static void newIMCallback(const LLSD& data);
+
+    // called when docked floater's position has been set by chiclet
+	void setPositioned(bool b) { mPositioned = b; };
+
+	
+
+private:
+	
+	static void		onInputEditorFocusReceived( LLFocusableElement* caller, void* userdata );
+	static void		onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
+	static void		onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
+	void			setTyping(BOOL typing);
+	void			onSlide();
+	static void*	createPanelIMControl(void* userdata);
+	static void*	createPanelGroupControl(void* userdata);
+	
+	LLPanelChatControlPanel* mControlPanel;
+	LLUUID mSessionID;
+	S32 mLastMessageIndex;
+	// username of last user who added text to this conversation, used to
+	// suppress duplicate username divider bars
+	std::string mLastFromName;
+	EInstantMessage mDialog;
+	LLUUID mOtherParticipantUUID;
+	LLViewerTextEditor* mHistoryEditor;
+	LLLineEditor* mInputEditor;
+	bool mPositioned;
+	LLUIImagePtr mDockTongue;
+};
+
+
 
 
 #endif  // LL_IMPANEL_H

@@ -181,7 +181,7 @@
 		<menu_item_call label="Sæt scripts til &apos; Not running&apos; i valgte objekter" name="Set Scripts to Not Running in Selection"/>
 	</menu>
 	<menu label="Hjælp" name="Help">
-		<menu_item_call label="Second Life Hjælp" name="Second Life Help"/>
+		<menu_item_call label="[SECOND_LIFE] Hjælp" name="Second Life Help"/>
 		<menu_item_call label="Tutorial" name="Tutorial"/>
 		<menu_item_separator label="-----------" name="separator"/>
 		<menu_item_call label="Officiel Linden Blog..." name="Official Linden Blog..."/>
@@ -193,8 +193,8 @@
 		<menu_item_call label="Lag meter" name="Lag Meter"/>
 		<menu_item_separator label="-----------" name="separator7"/>
 		<menu label="Fejlrapport" name="Bug Reporting">
-			<menu_item_call label="Second Life sagsstyring..." name="Public Issue Tracker..."/>
-			<menu_item_call label="Hjælp til Second Life sagsstyring..." name="Publc Issue Tracker Help..."/>
+			<menu_item_call label="[SECOND_LIFE] sagsstyring..." name="Public Issue Tracker..."/>
+			<menu_item_call label="Hjælp til [SECOND_LIFE] sagsstyring..." name="Publc Issue Tracker Help..."/>
 			<menu_item_separator label="-----------" name="separator7"/>
 			<menu_item_call label="Om fejlrapportering..." name="Bug Reporing 101..."/>
 			<menu_item_call label="Anmeld sikkerhedshændelser..." name="Security Issues..."/>
@@ -202,6 +202,6 @@
 			<menu_item_separator label="-----------" name="separator9"/>
 			<menu_item_call label="Anmeld fejl..." name="Report Bug..."/>
 		</menu>
-		<menu_item_call label="Om Second Life..." name="About Second Life..."/>
+		<menu_item_call label="Om [APP_NAME]..." name="About Second Life..."/>
 	</menu>
 </menu_bar>

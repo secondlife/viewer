@@ -173,7 +173,7 @@ BOOL LLXform::setParent(LLXform* parent)
 		{
 			if (cur_par == this)
 			{
-				llwarns << "LLXform::setParent Creating loop when setting parent!" << llendl;
+				//llwarns << "LLXform::setParent Creating loop when setting parent!" << llendl;
 				return FALSE;
 			}
 			cur_par = cur_par->mParent;

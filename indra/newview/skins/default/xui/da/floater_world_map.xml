@@ -28,14 +28,10 @@
 	<check_box label="Mature" name="event_mature_chk"/>
 	<check_box label="Adult" name="event_adult_chk"/>
 	<combo_box label="Venner online" name="friend combo" tool_tip="Ven der skal vises på kortet">
-		<combo_item name="none_selected">
-			Venner online
-		</combo_item>
+		<combo_box.item name="none_selected" label="Venner online" />
 	</combo_box>
 	<combo_box label="Landemærker" name="landmark combo" tool_tip="Landemærke der skal vises på kortet">
-		<combo_item name="none_selected">
-			Landemærker
-		</combo_item>
+		<combo_box.item name="none_selected" label="Landemærker" />
 	</combo_box>
 	<line_editor label="Søg på region navn" name="location" tool_tip="Skriv navnet på en region"/>
 	<button label="Søg" name="DoSearch" tool_tip="Søg efter en region"/>
@@ -56,6 +52,6 @@
 	<button label="Vis destination" label_selected="Vis destination" name="Show Destination" tool_tip="Centrér kortet på valgte lokation"/>
 	<button label="Slet" label_selected="Slet" name="Clear" tool_tip="Stop søg"/>
 	<button label="Vis min position" label_selected="Vis min position" name="Show My Location" tool_tip="Centrer kortet på din avatars lokation"/>
-	<button label="Kopiér SLURL til udklipsholder" name="copy_slurl" tool_tip="Kopierer den nuværende lokation som et SLURL, så det kan bruges på nettet."/>
+	<button label="Kopiér SLurl til udklipsholder" name="copy_slurl" tool_tip="Kopierer den nuværende lokation som et SLurl, så det kan bruges på nettet."/>
 	<slider label="Zoom" name="zoom slider"/>
 </floater>

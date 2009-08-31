@@ -44,7 +44,7 @@ class LLScriptLibData;
 class LLScriptLibraryFunction
 {
 public:
-	LLScriptLibraryFunction(F32 eu, F32 st, void (*exec_func)(LLScriptLibData *, LLScriptLibData *, const LLUUID &), const char *name, const char *ret_type, const char *args, const char *desc, BOOL god_only = FALSE);
+	LLScriptLibraryFunction(F32 eu, F32 st, void (*exec_func)(LLScriptLibData *, LLScriptLibData *, const LLUUID &), const char *name, const char *ret_type, const char *args, BOOL god_only = FALSE);
 	~LLScriptLibraryFunction();
 
 	F32  mEnergyUse;
@@ -53,7 +53,6 @@ public:
 	const char *mName;
 	const char *mReturnType;
 	const char *mArgs;
-	const char *mDesc;
 	BOOL mGodOnly;
 };
 
@@ -65,11 +64,10 @@ public:
 
 	void init();
 
-	void addFunction(LLScriptLibraryFunction *func);
+	void addFunction(F32 eu, F32 st, void (*exec_func)(LLScriptLibData *, LLScriptLibData *, const LLUUID &), const char *name, const char *ret_type, const char *args, BOOL god_only = FALSE);
 	void assignExec(const char *name, void (*exec_func)(LLScriptLibData *, LLScriptLibData *, const LLUUID &));
 
-	S32						mNextNumber;
-	LLScriptLibraryFunction	**mFunctions;
+	std::vector<LLScriptLibraryFunction>	mFunctions;
 };
 
 extern LLScriptLibrary gScriptLibrary;

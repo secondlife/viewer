@@ -50,6 +50,7 @@ public:
 	   (i.e. X11/Linux). */
 
 	void		copyFromSubstring(const LLWString &copy_from, S32 pos, S32 len, const LLUUID& source_id = LLUUID::null );
+	void		copyFromString(const LLWString &copy_from, const LLUUID& source_id = LLUUID::null );
 	BOOL		canPasteString() const;
 	const LLWString&	getPasteWString(LLUUID* source_id = NULL);
 

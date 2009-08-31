@@ -1,3 +1,4 @@
+
 # -*- cmake -*-
 
 # cmake_minimum_required should appear before any
@@ -42,7 +43,6 @@ add_subdirectory(${LIBS_OPEN_PREFIX}llimage)
 add_subdirectory(${LIBS_OPEN_PREFIX}llimagej2coj)
 add_subdirectory(${LIBS_OPEN_PREFIX}llinventory)
 add_subdirectory(${LIBS_OPEN_PREFIX}llmath)
-add_subdirectory(${LIBS_OPEN_PREFIX}llmedia)
 add_subdirectory(${LIBS_OPEN_PREFIX}llmessage)
 add_subdirectory(${LIBS_OPEN_PREFIX}llprimitive)
 add_subdirectory(${LIBS_OPEN_PREFIX}llrender)
@@ -63,11 +63,22 @@ endif (WINDOWS AND EXISTS ${LIBS_CLOSED_DIR}copy_win_scripts)
 add_custom_target(viewer)
 if (VIEWER)
   add_subdirectory(${LIBS_OPEN_PREFIX}llcrashlogger)
+  add_subdirectory(${LIBS_OPEN_PREFIX}llplugin)
   add_subdirectory(${LIBS_OPEN_PREFIX}llui)
+  add_subdirectory(${LIBS_OPEN_PREFIX}llxuixml)
+
+  # viewer media plugins
+  add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
+
+  # llplugin testbed code (is this the right way to include it?)
+  if (NOT LINUX)
+    add_subdirectory(${VIEWER_PREFIX}test_apps/llplugintest)
+  endif (NOT LINUX)
 
   if (LINUX)
     add_subdirectory(${VIEWER_PREFIX}linux_crash_logger)
-    add_dependencies(viewer linux-crash-logger-strip-target)
+    add_subdirectory(${VIEWER_PREFIX}linux_updater)
+    add_dependencies(viewer linux-crash-logger-strip-target linux-updater)
   elseif (DARWIN)
     add_subdirectory(${VIEWER_PREFIX}mac_crash_logger)
     add_subdirectory(${VIEWER_PREFIX}mac_updater)
@@ -110,3 +121,7 @@ if (SERVER)
     add_subdirectory(${SERVER_PREFIX}tools)
   endif (WINDOWS)
 endif (SERVER)
+
+# Define after the custom viewer and server targets are created so individual
+# apps can add themselves as dependencies
+add_subdirectory(${INTEGRATION_TESTS_PREFIX}integration_tests)

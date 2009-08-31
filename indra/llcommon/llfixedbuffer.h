@@ -38,14 +38,14 @@
 #include <string>
 #include "llstring.h"
 #include "llthread.h"
+#include "llerrorcontrol.h"
 
-// Fixed size buffer for console output and other things.
-
-class LLFixedBuffer
+//  fixed buffer implementation
+class LLFixedBuffer : public LLLineBuffer
 {
 public:
 	LLFixedBuffer(const U32 max_lines = 20);
-	virtual ~LLFixedBuffer();
+	~LLFixedBuffer();
 
 	LLTimer	mTimer;
 	U32		mMaxLines;
@@ -53,22 +53,18 @@ public:
 	std::deque<F32>			mAddTimes;
 	std::deque<S32>			mLineLengths;
 
-	void clear(); // Clear the buffer, and reset it.
+	/*virtual*/ void clear(); // Clear the buffer, and reset it.
 
-	//do not make these two "virtual"
-	void addLine(const std::string& utf8line);
-	void addLine(const LLWString& line);
+	/*virtual*/ void addLine(const std::string& utf8line);
 
-	// Get lines currently in the buffer, up to max_size chars, max_length lines
-	char *getLines(U32 max_size = 0, U32 max_length = 0); 
 	void setMaxLines(S32 max_lines);
+	
 protected:
-	virtual void removeExtraLines();
+	void removeExtraLines();
+	void addWLine(const LLWString& line);
 
 protected:
 	LLMutex mMutex ;
 };
-
-const U32 FIXED_BUF_MAX_LINE_LEN = 255; // Not including termnating 0
 
 #endif //LL_FIXED_BUFFER_H

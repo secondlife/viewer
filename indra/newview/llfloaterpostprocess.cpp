@@ -36,6 +36,7 @@
 
 #include "llsliderctrl.h"
 #include "llcheckboxctrl.h"
+#include "llcombobox.h"
 #include "lluictrlfactory.h"
 #include "llviewerdisplay.h"
 #include "llpostprocess.h"
@@ -44,13 +45,19 @@
 #include "llviewerwindow.h"
 
 
-LLFloaterPostProcess* LLFloaterPostProcess::sPostProcess = NULL;
-
-
-LLFloaterPostProcess::LLFloaterPostProcess() : LLFloater(std::string("Post-Process Floater"))
+LLFloaterPostProcess::LLFloaterPostProcess(const LLSD& key)
+  : LLFloater(key)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_post_process.xml");
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_post_process.xml");
+}
 
+LLFloaterPostProcess::~LLFloaterPostProcess()
+{
+
+
+}
+BOOL LLFloaterPostProcess::postBuild()
+{
 	/// Color Filter Callbacks
 	childSetCommitCallback("ColorFilterToggle", &LLFloaterPostProcess::onBoolToggle, (char*)"enable_color_filter");
 	//childSetCommitCallback("ColorFilterGamma", &LLFloaterPostProcess::onFloatControlMoved, &(gPostProcess->tweaks.gamma()));
@@ -77,32 +84,14 @@ LLFloaterPostProcess::LLFloaterPostProcess() : LLFloater(std::string("Post-Proce
 
 	// Effect loading and saving.
 	LLComboBox* comboBox = getChild<LLComboBox>("PPEffectsCombo");
-	childSetAction("PPLoadEffect", &LLFloaterPostProcess::onLoadEffect, comboBox);
-	comboBox->setCommitCallback(onChangeEffectName);
+	getChild<LLComboBox>("PPLoadEffect")->setCommitCallback(boost::bind(&LLFloaterPostProcess::onLoadEffect, this, comboBox));
+	comboBox->setCommitCallback(boost::bind(&LLFloaterPostProcess::onChangeEffectName, this, _1));
 
 	LLLineEditor* editBox = getChild<LLLineEditor>("PPEffectNameEditor");
-	childSetAction("PPSaveEffect", &LLFloaterPostProcess::onSaveEffect, editBox);
+	getChild<LLComboBox>("PPSaveEffect")->setCommitCallback(boost::bind(&LLFloaterPostProcess::onSaveEffect, this, editBox));
 
 	syncMenu();
-	
-}
-
-LLFloaterPostProcess::~LLFloaterPostProcess()
-{
-
-
-}
-
-LLFloaterPostProcess* LLFloaterPostProcess::instance()
-{
-	// if we don't have our singleton instance, create it
-	if (!sPostProcess)
-	{
-		sPostProcess = new LLFloaterPostProcess();
-		sPostProcess->open();
-		sPostProcess->setFocus(TRUE);
-	}
-	return sPostProcess;
+	return TRUE;
 }
 
 // Bool Toggle
@@ -155,44 +144,39 @@ void LLFloaterPostProcess::onColorControlIMoved(LLUICtrl* ctrl, void* userData)
 	gPostProcess->tweaks[floatVariableName][3] = sldrCtrl->getValue();
 }
 
-void LLFloaterPostProcess::onLoadEffect(void* userData)
+void LLFloaterPostProcess::onLoadEffect(LLComboBox* comboBox)
 {
-	LLComboBox* comboBox = static_cast<LLComboBox*>(userData);
-
 	LLSD::String effectName(comboBox->getSelectedValue().asString());
 
 	gPostProcess->setSelectedEffect(effectName);
 
-	sPostProcess->syncMenu();
+	syncMenu();
 }
 
-void LLFloaterPostProcess::onSaveEffect(void* userData)
+void LLFloaterPostProcess::onSaveEffect(LLLineEditor* editBox)
 {
-	LLLineEditor* editBox = static_cast<LLLineEditor*>(userData);
-
 	std::string effectName(editBox->getValue().asString());
 
 	if (gPostProcess->mAllEffects.has(effectName))
 	{
 		LLSD payload;
 		payload["effect_name"] = effectName;
-		LLNotifications::instance().add("PPSaveEffectAlert", LLSD(), payload, &LLFloaterPostProcess::saveAlertCallback);
+		LLNotifications::instance().add("PPSaveEffectAlert", LLSD(), payload, boost::bind(&LLFloaterPostProcess::saveAlertCallback, this, _1, _2));
 	}
 	else
 	{
 		gPostProcess->saveEffect(effectName);
-		sPostProcess->syncMenu();
+		syncMenu();
 	}
 }
 
-void LLFloaterPostProcess::onChangeEffectName(LLUICtrl* ctrl, void * userData)
+void LLFloaterPostProcess::onChangeEffectName(LLUICtrl* ctrl)
 {
 	// get the combo box and name
-	LLComboBox * comboBox = static_cast<LLComboBox*>(ctrl);
-	LLLineEditor* editBox = sPostProcess->getChild<LLLineEditor>("PPEffectNameEditor");
+	LLLineEditor* editBox = getChild<LLLineEditor>("PPEffectNameEditor");
 
 	// set the parameter's new name
-	editBox->setValue(comboBox->getSelectedValue());
+	editBox->setValue(ctrl->getValue());
 }
 
 bool LLFloaterPostProcess::saveAlertCallback(const LLSD& notification, const LLSD& response)
@@ -204,28 +188,9 @@ bool LLFloaterPostProcess::saveAlertCallback(const LLSD& notification, const LLS
 	{
 		gPostProcess->saveEffect(notification["payload"]["effect_name"].asString());
 
-		sPostProcess->syncMenu();
+		syncMenu();
 	}
 	return false;
-}
-
-void LLFloaterPostProcess::show()
-{
-	// get the instance, make sure the values are synced
-	// and open the menu
-	LLFloaterPostProcess* postProcess = instance();
-	postProcess->syncMenu();
-	postProcess->open();
-}
-
-// virtual
-void LLFloaterPostProcess::onClose(bool app_quitting)
-{
-	// just set visibility to false, don't get fancy yet
-	if (sPostProcess)
-	{
-		sPostProcess->setVisible(FALSE);
-	}
 }
 
 void LLFloaterPostProcess::syncMenu()

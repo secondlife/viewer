@@ -52,39 +52,35 @@ class LLPreviewGesture : public LLPreview
 public:
 	// Pass an object_id if this gesture is inside an object in the world,
 	// otherwise use LLUUID::null.
-	static LLPreviewGesture* show(const std::string& title, const LLUUID& item_id, const LLUUID& object_id, BOOL take_focus = TRUE);
+	static LLPreviewGesture* show(const LLUUID& item_id, const LLUUID& object_id);
+
+	LLPreviewGesture(const LLSD& key);
+	virtual ~LLPreviewGesture();
 
 	// LLView
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
-	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
+	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									 EDragAndDropType cargo_type,
 									 void* cargo_data,
 									 EAcceptance* accept,
 									 std::string& tooltip_msg);
 
 	// LLPanel
-	virtual BOOL postBuild();
+	/*virtual*/ BOOL postBuild();
 
 	// LLFloater
-	virtual BOOL canClose();
-	virtual void setMinimized(BOOL minimize);
-	virtual void onClose(bool app_quitting);
-	virtual void onUpdateSucceeded();
+	/*virtual*/ BOOL canClose();
+	/*virtual*/ void onUpdateSucceeded();
+	/*virtual*/ void refresh();
+
 	
 
 protected:
-	LLPreviewGesture();
-	virtual ~LLPreviewGesture();
-
-	void init(const LLUUID& item_id, const LLUUID& object_id);
-
 	// Populate various comboboxes
 	void addModifiers();
 	void addKeys();
 	void addAnimations();
 	void addSounds();
-
-	void refresh();
 
 	void initDefaultGesture();
 
@@ -111,7 +107,11 @@ protected:
 	// Add a step.  Pass the name of the step, like "Animation",
 	// "Sound", "Chat", or "Wait"
 	LLScrollListItem* addStep(const enum EStepType step_type);
-
+	
+	void onClose();
+	void onVisibilityChange ( const LLSD& new_visibility );
+	
+	static std::string getLabel(std::vector<std::string> labels);
 	static void updateLabel(LLScrollListItem* item);
 
 	static void onCommitSetDirty(LLUICtrl* ctrl, void* data);
@@ -138,8 +138,6 @@ protected:
 	static void onClickPreview(void* data);
 
 	static void onDonePreview(LLMultiGesture* gesture, void* data);
-
-	virtual const char *getTitleName() const { return "Gesture"; }
 
 protected:
 	// LLPreview contains mDescEditor

@@ -130,6 +130,7 @@ LLDir_Win32::LLDir_Win32()
 	else
 		mAppRODataDir = mExecutableDir;
 
+	mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
 
 	// Build the default cache directory
 	mDefaultCacheDir = buildSLOSCacheDir();
@@ -143,6 +144,8 @@ LLDir_Win32::LLDir_Win32()
 			llwarns << "Couldn't create LL_PATH_CACHE dir " << mDefaultCacheDir << llendl;
 		}
 	}
+
+	mLLPluginDir = mExecutableDir + mDirDelimiter + "llplugin";
 }
 
 LLDir_Win32::~LLDir_Win32()
@@ -151,8 +154,15 @@ LLDir_Win32::~LLDir_Win32()
 
 // Implementation
 
-void LLDir_Win32::initAppDirs(const std::string &app_name)
+void LLDir_Win32::initAppDirs(const std::string &app_name,
+							  const std::string& app_read_only_data_dir)
 {
+	// Allow override so test apps can read newview directory
+	if (!app_read_only_data_dir.empty())
+	{
+		mAppRODataDir = app_read_only_data_dir;
+		mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
+	}
 	mAppName = app_name;
 	mOSUserAppDir = mOSUserDir;
 	mOSUserAppDir += "\\";
@@ -205,7 +215,14 @@ void LLDir_Win32::initAppDirs(const std::string &app_name)
 			llwarns << "Couldn't create LL_PATH_MOZILLA_PROFILE dir " << getExpandedFilename(LL_PATH_MOZILLA_PROFILE,"") << llendl;
 		}
 	}
-	
+	res = LLFile::mkdir(getExpandedFilename(LL_PATH_USER_SKIN,""));
+	if (res == -1)
+	{
+		if (errno != EEXIST)
+		{
+			llwarns << "Couldn't create LL_PATH_SKINS dir " << getExpandedFilename(LL_PATH_USER_SKIN,"") << llendl;
+		}
+	}
 	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
 }
 
@@ -375,6 +392,19 @@ BOOL LLDir_Win32::fileExists(const std::string &filename) const
 	{
 		return FALSE;
 	}
+}
+
+
+/*virtual*/ std::string LLDir_Win32::getLLPluginLauncher()
+{
+	return gDirUtilp->getLLPluginDir() + gDirUtilp->getDirDelimiter() +
+		"SLPlugin.exe";
+}
+
+/*virtual*/ std::string LLDir_Win32::getLLPluginFilename(std::string base_name)
+{
+	return gDirUtilp->getLLPluginDir() + gDirUtilp->getDirDelimiter() +
+		base_name + ".dll";
 }
 
 

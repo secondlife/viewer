@@ -4,15 +4,9 @@
 		チャットのフォント：
 	</text>
 	<radio_group name="chat_font_size">
-		<radio_item length="1" name="radio" type="string">
-			小
-		</radio_item>
-		<radio_item length="1" name="radio2" type="string">
-			中
-		</radio_item>
-		<radio_item length="1" name="radio3" type="string">
-			大
-		</radio_item>
+		<radio_item length="1" name="radio" type="string" label="小" />
+		<radio_item length="1" name="radio2" type="string" label="中" />
+		<radio_item length="1" name="radio3" type="string" label="大" />
 	</radio_group>
 	<text length="1" name="text_box2" type="string">
 		チャット・カラー：

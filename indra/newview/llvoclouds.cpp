@@ -44,7 +44,7 @@
 #include "llprimitive.h"
 #include "llsky.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llvosky.h"
@@ -61,8 +61,8 @@ LLVOClouds::LLVOClouds(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	mCloudGroupp = NULL;
 	mbCanSelect = FALSE;
 	setNumTEs(1);
-	LLViewerImage* image = gImageList.getImage(gCloudTextureID);
-	image->setBoostLevel(LLViewerImage::BOOST_CLOUDS);
+	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(gCloudTextureID);
+	image->setBoostLevel(LLViewerTexture::BOOST_CLOUDS);
 	setTEImage(0, image);
 }
 
@@ -115,9 +115,11 @@ LLDrawable* LLVOClouds::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
+static LLFastTimer::DeclareTimer FTM_UPDATE_CLOUDS("Update Clouds");
+
 BOOL LLVOClouds::updateGeometry(LLDrawable *drawable)
 {
-	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_CLOUDS);
+	LLFastTimer ftm(FTM_UPDATE_CLOUDS);
 	if (!(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS)))
 	{
 		return TRUE;

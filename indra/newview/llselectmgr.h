@@ -38,7 +38,8 @@
 #include "llstring.h"
 #include "llundo.h"
 #include "lluuid.h"
-#include "llmemory.h"
+#include "llpointer.h"
+#include "llsafehandle.h"
 #include "llsaleinfo.h"
 #include "llcategory.h"
 #include "v3dmath.h"
@@ -48,12 +49,12 @@
 #include "llbbox.h"
 #include "llpermissions.h"
 #include "llviewerobject.h"
-
+#include "llcontrol.h"
 #include <deque>
 #include "boost/iterator/filter_iterator.hpp"
 
 class LLMessageSystem;
-class LLViewerImage;
+class LLViewerTexture;
 class LLViewerObject;
 class LLColor4;
 class LLVector3;
@@ -138,6 +139,7 @@ public:
 	void selectTE(S32 te_index, BOOL selected);
 	BOOL isTESelected(S32 te_index);
 	S32 getLastSelectedTE();
+	S32 getTESelectMask() { return mTESelectMask; }
 	void renderOneSilhouette(const LLColor4 &color);
 	void setTransient(BOOL transient) { mTransient = transient; }
 	BOOL isTransient() { return mTransient; }
@@ -190,7 +192,7 @@ public:
 
 protected:
 	LLPointer<LLViewerObject>	mObject;
-	BOOL			mTESelected[SELECT_MAX_TES];
+	S32				mTESelectMask;
 	S32				mLastTESelected;
 };
 
@@ -338,6 +340,7 @@ public:
 	static BOOL					sRectSelectInclusive;	// do we need to surround an object to pick it?
 	static BOOL					sRenderHiddenSelections;	// do we show selection silhouettes that are occluded?
 	static BOOL					sRenderLightRadius;	// do we show the radius of selected lights?
+
 	static F32					sHighlightThickness;
 	static F32					sHighlightUScale;
 	static F32					sHighlightVScale;
@@ -351,6 +354,10 @@ public:
 	static LLColor4				sHighlightChildColor;
 	static LLColor4				sHighlightInspectColor;
 	static LLColor4				sContextSilhouetteColor;
+
+	LLCachedControl<bool>					mHideSelectedObjects;
+	LLCachedControl<bool>					mAllowSelectAvatar;
+	LLCachedControl<bool>					mDebugSelectMgr;
 
 public:
 	LLSelectMgr();
@@ -403,7 +410,7 @@ public:
 	// converts all objects currently highlighted to a selection, and returns it
 	LLObjectSelectionHandle selectHighlightedObjects();
 
-	LLObjectSelectionHandle setHoverObject(LLViewerObject *objectp);
+	LLObjectSelectionHandle setHoverObject(LLViewerObject *objectp, S32 face = -1);
 
 	void highlightObjectOnly(LLViewerObject *objectp);
 	void highlightObjectAndFamily(LLViewerObject *objectp);
@@ -643,12 +650,14 @@ private:
 	ESelectType getSelectTypeForObject(LLViewerObject* object);
 	void addAsFamily(std::vector<LLViewerObject*>& objects, BOOL add_to_end = FALSE);
 	void generateSilhouette(LLSelectNode *nodep, const LLVector3& view_point);
+	void updateSelectionSilhouette(LLObjectSelectionHandle object_handle, S32& num_sils_genned, std::vector<LLViewerObject*>& changed_objects);
 	// Send one message to each region containing an object on selection list.
 	void sendListToRegions(	const std::string& message_name,
 							void (*pack_header)(void *user_data), 
 							void (*pack_body)(LLSelectNode* node, void *user_data), 
 							void *user_data,
 							ESendType send_type);
+
 
 	static void packAgentID(	void *);
 	static void packAgentAndSessionID(void* user_data);
@@ -684,7 +693,7 @@ private:
 	static bool confirmDelete(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle handle);
 	
 private:
-	LLPointer<LLViewerImage>				mSilhouetteImagep;
+	LLPointer<LLViewerTexture>				mSilhouetteImagep;
 	LLObjectSelectionHandle					mSelectedObjects;
 	LLObjectSelectionHandle					mHoverObjects;
 	LLObjectSelectionHandle					mHighlightedObjects;

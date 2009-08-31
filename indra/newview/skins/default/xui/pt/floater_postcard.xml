@@ -24,12 +24,12 @@
 		Digite sua mensagem aqui.
 	</text_editor>
 	<text name="fine_print">
-		Se seu indicado entrar no Second Life, você receberá um bônus pela indicação.
+		Se seu indicado entrar no [SECOND_LIFE], você receberá um bônus pela indicação.
 	</text>
 	<button label="Cancelar" name="cancel_btn"/>
 	<button label="Enviar" name="send_btn"/>
 	<string name="default_subject">
-		Cartão postal do Second Life.
+		Cartão postal do [SECOND_LIFE]
 	</string>
 	<string name="default_message">
 		Dá uma olhada nisto!

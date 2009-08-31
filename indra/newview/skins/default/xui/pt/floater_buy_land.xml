@@ -75,15 +75,9 @@ vendido com os objetos
 		Somente membros Premium podem possuir terra.
 	</text>
 	<combo_box name="account_level">
-		<combo_item name="US$9.95/month,billedmonthly">
-			US$9.95/mês, debitado mensalmente
-		</combo_item>
-		<combo_item name="US$7.50/month,billedquarterly">
-			US$7.50/mês, debitado trimestralmente
-		</combo_item>
-		<combo_item name="US$6.00/month,billedannually">
-			US$6.00/mês, debitado anualmente
-		</combo_item>
+		<combo_box.item name="US$9.95/month,billedmonthly" label="US$9.95/mês, debitado mensalmente" />
+		<combo_box.item name="US$7.50/month,billedquarterly" label="US$7.50/mês, debitado trimestralmente" />
+		<combo_box.item name="US$6.00/month,billedannually" label="US$6.00/mês, debitado anualmente" />
 	</combo_box>
 	<text name="land_use_action">
 		Aumente sua taxa de locação de terra para US$ 40/mês.

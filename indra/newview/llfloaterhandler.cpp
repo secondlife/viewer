@@ -31,7 +31,7 @@
 #include "llfloaterhandler.h"
 
 #include "llfloater.h"
-#include "llwebbrowserctrl.h"
+#include "llmediactrl.h"
 
 // register with dispatch via global object
 LLFloaterHandler gFloaterHandler;
@@ -54,7 +54,7 @@ LLFloater* get_parent_floater(LLView* view)
 }
 
 
-bool LLFloaterHandler::handle(const LLSD &params, const LLSD &query_map, LLWebBrowserCtrl *web)
+bool LLFloaterHandler::handle(const LLSD &params, const LLSD &query_map, LLMediaCtrl *web)
 {
 	if (params.size() < 2) return false;
 	LLFloater* floater = NULL;
@@ -70,7 +70,7 @@ bool LLFloaterHandler::handle(const LLSD &params, const LLSD &query_map, LLWebBr
 	{
 		if (floater)
 		{
-			floater->close();
+			floater->closeFloater();
 			return true;
 		}
 	}

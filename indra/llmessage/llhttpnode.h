@@ -33,7 +33,8 @@
 #ifndef LL_LLHTTPNODE_H
 #define LL_LLHTTPNODE_H
 
-#include "llmemory.h"
+#include "llpointer.h"
+#include "llrefcount.h"
 #include "llsd.h"
 
 class LLChainIOFactory;
@@ -83,10 +84,10 @@ public:
 	//@{
 public:	
 
-	virtual LLSD get() const;
-	virtual LLSD put(const LLSD& input) const;
-	virtual LLSD post(const LLSD& input) const;
-	virtual LLSD del(const LLSD& context) const;
+	virtual LLSD simpleGet() const;
+	virtual LLSD simplePut(const LLSD& input) const;
+	virtual LLSD simplePost(const LLSD& input) const;
+	virtual LLSD simpleDel(const LLSD& context) const;
 
 	/**
 	* @brief Abstract Base Class declaring Response interface.
@@ -116,7 +117,7 @@ public:
 		/**
 		* @brief Return no body, just status code and 'UNKNOWN ERROR'.
 		*/
-		virtual void status(S32 code);
+		virtual void statusUnknownError(S32 code);
 
 		virtual void notFound(const std::string& message);
 		virtual void notFound();
@@ -292,6 +293,7 @@ public:
 	
 	void result(const LLSD& result);
 	void extendedResult(S32 code, const std::string& body, const LLSD& headers);
+	
 	void status(S32 code, const std::string& message);
 
 	void print(std::ostream& out) const;

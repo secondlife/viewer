@@ -50,6 +50,7 @@ const S32 GESTURE_VERSION = 2;
 LLMultiGesture::LLMultiGesture()
 :	mKey(),
 	mMask(),
+	mName(),
 	mTrigger(),
 	mReplaceText(),
 	mSteps(),
@@ -243,7 +244,7 @@ void LLMultiGesture::dump()
 //---------------------------------------------------------------------------
 LLGestureStepAnimation::LLGestureStepAnimation()
 :	LLGestureStep(),
-	mAnimName("None"),
+	mAnimName("None"), 
 	mAnimAssetID(),
 	mFlags(0x0)
 { }
@@ -292,20 +293,27 @@ BOOL LLGestureStepAnimation::deserialize(LLDataPacker& dp)
 	dp.unpackU32(mFlags, "flags");
 	return TRUE;
 }
-
-std::string LLGestureStepAnimation::getLabel() const
+// *TODO: Translate
+std::vector<std::string> LLGestureStepAnimation::getLabel() const 
 {
-	std::string label;
+	std::vector<std::string> strings;
+	
+//	std::string label;
 	if (mFlags & ANIM_FLAG_STOP)
 	{
-		label = "Stop Animation: ";
+		strings.push_back( "AnimFlagStop");
+
+//		label = "Stop Animation: ";
 	}
 	else
 	{
-		label = "Start Animation: ";
+		strings.push_back( "AnimFlagStart");
+
+//		label = "Start Animation: "; 
 	}
-	label += mAnimName;
-	return label;
+	strings.push_back( mAnimName);
+//	label += mAnimName;
+	return strings;
 }
 
 void LLGestureStepAnimation::dump()
@@ -359,12 +367,15 @@ BOOL LLGestureStepSound::deserialize(LLDataPacker& dp)
 	dp.unpackU32(mFlags, "flags");
 	return TRUE;
 }
-
-std::string LLGestureStepSound::getLabel() const
+// *TODO: Translate
+std::vector<std::string> LLGestureStepSound::getLabel() const
 {
-	std::string label("Sound: ");
-	label += mSoundName;
-	return label;
+	std::vector<std::string> strings;
+	strings.push_back( "Sound");
+	strings.push_back( mSoundName);	
+//	std::string label("Sound: ");
+//	label += mSoundName;
+	return strings;
 }
 
 void LLGestureStepSound::dump()
@@ -414,12 +425,13 @@ BOOL LLGestureStepChat::deserialize(LLDataPacker& dp)
 	dp.unpackU32(mFlags, "flags");
 	return TRUE;
 }
-
-std::string LLGestureStepChat::getLabel() const
+// *TODO: Translate
+std::vector<std::string> LLGestureStepChat::getLabel() const
 {
-	std::string label("Chat: ");
-	label += mChatText;
-	return label;
+	std::vector<std::string> strings;
+	strings.push_back("Chat");
+	strings.push_back(mChatText);
+	return strings;
 }
 
 void LLGestureStepChat::dump()
@@ -467,22 +479,27 @@ BOOL LLGestureStepWait::deserialize(LLDataPacker& dp)
 	dp.unpackU32(mFlags, "flags");
 	return TRUE;
 }
-
-std::string LLGestureStepWait::getLabel() const
+// *TODO: Translate
+std::vector<std::string> LLGestureStepWait::getLabel() const
 {
-	std::string label("--- Wait: ");
+	std::vector<std::string> strings;
+	strings.push_back( "Wait" );
+	
+//	std::string label("--- Wait: ");
 	if (mFlags & WAIT_FLAG_TIME)
 	{
 		char buffer[64];		/* Flawfinder: ignore */
 		snprintf(buffer, sizeof(buffer), "%.1f seconds", (double)mWaitSeconds);	/* Flawfinder: ignore */
-		label += buffer;
+		strings.push_back(buffer);
+//		label += buffer;
 	}
 	else if (mFlags & WAIT_FLAG_ALL_ANIM)
 	{
-		label += "until animations are done";
+		strings.push_back("until animations are done");
+	//	label += "until animations are done";
 	}
 
-	return label;
+	return strings;
 }
 
 

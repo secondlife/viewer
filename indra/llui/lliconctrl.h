@@ -37,7 +37,6 @@
 #include "v4color.h"
 #include "lluictrl.h"
 #include "stdenums.h"
-#include "llimagegl.h"
 
 class LLTextBox;
 class LLUICtrlFactory;
@@ -45,35 +44,39 @@ class LLUICtrlFactory;
 //
 // Classes
 //
+
+// 
 class LLIconCtrl
 : public LLUICtrl
 {
 public:
-	LLIconCtrl(const std::string& name, const LLRect &rect, const LLUUID &image_id);
-	LLIconCtrl(const std::string& name, const LLRect &rect, const std::string &image_name);
+	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Optional<LLUIImage*>	image;
+		Optional<LLUIColor>		color;
+		Ignored					scale_image;
+		Params();
+	};
+protected:
+	LLIconCtrl(const Params&);
+	friend class LLUICtrlFactory;
+public:
 	virtual ~LLIconCtrl();
 
 	// llview overrides
 	virtual void	draw();
 
-	void			setImage(const std::string& image_name);
-	void			setImage(const LLUUID& image_name);
-	const LLUUID	&getImage() const						{ return mImageID; }
-	std::string		getImageName() const						{ return mImageName; }
-
-	// Takes a UUID, wraps get/setImage
+	// lluictrl overrides
 	virtual void	setValue(const LLSD& value );
-	virtual LLSD	getValue() const;
+
+	std::string	getImageName() const;
+
+	/*virtual*/ void	setAlpha(F32 alpha);
 
 	void			setColor(const LLColor4& color) { mColor = color; }
 
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
-
 private:
-	LLColor4		mColor;
-	std::string		mImageName;
-	LLUUID			mImageID;
+	LLUIColor mColor;
 	LLPointer<LLUIImage>	mImagep;
 };
 

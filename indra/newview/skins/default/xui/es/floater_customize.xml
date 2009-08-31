@@ -14,12 +14,8 @@
 			<button label="Torso" label_selected="Torso" name="Torso"/>
 			<button label="Piernas" label_selected="Piernas" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item length="1" name="radio" type="string">
-					Mujer
-				</radio_item>
-				<radio_item length="1" name="radio2" type="string">
-					Varón
-				</radio_item>
+				<radio_item length="1" name="radio" type="string" label="Mujer" />
+				<radio_item length="1" name="radio2" type="string" label="Varón" />
 			</radio_group>
 			<text length="1" name="title" type="string">
 				[DESC]

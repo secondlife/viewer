@@ -36,8 +36,6 @@
 
 #include "llfloater.h"
 
-class LLPrefsVoiceLogic;
-
 class LLPanelVoiceDeviceSettings : public LLPanel
 {
 public:
@@ -49,8 +47,8 @@ public:
 	void apply();
 	void cancel();
 	void refresh();
-	void onOpen();
-	void onClose(bool app_quitting);
+	void initialize();
+	void cleanup();
 
 protected:
 	static void onCommitInputDevice(LLUICtrl* ctrl, void* user_data);
@@ -64,19 +62,26 @@ protected:
 	BOOL mDevicesUpdated;
 };
 
-class LLFloaterVoiceDeviceSettings : public LLFloater, public LLFloaterSingleton<LLFloaterVoiceDeviceSettings>
+class LLFloaterVoiceDeviceSettings : public LLFloater
 {
+	friend class LLFloaterReg;
+
 public:
-	LLFloaterVoiceDeviceSettings(const LLSD& seed);
-	/*virtual*/ void onOpen();
-	/*virtual*/ void onClose(bool app_quitting);
+
+	virtual BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void draw();
 	void apply();
 	void cancel();
-
+private:
+	LLFloaterVoiceDeviceSettings(const LLSD& seed);
+	
 protected:
 	static void* createPanelVoiceDeviceSettings(void* user_data);
-
+	
+	void onClose();
+	
+protected:
 	LLPanelVoiceDeviceSettings* mDevicePanel;
 };
 

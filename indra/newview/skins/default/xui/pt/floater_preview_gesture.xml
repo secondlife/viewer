@@ -47,12 +47,8 @@ simultaneamente, a menos que
 você inclua passos de espera.
 	</text>
 	<radio_group name="animation_trigger_type">
-		<radio_item name="start">
-			Iniciar
-		</radio_item>
-		<radio_item name="stop">
-			Parar
-		</radio_item>
+		<radio_item name="start" label="Iniciar" />
+		<radio_item name="stop" label="Parar" />
 	</radio_group>
 	<check_box bottom_delta="34" label="até que as animações estejam &#10;concluídas" name="wait_anim_check"/>
 	<check_box bottom_delta="-30" label="tempo em segundos" name="wait_time_check"/>

@@ -51,80 +51,62 @@ class LLFloaterWindLight : public LLFloater
 {
 public:
 
-	LLFloaterWindLight();
+	LLFloaterWindLight(const LLSD& key);
 	virtual ~LLFloaterWindLight();
-	
+	/*virtual*/	BOOL	postBuild();	
 	/// initialize all
 	void initCallbacks(void);
 
-	/// one and one instance only
-	static LLFloaterWindLight* instance();
-
 	// help button stuff
-	static void onClickHelp(void* data);
+	void onClickHelp(std::string alert);
 	void initHelpBtn(const std::string& name, const std::string& xml_alert);
 
-	static bool newPromptCallback(const LLSD& notification, const LLSD& response);
+	bool newPromptCallback(const LLSD& notification, const LLSD& response);
 
 	/// general purpose callbacks for dealing with color controllers
-	static void onColorControlRMoved(LLUICtrl* ctrl, void* userData);
-	static void onColorControlGMoved(LLUICtrl* ctrl, void* userData);
-	static void onColorControlBMoved(LLUICtrl* ctrl, void* userData);
-	static void onColorControlIMoved(LLUICtrl* ctrl, void* userData);
-	static void onFloatControlMoved(LLUICtrl* ctrl, void* userData);
-	static void onBoolToggle(LLUICtrl* ctrl, void* userData);
+	void onColorControlRMoved(LLUICtrl* ctrl, WLColorControl* userData);
+	void onColorControlGMoved(LLUICtrl* ctrl, WLColorControl* userData);
+	void onColorControlBMoved(LLUICtrl* ctrl, WLColorControl* userData);
+	void onColorControlIMoved(LLUICtrl* ctrl, WLColorControl* userData);
+	void onFloatControlMoved(LLUICtrl* ctrl, WLFloatControl* userData);
 
 	/// lighting callbacks for glow
-	static void onGlowRMoved(LLUICtrl* ctrl, void* userData);
+	void onGlowRMoved(LLUICtrl* ctrl, WLColorControl* userData);
 	//static void onGlowGMoved(LLUICtrl* ctrl, void* userData);
-	static void onGlowBMoved(LLUICtrl* ctrl, void* userData);
+	void onGlowBMoved(LLUICtrl* ctrl, WLColorControl* userData);
 
 	/// lighting callbacks for sun
-	static void onSunMoved(LLUICtrl* ctrl, void* userData);
-
-	/// handle if float is changed
-	static void onFloatTweakMoved(LLUICtrl* ctrl, void* userData);
+	void onSunMoved(LLUICtrl* ctrl, WLColorControl* userData);
 
 	/// for handling when the star slider is moved to adjust the alpha
-	static void onStarAlphaMoved(LLUICtrl* ctrl, void* userData);
+	void onStarAlphaMoved(LLUICtrl* ctrl);
 
 	/// when user hits the load preset button
-	static void onNewPreset(void* userData);
+	void onNewPreset();
 
 	/// when user hits the save preset button
-	static void onSavePreset(void* userData);
+	void onSavePreset();
 
 	/// prompts a user when overwriting a preset
-	static bool saveAlertCallback(const LLSD& notification, const LLSD& response);
+	bool saveAlertCallback(const LLSD& notification, const LLSD& response);
 
 	/// when user hits the save preset button
-	static void onDeletePreset(void* userData);
+	void onDeletePreset();
 
 	/// prompts a user when overwriting a preset
 	bool deleteAlertCallback(const LLSD& notification, const LLSD& response);
 
 	/// what to do when you change the preset name
-	static void onChangePresetName(LLUICtrl* ctrl, void* userData);
+	void onChangePresetName(LLUICtrl* ctrl);
 
 	/// when user hits the save preset button
-	static void onOpenDayCycle(void* userData);
+	void onOpenDayCycle();
 
 	/// handle cloud scrolling
-	static void onCloudScrollXMoved(LLUICtrl* ctrl, void* userData);
-	static void onCloudScrollYMoved(LLUICtrl* ctrl, void* userData);
-	static void onCloudScrollXToggled(LLUICtrl* ctrl, void* userData);
-	static void onCloudScrollYToggled(LLUICtrl* ctrl, void* userData);
-
-	//// menu management
-
-	/// show off our menu
-	static void show();
-
-	/// return if the menu exists or not
-	static bool isOpen();
-
-	/// stuff to do on exit
-	virtual void onClose(bool app_quitting);
+	void onCloudScrollXMoved(LLUICtrl* ctrl);
+	void onCloudScrollYMoved(LLUICtrl* ctrl);
+	void onCloudScrollXToggled(LLUICtrl* ctrl);
+	void onCloudScrollYToggled(LLUICtrl* ctrl);
 
 	/// sync up sliders with parameters
 	void syncMenu();
@@ -133,9 +115,6 @@ public:
 	static void deactivateAnimator();
 
 private:
-	// one instance on the inside
-	static LLFloaterWindLight* sWindLight;
-
 	static std::set<std::string> sDefaultPresets;
 };
 

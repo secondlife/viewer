@@ -75,8 +75,9 @@ Life Linux client is very similar to that for Windows, as detailed at:
 3. INSTALLING & RUNNING
 -=-=-=-=-=-=-=-=-=-=-=-
 
-The Second Life Linux client entirely runs out of the directory you have
-unpacked it into - no installation step is required.
+The Second Life Linux client can entirely run from the directory you have
+unpacked it into - no installation step is required.  If you wish to
+perform a separate installation step anyway, you may run './install.sh'
 
 Run ./secondlife from the installation directory to start Second Life.
 
@@ -96,10 +97,7 @@ you wish.
 4. KNOWN ISSUES
 -=-=-=-=-=-=-=-
 
-* UPDATING - when the client detects that a new version of Second Life
-  is available, it will ask you if you wish to download the new version.
-  This option is not implemented; to upgrade, you should manually download a
-  new version from the Second Life web site, <http://www.secondlife.com/>.
+* No significant known issues at this time.
 
 
 5. TROUBLESHOOTING

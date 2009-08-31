@@ -35,34 +35,20 @@
 #include "indra_constants.h"
 #include "llmemoryview.h"
 
-#include "llrect.h"
-#include "llerror.h"
-#include "llgl.h"
-#include "llmath.h"
-#include "llfontgl.h"
-#include "llmemtype.h"
-
-#include "llcharacter.h"
-#include "llui.h"
+#include "llappviewer.h"
+#include "llallocator_heap_profile.h"
+#include "llviewerwindow.h"
 #include "llviewercontrol.h"
-#include "llstat.h"
 
-#include "llfasttimer.h"
+#include <sstream>
+#include <boost/algorithm/string/split.hpp>
 
 
-
-LLMemoryView::LLMemoryView(const std::string& name, const LLRect& rect)
-:	LLView(name, rect, TRUE),
-mDelay(120)
+LLMemoryView::LLMemoryView(const LLMemoryView::Params& p)
+:	LLView(p),
+	//mDelay(120),
+    mAlloc(NULL)
 {
-	setVisible(FALSE);
-	mDumpTimer.reset();
-
-#ifdef MEM_DUMP_DATA
-	// clear out file.
-	LLFILE *dump = LLFile::fopen("memusagedump.txt", "w");
-	fclose(dump);
-#endif
 }
 
 LLMemoryView::~LLMemoryView()
@@ -94,62 +80,101 @@ BOOL LLMemoryView::handleHover(S32 x, S32 y, MASK mask)
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-struct mtv_display_info {
-	S32 memtype;
-	const char *desc;
-	const LLColor4 *color;
-};
-
-static const LLColor4 red0(0.5f, 0.0f, 0.0f, 1.0f);
-
-static const struct mtv_display_info mtv_display_table[] =
+void LLMemoryView::refreshProfile()
 {
-	{ LLMemType::MTYPE_INIT,			"Init", 			&LLColor4::white },
-	{ LLMemType::MTYPE_STARTUP,			"Startup", 			&LLColor4::cyan1 },
-	{ LLMemType::MTYPE_MAIN,			"Main", 			&LLColor4::cyan2 },
-	{ LLMemType::MTYPE_IMAGEBASE,		"ImageBase",		&LLColor4::yellow1 },
-	{ LLMemType::MTYPE_IMAGERAW,		"ImageRaw", 		&LLColor4::yellow2 },
-	{ LLMemType::MTYPE_IMAGEFORMATTED,	"ImageFmtd",		&LLColor4::yellow3 },
-	{ LLMemType::MTYPE_APPFMTIMAGE,		"ViewerImageFmt",	&LLColor4::orange1 },
-	{ LLMemType::MTYPE_APPRAWIMAGE,		"ViewerImageRaw",	&LLColor4::orange2 },
-	{ LLMemType::MTYPE_APPAUXRAWIMAGE,	"ViewerImageAux",	&LLColor4::orange3 },
-	{ LLMemType::MTYPE_DRAWABLE,		"Drawable", 		&LLColor4::green1 },
-	{ LLMemType::MTYPE_OBJECT,			"ViewerObject",		&LLColor4::green2 },
-	{ LLMemType::MTYPE_PIPELINE,		"Pipeline",			&LLColor4::green3 },
-	{ LLMemType::MTYPE_PARTICLES,		"Particles",		&LLColor4::green4 },
-	{ LLMemType::MTYPE_SPACE_PARTITION,	"Space Partition",	&LLColor4::blue2 },
-	{ LLMemType::MTYPE_VERTEX_DATA,		"Vertex Buffer",	&LLColor4::blue3 },
-	{ LLMemType::MTYPE_AVATAR,			"Avatar",			&LLColor4::purple1 },
-	{ LLMemType::MTYPE_AVATAR_MESH,		"Avatar Mesh",		&LLColor4::purple2 },
-	{ LLMemType::MTYPE_ANIMATION,		"Animation",		&LLColor4::purple3 },
-	{ LLMemType::MTYPE_REGIONS,			"Regions",			&LLColor4::blue1 },
-	{ LLMemType::MTYPE_VOLUME,			"Volume",			&LLColor4::pink1 },
-	{ LLMemType::MTYPE_PRIMITIVE,		"Profile",			&LLColor4::pink2 },
- 	{ LLMemType::MTYPE_TEMP1,			"Temp1",			&LLColor4::red1 },
- 	{ LLMemType::MTYPE_TEMP2,			"Temp2",			&LLColor4::magenta1 },
- 	{ LLMemType::MTYPE_TEMP3,			"Temp3",			&LLColor4::red2 },
- 	{ LLMemType::MTYPE_TEMP4,			"Temp4",			&LLColor4::magenta2 },
- 	{ LLMemType::MTYPE_TEMP5,			"Temp5",			&LLColor4::red3 },
- 	{ LLMemType::MTYPE_TEMP6,			"Temp6",			&LLColor4::magenta3 },
- 	{ LLMemType::MTYPE_TEMP7,			"Temp7",			&LLColor4::red4 },
- 	{ LLMemType::MTYPE_TEMP8,			"Temp8",			&LLColor4::magenta4 },
+	/*
+    LLAllocator & alloc = LLAppViewer::instance()->getAllocator();
+    if(alloc.isProfiling()) {
+        std::string profile_text = alloc.getRawProfile();
 
- 	{ LLMemType::MTYPE_OTHER,			"Other",			&red0 },
-};
-static const int MTV_DISPLAY_NUM  = LL_ARRAY_SIZE(mtv_display_table);
+        boost::algorithm::split(mLines, profile_text, boost::bind(std::equal_to<llwchar>(), '\n', _1));
+    } else {
+        mLines.clear();
+    }
+	*/
+    if (mAlloc == NULL) {
+        mAlloc = &LLAppViewer::instance()->getAllocator();
+    }
+
+	mLines.clear();
+
+ 	if(mAlloc->isProfiling()) 
+	{
+		const LLAllocatorHeapProfile &prof = mAlloc->getProfile();
+		for(size_t i = 0; i < prof.mLines.size(); ++i)
+		{
+			std::stringstream ss;
+			ss << "Unfreed Mem: " << (prof.mLines[i].mLiveSize >> 20) << " M     Trace: ";
+			for(size_t k = 0; k < prof.mLines[i].mTrace.size(); ++k)
+			{
+				ss << LLMemType::getNameFromID(prof.mLines[i].mTrace[k]) << "  ";
+			}
+			mLines.push_back(utf8string_to_wstring(ss.str()));
+		}
+	}
+}
 
 void LLMemoryView::draw()
 {
-	std::string tdesc;
-	S32 width = getRect().getWidth();
-	S32 height = getRect().getHeight();
+	const S32 UPDATE_INTERVAL = 60;
+	const S32 MARGIN_AMT = 10; 
+	static S32 curUpdate = UPDATE_INTERVAL;
+    static LLUIColor s_console_color = LLUIColorTable::instance().getColor("ConsoleBackground", LLColor4U::black);	
+
+	// setup update interval
+	if (curUpdate >= UPDATE_INTERVAL)
+	{
+		refreshProfile();
+		curUpdate = 0;
+	}
+	curUpdate++;
+
+	// setup window properly
+	S32 height = (S32) (gViewerWindow->getVirtualWindowRect().getHeight()*0.75f);
+	S32 width = (S32) (gViewerWindow->getVirtualWindowRect().getWidth() * 0.9f);
+	setRect(LLRect().setLeftTopAndSize(getRect().mLeft, getRect().mTop, width, height));
 	
+	// setup window color
+	F32 console_opacity = llclamp(gSavedSettings.getF32("ConsoleBackgroundOpacity"), 0.f, 1.f);
+	LLColor4 color = s_console_color;
+	color.mV[VALPHA] *= console_opacity;
+
 	LLGLSUIDefault gls_ui;
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	gl_rect_2d(0, height, width, 0, LLColor4(0.f, 0.f, 0.f, 0.25f));
+	gl_rect_2d(0, height, width, 0, color);
 	
+    LLFontGL * font = LLFontGL::getFontSansSerifSmall(); 
+
+	// draw remaining lines
+	F32 y_pos = 0.f;
+    F32 y_off = 0.f;
+
+	F32 line_height = font->getLineHeight();
+    S32 target_width = width - 2 * MARGIN_AMT;
+
+	// cut off lines on bottom
+	U32 max_lines = U32((height - 2 * line_height) / line_height);
+    std::vector<LLWString>::const_iterator end = mLines.end();
+    if(mLines.size() > max_lines) {
+        end = mLines.begin() + max_lines;
+    }
+
+	y_pos = height - MARGIN_AMT - line_height;
+    y_off = 0.f;
+    for (std::vector<LLWString>::const_iterator i = mLines.begin(); i != end; ++i)
+	{
+		font->render(*i, 0, MARGIN_AMT, y_pos -  y_off,
+            LLColor4::white,
+			LLFontGL::LEFT, 
+			LLFontGL::BASELINE,
+            LLFontGL::NORMAL,
+			LLFontGL::DROP_SHADOW,
+			S32_MAX,
+			target_width
+			);
+		y_off += line_height;
+	}
+
 #if MEM_TRACK_TYPE
 
 	S32 left, top, right, bottom;
@@ -266,41 +291,4 @@ void LLMemoryView::draw()
 #endif
 	
 	LLView::draw();
-}
-
-void LLMemoryView::setDataDumpInterval(float delay)
-{
-	mDelay = delay;
-}
-
-void LLMemoryView::dumpData()
-{
-#if MEM_TRACK_TYPE && MEM_DUMP_DATA
-	if (mDelay && (mDumpTimer.getElapsedTimeF32() > mDelay ))
-	{
-		// reset timer
-		mDumpTimer.reset();
-		// append dump info to text file
-		LLFILE *dump = LLFile::fopen("memusagedump.txt", "a");
-
-		if (dump)
-		{
-			// write out total memory usage
-			fprintf (dump, "Total memory in use = %09d (%03d MB)\n", LLMemType::sTotalMem, LLMemType::sTotalMem>>20);
-			fprintf (dump, "High Water Mark = %09d (%03d MB)\n\n", LLMemType::sMaxTotalMem, LLMemType::sMaxTotalMem>>20);
-			// dump out usage of 'new' for each memory type
-			for (S32 i=0; i<LLMemType::MTYPE_NUM_TYPES; i++)
-			{
-				if (LLMemType::sMemCount[i])
-				{
-					std::string outData = llformat("MEM: % 20s %09d %03d MB (%09d %03d MB) in %06d News", LLMemType::sTypeDesc[i], LLMemType::sMemCount[i], LLMemType::sMemCount[i]>>20, LLMemType::sMaxMemCount[i], LLMemType::sMaxMemCount[i]>>20, LLMemType::sNewCount[i]);
-					fprintf (dump, "%s\n", outData.c_str());
-				}
-			}
-			fprintf (dump, "\n\n");
-
-			fclose(dump);
-		}
-	}
-#endif
 }

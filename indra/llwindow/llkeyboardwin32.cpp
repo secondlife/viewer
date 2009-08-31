@@ -34,13 +34,15 @@
 
 #include "linden_common.h"
 
-#include "llkeyboardwin32.h"
-
-#include "llwindow.h"
-
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <windows.h>
+
+#include "llkeyboardwin32.h"
+
+#include "llwindowcallbacks.h"
+
+
 
 LLKeyboardWin32::LLKeyboardWin32()
 {

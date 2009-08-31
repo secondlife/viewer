@@ -52,7 +52,6 @@
 #include "llviewerobject.h"
 #include "llviewercamera.h"
 #include "pipeline.h"
-#include "llagent.h"
 #include "lldrawpool.h"
 
 #include "llvosky.h"

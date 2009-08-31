@@ -35,6 +35,7 @@
 #include "llviewerregion.h"
 
 #include "indra_constants.h"
+#include "llfloaterreg.h"
 #include "llmath.h"
 #include "llhttpclient.h"
 #include "llregionflags.h"
@@ -638,6 +639,7 @@ void LLViewerRegion::dirtyHeights()
 
 BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 {
+	LLMemType mt_ivr(LLMemType::MTYPE_IDLE_UPDATE_VIEWER_REGION);
 	// did_update returns TRUE if we did at least one significant update
 	BOOL did_update = mLandp->idleUpdate(max_update_time);
 	
@@ -777,11 +779,6 @@ void LLViewerRegion::calculateCenterGlobal()
 void LLViewerRegion::calculateCameraDistance()
 {
 	mCameraDistanceSquared = (F32)(gAgent.getCameraPositionGlobal() - getCenterGlobal()).magVecSquared();
-}
-
-U32 LLViewerRegion::getNetDetailsForLCD()
-{
-	return mPingDelay;
 }
 
 std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region)
@@ -1439,6 +1436,8 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("MapLayerGod");
 	capabilityNames.append("NewFileAgentInventory");
 	capabilityNames.append("ParcelPropertiesUpdate");
+	capabilityNames.append("ParcelMediaURLFilterList");
+	capabilityNames.append("ParcelNavigateMedia");
 	capabilityNames.append("ParcelVoiceInfoRequest");
 	capabilityNames.append("ProductInfoRequest");
 	capabilityNames.append("ProvisionVoiceAccountRequest");

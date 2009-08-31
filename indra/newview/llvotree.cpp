@@ -48,14 +48,14 @@
 #include "lldrawable.h"
 #include "llface.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llworld.h"
 #include "noise.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
-#include "llviewerwindow.h"
+#include "llnotifications.h"
 
 extern LLPipeline gPipeline;
 
@@ -311,10 +311,10 @@ U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
 	//
 	//  Load Species-Specific data 
 	//
-	mTreeImagep = gImageList.getImage(sSpeciesTable[mSpecies]->mTextureID);
+	mTreeImagep = LLViewerTextureManager::getFetchedTexture(sSpeciesTable[mSpecies]->mTextureID, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
 	if (mTreeImagep)
 	{
-		gGL.getTexUnit(0)->bind(mTreeImagep.get());
+		gGL.getTexUnit(0)->bind(mTreeImagep);
 	}
 	mBranchLength = sSpeciesTable[mSpecies]->mBranchLength;
 	mTrunkLength = sSpeciesTable[mSpecies]->mTrunkLength;
@@ -504,9 +504,11 @@ LLDrawable* LLVOTree::createDrawable(LLPipeline *pipeline)
 const S32 LEAF_INDICES = 24;
 const S32 LEAF_VERTICES = 16;
 
+static LLFastTimer::DeclareTimer FTM_UPDATE_TREE("Update Tree");
+
 BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 {
-	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_TREE);
+	LLFastTimer ftm(FTM_UPDATE_TREE);
 
 	if (mReferenceBuffer.isNull() || mDrawable->getFace(0)->mVertexBuffer.isNull())
 	{

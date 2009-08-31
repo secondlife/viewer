@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ bevel_style="none"
+ border_style="line"
+ bottom="550"
+ follows="left|top|right|bottom"
+ height="508"
+ layout="topleft"
+ left="0"
+ name="script panel"
+ width="500">
+    <panel.string
+     name="loading">
+        Loading...
+    </panel.string>
+    <panel.string
+     name="can_not_view">
+        You can not view or edit this script, since it has been set as &quot;no copy&quot;. You need full permissions to view or edit a script inside an object.
+    </panel.string>
+    <panel.string
+     name="public_objects_can_not_run">
+        Public Objects cannot run scripts
+    </panel.string>
+    <panel.string
+     name="script_running">
+        Running
+    </panel.string>
+    <panel.string
+     name="Title">
+        Script: [NAME]
+    </panel.string>
+    <text_editor
+     type="string"
+     length="1"
+     bevel_style="none"
+     border_style="line"
+     bottom="393"
+     follows="left|top|right|bottom"
+     font="Monospace"
+     height="376"
+     ignore_tab="false"
+     layout="topleft"
+     left="4"
+     max_length="65536"
+     name="Script Editor"
+     width="492"
+     show_line_numbers="true" 
+     handle_edit_keys_directly="true" 
+     word_wrap="true">
+        Loading...
+    </text_editor>
+    <button
+     bottom="499"
+     follows="right|bottom"
+     height="20"
+     label="Save"
+     label_selected="Save"
+     layout="topleft"
+     left="360"
+     name="Save_btn"
+     width="128" />
+    <scroll_list
+     bottom="457"
+     follows="left|right|bottom"
+     height="60"
+     layout="topleft"
+     left="4"
+     name="lsl errors"
+     width="492" />
+    <combo_box
+     bottom="499"
+     follows="left|bottom"
+     height="20"
+     label="Insert..."
+     layout="topleft"
+     left="12"
+     name="Insert..."
+     width="128" />
+    <text
+     bottom="473"
+     follows="left|bottom"
+     height="12"
+     layout="topleft"
+     left="12"
+     name="line_col"
+     width="128" />
+    <menu_bar
+     bg_visible="false"
+     bottom="18"
+     follows="left|top|right"
+     height="18"
+     layout="topleft"
+     left="8"
+     mouse_opaque="false"
+     name="script_menu"
+     width="476">
+        <menu
+         bottom="18"
+         height="62"
+         label="File"
+         layout="topleft"
+         left="0"
+         mouse_opaque="false"
+         name="File"
+         width="138">
+            <menu_item_call
+             label="Save"
+             layout="topleft"
+             name="Save" />
+            <menu_item_separator
+             layout="topleft" />
+            <menu_item_call
+             label="Revert All Changes"
+             layout="topleft"
+             name="Revert All Changes" />
+        </menu>
+        <menu
+         bottom="-647"
+         height="198"
+         label="Edit"
+         layout="topleft"
+         left="222"
+         mouse_opaque="false"
+         name="Edit"
+         width="139">
+            <menu_item_call
+             enabled="false"
+             label="Undo"
+             layout="topleft"
+             name="Undo" />
+            <menu_item_call
+             enabled="false"
+             label="Redo"
+             layout="topleft"
+             name="Redo" />
+            <menu_item_separator
+             layout="topleft" />
+            <menu_item_call
+             enabled="false"
+             label="Cut"
+             layout="topleft"
+             name="Cut" />
+            <menu_item_call
+             enabled="false"
+             label="Copy"
+             layout="topleft"
+             name="Copy" />
+            <menu_item_call
+             enabled="false"
+             label="Paste"
+             layout="topleft"
+             name="Paste" />
+            <menu_item_separator
+             layout="topleft"
+             name="separator2" />
+            <menu_item_call
+             label="Select All"
+             layout="topleft"
+             name="Select All" />
+            <menu_item_call
+             enabled="false"
+             label="Deselect"
+             layout="topleft"
+             name="Deselect" />
+            <menu_item_separator
+             layout="topleft"
+             name="separator3" />
+            <menu_item_call
+             label="Search / Replace..."
+             layout="topleft"
+             name="Search / Replace..." />
+        </menu>
+        <menu
+         bottom="18"
+         height="34"
+         label="Help"
+         layout="topleft"
+         left="0"
+         mouse_opaque="false"
+         name="Help"
+         width="112">
+            <menu_item_call
+             label="Help..."
+             layout="topleft"
+             name="Help..." />
+            <menu_item_call
+             label="LSL Wiki Help..."
+             layout="topleft"
+             name="LSL Wiki Help..." />
+        </menu>
+    </menu_bar>
+</panel>

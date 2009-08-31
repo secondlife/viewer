@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!--
+*TODO: Replace hardcoded buttons width/height with getting this info from the button images.
+       Currently that doesn't work because LLUIImage::getWidth/getHeight() return 1 for the images.
+-->
+
+
+
+<location_input font="SansSerifSmall"
+                add_landmark_image_enabled="Favorite_Star_Active"
+                add_landmark_image_disabled="Favorite_Star_Off"
+                add_landmark_image_hover="Favorite_Star_Over"
+                add_landmark_image_selected="Favorite_Star_Press"
+                add_landmark_hpad="2"
+                allow_text_entry="true"
+                list_position="below"
+      	        show_text_as_tentative="false"
+                max_chars="20"
+                follows="left|top"
+                >
+  <info_button name="Place Information"
+                          label=""
+                          tool_tip="About current location"
+                          width="16"
+                          height="16"
+                          follows="left|top"
+                          hover_glow_amount="0.15"
+                          image_unselected="Info_Off"
+                          image_selected="Info_Off"
+                          image_disabled_selected="Info_Off"
+                          image_disabled="Info_Off" />
+  <add_landmark_button name="Add Landmark"
+                          label=""
+                          hover_glow_amount="0.15"
+                          image_hover_selected="Favorite_Star_Over"
+                          image_hover_unselected="Favorite_Star_Over"
+                          width="16"
+                          height="16"
+                          tool_tip="Add to My Landmarks"
+                          follows="right|top"
+                          scale_image="false" />
+  <combo_button name="Location History"
+                          label=""
+                          pad_right="0"
+                          tool_tip="My Location History"/>
+  <combo_list bg_writeable_color="MenuDefaultBgColor"/>
+  <combo_editor name="Combo Text Entry"
+                text_pad_left="20"
+                select_on_focus="false"
+                font="SansSerifSmall"
+                bevel_style="none"
+                border_style="line"
+                border.border_thickness="0"/>
+</location_input>

@@ -38,6 +38,7 @@
 #include "timing.h"
 #include "llfasttimer.h"
 #include "llrender.h"
+#include "llwindow.h"		// decBusyCount()
 
 #include "llviewercontrol.h"
 #include "llface.h"
@@ -60,11 +61,12 @@
 #include "llresmgr.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
+#include "llvoavatarself.h"
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
 #include "llkeyboard.h"
 #include "u64.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "lldatapacker.h"
 #ifdef LL_STANDALONE
 #include <zlib.h>
@@ -210,6 +212,7 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 										   LLDataPacker* dpp, 
 										   BOOL just_created)
 {
+	LLMemType mt(LLMemType::MTYPE_OBJECT_PROCESS_UPDATE_CORE);
 	LLMessageSystem* msg = gMessageSystem;
 
 	// ignore returned flags
@@ -251,16 +254,19 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 
 		objectp->mCreateSelected = false;
 		gViewerWindow->getWindow()->decBusyCount();
-		gViewerWindow->getWindow()->setCursor( UI_CURSOR_ARROW );
+		gViewerWindow->setCursor( UI_CURSOR_ARROW );
 	}
 }
+
+static LLFastTimer::DeclareTimer FTM_PROCESS_OBJECTS("Process Objects");
 
 void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 											 void **user_data,
 											 const EObjectUpdateType update_type,
 											 bool cached, bool compressed)
 {
-	LLFastTimer t(LLFastTimer::FTM_PROCESS_OBJECTS);	
+	LLMemType mt(LLMemType::MTYPE_OBJECT_PROCESS_UPDATE);
+	LLFastTimer t(FTM_PROCESS_OBJECTS);	
 	
 	LLVector3d camera_global = gAgent.getCameraPositionGlobal();
 	LLViewerObject *objectp;
@@ -554,7 +560,7 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	{
 		num_updates = mObjects.count() - mCurLazyUpdateIndex;
 		max_value = mObjects.count();
-		gImageList.setUpdateStats(TRUE);
+		gTextureList.setUpdateStats(TRUE);
 	}
 	else
 	{
@@ -768,10 +774,10 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	}
 	*/
 
-	mNumObjectsStat.addValue(mObjects.count());
-	mNumActiveObjectsStat.addValue(num_active_objects);
-	mNumSizeCulledStat.addValue(mNumSizeCulled);
-	mNumVisCulledStat.addValue(mNumVisCulled);
+	LLViewerStats::getInstance()->mNumObjectsStat.addValue(mObjects.count());
+	LLViewerStats::getInstance()->mNumActiveObjectsStat.addValue(num_active_objects);
+	LLViewerStats::getInstance()->mNumSizeCulledStat.addValue(mNumSizeCulled);
+	LLViewerStats::getInstance()->mNumVisCulledStat.addValue(mNumVisCulled);
 }
 
 void LLViewerObjectList::clearDebugText()
@@ -1016,16 +1022,16 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 
 void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 {
-	LLColor4 above_water_color = gColors.getColor( "NetMapOtherOwnAboveWater" );
-	LLColor4 below_water_color = gColors.getColor( "NetMapOtherOwnBelowWater" );
+	LLColor4 above_water_color = LLUIColorTable::instance().getColor( "NetMapOtherOwnAboveWater" );
+	LLColor4 below_water_color = LLUIColorTable::instance().getColor( "NetMapOtherOwnBelowWater" );
 	LLColor4 you_own_above_water_color = 
-						gColors.getColor( "NetMapYouOwnAboveWater" );
+						LLUIColorTable::instance().getColor( "NetMapYouOwnAboveWater" );
 	LLColor4 you_own_below_water_color = 
-						gColors.getColor( "NetMapYouOwnBelowWater" );
+						LLUIColorTable::instance().getColor( "NetMapYouOwnBelowWater" );
 	LLColor4 group_own_above_water_color = 
-						gColors.getColor( "NetMapGroupOwnAboveWater" );
+						LLUIColorTable::instance().getColor( "NetMapGroupOwnAboveWater" );
 	LLColor4 group_own_below_water_color = 
-						gColors.getColor( "NetMapGroupOwnBelowWater" );
+						LLUIColorTable::instance().getColor( "NetMapGroupOwnBelowWater" );
 
 
 	for (S32 i = 0; i < mMapObjects.count(); i++)
@@ -1300,12 +1306,13 @@ LLViewerObject *LLViewerObjectList::createObjectViewer(const LLPCode pcode, LLVi
 }
 
 
+static LLFastTimer::DeclareTimer FTM_CREATE_OBJECT("Create Object");
 
 LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRegion *regionp,
 												 const LLUUID &uuid, const U32 local_id, const LLHost &sender)
 {
 	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	LLFastTimer t(LLFastTimer::FTM_CREATE_OBJECT);
+	LLFastTimer t(FTM_CREATE_OBJECT);
 	
 	LLUUID fullid;
 	if (uuid == LLUUID::null)

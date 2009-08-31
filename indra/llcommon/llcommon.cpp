@@ -32,6 +32,8 @@
 #include "linden_common.h"
 
 #include "llcommon.h"
+
+#include "llmemory.h"
 #include "llthread.h"
 
 //static

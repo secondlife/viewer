@@ -91,7 +91,11 @@ echo "Running from ${RUN_PATH}"
 cd "${RUN_PATH}"
 
 # Re-register the secondlife:// protocol handler every launch, for now.
-./register_secondlifeprotocol.sh
+./etc/register_secondlifeprotocol.sh
+
+# Re-register the application with the desktop system every launch, for now.
+./etc/refresh_desktop_app_entry.sh
+
 ## Before we mess with LD_LIBRARY_PATH, save the old one to restore for
 ##  subprocesses that care.
 export SAVED_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
@@ -116,7 +120,7 @@ fi
 
 export SL_ENV='LD_LIBRARY_PATH="`pwd`"/lib:"`pwd`"/app_settings/mozilla-runtime-linux-i686:"${LD_LIBRARY_PATH}"'
 export SL_CMD='$LL_WRAPPER bin/do-not-directly-run-secondlife-bin'
-export SL_OPT="`cat gridargs.dat` $@"
+export SL_OPT="`cat etc/gridargs.dat` $@"
 
 # Run the program
 eval ${SL_ENV} ${SL_CMD} ${SL_OPT} || LL_RUN_ERR=runerr

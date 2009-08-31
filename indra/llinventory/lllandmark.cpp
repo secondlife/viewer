@@ -40,7 +40,7 @@
 
 std::pair<LLUUID, U64> LLLandmark::mLocalRegion;
 LLLandmark::region_map_t LLLandmark::mRegions;
-LLLandmark::region_callback_t LLLandmark::mRegionCallback;
+LLLandmark::region_callback_map_t LLLandmark::sRegionCallbackMap;
 
 LLLandmark::LLLandmark() :
 	mGlobalPositionKnown(false)
@@ -177,7 +177,7 @@ void LLLandmark::requestRegionHandle(
 	LLMessageSystem* msg,
 	const LLHost& upstream_host,
 	const LLUUID& region_id,
-	LLRegionHandleCallback* callback)
+	region_handle_callback_t callback)
 {
 	if(region_id.isNull())
 	{
@@ -186,7 +186,7 @@ void LLLandmark::requestRegionHandle(
 		if(callback)
 		{
 			const U64 U64_ZERO = 0;
-			callback->dataReady(region_id, U64_ZERO);
+			callback(region_id, U64_ZERO);
 		}
 	}
 	else
@@ -196,7 +196,7 @@ void LLLandmark::requestRegionHandle(
 			lldebugs << "requestRegionHandle: local" << llendl;
 			if(callback)
 			{
-				callback->dataReady(region_id, mLocalRegion.second);
+				callback(region_id, mLocalRegion.second);
 			}
 		}
 		else
@@ -207,8 +207,8 @@ void LLLandmark::requestRegionHandle(
 				lldebugs << "requestRegionHandle: upstream" << llendl;
 				if(callback)
 				{
-					region_callback_t::value_type vt(region_id, callback);
-					mRegionCallback.insert(vt);
+					region_callback_map_t::value_type vt(region_id, callback);
+					sRegionCallbackMap.insert(vt);
 				}
 				lldebugs << "Landmark requesting information about: "
 						 << region_id << llendl;
@@ -221,7 +221,7 @@ void LLLandmark::requestRegionHandle(
 			{
 				// we have the answer locally - just call the callack.
 				lldebugs << "requestRegionHandle: ready" << llendl;
-				callback->dataReady(region_id, (*it).second.mRegionHandle);
+				callback(region_id, (*it).second.mRegionHandle);
 			}
 		}
 	}
@@ -259,11 +259,11 @@ void LLLandmark::processRegionIDAndHandle(LLMessageSystem* msg, void**)
 #endif
 
 	// make all the callbacks here.
-	region_callback_t::iterator it;
-	while((it = mRegionCallback.find(region_id)) != mRegionCallback.end())
+	region_callback_map_t::iterator it;
+	while((it = sRegionCallbackMap.find(region_id)) != sRegionCallbackMap.end())
 	{
-		(*it).second->dataReady(region_id, info.mRegionHandle);
-		mRegionCallback.erase(it);
+		(*it).second(region_id, info.mRegionHandle);
+		sRegionCallbackMap.erase(it);
 	}
 }
 

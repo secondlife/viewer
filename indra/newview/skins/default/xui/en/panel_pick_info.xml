@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ bevel_style="in"
+ follows="left|top|right|bottom"
+ height="420"
+ layout="topleft"
+ left="0"
+ name="panel_pick_info"
+ top="0"
+ width="255">
+   <scroll_container
+     color="DkGray2"
+     follows="left|top|right|bottom"
+     height="300"
+     layout="topleft"
+     left="0"
+     name="profile_scroll"
+     reserve_scroll_corner="true"
+     opaque="true"
+     width="255">
+    <panel
+     name="scroll_content_panel"
+     follows="left|top|right"
+     layout="topleft"
+     top="0"
+     left="0"
+     width="240"
+     height="575">
+    <text
+     follows="top"
+     font="SansSerifHugeBold"
+     height="15"
+     layout="topleft"
+     left="10"
+     name="title"
+     text_color="white"
+     top="5"
+     value="Pick Info"
+     width="150" />
+    <button
+     follows="top|right"
+     height="20"
+     image_overlay="BackArrow_Off"
+     layout="topleft"
+     name="back_btn"
+     picture_style="true"
+     right="-20"
+     top="7"
+     width="20" />
+    <panel
+     background_visible="true"
+     bg_alpha_color="DkGray2"
+     follows="left|right|top|bottom"
+     height="550"
+     layout="topleft"
+     left="0"
+     min_height="300"
+     top="30"
+     width="255">
+        <texture_picker
+         enabled="false"
+         follows="left|top|right"
+         height="300"
+         layout="topleft"
+         left="10"
+         name="pick_snapshot"
+         top="10"
+         width="245" />
+        <text
+         follows="left|top"
+         font="SansSerifBigBold"
+         height="15"
+         layout="topleft"
+         left="10"
+         name="Name:"
+         text_color="white"
+         value="Name:" />
+        <text
+         follows="left|top|right"
+         height="15"
+         layout="topleft"
+         left="10"
+         name="pick_name"
+         right="-10"
+         text_color="white"
+         value="[name]"
+         word_wrap="true" />
+        <text
+         follows="left|top"
+         font="SansSerifBigBold"
+         height="15"
+         layout="topleft"
+         left="10"
+         name="description_label"
+         text_color="white"
+         top_pad="20"
+         valign="center"
+         value="Description:" />
+        <text
+         follows="left|top|right"
+         height="60"
+         layout="topleft"
+         left="10"
+         name="pick_desc"
+         right="-10"
+         text_color="white"
+         valign="center"
+         value="[description]"
+         width="255"
+         word_wrap="true" />
+        <text
+         follows="left|top"
+         font="SansSerifBigBold"
+         height="20"
+         layout="topleft"
+         left="10"
+         name="location_label"
+         text_color="white"
+         top_pad="20"
+         valign="bottom"
+         value="Location:" />
+        <text
+         follows="left|top"
+         height="30"
+         layout="topleft"
+         left="10"
+         name="pick_location"
+         text_color="white"
+         valign="center"
+         value="[loading...]" />
+    </panel>
+    </panel>
+    </scroll_container>
+    <panel
+     follows="left|right|bottom"
+     height="30"
+     layout="topleft"
+     top_pad="2"
+     left="8"
+     name="buttons"
+     right="-10">
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Edit"
+         layout="topleft"
+         left="0"
+         name="edit_btn"
+         top="0"
+         width="50" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Teleport"
+         layout="topleft"
+         left_pad="2"
+         name="teleport_btn"
+         top="0"
+         width="80" />
+        <button
+         follows="bottom|left"
+         font="SansSerifSmallBold"
+         height="25"
+         label="Map"
+         layout="topleft"
+         left_pad="2"
+         name="show_on_map_btn"
+         top="0"
+         width="100" />
+    </panel>
+</panel>

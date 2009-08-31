@@ -34,28 +34,10 @@
 #define LL_LLPANELAVATAR_H
 
 #include "llpanel.h"
-#include "v3dmath.h"
-#include "lluuid.h"
-#include "llwebbrowserctrl.h"
+#include "llavatarpropertiesprocessor.h"
 
-class LLButton;
-class LLCheckBoxCtrl;
-class LLDropTarget;
-class LLInventoryItem;
+class LLComboBox;
 class LLLineEditor;
-class LLNameEditor;
-class LLPanelAvatar;
-class LLScrollListCtrl;
-class LLTabContainer;
-class LLTextBox;
-class LLTextEditor;
-class LLTextureCtrl;
-class LLUICtrl;
-class LLViewerImage;
-class LLViewerObject;
-class LLMessageSystem;
-class LLIconCtrl;
-class LLWebBrowserCtrl;
 
 enum EOnlineStatus
 {
@@ -63,321 +45,209 @@ enum EOnlineStatus
 	ONLINE_STATUS_YES     = 1
 };
 
-// Base class for all sub-tabs inside the avatar profile.  Many of these
-// panels need to keep track of the parent panel (to get the avatar id)
-// and only request data from the database when they are first drawn. JC
-class LLPanelAvatarTab : public LLPanel
+/**
+* Base class for any Profile View or Me Profile Panel.
+*/
+class LLPanelProfileTab
+	: public LLPanel
+	, public LLAvatarPropertiesObserver
 {
 public:
-	LLPanelAvatarTab(const std::string& name, const LLRect &rect, 
-		LLPanelAvatar* panel_avatar);
 
-	// Calls refresh() once per frame when panel is visible
-	/*virtual*/ void draw();
+	/**
+	 * Sets avatar ID, sets panel as observer of avatar related info replies from server.
+	 */
+	virtual void setAvatarId(const LLUUID& id);
 
-	LLPanelAvatar* getPanelAvatar() const { return mPanelAvatar; }
+	/**
+	 * Returns avatar ID.
+	 */
+	virtual const LLUUID& getAvatarId() { return mAvatarId; }
 
-	void setDataRequested(bool requested) { mDataRequested = requested; }
-	bool isDataRequested() const		  { return mDataRequested; }
+	/**
+	 * Sends update data request to server.
+	 */
+	virtual void updateData() = 0;
 
-	// If the data for this tab has not yet been requested,
-	// send the request.  Used by tabs that are filled in only
-	// when they are first displayed.
-	// type is one of "avatarnotesrequest", "avatarpicksrequest",
-	// or "avatarclassifiedsrequest"
-	void sendAvatarProfileRequestIfNeeded(const std::string& method);
+	/**
+	 * Clears panel data if viewing avatar info for first time and sends update data request.
+	 */
+	virtual void onOpen(const LLSD& key);
+
+	/**
+	 * Profile tabs should close any opened panels here.
+	 *
+	 * Called from LLPanelProfile::onOpen() before opening new profile.
+	 * See LLPanelpicks::onClose for example. LLPanelPicks closes picture info panel
+	 * before new profile is displayed, otherwise new profile will 
+	 * be hidden behind picture info panel.
+	 */
+	virtual void onClose() {}
+
+	/**
+	 * Resets controls visibility, state, etc.
+	 */
+	virtual void resetControls(){};
+
+	/**
+	 * Clears all data received from server.
+	 */
+	virtual void resetData(){};
+
+	/*virtual*/ ~LLPanelProfileTab();
+
+protected:
+
+	LLPanelProfileTab();
+
+	/**
+	 * Scrolls panel to top when viewing avatar info for first time.
+	 */
+	void scrollToTop();
 
 private:
-	LLPanelAvatar* mPanelAvatar;
-	bool mDataRequested;
+
+	LLUUID mAvatarId;
 };
 
-
-class LLPanelAvatarFirstLife : public LLPanelAvatarTab
+/**
+* Panel for displaying Avatar's first and second life related info.
+*/
+class LLPanelAvatarProfile
+	: public LLPanelProfileTab
 {
 public:
-	LLPanelAvatarFirstLife(const std::string& name, const LLRect &rect, LLPanelAvatar* panel_avatar);
+	LLPanelAvatarProfile();
 
-	/*virtual*/ BOOL postBuild(void);
+	/*virtual*/ void onOpen(const LLSD& key);
 
-	void enableControls(BOOL own_avatar);
-};
+	/**
+	 * Processes data received from server.
+	 */
+	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
 
+	/*virtual*/ BOOL postBuild();
 
-class LLPanelAvatarSecondLife
-: public LLPanelAvatarTab
-{
-public:
-	LLPanelAvatarSecondLife(const std::string& name, const LLRect &rect, LLPanelAvatar* panel_avatar );
+	/*virtual*/ void updateData();
 
-	/*virtual*/ BOOL postBuild(void);
-	/*virtual*/ void refresh();
+	/*virtual*/ void resetControls();
 
-	static void onClickImage(			void *userdata);
-	static void onClickFriends(			void *userdata);
-	static void onDoubleClickGroup(void* userdata);
-	static void onClickPublishHelp(void *userdata);
-	static void onClickPartnerHelp(void *userdata);
-	static bool onClickPartnerHelpLoadURL(const LLSD& notification, const LLSD& response);
-	static void onClickPartnerInfo(void *userdata);
+	/*virtual*/ void resetData();
 
-	// Clear out the controls anticipating new network data.
-	void clearControls();
-	void enableControls(BOOL own_avatar);
-	void updateOnlineText(BOOL online, BOOL have_calling_card);
-	void updatePartnerName();
+protected:
 
-	void setPartnerID(LLUUID id) { mPartnerID = id; }
+	/**
+	 * Process profile related data received from server.
+	 */
+	virtual void processProfileProperties(const LLAvatarData* avatar_data);
+
+	/**
+	 * Processes group related data received from server.
+	 */
+	virtual void processGroupProperties(const LLAvatarGroups* avatar_groups);
+
+	/**
+	 * Fills common for Avatar profile and Me Profile fields.
+	 */
+	virtual void fillCommonData(const LLAvatarData* avatar_data);
+
+	/**
+	 * Fills partner data.
+	 */
+	virtual void fillPartnerData(const LLAvatarData* avatar_data);
+
+	/**
+	 * Fills Avatar's online status.
+	 */
+	virtual void fillOnlineStatus(const LLAvatarData* avatar_data);
 	
-private:
-	LLUUID				mPartnerID;
+	/**
+	 * Fills account status.
+	 */
+	virtual void fillAccountStatus(const LLAvatarData* avatar_data);
+
+	void onUrlTextboxClicked(std::string url);
+	void onHomepageTextboxClicked();
+	void onAddFriendButtonClick();
+	void onIMButtonClick();
+	void onCallButtonClick();
+	void onTeleportButtonClick();
+	void onShareButtonClick();
 };
 
-
-// WARNING!  The order of the inheritance here matters!!  Do not change.  - KLW
-class LLPanelAvatarWeb : 
-	public LLPanelAvatarTab
-	, public LLWebBrowserCtrlObserver
+/**
+ * Panel for displaying own first and second life related info.
+ */
+class LLPanelAvatarMeProfile
+	: public LLPanelAvatarProfile
 {
 public:
-	LLPanelAvatarWeb(const std::string& name, const LLRect& rect, LLPanelAvatar* panel_avatar);
-	/*virtual*/ ~LLPanelAvatarWeb();
-	/*virtual*/ BOOL	postBuild(void);
+	LLPanelAvatarMeProfile();
 
-	/*virtual*/ void refresh();
+	/*virtual*/ BOOL postBuild();
 
-	void enableControls(BOOL own_avatar);
+protected:
 
-	void setWebURL(std::string url);
+	/*virtual*/ void onOpen(const LLSD& key);
 
-	void load(std::string url);
-	static void onURLKeystroke(LLLineEditor* editor, void* data);
-	static void onCommitLoad(LLUICtrl* ctrl, void* data);
-	static void onCommitURL(LLUICtrl* ctrl, void* data);
-	static void onClickWebProfileHelp(void *);
+	/*virtual*/ void processProfileProperties(const LLAvatarData* avatar_data);
 
-	// browser observer impls
-	virtual void onStatusTextChange( const EventType& eventIn );
-	virtual void onLocationChange( const EventType& eventIn );
+	/**
+	 * Fills Avatar status data.
+	 */
+	virtual void fillStatusData(const LLAvatarData* avatar_data);
+
+	/*virtual*/ void resetControls();
+
+protected:
+
+	void onStatusChanged();
+	void onStatusMessageChanged();
+	void onUpdateAccountTextboxClicked();
+	void onMyAccountTextboxClicked();
+	void onPartnerEditTextboxClicked();
 
 private:
-	std::string			mHome;
-	std::string         mNavigateTo;
-	LLWebBrowserCtrl*	mWebBrowser;
+
+	LLComboBox* mStatusCombobox;
 };
 
-
-class LLPanelAvatarAdvanced : public LLPanelAvatarTab
+/**
+* Panel for displaying Avatar's notes and modifying friend's rights.
+*/
+class LLPanelAvatarNotes 
+	: public LLPanelProfileTab
 {
 public:
-	LLPanelAvatarAdvanced(const std::string& name, const LLRect& rect, LLPanelAvatar* panel_avatar);
+	LLPanelAvatarNotes();
 
-	/*virtual*/ BOOL	postBuild(void);
+	/*virtual*/ void onOpen(const LLSD& key);
 
-	void enableControls(BOOL own_avatar);
-	void setWantSkills(U32 want_to_mask, const std::string& want_to_text,
-					   U32 skills_mask, const std::string& skills_text,
-					   const std::string& languages_text);
-	void getWantSkills(U32* want_to_mask, std::string& want_to_text,
-					   U32* skills_mask, std::string& skills_text,
-					   std::string& languages_text);
+	/*virtual*/ BOOL postBuild();
 
-private:
-	S32					mWantToCount;
-	S32					mSkillsCount;
-	LLCheckBoxCtrl		*mWantToCheck[8];
-	LLLineEditor		*mWantToEdit;
-	LLCheckBoxCtrl		*mSkillsCheck[8];
-	LLLineEditor		*mSkillsEdit;
+	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
+
+	/*virtual*/ void updateData();
+
+protected:
+
+	/*virtual*/ void resetControls();
+
+	/*virtual*/ void resetData();
+
+	/**
+	 * Fills rights data for friends.
+	 */
+	void fillRightsData();
+
+	void onCommitRights();
+	void onCommitNotes();
+
+	void onAddFriendButtonClick();
+	void onIMButtonClick();
+	void onCallButtonClick();
+	void onTeleportButtonClick();
+	void onShareButtonClick();
 };
-
-
-class LLPanelAvatarNotes : public LLPanelAvatarTab
-{
-public:
-	LLPanelAvatarNotes(const std::string& name, const LLRect& rect, LLPanelAvatar* panel_avatar);
-
-	/*virtual*/ BOOL	postBuild(void);
-
-	/*virtual*/ void refresh();
-
-	void clearControls();
-
-	static void onCommitNotes(LLUICtrl* field, void* userdata);
-};
-
-
-class LLPanelAvatarClassified : public LLPanelAvatarTab
-{
-public:
-	LLPanelAvatarClassified(const std::string& name, const LLRect& rect, LLPanelAvatar* panel_avatar);
-
-	/*virtual*/ BOOL postBuild(void);
-
-	/*virtual*/ void refresh();
-
-	// If can close, return TRUE.  If cannot close, pop save/discard dialog
-	// and return FALSE.
-	BOOL canClose();
-
-	void apply();
-
-	BOOL titleIsValid();
-
-	// Delete all the classified sub-panels from the tab container
-	void deleteClassifiedPanels();
-
-	// Unpack the outline of classified for this avatar (count, names, but not
-	// actual data).
-	void processAvatarClassifiedReply(LLMessageSystem* msg, void**);
-
-private:
-	static void onClickNew(void* data);
-	static void onClickDelete(void* data);
-
-	bool callbackDelete(const LLSD& notification, const LLSD& response);
-	bool callbackNew(const LLSD& notification, const LLSD& response);
-};
-
-
-class LLPanelAvatarPicks : public LLPanelAvatarTab
-{
-public:
-	LLPanelAvatarPicks(const std::string& name, const LLRect& rect, LLPanelAvatar* panel_avatar);
-
-	/*virtual*/ BOOL	postBuild(void);
-
-	/*virtual*/ void refresh();
-
-	// Delete all the pick sub-panels from the tab container
-	void deletePickPanels();
-
-	// Unpack the outline of picks for this avatar (count, names, but not
-	// actual data).
-	void processAvatarPicksReply(LLMessageSystem* msg, void**);
-	void processAvatarClassifiedReply(LLMessageSystem* msg, void**);
-
-private:
-	static void onClickNew(void* data);
-	static void onClickDelete(void* data);
-
-	bool callbackDelete(const LLSD& notification, const LLSD& response);
-};
-
-
-class LLPanelAvatar : public LLPanel
-{
-public:
-	LLPanelAvatar(const std::string& name, const LLRect &rect, BOOL allow_edit);
-	/*virtual*/ ~LLPanelAvatar();
-
-	/*virtual*/ BOOL	postBuild(void);
-
-	// If can close, return TRUE.  If cannot close, pop save/discard dialog
-	// and return FALSE.
-	BOOL canClose();
-
-	void setAvatar(LLViewerObject *avatarp);
-
-	// Fill in the avatar ID and handle some field fill-in, as well as 
-	// button enablement.
-	// Pass one of the ONLINE_STATUS_foo constants above.
-	void setAvatarID(const LLUUID &avatar_id, const std::string &name, EOnlineStatus online_status);
-
-	void setOnlineStatus(EOnlineStatus online_status);
-
-	const LLUUID& getAvatarID() const { return mAvatarID; }
-	
-	void resetGroupList();
-
-	void sendAvatarStatisticsRequest();
-
-	void sendAvatarPropertiesRequest();
-	void sendAvatarPropertiesUpdate();
-
-	void sendAvatarNotesRequest();
-	void sendAvatarNotesUpdate();
-
-	void sendAvatarPicksRequest();
-
-	void selectTab(S32 tabnum);
-	void selectTabByName(std::string tab_name);
-
-	BOOL haveData() { return mHaveProperties && mHaveStatistics; }
-	BOOL isEditable() const { return mAllowEdit; }
-
-	static void processAvatarPropertiesReply(LLMessageSystem *msg, void **);
-	static void processAvatarInterestsReply(LLMessageSystem *msg, void **);
-	static void processAvatarGroupsReply(LLMessageSystem* msg, void**);
-	static void processAvatarNotesReply(LLMessageSystem *msg, void **);
-	static void processAvatarPicksReply(LLMessageSystem *msg, void **);
-	static void processAvatarClassifiedReply(LLMessageSystem *msg, void **);
-
-	static void onClickTrack(	void *userdata);
-	static void onClickIM(		void *userdata);
-	static void onClickOfferTeleport(	void *userdata);
-	static void onClickPay(	void *userdata);
-	static void onClickAddFriend(void* userdata);
-	static void onClickOK(		void *userdata);
-	static void onClickCancel(	void *userdata);
-	static void onClickKick(	void *userdata);
-	static void onClickFreeze(	void *userdata);
-	static void onClickUnfreeze(void *userdata);
-	static void onClickCSR(		void *userdata);
-	static void onClickMute(	void *userdata);
-
-private:
-	void enableOKIfReady();
-
-	static bool finishKick(const LLSD& notification, const LLSD& response);
-	static bool finishFreeze(const LLSD& notification, const LLSD& response);
-	static bool finishUnfreeze(const LLSD& notification, const LLSD& response);
-
-	static void showProfileCallback(S32 option, void *userdata);
-
-	static	void*	createPanelAvatar(void*	data);
-	static	void*	createFloaterAvatarInfo(void*	data);
-	static	void*	createPanelAvatarSecondLife(void*	data);
-	static	void*	createPanelAvatarWeb(void*	data);
-	static	void*	createPanelAvatarInterests(void*	data);
-	static	void*	createPanelAvatarPicks(void*	data);
-	static	void*	createPanelAvatarClassified(void*	data);
-	static	void*	createPanelAvatarFirstLife(void*	data);
-	static	void*	createPanelAvatarNotes(void*	data);
-
-public:
-	LLPanelAvatarSecondLife*	mPanelSecondLife;
-	LLPanelAvatarAdvanced*		mPanelAdvanced;
-	LLPanelAvatarClassified*	mPanelClassified;
-	LLPanelAvatarPicks*			mPanelPicks;
-	LLPanelAvatarNotes*			mPanelNotes;
-	LLPanelAvatarFirstLife*		mPanelFirstLife;
-	LLPanelAvatarWeb*			mPanelWeb;
-
-	LLDropTarget* 				mDropTarget;
-
-	// Teen users are not allowed to see or enter data into the first life page,
-	// or their own about/interests text entry fields.
-	static BOOL sAllowFirstLife;
-	
-private:
-	LLUUID						mAvatarID;			// for which avatar is this window?
-	BOOL						mIsFriend;			// Are we friends?
-	BOOL						mHaveProperties;
-	BOOL						mHaveStatistics;
-	// only update note if data received from database and
-	// note is changed from database version
-	bool						mHaveNotes;
-	std::string					mLastNotes;
-	LLTabContainer*		mTab;
-	BOOL						mAllowEdit;
-
-	typedef std::list<LLPanelAvatar*> panel_list_t;
-	static panel_list_t sAllPanels;
-};
-
-// helper funcs
-void add_left_label(LLPanel *panel, const std::string& name, S32 y);
-
 
 #endif // LL_LLPANELAVATAR_H

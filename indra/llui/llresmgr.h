@@ -37,7 +37,7 @@
 #include "locale.h"
 #include "stdtypes.h"
 #include "llstring.h"
-#include "llmemory.h"
+#include "llsingleton.h"
 
 enum LLLOCALE_ID
 {
@@ -45,18 +45,6 @@ enum LLLOCALE_ID
 	LLLOCALE_UK,
 	LLLOCALE_COUNT	// Number of values in this enum.  Keep at end.
 };
-
-enum LLFONT_ID
-{
-	LLFONT_OCRA,
-	LLFONT_SANSSERIF,
-	LLFONT_SANSSERIF_SMALL,
-	LLFONT_SANSSERIF_BIG,
-	LLFONT_SMALL,
-	LLFONT_COUNT	// Number of values in this enum.  Keep at end.
-};
-
-class LLFontGL;
 
 class LLResMgr : public LLSingleton<LLResMgr>
 {
@@ -74,20 +62,9 @@ public:
 	std::string			getMonetaryString( S32 input ) const;
 	void				getIntegerString( std::string& output, S32 input ) const;
 
-//	const char*			getRes( LLSTR_ID string_id ) const		{ return mStrings[ string_id ]; }
-	const LLFontGL*		getRes( LLFONT_ID font_id ) const		{ return mFonts[ font_id ]; }
-	const LLFontGL*		getRes( std::string font_id ) const;
 
 private:
 	LLLOCALE_ID			mLocale;
-//	const char**		mStrings;
-	const LLFontGL**	mFonts;
-
-//	const char*			mUSAStrings[LLSTR_COUNT];
-	const LLFontGL*		mUSAFonts[LLFONT_COUNT];
-
-//	const char*			mUKStrings[LLSTR_COUNT];
-	const LLFontGL*		mUKFonts[LLFONT_COUNT];
 };
 
 class LLLocale

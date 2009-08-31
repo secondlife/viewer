@@ -39,6 +39,7 @@
 #include "pipeline.h"
 #include "llsky.h"
 
+#include "llfloaterreg.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "llcheckboxctrl.h"
@@ -262,17 +263,20 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_UPDATE_WLPARAM("Update Windlight Params");
+
 void LLWaterParamManager::update(LLViewerCamera * cam)
 {
-	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_WLPARAM);
+	LLFastTimer ftm(FTM_UPDATE_WLPARAM);
 	
 	// update the shaders and the menu
 	propagateParameters();
 	
 	// sync menus if they exist
-	if(LLFloaterWater::isOpen()) 
+	LLFloaterWater* waterfloater = LLFloaterReg::findTypedInstance<LLFloaterWater>("env_water");
+	if(waterfloater) 
 	{
-		LLFloaterWater::instance()->syncMenu();
+		waterfloater->syncMenu();
 	}
 
 	stop_glerror();

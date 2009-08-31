@@ -152,7 +152,7 @@ void LLImageBase::deleteData()
 // virtual
 U8* LLImageBase::allocateData(S32 size)
 {
-	LLMemType mt1((LLMemType::EMemType)mMemType);
+	LLMemType mt1(mMemType);
 	
 	if (size < 0)
 	{
@@ -188,7 +188,7 @@ U8* LLImageBase::allocateData(S32 size)
 // virtual
 U8* LLImageBase::reallocateData(S32 size)
 {
-	LLMemType mt1((LLMemType::EMemType)mMemType);
+	LLMemType mt1(mMemType);
 	U8 *new_datap = new U8[size];
 	if (!new_datap)
 	{
@@ -332,7 +332,7 @@ BOOL LLImageRaw::resize(U16 width, U16 height, S8 components)
 
 U8 * LLImageRaw::getSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height) const
 {
-	LLMemType mt1((LLMemType::EMemType)mMemType);
+	LLMemType mt1(mMemType);
 	U8 *data = new U8[width*height*getComponents()];
 
 	// Should do some simple bounds checking
@@ -415,7 +415,7 @@ void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
 // Reverses the order of the rows in the image
 void LLImageRaw::verticalFlip()
 {
-	LLMemType mt1((LLMemType::EMemType)mMemType);
+	LLMemType mt1(mMemType);
 	S32 row_bytes = getWidth() * getComponents();
 	llassert(row_bytes > 0);
 	std::vector<U8> line_buffer(row_bytes);
@@ -548,7 +548,7 @@ void LLImageRaw::composite( LLImageRaw* src )
 // Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
 void LLImageRaw::compositeScaled4onto3(LLImageRaw* src)
 {
-	LLMemType mt1((LLMemType::EMemType)mMemType);
+	LLMemType mt1(mMemType);
 	llinfos << "compositeScaled4onto3" << llendl;
 
 	LLImageRaw* dst = this;  // Just for clarity.
@@ -787,7 +787,7 @@ void LLImageRaw::copyUnscaled3onto4( LLImageRaw* src )
 // Src and dst can be any size.  Src and dst have same number of components.
 void LLImageRaw::copyScaled( LLImageRaw* src )
 {
-	LLMemType mt1((LLMemType::EMemType)mMemType);
+	LLMemType mt1(mMemType);
 	LLImageRaw* dst = this;  // Just for clarity.
 
 	llassert_always( (1 == src->getComponents()) || (3 == src->getComponents()) || (4 == src->getComponents()) );
@@ -819,7 +819,7 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 
 BOOL LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 {
-	LLMemType mt1((LLMemType::EMemType)mMemType);
+	LLMemType mt1(mMemType);
 	llassert((1 == getComponents()) || (3 == getComponents()) || (4 == getComponents()) );
 
 	S32 old_width = getWidth();

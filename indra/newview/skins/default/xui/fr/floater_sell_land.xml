@@ -37,15 +37,9 @@ parcelle :
 spécifique.
 	</text>
 	<combo_box name="sell_to" bottom_delta="-32">
-		<combo_item name="--selectone--">
-			-- Sélectionnez --
-		</combo_item>
-		<combo_item name="Anyone">
-			N&apos;importe qui
-		</combo_item>
-		<combo_item name="Specificuser:">
-			Acheteur spécifique :
-		</combo_item>
+		<combo_box.item name="--selectone--" label="Sélectionnez --" />
+		<combo_box.item name="Anyone" label="N&apos;importe qui" />
+		<combo_box.item name="Specificuser:" label="Acheteur spécifique :" />
 	</combo_box>
 	<button label="Sélectionner..." name="sell_to_select_agent" width="100"/>
 	<text name="sell_objects_label">
@@ -56,12 +50,8 @@ spécifique.
 de propriétaire.
 	</text>
 	<radio_group name="sell_objects" right="430" bottom_delta="-54">
-		<radio_item name="no">
-			Non, rester le propriétaire des objets
-		</radio_item>
-		<radio_item name="yes">
-			Oui, vendre les objets avec le terrain
-		</radio_item>
+		<radio_item name="no" label="Non, rester le propriétaire des objets" />
+		<radio_item name="yes" label="Oui, vendre les objets avec le terrain" />
 	</radio_group>
 	<button label="Afficher les objets" name="show_objects" right="420" width="120"/>
 	<text name="nag_message_label" bottom_delta="-30">

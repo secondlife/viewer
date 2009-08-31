@@ -39,7 +39,7 @@
 #include "llviewerparcelmgr.h"
 #include "lluuid.h"
 #include "message.h"
-#include "llviewerimagelist.h"         // for texture stats
+#include "llviewertexturelist.h"         // for texture stats
 #include "llagent.h"
 
 const F32 AUTOPLAY_TIME  = 5;          // how many seconds before we autoplay
@@ -109,17 +109,17 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 	if ((!mPlayed) &&                         // if we've never played
 		(mTimeInParcel > AUTOPLAY_TIME) &&    // and if we've been here for so many seconds
 		(this_media_url.size() != 0) &&       // and if the parcel has media
-		(!LLViewerMedia::isMediaPlaying()))   // and if the media is not already playing
+		(LLViewerParcelMedia::sMediaImpl.isNull()))   // and if the media is not already playing
 	{
 		if (this_media_texture_id.notNull())  // and if the media texture is good
 		{
-			LLViewerImage *image = gImageList.getImage(this_media_texture_id, FALSE);
+			LLViewerMediaTexture *image = LLViewerTextureManager::getMediaTexture(this_media_texture_id, FALSE) ;
 
 			F32 image_size = 0;
 
 			if (image)
 			{
-				image_size = image->mMaxVirtualSize;
+				image_size = image->getMaxVirtualSize() ;
 			}
 
 			if (gAgent.getVelocity().magVec() < AUTOPLAY_SPEED) // and if the agent is stopped (slow enough)

@@ -72,6 +72,7 @@ target_link_libraries(windows-crash-logger
     ${LLCOMMON_LIBRARIES}
     ${WINDOWS_LIBRARIES}
     ${DXGUID_LIBRARY}
+    ${GOOGLE_PERFTOOLS_LIBRARIES}
     user32
     gdi32
     ole32

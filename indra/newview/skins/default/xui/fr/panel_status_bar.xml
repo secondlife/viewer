@@ -30,8 +30,8 @@
 	<button label="" label_selected="" name="restrictpush" tool_tip="Pas de bousculades"/>
 	<button name="status_no_voice" tool_tip="Voix non disponible ici"/>
 	<button label="" label_selected="" name="buyland" tool_tip="Acheter cette parcelle"/>
-	<line_editor label="Rechercher" name="search_editor" tool_tip="Rechercher dans Second Life"/>
-	<button name="search_btn" tool_tip="Rechercher dans Second Life"/>
+	<line_editor label="Rechercher" name="search_editor" tool_tip="Rechercher dans [SECOND_LIFE]"/>
+	<button name="search_btn" tool_tip="Rechercher dans [SECOND_LIFE]"/>
 	<text name="packet_loss_tooltip">
 		Perte de paquets
 	</text>

@@ -6,6 +6,9 @@
 	<global name="alwayschoose">
 		Sempre escolher esta opção
 	</global>
+	<global name="implicitclosebutton">
+		Fechar
+	</global>
   <template name="okbutton">
     <form>
       <button
@@ -71,7 +74,7 @@
     </form>
   </template>
 	<notification functor="GenericAcknowledge" label="Mensagem de Alerta Desconhecida" name="MissingAlert">
-		Sua versão do Second Life não sabe como mostrar a mensagem de alerta que acabou de receber.
+		Sua versão do [APP_NAME] não sabe como mostrar a mensagem de alerta que acabou de receber.
 
 Detalhes do erro: O alerta chamado &apos;[_NAME]&apos; não foi encontrado em notifications.xml.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -93,7 +96,7 @@ Detalhes do erro: O alerta chamado &apos;[_NAME]&apos; não foi encontrado em no
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Sim"/>
 	</notification>
 	<notification name="BadInstallation">
-		Ocorreu um erro atualizando o Second Life. Por favor, faça o download da última versão em secondlife.com.
+		Ocorreu um erro atualizando o [APP_NAME]. Por favor, faça o download da última versão em secondlife.com.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -232,7 +235,7 @@ Clicando neste Box, será mostrado:
 	<notification name="ClickPartnerHelpAvatar">
 		Você pode propor a outro Residente ou dissolver uma parceria existente através do website [SECOND_LIFE].
 
-Ir para o site do Second Life  para mais informações sobre parceria?
+Ir para o site do [SECOND_LIFE] para mais informações sobre parceria?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Ir para a Página"/>
 	</notification>
 	<notification name="ClickUploadHelpPermissions">
@@ -270,7 +273,7 @@ Seu preço de venda será  L$[SALE_PRICE] e está autorizado para venda para [NA
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Continuar"/>
 	</notification>
 	<notification name="ConfirmLandSaleToAnyoneChange">
-		ATENÇÃO: Ao clicar em &apos;vender para qualquer um&apos; torna a sua terra disponível para toda a comunidade Second Life, mesmo aqueles que não estão nesta região.
+		ATENÇÃO: Ao clicar em &apos;vender para qualquer um&apos; torna a sua terra disponível para toda a comunidade [SECOND_LIFE], mesmo aqueles que não estão nesta região.
 
 A área de [LAND_SIZE] m² de terra selecionada está posta para venda.
 Seu preço de venda será L$ [SALE_PRICE] e está autorizado para [NAME].
@@ -415,17 +418,17 @@ Não há reembolso por taxas já pagas.
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="CacheWillClear">
-		O cache será limpo quando você reiniciar [SECOND_LIFE].
+		O cache será limpo quando você reiniciar [APP_NAME].
 	</notification>
 	<notification name="CacheWillBeMoved">
-		O Cache será removido após reiniciar [SECOND_LIFE].
+		O Cache será removido após reiniciar [APP_NAME].
 Nota: Isto limpará o cache.
 	</notification>
 	<notification name="ChangeConnectionPort">
-		Configuração de porta terá efeito após reiniciar [SECOND_LIFE].
+		Configuração de porta terá efeito após reiniciar [APP_NAME].
 	</notification>
 	<notification name="ChangeSkin">
-		A nova pele será exibida após reiniciar [SECOND_LIFE].
+		A nova pele será exibida após reiniciar [APP_NAME].
 	</notification>
 	<notification name="GoToAuctionPage">
 		Ir para a página do [SECOND_LIFE] para ver os detalhes do leilão ou fazer um lance?
@@ -484,7 +487,7 @@ O objeto pode estar fora de alcance ou ter sido deletado.
 		Não foi possível escrever o arquivo [[FILE]]
 	</notification>
 	<notification name="UnsupportedHardware">
-		Aviso: Seu sistema não é compatível com os requisitos mínimos exigidos pelo Second Life. Se você continuar usando o Second Life pode experimentar uma performance ruim. Infelizmente não podemos oferecer suporte técnico para configurações de sistema não suportado.
+		Aviso: Seu sistema não é compatível com os requisitos mínimos exigidos pelo [APP_NAME]. Se você continuar usando o [APP_NAME] pode experimentar uma performance ruim. Infelizmente não podemos oferecer suporte técnico para configurações de sistema não suportado.
 
 MINSPECS
 Você deseja visitar [_URL] para maiores informações?
@@ -495,14 +498,14 @@ Você deseja visitar [_URL] para maiores informações?
 	</notification>
 	<notification name="UnknownGPU">
 		Seu sistema possui uma placa gráfica que nos é desconhecido neste momento.
-Este é normalmente o caso de um novo hardware que nós não tivemos a chance de testar. Second Life vai muito provavelmente executar corretamente, mas talvez seja necessário ajustar suas configurações de gráficos para algo mais apropriado.
+Este é normalmente o caso de um novo hardware que nós não tivemos a chance de testar. [APP_NAME] vai muito provavelmente executar corretamente, mas talvez seja necessário ajustar suas configurações de gráficos para algo mais apropriado.
 (Menu Editar &gt; Preferências &gt; Gráficos).
 		<form name="form">
 			<ignore name="ignore" text="Ao detectar uma placa de vídeo desconhecida"/>
 		</form>
 	</notification>
 	<notification name="DisplaySettingsNoShaders">
-		[SECOND_LIFE] travou quando inicializava os drivers gráficos.
+		[APP_NAME] travou quando inicializava os drivers gráficos.
 A Qualidade Gráfica será ajustada para baixa, para evitar alguns erros comuns de drivers.
 Isto irá desabilitar alguns atributos gráficos.
 Nós recomendamos a atualização dos drivers de sua placa gráfica.
@@ -782,7 +785,7 @@ Nenhum lote selecionado.
 Não é possível achar a região em que este terreno se encontra.
 	</notification>
 	<notification name="CannotCloseFloaterBuyLand">
-		Você não pode fechar a janela de Compra de Terreno até que o Second Life calcule o preço desta transação.
+		Você não pode fechar a janela de Compra de Terreno até que o [APP_NAME] calcule o preço desta transação.
 	</notification>
 	<notification name="CannotDeedLandNothingSelected">
 		Não é possível transferir posse do terreno:
@@ -953,7 +956,7 @@ Se o problema persistir, por favor clicar sobre &apos;Ferramentas &gt; Bug Repor
 	<notification name="YouHaveBeenLoggedOut">
 		Você foi deslogado do [SECOND_LIFE]:
             [MESSAGE]
-Você ainda pode olhar o bate-papo e as mensagens instantâneas existentes, clicando em &apos;Exibir IM &amp; bate-papo&apos;. Caso contrário, clique em &apos;Sair&apos; para sair do [SECOND_LIFE] imediatamente.
+Você ainda pode olhar o bate-papo e as mensagens instantâneas existentes, clicando em &apos;Exibir IM &amp; bate-papo&apos;. Caso contrário, clique em &apos;Sair&apos; para sair do [APP_NAME] imediatamente.
 		<usetemplate name="okcancelbuttons" notext="Sair" yestext="Exibir IM &amp; bate-papo"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1118,14 +1121,14 @@ Você pode usar o [SECOND_LIFE] normalmente e os outros o visualizarão corretam
 		</form>
 	</notification>
 	<notification name="FirstRun">
-		A instalação do [SECOND_LIFE] está completa.
+		A instalação do [APP_NAME] está completa.
 
 Se esta é a primeira vez usando o[SECOND_LIFE], será necessário que você crie uma conta antes de poder se logar.
 Retornar a www.secondlife.com para criar uma nova conta?
 		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Nova conta.."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
-		Estamos com problemas de conexão. Pode ser problema com a conexão de sua internet ou com os servidores do Second Life.
+		Estamos com problemas de conexão. Pode ser problema com a conexão de sua internet ou com os servidores do [SECOND_LIFE].
 
 Voce tanto pode checar a conexão de sua internet e tentar novamente em alguns minutos, ou clicar em Teletransporte para tentar teletransportar-se para sua casa.
 		<form name="form">
@@ -1138,7 +1141,7 @@ Voce tanto pode checar a conexão de sua internet e tentar novamente em alguns m
 		Seu personagem irá aparecer num momento.
 
 Use as teclas de seta para andar.
-Pressione a tecla F1 para ajuda ou aprender mais sobre  [SECOND_LIFE].
+Pressione a tecla F1 para ajuda ou aprender mais sobre [SECOND_LIFE].
 Por favor, escolha se o seu avatar é feminino ou masculino. Você pode mudar de idéia depois.
 		<usetemplate name="okcancelbuttons" notext="Feminino" yestext="Masculino"/>
 	</notification>
@@ -1226,33 +1229,33 @@ Por favor, ponha o objeto à venda e tente novamente.
 [DOWNLOAD_PATH]
 	</notification>
 	<notification name="DownloadWindowsMandatory">
-		Uma nova versão do [SECOND_LIFE] está disponível.
+		Uma nova versão do [APP_NAME] está disponível.
 [MESSAGE]
-Você deve baixar essa atualização para utilizar o [SECOND_LIFE].
+Você deve baixar essa atualização para utilizar o [APP_NAME].
 		<usetemplate name="okcancelbuttons" notext="Sair" yestext="Atualizar"/>
 	</notification>
 	<notification name="DownloadWindows">
-		Uma versão atualizada do [SECOND_LIFE] está disponível.
+		Uma versão atualizada do [APP_NAME] está disponível.
 [MESSAGE]
 Essa atualização não é mandatória, mas sugerimos que você a instale para melhorar a performance e a estabilidade.
 		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Atualizar"/>
 	</notification>
 	<notification name="DownloadWindowsReleaseForDownload">
-		Uma versão atualizada do [SECOND_LIFE] está disponível.
+		Uma versão atualizada do [APP_NAME] está disponível.
 [MESSAGE]
 Essa atualização não é mandatória, mas sugerimos que você a instale para melhorar a performance e a estabilidade.
 		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Atualizar"/>
 	</notification>
 	<notification name="DownloadMacMandatory">
-		Uma nova versão do [SECOND_LIFE] está disponível.
+		Uma nova versão do [APP_NAME] está disponível.
 [MESSAGE]
-Você deve baixar esta atualização para utilizar o [SECOND_LIFE].
+Você deve baixar esta atualização para utilizar o [APP_NAME].
 
 Baixar para sua pasta de Aplicativos?
 		<usetemplate name="okcancelbuttons" notext="Sair" yestext="Atualizar"/>
 	</notification>
 	<notification name="DownloadMac">
-		Uma nova versão do [SECOND_LIFE] está disponível.
+		Uma nova versão do [APP_NAME] está disponível.
 [MESSAGE]
 Essa atualização não é mandatória, mas sugerimos que você a instale para melhorar a performance e a estabilidade.
 
@@ -1260,7 +1263,7 @@ Baixar para a sua pasta de Aplicativos?
 		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Atualizar"/>
 	</notification>
 	<notification name="DownloadMacReleaseForDownload">
-		Uma nova versão do [SECOND_LIFE] está disponível.
+		Uma nova versão do [APP_NAME] está disponível.
 
 [MESSAGE]
 Essa atualização não é mandatória, mas sugerimos que você a instale para melhorar a performance e a estabilidade.
@@ -1859,7 +1862,7 @@ Definí-lo em branco fará com que os relatórios de abuso sejam enviados apenas
 Padrão: desligado
 	</notification>
 	<notification label="Discordância de Versão de Voz" name="VoiceVersionMismatch">
-		Esta versão do Second Life não é compatível com as características do Canal de Voz desta região. Para que a Conversa por Voz funcione corretamente, você precisará atualizar o Second Life.
+		Esta versão do [APP_NAME] não é compatível com as características do Canal de Voz desta região. Para que a Conversa por Voz funcione corretamente, você precisará atualizar o [APP_NAME].
 	</notification>
 	<notification label="Corretor da Propriedade" name="HelpEstateCovenant">
 		Definir um corretor da propriedade lhe permite vender lotes nesta propriedade. Se um corretor não for definido, você não pode vender terras. O cartão do seu corretor pode ficar vazio se você não desejar aplicar quaisquer regras ou avisar os compradores sobre qualquer coisa em relação ao lote antes da compra.
@@ -1973,16 +1976,16 @@ Mover para o inventário o(s) item(s)?
 		Não há itens neste objeto que você está autorizado a copiar.
 	</notification>
 	<notification name="WebLaunchAccountHistory">
-		Ir para o site do Second Life para visualizar o histórico de sua conta?
+		Ir para o site do [SECOND_LIFE] para visualizar o histórico de sua conta?
 		<usetemplate ignoretext="Ao abrir a página web de histórico de conta" name="okcancelignore" notext="Cancelar" yestext="Ir para a página"/>
 	</notification>
 	<notification name="ClickOpenF1Help">
-		Visitar o website de Suporte do Second Life?
-		<usetemplate ignoretext="Quando visitando o website de Suporte do Second Life" name="okcancelignore" notext="Cancelar" yestext="Ir"/>
+		Visitar o website de Suporte do [SECOND_LIFE]?
+		<usetemplate ignoretext="Quando visitando o website de Suporte do [SECOND_LIFE]" name="okcancelignore" notext="Cancelar" yestext="Ir"/>
 	</notification>
 	<notification name="ConfirmQuit">
 		Tem certeza que deseja sair?
-		<usetemplate ignoretext="Quando Saindo do Second Life." name="okcancelignore" notext="Continuar" yestext="Sair"/>
+		<usetemplate ignoretext="Quando Saindo do [APP_NAME]." name="okcancelignore" notext="Continuar" yestext="Sair"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		Use esta ferramenta para reportar violações aos Termos de Serviço e aos Padrões da Comunidade. Veja:
@@ -2002,8 +2005,8 @@ Como um serviço aos residentes e visitantes, o dono da região em que você se 
 O dono da região resolverá as reportagens baseado nas regras locais desta região, como definido na Declaração da propriedade.
 (Veja as declarações indo ao menu Mundo e selecionando Sobre a Terra.)
 
-A resolução desta reportagem se aplica apenas a esta região; o acesso de Residentes às outras áreas do Second Life não será afetado pelas decisões desta reportagem.
-Apenas a Linden Lab pode restringir acesso a todo o Second Life.
+A resolução desta reportagem se aplica apenas a esta região; o acesso de Residentes às outras áreas do [SECOND_LIFE] não será afetado pelas decisões desta reportagem.
+Apenas a Linden Lab pode restringir acesso a todo o [SECOND_LIFE].
 	</notification>
 	<notification name="HelpReportBug">
 		Use esta ferramenta para reportar *apenas* características técnicas que não atuem como descrito ou esperado.
@@ -2056,9 +2059,9 @@ Fazer uma descrição precisa nos ajuda a arquivar e processar os relatórios de
 
 Você parece estar relatando violação de propriedade intelectual. Por favor, certifique-se de que está relatando corretamente:
 
-(1) O Processo de abuso. Você pode apresentar um relatório de abuso se você acredita que um Residente está infringindo o sistema de permissões do Second Life, por exemplo, utilizando ferramentas CopyBot para copiar ou similar, para violar os direitos de propriedade intelectual. A Equipe de Abuso investiga e divulga a ação disciplinar adequada para o comportamento que viola o Estatuto da Comunidade do Second Life ou os Termos de Serviço. No entanto, a mesma não controla e não irá responder aos pedidos para remover o conteúdo do mundo Second Life.
+(1) O Processo de abuso. Você pode apresentar um relatório de abuso se você acredita que um Residente está infringindo o sistema de permissões do [SECOND_LIFE], por exemplo, utilizando ferramentas CopyBot para copiar ou similar, para violar os direitos de propriedade intelectual. A Equipe de Abuso investiga e divulga a ação disciplinar adequada para o comportamento que viola o Estatuto da Comunidade do [SECOND_LIFE] ou os Termos de Serviço. No entanto, a mesma não controla e não irá responder aos pedidos para remover o conteúdo do mundo [SECOND_LIFE].
 
-(2) O processo de remoção de conteúdo ou DMCA. Para solicitar a remoção de conteúdo do Second Life, você deve enviar uma notificação válida de infração, conforme previsto em nossa Política de DMCA em http://secondlife.com/corporate/dmca.php.
+(2) O processo de remoção de conteúdo ou DMCA. Para solicitar a remoção de conteúdo do [SECOND_LIFE], você deve enviar uma notificação válida de infração, conforme previsto em nossa Política de DMCA em http://secondlife.com/corporate/dmca.php.
 
 Se você ainda deseja prosseguir com o processo de abuso, por favor, feche esta janela e termine de enviar seu relatório. Pode ser necessário selecionar a categoria específica &apos;CopyBot Infração de Permissões&apos;.
 
@@ -2109,7 +2112,7 @@ Você gostaria de deixar o modo Ocupado antes de completar esta transação?
 		<usetemplate ignoretext="Ao esvaziar pasta Achados e Perdidos do seu inventário" name="okcancelignore" notext="Não" yestext="Sim"/>
 	</notification>
 	<notification name="CopySLURL">
-		A seguinte SLURL foi copiada para o seu clipboard:
+		A seguinte SLurl foi copiada para o seu clipboard:
  [SLURL]
 
 Coloque-a em uma página web para dar aos outros um fácil acesso a este local ou tente você, colando-a na barra de endereços do seu navegador.
@@ -2118,7 +2121,7 @@ Coloque-a em uma página web para dar aos outros um fácil acesso a este local o
 		</form>
 	</notification>
 	<notification name="GraphicsPreferencesHelp">
-		Este painel controla o tamanho da janela, resolução e a qualidade dos gráficos do computador cliente. O Preferências &gt; Interface Gráfica permite escolher entre quatro níveis gráficos: Baixo, Médio, Alto e Ultra. Você também pode personalizar suas configurações de gráficos selecionando a opção Padrão e manipulando as seguintes definições:
+		Este painel controla o tamanho da janela, resolução e a qualidade dos gráficos do computador cliente. O Preferências &gt; Interface Gráfica permite escolher entre quatro níveis gráficos: Baixo, Médio, Alto e Ultra. Você também pode personalizar suas configurações de gráficos selecionando a opção Personalizar e manipulando as seguintes definições:
 
 Sombreamento: Ativar ou desativar vários tipos de sombreadores de pixel.
 
@@ -2180,7 +2183,7 @@ Clique &quot;Céu Avançado &quot; para abrir um editor com configurações mais
 Clique &quot;Água Avançada &quot; para abrir um editor com configurações mais avançadas para a água.
 	</notification>
 	<notification name="HelpDayCycle">
-		O editor de Ciclo do Dia dá a você o controle do céu durante um ciclo de dia/noite do Second Life. Este é o ciclo usado pelo controle gradual da hora do dia do editor de ambiente básico.
+		O editor de Ciclo do Dia dá a você o controle do céu durante um ciclo de dia/noite do [SECOND_LIFE]. Este é o ciclo usado pelo controle gradual da hora do dia do editor de ambiente básico.
 
 O editor do ciclo de dia trabalha configurando quadros-chave. Estes são pontos (representados pelos ícones cinza no gráfico de horário) que possuem um pré-ajuste de céu associado a eles.  Conforme o dia passa, o céu do Windlight &quot; anima &quot; a interpolação entre esses quadros-chave.
 
@@ -2258,7 +2261,7 @@ Similar ao azimute.
 		Controla a velocidade que as núvens se movem na direção Y.
 	</notification>
 	<notification name="HelpClassicClouds">
-		Marque esta check box para permitir a reprodução das nuvens clássicas mais velhas do Second Life, além das nuvens WindLight.
+		Marque esta check box para permitir a reprodução das nuvens clássicas mais velhas do [SECOND_LIFE], além das nuvens WindLight.
 	</notification>
 	<notification name="HelpWaterFogColor">
 		Escolhe a cor da neblina subaquática.
@@ -2356,7 +2359,7 @@ Similar ao azimute.
 	</notification>
 	<notification name="NotAgeVerified">
 		Você precisa ter a idade verificada para acessar este lote.
-Gostaria de visitar o site do Second Life para verificação de idade?
+Gostaria de visitar o site do [SECOND_LIFE] para verificação de idade?
 
 [_URL]
 		<url name="url" option="0">
@@ -2366,7 +2369,7 @@ Gostaria de visitar o site do Second Life para verificação de idade?
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		Este lote exige que você tenha informações de pagamento no arquivo antes de poder acessá-lo.
-Gostaria de visitar o site do Second Life para configurá-lo?
+Gostaria de visitar o site do [SECOND_LIFE] para configurá-lo?
 
 [_URL]
 		<url name="url" option="0">
@@ -2677,13 +2680,13 @@ Por favor, tente novamente em alguns instantes.
 		Impossível criar a conexão pendente.
 	</notification>
 	<notification name="InternalUsherError">
-		Um erro interno ocorreu enquanto se tentava direcioná-lo para seu destino de Tele-transporte. O Second Life pode estar passando por problemas no serviço, neste momento.
+		Um erro interno ocorreu enquanto se tentava direcioná-lo para seu destino de Tele-transporte. O [SECOND_LIFE] pode estar passando por problemas no serviço, neste momento.
 	</notification>
 	<notification name="NoGoodTPDestination">
 		Impossível encontrar um bom destino para tele-transporte nesta região.
 	</notification>
 	<notification name="InternalErrorRegionResolver">
-		Um erro interno ocorreu enquanto tentava-se definir as coordenadas globais da sua solicitação de tele-transporte. O Second Life pode estar passando por problemas no serviço, no momento.
+		Um erro interno ocorreu enquanto tentava-se definir as coordenadas globais da sua solicitação de tele-transporte. O [SECOND_LIFE] pode estar passando por problemas no serviço, no momento.
 	</notification>
 	<notification name="NoValidLanding">
 		Não se achou um ponto de aterrissagem válido.
@@ -2804,7 +2807,7 @@ Do objeto: [OBJECTNAME], dono: [NAME]?
 		Falhou ao procurar [TYPE] nomeado [DESC] no banco de dados.
 	</notification>
 	<notification name="InvalidWearable">
-		O item que você está tentando vestir usa uma característica que seu Visualizador não lê. Por favor, atualize sua versão do Second Life para vestir este item.
+		O item que você está tentando vestir usa uma característica que seu Visualizador não lê. Por favor, atualize sua versão do [APP_NAME] para vestir este item.
 	</notification>
 	<notification name="ScriptQuestion">
 		&apos;[OBJECTNAME]&apos;, um objeto pertencente a  &apos;[NAME]&apos;, gostaria de:
@@ -2909,8 +2912,8 @@ Objetos flexíveis não podem ser físicos e devem ser fantasmas até que a caix
 	</notification>
 	<notification name="FirstDebugMenus">
 		Você ativou o menu Avançado.
-Este menu contém funcionalidades úteis para desenvolvedores debugarem o Second Life.
-Para mostrar esse menu no Windows pressione Ctrl-Alt-D. No Mac pressione Cmd-Opt-Shift-D.
+Este menu contém funcionalidades úteis para desenvolvedores debugarem o [SECOND_LIFE].
+Para mostrar esse menu no Windows pressione Ctrl-Alt-D. No Mac pressione &#8984;-Opt-D.
 	</notification>
 	<notification name="FirstSculptedPrim">
 		Você está editando uma primitiva esculpida.
@@ -3017,7 +3020,7 @@ Clique Aceitar para juntar-se à chamada ou Recusar para recusar o convite. Cliq
 		- A velocidade da sua CPU não suporta os requisitos mínimos exigidos.
 	</global>
 	<global name="UnsupportedGLRequirements">
-		Você não parece ter os requisitos de hardware recomendados para rodar o Second Life. O Second Life exige uma placa gráfica OpenGL que tem apoio a multi- texturas. Se este for o caso, você pode se certificar de que tem os drivers mais recentes para sua placa gráfica, e os patches e pacotes de serviços para seu sistema operacional.
+		Você não parece ter os requisitos de hardware recomendados para rodar o [APP_NAME]. O [APP_NAME] exige uma placa gráfica OpenGL que tem apoio a multi- texturas. Se este for o caso, você pode se certificar de que tem os drivers mais recentes para sua placa gráfica, e os patches e pacotes de serviços para seu sistema operacional.
 
 Se continuar com problemas, por favor visite: http://www.secondlife.com/support
 	</global>

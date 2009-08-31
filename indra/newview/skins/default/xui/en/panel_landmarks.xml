@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+   name="Landmarks"
+   bottom="0"
+   height="326"
+   left="0"
+   width="380"
+   border="true"
+   background_visible="true"
+   bg_alpha_color="DkGray2"
+   follows="left|top|right|bottom">
+      <inventory_panel
+	 allow_multi_select="true"
+	 border="true"
+	 bottom="0"
+	 follows="left|top|right|bottom"
+	 height="326"
+	 left="0"
+	 mouse_opaque="true"
+	 name="landmarks_list"
+	 width="380"/>
+      <button
+	 bottom="0"
+	 halign="center"
+	 height="16"
+	 label=">"
+	 enabled="false"
+	 mouse_opaque="false"
+	 name="selector"
+	 width="20"
+	 left="0"
+	 follows="right|bottom"
+	 tool_tip="View landmark properties"/>
+</panel>

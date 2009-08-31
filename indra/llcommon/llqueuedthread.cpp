@@ -31,7 +31,9 @@
 
 #include "linden_common.h"
 #include "llqueuedthread.h"
+
 #include "llstl.h"
+#include "lltimer.h"	// ms_sleep()
 
 //============================================================================
 

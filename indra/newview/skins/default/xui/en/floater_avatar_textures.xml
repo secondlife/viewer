@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ height="950"
+ layout="topleft"
+ name="avatar_texture_debug"
+ title="Avatar Textures"
+ width="960">
+    <floater.string
+     name="InvalidAvatar">
+        INVALID AVATAR
+    </floater.string>
+    <text
+     type="string"
+     length="1"
+     height="16"
+     layout="topleft"
+     left="10"
+     name="label"
+     top="24"
+     width="80">
+        Baked Textures
+    </text>
+    <text
+     type="string"
+     length="1"
+     height="16"
+     layout="topleft"
+     left_pad="60"
+     name="composite_label"
+     top_delta="0"
+     width="120">
+        Composite Textures
+    </text>
+    <button
+     height="20"
+     label="Dump IDs to Console"
+     label_selected="Dump"
+     layout="topleft"
+     left_pad="530"
+     name="Dump"
+     top_delta="1"
+     width="150" />
+    <texture_picker
+     height="143"
+     label="Hair"
+     layout="topleft"
+     left="10"
+     name="hair-baked"
+     top="47"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Hair"
+     layout="topleft"
+     left_pad="7"
+     name="hair"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Head"
+     layout="topleft"
+     left="10"
+     name="head-baked"
+     top="197"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Makeup"
+     layout="topleft"
+     left_pad="7"
+     name="head bodypaint"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Eyes"
+     layout="topleft"
+     left="10"
+     name="eyes-baked"
+     top="347"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Eye"
+     layout="topleft"
+     left_pad="7"
+     name="iris"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Upper Body"
+     layout="topleft"
+     left="10"
+     name="upper-baked"
+     top="497"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Upper Body Tattoo"
+     layout="topleft"
+     left_pad="7"
+     name="upper bodypaint"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Undershirt"
+     layout="topleft"
+     left_pad="7"
+     name="undershirt"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Gloves"
+     layout="topleft"
+     left_pad="7"
+     name="gloves"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Shirt"
+     layout="topleft"
+     left_pad="7"
+     name="shirt"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Upper Jacket"
+     layout="topleft"
+     left_pad="7"
+     name="upper jacket"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Lower Body"
+     layout="topleft"
+     left="10"
+     name="lower-baked"
+     top="647"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Lower Body Tattoo"
+     layout="topleft"
+     left_pad="7"
+     name="lower bodypaint"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Underpants"
+     layout="topleft"
+     left_pad="7"
+     name="underpants"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Socks"
+     layout="topleft"
+     left_pad="7"
+     name="socks"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Shoes"
+     layout="topleft"
+     left_pad="7"
+     name="shoes"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Pants"
+     layout="topleft"
+     left_pad="7"
+     name="pants"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Jacket"
+     layout="topleft"
+     left_pad="7"
+     name="lower jacket"
+     top_delta="0"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Skirt"
+     layout="topleft"
+     left="10"
+     name="skirt-baked"
+     top="797"
+     width="128" />
+    <texture_picker
+     height="143"
+     label="Skirt"
+     layout="topleft"
+     left_pad="7"
+     name="skirt"
+     top_delta="0"
+     width="128" />
+</floater>

@@ -42,11 +42,10 @@
 
 #include "llcubemap.h"
 #include "llsky.h"
-#include "llagent.h"
 #include "lldrawable.h"
 #include "llface.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"	// For debugging
+#include "llviewertexturelist.h"	// For debugging
 #include "llviewerobjectlist.h" // For debugging
 #include "llviewerwindow.h"
 #include "pipeline.h"
@@ -90,7 +89,7 @@ void LLDrawPoolAlpha::endDeferredPass(S32 pass)
 {
 	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.4f);
 	{
-		LLFastTimer t(LLFastTimer::FTM_RENDER_GRASS);
+		LLFastTimer t(FTM_RENDER_GRASS);
 		gDeferredTreeProgram.bind();
 		LLGLEnable test(GL_ALPHA_TEST);
 		//render alpha masked objects
@@ -112,7 +111,7 @@ S32 LLDrawPoolAlpha::getNumPostDeferredPasses()
 
 void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass) 
 { 
-	LLFastTimer t(LLFastTimer::FTM_RENDER_ALPHA);
+	LLFastTimer t(FTM_RENDER_ALPHA);
 
 	simple_shader = &gDeferredAlphaProgram;
 	fullbright_shader = &gDeferredFullbrightProgram;
@@ -139,7 +138,7 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 
 void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_ALPHA);
+	LLFastTimer t(FTM_RENDER_ALPHA);
 	
 	if (LLPipeline::sUnderWaterRender)
 	{
@@ -163,7 +162,7 @@ void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 
 void LLDrawPoolAlpha::endRenderPass( S32 pass )
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_ALPHA);
+	LLFastTimer t(FTM_RENDER_ALPHA);
 	LLRenderPass::endRenderPass(pass);
 
 	if(gPipeline.canUseWindLightShaders()) 
@@ -174,7 +173,7 @@ void LLDrawPoolAlpha::endRenderPass( S32 pass )
 
 void LLDrawPoolAlpha::render(S32 pass)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER_ALPHA);
+	LLFastTimer t(FTM_RENDER_ALPHA);
 
 	LLGLSPipelineAlpha gls_pipeline_alpha;
 
@@ -218,8 +217,8 @@ void LLDrawPoolAlpha::render(S32 pass)
 		}
 		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 		glColor4f(1,0,0,1);
-		LLViewerImage::sSmokeImagep->addTextureStats(1024.f*1024.f);
-		gGL.getTexUnit(0)->bind(LLViewerImage::sSmokeImagep.get());
+		LLViewerFetchedTexture::sSmokeImagep->addTextureStats(1024.f*1024.f);
+		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sSmokeImagep) ;
 		renderAlphaHighlight(LLVertexBuffer::MAP_VERTEX |
 							LLVertexBuffer::MAP_TEXCOORD0);
 	}
@@ -294,7 +293,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 				if (params.mTexture.notNull())
 				{
 					gGL.getTexUnit(0)->activate();
-					gGL.getTexUnit(0)->bind(params.mTexture.get());
+					gGL.getTexUnit(0)->bind(params.mTexture) ;
 					params.mTexture->addTextureStats(params.mVSize);
 					if (params.mTextureMatrix)
 					{

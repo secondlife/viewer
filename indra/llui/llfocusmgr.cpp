@@ -38,6 +38,77 @@
 
 const F32 FOCUS_FADE_TIME = 0.3f;
 
+// NOTE: the LLFocusableElement implementation has been moved here from lluictrl.cpp.
+
+LLFocusableElement::LLFocusableElement()
+:	mFocusLostCallback(NULL),
+	mFocusReceivedCallback(NULL),
+	mFocusChangedCallback(NULL),
+	mTopLostCallback(NULL),
+	mFocusCallbackUserData(NULL)
+{
+}
+
+// virtual
+BOOL LLFocusableElement::handleKey(KEY key, MASK mask, BOOL called_from_parent)
+{
+	return FALSE;
+}
+
+// virtual
+BOOL LLFocusableElement::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
+{
+	return FALSE;
+}
+
+// virtual
+LLFocusableElement::~LLFocusableElement()
+{
+}
+
+void LLFocusableElement::onFocusReceived()
+{
+	if( mFocusReceivedCallback )
+	{
+		mFocusReceivedCallback( this, mFocusCallbackUserData );
+	}
+	if( mFocusChangedCallback )
+	{
+		mFocusChangedCallback( this, mFocusCallbackUserData );
+	}
+}
+
+void LLFocusableElement::onFocusLost()
+{
+	if( mFocusLostCallback )
+	{
+		mFocusLostCallback( this, mFocusCallbackUserData );
+	}
+
+	if( mFocusChangedCallback )
+	{
+		mFocusChangedCallback( this, mFocusCallbackUserData );
+	}
+}
+
+void LLFocusableElement::onTopLost()
+{
+	if (mTopLostCallback)
+	{
+		mTopLostCallback(this, mFocusCallbackUserData);
+	}
+}
+
+BOOL LLFocusableElement::hasFocus() const
+{
+	return gFocusMgr.getKeyboardFocus() == this;
+}
+
+void LLFocusableElement::setFocus(BOOL b)
+{
+}
+
+
 LLFocusMgr gFocusMgr;
 
 LLFocusMgr::LLFocusMgr()
@@ -49,7 +120,6 @@ LLFocusMgr::LLFocusMgr()
 	mDefaultKeyboardFocus( NULL ),
 	mKeystrokesOnly(FALSE),
 	mTopCtrl( NULL ),
-	mFocusWeight(0.f),
 	mAppHasFocus(TRUE)   // Macs don't seem to notify us that we've gotten focus, so default to true
 	#ifdef _DEBUG
 		, mMouseCaptorName("none")
@@ -87,18 +157,24 @@ void LLFocusMgr::releaseFocusIfNeeded( const LLView* view )
 }
 
 
-void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, BOOL lock, BOOL keystrokes_only)
+void LLFocusMgr::setKeyboardFocus(LLFocusableElement* new_focus, BOOL lock, BOOL keystrokes_only)
 {
+	// notes if keyboard focus is changed again (by onFocusLost/onFocusReceived)
+    // making the rest of our processing unnecessary since it will already be
+    // handled by the recursive call
+	static bool focus_dirty;
+	focus_dirty = false;
+
 	if (mLockedView && 
 		(new_focus == NULL || 
-			(new_focus != mLockedView && !new_focus->hasAncestor(mLockedView))))
+			(new_focus != mLockedView 
+			&& dynamic_cast<LLView*>(new_focus)
+			&& !dynamic_cast<LLView*>(new_focus)->hasAncestor(mLockedView))))
 	{
 		// don't allow focus to go to anything that is not the locked focus
 		// or one of its descendants
 		return;
 	}
-
-	//llinfos << "Keyboard focus handled by " << (new_focus ? new_focus->getName() : "nothing") << llendl;
 
 	mKeystrokesOnly = keystrokes_only;
 
@@ -107,21 +183,65 @@ void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, BOOL lock, BOOL keystroke
 		mLastKeyboardFocus = mKeyboardFocus;
 		mKeyboardFocus = new_focus;
 
-		if( mLastKeyboardFocus )
+		// list of the focus and it's ancestors
+		view_handle_list_t old_focus_list = mCachedKeyboardFocusList;
+		view_handle_list_t new_focus_list;
+
+		// walk up the tree to root and add all views to the new_focus_list
+		for (LLView* ctrl = dynamic_cast<LLView*>(mKeyboardFocus); ctrl && ctrl != LLUI::getRootView(); ctrl = ctrl->getParent())
 		{
-			mLastKeyboardFocus->onFocusLost();
+			if (ctrl) 
+			{
+				new_focus_list.push_back(ctrl->getHandle());
+			}
 		}
 
-		// clear out any existing flash
-		if (new_focus)
+		// remove all common ancestors since their focus is unchanged
+		while (!new_focus_list.empty() &&
+			   !old_focus_list.empty() &&
+			   new_focus_list.back() == old_focus_list.back())
 		{
-			mFocusWeight = 0.f;
-			new_focus->onFocusReceived();
+			new_focus_list.pop_back();
+			old_focus_list.pop_back();
 		}
-		mFocusTimer.reset();
+
+		// walk up the old focus branch calling onFocusLost
+		// we bubble up the tree to release focus, and back down to add
+		for (view_handle_list_t::iterator old_focus_iter = old_focus_list.begin();
+			 old_focus_iter != old_focus_list.end() && !focus_dirty;
+			 old_focus_iter++)
+		{			
+			LLView* old_focus_view = old_focus_iter->get();
+			if (old_focus_view)
+			{
+				mCachedKeyboardFocusList.pop_front();
+				old_focus_view->onFocusLost();
+			}
+		}
+
+		// walk down the new focus branch calling onFocusReceived
+		for (view_handle_list_t::reverse_iterator new_focus_riter = new_focus_list.rbegin();
+			 new_focus_riter != new_focus_list.rend() && !focus_dirty;
+			 new_focus_riter++)
+		{			
+			LLView* new_focus_view = new_focus_riter->get();
+			if (new_focus_view)
+			{
+                mCachedKeyboardFocusList.push_front(new_focus_view->getHandle());
+				new_focus_view->onFocusReceived();
+			}
+		}
+		
+		// if focus was changed as part of an onFocusLost or onFocusReceived call
+		// stop iterating on current list since it is now invalid
+		if (focus_dirty)
+		{
+			return;
+		}
 
 		#ifdef _DEBUG
-			mKeyboardFocusName = new_focus ? new_focus->getName() : std::string("none");
+			LLUICtrl* focus_ctrl = dynamic_cast<LLUICtrl*>(new_focus);
+			mKeyboardFocusName = focus_ctrl ? focus_ctrl->getName() : std::string("none");
 		#endif
 
 		// If we've got a default keyboard focus, and the caller is
@@ -131,8 +251,8 @@ void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, BOOL lock, BOOL keystroke
 			mDefaultKeyboardFocus->setFocus(TRUE);
 		}
 
-		LLView* focus_subtree = mKeyboardFocus;
-		LLView* viewp = mKeyboardFocus;
+		LLView* focus_subtree = dynamic_cast<LLView*>(mKeyboardFocus);
+		LLView* viewp = dynamic_cast<LLView*>(mKeyboardFocus);
 		// find root-most focus root
 		while(viewp)
 		{
@@ -146,7 +266,8 @@ void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, BOOL lock, BOOL keystroke
 		
 		if (focus_subtree)
 		{
-			mFocusHistory[focus_subtree->getHandle()] = mKeyboardFocus ? mKeyboardFocus->getHandle() : LLHandle<LLView>(); 
+			LLView* focused_view = dynamic_cast<LLView*>(mKeyboardFocus);
+			mFocusHistory[focus_subtree->getHandle()] = focused_view ? focused_view->getHandle() : LLHandle<LLView>(); 
 		}
 	}
 	
@@ -154,13 +275,15 @@ void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, BOOL lock, BOOL keystroke
 	{
 		lockFocus();
 	}
+
+	focus_dirty = true;
 }
 
 
 // Returns TRUE is parent or any descedent of parent has keyboard focus.
 BOOL LLFocusMgr::childHasKeyboardFocus(const LLView* parent ) const
 {
-	LLView* focus_view = mKeyboardFocus;
+	LLView* focus_view = dynamic_cast<LLView*>(mKeyboardFocus);
 	while( focus_view )
 	{
 		if( focus_view == parent )
@@ -190,7 +313,7 @@ BOOL LLFocusMgr::childHasMouseCapture( const LLView* parent ) const
 	return FALSE;
 }
 
-void LLFocusMgr::removeKeyboardFocusWithoutCallback( const LLView* focus )
+void LLFocusMgr::removeKeyboardFocusWithoutCallback( const LLFocusableElement* focus )
 {
 	// should be ok to unlock here, as you have to know the locked view
 	// in order to unlock it
@@ -220,24 +343,19 @@ void LLFocusMgr::setMouseCapture( LLMouseHandler* new_captor )
 	{
 		LLMouseHandler* old_captor = mMouseCaptor;
 		mMouseCaptor = new_captor;
-		/*
-		if (new_captor)
+		
+		if (LLView::sDebugMouseHandling)
 		{
-			if ( new_captor->getName() == "Stickto")
+			if (new_captor)
 			{
 				llinfos << "New mouse captor: " << new_captor->getName() << llendl;
 			}
 			else
 			{
-				llinfos << "New mouse captor: " << new_captor->getName() << llendl;
+				llinfos << "New mouse captor: NULL" << llendl;
 			}
 		}
-		else
-		{
-			llinfos << "New mouse captor: NULL" << llendl;
-		}
-		*/
-
+			
 		if( old_captor )
 		{
 			old_captor->onMouseCaptureLost();
@@ -295,7 +413,7 @@ void LLFocusMgr::setTopCtrl( LLUICtrl* new_top  )
 
 		if (old_top)
 		{
-			old_top->onLostTop();
+			old_top->onTopLost();
 		}
 	}
 }
@@ -313,7 +431,7 @@ void LLFocusMgr::removeTopCtrlWithoutCallback( const LLUICtrl* top_view )
 
 void LLFocusMgr::lockFocus()
 {
-	mLockedView = mKeyboardFocus; 
+	mLockedView = dynamic_cast<LLUICtrl*>(mKeyboardFocus); 
 }
 
 void LLFocusMgr::unlockFocus()
@@ -323,12 +441,13 @@ void LLFocusMgr::unlockFocus()
 
 F32 LLFocusMgr::getFocusFlashAmt() const
 {
-	return clamp_rescale(getFocusTime(), 0.f, FOCUS_FADE_TIME, mFocusWeight, 0.f);
+	return clamp_rescale(mFocusFlashTimer.getElapsedTimeF32(), 0.f, FOCUS_FADE_TIME, 1.f, 0.f);
 }
 
 LLColor4 LLFocusMgr::getFocusColor() const
 {
-	LLColor4 focus_color = lerp(LLUI::sColorsGroup->getColor( "FocusColor" ), LLColor4::white, getFocusFlashAmt());
+	static LLUIColor focus_color_cached = LLUIColorTable::instance().getColor("FocusColor");
+	LLColor4 focus_color = lerp(focus_color_cached, LLColor4::white, getFocusFlashAmt());
 	// de-emphasize keyboard focus when app has lost focus (to avoid typing into wrong window problem)
 	if (!mAppHasFocus)
 	{
@@ -339,8 +458,7 @@ LLColor4 LLFocusMgr::getFocusColor() const
 
 void LLFocusMgr::triggerFocusFlash()
 {
-	mFocusTimer.reset();
-	mFocusWeight = 1.f;
+	mFocusFlashTimer.reset();
 }
 
 void LLFocusMgr::setAppHasFocus(BOOL focus) 

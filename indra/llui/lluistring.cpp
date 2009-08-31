@@ -33,8 +33,11 @@
 #include "linden_common.h"
 #include "lluistring.h"
 #include "llsd.h"
+#include "lltrans.h"
 
 const LLStringUtil::format_map_t LLUIString::sNullArgs;
+
+LLFastTimer::DeclareTimer FTM_UI_STRING("UI String");
 
 
 LLUIString::LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args)
@@ -58,6 +61,8 @@ void LLUIString::setArgList(const LLStringUtil::format_map_t& args)
 
 void LLUIString::setArgs(const LLSD& sd)
 {
+	LLFastTimer timer(FTM_UI_STRING);
+	
 	if (!sd.isMap()) return;
 	for(LLSD::map_const_iterator sd_it = sd.beginMap();
 		sd_it != sd.endMap();
@@ -111,7 +116,20 @@ void LLUIString::clear()
 
 void LLUIString::format()
 {
+	LLFastTimer timer(FTM_UI_STRING);
+	
+	// optimize for empty strings (don't attempt string replacement)
+	if (mOrig.empty())
+	{
+		mResult.clear();
+		mWResult.clear();
+		return;
+	}
 	mResult = mOrig;
-	LLStringUtil::format(mResult, mArgs);
+	
+	// get the defailt args + local args
+	LLStringUtil::format_map_t combined_args = LLTrans::getDefaultArgs();
+	combined_args.insert(mArgs.begin(), mArgs.end());
+	LLStringUtil::format(mResult, combined_args);
 	mWResult = utf8str_to_wstring(mResult);
 }

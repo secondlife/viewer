@@ -100,7 +100,7 @@ public:
 	/*virtual*/ F32 getPixelAspectRatio();
 	/*virtual*/ void setNativeAspectRatio(F32 ratio) { mOverrideAspectRatio = ratio; }
 
-	/*virtual*/	BOOL dialog_color_picker (F32 *r, F32 *g, F32 *b );
+	/*virtual*/	BOOL dialogColorPicker(F32 *r, F32 *g, F32 *b );
 
 	/*virtual*/ void *getPlatformWindow();
 	/*virtual*/ void bringToFront();
@@ -115,7 +115,7 @@ public:
 	static std::vector<std::string> getDynamicFallbackFontList();
 
 protected:
-	LLWindowWin32(
+	LLWindowWin32(LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags, 
 		BOOL fullscreen, BOOL clearBg, BOOL disable_vsync, BOOL use_gl,
 		BOOL ignore_pixel_depth, U32 fsaa_samples);

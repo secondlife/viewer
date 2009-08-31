@@ -38,12 +38,10 @@
 #include "llparcel.h"
 
 // Viewer includes
-#include "llagent.h"
 #include "llviewercontrol.h"
 #include "llfloatertools.h"
 #include "llselectmgr.h"
 #include "llstatusbar.h"
-#include "lltoolview.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
 
@@ -177,13 +175,13 @@ BOOL LLToolSelectLand::handleHover(S32 x, S32 y, MASK mask)
 				roundXY(mEastNorthTop);
 
 				lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolSelectLand (active, land)" << llendl;
-				gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
+				gViewerWindow->setCursor(UI_CURSOR_ARROW);
 			}
 			else
 			{
 				mDragEndValid = FALSE;
 				lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolSelectLand (active, no land)" << llendl;
-				gViewerWindow->getWindow()->setCursor(UI_CURSOR_NO);
+				gViewerWindow->setCursor(UI_CURSOR_NO);
 			}
 
 			mDragEndX = x;
@@ -192,13 +190,13 @@ BOOL LLToolSelectLand::handleHover(S32 x, S32 y, MASK mask)
 		else
 		{
 			lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolSelectLand (active, in slop)" << llendl;
-			gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
+			gViewerWindow->setCursor(UI_CURSOR_ARROW);
 		}
 	}
 	else
 	{
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolSelectLand (inactive)" << llendl;		
-		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
+		gViewerWindow->setCursor(UI_CURSOR_ARROW);
 	}
 
 	return TRUE;

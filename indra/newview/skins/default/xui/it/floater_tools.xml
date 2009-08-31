@@ -78,7 +78,7 @@
 		Oggetti selezionati: [COUNT]
 	</text>
 	<text name="prim_count" left="134">
-		primitive: [COUNT]
+		primitivi: [COUNT]
 	</text>
 	<tab_container name="Object Info Tabs" tab_max_width="150" tab_min_width="30" width="288">
 		<panel label="Generale" name="General">

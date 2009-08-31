@@ -27,8 +27,8 @@
 	<button label="" label_selected="" name="restrictpush" tool_tip="Sin &apos;empujones&apos;"/>
 	<button label="" label_selected="" name="status_no_voice" tool_tip="Aquí no está disponible la voz"/>
 	<button label="" label_selected="" name="buyland" tool_tip="Comprar esta parcela"/>
-	<line_editor label="Buscar" name="search_editor" tool_tip="Buscar en Second Life"/>
-	<button label="" label_selected="" name="search_btn" tool_tip="Buscar en Second Life"/>
+	<line_editor label="Buscar" name="search_editor" tool_tip="Buscar en [SECOND_LIFE]"/>
+	<button label="" label_selected="" name="search_btn" tool_tip="Buscar en [SECOND_LIFE]"/>
 	<string name="packet_loss_tooltip">
 		Pérdida de paquetes
 	</string>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="true"
+ height="400"
+ layout="topleft"
+ name="floater_test_checkbox"
+ width="400">
+    <check_box
+     control_name="ShowStartLocation"
+     height="16"
+     initial_value="true"
+     label="Show Start Location on Login Screen"
+     layout="topleft"
+     left="10"
+     name="show_location_checkbox"
+     top="28"
+     width="256" />
+    <check_box
+     height="16"
+     label="Minimal Checkbox"
+     layout="topleft"
+     left_delta="0"
+     name="minimal_checkbox"
+     top_pad="14"
+     width="150" />
+    <check_box
+     enabled="false"
+     height="16"
+     label="Disabled Checkbox"
+     layout="topleft"
+     left_delta="0"
+     name="disabled_checkbox"
+     top_pad="14"
+     width="150" />
+    <check_box
+     height="16"
+     label="Text Enabled Red"
+     layout="topleft"
+     left_delta="0"
+     name="text_enabled_color_checkbox"
+     text_enabled_color="red"
+     top_pad="14"
+     width="150" />
+    <check_box
+     enabled="false"
+     height="16"
+     label="Text Disabled Red"
+     layout="topleft"
+     left_delta="0"
+     name="text_disabled_color_checkbox"
+     text_disabled_color="red"
+     top_pad="14"
+     width="150" />
+    <check_box
+     height="16"
+     initial_value="true"
+     label="Initial Value Checked"
+     layout="topleft"
+     left_delta="0"
+     name="initial_value_checkbox"
+     top_pad="14"
+     width="150" />
+    <check_box
+     font="Monospace"
+     height="16"
+     label="Font Monospace"
+     layout="topleft"
+     left_delta="0"
+     name="font_checkbox"
+     top_pad="14"
+     width="150" />
+</floater>

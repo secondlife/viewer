@@ -46,10 +46,9 @@
 #include "lldrawpoolalpha.h"
 #include "llfeaturemanager.h"
 #include "llfirstuse.h"
-#include "llframestats.h"
 #include "llhudmanager.h"
 #include "llimagebmp.h"
-#include "llimagegl.h"
+#include "llmemory.h"
 #include "llselectmgr.h"
 #include "llsky.h"
 #include "llstartup.h"
@@ -58,12 +57,13 @@
 #include "lltooldraganddrop.h"
 #include "lltoolpie.h"
 #include "lltracker.h"
+#include "lltrans.h"
 #include "llui.h"
 #include "llviewercamera.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llvograss.h"
 #include "llworld.h"
 #include "pipeline.h"
@@ -73,7 +73,7 @@
 #include "llviewershadermgr.h"
 #include "llfasttimer.h"
 #include "llfloatertools.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llfocusmgr.h"
 #include "llcubemap.h"
 #include "llviewerregion.h"
@@ -83,9 +83,9 @@
 #include "llwaterparammanager.h"
 #include "llpostprocess.h"
 
-extern LLPointer<LLImageGL> gStartImageGL;
+extern LLPointer<LLViewerTexture> gStartTexture;
 
-LLPointer<LLImageGL> gDisconnectedImagep = NULL;
+LLPointer<LLViewerTexture> gDisconnectedImagep = NULL;
 
 // used to toggle renderer back on after teleport
 const F32 TELEPORT_RENDER_DELAY = 20.f; // Max time a teleport is allowed to take before we raise the curtain
@@ -135,7 +135,7 @@ void display_startup()
 
 	if (frame_count++ > 1) // make sure we have rendered a frame first
 	{
-		LLDynamicTexture::updateAllInstances();
+		LLViewerDynamicTexture::updateAllInstances();
 	}
 
 	LLGLState::checkStates();
@@ -163,6 +163,7 @@ void display_startup()
 
 void display_update_camera()
 {
+	LLMemType mt_uc(LLMemType::MTYPE_DISPLAY_UPDATE_CAMERA);
 	llpushcallstacks ;
 	// TODO: cut draw distance down if customizing avatar?
 	// TODO: cut draw distance on per-parcel basis?
@@ -199,17 +200,24 @@ void display_stats()
 	F32 mem_log_freq = gSavedSettings.getF32("MemoryLogFrequency");
 	if (mem_log_freq > 0.f && gRecentMemoryTime.getElapsedTimeF32() >= mem_log_freq)
 	{
-		gMemoryAllocated = getCurrentRSS();
+		gMemoryAllocated = LLMemory::getCurrentRSS();
 		U32 memory = (U32)(gMemoryAllocated / (1024*1024));
 		llinfos << llformat("MEMORY: %d MB", memory) << llendl;
 		gRecentMemoryTime.reset();
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_PICK("Picking");
+static LLFastTimer::DeclareTimer FTM_RENDER("Render", true);
+static LLFastTimer::DeclareTimer FTM_UPDATE_SKY("Update Sky");
+static LLFastTimer::DeclareTimer FTM_UPDATE_TEXTURES("Update Textures");
+static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE("Update Images");
+
 // Paint the display!
 void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 {
-	LLFastTimer t(LLFastTimer::FTM_RENDER);
+	LLMemType mt_render(LLMemType::MTYPE_RENDER);
+	LLFastTimer t(FTM_RENDER);
 
 	if (LLPipeline::sRenderFrameTest)
 	{
@@ -226,8 +234,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 	
+	stop_glerror();
+
 	gPipeline.disableLights();
 	
+	stop_glerror();
+
 	// Don't draw if the window is hidden or minimized.
 	// In fact, must explicitly check the minimized state before drawing.
 	// Attempting to draw into a minimized window causes a GL error. JC
@@ -238,18 +250,21 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		// Clean up memory the pools may have allocated
 		if (rebuild)
 		{
-			gFrameStats.start(LLFrameStats::REBUILD);
+			stop_glerror();
 			gPipeline.rebuildPools();
+			stop_glerror();
 		}
 
+		stop_glerror();
 		gViewerWindow->returnEmptyPicks();
+		stop_glerror();
 		return; 
 	}
 
 	gViewerWindow->checkSettings();
 	
 	{
-		LLFastTimer ftm(LLFastTimer::FTM_PICK);
+		LLFastTimer ftm(FTM_PICK);
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Pick");
 		gViewerWindow->performPick();
 	}
@@ -299,13 +314,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	//
 
 	LLAppViewer::instance()->pingMainloopTimeout("Display:TextureStats");
-	gFrameStats.start(LLFrameStats::UPDATE_TEX_STATS);
 	stop_glerror();
 
 	LLImageGL::updateStats(gFrameTimeSeconds);
 	
-	LLVOAvatar::sRenderName = gSavedSettings.getS32("RenderName");
-	LLVOAvatar::sRenderGroupTitles = !gSavedSettings.getBOOL("RenderHideGroupTitleAll");
+	LLVOAvatar::sRenderName = gSavedSettings.getS32("AvatarNameTagMode");
+	LLVOAvatar::sRenderGroupTitles = (gSavedSettings.getBOOL("RenderShowGroupTitleAll") && gSavedSettings.getS32("AvatarNameTagMode"));
 	
 	gPipeline.mBackfaceCull = TRUE;
 	gFrameCount++;
@@ -369,12 +383,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		case LLAgent::TELEPORT_START_ARRIVAL:
 			// Transition to ARRIVING.  Viewer has received avatar update, etc., from destination simulator
 			gTeleportArrivalTimer.reset();
-			gViewerWindow->setProgressCancelButtonVisible(FALSE, std::string("Cancel")); //TODO: Translate
+				gViewerWindow->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
 			gViewerWindow->setProgressPercent(75.f);
 			gAgent.setTeleportState( LLAgent::TELEPORT_ARRIVING );
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["arriving"]);
-			gImageList.mForceResetTextureStats = TRUE;
+			gTextureList.mForceResetTextureStats = TRUE;
 			gAgent.resetView(TRUE, TRUE);
 			break;
 
@@ -388,7 +402,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 					LLFirstUse::useTeleport();
 					gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 				}
-				gViewerWindow->setProgressCancelButtonVisible(FALSE, std::string("Cancel")); //TODO: Translate
+				gViewerWindow->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
 				gViewerWindow->setProgressPercent(  arrival_fraction * 25.f + 75.f);
 				gViewerWindow->setProgressString(message);
 			}
@@ -496,19 +510,20 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES))
 	{
 		LLAppViewer::instance()->pingMainloopTimeout("Display:DynamicTextures");
-		LLFastTimer t(LLFastTimer::FTM_UPDATE_TEXTURES);
-		if (LLDynamicTexture::updateAllInstances())
+		LLFastTimer t(FTM_UPDATE_TEXTURES);
+		if (LLViewerDynamicTexture::updateAllInstances())
 		{
 			gGL.setColorMask(true, true);
 			glClear(GL_DEPTH_BUFFER_BIT);
 		}
 	}
 
-	gViewerWindow->setupViewport();
+	gViewerWindow->setup3DViewport();
 
 	gPipeline.resetFrameStats();	// Reset per-frame statistics.
 	if (!gDisconnected)
 	{
+		LLMemType mt_du(LLMemType::MTYPE_DISPLAY_UPDATE);
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Update");
 		if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
 		{ //don't draw hud objects in this frame
@@ -528,17 +543,21 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		stop_glerror();
 				
 		// *TODO: merge these two methods
-		LLHUDManager::getInstance()->updateEffects();
-		LLHUDObject::updateAll();
-		stop_glerror();
-		
-		gFrameStats.start(LLFrameStats::UPDATE_GEOM);
-		const F32 max_geom_update_time = 0.005f*10.f*gFrameIntervalSeconds; // 50 ms/second update time
-		gPipeline.createObjects(max_geom_update_time);
-		gPipeline.updateGeom(max_geom_update_time);
-		stop_glerror();
-		
-		gFrameStats.start(LLFrameStats::UPDATE_CULL);
+		{
+			LLMemType mt_uh(LLMemType::MTYPE_DISPLAY_UPDATE_HUD);
+			LLHUDManager::getInstance()->updateEffects();
+			LLHUDObject::updateAll();
+			stop_glerror();
+		}
+
+		{
+			LLMemType mt_ug(LLMemType::MTYPE_DISPLAY_UPDATE_GEOM);
+			const F32 max_geom_update_time = 0.005f*10.f*gFrameIntervalSeconds; // 50 ms/second update time
+			gPipeline.createObjects(max_geom_update_time);
+			gPipeline.updateGeom(max_geom_update_time);
+			stop_glerror();
+		}
+
 		S32 water_clip = 0;
 		if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT) > 1) &&
 			 gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER))
@@ -552,7 +571,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				water_clip = 1;
 			}
 		}
-
+		
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Cull");
 		
 		//Increment drawable frame counter
@@ -601,8 +620,9 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Swap");
 		
 		{ 
+			LLMemType mt_ds(LLMemType::MTYPE_DISPLAY_SWAP);
 			{
- 				LLFastTimer ftm(LLFastTimer::FTM_CLIENT_COPY);
+ 				LLFastTimer ftm(FTM_CLIENT_COPY);
 				LLVertexBuffer::clientCopy(0.016);
 			}
 
@@ -643,7 +663,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				glLoadMatrixf(proj.m);
 				glMatrixMode(GL_MODELVIEW);
 				glLoadMatrixf(mod.m);
-				gViewerWindow->setupViewport();
+				gViewerWindow->setup3DViewport();
 
 				LLGLState::checkStates();
 				LLGLState::checkTextureChannels();
@@ -655,6 +675,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		if (!for_snapshot)
 		{
+			LLMemType mt_gw(LLMemType::MTYPE_DISPLAY_GEN_REFLECTION);
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Imagery");
 			gPipeline.generateWaterReflection(*LLViewerCamera::getInstance());
 		}
@@ -669,18 +690,18 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLAppViewer::instance()->pingMainloopTimeout("Display:UpdateImages");
 		LLError::LLCallStacks::clear() ;
 		llpushcallstacks ;
-		gFrameStats.start(LLFrameStats::IMAGE_UPDATE);
 
 		{
-			LLFastTimer t(LLFastTimer::FTM_IMAGE_UPDATE);
+			LLMemType mt_iu(LLMemType::MTYPE_DISPLAY_IMAGE_UPDATE);
+			LLFastTimer t(FTM_IMAGE_UPDATE);
 			
-			LLViewerImage::updateClass(LLViewerCamera::getInstance()->getVelocityStat()->getMean(),
+			LLViewerTexture::updateClass(LLViewerCamera::getInstance()->getVelocityStat()->getMean(),
 										LLViewerCamera::getInstance()->getAngularVelocityStat()->getMean());
 
-			gBumpImageList.updateImages();  // must be called before gImageList version so that it's textures are thrown out first.
+			gBumpImageList.updateImages();  // must be called before gTextureList version so that it's textures are thrown out first.
 
 			const F32 max_image_decode_time = llmin(0.005f, 0.005f*10.f*gFrameIntervalSeconds); // 50 ms/second decode time (no more than 5ms/frame)
-			gImageList.updateImages(max_image_decode_time);
+			gTextureList.updateImages(max_image_decode_time);
 			stop_glerror();
 		}
 		llpushcallstacks ;
@@ -694,7 +715,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//
 		LLAppViewer::instance()->pingMainloopTimeout("Display:StateSort");
 		{
-			gFrameStats.start(LLFrameStats::STATE_SORT);
+			LLMemType mt_ss(LLMemType::MTYPE_DISPLAY_STATE_SORT);
 			gPipeline.stateSort(*LLViewerCamera::getInstance(), result);
 			stop_glerror();
 				
@@ -705,7 +726,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				// rebuildPools
 				//
 				//
-				gFrameStats.start(LLFrameStats::REBUILD);
 				gPipeline.rebuildPools();
 				stop_glerror();
 			}
@@ -714,8 +734,9 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLPipeline::sUseOcclusion = occlusion;
 
 		{
+			LLMemType mt_ds(LLMemType::MTYPE_DISPLAY_SKY);
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Sky");
-			LLFastTimer t(LLFastTimer::FTM_UPDATE_SKY);	
+			LLFastTimer t(FTM_UPDATE_SKY);	
 			gSky.updateSky();
 		}
 
@@ -741,7 +762,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
 		//		glLoadIdentity();
 
-		//		LLRect floater_rect = frontmost_floaterp->getScreenRect();
+		//		LLRect floater_rect = frontmost_floaterp->calcScreenRect();
 		//		// deflate by one pixel so rounding errors don't occlude outside of floater extents
 		//		floater_rect.stretch(-1);
 		//		LLRectf floater_3d_rect((F32)floater_rect.mLeft / (F32)gViewerWindow->getWindowWidth(), 
@@ -792,7 +813,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot())
 				&& !gRestoreGL)
 		{
-
+			LLMemType mt_rg(LLMemType::MTYPE_DISPLAY_RENDER_GEOM);
 			gGL.setColorMask(true, false);
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
 			{
@@ -818,6 +839,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		
 		if (to_texture)
 		{
+			LLMemType mt_rf(LLMemType::MTYPE_DISPLAY_RENDER_FLUSH);
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
 			{
 				gPipeline.mDeferredScreen.flush();
@@ -844,16 +866,15 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderUI");
 		if (!for_snapshot)
 		{
-			gFrameStats.start(LLFrameStats::RENDER_UI);
+			LLFastTimer t(FTM_RENDER_UI);
 			render_ui();
 		}
 
 		LLSpatialGroup::sNoDelete = FALSE;
 	}
-	
+
 	LLAppViewer::instance()->pingMainloopTimeout("Display:FrameStats");
 	
-	gFrameStats.start(LLFrameStats::MISC_END);
 	stop_glerror();
 
 	if (LLPipeline::sRenderFrameTest)
@@ -869,6 +890,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 void render_hud_attachments()
 {
+	LLMemType mt_ra(LLMemType::MTYPE_DISPLAY_RENDER_ATTACHMENTS);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -1024,9 +1046,11 @@ BOOL setup_hud_matrices(const LLRect& screen_region)
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_SWAP("Swap");
 
 void render_ui(F32 zoom_factor, int subfield)
 {
+	LLMemType mt_ru(LLMemType::MTYPE_DISPLAY_RENDER_UI);
 	LLGLState::checkStates();
 	
 	glPushMatrix();
@@ -1058,7 +1082,7 @@ void render_ui(F32 zoom_factor, int subfield)
 		gGL.color4f(1,1,1,1);
 		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 		{
-			LLFastTimer t(LLFastTimer::FTM_RENDER_UI);
+			LLFastTimer t(FTM_RENDER_UI);
 
 			if (!gDisconnected)
 			{
@@ -1085,7 +1109,7 @@ void render_ui(F32 zoom_factor, int subfield)
 
 	if (gDisplaySwapBuffers)
 	{
-		LLFastTimer t(LLFastTimer::FTM_SWAP);
+		LLFastTimer t(FTM_SWAP);
 		gViewerWindow->mWindow->swapBuffers();
 	}
 	gDisplaySwapBuffers = TRUE;
@@ -1261,8 +1285,7 @@ void render_disconnected_background()
 			//llinfos << "Bitmap load failed" << llendl;
 			return;
 		}
-
-		gDisconnectedImagep = new LLImageGL( FALSE );
+		
 		LLPointer<LLImageRaw> raw = new LLImageRaw;
 		if (!image_bmp->decode(raw, 0.0f))
 		{
@@ -1288,8 +1311,8 @@ void render_disconnected_background()
 
 		
 		raw->expandToPowerOfTwo();
-		gDisconnectedImagep->createGLTexture(0, raw);
-		gStartImageGL = gDisconnectedImagep;
+		gDisconnectedImagep = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE );
+		gStartTexture = gDisconnectedImagep;
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	}
 

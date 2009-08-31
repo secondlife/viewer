@@ -9,21 +9,11 @@
 		Tamaño de la ventana:
 	</text>
 	<combo_box left="124" name="windowsize combo">
-		<combo_item name="640x480">
-			640x480
-		</combo_item>
-		<combo_item name="800x600">
-			800x600
-		</combo_item>
-		<combo_item name="720x480">
-			720x480 (NTSC)
-		</combo_item>
-		<combo_item name="768x576">
-			768x576 (PAL)
-		</combo_item>
-		<combo_item name="1024x768">
-			1024x768
-		</combo_item>
+		<combo_box.item name="640x480" label="640x480"/>
+		<combo_box.item name="800x600" label="800x600"/>
+		<combo_box.item name="720x480" label="720x480 (NTSC)"/>
+		<combo_box.item name="768x576" label="768x576 (PAL)"/>
+		<combo_box.item name="1024x768" label="1024x768"/>
 	</combo_box>
 	<text name="DisplayResLabel">
 		Resolución:
@@ -33,18 +23,10 @@
 		Proporción:
 	</text>
 	<combo_box  left="124" name="aspect_ratio" tool_tip="ancho / alto">
-		<combo_item length="1" name="4:3(StandardCRT)" type="string">
-			4:3 (Standard CRT)
-		</combo_item>
-		<combo_item length="1" name="5:4(1280x1024LCD)" type="string">
-			5:4 (1280x1024 LCD)
-		</combo_item>
-		<combo_item name="8:5(Widescreen)">
-			8:5 (Widescreen)
-		</combo_item>
-		<combo_item length="1" name="16:9(Widescreen)" type="string">
-			16:9 (Widescreen)
-		</combo_item>
+		<combo_box.item length="1" name="4:3(StandardCRT)" type="string" label="4:3 (Standard CRT)"/>
+		<combo_box.item length="1" name="5:4(1280x1024LCD)" type="string" label="5:4 (1280x1024 LCD)"/>
+		<combo_box.item name="8:5(Widescreen)" label="8:5 (Widescreen)"/>
+		<combo_box.item length="1" name="16:9(Widescreen)" type="string" label="16:9 (Widescreen)"/>
 	</combo_box>
 	<check_box label="Detectar automáticamente &#10;la proporción" name="aspect_auto_detect" left="295" />
 	<text name="HigherText">
@@ -86,18 +68,10 @@
 		Objetos reflejados:
 	</text>
 	<radio_group name="ReflectionDetailRadio">
-		<radio_item name="0">
-			Terreno y árboles
-		</radio_item>
-		<radio_item name="1">
-			Todos los objetos estáticos
-		</radio_item>
-		<radio_item name="2">
-			Todos los avatares y objetos
-		</radio_item>
-		<radio_item name="3">
-			Todo
-		</radio_item>
+		<radio_item name="0" label="Terreno y árboles" />
+		<radio_item name="1" label="Todos los objetos estáticos" />
+		<radio_item name="2" label="Todos los avatares y objetos" />
+		<radio_item name="3" label="Todo" />
 	</radio_group>
 	<text name="AvatarRenderingText">
 		Renderización del avatar:
@@ -148,24 +122,16 @@
 		Detalles de la iluminación:
 	</text>
 	<radio_group name="LightingDetailRadio">
-		<radio_item name="SunMoon">
-			Sólo el Sol y la Luna
-		</radio_item>
-		<radio_item name="LocalLights">
-			Puntos de luz cercanos
-		</radio_item>
+		<radio_item name="SunMoon" label="Sólo el Sol y la Luna" />
+		<radio_item name="LocalLights" label="Puntos de luz cercanos" />
 	</radio_group>
 	<text name="TerrainDetailText">
 		Nivel de detalle del
  terreno:
 	</text>
 	<radio_group name="TerrainDetailRadio" left_delta="60">
-		<radio_item name="0">
-			Bajo
-		</radio_item>
-		<radio_item name="2">
-			Alto
-		</radio_item>
+		<radio_item name="0" label="Bajo" />
+		<radio_item name="2" label="Alto" />
 	</radio_group>
 	<button label="Configuraciones recomendadas" name="Defaults" width="195" left="110"/>
 	<button label="Opciones del hardware" label_selected="Opciones del hardware" name="GraphicsHardwareButton" left="315"/>

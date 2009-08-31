@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_minimize="false"
+ height="270"
+ layout="topleft"
+ name="buy currency"
+ single_instance="true"
+ title="Buy Currency"
+ width="350">
+    <floater.string
+     name="buy_currency">
+        Buy L$ [LINDENS] for approx. US$ [USD]
+    </floater.string>
+    <text
+     type="string"
+     length="1"
+     bottom_delta="48"
+     follows="top|left"
+     font="SansSerifHuge"
+     height="24"
+     layout="topleft"
+     left="16"
+     name="info_buying"
+     right="-20">
+        Buying Currency:
+    </text>
+    <text
+     type="string"
+     length="1"
+     bottom_delta="0"
+     follows="top|left"
+     font="SansSerifHuge"
+     height="24"
+     layout="topleft"
+     left="16"
+     name="info_cannot_buy"
+     right="-20">
+        Cannot buy now:
+    </text>
+    <text
+     type="string"
+     length="1"
+     bottom_delta="0"
+     follows="top|left"
+     font="SansSerifHuge"
+     height="24"
+     layout="topleft"
+     left="16"
+     name="info_need_more"
+     right="-20">
+        You need more currency:
+    </text>
+    <icon
+     follows="top|left"
+     height="64"
+     image_name="badge_note.j2c"
+     layout="topleft"
+     left="0"
+     name="step_error"
+     top="48"
+     width="64" />
+    <text
+     type="string"
+     length="1"
+     bottom_delta="96"
+     follows="top|left"
+     height="140"
+     layout="topleft"
+     left="72"
+     name="error_message"
+     right="-20">
+        Something ain&apos;t right.
+    </text>
+    <button
+     follows="bottom|left"
+     height="20"
+     label="Go to website"
+     layout="topleft"
+     left_delta="0"
+     name="error_web"
+     top_delta="124"
+     width="120" />
+    <icon
+     follows="top|left"
+     height="64"
+     image_name="badge_note.j2c"
+     layout="topleft"
+     left="0"
+     name="step_1"
+     top="48"
+     width="64" />
+    <text
+     type="string"
+     length="1"
+     bottom_delta="-38"
+     follows="top|left"
+     height="16"
+     layout="topleft"
+     left="72"
+     name="contacting"
+     right="-20">
+        Contacting LindeX...
+    </text>
+    <text
+     type="string"
+     length="1"
+     bottom_delta="0"
+     follows="top|left"
+     height="16"
+     layout="topleft"
+     left="72"
+     name="buy_action_unknown"
+     right="-20">
+        Buy L$ on the LindeX currency exchange
+    </text>
+    <text
+     type="string"
+     length="1"
+     bottom_delta="0"
+     follows="top|left"
+     height="16"
+     layout="topleft"
+     left="72"
+     name="buy_action"
+     right="-20">
+        [NAME] L$ [PRICE]
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     name="currency_action"
+     top_pad="4"
+     width="40">
+        Buy L$
+    </text>
+    <line_editor
+     type="string"
+     length="1"
+     follows="top|right"
+     height="16"
+     layout="topleft"
+     left_pad="5"
+     name="currency_amt"
+     top_delta="0"
+     width="80">
+        1234
+    </line_editor>
+    <text
+     type="string"
+     length="1"
+     follows="top|right"
+     height="16"
+     layout="topleft"
+     left_pad="5"
+     name="currency_est"
+     top_delta="0"
+     width="180">
+        for approx. US$ [USD,number,2]
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|right"
+     height="16"
+     layout="topleft"
+     left_delta="5"
+     name="getting_data"
+     top_delta="0"
+     width="180">
+        Getting data...
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     height="16"
+     layout="topleft"
+     left="80"
+     name="balance_label"
+     top="110"
+     width="240">
+        You currently have
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     halign="right"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     name="balance_amount"
+     top_delta="0"
+     width="240">
+        L$ [AMT]
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     name="buying_label"
+     top_pad="4"
+     width="240">
+        You are buying
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     halign="right"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     name="buying_amount"
+     top_delta="0"
+     width="240">
+        L$ [AMT]
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     name="total_label"
+     top_pad="4"
+     width="240">
+        Your balance will be
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="top|left"
+     halign="right"
+     height="16"
+     layout="topleft"
+     left_delta="0"
+     name="total_amount"
+     top_delta="0"
+     width="240">
+        L$ [AMT]
+    </text>
+    <text
+     type="string"
+     length="1"
+     bottom_delta="48"
+     follows="top|left"
+     height="32"
+     layout="topleft"
+     left="72"
+     name="purchase_warning_repurchase"
+     right="-20">
+        Confirming this purchase only buys the currency.
+You&apos;ll need to try the operation again.
+    </text>
+    <text
+     type="string"
+     length="1"
+     bottom_delta="0"
+     follows="top|left"
+     height="32"
+     layout="topleft"
+     left="72"
+     name="purchase_warning_notenough"
+     right="-20">
+        You aren&apos;t buying enough currency
+Increase the amount to buy.
+    </text>
+    <button
+     follows="bottom|right"
+     height="20"
+     label="Cancel"
+     layout="topleft"
+     left="237"
+     name="cancel_btn"
+     top="234"
+     width="90" />
+    <button
+     follows="bottom|left"
+     height="20"
+     label="Purchase"
+     layout="topleft"
+     left_delta="-96"
+     name="buy_btn"
+     top_delta="0"
+     width="90" />
+</floater>

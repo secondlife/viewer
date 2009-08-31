@@ -40,94 +40,134 @@
 #define LL_LLFLOATERPREFERENCE_H
 
 #include "llfloater.h"
-#include "lltabcontainervertical.h"
 
-class LLPanelGeneral;
-class LLPanelInput;
+class LLPanelPreference;
 class LLPanelLCD;
-class LLPanelDisplay;
-class LLPanelAudioPrefs;
 class LLPanelDebug;
-class LLPanelNetwork;
-class LLPanelWeb;
 class LLMessageSystem;
-class LLPrefsChat;
-class LLPrefsVoice;
-class LLPrefsIM;
-class LLPanelMsgs;
-class LLPanelSkins;
 class LLScrollListCtrl;
+class LLSliderCtrl;
+class LLSD;
+class LLTextBox;
 
-class LLPreferenceCore
-{
+typedef enum
+	{
+		GS_LOW_GRAPHICS,
+		GS_MID_GRAPHICS,
+		GS_HIGH_GRAPHICS,
+		GS_ULTRA_GRAPHICS
+		
+	} EGraphicsSettings;
 
-public:
-	LLPreferenceCore(LLTabContainer* tab_container, LLButton * default_btn);
-	~LLPreferenceCore();
-
-	void apply();
-	void cancel();
-
-	LLTabContainer* getTabContainer() { return mTabContainer; }
-
-	void setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string&  email);
-
-	static void onTabChanged(void* user_data, bool from_click);
-	
-	// refresh all the graphics preferences menus
-	void refreshEnabledGraphics();
-
-private:
-	LLTabContainer	*mTabContainer;
-	LLPanelGeneral	        *mGeneralPanel;
-	LLPanelSkins			*mSkinsPanel;
-	LLPanelInput			*mInputPanel;
-	LLPanelNetwork	        *mNetworkPanel;
-	LLPanelDisplay	        *mDisplayPanel;
-	LLPanelAudioPrefs		*mAudioPanel;
-//	LLPanelDebug			*mDebugPanel;
-	LLPrefsChat				*mPrefsChat;
-	LLPrefsVoice			*mPrefsVoice;
-	LLPrefsIM				*mPrefsIM;
-	LLPanelWeb				*mWebPanel;
-	LLPanelMsgs				*mMsgPanel;
-	LLPanelLCD				*mLCDPanel;
-};
 
 // Floater to control preferences (display, audio, bandwidth, general.
 class LLFloaterPreference : public LLFloater
 {
 public: 
-	LLFloaterPreference();
+	LLFloaterPreference(const LLSD& key);
 	~LLFloaterPreference();
 
 	void apply();
 	void cancel();
+	/*virtual*/ void draw();
 	virtual BOOL postBuild();
-	static void show(void*);
+	virtual void onOpen(const LLSD& key);
 
 	// static data update, called from message handler
 	static void updateUserInfo(const std::string& visibility, bool im_via_email, const std::string& email);
 
 	// refresh all the graphics preferences menus
 	static void refreshEnabledGraphics();
-
+	
 protected:
-	LLPreferenceCore		*mPreferenceCore;
+	
+	void		onClose();
+	
+	void		onBtnOK();
+	void		onBtnCancel();
+	void		onBtnApply();
+	void		onOpenHelp();
 
-	/*virtual*/ void		onClose(bool app_quitting);
+//	void		onClickClearCache();
+	void		onClickBrowserClearCache();
 
-	LLButton*	mAboutBtn;
-	LLButton	*mOKBtn;
-	LLButton	*mCancelBtn;
-	LLButton	*mApplyBtn;
+	// if the custom settings box is clicked
+	void onChangeCustom();
+	void updateMeterText(LLUICtrl* ctrl);
+	void onOpenHardwareSettings();
+	/// callback for defaults
+	void setHardwareDefaults();
+	// callback for when client turns on shaders
+	void onVertexShaderEnable();
+	
 
-	static void		onClickAbout(void*);
-	static void		onBtnOK(void*);
-	static void		onBtnCancel(void*);
-	static void		onBtnApply(void*);
+public:
 
-	static LLFloaterPreference* sInstance;
+	void onClickSetCache();
+	void onClickResetCache();
+	void onClickSkin(LLUICtrl* ctrl,const LLSD& userdata);
+	void onSelectSkin();
+	void onClickSetKey();
+	void setKey(KEY key);
+	void onClickSetMiddleMouse();
+	void onClickSkipDialogs();
+	void onClickResetDialogs();
+	void onClickEnablePopup();
+	void onClickDisablePopup();	
+	void resetAllIgnored();
+	void setAllIgnored();
+	void onClickLogPath();	
+	void enableHistory();
+	void onCommitLogging();
+	void setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string& email);
+	void refreshEnabledState();
+	void disableUnavailableSettings();
+	void onCommitWindowedMode();
+	void refresh();	// Refresh enable/disable
+	// if the quality radio buttons are changed
+	void onChangeQuality(const LLSD& data);
+	
+	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
+	void onUpdateSliderText(LLUICtrl* ctrl, const LLSD& name);
+	void onKeystrokeAspectRatio();
+//	void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
+//	bool extractWindowSizeFromString(const std::string& instr, U32 &width, U32 &height);
+
+	void onCommitAutoDetectAspect();
+	void applyResolution();
+	void applyWindowSize();
+
+	static void initWindowSizeControls(LLPanel* panelp);
+	
+	static void buildLists(void* data);
+	static void refreshSkin(void* data);
+	static void cleanupBadSetting();
+	static F32 sAspectRatio;	
+private:
+	static std::string sSkin;
+	bool mGotPersonalInfo;
+	bool mOriginalIMViaEmail;
+	
+	bool mOriginalHideOnlineStatus;
+	std::string mDirectoryVisibility;
+
+};
+
+class LLPanelPreference : public LLPanel
+{
+public:
+	LLPanelPreference();
+	/*virtual*/ BOOL postBuild();
+	
+	virtual void apply();
+	virtual void cancel();
+	void setControlFalse(const LLSD& user_data);
+private:
+	typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
+	control_values_map_t mSavedValues;
+
+	typedef std::map<std::string, LLColor4> string_color_map_t;
+	string_color_map_t mSavedColors;
 };
 
 #endif  // LL_LLPREFERENCEFLOATER_H

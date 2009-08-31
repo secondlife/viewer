@@ -46,7 +46,7 @@
 
 #include "llvowater.h"
 #include "llpatchvertexarray.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 
 class LLTimer;
 class LLUUID;
@@ -133,8 +133,8 @@ public:
 	void setWaterHeight(F32 height);
 	F32 getWaterHeight() const;
 
-	LLViewerImage *getSTexture();
-	LLViewerImage *getWaterTexture();
+	LLViewerTexture *getSTexture();
+	LLViewerTexture *getWaterTexture();
 	BOOL hasZData() const							{ return mHasZData; }
 
 	void dirtyAllPatches();	// Use this to dirty all patches when changing terrain parameters
@@ -173,7 +173,6 @@ public:
 
 	static F32 sTextureUpdateTime;
 	static S32 sTexelsUpdated;
-	static LLStat sTexelsUpdatedPerSecStat;
 
 protected:
 	void createSTexture();
@@ -206,8 +205,8 @@ protected:
 
 
 	// The textures should never be directly initialized - use the setter methods!
-	LLPointer<LLViewerImage> mSTexturep;		// Texture for surface
-	LLPointer<LLViewerImage> mWaterTexturep;	// Water texture
+	LLPointer<LLViewerTexture> mSTexturep;		// Texture for surface
+	LLPointer<LLViewerTexture> mWaterTexturep;	// Water texture
 
 	LLPointer<LLVOWater>	mWaterObjp;
 

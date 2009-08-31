@@ -36,19 +36,20 @@
 
 // indra includes
 #include "llparcel.h"
+#include "llfloaterreg.h"
 #include "llgl.h"
 #include "llrender.h"
 #include "v4color.h"
 #include "v2math.h"
 
 // newview includes
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 #include "llviewercontrol.h"
 #include "llsurface.h"
 #include "llviewerregion.h"
 #include "llagent.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llselectmgr.h"
 #include "llfloatertools.h"
 #include "llglheaders.h"
@@ -68,10 +69,9 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
 {
 	// Create a texture to hold color information.
 	// 4 components
-	// Use mipmaps = FALSE, clamped, NEAREST filter, for sharp edges
-	mTexture = new LLImageGL(FALSE);
+	// Use mipmaps = FALSE, clamped, NEAREST filter, for sharp edges	
 	mImageRaw = new LLImageRaw(mParcelGridsPerEdge, mParcelGridsPerEdge, OVERLAY_IMG_COMPONENTS);
-	mTexture->createGLTexture(0, mImageRaw);
+	mTexture = LLViewerTextureManager::getLocalTexture(mImageRaw.get(), FALSE);
 	gGL.getTexUnit(0)->activate();
 	gGL.getTexUnit(0)->bind(mTexture);
 	mTexture->setAddressMode(LLTexUnit::TAM_CLAMP);
@@ -205,13 +205,12 @@ void LLViewerParcelOverlay::updateOverlayTexture()
 	{
 		return;
 	}
-	// Can do this because gColors are actually stored as LLColor4U
-	const LLColor4U avail = gColors.getColor4U("PropertyColorAvail");
-	const LLColor4U owned = gColors.getColor4U("PropertyColorOther");
-	const LLColor4U group = gColors.getColor4U("PropertyColorGroup");
-	const LLColor4U self  = gColors.getColor4U("PropertyColorSelf");
-	const LLColor4U for_sale  = gColors.getColor4U("PropertyColorForSale");
-	const LLColor4U auction  = gColors.getColor4U("PropertyColorAuction");
+	const LLColor4U avail = LLUIColorTable::instance().getColor("PropertyColorAvail").get();
+	const LLColor4U owned = LLUIColorTable::instance().getColor("PropertyColorOther").get();
+	const LLColor4U group = LLUIColorTable::instance().getColor("PropertyColorGroup").get();
+	const LLColor4U self  = LLUIColorTable::instance().getColor("PropertyColorSelf").get();
+	const LLColor4U for_sale  = LLUIColorTable::instance().getColor("PropertyColorForSale").get();
+	const LLColor4U auction  = LLUIColorTable::instance().getColor("PropertyColorAuction").get();
 
 	// Create the base texture.
 	U8 *raw = mImageRaw->getData();
@@ -224,7 +223,7 @@ void LLViewerParcelOverlay::updateOverlayTexture()
 	{
 		U8 ownership = mOwnership[i];
 
-		U8 r,g,b,a;
+		F32 r,g,b,a;
 
 		// Color stored in low three bits
 		switch( ownership & 0x7 )
@@ -273,10 +272,10 @@ void LLViewerParcelOverlay::updateOverlayTexture()
 			break;
 		}
 
-		raw[pixel_index + 0] = r;
-		raw[pixel_index + 1] = g;
-		raw[pixel_index + 2] = b;
-		raw[pixel_index + 3] = a;
+		raw[pixel_index + 0] = (U8)r;
+		raw[pixel_index + 1] = (U8)g;
+		raw[pixel_index + 2] = (U8)b;
+		raw[pixel_index + 3] = (U8)a;
 
 		pixel_index += OVERLAY_IMG_COMPONENTS;
 	}
@@ -314,12 +313,11 @@ void LLViewerParcelOverlay::updatePropertyLines()
 	
 	S32 row, col;
 
-	// Can do this because gColors are actually stored as LLColor4U
-	const LLColor4U self_coloru  = gColors.getColor4U("PropertyColorSelf");
-	const LLColor4U other_coloru = gColors.getColor4U("PropertyColorOther");
-	const LLColor4U group_coloru = gColors.getColor4U("PropertyColorGroup");
-	const LLColor4U for_sale_coloru = gColors.getColor4U("PropertyColorForSale");
-	const LLColor4U auction_coloru = gColors.getColor4U("PropertyColorAuction");
+	const LLColor4U self_coloru  = LLUIColorTable::instance().getColor("PropertyColorSelf").get();
+	const LLColor4U other_coloru = LLUIColorTable::instance().getColor("PropertyColorOther").get();
+	const LLColor4U group_coloru = LLUIColorTable::instance().getColor("PropertyColorGroup").get();
+	const LLColor4U for_sale_coloru = LLUIColorTable::instance().getColor("PropertyColorForSale").get();
+	const LLColor4U auction_coloru = LLUIColorTable::instance().getColor("PropertyColorAuction").get();
 
 	// Build into dynamic arrays, then copy into static arrays.
 	LLDynamicArray<LLVector3, 256> new_vertex_array;
@@ -713,6 +711,7 @@ void LLViewerParcelOverlay::setDirty()
 
 void LLViewerParcelOverlay::idleUpdate(bool force_update)
 {
+	LLMemType mt_iup(LLMemType::MTYPE_IDLE_UPDATE_PARCEL_OVERLAY);
 	if (gGLManager.mIsDisabled)
 	{
 		return;
@@ -841,8 +840,8 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 		drawn += vertex_per_edge;
 
 		gGL.end();
-
-		if (LLSelectMgr::sRenderHiddenSelections && gFloaterTools && gFloaterTools->getVisible())
+		
+		if (LLSelectMgr::sRenderHiddenSelections && LLFloaterReg::instanceVisible("build"))
 		{
 			LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
 			

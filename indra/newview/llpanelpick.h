@@ -38,90 +38,101 @@
 #define LL_LLPANELPICK_H
 
 #include "llpanel.h"
-#include "v3dmath.h"
-#include "lluuid.h"
+#include "llremoteparcelrequest.h"
 
-class LLButton;
-class LLCheckBoxCtrl;
-class LLIconCtrl;
-class LLLineEditor;
-class LLTextBox;
-class LLTextEditor;
 class LLTextureCtrl;
-class LLUICtrl;
 class LLMessageSystem;
+class LLAvatarPropertiesObserver;
 
-class LLPanelPick : public LLPanel
+class LLPanelPick : public LLPanel, public LLAvatarPropertiesObserver, LLRemoteParcelInfoObserver
 {
+	LOG_CLASS(LLPanelPick);
 public:
-    LLPanelPick(BOOL top_pick);
-    /*virtual*/ ~LLPanelPick();
+	LLPanelPick(BOOL edit_mode = FALSE);
+	/*virtual*/ ~LLPanelPick();
 
+	// switches the panel to the VIEW mode and resets controls
 	void reset();
 
-    /*virtual*/ BOOL postBuild();
+	/*virtual*/ BOOL postBuild();
 
-    /*virtual*/ void draw();
-
-	/*virtual*/ void refresh();
-
-	// Setup a new pick, including creating an id, giving a sane
+	// Create a new pick, including creating an id, giving a sane
 	// initial position, etc.
-	void initNewPick();
+	void createNewPick();
 
-	// We need to know the creator id so the database knows which partition
-	// to query for the pick data.
-	void setPickID(const LLUUID& pick_id, const LLUUID& creator_id);
+	//initializes the panel with data of the pick with id = pick_id 
+	//owned by the avatar with id = creator_id
+	void init(LLUUID creator_id, LLUUID pick_id);
 
-	// Schedules the panel to request data
-	// from the server next time it is drawn.
-	void markForServerRequest();
+	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
+
+	// switches the panel to either View or Edit mode
+	void setEditMode(BOOL edit_mode);
+
+	// because this panel works in two modes (edit/view) we are  
+	// free from managing two panel for editing and viewing picks and so
+	// are free from controlling switching between them in the parent panel (e.g. Me Profile)
+	// but that causes such a complication that we cannot set a callback for a "Back" button
+	// from the parent panel only once, so we have to preserve that callback
+	// in the pick panel and set it for the back button everytime postBuild() is called.
+	void setExitCallback(commit_callback_t cb);
+
+	static void teleport(const LLVector3d& position);
+	static void showOnMap(const LLVector3d& position);
+
+	//This stuff we got from LLRemoteParcelObserver, in the last two we intentionally do nothing
+	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
+	/*virtual*/ void setParcelID(const LLUUID& parcel_id) {};
+	/*virtual*/ void setErrorStatus(U32 status, const std::string& reason) {};
+
+protected:
+
+	void setPickName(std::string name);
+	void setPickDesc(std::string desc);
+	void setPickLocation(std::string location);
 
 	std::string getPickName();
-	const LLUUID& getPickID() const { return mPickID; }
-	const LLUUID& getPickCreatorID() const { return mCreatorID; }
+	std::string getPickDesc();
+	std::string getPickLocation();
 
-    void sendPickInfoRequest();
-	void sendPickInfoUpdate();
+	void sendUpdate();
+	void requestData();
 
-    static void processPickInfoReply(LLMessageSystem* msg, void**);
+	void init(LLPickData *pick_data);
+
+	void updateButtons();
+
+	//-----------------------------------------
+	// "PICK INFO" (VIEW MODE) BUTTON HANDLERS
+	//-----------------------------------------
+	void onClickEdit();
+	void onClickTeleport();
+	void onClickMap();
+
+	//-----------------------------------------
+	// "EDIT PICK" (EDIT MODE) BUTTON HANDLERS
+	//-----------------------------------------
+	void onClickSet();
+	void onClickSave();
+	void onClickCancel();
 
 protected:
-    static void onClickTeleport(void* data);
-    static void onClickMap(void* data);
-    //static void onClickLandmark(void* data);
-    static void onClickSet(void* data);
-
-	static void onCommitAny(LLUICtrl* ctrl, void* data);
-
-protected:
-	BOOL mTopPick;
-    LLUUID mPickID;
-	LLUUID mCreatorID;
-	LLUUID mParcelID;
-
-	// Data will be requested on first draw
-	BOOL mDataRequested;
+	BOOL mEditMode;
+	LLTextureCtrl*	mSnapshotCtrl;
 	BOOL mDataReceived;
 
+	LLUUID mPickId;
+	LLUUID mCreatorId;
+	LLVector3d mPosGlobal;
+	LLUUID mParcelId;
 	std::string mSimName;
-    LLVector3d mPosGlobal;
 
-    LLTextureCtrl*	mSnapshotCtrl;
-    LLLineEditor*	mNameEditor;
-    LLTextEditor*	mDescEditor;
-    LLLineEditor*	mLocationEditor;
+	//These strings are used to keep non-wrapped text
+	std::string mName;
+	std::string mDesc;
+	std::string mLocation;
 
-    LLButton*    mTeleportBtn;
-    LLButton*    mMapBtn;
-
-    LLTextBox*    mSortOrderText;
-    LLLineEditor* mSortOrderEditor;
-    LLCheckBoxCtrl* mEnabledCheck;
-    LLButton*    mSetBtn;
-
-    typedef std::list<LLPanelPick*> panel_list_t;
-	static panel_list_t sAllPanels;
+	commit_callback_t mBackCb;
 };
 
 #endif // LL_LLPANELPICK_H

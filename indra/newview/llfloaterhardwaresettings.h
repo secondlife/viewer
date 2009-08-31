@@ -35,26 +35,21 @@
 
 #include "llfloater.h"
 
-class LLSliderCtrl;
-
 /// Menuing system for all of windlight's functionality
 class LLFloaterHardwareSettings : public LLFloater
 {
-	friend class LLPreferenceCore;
+	friend class LLFloaterPreference;
 
 public:
 
-	LLFloaterHardwareSettings();
-	virtual ~LLFloaterHardwareSettings();
+	LLFloaterHardwareSettings(const LLSD& key);
+	/*virtual*/ ~LLFloaterHardwareSettings();
 	
-	virtual BOOL postBuild();
+	/*virtual*/ BOOL postBuild();
 
 	/// initialize all the callbacks for the menu
 	void initCallbacks(void);
 
-	/// one and one instance only
-	static LLFloaterHardwareSettings* instance();
-	
 	/// callback for the menus help button
 	static void onClickHelp(void* data);
 
@@ -69,9 +64,6 @@ public:
 	/// return if the menu exists or not
 	static bool isOpen();
 
-	/// stuff to do on exit
-	virtual void onClose(bool app_quitting);
-
 	/// sync up menu with parameters
 	void refresh();
 
@@ -85,8 +77,6 @@ public:
 	void refreshEnabledState();
 
 protected:
-	LLSliderCtrl*	mCtrlVideoCardMem;
-
 	BOOL mUseVBO;
 	BOOL mUseAniso;
 	U32 mFSAASamples;
@@ -96,8 +86,6 @@ protected:
 	BOOL mProbeHardwareOnStartup;
 
 private:
-	// one instance on the inside
-	static LLFloaterHardwareSettings* sHardwareSettings;
 };
 
 #endif

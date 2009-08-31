@@ -20,15 +20,9 @@
 		ルーラー：
 	</text>
 	<combo_box left_delta="60" name="combobox grid mode" width="76">
-		<combo_item name="World">
-			世界
-		</combo_item>
-		<combo_item name="Local">
-			ローカル
-		</combo_item>
-		<combo_item name="Reference">
-			リファレンス
-		</combo_item>
+		<combo_box.item name="World" label="世界"/>
+		<combo_box.item name="Local" label="ローカル"/>
+		<combo_box.item name="Reference" label="リファレンス"/>
 	</combo_box>
 	<check_box label="両側を引伸ばす" left="116" name="checkbox uniform"/>
 	<check_box label="テクスチャーを引伸ばす" name="checkbox stretch textures"/>
@@ -130,15 +124,9 @@
 				価格：  L$
 			</text>
 			<radio_group left="30" name="sale type">
-				<radio_item name="Original">
-					オリジナル
-				</radio_item>
-				<radio_item left="82" name="Copy">
-					コピー
-				</radio_item>
-				<radio_item left="148" name="Contents">
-					コンテンツ
-				</radio_item>
+				<radio_item name="Original" label="オリジナル" />
+				<radio_item left="82" name="Copy" label="コピー" />
+				<radio_item left="148" name="Contents" label="コンテンツ" />
 			</radio_group>
 			<text name="Next owner can:">
 				次のオーナーが実行できる操作：
@@ -150,27 +138,13 @@
 				左クリックすると：
 			</text>
 			<combo_box name="clickaction">
-				<combo_item name="Touch/grab(default)">
-					触る／つかむ (デフォルト)
-				</combo_item>
-				<combo_item name="Sitonobject">
-					オブジェクトに座る
-				</combo_item>
-				<combo_item name="Buyobject">
-					オブジェクトを購入
-				</combo_item>
-				<combo_item name="Payobject">
-					オブジェクトへの支払い
-				</combo_item>
-				<combo_item name="Open">
-					開く
-				</combo_item>
-				<combo_item name="Play">
-					区画メディアを再生
-				</combo_item>
-				<combo_item name="Opemmedia">
-					区画メディアを開く
-				</combo_item>
+				<combo_box.item name="Touch/grab(default)" label="触る／つかむ (デフォルト)"/>
+				<combo_box.item name="Sitonobject" label="オブジェクトに座る"/>
+				<combo_box.item name="Buyobject" label="オブジェクトを購入"/>
+				<combo_box.item name="Payobject" label="オブジェクトへの支払い"/>
+				<combo_box.item name="Open" label="開く"/>
+				<combo_box.item name="Play" label="区画メディアを再生"/>
+				<combo_box.item name="Opemmedia" label="区画メディアを開く"/>
 			</combo_box>
 			<text name="B:">
 				B:
@@ -254,56 +228,26 @@
 				素材
 			</text>
 			<combo_box name="material">
-				<combo_item name="Stone">
-					石材
-				</combo_item>
-				<combo_item name="Metal">
-					金属
-				</combo_item>
-				<combo_item name="Glass">
-					ガラス
-				</combo_item>
-				<combo_item name="Wood">
-					木材
-				</combo_item>
-				<combo_item name="Flesh">
-					肌
-				</combo_item>
-				<combo_item name="Plastic">
-					プラスチック
-				</combo_item>
-				<combo_item name="Rubber">
-					ゴム
-				</combo_item>
+				<combo_box.item name="Stone" label="石材"/>
+				<combo_box.item name="Metal" label="金属"/>
+				<combo_box.item name="Glass" label="ガラス"/>
+				<combo_box.item name="Wood" label="木材"/>
+				<combo_box.item name="Flesh" label="肌"/>
+				<combo_box.item name="Plastic" label="プラスチック"/>
+				<combo_box.item name="Rubber" label="ゴム"/>
 			</combo_box>
 			<text name="label basetype">
 				建造物ブロック・タイプ
 			</text>
 			<combo_box name="comboBaseType">
-				<combo_item name="Box">
-					ボックス
-				</combo_item>
-				<combo_item name="Cylinder">
-					シリンダー
-				</combo_item>
-				<combo_item name="Prism">
-					プリズム
-				</combo_item>
-				<combo_item name="Sphere">
-					球形
-				</combo_item>
-				<combo_item name="Torus">
-					トーラス
-				</combo_item>
-				<combo_item name="Tube">
-					チューブ
-				</combo_item>
-				<combo_item name="Ring">
-					リング
-				</combo_item>
-				<combo_item name="Sculpted">
-					スカルプト
-				</combo_item>
+				<combo_box.item name="Box" label="ボックス"/>
+				<combo_box.item name="Cylinder" label="シリンダー"/>
+				<combo_box.item name="Prism" label="プリズム"/>
+				<combo_box.item name="Sphere" label="球形"/>
+				<combo_box.item name="Torus" label="トーラス"/>
+				<combo_box.item name="Tube" label="チューブ"/>
+				<combo_box.item name="Ring" label="リング"/>
+				<combo_box.item name="Sculpted" label="スカルプト"/>
 			</combo_box>
 			<text name="text cut">
 				ﾊﾟｽ･ｶｯﾄの始点と終点
@@ -320,18 +264,10 @@
 				中空（空洞）の形
 			</text>
 			<combo_box name="hole">
-				<combo_item name="Default">
-					デフォルト
-				</combo_item>
-				<combo_item name="Circle">
-					サークル
-				</combo_item>
-				<combo_item name="Square">
-					正方形
-				</combo_item>
-				<combo_item name="Triangle">
-					三角形
-				</combo_item>
+				<combo_box.item name="Default" label="デフォルト"/>
+				<combo_box.item name="Circle" label="サークル"/>
+				<combo_box.item name="Square" label="正方形"/>
+				<combo_box.item name="Triangle" label="三角形"/>
 			</combo_box>
 			<text name="text twist">
 				ひねりの始まりと終わり
@@ -380,21 +316,11 @@
 				縫い目のタイプ
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_item name="None">
-					（なし）
-				</combo_item>
-				<combo_item name="Sphere">
-					球形
-				</combo_item>
-				<combo_item name="Torus">
-					トーラス
-				</combo_item>
-				<combo_item name="Plane">
-					平面
-				</combo_item>
-				<combo_item name="Cylinder">
-					シリンダー
-				</combo_item>
+				<combo_box.item name="None" label="なし）"/>
+				<combo_box.item name="Sphere" label="球形"/>
+				<combo_box.item name="Torus" label="トーラス"/>
+				<combo_box.item name="Plane" label="平面"/>
+				<combo_box.item name="Cylinder" label="シリンダー"/>
 			</combo_box>
 		</panel>
 		<panel label="特徴" name="Features">
@@ -436,88 +362,40 @@
 				マッピング
 			</text>
 			<combo_box name="combobox texgen">
-				<combo_item name="Default">
-					デフォルト
-				</combo_item>
-				<combo_item name="Planar">
-					平面
-				</combo_item>
+				<combo_box.item name="Default" label="デフォルト"/>
+				<combo_box.item name="Planar" label="平面"/>
 			</combo_box>
 			<text name="label shininess">
 				輝き
 			</text>
 			<combo_box name="combobox shininess">
-				<combo_item name="None">
-					なし
-				</combo_item>
-				<combo_item name="Low">
-					低
-				</combo_item>
-				<combo_item name="Medium">
-					中
-				</combo_item>
-				<combo_item name="High">
-					高
-				</combo_item>
+				<combo_box.item name="None" label="なし"/>
+				<combo_box.item name="Low" label="低"/>
+				<combo_box.item name="Medium" label="中"/>
+				<combo_box.item name="High" label="高"/>
 			</combo_box>
 			<text name="label bumpiness">
 				凹凸
 			</text>
 			<combo_box name="combobox bumpiness">
-				<combo_item name="None">
-					なし
-				</combo_item>
-				<combo_item name="Brightness">
-					明るさ
-				</combo_item>
-				<combo_item name="Darkness">
-					暗さ
-				</combo_item>
-				<combo_item name="woodgrain">
-					木目調
-				</combo_item>
-				<combo_item name="bark">
-					木の皮
-				</combo_item>
-				<combo_item name="bricks">
-					レンガ
-				</combo_item>
-				<combo_item name="checker">
-					チェッカー
-				</combo_item>
-				<combo_item name="concrete">
-					コンクリート
-				</combo_item>
-				<combo_item name="crustytile">
-					クラスティ・タイル
-				</combo_item>
-				<combo_item name="cutstone">
-					カットストーン
-				</combo_item>
-				<combo_item name="discs">
-					ディスク
-				</combo_item>
-				<combo_item name="gravel">
-					砂利
-				</combo_item>
-				<combo_item name="petridish">
-					ペトリ
-				</combo_item>
-				<combo_item name="siding">
-					羽目板
-				</combo_item>
-				<combo_item name="stonetile">
-					ストーン・タイル
-				</combo_item>
-				<combo_item name="stucco">
-					しっくい
-				</combo_item>
-				<combo_item name="suction">
-					吸い込み
-				</combo_item>
-				<combo_item name="weave">
-					織目
-				</combo_item>
+				<combo_box.item name="None" label="なし"/>
+				<combo_box.item name="Brightness" label="明るさ"/>
+				<combo_box.item name="Darkness" label="暗さ"/>
+				<combo_box.item name="woodgrain" label="木目調"/>
+				<combo_box.item name="bark" label="木の皮"/>
+				<combo_box.item name="bricks" label="レンガ"/>
+				<combo_box.item name="checker" label="チェッカー"/>
+				<combo_box.item name="concrete" label="コンクリート"/>
+				<combo_box.item name="crustytile" label="クラスティ・タイル"/>
+				<combo_box.item name="cutstone" label="カットストーン"/>
+				<combo_box.item name="discs" label="ディスク"/>
+				<combo_box.item name="gravel" label="砂利"/>
+				<combo_box.item name="petridish" label="ペトリ"/>
+				<combo_box.item name="siding" label="羽目板"/>
+				<combo_box.item name="stonetile" label="ストーン・タイル"/>
+				<combo_box.item name="stucco" label="しっくい"/>
+				<combo_box.item name="suction" label="吸い込み"/>
+				<combo_box.item name="weave" label="織目"/>
 			</combo_box>
 			<text name="tex scale">
 				面ごとに繰り返す

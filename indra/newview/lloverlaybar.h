@@ -67,7 +67,6 @@ public:
 	// helpers for returning desired state
 	BOOL musicPlaying() { return mMusicState == PLAYING; }
 	
-	static void onClickIMReceived(void* data);
 	static void onClickSetNotBusy(void* data);
 	static void onClickMouselook(void* data);
 	static void onClickStandUp(void* data);
@@ -86,7 +85,6 @@ public:
 protected:	
 	static void* createMediaRemote(void* userdata);
 	static void* createVoiceRemote(void* userdata);
-	static void* createChatBar(void* userdata);
 
 	void enableMediaButtons();
 

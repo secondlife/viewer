@@ -5,15 +5,9 @@
 do Chat:
 	</text>
 	<radio_group name="chat_font_size">
-		<radio_item name="radio">
-			Pequeno
-		</radio_item>
-		<radio_item name="radio2">
-			Médio
-		</radio_item>
-		<radio_item name="radio3">
-			Grande
-		</radio_item>
+		<radio_item name="radio" label="Pequeno" />
+		<radio_item name="radio2" label="Médio" />
+		<radio_item name="radio3" label="Grande" />
 	</radio_group>
 	<text length="1" name="text_box2" type="string">
 		Cor do Chat:

@@ -181,10 +181,10 @@
 		<menu_item_call label="Wstrzymaj Działanie Skryptów w Selekcji" name="Set Scripts to Not Running in Selection"/>
 	</menu>
 	<menu label="Pomoc" name="Help">
-		<menu_item_call label="Second Life: Pomoc" name="Second Life Help"/>
+		<menu_item_call label="[SECOND_LIFE]: Pomoc" name="Second Life Help"/>
 		<menu_item_call label="Samouczek" name="Tutorial"/>
 		<menu_item_separator label="-----------" name="separator"/>
-		<menu_item_call label="Oficjalny Blog Second Life..." name="Official Linden Blog..."/>
+		<menu_item_call label="Oficjalny Blog [SECOND_LIFE]..." name="Official Linden Blog..."/>
 		<menu_item_separator label="-----------" name="separator2"/>
 		<menu_item_call label="Portal dla Skrypterów..." name="Scripting Portal..."/>
 		<menu_item_separator label="-----------" name="separator3"/>
@@ -202,6 +202,6 @@
 			<menu_item_separator label="-----------" name="separator9"/>
 			<menu_item_call label="Wyślij Raport Błędu..." name="Report Bug..."/>
 		</menu>
-		<menu_item_call label="O Second Life..." name="About Second Life..."/>
+		<menu_item_call label="O [APP_NAME]..." name="About Second Life..."/>
 	</menu>
 </menu_bar>

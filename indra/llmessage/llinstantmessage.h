@@ -36,7 +36,8 @@
 #include "llhost.h"
 #include "lluuid.h"
 #include "llsd.h"
-#include "llmemory.h"
+#include "llrefcount.h"
+#include "llpointer.h"
 #include "v3math.h"
 
 class LLMessageSystem;

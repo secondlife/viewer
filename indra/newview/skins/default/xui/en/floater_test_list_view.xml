@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="true"
+ height="400"
+ layout="topleft"
+ name="floater_test_list_view"
+ width="400">
+    <list_view
+     height="300"
+     left="10"
+     name="test_list_view"
+     top="28"
+     width="300" />
+  <button
+    name="test_1_btn"
+    label="Test 1"
+    top="350"
+    left="10"
+    height="20"
+    width="80"
+    commit_callback.function="TestListView.Test1" />
+  <button
+    name="test_2_btn"
+    label="Test 2"
+    top_delta="0"
+    left_pad="10"
+    height="20"
+    width="80"
+    commit_callback.function="TestListView.Test2" />
+
+</floater>

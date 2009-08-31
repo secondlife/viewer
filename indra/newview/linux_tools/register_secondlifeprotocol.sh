@@ -7,10 +7,10 @@
 HANDLER="$1"
 
 RUN_PATH=`dirname "$0" || echo .`
-cd "${RUN_PATH}"
+cd "${RUN_PATH}/.."
 
 if [ -z "$HANDLER" ]; then
-    HANDLER=`pwd`/handle_secondlifeprotocol.sh
+    HANDLER=`pwd`/etc/handle_secondlifeprotocol.sh
 fi
 
 # Register handler for GNOME-aware apps

@@ -36,14 +36,14 @@
 
 #include "indra_constants.h"
 #include "llclickaction.h"
-#include "llmediabase.h"	// for status codes
 #include "llparcel.h"
 
 #include "llagent.h"
 #include "llviewercontrol.h"
+#include "llfocusmgr.h"
 #include "llfirstuse.h"
-#include "llfloateravatarinfo.h"
 #include "llfloaterland.h"
+#include "llfloaterreg.h"
 #include "llfloaterscriptdebug.h"
 #include "llhoverview.h"
 #include "llhudeffecttrail.h"
@@ -63,7 +63,8 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
 #include "llviewermedia.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
+#include "llviewermediafocus.h"
 #include "llworld.h"
 #include "llui.h"
 #include "llweb.h"
@@ -72,14 +73,15 @@ extern void handle_buy(void*);
 
 extern BOOL gDebugClicks;
 
+static bool handle_media_click(const LLPickInfo& info);
+static bool handle_media_hover(const LLPickInfo& info);
 static void handle_click_action_play();
 static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp);
 static ECursorType cursor_from_parcel_media(U8 click_action);
 
 
 LLToolPie::LLToolPie()
-:	LLTool(std::string("Select")),
-	mPieMouseButtonDown( FALSE ),
+:	LLTool(std::string("Pie")),
 	mGrabMouseButtonDown( FALSE ),
 	mMouseOutsideSlop( FALSE ),
 	mClickAction(0)
@@ -98,32 +100,44 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 void LLToolPie::leftMouseCallback(const LLPickInfo& pick_info)
 {
 	LLToolPie::getInstance()->mPick = pick_info;
-	LLToolPie::getInstance()->pickAndShowMenu(FALSE);
+	LLToolPie::getInstance()->pickLeftMouseDownCallback();
 }
 
+// Spawn context menus on right mouse down so you can drag over and select
+// an item.
 BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	// don't pick transparent so users can't "pay" transparent objects
 	gViewerWindow->pickAsync(x, y, mask, rightMouseCallback, FALSE, TRUE);
-	mPieMouseButtonDown = TRUE; 
-	// don't steal focus from UI
+	// claim not handled so UI focus stays same
 	return FALSE;
+}
+
+BOOL LLToolPie::handleRightMouseUp(S32 x, S32 y, MASK mask)
+{
+	LLToolMgr::getInstance()->clearTransientTool();
+	return LLTool::handleRightMouseUp(x, y, mask);
+}
+
+BOOL LLToolPie::handleScrollWheel(S32 x, S32 y, S32 clicks)
+{
+	return LLViewerMediaFocus::getInstance()->handleScrollWheel(x, y, clicks);
 }
 
 // static
 void LLToolPie::rightMouseCallback(const LLPickInfo& pick_info)
 {
 	LLToolPie::getInstance()->mPick = pick_info;
-	LLToolPie::getInstance()->pickAndShowMenu(TRUE);
+	LLToolPie::getInstance()->pickRightMouseDownCallback();
 }
 
 // True if you selected an object.
-BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
+BOOL LLToolPie::pickLeftMouseDownCallback()
 {
 	S32 x = mPick.mMousePt.mX;
 	S32 y = mPick.mMousePt.mY;
 	MASK mask = mPick.mKeyMask;
-	if (!always_show && mPick.mPickType == LLPickInfo::PICK_PARCEL_WALL)
+	if (mPick.mPickType == LLPickInfo::PICK_PARCEL_WALL)
 	{
 		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getCollisionParcel();
 		if (parcel)
@@ -139,10 +153,11 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 			else
 			{
 				// not selling passes, get info
-				LLFloaterLand::showInstance();
+				LLFloaterReg::showInstance("about_land");
 			}
 		}
 
+		gFocusMgr.setKeyboardFocus(NULL);
 		return LLTool::handleMouseDown(x, y, mask);
 	}
 
@@ -160,11 +175,13 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 		parent = object->getRootEdit();
 	}
 
+
 	BOOL touchable = (object && object->flagHandleTouch()) 
 					 || (parent && parent->flagHandleTouch());
 
+
 	// If it's a left-click, and we have a special action, do it.
-	if (useClickAction(always_show, mask, object, parent))
+	if (useClickAction(mask, object, parent))
 	{
 		mClickAction = 0;
 		if (object && object->getClickAction()) 
@@ -182,9 +199,11 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 			// touch behavior down below...
 			break;
 		case CLICK_ACTION_SIT:
-			if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->mIsSitting)) // agent not already sitting
+			if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // agent not already sitting
 			{
 				handle_sit_or_stand();
+				// put focus in world when sitting on an object
+				gFocusMgr.setKeyboardFocus(NULL);
 				return TRUE;
 			} // else nothing (fall through to touch)
 			
@@ -237,11 +256,19 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 		}
 	}
 
+	if (handle_media_click(mPick))
+	{
+		return FALSE;
+	}
+
+	// put focus back "in world"
+	gFocusMgr.setKeyboardFocus(NULL);
+
 	// Switch to grab tool if physical or triggerable
 	if (object && 
 		!object->isAvatar() && 
-		((object->usePhysics() || (parent && !parent->isAvatar() && parent->usePhysics())) || touchable) && 
-		!always_show)
+		((object->usePhysics() || (parent && !parent->isAvatar() && parent->usePhysics())) || touchable) 
+		)
 	{
 		gGrabTransientTool = this;
 		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolGrab::getInstance() );
@@ -256,8 +283,7 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 
 	// If left-click never selects or spawns a menu
 	// Eat the event.
-	if (!gSavedSettings.getBOOL("LeftClickShowMenu")
-		&& !always_show)
+	if (!gSavedSettings.getBOOL("LeftClickShowMenu"))
 	{
 		// mouse already released
 		if (!mGrabMouseButtonDown)
@@ -285,14 +311,16 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 
 			return TRUE;
 		}
-		// Could be first left-click on nothing
-		LLFirstUse::useLeftClickNoHit();
-
+	//////////
+	//	// Could be first left-click on nothing
+	//	LLFirstUse::useLeftClickNoHit();
+	/////////
+		
 		// Eat the event
 		return LLTool::handleMouseDown(x, y, mask);
 	}
 
-	if (!always_show && gAgent.leftButtonGrabbed())
+	if (gAgent.leftButtonGrabbed())
 	{
 		// if the left button is grabbed, don't put up the pie menu
 		return LLTool::handleMouseDown(x, y, mask);
@@ -302,116 +330,15 @@ BOOL LLToolPie::pickAndShowMenu(BOOL always_show)
 	LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE);
 
 	// Spawn pie menu
-	if (mPick.mPickType == LLPickInfo::PICK_LAND)
-	{
-		LLParcelSelectionHandle selection = LLViewerParcelMgr::getInstance()->selectParcelAt( mPick.mPosGlobal );
-		gMenuHolder->setParcelSelection(selection);
-		gPieLand->show(x, y, mPieMouseButtonDown);
-
-		// VEFFECT: ShowPie
-		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_SPHERE, TRUE);
-		effectp->setPositionGlobal(mPick.mPosGlobal);
-		effectp->setColor(LLColor4U(gAgent.getEffectColor()));
-		effectp->setDuration(0.25f);
-	}
-	else if (mPick.mObjectID == gAgent.getID() )
-	{
-		if(!gPieSelf) 
-		{
-			//either at very early startup stage or at late quitting stage,
-			//this event is ignored.
-			return TRUE ;
-		}
-
-		gPieSelf->show(x, y, mPieMouseButtonDown);
-	}
-	else if (object)
-	{
-		gMenuHolder->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
-
-		if (object->isAvatar() 
-			|| (object->isAttachment() && !object->isHUDAttachment() && !object->permYouOwner()))
-		{
-			// Find the attachment's avatar
-			while( object && object->isAttachment())
-			{
-				object = (LLViewerObject*)object->getParent();
-			}
-
-			// Object is an avatar, so check for mute by id.
-			LLVOAvatar* avatar = (LLVOAvatar*)object;
-			std::string name = avatar->getFullname();
-			if (LLMuteList::getInstance()->isMuted(avatar->getID(), name))
-			{
-				gMenuHolder->childSetText("Avatar Mute", std::string("Unmute")); // *TODO:Translate
-				//gMutePieMenu->setLabel("Unmute");
-			}
-			else
-			{
-				gMenuHolder->childSetText("Avatar Mute", std::string("Mute")); // *TODO:Translate
-				//gMutePieMenu->setLabel("Mute");
-			}
-
-			gPieAvatar->show(x, y, mPieMouseButtonDown);
-		}
-		else if (object->isAttachment())
-		{
-			gPieAttachment->show(x, y, mPieMouseButtonDown);
-		}
-		else
-		{
-			// BUG: What about chatting child objects?
-			std::string name;
-			LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
-			if (node)
-			{
-				name = node->mName;
-			}
-			if (LLMuteList::getInstance()->isMuted(object->getID(), name))
-			{
-				gMenuHolder->childSetText("Object Mute", std::string("Unmute")); // *TODO:Translate
-				//gMuteObjectPieMenu->setLabel("Unmute");
-			}
-			else
-			{
-				gMenuHolder->childSetText("Object Mute", std::string("Mute")); // *TODO:Translate
-				//gMuteObjectPieMenu->setLabel("Mute");
-			}
-			
-			gPieObject->show(x, y, mPieMouseButtonDown);
-
-			// VEFFECT: ShowPie object
-			// Don't show when you click on someone else, it freaks them
-			// out.
-			LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_SPHERE, TRUE);
-			effectp->setPositionGlobal(mPick.mPosGlobal);
-			effectp->setColor(LLColor4U(gAgent.getEffectColor()));
-			effectp->setDuration(0.25f);
-		}
-	}
-
-	if (always_show)
-	{
-		// ignore return value
-		LLTool::handleRightMouseDown(x, y, mask);
-	}
-	else
-	{
-		// ignore return value
-		LLTool::handleMouseDown(x, y, mask);
-	}
-
-	// We handled the event.
+	LLTool::handleRightMouseDown(x, y, mask);
 	return TRUE;
 }
 
-BOOL LLToolPie::useClickAction(BOOL always_show, 
-							   MASK mask, 
+BOOL LLToolPie::useClickAction(MASK mask, 
 							   LLViewerObject* object, 
 							   LLViewerObject* parent)
 {
-	return	!always_show
-			&& mask == MASK_NONE
+	return	mask == MASK_NONE
 			&& object
 			&& !object->isAttachment() 
 			&& LLPrimitive::isPrimitive(object->getPCode())
@@ -454,7 +381,7 @@ ECursorType cursor_from_object(LLViewerObject* object)
 	switch(click_action)
 	{
 	case CLICK_ACTION_SIT:
-		if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->mIsSitting)) // not already sitting?
+		if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // not already sitting?
 		{
 			cursor = UI_CURSOR_TOOLSIT;
 		}
@@ -524,7 +451,7 @@ void LLToolPie::selectionPropertiesReceived()
 				handle_give_money_dialog();
 				break;
 			case CLICK_ACTION_OPEN:
-				handle_object_open();
+				LLFloaterReg::showInstance("openobject");
 				break;
 			default:
 				break;
@@ -554,41 +481,55 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		mMouseOutsideSlop = TRUE;
 	}
 	*/
-	
+
+	// FIXME: This was in the pluginapi branch, but I don't think it's correct.
+//	gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
+
 	LLViewerObject *object = NULL;
 	LLViewerObject *parent = NULL;
-	if (gHoverView)
-	{
-		object = gViewerWindow->getHoverPick().getObject();
-	}
+	object = gViewerWindow->getHoverPick().getObject();
 
 	if (object)
 	{
 		parent = object->getRootEdit();
 	}
 
-	if (object && useClickAction(FALSE, mask, object, parent))
+	if (object && useClickAction(mask, object, parent))
 	{
 		ECursorType cursor = cursor_from_object(object);
-		gViewerWindow->getWindow()->setCursor(cursor);
+		gViewerWindow->setCursor(cursor);
+		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+	}
+	else if (handle_media_hover(gViewerWindow->getHoverPick()))
+	{
+		// cursor set by media object
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
 	else if ((object && !object->isAvatar() && object->usePhysics()) 
 			 || (parent && !parent->isAvatar() && parent->usePhysics()))
 	{
-		gViewerWindow->getWindow()->setCursor(UI_CURSOR_TOOLGRAB);
+		gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
 	else if ( (object && object->flagHandleTouch()) 
 			  || (parent && parent->flagHandleTouch()))
 	{
-		gViewerWindow->getWindow()->setCursor(UI_CURSOR_HAND);
+		gViewerWindow->setCursor(UI_CURSOR_HAND);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
 	else
 	{
-		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
+		gViewerWindow->setCursor(UI_CURSOR_ARROW);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+
+		if(!object)
+		{
+			// We need to clear media hover flag
+			if (LLViewerMediaFocus::getInstance()->getMouseOverFlag())
+			{
+				LLViewerMediaFocus::getInstance()->setMouseOverFlag(false);
+			}
+		}
 	}
 
 	return TRUE;
@@ -610,7 +551,7 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 			// the world.  Keep the cursor an arrow, assuming that 
 			// after the user moves off the UI, they won't be on the
 			// same object anymore.
-			gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
+			gViewerWindow->setCursor(UI_CURSOR_ARROW);
 			// Make sure the hover-picked object is ignored.
 			gHoverView->resetLastHoverObject();
 			break;
@@ -622,13 +563,6 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 	LLToolMgr::getInstance()->clearTransientTool();
 	gAgent.setLookAt(LOOKAT_TARGET_CONVERSATION, obj); // maybe look at object/person clicked on
 	return LLTool::handleMouseUp(x, y, mask);
-}
-
-BOOL LLToolPie::handleRightMouseUp(S32 x, S32 y, MASK mask)
-{
-	mPieMouseButtonDown = FALSE; 
-	LLToolMgr::getInstance()->clearTransientTool();
-	return LLTool::handleRightMouseUp(x, y, mask);
 }
 
 
@@ -744,14 +678,14 @@ static void handle_click_action_play()
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (!parcel) return;
 
-	LLMediaBase::EStatus status = LLViewerParcelMedia::getStatus();
+	LLViewerMediaImpl::EMediaStatus status = LLViewerParcelMedia::getStatus();
 	switch(status)
 	{
-		case LLMediaBase::STATUS_STARTED:
+		case LLViewerMediaImpl::MEDIA_PLAYING:
 			LLViewerParcelMedia::pause();
 			break;
 
-		case LLMediaBase::STATUS_PAUSED:
+		case LLViewerMediaImpl::MEDIA_PAUSED:
 			LLViewerParcelMedia::start();
 			break;
 
@@ -760,6 +694,111 @@ static void handle_click_action_play()
 			break;
 	}
 }
+
+static bool handle_media_click(const LLPickInfo& pick)
+{
+	//FIXME: how do we handle object in different parcel than us?
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	LLPointer<LLViewerObject> objectp = pick.getObject();
+
+
+	if (!parcel ||
+		objectp.isNull() ||
+		pick.mObjectFace < 0 || 
+		pick.mObjectFace >= objectp->getNumTEs()) 
+	{
+		LLSelectMgr::getInstance()->deselect();
+		LLViewerMediaFocus::getInstance()->clearFocus();
+
+		return false;
+	}
+
+
+
+	// HACK: This is directly referencing an impl name.  BAD!
+	// This can be removed when we have a truly generic media browser that only 
+	// builds an impl based on the type of url it is passed.
+
+	// is media playing on this face?
+	const LLTextureEntry* tep = objectp->getTE(pick.mObjectFace);
+
+	viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(tep->getID());
+	if (tep
+		&& media_impl.notNull()
+		&& media_impl->hasMedia()
+		&& gSavedSettings.getBOOL("MediaOnAPrimUI"))
+	{
+		LLObjectSelectionHandle selection = LLViewerMediaFocus::getInstance()->getSelection(); 
+		if (! selection->contains(pick.getObject(), pick.mObjectFace))
+		{
+			LLViewerMediaFocus::getInstance()->setFocusFace(TRUE, pick.getObject(), pick.mObjectFace, media_impl);
+		}
+		else
+		{
+			media_impl->mouseDown(pick.mXYCoords.mX, pick.mXYCoords.mY);
+			media_impl->mouseCapture(); // the mouse-up will happen when capture is lost
+		}
+
+		return true;
+	}
+
+	LLSelectMgr::getInstance()->deselect();
+	LLViewerMediaFocus::getInstance()->clearFocus();
+
+	return false;
+}
+
+static bool handle_media_hover(const LLPickInfo& pick)
+{
+	//FIXME: how do we handle object in different parcel than us?
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	if (!parcel) return false;
+
+	LLPointer<LLViewerObject> objectp = pick.getObject();
+
+	// Early out cases.  Must clear mouse over media focus flag
+	// did not hit an object or did not hit a valid face
+	if ( objectp.isNull() ||
+		pick.mObjectFace < 0 || 
+		pick.mObjectFace >= objectp->getNumTEs() )
+	{
+		LLViewerMediaFocus::getInstance()->setMouseOverFlag(false);
+		return false;
+	}
+
+
+	// HACK: This is directly referencing an impl name.  BAD!
+	// This can be removed when we have a truly generic media browser that only 
+	// builds an impl based on the type of url it is passed.
+
+	// is media playing on this face?
+	const LLTextureEntry* tep = objectp->getTE(pick.mObjectFace);
+	viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(tep->getID());
+	if (tep
+		&& media_impl.notNull()
+		&& media_impl->hasMedia()
+		&& gSavedSettings.getBOOL("MediaOnAPrimUI"))
+	{
+		if(LLViewerMediaFocus::getInstance()->getFocus())
+		{
+			media_impl->mouseMove(pick.mXYCoords.mX, pick.mXYCoords.mY);
+		}
+
+		// Set mouse over flag if unset
+		if (! LLViewerMediaFocus::getInstance()->getMouseOverFlag())
+		{
+			LLSelectMgr::getInstance()->setHoverObject(objectp, pick.mObjectFace);
+			LLViewerMediaFocus::getInstance()->setMouseOverFlag(true, media_impl);
+			LLViewerMediaFocus::getInstance()->setPickInfo(pick);
+		}
+
+		return true;
+	}
+	LLViewerMediaFocus::getInstance()->setMouseOverFlag(false);
+
+	return false;
+}
+
 
 static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp)
 {
@@ -775,7 +814,7 @@ static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp)
 	if( face < 0 || face >= objectp->getNumTEs() ) return;
 		
 	// is media playing on this face?
-	if (!LLViewerMedia::isActiveMediaTexture(objectp->getTE(face)->getID()))
+	if (LLViewerMedia::getMediaImplFromTextureID(objectp->getTE(face)->getID()) != NULL)
 	{
 		handle_click_action_play();
 		return;
@@ -785,18 +824,7 @@ static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp)
 	std::string media_type = std::string ( parcel->getMediaType() );
 	LLStringUtil::trim(media_url);
 
-	// Get the scheme, see if that is handled as well.
-	LLURI uri(media_url);
-	std::string media_scheme = uri.scheme() != "" ? uri.scheme() : "http";
-
-	// HACK: This is directly referencing an impl name.  BAD!
-	// This can be removed when we have a truly generic media browser that only 
-	// builds an impl based on the type of url it is passed.
-
-	if(	LLMediaManager::getInstance()->supportsMediaType( "LLMediaImplLLMozLib", media_scheme, media_type ) )
-	{
-		LLWeb::loadURL(media_url);
-	}
+	LLWeb::loadURL(media_url);
 }
 
 static ECursorType cursor_from_parcel_media(U8 click_action)
@@ -814,21 +842,127 @@ static ECursorType cursor_from_parcel_media(U8 click_action)
 	std::string media_type = std::string ( parcel->getMediaType() );
 	LLStringUtil::trim(media_url);
 
-	// Get the scheme, see if that is handled as well.
-	LLURI uri(media_url);
-	std::string media_scheme = uri.scheme() != "" ? uri.scheme() : "http";
+	open_cursor = UI_CURSOR_TOOLMEDIAOPEN;
 
-	if(	LLMediaManager::getInstance()->supportsMediaType( "LLMediaImplLLMozLib", media_scheme, media_type ) )
-	{
-		open_cursor = UI_CURSOR_TOOLMEDIAOPEN;
-	}
-
-	LLMediaBase::EStatus status = LLViewerParcelMedia::getStatus();
+	LLViewerMediaImpl::EMediaStatus status = LLViewerParcelMedia::getStatus();
 	switch(status)
 	{
-		case LLMediaBase::STATUS_STARTED:
+		case LLViewerMediaImpl::MEDIA_PLAYING:
 			return click_action == CLICK_ACTION_PLAY ? UI_CURSOR_TOOLPAUSE : open_cursor;
 		default:
 			return UI_CURSOR_TOOLPLAY;
 	}
+}
+
+
+// True if we handled the event.
+BOOL LLToolPie::pickRightMouseDownCallback()
+{
+	S32 x = mPick.mMousePt.mX;
+	S32 y = mPick.mMousePt.mY;
+	MASK mask = mPick.mKeyMask;
+
+	if (mPick.mPickType != LLPickInfo::PICK_LAND)
+	{
+		LLViewerParcelMgr::getInstance()->deselectLand();
+	}
+
+	// didn't click in any UI object, so must have clicked in the world
+	LLViewerObject *object = mPick.getObject();
+	LLViewerObject *parent = NULL;
+	if(object)
+		parent = object->getRootEdit();
+	
+	// Can't ignore children here.
+	LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE);
+
+	// Spawn pie menu
+	if (mPick.mPickType == LLPickInfo::PICK_LAND)
+	{
+		LLParcelSelectionHandle selection = LLViewerParcelMgr::getInstance()->selectParcelAt( mPick.mPosGlobal );
+		gMenuHolder->setParcelSelection(selection);
+		gPieLand->show(x, y);
+
+		showVisualContextMenuEffect();
+
+	}
+	else if (mPick.mObjectID == gAgent.getID() )
+	{
+		if(!gPieSelf) 
+		{
+			//either at very early startup stage or at late quitting stage,
+			//this event is ignored.
+			return TRUE ;
+		}
+
+		gPieSelf->show(x, y);
+	}
+	else if (object)
+	{
+		gMenuHolder->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
+
+		if (object->isAvatar() 
+			|| (object->isAttachment() && !object->isHUDAttachment() && !object->permYouOwner()))
+		{
+			// Find the attachment's avatar
+			while( object && object->isAttachment())
+			{
+				object = (LLViewerObject*)object->getParent();
+			}
+
+			// Object is an avatar, so check for mute by id.
+			LLVOAvatar* avatar = (LLVOAvatar*)object;
+			std::string name = avatar->getFullname();
+			if (LLMuteList::getInstance()->isMuted(avatar->getID(), avatar->getFullname()))
+			{
+				gMenuHolder->childSetText("Avatar Mute", std::string("Unmute")); // *TODO:Translate
+			}
+			else
+			{
+				gMenuHolder->childSetText("Avatar Mute", std::string("Mute")); // *TODO:Translate
+			}
+
+			gPieAvatar->show(x, y);
+		}
+		else if (object->isAttachment())
+		{
+			gPieAttachment->show(x, y);
+		}
+		else
+		{
+			// BUG: What about chatting child objects?
+			std::string name;
+			LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
+			if (node)
+			{
+				name = node->mName;
+			}
+			if (LLMuteList::getInstance()->isMuted(object->getID(), name))
+			{
+				gMenuHolder->childSetText("Object Mute", std::string("Unmute")); // *TODO:Translate
+			}
+			else
+			{
+				gMenuHolder->childSetText("Object Mute", std::string("Mute")); // *TODO:Translate
+			}
+			
+			gPieObject->show(x, y);
+
+			showVisualContextMenuEffect();
+		}
+	}
+
+	LLTool::handleRightMouseDown(x, y, mask);
+	// We handled the event.
+	return TRUE;
+}
+
+void LLToolPie::showVisualContextMenuEffect()
+{
+		// VEFFECT: ShowPie
+		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_SPHERE, TRUE);
+		effectp->setPositionGlobal(mPick.mPosGlobal);
+		effectp->setColor(LLColor4U(gAgent.getEffectColor()));
+		effectp->setDuration(0.25f);
+
 }

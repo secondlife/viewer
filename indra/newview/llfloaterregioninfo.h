@@ -59,13 +59,13 @@ class LLPanelRegionTerrainInfo;
 class LLPanelEstateInfo;
 class LLPanelEstateCovenant;
 
-class LLFloaterRegionInfo : public LLFloater, public LLFloaterSingleton<LLFloaterRegionInfo>
+class LLFloaterRegionInfo : public LLFloater
 {
-	friend class LLUISingleton<LLFloaterRegionInfo, VisibilityPolicy<LLFloater> >;
+	friend class LLFloaterReg;
 public:
-	~LLFloaterRegionInfo();
 
-	/*virtual*/ void onOpen();
+
+	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ BOOL postBuild();
 
 	static void processEstateOwnerRequest(LLMessageSystem* msg, void**);
@@ -84,10 +84,14 @@ public:
 	// from LLPanel
 	virtual void refresh();
 	
-	static void requestRegionInfo();
+	void requestRegionInfo();
 
-protected:
+private:
+	
 	LLFloaterRegionInfo(const LLSD& seed);
+	~LLFloaterRegionInfo();
+	
+protected:
 	void refreshFromRegion(LLViewerRegion* region);
 
 	// member data
@@ -103,7 +107,8 @@ protected:
 class LLPanelRegionInfo : public LLPanel
 {
 public:
-	LLPanelRegionInfo() : LLPanel(std::string("Region Info Panel")) {}
+	LLPanelRegionInfo();
+	
 	static void onBtnSet(void* user_data);
 	static void onChangeChildCtrl(LLUICtrl* ctrl, void* user_data);
 	static void onChangeAnything(LLUICtrl* ctrl, void* user_data);
@@ -165,7 +170,7 @@ protected:
 	bool onKickAllCommit(const LLSD& notification, const LLSD& response);
 	static void onClickMessage(void* userdata);
 	bool onMessageCommit(const LLSD& notification, const LLSD& response);
-	static void onClickManageTelehub(void* data);
+	void onClickManageTelehub();
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -261,7 +266,7 @@ public:
 
 	static void onClickAddAllowedAgent(void* user_data);
 	static void onClickRemoveAllowedAgent(void* user_data);
-	static void onClickAddAllowedGroup(void* user_data);
+		   void onClickAddAllowedGroup();
 	static void onClickRemoveAllowedGroup(void* user_data);
 	static void onClickAddBannedAgent(void* user_data);
 	static void onClickRemoveBannedAgent(void* user_data);
@@ -271,7 +276,7 @@ public:
 
 	// Group picker callback is different, can't use core methods below
 	bool addAllowedGroup(const LLSD& notification, const LLSD& response);
-	static void addAllowedGroup2(LLUUID id, void* data);
+	void addAllowedGroup2(LLUUID id);
 
 	// Core methods for all above add/remove button clicks
 	static void accessAddCore(U32 operation_flag, const std::string& dialog_name);
@@ -339,8 +344,7 @@ public:
 		const LLUUID& id,
 		const std::string& first,
 		const std::string& last,
-		BOOL is_group,
-		void*);
+		BOOL is_group);
 
 protected:
 	virtual BOOL sendUpdate();

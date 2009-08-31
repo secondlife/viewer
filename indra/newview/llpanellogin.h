@@ -34,15 +34,16 @@
 #define LL_LLPANELLOGIN_H
 
 #include "llpanel.h"
-#include "llmemory.h"			// LLPointer<>
-#include "llwebbrowserctrl.h"	// LLWebBrowserCtrlObserver
+#include "llpointer.h"			// LLPointer<>
+#include "llmediactrl.h"	// LLMediaCtrlObserver
 
+class LLLineEditor;
 class LLUIImage;
 
 
 class LLPanelLogin:	
 	public LLPanel,
-	public LLWebBrowserCtrlObserver
+	public LLViewerMediaObserver
 {
 	LOG_CLASS(LLPanelLogin);
 public:
@@ -72,7 +73,7 @@ public:
 	static BOOL isGridComboDirty();
 	static void getLocation(std::string &location);
 
-	static void close();
+	static void closePanel();
 
 	void setSiteIsAlive( bool alive );
 
@@ -81,13 +82,15 @@ public:
 	static void setAlwaysRefresh(bool refresh); 
 	static void mungePassword(LLUICtrl* caller, void* user_data);
 	
+	// inherited from LLViewerMediaObserver
+	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
+
 private:
 	static void onClickConnect(void*);
 	static void onClickNewAccount(void*);
-	static bool newAccountAlertCallback(const LLSD& notification, const LLSD& response);
+//	static bool newAccountAlertCallback(const LLSD& notification, const LLSD& response);
 	static void onClickQuit(void*);
 	static void onClickVersion(void*);
-	virtual void onNavigateComplete( const EventType& eventIn );
 	static void onClickForgotPassword(void*);
 	static void onPassKey(LLLineEditor* caller, void* user_data);
 	static void onSelectServer(LLUICtrl*, void*);

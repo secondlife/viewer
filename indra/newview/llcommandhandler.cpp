@@ -55,7 +55,7 @@ public:
 	bool dispatch(const std::string& cmd,
 				  const LLSD& params,
 				  const LLSD& query_map,
-				  LLWebBrowserCtrl* web,
+				  LLMediaCtrl* web,
 				  bool trusted_browser);
 
 private:
@@ -84,7 +84,7 @@ void LLCommandHandlerRegistry::add(const char* cmd, bool require_trusted_browser
 bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 										const LLSD& params,
 										const LLSD& query_map,
-										LLWebBrowserCtrl* web,
+										LLMediaCtrl* web,
 										bool trusted_browser)
 {
 	std::map<std::string, LLCommandHandlerInfo>::iterator it = mMap.find(cmd);
@@ -126,7 +126,7 @@ LLCommandHandler::~LLCommandHandler()
 bool LLCommandDispatcher::dispatch(const std::string& cmd,
 								   const LLSD& params,
 								   const LLSD& query_map,
-								   LLWebBrowserCtrl* web,
+								   LLMediaCtrl* web,
 								   bool trusted_browser)
 {
 	return LLCommandHandlerRegistry::instance().dispatch(

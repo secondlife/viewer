@@ -62,9 +62,13 @@
 #include "llfirstuse.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
+#include "llvoavatarself.h"
 
 #include "llfloaterfriends.h"  //VIVOX, inorder to refresh communicate panel
 #include "llfloaterchat.h"		// for LLFloaterChat::addChat()
+
+// for Talk Button's state updating
+#include "llnearbychatbar.h"
 
 // for base64 decoding
 #include "apr_base64.h"
@@ -1103,58 +1107,61 @@ static void killGateway()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-LLVoiceClient::LLVoiceClient()
+LLVoiceClient::LLVoiceClient() :
+	mState(stateDisabled),
+	mSessionTerminateRequested(false),
+	mRelogRequested(false),
+	mConnected(false),
+	mPump(NULL),
+	
+	mTuningMode(false),
+	mTuningEnergy(0.0f),
+	mTuningMicVolume(0),
+	mTuningMicVolumeDirty(true),
+	mTuningSpeakerVolume(0),
+	mTuningSpeakerVolumeDirty(true),
+	mTuningExitState(stateDisabled),
+	
+	mAreaVoiceDisabled(false),
+	mAudioSession(NULL),
+	mAudioSessionChanged(false),
+	mNextAudioSession(NULL),
+	
+	mCurrentParcelLocalID(0),
+	mNumberOfAliases(0),
+	mCommandCookie(0),
+	mLoginRetryCount(0),
+	
+	mBuddyListMapPopulated(false),
+	mBlockRulesListReceived(false),
+	mAutoAcceptRulesListReceived(false),
+	mCaptureDeviceDirty(false),
+	mRenderDeviceDirty(false),
+	mSpatialCoordsDirty(false),
+
+	mPTTDirty(true),
+	mPTT(true),
+	mUsePTT(true),
+	mPTTIsMiddleMouse(false),
+	mPTTKey(0),
+	mPTTIsToggle(false),
+	mUserPTTState(false),
+	mMuteMic(false),
+	mFriendsListDirty(true),
+	
+	mEarLocation(0),
+	mSpeakerVolumeDirty(true),
+	mSpeakerMuteDirty(true),
+	mSpeakerVolume(0),
+	mMicVolume(0),
+	mMicVolumeDirty(true),
+	
+	mVoiceEnabled(false),
+	mWriteInProgress(false),
+	
+	mLipSyncEnabled(false)
 {	
 	gVoiceClient = this;
-	mWriteInProgress = false;
-	mAreaVoiceDisabled = false;
-	mPTT = true;
-	mUserPTTState = false;
-	mMuteMic = false;
-	mSessionTerminateRequested = false;
-	mRelogRequested = false;
-	mCommandCookie = 0;
-	mCurrentParcelLocalID = 0;
-	mLoginRetryCount = 0;
-
-	mSpeakerVolume = 0;
-	mMicVolume = 0;
-
-	mAudioSession = NULL;
-	mAudioSessionChanged = false;
-
-	// Initial dirty state
-	mSpatialCoordsDirty = false;
-	mPTTDirty = true;
-	mFriendsListDirty = true;
-	mSpeakerVolumeDirty = true;
-	mMicVolumeDirty = true;
-	mBuddyListMapPopulated = false;
-	mBlockRulesListReceived = false;
-	mAutoAcceptRulesListReceived = false;
-	mCaptureDeviceDirty = false;
-	mRenderDeviceDirty = false;
-
-	// Use default values for everything then call updateSettings() after preferences are loaded
-	mVoiceEnabled = false;
-	mUsePTT = true;
-	mPTTIsToggle = false;
-	mEarLocation = 0;
-	mLipSyncEnabled = false;
-	
-	mTuningMode = false;
-	mTuningEnergy = 0.0f;
-	mTuningMicVolume = 0;
-	mTuningMicVolumeDirty = true;
-	mTuningSpeakerVolume = 0;
-	mTuningSpeakerVolumeDirty = true;
-					
-	//  gMuteListp isn't set up at this point, so we defer this until later.
-//	gMuteListp->addObserver(&mutelist_listener);
-	
-	// stash the pump for later use
-	// This now happens when init() is called instead.
-	mPump = NULL;
 	
 #if LL_DARWIN || LL_LINUX || LL_SOLARIS
 		// HACK: THIS DOES NOT BELONG HERE
@@ -1503,6 +1510,7 @@ std::string LLVoiceClientStatusObserver::status2string(LLVoiceClientStatusObserv
 		CASE(STATUS_JOINED);
 		CASE(STATUS_LEFT_CHANNEL);
 		CASE(STATUS_VOICE_DISABLED);
+		CASE(STATUS_VOICE_ENABLED);
 		CASE(BEGIN_ERROR_STATUS);
 		CASE(ERROR_CHANNEL_FULL);
 		CASE(ERROR_CHANNEL_LOCKED);
@@ -4547,7 +4555,7 @@ void LLVoiceClient::messageEvent(
 	
 	if(messageHeader.find("text/html") != std::string::npos)
 	{
-		std::string rawMessage;
+		std::string message;
 
 		{
 			const std::string startMarker = "<body";
@@ -4559,7 +4567,7 @@ void LLVoiceClient::messageEvent(
 			std::string::size_type end;
 			
 			// Default to displaying the raw string, so the message gets through.
-			rawMessage = messageBody;
+			message = messageBody;
 
 			// Find the actual message text within the XML fragment
 			start = messageBody.find(startMarker);
@@ -4573,7 +4581,7 @@ void LLVoiceClient::messageEvent(
 				if(end != std::string::npos)
 					end -= start;
 					
-				rawMessage.assign(messageBody, start, end);
+				message.assign(messageBody, start, end);
 			}
 			else 
 			{
@@ -4589,24 +4597,24 @@ void LLVoiceClient::messageEvent(
 					if(end != std::string::npos)
 						end -= start;
 					
-					rawMessage.assign(messageBody, start, end);
+					message.assign(messageBody, start, end);
 				}			
 			}
 		}	
 		
-//		LL_DEBUGS("Voice") << "    raw message = \n" << rawMessage << LL_ENDL;
+//		LL_DEBUGS("Voice") << "    raw message = \n" << message << LL_ENDL;
 
 		// strip formatting tags
 		{
 			std::string::size_type start;
 			std::string::size_type end;
 			
-			while((start = rawMessage.find('<')) != std::string::npos)
+			while((start = message.find('<')) != std::string::npos)
 			{
-				if((end = rawMessage.find('>', start + 1)) != std::string::npos)
+				if((end = message.find('>', start + 1)) != std::string::npos)
 				{
 					// Strip out the tag
-					rawMessage.erase(start, (end + 1) - start);
+					message.erase(start, (end + 1) - start);
 				}
 				else
 				{
@@ -4622,31 +4630,31 @@ void LLVoiceClient::messageEvent(
 
 			// The text may contain text encoded with &lt;, &gt;, and &amp;
 			mark = 0;
-			while((mark = rawMessage.find("&lt;", mark)) != std::string::npos)
+			while((mark = message.find("&lt;", mark)) != std::string::npos)
 			{
-				rawMessage.replace(mark, 4, "<");
+				message.replace(mark, 4, "<");
 				mark += 1;
 			}
 			
 			mark = 0;
-			while((mark = rawMessage.find("&gt;", mark)) != std::string::npos)
+			while((mark = message.find("&gt;", mark)) != std::string::npos)
 			{
-				rawMessage.replace(mark, 4, ">");
+				message.replace(mark, 4, ">");
 				mark += 1;
 			}
 			
 			mark = 0;
-			while((mark = rawMessage.find("&amp;", mark)) != std::string::npos)
+			while((mark = message.find("&amp;", mark)) != std::string::npos)
 			{
-				rawMessage.replace(mark, 5, "&");
+				message.replace(mark, 5, "&");
 				mark += 1;
 			}
 		}
 		
 		// strip leading/trailing whitespace (since we always seem to get a couple newlines)
-		LLStringUtil::trim(rawMessage);
+		LLStringUtil::trim(message);
 		
-//		LL_DEBUGS("Voice") << "    stripped message = \n" << rawMessage << LL_ENDL;
+//		LL_DEBUGS("Voice") << "    stripped message = \n" << message << LL_ENDL;
 		
 		sessionState *session = findSession(sessionHandle);
 		if(session)
@@ -4670,14 +4678,12 @@ void LLVoiceClient::messageEvent(
 					quiet_chat = true;
 					// TODO: Question: Return busy mode response here?  Or maybe when session is started instead?
 				}
-				
-				std::string fullMessage = std::string(": ") + rawMessage;
-				
+								
 				LL_DEBUGS("Voice") << "adding message, name " << session->mName << " session " << session->mIMSessionID << ", target " << session->mCallerID << LL_ENDL;
 				gIMMgr->addMessage(session->mIMSessionID,
 						session->mCallerID,
 						session->mName.c_str(),
-						fullMessage.c_str(),
+						message.c_str(),
 						LLStringUtil::null,		// default arg
 						IM_NOTHING_SPECIAL,		// default arg
 						0,						// default arg
@@ -4685,7 +4691,7 @@ void LLVoiceClient::messageEvent(
 						LLVector3::zero,		// default arg
 						true);					// prepend name and make it a link to the user's profile
 
-				chat.mText = std::string("IM: ") + session->mName + std::string(": ") + rawMessage;
+				chat.mText = std::string("IM: ") + session->mName + std::string(": ") + message;
 				// If the chat should come in quietly (i.e. we're in busy mode), pretend it's from a local agent.
 				LLFloaterChat::addChat( chat, TRUE, quiet_chat );
 			}
@@ -5773,9 +5779,15 @@ void LLVoiceClient::setMuteMic(bool muted)
 	mMuteMic = muted;
 }
 
+bool LLVoiceClient::getMuteMic() const
+{
+	return mMuteMic;
+}
+
 void LLVoiceClient::setUserPTTState(bool ptt)
 {
 	mUserPTTState = ptt;
+	if (LLNearbyChatBar::instanceExists()) LLNearbyChatBar::getInstance()->setPTTState(ptt);
 }
 
 bool LLVoiceClient::getUserPTTState()
@@ -5786,6 +5798,7 @@ bool LLVoiceClient::getUserPTTState()
 void LLVoiceClient::toggleUserPTTState(void)
 {
 	mUserPTTState = !mUserPTTState;
+	if (LLNearbyChatBar::instanceExists()) LLNearbyChatBar::getInstance()->setPTTState(mUserPTTState);
 }
 
 void LLVoiceClient::setVoiceEnabled(bool enabled)
@@ -5793,15 +5806,21 @@ void LLVoiceClient::setVoiceEnabled(bool enabled)
 	if (enabled != mVoiceEnabled)
 	{
 		mVoiceEnabled = enabled;
+		LLVoiceClientStatusObserver::EStatusType status;
+
 		if (enabled)
 		{
 			LLVoiceChannel::getCurrentVoiceChannel()->activate();
+			status = LLVoiceClientStatusObserver::STATUS_VOICE_ENABLED;
 		}
 		else
 		{
 			// Turning voice off looses your current channel -- this makes sure the UI isn't out of sync when you re-enable it.
 			LLVoiceChannel::getCurrentVoiceChannel()->deactivate();
+			status = LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED;
 		}
+
+		notifyStatusObservers(status);
 	}
 }
 
@@ -6901,12 +6920,12 @@ void LLVoiceClient::notifyFriendObservers()
 
 void LLVoiceClient::lookupName(const LLUUID &id)
 {
-	BOOL is_group = FALSE;
+	gCacheName->get(id, FALSE, &LLVoiceClient::onAvatarNameLookup);
 	gCacheName->getNameFromUUID(id, is_group, onAvatarNameLookup);
 }
 
 //static
-void LLVoiceClient::onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group, void* user_data)
+void LLVoiceClient::onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group)
 {
 	if(gVoiceClient)
 	{

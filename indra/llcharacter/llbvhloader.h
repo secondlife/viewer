@@ -184,6 +184,41 @@ public:
 	S32			mPriorityModifier;
 };
 
+typedef enum e_load_status
+	{
+		E_ST_OK,
+		E_ST_EOF,
+		E_ST_NO_CONSTRAINT,
+		E_ST_NO_FILE,
+		E_ST_NO_HIER,
+		E_ST_NO_JOINT,
+		E_ST_NO_NAME,
+		E_ST_NO_OFFSET,
+		E_ST_NO_CHANNELS,
+		E_ST_NO_ROTATION,
+		E_ST_NO_AXIS,
+		E_ST_NO_MOTION,
+		E_ST_NO_FRAMES,
+		E_ST_NO_FRAME_TIME,
+		E_ST_NO_POS,
+		E_ST_NO_ROT,
+		E_ST_NO_XLT_FILE,
+		E_ST_NO_XLT_HEADER,
+		E_ST_NO_XLT_NAME,
+		E_ST_NO_XLT_IGNORE,
+		E_ST_NO_XLT_RELATIVE,
+		E_ST_NO_XLT_OUTNAME,
+		E_ST_NO_XLT_MATRIX,
+		E_ST_NO_XLT_MERGECHILD,
+		E_ST_NO_XLT_MERGEPARENT,
+		E_ST_NO_XLT_PRIORITY,
+		E_ST_NO_XLT_LOOP,
+		E_ST_NO_XLT_EASEIN,
+		E_ST_NO_XLT_EASEOUT,
+		E_ST_NO_XLT_HAND,
+		E_ST_NO_XLT_EMOTE
+	} ELoadStatus;
+
 //------------------------------------------------------------------------
 // TranslationMap
 //------------------------------------------------------------------------
@@ -194,9 +229,11 @@ class LLBVHLoader
 	friend class LLKeyframeMotion;
 public:
 	// Constructor
-	LLBVHLoader(const char* buffer);
+//	LLBVHLoader(const char* buffer);
+	LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &errorLine);
 	~LLBVHLoader();
-	
+
+/*	
 	// Status Codes
 	typedef const char *Status;
 	static const char *ST_OK;
@@ -230,13 +267,13 @@ public:
 	static const char *ST_NO_XLT_EASEOUT;
 	static const char *ST_NO_XLT_HAND;
 	static const char *ST_NO_XLT_EMOTE;
-
+*/
 	// Loads the specified translation table.
-	Status loadTranslationTable(const char *fileName);
+	ELoadStatus loadTranslationTable(const char *fileName);
 
 	// Load the specified BVH file.
 	// Returns status code.
-	Status loadBVHFile(const char *buffer, char *error_text, S32 &error_line);
+	ELoadStatus loadBVHFile(const char *buffer, char *error_text, S32 &error_line);
 
 	// Applies translations to BVH data loaded.
 	void applyTranslations();
@@ -260,7 +297,7 @@ public:
 
 	BOOL isInitialized() { return mInitialized; }
 
-	Status getStatus() { return mStatus; }
+	ELoadStatus getStatus() { return mStatus; }
 
 protected:
 	// Consumes one line of input from file.
@@ -287,7 +324,7 @@ protected:
 	std::string			mEmoteName;
 
 	BOOL				mInitialized;
-	Status				mStatus;
+	ELoadStatus			mStatus;
 	// computed values
 	F32	mDuration;
 };

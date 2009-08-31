@@ -37,6 +37,7 @@
 #include "indra_constants.h"
 
 #include "llagent.h"
+#include "llfoldertype.h"
 #include "llviewercontrol.h"
 #include "llconsole.h"
 #include "llinventorymodel.h"
@@ -44,12 +45,14 @@
 #include "llimview.h"
 #include "llgesturemgr.h"
 
-#include "llinventoryview.h"
+#include "llinventorybridge.h"
+#include "llfloaterinventory.h"
 
 #include "llviewerregion.h"
 #include "llviewerobjectlist.h"
 #include "llpreviewgesture.h"
 #include "llviewerwindow.h"
+#include "lltrans.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -199,10 +202,19 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 	{
 		std::string url; 
 
-		if( ALEXANDRIA_LINDEN_ID.getString() == mPermissions.getOwner().getString())
-			url = gAgent.getRegion()->getCapability("FetchLib");
-		else	
-			url = gAgent.getRegion()->getCapability("FetchInventory");
+		LLViewerRegion* region = gAgent.getRegion();
+		// we have to check region. It can be null after region was destroyed. See EXT-245
+		if (region)
+		{
+			if( ALEXANDRIA_LINDEN_ID.getString() == mPermissions.getOwner().getString())
+				url = region->getCapability("FetchLib");
+			else	
+				url = region->getCapability("FetchInventory");
+		}
+		else
+		{
+			llwarns << "Agent Region is absent" << llendl;
+		}
 
 		if (!url.empty())
 		{
@@ -242,8 +254,7 @@ BOOL LLViewerInventoryItem::unpackMessage(LLSD item)
 }
 
 // virtual
-BOOL LLViewerInventoryItem::unpackMessage(
-	LLMessageSystem* msg, const char* block, S32 block_num)
+BOOL LLViewerInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num)
 {
 	BOOL rv = LLInventoryItem::unpackMessage(msg, block, block_num);
 	mIsComplete = TRUE;
@@ -402,7 +413,8 @@ void LLViewerInventoryCategory::updateParentOnServer(BOOL restamp) const
 void LLViewerInventoryCategory::updateServer(BOOL is_new) const
 {
 	// communicate that change with the server.
-	if(LLAssetType::AT_NONE != mPreferredType)
+
+	if (LLAssetType::lookupIsProtectedCategoryType(mPreferredType))
 	{
 		LLNotifications::instance().add("CannotModifyProtectedCategories");
 		return;
@@ -426,7 +438,7 @@ void LLViewerInventoryCategory::removeFromServer( void )
 	llinfos << "Removing inventory category " << mUUID << " from server."
 			<< llendl;
 	// communicate that change with the server.
-	if(LLAssetType::AT_NONE != mPreferredType)
+	if(LLAssetType::lookupIsProtectedCategoryType(mPreferredType))
 	{
 		LLNotifications::instance().add("CannotRemoveProtectedCategories");
 		return;
@@ -576,6 +588,76 @@ bool LLViewerInventoryCategory::exportFileLocal(LLFILE* fp) const
 	return true;
 }
 
+void LLViewerInventoryCategory::determineFolderType()
+{
+	LLAssetType::EType original_type = getPreferredType();
+	if (LLAssetType::lookupIsProtectedCategoryType(original_type))
+		return;
+
+	U64 folder_valid = 0;
+	U64 folder_invalid = 0;
+	LLInventoryModel::cat_array_t category_array;
+	LLInventoryModel::item_array_t item_array;
+	gInventory.collectDescendents(getUUID(),category_array,item_array,FALSE);
+
+	// For ensembles
+	if (category_array.empty())
+	{
+		for (LLInventoryModel::item_array_t::iterator item_iter = item_array.begin();
+			 item_iter != item_array.end();
+			 item_iter++)
+		{
+			const LLViewerInventoryItem *item = (*item_iter);
+			if (item->getIsLinkType())
+				return;
+			if (item->getInventoryType() == LLInventoryType::IT_WEARABLE)
+			{
+				const EWearableType wearable_type = EWearableType(item->getFlags() & LLInventoryItem::II_FLAGS_WEARABLES_MASK);
+				const std::string& wearable_name = LLWearableDictionary::getTypeName(wearable_type);
+				U64 valid_folder_types = LLFolderType::lookupValidFolderTypes(wearable_name);
+				folder_valid |= valid_folder_types;
+				folder_invalid |= ~valid_folder_types;
+			}
+		}
+		for (U8 i = LLAssetType::AT_FOLDER_ENSEMBLE_START; i <= LLAssetType::AT_FOLDER_ENSEMBLE_END; i++)
+		{
+			if ((folder_valid & (1LL << i)) &&
+				!(folder_invalid & (1LL << i)))
+			{
+				changeType((LLAssetType::EType)i);
+				return;
+			}
+		}
+	}
+	if (LLAssetType::lookupIsEnsembleCategoryType(original_type))
+	{
+		changeType(LLAssetType::AT_NONE);
+	}
+}
+
+void LLViewerInventoryCategory::changeType(LLAssetType::EType new_folder_type)
+{
+	const LLUUID &folder_id = getUUID();
+	const LLUUID &parent_id = getParentUUID();
+	const std::string &name = getName();
+		
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_UpdateInventoryFolder);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->nextBlockFast(_PREHASH_FolderData);
+	msg->addUUIDFast(_PREHASH_FolderID, folder_id);
+	msg->addUUIDFast(_PREHASH_ParentID, parent_id);
+	msg->addS8Fast(_PREHASH_Type, new_folder_type);
+	msg->addStringFast(_PREHASH_Name, name);
+	gAgent.sendReliableMessage();
+
+	setPreferredType(new_folder_type);
+	gInventory.addChangedMask(LLInventoryObserver::LABEL, folder_id);
+	gInventory.updateLinkedObjects(folder_id);	
+}
+
 ///----------------------------------------------------------------------------
 /// Local function definitions
 ///----------------------------------------------------------------------------
@@ -663,13 +745,12 @@ void RezAttachmentCallback::fire(const LLUUID& inv_item)
 	}
 }
 
-extern LLGestureManager gGestureManager;
 void ActivateGestureCallback::fire(const LLUUID& inv_item)
 {
 	if (inv_item.isNull())
 		return;
 
-	gGestureManager.activateGesture(inv_item);
+	LLGestureManager::instance().activateGesture(inv_item);
 }
 
 void CreateGestureCallback::fire(const LLUUID& inv_item)
@@ -677,19 +758,16 @@ void CreateGestureCallback::fire(const LLUUID& inv_item)
 	if (inv_item.isNull())
 		return;
 
-	gGestureManager.activateGesture(inv_item);
+	LLGestureManager::instance().activateGesture(inv_item);
 	
 	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 	if (!item) return;
     gInventory.updateItem(item);
     gInventory.notifyObservers();
 
-	if(!LLPreview::show(inv_item,FALSE))
-	{
-		LLPreviewGesture* preview = LLPreviewGesture::show(std::string("Gesture: ") + item->getName(), inv_item,  LLUUID::null);
-		// Force to be entirely onscreen.
-		gFloaterView->adjustToFitScreen(preview, FALSE);
-	}
+	LLPreviewGesture* preview = LLPreviewGesture::show(inv_item,  LLUUID::null);
+	// Force to be entirely onscreen.
+	gFloaterView->adjustToFitScreen(preview, FALSE);
 }
 
 LLInventoryCallbackManager gInventoryCallbacks;
@@ -721,6 +799,16 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 	gAgent.sendReliableMessage();
 }
 
+void create_inventory_callingcard(const LLUUID& avatar_id, const LLUUID& parent /*= LLUUID::null*/, LLPointer<LLInventoryCallback> cb/*=NULL*/)
+{
+	std::string item_desc = avatar_id.asString();
+	std::string item_name;
+	gCacheName->getFullName(avatar_id, item_name);
+	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
+						  parent, LLTransactionID::tnull, item_name, item_desc, LLAssetType::AT_CALLINGCARD,
+						  LLInventoryType::IT_CALLINGCARD, NOT_WEARABLE, PERM_MOVE | PERM_TRANSFER, cb);
+}
+
 void copy_inventory_item(
 	const LLUUID& agent_id,
 	const LLUUID& current_owner,
@@ -740,6 +828,32 @@ void copy_inventory_item(
 	msg->addUUIDFast(_PREHASH_OldItemID, item_id);
 	msg->addUUIDFast(_PREHASH_NewFolderID, parent_id);
 	msg->addStringFast(_PREHASH_NewName, new_name);
+	gAgent.sendReliableMessage();
+}
+
+void link_inventory_item(
+	const LLUUID& agent_id,
+	const LLUUID& item_id,
+	const LLUUID& parent_id,
+	const std::string& new_name,
+	const LLAssetType::EType asset_type,
+	LLPointer<LLInventoryCallback> cb)
+{
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_LinkInventoryItem);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	{
+		msg->addUUIDFast(_PREHASH_AgentID, agent_id);
+		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	}
+	msg->nextBlockFast(_PREHASH_InventoryData);
+	{
+		msg->addU32Fast(_PREHASH_CallbackID, gInventoryCallbacks.registerCB(cb));
+		msg->addUUIDFast(_PREHASH_FolderID, parent_id);
+		msg->addUUIDFast(_PREHASH_OldItemID, item_id);
+		msg->addStringFast(_PREHASH_Name, new_name);
+		msg->addU8Fast(_PREHASH_AssetType, asset_type);
+	}
 	gAgent.sendReliableMessage();
 }
 
@@ -800,3 +914,311 @@ void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecar
 
     viewer_region->getCapAPI().post(request);
 }
+
+void create_new_item(const std::string& name,
+				   const LLUUID& parent_id,
+				   LLAssetType::EType asset_type,
+				   LLInventoryType::EType inv_type,
+				   U32 next_owner_perm)
+{
+	std::string desc;
+	LLAssetType::generateDescriptionFor(asset_type, desc);
+	next_owner_perm = (next_owner_perm) ? next_owner_perm : PERM_MOVE | PERM_TRANSFER;
+
+	
+	if (inv_type == LLInventoryType::IT_GESTURE)
+	{
+		LLPointer<LLInventoryCallback> cb = new CreateGestureCallback();
+		create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
+							  parent_id, LLTransactionID::tnull, name, desc, asset_type, inv_type,
+							  NOT_WEARABLE, next_owner_perm, cb);
+	}
+	else
+	{
+		LLPointer<LLInventoryCallback> cb = NULL;
+		create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
+							  parent_id, LLTransactionID::tnull, name, desc, asset_type, inv_type,
+							  NOT_WEARABLE, next_owner_perm, cb);
+	}
+	
+}	
+
+const std::string NEW_LSL_NAME = "New Script"; // *TODO:Translate? (probably not)
+const std::string NEW_NOTECARD_NAME = "New Note"; // *TODO:Translate? (probably not)
+const std::string NEW_GESTURE_NAME = "New Gesture"; // *TODO:Translate? (probably not)
+
+void menu_create_inventory_item(LLFolderView* folder, LLFolderBridge *bridge, const LLSD& userdata)
+{
+	std::string type = userdata.asString();
+	
+	if (("category" == type) || ("current" == type) || ("outfit" == type) || ("my_otfts" == type) )
+	{
+		LLAssetType::EType a_type = LLAssetType::AT_NONE;
+		if ("current" == type)
+			a_type = LLAssetType::AT_CURRENT_OUTFIT;
+		if ("outfit" == type)
+			a_type = LLAssetType::AT_OUTFIT;
+		if ("my_otfts" == type)
+			a_type = LLAssetType::AT_MY_OUTFITS;
+		LLUUID category;
+		if (bridge)
+		{
+			category = gInventory.createNewCategory(bridge->getUUID(), a_type, LLStringUtil::null);
+		}
+		else
+		{
+			category = gInventory.createNewCategory(gInventory.getRootFolderID(), a_type, LLStringUtil::null);
+		}
+		gInventory.notifyObservers();
+		folder->setSelectionByID(category, TRUE);
+	}
+	else if ("lsl" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_LSL_TEXT);
+		create_new_item(NEW_LSL_NAME,
+					  parent_id,
+					  LLAssetType::AT_LSL_TEXT,
+					  LLInventoryType::IT_LSL,
+					  PERM_MOVE | PERM_TRANSFER);
+	}
+	else if ("notecard" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_NOTECARD);
+		create_new_item(NEW_NOTECARD_NAME,
+					  parent_id,
+					  LLAssetType::AT_NOTECARD,
+					  LLInventoryType::IT_NOTECARD,
+					  PERM_ALL);
+	}
+	else if ("gesture" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_GESTURE);
+		create_new_item(NEW_GESTURE_NAME,
+					  parent_id,
+					  LLAssetType::AT_GESTURE,
+					  LLInventoryType::IT_GESTURE,
+					  PERM_ALL);
+	}
+	else if ("shirt" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
+		LLFolderBridge::createWearable(parent_id, WT_SHIRT);
+	}
+	else if ("pants" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
+		LLFolderBridge::createWearable(parent_id, WT_PANTS);
+	}
+	else if ("shoes" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
+		LLFolderBridge::createWearable(parent_id, WT_SHOES);
+	}
+	else if ("socks" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
+		LLFolderBridge::createWearable(parent_id, WT_SOCKS);
+	}
+	else if ("jacket" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
+		LLFolderBridge::createWearable(parent_id, WT_JACKET);
+	}
+	else if ("skirt" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
+		LLFolderBridge::createWearable(parent_id, WT_SKIRT);
+	}
+	else if ("gloves" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
+		LLFolderBridge::createWearable(parent_id, WT_GLOVES);
+	}
+	else if ("undershirt" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
+		LLFolderBridge::createWearable(parent_id, WT_UNDERSHIRT);
+	}
+	else if ("underpants" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING);
+		LLFolderBridge::createWearable(parent_id, WT_UNDERPANTS);
+	}
+	else if ("shape" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_BODYPART);
+		LLFolderBridge::createWearable(parent_id, WT_SHAPE);
+	}
+	else if ("skin" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_BODYPART);
+		LLFolderBridge::createWearable(parent_id, WT_SKIN);
+	}
+	else if ("hair" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_BODYPART);
+		LLFolderBridge::createWearable(parent_id, WT_HAIR);
+	}
+	else if ("eyes" == type)
+	{
+		LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLAssetType::AT_BODYPART);
+		LLFolderBridge::createWearable(parent_id, WT_EYES);
+	}
+	
+	folder->setNeedsAutoRename(TRUE);	
+}
+
+LLAssetType::EType LLViewerInventoryItem::getType() const
+{
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getType();
+	}
+	if (const LLViewerInventoryCategory *linked_category = getLinkedCategory())
+	{
+		return linked_category->getType();
+	}	
+	return LLInventoryItem::getType();
+}
+
+const LLUUID& LLViewerInventoryItem::getAssetUUID() const
+{
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getAssetUUID();
+	}
+
+	return LLInventoryItem::getAssetUUID();
+}
+
+const std::string& LLViewerInventoryItem::getName() const
+{
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getName();
+	}
+	if (const LLViewerInventoryCategory *linked_category = getLinkedCategory())
+	{
+		return linked_category->getName();
+	}
+
+	return LLInventoryItem::getName();
+}
+
+const LLPermissions& LLViewerInventoryItem::getPermissions() const
+{
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getPermissions();
+	}
+
+	// Use the actual permissions of the symlink, not its parent.
+	return LLInventoryItem::getPermissions();	
+}
+
+const LLUUID& LLViewerInventoryItem::getCreatorUUID() const
+{
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getCreatorUUID();
+	}
+
+	return LLInventoryItem::getCreatorUUID();
+}
+
+const std::string& LLViewerInventoryItem::getDescription() const
+{
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getDescription();
+	}
+
+	return LLInventoryItem::getDescription();
+}
+
+const LLSaleInfo& LLViewerInventoryItem::getSaleInfo() const
+{	
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getSaleInfo();
+	}
+
+	return LLInventoryItem::getSaleInfo();
+}
+
+LLInventoryType::EType LLViewerInventoryItem::getInventoryType() const
+{
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getInventoryType();
+	}
+
+	// Categories don't have types.  If this item is an AT_FOLDER_LINK,
+	// treat it as a category.
+	if (getLinkedCategory())
+	{
+		return LLInventoryType::IT_CATEGORY;
+	}
+
+	return LLInventoryItem::getInventoryType();
+}
+
+U32 LLViewerInventoryItem::getFlags() const
+{
+	if (const LLViewerInventoryItem *linked_item = getLinkedItem())
+	{
+		return linked_item->getFlags();
+	}
+	return LLInventoryItem::getFlags();
+}
+
+time_t LLViewerInventoryItem::getCreationDate() const
+{
+	return LLInventoryItem::getCreationDate();
+}
+
+U32 LLViewerInventoryItem::getCRC32() const
+{
+	return LLInventoryItem::getCRC32();	
+}
+
+// This returns true if the item that this item points to 
+// doesn't exist in memory (i.e. LLInventoryModel).  The baseitem
+// might still be in the database but just not loaded yet.
+bool LLViewerInventoryItem::getIsBrokenLink() const
+{
+	// If the item's type resolves to be a link, that means either:
+	// A. It wasn't able to perform indirection, i.e. the baseobj doesn't exist in memory.
+	// B. It's pointing to another link, which is illegal.
+	return LLAssetType::lookupIsLinkType(getType());
+}
+
+const LLViewerInventoryItem *LLViewerInventoryItem::getLinkedItem() const
+{
+	if (mType == LLAssetType::AT_LINK)
+	{
+		const LLViewerInventoryItem *linked_item = gInventory.getItem(mAssetUUID);
+		return linked_item;
+	}
+	return NULL;
+}
+
+const LLViewerInventoryCategory *LLViewerInventoryItem::getLinkedCategory() const
+{
+	if (mType == LLAssetType::AT_LINK_FOLDER)
+	{
+		const LLViewerInventoryCategory *linked_category = gInventory.getCategory(mAssetUUID);
+		return linked_category;
+	}
+	return NULL;
+}
+
+//----------
+
+void LLViewerInventoryItem::onCallingCardNameLookup(const LLUUID& id, const std::string& first_name, const std::string& last_name)
+{
+	rename(first_name + " " + last_name);
+	gInventory.addChangedMask(LLInventoryObserver::LABEL, getUUID());
+	gInventory.notifyObservers();
+}
+

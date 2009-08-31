@@ -14,12 +14,8 @@
 			<button label="Overkrop" label_selected="Overkrop" name="Torso"/>
 			<button label="Ben" label_selected="Ben" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item length="1" name="radio" type="string">
-					Kvinde
-				</radio_item>
-				<radio_item length="1" name="radio2" type="string">
-					Mand
-				</radio_item>
+				<radio_item type="string" length="1" name="radio" label="Kvinde" />
+				<radio_item type="string" length="1" name="radio2" label="Mand" />
 			</radio_group>
 			<text length="1" name="title" type="string">
 				[DESC]

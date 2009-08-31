@@ -37,6 +37,7 @@
 #include "v3math.h"
 #include "v4math.h"
 #include "llquaternion.h"
+#include "llrand.h"
 #include "v4color.h"
 
 #include "llwind.h"

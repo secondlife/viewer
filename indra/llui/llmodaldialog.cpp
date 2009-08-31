@@ -44,22 +44,20 @@
 // static
 std::list<LLModalDialog*> LLModalDialog::sModalStack;
 
-LLModalDialog::LLModalDialog( const std::string& title, S32 width, S32 height, BOOL modal )
-	: LLFloater( std::string("modal container"),
-				 LLRect( 0, height, width, 0 ),
-				 title,
-				 FALSE, // resizable
-				 DEFAULT_MIN_WIDTH, DEFAULT_MIN_HEIGHT,
-				 FALSE, // drag_on_left
-				 modal ? FALSE : TRUE, // minimizable
-				 modal ? FALSE : TRUE, // close button
-				 TRUE), // bordered
+LLModalDialog::LLModalDialog( const LLSD& key, BOOL modal )
+	: LLFloater(key),
 	  mModal( modal )
 {
+	if (modal)
+	{
+		setCanMinimize(FALSE);
+		setCanClose(FALSE);
+	}
 	setVisible( FALSE );
 	setBackgroundVisible(TRUE);
 	setBackgroundOpaque(TRUE);
 	centerOnScreen(); // default position
+	mCloseSignal.connect(boost::bind(&LLModalDialog::stopModal, this));
 }
 
 LLModalDialog::~LLModalDialog()
@@ -69,15 +67,27 @@ LLModalDialog::~LLModalDialog()
 	{
 		gFocusMgr.unlockFocus();
 	}
+	
+	std::list<LLModalDialog*>::iterator iter = std::find(sModalStack.begin(), sModalStack.end(), this);
+	if (iter != sModalStack.end())
+	{
+		llerrs << "Attempt to delete dialog while still in sModalStack!" << llendl;
+	}
 }
 
 // virtual
-void LLModalDialog::open()	/* Flawfinder: ignore */
+BOOL LLModalDialog::postBuild()
+{
+	return LLFloater::postBuild();
+}
+
+// virtual
+void LLModalDialog::openFloater(const LLSD& key)
 {
 	// SJB: Hack! Make sure we don't ever host a modal dialog
 	LLMultiFloater* thost = LLFloater::getFloaterHost();
 	LLFloater::setFloaterHost(NULL);
-	LLFloater::open();
+	LLFloater::openFloater(key);
 	LLFloater::setFloaterHost(thost);
 }
 
@@ -87,7 +97,8 @@ void LLModalDialog::reshape(S32 width, S32 height, BOOL called_from_parent)
 	centerOnScreen();
 }
 
-void LLModalDialog::startModal()
+// virtual
+void LLModalDialog::onOpen(const LLSD& key)
 {
 	if (mModal)
 	{
@@ -105,8 +116,6 @@ void LLModalDialog::startModal()
 
 		sModalStack.push_front( this );
 	}
-
-	setVisible( TRUE );
 }
 
 void LLModalDialog::stopModal()
@@ -229,48 +238,25 @@ BOOL LLModalDialog::handleKeyHere(KEY key, MASK mask )
 		BOOL enough_time_elapsed = mVisibleTime.getElapsedTimeF32() > 1.0f;
 		if (enough_time_elapsed && key == KEY_ESCAPE)
 		{
-			close();
+			closeFloater();
 			return TRUE;
 		}
 		return FALSE;
 	}	
 }
 
-void LLModalDialog::onClose(bool app_quitting)
-{
-	stopModal();
-	LLFloater::onClose(app_quitting);
-}
-
 // virtual
 void LLModalDialog::draw()
 {
-	LLColor4 shadow_color = LLUI::sColorsGroup->getColor("ColorDropShadow");
-	S32 shadow_lines = LLUI::sConfigGroup->getS32("DropShadowFloater");
+	static LLUIColor shadow_color = LLUIColorTable::instance().getColor("ColorDropShadow");
+	static LLUICachedControl<S32> shadow_lines ("DropShadowFloater", 0);
 
 	gl_drop_shadow( 0, getRect().getHeight(), getRect().getWidth(), 0,
 		shadow_color, shadow_lines);
 
 	LLFloater::draw();
-
-	if (mModal)
-	{
-		// If we've lost focus to a non-child, get it back ASAP.
-		if( gFocusMgr.getTopCtrl() != this )
-		{
-			gFocusMgr.setTopCtrl( this );
-		}
-
-		if( !gFocusMgr.childHasKeyboardFocus( this ) )
-		{
-			setFocus(TRUE);
-		}
-
-		if( !gFocusMgr.childHasMouseCapture( this ) )
-		{
-			gFocusMgr.setMouseCapture( this );
-		}
-	}
+	
+	// Focus retrieval moved to LLFloaterView::refresh()
 }
 
 void LLModalDialog::centerOnScreen()
@@ -291,10 +277,7 @@ void LLModalDialog::onAppFocusLost()
 			gFocusMgr.setMouseCapture( NULL );
 		}
 
-		if( gFocusMgr.childHasKeyboardFocus( instance ) )
-		{
-			gFocusMgr.setKeyboardFocus( NULL );
-		}
+		instance->setFocus(FALSE);
 	}
 }
 

@@ -44,8 +44,8 @@
 
 #include "llagent.h"
 #include "lltexturecache.h"
-#include "llviewerimagelist.h"
-#include "llviewerimage.h"
+#include "llviewertexturelist.h"
+#include "llviewertexture.h"
 #include "llviewerregion.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -469,8 +469,8 @@ void LLTextureFetchWorker::clearPackets()
 
 U32 LLTextureFetchWorker::calcWorkPriority()
 {
-// 	llassert_always(mImagePriority >= 0 && mImagePriority <= LLViewerImage::maxDecodePriority());
-	F32 priority_scale = (F32)LLWorkerThread::PRIORITY_LOWBITS / LLViewerImage::maxDecodePriority();
+// 	llassert_always(mImagePriority >= 0 && mImagePriority <= LLViewerTexture::maxDecodePriority());
+	F32 priority_scale = (F32)LLWorkerThread::PRIORITY_LOWBITS / LLViewerFetchedTexture::maxDecodePriority();
 	mWorkPriority = (U32)(mImagePriority * priority_scale);
 	return mWorkPriority;
 }
@@ -512,7 +512,7 @@ void LLTextureFetchWorker::setDesiredDiscard(S32 discard, S32 size)
 
 void LLTextureFetchWorker::setImagePriority(F32 priority)
 {
-// 	llassert_always(priority >= 0 && priority <= LLViewerImage::maxDecodePriority());
+// 	llassert_always(priority >= 0 && priority <= LLViewerTexture::maxDecodePriority());
 	F32 delta = fabs(priority - mImagePriority);
 	if (delta > (mImagePriority * .05f) || mState == DONE)
 	{
@@ -542,7 +542,7 @@ void LLTextureFetchWorker::startWork(S32 param)
 	llassert(mFormattedImage.isNull());
 }
 
-#include "llviewerimagelist.h" // debug
+#include "llviewertexturelist.h" // debug
 
 // Called from LLWorkerThread::processRequest()
 bool LLTextureFetchWorker::doWork(S32 param)
@@ -796,7 +796,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mFormattedImage->deleteData();
 #endif
 			mRequestedSize -= cur_size;
-			// 			  F32 priority = mImagePriority / (F32)LLViewerImage::maxDecodePriority(); // 0-1
+			// 			  F32 priority = mImagePriority / (F32)LLViewerTexture::maxDecodePriority(); // 0-1
 			S32 offset = cur_size;
 			mBufferSize = cur_size; // This will get modified by callbackHttpGet()
 			std::string url;
@@ -1877,6 +1877,21 @@ bool LLTextureFetch::receiveImagePacket(const LLHost& host, const LLUUID& id, U1
 }
 
 //////////////////////////////////////////////////////////////////////////////
+BOOL LLTextureFetch::isFromLocalCache(const LLUUID& id)
+{
+	BOOL from_cache = FALSE ;
+
+	LLMutexLock lock(&mQueueMutex);
+	LLTextureFetchWorker* worker = getWorker(id);
+	if (worker)
+	{
+		worker->lockWorkData();
+		from_cache = worker->mInLocalCache ;
+		worker->unlockWorkData();
+	}
+
+	return from_cache ;
+}
 
 S32 LLTextureFetch::getFetchState(const LLUUID& id, F32& data_progress_p, F32& requested_priority_p,
 								  U32& fetch_priority_p, F32& fetch_dtime_p, F32& request_dtime_p)

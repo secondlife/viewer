@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel bg_opaque_color="PanelFocusBackgroundColor"
+       bg_alpha_color="PanelDefaultBackgroundColor"
+       background_visible="false"
+       background_opaque="false"/>

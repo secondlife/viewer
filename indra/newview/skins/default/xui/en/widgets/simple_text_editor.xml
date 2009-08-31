@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<simple_text_editor
+  mouse_opaque="true"
+  font="SansSerifSmall"
+  max_length="255" 
+  embedded_items="false" 
+  hide_scrollbar="false"
+  hide_border="true"
+  word_wrap="false" 
+  ignore_tab="true"
+  track_bottom="false" 
+  cursor_color="TextCursorColor"
+  default_color="TextDefaultColor"
+  text_color="TextFgColor"
+  text_readonly_color="TextFgReadOnlyColor"
+  bg_readonly_color="TextBgReadOnlyColor"
+  bg_writeable_color="TextBgWriteableColor"
+  bg_focus_color="TextBgFocusColor"
+  link_color="HTMLLinkColor">
+  <simple_text_editor.border
+    bevel_style="in"
+    follows="all" />
+</simple_text_editor>

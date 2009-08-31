@@ -36,11 +36,10 @@
 
 #include "llviewercontrol.h"
 #include "llqueryflags.h"
-#include "message.h"
 #include "llui.h"
 #include "llsecondlifeurls.h"
-#include "llremoteparcelrequest.h"
 #include "llfloater.h"
+#include "llfloaterreg.h"
 
 #include "llagent.h"
 #include "llviewerwindow.h"
@@ -49,20 +48,19 @@
 #include "lllineeditor.h"
 #include "lluiconstants.h"
 #include "lltextbox.h"
-#include "llviewertexteditor.h"
+#include "lltexteditor.h"
 #include "lltexturectrl.h"
+#include "lltrans.h"
 #include "llworldmap.h"
 #include "llviewerregion.h"
+#include "llvoavatarself.h"
 #include "lluictrlfactory.h"
 //#include "llviewermenu.h"	// create_landmark()
 #include "llweb.h"
 #include "llsdutil.h"
 
-//static
-std::list<LLPanelPlace*> LLPanelPlace::sAllPanels;
-
 LLPanelPlace::LLPanelPlace()
-:	LLPanel(std::string("Places Panel")),
+:	LLPanel(),
 	mParcelID(),
 	mRequestedID(),
 	mRegionID(),
@@ -70,16 +68,15 @@ LLPanelPlace::LLPanelPlace()
 	mPosRegion(),
 	mAuctionID(0),
 	mLandmarkAssetID()
-{
-	sAllPanels.push_back(this);
-}
-
+{}
 
 LLPanelPlace::~LLPanelPlace()
 {
-	sAllPanels.remove(this);
+	if (mParcelID.notNull())
+	{
+		LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelID, this);
+	}
 }
-
 
 BOOL LLPanelPlace::postBuild()
 {
@@ -102,20 +99,16 @@ BOOL LLPanelPlace::postBuild()
     mLocationDisplay = getChild<LLTextBox>("location_editor");
 
 	mTeleportBtn = getChild<LLButton>( "teleport_btn");
-	mTeleportBtn->setClickedCallback(onClickTeleport);
-	mTeleportBtn->setCallbackUserData(this);
+	mTeleportBtn->setClickedCallback(onClickTeleport, this);
 
 	mMapBtn = getChild<LLButton>( "map_btn");
-	mMapBtn->setClickedCallback(onClickMap);
-	mMapBtn->setCallbackUserData(this);
+	mMapBtn->setClickedCallback(onClickMap, this);
 
 	//mLandmarkBtn = getChild<LLButton>( "landmark_btn");
-	//mLandmarkBtn->setClickedCallback(onClickLandmark);
-	//mLandmarkBtn->setCallbackUserData(this);
+	//mLandmarkBtn->setClickedCallback(onClickLandmark, this);
 
 	mAuctionBtn = getChild<LLButton>( "auction_btn");
-	mAuctionBtn->setClickedCallback(onClickAuction);
-	mAuctionBtn->setCallbackUserData(this);
+	mAuctionBtn->setClickedCallback(onClickAuction, this);
 
 	// Default to no auction button.  We'll show it if we get an auction id
 	mAuctionBtn->setVisible(FALSE);
@@ -128,8 +121,11 @@ BOOL LLPanelPlace::postBuild()
 
 void LLPanelPlace::displayItemInfo(const LLInventoryItem* pItem)
 {
-	mNameEditor->setText(pItem->getName());
-	mDescEditor->setText(pItem->getDescription());
+	if (pItem)
+	{
+		mNameEditor->setText(pItem->getName());
+		mDescEditor->setText(pItem->getDescription());
+	}
 }
 
 // Use this for search directory clicks, because we are totally
@@ -177,6 +173,7 @@ void LLPanelPlace::resetName(const std::string& name)
 	}
 }
 
+//virtual
 void LLPanelPlace::setParcelID(const LLUUID& parcel_id)
 {
 	mParcelID = parcel_id;
@@ -187,7 +184,6 @@ void LLPanelPlace::setSnapshot(const LLUUID& snapshot_id)
 {
 	mSnapshotCtrl->setImageAssetID(snapshot_id);
 }
-
 
 void LLPanelPlace::setLocationString(const std::string& location)
 {
@@ -201,27 +197,22 @@ void LLPanelPlace::setLandTypeString(const std::string& land_type)
 
 void LLPanelPlace::sendParcelInfoRequest()
 {
-	LLMessageSystem *msg = gMessageSystem;
-
 	if (mParcelID != mRequestedID)
 	{
-		msg->newMessage("ParcelInfoRequest");
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-		msg->addUUID("SessionID", gAgent.getSessionID());
-		msg->nextBlock("Data");
-		msg->addUUID("ParcelID", mParcelID);
-		gAgent.sendReliableMessage();
+		LLRemoteParcelInfoProcessor::getInstance()->addObserver(mParcelID, this);
+		LLRemoteParcelInfoProcessor::getInstance()->sendParcelInfoRequest(mParcelID);
+
 		mRequestedID = mParcelID;
 	}
 }
 
+//virtual
 void LLPanelPlace::setErrorStatus(U32 status, const std::string& reason)
 {
 	// We only really handle 404 and 499 errors
 	std::string error_text;
 	if(status == 404)
-	{	
+	{
 		error_text = getString("server_error_text");
 	}
 	else if(status == 499)
@@ -231,140 +222,91 @@ void LLPanelPlace::setErrorStatus(U32 status, const std::string& reason)
 	mDescEditor->setText(error_text);
 }
 
-//static 
-void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
+//virtual
+void LLPanelPlace::processParcelInfo(const LLParcelData& parcel_data)
 {
-	LLUUID	agent_id;
-	LLUUID	parcel_id;
-	LLUUID	owner_id;
-	std::string	name;
-	std::string	desc;
-	S32		actual_area;
-	S32		billable_area;
-	U8		flags;
-	F32		global_x;
-	F32		global_y;
-	F32		global_z;
-	std::string	sim_name;
-	LLUUID	snapshot_id;
-	F32		dwell;
-	S32		sale_price;
-	S32		auction_id;
+	mAuctionID = parcel_data.auction_id;
 
-	msg->getUUID("AgentData", "AgentID", agent_id );
-	msg->getUUID("Data", "ParcelID", parcel_id);
-
-	// look up all panels which have this avatar
-	for (panel_list_t::iterator iter = sAllPanels.begin(); iter != sAllPanels.end(); ++iter)
+	if(parcel_data.snapshot_id.notNull())
 	{
-		LLPanelPlace* self = *iter;
-		if (self->mParcelID != parcel_id)
-		{
-			continue;
-		}
-
-		msg->getUUID	("Data", "OwnerID", owner_id);
-		msg->getString	("Data", "Name", name);
-		msg->getString	("Data", "Desc", desc);
-		msg->getS32		("Data", "ActualArea", actual_area);
-		msg->getS32		("Data", "BillableArea", billable_area);
-		msg->getU8		("Data", "Flags", flags);
-		msg->getF32		("Data", "GlobalX", global_x);
-		msg->getF32		("Data", "GlobalY", global_y);
-		msg->getF32		("Data", "GlobalZ", global_z);
-		msg->getString	("Data", "SimName", sim_name);
-		msg->getUUID	("Data", "SnapshotID", snapshot_id);
-		msg->getF32		("Data", "Dwell", dwell);
-		msg->getS32		("Data", "SalePrice", sale_price);
-		msg->getS32		("Data", "AuctionID", auction_id);
-
-
-		self->mAuctionID = auction_id;
-
-		if(snapshot_id.notNull())
-		{
-			self->mSnapshotCtrl->setImageAssetID(snapshot_id);
-		}
-
-		// Only assign the name and description if they are not empty and there is not a 
-		// value present (passed in from a landmark, e.g.)
-
-		if( !name.empty()
-		   && self->mNameEditor && self->mNameEditor->getText().empty())
-		{
-			self->mNameEditor->setText(name);
-		}
-
-		if( !desc.empty()
-			&& self->mDescEditor && self->mDescEditor->getText().empty())
-		{
-			self->mDescEditor->setText(desc);
-		}
-
-		std::string info_text;
-		LLUIString traffic = self->getString("traffic_text");
-		traffic.setArg("[TRAFFIC]", llformat("%d ", (int)dwell));
-		info_text = traffic;
-		LLUIString area = self->getString("area_text");
-		area.setArg("[AREA]", llformat("%d", actual_area));
-		info_text += area;
-		if (flags & DFQ_FOR_SALE)
-		{
-			LLUIString forsale = self->getString("forsale_text");
-			forsale.setArg("[PRICE]", llformat("%d", sale_price));
-			info_text += forsale;
-		}
-		if (auction_id != 0)
-		{
-			LLUIString auction = self->getString("auction_text");
-			auction.setArg("[ID]", llformat("%010d ", auction_id));
-			info_text += auction;
-		}
-		if (self->mInfoEditor)
-		{
-			self->mInfoEditor->setText(info_text);
-		}
-
-		// HACK: Flag 0x2 == adult region,
-		// Flag 0x1 == mature region, otherwise assume PG
-		std::string rating = LLViewerRegion::accessToString(SIM_ACCESS_PG);
-		if (flags & 0x2)
-		{
-			rating = LLViewerRegion::accessToString(SIM_ACCESS_ADULT);
-		}
-		else if (flags & 0x1)
-		{
-			rating = LLViewerRegion::accessToString(SIM_ACCESS_MATURE);
-		}
-
-		// Just use given region position for display
-		S32 region_x = llround(self->mPosRegion.mV[0]);
-		S32 region_y = llround(self->mPosRegion.mV[1]);
-		S32 region_z = llround(self->mPosRegion.mV[2]);
-
-		// If the region position is zero, grab position from the global
-		if(self->mPosRegion.isExactlyZero())
-		{
-			region_x = llround(global_x) % REGION_WIDTH_UNITS;
-			region_y = llround(global_y) % REGION_WIDTH_UNITS;
-			region_z = llround(global_z);
-		}
-
-		if(self->mPosGlobal.isExactlyZero())
-		{
-			self->mPosGlobal.setVec(global_x, global_y, global_z);
-		}
-
-		std::string location = llformat("%s %d, %d, %d (%s)",
-										sim_name.c_str(), region_x, region_y, region_z, rating.c_str());
-		if (self->mLocationDisplay)
-		{
-			self->mLocationDisplay->setText(location);
-		}
-
-		BOOL show_auction = (auction_id > 0);
-		self->mAuctionBtn->setVisible(show_auction);
+		mSnapshotCtrl->setImageAssetID(parcel_data.snapshot_id);
 	}
+
+	if( !parcel_data.name.empty()
+	   && mNameEditor && mNameEditor->getText().empty())
+	{
+		mNameEditor->setText(parcel_data.name);
+	}
+
+	if( !parcel_data.desc.empty()
+		&& mDescEditor && mDescEditor->getText().empty())
+	{
+		mDescEditor->setText(parcel_data.desc);
+	}
+
+	std::string info_text;
+	LLUIString traffic = getString("traffic_text");
+	traffic.setArg("[TRAFFIC]", llformat("%d ", (int)parcel_data.dwell));
+	info_text = traffic;
+	LLUIString area = getString("area_text");
+	area.setArg("[AREA]", llformat("%d", parcel_data.actual_area));
+	info_text += area;
+	if (parcel_data.flags & DFQ_FOR_SALE)
+	{
+		LLUIString forsale = getString("forsale_text");
+		forsale.setArg("[PRICE]", llformat("%d", parcel_data.sale_price));
+		info_text += forsale;
+	}
+	if (parcel_data.auction_id != 0)
+	{
+		LLUIString auction = getString("auction_text");
+		auction.setArg("[ID]", llformat("%010d ", parcel_data.auction_id));
+		info_text += auction;
+	}
+	if (mInfoEditor)
+	{
+		mInfoEditor->setText(info_text);
+	}
+
+	// HACK: Flag 0x2 == adult region,
+	// Flag 0x1 == mature region, otherwise assume PG
+	std::string rating = LLViewerRegion::accessToString(SIM_ACCESS_PG);
+	if (parcel_data.flags & 0x2)
+	{
+		rating = LLViewerRegion::accessToString(SIM_ACCESS_ADULT);
+	}
+	else if (parcel_data.flags & 0x1)
+	{
+		rating = LLViewerRegion::accessToString(SIM_ACCESS_MATURE);
+	}
+
+	// Just use given region position for display
+	S32 region_x = llround(mPosRegion.mV[0]);
+	S32 region_y = llround(mPosRegion.mV[1]);
+	S32 region_z = llround(mPosRegion.mV[2]);
+
+	// If the region position is zero, grab position from the global
+	if(mPosRegion.isExactlyZero())
+	{
+		region_x = llround(parcel_data.global_x) % REGION_WIDTH_UNITS;
+		region_y = llround(parcel_data.global_y) % REGION_WIDTH_UNITS;
+		region_z = llround(parcel_data.global_z);
+	}
+
+	if(mPosGlobal.isExactlyZero())
+	{
+		mPosGlobal.setVec(parcel_data.global_x, parcel_data.global_y, parcel_data.global_z);
+	}
+
+	std::string location = llformat("%s %d, %d, %d (%s)",
+									parcel_data.sim_name.c_str(), region_x, region_y, region_z, rating.c_str());
+	if (mLocationDisplay)
+	{
+		mLocationDisplay->setText(location);
+	}
+
+	BOOL show_auction = (parcel_data.auction_id > 0);
+	mAuctionBtn->setVisible(show_auction);
 }
 
 
@@ -390,7 +332,7 @@ void LLPanelPlace::displayParcelInfo(const LLVector3& pos_region,
 			U64 region_handle = to_region_handle(pos_global);
 			body["region_handle"] = ll_sd_from_U64(region_handle);
 		}
-		LLHTTPClient::post(url, body, new LLRemoteParcelRequestResponder(this->getHandle()));
+		LLHTTPClient::post(url, body, new LLRemoteParcelRequestResponder(getObserverHandle()));
 	}
 	else
 	{
@@ -399,7 +341,6 @@ void LLPanelPlace::displayParcelInfo(const LLVector3& pos_region,
 	mSnapshotCtrl->setImageAssetID(LLUUID::null);
 	mSnapshotCtrl->setFallbackImageName("default_land_picture.j2c");
 }
-
 
 // static
 void LLPanelPlace::onClickTeleport(void* data)
@@ -410,20 +351,21 @@ void LLPanelPlace::onClickTeleport(void* data)
 	LLFloater* parent_floaterp = dynamic_cast<LLFloater*>(parent_viewp);
 	if (parent_floaterp)
 	{
-		parent_floaterp->close();
+		parent_floaterp->closeFloater();
 	}
 	// LLFloater* parent_floaterp = (LLFloater*)self->getParent();
 	parent_viewp->setVisible(false);
-	if(self->mLandmarkAssetID.notNull())
+	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+	if(self->mLandmarkAssetID.notNull() && worldmap_instance)
 	{
 		gAgent.teleportViaLandmark(self->mLandmarkAssetID);
-		gFloaterWorldMap->trackLandmark(self->mLandmarkAssetID);
+		worldmap_instance->trackLandmark(self->mLandmarkAssetID);
 
 	}
-	else if (!self->mPosGlobal.isExactlyZero())
+	else if (!self->mPosGlobal.isExactlyZero() && worldmap_instance)
 	{
 		gAgent.teleportViaLocation(self->mPosGlobal);
-		gFloaterWorldMap->trackLocation(self->mPosGlobal);
+		worldmap_instance->trackLocation(self->mPosGlobal);
 	}
 }
 
@@ -431,10 +373,12 @@ void LLPanelPlace::onClickTeleport(void* data)
 void LLPanelPlace::onClickMap(void* data)
 {
 	LLPanelPlace* self = (LLPanelPlace*)data;
-	if (!self->mPosGlobal.isExactlyZero())
+	LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+	
+	if (!self->mPosGlobal.isExactlyZero() && worldmap_instance)
 	{
-		gFloaterWorldMap->trackLocation(self->mPosGlobal);
-		LLFloaterWorldMap::show(NULL, TRUE);
+		worldmap_instance->trackLocation(self->mPosGlobal);
+		LLFloaterReg::showInstance("world_map", "center");
 	}
 }
 
@@ -453,12 +397,12 @@ void LLPanelPlace::onClickLandmark(void* data)
 void LLPanelPlace::onClickAuction(void* data)
 {
 	LLPanelPlace* self = (LLPanelPlace*)data;
-	LLSD payload;
-	payload["auction_id"] = self->mAuctionID;
+	LLSD args;
+	args["AUCTION_ID"] = self->mAuctionID;
 
-	LLNotifications::instance().add("GoToAuctionPage", LLSD(), payload, callbackAuctionWebPage);
+	LLNotifications::instance().add("GoToAuctionPage", args);
 }
-
+/*
 // static
 bool LLPanelPlace::callbackAuctionWebPage(const LLSD& notification, const LLSD& response)
 {
@@ -466,8 +410,7 @@ bool LLPanelPlace::callbackAuctionWebPage(const LLSD& notification, const LLSD& 
 	if (0 == option)
 	{
 		std::string url;
-		S32 auction_id = notification["payload"]["auction_id"].asInteger();
-		url = AUCTION_URL + llformat("%010d", auction_id );
+		url = LLNotifications::instance().getGlobalString("AUCTION_URL")  + llformat("%010d", response["auction_id"].asInteger());
 
 		llinfos << "Loading auction page " << url << llendl;
 
@@ -475,3 +418,5 @@ bool LLPanelPlace::callbackAuctionWebPage(const LLSD& notification, const LLSD& 
 	}
 	return false;
 }
+*/
+

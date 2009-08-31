@@ -38,7 +38,7 @@
 #include "lluuid.h"
 #include "llworkerthread.h"
 
-class LLViewerImage;
+class LLViewerTexture;
 class LLTextureFetchWorker;
 class LLTextureCache;
 class LLHost;
@@ -67,6 +67,7 @@ public:
 	bool receiveImagePacket(const LLHost& host, const LLUUID& id, U16 packet_num, U16 data_size, U8* data);
 
 	// Debug
+	BOOL isFromLocalCache(const LLUUID& id);
 	S32 getFetchState(const LLUUID& id, F32& decode_progress_p, F32& requested_priority_p,
 					  U32& fetch_priority_p, F32& fetch_dtime_p, F32& request_dtime_p);
 	void dump();

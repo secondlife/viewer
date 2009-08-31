@@ -33,63 +33,26 @@
 #ifndef LL_LLAGENT_H
 #define LL_LLAGENT_H
 
-#include <set>
-
 #include "indra_constants.h"
-#include "llmath.h"
-#include "llcontrol.h"
-#include "llcoordframe.h"
-#include "llevent.h"
+#include "llevent.h" 				// LLObservable base class
+#include "llagentaccess.h"
 #include "llagentaccess.h"
 #include "llagentconstants.h"
-#include "llanimationstates.h"
-#include "lldbstrings.h"
-#include "llhudeffectlookat.h"
-#include "llhudeffectpointat.h"
-#include "llmemory.h"
-#include "llstring.h"
-#include "lluuid.h"
-#include "m3math.h"
-#include "m4math.h"
-#include "llquaternion.h"
-#include "lltimer.h"
-#include "v3dmath.h"
-#include "v3math.h"
-#include "v4color.h"
-#include "v4math.h"
-//#include "vmath.h"
-#include "stdenums.h"
-#include "llwearable.h"
-#include "llcharacter.h"
-#include "llinventory.h"
-#include "llviewerinventory.h"
-#include "llagentdata.h"
+#include "llhudeffectpointat.h" 	// ELookAtType
+#include "llhudeffectlookat.h" 		// EPointAtType
+#include "llpointer.h"
+#include "llcharacter.h" 			// LLAnimPauseRequest
+#include "llfollowcam.h" 			// Ventrella
+#include "llagentdata.h" 			// gAgentID, gAgentSessionID
+#include "lluicolor.h"
+#include "llvoavatardefines.h"
 
-// Ventrella
-#include "llfollowcam.h"
-// end Ventrella
-
-const U8 AGENT_STATE_TYPING =	0x04;			//  Typing indication
-const U8 AGENT_STATE_EDITING =  0x10;			//  Set when agent has objects selected
-
-const BOOL ANIMATE = TRUE;
-
-typedef enum e_camera_modes
-{
-	CAMERA_MODE_THIRD_PERSON,
-	CAMERA_MODE_MOUSELOOK,
-	CAMERA_MODE_CUSTOMIZE_AVATAR,
-	CAMERA_MODE_FOLLOW
-} ECameraMode;
-
-typedef enum e_anim_request
-{
-	ANIM_REQUEST_START,
-	ANIM_REQUEST_STOP
-} EAnimRequest;
+extern const BOOL 	ANIMATE;
+extern const U8 	AGENT_STATE_TYPING;  // Typing indication
+extern const U8 	AGENT_STATE_EDITING; // Set when agent has objects selected
 
 class LLChat;
-class LLVOAvatar;
+class LLVOAvatarSelf;
 class LLViewerRegion;
 class LLMotion;
 class LLToolset;
@@ -98,6 +61,38 @@ class LLPermissions;
 class LLHost;
 class LLFriendObserver;
 class LLPickInfo;
+class LLViewerObject;
+class LLAgentDropGroupViewerNode;
+
+//--------------------------------------------------------------------
+// Types
+//--------------------------------------------------------------------
+enum ECameraMode
+{
+	CAMERA_MODE_THIRD_PERSON,
+	CAMERA_MODE_MOUSELOOK,
+	CAMERA_MODE_CUSTOMIZE_AVATAR,
+	CAMERA_MODE_FOLLOW
+};
+
+/** Camera Presets for CAMERA_MODE_THIRD_PERSON */
+enum ECameraPreset 
+{
+	/** Default preset, what the Third Person Mode actually was */
+	CAMERA_PRESET_REAR_VIEW,
+	
+	/** "Looking at the Avatar from the front" */
+	CAMERA_PRESET_FRONT_VIEW, 
+
+	/** "Above and to the left, over the shoulder, pulled back a little on the zoom" */
+	CAMERA_PRESET_GROUP_VIEW
+};
+
+enum EAnimRequest
+{
+	ANIM_REQUEST_START,
+	ANIM_REQUEST_STOP
+};
 
 struct LLGroupData
 {
@@ -110,273 +105,429 @@ struct LLGroupData
 	std::string mName;
 };
 
-inline bool operator==(const LLGroupData &a, const LLGroupData &b)
-{
-	return (a.mID == b.mID);
-}
-
-// forward declarations
-
-//
-
+//------------------------------------------------------------------------
+// LLAgent
+//------------------------------------------------------------------------
 class LLAgent : public LLOldEvents::LLObservable
 {
 	LOG_CLASS(LLAgent);
+
+public:
+	friend class LLAgentDropGroupViewerNode;
+
+/********************************************************************************
+ **                                                                            **
+ **                    INITIALIZATION
+ **/
+
+	//--------------------------------------------------------------------
+	// Constructors / Destructors
+	//--------------------------------------------------------------------
+public:
+	LLAgent();
+	virtual 		~LLAgent();
+	void			init();
+	void			cleanup();
+	void			setAvatarObject(LLVOAvatarSelf *avatar);
+
+	//--------------------------------------------------------------------
+	// Login
+	//--------------------------------------------------------------------
+public:
+	void			onAppFocusGained();
+	void			setFirstLogin(BOOL b) 	{ mFirstLogin = b; }
+	// Return TRUE if the database reported this login as the first for this particular user.
+	BOOL 			isFirstLogin() const 	{ return mFirstLogin; }
+public:
+	BOOL			mInitialized;
+	BOOL			mFirstLogin;
+	std::string		mMOTD; 					// Message of the day
+
+	//--------------------------------------------------------------------
+	// Session
+	//--------------------------------------------------------------------
+public:
+	const LLUUID&	getID() const				{ return gAgentID; }
+	const LLUUID&	getSessionID() const		{ return gAgentSessionID; }
+	// Note: NEVER send this value in the clear or over any weakly
+	// encrypted channel (such as simple XOR masking).  If you are unsure
+	// ask Aaron or MarkL.
+	const LLUUID&	getSecureSessionID() const	{ return mSecureSessionID; }
+public:
+	LLUUID			mSecureSessionID; 			// Secure token for this login session
 	
+/**                    Initialization
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    IDENTITY
+ **/
+
+	//--------------------------------------------------------------------
+	// Name
+	//--------------------------------------------------------------------
+public:
+	//*TODO remove, is not used as of August 20, 2009
+	void			buildFullnameAndTitle(std::string &name) const;
+
+	//--------------------------------------------------------------------
+	// Gender
+	//--------------------------------------------------------------------
+public:
+	// On the very first login, gender isn't chosen until the user clicks
+	// in a dialog.  We don't render the avatar until they choose.
+	BOOL 			isGenderChosen() const 	{ return mGenderChosen; }
+	void			setGenderChosen(BOOL b)	{ mGenderChosen = b; }
+private:
+	BOOL			mGenderChosen;
+
+/**                    Identity
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    GENERAL ACCESSORS
+ **/
+
+public:
+ 	LLVOAvatarSelf* getAvatarObject() const		{ return mAvatarObject; }
+private:
+	LLPointer<LLVOAvatarSelf> mAvatarObject; 	// NULL until avatar object sent down from simulator
+
+/**                    General Accessors
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    POSITION
+ **/
+
+  	//--------------------------------------------------------------------
+ 	// Position
+	//--------------------------------------------------------------------
+public:
+	LLVector3		getPosAgentFromGlobal(const LLVector3d &pos_global) const;
+	LLVector3d		getPosGlobalFromAgent(const LLVector3 &pos_agent) const;	
+	const LLVector3d &getPositionGlobal() const;
+	const LLVector3	&getPositionAgent();
+	// Call once per frame to update position, angles (radians).
+	void			updateAgentPosition(const F32 dt, const F32 yaw, const S32 mouse_x, const S32 mouse_y);	
+	void			setPositionAgent(const LLVector3 &center);
+protected:
+	void			propagate(const F32 dt); // ! BUG ! Should roll into updateAgentPosition
+private:
+	mutable LLVector3d mPositionGlobal;
+
+  	//--------------------------------------------------------------------
+ 	// Velocity
+	//--------------------------------------------------------------------
+public:
+	LLVector3		getVelocity() const;
+	F32				getVelocityZ() const 	{ return getVelocity().mV[VZ]; } // ! HACK !
+	
+  	//--------------------------------------------------------------------
+	// Coordinate System
+	//--------------------------------------------------------------------
+public:
+	LLCoordFrame	getFrameAgent()	const	{ return mFrameAgent; }
+	void 			initOriginGlobal(const LLVector3d &origin_global); // Only to be used in ONE place
+	void			resetAxes();
+	void			resetAxes(const LLVector3 &look_at); // Makes reasonable left and up
+	// The following three get*Axis functions return direction avatar is looking, not camera.
+	const LLVector3& getAtAxis() const		{ return mFrameAgent.getAtAxis(); }
+	const LLVector3& getUpAxis() const		{ return mFrameAgent.getUpAxis(); }
+	const LLVector3& getLeftAxis() const	{ return mFrameAgent.getLeftAxis(); }
+	LLQuaternion	getQuat() const; 		// Returns the quat that represents the rotation of the agent in the absolute frame
+private:
+	LLVector3d		mAgentOriginGlobal;		// Origin of agent coords from global coords
+	LLCoordFrame	mFrameAgent; 			// Agent position and view, agent-region coordinates
+
+
+	//--------------------------------------------------------------------
+	// Home
+	//--------------------------------------------------------------------
+public:
+	void			setStartPosition(U32 location_id); // Marks current location as start, sends information to servers
+	void			setHomePosRegion(const U64& region_handle, const LLVector3& pos_region);
+	BOOL			getHomePosGlobal(LLVector3d* pos_global);
+private:
+	BOOL 			mHaveHomePosition;
+	U64				mHomeRegionHandle;
+	LLVector3		mHomePosRegion;
+
+	//--------------------------------------------------------------------
+	// Region
+	//--------------------------------------------------------------------
+public:
+	void			setRegion(LLViewerRegion *regionp);
+	LLViewerRegion	*getRegion() const;
+	LLHost			getRegionHost() const;
+	BOOL			inPrelude();
+private:
+	LLViewerRegion	*mRegionp;
+
+	//--------------------------------------------------------------------
+	// History
+	//--------------------------------------------------------------------
+public:
+	S32				getRegionsVisited() const;
+	F64				getDistanceTraveled() const;	
+private:
+	std::set<U64>	mRegionsVisited;		// Stat - what distinct regions has the avatar been to?
+	F64				mDistanceTraveled;		// Stat - how far has the avatar moved?
+	LLVector3d		mLastPositionGlobal;	// Used to calculate travel distance
+	
+/**                    Position
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    ACTIONS
+ **/
+
+	//--------------------------------------------------------------------
+	// Fidget
+	//--------------------------------------------------------------------
+	// Trigger random fidget animations
+public:
+	void			fidget();
+	static void		stopFidget();
+private:
+	LLFrameTimer	mFidgetTimer;
+	LLFrameTimer	mFocusObjectFadeTimer;
+	F32				mNextFidgetTime;
+	S32				mCurrentFidget;
+
+	//--------------------------------------------------------------------
+	// Fly
+	//--------------------------------------------------------------------
+public:
+	BOOL			getFlying() const	{ return mControlFlags & AGENT_CONTROL_FLY; }
+	void			setFlying(BOOL fly);
+	static void		toggleFlying();
+	static bool		enableFlying();
+	BOOL			canFly(); 			// Does this parcel allow you to fly?
+	
+	//--------------------------------------------------------------------
+	// Chat
+	//--------------------------------------------------------------------
+public:
+	void			heardChat(const LLUUID& id);
+	void			lookAtLastChat();
+	F32				getTypingTime() 		{ return mTypingTimer.getElapsedTimeF32(); }
+	LLUUID			getLastChatter() const 	{ return mLastChatterID; }
+	F32				getNearChatRadius() 	{ return mNearChatRadius; }
+protected:
+	void 			ageChat(); 				// Helper function to prematurely age chat when agent is moving
+private:
+	LLFrameTimer	mChatTimer;
+	LLUUID			mLastChatterID;
+	F32				mNearChatRadius;
+	
+	//--------------------------------------------------------------------
+	// Typing
+	//--------------------------------------------------------------------
+public:
+	void			startTyping();
+	void			stopTyping();
 public:
 	// When the agent hasn't typed anything for this duration, it leaves the 
 	// typing state (for both chat and IM).
 	static const F32 TYPING_TIMEOUT_SECS;
+private:
+	LLFrameTimer	mTypingTimer;
 
-	LLAgent();
-	~LLAgent();
-
-	void			init();
-	void			cleanup();
-
-	//
-	// MANIPULATORS
-	//
-	// TODO: Put all non-const functions here.
-
-	// Called whenever the agent moves.  Puts camera back in default position,
-	// deselects items, etc.
-	void			resetView(BOOL reset_camera = TRUE, BOOL change_camera = FALSE);
-
-	// Called on camera movement, to allow the camera to be unlocked from the 
-	// default position behind the avatar.
-	void			unlockView();
-
-	void            onAppFocusGained();
-
-	void			sendMessage();						// Send message to this agent's region.
-	void			sendReliableMessage();
-
-	LLVector3d		calcCameraPositionTargetGlobal(BOOL *hit_limit = NULL); // Calculate the camera position target
-	LLVector3d		calcFocusPositionTargetGlobal();
-	LLVector3d		calcThirdPersonFocusOffset();
-			// target for this mode
-	LLVector3d		getCameraPositionGlobal() const;
-	const LLVector3 &getCameraPositionAgent() const;
-	F32				calcCameraFOVZoomFactor();
-	F32				getCameraMinOffGround();			// minimum height off ground for this mode, meters
-	void			endAnimationUpdateUI();
-	void			setKey(const S32 direction, S32 &key);		// sets key to +1 for +direction, -1 for -direction
-	void			handleScrollWheel(S32 clicks);				// mousewheel driven zoom
-	
-	void			setAvatarObject(LLVOAvatar *avatar);
-
-	// rendering state bitmask helpers
-	void			startTyping();
-	void			stopTyping();
-	void			setRenderState(U8 newstate);
-	void			clearRenderState(U8 clearstate);
-	U8				getRenderState();
-
-	// Set the home data
-	void			setRegion(LLViewerRegion *regionp);
-	LLViewerRegion	*getRegion() const;
-	LLHost			getRegionHost() const;
-	std::string		getSLURL() const;
-	
-	void			updateAgentPosition(const F32 dt, const F32 yaw, const S32 mouse_x, const S32 mouse_y);		// call once per frame to update position, angles radians
-	void			updateLookAt(const S32 mouse_x, const S32 mouse_y);
-
-
-	void			updateCamera();			// call once per frame to update camera location/orientation
-	void			resetCamera();						// slam camera into its default position
-	void			setupSitCamera();
-	void			setCameraCollidePlane(const LLVector4 &plane) { mCameraCollidePlane = plane; }
-
-	void			changeCameraToDefault();
-	void			changeCameraToMouselook(BOOL animate = TRUE);
-	void			changeCameraToThirdPerson(BOOL animate = TRUE);
-	void			changeCameraToCustomizeAvatar(BOOL avatar_animate = TRUE, BOOL camera_animate = TRUE);			// trigger transition animation
-	// Ventrella
-	void			changeCameraToFollow(BOOL animate = TRUE);
-	//end Ventrella
-
-	void			setFocusGlobal(const LLPickInfo& pick);
-	void			setFocusGlobal(const LLVector3d &focus, const LLUUID &object_id = LLUUID::null);
-	void			setFocusOnAvatar(BOOL focus, BOOL animate);
-	void			setCameraPosAndFocusGlobal(const LLVector3d& pos, const LLVector3d& focus, const LLUUID &object_id);
-	void			setSitCamera(const LLUUID &object_id, const LLVector3 &camera_pos = LLVector3::zero, const LLVector3 &camera_focus = LLVector3::zero);
-	void			clearFocusObject();
-	void			setFocusObject(LLViewerObject* object);
-	void			setObjectTracking(BOOL track) { mTrackFocusObject = track; }
-//	void			setLookingAtAvatar(BOOL looking);
-
-	void			heardChat(const LLUUID& id);
-	void			lookAtLastChat();
-	F32				getTypingTime() { return mTypingTimer.getElapsedTimeF32(); }
-
+	//--------------------------------------------------------------------
+	// AFK
+	//--------------------------------------------------------------------
+public:
 	void			setAFK();
 	void			clearAFK();
 	BOOL			getAFK() const;
 
-	void			setAlwaysRun() { mbAlwaysRun = true; }
-	void			clearAlwaysRun() { mbAlwaysRun = false; }
+	//--------------------------------------------------------------------
+	// Run
+	//--------------------------------------------------------------------
+public:
+	enum EDoubleTapRunMode
+	{
+		DOUBLETAP_NONE,
+		DOUBLETAP_FORWARD,
+		DOUBLETAP_BACKWARD,
+		DOUBLETAP_SLIDELEFT,
+		DOUBLETAP_SLIDERIGHT
+	};
 
-	void			setRunning() { mbRunning = true; }
-	void			clearRunning() { mbRunning = false; }
+	void			setAlwaysRun() 			{ mbAlwaysRun = true; }
+	void			clearAlwaysRun() 		{ mbAlwaysRun = false; }
+	void			setRunning() 			{ mbRunning = true; }
+	void			clearRunning() 			{ mbRunning = false; }
+	void 			sendWalkRun(bool running);
+	bool			getAlwaysRun() const 	{ return mbAlwaysRun; }
+	bool			getRunning() const 		{ return mbRunning; }
+public:
+	LLFrameTimer 	mDoubleTapRunTimer;
+	EDoubleTapRunMode mDoubleTapRunMode;
+private:
+	bool 			mbAlwaysRun; 			// Should the avatar run by default rather than walk?
+	bool 			mbRunning;				// Is the avatar trying to run right now?
 
+	//--------------------------------------------------------------------
+	// Sit and stand
+	//--------------------------------------------------------------------
+public:
+	void			standUp();
+
+	//--------------------------------------------------------------------
+	// Busy
+	//--------------------------------------------------------------------
+public:
 	void			setBusy();
 	void			clearBusy();
 	BOOL			getBusy() const;
+private:
+	BOOL			mIsBusy;
 
-	void			setAdminOverride(BOOL b);
-	void			setGodLevel(U8 god_level);
-	void			setFirstLogin(BOOL b)		{ mFirstLogin = b; }
-	void			setGenderChosen(BOOL b)		{ mGenderChosen = b; }
+	//--------------------------------------------------------------------
+	// Jump
+	//--------------------------------------------------------------------
+public:
+	BOOL			getJump() const	{ return mbJump; }
+private:
+	BOOL 			mbJump;
 
-	// update internal datastructures and update the server with the
-	// new contribution level. Returns true if the group id was found
-	// and contribution could be set.
-	BOOL 			setGroupContribution(const LLUUID& group_id, S32 contribution);
-	BOOL 			setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOOL list_in_profile);
-	void			setHideGroupTitle(BOOL hide)	{ mHideGroupTitle = hide; }
+	//--------------------------------------------------------------------
+	// Grab
+	//--------------------------------------------------------------------
+public:
+	BOOL 			leftButtonGrabbed() const;
+	BOOL 			rotateGrabbed() const;
+	BOOL 			forwardGrabbed() const;
+	BOOL 			backwardGrabbed() const;
+	BOOL 			upGrabbed() const;
+	BOOL 			downGrabbed() const;
 
-	//
-	// ACCESSORS
-	//
-	// TODO: Put all read functions here, make them const
-
-	const LLUUID&	getID() const				{ return gAgentID; }
-	const LLUUID&	getSessionID() const		{ return gAgentSessionID; }
+	//--------------------------------------------------------------------
+	// Controls
+	//--------------------------------------------------------------------
+public:
+	U32 			getControlFlags(); 
+	void 			setControlFlags(U32 mask); 		// Performs bitwise mControlFlags |= mask
+	void 			clearControlFlags(U32 mask); 	// Performs bitwise mControlFlags &= ~mask
+	BOOL			controlFlagsDirty() const;
+	void			enableControlFlagReset();
+	void 			resetControlFlags();
+	BOOL			anyControlGrabbed() const; 		// True iff a script has taken over a control
+	BOOL			isControlGrabbed(S32 control_index) const;
+	// Send message to simulator to force grabbed controls to be
+	// released, in case of a poorly written script.
+	void			forceReleaseControls();
+private:
+	S32				mControlsTakenCount[TOTAL_CONTROLS];
+	S32				mControlsTakenPassedOnCount[TOTAL_CONTROLS];
+	U32				mControlFlags;					// Replacement for the mFooKey's
+	BOOL 			mbFlagsDirty;
+	BOOL 			mbFlagsNeedReset;				// ! HACK ! For preventing incorrect flags sent when crossing region boundaries
 	
-	const LLUUID&	getSecureSessionID() const	{ return mSecureSessionID; }
-		// Note: NEVER send this value in the clear or over any weakly
-		// encrypted channel (such as simple XOR masking).  If you are unsure
-		// ask Aaron or MarkL.
-		
-	BOOL			isGodlike() const;
-	U8				getGodLevel() const;
-	// note: this is a prime candidate for pulling out into a Maturity class
-	// rather than just expose the preference setting, we're going to actually
-	// expose what the client code cares about -- what the user should see
-	// based on a combination of the is* and prefers* flags, combined with God bit.
-	bool wantsPGOnly() const;
-	bool canAccessMature() const;
-	bool canAccessAdult() const;
-	bool canAccessMaturityInRegion( U64 region_handle ) const;
-	bool canAccessMaturityAtGlobal( LLVector3d pos_global ) const;
-	bool prefersPG() const;
-	bool prefersMature() const;
-	bool prefersAdult() const;
-	bool isTeen() const;
-	bool isMature() const;
-	bool isAdult() const;
-	void setTeen(bool teen);
-	void setMaturity(char text);
-	static int convertTextToMaturity(char text);
-	bool sendMaturityPreferenceToServer(int preferredMaturity);
+	//--------------------------------------------------------------------
+	// Animations
+	//--------------------------------------------------------------------
+public:
+	void            stopCurrentAnimations();
+	void			requestStopMotion(LLMotion* motion);
+	void			onAnimStop(const LLUUID& id);
+	void			sendAnimationRequests(LLDynamicArray<LLUUID> &anim_ids, EAnimRequest request);
+	void			sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request);
+	void			endAnimationUpdateUI();
+private:
+	LLFrameTimer	mAnimationTimer; 	// Seconds that transition animation has been active
+	F32				mAnimationDuration;	// In seconds
+	BOOL            mCustomAnim; 		// Current animation is ANIM_AGENT_CUSTOMIZE ?
+	LLAnimPauseRequest mPauseRequest;
+	BOOL			mViewsPushed; 		// Keep track of whether or not we have pushed views
 	
-	const LLAgentAccess&  getAgentAccess();
+/**                    Animation
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    MOVEMENT
+ **/
 	
-	// This function can go away after the AO transition (see llstartup.cpp)
-	void setAOTransition();
+	//--------------------------------------------------------------------
+	// Keys
+	//--------------------------------------------------------------------
+public:
+	void			setKey(const S32 direction, S32 &key); // Sets key to +1 for +direction, -1 for -direction
+private:
+	S32 			mAtKey;				// Either 1, 0, or -1. Indicates that movement key is pressed
+	S32				mWalkKey; 			// Like AtKey, but causes less forward thrust
+	S32 			mLeftKey;
+	S32				mUpKey;
+	F32				mYawKey;
+	S32				mPitchKey;
+
+	//--------------------------------------------------------------------
+	// Movement from user input
+	//--------------------------------------------------------------------
+	// All set the appropriate animation flags.
+	// All turn off autopilot and make sure the camera is behind the avatar.
+	// Direction is either positive, zero, or negative
+public:
+	void			moveAt(S32 direction, bool reset_view = true);
+	void			moveAtNudge(S32 direction);
+	void			moveLeft(S32 direction);
+	void			moveLeftNudge(S32 direction);
+	void			moveUp(S32 direction);
+	void			moveYaw(F32 mag, bool reset_view = true);
+	void			movePitch(S32 direction);
+
+	//--------------------------------------------------------------------
+	// Orbit
+	//--------------------------------------------------------------------
+public:
+	void			setOrbitLeftKey(F32 mag)	{ mOrbitLeftKey = mag; }
+	void			setOrbitRightKey(F32 mag)	{ mOrbitRightKey = mag; }
+	void			setOrbitUpKey(F32 mag)		{ mOrbitUpKey = mag; }
+	void			setOrbitDownKey(F32 mag)	{ mOrbitDownKey = mag; }
+	void			setOrbitInKey(F32 mag)		{ mOrbitInKey = mag; }
+	void			setOrbitOutKey(F32 mag)		{ mOrbitOutKey = mag; }
+private:
+	F32				mOrbitLeftKey;
+	F32				mOrbitRightKey;
+	F32				mOrbitUpKey;
+	F32				mOrbitDownKey;
+	F32				mOrbitInKey;
+	F32				mOrbitOutKey;
 	
-	BOOL			isGroupTitleHidden() const		{ return mHideGroupTitle; }
-	BOOL			isGroupMember() const		{ return !mGroupID.isNull(); }		// This is only used for building titles!
-	const LLUUID	&getGroupID() const			{ return mGroupID; }
-	ECameraMode		getCameraMode() const		{ return mCameraMode; }
-	BOOL			getFocusOnAvatar() const	{ return mFocusOnAvatar; }
-	LLPointer<LLViewerObject>&	getFocusObject()		{ return mFocusObject; }
-	F32				getFocusObjectDist() const	{ return mFocusObjectDist; }
-	BOOL			inPrelude();
-	BOOL			canManageEstate() const;
-	BOOL			getAdminOverride() const;
+	//--------------------------------------------------------------------
+	// Pan
+	//--------------------------------------------------------------------
+public:
+	void			setPanLeftKey(F32 mag)		{ mPanLeftKey = mag; }
+	void			setPanRightKey(F32 mag)		{ mPanRightKey = mag; }
+	void			setPanUpKey(F32 mag)		{ mPanUpKey = mag; }
+	void			setPanDownKey(F32 mag)		{ mPanDownKey = mag; }
+	void			setPanInKey(F32 mag)		{ mPanInKey = mag; }
+	void			setPanOutKey(F32 mag)		{ mPanOutKey = mag; }
+private:
+	F32				mPanUpKey;						
+	F32				mPanDownKey;					
+	F32				mPanLeftKey;					
+	F32				mPanRightKey;					
+	F32				mPanInKey;
+	F32				mPanOutKey;	
 
-	LLUUID			getLastChatter() const { return mLastChatterID; }
-	bool			getAlwaysRun() const { return mbAlwaysRun; }
-	bool			getRunning() const { return mbRunning; }
-
-	const LLUUID&	getInventoryRootID() const 	{ return mInventoryRootID; }
-
-	void			buildFullname(std::string &name) const;
-	void			buildFullnameAndTitle(std::string &name) const;
-
-	// Check against all groups in the entire agent group list.
-	BOOL isInGroup(const LLUUID& group_id) const;
-	BOOL hasPowerInGroup(const LLUUID& group_id, U64 power) const;
-	// Check for power in just the active group.
-	BOOL hasPowerInActiveGroup(const U64 power) const;
-	U64  getPowerInGroup(const LLUUID& group_id) const;
-
-	// Get group information by group_id. if not in group, data is
-	// left unchanged and method returns FALSE. otherwise, values are
-	// copied and returns TRUE.
-	BOOL getGroupData(const LLUUID& group_id, LLGroupData& data) const;
-	// Get just the agent's contribution to the given group.
-	S32 getGroupContribution(const LLUUID& group_id) const;
-
-	// return TRUE if the database reported this login as the first
-	// for this particular user.
-	BOOL isFirstLogin() const { return mFirstLogin; }
-
-	// On the very first login, gender isn't chosen until the user clicks
-	// in a dialog.  We don't render the avatar until they choose.
-	BOOL isGenderChosen() const { return mGenderChosen; }
-
-	// utility to build a location string
-	void buildLocationString(std::string& str);
-
-	LLQuaternion	getHeadRotation();
- 	LLVOAvatar	   *getAvatarObject() const			{ return mAvatarObject; }
-
-	BOOL			needsRenderAvatar();		// TRUE when camera mode is such that your own avatar should draw
-												// Not const because timers can't be accessed in const-fashion.
-	BOOL			needsRenderHead();
-	BOOL			cameraThirdPerson() const		{ return (mCameraMode == CAMERA_MODE_THIRD_PERSON && mLastCameraMode == CAMERA_MODE_THIRD_PERSON); }
-	BOOL			cameraMouselook() const			{ return (mCameraMode == CAMERA_MODE_MOUSELOOK && mLastCameraMode == CAMERA_MODE_MOUSELOOK); }
-	BOOL			cameraCustomizeAvatar() const	{ return (mCameraMode == CAMERA_MODE_CUSTOMIZE_AVATAR /*&& !mCameraAnimating*/); }
-	BOOL			cameraFollow() const			{ return (mCameraMode == CAMERA_MODE_FOLLOW && mLastCameraMode == CAMERA_MODE_FOLLOW); }
-
-	LLVector3		getPosAgentFromGlobal(const LLVector3d &pos_global) const;
-	LLVector3d		getPosGlobalFromAgent(const LLVector3 &pos_agent)	const;
-
-	// Get the data members
-	const LLVector3&	getAtAxis()		const	{ return mFrameAgent.getAtAxis(); }		// direction avatar is looking, not camera
-	const LLVector3&	getUpAxis()		const	{ return mFrameAgent.getUpAxis(); }		// direction avatar is looking, not camera
-	const LLVector3&	getLeftAxis()	const	{ return mFrameAgent.getLeftAxis(); }	// direction avatar is looking, not camera
-
-	LLCoordFrame		getFrameAgent()	const	{ return mFrameAgent; }
-	LLVector3			getVelocity()	const;
-	F32					getVelocityZ()	const	{ return getVelocity().mV[VZ]; }	// a hack
-
-	const LLVector3d	&getPositionGlobal() const;
-	const LLVector3		&getPositionAgent();
-	S32					getRegionsVisited() const;
-	F64					getDistanceTraveled() const;
-
-	const LLVector3d	&getFocusGlobal() const	{ return mFocusGlobal; }
-	const LLVector3d	&getFocusTargetGlobal() const	{ return mFocusTargetGlobal; }
-
-	BOOL				getJump() const			{ return mbJump; }
-	BOOL				getAutoPilot() const	{ return mAutoPilot; }
-	LLVector3d			getAutoPilotTargetGlobal() const	{ return mAutoPilotTargetGlobal; }
-
-	LLQuaternion		getQuat() const;							// returns the quat that represents the rotation 
-																	// of the agent in the absolute frame
-//	BOOL				getLookingAtAvatar() const;
-
-	void				getName(std::string& name);
-
-	const LLColor4		&getEffectColor();
-	void				setEffectColor(const LLColor4 &color);
-	//
-	// UTILITIES
-	//
-
-	// Set the physics data
-	void 			slamLookAt(const LLVector3 &look_at);
-
-	void			setPositionAgent(const LLVector3 &center);
-
-	void			resetAxes();
-	void			resetAxes(const LLVector3 &look_at);						// makes reasonable left and up
-
-	// Move the avatar's frame
+	//--------------------------------------------------------------------
+ 	// Move the avatar's frame
+	//--------------------------------------------------------------------
+public:
 	void			rotate(F32 angle, const LLVector3 &axis);
 	void			rotate(F32 angle, F32 x, F32 y, F32 z);
 	void			rotate(const LLMatrix3 &matrix);
@@ -387,483 +538,23 @@ public:
 	LLVector3		getReferenceUpVector();
     F32             clampPitchToLimits(F32 angle);
 
-	void			setThirdPersonHeadOffset(LLVector3 offset) { mThirdPersonHeadOffset = offset; }
-	// Flight management
-	BOOL			getFlying() const				{ return mControlFlags & AGENT_CONTROL_FLY; }
-	void			setFlying(BOOL fly);
-	void			toggleFlying();
-
-	// Does this parcel allow you to fly?
-	BOOL canFly();
-
-	// Animation functions
-	void                    stopCurrentAnimations();
-	void			requestStopMotion( LLMotion* motion );
-	void			onAnimStop(const LLUUID& id);
-
-	void			sendAnimationRequests(LLDynamicArray<LLUUID> &anim_ids, EAnimRequest request);
-	void			sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request);
-
-	LLVector3		calcFocusOffset(LLViewerObject *object, LLVector3 pos_agent, S32 x, S32 y);
-	BOOL			calcCameraMinDistance(F32 &obj_min_distance);
-
-	void			startCameraAnimation();
-	void			stopCameraAnimation();
-
-	void			cameraZoomIn(const F32 factor);			// zoom in by fraction of current distance
-	void			cameraOrbitAround(const F32 radians);	// rotate camera CCW radians about build focus point
-	void			cameraOrbitOver(const F32 radians);		// rotate camera forward radians over build focus point
-	void			cameraOrbitIn(const F32 meters);		// move camera in toward build focus point
-
-	F32				getCameraZoomFraction();				// get camera zoom as fraction of minimum and maximum zoom
-	void			setCameraZoomFraction(F32 fraction);	// set camera zoom as fraction of minimum and maximum zoom
-
-	void			cameraPanIn(const F32 meters);
-	void			cameraPanLeft(const F32 meters);
-	void			cameraPanUp(const F32 meters);
-
-	void			updateFocusOffset();
-	void			validateFocusObject();
-
-	void			setUsingFollowCam( bool using_follow_cam);
-	
-	F32				calcCustomizeAvatarUIOffset( const LLVector3d& camera_pos_global );
-
-	// marks current location as start, sends information to servers
-	void			setStartPosition(U32 location_id);
-
-	// Movement from user input.  All set the appropriate animation flags.
-	// All turn off autopilot and make sure the camera is behind the avatar.
-	// direction is either positive, zero, or negative
-	void			moveAt(S32 direction, bool reset_view = true);
-	void			moveAtNudge(S32 direction);
-	void			moveLeft(S32 direction);
-	void			moveLeftNudge(S32 direction);
-	void			moveUp(S32 direction);
-	void			moveYaw(F32 mag, bool reset_view = true);
-	void			movePitch(S32 direction);
-
-	void			setOrbitLeftKey(F32 mag)				{ mOrbitLeftKey = mag; }
-	void			setOrbitRightKey(F32 mag)				{ mOrbitRightKey = mag; }
-	void			setOrbitUpKey(F32 mag)					{ mOrbitUpKey = mag; }
-	void			setOrbitDownKey(F32 mag)				{ mOrbitDownKey = mag; }
-	void			setOrbitInKey(F32 mag)					{ mOrbitInKey = mag; }
-	void			setOrbitOutKey(F32 mag)					{ mOrbitOutKey = mag; }
-
-	void			setPanLeftKey(F32 mag)					{ mPanLeftKey = mag; }
-	void			setPanRightKey(F32 mag)					{ mPanRightKey = mag; }
-	void			setPanUpKey(F32 mag)					{ mPanUpKey = mag; }
-	void			setPanDownKey(F32 mag)					{ mPanDownKey = mag; }
-	void			setPanInKey(F32 mag)					{ mPanInKey = mag; }
-	void			setPanOutKey(F32 mag)					{ mPanOutKey = mag; }
-
-	U32 			getControlFlags(); 
-	void 			setControlFlags(U32 mask); 			// performs bitwise mControlFlags |= mask
-	void 			clearControlFlags(U32 mask); 			// performs bitwise mControlFlags &= ~mask
-	BOOL			controlFlagsDirty() const;
-	void			enableControlFlagReset();
-	void 			resetControlFlags();
-
-	void			propagate(const F32 dt);									// BUG: should roll into updateAgentPosition
-
-	void			startAutoPilotGlobal(const LLVector3d &pos_global, const std::string& behavior_name = std::string(), const LLQuaternion *target_rotation = NULL, 
-									void (*finish_callback)(BOOL, void *) = NULL, void *callback_data = NULL, F32 stop_distance = 0.f, F32 rotation_threshold = 0.03f);
-
+	//--------------------------------------------------------------------
+	// Autopilot
+	//--------------------------------------------------------------------
+public:
+	BOOL			getAutoPilot() const				{ return mAutoPilot; }
+	LLVector3d		getAutoPilotTargetGlobal() const 	{ return mAutoPilotTargetGlobal; }
+	void			startAutoPilotGlobal(const LLVector3d &pos_global, 
+										 const std::string& behavior_name = std::string(), 
+										 const LLQuaternion *target_rotation = NULL, 
+										 void (*finish_callback)(BOOL, void *) = NULL, void *callback_data = NULL, 
+										 F32 stop_distance = 0.f, F32 rotation_threshold = 0.03f);
 	void 			startFollowPilot(const LLUUID &leader_id);
 	void			stopAutoPilot(BOOL user_cancel = FALSE);
 	void 			setAutoPilotGlobal(const LLVector3d &pos_global);
-	void			autoPilot(F32 *delta_yaw);			// autopilot walking action, angles in radians
+	void			autoPilot(F32 *delta_yaw); 			// Autopilot walking action, angles in radians
 	void			renderAutoPilotTarget();
-
-	//
-	// teportation methods
-	//
-
-	// go to a named location home
-	void teleportRequest(
-		const U64& region_handle,
-		const LLVector3& pos_local);
-
-	// teleport to a landmark
-	void teleportViaLandmark(const LLUUID& landmark_id);
-
-	// go home
-	void teleportHome()	{ teleportViaLandmark(LLUUID::null); }
-
-	// to an invited location
-	void teleportViaLure(const LLUUID& lure_id, BOOL godlike);
-
-	// to a global location - this will probably need to be
-	// deprecated.
-	void teleportViaLocation(const LLVector3d& pos_global); 
-
-	// cancel the teleport, may or may not be allowed by server
-	void teleportCancel();
-
-	void 			setTargetVelocity(const LLVector3 &vel);
-	const LLVector3	&getTargetVelocity() const;
-
-	const std::string getTeleportSourceSLURL() const { return mTeleportSourceSLURL; }
-
-
-	// Setting the ability for this avatar to proxy for another avatar.
-	//static void processAddModifyAbility(LLMessageSystem* msg, void**);
-	//static void processGrantedProxies(LLMessageSystem* msg, void**);
-	//static void processRemoveModifyAbility(LLMessageSystem* msg, void**);
-	//BOOL isProxyFor(const LLUUID& agent_id);// *FIX should be const
-
-	static void		processAgentDataUpdate(LLMessageSystem *msg, void **);
-	static void		processAgentGroupDataUpdate(LLMessageSystem *msg, void **);
-	static void		processAgentDropGroup(LLMessageSystem *msg, void **);
-	static void		processScriptControlChange(LLMessageSystem *msg, void **);
-	static void		processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void **user_data);
-	//static void		processControlTake(LLMessageSystem *msg, void **);
-	//static void		processControlRelease(LLMessageSystem *msg, void **);
-
-	// This method checks to see if this agent can modify an object
-	// based on the permissions and the agent's proxy status.
-	BOOL			isGrantedProxy(const LLPermissions& perm);
-
-	BOOL			allowOperation(PermissionBit op,
-								   const LLPermissions& perm,
-								   U64 group_proxy_power = 0,
-								   U8 god_minimum = GOD_MAINTENANCE);
-
-	friend std::ostream& operator<<(std::ostream &s, const LLAgent &sphere);
-
-	void			initOriginGlobal(const LLVector3d &origin_global); // Only to be used in ONE place! - djs 08/07/02
-
-	BOOL leftButtonGrabbed() const	{ return (  (!cameraMouselook() && mControlsTakenCount[CONTROL_LBUTTON_DOWN_INDEX] > 0) 
-											  ||(cameraMouselook() && mControlsTakenCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0)
-											  ||(!cameraMouselook() && mControlsTakenPassedOnCount[CONTROL_LBUTTON_DOWN_INDEX] > 0)
-											  ||(cameraMouselook() && mControlsTakenPassedOnCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0)); }
-	BOOL rotateGrabbed() const		{ return (  (mControlsTakenCount[CONTROL_YAW_POS_INDEX] > 0)
-											  ||(mControlsTakenCount[CONTROL_YAW_NEG_INDEX] > 0)); }
-	BOOL forwardGrabbed() const		{ return (	(mControlsTakenCount[CONTROL_AT_POS_INDEX] > 0)); }
-	BOOL backwardGrabbed() const		{ return (	(mControlsTakenCount[CONTROL_AT_NEG_INDEX] > 0)); }
-	BOOL upGrabbed() const		{ return (	(mControlsTakenCount[CONTROL_UP_POS_INDEX] > 0)); }
-	BOOL downGrabbed() const	{ return (	(mControlsTakenCount[CONTROL_UP_NEG_INDEX] > 0)); }
-
-	// True iff a script has taken over a control.
-	BOOL			anyControlGrabbed() const;
-
-	BOOL isControlGrabbed(S32 control_index) const;
-
-	// Send message to simulator to force grabbed controls to be
-	// released, in case of a poorly written script.
-	void			forceReleaseControls();
-
-	BOOL			sitCameraEnabled() { return mSitCameraEnabled; }
-
-	F32				getCurrentCameraBuildOffset() { return (F32)mCameraFocusOffset.length(); }
-
-	// look at behavior
-	BOOL			setLookAt(ELookAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
-	ELookAtType		getLookAtType();
-
-	// point at behavior
-	BOOL			setPointAt(EPointAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
-	EPointAtType	getPointAtType();
-
-	void			setHomePosRegion( const U64& region_handle, const LLVector3& pos_region );
-	BOOL			getHomePosGlobal( LLVector3d* pos_global );
-	void			setCameraAnimating( BOOL b )	{ mCameraAnimating = b; }
-	BOOL			getCameraAnimating( )			{ return mCameraAnimating; }
-	void			setAnimationDuration( F32 seconds ) { mAnimationDuration = seconds; }
-
-	F32				getNearChatRadius() { return mNearChatRadius; }
-
-	enum EDoubleTapRunMode
-	{
-		DOUBLETAP_NONE,
-		DOUBLETAP_FORWARD,
-		DOUBLETAP_BACKWARD,
-		DOUBLETAP_SLIDELEFT,
-		DOUBLETAP_SLIDERIGHT
-	};
-
-	enum ETeleportState
-	{
-		TELEPORT_NONE = 0,			// No teleport in progress
-		TELEPORT_START = 1,			// Transition to REQUESTED.  Viewer has sent a TeleportRequest to the source simulator
-		TELEPORT_REQUESTED = 2,		// Waiting for source simulator to respond
-		TELEPORT_MOVING = 3,		// Viewer has received destination location from source simulator
-		TELEPORT_START_ARRIVAL = 4,	// Transition to ARRIVING.  Viewer has received avatar update, etc., from destination simulator
-		TELEPORT_ARRIVING = 5		// Make the user wait while content "pre-caches"
-	};
-
-	ETeleportState	getTeleportState() const			{ return mTeleportState; }
-	void			setTeleportState( ETeleportState state );
-	const std::string& getTeleportMessage() const { return mTeleportMessage; }
-	void setTeleportMessage(const std::string& message)
-	{
-		mTeleportMessage = message;
-	}
-
-	// trigger random fidget animations
-	void			fidget();
-
-	void			requestEnterGodMode();
-	void			requestLeaveGodMode();
-
-	void			sendAgentSetAppearance();
-
-	void 			sendAgentDataUpdateRequest();
-
-	// Ventrella
-	LLFollowCam mFollowCam;
-	// end Ventrella 
-
-	//--------------------------------------------------------------------
-	// Wearables
-	//--------------------------------------------------------------------
-	void			setWearable( LLInventoryItem* new_item, LLWearable* wearable );
-	static bool		onSetWearableDialog( const LLSD& notification, const LLSD& response, LLWearable* wearable );
-	void			setWearableFinal( LLInventoryItem* new_item, LLWearable* new_wearable );
-	void			setWearableOutfit( 	const LLInventoryItem::item_array_t& items, const LLDynamicArray< LLWearable* >& wearables, BOOL remove );
-	void			queryWearableCache();
-
-	BOOL			isWearableModifiable(EWearableType type);
-	BOOL			isWearableCopyable(EWearableType type);
-	BOOL			needsReplacement(EWearableType wearableType, S32 remove);
-	U32				getWearablePermMask(EWearableType type);
-
-	LLInventoryItem* getWearableInventoryItem(EWearableType type);
-
-	LLWearable*		getWearable( EWearableType type ) { return (type < WT_COUNT) ? mWearableEntry[ type ].mWearable : NULL; }
-	BOOL			isWearingItem( const LLUUID& item_id );
-	LLWearable*		getWearableFromWearableItem( const LLUUID& item_id );
-	const LLUUID&	getWearableItem( EWearableType type ) { return (type < WT_COUNT) ? mWearableEntry[ type ].mItemID : LLUUID::null; }
-
-	static EWearableType getTEWearableType( S32 te );
-	static LLUUID	getDefaultTEImageID( S32 te );
-	
-	void			copyWearableToInventory( EWearableType type );
-
-	void			makeNewOutfit(
-						const std::string& new_folder_name,
-						const LLDynamicArray<S32>& wearables_to_include,
-						const LLDynamicArray<S32>& attachments_to_include,
-						BOOL rename_clothing);
-	void			makeNewOutfitDone(S32 index);
-
-	void			removeWearable( EWearableType type );
-	static bool		onRemoveWearableDialog(const LLSD& notification, const LLSD& response );
-	void			removeWearableFinal( EWearableType type );
-	
-	void			sendAgentWearablesUpdate();
-
-	/**
-	 * @brief Only public because of addWearableToAgentInventoryCallback.
-	 *
-	 * NOTE: Do not call this method unless you are the inventory callback.
-	 * NOTE: This can suffer from race conditions when working on the
-	 * same values for index.
-	 * @param index The index in mWearableEntry.
-	 * @param item_id The inventory item id of the new wearable to wear.
-	 * @param wearable The actual wearable data.
-	 */
-	void addWearabletoAgentInventoryDone(
-		S32 index,
-		const LLUUID& item_id,
-		LLWearable* wearable);
-	
-	void			saveWearableAs( EWearableType type, const std::string& new_name, BOOL save_in_lost_and_found );
-	void			saveWearable( EWearableType type, BOOL send_update = TRUE );
-	void			saveAllWearables();
-	
-	void			revertWearable( EWearableType type );
-	void			revertAllWearables();
-
-	void			setWearableName( const LLUUID& item_id, const std::string& new_name );
-	void			createStandardWearables(BOOL female);
-	void			createStandardWearablesDone(S32 index);
-	void			createStandardWearablesAllDone();
-
-	BOOL			areWearablesLoaded() { return mWearablesLoaded; }
-
-	void sendWalkRun(bool running);
-
-	void observeFriends();
-	void friendsChanged();
-
-	// statics
-	static void		stopFidget();
-	static void		processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data);
-	static void		userRemoveWearable( void* userdata );	// userdata is EWearableType
-	static void		userRemoveAllClothes( void* userdata );	// userdata is NULL
-	static void		userRemoveAllClothesStep2(BOOL proceed, void* userdata ); // userdata is NULL
-	static void		userRemoveAllAttachments( void* userdata);	// userdata is NULL
-	static BOOL		selfHasWearable( void* userdata );			// userdata is EWearableType
-
-	//debug methods
-	static void		clearVisualParams(void *);
-
-protected:
-	// stuff to do for any sort of teleport. Returns true if the
-	// teleport can proceed.
-	bool teleportCore(bool is_local = false);
-
-	// helper function to prematurely age chat when agent is moving
-	void ageChat();
-
-	// internal wearable functions
-	void			sendAgentWearablesRequest();
-	static void		onInitialWearableAssetArrived(LLWearable* wearable, void* userdata);
-	void			recoverMissingWearable(EWearableType type);
-	void			recoverMissingWearableDone();
-	void			addWearableToAgentInventory(LLPointer<LLInventoryCallback> cb,
-						LLWearable* wearable, const LLUUID& category_id = LLUUID::null,
-						BOOL notify = TRUE);
-public:
-	// TODO: Make these private!
-	LLUUID			mSecureSessionID;			// secure token for this login session
-
-	F32				mDrawDistance;
-
-	U64				mGroupPowers;
-	BOOL			mHideGroupTitle;
-	std::string		mGroupTitle; // honorific, like "Sir"
-	std::string		mGroupName;
-	LLUUID			mGroupID;
-	//LLUUID			mGroupInsigniaID;
-	LLUUID			mInventoryRootID;
-	LLUUID			mMapID;
-	F64				mMapOriginX;	// Global x coord of mMapID's bottom left corner.
-	F64				mMapOriginY;	// Global y coord of mMapID's bottom left corner.
-	S32				mMapWidth;	// Width of map in meters
-	S32				mMapHeight;	// Height of map in meters
-	std::string		mMOTD;	// message of the day
-
-	LLPointer<LLHUDEffectLookAt> mLookAt;
-	LLPointer<LLHUDEffectPointAt> mPointAt;
-
-	LLDynamicArray<LLGroupData> mGroups;
-
-	F32				mHUDTargetZoom;	// target zoom level for HUD objects (used when editing)
-	F32				mHUDCurZoom;	// current animated zoom level for HUD objects
-
-	BOOL			mInitialized;
-
-	S32				mNumPendingQueries;
-	S32*			mActiveCacheQueries;
-
-	BOOL			mForceMouselook;
-
-	static void parseTeleportMessages(const std::string& xml_filename);
-	//we should really define ERROR and PROGRESS enums here
-	//but I don't really feel like doing that, so I am just going
-	//to expose the mappings....yup
-	static std::map<std::string, std::string> sTeleportErrorMessages;
-	static std::map<std::string, std::string> sTeleportProgressMessages;
-
-	LLFrameTimer mDoubleTapRunTimer;
-	EDoubleTapRunMode mDoubleTapRunMode;
-
 private:
-	bool mbAlwaysRun; // should the avatar run by default rather than walk
-	bool mbRunning;	// is the avatar trying to run right now
-
-	LLAgentAccess   mAgentAccess;
-	
-	ETeleportState	mTeleportState;
-	std::string		mTeleportMessage;
-
-	S32				mControlsTakenCount[TOTAL_CONTROLS];
-	S32				mControlsTakenPassedOnCount[TOTAL_CONTROLS];
-
-	LLViewerRegion	*mRegionp;
-	LLVector3d		mAgentOriginGlobal;				// Origin of agent coords from global coords
-	mutable LLVector3d mPositionGlobal;
-
-	std::string		mTeleportSourceSLURL;			// SLURL where last TP began.
-
-	std::set<U64>	mRegionsVisited;				// stat - what distinct regions has the avatar been to?
-	F64				mDistanceTraveled;				// stat - how far has the avatar moved?
-	LLVector3d		mLastPositionGlobal;			// Used to calculate travel distance
-
-	LLPointer<LLVOAvatar> mAvatarObject;			// NULL until avatar object sent down from simulator
-
-	U8				mRenderState;					// Current behavior state of agent
-	LLFrameTimer	mTypingTimer;
-
-	ECameraMode		mCameraMode;					// target mode after transition animation is done
-	ECameraMode		mLastCameraMode;
-	BOOL			mViewsPushed;					// keep track of whether or not we have pushed views.
-
-	BOOL            mCustomAnim ;                   //current animation is ANIM_AGENT_CUSTOMIZE ?
-	BOOL			mShowAvatar;					// should we render the avatar?
-	BOOL			mCameraAnimating;				// camera is transitioning from one mode to another
-	LLVector3d		mAnimationCameraStartGlobal;	// camera start position, global coords
-	LLVector3d		mAnimationFocusStartGlobal;		// camera focus point, global coords
-	LLFrameTimer	mAnimationTimer;				// seconds that transition animation has been active
-	F32				mAnimationDuration;				// seconds
-	F32				mCameraFOVZoomFactor;			// amount of fov zoom applied to camera when zeroing in on an object
-	F32				mCameraCurrentFOVZoomFactor;	// interpolated fov zoom
-	F32				mCameraFOVDefault;				// default field of view that is basis for FOV zoom effect
-	LLVector3d		mCameraFocusOffset;				// offset from focus point in build mode
-	LLVector3d		mCameraFocusOffsetTarget;		// target towards which we are lerping the camera's focus offset
-	LLVector3		mCameraOffsetDefault;			// default third-person camera offset
-	LLVector4		mCameraCollidePlane;			// colliding plane for camera
-	F32				mCurrentCameraDistance;			// current camera offset from avatar
-	F32				mTargetCameraDistance;			// target camera offset from avatar
-	F32				mCameraZoomFraction;			// mousewheel driven fraction of zoom
-	LLVector3		mCameraLag;						// third person camera lag
-	LLVector3		mThirdPersonHeadOffset;			// head offset for third person camera position
-	LLVector3		mCameraPositionAgent;			// camera position in agent coordinates
-	LLVector3		mCameraVirtualPositionAgent;	// camera virtual position (target) before performing FOV zoom
-	BOOL			mSitCameraEnabled;				// use provided camera information when sitting?
-	LLVector3		mSitCameraPos;					// root relative camera pos when sitting
-	LLVector3		mSitCameraFocus;				// root relative camera target when sitting
-	LLVector3d      mCameraSmoothingLastPositionGlobal;    
-	LLVector3d      mCameraSmoothingLastPositionAgent;
-	BOOL            mCameraSmoothingStop;
-
-	LLVector3		mCameraUpVector;				// camera's up direction in world coordinates (determines the 'roll' of the view)
-
-	LLPointer<LLViewerObject> mSitCameraReferenceObject;	// object to which camera is related when sitting
-
-	BOOL			mFocusOnAvatar;					
-	LLVector3d		mFocusGlobal;
-	LLVector3d		mFocusTargetGlobal;
-	LLPointer<LLViewerObject>	mFocusObject;
-	F32				mFocusObjectDist;
-	LLVector3		mFocusObjectOffset;
-	F32				mFocusDotRadius;				// meters
-	BOOL			mTrackFocusObject;
-	F32				mUIOffset;
-
-	LLCoordFrame	mFrameAgent;					// Agent position and view, agent-region coordinates
-
-	BOOL			mIsBusy;
-
-	S32 			mAtKey;							// Either 1, 0, or -1... indicates that movement-key is pressed
-	S32				mWalkKey;						// like AtKey, but causes less forward thrust
-	S32 			mLeftKey;
-	S32				mUpKey;
-	F32				mYawKey;
-	S32				mPitchKey;
-
-	F32				mOrbitLeftKey;
-	F32				mOrbitRightKey;
-	F32				mOrbitUpKey;
-	F32				mOrbitDownKey;
-	F32				mOrbitInKey;
-	F32				mOrbitOutKey;
-
-	F32				mPanUpKey;						
-	F32				mPanDownKey;					
-	F32				mPanLeftKey;					
-	F32				mPanRightKey;					
-	F32				mPanInKey;
-	F32				mPanOutKey;
-
-	U32				mControlFlags;					// replacement for the mFooKey's
-	BOOL 			mbFlagsDirty;
-	BOOL 			mbFlagsNeedReset;				// HACK for preventing incorrect flags sent when crossing region boundaries
-
-	BOOL 			mbJump;
-
 	BOOL			mAutoPilot;
 	BOOL			mAutoPilotFlyOnStop;
 	LLVector3d		mAutoPilotTargetGlobal;
@@ -877,91 +568,528 @@ private:
 	void			(*mAutoPilotFinishedCallback)(BOOL, void *);
 	void*			mAutoPilotCallbackData;
 	LLUUID			mLeaderID;
+	
+/**                    Movement
+ **                                                                            **
+ *******************************************************************************/
 
-	std::set<LLUUID> mProxyForAgents;
+/********************************************************************************
+ **                                                                            **
+ **                    TELEPORT
+ **/
 
-	LLColor4 mEffectColor;
+public:
+	enum ETeleportState
+	{
+		TELEPORT_NONE = 0,			// No teleport in progress
+		TELEPORT_START = 1,			// Transition to REQUESTED.  Viewer has sent a TeleportRequest to the source simulator
+		TELEPORT_REQUESTED = 2,		// Waiting for source simulator to respond
+		TELEPORT_MOVING = 3,		// Viewer has received destination location from source simulator
+		TELEPORT_START_ARRIVAL = 4,	// Transition to ARRIVING.  Viewer has received avatar update, etc., from destination simulator
+		TELEPORT_ARRIVING = 5		// Make the user wait while content "pre-caches"
+	};
 
-	BOOL mHaveHomePosition;
-	U64				mHomeRegionHandle;
-	LLVector3		mHomePosRegion;
-	LLFrameTimer	mChatTimer;
-	LLUUID			mLastChatterID;
-	F32				mNearChatRadius;
+public:
+	static void 	parseTeleportMessages(const std::string& xml_filename);
+	const std::string getTeleportSourceSLURL() const { return mTeleportSourceSLURL; }
+public:
+	// ! TODO ! Define ERROR and PROGRESS enums here instead of exposing the mappings.
+	static std::map<std::string, std::string> sTeleportErrorMessages;
+	static std::map<std::string, std::string> sTeleportProgressMessages;
+private:
+	std::string		mTeleportSourceSLURL; 			// SLURL where last TP began
 
-	LLFrameTimer	mFidgetTimer;
-	LLFrameTimer	mFocusObjectFadeTimer;
-	F32				mNextFidgetTime;
-	S32				mCurrentFidget;
-	BOOL			mFirstLogin;
-	BOOL			mGenderChosen;
+	//--------------------------------------------------------------------
+	// Teleport Actions
+	//--------------------------------------------------------------------
+public:
+	void 			teleportRequest(const U64& region_handle,
+									const LLVector3& pos_local);			// Go to a named location home
+	void 			teleportViaLandmark(const LLUUID& landmark_id);			// Teleport to a landmark
+	void 			teleportHome()	{ teleportViaLandmark(LLUUID::null); }	// Go home
+	void 			teleportViaLure(const LLUUID& lure_id, BOOL godlike);	// To an invited location
+	void 			teleportViaLocation(const LLVector3d& pos_global);		// To a global location - this will probably need to be deprecated
+	void 			teleportCancel();										// May or may not be allowed by server
+protected:
+	bool 			teleportCore(bool is_local = false); 					// Stuff for all teleports; returns true if the teleport can proceed
+
+	//--------------------------------------------------------------------
+	// Teleport State
+	//--------------------------------------------------------------------
+public:
+	ETeleportState	getTeleportState() const 						{ return mTeleportState; }
+	void			setTeleportState(ETeleportState state);
+private:
+	ETeleportState	mTeleportState;
+
+	//--------------------------------------------------------------------
+	// Teleport Message
+	//--------------------------------------------------------------------
+public:
+	const std::string& getTeleportMessage() const 					{ return mTeleportMessage; }
+	void 			setTeleportMessage(const std::string& message) 	{ mTeleportMessage = message; }
+private:
+	std::string		mTeleportMessage;
+	
+/**                    Teleport
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    CAMERA
+ **/
+
+	//--------------------------------------------------------------------
+	// Mode
+	//--------------------------------------------------------------------
+public:
+	void			changeCameraToDefault();
+	void			changeCameraToMouselook(BOOL animate = TRUE);
+	void			changeCameraToThirdPerson(BOOL animate = TRUE);
+	void			changeCameraToCustomizeAvatar(BOOL avatar_animate = TRUE, BOOL camera_animate = TRUE); // Trigger transition animation
+	void			changeCameraToFollow(BOOL animate = TRUE); 	// Ventrella
+	BOOL			cameraThirdPerson() const		{ return (mCameraMode == CAMERA_MODE_THIRD_PERSON && mLastCameraMode == CAMERA_MODE_THIRD_PERSON); }
+	BOOL			cameraMouselook() const			{ return (mCameraMode == CAMERA_MODE_MOUSELOOK && mLastCameraMode == CAMERA_MODE_MOUSELOOK); }
+	BOOL			cameraCustomizeAvatar() const	{ return (mCameraMode == CAMERA_MODE_CUSTOMIZE_AVATAR /*&& !mCameraAnimating*/); }
+	BOOL			cameraFollow() const			{ return (mCameraMode == CAMERA_MODE_FOLLOW && mLastCameraMode == CAMERA_MODE_FOLLOW); }
+	ECameraMode		getCameraMode() const 			{ return mCameraMode; }
+	void			updateCamera();					// Call once per frame to update camera location/orientation
+	void			resetCamera(); 					// Slam camera into its default position
+private:
+	ECameraMode		mCameraMode;					// Target mode after transition animation is done
+	ECameraMode		mLastCameraMode;
+
+	//--------------------------------------------------------------------
+	// Preset
+	//--------------------------------------------------------------------
+public:
+	void switchCameraPreset(ECameraPreset preset);
+
+private:
+	
+	/** Determines default camera offset depending on the current camera preset */
+	LLVector3 getCameraOffsetInitial();
+
+	/** Camera preset in Third Person Mode */
+	ECameraPreset mCameraPreset; 
+
+	/** Initial camera offsets */
+	std::map<ECameraPreset, LLVector3> mCameraOffsetInitial;
+
+	/** Initial focus offsets */
+	std::map<ECameraPreset, LLVector3d> mFocusOffsetInitial;
+
+
+	//--------------------------------------------------------------------
+	// Position
+	//--------------------------------------------------------------------
+public:
+	LLVector3d		getCameraPositionGlobal() const;
+	const LLVector3 &getCameraPositionAgent() const;
+	LLVector3d		calcCameraPositionTargetGlobal(BOOL *hit_limit = NULL); // Calculate the camera position target
+	F32				getCameraMinOffGround(); 		// Minimum height off ground for this mode, meters
+	void			setCameraCollidePlane(const LLVector4 &plane) { mCameraCollidePlane = plane; }
+	BOOL			calcCameraMinDistance(F32 &obj_min_distance);
+	F32				calcCustomizeAvatarUIOffset(const LLVector3d& camera_pos_global);
+	F32				getCurrentCameraBuildOffset() 	{ return (F32)mCameraFocusOffset.length(); }
+private:
+	F32				mCurrentCameraDistance;	 		// Current camera offset from avatar
+	F32				mTargetCameraDistance;			// Target camera offset from avatar
+	F32				mCameraFOVZoomFactor;			// Amount of fov zoom applied to camera when zeroing in on an object
+	F32				mCameraCurrentFOVZoomFactor;	// Interpolated fov zoom
+	F32				mCameraFOVDefault;				// Default field of view that is basis for FOV zoom effect
+	LLVector4		mCameraCollidePlane;			// Colliding plane for camera
+	F32				mCameraZoomFraction;			// Mousewheel driven fraction of zoom
+	LLVector3		mCameraPositionAgent;			// Camera position in agent coordinates
+	LLVector3		mCameraVirtualPositionAgent;	// Camera virtual position (target) before performing FOV zoom
+	LLVector3d      mCameraSmoothingLastPositionGlobal;    
+	LLVector3d      mCameraSmoothingLastPositionAgent;
+	BOOL            mCameraSmoothingStop;
+	LLVector3		mCameraLag;						// Third person camera lag
+	LLVector3		mCameraUpVector;				// Camera's up direction in world coordinates (determines the 'roll' of the view)
+
+	//--------------------------------------------------------------------
+	// Follow
+	//--------------------------------------------------------------------
+public:
+	void			setUsingFollowCam(bool using_follow_cam);
+private:
+	LLFollowCam 	mFollowCam; 			// Ventrella
+
+	//--------------------------------------------------------------------
+	// Sit
+	//--------------------------------------------------------------------
+public:
+	void			setupSitCamera();
+	BOOL			sitCameraEnabled() 		{ return mSitCameraEnabled; }
+	void			setSitCamera(const LLUUID &object_id, 
+								 const LLVector3 &camera_pos = LLVector3::zero, const LLVector3 &camera_focus = LLVector3::zero);
+private:
+	LLPointer<LLViewerObject> mSitCameraReferenceObject; // Object to which camera is related when sitting
+	BOOL			mSitCameraEnabled;		// Use provided camera information when sitting?
+	LLVector3		mSitCameraPos;			// Root relative camera pos when sitting
+	LLVector3		mSitCameraFocus;		// Root relative camera target when sitting
+
+	//--------------------------------------------------------------------
+	// Animation
+	//--------------------------------------------------------------------
+public:
+	void			setCameraAnimating(BOOL b)			{ mCameraAnimating = b; }
+	BOOL			getCameraAnimating()				{ return mCameraAnimating; }
+	void			setAnimationDuration(F32 seconds) 	{ mAnimationDuration = seconds; }
+	void			startCameraAnimation();
+	void			stopCameraAnimation();
+private:
+	BOOL			mCameraAnimating;					// Camera is transitioning from one mode to another
+	LLVector3d		mAnimationCameraStartGlobal;		// Camera start position, global coords
+	LLVector3d		mAnimationFocusStartGlobal;			// Camera focus point, global coords
+
+	//--------------------------------------------------------------------
+	// Focus
+	//--------------------------------------------------------------------
+public:
+	LLVector3d		calcFocusPositionTargetGlobal();
+	LLVector3		calcFocusOffset(LLViewerObject *object, LLVector3 pos_agent, S32 x, S32 y);
+	BOOL			getFocusOnAvatar() const		{ return mFocusOnAvatar; }
+	LLPointer<LLViewerObject>&	getFocusObject() 	{ return mFocusObject; }
+	F32				getFocusObjectDist() const		{ return mFocusObjectDist; }
+	void			updateFocusOffset();
+	void			validateFocusObject();
+	void			setFocusGlobal(const LLPickInfo& pick);
+	void			setFocusGlobal(const LLVector3d &focus, const LLUUID &object_id = LLUUID::null);
+	void			setFocusOnAvatar(BOOL focus, BOOL animate);
+	void			setCameraPosAndFocusGlobal(const LLVector3d& pos, const LLVector3d& focus, const LLUUID &object_id);
+	void			clearFocusObject();
+	void			setFocusObject(LLViewerObject* object);
+	void			setObjectTracking(BOOL track) 	{ mTrackFocusObject = track; }
+	const LLVector3d &getFocusGlobal() const		{ return mFocusGlobal; }
+	const LLVector3d &getFocusTargetGlobal() const	{ return mFocusTargetGlobal; }
+private:
+	LLVector3d		mCameraFocusOffset;				// Offset from focus point in build mode
+	LLVector3d		mCameraFocusOffsetTarget;		// Target towards which we are lerping the camera's focus offset
+	BOOL			mFocusOnAvatar;					
+	LLVector3d		mFocusGlobal;
+	LLVector3d		mFocusTargetGlobal;
+	LLPointer<LLViewerObject> mFocusObject;
+	F32				mFocusObjectDist;
+	LLVector3		mFocusObjectOffset;
+	F32				mFocusDotRadius; 				// Meters
+	BOOL			mTrackFocusObject;
+	F32				mUIOffset;	
 	
 	//--------------------------------------------------------------------
-	// Wearables
+	// Lookat / Pointat
 	//--------------------------------------------------------------------
-	struct LLWearableEntry
-	{
-		LLWearableEntry() : mItemID( LLUUID::null ), mWearable( NULL ) {}
+public:
+	void			updateLookAt(const S32 mouse_x, const S32 mouse_y);
+	BOOL			setLookAt(ELookAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
+	ELookAtType		getLookAtType();
+	void 			slamLookAt(const LLVector3 &look_at); // Set the physics data
+	BOOL			setPointAt(EPointAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
+	EPointAtType	getPointAtType();
+public:
+	LLPointer<LLHUDEffectLookAt> mLookAt;
+	LLPointer<LLHUDEffectPointAt> mPointAt;
 
-		LLUUID		mItemID;	// ID of the inventory item in the agent's inventory.
-		LLWearable*	mWearable;
-	};
-	LLWearableEntry mWearableEntry[ WT_COUNT ];
-	U32				mAgentWearablesUpdateSerialNum;
-	BOOL			mWearablesLoaded;
-	S32				mTextureCacheQueryID;
+	//--------------------------------------------------------------------
+	// Third person
+	//--------------------------------------------------------------------
+public:
+	LLVector3d		calcThirdPersonFocusOffset();
+	void			setThirdPersonHeadOffset(LLVector3 offset) 	{ mThirdPersonHeadOffset = offset; }	
+private:
+	LLVector3		mThirdPersonHeadOffset;						// Head offset for third person camera position
+
+	//--------------------------------------------------------------------
+	// Orbit
+	//--------------------------------------------------------------------
+public:
+	void			cameraOrbitAround(const F32 radians);	// Rotate camera CCW radians about build focus point
+	void			cameraOrbitOver(const F32 radians);		// Rotate camera forward radians over build focus point
+	void			cameraOrbitIn(const F32 meters);		// Move camera in toward build focus point
+
+	//--------------------------------------------------------------------
+	// Zoom
+	//--------------------------------------------------------------------
+public:
+	void			handleScrollWheel(S32 clicks); 			// Mousewheel driven zoom
+	void			cameraZoomIn(const F32 factor);			// Zoom in by fraction of current distance
+	F32				getCameraZoomFraction();				// Get camera zoom as fraction of minimum and maximum zoom
+	void			setCameraZoomFraction(F32 fraction);	// Set camera zoom as fraction of minimum and maximum zoom
+	F32				calcCameraFOVZoomFactor();
+
+	//--------------------------------------------------------------------
+	// Pan
+	//--------------------------------------------------------------------
+public:
+	void			cameraPanIn(const F32 meters);
+	void			cameraPanLeft(const F32 meters);
+	void			cameraPanUp(const F32 meters);
+	
+	//--------------------------------------------------------------------
+	// View
+	//--------------------------------------------------------------------
+public:
+	// Called whenever the agent moves.  Puts camera back in default position, deselects items, etc.
+	void			resetView(BOOL reset_camera = TRUE, BOOL change_camera = FALSE);
+	// Called on camera movement.  Unlocks camera from the default position behind the avatar.
+	void			unlockView();
+
+	//--------------------------------------------------------------------
+	// Mouselook
+	//--------------------------------------------------------------------
+public:
+	BOOL			getForceMouselook() const 			{ return mForceMouselook; }
+	void			setForceMouselook(BOOL mouselook) 	{ mForceMouselook = mouselook; }
+private:
+	BOOL			mForceMouselook;
+	
+	//--------------------------------------------------------------------
+	// HUD
+	//--------------------------------------------------------------------
+public:
+	const LLColor4	&getEffectColor();
+	void			setEffectColor(const LLColor4 &color);
+public:
+	F32				mHUDTargetZoom;	// Target zoom level for HUD objects (used when editing)
+	F32				mHUDCurZoom; 	// Current animated zoom level for HUD objects
+private:
+	LLUIColor 		mEffectColor;
+
+/**                    Camera
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    ACCESS
+ **/
+
+public:
+	// Checks if agent can modify an object based on the permissions and the agent's proxy status.
+	BOOL			isGrantedProxy(const LLPermissions& perm);
+	BOOL			allowOperation(PermissionBit op,
+								   const LLPermissions& perm,
+								   U64 group_proxy_power = 0,
+								   U8 god_minimum = GOD_MAINTENANCE);
+	const LLAgentAccess& getAgentAccess();
+	BOOL			canManageEstate() const;
+	BOOL			getAdminOverride() const;
+	// ! BACKWARDS COMPATIBILITY ! This function can go away after the AO transition (see llstartup.cpp).
+	void 			setAOTransition();
+private:
+	LLAgentAccess 	mAgentAccess;
+	
+	//--------------------------------------------------------------------
+	// God
+	//--------------------------------------------------------------------
+public:
+	BOOL			isGodlike() const;
+	U8				getGodLevel() const;
+	void			setAdminOverride(BOOL b);
+	void			setGodLevel(U8 god_level);
+	void			requestEnterGodMode();
+	void			requestLeaveGodMode();
+
+	//--------------------------------------------------------------------
+	// Maturity
+	//--------------------------------------------------------------------
+public:
+	// Note: this is a prime candidate for pulling out into a Maturity class.
+	// Rather than just expose the preference setting, we're going to actually
+	// expose what the client code cares about -- what the user should see
+	// based on a combination of the is* and prefers* flags, combined with god bit.
+	bool 			wantsPGOnly() const;
+	bool 			canAccessMature() const;
+	bool 			canAccessAdult() const;
+	bool 			canAccessMaturityInRegion( U64 region_handle ) const;
+	bool 			canAccessMaturityAtGlobal( LLVector3d pos_global ) const;
+	bool 			prefersPG() const;
+	bool 			prefersMature() const;
+	bool 			prefersAdult() const;
+	bool 			isTeen() const;
+	bool 			isMature() const;
+	bool 			isAdult() const;
+	void 			setTeen(bool teen);
+	void 			setMaturity(char text);
+	static int 		convertTextToMaturity(char text); 
+	bool 			sendMaturityPreferenceToServer(int preferredMaturity); // ! "U8" instead of "int"?
+
+	// Maturity callbacks for PreferredMaturity control variable
+	void 			handleMaturity(const LLSD& newvalue);
+	bool 			validateMaturity(const LLSD& newvalue);
+
+
+/**                    Access
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    RENDERING
+ **/
+
+public:
+	LLQuaternion	getHeadRotation();
+	BOOL			needsRenderAvatar(); // TRUE when camera mode is such that your own avatar should draw
+	BOOL			needsRenderHead();
+public:
+	F32				mDrawDistance;
+private:
+	BOOL			mShowAvatar; 		// Should we render the avatar?
 	U32				mAppearanceSerialNum;
-	LLAnimPauseRequest mPauseRequest;
+	
+	//--------------------------------------------------------------------
+	// Rendering state bitmap helpers
+	//--------------------------------------------------------------------
+public:
+	void			setRenderState(U8 newstate);
+	void			clearRenderState(U8 clearstate);
+	U8				getRenderState();
+private:
+	U8				mRenderState; // Current behavior state of agent
 
-	class createStandardWearablesAllDoneCallback : public LLRefCount
-	{
-	protected:
-		~createStandardWearablesAllDoneCallback();
-	};
-	class sendAgentWearablesUpdateCallback : public LLRefCount
-	{
-	protected:
-		~sendAgentWearablesUpdateCallback();
-	};
+/**                    Rendering
+ **                                                                            **
+ *******************************************************************************/
 
-	class addWearableToAgentInventoryCallback : public LLInventoryCallback
-	{
-	public:
-		enum {
-			CALL_NONE = 0,
-			CALL_UPDATE = 1,
-			CALL_RECOVERDONE = 2,
-			CALL_CREATESTANDARDDONE = 4,
-			CALL_MAKENEWOUTFITDONE = 8
-		} EType;
+/********************************************************************************
+ **                                                                            **
+ **                    GROUPS
+ **/
 
-		/**
-		 * @brief Construct a callback for dealing with the wearables.
-		 *
-		 * Would like to pass the agent in here, but we can't safely
-		 * count on it being around later.  Just use gAgent directly.
-		 * @param cb callback to execute on completion (??? unused ???)
-		 * @param index Index for the wearable in the agent
-		 * @param wearable The wearable data.
-		 * @param todo Bitmask of actions to take on completion.
-		 */
-		addWearableToAgentInventoryCallback(
-			LLPointer<LLRefCount> cb,
-			S32 index,
-			LLWearable* wearable,
-			U32 todo = CALL_NONE);
-		virtual void fire(const LLUUID& inv_item);
+public:
+	const LLUUID	&getGroupID() const			{ return mGroupID; }
+	// Get group information by group_id, or FALSE if not in group.
+	BOOL 			getGroupData(const LLUUID& group_id, LLGroupData& data) const;
+	// Get just the agent's contribution to the given group.
+	S32 			getGroupContribution(const LLUUID& group_id) const;
+	// Update internal datastructures and update the server.
+	BOOL 			setGroupContribution(const LLUUID& group_id, S32 contribution);
+	BOOL 			setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOOL list_in_profile);
+	const std::string &getGroupName() const 	{ return mGroupName; }
+private:
+	std::string		mGroupName;
+	LLUUID			mGroupID;
 
-	private:
-		S32 mIndex;
-		LLWearable* mWearable;
-		U32 mTodo;
-		LLPointer<LLRefCount> mCB;
-	};
+	//--------------------------------------------------------------------
+	// Group Membership
+	//--------------------------------------------------------------------
+public:
+	// Checks against all groups in the entire agent group list.
+	BOOL 			isInGroup(const LLUUID& group_id) const;
+protected:
+	// Only used for building titles.
+	BOOL			isGroupMember() const 		{ return !mGroupID.isNull(); } 
+public:
+	LLDynamicArray<LLGroupData> mGroups;
 
+	//--------------------------------------------------------------------
+	// Group Title
+	//--------------------------------------------------------------------
+public:
+	void			setHideGroupTitle(BOOL hide)	{ mHideGroupTitle = hide; }
+	BOOL			isGroupTitleHidden() const 		{ return mHideGroupTitle; }
+private:
+	std::string		mGroupTitle; 					// Honorific, like "Sir"
+	BOOL			mHideGroupTitle;
+
+	//--------------------------------------------------------------------
+	// Group Powers
+	//--------------------------------------------------------------------
+public:
+	BOOL 			hasPowerInGroup(const LLUUID& group_id, U64 power) const;
+	BOOL 			hasPowerInActiveGroup(const U64 power) const;
+	U64  			getPowerInGroup(const LLUUID& group_id) const;
+ 	U64				mGroupPowers;
+
+	//--------------------------------------------------------------------
+	// Friends
+	//--------------------------------------------------------------------
+public:
+	void 			observeFriends();
+	void 			friendsChanged();
+private:
 	LLFriendObserver* mFriendObserver;
+	std::set<LLUUID> mProxyForAgents;
+
+/**                    Groups
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    MESSAGING
+ **/
+
+	//--------------------------------------------------------------------
+	// Send
+	//--------------------------------------------------------------------
+public:
+	void			sendMessage(); // Send message to this agent's region
+	void			sendReliableMessage();
+	void			sendAgentSetAppearance();
+	void 			sendAgentDataUpdateRequest();
+	void 			sendAgentUserInfoRequest();
+	// IM to Email and Online visibility
+	void			sendAgentUpdateUserInfo(bool im_to_email, const std::string& directory_visibility);
+
+	//--------------------------------------------------------------------
+	// Receive
+	//--------------------------------------------------------------------
+public:
+	static void		processAgentDataUpdate(LLMessageSystem *msg, void **);
+	static void		processAgentGroupDataUpdate(LLMessageSystem *msg, void **);
+	static void		processAgentDropGroup(LLMessageSystem *msg, void **);
+	static void		processScriptControlChange(LLMessageSystem *msg, void **);
+	static void		processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void **user_data);
+	
+/**                    Messaging
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    DEBUGGING
+ **/
+
+public:
+	static void		dumpGroupInfo();
+	static void		clearVisualParams(void *);
+	friend std::ostream& operator<<(std::ostream &s, const LLAgent &sphere);
+
+/**                    Debugging
+ **                                                                            **
+ *******************************************************************************/
+
 };
 
 extern LLAgent gAgent;
+
+inline bool operator==(const LLGroupData &a, const LLGroupData &b)
+{
+	return (a.mID == b.mID);
+}
+
+class LLAgentQueryManager
+{
+	friend class LLAgent;
+	friend class LLAgentWearables;
+	
+public:
+	LLAgentQueryManager();
+	virtual ~LLAgentQueryManager();
+	
+	BOOL 			hasNoPendingQueries() const 	{ return getNumPendingQueries() == 0; }
+	S32 			getNumPendingQueries() const 	{ return mNumPendingQueries; }
+private:
+	S32				mNumPendingQueries;
+	S32				mWearablesCacheQueryID;
+	U32				mUpdateSerialNum;
+	S32		    	mActiveCacheQueries[LLVOAvatarDefines::BAKED_NUM_INDICES];
+};
+
+extern LLAgentQueryManager gAgentQueryManager;
 
 #endif

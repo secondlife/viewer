@@ -71,6 +71,7 @@
 #include "lluistring.h"
 #include "llviewerobject.h" 
 #include "llviewerobjectlist.h"
+#include "lltrans.h"
 
 namespace 
 {
@@ -111,11 +112,6 @@ static LLDispatchEmptyMuteList sDispatchEmptyMuteList;
 //-----------------------------------------------------------------------------
 // LLMute()
 //-----------------------------------------------------------------------------
-const char BY_NAME_SUFFIX[] = " (by name)";
-const char AGENT_SUFFIX[] = " (resident)";
-const char OBJECT_SUFFIX[] = " (object)";
-const char GROUP_SUFFIX[] = " (group)";
-
 
 LLMute::LLMute(const LLUUID& id, const std::string& name, EType type, U32 flags)
   : mID(id),
@@ -149,16 +145,16 @@ std::string LLMute::getDisplayName() const
 	{
 		case BY_NAME:
 		default:
-			name_with_suffix += BY_NAME_SUFFIX;
+			name_with_suffix += " " + LLTrans::getString("MuteByName");
 			break;
 		case AGENT:
-			name_with_suffix += AGENT_SUFFIX;
+			name_with_suffix += " " + LLTrans::getString("MuteAgent");
 			break;
 		case OBJECT:
-			name_with_suffix += OBJECT_SUFFIX;
+			name_with_suffix += " " + LLTrans::getString("MuteObject");
 			break;
 		case GROUP:
-			name_with_suffix += GROUP_SUFFIX;
+			name_with_suffix += " " + LLTrans::getString("MuteGroup");
 			break;
 	}
 	return name_with_suffix;
@@ -169,7 +165,7 @@ void LLMute::setFromDisplayName(const std::string& display_name)
 	size_t pos = 0;
 	mName = display_name;
 	
-	pos = mName.rfind(GROUP_SUFFIX);
+	pos = mName.rfind(" " + LLTrans::getString("MuteGroup"));
 	if (pos != std::string::npos)
 	{
 		mName.erase(pos);
@@ -177,7 +173,7 @@ void LLMute::setFromDisplayName(const std::string& display_name)
 		return;
 	}
 	
-	pos = mName.rfind(OBJECT_SUFFIX);
+	pos = mName.rfind(" " + LLTrans::getString("MuteObject"));
 	if (pos != std::string::npos)
 	{
 		mName.erase(pos);
@@ -185,7 +181,7 @@ void LLMute::setFromDisplayName(const std::string& display_name)
 		return;
 	}
 	
-	pos = mName.rfind(AGENT_SUFFIX);
+	pos = mName.rfind(" " + LLTrans::getString("MuteAgent"));
 	if (pos != std::string::npos)
 	{
 		mName.erase(pos);
@@ -193,7 +189,7 @@ void LLMute::setFromDisplayName(const std::string& display_name)
 		return;
 	}
 	
-	pos = mName.rfind(BY_NAME_SUFFIX);
+	pos = mName.rfind(" " + LLTrans::getString("MuteByName"));
 	if (pos != std::string::npos)
 	{
 		mName.erase(pos);
@@ -501,11 +497,8 @@ void LLMuteList::updateRemove(const LLMute& mute)
 	gAgent.sendReliableMessage();
 }
 
-void notify_automute_callback(const LLUUID& agent_id, const std::string& first_name, const std::string& last_name, BOOL is_group, void* user_data)
+void notify_automute_callback(const LLUUID& agent_id, const std::string& first_name, const std::string& last_name, BOOL is_group, LLMuteList::EAutoReason reason)
 {
-	U32 temp_data = (U32) (uintptr_t) user_data;
-	LLMuteList::EAutoReason reason = (LLMuteList::EAutoReason)temp_data;
-	
 	std::string notif_name;
 	switch (reason)
 	{
@@ -561,18 +554,18 @@ BOOL LLMuteList::autoRemove(const LLUUID& agent_id, const EAutoReason reason, co
 			if (gCacheName->getName(agent_id, cache_first, cache_last))
 			{
 				// name in cache, call callback directly
-				notify_automute_callback(agent_id, cache_first, cache_last, FALSE, (void *)reason);
+				notify_automute_callback(agent_id, cache_first, cache_last, FALSE, reason);
 			}
 			else
 			{
 				// not in cache, lookup name from cache
-				gCacheName->getNameFromUUID(agent_id, FALSE, notify_automute_callback, (void *)reason);
+				gCacheName->get(agent_id, FALSE, boost::bind(&notify_automute_callback, _1, _2, _3, _4, reason));
 			}
 		}
 		else
 		{
 			// call callback directly
-			notify_automute_callback(agent_id, first_name, last_name, FALSE, (void *)reason);
+			notify_automute_callback(agent_id, first_name, last_name, FALSE, reason);
 		}
 	}
 

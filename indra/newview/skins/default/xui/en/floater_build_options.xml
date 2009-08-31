@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ follows="right"
+ height="151"
+ layout="topleft"
+ name="build options floater"
+ save_rect="true"
+ title="Grid Options"
+ width="272">
+    <spinner
+     control_name="GridResolution"
+     follows="left|top"
+     height="16"
+     initial_value="1"
+     label="Grid Unit (meters)"
+     label_width="110"
+     layout="topleft"
+     left="14"
+     max_val="5"
+     min_val="0.01"
+     name="GridResolution"
+     top="37"
+     width="170" />
+    <spinner
+     control_name="GridDrawSize"
+     decimal_digits="1"
+     follows="left|top"
+     height="16"
+     increment="0.5"
+     initial_value="5"
+     label="Grid Extents (meters)"
+     label_width="110"
+     layout="topleft"
+     left_delta="0"
+     max_val="50"
+     min_val="1"
+     name="GridDrawSize"
+     top_pad="5"
+     width="170" />
+    <check_box
+     control_name="GridSubUnit"
+     height="16"
+     label="Enable Sub-Unit Snapping"
+     layout="topleft"
+     left_delta="0"
+     name="GridSubUnit"
+     top_pad="5"
+     width="200" />
+    <check_box
+     control_name="GridCrossSections"
+     height="16"
+     label="Show Cross Sections"
+     layout="topleft"
+     left_delta="0"
+     name="GridCrossSection"
+     top_pad="5"
+     width="200" />
+    <slider
+     control_name="GridOpacity"
+     follows="left"
+     height="16"
+     increment="0.05"
+     initial_value="0.7"
+     label="Grid Opacity"
+     layout="topleft"
+     left_delta="0"
+     name="GridOpacity"
+     show_text="false"
+     top_pad="5"
+     width="200" />
+</floater>

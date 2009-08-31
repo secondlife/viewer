@@ -44,25 +44,24 @@ const S32 MAX_SPAWNPOINTS_PER_TELEHUB = 16;
 class LLFloaterTelehub : public LLFloater
 {
 public:
-	// Opens the floater on screen.
-	static void show();
+	LLFloaterTelehub(const LLSD& key);
+	~LLFloaterTelehub();
+	
+	/*virtual*/	BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
 
-	virtual void draw();
-
+	/*virtual*/ void draw();
+	
 	static BOOL renderBeacons();
 	static void addBeacons();
-
-private:
-	LLFloaterTelehub();
-	~LLFloaterTelehub();
 
 	void refresh();
 	void sendTelehubInfoRequest();
 
-	static void onClickConnect(void* data);
-	static void onClickDisconnect(void* data);
-	static void onClickAddSpawnPoint(void* data);
-	static void onClickRemoveSpawnPoint(void* data);
+	void onClickConnect();
+	void onClickDisconnect();
+	void onClickAddSpawnPoint();
+	void onClickRemoveSpawnPoint();
 
 	static void processTelehubInfo(LLMessageSystem* msg, void**);
 	void unpackTelehubInfo(LLMessageSystem* msg);

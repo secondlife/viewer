@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<button image_unselected="PushButton_Off"
+        image_selected="PushButton_Selected"
+        image_disabled_selected="PushButton_Selected_Disabled"
+        image_disabled="PushButton_Disabled"
+        label_color="ButtonLabelColor"
+        label_color_selected="ButtonLabelSelectedColor"
+        label_color_disabled="ButtonLabelDisabledColor"
+        label_color_disabled_selected="ButtonLabelSelectedDisabledColor"
+        highlight_color="ButtonUnselectedFgColor"
+        image_color="ButtonImageColor"
+        image_color_disabled="ButtonImageColor"
+        flash_color="ButtonFlashBgColor"
+        hover_glow_amount="0.15"
+        halign="center"
+        scale_image="true">
+</button>

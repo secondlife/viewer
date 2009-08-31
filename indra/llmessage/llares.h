@@ -45,7 +45,8 @@
 # include <ares/ares.h>
 #endif
 
-#include "llmemory.h"
+#include "llpointer.h"
+#include "llrefcount.h"
 #include "lluri.h"
 
 class LLQueryResponder;

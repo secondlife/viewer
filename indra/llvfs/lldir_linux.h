@@ -44,13 +44,17 @@ public:
 	LLDir_Linux();
 	virtual ~LLDir_Linux();
 
-	virtual void initAppDirs(const std::string &app_name);
+	/*virtual*/ void initAppDirs(const std::string &app_name,
+		const std::string& app_read_only_data_dir);
 public:	
 	virtual std::string getCurPath();
 	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask);
 	virtual BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap);
 	virtual void getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname);
 	/*virtual*/ BOOL fileExists(const std::string &filename) const;
+
+	/*virtual*/ std::string getLLPluginLauncher();
+	/*virtual*/ std::string getLLPluginFilename(std::string base_name);
 
 private:
 	DIR *mDirp;

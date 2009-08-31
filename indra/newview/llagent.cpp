@@ -32,114 +32,88 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "stdtypes.h"
-#include "stdenums.h"
-
 #include "llagent.h" 
+#include "llagentwearables.h"
 
-#include "llcamera.h"
-#include "llcoordframe.h"
-#include "indra_constants.h"
-#include "llmath.h"
-#include "llcriticaldamp.h"
-#include "llfocusmgr.h"
-#include "llglheaders.h"
-#include "llparcel.h"
-#include "llpermissions.h"
-#include "llregionhandle.h"
-#include "m3math.h"
-#include "m4math.h"
-#include "message.h"
-#include "llquaternion.h"
-#include "v3math.h"
-#include "v4math.h"
-#include "llsmoothstep.h"
-#include "llsdutil.h"
-//#include "vmath.h"
-
-#include "imageids.h"
-#include "llbox.h"
-#include "llbutton.h"
+#include "llanimationstates.h"
 #include "llcallingcard.h"
-#include "llchatbar.h"
 #include "llconsole.h"
 #include "lldrawable.h"
-#include "llface.h"
 #include "llfirstuse.h"
-#include "llfloater.h"
+#include "llfloaterreg.h"
 #include "llfloateractivespeakers.h"
-#include "llfloateravatarinfo.h"
-#include "llfloaterbuildoptions.h"
 #include "llfloatercamera.h"
-#include "llfloaterchat.h"
 #include "llfloatercustomize.h"
 #include "llfloaterdirectory.h"
-#include "llfloatergroupinfo.h"
-#include "llfloatergroups.h"
+
 #include "llfloaterland.h"
-#include "llfloatermap.h"
 #include "llfloatermute.h"
 #include "llfloatersnapshot.h"
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
+
+#include "llgroupactions.h"
+
+#include "llfocusmgr.h"
 #include "llgroupmgr.h"
 #include "llhomelocationresponder.h"
-#include "llhudeffectlookat.h"
+#include "llimview.h"
 #include "llhudmanager.h"
-#include "llinventorymodel.h"
-#include "llinventoryview.h"
 #include "lljoystickbutton.h"
 #include "llmenugl.h"
 #include "llmorphview.h"
 #include "llmoveview.h"
-#include "llnotify.h"
+#include "llparcel.h"
 #include "llquantize.h"
+#include "llrand.h"
+#include "llregionhandle.h"
 #include "llsdutil.h"
 #include "llselectmgr.h"
 #include "llsky.h"
-#include "llrendersphere.h"
+#include "llslurl.h"
+#include "llsmoothstep.h"
+#include "llsidetray.h"
 #include "llstatusbar.h"
-#include "llstartup.h"
-#include "llimview.h"
+#include "llteleportflags.h"
+#include "llteleporthistory.h"
 #include "lltool.h"
 #include "lltoolcomp.h"
-#include "lltoolfocus.h"
-#include "lltoolgrab.h"
 #include "lltoolmgr.h"
-#include "lltoolpie.h"
-#include "lltoolview.h"
-#include "llui.h"			// for make_ui_sound
+#include "lluictrlfactory.h"
 #include "llurldispatcher.h"
+
 #include "llviewercamera.h"
-#include "llviewerinventory.h"
-#include "llviewermenu.h"
-#include "llviewernetwork.h"
+#include "llviewerdisplay.h"
+#include "llviewermediafocus.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
-#include "llviewerparceloverlay.h"
-#include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
-#include "llviewerdisplay.h"
-#include "llvoavatar.h"
-#include "llvoground.h"
-#include "llvosky.h"
-#include "llwearable.h"
-#include "llwearablelist.h"
+#include "llviewercontrol.h"
+#include "llviewerjoystick.h"
+
+#include "llvoavatarself.h"
+#include "llwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
+
 #include "pipeline.h"
-#include "roles_constants.h"
-#include "llviewercontrol.h"
-#include "llappviewer.h"
-#include "llviewerjoystick.h"
-#include "llfollowcam.h"
+#include "lltrans.h"
+#include "llbottomtray.h"
+#include "llnearbychatbar.h"
 #include "stringize.h"
 #include "llcapabilitylistener.h"
+
+#include "llnavigationbar.h" //to show/hide navigation bar when changing mouse look state
+#include "llagentui.h"
 
 using namespace LLVOAvatarDefines;
 
 extern LLMenuBarGL* gMenuBarView;
+
+const BOOL ANIMATE = TRUE;
+const U8 AGENT_STATE_TYPING =	0x04;
+const U8 AGENT_STATE_EDITING =  0x10;
 
 //drone wandering constants
 const F32 MAX_WANDER_TIME = 20.f;						// seconds
@@ -216,7 +190,7 @@ const F64 CHAT_AGE_FAST_RATE = 3.0;
 // The agent instance.
 LLAgent gAgent;
 
-//
+//--------------------------------------------------------------------
 // Statics
 //
 
@@ -242,6 +216,19 @@ void LLAgentFriendObserver::changed(U32 mask)
 	}
 }
 
+bool handleSlowMotionAnimation(const LLSD& newvalue)
+{
+	if (newvalue.asBoolean())
+	{
+		gAgent.getAvatarObject()->setAnimTimeFactor(0.2f);
+	}
+	else
+	{
+		gAgent.getAvatarObject()->setAnimTimeFactor(1.0f);
+	}
+	return true;
+}
+
 // ************************************************************
 // Enabled this definition to compile a 'hacked' viewer that
 // locally believes the end user has godlike powers.
@@ -264,19 +251,12 @@ LLAgent::LLAgent() :
 	mHideGroupTitle(FALSE),
 	mGroupID(),
 
-	mMapOriginX(0.F),
-	mMapOriginY(0.F),
-	mMapWidth(0),
-	mMapHeight(0),
-
 	mLookAt(NULL),
 	mPointAt(NULL),
 
 	mHUDTargetZoom(1.f),
 	mHUDCurZoom(1.f),
 	mInitialized(FALSE),
-	mNumPendingQueries(0),
-	mActiveCacheQueries(NULL),
 	mForceMouselook(FALSE),
 
 	mDoubleTapRunTimer(),
@@ -304,6 +284,8 @@ LLAgent::LLAgent() :
 	mLastCameraMode( CAMERA_MODE_THIRD_PERSON ),
 	mViewsPushed(FALSE),
 
+	mCameraPreset(CAMERA_PRESET_REAR_VIEW),
+
 	mCustomAnim(FALSE),
 	mShowAvatar(TRUE),
 	mCameraAnimating( FALSE ),
@@ -317,7 +299,6 @@ LLAgent::LLAgent() :
 	mCameraFocusOffset(),
 	mCameraFOVDefault(DEFAULT_FIELD_OF_VIEW),
 
-	mCameraOffsetDefault(),
 	mCameraCollidePlane(),
 
 	mCurrentCameraDistance(2.f),		// meters, set in init()
@@ -384,7 +365,7 @@ LLAgent::LLAgent() :
 	mAutoPilotFinishedCallback(NULL),
 	mAutoPilotCallbackData(NULL),
 	
-	mEffectColor(0.f, 1.f, 1.f, 1.f),
+	mEffectColor(LLColor4(0.f, 1.f, 1.f, 1.f)),
 
 	mHaveHomePosition(FALSE),
 	mHomeRegionHandle( 0 ),
@@ -395,22 +376,12 @@ LLAgent::LLAgent() :
 	mFirstLogin(FALSE),
 	mGenderChosen(FALSE),
 
-	mAgentWearablesUpdateSerialNum(0),
-	mWearablesLoaded(FALSE),
-	mTextureCacheQueryID(0),
 	mAppearanceSerialNum(0)
 {
-	U32 i;
-	for (i = 0; i < TOTAL_CONTROLS; i++)
+	for (U32 i = 0; i < TOTAL_CONTROLS; i++)
 	{
 		mControlsTakenCount[i] = 0;
 		mControlsTakenPassedOnCount[i] = 0;
-	}
-
-	mActiveCacheQueries = new S32[BAKED_NUM_INDICES];
-	for (i = 0; i < (U32)BAKED_NUM_INDICES; i++)
-	{
-		mActiveCacheQueries[i] = 0;
 	}
 
 	mFollowCam.setMaxCameraDistantFromSubject( MAX_CAMERA_DISTANCE_FROM_AGENT );
@@ -422,6 +393,9 @@ LLAgent::LLAgent() :
 //-----------------------------------------------------------------------------
 void LLAgent::init()
 {
+	gSavedSettings.declareBOOL("SlowMotionAnimation", FALSE, "Declared in code", FALSE);
+	gSavedSettings.getControl("SlowMotionAnimation")->getSignal()->connect(boost::bind(&handleSlowMotionAnimation, _2));
+	
 	mDrawDistance = gSavedSettings.getF32("RenderFarClip");
 
 	// *Note: this is where LLViewerCamera::getInstance() used to be constructed.
@@ -430,22 +404,33 @@ void LLAgent::init()
 	// Leave at 0.1 meters until we have real near clip management
 	LLViewerCamera::getInstance()->setNear(0.1f);
 	LLViewerCamera::getInstance()->setFar(mDrawDistance);			// if you want to change camera settings, do so in camera.h
-	LLViewerCamera::getInstance()->setAspect( gViewerWindow->getDisplayAspectRatio() );		// default, overridden in LLViewerWindow::reshape
+	LLViewerCamera::getInstance()->setAspect( gViewerWindow->getWorldViewAspectRatio() );		// default, overridden in LLViewerWindow::reshape
 	LLViewerCamera::getInstance()->setViewHeightInPixels(768);			// default, overridden in LLViewerWindow::reshape
 
 	setFlying( gSavedSettings.getBOOL("FlyingAtExit") );
 
 	mCameraFocusOffsetTarget = LLVector4(gSavedSettings.getVector3("CameraOffsetBuild"));
-	mCameraOffsetDefault = gSavedSettings.getVector3("CameraOffsetDefault");
+	
+	mCameraPreset = (ECameraPreset) gSavedSettings.getU32("CameraPreset");
+
+	mCameraOffsetInitial[CAMERA_PRESET_REAR_VIEW] = gSavedSettings.getVector3("CameraOffsetRearView");
+	mCameraOffsetInitial[CAMERA_PRESET_FRONT_VIEW] = gSavedSettings.getVector3("CameraOffsetFrontView");
+	mCameraOffsetInitial[CAMERA_PRESET_GROUP_VIEW] = gSavedSettings.getVector3("CameraOffsetGroupView");
+
+	mFocusOffsetInitial[CAMERA_PRESET_REAR_VIEW] = gSavedSettings.getVector3d("FocusOffsetRearView");
+	mFocusOffsetInitial[CAMERA_PRESET_FRONT_VIEW] = gSavedSettings.getVector3d("FocusOffsetFrontView");
+	mFocusOffsetInitial[CAMERA_PRESET_GROUP_VIEW] = gSavedSettings.getVector3d("FocusOffsetGroupView");
+
 	mCameraCollidePlane.clearVec();
-	mCurrentCameraDistance = mCameraOffsetDefault.magVec() * gSavedSettings.getF32("CameraOffsetScale");
+	mCurrentCameraDistance = getCameraOffsetInitial().magVec() * gSavedSettings.getF32("CameraOffsetScale");
 	mTargetCameraDistance = mCurrentCameraDistance;
 	mCameraZoomFraction = 1.f;
 	mTrackFocusObject = gSavedSettings.getBOOL("TrackFocusObject");
 
-//	LLDebugVarMessageBox::show("Camera Lag", &CAMERA_FOCUS_HALF_LIFE, 0.5f, 0.01f);
+	mEffectColor = LLUIColorTable::instance().getColor("EffectColor");
 
-	mEffectColor = gSavedSettings.getColor4("EffectColor");
+	gSavedSettings.getControl("PreferredMaturity")->getValidateSignal()->connect(boost::bind(&LLAgent::validateMaturity, this, _2));
+	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLAgent::handleMaturity, this, _2));
 	
 	mInitialized = TRUE;
 }
@@ -456,7 +441,9 @@ void LLAgent::init()
 void LLAgent::cleanup()
 {
 	setSitCamera(LLUUID::null);
+
 	mAvatarObject = NULL;
+
 	if(mLookAt)
 	{
 		mLookAt->markDead() ;
@@ -477,9 +464,6 @@ void LLAgent::cleanup()
 LLAgent::~LLAgent()
 {
 	cleanup();
-
-	delete [] mActiveCacheQueries;
-	mActiveCacheQueries = NULL;
 
 	// *Note: this is where LLViewerCamera::getInstance() used to be deleted.
 }
@@ -529,12 +513,16 @@ void LLAgent::resetView(BOOL reset_camera, BOOL change_camera)
 			LLViewerJoystick::getInstance()->moveAvatar(true);
 		}
 
-		gFloaterTools->close();
+		//Camera Tool is needed for Free Camera Control Mode
+		if (!LLFloaterCamera::inFreeCameraMode())
+		{
+			LLFloaterReg::hideInstance("build");
+
+			// Switch back to basic toolset
+			LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
+		}
 		
 		gViewerWindow->showCursor();
-
-		// Switch back to basic toolset
-		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 	}
 
 
@@ -785,7 +773,7 @@ void LLAgent::setFlying(BOOL fly)
 		}
 
 		// don't allow taking off while sitting
-		if (fly && mAvatarObject->mIsSitting)
+		if (fly && mAvatarObject->isSitting())
 		{
 			return;
 		}
@@ -814,6 +802,11 @@ void LLAgent::setFlying(BOOL fly)
 		clearControlFlags(AGENT_CONTROL_FLY);
 		gSavedSettings.setBOOL("FlyBtnState", FALSE);
 	}
+
+
+	// Update Movement Controls according to Fly mode
+	LLFloaterMove::setFlyingMode(fly);
+
 	mbFlagsDirty = TRUE;
 }
 
@@ -822,12 +815,29 @@ void LLAgent::setFlying(BOOL fly)
 //-----------------------------------------------------------------------------
 // toggleFlying()
 //-----------------------------------------------------------------------------
+// static
 void LLAgent::toggleFlying()
 {
-	BOOL fly = !(mControlFlags & AGENT_CONTROL_FLY);
+	BOOL fly = !(gAgent.mControlFlags & AGENT_CONTROL_FLY);
 
-	setFlying( fly );
-	resetView();
+	gAgent.setFlying( fly );
+	gAgent.resetView();
+}
+
+// static
+bool LLAgent::enableFlying()
+{
+	BOOL sitting = FALSE;
+	if (gAgent.getAvatarObject())
+	{
+		sitting = gAgent.getAvatarObject()->isSitting();
+	}
+	return !sitting;
+}
+
+void LLAgent::standUp()
+{
+	setControlFlags(AGENT_CONTROL_STAND_UP);
 }
 
 
@@ -904,6 +914,8 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	mRegionsVisited.insert(handle);
 
 	LLSelectMgr::getInstance()->updateSelectionCenter();
+
+	LLFloaterMove::sUpdateFlyingStatus();
 }
 
 
@@ -926,25 +938,6 @@ LLHost LLAgent::getRegionHost() const
 	{
 		return LLHost::invalid;
 	}
-}
-
-//-----------------------------------------------------------------------------
-// getSLURL()
-// returns empty() if getRegion() == NULL
-//-----------------------------------------------------------------------------
-std::string LLAgent::getSLURL() const
-{
-	std::string slurl;
-	LLViewerRegion *regionp = getRegion();
-	if (regionp)
-	{
-		LLVector3d agentPos = getPositionGlobal();
-		S32 x = llround( (F32)fmod( agentPos.mdV[VX], (F64)REGION_WIDTH_METERS ) );
-		S32 y = llround( (F32)fmod( agentPos.mdV[VY], (F64)REGION_WIDTH_METERS ) );
-		S32 z = llround( (F32)agentPos.mdV[VZ] );
-		slurl = LLURLDispatcher::buildSLURL(regionp->getName(), x, y, z);
-	}
-	return slurl;
 }
 
 //-----------------------------------------------------------------------------
@@ -1260,7 +1253,7 @@ F32 LLAgent::clampPitchToLimits(F32 angle)
 
 	F32 angle_from_skyward = acos( mFrameAgent.getAtAxis() * skyward );
 
-	if (mAvatarObject.notNull() && mAvatarObject->mIsSitting)
+	if (mAvatarObject.notNull() && mAvatarObject->isSitting())
 	{
 		look_down_limit = 130.f * DEG_TO_RAD;
 	}
@@ -1890,7 +1883,7 @@ void LLAgent::cameraOrbitIn(const F32 meters)
 {
 	if (mFocusOnAvatar && mCameraMode == CAMERA_MODE_THIRD_PERSON)
 	{
-		F32 camera_offset_dist = llmax(0.001f, mCameraOffsetDefault.magVec() * gSavedSettings.getF32("CameraOffsetScale"));
+		F32 camera_offset_dist = llmax(0.001f, getCameraOffsetInitial().magVec() * gSavedSettings.getF32("CameraOffsetScale"));
 		
 		mCameraZoomFraction = (mTargetCameraDistance - meters) / camera_offset_dist;
 
@@ -2124,8 +2117,7 @@ void LLAgent::setAFK()
 		gAwayTimer.start();
 		if (gAFKMenu)
 		{
-			//*TODO:Translate
-			gAFKMenu->setLabel(std::string("Set Not Away"));
+			gAFKMenu->setLabel(LLTrans::getString("AvatarSetNotAway"));
 		}
 	}
 }
@@ -2148,8 +2140,7 @@ void LLAgent::clearAFK()
 		clearControlFlags(AGENT_CONTROL_AWAY);
 		if (gAFKMenu)
 		{
-			//*TODO:Translate
-			gAFKMenu->setLabel(std::string("Set Away"));
+			gAFKMenu->setLabel(LLTrans::getString("AvatarSetAway"));
 		}
 	}
 }
@@ -2171,10 +2162,8 @@ void LLAgent::setBusy()
 	mIsBusy = TRUE;
 	if (gBusyMenu)
 	{
-		//*TODO:Translate
-		gBusyMenu->setLabel(std::string("Set Not Busy"));
+		gBusyMenu->setLabel(LLTrans::getString("AvatarSetNotBusy"));
 	}
-	LLFloaterMute::getInstance()->updateButtons();
 }
 
 //-----------------------------------------------------------------------------
@@ -2186,10 +2175,8 @@ void LLAgent::clearBusy()
 	sendAnimationRequest(ANIM_AGENT_BUSY, ANIM_REQUEST_STOP);
 	if (gBusyMenu)
 	{
-		//*TODO:Translate
-		gBusyMenu->setLabel(std::string("Set Busy"));
+		gBusyMenu->setLabel(LLTrans::getString("AvatarSetBusy"));
 	}
-	LLFloaterMute::getInstance()->updateButtons();
 }
 
 //-----------------------------------------------------------------------------
@@ -2512,13 +2499,11 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 void LLAgent::propagate(const F32 dt)
 {
 	// Update UI based on agent motion
-	LLFloaterMove *floater_move = LLFloaterMove::getInstance();
+	LLFloaterMove *floater_move = LLFloaterReg::findTypedInstance<LLFloaterMove>("moveview");
 	if (floater_move)
 	{
 		floater_move->mForwardButton   ->setToggleState( mAtKey > 0 || mWalkKey > 0 );
 		floater_move->mBackwardButton  ->setToggleState( mAtKey < 0 || mWalkKey < 0 );
-		floater_move->mSlideLeftButton ->setToggleState( mLeftKey > 0 );
-		floater_move->mSlideRightButton->setToggleState( mLeftKey < 0 );
 		floater_move->mTurnLeftButton  ->setToggleState( mYawKey > 0.f );
 		floater_move->mTurnRightButton ->setToggleState( mYawKey < 0.f );
 		floater_move->mMoveUpButton    ->setToggleState( mUpKey > 0 );
@@ -2603,7 +2588,7 @@ void LLAgent::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 		else
 		{
 			// *FIX: rotate mframeagent by sit object's rotation?
-			LLQuaternion look_rotation = mAvatarObject->mIsSitting ? mAvatarObject->getRenderRotation() : mFrameAgent.getQuaternion(); // use camera's current rotation
+			LLQuaternion look_rotation = mAvatarObject->isSitting() ? mAvatarObject->getRenderRotation() : mFrameAgent.getQuaternion(); // use camera's current rotation
 			LLVector3 look_offset = LLVector3(2.f, 0.f, 0.f) * look_rotation * av_inv_rot;
 			setLookAt(LOOKAT_TARGET_IDLE, mAvatarObject, look_offset);
 		}
@@ -2669,7 +2654,7 @@ std::ostream& operator<<(std::ostream &s, const LLAgent &agent)
 //-----------------------------------------------------------------------------
 // setAvatarObject()
 //-----------------------------------------------------------------------------
-void LLAgent::setAvatarObject(LLVOAvatar *avatar)			
+void LLAgent::setAvatarObject(LLVOAvatarSelf *avatar)			
 { 
 	mAvatarObject = avatar;
 
@@ -2696,8 +2681,6 @@ void LLAgent::setAvatarObject(LLVOAvatar *avatar)
 	{
 		mPointAt->setSourceObject(avatar);
 	}
-
-	sendAgentWearablesRequest();
 }
 
 // TRUE if your own avatar needs to be rendered.  Usually only
@@ -2748,7 +2731,7 @@ void LLAgent::startTyping()
 	{
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_START);
 	}
-	gChatBar->sendChatFromViewer("", CHAT_TYPE_START, FALSE);
+	LLNearbyChatBar::getInstance()->sendChatFromViewer("", CHAT_TYPE_START, FALSE);
 }
 
 //-----------------------------------------------------------------------------
@@ -2760,7 +2743,7 @@ void LLAgent::stopTyping()
 	{
 		clearRenderState(AGENT_STATE_TYPING);
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_STOP);
-		gChatBar->sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
+		LLNearbyChatBar::getInstance()->sendChatFromViewer("", CHAT_TYPE_STOP, FALSE);
 	}
 }
 
@@ -2814,13 +2797,6 @@ U8 LLAgent::getRenderState()
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-static const LLFloaterView::skip_list_t& get_skip_list()
-{
-	static LLFloaterView::skip_list_t skip_list;
-	skip_list.insert(LLFloaterMap::getInstance());
-	return skip_list;
-}
-
 //-----------------------------------------------------------------------------
 // endAnimationUpdateUI()
 //-----------------------------------------------------------------------------
@@ -2839,17 +2815,33 @@ void LLAgent::endAnimationUpdateUI()
 		gViewerWindow->showCursor();
 		// show menus
 		gMenuBarView->setVisible(TRUE);
+		LLNavigationBar::getInstance()->setVisible(TRUE);
 		gStatusBar->setVisibleForMouselook(true);
 
+		LLBottomTray::getInstance()->setVisible(TRUE);
+
+		LLSideTray::getInstance()->setVisible(TRUE);
+
+		LLPanelStandStopFlying::getInstance()->setVisible(TRUE);
+
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
+
+		LLFloaterCamera::toPrevModeIfInAvatarViewMode();
 
 		// Only pop if we have pushed...
 		if (TRUE == mViewsPushed)
 		{
+#if 0 // Use this once all floaters are registered
+			LLFloaterReg::restoreVisibleInstances();
+#else // Use this for now
+			LLFloaterView::skip_list_t skip_list;
+			skip_list.insert(LLFloaterReg::findInstance("mini_map"));
+			gFloaterView->popVisibleAll(skip_list);
+#endif
 			mViewsPushed = FALSE;
-			gFloaterView->popVisibleAll(get_skip_list());
 		}
 
+		
 		gAgent.setLookAt(LOOKAT_TARGET_CLEAR);
 		if( gMorphView )
 		{
@@ -2891,13 +2883,6 @@ void LLAgent::endAnimationUpdateUI()
 
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 
-		// HACK: If we're quitting, and we were in customize avatar, don't
-		// let the mini-map go visible again. JC
-        if (!LLAppViewer::instance()->quitRequested())
-		{
-			LLFloaterMap::getInstance()->popVisible();
-		}
-
 		if( gMorphView )
 		{
 			gMorphView->setVisible( FALSE );
@@ -2924,7 +2909,14 @@ void LLAgent::endAnimationUpdateUI()
 	{
 		// hide menus
 		gMenuBarView->setVisible(FALSE);
+		LLNavigationBar::getInstance()->setVisible(FALSE);
 		gStatusBar->setVisibleForMouselook(false);
+
+		LLBottomTray::getInstance()->setVisible(FALSE);
+
+		LLSideTray::getInstance()->setVisible(FALSE);
+
+		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
 
 		// clear out camera lag effect
 		mCameraLag.clearVec();
@@ -2932,18 +2924,31 @@ void LLAgent::endAnimationUpdateUI()
 		// JC - Added for always chat in third person option
 		gFocusMgr.setKeyboardFocus(NULL);
 
+		//Making sure Camera Controls floater is in the right state 
+		//when entering Mouse Look using wheel scrolling
+		LLFloaterCamera::updateIfNotInAvatarViewMode();
+
 		LLToolMgr::getInstance()->setCurrentToolset(gMouselookToolset);
 
 		mViewsPushed = TRUE;
 
-		gFloaterView->pushVisibleAll(FALSE, get_skip_list());
+		// hide all floaters except the mini map
+
+#if 0 // Use this once all floaters are registered
+		std::set<std::string> exceptions;
+		exceptions.insert("mini_map");
+		LLFloaterReg::hideVisibleInstances(exceptions);
+#else // Use this for now
+		LLFloaterView::skip_list_t skip_list;
+		skip_list.insert(LLFloaterReg::findInstance("mini_map"));
+		gFloaterView->pushVisibleAll(FALSE, skip_list);
+#endif
 
 		if( gMorphView )
 		{
 			gMorphView->setVisible(FALSE);
 		}
 
-		gIMMgr->setFloaterOpen( FALSE );
 		gConsole->setVisible( TRUE );
 
 		if (mAvatarObject.notNull())
@@ -2992,15 +2997,6 @@ void LLAgent::endAnimationUpdateUI()
 	{
 		LLToolMgr::getInstance()->setCurrentToolset(gFaceEditToolset);
 
-		LLFloaterMap::getInstance()->pushVisible(FALSE);
-		/*
-		LLView *view;
-		for (view = gFloaterView->getFirstChild(); view; view = gFloaterView->getNextChild())
-		{
-			view->pushVisible(FALSE);
-		}
-		*/
-
 		if( gMorphView )
 		{
 			gMorphView->setVisible( TRUE );
@@ -3042,7 +3038,7 @@ void LLAgent::updateCamera()
 	validateFocusObject();
 
 	if (mAvatarObject.notNull() && 
-		mAvatarObject->mIsSitting &&
+		mAvatarObject->isSitting() &&
 		camera_mode == CAMERA_MODE_MOUSELOOK)
 	{
 		//Ventrella
@@ -3073,21 +3069,25 @@ void LLAgent::updateCamera()
 	}
 
 	// Update UI with our camera inputs
-	LLFloaterCamera::getInstance()->mRotate->setToggleState(
+	LLFloaterCamera* camera_floater = LLFloaterReg::findTypedInstance<LLFloaterCamera>("camera");
+	if (camera_floater)
+	{
+		camera_floater->mRotate->setToggleState(
 		mOrbitRightKey > 0.f,	// left
 		mOrbitUpKey > 0.f,		// top
 		mOrbitLeftKey > 0.f,	// right
 		mOrbitDownKey > 0.f);	// bottom
 
-	LLFloaterCamera::getInstance()->mZoom->setToggleState( 
+		camera_floater->mZoom->setToggleState( 
 		mOrbitInKey > 0.f,		// top
 		mOrbitOutKey > 0.f);	// bottom
 
-	LLFloaterCamera::getInstance()->mTrack->setToggleState(
+		camera_floater->mTrack->setToggleState(
 		mPanLeftKey > 0.f,		// left
 		mPanUpKey > 0.f,		// top
 		mPanRightKey > 0.f,		// right
 		mPanDownKey > 0.f);		// bottom
+	}
 
 	// Handle camera movement based on keyboard.
 	const F32 ORBIT_OVER_RATE = 90.f * DEG_TO_RAD;			// radians per second
@@ -3163,7 +3163,7 @@ void LLAgent::updateCamera()
 			// (2) focus, and (3) upvector. They can then be queried elsewhere in llAgent.
 			//--------------------------------------------------------------------------------
 			// *TODO: use combined rotation of frameagent and sit object
-			LLQuaternion avatarRotationForFollowCam = mAvatarObject->mIsSitting ? mAvatarObject->getRenderRotation() : mFrameAgent.getQuaternion();
+			LLQuaternion avatarRotationForFollowCam = mAvatarObject->isSitting() ? mAvatarObject->getRenderRotation() : mFrameAgent.getQuaternion();
 
 			LLFollowCamParams* current_cam = LLFollowCamMgr::getActiveFollowCamParams();
 			if (current_cam)
@@ -3343,7 +3343,7 @@ void LLAgent::updateCamera()
 	}
 	mLastPositionGlobal = global_pos;
 	
-	if (LLVOAvatar::sVisibleInFirstPerson && mAvatarObject.notNull() && !mAvatarObject->mIsSitting && cameraMouselook())
+	if (LLVOAvatar::sVisibleInFirstPerson && mAvatarObject.notNull() && !mAvatarObject->isSitting() && cameraMouselook())
 	{
 		LLVector3 head_pos = mAvatarObject->mHeadp->getWorldPosition() + 
 			LLVector3(0.08f, 0.f, 0.05f) * mAvatarObject->mHeadp->getWorldRotation() + 
@@ -3523,7 +3523,7 @@ LLVector3d LLAgent::calcFocusPositionTargetGlobal()
 		}
 		return mFocusTargetGlobal;
 	}
-	else if (mSitCameraEnabled && mAvatarObject.notNull() && mAvatarObject->mIsSitting && mSitCameraReferenceObject.notNull())
+	else if (mSitCameraEnabled && mAvatarObject.notNull() && mAvatarObject->isSitting() && mSitCameraReferenceObject.notNull())
 	{
 		// sit camera
 		LLVector3 object_pos = mSitCameraReferenceObject->getRenderPosition();
@@ -3542,7 +3542,6 @@ LLVector3d LLAgent::calcThirdPersonFocusOffset()
 {
 	// ...offset from avatar
 	LLVector3d focus_offset;
-	focus_offset.setVec(gSavedSettings.getVector3("FocusOffsetDefault"));
 
 	LLQuaternion agent_rot = mFrameAgent.getQuaternion();
 	if (!mAvatarObject.isNull() && mAvatarObject->getParent())
@@ -3550,7 +3549,7 @@ LLVector3d LLAgent::calcThirdPersonFocusOffset()
 		agent_rot *= ((LLViewerObject*)(mAvatarObject->getParent()))->getRenderRotation();
 	}
 
-	focus_offset = focus_offset * agent_rot;
+	focus_offset = mFocusOffsetInitial[mCameraPreset] * agent_rot;
 	return focus_offset;
 }
 
@@ -3627,7 +3626,6 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 	LLVector3d	frame_center_global = mAvatarObject.isNull() ? getPositionGlobal() 
 															 : getPosGlobalFromAgent(mAvatarObject->mRoot.getWorldPosition());
 		
-	LLVector3   upAxis = getUpAxis();
 	BOOL		isConstrained = FALSE;
 	LLVector3d	head_offset;
 	head_offset.setVec(mThirdPersonHeadOffset);
@@ -3647,7 +3645,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 			return LLVector3d::zero;
 		}
 		head_offset.clearVec();
-		if (mAvatarObject->mIsSitting && mAvatarObject->getParent())
+		if (mAvatarObject->isSitting() && mAvatarObject->getParent())
 		{
 			mAvatarObject->updateHeadOffset();
 			head_offset.mdV[VX] = mAvatarObject->mHeadOffset.mV[VX];
@@ -3661,7 +3659,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 		else
 		{
 			head_offset.mdV[VZ] = mAvatarObject->mHeadOffset.mV[VZ];
-			if (mAvatarObject->mIsSitting)
+			if (mAvatarObject->isSitting())
 			{
 				head_offset.mdV[VZ] += 0.1;
 			}
@@ -3677,7 +3675,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 
 		if (mSitCameraEnabled 
 			&& mAvatarObject.notNull() 
-			&& mAvatarObject->mIsSitting 
+			&& mAvatarObject->isSitting() 
 			&& mSitCameraReferenceObject.notNull())
 		{
 			// sit camera
@@ -3690,7 +3688,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 		}
 		else
 		{
-			local_camera_offset = mCameraZoomFraction * mCameraOffsetDefault * gSavedSettings.getF32("CameraOffsetScale");
+			local_camera_offset = mCameraZoomFraction * getCameraOffsetInitial() * gSavedSettings.getF32("CameraOffsetScale");
 			
 			// are we sitting down?
 			if (mAvatarObject.notNull() && mAvatarObject->getParent())
@@ -3709,7 +3707,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 				local_camera_offset = mFrameAgent.rotateToAbsolute( local_camera_offset );
 			}
 
-			if (!mCameraCollidePlane.isExactlyZero() && (mAvatarObject.isNull() || !mAvatarObject->mIsSitting))
+			if (!mCameraCollidePlane.isExactlyZero() && (mAvatarObject.isNull() || !mAvatarObject->isSitting()))
 			{
 				LLVector3 plane_normal;
 				plane_normal.setVec(mCameraCollidePlane.mV);
@@ -3887,6 +3885,12 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 }
 
 
+LLVector3 LLAgent::getCameraOffsetInitial()
+{
+	return mCameraOffsetInitial[mCameraPreset];
+}
+
+
 //-----------------------------------------------------------------------------
 // handleScrollWheel()
 //-----------------------------------------------------------------------------
@@ -3921,10 +3925,12 @@ void LLAgent::handleScrollWheel(S32 clicks)
 		}
 		else if (mFocusOnAvatar && mCameraMode == CAMERA_MODE_THIRD_PERSON)
 		{
-			F32 current_zoom_fraction = mTargetCameraDistance / (mCameraOffsetDefault.magVec() * gSavedSettings.getF32("CameraOffsetScale"));
+			F32 camera_offset_initial_mag = getCameraOffsetInitial().magVec();
+			
+			F32 current_zoom_fraction = mTargetCameraDistance / (camera_offset_initial_mag * gSavedSettings.getF32("CameraOffsetScale"));
 			current_zoom_fraction *= 1.f - pow(ROOT_ROOT_TWO, clicks);
 			
-			cameraOrbitIn(current_zoom_fraction * mCameraOffsetDefault.magVec() * gSavedSettings.getF32("CameraOffsetScale"));
+			cameraOrbitIn(current_zoom_fraction * camera_offset_initial_mag * gSavedSettings.getF32("CameraOffsetScale"));
 		}
 		else
 		{
@@ -4135,7 +4141,7 @@ void LLAgent::changeCameraToThirdPerson(BOOL animate)
 
 	if (mAvatarObject.notNull())
 	{
-		if (!mAvatarObject->mIsSitting)
+		if (!mAvatarObject->isSitting())
 		{
 			mAvatarObject->mPelvisp->setPosition(LLVector3::zero);
 		}
@@ -4217,7 +4223,7 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL camera_ani
 		return;
 	}
 
-	setControlFlags(AGENT_CONTROL_STAND_UP); // force stand up
+	standUp(); // force stand up
 	gViewerWindow->getWindow()->resetBusyCount();
 
 	if (gFaceEditToolset)
@@ -4255,7 +4261,7 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL camera_ani
 		gFocusMgr.setKeyboardFocus( NULL );
 		gFocusMgr.setMouseCapture( NULL );
 
-		LLVOAvatar::onCustomizeStart();
+		LLVOAvatarSelf::onCustomizeStart();
 	}
 
 	if (mAvatarObject.notNull())
@@ -4294,6 +4300,20 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL camera_ani
 		endAnimationUpdateUI();
 	}
 
+}
+
+
+void LLAgent::switchCameraPreset(ECameraPreset preset)
+{
+	//zoom is supposed to be reset for the front and group views
+	mCameraZoomFraction = 1.f;
+
+	//focusing on avatar in that case means following him on movements
+	mFocusOnAvatar = TRUE;
+
+	mCameraPreset = preset;
+
+	gSavedSettings.setU32("CameraPreset", mCameraPreset);
 }
 
 
@@ -4940,6 +4960,9 @@ int LLAgent::convertTextToMaturity(char text)
 
 bool LLAgent::sendMaturityPreferenceToServer(int preferredMaturity)
 {
+	if (!getRegion())
+		return false;
+	
 	// Update agent access preference on the server
 	std::string url = getRegion()->getCapability("UpdateAgentInformation");
 	if (!url.empty())
@@ -4999,15 +5022,19 @@ const LLAgentAccess& LLAgent::getAgentAccess()
 	return mAgentAccess;
 }
 
-
-void LLAgent::buildFullname(std::string& name) const
+bool LLAgent::validateMaturity(const LLSD& newvalue)
 {
-	if (mAvatarObject.notNull())
-	{
-		name = mAvatarObject->getFullname();
-	}
+	return mAgentAccess.canSetMaturity(newvalue.asInteger());
 }
 
+void LLAgent::handleMaturity(const LLSD& newvalue)
+{
+	sendMaturityPreferenceToServer(newvalue.asInteger());
+}
+
+//----------------------------------------------------------------------------
+
+//*TODO remove, is not used anywhere as of August 20, 2009
 void LLAgent::buildFullnameAndTitle(std::string& name) const
 {
 	if (isGroupMember())
@@ -5159,54 +5186,6 @@ BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOO
 		}
 	}
 	return FALSE;
-}
-
-// utility to build a location string
-void LLAgent::buildLocationString(std::string& str)
-{
-	const LLVector3& agent_pos_region = getPositionAgent();
-	S32 pos_x = S32(agent_pos_region.mV[VX]);
-	S32 pos_y = S32(agent_pos_region.mV[VY]);
-	S32 pos_z = S32(agent_pos_region.mV[VZ]);
-
-	// Round the numbers based on the velocity
-	LLVector3 agent_velocity = getVelocity();
-	F32 velocity_mag_sq = agent_velocity.magVecSquared();
-
-	const F32 FLY_CUTOFF = 6.f;		// meters/sec
-	const F32 FLY_CUTOFF_SQ = FLY_CUTOFF * FLY_CUTOFF;
-	const F32 WALK_CUTOFF = 1.5f;	// meters/sec
-	const F32 WALK_CUTOFF_SQ = WALK_CUTOFF * WALK_CUTOFF;
-
-	if (velocity_mag_sq > FLY_CUTOFF_SQ)
-	{
-		pos_x -= pos_x % 4;
-		pos_y -= pos_y % 4;
-	}
-	else if (velocity_mag_sq > WALK_CUTOFF_SQ)
-	{
-		pos_x -= pos_x % 2;
-		pos_y -= pos_y % 2;
-	}
-
-	// create a defult name and description for the landmark
-	std::string buffer;
-	if( LLViewerParcelMgr::getInstance()->getAgentParcelName().empty() )
-	{
-		// the parcel doesn't have a name
-		buffer = llformat("%.32s (%d, %d, %d)",
-						  getRegion()->getName().c_str(),
-						  pos_x, pos_y, pos_z);
-	}
-	else
-	{
-		// the parcel has a name, so include it in the landmark name
-		buffer = llformat("%.32s, %.32s (%d, %d, %d)",
-						  LLViewerParcelMgr::getInstance()->getAgentParcelName().c_str(),
-						  getRegion()->getName().c_str(),
-						  pos_x, pos_y, pos_z);
-	}
-	str = buffer;
 }
 
 LLQuaternion LLAgent::getHeadRotation()
@@ -5370,30 +5349,6 @@ BOOL LLAgent::allowOperation(PermissionBit op,
 	return perm.allowOperationBy(op, agent_proxy, group_proxy);
 }
 
-
-void LLAgent::getName(std::string& name)
-{
-	name.clear();
-
-	if (mAvatarObject.notNull())
-	{
-		LLNameValue *first_nv = mAvatarObject->getNVPair("FirstName");
-		LLNameValue *last_nv = mAvatarObject->getNVPair("LastName");
-		if (first_nv && last_nv)
-		{
-			name = first_nv->printData() + " " + last_nv->printData();
-		}
-		else
-		{
-			llwarns << "Agent is missing FirstName and/or LastName nv pair." << llendl;
-		}
-	}
-	else
-	{
-		name = gSavedSettings.getString("FirstName") + " " + gSavedSettings.getString("LastName");
-	}
-}
-
 const LLColor4 &LLAgent::getEffectColor()
 {
 	return mEffectColor;
@@ -5409,16 +5364,46 @@ void LLAgent::initOriginGlobal(const LLVector3d &origin_global)
 	mAgentOriginGlobal = origin_global;
 }
 
+BOOL LLAgent::leftButtonGrabbed() const	
+{ 
+	return (!cameraMouselook() && mControlsTakenCount[CONTROL_LBUTTON_DOWN_INDEX] > 0) 
+		|| (cameraMouselook() && mControlsTakenCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0)
+		|| (!cameraMouselook() && mControlsTakenPassedOnCount[CONTROL_LBUTTON_DOWN_INDEX] > 0)
+		|| (cameraMouselook() && mControlsTakenPassedOnCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0);
+}
+
+BOOL LLAgent::rotateGrabbed() const		
+{ 
+	return (mControlsTakenCount[CONTROL_YAW_POS_INDEX] > 0)
+		|| (mControlsTakenCount[CONTROL_YAW_NEG_INDEX] > 0); 
+}
+
+BOOL LLAgent::forwardGrabbed() const
+{ 
+	return (mControlsTakenCount[CONTROL_AT_POS_INDEX] > 0); 
+}
+
+BOOL LLAgent::backwardGrabbed() const
+{ 
+	return (mControlsTakenCount[CONTROL_AT_NEG_INDEX] > 0); 
+}
+
+BOOL LLAgent::upGrabbed() const		
+{ 
+	return (mControlsTakenCount[CONTROL_UP_POS_INDEX] > 0); 
+}
+
+BOOL LLAgent::downGrabbed() const	
+{ 
+	return (mControlsTakenCount[CONTROL_UP_NEG_INDEX] > 0); 
+}
+
 void update_group_floaters(const LLUUID& group_id)
 {
-	LLFloaterGroupInfo::refreshGroup(group_id);
-
-	// update avatar info
-	LLFloaterAvatarInfo* fa = LLFloaterAvatarInfo::getInstance(gAgent.getID());
-	if(fa)
-	{
-		fa->resetGroupList();
-	}
+	
+	LLGroupActions::refresh(group_id);
+	//*TODO Implement group update for Profile View 
+	// still actual as of July 31, 2009 (DZ)
 
 	if (gIMMgr)
 	{
@@ -5464,7 +5449,7 @@ void LLAgent::processAgentDropGroup(LLMessageSystem *msg, void **)
 
 		LLGroupMgr::getInstance()->clearGroupData(group_id);
 		// close the floater for this group, if any.
-		LLFloaterGroupInfo::closeGroup(group_id);
+		LLGroupActions::closeGroup(group_id);
 		// refresh the group panel of the search window, if necessary.
 		LLFloaterDirectory::refreshGroup(group_id);
 	}
@@ -5487,7 +5472,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 			!input.has("body") )
 		{
 			//what to do with badly formed message?
-			response->status(400);
+			response->statusUnknownError(400);
 			response->result(LLSD("Invalid message parameters"));
 		}
 
@@ -5543,7 +5528,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 
 				LLGroupMgr::getInstance()->clearGroupData(group_id);
 				// close the floater for this group, if any.
-				LLFloaterGroupInfo::closeGroup(group_id);
+				LLGroupActions::closeGroup(group_id);
 				// refresh the group panel of the search window,
 				//if necessary.
 				LLFloaterDirectory::refreshGroup(group_id);
@@ -5560,7 +5545,7 @@ class LLAgentDropGroupViewerNode : public LLHTTPNode
 		else
 		{
 			//what to do with badly formed message?
-			response->status(400);
+			response->statusUnknownError(400);
 			response->result(LLSD("Invalid message parameters"));
 		}
 	}
@@ -5854,9 +5839,9 @@ void LLAgent::processControlRelease(LLMessageSystem *msg, void **)
 //static
 void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void **user_data)
 {
-	gAgent.mNumPendingQueries--;
+	gAgentQueryManager.mNumPendingQueries--;
 
-	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 	if (!avatarp || avatarp->isDead())
 	{
 		llwarns << "No avatar for user in cached texture update!" << llendl;
@@ -5886,12 +5871,12 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 
 		if (texture_id.notNull() 
 			&& (S32)texture_index < BAKED_NUM_INDICES 
-			&& gAgent.mActiveCacheQueries[ texture_index ] == query_id)
+			&& gAgentQueryManager.mActiveCacheQueries[texture_index] == query_id)
 		{
 			//llinfos << "Received cached texture " << (U32)texture_index << ": " << texture_id << llendl;
-			avatarp->setCachedBakedTexture(getTextureIndex((EBakedTextureIndex)texture_index), texture_id);
+			avatarp->setCachedBakedTexture(LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)texture_index), texture_id);
 			//avatarp->setTETexture( LLVOAvatar::sBakedTextureIndices[texture_index], texture_id );
-			gAgent.mActiveCacheQueries[ texture_index ] = 0;
+			gAgentQueryManager.mActiveCacheQueries[texture_index] = 0;
 			num_results++;
 		}
 	}
@@ -5900,7 +5885,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 
 	avatarp->updateMeshTextures();
 
-	if (gAgent.mNumPendingQueries == 0)
+	if (gAgentQueryManager.mNumPendingQueries == 0)
 	{
 		// RN: not sure why composites are disabled at this point
 		avatarp->setCompositeUpdatesEnabled(TRUE);
@@ -5910,8 +5895,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 
 BOOL LLAgent::anyControlGrabbed() const
 {
-	U32 i;
-	for (i = 0; i < TOTAL_CONTROLS; i++)
+	for (U32 i = 0; i < TOTAL_CONTROLS; i++)
 	{
 		if (gAgent.mControlsTakenCount[i] > 0)
 			return TRUE;
@@ -6003,13 +5987,14 @@ bool LLAgent::teleportCore(bool is_local)
 	// process_teleport_location_reply
 
 	// close the map and find panels so we can see our destination
-	LLFloaterWorldMap::hide(NULL);
-	LLFloaterDirectory::hide(NULL);
+	LLFloaterReg::hideInstance("world_map");
+	LLFloaterReg::hideInstance("search");
 
 	// hide land floater too - it'll be out of date
-	LLFloaterLand::hideInstance();
-	
+	LLFloaterReg::hideInstance("about_land");
+
 	LLViewerParcelMgr::getInstance()->deselectLand();
+	LLViewerMediaFocus::getInstance()->setFocusFace(false, NULL, 0, NULL);
 
 	// Close all pie menus, deselect land, etc.
 	// Don't change the camera until we know teleport succeeded. JC
@@ -6169,12 +6154,17 @@ void LLAgent::setTeleportState(ETeleportState state)
 	mTeleportState = state;
 	if (mTeleportState > TELEPORT_NONE && gSavedSettings.getBOOL("FreezeTime"))
 	{
-		LLFloaterSnapshot::hide(0);
+		LLFloaterReg::hideInstance("snapshot");
 	}
 	if (mTeleportState == TELEPORT_MOVING)
 	{
 		// We're outa here. Save "back" slurl.
-		mTeleportSourceSLURL = getSLURL();
+		mTeleportSourceSLURL = LLAgentUI::buildSLURL();
+	}
+	else if(mTeleportState == TELEPORT_ARRIVING)
+	{
+		// Let the interested parties know we've teleported.
+		LLViewerParcelMgr::getInstance()->onTeleportFinished(false, getPositionGlobal());
 	}
 }
 
@@ -6303,878 +6293,6 @@ void LLAgent::requestLeaveGodMode()
 	sendReliableMessage();
 }
 
-// wearables
-LLAgent::createStandardWearablesAllDoneCallback::~createStandardWearablesAllDoneCallback()
-{
-	gAgent.createStandardWearablesAllDone();
-}
-
-LLAgent::sendAgentWearablesUpdateCallback::~sendAgentWearablesUpdateCallback()
-{
-	gAgent.sendAgentWearablesUpdate();
-}
-
-LLAgent::addWearableToAgentInventoryCallback::addWearableToAgentInventoryCallback(
-	LLPointer<LLRefCount> cb, S32 index, LLWearable* wearable, U32 todo) :
-	mIndex(index),
-	mWearable(wearable),
-	mTodo(todo),
-	mCB(cb)
-{
-}
-
-void LLAgent::addWearableToAgentInventoryCallback::fire(const LLUUID& inv_item)
-{
-	if (inv_item.isNull())
-		return;
-
-	gAgent.addWearabletoAgentInventoryDone(mIndex, inv_item, mWearable);
-
-	if (mTodo & CALL_UPDATE)
-	{
-		gAgent.sendAgentWearablesUpdate();
-	}
-	if (mTodo & CALL_RECOVERDONE)
-	{
-		gAgent.recoverMissingWearableDone();
-	}
-	/*
-	 * Do this for every one in the loop
-	 */
-	if (mTodo & CALL_CREATESTANDARDDONE)
-	{
-		gAgent.createStandardWearablesDone(mIndex);
-	}
-	if (mTodo & CALL_MAKENEWOUTFITDONE)
-	{
-		gAgent.makeNewOutfitDone(mIndex);
-	}
-}
-
-void LLAgent::addWearabletoAgentInventoryDone(
-	S32 index,
-	const LLUUID& item_id,
-	LLWearable* wearable)
-{
-	if (item_id.isNull())
-		return;
-
-	LLUUID old_item_id = mWearableEntry[index].mItemID;
-	mWearableEntry[index].mItemID = item_id;
-	mWearableEntry[index].mWearable = wearable;
-	if (old_item_id.notNull())
-		gInventory.addChangedMask(LLInventoryObserver::LABEL, old_item_id);
-	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
-	LLViewerInventoryItem* item = gInventory.getItem(item_id);
-	if(item && wearable)
-	{
-		// We're changing the asset id, so we both need to set it
-		// locally via setAssetUUID() and via setTransactionID() which
-		// will be decoded on the server. JC
-		item->setAssetUUID(wearable->getID());
-		item->setTransactionID(wearable->getTransactionID());
-		gInventory.addChangedMask(LLInventoryObserver::INTERNAL, item_id);
-		item->updateServer(FALSE);
-	}
-	gInventory.notifyObservers();
-}
-
-void LLAgent::sendAgentWearablesUpdate()
-{
-	// First make sure that we have inventory items for each wearable
-	S32 i;
-	for(i=0; i < WT_COUNT; ++i)
-	{
-		LLWearable* wearable = mWearableEntry[ i ].mWearable;
-		if (wearable)
-		{
-			if( mWearableEntry[ i ].mItemID.isNull() )
-			{
-				LLPointer<LLInventoryCallback> cb =
-					new addWearableToAgentInventoryCallback(
-						LLPointer<LLRefCount>(NULL),
-						i,
-						wearable,
-						addWearableToAgentInventoryCallback::CALL_NONE);
-				addWearableToAgentInventory(cb, wearable);
-			}
-			else
-			{
-				gInventory.addChangedMask( LLInventoryObserver::LABEL,
-						mWearableEntry[i].mItemID );
-			}
-		}
-	}
-
-	// Then make sure the inventory is in sync with the avatar.
-	gInventory.notifyObservers();
-
-	// Send the AgentIsNowWearing 
-	gMessageSystem->newMessageFast(_PREHASH_AgentIsNowWearing);
-
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, getID());
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, getSessionID());
-
-	lldebugs << "sendAgentWearablesUpdate()" << llendl;
-	for(i=0; i < WT_COUNT; ++i)
-	{
-		gMessageSystem->nextBlockFast(_PREHASH_WearableData);
-
-		U8 type_u8 = (U8)i;
-		gMessageSystem->addU8Fast(_PREHASH_WearableType, type_u8 );
-
-		LLWearable* wearable = mWearableEntry[ i ].mWearable;
-		if( wearable )
-		{
-			//llinfos << "Sending wearable " << wearable->getName() << llendl;
-			gMessageSystem->addUUIDFast(_PREHASH_ItemID, mWearableEntry[ i ].mItemID );
-		}
-		else
-		{
-			//llinfos << "Not wearing wearable type " << LLWearable::typeToTypeName((EWearableType)i) << llendl;
-			gMessageSystem->addUUIDFast(_PREHASH_ItemID, LLUUID::null );
-		}
-
-		lldebugs << "       " << LLWearable::typeToTypeLabel((EWearableType)i) << ": " << (wearable ? wearable->getID() : LLUUID::null) << llendl;
-	}
-	gAgent.sendReliableMessage();
-}
-
-void LLAgent::saveWearable( EWearableType type, BOOL send_update )
-{
-	LLWearable* old_wearable = mWearableEntry[(S32)type].mWearable;
-	if( old_wearable && (old_wearable->isDirty() || old_wearable->isOldVersion()) )
-	{
-		LLWearable* new_wearable = gWearableList.createCopyFromAvatar( old_wearable );
-		mWearableEntry[(S32)type].mWearable = new_wearable;
-
-		LLInventoryItem* item = gInventory.getItem(mWearableEntry[(S32)type].mItemID);
-		if( item )
-		{
-			// Update existing inventory item
-			LLPointer<LLViewerInventoryItem> template_item =
-				new LLViewerInventoryItem(item->getUUID(),
-										  item->getParentUUID(),
-										  item->getPermissions(),
-										  new_wearable->getID(),
-										  new_wearable->getAssetType(),
-										  item->getInventoryType(),
-										  item->getName(),
-										  item->getDescription(),
-										  item->getSaleInfo(),
-										  item->getFlags(),
-										  item->getCreationDate());
-			template_item->setTransactionID(new_wearable->getTransactionID());
-			template_item->updateServer(FALSE);
-			gInventory.updateItem(template_item);
-		}
-		else
-		{
-			// Add a new inventory item (shouldn't ever happen here)
-			U32 todo = addWearableToAgentInventoryCallback::CALL_NONE;
-			if (send_update)
-			{
-				todo |= addWearableToAgentInventoryCallback::CALL_UPDATE;
-			}
-			LLPointer<LLInventoryCallback> cb =
-				new addWearableToAgentInventoryCallback(
-					LLPointer<LLRefCount>(NULL),
-					(S32)type,
-					new_wearable,
-					todo);
-			addWearableToAgentInventory(cb, new_wearable);
-			return;
-		}
-		
-		getAvatarObject()->wearableUpdated( type );
-
-		if( send_update )
-		{
-			sendAgentWearablesUpdate();
-		}
-	}
-}
-
-void LLAgent::saveWearableAs(
-	EWearableType type,
-	const std::string& new_name,
-	BOOL save_in_lost_and_found)
-{
-	if(!isWearableCopyable(type))
-	{
-		llwarns << "LLAgent::saveWearableAs() not copyable." << llendl;
-		return;
-	}
-	LLWearable* old_wearable = getWearable(type);
-	if(!old_wearable)
-	{
-		llwarns << "LLAgent::saveWearableAs() no old wearable." << llendl;
-		return;
-	}
-	LLInventoryItem* item = gInventory.getItem(mWearableEntry[type].mItemID);
-	if(!item)
-	{
-		llwarns << "LLAgent::saveWearableAs() no inventory item." << llendl;
-		return;
-	}
-	std::string trunc_name(new_name);
-	LLStringUtil::truncate(trunc_name, DB_INV_ITEM_NAME_STR_LEN);
-	LLWearable* new_wearable = gWearableList.createCopyFromAvatar(
-		old_wearable,
-		trunc_name);
-	LLPointer<LLInventoryCallback> cb =
-		new addWearableToAgentInventoryCallback(
-			LLPointer<LLRefCount>(NULL),
-			type,
-			new_wearable,
-			addWearableToAgentInventoryCallback::CALL_UPDATE);
-	LLUUID category_id;
-	if (save_in_lost_and_found)
-	{
-		category_id = gInventory.findCategoryUUIDForType(
-			LLAssetType::AT_LOST_AND_FOUND);
-	}
-	else
-	{
-		// put in same folder as original
-		category_id = item->getParentUUID();
-	}
-
-	copy_inventory_item(
-		gAgent.getID(),
-		item->getPermissions().getOwner(),
-		item->getUUID(),
-		category_id,
-		new_name,
-		cb);
-
-/*
-	LLWearable* old_wearable = getWearable( type );
-	if( old_wearable )
-	{
-		std::string old_name = old_wearable->getName();
-		old_wearable->setName( new_name );
-		LLWearable* new_wearable = gWearableList.createCopyFromAvatar( old_wearable );
-		old_wearable->setName( old_name );
-			
-		LLUUID category_id;
-		LLInventoryItem* item = gInventory.getItem( mWearableEntry[ type ].mItemID );
-		if( item )
-		{
-			new_wearable->setPermissions(item->getPermissions());
-			if (save_in_lost_and_found)
-			{
-				category_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LOST_AND_FOUND);
-			}
-			else
-			{
-				// put in same folder as original
-				category_id = item->getParentUUID();
-			}
-			LLInventoryView* view = LLInventoryView::getActiveInventory();
-			if(view)
-			{
-				view->getPanel()->setSelection(item->getUUID(), TAKE_FOCUS_NO);
-			}
-		}
-
-		mWearableEntry[ type ].mWearable = new_wearable;
-		LLPointer<LLInventoryCallback> cb =
-			new addWearableToAgentInventoryCallback(
-				LLPointer<LLRefCount>(NULL),
-				type,
-				addWearableToAgentInventoryCallback::CALL_UPDATE);
-		addWearableToAgentInventory(cb, new_wearable, category_id);
-	}
-*/
-}
-
-void LLAgent::revertWearable( EWearableType type )
-{
-	LLWearable* wearable = mWearableEntry[(S32)type].mWearable;
-	if( wearable )
-	{
-		wearable->writeToAvatar( TRUE );
-	}
-	sendAgentSetAppearance();
-}
-
-void LLAgent::revertAllWearables()
-{
-	for( S32 i=0; i < WT_COUNT; i++ )
-	{
-		revertWearable( (EWearableType)i );
-	}
-}
-
-void LLAgent::saveAllWearables()
-{
-	//if(!gInventory.isLoaded())
-	//{
-	//	return;
-	//}
-
-	for( S32 i=0; i < WT_COUNT; i++ )
-	{
-		saveWearable( (EWearableType)i, FALSE );
-	}
-	sendAgentWearablesUpdate();
-}
-
-// Called when the user changes the name of a wearable inventory item that is currenlty being worn.
-void LLAgent::setWearableName( const LLUUID& item_id, const std::string& new_name )
-{
-	for( S32 i=0; i < WT_COUNT; i++ )
-	{
-		if( mWearableEntry[i].mItemID == item_id )
-		{
-			LLWearable* old_wearable = mWearableEntry[i].mWearable;
-			llassert( old_wearable );
-
-			std::string old_name = old_wearable->getName();
-			old_wearable->setName( new_name );
-			LLWearable* new_wearable = gWearableList.createCopy( old_wearable );
-			LLInventoryItem* item = gInventory.getItem(item_id);
-			if(item)
-			{
-				new_wearable->setPermissions(item->getPermissions());
-			}
-			old_wearable->setName( old_name );
-
-			mWearableEntry[i].mWearable = new_wearable;
-			sendAgentWearablesUpdate();
-			break;
-		}
-	}
-}
-
-
-BOOL LLAgent::isWearableModifiable(EWearableType type)
-{
-	LLUUID item_id = getWearableItem(type);
-	if(!item_id.isNull())
-	{
-		LLInventoryItem* item = gInventory.getItem(item_id);
-		if(item && item->getPermissions().allowModifyBy(gAgent.getID(),
-														gAgent.getGroupID()))
-		{
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-
-BOOL LLAgent::isWearableCopyable(EWearableType type)
-{
-	LLUUID item_id = getWearableItem(type);
-	if(!item_id.isNull())
-	{
-		LLInventoryItem* item = gInventory.getItem(item_id);
-		if(item && item->getPermissions().allowCopyBy(gAgent.getID(),
-													  gAgent.getGroupID()))
-		{
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-
-U32 LLAgent::getWearablePermMask(EWearableType type)
-{
-	LLUUID item_id = getWearableItem(type);
-	if(!item_id.isNull())
-	{
-		LLInventoryItem* item = gInventory.getItem(item_id);
-		if(item)
-		{
-			return item->getPermissions().getMaskOwner();
-		}
-	}
-	return PERM_NONE;
-}
-
-LLInventoryItem* LLAgent::getWearableInventoryItem(EWearableType type)
-{
-	LLUUID item_id = getWearableItem(type);
-	LLInventoryItem* item = NULL;
-	if(item_id.notNull())
-	{
-		 item = gInventory.getItem(item_id);
-	}
-	return item;
-}
-
-LLWearable* LLAgent::getWearableFromWearableItem( const LLUUID& item_id )
-{
-	for( S32 i=0; i < WT_COUNT; i++ )
-	{
-		if( mWearableEntry[i].mItemID == item_id )
-		{
-			return mWearableEntry[i].mWearable;
-		}
-	}
-	return NULL;
-}
-
-
-void LLAgent::sendAgentWearablesRequest()
-{
-	gMessageSystem->newMessageFast(_PREHASH_AgentWearablesRequest);
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID() );
-	sendReliableMessage();
-}
-
-// Used to enable/disable menu items.
-// static
-BOOL LLAgent::selfHasWearable( void* userdata )
-{
-	EWearableType type = (EWearableType)(intptr_t)userdata;
-	return gAgent.getWearable( type ) != NULL;
-}
-
-BOOL LLAgent::isWearingItem( const LLUUID& item_id )
-{
-	return (getWearableFromWearableItem( item_id ) != NULL);
-}
-
-// static
-void LLAgent::processAgentInitialWearablesUpdate( LLMessageSystem* mesgsys, void** user_data )
-{
-	// We should only receive this message a single time.  Ignore subsequent AgentWearablesUpdates
-	// that may result from AgentWearablesRequest having been sent more than once. 
-	static bool first = true;
-	if (!first) return;
-	first = false;
-
-	LLUUID agent_id;
-	gMessageSystem->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
-
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	if( avatar && (agent_id == avatar->getID()) )
-	{
-		gMessageSystem->getU32Fast(_PREHASH_AgentData, _PREHASH_SerialNum, gAgent.mAgentWearablesUpdateSerialNum );
-		
-		S32 num_wearables = gMessageSystem->getNumberOfBlocksFast(_PREHASH_WearableData);
-		if( num_wearables < 4 )
-		{
-			// Transitional state.  Avatars should always have at least their body parts (hair, eyes, shape and skin).
-			// The fact that they don't have any here (only a dummy is sent) implies that this account existed
-			// before we had wearables, or that the database has gotten messed up.
-			return;
-		}
-
-		//lldebugs << "processAgentInitialWearablesUpdate()" << llendl;
-		// Add wearables
-		LLUUID asset_id_array[ WT_COUNT ];
-		S32 i;
-		for( i=0; i < num_wearables; i++ )
-		{
-			U8 type_u8 = 0;
-			gMessageSystem->getU8Fast(_PREHASH_WearableData, _PREHASH_WearableType, type_u8, i );
-			if( type_u8 >= WT_COUNT )
-			{
-				continue;
-			}
-			EWearableType type = (EWearableType) type_u8;
-
-			LLUUID item_id;
-			gMessageSystem->getUUIDFast(_PREHASH_WearableData, _PREHASH_ItemID, item_id, i );
-
-			LLUUID asset_id;
-			gMessageSystem->getUUIDFast(_PREHASH_WearableData, _PREHASH_AssetID, asset_id, i );
-			if( asset_id.isNull() )
-			{
-				LLWearable::removeFromAvatar( type, FALSE );
-			}
-			else
-			{
-				LLAssetType::EType asset_type = LLWearable::typeToAssetType( type );
-				if( asset_type == LLAssetType::AT_NONE )
-				{
-					continue;
-				}
-
-				gAgent.mWearableEntry[type].mItemID = item_id;
-				asset_id_array[type] = asset_id;
-			}
-
-			lldebugs << "       " << LLWearable::typeToTypeLabel(type) << llendl;
-		}
-
-		// now that we have the asset ids...request the wearable assets
-		for( i = 0; i < WT_COUNT; i++ )
-		{
-			if( !gAgent.mWearableEntry[i].mItemID.isNull() )
-			{
-				gWearableList.getAsset( 
-					asset_id_array[i],
-					LLStringUtil::null,
-					LLWearable::typeToAssetType( (EWearableType) i ), 
-					LLAgent::onInitialWearableAssetArrived, (void*)(intptr_t)i );
-			}
-		}
-	}
-}
-
-// A single wearable that the avatar was wearing on start-up has arrived from the database.
-// static
-void LLAgent::onInitialWearableAssetArrived( LLWearable* wearable, void* userdata )
-{
-	EWearableType type = (EWearableType)(intptr_t)userdata;
-
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	if( !avatar )
-	{
-		return;
-	}
-
-	if( wearable )
-	{
-		llassert( type == wearable->getType() );
-		gAgent.mWearableEntry[ type ].mWearable = wearable;
-
-		// disable composites if initial textures are baked
-		avatar->setupComposites();
-		gAgent.queryWearableCache();
-
-		wearable->writeToAvatar( FALSE );
-		avatar->setCompositeUpdatesEnabled(TRUE);
-		gInventory.addChangedMask( LLInventoryObserver::LABEL, gAgent.mWearableEntry[type].mItemID );
-	}
-	else
-	{
-		// Somehow the asset doesn't exist in the database.
-		gAgent.recoverMissingWearable( type );
-	}
-
-	gInventory.notifyObservers();
-
-	// Have all the wearables that the avatar was wearing at log-in arrived?
-	if( !gAgent.mWearablesLoaded )
-	{
-		gAgent.mWearablesLoaded = TRUE;
-		for( S32 i = 0; i < WT_COUNT; i++ )
-		{
-			if( !gAgent.mWearableEntry[i].mItemID.isNull() && !gAgent.mWearableEntry[i].mWearable )
-			{
-				gAgent.mWearablesLoaded = FALSE;
-				break;
-			}
-		}
-	}
-
-	if( gAgent.mWearablesLoaded )
-	{
-		// Make sure that the server's idea of the avatar's wearables actually match the wearables.
-		gAgent.sendAgentSetAppearance();
-
-		// Check to see if there are any baked textures that we hadn't uploaded before we logged off last time.
-		// If there are any, schedule them to be uploaded as soon as the layer textures they depend on arrive.
-		if( !gAgent.cameraCustomizeAvatar() )
-		{
-			avatar->requestLayerSetUploads();
-		}
-	}
-}
-
-// Normally, all wearables referred to "AgentWearablesUpdate" will correspond to actual assets in the
-// database.  If for some reason, we can't load one of those assets, we can try to reconstruct it so that
-// the user isn't left without a shape, for example.  (We can do that only after the inventory has loaded.)
-void LLAgent::recoverMissingWearable( EWearableType type )
-{
-	// Try to recover by replacing missing wearable with a new one.
-	LLNotifications::instance().add("ReplacedMissingWearable");
-	lldebugs << "Wearable " << LLWearable::typeToTypeLabel( type ) << " could not be downloaded.  Replaced inventory item with default wearable." << llendl;
-	LLWearable* new_wearable = gWearableList.createNewWearable(type);
-
-	S32 type_s32 = (S32) type;
-	mWearableEntry[type_s32].mWearable = new_wearable;
-	new_wearable->writeToAvatar( TRUE );
-
-	// Add a new one in the lost and found folder.
-	// (We used to overwrite the "not found" one, but that could potentially
-	// destory content.) JC
-	LLUUID lost_and_found_id = 
-		gInventory.findCategoryUUIDForType(LLAssetType::AT_LOST_AND_FOUND);
-	LLPointer<LLInventoryCallback> cb =
-		new addWearableToAgentInventoryCallback(
-			LLPointer<LLRefCount>(NULL),
-			type_s32,
-			new_wearable,
-			addWearableToAgentInventoryCallback::CALL_RECOVERDONE);
-	addWearableToAgentInventory( cb, new_wearable, lost_and_found_id, TRUE);
-}
-
-void LLAgent::recoverMissingWearableDone()
-{
-	// Have all the wearables that the avatar was wearing at log-in arrived or been fabricated?
-	mWearablesLoaded = TRUE;
-	for( S32 i = 0; i < WT_COUNT; i++ )
-	{
-		if( !mWearableEntry[i].mItemID.isNull() && !mWearableEntry[i].mWearable )
-		{
-			mWearablesLoaded = FALSE;
-			break;
-		}
-	}
-
-	if( mWearablesLoaded )
-	{
-		// Make sure that the server's idea of the avatar's wearables actually match the wearables.
-		sendAgentSetAppearance();
-	}
-	else
-	{
-		gInventory.addChangedMask( LLInventoryObserver::LABEL, LLUUID::null );
-		gInventory.notifyObservers();
-	}
-}
-
-void LLAgent::createStandardWearables(BOOL female)
-{
-	llwarns << "Creating Standard " << (female ? "female" : "male" )
-			<< " Wearables" << llendl;
-
-	if (mAvatarObject.isNull())
-	{
-		return;
-	}
-
-	if(female) mAvatarObject->setSex(SEX_FEMALE);
-	else mAvatarObject->setSex(SEX_MALE);
-
-	BOOL create[WT_COUNT] = 
-	{
-		TRUE,  //WT_SHAPE
-		TRUE,  //WT_SKIN
-		TRUE,  //WT_HAIR
-		TRUE,  //WT_EYES
-		TRUE,  //WT_SHIRT
-		TRUE,  //WT_PANTS
-		TRUE,  //WT_SHOES
-		TRUE,  //WT_SOCKS
-		FALSE, //WT_JACKET
-		FALSE, //WT_GLOVES
-		TRUE,  //WT_UNDERSHIRT
-		TRUE,  //WT_UNDERPANTS
-		FALSE  //WT_SKIRT
-	};
-
-	for( S32 i=0; i < WT_COUNT; i++ )
-	{
-		bool once = false;
-		LLPointer<LLRefCount> donecb = NULL;
-		if( create[i] )
-		{
-			if (!once)
-			{
-				once = true;
-				donecb = new createStandardWearablesAllDoneCallback;
-			}
-			llassert( mWearableEntry[i].mWearable == NULL );
-			LLWearable* wearable = gWearableList.createNewWearable((EWearableType)i);
-			mWearableEntry[i].mWearable = wearable;
-			// no need to update here...
-			LLPointer<LLInventoryCallback> cb =
-				new addWearableToAgentInventoryCallback(
-					donecb,
-					i,
-					wearable,
-					addWearableToAgentInventoryCallback::CALL_CREATESTANDARDDONE);
-			addWearableToAgentInventory(cb, wearable, LLUUID::null, FALSE);
-		}
-	}
-}
-void LLAgent::createStandardWearablesDone(S32 index)
-{
-	LLWearable* wearable = mWearableEntry[index].mWearable;
-
-	if (wearable)
-	{
-		wearable->writeToAvatar(TRUE);
-	}
-}
-
-void LLAgent::createStandardWearablesAllDone()
-{
-	// ... because sendAgentWearablesUpdate will notify inventory
-	// observers.
-	mWearablesLoaded = TRUE; 
-	sendAgentWearablesUpdate();
-	sendAgentSetAppearance();
-
-	// Treat this as the first texture entry message, if none received yet
-	mAvatarObject->onFirstTEMessageReceived();
-}
-
-void LLAgent::makeNewOutfit( 
-	const std::string& new_folder_name,
-	const LLDynamicArray<S32>& wearables_to_include,
-	const LLDynamicArray<S32>& attachments_to_include,
-	BOOL rename_clothing)
-{
-	if (mAvatarObject.isNull())
-	{
-		return;
-	}
-
-	// First, make a folder in the Clothes directory.
-	LLUUID folder_id = gInventory.createNewCategory(
-		gInventory.findCategoryUUIDForType(LLAssetType::AT_CLOTHING),
-		LLAssetType::AT_NONE,
-		new_folder_name);
-
-	bool found_first_item = false;
-
-	///////////////////
-	// Wearables
-
-	if( wearables_to_include.count() )
-	{
-		// Then, iterate though each of the wearables and save copies of them in the folder.
-		S32 i;
-		S32 count = wearables_to_include.count();
-		LLDynamicArray<LLUUID> delete_items;
-		LLPointer<LLRefCount> cbdone = NULL;
-		for( i = 0; i < count; ++i )
-		{
-			S32 index = wearables_to_include[i];
-			LLWearable* old_wearable = mWearableEntry[ index ].mWearable;
-			if( old_wearable )
-			{
-				std::string new_name;
-				LLWearable* new_wearable;
-				new_wearable = gWearableList.createCopy(old_wearable);
-				if (rename_clothing)
-				{
-					new_name = new_folder_name;
-					new_name.append(" ");
-					new_name.append(old_wearable->getTypeLabel());
-					LLStringUtil::truncate(new_name, DB_INV_ITEM_NAME_STR_LEN);
-					new_wearable->setName(new_name);
-				}
-
-				LLViewerInventoryItem* item = gInventory.getItem(mWearableEntry[index].mItemID);
-				S32 todo = addWearableToAgentInventoryCallback::CALL_NONE;
-				if (!found_first_item)
-				{
-					found_first_item = true;
-					/* set the focus to the first item */
-					todo |= addWearableToAgentInventoryCallback::CALL_MAKENEWOUTFITDONE;
-					/* send the agent wearables update when done */
-					cbdone = new sendAgentWearablesUpdateCallback;
-				}
-				LLPointer<LLInventoryCallback> cb =
-					new addWearableToAgentInventoryCallback(
-						cbdone,
-						index,
-						new_wearable,
-						todo);
-				if (isWearableCopyable((EWearableType)index))
-				{
-					copy_inventory_item(
-						gAgent.getID(),
-						item->getPermissions().getOwner(),
-						item->getUUID(),
-						folder_id,
-						new_name,
-						cb);
-				}
-				else
-				{
-					move_inventory_item(
-						gAgent.getID(),
-						gAgent.getSessionID(),
-						item->getUUID(),
-						folder_id,
-						new_name,
-						cb);
-				}
-			}
-		}
-		gInventory.notifyObservers();
-	}
-
-
-	///////////////////
-	// Attachments
-
-	if( attachments_to_include.count() )
-	{
-		BOOL msg_started = FALSE;
-		LLMessageSystem* msg = gMessageSystem;
-		for( S32 i = 0; i < attachments_to_include.count(); i++ )
-		{
-			S32 attachment_pt = attachments_to_include[i];
-			LLViewerJointAttachment* attachment = get_if_there(mAvatarObject->mAttachmentPoints, attachment_pt, (LLViewerJointAttachment*)NULL );
-			if(!attachment) continue;
-			LLViewerObject* attached_object = attachment->getObject();
-			if(!attached_object) continue;
-			const LLUUID& item_id = attachment->getItemID();
-			if(item_id.isNull()) continue;
-			LLInventoryItem* item = gInventory.getItem(item_id);
-			if(!item) continue;
-			if(!msg_started)
-			{
-				msg_started = TRUE;
-				msg->newMessage("CreateNewOutfitAttachments");
-				msg->nextBlock("AgentData");
-				msg->addUUID("AgentID", getID());
-				msg->addUUID("SessionID", getSessionID());
-				msg->nextBlock("HeaderData");
-				msg->addUUID("NewFolderID", folder_id);
-			}
-			msg->nextBlock("ObjectData");
-			msg->addUUID("OldItemID", item_id);
-			msg->addUUID("OldFolderID", item->getParentUUID());
-		}
-
-		if( msg_started )
-		{
-			sendReliableMessage();
-		}
-
-	} 
-}
-
-void LLAgent::makeNewOutfitDone(S32 index)
-{
-	LLUUID first_item_id = mWearableEntry[index].mItemID;
-	// Open the inventory and select the first item we added.
-	if( first_item_id.notNull() )
-	{
-		LLInventoryView* view = LLInventoryView::getActiveInventory();
-		if(view)
-		{
-			view->getPanel()->setSelection(first_item_id, TAKE_FOCUS_NO);
-		}
-	}
-}
-
-
-void LLAgent::addWearableToAgentInventory(
-	LLPointer<LLInventoryCallback> cb,
-	LLWearable* wearable,
-	const LLUUID& category_id,
-	BOOL notify)
-{
-	create_inventory_item(
-		gAgent.getID(),
-		gAgent.getSessionID(),
-		category_id,
-		wearable->getTransactionID(),
-		wearable->getName(),
-		wearable->getDescription(),
-		wearable->getAssetType(),
-		LLInventoryType::IT_WEARABLE,
-		wearable->getType(),
-		wearable->getPermissions().getMaskNextOwner(),
-		cb);
-}
-
 //-----------------------------------------------------------------------------
 // sendAgentSetAppearance()
 //-----------------------------------------------------------------------------
@@ -7182,7 +6300,7 @@ void LLAgent::sendAgentSetAppearance()
 {
 	if (mAvatarObject.isNull()) return;
 
-	if (mNumPendingQueries > 0 && !gAgent.cameraCustomizeAvatar()) 
+	if (gAgentQueryManager.mNumPendingQueries > 0 && !gAgent.cameraCustomizeAvatar()) 
 	{
 		return;
 	}
@@ -7212,11 +6330,11 @@ void LLAgent::sendAgentSetAppearance()
 
 	// is texture data current relative to wearables?
 	// KLW - TAT this will probably need to check the local queue.
-	BOOL textures_current = !mAvatarObject->hasPendingBakedUploads() && mWearablesLoaded;
+	BOOL textures_current = mAvatarObject->areTexturesCurrent();
 
 	for(U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++ )
 	{
-		const ETextureIndex texture_index = getTextureIndex((EBakedTextureIndex)baked_index);
+		const ETextureIndex texture_index = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)baked_index);
 
 		// if we're not wearing a skirt, we don't need the texture to be baked
 		if (texture_index == TEX_SKIRT_BAKED && !mAvatarObject->isWearingWearableType(WT_SKIRT))
@@ -7238,24 +6356,25 @@ void LLAgent::sendAgentSetAppearance()
 		llinfos << "TAT: Sending cached texture data" << llendl;
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
-			const LLVOAvatarDictionary::WearableDictionaryEntry *wearable_dict = LLVOAvatarDictionary::getInstance()->getWearable((EBakedTextureIndex)baked_index);
+			const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
 			LLUUID hash;
-			for (U8 i=0; i < wearable_dict->mWearablesVec.size(); i++)
+			for (U8 i=0; i < baked_dict->mWearables.size(); i++)
 			{
 				// EWearableType wearable_type = gBakedWearableMap[baked_index][wearable_num];
-				const EWearableType wearable_type = wearable_dict->mWearablesVec[i];
-				const LLWearable* wearable = getWearable(wearable_type);
+				const EWearableType wearable_type = baked_dict->mWearables[i];
+				// MULTI-WEARABLE: fixed to 0th - extend to everything once messaging works.
+				const LLWearable* wearable = gAgentWearables.getWearable(wearable_type,0);
 				if (wearable)
 				{
-					hash ^= wearable->getID();
+					hash ^= wearable->getAssetID();
 				}
 			}
 			if (hash.notNull())
 			{
-				hash ^= wearable_dict->mHashID;
+				hash ^= baked_dict->mWearablesHashID;
 			}
 
-			const ETextureIndex texture_index = getTextureIndex((EBakedTextureIndex)baked_index);
+			const ETextureIndex texture_index = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)baked_index);
 
 			msg->nextBlockFast(_PREHASH_WearableData);
 			msg->addUUIDFast(_PREHASH_CacheID, hash);
@@ -7299,456 +6418,20 @@ void LLAgent::sendAgentDataUpdateRequest()
 {
 	gMessageSystem->newMessageFast(_PREHASH_AgentDataUpdateRequest);
 	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
 	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 	sendReliableMessage();
 }
 
-void LLAgent::removeWearable( EWearableType type )
+void LLAgent::sendAgentUserInfoRequest()
 {
-	LLWearable* old_wearable = mWearableEntry[ type ].mWearable;
-
-	if ( (gAgent.isTeen())
-		 && (type == WT_UNDERSHIRT || type == WT_UNDERPANTS))
-	{
-		// Can't take off underclothing in simple UI mode or on PG accounts
-		return;
-	}
-
-	if( old_wearable )
-	{
-		if( old_wearable->isDirty() )
-		{
-			LLSD payload;
-			payload["wearable_type"] = (S32)type;
-			// Bring up view-modal dialog: Save changes? Yes, No, Cancel
-			LLNotifications::instance().add("WearableSave", LLSD(), payload, &LLAgent::onRemoveWearableDialog);
-			return;
-		}
-		else
-		{
-			removeWearableFinal( type );
-		}
-	}
-}
-
-// static 
-bool LLAgent::onRemoveWearableDialog(const LLSD& notification, const LLSD& response )
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-	EWearableType type = (EWearableType)notification["payload"]["wearable_type"].asInteger();
-	switch( option )
-	{
-	case 0:  // "Save"
-		gAgent.saveWearable( type );
-		gAgent.removeWearableFinal( type );
-		break;
-
-	case 1:  // "Don't Save"
-		gAgent.removeWearableFinal( type );
-		break;
-
-	case 2: // "Cancel"
-		break;
-
-	default:
-		llassert(0);
-		break;
-	}
-	return false;
-}
-
-// Called by removeWearable() and onRemoveWearableDialog() to actually do the removal.
-void LLAgent::removeWearableFinal( EWearableType type )
-{
-	LLWearable* old_wearable = mWearableEntry[ type ].mWearable;
-
-	gInventory.addChangedMask( LLInventoryObserver::LABEL, mWearableEntry[type].mItemID );
-
-	mWearableEntry[ type ].mWearable = NULL;
-	mWearableEntry[ type ].mItemID.setNull();
-
-	queryWearableCache();
-
-	if( old_wearable )
-	{
-		old_wearable->removeFromAvatar( TRUE );
-	}
-
-	// Update the server
-	sendAgentWearablesUpdate(); 
-	sendAgentSetAppearance();
-	gInventory.notifyObservers();
-}
-
-void LLAgent::copyWearableToInventory( EWearableType type )
-{
-	LLWearable* wearable = mWearableEntry[ type ].mWearable;
-	if( wearable )
-	{
-		// Save the old wearable if it has changed.
-		if( wearable->isDirty() )
-		{
-			wearable = gWearableList.createCopyFromAvatar( wearable );
-			mWearableEntry[ type ].mWearable = wearable;
-		}
-
-		// Make a new entry in the inventory.  (Put it in the same folder as the original item if possible.)
-		LLUUID category_id;
-		LLInventoryItem* item = gInventory.getItem( mWearableEntry[ type ].mItemID );
-		if( item )
-		{
-			category_id = item->getParentUUID();
-			wearable->setPermissions(item->getPermissions());
-		}
-		LLPointer<LLInventoryCallback> cb =
-			new addWearableToAgentInventoryCallback(
-				LLPointer<LLRefCount>(NULL),
-				type,
-				wearable);
-		addWearableToAgentInventory(cb, wearable, category_id);
-	}
-}
-
-
-// A little struct to let setWearable() communicate more than one value with onSetWearableDialog().
-struct LLSetWearableData
-{
-	LLSetWearableData( const LLUUID& new_item_id, LLWearable* new_wearable ) :
-		mNewItemID( new_item_id ), mNewWearable( new_wearable ) {}
-	LLUUID				mNewItemID;
-	LLWearable*			mNewWearable;
-};
-
-BOOL LLAgent::needsReplacement(EWearableType  wearableType, S32 remove)
-{
-	return TRUE;
-	/*if (remove) return TRUE;
-	
-	return getWearable(wearableType) ? TRUE : FALSE;*/
-}
-
-// Assumes existing wearables are not dirty.
-void LLAgent::setWearableOutfit( 
-	const LLInventoryItem::item_array_t& items,
-	const LLDynamicArray< LLWearable* >& wearables,
-	BOOL remove )
-{
-	lldebugs << "setWearableOutfit() start" << llendl;
-
-	BOOL wearables_to_remove[WT_COUNT];
-	wearables_to_remove[WT_SHAPE]		= FALSE;
-	wearables_to_remove[WT_SKIN]		= FALSE;
-	wearables_to_remove[WT_HAIR]		= FALSE;
-	wearables_to_remove[WT_EYES]		= FALSE;
-	wearables_to_remove[WT_SHIRT]		= remove;
-	wearables_to_remove[WT_PANTS]		= remove;
-	wearables_to_remove[WT_SHOES]		= remove;
-	wearables_to_remove[WT_SOCKS]		= remove;
-	wearables_to_remove[WT_JACKET]		= remove;
-	wearables_to_remove[WT_GLOVES]		= remove;
-	wearables_to_remove[WT_UNDERSHIRT]	= (!gAgent.isTeen()) & remove;
-	wearables_to_remove[WT_UNDERPANTS]	= (!gAgent.isTeen()) & remove;
-	wearables_to_remove[WT_SKIRT]		= remove;
-
-	S32 count = wearables.count();
-	llassert( items.count() == count );
-
-	S32 i;
-	for( i = 0; i < count; i++ )
-	{
-		LLWearable* new_wearable = wearables[i];
-		LLPointer<LLInventoryItem> new_item = items[i];
-
-		EWearableType type = new_wearable->getType();
-		wearables_to_remove[type] = FALSE;
-
-		LLWearable* old_wearable = mWearableEntry[ type ].mWearable;
-		if( old_wearable )
-		{
-			const LLUUID& old_item_id = mWearableEntry[ type ].mItemID;
-			if( (old_wearable->getID() == new_wearable->getID()) &&
-				(old_item_id == new_item->getUUID()) )
-			{
-				lldebugs << "No change to wearable asset and item: " << LLWearable::typeToTypeName( type ) << llendl;
-				continue;
-			}
-
-			gInventory.addChangedMask(LLInventoryObserver::LABEL, old_item_id);
-
-			// Assumes existing wearables are not dirty.
-			if( old_wearable->isDirty() )
-			{
-				llassert(0);
-				continue;
-			}
-		}
-
-		mWearableEntry[ type ].mItemID = new_item->getUUID();
-		mWearableEntry[ type ].mWearable = new_wearable;
-	}
-
-	std::vector<LLWearable*> wearables_being_removed;
-
-	for( i = 0; i < WT_COUNT; i++ )
-	{
-		if( wearables_to_remove[i] )
-		{
-			wearables_being_removed.push_back(mWearableEntry[ i ].mWearable);
-			mWearableEntry[ i ].mWearable = NULL;
-			
-			gInventory.addChangedMask(LLInventoryObserver::LABEL, mWearableEntry[ i ].mItemID);
-			mWearableEntry[ i ].mItemID.setNull();
-		}
-	}
-
-	gInventory.notifyObservers();
-
-	queryWearableCache();
-
-	std::vector<LLWearable*>::iterator wearable_iter;
-
-	for( wearable_iter = wearables_being_removed.begin(); 
-		wearable_iter != wearables_being_removed.end();
-		++wearable_iter)
-	{
-		LLWearable* wearablep = *wearable_iter;
-		if (wearablep)
-		{
-			wearablep->removeFromAvatar( TRUE );
-		}
-	}
-
-	for( i = 0; i < count; i++ )
-	{
-		wearables[i]->writeToAvatar( TRUE );
-	}
-
-	// Start rendering & update the server
-	mWearablesLoaded = TRUE; 
-	sendAgentWearablesUpdate();
-	sendAgentSetAppearance();
-
-	lldebugs << "setWearableOutfit() end" << llendl;
-}
-
-
-// User has picked "wear on avatar" from a menu.
-void LLAgent::setWearable( LLInventoryItem* new_item, LLWearable* new_wearable )
-{
-	EWearableType type = new_wearable->getType();
-
-	LLWearable* old_wearable = mWearableEntry[ type ].mWearable;
-	if( old_wearable )
-	{
-		const LLUUID& old_item_id = mWearableEntry[ type ].mItemID;
-		if( (old_wearable->getID() == new_wearable->getID()) &&
-			(old_item_id == new_item->getUUID()) )
-		{
-			lldebugs << "No change to wearable asset and item: " << LLWearable::typeToTypeName( type ) << llendl;
-			return;
-		}
-
-		if( old_wearable->isDirty() )
-		{
-			// Bring up modal dialog: Save changes? Yes, No, Cancel
-			LLSD payload;
-			payload["item_id"] = new_item->getUUID();
-			LLNotifications::instance().add( "WearableSave", LLSD(), payload, boost::bind(LLAgent::onSetWearableDialog, _1, _2, new_wearable));
-			return;
-		}
-	}
-
-	setWearableFinal( new_item, new_wearable );
-}
-
-// static 
-bool LLAgent::onSetWearableDialog( const LLSD& notification, const LLSD& response, LLWearable* wearable )
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-	LLInventoryItem* new_item = gInventory.getItem( notification["payload"]["item_id"].asUUID());
-	if( !new_item )
-	{
-		delete wearable;
-		return false;
-	}
-
-	switch( option )
-	{
-	case 0:  // "Save"
-		gAgent.saveWearable( wearable->getType() );
-		gAgent.setWearableFinal( new_item, wearable );
-		break;
-
-	case 1:  // "Don't Save"
-		gAgent.setWearableFinal( new_item, wearable );
-		break;
-
-	case 2: // "Cancel"
-		break;
-
-	default:
-		llassert(0);
-		break;
-	}
-
-	delete wearable;
-	return false;
-}
-
-// Called from setWearable() and onSetWearableDialog() to actually set the wearable.
-void LLAgent::setWearableFinal( LLInventoryItem* new_item, LLWearable* new_wearable )
-{
-	EWearableType type = new_wearable->getType();
-
-	// Replace the old wearable with a new one.
-	llassert( new_item->getAssetUUID() == new_wearable->getID() );
-	LLUUID old_item_id = mWearableEntry[ type ].mItemID;
-	mWearableEntry[ type ].mItemID = new_item->getUUID();
-	mWearableEntry[ type ].mWearable = new_wearable;
-
-	if (old_item_id.notNull())
-	{
-		gInventory.addChangedMask( LLInventoryObserver::LABEL, old_item_id );
-		gInventory.notifyObservers();
-	}
-
-	//llinfos << "LLVOAvatar::setWearable()" << llendl;
-	queryWearableCache();
-	new_wearable->writeToAvatar( TRUE );
-
-	// Update the server
-	sendAgentWearablesUpdate();
-	sendAgentSetAppearance();
-}
-
-void LLAgent::queryWearableCache()
-{
-	if (!mWearablesLoaded)
-	{
-		return;
-	}
-
-	// Look up affected baked textures.
-	// If they exist:
-	//		disallow updates for affected layersets (until dataserver responds with cache request.)
-	//		If cache miss, turn updates back on and invalidate composite.
-	//		If cache hit, modify baked texture entries.
-	//
-	// Cache requests contain list of hashes for each baked texture entry.
-	// Response is list of valid baked texture assets. (same message)
-
-	gMessageSystem->newMessageFast(_PREHASH_AgentCachedTexture);
+	if(getID().isNull())
+		return; // not logged in
+	gMessageSystem->newMessageFast(_PREHASH_UserInfoRequest);
 	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
 	gMessageSystem->addUUIDFast(_PREHASH_AgentID, getID());
 	gMessageSystem->addUUIDFast(_PREHASH_SessionID, getSessionID());
-	gMessageSystem->addS32Fast(_PREHASH_SerialNum, mTextureCacheQueryID);
-
-	S32 num_queries = 0;
-	for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++ )
-	{
-		const LLVOAvatarDictionary::WearableDictionaryEntry *wearable_dict = LLVOAvatarDictionary::getInstance()->getWearable((EBakedTextureIndex)baked_index);
-		LLUUID hash;
-		for (U8 i=0; i < wearable_dict->mWearablesVec.size(); i++)
-		{
-			// EWearableType wearable_type = gBakedWearableMap[baked_index][wearable_num];
-			const EWearableType wearable_type = wearable_dict->mWearablesVec[i];
-			const LLWearable* wearable = getWearable(wearable_type);
-			if (wearable)
-			{
-				hash ^= wearable->getID();
-			}
-		}
-		if (hash.notNull())
-		{
-			hash ^= wearable_dict->mHashID;
-			num_queries++;
-			// *NOTE: make sure at least one request gets packed
-
-			//llinfos << "Requesting texture for hash " << hash << " in baked texture slot " << baked_index << llendl;
-			gMessageSystem->nextBlockFast(_PREHASH_WearableData);
-			gMessageSystem->addUUIDFast(_PREHASH_ID, hash);
-			gMessageSystem->addU8Fast(_PREHASH_TextureIndex, (U8)baked_index);
-		}
-
-		mActiveCacheQueries[ baked_index ] = mTextureCacheQueryID;
-	}
-
-	llinfos << "Requesting texture cache entry for " << num_queries << " baked textures" << llendl;
-	gMessageSystem->sendReliable(getRegion()->getHost());
-	mNumPendingQueries++;
-	mTextureCacheQueryID++;
-}
-
-// User has picked "remove from avatar" from a menu.
-// static
-void LLAgent::userRemoveWearable( void* userdata )
-{
-	EWearableType type = (EWearableType)(intptr_t)userdata;
-	
-	if( !(type==WT_SHAPE || type==WT_SKIN || type==WT_HAIR ) ) //&&
-		//!((!gAgent.isTeen()) && ( type==WT_UNDERPANTS || type==WT_UNDERSHIRT )) )
-	{
-		gAgent.removeWearable( type );
-	}
-}
-
-void LLAgent::userRemoveAllClothes( void* userdata )
-{
-	// We have to do this up front to avoid having to deal with the case of multiple wearables being dirty.
-	if( gFloaterCustomize )
-	{
-		gFloaterCustomize->askToSaveIfDirty( LLAgent::userRemoveAllClothesStep2, NULL );
-	}
-	else
-	{
-		LLAgent::userRemoveAllClothesStep2( TRUE, NULL );
-	}
-}
-
-void LLAgent::userRemoveAllClothesStep2( BOOL proceed, void* userdata )
-{
-	if( proceed )
-	{
-		gAgent.removeWearable( WT_SHIRT );
-		gAgent.removeWearable( WT_PANTS );
-		gAgent.removeWearable( WT_SHOES );
-		gAgent.removeWearable( WT_SOCKS );
-		gAgent.removeWearable( WT_JACKET );
-		gAgent.removeWearable( WT_GLOVES );
-		gAgent.removeWearable( WT_UNDERSHIRT );
-		gAgent.removeWearable( WT_UNDERPANTS );
-		gAgent.removeWearable( WT_SKIRT );
-	}
-}
-
-void LLAgent::userRemoveAllAttachments( void* userdata )
-{
-	LLVOAvatar* avatarp = gAgent.getAvatarObject();
-	if(!avatarp)
-	{
-		llwarns << "No avatar found." << llendl;
-		return;
-	}
-
-	gMessageSystem->newMessage("ObjectDetach");
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-
-	for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
-		 iter != avatarp->mAttachmentPoints.end(); )
-	{
-		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
-		LLViewerJointAttachment* attachment = curiter->second;
-		LLViewerObject* objectp = attachment->getObject();
-		if (objectp)
-		{
-			gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-			gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, objectp->getLocalID());
-		}
-	}
-	gMessageSystem->sendReliable( gAgent.getRegionHost() );
+	sendReliableMessage();
 }
 
 void LLAgent::observeFriends()
@@ -7811,6 +6494,46 @@ void LLAgent::parseTeleportMessages(const std::string& xml_filename)
 			} //end if ( message exists and has a name)
 		} //end for (all message in set)
 	}//end for (all message sets in xml file)
+}
+
+void LLAgent::sendAgentUpdateUserInfo(bool im_via_email, const std::string& directory_visibility )
+{
+	gMessageSystem->newMessageFast(_PREHASH_UpdateUserInfo);
+	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+	gMessageSystem->addUUIDFast(_PREHASH_AgentID, getID());
+	gMessageSystem->addUUIDFast(_PREHASH_SessionID, getSessionID());
+	gMessageSystem->nextBlockFast(_PREHASH_UserData);
+	gMessageSystem->addBOOLFast(_PREHASH_IMViaEMail, im_via_email);
+	gMessageSystem->addString("DirectoryVisibility", directory_visibility);
+	gAgent.sendReliableMessage();
+}
+
+// static
+void LLAgent::dumpGroupInfo()
+{
+	llinfos << "group   " << gAgent.mGroupName << llendl;
+	llinfos << "ID      " << gAgent.mGroupID << llendl;
+	llinfos << "powers " << gAgent.mGroupPowers << llendl;
+	llinfos << "title   " << gAgent.mGroupTitle << llendl;
+	//llinfos << "insig   " << gAgent.mGroupInsigniaID << llendl;
+}
+
+/********************************************************************************/
+LLAgentQueryManager gAgentQueryManager;
+
+LLAgentQueryManager::LLAgentQueryManager() :
+	mWearablesCacheQueryID(0),
+	mNumPendingQueries(0),
+	mUpdateSerialNum(0)
+{
+	for (U32 i = 0; i < BAKED_NUM_INDICES; i++)
+	{
+		mActiveCacheQueries[i] = 0;
+	}
+}
+
+LLAgentQueryManager::~LLAgentQueryManager()
+{
 }
 
 // EOF

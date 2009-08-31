@@ -412,7 +412,7 @@ BOOL LLToolBrushLand::handleHover( S32 x, S32 y, MASK mask )
 	mMouseX = x;
 	mMouseY = y;
 	mGotHover = TRUE;
-	gViewerWindow->getWindow()->setCursor(UI_CURSOR_TOOLLAND);
+	gViewerWindow->setCursor(UI_CURSOR_TOOLLAND);
 	return TRUE;
 }
 

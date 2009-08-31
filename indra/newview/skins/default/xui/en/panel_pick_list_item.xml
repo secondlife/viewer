@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ bevel_style="none"
+ follows="top|left|right"
+ height="120"
+ layout="topleft"
+ left="0"
+ name="picture_item"
+ top="0"
+ width="275">
+    <texture_picker
+     allow_no_texture="true"
+     default_image_name="None"
+     enabled="false"
+     follows="left|top"
+     height="120"
+     layout="topleft"
+     left="5"
+     mouse_opaque="false"
+     name="picture"
+     tab_stop="false"
+     top="5"
+     width="120" />
+    <text
+     follows="top|left|right"
+     height="16"
+     layout="topleft"
+     left="135"
+     name="picture_name"
+     text_color="white"
+     top="5"
+     use_ellipses="true"
+     width="120"
+     word_wrap="true" />
+    <text
+     follows="top|left|right"
+     height="75"
+     layout="topleft"
+     left="135"
+     name="picture_descr"
+     top_pad="10"
+     use_ellipses="true"
+     width="130"
+     word_wrap="true" />
+    <button
+     follows="top|right"
+     height="16"
+     image_selected="Info_Press"
+     image_unselected="Info_Off"
+     layout="topleft"
+     name="info_chevron"
+     picture_style="true"
+     right="262"
+     tab_stop="false"
+     top="3"
+     width="16" />
+</panel>

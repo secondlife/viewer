@@ -35,7 +35,7 @@
 
 #include "llscrollingpanellist.h"
 
-static LLRegisterWidget<LLScrollingPanelList> r("scrolling_panel_list");
+static LLDefaultChildRegistry::Register<LLScrollingPanelList> r("scrolling_panel_list");
 
 
 /////////////////////////////////////////////////////////////////////
@@ -52,9 +52,69 @@ void LLScrollingPanelList::clearPanels()
 
 void LLScrollingPanelList::addPanel( LLScrollingPanel* panel )
 {
-	addChildAtEnd( panel );
+	addChildInBack( panel );
 	mPanelList.push_front( panel );
-	
+
+	// Resize this view
+	S32 total_height = 0;
+	S32 max_width = 0;
+	S32 cur_gap = 0;
+	for (std::deque<LLScrollingPanel*>::iterator iter = mPanelList.begin();
+		 iter != mPanelList.end(); ++iter)
+	{
+		LLScrollingPanel *childp = *iter;
+		total_height += childp->getRect().getHeight() + cur_gap;
+		max_width = llmax( max_width, childp->getRect().getWidth() );
+		cur_gap = GAP_BETWEEN_PANELS;
+	}
+	reshape( max_width, total_height, FALSE );
+
+	// Reposition each of the child views
+	S32 cur_y = total_height;
+	for (std::deque<LLScrollingPanel*>::iterator iter = mPanelList.begin();
+		 iter != mPanelList.end(); ++iter)
+	{
+		LLScrollingPanel *childp = *iter;
+		cur_y -= childp->getRect().getHeight();
+		childp->translate( -childp->getRect().mLeft, cur_y - childp->getRect().mBottom);
+		cur_y -= GAP_BETWEEN_PANELS;
+	}
+}
+
+void LLScrollingPanelList::removePanel(LLScrollingPanel* panel) 
+{
+	U32 index = 0;
+	LLScrollingPanelList::panel_list_t::const_iterator iter;
+
+	if (!mPanelList.empty()) 
+	{
+		for (iter = mPanelList.begin(); iter != mPanelList.end(); ++iter, ++index) 
+		{
+			if (*iter == panel) 
+			{
+				break;
+			}
+		}
+		if(iter != mPanelList.end())
+		{
+			removePanel(index);
+		}
+	}
+}
+
+void LLScrollingPanelList::removePanel( U32 panel_index )
+{
+	if ( mPanelList.empty() || panel_index >= mPanelList.size() )
+	{
+		llwarns << "Panel index " << panel_index << " is out of range!" << llendl;
+		return;
+	}
+	else
+	{
+		removeChild( mPanelList.at(panel_index) );
+		mPanelList.erase( mPanelList.begin() + panel_index );
+	}
+
 	const S32 GAP_BETWEEN_PANELS = 6;
 
 	// Resize this view
@@ -82,7 +142,7 @@ void LLScrollingPanelList::addPanel( LLScrollingPanel* panel )
 		cur_y -= GAP_BETWEEN_PANELS;
 	}
 }
-	
+
 void LLScrollingPanelList::updatePanels(BOOL allow_modify)
 {
     for (std::deque<LLScrollingPanel*>::iterator iter = mPanelList.begin();
@@ -136,20 +196,5 @@ void LLScrollingPanelList::draw()
 	updatePanelVisiblilty();
 
 	LLUICtrl::draw();
-}
-
-
-// static
-LLView* LLScrollingPanelList::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
-{
-    std::string name("scrolling_panel_list");
-    node->getAttributeString("name", name);
-
-    LLRect rect;
-    createRect(node, rect, parent, LLRect());
-
-    LLScrollingPanelList* scrolling_panel_list = new LLScrollingPanelList(name, rect);
-    scrolling_panel_list->initFromXML(node, parent);
-    return scrolling_panel_list;
 }
 

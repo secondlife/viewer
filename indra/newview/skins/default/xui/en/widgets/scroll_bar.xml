@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<scroll_bar thumb_image_vertical ="ScrollThumb_Vert"
+			thumb_image_horizontal ="ScrollThumb_Horiz"
+            track_image_vertical ="ScrollTrack_Vert"
+			track_image_horizontal ="ScrollTrack_Horiz"
+			track_color="ScrollbarTrackColor"
+            thumb_color="ScrollbarThumbColor"
+            thickness="15">
+  <up_button image_unselected="ScrollArrow_Up"
+             image_selected="ScrollArrow_Up"
+             scale_image="true" thickness="15"
+             hover_glow_amount="0.35"/>
+  <down_button image_unselected="ScrollArrow_Down"
+               image_selected="ScrollArrow_Down"
+               scale_image="true" thickness="15"
+               hover_glow_amount="0.35"/>
+  <left_button image_unselected="ScrollArrow_Left"
+               image_selected="ScrollArrow_Left"
+               scale_image="true" thickness="15"
+               hover_glow_amount="0.35"/>
+  <right_button image_unselected="ScrollArrow_Right"
+               image_selected="ScrollArrow_Right"
+               scale_image="true" thickness="15"
+               hover_glow_amount="0.35"/>
+</scroll_bar>

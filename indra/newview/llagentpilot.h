@@ -70,6 +70,7 @@ public:
 	static void startPlayback(void *);
 	static void stopPlayback(void *);
 	static BOOL	sLoop;
+	static BOOL sReplaySession;
 
 	S32		mNumRuns;
 	BOOL	mQuitAfterRuns;

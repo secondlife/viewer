@@ -44,10 +44,15 @@ class LLNameBox
 :	public LLTextBox
 {
 public:
-	LLNameBox(const std::string& name, const LLRect& rect, const LLUUID& name_id = LLUUID::null, BOOL is_group = FALSE, const LLFontGL* font = NULL, BOOL mouse_opaque = TRUE );
-		// By default, follows top and left and is mouse-opaque.
-		// If no text, text = name.
-		// If no font, uses default system font.
+	struct Params : public LLInitParam::Block<Params, LLTextBox::Params>
+	{
+		Optional<bool>		is_group;
+
+		Params()
+		:	is_group("is_group", false)
+		{}
+	};
+
 	virtual ~LLNameBox();
 
 	void setNameID(const LLUUID& name_id, BOOL is_group);
@@ -57,6 +62,10 @@ public:
 	static void refreshAll(const LLUUID& id, const std::string& firstname,
 						   const std::string& lastname, BOOL is_group);
 
+protected:
+	LLNameBox (const Params&);
+
+	friend class LLUICtrlFactory;
 private:
 	static std::set<LLNameBox*> sInstances;
 

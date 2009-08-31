@@ -36,9 +36,12 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
+#include "llfloaterreg.h"
 #include "llpanellogin.h"
 #include "llviewerkeyboard.h"
+#include "llviewermenu.h"
 #include "llviewerwindow.h"
 
 #include "llviewquery.h"
@@ -48,15 +51,15 @@
 
 #include "llvoiceclient.h"	// for push-to-talk button handling
 
-
 //
 // TODO: Many of these includes are unnecessary.  Remove them.
 //
 
 // linden library includes
-#include "audioengine.h"		// mute on minimize
+#include "llaudioengine.h"		// mute on minimize
 #include "indra_constants.h"
 #include "llassetstorage.h"
+#include "llerrorcontrol.h"
 #include "llfontgl.h"
 #include "llmousehandler.h"
 #include "llrect.h"
@@ -76,7 +79,6 @@
 #include "llagent.h"
 #include "llalertdialog.h"
 #include "llbox.h"
-#include "llchatbar.h"
 #include "llconsole.h"
 #include "llviewercontrol.h"
 #include "llcylinder.h"
@@ -91,23 +93,22 @@
 #include "llfeaturemanager.h"
 #include "llfilepicker.h"
 #include "llfloater.h"
-#include "llfloateractivespeakers.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloaterbuyland.h"
 #include "llfloatercamera.h"
 #include "llfloaterchat.h"
 #include "llfloaterchatterbox.h"
 #include "llfloatercustomize.h"
-#include "llfloatereditui.h" // HACK JAMESDEBUG for ui editor
 #include "llfloaterland.h"
 #include "llfloaterinspect.h"
+#include "llfloatermap.h"
 #include "llfloaternamedesc.h"
 #include "llfloaterpreference.h"
 #include "llfloatersnapshot.h"
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
 #include "llfocusmgr.h"
-#include "llframestatview.h"
+#include "llfontfreetype.h"
 #include "llgesturemgr.h"
 #include "llglheaders.h"
 #include "llhoverview.h"
@@ -115,20 +116,21 @@
 #include "llhudview.h"
 #include "llimagebmp.h"
 #include "llimagej2c.h"
-#include "llinventoryview.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
 #include "llmodaldialog.h"
 #include "llmorphview.h"
 #include "llmoveview.h"
+#include "llnavigationbar.h"
 #include "llnotify.h"
 #include "lloverlaybar.h"
 #include "llpreviewtexture.h"
 #include "llprogressview.h"
 #include "llresmgr.h"
-#include "llrootview.h"
+#include "llsidetray.h"
 #include "llselectmgr.h"
+#include "llrootview.h"
 #include "llrendersphere.h"
 #include "llstartup.h"
 #include "llstatusbar.h"
@@ -151,18 +153,19 @@
 #include "lltoolmgr.h"
 #include "lltoolmorph.h"
 #include "lltoolpie.h"
-#include "lltoolplacer.h"
 #include "lltoolselectland.h"
-#include "lltoolview.h"
+#include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "lluploaddialog.h"
 #include "llurldispatcher.h"		// SLURL from other app instance
 #include "llvieweraudio.h"
 #include "llviewercamera.h"
 #include "llviewergesture.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerinventory.h"
 #include "llviewerkeyboard.h"
+#include "llviewermedia.h"
+#include "llviewermediafocus.h"
 #include "llviewermenu.h"
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
@@ -170,7 +173,7 @@
 #include "llviewerregion.h"
 #include "llviewershadermgr.h"
 #include "llviewerstats.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llvovolume.h"
 #include "llworld.h"
 #include "llworldmapview.h"
@@ -182,9 +185,15 @@
 #include "llviewerjoystick.h"
 #include "llviewernetwork.h"
 #include "llpostprocess.h"
+#include "llbottomtray.h"
+#include "llnearbychatbar.h"
+#include "llagentui.h"
 
-#include "llfloatertest.h" // HACK!
+#include "llnotificationmanager.h"
+
 #include "llfloaternotificationsconsole.h"
+
+#include "llnearbychat.h"
 
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
@@ -194,7 +203,6 @@
 // Globals
 //
 void render_ui(F32 zoom_factor = 1.f, int subfield = 0);
-LLBottomPanel* gBottomPanel = NULL;
 
 extern BOOL gDebugClicks;
 extern BOOL gDisplaySwapBuffers;
@@ -203,7 +211,6 @@ extern BOOL gResizeScreenTexture;
 extern S32 gJamesInt;
 
 LLViewerWindow	*gViewerWindow = NULL;
-LLVelocityBar	*gVelocityBar = NULL;
 
 
 BOOL			gDebugSelect = FALSE;
@@ -247,9 +254,27 @@ std::string	LLViewerWindow::sSnapshotDir;
 
 std::string	LLViewerWindow::sMovieBaseName;
 
-extern void toggle_debug_menus(void*);
+class RecordToChatConsole : public LLError::Recorder, public LLSingleton<RecordToChatConsole>
+{
+public:
+	virtual void recordMessage(LLError::ELevel level,
+								const std::string& message)
+	{
+		// only log warnings to chat console
+		if (level == LLError::LEVEL_WARN)
+		{
+			LLFloaterChat* chat_floater = LLFloaterReg::findTypedInstance<LLFloaterChat>("chat");
+			if (chat_floater && gSavedSettings.getBOOL("WarningsAsChat"))
+			{
+				LLChat chat;
+				chat.mText = message;
+				chat.mSourceType = CHAT_SOURCE_SYSTEM;
 
-
+				chat_floater->addChat(chat, FALSE, FALSE);
+			}
+		}
+	}
+};
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -513,7 +538,7 @@ public:
 			ypos += y_inc;
 		}
 		// only display these messages if we are actually rendering beacons at this moment
-		if (LLPipeline::getRenderBeacons(NULL) && gSavedSettings.getBOOL("BeaconAlwaysOn"))
+		if (LLPipeline::getRenderBeacons(NULL) && LLFloaterReg::instanceVisible("beacons"))
 		{
 			if (LLPipeline::getRenderParticleBeacons(NULL))
 			{
@@ -557,7 +582,7 @@ public:
 			const Line& line = *iter;
 			LLFontGL::getFontMonospace()->renderUTF8(line.text, 0, (F32)line.x, (F32)line.y, mTextColor,
 											 LLFontGL::LEFT, LLFontGL::TOP,
-											 LLFontGL::NORMAL, S32_MAX, S32_MAX, NULL, FALSE);
+											 LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE);
 		}
 		mLineList.clear();
 	}
@@ -580,11 +605,11 @@ bool LLViewerWindow::shouldShowToolTipFor(LLMouseHandler *mh)
 	{
 		LLMouseHandler::EShowToolTip showlevel = mh->getShowToolTip();
 
-		return (
-			showlevel == LLMouseHandler::SHOW_ALWAYS ||
-			(showlevel == LLMouseHandler::SHOW_IF_NOT_BLOCKED &&
-			 !mToolTipBlocked)
-			);
+		bool tool_tip_allowed = (showlevel == LLMouseHandler::SHOW_ALWAYS 
+								|| (showlevel == LLMouseHandler::SHOW_IF_NOT_BLOCKED 
+									&& !mToolTipBlocked));
+
+		return tool_tip_allowed;
 	}
 	return false;
 }
@@ -912,8 +937,6 @@ void LLViewerWindow::handleFocus(LLWindow *window)
 	gAgent.onAppFocusGained();
 	LLToolMgr::getInstance()->onAppFocusGained();
 
-	gShowTextEditCursor = TRUE;
-
 	// See if we're coming in with modifier keys held down
 	if (gKeyboard)
 	{
@@ -942,11 +965,6 @@ void LLViewerWindow::handleFocusLost(LLWindow *window)
 	// restore mouse cursor
 	showCursor();
 	getWindow()->setMouseClipping(FALSE);
-
-	// JC - Leave keyboard focus, so if you're popping in and out editing
-	// a script, you don't have to click in the editor again and again.
-	// gFocusMgr.setKeyboardFocus( NULL );
-	gShowTextEditCursor = FALSE;
 
 	// If losing focus while keys are down, reset them.
 	if (gKeyboard)
@@ -1089,7 +1107,7 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 		FillRect(hdc, &wnd_rect, CreateSolidBrush(RGB(255, 255, 255)));
 
 		std::string name_str;
-		gAgent.getName(name_str);
+		LLAgentUI::buildName(name_str);
 
 		std::string temp_str;
 		temp_str = llformat( "%s FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
@@ -1138,7 +1156,7 @@ void LLViewerWindow::handleDataCopy(LLWindow *window, S32 data_type, void *data)
 	case SLURL_MESSAGE_TYPE:
 		// received URL
 		std::string url = (const char*)data;
-		LLWebBrowserCtrl* web = NULL;
+		LLMediaCtrl* web = NULL;
 		const bool trusted_browser = false;
 		if (LLURLDispatcher::dispatch(url, web, trusted_browser))
 		{
@@ -1186,6 +1204,27 @@ void LLViewerWindow::handlePauseWatchdog(LLWindow *window)
 	LLAppViewer::instance()->pauseMainloopTimeout();
 }
 
+//virtual
+std::string LLViewerWindow::translateString(const char* tag)
+{
+	return LLTrans::getString( std::string(tag) );
+}
+
+//virtual
+std::string LLViewerWindow::translateString(const char* tag,
+		const std::map<std::string, std::string>& args)
+{
+	// LLTrans uses a special subclass of std::string for format maps,
+	// but we must use std::map<> in these callbacks, otherwise we create
+	// a dependency between LLWindow and LLFormatMapString.  So copy the data.
+	LLStringUtil::format_map_t args_copy;
+	std::map<std::string,std::string>::const_iterator it = args.begin();
+	for ( ; it != args.end(); ++it)
+	{
+		args_copy[it->first] = it->second;
+	}
+	return LLTrans::getString( std::string(tag), args_copy);
+}
 
 //
 // Classes
@@ -1196,11 +1235,13 @@ LLViewerWindow::LLViewerWindow(
 	S32 width, S32 height,
 	BOOL fullscreen, BOOL ignore_pixel_depth)
 	:
+	mWindow(NULL),
 	mActive(TRUE),
 	mWantFullscreen(fullscreen),
 	mShowFullscreenProgress(FALSE),
 	mWindowRect(0, height, width, 0),
 	mVirtualWindowRect(0, height, width, 0),
+	mWorldViewRect(0, height, width, 0),
 	mLeftMouseDown(FALSE),
 	mMiddleMouseDown(FALSE),
 	mRightMouseDown(FALSE),
@@ -1224,6 +1265,8 @@ LLViewerWindow::LLViewerWindow(
 
 	LLNotifications::instance().getChannel("VW_alerts")->connectChanged(&LLViewerWindow::onAlert);
 	LLNotifications::instance().getChannel("VW_alertmodal")->connectChanged(&LLViewerWindow::onAlert);
+	LLNotifications::instance().setIgnoreAllNotifications(gSavedSettings.getBOOL("IgnoreAllNotifications"));
+	llinfos << "NOTE: ALL NOTIFICATIONS THAT OCCUR WILL GET ADDED TO IGNORE LIST FOR LATER RUNS." << llendl;
 
 	// Default to application directory.
 	LLViewerWindow::sSnapshotBaseName = "Snapshot";
@@ -1231,7 +1274,7 @@ LLViewerWindow::LLViewerWindow(
 	resetSnapshotLoc();
 
 	// create window
-	mWindow = LLWindowManager::createWindow(
+	mWindow = LLWindowManager::createWindow(this,
 		title, name, x, y, width, height, 0,
 		fullscreen, 
 		gNoRender,
@@ -1306,26 +1349,31 @@ LLViewerWindow::LLViewerWindow(
 		mInitAlert = "DisplaySettingsNoShaders";
 		LLFeatureManager::getInstance()->setGraphicsLevel(0, false);
 		gSavedSettings.setU32("RenderQualityPerformance", 0);		
-		
 	}
 		
-	// set callbacks
-	mWindow->setCallbacks(this);
-
 	// Init the image list.  Must happen after GL is initialized and before the images that
 	// LLViewerWindow needs are requested.
-	gImageList.init();
-	LLViewerImage::initClass();
+	gTextureList.init();
+	LLViewerTextureManager::init() ;
 	gBumpImageList.init();
-
+	
+	// Init font system, but don't actually load the fonts yet
+	// because our window isn't onscreen and they take several
+	// seconds to parse.
+	LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
+								mDisplayScale.mV[VX],
+								mDisplayScale.mV[VY],
+								gDirUtilp->getAppRODataDir(),
+								LLUI::getXUIPaths());
+	
 	// Create container for all sub-views
-	mRootView = new LLRootView("root", mVirtualWindowRect, FALSE);
-
-	if (!gNoRender)
-	{
-		// Init default fonts
-		initFonts();
-	}
+	LLView::Params rvp;
+	rvp.name("root");
+	rvp.rect(mVirtualWindowRect);
+	rvp.mouse_opaque(false);
+	rvp.follows.flags(FOLLOWS_NONE);
+	mRootView = LLUICtrlFactory::create<LLRootView>(rvp);
+	LLUI::setRootView(mRootView);
 
 	// Make avatar head look forward at start
 	mCurrentMousePoint.mX = getWindowWidth() / 2;
@@ -1381,8 +1429,6 @@ void LLViewerWindow::initBase()
 
 	LLRect full_window(0, height, width, 0);
 
-	adjustRectanglesForFirstUse(full_window);
-
 	////////////////////
 	//
 	// Set the gamma
@@ -1402,41 +1448,57 @@ void LLViewerWindow::initBase()
 
 	// Constrain floaters to inside the menu and status bar regions.
 	LLRect floater_view_rect = full_window;
-	// make space for menu bar if we have one
+	// make space for menu bar
 	floater_view_rect.mTop -= MENU_BAR_HEIGHT;
 
-	// TODO: Eliminate magic constants - please used named constants if changing this
-	floater_view_rect.mBottom += STATUS_BAR_HEIGHT + 12 + 16 + 2;
+	LLFloaterView::Params fvparams;
+	fvparams.name("Floater View");
+	fvparams.rect(floater_view_rect);
+	fvparams.mouse_opaque(false);
+	fvparams.follows.flags(FOLLOWS_ALL);
+	fvparams.tab_stop(false);
+	gFloaterView = LLUICtrlFactory::create<LLFloaterView> (fvparams);
 
-	// Check for non-first startup
-	S32 floater_view_bottom = gSavedSettings.getS32("FloaterViewBottom");
-	if (floater_view_bottom >= 0)
-	{
-		floater_view_rect.mBottom = floater_view_bottom;
-	}
-	gFloaterView = new LLFloaterView("Floater View", floater_view_rect );
-	gFloaterView->setVisible(TRUE);
-
-	gSnapshotFloaterView = new LLSnapshotFloaterView("Snapshot Floater View", full_window);
+	LLSnapshotFloaterView::Params snapParams;
+	snapParams.name("Snapshot Floater View");
+	snapParams.rect(full_window);
+	snapParams.enabled(false);
+	gSnapshotFloaterView = LLUICtrlFactory::create<LLSnapshotFloaterView> (snapParams);
+	
 	// Snapshot floater must start invisible otherwise it eats all
 	// the tooltips. JC
 	gSnapshotFloaterView->setVisible(FALSE);
 
 	// Console
 	llassert( !gConsole );
-	gConsole = new LLConsole(
-		"console",
-		gSavedSettings.getS32("ConsoleBufferSize"),
-		getChatConsoleRect(),
-		gSavedSettings.getS32("ChatFontSize"),
-		gSavedSettings.getF32("ChatPersistTime") );
-	gConsole->setFollows(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM);
+	LLConsole::Params cp;
+	cp.name("console");
+	cp.max_lines(gSavedSettings.getS32("ConsoleBufferSize"));
+	cp.rect(getChatConsoleRect());
+	cp.persist_time(gSavedSettings.getF32("ChatPersistTime"));
+	cp.font_size_index(gSavedSettings.getS32("ChatFontSize"));
+	cp.follows.flags(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM);
+	gConsole = LLUICtrlFactory::create<LLConsole>(cp);
 	mRootView->addChild(gConsole);
 
+	// optionally forward warnings to chat console/chat floater
+	// for qa runs and dev builds
+#if  !LL_RELEASE_FOR_DOWNLOAD
+	LLError::addRecorder(RecordToChatConsole::getInstance());
+#else
+	if(gSavedSettings.getBOOL("QAMode"))
+	{
+		LLError::addRecorder(RecordToChatConsole::getInstance());
+	}
+#endif
+
 	// Debug view over the console
-	gDebugView = new LLDebugView("gDebugView", full_window);
-	gDebugView->setFollowsAll();
-	gDebugView->setVisible(TRUE);
+	LLDebugView::Params debug_p;
+	debug_p.name("DebugView");
+	debug_p.rect(full_window);
+	debug_p.follows.flags(FOLLOWS_ALL);
+	debug_p.visible(true);
+	gDebugView = LLUICtrlFactory::create<LLDebugView>(debug_p);
 	mRootView->addChild(gDebugView);
 
 	// Add floater view at the end so it will be on top, and give it tab priority over others
@@ -1444,303 +1506,204 @@ void LLViewerWindow::initBase()
 	mRootView->addChild(gSnapshotFloaterView);
 
 	// notify above floaters!
-	LLRect notify_rect = full_window;
-	//notify_rect.mTop -= 24;
-	notify_rect.mBottom += STATUS_BAR_HEIGHT;
-	gNotifyBoxView = new LLNotifyBoxView("notify_container", notify_rect, FALSE, FOLLOWS_ALL);
+	LLRect notify_rect = floater_view_rect;
+	LLNotifyBoxView::Params p;
+	p.name("notify_container");
+	p.rect(notify_rect);
+	p.mouse_opaque(false);
+	p.follows.flags(FOLLOWS_ALL);
+	gNotifyBoxView = LLUICtrlFactory::create<LLNotifyBoxView> (p);
 	mRootView->addChild(gNotifyBoxView, -2);
 
 	// Tooltips go above floaters
-	mToolTip = new LLTextBox( std::string("tool tip"), LLRect(0, 1, 1, 0 ) );
-	mToolTip->setHPad( 4 );
-	mToolTip->setVPad( 2 );
-	mToolTip->setColor( gColors.getColor( "ToolTipTextColor" ) );
-	mToolTip->setBorderColor( gColors.getColor( "ToolTipBorderColor" ) );
-	mToolTip->setBorderVisible( FALSE );
-	mToolTip->setBackgroundColor( gColors.getColor( "ToolTipBgColor" ) );
-	mToolTip->setBackgroundVisible( TRUE );
-	mToolTip->setFontStyle(LLFontGL::NORMAL);
-	mToolTip->setBorderDropshadowVisible( TRUE );
-	mToolTip->setVisible( FALSE );
+	LLTextBox::Params params;
+	params.text("tool tip");
+	params.name(params.text);
+	params.rect(LLRect (0, 1, 1, 0));
+	params.h_pad(4);
+	params.v_pad(2);
+	params.text_color(LLUIColorTable::instance().getColor( "ToolTipTextColor" ));
+	params.border_color(LLUIColorTable::instance().getColor( "ToolTipBorderColor" ));
+	params.border_visible(false);
+	params.background_color(LLUIColorTable::instance().getColor( "ToolTipBgColor" ));
+	params.bg_visible(true);
+	params.font.style("NORMAL");
+	params.border_drop_shadow_visible(true);
+	params.visible(false);
+	mToolTip = LLUICtrlFactory::create<LLTextBox> (params);
 
 	// Add the progress bar view (startup view), which overrides everything
-	mProgressView = new LLProgressView(std::string("ProgressView"), full_window);
+	mProgressView = new LLProgressView(full_window);
 	mRootView->addChild(mProgressView);
 	setShowProgress(FALSE);
 	setProgressCancelButtonVisible(FALSE);
 }
 
-
-void adjust_rect_top_left(const std::string& control, const LLRect& window)
-{
-	LLRect r = gSavedSettings.getRect(control);
-	if (r.mLeft == 0 && r.mBottom == 0)
-	{
-		r.setLeftTopAndSize(0, window.getHeight(), r.getWidth(), r.getHeight());
-		gSavedSettings.setRect(control, r);
-	}
-}
-
-void adjust_rect_top_center(const std::string& control, const LLRect& window)
-{
-	LLRect r = gSavedSettings.getRect(control);
-	if (r.mLeft == 0 && r.mBottom == 0)
-	{
-		r.setLeftTopAndSize( window.getWidth()/2 - r.getWidth()/2,
-			window.getHeight(),
-			r.getWidth(),
-			r.getHeight() );
-		gSavedSettings.setRect(control, r);
-	}
-}
-
-void adjust_rect_top_right(const std::string& control, const LLRect& window)
-{
-	LLRect r = gSavedSettings.getRect(control);
-	if (r.mLeft == 0 && r.mBottom == 0)
-	{
-		r.setLeftTopAndSize(window.getWidth() - r.getWidth(),
-			window.getHeight(),
-			r.getWidth(), 
-			r.getHeight());
-		gSavedSettings.setRect(control, r);
-	}
-}
-
-// *TODO: Adjust based on XUI XML
-const S32 TOOLBAR_HEIGHT = 64;
-
-void adjust_rect_bottom_left(const std::string& control, const LLRect& window)
-{
-	LLRect r = gSavedSettings.getRect(control);
-	if (r.mLeft == 0 && r.mBottom == 0)
-	{
-		r.setOriginAndSize(0, TOOLBAR_HEIGHT, r.getWidth(), r.getHeight());
-		gSavedSettings.setRect(control, r);
-	}
-}
-
-void adjust_rect_bottom_center(const std::string& control, const LLRect& window)
-{
-	LLRect r = gSavedSettings.getRect(control);
-	if (r.mLeft == 0 && r.mBottom == 0)
-	{
-		r.setOriginAndSize(
-			window.getWidth()/2 - r.getWidth()/2,
-			TOOLBAR_HEIGHT,
-			r.getWidth(),
-			r.getHeight());
-		gSavedSettings.setRect(control, r);
-	}
-}
-
-void adjust_rect_centered_partial_zoom(const std::string& control,
-									   const LLRect& window)
-{
-	LLRect rect = gSavedSettings.getRect(control);
-	// Only adjust on first use
-	if (rect.mLeft == 0 && rect.mBottom == 0)
-	{
-		S32 width = window.getWidth();
-		S32 height = window.getHeight();
-		rect.set(0, height-STATUS_BAR_HEIGHT, width, TOOL_BAR_HEIGHT);
-		// Make floater fill 80% of window, leaving 20% padding on
-		// the sides.
-		const F32 ZOOM_FRACTION = 0.8f;
-		S32 dx = (S32)(width * (1.f - ZOOM_FRACTION));
-		S32 dy = (S32)(height * (1.f - ZOOM_FRACTION));
-		rect.stretch(-dx/2, -dy/2);
-		gSavedSettings.setRect(control, rect);
-	}
-}
-
-
-// Many rectangles can't be placed until we know the screen size.
-// These rectangles have their bottom-left corner as 0,0
-void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
-{
-	LLRect r;
-
-	// *NOTE: The width and height of these floaters must be
-	// identical in settings.xml and their relevant floater.xml
-	// files, otherwise the window construction will get
-	// confused. JC
-	adjust_rect_bottom_center("FloaterMoveRect2", window);
-
-	adjust_rect_top_center("FloaterCameraRect3", window);
-
-	adjust_rect_top_left("FloaterCustomizeAppearanceRect", window);
-
-	adjust_rect_top_left("FloaterLandRect5", window);
-
-	adjust_rect_top_left("FloaterFindRect2", window);
-
-	adjust_rect_top_left("FloaterGestureRect2", window);
-
-	adjust_rect_top_right("FloaterMiniMapRect", window);
-	
-	adjust_rect_top_right("FloaterLagMeter", window);
-
-	adjust_rect_top_left("FloaterBuildOptionsRect", window);
-
-	adjust_rect_bottom_left("FloaterActiveSpeakersRect", window);
-
-	adjust_rect_bottom_left("FloaterBumpRect", window);
-
-	adjust_rect_bottom_left("FloaterRegionInfo", window);
-
-	adjust_rect_bottom_left("FloaterEnvRect", window);
-
-	adjust_rect_bottom_left("FloaterAdvancedSkyRect", window);
-
-	adjust_rect_bottom_left("FloaterAdvancedWaterRect", window);
-
-	adjust_rect_bottom_left("FloaterDayCycleRect", window);
-
-	adjust_rect_top_right("FloaterStatisticsRect", window);
-
-
-	// bottom-right
-	r = gSavedSettings.getRect("FloaterInventoryRect");
-	if (r.mLeft == 0 && r.mBottom == 0)
-	{
-		r.setOriginAndSize(
-			window.getWidth() - r.getWidth(),
-			0,
-			r.getWidth(),
-			r.getHeight());
-		gSavedSettings.setRect("FloaterInventoryRect", r);
-	}
-	
-// 	adjust_rect_top_left("FloaterHUDRect2", window);
-
-	// slightly off center to be left of the avatar.
-	r = gSavedSettings.getRect("FloaterHUDRect2");
-	if (r.mLeft == 0 && r.mBottom == 0)
-	{
-		r.setOriginAndSize(
-			window.getWidth()/4 - r.getWidth()/2,
-			2*window.getHeight()/3 - r.getHeight()/2,
-			r.getWidth(),
-			r.getHeight());
-		gSavedSettings.setRect("FloaterHUDRect2", r);
-	}
-}
-
-//Rectangles need to be adjusted after the window is constructed
-//in order for proper centering to take place
-void LLViewerWindow::adjustControlRectanglesForFirstUse(const LLRect& window)
-{
-	adjust_rect_bottom_center("FloaterMoveRect2", window);
-	adjust_rect_top_center("FloaterCameraRect3", window);
-}
-
 void LLViewerWindow::initWorldUI()
 {
-	pre_init_menus();
-
 	S32 height = mRootView->getRect().getHeight();
 	S32 width = mRootView->getRect().getWidth();
 	LLRect full_window(0, height, width, 0);
 
-	if ( gBottomPanel == NULL )			// Don't re-enter if objects are alreay created
+	gIMMgr = LLIMMgr::getInstance();
+
+	// side tray
+	getRootView()->addChild(LLSideTray::getInstance());
+
+	getRootView()->sendChildToFront(gFloaterView);
+	getRootView()->sendChildToFront(gSnapshotFloaterView);
+
+	// new bottom panel
+	LLRect rc = LLBottomTray::getInstance()->getRect();
+	rc.mLeft = 0;
+	rc.mRight = mRootView->getRect().getWidth();
+	LLBottomTray::getInstance()->reshape(rc.getWidth(),rc.getHeight(),FALSE);
+	LLBottomTray::getInstance()->setRect(rc);
+
+	// View for hover information
+	LLHoverView::Params hvp;
+	hvp.name("gHoverview");
+	hvp.rect(full_window);
+	gHoverView = LLUICtrlFactory::create<LLHoverView>(hvp);
+	mRootView->addChild(gHoverView);
+
+	// Pre initialize instance communicate instance;
+	//  currently needs to happen before initializing chat or IM
+	LLFloaterReg::getInstance("communicate");
+
+	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
 	{
-		// panel containing chatbar, toolbar, and overlay, over floaters
-		gBottomPanel = new LLBottomPanel(mRootView->getRect());
-		mRootView->addChild(gBottomPanel);
+		LLFloaterChat::loadHistory();
+	}
 
-		// View for hover information
-		gHoverView = new LLHoverView(std::string("gHoverView"), full_window);
-		gHoverView->setVisible(TRUE);
-		mRootView->addChild(gHoverView);
-		
-		gIMMgr = LLIMMgr::getInstance();
+	LLRect morph_view_rect = full_window;
+	morph_view_rect.stretch( -STATUS_BAR_HEIGHT );
+	morph_view_rect.mTop = full_window.mTop - 32;
+	LLMorphView::Params mvp;
+	mvp.name("MorphView");
+	mvp.rect(morph_view_rect);
+	mvp.visible(false);
+	gMorphView = LLUICtrlFactory::create<LLMorphView>(mvp);
+	mRootView->addChild(gMorphView);
 
-		if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
+	// Make space for nav bar.
+	LLRect floater_view_rect = gFloaterView->getRect();
+	LLRect notify_view_rect = gNotifyBoxView->getRect();
+	floater_view_rect.mTop -= NAVIGATION_BAR_HEIGHT;
+	floater_view_rect.mBottom += LLBottomTray::getInstance()->getRect().getHeight();
+	notify_view_rect.mTop -= NAVIGATION_BAR_HEIGHT;
+	notify_view_rect.mBottom += LLBottomTray::getInstance()->getRect().getHeight();
+	gFloaterView->setRect(floater_view_rect);
+	gNotifyBoxView->setRect(notify_view_rect);
+
+	// *Note: this is where gFloaterMute used to be initialized.
+
+	LLWorldMapView::initClass();
+	
+	// Force gFloaterWorldMap to initialize
+	LLFloaterReg::getInstance("world_map");
+
+	// Force gFloaterTools to initialize
+	LLFloaterReg::getInstance("build");
+	LLFloaterReg::hideInstance("build");
+
+	// Status bar
+	S32 menu_bar_height = gMenuBarView->getRect().getHeight();
+	LLRect root_rect = getRootView()->getRect();
+	LLRect status_rect(0, root_rect.getHeight(), root_rect.getWidth(), root_rect.getHeight() - menu_bar_height);
+	gStatusBar = new LLStatusBar(status_rect);
+	gStatusBar->setFollows(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_TOP);
+
+	gStatusBar->reshape(root_rect.getWidth(), gStatusBar->getRect().getHeight(), TRUE);
+	gStatusBar->translate(0, root_rect.getHeight() - gStatusBar->getRect().getHeight());
+	// sync bg color with menu bar
+	gStatusBar->setBackgroundColor( gMenuBarView->getBackgroundColor().get() );
+
+	// Navigation bar
+
+	LLNavigationBar* navbar = LLNavigationBar::getInstance();
+	navbar->reshape(root_rect.getWidth(), navbar->getRect().getHeight(), TRUE); // *TODO: redundant?
+	navbar->translate(0, root_rect.getHeight() - menu_bar_height - navbar->getRect().getHeight()); // FIXME
+	navbar->setBackgroundColor(gMenuBarView->getBackgroundColor().get());
+	
+	if (!gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
+	{
+		navbar->showNavigationPanel(FALSE);
+	}
+
+	if (!gSavedSettings.getBOOL("ShowNavbarFavoritesPanel"))
+	{
+		navbar->showFavoritesPanel(FALSE);
+	}
+
+	getRootView()->addChild(gStatusBar);
+	getRootView()->addChild(navbar);
+
+
+	//sidetray
+	//then notify area
+	//then menu
+	//getRootView()->sendChildToFront(LLSideTray::getInstance());
+
+	getRootView()->sendChildToFront(gNotifyBoxView);
+	// menu holder appears on top to get first pass at all mouse events
+	getRootView()->sendChildToFront(gMenuHolder);
+
+	//Channel Manager
+	LLNotificationsUI::LLChannelManager* channel_manager = LLNotificationsUI::LLChannelManager::getInstance();
+	getRootView()->addChild(channel_manager);
+	//Notification Manager
+	LLNotificationsUI::LLNotificationManager* notify_manager = LLNotificationsUI::LLNotificationManager::getInstance();
+	getRootView()->addChild(notify_manager);
+
+	if ( gHUDView == NULL )
+	{
+		LLRect hud_rect = full_window;
+		hud_rect.mBottom += 50;
+		if (gMenuBarView)
 		{
-			LLFloaterChat::getInstance(LLSD())->loadHistory();
+			hud_rect.mTop -= gMenuBarView->getRect().getHeight();
 		}
-
-		LLRect morph_view_rect = full_window;
-		morph_view_rect.stretch( -STATUS_BAR_HEIGHT );
-		morph_view_rect.mTop = full_window.mTop - 32;
-		gMorphView = new LLMorphView(std::string("gMorphView"), morph_view_rect );
-		mRootView->addChild(gMorphView);
-		gMorphView->setVisible(FALSE);
-
-		// *Note: this is where gFloaterMute used to be initialized.
-
-		LLWorldMapView::initClass();
-
-		adjust_rect_centered_partial_zoom("FloaterWorldMapRect2", full_window);
-
-		gFloaterWorldMap = new LLFloaterWorldMap();
-		gFloaterWorldMap->setVisible(FALSE);
-
-		//
-		// Tools for building
-		//
-
-		// Toolbox floater
-		init_menus();
-
-		gFloaterTools = new LLFloaterTools();
-		gFloaterTools->setVisible(FALSE);
-
-		// Status bar
-		S32 menu_bar_height = gMenuBarView->getRect().getHeight();
-		LLRect root_rect = getRootView()->getRect();
-		LLRect status_rect(0, root_rect.getHeight(), root_rect.getWidth(), root_rect.getHeight() - menu_bar_height);
-		gStatusBar = new LLStatusBar(std::string("status"), status_rect);
-		gStatusBar->setFollows(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_TOP);
-
-		gStatusBar->reshape(root_rect.getWidth(), gStatusBar->getRect().getHeight(), TRUE);
-		gStatusBar->translate(0, root_rect.getHeight() - gStatusBar->getRect().getHeight());
-		// sync bg color with menu bar
-		gStatusBar->setBackgroundColor( gMenuBarView->getBackgroundColor() );
-
-		LLFloaterChatterBox::createInstance(LLSD());
-
-		getRootView()->addChild(gStatusBar);
-
-		// menu holder appears on top to get first pass at all mouse events
-		getRootView()->sendChildToFront(gMenuHolder);
+		gHUDView = new LLHUDView(hud_rect);
+		// put behind everything else in the UI
+		getRootView()->addChildInBack(gHUDView);
 	}
 }
 
 // Destroy the UI
 void LLViewerWindow::shutdownViews()
 {
+	// clean up warning logger
+	LLError::removeRecorder(RecordToChatConsole::getInstance());
+
 	delete mDebugText;
 	mDebugText = NULL;
 	
-	gSavedSettings.setS32("FloaterViewBottom", gFloaterView->getRect().mBottom);
-
 	// Cleanup global views
 	if (gMorphView)
 	{
 		gMorphView->setVisible(FALSE);
 	}
 	
+	// Delete Tool Tip
+	delete mToolTip;
+	mToolTip = NULL;
+	
 	// Delete all child views.
 	delete mRootView;
 	mRootView = NULL;
 
 	// Automatically deleted as children of mRootView.  Fix the globals.
-	gFloaterTools = NULL;
 	gStatusBar = NULL;
 	gIMMgr = NULL;
 	gHoverView = NULL;
 
-	gFloaterView		= NULL;
-	gMorphView			= NULL;
+	gFloaterView = NULL;
+	gMorphView = NULL;
 
 	gHUDView = NULL;
 
 	gNotifyBoxView = NULL;
-
-	delete mToolTip;
-	mToolTip = NULL;
 }
 
 void LLViewerWindow::shutdownGL()
@@ -1755,7 +1718,7 @@ void LLViewerWindow::shutdownGL()
 	gSky.cleanup();
 	stop_glerror();
 
-	gImageList.shutdown();
+	gTextureList.shutdown();
 	stop_glerror();
 
 	gBumpImageList.shutdown();
@@ -1767,7 +1730,7 @@ void LLViewerWindow::shutdownGL()
 	gPipeline.cleanup();
 	stop_glerror();
 
-	LLViewerImage::cleanupClass();
+	LLViewerTextureManager::cleanup() ;
 	
 	llinfos << "Cleaning up select manager" << llendl;
 	LLSelectMgr::getInstance()->cleanup();
@@ -1829,8 +1792,8 @@ void LLViewerWindow::sendShapeToSim()
 	msg->addU32Fast(_PREHASH_CircuitCode, gMessageSystem->mOurCircuitCode);
 	msg->nextBlockFast(_PREHASH_HeightWidthBlock);
 	msg->addU32Fast(_PREHASH_GenCounter, 0);
-	U16 height16 = (U16) mWindowRect.getHeight();
-	U16 width16 = (U16) mWindowRect.getWidth();
+	U16 height16 = (U16) mWorldViewRect.getHeight();
+	U16 width16 = (U16) mWorldViewRect.getWidth();
 	msg->addU16Fast(_PREHASH_Height, height16);
 	msg->addU16Fast(_PREHASH_Width, width16);
 	gAgent.sendReliableMessage();
@@ -1851,25 +1814,18 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			return;
 		}
 
-		glViewport(0, 0, width, height );
-
-		if (height > 0)
-		{ 
-			LLViewerCamera::getInstance()->setViewHeightInPixels( height );
-			if (mWindow->getFullscreen())
-			{
-				// force to 4:3 aspect for odd resolutions
-				LLViewerCamera::getInstance()->setAspect( getDisplayAspectRatio() );
-			}
-			else
-			{
-				LLViewerCamera::getInstance()->setAspect( width / (F32) height);
-			}
-		}
-
 		// update our window rectangle
 		mWindowRect.mRight = mWindowRect.mLeft + width;
 		mWindowRect.mTop = mWindowRect.mBottom + height;
+
+		//glViewport(0, 0, width, height );
+
+		if (height > 0)
+		{ 
+			LLViewerCamera::getInstance()->setViewHeightInPixels( mWorldViewRect.getHeight() );
+			LLViewerCamera::getInstance()->setAspect( getWorldViewAspectRatio() );
+		}
+
 		calcDisplayScale();
 	
 		BOOL display_scale_changed = mDisplayScale != LLUI::sGLScaleFactor;
@@ -1879,7 +1835,7 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		mVirtualWindowRect.mRight = mVirtualWindowRect.mLeft + llround((F32)width / mDisplayScale.mV[VX]);
 		mVirtualWindowRect.mTop = mVirtualWindowRect.mBottom + llround((F32)height / mDisplayScale.mV[VY]);
 
-		setupViewport();
+		setup2DViewport();
 
 		// Inform lower views of the change
 		// round up when converting coordinates to make sure there are no gaps at edge of window
@@ -1897,7 +1853,7 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 
 
 		// store the mode the user wants (even if not there yet)
-		gSavedSettings.setBOOL("FullScreen", mWantFullscreen);
+		gSavedSettings.setBOOL("WindowFullScreen", mWantFullscreen);
 
 		// store new settings for the mode we are in, regardless
 		if (!mWindow->getFullscreen())
@@ -1917,7 +1873,6 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 
 		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_WIDTH, (F64)width);
 		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_HEIGHT, (F64)height);
-		gResizeScreenTexture = TRUE;
 	}
 }
 
@@ -1925,10 +1880,10 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 // Hide normal UI when a logon fails
 void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 {
-	if ( gBottomPanel )
+	if(LLBottomTray::instanceExists())
 	{
-		gBottomPanel->setVisible( visible );
-		gBottomPanel->setEnabled( visible );
+		LLBottomTray::getInstance()->setVisible(visible);
+		LLBottomTray::getInstance()->setEnabled(visible);
 	}
 
 	if ( gMenuBarView )
@@ -1946,6 +1901,12 @@ void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 		gStatusBar->setVisible( visible );	
 		gStatusBar->setEnabled( visible );	
 	}
+	
+	LLNavigationBar* navbarp = LLUI::getRootView()->findChild<LLNavigationBar>("navigation_bar");
+	if (navbarp)
+	{
+		navbarp->setVisible( visible );
+	}
 }
 
 void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
@@ -1955,19 +1916,19 @@ void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
 
     if(god_mode && LLViewerLogin::getInstance()->isInProductionGrid())
     {
-        new_bg_color = gColors.getColor( "MenuBarGodBgColor" );
+        new_bg_color = LLUIColorTable::instance().getColor( "MenuBarGodBgColor" );
     }
     else if(god_mode && !LLViewerLogin::getInstance()->isInProductionGrid())
     {
-        new_bg_color = gColors.getColor( "MenuNonProductionGodBgColor" );
+        new_bg_color = LLUIColorTable::instance().getColor( "MenuNonProductionGodBgColor" );
     }
     else if(!god_mode && !LLViewerLogin::getInstance()->isInProductionGrid())
     {
-        new_bg_color = gColors.getColor( "MenuNonProductionBgColor" );
+        new_bg_color = LLUIColorTable::instance().getColor( "MenuNonProductionBgColor" );
     }
     else 
     {
-        new_bg_color = gColors.getColor( "MenuBarBgColor" );
+        new_bg_color = LLUIColorTable::instance().getColor( "MenuBarBgColor" );
     }
 
     if(gMenuBarView)
@@ -1978,6 +1939,7 @@ void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
     if(gStatusBar)
     {
         gStatusBar->setBackgroundColor( new_bg_color );
+		gStatusBar->getChild<LLTextBox>("HealthText")->setBackgroundColor(new_bg_color);
     }
 }
 
@@ -2021,7 +1983,7 @@ void LLViewerWindow::draw()
 		glLoadIdentity();
 
 		microsecondsToTimecodeString(gFrameTime,text);
-		const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
+		const LLFontGL* font = LLFontGL::getFontSansSerif();
 		font->renderUTF8(text, 0,
 						llround((getWindowWidth()/2)-100.f),
 						llround((getWindowHeight()-60.f)),
@@ -2066,6 +2028,11 @@ void LLViewerWindow::draw()
 		// Draw all nested UI views.
 		// No translation needed, this view is glued to 0,0
 		mRootView->draw();
+
+		if (mToolTip->getVisible() && LLView::sDebugRects)
+		{
+			gl_rect_2d(mToolTipStickyRect, LLColor4::white, false);
+		}
 
 		// Draw optional on-top-of-everyone view
 		LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
@@ -2126,6 +2093,9 @@ void LLViewerWindow::draw()
 #if LL_DEBUG
 	LLView::sIsDrawing = FALSE;
 #endif
+	
+	// UI post-draw Updates
+	gNotifyBoxView->updateNotifyBoxView();	
 }
 
 // Takes a single keydown event, usually when UI is visible
@@ -2140,18 +2110,18 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		if (key < 0x80)
 		{
 			// Not a special key, so likely (we hope) to generate a character.  Let it fall through to character handler first.
-			return gFocusMgr.childHasKeyboardFocus(mRootView);
+			return (gFocusMgr.getKeyboardFocus() != NULL);
 		}
 	}
 
-	// HACK look for UI editing keys
-	if (LLView::sEditingUI)
-	{
-		if (LLFloaterEditUI::processKeystroke(key, mask))
-		{
-			return TRUE;
-		}
-	}
+	//// HACK look for UI editing keys
+	//if (LLView::sEditingUI)
+	//{
+	//	if (LLFloaterEditUI::processKeystroke(key, mask))
+	//	{
+	//		return TRUE;
+	//	}
+	//}
 
 	// Hide tooltips on keypress
 	mToolTipBlocked = TRUE; // block until next time mouse is moved
@@ -2193,7 +2163,8 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	    && (MASK_CONTROL & mask)
 	    && ('5' == key))
 	{
-		LLFloaterNotificationConsole::showInstance();
+		//LLFloaterNotificationConsole::showInstance();
+		LLFloaterReg::showInstance("notifications_console");
 		return TRUE;
 	}
 
@@ -2222,13 +2193,14 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	}
 
 	// Traverses up the hierarchy
-	LLUICtrl* keyboard_focus = gFocusMgr.getKeyboardFocus();
+	LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
 	if( keyboard_focus )
 	{
+		LLLineEditor* chat_editor = LLBottomTray::instanceExists() ? LLBottomTray::getInstance()->getNearbyChatBar()->getChatBox() : NULL;
 		// arrow keys move avatar while chatting hack
-		if (gChatBar && gChatBar->inputEditorHasFocus())
+		if (chat_editor && chat_editor->hasFocus())
 		{
-			if (gChatBar->getCurrentChat().empty() || gSavedSettings.getBOOL("ArrowKeysMoveAvatar"))
+			if (chat_editor->getText().empty() || gSavedSettings.getBOOL("ArrowKeysMoveAvatar"))
 			{
 				switch(key)
 				{
@@ -2269,7 +2241,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	}
 
 	// Try for a new-format gesture
-	if (gGestureManager.triggerGesture(key, mask))
+	if (LLGestureManager::instance().triggerGesture(key, mask))
 	{
 		return TRUE;
 	}
@@ -2356,7 +2328,7 @@ BOOL LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
 	}
 
 	// Traverses up the hierarchy
-	LLView* keyboard_focus = gFocusMgr.getKeyboardFocus();
+	LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
 	if( keyboard_focus )
 	{
 		if (keyboard_focus->handleUnicodeChar(uni_char, FALSE))
@@ -2434,8 +2406,8 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 
 void LLViewerWindow::moveCursorToCenter()
 {
-	S32 x = mVirtualWindowRect.getWidth() / 2;
-	S32 y = mVirtualWindowRect.getHeight() / 2;
+	S32 x = mWorldViewRect.getWidth() / 2;
+	S32 y = mWorldViewRect.getHeight() / 2;
 	
 	//on a forced move, all deltas get zeroed out to prevent jumping
 	mCurrentMousePoint.set(x,y);
@@ -2445,6 +2417,30 @@ void LLViewerWindow::moveCursorToCenter()
 	LLUI::setCursorPositionScreen(x, y);	
 }
 
+void LLViewerWindow::updateBottomTrayRect()
+{
+	if(LLBottomTray::instanceExists() && LLSideTray::instanceCreated())
+	{
+		S32 side_tray_width = 0;
+		if(LLSideTray::getInstance()->getVisible())
+		{
+			side_tray_width = LLSideTray::getInstance()->getTrayWidth();
+		}
+
+		LLBottomTray* bottom_tray = LLBottomTray::getInstance();
+		S32 right = llround((F32)mWindowRect.mRight / mDisplayScale.mV[VX]) - side_tray_width;
+
+		LLRect rc = bottom_tray->getRect();
+		if (right != rc.mRight)
+		{
+			rc.mRight = right;
+			bottom_tray->reshape(rc.getWidth(), rc.getHeight(), FALSE);
+			bottom_tray->setRect(rc);
+			mOnBottomTrayWidthChanged();
+		}
+	}
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Hover handlers
@@ -2452,9 +2448,13 @@ void LLViewerWindow::moveCursorToCenter()
 
 // Update UI based on stored mouse position from mouse-move
 // event processing.
-BOOL LLViewerWindow::handlePerFrameHover()
+void LLViewerWindow::updateUI()
 {
 	static std::string last_handle_msg;
+
+	updateWorldViewRect();
+
+	//updateBottomTrayRect();
 
 	LLView::sMouseHandlerMessage.clear();
 
@@ -2462,93 +2462,127 @@ BOOL LLViewerWindow::handlePerFrameHover()
 	S32 y = mCurrentMousePoint.mY;
 	MASK mask = gKeyboard->currentMask(TRUE);
 
-	//RN: fix for asynchronous notification of mouse leaving window not working
-	LLCoordWindow mouse_pos;
-	mWindow->getCursorPosition(&mouse_pos);
-	if (mouse_pos.mX < 0 || 
-		mouse_pos.mY < 0 ||
-		mouse_pos.mX > mWindowRect.getWidth() ||
-		mouse_pos.mY > mWindowRect.getHeight())
-	{
-		mMouseInWindow = FALSE;
-	}
-	else
-	{
-		mMouseInWindow = TRUE;
-	}
-
-
-	S32 dx = lltrunc((F32) (mCurrentMousePoint.mX - mLastMousePoint.mX) * LLUI::sGLScaleFactor.mV[VX]);
-	S32 dy = lltrunc((F32) (mCurrentMousePoint.mY - mLastMousePoint.mY) * LLUI::sGLScaleFactor.mV[VY]);
-
-	LLVector2 mouse_vel; 
-
-	if (gSavedSettings.getBOOL("MouseSmooth"))
-	{
-		static F32 fdx = 0.f;
-		static F32 fdy = 0.f;
-
-		F32 amount = 16.f;
-		fdx = fdx + ((F32) dx - fdx) * llmin(gFrameIntervalSeconds*amount,1.f);
-		fdy = fdy + ((F32) dy - fdy) * llmin(gFrameIntervalSeconds*amount,1.f);
-
-		mCurrentMouseDelta.set(llround(fdx), llround(fdy));
-		mouse_vel.setVec(fdx,fdy);
-	}
-	else
-	{
-		mCurrentMouseDelta.set(dx, dy);
-		mouse_vel.setVec((F32) dx, (F32) dy);
-	}
-    
-	mMouseVelocityStat.addValue(mouse_vel.magVec());
-
 	if (gNoRender)
 	{
-		return TRUE;
+		return;
 	}
 
-	// clean up current focus
-	LLUICtrl* cur_focus = gFocusMgr.getKeyboardFocus();
-	if (cur_focus)
-	{
-		if (!cur_focus->isInVisibleChain() || !cur_focus->isInEnabledChain())
-		{
-			gFocusMgr.releaseFocusIfNeeded(cur_focus);
-
-			LLUICtrl* parent = cur_focus->getParentUICtrl();
-			const LLUICtrl* focus_root = cur_focus->findRootMostFocusRoot();
-			while(parent)
-			{
-				if (parent->isCtrl() && 
-					(parent->hasTabStop() || parent == focus_root) && 
-					!parent->getIsChrome() && 
-					parent->isInVisibleChain() && 
-					parent->isInEnabledChain())
-				{
-					if (!parent->focusFirstItem())
-					{
-						parent->setFocus(TRUE);
-					}
-					break;
-				}
-				parent = parent->getParentUICtrl();
-			}
-		}
-		else if (cur_focus->isFocusRoot())
-		{
-			// focus roots keep trying to delegate focus to their first valid descendant
-			// this assumes that focus roots are not valid focus holders on their own
-			cur_focus->focusFirstItem();
-		}
-	}
+	updateMouseDelta();
+	updateKeyboardFocus();
 
 	BOOL handled = FALSE;
 
 	BOOL handled_by_top_ctrl = FALSE;
 	LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
-
 	LLMouseHandler* mouse_captor = gFocusMgr.getMouseCapture();
+
+	//build set of views containing mouse cursor by traversing UI hierarchy and testing 
+	//screen rect against mouse cursor
+	view_handle_set_t mouse_hover_set;
+
+	// start at current mouse captor (if is a view) or UI root
+	LLView* root_view = NULL;
+	root_view = dynamic_cast<LLView*>(mouse_captor);
+	if (!root_view)
+	{
+		root_view = mRootView;
+	}
+
+	// aggregate visible views that contain mouse cursor in display order
+
+	// while the top_ctrl contains the mouse cursor, only it and its descendants will receive onMouseEnter events
+	if (top_ctrl && top_ctrl->calcScreenBoundingRect().pointInRect(x, y))
+	{
+		// iterator over contents of top_ctrl, and throw into mouse_hover_set
+		for (LLView::tree_iterator_t it = top_ctrl->beginTree();
+			it != top_ctrl->endTree();
+			++it)
+		{
+			LLView* viewp = *it;
+			if (viewp->getVisible()
+				&& viewp->calcScreenBoundingRect().pointInRect(x, y))
+			{
+				// we have a view that contains the mouse, add it to the set
+				mouse_hover_set.insert(viewp->getHandle());
+			}
+			else
+			{
+				// skip this view and all of its children
+				it.skipDescendants();
+			}
+		}
+	}
+	else
+	{
+		// walk UI tree in depth-first order
+		LLView::tree_iterator_t end_it;
+		for (LLView::tree_iterator_t it = root_view->beginTree();
+			it != end_it;
+			++it)
+		{
+			LLView* viewp = *it;
+			// calculating the screen rect involves traversing the parent, so this is less than optimal
+			if (viewp->getVisible()
+				&& viewp->calcScreenBoundingRect().pointInRect(x, y))
+			{
+
+				// if this view is mouse opaque, nothing behind it should be in mouse_hover_set
+				if (viewp->getMouseOpaque())
+				{
+					// constrain further iteration to children of this widget
+					it = viewp->beginTree();
+				}
+	
+				// we have a view that contains the mouse, add it to the set
+				mouse_hover_set.insert(viewp->getHandle());
+			}
+			else
+			{
+				// skip this view and all of its children
+				it.skipDescendants();
+			}
+		}
+	}
+
+	typedef std::vector<LLHandle<LLView> > view_handle_list_t;
+
+	// call onMouseEnter() on all views which contain the mouse cursor but did not before
+	view_handle_list_t mouse_enter_views;
+	std::set_difference(mouse_hover_set.begin(), mouse_hover_set.end(),
+						mMouseHoverViews.begin(), mMouseHoverViews.end(),
+						std::back_inserter(mouse_enter_views));
+	for (view_handle_list_t::iterator it = mouse_enter_views.begin();
+		it != mouse_enter_views.end();
+		++it)
+	{
+		LLView* viewp = it->get();
+		if (viewp)
+		{
+			LLRect view_screen_rect = viewp->calcScreenRect();
+			viewp->onMouseEnter(x - view_screen_rect.mLeft, y - view_screen_rect.mBottom, mask);
+		}
+	}
+
+	// call onMouseLeave() on all views which no longer contain the mouse cursor
+	view_handle_list_t mouse_leave_views;
+	std::set_difference(mMouseHoverViews.begin(), mMouseHoverViews.end(),
+						mouse_hover_set.begin(), mouse_hover_set.end(),
+						std::back_inserter(mouse_leave_views));
+	for (view_handle_list_t::iterator it = mouse_leave_views.begin();
+		it != mouse_leave_views.end();
+		++it)
+	{
+		LLView* viewp = it->get();
+		if (viewp)
+		{
+			LLRect view_screen_rect = viewp->calcScreenRect();
+			viewp->onMouseLeave(x - view_screen_rect.mLeft, y - view_screen_rect.mBottom, mask);
+		}
+	}
+
+	// store resulting hover set for next frame
+	swap(mMouseHoverViews, mouse_hover_set);
+
 	if( mouse_captor )
 	{
 		// Pass hover events to object capturing mouse events.
@@ -2638,167 +2672,297 @@ BOOL LLViewerWindow::handlePerFrameHover()
 	// Show a new tool tip (or update one that is alrady shown)
 	BOOL tool_tip_handled = FALSE;
 	std::string tool_tip_msg;
-	F32 tooltip_delay = gSavedSettings.getF32( "ToolTipDelay" );
-	//HACK: hack for tool-based tooltips which need to pop up more quickly
-	//Also for show xui names as tooltips debug mode
-	if ((mouse_captor && !mouse_captor->isView()) || LLUI::sShowXUINames)
-	{
-		tooltip_delay = gSavedSettings.getF32( "DragAndDropToolTipDelay" );
-	}
-	if( handled && 
-	    gMouseIdleTimer.getElapsedTimeF32() > tooltip_delay &&
-	    !mWindow->isCursorHidden() )
+	if( handled 
+		&& !mWindow->isCursorHidden()
+		&& mToolTip)
 	{
 		LLRect screen_sticky_rect;
-		LLMouseHandler *mh;
+		LLMouseHandler *tooltip_source = NULL;
 		S32 local_x, local_y;
 		if (mouse_captor)
 		{
 			mouse_captor->screenPointToLocal(x, y, &local_x, &local_y);
-			mh = mouse_captor;
+			tooltip_source = mouse_captor;
 		}
 		else if (handled_by_top_ctrl)
 		{
 			top_ctrl->screenPointToLocal(x, y, &local_x, &local_y);
-			mh = top_ctrl;
+			tooltip_source = top_ctrl;
 		}
 		else
 		{
 			local_x = x; local_y = y;
-			mh = mRootView;
+			tooltip_source = mRootView;
 		}
 
-		BOOL tooltip_vis = FALSE;
-		if (shouldShowToolTipFor(mh))
+		F32 tooltip_delay = gSavedSettings.getF32( "ToolTipDelay" );
+		//HACK: hack for tool-based tooltips which need to pop up more quickly
+		//Also for show xui names as tooltips debug mode
+		if ((gFocusMgr.getMouseCapture() 
+				&& !gFocusMgr.getMouseCapture()->isView()) 
+			|| LLUI::sShowXUINames)
 		{
-			tool_tip_handled = mh->handleToolTip(local_x, local_y, tool_tip_msg, &screen_sticky_rect );
+			tooltip_delay = gSavedSettings.getF32( "DragAndDropToolTipDelay" );
+		}
+
+
+		BOOL tooltip_vis = FALSE;
+		if (shouldShowToolTipFor(tooltip_source))
+		{
+			tool_tip_handled = tooltip_source->handleToolTip(local_x, local_y, tool_tip_msg, &screen_sticky_rect );
 		
+			// if we actually got a tooltip back...
 			if( tool_tip_handled && !tool_tip_msg.empty() )
 			{
-				mToolTipStickyRect = screen_sticky_rect;
-				mToolTip->setWrappedText( tool_tip_msg, 200 );
-				mToolTip->reshapeToFitText();
-				mToolTip->setOrigin( x, y );
-				LLRect virtual_window_rect(0, getWindowHeight(), getWindowWidth(), 0);
-				mToolTip->translateIntoRect( virtual_window_rect, FALSE );
-				tooltip_vis = TRUE;
+				if (mToolTip->getVisible()										// already showing a tooltip
+					|| gMouseIdleTimer.getElapsedTimeF32() > tooltip_delay)		// mouse has been still long enough to show the tooltip
+				{
+					// if tooltip has changed or mouse has moved outside of "sticky" rectangle...
+					if (mLastToolTipMessage != tool_tip_msg
+						|| !mToolTipStickyRect.pointInRect(x, y))
+					{
+						//...update "sticky" rect and tooltip position
+						mToolTipStickyRect = screen_sticky_rect;
+						mToolTip->setOrigin( x, y );
+					}
+
+					// remember this tooltip so we know when it changes
+					mLastToolTipMessage = tool_tip_msg;
+					mToolTip->setWrappedText( tool_tip_msg, 200 );
+					mToolTip->reshapeToFitText();
+					LLRect virtual_window_rect(0, getWindowHeight(), getWindowWidth(), 0);
+					mToolTip->translateIntoRect( virtual_window_rect, FALSE );
+					tooltip_vis = TRUE;
+				}
 			}
 		}
 
-		if (mToolTip)
+		// HACK: assuming tooltip background is in ToolTipBGColor, perform fade out
+		LLColor4 bg_color = LLUIColorTable::instance().getColor( "ToolTipBgColor" );
+		if (tooltip_vis)
 		{
-			mToolTip->setVisible( tooltip_vis );
+			mToolTipFadeTimer.stop();
+			mToolTip->setBackgroundColor(bg_color);
 		}
+		else 
+		{
+			if (!mToolTipFadeTimer.getStarted())
+			{
+				mToolTipFadeTimer.start();
+			}
+			F32 tool_tip_fade_time = gSavedSettings.getF32("ToolTipFadeTime");
+			bg_color.mV[VALPHA] = clamp_rescale(mToolTipFadeTimer.getElapsedTimeF32(), 0.f, tool_tip_fade_time, bg_color.mV[VALPHA], 0.f);
+			mToolTip->setBackgroundColor(bg_color);
+		}
+
+		// above interpolation of bg_color alpha is guaranteed to reach 0.f exactly
+		mToolTip->setVisible( bg_color.mV[VALPHA] != 0.f );
 	}		
 	
-	if (tool && tool != gToolNull  && tool != LLToolCompInspect::getInstance() && tool != LLToolDragAndDrop::getInstance() && !gSavedSettings.getBOOL("FreezeTime"))
+	updateLayout();
+
+	mLastMousePoint = mCurrentMousePoint;
+
+	// cleanup unused selections when no modal dialogs are open
+	if (LLModalDialog::activeCount() == 0)
+	{
+		LLViewerParcelMgr::getInstance()->deselectUnused();
+	}
+
+	if (LLModalDialog::activeCount() == 0)
+	{
+		LLSelectMgr::getInstance()->deselectUnused();
+	}
+
+	updatePicking(x, y, mask);
+}
+
+void LLViewerWindow::updatePicking(S32 x, S32 y, MASK mask)
+{
+	// per frame picking - for tooltips and changing cursor over interactive objects
+	static S32 previous_x = -1;
+	static S32 previous_y = -1;
+	static BOOL mouse_moved_since_pick = FALSE;
+
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
+	{
+		gDebugRaycastFaceHit = -1;
+		gDebugRaycastObject = cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE,
+											  &gDebugRaycastFaceHit,
+											  &gDebugRaycastIntersection,
+											  &gDebugRaycastTexCoord,
+											  &gDebugRaycastNormal,
+											  &gDebugRaycastBinormal);
+	}
+
+
+	if ((previous_x != x) || (previous_y != y))
+		mouse_moved_since_pick = TRUE;
+
+	BOOL do_pick = FALSE;
+
+	F32 picks_moving = gSavedSettings.getF32("PicksPerSecondMouseMoving");
+	if ((mouse_moved_since_pick) && (picks_moving > 0.0) && (mPickTimer.getElapsedTimeF32() > 1.0f / picks_moving))
+	{
+		do_pick = TRUE;
+	}
+
+	F32 picks_stationary = gSavedSettings.getF32("PicksPerSecondMouseStationary");
+	if ((!mouse_moved_since_pick) && (picks_stationary > 0.0) && (mPickTimer.getElapsedTimeF32() > 1.0f / picks_stationary))
+	{
+		do_pick = TRUE;
+	}
+
+	if (getCursorHidden())
+	{
+		do_pick = FALSE;
+	}
+
+	if(LLViewerMediaFocus::getInstance()->getFocus())
+	{
+		// When in-world media is in focus, pick every frame so that browser mouse-overs, dragging scrollbars, etc. work properly.
+		do_pick = TRUE;
+	}
+
+	if (do_pick)
+	{
+		mouse_moved_since_pick = FALSE;
+		mPickTimer.reset();
+		pickAsync(getCurrentMouseX(), getCurrentMouseY(), mask, hoverPickCallback, TRUE);
+	}
+
+	previous_x = x;
+	previous_y = y;
+}
+
+void LLViewerWindow::updateLayout()
+{
+	LLTool* tool = LLToolMgr::getInstance()->getCurrentTool();
+	if (gFloaterTools != NULL
+		&& tool != NULL
+		&& tool != gToolNull  
+		&& tool != LLToolCompInspect::getInstance() 
+		&& tool != LLToolDragAndDrop::getInstance() 
+		&& !gSavedSettings.getBOOL("FreezeTime"))
 	{ 
 		LLMouseHandler *captor = gFocusMgr.getMouseCapture();
 		// With the null, inspect, or drag and drop tool, don't muck
 		// with visibility.
 
-		if (gFloaterTools->isMinimized() ||
-			(tool != LLToolPie::getInstance()						// not default tool
-			&& tool != LLToolCompGun::getInstance()					// not coming out of mouselook
-			&& !mSuppressToolbox									// not override in third person
-			&& LLToolMgr::getInstance()->getCurrentToolset() != gFaceEditToolset	// not special mode
-			&& LLToolMgr::getInstance()->getCurrentToolset() != gMouselookToolset
-			&& (!captor || captor->isView()))						// not dragging
-			)
+		if (gFloaterTools->isMinimized()
+			||	(tool != LLToolPie::getInstance()						// not default tool
+				&& tool != LLToolCompGun::getInstance()					// not coming out of mouselook
+				&& !mSuppressToolbox									// not override in third person
+				&& LLToolMgr::getInstance()->getCurrentToolset() != gFaceEditToolset	// not special mode
+				&& LLToolMgr::getInstance()->getCurrentToolset() != gMouselookToolset
+				&& (!captor || captor->isView())))						// not dragging
 		{
 			// Force floater tools to be visible (unless minimized)
 			if (!gFloaterTools->getVisible())
 			{
-				gFloaterTools->open();		/* Flawfinder: ignore */
+				gFloaterTools->openFloater();
 			}
 			// Update the location of the blue box tool popup
 			LLCoordGL select_center_screen;
-			gFloaterTools->updatePopup( select_center_screen, mask );
+			gFloaterTools->updatePopup( select_center_screen, gKeyboard->currentMask(TRUE) );
 		}
 		else
 		{
 			gFloaterTools->setVisible(FALSE);
 		}
-		// In the future we may wish to hide the tools menu unless you
-		// are building. JC
-		//gMenuBarView->setItemVisible("Tools", gFloaterTools->getVisible());
-		//gMenuBarView->arrange();
-	}
-	if (gToolBar)
-	{
-		gToolBar->refresh();
+		gMenuBarView->setItemVisible("BuildTools", gFloaterTools->getVisible());
 	}
 
-	if (gChatBar)
+	// Always update console
+	if(gConsole)
 	{
-		gChatBar->refresh();
-	}
-
-	if (gOverlayBar)
-	{
-		gOverlayBar->refresh();
-	}
-
-	// Update rectangles for the various toolbars
-	if (gOverlayBar && gNotifyBoxView && gConsole && gToolBar)
-	{
-		LLRect bar_rect(-1, STATUS_BAR_HEIGHT, getWindowWidth()+1, -1);
-
-		LLRect notify_box_rect = gNotifyBoxView->getRect();
-		notify_box_rect.mBottom = bar_rect.mBottom;
-		gNotifyBoxView->reshape(notify_box_rect.getWidth(), notify_box_rect.getHeight());
-		gNotifyBoxView->setRect(notify_box_rect);
-
-		// make sure floaters snap to visible rect by adjusting floater view rect
-		LLRect floater_rect = gFloaterView->getRect();
-		if (floater_rect.mBottom != bar_rect.mBottom+1)
-		{
-			floater_rect.mBottom = bar_rect.mBottom+1;
-			// Don't bounce the floaters up and down.
-			gFloaterView->reshapeFloater(floater_rect.getWidth(), floater_rect.getHeight(), 
-										 TRUE, ADJUST_VERTICAL_NO);
-			gFloaterView->setRect(floater_rect);
-		}
-
-		// snap floaters to top of chat bar/button strip
-		LLView* chatbar_and_buttons = gOverlayBar->getChild<LLView>("chatbar_and_buttons", TRUE);
-		// find top of chatbar and state buttons, if either are visible
-		if (chatbar_and_buttons && !chatbar_and_buttons->getLocalBoundingRect().isNull())
-		{
-			// convert top/left corner of chatbar/buttons container to gFloaterView-relative coordinates
-			S32 top, left;
-			chatbar_and_buttons->localPointToOtherView(
-												chatbar_and_buttons->getLocalBoundingRect().mLeft, 
-												chatbar_and_buttons->getLocalBoundingRect().mTop,
-												&left,
-												&top,
-												gFloaterView);
-			gFloaterView->setSnapOffsetBottom(top);
-		}
-		else if (gToolBar->getVisible())
-		{
-			S32 top, left;
-			gToolBar->localPointToOtherView(
-											gToolBar->getLocalBoundingRect().mLeft,
-											gToolBar->getLocalBoundingRect().mTop,
-											&left,
-											&top,
-											gFloaterView);
-			gFloaterView->setSnapOffsetBottom(top);
-		}
-		else
-		{
-			gFloaterView->setSnapOffsetBottom(0);
-		}
-
-		// Always update console
 		LLRect console_rect = getChatConsoleRect();
-		console_rect.mBottom = gHUDView->getRect().mBottom + getChatConsoleBottomPad();
 		gConsole->reshape(console_rect.getWidth(), console_rect.getHeight());
 		gConsole->setRect(console_rect);
 	}
+}
 
-	mLastMousePoint = mCurrentMousePoint;
+void LLViewerWindow::updateMouseDelta()
+{
+	S32 dx = lltrunc((F32) (mCurrentMousePoint.mX - mLastMousePoint.mX) * LLUI::sGLScaleFactor.mV[VX]);
+	S32 dy = lltrunc((F32) (mCurrentMousePoint.mY - mLastMousePoint.mY) * LLUI::sGLScaleFactor.mV[VY]);
+
+	//RN: fix for asynchronous notification of mouse leaving window not working
+	LLCoordWindow mouse_pos;
+	mWindow->getCursorPosition(&mouse_pos);
+	if (mouse_pos.mX < 0 || 
+		mouse_pos.mY < 0 ||
+		mouse_pos.mX > mWindowRect.getWidth() ||
+		mouse_pos.mY > mWindowRect.getHeight())
+	{
+		mMouseInWindow = FALSE;
+	}
+	else
+	{
+		mMouseInWindow = TRUE;
+	}
+
+	LLVector2 mouse_vel; 
+
+	if (gSavedSettings.getBOOL("MouseSmooth"))
+	{
+		static F32 fdx = 0.f;
+		static F32 fdy = 0.f;
+
+		F32 amount = 16.f;
+		fdx = fdx + ((F32) dx - fdx) * llmin(gFrameIntervalSeconds*amount,1.f);
+		fdy = fdy + ((F32) dy - fdy) * llmin(gFrameIntervalSeconds*amount,1.f);
+
+		mCurrentMouseDelta.set(llround(fdx), llround(fdy));
+		mouse_vel.setVec(fdx,fdy);
+	}
+	else
+	{
+		mCurrentMouseDelta.set(dx, dy);
+		mouse_vel.setVec((F32) dx, (F32) dy);
+	}
+    
+	mMouseVelocityStat.addValue(mouse_vel.magVec());
+}
+
+void LLViewerWindow::updateKeyboardFocus()
+{
+	// clean up current focus
+	LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
+	if (cur_focus)
+	{
+		if (!cur_focus->isInVisibleChain() || !cur_focus->isInEnabledChain())
+		{
+            // don't release focus, just reassign so that if being given
+            // to a sibling won't call onFocusLost on all the ancestors
+			// gFocusMgr.releaseFocusIfNeeded(cur_focus);
+
+			LLUICtrl* parent = cur_focus->getParentUICtrl();
+			const LLUICtrl* focus_root = cur_focus->findRootMostFocusRoot();
+			while(parent)
+			{
+				if (parent->isCtrl() && 
+					(parent->hasTabStop() || parent == focus_root) && 
+					!parent->getIsChrome() && 
+					parent->isInVisibleChain() && 
+					parent->isInEnabledChain())
+				{
+					if (!parent->focusFirstItem())
+					{
+						parent->setFocus(TRUE);
+					}
+					break;
+				}
+				parent = parent->getParentUICtrl();
+			}
+		}
+		else if (cur_focus->isFocusRoot())
+		{
+			// focus roots keep trying to delegate focus to their first valid descendant
+			// this assumes that focus roots are not valid focus holders on their own
+			cur_focus->focusFirstItem();
+		}
+	}
 
 	// last ditch force of edit menu to selection manager
 	if (LLEditMenuHandler::gEditMenuHandler == NULL && LLSelectMgr::getInstance()->getSelection()->getObjectCount())
@@ -2832,77 +2996,46 @@ BOOL LLViewerWindow::handlePerFrameHover()
 		gFloaterView->syncFloaterTabOrder();
 	}
 
-	if (gSavedSettings.getBOOL("ChatBarStealsFocus") 
-		&& gChatBar 
-		&& gFocusMgr.getKeyboardFocus() == NULL 
-		&& gChatBar->isInVisibleChain())
-	{
-		gChatBar->startChat(NULL);
-	}
-
-	// cleanup unused selections when no modal dialogs are open
-	if (LLModalDialog::activeCount() == 0)
-	{
-		LLViewerParcelMgr::getInstance()->deselectUnused();
-	}
-
-	if (LLModalDialog::activeCount() == 0)
-	{
-		LLSelectMgr::getInstance()->deselectUnused();
-	}
-
-	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
-	{
-		gDebugRaycastFaceHit = -1;
-		gDebugRaycastObject = cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE,
-											  &gDebugRaycastFaceHit,
-											  &gDebugRaycastIntersection,
-											  &gDebugRaycastTexCoord,
-											  &gDebugRaycastNormal,
-											  &gDebugRaycastBinormal);
-	}
-
-
-	// per frame picking - for tooltips and changing cursor over interactive objects
-	static S32 previous_x = -1;
-	static S32 previous_y = -1;
-	static BOOL mouse_moved_since_pick = FALSE;
-
-	if ((previous_x != x) || (previous_y != y))
-		mouse_moved_since_pick = TRUE;
-
-	BOOL do_pick = FALSE;
-
-	F32 picks_moving = gSavedSettings.getF32("PicksPerSecondMouseMoving");
-	if ((mouse_moved_since_pick) && (picks_moving > 0.0) && (mPickTimer.getElapsedTimeF32() > 1.0f / picks_moving))
-	{
-		do_pick = TRUE;
-	}
-
-	F32 picks_stationary = gSavedSettings.getF32("PicksPerSecondMouseStationary");
-	if ((!mouse_moved_since_pick) && (picks_stationary > 0.0) && (mPickTimer.getElapsedTimeF32() > 1.0f / picks_stationary))
-	{
-		do_pick = TRUE;
-	}
-
-	if (getCursorHidden())
-	{
-		do_pick = FALSE;
-	}
-
-	if (do_pick)
-	{
-		mouse_moved_since_pick = FALSE;
-		mPickTimer.reset();
-		pickAsync(getCurrentMouseX(), getCurrentMouseY(), mask, hoverPickCallback, TRUE);
-	}
-
-	previous_x = x;
-	previous_y = y;
-	
-	return handled;
+	if(LLSideTray::instanceCreated())//just getInstance will create sidetray. we don't want this
+		LLSideTray::getInstance()->highlightFocused();
 }
 
+void LLViewerWindow::updateWorldViewRect(bool use_full_window)
+{
+	if (!LLSideTray::instanceCreated()) return;
+
+	// start off using whole window to render world
+	LLRect new_world_rect = mWindowRect;
+
+	if (use_full_window == false)
+	{
+		// pull in right side of world view based on sidetray
+		LLSideTray* sidetray = LLSideTray::getInstance();
+		if (sidetray->getVisible())
+		{
+			new_world_rect.mRight -= llround((F32)sidetray->getTrayWidth() * mDisplayScale.mV[VX]);
+		}
+
+		// push top of world view below nav bar
+		if (LLNavigationBar::getInstance()->getVisible())
+		{
+			LLNavigationBar* barp = LLNavigationBar::getInstance();
+			LLRect nav_bar_rect;
+			if(barp->localRectToOtherView(barp->getLocalRect(), &nav_bar_rect, mRootView))
+			{
+				new_world_rect.mTop = llround((F32)LLNavigationBar::getInstance()->getRect().mBottom * mDisplayScale.mV[VY]);
+			}
+		}
+	}
+
+	if (mWorldViewRect != new_world_rect)
+	{
+		mWorldViewRect = new_world_rect;
+		gResizeScreenTexture = TRUE;
+		LLViewerCamera::getInstance()->setViewHeightInPixels( mWorldViewRect.getHeight() );
+		LLViewerCamera::getInstance()->setAspect( getWorldViewAspectRatio() );
+	}
+}
 
 /* static */
 void LLViewerWindow::hoverPickCallback(const LLPickInfo& pick_info)
@@ -3164,7 +3297,7 @@ void LLViewerWindow::pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback
 	}
 	
 	// push back pick info object
-	BOOL in_build_mode = gFloaterTools && gFloaterTools->getVisible();
+	BOOL in_build_mode = LLFloaterReg::instanceVisible("build");
 	if (in_build_mode || LLDrawPoolAlpha::sShowDebugAlpha)
 	{
 		// build mode allows interaction with all transparent objects
@@ -3179,10 +3312,10 @@ void LLViewerWindow::pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback
 	{
 		mPickScreenRegion.setCenterAndSize(x, y_from_bot, PICK_DIAMETER, PICK_DIAMETER);
 
-		if (mPickScreenRegion.mLeft < 0) mPickScreenRegion.translate(-mPickScreenRegion.mLeft, 0);
-		if (mPickScreenRegion.mBottom < 0) mPickScreenRegion.translate(0, -mPickScreenRegion.mBottom);
-		if (mPickScreenRegion.mRight > mWindowRect.getWidth() ) mPickScreenRegion.translate(mWindowRect.getWidth() - mPickScreenRegion.mRight, 0);
-		if (mPickScreenRegion.mTop > mWindowRect.getHeight() ) mPickScreenRegion.translate(0, mWindowRect.getHeight() - mPickScreenRegion.mTop);
+		if (mPickScreenRegion.mLeft < mWorldViewRect.mLeft) mPickScreenRegion.translate(mWorldViewRect.mLeft - mPickScreenRegion.mLeft, 0);
+		if (mPickScreenRegion.mBottom < mWorldViewRect.mBottom) mPickScreenRegion.translate(0, mWorldViewRect.mBottom - mPickScreenRegion.mBottom);
+		if (mPickScreenRegion.mRight > mWorldViewRect.mRight ) mPickScreenRegion.translate(mWorldViewRect.mRight - mPickScreenRegion.mRight, 0);
+		if (mPickScreenRegion.mTop > mWorldViewRect.mTop ) mPickScreenRegion.translate(0, mWorldViewRect.mTop - mPickScreenRegion.mTop);
 	}
 
 	// set frame buffer region for picking results
@@ -3207,80 +3340,9 @@ void LLViewerWindow::schedulePick(LLPickInfo& pick_info)
 	
 		return;
 	}
-	llassert_always(pick_info.mScreenRegion.notNull());
+	llassert_always(pick_info.mScreenRegion.notEmpty());
 	mPicks.push_back(pick_info);
 	
-	/*S32 scaled_x = llround((F32)pick_info.mMousePt.mX * mDisplayScale.mV[VX]);
-	S32 scaled_y = llround((F32)pick_info.mMousePt.mY * mDisplayScale.mV[VY]);
-
-	// Default to not hitting anything
-	LLCamera pick_camera;
-	pick_camera.setOrigin(LLViewerCamera::getInstance()->getOrigin());
-	pick_camera.setOriginAndLookAt(LLViewerCamera::getInstance()->getOrigin(),
-								   LLViewerCamera::getInstance()->getUpAxis(),
-								   LLViewerCamera::getInstance()->getOrigin() + mouseDirectionGlobal(pick_info.mMousePt.mX, pick_info.mMousePt.mY));
-	pick_camera.setView(0.5f*DEG_TO_RAD);
-	pick_camera.setNear(LLViewerCamera::getInstance()->getNear());
-	pick_camera.setFar(LLViewerCamera::getInstance()->getFar());
-	pick_camera.setAspect(1.f);
-
-	// save our drawing state
-	// *TODO: should we be saving using the new method here using
-	// glh_get_current_projection/glh_set_current_projection? -brad
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-
-	// clear work area
-	{
-		LLGLState scissor_state(GL_SCISSOR_TEST);
-		scissor_state.enable();
-		glScissor(pick_info.mScreenRegion.mLeft, pick_info.mScreenRegion.mBottom, pick_info.mScreenRegion.getWidth(), pick_info.mScreenRegion.getHeight());
-		glClearColor(0.f, 0.f, 0.f, 0.f);
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	}
-	
-	// build perspective transform and picking viewport
-	// Perform pick on a PICK_DIAMETER x PICK_DIAMETER pixel region around cursor point.
-	// Don't limit the select distance for this pick.
-	LLViewerCamera::getInstance()->setPerspective(FOR_SELECTION, scaled_x - PICK_HALF_WIDTH, scaled_y - PICK_HALF_WIDTH, PICK_DIAMETER, PICK_DIAMETER, FALSE);
-
-	// render for object picking
-
-	// make viewport big enough to handle antialiased frame buffers
-	gGLViewport[0] = pick_info.mScreenRegion.mLeft;
-	gGLViewport[1] = pick_info.mScreenRegion.mBottom;
-	gGLViewport[2] = pick_info.mScreenRegion.getWidth();
-	gGLViewport[3] = pick_info.mScreenRegion.getHeight();
-
-	glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
-	LLViewerCamera::updateFrustumPlanes(pick_camera);
-	stop_glerror();
-
-	// Draw the objects so the user can select them.
-	// The starting ID is 1, since land is zero.
-	LLRect pick_region;
-	pick_region.setOriginAndSize(pick_info.mMousePt.mX - PICK_HALF_WIDTH,
-								 pick_info.mMousePt.mY - PICK_HALF_WIDTH, PICK_DIAMETER, PICK_DIAMETER);
-	gObjectList.renderObjectsForSelect(pick_camera, pick_region, FALSE, pick_info.mPickTransparent);
-
-	stop_glerror();
-
-	// restore drawing state
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-
-	setup3DRender();
-	setup2DRender();
-	setupViewport();*/
-
 	// delay further event processing until we receive results of pick
 	mWindow->delayInputProcessing();
 }
@@ -3449,16 +3511,16 @@ LLVector3 LLViewerWindow::mouseDirectionGlobal(const S32 x, const S32 y) const
 	// find vertical field of view
 	F32			fov = LLViewerCamera::getInstance()->getView();
 
-	// find screen resolution
-	S32			height = getWindowHeight();
-	S32			width = getWindowWidth();
+	// find world view center in scaled ui coordinates
+	F32			center_x = (F32)getWorldViewRect().getCenterX() / mDisplayScale.mV[VX];
+	F32			center_y = (F32)getWorldViewRect().getCenterY() / mDisplayScale.mV[VY];
 
 	// calculate pixel distance to screen
-	F32			distance = (height / 2.f) / (tan(fov / 2.f));
+	F32			distance = ((F32)getWorldViewHeight() / (mDisplayScale.mV[VY] * 2.f)) / (tan(fov / 2.f));
 
 	// calculate click point relative to middle of screen
-	F32			click_x = x - width / 2.f;
-	F32			click_y = y - height / 2.f;
+	F32			click_x = x - center_x;
+	F32			click_y = y - center_y;
 
 	// compute mouse vector
 	LLVector3	mouse_vector =	distance * LLViewerCamera::getInstance()->getAtAxis()
@@ -3473,12 +3535,15 @@ LLVector3 LLViewerWindow::mouseDirectionGlobal(const S32 x, const S32 y) const
 LLVector3 LLViewerWindow::mousePointHUD(const S32 x, const S32 y) const
 {
 	// find screen resolution
-	S32			height = getWindowHeight();
-	S32			width = getWindowWidth();
+	S32			height = llround((F32)getWorldViewHeight() / mDisplayScale.mV[VY]);
+
+	// find world view center
+	F32			center_x = (F32)getWorldViewRect().getCenterX() / mDisplayScale.mV[VX];
+	F32			center_y = (F32)getWorldViewRect().getCenterY() / mDisplayScale.mV[VY];
 
 	// remap with uniform scale (1/height) so that top is -0.5, bottom is +0.5
-	F32 hud_x = -((F32)x - (F32)width/2.f)  / height;
-	F32 hud_y = ((F32)y - (F32)height/2.f) / height;
+	F32 hud_x = -((F32)x - center_x)  / height;
+	F32 hud_y = ((F32)y - center_y) / height;
 
 	return LLVector3(0.f, hud_x/gAgent.mHUDCurZoom, hud_y/gAgent.mHUDCurZoom);
 }
@@ -3492,12 +3557,16 @@ LLVector3 LLViewerWindow::mouseDirectionCamera(const S32 x, const S32 y) const
 	F32			fov_width = fov_height * LLViewerCamera::getInstance()->getAspect();
 
 	// find screen resolution
-	S32			height = getWindowHeight();
-	S32			width = getWindowWidth();
+	S32			height = llround((F32)getWorldViewHeight() / mDisplayScale.mV[VY]);
+	S32			width = llround((F32)getWorldViewWidth() / mDisplayScale.mV[VX]);
+
+	// find world view center
+	F32			center_x = (F32)getWorldViewRect().getCenterX() / mDisplayScale.mV[VX];
+	F32			center_y = (F32)getWorldViewRect().getCenterY() / mDisplayScale.mV[VY];
 
 	// calculate click point relative to middle of screen
-	F32			click_x = (((F32)x / (F32)width) - 0.5f) * fov_width * -1.f;
-	F32			click_y = (((F32)y / (F32)height) - 0.5f) * fov_height;
+	F32			click_x = (((F32)x - center_x) / (F32)width) * fov_width * -1.f;
+	F32			click_y = (((F32)y - center_y) / (F32)height) * fov_height;
 
 	// compute mouse vector
 	LLVector3	mouse_vector =	LLVector3(0.f, 0.f, -1.f);
@@ -3841,7 +3910,6 @@ BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 p
 	glClearColor(0.f, 0.f, 0.f, 0.f);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	setup3DRender();
-	setupViewport();
 
 	LLFontGL::setFontDisplay(FALSE) ;
 	LLHUDText::setDisplayText(FALSE) ;
@@ -3902,7 +3970,6 @@ BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 p
 	mDisplayScale.setVec(display_scale) ;
 	mWindowRect = window_rect;	
 	setup3DRender();
-	setupViewport();
 	gDisplaySwapBuffers = FALSE;
 	gDepthDirty = TRUE;
 
@@ -3946,6 +4013,9 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	// PRE SNAPSHOT
 	gDisplaySwapBuffers = FALSE;
 	
+	// if not showing ui, use full window to render world view
+	updateWorldViewRect(!show_ui);
+
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	setCursor(UI_CURSOR_WAIT);
 
@@ -4070,7 +4140,6 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
 				LLViewerCamera::getInstance()->setZoomParameters(scale_factor, subimage_x+(subimage_y*llceil(scale_factor)));
 				setup3DRender();
-				setupViewport();
 				gObjectList.renderPickList(gViewerWindow->getVirtualWindowRect(), FALSE, FALSE);
 			}
 			else
@@ -4214,32 +4283,20 @@ void LLViewerWindow::destroyWindow()
 
 void LLViewerWindow::drawMouselookInstructions()
 {
-	// Draw instructions for mouselook ("Press ESC to leave Mouselook" in a box at the top of the screen.)
-	const std::string instructions = "Press ESC to leave Mouselook.";
-	const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
-
-	const S32 INSTRUCTIONS_PAD = 5;
-	LLRect instructions_rect;
-	instructions_rect.setLeftTopAndSize( 
-		INSTRUCTIONS_PAD,
-		getWindowHeight() - INSTRUCTIONS_PAD,
-		font->getWidth( instructions ) + 2 * INSTRUCTIONS_PAD,
-		llround(font->getLineHeight() + 2 * INSTRUCTIONS_PAD));
-
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gGL.color4f( 0.9f, 0.9f, 0.9f, 1.0f );
-		gl_rect_2d( instructions_rect );
-	}
+	// Draw instructions for mouselook ("Press ESC to return to World View" partially transparent at the bottom of the screen.)
+	const std::string instructions = LLTrans::getString("LeaveMouselook");
+	const LLFontGL* font = LLFontGL::getFont(LLFontDescriptor("SansSerif", "Huge", LLFontGL::BOLD));
 	
+	//to be on top of Bottom bar when it is opened
+	const S32 INSTRUCTIONS_PAD = 50;
+
 	font->renderUTF8( 
 		instructions, 0,
-		instructions_rect.mLeft + INSTRUCTIONS_PAD,
-		instructions_rect.mTop - INSTRUCTIONS_PAD,
-		LLColor4( 0.0f, 0.0f, 0.0f, 1.f ),
-		LLFontGL::LEFT, LLFontGL::TOP);
+		mWorldViewRect.getCenterX(),
+		mWorldViewRect.mBottom + INSTRUCTIONS_PAD,
+		LLColor4( 0.0f, 0.0f, 0.0f, 0.6f ),
+		LLFontGL::HCENTER, LLFontGL::TOP);
 }
-
 
 S32	LLViewerWindow::getWindowHeight()	const 	
 { 
@@ -4249,6 +4306,46 @@ S32	LLViewerWindow::getWindowHeight()	const
 S32	LLViewerWindow::getWindowWidth() const 	
 { 
 	return mVirtualWindowRect.getWidth(); 
+}
+
+void* LLViewerWindow::getPlatformWindow() const
+{
+	return mWindow->getPlatformWindow();
+}
+
+void* LLViewerWindow::getMediaWindow() 	const
+{
+	return mWindow->getMediaWindow();
+}
+
+void LLViewerWindow::focusClient()		const
+{
+	return mWindow->focusClient();
+}
+
+LLRootView*	LLViewerWindow::getRootView() const
+{
+	return mRootView;
+}
+
+LLRect LLViewerWindow::getVirtualWorldViewRect() const
+{
+	LLRect world_view_rect = mWorldViewRect;
+	world_view_rect.mLeft = llround((F32)world_view_rect.mLeft / mDisplayScale.mV[VX]);
+	world_view_rect.mRight = llround((F32)world_view_rect.mRight / mDisplayScale.mV[VX]);
+	world_view_rect.mBottom = llround((F32)world_view_rect.mBottom / mDisplayScale.mV[VY]);
+	world_view_rect.mTop = llround((F32)world_view_rect.mTop / mDisplayScale.mV[VY]);
+	return world_view_rect;
+}
+
+S32 LLViewerWindow::getWorldViewHeight() const
+{
+	return mWorldViewRect.getHeight(); 
+}
+
+S32 LLViewerWindow::getWorldViewWidth() const
+{
+	return mWorldViewRect.getWidth(); 
 }
 
 S32	LLViewerWindow::getWindowDisplayHeight()	const 	
@@ -4261,26 +4358,47 @@ S32	LLViewerWindow::getWindowDisplayWidth() const
 	return mWindowRect.getWidth(); 
 }
 
-void LLViewerWindow::setupViewport(S32 x_offset, S32 y_offset)
+void LLViewerWindow::setup2DRender()
 {
-	gGLViewport[0] = x_offset;
-	gGLViewport[1] = y_offset;
+	// setup ortho camera
+	gl_state_for_2d(mWindowRect.getWidth(), mWindowRect.getHeight());
+	setup2DViewport();
+}
+
+void LLViewerWindow::setup2DViewport(S32 x_offset, S32 y_offset)
+{
+	gGLViewport[0] = mWindowRect.mLeft + x_offset;
+	gGLViewport[1] = mWindowRect.mBottom + y_offset;
 	gGLViewport[2] = mWindowRect.getWidth();
 	gGLViewport[3] = mWindowRect.getHeight();
 	glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
 }
 
+
 void LLViewerWindow::setup3DRender()
 {
-	LLViewerCamera::getInstance()->setPerspective(NOT_FOR_SELECTION, 0, 0,  mWindowRect.getWidth(), mWindowRect.getHeight(), FALSE, LLViewerCamera::getInstance()->getNear(), MAX_FAR_CLIP*2.f);
+	// setup perspective camera
+	LLViewerCamera::getInstance()->setPerspective(NOT_FOR_SELECTION, mWorldViewRect.mLeft, mWorldViewRect.mBottom,  mWorldViewRect.getWidth(), mWorldViewRect.getHeight(), FALSE, LLViewerCamera::getInstance()->getNear(), MAX_FAR_CLIP*2.f);
+	setup3DViewport();
 }
 
-void LLViewerWindow::setup2DRender()
+void LLViewerWindow::setup3DViewport(S32 x_offset, S32 y_offset)
 {
-	gl_state_for_2d(mWindowRect.getWidth(), mWindowRect.getHeight());
+	if (LLRenderTarget::getCurrentBoundTarget() != NULL)
+	{
+		// don't use translation component of mWorldViewRect, as we are already in a properly sized render target
+		gGLViewport[0] = x_offset;
+		gGLViewport[1] = y_offset;
+	}
+	else
+	{
+		gGLViewport[0] = mWorldViewRect.mLeft + x_offset;
+		gGLViewport[1] = mWorldViewRect.mBottom + y_offset;
+	}
+	gGLViewport[2] = mWorldViewRect.getWidth();
+	gGLViewport[3] = mWorldViewRect.getHeight();
+	glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
 }
-
-
 
 void LLViewerWindow::setShowProgress(const BOOL show)
 {
@@ -4294,7 +4412,6 @@ BOOL LLViewerWindow::getShowProgress() const
 {
 	return (mProgressView && mProgressView->getVisible());
 }
-
 
 void LLViewerWindow::moveProgressViewToFront()
 {
@@ -4356,7 +4473,7 @@ void LLViewerWindow::stopGL(BOOL save_state)
 	//Note: --bao
 	//if not necessary, do not change the order of the function calls in this function.
 	//if change something, make sure it will not break anything.
-	//especially be careful to put anything behind gImageList.destroyGL(save_state);
+	//especially be careful to put anything behind gTextureList.destroyGL(save_state);
 	if (!gGLManager.mIsDisabled)
 	{
 		llinfos << "Shutting down GL..." << llendl;
@@ -4381,7 +4498,7 @@ void LLViewerWindow::stopGL(BOOL save_state)
 		LLVOAvatar::destroyGL();
 		stop_glerror();
 
-		LLDynamicTexture::destroyGL();
+		LLViewerDynamicTexture::destroyGL();
 		stop_glerror();
 
 		if (gPipeline.isInit())
@@ -4399,9 +4516,9 @@ void LLViewerWindow::stopGL(BOOL save_state)
 			gPostProcess->invalidate();
 		}
 
-		gImageList.destroyGL(save_state);
+		gTextureList.destroyGL(save_state);
 		stop_glerror();
-
+		
 		gGLManager.mIsDisabled = TRUE;
 		stop_glerror();
 		
@@ -4414,7 +4531,7 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 	//Note: --bao
 	//if not necessary, do not change the order of the function calls in this function.
 	//if change something, make sure it will not break anything. 
-	//especially, be careful to put something before gImageList.restoreGL();
+	//especially, be careful to put something before gTextureList.restoreGL();
 	if (gGLManager.mIsDisabled)
 	{
 		llinfos << "Restoring GL..." << llendl;
@@ -4422,8 +4539,9 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		
 		initGLDefaults();
 		LLGLState::restoreGL();
-		gImageList.restoreGL();
-
+		
+		gTextureList.restoreGL();
+		
 		// for future support of non-square pixels, and fonts that are properly stretched
 		//LLFontGL::destroyDefaultFonts();
 		initFonts();
@@ -4434,7 +4552,7 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		LLManipTranslate::restoreGL();
 		
 		gBumpImageList.restoreGL();
-		LLDynamicTexture::restoreGL();
+		LLViewerDynamicTexture::restoreGL();
 		LLVOAvatar::restoreGL();
 		
 		gResizeScreenTexture = TRUE;
@@ -4463,12 +4581,16 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 void LLViewerWindow::initFonts(F32 zoom_factor)
 {
 	LLFontGL::destroyAllGL();
-	LLFontGL::initDefaultFonts( gSavedSettings.getF32("FontScreenDPI"),
+	// Initialize with possibly different zoom factor
+	LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
 								mDisplayScale.mV[VX] * zoom_factor,
 								mDisplayScale.mV[VY] * zoom_factor,
 								gDirUtilp->getAppRODataDir(),
-								LLUICtrlFactory::getXUIPaths());
+								LLUI::getXUIPaths());
+	// Force font reloads, which can be very slow
+	LLFontGL::loadDefaultFonts();
 }
+
 void LLViewerWindow::toggleFullscreen(BOOL show_progress)
 {
 	if (mWindow)
@@ -4499,6 +4621,11 @@ void LLViewerWindow::getTargetWindow(BOOL& fullscreen, S32& width, S32& height) 
 		width = gSavedSettings.getS32("WindowWidth");
 		height = gSavedSettings.getS32("WindowHeight");
 	}
+}
+
+void LLViewerWindow::requestResolutionUpdate()
+{
+	mResDirty = true;
 }
 
 void LLViewerWindow::requestResolutionUpdate(bool fullscreen_checked)
@@ -4534,7 +4661,7 @@ BOOL LLViewerWindow::checkSettings()
 		// force aspect ratio
 		if (mIsFullscreenChecked)
 		{
-			LLViewerCamera::getInstance()->setAspect( getDisplayAspectRatio() );
+			LLViewerCamera::getInstance()->setAspect( getWorldViewAspectRatio() );
 		}
 
 		mResDirty = false;
@@ -4605,9 +4732,9 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 	BOOL was_maximized = gSavedSettings.getBOOL("WindowMaximized");
 	mWantFullscreen = fullscreen;
 	mShowFullscreenProgress = show_progress_bar;
-	gSavedSettings.setBOOL("FullScreen", mWantFullscreen);
+	gSavedSettings.setBOOL("WindowFullScreen", mWantFullscreen);
 
-	gResizeScreenTexture = TRUE;
+	//gResizeScreenTexture = TRUE;
 
 	BOOL old_fullscreen = mWindow->getFullscreen();
 	if (!old_fullscreen && fullscreen && !LLStartUp::canGoFullscreen())
@@ -4635,12 +4762,12 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 	}
 
 	// Close floaters that don't handle settings change
-	LLFloaterSnapshot::hide(0);
+	LLFloaterReg::hideInstance("snapshot");
 	
 	BOOL result_first_try = FALSE;
 	BOOL result_second_try = FALSE;
 
-	LLUICtrl* keyboard_focus = gFocusMgr.getKeyboardFocus();
+	LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
 	send_agent_pause();
 	llinfos << "Stopping GL during changeDisplaySettings" << llendl;
 	stopGL();
@@ -4753,6 +4880,21 @@ F32 LLViewerWindow::getDisplayAspectRatio() const
 }
 
 
+F32	LLViewerWindow::getWorldViewAspectRatio() const
+{
+	F32 world_aspect = (F32)mWorldViewRect.getWidth() / (F32)mWorldViewRect.getHeight();
+	//F32 window_aspect = (F32)mWindowRect.getWidth() / (F32)mWindowRect.getHeight();
+	if (mWindow->getFullscreen())
+	{
+		return world_aspect * mWindow->getPixelAspectRatio();
+	}
+	else
+	{
+		llinfos << "World aspect ratio: " << world_aspect << llendl;
+		return world_aspect;
+	}
+}
+
 void LLViewerWindow::drawPickBuffer() const
 {
 	mHoverPick.drawPickBuffer();
@@ -4798,8 +4940,9 @@ void LLViewerWindow::calcDisplayScale()
 S32 LLViewerWindow::getChatConsoleBottomPad()
 {
 	S32 offset = 0;
-	if( gToolBar && gToolBar->getVisible() )
-		offset += TOOL_BAR_HEIGHT;
+
+	if(LLBottomTray::instanceExists())
+		offset += LLBottomTray::getInstance()->getRect().getHeight();
 
 	return offset;
 }
@@ -4818,7 +4961,9 @@ LLRect LLViewerWindow::getChatConsoleRect()
 
 	console_rect.mLeft   += CONSOLE_PADDING_LEFT; 
 
-	if (gSavedSettings.getBOOL("ChatFullWidth"))
+	static const BOOL CHAT_FULL_WIDTH = gSavedSettings.getBOOL("ChatFullWidth");
+
+	if (CHAT_FULL_WIDTH)
 	{
 		console_rect.mRight -= CONSOLE_PADDING_RIGHT;
 	}
@@ -4857,63 +5002,6 @@ bool LLViewerWindow::onAlert(const LLSD& notify)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-
-LLBottomPanel::LLBottomPanel(const LLRect &rect) : 
-	LLPanel(LLStringUtil::null, rect, FALSE),
-	mIndicator(NULL)
-{
-	// bottom panel is focus root, so Tab moves through the toolbar and button bar, and overlay
-	setFocusRoot(TRUE);
-	// flag this panel as chrome so buttons don't grab keyboard focus
-	setIsChrome(TRUE);
-
-	mFactoryMap["toolbar"] = LLCallbackMap(createToolBar, NULL);
-	mFactoryMap["overlay"] = LLCallbackMap(createOverlayBar, NULL);
-	mFactoryMap["hud"] = LLCallbackMap(createHUD, NULL);
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_bars.xml", &getFactoryMap());
-	
-	setOrigin(rect.mLeft, rect.mBottom);
-	reshape(rect.getWidth(), rect.getHeight());
-}
-
-void LLBottomPanel::setFocusIndicator(LLView * indicator)
-{
-	mIndicator = indicator;
-}
-
-void LLBottomPanel::draw()
-{
-	if(mIndicator)
-	{
-		BOOL hasFocus = gFocusMgr.childHasKeyboardFocus(this);
-		mIndicator->setVisible(hasFocus);
-		mIndicator->setEnabled(hasFocus);
-	}
-	LLPanel::draw();
-}
-
-void* LLBottomPanel::createHUD(void* data)
-{
-	delete gHUDView;
-	gHUDView = new LLHUDView();
-	return gHUDView;
-}
-
-
-void* LLBottomPanel::createOverlayBar(void* data)
-{
-	delete gOverlayBar;
-	gOverlayBar = new LLOverlayBar();
-	return gOverlayBar;
-}
-
-void* LLBottomPanel::createToolBar(void* data)
-{
-	delete gToolBar;
-	gToolBar = new LLToolBar();
-	return gToolBar;
-}
-
 //
 // LLPickInfo
 //
@@ -4957,10 +5045,6 @@ LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos,
 {
 }
 
-LLPickInfo::~LLPickInfo()
-{
-}
-
 void LLPickInfo::fetchResults()
 {
 
@@ -4979,59 +5063,14 @@ void LLPickInfo::fetchResults()
 									NULL, -1, mPickTransparent, &face_hit,
 									&intersection, &uv, &normal, &binormal);
 	
-	// read back colors and depth values from buffer
-	//glReadPixels(mScreenRegion.mLeft, mScreenRegion.mBottom, mScreenRegion.getWidth(), mScreenRegion.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, mPickBuffer);
-	//glReadPixels(mScreenRegion.mLeft, mScreenRegion.mBottom, mScreenRegion.getWidth(), mScreenRegion.getHeight(), GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, mPickDepthBuffer );
-
-	// find pick region that is fully onscreen
-	LLCoordGL scaled_pick_point;;
-	scaled_pick_point.mX = llclamp(llround((F32)mMousePt.mX * gViewerWindow->getDisplayScale().mV[VX]), PICK_HALF_WIDTH, gViewerWindow->getWindowDisplayWidth() - PICK_HALF_WIDTH);
-	scaled_pick_point.mY = llclamp(llround((F32)mMousePt.mY * gViewerWindow->getDisplayScale().mV[VY]), PICK_HALF_WIDTH, gViewerWindow->getWindowDisplayHeight() - PICK_HALF_WIDTH);
-	//S32 pixel_index = PICK_HALF_WIDTH * PICK_DIAMETER + PICK_HALF_WIDTH;
-	//S32 pick_id = (U32)mPickBuffer[(pixel_index * 4) + 0] << 16 | (U32)mPickBuffer[(pixel_index * 4) + 1] << 8 | (U32)mPickBuffer[(pixel_index * 4) + 2];
-	//F32 depth = mPickDepthBuffer[pixel_index];
-
-	//S32 x_offset = mMousePt.mX - llround((F32)scaled_pick_point.mX / gViewerWindow->getDisplayScale().mV[VX]);
-	//S32 y_offset = mMousePt.mY - llround((F32)scaled_pick_point.mY / gViewerWindow->getDisplayScale().mV[VY]);
-
 	mPickPt = mMousePt;
 
-	// we hit nothing, scan surrounding pixels for something useful
-	/*if (!pick_id)
-	{
-		S32 closest_distance = 10000;
-		//S32 closest_pick_name = 0;
-		for (S32 col = 0; col < PICK_DIAMETER; col++)
-		{
-			for (S32 row = 0; row < PICK_DIAMETER; row++)
-			{
-				S32 distance_squared = (llabs(col - x_offset - PICK_HALF_WIDTH) * llabs(col - x_offset - PICK_HALF_WIDTH)) + (llabs(row - y_offset - PICK_HALF_WIDTH) * llabs(row - y_offset - PICK_HALF_WIDTH));
-				pixel_index = row * PICK_DIAMETER + col;
-				S32 test_name = (U32)mPickBuffer[(pixel_index * 4) + 0] << 16 | (U32)mPickBuffer[(pixel_index * 4) + 1] << 8 | (U32)mPickBuffer[(pixel_index * 4) + 2];
-				if (test_name && distance_squared < closest_distance)
-				{
-					closest_distance = distance_squared;
-					pick_id = test_name;
-					depth = mPickDepthBuffer[pixel_index];
-					mPickPt.mX = mMousePt.mX + (col - PICK_HALF_WIDTH);
-					mPickPt.mY = mMousePt.mY + (row - PICK_HALF_WIDTH);
-				}
-			}
-		}
-	}*/
-
-
 	U32 te_offset = face_hit > -1 ? face_hit : 0;
-	//pick_id &= 0x000fffff;
 
 	//unproject relative clicked coordinate from window coordinate using GL
 	
 	LLViewerObject* objectp = hit_object;
 
-	//if (pick_id == (S32)GL_NAME_PARCEL_WALL)
-	//{
-	//	mPickType = PICK_PARCEL_WALL;
-	//}
 	if (hit_icon && 
 		(!objectp || 
 		icon_dist < (LLViewerCamera::getInstance()->getOrigin()-intersection).magVec()))
@@ -5075,20 +5114,6 @@ void LLPickInfo::fetchResults()
 			mObjectID = objectp->mID;
 			mObjectFace = (te_offset == NO_FACE) ? -1 : (S32)te_offset;
 
-			/*glh::matrix4f newModel((F32*)LLViewerCamera::getInstance()->getModelview().mMatrix);
-
-			for(U32 i = 0; i < 16; ++i)
-			{
-				modelview[i] = newModel.m[i];
-				projection[i] = LLViewerCamera::getInstance()->getProjection().mMatrix[i/4][i%4];
-			}
-			glGetIntegerv( GL_VIEWPORT, viewport );
-
-			winX = ((F32)mPickPt.mX) * gViewerWindow->getDisplayScale().mV[VX];
-			winY = ((F32)mPickPt.mY) * gViewerWindow->getDisplayScale().mV[VY];
-
-			gluUnProject( winX, winY, depth, modelview, projection, viewport, &posX, &posY, &posZ);*/
-
 			mPosGlobal = gAgent.getPosGlobalFromAgent(intersection);
 			
 			if (mWantSurfaceInfo)
@@ -5114,15 +5139,11 @@ void LLPickInfo::updateXYCoords()
 	if (mObjectFace > -1)
 	{
 		const LLTextureEntry* tep = getObject()->getTE(mObjectFace);
-		LLPointer<LLViewerImage> imagep = gImageList.getImage(tep->getID());
+		LLPointer<LLViewerTexture> imagep = LLViewerTextureManager::getFetchedTexture(tep->getID());
 		if(mUVCoords.mV[VX] >= 0.f && mUVCoords.mV[VY] >= 0.f && imagep.notNull())
 		{
-			LLCoordGL coords;
-			
-			coords.mX = llround(mUVCoords.mV[VX] * (F32)imagep->getWidth());
-			coords.mY = llround(mUVCoords.mV[VY] * (F32)imagep->getHeight());
-
-			gViewerWindow->getWindow()->convertCoords(coords, &mXYCoords);
+			mXYCoords.mX = llround(mUVCoords.mV[VX] * (F32)imagep->getWidth());
+			mXYCoords.mY = llround((1.f - mUVCoords.mV[VY]) * (F32)imagep->getHeight());
 		}
 	}
 }

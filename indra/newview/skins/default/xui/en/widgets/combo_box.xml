@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<combo_box font="SansSerifSmall"
+           list_position="below"
+           max_chars="20"
+           follows="right|top">
+  <combo_box.combo_button name="Combobox Button"
+                          label=""
+                          hover_glow_amount="0.15"
+                          font="SansSerifSmall"
+                          scale_image="true"
+                          image_unselected="ComboButton_Off"
+                          image_selected="ComboButton_Selected"
+                          image_disabled="ComboButton_Disabled" />
+  <combo_box.drop_down_button name="Drop Down Button"
+                              label=""
+                              hover_glow_amount="0.15"
+                              font="SansSerifSmall"
+                              scale_image="true"
+                              pad_right="24"
+                              image_unselected="DropDown_Off"
+                              image_selected="DropDown_Selected"
+                              image_disabled="DropDown_Disabled" />
+  <combo_box.combo_list bg_writeable_color="MenuDefaultBgColor" />
+  <combo_box.combo_editor name="Combo Text Entry"
+                          select_on_focus="true"
+                          font="SansSerifSmall" />
+</combo_box>

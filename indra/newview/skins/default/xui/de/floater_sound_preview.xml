@@ -12,17 +12,9 @@
 		Bitrate (kbit/s):
 	</text>
 	<radio_group name="bitrate">
-		<radio_item name="32">
-			32
-		</radio_item>
-		<radio_item name="64">
-			64
-		</radio_item>
-		<radio_item name="96">
-			96
-		</radio_item>
-		<radio_item name="128">
-			128
-		</radio_item>
+		<radio_item name="32" label="32" />
+		<radio_item name="64" label="64" />
+		<radio_item name="96" label="96" />
+		<radio_item name="128" label="128" />
 	</radio_group>
 </floater>

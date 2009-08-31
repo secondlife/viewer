@@ -36,15 +36,9 @@ terreno:
 		Scegli se vendere a tutti o ad un compratore in particolare.
 	</text>
 	<combo_box name="sell_to">
-		<combo_item name="--selectone--">
-			-- selezionane uno --
-		</combo_item>
-		<combo_item name="Anyone">
-			Chiunque
-		</combo_item>
-		<combo_item name="Specificuser:">
-			Utente specifico:
-		</combo_item>
+		<combo_box.item name="--selectone--" label="selezionane uno --"/>
+		<combo_box.item name="Anyone" label="Chiunque"/>
+		<combo_box.item name="Specificuser:" label="Utente specifico:"/>
 	</combo_box>
 	<button label="Seleziona..." name="sell_to_select_agent"/>
 	<text name="sell_objects_label">
@@ -55,12 +49,8 @@ terreno:
 cambieranno proprietario.
 	</text>
 	<radio_group name="sell_objects" bottom_delta="-58" >
-		<radio_item name="no">
-			No, voglio mantenere la proprietà degli oggetti
-		</radio_item>
-		<radio_item name="yes">
-			Si, vendi gli oggetti con la terra
-		</radio_item>
+		<radio_item name="no" label="No, voglio mantenere la proprietà degli oggetti" />
+		<radio_item name="yes" label="Si, vendi gli oggetti con la terra" />
 	</radio_group>
 	<button label="Mostra oggetti" name="show_objects"/>
 	<text name="nag_message_label">

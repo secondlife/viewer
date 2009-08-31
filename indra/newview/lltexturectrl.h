@@ -39,16 +39,17 @@
 #include "llstring.h"
 #include "lluictrl.h"
 #include "llpermissionsflags.h"
+#include "lltextbox.h" // for params
+#include "llviewborder.h" // for params
 
 class LLButton;
 class LLFloaterTexturePicker;
 class LLInventoryItem;
-class LLTextBox;
-class LLViewBorder;
-class LLViewerImage;
+class LLViewerTexture;
 
 // used for setting drag & drop callbacks.
-typedef BOOL (*drag_n_drop_callback)(LLUICtrl*, LLInventoryItem*, void*);
+typedef boost::function<BOOL (LLUICtrl*, LLInventoryItem*)> drag_n_drop_callback;
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLTextureCtrl
@@ -66,17 +67,45 @@ public:
 	} ETexturePickOp;
 
 public:
-	LLTextureCtrl(
-		const std::string& name, const LLRect& rect,
-		const std::string& label,
-		const LLUUID& image_id,
-		const LLUUID& default_image_id, 
-		const std::string& default_image_name );
+	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Optional<LLUUID>		image_id;
+		Optional<LLUUID>		default_image_id;
+		Optional<std::string>	default_image_name;
+		Optional<bool>			allow_no_texture;
+		Optional<bool>			can_apply_immediately;
+		Optional<S32>			label_width;
+		Optional<LLUIColor>		border_color;
+		
+		Optional<LLTextBox::Params>	multiselect_text,
+									caption_text;
+
+		Optional<LLViewBorder::Params> border;
+
+		Params()
+		:	image_id("image"),
+			default_image_id("default_image_id"),
+			default_image_name("default_image_name"),
+			allow_no_texture("allow_no_texture"),
+			can_apply_immediately("can_apply_immediately"),
+		    label_width("label_width", -1),
+			border_color("border_color"),
+			multiselect_text("multiselect_text"),
+			caption_text("caption_text"),
+			border("border")
+		{
+			name = "texture picker";
+			mouse_opaque(true);
+			follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
+		}
+	};
+protected:
+	LLTextureCtrl(const Params&);
+	friend class LLUICtrlFactory;
+public:
 	virtual ~LLTextureCtrl();
 
 	// LLView interface
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
@@ -90,9 +119,6 @@ public:
 	virtual void	setVisible( BOOL visible );
 	virtual void	setEnabled( BOOL enabled );
 
-	virtual BOOL	isDirty() const;
-	virtual void	resetDirty();
-
 	void			setValid(BOOL valid);
 
 	// LLUICtrl interface
@@ -105,6 +131,7 @@ public:
 	// LLTextureCtrl interface
 	void			showPicker(BOOL take_focus);
 	void			setLabel(const std::string& label);
+	void			setLabelWidth(S32 label_width) {mLabelWidth =label_width;}	
 	const std::string&	getLabel() const							{ return mLabel; }
 
 	void			setAllowNoTexture( BOOL b )					{ mAllowNoTexture = b; }
@@ -133,7 +160,7 @@ public:
 	PermissionMask	getImmediateFilterPermMask() { return mImmediateFilterPermMask; }
 	PermissionMask	getNonImmediateFilterPermMask() { return mNonImmediateFilterPermMask; }
 
-	void			closeFloater();
+	void			closeDependentFloater();
 
 	void			onFloaterClose();
 	void			onFloaterCommit(ETexturePickOp op);
@@ -146,10 +173,10 @@ public:
 	// the drop happened - resulting in an on commit callback, but not
 	// necessariliy any other change.
 	void setDropCallback(drag_n_drop_callback cb)	{ mDropCallback = cb; }
-
-	void setOnCancelCallback(LLUICtrlCallback cb)	{ mOnCancelCallback = cb; }
 	
-	void setOnSelectCallback(LLUICtrlCallback cb)	{ mOnSelectCallback = cb; }
+	void setOnCancelCallback(commit_callback_t cb)	{ mOnCancelCallback = cb; }
+	
+	void setOnSelectCallback(commit_callback_t cb)	{ mOnSelectCallback = cb; }
 
 	void setShowLoadingPlaceholder(BOOL showLoadingPlaceholder);
 
@@ -160,10 +187,10 @@ private:
 private:
 	drag_n_drop_callback	 mDragCallback;
 	drag_n_drop_callback	 mDropCallback;
-	LLUICtrlCallback		 mOnCancelCallback;
-	LLUICtrlCallback		 mOnSelectCallback;
-	LLPointer<LLViewerImage> mTexturep;
-	LLColor4				 mBorderColor;
+	commit_callback_t		 mOnCancelCallback;
+	commit_callback_t		 mOnSelectCallback;
+	LLPointer<LLViewerTexture> mTexturep;
+	LLUIColor				 mBorderColor;
 	LLUUID					 mImageItemID;
 	LLUUID					 mImageAssetID;
 	LLUUID					 mDefaultImageAssetID;
@@ -174,16 +201,15 @@ private:
 	LLTextBox*				 mCaption;
 	std::string				 mLabel;
 	BOOL					 mAllowNoTexture; // If true, the user can select "none" as an option
-	LLCoordGL				 mLastFloaterLeftTop;
 	PermissionMask			 mImmediateFilterPermMask;
 	PermissionMask			 mNonImmediateFilterPermMask;
 	BOOL					 mCanApplyImmediately;
 	BOOL					 mNeedsRawImageData;
 	LLViewBorder*			 mBorder;
 	BOOL					 mValid;
-	BOOL					 mDirty;
 	BOOL					 mShowLoadingPlaceholder;
 	std::string				 mLoadingPlaceholderString;
+	S32						 mLabelWidth;
 };
 
 // XUI HACK: When floaters converted, switch this file to lltexturepicker.h/cpp

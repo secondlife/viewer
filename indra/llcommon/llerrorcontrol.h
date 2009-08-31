@@ -38,7 +38,6 @@
 #include "boost/function.hpp"
 #include <string>
 
-class LLFixedBuffer;
 class LLSD;
 
 /*
@@ -48,6 +47,18 @@ class LLSD;
 	
 	These implementations are in llerror.cpp.
 */
+
+// Line buffer interface
+class LLLineBuffer
+{
+public:
+	LLLineBuffer() {};
+	virtual ~LLLineBuffer() {};
+
+	virtual void clear() = 0; // Clear the buffer, and reset it.
+
+	virtual void addLine(const std::string& utf8line) = 0;
+};
 
 
 namespace LLError
@@ -73,6 +84,7 @@ namespace LLError
 	void setFunctionLevel(const std::string& function_name, LLError::ELevel);
 	void setClassLevel(const std::string& class_name, LLError::ELevel);
 	void setFileLevel(const std::string& file_name, LLError::ELevel);
+	void setTagLevel(const std::string& file_name, LLError::ELevel);
 	
 	void configure(const LLSD&);
 		// the LLSD can configure all of the settings
@@ -143,7 +155,7 @@ namespace LLError
 		// each error message is passed to each recorder via recordMessage()
 	
 	void logToFile(const std::string& filename);
-	void logToFixedBuffer(LLFixedBuffer*);
+	void logToFixedBuffer(LLLineBuffer*);
 		// Utilities to add recorders for logging to a file or a fixed buffer
 		// A second call to the same function will remove the logger added
 		// with the first.

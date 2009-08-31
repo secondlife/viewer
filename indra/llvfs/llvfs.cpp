@@ -46,7 +46,9 @@
 #endif
     
 #include "llvfs.h"
+
 #include "llstl.h"
+#include "lltimer.h"
     
 const S32 FILE_BLOCK_MASK = 0x000003FF;	 // 1024-byte blocks
 const S32 VFS_CLEANUP_SIZE = 5242880;  // how much space we free up in a single stroke

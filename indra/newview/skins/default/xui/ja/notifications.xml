@@ -6,6 +6,9 @@
 	<global name="alwayschoose">
 		常にこのオプションを選択
 	</global>
+	<global name="implicitclosebutton">
+		閉じる
+	</global>
   <template name="okbutton">
     <form>
       <button
@@ -71,7 +74,7 @@
     </form>
   </template>
 	<notification functor="GenericAcknowledge" label="不明な警告メッセージ" name="MissingAlert">
-		あなたの Second Life のバージョンでは、
+		あなたの [APP_NAME] のバージョンでは、
 今受け取った警告メッセージを表示することができません。
 
 エラー詳細： 「[_NAME]」という警告は notifications.xml にありませんでした。
@@ -94,7 +97,7 @@
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="はい"/>
 	</notification>
 	<notification name="BadInstallation">
-		Second Life をアップデート中にエラーが発生しました。 secondlife.com から最新バージョンをダウンロードしてください。
+		[APP_NAME] をアップデート中にエラーが発生しました。 secondlife.com から最新バージョンをダウンロードしてください。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LoginFailedNoNetwork">
@@ -274,7 +277,7 @@ L$が不足しているのでこのグループに参加することができま
 	</notification>
 	<notification name="ConfirmLandSaleToAnyoneChange">
 		注：「誰にでも売却する」をクリックすると、
-あなたの土地はSecond Life のコミュニティのどこからでも
+あなたの土地は[SECOND_LIFE] のコミュニティのどこからでも
 （この地域にないコミュニティを含む）購入できるようになります。
 
 選択された[LAND_SIZE]平方メートルの土地は、
@@ -435,17 +438,17 @@ L$が不足しているのでこのグループに参加することができま
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="CacheWillClear">
-		[SECOND_LIFE]の再起動後にキャッシュがクリアされます。
+		[APP_NAME]の再起動後にキャッシュがクリアされます。
 	</notification>
 	<notification name="CacheWillBeMoved">
-		[SECOND_LIFE]の再起動後にキャッシュが移動されます。
+		[APP_NAME]の再起動後にキャッシュが移動されます。
 注意：これによりキャッシュがクリアされます。
 	</notification>
 	<notification name="ChangeConnectionPort">
-		ポートの設定は、[SECOND_LIFE]の再起動後に有効になります。
+		ポートの設定は、[APP_NAME]の再起動後に有効になります。
 	</notification>
 	<notification name="ChangeSkin">
-		新しいスキンは[SECOND_LIFE]を再起動すると現れます
+		新しいスキンは[APP_NAME]を再起動すると現れます
 	</notification>
 	<notification name="GoToAuctionPage">
 		[SECOND_LIFE]ウェブ・ページに移動し、 入札あるいはオークションの詳細を確認しますか？
@@ -504,8 +507,8 @@ L$が不足しているのでこのグループに参加することができま
 		ファイル[[FILE]]を書き込めません。
 	</notification>
 	<notification name="UnsupportedHardware">
-		警告： あなたのシステムは Second Life を使用するために必要な必須動作環境の条件を満たしていません。
-Second Life をこのままご使用になると、不十分なパフォーマンスしか得られないおそれがあります。
+		警告： あなたのシステムは [APP_NAME] を使用するために必要な必須動作環境の条件を満たしていません。
+[APP_NAME] をこのままご使用になると、不十分なパフォーマンスしか得られないおそれがあります。
 また、サポート外のシステム構成でご使用の場合、テクニカルサポートをご利用いただくことができません。
 
  必須動作環境の条件
@@ -518,7 +521,7 @@ Second Life をこのままご使用になると、不十分なパフォーマ�
 	<notification name="UnknownGPU">
 		お使いのシステムには、現時点では不明なグラフィック・カードが搭載されています。
 これは、当社による動作テストが行われていない新しいハードウェアが使用されている場合がほとんどです。
-Second Life はほぼ間違いなく正常に動作しますが、
+[APP_NAME] はほぼ間違いなく正常に動作しますが、
 必要に応じたグラフィック設定の調整が必要になる場合があります。
 （「編集」＞「環境設定」＞「表示」）
 		<form name="form">
@@ -526,7 +529,7 @@ Second Life はほぼ間違いなく正常に動作しますが、
 		</form>
 	</notification>
 	<notification name="DisplaySettingsNoShaders">
-		[SECOND_LIFE] は、
+		[APP_NAME] は、
 グラフィック・ドライバの初期化中にクラッシュしました。
 一般的なドライバ・エラーを回避するため、「品質およびパフォーマンス」は「低」に設定されます。
 これにより、いくつかのグラフィックス機能は無効になります。
@@ -828,7 +831,7 @@ Second Life はほぼ間違いなく正常に動作しますが、
 この土地がある地域を見つけることができません
 	</notification>
 	<notification name="CannotCloseFloaterBuyLand">
-		Second Lifeによる、
+		[APP_NAME]による、
 この取引の見積りが完了するまで「土地を購入」ウィンドウを閉じることはできません。
 	</notification>
 	<notification name="CannotDeedLandNothingSelected">
@@ -1009,7 +1012,7 @@ L$は返金されません。
 「IMとチャットを表示」をクリックすると、
 現在あるIMとチャットを確認できます。
 確認しない場合は「終了」をクリックし、
-すぐに[SECOND_LIFE]を終了してください。
+すぐに[APP_NAME]を終了してください。
 		<usetemplate name="okcancelbuttons" notext="終了" yestext="IMとチャットを表示"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1187,7 +1190,7 @@ L$は返金されません。
 		</form>
 	</notification>
 	<notification name="FirstRun">
-		[SECOND_LIFE]のインストールが完了しました。
+		[APP_NAME]のインストールが完了しました。
 
 [SECOND_LIFE] の使用が初めての方は、
 ログイン前にアカウントの作成が必要です。
@@ -1195,7 +1198,7 @@ www.secondlife.comに移動し、新規アカウントの作成を行います�
 		<usetemplate name="okcancelbuttons" notext="続行" yestext="新規アカウント..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
-		接続に問題が生じています。 あなたのインターネット接続、またはSecond Life サーバーに問題がある可能性があります。
+		接続に問題が生じています。 あなたのインターネット接続、または[SECOND_LIFE] サーバーに問題がある可能性があります。
 
 インターネット接続を確認して数分後にもう一度試みるか、「ヘルプ」をクリックして当社のサポートサイトに接続してください。または、「テレポート」をクリックしてホームにテレポートしてみてください。
 		<form name="form">
@@ -1306,35 +1309,35 @@ F1キーを押してください。
 [DOWNLOAD_PATH]。
 	</notification>
 	<notification name="DownloadWindowsMandatory">
-		[SECOND_LIFE]の新しいバージョンが利用可能です。
+		[APP_NAME]の新しいバージョンが利用可能です。
 [MESSAGE]
-[SECOND_LIFE]を使用するためには、
+[APP_NAME]を使用するためには、
 このアップデートをダウンロードする必要があります。
 		<usetemplate name="okcancelbuttons" notext="終了" yestext="ダウンロード"/>
 	</notification>
 	<notification name="DownloadWindows">
-		[SECOND_LIFE]のアップデート・バージョンが利用可能です。
+		[APP_NAME]のアップデート・バージョンが利用可能です。
 [MESSAGE]
 このアップデートは必須ではありませんが、パフォーマンスと安定性を向上させるためにインストールすることをお勧めします。
 		<usetemplate name="okcancelbuttons" notext="続行" yestext="ダウンロード"/>
 	</notification>
 	<notification name="DownloadWindowsReleaseForDownload">
-		[SECOND_LIFE]のアップデート・バージョンが利用可能です。
+		[APP_NAME]のアップデート・バージョンが利用可能です。
 [MESSAGE]
 このアップデートは必須ではありませんが、パフォーマンスと安定性を向上させるためにインストールすることをお勧めします。
 		<usetemplate name="okcancelbuttons" notext="続行" yestext="ダウンロード"/>
 	</notification>
 	<notification name="DownloadMacMandatory">
-		[SECOND_LIFE]の新しいバージョンが利用可能です。
+		[APP_NAME]の新しいバージョンが利用可能です。
 [MESSAGE]
-[SECOND_LIFE]を使用するために、
+[APP_NAME]を使用するために、
 このアップデートをダウンロードする必要があります。
 
 アプリケーションがあるフォルダにダウンロードしますか？
 		<usetemplate name="okcancelbuttons" notext="終了" yestext="ダウンロード"/>
 	</notification>
 	<notification name="DownloadMac">
-		[SECOND_LIFE]のアップデート・バージョンが利用可能です。
+		[APP_NAME]のアップデート・バージョンが利用可能です。
 [MESSAGE]
 このアップデートは必須ではありませんが、パフォーマンスと安定性を向上させるためにインストールすることをお勧めします。
 
@@ -1342,7 +1345,7 @@ F1キーを押してください。
 		<usetemplate name="okcancelbuttons" notext="続行" yestext="ダウンロード"/>
 	</notification>
 	<notification name="DownloadMacReleaseForDownload">
-		[SECOND_LIFE]のアップデート・バージョンが利用可能です。
+		[APP_NAME]のアップデート・バージョンが利用可能です。
 [MESSAGE]
 このアップデートは必須ではありませんが、パフォーマンスと安定性を向上させるためにインストールすることをお勧めします。
 
@@ -2015,10 +2018,10 @@ RGB、256x256で、チャンネル数が13
 デフォルト： オフ
 	</notification>
 	<notification label="ボイスバージョンの不一致" name="VoiceVersionMismatch">
-		このバージョンの Second Life は、
+		このバージョンの [APP_NAME] は、
 この地域のボイスチャット機能に対応していません。
 ボイスチャットを正しく使用するには、
-Second Life のアップデートが必要です。
+[APP_NAME] のアップデートが必要です。
 	</notification>
 	<notification label="不動産約款" name="HelpEstateCovenant">
 		不動産約款を定めると、自分の不動産内の区画を販売できるようになります。
@@ -2137,17 +2140,17 @@ Second Life のアップデートが必要です。
 		このオブジェクトには、あなたがコピーできるアイテムはありません。
 	</notification>
 	<notification name="WebLaunchAccountHistory">
-		Second Life ウェブ・ページを開いて
+		[SECOND_LIFE] ウェブ・ページを開いて
 アカウント履歴を確認しますか？
 		<usetemplate ignoretext="アカウント履歴のウェブ・ページをロードするとき" name="okcancelignore" notext="取り消し" yestext="ページに移動"/>
 	</notification>
 	<notification name="ClickOpenF1Help">
-		Second Life のサポートウェブサイトを利用しますか？
-		<usetemplate ignoretext="Second Life のサポートウェブサイトを閲覧するにあたって。" name="okcancelignore" notext="キャンセル" yestext="行く"/>
+		[SECOND_LIFE] のサポートウェブサイトを利用しますか？
+		<usetemplate ignoretext="[SECOND_LIFE] のサポートウェブサイトを閲覧するにあたって。" name="okcancelignore" notext="キャンセル" yestext="行く"/>
 	</notification>
 	<notification name="ConfirmQuit">
 		終了しようとしています。操作を続行しますか？
-		<usetemplate ignoretext="Second Life の終了にあたって。" name="okcancelignore" notext="継続" yestext="終了"/>
+		<usetemplate ignoretext="[APP_NAME] の終了にあたって。" name="okcancelignore" notext="継続" yestext="終了"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		利用規約違反とコミュニティースタンダード違反の報告にこのツールをご使用ください。 参照：
@@ -2172,9 +2175,9 @@ http://secondlife.com/support/incidentreport.php
 （「世界」のメニューから「土地情報」を選ぶと、約款を閲覧できます）
 -
 このレポートに関する解決策は、この地域にだけ当てはまります。
-住人がSecond Life の他の地域へアクセスする際、
+住人が[SECOND_LIFE] の他の地域へアクセスする際、
 このレポートの結果に影響されることはありません。
-Linden Lab 社だけがSecond Life 全域における
+Linden Lab 社だけが[SECOND_LIFE] 全域における
 アクセス制限権を持っています。
 	</notification>
 	<notification name="HelpReportBug">
@@ -2233,17 +2236,17 @@ http://secondlife.com/community/support.php
 知的財産の侵害に関する報告を行う際には、以下の点に注意してください。
 
 (1) 嫌がらせの報告のプロセス
-Second Life の権限システムを悪用している住人を見つけたら、
+[SECOND_LIFE] の権限システムを悪用している住人を見つけたら、
 嫌がらせの報告を行ってください。
 例えばコピーBotの使用、それに似たツールの使用による知的財産権の侵害があります。
 アビューズチームは調査に基づき、
-Second Life のコミュニティースタンダードや
+[SECOND_LIFE] のコミュニティースタンダードや
 利用規約に違反する行為と判断された場合には適切な処置を行っています。
-ただし、コンテンツをSecond Life から撤去してほしい、
+ただし、コンテンツを[SECOND_LIFE] から撤去してほしい、
 といった要望にはアビューズチームは応えることができません。
 
 (2) DMCA（デジタルミレニアム著作権法）及びコンテンツ撤去プロセス
-Second Life からのコンテンツの撤去をリクエストするには、
+[SECOND_LIFE] からのコンテンツの撤去をリクエストするには、
 著作権侵害通知の提出を行う必要があります。
 参照： http://secondlife.com/corporate/dmca.php
 
@@ -2299,13 +2302,13 @@ Linden Lab
 		<usetemplate ignoretext="持ち物内の「遺失物」フォルダを空にするとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="CopySLURL">
-		以下のSLURLがクリップボードにコピーされました。
+		以下のSLurlがクリップボードにコピーされました。
  [SLURL]
 
 他の人がアクセスしやすいようにウェブ・ページに載せたり、
 ブラウザのアドレス・バーに貼り付けて、自分でアクセスしてみましょう。
 		<form name="form">
-			<ignore name="ignore" text="SLURLをクリップボードにコピーするとき"/>
+			<ignore name="ignore" text="SLurlをクリップボードにコピーするとき"/>
 		</form>
 	</notification>
 	<notification name="GraphicsPreferencesHelp">
@@ -2372,7 +2375,7 @@ Linden Lab
 	</notification>
 	<notification name="HelpDayCycle">
 		「デイ・サイクル編集」では、
-Second Life での昼と夜の空の変化を制御できます。
+[SECOND_LIFE] での昼と夜の空の変化を制御できます。
 これは「基本環境編集」の「時間帯」スライダーで使用されるサイクルです。
 
 「デイ・サイクル編集」はキーフレームを設定することで機能します。
@@ -2480,7 +2483,7 @@ Second Life での昼と夜の空の変化を制御できます。
 		「Y」 の方向に雲が移動する際の速度を制御します。
 	</notification>
 	<notification name="HelpClassicClouds">
-		このボックスを有効にすると、WindLight の雲に加えて、Second Life の従来の雲もレンダリングできるようになります。
+		このボックスを有効にすると、WindLight の雲に加えて、[SECOND_LIFE] の従来の雲もレンダリングできるようになります。
 	</notification>
 	<notification name="HelpWaterFogColor">
 		水中のフォグ効果に色をつけます。
@@ -2581,7 +2584,7 @@ Second Life での昼と夜の空の変化を制御できます。
 	<notification name="NotAgeVerified">
 		この区画にアクセスするためには、
 年齢確認を行う必要があります。
-Second Life のウェブサイトにアクセスし、
+[SECOND_LIFE] のウェブサイトにアクセスし、
 年齢確認を行いますか？
 
 [_URL]
@@ -2592,7 +2595,7 @@ Second Life のウェブサイトにアクセスし、
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		この区画にアクセスするには、支払い情報が事前に登録されている必要があります。
-Second Life のウェブサイトにアクセスして、設定しますか？
+[SECOND_LIFE] のウェブサイトにアクセスして、設定しますか？
 
 [_URL]
 		<url name="url" option="0">
@@ -3052,7 +3055,7 @@ Second Life のウェブサイトにアクセスして、設定しますか？
 		データベースに[DESC]という名前の[TYPE]が見つかりませんでした。
 	</notification>
 	<notification name="InvalidWearable">
-		着用しようとしているアイテムはあなたのビューワでは読み込むことができません。 Second Lifeビューワを最新のものにアップグレードしてからこのアイテムを着用してください。
+		着用しようとしているアイテムはあなたのビューワでは読み込むことができません。 [APP_NAME]ビューワを最新のものにアップグレードしてからこのアイテムを着用してください。
 	</notification>
 	<notification name="ScriptQuestion">
 		「[NAME]」が所有するオブジェクト「[OBJECTNAME]」を：
@@ -3161,11 +3164,11 @@ Mキーを押して変更します。
 	<notification name="FirstDebugMenus">
 		高度な設定を有効にしました。
 このメニューには、
-Second Life をデバッグするデベロッパーにとって
+[SECOND_LIFE] をデバッグするデベロッパーにとって
 有用な機能があります。
 このメニューを切り替えるには、
 WindowsではCtrl-Alt-Dを押します。
-Macの場合は、Cmd-Opt-Shift-Dを押してください。
+Macの場合は、&#8984;-Opt-Shift-Dを押してください。
 	</notification>
 	<notification name="FirstSculptedPrim">
 		スカルプトプリムを編集しています。
@@ -3275,7 +3278,7 @@ Macの場合は、Cmd-Opt-Shift-Dを押してください。
 		- あなたの CPU の速度は必須動作環境の条件を満たしていません。
 	</global>
 	<global name="UnsupportedGLRequirements">
-		Second Life の使用に必要なハードウェアの環境が満たされていないようです。 Second Life ではマルチテクスチャーに対応したOpenGLグラフィック・カードが必要です。 この場合、グラフィック・カードの最新ドライバがインストールされていること、およびオペレーティング・システムにサービス・パックと修正プログラムが適用されていることをご確認ください。
+		[APP_NAME] の使用に必要なハードウェアの環境が満たされていないようです。 [APP_NAME] ではマルチテクスチャーに対応したOpenGLグラフィック・カードが必要です。 この場合、グラフィック・カードの最新ドライバがインストールされていること、およびオペレーティング・システムにサービス・パックと修正プログラムが適用されていることをご確認ください。
 
 問題が解決されない場合には、次のサイトにアクセスしてください。 http://www.secondlife.com/support
 	</global>

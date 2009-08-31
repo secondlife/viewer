@@ -25,7 +25,7 @@
 	<button label="Annullér" name="cancel_btn" />
 	<button label="Send" name="send_btn" />
 	<string name="default_subject">
-		Postkort fra Second Life.
+		Postkort fra [SECOND_LIFE]
 	</string>
 	<string name="default_message">
 		Tjek det her ud!

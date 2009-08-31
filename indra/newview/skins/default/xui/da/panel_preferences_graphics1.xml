@@ -9,21 +9,11 @@
 		Opløsning:
 	</text>
 	<combo_box name="windowsize combo">
-		<combo_item type="string" length="1" name="640x480">
-			640x480
-		</combo_item>
-		<combo_item type="string" length="1" name="800x600">
-			800x600
-		</combo_item>
-		<combo_item type="string" length="1" name="720x480">
-			720x480 (NTSC)
-		</combo_item>
-		<combo_item type="string" length="1" name="768x576">
-			768x576 (PAL)
-		</combo_item>
-		<combo_item type="string" length="1" name="1024x768">
-			1024x768
-		</combo_item>
+		<combo_box.item type="string" length="1" name="640x480" label="640x480" />
+		<combo_box.item type="string" length="1" name="800x600" label="800x600" />
+		<combo_box.item type="string" length="1" name="720x480" label="720x480 (NTSC)" />
+		<combo_box.item type="string" length="1" name="768x576" label="768x576 (PAL)" />
+		<combo_box.item type="string" length="1" name="1024x768" label="1024x768" />
 	</combo_box>
 	<text type="string" length="1" name="DisplayResLabel">
 		Skærm opløsning:
@@ -32,18 +22,10 @@
 		Format:
 	</text>
 	<combo_box name="aspect_ratio" tool_tip="bredde/ højde">
-		<combo_item type="string" length="1" name="4:3(StandardCRT)">
-			4:3 (Standard CRT)
-		</combo_item>
-		<combo_item type="string" length="1" name="5:4(1280x1024LCD)">
-			5:4 (1280x1024 LCD)
-		</combo_item>
-		<combo_item type="string" length="1" name="8:5(Widescreen)">
-			8:5 (Widescreen)
-		</combo_item>
-		<combo_item type="string" length="1" name="16:9(Widescreen)">
-			16:9 (Widescreen)
-		</combo_item>
+		<combo_box.item type="string" length="1" name="4:3(StandardCRT)" label="4:3 (Standard CRT)" />
+		<combo_box.item type="string" length="1" name="5:4(1280x1024LCD)" label="5:4 (1280x1024 LCD)" />
+		<combo_box.item type="string" length="1" name="8:5(Widescreen)" label="8:5 (Widescreen)" />
+		<combo_box.item type="string" length="1" name="16:9(Widescreen)" label="16:9 (Widescreen)" />
 	</combo_box>
 	<check_box label="Auto-detect format" name="aspect_auto_detect" />
 	<text type="string" length="1" name="HigherText">
@@ -87,18 +69,10 @@
 		Spejlnings detaljer:
 	</text>
 	<radio_group name="ReflectionDetailRadio">
-		<radio_item type="string" length="1" name="0">
-			Terræn og træer
-		</radio_item>
-		<radio_item type="string" length="1" name="1">
-			Alle statiske objekter
-		</radio_item>
-		<radio_item type="string" length="1" name="2">
-			Alle avatarer og objekter
-		</radio_item>
-		<radio_item type="string" length="1" name="3">
-			Alt
-		</radio_item>
+		<radio_item type="string" length="1" name="0" label="Terræn og træer" />
+		<radio_item type="string" length="1" name="1" label="Alle statiske objekter" />
+		<radio_item type="string" length="1" name="2" label="Alle avatarer og objekter" />
+		<radio_item type="string" length="1" name="3" label="Alt" />
 	</radio_group>
 	<text type="string" length="1" name="AvatarRenderingText">
 		Avatar gengivelse
@@ -149,23 +123,15 @@
 		Lys detaljer:
 	</text>
 	<radio_group name="LightingDetailRadio">
-		<radio_item type="string" length="1" name="SunMoon">
-			Kun sol og måne
-		</radio_item>
-		<radio_item type="string" length="1" name="LocalLights">
-			Lys i nærheden
-		</radio_item>
+		<radio_item type="string" length="1" name="SunMoon" label="Kun sol og måne" />
+		<radio_item type="string" length="1" name="LocalLights" label="Lys i nærheden" />
 	</radio_group>
 	<text type="string" length="1" name="TerrainDetailText">
 		Terræn detaljer:
 	</text>
 	<radio_group name="TerrainDetailRadio">
-		<radio_item type="string" length="1" name="0">
-			Lav
-		</radio_item>
-		<radio_item type="string" length="1" name="2">
-			Høj
-		</radio_item>
+		<radio_item type="string" length="1" name="0" label="Lav" />
+		<radio_item type="string" length="1" name="2" label="Høj" />
 	</radio_group>
 	<button label="Anbefalede indstillinger" name="Defaults" />
 	<button label="Hardware valg" label_selected="Hardware Options"

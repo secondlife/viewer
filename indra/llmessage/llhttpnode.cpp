@@ -98,19 +98,19 @@ namespace {
 }
 
 // virtual
-LLSD LLHTTPNode::get() const
+LLSD LLHTTPNode::simpleGet() const
 {
 	throw NotImplemented();
 }
 
 // virtual
-LLSD LLHTTPNode::put(const LLSD& input) const
+LLSD LLHTTPNode::simplePut(const LLSD& input) const
 {
 	throw NotImplemented();
 }
 
 // virtual
-LLSD LLHTTPNode::post(const LLSD& input) const
+LLSD LLHTTPNode::simplePost(const LLSD& input) const
 {
 	throw NotImplemented();
 }
@@ -121,7 +121,7 @@ void LLHTTPNode::get(LLHTTPNode::ResponsePtr response, const LLSD& context) cons
 {
 	try
 	{
-		response->result(get());
+		response->result(simpleGet());
 	}
 	catch (NotImplemented)
 	{
@@ -134,7 +134,7 @@ void LLHTTPNode::put(LLHTTPNode::ResponsePtr response, const LLSD& context, cons
 {
 	try
 	{
-		response->result(put(input));
+		response->result(simplePut(input));
 	}
 	catch (NotImplemented)
 	{
@@ -147,7 +147,7 @@ void LLHTTPNode::post(LLHTTPNode::ResponsePtr response, const LLSD& context, con
 {
 	try
 	{
-		response->result(post(input));
+		response->result(simplePost(input));
 	}
 	catch (NotImplemented)
 	{
@@ -160,7 +160,7 @@ void LLHTTPNode::del(LLHTTPNode::ResponsePtr response, const LLSD& context) cons
 {
     try
     {
-	response->result(del(context));
+	response->result(simpleDel(context));
     }
     catch (NotImplemented)
     {
@@ -170,7 +170,7 @@ void LLHTTPNode::del(LLHTTPNode::ResponsePtr response, const LLSD& context) cons
 }
 
 // virtual
-LLSD LLHTTPNode::del(const LLSD&) const
+LLSD LLHTTPNode::simpleDel(const LLSD&) const
 {
 	throw NotImplemented();
 }
@@ -388,7 +388,7 @@ LLHTTPNode::Response::~Response()
 {
 }
 
-void LLHTTPNode::Response::status(S32 code)
+void LLHTTPNode::Response::statusUnknownError(S32 code)
 {
 	status(code, "Unknown Error");
 }

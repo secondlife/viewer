@@ -58,12 +58,14 @@
 #include "llfloatergodtools.h"	// for send_sim_wide_deletes()
 #include "llfloatertopobjects.h" // added to fix SL-32336
 #include "llfloatergroups.h"
+#include "llfloaterreg.h"
 #include "llfloatertelehub.h"
 #include "llfloaterwindlight.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
 #include "llalertdialog.h"
 #include "llnamelistctrl.h"
+#include "llscrolllistitem.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "lltabcontainer.h"
@@ -73,13 +75,16 @@
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
-#include "llviewerimage.h"
-#include "llviewerimagelist.h"
+#include "llviewerinventory.h"
+#include "llviewertexture.h"
+#include "llviewertexturelist.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewertexteditor.h"
 #include "llviewerwindow.h"
 #include "llvlcomposition.h"
+#include "lltrans.h"
+#include "llagentui.h"
 
 #define ELAR_ENABLED 0 // Enable when server support is implemented
 
@@ -161,8 +166,9 @@ bool estate_dispatch_initialized = false;
 LLUUID LLFloaterRegionInfo::sRequestInvoice;
 
 LLFloaterRegionInfo::LLFloaterRegionInfo(const LLSD& seed)
+	: LLFloater(seed)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_region_info.xml", NULL, FALSE);
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_region_info.xml", FALSE);
 }
 
 BOOL LLFloaterRegionInfo::postBuild()
@@ -174,32 +180,32 @@ BOOL LLFloaterRegionInfo::postBuild()
 	panel = new LLPanelRegionGeneralInfo;
 	mInfoPanels.push_back(panel);
 	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_general.xml");
-	mTab->addTabPanel(panel, panel->getLabel(), TRUE);
+	mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(true));
 
 	panel = new LLPanelRegionDebugInfo;
 	mInfoPanels.push_back(panel);
 	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_debug.xml");
-	mTab->addTabPanel(panel, panel->getLabel(), FALSE);
+	mTab->addTabPanel(panel);
 
 	panel = new LLPanelRegionTextureInfo;
 	mInfoPanels.push_back(panel);
 	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_texture.xml");
-	mTab->addTabPanel(panel, panel->getLabel(), FALSE);
+	mTab->addTabPanel(panel);
 
 	panel = new LLPanelRegionTerrainInfo;
 	mInfoPanels.push_back(panel);
 	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_terrain.xml");
-	mTab->addTabPanel(panel, panel->getLabel(), FALSE);
+	mTab->addTabPanel(panel);
 
 	panel = new LLPanelEstateInfo;
 	mInfoPanels.push_back(panel);
 	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_estate.xml");
-	mTab->addTabPanel(panel, panel->getLabel(), FALSE);
+	mTab->addTabPanel(panel);
 
 	panel = new LLPanelEstateCovenant;
 	mInfoPanels.push_back(panel);
 	LLUICtrlFactory::getInstance()->buildPanel(panel, "panel_region_covenant.xml");
-	mTab->addTabPanel(panel, panel->getLabel(), FALSE);
+	mTab->addTabPanel(panel);
 
 	gMessageSystem->setHandlerFunc(
 		"EstateOwnerMessage", 
@@ -212,22 +218,16 @@ LLFloaterRegionInfo::~LLFloaterRegionInfo()
 {
 }
 
-void LLFloaterRegionInfo::onOpen()
+void LLFloaterRegionInfo::onOpen(const LLSD& key)
 {
-	LLRect rect = gSavedSettings.getRect("FloaterRegionInfo");
-	S32 left, top;
-	gFloaterView->getNewFloaterPosition(&left, &top);
-	rect.translate(left,top);
-
 	refreshFromRegion(gAgent.getRegion());
 	requestRegionInfo();
-	LLFloater::onOpen();
 }
 
 // static
 void LLFloaterRegionInfo::requestRegionInfo()
 {
-	LLTabContainer* tab = findInstance()->getChild<LLTabContainer>("region_panels");
+	LLTabContainer* tab = getChild<LLTabContainer>("region_panels");
 
 	tab->getChild<LLPanel>("General")->setCtrlsEnabled(FALSE);
 	tab->getChild<LLPanel>("Debug")->setCtrlsEnabled(FALSE);
@@ -249,7 +249,8 @@ void LLFloaterRegionInfo::requestRegionInfo()
 void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 {
 	static LLDispatcher dispatch;
-	if(!findInstance())
+	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
+	if(!floater)
 	{
 		return;
 	}
@@ -259,7 +260,7 @@ void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 		LLPanelEstateInfo::initDispatch(dispatch);
 	}
 
-	LLTabContainer* tab = findInstance()->getChild<LLTabContainer>("region_panels");
+	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)tab->getChild<LLPanel>("Estate");
 
 	// unpack the message
@@ -285,14 +286,14 @@ void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 {
 	LLPanel* panel;
-
+	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
 	llinfos << "LLFloaterRegionInfo::processRegionInfo" << llendl;
-	if(!findInstance())
+	if(!floater)
 	{
 		return;
 	}
 	
-	LLTabContainer* tab = findInstance()->getChild<LLTabContainer>("region_panels");
+	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 
 	LLViewerRegion* region = gAgent.getRegion();
 	BOOL allow_modify = gAgent.isGodlike() || (region && region->canManageEstate());
@@ -379,13 +380,13 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel->childSetEnabled("sun_hour_slider", allow_modify && !use_estate_sun);
 	panel->setCtrlsEnabled(allow_modify);
 
-	getInstance()->refreshFromRegion( gAgent.getRegion() );
+	floater->refreshFromRegion( gAgent.getRegion() );
 }
 
 // static
 LLPanelEstateInfo* LLFloaterRegionInfo::getPanelEstate()
 {
-	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
+	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
 	if (!floater) return NULL;
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)tab->getChild<LLPanel>("Estate");
@@ -395,7 +396,7 @@ LLPanelEstateInfo* LLFloaterRegionInfo::getPanelEstate()
 // static
 LLPanelEstateCovenant* LLFloaterRegionInfo::getPanelCovenant()
 {
-	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
+	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
 	if (!floater) return NULL;
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 	LLPanelEstateCovenant* panel = (LLPanelEstateCovenant*)tab->getChild<LLPanel>("Covenant");
@@ -435,6 +436,11 @@ void LLFloaterRegionInfo::refresh()
 //
 // LLPanelRegionInfo
 //
+
+LLPanelRegionInfo::LLPanelRegionInfo()
+	: LLPanel()
+{
+}
 
 // static
 void LLPanelRegionInfo::onBtnSet(void* user_data)
@@ -608,7 +614,8 @@ BOOL LLPanelRegionGeneralInfo::postBuild()
 	childSetAction("kick_btn", onClickKick, this);
 	childSetAction("kick_all_btn", onClickKickAll, this);
 	childSetAction("im_btn", onClickMessage, this);
-	childSetAction("manage_telehub_btn", onClickManageTelehub, this);
+//	childSetAction("manage_telehub_btn", onClickManageTelehub, this);
+	mCommitCallbackRegistrar.add("RegionInfo.Cancel",	boost::bind(&LLPanelRegionGeneralInfo::onClickManageTelehub, this));
 
 	return LLPanelRegionInfo::postBuild();
 }
@@ -708,7 +715,7 @@ bool LLPanelRegionGeneralInfo::onMessageCommit(const LLSD& notification, const L
 	gAgent.getID().toString(buffer);
 	strings.push_back(buffer);
 	std::string name;
-	gAgent.buildFullname(name);
+	LLAgentUI::buildFullname(name);
 	strings.push_back(strings_t::value_type(name));
 	strings.push_back(strings_t::value_type(text));
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
@@ -716,12 +723,10 @@ bool LLPanelRegionGeneralInfo::onMessageCommit(const LLSD& notification, const L
 	return false;
 }
 
-// static
-void LLPanelRegionGeneralInfo::onClickManageTelehub(void* data)
+void LLPanelRegionGeneralInfo::onClickManageTelehub()
 {
-	LLFloaterRegionInfo::getInstance()->close();
-
-	LLFloaterTelehub::show();
+	LLFloaterReg::hideInstance("region_info");
+	LLFloaterReg::showInstance("telehubs");
 }
 
 // setregioninfo
@@ -955,8 +960,10 @@ void LLPanelRegionDebugInfo::onClickTopColliders(void* data)
 	strings_t strings;
 	strings.push_back("1");	// one physics step
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
-	LLFloaterTopObjects::show();
-	LLFloaterTopObjects::clearList();
+	LLFloaterTopObjects* instance = LLFloaterReg::getTypedInstance<LLFloaterTopObjects>("top_objects");
+	if(!instance) return;
+	LLFloaterReg::showInstance("top_objects");
+	instance->clearList();
 	self->sendEstateOwnerMessage(gMessageSystem, "colliders", invoice, strings);
 }
 
@@ -967,8 +974,10 @@ void LLPanelRegionDebugInfo::onClickTopScripts(void* data)
 	strings_t strings;
 	strings.push_back("6");	// top 5 scripts
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
-	LLFloaterTopObjects::show();
-	LLFloaterTopObjects::clearList();
+	LLFloaterTopObjects* instance = LLFloaterReg::getTypedInstance<LLFloaterTopObjects>("top_objects");
+	if(!instance) return;
+	LLFloaterReg::showInstance("top_objects");
+	instance->clearList();
 	self->sendEstateOwnerMessage(gMessageSystem, "scripts", invoice, strings);
 }
 
@@ -1074,7 +1083,7 @@ BOOL LLPanelRegionTextureInfo::postBuild()
 		initCtrl(buffer);
 	}
 
-//	LLButton* btn = new LLButton("dump", LLRect(0, 20, 100, 0), "", onClickDump, this);
+//	LLButton* btn = ("dump", LLRect(0, 20, 100, 0), "", onClickDump, this);
 //	btn->setFollows(FOLLOWS_TOP|FOLLOWS_LEFT);
 //	addChild(btn);
 
@@ -1136,11 +1145,11 @@ BOOL LLPanelRegionTextureInfo::validateTextureSizes()
 		if (!texture_ctrl) continue;
 
 		LLUUID image_asset_id = texture_ctrl->getImageAssetID();
-		LLViewerImage* img = gImageList.getImage(image_asset_id);
+		LLViewerTexture* img = LLViewerTextureManager::getFetchedTexture(image_asset_id);
 		S32 components = img->getComponents();
 		// Must ask for highest resolution version's width. JC
-		S32 width = img->getWidth(0);
-		S32 height = img->getHeight(0);
+		S32 width = img->getFullWidth();
+		S32 height = img->getFullHeight();
 
 		//llinfos << "texture detail " << i << " is " << width << "x" << height << "x" << components << llendl;
 
@@ -1251,7 +1260,7 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 
 	// Grab estate information in case the user decided to set the
 	// region back to estate time. JC
-	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
+	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
 	if (!floater) return true;
 
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
@@ -1363,9 +1372,10 @@ void LLPanelRegionTerrainInfo::onClickUploadRaw(void* data)
 // static
 void LLPanelRegionTerrainInfo::onClickBakeTerrain(void* data)
 {
-	LLNotifications::instance().add(
-		LLNotification::Params("ConfirmBakeTerrain")
-		.functor(boost::bind(&LLPanelRegionTerrainInfo::callbackBakeTerrain, (LLPanelRegionTerrainInfo*)data, _1, _2)));
+	LLNotification::Params::Functor functor_params;
+	functor_params.function(boost::bind(&LLPanelRegionTerrainInfo::callbackBakeTerrain, (LLPanelRegionTerrainInfo*)data, _1, _2));
+
+	LLNotifications::instance().add(LLNotification::Params("ConfirmBakeTerrain").functor(functor_params));
 }
 
 bool LLPanelRegionTerrainInfo::callbackBakeTerrain(const LLSD& notification, const LLSD& response)
@@ -1446,12 +1456,12 @@ void LLPanelEstateInfo::onChangeFixedSun(LLUICtrl* ctrl, void* user_data)
 //---------------------------------------------------------------------------
 void LLPanelEstateInfo::onClickEditSky(void* user_data)
 {
-	LLFloaterWindLight::show();
+	LLFloaterReg::showInstance("env_windlight");
 }
 
 void LLPanelEstateInfo::onClickEditDayCycle(void* user_data)
 {
-	LLFloaterDayCycle::show();
+	LLFloaterReg::showInstance("env_day_cycle");
 }
 
 // static
@@ -1478,11 +1488,9 @@ void LLPanelEstateInfo::onClickRemoveAllowedAgent(void* user_data)
 	accessRemoveCore(ESTATE_ACCESS_ALLOWED_AGENT_REMOVE, "EstateAllowedAgentRemove", "allowed_avatar_name_list");
 }
 
-// static
-void LLPanelEstateInfo::onClickAddAllowedGroup(void* user_data)
+void LLPanelEstateInfo::onClickAddAllowedGroup()
 {
-	LLPanelEstateInfo* self = (LLPanelEstateInfo*)user_data;
-	LLCtrlListInterface *list = self->childGetListInterface("allowed_group_name_list");
+	LLCtrlListInterface *list = childGetListInterface("allowed_group_name_list");
 	if (!list) return;
 	if (list->getItemCount() >= ESTATE_MAX_ACCESS_IDS)
 	{
@@ -1493,7 +1501,7 @@ void LLPanelEstateInfo::onClickAddAllowedGroup(void* user_data)
 	}
 
 	LLNotification::Params params("ChangeLindenAccess");
-	params.functor(boost::bind(&LLPanelEstateInfo::addAllowedGroup, self, _1, _2));
+	params.functor.function(boost::bind(&LLPanelEstateInfo::addAllowedGroup, this, _1, _2));
 	if (isLindenEstate())
 	{
 		LLNotifications::instance().add(params);
@@ -1511,11 +1519,10 @@ bool LLPanelEstateInfo::addAllowedGroup(const LLSD& notification, const LLSD& re
 
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
 
-	LLFloaterGroupPicker* widget;
-	widget = LLFloaterGroupPicker::showInstance(LLSD(gAgent.getID()));
+	LLFloaterGroupPicker* widget = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
 	if (widget)
 	{
-		widget->setSelectCallback(addAllowedGroup2, NULL);
+		widget->setSelectGroupCallback(boost::bind(&LLPanelEstateInfo::addAllowedGroup2, this, _1));
 		if (parent_floater)
 		{
 			LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, widget);
@@ -1656,26 +1663,29 @@ bool LLPanelEstateInfo::kickUserConfirm(const LLSD& notification, const LLSD& re
 std::string all_estates_text()
 {
 	LLPanelEstateInfo* panel = LLFloaterRegionInfo::getPanelEstate();
-	if (!panel) return "(error)";
+	if (!panel) return "(" + LLTrans::getString("RegionInfoError") + ")";
 
+	LLStringUtil::format_map_t args;
 	std::string owner = panel->getOwnerName();
 
 	LLViewerRegion* region = gAgent.getRegion();
 	if (gAgent.isGodlike())
 	{
-		return llformat("all estates\nowned by %s", owner.c_str());
+		args["[OWNER]"] = owner.c_str();
+		return LLTrans::getString("RegionInfoAllEstatesOwnedBy", args);
 	}
 	else if (region && region->getOwner() == gAgent.getID())
 	{
-		return "all estates you own";
+		return LLTrans::getString("AllEstatesYouOwn");
 	}
 	else if (region && region->isEstateManager())
 	{
-		return llformat("all estates that\nyou manage for %s", owner.c_str());
+		args["[OWNER]"] = owner.c_str();
+		return LLTrans::getString("RegionInfoAllEstatesYouManage", args);
 	}
 	else
 	{
-		return "(error)";
+		return "(" + LLTrans::getString("RegionInfoError") + ")";
 	}
 }
 
@@ -1725,8 +1735,7 @@ struct LLEstateAccessChangeInfo
 };
 
 // Special case callback for groups, since it has different callback format than names
-// static
-void LLPanelEstateInfo::addAllowedGroup2(LLUUID id, void* user_data)
+void LLPanelEstateInfo::addAllowedGroup2(LLUUID id)
 {
 	LLSD payload;
 	payload["operation"] = (S32)ESTATE_ACCESS_ALLOWED_GROUP_ADD;
@@ -1739,7 +1748,7 @@ void LLPanelEstateInfo::addAllowedGroup2(LLUUID id, void* user_data)
 	LLNotification::Params params("EstateAllowedGroupAdd");
 	params.payload(payload)
 		.substitutions(args)
-		.functor(accessCoreConfirm);
+		.functor.function(accessCoreConfirm);
 	if (isLindenEstate())
 	{
 		LLNotifications::instance().forceResponse(params, 0);
@@ -1760,7 +1769,7 @@ void LLPanelEstateInfo::accessAddCore(U32 operation_flag, const std::string& dia
 
 	LLNotification::Params params("ChangeLindenAccess");
 	params.payload(payload)
-		.functor(accessAddCore2);
+		.functor.function(accessAddCore2);
 
 	if (isLindenEstate())
 	{
@@ -1848,7 +1857,7 @@ void LLPanelEstateInfo::accessAddCore3(const std::vector<std::string>& names, co
 	LLNotification::Params params(change_info->mDialogName);
 	params.substitutions(args)
 		.payload(change_info->asLLSD())
-		.functor(accessCoreConfirm);
+		.functor.function(accessCoreConfirm);
 
 	if (isLindenEstate())
 	{
@@ -1888,7 +1897,7 @@ void LLPanelEstateInfo::accessRemoveCore(U32 operation_flag, const std::string& 
 	
 	LLNotification::Params params("ChangeLindenAccess");
 	params.payload(payload)
-		.functor(accessRemoveCore2);
+		.functor.function(accessRemoveCore2);
 
 	if (isLindenEstate())
 	{
@@ -2121,7 +2130,7 @@ BOOL LLPanelEstateInfo::postBuild()
 	initCtrl("limit_age_verified");
 	initCtrl("voice_chat_check");
 	childSetCommitCallback("abuse_email_address", onChangeAnything, this);
-	childSetKeystrokeCallback("abuse_email_address", onChangeText, this);
+	getChild<LLLineEditor>("abuse_email_address")->setKeystrokeCallback(onChangeText, this);
 
 	initHelpBtn("estate_manager_help",			"HelpEstateEstateManager");
 	initHelpBtn("use_global_time_help",			"HelpEstateUseGlobalTime");
@@ -2161,7 +2170,7 @@ BOOL LLPanelEstateInfo::postBuild()
 		group_name_list->setMaxItemCount(ESTATE_MAX_ACCESS_IDS);
 	}
 
-	childSetAction("add_allowed_group_btn", onClickAddAllowedGroup, this);
+	getChild<LLUICtrl>("add_allowed_group_btn")->setCommitCallback(boost::bind(&LLPanelEstateInfo::onClickAddAllowedGroup, this));
 	childSetAction("remove_allowed_group_btn", onClickRemoveAllowedGroup, this);
 
 	childSetCommitCallback("banned_avatar_name_list", onChangeChildCtrl, this);
@@ -2213,7 +2222,7 @@ BOOL LLPanelEstateInfo::sendUpdate()
 	llinfos << "LLPanelEsateInfo::sendUpdate()" << llendl;
 
 	LLNotification::Params params("ChangeLindenEstate");
-	params.functor(boost::bind(&LLPanelEstateInfo::callbackChangeLindenEstate, this, _1, _2));
+	params.functor.function(boost::bind(&LLPanelEstateInfo::callbackChangeLindenEstate, this, _1, _2));
 
 	if (getEstateID() <= ESTATE_LAST_LINDEN)
 	{
@@ -2556,8 +2565,7 @@ void LLPanelEstateInfo::callbackCacheName(
 	const LLUUID& id,
 	const std::string& first,
 	const std::string& last,
-	BOOL is_group,
-	void*)
+	BOOL is_group)
 {
 	LLPanelEstateInfo* self = LLFloaterRegionInfo::getPanelEstate();
 	if (!self) return;
@@ -2652,7 +2660,7 @@ bool LLPanelEstateInfo::onMessageCommit(const LLSD& notification, const LLSD& re
 	strings_t strings;
 	//integers_t integers;
 	std::string name;
-	gAgent.buildFullname(name);
+	LLAgentUI::buildFullname(name);
 	strings.push_back(strings_t::value_type(name));
 	strings.push_back(strings_t::value_type(text));
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
@@ -2739,7 +2747,6 @@ BOOL LLPanelEstateCovenant::postBuild()
 	mEstateOwnerText = getChild<LLTextBox>("estate_owner_text");
 	mLastModifiedText = getChild<LLTextBox>("covenant_timestamp_text");
 	mEditor = getChild<LLViewerTextEditor>("covenant_editor");
-	if (mEditor) mEditor->setHandleEditKeysDirectly(TRUE);
 	LLButton* reset_button = getChild<LLButton>("reset_covenant");
 	reset_button->setEnabled(gAgent.canManageEstate());
 	reset_button->setClickedCallback(LLPanelEstateCovenant::resetCovenantID, NULL);
@@ -2852,7 +2859,7 @@ void LLPanelEstateCovenant::loadInvItem(LLInventoryItem *itemp)
 	else
 	{
 		mAssetStatus = ASSET_LOADED;
-		setCovenantTextEditor("There is no Covenant provided for this Estate.");
+		setCovenantTextEditor(LLTrans::getString("RegionNoCovenant"));
 		sendChangeCovenantID(LLUUID::null);
 	}
 }
@@ -3063,7 +3070,7 @@ bool LLDispatchEstateUpdateInfo::operator()(
 	regionp->setOwner(owner_id);
 	// Update estate owner name in UI
 	const BOOL is_group = FALSE;
-	gCacheName->getNameFromUUID(owner_id, is_group, LLPanelEstateInfo::callbackCacheName);
+	gCacheName->get(owner_id, is_group, &LLPanelEstateInfo::callbackCacheName);
 
 	U32 estate_id = strtoul(strings[2].c_str(), NULL, 10);
 	panel->setEstateID(estate_id);
@@ -3162,9 +3169,10 @@ bool LLDispatchSetEstateAccess::operator()(
 			totalAllowedAgents += allowed_agent_name_list->getItemCount();
 		}
 
-		std::string msg = llformat("Allowed residents: (%d, max %d)",
-									totalAllowedAgents,
-									ESTATE_MAX_ACCESS_IDS);
+		LLStringUtil::format_map_t args;
+		args["[ALLOWEDAGENTS]"] = llformat ("%d", totalAllowedAgents);
+		args["[MAXACCESS]"] = llformat ("%d", ESTATE_MAX_ACCESS_IDS);
+		std::string msg = LLTrans::getString("RegionInfoAllowedResidents", args);
 		panel->childSetValue("allow_resident_label", LLSD(msg));
 
 		if (allowed_agent_name_list)
@@ -3186,9 +3194,10 @@ bool LLDispatchSetEstateAccess::operator()(
 		LLNameListCtrl* allowed_group_name_list;
 		allowed_group_name_list = panel->getChild<LLNameListCtrl>("allowed_group_name_list");
 
-		std::string msg = llformat("Allowed groups: (%d, max %d)",
-									num_allowed_groups,
-									(S32) ESTATE_MAX_GROUP_IDS);
+		LLStringUtil::format_map_t args;
+		args["[ALLOWEDGROUPS]"] = llformat ("%d", num_allowed_groups);
+		args["[MAXACCESS]"] = llformat ("%d", ESTATE_MAX_GROUP_IDS);
+		std::string msg = LLTrans::getString("RegionInfoAllowedGroups", args);
 		panel->childSetValue("allow_group_label", LLSD(msg));
 
 		if (allowed_group_name_list)

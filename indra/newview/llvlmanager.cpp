@@ -40,7 +40,6 @@
 #include "patch_dct.h"
 #include "llviewerregion.h"
 #include "llframetimer.h"
-#include "llagent.h"
 #include "llsurface.h"
 
 LLVLManager gVLManager;

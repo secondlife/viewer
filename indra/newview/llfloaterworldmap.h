@@ -49,29 +49,28 @@ class LLFriendObserver;
 class LLInventoryModel;
 class LLInventoryObserver;
 class LLItemInfo;
+class LLLineEditor;
 class LLTabContainer;
-class LLWorldMapView;
 
 class LLFloaterWorldMap : public LLFloater
 {
 public:
-	LLFloaterWorldMap();
+	LLFloaterWorldMap(const LLSD& key);
 	virtual ~LLFloaterWorldMap();
+
+	// Prefer this to gFloaterWorldMap
+	static LLFloaterWorldMap* getInstance();
 
 	static void *createWorldMapView(void* data);
 	BOOL postBuild();
 
-	/*virtual*/ void onClose(bool app_quitting);
+	/*virtual*/ void onOpen(const LLSD& key);
 
-	static void show(void*, BOOL center_on_target );
 	static void reloadIcons(void*);
-	static void toggle(void*);
-	static void hide(void*); 
 
 	/*virtual*/ void reshape( S32 width, S32 height, BOOL called_from_parent = TRUE );
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ void setVisible(BOOL visible);
 	/*virtual*/ void draw();
 
 	// methods for dealing with inventory. The observe() method is
@@ -113,29 +112,26 @@ public:
 	void			teleport();
 
 protected:
-	static void		onPanBtn( void* userdata );
+	void			onClose();
+	
+	void			onGoHome();
 
-	static void		onGoHome(void* data);
+	void			onLandmarkComboPrearrange();
+	void			onLandmarkComboCommit();
 
-	static void		onLandmarkComboPrearrange( LLUICtrl* ctrl, void* data );
-	static void		onLandmarkComboCommit( LLUICtrl* ctrl, void* data );
+	void			onAvatarComboPrearrange();
+	void		    onAvatarComboCommit();
 
-	static void		onAvatarComboPrearrange( LLUICtrl* ctrl, void* data );
-	static void		onAvatarComboCommit( LLUICtrl* ctrl, void* data );
+	void			onCommitBackground();
 
-	static void		onCommitBackground(void* data, bool from_click);
+	void			onComboTextEntry( );
+	void			onSearchTextEntry( LLLineEditor* ctrl );
 
-	static void		onComboTextEntry( LLLineEditor* ctrl, void* data );
-	static void		onSearchTextEntry( LLLineEditor* ctrl, void* data );
-
-	static void		onClearBtn(void*);
-	static void		onFlyBtn(void*);
-	static void		onClickTeleportBtn(void*);
-	static void		onShowTargetBtn(void*);
-	static void		onShowAgentBtn(void*);
-	static void		onCopySLURL(void*);
-
-	static void onCheckEvents(LLUICtrl* ctrl, void*);
+	void			onClearBtn();
+	void			onClickTeleportBtn();
+	void			onShowTargetBtn();
+	void			onShowAgentBtn();
+	void			onCopySLURL();
 
 	void			centerOnTarget(BOOL animate);
 	void			updateLocation();
@@ -144,7 +140,6 @@ protected:
 	void			fly();
 
 	void			buildLandmarkIDLists();
-	static void		onGoToLandmarkDialog(S32 option,void* userdata);
 	void			flyToLandmark();
 	void			teleportToLandmark();
 	void			setLandmarkVisited();
@@ -153,11 +148,11 @@ protected:
 	void			flyToAvatar();
 	void			teleportToAvatar();
 
-	static void		updateSearchEnabled( LLUICtrl* ctrl, void* userdata );
-	static void		onLocationFocusChanged( LLFocusableElement* ctrl, void* userdata );
-	static void		onLocationCommit( void* userdata );
-	static void		onCommitLocation( LLUICtrl* ctrl, void* userdata );
-	static void		onCommitSearchResult( LLUICtrl* ctrl, void* userdata );
+	void			updateSearchEnabled();
+	void			onLocationFocusChanged( LLFocusableElement* ctrl );
+	void		    onLocationCommit();
+	void			onCommitLocation();
+	void		    onCommitSearchResult();
 
 	void			cacheLandmarkPosition();
 
@@ -170,7 +165,6 @@ protected:
 
 	LLDynamicArray<LLUUID>	mLandmarkAssetIDList;
 	LLDynamicArray<LLUUID>	mLandmarkItemIDList;
-	BOOL					mHasLandmarkPosition;
 
 	static const LLUUID	sHomeID;
 

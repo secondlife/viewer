@@ -42,24 +42,56 @@
 #include "llmath.h"
 #include "llviewerwindow.h"
 
-LLFloaterMemLeak* LLFloaterMemLeak::sInstance = NULL;
 U32 LLFloaterMemLeak::sMemLeakingSpeed = 0 ; //bytes leaked per frame
 U32 LLFloaterMemLeak::sMaxLeakedMem = 0 ; //maximum allowed leaked memory
 U32 LLFloaterMemLeak::sTotalLeaked = 0 ;
 S32 LLFloaterMemLeak::sStatus = LLFloaterMemLeak::STOP ;
 BOOL LLFloaterMemLeak::sbAllocationFailed = FALSE ;
 
-LLFloaterMemLeak::LLFloaterMemLeak() : LLFloater("Memory Leaking Simulation Floater")
+LLFloaterMemLeak::LLFloaterMemLeak(const LLSD& key)
+	: LLFloater(key)
 {
+	setTitle("Memory Leaking Simulation Floater");
+	mCommitCallbackRegistrar.add("MemLeak.ChangeLeakingSpeed",	boost::bind(&LLFloaterMemLeak::onChangeLeakingSpeed, this));
+	mCommitCallbackRegistrar.add("MemLeak.ChangeMaxMemLeaking",	boost::bind(&LLFloaterMemLeak::onChangeMaxMemLeaking, this));
+	mCommitCallbackRegistrar.add("MemLeak.Start",	boost::bind(&LLFloaterMemLeak::onClickStart, this));
+	mCommitCallbackRegistrar.add("MemLeak.Stop",	boost::bind(&LLFloaterMemLeak::onClickStop, this));
+	mCommitCallbackRegistrar.add("MemLeak.Release",	boost::bind(&LLFloaterMemLeak::onClickRelease, this));
+	mCommitCallbackRegistrar.add("MemLeak.Close",	boost::bind(&LLFloaterMemLeak::onClickClose, this));
 }
+//----------------------------------------------
 
+BOOL LLFloaterMemLeak::postBuild(void) 
+{	
+	F32 a, b ;
+	a = childGetValue("leak_speed").asReal();
+	if(a > (F32)(0xFFFFFFFF))
+	{
+		sMemLeakingSpeed = 0xFFFFFFFF ;
+	}
+	else
+	{
+		sMemLeakingSpeed = (U32)a ;
+	}
+	b = childGetValue("max_leak").asReal();
+	if(b > (F32)0xFFF)
+	{
+		sMaxLeakedMem = 0xFFFFFFFF ;
+	}
+	else
+	{
+		sMaxLeakedMem = ((U32)b) << 20 ;
+	}
+	
+	sbAllocationFailed = FALSE ;
+	return TRUE ;
+}
 LLFloaterMemLeak::~LLFloaterMemLeak()
 {
 	release() ;
 		
 	sMemLeakingSpeed = 0 ; //bytes leaked per frame
 	sMaxLeakedMem = 0 ; //maximum allowed leaked memory	
-	sInstance = NULL ;
 }
 
 void LLFloaterMemLeak::release()
@@ -115,79 +147,56 @@ void LLFloaterMemLeak::idle()
 }
 
 //----------------------
-void LLFloaterMemLeak::onChangeLeakingSpeed(LLUICtrl* ctrl, void* userData)
+void LLFloaterMemLeak::onChangeLeakingSpeed()
 {
-	LLFloaterMemLeak *mem_leak = (LLFloaterMemLeak *)userData;		
-	if (mem_leak)
-	{
-		F32 tmp ;
-		tmp = mem_leak->childGetValue("leak_speed").asReal();
+	F32 tmp ;
+	tmp =childGetValue("leak_speed").asReal();
 
-		if(tmp > (F32)0xFFFFFFFF)
-		{
-			sMemLeakingSpeed = 0xFFFFFFFF ;
-		}
-		else
-		{
-			sMemLeakingSpeed = (U32)tmp ;
-		}
+	if(tmp > (F32)0xFFFFFFFF)
+	{
+		sMemLeakingSpeed = 0xFFFFFFFF ;
 	}
+	else
+	{
+		sMemLeakingSpeed = (U32)tmp ;
+	}
+
 }
 
-void LLFloaterMemLeak::onChangeMaxMemLeaking(LLUICtrl* ctrl, void* userData)
+void LLFloaterMemLeak::onChangeMaxMemLeaking()
 {
-	LLFloaterMemLeak *mem_leak = (LLFloaterMemLeak *)userData;		
-	if (mem_leak)
+
+	F32 tmp ;
+	tmp =childGetValue("max_leak").asReal();
+	if(tmp > (F32)0xFFF)
 	{
-		F32 tmp ;
-		tmp = mem_leak->childGetValue("max_leak").asReal();
-		if(tmp > (F32)0xFFF)
-		{
-			sMaxLeakedMem = 0xFFFFFFFF ;
-		}
-		else
-		{
-			sMaxLeakedMem = ((U32)tmp) << 20 ;
-		}
+		sMaxLeakedMem = 0xFFFFFFFF ;
 	}
+	else
+	{
+		sMaxLeakedMem = ((U32)tmp) << 20 ;
+	}
+	
 }
 
-void LLFloaterMemLeak::onClickStart(void* userData)
+void LLFloaterMemLeak::onClickStart()
 {
 	sStatus = START ;
 }
 
-void LLFloaterMemLeak::onClickStop(void* userData)
+void LLFloaterMemLeak::onClickStop()
 {
 	sStatus = STOP ;
 }
 
-void LLFloaterMemLeak::onClickRelease(void* userData)
+void LLFloaterMemLeak::onClickRelease()
 {
 	sStatus = RELEASE ;
 }
 
-void LLFloaterMemLeak::onClickClose(void* userData)
+void LLFloaterMemLeak::onClickClose()
 {
-	if (sInstance)
-	{
-		sInstance->setVisible(FALSE);
-	}
-}
-
-//----------------------------------------------
-
-BOOL LLFloaterMemLeak::postBuild(void) 
-{
-	childSetCommitCallback("leak_speed", onChangeLeakingSpeed, this);
-	childSetCommitCallback("max_leak", onChangeMaxMemLeaking, this);
-
-	childSetAction("start_btn", onClickStart, this);
-	childSetAction("stop_btn", onClickStop, this);
-	childSetAction("release_btn", onClickRelease, this);
-	childSetAction("close_btn", onClickClose, this);
-
-	return TRUE ;
+	setVisible(FALSE);
 }
 
 void LLFloaterMemLeak::draw()
@@ -217,50 +226,3 @@ void LLFloaterMemLeak::draw()
 
 	LLFloater::draw();
 }
-
-// static instance of it
-LLFloaterMemLeak* LLFloaterMemLeak::instance()
-{
-	if (!sInstance)
-	{
-		sInstance = new LLFloaterMemLeak();
-		LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_mem_leaking.xml", NULL, FALSE);
-
-		if(sInstance)
-		{
-			F32 a, b ;
-			a = sInstance->childGetValue("leak_speed").asReal();
-			if(a > (F32)(0xFFFFFFFF))
-			{
-				sMemLeakingSpeed = 0xFFFFFFFF ;
-			}
-			else
-			{
-				sMemLeakingSpeed = (U32)a ;
-			}
-			b = sInstance->childGetValue("max_leak").asReal();
-			if(b > (F32)0xFFF)
-			{
-				sMaxLeakedMem = 0xFFFFFFFF ;
-			}
-			else
-			{
-				sMaxLeakedMem = ((U32)b) << 20 ;
-			}
-
-			sbAllocationFailed = FALSE ;
-		}
-	}
-	return sInstance ;
-}
-
-void LLFloaterMemLeak::show(void*)
-{
-	instance()->open();
-}
-
-LLFloaterMemLeak* LLFloaterMemLeak::getInstance()
-{
-	return sInstance ;
-}
-

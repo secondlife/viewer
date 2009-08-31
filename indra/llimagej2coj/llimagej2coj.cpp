@@ -37,7 +37,7 @@
 #include "openjpeg.h"
 
 #include "lltimer.h"
-#include "llmemory.h"
+//#include "llmemory.h"
 
 const char* fallbackEngineInfoLLImageJ2CImpl()
 {

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<panel
+ border="true"
+ background_visible="true"
+ follows="left|top|right|bottom"
+ height="408"
+ layout="topleft"
+ left="102"
+ name="advanced"
+ top="1"
+ width="517">
+    <panel.string
+     name="resolution_format">
+        [RES_X] x [RES_Y]
+    </panel.string>
+	<panel.string
+     name="aspect_ratio_text">
+        [NUM]:[DEN]
+    </panel.string>
+           <check_box
+     control_name="UseChatBubbles"
+     height="16"
+     label="Bubble Chat"
+     layout="topleft"
+     left="30"
+     top="20"
+     name="bubble_text_chat"
+     width="150" />
+
+    <slider
+     control_name="ChatBubbleOpacity"
+     height="16"
+     increment="0.05"
+     initial_value="1"
+     label="Opacity"
+     layout="topleft"
+     left="50"
+     top_pad="5"
+     label_width="50"
+     name="bubble_chat_opacity"
+     width="200" />
+
+   <!-- <check_box
+     control_name="UIAutoScale"
+     height="16"
+     label="Resolution independent scale"
+     layout="topleft"
+     left="30"
+     name="ui_auto_scale"
+     top_pad="10"
+     width="256" />-->
+    <!--
+    <combo_box
+     height="18"
+     layout="topleft"
+     left_pad="5"
+     name="fullscreen combo"
+     top_delta="-1"
+     width="150" /-->
+    <text
+     type="string"
+     length="1"
+     height="25"
+     layout="topleft"
+     left="30"
+     top_pad="20"
+     name="AspectRatioLabel1"
+     tool_tip="width / height"
+     label_width="50"
+     width="120">
+        Aspect Ratio
+    </text>
+    <combo_box
+     allow_text_entry="true"
+     height="25"
+     layout="topleft"
+     left_pad="0"
+     max_chars="100"
+     name="aspect_ratio"
+     tool_tip="width / height"
+     top_delta="0"
+     width="150">
+        <combo_box.item
+         enabled="true"
+         label=" 4:3 (Standard CRT)"
+         name="item1"
+         value="1.333333" />
+        <combo_box.item
+         enabled="true"
+         label=" 5:4 (1280x1024 LCD)"
+         name="item2"
+         value="1.25" />
+        <combo_box.item
+         enabled="true"
+         label=" 8:5 (Widescreen)"
+         name="item3"
+         value="1.6" />
+        <combo_box.item
+         enabled="true"
+         label=" 16:9 (Widescreen)"
+         name="item4"
+         value="1.7777777" />
+    </combo_box>
+    <check_box
+     control_name="FullScreenAutoDetectAspectRatio"
+     height="25"
+     label="Auto-detect"
+     layout="topleft"
+     left_pad="10"
+     name="aspect_auto_detect"
+     width="256">
+        <check_box.commit_callback
+         function="Pref.AutoDetectAspect" />
+    </check_box>
+
+     <text
+     type="string"
+     length="1"
+     height="10"
+     left="30"
+     text_color="EmphasisColor"
+     name="text_box1"
+     top_pad="30"
+     width="270">
+Camera:
+	</text>
+    <slider
+     can_edit_text="true"
+	 control_name="CameraAngle"
+     decimal_digits="2"
+     top_pad="10"
+     follows="left|top"
+     height="16"
+     increment="0.025"
+     initial_value="1.57"
+     layout="topleft"
+     label_width="100"
+     label="View Angle"
+     left="30"
+     max_val="2.97"
+     min_val="0.17"
+     name="camera_fov"
+     show_text="false"
+     width="240" />
+
+    <slider
+     can_edit_text="true"
+     control_name="CameraOffsetScale"
+     decimal_digits="2"
+     follows="left|top"
+     height="16"
+     increment="0.025"
+     initial_value="1"
+     layout="topleft"
+     label="Distance"
+     left="30"
+     label_width="100"
+     max_val="3"
+     min_val="0.5"
+     name="camera_offset_scale"
+     show_text="false"
+     width="240" />
+     <text
+     type="string"
+     length="1"
+     height="10"
+     left="30"
+     name="text_box1"
+     width="270">
+Automatic positioning for:
+	</text>
+        <check_box
+     control_name="EditCameraMovement"
+     height="20"
+     label="Build/Edit"
+     layout="topleft"
+     left="50"
+     name="edit_camera_movement"
+     tool_tip="Use automatic camera positioning when entering and exiting edit mode"
+     width="280" />
+    <check_box
+     control_name="AppearanceCameraMovement"
+     height="16"
+     label="Appearance"
+     layout="topleft"
+     name="appearance_camera_movement"
+     tool_tip="Use automatic camera positioning while in edit mode"
+     width="242" />
+
+     <text
+     type="string"
+     length="1"
+     height="10"
+     left="30"
+     text_color="EmphasisColor"
+     name="text_box1"
+     top_pad="30"
+     width="270">
+My Avatar:
+	</text>
+    <check_box
+     control_name="FirstPersonAvatarVisible"
+     height="20"
+     label="Show me in Mouselook"
+     layout="topleft"
+     name="first_person_avatar_visible"
+     width="256" />
+    <check_box
+     control_name="ArrowKeysMoveAvatar"
+     height="20"
+     label="Arrow keys always move me"
+     layout="topleft"
+     left="30"
+     name="arrow_keys_move_avatar_check"
+     width="237" />
+</panel>

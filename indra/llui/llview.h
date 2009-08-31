@@ -37,6 +37,7 @@
 // the HUD or a dialog box or a button.  It can also contain sub-views
 // and child widgets
 
+#include "stdtypes.h"
 #include "llcoord.h"
 #include "llfontgl.h"
 #include "llmortician.h"
@@ -47,12 +48,15 @@
 #include "llrect.h"
 #include "llui.h"
 #include "lluistring.h"
-#include "lluixmltags.h"
 #include "llviewquery.h"
-#include "llxmlnode.h"
 #include "stdenums.h"
 #include "lluistring.h"
 #include "llcursortypes.h"
+#include "lluictrlfactory.h"
+#include "lltreeiterators.h"
+#include "llfocusmgr.h"
+
+#include <list>
 
 const U32	FOLLOWS_NONE	= 0x00;
 const U32	FOLLOWS_LEFT	= 0x01;
@@ -75,9 +79,6 @@ virtual BOOL isPanel();
 		LLPanel
 virtual void setRect(const LLRect &rect);
 		LLLineEditor
-virtual void	addCtrl( LLUICtrl* ctrl, S32 tab_group);
-virtual void	addCtrlAtEnd( LLUICtrl* ctrl, S32 tab_group);
-virtual void	removeCtrl( LLUICtrl* ctrl);
 		LLPanel
 virtual BOOL canFocusChildren() const		{ return TRUE; }
 		LLFolderView
@@ -93,7 +94,7 @@ virtual void	setEnabled(BOOL enabled)	{ mEnabled = enabled; }
 		LLCheckBoxCtrl, LLComboBox, LLLineEditor, LLMenuGL, LLRadioGroup, etc
 virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text ) { return FALSE; }
 		LLUICtrl, LLButton, LLCheckBoxCtrl, LLLineEditor, LLMenuGL, LLSliderCtrl
-virtual void	onVisibilityChange ( BOOL curVisibilityIn );
+virtual void	handleVisibilityChange ( BOOL curVisibilityIn );
 		LLMenuGL
 virtual LLRect getSnapRect() const	{ return mRect; } *TODO: Make non virtual
 		LLFloater
@@ -103,7 +104,7 @@ virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 		LLUICtrl, et. al.
 virtual void	translate( S32 x, S32 y );
 		LLMenuGL		
-virtual void	userSetShape(const LLRect& new_rect);
+virtual void	setShape(const LLRect& new_rect, bool by_user);
 		LLFloater, LLScrollLIstVtrl
 virtual LLView*	findSnapRect(LLRect& new_rect, const LLCoordGL& mouse_dir, LLView::ESnapType snap_type, S32 threshold, S32 padding = 0);
 virtual LLView*	findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESnapEdge snap_edge, ESnapType snap_type, S32 threshold, S32 padding = 0);
@@ -122,24 +123,14 @@ virtual void	draw();
 		*
 
 		*
-virtual LLXMLNodePtr getXML(bool save_children = true) const;
-		*
-virtual void initFromXML(LLXMLNodePtr node, LLView* parent);
-		*
 virtual void onFocusLost() {}
 		LLUICtrl, LLScrollListCtrl, LLMenuGL, LLLineEditor, LLComboBox
 virtual void onFocusReceived() {}
 		LLUICtrl, LLTextEditor, LLScrollListVtrl, LLMenuGL, LLLineEditor
 virtual LLView* getChildView(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
 		LLTabContainer, LLPanel, LLMenuGL
-virtual void	setControlName(const std::string& control, LLView *context);
-		LLSliderCtrl, LLCheckBoxCtrl
-virtual std::string getControlName() const { return mControlName; }
-		LLSliderCtrl, LLCheckBoxCtrl
 virtual bool	handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
 		LLMenuItem
-virtual void	setValue(const LLSD& value);
-		*
 
 protected:
 virtual BOOL	handleKeyHere(KEY key, MASK mask);
@@ -148,68 +139,84 @@ virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
 		*
 */
 
-class LLUICtrlFactory;
+class LLViewWidgetRegistry : public LLChildRegistry<LLViewWidgetRegistry>
+{};
 
-// maps xml strings to widget classes
-class LLWidgetClassRegistry : public LLSingleton<LLWidgetClassRegistry>
+class LLView : public LLMouseHandler, public LLMortician, public LLFocusableElement
 {
-	friend class LLSingleton<LLWidgetClassRegistry>;
 public:
-	typedef LLView* (*factory_func_t)(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
-	typedef std::map<std::string, factory_func_t> factory_map_t;
-
-	void registerCtrl(const std::string& xml_tag, factory_func_t function);
-	BOOL isTagRegistered(const std::string& xml_tag);
-	factory_func_t getCreatorFunc(const std::string& xml_tag);
-
-	// get (first) xml tag for a given class
-	template <class T> std::string getTag()
+	struct Follows : public LLInitParam::Choice<Follows>
 	{
-		factory_map_t::iterator it;
-		for(it = mCreatorFunctions.begin(); it != mCreatorFunctions.end(); ++it)
-		{
-			if (it->second == T::fromXML)
-			{
-				return it->first;
-			}
-		}
+		Alternative<std::string>	string;
+		Alternative<U32>			flags;
 
-		return "";
-	}
+        Follows()
+		:   string(""),
+			flags("flags", FOLLOWS_LEFT | FOLLOWS_TOP)
+        {}
+	};
+
+	struct Params : public LLInitParam::Block<Params>
+	{
+		Mandatory<std::string>		name;
+
+		Optional<bool>				enabled,
+									visible,
+									mouse_opaque,
+									use_bounding_rect;
+
+		Optional<S32>				tab_group,
+									default_tab_group;
+		Optional<std::string>		tool_tip;
+
+		Optional<S32>				sound_flags;
+		Optional<bool>				from_xui;
+		Optional<Follows>			follows;
+		Optional<std::string>		hover_cursor;
+		
+		// font params
+		Optional<const LLFontGL*>	font;
+		Optional<LLFontGL::HAlign>	font_halign;
+		Optional<LLFontGL::VAlign>	font_valign;
+
+		Optional<std::string>		layout;
+		Optional<LLRect>			rect;
+		// Historical bottom-left layout used bottom_delta and left_delta
+		// for relative positioning.  New layout "topleft" prefers specifying
+		// based on top edge.
+		Optional<S32>				bottom_delta,	// deprecated
+									top_pad,	// from last bottom to my top
+									top_delta,	// from last top to my top
+									left_pad,	// from last right to my left
+									left_delta;	// from last left to my left
+								
+		Optional<bool>				center_horiz,
+									center_vert;
+
+		// these are nested attributes for LLLayoutPanel
+		//FIXME: get parent context involved in parsing traversal
+		Ignored						user_resize,
+									auto_resize,
+									needs_translate,
+									xmlns,
+									xmlns_xsi,
+									xsi_schemaLocation,
+									xsi_type;
+
+		Params();
+	};
+
+	typedef LLViewWidgetRegistry child_registry_t;
+
+	void initFromParams(const LLView::Params&);
+
+protected:
+	LLView(const LLView::Params&);
+	friend class LLUICtrlFactory;
 
 private:
-	LLWidgetClassRegistry();
-	virtual ~LLWidgetClassRegistry() {};
-
-	typedef std::set<std::string> ctrl_name_set_t;
-	ctrl_name_set_t mUICtrlNames;
-
-	// map of xml tags to widget creator functions
-	factory_map_t mCreatorFunctions;
-};
-
-template<class T>
-class LLRegisterWidget
-{
-public:
-	LLRegisterWidget(const std::string& tag) 
-	{
-		LLWidgetClassRegistry* registry = LLWidgetClassRegistry::getInstance();
-		if (registry->isTagRegistered(tag))
-		{
-			//error!
-			llerrs << "Widget named " << tag << " already registered!" << llendl;
-		}
-		else
-		{
-			registry->registerCtrl(tag, T::fromXML);
-		}
-	}
-};
-
-class LLView : public LLMouseHandler, public LLMortician
-{
-
+	// widgets in general are not copyable
+	LLView(const LLView& other) {};
 public:
 #if LL_DEBUG
 	static BOOL sIsDrawing;
@@ -252,10 +259,6 @@ public:
 	typedef child_tab_order_t::const_iterator			child_tab_order_const_iter_t;
 	typedef child_tab_order_t::reverse_iterator			child_tab_order_reverse_iter_t;
 	typedef child_tab_order_t::const_reverse_iterator	child_tab_order_const_reverse_iter_t;
-
-	LLView();
-	LLView(const std::string& name, BOOL mouse_opaque);
-	LLView(const std::string& name, const LLRect& rect, BOOL mouse_opaque, U32 follows=FOLLOWS_NONE);
 
 	virtual ~LLView();
 
@@ -300,15 +303,19 @@ public:
 	void		sendChildToBack(LLView* child);
 	void		moveChildToFrontOfTabGroup(LLUICtrl* child);
 	void		moveChildToBackOfTabGroup(LLUICtrl* child);
+	
+	virtual bool addChild(LLView* view, S32 tab_group = 0);
 
-	void		addChild(LLView* view, S32 tab_group = 0);
-	void		addChildAtEnd(LLView* view,  S32 tab_group = 0);
+	// implemented in terms of addChild()
+	bool		addChildInBack(LLView* view,  S32 tab_group = 0);
+
 	// remove the specified child from the view, and set it's parent to NULL.
-	void		removeChild(LLView* view, BOOL deleteIt = FALSE);
+	virtual void	removeChild(LLView* view);
 
-	virtual void	addCtrl( LLUICtrl* ctrl, S32 tab_group);
-	virtual void	addCtrlAtEnd( LLUICtrl* ctrl, S32 tab_group);
-	virtual void	removeCtrl( LLUICtrl* ctrl);
+	// helper function for lluictrlfactory.h create<> template
+	void setParent(LLView* parent) { if (parent) parent->addChild(this); }
+
+	virtual BOOL	postBuild() { return TRUE; }
 
 	child_tab_order_t getCtrlOrder() const		{ return mCtrlOrder; }
 	ctrl_list_t getCtrlList() const;
@@ -316,7 +323,9 @@ public:
 	
 	void setDefaultTabGroup(S32 d)				{ mDefaultTabGroup = d; }
 	S32 getDefaultTabGroup() const				{ return mDefaultTabGroup; }
+	S32 getLastTabGroup()						{ return mLastTabGroup; }
 
+	bool        trueToRoot(const boost::function<bool (const LLView*)>& predicate) const;
 	BOOL		isInVisibleChain() const;
 	BOOL		isInEnabledChain() const;
 
@@ -344,10 +353,10 @@ public:
 
 	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 
-	virtual void	onVisibilityChange ( BOOL curVisibilityIn );
+	virtual void	handleVisibilityChange ( BOOL new_visibility );
 
 	void			pushVisible(BOOL visible)	{ mLastVisible = mVisible; setVisible(visible); }
-	void			popVisible()				{ setVisible(mLastVisible); mLastVisible = TRUE; }
+	void			popVisible()				{ setVisible(mLastVisible); }
 	
 	LLHandle<LLView>	getHandle()				{ mHandle.bind(this); return mHandle; }
 
@@ -361,10 +370,13 @@ public:
 	const LLRect&	getRect() const				{ return mRect; }
 	const LLRect&	getBoundingRect() const		{ return mBoundingRect; }
 	LLRect	getLocalBoundingRect() const;
-	LLRect	getScreenRect() const;
+	LLRect	calcScreenRect() const;
+	LLRect	calcScreenBoundingRect() const;
 	LLRect	getLocalRect() const;
 	virtual LLRect getSnapRect() const;
 	LLRect getLocalSnapRect() const;
+
+	std::string getLayout() { return mLayout; }
 
 	// Override and return required size for this object. 0 for width/height means don't care.
 	virtual LLRect getRequiredRect();
@@ -373,12 +385,17 @@ public:
 	LLView*		getRootView();
 	LLView*		getParent() const				{ return mParentView; }
 	LLView*		getFirstChild() const			{ return (mChildList.empty()) ? NULL : *(mChildList.begin()); }
+	LLView*		findPrevSibling(LLView* child);
+	LLView*		findNextSibling(LLView* child);
 	S32			getChildCount()	const			{ return (S32)mChildList.size(); }
 	template<class _Pr3> void sortChildren(_Pr3 _Pred) { mChildList.sort(_Pred); }
 	BOOL		hasAncestor(const LLView* parentp) const;
 	BOOL		hasChild(const std::string& childname, BOOL recurse = FALSE) const;
 	BOOL 		childHasKeyboardFocus( const std::string& childname ) const;
-
+	
+	typedef LLTreeDFSIter<LLView, child_list_const_iter_t> tree_iterator_t;
+	tree_iterator_t beginTree();
+	tree_iterator_t endTree();
 
 	//
 	// UTILITIES
@@ -391,38 +408,36 @@ public:
 	BOOL			translateIntoRect( const LLRect& constraint, BOOL allow_partial_outside );
 	void			centerWithin(const LLRect& bounds);
 
-	virtual void	userSetShape(const LLRect& new_rect);
+	void	setShape(const LLRect& new_rect, bool by_user = false);
 	virtual LLView*	findSnapRect(LLRect& new_rect, const LLCoordGL& mouse_dir, LLView::ESnapType snap_type, S32 threshold, S32 padding = 0);
 	virtual LLView*	findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESnapEdge snap_edge, ESnapType snap_type, S32 threshold, S32 padding = 0);
-
 	virtual BOOL	canSnapTo(const LLView* other_view);
+	virtual void	setSnappedTo(const LLView* snap_view);
 
-	virtual void	snappedTo(const LLView* snap_view);
+	// inherited from LLFocusableElement
+	/* virtual */ BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
+	/* virtual */ BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
 
-	virtual BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
-	virtual BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									  EDragAndDropType cargo_type,
 									  void* cargo_data,
 									  EAcceptance* accept,
 									  std::string& tooltip_msg);
 
-	std::string getShowNamesToolTip();
+	virtual std::string getShowNamesToolTip();
 
 	virtual void	draw();
+	void	drawChildren();
 
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	//FIXME: make LLView non-instantiable from XML
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFactory *factory);
-	virtual void initFromXML(LLXMLNodePtr node, LLView* parent);
-	void parseFollowsFlags(LLXMLNodePtr node);
+	void parseFollowsFlags(const LLView::Params& params);
 
 	// Some widgets, like close box buttons, don't need to be saved
 	BOOL getSaveToXML() const { return mSaveToXML; }
 	void setSaveToXML(BOOL b) { mSaveToXML = b; }
 
-	virtual void onFocusLost();
-	virtual void onFocusReceived();
+	// inherited from LLFocusableElement
+	/* virtual */ void onFocusLost();
+	/* virtual */ void onFocusReceived();
 
 	typedef enum e_hit_test_type
 	{
@@ -440,25 +455,16 @@ public:
 	void screenRectToLocal( const LLRect& screen, LLRect* local ) const;
 	void localRectToScreen( const LLRect& local, LLRect* screen ) const;
 	
-	// Listener dispatching functions (Dispatcher deletes pointers to listeners on deregistration or destruction)
-    LLOldEvents::LLSimpleListener* getListenerByName(const std::string& callback_name);
-	void registerEventListener(std::string name, LLOldEvents::LLSimpleListener* function);
-	void deregisterEventListener(std::string name);
-	std::string findEventListener(LLOldEvents::LLSimpleListener *listener) const;
-	void addListenerToControl(LLOldEvents::LLEventDispatcher *observer, const std::string& name, LLSD filter, LLSD userdata);
-
-	void addBoolControl(const std::string& name, bool initial_value);
-	LLControlVariable *getControl(const std::string& name);
 	LLControlVariable *findControl(const std::string& name);
 
-	bool setControlValue(const LLSD& value);
-	virtual void	setControlName(const std::string& control, LLView *context);
-	virtual std::string getControlName() const { return mControlName; }
+    // Moved setValue(), getValue(), setControlValue(), setControlName(),
+    // controlListener() to LLUICtrl because an LLView is NOT assumed to
+    // contain a value. If that's what you want, use LLUICtrl instead.
 //	virtual bool	handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
-	virtual void	setValue(const LLSD& value);
-	virtual LLSD	getValue() const;
 
 	const child_list_t*	getChildList() const { return &mChildList; }
+	const child_list_const_iter_t	beginChild()  { return mChildList.begin(); }
+	const child_list_const_iter_t	endChild()  { return mChildList.end(); }
 
 	// LLMouseHandler functions
 	//  Default behavior is to pass events to children
@@ -479,99 +485,43 @@ public:
 	/*virtual*/ void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const;
 	/*virtual*/ void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const;
 
-	template <class T> T* getChild(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const
+	// view-specific handlers 
+	virtual void	onMouseEnter(S32 x, S32 y, MASK mask);
+	virtual void	onMouseLeave(S32 x, S32 y, MASK mask);
+
+
+	template <class T> T* findChild(const std::string& name, BOOL recurse = TRUE) const
 	{
-		LLView* child = getChildView(name, recurse, FALSE);
+		LLView* child = findChildView(name, recurse);
 		T* result = dynamic_cast<T*>(child);
-		if (!result)
-		{
-			// did we find *something* with that name?
-			if (child)
-			{
-				llwarns << "Found child named " << name << " but of wrong type " << typeid(child).name() << ", expecting " << typeid(T).name() << llendl;
-			}
-			if (create_if_missing)
-			{
-				// create dummy widget instance here
-				result = createDummyWidget<T>(name);
-			}
-		}
 		return result;
 	}
 
+	template <class T> T* getChild(const std::string& name, BOOL recurse = TRUE) const;
+
 	template <class T> T& getChildRef(const std::string& name, BOOL recurse = TRUE) const
 	{
-		return *getChild<T>(name, recurse, TRUE);
+		return *getChild<T>(name, recurse);
 	}
 
-	virtual LLView* getChildView(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
+	virtual LLView* getChildView(const std::string& name, BOOL recurse = TRUE) const;
+	virtual LLView* findChildView(const std::string& name, BOOL recurse = TRUE) const;
 
-	template <class T> T* createDummyWidget(const std::string& name) const
+	template <class T> T* getDefaultWidget(const std::string& name) const
 	{
-		T* widget = getDummyWidget<T>(name);
-		if (!widget)
-		{
-			// get xml tag name corresponding to requested widget type (e.g. "button")
-			std::string xml_tag = LLWidgetClassRegistry::getInstance()->getTag<T>();
-			if (xml_tag.empty())
-			{
-				llwarns << "No xml tag registered for this class " << llendl;
-				return NULL;
-			}
-			// create dummy xml node (<button name="foo"/>)
-			LLXMLNodePtr new_node_ptr = new LLXMLNode(xml_tag.c_str(), FALSE);
-			new_node_ptr->createChild("name", TRUE)->setStringValue(name);
-			
-			widget = dynamic_cast<T*>(createWidget(new_node_ptr));
-			if (widget)
-			{
-				// need non-const to update private dummy widget cache
-				llwarns << "Making dummy " << xml_tag << " named " << name << " in " << getName() << llendl;
-				mDummyWidgets.insert(std::make_pair(name, widget));
-			}
-			else
-			{
-				// dynamic cast will fail if T::fromXML only registered for base class
-				llwarns << "Failed to create dummy widget of requested type " << llendl;
-				return NULL;
-			}
-		}
-		return widget;
-	}
-
-	template <class T> T* getDummyWidget(const std::string& name) const
-	{
-		dummy_widget_map_t::const_iterator found_it = mDummyWidgets.find(name);
-		if (found_it == mDummyWidgets.end())
+		default_widget_map_t::const_iterator found_it = getDefaultWidgetMap().find(name);
+		if (found_it == getDefaultWidgetMap().end())
 		{
 			return NULL;
 		}
 		return dynamic_cast<T*>(found_it->second);
 	}
 
-	LLView* createWidget(LLXMLNodePtr xml_node) const;
-
-
+	//////////////////////////////////////////////
 	// statics
-	static U32 createRect(LLXMLNodePtr node, LLRect &rect, LLView* parent_view, const LLRect &required_rect = LLRect());
+	//////////////////////////////////////////////
+	//static LLFontGL::HAlign selectFontHAlign(LLXMLNodePtr node);
 	
-	static LLFontGL* selectFont(LLXMLNodePtr node);
-	static LLFontGL::HAlign selectFontHAlign(LLXMLNodePtr node);
-	static LLFontGL::VAlign selectFontVAlign(LLXMLNodePtr node);
-	static LLFontGL::StyleFlags selectFontStyle(LLXMLNodePtr node);
-
-	
-	// Only saves color if different from default setting.
-	static void addColorXML(LLXMLNodePtr node, const LLColor4& color,
-							const char* xml_name, const char* control_name);
-	// Escapes " (quot) ' (apos) & (amp) < (lt) > (gt)
-	//static std::string escapeXML(const std::string& xml);
-	static LLWString escapeXML(const LLWString& xml);
-	
-	//same as above, but wraps multiple lines in quotes and prepends
-	//indent as leading white space on each line
-	static std::string escapeXML(const std::string& xml, std::string& indent);
-
 	// focuses the item in the list after the currently-focused item, wrapping if necessary
 	static	BOOL focusNext(LLView::child_list_t & result);
 	// focuses the item in the list before the currently-focused item, wrapping if necessary
@@ -582,14 +532,24 @@ public:
 	// return query for iterating over focus roots in tab order
 	static const LLCtrlQuery & getFocusRootsQuery();
 
-	static BOOL deleteViewByHandle(LLHandle<LLView> handle);
+	static void deleteViewByHandle(LLHandle<LLView> handle);
 	static LLWindow*	getWindow(void) { return LLUI::sWindow; }
 
+	// Set up params after XML load before calling new(),
+	// usually to adjust layout.
+	static void setupParams(Params& p, LLView* parent);
+
+	// For re-export of floaters and panels, convert the coordinate system
+	// to be top-left based.
+	static void setupParamsForExport(Params& p, LLView* parent);
 	
-protected:
+	//virtual BOOL	addChildFromParam(const LLInitParam::BaseBlock& params) { return TRUE; }
 	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
 
+	virtual void	handleReshape(const LLRect& rect, bool by_user);
+
+protected:
 	void			drawDebugRect();
 	void			drawChild(LLView* childp, S32 x_offset = 0, S32 y_offset = 0, BOOL force_draw = FALSE);
 
@@ -612,11 +572,8 @@ protected:
 	LLView* childrenHandleRightMouseDown(S32 x, S32 y, MASK mask);
 	LLView* childrenHandleRightMouseUp(S32 x, S32 y, MASK mask);
 
-	static bool controlListener(const LLSD& newvalue, LLHandle<LLView> handle, std::string type);
-
-	typedef std::map<std::string, LLControlVariable*> control_map_t;
-	control_map_t mFloaterControls;
-
+	ECursorType mHoverCursor;
+	
 private:
 	LLView*		mParentView;
 	child_list_t mChildList;
@@ -625,11 +582,13 @@ private:
 	// location in pixels, relative to surrounding structure, bottom,left=0,0
 	LLRect		mRect;
 	LLRect		mBoundingRect;
+	std::string mLayout;
 	
 	U32			mReshapeFlags;
 
 	child_tab_order_t mCtrlOrder;
 	S32			mDefaultTabGroup;
+	S32			mLastTabGroup;
 
 	BOOL		mEnabled;		// Enabled means "accepts input that has an effect on the state of the application."
 								// A disabled view, for example, may still have a scrollbar that responds to mouse events.
@@ -651,18 +610,12 @@ private:
 
 	static LLWindow* sWindow;	// All root views must know about their window.
 
-	typedef std::map<std::string, LLPointer<LLOldEvents::LLSimpleListener> > dispatch_list_t;
-	dispatch_list_t mDispatchList;
+	typedef std::map<std::string, LLView*> default_widget_map_t;
+	// allocate this map no demand, as it is rarely needed
+	mutable default_widget_map_t* mDefaultWidgets;
 
-	std::string		mControlName;
+	default_widget_map_t& getDefaultWidgetMap() const;
 
-	typedef std::map<std::string, LLView*> dummy_widget_map_t;
-	mutable dummy_widget_map_t mDummyWidgets;
-
-	boost::signals2::connection mControlConnection;
-
-	ECursorType mHoverCursor;
-	
 public:
 	static BOOL	sDebugRects;	// Draw debug rects behind everything.
 	static BOOL sDebugKeys;
@@ -670,8 +623,12 @@ public:
 	static BOOL sDebugMouseHandling;
 	static std::string sMouseHandlerMessage;
 	static S32	sSelectID;
-	static BOOL sEditingUI;
-	static LLView* sEditingUIView;
+//	static BOOL sEditingUI;
+//	static LLView* sEditingUIView;
+	static std::set<LLView*> sPreviewHighlightedElements;	// DEV-16869
+	static BOOL sHighlightingDiffs;							// DEV-16869
+	static LLView* sPreviewClickedElement;					// DEV-16869
+	static BOOL sDrawPreviewHighlights;
 	static S32 sLastLeftXML;
 	static S32 sLastBottomXML;
 	static BOOL sForceReshape;
@@ -688,5 +645,39 @@ private:
 	LLView::child_tab_order_t mTabOrder;
 };
 
+template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) const
+{
+	LLView* child = findChildView(name, recurse);
+	T* result = dynamic_cast<T*>(child);
+	if (!result)
+	{
+		// did we find *something* with that name?
+		if (child)
+		{
+			llwarns << "Found child named " << name << " but of wrong type " << typeid(child).name() << ", expecting " << typeid(T*).name() << llendl;
+		}
+		result = getDefaultWidget<T>(name);
+		if (!result)
+		{
+			result = LLUICtrlFactory::getDefaultWidget<T>(name);
+
+			if (result)
+			{
+				// *NOTE: You cannot call mFoo = getChild<LLFoo>("bar")
+				// in a floater or panel constructor.  The widgets will not
+				// be ready.  Instead, put it in postBuild().
+				llwarns << "Making dummy " << typeid(T).name() << " named \"" << name << "\" in " << getName() << llendl;
+			}
+			else
+			{
+				llwarns << "Failed to create dummy " << typeid(T).name() << llendl;
+				return NULL;
+			}
+
+			getDefaultWidgetMap()[name] = result;
+		}
+	}
+	return result;
+}
 
 #endif //LL_LLVIEW_H

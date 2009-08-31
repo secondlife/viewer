@@ -34,20 +34,13 @@
 
 #include "llfloatersnapshot.h"
 
-#include "llfontgl.h"
-#include "llsys.h"
-#include "llgl.h"
-#include "llrender.h"
-#include "v3dmath.h"
-#include "llmath.h"
-#include "lldir.h"
-#include "llsdserialize.h"
+#include "llfloaterreg.h"
 
+// Viewer includes
 #include "llagent.h"
 #include "llcallbacklist.h"
 #include "llcriticaldamp.h"
 #include "llui.h"
-#include "llviewertexteditor.h"
 #include "llfocusmgr.h"
 #include "llbutton.h"
 #include "llcombobox.h"
@@ -66,15 +59,26 @@
 #include "lltoolfocus.h"
 #include "lltoolmgr.h"
 #include "llworld.h"
+#include "llagentui.h"
 
+// Linden library includes
+#include "llfontgl.h"
+#include "llsys.h"
+#include "llrender.h"
+#include "v3dmath.h"
+#include "llmath.h"
+#include "lldir.h"
+#include "llsdserialize.h"
 #include "llgl.h"
 #include "llglheaders.h"
 #include "llimagejpeg.h"
 #include "llimagepng.h"
 #include "llimagebmp.h"
 #include "llimagej2c.h"
+#include "llresmgr.h"		// LLLocale
 #include "llvfile.h"
 #include "llvfs.h"
+#include "llwindow.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -84,8 +88,6 @@ S32 LLFloaterSnapshot::sUIWinHeightShort = LLFloaterSnapshot::sUIWinHeightLong -
 S32 LLFloaterSnapshot::sUIWinWidth = 215 ;
 
 LLSnapshotFloaterView* gSnapshotFloaterView = NULL;
-
-LLFloaterSnapshot* LLFloaterSnapshot::sInstance = NULL;
 
 const F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
 
@@ -112,7 +114,17 @@ public:
 	};
 
 
-	LLSnapshotLivePreview(const LLRect& rect);
+	struct Params : public LLInitParam::Block<Params, LLView::Params>
+	{
+		Params()
+		{
+			name = "snapshot_live_preview";
+			mouse_opaque = false;
+		}
+	};
+
+
+	LLSnapshotLivePreview(const LLSnapshotLivePreview::Params& p);
 	~LLSnapshotLivePreview();
 
 	/*virtual*/ void draw();
@@ -128,12 +140,12 @@ public:
 	LLFloaterSnapshot::ESnapshotFormat getSnapshotFormat() const { return mSnapshotFormat; }
 	BOOL getSnapshotUpToDate() const { return mSnapshotUpToDate; }
 	BOOL isSnapshotActive() { return mSnapshotActive; }
-	LLImageGL* getThumbnailImage() const { return mThumbnailImage ; }
+	LLViewerTexture* getThumbnailImage() const { return mThumbnailImage ; }
 	S32  getThumbnailWidth() const { return mThumbnailWidth ; }
 	S32  getThumbnailHeight() const { return mThumbnailHeight ; }
 	BOOL getThumbnailLock() const { return mThumbnailUpdateLock ; }
 	BOOL getThumbnailUpToDate() const { return mThumbnailUpToDate ;}
-	LLImageGL* getCurrentImage();
+	LLViewerTexture* getCurrentImage();
 	F32 getImageAspect();
 	F32 getAspect() ;
 	LLRect getImageRect();
@@ -158,7 +170,7 @@ public:
 
 private:
 	LLColor4					mColor;
-	LLPointer<LLImageGL>		mViewerImage[2]; //used to represent the scene when the frame is frozen.
+	LLPointer<LLViewerTexture>	mViewerImage[2]; //used to represent the scene when the frame is frozen.
 	LLRect						mImageRect[2];
 	S32							mWidth[2];
 	S32							mHeight[2];
@@ -166,7 +178,7 @@ private:
 	S32                         mMaxImageSize ;
 	
 	//thumbnail image
-	LLPointer<LLImageGL>		mThumbnailImage ;
+	LLPointer<LLViewerTexture>	mThumbnailImage ;
 	S32                         mThumbnailWidth ;
 	S32                         mThumbnailHeight ;
 	LLRect                      mPreviewRect ;
@@ -200,8 +212,9 @@ public:
 };
 
 std::set<LLSnapshotLivePreview*> LLSnapshotLivePreview::sList;
-LLSnapshotLivePreview::LLSnapshotLivePreview (const LLRect& rect) : 
-	LLView(std::string("snapshot_live_preview"), rect, FALSE), 
+
+LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Params& p) 
+:	LLView(p),
 	mColor(1.f, 0.f, 0.f, 0.5f), 
 	mCurImageIndex(0),
 	mPreviewImage(NULL),
@@ -265,7 +278,7 @@ void LLSnapshotLivePreview::setMaxImageSize(S32 size)
 	}
 }
 
-LLImageGL* LLSnapshotLivePreview::getCurrentImage()
+LLViewerTexture* LLSnapshotLivePreview::getCurrentImage()
 {
 	return mViewerImage[mCurImageIndex];
 }
@@ -472,10 +485,6 @@ void LLSnapshotLivePreview::draw()
 		}
 		else if (mShineAnimTimer.getStarted())
 		{
-			//LLDebugVarMessageBox::show("Shine time", &SHINE_TIME, 10.f, 0.1f);
-			//LLDebugVarMessageBox::show("Shine width", &SHINE_WIDTH, 2.f, 0.05f);
-			//LLDebugVarMessageBox::show("Shine opacity", &SHINE_OPACITY, 1.f, 0.05f);
-
 			F32 shine_interp = llmin(1.f, mShineAnimTimer.getElapsedTimeF32() / SHINE_TIME);
 			
 			// draw "shine" effect
@@ -714,7 +723,7 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
 
 	if(raw)
 	{
-		mThumbnailImage = new LLImageGL(raw, FALSE); 		
+		mThumbnailImage = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE); 		
 		mThumbnailUpToDate = TRUE ;
 	}
 
@@ -862,8 +871,8 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 				scaled->expandToPowerOfTwo(1024, FALSE);
 			}
 
-			previewp->mViewerImage[previewp->mCurImageIndex] = new LLImageGL(scaled, FALSE);
-			LLPointer<LLImageGL> curr_preview_image = previewp->mViewerImage[previewp->mCurImageIndex];
+			previewp->mViewerImage[previewp->mCurImageIndex] = LLViewerTextureManager::getLocalTexture(scaled.get(), FALSE);
+			LLPointer<LLViewerTexture> curr_preview_image = previewp->mViewerImage[previewp->mCurImageIndex];
 			gGL.getTexUnit(0)->bind(curr_preview_image);
 			if (previewp->getSnapshotType() != SNAPSHOT_TEXTURE)
 			{
@@ -959,9 +968,9 @@ void LLSnapshotLivePreview::saveTexture()
 	{
 		LLVFile::writeFile(formatted->getData(), formatted->getDataSize(), gVFS, new_asset_id, LLAssetType::AT_TEXTURE);
 		std::string pos_string;
-		gAgent.buildLocationString(pos_string);
+		LLAgentUI::buildLocationString(pos_string, LLAgentUI::LOCATION_FORMAT_FULL);
 		std::string who_took_it;
-		gAgent.buildFullname(who_took_it);
+		LLAgentUI::buildFullname(who_took_it);
 		LLAssetStorage::LLStoreAssetCallback callback = NULL;
 		S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 		void *userdata = NULL;
@@ -1053,9 +1062,6 @@ public:
 	static void updateLayout(LLFloaterSnapshot* floater);
 	static void updateResolutionTextEntry(LLFloaterSnapshot* floater);
 
-	static LLHandle<LLView> sPreviewHandle;
-	static BOOL         sAspectRatioCheckOff ;
-	
 private:
 	static LLSnapshotLivePreview::ESnapshotType getTypeIndex(LLFloaterSnapshot* floater);
 	static ESnapshotFormat getFormatIndex(LLFloaterSnapshot* floater);
@@ -1068,18 +1074,14 @@ public:
 	std::vector<LLAnimPauseRequest> mAvatarPauseHandles;
 
 	LLToolset*	mLastToolset;
+	LLHandle<LLView> mPreviewHandle;
+	BOOL mAspectRatioCheckOff ;
 };
-
-// static
-LLHandle<LLView> LLFloaterSnapshot::Impl::sPreviewHandle;
-
-//static 
-BOOL LLFloaterSnapshot::Impl::sAspectRatioCheckOff = FALSE ;
 
 // static
 LLSnapshotLivePreview* LLFloaterSnapshot::Impl::getPreviewView(LLFloaterSnapshot *floater)
 {
-	LLSnapshotLivePreview* previewp = (LLSnapshotLivePreview*)sPreviewHandle.get();
+	LLSnapshotLivePreview* previewp = (LLSnapshotLivePreview*)floater->impl.mPreviewHandle.get();
 	return previewp;
 }
 
@@ -1186,7 +1188,7 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 			iter != LLCharacter::sInstances.end(); ++iter)
 		{
 			avatarp = *iter;
-			sInstance->impl.mAvatarPauseHandles.push_back(avatarp->requestPause());
+			floaterp->impl.mAvatarPauseHandles.push_back(avatarp->requestPause());
 		}
 
 		// freeze everything else
@@ -1194,7 +1196,7 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 
 		if (LLToolMgr::getInstance()->getCurrentToolset() != gCameraToolset)
 		{
-			sInstance->impl.mLastToolset = LLToolMgr::getInstance()->getCurrentToolset();
+			floaterp->impl.mLastToolset = LLToolMgr::getInstance()->getCurrentToolset();
 			LLToolMgr::getInstance()->setCurrentToolset(gCameraToolset);
 		}
 	}
@@ -1209,15 +1211,15 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 		}
 
 		//RN: thaw all avatars
-		sInstance->impl.mAvatarPauseHandles.clear();
+		floaterp->impl.mAvatarPauseHandles.clear();
 
 		// thaw everything else
 		gSavedSettings.setBOOL("FreezeTime", FALSE);
 
 		// restore last tool (e.g. pie menu, etc)
-		if (sInstance->impl.mLastToolset)
+		if (floaterp->impl.mLastToolset)
 		{
-			LLToolMgr::getInstance()->setCurrentToolset(sInstance->impl.mLastToolset);
+			LLToolMgr::getInstance()->setCurrentToolset(floaterp->impl.mLastToolset);
 		}
 	}
 }
@@ -1248,7 +1250,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 	floater->childSetVisible("upload_btn",			shot_type == LLSnapshotLivePreview::SNAPSHOT_TEXTURE);
 	floater->childSetVisible("send_btn",			shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD);
 	floater->childSetVisible("save_btn",			shot_type == LLSnapshotLivePreview::SNAPSHOT_LOCAL);
-	floater->childSetEnabled("keep_aspect_check",	shot_type != LLSnapshotLivePreview::SNAPSHOT_TEXTURE && !sAspectRatioCheckOff);
+	floater->childSetEnabled("keep_aspect_check",	shot_type != LLSnapshotLivePreview::SNAPSHOT_TEXTURE && !floater->impl.mAspectRatioCheckOff);
 	floater->childSetEnabled("layer_types",			shot_type == LLSnapshotLivePreview::SNAPSHOT_LOCAL);
 
 	BOOL is_advance = gSavedSettings.getBOOL("AdvanceSnapshot");
@@ -1295,7 +1297,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 	floater->childSetColor("file_size_label", 
 		shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD 
 		&& got_bytes
-		&& previewp->getDataSize() > MAX_POSTCARD_DATASIZE ? LLColor4::red : gColors.getColor( "LabelTextColor" ));
+		&& previewp->getDataSize() > MAX_POSTCARD_DATASIZE ? LLUIColor(LLColor4::red) : LLUIColorTable::instance().getColor( "LabelTextColor" ));
 
 	switch(shot_type)
 	{
@@ -1369,7 +1371,7 @@ void LLFloaterSnapshot::Impl::onClickDiscard(void* data)
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
 	if (view)
 	{
-		view->close();
+		view->closeFloater();
 	}
 }
 
@@ -1415,7 +1417,7 @@ void LLFloaterSnapshot::Impl::onClickKeep(void* data)
 
 		if (gSavedSettings.getBOOL("CloseSnapshotOnKeep"))
 		{
-			view->close();
+			view->closeFloater();
 		}
 		else
 		{
@@ -1596,7 +1598,7 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	
 	if(0 == index) //current window size
 	{
-		sAspectRatioCheckOff = TRUE ;
+		view->impl.mAspectRatioCheckOff = TRUE ;
 		view->childSetEnabled("keep_aspect_check", FALSE) ;
 
 		if(previewp)
@@ -1606,7 +1608,7 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	}
 	else if(-1 == index) //custom
 	{
-		sAspectRatioCheckOff = FALSE ;
+		view->impl.mAspectRatioCheckOff = FALSE ;
 		//if(LLSnapshotLivePreview::SNAPSHOT_TEXTURE != gSavedSettings.getS32("LastSnapshotType"))
 		{
 			view->childSetEnabled("keep_aspect_check", TRUE) ;
@@ -1619,7 +1621,7 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	}
 	else
 	{
-		sAspectRatioCheckOff = TRUE ;
+		view->impl.mAspectRatioCheckOff = TRUE ;
 		view->childSetEnabled("keep_aspect_check", FALSE) ;
 
 		if(previewp)
@@ -1955,21 +1957,17 @@ void LLFloaterSnapshot::Impl::onCommitCustomResolution(LLUICtrl *ctrl, void* dat
 ///----------------------------------------------------------------------------
 
 // Default constructor
-LLFloaterSnapshot::LLFloaterSnapshot()
-	: LLFloater(std::string("Snapshot Floater")),
+LLFloaterSnapshot::LLFloaterSnapshot(const LLSD& key)
+	: LLFloater(key),
 	  impl (*(new Impl))
 {
+	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_snapshot.xml", FALSE);
 }
 
 // Destroys the object
 LLFloaterSnapshot::~LLFloaterSnapshot()
 {
-	if (sInstance == this)
-	{
-		LLView::deleteViewByHandle(Impl::sPreviewHandle);
-		Impl::sPreviewHandle = LLHandle<LLView>();
-		sInstance = NULL;
-	}
+	LLView::deleteViewByHandle(impl.mPreviewHandle);
 
 	//unfreeze everything else
 	gSavedSettings.setBOOL("FreezeTime", FALSE);
@@ -2034,16 +2032,22 @@ BOOL LLFloaterSnapshot::postBuild()
 	childSetCommitCallback("local_size_combo", Impl::onCommitResolution, this);
 
 	// create preview window
-	LLRect full_screen_rect = sInstance->getRootView()->getRect();
-	LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(full_screen_rect);
-	sInstance->getRootView()->removeChild(gSnapshotFloaterView);
+	LLRect full_screen_rect = getRootView()->getRect();
+	LLSnapshotLivePreview::Params p;
+	p.rect(full_screen_rect);
+	LLSnapshotLivePreview* previewp = new LLSnapshotLivePreview(p);
+	getRootView()->removeChild(gSnapshotFloaterView);
 	// make sure preview is below snapshot floater
-	sInstance->getRootView()->addChild(previewp);
-	sInstance->getRootView()->addChild(gSnapshotFloaterView);
+	getRootView()->addChild(previewp);
+	getRootView()->addChild(gSnapshotFloaterView);
+	
+	//move snapshot floater to special purpose snapshotfloaterview
+	gFloaterView->removeChild(this);
+	gSnapshotFloaterView->addChild(this);
 
-	Impl::sPreviewHandle = previewp->getHandle();
-
+	impl.mPreviewHandle = previewp->getHandle();
 	impl.updateControls(this);
+	impl.updateLayout(this);
 	
 	return TRUE;
 }
@@ -2077,54 +2081,26 @@ void LLFloaterSnapshot::draw()
 	}
 }
 
-void LLFloaterSnapshot::onClose(bool app_quitting)
+void LLFloaterSnapshot::onOpen(const LLSD& key)
 {
-	gSnapshotFloaterView->setEnabled(FALSE);
-	// Set invisible so it doesn't eat tooltips. JC
-	gSnapshotFloaterView->setVisible(FALSE);
-	destroy();
-}
-
-// static
-void LLFloaterSnapshot::show(void*)
-{
-	if (!sInstance)
+	LLSnapshotLivePreview* preview = LLFloaterSnapshot::Impl::getPreviewView(this);
+	if(preview)
 	{
-		sInstance = new LLFloaterSnapshot();
-		LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_snapshot.xml", NULL, FALSE);
-		//move snapshot floater to special purpose snapshotfloaterview
-		gFloaterView->removeChild(sInstance);
-		gSnapshotFloaterView->addChild(sInstance);
-
-		sInstance->impl.updateLayout(sInstance);
+		preview->updateSnapshot(TRUE);
 	}
-	else // just refresh the snapshot in the existing floater instance (DEV-12255)
-	{
-		LLSnapshotLivePreview* preview = LLFloaterSnapshot::Impl::getPreviewView(sInstance);
-		if(preview)
-		{
-			preview->updateSnapshot(TRUE);
-		}
-	}
-	
-	sInstance->open();		/* Flawfinder: ignore */
-	sInstance->focusFirstItem(FALSE);
+	focusFirstItem(FALSE);
 	gSnapshotFloaterView->setEnabled(TRUE);
 	gSnapshotFloaterView->setVisible(TRUE);
-	gSnapshotFloaterView->adjustToFitScreen(sInstance, FALSE);
-}
-
-void LLFloaterSnapshot::hide(void*)
-{
-	if (sInstance && !sInstance->isDead())
-	{
-		sInstance->close();
-	}
+	gSnapshotFloaterView->adjustToFitScreen(this, FALSE);
 }
 
 //static 
 void LLFloaterSnapshot::update()
 {
+	LLFloaterSnapshot* inst = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
+	if (!inst)
+		return;
+	
 	BOOL changed = FALSE;
 	for (std::set<LLSnapshotLivePreview*>::iterator iter = LLSnapshotLivePreview::sList.begin();
 		 iter != LLSnapshotLivePreview::sList.end(); ++iter)
@@ -2133,7 +2109,7 @@ void LLFloaterSnapshot::update()
 	}
 	if(changed)
 	{
-		sInstance->impl.updateControls(sInstance);
+		inst->impl.updateControls(inst);
 	}
 }
 
@@ -2142,10 +2118,8 @@ void LLFloaterSnapshot::update()
 /// Class LLSnapshotFloaterView
 ///----------------------------------------------------------------------------
 
-LLSnapshotFloaterView::LLSnapshotFloaterView( const std::string& name, const LLRect& rect ) : LLFloaterView(name, rect)
+LLSnapshotFloaterView::LLSnapshotFloaterView (const Params& p) : LLFloaterView (p)
 {
-	setMouseOpaque(TRUE);
-	setEnabled(FALSE);
 }
 
 LLSnapshotFloaterView::~LLSnapshotFloaterView()

@@ -485,15 +485,8 @@ namespace tut
 	template<> template<>
 	void permission_object_t::test<22>()
 	{
-		LLPermissions perm,perm1;
-		LLUUID creator("abf0d56b-82e5-47a2-a8ad-74741bb2c29e");	
-		LLUUID owner("68edcf47-ccd7-45b8-9f90-1649d7f12806"); 
-		LLUUID lastOwner("5e47a0dc-97bf-44e0-8b40-de06718cee9d"); 
-		LLUUID group("9c8eca51-53d5-42a7-bb58-cef070395db8");		
-		perm.init(creator,owner,lastOwner,group);
-		LLXMLNode* xml_node = perm.exportFileXML();
-		perm1.importXML(xml_node);
-		ensure("exportFileXML()/importXML():failed to export and import the data ", perm1 == perm);	
+		// Deleted LLPermissions::exportFileXML() and LLPermissions::importXML()
+		// because I can't find any non-test code references to it. 2009-05-04 JC
 	}
 
 	template<> template<>

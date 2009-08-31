@@ -48,6 +48,10 @@ public:
 									   void* userdata,
 									   BOOL allow_multiple = FALSE,
 									   BOOL closeOnSelect = FALSE);
+
+	LLFloaterAvatarPicker(const LLSD& key);
+	virtual ~LLFloaterAvatarPicker();
+	
 	virtual	BOOL postBuild();
 
 	static void processAvatarPickerReply(class LLMessageSystem* msg, void**);
@@ -62,10 +66,9 @@ private:
 	static void onRangeAdjust(LLUICtrl* source, void* data);
 	static void onBtnClose(void* userdata);
 	static void onList(class LLUICtrl* ctrl, void* userdata);
-	static void onTabChanged(void* userdata, bool from_click);
+		   void onTabChanged();
 	
-		   void doCallingCardSelectionChange(const std::deque<class LLFolderViewItem*> &items, BOOL user_action, void* data);
-	static void onCallingCardSelectionChange(const std::deque<class LLFolderViewItem*> &items, BOOL user_action, void* data);
+		   void doCallingCardSelectionChange(const std::deque<class LLFolderViewItem*> &items, BOOL user_action);
 
 	void populateNearMe();
 	BOOL visibleItemsSelected() const; // Returns true if any items in the current tab are selected.
@@ -85,12 +88,6 @@ private:
 
 	void (*mCallback)(const std::vector<std::string>& name, const std::vector<LLUUID>& id, void* userdata);
 	void* mCallbackUserdata;
-
-	static LLFloaterAvatarPicker* sInstance;
-
-	// do not call these directly
-	LLFloaterAvatarPicker();
-	virtual ~LLFloaterAvatarPicker();
 };
 
 #endif

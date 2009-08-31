@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ height="180"
+ layout="topleft"
+ name="perm prefs"
+ save_rect="true"
+ title="Default Upload Permissions"
+ width="315">
+    <panel
+     follows="left|top|right|bottom"
+     height="120"
+     label="Permissions"
+     layout="topleft"
+     left="10"
+     name="permissions"
+     top="20"
+     width="315">
+        <button
+         follows="left"
+         height="18"
+         label="?"
+         label_selected="?"
+         layout="topleft"
+         left="260"
+         name="help"
+         top="7"
+         width="22">
+            <button.commit_callback
+            function="Notification.Show" 
+			parameter="ClickUploadHelpPermissions" />
+        </button>
+        <check_box
+         control_name="ShareWithGroup"
+         height="16"
+         label="Share with group"
+         layout="topleft"
+         left_delta="-250"
+         name="share_with_group"
+         top_delta="2"
+         width="106" />
+        <check_box
+         control_name="EveryoneCopy"
+         height="16"
+         label="Allow anyone to copy"
+         layout="topleft"
+         left_delta="0"
+         name="everyone_copy"
+         top_pad="16"
+         width="130" />
+        <text
+         type="string"
+         length="1"
+         follows="left|top"
+         height="10"
+         layout="topleft"
+         left_delta="0"
+         name="NextOwnerLabel"
+         top_pad="16"
+         width="88">
+            Next owner can:
+        </text>
+        <check_box
+         control_name="NextOwnerModify"
+         height="16"
+         label="Modify"
+         layout="topleft"
+         left_delta="0"
+         name="next_owner_modify"
+         top_pad="14"
+         width="78" />
+        <check_box
+         control_name="NextOwnerCopy"
+         height="16"
+         label="Copy"
+         layout="topleft"
+         left_delta="78"
+         name="next_owner_copy"
+         top_delta="0"
+         width="88" >
+		    <check_box.commit_callback
+			function="Perms.Copy" />
+		</check_box>
+        <check_box
+		 enabled_control="NextOwnerCopy"
+         control_name="NextOwnerTransfer"
+         enabled="false"
+         height="16"
+         initial_value="true"
+         label="Resell/Give away"
+         layout="topleft"
+         left_delta="88"
+         name="next_owner_transfer"
+         top_delta="0"
+         width="106" />
+    </panel>
+    <button
+     height="20"
+     label="OK"
+     label_selected="OK"
+     layout="topleft"
+     left="90"
+     name="ok"
+     top="150"
+     width="100">
+		<button.commit_callback
+		function="Perms.OK" />
+	</button>
+    <button
+     height="20"
+     label="Cancel"
+     label_selected="Cancel"
+     layout="topleft"
+     left_pad="5"
+     name="cancel"
+     top_delta="0"
+     width="100">
+		<button.commit_callback
+		function="Perms.Cancel" />
+	</button>
+</floater>

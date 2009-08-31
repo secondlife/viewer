@@ -42,19 +42,12 @@
 
 
 class LLFloaterBuildOptions
-:	public LLFloater
+	:	public LLFloater
 {
-protected:
-	LLFloaterBuildOptions();
+	friend class LLFloaterReg;
+private:
+	LLFloaterBuildOptions(const LLSD& key);
 	~LLFloaterBuildOptions();
-
-public:
-	static void		show(void*);
-	static LLFloaterBuildOptions* getInstance();
-	static BOOL		visible(void*);
-
-protected:
-	static LLFloaterBuildOptions*	sInstance;
 };
 
 #endif

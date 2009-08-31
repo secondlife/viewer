@@ -54,8 +54,10 @@
 #include "llviewercamera.h"
 #include "llviewerobject.h"
 #include "llviewerwindow.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llmorphview.h"
+#include "llfloaterreg.h"
+#include "llfloatercamera.h"
 
 // Globals
 BOOL gCameraBtnZoom = TRUE;
@@ -254,7 +256,11 @@ void LLToolCamera::releaseMouse()
 
 	gViewerWindow->showCursor();
 
-	LLToolMgr::getInstance()->clearTransientTool();
+	//for the situation when left click was performed on the Agent
+	if (!LLFloaterCamera::inFreeCameraMode())
+	{
+		LLToolMgr::getInstance()->clearTransientTool();
+	}
 
 	mMouseSteering = FALSE;
 	mValidClickPoint = FALSE;
@@ -359,7 +365,7 @@ BOOL LLToolCamera::handleHover(S32 x, S32 y, MASK mask)
 			// Orbit tool
 			if (hasMouseCapture())
 			{
-				const F32 RADIANS_PER_PIXEL = 360.f * DEG_TO_RAD / gViewerWindow->getWindowWidth();
+				const F32 RADIANS_PER_PIXEL = 360.f * DEG_TO_RAD / gViewerWindow->getWorldViewWidth();
 
 				if (dx != 0)
 				{
@@ -387,7 +393,7 @@ BOOL LLToolCamera::handleHover(S32 x, S32 y, MASK mask)
 				F32 dist = (F32) camera_to_focus.normVec();
 
 				// Fudge factor for pan
-				F32 meters_per_pixel = 3.f * dist / gViewerWindow->getWindowWidth();
+				F32 meters_per_pixel = 3.f * dist / gViewerWindow->getWorldViewWidth();
 
 				if (dx != 0)
 				{
@@ -409,7 +415,7 @@ BOOL LLToolCamera::handleHover(S32 x, S32 y, MASK mask)
 			if (hasMouseCapture())
 			{
 
-				const F32 RADIANS_PER_PIXEL = 360.f * DEG_TO_RAD / gViewerWindow->getWindowWidth();
+				const F32 RADIANS_PER_PIXEL = 360.f * DEG_TO_RAD / gViewerWindow->getWorldViewWidth();
 
 				if (dx != 0)
 				{

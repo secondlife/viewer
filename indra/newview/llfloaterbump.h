@@ -42,16 +42,17 @@ class LLScrollListCtrl;
 class LLFloaterBump 
 : public LLFloater
 {
-public:
-	static void show(void *);
+	friend class LLFloaterReg;
+protected:
+	void add(LLScrollListCtrl* list, LLMeanCollisionData *mcd);
 
-private:
-	LLFloaterBump();
-	virtual ~LLFloaterBump();
-	static void add(LLScrollListCtrl* list, LLMeanCollisionData *mcd);
+public:
+	/*virtual*/ void onOpen(const LLSD& key);
 	
 private:
-	static LLFloaterBump* sInstance;
+	
+	LLFloaterBump(const LLSD& key);
+	virtual ~LLFloaterBump();
 };
 
 #endif

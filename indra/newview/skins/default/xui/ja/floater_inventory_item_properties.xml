@@ -60,12 +60,8 @@
 	</text>
 	<check_box label="売り出し中" name="CheckPurchase" />
 	<radio_group name="RadioSaleType">
-		<radio_item name="radio">
-			オリジナル
-		</radio_item>
-		<radio_item name="radio2">
-			コピー
-		</radio_item>
+		<radio_item name="radio" label="オリジナル" />
+		<radio_item name="radio2" label="コピー" />
 	</radio_group>
 	<text name="TextPrice">
 		料金：L$

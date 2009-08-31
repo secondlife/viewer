@@ -46,12 +46,8 @@ a menos que añada pasos de espera.
 	</text>
 	<text left="230" name="options_text" width="200" />
 	<radio_group name="animation_trigger_type">
-		<radio_item name="start">
-			Empezar
-		</radio_item>
-		<radio_item name="stop">
-			Parar
-		</radio_item>
+		<radio_item name="start" label="Empezar" />
+		<radio_item name="stop" label="Parar" />
 	</radio_group>
 	<check_box bottom_delta="34" label="hasta que las animaciones &#10;estén hechas" name="wait_anim_check"/>
 	<check_box bottom_delta="-30" label="tiempo en segundos" name="wait_time_check"/>

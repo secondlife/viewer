@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_visible="true"
+ follows="all"
+ height="660"
+ layout="topleft"
+ min_height="350"
+ min_width="240"
+ name="panel_target_profile"
+ width="305">
+    <text
+     follows="top|left|right"
+     font="SansSerifHugeBold"
+     height="20"
+     layout="topleft"
+     left="10"
+     name="user_name"
+     text_color="white"
+     top="0"
+     value="(Loading...)"
+     width="250" />
+    <text
+     follows="top|left"
+     height="16"
+     layout="topleft"
+     left="10"
+     name="status"
+     text_color="LtGray_50"
+     top_pad="5"
+     value="Online"
+     width="100" />
+    <button
+     follows="top|right"
+     height="25"
+     image_overlay="BackArrow_Off"
+     layout="topleft"
+     name="back"
+     picture_style="true"
+     right="-10"
+     tab_stop="false"
+     top="0"
+     width="25" />
+    <tab_container
+     follows="left|top|right|bottom"
+     height="660"
+     layout="topleft"
+     left="10"
+     name="tabs"
+     tab_min_width="75"
+     tab_position="top"
+     top_pad="15"
+     width="285">
+        <panel
+         class="panel_profile"
+         filename="panel_profile.xml"
+         label="Profile"
+         layout="topleft"
+         name="panel_profile" />
+        <panel
+         class="panel_picks"
+         filename="panel_picks.xml"
+         label="Picks"
+         layout="topleft"
+         name="panel_picks" />
+        <panel
+         class="panel_notes"
+         filename="panel_notes.xml"
+         label="Notes &amp; Privacy"
+         layout="topleft"
+         name="panel_notes" />
+    </tab_container>
+</panel>

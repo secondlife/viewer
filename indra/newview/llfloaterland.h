@@ -38,8 +38,9 @@
 #include <vector>
 
 #include "llfloater.h"
-//#include "llviewerimagelist.h"
-#include "llmemory.h"	// LLPointer<>
+#include "llpointer.h"	// LLPointer<>
+//#include "llviewertexturelist.h"
+#include "llsafehandle.h"
 
 typedef std::set<LLUUID, lluuid_less> uuid_list_t;
 const F32 CACHE_REFRESH_TIME	= 2.5f;
@@ -58,12 +59,12 @@ class LLTextBox;
 class LLTextEditor;
 class LLTextureCtrl;
 class LLUIImage;
-class LLViewerTextEditor;
 class LLParcelSelection;
 
 class LLPanelLandGeneral;
 class LLPanelLandObjects;
 class LLPanelLandOptions;
+class LLPanelLandAudio;
 class LLPanelLandMedia;
 class LLPanelLandAccess;
 class LLPanelLandBan;
@@ -71,26 +72,27 @@ class LLPanelLandRenters;
 class LLPanelLandCovenant;
 
 class LLFloaterLand
-:	public LLFloater, public LLFloaterSingleton<LLFloaterLand>
+:	public LLFloater
 {
-	friend class LLUISingleton<LLFloaterLand, VisibilityPolicy<LLFloater> >;
+	friend class LLFloaterReg;
 public:
 	static void refreshAll();
 
 	static LLPanelLandObjects* getCurrentPanelLandObjects();
 	static LLPanelLandCovenant* getCurrentPanelLandCovenant();
 
-	// Destroys itself on close.
-	virtual void onClose(bool app_quitting);
-	virtual void onOpen();
+	virtual void onOpen(const LLSD& key);
 	virtual BOOL postBuild();
 
-protected:
-
+private:
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
 	LLFloaterLand(const LLSD& seed);
 	virtual ~LLFloaterLand();
+		
+	void onVisibilityChange(const LLSD& visible);
+
+protected:
 
 	/*virtual*/ void refresh();
 
@@ -98,6 +100,7 @@ protected:
 	static void* createPanelLandCovenant(void* data);
 	static void* createPanelLandObjects(void* data);
 	static void* createPanelLandOptions(void* data);
+	static void* createPanelLandAudio(void* data);
 	static void* createPanelLandMedia(void* data);
 	static void* createPanelLandAccess(void* data);
 	static void* createPanelLandBan(void* data);
@@ -111,6 +114,7 @@ protected:
 	LLPanelLandGeneral*		mPanelGeneral;
 	LLPanelLandObjects*		mPanelObjects;
 	LLPanelLandOptions*		mPanelOptions;
+	LLPanelLandAudio*		mPanelAudio;
 	LLPanelLandMedia*		mPanelMedia;
 	LLPanelLandAccess*		mPanelAccess;
 	LLPanelLandCovenant*	mPanelCovenant;
@@ -138,8 +142,7 @@ public:
 
 	void setGroup(const LLUUID& group_id);
 	static void onClickProfile(void*);
-	static void onClickSetGroup(void*);
-	static void cbGroupID(LLUUID group_id, void* userdata);
+		   void onClickSetGroup();
 	static BOOL enableDeedToGroup(void*);
 	static void onClickDeed(void*);
 	static void onClickBuyLand(void* data);
@@ -329,7 +332,6 @@ private:
 	LLCheckBoxCtrl*	mCheckFly;
 	LLCheckBoxCtrl*	mCheckGroupScripts;
 	LLCheckBoxCtrl*	mCheckOtherScripts;
-	LLCheckBoxCtrl*	mCheckLandmark;
 
 	LLCheckBoxCtrl*	mCheckShowDirectory;
 	LLComboBox*		mCategoryCombo;

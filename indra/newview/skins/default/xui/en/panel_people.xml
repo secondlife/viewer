@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_visible="true"
+ follows="all"
+ height="400"
+ label="People"
+ layout="topleft"
+ min_height="350"
+ min_width="240"
+ name="people_panel"
+ width="305">
+    <string
+     name="no_people"
+     value="No people" />
+    <string
+     name="no_one_near"
+     value="No-one near" />
+    <string
+     name="no_friends_online"
+     value="No friends online" />
+    <string
+     name="no_friends"
+     value="No friends" />
+    <string
+     name="no_groups"
+     value="No groups" />
+    <string
+     name="people_filter_label"
+     value="Filter People" />
+    <string
+     name="groups_filter_label"
+     value="Filter Groups" />
+    <filter_editor
+     background_image="TextField_Search_Off"
+     follows="left|top|right"
+     font="SansSerif"
+     height="23"
+     layout="topleft"
+     left="15"
+     max_length="270"
+     name="filter_input"
+     text_color="black"
+     text_pad_left="26"
+     top="3"
+     width="256" />
+    <button
+     follows="left|top|right"
+     height="13"
+     image_selected="Search"
+     image_unselected="Search"
+     layout="topleft"
+     left="20"
+     name="people_search"
+     picture_style="true"
+     scale_image="false"
+     top="8"
+     width="13" />
+    <tab_container
+     follows="left|top|right|bottom"
+     height="326"
+     layout="topleft"
+     left="9"
+     name="tabs"
+     tab_position="top"
+     top_pad="15"
+     width="285">
+        <panel
+         bevel_style="none"
+         follows="left|top|right|bottom"
+         height="390"
+         label="Nearby"
+         layout="topleft"
+         name="nearby_panel"
+         width="285">
+            <avatar_list
+             follows="left|top|right|bottom"
+             height="357"
+             layout="topleft"
+             left="0"
+             name="avatar_list"
+             top="2"
+             volume_column_width="20"
+             width="285" />
+            <panel
+             background_visible="true"
+             bevel_style="none"
+             bottom="390"
+             follows="left|right|bottom"
+             height="30"
+             label="bottom_panel"
+             layout="topleft"
+             left="0"
+             name="bottom_panel"
+             width="285">
+                <button
+                 follows="bottom|left"
+                 font="SansSerifBigBold"
+                 height="18"
+                 image_selected="OptionsMenu_Press"
+                 image_unselected="OptionsMenu_Off"
+                 layout="topleft"
+                 left="20"
+                 name="nearby_view_sort_btn"
+                 picture_style="true"
+                 tool_tip="Change sort and view of Residents list"
+                 top="7"
+                 width="18" />
+            </panel>
+        </panel>
+        <panel
+         background_visible="true"
+         bevel_style="none"
+         follows="left|top|right|bottom"
+         height="390"
+         label="Friends"
+         layout="topleft"
+         name="friends_panel"
+         width="285">
+            <accordion
+             follows="left|top|right|bottom"
+             height="357"
+             layout="topleft"
+             left="0"
+             name="friends_accordion"
+             top="2"
+             width="285">
+                <accordion_tab
+                 can_resize="false"
+                 layout="topleft"
+                 min_height="100"
+                 name="tab_online"
+                 title="Online">
+                    <panel
+                     follows="all"
+                     height="150"
+                     layout="topleft"
+                     left="0"
+                     name="tab_online_panel"
+                     top="100"
+                     width="285">
+                        <avatar_list
+                         draw_heading="false"
+                         follows="all"
+                         height="145"
+                         layout="topleft"
+                         left="0"
+                         name="avatars_online"
+                         top="0"
+                         width="285" />
+                    </panel>
+                </accordion_tab>
+                <accordion_tab
+                 can_resize="false"
+                 layout="topleft"
+                 min_height="100"
+                 name="tab_all"
+                 title="All">
+                    <panel
+                     follows="all"
+                     height="260"
+                     layout="topleft"
+                     left="0"
+                     name="tab_all_panel"
+                     top="100"
+                     width="285">
+                        <avatar_list
+                         draw_heading="false"
+                         follows="all"
+                         height="255"
+                         layout="topleft"
+                         left="0"
+                         name="avatars_all"
+                         top="0"
+                         width="285" />
+                    </panel>
+                </accordion_tab>
+            </accordion>
+            <panel
+             background_visible="true"
+             bevel_style="none"
+             bottom="390"
+             follows="left|right|bottom"
+             height="30"
+             label="bottom_panel"
+             layout="topleft"
+             left="0"
+             name="bottom_panel"
+             width="285">
+                <button
+                 follows="bottom|left"
+                 font="SansSerifBigBold"
+                 height="18"
+                 image_selected="OptionsMenu_Press"
+                 image_unselected="OptionsMenu_Off"
+                 layout="topleft"
+                 left="20"
+                 name="friends_viewsort_btn"
+                 picture_style="true"
+                 tool_tip="Change sort and view of Friends list"
+                 top="7"
+                 width="18" />
+                <button
+                 follows="bottom|left"
+                 font="SansSerifBigBold"
+                 height="18"
+                 image_selected="AddItem_Press"
+                 image_unselected="AddItem_Off"
+                 layout="topleft"
+                 left_pad="5"
+                 name="add_btn"
+                 picture_style="true"
+                 tool_tip="Offer friendship to a resident"
+                 top_delta="0"
+                 width="18" />
+                <button
+                 follows="bottom|left"
+                 font="SansSerifBigBold"
+                 height="18"
+                 image_selected="TrashItem_Press"
+                 image_unselected="TrashItem_Off"
+                 layout="topleft"
+                 left_pad="180"
+                 name="del_btn"
+                 picture_style="true"
+                 tool_tip="Remove selected person from your Friends list"
+                 top_delta="0"
+                 width="18" />
+            </panel>
+        </panel>
+        <panel
+         background_visible="true"
+         bevel_style="none"
+         follows="left|top|right|bottom"
+         height="390"
+         label="Groups"
+         layout="topleft"
+         name="groups_panel"
+         width="285">
+            <group_list
+             follows="left|top|right|bottom"
+             height="357"
+             layout="topleft"
+             left="0"
+             name="group_list"
+             top="2"
+             width="285" />
+            <panel
+             background_visible="true"
+             bevel_style="none"
+             bottom="390"
+             follows="left|right|bottom"
+             height="30"
+             label="bottom_panel"
+             layout="topleft"
+             left="0"
+             name="bottom_panel"
+             width="285">
+                <button
+                 enabled="false"
+                 follows="bottom|left"
+                 font="SansSerifBigBold"
+                 height="18"
+                 image_selected="OptionsMenu_Press"
+                 image_unselected="OptionsMenu_Off"
+                 layout="topleft"
+                 left="20"
+                 name="gear_btn"
+                 picture_style="true"
+                 tool_tip="Change sort and view of Groups list"
+                 top="7"
+                 width="18" />
+                <button
+                 follows="bottom|left"
+                 font="SansSerifBigBold"
+                 height="18"
+                 image_selected="AddItem_Press"
+                 image_unselected="AddItem_Off"
+                 layout="topleft"
+                 left_pad="5"
+                 name="plus_btn"
+                 picture_style="true"
+                 tool_tip="Join group/Create new group"
+                 top_delta="0"
+                 width="18" />
+                <button
+                 follows="bottom|left"
+                 font="SansSerifBigBold"
+                 height="10"
+                 image_hover_selected="group_activate_btn.tga"
+                 image_selected="group_activate_btn.tga"
+                 image_unselected="group_activate_btn.tga"
+                 layout="topleft"
+                 left_pad="24"
+                 name="activate_btn"
+                 picture_style="true"
+                 tool_tip="Activate selected group"
+                 top_delta="5"
+                 width="10" />
+                <button
+                 follows="bottom|left"
+                 font="SansSerifBigBold"
+                 height="18"
+                 image_selected="TrashItem_Press"
+                 image_unselected="TrashItem_Off"
+                 layout="topleft"
+                 left_pad="146"
+                 name="minus_btn"
+                 picture_style="true"
+                 tool_tip="Leave selected group"
+                 top_delta="-5"
+                 width="18" />
+            </panel>
+        </panel>
+        <panel
+         background_visible="true"
+         bevel_style="none"
+         follows="left|top|right|bottom"
+         height="390"
+         label="Recent"
+         layout="topleft"
+         name="recent_panel"
+         width="285">
+            <avatar_list
+             follows="left|top|right|bottom"
+             height="357"
+             layout="topleft"
+             left="0"
+             name="avatar_list"
+             top="2"
+             width="285" />
+            <panel
+             background_visible="true"
+             bevel_style="none"
+             bottom="390"
+             follows="left|right|bottom"
+             height="30"
+             label="bottom_panel"
+             layout="topleft"
+             left="0"
+             name="bottom_panel"
+             width="285">
+                <button
+                 follows="bottom|left"
+                 font="SansSerifBigBold"
+                 height="18"
+                 image_selected="OptionsMenu_Press"
+                 image_unselected="OptionsMenu_Off"
+                 layout="topleft"
+                 left="20"
+                 name="recent_viewsort_btn"
+                 picture_style="true"
+                 tool_tip="Change sort and view of Residents list"
+                 top="7"
+                 width="18" />
+            </panel>
+        </panel>
+    </tab_container>
+    <layout_stack
+     animate="false"
+     border_size="0"
+     follows="left|right|bottom"
+     height="27"
+     layout="topleft"
+     left="10"
+     name="button_bar"
+     orientation="horizontal"
+     width="295">
+        <layout_panel
+         default_tab_group="1"
+         follows="left|top|right"
+         height="25"
+         layout="topleft"
+         left="0"
+         name="view_profile_btn_panel"
+         top="-25"
+         width="65">
+            <button
+             follows="top|left|right"
+             font="SansSerifSmallBold"
+             height="25"
+             label="Profile"
+             layout="topleft"
+             name="view_profile_btn"
+             tool_tip="Show picture, groups, and other residents information"
+             width="65" />
+        </layout_panel>
+        <layout_panel
+         default_tab_group="1"
+         follows="left|top|right"
+         height="25"
+         layout="topleft"
+         left_delta="0"
+         min_width="85"
+         name="add_friend_btn_panel"
+         top_delta="0"
+         width="85">
+            <button
+             follows="top|left|right"
+             font="SansSerifSmallBold"
+             height="25"
+             label="Add Friend"
+             layout="topleft"
+             name="add_friend_btn"
+             tool_tip="Add selected resident to your Friends List"
+             width="85" />
+        </layout_panel>
+        <layout_panel
+         default_tab_group="1"
+         follows="left|top|right"
+         height="25"
+         layout="topleft"
+         min_width="80"
+         name="group_info_btn_panel"
+         width="80">
+            <button
+             follows="top|left|right"
+             font="SansSerifSmallBold"
+             height="25"
+             label="Group Profile"
+             layout="topleft"
+             name="group_info_btn"
+             tool_tip="Show group information"
+             width="80" />
+        </layout_panel>
+        <layout_panel
+         default_tab_group="1"
+         follows="left|top|right"
+         height="25"
+         layout="topleft"
+         min_width="45"
+         name="chat_btn_panel"
+         top_delta="0"
+         width="45">
+            <button
+             follows="top|left|right"
+             font="SansSerifSmallBold"
+             height="25"
+             label="Chat"
+             layout="topleft"
+             name="chat_btn"
+             tool_tip="Open chat session"
+             width="45" />
+        </layout_panel>
+        <layout_panel
+         default_tab_group="1"
+         follows="left|top|right"
+         height="25"
+         layout="topleft"
+         min_width="35"
+         name="im_btn_panel"
+         top_delta="0"
+         width="35">
+            <button
+             follows="top|left|right"
+             font="SansSerifSmallBold"
+             height="25"
+             label="IM"
+             layout="topleft"
+             name="im_btn"
+             tool_tip="Open instant message session"
+             width="35" />
+        </layout_panel>
+        <layout_panel
+         default_tab_group="1"
+         follows="left|top|right"
+         height="25"
+         layout="topleft"
+         min_width="40"
+         name="call_btn_panel"
+         top_delta="0"
+         visible="false"
+         width="40">
+            <button
+             enabled="false"
+             follows="top|left|right"
+             font="SansSerifSmallBold"
+             height="25"
+             label="Call"
+             layout="topleft"
+             name="call_btn"
+             width="40" />
+        </layout_panel>
+        <layout_panel
+         default_tab_group="1"
+         follows="left|top|right"
+         height="25"
+         layout="topleft"
+         min_width="65"
+         name="teleport_btn_panel"
+         top_delta="0"
+         width="65">
+            <button
+             follows="left|top|right"
+             font="SansSerifSmallBold"
+             height="25"
+             label="Teleport"
+             layout="topleft"
+             name="teleport_btn"
+             tool_tip="Offer teleport"
+             width="65" />
+        </layout_panel>
+        <layout_panel
+         default_tab_group="1"
+         enabled="false"
+         follows="left|top|right"
+         height="25"
+         layout="topleft"
+         min_width="50"
+         name="share_btn_panel"
+         top_delta="0"
+         visible="false"
+         width="50">
+            <button
+             enabled="false"
+             follows="top|left|right"
+             font="SansSerifSmallBold"
+             height="25"
+             label="Share"
+             layout="topleft"
+             name="share_btn"
+             width="50" />
+        </layout_panel>
+    </layout_stack>
+</panel>

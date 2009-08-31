@@ -42,30 +42,15 @@
 
 using namespace LLVOAvatarDefines;
 
-LLFloaterAvatarTextures::LLFloaterAvatarTextures(const LLUUID& id) : 
-	LLFloater(std::string("avatar_texture_debug")),
-	mID(id)
+LLFloaterAvatarTextures::LLFloaterAvatarTextures(const LLSD& id)
+  : LLFloater(id),
+	mID(id.asUUID())
 {
+// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_avatar_textures.xml");
 }
 
 LLFloaterAvatarTextures::~LLFloaterAvatarTextures()
 {
-}
-
-LLFloaterAvatarTextures* LLFloaterAvatarTextures::show(const LLUUID &id)
-{
-
-	LLFloaterAvatarTextures* floaterp = new LLFloaterAvatarTextures(id);
-
-	// Builds and adds to gFloaterView
-	LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_avatar_textures.xml");
-
-	gFloaterView->addChild(floaterp);
-	floaterp->open();	/*Flawfinder: ignore*/
-
-	gFloaterView->adjustToFitScreen(floaterp, FALSE);
-
-	return floaterp;
 }
 
 BOOL LLFloaterAvatarTextures::postBuild()
@@ -142,7 +127,7 @@ void LLFloaterAvatarTextures::refresh()
 	}
 	else
 	{
-		setTitle(mTitle + ": INVALID AVATAR (" + mID.asString() + ")");
+		setTitle(mTitle + ": " + getString("InvalidAvatar") + " (" + mID.asString() + ")");
 	}
 }
 

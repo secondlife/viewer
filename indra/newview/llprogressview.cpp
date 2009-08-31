@@ -40,8 +40,8 @@
 #include "llrender.h"
 #include "llui.h"
 #include "llfontgl.h"
-#include "llimagegl.h"
 #include "lltimer.h"
+#include "lltextbox.h"
 #include "llglheaders.h"
 
 #include "llagent.h"
@@ -50,7 +50,7 @@
 #include "llprogressbar.h"
 #include "llstartup.h"
 #include "llviewercontrol.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llappviewer.h"
 #include "llweb.h"
@@ -68,9 +68,9 @@ const F32 TOTAL_LOGIN_TIME = 10.f;	// seconds, wild guess at time from GL contex
 S32 gLastStartAnimationFrame = 0;	// human-style indexing, first image = 1
 const S32 ANIMATION_FRAMES = 1; //13;
 
-// XUI:translate
-LLProgressView::LLProgressView(const std::string& name, const LLRect &rect) 
-:	LLPanel(name, rect, FALSE),
+// XUI: Translate
+LLProgressView::LLProgressView(const LLRect &rect) 
+:	LLPanel(),
 	mPercentDone( 0.f ),
 	mURLInMessage(false),
 	mMouseDownInActiveArea( false )
@@ -84,7 +84,7 @@ BOOL LLProgressView::postBuild()
 	mProgressBar = getChild<LLProgressBar>("login_progress_bar");
 
 	mCancelBtn = getChild<LLButton>("cancel_btn");
-	mCancelBtn->setClickedCallback(  LLProgressView::onCancelButtonClicked );
+	mCancelBtn->setClickedCallback(  LLProgressView::onCancelButtonClicked, NULL );
 	mFadeTimer.stop();
 
 	getChild<LLTextBox>("title_text")->setText(LLStringExplicit(LLAppViewer::instance()->getSecondLifeTitle()));
@@ -146,10 +146,10 @@ void LLProgressView::draw()
 
 	// Paint bitmap if we've got one
 	glPushMatrix();
-	if (gStartImageGL)
+	if (gStartTexture)
 	{
 		LLGLSUIDefault gls_ui;
-		gGL.getTexUnit(0)->bind(gStartImageGL);
+		gGL.getTexUnit(0)->bind(gStartTexture.get());
 		gGL.color4f(1.f, 1.f, 1.f, mFadeTimer.getStarted() ? clamp_rescale(mFadeTimer.getElapsedTimeF32(), 0.f, FADE_IN_TIME, 1.f, 0.f) : 1.f);
 		F32 image_aspect = (F32)gStartImageWidth / (F32)gStartImageHeight;
 		S32 width = getRect().getWidth();
@@ -185,7 +185,7 @@ void LLProgressView::draw()
 		{
 			gFocusMgr.removeTopCtrlWithoutCallback(this);
 			LLPanel::setVisible(FALSE);
-			gStartImageGL = NULL;
+			gStartTexture = NULL;
 		}
 		return;
 	}

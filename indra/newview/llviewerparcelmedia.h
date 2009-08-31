@@ -33,18 +33,22 @@
 #ifndef LLVIEWERPARCELMEDIA_H
 #define LLVIEWERPARCELMEDIA_H
 
-#include "llmediabase.h"
+#include "llviewermedia.h"
 
 class LLMessageSystem;
 class LLParcel;
+class LLViewerParcelMediaNavigationObserver;
+
 
 // This class understands land parcels, network traffic, LSL media
 // transport commands, and talks to the LLViewerMedia class to actually
 // do playback.  It allows us to remove code from LLViewerParcelMgr.
-class LLViewerParcelMedia
+class LLViewerParcelMedia : public LLViewerMediaObserver
 {
+	LOG_CLASS(LLViewerParcelMedia);
 	public:
 		static void initClass();
+		static void cleanupClass();
 
 		static void update(LLParcel* parcel);
 			// called when the agent's parcel has a new URL, or the agent has
@@ -60,17 +64,38 @@ class LLViewerParcelMedia
 		static void start();
 			// restart after pause - no need for all the setup
 
+		static void focus(bool focus);
+
 		static void seek(F32 time);
 		    // jump to timecode time
 
-		static LLMediaBase::EStatus getStatus();
+		static LLPluginClassMediaOwner::EMediaStatus getStatus();
+		static std::string getMimeType();
+		static viewer_media_t getParcelMedia();
 
 		static void processParcelMediaCommandMessage( LLMessageSystem *msg, void ** );
 		static void processParcelMediaUpdate( LLMessageSystem *msg, void ** );
+		static void sendMediaNavigateMessage(const std::string& url);
+		
+		// inherited from LLViewerMediaObserver
+		virtual void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
 	public:
 		static S32 sMediaParcelLocalID;
 		static LLUUID sMediaRegionID;
+		// HACK: this will change with Media on a Prim
+		static viewer_media_t sMediaImpl;
+};
+
+
+class LLViewerParcelMediaNavigationObserver
+{
+public:
+	std::string mCurrentURL;
+	bool mFromMessage;
+
+	// void onNavigateComplete( const EventType& event_in );
+
 };
 
 #endif

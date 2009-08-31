@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater 
+ background_opaque="false"
+ background_visible="true" 
+ bevel_style="in"
+ bg_alpha_color="0.0 0.0 0.0 0.0"
+ height="30"
+ left="0"
+ top="0" 
+ follows="right|bottom"
+ layout="topleft"
+ name="notification_chiclet"
+ save_rect="true"
+ title="NOTIFICATIONS"
+ width="320"
+ min_width="320"
+ can_minimize="false"
+ can_tear_off="false"
+ can_resize="false"
+ can_drag_on_left="false"
+ can_close="false"
+ can_dock="true"
+>
+  <scroll_container
+   follows="top|bottom"
+   layout="topleft"
+   name="notification_list_container"
+   left="0"
+   top="18"
+   width="320"
+   height="12">
+    <scrolling_panel_list
+     layout="topleft"
+     name="notification_list"
+     left="1"
+     top="0"
+     height="10"
+     width="318" />
+  </scroll_container>
+</floater>

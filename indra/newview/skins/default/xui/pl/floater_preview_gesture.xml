@@ -45,12 +45,8 @@ Wstrzymaj
 chyba, że dodasz pauzy.
 	</text>
 	<radio_group name="animation_trigger_type">
-		<radio_item name="start">
-			Start
-		</radio_item>
-		<radio_item name="stop">
-			Stop
-		</radio_item>
+		<radio_item name="start" label="Start" />
+		<radio_item name="stop" label="Stop" />
 	</radio_group>
 	<check_box label="do końca animacji" name="wait_anim_check"/>
 	<check_box label="czas w sekundach" name="wait_time_check"/>

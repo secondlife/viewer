@@ -32,7 +32,7 @@
 #ifndef LL_LLECONOMY_H
 #define LL_LLECONOMY_H
 
-#include "llmemory.h"
+#include "llsingleton.h"
 
 class LLMessageSystem;
 class LLVector3;

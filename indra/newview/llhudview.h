@@ -42,7 +42,7 @@ class LLHUDView
 : public LLPanel
 {
 public:
-	LLHUDView();
+	LLHUDView(const LLRect& rect);
 	virtual ~LLHUDView();
 
 	virtual void draw();

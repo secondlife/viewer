@@ -34,10 +34,13 @@ set(test_SOURCE_FILES
     io.cpp
 #    llapp_tut.cpp						# Temporarily removed until thread issues can be solved
     llbase64_tut.cpp
+    llbbox_tut.cpp
+    llbboxlocal_tut.cpp
     llblowfish_tut.cpp
     llbuffer_tut.cpp
     lldate_tut.cpp
     lldependencies_tut.cpp
+    lldoubledispatch_tut.cpp
     llerror_tut.cpp
     llevents_tut.cpp
     llhost_tut.cpp
@@ -55,6 +58,7 @@ set(test_SOURCE_FILES
     llpipeutil.cpp
     llquaternion_tut.cpp
     llrandom_tut.cpp
+    llrect_tut.cpp
     llsaleinfo_tut.cpp
     llscriptresource_tut.cpp
     llsdmessagebuilder_tut.cpp
@@ -69,6 +73,7 @@ set(test_SOURCE_FILES
     lltimestampcache_tut.cpp
     lltiming_tut.cpp
     lltranscode_tut.cpp
+    lltreeiterators_tut.cpp
     lltut.cpp
     lluri_tut.cpp
     lluuidhashmap_tut.cpp
@@ -127,7 +132,10 @@ target_link_libraries(test
     ${APRICONV_LIBRARIES}
     ${PTHREAD_LIBRARY}
     ${WINDOWS_LIBRARIES}
+    ${BOOST_PROGRAM_OPTIONS_LIBRARY}
+    ${BOOST_REGEX_LIBRARY}
     ${DL_LIBRARY}
+    ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
 
 if (WINDOWS)

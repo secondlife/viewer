@@ -33,7 +33,7 @@
 #ifndef LL_NOTECARD_H
 #define LL_NOTECARD_H
 
-#include "llmemory.h"
+#include "llpointer.h"
 #include "llinventory.h"
 
 class LLNotecard

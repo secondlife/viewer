@@ -6,6 +6,9 @@
 	<global name="alwayschoose">
 		Kies altijd deze optie
 	</global>
+	<global name="implicitclosebutton">
+		Sluiten
+	</global>
   <template name="okbutton">
     <form>
       <button
@@ -71,7 +74,7 @@
     </form>
   </template>
 	<notification functor="GenericAcknowledge" label="Onbekende waarschuwingsboodschap" name="MissingAlert">
-		Uw versie van Second Life weet niet hoe het de waarschuwingsboodschap die zojuist ontvangen is moet weergeven. 
+		Uw versie van [APP_NAME] weet niet hoe het de waarschuwingsboodschap die zojuist ontvangen is moet weergeven. 
 
 Foutdetails: De waarschuwing genaamd &apos;[_NAME]&apos; is niet gevonden in notifications.xml.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -94,7 +97,7 @@ Foutdetails: De waarschuwing genaamd &apos;[_NAME]&apos; is niet gevonden in not
 		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="Ja"/>
 	</notification>
 	<notification name="BadInstallation">
-		Er is een fout opgetreden tijdens het bijwerken van Second Life. Download alstublieft de meest recente versie van secondlife.com
+		Er is een fout opgetreden tijdens het bijwerken van [APP_NAME]. Download alstublieft de meest recente versie van secondlife.com
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -232,7 +235,7 @@ Het aan vinken van deze optie zal:
 	<notification name="ClickPartnerHelpAvatar">
 		U kunt een andere Inwoner ten huwelijk vragen of een bestaand partner schap verbreken via de [SECOND_LIFE] website.
 
-Naar de Second Life website gaan voor meer informatie over partner schap?
+Naar de [SECOND_LIFE] website gaan voor meer informatie over partner schap?
 		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="Ga naar Pagina"/>
 	</notification>
 	<notification name="ClickUploadHelpPermissions">
@@ -272,7 +275,7 @@ Uw verkoopprijs is L$[SALE_PRICE] en zal geautoriseerd worden voor verkoop door 
 		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmLandSaleToAnyoneChange">
-		ATTENTIE: Het aanklikken van &apos;verkoop aan iedereen&apos; zal uw land beschikbaar maken aan de gehele Second Life gemeenschap, zo ook diegenen niet in deze regio!
+		ATTENTIE: Het aanklikken van &apos;verkoop aan iedereen&apos; zal uw land beschikbaar maken aan de gehele [SECOND_LIFE] gemeenschap, zo ook diegenen niet in deze regio!
 
 De geselecteerde [LAND_SIZE] m² land is te koop gezet.
 Uw verkoopprijs is L$[SALE_PRICE] en zal geautoriseerd worden voor verkoop door [NAME].
@@ -418,17 +421,17 @@ Betaalde advertentiekosten zullen niet worden terug gestort.
 		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
 	</notification>
 	<notification name="CacheWillClear">
-		De cache zal geleegd worden als u [SECOND_LIFE] opnieuw start.
+		De cache zal geleegd worden als u [APP_NAME] opnieuw start.
 	</notification>
 	<notification name="CacheWillBeMoved">
-		De cache zal verplaatst worden als u [SECOND_LIFE] opnieuw start.
+		De cache zal verplaatst worden als u [APP_NAME] opnieuw start.
 Opmerking: Dit zal de Cache legen.
 	</notification>
 	<notification name="ChangeConnectionPort">
-		Poort instelling zullen effect hebben nadat u [SECOND_LIFE] opnieuw start.
+		Poort instelling zullen effect hebben nadat u [APP_NAME] opnieuw start.
 	</notification>
 	<notification name="ChangeSkin">
-		De nieuwe skin zal verschijnen nadat u [SECOND_LIFE] opnieuw start.
+		De nieuwe skin zal verschijnen nadat u [APP_NAME] opnieuw start.
 	</notification>
 	<notification name="GoToAuctionPage">
 		Ga naar de [SECOND_LIFE] web pagina om de veiling details te zien of een bod uit te brengen.
@@ -489,7 +492,7 @@ Het object kan buiten bereik of mogelijk verwijderd zijn.
 		Kan niet naar bestand [[FILE]] schrijven
 	</notification>
 	<notification name="UnsupportedHardware">
-		Waarschuwing: Uw systeem voldoet niet aan de Second Life minimum systeem eisen. Indien u Second Life gebruikt, ervaart u mogelijk slechte prestaties. Helaas kunnen we geen technische ondersteuning geven voor niet ondersteunde configuraties.
+		Waarschuwing: Uw systeem voldoet niet aan de [APP_NAME] minimum systeem eisen. Indien u [APP_NAME] gebruikt, ervaart u mogelijk slechte prestaties. Helaas kunnen we geen technische ondersteuning geven voor niet ondersteunde configuraties.
 
 MINSPECS
 Wilt u [_URL] bezoeken voor meer informatie?
@@ -501,14 +504,14 @@ Wilt u [_URL] bezoeken voor meer informatie?
 	<notification name="UnknownGPU">
 		Uw systeem heeft een grafische kaart die bij ons nog niet bekend is op dit moment.
 
-Dit is vaak het geval met nieuwe hardware waarbij wij nog niet de kans gehad hebben om het te testen. Second Life zal mogelijk naar behoren functioneren, doch het kan zijn dat u uw grafische instellingen naar geschiktere waarden zult moeten instellen.
+Dit is vaak het geval met nieuwe hardware waarbij wij nog niet de kans gehad hebben om het te testen. [APP_NAME] zal mogelijk naar behoren functioneren, doch het kan zijn dat u uw grafische instellingen naar geschiktere waarden zult moeten instellen.
 (Bewerken menu &gt; Voorkeuren &gt; Grafisch).
 		<form name="form">
 			<ignore name="ignore" text="Indien een onbekende grafische kaart gedetecteerd"/>
 		</form>
 	</notification>
 	<notification name="DisplaySettingsNoShaders">
-		[SECOND_LIFE] is gestopt bij het initialiseren van de grafische stuurprogramma&apos;s.
+		[APP_NAME] is gestopt bij het initialiseren van de grafische stuurprogramma&apos;s.
 Grafische kwaliteit zal op zijn laagst worden ingesteld om veel voorkomende fouten met stuurprogramma&apos;s te vermijden.
 Dit zal sommige grafische opties uitschakelen.
 Wij adviseren u de stuurprogramma&apos;s van uw grafische kaart bij te werken.
@@ -789,7 +792,7 @@ Geen perceel geselecteerd.
 Kan de regio niet vinden waar dit land zich bevind.
 	</notification>
 	<notification name="CannotCloseFloaterBuyLand">
-		U kunt het Koop Land venster niet sluiten totdat Second Life de prijs van de transactie geschat heeft.
+		U kunt het Koop Land venster niet sluiten totdat [APP_NAME] de prijs van de transactie geschat heeft.
 	</notification>
 	<notification name="CannotDeedLandNothingSelected">
 		Kan land niet toekennen:
@@ -962,7 +965,7 @@ Indien dit probleem aanhoudt, klik dan alstublieft op &apos;Gereedschap &gt; Rap
 	<notification name="YouHaveBeenLoggedOut">
 		U bent uitgelogd uit [SECOND_LIFE]:
 [MESSAGE]
-U kunt uw bestaande IM en chat bekijken door te klikken op &apos;Toon IM &amp; Chat&apos;. Anders, klik op Afsluiten om [SECOND_LIFE] direct te verlaten.
+U kunt uw bestaande IM en chat bekijken door te klikken op &apos;Toon IM &amp; Chat&apos;. Anders, klik op Afsluiten om [APP_NAME] direct te verlaten.
 		<usetemplate name="okcancelbuttons" notext="Afsluiten" yestext="Toon IM &amp; Chat"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1134,14 +1137,14 @@ U kunt [SECOND_LIFE] normaal gebruiken en anderen zullen u correct zien.
 		</form>
 	</notification>
 	<notification name="FirstRun">
-		[SECOND_LIFE] installatie compleet.
+		[APP_NAME] installatie compleet.
 
 Als dit de eerste keer is dat u [SECOND_LIFE] gebruikt, zult u een account aan moeten maken voordat u in kan loggen.
 Terugkeren naar www.secondlife.com om een nieuw account aan te maken?
 		<usetemplate name="okcancelbuttons" notext="Doorgaan" yestext="Nieuw Account..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
-		Wij hebben problemen verbinding te maken. Er zou een probleem kunnen zijn met uw internet verbinding of met de Second Life servers.
+		Wij hebben problemen verbinding te maken. Er zou een probleem kunnen zijn met uw internet verbinding of met de [SECOND_LIFE] servers.
 
 U kunt uw internet verbinding controleren en het over een paar minuten opnieuw proberen, op Help klikken om verbinding te maken met onze support website, of klik op Teleporteren om een poging te doen naar uw thuis locatie te teleporteren.
 		<form name="form">
@@ -1245,33 +1248,33 @@ Zet het object alstublieft te koop en probeer het opnieuw.
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="DownloadWindowsMandatory">
-		Een nieuwe versie van [SECOND_LIFE] is beschikbaar.
+		Een nieuwe versie van [APP_NAME] is beschikbaar.
 [MESSAGE]
-U moet deze update downloaden om [SECOND_LIFE] te kunnen gebruiken.
+U moet deze update downloaden om [APP_NAME] te kunnen gebruiken.
 		<usetemplate name="okcancelbuttons" notext="Afsluiten" yestext="Download"/>
 	</notification>
 	<notification name="DownloadWindows">
-		Een bijgewerkte versie van [SECOND_LIFE] is beschikbaar.
+		Een bijgewerkte versie van [APP_NAME] is beschikbaar.
 [MESSAGE]
 Deze update is niet vereist, maar wij raden aan dat u het installeert om de prestaties en stabiliteit te verbeteren.
 		<usetemplate name="okcancelbuttons" notext="Doorgaan" yestext="Download"/>
 	</notification>
 	<notification name="DownloadWindowsReleaseForDownload">
-		Een bijgewerkte versie van [SECOND_LIFE] is beschikbaar.
+		Een bijgewerkte versie van [APP_NAME] is beschikbaar.
 [MESSAGE]
 Deze update is niet vereist, maar wij raden aan dat u het installeert om de prestaties en stabiliteit te verbeteren.
 		<usetemplate name="okcancelbuttons" notext="Doorgaan" yestext="Download"/>
 	</notification>
 	<notification name="DownloadMacMandatory">
-		Een nieuwe versie van [SECOND_LIFE] is beschikbaar.
+		Een nieuwe versie van [APP_NAME] is beschikbaar.
 [MESSAGE]
-U moet deze update downloaden om [SECOND_LIFE] te kunnen gebruiken.
+U moet deze update downloaden om [APP_NAME] te kunnen gebruiken.
 
 Downloaden naar uw Applicatie Data map?
 		<usetemplate name="okcancelbuttons" notext="Afsluiten" yestext="Download"/>
 	</notification>
 	<notification name="DownloadMac">
-		Een bijgewerkte versie van [SECOND_LIFE] is beschikbaar.
+		Een bijgewerkte versie van [APP_NAME] is beschikbaar.
 [MESSAGE]
 Deze update is niet vereist, maar wij raden aan dat u het installeert om de prestaties en stabiliteit te verbeteren.
 
@@ -1279,7 +1282,7 @@ Downloaden naar uw Applicatie Data map?
 		<usetemplate name="okcancelbuttons" notext="Doorgaan" yestext="Download"/>
 	</notification>
 	<notification name="DownloadMacReleaseForDownload">
-		Een bijgewerkte versie van [SECOND_LIFE] is beschikbaar.
+		Een bijgewerkte versie van [APP_NAME] is beschikbaar.
 [MESSAGE]
 Deze update is niet vereist, maar wij raden aan dat u het installeert om de prestaties en stabiliteit te verbeteren.
 
@@ -1890,7 +1893,7 @@ Indien u het leeg laat, zullen misbruik rapporten alleen verzonden worden naar L
 Standaard: Uitgeschakeld
 	</notification>
 	<notification label="Voice Versie Ongelijkheid" name="VoiceVersionMismatch">
-		Deze versie van Second Life is niet compatibel met de Voice spraak optie in deze regio. Om Voice Chat goed te laten functioneren, moet u Second Life bijwerken.
+		Deze versie van [APP_NAME] is niet compatibel met de Voice spraak optie in deze regio. Om Voice Chat goed te laten functioneren, moet u [APP_NAME] bijwerken.
 	</notification>
 	<notification label="Estate Convenant" name="HelpEstateCovenant">
 		Het instellen van een Estate Convenant maakt het u mogelijk om percelen in het Estate te verkopen. Indien de Convenant niet is ingesteld kunt u het niet verkopen. Een notitiekaart voor uw Convenant kan leeg zijn indien u geen regels wilt instellen, advies aan kopers wilt geven of iets anders in relatie tot het land wilt mededelen voor als men het koopt.
@@ -2010,16 +2013,16 @@ inventaris item(s) verplaatsen?
 		Er zitten geen items in dit object die u kunt kopiëren.
 	</notification>
 	<notification name="WebLaunchAccountHistory">
-		Naar de Second Life web site gaan om uw account geschiedenis te bekijken?
+		Naar de [SECOND_LIFE] web site gaan om uw account geschiedenis te bekijken?
 		<usetemplate ignoretext="Bij laden van de account geschiedenis webpagina" name="okcancelignore" notext="Annuleren" yestext="Ga naar pagina"/>
 	</notification>
 	<notification name="ClickOpenF1Help">
-		De Second Life Support Web site bezoeken?
-		<usetemplate ignoretext="Bij bezoeken van de Second Life Support Website." name="okcancelignore" notext="Annuleren" yestext="Ga"/>
+		De [SECOND_LIFE] Support Web site bezoeken?
+		<usetemplate ignoretext="Bij bezoeken van de [SECOND_LIFE] Support Website." name="okcancelignore" notext="Annuleren" yestext="Ga"/>
 	</notification>
 	<notification name="ConfirmQuit">
 		Weet u zeker dat u wilt afsluiten?
-		<usetemplate ignoretext="Bij afsluiten Second Life." name="okcancelignore" notext="Doorgaan" yestext="Afsluiten"/>
+		<usetemplate ignoretext="Bij afsluiten [APP_NAME]." name="okcancelignore" notext="Doorgaan" yestext="Afsluiten"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
 		Gebruik dit gereedschap om overtredingen van de Voorwaarden voor Service (Terms of Service) en Gemeenschaps Standaarden (Community Standards)te rapporteren. Zie:
@@ -2039,7 +2042,7 @@ Als een service aan Inwoners en bezoekers heeft de eigenaar van deze regio er vo
 De regio eigenaar zal de rapporten afhandelen op basis van de regels geldend voor deze regio zoals weergegeven in het Estate Convenant (Bekijk Convenants door naar Wereld te gaan in het menu en te kiezen voor Over Land).
 
 De afhandeling van dit rapport is alleen van toepassing op deze regio.
-Toegang van Inwoners tot andere gebieden van Second Life zullen niet beïnvloed worden door de uitkomst van dit rapport. Alleen Linden Lab kan de toegang tot geheel Second Life beperken.
+Toegang van Inwoners tot andere gebieden van [SECOND_LIFE] zullen niet beïnvloed worden door de uitkomst van dit rapport. Alleen Linden Lab kan de toegang tot geheel [SECOND_LIFE] beperken.
 	</notification>
 	<notification name="HelpReportBug">
 		Gebruik dit gereedschap *alleen* voor het rapporteren van technische opties die niet functioneren als verwacht. Geef alstublieft zoveel mogelijk technische details als mogelijk. U kunt de automatische-antwoord email gebruiken om op te reageren om aanvullende gegevens toe te voegen aan uw rapport.
@@ -2100,9 +2103,9 @@ Het opgeven van een accurate omschrijving helpt ons met het archiveren en verwer
 
 Het lijkt er op dat u intellectueel eigendoms misbruik rapporteert. Wees er alstublieft van overtuigd dat u dit correct rapporteert:
 
-(1) Het Misbruik Proces. U kunt een misbruik rapport indienen als u er van overtuigd bent dat een Inwoner het Second Life permissie systeem uitbuit, bijvoorbeeld door gebruik van CopyBot of soortgelijke gereedschappen, daarmee de intellectuele eigendoms rechten overtredend. Het Abuse Team onderzoekt en zal passende maatregelen uitvaardigen tegen gedrag dat de Second Life Gemeenschaps Standaarden overtreedt. Echter, het Abuse Team zal geen actie ondernemen en niet reageren op verzoeken om inhoud te verwijderen uit de Second Life wereld.
+(1) Het Misbruik Proces. U kunt een misbruik rapport indienen als u er van overtuigd bent dat een Inwoner het [SECOND_LIFE] permissie systeem uitbuit, bijvoorbeeld door gebruik van CopyBot of soortgelijke gereedschappen, daarmee de intellectuele eigendoms rechten overtredend. Het Abuse Team onderzoekt en zal passende maatregelen uitvaardigen tegen gedrag dat de [SECOND_LIFE] Gemeenschaps Standaarden overtreedt. Echter, het Abuse Team zal geen actie ondernemen en niet reageren op verzoeken om inhoud te verwijderen uit de [SECOND_LIFE] wereld.
 
-(2) Het DMCA of Inhoud Verwijder Proces. Voor een verzoek tot verwijdering van inhoud in Second Life, MOET u een geldige berichtgeving van misbruik indienen zoals voorzien in onze DMCA beleid op http://secondlife.com/corporate/dmca.php.
+(2) Het DMCA of Inhoud Verwijder Proces. Voor een verzoek tot verwijdering van inhoud in [SECOND_LIFE], MOET u een geldige berichtgeving van misbruik indienen zoals voorzien in onze DMCA beleid op http://secondlife.com/corporate/dmca.php.
 
 Indien u nog steeds door wilt gaan met het misbruik proces, sluit dan alstublieft dit venster en maak het indienen van uw rapport af. U zult mogelijk een specifieke catagorie moeten kiezen &apos;CopyBot of Permissie Uitbuiting&apos;.
 
@@ -2153,12 +2156,12 @@ Wilt u de Niet Storen Modus verlaten voordat u deze transactie completeert?
 		<usetemplate ignoretext="Bij legen van uw inventaris Verloren en Gevonden map" name="okcancelignore" notext="Nee" yestext="Ja"/>
 	</notification>
 	<notification name="CopySLURL">
-		De volgende SLURL is gekopieerd naar uw klem bord:
+		De volgende SLurl is gekopieerd naar uw klem bord:
 [SLURL]
 
 Plaats het in een web pagina om anderen eenvoudig toegang te verschaffen naar de locatie of test het zelf door het te plakken in de adres balk van uw web browser.
 		<form name="form">
-			<ignore name="ignore" text="Bij kopiëren van een SLURL naar het klem bord"/>
+			<ignore name="ignore" text="Bij kopiëren van een SLurl naar het klem bord"/>
 		</form>
 	</notification>
 	<notification name="GraphicsPreferencesHelp">
@@ -2224,7 +2227,7 @@ Klik op &quot;Geavanceerde Lucht&quot; om de editor op te roepen voor geavanceer
 Klik op &quot;Geavanceerd Water&quot; om de editor op te roepen voor geavanceerde instellingen voor water.
 	</notification>
 	<notification name="HelpDayCycle">
-		De Dag Cyclus Editor geeft u controle over de lucht gedurende de Second Life&apos;s dag/nacht cyclus. Dit is de cyclus die gebruikt wordt in de Basis Omgeving Editor&apos;s Tijd van de Dag schuif knop.
+		De Dag Cyclus Editor geeft u controle over de lucht gedurende de [SECOND_LIFE]&apos;s dag/nacht cyclus. Dit is de cyclus die gebruikt wordt in de Basis Omgeving Editor&apos;s Tijd van de Dag schuif knop.
 
 De Dag Cyclus Editor werkt beter met het instellen van gemarkeerde frames. Dit zijn nodes (weergegeven als grijze blips in de tijd weergave) die Hemel voorinstelling met zich geassocieerd hebben. Als de Tijd van de Dag voortschrijdt, &quot;animeert&quot; de WindLight Hemel als het interpoleert tussen de gemarkeerde frames.
 
@@ -2304,7 +2307,7 @@ Gelijkwaardig aan azimut.
 		Bepaald de snelheid van de wolken terwijl zij in Y richting bewegen.
 	</notification>
 	<notification name="HelpClassicClouds">
-		Vink dit aan voor weergave van Second Life&apos;s oudere klassieke wolken als toevoeging op WindLight&apos;s wolken.
+		Vink dit aan voor weergave van [SECOND_LIFE]&apos;s oudere klassieke wolken als toevoeging op WindLight&apos;s wolken.
 	</notification>
 	<notification name="HelpWaterFogColor">
 		Kiest de kleur van de onder water nevel.
@@ -2403,7 +2406,7 @@ Om dit recht in te trekken, moet de object eigenaar het object verwijderen of de
 	</notification>
 	<notification name="NotAgeVerified">
 		U moet leeftijd geverifieerd zijn om toegang te verkrijgen tot dit perceel.
-Wilt u de Second Life website bezoeken om uw leeftijd te verifiëren?
+Wilt u de [SECOND_LIFE] website bezoeken om uw leeftijd te verifiëren?
 
 [_URL]
 		<url name="url" option="0">
@@ -2413,7 +2416,7 @@ Wilt u de Second Life website bezoeken om uw leeftijd te verifiëren?
 	</notification>
 	<notification name="Cannot enter parcel: no payment info on file">
 		Dit perceel verlangd dat u betaal informatie geregistreerd hebt staan alvorens toegang te verkrijgen.
-Wilt u de Second Life website bezoeken om dit in te stellen?
+Wilt u de [SECOND_LIFE] website bezoeken om dit in te stellen?
 
 [_URL]
 		<url name="url" option="0">
@@ -2721,13 +2724,13 @@ Probeer het alstublieft opnieuw over enkele ogenblikken.
 		Kan wachtende verbinding niet maken.
 	</notification>
 	<notification name="InternalUsherError">
-		Er is een interne fout opgetreden terwijl geprobeerd werd u naar uw teleportbestemming te begeleiden. Second Life heeft op dit moment mogelijk problemen met de dienstverlening.
+		Er is een interne fout opgetreden terwijl geprobeerd werd u naar uw teleportbestemming te begeleiden. [SECOND_LIFE] heeft op dit moment mogelijk problemen met de dienstverlening.
 	</notification>
 	<notification name="NoGoodTPDestination">
 		Kan geen goede teleportbestemming vinden in deze regio.
 	</notification>
 	<notification name="InternalErrorRegionResolver">
-		Er is een interne fout opgetreden terwijl de globale coördinaten voor uw teleportverzoek werden bepaald. Second Life heeft op dit moment mogelijk problemen met de dienstverlening.
+		Er is een interne fout opgetreden terwijl de globale coördinaten voor uw teleportverzoek werden bepaald. [SECOND_LIFE] heeft op dit moment mogelijk problemen met de dienstverlening.
 	</notification>
 	<notification name="NoValidLanding">
 		Er kon geen geldig landingspunt worden gevonden.
@@ -2848,7 +2851,7 @@ Van object: [OBJECTNAME], eigenaar: [NAME]?
 		Kon [TYPE] genaamd [DESC] niet in de database vinden.
 	</notification>
 	<notification name="InvalidWearable">
-		Het item dat u probeert te dragen gebruikt een kenmerk dat uw viewer niet kan lezen. Upgrade u alstublieft uw versie van Second Life om dit item te dragen.
+		Het item dat u probeert te dragen gebruikt een kenmerk dat uw viewer niet kan lezen. Upgrade u alstublieft uw versie van [APP_NAME] om dit item te dragen.
 	</notification>
 	<notification name="ScriptQuestion">
 		[OBJECTNAME]&apos;, een object van &apos;[NAME]&apos;, wil graag:
@@ -2952,8 +2955,8 @@ Flexibele objecten mogen niet fysiek zijn en moeten fantoom zijn tot de &apos;fl
 	</notification>
 	<notification name="FirstDebugMenus">
 		U heeft het menu Geavanceerd geactiveerd.
-Dit menu bevat opties die handig zijn voor ontwikkelaars tijdens het debuggen van Second Life.
-Om dit menu in en uit te schakelen drukt u binnen Windows Ctrl-Alt-D. Met een Mac drukt u Cmd-Opt-Shift-D.
+Dit menu bevat opties die handig zijn voor ontwikkelaars tijdens het debuggen van [SECOND_LIFE].
+Om dit menu in en uit te schakelen drukt u binnen Windows Ctrl-Alt-D. Met een Mac drukt u &#8984;-Opt-D.
 	</notification>
 	<notification name="FirstSculptedPrim">
 		U bent een sculpted prim aan het bewerken.
@@ -3060,7 +3063,7 @@ Klik Accepteren om deel te nemen aan de chat of Afwijzen om de uitnodiging af te
 		- Uw Processor snelheid (CPU) voldoet niet aan de minimale eisen.
 	</global>
 	<global name="UnsupportedGLRequirements">
-		U heeft mogelijk niet de vereiste hardware voor Second Life. Second Life verlangd een OpenGL grafische kaart die multi-texture ondersteund. Indien dat het geval is, overtuig u er dan van dat u de laatste stuurprogramma&apos;s voor uw grafische kaart, service packs en patches voor uw Operating systeem heeft.
+		U heeft mogelijk niet de vereiste hardware voor [APP_NAME]. [APP_NAME] verlangd een OpenGL grafische kaart die multi-texture ondersteund. Indien dat het geval is, overtuig u er dan van dat u de laatste stuurprogramma&apos;s voor uw grafische kaart, service packs en patches voor uw Operating systeem heeft.
 
 Indien u problemen blijft houden, bezoek dan: http://www.secondlife.com/support
 	</global>

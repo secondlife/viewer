@@ -65,10 +65,12 @@ protected:
 	const LLMultiGesture& operator=(const LLMultiGesture& rhs);
 
 public:
-	// name is stored at asset level
-	// desc is stored at asset level
 	KEY mKey;
 	MASK mMask;
+
+	// This name can be empty if the inventory item is not around and
+    // the gesture manager has not yet set the name
+	std::string mName;
 
 	// String, like "/foo" or "hello" that makes it play
 	std::string mTrigger;
@@ -130,7 +132,7 @@ public:
 	virtual EStepType getType() = 0;
 
 	// Return a user-readable label for this step
-	virtual std::string getLabel() const = 0;
+	virtual std::vector<std::string> getLabel() const = 0;
 
 	virtual S32 getMaxSerialSize() const = 0;
 	virtual BOOL serialize(LLDataPacker& dp) const = 0;
@@ -152,7 +154,7 @@ public:
 
 	virtual EStepType getType() { return STEP_ANIMATION; }
 
-	virtual std::string getLabel() const;
+	virtual std::vector<std::string> getLabel() const;
 
 	virtual S32 getMaxSerialSize() const;
 	virtual BOOL serialize(LLDataPacker& dp) const;
@@ -175,7 +177,7 @@ public:
 
 	virtual EStepType getType() { return STEP_SOUND; }
 
-	virtual std::string getLabel() const;
+	virtual std::vector<std::string> getLabel() const;
 
 	virtual S32 getMaxSerialSize() const;
 	virtual BOOL serialize(LLDataPacker& dp) const;
@@ -198,7 +200,7 @@ public:
 
 	virtual EStepType getType() { return STEP_CHAT; }
 
-	virtual std::string getLabel() const;
+	virtual std::vector<std::string> getLabel() const;
 
 	virtual S32 getMaxSerialSize() const;
 	virtual BOOL serialize(LLDataPacker& dp) const;
@@ -223,7 +225,7 @@ public:
 
 	virtual EStepType getType() { return STEP_WAIT; }
 
-	virtual std::string getLabel() const;
+	virtual std::vector<std::string> getLabel() const;
 
 	virtual S32 getMaxSerialSize() const;
 	virtual BOOL serialize(LLDataPacker& dp) const;

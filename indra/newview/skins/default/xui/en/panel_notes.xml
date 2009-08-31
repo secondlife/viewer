@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ bevel_style="in"
+ follows="left|top|right|bottom"
+ height="420"
+ label="Notes &amp; Privacy"
+ layout="topleft"
+ left="0"
+ name="panel_notes"
+ top="0"
+ width="285">
+    <layout_stack
+     name="layout"
+     orientation="vertical"
+     follows="all"
+     layout="topleft"
+     left="0"
+     top="0"
+     height="420"
+     width="285"
+     border_size="0">
+        <panel
+         name="notes_stack"
+         follows="all"
+         layout="topleft"
+         top="0"
+         left="0"
+         height="390"
+         width="285">
+            <scroll_container
+             color="DkGray2"
+             follows="left|top|right|bottom"
+             height="390"
+             layout="topleft"
+             left="0"
+             name="profile_scroll"
+             opaque="true"
+             top="0"
+             width="285">
+              <panel
+                 height="350"
+                 layout="topleft"
+                 name="profile_scroll_panel"
+                 top="0"
+                 left="0"
+                 width="240">
+                <text
+                 follows="left|top"
+                 font="SansSerifBold"
+                 height="16"
+                 layout="topleft"
+                 left="10"
+                 name="status_message"
+                 text_color="white"
+                 top="0"
+                 value="My private notes:"
+                 width="230" />
+                <text_editor
+                 follows="left|top"
+                 height="200"
+                 hide_scrollbar="true"
+                 layout="topleft"
+                 left="10"
+                 max_length="1000"
+                 name="notes_edit"
+                 text_color="black"
+                 top_pad="10"
+                 width="235"
+                 word_wrap="true" />
+                <text
+                 follows="left|top"
+                 font="SansSerifBold"
+                 height="16"
+                 layout="topleft"
+                 left="10"
+                 name="status_message2"
+                 text_color="white"
+                 top_pad="10"
+                 value="Let this person:"
+                 width="225" />
+                <check_box
+                 enabled="false"
+                 height="20"
+                 label="See my online status"
+                 layout="topleft"
+                 left="20"
+                 name="status_check"
+                 top_pad="0"
+                 width="230" />
+                <check_box
+                 enabled="false"
+                 height="20"
+                 label="See me on the map"
+                 layout="topleft"
+                 left="20"
+                 name="map_check"
+                 top_pad="0"
+                 width="230" />
+                <check_box
+                 enabled="false"
+                 height="20"
+                 label="Edit, delete or take my objects"
+                 layout="topleft"
+                 left="20"
+                 name="objects_check"
+                 top_pad="0"
+                 width="230" />
+              </panel>
+            </scroll_container>
+        </panel>
+        <panel
+         follows="bottom"
+         height="30"
+         layout="topleft"
+         left="10"
+         name="notes_buttons_panel"
+         top_pad="5"
+         width="280"
+         auto_resize="false">
+            <button
+             enabled="false"
+             follows="bottom|left"
+             font="SansSerifSmallBold"
+             height="25"
+             label="Teleport"
+             layout="topleft"
+             left="0"
+             name="teleport_btn"
+             top="0"
+             width="75" />
+            <button
+             enabled="false"
+             follows="bottom|left"
+             font="SansSerifSmallBold"
+             height="25"
+             label="Map"
+             layout="topleft"
+             name="show_on_map_btn"
+             top="0"
+             left_pad="5"
+             width="85" />
+        </panel>
+    </layout_stack>
+</panel>

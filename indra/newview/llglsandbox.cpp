@@ -49,7 +49,7 @@
 #include "lltextureentry.h"
 #include "llviewercamera.h"
 
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llagent.h"
 #include "lltoolmgr.h"
 #include "llselectmgr.h"
@@ -58,7 +58,6 @@
 #include "llviewerobjectlist.h"
 #include "lltoolselectrect.h"
 #include "llviewerwindow.h"
-#include "llcompass.h"
 #include "llsurface.h"
 #include "llwind.h"
 #include "llworld.h"
@@ -338,126 +337,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 	gViewerWindow->setup3DRender();
 }
 
-
-const F32 COMPASS_SIZE = 64;
-static const F32 COMPASS_RANGE = 0.33f;
-
-void LLCompass::draw()
-{
-	glMatrixMode(GL_MODELVIEW);
-	gGL.pushMatrix();
-
-	S32 width = 32;
-	S32 height = 32;
-
-	LLGLSUIDefault gls_ui;
-
-	gGL.translatef( COMPASS_SIZE/2.f, COMPASS_SIZE/2.f, 0.f);
-
-	if (mBkgndTexture)
-	{
-		gGL.getTexUnit(0)->bind(mBkgndTexture.get());
-
-		gGL.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		
-		gGL.begin(LLRender::QUADS);
-		
-		gGL.texCoord2f(1.f, 1.f);
-		gGL.vertex2i(width, height);
-		
-		gGL.texCoord2f(0.f, 1.f);
-		gGL.vertex2i(-width, height);
-		
-		gGL.texCoord2f(0.f, 0.f);
-		gGL.vertex2i(-width, -height);
-		
-		gGL.texCoord2f(1.f, 0.f);
-		gGL.vertex2i(width, -height);
-		
-		gGL.end();
-	}
-
-	// rotate subsequent draws to agent rotation
-	F32 rotation = atan2( gAgent.getFrameAgent().getAtAxis().mV[VX], gAgent.getFrameAgent().getAtAxis().mV[VY] );
-	glRotatef( - rotation * RAD_TO_DEG, 0.f, 0.f, -1.f);
-	
-	if (mTexture)
-	{
-		gGL.getTexUnit(0)->bind(mTexture.get());
-		gGL.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		
-		gGL.begin(LLRender::QUADS);
-		
-		gGL.texCoord2f(1.f, 1.f);
-		gGL.vertex2i(width, height);
-		
-		gGL.texCoord2f(0.f, 1.f);
-		gGL.vertex2i(-width, height);
-		
-		gGL.texCoord2f(0.f, 0.f);
-		gGL.vertex2i(-width, -height);
-		
-		gGL.texCoord2f(1.f, 0.f);
-		gGL.vertex2i(width, -height);
-		
-		gGL.end();
-	}
-
-	gGL.popMatrix();
-
-}
-
-
-
-void LLHorizontalCompass::draw()
-{
-	LLGLSUIDefault gls_ui;
-	
-	S32 width = getRect().getWidth();
-	S32 height = getRect().getHeight();
-	S32 half_width = width / 2;
-
-	if( mTexture )
-	{
-		const LLVector3& at_axis = LLViewerCamera::getInstance()->getAtAxis();
-		F32 center = atan2( at_axis.mV[VX], at_axis.mV[VY] );
-
-		center += F_PI;
-		center = llclamp( center, 0.0f, F_TWO_PI ); // probably not necessary...
-		center /= F_TWO_PI;
-		F32 left = center - COMPASS_RANGE;
-		F32 right = center + COMPASS_RANGE;
-
-		gGL.getTexUnit(0)->bind(mTexture.get());
-		gGL.color4f(1.0f, 1.0f, 1.0f, 1.0f );
-		gGL.begin( LLRender::QUADS );
-
-		gGL.texCoord2f(right, 1.f);
-		gGL.vertex2i(width, height);
-
-		gGL.texCoord2f(left, 1.f);
-		gGL.vertex2i(0, height);
-
-		gGL.texCoord2f(left, 0.f);
-		gGL.vertex2i(0, 0);
-
-		gGL.texCoord2f(right, 0.f);
-		gGL.vertex2i(width, 0);
-
-		gGL.end();
-	}
-
-	// Draw the focus line
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gGL.color4fv( mFocusColor.mV );
-		gl_line_2d( half_width, 0, half_width, height );
-	}
-}
-
-
 const F32 WIND_ALTITUDE			= 180.f;
-
 
 void LLWind::renderVectors()
 {
@@ -1007,8 +887,6 @@ void LLViewerObjectList::renderObjectBeacons()
 	{
 		return;
 	}
-
-	//const LLFontGL *font = LLResMgr::getInstance()->getRes(LLFONT_SANSSERIF);
 
 	LLGLSUIDefault gls_ui;
 

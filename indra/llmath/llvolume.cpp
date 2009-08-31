@@ -3370,7 +3370,8 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 										  std::vector<S32> &segments,
 										  const LLVector3& obj_cam_vec,
 										  const LLMatrix4& mat,
-										  const LLMatrix3& norm_mat)
+										  const LLMatrix3& norm_mat,
+										  S32 face_mask)
 {
 	LLMemType m1(LLMemType::MTYPE_VOLUME);
 	
@@ -3378,12 +3379,17 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 	normals.clear();
 	segments.clear();
 
+	S32 cur_index = 0;
 	//for each face
 	for (face_list_t::iterator iter = mVolumeFaces.begin();
 		 iter != mVolumeFaces.end(); ++iter)
 	{
 		const LLVolumeFace& face = *iter;
 	
+		if (!(face_mask & (0x1 << cur_index++)))
+		{
+			continue;
+		}
 		if (face.mTypeMask & (LLVolumeFace::CAP_MASK)) {
 	
 		}

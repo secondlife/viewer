@@ -34,15 +34,9 @@
 		Vælg om du vil sælge til hvem som helst eller en specifik køber.
 	</text>
 	<combo_box name="sell_to">
-		<combo_item name="--selectone--">
-			-- Vælg --
-		</combo_item>
-		<combo_item name="Anyone">
-			Alle
-		</combo_item>
-		<combo_item name="Specificuser:">
-			Specifik bruger:
-		</combo_item>
+		<combo_box.item name="--selectone--" label="Vælg --" />
+		<combo_box.item name="Anyone" label="Alle" />
+		<combo_box.item name="Specificuser:" label="Specifik bruger:" />
 	</combo_box>
 	<button label="Vælg..." name="sell_to_select_agent" />
 	<text name="sell_objects_label">
@@ -52,12 +46,8 @@
 		Dine objekter der kan videregives sælges med jorden.
 	</text>
 	<radio_group name="sell_objects">
-		<radio_item name="no">
-			Nej, behold ejerskab til objekterne
-		</radio_item>
-		<radio_item name="yes">
-			Ja, sælg objekter med jorden
-		</radio_item>
+		<radio_item name="no" label="Nej, behold ejerskab til objekterne" />
+		<radio_item name="yes" label="Ja, sælg objekter med jorden" />
 	</radio_group>
 	<button label="Vis objekter" name="show_objects" />
 	<text name="nag_message_label">

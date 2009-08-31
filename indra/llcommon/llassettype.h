@@ -187,6 +187,7 @@ public:
 
 	static const char*  		lookupCategoryName(EType asset_type);
 	static bool 				lookupIsProtectedCategoryType(EType asset_type);
+	static bool 				lookupIsEnsembleCategoryType(EType asset_type);
 
 	/* TODO: Change return types from "const char *" to "const std::string &".
 	This is fairly straightforward, but requires changing some calls to use .c_str().

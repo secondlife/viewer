@@ -180,9 +180,11 @@ void LLCharacter::requestStopMotion( LLMotion* motion)
 //-----------------------------------------------------------------------------
 // updateMotions()
 //-----------------------------------------------------------------------------
+static LLFastTimer::DeclareTimer FTM_UPDATE_ANIMATION("Update Animation");
+
 void LLCharacter::updateMotions(e_update_t update_type)
 {
-	LLFastTimer t(LLFastTimer::FTM_UPDATE_ANIMATION);
+	LLFastTimer t(FTM_UPDATE_ANIMATION);
 	if (update_type == HIDDEN_UPDATE)
 	{
 		mMotionController.updateMotionsMinimal();

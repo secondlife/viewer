@@ -42,14 +42,18 @@
 #include "llresmgr.h"
 #include "llfontgl.h"
 #include "llui.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewercamera.h"
 #include "llhudmanager.h"
 #include "lltoolmgr.h"
 #include "lltoolgrab.h"
 
+// Linden library includes
+#include "llwindow.h"			// setMouseClipping()
+
 LLToolGun::LLToolGun( LLToolComposite* composite )
-:	LLTool( std::string("gun"), composite )
+:	LLTool( std::string("gun"), composite ),
+		mIsSelected(FALSE)
 {
 }
 
@@ -58,6 +62,7 @@ void LLToolGun::handleSelect()
 	gViewerWindow->hideCursor();
 	gViewerWindow->moveCursorToCenter();
 	gViewerWindow->mWindow->setMouseClipping(TRUE);
+	mIsSelected = TRUE;
 }
 
 void LLToolGun::handleDeselect()
@@ -65,6 +70,7 @@ void LLToolGun::handleDeselect()
 	gViewerWindow->moveCursorToCenter();
 	gViewerWindow->showCursor();
 	gViewerWindow->mWindow->setMouseClipping(FALSE);
+	mIsSelected = FALSE;
 }
 
 BOOL LLToolGun::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -77,7 +83,7 @@ BOOL LLToolGun::handleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLToolGun::handleHover(S32 x, S32 y, MASK mask) 
 {
-	if( gAgent.cameraMouselook() )
+	if( gAgent.cameraMouselook() && mIsSelected )
 	{
 		const F32 NOMINAL_MOUSE_SENSITIVITY = 0.0025f;
 
@@ -132,9 +138,9 @@ void LLToolGun::draw()
 {
 	if( gSavedSettings.getBOOL("ShowCrosshairs") )
 	{
-		LLUIImagePtr crosshair = LLUI::getUIImage("UIImgCrosshairsUUID");
+		LLUIImagePtr crosshair = LLUI::getUIImage("crosshairs.tga");
 		crosshair->draw(
-			( gViewerWindow->getWindowWidth() - crosshair->getWidth() ) / 2,
-			( gViewerWindow->getWindowHeight() - crosshair->getHeight() ) / 2);
+			( gViewerWindow->getWorldViewWidth() - crosshair->getWidth() ) / 2,
+			( gViewerWindow->getWorldViewHeight() - crosshair->getHeight() ) / 2);
 	}
 }

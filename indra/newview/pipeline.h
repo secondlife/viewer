@@ -33,20 +33,20 @@
 #ifndef LL_PIPELINE_H
 #define LL_PIPELINE_H
 
+#include "llcamera.h"
 #include "llerror.h"
 #include "lldarrayptr.h"
 #include "lldqueueptr.h"
-#include "llstat.h"
 #include "lldrawpool.h"
 #include "llspatialpartition.h"
 #include "m4math.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "lldrawpool.h"
 #include "llgl.h"
 #include "lldrawable.h"
 #include "llrendertarget.h"
 
-class LLViewerImage;
+class LLViewerTexture;
 class LLEdge;
 class LLFace;
 class LLViewerObject;
@@ -78,6 +78,27 @@ glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top,
 glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar);
 glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up);
 
+extern LLFastTimer::DeclareTimer FTM_RENDER_GEOMETRY;
+extern LLFastTimer::DeclareTimer FTM_RENDER_GRASS;
+extern LLFastTimer::DeclareTimer FTM_RENDER_INVISIBLE;
+extern LLFastTimer::DeclareTimer FTM_RENDER_OCCLUSION;
+extern LLFastTimer::DeclareTimer FTM_RENDER_SHINY;
+extern LLFastTimer::DeclareTimer FTM_RENDER_SIMPLE;
+extern LLFastTimer::DeclareTimer FTM_RENDER_TERRAIN;
+extern LLFastTimer::DeclareTimer FTM_RENDER_TREES;
+extern LLFastTimer::DeclareTimer FTM_RENDER_UI;
+extern LLFastTimer::DeclareTimer FTM_RENDER_WATER;
+extern LLFastTimer::DeclareTimer FTM_RENDER_WL_SKY;
+extern LLFastTimer::DeclareTimer FTM_RENDER_ALPHA;
+extern LLFastTimer::DeclareTimer FTM_RENDER_CHARACTERS;
+extern LLFastTimer::DeclareTimer FTM_RENDER_BUMP;
+extern LLFastTimer::DeclareTimer FTM_RENDER_FULLBRIGHT;
+extern LLFastTimer::DeclareTimer FTM_RENDER_GLOW;
+extern LLFastTimer::DeclareTimer FTM_STATESORT;
+extern LLFastTimer::DeclareTimer FTM_PIPELINE;
+extern LLFastTimer::DeclareTimer FTM_CLIENT_COPY;
+
+
 class LLPipeline
 {
 public:
@@ -104,15 +125,15 @@ public:
 
 	/// @brief Get a draw pool from pool type (POOL_SIMPLE, POOL_MEDIA) and texture.
 	/// @return Draw pool, or NULL if not found.
-	LLDrawPool *findPool(const U32 pool_type, LLViewerImage *tex0 = NULL);
+	LLDrawPool *findPool(const U32 pool_type, LLViewerTexture *tex0 = NULL);
 
 	/// @brief Get a draw pool for faces of the appropriate type and texture.  Create if necessary.
 	/// @return Always returns a draw pool.
-	LLDrawPool *getPool(const U32 pool_type, LLViewerImage *tex0 = NULL);
+	LLDrawPool *getPool(const U32 pool_type, LLViewerTexture *tex0 = NULL);
 
 	/// @brief Figures out draw pool type from texture entry. Creates pool if necessary.
-	static LLDrawPool* getPoolFromTE(const LLTextureEntry* te, LLViewerImage* te_image);
-	static U32 getPoolTypeFromTE(const LLTextureEntry* te, LLViewerImage* imagep);
+	static LLDrawPool* getPoolFromTE(const LLTextureEntry* te, LLViewerTexture* te_image);
+	static U32 getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* imagep);
 
 	void		 addPool(LLDrawPool *poolp);	// Only to be used by LLDrawPool classes for splitting pools!
 	void		 removePool( LLDrawPool* poolp );
@@ -150,7 +171,7 @@ public:
 		);
 
 	// Something about these textures has changed.  Dirty them.
-	void        dirtyPoolObjectTextures(const std::set<LLViewerImage*>& textures);
+	void        dirtyPoolObjectTextures(const std::set<LLViewerFetchedTexture*>& textures);
 
 	void        resetDrawOrders();
 
@@ -383,7 +404,6 @@ public:
 	S32						 mMeanBatchSize;
 	S32						 mTrianglesDrawn;
 	S32						 mNumVisibleNodes;
-	LLStat                   mTrianglesDrawnStat;
 	S32						 mVerticesRelit;
 
 	S32						 mLightingChanges;
@@ -562,9 +582,9 @@ public:
 protected:
 	std::vector<LLFace*>		mSelectedFaces;
 
-	LLPointer<LLViewerImage>	mFaceSelectImagep;
-	LLPointer<LLViewerImage>	mBloomImagep;
-	LLPointer<LLViewerImage>	mBloomImage2p;
+	LLPointer<LLViewerFetchedTexture>	mFaceSelectImagep;
+	LLPointer<LLViewerTexture>	mBloomImagep;
+	LLPointer<LLViewerTexture>	mBloomImage2p;
 	
 	U32						mLightMask;
 	U32						mLightMovingMask;

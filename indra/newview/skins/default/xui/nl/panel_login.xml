@@ -19,15 +19,9 @@
 		Startlocatie:
 	</text>
 	<combo_box name="start_location_combo">
-		<combo_item name="MyHome">
-			Mijn Thuis
-		</combo_item>
-		<combo_item name="MyLastLocation">
-			Mijn Laatste Locatie
-		</combo_item>
-		<combo_item name="Typeregionname">
-			&lt; Type regio naam &gt;
-		</combo_item>
+		<combo_box.item name="MyHome" label="Mijn Thuis"/>
+		<combo_box.item name="MyLastLocation" label="Mijn Laatste Locatie"/>
+		<combo_box.item name="Typeregionname" label="lt; Type regio naam &gt;"/>
 	</combo_box>
 	<check_box label="Onthoud wachtwoord" name="remember_check"/>
 	<button label="Inloggen" label_selected="Inloggen" name="connect_btn"/>

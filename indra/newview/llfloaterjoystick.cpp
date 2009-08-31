@@ -48,10 +48,10 @@
 #include "llcheckboxctrl.h"
 
 LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
-	: LLFloater("floater_joystick")
+	: LLFloater(data)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_joystick.xml");
-	center();
+	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_joystick.xml");
+
 }
 
 void LLFloaterJoystick::draw()
@@ -68,14 +68,15 @@ void LLFloaterJoystick::draw()
 	{
 		F32 value = joystick->getJoystickAxis(i);
 		mAxisStats[i]->addValue(value * gFrameIntervalSeconds);
-		
-		if (mAxisStatsBar[i]->mMinBar > value)
+		if (mAxisStatsBar[i])
 		{
-			mAxisStatsBar[i]->mMinBar = value;
-		}
-		if (mAxisStatsBar[i]->mMaxBar < value)
-		{
-			mAxisStatsBar[i]->mMaxBar = value;
+			F32 minbar, maxbar;
+			mAxisStatsBar[i]->getRange(minbar, maxbar);
+			if (llabs(value) > maxbar)
+			{
+				F32 range = llabs(value);
+				mAxisStatsBar[i]->setRange(-range, range, range * 0.25f, range * 0.5f);
+			}
 		}
 	}
 
@@ -84,37 +85,20 @@ void LLFloaterJoystick::draw()
 
 BOOL LLFloaterJoystick::postBuild()
 {		
-	F32 range = gSavedSettings.getBOOL("Cursor3D") ? 1024.f : 2.f;
-	LLUIString axis = getString("Axis");
-	LLUIString joystick = getString("JoystickMonitor");
-
-	// use this child to get relative positioning info; we'll place the
-	// joystick monitor on its right, vertically aligned to it.
-	LLView* child = getChild<LLView>("FlycamAxisScale1");
-	LLRect rect;
-
-	if (child)
-	{
-		LLRect r = child->getRect();
-		LLRect f = getRect();
-		rect = LLRect(350, r.mTop, r.mRight + 200, 0);
-	}
-
-	mAxisStatsView = new LLStatView("axis values", joystick, "", rect);
-	mAxisStatsView->setDisplayChildren(TRUE);
+	center();
+	F32 range = gSavedSettings.getBOOL("Cursor3D") ? 128.f : 2.f;
 
 	for (U32 i = 0; i < 6; i++)
 	{
-		axis.setArg("[NUM]", llformat("%d", i));
 		mAxisStats[i] = new LLStat(4);
-		mAxisStatsBar[i] = mAxisStatsView->addStat(axis, mAxisStats[i]);
-		mAxisStatsBar[i]->mMinBar = -range;
-		mAxisStatsBar[i]->mMaxBar = range;
-		mAxisStatsBar[i]->mLabelSpacing = range * 0.5f;
-		mAxisStatsBar[i]->mTickSpacing = range * 0.25f;			
+		std::string axisname = llformat("axis%d", i);
+		mAxisStatsBar[i] = getChild<LLStatBar>(axisname);
+		if (mAxisStatsBar[i])
+		{
+			mAxisStatsBar[i]->setStat(mAxisStats[i]);
+			mAxisStatsBar[i]->setRange(-range, range, range * 0.25f, range * 0.5f);
+		}
 	}
-
-	addChild(mAxisStatsView);
 	
 	mCheckJoystickEnabled = getChild<LLCheckBoxCtrl>("enable_joystick");
 	childSetCommitCallback("enable_joystick",onCommitJoystickEnabled,this);
@@ -310,7 +294,7 @@ void LLFloaterJoystick::onClickCancel(void *joy_panel)
 		if (self)
 		{
 			self->cancel();
-			self->close();
+			self->closeFloater();
 		}
 	}
 }
@@ -323,7 +307,7 @@ void LLFloaterJoystick::onClickOK(void *joy_panel)
 
 		if (self)
 		{
-			self->close();
+			self->closeFloater();
 		}
 	}
 }

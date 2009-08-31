@@ -60,12 +60,8 @@
 	</text>
 	<check_box label="À venda" name="CheckPurchase"/>
 	<radio_group name="RadioSaleType">
-		<radio_item name="radio">
-			Original
-		</radio_item>
-		<radio_item name="radio2">
-			Cópia
-		</radio_item>
+		<radio_item name="radio" label="Original" />
+		<radio_item name="radio2" label="Cópia" />
 	</radio_group>
 	<text name="TextPrice">
 		Price:  L$

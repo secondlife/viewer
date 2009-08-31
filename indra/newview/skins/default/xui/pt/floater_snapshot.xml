@@ -4,15 +4,9 @@
 		Destino da foto
 	</text>
 	<radio_group label="Tipo de Foto" name="snapshot_type_radio">
-		<radio_item name="postcard">
-			Enviar por email
-		</radio_item>
-		<radio_item name="texture">
-			Salvar no seu inventário (L$[AMOUNT])
-		</radio_item>
-		<radio_item name="local">
-			Salvar no seu disco rígido
-		</radio_item>
+		<radio_item name="postcard" label="Enviar por email" />
+		<radio_item name="texture" label="Salvar no seu inventário (L$[AMOUNT])" />
+		<radio_item name="local" label="Salvar no seu disco rígido" />
 	</radio_group>
 	<text name="file_size_label">
 		Tamanho do arquivo: [SIZE] KB
@@ -21,12 +15,12 @@
 	<button label="Enviar" name="send_btn"/>
 	<button label="Salvar (L$[AMOUNT])" name="upload_btn"/>
 	<flyout_button label="Salvar" name="save_btn" tool_tip="Salvar imagem em um arquivo">
-		<flyout_button_item name="save_item">
-			Salvar
-		</flyout_button_item>
-		<flyout_button_item name="saveas_item">
-			Salvar como...
-		</flyout_button_item>
+    <flyout_button.item name="save_item">
+      Salvar
+    </flyout_button.item>
+    <flyout_button.item name="saveas_item">
+      Salvar como...
+    </flyout_button.item>
 	</flyout_button>
 	<button label="Cancelar" name="discard_btn"/>
 	<button label="Mais &gt;" name="more_btn" tool_tip="Opções Avançadas"/>
@@ -38,75 +32,33 @@
 		Formato
 	</text>
 	<combo_box label="Resolução" name="postcard_size_combo">
-		<combo_item name="CurrentWindow">
-			Janela Atual
-		</combo_item>
-		<combo_item name="640x480">
-			640x480
-		</combo_item>
-		<combo_item name="800x600">
-			800x600
-		</combo_item>
-		<combo_item name="1024x768">
-			1024x768
-		</combo_item>
-		<combo_item name="Custom">
-			Customizado
-		</combo_item>
+		<combo_box.item name="CurrentWindow" label="Janela Atual" />
+		<combo_box.item name="640x480" label="640x480" />
+		<combo_box.item name="800x600" label="800x600" />
+		<combo_box.item name="1024x768" label="1024x768" />
+		<combo_box.item name="Custom" label="Customizado" />
 	</combo_box>
 	<combo_box label="Resolução" name="texture_size_combo">
-		<combo_item name="CurrentWindow">
-			Janela Atual
-		</combo_item>
-		<combo_item name="Small(128x128)">
-			Pequeno (128x128)
-		</combo_item>
-		<combo_item name="Medium(256x256)">
-			Médio (256x256)
-		</combo_item>
-		<combo_item name="Large(512x512)">
-			Grande (512x512)
-		</combo_item>
-		<combo_item name="Custom">
-			Customizado
-		</combo_item>
+		<combo_box.item name="CurrentWindow" label="Janela Atual" />
+		<combo_box.item name="Small(128x128)" label="Pequeno (128x128)" />
+		<combo_box.item name="Medium(256x256)" label="Médio (256x256)" />
+		<combo_box.item name="Large(512x512)" label="Grande (512x512)" />
+		<combo_box.item name="Custom" label="Customizado" />
 	</combo_box>
 	<combo_box label="Resolução" name="local_size_combo">
-		<combo_item name="CurrentWindow">
-			Janela Atual
-		</combo_item>
-		<combo_item name="320x240">
-			320x240
-		</combo_item>
-		<combo_item name="640x480">
-			640x480
-		</combo_item>
-		<combo_item name="800x600">
-			800x600
-		</combo_item>
-		<combo_item name="1024x768">
-			1024x768
-		</combo_item>
-		<combo_item name="1280x1024">
-			1280x1024
-		</combo_item>
-		<combo_item name="1600x1200">
-			1600x1200
-		</combo_item>
-		<combo_item name="Custom">
-			Customizado
-		</combo_item>
+		<combo_box.item name="CurrentWindow" label="Janela Atual" />
+		<combo_box.item name="320x240" label="320x240" />
+		<combo_box.item name="640x480" label="640x480" />
+		<combo_box.item name="800x600" label="800x600" />
+		<combo_box.item name="1024x768" label="1024x768" />
+		<combo_box.item name="1280x1024" label="1280x1024" />
+		<combo_box.item name="1600x1200" label="1600x1200" />
+		<combo_box.item name="Custom" label="Customizado" />
 	</combo_box>
 	<combo_box label="Formato" name="local_format_combo">
-		<combo_item name="PNG">
-			PNG
-		</combo_item>
-		<combo_item name="JPEG">
-			JPEG
-		</combo_item>
-		<combo_item name="BMP">
-			BMP
-		</combo_item>
+		<combo_box.item name="PNG" label="PNG" />
+		<combo_box.item name="JPEG" label="JPEG" />
+		<combo_box.item name="BMP" label="BMP" />
 	</combo_box>
 	<spinner label="Largura" name="snapshot_width" label_width="41" width="101"/>
 	<spinner label="Altura" name="snapshot_height" label_width="31" width="91" left="119"/>
@@ -116,15 +68,9 @@
 		Capturar:
 	</text>
 	<combo_box label="Camadas da Imagem" name="layer_types">
-		<combo_item name="Colors">
-			Cores
-		</combo_item>
-		<combo_item name="Depth">
-			Formato
-		</combo_item>
-		<combo_item name="ObjectMattes">
-			Decoração do Objeto
-		</combo_item>
+		<combo_box.item name="Colors" label="Cores" />
+		<combo_box.item name="Depth" label="Formato" />
+		<combo_box.item name="ObjectMattes" label="Decoração do Objeto" />
 	</combo_box>
 	<check_box label="Mostrar interface na Foto" name="ui_check"/>
 	<check_box bottom_delta="-17" label="Mostrar Objetos HUD na Foto" name="hud_check"/>

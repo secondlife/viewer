@@ -37,6 +37,7 @@
 // viewer includes
 #include "llcurrencyuimanager.h"
 #include "llfloater.h"
+#include "llfloaterreg.h"
 #include "llstatusbar.h"
 #include "lltextbox.h"
 #include "llviewchildren.h"
@@ -53,12 +54,7 @@ class LLFloaterBuyCurrencyUI
 :	public LLFloater
 {
 public:
-	static LLFloaterBuyCurrencyUI* soleInstance(bool createIfNeeded);
-
-private:
-	static LLFloaterBuyCurrencyUI* sInstance;
-
-	LLFloaterBuyCurrencyUI();
+	LLFloaterBuyCurrencyUI(const LLSD& key);
 	virtual ~LLFloaterBuyCurrencyUI();
 
 
@@ -80,31 +76,17 @@ public:
 
 	virtual void draw();
 	virtual BOOL canClose();
-	virtual void onClose(bool app_quitting);
 
-	static void onClickBuy(void* data);
-	static void onClickCancel(void* data);
-	static void onClickErrorWeb(void* data);
+	void onClickBuy();
+	void onClickCancel();
+	void onClickErrorWeb();
 };
 
-
-// static
-LLFloaterBuyCurrencyUI* LLFloaterBuyCurrencyUI::sInstance = NULL;
-
-// static
-LLFloaterBuyCurrencyUI* LLFloaterBuyCurrencyUI::soleInstance(bool createIfNeeded)
+LLFloater* LLFloaterBuyCurrency::buildFloater(const LLSD& key)
 {
-	if (!sInstance  &&  createIfNeeded)
-	{
-		sInstance = new LLFloaterBuyCurrencyUI();
-
-		LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_buy_currency.xml");
-		sInstance->center();
-	}
-	
-	return sInstance;
+	LLFloaterBuyCurrencyUI* floater = new LLFloaterBuyCurrencyUI(key);
+	return floater;
 }
-
 
 #if LL_WINDOWS
 // passing 'this' during construction generates a warning. The callee
@@ -113,8 +95,8 @@ LLFloaterBuyCurrencyUI* LLFloaterBuyCurrencyUI::soleInstance(bool createIfNeeded
 // warning so that we can compile without generating a warning.
 #pragma warning(disable : 4355)
 #endif 
-LLFloaterBuyCurrencyUI::LLFloaterBuyCurrencyUI()
-:	LLFloater(std::string("Buy Currency")),
+LLFloaterBuyCurrencyUI::LLFloaterBuyCurrencyUI(const LLSD& key)
+:	LLFloater(key),
 	mChildren(*this),
 	mManager(*this)
 {
@@ -122,10 +104,6 @@ LLFloaterBuyCurrencyUI::LLFloaterBuyCurrencyUI()
 
 LLFloaterBuyCurrencyUI::~LLFloaterBuyCurrencyUI()
 {
-	if (sInstance == this)
-	{
-		sInstance = NULL;
-	}
 }
 
 
@@ -157,10 +135,12 @@ BOOL LLFloaterBuyCurrencyUI::postBuild()
 {
 	mManager.prepare();
 	
-	childSetAction("buy_btn", onClickBuy, this);
-	childSetAction("cancel_btn", onClickCancel, this);
-	childSetAction("error_web", onClickErrorWeb, this);
-
+	getChild<LLUICtrl>("buy_btn")->setCommitCallback( boost::bind(&LLFloaterBuyCurrencyUI::onClickBuy, this));
+	getChild<LLUICtrl>("cancel_btn")->setCommitCallback( boost::bind(&LLFloaterBuyCurrencyUI::onClickCancel, this));
+	getChild<LLUICtrl>("error_web")->setCommitCallback( boost::bind(&LLFloaterBuyCurrencyUI::onClickErrorWeb, this));
+	
+	center();
+	
 	updateUI();
 	
 	return TRUE;
@@ -172,7 +152,7 @@ void LLFloaterBuyCurrencyUI::draw()
 	{
 		if (mManager.bought())
 		{
-			close();
+			closeFloater();
 			return;
 		}
 		
@@ -185,12 +165,6 @@ void LLFloaterBuyCurrencyUI::draw()
 BOOL LLFloaterBuyCurrencyUI::canClose()
 {
 	return mManager.canCancel();
-}
-
-void LLFloaterBuyCurrencyUI::onClose(bool app_quitting)
-{
-	LLFloater::onClose(app_quitting);
-	destroy();
 }
 
 void LLFloaterBuyCurrencyUI::updateUI()
@@ -320,57 +294,41 @@ void LLFloaterBuyCurrencyUI::updateUI()
 	}
 }
 
-// static
-void LLFloaterBuyCurrencyUI::onClickBuy(void* data)
+void LLFloaterBuyCurrencyUI::onClickBuy()
 {
-	LLFloaterBuyCurrencyUI* self = LLFloaterBuyCurrencyUI::soleInstance(false);
-	if (self)
-	{
-		self->mManager.buy(self->getString("buy_currency"));
-		self->updateUI();
-		// JC: updateUI() doesn't get called again until progress is made
-		// with transaction processing, so the "Purchase" button would be
-		// left enabled for some time.  Pre-emptively disable.
-		self->childSetEnabled("buy_btn", false);
-	}
+	mManager.buy(getString("buy_currency"));
+	updateUI();
+	// JC: updateUI() doesn't get called again until progress is made
+	// with transaction processing, so the "Purchase" button would be
+	// left enabled for some time.  Pre-emptively disable.
+	childSetEnabled("buy_btn", false);
 }
 
-// static
-void LLFloaterBuyCurrencyUI::onClickCancel(void* data)
+void LLFloaterBuyCurrencyUI::onClickCancel()
 {
-	LLFloaterBuyCurrencyUI* self = LLFloaterBuyCurrencyUI::soleInstance(false);
-	if (self)
-	{
-		self->close();
-	}
+	closeFloater();
 }
 
-// static
-void LLFloaterBuyCurrencyUI::onClickErrorWeb(void* data)
+void LLFloaterBuyCurrencyUI::onClickErrorWeb()
 {
-	LLFloaterBuyCurrencyUI* self = LLFloaterBuyCurrencyUI::soleInstance(false);
-	if (self)
-	{
-		LLWeb::loadURLExternal(self->mManager.errorURI());
-		self->close();
-	}
+	LLWeb::loadURLExternal(mManager.errorURI());
+	closeFloater();
 }
 
 // static
 void LLFloaterBuyCurrency::buyCurrency()
 {
-	LLFloaterBuyCurrencyUI* ui = LLFloaterBuyCurrencyUI::soleInstance(true);
+	LLFloaterBuyCurrencyUI* ui = LLFloaterReg::showTypedInstance<LLFloaterBuyCurrencyUI>("buy_currency");
 	ui->noTarget();
 	ui->updateUI();
-	ui->open();
 }
 
+// static
 void LLFloaterBuyCurrency::buyCurrency(const std::string& name, S32 price)
 {
-	LLFloaterBuyCurrencyUI* ui = LLFloaterBuyCurrencyUI::soleInstance(true);
+	LLFloaterBuyCurrencyUI* ui = LLFloaterReg::showTypedInstance<LLFloaterBuyCurrencyUI>("buy_currency");
 	ui->target(name, price);
 	ui->updateUI();
-	ui->open();
 }
 
 

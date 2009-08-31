@@ -35,6 +35,7 @@
 #include "llmenucommands.h"
 
 #include "imageids.h"
+#include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llrect.h"
 #include "llerror.h"
@@ -43,15 +44,13 @@
 
 #include "llagent.h"
 #include "llcallingcard.h"
-#include "llchatbar.h"
 #include "llviewercontrol.h"
 #include "llfirstuse.h"
 #include "llfloaterchat.h"
 #include "llfloaterdirectory.h"
-#include "llfloatermap.h"
 #include "llfloaterworldmap.h"
 #include "llgivemoney.h"
-#include "llinventoryview.h"
+#include "lllineeditor.h"
 #include "llnotify.h"
 #include "llstatusbar.h"
 #include "llimview.h"
@@ -67,14 +66,7 @@
 #include "llworld.h"
 #include "llworldmap.h"
 #include "llfocusmgr.h"
-
-void handle_track_avatar(const LLUUID& agent_id, const std::string& name)
-{	
-	LLAvatarTracker::instance().track(agent_id, name);
-
-	LLFloaterDirectory::hide(NULL);
-	LLFloaterWorldMap::show(NULL, TRUE);
-}
+#include "llnearbychatbar.h"
 
 void handle_pay_by_id(const LLUUID& agent_id)
 {
@@ -88,55 +80,23 @@ void handle_mouselook(void*)
 }
 
 
-void handle_map(void*)
-{
-	LLFloaterWorldMap::toggle(NULL);
-}
-
-void handle_mini_map(void*)
-{
-	LLFloaterMap::toggleInstance();
-}
-
-
-void handle_find(void*)
-{
-	LLFloaterDirectory::toggleFind(NULL);
-}
-
-
-void handle_events(void*)
-{
-	LLFloaterDirectory::toggleEvents(NULL);
-}
-
-
-void handle_inventory(void*)
-{
-	// We're using the inventory, possibly for the
-	// first time.
-	LLFirstUse::useInventory();
-
-	LLInventoryView::toggleVisibility(NULL);
-}
-
-
 void handle_chat(void*)
 {
 	// give focus to chatbar if it's open but not focused
-	if (gSavedSettings.getBOOL("ChatVisible") && gFocusMgr.childHasKeyboardFocus(gChatBar))
+	if (gSavedSettings.getBOOL("ChatVisible") && 
+		gFocusMgr.childHasKeyboardFocus(LLNearbyChatBar::getInstance()->getChatBox()))
 	{
-		LLChatBar::stopChat();
+		LLNearbyChatBar::stopChat();
 	}
 	else
 	{
-		LLChatBar::startChat(NULL);
+		LLNearbyChatBar::startChat(NULL);
 	}
 }
 
 void handle_slash_key(void*)
 {
-	// LLChatBar::startChat("/");
+	// LLBottomTray::startChat("/");
 	//
 	// Don't do this, it results in a double-slash in the input field.
 	// Another "/" will be automatically typed for us, because the WM_KEYDOWN event
@@ -146,5 +106,5 @@ void handle_slash_key(void*)
 	// menu accelerators that put input focus into a field.   And Mac works
 	// the same way.  JC
 
-	LLChatBar::startChat(NULL);
+	LLNearbyChatBar::startChat(NULL);
 }

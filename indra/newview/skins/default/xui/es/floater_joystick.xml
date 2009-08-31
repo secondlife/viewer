@@ -54,10 +54,10 @@
 		Zona muerta Z
 	</text>
 	<text name="PitchDeadZone" left="3" width="115">
-		Zona muerta arriba/abajo
+		Zona muerta arri./aba.
 	</text>
 	<text name="YawDeadZone" left="3" width="115">
-		Zona muerta izq./der
+		Zona muerta izq./der.
 	</text>
 	<text name="RollDeadZone">
 		Zona muerta giro

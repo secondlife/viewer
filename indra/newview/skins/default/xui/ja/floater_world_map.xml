@@ -29,14 +29,10 @@
 	<check_box label="Mature" name="event_mature_chk"/>
 	<check_box label="Adult" name="event_adult_chk"/>
 	<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="地図に表示されたフレンド">
-		<combo_item name="none_selected">
-			オンラインのフレンド
-		</combo_item>
+		<combo_box.item name="none_selected" label="オンラインのフレンド" />
 	</combo_box>
 	<combo_box label="ランドマーク" name="landmark combo" tool_tip="地図に表示されたランドマーク">
-		<combo_item name="none_selected">
-			ランドマーク
-		</combo_item>
+		<combo_box.item name="none_selected" label="ランドマーク" />
 	</combo_box>
 	<line_editor label="地域名で検索" name="location" tool_tip="地域名を入力してください。"/>
 	<button label="検索" name="DoSearch" tool_tip="地域検索"/>
@@ -57,6 +53,6 @@
 	<button label="目的地を表示" label_selected="目的地を表示" name="Show Destination" tool_tip="選択したロケーションを地図の中心にする"/>
 	<button label="クリア" label_selected="クリア" name="Clear" tool_tip="トラッキングを停止"/>
 	<button label="現在地を表示" label_selected="現在地を表示" name="Show My Location" tool_tip="あなたのアバターのロケーションを地図の中心にする"/>
-	<button label="SLURLをクリップボードにコピー" name="copy_slurl" tool_tip="現在地をSLURLとしてコピーし、ウェブで使用"/>
+	<button label="SLurlをクリップボードにコピー" name="copy_slurl" tool_tip="現在地をSLurlとしてコピーし、ウェブで使用"/>
 	<slider label="ズーム" name="zoom slider"/>
 </floater>

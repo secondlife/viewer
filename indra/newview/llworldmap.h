@@ -36,14 +36,16 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <boost/function.hpp>
 
 #include "v3math.h"
 #include "v3dmath.h"
 #include "llframetimer.h"
 #include "llmapimagetype.h"
 #include "lluuid.h"
-#include "llmemory.h"
-#include "llviewerimage.h"
+#include "llpointer.h"
+#include "llsingleton.h"
+#include "llviewertexture.h"
 #include "lleventinfo.h"
 #include "v3color.h"
 
@@ -94,8 +96,8 @@ public:
 	LLUUID mMapImageID[MAP_SIM_IMAGE_TYPES];
 
 	// Hold a reference to the currently displayed image.
-	LLPointer<LLViewerImage> mCurrentImage;
-	LLPointer<LLViewerImage> mOverlayImage;
+	LLPointer<LLViewerFetchedTexture> mCurrentImage;
+	LLPointer<LLViewerFetchedTexture> mOverlayImage;
 };
 
 #define MAP_BLOCK_RES 256
@@ -103,7 +105,7 @@ public:
 struct LLWorldMapLayer
 {
 	BOOL LayerDefined;
-	LLPointer<LLViewerImage> LayerImage;
+	LLPointer<LLViewerFetchedTexture> LayerImage;
 	LLUUID LayerImageID;
 	LLRect LayerExtents;
 
@@ -114,7 +116,8 @@ struct LLWorldMapLayer
 class LLWorldMap : public LLSingleton<LLWorldMap>
 {
 public:
-	typedef void(*url_callback_t)(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport);
+	typedef boost::function<void(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport)>
+		url_callback_t;
 
 	LLWorldMap();
 	~LLWorldMap();

@@ -43,10 +43,10 @@
 #include "llmenugl.h"
 #include "lltextbox.h"
 #include "llcontrol.h"
-#include "llresmgr.h"
 #include "llfontgl.h"
 #include "llwindow.h"
 #include "llfocusmgr.h"
+#include "lluictrlfactory.h"
 
 const S32 LEADING_PAD = 5;
 const S32 TITLE_PAD = 8;
@@ -56,21 +56,33 @@ const S32 RIGHT_PAD = BORDER_PAD + 32; // HACK: space for close btn and minimize
 
 S32 LLDragHandle::sSnapMargin = 5;
 
-LLDragHandle::LLDragHandle( const std::string& name, const LLRect& rect, const std::string& title )
-:	LLView( name, rect, TRUE ),
+LLDragHandle::LLDragHandle(const LLDragHandle::Params& p)
+:	LLView(p),
 	mDragLastScreenX( 0 ),
 	mDragLastScreenY( 0 ),
 	mLastMouseScreenX( 0 ),
 	mLastMouseScreenY( 0 ),
-	mDragHighlightColor(	LLUI::sColorsGroup->getColor( "DefaultHighlightLight" ) ),
-	mDragShadowColor(		LLUI::sColorsGroup->getColor( "DefaultShadowDark" ) ),
 	mTitleBox( NULL ),
 	mMaxTitleWidth( 0 ),
-	mForeground( TRUE )
-{
-	sSnapMargin = LLUI::sConfigGroup->getS32("SnapMargin");
+	mForeground( TRUE ),
+	mDragHighlightColor(p.drag_highlight_color()),
+	mDragShadowColor(p.drag_shadow_color())
 
-	setSaveToXML(false);
+{
+	static LLUICachedControl<S32> snap_margin ("SnapMargin", 0);
+	sSnapMargin = snap_margin;
+}
+
+LLDragHandle::~LLDragHandle()
+{
+	removeChild(mTitleBox);
+	delete mTitleBox;
+}
+
+void LLDragHandle::initFromParams(const LLDragHandle::Params& p)
+{
+	LLView::initFromParams(p);
+	setTitle( p.label );
 }
 
 void LLDragHandle::setTitleVisible(BOOL visible) 
@@ -81,58 +93,47 @@ void LLDragHandle::setTitleVisible(BOOL visible)
 	}
 }
 
-void LLDragHandle::setTitleBox(LLTextBox* titlebox)
-{	
-	if( mTitleBox )
-	{
-		removeChild(mTitleBox);
-		delete mTitleBox;
-	}
-	mTitleBox = titlebox;
-	if(mTitleBox)
-	{
-		addChild( mTitleBox );
-	}
-}
-
-LLDragHandleTop::LLDragHandleTop(const std::string& name, const LLRect &rect, const std::string& title)
-:	LLDragHandle(name, rect, title)
-{
-	setFollowsAll();
-	setTitle( title );
-}
-
-LLDragHandleLeft::LLDragHandleLeft(const std::string& name, const LLRect &rect, const std::string& title)
-:	LLDragHandle(name, rect, title)
-{
-	setFollowsAll();
-	setTitle( title );
-}
-
 void LLDragHandleTop::setTitle(const std::string& title)
 {
 	std::string trimmed_title = title;
 	LLStringUtil::trim(trimmed_title);
 
-	const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
-	LLTextBox* titlebox = new LLTextBox( std::string("Drag Handle Title"), getRect(), trimmed_title, font );
-	titlebox->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
-	titlebox->setFontStyle(LLFontGL::DROP_SHADOW_SOFT);
+	if( mTitleBox )
+	{
+		mTitleBox->setText(trimmed_title);
+	}
+	else
+	{
+		const LLFontGL* font = LLFontGL::getFontSansSerif();
+		LLTextBox::Params params;
+		params.name("Drag Handle Title");
+		params.rect(getRect());
+		params.text(trimmed_title);
+		params.font(font);
+		params.follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
+		params.font_shadow(LLFontGL::DROP_SHADOW_SOFT);
+		mTitleBox = LLUICtrlFactory::create<LLTextBox> (params);
+		addChild( mTitleBox );
+	}
 	
-	setTitleBox(titlebox);
 	reshapeTitleBox();
 }
 
 
 const std::string& LLDragHandleTop::getTitle() const
 {
-	return getTitleBox() == NULL ? LLStringUtil::null : getTitleBox()->getText();
+	return mTitleBox == NULL ? LLStringUtil::null : mTitleBox->getText();
 }
 
 
 void LLDragHandleLeft::setTitle(const std::string& )
 {
-	setTitleBox(NULL);
+	if( mTitleBox )
+	{
+		removeChild(mTitleBox);
+		delete mTitleBox;
+		mTitleBox = NULL;
+	}
 	/* no title on left edge */
 }
 
@@ -184,9 +185,9 @@ void LLDragHandleTop::draw()
 	*/
 
 	// Colorize the text to match the frontmost state
-	if (getTitleBox())
+	if (mTitleBox)
 	{
-		getTitleBox()->setEnabled(getForeground());
+		mTitleBox->setEnabled(getForeground());
 	}
 
 	LLView::draw();
@@ -229,9 +230,9 @@ void LLDragHandleLeft::draw()
 	*/
 
 	// Colorize the text to match the frontmost state
-	if (getTitleBox())
+	if (mTitleBox)
 	{
-		getTitleBox()->setEnabled(getForeground());
+		mTitleBox->setEnabled(getForeground());
 	}
 
 	LLView::draw();
@@ -239,12 +240,12 @@ void LLDragHandleLeft::draw()
 
 void LLDragHandleTop::reshapeTitleBox()
 {
-	if( ! getTitleBox())
+	if( ! mTitleBox)
 	{
 		return;
 	}
-	const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
-	S32 title_width = font->getWidth( getTitleBox()->getText() ) + TITLE_PAD;
+	const LLFontGL* font = LLFontGL::getFontSansSerif();
+	S32 title_width = font->getWidth( mTitleBox->getText() ) + TITLE_PAD;
 	if (getMaxTitleWidth() > 0)
 		title_width = llmin(title_width, getMaxTitleWidth());
 	S32 title_height = llround(font->getLineHeight());
@@ -255,7 +256,7 @@ void LLDragHandleTop::reshapeTitleBox()
 		getRect().getWidth() - LEFT_PAD - RIGHT_PAD,
 		title_height);
 
-	getTitleBox()->setRect( title_rect );
+	mTitleBox->setRect( title_rect );
 }
 
 void LLDragHandleTop::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -316,6 +317,23 @@ BOOL LLDragHandle::handleHover(S32 x, S32 y, MASK mask)
 		S32 delta_x = screen_x - mDragLastScreenX;
 		S32 delta_y = screen_y - mDragLastScreenY;
 
+		// if dragging a docked floater we want to undock
+		if (((LLFloater*)getParent())->isDocked())
+		{
+			const S32 SLOP = 12;
+
+			if (delta_y <= -SLOP || 
+				delta_y >= SLOP)
+			{
+				((LLFloater*)getParent())->setDocked(false, false);
+				return TRUE;
+			}
+			else
+			{
+				return FALSE;
+			}
+		}
+
 		LLRect original_rect = getParent()->getRect();
 		LLRect translated_rect = getParent()->getRect();
 		translated_rect.translate(delta_x, delta_y);
@@ -337,14 +355,14 @@ BOOL LLDragHandle::handleHover(S32 x, S32 y, MASK mask)
 
 		LLView* snap_view = getParent()->findSnapRect(new_rect, mouse_dir, SNAP_PARENT_AND_SIBLINGS, sSnapMargin);
 
-		getParent()->snappedTo(snap_view);
+		getParent()->setSnappedTo(snap_view);
 		delta_x = new_rect.mLeft - pre_snap_x;
 		delta_y = new_rect.mBottom - pre_snap_y;
 		translated_rect.translate(delta_x, delta_y);
 
 		// restore original rect so delta are detected, then call user reshape method to handle snapped floaters, etc
 		getParent()->setRect(original_rect);
-		getParent()->userSetShape(translated_rect);
+		getParent()->setShape(translated_rect, true);
 
 		mDragLastScreenX += delta_x;
 		mDragLastScreenY += delta_y;

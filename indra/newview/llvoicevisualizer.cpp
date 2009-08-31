@@ -42,9 +42,8 @@
 #include "llvoicevisualizer.h"
 #include "llviewercamera.h"
 #include "llviewerobject.h"
-#include "llimagegl.h"
-#include "llviewerimage.h"
-#include "llviewerimagelist.h"
+#include "llviewertexture.h"
+#include "llviewertexturelist.h"
 #include "llvoiceclient.h"
 #include "llrender.h"
 
@@ -131,19 +130,19 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
 	
 	const char* sound_level_img[] = 
 	{
-		"041ee5a0-cb6a-9ac5-6e49-41e9320507d5.j2c",
-		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c",
-		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c",
-		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c",
-		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c",
-		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c",
-		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c"
+		"voice_meter_dot.j2c",
+		"voice_meter_rings.j2c",
+		"voice_meter_rings.j2c",
+		"voice_meter_rings.j2c",
+		"voice_meter_rings.j2c",
+		"voice_meter_rings.j2c",
+		"voice_meter_rings.j2c"
 	};
 
 	for (int i=0; i<NUM_VOICE_SYMBOL_WAVES; i++)
 	{
 		mSoundSymbol.mWaveFadeOutStartTime	[i] = mCurrentTime;
-		mSoundSymbol.mTexture				[i] = gImageList.getImageFromFile(sound_level_img[i], FALSE, TRUE);
+		mSoundSymbol.mTexture				[i] = LLViewerTextureManager::getFetchedTextureFromFile(sound_level_img[i], FALSE, TRUE);
 		mSoundSymbol.mWaveActive			[i] = false;
 		mSoundSymbol.mWaveOpacity			[i] = 1.0f;
 		mSoundSymbol.mWaveExpansion			[i] = 1.0f;
@@ -157,12 +156,12 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
 		setPreferences();
        
 		// Set up our listener to get updates on all prefs values we care about.
-		gSavedSettings.getControl("LipSyncEnabled")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _1));
-		gSavedSettings.getControl("LipSyncOohAahRate")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _1));
-		gSavedSettings.getControl("LipSyncOoh")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _1));
-		gSavedSettings.getControl("LipSyncAah")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _1));
-		gSavedSettings.getControl("LipSyncOohPowerTransfer")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _1));
-		gSavedSettings.getControl("LipSyncAahPowerTransfer")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _1));
+		gSavedSettings.getControl("LipSyncEnabled")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _2));
+		gSavedSettings.getControl("LipSyncOohAahRate")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _2));
+		gSavedSettings.getControl("LipSyncOoh")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _2));
+		gSavedSettings.getControl("LipSyncAah")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _2));
+		gSavedSettings.getControl("LipSyncOohPowerTransfer")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _2));
+		gSavedSettings.getControl("LipSyncAahPowerTransfer")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _2));
 		
 		sPrefsInitialized = true;
 	}

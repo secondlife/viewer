@@ -33,47 +33,45 @@
 #ifndef LL_LLSLIDER_H
 #define LL_LLSLIDER_H
 
-#include "lluictrl.h"
+#include "llf32uictrl.h"
 #include "v4color.h"
 
-class LLImageGL;
-
-class LLSlider : public LLUICtrl
+class LLSlider : public LLF32UICtrl
 {
 public:
-	LLSlider( 
-		const std::string& name,
-		const LLRect& rect,
-		void (*on_commit_callback)(LLUICtrl* ctrl, void* userdata),
-		void* callback_userdata,
-		F32 initial_value,
-		F32 min_value,
-		F32 max_value,
-		F32 increment,
-		BOOL volume, //TODO: create a "volume" slider sub-class or just use image art, no?  -MG
-		const std::string& control_name = LLStringUtil::null );
+	struct Params : public LLInitParam::Block<Params, LLF32UICtrl::Params>
+	{
+		Optional<LLUIColor>	track_color,
+							thumb_outline_color,
+							thumb_center_color;
 
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static  LLView* fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFactory *factory);
+		Optional<LLUIImage*>	thumb_image,
+								thumb_image_pressed,
+								thumb_image_disabled,
+								track_image,
+								track_highlight_image;
 
+		Optional<CommitCallbackParam>	mouse_down_callback,
+										mouse_up_callback;
+
+
+		Params();
+	};
+protected:
+	LLSlider(const Params&);
+	friend class LLUICtrlFactory;
+public:
 	void			setValue( F32 value, BOOL from_event = FALSE );
-	F32				getValueF32() const { return mValue; }
-
+    // overrides for LLF32UICtrl methods
 	virtual void	setValue(const LLSD& value )	{ setValue((F32)value.asReal(), TRUE); }
-	virtual LLSD	getValue() const		{ return LLSD(getValueF32()); }
+	
+	virtual void 	setMinValue(const LLSD& min_value) { setMinValue((F32)min_value.asReal()); }
+	virtual void 	setMaxValue(const LLSD& max_value) { setMaxValue((F32)max_value.asReal()); }
+	virtual void	setMinValue(F32 min_value) { LLF32UICtrl::setMinValue(min_value); updateThumbRect(); }
+	virtual void	setMaxValue(F32 max_value) { LLF32UICtrl::setMaxValue(max_value); updateThumbRect(); }
 
-	virtual void	setMinValue(LLSD min_value)	{ setMinValue((F32)min_value.asReal()); }
-	virtual void	setMaxValue(LLSD max_value)	{ setMaxValue((F32)max_value.asReal());  }
-
-	F32				getInitialValue() const { return mInitialValue; }
-	F32				getMinValue() const		{ return mMinValue; }
-	F32				getMaxValue() const		{ return mMaxValue; }
-	F32				getIncrement() const	{ return mIncrement; }
-	void			setMinValue(F32 min_value) {mMinValue = min_value; updateThumbRect(); }
-	void			setMaxValue(F32 max_value) {mMaxValue = max_value; updateThumbRect(); }
-	void			setIncrement(F32 increment) {mIncrement = increment;}
-	void			setMouseDownCallback( void (*cb)(LLUICtrl* ctrl, void* userdata) ) { mMouseDownCallback = cb; }
-	void			setMouseUpCallback(	void (*cb)(LLUICtrl* ctrl, void* userdata) ) { mMouseUpCallback = cb; }
+	boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb ) { return mMouseDownSignal.connect(cb); }
+	boost::signals2::connection setMouseUpCallback(	const commit_signal_t::slot_type& cb )   { return mMouseUpSignal.connect(cb); }
 
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
@@ -85,27 +83,23 @@ private:
 	void			setValueAndCommit(F32 value);
 	void			updateThumbRect();
 
-	F32				mValue;
-	F32				mInitialValue;
-	F32				mMinValue;
-	F32				mMaxValue;
-	F32				mIncrement;
-
 	BOOL			mVolumeSlider;
 	S32				mMouseOffset;
 	LLRect			mDragStartThumbRect;
 
-	LLUIImage*		mThumbImage;
-	LLUIImage*		mTrackImage;
-	LLUIImage*		mTrackHighlightImage;
+	LLPointer<LLUIImage>	mThumbImage;
+	LLPointer<LLUIImage>	mThumbImagePressed;
+	LLPointer<LLUIImage>	mThumbImageDisabled;
+	LLPointer<LLUIImage>	mTrackImage;
+	LLPointer<LLUIImage>	mTrackHighlightImage;
 
 	LLRect			mThumbRect;
-	LLColor4		mTrackColor;
-	LLColor4		mThumbOutlineColor;
-	LLColor4		mThumbCenterColor;
+	LLUIColor	mTrackColor;
+	LLUIColor	mThumbOutlineColor;
+	LLUIColor	mThumbCenterColor;
 	
-	void			(*mMouseDownCallback)(LLUICtrl* ctrl, void* userdata);
-	void			(*mMouseUpCallback)(LLUICtrl* ctrl, void* userdata);
+	commit_signal_t	mMouseDownSignal;
+	commit_signal_t	mMouseUpSignal;
 };
 
 #endif  // LL_LLSLIDER_H

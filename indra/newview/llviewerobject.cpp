@@ -34,7 +34,7 @@
 
 #include "llviewerobject.h"
 
-#include "audioengine.h"
+#include "llaudioengine.h"
 #include "imageids.h"
 #include "indra_constants.h"
 #include "llmath.h"
@@ -42,6 +42,7 @@
 #include "llviewercontrol.h"
 #include "lldatapacker.h"
 #include "llfasttimer.h"
+#include "llfloaterreg.h"
 #include "llfontgl.h"
 #include "llframetimer.h"
 #include "llinventory.h"
@@ -70,7 +71,7 @@
 #include "llrendersphere.h"
 #include "lltooldraganddrop.h"
 #include "llviewercamera.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerinventory.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparceloverlay.h"
@@ -79,6 +80,7 @@
 #include "llviewertextureanim.h"
 #include "llviewerwindow.h" // For getSpinAxis
 #include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llvoclouds.h"
 #include "llvograss.h"
 #include "llvoground.h"
@@ -97,6 +99,7 @@
 #include "llviewernetwork.h"
 #include "llvowlsky.h"
 #include "llmanip.h"
+#include "lltrans.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -112,18 +115,31 @@ S32			LLViewerObject::sAxisArrowLength(50);
 BOOL		LLViewerObject::sPulseEnabled(FALSE);
 BOOL		LLViewerObject::sUseSharedDrawables(FALSE); // TRUE
 
+static LLFastTimer::DeclareTimer FTM_CREATE_OBJECT("Create Object");
+
 // static
 LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 {
 	LLViewerObject *res = NULL;
-	LLFastTimer t1(LLFastTimer::FTM_CREATE_OBJECT);
+	LLFastTimer t1(FTM_CREATE_OBJECT);
 	
 	switch (pcode)
 	{
 	case LL_PCODE_VOLUME:
 	  res = new LLVOVolume(id, pcode, regionp); break;
 	case LL_PCODE_LEGACY_AVATAR:
-	  res = new LLVOAvatar(id, pcode, regionp); break;
+	{
+		if (id == gAgentID)
+		{
+			res = new LLVOAvatarSelf(id, pcode, regionp);
+		}
+		else
+		{
+			res = new LLVOAvatar(id, pcode, regionp); 
+		}
+		static_cast<LLVOAvatar*>(res)->initInstance();
+		break;
+	}
 	case LL_PCODE_LEGACY_GRASS:
 	  res = new LLVOGrass(id, pcode, regionp); break;
 	case LL_PCODE_LEGACY_PART_SYS:
@@ -499,15 +515,24 @@ BOOL LLViewerObject::isOverGroupOwnedLand() const
 		&& mRegionp->getParcelOverlay()->isOwnedGroup(getPositionRegion());
 }
 
-void LLViewerObject::setParent(LLViewerObject* parent)
+BOOL LLViewerObject::setParent(LLViewerObject* parent)
 {
-	LLPrimitive::setParent(parent);
+	if(mParent != parent)
+	{
+		LLViewerObject* old_parent = (LLViewerObject*)mParent ;		
+		BOOL ret = LLPrimitive::setParent(parent);
+		if(ret && old_parent && parent)
+		{
+			old_parent->removeChild(this) ;
+		}
+		return ret ;
+	}
+
+	return FALSE ;
 }
 
 void LLViewerObject::addChild(LLViewerObject *childp)
 {
-	BOOL result = TRUE;
-	
 	for (child_list_t::iterator i = mChildList.begin(); i != mChildList.end(); ++i)
 	{
 		if (*i == childp)
@@ -522,18 +547,9 @@ void LLViewerObject::addChild(LLViewerObject *childp)
 		childp->mbCanSelect = mbCanSelect;
 	}
 
-	childp->setParent(this);
-	mChildList.push_back(childp);
-
-	if (!result) 
+	if(childp->setParent(this))
 	{
-		llwarns << "Failed to attach child " << childp->getID() << " to object " << getID() << llendl;
-		removeChild(childp);
-		if (mJointInfo)
-		{
-			delete mJointInfo;
-			mJointInfo = NULL;
-		}
+		mChildList.push_back(childp);
 	}
 }
 
@@ -549,7 +565,11 @@ void LLViewerObject::removeChild(LLViewerObject *childp)
 			}
 
 			mChildList.erase(i);
-			childp->setParent(NULL);			
+
+			if(childp->getParent() == this)
+			{
+				childp->setParent(NULL);			
+			}
 			break;
 		}
 	}
@@ -631,11 +651,14 @@ BOOL LLViewerObject::setDrawableParent(LLDrawable* parentp)
 		return FALSE;
 	}
 
-	LLDrawable* old_parent = mDrawable->mParent;
-
-	mDrawable->mParent = parentp; 
-	
 	BOOL ret = mDrawable->mXform.setParent(parentp ? &parentp->mXform : NULL);
+	if(!ret)
+	{
+		return FALSE ;
+	}
+	LLDrawable* old_parent = mDrawable->mParent;
+	mDrawable->mParent = parentp; 
+		
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
 	if(	old_parent != parentp &&
 		old_parent || (parentp && parentp->isActive()))
@@ -2461,7 +2484,7 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 		LLPointer<LLInventoryObject> obj;
 		obj = new LLInventoryObject(object->mID, LLUUID::null,
 									LLAssetType::AT_CATEGORY,
-									std::string("Contents"));
+									LLTrans::getString("ViewerObjectContents").c_str());
 		object->mInventory->push_front(obj);
 		object->doInventoryCallback();
 		delete ft;
@@ -2528,6 +2551,7 @@ void LLViewerObject::loadTaskInvFile(const std::string& filename)
 			{
 				LLPointer<LLInventoryObject> inv = new LLInventoryObject;
 				inv->importLegacyStream(ifs);
+				inv->rename(LLTrans::getString("ViewerObjectContents").c_str());
 				mInventory->push_front(inv);
 			}
 			else
@@ -2574,7 +2598,7 @@ void LLViewerObject::doInventoryCallback()
 void LLViewerObject::removeInventory(const LLUUID& item_id)
 {
 	// close any associated floater properties
-	LLFloaterProperties::closeByID(item_id, mID);
+	LLFloaterReg::hideInstance("properties", item_id);
 
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_RemoveTaskInventory);
@@ -2587,11 +2611,6 @@ void LLViewerObject::removeInventory(const LLUUID& item_id)
 	msg->sendReliable(mRegionp->getHost());
 	deleteInventoryItem(item_id);
 	++mInventorySerialNum;
-
-	// The viewer object should not refresh UI since this is a utility
-	// function. The UI functionality that called this method should
-	// refresh the views if necessary.
-	//gBuildView->refresh();
 }
 
 void LLViewerObject::updateInventory(
@@ -2903,14 +2922,14 @@ void LLViewerObject::boostTexturePriority(BOOL boost_children /* = TRUE */)
 	S32 tex_count = getNumTEs();
 	for (i = 0; i < tex_count; i++)
 	{
- 		getTEImage(i)->setBoostLevel(LLViewerImage::BOOST_SELECTED);
+ 		getTEImage(i)->setBoostLevel(LLViewerTexture::BOOST_SELECTED);
 	}
 
 	if (isSculpted())
 	{
 		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 		LLUUID sculpt_id = sculpt_params->getSculptTexture();
-		gImageList.getImage(sculpt_id)->setBoostLevel(LLViewerImage::BOOST_SELECTED);
+		LLViewerTextureManager::getFetchedTexture(sculpt_id, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE)->setBoostLevel(LLViewerTexture::BOOST_SELECTED);
 	}
 	
 	if (boost_children)
@@ -3538,8 +3557,8 @@ void LLViewerObject::setNumTEs(const U8 num_tes)
 	{
 		if (num_tes)
 		{
-			LLPointer<LLViewerImage> *new_images;
-			new_images = new LLPointer<LLViewerImage>[num_tes];
+			LLPointer<LLViewerTexture> *new_images;
+			new_images = new LLPointer<LLViewerTexture>[num_tes];
 			for (i = 0; i < num_tes; i++)
 			{
 				if (i < getNumTEs())
@@ -3673,11 +3692,11 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
 //	if (mDrawable.notNull() && mDrawable->isVisible())
 //	{
 		const LLUUID& image_id = getTE(te)->getID();
-		mTEImages[te] = gImageList.getImage(image_id);
+		mTEImages[te] = LLViewerTextureManager::getFetchedTexture(image_id, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
 //	}
 }
 
-void LLViewerObject::setTEImage(const U8 te, LLViewerImage *imagep)
+void LLViewerObject::setTEImage(const U8 te, LLViewerTexture *imagep)
 {
 	if (mTEImages[te] != imagep)
 	{
@@ -3699,7 +3718,7 @@ S32 LLViewerObject::setTETextureCore(const U8 te, const LLUUID& uuid, LLHost hos
 		uuid == LLUUID::null)
 	{
 		retval = LLPrimitive::setTETexture(te, uuid);
-		mTEImages[te] = gImageList.getImageFromHost(uuid, host);
+		mTEImages[te] = LLViewerTextureManager::getFetchedTexture(uuid, TRUE, FALSE, LLViewerTexture::LOD_TEXTURE, 0, 0, host);
 		setChanged(TEXTURE);
 		if (mDrawable.notNull())
 		{
@@ -3709,6 +3728,18 @@ S32 LLViewerObject::setTETextureCore(const U8 te, const LLUUID& uuid, LLHost hos
 	return retval;
 }
 
+
+void LLViewerObject::changeTEImage(const LLViewerTexture* old_image, LLViewerTexture* new_image) 
+{
+	U32 end = getNumTEs() ;
+	for (U32 face = 0 ; face < end ; face++)
+	{
+		if(old_image == mTEImages[face])
+		{
+			mTEImages[face] = new_image ;
+		}
+	}
+}
 
 S32 LLViewerObject::setTETexture(const U8 te, const LLUUID& uuid)
 {
@@ -3954,20 +3985,20 @@ S32 LLViewerObject::setTERotation(const U8 te, const F32 r)
 }
 
 
-LLViewerImage *LLViewerObject::getTEImage(const U8 face) const
+LLViewerTexture *LLViewerObject::getTEImage(const U8 face) const
 {
 //	llassert(mTEImages);
 
 	if (face < getNumTEs())
 	{
-		LLViewerImage* image = mTEImages[face];
+		LLViewerTexture* image = mTEImages[face];
 		if (image)
 		{
 			return image;
 		}
 		else
 		{
-			return (LLViewerImage*)((LLImageGL*)LLViewerImage::sDefaultImagep);
+			return (LLViewerTexture*)(LLViewerFetchedTexture::sDefaultImagep);
 		}
 	}
 
@@ -4088,7 +4119,7 @@ void LLViewerObject::setDebugText(const std::string &utf8text)
 	updateText();
 }
 
-void LLViewerObject::setIcon(LLViewerImage* icon_image)
+void LLViewerObject::setIcon(LLViewerTexture* icon_image)
 {
 	if (!mIcon)
 	{
@@ -4178,14 +4209,14 @@ void LLViewerObject::setParticleSource(const LLPartSysData& particle_parameters,
 
 		if (mPartSourcep->getImage()->getID() != mPartSourcep->mPartSysData.mPartImageID)
 		{
-			LLViewerImage* image;
+			LLViewerTexture* image;
 			if (mPartSourcep->mPartSysData.mPartImageID == LLUUID::null)
 			{
-				image = gImageList.getImageFromFile("pixiesmall.tga");
+				image = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.tga");
 			}
 			else
 			{
-				image = gImageList.getImage(mPartSourcep->mPartSysData.mPartImageID);
+				image = LLViewerTextureManager::getFetchedTexture(mPartSourcep->mPartSysData.mPartImageID);
 			}
 			mPartSourcep->setImage(image);
 		}
@@ -4227,14 +4258,14 @@ void LLViewerObject::unpackParticleSource(const S32 block_num, const LLUUID& own
 	{
 		if (mPartSourcep->getImage()->getID() != mPartSourcep->mPartSysData.mPartImageID)
 		{
-			LLViewerImage* image;
+			LLViewerTexture* image;
 			if (mPartSourcep->mPartSysData.mPartImageID == LLUUID::null)
 			{
-				image = gImageList.getImageFromFile("pixiesmall.j2c");
+				image = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
 			}
 			else
 			{
-				image = gImageList.getImage(mPartSourcep->mPartSysData.mPartImageID);
+				image = LLViewerTextureManager::getFetchedTexture(mPartSourcep->mPartSysData.mPartImageID);
 			}
 			mPartSourcep->setImage(image);
 		}
@@ -4274,14 +4305,14 @@ void LLViewerObject::unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_
 	{
 		if (mPartSourcep->getImage()->getID() != mPartSourcep->mPartSysData.mPartImageID)
 		{
-			LLViewerImage* image;
+			LLViewerTexture* image;
 			if (mPartSourcep->mPartSysData.mPartImageID == LLUUID::null)
 			{
-				image = gImageList.getImageFromFile("pixiesmall.j2c");
+				image = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
 			}
 			else
 			{
-				image = gImageList.getImage(mPartSourcep->mPartSysData.mPartImageID);
+				image = LLViewerTextureManager::getFetchedTexture(mPartSourcep->mPartSysData.mPartImageID);
 			}
 			mPartSourcep->setImage(image);
 		}

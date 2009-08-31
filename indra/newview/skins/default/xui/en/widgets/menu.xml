@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu bg_color="MenuDefaultBgColor"
+      bg_visible="true"
+      drop_shadow="true"
+      tear_off="false"
+      shortcut_pad="15">
+</menu>

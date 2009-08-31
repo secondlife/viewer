@@ -32,7 +32,7 @@
 
 #ifndef LL_LLSECONDLIFEURLS_H
 #define LL_LLSECONDLIFEURLS_H
-
+/*
 // Account registration web page
 extern const std::string CREATE_ACCOUNT_URL;
 
@@ -42,18 +42,21 @@ extern const std::string MANAGE_ACCOUNT;
 extern const std::string AUCTION_URL; 
 
 extern const std::string EVENTS_URL;
-
+*/
 // Tier up to a new land level.
 extern const std::string TIER_UP_URL;
+
 
 // Tier up to a new land level.
 extern const std::string LAND_URL;
 
+// How to get DirectX 9
+extern const std::string DIRECTX_9_URL;
+
+/*
 // Upgrade from basic membership to premium membership
 extern const std::string UPGRADE_TO_PREMIUM_URL;
 
-// How to get DirectX 9
-extern const std::string DIRECTX_9_URL;
 
 // Out of date VIA chipset
 extern const std::string VIA_URL;
@@ -75,5 +78,5 @@ extern const std::string SL_KB_URL;
 
 // Release Notes Redirect URL for Server and Viewer
 extern const std::string RELEASE_NOTES_BASE_URL;
-
+*/
 #endif

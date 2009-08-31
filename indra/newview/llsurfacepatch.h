@@ -35,7 +35,7 @@
 
 #include "v3math.h"
 #include "v3dmath.h"
-#include "llmemory.h"
+#include "llpointer.h"
 
 class LLSurface;
 class LLVOSurfacePatch;

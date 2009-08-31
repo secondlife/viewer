@@ -41,7 +41,31 @@ class LLResizeBar : public LLView
 public:
 	enum Side { LEFT, TOP, RIGHT, BOTTOM };
 
-	LLResizeBar(const std::string& name, LLView* resizing_view, const LLRect& rect, S32 min_size, S32 max_size, Side side );
+	struct Params : public LLInitParam::Block<Params, LLView::Params>
+	{
+		Mandatory<LLView*> resizing_view;
+		Mandatory<Side>	side;
+
+		Optional<S32>	min_size;
+		Optional<S32>	max_size;
+		Optional<bool>	snapping_enabled;
+		Optional<bool>	allow_double_click_snapping;
+
+		Params()
+		:	max_size("max_size", S32_MAX),
+			snapping_enabled("snapping_enabled", true),
+			resizing_view("resizing_view"),
+			side("side"),
+			allow_double_click_snapping("allow_double_click_snapping", true)
+		{
+			name = "resize_bar";
+		}
+	};
+
+protected:
+	LLResizeBar(const LLResizeBar::Params& p);
+	friend class LLUICtrlFactory;
+public:
 
 //	virtual void	draw();  No appearance
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);

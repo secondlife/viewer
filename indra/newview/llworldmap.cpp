@@ -43,9 +43,10 @@
 #include "llviewercontrol.h"
 #include "llfloaterworldmap.h"
 #include "lltracker.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerregion.h"
 #include "llregionflags.h"
+#include "lltrans.h"
 
 const F32 REQUEST_ITEMS_TIMER =  10.f * 60.f; // 10 minutes
 
@@ -518,9 +519,9 @@ void LLWorldMap::processMapLayerReply(LLMessageSystem* msg, void**)
 		LLWorldMapLayer new_layer;
 		new_layer.LayerDefined = TRUE;
 		msg->getUUIDFast(_PREHASH_LayerData, _PREHASH_ImageID, new_layer.LayerImageID, block);
-		new_layer.LayerImage = gImageList.getImage(new_layer.LayerImageID, MIPMAP_TRUE, FALSE);
+		new_layer.LayerImage = LLViewerTextureManager::getFetchedTexture(new_layer.LayerImageID, MIPMAP_TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
 
-		gGL.getTexUnit(0)->bind(new_layer.LayerImage.get());
+		gGL.getTexUnit(0)->bind(new_layer.LayerImage);
 		new_layer.LayerImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 		
 		U32 left, right, top, bottom;
@@ -633,15 +634,15 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 			siminfo->mMapImageID[agent_flags] = image_id;
 
 #ifdef IMMEDIATE_IMAGE_LOAD
-			siminfo->mCurrentImage = gImageList.getImage(siminfo->mMapImageID[LLWorldMap::getInstance()->mCurrentMap], MIPMAP_TRUE, FALSE);
-			gGL.getTexUnit(0)->bind(siminfo->mCurrentImage.get());
+			siminfo->mCurrentImage = LLViewerTextureManager::getFetchedTexture(siminfo->mMapImageID[LLWorldMap::getInstance()->mCurrentMap], MIPMAP_TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
+			gGL.getTexUnit(0)->bind(siminfo->mCurrentImage);
 			siminfo->mCurrentImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 #endif
 			
 			if (siminfo->mMapImageID[2].notNull())
 			{
 #ifdef IMMEDIATE_IMAGE_LOAD
-				siminfo->mOverlayImage = gImageList.getImage(siminfo->mMapImageID[2], MIPMAP_TRUE, FALSE);
+				siminfo->mOverlayImage = LLViewerTextureManager::getFetchedTexture(siminfo->mMapImageID[2], MIPMAP_TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
 #endif
 			}
 			else
@@ -757,18 +758,13 @@ void LLWorldMap::processMapItemReply(LLMessageSystem* msg, void**)
 			case MAP_ITEM_MATURE_EVENT:
 			case MAP_ITEM_ADULT_EVENT:
 			{
-				struct tm* timep;
-				// Convert to Pacific, based on server's opinion of whether
-				// it's daylight savings time there.
-				timep = utc_to_pacific_time(extra, gPacificDaylightTime);
-
-				S32 display_hour = timep->tm_hour % 12;
-				if (display_hour == 0) display_hour = 12;
-
-				new_item.mToolTip = llformat( "%d:%02d %s",
-											  display_hour,
-											  timep->tm_min,
-											  (timep->tm_hour < 12 ? "AM" : "PM") );
+				std::string timeStr = "["+ LLTrans::getString ("TimeHour")+"]:["
+					                   +LLTrans::getString ("TimeMin")+"] ["
+									   +LLTrans::getString ("TimeAMPM")+"]";
+				LLSD substitution;
+				substitution["datetime"] = (S32) extra;
+				LLStringUtil::format (timeStr, substitution);
+				new_item.mToolTip = timeStr;
 
 				// HACK: store Z in extra2
 				new_item.mPosGlobal.mdV[VZ] = (F64)extra2;
@@ -866,10 +862,10 @@ void LLWorldMap::dump()
 		if (info->mCurrentImage)
 		{
 			llinfos << "image discard " << (S32)info->mCurrentImage->getDiscardLevel()
-					<< " fullwidth " << info->mCurrentImage->getWidth(0)
-					<< " fullheight " << info->mCurrentImage->getHeight(0)
-					<< " maxvirt " << info->mCurrentImage->mMaxVirtualSize
-					<< " maxdisc " << (S32)info->mCurrentImage->getMaxDiscardLevel()
+					<< " fullwidth " << info->mCurrentImage->getFullWidth()
+					<< " fullheight " << info->mCurrentImage->getFullHeight()
+					<< " maxvirt " << info->mCurrentImage->getMaxVirtualSize()
+					//<< " maxdisc " << (S32)info->mCurrentImage->getMaxDiscardLevel()
 					<< llendl;
 		}
 	}

@@ -34,7 +34,7 @@
 #include "llfloatersellland.h"
 
 #include "llfloateravatarpicker.h"
-#include "llfloater.h"
+#include "llfloaterreg.h"
 #include "llfloaterland.h"
 #include "lllineeditor.h"
 #include "llnotify.h"
@@ -55,10 +55,21 @@ enum Badge { BADGE_OK, BADGE_NOTE, BADGE_WARN, BADGE_ERROR };
 class LLFloaterSellLandUI
 :	public LLFloater
 {
-private:
-	LLFloaterSellLandUI();
+public:
+	LLFloaterSellLandUI(const LLSD& key);
 	virtual ~LLFloaterSellLandUI();
-
+	
+private:
+	class SelectionObserver : public LLParcelObserver
+	{
+	public:
+		SelectionObserver(LLFloaterSellLandUI* floater) : mFloater(floater) {}
+		virtual void changed();
+	private:
+		LLFloaterSellLandUI* mFloater;
+	};
+	
+private:
 	LLViewerRegion*	mRegion;
 	LLParcelSelectionHandle	mParcelSelection;
 	bool					mParcelIsForSale;
@@ -69,12 +80,11 @@ private:
 	LLUUID					mParcelSnapshot;
 	LLUUID					mAuthorizedBuyer;
 	bool					mParcelSoldWithObjects;
+	SelectionObserver 		mParcelSelectionObserver;
 	
 	void updateParcelInfo();
 	void refreshUI();
 	void setBadge(const char* id, Badge badge);
-
-	static LLFloaterSellLandUI* sInstance;
 
 	static void onChangeValue(LLUICtrl *ctrl, void *userdata);
 	static void doSelectAgent(void *userdata);
@@ -88,91 +98,57 @@ private:
 
 public:
 	virtual BOOL postBuild();
-	virtual void onClose(bool app_quitting);
 	
-	static LLFloaterSellLandUI* soleInstance(bool createIfNeeded);
-
 	bool setParcel(LLViewerRegion* region, LLParcelSelectionHandle parcel);
-
-private:
-	class SelectionObserver : public LLParcelObserver
-	{
-	public:
-		virtual void changed();
-	};
 };
 
 // static
 void LLFloaterSellLand::sellLand(
 	LLViewerRegion* region, LLParcelSelectionHandle parcel)
 {
-	LLFloaterSellLandUI* ui = LLFloaterSellLandUI::soleInstance(true);
-	if (ui->setParcel(region, parcel))
-	{
-		ui->open();		/* Flawfinder: ignore */
-	}
+	LLFloaterSellLandUI* ui = LLFloaterReg::showTypedInstance<LLFloaterSellLandUI>("sell_land");
+	ui->setParcel(region, parcel);
 }
 
 // static
-LLFloaterSellLandUI* LLFloaterSellLandUI::sInstance = NULL;
-
-// static
-LLFloaterSellLandUI* LLFloaterSellLandUI::soleInstance(bool createIfNeeded)
+LLFloater* LLFloaterSellLand::buildFloater(const LLSD& key)
 {
-	if (!sInstance  &&  createIfNeeded)
-	{
-		sInstance = new LLFloaterSellLandUI();
-
-		LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_sell_land.xml");
-		sInstance->center();
-	}
-	
-
-	static SelectionObserver* parcelSelectionObserver = NULL;
-	if (!parcelSelectionObserver)
-	{
-		parcelSelectionObserver = new SelectionObserver;
-		LLViewerParcelMgr::getInstance()->addObserver(parcelSelectionObserver);
-	}
-
-	return sInstance;
+	LLFloaterSellLandUI* floater = new LLFloaterSellLandUI(key);
+	return floater;
 }
 
-LLFloaterSellLandUI::LLFloaterSellLandUI()
-:	LLFloater(std::string("Sell Land")),
+#if LL_WINDOWS
+// passing 'this' during construction generates a warning. The callee
+// only uses the pointer to hold a reference to 'this' which is
+// already valid, so this call does the correct thing. Disable the
+// warning so that we can compile without generating a warning.
+#pragma warning(disable : 4355)
+#endif 
+LLFloaterSellLandUI::LLFloaterSellLandUI(const LLSD& key)
+:	LLFloater(key),
+	mParcelSelectionObserver(this),
 	mRegion(0)
 {
+	LLViewerParcelMgr::getInstance()->addObserver(&mParcelSelectionObserver);
+// 	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_sell_land.xml");
 }
 
 LLFloaterSellLandUI::~LLFloaterSellLandUI()
 {
-	if (sInstance == this)
-	{
-		sInstance = NULL;
-	}
+	LLViewerParcelMgr::getInstance()->removeObserver(&mParcelSelectionObserver);
 }
 
 void LLFloaterSellLandUI::SelectionObserver::changed()
 {
-	LLFloaterSellLandUI* ui = LLFloaterSellLandUI::soleInstance(false);
-	if (ui)
+	if (LLViewerParcelMgr::getInstance()->selectionEmpty())
 	{
-		if (LLViewerParcelMgr::getInstance()->selectionEmpty())
-		{
-			ui->close();
-		}
-		else {
-			ui->setParcel(
-				LLViewerParcelMgr::getInstance()->getSelectionRegion(),
-				LLViewerParcelMgr::getInstance()->getParcelSelection());
-		}
+		mFloater->closeFloater();
 	}
-}
-
-void LLFloaterSellLandUI::onClose(bool app_quitting)
-{
-	LLFloater::onClose(app_quitting);
-	destroy();
+	else
+	{
+		mFloater->setParcel(LLViewerParcelMgr::getInstance()->getSelectionRegion(),
+							LLViewerParcelMgr::getInstance()->getParcelSelection());
+	}
 }
 
 BOOL LLFloaterSellLandUI::postBuild()
@@ -185,6 +161,7 @@ BOOL LLFloaterSellLandUI::postBuild()
 	childSetAction("cancel_btn", doCancel, this);
 	childSetAction("sell_btn", doSellLand, this);
 	childSetAction("show_objects", doShowObjects, this);
+	center();
 	return TRUE;
 }
 
@@ -432,7 +409,7 @@ void LLFloaterSellLandUI::callbackAvatarPick(const std::vector<std::string>& nam
 void LLFloaterSellLandUI::doCancel(void *userdata)
 {
 	LLFloaterSellLandUI* self = (LLFloaterSellLandUI*)userdata;
-	self->close();
+	self->closeFloater();
 }
 
 // static
@@ -490,7 +467,7 @@ void LLFloaterSellLandUI::doSellLand(void *userdata)
 
 	LLNotification::Params params("ConfirmLandSaleChange");
 	params.substitutions(args)
-		.functor(boost::bind(&LLFloaterSellLandUI::onConfirmSale, self, _1, _2));
+		.functor.function(boost::bind(&LLFloaterSellLandUI::onConfirmSale, self, _1, _2));
 
 	if (sell_to_anyone)
 	{
@@ -556,6 +533,6 @@ bool LLFloaterSellLandUI::onConfirmSale(const LLSD& notification, const LLSD& re
 	// Send update to server
 	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );
 
-	close();
+	closeFloater();
 	return false;
 }

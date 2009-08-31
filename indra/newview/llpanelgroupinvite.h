@@ -39,7 +39,7 @@ class LLPanelGroupInvite
 : public LLPanel
 {
 public:
-	LLPanelGroupInvite(const std::string& name, const LLUUID& group_id);
+	LLPanelGroupInvite(const LLUUID& group_id);
 	~LLPanelGroupInvite();
 	
 	void addUsers(std::vector<LLUUID>& agent_ids);

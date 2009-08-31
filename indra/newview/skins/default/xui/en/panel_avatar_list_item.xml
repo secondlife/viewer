@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- All our XML is utf-8 encoded. -->
+
+<panel
+	name="avatar_list_item"
+	title="avatar_list_item"
+  visible="true"
+	width="314"
+	height="30"
+  left="0"
+  top="100"
+  follows="bottom|right|left"
+  min_width="150" 
+  max_height="30" 
+  
+  background_opaque="false"
+  background_visible="true"
+  bevel_style="in"
+  bg_alpha_color="0.3 0.3 0.3 1.0">
+  
+  <avatar_icon
+    bottom="5" left="5" width="20" height="20" follows="top|left"
+    color="1 1 1 1" enabled="true" image_name="smile.png"
+    mouse_opaque="true" name="avatar_icon"
+  />
+  
+  <text
+    bottom="4" left="35" width="160" height="20" follows="right|left"
+    font="SansSerifBigBold" text_color="white"
+    mouse_opaque="true" name="user_name" >
+    Boris Linden
+  </text>  
+  
+  <text
+    bottom="3" left="190" width="40" height="20" follows="right"
+    font="SansSerif" text_color="0.5 0.5 0.5 1.0"
+    mouse_opaque="true" name="user_status" >
+    Away
+  </text>
+
+  <icon
+    bottom="5" left="230" width="20" height="20" follows="right"
+    color="1 1 1 1" enabled="true" image_name="speaking_indicator.tga"
+    mouse_opaque="true" name="locator"
+  />
+  
+  <button
+    bottom="5" left="260" width="20" height="20" follows="right"
+    name="info_btn" label=""
+    image_unselected="avatar_info_btn.tga" image_disabled="avatar_info_btn.tga"
+    image_selected="avatar_info_btn_active.tga" image_hover_selected="avatar_info_btn_active.tga"
+    image_disabled_selected="avatar_info_btn.tga" font="SansSerifBigBold"
+  />
+  
+  <button
+    bottom="5" left="290" width="20" height="20" follows="right"
+    name="profile_btn" label=""
+    image_unselected="profile_chevron_btn.tga" image_disabled="profile_chevron_btn.tga"
+    image_selected="profile_chevron_btn_active.tga" image_hover_selected="profile_chevron_btn_active.tga"
+    image_disabled_selected="profile_chevron_btn.tga" font="SansSerifBigBold"
+  />
+
+
+
+</panel> 

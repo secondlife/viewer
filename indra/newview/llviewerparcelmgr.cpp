@@ -35,7 +35,7 @@
 #include "llviewerparcelmgr.h"
 
 // Library includes
-#include "audioengine.h"
+#include "llaudioengine.h"
 #include "indra_constants.h"
 #include "llcachename.h"
 #include "llgl.h"
@@ -45,7 +45,6 @@
 
 // Viewer includes
 #include "llagent.h"
-#include "llfloatergroupinfo.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
 #include "llfirstuse.h"
@@ -60,8 +59,8 @@
 #include "llsdutil.h"
 #include "llstatusbar.h"
 #include "llui.h"
-#include "llviewerimage.h"
-#include "llviewerimagelist.h"
+#include "llviewertexture.h"
+#include "llviewertexturelist.h"
 #include "llviewermenu.h"
 #include "llviewerparcelmedia.h"
 #include "llviewerparceloverlay.h"
@@ -80,8 +79,8 @@ U8* LLViewerParcelMgr::sPackedOverlay = NULL;
 
 LLUUID gCurrentMovieID = LLUUID::null;
 
-LLPointer<LLViewerImage> sBlockedImage;
-LLPointer<LLViewerImage> sPassImage;
+LLPointer<LLViewerTexture> sBlockedImage;
+LLPointer<LLViewerTexture> sPassImage;
 
 // Local functions
 void optionally_start_music(const std::string& music_url);
@@ -143,8 +142,11 @@ LLViewerParcelMgr::LLViewerParcelMgr()
 	mCollisionSegments = new U8[(mParcelsPerEdge+1)*(mParcelsPerEdge+1)];
 	resetSegments(mCollisionSegments);
 
-	mBlockedImage = gImageList.getImageFromFile("noentrylines.j2c");
-	mPassImage = gImageList.getImageFromFile("noentrypasslines.j2c");
+	// JC: Resolved a merge conflict here, eliminated
+	// mBlockedImage->setAddressMode(LLTexUnit::TAM_WRAP);
+	// because it is done in llviewertexturelist.cpp
+	mBlockedImage = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryLines.png");
+	mPassImage = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryPassLines.png");
 
 	S32 overlay_size = mParcelsPerEdge * mParcelsPerEdge / PARCEL_OVERLAY_CHUNKS;
 	sPackedOverlay = new U8[overlay_size];
@@ -155,6 +157,8 @@ LLViewerParcelMgr::LLViewerParcelMgr()
 	{
 		mAgentParcelOverlay[i] = 0;
 	}
+
+	mTeleportInProgress = TRUE; // the initial parcel update is treated like teleport
 }
 
 
@@ -646,7 +650,7 @@ LLParcel *LLViewerParcelMgr::getAgentParcel() const
 }
 
 // Return whether the agent can build on the land they are on
-BOOL LLViewerParcelMgr::agentCanBuild() const
+bool LLViewerParcelMgr::agentCanBuild() const
 {
 	if (mAgentParcel)
 	{
@@ -760,13 +764,17 @@ BOOL LLViewerParcelMgr::canHearSound(const LLVector3d &pos_global) const
 BOOL LLViewerParcelMgr::inAgentParcel(const LLVector3d &pos_global) const
 {
 	LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosGlobal(pos_global);
-	if (region != gAgent.getRegion())
+	LLViewerRegion* agent_region = gAgent.getRegion();
+	if (!region || !agent_region)
+		return FALSE;
+
+	if (region != agent_region)
 	{
 		// Can't be in the agent parcel if you're not in the same region.
 		return FALSE;
 	}
 
-	LLVector3 pos_region = gAgent.getRegion()->getPosRegionFromGlobal(pos_global);
+	LLVector3 pos_region = agent_region->getPosRegionFromGlobal(pos_global);
 	S32 row =    S32(pos_region.mV[VY] / PARCEL_GRID_STEP_METERS);
 	S32 column = S32(pos_region.mV[VX] / PARCEL_GRID_STEP_METERS);
 
@@ -938,7 +946,7 @@ void LLViewerParcelMgr::sendParcelGodForceOwner(const LLUUID& owner_id)
 	payload["parcel_local_id"] = mCurrentParcel->getLocalID();
 	payload["region_host"] = region->getHost().getIPandPort();
 	LLNotification::Params params("ForceOwnerAuctionWarning");
-	params.payload(payload).functor(callback_god_force_owner);
+	params.payload(payload).functor.function(callback_god_force_owner);
 
 	if(mCurrentParcel->getAuctionID())
 	{
@@ -1513,6 +1521,17 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 
 			LLViewerParcelMgr::getInstance()->writeAgentParcelFromBitmap(bitmap);
 			delete[] bitmap;
+
+			// Let interesting parties know about agent parcel change.
+			LLViewerParcelMgr* instance = LLViewerParcelMgr::getInstance();
+
+			instance->mAgentParcelChangedSignal();
+
+			if (instance->mTeleportInProgress)
+			{
+				instance->mTeleportInProgress = FALSE;
+				instance->mTeleportFinishedSignal(gAgent.getPositionGlobal());
+			}
 		}
 	}
 
@@ -1583,6 +1602,9 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 
 			// Request access list information for this land
 			LLViewerParcelMgr::getInstance()->sendParcelAccessListRequest(AL_ACCESS | AL_BAN);
+
+			// Request the media url filter list for this land
+			LLViewerParcelMgr::getInstance()->requestParcelMediaURLFilter();
 
 			// Request dwell for this land, if it's not public land.
 			LLViewerParcelMgr::getInstance()->mSelectedDwell = 0.f;
@@ -1697,7 +1719,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 
 void optionally_start_music(const std::string& music_url)
 {
-	if (gSavedSettings.getBOOL("AudioStreamingMusic"))
+	if (gSavedSettings.getBOOL("AudioStreamingMusic") && gSavedSettings.getBOOL("AudioSteamingMedia"))
 	{
 		// Make the user click the start button on the overlay bar. JC
 		//		llinfos << "Starting parcel music " << music_url << llendl;
@@ -1903,6 +1925,66 @@ void LLViewerParcelMgr::sendParcelAccessListUpdate(U32 which)
 
 			start_message = TRUE;
 			msg->sendReliable( region->getHost() );
+		}
+	}
+}
+
+class LLParcelMediaURLFilterResponder : public LLHTTPClient::Responder
+{
+	virtual void result(const LLSD& content)
+	{
+		LLViewerParcelMgr::getInstance()->receiveParcelMediaURLFilter(content);
+	}
+};
+
+void LLViewerParcelMgr::requestParcelMediaURLFilter()
+{
+	if (!mSelected)
+	{
+		return;
+	}
+
+	LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosGlobal( mWestSouth );
+	if (!region)
+	{
+		return;
+	}
+
+	LLParcel* parcel = mCurrentParcel;
+	if (!parcel)
+	{
+		llwarns << "no parcel" << llendl;
+		return;
+	}
+
+	LLSD body;
+	body["local-id"] = parcel->getLocalID();
+	body["list"] = parcel->getMediaURLFilterList();
+
+	std::string url = region->getCapability("ParcelMediaURLFilterList");
+	if (!url.empty())
+	{
+		LLHTTPClient::post(url, body, new LLParcelMediaURLFilterResponder);
+	}
+	else
+	{
+		llwarns << "can't get ParcelMediaURLFilterList cap" << llendl;
+	}
+}
+
+
+void LLViewerParcelMgr::receiveParcelMediaURLFilter(const LLSD &content)
+{
+	if (content.has("list"))
+	{
+		LLParcel* parcel = LLViewerParcelMgr::getInstance()->mCurrentParcel;
+		if (!parcel) return;
+		
+		if (content["local-id"].asInteger() == parcel->getLocalID())
+		{
+			parcel->setMediaURLFilterList(content["list"]);
+			
+			LLViewerParcelMgr::getInstance()->notifyObservers();
 		}
 	}
 }
@@ -2369,12 +2451,60 @@ void LLViewerParcelMgr::cleanupGlobals()
 	LLParcelSelection::sNullSelection = NULL;
 }
 
-LLViewerImage* LLViewerParcelMgr::getBlockedImage() const
+LLViewerTexture* LLViewerParcelMgr::getBlockedImage() const
 {
 	return sBlockedImage;
 }
 
-LLViewerImage* LLViewerParcelMgr::getPassImage() const
+LLViewerTexture* LLViewerParcelMgr::getPassImage() const
 {
 	return sPassImage;
+}
+
+boost::signals2::connection LLViewerParcelMgr::addAgentParcelChangedCallback(parcel_changed_callback_t cb)
+{
+	return mAgentParcelChangedSignal.connect(cb);
+}
+/*
+ * Set finish teleport callback. You can use it to observe all  teleport events.
+ * NOTE:
+ * After local( in one region) teleports we
+ *  cannot rely on gAgent.getPositionGlobal(),
+ *  so the new position gets passed explicitly.
+ *  Use args of this callback to get global position of avatar after teleport event.
+ */
+boost::signals2::connection LLViewerParcelMgr::setTeleportFinishedCallback(teleport_finished_callback_t cb)
+{
+	return mTeleportFinishedSignal.connect(cb);
+}
+
+boost::signals2::connection LLViewerParcelMgr::setTeleportFailedCallback(parcel_changed_callback_t cb)
+{
+	return mTeleportFailedSignal.connect(cb);
+}
+
+/* Ok, we're notified that teleport has been finished.
+ * We should now propagate the notification via mTeleportFinishedSignal
+ * to all interested parties.
+ */
+void LLViewerParcelMgr::onTeleportFinished(bool local, const LLVector3d& new_pos)
+{
+	if (local)
+	{
+		// Local teleport. We already have the agent parcel data.
+		// Emit the signal immediately.
+		getInstance()->mTeleportFinishedSignal(new_pos);
+	}
+	else
+	{
+		// Non-local teleport.
+		// The agent parcel data has not been updated yet.
+		// Let's wait for the update and then emit the signal.
+		mTeleportInProgress = TRUE;
+	}
+}
+
+void LLViewerParcelMgr::onTeleportFailed()
+{
+	mTeleportFailedSignal();
 }

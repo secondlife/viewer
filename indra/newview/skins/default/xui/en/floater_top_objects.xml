@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="true"
+ height="350"
+ layout="topleft"
+ min_height="300"
+ min_width="450"
+ name="top_objects"
+ title="loading..."
+ width="550">
+    <floater.string
+     name="top_scripts_title">
+        Top Scripts
+    </floater.string>
+    <floater.string
+     name="top_scripts_text">
+        [COUNT] scripts taking a total of [TIME] ms
+    </floater.string>
+    <floater.string
+     name="scripts_score_label">
+        Time
+    </floater.string>
+    <floater.string
+     name="scripts_mono_time_label">
+        Mono Time
+    </floater.string>
+    <floater.string
+     name="top_colliders_title">
+        Top Colliders
+    </floater.string>
+    <floater.string
+     name="top_colliders_text">
+        Top [COUNT] objects experiencing many potential collisions
+    </floater.string>
+    <floater.string
+     name="colliders_score_label">
+        Score
+    </floater.string>
+    <floater.string
+     name="none_descriptor">
+        None found.
+    </floater.string>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left="10"
+     name="title_text"
+     top="30"
+     width="400">
+        Loading...
+    </text>
+    <scroll_list
+     draw_heading="true"
+     follows="left|top|bottom|right"
+     height="150"
+     layout="topleft"
+     left_delta="0"
+     multi_select="true"
+     name="objects_list"
+     top_delta="20"
+     width="530">
+        <scroll_list.columns
+         label="Score"
+         name="score"
+         width="55" />
+        <scroll_list.columns
+         label="Name"
+         name="name"
+         width="140" />
+        <scroll_list.columns
+         label="Owner"
+         name="owner"
+         width="105" />
+        <scroll_list.columns
+         label="Location"
+         name="location"
+         width="130" />
+        <scroll_list.columns
+         label="Time"
+         name="time"
+         width="100" />
+        <scroll_list.columns
+         label="Mono Time"
+         name="mono_time"
+         width="55" />
+		<scroll_list.commit_callback
+          function="TopObjects.CommitObjectsList" />
+    </scroll_list>
+    <text
+     type="string"
+     length="1"
+     follows="left|bottom"
+     height="20"
+     layout="topleft"
+     left_delta="0"
+     name="id_text"
+     top_pad="10"
+     width="100">
+        Object ID:
+    </text>
+    <line_editor
+     enabled="false"
+     follows="left|bottom|right"
+     height="20"
+     layout="topleft"
+     left_delta="70"
+     name="id_editor"
+     top_delta="-3"
+     width="350" />
+    <button
+     follows="bottom|right"
+     height="20"
+     label="Show Beacon"
+     layout="topleft"
+     left_pad="10"
+     name="show_beacon_btn"
+     top_delta="0"
+     width="100">
+      <button.commit_callback
+          function="TopObjects.ShowBeacon" />
+    </button>
+    <text
+     type="string"
+     length="1"
+     follows="left|bottom"
+     height="20"
+     layout="topleft"
+     left="10"
+     name="obj_name_text"
+     top="237"
+     width="100">
+        Object Name:
+    </text>
+    <line_editor
+     follows="left|bottom|right"
+     height="20"
+     layout="topleft"
+     left_delta="70"
+     name="object_name_editor"
+     top_delta="-3"
+     width="350" />
+    <button
+     follows="bottom|right"
+     height="20"
+     label="Filter"
+     layout="topleft"
+     left_pad="10"
+     name="filter_object_btn"
+     top_delta="0"
+     width="100">
+      <button.commit_callback
+          function="TopObjects.GetByObjectName" />
+    </button>
+    <text
+     type="string"
+     length="1"
+     follows="left|bottom"
+     height="20"
+     layout="topleft"
+     left="10"
+     name="owner_name_text"
+     top="264"
+     width="100">
+        Owner Name:
+    </text>
+    <line_editor
+     follows="left|bottom|right"
+     height="20"
+     layout="topleft"
+     left_delta="70"
+     name="owner_name_editor"
+     top_delta="-3"
+     width="350" />
+    <button
+     follows="bottom|right"
+     height="20"
+     label="Filter"
+     layout="topleft"
+     left_pad="10"
+     name="filter_owner_btn"
+     top_delta="0"
+     width="100">
+      <button.commit_callback
+          function="TopObjects.GetByOwnerName" />
+    </button>
+    <button
+     follows="bottom|left"
+     height="20"
+     label="Return Selected"
+     layout="topleft"
+     left="10"
+     name="return_selected_btn"
+     top="295"
+     width="130">
+      <button.commit_callback
+          function="TopObjects.ReturnSelected" />
+    </button>
+    <button
+     follows="bottom|left"
+     height="20"
+     label="Return All"
+     layout="topleft"
+     left_pad="10"
+     name="return_all_btn"
+     top_delta="0"
+     width="130">
+      <button.commit_callback
+          function="TopObjects.ReturnAll" />
+    </button>
+    <button
+     follows="bottom|left"
+     height="20"
+     label="Disable Selected"
+     layout="topleft"
+     left="10"
+     name="disable_selected_btn"
+     top="320"
+     width="130">
+      <button.commit_callback
+          function="TopObjects.DisableSelected" />
+    </button>
+    <button
+     follows="bottom|left"
+     height="20"
+     label="Disable All"
+     layout="topleft"
+     left_pad="10"
+     name="disable_all_btn"
+     top_delta="0"
+     width="130">
+      <button.commit_callback
+          function="TopObjects.DisableAll" />
+    </button>
+    <button
+     bottom="315"
+     follows="bottom|right"
+     height="20"
+     label="Refresh"
+     layout="topleft"
+     name="refresh_btn"
+     right="-10"
+     width="100">
+      <button.commit_callback
+          function="TopObjects.Refresh" />
+    </button>
+</floater>

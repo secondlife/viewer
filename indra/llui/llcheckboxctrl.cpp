@@ -31,7 +31,6 @@
  */
 
 // The mutants are coming!
-
 #include "linden_common.h"
 
 #include "llcheckboxctrl.h"
@@ -49,101 +48,86 @@
 
 const U32 MAX_STRING_LENGTH = 10;
 
-static LLRegisterWidget<LLCheckBoxCtrl> r("check_box");
+static LLDefaultChildRegistry::Register<LLCheckBoxCtrl> r("check_box");
 
- 
-LLCheckBoxCtrl::LLCheckBoxCtrl(const std::string& name, const LLRect& rect, 
-							    const std::string& label, 
-								const LLFontGL* font,
-								void (*commit_callback)(LLUICtrl* ctrl, void* userdata),
-								void* callback_user_data,
-								BOOL initial_value,
-								BOOL use_radio_style,
-								const std::string& control_which)
-:	LLUICtrl(name, rect, TRUE, commit_callback, callback_user_data, FOLLOWS_LEFT | FOLLOWS_TOP),
-	mTextEnabledColor( LLUI::sColorsGroup->getColor( "LabelTextColor" ) ),
-	mTextDisabledColor( LLUI::sColorsGroup->getColor( "LabelDisabledColor" ) ),
-	mRadioStyle( use_radio_style ),
-	mInitialValue( initial_value ),
-	mSetValue( initial_value )
+LLCheckBoxCtrl::Params::Params()
+:	text_enabled_color("text_enabled_color"),
+	text_disabled_color("text_disabled_color"),
+	initial_value("initial_value", false),
+	label_text("label_text"),
+	check_button("check_button"),
+	radio_style("radio_style")
+{}
+
+
+LLCheckBoxCtrl::LLCheckBoxCtrl(const LLCheckBoxCtrl::Params& p)
+:	LLUICtrl(p),
+	mTextEnabledColor(p.text_enabled_color()),
+	mTextDisabledColor(p.text_disabled_color()),
+	mFont(p.font())
 {
-	if (font)
-	{
-		mFont = font;
-	}
-	else
-	{
-		mFont = LLFontGL::getFontSansSerifSmall();
-	}
+	mViewModel->setValue(LLSD(p.initial_value));
+	mViewModel->resetDirty();
+	static LLUICachedControl<S32> llcheckboxctrl_spacing ("UICheckboxctrlSpacing", 0);
+	static LLUICachedControl<S32> llcheckboxctrl_hpad ("UICheckboxctrlHPad", 0);
+	static LLUICachedControl<S32> llcheckboxctrl_vpad ("UICheckboxctrlVPad", 0);
+	static LLUICachedControl<S32> llcheckboxctrl_btn_size ("UICheckboxctrlBtnSize", 0);
 
 	// must be big enough to hold all children
 	setUseBoundingRect(TRUE);
 
-	mKeyboardFocusOnClick = TRUE;
-
 	// Label (add a little space to make sure text actually renders)
 	const S32 FUDGE = 10;
-	S32 text_width = mFont->getWidth( label ) + FUDGE;
+	S32 text_width = mFont->getWidth( p.label ) + FUDGE;
 	S32 text_height = llround(mFont->getLineHeight());
 	LLRect label_rect;
 	label_rect.setOriginAndSize(
-		LLCHECKBOXCTRL_HPAD + LLCHECKBOXCTRL_BTN_SIZE + LLCHECKBOXCTRL_SPACING,
-		LLCHECKBOXCTRL_VPAD + 1, // padding to get better alignment
-		text_width + LLCHECKBOXCTRL_HPAD,
+		llcheckboxctrl_hpad + llcheckboxctrl_btn_size + llcheckboxctrl_spacing,
+		llcheckboxctrl_vpad + 1, // padding to get better alignment
+		text_width + llcheckboxctrl_hpad,
 		text_height );
 
 	// *HACK Get rid of this with SL-55508... 
 	// this allows blank check boxes and radio boxes for now
-	std::string local_label = label;
+	std::string local_label = p.label;
 	if(local_label.empty())
 	{
 		local_label = " ";
 	}
 
-	mLabel = new LLTextBox( std::string("CheckboxCtrl Label"), label_rect, local_label, mFont );
-	mLabel->setFollowsLeft();
-	mLabel->setFollowsBottom();
+	LLTextBox::Params tbparams = p.label_text;
+	tbparams.rect(label_rect);
+	tbparams.text(local_label);
+	if (p.font.isProvided())
+	{
+		tbparams.font(p.font);
+	}
+	mLabel = LLUICtrlFactory::create<LLTextBox> (tbparams);
+
 	addChild(mLabel);
 
 	// Button
 	// Note: button cover the label by extending all the way to the right.
 	LLRect btn_rect;
 	btn_rect.setOriginAndSize(
-		LLCHECKBOXCTRL_HPAD,
-		LLCHECKBOXCTRL_VPAD,
-		LLCHECKBOXCTRL_BTN_SIZE + LLCHECKBOXCTRL_SPACING + text_width + LLCHECKBOXCTRL_HPAD,
-		llmax( text_height, LLCHECKBOXCTRL_BTN_SIZE ) + LLCHECKBOXCTRL_VPAD);
+		llcheckboxctrl_hpad,
+		llcheckboxctrl_vpad,
+		llcheckboxctrl_btn_size + llcheckboxctrl_spacing + text_width + llcheckboxctrl_hpad,
+		llmax( text_height, llcheckboxctrl_btn_size() ) + llcheckboxctrl_vpad);
 	std::string active_true_id, active_false_id;
 	std::string inactive_true_id, inactive_false_id;
-	if (mRadioStyle)
-	{
-		active_true_id = "UIImgRadioActiveSelectedUUID";
-		active_false_id = "UIImgRadioActiveUUID";
-		inactive_true_id = "UIImgRadioInactiveSelectedUUID";
-		inactive_false_id = "UIImgRadioInactiveUUID";
-		mButton = new LLButton(std::string("Radio control button"), btn_rect,
-							   active_false_id, active_true_id, control_which,
-							   &LLCheckBoxCtrl::onButtonPress, this, LLFontGL::getFontSansSerif() ); 
-		mButton->setDisabledImages( inactive_false_id, inactive_true_id );
-		mButton->setHoverGlowStrength(0.35f);
-	}
-	else
-	{
-		active_false_id = "UIImgCheckboxActiveUUID";
-		active_true_id = "UIImgCheckboxActiveSelectedUUID";
-		inactive_true_id = "UIImgCheckboxInactiveSelectedUUID";
-		inactive_false_id = "UIImgCheckboxInactiveUUID";
-		mButton = new LLButton(std::string("Checkbox control button"), btn_rect,
-							   active_false_id, active_true_id, control_which,
-							   &LLCheckBoxCtrl::onButtonPress, this, LLFontGL::getFontSansSerif() ); 
-		mButton->setDisabledImages( inactive_false_id, inactive_true_id );
-		mButton->setHoverGlowStrength(0.35f);
-	}
-	mButton->setIsToggle(TRUE);
-	mButton->setToggleState( initial_value );
-	mButton->setFollowsLeft();
-	mButton->setFollowsBottom();
-	mButton->setCommitOnReturn(FALSE);
+
+	LLButton::Params params = p.check_button;
+	params.rect(btn_rect);
+	//params.control_name(p.control_name);
+	params.click_callback.function(boost::bind(&LLCheckBoxCtrl::onButtonPress, this, _2));
+	params.commit_on_return(false);
+	// Checkboxes only allow boolean initial values, but buttons can
+	// take any LLSD.
+	params.initial_value(LLSD(p.initial_value));
+	params.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
+
+	mButton = LLUICtrlFactory::create<LLButton>(params);
 	addChild(mButton);
 }
 
@@ -154,24 +138,14 @@ LLCheckBoxCtrl::~LLCheckBoxCtrl()
 
 
 // static
-void LLCheckBoxCtrl::onButtonPress( void *userdata )
+void LLCheckBoxCtrl::onButtonPress( const LLSD& data )
 {
-	LLCheckBoxCtrl* self = (LLCheckBoxCtrl*) userdata;
+	//if (mRadioStyle)
+	//{
+	//	setValue(TRUE);
+	//}
 
-	if (self->mRadioStyle)
-	{
-		self->setValue(TRUE);
-	}
-
-	self->setControlValue(self->getValue());
-	// HACK: because buttons don't normally commit
-	self->onCommit();
-
-	if (self->mKeyboardFocusOnClick)
-	{
-		self->setFocus( TRUE );
-		self->onFocusReceived();
-	}
+	onCommit();
 }
 
 void LLCheckBoxCtrl::onCommit()
@@ -179,6 +153,7 @@ void LLCheckBoxCtrl::onCommit()
 	if( getEnabled() )
 	{
 		setTentative(FALSE);
+		setControlValue(getValue());
 		LLUICtrl::onCommit();
 	}
 }
@@ -186,7 +161,15 @@ void LLCheckBoxCtrl::onCommit()
 void LLCheckBoxCtrl::setEnabled(BOOL b)
 {
 	LLView::setEnabled(b);
-	mButton->setEnabled(b);
+
+	if (b)
+	{
+		mLabel->setColor( mTextEnabledColor.get() );
+	}
+	else
+	{
+		mLabel->setColor( mTextDisabledColor.get() );
+	}
 }
 
 void LLCheckBoxCtrl::clear()
@@ -197,41 +180,31 @@ void LLCheckBoxCtrl::clear()
 void LLCheckBoxCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	//stretch or shrink bounding rectangle of label when rebuilding UI at new scale
+	static LLUICachedControl<S32> llcheckboxctrl_spacing ("UICheckboxctrlSpacing", 0);
+	static LLUICachedControl<S32> llcheckboxctrl_hpad ("UICheckboxctrlHPad", 0);
+	static LLUICachedControl<S32> llcheckboxctrl_vpad ("UICheckboxctrlVPad", 0);
+	static LLUICachedControl<S32> llcheckboxctrl_btn_size ("UICheckboxctrlBtnSize", 0);
+
 	const S32 FUDGE = 10;
 	S32 text_width = mFont->getWidth( mLabel->getText() ) + FUDGE;
 	S32 text_height = llround(mFont->getLineHeight());
 	LLRect label_rect;
 	label_rect.setOriginAndSize(
-		LLCHECKBOXCTRL_HPAD + LLCHECKBOXCTRL_BTN_SIZE + LLCHECKBOXCTRL_SPACING,
-		LLCHECKBOXCTRL_VPAD,
+		llcheckboxctrl_hpad + llcheckboxctrl_btn_size + llcheckboxctrl_spacing,
+		llcheckboxctrl_vpad,
 		text_width,
 		text_height );
 	mLabel->setRect(label_rect);
 
 	LLRect btn_rect;
 	btn_rect.setOriginAndSize(
-		LLCHECKBOXCTRL_HPAD,
-		LLCHECKBOXCTRL_VPAD,
-		LLCHECKBOXCTRL_BTN_SIZE + LLCHECKBOXCTRL_SPACING + text_width,
-		llmax( text_height, LLCHECKBOXCTRL_BTN_SIZE ) );
+		llcheckboxctrl_hpad,
+		llcheckboxctrl_vpad,
+		llcheckboxctrl_btn_size + llcheckboxctrl_spacing + text_width,
+		llmax( text_height, llcheckboxctrl_btn_size() ) );
 	mButton->setRect( btn_rect );
 	
 	LLUICtrl::reshape(width, height, called_from_parent);
-}
-
-void LLCheckBoxCtrl::draw()
-{
-	if (getEnabled())
-	{
-		mLabel->setColor( mTextEnabledColor );
-	}
-	else
-	{
-		mLabel->setColor( mTextDisabledColor );
-	}
-
-	// Draw children
-	LLUICtrl::draw();
 }
 
 //virtual
@@ -244,6 +217,18 @@ void LLCheckBoxCtrl::setValue(const LLSD& value )
 LLSD LLCheckBoxCtrl::getValue() const
 {
 	return mButton->getValue();
+}
+
+//virtual
+void LLCheckBoxCtrl::setTentative(BOOL b)
+{
+	mButton->setTentative(b);
+}
+
+//virtual
+BOOL LLCheckBoxCtrl::getTentative() const
+{
+	return mButton->getTentative();
 }
 
 void LLCheckBoxCtrl::setLabel( const LLStringExplicit& label )
@@ -264,12 +249,6 @@ BOOL LLCheckBoxCtrl::setLabelArg( const std::string& key, const LLStringExplicit
 	return res;
 }
 
-//virtual
-std::string LLCheckBoxCtrl::getControlName() const
-{
-	return mButton->getControlName();
-}
-
 // virtual
 void LLCheckBoxCtrl::setControlName(const std::string& control_name, LLView* context)
 {
@@ -282,7 +261,7 @@ BOOL	 LLCheckBoxCtrl::isDirty() const
 {
 	if ( mButton )
 	{
-		return (mSetValue != mButton->getToggleState());
+		return mButton->isDirty();
 	}
 	return FALSE;		// Shouldn't get here
 }
@@ -293,78 +272,6 @@ void	LLCheckBoxCtrl::resetDirty()
 {
 	if ( mButton )
 	{
-		mSetValue = mButton->getToggleState();
+		mButton->resetDirty();
 	}
-}
-
-
-
-// virtual
-LLXMLNodePtr LLCheckBoxCtrl::getXML(bool save_children) const
-{
-	LLXMLNodePtr node = LLUICtrl::getXML();
-
-	node->createChild("label", TRUE)->setStringValue(mLabel->getText());
-
-	std::string control_name = mButton->getControlName();
-	
-	node->createChild("initial_value", TRUE)->setBoolValue(mInitialValue);
-
-	node->createChild("font", TRUE)->setStringValue(LLFontGL::nameFromFont(mFont));
-
-	node->createChild("radio_style", TRUE)->setBoolValue(mRadioStyle);
-
-	return node;
-}
-
-// static
-LLView* LLCheckBoxCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
-{
-	std::string name("checkbox");
-	node->getAttributeString("name", name);
-
-	std::string label("");
-	node->getAttributeString("label", label);
-
-	LLFontGL* font = LLView::selectFont(node);
-
-	BOOL radio_style = FALSE;
-	node->getAttributeBOOL("radio_style", radio_style);
-
-	LLUICtrlCallback callback = NULL;
-
-	if (label.empty())
-	{
-		label.assign(node->getTextContents());
-	}
-
-	LLRect rect;
-	createRect(node, rect, parent, LLRect());
-
-	LLCheckBoxCtrl* checkbox = new LLCheckboxCtrl(name, 
-		rect, 
-		label,
-		font,
-		callback,
-		NULL,
-		FALSE,
-		radio_style); // if true, draw radio button style icons
-
-	BOOL initial_value = checkbox->getValue().asBoolean();
-	node->getAttributeBOOL("initial_value", initial_value);
-
-	LLColor4 color;
-	color = LLUI::sColorsGroup->getColor( "LabelTextColor" );
-	LLUICtrlFactory::getAttributeColor(node,"text_enabled_color", color);
-	checkbox->setEnabledColor(color);
-
-	color = LLUI::sColorsGroup->getColor( "LabelDisabledColor" );
-	LLUICtrlFactory::getAttributeColor(node,"text_disabled_color", color);
-	checkbox->setDisabledColor(color);
-
-	checkbox->setValue(initial_value);
-
-	checkbox->initFromXML(node, parent);
-
-	return checkbox;
 }

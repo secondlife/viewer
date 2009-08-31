@@ -34,6 +34,7 @@
 #define LL_LLIMAGEWORKER_H
 
 #include "llimage.h"
+#include "llpointer.h"
 #include "llworkerthread.h"
 
 class LLImageWorker : public LLWorkerClass

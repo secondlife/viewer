@@ -37,34 +37,28 @@
 
 class LLFloaterMemLeak : public LLFloater
 {
+	friend class LLFloaterReg;
 public:
-    LLFloaterMemLeak();
-	virtual ~LLFloaterMemLeak();
-
 	/// initialize all the callbacks for the menu
-	//void initCallbacks(void);
+
 	virtual BOOL postBuild() ;
 	virtual void draw() ;
-
-	/// one and one instance only
-	static LLFloaterMemLeak* instance();
 	
-	static void onChangeLeakingSpeed(LLUICtrl* ctrl, void* userData);
-	static void onChangeMaxMemLeaking(LLUICtrl* ctrl, void* userData);
-	static void onClickStart(void* userData);
-	static void onClickStop(void* userData);
-	static void onClickRelease(void* userData);
-	static void onClickClose(void* userData);
-		
-	/// show off our menu
-	static void show(void*);
+	void onChangeLeakingSpeed();
+	void onChangeMaxMemLeaking();
+	void onClickStart();
+	void onClickStop();
+	void onClickRelease();
+	void onClickClose();
 
 public:
-	static LLFloaterMemLeak* getInstance() ;
 	void idle() ;
 	void stop() ;
 
 private:
+	
+	LLFloaterMemLeak(const LLSD& key);
+	virtual ~LLFloaterMemLeak();
 	void release() ;
 
 private:
@@ -74,9 +68,6 @@ private:
 		STOP,
 		START
 	} ;
-
-	// one instance on the inside
-	static LLFloaterMemLeak* sInstance;
 
 	static U32 sMemLeakingSpeed ; //bytes leaked per frame
 	static U32 sMaxLeakedMem ; //maximum allowed leaked memory

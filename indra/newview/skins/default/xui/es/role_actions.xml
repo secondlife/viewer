@@ -193,7 +193,7 @@
 		     longdescription="Quien tenga un rol con esta capacidad puede abrir sesiones de chat de voz del grupo. NOTA: para acceder al chat de voz debe tenerse la capacidad &apos;Abrir chat de grupo&apos;."
 		     name="join voice chat" value="27" />
 		<action description="Moderar el chat de grupo"
-		     longdescription="Quien tenga esta capacidad puede controlar el acceso y la participaciones en los chats de texto y de voz del grupo."
+		     longdescription="Quien tenga esta capacidad puede controlar el acceso y la participación en los chats de texto y de voz del grupo."
 		     name="moderate group chat" value="37" />
 	</action_set>
 </role_actions>

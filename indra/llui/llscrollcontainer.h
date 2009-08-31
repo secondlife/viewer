@@ -1,6 +1,6 @@
 /** 
  * @file llscrollcontainer.h
- * @brief LLScrollableContainerView class header file.
+ * @brief LLScrollContainer class header file.
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -53,39 +53,57 @@ class LLUICtrlFactory;
  * the width and height of the view you're scrolling.
  *
  *****************************************************************************/
-class LLScrollableContainerView : public LLUICtrl
+
+struct ScrollContainerRegistry : public LLChildRegistry<ScrollContainerRegistry>
+{};
+
+class LLScrollContainer : public LLUICtrl
 {
 public:
 	// Note: vertical comes before horizontal because vertical
 	// scrollbars have priority for mouse and keyboard events.
 	enum SCROLL_ORIENTATION { VERTICAL, HORIZONTAL, SCROLLBAR_COUNT };
 
-	LLScrollableContainerView( const std::string& name, const LLRect& rect,
-							   LLView* scrolled_view, BOOL is_opaque = FALSE,
-							   const LLColor4& bg_color = LLColor4(0,0,0,0) );
-	LLScrollableContainerView( const std::string& name, const LLRect& rect,
-							   LLUICtrl* scrolled_ctrl, BOOL is_opaque = FALSE,
-							   const LLColor4& bg_color = LLColor4(0,0,0,0) );
-	virtual ~LLScrollableContainerView( void );
+	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
+	{
+		Optional<bool>		is_opaque,
+							reserve_scroll_corner,
+							border_visible;
+		Optional<F32>		min_auto_scroll_rate,
+							max_auto_scroll_rate;
+		Optional<LLUIColor>	bg_color;
+		Optional<LLScrollbar::callback_t> scroll_callback;
+		
+		Params();
+	};
 
-	void setScrolledView(LLView* view) { mScrolledView = view; }
+	// my valid children are stored in this registry
+ 	typedef ScrollContainerRegistry child_registry_t;
 
-	virtual void setValue(const LLSD& value) { mInnerRect.setValue(value); }
+protected:
+	LLScrollContainer(const Params&);
+	friend class LLUICtrlFactory;
+public:
+	virtual ~LLScrollContainer( void );
 
-	void			calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
-	void			calcVisibleSize( const LLRect& doc_rect, S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
+	virtual void 	setValue(const LLSD& value) { mInnerRect.setValue(value); }
+
 	void			setBorderVisible( BOOL b );
 
-	void			scrollToShowRect( const LLRect& rect, const LLCoordGL& desired_offset );
+	void			scrollToShowRect( const LLRect& rect, const LLRect& constraint);
+	void			scrollToShowRect( const LLRect& rect) { scrollToShowRect(rect, LLRect(0, mInnerRect.getHeight(), mInnerRect.getWidth(), 0)); }
+
 	void			setReserveScrollCorner( BOOL b ) { mReserveScrollCorner = b; }
-	const LLRect&	getScrolledViewRect() const { return mScrolledView->getRect(); }
+	LLRect			getVisibleContentRect();
+	LLRect			getContentWindowRect() const;
+	const LLRect&	getScrolledViewRect() const { return mScrolledView ? mScrolledView->getRect() : LLRect::null; }
 	void			pageUp(S32 overlap = 0);
 	void			pageDown(S32 overlap = 0);
 	void			goToTop();
 	void			goToBottom();
+	bool			isAtTop() { return mScrollbar[VERTICAL]->isAtBeginning(); }
+	bool			isAtBottom() { return mScrollbar[VERTICAL]->isAtEnd(); }
 	S32				getBorderWidth() const;
-
-	BOOL			needsToScroll(S32 x, S32 y, SCROLL_ORIENTATION axis) const;
 
 	// LLView functionality
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
@@ -97,30 +115,30 @@ public:
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
 
-	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect);
 	virtual void	draw();
-
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
+	virtual bool	addChild(LLView* view, S32 tab_group = 0);
+	
+	bool autoScroll(S32 x, S32 y);
 
 private:
-	void init();
-
 	// internal scrollbar handlers
 	virtual void scrollHorizontal( S32 new_pos );
 	virtual void scrollVertical( S32 new_pos );
 	void updateScroll();
+	void calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
 
 	LLScrollbar* mScrollbar[SCROLLBAR_COUNT];
 	LLView*		mScrolledView;
 	S32			mSize;
 	BOOL		mIsOpaque;
-	LLColor4	mBackgroundColor;
+	LLUIColor	mBackgroundColor;
 	LLRect		mInnerRect;
 	LLViewBorder* mBorder;
 	BOOL		mReserveScrollCorner;
 	BOOL		mAutoScrolling;
 	F32			mAutoScrollRate;
+	F32			mMinAutoScrollRate;
+	F32			mMaxAutoScrollRate;
 };
 
 

@@ -1019,9 +1019,9 @@ bool LLMotionController::isMotionLoading(LLMotion* motion)
 //-----------------------------------------------------------------------------
 // findMotion()
 //-----------------------------------------------------------------------------
-LLMotion* LLMotionController::findMotion(const LLUUID& id)
+LLMotion* LLMotionController::findMotion(const LLUUID& id) const
 {
-	motion_map_t::iterator iter = mAllMotions.find(id);
+	motion_map_t::const_iterator iter = mAllMotions.find(id);
 	if(iter == mAllMotions.end())
 	{
 		return NULL;

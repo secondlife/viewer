@@ -72,7 +72,7 @@
 #include "v3dmath.h"
 #include "v4math.h"
 #include "v4color.h"
-#include "llmemory.h"
+#include "llpointer.h"
 #include "lldarray.h"
 
 #include "llframetimer.h"

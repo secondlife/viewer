@@ -85,13 +85,13 @@ static const std::string PARCEL_CATEGORY_UI_STRING[LLParcel::C_COUNT + 1] =
     "None",
     "Linden Location",
     "Adult",
-    "Arts & Culture",
+    "Arts and Culture",
     "Business",
     "Educational",
     "Gaming",
     "Hangout",
     "Newcomer Friendly",
-    "Parks & Nature",
+    "Parks and Nature",
     "Residential",
     "Shopping",
     "Stage",
@@ -199,6 +199,12 @@ void LLParcel::init(const LLUUID &owner_id,
 	mObscureMusic = 1;
 	mMediaWidth = 0;
 	mMediaHeight = 0;
+	setMediaCurrentURL(LLStringUtil::null);
+	mMediaURLFilterEnable = FALSE;
+	mMediaURLFilterList = LLSD::emptyArray();
+	mMediaAllowNavigate = TRUE;
+	mMediaURLTimeout = 0.0f;
+	mMediaPreventCameraZoom = FALSE;
 
 	mGroupID.setNull();
 
@@ -314,6 +320,56 @@ void LLParcel::setMediaHeight(S32 height)
 {
 	mMediaHeight = height;
 }
+
+void LLParcel::setMediaCurrentURL(const std::string& url)
+{
+    mMediaCurrentURL = url;
+    // The escaping here must match the escaping in the database
+    // abstraction layer if it's ever added.
+    // This should really filter the url in some way. Other than
+    // simply requiring non-printable.
+    LLStringFn::replace_nonprintable_in_ascii(mMediaCurrentURL, LL_UNKNOWN_CHAR);
+	
+}
+
+void LLParcel::setMediaURLResetTimer(F32 time)
+{
+	mMediaResetTimer.start();
+	mMediaResetTimer.setTimerExpirySec(time);
+}
+
+void LLParcel::setMediaURLFilterList(LLSD list)
+{
+	// sanity check LLSD
+	// must be array of strings
+	if (!list.isArray())
+	{
+		return;
+	}
+
+	for (S32 i = 0; i < list.size(); i++)
+	{
+		if (!list[i].isString())
+			return;
+	}
+
+	// can't be too big
+	const S32 MAX_SIZE = 50;
+	if (list.size() > MAX_SIZE)
+	{
+		LLSD new_list = LLSD::emptyArray();
+
+		for (S32 i = 0; i < llmin(list.size(), MAX_SIZE); i++)
+		{
+			new_list.append(list[i]);
+		}
+
+		list = new_list;
+	}
+	
+	mMediaURLFilterList = list;
+}
+
 // virtual
 void LLParcel::setLocalID(S32 local_id)
 {
@@ -568,6 +624,34 @@ BOOL LLParcel::importAccessEntry(std::istream& input_stream, LLAccessEntry* entr
     return input_stream.good();
 }
 
+BOOL LLParcel::importMediaURLFilter(std::istream& input_stream, std::string& url)
+{
+	skip_to_end_of_next_keyword("{", input_stream);
+
+	while(input_stream.good())
+	{
+		skip_comments_and_emptyspace(input_stream);
+		std::string line, keyword, value;
+		get_line(line, input_stream, MAX_STRING);
+		get_keyword_and_value(keyword, value, line);
+
+		if ("}" == keyword)
+		{
+			break;
+		}
+		else if ("url" == keyword)
+		{
+			url = value;
+		}
+		else
+		{
+			llwarns << "Unknown keyword in parcel media url filter section: <"
+					<< keyword << ">" << llendl;
+		}
+	}
+	return input_stream.good();
+}
+
 // Assumes we are in a block "ParcelData"
 void LLParcel::packMessage(LLMessageSystem* msg)
 {
@@ -593,6 +677,7 @@ void LLParcel::packMessage(LLMessageSystem* msg)
 // Assumes we are in a block "ParcelData"
 void LLParcel::packMessage(LLSD& msg)
 {
+	// used in the viewer, the sim uses it's own packer
 	msg["local_id"] = getLocalID();
 	msg["parcel_flags"] = ll_sd_from_U32(getParcelFlags());
 	msg["sale_price"] = getSalePrice();
@@ -606,9 +691,15 @@ void LLParcel::packMessage(LLSD& msg)
 	msg["media_height"] = getMediaHeight();
 	msg["auto_scale"] = getMediaAutoScale();
 	msg["media_loop"] = getMediaLoop();
+	msg["media_current_url"] = getMediaCurrentURL();
 	msg["obscure_media"] = getObscureMedia();
 	msg["obscure_music"] = getObscureMusic();
 	msg["media_id"] = getMediaID();
+	msg["media_allow_navigate"] = getMediaAllowNavigate();
+	msg["media_prevent_camera_zoom"] = getMediaPreventCameraZoom();
+	msg["media_url_timeout"] = getMediaURLTimeout();
+	msg["media_url_filter_enable"] = getMediaURLFilterEnable();
+	msg["media_url_filter_list"] = getMediaURLFilterList();
 	msg["group_id"] = getGroupID();
 	msg["pass_price"] = mPassPrice;
 	msg["pass_hours"] = mPassHours;
@@ -678,6 +769,21 @@ void LLParcel::unpackMessage(LLMessageSystem* msg)
 		mObscureMedia = true;
 		mObscureMusic = true;
 	}
+
+	if(msg->getNumberOfBlocks("MediaLinkSharing") > 0)
+	{
+		msg->getString("MediaLinkSharing", "MediaCurrentURL", buffer);
+		setMediaCurrentURL(buffer);
+		msg->getU8 ( "MediaLinkSharing", "MediaAllowNavigate", mMediaAllowNavigate );
+		msg->getU8 ( "MediaLinkSharing", "MediaURLFilterEnable", mMediaURLFilterEnable );
+		msg->getU8 ( "MediaLinkSharing", "MediaPreventCameraZoom", mMediaPreventCameraZoom );
+		msg->getF32( "MediaLinkSharing", "MediaURLTimeout", mMediaURLTimeout);
+	}
+	else
+	{
+		setMediaCurrentURL(LLStringUtil::null);
+	}
+	
 }
 
 void LLParcel::packAccessEntries(LLMessageSystem* msg,
@@ -994,6 +1100,20 @@ BOOL LLParcel::isSaleTimerExpired(const U64& time)
     return expired;
 }
 
+BOOL LLParcel::isMediaResetTimerExpired(const U64& time)
+{
+    if (mMediaResetTimer.getStarted() == FALSE)
+    {
+        return FALSE;
+    }
+    BOOL expired = mMediaResetTimer.checkExpirationAndReset(0.0);
+    if (expired)
+    {
+        mMediaResetTimer.stop();
+    }
+    return expired;
+}
+
 
 void LLParcel::startSale(const LLUUID& buyer_id, BOOL is_buyer_group)
 {
@@ -1117,6 +1237,12 @@ void LLParcel::clearParcel()
 	mObscureMusic = 1;
 	mMediaWidth = 0;
 	mMediaHeight = 0;
+	setMediaCurrentURL(LLStringUtil::null);
+	setMediaURLFilterList(LLSD::emptyArray());
+	setMediaURLFilterEnable(FALSE);
+	setMediaAllowNavigate(TRUE);
+	setMediaPreventCameraZoom(FALSE);
+	setMediaURLTimeout(0.0f);
 	setMusicURL(LLStringUtil::null);
 	setInEscrow(FALSE);
 	setAuthorizedBuyerID(LLUUID::null);

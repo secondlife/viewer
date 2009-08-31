@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ border="true"
+ follows="all"
+ height="445"
+ label="General"
+ class="panel_group_general"
+ layout="topleft"
+ left="1"
+ name="general_tab"
+ top="500"
+ width="280">
+    <panel.string
+     name="help_text">
+        The General tab contains general information about
+this group, a list of Owners and visible Members, 
+general Group Preferences and member options.
+
+Hover your mouse over the options for more help.
+    </panel.string>
+    <panel.string
+     name="group_info_unchanged">
+        General group information has changed.
+    </panel.string>
+    <panel.string
+     name="incomplete_member_data_str">
+        Retrieving member data
+    </panel.string>
+    <panel.string
+     name="group_join_btn">
+        Join (L$[AMOUNT])
+    </panel.string>
+    <!--<button
+     follows="left|top"
+     height="16"
+     label="?"
+     label_selected="?"
+     layout="topleft"
+     left="255"
+     name="help_button"
+     top="8"
+     width="20" /> -->
+    <text_editor
+     type="string"
+     follows="left|top"
+     left="5"
+     height="75"
+     hide_scrollbar="true"
+     layout="topleft"
+     max_length="511"
+     name="charter"
+     top="5"
+     width="260"
+     word_wrap="true">
+        Group Charter
+    </text_editor>
+    <text
+      follows="left|top"
+     type="string"
+     font="SansSerifBig"
+     tool_tip="Owners are shown in bold."
+     height="16"
+     layout="topleft"
+     left="5"
+     name="text_owners_and_visible_members"
+     top_pad="10"
+     width="270">
+        Members
+    </text>
+    <name_list
+     column_padding="0"
+     draw_heading="true"
+     follows="left|top"
+     heading_height="14"
+     height="80"
+     layout="topleft"
+     left_delta="0"
+     name="visible_members"
+     top_pad="0"
+     width="263">
+        <name_list.columns
+         label="Member Name"
+         name="name"
+         relative_width="0.6" />
+        <name_list.columns
+         label="Title"
+         name="title"
+         relative_width="0.4" />
+      </name_list>
+    <text
+      follows="left|top"
+      height="16"
+     type="string"
+     top_pad="10"
+     font="SansSerifBig"
+     layout="topleft"
+     name="text_group_preferences">
+        Group Preferences
+    </text>
+         <text
+         follows="left|top"
+         type="string"
+         height="16"
+         layout="topleft"
+         left_delta="0"
+         name="active_title_label"
+         top_pad="8"
+         width="240">
+            My Active Title
+        </text>
+        <combo_box
+         follows="left|top"
+         height="20"
+         layout="topleft"
+         left_delta="0"
+         name="active_title"
+         tool_tip="Sets the title that appears in your avatar&apos;s name tag   when this group is active."
+         top_pad="0"
+         width="240" />
+        <check_box
+         height="16"
+         font="SansSerifSmall"
+         label="Receive notices"
+         layout="topleft"
+         left_delta="0"
+         name="receive_notices"
+         tool_tip="Sets whether you want to receive Notices from this group.   Uncheck this box if this group is spamming you."
+         top_pad="5"
+         width="240" />
+        <check_box
+         height="16"
+         label="Show in my profile"
+         layout="topleft"
+         left_delta="0"
+         name="list_groups_in_profile"
+         tool_tip="Sets whether you want to show this group in your Profile"
+         top_pad="5"
+         width="240" />
+        <panel
+         background_visible="true"
+         bevel_style="in"
+         border="true"
+         bg_alpha_color="FloaterUnfocusBorderColor"
+         follows="left|top"
+         height="125"
+         layout="topleft"
+         left_delta="0"
+         name="preferences_container"
+         top_pad="10"
+         width="263">
+        <check_box
+         follows="right|top"
+         height="16"
+         label="Open enrollment"
+         layout="topleft"
+         left_delta="0"
+         name="open_enrollement"
+         tool_tip="Sets whether this group allows new members to join without being invited."
+         top_pad="5"
+         width="90" />
+        <check_box
+         height="16"
+         label="Enrollment fee:"
+         layout="topleft"
+         left_delta="0"
+         name="check_enrollment_fee"
+         tool_tip="Sets whether to require an enrollment fee to join the group."
+         top_pad="5"
+         width="90" />
+        <spinner
+         decimal_digits="0"
+         follows="left|top"
+         halign="left"
+         height="16"
+         increment="1"
+         label_width="20"
+         label="L$"
+         layout="topleft"
+         left="25"
+         max_val="99999"
+         top_pad="5"
+         name="spin_enrollment_fee"
+         tool_tip="New members must pay this fee to join the group when   Enrollment Fee is checked."
+         top_delta="-2"
+         width="75" />
+        <check_box
+         height="16"
+         initial_value="true"
+         label="Show in search"
+         layout="topleft"
+         left="4"
+         name="show_in_group_list"
+         tool_tip="Let people see this group in search results."
+         top_pad="4"
+         width="90" />
+        <combo_box
+         height="20"
+         layout="topleft"
+         left_delta="0"
+         name="group_mature_check"
+         tool_tip="Sets whether your group information is considered mature."
+         top_pad="10"
+         width="240">
+            <combo_box.item
+             label="Select Mature -"
+             name="select_mature"
+             value="Select" />
+            <combo_box.item
+             label="Mature Content"
+             name="mature"
+             value="Mature" />
+            <combo_box.item
+             label="PG Content"
+             name="pg"
+             value="Not Mature" />
+        </combo_box>  
+    </panel>
+</panel> 

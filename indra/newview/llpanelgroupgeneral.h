@@ -49,11 +49,10 @@ class LLSpinCtrl;
 class LLPanelGroupGeneral : public LLPanelGroupTab
 {
 public:
-	LLPanelGroupGeneral(const std::string& name, const LLUUID& group_id);
+	LLPanelGroupGeneral();
 	virtual ~LLPanelGroupGeneral();
 
 	// LLPanelGroupTab
-	static void* createTab(void* data);
 	virtual void activate();
 	virtual bool needsApply(std::string& mesg);
 	virtual bool apply(std::string& mesg);
@@ -66,7 +65,15 @@ public:
 	
 	virtual void draw();
 
+	virtual void setGroupID(const LLUUID& id);
+
+	virtual void setupCtrls	(LLPanel* parent);
+
 private:
+	void	reset();
+
+	void	resetDirty();
+
 	static void onFocusEdit(LLFocusableElement* ctrl, void* data);
 	static void onCommitAny(LLUICtrl* ctrl, void* data);
 	static void onCommitUserOnly(LLUICtrl* ctrl, void* data);
@@ -87,17 +94,13 @@ private:
 	BOOL			mChanged;
 	BOOL			mFirstUse;
 	std::string		mIncompleteMemberDataStr;
-	std::string		mConfirmGroupCreateStr;
 	LLUUID			mDefaultIconID;
 
 	// Group information (include any updates in updateChanged)
 	LLLineEditor		*mGroupNameEditor;
-	LLTextBox			*mGroupName;
 	LLNameBox			*mFounderName;
 	LLTextureCtrl		*mInsignia;
 	LLTextEditor		*mEditCharter;
-	LLButton			*mBtnJoinGroup;
-	LLButton			*mBtnInfo;
 
 	LLNameListCtrl	*mListVisibleMembers;
 

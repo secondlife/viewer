@@ -37,20 +37,18 @@
 
 #include "lloverlaybar.h"
 
-#include "audioengine.h"
+#include "llaudioengine.h"
 #include "llrender.h"
 #include "llagent.h"
 #include "llbutton.h"
-#include "llchatbar.h"
 #include "llfocusmgr.h"
 #include "llimview.h"
 #include "llmediaremotectrl.h"
-#include "llpanelaudiovolume.h"
 #include "llparcel.h"
 #include "lltextbox.h"
 #include "llui.h"
 #include "llviewercontrol.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llviewerjoystick.h"
 #include "llviewermedia.h"
 #include "llviewermenu.h"	// handle_reset_view()
@@ -60,9 +58,9 @@
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "llvoiceclient.h"
-#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llvoiceremotectrl.h"
-#include "llwebbrowserctrl.h"
+#include "llmediactrl.h"
 #include "llselectmgr.h"
 
 //
@@ -89,14 +87,8 @@ void* LLOverlayBar::createMediaRemote(void* userdata)
 void* LLOverlayBar::createVoiceRemote(void* userdata)
 {
 	LLOverlayBar *self = (LLOverlayBar*)userdata;	
-	self->mVoiceRemote = new LLVoiceRemoteCtrl(std::string("voice_remote"));
+	self->mVoiceRemote = new LLVoiceRemoteCtrl();
 	return self->mVoiceRemote;
-}
-
-void* LLOverlayBar::createChatBar(void* userdata)
-{
-	gChatBar = new LLChatBar();
-	return gChatBar;
 }
 
 LLOverlayBar::LLOverlayBar()
@@ -110,22 +102,22 @@ LLOverlayBar::LLOverlayBar()
 
 	mBuilt = false;
 
-	LLCallbackMap::map_t factory_map;
-	factory_map["media_remote"] = LLCallbackMap(LLOverlayBar::createMediaRemote, this);
-	factory_map["voice_remote"] = LLCallbackMap(LLOverlayBar::createVoiceRemote, this);
-	factory_map["chat_bar"] = LLCallbackMap(LLOverlayBar::createChatBar, this);
+	mFactoryMap["media_remote"] = LLCallbackMap(LLOverlayBar::createMediaRemote, this);
+	mFactoryMap["voice_remote"] = LLCallbackMap(LLOverlayBar::createVoiceRemote, this);
 	
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_overlaybar.xml", &factory_map);
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_overlaybar.xml");
 }
 
 BOOL LLOverlayBar::postBuild()
 {
-	childSetAction("IM Received",onClickIMReceived,this);
 	childSetAction("Set Not Busy",onClickSetNotBusy,this);
 	childSetAction("Mouselook",onClickMouselook,this);
 	childSetAction("Stand Up",onClickStandUp,this);
  	childSetAction("Flycam",onClickFlycam,this);
 	childSetVisible("chat_bar", gSavedSettings.getBOOL("ChatVisible"));
+
+	mVoiceRemote->expandOrCollapse();
+	mMediaRemote->expandOrCollapse();
 
 	setFocusRoot(TRUE);
 	mBuilt = true;
@@ -168,8 +160,9 @@ void LLOverlayBar::layoutButtons()
 
 		// calculate button widths
 		const S32 MAX_BUTTON_WIDTH = 150;
+		const S32 STATUS_BAR_PAD = 10;
 		S32 segment_width = llclamp(lltrunc((F32)(bar_width) / (F32)button_list.size()), 0, MAX_BUTTON_WIDTH);
-		S32 btn_width = segment_width - gSavedSettings.getS32("StatusBarPad");
+		S32 btn_width = segment_width - STATUS_BAR_PAD;
 
 		// Evenly space all buttons, starting from left
 		S32 left = 0;
@@ -238,7 +231,7 @@ void LLOverlayBar::refresh()
 	BOOL sitting = FALSE;
 	if (gAgent.getAvatarObject())
 	{
-		sitting = gAgent.getAvatarObject()->mIsSitting;
+		sitting = gAgent.getAvatarObject()->isSitting();
 	}
 	button = getChild<LLButton>("Stand Up");
 
@@ -283,13 +276,6 @@ void LLOverlayBar::refresh()
 //-----------------------------------------------------------------------
 
 // static
-void LLOverlayBar::onClickIMReceived(void*)
-{
-	gIMMgr->setFloaterOpen(TRUE);
-}
-
-
-// static
 void LLOverlayBar::onClickSetNotBusy(void*)
 {
 	gAgent.clearBusy();
@@ -329,7 +315,7 @@ void LLOverlayBar::mediaStop(void*)
 {
 	if (!gOverlayBar)
 	{
-		return;
+		// return;
 	}
 	LLViewerParcelMedia::stop();
 }
@@ -338,15 +324,15 @@ void LLOverlayBar::toggleMediaPlay(void*)
 {
 	if (!gOverlayBar)
 	{
-		return;
+		// return;
 	}
 
 	
-	if (LLViewerMedia::isMediaPaused())
+	if (LLViewerParcelMedia::getStatus() == LLViewerMediaImpl::MEDIA_PAUSED)
 	{
 		LLViewerParcelMedia::start();
 	}
-	else if(LLViewerMedia::isMediaPlaying())
+	else if(LLViewerParcelMedia::getStatus() == LLViewerMediaImpl::MEDIA_PLAYING)
 	{
 		LLViewerParcelMedia::pause();
 	}

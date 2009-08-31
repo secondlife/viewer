@@ -43,7 +43,8 @@ public:
 	LLDir_Mac();
 	virtual ~LLDir_Mac();
 
-	virtual void initAppDirs(const std::string &app_name);
+	/*virtual*/ void initAppDirs(const std::string &app_name,
+		const std::string& app_read_only_data_dir);
 public:	
 	virtual S32 deleteFilesInDir(const std::string &dirname, const std::string &mask);
 	virtual std::string getCurPath();
@@ -51,6 +52,9 @@ public:
 	virtual BOOL getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap);
 	virtual void getRandomFileInDir(const std::string &dirname, const std::string &ask, std::string &fname);
 	virtual BOOL fileExists(const std::string &filename) const;
+
+	/*virtual*/ std::string getLLPluginLauncher();
+	/*virtual*/ std::string getLLPluginFilename(std::string base_name);
 
 private:
 	int mCurrentDirIndex;

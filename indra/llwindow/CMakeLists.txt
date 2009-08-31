@@ -19,7 +19,6 @@ include(LLRender)
 include(LLVFS)
 include(LLWindow)
 include(LLXML)
-include(Mozlib)
 include(UI)
 
 include_directories(
@@ -35,13 +34,15 @@ include_directories(
 set(llwindow_SOURCE_FILES
     llkeyboard.cpp
     llwindowheadless.cpp
+    llwindowcallbacks.cpp
     )
 
-set(llwindows_HEADER_FILES
+set(llwindow_HEADER_FILES
     CMakeLists.txt
 
     llkeyboard.h
     llwindowheadless.h
+    llwindowcallbacks.h
     )
 
 set(viewer_SOURCE_FILES
@@ -57,10 +58,12 @@ set(viewer_HEADER_FILES
 
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
-set(llwindow_LINK_LIBRARIES
-    ${UI_LIBRARIES}     # for GTK
-    ${SDL_LIBRARY}
-    )
+if (NOT LINUX OR VIEWER)
+  set(llwindow_LINK_LIBRARIES
+      ${UI_LIBRARIES}     # for GTK
+      ${SDL_LIBRARY}
+      )
+endif (NOT LINUX OR VIEWER)
 
 if (DARWIN)
   list(APPEND llwindow_SOURCE_FILES
@@ -83,7 +86,7 @@ if (DARWIN)
       )
 endif (DARWIN)
 
-if (LINUX)
+if (LINUX AND VIEWER)
   list(APPEND viewer_SOURCE_FILES 
        llkeyboardsdl.cpp 
        llwindowsdl.cpp
@@ -92,7 +95,7 @@ if (LINUX)
        llkeyboardsdl.h
        llwindowsdl.h
        )
-endif (LINUX)
+endif (LINUX AND VIEWER)
 
 if (WINDOWS)
   list(APPEND llwindow_SOURCE_FILES
@@ -143,7 +146,7 @@ if (SERVER AND NOT WINDOWS AND NOT DARWIN)
     ${llwindow_SOURCE_FILES}
     ${server_SOURCE_FILES}
     )
-  # *TODO: This should probably have target_link_libraries
+  target_link_libraries (llwindowheadless ${llwindow_LINK_LIBRARIES})
 endif (SERVER AND NOT WINDOWS AND NOT DARWIN)
 
 if (llwindow_HEADER_FILES)

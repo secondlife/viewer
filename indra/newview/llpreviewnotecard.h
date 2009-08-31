@@ -49,28 +49,21 @@ class LLButton;
 class LLPreviewNotecard : public LLPreview
 {
 public:
-	LLPreviewNotecard(const std::string& name, const LLRect& rect, const std::string& title,
-					  const LLUUID& item_id,
-					  const LLUUID& object_id = LLUUID::null,
-					  const LLUUID& asset_id = LLUUID::null,
-					  BOOL show_keep_discard = FALSE,
-					  LLPointer<LLViewerInventoryItem> inv_item = NULL);
+	LLPreviewNotecard(const LLSD& key);
 	virtual ~LLPreviewNotecard();
 	
-	// llpreview	
-	virtual bool saveItem(LLPointer<LLInventoryItem>* itemptr);
+	bool saveItem();
 
 	// llview
 	virtual void draw();
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 	virtual void setEnabled( BOOL enabled );
-	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 	// llfloater
 	virtual BOOL canClose();
 
 	// llpanel
-	virtual BOOL	postBuild();
+	virtual BOOL postBuild();
 
 	// reach into the text editor, and grab the drag item
 	const LLInventoryItem* getDragItem();
@@ -82,14 +75,12 @@ public:
 	// After saving a notecard, the tcp based upload system will
 	// change the asset, therefore, we need to re-fetch it from the
 	// asset system. :(
-	void refreshFromInventory();
+	void refreshFromInventory(const LLUUID& item_id = LLUUID::null);
 
 protected:
 
 	virtual void loadAsset();
 	bool saveIfNeeded(LLInventoryItem* copyitem = NULL);
-
-	static LLPreviewNotecard* getInstance(const LLUUID& uuid);
 
 	static void onLoadComplete(LLVFS *vfs,
 							   const LLUUID& asset_uuid,
@@ -104,15 +95,12 @@ protected:
 
 	bool handleSaveChangesDialog(const LLSD& notification, const LLSD& response);
 
-	virtual const char *getTitleName() const { return "Note"; }
-
 protected:
 	LLViewerTextEditor* mEditor;
 	LLButton* mSaveBtn;
 
 	LLUUID mAssetID;
 
-	LLUUID mNotecardItemID;
 	LLUUID mObjectID;
 };
 

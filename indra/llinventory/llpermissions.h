@@ -256,7 +256,11 @@ public:
 	BOOL setGroupBits( const LLUUID& agent, const LLUUID& group, BOOL set, PermissionMask bits);
 	BOOL setEveryoneBits(const LLUUID& agent, const LLUUID& group, BOOL set, PermissionMask bits);
 	BOOL setNextOwnerBits(const LLUUID& agent, const LLUUID& group, BOOL set, PermissionMask bits);
-
+	
+	// This is currently only used in the Viewer to handle calling cards
+	// where the creator is actually used to store the target. Use with care.
+	void setCreator(const LLUUID& creator) { mCreator = creator; }
+	
 	//
 	// METHODS
 	//
@@ -320,9 +324,6 @@ public:
 
 	BOOL	importLegacyStream(std::istream& input_stream);
 	BOOL	exportLegacyStream(std::ostream& output_stream) const;
-
-	LLXMLNode *exportFileXML() const;
-	bool importXML(LLXMLNode* node);
 
 	bool operator==(const LLPermissions &rhs) const;
 	bool operator!=(const LLPermissions &rhs) const;

@@ -32,19 +32,20 @@
 
 #include "llfixedbuffer.h"
 
+////////////////////////////////////////////////////////////////////////////
+
 LLFixedBuffer::LLFixedBuffer(const U32 max_lines)
-			  : mMutex(NULL)
+	: LLLineBuffer(),
+	  mMaxLines(max_lines),
+	  mMutex(NULL)
 {
-	mMaxLines = max_lines;
 	mTimer.reset();
 }
-
 
 LLFixedBuffer::~LLFixedBuffer()
 {
 	clear();
 }
-
 
 void LLFixedBuffer::clear()
 {
@@ -61,10 +62,10 @@ void LLFixedBuffer::clear()
 void LLFixedBuffer::addLine(const std::string& utf8line)
 {
 	LLWString wstring = utf8str_to_wstring(utf8line);
-	LLFixedBuffer::addLine(wstring);
+	addWLine(wstring);
 }
 
-void LLFixedBuffer::addLine(const LLWString& line)
+void LLFixedBuffer::addWLine(const LLWString& line)
 {
 	if (line.empty())
 	{

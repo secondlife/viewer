@@ -162,6 +162,7 @@ namespace
 		
 		virtual LLSD::Type type() const { return T; }
 
+		using LLSD::Impl::assign; // Unhiding base class virtuals...
 		virtual void assign(LLSD::Impl*& var, DataRef value) {
 			if (shared())
 			{
@@ -349,6 +350,10 @@ namespace
 		virtual LLSD::Boolean asBoolean() const { return !mData.empty(); }
 
 		virtual bool has(const LLSD::String&) const; 
+
+		using LLSD::Impl::get; // Unhiding get(LLSD::Integer)
+		using LLSD::Impl::erase; // Unhiding erase(LLSD::Integer)
+		using LLSD::Impl::ref; // Unhiding ref(LLSD::Integer)
 		virtual LLSD get(const LLSD::String&) const; 
 		        LLSD& insert(const LLSD::String& k, const LLSD& v);
 		virtual void erase(const LLSD::String&);
@@ -439,6 +444,9 @@ namespace
 
 		virtual LLSD::Boolean asBoolean() const { return !mData.empty(); }
 
+		using LLSD::Impl::get; // Unhiding get(LLSD::String)
+		using LLSD::Impl::erase; // Unhiding erase(LLSD::String)
+		using LLSD::Impl::ref; // Unhiding ref(LLSD::String)
 		virtual int size() const; 
 		virtual LLSD get(LLSD::Integer) const;
 		        void set(LLSD::Integer, const LLSD&);
@@ -811,9 +819,15 @@ static const char *llsd_dump(const LLSD &llsd, bool useXMLFormat)
 	{
 		std::ostringstream out;
 		if (useXMLFormat)
-			out << LLSDXMLStreamer(llsd);
+		{
+			LLSDXMLStreamer xml_streamer(llsd);
+			out << xml_streamer;
+		}
 		else
-			out << LLSDNotationStreamer(llsd);
+		{
+			LLSDNotationStreamer notation_streamer(llsd);
+			out << notation_streamer;
+		}
 		out_string = out.str();
 	}
 	int len = out_string.length();

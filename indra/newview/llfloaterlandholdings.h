@@ -44,10 +44,11 @@ class LLFloaterLandHoldings
 :	public LLFloater
 {
 public:
-	BOOL postBuild();
-
-	static void show(void*);
-
+	LLFloaterLandHoldings(const LLSD& key);
+	virtual ~LLFloaterLandHoldings();
+	
+	virtual BOOL postBuild();
+	virtual void onOpen(const LLSD& key);
 	virtual void draw();
 
 	void refresh();
@@ -63,14 +64,9 @@ public:
 	static void onGrantList(void* data);
 
 protected:
-	LLFloaterLandHoldings();
-	virtual ~LLFloaterLandHoldings();
-
 	void refreshAggregates();
 
 protected:
-	static LLFloaterLandHoldings* sInstance;
-
 	// Sum up as packets arrive the total holdings
 	S32 mActualArea;
 	S32 mBillableArea;

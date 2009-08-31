@@ -36,6 +36,7 @@
 // Simple Directmedia Layer (http://libsdl.org/) implementation of LLWindow class
 
 #include "llwindow.h"
+#include "lltimer.h"
 
 #include "SDL/SDL.h"
 #include "SDL/SDL_endian.h"
@@ -76,7 +77,6 @@ public:
 	/*virtual*/ void hideCursorUntilMouseMove();
 	/*virtual*/ BOOL isCursorHidden();
 	/*virtual*/ void setCursor(ECursorType cursor);
-	/*virtual*/ ECursorType getCursor();
 	/*virtual*/ void captureMouse();
 	/*virtual*/ void releaseMouse();
 	/*virtual*/ void setMouseClipping( BOOL b );
@@ -118,7 +118,7 @@ public:
 	/*virtual*/ void beforeDialog();
 	/*virtual*/ void afterDialog();
 
-	/*virtual*/ BOOL dialog_color_picker(F32 *r, F32 *g, F32 *b);
+	/*virtual*/ BOOL dialogColorPicker(F32 *r, F32 *g, F32 *b);
 
 	/*virtual*/ void *getPlatformWindow();
 	/*virtual*/ void bringToFront();
@@ -147,7 +147,7 @@ public:
 #endif // LL_X11	
 
 protected:
-	LLWindowSDL(
+	LLWindowSDL(LLWindowCallbacks* callbacks,
 		const std::string& title, int x, int y, int width, int height, U32 flags,
 		BOOL fullscreen, BOOL clearBg, BOOL disable_vsync, BOOL use_gl,
 		BOOL ignore_pixel_depth, U32 fsaa_samples);

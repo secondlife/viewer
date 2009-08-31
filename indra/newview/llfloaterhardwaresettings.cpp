@@ -33,27 +33,26 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterhardwaresettings.h"
+
+// Viewer includes
 #include "llfloaterpreference.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
-#include "llviewerimagelist.h"
+#include "llviewertexturelist.h"
 #include "llfeaturemanager.h"
 #include "llstartup.h"
-
-#include "llradiogroup.h"
-#include "lluictrlfactory.h"
-
-#include "llimagegl.h"
 #include "pipeline.h"
 
-LLFloaterHardwareSettings* LLFloaterHardwareSettings::sHardwareSettings = NULL;
+// Linden library includes
+#include "llradiogroup.h"
+#include "lluictrlfactory.h"
+#include "llwindow.h"
+#include "llslider.h"
 
-LLFloaterHardwareSettings::LLFloaterHardwareSettings() : LLFloater(std::string("Hardware Settings Floater"))
+LLFloaterHardwareSettings::LLFloaterHardwareSettings(const LLSD& key)
+  : LLFloater(key)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_hardware_settings.xml");
-	
-	// load it up
-	initCallbacks();
+	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_hardware_settings.xml");
 }
 
 LLFloaterHardwareSettings::~LLFloaterHardwareSettings()
@@ -90,10 +89,10 @@ void LLFloaterHardwareSettings::refresh()
 
 void LLFloaterHardwareSettings::refreshEnabledState()
 {
-	S32 min_tex_mem = LLViewerImageList::getMinVideoRamSetting();
-	S32 max_tex_mem = LLViewerImageList::getMaxVideoRamSetting();
-	childSetMinValue("GrapicsCardTextureMemory", min_tex_mem);
-	childSetMaxValue("GrapicsCardTextureMemory", max_tex_mem);
+	S32 min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
+	S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting();
+	getChild<LLSlider>("GrapicsCardTextureMemory")->setMinValue(min_tex_mem);
+	getChild<LLSlider>("GrapicsCardTextureMemory")->setMinValue(max_tex_mem);
 
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
 		!gGLManager.mHasVertexBufferObject)
@@ -108,48 +107,6 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 
 }
 
-// static instance of it
-LLFloaterHardwareSettings* LLFloaterHardwareSettings::instance()
-{
-	if (!sHardwareSettings)
-	{
-		sHardwareSettings = new LLFloaterHardwareSettings();
-		sHardwareSettings->close();
-	}
-	return sHardwareSettings;
-}
-void LLFloaterHardwareSettings::show()
-{
-	LLFloaterHardwareSettings* hardSettings = instance();
-	hardSettings->refresh();
-	hardSettings->center();
-
-	// comment in if you want the menu to rebuild each time
-	//LLUICtrlFactory::getInstance()->buildFloater(hardSettings, "floater_hardware_settings.xml");
-	//hardSettings->initCallbacks();
-
-	hardSettings->open();
-}
-
-bool LLFloaterHardwareSettings::isOpen()
-{
-	if (sHardwareSettings != NULL) 
-	{
-		return true;
-	}
-	return false;
-}
-
-// virtual
-void LLFloaterHardwareSettings::onClose(bool app_quitting)
-{
-	if (sHardwareSettings)
-	{
-		sHardwareSettings->setVisible(FALSE);
-	}
-}
-
-
 //============================================================================
 
 BOOL LLFloaterHardwareSettings::postBuild()
@@ -157,7 +114,10 @@ BOOL LLFloaterHardwareSettings::postBuild()
 	childSetAction("OK", onBtnOK, this);
 
 	refresh();
+	center();
 
+	// load it up
+	initCallbacks();
 	return TRUE;
 }
 
@@ -203,7 +163,7 @@ void LLFloaterHardwareSettings::cancel()
 	gSavedSettings.setF32("RenderFogRatio", mFogRatio);
 	gSavedSettings.setBOOL("ProbeHardwareOnStartup", mProbeHardwareOnStartup );
 
-	close();
+	closeFloater();
 }
 
 // static 
@@ -211,6 +171,7 @@ void LLFloaterHardwareSettings::onBtnOK( void* userdata )
 {
 	LLFloaterHardwareSettings *fp =(LLFloaterHardwareSettings *)userdata;
 	fp->apply();
-	fp->close(false);
+	fp->closeFloater(false);
 }
+
 

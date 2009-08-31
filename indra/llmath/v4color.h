@@ -58,7 +58,7 @@ class LLColor4
 		LLColor4(U32 clr);							// Initializes LLColor4 to (r=clr>>24, etc))
 		LLColor4(const F32 *vec);			// Initializes LLColor4 to (vec[0]. vec[1], vec[2], 1)
 		LLColor4(const LLColor3 &vec, F32 a = 1.f);	// Initializes LLColor4 to (vec, a)
-		LLColor4(const LLSD& sd);
+		explicit LLColor4(const LLSD& sd);
 		explicit LLColor4(const LLColor4U& color4u);  // "explicit" to avoid automatic conversion
 		explicit LLColor4(const LLVector4& vector4);  // "explicit" to avoid automatic conversion
 
@@ -72,14 +72,9 @@ class LLColor4
 			return ret;
 		}
 	
-		void setValue(const LLSD& sd)
-		{
-			mV[0] = (F32) sd[0].asReal();
-			mV[1] = (F32) sd[1].asReal();
-			mV[2] = (F32) sd[2].asReal();
-			mV[3] = (F32) sd[3].asReal();
-		}
+		void setValue(const LLSD& sd);
 
+		void setHSL(F32 hue, F32 saturation, F32 luminance);
 		void calcHSL(F32* hue, F32* saturation, F32* luminance) const;
 
 		const LLColor4&	setToBlack();						// zero LLColor4 to (0, 0, 0, 1)
@@ -118,7 +113,6 @@ class LLColor4
 		F32 &operator[](int idx) { return mV[idx]; }
 	
 	    const LLColor4& operator=(const LLColor3 &a);	// Assigns vec3 to vec4 and returns vec4
-		const LLColor4& operator=(const LLSD& sd);
 		
 		friend std::ostream&	 operator<<(std::ostream& s, const LLColor4 &a);		// Print a
 		friend LLColor4 operator+(const LLColor4 &a, const LLColor4 &b);	// Return vector a + b
@@ -249,7 +243,7 @@ inline LLColor4::LLColor4(void)
 
 inline LLColor4::LLColor4(const LLSD& sd)
 {
-	*this = sd;
+	this->setValue(sd);
 }
 
 inline LLColor4::LLColor4(F32 r, F32 g, F32 b)
@@ -637,16 +631,6 @@ void LLColor4::clamp()
 	{
 		mV[3] = 1.f;
 	}
-}
-
-inline const LLColor4& LLColor4::operator=(const LLSD& sd)
-{
-	mV[0] = (F32) sd[0].asReal();
-	mV[1] = (F32) sd[1].asReal();
-	mV[2] = (F32) sd[2].asReal();
-	mV[3] = (F32) sd[3].asReal();
-
-	return *this;
 }
 
 #endif

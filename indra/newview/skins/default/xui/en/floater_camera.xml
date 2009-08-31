@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_minimize="false"
+ can_close="false" 
+ center_horiz="true"
+ follows="top"
+ height="95"
+ layout="topleft"
+ name="camera_floater"
+ save_rect="true"
+ save_visibility="true"
+ width="105">
+    <floater.string
+     name="rotate_tooltip">
+        Rotate Camera Around Focus
+    </floater.string>
+    <floater.string
+     name="zoom_tooltip">
+        Zoom Camera Towards Focus
+    </floater.string>
+    <floater.string
+     name="move_tooltip">
+        Move Camera Up and Down, Left and Right
+    </floater.string>
+    <panel
+     border="true"
+     height="64"
+     layout="topleft"
+     left="0"
+     top="0"
+     name="controls"
+     width="105">
+        <joystick_rotate
+         follows="top|left"
+         height="64"
+         image_selected="cam_rotate_in.tga"
+         image_unselected="cam_rotate_out.tga"
+         layout="topleft"
+         left="2"
+         name="cam_rotate_stick"
+         picture_style="true"
+         quadrant="left"
+         scale_image="false"
+         sound_flags="3"
+         tool_tip="Orbit Camera Around Focus"
+         top="0"
+         width="64" />
+        <joystick_track
+         follows="top|left"
+         height="64"
+         image_selected="cam_tracking_in.tga"
+         image_unselected="cam_tracking_out.tga"
+         layout="topleft"
+         left="2"
+         name="cam_track_stick"
+         picture_style="true"
+         quadrant="left"
+         scale_image="false"
+         sound_flags="3"
+         tool_tip="Move Camera Up and Down, Left and Right"
+         top="0"
+         visible="false"
+         width="64" />
+        <joystick_zoom
+         follows="top|left"
+         height="64"
+         image_unselected="cam_zoom_out.tga"
+         layout="topleft"
+         left_delta="74"
+         minus_image="cam_zoom_minus_in.tga"
+         name="zoom"
+         picture_style="true"
+         plus_image="cam_zoom_plus_in.tga"
+         quadrant="left"
+         scale_image="false"
+         sound_flags="3"
+         tool_tip="Zoom Camera Towards Focus"
+         top_delta="0"
+         width="16" />
+    </panel>
+    <panel
+     border="true"
+     height="30"
+     layout="topleft"
+     left="0"
+     top_pad="1"
+     name="buttons"
+     width="105">
+        <button
+         height="25"
+         label=""
+         layout="topleft"
+         left="0"
+         is_toggle="true"
+         image_selected="btn_orbit_selected.png"
+         image_unselected="btn_orbit_unselected.png"
+         name="orbit_btn"
+         tab_stop="false"
+         tool_tip="Orbit Camera"
+         value="true"
+         width="25">
+        </button>
+        <button
+         height="25"
+         label=""
+         layout="topleft"
+         left_pad="1"
+         is_toggle="true"
+         image_selected="btn_pan_selected.png"
+         image_unselected="btn_pan_unselected.png"
+         name="pan_btn"
+         tab_stop="false"
+         tool_tip="Pan Camera"
+         width="25">
+        </button>
+        <button
+         height="25"
+         label=""
+         layout="topleft"
+         left_pad="1"
+         is_toggle="true"
+         image_selected="btn_freecamera_selected.png"
+         image_unselected="btn_freecamera_unselected.png"
+         name="freecamera_btn"
+         tab_stop="false"
+         tool_tip="View Object"
+         width="25">
+        </button>
+        <button
+         height="25"
+         label=""
+         layout="topleft"
+         left_pad="2"
+         image_selected="btn_firstperson_selected.png"
+         image_unselected="btn_firstperson_unselected.png"
+         name="avatarview_btn"
+         tab_stop="false"
+         tool_tip="See as Avatar"
+         width="25">
+        </button>
+    </panel>
+</floater>

@@ -46,7 +46,8 @@
 #include "llalertdialog.h"
 #include "llcheckboxctrl.h"
 #include "llinventorymodel.h"	// for gInventory
-#include "llinventoryview.h"	// for get_item_icon
+#include "llfloaterreg.h"
+#include "llfloaterinventory.h"	// for get_item_icon
 #include "llselectmgr.h"
 #include "llscrolllistctrl.h"
 #include "llviewerobject.h"
@@ -54,26 +55,35 @@
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 
-LLFloaterBuyContents* LLFloaterBuyContents::sInstance = NULL;
-
-LLFloaterBuyContents::LLFloaterBuyContents()
-:	LLFloater(std::string("floater_buy_contents"), std::string("FloaterBuyContentsRect"), LLStringUtil::null)
+LLFloaterBuyContents::LLFloaterBuyContents(const LLSD& key)
+:	LLFloater(key)
 {
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_buy_contents.xml");
+// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_buy_contents.xml");
+}
 
-	childSetAction("cancel_btn", onClickCancel, this);
-	childSetAction("buy_btn", onClickBuy, this);
+BOOL LLFloaterBuyContents::postBuild()
+{
+
+	getChild<LLUICtrl>("cancel_btn")->setCommitCallback( boost::bind(&LLFloaterBuyContents::onClickCancel, this));
+	getChild<LLUICtrl>("buy_btn")->setCommitCallback( boost::bind(&LLFloaterBuyContents::onClickBuy, this));
 
 	childDisable("item_list");
 	childDisable("buy_btn");
 	childDisable("wear_check");
 
 	setDefaultBtn("cancel_btn"); // to avoid accidental buy (SL-43130)
+
+	// Always center the dialog.  User can change the size,
+	// but purchases are important and should be center screen.
+	// This also avoids problems where the user resizes the application window
+	// mid-session and the saved rect is off-center.
+	center();
+	
+	return TRUE;
 }
 
 LLFloaterBuyContents::~LLFloaterBuyContents()
 {
-	sInstance = NULL;
 }
 
 
@@ -87,27 +97,16 @@ void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 		LLNotifications::instance().add("BuyContentsOneOnly");
 		return;
 	}
+	
+	LLFloaterBuyContents* floater = LLFloaterReg::showTypedInstance<LLFloaterBuyContents>("buy_object_contents");
+	if (!floater)
+		return;
+	
+	LLScrollListCtrl* list = floater->getChild<LLScrollListCtrl>("item_list");
+	if (list)
+		list->deleteAllItems();
 
-	// Create a new instance only if needed
-	if (sInstance)
-	{
-		LLScrollListCtrl* list = sInstance->getChild<LLScrollListCtrl>("item_list");
-		if (list) list->deleteAllItems();
-	}
-	else
-	{
-		sInstance = new LLFloaterBuyContents();
-	}
-
-	sInstance->open(); /*Flawfinder: ignore*/
-	sInstance->setFocus(TRUE);
-	sInstance->mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
-
-	// Always center the dialog.  User can change the size,
-	// but purchases are important and should be center screen.
-	// This also avoids problems where the user resizes the application window
-	// mid-session and the saved rect is off-center.
-	sInstance->center();
+	floater->mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 
 	LLUUID owner_id;
 	std::string owner_name;
@@ -118,7 +117,7 @@ void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 		return;
 	}
 
-	sInstance->mSaleInfo = sale_info;
+	floater->mSaleInfo = sale_info;
 
 	// Update the display
 	LLSelectNode* node = selection->getFirstRootNode();
@@ -128,16 +127,16 @@ void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 		gCacheName->getGroupName(owner_id, owner_name);
 	}
 
-	sInstance->childSetTextArg("contains_text", "[NAME]", node->mName);
-	sInstance->childSetTextArg("buy_text", "[AMOUNT]", llformat("%d", sale_info.getSalePrice()));
-	sInstance->childSetTextArg("buy_text", "[NAME]", owner_name);
+	floater->childSetTextArg("contains_text", "[NAME]", node->mName);
+	floater->childSetTextArg("buy_text", "[AMOUNT]", llformat("%d", sale_info.getSalePrice()));
+	floater->childSetTextArg("buy_text", "[NAME]", owner_name);
 
 	// Must do this after the floater is created, because
 	// sometimes the inventory is already there and 
 	// the callback is called immediately.
 	LLViewerObject* obj = selection->getFirstRootObject();
-	sInstance->registerVOInventoryListener(obj,NULL);
-	sInstance->requestVOInventory();
+	floater->registerVOInventoryListener(obj,NULL);
+	floater->requestVOInventory();
 }
 
 
@@ -267,22 +266,21 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 }
 
 
-// static
-void LLFloaterBuyContents::onClickBuy(void*)
+void LLFloaterBuyContents::onClickBuy()
 {
 	// Make sure this wasn't selected through other mechanisms 
 	// (ie, being the default button and pressing enter.
-	if(!sInstance->childIsEnabled("buy_btn"))
+	if(!childIsEnabled("buy_btn"))
 	{
 		// We shouldn't be enabled.  Just close.
-		sInstance->close();
+		closeFloater();
 		return;
 	}
 
 	// We may want to wear this item
-	if (sInstance->childGetValue("wear_check"))
+	if (childGetValue("wear_check"))
 	{
-		LLInventoryView::sWearNewClothing = TRUE;
+		LLFloaterInventory::sWearNewClothing = TRUE;
 	}
 
 	// Put the items where we put new folders.
@@ -292,14 +290,12 @@ void LLFloaterBuyContents::onClickBuy(void*)
 	// *NOTE: doesn't work for multiple object buy, which UI does not
 	// currently support sale info is used for verification only, if
 	// it doesn't match region info then sale is canceled.
-	LLSelectMgr::getInstance()->sendBuy(gAgent.getID(), category_id, sInstance->mSaleInfo);
+	LLSelectMgr::getInstance()->sendBuy(gAgent.getID(), category_id, mSaleInfo);
 
-	sInstance->close();
+	closeFloater();
 }
 
-
-// static
-void LLFloaterBuyContents::onClickCancel(void*)
+void LLFloaterBuyContents::onClickCancel()
 {
-	sInstance->close();
+	closeFloater();
 }

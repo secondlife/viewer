@@ -99,6 +99,7 @@ LLDir_Linux::LLDir_Linux()
 #else
 	mAppRODataDir = tmp_str;
 #endif
+	mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
 	mOSUserDir = getCurrentUserHome(tmp_str);
 	mOSUserAppDir = "";
 	mLindenUserDir = tmp_str;
@@ -128,6 +129,8 @@ LLDir_Linux::LLDir_Linux()
 		}
 	}
 
+	mLLPluginDir = mExecutableDir + mDirDelimiter + "llplugin";
+
 	// *TODO: don't use /tmp, use $HOME/.secondlife/tmp or something.
 	mTempDir = "/tmp";
 }
@@ -139,8 +142,15 @@ LLDir_Linux::~LLDir_Linux()
 // Implementation
 
 
-void LLDir_Linux::initAppDirs(const std::string &app_name)
+void LLDir_Linux::initAppDirs(const std::string &app_name,
+							  const std::string& app_read_only_data_dir)
 {
+	// Allow override so test apps can read newview directory
+	if (!app_read_only_data_dir.empty())
+	{
+		mAppRODataDir = app_read_only_data_dir;
+		mSkinBaseDir = mAppRODataDir + mDirDelimiter + "skins";
+	}
 	mAppName = app_name;
 
 	std::string upper_app_name(app_name);
@@ -370,3 +380,15 @@ BOOL LLDir_Linux::fileExists(const std::string &filename) const
 	}
 }
 
+
+/*virtual*/ std::string LLDir_Linux::getLLPluginLauncher()
+{
+	return gDirUtilp->getLLPluginDir() + gDirUtilp->getDirDelimiter() +
+		"SLPlugin";
+}
+
+/*virtual*/ std::string LLDir_Linux::getLLPluginFilename(std::string base_name)
+{
+	return gDirUtilp->getLLPluginDir() + gDirUtilp->getDirDelimiter() +
+		"lib" + base_name + ".so";
+}

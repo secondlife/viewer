@@ -28,14 +28,10 @@
 	<check_box label="Mature" name="event_mature_chk"/>
 	<check_box label="Adult" name="event_adult_chk"/>
 	<combo_box label="Amigos Conectados" name="friend combo" tool_tip="Amigos para mostrar no Mapa">
-		<combo_item name="none_selected">
-			Amigos Conectados
-		</combo_item>
+		<combo_box.item name="none_selected" label="Amigos Conectados" />
 	</combo_box>
 	<combo_box label="Landmarks" name="landmark combo" tool_tip="Landmark para mostrar no Mapa">
-		<combo_item name="none_selected">
-			Landmarks
-		</combo_item>
+		<combo_box.item name="none_selected" label="Landmarks" />
 	</combo_box>
 	<line_editor label="Procurar por nome de região" name="location" tool_tip="Digite o nome de uma Região"/>
 	<button label="Procurar" name="DoSearch" tool_tip="Procurar por região"/>
@@ -52,6 +48,6 @@
 	<button font="SansSerifSmall" left_delta="91" width="135" label="Mostrar destino" label_selected="Mostrar Destino" name="Show Destination" tool_tip="Centralizar mapa na posição selecionada"/>
 	<button font="SansSerifSmall" label="Limpar" label_selected="Limpar" name="Clear" tool_tip="Parar de percorrer"/>
 	<button font="SansSerifSmall" left_delta="91" width="135" label="Mostra minha localização" label_selected="Mostra minha localização" name="Show My Location" tool_tip="Centraliza o mapa na posição do seu Avatar"/>
-	<button font="SansSerifSmall" label="Copiar SLURL para área de transferência" name="copy_slurl" tool_tip="Copia a posição atual como SLURL para ser usada na Web"/>
+	<button font="SansSerifSmall" label="Copiar SLurl para área de transferência" name="copy_slurl" tool_tip="Copia a posição atual como SLurl para ser usada na Web"/>
 	<slider label="Zoom" name="zoom slider"/>
 </floater>

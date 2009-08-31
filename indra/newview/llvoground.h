@@ -36,7 +36,7 @@
 #include "stdtypes.h"
 #include "v3color.h"
 #include "v4coloru.h"
-#include "llviewerimage.h"
+#include "llviewertexture.h"
 #include "llviewerobject.h"
 
 class LLVOGround : public LLStaticViewerObject

@@ -77,6 +77,10 @@ class ViewerManifest(LLManifest):
                 self.path("paths.xml")
                 # include the entire textures directory recursively
                 if self.prefix(src="*/textures"):
+                        self.path("*/*.tga")
+                        self.path("*/*.j2c")
+                        self.path("*/*.jpg")
+                        self.path("*/*.png")
                         self.path("*.tga")
                         self.path("*.j2c")
                         self.path("*.jpg")
@@ -84,6 +88,7 @@ class ViewerManifest(LLManifest):
                         self.path("textures.xml")
                         self.end_prefix("*/textures")
                 self.path("*/xui/*/*.xml")
+                self.path("*/xui/*/widgets/*.xml")
                 self.path("*/*.xml")
                 
                 # Local HTML files (e.g. loading screen)
@@ -188,7 +193,42 @@ class WindowsManifest(ViewerManifest):
             self.path("openjpeg.dll")
             self.end_prefix()
 
-        # Mozilla appears to force a dependency on these files so we need to ship it (CP) - updated to vc8 versions (nyx)
+        # Plugin host application
+        if self.prefix(src='../llplugin/slplugin/%s' % self.args['configuration'], dst="llplugin"):
+            self.path("slplugin.exe")
+            self.end_prefix()
+
+        # Media plugins - QuickTime
+        if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
+            self.path("media_plugin_quicktime.dll")
+            self.end_prefix()
+
+        # Media plugins - WebKit/Qt
+        if self.prefix(src='../media_plugins/webkit/%s' % self.args['configuration'], dst="llplugin"):
+            self.path("media_plugin_webkit.dll")
+            self.end_prefix()
+            
+        # For WebKit/Qt plugin runtimes
+        if self.prefix(src="../../libraries/i686-win32/lib/release", dst="llplugin"):
+            self.path("libeay32.dll")
+            self.path("qtcore4.dll")
+            self.path("qtgui4.dll")
+            self.path("qtnetwork4.dll")
+            self.path("qtopengl4.dll")
+            self.path("qtwebkit4.dll")
+            self.path("ssleay32.dll")
+            self.end_prefix()
+
+        # For WebKit/Qt plugin runtimes (image format plugins)
+        if self.prefix(src="../../libraries/i686-win32/lib/release/imageformats", dst="llplugin/imageformats"):
+            self.path("qgif4.dll")
+            self.path("qico4.dll")
+            self.path("qjpeg4.dll")
+            self.path("qmng4.dll")
+            self.path("qsvg4.dll")
+            self.path("qtiff4.dll")
+            self.end_prefix()
+
         # These need to be installed as a SxS assembly, currently a 'private' assembly.
         # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
         if self.prefix(src=self.args['configuration'], dst=""):
@@ -202,36 +242,8 @@ class WindowsManifest(ViewerManifest):
                 self.path("Microsoft.VC80.CRT.manifest")
             self.end_prefix()
 
-        # Mozilla runtime DLLs (CP)
-        if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
-            self.path("freebl3.dll")
-            self.path("js3250.dll")
-            self.path("nspr4.dll")
-            self.path("nss3.dll")
-            self.path("nssckbi.dll")
-            self.path("plc4.dll")
-            self.path("plds4.dll")
-            self.path("smime3.dll")
-            self.path("softokn3.dll")
-            self.path("ssl3.dll")
-            self.path("xpcom.dll")
-            self.path("xul.dll")
-            self.end_prefix()
-
-        # Mozilla runtime misc files (CP)
-        if self.prefix(src="app_settings/mozilla"):
-            self.path("chrome/*.*")
-            self.path("components/*.*")
-            self.path("greprefs/*.*")
-            self.path("plugins/*.*")
-            self.path("res/*.*")
-            self.path("res/*/*")
-            self.end_prefix()
-
-        # Mozilla hack to get it to accept newer versions of msvc*80.dll than are listed in manifest
-        # necessary as llmozlib2-vc80.lib refers to an old version of msvc*80.dll - can be removed when new version of llmozlib is built - Nyx
         # The config file name needs to match the exe's name.
-        self.path("SecondLife.exe.config", dst=self.final_exe() + ".config")
+        self.path(src="%s/secondlife-bin.exe.config" % self.args['configuration'], dst=self.final_exe() + ".config")
 
         # Vivox runtimes
         if self.prefix(src="vivox-runtime/i686-win32", dst=""):
@@ -255,9 +267,9 @@ class WindowsManifest(ViewerManifest):
                   dst="updater.exe")
 
         # For google-perftools tcmalloc allocator.
-        #if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
-        #        self.path("libtcmalloc_minimal.dll")
-        #        self.end_prefix()
+        if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
+                self.path("libtcmalloc_minimal.dll")
+                self.end_prefix()
 
 
     def nsi_file_commands(self, install=True):
@@ -398,20 +410,10 @@ class DarwinManifest(ViewerManifest):
         self.path(self.args['configuration'] + "/Second Life.app", dst="")
 
         if self.prefix(src="", dst="Contents"):  # everything goes in Contents
-            # Expand the tar file containing the assorted mozilla bits into
-            #  <bundle>/Contents/MacOS/
-            self.contents_of_tar(self.args['source']+'/mozilla-universal-darwin.tgz', 'MacOS')
-
             self.path("Info-SecondLife.plist", dst="Info.plist")
 
             # copy additional libs in <bundle>/Contents/MacOS/
             self.path("../../libraries/universal-darwin/lib_release/libndofdev.dylib", dst="MacOS/libndofdev.dylib")
-
-            # replace the default theme with our custom theme (so scrollbars work).
-            if self.prefix(src="mozilla-theme", dst="MacOS/chrome"):
-                self.path("classic.jar")
-                self.path("classic.manifest")
-                self.end_prefix("MacOS/chrome")
 
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
@@ -475,6 +477,15 @@ class DarwinManifest(ViewerManifest):
                 self.path("../mac_crash_logger/" + self.args['configuration'] + "/mac-crash-logger.app", "mac-crash-logger.app")
                 self.path("../mac_updater/" + self.args['configuration'] + "/mac-updater.app", "mac-updater.app")
 
+                # plugins
+                if self.prefix(src="", dst="llplugin"):
+                    self.path("../llplugin/slplugin/" + self.args['configuration'] + "/SLPlugin", "SLPlugin")
+                    self.path("../media_plugins/quicktime/" + self.args['configuration'] + "/media_plugin_quicktime.dylib", "media_plugin_quicktime.dylib")
+                    self.path("../media_plugins/webkit/" + self.args['configuration'] + "/media_plugin_webkit.dylib", "media_plugin_webkit.dylib")
+                    self.path("../../libraries/universal-darwin/lib_release/libllqtwebkit.dylib", "libllqtwebkit.dylib")
+
+                    self.end_prefix("llplugin")
+
                 # command line arguments for connecting to the proper grid
                 self.put_in_file(self.flags_list(), 'arguments.txt')
 
@@ -517,7 +528,7 @@ class DarwinManifest(ViewerManifest):
         # make sure we don't have stale files laying about
         self.remove(sparsename, finalname)
 
-        self.run_command('hdiutil create "%(sparse)s" -volname "%(vol)s" -fs HFS+ -type SPARSE -megabytes 300 -layout SPUD' % {
+        self.run_command('hdiutil create "%(sparse)s" -volname "%(vol)s" -fs HFS+ -type SPARSE -megabytes 400 -layout SPUD' % {
                 'sparse':sparsename,
                 'vol':volname})
 
@@ -588,12 +599,15 @@ class LinuxManifest(ViewerManifest):
             self.path("client-readme-voice.txt","README-linux-voice.txt")
             self.path("client-readme-joystick.txt","README-linux-joystick.txt")
             self.path("wrapper.sh","secondlife")
-            self.path("handle_secondlifeprotocol.sh")
-            self.path("register_secondlifeprotocol.sh")
+            self.path("handle_secondlifeprotocol.sh", "etc/handle_secondlifeprotocol.sh")
+            self.path("register_secondlifeprotocol.sh", "etc/register_secondlifeprotocol.sh")
+            self.path("refresh_desktop_app_entry.sh", "etc/refresh_desktop_app_entry.sh")
+            self.path("launch_url.sh","etc/launch_url.sh")
+            self.path("install.sh")
             self.end_prefix("linux_tools")
 
         # Create an appropriate gridargs.dat for this package, denoting required grid.
-        self.put_in_file(self.flags_list(), 'gridargs.dat')
+        self.put_in_file(self.flags_list(), 'etc/gridargs.dat')
 
 
     def package_finish(self):
@@ -654,20 +668,25 @@ class Linux_i686Manifest(LinuxManifest):
             pass
 
         self.path("secondlife-stripped","bin/do-not-directly-run-secondlife-bin")
-        self.path("../linux_crash_logger/linux-crash-logger-stripped","linux-crash-logger.bin")
-        self.path("linux_tools/launch_url.sh","launch_url.sh")
+        self.path("../linux_crash_logger/linux-crash-logger-stripped","bin/linux-crash-logger.bin")
+        self.path("../linux_updater/linux-updater-stripped", "bin/linux-updater.bin")
         if self.prefix("res-sdl"):
             self.path("*")
             # recurse
             self.end_prefix("res-sdl")
 
+        # plugins
+        if self.prefix(src="", dst="bin/llplugin"):
+            self.path("../llplugin/slplugin/SLPlugin", "SLPlugin")
+            self.path("../media_plugins/webkit/libmedia_plugin_webkit.so", "libmedia_plugin_webkit.so")
+            self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_quicktime.so")
+            self.end_prefix("bin/llplugin")
+
         self.path("featuretable_linux.txt")
         #self.path("secondlife-i686.supp")
 
-        self.path("app_settings/mozilla-runtime-linux-i686")
-
         if self.prefix("../../libraries/i686-linux/lib_release_client", dst="lib"):
-            self.path("libkdu_v42R.so", "libkdu.so")
+            #self.path("libkdu_v42R.so", "libkdu.so")
             self.path("libfmod-3.75.so")
             self.path("libapr-1.so.0")
             self.path("libaprutil-1.so.0")
@@ -697,7 +716,6 @@ class Linux_x86_64Manifest(LinuxManifest):
         super(Linux_x86_64Manifest, self).construct()
         self.path("secondlife-stripped","bin/do-not-directly-run-secondlife-bin")
         self.path("../linux_crash_logger/linux-crash-logger-stripped","linux-crash-logger.bin")
-        self.path("linux_tools/launch_url.sh","launch_url.sh")
         if self.prefix("res-sdl"):
             self.path("*")
             # recurse
