@@ -283,10 +283,8 @@ target_link_libraries(llmediaplugintest
 add_dependencies(llmediaplugintest
   copy_win_libs
   SLPlugin
-  media_plugin_flash_activex
   media_plugin_quicktime
   media_plugin_webkit
-  media_plugin_awesomium
   ${LLPLUGIN_LIBRARIES}
   ${LLMESSAGE_LIBRARIES}
   ${LLCOMMON_LIBRARIES}
@@ -321,12 +319,6 @@ if (DARWIN OR WINDOWS)
     DEPENDS ${BUILT_QUICKTIME_PLUGIN}
   )
   
-  get_target_property(BUILT_AWESOMIUM_PLUGIN media_plugin_awesomium LOCATION)
-  add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_AWESOMIUM_PLUGIN}  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
-    DEPENDS ${BUILT_AWESOMIUM_PLUGIN}
-  )
-  
   # copy over bookmarks file if llmediaplugintest gets built
   get_target_property(BUILT_LLMEDIAPLUGINTEST llmediaplugintest LOCATION)
   add_custom_command(TARGET llmediaplugintest POST_BUILD
@@ -340,24 +332,10 @@ if (DARWIN OR WINDOWS)
   )
 endif (DARWIN OR WINDOWS)
 
-if (WINDOWS)
-  get_target_property(BUILT_FLASH_ACTIVEX_PLUGIN media_plugin_flash_activex LOCATION)
-  add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${BUILT_FLASH_ACTIVEX_PLUGIN}  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
-    DEPENDS ${BUILT_FLASH_ACTIVEX_PLUGIN}
-  )
-  
-endif (WINDOWS)
-
 if (DARWIN)
   add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllwebkitlib.dylib ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
-    DEPENDS ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllwebkitlib.dylib
-  )
-
-  add_custom_command(TARGET llmediaplugintest POST_BUILD
-    COMMAND rsync -av --delete ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/Awesomium.framework ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
-    DEPENDS ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/Awesomium.framework
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/
+    DEPENDS ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib
   )
 endif (DARWIN)
 

@@ -230,17 +230,6 @@
 			image
 		</widgettype>
 	</mimetype>
-	<mimetype name="application/x-shockwave-flash">
-		<label name="application/x-shockwave-flash_label">
-			Flash
-		</label>
-		<widgettype>
-			image
-		</widgettype>
-		<impl>
-			media_plugin_flash_activex
-		</impl>
-	</mimetype>
 	<mimetype name="audio/mid">
 		<label name="audio/mid_label">
 			Audio (MIDI)

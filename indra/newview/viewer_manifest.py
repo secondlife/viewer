@@ -487,10 +487,7 @@ class DarwinManifest(ViewerManifest):
                     self.path("../llplugin/slplugin/" + self.args['configuration'] + "/SLPlugin", "SLPlugin")
                     self.path("../media_plugins/quicktime/" + self.args['configuration'] + "/media_plugin_quicktime.dylib", "media_plugin_quicktime.dylib")
                     self.path("../media_plugins/webkit/" + self.args['configuration'] + "/media_plugin_webkit.dylib", "media_plugin_webkit.dylib")
-                    self.path("../../libraries/universal-darwin/lib_release/libllwebkitlib.dylib", "libllwebkitlib.dylib")
-
-                    self.path("../media_plugins/awesomium/" + self.args['configuration'] + "/media_plugin_awesomium.dylib", "media_plugin_awesomium.dylib")
-                    self.path("../../libraries/universal-darwin/lib_release/Awesomium.framework", "Awesomium.framework")
+                    self.path("../../libraries/universal-darwin/lib_release/libllqtwebkit.dylib", "libllqtwebkit.dylib")
 
                     self.end_prefix("llplugin")
 

@@ -120,7 +120,7 @@ LLMediaPluginTest::LLMediaPluginTest( int app_window, int window_width, int wind
 	mVersionMajor( 2 ),
 	mVersionMinor( 0 ),
 	mVersionPatch( 0 ),
-	mMaxPanels( 16 ),
+	mMaxPanels( 25 ),
 	mViewportAspect( 0 ),
 	mAppWindow( app_window ),
 	mCurMouseX( 0 ),
@@ -174,13 +174,6 @@ LLMediaPluginTest::LLMediaPluginTest( int app_window, int window_width, int wind
 				{
 					std::string description = line.substr( 0, comma_pos );
 					std::string url = line.substr( comma_pos + 1 );
-#if LL_DARWIN || LL_LINUX
-					// Don't load flash movies on mac or linux yet.
-					if ( url.find( ".swf" ) != std::string::npos )
-					{
-						continue;
-					}
-#endif
 					mBookmarks.push_back( std::pair< std::string, std::string >( description, url ) );
 				}
 				else
@@ -229,16 +222,14 @@ LLMediaPluginTest::LLMediaPluginTest( int app_window, int window_width, int wind
 	resetView();
 
 	// initial media panel
-	const int num_initial_panels = 4;
-	for( int i = 0; i < num_initial_panels; ++i )
-	{
-		//addMediaPanel( mBookmarks[ rand() % ( mBookmarks.size() - 1 ) + 1 ].second );
-	};
+	//const int num_initial_panels = 4;
+	//for( int i = 0; i < num_initial_panels; ++i )
+	//{
+	//	addMediaPanel( mBookmarks[ rand() % ( mBookmarks.size() - 1 ) + 1 ].second );
+	//};
 
 	// always add a Web panel for testing
 	addMediaPanel( "http://www.google.com" );
-	//addMediaPanel( "http://www.wiicade.com/Data/72/game.swf" );
-	//addMediaPanel( "http://movies.apple.com/movies/wb/watchmen/watchmen-tlr2_480p.mov" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1465,9 +1456,6 @@ std::string LLMediaPluginTest::mimeTypeFromUrl( std::string& url )
 	std::string mime_type = "text/html";
 
 	// we may need a more advanced MIME type accessor later :-)
-	if ( url.find( ".swf" ) != std::string::npos )	// Flash movies
-		mime_type = "application/x-shockwave-flash";
-	else
 	if ( url.find( ".mov" ) != std::string::npos )	// Movies
 		mime_type = "video/quicktime";
 	else
@@ -1497,9 +1485,6 @@ std::string LLMediaPluginTest::pluginNameFromMimeType( std::string& mime_type )
 	else
 	if ( mime_type == "text/html" )
 		plugin_name = "media_plugin_webkit.dll";
-	else
-	if ( mime_type == "application/x-shockwave-flash" )
-		plugin_name = "media_plugin_flash_activex.dll";
 
 #elif LL_LINUX
 	std::string plugin_name( "libmedia_plugin_null.so" );
@@ -1813,14 +1798,6 @@ void LLMediaPluginTest::getRandomMediaSize( int& width, int& height, std::string
 	// adjust this random size if it's a browser so we get 
 	// a more useful size for testing.. 
 	if ( mime_type == "text/html" )
-	{
-		width = ( ( rand() % 100 ) + 100 ) * 4;
-		height = ( width * ( ( rand() % 400 ) + 1000 ) ) / 1000;
-	}
-	else
-	// adjust this random size if it's Flash so we get 
-	// a more useful size for testing.. 
-	if ( mime_type == "application/x-shockwave-flash" )
 	{
 		width = ( ( rand() % 100 ) + 100 ) * 4;
 		height = ( width * ( ( rand() % 400 ) + 1000 ) ) / 1000;

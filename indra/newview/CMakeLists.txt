@@ -1340,7 +1340,7 @@ if (WINDOWS)
         DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         )
 
-    add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_webkit media_plugin_flash_activex media_plugin_awesomium)
+    add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_webkit)
 
     if (PACKAGE)
       add_custom_target(package ALL DEPENDS ${CMAKE_CFG_INTDIR}/touched.bat)
@@ -1458,7 +1458,7 @@ if (DARWIN)
     DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
 
-  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_webkit media_plugin_awesomium)
+  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_webkit)
 
   if (PACKAGE)
       add_custom_target(package ALL DEPENDS ${VIEWER_BINARY_NAME}) 
@@ -1583,38 +1583,10 @@ if (WINDOWS)
         )
 endif (WINDOWS)
 
-if (WINDOWS)
-  get_target_property(BUILT_FLASH_ACTIVEX_PLUGIN media_plugin_flash_activex LOCATION)
-    add_custom_command(
-        TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND}
-        ARGS
-          -E
-          copy_if_different
-          ${BUILT_FLASH_ACTIVEX_PLUGIN}
-          ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llplugin
-        COMMENT "Copying Flash (ActiveX) Plugin to the runtime folder."
-        )
-endif (WINDOWS)
-
-if (WINDOWS)
-  get_target_property(BUILT_AWESOMIUM_PLUGIN media_plugin_awesomium LOCATION)
-    add_custom_command(
-        TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND}
-        ARGS
-          -E
-          copy_if_different
-          ${BUILT_AWESOMIUM_PLUGIN}
-          ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llplugin
-        COMMENT "Copying Flash (Awesomium) Plugin to the runtime folder."
-        )
-endif (WINDOWS)
-
 if (DARWIN)
 # Don't do this here -- it's taken care of by viewer_manifest.py
 #  add_custom_command(TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-#    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllwebkitlib.dylib ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llplugin/
-#    DEPENDS ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllwebkitlib.dylib
+#    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llplugin/
+#    DEPENDS ${CMAKE_SOURCE_DIR}/../libraries/universal-darwin/lib_release/libllqtwebkit.dylib
 #  )
 endif (DARWIN)

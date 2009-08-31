@@ -29,7 +29,7 @@
  * $/LicenseInfo$
  */
 
-#include "llwebkitlib.h"
+#include "llqtwebkit.h"
 
 #include "linden_common.h"
 #include "indra_constants.h" // for indra keyboard codes
@@ -74,15 +74,15 @@ private:
 	//
 	void update(int milliseconds)
 	{
-		LLMozLib::getInstance()->pump( milliseconds );
+		LLQtWebKit::getInstance()->pump( milliseconds );
 		
 		checkEditState();
 		
 		if ( mNeedsUpdate )
 		{
-			const unsigned char* browser_pixels = LLMozLib::getInstance()->grabBrowserWindow( mBrowserWindowId );
+			const unsigned char* browser_pixels = LLQtWebKit::getInstance()->grabBrowserWindow( mBrowserWindowId );
 
-			unsigned int buffer_size = LLMozLib::getInstance()->getBrowserRowSpan( mBrowserWindowId ) * LLMozLib::getInstance()->getBrowserHeight( mBrowserWindowId );
+			unsigned int buffer_size = LLQtWebKit::getInstance()->getBrowserRowSpan( mBrowserWindowId ) * LLQtWebKit::getInstance()->getBrowserHeight( mBrowserWindowId );
 			
 //			std::cerr << "webkit plugin: updating" << std::endl;
 			
@@ -139,35 +139,35 @@ private:
 #endif
 
 		// main browser initialization
-		bool result = LLMozLib::getInstance()->init( application_dir, component_dir, profileDir, native_window_handle );
+		bool result = LLQtWebKit::getInstance()->init( application_dir, component_dir, profileDir, native_window_handle );
 		if ( result )
 		{
 			// create single browser window
-			mBrowserWindowId = LLMozLib::getInstance()->createBrowserWindow( mWidth, mHeight );
+			mBrowserWindowId = LLQtWebKit::getInstance()->createBrowserWindow( mWidth, mHeight );
 
 #if LL_WINDOWS
 			// Enable plugins
-			LLMozLib::getInstance()->enablePlugins(true);
+			LLQtWebKit::getInstance()->enablePlugins(true);
 #else
 			// Disable plugins
-			LLMozLib::getInstance()->enablePlugins(false);
+			LLQtWebKit::getInstance()->enablePlugins(false);
 #endif
             
-			// tell LLMozLib about the size of the browser window
-			LLMozLib::getInstance()->setSize( mBrowserWindowId, mWidth, mHeight );
+			// tell LLQtWebKit about the size of the browser window
+			LLQtWebKit::getInstance()->setSize( mBrowserWindowId, mWidth, mHeight );
 
-			// observer events that LLMozLib emits
-			LLMozLib::getInstance()->addObserver( mBrowserWindowId, this );
+			// observer events that LLQtWebKit emits
+			LLQtWebKit::getInstance()->addObserver( mBrowserWindowId, this );
 
 			// append details to agent string
-			LLMozLib::getInstance()->setBrowserAgentId( "LLPluginMedia Web Browser" );
+			LLQtWebKit::getInstance()->setBrowserAgentId( "LLPluginMedia Web Browser" );
 
 			// don't flip bitmap
-			LLMozLib::getInstance()->flipWindow( mBrowserWindowId, true );
+			LLQtWebKit::getInstance()->flipWindow( mBrowserWindowId, true );
 
 			// go to the "home page"
 			// Don't do this here -- it causes the dreaded "white flash" when loading a browser instance.
-//			LLMozLib::getInstance()->navigateTo( mBrowserWindowId, "about:blank" );
+//			LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, "about:blank" );
 
 			// set flag so we don't do this again
 			mBrowserInitialized = true;
@@ -182,29 +182,29 @@ private:
 	// virtual
 	void onCursorChanged(const EventType& event)
 	{
-		LLMozLib::ECursor moz_cursor = (LLMozLib::ECursor)event.getIntValue();
+		LLQtWebKit::ECursor llqt_cursor = (LLQtWebKit::ECursor)event.getIntValue();
 		std::string name;
 
-		switch(moz_cursor)
+		switch(llqt_cursor)
 		{
-			case LLMozLib::C_ARROW:
+			case LLQtWebKit::C_ARROW:
 				name = "arrow";
 			break;
-			case LLMozLib::C_IBEAM:
+			case LLQtWebKit::C_IBEAM:
 				name = "ibeam";
 			break;
-			case LLMozLib::C_SPLITV:
+			case LLQtWebKit::C_SPLITV:
 				name = "splitv";
 			break;
-			case LLMozLib::C_SPLITH:
+			case LLQtWebKit::C_SPLITH:
 				name = "splith";
 			break;
-			case LLMozLib::C_POINTINGHAND:
+			case LLQtWebKit::C_POINTINGHAND:
 				name = "hand";
 			break;
 			
 			default:
-				llwarns << "Unknown cursor ID: " << (int)moz_cursor << llendl;
+				llwarns << "Unknown cursor ID: " << (int)llqt_cursor << llendl;
 			break;
 		}
 		
@@ -240,8 +240,8 @@ private:
 		message.setValue("uri", event.getEventUri());
 		message.setValueS32("result_code", event.getIntValue());
 		message.setValue("result_string", event.getStringValue());
-		message.setValueBoolean("history_back_available", LLMozLib::getInstance()->userActionIsEnabled( mBrowserWindowId, LLMozLib::UA_NAVIGATE_BACK));
-		message.setValueBoolean("history_forward_available", LLMozLib::getInstance()->userActionIsEnabled( mBrowserWindowId, LLMozLib::UA_NAVIGATE_FORWARD));
+		message.setValueBoolean("history_back_available", LLQtWebKit::getInstance()->userActionIsEnabled( mBrowserWindowId, LLQtWebKit::UA_NAVIGATE_BACK));
+		message.setValueBoolean("history_forward_available", LLQtWebKit::getInstance()->userActionIsEnabled( mBrowserWindowId, LLQtWebKit::UA_NAVIGATE_FORWARD));
 		sendMessage(message);
 		
 		setStatus(STATUS_LOADED);
@@ -297,15 +297,15 @@ private:
 	//
 	void mouseDown( int x, int y )
 	{
-		LLMozLib::getInstance()->mouseDown( mBrowserWindowId, x, y );
+		LLQtWebKit::getInstance()->mouseDown( mBrowserWindowId, x, y );
 	};
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
 	void mouseUp( int x, int y )
 	{
-		LLMozLib::getInstance()->mouseUp( mBrowserWindowId, x, y );
-		LLMozLib::getInstance()->focusBrowser( mBrowserWindowId, true );
+		LLQtWebKit::getInstance()->mouseUp( mBrowserWindowId, x, y );
+		LLQtWebKit::getInstance()->focusBrowser( mBrowserWindowId, true );
 		checkEditState();
 	};
 
@@ -313,66 +313,66 @@ private:
 	//
 	void mouseMove( int x, int y )
 	{
-		LLMozLib::getInstance()->mouseMove( mBrowserWindowId, x, y );
+		LLQtWebKit::getInstance()->mouseMove( mBrowserWindowId, x, y );
 	};
 
 	////////////////////////////////////////////////////////////////////////////////
 	//
 	void keyPress( int key )
 	{
-		int moz_key;
+		int llqt_key;
 		
 		// The incoming values for 'key' will be the ones from indra_constants.h
-		// the outgoing values are the ones from llwebkitlib.h
+		// the outgoing values are the ones from llqtwebkit.h
 		
 		switch((KEY)key)
 		{
-			// This is the list that the qtwebkit-llmozlib implementation actually maps into Qt keys.
-//			case KEY_XXX:			moz_key = LL_DOM_VK_CANCEL;			break;
-//			case KEY_XXX:			moz_key = LL_DOM_VK_HELP;			break;
-			case KEY_BACKSPACE:		moz_key = LL_DOM_VK_BACK_SPACE;		break;
-			case KEY_TAB:			moz_key = LL_DOM_VK_TAB;			break;
-//			case KEY_XXX:			moz_key = LL_DOM_VK_CLEAR;			break;
-			case KEY_RETURN:		moz_key = LL_DOM_VK_RETURN;			break;
-			case KEY_PAD_RETURN:	moz_key = LL_DOM_VK_ENTER;			break;
-			case KEY_SHIFT:			moz_key = LL_DOM_VK_SHIFT;			break;
-			case KEY_CONTROL:		moz_key = LL_DOM_VK_CONTROL;		break;
-			case KEY_ALT:			moz_key = LL_DOM_VK_ALT;			break;
-//			case KEY_XXX:			moz_key = LL_DOM_VK_PAUSE;			break;
-			case KEY_CAPSLOCK:		moz_key = LL_DOM_VK_CAPS_LOCK;		break;
-			case KEY_ESCAPE:		moz_key = LL_DOM_VK_ESCAPE;			break;
-			case KEY_PAGE_UP:		moz_key = LL_DOM_VK_PAGE_UP;		break;
-			case KEY_PAGE_DOWN:		moz_key = LL_DOM_VK_PAGE_DOWN;		break;
-			case KEY_END:			moz_key = LL_DOM_VK_END;			break;
-			case KEY_HOME:			moz_key = LL_DOM_VK_HOME;			break;
-			case KEY_LEFT:			moz_key = LL_DOM_VK_LEFT;			break;
-			case KEY_UP:			moz_key = LL_DOM_VK_UP;				break;
-			case KEY_RIGHT:			moz_key = LL_DOM_VK_RIGHT;			break;
-			case KEY_DOWN:			moz_key = LL_DOM_VK_DOWN;			break;
-//			case KEY_XXX:			moz_key = LL_DOM_VK_PRINTSCREEN;	break;
-			case KEY_INSERT:		moz_key = LL_DOM_VK_INSERT;			break;
-			case KEY_DELETE:		moz_key = LL_DOM_VK_DELETE;			break;
-//			case KEY_XXX:			moz_key = LL_DOM_VK_CONTEXT_MENU;	break;
+			// This is the list that the llqtwebkit implementation actually maps into Qt keys.
+//			case KEY_XXX:			llqt_key = LL_DOM_VK_CANCEL;			break;
+//			case KEY_XXX:			llqt_key = LL_DOM_VK_HELP;			break;
+			case KEY_BACKSPACE:		llqt_key = LL_DOM_VK_BACK_SPACE;		break;
+			case KEY_TAB:			llqt_key = LL_DOM_VK_TAB;			break;
+//			case KEY_XXX:			llqt_key = LL_DOM_VK_CLEAR;			break;
+			case KEY_RETURN:		llqt_key = LL_DOM_VK_RETURN;			break;
+			case KEY_PAD_RETURN:	llqt_key = LL_DOM_VK_ENTER;			break;
+			case KEY_SHIFT:			llqt_key = LL_DOM_VK_SHIFT;			break;
+			case KEY_CONTROL:		llqt_key = LL_DOM_VK_CONTROL;		break;
+			case KEY_ALT:			llqt_key = LL_DOM_VK_ALT;			break;
+//			case KEY_XXX:			llqt_key = LL_DOM_VK_PAUSE;			break;
+			case KEY_CAPSLOCK:		llqt_key = LL_DOM_VK_CAPS_LOCK;		break;
+			case KEY_ESCAPE:		llqt_key = LL_DOM_VK_ESCAPE;			break;
+			case KEY_PAGE_UP:		llqt_key = LL_DOM_VK_PAGE_UP;		break;
+			case KEY_PAGE_DOWN:		llqt_key = LL_DOM_VK_PAGE_DOWN;		break;
+			case KEY_END:			llqt_key = LL_DOM_VK_END;			break;
+			case KEY_HOME:			llqt_key = LL_DOM_VK_HOME;			break;
+			case KEY_LEFT:			llqt_key = LL_DOM_VK_LEFT;			break;
+			case KEY_UP:			llqt_key = LL_DOM_VK_UP;				break;
+			case KEY_RIGHT:			llqt_key = LL_DOM_VK_RIGHT;			break;
+			case KEY_DOWN:			llqt_key = LL_DOM_VK_DOWN;			break;
+//			case KEY_XXX:			llqt_key = LL_DOM_VK_PRINTSCREEN;	break;
+			case KEY_INSERT:		llqt_key = LL_DOM_VK_INSERT;			break;
+			case KEY_DELETE:		llqt_key = LL_DOM_VK_DELETE;			break;
+//			case KEY_XXX:			llqt_key = LL_DOM_VK_CONTEXT_MENU;	break;
 			
 			default:
 				if(key < KEY_SPECIAL)
 				{
 					// Pass the incoming key through -- it should be regular ASCII, which should be correct for webkit.
-					moz_key = key;
+					llqt_key = key;
 				}
 				else
 				{
 					// Don't pass through untranslated special keys -- they'll be all wrong.
-					moz_key = 0;
+					llqt_key = 0;
 				}
 			break;
 		}
 		
-//		std::cerr << "keypress, original code = 0x" << std::hex << key << ", converted code = 0x" << std::hex << moz_key << std::dec << std::endl;
+//		std::cerr << "keypress, original code = 0x" << std::hex << key << ", converted code = 0x" << std::hex << llqt_key << std::dec << std::endl;
 		
-		if(moz_key != 0)
+		if(llqt_key != 0)
 		{
-			LLMozLib::getInstance()->keyPress( mBrowserWindowId, moz_key );
+			LLQtWebKit::getInstance()->keyPress( mBrowserWindowId, llqt_key );
 		}
 
 		checkEditState();
@@ -389,7 +389,7 @@ private:
 		{
 //			std::cerr << "unicode input, code = 0x" << std::hex << (unsigned long)(wstr[i]) << std::dec << std::endl;
 			
-			LLMozLib::getInstance()->unicodeInput(mBrowserWindowId, wstr[i]);
+			LLQtWebKit::getInstance()->unicodeInput(mBrowserWindowId, wstr[i]);
 		}
 
 		checkEditState();
@@ -397,9 +397,9 @@ private:
 	
 	void checkEditState(void)
 	{
-		bool can_cut = LLMozLib::getInstance()->userActionIsEnabled( mBrowserWindowId, LLMozLib::UA_EDIT_CUT);
-		bool can_copy = LLMozLib::getInstance()->userActionIsEnabled( mBrowserWindowId, LLMozLib::UA_EDIT_COPY);
-		bool can_paste = LLMozLib::getInstance()->userActionIsEnabled( mBrowserWindowId, LLMozLib::UA_EDIT_PASTE);
+		bool can_cut = LLQtWebKit::getInstance()->userActionIsEnabled( mBrowserWindowId, LLQtWebKit::UA_EDIT_CUT);
+		bool can_copy = LLQtWebKit::getInstance()->userActionIsEnabled( mBrowserWindowId, LLQtWebKit::UA_EDIT_COPY);
+		bool can_paste = LLQtWebKit::getInstance()->userActionIsEnabled( mBrowserWindowId, LLQtWebKit::UA_EDIT_PASTE);
 					
 		if((can_cut != mCanCut) || (can_copy != mCanCopy) || (can_paste != mCanPaste))
 		{
@@ -446,10 +446,10 @@ MediaPluginWebKit::MediaPluginWebKit(LLPluginInstance::sendMessageFunction host_
 MediaPluginWebKit::~MediaPluginWebKit()
 {
 	// unhook observer
-	LLMozLib::getInstance()->remObserver( mBrowserWindowId, this );
+	LLQtWebKit::getInstance()->remObserver( mBrowserWindowId, this );
 
 	// clean up
-	LLMozLib::getInstance()->reset();
+	LLQtWebKit::getInstance()->reset();
 
 //	std::cerr << "MediaPluginWebKit destructor" << std::endl;
 }
@@ -475,7 +475,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				message.setValueLLSD("versions", versions);
 
 				std::string plugin_version = "Webkit media plugin, Webkit version ";
-				plugin_version += LLMozLib::getInstance()->getVersion();
+				plugin_version += LLQtWebKit::getInstance()->getVersion();
 				message.setValue("plugin_version", plugin_version);
 				sendMessage(message);
 				
@@ -579,12 +579,12 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 						initBrowser();
 
 						// size changed so tell the browser
-						LLMozLib::getInstance()->setSize( mBrowserWindowId, mWidth, mHeight );
+						LLQtWebKit::getInstance()->setSize( mBrowserWindowId, mWidth, mHeight );
 						
 //						std::cerr << "webkit plugin: set size to " << mWidth << " x " << mHeight 
-//								<< ", rowspan is " << LLMozLib::getInstance()->getBrowserRowSpan(mBrowserWindowId) << std::endl;
+//								<< ", rowspan is " << LLQtWebKit::getInstance()->getBrowserRowSpan(mBrowserWindowId) << std::endl;
 								
-						S32 real_width = LLMozLib::getInstance()->getBrowserRowSpan(mBrowserWindowId) / LLMozLib::getInstance()->getBrowserDepth(mBrowserWindowId); 
+						S32 real_width = LLQtWebKit::getInstance()->getBrowserRowSpan(mBrowserWindowId) / LLQtWebKit::getInstance()->getBrowserDepth(mBrowserWindowId); 
 						
 						// The actual width the browser will be drawing to is probably smaller... let the host know by modifying texture_width in the response.
 						if(real_width <= texture_width)
@@ -622,7 +622,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				
 				if(!uri.empty())
 				{
-					LLMozLib::getInstance()->navigateTo( mBrowserWindowId, uri );
+					LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, uri );
 				}
 			}
 			else if(message_name == "mouse_event")
@@ -658,7 +658,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				// The scroll values are roughly 1 per wheel click, so we need to magnify them by some factor.
 				// Arbitrarily, I choose 16.
 				y *= 16;
-				LLMozLib::getInstance()->scrollByLines(mBrowserWindowId, y);
+				LLQtWebKit::getInstance()->scrollByLines(mBrowserWindowId, y);
 			}
 			else if(message_name == "key_event")
 			{
@@ -679,15 +679,15 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			}
 			if(message_name == "edit_cut")
 			{
-				LLMozLib::getInstance()->userAction( mBrowserWindowId, LLMozLib::UA_EDIT_CUT );
+				LLQtWebKit::getInstance()->userAction( mBrowserWindowId, LLQtWebKit::UA_EDIT_CUT );
 			}
 			if(message_name == "edit_copy")
 			{
-				LLMozLib::getInstance()->userAction( mBrowserWindowId, LLMozLib::UA_EDIT_COPY );
+				LLQtWebKit::getInstance()->userAction( mBrowserWindowId, LLQtWebKit::UA_EDIT_COPY );
 			}
 			if(message_name == "edit_paste")
 			{
-				LLMozLib::getInstance()->userAction( mBrowserWindowId, LLMozLib::UA_EDIT_PASTE );
+				LLQtWebKit::getInstance()->userAction( mBrowserWindowId, LLQtWebKit::UA_EDIT_PASTE );
 			}
 			else
 			{
@@ -699,44 +699,44 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			if(message_name == "focus")
 			{
 				bool val = message_in.getValueBoolean("focused");
-				LLMozLib::getInstance()->focusBrowser( mBrowserWindowId, val );
+				LLQtWebKit::getInstance()->focusBrowser( mBrowserWindowId, val );
 			}
 			else if(message_name == "clear_cache")
 			{
-				LLMozLib::getInstance()->clearCache();
+				LLQtWebKit::getInstance()->clearCache();
 			}
 			else if(message_name == "clear_cookies")
 			{
-				LLMozLib::getInstance()->clearAllCookies();
+				LLQtWebKit::getInstance()->clearAllCookies();
 			}
 			else if(message_name == "enable_cookies")
 			{
 				bool val = message_in.getValueBoolean("enable");
-				LLMozLib::getInstance()->enableCookies( val );
+				LLQtWebKit::getInstance()->enableCookies( val );
 			}
 			else if(message_name == "proxy_setup")
 			{
 				bool val = message_in.getValueBoolean("enable");
 				std::string host = message_in.getValue("host");
 				int port = message_in.getValueS32("port");
-				LLMozLib::getInstance()->enableProxy( val, host, port );
+				LLQtWebKit::getInstance()->enableProxy( val, host, port );
 			}
 			else if(message_name == "browse_stop")
 			{
-				LLMozLib::getInstance()->userAction( mBrowserWindowId, LLMozLib::UA_NAVIGATE_STOP );
+				LLQtWebKit::getInstance()->userAction( mBrowserWindowId, LLQtWebKit::UA_NAVIGATE_STOP );
 			}
 			else if(message_name == "browse_reload")
 			{
 				// foo = message_in.getValueBoolean("ignore_cache");
-				LLMozLib::getInstance()->userAction( mBrowserWindowId, LLMozLib::UA_NAVIGATE_RELOAD );
+				LLQtWebKit::getInstance()->userAction( mBrowserWindowId, LLQtWebKit::UA_NAVIGATE_RELOAD );
 			}
 			else if(message_name == "browse_forward")
 			{
-				LLMozLib::getInstance()->userAction( mBrowserWindowId, LLMozLib::UA_NAVIGATE_FORWARD );
+				LLQtWebKit::getInstance()->userAction( mBrowserWindowId, LLQtWebKit::UA_NAVIGATE_FORWARD );
 			}
 			else if(message_name == "browse_back")
 			{
-				LLMozLib::getInstance()->userAction( mBrowserWindowId, LLMozLib::UA_NAVIGATE_BACK );
+				LLQtWebKit::getInstance()->userAction( mBrowserWindowId, LLQtWebKit::UA_NAVIGATE_BACK );
 			}
 			else if(message_name == "set_status_redirect")
 			{
@@ -744,20 +744,20 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				std::string url = message_in.getValue("url");
 				if ( 404 == code )	// browser lib only supports 404 right now
 				{
-					LLMozLib::getInstance()->set404RedirectUrl( mBrowserWindowId, url );
+					LLQtWebKit::getInstance()->set404RedirectUrl( mBrowserWindowId, url );
 				};
 			}
 			else if(message_name == "set_user_agent")
 			{
 				std::string user_agent = message_in.getValue("user_agent");
-				LLMozLib::getInstance()->setBrowserAgentId( user_agent );
+				LLQtWebKit::getInstance()->setBrowserAgentId( user_agent );
 			}
 			else if(message_name == "init_history")
 			{
 				// Initialize browser history
 				LLSD history = message_in.getValueLLSD("history");
 				// First, clear the URL history
-				LLMozLib::getInstance()->clearHistory(mBrowserWindowId);
+				LLQtWebKit::getInstance()->clearHistory(mBrowserWindowId);
 				// Then, add the history items in order
 				LLSD::array_iterator iter_history = history.beginArray();
 				LLSD::array_iterator end_history = history.endArray();
@@ -765,7 +765,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				{
 					std::string url = (*iter_history).asString();
 					if(! url.empty()) {
-						LLMozLib::getInstance()->prependHistoryUrl(mBrowserWindowId, url);
+						LLQtWebKit::getInstance()->prependHistoryUrl(mBrowserWindowId, url);
 					}
 				}
 			}
