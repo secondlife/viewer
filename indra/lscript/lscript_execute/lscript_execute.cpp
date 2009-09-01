@@ -4241,12 +4241,12 @@ S32 lscript_push_variable(LLScriptLibData *data, U8 *buffer)
 // Shared code for run_calllib() and run_calllib_two_byte()
 BOOL run_calllib_common(U8 *buffer, S32 &offset, const LLUUID &id, U16 arg)
 {
-	if (arg >= gScriptLibrary.mNextNumber)
+	if (arg >= gScriptLibrary.mFunctions.size())
 	{
 		set_fault(buffer, LSRF_BOUND_CHECK_ERROR);
 		return FALSE;
 	}
-	LLScriptLibraryFunction *function = gScriptLibrary.mFunctions[arg];
+	LLScriptLibraryFunction const & function = gScriptLibrary.mFunctions[arg];
 
 	// pull out the arguments and the return values
 	LLScriptLibData	*arguments = NULL;
@@ -4254,14 +4254,14 @@ BOOL run_calllib_common(U8 *buffer, S32 &offset, const LLUUID &id, U16 arg)
 
 	S32 i, number;
 
-	if (function->mReturnType)
+	if (function.mReturnType)
 	{
 		returnvalue = new LLScriptLibData;
 	}
 
-	if (function->mArgs)
+	if (function.mArgs)
 	{
-		number = (S32)strlen(function->mArgs);		//Flawfinder: ignore
+		number = (S32)strlen(function.mArgs);		//Flawfinder: ignore
 		arguments = new LLScriptLibData[number];
 	}
 	else
@@ -4271,18 +4271,18 @@ BOOL run_calllib_common(U8 *buffer, S32 &offset, const LLUUID &id, U16 arg)
 
 	for (i = number - 1; i >= 0; i--)
 	{
-		lscript_pop_variable(&arguments[i], buffer, function->mArgs[i]);
+		lscript_pop_variable(&arguments[i], buffer, function.mArgs[i]);
 	}
 
 	// Actually execute the function call
-	function->mExecFunc(returnvalue, arguments, id);
+	function.mExecFunc(returnvalue, arguments, id);
 
-	add_register_fp(buffer, LREG_ESR, -(function->mEnergyUse));
-	add_register_fp(buffer, LREG_SLR, function->mSleepTime);
+	add_register_fp(buffer, LREG_ESR, -(function.mEnergyUse));
+	add_register_fp(buffer, LREG_SLR, function.mSleepTime);
 
 	if (returnvalue)
 	{
-		returnvalue->mType = char2type(*function->mReturnType);
+		returnvalue->mType = char2type(*function.mReturnType);
 		lscript_push_return_variable(returnvalue, buffer);
 	}
 
@@ -4304,12 +4304,12 @@ BOOL run_calllib(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 	offset++;
 	U16 arg = (U16) safe_instruction_bytestream2byte(buffer, offset);
 	if (b_print &&
-		arg < gScriptLibrary.mNextNumber)
+		arg < gScriptLibrary.mFunctions.size())
 	{
 		printf("[0x%X]\tCALLLIB ", offset);
-		LLScriptLibraryFunction *function = gScriptLibrary.mFunctions[arg];
-		printf("%d (%s)\n", (U32)arg, function->mName);
-		printf("%s\n", function->mDesc);
+		LLScriptLibraryFunction const & function = gScriptLibrary.mFunctions[arg];
+		printf("%d (%s)\n", (U32)arg, function.mName);
+		//printf("%s\n", function.mDesc);
 	}
 	return run_calllib_common(buffer, offset, id, arg);
 }
@@ -4319,12 +4319,12 @@ BOOL run_calllib_two_byte(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &i
 	offset++;
 	U16 arg = safe_instruction_bytestream2u16(buffer, offset);
 	if (b_print &&
-		arg < gScriptLibrary.mNextNumber)
+		arg < gScriptLibrary.mFunctions.size())
 	{
 		printf("[0x%X]\tCALLLIB ", (offset-1));
-		LLScriptLibraryFunction *function = gScriptLibrary.mFunctions[arg];
-		printf("%d (%s)\n", (U32)arg, function->mName);
-		printf("%s\n", function->mDesc);
+		LLScriptLibraryFunction const & function = gScriptLibrary.mFunctions[arg];
+		printf("%d (%s)\n", (U32)arg, function.mName);
+		//printf("%s\n", function.mDesc);
 	}
 	return run_calllib_common(buffer, offset, id, arg);
 }

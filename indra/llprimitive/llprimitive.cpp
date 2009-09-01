@@ -1902,7 +1902,7 @@ bool LLLightImageParams::fromLLSD(LLSD& sd)
 	if (sd.has("texture"))
 	{
 		setLightTexture( sd["texture"] );
-		setParams( sd["params"] );
+		setParams( LLVector3( sd["params"] ) );
 		return true;
 	} 
 	
