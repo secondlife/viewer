@@ -593,7 +593,7 @@ class WindowsSetup(PlatformSetup):
                 else:
                     error = 'exited with status %d' % ret
                 if retry_on is not None and retry_on == ret:
-                    print "Retrying... the command %r %s" % (name, error))
+                    print "Retrying... the command %r %s" % (name, error)
                 else:
                     raise CommandError('the command %r %s' % (name, error))
 
