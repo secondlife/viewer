@@ -223,6 +223,8 @@ IF (NOT LINUX AND VIEWER)
       # llhttpclientadapter.cpp
       lltrustedmessageservice.cpp
       lltemplatemessagedispatcher.cpp
+      )
+
 #    set(TEST_DEBUG on)
     set(test_libs
       ${LLMESSAGE_LIBRARIES}
