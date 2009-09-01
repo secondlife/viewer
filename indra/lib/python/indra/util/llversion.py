@@ -1,7 +1,7 @@
 """@file llversion.py
 @brief Utility for parsing llcommon/llversion${server}.h
        for the version string and channel string
-       Utility that parses svn info for branch and revision
+       Utility that parses hg or svn info for branch and revision
 
 $LicenseInfo:firstyear=2006&license=mit$
 
@@ -79,8 +79,8 @@ def get_svn_status_matching(regular_expression):
     status, output = commands.getstatusoutput('svn info %s' % get_src_root())
     m = regular_expression.search(output)
     if not m:
-        print "Failed to parse svn info output, resultfollows:"
-        print output
+        print >> sys.stderr, "Failed to parse svn info output, result follows:"
+        print >> sys.stderr, output
         raise Exception, "No matching svn status in "+src_root
     return m.group(1)
 
@@ -92,4 +92,25 @@ def get_svn_revision():
     last_rev_re = re.compile('Last Changed Rev: (\d+)')
     return get_svn_status_matching(last_rev_re)
 
+def get_hg_repo():
+    status, output = commands.getstatusoutput('hg showconfig paths.default')
+    if status:
+        print >> sys.stderr, output
+        sys.exit(1)
+    if not output:
+        print >> sys.stderr, 'ERROR: cannot find repo we cloned from'
+        sys.exit(1)
+    return output
 
+def get_hg_changeset():
+    status, output = commands.getstatusoutput('hg id -i')
+    if status:
+        print >> sys.stderr, output
+        sys.exit(1)
+    return output
+
+def using_svn():
+    return os.path.isdir(os.path.join(get_src_root(), '.svn'))
+
+def using_hg():
+    return os.path.isdir(os.path.join(get_src_root(), '.hg'))
