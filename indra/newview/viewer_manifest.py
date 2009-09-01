@@ -399,12 +399,12 @@ class WindowsManifest(ViewerManifest):
         if not sign_py or sign_py == "${SIGN}":
             sign_py = 'C:\\buildscripts\\code-signing\\sign.py'
         else:
-            sign_py = sign_py.replace('\\', '\\\\')
+            sign_py = sign_py.replace('\\', '\\\\\\\\')
         python = os.path.expandvars("${PYTHON}")
         if not python or python == "${PYTHON}":
             python = 'python'
         if os.path.exists(sign_py):
-            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of(installer_file).replace('\\', '\\\\')))
+            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of(installer_file).replace('\\', '\\\\\\\\')))
         else:
             print "Skipping code signing,", sign_py, "does not exist"
         self.created_path(self.dst_path_of(installer_file))
