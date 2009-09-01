@@ -1,29 +1,28 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_lagmeter" title="Lag måler">
-	<button label="" label_selected="" name="client_lagmeter" />
+	<button label="" label_selected="" name="client_lagmeter" tool_tip="Status for klient lag"/>
 	<text name="client">
 		Klient:
 	</text>
 	<text name="client_text">
 		Normal
 	</text>
-	<button label="" label_selected="" name="network_lagmeter"
-	     tool_tip="Network lag status" />
+	<button label="" label_selected="" name="network_lagmeter" tool_tip="Network lag status"/>
 	<text name="network">
 		Netværk:
 	</text>
 	<text name="network_text">
 		Normal
 	</text>
-	<button label="" label_selected="" name="server_lagmeter" />
+	<button label="" label_selected="" name="server_lagmeter" tool_tip="Status for server lag"/>
 	<text name="server">
 		Server:
 	</text>
 	<text name="server_text">
 		Normal
 	</text>
-	<button label="?" name="server_help" />
-	<button label="&gt;&gt;" name="minimize" />
+	<button label="?" name="server_help"/>
+	<button label="&gt;&gt;" name="minimize"/>
 	<string name="max_title_msg">
 		Lag måler
 	</string>
@@ -122,9 +121,6 @@
 	</string>
 	<string name="server_frame_time_warning_msg">
 		Simulator framerate er mellem [SERVER_FRAME_RATE_CRITICAL] og [SERVER_FRAME_RATE_WARNING]
-	</string>
-	<string name="server_frame_time_normal_msg">
-		Normal
 	</string>
 	<string name="server_frame_time_normal_msg">
 		Normal

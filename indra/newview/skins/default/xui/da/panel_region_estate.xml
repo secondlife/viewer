@@ -34,7 +34,7 @@ regioner i dette estate.
 	<button label="?" name="voice_chat_help" />
 	<check_box label="Tillad direkte teleport" name="allow_direct_teleport" />
 	<button label="?" name="allow_direct_teleport_help" />
-	<text name="abuse_email_text">
+	<text name="abuse_email_text" width="260">
 		Send beskeder misbrug til email adresse:
 	</text>
 	<string name="email_unsupported">

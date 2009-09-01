@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
-	<text name="payee_group">
+	<text name="payee_group" left="5" width="90" halign="left">
 		Betaal groep:
 	</text>
-	<text name="payee_resident">
+	<text name="payee_resident" left="5" width="90" halign="left">
 		Betaal inwoner:
 	</text>
-	<text name="payee_name">
+	<text name="payee_name" left="100" width="200">
 		[FIRST] [LAST]
 	</text>
-	<text name="object_name_label">
+	<text name="object_name_label" left="5" width="90" halign="left">
 		Via object:
 	</text>
-	<text name="object_name_text">
+	<text name="object_name_text" left="100" width="200">
 		...
 	</text>
-	<text name="fastpay text">
+	<text name="fastpay text" halign="left">
 		Snel betalen:
 	</text>
 	<text name="amount text">

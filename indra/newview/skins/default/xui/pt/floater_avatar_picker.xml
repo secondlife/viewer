@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="avatarpicker" title="Escolha o Residente">
-	<tab_container name="ResidentChooserTabs">
+<floater name="avatarpicker" title="Escolha o Residente" min_width="285" width="285">
+	<tab_container name="ResidentChooserTabs" width="275">
 		<panel label="Buscar" name="SearchPanel">
 			<text name="InstructSearchResidentName">
 				Digite parte do nome do Residente:
@@ -14,13 +14,15 @@
 		</panel>
 		<panel label="Próximo a Mim" name="NearMePanel">
 			<text name="InstructSelectResident">
-				Selecione residente próximo:
+				Selecione residente
+próximo:
 			</text>
-			<button label="Atualizar Lista" label_selected="Atualizar Lista" name="Refresh"/>
-			<slider label="Faixa" name="near_me_range"/>
+			<button font="SansSerifSmall" left_delta="1" width="115" label="Atualizar Lista" label_selected="Atualizar Lista" name="Refresh"/>
+			<slider label="Faixa" name="near_me_range" bottom_delta="-36"/>
 			<text name="meters">
 				Metros
 			</text>
+		<scroll_list bottom_delta="-169" height="159" name="NearMe"  />
 		</panel>
 	</tab_container>
 	<button label="Selecionar" label_selected="Selecionar" name="Select"/>

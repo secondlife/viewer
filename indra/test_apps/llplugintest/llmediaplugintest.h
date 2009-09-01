@@ -1,5 +1,5 @@
 /**
- * @file LLMediaPluginTest2.cpp
+ * @file LLMediaPluginTest.cpp
  * @brief Primary test application for LLMedia (Separate Process) Plugin system
  *
  * $LicenseInfo:firstyear=2008&license=viewergpl$

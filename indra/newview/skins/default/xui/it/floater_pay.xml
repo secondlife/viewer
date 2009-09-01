@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
-	<button label="1 L$" label_selected="1 L$" name="fastpay 1"/>
-	<button label="5 L$" label_selected="5 L$" name="fastpay 5"/>
-	<button label="10 L$" label_selected="10 L$" name="fastpay 10"/>
-	<button label="20 L$" label_selected="20 L$" name="fastpay 20"/>
-	<button label="Paga" label_selected="Paga" name="pay btn"/>
-	<button label="Annulla" label_selected="Annulla" name="cancel btn"/>
-	<text name="payee_label">
+	<button label="1 L$" label_selected="1 L$" name="fastpay 1" left="118" width="80" />
+	<button label="5 L$" label_selected="5 L$" name="fastpay 5" left="210"/>
+	<button label="10 L$" label_selected="10 L$" name="fastpay 10" left="118" width="80" />
+	<button label="20 L$" label_selected="20 L$" name="fastpay 20" left="210"/>
+	<button label="Paga" label_selected="Paga" name="pay btn" left="127"/>
+	<button label="Annulla" label_selected="Annulla" name="cancel btn" left="210"/>
+	<text name="payee_label" left="5" width="105">
 		Paga residente:
 	</text>
-	<text name="payee_name">
+	<text name="payee_name" left="115">
 		[FIRST] [LAST]
 	</text>
-	<text name="fastpay text">
+	<text name="fastpay text" width="110" halign="left">
 		Pagamento veloce:
 	</text>
-	<text name="amount text">
+	<text name="amount text" left="4" >
 		Ammontare:
 	</text>
+	<line_editor left="70" name="amount" width="49"/>
 </floater>

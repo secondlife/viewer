@@ -12,7 +12,9 @@
 			Leden &amp; Rollen
 		</text>
 		<text name="static2">
-			Groepsleden krijgen Rollen met Mogelijkheden toegekend. Deze instellingen kunnen eenvoudig aangepast worden, zodat meer organisatie en flexibiliteit mogelijk is.
+			Groepsleden krijgen Rollen met Mogelijkheden toegekend. Deze instellingen
+kunnen eenvoudig aangepast worden, zodat meer organisatie en flexibiliteit
+mogelijk is.
 		</text>
 	</panel>
 	<panel name="roles_header">
@@ -20,12 +22,14 @@
 			Rollen
 		</text>
 		<text name="role_properties_modifiable">
-			Selecteer een Rol hieronder. U kunt zijn Naam, Omschrijving en Lid Titel wijzigen.
+			Selecteer een Rol hieronder. U kunt zijn Naam, Omschrijving en
+Lid Titel wijzigen.
 		</text>
 		<text name="role_properties_not_modifiable">
-			Selecteer een Rol hieronder om zijn eigenschappen, Leden en toegestane Mogelijkheden te bekijken.
+			Selecteer een Rol hieronder om zijn eigenschappen, Leden en
+toegestane Mogelijkheden te bekijken.
 		</text>
-		<text name="role_actions_modifiable">
+		<text bottom_delta="-28" name="role_actions_modifiable">
 			U kunt ook Mogelijkheden aan de Rol toekennen.
 		</text>
 		<text name="role_actions_not_modifiable">
@@ -37,14 +41,16 @@
 			Mogelijkheden
 		</text>
 		<text name="static2">
-			U kunt de Omschrijving van een Mogelijkheid bekijken en welke Rollen en Leden de Mogelijkheid kunnen uitvoeren.
+			U kunt de Omschrijving van een Mogelijkheid bekijken en welke Rollen en
+Leden de Mogelijkheid kunnen uitvoeren.
 		</text>
 	</panel>
-	<tab_container name="roles_tab_container">
-		<panel label="Leden" name="members_sub_tab" tool_tip="Leden">
+	<tab_container height="164" name="roles_tab_container">
+		<panel height="148" label="Leden" name="members_sub_tab" tool_tip="Leden">
+			<line_editor bottom="127" name="search_text"/>
 			<button label="Zoeken" name="search_button"/>
 			<button label="Alles Tonen" name="show_all_button"/>
-			<name_list name="member_list">
+			<name_list  bottom_delta="-105" height="104" name="member_list">
 				<column label="Lid Naam" name="name"/>
 				<column label="Gedoneerde Tier" name="donated"/>
 				<column label="Laatste Login" name="online"/>
@@ -55,15 +61,16 @@
 				U kunt Rollen aan Leden toewijzen of van Leden afnemen. Selecteer meerdere Leden door de Ctrl toets ingedrukt te houden en op hun namen te klikken.
 			</string>
 		</panel>
-		<panel label="Rollen" name="roles_sub_tab">
+		<panel height="148" label="Rollen" name="roles_sub_tab">
+			<line_editor bottom="127" name="search_text"/>
 			<button label="Zoeken" name="search_button"/>
 			<button label="Alles Tonen" name="show_all_button"/>
-			<scroll_list name="role_list">
+			<scroll_list bottom_delta="-104" height="104" name="role_list">
 				<column label="Rol Naam" name="name"/>
 				<column label="Titel" name="title"/>
 				<column label="Leden" name="members"/>
 			</scroll_list>
-			<button label="Nieuwe Rol Maken ..." name="role_create"/>
+			<button label="Nieuwe Rol Maken..." name="role_create"/>
 			<button label="Rol Verwijderen" name="role_delete"/>
 			<string name="help_text">
 				Rollen hebben een titel en een toegestane lijst met Mogelijkheden die Leden kunnen uitvoeren. Leden kunnen tot 1 of meer Rollen behoren. Een groep kan tot 10 Rollen bevatten, inclusief de Iedereen en Eigenaren Rollen.
@@ -72,10 +79,11 @@
 				De &apos;Iedereen&apos; en &apos;Eigenaren&apos; Rollen zijn speciaal en kunnen niet verwijderd worden.
 			</string>
 		</panel>
-		<panel label="Mogelijkheden" name="actions_sub_tab">
+		<panel height="148" label="Mogelijkheden" name="actions_sub_tab">
+			<line_editor bottom="127" name="search_text"/>
 			<button label="Zoeken" name="search_button"/>
 			<button label="Alles Tonen" name="show_all_button"/>
-			<scroll_list name="action_list" tool_tip="Selecteer een Mogelijkheid om meer details te bekijken."/>
+			<scroll_list bottom_delta="-120" height="118" name="action_list" tool_tip="Selecteer een Mogelijkheid om meer details te bekijken."/>
 			<string name="help_text">
 				Mogelijkheden stellen leden in staat om specifieke dingen in een groep te doen. Er is een brede variëteit aan Mogelijkheden.
 			</string>

@@ -9,8 +9,8 @@
 	<text length="1" name="unknown" type="string">
 		Dimensiones: [DIMENSIONS]
 	</text>
-	<button label="Por defecto" label_selected="Por defecto" name="Default"/>
-	<button label="Ninguna" label_selected="Ninguna" name="None"/>
+	<button label="Por defecto" label_selected="Por defecto" name="Default" width="84"/>
+	<button label="Ninguna" label_selected="Ninguna" name="None" left="90"/>
 	<button label="Blanca" label_selected="Blanca" name="Blank"/>
 	<check_box label="Ver las carpetas" name="show_folders_check"/>
 	<search_editor label="Escriba aquí para buscar una" name="inventory search editor"/>

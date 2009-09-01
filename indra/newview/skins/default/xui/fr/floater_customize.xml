@@ -183,7 +183,7 @@ votre avatar. Vous pouvez aussi en créer de nouveaux et les porter.
 				Emplacement : [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Pour changer de chemise, faites-en glisser une de votre inventaire
+				Pour porter une nouvelle chemise, faites-en glisser une de votre inventaire
 jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle et la porter.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
@@ -217,7 +217,7 @@ jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle et la porte
 				Emplacement : [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Pour changer de pantalon, faites-en glisser un de votre inventaire
+				Pour porter un nouveau pantalon, faites-en glisser un de votre inventaire
 jusqu&apos;à votre avatar. Vous pouvez aussi en créer un nouveau et le porter.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
@@ -244,7 +244,7 @@ jusqu&apos;à votre avatar. Vous pouvez aussi en créer un nouveau et le porter.
 				Emplacement : [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Pour changer de chaussures, faites-en glisser une paire de votre
+				Pour porter de nouvelles chaussures, faites-en glisser une paire de votre
 inventaire jusqu&apos;à votre avatar. Vous pouvez aussi en créer une
 nouvelle paire et la porter.
 			</text>
@@ -279,7 +279,7 @@ nouvelle paire et la porter.
 				Emplacement : [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Pour changer de chaussettes, faites-en glisser une paire de votre
+				Pour porter de nouvelles chaussettes, faites-en glisser une paire de votre
 inventaire jusqu&apos;à votre avatar. Vous pouvez aussi en créer une
 nouvelle paire et la porter.
 			</text>
@@ -314,8 +314,8 @@ nouvelle paire et la porter.
 				Emplacement : [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Pour changer de veste, faites-en glisser une de votre inventaire jusqu&apos;à
-votre avatar. Vous pouvez aussi en créer une nouvelle et la porter.
+				Pour porter une nouvelle veste, faites-en glisser une de votre inventaire 
+jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle et la porter.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.
@@ -349,7 +349,7 @@ votre avatar. Vous pouvez aussi en créer une nouvelle et la porter.
 				Emplacement : [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Pour changer de gants, faites-en glisser une paire à partir de votre
+				Pour porter de nouveaux gants, faites-les glisser à partir de votre
 inventaire. Vous pouvez aussi en créer une nouvelle paire et la porter.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
@@ -383,7 +383,7 @@ inventaire. Vous pouvez aussi en créer une nouvelle paire et la porter.
 				Emplacement : [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Pour changer de sous-vêtement, faites-en glisser une paire à partir de
+				Pour porter de nouveaux sous-vêtements, faites-les glisser à partir de
 votre inventaire. Vous pouvez aussi en créer des nouveaux et les porter.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
@@ -418,7 +418,7 @@ votre inventaire. Vous pouvez aussi en créer des nouveaux et les porter.
 				Emplacement : [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Pour changer de sous-vêtement, faites-en glisser une paire à partir de
+				Pour porter de nouveaux sous-vêtements, faites-les glisser à partir de
 votre inventaire. Vous pouvez aussi en créer des nouveaux et les porter.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
@@ -453,8 +453,8 @@ votre inventaire. Vous pouvez aussi en créer des nouveaux et les porter.
 				Emplacement : [PATH]
 			</text>
 			<text length="1" name="not worn instructions" type="string">
-				Pour changer de jupe, faites-en glisser une à partir de votre inventaire.
-Vous pouvez aussi en créer une nouvelle et la porter.
+				Pour porter une nouvelle jupe, faites-en glisser une à partir de votre 
+inventaire. Vous pouvez aussi en créer une nouvelle et la porter.
 			</text>
 			<text length="1" name="no modify instructions" type="string">
 				Vous n&apos;avez pas la permission de modifier cet objet.

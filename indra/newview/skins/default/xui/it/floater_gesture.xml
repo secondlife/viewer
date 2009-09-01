@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="gestures" title="Gesture attive">
 	<text name="help_label">
-		Fai doppio click su una gesture per azionare animazioni e suoni.
+		Fai doppio click su una gesture per azionare animazioni
+e suoni.
 	</text>
-	<scroll_list name="gesture_list">
-		<column label="Frase scatenante" name="trigger"/>
-		<column label="Pulsante" name="shortcut"/>
-		<column label="Nome" name="name"/>
+	<scroll_list bottom_delta="-385" height="360" name="gesture_list">
+		<column label="Frase scatenante" name="trigger" width="106"/>
+		<column label="Pulsante" name="shortcut" width="65"/>
+		<column label="Nome" name="name" width="129"/>
 	</scroll_list>
 	<button label="Nuova" name="new_gesture_btn"/>
 	<button label="Modifica" name="edit_btn"/>

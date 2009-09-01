@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Water Floater" title="Editor avanzato dell&apos;acqua">
-	<text name="KeyFramePresetsText">
+	<text name="KeyFramePresetsText" width="224">
 		Impostazioni predeterminate dell&apos;acqua:
 	</text>
+	<combo_box left_delta="230" name="WaterPresetsCombo" width="150" />
 	<button label="Nuovo" label_selected="Nuovo" name="WaterNewPreset"/>
 	<button label="Salva" label_selected="Salva" name="WaterSavePreset"/>
 	<button label="Cancella" label_selected="Cancella" name="WaterDeletePreset"/>
@@ -11,20 +12,21 @@
 			<text name="BHText">
 				Colore della nebbiosità dell&apos;acqua
 			</text>
-			<button label="?" name="WaterFogColorHelp"/>
+			<button label="?" name="WaterFogColorHelp" left="209"/>
 			<color_swatch label="" name="WaterFogColor" tool_tip="Clicca per aprire la selezione colore"/>
-			<text name="WaterFogDensText">
-				Esponente di densità  della nebbia dell&apos;acqua
+			<text name="WaterFogDensText" font="SansSerifSmall">
+				Esponente di densità della nebbia&#10; dell&apos;acqua
 			</text>
-			<button label="?" name="WaterFogDensityHelp"/>
-			<text name="WaterUnderWaterFogModText">
+			<slider bottom_delta="-40" name="WaterFogDensity"/>
+			<button label="?" name="WaterFogDensityHelp" left="209"/>
+			<text name="WaterUnderWaterFogModText" font="SansSerifSmall" bottom="-140">
 				Regolatore effetto nebbia subacquea
 			</text>
-			<button label="?" name="WaterUnderWaterFogModHelp"/>
+			<button label="?" name="WaterUnderWaterFogModHelp" left="209"/>
 			<text name="BDensText">
 				Scala di riflessione delle onde
 			</text>
-			<button label="?" name="WaterNormalScaleHelp"/>
+			<button label="?" name="WaterNormalScaleHelp" left="415"/>
 			<text name="BHText2">
 				1
 			</text>
@@ -37,29 +39,31 @@
 			<text name="HDText">
 				Scala Fresnel
 			</text>
-			<button label="?" name="WaterFresnelScaleHelp"/>
+			<button label="?" name="WaterFresnelScaleHelp" left="415"/>
 			<text name="FresnelOffsetText">
 				Offset Fresnel
 			</text>
-			<button label="?" name="WaterFresnelOffsetHelp"/>
-			<text name="DensMultText">
-				Scala di rifrazione nell&apos;acqua dall&apos;alto
+			<button label="?" name="WaterFresnelOffsetHelp" left="415"/>
+			<text name="DensMultText" font="SansSerifSmall">
+				Scala di rifrazione nell&apos;acqua&#10; dall&apos;alto
 			</text>
-			<button label="?" name="WaterScaleAboveHelp"/>
-			<text name="WaterScaleBelowText">
-				Scala di rifrazione nell&apos;acqua dal basso
+			<slider bottom_delta="-40" name="WaterScaleAbove"/>
+			<button label="?" name="WaterScaleAboveHelp" left="650"/>
+			<text name="WaterScaleBelowText" font="SansSerifSmall" bottom="-70">
+				Scala di rifrazione nell&apos;acqua&#10; dal basso
 			</text>
-			<button label="?" name="WaterScaleBelowHelp"/>
-			<text name="MaxAltText">
+			<slider bottom_delta="-40" name="WaterScaleBelow"/>
+			<button label="?" name="WaterScaleBelowHelp" left="650"/>
+			<text name="MaxAltText" bottom="-122">
 				Moltiplicatore della sfocatura
 			</text>
-			<button label="?" name="WaterBlurMultiplierHelp"/>
+			<button label="?" name="WaterBlurMultiplierHelp" left="650"/>
 		</panel>
 		<panel label="Immagine" name="Waves">
 			<text name="BHText">
 				Direzione della grande onda
 			</text>
-			<button label="?" name="WaterWave1Help"/>
+			<button label="?" name="WaterWave1Help" left="170"/>
 			<text name="WaterWave1DirXText">
 				X
 			</text>
@@ -69,7 +73,7 @@
 			<text name="BHText2">
 				Direzione della piccola onda
 			</text>
-			<button label="?" name="WaterWave2Help"/>
+			<button label="?" name="WaterWave2Help" left="170"/>
 			<text name="WaterWave2DirXText">
 				X
 			</text>

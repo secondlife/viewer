@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" title="">
+<floater name="toolbox floater" title="" short_title="Construir" width="288">
 	<button label="" label_selected="" name="button focus" tool_tip="Visión"/>
 	<button label="" label_selected="" name="button move" tool_tip="Mover"/>
 	<button label="" label_selected="" name="button edit" tool_tip="Editar"/>
@@ -19,7 +19,7 @@
 	<text name="text ruler mode">
 		Ajuste:
 	</text>
-	<combo_box name="combobox grid mode">
+	<combo_box name="combobox grid mode" width="82">
 		<combo_item name="World">
 			Mundo
 		</combo_item>
@@ -34,8 +34,8 @@
 	<check_box label="Estirar las texturas" name="checkbox stretch textures"/>
 	<check_box label="Usar la cuadrícula" name="checkbox snap to grid"/>
 	<button label="Opciones..." label_selected="Opciones..." name="Options..."/>
-	<text name="text status">
-		Arrastrar para mover, arrastrar + Mayús. para copiar
+	<text name="text status" width="280">
+		Arrastrar para mover, Mayús.+arrastrar para copiar
 	</text>
 	<button label="" label_selected="" name="ToolCube" tool_tip="Cubo"/>
 	<button label="" label_selected="" name="ToolPrism" tool_tip="Prisma"/>
@@ -63,7 +63,7 @@
 	<check_box label="Suavizar" name="radio smooth"/>
 	<check_box label="Escarpar" name="radio noise"/>
 	<check_box label="Restablecer" name="radio revert"/>
-	<button label="Aplicar" label_selected="Aplicar" name="button apply to selection" tool_tip="Modificar el terreno seleccionado"/>
+	<button label="Aplicar" label_selected="Aplicar" name="button apply to selection" tool_tip="Modificar el terreno seleccionado" left="146"/>
 	<text name="Bulldozer:">
 		Bulldozer:
 	</text>
@@ -73,13 +73,13 @@
 	<text name="Strength:">
 		Fuerza
 	</text>
-	<text name="obj_count">
+	<text name="obj_count" left="134">
 		Objetos seleccionados: [COUNT]
 	</text>
-	<text name="prim_count">
+	<text name="prim_count" left="134">
 		primitivas: [COUNT]
 	</text>
-	<tab_container name="Object Info Tabs">
+	<tab_container name="Object Info Tabs" tab_max_width="62" tab_min_width="30" width="288">
 		<panel label="General" name="General">
 			<text name="Name:">
 				Nombre:
@@ -144,12 +144,12 @@
 				El próximo propietario puede:
 			</text>
 			<check_box label="Modificarlo" name="checkbox next owner can modify"/>
-			<check_box label="Copiarlo" name="checkbox next owner can copy"/>
-			<check_box label="Revenderlo/Darlo" name="checkbox next owner can transfer"/>
-			<text name="label click action">
+			<check_box label="Copiarlo" name="checkbox next owner can copy" left_delta="80"/>
+			<check_box label="Revenderlo/Darlo" name="checkbox next owner can transfer" left_delta="67"/>
+			<text name="label click action" width="180">
 				Al pulsarlo con el botón izquierdo:
 			</text>
-			<combo_box name="clickaction">
+			<combo_box name="clickaction" width="192">
 				<combo_item name="Touch/grab(default)">
 					Tocar/Agarrar (por defecto)
 				</combo_item>
@@ -206,7 +206,7 @@
 				Debe seleccionar todo el objeto para definir los permisos.
 			</string>
 			<string name="Cost Default">
-				Precio:           L$
+				Precio:         L$
 			</string>
 			<string name="Cost Total">
 				Precio total:  L$
@@ -223,7 +223,7 @@
 		</panel>
 		<panel label="Objeto" name="Object">
 			<text name="select_single">
-				Seleccione un único prim para editar los parámetros.
+				Seleccione un sólo prim para editarlo.
 			</text>
 			<text name="edit_object">
 				Modificar los parámetros del objeto:
@@ -277,7 +277,7 @@
 				</combo_item>
 			</combo_box>
 			<text name="label basetype">
-				Tipo de objeto para construir
+				Tipo de objeto a construir
 			</text>
 			<combo_box name="comboBaseType">
 				<combo_item name="Box">
@@ -334,7 +334,7 @@
 				</combo_item>
 			</combo_box>
 			<text name="text twist">
-				La torsión: Inicio y Fin
+				Torsión: Inicio y Fin
 			</text>
 			<spinner label="I" name="Twist Begin"/>
 			<spinner label="F" name="Twist End"/>
@@ -397,9 +397,9 @@
 				</combo_item>
 			</combo_box>
 		</panel>
-		<panel label="Características" name="Features">
+		<panel label="Caracter." name="Features">
 			<text name="select_single">
-				Seleccione un sólo prim para editar las características.
+				Seleccione un sólo prim para editarlo.
 			</text>
 			<text name="edit_object">
 				Editar las características del objeto:
@@ -431,11 +431,11 @@
 			<text name="glow label">
 				Resplandor
 			</text>
-			<check_box label="Brillo al máximo" name="checkbox fullbright"/>
+			<check_box label="Brillo al &#10;máximo" name="checkbox fullbright" bottom_delta="-21"/>
 			<text name="tex gen">
 				Detallado
 			</text>
-			<combo_box name="combobox texgen">
+			<combo_box name="combobox texgen" width="86">
 				<combo_item name="Default">
 					Por defecto
 				</combo_item>
@@ -530,27 +530,29 @@
 				Rotación (grados)
 			</text>
 			<string name="string repeats per meter">
-				Repeticiones por metro
+				Repeticiones por m.
 			</string>
 			<string name="string repeats per face">
 				Repeticiones por cara
 			</string>
 			<text name="rpt">
-				Repeticiones por metro
+				Repeticiones por m.
 			</text>
-			<button label="Aplicar" label_selected="Aplicar" name="button apply"/>
+			<spinner left="118" name="TexRot" width="62" />
+			<spinner left="118" name="rptctrl" width="62" />
+			<button label="Aplicar" label_selected="Aplicar" name="button apply" left_delta="72"/>
 			<text name="tex offset">
 				Desplazar
 			</text>
 			<spinner label="Horizontal (U)" name="TexOffsetU"/>
 			<spinner label="Vertical (V)" name="TexOffsetV"/>
-			<text name="textbox autofix">
+			<text name="textbox autofix" width="180">
 				Centrar la textura para los media
 (primero debe subirla)
 			</text>
-			<button label="Alinear" label_selected="Alinear" name="button align"/>
+			<button label="Alinear" label_selected="Alinear" name="button align" left="180"/>
 		</panel>
-		<panel label="Contenido" name="Contents">
+		<panel label="Contenido " name="Contents">
 			<button label="Script nuevo" label_selected="Script nuevo" name="button new script"/>
 			<button label="Permisos..." name="button permissions"/>
 		</panel>
@@ -565,19 +567,19 @@
 		<text name="label_area">
 			Superficie: [AREA] m²
 		</text>
-		<button label="Acerca del terreno..." label_selected="Acerca del terreno..." name="button about land"/>
+		<button label="Acerca del terreno..." label_selected="Acerca del terreno..." name="button about land" width="140"/>
 		<check_box label="Mostrar los propietarios" name="checkbox show owners" tool_tip="El color de las parcelas es según su propietario"/>
-		<button label="?" label_selected="?" name="button show owners help"/>
+		<button label="?" label_selected="?" name="button show owners help" left_delta="150"/>
 		<text name="label_parcel_modify">
 			Modificar la parcela
 		</text>
-		<button label="Subdividir..." label_selected="Subdividir..." name="button subdivide land"/>
-		<button label="Unir..." label_selected="Unir..." name="button join land"/>
+		<button label="Subdividir..." label_selected="Subdividir..." name="button subdivide land" width="140"/>
+		<button label="Unir..." label_selected="Unir..." name="button join land" width="140"/>
 		<text name="label_parcel_trans">
 			Transacciones de terreno
 		</text>
-		<button label="Comprar terreno..." label_selected="Comprar terreno..." name="button buy land"/>
-		<button label="Abandonar el terreno..." label_selected="Abandonar el terreno..." name="button abandon land"/>
+		<button label="Comprar terreno..." label_selected="Comprar terreno..." name="button buy land" width="140"/>
+		<button label="Abandonar el terreno..." label_selected="Abandonar el terreno..." name="button abandon land" width="140"/>
 	</panel>
 	<string name="status_rotate">
 		Arrastre las bandas de color para girar el objeto
@@ -586,7 +588,7 @@
 		Pulse y arrastre para estirar el lado seleccionado
 	</string>
 	<string name="status_move">
-		Arrastrar para mover, arrastrar + Mayús. para copiar
+		Arrastrar para mover, Mayús.+arrastrar para copiar
 	</string>
 	<string name="status_modifyland">
 		Mantenga pulsado para modificar el terreno

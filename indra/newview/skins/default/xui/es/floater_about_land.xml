@@ -47,13 +47,13 @@
 			<text length="1" name="For sale to" type="string">
 				En venta a: [BUYER]
 			</text>
-			<text length="1" name="Sell with landowners objects in parcel." type="string">
+			<text width="216" length="1" name="Sell with landowners objects in parcel." type="string">
 				Los objetos se incluyen en la venta.
 			</text>
-			<text length="1" name="Selling with no objects in parcel." type="string">
+			<text width="216" length="1" name="Selling with no objects in parcel." type="string">
 				Los objetos no se incluyen en la venta.
 			</text>
-			<button font="SansSerifSmall" left="275" width="165" label="Cancelar la venta del terreno" label_selected="Cancelar la venta del terreno" name="Cancel Land Sale"/>
+			<button font="SansSerifSmall" bottom="-245" left="275" width="165" label="Cancelar la venta del terreno" label_selected="Cancelar la venta del terreno" name="Cancel Land Sale"/>
 			<text length="1" name="Claimed:" type="string">
 				Reclamada:
 			</text>
@@ -194,7 +194,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text length="1" name="Simulator primitive usage:" type="string">
 				Simulador de uso de prims:
 			</text>
-			<text name="objects_available"  left="214" width="230" >
+			<text name="objects_available"  left="204" width="250" >
 				[COUNT] de un máximo de [MAX] ([AVAILABLE] disponibles)
 			</text>
 			<string name="objects_available_text">
@@ -206,19 +206,19 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text length="1" name="Primitives parcel supports:" type="string" width="200">
 				Prims que admite la parcela:
 			</text>
-			<text name="object_contrib_text" left="214" width="152">
+			<text name="object_contrib_text" left="204" width="152">
 				[COUNT]
 			</text>
 			<text length="1" name="Primitives on parcel:" type="string">
 				Prims en la parcela:
 			</text>
-			<text name="total_objects_text" left="214"  width="48">
+			<text name="total_objects_text" left="204"  width="48">
 				[COUNT]
 			</text>
 			<text length="1" name="Owned by parcel owner:" type="string" left="14" width="180" >
 				Del propietario de la parcela:
 			</text>
-			<text name="owner_objects_text" left="214"  width="48">
+			<text name="owner_objects_text" left="204"  width="48">
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOwner" right="-135" width="60"/>
@@ -226,7 +226,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text length="1" name="Set to group:" type="string" left="14"  width="180">
 				Del grupo:
 			</text>
-			<text name="group_objects_text" left="214"  width="48">
+			<text name="group_objects_text" left="204"  width="48">
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowGroup" right="-135" width="60"/>
@@ -234,7 +234,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text length="1" name="Owned by others:" type="string" left="14" width="128">
 				Propiedad de otros:
 			</text>
-			<text name="other_objects_text" left="214"  width="48">
+			<text name="other_objects_text" left="204"  width="48">
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOther" right="-135" width="60"/>
@@ -242,7 +242,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text length="1" name="Selected / sat upon:" type="string" left="14" width="193" >
 				Seleccionados / con gente sentada:
 			</text>
-			<text name="selected_objects_text" left="214"  width="48">
+			<text name="selected_objects_text" left="204"  width="48">
 				[COUNT]
 			</text>
 			<text name="Autoreturn" left="4" width="412" >
@@ -299,7 +299,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			<string name="search_disabled_permissions_tooltip">
 				Esta opción no esta activada porque usted no puede modificar las opciones de la parcela.
 			</string>
-			<combo_box name="land category with adult">
+			<combo_box name="land category with adult" left="282" width="140">
 				<combo_item name="AnyCategory">
 					Cualquier categoría
 				</combo_item>
@@ -340,7 +340,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 					Otra
 				</combo_item>
 			</combo_box>
-			<combo_box name="land category">
+			<combo_box name="land category" left="282" width="140">
 				<combo_item name="AnyCategory">
 					Cualquier categoría
 				</combo_item>
@@ -378,7 +378,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 					Otra
 				</combo_item>
 			</combo_box>
-			<button label="?" label_selected="?" name="?"/>
+			<button label="?" label_selected="?" name="?" left="427"/>
 			<check_box label="Contenido &apos;Mature&apos;" name="MatureCheck" tool_tip=""/>
 			<string name="mature_check_mature">
 				Contenido &apos;Mature&apos;

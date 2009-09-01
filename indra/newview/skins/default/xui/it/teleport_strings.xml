@@ -25,7 +25,7 @@ www.secondlife.com/support
 			Gli oggetti da te indossati non sono ancoa arrivati. Attendi ancora qualche secondo o scollegati e ricollegati prima di provare a teleportarti.
 		</message>
 		<message name="too_many_uploads_tport">
-			La gestione dati della regione è al momento occupata e la tua richiesta di teletrasporto non può essere soddisfatta entro breve tempo. Per favore prova di nuovo tra qualche minuto o spostati in un&apos;area meno affollata.
+			Il server della regione è al momento occupato e la tua richiesta di teletrasporto non può essere soddisfatta entro breve tempo. Per favore prova di nuovo tra qualche minuto o spostati in un&apos;area meno affollata.
 		</message>
 		<message name="expired_tport">
 			Spiacenti, il sistema non riesce a soddisfare la tua richiesta di teletrasporto entro un tempo ragionevole. Riprova tra qualche minuto.
@@ -42,34 +42,34 @@ www.secondlife.com/support
 	</message_set>
 	<message_set name="progress">
 		<message name="sending_dest">
-			In invio verso la destinazione.
+			In invio a destinazione.
 		</message>
 		<message name="redirecting">
 			In reindirizzamento ad una nuova destinazione.
 		</message>
 		<message name="relaying">
-			In ritrasmissione alla destinazione.
+			In reinvio a destinazione.
 		</message>
 		<message name="sending_home">
-			In invio la richiesta di ubicazione casa.
+			In invio verso la destinazione casa.
 		</message>
 		<message name="sending_landmark">
-			In invio la richiesta della destinazione del landmark.
+			In invio verso la destinazione del landmark.
 		</message>
 		<message name="completing">
 			Teletrasporto completato
 		</message>
 		<message name="resolving">
-			Destinazione in elaborazione.
+			Elaborazione della destinazione in corso...
 		</message>
 		<message name="contacting">
-			Si sta contattando la nuova regione.
+			Contattando la nuova regione.
 		</message>
 		<message name="arriving">
-			In arrivo...
+			In arrivo a destinazione...
 		</message>
 		<message name="requesting">
-			Teletrasporto in avvio...
+			Avvio teletrasporto....
 		</message>
 	</message_set>
 </teleport_messages>

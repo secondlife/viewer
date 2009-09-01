@@ -23,6 +23,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>AgentPause</key>
+    <map>
+      <key>Comment</key>
+      <string>Ask the simulator to stop updating the agent while enabled</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>AlertedUnsupportedHardware</key>
     <map>
       <key>Comment</key>
