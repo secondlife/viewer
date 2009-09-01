@@ -470,6 +470,19 @@ bool handleVelocityInterpolate(const LLSD& newvalue)
 	return true;
 }
 
+bool toggle_agent_pause(const LLSD& newvalue)
+{
+	if ( newvalue.asBoolean() )
+	{
+		send_agent_pause();
+	}
+	else
+	{
+		send_agent_resume();
+	}
+	return true;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void settings_setup_listeners()
@@ -601,6 +614,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("VelocityInterpolate")->getSignal()->connect(boost::bind(&handleVelocityInterpolate, _2));
 	gSavedSettings.getControl("QAMode")->getSignal()->connect(boost::bind(&show_debug_menus));
 	gSavedSettings.getControl("UseDebugMenus")->getSignal()->connect(boost::bind(&show_debug_menus));
+	gSavedSettings.getControl("AgentPause")->getSignal()->connect(boost::bind(&toggle_agent_pause, _2));
 }
 
 #if TEST_CACHED_CONTROL
