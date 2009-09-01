@@ -1511,11 +1511,6 @@ endif (INSTALL)
 include(LLAddBuildTest)
 SET(viewer_TEST_SOURCE_FILES
   llagentaccess.cpp
-  # Not *actually* a unit test, it's an integration test.
-  # Because it won't work in the new unit test iface, i've commented out
-  # and notified Nat. Delete this when it's replaced!
-  # + poppy & brad 2009-06-05
-  # llcapabilitylistener.cpp
   )
 set_source_files_properties(
   ${viewer_TEST_SOURCE_FILES}
