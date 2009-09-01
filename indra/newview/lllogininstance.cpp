@@ -137,6 +137,7 @@ void LLLoginInstance::constructAuthParams(const LLSD& credentials)
 	requested_options.append("event_categories");
 	requested_options.append("event_notifications");
 	requested_options.append("classified_categories");
+	requested_options.append("adult_compliant"); 
 	//requested_options.append("inventory-targets");
 	requested_options.append("buddy-list");
 	requested_options.append("ui-config");
@@ -345,8 +346,10 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 	
 #if LL_WINDOWS
 	notification_name += "Windows";
-#else
+#elif LL_DARWIN
 	notification_name += "Mac";
+#else
+	notification_name += "Linux";
 #endif
 	
 	if (mandatory)

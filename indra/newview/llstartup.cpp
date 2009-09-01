@@ -1031,7 +1031,6 @@ bool idle_startup()
 		gDebugInfo["GridName"] = LLViewerLogin::getInstance()->getGridLabel();
 
 		// Update progress status and the display loop.
-		requested_options.push_back("adult_compliant"); 
 		auth_desc = LLTrans::getString("LoginInProgress");
 		set_startup_status(progress, auth_desc, auth_message);
 		progress += 0.02f;
