@@ -303,7 +303,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			<string name="search_disabled_permissions_tooltip">
 				Questa opzione è disabilitata perchè tu non puoi modificare le opzioni di questo terreno.
 			</string>
-			<combo_box name="land category with adult">
+			<combo_box name="land category with adult" left="282" width="140">
 				<combo_item name="AnyCategory">
 					Tutte le categorie
 				</combo_item>
@@ -344,7 +344,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 					Altro
 				</combo_item>
 			</combo_box>
-			<combo_box name="land category">
+			<combo_box name="land category" left="282" width="140">
 				<combo_item name="AnyCategory">
 					Tutte le categorie
 				</combo_item>
@@ -382,7 +382,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 					Altro
 				</combo_item>
 			</combo_box>
-			<button label="?" label_selected="?" name="?"/>
+			<button label="?" label_selected="?" name="?" left="427"/>
 			<check_box label="Contenuto Mature" name="MatureCheck" tool_tip=" "/>
 			<string name="mature_check_mature">
 				Contenuto Mature

@@ -301,7 +301,7 @@ Apenas lotes maiores podem ser listados na busca.
 			<string name="search_disabled_permissions_tooltip">
 				Esta opção está desabilitada porque você não pode modificar as opções deste lote.
 			</string>
-			<combo_box name="land category with adult">
+			<combo_box name="land category with adult" left="265" width="155">
 				<combo_item name="AnyCategory">
 					Qualquer Categoria
 				</combo_item>
@@ -342,7 +342,7 @@ Apenas lotes maiores podem ser listados na busca.
 					Outros
 				</combo_item>
 			</combo_box>
-			<combo_box left="276" name="land category" width="146">
+			<combo_box name="land category" left="265" width="155">
 				<combo_item name="AnyCategory">
 					Qualquer Categoria
 				</combo_item>
@@ -409,7 +409,7 @@ Apenas lotes maiores podem ser listados na busca.
 			<text length="1" name="Teleport Routing: " type="string">
 				Rota de Tele-transporte:
 			</text>
-			<combo_box left="140" name="landing type" tool_tip="Rota de Teletransporte -- Selecione como tratar os tele-transportes no seu lote." width="140">
+			<combo_box width="160" left="140" name="landing type" tool_tip="Rota de Teletransporte -- Selecione como tratar os tele-transportes no seu lote.">
 				<combo_item length="1" name="Blocked" type="string">
 					Bloqueado
 				</combo_item>

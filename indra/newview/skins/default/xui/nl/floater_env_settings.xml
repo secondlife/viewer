@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Environment Editor Floater" title="Omgeving editor">
-	<text name="EnvTimeText">
-		Tijd van de dag
+	<text bottom="-42" name="EnvTimeText">
+		Tijd van de 
+dag
 	</text>
-	<text name="EnvTimeText2">
+	<text bottom_delta="-36" name="EnvTimeText2">
 		0:00
 	</text>
 	<text name="EnvCloudText">

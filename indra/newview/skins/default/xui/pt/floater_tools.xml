@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" title="">
+<floater name="toolbox floater" title="" short_title="Construir" width="288">
 	<button label="" label_selected="" name="button focus" tool_tip="Foco"/>
 	<button label="" label_selected="" name="button move" tool_tip="Mover"/>
 	<button label="" label_selected="" name="button edit" tool_tip="Editar"/>
@@ -34,7 +34,7 @@
 	<check_box label="Esticar Texturas" name="checkbox stretch textures"/>
 	<check_box label="Usar Grade" name="checkbox snap to grid"/>
 	<button label="Opções..." label_selected="Opções..." name="Options..."/>
-	<text name="text status">
+	<text name="text status" width="280">
 		Arraste para mover, shift+Arrastar para Copiar
 	</text>
 	<button label="" label_selected="" name="ToolCube" tool_tip="Cubo"/>
@@ -73,13 +73,13 @@
 	<text name="Strength:">
 		Força
 	</text>
-	<text name="obj_count">
+	<text name="obj_count" left="134">
 		Objetos selecionados: [COUNT]
 	</text>
-	<text name="prim_count">
+	<text name="prim_count" left="134">
 		primitivas: [COUNT]
 	</text>
-	<tab_container name="Object Info Tabs">
+	<tab_container name="Object Info Tabs" tab_max_width="60" tab_min_width="30" width="288">
 		<panel label="Comum" name="General">
 			<text name="Name:">
 				Nome:
@@ -105,7 +105,7 @@
 				Grupo:
 			</text>
 			<text name="Group Name Proxy">
-				Os Lindens
+				The Lindens
 			</text>
 			<button label="Definir..." label_selected="Definir..." name="button set group"/>
 			<text name="Permissions:">
@@ -144,12 +144,12 @@
 				Próximo Proprietário pode:
 			</text>
 			<check_box label="Modificar" name="checkbox next owner can modify"/>
-			<check_box label="Copiar" name="checkbox next owner can copy"/>
-			<check_box label="Revender/Dar" name="checkbox next owner can transfer"/>
-			<text name="label click action">
+			<check_box label="Copiar" name="checkbox next owner can copy" left_delta="80"/>
+			<check_box label="Revender/Dar" name="checkbox next owner can transfer" left_delta="67"/>
+			<text name="label click action" width="220">
 				Quando clicado com o botão esquerdo:
 			</text>
-			<combo_box name="clickaction">
+			<combo_box name="clickaction" width="192">
 				<combo_item name="Touch/grab(default)">
 					Tocar/Pegar (padrão)
 				</combo_item>
@@ -176,7 +176,7 @@
 				B:
 			</text>
 			<text name="O:">
-				O;
+				O:
 			</text>
 			<text name="G:">
 				G:
@@ -222,7 +222,7 @@
 			</string>
 		</panel>
 		<panel label="Objeto" name="Object">
-			<text name="select_single">
+			<text name="select_single" width="272">
 				Selecione apenas uma primitiva para editar os parâmetros.
 			</text>
 			<text name="edit_object">
@@ -306,10 +306,10 @@
 				</combo_item>
 			</combo_box>
 			<text name="text cut">
-				Recorte inicial e final
+				Recorte Início e final
 			</text>
-			<spinner label="B" name="cut begin"/>
-			<spinner label="E" name="cut end"/>
+			<spinner label="I" name="cut begin"/>
+			<spinner label="F" name="cut end"/>
 			<text name="text hollow">
 				Vazio
 			</text>
@@ -336,8 +336,8 @@
 			<text name="text twist">
 				Torcer no Início e final
 			</text>
-			<spinner label="B" name="Twist Begin"/>
-			<spinner label="E" name="Twist End"/>
+			<spinner label="I" name="Twist Begin"/>
+			<spinner label="F" name="Twist End"/>
 			<text name="scale_taper">
 				Afinar
 			</text>
@@ -351,17 +351,17 @@
 			</text>
 			<spinner label="X" name="Shear X"/>
 			<spinner label="Y" name="Shear Y"/>
-			<text name="advanced_cut">
-				Perfil Recortado no Início e Final
+			<text name="advanced_cut" width="156">
+				Perfil Recortado no Início e fim
 			</text>
 			<text name="advanced_dimple">
-				Cova Início e Final
+				Cova Início e final
 			</text>
 			<text name="advanced_slice">
-				Pedaço Início (B) e Fim (E)
+				Pedaço Início e fim 
 			</text>
-			<spinner label="B" name="Path Limit Begin"/>
-			<spinner label="E" name="Path Limit End"/>
+			<spinner label="I" name="Path Limit Begin"/>
+			<spinner label="F" name="Path Limit End"/>
 			<text name="text taper2">
 				Afinar
 			</text>
@@ -398,7 +398,7 @@
 			</combo_box>
 		</panel>
 		<panel label="Recursos" name="Features">
-			<text name="select_single">
+			<text name="select_single" width="272">
 				Selecione apenas uma primitiva para editar suas características.
 			</text>
 			<text name="edit_object">
@@ -425,7 +425,7 @@
 		<panel label="Textura" name="Texture">
 			<texture_picker label="Textura" name="texture control" tool_tip="Clique para escolher uma imagem"/>
 			<color_swatch label="Cor" name="colorswatch" tool_tip="Clique para abrir o Seletor de Cores"/>
-			<text name="color trans">
+			<text name="color trans" width="100">
 				Transparência %
 			</text>
 			<text name="glow label">
@@ -463,7 +463,7 @@
 			<text name="label bumpiness">
 				Ondulação
 			</text>
-			<combo_box name="combobox bumpiness">
+			<combo_box name="combobox bumpiness" width="100" >
 				<combo_item name="None">
 					Nenhum
 				</combo_item>
@@ -477,7 +477,7 @@
 					Granulação
 				</combo_item>
 				<combo_item name="bark">
-					casca
+					Casca
 				</combo_item>
 				<combo_item name="bricks">
 					Tijolos
@@ -507,7 +507,7 @@
 					Revestimento
 				</combo_item>
 				<combo_item name="stonetile">
-					empedrado
+					Empedrado
 				</combo_item>
 				<combo_item name="stucco">
 					Grafiato
@@ -516,7 +516,7 @@
 					Sulcos
 				</combo_item>
 				<combo_item name="weave">
-					weave
+					Weave
 				</combo_item>
 			</combo_box>
 			<text name="tex scale">
@@ -552,6 +552,7 @@
 		<panel label="Conteúdo" name="Contents">
 			<button label="Novo Script" label_selected="Novo Script..." name="button new script"/>
 			<button label="Permissões..." name="button permissions"/>
+			<panel name="ContentsInventory" width="272" />
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
@@ -566,7 +567,7 @@
 		</text>
 		<button label="Sobre a Terra..." label_selected="Sobre a Terra..." name="button about land"/>
 		<check_box label="Mostrar donos" name="checkbox show owners" tool_tip="Colorir lotes de acordo com seus donos"/>
-		<button label="?" label_selected="?" name="button show owners help"/>
+		<button label="?" label_selected="?" name="button show owners help" left_delta="100"/>
 		<text name="label_parcel_modify">
 			Modificar Lote
 		</text>

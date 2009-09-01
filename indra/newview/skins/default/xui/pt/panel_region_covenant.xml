@@ -22,20 +22,22 @@
 		Última modificação: Quarta, 31 de dezembro de 1969 às 16:00:00 horas
 	</text>
 	<button label="?" name="covenant_help"/>
-	<text_editor name="covenant_editor">
+	<text_editor name="covenant_editor" bottom="-247" height="162" >
 		Não há nenhuma regra fornecida para esta Propriedade.
 	</text_editor>
 	<button label="Resetar" name="reset_covenant"/>
 	<text bottom="-25" name="covenant_help_text">
-		As mudanças das regras serão mostradas em todos os lotes da propriedade.
+		As mudanças das regras serão mostradas em todos os lotes
+      da propriedade.
 	</text>
-	<text name="covenant_instructions">
-		Arraste e solte um notecard, para mudar as Regras desta Propriedade.
+	<text  bottom_delta="-36" name="covenant_instructions">
+		Arraste e solte um notecard, para mudar as Regras desta
+      Propriedade.
 	</text>
-	<text name="region_section_lbl">
+	<text bottom_delta="-36" name="region_section_lbl">
 		Região:
 	</text>
-	<text bottom_delta="-31" name="region_name_lbl">
+	<text name="region_name_lbl">
 		Nome:
 	</text>
 	<text name="region_name_text">
@@ -72,9 +74,11 @@
 		Terras compradas na região não poderão ser revendidas.
 	</string>
 	<string name="can_change">
-		O terreno comprado nesta região pode ser compartilhado ou subdividido.
+		O terreno comprado nesta região pode ser compartilhado ou
+subdividido.
 	</string>
 	<string name="can_not_change">
-		O terreno comprado nesta região não pode ser compartilhado ou subdividido.
+		O terreno comprado nesta região não pode ser compartilhado
+ou subdividido.
 	</string>
 </panel>

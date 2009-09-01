@@ -6,7 +6,7 @@
 	<text name="region_text">
 		desconocida
 	</text>
-	<text name="detail_texture_text">
+	<text name="detail_texture_text" width="380">
 		Texturas del terreno (se requieren archivos .tga de 512x512 y 24 bites)
 	</text>
 	<text name="height_text_lbl">

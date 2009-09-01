@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Land &amp; L$" name="land_money_tab">
 	<string name="help_text">
-		Grunde ejet af gruppen er vist sammen med bidragsdetaljer. En advarsel vises indtil Total land i brug er mindre end eller lig med det totale
-bidrag. Planlægning, detaljer og salgsfaneblade viser information om gruppens økonomi.
+		Grunde ejet af gruppen er vist sammen med bidragsdetaljer. En advarsel vises indtil Total land i brug er mindre end eller lig med det totale bidrag. Planlægning, detaljer og salgsfaneblade viser information om gruppens økonomi.
 	</string>
-	<button label="?" name="help_button" />
+	<button label="?" name="help_button"/>
 	<string name="cant_view_group_land_text">
 		Du har ikke tilladelse til at se gruppeejet land.
 	</string>
@@ -18,29 +17,30 @@ bidrag. Planlægning, detaljer og salgsfaneblade viser information om gruppens �
 		Gruppeejet land
 	</text>
 	<scroll_list name="group_parcel_list">
-		<column label="Grundens navn" name="name" />
-		<column label="Region" name="location" />
-		<column label="Område" name="area" />
-		<column label="" name="hidden" />
+		<column label="Grundens navn" name="name"/>
+		<column label="Region" name="location"/>
+		<column label="Type" name="type"/>
+		<column label="Område" name="area"/>
+		<column label="" name="hidden"/>
 	</scroll_list>
-	<button label="Vis på kort" label_selected="Vis på kort" name="map_button" />
+	<button label="Vis på kort" label_selected="Vis på kort" name="map_button"/>
 	<text name="total_contributed_land_label">
 		Total bidrag:
 	</text>
 	<text name="total_contributed_land_value">
-		[AREA] kvadratmeter
+		[AREA] m²
 	</text>
 	<text name="total_land_in_use_label">
 		Total land i brug:
 	</text>
 	<text name="total_land_in_use_value">
-		[AREA] kvadratmeter
+		[AREA] m²
 	</text>
 	<text name="land_available_label">
 		Tilgængeligt land:
 	</text>
 	<text name="land_available_value">
-		[AREA] kvadratmeter
+		[AREA] m²
 	</text>
 	<text name="your_contribution_label">
 		Dit bidrag:
@@ -49,32 +49,34 @@ bidrag. Planlægning, detaljer og salgsfaneblade viser information om gruppens �
 		Ikke muligt at lave dit bidrag til landet.
 	</string>
 	<text name="your_contribution_max_value">
-		kvadratmeter ([AMOUNT] maks.)
+		m² ([AMOUNT] maks.)
 	</text>
 	<text name="group_over_limit_text">
-		Gruppemedlemmer må bidrag med mere, for at understøtte med det land der bliver brugt.
+		Gruppemedlemmer må bidrag med mere, for at understøtte 
+med det land der bliver brugt.
 	</text>
 	<text name="group_money_heading">
 		Gruppe L$
 	</text>
 	<tab_container name="group_money_tab_container">
+		<panel label="Planlægning" name="group_money_planning_tab">
+			<text_editor name="group_money_planning_text">
+				Beregner...
+			</text_editor>
+		</panel>
 		<panel label="Detaljer" name="group_money_details_tab">
 			<text_editor name="group_money_details_text">
 				Beregner...
 			</text_editor>
-			<button label="&lt; Før" label_selected="&lt; Før" name="earlier_details_button"
-			     tool_tip="Gå tilbage i tid" />
-			<button label="Efter &gt;" label_selected="Efter &gt;" name="later_details_button"
-			     tool_tip="Gå frem i tid" />
+			<button label="&lt; Før" label_selected="&lt; Før" name="earlier_details_button" tool_tip="Gå tilbage i tid"/>
+			<button label="Efter &gt;" label_selected="Efter &gt;" name="later_details_button" tool_tip="Gå frem i tid"/>
 		</panel>
 		<panel label="Salg" name="group_money_sales_tab">
 			<text_editor name="group_money_sales_text">
 				Beregner...
 			</text_editor>
-			<button label="&lt; Før" label_selected="&lt; Før" name="earlier_sales_button"
-			     tool_tip="Gå tilbage i tid" />
-			<button label="Efter &gt;" label_selected="Efter &gt;" name="later_sales_button"
-			     tool_tip="Gå frem i tid" />
+			<button label="&lt; Før" label_selected="&lt; Før" name="earlier_sales_button" tool_tip="Gå tilbage i tid"/>
+			<button label="Efter &gt;" label_selected="Efter &gt;" name="later_sales_button" tool_tip="Gå frem i tid"/>
 		</panel>
 	</tab_container>
 </panel>

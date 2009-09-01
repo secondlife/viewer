@@ -22,14 +22,15 @@
 		Última modificación el miér. 31 de dic. de 1969, 16:00:00
 	</text>
 	<button label="?" name="covenant_help"/>
-	<text_editor name="covenant_editor">
+	<text_editor name="covenant_editor" bottom="-263" height="178" >
 		No se ha aportado un contrato para este estado.
 	</text_editor>
 	<button label="Cambiar" name="reset_covenant"/>
 	<text name="covenant_help_text">
-		Los cambios en el contrato se mostrarán en todas las parcelas del estado.
+		Los cambios en el contrato se mostrarán en todas las parcelas
+      del estado.
 	</text>
-	<text name="covenant_instructions">
+	<text name="covenant_instructions" bottom_delta="-31" >
 		Para cambiar el contrato de este estado, arrastre y suelte una nota.
 	</text>
 	<text name="region_section_lbl">
@@ -75,6 +76,7 @@
 		El terreno comprado en esta región se podrá unir o subdividir.
 	</string>
 	<string name="can_not_change">
-		El terreno comprado en esta región no se podrá unir ni subdividir.
+		El terreno comprado en esta región no se podrá unir ni
+subdividir.
 	</string>
 </panel>

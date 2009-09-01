@@ -8,7 +8,7 @@
 		<column label="" name="hidden"/>
 	</scroll_list>
 	<button label="Teleportar" label_selected="Teleportar" name="Teleport" tool_tip="Teleportar al centro de este terreno."/>
-	<button label="Mostrar en el mapa" label_selected="Mostrar en el mapa" name="Show on Map" tool_tip="Mostrar este terreno en el mapa del mundo."/>
+	<button width="130" label="Mostrar en el mapa" label_selected="Mostrar en el mapa" name="Show on Map" tool_tip="Mostrar este terreno en el mapa del mundo."/>
 	<text name="contrib_label">
 		Contribuciones a sus grupos:
 	</text>
