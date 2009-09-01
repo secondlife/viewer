@@ -579,19 +579,23 @@ class WindowsSetup(PlatformSetup):
         return ('"%sdevenv.com" %s.sln /build %s' % 
                 (self.find_visual_studio(), self.project_name, self.build_type))
 
-    def run(self, command, name=None):
+    def run(self, command, name=None, retry_on=None, retries=1):
         '''Run a program.  If the program fails, raise an exception.'''
-        ret = os.system(command)
-        if ret:
-            if name is None:
-                name = command.split(None, 1)[0]
-            path = self.find_in_path(name)
-            if not path:
-                ret = 'was not found'
-            else:
-                ret = 'exited with status %d' % ret
-            raise CommandError('the command %r %s' %
-                               (name, ret))
+        while retries:
+            retries = retries - 1
+            ret = os.system(command)
+            if ret:
+                if name is None:
+                    name = command.split(None, 1)[0]
+                path = self.find_in_path(name)
+                if not path:
+                    error = 'was not found'
+                else:
+                    error = 'exited with status %d' % ret
+                if retry_on is not None and retry_on == ret:
+                    print "Retrying... the command %r %s" % (name, error))
+                else:
+                    raise CommandError('the command %r %s' % (name, error))
 
     def run_cmake(self, args=[]):
         '''Override to add the vstool.exe call after running cmake.'''
@@ -629,11 +633,11 @@ class WindowsSetup(PlatformSetup):
                     for t in targets:
                         cmd = '%s /project %s %s' % (build_cmd, t, ' '.join(opts))
                         print 'Running %r in %r' % (cmd, d)
-                        self.run(cmd)
+                        self.run(cmd, retry_on=4, retries=3)
                 else:
                     cmd = '%s %s' % (build_cmd, ' '.join(opts))
                     print 'Running %r in %r' % (cmd, d)
-                    self.run(cmd)
+                    self.run(cmd, retry_on=4, retries=3)
             finally:
                 os.chdir(cwd)
                 
