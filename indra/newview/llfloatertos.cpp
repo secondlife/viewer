@@ -35,8 +35,6 @@
 #include "llfloatertos.h"
 
 // viewer includes
-#include "llappviewer.h"
-#include "llstartup.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
 
@@ -52,11 +50,12 @@
 #include "message.h"
 
 
-LLFloaterTOS::LLFloaterTOS(const LLSD& message)
-:	LLModalDialog( message ),
-	mMessage(message.asString()),
+LLFloaterTOS::LLFloaterTOS(const LLSD& data)
+:	LLModalDialog( data["message"].asString() ),
+	mMessage(data["message"].asString()),
 	mWebBrowserWindowId( 0 ),
-	mLoadCompleteCount( 0 )
+	mLoadCompleteCount( 0 ),
+	mReplyPumpName(data["reply_pump"].asString())
 {
 }
 
@@ -193,25 +192,12 @@ void LLFloaterTOS::onContinue( void* userdata )
 {
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
 	llinfos << "User agrees with TOS." << llendl;
-	if (self->getInstanceName() == "message_tos")
+
+	if(self->mReplyPumpName != "")
 	{
-		gAcceptTOS = TRUE;
-	}
-	else
-	{
-		gAcceptCriticalMessage = TRUE;
+		LLEventPumps::instance().obtain(self->mReplyPumpName).post(LLSD(true));
 	}
 
-	// Testing TOS dialog
-	#if ! LL_RELEASE_FOR_DOWNLOAD		
-	if ( LLStartUp::getStartupState() == STATE_LOGIN_WAIT )
-	{
-		LLStartUp::setStartupState( STATE_LOGIN_SHOW );
-	}
-	else 
-	#endif
-
-	LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );			// Go back and finish authentication
 	self->closeFloater(); // destroys this object
 }
 
@@ -220,8 +206,12 @@ void LLFloaterTOS::onCancel( void* userdata )
 {
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
 	llinfos << "User disagrees with TOS." << llendl;
-	LLNotifications::instance().add("MustAgreeToLogIn", LLSD(), LLSD(), login_alert_done);
-	LLStartUp::setStartupState( STATE_LOGIN_SHOW );
+
+	if(self->mReplyPumpName != "")
+	{
+		LLEventPumps::instance().obtain(self->mReplyPumpName).post(LLSD(false));
+	}
+
 	self->mLoadCompleteCount = 0;  // reset counter for next time we come to TOS
 	self->closeFloater(); // destroys this object
 }
@@ -241,3 +231,4 @@ void LLFloaterTOS::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 		}
 	}
 }
+

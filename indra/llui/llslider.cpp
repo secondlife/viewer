@@ -43,6 +43,8 @@
 #include "lluictrlfactory.h"
 
 static LLDefaultChildRegistry::Register<LLSlider> r1("slider_bar");
+//FIXME: make this into an unregistered template so that code constructed sliders don't
+// have ambigious template lookup problem
 
 LLSlider::Params::Params()
 :	track_color("track_color"),

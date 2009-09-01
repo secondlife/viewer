@@ -62,6 +62,7 @@ set(llmath_HEADER_FILES
     llv4vector3.h
     llvolume.h
     llvolumemgr.h
+    llsdutil_math.h
     m3math.h
     m4math.h
     raytrace.h

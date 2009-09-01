@@ -136,7 +136,7 @@ endif (DARWIN)
 #    ${media_simple_test_SOURCE_FILES}
 #)
 #
-#add_dependencies(media_simple_test copy_win_libs)
+#add_dependencies(media_simple_test stage_third_party_libs)
 #
 #set_target_properties(media_simple_test
 #    PROPERTIES
@@ -177,7 +177,7 @@ endif (DARWIN)
 #)
 #
 #add_dependencies(media_plugin_test
-#  copy_win_libs
+#  stage_third_party_libs
 #  SLPlugin
 #  demo_media_plugin
 #  ${LLPLUGIN_LIBRARIES}
@@ -281,7 +281,7 @@ target_link_libraries(llmediaplugintest
 )
 
 add_dependencies(llmediaplugintest
-  copy_win_libs
+  stage_third_party_libs
   SLPlugin
   media_plugin_quicktime
   media_plugin_webkit

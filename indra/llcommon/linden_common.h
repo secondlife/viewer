@@ -72,13 +72,7 @@
 #ifdef LL_WINDOWS
 // Reenable warnings we disabled above
 #pragma warning (3 : 4702) // unreachable code, we like level 3, not 4
-// level 4 warnings that we need to disable:
-#pragma warning (disable : 4100) // unreferenced formal parameter
-#pragma warning (disable : 4127) // conditional expression is constant (e.g. while(1) )
-#pragma warning (disable : 4244) // possible loss of data on conversions
-#pragma warning (disable : 4396) // the inline specifier cannot be used when a friend declaration refers to a specialization of a function template
-#pragma warning (disable : 4512) // assignment operator could not be generated
-#pragma warning (disable : 4706) // assignment within conditional (even if((x = y)) )
+// moved msvc warnings to llpreprocessor.h  *TODO - delete this comment after merge conflicts are unlikely -brad
 #endif	//	LL_WINDOWS
 
 // Linden only libs in alpha-order other than stdtypes.h

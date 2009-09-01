@@ -345,42 +345,18 @@
 				</combo_item>
 			</combo_box>
 			<combo_box name="land category">
-				<combo_item name="AnyCategory">
-					全カテゴリー
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Linden所在地
-				</combo_item>
-				<combo_item name="Arts&amp;Culture">
-					アート&amp;カルチャー
-				</combo_item>
-				<combo_item name="Business">
-					ビジネス
-				</combo_item>
-				<combo_item name="Educational">
-					教育的
-				</combo_item>
-				<combo_item name="Gaming">
-					ゲーム
-				</combo_item>
-				<combo_item name="Hangout">
-					たまり場
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					新住人に好意的
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					公園と自然
-				</combo_item>
-				<combo_item name="Residential">
-					住宅用
-				</combo_item>
-				<combo_item name="Shopping">
-					ショッピング
-				</combo_item>
-				<combo_item name="Other">
-					その他
-				</combo_item>
+				<combo_box.item name="AnyCategory" label="全カテゴリー"/>
+				<combo_box.item name="LindenLocation" label="Linden所在地"/>
+				<combo_box.item name="Arts&amp;Culture" label="アート&amp;カルチャー"/>
+				<combo_box.item name="Business" label="ビジネス"/>
+				<combo_box.item name="Educational" label="教育的"/>
+				<combo_box.item name="Gaming" label="ゲーム"/>
+				<combo_box.item name="Hangout" label="たまり場"/>
+				<combo_box.item name="NewcomerFriendly" label="新住人に好意的"/>
+				<combo_box.item name="Parks&amp;Nature" label="公園と自然"/>
+				<combo_box.item name="Residential" label="住宅用"/>
+				<combo_box.item name="Shopping" label="ショッピング"/>
+				<combo_box.item name="Other" label="その他"/>
 			</combo_box>
 			<button label="?" label_selected="?" name="?"/>
 			<check_box label="Matureコンテンツ" name="MatureCheck" tool_tip=""/>
@@ -412,15 +388,9 @@
 				テレポート制限：
 			</text>
 			<combo_box name="landing type" tool_tip="Teleport Routing -- select how to handle teleports onto your land.">
-				<combo_item length="1" name="Blocked" type="string">
-					不可
-				</combo_item>
-				<combo_item length="1" name="LandingPoint" type="string">
-					着地点
-				</combo_item>
-				<combo_item length="1" name="Anywhere" type="string">
-					どこでも
-				</combo_item>
+				<combo_box.item length="1" name="Blocked" type="string" label="不可"/>
+				<combo_box.item length="1" name="LandingPoint" type="string" label="着地点"/>
+				<combo_box.item length="1" name="Anywhere" type="string" label="どこでも"/>
 			</combo_box>
 			<string name="push_restrict_text">
 				プッシングを制限
@@ -499,12 +469,8 @@
 			<check_box label="グループ・アクセスを許可：[GROUP]" name="GroupCheck" tool_tip="[一般]タブで、グループを選択してください。"/>
 			<check_box label="入場許可を販売：" name="PassCheck" tool_tip="この区画への一時的なアクセスを許可"/>
 			<combo_box name="pass_combo">
-				<combo_item name="Anyone">
-					誰でも
-				</combo_item>
-				<combo_item name="Group">
-					グループ
-				</combo_item>
+				<combo_box.item name="Anyone" label="誰でも"/>
+				<combo_box.item name="Group" label="グループ"/>
 			</combo_box>
 			<spinner label="価格（L$）：" name="PriceSpin"/>
 			<spinner label="アクセス時間：" name="HoursSpin"/>

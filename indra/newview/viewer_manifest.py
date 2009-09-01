@@ -166,14 +166,24 @@ class WindowsManifest(ViewerManifest):
 
     def construct(self):
         super(WindowsManifest, self).construct()
-        # the final exe is complicated because we're not sure where it's coming from,
-        # nor do we have a fixed name for the executable
-        self.path(self.find_existing_file('debug/secondlife-bin.exe', 'release/secondlife-bin.exe', 'relwithdebinfo/secondlife-bin.exe'), dst=self.final_exe())
-        # need to get the kdu dll from any of the build directories as well
+        # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
+        self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
+
+        # need to get the llcommon.dll from the build directory as well
+        if self.prefix(src=self.args['configuration'], dst=""):
+            try:
+                self.path('llcommon.dll')
+                self.path('libapr-1.dll')
+                self.path('libaprutil-1.dll')
+                self.path('libapriconv-1.dll')
+            except:
+                print "Skipping llcommon.dll (assuming llcommon was linked statically)"
+                pass
+        self.end_prefix()
+
+        # need to get the kdu dll from the build directory as well
         try:
-            self.path(self.find_existing_file('../llkdu/%s/llkdu.dll' % self.args['configuration'],
-                '../../libraries/i686-win32/lib/release/llkdu.dll'), 
-                  dst='llkdu.dll')
+            self.path('%s/llkdu.dll' % self.args['configuration'], dst='llkdu.dll')
             pass
         except:
             print "Skipping llkdu.dll"
@@ -189,8 +199,11 @@ class WindowsManifest(ViewerManifest):
         self.path("fmod.dll")
 
         # For textures
-        if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
-            self.path("openjpeg.dll")
+        if self.prefix(src=self.args['configuration'], dst=""):
+            if(self.args['configuration'].lower() == 'debug'):
+                self.path("openjpegd.dll")
+            else:
+                self.path("openjpeg.dll")
             self.end_prefix()
 
         # Plugin host application
@@ -246,7 +259,7 @@ class WindowsManifest(ViewerManifest):
         self.path(src="%s/secondlife-bin.exe.config" % self.args['configuration'], dst=self.final_exe() + ".config")
 
         # Vivox runtimes
-        if self.prefix(src="vivox-runtime/i686-win32", dst=""):
+        if self.prefix(src=self.args['configuration'], dst=""):
             self.path("SLVoice.exe")
             self.path("alut.dll")
             self.path("vivoxsdk.dll")
@@ -255,22 +268,18 @@ class WindowsManifest(ViewerManifest):
             self.end_prefix()
 
         # pull in the crash logger and updater from other projects
-        self.path(src=self.find_existing_file( # tag:"crash-logger" here as a cue to the exporter
-                "../win_crash_logger/debug/windows-crash-logger.exe",
-                "../win_crash_logger/release/windows-crash-logger.exe",
-                "../win_crash_logger/relwithdebinfo/windows-crash-logger.exe"),
+        # tag:"crash-logger" here as a cue to the exporter
+        self.path(src='../win_crash_logger/%s/windows-crash-logger.exe' % self.args['configuration'],
                   dst="win_crash_logger.exe")
-        self.path(src=self.find_existing_file(
-                "../win_updater/debug/windows-updater.exe",
-                "../win_updater/release/windows-updater.exe",
-                "../win_updater/relwithdebinfo/windows-updater.exe"),
+        self.path(src='../win_updater/%s/windows-updater.exe' % self.args['configuration'],
                   dst="updater.exe")
 
         # For google-perftools tcmalloc allocator.
-        if self.prefix(src="../../libraries/i686-win32/lib/release", dst=""):
-                self.path("libtcmalloc_minimal.dll")
-                self.end_prefix()
-
+        try:
+            self.path('%s/libtcmalloc_minimal.dll' % self.args['configuration'])
+        except:
+            print "Skipping libtcmalloc_minimal.dll"
+            pass           
 
     def nsi_file_commands(self, install=True):
         def wpath(path):
@@ -391,7 +400,11 @@ class WindowsManifest(ViewerManifest):
 
         # We use the Unicode version of NSIS, available from
         # http://www.scratchpaper.com/
-        NSIS_path = 'C:\\Program Files\\NSIS\\Unicode\\makensis.exe'
+        # Check two paths, one for Program Files, and one for Program Files (x86).
+        # Yay 64bit windows.
+        NSIS_path = os.path.expandvars('${ProgramFiles}\\NSIS\\Unicode\\makensis.exe')
+        if not os.path.exists(NSIS_path):
+            NSIS_path = os.path.expandvars('${ProgramFiles(x86)}\\NSIS\\Unicode\\makensis.exe')
         self.run_command('"' + proper_windows_path(NSIS_path) + '" ' + self.dst_path_of(tempfile))
         # self.remove(self.dst_path_of(tempfile))
         # If we're on a build machine, sign the code using our Authenticode certificate. JC
@@ -460,16 +473,31 @@ class DarwinManifest(ViewerManifest):
                 self.path("vivox-runtime/universal-darwin/libvivoxsdk.dylib", "libvivoxsdk.dylib")
                 self.path("vivox-runtime/universal-darwin/SLVoice", "SLVoice")
 
+                libdir = "../../libraries/universal-darwin/lib_release"
+                dylibs = {}
+
                 # need to get the kdu dll from any of the build directories as well
-                try:
-                    self.path(self.find_existing_file('../llkdu/%s/libllkdu.dylib' % self.args['configuration'],
-                        "../../libraries/universal-darwin/lib_release/libllkdu.dylib"),
-                        dst='libllkdu.dylib')
-                    pass
-                except:
-                    print "Skipping libllkdu.dylib"
-                    pass
-                
+                for lib in "llkdu", "llcommon":
+                    libfile = "lib%s.dylib" % lib
+                    try:
+                        self.path(self.find_existing_file(os.path.join(os.pardir,
+                                                                       lib,
+                                                                       self.args['configuration'],
+                                                                       libfile),
+                                                          os.path.join(libdir, libfile)),
+                                  dst=libfile)
+                    except RuntimeError:
+                        print "Skipping %s" % libfile
+                        dylibs[lib] = False
+                    else:
+                        dylibs[lib] = True
+
+                if dylibs["llcommon"]:
+                    for libfile in ("libapr-1.0.3.7.dylib",
+                                    "libaprutil-1.0.3.8.dylib",
+                                    "libexpat.0.5.0.dylib"):
+                        self.path(os.path.join(libdir, libfile), libfile)
+
                 #libfmodwrapper.dylib
                 self.path(self.args['configuration'] + "/libfmodwrapper.dylib", "libfmodwrapper.dylib")
                 
@@ -657,15 +685,17 @@ class Linux_i686Manifest(LinuxManifest):
 
         # install either the libllkdu we just built, or a prebuilt one, in
         # decreasing order of preference.  for linux package, this goes to bin/
-        try:
-            self.path(self.find_existing_file('../llkdu/libllkdu.so',
-                '../../libraries/i686-linux/lib_release_client/libllkdu.so'), 
-                  dst='bin/libllkdu.so')
-            # keep this one to preserve syntax, open source mangling removes previous lines
-            pass
-        except:
-            print "Skipping libllkdu.so - not found"
-            pass
+        for lib, destdir in ("llkdu", "bin"), ("llcommon", "lib"):
+            libfile = "lib%s.so" % lib
+            try:
+                self.path(self.find_existing_file(os.path.join(os.pardir, lib, libfile),
+                    '../../libraries/i686-linux/lib_release_client/%s' % libfile), 
+                      dst=os.path.join(destdir, libfile))
+                # keep this one to preserve syntax, open source mangling removes previous lines
+                pass
+            except RuntimeError:
+                print "Skipping %s - not found" % libfile
+                pass
 
         self.path("secondlife-stripped","bin/do-not-directly-run-secondlife-bin")
         self.path("../linux_crash_logger/linux-crash-logger-stripped","bin/linux-crash-logger.bin")

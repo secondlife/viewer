@@ -343,42 +343,18 @@ Apenas lotes maiores podem ser listados na busca.
 				</combo_item>
 			</combo_box>
 			<combo_box left="276" name="land category" width="146">
-				<combo_item name="AnyCategory">
-					Qualquer Categoria
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Locação Linden
-				</combo_item>
-				<combo_item name="Arts&amp;Culture">
-					Artes e Cultura
-				</combo_item>
-				<combo_item name="Business">
-					Negócios
-				</combo_item>
-				<combo_item name="Educational">
-					Educacional
-				</combo_item>
-				<combo_item name="Gaming">
-					Jogo
-				</combo_item>
-				<combo_item name="Hangout">
-					Lazer
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					Amigável para novatos
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					Parques e Natureza
-				</combo_item>
-				<combo_item name="Residential">
-					Residencial
-				</combo_item>
-				<combo_item name="Shopping">
-					Compras
-				</combo_item>
-				<combo_item name="Other">
-					Outros
-				</combo_item>
+				<combo_box.item name="AnyCategory" label="Qualquer Categoria"/>
+				<combo_box.item name="LindenLocation" label="Locação Linden"/>
+				<combo_box.item name="Arts&amp;Culture" label="Artes e Cultura"/>
+				<combo_box.item name="Business" label="Negócios"/>
+				<combo_box.item name="Educational" label="Educacional"/>
+				<combo_box.item name="Gaming" label="Jogo"/>
+				<combo_box.item name="Hangout" label="Lazer"/>
+				<combo_box.item name="NewcomerFriendly" label="Amigável para novatos"/>
+				<combo_box.item name="Parks&amp;Nature" label="Parques e Natureza"/>
+				<combo_box.item name="Residential" label="Residencial"/>
+				<combo_box.item name="Shopping" label="Compras"/>
+				<combo_box.item name="Other" label="Outros"/>
 			</combo_box>
 			<button label="?" label_selected="?" left="426" name="?"/>
 			<check_box label="Conteúdo Mature" name="MatureCheck" tool_tip=""/>
@@ -410,15 +386,9 @@ Apenas lotes maiores podem ser listados na busca.
 				Rota de Tele-transporte:
 			</text>
 			<combo_box left="140" name="landing type" tool_tip="Rota de Teletransporte -- Selecione como tratar os tele-transportes no seu lote." width="140">
-				<combo_item length="1" name="Blocked" type="string">
-					Bloqueado
-				</combo_item>
-				<combo_item length="1" name="LandingPoint" type="string">
-					Ponto de Aterrissagem
-				</combo_item>
-				<combo_item length="1" name="Anywhere" type="string">
-					Qualquer lugar
-				</combo_item>
+				<combo_box.item length="1" name="Blocked" type="string" label="Bloqueado"/>
+				<combo_box.item length="1" name="LandingPoint" type="string" label="Ponto de Aterrissagem"/>
+				<combo_box.item length="1" name="Anywhere" type="string" label="Qualquer lugar"/>
 			</combo_box>
 			<string name="push_restrict_text">
 				Sem Empurrar
@@ -499,12 +469,8 @@ Mídia:
 			<check_box label="Permitir Acesso do Grupo: [GROUP]" name="GroupCheck" tool_tip="Definir grupo na aba Geral."/>
 			<check_box label="Vender passes para:" name="PassCheck" tool_tip="Permite acesso temporário a este terreno"/>
 			<combo_box name="pass_combo">
-				<combo_item name="Anyone">
-					Qualquer um
-				</combo_item>
-				<combo_item name="Group">
-					Grupo
-				</combo_item>
+				<combo_box.item name="Anyone" label="Qualquer um"/>
+				<combo_box.item name="Group" label="Grupo"/>
 			</combo_box>
 			<spinner label="Preço em L$:" name="PriceSpin"/>
 			<spinner label="Horas de Acesso:" name="HoursSpin"/>
