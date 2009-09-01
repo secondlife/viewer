@@ -103,11 +103,21 @@ def get_hg_repo():
     return output
 
 def get_hg_changeset():
-    status, output = commands.getstatusoutput('hg id -i')
+    # The right thing to do:
+    # status, output = commands.getstatusoutput('hg id -i')
+    # if status:
+    #     print >> sys.stderr, output
+    #    sys.exit(1)
+
+    # The temporary hack:
+    status, output = commands.getstatusoutput('hg parents --template "{rev}"')
     if status:
         print >> sys.stderr, output
         sys.exit(1)
-    return output
+    lines = output.splitlines()
+    if len(lines) > 1:
+        print >> sys.stderr, 'ERROR: working directory has %d parents' % len(lines)
+    return lines[0]
 
 def using_svn():
     return os.path.isdir(os.path.join(get_src_root(), '.svn'))
