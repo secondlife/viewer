@@ -402,7 +402,7 @@ class WindowsManifest(ViewerManifest):
         if not python or python == "${PYTHON}":
             python = 'python'
         if os.path.exists(sign_py):
-            self.run_command("%s %s %s" % (python, sign_py self.dst_path_of(installer_file)))
+            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of(installer_file)))
         else:
             print "Skipping code signing,", sign_py, "does not exist"
         self.created_path(self.dst_path_of(installer_file))
