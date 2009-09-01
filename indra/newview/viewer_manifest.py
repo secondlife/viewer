@@ -398,6 +398,8 @@ class WindowsManifest(ViewerManifest):
         sign_py = os.path.expandvars("${SIGN}")
         if not sign_py or sign_py == "${SIGN}":
             sign_py = 'C:\\buildscripts\\code-signing\\sign.py'
+        else:
+            sign_py = sign_py.replace('\\', '\\\\')
         python = os.path.expandvars("${PYTHON}")
         if not python or python == "${PYTHON}":
             python = 'python'
