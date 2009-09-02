@@ -427,6 +427,9 @@ class DarwinManifest(ViewerManifest):
 
             # copy additional libs in <bundle>/Contents/MacOS/
             self.path("../../libraries/universal-darwin/lib_release/libndofdev.dylib", dst="MacOS/libndofdev.dylib")
+            self.path(os.path.join(os.pardir, "llplugin", "slplugin", self.args['configuration'],
+                                   "SLPlugin"),
+                      os.path.join("MacOS", "SLPlugin"))
 
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
@@ -507,7 +510,6 @@ class DarwinManifest(ViewerManifest):
 
                 # plugins
                 if self.prefix(src="", dst="llplugin"):
-                    self.path("../llplugin/slplugin/" + self.args['configuration'] + "/SLPlugin", "SLPlugin")
                     self.path("../media_plugins/quicktime/" + self.args['configuration'] + "/media_plugin_quicktime.dylib", "media_plugin_quicktime.dylib")
                     self.path("../media_plugins/webkit/" + self.args['configuration'] + "/media_plugin_webkit.dylib", "media_plugin_webkit.dylib")
                     self.path("../../libraries/universal-darwin/lib_release/libllqtwebkit.dylib", "libllqtwebkit.dylib")
