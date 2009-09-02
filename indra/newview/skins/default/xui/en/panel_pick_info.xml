@@ -8,24 +8,6 @@
  name="panel_pick_info"
  top="0"
  width="255">
-   <scroll_container
-     color="DkGray2"
-     follows="left|top|right|bottom"
-     height="300"
-     layout="topleft"
-     left="0"
-     name="profile_scroll"
-     reserve_scroll_corner="true"
-     opaque="true"
-     width="255">
-    <panel
-     name="scroll_content_panel"
-     follows="left|top|right"
-     layout="topleft"
-     top="0"
-     left="0"
-     width="240"
-     height="575">
     <text
      follows="top"
      font="SansSerifHugeBold"
@@ -47,6 +29,24 @@
      right="-20"
      top="7"
      width="20" />
+    <scroll_container
+     color="DkGray2"
+     follows="left|top|right|bottom"
+     height="300"
+     layout="topleft"
+     left="0"
+     name="profile_scroll"
+     reserve_scroll_corner="true"
+     opaque="true"
+     width="255">
+    <panel
+     name="scroll_content_panel"
+     follows="left|top|right"
+     layout="topleft"
+     top="0"
+     left="0"
+     width="240"
+     height="575">
     <panel
      background_visible="true"
      bg_alpha_color="DkGray2"
@@ -55,70 +55,28 @@
      layout="topleft"
      left="0"
      min_height="300"
-     top="30"
-     width="255">
+     top="0"
+     width="220">
         <texture_picker
          enabled="false"
          follows="left|top|right"
-         height="300"
+         height="190"
          layout="topleft"
          left="10"
          name="pick_snapshot"
-         top="10"
-         width="245" />
-        <text
-         follows="left|top"
-         font="SansSerifBigBold"
-         height="15"
-         layout="topleft"
-         left="10"
-         name="Name:"
-         text_color="white"
-         value="Name:" />
+         top="20"
+         width="220" />
         <text
          follows="left|top|right"
-         height="15"
+         height="20"
          layout="topleft"
+         font="SansSerif"
+         font.style="BOLD"
          left="10"
          name="pick_name"
-         right="-10"
          text_color="white"
          value="[name]"
          word_wrap="true" />
-        <text
-         follows="left|top"
-         font="SansSerifBigBold"
-         height="15"
-         layout="topleft"
-         left="10"
-         name="description_label"
-         text_color="white"
-         top_pad="20"
-         valign="center"
-         value="Description:" />
-        <text
-         follows="left|top|right"
-         height="60"
-         layout="topleft"
-         left="10"
-         name="pick_desc"
-         right="-10"
-         text_color="white"
-         valign="center"
-         value="[description]"
-         width="255"
-         word_wrap="true" />
-        <text
-         follows="left|top"
-         font="SansSerifBigBold"
-         height="20"
-         layout="topleft"
-         left="10"
-         name="location_label"
-         text_color="white"
-         top_pad="20"
-         valign="bottom"
-         value="Location:" />
         <text
          follows="left|top"
          height="30"
@@ -126,9 +84,22 @@
          left="10"
          name="pick_location"
          text_color="white"
-         valign="center"
+         top_pad="10"
+         width="255"
+         word_wrap="true"
          value="[loading...]" />
-    </panel>
+        <text
+         follows="left|top|right"
+         height="150"
+         layout="topleft"
+         left="10"
+         top_pad="20"
+         name="pick_desc"
+         text_color="white"
+         width="225"
+         value="[description]"
+         word_wrap="true" />
+    </panel> 
     </panel>
     </scroll_container>
     <panel
@@ -136,9 +107,8 @@
      height="30"
      layout="topleft"
      top_pad="2"
-     left="8"
-     name="buttons"
-     right="-10">
+     left="10"
+     name="buttons">
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
@@ -148,14 +118,14 @@
          left="0"
          name="edit_btn"
          top="0"
-         width="50" />
+         width="80" />
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
          height="25"
          label="Teleport"
          layout="topleft"
-         left_pad="2"
+         left_pad="3"
          name="teleport_btn"
          top="0"
          width="80" />
@@ -165,9 +135,9 @@
          height="25"
          label="Map"
          layout="topleft"
-         left_pad="2"
+         left_pad="3"
          name="show_on_map_btn"
          top="0"
-         width="100" />
+         width="80" />
     </panel>
 </panel>

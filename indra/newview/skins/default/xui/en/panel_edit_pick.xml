@@ -9,6 +9,30 @@
  name="panel_edit_pick"
  top="0"
  width="255">
+   <text
+     type="string"
+     length="1"
+     follows="top"
+     font="SansSerifHugeBold"
+     height="15"
+     layout="topleft"
+     left="10"
+     name="title"
+     text_color="white"
+     top="5"
+     width="250">
+        Edit Pick
+    </text>
+   <button
+     follows="top|right"
+     height="20"
+     image_overlay="BackArrow_Off"
+     layout="topleft"
+     name="back_btn"
+     picture_style="true"
+     right="-20"
+     top="7"
+     width="20" />
    <scroll_container
      color="DkGray2"
      follows="left|top|right|bottom"
@@ -27,64 +51,42 @@
      left="0"
      width="240"
      height="575">
-    <text
-     type="string"
-     length="1"
-     follows="top"
-     font="SansSerifHugeBold"
-     height="15"
-     layout="topleft"
-     left="10"
-     name="title"
-     text_color="white"
-     top="17"
-     width="250">
-        Edit Pick
-    </text>
     <panel
      background_visible="true"
      bg_alpha_color="DkGray2"
-     width="280"
+     width="220"
      follows="left|right|top|bottom"
      height="560"
      layout="topleft"
+     left="0"
+     top="0">
+    <texture_picker
+     follows="left|top|right"
+     height="190"
+     width="220"
+     layout="topleft"
+     top="20"
      left="10"
-     right="-10"
-     top_pad="5">
-        <panel
-         follows="left|top|right"
-         height="150"
-         layout="topleft"
-         left="10"
-         right="-10"
-         top="10">
-            <panel
-             follows="left|top|right"
-             height="150"
-             layout="topleft" >
-                <texture_picker
-                 follows="left|top|right"
-                 height="150"
-                 layout="topleft"
-                 name="pick_snapshot" />
-            </panel>
-            <icon
-             height="16"
-             image_name="image_edit_icon.tga"
-             layout="topleft"
-             name="edit_icon"
-             right="-25"
-             top="30"
-             visible="false"
-             width="16" />
-        </panel>
+     name="pick_snapshot" />
+     <icon
+     height="16"
+     image_name="image_edit_icon.tga"
+     layout="topleft"
+     name="edit_icon"
+     left="245"
+     top="35"
+     visible="true"
+     width="16" />
         <text
          type="string"
          length="1"
          follows="left|top"
-         height="16"
+         height="15"
+         font="SansSerifSmall"
+         font.style="BOLD"
          layout="topleft"
          left="10"
+         top="215"
          name="Name:"
          text_color="white">
             Name:
@@ -95,46 +97,49 @@
          height="20"
          layout="topleft"
          left="10"
+         top_pad="2"
          max_length="63"
          name="pick_name"
-         right="-10"
          text_color="black"
-         width="255" />
+         width="220" />
         <text
          type="string"
          length="1"
          follows="left|top"
-         height="30"
+         height="15"
+         font="SansSerifSmall"
+         font.style="BOLD"
          layout="topleft"
          left="10"
+         top_pad="20"
          name="description_label"
-         text_color="white"
-         v_pad="15"
-         valign="center">
+         text_color="white">
             Description:
         </text>
         <text_editor
          follows="left|top|right"
          height="100"
+         width="220"
          hide_scrollbar="true"
          layout="topleft"
          left="10"
+         top_pad="2"
          max_length="1023"
          name="pick_desc"
          text_color="black"
-         right="-10"
          word_wrap="true" />
         <text
          type="string"
          length="1"
+         font="SansSerifSmall"
+         font.style="BOLD"
          follows="left|top"
-         height="20"
+         height="15"
          layout="topleft"
          left="10"
          name="location_label"
          text_color="white"
-         v_pad="15"
-         valign="bottom">
+         top_pad="20">
             Location:
         </text>
         <text
@@ -146,10 +151,9 @@
          left="10"
          name="pick_location"
          right="-10"
+         top_pad="2"
          text_color="white"
-         v_pad="10"
          width="250"
-         valign="center"
          word_wrap="true">
             loading...
         </text>
@@ -166,7 +170,7 @@
     </scroll_container>
     <panel
      follows="left|right|bottom"
-     height="25"
+     height="30"
      label="bottom_panel"
      layout="topleft"
      left="10"
@@ -174,21 +178,21 @@
      top_pad="2">
         <button
          follows="bottom|left"
-         height="20"
+         height="25"
          label="Save [WHAT]"
          layout="topleft"
          name="save_changes_btn"
-         right="-120"
-         top="5"
+         left="0"
+         top="0"
          width="130" />
         <button
          follows="bottom|left"
-         height="20"
+         height="25"
          label="Cancel"
          layout="topleft"
          name="cancel_btn"
-         right="-10"
-         top="5"
-         width="90" />
+         left_pad="5"
+         top_delta="0"
+         width="130" />
     </panel>
 </panel>
