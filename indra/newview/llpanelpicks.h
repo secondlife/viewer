@@ -48,7 +48,7 @@ class LLPanelPick;
 class LLAgent;
 class LLMenuGL;
 class LLPickItem;
-
+class LLListCtrl;
 
 class LLPanelPicks 
 	: public LLPanelProfileTab
@@ -67,17 +67,8 @@ public:
 
 	void updateData();
 
-	void clear();
-
 	// returns the selected pick item
 	LLPickItem* getSelectedPickItem();
-
-	// removes the specified pick item
-	void removePickItem(LLPickItem* pick_item);
-
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
 
 	//*NOTE top down approch when panel toggling is done only by 
 	// parent panels failed to work (picks related code was in me profile panel)
@@ -106,25 +97,17 @@ private:
 	bool callbackDelete(const LLSD& notification, const LLSD& response);
 	bool callbackTeleport(const LLSD& notification, const LLSD& response);
 
-	void reshapePicksList();
-	void reshapePickItem(LLView* const pick_item, const S32 last_bottom, const S32 newWidth);
-	LLView* getPicksList() const;
 	void updateButtons();
 
-	void setSelectedPickItem(LLPickItem* item);
-
-	BOOL isMouseInPick(S32 x, S32 y);
+	virtual void onDoubleClickItem(LLUICtrl* item);
+	virtual void onRightMouseDownItem(LLUICtrl* item, S32 x, S32 y, MASK mask);
 
 	LLPanelProfile* getProfilePanel();
 
-
-	typedef std::list<LLPickItem*> picture_list_t;
-	picture_list_t mPickItemList;
-
 	LLMenuGL* mPopupMenu;
-	LLPickItem* mSelectedPickItem;
 	LLPanelProfile* mProfilePanel;
 	LLPanelPick* mPickPanel;
+	LLListCtrl* mPicksList;
 };
 
 class LLPickItem : public LLPanel, public LLAvatarPropertiesObserver

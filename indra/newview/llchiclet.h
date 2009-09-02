@@ -95,7 +95,7 @@ private:
 };
 
 /*
- * Class for displaying avatar's icon.
+ * Class for displaying avatar's icon in P2P chiclet.
 */
 class LLChicletAvatarIconCtrl : public LLAvatarIconCtrl
 {
@@ -114,6 +114,36 @@ protected:
 
 	LLChicletAvatarIconCtrl(const Params& p);
 	friend class LLUICtrlFactory;
+};
+
+/**
+ * Class for displaying group's icon in Group chiclet.
+ */
+class LLChicletGroupIconCtrl : public LLIconCtrl
+{
+public:
+
+	struct Params :	public LLInitParam::Block<Params, LLIconCtrl::Params>
+	{
+		Optional<std::string> default_icon;
+
+		Params()
+		 : default_icon("default_icon", "default_land_picture.j2c")
+		{
+		};
+	};
+
+	/**
+	 * Sets icon, if value is LLUUID::null - default icon will be set.
+	 */
+	virtual void setValue(const LLSD& value );
+
+protected:
+
+	LLChicletGroupIconCtrl(const Params& p);
+	friend class LLUICtrlFactory;
+
+	std::string mDefaultIcon;
 };
 
 /*
@@ -231,74 +261,45 @@ private:
 	chiclet_size_changed_signal_t mChicletSizeChangedSignal;
 };
 
+
 /*
-* Implements Instant Message chiclet.
-* IMChiclet displays avatar's icon, number of unread messages(optional)
+* Base class for Instant Message chiclets.
+* IMChiclet displays icon, number of unread messages(optional)
 * and voice chat status(optional).
+* Every chiclet should override LLUICtrl::getRequiredRect and return 
+* desired width.
 */
-class LLIMChiclet : public LLChiclet, LLGroupMgrObserver
+class LLIMChiclet : public LLChiclet
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLChiclet::Params>
-	{
-		Optional<LLChicletAvatarIconCtrl::Params> avatar_icon;
-
-		Optional<LLIconCtrl::Params> group_insignia;
-
-		Optional<LLChicletNotificationCounterCtrl::Params> unread_notifications;
-
-		Optional<LLChicletSpeakerCtrl::Params> speaker;
-
-		Optional<bool>	show_speaker;
-
-		Params();
-	};
-
-	/*virtual*/ ~LLIMChiclet();
-
-	virtual void setSessionId(const LLUUID& session_id);
+	
+	/*virtual*/ ~LLIMChiclet() {};
 
 	/*
 	 * Sets IM session name. This name will be displayed in chiclet tooltip.
 	*/
-	virtual void setIMSessionName(const std::string& name);
+	virtual void setIMSessionName(const std::string& name) { setToolTip(name); }
 
 	/*
 	 * Sets id of person/group user is chatting with.
 	 * Session id should be set before calling this
 	*/
-	virtual void setOtherParticipantId(const LLUUID& other_participant_id);
+	virtual void setOtherParticipantId(const LLUUID& other_participant_id) { mOtherParticipantId = other_participant_id; }
 
 	/*
 	 * Gets id of person/group user is chatting with.
 	 */
-	virtual LLUUID getOtherParticipantId();
+	virtual LLUUID getOtherParticipantId() { return mOtherParticipantId; }
 
 	/*
 	 * Shows/hides voice chat status control.
 	*/
-	virtual void setShowSpeaker(bool show);
+	virtual void setShowSpeaker(bool show) { mShowSpeaker = show; }
 
 	/*
 	 * Returns voice chat status control visibility.
 	*/
 	virtual bool getShowSpeaker() {return mShowSpeaker;};
-
-	/*
-	 * Sets number of unread messages. Will update chiclet's width if number text 
-	 * exceeds size of counter and notify it's parent about size change.
-	*/
-	/*virtual*/ void setCounter(S32);
-
-	/*
-	 * Returns number of unread messages.
-	*/
-	/*virtual*/ S32 getCounter() { return mCounterCtrl->getCounter(); }
-
-	/*
-	 * Shows/hides number of unread messages.
-	*/
-	/*virtual*/ void setShowCounter(bool show);
 
 	/*
 	 * Draws border around chiclet.
@@ -313,52 +314,13 @@ public:
 	 */
 	void onMouseDown();
 
-	/*
-	 * Returns rect, required to display chiclet.
-	 * Width is the only valid value.
-	*/
-	/*virtual*/ LLRect getRequiredRect();
-
-	/** comes from LLGroupMgrObserver */
-	virtual void changed(LLGroupChange gc);
-
 protected:
 
-	LLIMChiclet(const Params& p);
-	friend class LLUICtrlFactory;
-
-	/*
-	 * Creates chiclet popup menu. Will create P2P or Group IM Chat menu 
-	 * based on other participant's id.
-	*/
-	virtual void createPopupMenu();
-
-	/*
-	 * Processes clicks on chiclet popup menu.
-	*/
-	virtual void onMenuItemClicked(const LLSD& user_data);
-
-	/* 
-	 * Enables/disables menus based on relationship with other participant.
-	*/
-	virtual void updateMenuItems();
-
-	/*
-	 * Displays popup menu.
-	*/
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+	LLIMChiclet(const LLChiclet::Params& p);
 
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 
 protected:
-	LLChicletAvatarIconCtrl* mAvatarCtrl;
-
-	/** the icon of a group in case of group chat */
-	LLIconCtrl* mGroupInsignia;
-	LLChicletNotificationCounterCtrl* mCounterCtrl;
-	LLChicletSpeakerCtrl* mSpeakerCtrl;
-
-	LLMenuGL* mPopupMenu;
 
 	bool mShowSpeaker;
 
@@ -385,6 +347,160 @@ public:
 	static boost::signals2::signal<LLChiclet* (const LLUUID&),
 			CollectChicletCombiner<std::list<LLChiclet*> > >
 			sFindChicletsSignal;
+};
+
+/**
+ * Implements P2P chiclet.
+ */
+class LLIMP2PChiclet : public LLIMChiclet
+{
+public:
+	struct Params : public LLInitParam::Block<Params, LLChiclet::Params>
+	{
+		Optional<LLChicletAvatarIconCtrl::Params> avatar_icon;
+
+		Optional<LLChicletNotificationCounterCtrl::Params> unread_notifications;
+
+		Optional<LLChicletSpeakerCtrl::Params> speaker;
+
+		Optional<bool>	show_speaker;
+
+		Params();
+	};
+
+	void setOtherParticipantId(const LLUUID& other_participant_id);
+
+	/*virtual*/ void setShowSpeaker(bool show);
+
+	/*
+	* Sets number of unread messages. Will update chiclet's width if number text 
+	* exceeds size of counter and notify it's parent about size change.
+	*/
+	/*virtual*/ void setCounter(S32);
+
+	/*
+	* Returns number of unread messages.
+	*/
+	/*virtual*/ S32 getCounter() { return mCounterCtrl->getCounter(); }
+
+	/*
+	* Returns rect, required to display chiclet.
+	* Width is the only valid value.
+	*/
+	/*virtual*/ LLRect getRequiredRect();
+
+protected:
+	LLIMP2PChiclet(const Params& p);
+	friend class LLUICtrlFactory;
+
+	/*
+	* Creates chiclet popup menu. Will create P2P or Group IM Chat menu 
+	* based on other participant's id.
+	*/
+	virtual void createPopupMenu();
+
+	/*
+	* Processes clicks on chiclet popup menu.
+	*/
+	virtual void onMenuItemClicked(const LLSD& user_data);
+
+	/*
+	* Displays popup menu.
+	*/
+	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
+	/* 
+	* Enables/disables menus based on relationship with other participant.
+	*/
+	virtual void updateMenuItems();
+
+private:
+
+	LLChicletAvatarIconCtrl* mChicletIconCtrl;
+	LLChicletNotificationCounterCtrl* mCounterCtrl;
+	LLChicletSpeakerCtrl* mSpeakerCtrl;
+	LLMenuGL* mPopupMenu;
+};
+
+/**
+ * Implements Group chat chiclet.
+ */
+class LLIMGroupChiclet : public LLIMChiclet, public LLGroupMgrObserver
+{
+public:
+
+	struct Params : public LLInitParam::Block<Params, LLChiclet::Params>
+	{
+		Optional<LLChicletGroupIconCtrl::Params> group_icon;
+
+		Optional<LLChicletNotificationCounterCtrl::Params> unread_notifications;
+
+		Optional<LLChicletSpeakerCtrl::Params> speaker;
+
+		Optional<bool>	show_speaker;
+
+		Params();
+	};
+
+	/**
+	 * Sets session id.
+	 * Session ID for group chat is actually Group ID.
+	 */
+	/*virtual*/ void setSessionId(const LLUUID& session_id);
+
+	/**
+	 * Callback for LLGroupMgrObserver, we get this when group data is available or changed.
+	 * Sets group icon.
+	 */
+	/*virtual*/ void changed(LLGroupChange gc);
+
+	/*virtual*/ void setShowSpeaker(bool show);
+
+	/*
+	* Sets number of unread messages. Will update chiclet's width if number text 
+	* exceeds size of counter and notify it's parent about size change.
+	*/
+	/*virtual*/ void setCounter(S32);
+
+	/*
+	* Returns number of unread messages.
+	*/
+	/*virtual*/ S32 getCounter() { return mCounterCtrl->getCounter(); }
+
+	/*
+	* Returns rect, required to display chiclet.
+	* Width is the only valid value.
+	*/
+	/*virtual*/ LLRect getRequiredRect();
+
+	~LLIMGroupChiclet();
+
+protected:
+	LLIMGroupChiclet(const Params& p);
+	friend class LLUICtrlFactory;
+
+	/*
+	* Creates chiclet popup menu. Will create P2P or Group IM Chat menu 
+	* based on other participant's id.
+	*/
+	virtual void createPopupMenu();
+
+	/*
+	* Processes clicks on chiclet popup menu.
+	*/
+	virtual void onMenuItemClicked(const LLSD& user_data);
+
+	/*
+	* Displays popup menu.
+	*/
+	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
+private:
+
+	LLChicletGroupIconCtrl* mChicletIconCtrl;
+	LLChicletNotificationCounterCtrl* mCounterCtrl;
+	LLChicletSpeakerCtrl* mSpeakerCtrl;
+	LLMenuGL* mPopupMenu;
 };
 
 /*

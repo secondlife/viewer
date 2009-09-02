@@ -105,6 +105,10 @@ public:
 	// without sending a request to the server.
 	void displayAgentParcelInfo();
 
+	void updateEstateName(const std::string& name);
+	void updateEstateOwnerName(const std::string& name);
+	void updateCovenantText(const std::string &text);
+
 	void nameUpdatedCallback(LLTextBox* text,
 							 const std::string& first,
 							 const std::string& last);
@@ -133,15 +137,42 @@ private:
 	LLTextBox*			mRegionName;
 	LLTextBox*			mParcelName;
 	LLTextEditor*		mDescEditor;
-	LLIconCtrl*			mRating;
-	LLButton*			mRegionInfoDrillIn;
-	LLButton*			mMediaDrillIn;
+	LLIconCtrl*			mMaturityRatingIcon;
+	LLTextBox*			mMaturityRatingText;
+	LLTextBox*			mParcelOwner;
+	LLTextBox*			mLastVisited;
+
+	LLIconCtrl*			mRatingIcon;
+	LLTextBox*			mRatingText;
+	LLIconCtrl*			mVoiceIcon;
+	LLTextBox*			mVoiceText;
+	LLIconCtrl*			mFlyIcon;
+	LLTextBox*			mFlyText;
+	LLIconCtrl*			mPushIcon;
+	LLTextBox*			mPushText;
+	LLIconCtrl*			mBuildIcon;
+	LLTextBox*			mBuildText;
+	LLIconCtrl*			mScriptsIcon;
+	LLTextBox*			mScriptsText;
+	LLIconCtrl*			mDamageIcon;
+	LLTextBox*			mDamageText;
+
+	LLTextBox*			mRegionNameText;
+	LLTextBox*			mRegionTypeText;
+	LLTextBox*			mRegionRatingText;
+	LLTextBox*			mRegionOwnerText;
+	LLTextBox*			mRegionGroupText;
+
+	LLTextBox*			mEstateNameText;
+	LLTextBox*			mEstateRatingText;
+	LLTextBox*			mEstateOwnerText;
+	LLTextEditor*		mCovenantText;
+
 	LLTextBox*			mOwner;
 	LLTextBox*			mCreator;
 	LLTextBox*			mCreated;
 	LLLineEditor*		mTitleEditor;
 	LLTextEditor*		mNotesEditor;
-	LLTextBox*			mLocationEditor;
 	LLPanel*            mScrollingPanel;
 	LLPanel*			mInfoPanel;
 	LLMediaPanel*		mMediaPanel;

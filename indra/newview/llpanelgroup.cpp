@@ -298,6 +298,8 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	if(button_create)
 		button_create->setVisible(is_null_group_id);
 
+	getChild<LLUICtrl>("prepend_founded_by")->setVisible(!is_null_group_id);
+
 	LLAccordionCtrlTab* tab_general = findChild<LLAccordionCtrlTab>("group_general_tab");
 	LLAccordionCtrlTab* tab_roles = findChild<LLAccordionCtrlTab>("group_roles_tab");
 	LLAccordionCtrlTab* tab_notices = findChild<LLAccordionCtrlTab>("group_notices_tab");

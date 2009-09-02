@@ -48,6 +48,7 @@
 #include "llscrollcontainer.h"
 #include "lltextbox.h"
 
+#include "llaccordionctrl.h"
 #include "llagent.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llfloaterworldmap.h"
@@ -93,14 +94,42 @@ BOOL LLPanelPlaceInfo::postBuild()
 	mSnapshotCtrl = getChild<LLTextureCtrl>("logo");
 	mSnapshotCtrl->setEnabled(FALSE);
 
-	mRegionName = getChild<LLTextBox>("region_name");
-	mParcelName = getChild<LLTextBox>("parcel_name");
+	mRegionName = getChild<LLTextBox>("region_title");
+	mParcelName = getChild<LLTextBox>("parcel_title");
 	mDescEditor = getChild<LLTextEditor>("description");
-	mRating = getChild<LLIconCtrl>("maturity");
 
-	mRegionInfoDrillIn = getChild<LLButton>("region_info_drill_in");
-	mMediaDrillIn = getChild<LLButton>("media_drill_in");
-	mMediaDrillIn->setClickedCallback(boost::bind(&LLPanelPlaceInfo::toggleMediaPanel, this, TRUE));
+	mMaturityRatingIcon = getChild<LLIconCtrl>("maturity");
+	mMaturityRatingText = getChild<LLTextBox>("maturity_value");
+
+	mParcelOwner = getChild<LLTextBox>("owner_value");
+
+	mLastVisited = getChild<LLTextBox>("last_visited_value");
+
+	mRatingIcon = getChild<LLIconCtrl>("rating_icon");
+	mRatingText = getChild<LLTextBox>("rating_value");
+	mVoiceIcon = getChild<LLIconCtrl>("voice_icon");
+	mVoiceText = getChild<LLTextBox>("voice_value");
+	mFlyIcon = getChild<LLIconCtrl>("fly_icon");
+	mFlyText = getChild<LLTextBox>("fly_value");
+	mPushIcon = getChild<LLIconCtrl>("push_icon");
+	mPushText = getChild<LLTextBox>("push_value");
+	mBuildIcon = getChild<LLIconCtrl>("build_icon");
+	mBuildText = getChild<LLTextBox>("build_value");
+	mScriptsIcon = getChild<LLIconCtrl>("scripts_icon");
+	mScriptsText = getChild<LLTextBox>("scripts_value");
+	mDamageIcon = getChild<LLIconCtrl>("damage_icon");
+	mDamageText = getChild<LLTextBox>("damage_value");
+
+	mRegionNameText = getChild<LLTextBox>("region_name");
+	mRegionTypeText = getChild<LLTextBox>("region_type");
+	mRegionRatingText = getChild<LLTextBox>("region_rating");
+	mRegionOwnerText = getChild<LLTextBox>("region_owner");
+	mRegionGroupText = getChild<LLTextBox>("region_group");
+
+	mEstateNameText = getChild<LLTextBox>("estate_name");
+	mEstateRatingText = getChild<LLTextBox>("estate_rating");
+	mEstateOwnerText = getChild<LLTextBox>("estate_owner");
+	mCovenantText = getChild<LLTextEditor>("covenant");
 
 	mOwner = getChild<LLTextBox>("owner");
 	mCreator = getChild<LLTextBox>("creator");
@@ -224,7 +253,10 @@ void LLPanelPlaceInfo::resetLocation()
 	mLandmarkID.setNull();
 	mPosRegion.clearVec();
 	std::string not_available = getString("not_available");
-	mRating->setValue(not_available);
+	mMaturityRatingIcon->setValue(not_available);
+	mMaturityRatingText->setValue(not_available);
+	mParcelOwner->setValue(not_available);
+	mLastVisited->setValue(not_available);
 	mRegionName->setText(not_available);
 	mParcelName->setText(not_available);
 	mDescEditor->setText(not_available);
@@ -235,6 +267,32 @@ void LLPanelPlaceInfo::resetLocation()
 	mNotesEditor->setText(LLStringUtil::null);
 	mSnapshotCtrl->setImageAssetID(LLUUID::null);
 	mSnapshotCtrl->setFallbackImageName("default_land_picture.j2c");
+
+	mRatingIcon->setValue(not_available);
+	mRatingText->setText(not_available);
+	mVoiceIcon->setValue(not_available);
+	mVoiceText->setText(not_available);
+	mFlyIcon->setValue(not_available);
+	mFlyText->setText(not_available);
+	mPushIcon->setValue(not_available);
+	mPushText->setText(not_available);
+	mBuildIcon->setValue(not_available);
+	mBuildText->setText(not_available);
+	mScriptsIcon->setValue(not_available);
+	mScriptsText->setText(not_available);
+	mDamageIcon->setValue(not_available);
+	mDamageText->setText(not_available);
+
+	mRegionNameText->setValue(not_available);
+	mRegionTypeText->setValue(not_available);
+	mRegionRatingText->setValue(not_available);
+	mRegionOwnerText->setValue(not_available);
+	mRegionGroupText->setValue(not_available);
+
+	mEstateNameText->setValue(not_available);
+	mEstateRatingText->setValue(not_available);
+	mEstateOwnerText->setValue(not_available);
+	mCovenantText->setValue(not_available);
 }
 
 //virtual
@@ -251,12 +309,22 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 
 	bool is_info_type_agent = type == AGENT;
 	bool is_info_type_landmark = type == LANDMARK;
+	bool is_info_type_teleport_history = type == TELEPORT_HISTORY;
+
+	getChild<LLTextBox>("maturity_label")->setVisible(!is_info_type_agent);
+	mMaturityRatingIcon->setVisible(!is_info_type_agent);
+	mMaturityRatingText->setVisible(!is_info_type_agent);
+
+	getChild<LLTextBox>("owner_label")->setVisible(is_info_type_agent);
+	mParcelOwner->setVisible(is_info_type_agent);
+
+	getChild<LLTextBox>("last_visited_label")->setVisible(is_info_type_teleport_history);
+	mLastVisited->setVisible(is_info_type_teleport_history);
 
 	landmark_info_panel->setVisible(is_info_type_landmark);
 	landmark_edit_panel->setVisible(is_info_type_landmark || type == CREATE_LANDMARK);
 
-	mRegionInfoDrillIn->setVisible(is_info_type_agent);
-	mMediaDrillIn->setVisible(is_info_type_agent);
+	getChild<LLAccordionCtrl>("advanced_info_accordion")->setVisible(is_info_type_agent);
 
 	switch(type)
 	{
@@ -274,14 +342,15 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 			}
 		break;
 
-		// Hide Media Panel if showing information about
-		// a landmark or a teleport history item
 		case LANDMARK:
 			mCurrentTitle = getString("title_landmark");
 		break;
 
 		case TELEPORT_HISTORY:
-			mCurrentTitle = getString("title_place");
+			mCurrentTitle = getString("title_teleport_history");
+
+			// *TODO: Add last visited timestamp.
+			mLastVisited->setText(getString("unknown"));
 		break;
 	}
 
@@ -293,7 +362,7 @@ BOOL LLPanelPlaceInfo::isMediaPanelVisible()
 {
 	if (!mMediaPanel)
 		return FALSE;
-	
+
 	return mMediaPanel->getVisible();
 }
 
@@ -363,18 +432,23 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 	// HACK: Flag 0x2 == adult region,
 	// Flag 0x1 == mature region, otherwise assume PG
 	std::string rating = LLViewerRegion::accessToString(SIM_ACCESS_PG);
-	std::string rating_icon = "icon_event.tga";
+	std::string rating_icon = "places_rating_pg.tga";
 	if (parcel_data.flags & 0x2)
 	{
 		rating = LLViewerRegion::accessToString(SIM_ACCESS_ADULT);
-		rating_icon = "icon_event_adult.tga";
+		rating_icon = "places_rating_adult.tga";
 	}
 	else if (parcel_data.flags & 0x1)
 	{
 		rating = LLViewerRegion::accessToString(SIM_ACCESS_MATURE);
-		rating_icon = "icon_event_mature.tga";
+		rating_icon = "places_rating_mature.tga";
 	}
-	mRating->setValue(rating_icon);
+
+	mMaturityRatingIcon->setValue(rating_icon);
+	mMaturityRatingText->setValue(rating);
+
+	mRatingIcon->setValue(rating_icon);
+	mRatingText->setValue(rating);
 
 	//update for_sale banner, here we should use DFQ_FOR_SALE instead of PF_FOR_SALE
 	//because we deal with remote parcel response format
@@ -450,6 +524,14 @@ void LLPanelPlaceInfo::displayAgentParcelInfo()
 	if (!region || !parcel)
 		return;
 
+	// send EstateCovenantInfo message
+	LLMessageSystem *msg = gMessageSystem;
+	msg->newMessage("EstateCovenantRequest");
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID,	gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID,gAgent.getSessionID());
+	msg->sendReliable(region->getHost());
+
 	LLParcelData parcel_data;
 
 	// HACK: Converting sim access flags to the format
@@ -481,9 +563,139 @@ void LLPanelPlaceInfo::displayAgentParcelInfo()
 	parcel_data.global_y = global_pos.mdV[1];
 	parcel_data.global_z = global_pos.mdV[2];
 
-	
-
 	processParcelInfo(parcel_data);
+
+	// Processing parcel characteristics
+	if (parcel->getParcelFlagAllowVoice())
+	{
+		mVoiceIcon->setValue("places_voice_on.tga");
+		mVoiceText->setText(getString("on"));
+	}
+	else
+	{
+		mVoiceIcon->setValue("places_voice_off.tga");
+		mVoiceText->setText(getString("off"));
+	}
+	
+	if (!region->getBlockFly() && parcel->getAllowFly())
+	{
+		mFlyIcon->setValue("places_fly_on.tga");
+		mFlyText->setText(getString("on"));
+	}
+	else
+	{
+		mFlyIcon->setValue("places_fly_off.tga");
+		mFlyText->setText(getString("off"));
+	}
+
+	if (region->getRestrictPushObject() || parcel->getRestrictPushObject())
+	{
+		mPushIcon->setValue("places_push_off.tga");
+		mPushText->setText(getString("off"));
+	}
+	else
+	{
+		mPushIcon->setValue("places_push_on.tga");
+		mPushText->setText(getString("on"));
+	}
+
+	if (parcel->getAllowModify())
+	{
+		mBuildIcon->setValue("places_build_on.tga");
+		mBuildText->setText(getString("on"));
+	}
+	else
+	{
+		mBuildIcon->setValue("places_build_off.tga");
+		mBuildText->setText(getString("off"));
+	}
+
+	if((region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS) ||
+	   (region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS) ||
+	   !parcel->getAllowOtherScripts())
+	{
+		mScriptsIcon->setValue("places_scripts_off.tga");
+		mScriptsText->setText(getString("off"));
+	}
+	else
+	{
+		mScriptsIcon->setValue("places_scripts_on.tga");
+		mScriptsText->setText(getString("on"));
+	}
+
+	if (region->getAllowDamage() || parcel->getAllowDamage())
+	{
+		mDamageIcon->setValue("places_damage_on.tga");
+		mDamageText->setText(getString("on"));
+	}
+	else
+	{
+		mDamageIcon->setValue("places_damage_off.tga");
+		mDamageText->setText(getString("off"));
+	}
+
+	mRegionNameText->setText(region->getName());
+	mRegionTypeText->setText(region->getSimProductName());
+	mRegionRatingText->setText(region->getSimAccessString());
+
+	// Determine parcel owner
+	if (parcel->isPublic())
+	{
+		mParcelOwner->setText(getString("public"));
+		mRegionOwnerText->setText(getString("public"));
+	}
+	else
+	{
+		if (parcel->getIsGroupOwned())
+		{
+			mRegionOwnerText->setText(getString("group_owned_text"));
+
+			if(!parcel->getGroupID().isNull())
+			{
+				// FIXME: Using parcel group as region group.
+				gCacheName->get(parcel->getGroupID(), TRUE,
+								boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, this, mRegionGroupText, _2, _3));
+
+				mParcelOwner->setText(mRegionGroupText->getText());
+			}
+			else
+			{
+				std::string owner = getString("none_text");
+				mRegionGroupText->setText(owner);
+				mParcelOwner->setText(owner);
+			}
+		}
+		else
+		{
+			// Figure out the owner's name
+			gCacheName->get(parcel->getOwnerID(), FALSE,
+							boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, this, mParcelOwner, _2, _3));
+			gCacheName->get(region->getOwner(), FALSE,
+							boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, this, mRegionOwnerText, _2, _3));
+		}
+
+		if(LLParcel::OS_LEASE_PENDING == parcel->getOwnershipStatus())
+		{
+			mRegionOwnerText->setText(mRegionOwnerText->getText() + getString("sale_pending_text"));
+		}
+	}
+
+	mEstateRatingText->setText(region->getSimAccessString());
+}
+
+void LLPanelPlaceInfo::updateEstateName(const std::string& name)
+{
+	mEstateNameText->setText(name);
+}
+
+void LLPanelPlaceInfo::updateEstateOwnerName(const std::string& name)
+{
+	mEstateOwnerText->setText(name);
+}
+
+void LLPanelPlaceInfo::updateCovenantText(const std::string &text)
+{
+	mCovenantText->setText(text);
 }
 
 void LLPanelPlaceInfo::onCommitTitleOrNote(LANDMARK_INFO_TYPE type)

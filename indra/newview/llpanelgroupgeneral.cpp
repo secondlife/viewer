@@ -769,11 +769,6 @@ void LLPanelGroupGeneral::updateMembers()
 		}
 		// Owners show up in bold.
 		std::string style = "NORMAL";
-		if ( member->isOwner() )
-		{
-			style = "BOLD";
-		}
-		
 		sd_timer.reset();
 		LLSD row;
 		row["id"] = member->getID();
@@ -793,7 +788,14 @@ void LLPanelGroupGeneral::updateMembers()
 		sSDTime += sd_timer.getElapsedTimeF32();
 
 		element_timer.reset();
-		mListVisibleMembers->addElement(row);//, ADD_SORTED);
+		LLScrollListItem* member_row = mListVisibleMembers->addElement(row);//, ADD_SORTED);
+		
+		if ( member->isOwner() )
+		{
+			LLScrollListText* name_textp = dynamic_cast<LLScrollListText*>(member_row->getColumn(0));
+			if (name_textp)
+				name_textp->setFontStyle(LLFontGL::BOLD);
+		}
 		sElementTime += element_timer.getElapsedTimeF32();
 	}
 	sAllTime += all_timer.getElapsedTimeF32();

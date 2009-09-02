@@ -413,7 +413,9 @@ void LLNavigationBar::rebuildTeleportHistoryMenu()
 
 		LLTeleportHistoryMenuItem::Params item_params(type, hist_items[i].getTitle());
 		item_params.on_click.function(boost::bind(&LLNavigationBar::onTeleportHistoryMenuItemClicked, this, i));
-		mTeleportHistoryMenu->addChild(LLUICtrlFactory::create<LLTeleportHistoryMenuItem>(item_params));
+		LLTeleportHistoryMenuItem* new_itemp = LLUICtrlFactory::create<LLTeleportHistoryMenuItem>(item_params);
+		//new_itemp->setFont()
+		mTeleportHistoryMenu->addChild(new_itemp);
 	}
 }
 

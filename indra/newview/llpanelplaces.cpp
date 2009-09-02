@@ -119,9 +119,6 @@ BOOL LLPanelPlaces::postBuild()
 	//mShareBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onShareButtonClicked, this));
 
 	mOverflowBtn = getChild<LLButton>("overflow_btn");
-
-	// *TODO: Assign the action to an appropriate event.
-	//mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::toggleMediaPanel, this));
 	mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onOverflowButtonClicked, this));
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -156,19 +153,16 @@ BOOL LLPanelPlaces::postBuild()
 	LLButton* back_btn = mPlaceInfo->getChild<LLButton>("back_btn");
 	back_btn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 
-	// *TODO: Assign the action to an appropriate event.
-	mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::toggleMediaPanel, this));
-
 	return TRUE;
 }
 
 void LLPanelPlaces::onOpen(const LLSD& key)
 {
-	mFilterEditor->clear();
-	onFilterEdit("");
-	
 	if(mPlaceInfo == NULL || key.size() == 0)
 		return;
+
+	mFilterEditor->clear();
+	onFilterEdit("");
 
 	mPlaceInfoType = key["type"].asString();
 	mPosGlobal.setZero();
@@ -228,8 +222,6 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 									  hist_items[index].mRegionID,
 									  mPosGlobal);
 	}
-	
-
 }
 
 void LLPanelPlaces::setItem(LLInventoryItem* item)

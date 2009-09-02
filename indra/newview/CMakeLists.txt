@@ -66,7 +66,6 @@ include_directories(
 set(viewer_SOURCE_FILES
     llaccordionctrltab.cpp
     llaccordionctrl.cpp
-    llactiveimwindow.cpp
     llagent.cpp
     llagentaccess.cpp
     llagentdata.cpp
@@ -518,7 +517,6 @@ set(viewer_HEADER_FILES
     ViewerInstall.cmake
     llaccordionctrltab.h
     llaccordionctrl.h
-    llactiveimwindow.h
     llagent.h
     llagentaccess.h
     llagentdata.h

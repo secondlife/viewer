@@ -138,6 +138,8 @@
 #include "llkeythrottle.h"
 #include "llgroupactions.h"
 #include "llagentui.h"
+#include "llsidetray.h"
+#include "llpanelplaceinfo.h"
 
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -2397,6 +2399,9 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		// Look for IRC-style emotes
 		if (ircstyle)
 		{
+			// set CHAT_STYLE_IRC to avoid adding Avatar Name as author of message. See EXT-656
+			chat.mChatStyle = CHAT_STYLE_IRC;
+
 			// Do nothing, ircstyle is fixed above for chat bubbles
 		}
 		else
@@ -5565,6 +5570,12 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLPanelLandCovenant::updateEstateName(estate_name);
 	LLFloaterBuyLand::updateEstateName(estate_name);
 
+	LLPanelPlaceInfo* panel = dynamic_cast<LLPanelPlaceInfo*>(LLSideTray::getInstance()->showPanel("panel_place_info", LLSD()));
+	if (panel)
+	{
+		panel->updateEstateName(estate_name);
+	}
+
 	// standard message, not from system
 	std::string last_modified;
 	if (covenant_timestamp == 0)
@@ -5621,6 +5632,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 		LLPanelEstateCovenant::updateCovenantText(covenant_text, covenant_id);
 		LLPanelLandCovenant::updateCovenantText(covenant_text);
 		LLFloaterBuyLand::updateCovenantText(covenant_text, covenant_id);
+		panel->updateCovenantText(covenant_text);
 	}
 }
 
@@ -5641,6 +5653,12 @@ void callbackCacheEstateOwnerName(const LLUUID& id,
 	LLPanelEstateCovenant::updateEstateOwnerName(name);
 	LLPanelLandCovenant::updateEstateOwnerName(name);
 	LLFloaterBuyLand::updateEstateOwnerName(name);
+
+	LLPanelPlaceInfo* panel = dynamic_cast<LLPanelPlaceInfo*>(LLSideTray::getInstance()->showPanel("panel_place_info", LLSD()));
+	if (panel)
+	{
+		panel->updateEstateOwnerName(name);
+	}
 }
 
 void onCovenantLoadComplete(LLVFS *vfs,
@@ -5708,6 +5726,12 @@ void onCovenantLoadComplete(LLVFS *vfs,
 	LLPanelEstateCovenant::updateCovenantText(covenant_text, asset_uuid);
 	LLPanelLandCovenant::updateCovenantText(covenant_text);
 	LLFloaterBuyLand::updateCovenantText(covenant_text, asset_uuid);
+
+	LLPanelPlaceInfo* panel = dynamic_cast<LLPanelPlaceInfo*>(LLSideTray::getInstance()->showPanel("panel_place_info", LLSD()));
+	if (panel)
+	{
+		panel->updateCovenantText(covenant_text);
+	}
 }
 
 

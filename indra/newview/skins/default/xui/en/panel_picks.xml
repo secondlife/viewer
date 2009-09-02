@@ -28,11 +28,11 @@
          opaque="true"
          top="0"
          width="284">
-            <panel
+            <list
              height="115"
              layout="topleft"
              left="0"
-             name="back_panel"
+             name="picks_list"
              top="0"
              width="284" />
         </scroll_container>

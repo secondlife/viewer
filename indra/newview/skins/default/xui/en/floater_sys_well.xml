@@ -4,16 +4,16 @@
  background_visible="true" 
  bevel_style="in"
  bg_alpha_color="0.0 0.0 0.0 0.0"
- height="30"
  left="0"
  top="0" 
  follows="right|bottom"
  layout="topleft"
  name="notification_chiclet"
  save_rect="true"
- title="NOTIFICATIONS"
+ title="NOTIFICATIONS" 
  width="320"
  min_width="320"
+ height="60"
  can_minimize="false"
  can_tear_off="false"
  can_resize="false"
@@ -21,20 +21,36 @@
  can_close="false"
  can_dock="true"
 >
-  <scroll_container
-   follows="top|bottom"
-   layout="topleft"
-   name="notification_list_container"
-   left="0"
-   top="18"
-   width="320"
-   height="12">
-    <scrolling_panel_list
-     layout="topleft"
-     name="notification_list"
-     left="1"
-     top="0"
-     height="10"
-     width="318" />
-  </scroll_container>
+	<scroll_container
+	follows="top|bottom"
+	layout="topleft"
+	name="notification_list_container"
+	left="0"
+	top="18"
+	width="320"
+	height="42">
+	<panel
+		layout="topleft"
+		name="twin_list_panel"
+		left="1"
+		top="0"
+		width="318"
+    height="32"
+    bg_alpha_color="1.0 1.0 1.0 1.0">
+		<scrolling_panel_list
+			layout="topleft"
+			name="notification_list"
+			left="1"
+			top="0"
+			height="0"
+			width="318"/>
+		<scrolling_panel_list
+			layout="topleft"
+			name="im_row_panel_list"
+			left="1"
+			top="2"
+			height="0"
+			width="318"/>
+	</panel>
+</scroll_container>
 </floater>

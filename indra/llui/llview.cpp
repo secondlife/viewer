@@ -2735,3 +2735,17 @@ LLView::default_widget_map_t& LLView::getDefaultWidgetMap() const
 	}
 	return *mDefaultWidgets;
 }
+void	LLView::notifyParent(const LLSD& info)
+{
+	LLView* parent = getParent();
+	if(parent)
+		parent->notifyParent(info);
+}
+void	LLView::notifyChilds(const LLSD& info)
+{
+	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
+	{
+		(*child_it)->notifyChilds(info);
+	}
+}
+

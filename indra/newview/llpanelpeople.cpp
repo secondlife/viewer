@@ -133,18 +133,23 @@ public:
 class LLFriendListUpdater : public LLAvatarListUpdater, public LLFriendObserver
 {
 	LOG_CLASS(LLFriendListUpdater);
+	class LLInventoryFriendCardObserver;
 
 public: 
+	friend class LLInventoryFriendCardObserver;
 	LLFriendListUpdater(callback_t cb)
 	:	LLAvatarListUpdater(cb, FRIEND_LIST_UPDATE_TIMEOUT)
 	{
 		LLAvatarTracker::instance().addObserver(this);
+
 		// For notification when SIP online status changes.
 		LLVoiceClient::getInstance()->addObserver(this);
+		mInvObserver = new LLInventoryFriendCardObserver(this);
 	}
 
 	~LLFriendListUpdater()
 	{
+		delete mInvObserver;
 		LLVoiceClient::getInstance()->removeObserver(this);
 		LLAvatarTracker::instance().removeObserver(this);
 	}
@@ -166,6 +171,7 @@ public:
 		mMask |= mask;
 	}
 
+
 	/*virtual*/ BOOL tick()
 	{
 		if (updateList(mMask))
@@ -180,6 +186,75 @@ public:
 
 private:
 	U32 mMask;
+	LLInventoryFriendCardObserver* mInvObserver;
+
+	/**
+	 *	This class is intended for updating Friend List when Inventory Friend Card is added/removed.
+	 * 
+	 *	The main usage is when Inventory Friends/All content is added while synchronizing with 
+	 *		friends list on startup is performed. In this case Friend Panel should be updated when 
+	 *		missing Inventory Friend Card is created.
+	 *	*NOTE: updating is fired when Inventory item is added into CallingCards/Friends subfolder.
+	 *		Otherwise LLFriendObserver functionality is enough to keep Friends Panel synchronized.
+	 */
+	class LLInventoryFriendCardObserver : public LLInventoryObserver
+	{
+		LOG_CLASS(LLFriendListUpdater::LLInventoryFriendCardObserver);
+
+		friend class LLFriendListUpdater;
+
+	private:
+		LLInventoryFriendCardObserver(LLFriendListUpdater* updater) : mUpdater(updater)
+		{
+			gInventory.addObserver(this);
+		}
+		~LLInventoryFriendCardObserver()
+		{
+			gInventory.removeObserver(this);
+		}
+		/*virtual*/ void changed(U32 mask)
+		{
+			lldebugs << "Inventory changed: " << mask << llendl;
+
+			// *NOTE: deleting of InventoryItem is performed via moving to Trash. 
+			// That means LLInventoryObserver::STRUCTURE is present in MASK instead of LLInventoryObserver::REMOVE
+			if ((CALLINGCARD_ADDED & mask) == CALLINGCARD_ADDED)
+			{
+				lldebugs << "Calling card added: count: " << gInventory.getChangedIDs().size() 
+					<< ", first Inventory ID: "<< (*gInventory.getChangedIDs().begin())
+					<< llendl;
+
+				bool friendFound = false;
+				std::set<LLUUID> changedIDs = gInventory.getChangedIDs();
+				for (std::set<LLUUID>::const_iterator it = changedIDs.begin(); it != changedIDs.end(); ++it)
+				{
+					if (isDescendentOfInventoryFriends(*it))
+					{
+						friendFound = true;
+						break;
+					}
+				}
+
+				if (friendFound)
+				{
+					lldebugs << "friend found, panel should be updated" << llendl;
+					mUpdater->changed(LLFriendObserver::ADD);
+				}
+			}
+		}
+
+		bool isDescendentOfInventoryFriends(const LLUUID& invItemID)
+		{
+			LLViewerInventoryItem * item = gInventory.getItem(invItemID);
+			if (NULL == item)
+				return false;
+
+			return LLFriendCardsManager::instance().isItemInAnyFriendsList(item);
+		}
+		LLFriendListUpdater* mUpdater;
+
+		static const U32 CALLINGCARD_ADDED = LLInventoryObserver::ADD | LLInventoryObserver::CALLING_CARD;
+	};
 };
 
 /**
@@ -438,7 +513,12 @@ bool LLPanelPeople::updateFriendList(U32 changed_mask)
 		LLFriendCardsManager::instance().collectFriendsLists(listMap);
 		if (listMap.size() > 0)
 		{
+			lldebugs << "Friends Cards were found, count: " << listMap.begin()->second.size() << llendl;
 			mAllFriendVec = listMap.begin()->second;
+		}
+		else
+		{
+			lldebugs << "Friends Cards were not found" << llendl;
 		}
 
 		LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();

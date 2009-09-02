@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<list
+ allow_select="true"
+ bg_opaque_color="PanelFocusBackgroundColor"
+ bg_alpha_color="PanelDefaultBackgroundColor"
+ background_visible="false"
+ background_opaque="false"
+ item_pad="5"
+ multi_select="false" />

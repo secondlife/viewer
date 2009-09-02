@@ -239,8 +239,9 @@ std::string LLChatMsgBox::wrapText(const LLStringExplicit& in_text, F32 max_widt
 		{
 			if (wtext[cur] == '\n')
 				cur += 1;
-			else
-				final_wtext += '\n';
+
+			// There is no need to to cut line ending symbols found in origin string, see EXT-702.
+			final_wtext += '\n';
 		}
 	}
 	

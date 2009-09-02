@@ -42,6 +42,7 @@ class LLLayoutStack;
 class LLNotificationChiclet;
 class LLTalkButton;
 class LLNearbyChatBar;
+class LLIMChiclet;
 
 class LLBottomTray 
 	: public LLSingleton<LLBottomTray>
@@ -55,7 +56,6 @@ public:
 	BOOL postBuild();
 
 	LLChicletPanel*		getChicletPanel()	{return mChicletPanel;}
-	LLNotificationChiclet*	getIMWell()	{return mIMWell;}
 	LLNotificationChiclet*	getSysWell()	{return mSysWell;}
 	LLNearbyChatBar*		getNearbyChatBar()	{return mNearbyChatBar;}
 
@@ -69,7 +69,6 @@ public:
 	virtual void setVisible(BOOL visible);
 
 private:
-	void updateImChicletCount();
 
 protected:
 
@@ -79,8 +78,12 @@ protected:
 
 	static void* createNearbyChatBar(void* userdata);
 
+	/**
+	 * Creates IM Chiclet based on session type (IM chat or Group chat)
+	 */
+	LLIMChiclet* createIMChiclet(const LLUUID& session_id);
+
 	LLChicletPanel* 	mChicletPanel;
-	LLNotificationChiclet* 	mIMWell;
 	LLNotificationChiclet* 	mSysWell;
 	LLTalkButton* 		mTalkBtn;
 	LLNearbyChatBar*	mNearbyChatBar;

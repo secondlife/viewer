@@ -183,9 +183,13 @@ LLColor4 nearbychat_get_text_color(const LLChat& chat)
 
 void nearbychat_add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4& color)
 {
-	std::string line = chat.mFromName;
-	line +=": ";
-	line +=chat.mText;
+	std::string line = chat.mText;
+
+	//chat.mText starts with Avatar Name if entered message was "/me <action>". 
+	// In this case output chat message should be "<Avatar Name> <action>". See EXT-656
+	// See also process_chat_from_simulator() in the llviewermessage.cpp where ircstyle = TRUE;
+	if (CHAT_STYLE_IRC != chat.mChatStyle)
+		line = chat.mFromName + ": " + line;
 
 	bool prepend_newline = true;
 	if (gSavedSettings.getBOOL("ChatShowTimestamps"))

@@ -69,6 +69,7 @@
      left_delta="0"
      name="founder_name"
      top_pad="10"
+     use_ellipses="true"
      width="140" />
     <button
      top="632"

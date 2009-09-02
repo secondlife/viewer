@@ -79,7 +79,7 @@ private:
 
 	void onAgentParcelChange();
 	void updateVerbs();
-	
+
 	void showLandmarkFoldersMenu();
 
 	LLFilterEditor*				mFilterEditor;

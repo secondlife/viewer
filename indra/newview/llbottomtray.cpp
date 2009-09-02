@@ -40,13 +40,12 @@
 #include "lllayoutstack.h"
 #include "llnearbychatbar.h"
 #include "llsplitbutton.h"
+#include "llsyswellwindow.h"
 #include "llfloatercamera.h"
 #include "llimpanel.h"
-#include "llactiveimwindow.h"
 
 LLBottomTray::LLBottomTray(const LLSD&)
 :	mChicletPanel(NULL),
-	mIMWell(NULL),
 	mSysWell(NULL),
 	mTalkBtn(NULL),
 	mNearbyChatBar(NULL),
@@ -58,10 +57,11 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_bottomtray.xml");
 
 	mChicletPanel = getChild<LLChicletPanel>("chiclet_list");
-	mIMWell = getChild<LLNotificationChiclet>("im_well");
 	mSysWell = getChild<LLNotificationChiclet>("sys_well");
 
 	mSysWell->setNotificationChicletWindow(LLFloaterReg::getInstance("syswell_window"));
+	LLFloaterReg::getTypedInstance<LLSysWellWindow>("syswell_window")->setSysWell(mSysWell);
+
 	mChicletPanel->setChicletClickedCallback(boost::bind(&LLBottomTray::onChicletClick,this,_1));
 
 	LLSplitButton* presets = getChild<LLSplitButton>("presets");
@@ -76,8 +76,6 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 	// Necessary for focus movement among child controls
 	setFocusRoot(TRUE);
-
-	LLActiveIMWindow::init(mIMWell);
 }
 
 BOOL LLBottomTray::postBuild()
@@ -119,6 +117,34 @@ void* LLBottomTray::createNearbyChatBar(void* userdata)
 	return new LLNearbyChatBar();
 }
 
+LLIMChiclet* LLBottomTray::createIMChiclet(const LLUUID& session_id)
+{
+	if(session_id.isNull())
+	{
+		return NULL;
+	}
+
+	LLFloaterIMPanel* im = LLIMMgr::getInstance()->findFloaterBySession(session_id);
+	if (!im) 
+	{
+		return NULL; //should never happen
+	}
+
+	switch(im->getDialogType())
+	{
+	case IM_NOTHING_SPECIAL:
+		return getChicletPanel()->createChiclet<LLIMP2PChiclet>(session_id);
+		break;
+	case IM_SESSION_GROUP_START:
+	case IM_SESSION_INVITE:
+		return getChicletPanel()->createChiclet<LLIMGroupChiclet>(session_id);
+		break;
+	default:
+		return NULL;
+		break;
+	}
+}
+
 //virtual
 void LLBottomTray::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
@@ -130,12 +156,18 @@ void LLBottomTray::sessionAdded(const LLUUID& session_id, const std::string& nam
 		}
 		else
 		{
-			LLIMChiclet* chiclet = getChicletPanel()->createChiclet<LLIMChiclet>(session_id);
-			chiclet->setIMSessionName(name);
-			chiclet->setOtherParticipantId(other_participant_id);
+			LLIMChiclet* chiclet = createIMChiclet(session_id);
+			if(chiclet)
+			{
+				chiclet->setIMSessionName(name);
+				chiclet->setOtherParticipantId(other_participant_id);
+			}
+			else
+			{
+				llerrs << "Could not create chiclet" << llendl;
+			}
 		}
 	}
-	updateImChicletCount();
 }
 
 //virtual
@@ -145,7 +177,6 @@ void LLBottomTray::sessionRemoved(const LLUUID& session_id)
 	{
 		getChicletPanel()->removeChiclet(session_id);
 	}
-	updateImChicletCount();
 }
 
 //virtual
@@ -185,7 +216,3 @@ void LLBottomTray::setVisible(BOOL visible)
 	}
 }
 
-void LLBottomTray::updateImChicletCount() {
-	U32 chicletCount = mChicletPanel->getChicletCount();
-	mIMWell->setCounter(chicletCount);
-}

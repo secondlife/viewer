@@ -659,6 +659,12 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
 		row["columns"][1]["font"]["style"] = "BOLD";
 
 		LLScrollListItem* title_row = ctrl->addElement(row, ADD_BOTTOM, action_set->mActionSetData);
+		
+		LLScrollListText* name_textp = dynamic_cast<LLScrollListText*>(title_row->getColumn(1));
+		if (name_textp)
+			name_textp->setFontStyle(LLFontGL::BOLD);
+
+
 
 		bool category_matches_filter = (filter) ? matchesActionSearchFilter(action_set->mActionSetData->mName) : true;
 
