@@ -1003,12 +1003,15 @@
             name="sale type"
             intial_value="2">
         <combo_item
+           name="Copy"
            label="Copy" 
            value="2" />
         <combo_item
+           name="Contents"
            label="Contents"  
            value="3" />
         <combo_item
+           name="Original"
            label="Original" 
            value="1" />
       </combo_box>
