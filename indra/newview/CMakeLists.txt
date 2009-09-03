@@ -1342,11 +1342,29 @@ if (WINDOWS)
         )
        
     if(WINDOWS)
+      add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${VIEWER_BINARY_NAME}.exe.config
+        COMMAND ${PYTHON_EXECUTABLE}
+        ARGS
+          ${CMAKE_CURRENT_SOURCE_DIR}/build_win32_appConfig.py
+          ${CMAKE_CFG_INTDIR}
+          ${CMAKE_CURRENT_SOURCE_DIR}
+          ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+          ${VIEWER_BINARY_NAME}.exe.config
+        COMMENT "Creating app.config file"
+        )
+
+      add_custom_target(create_app_config_file ALL 
+        DEPENDS
+          ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${VIEWER_BINARY_NAME}.exe.config
+          stage_third_party_libs
+        )
+
       # Copy Win Libs...
       # This happens at build time, not config time. We can't glob files in this cmake.
       # *FIX:Mani Write a sub script to glob the files...
       add_custom_command(
-        TARGET ${VIEWER_BINARY_NAME} PRE_BUILD
+        TARGET create_app_config_file PRE_BUILD
         COMMAND ${CMAKE_COMMAND}
         ARGS
           -E
@@ -1355,23 +1373,6 @@ if (WINDOWS)
          ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
         COMMENT "Copying staged dlls."
         )
-
-      add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${VIEWER_BINARY_NAME}.exe.config
-        COMMAND ${PYTHON_EXECUTABLE}
-        ARGS
-          ${CMAKE_CURRENT_SOURCE_DIR}/build_win32_appConfig.py
-          ${CMAKE_CFG_INTDIR}
-          ${CMAKE_CURRENT_SOURCE_DIR}
-	  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-	  ${VIEWER_BINARY_NAME}.exe.config
-        COMMENT "Creating app.config file"
-        )
-
-      add_custom_target(create_app_config_file ALL 
-	DEPENDS
-	  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${VIEWER_BINARY_NAME}.exe.config
-	)
 
       add_dependencies(${VIEWER_BINARY_NAME} create_app_config_file)
       
