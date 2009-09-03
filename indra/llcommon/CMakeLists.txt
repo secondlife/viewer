@@ -242,7 +242,6 @@ list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
 if(LLCOMMON_LINK_SHARED)
     add_library (llcommon SHARED ${llcommon_SOURCE_FILES})
-    add_definitions(-DLL_COMMON_BUILD=1)
 
     if(SHARED_LIB_STAGING_DIR)
         # *FIX:Mani ---
@@ -289,7 +288,6 @@ target_link_libraries(
     )
 
 add_dependencies(llcommon stage_third_party_libs)
-
 
 include(LLAddBuildTest)
 SET(llcommon_TEST_SOURCE_FILES

@@ -149,11 +149,16 @@
 #endif // LL_WINDOWS
 
 #if LL_COMMON_LINK_SHARED
-# if LL_COMMON_BUILD
+// CMake automagically defines llcommon_EXPORTS only when building llcommon
+// sources, and only when llcommon is a shared library (i.e. when
+// LL_COMMON_LINK_SHARED). We must still test LL_COMMON_LINK_SHARED because
+// otherwise we can't distinguish between (non-llcommon source) and (llcommon
+// not shared).
+# if defined(llcommon_EXPORTS)
 #   define LL_COMMON_API LL_DLLEXPORT
-# else //LL_COMMON_BUILD
+# else //llcommon_EXPORTS
 #   define LL_COMMON_API LL_DLLIMPORT
-# endif //LL_COMMON_BUILD
+# endif //llcommon_EXPORTS
 #else // LL_COMMON_LINK_SHARED
 # define LL_COMMON_API
 #endif // LL_COMMON_LINK_SHARED
