@@ -87,7 +87,7 @@ class LLMediaPluginTest : public LLPluginClassMediaOwner
 		void mouseMove( int x, int y );
 
 		void bindTexture(GLuint texture, GLint row_length = 0, GLint alignment = 1);
-		bool checkGLError(char *name = "OpenGL");
+		bool checkGLError(const char *name = "OpenGL");
 		void drawGeometry( int panel );
 		void startPanelHighlight( float red, float green, float blue, float line_width );
 		void endPanelHighlight();
