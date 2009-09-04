@@ -131,12 +131,17 @@ void LLCurl::Responder::error(
 // virtual
 void LLCurl::Responder::error(U32 status, const std::string& reason)
 {
-	llinfos << status << ": " << reason << llendl;
+	llinfos << mURL << " [" << status << "]: " << reason << llendl;
 }
 
 // virtual
 void LLCurl::Responder::result(const LLSD& content)
 {
+}
+
+void LLCurl::Responder::setURL(const std::string& url)
+{
+	mURL = url;
 }
 
 // virtual
@@ -148,7 +153,11 @@ void LLCurl::Responder::completedRaw(
 {
 	LLSD content;
 	LLBufferStream istr(channels, buffer.get());
-	LLSDSerialize::fromXML(content, istr);
+	if (!LLSDSerialize::fromXML(content, istr))
+	{
+		llinfos << "Failed to deserialize LLSD. " << mURL << " [" << status << "]: " << reason << llendl;
+	}
+
 	completed(status, reason, content);
 }
 
