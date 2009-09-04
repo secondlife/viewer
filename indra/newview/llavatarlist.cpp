@@ -62,6 +62,9 @@ LLAvatarList::LLAvatarList(const Params& p)
 {
 	setCommitOnSelectionChange(TRUE); // there's no such param in LLScrollListCtrl::Params
 
+	// display a context menu appropriate for a list of avatar names
+	setContextMenu(LLScrollListCtrl::MENU_AVATAR);
+
     // "volume" column
     {
     	LLScrollListColumn::Params col_params;

@@ -203,9 +203,6 @@ protected:
 
 	void onStatusChanged();
 	void onStatusMessageChanged();
-	void onUpdateAccountTextboxClicked();
-	void onMyAccountTextboxClicked();
-	void onPartnerEditTextboxClicked();
 
 private:
 

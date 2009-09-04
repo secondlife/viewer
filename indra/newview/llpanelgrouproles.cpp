@@ -843,6 +843,7 @@ BOOL LLPanelGroupMembersSubTab::postBuildSubTab(LLView* root)
 	mMembersList->setCommitCallback(onMemberSelect, this);
 	// Show the member's profile on double click.
 	mMembersList->setDoubleClickCallback(onMemberDoubleClick, this);
+	mMembersList->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
 
 	LLButton* button = parent->getChild<LLButton>("member_invite", recurse);
 	if ( button )
@@ -1737,6 +1738,8 @@ BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 	mRolesList->setCommitOnSelectionChange(TRUE);
 	mRolesList->setCommitCallback(onRoleSelect, this);
 
+	mAssignedMembersList->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
+
 	mMemberVisibleCheck->setCommitCallback(onMemberVisibilityChange, this);
 
 	mAllowedActionsList->setCommitOnSelectionChange(TRUE);
@@ -2403,6 +2406,7 @@ BOOL LLPanelGroupActionsSubTab::postBuildSubTab(LLView* root)
 
 	mActionList->setCommitOnSelectionChange(TRUE);
 	mActionList->setCommitCallback(boost::bind(&LLPanelGroupActionsSubTab::handleActionSelect, this));
+	mActionList->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
 
 	update(GC_ALL);
 

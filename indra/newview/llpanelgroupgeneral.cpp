@@ -113,6 +113,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 	if (mListVisibleMembers)
 	{
 		mListVisibleMembers->setDoubleClickCallback(openProfile, this);
+		mListVisibleMembers->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
 	}
 
 	// Options

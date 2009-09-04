@@ -57,6 +57,11 @@
 #include "llviewborder.h"
 #include "lltextbox.h"
 #include "llsdparam.h"
+#include "llcachename.h"
+#include "llmenugl.h"
+#include "llurlaction.h"
+
+#include <boost/bind.hpp>
 
 static LLDefaultChildRegistry::Register<LLScrollListCtrl> r("scroll_list");
 
@@ -157,6 +162,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	mOnSortChangedCallback( NULL ),
 	mHighlightedItem(-1),
 	mBorder(NULL),
+	mPopupMenu(NULL),
 	mNumDynamicWidthColumns(0),
 	mTotalStaticColumnWidth(0),
 	mTotalColumnPadding(0),
@@ -179,7 +185,8 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	mHighlightedColor(p.highlighted_color()),
 	mHoveredColor(p.hovered_color()),
 	mSearchColumn(p.search_column),
-	mColumnPadding(p.column_padding)
+	mColumnPadding(p.column_padding),
+	mContextMenuType(MENU_NONE)
 {
 	mItemListRect.setOriginAndSize(
 		mBorderThickness,
@@ -1690,6 +1697,72 @@ BOOL LLScrollListCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 	}
 
 	return LLUICtrl::handleMouseUp(x, y, mask);
+}
+
+// virtual
+BOOL LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	LLScrollListItem *item = hitItem(x, y);
+	if (item)
+	{
+		// check to see if we have a UUID for this row
+		std::string id = item->getValue().asString();
+		LLUUID uuid(id);
+		if (! uuid.isNull() && mContextMenuType != MENU_NONE)
+		{
+			// set up the callbacks for all of the avatar/group menu items
+			// (N.B. callbacks don't take const refs as id is local scope)
+			bool is_group = (mContextMenuType == MENU_GROUP);
+			LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+			registrar.add("Url.Execute", boost::bind(&LLScrollListCtrl::showNameDetails, id, is_group));
+			registrar.add("Url.CopyLabel", boost::bind(&LLScrollListCtrl::copyNameToClipboard, id, is_group));
+			registrar.add("Url.CopyUrl", boost::bind(&LLScrollListCtrl::copySLURLToClipboard, id, is_group));
+
+			// create the context menu from the XUI file and display it
+			std::string menu_name = is_group ? "menu_url_group.xml" : "menu_url_agent.xml";
+			delete mPopupMenu;
+			mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
+				menu_name, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
+			if (mPopupMenu)
+			{
+				mPopupMenu->show(x, y);
+				LLMenuGL::showPopup(this, mPopupMenu, x, y);
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
+
+void LLScrollListCtrl::showNameDetails(std::string id, bool is_group)
+{
+	// show the resident's profile or the group profile
+	std::string sltype = is_group ? "group" : "agent";
+	std::string slurl = "secondlife:///app/" + sltype + "/" + id + "/about";
+	LLUrlAction::clickAction(slurl);
+}
+
+void LLScrollListCtrl::copyNameToClipboard(std::string id, bool is_group)
+{
+	// copy the name of the avatar or group to the clipboard
+	std::string name;
+	if (is_group)
+	{
+		gCacheName->getGroupName(LLUUID(id), name);
+	}
+	else
+	{
+		gCacheName->getFullName(LLUUID(id), name);
+	}
+	LLUrlAction::copyURLToClipboard(name);
+}
+
+void LLScrollListCtrl::copySLURLToClipboard(std::string id, bool is_group)
+{
+	// copy a SLURL for the avatar or group to the clipboard
+	std::string sltype = is_group ? "group" : "agent";
+	std::string slurl = "secondlife:///app/" + sltype + "/" + id + "/about";
+	LLUrlAction::copyURLToClipboard(slurl);
 }
 
 BOOL LLScrollListCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)

@@ -74,6 +74,18 @@
 	<string name="TooltipMustSingleDrop">Only a single item can be dragged here</string>	
 	<string name="TooltipAltLeft">Alt-Left arrow for previous tab</string>	
 	<string name="TooltipAltRight">Alt-Right arrow for next tab</string>	
+
+	<!-- tooltips for Urls -->
+	<string name="TooltipHttpUrl">Click to view this web page</string>
+	<string name="TooltipSLURL">Click to view this location's information</string>
+	<string name="TooltipAgentUrl">Click to view this resident's profile</string>
+	<string name="TooltipGroupUrl">Click to view this group's description</string>
+	<string name="TooltipEventUrl">Click to view this event's description</string>
+	<string name="TooltipClassifiedUrl">Click to view this classified</string>
+	<string name="TooltipParcelUrl">Click to view this parcel's description</string>
+	<string name="TooltipTeleportUrl">Click to teleport to this location</string>
+	<string name="TooltipObjectIMUrl">Click to view this object's description</string>
+	<string name="TooltipSLAPP">Click to run the secondlife:// command</string>
 	
 	<!-- ButtonToolTips, llfloater.cpp -->
 	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;-W)</string>
@@ -259,6 +271,7 @@
 
 	<!-- IM -->
 	<string name="IM_logging_string">-- Instant message logging enabled --</string>
+	<string name="Unnamed">(Unnamed)</string>
 	
 	<!-- Sim Access labels -->
 	<string name="SIM_ACCESS_PG">PG</string>

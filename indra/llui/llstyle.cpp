@@ -54,8 +54,6 @@ LLStyle::LLStyle(const LLStyle::Params& p)
 	mFont(p.font()),
 	mLink(p.link_href),
 	mDropShadow(p.drop_shadow),
-	mImageHeight(0),
-	mImageWidth(0),
 	mImagep(p.image())
 {}
 
@@ -100,9 +98,7 @@ void LLStyle::setImage(const LLUUID& src)
 	mImagep = LLUI::getUIImageByID(src);
 }
 
-
-void LLStyle::setImageSize(S32 width, S32 height)
+void LLStyle::setImage(const std::string& name)
 {
-    mImageWidth = width;
-    mImageHeight = height;
+	mImagep = LLUI::getUIImage(name);
 }

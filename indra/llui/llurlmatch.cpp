@@ -1,7 +1,7 @@
 /** 
- * @file llchatmsgbox.h
+ * @file llurlmatch.cpp
  * @author Martin Reddy
- * @brief chat history text box, able to show array of strings with separator
+ * @brief Specifies a matched Url in a string, as returned by LLUrlRegistry
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
@@ -31,49 +31,31 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLCHATMSGBOX_H
-#define LL_LLCHATMSGBOX_H
+#include "linden_common.h"
+#include "llurlmatch.h"
 
-#include "lltextbox.h"
-#include "lluictrl.h"
-#include "v4color.h"
-#include "llstring.h"
-
-///
-/// LLChatMsgBox provides a text box with support for multiple blocks
-/// of text that can be added incrementally. Each block of text is
-/// visual separated from the previous block (e.g., with a horizontal
-/// line).
-///
-class LLChatMsgBox :
-	public LLTextBox
+LLUrlMatch::LLUrlMatch() :
+	mStart(0),
+	mEnd(0),
+	mUrl(""),
+	mLabel(""),
+	mTooltip(""),
+	mIcon(""),
+	mMenuName("")
 {
-public:
-	struct Params : public LLInitParam::Block<Params, LLTextBox::Params>
-	{
-		Optional<S32>	block_spacing;
+}
 
-		Params();
-	};
-
-protected:
-	LLChatMsgBox(const Params&);
-	friend class LLUICtrlFactory;
-
-public:
-	void				setText(const LLStringExplicit &text);
-	void				addText(const LLStringExplicit &text);
-	
-	S32					getTextPixelHeight();
-	S32					getTextLinesNum();
-
-	/*virtual*/ void	setValue(const LLSD &value);
-	/*virtual*/ void	drawText(S32 x, S32 y, const LLWString &text, const LLColor4 &color);
-
-private:
-	S32					mBlockSpacing;
-	std::vector<S32>	mSeparatorOffset;
-};
-
-#endif
-
+void LLUrlMatch::setValues(U32 start, U32 end, const std::string &url,
+						   const std::string &label, const std::string &tooltip,
+						   const std::string &icon, const std::string &menu,
+						   const std::string &location)
+{
+	mStart = start;
+	mEnd = end;
+	mUrl = url;
+	mLabel = label;
+	mTooltip = tooltip;
+	mIcon = icon;
+	mMenuName = menu;
+	mLocation = location;
+}

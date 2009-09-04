@@ -1,4 +1,3 @@
-
 /** 
  * @file llviewermessage.cpp
  * @brief Dumping ground for viewer-side message system callbacks.
@@ -1473,6 +1472,13 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	msg->getBinaryDataFast(  _PREHASH_MessageBlock, _PREHASH_BinaryBucket, binary_bucket, 0, 0, MTUBYTES);
 	binary_bucket_size = msg->getSizeFast(_PREHASH_MessageBlock, _PREHASH_BinaryBucket);
 	EInstantMessage dialog = (EInstantMessage)d;
+
+    // make sure that we don't have an empty or all-whitespace name
+	LLStringUtil::trim(name);
+	if (name.empty())
+	{
+        name = LLTrans::getString("Unnamed");
+	}
 
 	BOOL is_busy = gAgent.getBusy();
 	BOOL is_muted = LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat);

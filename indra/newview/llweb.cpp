@@ -67,6 +67,7 @@ void LLWeb::initClass()
 	LLAlertDialog::setURLLoader(&sAlertURLLoader);
 }
 
+
 // static
 void LLWeb::loadURL(const std::string& url)
 {
@@ -76,8 +77,15 @@ void LLWeb::loadURL(const std::string& url)
 	}
 	else
 	{
-		LLFloaterReg::showInstance("media_browser",url);
+		loadURLInternal(url);
 	}
+}
+
+
+// static
+void LLWeb::loadURLInternal(const std::string &url)
+{
+	LLFloaterReg::showInstance("media_browser", url);
 }
 
 

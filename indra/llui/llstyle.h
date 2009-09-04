@@ -69,9 +69,9 @@ public:
 
 	LLUIImagePtr getImage() const;
 	void setImage(const LLUUID& src);
+	void setImage(const std::string& name);
 
-	BOOL isImage() const { return ((mImageWidth != 0) && (mImageHeight != 0)); }
-	void setImageSize(S32 width, S32 height);
+	BOOL isImage() const { return mImagep.notNull(); }
 
 	// inlined here to make it easier to compare to member data below. -MG
 	bool operator==(const LLStyle &rhs) const
@@ -82,8 +82,6 @@ public:
 			&& mFont == rhs.mFont
 			&& mLink == rhs.mLink
 			&& mImagep == rhs.mImagep
-			&& mImageHeight == rhs.mImageHeight
-			&& mImageWidth == rhs.mImageWidth
 			&& mItalic == rhs.mItalic
 			&& mBold == rhs.mBold
 			&& mUnderline == rhs.mUnderline
@@ -97,8 +95,6 @@ public:
 	BOOL        mBold;
 	BOOL        mUnderline;
 	BOOL		mDropShadow;
-	S32         mImageWidth;
-	S32         mImageHeight;
 
 protected:
 	~LLStyle() { }

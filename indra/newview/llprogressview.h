@@ -74,7 +74,6 @@ protected:
 	LLFrameTimer mProgressTimer;
 	LLRect mOutlineRect;
 	bool mMouseDownInActiveArea;
-	bool mURLInMessage;
 
 	static LLProgressView* sInstance;
 };

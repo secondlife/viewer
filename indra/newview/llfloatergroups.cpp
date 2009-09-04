@@ -82,7 +82,12 @@ void LLFloaterGroupPicker::setPowersMask(U64 powers_mask)
 BOOL LLFloaterGroupPicker::postBuild()
 {
 	LLScrollListCtrl* list_ctrl = getChild<LLScrollListCtrl>("group list");
-	init_group_list(list_ctrl, gAgent.getGroupID(), mPowersMask);
+	if (list_ctrl)
+	{
+		init_group_list(list_ctrl, gAgent.getGroupID(), mPowersMask);
+		list_ctrl->setDoubleClickCallback(onBtnOK, this);
+		list_ctrl->setContextMenu(LLScrollListCtrl::MENU_GROUP);
+	}
 	
 	// Remove group "none" from list. Group "none" is added in init_group_list(). 
 	// Some UI elements use group "none", we need to manually delete it here.
@@ -99,8 +104,6 @@ BOOL LLFloaterGroupPicker::postBuild()
 	childSetAction("Cancel", onBtnCancel, this);
 
 	setDefaultBtn("OK");
-
-	getChild<LLScrollListCtrl>("group list")->setDoubleClickCallback(onBtnOK, this);
 
 	childEnable("OK");
 
@@ -183,7 +186,13 @@ BOOL LLPanelGroups::postBuild()
 	childSetTextArg("groupcount", "[COUNT]", llformat("%d",gAgent.mGroups.count()));
 	childSetTextArg("groupcount", "[MAX]", llformat("%d",MAX_AGENT_GROUPS));
 
-	init_group_list(getChild<LLScrollListCtrl>("group list"), gAgent.getGroupID());
+	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("group list");
+	if (list)
+	{
+		init_group_list(list, gAgent.getGroupID());
+		list->setDoubleClickCallback(onBtnIM, this);
+		list->setContextMenu(LLScrollListCtrl::MENU_GROUP);
+	}
 
 	childSetAction("Activate", onBtnActivate, this);
 
@@ -198,8 +207,6 @@ BOOL LLPanelGroups::postBuild()
 	childSetAction("Search...", onBtnSearch, this);
 
 	setDefaultBtn("IM");
-
-	getChild<LLScrollListCtrl>("group list")->setDoubleClickCallback(onBtnIM, this);
 
 	reset();
 

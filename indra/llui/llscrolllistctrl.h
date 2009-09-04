@@ -54,6 +54,7 @@
 
 class LLScrollListCell;
 class LLTextBox;
+class LLContextMenu;
 
 class LLScrollListCtrl : public LLUICtrl, public LLEditMenuHandler, 
 	public LLCtrlListInterface, public LLCtrlScrollInterface
@@ -270,10 +271,15 @@ public:
 
 	void			clearSearchString() { mSearchString.clear(); }
 
+	// support right-click context menus for avatar/group lists
+	enum ContextMenuType { MENU_NONE, MENU_AVATAR, MENU_GROUP };
+	void setContextMenu(const ContextMenuType &menu) { mContextMenuType = menu; }
+
 	// Overridden from LLView
 	/*virtual*/ void    draw();
 	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask);
@@ -375,6 +381,10 @@ private:
 	void			commitIfChanged();
 	BOOL			setSort(S32 column, BOOL ascending);
 
+	static void		showNameDetails(std::string id, bool is_group);
+	static void		copyNameToClipboard(std::string id, bool is_group);
+	static void		copySLURLToClipboard(std::string id, bool is_group);
+
 	S32				mLineHeight;	// the max height of a single line
 	S32				mScrollLines;	// how many lines we've scrolled down
 	S32				mPageLines;		// max number of lines is it possible to see on the screen given mRect and mLineHeight
@@ -421,6 +431,7 @@ private:
 
 	S32				mHighlightedItem;
 	class LLViewBorder*	mBorder;
+	LLContextMenu	*mPopupMenu;
 
 	LLWString		mSearchString;
 	LLFrameTimer	mSearchTimer;
@@ -437,6 +448,8 @@ private:
 
 	BOOL			mDirty;
 	S32				mOriginalSelection;
+
+	ContextMenuType mContextMenuType;
 
 	typedef std::vector<LLScrollListColumn*> ordered_columns_t;
 	ordered_columns_t	mColumnsIndexed;
