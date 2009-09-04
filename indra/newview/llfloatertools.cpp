@@ -725,7 +725,7 @@ void LLFloaterTools::onOpen(const LLSD& key)
 		mTab->selectTabByName(panel);
 	}
 	
-	gMenuBarView->setItemVisible("BuildTools", TRUE);
+	//gMenuBarView->setItemVisible("BuildTools", TRUE);
 }
 
 void LLFloaterTools::onClose()
@@ -755,7 +755,7 @@ void LLFloaterTools::onClose()
 	// so manually reset tool to default (pie menu tool)
 	LLToolMgr::getInstance()->getCurrentToolset()->selectFirstTool();
 
-	gMenuBarView->setItemVisible("BuildTools", FALSE);
+	//gMenuBarView->setItemVisible("BuildTools", FALSE);
 }
 
 void click_popup_info(void*)

@@ -229,7 +229,7 @@
              function="Floater.Toggle"
              parameter="communicate" />
         </menu_item_check>
-		<menu_item_call
+        <menu_item_call
          label="(Temp) Media Remote Ctrl"
          layout="topleft"
          name="Preferences"
@@ -284,6 +284,44 @@
              function="Floater.Show"
              parameter="region_info" />
         </menu_item_call>
+        <menu
+           create_jump_keys="true"
+           label="Land Options"
+           layout="topleft"
+           name="Land"
+           tear_off="true">
+          <menu_item_check
+             label="Show Property Lines"
+             layout="topleft"
+             name="Property Lines"
+             shortcut="control|alt|shift|P">
+            <menu_item_check.on_check
+               control="ShowPropertyLines" />
+            <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="ShowPropertyLines" />
+          </menu_item_check>
+          <menu_item_check
+             label="Show Land Owners"
+             layout="topleft"
+             name="Land Owners">
+            <menu_item_check.on_check
+               control="ShowParcelOwners" />
+            <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="ShowParcelOwners" />
+          </menu_item_check>
+          <menu_item_check
+             label="Show Ban Lines"
+             layout="topleft"
+             name="Ban Lines">
+            <menu_item_check.on_check
+               control="ShowBanLines" />
+            <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="ShowBanLines" />
+          </menu_item_check>
+        </menu>
         <menu_item_separator
          layout="topleft" />
         <menu
@@ -351,7 +389,7 @@
          shortcut="control|shift|M">
             <menu_item_check.on_check
              function="Floater.Visible"
-			 parameter="mini_map" />
+             parameter="mini_map" />
             <menu_item_check.on_click
              function="Floater.Toggle"
              parameter="mini_map" />
@@ -369,7 +407,7 @@
         </menu_item_call>
         <menu_item_separator
          layout="topleft" />
-	<menu
+    <menu
          create_jump_keys="true"
          label="Sun Settings"
          layout="topleft"
@@ -430,87 +468,78 @@
         </menu>
        <menu_item_separator
          layout="topleft" />
-	<menu_item_check
-         label="Build"
+    </menu>
+    <menu
+     create_jump_keys="true"
+     label="Build"
+     layout="topleft"
+     name="BuildTools"
+     tear_off="true"
+     visible="true">
+       <menu_item_check
+         label="Show Build Tools"
          layout="topleft"
-         name="Build"
-         shortcut="B">
+         name="Show Build Tools"
+         shortcut="control|B">
             <menu_item_check.on_check
              function="Build.Active" />
             <menu_item_check.on_click
              function="Build.Toggle" />
             <menu_item_check.on_enable
              function="Build.Enabled" />
-        </menu_item_check>
-    </menu>
-    <menu
-     label="Help"
-     layout="topleft"
-     name="Help"
-     tear_off="true">
-        <menu_item_call
-         label="[SECOND_LIFE] Help"
-         layout="topleft"
-         name="Second Life Help"
-         shortcut="F1">
-            <menu_item_call.on_click
-             function="ShowFloater"
-             parameter="help f1" />
-        </menu_item_call>
-        <menu_item_call
-         label="Tutorial"
-         layout="topleft"
-         name="Tutorial">
-            <menu_item_call.on_click
-             function="Floater.Show"
-             parameter="hud" />
-        </menu_item_call>
-        <menu_item_check
-         label="Show Quick Tips"
-         layout="topleft"
-         name="Show Quick Tips">
-            <menu_item_check.on_check
-             function="Help.CheckShowFirstTimeTip" />
-            <menu_item_check.on_click
-             function="Help.ShowQuickTips" />
-        </menu_item_check>
-        <menu_item_separator
-             layout="topleft" />
-        <menu_item_call
-             label="Report Bug..."
-             layout="topleft"
-             name="ReportBug">
-            <menu_item_call.on_click
-                 function="PromptShowURL"
-                 name="ReportBug_url"
-                 parameter="hud,http://help.secondlife.com/en/bugreport/" />
-        </menu_item_call>
-        <menu_item_call
-             label="Report Abuse..."
-             layout="topleft"
-             name="Report Abuse">
-                <menu_item_call.on_click
-                 function="ShowFloater"
-                 parameter="complaint reporter" />
-            </menu_item_call>
-        <menu_item_separator
-             layout="topleft" />
-        <menu_item_call
-         label="About [APP_NAME]"
-         layout="topleft"
-         name="About Second Life">
-            <menu_item_call.on_click
-             function="Floater.Show"
-             parameter="sl_about" />
-        </menu_item_call>
-    </menu>
-    <menu
-     create_jump_keys="true"
-     label="Tools"
-     layout="topleft"
-     name="BuildTools"
-     tear_off="true"
-     visible="false">
+       </menu_item_check>
+       <menu
+          create_jump_keys="true"
+          label="Select Build Tool"
+          layout="topleft"
+          name="Select Tool"
+          tear_off="true">
+         <menu_item_call
+			label="Focus Tool"
+			layout="topleft"
+			name="Focus"
+			shortcut="control|1">
+           <menu_item_call.on_click
+              function="Tools.SelectTool"
+              parameter="focus" />
+         </menu_item_call>
+         <menu_item_call
+			label="Move Tool"
+			layout="topleft"
+			name="Move"
+			shortcut="control|2">
+           <menu_item_call.on_click
+              function="Tools.SelectTool"
+              parameter="move" />
+         </menu_item_call>
+         <menu_item_call
+			label="Edit Tool"
+			layout="topleft"
+			name="Edit"
+			shortcut="control|3">
+           <menu_item_call.on_click
+              function="Tools.SelectTool"
+              parameter="edit" />
+         </menu_item_call>
+         <menu_item_call
+			label="Create Tool"
+			layout="topleft"
+			name="Create"
+			shortcut="control|4">
+           <menu_item_call.on_click
+              function="Tools.SelectTool"
+              parameter="create" />
+         </menu_item_call>
+         <menu_item_call
+			label="Land Tool"
+			layout="topleft"
+			name="Land"
+			shortcut="control|5">
+           <menu_item_call.on_click
+              function="Tools.SelectTool"
+              parameter="land" />
+         </menu_item_call>
+	   </menu>
         <menu
          create_jump_keys="true"
          label="Edit"
@@ -612,6 +641,159 @@
                  function="Edit.EnableDeselect" />
             </menu_item_call>
         </menu>
+        <menu_item_separator
+           layout="topleft" />
+        <menu_item_call
+           label="Link"
+           layout="topleft"
+           name="Link"
+           shortcut="control|L">
+          <menu_item_call.on_click
+             function="Tools.Link" />
+          <menu_item_call.on_enable
+             function="Tools.EnableLink" />
+        </menu_item_call>
+        <menu_item_call
+           label="Unlink"
+           layout="topleft"
+           name="Unlink"
+           shortcut="control|shift|L">
+          <menu_item_call.on_click
+             function="Tools.Unlink" />
+          <menu_item_call.on_enable
+             function="Tools.EnableUnlink" />
+        </menu_item_call>
+        <menu_item_separator
+           layout="topleft" />
+        <menu_item_call
+           label="Focus on Selection"
+           layout="topleft"
+           name="Focus on Selection"
+           shortcut="H">
+          <menu_item_call.on_click
+             function="Tools.LookAtSelection"
+             parameter="focus" />
+          <menu_item_call.on_enable
+             function="Tools.SomethingSelectedNoHUD" />
+        </menu_item_call>
+        <menu_item_call
+           label="Zoom to Selection"
+           layout="topleft"
+           name="Zoom to Selection"
+           shortcut="shift|H">
+          <menu_item_call.on_click
+             function="Tools.LookAtSelection"
+             parameter="zoom" />
+          <menu_item_call.on_enable
+             function="Tools.SomethingSelectedNoHUD" />
+        </menu_item_call>
+        <menu_item_separator
+           layout="topleft" />
+        <menu
+         create_jump_keys="true"
+         label="Object"
+         layout="topleft"
+         name="Object"
+         tear_off="true">
+          <menu_item_call
+			 label="Buy"
+			 layout="topleft"
+			 name="Menu Object Take"
+			 visible="true">
+			<menu_item_call.on_click
+               function="Tools.BuyOrTake" />
+			<menu_item_call.on_enable
+               function="Tools.EnableBuyOrTake"
+               name="EnableBuyOrTake"
+               parameter="Buy,Take" />
+          </menu_item_call>
+          <menu_item_call
+			 label="Take Copy"
+			 layout="topleft"
+			 name="Take Copy">
+			<menu_item_call.on_click
+               function="Tools.TakeCopy" />
+			<menu_item_call.on_enable
+               function="Tools.EnableTakeCopy" />
+          </menu_item_call>
+          <menu_item_call
+			 label="Save Back to My Inventory"
+			 layout="topleft"
+			 name="Save Object Back to My Inventory">
+			<menu_item_call.on_click
+               function="Tools.SaveToInventory" />
+			<menu_item_call.on_enable
+               function="Tools.EnableSaveToInventory" />
+          </menu_item_call>
+          <menu_item_call
+			 label="Save Back to Object Contents"
+			 layout="topleft"
+			 name="Save Object Back to Object Contents">
+			<menu_item_call.on_click
+               function="Tools.SaveToObjectInventory" />
+			<menu_item_call.on_enable
+               function="Tools.EnableSaveToObjectInventory" />
+          </menu_item_call>
+		</menu>
+        <menu
+           create_jump_keys="true"
+           label="Scripts"
+           layout="topleft"
+           name="Scripts"
+           tear_off="true">
+          <menu_item_call
+             label="Recompile Scripts (Mono)"
+             layout="topleft"
+             name="Mono">
+            <menu_item_call.on_click
+               function="Tools.SelectedScriptAction"
+               parameter="compile mono" />
+            <menu_item_call.on_enable
+               function="EditableSelectedMono" />
+          </menu_item_call>
+          <menu_item_call
+             label="Recompile Scripts (LSL)"
+             layout="topleft"
+             name="LSL">
+            <menu_item_call.on_click
+               function="Tools.SelectedScriptAction"
+               parameter="compile lsl" />
+            <menu_item_call.on_enable
+               function="EditableSelected" />
+          </menu_item_call>
+          <menu_item_call
+             label="Reset Scripts"
+             layout="topleft"
+             name="Reset Scripts">
+            <menu_item_call.on_click
+               function="Tools.SelectedScriptAction"
+               parameter="reset" />
+            <menu_item_call.on_enable
+               function="EditableSelected" />
+          </menu_item_call>
+          <menu_item_call
+             label="Set Scripts to Running"
+             layout="topleft"
+             name="Set Scripts to Running">
+            <menu_item_call.on_click
+               function="Tools.SelectedScriptAction"
+               parameter="start" />
+            <menu_item_call.on_enable
+               function="EditableSelected" />
+          </menu_item_call>
+          <menu_item_call
+             label="Set Scripts to Not Running"
+             layout="topleft"
+             name="Set Scripts to Not Running">
+            <menu_item_call.on_click
+               function="Tools.SelectedScriptAction"
+               parameter="stop" />
+            <menu_item_call.on_enable
+               function="EditableSelected" />
+          </menu_item_call>
+        </menu>
+        <menu_item_separator
+           layout="topleft" />
         <menu
          create_jump_keys="true"
          label="Options"
@@ -800,196 +982,68 @@
                      parameter="CheesyBeacon" />
                 </menu_item_check>
             </menu>
-            <menu
-             create_jump_keys="true"
-             label="Land"
-             layout="topleft"
-             name="Land"
-             tear_off="true">
-                <menu_item_check
-                 label="Property Lines"
-                 layout="topleft"
-                 name="Property Lines"
-                 shortcut="control|alt|shift|P">
-                    <menu_item_check.on_check
-                     control="ShowPropertyLines" />
-                    <menu_item_check.on_click
-                     function="ToggleControl"
-                     parameter="ShowPropertyLines" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Land Owners"
-                 layout="topleft"
-                 name="Land Owners">
-                    <menu_item_check.on_check
-                     control="ShowParcelOwners" />
-                    <menu_item_check.on_click
-                     function="ToggleControl"
-                     parameter="ShowParcelOwners" />
-                </menu_item_check>
-                <menu_item_check
-                 label="Ban Lines"
-                 layout="topleft"
-                 name="Ban Lines">
-                    <menu_item_check.on_check
-                     control="ShowBanLines" />
-                    <menu_item_check.on_click
-                     function="ToggleControl"
-                     parameter="ShowBanLines" />
-                </menu_item_check>
-            </menu>
         </menu>
-        <menu
-         create_jump_keys="true"
-         label="Actions"
+    </menu>
+    <menu
+     label="Help"
+     layout="topleft"
+     name="Help"
+     tear_off="true">
+        <menu_item_call
+         label="[SECOND_LIFE] Help"
          layout="topleft"
-         name="Actions"
-         tear_off="true">
-            <menu_item_call
-             label="Link"
-             layout="topleft"
-             name="Link"
-             shortcut="control|L">
-                <menu_item_call.on_click
-                 function="Tools.Link" />
-                <menu_item_call.on_enable
-                 function="Tools.EnableLink" />
-            </menu_item_call>
-            <menu_item_call
-             label="Unlink"
-             layout="topleft"
-             name="Unlink"
-             shortcut="control|shift|L">
-                <menu_item_call.on_click
-                 function="Tools.Unlink" />
-                <menu_item_call.on_enable
-                 function="Tools.EnableUnlink" />
-            </menu_item_call>
-            <menu_item_separator
+         name="Second Life Help"
+         shortcut="F1">
+            <menu_item_call.on_click
+             function="ShowFloater"
+             parameter="help f1" />
+        </menu_item_call>
+        <menu_item_call
+         label="Tutorial"
+         layout="topleft"
+         name="Tutorial">
+            <menu_item_call.on_click
+             function="Floater.Show"
+             parameter="hud" />
+        </menu_item_call>
+        <menu_item_check
+         label="Show Quick Tips"
+         layout="topleft"
+         name="Show Quick Tips">
+            <menu_item_check.on_check
+             function="Help.CheckShowFirstTimeTip" />
+            <menu_item_check.on_click
+             function="Help.ShowQuickTips" />
+        </menu_item_check>
+        <menu_item_separator
              layout="topleft" />
-            <menu_item_call
-             label="Focus on Selection"
+        <menu_item_call
+             label="Report Bug..."
              layout="topleft"
-             name="Focus on Selection"
-             shortcut="H">
-                <menu_item_call.on_click
-                 function="Tools.LookAtSelection"
-                 parameter="focus" />
-                <menu_item_call.on_enable
-                 function="Tools.SomethingSelectedNoHUD" />
-            </menu_item_call>
-            <menu_item_call
-             label="Zoom to Selection"
+             name="ReportBug">
+            <menu_item_call.on_click
+                 function="PromptShowURL"
+                 name="ReportBug_url"
+                 parameter="hud,http://help.secondlife.com/en/bugreport/" />
+        </menu_item_call>
+        <menu_item_call
+             label="Report Abuse..."
              layout="topleft"
-             name="Zoom to Selection"
-             shortcut="shift|H">
+             name="Report Abuse">
                 <menu_item_call.on_click
-                 function="Tools.LookAtSelection"
-                 parameter="zoom" />
-                <menu_item_call.on_enable
-                 function="Tools.SomethingSelectedNoHUD" />
+                 function="ShowFloater"
+                 parameter="complaint reporter" />
             </menu_item_call>
-            <menu_item_separator
+        <menu_item_separator
              layout="topleft" />
-            <menu_item_call
-             label="Buy Object"
-             layout="topleft"
-             name="Menu Object Take"
-             visible="false">
-                <menu_item_call.on_click
-                 function="Tools.BuyOrTake" />
-                <menu_item_call.on_enable
-                 function="Tools.EnableBuyOrTake"
-                 name="EnableBuyOrTake"
-                 parameter="Buy,Take" />
-            </menu_item_call>
-            <menu_item_call
-             label="Take Copy"
-             layout="topleft"
-             name="Take Copy">
-                <menu_item_call.on_click
-                 function="Tools.TakeCopy" />
-                <menu_item_call.on_enable
-                 function="Tools.EnableTakeCopy" />
-            </menu_item_call>
-            <menu_item_call
-             label="Save Object Back to My Inventory"
-             layout="topleft"
-             name="Save Object Back to My Inventory">
-                <menu_item_call.on_click
-                 function="Tools.SaveToInventory" />
-                <menu_item_call.on_enable
-                 function="Tools.EnableSaveToInventory" />
-            </menu_item_call>
-            <menu_item_call
-             label="Save Object Back to Object Contents"
-             layout="topleft"
-             name="Save Object Back to Object Contents">
-                <menu_item_call.on_click
-                 function="Tools.SaveToObjectInventory" />
-                <menu_item_call.on_enable
-                 function="Tools.EnableSaveToObjectInventory" />
-            </menu_item_call>
-            <menu_item_separator
-             layout="topleft" />
-            <menu
-             create_jump_keys="true"
-             label="Recompile Scripts in Selection"
-             layout="topleft"
-             name="Recompile Scripts in Selection"
-             tear_off="true">
-                <menu_item_call
-                 label="Mono"
-                 layout="topleft"
-                 name="Mono">
-                    <menu_item_call.on_click
-                     function="Tools.SelectedScriptAction"
-                     parameter="compile mono" />
-                    <menu_item_call.on_enable
-                     function="EditableSelectedMono" />
-                </menu_item_call>
-                <menu_item_call
-                 label="LSL"
-                 layout="topleft"
-                 name="LSL">
-                    <menu_item_call.on_click
-                     function="Tools.SelectedScriptAction"
-                     parameter="compile lsl" />
-                    <menu_item_call.on_enable
-                     function="EditableSelected" />
-                </menu_item_call>
-            </menu>
-            <menu_item_call
-             label="Reset Scripts in Selection"
-             layout="topleft"
-             name="Reset Scripts in Selection">
-                <menu_item_call.on_click
-                 function="Tools.SelectedScriptAction"
-                 parameter="reset" />
-                <menu_item_call.on_enable
-                 function="EditableSelected" />
-            </menu_item_call>
-            <menu_item_call
-             label="Set Scripts to Running in Selection"
-             layout="topleft"
-             name="Set Scripts to Running in Selection">
-                <menu_item_call.on_click
-                 function="Tools.SelectedScriptAction"
-                 parameter="start" />
-                <menu_item_call.on_enable
-                 function="EditableSelected" />
-            </menu_item_call>
-            <menu_item_call
-             label="Set Scripts to Not Running in Selection"
-             layout="topleft"
-             name="Set Scripts to Not Running in Selection">
-                <menu_item_call.on_click
-                 function="Tools.SelectedScriptAction"
-                 parameter="stop" />
-                <menu_item_call.on_enable
-                 function="EditableSelected" />
-            </menu_item_call>
-        </menu>
+        <menu_item_call
+         label="About [APP_NAME]"
+         layout="topleft"
+         name="About Second Life">
+            <menu_item_call.on_click
+             function="Floater.Show"
+             parameter="sl_about" />
+        </menu_item_call>
     </menu>
     <menu
      label="Advanced"
@@ -1035,7 +1089,6 @@
                  function="World.AlwaysRun" />
             </menu_item_check>
             <menu_item_check
-             control_name="FlyBtnState"
              label="Fly"
              layout="topleft"
              name="Fly"
@@ -1827,7 +1880,7 @@
              function="Advanced.ShowDebugSettings"
              parameter="all" />
         </menu_item_call>
-	 <menu_item_check
+     <menu_item_check
          label="Debug (QA) Mode"
          layout="topleft"
          name="Debug Mode"
@@ -2496,7 +2549,7 @@
              name="Simple Web Browser Test">
                 <menu_item_call.on_click
                  function="Floater.Show"
-				 parameter="html_simple.http://www.secondlife.com" />
+                 parameter="html_simple.http://www.secondlife.com" />
             </menu_item_call>
             <menu_item_call
              label="UI/Color Settings"
@@ -2665,7 +2718,7 @@
              name="Show Font Test">
                 <menu_item_call.on_click
                  function="Floater.Show"
-				 parameter="font_test" />
+                 parameter="font_test" />
             </menu_item_call>
             <menu_item_call
              label="Load from XML..."
@@ -3143,7 +3196,7 @@
          name="God Tools">
             <menu_item_call.on_click
              function="Floater.Show"
-			 parameter="god_tools" />
+             parameter="god_tools" />
             <menu_item_call.on_enable
              function="EnableGodCustomerService" />
         </menu_item_call>

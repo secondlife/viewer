@@ -2870,7 +2870,7 @@ void LLViewerWindow::updateLayout()
 		{
 			gFloaterTools->setVisible(FALSE);
 		}
-		gMenuBarView->setItemVisible("BuildTools", gFloaterTools->getVisible());
+		//gMenuBarView->setItemVisible("BuildTools", gFloaterTools->getVisible());
 	}
 
 	// Always update console

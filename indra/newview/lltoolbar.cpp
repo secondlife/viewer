@@ -250,41 +250,6 @@ void LLToolBar::refresh()
 	BOOL mouselook = gAgent.cameraMouselook();
 	setVisible(show && !mouselook);
 
-	BOOL sitting = FALSE;
-	if (gAgent.getAvatarObject())
-	{
-		sitting = gAgent.getAvatarObject()->isSitting();
-	}
-
-	if (!gAgent.canFly())
-	{
-		gSavedSettings.setBOOL("FlyBtnEnabled", gAgent.getFlying() ? true : false);
-		gSavedSettings.setBOOL("FlyBtnState", false);
-	}
-	else
-	{
-		gSavedSettings.setBOOL("FlyBtnEnabled", sitting ? false : true);
-	}
-
-	// Check to see if we're in build mode
-	bool build_enabled = LLToolMgr::getInstance()->canEdit();
-	if (build_enabled)
-	{
-		gSavedSettings.setBOOL("BuildBtnEnabled", true);
-		bool build_mode = LLToolMgr::getInstance()->inEdit();
-		// HACK: Not in mouselook and not just clicking on a scripted object
-		if (gAgent.cameraMouselook() || LLToolGrab::getInstance()->getHideBuildHighlight())
-	{
-		build_mode = FALSE;
-	}
-	gSavedSettings.setBOOL("BuildBtnState", build_mode);
-	}
-	else
-	{
-		gSavedSettings.setBOOL("BuildBtnEnabled", false);
-		gSavedSettings.setBOOL("BuildBtnState", false);
-	}
-
 	if (isInVisibleChain())
 	{
 		updateCommunicateList();
