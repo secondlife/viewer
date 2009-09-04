@@ -5029,7 +5029,7 @@ You must have payment information on file to visit this area.  Do you want to go
    icon="alertmodal.tga"
    name="MissingString"
    type="alertmodal">
-How odd. The string [STRING_NAME] is missing from strings.xml
+The string [STRING_NAME] is missing from strings.xml
   </notification>
 
   <notification
