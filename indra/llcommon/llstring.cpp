@@ -863,6 +863,127 @@ LLStringUtil::size_type LLStringUtil::getSubstitution(const std::string& instr, 
 	return pos1;
 }
 
+// static
+template<> 
+bool LLStringUtil::simpleReplacement(std::string &replacement, std::string token, const format_map_t& substitutions)
+{
+	// see if we have a replacement for the bracketed string (without the brackets)
+	// test first using has() because if we just look up with operator[] we get back an
+	// empty string even if the value is missing. We want to distinguish between 
+	// missing replacements and deliberately empty replacement strings.
+	format_map_t::const_iterator iter = substitutions.find(token);
+	if (iter != substitutions.end())
+	{
+		replacement = iter->second;
+		return true;
+	}
+	// if not, see if there's one WITH brackets
+	iter = substitutions.find(std::string("[" + token + "]"));
+	if (iter != substitutions.end())
+	{
+		replacement = iter->second;
+		return true;
+	}
+
+	return false;
+}
+
+// static
+template<> 
+bool LLStringUtil::simpleReplacement(std::string &replacement, std::string token, const LLSD& substitutions)
+{
+	// see if we have a replacement for the bracketed string (without the brackets)
+	// test first using has() because if we just look up with operator[] we get back an
+	// empty string even if the value is missing. We want to distinguish between 
+	// missing replacements and deliberately empty replacement strings.
+	if (substitutions.has(token))
+	{
+		replacement = substitutions[token].asString();
+		return true;
+	}
+	// if not, see if there's one WITH brackets
+	else if (substitutions.has(std::string("[" + token + "]")))
+	{
+		replacement = substitutions[std::string("[" + token + "]")].asString();
+		return true;
+	}
+
+	return false;
+}
+
+// static
+template<> 
+void LLStringUtil::formatNumber(std::string& numStr, std::string decimals)
+{
+	std::stringstream strStream;
+	S32 intDecimals = 0;
+
+	convertToS32 (decimals, intDecimals);
+	if (!sLocale.empty())
+	{
+		strStream.imbue (std::locale(sLocale.c_str()));
+	}
+
+	if (!intDecimals)
+	{
+		S32 intStr;
+
+		if (convertToS32(numStr, intStr))
+		{
+			strStream << intStr;
+			numStr = strStream.str();
+		}
+	}
+	else
+	{
+		F32 floatStr;
+
+		if (convertToF32(numStr, floatStr))
+		{
+			strStream << std::fixed << std::showpoint << std::setprecision(intDecimals) << floatStr;
+			numStr = strStream.str();
+		}
+	}
+}
+
+// static
+template<> 
+bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
+								  std::string param, S32 secFromEpoch)
+{
+	if (param == "local")   // local
+	{
+		secFromEpoch -= LLStringOps::getLocalTimeOffset();
+	}
+	else if (param != "utc") // slt
+	{
+		secFromEpoch -= LLStringOps::getSltOffset();
+	}
+		
+	// if never fell into those two ifs above, param must be utc
+	if (secFromEpoch < 0) secFromEpoch = 0;
+
+	LLDate * datetime = new LLDate((F64)secFromEpoch);
+	std::string code = LLStringOps::getDatetimeCode (token);
+
+	// special case to handle timezone
+	if (code == "%Z") {
+		if (param == "utc") replacement = "GMT";
+		else if (param != "local") replacement = LLStringOps::getDaylightSavings()? "PDT" : "PST";
+		return true;
+	}
+	replacement = datetime->toHTTPDateString(code);
+
+	if (code.empty())
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
 // LLStringUtil::format recogizes the following patterns.
 // All substitutions *must* be encased in []'s in the input string.
 // The []'s are optional in the substitution map.
@@ -1004,127 +1125,6 @@ S32 LLStringUtil::format(std::string& s, const LLSD& substitutions)
 	output += std::string(s, start);
 	s = output;
 	return res;
-}
-
-// static
-template<> 
-bool LLStringUtil::simpleReplacement(std::string &replacement, std::string token, const format_map_t& substitutions)
-{
-	// see if we have a replacement for the bracketed string (without the brackets)
-	// test first using has() because if we just look up with operator[] we get back an
-	// empty string even if the value is missing. We want to distinguish between 
-	// missing replacements and deliberately empty replacement strings.
-	format_map_t::const_iterator iter = substitutions.find(token);
-	if (iter != substitutions.end())
-	{
-		replacement = iter->second;
-		return true;
-	}
-	// if not, see if there's one WITH brackets
-	iter = substitutions.find(std::string("[" + token + "]"));
-	if (iter != substitutions.end())
-	{
-		replacement = iter->second;
-		return true;
-	}
-
-	return false;
-}
-
-// static
-template<> 
-bool LLStringUtil::simpleReplacement(std::string &replacement, std::string token, const LLSD& substitutions)
-{
-	// see if we have a replacement for the bracketed string (without the brackets)
-	// test first using has() because if we just look up with operator[] we get back an
-	// empty string even if the value is missing. We want to distinguish between 
-	// missing replacements and deliberately empty replacement strings.
-	if (substitutions.has(token))
-	{
-		replacement = substitutions[token].asString();
-		return true;
-	}
-	// if not, see if there's one WITH brackets
-	else if (substitutions.has(std::string("[" + token + "]")))
-	{
-		replacement = substitutions[std::string("[" + token + "]")].asString();
-		return true;
-	}
-
-	return false;
-}
-
-// static
-template<> 
-void LLStringUtil::formatNumber(std::string& numStr, std::string decimals)
-{
-	std::stringstream strStream;
-	S32 intDecimals = 0;
-
-	convertToS32 (decimals, intDecimals);
-	if (!sLocale.empty())
-	{
-		strStream.imbue (std::locale(sLocale.c_str()));
-	}
-
-	if (!intDecimals)
-	{
-		S32 intStr;
-
-		if (convertToS32(numStr, intStr))
-		{
-			strStream << intStr;
-			numStr = strStream.str();
-		}
-	}
-	else
-	{
-		F32 floatStr;
-
-		if (convertToF32(numStr, floatStr))
-		{
-			strStream << std::fixed << std::showpoint << std::setprecision(intDecimals) << floatStr;
-			numStr = strStream.str();
-		}
-	}
-}
-
-// static
-template<> 
-bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
-								  std::string param, S32 secFromEpoch)
-{
-	if (param == "local")   // local
-	{
-		secFromEpoch -= LLStringOps::getLocalTimeOffset();
-	}
-	else if (param != "utc") // slt
-	{
-		secFromEpoch -= LLStringOps::getSltOffset();
-	}
-		
-	// if never fell into those two ifs above, param must be utc
-	if (secFromEpoch < 0) secFromEpoch = 0;
-
-	LLDate * datetime = new LLDate((F64)secFromEpoch);
-	std::string code = LLStringOps::getDatetimeCode (token);
-
-	// special case to handle timezone
-	if (code == "%Z") {
-		if (param == "utc") replacement = "GMT";
-		else if (param != "local") replacement = LLStringOps::getDaylightSavings()? "PDT" : "PST";
-		return true;
-	}
-	replacement = datetime->toHTTPDateString(code);
-
-	if (code.empty())
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
 }
 
 ////////////////////////////////////////////////////////////
