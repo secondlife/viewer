@@ -178,6 +178,6 @@ private:
 };
 
 // this operator required for tut
-bool operator!=(const LLURI& first, const LLURI& second);
+LL_COMMON_API bool operator!=(const LLURI& first, const LLURI& second);
 
 #endif // LL_LLURI_H
