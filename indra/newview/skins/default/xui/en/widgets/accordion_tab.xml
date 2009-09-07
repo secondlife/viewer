@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<accordion_tab 
+    header_collapse_img="accordion_collapsed.tga" 
+    header_collapse_img_pressed="accordion_collapsed.tga" 
+    header_expand_img="accordion_expanded.tga"
+    header_expand_img_pressed="accordion_expanded.tga" />

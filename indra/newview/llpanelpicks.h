@@ -152,6 +152,11 @@ public:
 
 	~LLPickItem();
 
+	/*virtual*/ BOOL postBuild();
+
+	/** setting on/off background icon to indicate selected state */
+	/*virtual*/ void setValue(const LLSD& value);
+
 protected:
 
 	LLUUID mPickID;

@@ -60,7 +60,6 @@ LLBottomTray::LLBottomTray(const LLSD&)
 	mSysWell = getChild<LLNotificationChiclet>("sys_well");
 
 	mSysWell->setNotificationChicletWindow(LLFloaterReg::getInstance("syswell_window"));
-	LLFloaterReg::getTypedInstance<LLSysWellWindow>("syswell_window")->setSysWell(mSysWell);
 
 	mChicletPanel->setChicletClickedCallback(boost::bind(&LLBottomTray::onChicletClick,this,_1));
 
@@ -80,8 +79,16 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 BOOL LLBottomTray::postBuild()
 {
+	mCommitCallbackRegistrar.add("ShowCamMoveCtrls.Action", boost::bind(&LLBottomTray::onShowCamMoveCtrlsContextMenuItemClicked, this, _2));
+	mEnableCallbackRegistrar.add("ShowCamMoveCtrls.EnableMenuItem", boost::bind(&LLBottomTray::onShowCamMoveCtrlsContextMenuItemEnabled, this, _2));
+
+	mShowCamMoveCtrlsContextMenu =  LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_hide_camera_move_controls.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	gMenuHolder->addChild(mShowCamMoveCtrlsContextMenu);
+
 	mNearbyChatBar = getChild<LLNearbyChatBar>("chat_bar");
 	mToolbarStack = getChild<LLLayoutStack>("toolbar_stack");
+	mMovementPanel = getChild<LLPanel>("movement_panel");
+	mCamPanel = getChild<LLPanel>("cam_panel");
 
 	return TRUE;
 }
@@ -205,8 +212,9 @@ void LLBottomTray::setVisible(BOOL visible)
 			child_it != mToolbarStack->getChildList()->end(); child_it++)
 		{
 			LLView* viewp = *child_it;
+			std::string name = viewp->getName();
 			
-			if ("chat_bar" == viewp->getName())
+			if ("chat_bar" == name || "movement_panel" == name || "cam_panel" == name)
 				continue;
 			else 
 			{
@@ -216,3 +224,45 @@ void LLBottomTray::setVisible(BOOL visible)
 	}
 }
 
+BOOL LLBottomTray::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	if (mShowCamMoveCtrlsContextMenu)
+	{
+		mShowCamMoveCtrlsContextMenu->buildDrawLabels();
+		mShowCamMoveCtrlsContextMenu->updateParent(LLMenuGL::sMenuContainer);
+		LLMenuGL::showPopup(this, mShowCamMoveCtrlsContextMenu, x, y);
+	}
+
+	return TRUE;
+}
+
+bool LLBottomTray::onShowCamMoveCtrlsContextMenuItemEnabled(const LLSD& userdata)
+{
+	std::string item = userdata.asString();
+
+	if (item == "show_camera_move_controls")
+	{
+		return gSavedSettings.getBOOL("ShowCameraAndMoveControls");
+	}
+
+	return FALSE;
+}
+
+void LLBottomTray::onShowCamMoveCtrlsContextMenuItemClicked(const LLSD& userdata)
+{
+	std::string item = userdata.asString();
+
+	if (item == "show_camera_move_controls")
+	{
+		BOOL state = !gSavedSettings.getBOOL("ShowCameraAndMoveControls");
+
+		showCameraAndMoveControls(state);
+		gSavedSettings.setBOOL("ShowCameraAndMoveControls", state);
+	}
+}
+
+void LLBottomTray::showCameraAndMoveControls(BOOL visible)
+{
+	mCamPanel->setVisible(visible);
+	mMovementPanel->setVisible(visible);
+}

@@ -88,9 +88,12 @@ void LLScreenChannel::reshape(S32 width, S32 height, BOOL called_from_parent)
 //--------------------------------------------------------------------------
 void LLScreenChannel::addToast(LLToast::Params p)
 {
-	bool store_toast = !mShowToasts && p.can_be_stored && mCanStoreToasts;
+	bool store_toast = false, show_toast = false;
 
-	if(!mShowToasts && !store_toast)
+	show_toast = mShowToasts || p.force_show;
+	store_toast = !show_toast && p.can_be_stored && mCanStoreToasts;
+
+	if(!show_toast && !store_toast)
 	{
 		mOnRejectToast(p);
 		return;
@@ -106,7 +109,7 @@ void LLScreenChannel::addToast(LLToast::Params p)
 		new_toast_elem.toast->setOnToastHoverCallback(boost::bind(&LLScreenChannel::onToastHover, this, _1, _2));
 	}
 	
-	if(mShowToasts)
+	if(show_toast)
 	{
 		mToastList.push_back(new_toast_elem);
 		showToasts();

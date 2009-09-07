@@ -51,6 +51,7 @@
 #include "llpanellandmarks.h"
 #include "llpanelteleporthistory.h"
 #include "llsidetray.h"
+#include "llteleporthistorystorage.h"
 #include "lltoggleablemenu.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
@@ -172,8 +173,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	if (mPlaceInfoType == AGENT_INFO_TYPE)
 	{
 		mPlaceInfo->setInfoType(LLPanelPlaceInfo::AGENT);
-		mPlaceInfo->displayAgentParcelInfo();
-		
+
 		mPosGlobal = gAgent.getPositionGlobal();
 	}
 	else if (mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE)
@@ -212,14 +212,15 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	{
 		S32 index = key["id"].asInteger();
 
-		const LLTeleportHistory::slurl_list_t& hist_items =
-			LLTeleportHistory::getInstance()->getItems();
+		const LLTeleportHistoryStorage::slurl_list_t& hist_items =
+					LLTeleportHistoryStorage::getInstance()->getItems();
 
 		mPosGlobal = hist_items[index].mGlobalPos;
 
 		mPlaceInfo->setInfoType(LLPanelPlaceInfo::TELEPORT_HISTORY);
+		mPlaceInfo->updateLastVisitedText(hist_items[index].mDate);
 		mPlaceInfo->displayParcelInfo(get_pos_local_from_global(mPosGlobal),
-									  hist_items[index].mRegionID,
+									  LLUUID(),
 									  mPosGlobal);
 	}
 }

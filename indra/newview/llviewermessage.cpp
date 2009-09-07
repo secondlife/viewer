@@ -82,7 +82,6 @@
 #include "llfloaterregioninfo.h"
 #include "llfloaterlandholdings.h"
 #include "llurldispatcher.h"
-#include "llfloatermute.h"
 #include "llfloaterpostcard.h"
 #include "llfloaterpreference.h"
 #include "llfollowcam.h"
@@ -138,6 +137,7 @@
 #include "llgroupactions.h"
 #include "llagentui.h"
 #include "llsidetray.h"
+#include "llpanelblockedlist.h"
 #include "llpanelplaceinfo.h"
 
 #include <boost/tokenizer.hpp>
@@ -1001,9 +1001,7 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 	LLMute mute(blocked_id, from_name, type);
 	if (LLMuteList::getInstance()->add(mute))
 	{
-		LLFloaterReg::showInstance("mute");
-		LLFloaterMute* mute_instance = LLFloaterReg::getTypedInstance<LLFloaterMute>("mute");
-		if(mute_instance) mute_instance->selectMute(blocked_id);
+		LLPanelBlockedList::showPanelAndSelect(blocked_id);
 	}
 
 	// purge the message queue of any previously queued inventory offers from the same source.
@@ -5576,7 +5574,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLPanelLandCovenant::updateEstateName(estate_name);
 	LLFloaterBuyLand::updateEstateName(estate_name);
 
-	LLPanelPlaceInfo* panel = dynamic_cast<LLPanelPlaceInfo*>(LLSideTray::getInstance()->showPanel("panel_place_info", LLSD()));
+	LLPanelPlaceInfo* panel = LLSideTray::getInstance()->findChild<LLPanelPlaceInfo>("panel_place_info");
 	if (panel)
 	{
 		panel->updateEstateName(estate_name);
@@ -5660,7 +5658,7 @@ void callbackCacheEstateOwnerName(const LLUUID& id,
 	LLPanelLandCovenant::updateEstateOwnerName(name);
 	LLFloaterBuyLand::updateEstateOwnerName(name);
 
-	LLPanelPlaceInfo* panel = dynamic_cast<LLPanelPlaceInfo*>(LLSideTray::getInstance()->showPanel("panel_place_info", LLSD()));
+	LLPanelPlaceInfo* panel = LLSideTray::getInstance()->findChild<LLPanelPlaceInfo>("panel_place_info");
 	if (panel)
 	{
 		panel->updateEstateOwnerName(name);

@@ -3412,11 +3412,8 @@ void LLTextEditor::endOfDoc()
 // Sets the scrollbar from the cursor position
 void LLTextEditor::updateScrollFromCursor()
 {
-	if (mReadOnly)
-	{
-		// no cursor in read only mode
-		return;
-	}
+	// Update scroll position even in read-only mode (when there's no cursor displayed)
+	// because startOfDoc()/endOfDoc() modify cursor position. See EXT-736.
 
 	if (!mScrollNeeded)
 	{

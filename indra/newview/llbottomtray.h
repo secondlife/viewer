@@ -33,6 +33,8 @@
 #ifndef LL_LLBOTTOMPANEL_H
 #define LL_LLBOTTOMPANEL_H
 
+#include <llmenugl.h>
+
 #include "llpanel.h"
 #include "llimview.h"
 
@@ -68,6 +70,10 @@ public:
 	virtual void onFocusLost();
 	virtual void setVisible(BOOL visible);
 
+	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
+	void showCameraAndMoveControls(BOOL visible);
+
 private:
 
 protected:
@@ -75,6 +81,9 @@ protected:
 	LLBottomTray(const LLSD& key = LLSD());
 
 	void onChicletClick(LLUICtrl* ctrl);
+
+	bool onShowCamMoveCtrlsContextMenuItemEnabled(const LLSD& userdata);
+	void onShowCamMoveCtrlsContextMenuItemClicked(const LLSD& userdata);
 
 	static void* createNearbyChatBar(void* userdata);
 
@@ -88,7 +97,9 @@ protected:
 	LLTalkButton* 		mTalkBtn;
 	LLNearbyChatBar*	mNearbyChatBar;
 	LLLayoutStack*		mToolbarStack;
-
+	LLMenuGL*			mShowCamMoveCtrlsContextMenu;
+	LLPanel*			mMovementPanel;
+	LLPanel*			mCamPanel;
 };
 
 #endif // LL_LLBOTTOMPANEL_H

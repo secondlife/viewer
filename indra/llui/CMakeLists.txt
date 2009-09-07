@@ -34,6 +34,8 @@ set(llui_SOURCE_FILES
     llconsole.cpp
     llcontainerview.cpp
     llctrlselectioninterface.cpp
+    lldockablefloater.cpp
+    lldockcontrol.cpp
     lldraghandle.cpp
     lleditmenuhandler.cpp
     llf32uictrl.cpp
@@ -113,6 +115,8 @@ set(llui_HEADER_FILES
     llcontainerview.h
     llctrlselectioninterface.h
     lldraghandle.h
+    lldockablefloater.h
+    lldockcontrol.h
     lleditmenuhandler.h
     llf32uictrl.h
     llfiltereditor.h 

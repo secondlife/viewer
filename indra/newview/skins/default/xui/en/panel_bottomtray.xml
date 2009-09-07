@@ -266,7 +266,7 @@
              top="2"
              width="48">
               <button
-               image_selected="bottom_tray_sys_notifications.tga"
+               image_selected="bottom_tray_sys_notifications_selected.tga"
                image_unselected="bottom_tray_sys_notifications.tga"/>
               <unread_notifications
                width="20"

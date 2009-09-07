@@ -38,9 +38,9 @@
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
 
+#include "llchiclet.h"
 //---------------------------------------------------------------------------------
-LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLFloater(LLSD()),
-													mSysWell(NULL),
+LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLDockableFloater(NULL, key),
 													mChannel(NULL),
 													mScrollContainer(NULL),
 													mNotificationList(NULL)
@@ -57,13 +57,9 @@ BOOL LLSysWellWindow::postBuild()
 	mNotificationList = getChild<LLScrollingPanelList>("notification_list");
 	mIMRowList = getChild<LLScrollingPanelList>("im_row_panel_list");
 
-	gViewerWindow->setOnBottomTrayWidthChanged(boost::bind(&LLSysWellWindow::adjustWindowPosition, this)); // *TODO: won't be necessary after docking is realized
 	mScrollContainer->setBorderVisible(FALSE);
 
-	mDockTongue = LLUI::getUIImage("windows/Flyout_Pointer.png");
-
-
-	return TRUE;
+	return LLDockableFloater::postBuild();
 }
 
 //---------------------------------------------------------------------------------
@@ -82,7 +78,6 @@ void LLSysWellWindow::addItem(LLSysWellItem::Params p)
 	LLSysWellItem* new_item = new LLSysWellItem(p);
 	mNotificationList->addPanel(dynamic_cast<LLScrollingPanel*>(new_item));
 	reshapeWindow();
-	adjustWindowPosition();	// *TODO: won't be necessary after docking is realized
 
 	new_item->setOnItemCloseCallback(boost::bind(&LLSysWellWindow::onItemClose, this, _1));
 	new_item->setOnItemClickCallback(boost::bind(&LLSysWellWindow::onItemClick, this, _1));
@@ -127,10 +122,6 @@ void LLSysWellWindow::removeItemByID(const LLUUID& id)
 		return;
 
 	reshapeWindow();
-	adjustWindowPosition();	// *TODO: won't be necessary after docking is realized
-
-	// hide chiclet window if there are no items left
-	setVisible(!isWindowEmpty());
 }
 
 //---------------------------------------------------------------------------------
@@ -148,11 +139,20 @@ void LLSysWellWindow::onItemClose(LLSysWellItem* item)
 	removeItemByID(id);
 	if(mChannel)
 		mChannel->killToastByNotificationID(id);
+
+	// hide chiclet window if there are no items left
+	setVisible(!isWindowEmpty());
 }
 
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::toggleWindow()
 {
+	if (getDockControl() == NULL)
+	{
+		setDockControl(new LLDockControl(
+				LLBottomTray::getInstance()->getSysWell(), this,
+				getDockTongue(), LLDockControl::TOP, isDocked()));
+	}
 	setVisible(!getVisible());
 }
 
@@ -162,26 +162,24 @@ void LLSysWellWindow::setVisible(BOOL visible)
 	// on Show adjust position of SysWell chiclet's window
 	if(visible)
 	{
+		if (LLBottomTray::instanceExists())
+		{
+			LLBottomTray::getInstance()->getSysWell()->setToggleState(TRUE);
+		}
 		if(mChannel)
 			mChannel->removeAndStoreAllVisibleToasts();
-
-		adjustWindowPosition();	// *TODO: won't be necessary after docking is realized
 	}
-
+	else
+	{
+		if (LLBottomTray::instanceExists())
+		{
+			LLBottomTray::getInstance()->getSysWell()->setToggleState(FALSE);
+		}
+	}
 	if(mChannel)
 		mChannel->setShowToasts(!visible);
 
 	LLFloater::setVisible(visible);
-}
-
-//---------------------------------------------------------------------------------
-void LLSysWellWindow::adjustWindowPosition()	// *TODO: won't be necessary after docking is realized
-{
-	const S32 WINDOW_MARGIN	= 5;
-
-	LLRect btm_rect = LLBottomTray::getInstance()->getRect();
-	LLRect this_rect = getRect();
-	setOrigin(btm_rect.mRight - this_rect.getWidth() - WINDOW_MARGIN, WINDOW_MARGIN); 
 }
 
 //---------------------------------------------------------------------------------
@@ -272,7 +270,6 @@ void LLSysWellWindow::addIMRow(const LLUUID& sessionId, S32 chicletCounter,
 {
 
 	mIMRowList->addPanel(new RowPanel(this, sessionId, chicletCounter, name, otherParticipantId));
-	adjustWindowPosition();	// *TODO: won't be necessary after docking is realized
 }
 
 //---------------------------------------------------------------------------------
@@ -286,14 +283,12 @@ void LLSysWellWindow::delIMRow(const LLUUID& sessionId)
 
 	// hide chiclet window if there are no items left
 	setVisible(!isWindowEmpty());
-
-	adjustWindowPosition();	// *TODO: won't be necessary after docking is realized
 }
 
 //---------------------------------------------------------------------------------
 bool LLSysWellWindow::isWindowEmpty()
 {
-	if(mIMRowList->getPanelList().size() == 0 && mNotificationList->getPanelList().size() == 0)
+	if(mIMRowList->getPanelList().size() == 0 && LLBottomTray::getInstance()->getSysWell()->getCounter() == 0)
 	{
 		return true;
 	}
@@ -328,7 +323,7 @@ void LLSysWellWindow::sessionRemoved(const LLUUID& sessionId)
 {
 	delIMRow(sessionId);
 	reshapeWindow();
-	mSysWell->updateUreadIMNotifications();
+	LLBottomTray::getInstance()->getSysWell()->updateUreadIMNotifications();
 }
 
 //---------------------------------------------------------------------------------
@@ -396,5 +391,3 @@ void LLSysWellWindow::RowPanel::updatePanel(BOOL allow_modify)
 }
 
 //---------------------------------------------------------------------------------
-
-

@@ -41,6 +41,7 @@ class LLButton;
 class LLLocationInputCtrl;
 class LLMenuGL;
 class LLSearchEditor;
+class LLSearchComboBox;
 
 /**
  * Web browser-like navigation bar.
@@ -69,12 +70,6 @@ private:
 	void rebuildTeleportHistoryMenu();
 	void showTeleportHistoryMenu();
 	void invokeSearch(std::string search_text);
-
-	/**
-	 * Get region name and local coordinates from typed location
-	 */
-	static std::string parseLocation(const std::string & location, S32* x, S32* y, S32* z);
-
 	// callbacks
 	void onTeleportHistoryMenuItemClicked(const LLSD& userdata);
 	void onTeleportHistoryChanged();
@@ -86,7 +81,7 @@ private:
 	void onLocationSelection();
 	void onLocationPrearrange(const LLSD& data);
 	void onSearchCommit();
-	void onTeleportFinished(const LLVector3d& global_agent_pos);
+	void onTeleportFinished(const LLVector3d& global_agent_pos, const std::string& typed_location);
 	void onRegionNameResponse(
 			std::string typed_location,
 			std::string region_name,
@@ -94,17 +89,19 @@ private:
 			U64 region_handle, const std::string& url,
 			const LLUUID& snapshot_id, bool teleport);
 
+	void fillSearchComboBox();
+
 	static LLNavigationBar *sInstance;
 	
 	LLMenuGL*					mTeleportHistoryMenu;
 	LLButton*					mBtnBack;
 	LLButton*					mBtnForward;
 	LLButton*					mBtnHome;
-	LLSearchEditor*				mLeSearch;
+	LLSearchComboBox*			mSearchComboBox;
 	LLLocationInputCtrl*		mCmbLocation;
 	LLRect						mDefaultNbRect;
 	LLRect						mDefaultFpRect;
-	boost::signals2::connection	mParcelMgrConnection;
+	boost::signals2::connection	mTeleportFinishConnection;
 	bool						mPurgeTPHistoryItems;
 };
 

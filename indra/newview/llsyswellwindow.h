@@ -35,7 +35,7 @@
 
 #include "llsyswellitem.h"
 
-#include "llfloater.h"
+#include "lldockablefloater.h"
 #include "llbutton.h"
 #include "llscreenchannel.h"
 #include "llscrollcontainer.h"
@@ -46,7 +46,7 @@
 
 
 
-class LLSysWellWindow : public LLFloater, LLIMSessionObserver
+class LLSysWellWindow : public LLDockableFloater, LLIMSessionObserver
 {
 public:
     LLSysWellWindow(const LLSD& key);
@@ -58,7 +58,6 @@ public:
 
 	// change attributes
 	void setChannel(LLNotificationsUI::LLScreenChannel*	channel) {mChannel = channel;}
-	void setSysWell(LLNotificationChiclet*	sys_well) {mSysWell = sys_well;}
 
 	// Operating with items
 	void addItem(LLSysWellItem::Params p);
@@ -93,9 +92,6 @@ private:
 
 	// pointer to a corresponding channel's instance
 	LLNotificationsUI::LLScreenChannel*	mChannel;
-
-	LLNotificationChiclet*	mSysWell;
-	LLUIImagePtr			mDockTongue;
 	LLPanel*				mTwinListPanel;
 	LLScrollContainer*		mScrollContainer;
 	LLScrollingPanelList*	mIMRowList;

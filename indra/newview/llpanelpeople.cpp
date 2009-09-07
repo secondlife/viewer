@@ -43,12 +43,12 @@
 
 // newview
 #include "llagent.h"
+#include "llavataractions.h"
 #include "llavatarlist.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
 #include "llfloateravatarpicker.h"
 //#include "llfloaterminiinspector.h"
 #include "llfriendcard.h"
-#include "llavataractions.h"
 #include "llgroupactions.h"
 #include "llgrouplist.h"
 #include "llrecentpeople.h"
@@ -975,7 +975,6 @@ void LLPanelPeople::onRecentViewSortMenuItemClicked(const LLSD& userdata)
 	{
 	}
 }
-
 
 void LLPanelPeople::onCallButtonClicked()
 {

@@ -550,7 +550,7 @@ public:
 	virtual void	handleReshape(const LLRect& rect, bool by_user);
 
 	virtual void	notifyParent(const LLSD& info);
-	virtual void	notifyChilds(const LLSD& info);
+	virtual void	notifyChildren(const LLSD& info);
 
 protected:
 	void			drawDebugRect();

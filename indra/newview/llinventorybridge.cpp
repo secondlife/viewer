@@ -2420,8 +2420,14 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 										drop);
 			break;
 		case DAD_CATEGORY:
-			accept = dragCategoryIntoFolder((LLInventoryCategory*)cargo_data,
-											drop);
+			if (LLFriendCardsManager::instance().isAnyFriendCategory(mUUID))
+			{
+				accept = FALSE;
+			}
+			else
+			{
+				accept = dragCategoryIntoFolder((LLInventoryCategory*)cargo_data, drop);
+			}
 			break;
 		default:
 			break;

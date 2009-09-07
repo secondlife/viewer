@@ -117,6 +117,10 @@ boost::signals2::connection LLNotificationChiclet::setClickCallback(
 	return mButton->setClickedCallback(cb);
 }
 
+void LLNotificationChiclet::setToggleState(BOOL toggled) {
+	mButton->setToggleState(toggled);
+}
+
 void LLNotificationChiclet::updateUreadIMNotifications()
 {
 	mUreadIMNotifications = gIMMgr->getNumberOfUnreadIM();
@@ -235,6 +239,7 @@ LLIMP2PChiclet::Params::Params()
 
 	avatar_icon.name("avatar_icon");
 	avatar_icon.rect(LLRect(0, 25, 25, 0));
+	avatar_icon.mouse_opaque(false);
 
 	unread_notifications.name("unread");
 	unread_notifications.rect(LLRect(25, 25, 45, 0));
@@ -242,6 +247,7 @@ LLIMP2PChiclet::Params::Params()
 	unread_notifications.font_halign(LLFontGL::HCENTER);
 	unread_notifications.v_pad(5);
 	unread_notifications.text_color(LLColor4::white);
+	unread_notifications.mouse_opaque(false);
 
 	speaker.name("speaker");
 	speaker.rect(LLRect(45, 25, 65, 0));

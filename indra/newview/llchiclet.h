@@ -537,6 +537,7 @@ public:
 	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications + mUreadIMNotifications); }
 	void decUreadSystemNotifications() { setCounter(--mUreadSystemNotifications + mUreadIMNotifications); }
 	void updateUreadIMNotifications();
+	void setToggleState(BOOL toggled);
 
 protected:
 	LLNotificationChiclet(const Params& p);

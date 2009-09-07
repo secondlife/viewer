@@ -93,6 +93,7 @@
   <texture name="Info_Press" file_name="navbar/Info_Press.png" preload="false"/>
 
   <texture name="ListItem_Select" file_name="widgets/ListItem_Select.png" preload="true" />
+  <texture name="ListItem_Over" file_name="widgets/ListItem_Over.png" preload="true" />
 
   <texture name="menu_separator" file_name="navbar/FileMenu_Divider.png" scale.left="4" scale.top="166" scale.right="0" scale.bottom="0" />
 

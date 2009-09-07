@@ -355,11 +355,19 @@ BOOL LLButton::handleMouseDown(S32 x, S32 y, MASK mask)
 			setFocus(TRUE);
 		}
 
+		/*
+		 * ATTENTION! This call fires another mouse down callback.
+		 * If you wish to remove this call emit that signal directly
+		 * by calling LLUICtrl::mMouseDownSignal(x, y, mask);
+		 */
+		LLUICtrl::handleMouseDown(x, y, mask);
+
 		mMouseDownSignal(this, LLSD());
 
 		mMouseDownTimer.start();
 		mMouseDownFrame = (S32) LLFrameTimer::getFrameCount();
 		mMouseHeldDownCount = 0;
+
 		
 		if (getSoundFlags() & MOUSE_DOWN)
 		{
@@ -377,6 +385,13 @@ BOOL LLButton::handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		// Always release the mouse
 		gFocusMgr.setMouseCapture( NULL );
+
+		/*
+		 * ATTENTION! This call fires another mouse up callback.
+		 * If you wish to remove this call emit that signal directly
+		 * by calling LLUICtrl::mMouseUpSignal(x, y, mask);
+		 */
+		LLUICtrl::handleMouseUp(x, y, mask);
 
 		// Regardless of where mouseup occurs, handle callback
 		mMouseUpSignal(this, LLSD());
@@ -460,12 +475,16 @@ BOOL	LLButton::handleRightMouseUp(S32 x, S32 y, MASK mask)
 
 void LLButton::onMouseEnter(S32 x, S32 y, MASK mask)
 {
+	LLUICtrl::onMouseEnter(x, y, mask);
+
 	if (isInEnabledChain())
 		mNeedsHighlight = TRUE;
 }
 
 void LLButton::onMouseLeave(S32 x, S32 y, MASK mask)
 {
+	LLUICtrl::onMouseLeave(x, y, mask);
+
 	mNeedsHighlight = FALSE;
 }
 

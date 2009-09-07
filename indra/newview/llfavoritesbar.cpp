@@ -55,6 +55,7 @@
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
 #include "llviewermenu.h"
+#include "lltooldraganddrop.h"
 
 static LLDefaultChildRegistry::Register<LLFavoritesBarCtrl> r("favorites_bar");
 
@@ -73,6 +74,7 @@ public:
 		, mLoaded(false) {}
 
 	void setLandmarkID(const LLUUID& id) { mLandmarkID = id; }
+	const LLUUID& getLandmarkId() const { return mLandmarkID; }
 
 	const std::string& getSLURL()
 	{
@@ -130,8 +132,21 @@ public:
 		msg = mUrlGetter.getSLURL();
 		return TRUE;
 	}
+
+	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask)
+	{
+		LLFavoritesBarCtrl* fb = dynamic_cast<LLFavoritesBarCtrl*>(getParent());
+
+		if (fb)
+		{
+			fb->handleHover(x, y, mask);
+		}
+
+		return LLButton::handleHover(x, y, mask);
+	}
 	
 	void setLandmarkID(const LLUUID& id){ mUrlGetter.setLandmarkID(id); }
+	const LLUUID& getLandmarkId() const { return mUrlGetter.getLandmarkId(); }
 
 protected:
 	LLFavoriteLandmarkButton(const LLButton::Params& p) : LLButton(p) {}
@@ -139,6 +154,33 @@ protected:
 
 private:
 	LLSLURLGetter mUrlGetter;
+};
+
+class LLFavoritesToggleableMenu : public LLToggleableMenu
+{
+public:
+	virtual BOOL handleHover(S32 x, S32 y, MASK mask)
+	{
+		if (fb)
+		{
+			fb->handleHover(x, y, mask);
+		}
+
+		return LLToggleableMenu::handleHover(x, y, mask);
+	}
+
+	void initFavoritesBarPointer(LLFavoritesBarCtrl* fb) { this->fb = fb; }
+
+protected:
+	LLFavoritesToggleableMenu(const LLToggleableMenu::Params& p):
+		LLToggleableMenu(p)
+	{
+	}
+
+	friend class LLUICtrlFactory;
+
+private:
+	LLFavoritesBarCtrl* fb;
 };
 
 /**
@@ -164,6 +206,18 @@ public:
 	
 	void setLandmarkID(const LLUUID& id){ mUrlGetter.setLandmarkID(id); }
 
+	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask)
+	{
+		mMouseDownSignal(this, x, y, mask);
+		return LLMenuItemCallGL::handleMouseDown(x, y, mask);
+	}
+
+	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask)
+	{
+		mMouseUpSignal(this, x, y, mask);
+		return LLMenuItemCallGL::handleMouseUp(x, y, mask);
+	}
+
 protected:
 
 	LLFavoriteLandmarkMenuItem(const LLMenuItemCallGL::Params& p) : LLMenuItemCallGL(p) {}
@@ -181,6 +235,14 @@ struct LLFavoritesSort
 	// TODO - made it customizible using gSavedSettings
 	bool operator()(const LLViewerInventoryItem* const& a, const LLViewerInventoryItem* const& b)
 	{
+		S32 sortField1 = a->getSortField();
+		S32 sortField2 = b->getSortField();
+
+		if (!(sortField1 < 0 && sortField2 < 0))
+		{
+			return sortField2 > sortField1;
+		}
+
 		time_t first_create = a->getCreationDate();
 		time_t second_create = b->getCreationDate();
 		if (first_create == second_create)
@@ -239,29 +301,34 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	case DAD_LANDMARK:
 		{
 			// Copy the item into the favorites folder (if it's not already there).
-			LLInventoryItem *item = (LLInventoryItem *)cargo_data;			
-			LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
-			if (item->getParentUUID() == favorites_id)
+			LLInventoryItem *item = (LLInventoryItem *)cargo_data;
+
+			// check if we are dragging an existing item from the favorites bar
+			if (item && mDragItemId == item->getUUID())
 			{
-				llwarns << "Attemt to copy a favorite item into the same folder." << llendl;
-				break;
+				*accept = ACCEPT_YES_SINGLE;
+
+				if (drop)
+				{
+					handleExistingFavoriteDragAndDrop(x, y);
+				}
 			}
-
-			*accept = ACCEPT_YES_COPY_SINGLE;
-
-			if (drop)
+			else
 			{
-				copy_inventory_item(
-						gAgent.getID(),
-						item->getPermissions().getOwner(),
-						item->getUUID(),
-						favorites_id,
-						std::string(),
-						LLPointer<LLInventoryCallback>(NULL));
+				LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_FAVORITE);
+				if (item->getParentUUID() == favorites_id)
+				{
+					llwarns << "Attemt to copy a favorite item into the same folder." << llendl;
+					break;
+				}
 
-				llinfos << "Copied inventory item #" << item->getUUID() << " to favorites." << llendl;
+				*accept = ACCEPT_YES_COPY_SINGLE;
+
+				if (drop)
+				{
+					handleNewFavoriteDragAndDrop(item, favorites_id, x, y);
+				}
 			}
-			
 		}
 		break;
 	default:
@@ -269,6 +336,61 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	}
 
 	return TRUE;
+}
+
+void LLFavoritesBarCtrl::handleExistingFavoriteDragAndDrop(S32 x, S32 y)
+{
+	LLFavoriteLandmarkButton* dest = dynamic_cast<LLFavoriteLandmarkButton*>(findChildByLocalCoords(x, y));
+
+	if (dest)
+	{
+		updateItemsOrder(mItems, mDragItemId, dest->getLandmarkId());
+	}
+	else
+	{
+		mItems.push_back(gInventory.getItem(mDragItemId));
+	}
+
+	saveItemsOrder(mItems);
+
+	LLFavoritesToggleableMenu* menu = (LLFavoritesToggleableMenu*) mPopupMenuHandle.get();
+
+	if (menu && menu->getVisible())
+	{
+		menu->setVisible(FALSE);
+		showDropDownMenu();
+	}
+
+	mDragItemId = LLUUID::null;
+	getWindow()->setCursor(UI_CURSOR_ARROW);
+}
+
+void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, const LLUUID& favorites_id, S32 x, S32 y)
+{
+	LLFavoriteLandmarkButton* dest = dynamic_cast<LLFavoriteLandmarkButton*>(findChildByLocalCoords(x, y));
+
+	if (dest)
+	{
+		insertBeforeItem(mItems, dest->getLandmarkId(), item->getUUID());
+	}
+	else
+	{
+		mItems.push_back(gInventory.getItem(item->getUUID()));
+	}
+
+	saveItemsOrder(mItems);
+
+	copy_inventory_item(
+			gAgent.getID(),
+			item->getPermissions().getOwner(),
+			item->getUUID(),
+			favorites_id,
+			std::string(),
+			LLPointer<LLInventoryCallback>(NULL));
+
+	getWindow()->setCursor(UI_CURSOR_ARROW);
+
+	llinfos << "Copied inventory item #" << item->getUUID() << " to favorites." << llendl;
 }
 
 //virtual
@@ -311,9 +433,9 @@ LLXMLNodePtr LLFavoritesBarCtrl::getButtonXMLNode()
 
 void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 {
-	LLInventoryModel::item_array_t items;
+	mItems.clear();
 
-	if (!collectFavoriteItems(items))
+	if (!collectFavoriteItems(mItems))
 	{
 		return;
 	}
@@ -331,7 +453,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 
 	const S32 buttonVGap = 2;
 	
-	S32 count = items.count();
+	S32 count = mItems.count();
 
 	const S32 buttonHPad = LLUI::sSettingGroups["config"]->getS32("ButtonHPad");
 	const S32 chevron_button_width = mFont->getWidth(">>") + buttonHPad * 2;
@@ -369,7 +491,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 		S32 i;
 		for (i = 0; i < mFirstDropDownItem; ++i)
 		{
-			if (mItemNamesCache.get(i) != items.get(i)->getName())
+			if (mItemNamesCache.get(i) != mItems.get(i)->getName())
 			{
 				break;
 			}
@@ -387,7 +509,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 		mItemNamesCache.clear();
 		for (S32 i = 0; i < mFirstDropDownItem; i++)
 		{
-			mItemNamesCache.put(items.get(i)->getName());
+			mItemNamesCache.put(mItems.get(i)->getName());
 		}
 
 		// Rebuild the buttons only
@@ -404,7 +526,7 @@ void LLFavoritesBarCtrl::updateButtons(U32 bar_width)
 			}
 		}
 
-		createButtons(items, buttonXMLNode, buttonWidth, buttonHGap);
+		createButtons(mItems, buttonXMLNode, buttonWidth, buttonHGap);
 	}
 
 	// Chevron button
@@ -467,9 +589,9 @@ void LLFavoritesBarCtrl::createButtons(const LLInventoryModel::item_array_t &ite
 {
 	S32 curr_x = buttonHGap;
 	// Adding buttons
-	for(S32 i = mFirstDropDownItem -1; i >= 0; i--)
+	for(S32 i = mFirstDropDownItem -1, j = 0; i >= 0; i--)
 	{
-		LLInventoryItem* item = items.get(i);
+		LLViewerInventoryItem* item = items.get(j++);
 
 		LLFavoriteLandmarkButton* fav_btn = LLUICtrlFactory::defaultBuilder<LLFavoriteLandmarkButton>(buttonXMLNode, this, NULL);
 		if (NULL == fav_btn)
@@ -488,6 +610,10 @@ void LLFavoritesBarCtrl::createButtons(const LLInventoryModel::item_array_t &ite
 		fav_btn->setToolTip(item->getName());
 		fav_btn->setCommitCallback(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
 		fav_btn->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID(), _1, _2, _3,_4 ));
+
+		fav_btn->LLUICtrl::setMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseDown, this, item->getUUID(), _1, _2, _3, _4));
+		fav_btn->LLUICtrl::setMouseUpCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseUp, this, item->getUUID(), _1, _2, _3, _4));
+
 		sendChildToBack(fav_btn);
 
 		curr_x += buttonWidth + buttonHGap;
@@ -521,6 +647,15 @@ BOOL LLFavoritesBarCtrl::collectFavoriteItems(LLInventoryModel::item_array_t &it
 
 	std::sort(items.begin(), items.end(), LLFavoritesSort());
 
+	if (needToSaveItemsOrder(items))
+	{
+		S32 sortField = 0;
+		for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
+		{
+			(*i)->setSortField(++sortField);
+		}
+	}
+
 	return TRUE;
 }
 
@@ -528,7 +663,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 {
 	if (mPopupMenuHandle.isDead())
 	{
-		LLToggleableMenu::Params menu_p;
+		LLFavoritesToggleableMenu::Params menu_p;
 		menu_p.name("favorites menu");
 		menu_p.can_tear_off(false);
 		menu_p.visible(false);
@@ -536,26 +671,26 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 		menu_p.max_scrollable_items = 10;
 		menu_p.preferred_width = DROP_DOWN_MENU_WIDTH;
 
-		LLToggleableMenu* menu = LLUICtrlFactory::create<LLToggleableMenu>(menu_p);
-
+		LLFavoritesToggleableMenu* menu = LLUICtrlFactory::create<LLFavoritesToggleableMenu>(menu_p);
+		menu->initFavoritesBarPointer(this);
 		mPopupMenuHandle = menu->getHandle();
 	}
 
-	LLToggleableMenu* menu = (LLToggleableMenu*)mPopupMenuHandle.get();
+	LLFavoritesToggleableMenu* menu = (LLFavoritesToggleableMenu*)mPopupMenuHandle.get();
 
 	if(menu)
 	{
 		if (!menu->toggleVisibility())
 			return;
 
-		LLInventoryModel::item_array_t items;
+		mItems.clear();
 
-		if (!collectFavoriteItems(items))
+		if (!collectFavoriteItems(mItems))
 		{
 			return;
 		}
 
-		S32 count = items.count();
+		S32 count = mItems.count();
 
 		// Check it there are changed items, since last call
 		if (mItemNamesCache.size() == count)
@@ -563,7 +698,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 			S32 i;
 			for (i = mFirstDropDownItem; i < count; i++)
 			{
-				if (mItemNamesCache.get(i) != items.get(i)->getName())
+				if (mItemNamesCache.get(i) != mItems.get(i)->getName())
 				{
 					break;
 				}
@@ -587,7 +722,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 		{
 			for (S32 i = mFirstDropDownItem; i < count; i++)
 			{
-				mItemNamesCache.put(items.get(i)->getName());
+				mItemNamesCache.put(mItems.get(i)->getName());
 			}
 		}
 
@@ -598,17 +733,18 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 
 		for(S32 i = mFirstDropDownItem; i < count; i++)
 		{
-			LLInventoryItem* item = items.get(i);
+			LLViewerInventoryItem* item = mItems.get(i);
 			const std::string& item_name = item->getName();
 
-			LLMenuItemCallGL::Params item_params;
+			LLFavoriteLandmarkMenuItem::Params item_params;
 			item_params.name(item_name);
 			item_params.label(item_name);
 			
 			item_params.on_click.function(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
 			LLFavoriteLandmarkMenuItem *menu_item = LLUICtrlFactory::create<LLFavoriteLandmarkMenuItem>(item_params);
 			menu_item->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this,item->getUUID(),_1,_2,_3,_4));
-			menu_item->setLandmarkID(item->getUUID());
+			menu_item->LLUICtrl::setMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseDown, this, item->getUUID(), _1, _2, _3, _4));
+			menu_item->LLUICtrl::setMouseUpCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseUp, this, item->getUUID(), _1, _2, _3, _4));
 
 			// Check whether item name wider than menu
 			if (menu_item->getNominalWidth() > max_width)
@@ -644,13 +780,6 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 
 void LLFavoritesBarCtrl::onButtonClick(LLUUID item_id)
 {
-	LLInventoryModel::item_array_t items;
-
-	if (!collectFavoriteItems(items))
-	{
-		return;
-	}
-
 	// We only have one Inventory, gInventory. Some day this should be better abstracted.
 	LLInvFVBridgeAction::doAction(item_id,&gInventory);
 }
@@ -797,5 +926,135 @@ void LLFavoritesBarCtrl::pastFromClipboard() const
 	}
 }
 
+void LLFavoritesBarCtrl::onButtonMouseDown(LLUUID id, LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
+{
+	mDragItemId = id;
+	mStartDrag = TRUE;
+
+	S32 screenX, screenY;
+	localPointToScreen(x, y, &screenX, &screenY);
+
+	LLToolDragAndDrop::getInstance()->setDragStart(screenX, screenY);
+}
+
+void LLFavoritesBarCtrl::onButtonMouseUp(LLUUID id, LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
+{
+	mDragItemId = LLUUID::null;
+}
+
+BOOL LLFavoritesBarCtrl::handleHover(S32 x, S32 y, MASK mask)
+{
+	if (mDragItemId != LLUUID::null && mStartDrag)
+	{
+		S32 screenX, screenY;
+		localPointToScreen(x, y, &screenX, &screenY);
+
+		if(LLToolDragAndDrop::getInstance()->isOverThreshold(screenX, screenY))
+		{
+			LLToolDragAndDrop::getInstance()->beginDrag(
+				DAD_LANDMARK, mDragItemId,
+				LLToolDragAndDrop::SOURCE_LIBRARY);
+
+			mStartDrag = FALSE;
+
+			return LLToolDragAndDrop::getInstance()->handleHover(x, y, mask);
+		}
+	}
+
+	return TRUE;
+}
+
+LLUICtrl* LLFavoritesBarCtrl::findChildByLocalCoords(S32 x, S32 y)
+{
+	LLUICtrl* ctrl = 0;
+	S32 screenX, screenY;
+	const child_list_t* list = getChildList();
+
+	localPointToScreen(x, y, &screenX, &screenY);
+
+	// look for a child which contains the point (screenX, screenY) in it's rectangle
+	for (child_list_const_iter_t i = list->begin(); i != list->end(); ++i)
+	{
+		LLRect rect;
+		localRectToScreen((*i)->getRect(), &rect);
+
+		if (rect.pointInRect(screenX, screenY))
+		{
+			ctrl = dynamic_cast<LLUICtrl*>(*i);
+			break;
+		}
+	}
+
+	return ctrl;
+}
+
+BOOL LLFavoritesBarCtrl::needToSaveItemsOrder(const LLInventoryModel::item_array_t& items)
+{
+	BOOL result = FALSE;
+
+	// if there is an item without sort order field set, we need to save items order
+	for (LLInventoryModel::item_array_t::const_iterator i = items.begin(); i != items.end(); ++i)
+	{
+		if ((*i)->getSortField() < 0)
+		{
+			result = TRUE;
+			break;
+		}
+	}
+
+	return result;
+}
+
+void LLFavoritesBarCtrl::saveItemsOrder(LLInventoryModel::item_array_t& items)
+{
+	int sortField = 0;
+
+	// current order is saved by setting incremental values (1, 2, 3, ...) for the sort field
+	for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
+	{
+		LLViewerInventoryItem* item = *i;
+
+		item->setSortField(++sortField);
+		item->setComplete(TRUE);
+		item->updateServer(FALSE);
+
+		gInventory.updateItem(item);
+	}
+
+	gInventory.notifyObservers();
+}
+
+LLInventoryModel::item_array_t::iterator LLFavoritesBarCtrl::findItemByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id)
+{
+	LLInventoryModel::item_array_t::iterator result = items.end();
+
+	for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
+	{
+		if ((*i)->getUUID() == id)
+		{
+			result = i;
+			break;
+		}
+	}
+
+	return result;
+}
+
+void LLFavoritesBarCtrl::updateItemsOrder(LLInventoryModel::item_array_t& items, const LLUUID& srcItemId, const LLUUID& destItemId)
+{
+	LLViewerInventoryItem* srcItem = gInventory.getItem(srcItemId);
+	LLViewerInventoryItem* destItem = gInventory.getItem(destItemId);
+
+	items.erase(findItemByUUID(items, srcItem->getUUID()));
+	items.insert(findItemByUUID(items, destItem->getUUID()), srcItem);
+}
+
+void LLFavoritesBarCtrl::insertBeforeItem(LLInventoryModel::item_array_t& items, const LLUUID& beforeItemId, const LLUUID& insertedItemId)
+{
+	LLViewerInventoryItem* beforeItem = gInventory.getItem(beforeItemId);
+	LLViewerInventoryItem* insertedItem = gInventory.getItem(insertedItemId);
+
+	items.insert(findItemByUUID(items, beforeItem->getUUID()), insertedItem);
+}
 
 // EOF

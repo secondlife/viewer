@@ -107,8 +107,8 @@
 	<!--      picture_style="true" -->
 	<!--      top_delta="0" -->
 	<!--      width="168" /> -->
-	    
-	    <search_editor
+
+        <search_combo_box
 	     bevel_style="none"
 	     border_style="line"
 	     border.border_thickness="0"
@@ -118,12 +118,15 @@
 	     height="22"
 	     label="Search"
 	     layout="topleft"
-	     left_pad="7"
+	     right="-10"
 	     mouse_opaque="false"
-	     name="search_input"
+	     name="search_combo_box"
 	     tool_tip="Search"
 	     top_delta="0"
-	     width="200" />        
+	     width="200" >
+         <combo_editor
+          label="Search" />
+        </search_combo_box>
 	</panel>
 	
     <favorites_bar

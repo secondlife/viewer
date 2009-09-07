@@ -87,6 +87,7 @@ public:
 
 		// layout
 		Optional<S32>	column_padding,
+							page_lines,
 						heading_height;
 
 		// sort and search behavior
@@ -314,6 +315,11 @@ public:
 	S32 getMaxContentWidth() { return mMaxContentWidth; }
 
 	void setHeadingHeight(S32 heading_height);
+	/**
+	 * Sets  max visible  lines without scroolbar, if this value equals to 0,
+	 * then display all items.
+	 */
+	void setPageLines(S32 page_lines );
 	void setCollapseEmptyColumns(BOOL collapse);
 
 	LLScrollListItem*	hitItem(S32 x,S32 y);
@@ -368,11 +374,13 @@ protected:
 	typedef std::deque<LLScrollListItem *> item_list;
 	item_list&		getItemList() { return mItemList; }
 
+	void			updateLineHeight();
+
 private:
 	void			selectPrevItem(BOOL extend_selection);
 	void			selectNextItem(BOOL extend_selection);
 	void			drawItems();
-	void			updateLineHeight();
+	
 	void            updateLineHeightInsert(LLScrollListItem* item);
 	void			reportInvalidInput();
 	BOOL			isRepeatedChars(const LLWString& string) const;

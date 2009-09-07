@@ -42,15 +42,17 @@
 
 #include "llpanelmedia.h"
 #include "llremoteparcelrequest.h"
+#include "llviewerparcelmgr.h"
 
 class LLButton;
 class LLInventoryItem;
 class LLLineEditor;
+class LLParcelSelection;
 class LLTextBox;
 class LLTextEditor;
 class LLTextureCtrl;
 
-class LLPanelPlaceInfo : public LLPanel, LLRemoteParcelInfoObserver
+class LLPanelPlaceInfo : public LLPanel, LLRemoteParcelInfoObserver, LLParcelObserver
 {
 public:
 	enum INFO_TYPE
@@ -105,9 +107,13 @@ public:
 	// without sending a request to the server.
 	void displayAgentParcelInfo();
 
+	// Called on parcel selection change by LLViewerParcelMgr.
+	/*virtual*/ void changed();
+
 	void updateEstateName(const std::string& name);
 	void updateEstateOwnerName(const std::string& name);
 	void updateCovenantText(const std::string &text);
+	void updateLastVisitedText(const LLDate &date);
 
 	void nameUpdatedCallback(LLTextBox* text,
 							 const std::string& first,
@@ -115,6 +121,7 @@ public:
 
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	/*virtual*/ void handleVisibilityChange (BOOL new_visibility);
 
 private:
 	enum LANDMARK_INFO_TYPE
@@ -131,30 +138,23 @@ private:
 	LLVector3		mPosRegion;
 	std::string		mCurrentTitle;
 	S32				mMinHeight;
+	INFO_TYPE 		mInfoType;
 
 	LLTextBox*			mTitle;
 	LLTextureCtrl*		mSnapshotCtrl;
 	LLTextBox*			mRegionName;
 	LLTextBox*			mParcelName;
 	LLTextEditor*		mDescEditor;
-	LLIconCtrl*			mMaturityRatingIcon;
 	LLTextBox*			mMaturityRatingText;
 	LLTextBox*			mParcelOwner;
 	LLTextBox*			mLastVisited;
 
-	LLIconCtrl*			mRatingIcon;
 	LLTextBox*			mRatingText;
-	LLIconCtrl*			mVoiceIcon;
 	LLTextBox*			mVoiceText;
-	LLIconCtrl*			mFlyIcon;
 	LLTextBox*			mFlyText;
-	LLIconCtrl*			mPushIcon;
 	LLTextBox*			mPushText;
-	LLIconCtrl*			mBuildIcon;
 	LLTextBox*			mBuildText;
-	LLIconCtrl*			mScriptsIcon;
 	LLTextBox*			mScriptsText;
-	LLIconCtrl*			mDamageIcon;
 	LLTextBox*			mDamageText;
 
 	LLTextBox*			mRegionNameText;
@@ -168,6 +168,16 @@ private:
 	LLTextBox*			mEstateOwnerText;
 	LLTextEditor*		mCovenantText;
 
+	LLTextBox*			mSalesPriceText;
+	LLTextBox*			mAreaText;
+	LLTextBox*			mTrafficText;
+	LLTextBox*			mPrimitivesText;
+	LLTextBox*			mParcelScriptsText;
+	LLTextBox*			mTerraformLimitsText;
+	LLTextEditor*		mSubdivideText;
+	LLTextEditor*		mResaleText;
+	LLTextBox*			mSaleToText;
+
 	LLTextBox*			mOwner;
 	LLTextBox*			mCreator;
 	LLTextBox*			mCreated;
@@ -176,6 +186,8 @@ private:
 	LLPanel*            mScrollingPanel;
 	LLPanel*			mInfoPanel;
 	LLMediaPanel*		mMediaPanel;
+
+	LLSafeHandle<LLParcelSelection>	mParcel;
 };
 
 #endif // LL_LLPANELPLACEINFO_H

@@ -49,6 +49,7 @@
 #include "lltextbox.h"
 
 #include "llaccordionctrl.h"
+#include "llaccordionctrltab.h"
 #include "llagent.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llfloaterworldmap.h"
@@ -81,6 +82,8 @@ LLPanelPlaceInfo::~LLPanelPlaceInfo()
 	{
 		LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelID, this);
 	}
+
+	LLViewerParcelMgr::getInstance()->removeObserver(this);
 }
 
 BOOL LLPanelPlaceInfo::postBuild()
@@ -98,26 +101,16 @@ BOOL LLPanelPlaceInfo::postBuild()
 	mParcelName = getChild<LLTextBox>("parcel_title");
 	mDescEditor = getChild<LLTextEditor>("description");
 
-	mMaturityRatingIcon = getChild<LLIconCtrl>("maturity");
 	mMaturityRatingText = getChild<LLTextBox>("maturity_value");
-
 	mParcelOwner = getChild<LLTextBox>("owner_value");
-
 	mLastVisited = getChild<LLTextBox>("last_visited_value");
 
-	mRatingIcon = getChild<LLIconCtrl>("rating_icon");
 	mRatingText = getChild<LLTextBox>("rating_value");
-	mVoiceIcon = getChild<LLIconCtrl>("voice_icon");
 	mVoiceText = getChild<LLTextBox>("voice_value");
-	mFlyIcon = getChild<LLIconCtrl>("fly_icon");
 	mFlyText = getChild<LLTextBox>("fly_value");
-	mPushIcon = getChild<LLIconCtrl>("push_icon");
 	mPushText = getChild<LLTextBox>("push_value");
-	mBuildIcon = getChild<LLIconCtrl>("build_icon");
 	mBuildText = getChild<LLTextBox>("build_value");
-	mScriptsIcon = getChild<LLIconCtrl>("scripts_icon");
 	mScriptsText = getChild<LLTextBox>("scripts_value");
-	mDamageIcon = getChild<LLIconCtrl>("damage_icon");
 	mDamageText = getChild<LLTextBox>("damage_value");
 
 	mRegionNameText = getChild<LLTextBox>("region_name");
@@ -130,6 +123,16 @@ BOOL LLPanelPlaceInfo::postBuild()
 	mEstateRatingText = getChild<LLTextBox>("estate_rating");
 	mEstateOwnerText = getChild<LLTextBox>("estate_owner");
 	mCovenantText = getChild<LLTextEditor>("covenant");
+
+	mSalesPriceText = getChild<LLTextBox>("sales_price");
+	mAreaText = getChild<LLTextBox>("area");
+	mTrafficText = getChild<LLTextBox>("traffic");
+	mPrimitivesText = getChild<LLTextBox>("primitives");
+	mParcelScriptsText = getChild<LLTextBox>("parcel_scripts");
+	mTerraformLimitsText = getChild<LLTextBox>("terraform_limits");
+	mSubdivideText = getChild<LLTextEditor>("subdivide");
+	mResaleText = getChild<LLTextEditor>("resale");
+	mSaleToText = getChild<LLTextBox>("sale_to");
 
 	mOwner = getChild<LLTextBox>("owner");
 	mCreator = getChild<LLTextBox>("creator");
@@ -253,7 +256,6 @@ void LLPanelPlaceInfo::resetLocation()
 	mLandmarkID.setNull();
 	mPosRegion.clearVec();
 	std::string not_available = getString("not_available");
-	mMaturityRatingIcon->setValue(not_available);
 	mMaturityRatingText->setValue(not_available);
 	mParcelOwner->setValue(not_available);
 	mLastVisited->setValue(not_available);
@@ -268,19 +270,12 @@ void LLPanelPlaceInfo::resetLocation()
 	mSnapshotCtrl->setImageAssetID(LLUUID::null);
 	mSnapshotCtrl->setFallbackImageName("default_land_picture.j2c");
 
-	mRatingIcon->setValue(not_available);
 	mRatingText->setText(not_available);
-	mVoiceIcon->setValue(not_available);
 	mVoiceText->setText(not_available);
-	mFlyIcon->setValue(not_available);
 	mFlyText->setText(not_available);
-	mPushIcon->setValue(not_available);
 	mPushText->setText(not_available);
-	mBuildIcon->setValue(not_available);
 	mBuildText->setText(not_available);
-	mScriptsIcon->setValue(not_available);
-	mScriptsText->setText(not_available);
-	mDamageIcon->setValue(not_available);
+	mParcelScriptsText->setText(not_available);
 	mDamageText->setText(not_available);
 
 	mRegionNameText->setValue(not_available);
@@ -293,6 +288,16 @@ void LLPanelPlaceInfo::resetLocation()
 	mEstateRatingText->setValue(not_available);
 	mEstateOwnerText->setValue(not_available);
 	mCovenantText->setValue(not_available);
+
+	mSalesPriceText->setValue(not_available);
+	mAreaText->setValue(not_available);
+	mTrafficText->setValue(not_available);
+	mPrimitivesText->setValue(not_available);
+	mParcelScriptsText->setValue(not_available);
+	mTerraformLimitsText->setValue(not_available);
+	mSubdivideText->setValue(not_available);
+	mResaleText->setValue(not_available);
+	mSaleToText->setValue(not_available);
 }
 
 //virtual
@@ -312,7 +317,6 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 	bool is_info_type_teleport_history = type == TELEPORT_HISTORY;
 
 	getChild<LLTextBox>("maturity_label")->setVisible(!is_info_type_agent);
-	mMaturityRatingIcon->setVisible(!is_info_type_agent);
 	mMaturityRatingText->setVisible(!is_info_type_agent);
 
 	getChild<LLTextBox>("owner_label")->setVisible(is_info_type_agent);
@@ -326,6 +330,8 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 
 	getChild<LLAccordionCtrl>("advanced_info_accordion")->setVisible(is_info_type_agent);
 
+	LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
+
 	switch(type)
 	{
 		case CREATE_LANDMARK:
@@ -333,6 +339,15 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 		break;
 
 		case AGENT:
+			if (parcel_mgr)
+			{
+				// If information is requested for current agent location
+				// start using LLViewerParcelMgr for land selection.
+				parcel_mgr->addObserver(this);
+				parcel_mgr->selectParcelAt(gAgent.getPositionGlobal());
+			}
+
+		// Fall through to PLACE case
 		case PLACE:
 			mCurrentTitle = getString("title_place");
 
@@ -348,14 +363,22 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 
 		case TELEPORT_HISTORY:
 			mCurrentTitle = getString("title_teleport_history");
-
-			// *TODO: Add last visited timestamp.
-			mLastVisited->setText(getString("unknown"));
 		break;
+	}
+
+	if (type != AGENT && parcel_mgr != NULL)
+	{
+		if (!parcel_mgr->selectionEmpty())
+		{
+			parcel_mgr->deselectUnused();
+		}
+		parcel_mgr->removeObserver(this);
 	}
 
 	if (type != PLACE)
 		toggleMediaPanel(FALSE);
+
+	mInfoType = type;
 }
 
 BOOL LLPanelPlaceInfo::isMediaPanelVisible()
@@ -432,22 +455,16 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 	// HACK: Flag 0x2 == adult region,
 	// Flag 0x1 == mature region, otherwise assume PG
 	std::string rating = LLViewerRegion::accessToString(SIM_ACCESS_PG);
-	std::string rating_icon = "places_rating_pg.tga";
 	if (parcel_data.flags & 0x2)
 	{
 		rating = LLViewerRegion::accessToString(SIM_ACCESS_ADULT);
-		rating_icon = "places_rating_adult.tga";
 	}
 	else if (parcel_data.flags & 0x1)
 	{
 		rating = LLViewerRegion::accessToString(SIM_ACCESS_MATURE);
-		rating_icon = "places_rating_mature.tga";
 	}
 
-	mMaturityRatingIcon->setValue(rating_icon);
 	mMaturityRatingText->setValue(rating);
-
-	mRatingIcon->setValue(rating_icon);
 	mRatingText->setValue(rating);
 
 	//update for_sale banner, here we should use DFQ_FOR_SALE instead of PF_FOR_SALE
@@ -476,7 +493,7 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 		mRegionName->setText(name);
 	}
 	
-	if (mCurrentTitle != getString("title_landmark"))
+	if (mInfoType == CREATE_LANDMARK)
 	{
 		mTitleEditor->setText(parcel_data.name);
 		mNotesEditor->setText(LLStringUtil::null);
@@ -517,10 +534,10 @@ void LLPanelPlaceInfo::displayParcelInfo(const LLVector3& pos_region,
 
 void LLPanelPlaceInfo::displayAgentParcelInfo()
 {
-	mPosRegion = gAgent.getPositionAgent();
+	mParcel = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection();
 
-	LLViewerRegion* region = gAgent.getRegion();
-	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	LLParcel* parcel = mParcel->getParcel();
+	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 	if (!region || !parcel)
 		return;
 
@@ -547,13 +564,6 @@ void LLPanelPlaceInfo::displayAgentParcelInfo()
 	default:
 		parcel_data.flags = 0;
 	}
-	
-	// Adding "For Sale" flag in remote parcel response format.
-	if (parcel->getForSale())
-	{
-		parcel_data.flags |= DFQ_FOR_SALE;
-	}
-	
 	parcel_data.desc = parcel->getDesc();
 	parcel_data.name = parcel->getName();
 	parcel_data.sim_name = gAgent.getRegion()->getName();
@@ -563,75 +573,68 @@ void LLPanelPlaceInfo::displayAgentParcelInfo()
 	parcel_data.global_y = global_pos.mdV[1];
 	parcel_data.global_z = global_pos.mdV[2];
 
+	mPosRegion = gAgent.getPositionAgent();
+
 	processParcelInfo(parcel_data);
+
+	std::string on = getString("on");
+	std::string off = getString("off");
 
 	// Processing parcel characteristics
 	if (parcel->getParcelFlagAllowVoice())
 	{
-		mVoiceIcon->setValue("places_voice_on.tga");
-		mVoiceText->setText(getString("on"));
+		mVoiceText->setText(on);
 	}
 	else
 	{
-		mVoiceIcon->setValue("places_voice_off.tga");
-		mVoiceText->setText(getString("off"));
+		mVoiceText->setText(off);
 	}
 	
 	if (!region->getBlockFly() && parcel->getAllowFly())
 	{
-		mFlyIcon->setValue("places_fly_on.tga");
-		mFlyText->setText(getString("on"));
+		mFlyText->setText(on);
 	}
 	else
 	{
-		mFlyIcon->setValue("places_fly_off.tga");
-		mFlyText->setText(getString("off"));
+		mFlyText->setText(off);
 	}
 
 	if (region->getRestrictPushObject() || parcel->getRestrictPushObject())
 	{
-		mPushIcon->setValue("places_push_off.tga");
-		mPushText->setText(getString("off"));
+		mPushText->setText(off);
 	}
 	else
 	{
-		mPushIcon->setValue("places_push_on.tga");
-		mPushText->setText(getString("on"));
+		mPushText->setText(on);
 	}
 
 	if (parcel->getAllowModify())
 	{
-		mBuildIcon->setValue("places_build_on.tga");
-		mBuildText->setText(getString("on"));
+		mBuildText->setText(on);
 	}
 	else
 	{
-		mBuildIcon->setValue("places_build_off.tga");
-		mBuildText->setText(getString("off"));
+		mBuildText->setText(off);
 	}
 
 	if((region->getRegionFlags() & REGION_FLAGS_SKIP_SCRIPTS) ||
 	   (region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS) ||
 	   !parcel->getAllowOtherScripts())
 	{
-		mScriptsIcon->setValue("places_scripts_off.tga");
-		mScriptsText->setText(getString("off"));
+		mScriptsText->setText(off);
 	}
 	else
 	{
-		mScriptsIcon->setValue("places_scripts_on.tga");
-		mScriptsText->setText(getString("on"));
+		mScriptsText->setText(on);
 	}
 
 	if (region->getAllowDamage() || parcel->getAllowDamage())
 	{
-		mDamageIcon->setValue("places_damage_on.tga");
-		mDamageText->setText(getString("on"));
+		mDamageText->setText(on);
 	}
 	else
 	{
-		mDamageIcon->setValue("places_damage_off.tga");
-		mDamageText->setText(getString("off"));
+		mDamageText->setText(off);
 	}
 
 	mRegionNameText->setText(region->getName());
@@ -656,7 +659,8 @@ void LLPanelPlaceInfo::displayAgentParcelInfo()
 				gCacheName->get(parcel->getGroupID(), TRUE,
 								boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, this, mRegionGroupText, _2, _3));
 
-				mParcelOwner->setText(mRegionGroupText->getText());
+				gCacheName->get(parcel->getGroupID(), TRUE,
+								boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, this, mParcelOwner, _2, _3));
 			}
 			else
 			{
@@ -681,6 +685,98 @@ void LLPanelPlaceInfo::displayAgentParcelInfo()
 	}
 
 	mEstateRatingText->setText(region->getSimAccessString());
+
+	S32 area;
+	S32 claim_price;
+	S32 rent_price;
+	F32 dwell;
+	BOOL for_sale = parcel->getForSale();
+	LLViewerParcelMgr::getInstance()->getDisplayInfo(&area,
+													 &claim_price,
+													 &rent_price,
+													 &for_sale,
+													 &dwell);
+
+	if (for_sale)
+	{
+		// Adding "For Sale" flag in remote parcel response format.
+		parcel_data.flags |= DFQ_FOR_SALE;
+
+		const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();
+		if(auth_buyer_id.notNull())
+		{
+			gCacheName->get(auth_buyer_id, TRUE,
+							boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, this, mSaleToText, _2, _3));
+
+			// Show sales info to a specific person or a group he belongs to.
+			if (auth_buyer_id != gAgent.getID() && !gAgent.isInGroup(auth_buyer_id))
+			{
+				for_sale = FALSE;
+			}
+		}
+		else
+		{
+			mSaleToText->setText(getString("anyone"));
+		}
+
+		const U8* sign = (U8*)getString("price_text").c_str();
+		const U8* sqm = (U8*)getString("area_text").c_str();
+
+		mSalesPriceText->setText(llformat("%s%d ", sign, parcel->getSalePrice()));
+		mAreaText->setText(llformat("%d %s", area, sqm));
+		mTrafficText->setText(llformat("%.0f", dwell));
+
+		// Can't have more than region max tasks, regardless of parcel
+		// object bonus factor.
+		S32 primitives = llmin(llround(parcel->getMaxPrimCapacity() * parcel->getParcelPrimBonus()),
+							   (S32)region->getMaxTasks());
+
+		const U8* available = (U8*)getString("available").c_str();
+		const U8* allocated = (U8*)getString("allocated").c_str();
+
+		mPrimitivesText->setText(llformat("%d %s, %d %s", primitives, available, parcel->getPrimCount(), allocated));
+
+		if (parcel->getAllowOtherScripts())
+		{
+			mParcelScriptsText->setText(getString("all_residents_text"));
+		}
+		else if (parcel->getAllowGroupScripts())
+		{
+			mParcelScriptsText->setText(getString("group_text"));
+		}
+		else
+		{
+			mParcelScriptsText->setText(off);
+		}
+
+		mTerraformLimitsText->setText(parcel->getAllowTerraform() ? on : off);
+
+		if (region->getRegionFlags() & REGION_FLAGS_ALLOW_PARCEL_CHANGES)
+		{
+			mSubdivideText->setText(getString("can_change"));
+		}
+		else
+		{
+			mSubdivideText->setText(getString("can_not_change"));
+		}
+		if (region->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
+		{
+			mResaleText->setText(getString("can_not_resell"));
+		}
+		else
+		{
+			mResaleText->setText(getString("can_resell"));
+		}
+	}
+
+	getChild<LLAccordionCtrlTab>("sales_tab")->setVisible(for_sale);
+}
+
+// virtual
+void LLPanelPlaceInfo::changed()
+{
+	resetLocation();
+	displayAgentParcelInfo();
 }
 
 void LLPanelPlaceInfo::updateEstateName(const std::string& name)
@@ -696,6 +792,22 @@ void LLPanelPlaceInfo::updateEstateOwnerName(const std::string& name)
 void LLPanelPlaceInfo::updateCovenantText(const std::string &text)
 {
 	mCovenantText->setText(text);
+}
+
+void LLPanelPlaceInfo::updateLastVisitedText(const LLDate &date)
+{
+	if (date.isNull())
+	{
+		mLastVisited->setText(getString("unknown"));
+	}
+	else
+	{
+		std::string timeStr = getString("acquired_date");
+		LLSD substitution;
+		substitution["datetime"] = (S32) date.secondsSinceEpoch();
+		LLStringUtil::format (timeStr, substitution);
+		mLastVisited->setText(timeStr);
+	}
 }
 
 void LLPanelPlaceInfo::onCommitTitleOrNote(LANDMARK_INFO_TYPE type)
@@ -785,6 +897,7 @@ void LLPanelPlaceInfo::createPick(const LLVector3d& global_pos)
 	LLAvatarPropertiesProcessor::instance().sendDataUpdate(&pick_data, APT_PICK_INFO);
 }
 
+// virtual
 void LLPanelPlaceInfo::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	if (mMinHeight > 0 && mScrollingPanel != NULL)
@@ -793,4 +906,23 @@ void LLPanelPlaceInfo::reshape(S32 width, S32 height, BOOL called_from_parent)
 	}
 
 	LLView::reshape(width, height, called_from_parent);
+}
+
+// virtual
+void LLPanelPlaceInfo::handleVisibilityChange (BOOL new_visibility)
+{
+	LLPanel::handleVisibilityChange(new_visibility);
+
+	LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
+	if (!parcel_mgr)
+		return;
+
+	// Remove land selection when panel hides.
+	if (!new_visibility)
+	{
+		if (!parcel_mgr->selectionEmpty())
+		{
+			parcel_mgr->deselectLand();
+		}
+	}
 }

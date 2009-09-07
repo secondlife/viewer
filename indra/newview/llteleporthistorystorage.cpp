@@ -37,8 +37,11 @@
 #include "llsd.h"
 #include "llsdserialize.h"
 #include "lldir.h"
+#include "llteleporthistory.h"
+#include "llagent.h"
 
-static LLTeleportHistoryStorage tpstorage;
+// Max offset for two global positions to consider them as equal
+const F64 MAX_GLOBAL_POS_OFFSET = 5.0f;
 
 LLTeleportHistoryPersistentItem::LLTeleportHistoryPersistentItem(const LLSD& val)
 {
@@ -58,13 +61,40 @@ LLSD LLTeleportHistoryPersistentItem::toLLSD() const
 	return val;
 }
 
+struct LLSortItemsByDate
+{
+	bool operator()(const LLTeleportHistoryPersistentItem& a, const LLTeleportHistoryPersistentItem& b)
+	{
+		return a.mDate < b.mDate;
+	}
+};
+
 LLTeleportHistoryStorage::LLTeleportHistoryStorage() :
 	mFilename("teleport_history.txt")
 {
+	LLTeleportHistory *th = LLTeleportHistory::getInstance();
+	if (th)
+		th->setHistoryChangedCallback(boost::bind(&LLTeleportHistoryStorage::onTeleportHistoryChange, this));	
+
+	load();
 }
 
 LLTeleportHistoryStorage::~LLTeleportHistoryStorage()
 {
+}
+
+void LLTeleportHistoryStorage::onTeleportHistoryChange()
+{
+	LLTeleportHistory *th = LLTeleportHistory::getInstance();
+	if (!th)
+		return;
+
+	const LLTeleportHistoryItem &item = th->getItems()[th->getCurrentItemIndex()];
+
+	addItem(item.mTitle, item.mGlobalPos);
+	save();
+
+	mHistoryChangedSignal();
 }
 
 void LLTeleportHistoryStorage::purgeItems()
@@ -74,12 +104,45 @@ void LLTeleportHistoryStorage::purgeItems()
 
 void LLTeleportHistoryStorage::addItem(const std::string title, const LLVector3d& global_pos)
 {
-	mItems.push_back(LLTeleportHistoryPersistentItem(title, global_pos));
+	addItem(title, global_pos, LLDate::now());
+}
+
+
+bool LLTeleportHistoryStorage::compareByTitleAndGlobalPos(const LLTeleportHistoryPersistentItem& a, const LLTeleportHistoryPersistentItem& b)
+{
+	return a.mTitle == b.mTitle && (a.mGlobalPos - b.mGlobalPos).length() < MAX_GLOBAL_POS_OFFSET;
 }
 
 void LLTeleportHistoryStorage::addItem(const std::string title, const LLVector3d& global_pos, const LLDate& date)
 {
-	mItems.push_back(LLTeleportHistoryPersistentItem(title, global_pos, date));
+
+	LLTeleportHistoryPersistentItem item(title, global_pos, date);
+
+	slurl_list_t::iterator item_iter = std::find_if(mItems.begin(), mItems.end(),
+							    boost::bind(&LLTeleportHistoryStorage::compareByTitleAndGlobalPos, this, _1, item));
+
+	// If there is such item already, remove it, since new item is more recent
+	if (item_iter != mItems.end())
+	{
+		mItems.erase(item_iter);
+	}
+
+	mItems.push_back(item);
+
+	// Check whether sorting is needed
+	if (mItems.size() > 1)
+	{
+		item_iter = mItems.end();
+
+		item_iter--;
+		item_iter--;
+
+		// If second to last item is more recent than last, then resort items
+		if (item_iter->mDate > item.mDate)
+		{
+			std::sort(mItems.begin(), mItems.end(), LLSortItemsByDate());
+		}
+	}
 }
 
 void LLTeleportHistoryStorage::removeItem(S32 idx)
@@ -145,6 +208,8 @@ void LLTeleportHistoryStorage::load()
 	}
 
 	file.close();
+
+	std::sort(mItems.begin(), mItems.end(), LLSortItemsByDate());
 }
 
 void LLTeleportHistoryStorage::dump() const
@@ -160,5 +225,32 @@ void LLTeleportHistoryStorage::dump() const
 
 		llinfos << line.str() << llendl;
 	}
+}
+
+boost::signals2::connection LLTeleportHistoryStorage::setHistoryChangedCallback(history_callback_t cb)
+{
+	return mHistoryChangedSignal.connect(cb);
+}
+
+void LLTeleportHistoryStorage::goToItem(S32 idx)
+
+{
+	// Validate specified index.
+	if (idx < 0 || idx >= (S32)mItems.size())
+	{
+		llwarns << "Invalid teleport history index (" << idx << ") specified" << llendl;
+		dump();
+		return;
+	}
+	
+	if (idx == (S32)mItems.size() - 1)
+	{
+		llwarns << "Will not teleport to the same location." << llendl;
+		dump();
+		return;
+	}
+
+	// Attempt to teleport to the requested item.
+	gAgent.teleportViaLocation(mItems[idx].mGlobalPos);
 }
 

@@ -47,7 +47,6 @@
 #include "llfloaterdirectory.h"
 
 #include "llfloaterland.h"
-#include "llfloatermute.h"
 #include "llfloatersnapshot.h"
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"

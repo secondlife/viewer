@@ -48,6 +48,7 @@
 #include "lllandmarkactions.h"
 #include "lllandmarklist.h"
 #include "lllocationhistory.h"
+#include "llteleporthistory.h"
 #include "llsidetray.h"
 #include "llslurl.h"
 #include "lltrans.h"
@@ -295,11 +296,19 @@ BOOL LLLocationInputCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* 
 	if (LLUICtrl::handleToolTip(x, y, msg, sticky_rect_screen) && !msg.empty())
 	{
 		if (mList->getRect().pointInRect(x, y)) {
-			LLLocationHistory* lh = LLLocationHistory::getInstance();
-			const std::string tooltip = lh->getToolTip(msg);
-
-			if (!tooltip.empty()) {
-				msg = tooltip;
+			S32 loc_x, loc_y;
+			//x,y - contain coordinates related to the location input control, but without taking the expanded list into account
+			//So we have to convert it again into local coordinates of mList
+			localPointToOtherView(x,y,&loc_x,&loc_y,mList);
+			
+			LLScrollListItem* item =  mList->hitItem(loc_x,loc_y);
+			if (item)
+			{
+				LLSD value = item->getValue();
+				if (value.has("tooltip"))
+				{
+					msg = value["tooltip"].asString();
+				}
 			}
 		}
 
@@ -448,18 +457,58 @@ void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
 	rebuildLocationHistory(filter);
 
 	//Let's add landmarks to the top of the list if any
-	if( filter.size() !=0 )
+	if(!filter.empty() )
 	{
 		LLInventoryModel::item_array_t landmark_items = LLLandmarkActions::fetchLandmarksByName(filter, TRUE);
 
 		for(U32 i=0; i < landmark_items.size(); i++)
 		{
-			mList->addSimpleElement(landmark_items[i]->getName(), ADD_TOP);
+			LLSD value;
+			//TODO:: DO we need tooltip for Landmark??
+			
+			value["item_type"] = LANDMARK;
+			value["AssetUUID"] =  landmark_items[i]->getAssetUUID(); 
+			add(landmark_items[i]->getName(), value);
+			
+		}
+	//Let's add teleport history items
+		LLTeleportHistory* th = LLTeleportHistory::getInstance();
+		LLTeleportHistory::slurl_list_t th_items = th->getItems();
+
+		std::set<std::string> new_item_titles;// duplicate control
+		LLTeleportHistory::slurl_list_t::iterator result = std::find_if(
+				th_items.begin(), th_items.end(), boost::bind(
+						&LLLocationInputCtrl::findTeleportItemsByTitle, this,
+						_1, filter));
+
+		while (result != th_items.end())
+		{
+			//mTitile format - region_name[, parcel_name]
+			//mFullTitile format - region_name[, parcel_name] (local_x,local_y, local_z)
+			if (new_item_titles.insert(result->mFullTitle).second)
+			{
+				LLSD value;
+				value["item_type"] = TELEPORT_HISTORY;
+				value["global_pos"] = result->mGlobalPos.getValue();
+				std::string region_name = result->mTitle.substr(0, result->mTitle.find(','));
+				//TODO*: add Surl to teleportitem or parse region name from title
+				value["tooltip"] = LLSLURL::buildSLURLfromPosGlobal(region_name,
+						result->mGlobalPos,	false);
+				add(result->getTitle(), value); 
+			}
+			result = std::find_if(result + 1, th_items.end(), boost::bind(
+									&LLLocationInputCtrl::findTeleportItemsByTitle, this,
+									_1, filter));
 		}
 	}
+	sortByName();
+	
 	mList->mouseOverHighlightNthItem(-1); // Clear highlight on the last selected item.
 }
-
+bool LLLocationInputCtrl::findTeleportItemsByTitle(const LLTeleportHistoryItem& item, const std::string& filter)
+{
+	return item.mTitle.find(filter) != std::string::npos;
+}
 void LLLocationInputCtrl::onTextEditorRightClicked(S32 x, S32 y, MASK mask)
 {
 	if (mLocationContextMenu)
@@ -519,7 +568,12 @@ void LLLocationInputCtrl::rebuildLocationHistory(std::string filter)
 	removeall();
 	for (LLLocationHistory::location_list_t::const_reverse_iterator it = itemsp->rbegin(); it != itemsp->rend(); it++)
 	{
-		add(*it);
+		LLSD value;
+		value["tooltip"] = it->getToolTip();
+		//location history can contain only typed locations
+		value["item_type"] = TYPED_REGION_SURL;
+		value["global_pos"] = it->mGlobalPos.getValue();
+		add(it->getLocation(), value);
 	}
 }
 

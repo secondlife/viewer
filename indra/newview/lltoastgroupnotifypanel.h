@@ -68,6 +68,8 @@ protected:
 private:
 	static bool isAttachmentOpenable(LLAssetType::EType);
 
+	static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
+
 	LLButton* mSaveInventoryBtn;
 
 	LLUUID mGroupID;

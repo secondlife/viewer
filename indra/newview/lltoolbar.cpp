@@ -60,6 +60,7 @@
 #include "llui.h"
 #include "llviewermenu.h"
 #include "llfirstuse.h"
+#include "llpanelblockedlist.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcell.h"
@@ -69,7 +70,6 @@
 #include "lltoolgrab.h"
 #include "llcombobox.h"
 #include "llfloaterchat.h"
-#include "llfloatermute.h"
 #include "llimpanel.h"
 #include "lllayoutstack.h"
 
@@ -297,11 +297,8 @@ void LLToolBar::updateCommunicateList()
 	communicate_button->addSeparator(ADD_TOP);
 	communicate_button->add(getString("Redock Windows"), LLSD("redock"), ADD_TOP);
 	communicate_button->addSeparator(ADD_TOP);
-	LLFloaterMute* mute_instance = LLFloaterReg::getTypedInstance<LLFloaterMute>("mute");
-	if(mute_instance)
-	{
-		communicate_button->add(mute_instance->getShortTitle(), LLSD("mute list"), ADD_TOP);
-	}
+	communicate_button->add(getString("Blocked List"), LLSD("mute list"), ADD_TOP);
+
 	std::set<LLHandle<LLFloater> >::const_iterator floater_handle_it;
 
 	if (gIMMgr->getIMFloaterHandles().size() > 0)
@@ -379,7 +376,7 @@ void LLToolBar::onClickCommunicate(LLUICtrl* ctrl, const LLSD& user_data)
 	}
 	else if (selected_option.asString() == "mute list")
 	{
-		LLFloaterReg::showInstance("mute");
+		LLPanelBlockedList::showPanelAndSelect(LLUUID::null);
 	}
 	else if (selected_option.isUndefined()) // user just clicked the communicate button, treat as toggle
 	{

@@ -6866,10 +6866,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>    
-    <key>ShowPGSearchAll</key>    
+    <key>ShowCameraAndMoveControls</key>                
     <map>
       <key>Comment</key>
-      <string>Show/Hide Navigation Bar Favorites Panel</string>
+      <string>Show/Hide Camera and Move controls in the bottom tray</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6880,7 +6880,7 @@
     <key>ShowNavbarFavoritesPanel</key>    
     <map>
       <key>Comment</key>
-      <string>Show/Hide Navigation Bar Navigation Panel</string>
+      <string>Show/Hide Navigation Bar Favorites Panel</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6889,6 +6889,17 @@
       <integer>1</integer>   
     </map>
     <key>ShowNavbarNavigationPanel</key>        
+    <map>
+      <key>Comment</key>
+      <string>Show/Hide Navigation Bar Navigation Panel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>   
+    </map>
+    <key>ShowPGSearchAll</key>    
     <map>
       <key>Comment</key>
       <string>Display results of search All that are flagged as PG</string>

@@ -481,7 +481,10 @@ void LLTextBox::drawText( S32 x, S32 y, const LLWString &text, const LLColor4& c
 								 mShadowType,
 								 line_length, getRect().getWidth(), NULL, mUseEllipses );
 			cur_pos += line_length + 1;
-			y -= llfloor(mDefaultFont->getLineHeight()) + mLineSpacing;
+			S32 line_height = llfloor(mDefaultFont->getLineHeight()) + mLineSpacing; 
+			y -= line_height;
+			if(y < line_height)
+				break;
 		}
 	}
 }

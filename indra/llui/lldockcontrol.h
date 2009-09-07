@@ -1,10 +1,10 @@
-/**
- * @file lltoastimpanel.h
- * @brief Panel for IM toasts.
+/** 
+ * @file lldockcontrol.h
+ * @brief Creates a panel of a specific kind for a toast.
  *
- * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * $LicenseInfo:firstyear=2003&license=viewergpl$
  * 
- * Copyright (c) 2001-2009, Linden Research, Inc.
+ * Copyright (c) 2003-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,47 +30,52 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLTOASTIMPANEL_H_
-#define LLTOASTIMPANEL_H_
+#ifndef LL_DOCKCONTROL_H
+#define LL_DOCKCONTROL_H
 
+#include "llerror.h"
+#include "llview.h"
+#include "llfloater.h"
+#include "lluiimage.h"
 
-#include "lltoastpanel.h"
-#include "lltextbox.h"
-#include "llbutton.h"
-#include "llavatariconctrl.h"
-
-
-class LLToastIMPanel: public LLToastPanel 
+/**
+ * Provides services for docking of specified floater.
+ * This class should be used in case impossibility deriving from LLDockableFloater.
+ */
+class LLDockControl
 {
 public:
-	struct Params :	public LLInitParam::Block<Params>
+	enum DocAt
 	{
-		LLNotificationPtr	notification;
-		LLUUID				avatar_id;
-		LLUUID				session_id;
-		std::string			from;
-		std::string			time;
-		std::string			message;
-
-		Params() {}
+		TOP
 	};
 
-	LLToastIMPanel(LLToastIMPanel::Params &p);
-	virtual ~LLToastIMPanel();
+public:
+	LOG_CLASS(LLDockControl);
+	LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
+			const LLUIImagePtr& dockTongue, DocAt dockAt,
+			bool enabled);
+	virtual ~LLDockControl();
 
+public:
+	void on();
+	void off();
+	void setDock(LLView* dockWidget)
+	{	mDockWidget = dockWidget;};
+	void repositionDockable();
+	void drawToungue();
+protected:
+	virtual void calculateDockablePosition();
 private:
-	static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
-
-	void onClickReplyBtn();
-
-	LLUUID				mSessionID;
-	LLAvatarIconCtrl*	mAvatar;
-	LLTextBox*			mUserName;
-	LLTextBox*			mTime;
-	LLTextBox*			mMessage;
-	LLButton*			mReplyBtn;
+	bool mEnabled;
+	bool mRecalculateDocablePosition;
+	DocAt mDockAt;
+	LLView* mDockWidget;
+	LLRect mPrevDockRect;
+	LLFloater* mDockableFloater;
+	LLUIImagePtr mDockTongue;
+	S32 mDockTongueX;
+	S32 mDockTongueY;
 };
 
-#endif // LLTOASTIMPANEL_H_
-
-
+#endif /* LL_DOCKCONTROL_H */

@@ -372,7 +372,6 @@ void LLPanelAvatarProfile::resetControls()
 	childSetVisible("status_me_panel", false);
 	childSetVisible("profile_me_buttons_panel", false);
 	childSetVisible("account_actions_panel", false);
-	childSetVisible("partner_edit_link", false);
 }
 
 void LLPanelAvatarProfile::resetData()
@@ -539,7 +538,7 @@ void LLPanelAvatarProfile::fillAccountStatus(const LLAvatarData* avatar_data)
 	childSetValue("acc_status_text", caption_text);
 }
 
-void LLPanelAvatarProfile::onUrlTextboxClicked(std::string url)
+void LLPanelAvatarProfile::onUrlTextboxClicked(const std::string& url)
 {
 	LLWeb::loadURL(url);
 }
@@ -675,4 +674,3 @@ void LLPanelAvatarMeProfile::onStatusMessageChanged()
 {
 	updateData();
 }
-

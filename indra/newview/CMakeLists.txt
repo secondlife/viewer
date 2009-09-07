@@ -180,7 +180,6 @@ set(viewer_SOURCE_FILES
     llfloaterlandholdings.cpp
     llfloatermap.cpp
     llfloatermemleak.cpp
-    llfloatermute.cpp
     llfloaternamedesc.cpp
     llfloaternotificationsconsole.cpp
     llfloateropenobject.cpp
@@ -286,6 +285,7 @@ set(viewer_SOURCE_FILES
     llpanelavatar.cpp
     llpanelavatarrow.cpp
     llpanelavatartag.cpp
+    llpanelblockedlist.cpp
     llpanelclassified.cpp
     llpanelcontents.cpp
     llpaneldirbrowser.cpp
@@ -348,6 +348,8 @@ set(viewer_SOURCE_FILES
     llremoteparcelrequest.cpp
     llsavedsettingsglue.cpp
     llscreenchannel.cpp
+    llsearchcombobox.cpp
+    llsearchhistory.cpp
     llselectmgr.cpp
     llsidetray.cpp
     llsidetraypanelcontainer.cpp
@@ -634,7 +636,6 @@ set(viewer_HEADER_FILES
     llfloaterlandholdings.h
     llfloatermap.h
     llfloatermemleak.h
-    llfloatermute.h
     llfloaternamedesc.h
     llfloaternotificationsconsole.h
     llfloateropenobject.h
@@ -738,6 +739,7 @@ set(viewer_HEADER_FILES
     llpanelavatar.h
     llpanelavatarrow.h
     llpanelavatartag.h
+    llpanelblockedlist.h
     llpanelclassified.h
     llpanelcontents.h
     llpaneldirbrowser.h
@@ -802,6 +804,8 @@ set(viewer_HEADER_FILES
     llrootview.h
     llscreenchannel.h
     llsavedsettingsglue.h
+    llsearchcombobox.h
+    llsearchhistory.h
     llselectmgr.h
     llsidetray.h
     llsidetraypanelcontainer.h

@@ -37,59 +37,41 @@
 #include <iomanip> // for std::setw()
 
 #include "llui.h"
-
-const char LLLocationHistory::delimiter = '\t';
+#include "llsd.h"
+#include "llsdserialize.h"
 
 LLLocationHistory::LLLocationHistory() :
 	mFilename("typed_locations.txt")
 {
 }
 
-void LLLocationHistory::addItem(const std::string & item, const std::string & tooltip) {
+void LLLocationHistory::addItem(const LLLocationHistoryItem& item) {
 	static LLUICachedControl<S32> max_items("LocationHistoryMaxSize", 100);
 
 	// check if this item doesn't duplicate any existing one
-	std::vector<std::string>::iterator item_iter = std::find_if(mItems.begin(), mItems.end(),
-			boost::bind(&LLLocationHistory::equalByRegionParcel,this,_1,item));
+	location_list_t::iterator item_iter = std::find(mItems.begin(), mItems.end(),item);
 	if(item_iter != mItems.end()){
-	/*replace duplicate.
-	 * If an item's region and item's parcel are  equal.
-	 */
-		mToolTips.erase(*item_iter);
 		mItems.erase(item_iter);	
-		
 	}
 
 	mItems.push_back(item);
-	mToolTips[item] = tooltip;
-
+	
 	// If the vector size exceeds the maximum, purge the oldest items.
 	if ((S32)mItems.size() > max_items) {
-		for(std::vector<std::string>::iterator i = mItems.begin(); i != mItems.end()-max_items; ++i) {
-			mToolTips.erase(*i);
-			mItems.erase(i);
+		for(location_list_t::iterator i = mItems.begin(); i != mItems.end()-max_items; ++i) {
+				mItems.erase(i);
 		}
 	}
 }
 
-/**
- * check if the history item is equal.
- * @return  true - if region name and parcel is equal.  
+/*
+ * @brief Try to find item in history. 
+ * If item has been founded, it will be places into end of history.
+ * @return true - item has founded
  */
-bool LLLocationHistory::equalByRegionParcel(const std::string& item, const std::string& newItem){
-
-	
-	S32 itemIndex = item.find('(');
-	S32 newItemIndex = newItem.find('(');
-	
-	std::string region_parcel  = item.substr(0,itemIndex);
-	std::string new_region_parcel  = newItem.substr(0,newItemIndex);
-	
-	return region_parcel == new_region_parcel;
-}
-bool LLLocationHistory::touchItem(const std::string & item) {
+bool LLLocationHistory::touchItem(const LLLocationHistoryItem& item) {
 	bool result = false;
-	std::vector<std::string>::iterator item_iter = std::find(mItems.begin(), mItems.end(), item);
+	location_list_t::iterator item_iter = std::find(mItems.begin(), mItems.end(), item);
 
 	// the last used item should be the first in the history
 	if (item_iter != mItems.end()) {
@@ -104,13 +86,6 @@ bool LLLocationHistory::touchItem(const std::string & item) {
 void LLLocationHistory::removeItems()
 {
 	mItems.clear();
-	mToolTips.clear();
-}
-
-std::string LLLocationHistory::getToolTip(const std::string & item) const {
-	std::map<std::string, std::string>::const_iterator i = mToolTips.find(item);
-
-	return i != mToolTips.end() ? i->second : "";
 }
 
 bool LLLocationHistory::getMatchingItems(std::string substring, location_list_t& result) const
@@ -123,7 +98,7 @@ bool LLLocationHistory::getMatchingItems(std::string substring, location_list_t&
 
 	for (location_list_t::const_iterator it = mItems.begin(); it != mItems.end(); ++it)
 	{
-		std::string haystack = *it;
+		std::string haystack = it->getLocation();
 		LLStringUtil::toLower(haystack);
 
 		if (haystack.find(needle) != std::string::npos)
@@ -139,7 +114,7 @@ void LLLocationHistory::dump() const
 	int i = 0;
 	for (location_list_t::const_iterator it = mItems.begin(); it != mItems.end(); ++it, ++i)
 	{
-	    llinfos << "#" << std::setw(2) << std::setfill('0') << i << ": " << *it << llendl;
+	    llinfos << "#" << std::setw(2) << std::setfill('0') << i << ": " << it->getLocation() << llendl;
 	}
 }
 
@@ -158,11 +133,7 @@ void LLLocationHistory::save() const
 
 	for (location_list_t::const_iterator it = mItems.begin(); it != mItems.end(); ++it)
 	{
-		std::string tooltip =  getToolTip(*it);
-		if(!tooltip.empty())
-		{
-			file << (*it) << delimiter << tooltip << std::endl;
-		}
+		file << LLSDOStreamer<LLSDNotationFormatter>((*it).toLLSD()) << std::endl;
 	}
 
 	file.close();
@@ -186,16 +157,17 @@ void LLLocationHistory::load()
 	
 	// add each line in the file to the list
 	std::string line;
-
+	LLPointer<LLSDParser> parser = new LLSDNotationParser();
 	while (std::getline(file, line)) {
-		size_t dp = line.find(delimiter);
-
-		if (dp != std::string::npos) {
-			const std::string reg_name = line.substr(0, dp);
-			const std::string tooltip = line.substr(dp + 1, std::string::npos);
-
-			addItem(reg_name, tooltip);
+		LLSD s_item;
+		std::istringstream iss(line);
+		if (parser->parse(iss, s_item, line.length()) == LLSDParser::PARSE_FAILURE)
+		{
+			llinfos<< "Parsing saved teleport history failed" << llendl;
+			break;
 		}
+
+		mItems.push_back(s_item);
 	}
 
 	file.close();

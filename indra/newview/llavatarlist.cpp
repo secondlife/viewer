@@ -223,12 +223,13 @@ BOOL LLAvatarList::update(const std::vector<LLUUID>& all_buddies, const std::str
 #endif
 	setScrollPos(pos);
 
+	updateLineHeight();
 	LLRect	rect = getRequiredRect();
 
 	LLSD params;
 	params["action"] = "size_changes";
 	params["width"] = rect.getWidth();
-	params["height"] = rect.getHeight();
+	params["height"] = llmax(rect.getHeight(),20) + 5;
 
 	getParent()->notifyParent(params);
 
