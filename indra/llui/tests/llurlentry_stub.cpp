@@ -3,7 +3,7 @@
  * @author Martin Reddy
  * @brief Stub implementations for LLUrlEntry unit test dependencies
  *
- * $LicenseInfo:firstyear=2009&license=internal$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
  * Copyright (c) 2009, Linden Research, Inc.
  * 

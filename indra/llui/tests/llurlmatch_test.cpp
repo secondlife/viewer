@@ -3,7 +3,7 @@
  * @author Martin Reddy
  * @brief Unit tests for LLUrlMatch
  *
- * $LicenseInfo:firstyear=2009&license=internal$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
  * Copyright (c) 2009, Linden Research, Inc.
  * 
