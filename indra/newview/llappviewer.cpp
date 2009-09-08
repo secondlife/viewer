@@ -4271,7 +4271,7 @@ void LLAppViewer::launchUpdater()
 			xml_search_paths.append(","); // comma-delimit
 	}
 	// build the overall command-line to run the updater correctly
-	update_exe_path = 
+	LLAppViewer::sUpdaterInfo->mUpdateExePath = 
 		gDirUtilp->getExecutableDir() + "/" + "linux-updater.bin" + 
 		" --url \"" + update_url.asString() + "\"" +
 		" --name \"" + LLAppViewer::instance()->getSecondLifeTitle() + "\"" +
@@ -4280,12 +4280,12 @@ void LLAppViewer::launchUpdater()
 		" --stringsfile \"" + xml_strings_file + "\"";
 
 	LL_INFOS("AppInit") << "Calling updater: " 
-			    << update_exe_path << LL_ENDL;
+			    << LLAppViewer::sUpdaterInfo->mUpdateExePath << LL_ENDL;
 
-	// *TODO: we could use the gdk equivilant to ensure the updater
+	// *TODO: we could use the gdk equivalent to ensure the updater
 	// gets started on the same screen.
 	GError *error = NULL;
-	if (!g_spawn_command_line_async(update_exe_path.c_str(), &error))
+	if (!g_spawn_command_line_async(LLAppViewer::sUpdaterInfo->mUpdateExePath.c_str(), &error))
 	{
 		llerrs << "Failed to launch updater: "
 		       << error->message
