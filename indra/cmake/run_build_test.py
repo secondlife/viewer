@@ -60,22 +60,35 @@ def main(command, libpath=[], vars={}):
             raise NotImplemented("run_build_test: unknown platform %s" % sys.platform)
         lpvars = []
     for var in lpvars:
-        # Split the existing path
-        dirs = os.environ[var].split(os.pathsep)
+        # Split the existing path. Bear in mind that the variable in question
+        # might not exist; instead of KeyError, just use an empty string.
+        dirs = os.environ.get(var, "").split(os.pathsep)
         # Append the sequence in libpath
+##         print "%s += %r" % (var, libpath)
         dirs.extend(libpath)
         # Now rebuild the path string. This way we use a minimum of separators
         # -- and we avoid adding a pointless separator when libpath is empty.
         os.environ[var] = os.pathsep.join(dirs)
     # Now handle arbitrary environment variables. The tricky part is ensuring
     # that all the keys and values we try to pass are actually strings.
+##     if vars:
+##         print "Setting:"
+##         for key, value in vars.iteritems():
+##             print "%s=%s" % (key, value)
     os.environ.update(dict([(str(key), str(value)) for key, value in vars.iteritems()]))
     # Run the child process.
+##     print "Running: %s" % " ".join(command)
     return subprocess.call(command)
 
 if __name__ == "__main__":
     from optparse import OptionParser
     parser = OptionParser(usage="usage: %prog [options] command args...")
+    # We want optparse support for the options we ourselves handle -- but we
+    # DO NOT want it looking at options for the executable we intend to run,
+    # rejecting them as invalid because we don't define them. So configure the
+    # parser to stop looking for options as soon as it sees the first
+    # positional argument (traditional Unix syntax).
+    parser.disable_interspersed_args()
     parser.add_option("-D", "--define", dest="vars", default=[], action="append",
                       metavar="VAR=value",
                       help="Add VAR=value to the env variables defined")
@@ -92,6 +105,7 @@ if __name__ == "__main__":
     # want.
     rc = main(command=args, libpath=opts.libpath,
               vars=dict([(pair.split('=', 1) + [""])[:2] for pair in opts.vars]))
-    print >>sys.stderr, "Failure running: %s" % " ".join(args)
-    print >>sys.stderr, "Error: %s" % rc
+    if rc not in (None, 0):
+        print >>sys.stderr, "Failure running: %s" % " ".join(args)
+        print >>sys.stderr, "Error: %s" % rc
     sys.exit((rc < 0) and 255 or rc)

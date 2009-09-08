@@ -1,4 +1,5 @@
 # -*- cmake -*-
+include(LLTestCommand)
 
 MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   # Given a project name and a list of sourcefiles (with optional properties on each),
@@ -126,17 +127,14 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
       set(LD_LIBRARY_PATH ${ARCH_PREBUILT_DIRS}:${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}:/usr/lib)
     ENDIF(WINDOWS)
 
+    LL_TEST_COMMAND("${LD_LIBRARY_PATH}" ${TEST_CMD})
+    SET(TEST_SCRIPT_CMD ${LL_TEST_COMMAND_value})
     IF(LL_TEST_VERBOSE)
       MESSAGE(STATUS "LL_ADD_PROJECT_UNIT_TESTS ${name} test_script  = ${TEST_SCRIPT_CMD}")
     ENDIF(LL_TEST_VERBOSE)
     # Add test 
     ADD_CUSTOM_COMMAND(
         OUTPUT ${TEST_OUTPUT}
-		COMMAND ${CMAKE_COMMAND} 
-		ARGS
-		  -DLD_LIBRARY_PATH=${LD_LIBRARY_PATH}
-		  "-DTEST_CMD:STRING=\"${TEST_CMD}\""
-		  -P ${CMAKE_SOURCE_DIR}/cmake/RunBuildTest.cmake
         COMMAND ${TEST_SCRIPT_CMD}
         DEPENDS PROJECT_${project}_TEST_${name}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -216,12 +214,8 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     set(LD_LIBRARY_PATH ${ARCH_PREBUILT_DIRS}:${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}:/usr/lib)
   ENDIF(WINDOWS)
 
-  SET(TEST_SCRIPT_CMD 
-    ${CMAKE_COMMAND} 
-    -DLD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
-    -DTEST_CMD:STRING="${test_command}" 
-    -P ${CMAKE_SOURCE_DIR}/cmake/RunBuildTest.cmake
-    )
+  LL_TEST_COMMAND("${LD_LIBRARY_PATH}" ${test_command})
+  SET(TEST_SCRIPT_CMD ${LL_TEST_COMMAND_value})
 
   if(TEST_DEBUG)
     message(STATUS "TEST_SCRIPT_CMD: ${TEST_SCRIPT_CMD}")
