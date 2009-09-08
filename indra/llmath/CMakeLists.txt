@@ -85,7 +85,8 @@ add_library (llmath ${llmath_SOURCE_FILES})
 
 include(LLAddBuildTest)
 SET(llmath_TEST_SOURCE_FILES
-  # WARNING: Please don't write tests against LLCommon or LLMath until this issue is resolved: https://jira.lindenlab.com/jira/browse/DEV-29456
+  # nat 2009-08-28: found this commented out and considered implementing it
+  # using LL_ADD_INTEGRATION_TEST, but there's no llvolume_test.cpp source?
   # llvolume.cpp
   )
 LL_ADD_PROJECT_UNIT_TESTS(llmath "${llmath_TEST_SOURCE_FILES}")

@@ -2138,6 +2138,17 @@
          layout="topleft"
          name="Network"
          tear_off="true">
+            <menu_item_check
+             label="Pause Agent"
+             layout="topleft"
+             name="AgentPause">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="AgentPause" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="AgentPause" />
+            </menu_item_check>
             <menu_item_call
              label="Enable Message Log"
              layout="topleft"
