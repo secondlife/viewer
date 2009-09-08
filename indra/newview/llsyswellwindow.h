@@ -35,21 +35,26 @@
 
 #include "llsyswellitem.h"
 
-#include "llfloater.h"
+#include "lldockablefloater.h"
 #include "llbutton.h"
 #include "llscreenchannel.h"
 #include "llscrollcontainer.h"
+#include "llchiclet.h"
+#include "llimview.h"
 
 #include "boost/shared_ptr.hpp"
 
 
 
-class LLSysWellWindow : public LLFloater
+class LLSysWellWindow : public LLDockableFloater, LLIMSessionObserver
 {
 public:
     LLSysWellWindow(const LLSD& key);
     ~LLSysWellWindow();
 	BOOL postBuild();
+
+	// other interface functions
+	bool isWindowEmpty();
 
 	// change attributes
 	void setChannel(LLNotificationsUI::LLScreenChannel*	channel) {mChannel = channel;}
@@ -75,15 +80,46 @@ public:
 	static const S32 MIN_PANELLIST_WIDTH	= 318;
 
 private:
-
+	class RowPanel;
 	void reshapeWindow();
+	RowPanel * findIMRow(const LLUUID& sessionId);
+	LLChiclet * findIMChiclet(const LLUUID& sessionId);
+	void addIMRow(const LLUUID& sessionId, S32 chicletCounter, const std::string& name, const LLUUID& otherParticipantId);
+	void delIMRow(const LLUUID& sessionId);
+	// LLIMSessionObserver observe triggers
+	virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id);
+	virtual void sessionRemoved(const LLUUID& session_id);
 
 	// pointer to a corresponding channel's instance
 	LLNotificationsUI::LLScreenChannel*	mChannel;
-
-	LLUIImagePtr			mDockTongue;
+	LLPanel*				mTwinListPanel;
 	LLScrollContainer*		mScrollContainer;
+	LLScrollingPanelList*	mIMRowList;
 	LLScrollingPanelList*	mNotificationList;
+
+private:
+	/**
+	 * Scrolling row panel.
+	 */
+	class RowPanel: public LLScrollingPanel
+	{
+	public:
+		RowPanel(const LLSysWellWindow* parent, const LLUUID& sessionId, S32 chicletCounter,
+				const std::string& name, const LLUUID& otherParticipantId);
+		virtual ~RowPanel();
+		/*virtual*/
+		void updatePanel(BOOL allow_modify);
+		void onMouseEnter(S32 x, S32 y, MASK mask);
+		void onMouseLeave(S32 x, S32 y, MASK mask);
+		BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	private:
+		void onClose();
+	public:
+		LLIMChiclet* mChiclet;
+	private:
+		LLButton*	mCloseBtn;
+		const LLSysWellWindow* mParent;
+	};
 };
 
 #endif // LL_LLSYSWELLWINDOW_H

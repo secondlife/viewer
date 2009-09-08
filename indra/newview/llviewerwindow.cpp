@@ -1596,8 +1596,6 @@ void LLViewerWindow::initWorldUI()
 	gFloaterView->setRect(floater_view_rect);
 	gNotifyBoxView->setRect(notify_view_rect);
 
-	// *Note: this is where gFloaterMute used to be initialized.
-
 	LLWorldMapView::initClass();
 	
 	// Force gFloaterWorldMap to initialize
@@ -1636,6 +1634,11 @@ void LLViewerWindow::initWorldUI()
 		navbar->showFavoritesPanel(FALSE);
 	}
 
+	if (!gSavedSettings.getBOOL("ShowCameraAndMoveControls"))
+	{
+		LLBottomTray::getInstance()->showCameraAndMoveControls(FALSE);
+	}
+
 	getRootView()->addChild(gStatusBar);
 	getRootView()->addChild(navbar);
 
@@ -1668,6 +1671,9 @@ void LLViewerWindow::initWorldUI()
 		// put behind everything else in the UI
 		getRootView()->addChildInBack(gHUDView);
 	}
+
+	// this allows not to see UI elements created while UI initializing after Alt+Tab was pressed during login. EXT-744.
+	moveProgressViewToFront();
 }
 
 // Destroy the UI
@@ -2870,7 +2876,7 @@ void LLViewerWindow::updateLayout()
 		{
 			gFloaterTools->setVisible(FALSE);
 		}
-		gMenuBarView->setItemVisible("BuildTools", gFloaterTools->getVisible());
+		//gMenuBarView->setItemVisible("BuildTools", gFloaterTools->getVisible());
 	}
 
 	// Always update console
@@ -4417,8 +4423,7 @@ void LLViewerWindow::moveProgressViewToFront()
 {
 	if( mProgressView && mRootView )
 	{
-		mRootView->removeChild( mProgressView );
-		mRootView->addChild( mProgressView );
+		mRootView->sendChildToFront(mProgressView);
 	}
 }
 

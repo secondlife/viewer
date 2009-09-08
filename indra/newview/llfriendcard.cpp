@@ -173,6 +173,15 @@ bool LLFriendCardsManager::isCategoryInFriendFolder(const LLViewerInventoryCateg
 	return TRUE == gInventory.isObjectDescendentOf(cat->getUUID(), findFriendFolderUUIDImpl());
 }
 
+bool LLFriendCardsManager::isAnyFriendCategory(const LLUUID& catID) const
+{
+	const LLUUID& friendFolderID = findFriendFolderUUIDImpl();
+	if (catID == friendFolderID)
+		return true;
+
+	return TRUE == gInventory.isObjectDescendentOf(catID, friendFolderID);
+}
+
 void LLFriendCardsManager::syncFriendsFolder()
 {
 	//lets create "Friends" and "Friends/All" in the Inventory "Calling Cards" if they are absent
@@ -305,10 +314,12 @@ void LLFriendCardsManager::findMatchedFriendCards(const LLUUID& avatarID, LLInve
 	LLInventoryModel::cat_array_t cats;
 	LLUUID friendFolderUUID = findFriendFolderUUIDImpl();
 
-	LLParticularBuddyCollector matchFunctor(avatarID);
 
 	LLViewerInventoryCategory* friendFolder = gInventory.getCategory(friendFolderUUID);
+	if (NULL == friendFolder)
+		return;
 
+	LLParticularBuddyCollector matchFunctor(avatarID);
 	LLInventoryModel::cat_array_t subFolders;
 	subFolders.push_back(friendFolder);
 

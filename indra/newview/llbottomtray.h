@@ -33,6 +33,8 @@
 #ifndef LL_LLBOTTOMPANEL_H
 #define LL_LLBOTTOMPANEL_H
 
+#include <llmenugl.h>
+
 #include "llpanel.h"
 #include "llimview.h"
 
@@ -42,6 +44,7 @@ class LLLayoutStack;
 class LLNotificationChiclet;
 class LLTalkButton;
 class LLNearbyChatBar;
+class LLIMChiclet;
 
 class LLBottomTray 
 	: public LLSingleton<LLBottomTray>
@@ -55,7 +58,6 @@ public:
 	BOOL postBuild();
 
 	LLChicletPanel*		getChicletPanel()	{return mChicletPanel;}
-	LLNotificationChiclet*	getIMWell()	{return mIMWell;}
 	LLNotificationChiclet*	getSysWell()	{return mSysWell;}
 	LLNearbyChatBar*		getNearbyChatBar()	{return mNearbyChatBar;}
 
@@ -68,8 +70,11 @@ public:
 	virtual void onFocusLost();
 	virtual void setVisible(BOOL visible);
 
+	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
+	void showCameraAndMoveControls(BOOL visible);
+
 private:
-	void updateImChicletCount();
 
 protected:
 
@@ -77,15 +82,24 @@ protected:
 
 	void onChicletClick(LLUICtrl* ctrl);
 
+	bool onShowCamMoveCtrlsContextMenuItemEnabled(const LLSD& userdata);
+	void onShowCamMoveCtrlsContextMenuItemClicked(const LLSD& userdata);
+
 	static void* createNearbyChatBar(void* userdata);
 
+	/**
+	 * Creates IM Chiclet based on session type (IM chat or Group chat)
+	 */
+	LLIMChiclet* createIMChiclet(const LLUUID& session_id);
+
 	LLChicletPanel* 	mChicletPanel;
-	LLNotificationChiclet* 	mIMWell;
 	LLNotificationChiclet* 	mSysWell;
 	LLTalkButton* 		mTalkBtn;
 	LLNearbyChatBar*	mNearbyChatBar;
 	LLLayoutStack*		mToolbarStack;
-
+	LLMenuGL*			mShowCamMoveCtrlsContextMenu;
+	LLPanel*			mMovementPanel;
+	LLPanel*			mCamPanel;
 };
 
 #endif // LL_LLBOTTOMPANEL_H

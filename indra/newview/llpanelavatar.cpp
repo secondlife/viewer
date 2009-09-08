@@ -372,7 +372,6 @@ void LLPanelAvatarProfile::resetControls()
 	childSetVisible("status_me_panel", false);
 	childSetVisible("profile_me_buttons_panel", false);
 	childSetVisible("account_actions_panel", false);
-	childSetVisible("partner_edit_link", false);
 }
 
 void LLPanelAvatarProfile::resetData()
@@ -539,7 +538,7 @@ void LLPanelAvatarProfile::fillAccountStatus(const LLAvatarData* avatar_data)
 	childSetValue("acc_status_text", caption_text);
 }
 
-void LLPanelAvatarProfile::onUrlTextboxClicked(std::string url)
+void LLPanelAvatarProfile::onUrlTextboxClicked(const std::string& url)
 {
 	LLWeb::loadURL(url);
 }
@@ -595,9 +594,8 @@ BOOL LLPanelAvatarMeProfile::postBuild()
 
 	childSetCommitCallback("status_combo", boost::bind(&LLPanelAvatarMeProfile::onStatusChanged, this), NULL);
 	childSetCommitCallback("status_me_message_text", boost::bind(&LLPanelAvatarMeProfile::onStatusMessageChanged, this), NULL);
-	childSetActionTextbox("payment_update_link", boost::bind(&LLPanelAvatarMeProfile::onUpdateAccountTextboxClicked, this));
-	childSetActionTextbox("my_account_link", boost::bind(&LLPanelAvatarMeProfile::onMyAccountTextboxClicked, this));
-	childSetActionTextbox("partner_edit_link", boost::bind(&LLPanelAvatarMeProfile::onPartnerEditTextboxClicked, this));
+
+	childSetTextArg("partner_edit_link", "[URL]", getString("partner_edit_link_url"));
 
 	resetControls();
 	resetData();
@@ -675,19 +673,4 @@ void LLPanelAvatarMeProfile::onStatusChanged()
 void LLPanelAvatarMeProfile::onStatusMessageChanged()
 {
 	updateData();
-}
-
-void LLPanelAvatarMeProfile::onUpdateAccountTextboxClicked()
-{
-	onUrlTextboxClicked(getString("payment_update_link_url"));
-}
-
-void LLPanelAvatarMeProfile::onMyAccountTextboxClicked()
-{
-	onUrlTextboxClicked(getString("my_account_link_url"));
-}
-
-void LLPanelAvatarMeProfile::onPartnerEditTextboxClicked()
-{
-	onUrlTextboxClicked(getString("partner_edit_link_url"));
 }

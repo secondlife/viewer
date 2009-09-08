@@ -60,6 +60,7 @@
 #include "llui.h"
 #include "llviewermenu.h"
 #include "llfirstuse.h"
+#include "llpanelblockedlist.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llscrolllistcell.h"
@@ -69,7 +70,6 @@
 #include "lltoolgrab.h"
 #include "llcombobox.h"
 #include "llfloaterchat.h"
-#include "llfloatermute.h"
 #include "llimpanel.h"
 #include "lllayoutstack.h"
 
@@ -250,41 +250,6 @@ void LLToolBar::refresh()
 	BOOL mouselook = gAgent.cameraMouselook();
 	setVisible(show && !mouselook);
 
-	BOOL sitting = FALSE;
-	if (gAgent.getAvatarObject())
-	{
-		sitting = gAgent.getAvatarObject()->isSitting();
-	}
-
-	if (!gAgent.canFly())
-	{
-		gSavedSettings.setBOOL("FlyBtnEnabled", gAgent.getFlying() ? true : false);
-		gSavedSettings.setBOOL("FlyBtnState", false);
-	}
-	else
-	{
-		gSavedSettings.setBOOL("FlyBtnEnabled", sitting ? false : true);
-	}
-
-	// Check to see if we're in build mode
-	bool build_enabled = LLToolMgr::getInstance()->canEdit();
-	if (build_enabled)
-	{
-		gSavedSettings.setBOOL("BuildBtnEnabled", true);
-		bool build_mode = LLToolMgr::getInstance()->inEdit();
-		// HACK: Not in mouselook and not just clicking on a scripted object
-		if (gAgent.cameraMouselook() || LLToolGrab::getInstance()->getHideBuildHighlight())
-	{
-		build_mode = FALSE;
-	}
-	gSavedSettings.setBOOL("BuildBtnState", build_mode);
-	}
-	else
-	{
-		gSavedSettings.setBOOL("BuildBtnEnabled", false);
-		gSavedSettings.setBOOL("BuildBtnState", false);
-	}
-
 	if (isInVisibleChain())
 	{
 		updateCommunicateList();
@@ -332,11 +297,8 @@ void LLToolBar::updateCommunicateList()
 	communicate_button->addSeparator(ADD_TOP);
 	communicate_button->add(getString("Redock Windows"), LLSD("redock"), ADD_TOP);
 	communicate_button->addSeparator(ADD_TOP);
-	LLFloaterMute* mute_instance = LLFloaterReg::getTypedInstance<LLFloaterMute>("mute");
-	if(mute_instance)
-	{
-		communicate_button->add(mute_instance->getShortTitle(), LLSD("mute list"), ADD_TOP);
-	}
+	communicate_button->add(getString("Blocked List"), LLSD("mute list"), ADD_TOP);
+
 	std::set<LLHandle<LLFloater> >::const_iterator floater_handle_it;
 
 	if (gIMMgr->getIMFloaterHandles().size() > 0)
@@ -414,7 +376,7 @@ void LLToolBar::onClickCommunicate(LLUICtrl* ctrl, const LLSD& user_data)
 	}
 	else if (selected_option.asString() == "mute list")
 	{
-		LLFloaterReg::showInstance("mute");
+		LLPanelBlockedList::showPanelAndSelect(LLUUID::null);
 	}
 	else if (selected_option.isUndefined()) // user just clicked the communicate button, treat as toggle
 	{

@@ -11,6 +11,7 @@ include(LLCommon)
 include(LLImage)
 include(LLImageJ2COJ)   # ugh, needed for images
 include(LLMath)
+include(LLMessage)
 include(LLRender)
 include(LLWindow)
 include(LLUI)
@@ -67,6 +68,7 @@ endif (DARWIN)
 # Sort by high-level to low-level
 target_link_libraries(llui_libtest
     llui
+    llmessage
     ${OS_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     )

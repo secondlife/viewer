@@ -57,6 +57,11 @@
 #include "llviewborder.h"
 #include "lltextbox.h"
 #include "llsdparam.h"
+#include "llcachename.h"
+#include "llmenugl.h"
+#include "llurlaction.h"
+
+#include <boost/bind.hpp>
 
 static LLDefaultChildRegistry::Register<LLScrollListCtrl> r("scroll_list");
 
@@ -118,6 +123,7 @@ LLScrollListCtrl::Params::Params()
 	sort_ascending("sort_ascending", true),
 	commit_on_keyboard_movement("commit_on_keyboard_movement", true),
 	heading_height("heading_height"),
+	page_lines("page_lines", 0),
 	background_visible("background_visible"),
 	draw_stripes("draw_stripes"),
 	column_padding("column_padding"),
@@ -140,7 +146,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 :	LLUICtrl(p),
 	mLineHeight(0),
 	mScrollLines(0),
-	mPageLines(0),
+	mPageLines(p.page_lines),
 	mMaxSelectable(0),
 	mAllowKeyboardMovement(TRUE),
 	mCommitOnKeyboardMovement(p.commit_on_keyboard_movement),
@@ -157,6 +163,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	mOnSortChangedCallback( NULL ),
 	mHighlightedItem(-1),
 	mBorder(NULL),
+	mPopupMenu(NULL),
 	mNumDynamicWidthColumns(0),
 	mTotalStaticColumnWidth(0),
 	mTotalColumnPadding(0),
@@ -179,7 +186,8 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	mHighlightedColor(p.highlighted_color()),
 	mHoveredColor(p.hovered_color()),
 	mSearchColumn(p.search_column),
-	mColumnPadding(p.column_padding)
+	mColumnPadding(p.column_padding),
+	mContextMenuType(MENU_NONE)
 {
 	mItemListRect.setOriginAndSize(
 		mBorderThickness,
@@ -188,8 +196,6 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 		getRect().getHeight() - 2 * mBorderThickness );
 
 	updateLineHeight();
-
-	mPageLines = mLineHeight? (mItemListRect.getHeight()) / mLineHeight : 0;
 
 	// Init the scrollbar
 	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
@@ -207,7 +213,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	sbparams.orientation(LLScrollbar::VERTICAL);
 	sbparams.doc_size(getItemCount());
 	sbparams.doc_pos(mScrollLines);
-	sbparams.page_size(mPageLines);
+	sbparams.page_size( mPageLines ? mPageLines : getItemCount() );
 	sbparams.change_callback(boost::bind(&LLScrollListCtrl::onScrollChange, this, _1, _2));
 	sbparams.follows.flags(FOLLOWS_RIGHT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
 	sbparams.visible(false);
@@ -462,8 +468,12 @@ void LLScrollListCtrl::updateLayout()
 	getChildView("comment_text")->setShape(mItemListRect);
 
 	// how many lines of content in a single "page"
-	mPageLines = mLineHeight? mItemListRect.getHeight() / mLineHeight : 0;
-	BOOL scrollbar_visible = getItemCount() > mPageLines;
+	S32 page_lines =  mLineHeight? mItemListRect.getHeight() / mLineHeight : getItemCount();
+	//if mPageLines is NOT provided display all item
+	if(mPageLines)
+		page_lines = mPageLines;
+
+	BOOL scrollbar_visible = mLineHeight * getItemCount() > mItemListRect.getHeight();
 	if (scrollbar_visible)
 	{
 		// provide space on the right for scrollbar
@@ -472,7 +482,7 @@ void LLScrollListCtrl::updateLayout()
 
 	mScrollbar->setOrigin(getRect().getWidth() - mBorderThickness - scrollbar_size, mItemListRect.mBottom);
 	mScrollbar->reshape(scrollbar_size, mItemListRect.getHeight() + (mDisplayColumnHeaders ? mHeadingHeight : 0));
-	mScrollbar->setPageSize( mPageLines );
+	mScrollbar->setPageSize(page_lines);
 	mScrollbar->setDocSize( getItemCount() );
 	mScrollbar->setVisible(scrollbar_visible);
 
@@ -484,6 +494,9 @@ void LLScrollListCtrl::updateLayout()
 void LLScrollListCtrl::fitContents(S32 max_width, S32 max_height)
 {
 	S32 height = llmin( getRequiredRect().getHeight(), max_height );
+	if(mPageLines)
+		height = llmin( mPageLines * mLineHeight + (mDisplayColumnHeaders ? mHeadingHeight : 0), height );
+
 	S32 width = getRect().getWidth();
 
 	reshape( width, height );
@@ -713,6 +726,12 @@ void LLScrollListCtrl::setHeadingHeight(S32 heading_height)
 
 	updateLayout();
 
+}
+void LLScrollListCtrl::setPageLines(S32 new_page_lines)
+{
+	mPageLines  = new_page_lines;
+	
+	updateLayout();
 }
 
 BOOL LLScrollListCtrl::selectFirstItem()
@@ -1360,7 +1379,7 @@ void LLScrollListCtrl::drawItems()
 	S32 y = mItemListRect.mTop - mLineHeight;
 
 	// allow for partial line at bottom
-	S32 num_page_lines = mPageLines + 1;
+	S32 num_page_lines = (mPageLines)? mPageLines : getItemCount() + 1;
 
 	LLRect item_rect;
 
@@ -1692,6 +1711,72 @@ BOOL LLScrollListCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 	return LLUICtrl::handleMouseUp(x, y, mask);
 }
 
+// virtual
+BOOL LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	LLScrollListItem *item = hitItem(x, y);
+	if (item)
+	{
+		// check to see if we have a UUID for this row
+		std::string id = item->getValue().asString();
+		LLUUID uuid(id);
+		if (! uuid.isNull() && mContextMenuType != MENU_NONE)
+		{
+			// set up the callbacks for all of the avatar/group menu items
+			// (N.B. callbacks don't take const refs as id is local scope)
+			bool is_group = (mContextMenuType == MENU_GROUP);
+			LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+			registrar.add("Url.Execute", boost::bind(&LLScrollListCtrl::showNameDetails, id, is_group));
+			registrar.add("Url.CopyLabel", boost::bind(&LLScrollListCtrl::copyNameToClipboard, id, is_group));
+			registrar.add("Url.CopyUrl", boost::bind(&LLScrollListCtrl::copySLURLToClipboard, id, is_group));
+
+			// create the context menu from the XUI file and display it
+			std::string menu_name = is_group ? "menu_url_group.xml" : "menu_url_agent.xml";
+			delete mPopupMenu;
+			mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
+				menu_name, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
+			if (mPopupMenu)
+			{
+				mPopupMenu->show(x, y);
+				LLMenuGL::showPopup(this, mPopupMenu, x, y);
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
+
+void LLScrollListCtrl::showNameDetails(std::string id, bool is_group)
+{
+	// show the resident's profile or the group profile
+	std::string sltype = is_group ? "group" : "agent";
+	std::string slurl = "secondlife:///app/" + sltype + "/" + id + "/about";
+	LLUrlAction::clickAction(slurl);
+}
+
+void LLScrollListCtrl::copyNameToClipboard(std::string id, bool is_group)
+{
+	// copy the name of the avatar or group to the clipboard
+	std::string name;
+	if (is_group)
+	{
+		gCacheName->getGroupName(LLUUID(id), name);
+	}
+	else
+	{
+		gCacheName->getFullName(LLUUID(id), name);
+	}
+	LLUrlAction::copyURLToClipboard(name);
+}
+
+void LLScrollListCtrl::copySLURLToClipboard(std::string id, bool is_group)
+{
+	// copy a SLURL for the avatar or group to the clipboard
+	std::string sltype = is_group ? "group" : "agent";
+	std::string slurl = "secondlife:///app/" + sltype + "/" + id + "/about";
+	LLUrlAction::copyURLToClipboard(slurl);
+}
+
 BOOL LLScrollListCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	//BOOL handled = FALSE;
@@ -1783,7 +1868,7 @@ LLScrollListItem* LLScrollListCtrl::hitItem( S32 x, S32 y )
 		mLineHeight );
 
 	// allow for partial line at bottom
-	S32 num_page_lines = mPageLines + 1;
+	S32 num_page_lines = (mPageLines)? mPageLines : getItemCount() + 1;
 
 	S32 line = 0;
 	item_list::iterator iter;
@@ -2348,7 +2433,8 @@ void LLScrollListCtrl::scrollToShowSelected()
 	}
 
 	S32 lowest = mScrollLines;
-	S32 highest = mScrollLines + mPageLines;
+	S32 page_lines = (mPageLines)? mPageLines : getItemCount();
+	S32 highest = mScrollLines + page_lines;
 
 	if (index < lowest)
 	{
@@ -2357,7 +2443,7 @@ void LLScrollListCtrl::scrollToShowSelected()
 	}
 	else if (highest <= index)
 	{
-		setScrollPos(index - mPageLines + 1);
+		setScrollPos(index - page_lines + 1);
 	}
 }
 

@@ -35,7 +35,6 @@
 
 #include "lltexteditor.h"
 
-
 //
 // Classes
 //
@@ -136,9 +135,6 @@ private:
 	LLUUID mPreviewID;
 
 	LLPointer<class LLEmbeddedNotecardOpener> mInventoryCallback;
-
-	// *TODO: Add right click menus for SLURLs
-	//LLViewHandle mPopupMenuHandle;
 
 	//
 	// Inner classes

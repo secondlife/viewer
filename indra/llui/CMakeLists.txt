@@ -34,6 +34,8 @@ set(llui_SOURCE_FILES
     llconsole.cpp
     llcontainerview.cpp
     llctrlselectioninterface.cpp
+    lldockablefloater.cpp
+    lldockcontrol.cpp
     lldraghandle.cpp
     lleditmenuhandler.cpp
     llf32uictrl.cpp
@@ -47,7 +49,7 @@ set(llui_SOURCE_FILES
     llkeywords.cpp
     lllayoutstack.cpp
     lllineeditor.cpp
-    lllink.cpp
+    lllistctrl.cpp
     llmenugl.cpp
     llmodaldialog.cpp
     llmultifloater.cpp 
@@ -78,6 +80,7 @@ set(llui_SOURCE_FILES
     llstatview.cpp
     llstyle.cpp
     lltabcontainer.cpp
+    lltextbase.cpp
     lltextbox.cpp
     lltexteditor.cpp
     lltextparser.cpp
@@ -89,6 +92,10 @@ set(llui_SOURCE_FILES
     lluiimage.cpp
     lluistring.cpp
     llundo.cpp
+    llurlaction.cpp
+    llurlentry.cpp
+    llurlmatch.cpp
+    llurlregistry.cpp
     llviewborder.cpp
     llviewmodel.cpp
     llview.cpp
@@ -108,6 +115,8 @@ set(llui_HEADER_FILES
     llcontainerview.h
     llctrlselectioninterface.h
     lldraghandle.h
+    lldockablefloater.h
+    lldockcontrol.h
     lleditmenuhandler.h
     llf32uictrl.h
     llfiltereditor.h 
@@ -123,7 +132,7 @@ set(llui_HEADER_FILES
     lllayoutstack.h
     lllazyvalue.h
     lllineeditor.h
-    lllink.h
+    lllistctrl.h
     llmenugl.h
     llmodaldialog.h
     llmultifloater.h 
@@ -154,6 +163,7 @@ set(llui_HEADER_FILES
     llstatview.h
     llstyle.h
     lltabcontainer.h
+    lltextbase.h
     lltextbox.h
     lltexteditor.h
     lltextparser.h
@@ -167,6 +177,10 @@ set(llui_HEADER_FILES
     lluiimage.h
     lluistring.h
     llundo.h
+    llurlaction.h
+    llurlentry.h
+    llurlmatch.h
+    llurlregistry.h
     llviewborder.h
     llviewmodel.h
     llview.h
@@ -182,12 +196,21 @@ add_library (llui ${llui_SOURCE_FILES})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries(llui
-    llrender
-    llwindow
-    llimage
-    llvfs       # ugh, just for LLDir
-    llxuixml
-    llxml
-    llcommon    # must be after llimage, llwindow, llrender
-    llmath
+    ${LLMESSAGE_LIBRARIES}
+    ${LLRENDER_LIBRARIES}
+    ${LLWINDOW_LIBRARIES}
+    ${LLIMAGE_LIBRARIES}
+    ${LLVFS_LIBRARIES}    # ugh, just for LLDir
+    ${LLXUIXML_LIBRARIES}
+    ${LLXML_LIBRARIES}
+    ${LLMATH_LIBRARIES}
+    ${LLCOMMON_LIBRARIES} # must be after llimage, llwindow, llrender
     )
+
+# Add tests
+include(LLAddBuildTest)
+SET(llui_TEST_SOURCE_FILES
+    llurlmatch.cpp
+    llurlentry.cpp
+    )
+LL_ADD_PROJECT_UNIT_TESTS(llui "${llui_TEST_SOURCE_FILES}")

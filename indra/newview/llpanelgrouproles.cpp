@@ -659,6 +659,12 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
 		row["columns"][1]["font"]["style"] = "BOLD";
 
 		LLScrollListItem* title_row = ctrl->addElement(row, ADD_BOTTOM, action_set->mActionSetData);
+		
+		LLScrollListText* name_textp = dynamic_cast<LLScrollListText*>(title_row->getColumn(1));
+		if (name_textp)
+			name_textp->setFontStyle(LLFontGL::BOLD);
+
+
 
 		bool category_matches_filter = (filter) ? matchesActionSearchFilter(action_set->mActionSetData->mName) : true;
 
@@ -837,6 +843,7 @@ BOOL LLPanelGroupMembersSubTab::postBuildSubTab(LLView* root)
 	mMembersList->setCommitCallback(onMemberSelect, this);
 	// Show the member's profile on double click.
 	mMembersList->setDoubleClickCallback(onMemberDoubleClick, this);
+	mMembersList->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
 
 	LLButton* button = parent->getChild<LLButton>("member_invite", recurse);
 	if ( button )
@@ -1731,6 +1738,8 @@ BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 	mRolesList->setCommitOnSelectionChange(TRUE);
 	mRolesList->setCommitCallback(onRoleSelect, this);
 
+	mAssignedMembersList->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
+
 	mMemberVisibleCheck->setCommitCallback(onMemberVisibilityChange, this);
 
 	mAllowedActionsList->setCommitOnSelectionChange(TRUE);
@@ -2397,6 +2406,7 @@ BOOL LLPanelGroupActionsSubTab::postBuildSubTab(LLView* root)
 
 	mActionList->setCommitOnSelectionChange(TRUE);
 	mActionList->setCommitCallback(boost::bind(&LLPanelGroupActionsSubTab::handleActionSelect, this));
+	mActionList->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
 
 	update(GC_ALL);
 

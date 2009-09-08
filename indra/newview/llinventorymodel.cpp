@@ -1112,7 +1112,7 @@ void LLInventoryModel::notifyObservers(const std::string service_name)
 			observer->changed(mModifyMask);
 		}
 
-		// safe way to incrament since changed may delete entries! (@!##%@!@&*!)
+		// safe way to increment since changed may delete entries! (@!##%@!@&*!)
 		iter = mObservers.upper_bound(observer); 
 	}
 

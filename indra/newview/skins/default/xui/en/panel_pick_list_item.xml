@@ -8,6 +8,26 @@
  name="picture_item"
  top="0"
  width="275">
+    <icon
+     height="120" 
+     image_name="ListItem_Over"
+     left="0" 
+     mouse_opaque="false"
+     name="hovered_icon" 
+     top="0"
+     scale_image="true" 
+     visible="false"
+     width="270"/>
+    <icon
+     height="120" 
+     image_name="ListItem_Select"
+     left="0" 
+     mouse_opaque="false"
+     name="selected_icon"
+     top="0"
+     scale_image="true"
+     visible="false"
+     width="270"/>
     <texture_picker
      allow_no_texture="true"
      default_image_name="None"

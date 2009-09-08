@@ -167,11 +167,10 @@
          width="255">
              Homepage:
         </text>
-        <link
+        <text
          follows="left|top|right"
          height="15"
          layout="topleft"
-	 font.style="UNDERLINE"
          left="10"
          name="homepage_edit"
          top_pad="5"
@@ -212,11 +211,10 @@
          top_pad="15"
          value="Account Status:"
          width="100" />
-       <!-- <link
+       <!-- <text
          type="string"
          follows="left|top"
          font="SansSerifSmall"
-	 font.style="UNDERLINE"
          height="15"
          layout="topleft"
          left_pad="10"
@@ -246,16 +244,15 @@
          top_pad="15"
          value="Partner:"
          width="100" />
-	<!--<link
+        <text
          follows="left|top"
          height="15"
-	 font.style="UNDERLINE"
          layout="topleft"
          left_pad="10"
          name="partner_edit_link"
          top_delta="0"
-         value="Edit"
-         width="100" />  -->
+         value="[[URL] Edit]"
+         width="100" />
         <panel
          follows="left|top|right"
          height="15"

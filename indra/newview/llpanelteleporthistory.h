@@ -39,6 +39,8 @@
 #include "llpanelplacestab.h"
 #include "llteleporthistory.h"
 
+class LLTeleportHistoryStorage;
+
 class LLTeleportHistoryPanel : public LLPanelPlacesTab
 {
 public:
@@ -65,7 +67,7 @@ private:
 		LIST_INDEX
 	};
 
-	LLTeleportHistory*		mTeleportHistory;
+	LLTeleportHistoryStorage*	mTeleportHistory;
 	LLScrollListCtrl*		mHistoryItems;
 	std::string				mFilterSubString;
 };

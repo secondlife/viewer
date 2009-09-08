@@ -264,6 +264,9 @@ private:
 
 	LLSD mPendingInvitations;
 	LLSD mPendingAgentListUpdates;
+	// ID of a session that is being removed: observers are already told
+	// that this session is being removed, but it is still present in the sessions' map
+	LLUUID	mBeingRemovedSessionID;
 };
 
 

@@ -90,7 +90,7 @@ bool translate_init(std::string comma_delim_path_list,
 
 	// extract paths string vector from comma-delimited flat string
 	std::vector<std::string> paths;
-	LLStringUtil::getTokens(comma_delim_path_list, paths); // split over ','
+	LLStringUtil::getTokens(comma_delim_path_list, paths, ","); // split over ','
 
 	// suck the translation xml files into memory
 	LLXMLNodePtr root;

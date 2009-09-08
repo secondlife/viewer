@@ -257,6 +257,13 @@ BOOL LLUICtrl::handleRightMouseUp(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
+BOOL LLUICtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = LLView::handleDoubleClick(x, y, mask);
+	mDoubleClickSignal(this, x, y, mask);
+	return handled;
+}
+
 // can't tab to children of a non-tab-stop widget
 BOOL LLUICtrl::canFocusChildren() const
 {

@@ -44,6 +44,7 @@
 #include "lleditmenuhandler.h"
 #include "lldarray.h"
 #include "llviewborder.h" // for params
+#include "lltextbase.h"
 
 #include "llpreeditor.h"
 #include "llcontrol.h"
@@ -55,76 +56,6 @@ class LLTextCmd;
 class LLUICtrlFactory;
 class LLScrollContainer;
 
-class LLTextSegment : public LLRefCount
-{
-public:
-	LLTextSegment(S32 start, S32 end) : mStart(start), mEnd(end){};
-	virtual ~LLTextSegment();
-
-	virtual S32					getWidth(S32 first_char, S32 num_chars) const;
-	virtual S32					getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
-	virtual S32					getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
-	virtual void				updateLayout(const class LLTextEditor& editor);
-	virtual F32					draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
-	virtual S32					getMaxHeight() const;
-	virtual bool				canEdit() const;
-	virtual void				unlinkFromDocument(class LLTextEditor* editor);
-	virtual void				linkToDocument(class LLTextEditor* editor);
-
-	virtual void				setHasMouseHover(bool hover);
-	virtual const LLColor4&		getColor() const;
-	virtual void 				setColor(const LLColor4 &color);
-	virtual const LLStyleSP		getStyle() const;
-	virtual void 				setStyle(const LLStyleSP &style);
-	virtual void				setToken( LLKeywordToken* token );
-	virtual LLKeywordToken*		getToken() const;
-	virtual BOOL				getToolTip( std::string& msg ) const;
-	virtual void				dump() const;
-
-	S32							getStart() const 					{ return mStart; }
-	void						setStart(S32 start)					{ mStart = start; }
-	S32							getEnd() const						{ return mEnd; }
-	void						setEnd( S32 end )					{ mEnd = end; }
-
-protected:
-	S32				mStart;
-	S32				mEnd;
-};
-
-class LLNormalTextSegment : public LLTextSegment
-{
-public:
-	LLNormalTextSegment( const LLStyleSP& style, S32 start, S32 end, LLTextEditor& editor );
-	LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextEditor& editor, BOOL is_visible = TRUE);
-
-	/*virtual*/ S32					getWidth(S32 first_char, S32 num_chars) const;
-	/*virtual*/ S32					getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
-	/*virtual*/ S32					getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
-	/*virtual*/ F32					draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
-	/*virtual*/ S32					getMaxHeight() const;
-	/*virtual*/ bool				canEdit() const { return true; }
-	/*virtual*/ void				setHasMouseHover(bool hover)		{ mHasMouseHover = hover; }
-	/*virtual*/ const LLColor4&		getColor() const					{ return mStyle->getColor(); }
-	/*virtual*/ void 				setColor(const LLColor4 &color)		{ mStyle->setColor(color); }
-	/*virtual*/ const LLStyleSP		getStyle() const					{ return mStyle; }
-	/*virtual*/ void 				setStyle(const LLStyleSP &style)	{ mStyle = style; }
-	/*virtual*/ void				setToken( LLKeywordToken* token )	{ mToken = token; }
-	/*virtual*/ LLKeywordToken*		getToken() const					{ return mToken; }
-	/*virtual*/ BOOL				getToolTip( std::string& msg ) const;
-	/*virtual*/ void				dump() const;
-
-protected:
-	F32				drawClippedSegment(S32 seg_start, S32 seg_end, S32 selection_start, S32 selection_end, F32 x, F32 y);
-
-	class LLTextEditor&	mEditor;
-	LLStyleSP		mStyle;
-	S32				mMaxHeight;
-	LLKeywordToken* mToken;
-	bool			mHasMouseHover;
-};
-
-typedef LLPointer<LLTextSegment> LLTextSegmentPtr;
-
 class LLInlineViewSegment : public LLTextSegment
 {
 public:
@@ -132,24 +63,22 @@ public:
 	~LLInlineViewSegment();
 	/*virtual*/ S32			getWidth(S32 first_char, S32 num_chars) const;
 	/*virtual*/ S32			getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
-	/*virtual*/ void		updateLayout(const class LLTextEditor& editor);
+	/*virtual*/ void		updateLayout(const class LLTextBase& editor);
 	/*virtual*/ F32			draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
 	/*virtuaL*/ S32			getMaxHeight() const;
 	/*virtual*/ bool		canEdit() const { return false; }
-	/*virtual*/ void		unlinkFromDocument(class LLTextEditor* editor);
-	/*virtual*/ void		linkToDocument(class LLTextEditor* editor);
+	/*virtual*/ void		unlinkFromDocument(class LLTextBase* editor);
+	/*virtual*/ void		linkToDocument(class LLTextBase* editor);
 
 private:
 	LLView* mView;
 };
 
-class LLIndexSegment : public LLTextSegment
-{
-public:
-	LLIndexSegment(S32 pos) : LLTextSegment(pos, pos) {}
-};
-
-class LLTextEditor : public LLUICtrl, LLEditMenuHandler, protected LLPreeditor
+class LLTextEditor :
+	public LLTextBase,
+	public LLUICtrl,
+	private LLEditMenuHandler,
+	protected LLPreeditor
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
@@ -208,11 +137,8 @@ public:
 		}
 	};
 
-	typedef std::multiset<LLTextSegmentPtr, compare_segment_end> segment_set_t;
-
 	virtual ~LLTextEditor();
 
-	void	setParseHTML(BOOL parsing) {mParseHTML=parsing;}
 	void	setParseHighlights(BOOL parsing) {mParseHighlights=parsing;}
 
 	// mousehandler overrides
@@ -277,6 +203,7 @@ public:
 	BOOL			replaceText(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive, BOOL wrap = TRUE);
 	void			replaceTextAll(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive);
 	BOOL			hasSelection() const		{ return (mSelectionStart !=mSelectionEnd); }
+	void			replaceUrlLabel(const std::string &url, const std::string &label);
 	
 	// Undo/redo stack
 	void			blockUndo();
@@ -285,7 +212,6 @@ public:
 	virtual void	makePristine();
 	BOOL			isPristine() const;
 	BOOL			allowsEmbeddedItems() const { return mAllowEmbeddedItems; }
-	BOOL			getWordWrap() { return mWordWrap; }
 	S32				getLength() const { return getWText().length(); }
 	void			setReadOnly(bool read_only) { mReadOnly = read_only; }
 	bool			getReadOnly() { return mReadOnly; }
@@ -352,13 +278,11 @@ public:
 	const LLUUID&	getSourceID() const						{ return mSourceID; }
 
 	// Callbacks
-	static void		setURLCallbacks(void (*callback1) (const std::string& url), 
-									bool (*callback2) (const std::string& url),      
-									bool (*callback3) (const std::string& url)	) 
-									{ sURLcallback = callback1; sSecondlifeURLcallback = callback2; sSecondlifeURLcallbackRightClick = callback3;}
-
  	std::string     getText() const;
 	
+	// Callback for when a Url has been resolved by the server
+	void            onUrlLabelUpdated(const std::string &url, const std::string &label);
+
 	// Getters
 	LLWString       getWText() const;
 	llwchar			getWChar(S32 pos) const { return getWText()[pos]; }
@@ -382,8 +306,6 @@ protected:
 	void			startOfDoc();
 	void			endOfDoc();
 
-	void			getSegmentAndOffset( S32 startpos, segment_set_t::const_iterator* seg_iter, S32* offsetp ) const;
-	void			getSegmentAndOffset( S32 startpos, segment_set_t::iterator* seg_iter, S32* offsetp ) ;
 	void			drawPreeditMarker();
 
 	void			needsReflow() { mReflowNeeded = TRUE; }
@@ -399,15 +321,11 @@ protected:
 	
 	void			removeCharOrTab();
 	void			setCursorAtLocalPos(S32 x, S32 y, bool round, bool keep_cursor_offset = false);
-	S32				getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const;
+	/*virtual*/ S32 getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const;
 
 	void			indentSelectedLines( S32 spaces );
 	S32				indentLine( S32 pos, S32 spaces );
 	void			unindentLineBeforeCloseBrace();
-
-	LLTextSegmentPtr				getSegmentAtLocalPos(S32 x, S32 y);
-	segment_set_t::iterator			getSegIterContaining(S32 index);
-	segment_set_t::const_iterator	getSegIterContaining(S32 index) const;
 
 	void			reportBadKeystroke() { make_ui_sound("UISndBadKeystroke"); }
 
@@ -438,15 +356,9 @@ protected:
 	
 	void			findEmbeddedItemSegments(S32 start, S32 end);
 	void			insertSegment(LLTextSegmentPtr segment_to_insert);
-
 	
-	virtual BOOL	handleMouseUpOverSegment(S32 x, S32 y, MASK mask);
-
 	virtual llwchar	pasteEmbeddedItem(llwchar ext_char) { return ext_char; }
 	
-	S32				findHTMLToken(const std::string &line, S32 pos, BOOL reverse) const;
-	BOOL			findHTML(const std::string &line, S32 *begin, S32 *end) const;
-
 	// Abstract inner base class representing an undoable editor command.
 	// Concrete sub-classes can be defined for operations such as insert, remove, etc.
 	// Used as arguments to the execute() method below.
@@ -538,13 +450,8 @@ protected:
 	S32				mLastSelectionX;
 	S32				mLastSelectionY;
 
-	BOOL			mParseHTML;
 	BOOL			mParseHighlights;
-	std::string		mHTML;
 
-	segment_set_t mSegments;
-	LLTextSegmentPtr	mHoverSegment;
-	
 	// Scrollbar data
 	class DocumentPanel*	mDocumentPanel;
 	LLScrollContainer*	mScroller;
@@ -569,10 +476,10 @@ protected:
 	LLUIColor		mLinkColor;
 
 	BOOL			mReadOnly;
-	BOOL			mWordWrap;
 	BOOL			mShowLineNumbers;
 
 	void			updateSegments();
+	void			updateLinkSegments();
 
 private:
 
@@ -584,7 +491,6 @@ private:
 	virtual 		LLTextViewModel* getViewModel() const;
 	void			reflow(S32 startpos = 0);
 
-	void			clearSegments();
 	void			createDefaultSegment();
 	LLStyleSP		getDefaultStyle();
 	S32				getEditableIndex(S32 index, bool increasing_direction);
@@ -601,9 +507,6 @@ private:
 	// Data
 	//
 	LLKeywords		mKeywords;
-	static void		(*sURLcallback) (const std::string& url);
-	static bool		(*sSecondlifeURLcallback) (const std::string& url);
-	static bool		(*sSecondlifeURLcallbackRightClick) (const std::string& url);
 
 	// Concrete LLTextCmd sub-classes used by the LLTextEditor base class
 	class LLTextCmdInsert;
@@ -612,8 +515,6 @@ private:
 	class LLTextCmdRemove;
 
 	S32				mMaxTextByteLength;		// Maximum length mText is allowed to be in bytes
-
-	const LLFontGL*	mDefaultFont;
 
 	class LLViewBorder*	mBorder;
 

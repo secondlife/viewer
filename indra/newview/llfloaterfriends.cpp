@@ -194,6 +194,7 @@ BOOL LLPanelFriends::postBuild()
 	mFriendsList->setMaxSelectable(MAX_FRIEND_SELECT);
 	mFriendsList->setMaximumSelectCallback(boost::bind(&LLPanelFriends::onMaximumSelect));
 	mFriendsList->setCommitOnSelectionChange(TRUE);
+	mFriendsList->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
 	childSetCommitCallback("friend_list", onSelectName, this);
 	getChild<LLScrollListCtrl>("friend_list")->setDoubleClickCallback(onClickIM, this);
 

@@ -37,10 +37,11 @@
 #include "v4color.h"
 #include "llstring.h"
 #include "lluistring.h"
+#include "lltextbase.h"
 
-
-class LLTextBox
-:	public LLUICtrl
+class LLTextBox :
+	public LLTextBase,
+	public LLUICtrl
 {
 public:
 	
@@ -51,8 +52,7 @@ public:
 	{
 		Optional<std::string> text;
 
-		Optional<bool>		highlight_on_hover,
-							border_visible,
+		Optional<bool>		border_visible,
 							border_drop_shadow_visible,
 							bg_visible,
 							use_ellipses,
@@ -65,7 +65,6 @@ public:
 							length;
 
 		Optional<LLUIColor>	text_color,
-							hover_color,
 							disabled_color,
 							background_color,
 							border_color;
@@ -90,14 +89,13 @@ public:
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
+	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
+	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen);
 
 	void			setColor( const LLColor4& c )			{ mTextColor = c; }
 	void			setDisabledColor( const LLColor4& c)	{ mDisabledColor = c; }
 	void			setBackgroundColor( const LLColor4& c)	{ mBackgroundColor = c; }	
 	void			setBorderColor( const LLColor4& c)		{ mBorderColor = c; }	
-
-	void			setHoverColor( const LLColor4& c )		{ mHoverColor = c; }
-	void			setHoverActive( BOOL active )			{ mHoverActive = active; }
 
 	void			setText( const LLStringExplicit& text );
 	void			setWrappedText(const LLStringExplicit& text, F32 max_width = -1.f); // -1 means use existing control width
@@ -112,35 +110,42 @@ public:
 	void			setHAlign( LLFontGL::HAlign align )		{ mHAlign = align; }
 	void			setClickedCallback( boost::function<void (void*)> cb, void* userdata = NULL ){ mClickedCallback = boost::bind(cb, userdata); }		// mouse down and up within button
 
-	const LLFontGL* getFont() const							{ return mFontGL; }
+	const LLFontGL* getFont() const							{ return mDefaultFont; }
 
 	void			reshapeToFitText();
 
 	const std::string&	getText() const							{ return mText.getString(); }
+	LLWString		getWText() const { return mDisplayText; }
 	S32				getTextPixelWidth();
 	S32				getTextPixelHeight();
+	S32				getLength() const { return mDisplayText.length(); }
 
 	virtual void	setValue(const LLSD& value );		
 	virtual LLSD	getValue() const						{ return LLSD(getText()); }
 	virtual BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
 
-private:
+protected:
+	S32 			getLineCount() const { return mLineLengthList.size(); }
+	S32 			getLineStart( S32 line ) const;
+	S32             getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round ) const;
+	LLWString       getWrappedText(const LLStringExplicit& in_text, F32 max_width = -1.f);
 	void			setLineLengths();
-	void			drawText(S32 x, S32 y, const LLColor4& color );
+	void			updateDisplayTextAndSegments();
+	virtual void	drawText(S32 x, S32 y, const LLWString &text, const LLColor4& color );
+	void            onUrlLabelUpdated(const std::string &url, const std::string &label);
+	bool            isClickable() const;
+	LLWString       wrapText(const LLWString &wtext, S32 &hoffset, S32 &line_num, F32 max_width);
+	void            drawTextSegments(S32 x, S32 y, const LLWString &text);
 
 	LLUIString		mText;
-	const LLFontGL*	mFontGL;
-	LLUIColor	mTextColor;
-	LLUIColor	mDisabledColor;
-	LLUIColor	mBackgroundColor;
-	LLUIColor	mBorderColor;
-	LLUIColor	mHoverColor;
+	LLWString		mDisplayText;
+	LLUIColor		mTextColor;
+	LLUIColor		mDisabledColor;
+	LLUIColor		mBackgroundColor;
+	LLUIColor		mBorderColor;
 
-	BOOL			mHoverActive;	
-	BOOL			mHasHover;
 	BOOL			mBackgroundVisible;
 	BOOL			mBorderVisible;
-	BOOL			mWordWrap;
 	BOOL            mDidWordWrap;
 	
 	LLFontGL::ShadowType mShadowType;

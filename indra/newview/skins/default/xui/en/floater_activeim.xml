@@ -5,7 +5,7 @@
 	top="26"
 	left="0"
 	height="22"
-	width="350"
+	width="320"
 	follows="right|bottom"
 	background_visible="true"
 	can_close="true"
@@ -18,13 +18,14 @@
 		layout="topleft"
 		top="20"
 		left="1"
-		width="349"
+		width="320"
 		height="2"
 		name="panel_list_container">
 		<scrolling_panel_list
 			follows="left|right"
 			layout="topleft"
+      left="1"      
 			name="chiclet_row_panel_list"
-			width="335"/>
+			width="318"/>
 	</scroll_container>
 </floater>

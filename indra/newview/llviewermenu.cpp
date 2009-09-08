@@ -113,7 +113,6 @@
 #include "llfloaterland.h"
 #include "llfloaterlandholdings.h"
 #include "llfloatermap.h"
-#include "llfloatermute.h"
 #include "llfloateropenobject.h"
 #include "llfloaterperms.h"
 #include "llfloaterpostprocess.h"
@@ -147,6 +146,7 @@
 #include "llfloaterinventory.h"
 #include "llkeyboard.h"
 #include "llpanellogin.h"
+#include "llpanelblockedlist.h"
 #include "llmenucommands.h"
 #include "llmenugl.h"
 #include "llmimetypes.h"
@@ -2896,7 +2896,7 @@ class LLObjectMute : public view_listener_t
 		else
 		{
 			LLMuteList::getInstance()->add(mute);
-			LLFloaterReg::showInstance("mute");
+			LLPanelBlockedList::showPanelAndSelect(mute.mID);
 		}
 		
 		return true;

@@ -39,7 +39,7 @@
 
 class LLPanelProfile;
 class LLPanelProfileTab;
-
+class LLTextBox;
 
 /**
 * Panel for displaying Avatar's profile. It consists of three sub panels - Profile,
@@ -63,6 +63,11 @@ public:
 protected:
 
 	void onBackBtnClick();
+	bool isGrantedToSeeOnlineStatus();
+	void updateOnlineStatus();
+
+private:
+	LLTextBox* mStatusText;
 };
 
 #endif //LL_LLPANELPROFILEVIEW_H

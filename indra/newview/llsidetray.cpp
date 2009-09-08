@@ -241,6 +241,13 @@ LLSideTray::LLSideTray(Params& params)
 	    ,mMaxBarWidth(params.rect.width)
 {
 	mCollapsed=params.collapsed;
+
+
+	LLUICtrl::CommitCallbackRegistry::Registrar& commit = LLUICtrl::CommitCallbackRegistry::currentRegistrar();
+
+	// register handler function to process data from the xml. 
+	// panel_name should be specified via "parameter" attribute.
+	commit.add("SideTray.ShowPanel", boost::bind(&LLSideTray::showPanel, this, _2, LLUUID::null));
 }
 
 

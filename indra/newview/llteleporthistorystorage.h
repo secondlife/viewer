@@ -78,7 +78,10 @@ class LLTeleportHistoryStorage: public LLSingleton<LLTeleportHistoryStorage>
 
 public:
 
-	typedef std::vector<LLTeleportHistoryPersistentItem> item_list_list_t;
+	typedef std::vector<LLTeleportHistoryPersistentItem> slurl_list_t;
+
+	typedef boost::function<void()>		history_callback_t;
+	typedef boost::signals2::signal<void()>	history_signal_t;
 
 	LLTeleportHistoryStorage();
 	~LLTeleportHistoryStorage();
@@ -86,7 +89,7 @@ public:
 	/**
 	 * @return history items.
 	 */
-	const item_list_list_t& getItems() const { return mItems; }
+	const slurl_list_t& getItems() const { return mItems; }
 	void			purgeItems();
 
 	void addItem(const std::string title, const LLVector3d& global_pos);
@@ -99,10 +102,34 @@ public:
 
 	void dump() const;
 
+	/**
+	 * Set a callback to be called upon history changes.
+	 * 
+	 * Multiple callbacks can be set.
+	 */
+	boost::signals2::connection	setHistoryChangedCallback(history_callback_t cb);
+
+	/**
+	 * Go to specific item in the history.
+	 * 
+	 * The item is specified by its index (starting from 0).
+	 */
+	void					goToItem(S32 idx);
+
 private:
 
-	item_list_list_t	mItems;
-	std::string		mFilename;
+	void onTeleportHistoryChange();
+	bool compareByTitleAndGlobalPos(const LLTeleportHistoryPersistentItem& a, const LLTeleportHistoryPersistentItem& b);
+
+	slurl_list_t	mItems;
+	std::string	mFilename;
+
+	/**
+	 * Signal emitted when the history gets changed.
+	 * 
+	 * Invokes callbacks set with setHistoryChangedCallback().
+	 */
+	history_signal_t		mHistoryChangedSignal;
 };
 
 #endif //LL_LLTELEPORTHISTORYSTORAGE_H

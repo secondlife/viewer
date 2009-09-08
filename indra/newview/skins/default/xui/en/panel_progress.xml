@@ -99,12 +99,12 @@
                      halign="left"
                      height="100"
                      layout="topleft"
-                     left="30"
+                     left="45"
                      line_spacing="2"
                      name="message_text"
                      text_color="LoginProgressBoxTextColor"
                      top="145"
-                     width="610" />
+                     width="550" />
                 </layout_panel>
                 <layout_panel
                  height="200"

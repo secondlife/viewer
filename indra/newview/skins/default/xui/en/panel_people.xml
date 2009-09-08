@@ -130,24 +130,15 @@
                  min_height="100"
                  name="tab_online"
                  title="Online">
-                    <panel
-                     follows="all"
-                     height="150"
-                     layout="topleft"
-                     left="0"
-                     name="tab_online_panel"
-                     top="100"
-                     width="285">
                         <avatar_list
                          draw_heading="false"
                          follows="all"
-                         height="145"
+                         height="150"
                          layout="topleft"
                          left="0"
                          name="avatars_online"
                          top="0"
                          width="285" />
-                    </panel>
                 </accordion_tab>
                 <accordion_tab
                  can_resize="false"
@@ -155,14 +146,6 @@
                  min_height="100"
                  name="tab_all"
                  title="All">
-                    <panel
-                     follows="all"
-                     height="260"
-                     layout="topleft"
-                     left="0"
-                     name="tab_all_panel"
-                     top="100"
-                     width="285">
                         <avatar_list
                          draw_heading="false"
                          follows="all"
@@ -172,7 +155,6 @@
                          name="avatars_all"
                          top="0"
                          width="285" />
-                    </panel>
                 </accordion_tab>
             </accordion>
             <panel

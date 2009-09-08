@@ -283,7 +283,7 @@ void LLMediaPluginTest::bindTexture(GLuint texture, GLint row_length, GLint alig
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-bool LLMediaPluginTest::checkGLError(char *name)
+bool LLMediaPluginTest::checkGLError(const char *name)
 {
 	bool result = false;
 	GLenum error = glGetError();

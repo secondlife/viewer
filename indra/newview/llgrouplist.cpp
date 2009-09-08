@@ -51,6 +51,8 @@ LLGroupList::Params::Params()
 LLGroupList::LLGroupList(const Params& p)
 :	LLAvatarList(p)
 {
+	// display a context menu appropriate for a list of group names
+	setContextMenu(LLScrollListCtrl::MENU_GROUP);
 }
 
 static bool findInsensitive(std::string haystack, const std::string& needle_upper)

@@ -76,7 +76,7 @@
      height="40"
      layout="topleft"
      left_delta="84"
-     name="desc"
+     name="desc2"
      top_delta="-4"
      width="180" />
     
@@ -116,17 +116,17 @@
     <panel
      class="floater_snapshot_capture"
      filename="floater_snapshot_Info.xml"
-     name="snapshot_capture_tab"/> 
+     name="snapshot_capture_panel"/> 
     </accordion_tab>
     <accordion_tab
      min_height="100"
      title="Permissions"
-     name="snapshot_capture_tab"
+     name="snapshot_capture_tab2"
      can_resize="false">
     <panel
      class="floater_snapshot_capture"
      filename="floater_snapshot_Permissions.xml"
-     name="snapshot_capture_tab"/> 
+     name="snapshot_capture_panel2"/> 
     </accordion_tab>
     </accordion>
     <!--check_box
@@ -164,7 +164,7 @@
      label="Cancel (not working)"
      layout="topleft"
      left_pad="5"
-     name="save_btn"
+     name="cancel_btn"
      top_delta="0"
      width="80" />   
 

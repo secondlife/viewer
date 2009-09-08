@@ -10,6 +10,10 @@
  name="im_panel"
  top="0"
  width="350">
+    <string
+     name="message_max_lines_count">
+        6
+    </string>
     <panel
      background_visible="true"
      bevel_style="in"
@@ -56,7 +60,7 @@
          width="50" />
     </panel>
     <text
-     follows="left|bottom|right"
+     follows="left|top|bottom|right"
      height="60"
      layout="topleft"
      left="10"

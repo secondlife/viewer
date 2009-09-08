@@ -62,6 +62,9 @@ LLAvatarList::LLAvatarList(const Params& p)
 {
 	setCommitOnSelectionChange(TRUE); // there's no such param in LLScrollListCtrl::Params
 
+	// display a context menu appropriate for a list of avatar names
+	setContextMenu(LLScrollListCtrl::MENU_AVATAR);
+
     // "volume" column
     {
     	LLScrollListColumn::Params col_params;
@@ -219,6 +222,16 @@ BOOL LLAvatarList::update(const std::vector<LLUUID>& all_buddies, const std::str
 	}
 #endif
 	setScrollPos(pos);
+
+	updateLineHeight();
+	LLRect	rect = getRequiredRect();
+
+	LLSD params;
+	params["action"] = "size_changes";
+	params["width"] = rect.getWidth();
+	params["height"] = llmax(rect.getHeight(),20) + 5;
+
+	getParent()->notifyParent(params);
 
 	return have_names;
 }

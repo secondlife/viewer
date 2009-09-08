@@ -899,6 +899,10 @@ bool idle_startup()
 
 	if (STATE_LOGIN_CLEANUP == LLStartUp::getStartupState())
 	{
+		// Move the progress view in front of the UI immediately when login is performed
+		// this allows not to see main menu after Alt+Tab was pressed while login. EXT-744.
+		gViewerWindow->moveProgressViewToFront();
+
 		//reset the values that could have come in from a slurl
 		if (!gLoginHandler.getWebLoginKey().isNull())
 		{

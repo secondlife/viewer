@@ -70,12 +70,16 @@ public:
 		bool				enable_hide_btn;
 		bool				is_modal;
 		bool				is_tip;
+		bool				force_show;
+		bool				force_store;
 
 		Params() :	can_fade(true),
 					can_be_stored(true),
 					is_modal(false),
 					is_tip(false),
 					enable_hide_btn(true),
+					force_show(false),
+					force_store(false),
 					panel(NULL),
 					timer_period(gSavedSettings.getS32("NotificationToastTime"))
 

@@ -8,6 +8,14 @@
  min_width="240"
  name="panel_target_profile"
  width="305">
+    <string
+     name="status_online">
+        Online
+    </string>
+    <string
+     name="status_offline">
+        Offline
+    </string>
     <text
      follows="top|left|right"
      font="SansSerifHugeBold"

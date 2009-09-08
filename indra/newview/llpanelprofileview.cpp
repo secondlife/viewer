@@ -31,12 +31,16 @@
 */
 
 #include "llviewerprecompiledheaders.h"
+
+#include "lluserrelations.h"
+
 #include "llpanelprofileview.h"
 
+#include "llcallingcard.h"
 #include "llpanelavatar.h"
 #include "llpanelpicks.h"
-#include "llsidetraypanelcontainer.h"
 #include "llpanelprofile.h"
+#include "llsidetraypanelcontainer.h"
 
 static LLRegisterPanelClassWrapper<LLPanelProfileView> t_panel_target_profile("panel_profile_view");
 
@@ -45,6 +49,7 @@ static const std::string PANEL_PROFILE = "panel_profile";
 
 LLPanelProfileView::LLPanelProfileView()
 :	LLPanelProfile()
+,	mStatusText(NULL)
 {
 }
 
@@ -65,6 +70,10 @@ void LLPanelProfileView::onOpen(const LLSD& key)
 		setAvatarId(id);
 	}
 
+	// status should only show if viewer has permission to view online/offline. EXT-453 
+	mStatusText->setVisible(isGrantedToSeeOnlineStatus());
+	updateOnlineStatus();
+
 	LLPanelProfile::onOpen(key);
 }
 
@@ -77,6 +86,8 @@ BOOL LLPanelProfileView::postBuild()
 	//*TODO remove this, according to style guide we don't use status combobox
 	getTabContainer()[PANEL_PROFILE]->childSetVisible("online_me_status_text", FALSE);
 	getTabContainer()[PANEL_PROFILE]->childSetVisible("status_combo", FALSE);
+
+	mStatusText = getChild<LLTextBox>("status");
 
 	childSetCommitCallback("back",boost::bind(&LLPanelProfileView::onBackBtnClick,this),NULL);
 	
@@ -94,3 +105,32 @@ void LLPanelProfileView::onBackBtnClick()
 		parent->openPreviousPanel();
 	}
 }
+
+bool LLPanelProfileView::isGrantedToSeeOnlineStatus()
+{
+	const LLRelationship* relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
+	if (NULL == relationship)
+		return false;
+
+	// *NOTE: GRANT_ONLINE_STATUS is always set to false while changing any other status.
+	// When avatar disallow me to see her online status processOfflineNotification Message is received by the viewer
+	// see comments for ChangeUserRights template message. EXT-453.
+//	return relationship->isRightGrantedFrom(LLRelationship::GRANT_ONLINE_STATUS);
+	return true;
+}
+
+void LLPanelProfileView::updateOnlineStatus()
+{
+	const LLRelationship* relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
+	if (NULL == relationship)
+		return;
+
+	bool online = relationship->isOnline();
+//	std::string statusName();
+
+	std::string status = getString(online ? "status_online" : "status_offline");
+
+	mStatusText->setValue(status);
+}
+
+// EOF
