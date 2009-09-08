@@ -78,7 +78,7 @@ void LLRegionPresenceVerifier::RegionResponder::result(const LLSD& content)
 	LLHost destination(host, port);
 	LLUUID id = content["region_id"];
 
-	llinfos << "Verifying " << destination.getString() << " is region " << id << llendl;
+	lldebugs << "Verifying " << destination.getString() << " is region " << id << llendl;
 
 	std::stringstream uri;
 	uri << "http://" << destination.getString() << "/state/basic/";
