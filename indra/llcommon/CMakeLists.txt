@@ -240,7 +240,7 @@ SET(llcommon_TEST_SOURCE_FILES
 LL_ADD_PROJECT_UNIT_TESTS(llcommon "${llcommon_TEST_SOURCE_FILES}")
 
 #set(TEST_DEBUG on)
-set(test_libs llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES} gmock gtest)
+set(test_libs llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES} ${GOOGLEMOCK_LIBRARIES})
 # Have to treat lllazy test as an integration test until this issue is resolved:
 # https://jira.lindenlab.com/jira/browse/DEV-29456
 LL_ADD_INTEGRATION_TEST(lllazy lllazy.cpp "${test_libs}")
