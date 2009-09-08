@@ -94,8 +94,12 @@ std::string LLDate::asRFC1123() const
 	return toHTTPDateString (std::string ("%A, %d %b %Y %H:%M:%S GMT"));
 }
 
+LLFastTimer::DeclareTimer FT_DATE_FORMAT("Date Format");
+
 std::string LLDate::toHTTPDateString (std::string fmt) const
 {
+	LLFastTimer ft1(FT_DATE_FORMAT);
+	
 	std::ostringstream stream;
 	time_t locSeconds = (time_t) mSecondsSinceEpoch;
 	struct tm * gmt = gmtime (&locSeconds);
@@ -107,6 +111,8 @@ std::string LLDate::toHTTPDateString (std::string fmt) const
 
 std::string LLDate::toHTTPDateString (tm * gmt, std::string fmt)
 {
+	LLFastTimer ft1(FT_DATE_FORMAT);
+	
 	std::ostringstream stream;
 	stream.imbue (std::locale(LLStringUtil::getLocale().c_str()));
 	toHTTPDateStream (stream, gmt, fmt);
@@ -115,11 +121,11 @@ std::string LLDate::toHTTPDateString (tm * gmt, std::string fmt)
 
 void LLDate::toHTTPDateStream(std::ostream& s, tm * gmt, std::string fmt)
 {
-	using namespace std;
+	LLFastTimer ft1(FT_DATE_FORMAT);
 
 	const char * pBeg = fmt.c_str();
 	const char * pEnd = pBeg + fmt.length();
-	const time_put<char>& tp = use_facet<time_put<char> >(s.getloc());
+	const std::time_put<char>& tp = std::use_facet<std::time_put<char> >(s.getloc());
 	tp.put (s, s, s.fill(), gmt, pBeg, pEnd);
 }
 

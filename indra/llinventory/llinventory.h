@@ -99,7 +99,7 @@ public:
 	BOOL getIsLinkType() const;
 	// mutators - will not call updateServer();
 	void setUUID(const LLUUID& new_uuid);
-	void rename(const std::string& new_name);
+	virtual void rename(const std::string& new_name);
 	void setParent(const LLUUID& new_parent);
 	void setType(LLAssetType::EType type);
 

@@ -99,13 +99,8 @@ BOOL LLFloaterAbout::postBuild()
 	LLViewerTextEditor *credits_widget = 
 		getChild<LLViewerTextEditor>("credits_editor", true);
 
-	// For some reason, adding style doesn't work unless this is true.
+	// make sure that we handle hyperlinks in the About text
 	support_widget->setParseHTML(TRUE);
-
-	// Text styles for release notes hyperlinks
-	LLStyle::Params link_style_params;
-	link_style_params.color.control = "HTMLLinkColor";
-	link_style_params.link_href = get_viewer_release_notes_url();
 
 	// Version string
 	std::string version = LLTrans::getString("APP_NAME")
@@ -113,10 +108,11 @@ BOOL LLFloaterAbout::postBuild()
 				   LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VIEWER_BUILD,
 				   __DATE__, __TIME__,
 				   gSavedSettings.getString("VersionChannelName").c_str());
-	support_widget->appendColoredText(version, FALSE, FALSE, LLUIColorTable::instance().getColor("TextFgReadOnlyColor"));
-	support_widget->appendStyledText(LLTrans::getString("ReleaseNotes"), false, false, link_style_params);
 
 	std::string support;
+	support.append(version);
+	support.append("[" + get_viewer_release_notes_url() + " " +
+				   LLTrans::getString("ReleaseNotes") + "]");
 	support.append("\n\n");
 
 #if LL_MSVC
@@ -131,10 +127,6 @@ BOOL LLFloaterAbout::postBuild()
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{
-		LLStyle::Params server_link_style_params;
-		server_link_style_params.color.control = "HTMLLinkColor";
-		server_link_style_params.link_href = region->getCapability("ServerReleaseNotes");
-
 		const LLVector3d &pos = gAgent.getPositionGlobal();
 		LLUIString pos_text = getString("you_are_at");
 		pos_text.setArg("[POSITION]",
@@ -154,11 +146,9 @@ BOOL LLFloaterAbout::postBuild()
 		support.append(")\n");
 		support.append(gLastVersionChannel);
 		support.append("\n");
-
-		support_widget->appendColoredText(support, FALSE, FALSE, LLUIColorTable::instance().getColor("TextFgReadOnlyColor"));
-		support_widget->appendStyledText(LLTrans::getString("ReleaseNotes"), false, false, server_link_style_params);
-
-		support = "\n\n";
+		support.append("[" + LLWeb::escapeURL(region->getCapability("ServerReleaseNotes")) +
+					   " " + LLTrans::getString("ReleaseNotes") + "]");
+		support.append("\n\n");
 	}
 
 	// *NOTE: Do not translate text like GPU, Graphics Card, etc -
@@ -248,20 +238,20 @@ BOOL LLFloaterAbout::postBuild()
 }
 
 
- static std::string get_viewer_release_notes_url()
- {
- 	std::ostringstream version;
- 	version << LL_VERSION_MAJOR << "."
- 		<< LL_VERSION_MINOR << "."
- 		<< LL_VERSION_PATCH << "."
- 		<< LL_VERSION_BUILD;
+static std::string get_viewer_release_notes_url()
+{
+	std::ostringstream version;
+	version << LL_VERSION_MAJOR << "."
+		<< LL_VERSION_MINOR << "."
+		<< LL_VERSION_PATCH << "."
+		<< LL_VERSION_BUILD;
 
- 	LLSD query;
- 	query["channel"] = gSavedSettings.getString("VersionChannelName");
- 	query["version"] = version.str();
+	LLSD query;
+	query["channel"] = gSavedSettings.getString("VersionChannelName");
+	query["version"] = version.str();
 
- 	std::ostringstream url;
-	 url << LLTrans::getString("RELEASE_NOTES_BASE_URL") << LLURI::mapToQueryString(query);
+	std::ostringstream url;
+	url << LLTrans::getString("RELEASE_NOTES_BASE_URL") << LLURI::mapToQueryString(query);
 
- 	return url.str();
- }
+	return LLWeb::escapeURL(url.str());
+}

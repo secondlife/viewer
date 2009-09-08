@@ -54,6 +54,7 @@
 
 class LLScrollListCell;
 class LLTextBox;
+class LLContextMenu;
 
 class LLScrollListCtrl : public LLUICtrl, public LLEditMenuHandler, 
 	public LLCtrlListInterface, public LLCtrlScrollInterface
@@ -86,6 +87,7 @@ public:
 
 		// layout
 		Optional<S32>	column_padding,
+							page_lines,
 						heading_height;
 
 		// sort and search behavior
@@ -270,10 +272,15 @@ public:
 
 	void			clearSearchString() { mSearchString.clear(); }
 
+	// support right-click context menus for avatar/group lists
+	enum ContextMenuType { MENU_NONE, MENU_AVATAR, MENU_GROUP };
+	void setContextMenu(const ContextMenuType &menu) { mContextMenuType = menu; }
+
 	// Overridden from LLView
 	/*virtual*/ void    draw();
 	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask);
@@ -308,6 +315,11 @@ public:
 	S32 getMaxContentWidth() { return mMaxContentWidth; }
 
 	void setHeadingHeight(S32 heading_height);
+	/**
+	 * Sets  max visible  lines without scroolbar, if this value equals to 0,
+	 * then display all items.
+	 */
+	void setPageLines(S32 page_lines );
 	void setCollapseEmptyColumns(BOOL collapse);
 
 	LLScrollListItem*	hitItem(S32 x,S32 y);
@@ -362,11 +374,13 @@ protected:
 	typedef std::deque<LLScrollListItem *> item_list;
 	item_list&		getItemList() { return mItemList; }
 
+	void			updateLineHeight();
+
 private:
 	void			selectPrevItem(BOOL extend_selection);
 	void			selectNextItem(BOOL extend_selection);
 	void			drawItems();
-	void			updateLineHeight();
+	
 	void            updateLineHeightInsert(LLScrollListItem* item);
 	void			reportInvalidInput();
 	BOOL			isRepeatedChars(const LLWString& string) const;
@@ -374,6 +388,10 @@ private:
 	void			deselectItem(LLScrollListItem* itemp);
 	void			commitIfChanged();
 	BOOL			setSort(S32 column, BOOL ascending);
+
+	static void		showNameDetails(std::string id, bool is_group);
+	static void		copyNameToClipboard(std::string id, bool is_group);
+	static void		copySLURLToClipboard(std::string id, bool is_group);
 
 	S32				mLineHeight;	// the max height of a single line
 	S32				mScrollLines;	// how many lines we've scrolled down
@@ -421,6 +439,7 @@ private:
 
 	S32				mHighlightedItem;
 	class LLViewBorder*	mBorder;
+	LLContextMenu	*mPopupMenu;
 
 	LLWString		mSearchString;
 	LLFrameTimer	mSearchTimer;
@@ -437,6 +456,8 @@ private:
 
 	BOOL			mDirty;
 	S32				mOriginalSelection;
+
+	ContextMenuType mContextMenuType;
 
 	typedef std::vector<LLScrollListColumn*> ordered_columns_t;
 	ordered_columns_t	mColumnsIndexed;

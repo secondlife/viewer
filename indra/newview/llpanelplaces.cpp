@@ -51,6 +51,7 @@
 #include "llpanellandmarks.h"
 #include "llpanelteleporthistory.h"
 #include "llsidetray.h"
+#include "llteleporthistorystorage.h"
 #include "lltoggleablemenu.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
@@ -119,9 +120,6 @@ BOOL LLPanelPlaces::postBuild()
 	//mShareBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onShareButtonClicked, this));
 
 	mOverflowBtn = getChild<LLButton>("overflow_btn");
-
-	// *TODO: Assign the action to an appropriate event.
-	//mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::toggleMediaPanel, this));
 	mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onOverflowButtonClicked, this));
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -156,19 +154,16 @@ BOOL LLPanelPlaces::postBuild()
 	LLButton* back_btn = mPlaceInfo->getChild<LLButton>("back_btn");
 	back_btn->setClickedCallback(boost::bind(&LLPanelPlaces::onBackButtonClicked, this));
 
-	// *TODO: Assign the action to an appropriate event.
-	mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::toggleMediaPanel, this));
-
 	return TRUE;
 }
 
 void LLPanelPlaces::onOpen(const LLSD& key)
 {
-	mFilterEditor->clear();
-	onFilterEdit("");
-	
 	if(mPlaceInfo == NULL || key.size() == 0)
 		return;
+
+	mFilterEditor->clear();
+	onFilterEdit("");
 
 	mPlaceInfoType = key["type"].asString();
 	mPosGlobal.setZero();
@@ -178,8 +173,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	if (mPlaceInfoType == AGENT_INFO_TYPE)
 	{
 		mPlaceInfo->setInfoType(LLPanelPlaceInfo::AGENT);
-		mPlaceInfo->displayAgentParcelInfo();
-		
+
 		mPosGlobal = gAgent.getPositionGlobal();
 	}
 	else if (mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE)
@@ -218,18 +212,17 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	{
 		S32 index = key["id"].asInteger();
 
-		const LLTeleportHistory::slurl_list_t& hist_items =
-			LLTeleportHistory::getInstance()->getItems();
+		const LLTeleportHistoryStorage::slurl_list_t& hist_items =
+					LLTeleportHistoryStorage::getInstance()->getItems();
 
 		mPosGlobal = hist_items[index].mGlobalPos;
 
 		mPlaceInfo->setInfoType(LLPanelPlaceInfo::TELEPORT_HISTORY);
+		mPlaceInfo->updateLastVisitedText(hist_items[index].mDate);
 		mPlaceInfo->displayParcelInfo(get_pos_local_from_global(mPosGlobal),
-									  hist_items[index].mRegionID,
+									  LLUUID(),
 									  mPosGlobal);
 	}
-	
-
 }
 
 void LLPanelPlaces::setItem(LLInventoryItem* item)

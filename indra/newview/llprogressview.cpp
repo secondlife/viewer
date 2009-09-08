@@ -72,7 +72,6 @@ const S32 ANIMATION_FRAMES = 1; //13;
 LLProgressView::LLProgressView(const LLRect &rect) 
 :	LLPanel(),
 	mPercentDone( 0.f ),
-	mURLInMessage(false),
 	mMouseDownInActiveArea( false )
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_progress.xml");
@@ -207,12 +206,7 @@ void LLProgressView::setPercent(const F32 percent)
 void LLProgressView::setMessage(const std::string& msg)
 {
 	mMessage = msg;
-	mURLInMessage = (mMessage.find( "https://" ) != std::string::npos ||
-			 mMessage.find( "http://" ) != std::string::npos ||
-			 mMessage.find( "ftp://" ) != std::string::npos);
-
 	getChild<LLTextBox>("message_text")->setWrappedText(LLStringExplicit(mMessage));
-	getChild<LLTextBox>("message_text")->setHoverActive(mURLInMessage);
 }
 
 void LLProgressView::setCancelButtonVisible(BOOL b, const std::string& label)

@@ -814,38 +814,18 @@ BOOL LLViewerTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL LLViewerTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = childrenHandleRightMouseDown(x, y, mask) != NULL;
+	// pop up a context menu for any Url under the cursor
+	if (handleRightMouseDownOverUrl(this, x, y))
+	{
+		return TRUE;
+	}
 
-	// *TODO: Add right click menus for SLURLs
-// 	if(! handled)
-// 	{
-// 		const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
-// 		if( cur_segment )
-// 		{
-// 			if(cur_segment->getStyle()->isLink())
-// 			{
-// 				handled = TRUE;
-// 				mHTML = cur_segment->getStyle()->getLinkHREF();
-// 			}
-// 		}
-// 	}
-// 	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
-// 	if(handled && menu && mParseHTML && mHTML.length() > 0)
-// 	{
-// 		menu->setVisible(TRUE);
-// 		menu->arrange();
-// 		menu->updateParent(LLMenuGL::sMenuContainer);
-// 		LLMenuGL::showPopup(this, menu, x, y);
-// 		mHTML = "";
-// 	}
-// 	else
-// 	{
-// 		if(menu && menu->getVisible())
-// 		{
-// 			menu->setVisible(FALSE);
-// 		}
-// 	}
-	return handled;
+	if (childrenHandleRightMouseDown(x, y, mask) != NULL)
+	{
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 BOOL LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
@@ -1087,6 +1067,7 @@ llwchar LLViewerTextEditor::pasteEmbeddedItem(llwchar ext_char)
 void LLViewerTextEditor::onValueChange(S32 start, S32 end)
 {
 	updateSegments();
+	updateLinkSegments();
 	findEmbeddedItemSegments(start, end);
 }
 

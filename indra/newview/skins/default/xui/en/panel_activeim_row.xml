@@ -1,47 +1,53 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel
-	follows="bottom|right"
+<panel	
 	name="panel_activeim_row"
 	layout="topleft"
+	follows="left|right"
 	top="0"
 	left="0"
-	height="40"
-	width="332"
+	height="35"
+	width="318"
 	background_visible="true"
 	bevel_style="in"
 	bg_alpha_color="0 0 0 0">
-	<chiclet_im
+  <chiclet_im_p2p
 		name="chiclet"
 		layout="topleft"
-		top="4"
-		left="10"
-		height="26"
+		follows="left"
+		top="5"
+		left="5"
+		height="25"
 		width="45">
-	</chiclet_im>
+  </chiclet_im_p2p>
 	<text
 		type="string"
 		name="contact_name"
 		layout="topleft"
 		top="8"
-		left="70"
-		height="20"
-		width="230"
+		left_pad="6"
+		height="28"
+		width="235"
 		length="1"
-		follows="left|top|right|bottom"
-		font="SansSerifBigBold"
-		text_color="White">Contact Name</text>
-	<button
-		name="hide_btn"
-		layout="topleft"
-		top="10"
-		left="310"
-		height="20"
-		width="20"
-		label=""
-		image_unselected="toast_hide_btn.tga"
-		image_disabled="toast_hide_btn.tga"
-		image_selected="toast_hide_btn.tga"
-		image_hover_selected="toast_hide_btn.tga"
-		image_disabled_selected="toast_hide_btn.tga">
-	</button>
+		follows="right|left"
+		font="SansSerifBold"
+		text_color="White">
+    Contact Name
+  </text>
+  <button
+    top="5"
+    left_pad="5"
+    width="15"
+    height="15"
+    layout="topleft"
+    follows="right"
+    name="hide_btn"
+    mouse_opaque="true"
+    label=""
+    tab_stop="false"
+    image_unselected="toast_hide_btn.tga"
+    image_disabled="toast_hide_btn.tga"
+    image_selected="toast_hide_btn.tga"
+    image_hover_selected="toast_hide_btn.tga"
+    image_disabled_selected="toast_hide_btn.tga"
+  />
 </panel>

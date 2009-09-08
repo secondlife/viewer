@@ -40,7 +40,7 @@
 #include "lliconctrl.h"
 #include "llnotify.h"
 #include "lltextbox.h"
-#include "lltexteditor.h"
+
 #include "lluiconstants.h"
 #include "llui.h"
 #include "llviewercontrol.h"
@@ -52,6 +52,8 @@
 #include "llavatariconctrl.h"
 #include "llfloaterinventory.h"
 #include "llinventorytype.h"
+
+const S32 LLToastGroupNotifyPanel::DEFAULT_MESSAGE_MAX_LINE_COUNT	= 4;
 
 LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification)
 :	LLToastPanel(notification),
@@ -65,8 +67,6 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 		llwarns << "Group notice for unkown group: " << payload["group_id"].asUUID() << llendl;
 	}
 
-	static const LLUIColor textColor = LLUIColorTable::instance().getColor("GroupNotifyTextColor");
-
 	//group icon
 	LLIconCtrl* pGroupIcon = getChild<LLIconCtrl>("group_icon", TRUE);
 	pGroupIcon->setValue(groupData.mInsigniaID);
@@ -78,23 +78,16 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	LLTextBox* pTitleText = getChild<LLTextBox>("title");
 	pTitleText->setValue(from.str());
 
-	//message body
+	//message subject
 	const std::string& subject = payload["subject"].asString();
+	//message body
 	const std::string& message = payload["message"].asString();
 
-	LLTextEditor* pMessageText = getChild<LLTextEditor>("message");
-	pMessageText->setValue("");
-	pMessageText->setEnabled(FALSE);
 
-	LLStyle::Params date_style;
-	date_style.color = textColor;
-	date_style.font.name = "SANSSERIF";
+	LLTextBox* pSubjectText = getChild<LLTextBox>("subject");
+	pSubjectText->setValue(subject);
 
-	LLStyle::Params header_style_params;
-	header_style_params.color = textColor;
-	header_style_params.font = LLFontGL::getFontSansSerifBig();
-	pMessageText->appendStyledText(subject + "\n",false,false,header_style_params);
-
+	LLTextBox* pDateTimeText = getChild<LLTextBox>("datetime");
 	std::string timeStr = "["+LLTrans::getString("UTCTimeWeek")+"],["
 							+LLTrans::getString("UTCTimeDay")+"] ["
 							+LLTrans::getString("UTCTimeMth")+"] ["
@@ -108,25 +101,38 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	LLSD substitution;
 	substitution["datetime"] = (S32) notice_date.secondsSinceEpoch();
 	LLStringUtil::format(timeStr, substitution);
-	LLStyle::Params date_style_params;
-	date_style_params.color = textColor;
-	date_style_params.font = LLFontGL::getFontMonospace();
-	pMessageText->appendStyledText(timeStr, false, false, date_style);
-	pMessageText->appendColoredText(std::string("\n\n") + message, false,
-			false, textColor);
+	pDateTimeText->setValue(timeStr);
+
+	LLTextBox* pMessageText = getChild<LLTextBox>("message");
+
+	//If message is empty let it be invisible and not take place at the panel
+	if(message.size() != 0)
+	{
+		pMessageText->setVisible(TRUE);
+		pMessageText->setValue(message);
+	}
+	else
+	{
+		pMessageText->setVisible(FALSE);
+	}
 
 	//attachment
 	BOOL hasInventory = payload["inventory_offer"].isDefined();
+
+	//attachment text
 	LLTextBox * pAttachLink = getChild<LLTextBox>("attachment");
+	//attachment icon
+	LLIconCtrl* pAttachIcon = getChild<LLIconCtrl>("attachment_icon", TRUE);
+
+	//If attachment is empty let it be invisible and not take place at the panel
 	pAttachLink->setVisible(hasInventory);
+	pAttachIcon->setVisible(hasInventory);
 	if (hasInventory) {
 		pAttachLink->setValue(payload["inventory_name"]);
 		mInventoryOffer = new LLOfferInfo(payload["inventory_offer"]);
 		childSetActionTextbox("attachment", boost::bind(
 				&LLToastGroupNotifyPanel::onClickAttachment, this));
 
-		//attachment icon
-		LLIconCtrl* pAttachIcon = getChild<LLIconCtrl>("attachment_icon", TRUE);
 		LLUIImagePtr attachIconImg = get_item_icon(mInventoryOffer->mType,
 												LLInventoryType::IT_TEXTURE,
 												0, FALSE);
@@ -137,8 +143,15 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 	LLButton* pOkBtn = getChild<LLButton>("btn_ok");
 	pOkBtn->setClickedCallback((boost::bind(&LLToastGroupNotifyPanel::onClickOk, this)));
 	setDefaultBtn(pOkBtn);
-}
 
+	S32 maxLinesCount;
+	std::istringstream ss( getString("message_max_lines_count") );
+	if (!(ss >> maxLinesCount))
+	{
+		maxLinesCount = DEFAULT_MESSAGE_MAX_LINE_COUNT;
+	}
+	snapToMessageHeight(pMessageText, maxLinesCount);
+}
 
 // virtual
 LLToastGroupNotifyPanel::~LLToastGroupNotifyPanel()

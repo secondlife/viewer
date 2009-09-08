@@ -1338,7 +1338,10 @@ S32 LLIMMgr::getNumberOfUnreadIM()
 	S32 num = 0;
 	for(it = LLIMModel::sSessionsMap.begin(); it != LLIMModel::sSessionsMap.end(); ++it)
 	{
-		num += (*it).second->mNumUnread;
+		if((*it).first != mBeingRemovedSessionID)
+		{
+			num += (*it).second->mNumUnread;
+		}
 	}
 
 	return num;
@@ -1460,6 +1463,9 @@ void LLIMMgr::removeSession(const LLUUID& session_id)
 		clearPendingInvitation(session_id);
 		clearPendingAgentListUpdates(session_id);
 	}
+
+	// for some purposes storing ID of a sessios that is being removed
+	mBeingRemovedSessionID = session_id;
 	notifyObserverSessionRemoved(session_id);
 
 	//if we don't clear session data on removing the session
@@ -1467,6 +1473,9 @@ void LLIMMgr::removeSession(const LLUUID& session_id)
 	//creating chiclets only on session created even, we need to handle chiclets creation
 	//the same way as LLFloaterIMPanels were managed.
 	LLIMModel::getInstance()->clearSession(session_id);
+
+	// now this session is completely removed
+	mBeingRemovedSessionID.setNull();
 }
 
 void LLIMMgr::inviteToSession(

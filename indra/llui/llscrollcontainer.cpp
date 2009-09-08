@@ -66,9 +66,12 @@ static LLDefaultChildRegistry::Register<LLScrollContainer> r("scroll_container")
 #include "llscrollingpanellist.h"
 #include "llcontainerview.h"
 #include "llpanel.h"
+#include "lllistctrl.h"
+
 static ScrollContainerRegistry::Register<LLScrollingPanelList> r1("scrolling_panel_list");
 static ScrollContainerRegistry::Register<LLContainerView> r2("container_view");
 static ScrollContainerRegistry::Register<LLPanel> r3("panel", &LLPanel::fromXML);
+static ScrollContainerRegistry::Register<LLListCtrl> r4("list");
 
 LLScrollContainer::Params::Params()
 :	is_opaque("opaque"),

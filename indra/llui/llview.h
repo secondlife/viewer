@@ -549,6 +549,9 @@ public:
 
 	virtual void	handleReshape(const LLRect& rect, bool by_user);
 
+	virtual void	notifyParent(const LLSD& info);
+	virtual void	notifyChildren(const LLSD& info);
+
 protected:
 	void			drawDebugRect();
 	void			drawChild(LLView* childp, S32 x_offset = 0, S32 y_offset = 0, BOOL force_draw = FALSE);

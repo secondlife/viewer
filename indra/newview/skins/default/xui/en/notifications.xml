@@ -4495,7 +4495,7 @@ Link to this from a web page to give others easy access to this location, or try
    icon="alertmodal.tga"
    name="GraphicsPreferencesHelp"
    type="alertmodal">
-This panel controls window size and resolution and the quality of the client&apos;s graphics.  The Preferences &gt; Graphics interface allows you to choose between four graphics levels: Low, Mid, High, and Ultra. You may also customize your graphics settings by checking the Custom checkbox and manipulating the following settings:
+This panel controls window size and resolution and the quality of the client&apos;s graphics.  The Preferences &gt; Graphics interface allows you to choose between four graphics levels: Low, Mid, High, and Ultra. You may also customize your graphics settings by clicking the Advanced button and manipulating the following settings:
 
 Shaders: Enable or disable various types of pixel shaders.
 
@@ -5029,7 +5029,7 @@ You must have payment information on file to visit this area.  Do you want to go
    icon="alertmodal.tga"
    name="MissingString"
    type="alertmodal">
-How odd. The string [STRING_NAME] is missing from strings.xml
+The string [STRING_NAME] is missing from strings.xml
   </notification>
 
   <notification

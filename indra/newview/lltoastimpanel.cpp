@@ -34,9 +34,7 @@
 #include "lltoastimpanel.h"
 #include "llimpanel.h"
 
-const S32 LLToastIMPanel::MAX_MESSAGE_HEIGHT	= 50;
-const S32 LLToastIMPanel::CAPTION_HEIGHT		= 30;
-const S32 LLToastIMPanel::TOP_PAD 				= 5;
+const S32 LLToastIMPanel::DEFAULT_MESSAGE_MAX_LINE_COUNT	= 6;
 
 //--------------------------------------------------------------------------
 LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notification),
@@ -60,28 +58,18 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 
 	mReplyBtn->setClickedCallback(boost::bind(&LLToastIMPanel::onClickReplyBtn, this));
 
-	snapToMessageHeight();
+	S32 maxLinesCount;
+	std::istringstream ss( getString("message_max_lines_count") );
+	if (!(ss >> maxLinesCount))
+	{
+		maxLinesCount = DEFAULT_MESSAGE_MAX_LINE_COUNT;
+	}
+	snapToMessageHeight(mMessage, maxLinesCount);
 }
 
 //--------------------------------------------------------------------------
 LLToastIMPanel::~LLToastIMPanel()
 {
-}
-
-//--------------------------------------------------------------------------
-void LLToastIMPanel::snapToMessageHeight()
-{
-	S32 required_text_height = mMessage->getTextPixelHeight();
-	S32 text_height = llmin(required_text_height, MAX_MESSAGE_HEIGHT);
-	LLRect text_rect = mMessage->getRect();
-	LLRect btn_rect = mReplyBtn->getRect();
-
-
-	mMessage->reshape( text_rect.getWidth(), text_height, TRUE);
-	mMessage->setValue(mMessage->getText());
-
-	S32 panel_height = CAPTION_HEIGHT + text_height + btn_rect.getHeight() + TOP_PAD*5;
-	reshape( getRect().getWidth(), panel_height, TRUE);
 }
 
 //--------------------------------------------------------------------------

@@ -41,6 +41,7 @@ class LLLandmark;
 class LLAddLandmarkObserver;
 class LLRemoveLandmarkObserver;
 class LLMenuGL;
+class LLTeleportHistoryItem;
 
 /**
  * Location input control.
@@ -103,6 +104,7 @@ private:
 	void					refresh();
 	void					refreshLocation();
 	void					rebuildLocationHistory(std::string filter = "");
+	bool 					findTeleportItemsByTitle(const LLTeleportHistoryItem& item, const std::string& filter);
 	void					setText(const LLStringExplicit& text);
 	void					updateAddLandmarkButton();
 	void 					updateContextMenu();

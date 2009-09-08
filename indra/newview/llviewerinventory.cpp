@@ -120,6 +120,41 @@ LLViewerInventoryItem::~LLViewerInventoryItem()
 {
 }
 
+BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(S32* sortField, std::string* displayName) const
+{
+	using std::string;
+	using std::stringstream;
+
+	const char separator = getSeparator();
+	const string::size_type separatorPos = mName.find(separator, 0);
+
+	BOOL result = FALSE;
+
+	if (separatorPos < string::npos)
+	{
+		if (sortField)
+		{
+			/*
+			 * The conversion from string to S32 is made this way instead of old plain
+			 * atoi() to ensure portability. If on some other platform S32 will not be
+			 * defined to be signed int, this conversion will still work because of
+			 * operators overloading, but atoi() may fail.
+			 */
+			stringstream ss(mName.substr(0, separatorPos));
+			ss >> *sortField;
+		}
+
+		if (displayName)
+		{
+			*displayName = mName.substr(separatorPos + 1, string::npos);
+		}
+
+		result = TRUE;
+	}
+
+	return result;
+}
+
 void LLViewerInventoryItem::copyViewerItem(const LLViewerInventoryItem* other)
 {
 	LLInventoryItem::copyItem(other);
@@ -1102,7 +1137,70 @@ const std::string& LLViewerInventoryItem::getName() const
 		return linked_category->getName();
 	}
 
-	return LLInventoryItem::getName();
+	return getDisplayName();
+}
+
+const std::string& LLViewerInventoryItem::getDisplayName() const
+{
+	std::string result;
+	BOOL hasSortField = extractSortFieldAndDisplayName(0, &result);
+
+	return mDisplayName = hasSortField ? result : LLInventoryItem::getName();
+}
+
+S32 LLViewerInventoryItem::getSortField() const
+{
+	S32 result;
+	BOOL hasSortField = extractSortFieldAndDisplayName(&result, 0);
+
+	return hasSortField ? result : -1;
+}
+
+void LLViewerInventoryItem::setSortField(S32 sortField)
+{
+	using std::string;
+
+	std::stringstream ss;
+	ss << sortField;
+
+	string newSortField = ss.str();
+
+	const char separator = getSeparator();
+	const string::size_type separatorPos = mName.find(separator, 0);
+
+	if (separatorPos < string::npos)
+	{
+		// the name of the LLViewerInventoryItem already consists of sort field and display name.
+		mName = newSortField + separator + mName.substr(separatorPos + 1, string::npos);
+	}
+	else
+	{
+		// there is no sort field in the name of LLViewerInventoryItem, we should add it
+		mName = newSortField + separator + mName;
+	}
+}
+
+void LLViewerInventoryItem::rename(const std::string& n)
+{
+	using std::string;
+
+	string new_name(n);
+	LLStringUtil::replaceNonstandardASCII(new_name, ' ');
+	LLStringUtil::replaceChar(new_name, '|', ' ');
+	LLStringUtil::trim(new_name);
+	LLStringUtil::truncate(new_name, DB_INV_ITEM_NAME_STR_LEN);
+
+	const char separator = getSeparator();
+	const string::size_type separatorPos = mName.find(separator, 0);
+
+	if (separatorPos < string::npos)
+	{
+		mName.replace(separatorPos + 1, string::npos, new_name);
+	}
+	else
+	{
+		mName = new_name;
+	}
 }
 
 const LLPermissions& LLViewerInventoryItem::getPermissions() const

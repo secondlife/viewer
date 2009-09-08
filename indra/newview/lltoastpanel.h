@@ -34,6 +34,7 @@
 #define LL_LLTOASTPANEL_H
 
 #include "llpanel.h"
+#include "lltextbox.h"
 #include "llnotifications.h"
 
 #include <string>
@@ -53,6 +54,7 @@ public:
 	virtual const LLUUID& getID() { return mNotification->id();}
 protected:
 	LLNotificationPtr mNotification;
+	void snapToMessageHeight(LLTextBox* message, S32 maxLineCount);
 };
 
 #endif /* LL_TOASTPANEL_H */

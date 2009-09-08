@@ -57,6 +57,13 @@
         label="Group Info" 
         border="true"
       />
+      <panel 
+        class="panel_block_list_sidetray"
+        name="panel_block_list_sidetray" 
+        filename="panel_block_list_sidetray.xml" 
+        label="Blocked Residents &amp; Objects"
+        border="true"
+      />
 
     </panel_container>
   </sidetray_tab>

@@ -80,6 +80,7 @@
 
 // Linden library includes
 #include "llmemory.h"
+#include "llurlaction.h"
 
 // Third party library includes
 #include <boost/bind.hpp>
@@ -685,9 +686,14 @@ bool LLAppViewer::init()
 	LLTransUtil::parseLanguageStrings("language_settings.xml");
 	LLWeb::initClass();			  // do this after LLUI
 
-	LLTextEditor::setURLCallbacks(&LLWeb::loadURL,
-				&LLURLDispatcher::dispatchFromTextEditor,
-				&LLURLDispatcher::dispatchFromTextEditor);
+	// Provide the text fields with callbacks for opening Urls
+	LLUrlAction::setOpenURLCallback(&LLWeb::loadURL);
+	LLUrlAction::setOpenURLInternalCallback(&LLWeb::loadURLInternal);
+	LLUrlAction::setOpenURLExternalCallback(&LLWeb::loadURLExternal);
+	LLUrlAction::setExecuteSLURLCallback(&LLURLDispatcher::dispatchFromTextEditor);
+
+	// Set the link color for any Urls in text fields
+	LLTextBase::setLinkColor( LLUIColorTable::instance().getColor("HTMLLinkColor") );
 
 	// Load translations for tooltips
 	LLFloater::initClass();
@@ -2315,12 +2321,6 @@ void LLAppViewer::writeDebugInfo()
 void LLAppViewer::cleanupSavedSettings()
 {
 	gSavedSettings.setBOOL("MouseSun", FALSE);
-
-	gSavedSettings.setBOOL("FlyBtnState", FALSE);
-
-	gSavedSettings.setBOOL("FirstPersonBtnState", FALSE);
-	gSavedSettings.setBOOL("ThirdPersonBtnState", TRUE);
-	gSavedSettings.setBOOL("BuildBtnState", FALSE);
 
 	gSavedSettings.setBOOL("UseEnergy", TRUE);				// force toggle to turn off, since sends message to simulator
 

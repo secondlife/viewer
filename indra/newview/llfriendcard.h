@@ -77,6 +77,11 @@ public:
 	bool isCategoryInFriendFolder(const LLViewerInventoryCategory* cat) const;
 
 	/**
+	 *	Checks is the specified category is a Friend folder or any its subfolder
+	 */
+	bool isAnyFriendCategory(const LLUUID& catID) const;
+
+	/**
 	 *	Synchronizes content of the Calling Card/Friends/All Global Inventory folder with Agent's Friend List
 	 */
 	void syncFriendsFolder();

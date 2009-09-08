@@ -804,28 +804,6 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>BuildBtnState</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>BuildBtnEnabled</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>BuildFeathering</key>
     <map>
       <key>Comment</key>
@@ -2784,17 +2762,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>FirstPersonBtnState</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>FirstRunThisInstall</key>
     <map>
       <key>Comment</key>
@@ -2965,28 +2932,6 @@
         <integer>250</integer>
         <integer>0</integer>
       </array>
-    </map>
-    <key>FlyBtnEnabled</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>FlyBtnState</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>FlycamAbsolute</key>
     <map>
@@ -4590,17 +4535,6 @@
       <integer>0</integer>
     </map>
     <key>MouseSun</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>MouselookBtnState</key>
     <map>
       <key>Comment</key>
       <string />
@@ -6552,17 +6486,6 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>RunBtnState</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>RunMultipleThreads</key>
     <map>
       <key>Comment</key>
@@ -6943,10 +6866,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>    
-    <key>ShowPGSearchAll</key>    
+    <key>ShowCameraAndMoveControls</key>                
     <map>
       <key>Comment</key>
-      <string>Show/Hide Navigation Bar Favorites Panel</string>
+      <string>Show/Hide Camera and Move controls in the bottom tray</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6957,7 +6880,7 @@
     <key>ShowNavbarFavoritesPanel</key>    
     <map>
       <key>Comment</key>
-      <string>Show/Hide Navigation Bar Navigation Panel</string>
+      <string>Show/Hide Navigation Bar Favorites Panel</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6966,6 +6889,17 @@
       <integer>1</integer>   
     </map>
     <key>ShowNavbarNavigationPanel</key>        
+    <map>
+      <key>Comment</key>
+      <string>Show/Hide Navigation Bar Navigation Panel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>   
+    </map>
+    <key>ShowPGSearchAll</key>    
     <map>
       <key>Comment</key>
       <string>Display results of search All that are flagged as PG</string>
@@ -7386,17 +7320,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>SitBtnState</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>SkinCurrent</key>
     <map>
       <key>Comment</key>
@@ -7756,17 +7679,6 @@
       <string>U32</string>
       <key>Value</key>
       <integer>2</integer>
-    </map>
-    <key>ThirdPersonBtnState</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>ThrottleBandwidthKBPS</key>
     <map>

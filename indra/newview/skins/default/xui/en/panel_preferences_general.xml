@@ -260,7 +260,7 @@
      label="Show my name"
      layout="topleft"
      left_delta="0"
-     name="show_my_name_checkbox"
+     name="show_my_name_checkbox1"
      top_pad="5"
      width="300" />
     <check_box
@@ -280,7 +280,7 @@
      label="Show group titles"
      layout="topleft"
      left_delta="-175"
-     name="show_all_title_checkbox"
+     name="show_all_title_checkbox1"
      top_pad="5"
      width="300" />
     <text

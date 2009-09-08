@@ -61,6 +61,7 @@
 #include "llnavigationbar.h"
 #include "llpanellogin.h"
 #include "llradiogroup.h"
+#include "llsearchcombobox.h"
 #include "llsky.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
@@ -214,6 +215,11 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 		// flag client texture cache for clearing next time the client runs
 		gSavedSettings.setBOOL("PurgeCacheOnNextStartup", TRUE);
 		LLNotifications::instance().add("CacheWillClear");
+
+		LLSearchHistory::getInstance()->clearHistory();
+		LLSearchHistory::getInstance()->save();
+		LLSearchComboBox* search_ctrl = LLNavigationBar::getInstance()->getChild<LLSearchComboBox>("search_combo_box");
+		search_ctrl->clearHistory();
 	}
 	
 	return false;

@@ -2125,6 +2125,7 @@ BOOL LLIMFloater::postBuild()
 	childSetCommitCallback("chat_editor", onSendMsg, this);
 	
 	mHistoryEditor = getChild<LLViewerTextEditor>("im_text");
+	mHistoryEditor->setParseHTML(TRUE);
 		
 	setTitle(LLIMModel::instance().getName(mSessionID));
 	setDocked(true);

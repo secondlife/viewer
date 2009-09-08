@@ -1061,6 +1061,7 @@ BOOL LLPanelLandObjects::postBuild()
 	mOwnerList->sortByColumnIndex(3, FALSE);
 	childSetCommitCallback("owner list", onCommitList, this);
 	mOwnerList->setDoubleClickCallback(onDoubleClickOwner, this);
+	mOwnerList->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
 
 	return TRUE;
 }
@@ -2297,11 +2298,17 @@ BOOL LLPanelLandAccess::postBuild()
 	
 	mListAccess = getChild<LLNameListCtrl>("AccessList");
 	if (mListAccess)
+	{
 		mListAccess->sortByColumnIndex(0, TRUE); // ascending
+		mListAccess->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
+	}
 
 	mListBanned = getChild<LLNameListCtrl>("BannedList");
 	if (mListBanned)
+	{
 		mListBanned->sortByColumnIndex(0, TRUE); // ascending
+		mListBanned->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
+	}
 
 	return TRUE;
 }

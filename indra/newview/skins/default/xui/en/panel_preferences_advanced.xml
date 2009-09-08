@@ -120,7 +120,7 @@
      height="10"
      left="30"
      text_color="EmphasisColor"
-     name="text_box1"
+     name="heading1"
      top_pad="30"
      width="270">
 Camera:
@@ -166,7 +166,7 @@ Camera:
      length="1"
      height="10"
      left="30"
-     name="text_box1"
+     name="heading2"
      width="270">
 Automatic positioning for:
 	</text>
@@ -194,7 +194,7 @@ Automatic positioning for:
      height="10"
      left="30"
      text_color="EmphasisColor"
-     name="text_box1"
+     name="heading3"
      top_pad="30"
      width="270">
 My Avatar:

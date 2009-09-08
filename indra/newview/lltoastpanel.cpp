@@ -49,5 +49,36 @@ std::string LLToastPanel::getTitle()
 	return mNotification->getMessage();
 }
 
+//snap to the message height if it is visible
+void LLToastPanel::snapToMessageHeight(LLTextBox* message, S32 maxLineCount)
+{
+	//Add message height if it is visible
+	if (message->getVisible())
+	{
+		S32 heightDelta = 0;
+		S32 maxTextHeight = (S32)(message->getFont()->getLineHeight() * maxLineCount);
 
+		LLRect messageRect = message->getRect();
+		S32 oldTextHeight = messageRect.getHeight();
+
+		//Reshape the toast to give the message max height.
+		//This needed to calculate lines count according to specified text
+		heightDelta = maxTextHeight - oldTextHeight;
+		reshape( getRect().getWidth(), getRect().getHeight() + heightDelta);
+		message->setValue(message->getText());
+
+		//Knowing the height is set to max allowed, getTextPixelHeight returns needed text height
+		//Perhaps we need to pass maxLineCount as parameter to getTextPixelHeight to avoid previous reshape.
+		S32 requiredTextHeight = message->getTextPixelHeight();
+		S32 newTextHeight = llmin(requiredTextHeight, maxTextHeight);
+
+		//Calculate last delta height deducting previous heightDelta 
+		heightDelta = newTextHeight - oldTextHeight - heightDelta;
+
+		//reshape the panel with new height
+		reshape( getRect().getWidth(), getRect().getHeight() + heightDelta);
+		message->setValue(message->getText());
+	}
+
+}
 

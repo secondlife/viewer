@@ -60,6 +60,8 @@ public:
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
 
+	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
+
 	// LLInventoryObserver observer trigger
 	virtual void changed(U32 mask);
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
@@ -73,10 +75,12 @@ protected:
 	void onButtonClick(LLUUID id);
 	void onButtonRightClick(LLUUID id,LLView* button,S32 x,S32 y,MASK mask);
 	
+	void onButtonMouseDown(LLUUID id, LLUICtrl* button, S32 x, S32 y, MASK mask);
+	void onButtonMouseUp(LLUUID id, LLUICtrl* button, S32 x, S32 y, MASK mask);
+
 	void doToSelected(const LLSD& userdata);
 	BOOL isClipboardPasteable() const;
 	void pastFromClipboard() const;
-
 	
 	void showDropDownMenu();
 
@@ -94,8 +98,49 @@ protected:
 	LLRect mChevronRect;
 
 	std::string mChevronButtonToolTip;
+
+private:
+	/*
+	 * Helper function to make code more readable. It handles all drag and drop
+	 * operations of the existing favorites items on the favorites bar.
+	 */
+	void handleExistingFavoriteDragAndDrop(S32 x, S32 y);
+
+	/*
+	 * Helper function to make code more readable. It handles all drag and drop
+	 * operations of the new landmark to the favorites bar.
+	 */
+	void handleNewFavoriteDragAndDrop(LLInventoryItem *item, const LLUUID& favorites_id, S32 x, S32 y);
+
+	// finds a control under the specified LOCAL point
+	LLUICtrl* findChildByLocalCoords(S32 x, S32 y);
+
+	// checks if the current order of the favorites items must be saved
+	BOOL needToSaveItemsOrder(const LLInventoryModel::item_array_t& items);
+
+	// saves current order of the favorites items
+	void saveItemsOrder(LLInventoryModel::item_array_t& items);
+
+	/*
+	 * changes favorites items order by insertion of the item identified by srcItemId
+	 * BEFORE the item identified by destItemId. both items must exist in items array.
+	 */
+	void updateItemsOrder(LLInventoryModel::item_array_t& items, const LLUUID& srcItemId, const LLUUID& destItemId);
+
+	/*
+	 * inserts an item identified by insertedItemId BEFORE an item identified by beforeItemId.
+	 * this function assumes that an item identified by insertedItemId doesn't exist in items array.
+	 */
+	void insertBeforeItem(LLInventoryModel::item_array_t& items, const LLUUID& beforeItemId, const LLUUID& insertedItemId);
+
+	// finds an item by it's UUID in the items array
+	LLInventoryModel::item_array_t::iterator findItemByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id);
+
+	BOOL mSkipUpdate;
+	BOOL mStartDrag;
+	LLUUID mDragItemId;
+	LLInventoryModel::item_array_t mItems;
 };
 
 
 #endif // LL_LLFAVORITESBARCTRL_H
-

@@ -37,6 +37,7 @@
 #include "llpanelteleporthistory.h"
 #include "llsidetray.h"
 #include "llworldmap.h"
+#include "llteleporthistorystorage.h"
 
 // Not yet implemented; need to remove buildPanel() from constructor when we switch
 //static LLRegisterPanelClassWrapper<LLTeleportHistoryPanel> t_teleport_history("panel_teleport_history");
@@ -56,7 +57,7 @@ LLTeleportHistoryPanel::~LLTeleportHistoryPanel()
 
 BOOL LLTeleportHistoryPanel::postBuild()
 {
-	mTeleportHistory = LLTeleportHistory::getInstance();
+	mTeleportHistory = LLTeleportHistoryStorage::getInstance();
 	if (mTeleportHistory)
 	{
 		mTeleportHistory->setHistoryChangedCallback(boost::bind(&LLTeleportHistoryPanel::showTeleportHistory, this));
@@ -92,9 +93,7 @@ void LLTeleportHistoryPanel::onShowOnMap()
 
 	S32 index = itemp->getColumn(LIST_INDEX)->getValue().asInteger();
 
-	const LLTeleportHistory::slurl_list_t& hist_items = mTeleportHistory->getItems();
-
-	LLVector3d global_pos = hist_items[index].mGlobalPos;
+	LLVector3d global_pos = mTeleportHistory->getItems()[index].mGlobalPos;
 	
 	if (!global_pos.isExactlyZero())
 	{
@@ -153,7 +152,7 @@ void LLTeleportHistoryPanel::updateVerbs()
 	if (itemp)
 	{
 		index = itemp->getColumn(LIST_INDEX)->getValue().asInteger();
-		cur_item = mTeleportHistory->getCurrentItemIndex();
+		cur_item = mTeleportHistory->getItems().size() - 1;
 	}
 
 	mTeleportBtn->setEnabled(index != cur_item);
@@ -162,13 +161,11 @@ void LLTeleportHistoryPanel::updateVerbs()
 
 void LLTeleportHistoryPanel::showTeleportHistory()
 {
-	const LLTeleportHistory::slurl_list_t& hist_items = mTeleportHistory->getItems();
+	const LLTeleportHistoryStorage::slurl_list_t& hist_items = mTeleportHistory->getItems();
 
 	mHistoryItems->deleteAllItems();
 
-	S32 cur_item = mTeleportHistory->getCurrentItemIndex();
-
-	for (LLTeleportHistory::slurl_list_t::const_iterator iter = hist_items.begin();
+	for (LLTeleportHistoryStorage::slurl_list_t::const_iterator iter = hist_items.begin();
 				iter != hist_items.end(); ++iter)
 	{
 		std::string landmark_title = (*iter).mTitle;
@@ -181,7 +178,6 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 			continue;
 
 		S32 index = iter - hist_items.begin();
-
 		LLSD row;
 		row["id"] = index;
 
@@ -201,13 +197,11 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 		index_column["value"] = index;
 
 		mHistoryItems->addElement(row, ADD_TOP);
-
-		if (cur_item == index)
-		{
-			LLScrollListItem* itemp = mHistoryItems->getItem(index);
-			((LLScrollListText*)itemp->getColumn(LIST_ITEM_TITLE))->setFontStyle(LLFontGL::BOLD);
-		}
 	}
+
+	// Consider last item (most recent) as current
+	LLScrollListItem* itemp = mHistoryItems->getItem((S32)hist_items.size() - 1);
+	((LLScrollListText*)itemp->getColumn(LIST_ITEM_TITLE))->setFontStyle(LLFontGL::BOLD);
 
 	updateVerbs();
 }

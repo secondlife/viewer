@@ -47,7 +47,6 @@
 #include "llconsole.h"
 #include "llfloateractivespeakers.h"
 #include "llfloaterchatterbox.h"
-#include "llfloatermute.h"
 #include "llfloaterreg.h"
 #include "llfloaterscriptdebug.h"
 #include "llkeyboard.h"
@@ -56,6 +55,7 @@
 //#include "llresizehandle.h"
 #include "llchatbar.h"
 #include "llrecentpeople.h"
+#include "llpanelblockedlist.h"
 #include "llstatusbar.h"
 #include "llviewertexteditor.h"
 #include "llviewergesture.h"			// for triggering gestures
@@ -280,7 +280,7 @@ void LLFloaterChat::onClickMute(void *data)
 	LLMute mute(id);
 	mute.setFromDisplayName(name);
 	LLMuteList::getInstance()->add(mute);
-	LLFloaterReg::showInstance("mute");
+	LLPanelBlockedList::showPanelAndSelect(mute.mID);
 }
 
 //static

@@ -166,7 +166,7 @@ protected:
 	 */
 	virtual void fillAccountStatus(const LLAvatarData* avatar_data);
 
-	void onUrlTextboxClicked(std::string url);
+	void onUrlTextboxClicked(const std::string& url);
 	void onHomepageTextboxClicked();
 	void onAddFriendButtonClick();
 	void onIMButtonClick();
@@ -203,9 +203,6 @@ protected:
 
 	void onStatusChanged();
 	void onStatusMessageChanged();
-	void onUpdateAccountTextboxClicked();
-	void onMyAccountTextboxClicked();
-	void onPartnerEditTextboxClicked();
 
 private:
 
