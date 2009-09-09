@@ -4,6 +4,7 @@ project(llcommon)
 
 include(00-Common)
 include(LLCommon)
+include(Boost)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
@@ -200,6 +201,7 @@ target_link_libraries(
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}
     ${ZLIB_LIBRARIES}
+    ${BOOST_REGEX_LIBRARY}
     )
 
 include(LLAddBuildTest)
