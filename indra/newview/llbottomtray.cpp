@@ -182,6 +182,14 @@ void LLBottomTray::sessionRemoved(const LLUUID& session_id)
 {
 	if(getChicletPanel())
 	{
+		// IM floater should be closed when session removed and associated chiclet closed
+		LLIMFloater* iMfloater = LLFloaterReg::findTypedInstance<LLIMFloater>(
+				"impanel", session_id);
+		if (iMfloater != NULL)
+		{
+			iMfloater->closeFloater();
+		}
+
 		getChicletPanel()->removeChiclet(session_id);
 	}
 }

@@ -154,6 +154,8 @@ void LLSysWellWindow::toggleWindow()
 				getDockTongue(), LLDockControl::TOP, isDocked()));
 	}
 	setVisible(!getVisible());
+	//set window in foreground
+	setFocus(getVisible());
 }
 
 //---------------------------------------------------------------------------------

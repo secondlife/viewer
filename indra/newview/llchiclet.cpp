@@ -211,18 +211,6 @@ void LLIMChiclet::draw()
 {
 	LLUICtrl::draw();
 
-	//if we have a docked floater, we want to position it relative to us
-	LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", getSessionId());
-
-	if (im_floater && im_floater->isDocked()) 
-	{
-		S32 x, y;
-		getParent()->localPointToScreen(getRect().getCenterX(), 0, &x, &y);
-		im_floater->translate(x - im_floater->getRect().getCenterX(), 10 - im_floater->getRect().mBottom);	
-		//set this so the docked floater knows it's been positioned and can now draw
-		im_floater->setPositioned(true);
-	}
-
 	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.0f,0.0f,0.0f,1.f), FALSE);
 }
 

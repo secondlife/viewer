@@ -53,21 +53,34 @@ BOOL LLDockableFloater::postBuild()
 
 void LLDockableFloater::setDocked(bool docked, bool pop_on_undock)
 {
-	if (docked)
+	if (mDockControl.get() != NULL)
 	{
-		mDockControl.get()->on();
+		if (docked)
+		{
+			mDockControl.get()->on();
+		}
+		else
+		{
+			mDockControl.get()->off();
+		}
 	}
-	else
+
+	if (!docked && pop_on_undock)
 	{
-		mDockControl.get()->off();
+		// visually pop up a little bit to emphasize the undocking
+		translate(0, UNDOCK_LEAP_HEIGHT);
 	}
+
 	LLFloater::setDocked(docked, pop_on_undock);
 }
 
 void LLDockableFloater::draw()
 {
-	mDockControl.get()->repositionDockable();
-	mDockControl.get()->drawToungue();
+	if (mDockControl.get() != NULL)
+	{
+		mDockControl.get()->repositionDockable();
+		mDockControl.get()->drawToungue();
+	}
 	LLFloater::draw();
 }
 

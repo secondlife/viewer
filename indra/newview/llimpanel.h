@@ -33,7 +33,7 @@
 #ifndef LL_IMPANEL_H
 #define LL_IMPANEL_H
 
-#include "llfloater.h"
+#include "lldockablefloater.h"
 #include "lllogchat.h"
 #include "lluuid.h"
 #include "lldarray.h"
@@ -363,7 +363,7 @@ private:
 
 // Individual IM window that appears at the bottom of the screen,
 // optionally "docked" to the bottom tray.
-class LLIMFloater : public LLFloater
+class LLIMFloater : public LLDockableFloater
 {
 public:
 	LLIMFloater(const LLUUID& session_id);
@@ -372,17 +372,10 @@ public:
 	
 	// LLView overrides
 	/*virtual*/ BOOL postBuild();
-	
-	// LLView overrides for drawing dock tongue
-	/*virtual*/ 
-	void draw();
 
 	// Floater should close when user clicks away to other UI area,
 	// hence causing focus loss.
 	/*virtual*/ void onFocusLost();
-
-	// LLFloater overrides
-	/*virtual*/ void setDocked(bool docked,  bool pop_on_undock = true);
 
 	// Make IM conversion visible and update the message history
 	static LLIMFloater* show(const LLUUID& session_id);
@@ -426,7 +419,6 @@ private:
 	LLViewerTextEditor* mHistoryEditor;
 	LLLineEditor* mInputEditor;
 	bool mPositioned;
-	LLUIImagePtr mDockTongue;
 };
 
 

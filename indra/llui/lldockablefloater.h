@@ -43,6 +43,7 @@
  */
 class LLDockableFloater : public LLFloater
 {
+	static const U32 UNDOCK_LEAP_HEIGHT = 12;
 public:
 	LOG_CLASS(LLDockableFloater);
 	LLDockableFloater(LLDockControl* dockControl, const LLSD& key, const Params& params = getDefaultParams());
