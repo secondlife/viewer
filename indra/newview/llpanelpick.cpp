@@ -159,7 +159,7 @@ void LLPanelPick::requestData()
 {
 	mDataReceived = FALSE;
 	LLAvatarPropertiesProcessor::instance().addObserver(mCreatorId, this);
-	LLAvatarPropertiesProcessor::instance().sendDataRequest(mCreatorId, APT_PICK_INFO, &mPickId);
+	LLAvatarPropertiesProcessor::instance().sendPickInfoRequest(mCreatorId, mPickId);
 }
 
 void LLPanelPick::init(LLPickData *pick_data)
@@ -335,7 +335,7 @@ void LLPanelPick::sendUpdate()
 	mDataReceived = FALSE;
 	LLAvatarPropertiesProcessor::instance().addObserver(gAgentID, this);
 
-	LLAvatarPropertiesProcessor::instance().sendDataUpdate(&pick_data, APT_PICK_INFO);
+	LLAvatarPropertiesProcessor::instance().sendPickInfoUpdate(&pick_data);
 }
 
 

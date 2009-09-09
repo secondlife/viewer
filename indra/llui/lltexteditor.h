@@ -151,7 +151,7 @@ public:
 	virtual BOOL	handleKeyHere(KEY key, MASK mask );
 	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
 
-	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect);
+	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect);
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									  EDragAndDropType cargo_type, void *cargo_data,
 									  EAcceptance *accept, std::string& tooltip_msg);

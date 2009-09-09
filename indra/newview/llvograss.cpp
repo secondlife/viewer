@@ -38,7 +38,7 @@
 #include "llviewercontrol.h"
 
 #include "llagent.h"
-#include "llviewerwindow.h"
+#include "llnotifications.h"
 #include "lldrawable.h"
 #include "llface.h"
 #include "llsky.h"

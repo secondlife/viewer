@@ -582,9 +582,9 @@ void LLViewerObject::removeChild(LLViewerObject *childp)
 	}
 }
 
-void LLViewerObject::addThisAndAllChildren(LLDynamicArray<LLViewerObject*>& objects)
+void LLViewerObject::addThisAndAllChildren(std::vector<LLViewerObject*>& objects)
 {
-	objects.put(this);
+	objects.push_back(this);
 	for (child_list_t::iterator iter = mChildList.begin();
 		 iter != mChildList.end(); iter++)
 	{
@@ -596,9 +596,9 @@ void LLViewerObject::addThisAndAllChildren(LLDynamicArray<LLViewerObject*>& obje
 	}
 }
 
-void LLViewerObject::addThisAndNonJointChildren(LLDynamicArray<LLViewerObject*>& objects)
+void LLViewerObject::addThisAndNonJointChildren(std::vector<LLViewerObject*>& objects)
 {
-	objects.put(this);
+	objects.push_back(this);
 	// don't add any attachments when temporarily selecting avatar
 	if (isAvatar())
 	{
@@ -3475,7 +3475,7 @@ void LLViewerObject::setMediaType(U8 media_type)
 {
 	if (!mMedia)
 	{
-		// JAMESDEBUG TODO what if we don't have a media pointer?
+		// TODO what if we don't have a media pointer?
 	}
 	else if (mMedia->mMediaType != media_type)
 	{
@@ -3677,7 +3677,7 @@ void LLViewerObject::sendTEUpdate() const
 		msg->addString("MediaURL", NULL);
 	}
 
-	// JAMESDEBUG TODO send media type
+	// TODO send media type
 
 	packTEMessage(msg);
 
@@ -3688,7 +3688,7 @@ void LLViewerObject::sendTEUpdate() const
 void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
 {
 	LLPrimitive::setTE(te, texture_entry);
-// JAMESDEBUG This doesn't work, don't get any textures.
+//  This doesn't work, don't get any textures.
 //	if (mDrawable.notNull() && mDrawable->isVisible())
 //	{
 		const LLUUID& image_id = getTE(te)->getID();
@@ -3865,7 +3865,7 @@ S32 LLViewerObject::setTEFullbright(const U8 te, const U8 fullbright)
 
 S32 LLViewerObject::setTEMediaFlags(const U8 te, const U8 media_flags)
 {
-	// JAMESDEBUG this might need work for media type
+	// this might need work for media type
 	S32 retval = 0;
 	const LLTextureEntry *tep = getTE(te);
 	if (!tep)

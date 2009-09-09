@@ -52,6 +52,7 @@ public:
 	virtual BOOL		handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL		handleDoubleClick(S32 x, S32 y, MASK mask);
 	virtual BOOL		handleScrollWheel(S32 x, S32 y, S32 clicks);
+	virtual BOOL		handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen);
 
 	virtual void		render();
 
@@ -72,6 +73,7 @@ public:
 
 	static void			selectionPropertiesReceived();
 
+	static void			showAvatarInspector(const LLUUID& id);
 
 private:
 	BOOL outsideSlop		(S32 x, S32 y, S32 start_x, S32 start_y);
@@ -84,6 +86,7 @@ private:
 	BOOL				mGrabMouseButtonDown;
 	BOOL				mMouseOutsideSlop;				// for this drag, has mouse moved outside slop region
 	LLPickInfo			mPick;
+	LLPickInfo			mHoverPick;
 	LLPointer<LLViewerObject> mClickActionObject;
 	U8					mClickAction;
 	LLSafeHandle<LLObjectSelection> mLeftClickSelection;

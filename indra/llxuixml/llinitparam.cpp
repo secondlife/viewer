@@ -517,6 +517,14 @@ namespace LLInitParam
 	}
 
 	template<>
+	bool ParamCompare<boost::function<void (void)> >::equals(
+		const boost::function<void (void)> &a,
+		const boost::function<void (void)> &b)
+	{
+		return false;
+	}
+
+	template<>
 	bool ParamCompare<LLSD>::equals(const LLSD &a, const LLSD &b)
 	{
 		return false;

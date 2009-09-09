@@ -35,6 +35,7 @@
 #include "linden_common.h"
 
 #include "lllayoutstack.h"
+#include "lllocalcliprect.h"
 #include "llresizebar.h"
 #include "llcriticaldamp.h"
 
@@ -297,6 +298,7 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 				FALSE, output_child);
 
 			LLPanel::Params p;
+			p.mouse_opaque(false);
 			LLPanel* panelp = LLUICtrlFactory::create<LLPanel>(p);
 			LLView* new_child = LLUICtrlFactory::getInstance()->createFromXML(child_node, panelp, LLStringUtil::null, LLPanel::child_registry_t::instance(), output_child);
 			if (new_child)

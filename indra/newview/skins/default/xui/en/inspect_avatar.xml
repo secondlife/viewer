@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- All our XML is utf-8 encoded. -->
 
-<!-- No title to avoid window chrome -->
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
 <floater
   background_opaque="false"
   background_visible="true"
   bevel_style="in"
-  bg_alpha_color="black"
+  bg_alpha_color="PanelDefaultBackgroundColor"
+  can_close="false" 
   can_minimize="false" 
 	name="inspect_avatar"
+  single_instance="true" 
+  sound_flags="0" 
 	title=""
   visible="true"
 	width="300"
@@ -16,28 +22,39 @@
   left="0"
   top="200"
   >
+  <!-- Allowed fields include:
+	[BORN_ON] ("12/3/2008")
+	[SL_PROFILE] (Second Life profile),
+    [RW_PROFILE] (real world profile),
+	[ACCTTYPE] ("Resident"),
+	[PAYMENTINFO] ("Payment Info on File"),
+	[AGE] ("1 year 2 months") -->
+  <string name="Subtitle">
+[AGE]
+  </string>
+  <string name="Details">
+[ACCTTYPE], [PAYMENTINFO]
+Profile: [SL_PROFILE]
+  </string>
   <text
-      top="180" left="10" width="220" height="70" follows="left|top|right|bottom"
+      top="180" left="10" width="280" height="70" follows="left|top|right|bottom"
       use_ellipses="true"  word_wrap="true"
       font="SansSerifHugeBold" text_color="white"
       mouse_opaque="true" name="user_name" >
-    Codex Linden
+    Test Name
   </text>
+  <!-- General purpose subtitle area, not sure yet what goes here -->
   <text
     top="155" left="10" width="150" height="20" follows="left|top|right|bottom"
-    font="SansSerifBig" font.style="UNDERLINE"
+    font="SansSerifBig"
     text_color="white"
     mouse_opaque="true"
-    name="active_group" >
-    The Guild
-  </text>
+    name="user_subtitle" />
+  <!-- Leave text fields blank so it doesn't flash when data arrives off the network -->
   <text
-      top="110" left="10" width="290" height="50" follows="left|top|right|bottom"
+      top="115" left="10" width="290" height="50" follows="left|top|right|bottom"
       font="SansSerifSmall" text_color="white" word_wrap="true"
-      mouse_opaque="true" name="user_detail" >
-3 year-old account, Payment info on file
-Languages: English, Spanish; +5 Sexterity Vest
-  </text>  
+      mouse_opaque="true" name="user_details" />
   <avatar_icon
       top="185" left="230" width="60" height="60" follows="left|top|right|bottom"
       color="1 1 1 1" enabled="true" mouse_opaque="true" name="avatar_icon"

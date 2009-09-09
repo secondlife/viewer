@@ -2929,7 +2929,7 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 	// If the mouse doesn't move, the menu will stay open ala the Mac.
 	// See also LLContextMenu::show()
 	S32 mouse_x, mouse_y;
-	LLUI::getCursorPositionLocal(menu->getParent(), &mouse_x, &mouse_y);
+	LLUI::getMousePositionLocal(menu->getParent(), &mouse_x, &mouse_y);
 	LLMenuHolderGL::sContextMenuSpawnPos.set(mouse_x,mouse_y);
 
 	const LLRect menu_region_rect = LLMenuGL::sMenuContainer->getMenuRect();

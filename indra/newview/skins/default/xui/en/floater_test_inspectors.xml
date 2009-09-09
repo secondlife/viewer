@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="true"
+ height="400"
+ layout="topleft"
+ name="floater_test_inspectors"
+ title="Test Inspectors" 
+ width="400">
+  <text
+   height="20"
+   left="10"
+   name="test_inspectors"
+   top="30"
+   width="300">
+    Click to spawn an inspector:
+  </text>
+  <!-- James Tester, 4 years old -->
+  <button
+    name="avatar_2d_btn1"
+    label="Avatar 2D"
+    top="50"
+    left="10"
+    height="20"
+    width="100"
+	commit_callback.function="ShowAvatarInspector"
+	commit_callback.parameter="22df1dcb-810a-4975-aab9-0159958fe155" />
+	<!-- DonkeyPuncher 2008-10-1 -->
+  <button
+    name="avatar_2d_btn5"
+    label="Avatar 2D"
+    top_pad="10"
+    left="10"
+    height="20"
+    width="100"
+	commit_callback.function="ShowAvatarInspector"
+	commit_callback.parameter="d5330e4e-391a-4f00-9352-b797ed2f9a97" />
+	<!-- DonkeyPuncher 2009-01-15 -->
+  <button
+    name="avatar_2d_btn2"
+    label="Avatar 2D"
+    top_pad="10"
+    left="10"
+    height="20"
+    width="100"
+	commit_callback.function="ShowAvatarInspector"
+	commit_callback.parameter="05511655-a58a-48b6-b645-966f69fc17a7" />
+	<!-- 2009-06-14 -->
+  <button
+    name="avatar_2d_btn3"
+    label="Avatar 2D"
+    top_pad="10"
+    left="10"
+    height="20"
+    width="100"
+	commit_callback.function="ShowAvatarInspector"
+	commit_callback.parameter="6a164b3d-7c2c-43eb-880a-0ebc0687b3ec" />
+	<!-- jarvtest Bombastic 2009-10-3 -->
+  <button
+    name="avatar_2d_btn4"
+    label="Avatar 2D"
+    top_pad="10"
+    left="10"
+    height="20"
+    width="100"
+	commit_callback.function="ShowAvatarInspector"
+	commit_callback.parameter="e7dc3c83-1e11-4fa7-beeb-4b18adfb4efa" />
+  <button
+    name="avatar_3d_btn"
+    label="Avatar 3D"
+    top="50"
+    left="150"
+    height="20"
+    width="100"/>
+  <button
+    name="object_2d_btn"
+    label="Object 2D"
+    top_pad="10"
+    left_delta="0"
+    height="20"
+    width="100"/>
+  <button
+    name="object_3d_btn"
+    label="Object 3D"
+    top_pad="10"
+    left_delta="0"
+    height="20"
+    width="100"/>
+  <button
+    name="group_btn"
+    label="Group"
+    top_pad="10"
+    left_delta="0"
+    height="20"
+    width="100"/>
+  <button
+    name="place_btn"
+    label="Place"
+    top_pad="10"
+    left_delta="0"
+    height="20"
+    width="100"/>
+  <button
+    name="event_btn"
+    label="Event"
+    top_pad="10"
+    left_delta="0"
+    height="20"
+    width="100"/>
+
+</floater>

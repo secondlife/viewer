@@ -65,6 +65,20 @@ LLTool::~LLTool()
 	}
 }
 
+BOOL LLTool::handleAnyMouseClick(S32 x, S32 y, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down)
+{
+	// This is necessary to force clicks in the world to cause edit
+	// boxes that might have keyboard focus to relinquish it, and hence
+	// cause a commit to update their value.  JC
+	if (down)
+	{
+		gFocusMgr.setKeyboardFocus(NULL);
+	}
+
+	return LLMouseHandler::handleAnyMouseClick(x, y, mask, clicktype, down);
+}
+
+
 BOOL LLTool::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (gDebugClicks)
@@ -139,7 +153,7 @@ BOOL LLTool::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 	return FALSE;
 }
 
-BOOL LLTool::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
+BOOL LLTool::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
 {
 	// by default, didn't handle it
 	// llinfos << "LLTool::handleToolTip" << llendl;

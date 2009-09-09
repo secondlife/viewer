@@ -43,10 +43,6 @@
 - Remove EAvatarProcessorType in favor of separate observers, derived from a common parent (to get rid of void*).
 */
 
-/*
-*TODO: mantipov: get rid of sendDataRequest and sendDataUpdate methods. Use exact methods instead of.
-*/
-
 class LLMessageSystem;
 
 enum EAvatarProcessorType
@@ -157,16 +153,40 @@ public:
 	void addObserver(const LLUUID& avatar_id, LLAvatarPropertiesObserver* observer);
 	
 	void removeObserver(const LLUUID& avatar_id, LLAvatarPropertiesObserver* observer);
-	
-	void sendDataRequest(const LLUUID& avatar_id, EAvatarProcessorType type, const void * data = NULL);
 
-	void sendDataUpdate(const void* data, EAvatarProcessorType type);
+	// Request various types of avatar data.  Duplicate requests will be
+	// suppressed while waiting for a response from the network.
+	void sendAvatarPropertiesRequest(const LLUUID& avatar_id);
+	void sendAvatarPicksRequest(const LLUUID& avatar_id);
+	void sendAvatarNotesRequest(const LLUUID& avatar_id);
+	void sendAvatarGroupsRequest(const LLUUID& avatar_id);
+
+	// Duplicate pick info requests are not suppressed.
+	void sendPickInfoRequest(const LLUUID& creator_id, const LLUUID& pick_id);
+
+	void sendAvatarPropertiesUpdate(const LLAvatarData* avatar_props);
+
+	void sendPickInfoUpdate(const LLPickData* new_pick);
 
 	void sendFriendRights(const LLUUID& avatar_id, S32 rights);
 
 	void sendNotes(const LLUUID& avatar_id, const std::string notes);
 
 	void sendPickDelete(const LLUUID& pick_id);
+
+	// Convert a date provided by the server (MM/DD/YYYY) into a localized,
+	// human-readable age (1 year, 2 months) using translation strings from 
+	// the XML file.
+	static std::string ageFromDate(const std::string& date_string);
+
+	// Returns translated, human readable string for account type, such
+	// as "Resident" or "Linden Employee".  Used for profiles, inspectors.
+	static std::string accountType(const LLAvatarData* avatar_data);
+
+	// Returns translated, human readable string for payment info, such
+	// as "Payment Info on File" or "Payment Info Used".
+	// Used for profiles, inspectors.
+	static std::string paymentInfo(const LLAvatarData* avatar_data);
 
 	static void processAvatarPropertiesReply(LLMessageSystem* msg, void**);
 
@@ -181,19 +201,23 @@ public:
 	static void processAvatarPicksReply(LLMessageSystem* msg, void**);
 
 	static void processPickInfoReply(LLMessageSystem* msg, void**);
+
 protected:
 
-	void sendAvatarPropertiesRequest(const LLUUID& avatar_id);
+	void sendGenericRequest(const LLUUID& avatar_id, EAvatarProcessorType type, const std::string method);
 
-	void sendGenericRequest(const LLUUID& avatar_id, const std::string method);
-	
-	void sendAvatarPropertiesUpdate(const void* data);
+	void notifyObservers(const LLUUID& id,void* data, EAvatarProcessorType type);
 
-	void sendPickInfoRequest(const LLUUID& creator_id, const LLUUID& pick_id);
-	
-	void sendPicInfoUpdate(const void * pick_data);
+	// Is there a pending, not timed out, request for this avatar's data?
+	// Use this to suppress duplicate requests for data when a request is
+	// pending.
+	bool isPendingRequest(const LLUUID& avatar_id, EAvatarProcessorType type);
 
-	static void notifyObservers(const LLUUID& id,void* data, EAvatarProcessorType type);
+	// Call this when a request has been sent
+	void addPendingRequest(const LLUUID& avatar_id, EAvatarProcessorType type);
+
+	// Call this when the reply to the request is received
+	void removePendingRequest(const LLUUID& avatar_id, EAvatarProcessorType type);
 
 	typedef void* (*processor_method_t)(LLMessageSystem*);
 	static processor_method_t getProcessor(EAvatarProcessorType type);
@@ -203,6 +227,13 @@ protected:
 	typedef std::multimap<LLUUID, LLAvatarPropertiesObserver*> observer_multimap_t;
 	
 	observer_multimap_t mObservers;
+
+	// Keep track of pending requests for data by avatar id and type.
+	// Maintain a timestamp for each request so a request that receives no reply
+	// does not block future requests forever.
+	// Map avatar_id+request_type -> U32 timestamp in seconds
+	typedef std::map< std::pair<LLUUID, EAvatarProcessorType>, U32> timestamp_map_t;
+	timestamp_map_t mRequestTimestamps;
 };
 
 #endif  // LL_LLAVATARPROPERTIESPROCESSOR_H

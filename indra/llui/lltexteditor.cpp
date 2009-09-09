@@ -38,6 +38,8 @@
 
 #include "llfontfreetype.h" // for LLFontFreetype::FIRST_CHAR
 #include "llfontgl.h"
+#include "llgl.h"			// LLGLSUIDefault()
+#include "lllocalcliprect.h"
 #include "llrender.h"
 #include "llui.h"
 #include "lluictrlfactory.h"
@@ -60,6 +62,7 @@
 #include "llscrollcontainer.h"
 #include "llpanel.h"
 #include "llurlregistry.h"
+#include "lltooltip.h"
 
 #include <queue>
 #include "llcombobox.h"
@@ -1341,18 +1344,11 @@ void LLTextEditor::selectAll()
 }
 
 
-BOOL LLTextEditor::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
+BOOL LLTextEditor::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
 {
-	for ( child_list_const_iter_t child_it = getChildList()->begin();
-		  child_it != getChildList()->end(); ++child_it)
+	if (childrenHandleToolTip(x, y, msg, sticky_rect_screen))
 	{
-		LLView* viewp = *child_it;
-		S32 local_x = x - viewp->getRect().mLeft;
-		S32 local_y = y - viewp->getRect().mBottom;
-		if( viewp->handleToolTip(local_x, local_y, msg, sticky_rect_screen ) )
-		{
-			return TRUE;
-		}
+		return TRUE;
 	}
 
 	return handleToolTipForUrl(this, x, y, msg, sticky_rect_screen);
@@ -3193,7 +3189,7 @@ void LLTextEditor::draw()
 
 	mDocumentPanel->setBackgroundColor(bg_color);
 
-	drawChildren();
+	LLView::draw();
 	drawBackground(); //overlays scrolling panel bg
 	drawLineNumbers();
 

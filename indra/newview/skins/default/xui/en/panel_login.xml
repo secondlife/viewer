@@ -55,6 +55,7 @@
      max_length="31"
      name="first_name_edit"
      select_on_focus="true"
+     tool_tip="Enter first name here" 
      top_pad="4"
      width="120" />
     <text
@@ -111,6 +112,25 @@
      select_on_focus="true"
      top_pad="4"
      width="120" />
+     <button
+     follows="left|bottom"
+     height="24"
+     label="Log In"
+     label_selected="Log In"
+     layout="topleft"
+     left="435"
+     name="connect_btn"
+     top="548"
+     width="120" />
+    <combo_box
+     allow_text_entry="true"
+     follows="left|bottom"
+     height="18"
+     layout="topleft"
+     left_pad="15"
+     name="server_combo"
+     top_delta="2"
+     width="120" />
     <text
      type="string"
      length="1"
@@ -158,25 +178,7 @@
      name="remember_check"
      top_delta="3"
      width="138" />
-    <button
-     follows="left|bottom"
-     height="24"
-     label="Log In"
-     label_selected="Log In"
-     layout="topleft"
-     left="435"
-     name="connect_btn"
-     top="548"
-     width="120" />
-    <combo_box
-     allow_text_entry="true"
-     follows="left|bottom"
-     height="18"
-     layout="topleft"
-     left_pad="15"
-     name="server_combo"
-     top_delta="2"
-     width="120" />
+ 
     <text
      type="string"
      length="1"

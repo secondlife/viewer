@@ -35,15 +35,19 @@
 
 #include "llnetmap.h"
 
+// Library includes (should move below)
 #include "indra_constants.h"
 #include "llmath.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
+#include "lllocalcliprect.h"
 #include "llrender.h"
 #include "llui.h"
+#include "lltooltip.h"
 
 #include "llglheaders.h"
 
+// Viewer includes
 #include "llagent.h"
 #include "llappviewer.h" // for gDisconnected
 #include "llcallingcard.h" // LLAvatarTracker
@@ -286,7 +290,7 @@ void LLNetMap::draw()
 		S32 local_mouse_x;
 		S32 local_mouse_y;
 		//localMouse(&local_mouse_x, &local_mouse_y);
-		LLUI::getCursorPositionLocal(this, &local_mouse_x, &local_mouse_y);
+		LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
 		mClosestAgentToCursor.setNull();
 		F32 closest_dist = F32_MAX;
 
@@ -496,9 +500,8 @@ BOOL LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return TRUE;
 }
 
-BOOL LLNetMap::handleToolTip( S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen )
+BOOL LLNetMap::handleToolTip( S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen )
 {
-	BOOL handled = FALSE;
 	if (gDisconnected)
 	{
 		return FALSE;
@@ -530,19 +533,23 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, std::string& msg, LLRect* sticky_rec
 	msg = mToolTipMsg;
 	LLStringUtil::format(msg, args);
 	
+	LLRect sticky_rect;
 	// set sticky_rect
 	if (region)
 	{
 		S32 SLOP = 4;
 		localPointToScreen( 
 			x - SLOP, y - SLOP, 
-			&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
-		sticky_rect_screen->mRight = sticky_rect_screen->mLeft + 2 * SLOP;
-		sticky_rect_screen->mTop = sticky_rect_screen->mBottom + 2 * SLOP;
+			&(sticky_rect.mLeft), &(sticky_rect.mBottom) );
+		sticky_rect.mRight = sticky_rect.mLeft + 2 * SLOP;
+		sticky_rect.mTop = sticky_rect.mBottom + 2 * SLOP;
 	}
-	
-	handled = TRUE;
-	return handled;
+
+	LLToolTipMgr::instance().show(LLToolTipParams()
+		.message(msg)
+		.sticky_rect(sticky_rect));
+		
+	return TRUE;
 }
 
 

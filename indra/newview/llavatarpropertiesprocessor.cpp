@@ -34,9 +34,15 @@
 
 #include "llavatarpropertiesprocessor.h"
 
-#include "message.h"
+// Viewer includes
 #include "llagent.h"
 #include "llviewergenericmessage.h"
+
+// Linden library includes
+#include "llavatarconstants.h"	// AVATAR_TRANSACTED, etc.
+#include "lldate.h"
+#include "lltrans.h"
+#include "message.h"
 
 LLAvatarPropertiesProcessor::LLAvatarPropertiesProcessor()
 {
@@ -87,35 +93,18 @@ void LLAvatarPropertiesProcessor::removeObserver(const LLUUID& avatar_id, LLAvat
 	}
 }
 
-void LLAvatarPropertiesProcessor::sendDataRequest(const LLUUID& avatar_id, EAvatarProcessorType type, 
-	const void * data)
-{
-	switch(type)
-	{
-	case APT_PROPERTIES:
-		sendAvatarPropertiesRequest(avatar_id);
-		break;
-	case APT_PICKS:
-		sendGenericRequest(avatar_id, "avatarpicksrequest");
-		break;
-	case APT_PICK_INFO:
-		if (data) {
-			sendPickInfoRequest(avatar_id, *static_cast<const LLUUID*>(data));
-		}
-		break;
-	case APT_NOTES:
-		sendGenericRequest(avatar_id, "avatarnotesrequest");
-		break;
-	case APT_GROUPS:
-		sendGenericRequest(avatar_id, "avatargroupsrequest");
-		break;
-	default:
-		break;
-	}
-}
 
-void LLAvatarPropertiesProcessor::sendGenericRequest(const LLUUID& avatar_id, const std::string method)
+void LLAvatarPropertiesProcessor::sendGenericRequest(const LLUUID& avatar_id, EAvatarProcessorType type, const std::string method)
 {
+	// Suppress duplicate requests while waiting for a response from the network
+	if (isPendingRequest(avatar_id, type))
+	{
+		// waiting for a response, don't re-request
+		return;
+	}
+	// indicate we're going to make a request
+	addPendingRequest(avatar_id, type);
+
 	std::vector<std::string> strings;
 	strings.push_back( avatar_id.asString() );
 	send_generic_message(method, strings);
@@ -123,6 +112,14 @@ void LLAvatarPropertiesProcessor::sendGenericRequest(const LLUUID& avatar_id, co
 
 void LLAvatarPropertiesProcessor::sendAvatarPropertiesRequest(const LLUUID& avatar_id)
 {
+	if (isPendingRequest(avatar_id, APT_PROPERTIES))
+	{
+		// waiting for a response, don't re-request
+		return;
+	}
+	// indicate we're going to make a request
+	addPendingRequest(avatar_id, APT_PROPERTIES);
+
 	LLMessageSystem *msg = gMessageSystem;
 
 	msg->newMessageFast(_PREHASH_AvatarPropertiesRequest);
@@ -133,39 +130,28 @@ void LLAvatarPropertiesProcessor::sendAvatarPropertiesRequest(const LLUUID& avat
 	gAgent.sendReliableMessage();
 }
 
-void LLAvatarPropertiesProcessor::sendDataUpdate(const void* data, EAvatarProcessorType type)
+void LLAvatarPropertiesProcessor::sendAvatarPicksRequest(const LLUUID& avatar_id)
 {
-	switch(type)
-	{
-	case APT_PROPERTIES:
-		sendAvatarPropertiesUpdate(data);
-		break;
-	case APT_PICK_INFO:
-		sendPicInfoUpdate(data);
-	case APT_PICKS:
-//		sendGenericRequest(avatar_id, "avatarpicksrequest");
-		break;
-	case APT_NOTES:
-//		sendGenericRequest(avatar_id, "avatarnotesrequest");
-		break;
-	case APT_GROUPS:
-//		sendGenericRequest(avatar_id, "avatargroupsrequest");
-		break;
-	default:
-		break;
-	}
-
+	sendGenericRequest(avatar_id, APT_PICKS, "avatarpicksrequest");
 }
-void LLAvatarPropertiesProcessor::sendAvatarPropertiesUpdate(const void* data)
+
+void LLAvatarPropertiesProcessor::sendAvatarNotesRequest(const LLUUID& avatar_id)
+{
+	sendGenericRequest(avatar_id, APT_NOTES, "avatarnotesrequest");
+}
+
+void LLAvatarPropertiesProcessor::sendAvatarGroupsRequest(const LLUUID& avatar_id)
+{
+	sendGenericRequest(avatar_id, APT_GROUPS, "avatargroupsrequest");
+}
+
+void LLAvatarPropertiesProcessor::sendAvatarPropertiesUpdate(const LLAvatarData* avatar_props)
 {
 	llinfos << "Sending avatarinfo update" << llendl;
 
-	const LLAvatarData* avatar_props = static_cast<const LLAvatarData*>(data);
 	// This value is required by sendAvatarPropertiesUpdate method.
 	//A profile should never be mature. (From the original code)
 	BOOL mature = FALSE;
-
-
 
 	LLMessageSystem *msg = gMessageSystem;
 
@@ -184,6 +170,156 @@ void LLAvatarPropertiesProcessor::sendAvatarPropertiesUpdate(const void* data)
 	msg->addBOOL(_PREHASH_MaturePublish, mature);
 	msg->addString(_PREHASH_ProfileURL, avatar_props->profile_url);
 	gAgent.sendReliableMessage();
+}
+
+//static
+std::string LLAvatarPropertiesProcessor::ageFromDate(const std::string& date_string)
+{
+	// Convert string date to malleable representation
+	S32 month, day, year;
+	S32 matched = sscanf(date_string.c_str(), "%d/%d/%d", &month, &day, &year);
+	if (matched != 3) return "???";
+
+	// Create ISO-8601 date string
+	std::string iso8601_date_string =
+		llformat("%04d-%02d-%02dT00:00:00Z", year, month, day);
+	LLDate date(iso8601_date_string);
+
+	// Correct for the fact that account creation dates are in Pacific time,
+	// == UTC - 8
+	F64 date_secs_since_epoch = date.secondsSinceEpoch();
+	date_secs_since_epoch += 8.0 * 60.0 * 60.0;
+
+	// Convert seconds from epoch to seconds from now
+	F64 now_secs_since_epoch = LLDate::now().secondsSinceEpoch();
+	F64 age_secs = now_secs_since_epoch - date_secs_since_epoch;
+
+	// We don't care about sub-day times
+	const F64 SEC_PER_DAY = 24.0 * 60.0 * 60.0;
+	S32 age_days = lltrunc(age_secs / SEC_PER_DAY);
+
+	// Assume most values won't be used to fill in the format string:
+	// "[AGEYEARS][AGEMONTHS][AGEWEEKS][AGEDAYS]old"
+	LLStringUtil::format_map_t final_args;
+	final_args["[AGEYEARS]"] = "";
+	final_args["[AGEMONTHS]"] = "";
+	final_args["[AGEWEEKS]"] = "";
+	final_args["[AGEDAYS]"] = "";
+
+	// Try for age in round number of years
+	LLStringUtil::format_map_t args;
+	S32 age_years = age_days / 365;
+	age_days = age_days % 365;
+	if (age_years > 1)
+	{
+		args["[YEARS]"] = llformat("%d", age_years);
+		final_args["[AGEYEARS]"] = LLTrans::getString("AgeYears", args);
+	}
+	else if (age_years == 1)
+	{
+		final_args["[AGEYEARS]"] = LLTrans::getString("Age1Year");
+	}
+	// fall through because we show years + months for ages > 1 year
+
+	S32 age_months = age_days / 30;
+	age_days = age_days % 30;
+	if (age_months > 1)
+	{
+		args["[MONTHS]"] = llformat("%d", age_months);
+		final_args["[AGEMONTHS]"] = LLTrans::getString("AgeMonths", args);
+		// Either N years M months, or just M months,
+		// so we can exit.
+		return LLTrans::getString("YearsMonthsOld", final_args);
+	}
+	else if (age_months == 1)
+	{
+		final_args["[AGEMONTHS]"] = LLTrans::getString("Age1Month");
+		return LLTrans::getString("YearsMonthsOld", final_args);
+	}
+
+	// Now for age in weeks
+	S32 age_weeks = age_days / 7;
+	age_days = age_days % 7;
+	if (age_weeks > 1)
+	{
+		args["[WEEKS]"] = llformat("%d", age_weeks);
+		final_args["[AGEWEEKS]"] = LLTrans::getString("AgeWeeks", args);
+		return LLTrans::getString("WeeksOld", final_args);
+	}
+	else if (age_weeks == 1)
+	{
+		final_args["[AGEWEEKS]"] = LLTrans::getString("Age1Week");
+		return LLTrans::getString("WeeksOld", final_args);
+	}
+
+	// Down to days now
+	if (age_days > 1)
+	{
+		args["[DAYS]"] = llformat("%d", age_days);
+		final_args["[AGEDAYS]"] = LLTrans::getString("AgeDays", args);
+		return LLTrans::getString("DaysOld", final_args);
+	}
+	else if (age_days == 1)
+	{
+		final_args["[AGEDAYS]"] = LLTrans::getString("Age1Day");
+		return LLTrans::getString("DaysOld", final_args);
+	}
+	else
+	{
+		return LLTrans::getString("TodayOld");
+	}
+}
+
+
+//static
+std::string LLAvatarPropertiesProcessor::accountType(const LLAvatarData* avatar_data)
+{
+	// If you have a special account, like M Linden ("El Jefe!")
+	// return an untranslated "special" string
+	if (!avatar_data->caption_text.empty())
+	{
+		return avatar_data->caption_text;
+	}
+	const char* const ACCT_TYPE[] = {
+		"AcctTypeResident",
+		"AcctTypeTrial",
+		"AcctTypeCharterMember",
+		"AcctTypeEmployee"
+	};
+	U8 caption_max = (U8)LL_ARRAY_SIZE(ACCT_TYPE)-1;
+	U8 caption_index = llclamp(avatar_data->caption_index, (U8)0, caption_max);
+	return LLTrans::getString(ACCT_TYPE[caption_index]);
+}
+
+//static
+std::string LLAvatarPropertiesProcessor::paymentInfo(const LLAvatarData* avatar_data)
+{
+	// Special accounts like M Linden don't have payment info revealed.
+	if (!avatar_data->caption_text.empty()) return "";
+
+	// Linden employees don't have payment info revealed
+	const S32 LINDEN_EMPLOYEE_INDEX = 3;
+	if (avatar_data->caption_index == LINDEN_EMPLOYEE_INDEX) return "";
+
+	BOOL transacted = (avatar_data->flags & AVATAR_TRANSACTED);
+	BOOL identified = (avatar_data->flags & AVATAR_IDENTIFIED);
+	// Not currently getting set in dataserver/lldataavatar.cpp for privacy considerations
+	//BOOL age_verified = (avatar_data->flags & AVATAR_AGEVERIFIED); 
+
+	const char* payment_text;
+	if(transacted)
+	{
+		payment_text = "PaymentInfoUsed";
+	}
+	else if (identified)
+	{
+		payment_text = "PaymentInfoOnFile";
+	}
+	else
+	{
+		payment_text = "NoPaymentInfoOnFile";
+	}
+	return LLTrans::getString(payment_text);
 }
 
 void LLAvatarPropertiesProcessor::processAvatarPropertiesReply(LLMessageSystem* msg, void**)
@@ -214,7 +350,10 @@ void LLAvatarPropertiesProcessor::processAvatarPropertiesReply(LLMessageSystem* 
 	{
 		msg->getString(_PREHASH_PropertiesData, _PREHASH_CharterMember, avatar_data.caption_text);
 	}
-	notifyObservers(avatar_data.avatar_id,&avatar_data,APT_PROPERTIES);
+	LLAvatarPropertiesProcessor* self = getInstance();
+	// Request processed, no longer pending
+	self->removePendingRequest(avatar_data.avatar_id, APT_PROPERTIES);
+	self->notifyObservers(avatar_data.avatar_id,&avatar_data,APT_PROPERTIES);
 }
 
 void LLAvatarPropertiesProcessor::processAvatarInterestsReply(LLMessageSystem* msg, void**)
@@ -228,11 +367,13 @@ void LLAvatarPropertiesProcessor::processAvatarInterestsReply(LLMessageSystem* m
 	WARNING: LLTemplateMessageReader::decodeData: Message from 216.82.37.237:13000 with no handler function received: AvatarInterestsReply
 */
 }
+
 void LLAvatarPropertiesProcessor::processAvatarClassifiedReply(LLMessageSystem* msg, void**)
 {
 	// avatarclassifiedsrequest is not sent according to new UI design but
 	// keep this method according to resolved issues. 
 }
+
 void LLAvatarPropertiesProcessor::processAvatarNotesReply(LLMessageSystem* msg, void**)
 {
 	LLAvatarNotes avatar_notes;
@@ -241,7 +382,10 @@ void LLAvatarPropertiesProcessor::processAvatarNotesReply(LLMessageSystem* msg, 
 	msg->getUUID(_PREHASH_Data, _PREHASH_TargetID, avatar_notes.target_id);
 	msg->getString(_PREHASH_Data, _PREHASH_Notes, avatar_notes.notes);
 
-	notifyObservers(avatar_notes.target_id,&avatar_notes,APT_NOTES);
+	LLAvatarPropertiesProcessor* self = getInstance();
+	// Request processed, no longer pending
+	self->removePendingRequest(avatar_notes.target_id, APT_NOTES);
+	self->notifyObservers(avatar_notes.target_id,&avatar_notes,APT_NOTES);
 }
 
 void LLAvatarPropertiesProcessor::processAvatarPicksReply(LLMessageSystem* msg, void**)
@@ -261,7 +405,10 @@ void LLAvatarPropertiesProcessor::processAvatarPicksReply(LLMessageSystem* msg, 
 
 		avatar_picks.picks_list.push_back(std::make_pair(pick_id,pick_name));
 	}
-	notifyObservers(avatar_picks.target_id,&avatar_picks,APT_PICKS);
+	LLAvatarPropertiesProcessor* self = getInstance();
+	// Request processed, no longer pending
+	self->removePendingRequest(avatar_picks.target_id, APT_PICKS);
+	self->notifyObservers(avatar_picks.target_id,&avatar_picks,APT_PICKS);
 }
 
 void LLAvatarPropertiesProcessor::processPickInfoReply(LLMessageSystem* msg, void**)
@@ -306,7 +453,9 @@ void LLAvatarPropertiesProcessor::processPickInfoReply(LLMessageSystem* msg, voi
 	msg->getS32(_PREHASH_Data, _PREHASH_SortOrder, pick_data.sort_order);
 	msg->getBOOL(_PREHASH_Data, _PREHASH_Enabled, pick_data.enabled);
 
-	notifyObservers(pick_data.creator_id, &pick_data, APT_PICK_INFO);
+	LLAvatarPropertiesProcessor* self = getInstance();
+	// don't need to remove pending request as we don't track pick info
+	self->notifyObservers(pick_data.creator_id, &pick_data, APT_PICK_INFO);
 }
 
 void LLAvatarPropertiesProcessor::processAvatarGroupsReply(LLMessageSystem* msg, void**)
@@ -329,12 +478,15 @@ void LLAvatarPropertiesProcessor::processAvatarGroupsReply(LLMessageSystem* msg,
 		avatar_groups.group_list.push_back(group_data);
 	}
 
-	notifyObservers(avatar_groups.avatar_id,&avatar_groups,APT_GROUPS);
+	LLAvatarPropertiesProcessor* self = getInstance();
+	self->removePendingRequest(avatar_groups.avatar_id, APT_GROUPS);
+	self->notifyObservers(avatar_groups.avatar_id,&avatar_groups,APT_GROUPS);
 }
 
 void LLAvatarPropertiesProcessor::notifyObservers(const LLUUID& id,void* data, EAvatarProcessorType type)
 {
-	LLAvatarPropertiesProcessor::observer_multimap_t observers = LLAvatarPropertiesProcessor::getInstance()->mObservers;
+	// Copy the map (because observers may delete themselves when updated?)
+	LLAvatarPropertiesProcessor::observer_multimap_t observers = mObservers;
 
 	observer_multimap_t::iterator oi = observers.lower_bound(id);
 	observer_multimap_t::iterator end = observers.upper_bound(id);
@@ -397,10 +549,8 @@ void LLAvatarPropertiesProcessor::sendPickDelete( const LLUUID& pick_id )
 	gAgent.sendReliableMessage();
 }
 
-void LLAvatarPropertiesProcessor::sendPicInfoUpdate(const void* pick_data)
+void LLAvatarPropertiesProcessor::sendPickInfoUpdate(const LLPickData* new_pick)
 {
-	if (!pick_data) return;
-	const LLPickData *new_pick = static_cast<const LLPickData*>(pick_data);
 	if (!new_pick) return;
 
 	LLMessageSystem* msg = gMessageSystem;
@@ -439,4 +589,39 @@ void LLAvatarPropertiesProcessor::sendPickInfoRequest(const LLUUID& creator_id, 
 	request_params.push_back(creator_id.asString() );
 	request_params.push_back(pick_id.asString() );
 	send_generic_message("pickinforequest", request_params);
+}
+
+
+bool LLAvatarPropertiesProcessor::isPendingRequest(const LLUUID& avatar_id, EAvatarProcessorType type)
+{
+	timestamp_map_t::key_type key = std::make_pair(avatar_id, type);
+	timestamp_map_t::iterator it = mRequestTimestamps.find(key);
+
+	// Is this a new request?
+	if (it == mRequestTimestamps.end()) return false;
+
+	// We found a request, check if it has timed out
+	U32 now = time(NULL);
+	const U32 REQUEST_EXPIRE_SECS = 5;
+	U32 expires = it->second + REQUEST_EXPIRE_SECS;
+
+	// Request is still pending if it hasn't expired yet
+	// *NOTE: Expired requests will accumulate in this map, but they are rare,
+	// the data is small, and they will be updated if the same data is
+	// re-requested
+	return (now < expires);
+}
+
+void LLAvatarPropertiesProcessor::addPendingRequest(const LLUUID& avatar_id, EAvatarProcessorType type)
+{
+	timestamp_map_t::key_type key = std::make_pair(avatar_id, type);
+	U32 now = time(NULL);
+	// Add or update existing (expired) request
+	mRequestTimestamps[ key ] = now;
+}
+
+void LLAvatarPropertiesProcessor::removePendingRequest(const LLUUID& avatar_id, EAvatarProcessorType type)
+{
+	timestamp_map_t::key_type key = std::make_pair(avatar_id, type);
+	mRequestTimestamps.erase(key);
 }

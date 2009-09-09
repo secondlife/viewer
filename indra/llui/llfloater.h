@@ -373,9 +373,6 @@ private:
 	S32				mPreviousMinimizedBottom;
 	S32				mPreviousMinimizedLeft;
 
-	LLColor4		mBgColorAlpha;
-	LLColor4		mBgColorOpaque;
-
 	LLFloaterNotificationContext* mNotificationContext;
 	LLRootHandle<LLFloater>		mHandle;	
 };

@@ -1,8 +1,5 @@
 /** 
  * @file llinspectavatar.h
- * @brief Avatar Inspector, a small information window used when clicking
- * on avatar names in the 2D UI and in the ambient inspector widget for
- * the 3D world.
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
@@ -37,32 +34,45 @@
 
 #include "llfloater.h"
 
+struct LLAvatarData;
+class LLFetchAvatarData;
+
+// Avatar Inspector, a small information window used when clicking
+// on avatar names in the 2D UI and in the ambient inspector widget for
+// the 3D world.
 class LLInspectAvatar : public LLFloater
 {
 	friend class LLFloaterReg;
 
 public:
-	// key is the UUID of avatar for whom to show information
-	// *TODO: Needs to take a spawn location
+	// avatar_id - Avatar ID for which to show information
+	// Inspector will be positioned relative to current mouse position
 	LLInspectAvatar(const LLSD& avatar_id);
 	virtual ~LLInspectAvatar();
 
 	/*virtual*/ BOOL postBuild(void);
+	/*virtual*/ void draw();
 
-	void setAvatarID(const LLUUID &avatar_id);
+	// Because floater is single instance, need to re-parse data on each spawn
+	// (for example, inspector about same avatar but in different position)
+	/*virtual*/ void onOpen(const LLSD& avatar_id);
 
-	const LLUUID&		getAvatarID() const	{ return mAvatarID; }
-	const std::string&	getFirstName() const { return mFirstName; }
-	const std::string&	getLastName() const { return mLastName; }
+	// Inspectors close themselves when they lose focus
+	/*virtual*/ void onFocusLost();
+
+	// Update view based on information from avatar properties processor
+	void processAvatarData(LLAvatarData* data);
 
 private:
-	// Update widgets, including avatar name, buttons enabled, etc.
-	// Used after avatar id changes.
-	void refresh();
+	// Make network requests for all the data to display in this view.
+	// Used on construction and if avatar id changes.
+	void requestUpdate();
 
+	// Button callbacks
 	void onClickAddFriend();
 	void onClickViewProfile();
 
+	// Callback for gCacheName to look up avatar name
 	void nameUpdatedCallback(
 		const LLUUID& id,
 		const std::string& first,
@@ -74,6 +84,10 @@ private:
 	// Need avatar name information to spawn friend add request
 	std::string			mFirstName;
 	std::string			mLastName;
+	// an in-flight request for avatar properties from LLAvatarPropertiesProcessor
+	// is represented by this object
+	LLFetchAvatarData*	mPropertiesRequest;
+	LLFrameTimer		mCloseTimer;
 };
 
 

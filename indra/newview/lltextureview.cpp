@@ -43,7 +43,7 @@
 #include "llimageworker.h"
 #include "llrender.h"
 
-#include "llhoverview.h"
+#include "lltooltip.h"
 #include "llselectmgr.h"
 #include "lltexlayer.h"
 #include "lltexturecache.h"
@@ -662,16 +662,20 @@ void LLTextureView::draw()
 #if 1
 			if (pri < HIGH_PRIORITY && (cur_discard< 0 || desired_discard < cur_discard))
 			{
-				LLViewerObject *objectp = gHoverView->getLastHoverObject();
-				if (objectp)
+				LLSelectNode* hover_node = LLSelectMgr::instance().getHoverNode();
+				if (hover_node)
 				{
-					S32 tex_count = objectp->getNumTEs();
-					for (S32 i = 0; i < tex_count; i++)
+					LLViewerObject *objectp = hover_node->getObject();
+					if (objectp)
 					{
-						if (imagep == objectp->getTEImage(i))
+						S32 tex_count = objectp->getNumTEs();
+						for (S32 i = 0; i < tex_count; i++)
 						{
-							pri += 2*HIGH_PRIORITY;
-							break;
+							if (imagep == objectp->getTEImage(i))
+							{
+								pri += 2*HIGH_PRIORITY;
+								break;
+							}
 						}
 					}
 				}

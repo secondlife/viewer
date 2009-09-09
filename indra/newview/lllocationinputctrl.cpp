@@ -42,6 +42,7 @@
 #include "llstring.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
+#include "lltooltip.h"
 
 // newview includes
 #include "llinventorymodel.h"
@@ -290,12 +291,13 @@ void LLLocationInputCtrl::hideList()
 		focusTextEntry();
 }
 
-BOOL LLLocationInputCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
+BOOL LLLocationInputCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
 {
 	// Let the buttons show their tooltips.
 	if (LLUICtrl::handleToolTip(x, y, msg, sticky_rect_screen) && !msg.empty())
 	{
-		if (mList->getRect().pointInRect(x, y)) {
+		if (mList->getRect().pointInRect(x, y)) 
+		{
 			S32 loc_x, loc_y;
 			//x,y - contain coordinates related to the location input control, but without taking the expanded list into account
 			//So we have to convert it again into local coordinates of mList
@@ -307,7 +309,7 @@ BOOL LLLocationInputCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* 
 				LLSD value = item->getValue();
 				if (value.has("tooltip"))
 				{
-					msg = value["tooltip"].asString();
+					LLToolTipMgr::instance().show(value["tooltip"]);
 				}
 			}
 		}
@@ -315,8 +317,7 @@ BOOL LLLocationInputCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* 
 		return TRUE;
 	}
 
-	msg = LLUI::sShowXUINames ? getShowNamesToolTip() : "";
-	return mTextEntry->getRect().pointInRect(x, y);
+	return FALSE;
 }
 
 BOOL LLLocationInputCtrl::handleKeyHere(KEY key, MASK mask)

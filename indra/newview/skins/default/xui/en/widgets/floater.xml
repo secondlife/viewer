@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="floater"
+         bg_opaque_color="FloaterFocusBackgroundColor"
+         bg_alpha_color="FloaterDefaultBackgroundColor"
+         background_visible="true"
+         background_opaque="false"/>

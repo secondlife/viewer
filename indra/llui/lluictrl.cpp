@@ -839,10 +839,6 @@ BOOL LLUICtrl::getTentative() const
 void LLUICtrl::setColor(const LLColor4& color)							
 { }
 
-// virtual
-void LLUICtrl::setAlpha(F32 alpha)							
-{ }
-
 
 namespace LLInitParam
 {

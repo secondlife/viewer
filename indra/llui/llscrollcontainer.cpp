@@ -37,6 +37,7 @@
 
 #include "llrender.h"
 #include "llcontainerview.h"
+#include "lllocalcliprect.h"
 // #include "llfolderview.h"
 #include "llscrollingpanellist.h"
 #include "llscrollbar.h"

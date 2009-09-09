@@ -49,7 +49,7 @@
 #include "llbutton.h"
 #include "llviewercontrol.h"
 #include "llcriticaldamp.h"
-#include "llhoverview.h"
+#include "lltooltip.h"
 #include "llfloatertools.h"
 #include "llselectmgr.h"
 #include "llstatusbar.h"

@@ -97,18 +97,20 @@
          layout="topleft"
          name="Widget Test"
          shortcut="control|shift|T">
-            <menu_item_call.on_click
-             function="ShowFloater"
-             parameter="test_widgets" />
-        </menu_item_call>
-        <menu_item_call
-         label="Avatar Inspector"
-         name="Avatar Inspector"
-         shortcut="control|shift|I">
-            <menu_item_call.on_click
-             function="ShowFloater"
-             parameter="inspect_avatar" />
-        </menu_item_call>
+        <menu_item_call.on_click
+         function="ShowFloater"
+         parameter="test_widgets" />
+      </menu_item_call>
+      <menu_item_call
+         label="Inspectors Test"
+         name="inspectors_test"
+         shortcut="control|shift|I"
+         >
+        <menu_item_call.on_click
+         function="ShowFloater"
+         parameter="test_inspectors" />
+      </menu_item_call>
+      <menu_item_separator />
         <menu_item_call
          label="Show TOS"
          layout="topleft"

@@ -72,7 +72,7 @@ public:
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleDoubleClick( S32 x, S32 y, MASK mask );
 	virtual BOOL	handleHover( S32 x, S32 y, MASK mask );
-	virtual BOOL	handleToolTip( S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen );
+	virtual BOOL	handleToolTip( S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen );
 
 	bool			checkItemHit(S32 x, S32 y, LLItemInfo& item, LLUUID* id, bool track);
 	void			handleClick(S32 x, S32 y, MASK mask, S32* hit_type, LLUUID* id);

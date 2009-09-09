@@ -44,6 +44,8 @@
 #include "llcheckboxctrl.h"
 #include "llclipboard.h"
 #include "llfocusmgr.h"
+#include "llgl.h"				// LLGLSUIDefault()
+#include "lllocalcliprect.h"
 //#include "llrender.h"
 #include "llresmgr.h"
 #include "llscrollbar.h"
@@ -60,6 +62,7 @@
 #include "llcachename.h"
 #include "llmenugl.h"
 #include "llurlaction.h"
+#include "lltooltip.h"
 
 #include <boost/bind.hpp>
 
@@ -1522,7 +1525,7 @@ BOOL LLScrollListCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return handled;
 }
 
-BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
+BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
 {
 	S32 column_index = getColumnIndexFromOffset(x);
 	LLScrollListColumn* columnp = getColumn(column_index);
@@ -1545,8 +1548,11 @@ BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sti
 			LLRect cell_rect;
 			cell_rect.setOriginAndSize(rect_left, rect_bottom, rect_left + columnp->getWidth(), mLineHeight);
 			// Convert rect local to screen coordinates
-			localRectToScreen(cell_rect, sticky_rect_screen);
-			msg = hit_cell->getValue().asString();
+			LLRect sticky_rect;
+			localRectToScreen(cell_rect, &sticky_rect);
+			LLToolTipMgr::instance().show(LLToolTipParams()
+				.message(hit_cell->getValue().asString())
+				.sticky_rect(sticky_rect));		
 		}
 		handled = TRUE;
 	}
@@ -1555,8 +1561,7 @@ BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sti
 	LLScrollColumnHeader* headerp = columnp->mHeader;
 	if (headerp && !handled)
 	{
-		headerp->handleToolTip(x, y, msg, sticky_rect_screen);
-		handled = !msg.empty();
+		handled = headerp->handleToolTip(x, y, msg, sticky_rect_screen);
 	}
 
 	return handled;

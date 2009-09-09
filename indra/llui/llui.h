@@ -39,8 +39,6 @@
 #include "llrect.h"
 #include "llcontrol.h"
 #include "llcoord.h"
-#include "llgl.h"			// *TODO: break this dependency
-#include <stack>
 #include "lluiimage.h"		// *TODO: break this dependency, need to add #include "lluiimage.h" to all widgets that hold an Optional<LLUIImage*> in their paramblocks
 #include "llinitparam.h"
 #include "llregistry.h"
@@ -50,6 +48,7 @@
 #include "lllazyvalue.h"
 #include "llhandle.h"		// *TODO: remove this dependency, added as a 
 							// convenience when LLHandle moved to llhandle.h
+#include "llframetimer.h"
 
 // LLUIFactory
 #include "llsd.h"
@@ -188,9 +187,9 @@ public:
 	static LLView* getRootView() { return sRootView; }
 	static void setRootView(LLView* view) { sRootView = view; }
 	static std::string locateSkin(const std::string& filename);
-	static void setCursorPositionScreen(S32 x, S32 y);
-	static void setCursorPositionLocal(const LLView* viewp, S32 x, S32 y);
-	static void getCursorPositionLocal(const LLView* viewp, S32 *x, S32 *y);
+	static void setMousePositionScreen(S32 x, S32 y);
+	static void setMousePositionLocal(const LLView* viewp, S32 x, S32 y);
+	static void getMousePositionLocal(const LLView* viewp, S32 *x, S32 *y);
 	static void setScaleFactor(const LLVector2& scale_factor);
 	static void setLineWidth(F32 width);
 	static LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id);
@@ -203,7 +202,16 @@ public:
 	static void setHtmlHelp(LLHtmlHelp* html_help);
 	// Returns the control group containing the control name, or the default group
 	static LLControlGroup& getControlControlGroup (const std::string& controlname);
-	
+	static F32 getMouseIdleTime() { return sMouseIdleTimer.getElapsedTimeF32(); }
+	static void resetMouseIdleTimer() { sMouseIdleTimer.reset(); }
+	static LLWindow* getWindow() { return sWindow; }
+
+	// Ensures view does not overlap mouse cursor, but is inside
+	// the view's parent rectangle.  Used for tooltips, inspectors.
+	// Optionally override the view's default X/Y, which are relative to the
+	// view's parent.
+	static void positionViewNearMouse(LLView* view,	S32 spawn_x = S32_MAX, S32 spawn_y = S32_MAX);
+
 	//
 	// Data
 	//
@@ -211,38 +219,16 @@ public:
 	static LLUIAudioCallback sAudioCallback;
 	static LLVector2		sGLScaleFactor;
 	static LLWindow*		sWindow;
-	static BOOL             sShowXUINames;
 	static LLHtmlHelp*		sHtmlHelp;
 	static LLView*			sRootView;
 private:
 	static LLImageProviderInterface* sImageProvider;
 	static std::vector<std::string> sXUIPaths;
+	static LLFrameTimer		sMouseIdleTimer;
 };
 
 
-class LLScreenClipRect
-{
-public:
-	LLScreenClipRect(const LLRect& rect, BOOL enabled = TRUE);
-	virtual ~LLScreenClipRect();
-
-private:
-	static void pushClipRect(const LLRect& rect);
-	static void popClipRect();
-	static void updateScissorRegion();
-
-private:
-	LLGLState		mScissorState;
-	BOOL			mEnabled;
-
-	static std::stack<LLRect> sClipRectStack;
-};
-
-class LLLocalClipRect : public LLScreenClipRect
-{
-public:
-	LLLocalClipRect(const LLRect& rect, BOOL enabled = TRUE);
-};
+// Moved LLLocalClipRect to lllocalcliprect.h
 
 // Moved all LLHandle-related code to llhandle.h
 
@@ -406,10 +392,10 @@ namespace LLInitParam
 	{
         typedef BlockValue<LLUIColor> super_t;
 	public:
-		Optional<F32> red;
-		Optional<F32> green;
-		Optional<F32> blue;
-		Optional<F32> alpha;
+		Optional<F32>	red,
+						green,
+						blue,
+						alpha;
 		Optional<std::string> control;
 
 		TypedParam(BlockDescriptor& descriptor, const char* name, const LLUIColor& value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);
@@ -422,9 +408,9 @@ namespace LLInitParam
 	{
         typedef BlockValue<const LLFontGL*> super_t;
 	public:
-		Optional<std::string> name;
-		Optional<std::string> size;
-		Optional<std::string> style;
+		Optional<std::string>	name,
+								size,
+								style;
 
 		TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL* const value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);
 		const LLFontGL* getValueFromBlock() const;
@@ -446,6 +432,19 @@ namespace LLInitParam
 	struct TypeValues<LLFontGL::ShadowType> : public TypeValuesHelper<LLFontGL::ShadowType>
 	{
 		static void declareValues();
+	};
+
+	template<>
+	class TypedParam<LLCoordGL>
+	:	public BlockValue<LLCoordGL>
+	{
+		typedef BlockValue<LLCoordGL> super_t;
+	public:
+		Optional<S32>	x,
+						y;
+
+		TypedParam(BlockDescriptor& descriptor, const char* name, LLCoordGL value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);
+		LLCoordGL getValueFromBlock() const;
 	};
 }
 

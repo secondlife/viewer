@@ -411,6 +411,7 @@ public:
 	LLObjectSelectionHandle selectHighlightedObjects();
 
 	LLObjectSelectionHandle setHoverObject(LLViewerObject *objectp, S32 face = -1);
+	LLSelectNode *getHoverNode();
 
 	void highlightObjectOnly(LLViewerObject *objectp);
 	void highlightObjectAndFamily(LLViewerObject *objectp);
@@ -445,13 +446,10 @@ public:
 	////////////////////////////////////////////////////////////////
 	// Selection accessors
 	////////////////////////////////////////////////////////////////
-	LLObjectSelectionHandle	getHoverObjects() { return mHoverObjects; }
 	LLObjectSelectionHandle	getSelection() { return mSelectedObjects; }
 	// right now this just renders the selection with root/child colors instead of a single color
 	LLObjectSelectionHandle	getEditSelection() { convertTransient(); return mSelectedObjects; }
 	LLObjectSelectionHandle	getHighlightedObjects() { return mHighlightedObjects; }
-
-	LLSelectNode *getHoverNode();
 
 	////////////////////////////////////////////////////////////////
 	// Grid manipulation

@@ -91,8 +91,8 @@ LLPanel::Params::Params()
 
 LLPanel::LLPanel(const LLPanel::Params& p)
 :	LLUICtrl(p),
-	mBgColorAlpha(p.bg_alpha_color().get()),
-	mBgColorOpaque(p.bg_opaque_color().get()),
+	mBgColorAlpha(p.bg_alpha_color()),
+	mBgColorOpaque(p.bg_opaque_color()),
 	mBgVisible(p.background_visible),
 	mBgOpaque(p.background_opaque),
 	mDefaultBtn(NULL),
@@ -100,7 +100,7 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 	mLabel(p.label),
 	mCommitCallbackRegistrar(false),
 	mEnableCallbackRegistrar(false),
-	mXMLFilename("")
+	mXMLFilename(p.filename)
 {
 	setIsChrome(FALSE);
 
@@ -171,6 +171,8 @@ void LLPanel::setCtrlsEnabled( BOOL b )
 
 void LLPanel::draw()
 {
+	F32 alpha = getDrawContext().mAlpha;
+
 	// draw background
 	if( mBgVisible )
 	{
@@ -182,23 +184,17 @@ void LLPanel::draw()
 
 		if (mBgOpaque )
 		{
-			gl_rect_2d( left, top, right, bottom, mBgColorOpaque );
+			gl_rect_2d( left, top, right, bottom, mBgColorOpaque.get() % alpha);
 		}
 		else
 		{
-			gl_rect_2d( left, top, right, bottom, mBgColorAlpha );
+			gl_rect_2d( left, top, right, bottom, mBgColorAlpha.get() % alpha);
 		}
 	}
 
 	updateDefaultBtn();
 
 	LLView::draw();
-}
-
-/*virtual*/
-void LLPanel::setAlpha(F32 alpha)
-{
-	mBgColorOpaque.setAlpha(alpha);
 }
 
 void LLPanel::updateDefaultBtn()
@@ -402,6 +398,8 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
     //and LLView::initFromParams will use them to set visible and enabled  
 	setVisible(p.visible);
 	setEnabled(p.enabled);
+
+	setSoundFlags(p.sound_flags);
 
 	 // control_name, tab_stop, focus_lost_callback, initial_value, rect, enabled, visible
 	LLUICtrl::initFromParams(p);
@@ -707,14 +705,6 @@ void LLPanel::childSetColor(const std::string& id, const LLColor4& color)
 	if (child)
 	{
 		child->setColor(color);
-	}
-}
-void LLPanel::childSetAlpha(const std::string& id, F32 alpha)
-{
-	LLUICtrl* child = getChild<LLUICtrl>(id, true);
-	if (child)
-	{
-		child->setAlpha(alpha);
 	}
 }
 

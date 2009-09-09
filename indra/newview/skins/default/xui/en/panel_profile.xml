@@ -14,33 +14,6 @@
         [ACCTTYPE] [PAYMENTINFO] [AGEVERIFICATION]
     </string>
     <string
-     name="AcctTypeResident"
-     value="Resident" />
-    <string
-     name="AcctTypeTrial"
-     value="Trial" />
-    <string
-     name="AcctTypeCharterMember"
-     value="Charter Member" />
-    <string
-     name="AcctTypeEmployee"
-     value="Linden Lab Employee" />
-    <string
-     name="PaymentInfoUsed"
-     value="Payment Info Used" />
-    <string
-     name="PaymentInfoOnFile"
-     value="Payment Info On File" />
-    <string
-     name="NoPaymentInfoOnFile"
-     value="No Payment Info On File" />
-    <string
-     name="AgeVerified"
-     value="Age-verified" />
-    <string
-     name="NotAgeVerified"
-     value="Not Age-verified" />
-    <string
      name="payment_update_link_url">
         http://www.secondlife.com/account/billing.php?lang=en
     </string>

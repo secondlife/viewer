@@ -514,6 +514,7 @@ BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 // virtual
 void LLButton::draw()
 {
+	F32 alpha = getDrawContext().mAlpha;
 	bool flash = FALSE;
 	static LLUICachedControl<F32> button_flash_rate("ButtonFlashRate", 0);
 	static LLUICachedControl<S32> button_flash_count("ButtonFlashCount", 0);
@@ -535,7 +536,7 @@ void LLButton::draw()
 	// Unselected image assignments
 	S32 local_mouse_x;
 	S32 local_mouse_y;
-	LLUI::getCursorPositionLocal(this, &local_mouse_x, &local_mouse_y);
+	LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
 
 	bool enabled = isInEnabledChain();
 
@@ -662,7 +663,7 @@ void LLButton::draw()
 	if (hasFocus())
 	{
 		F32 lerp_amt = gFocusMgr.getFocusFlashAmt();
-		drawBorder(imagep, gFocusMgr.getFocusColor(), llround(lerp(1.f, 3.f, lerp_amt)));
+		drawBorder(imagep, gFocusMgr.getFocusColor() % alpha, llround(lerp(1.f, 3.f, lerp_amt)));
 	}
 	
 	if (use_glow_effect)
@@ -685,21 +686,21 @@ void LLButton::draw()
 		LLColor4 disabled_color = mFadeWhenDisabled ? mDisabledImageColor.get() % 0.5f : mDisabledImageColor.get();
 		if ( mScaleImage)
 		{
-			imagep->draw(getLocalRect(), enabled ? mImageColor.get() : disabled_color  );
+			imagep->draw(getLocalRect(), (enabled ? mImageColor.get() : disabled_color) % alpha  );
 			if (mCurGlowStrength > 0.01f)
 			{
 				gGL.setSceneBlendType(glow_type);
-				imagep->drawSolid(0, 0, getRect().getWidth(), getRect().getHeight(), glow_color % mCurGlowStrength);
+				imagep->drawSolid(0, 0, getRect().getWidth(), getRect().getHeight(), glow_color % (mCurGlowStrength * alpha));
 				gGL.setSceneBlendType(LLRender::BT_ALPHA);
 			}
 		}
 		else
 		{
-			imagep->draw(0, 0, enabled ? mImageColor.get() : disabled_color );
+			imagep->draw(0, 0, (enabled ? mImageColor.get() : disabled_color) % alpha );
 			if (mCurGlowStrength > 0.01f)
 			{
 				gGL.setSceneBlendType(glow_type);
-				imagep->drawSolid(0, 0, glow_color % mCurGlowStrength);
+				imagep->drawSolid(0, 0, glow_color % (mCurGlowStrength * alpha));
 				gGL.setSceneBlendType(LLRender::BT_ALPHA);
 			}
 		}
@@ -709,7 +710,7 @@ void LLButton::draw()
 		// no image
 		lldebugs << "No image for button " << getName() << llendl;
 		// draw it in pink so we can find it
-		gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4::pink1, FALSE);
+		gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4::pink1 % alpha, FALSE);
 	}
 
 	// let overlay image and text play well together
@@ -744,6 +745,7 @@ void LLButton::draw()
 		{
 			overlay_color.mV[VALPHA] = 0.5f;
 		}
+		overlay_color.mV[VALPHA] *= alpha;
 
 		switch(mImageOverlayAlignment)
 		{
@@ -815,7 +817,7 @@ void LLButton::draw()
 		// Due to U32_MAX is equal to S32 -1 value I have rest this value for non-ellipses mode.
 		// Not sure if it is really needed. Probably S32_MAX should be always passed as max_chars.
 		mGLFont->render(label, 0, (F32)x, (F32)(LLBUTTON_V_PAD + y_offset), 
-			label_color,
+			label_color % alpha,
 			mHAlign, LLFontGL::BOTTOM,
 			LLFontGL::NORMAL,
 			mDropShadowedText ? LLFontGL::DROP_SHADOW_SOFT : LLFontGL::NO_SHADOW,
@@ -954,17 +956,6 @@ void LLButton::setImageColor(const LLColor4& c)
 void LLButton::setColor(const LLColor4& color)
 {
 	setImageColor(color);
-}
-
-void LLButton::setAlpha(F32 alpha)
-{
-	LLColor4 temp = mImageColor.get();
-	temp.setAlpha(alpha);
-	mImageColor.set(temp);
-	
-	temp = mDisabledImageColor.get();
-	temp.setAlpha(alpha * 0.5f);
-	mDisabledImageColor.set(temp);
 }
 
 void LLButton::setImageDisabled(LLPointer<LLUIImage> image)

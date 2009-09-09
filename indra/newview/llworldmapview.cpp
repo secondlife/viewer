@@ -41,6 +41,7 @@
 #include "lleventflags.h"
 #include "llfloaterreg.h"
 #include "llrender.h"
+#include "lltooltip.h"
 
 #include "llagent.h"
 #include "llcallingcard.h"
@@ -50,6 +51,7 @@
 #include "llfloatermap.h"
 #include "llfloaterworldmap.h"
 #include "llfocusmgr.h"
+#include "lllocalcliprect.h"
 #include "lltextbox.h"
 #include "lltextureview.h"
 #include "lltracker.h"
@@ -1179,9 +1181,11 @@ LLVector3d LLWorldMapView::viewPosToGlobal( S32 x, S32 y )
 }
 
 
-BOOL LLWorldMapView::handleToolTip( S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen )
+BOOL LLWorldMapView::handleToolTip( S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen )
 {
 	LLVector3d pos_global = viewPosToGlobal(x, y);
+
+	std::string tooltip_msg;
 
 	LLSimInfo* info = LLWorldMap::getInstance()->simInfoFromPosGlobal(pos_global);
 	if (info)
@@ -1217,22 +1221,26 @@ BOOL LLWorldMapView::handleToolTip( S32 x, S32 y, std::string& msg, LLRect* stic
 				}
 			}
 		}
-		msg.assign( message );
+		tooltip_msg.assign( message );
 
 		// Optionally show region flags
 		std::string region_flags = LLViewerRegion::regionFlagsToString(info->mRegionFlags);
 
 		if (!region_flags.empty())
 		{
-			msg += '\n';
-			msg += region_flags;
+			tooltip_msg += '\n';
+			tooltip_msg += region_flags;
 		}
 					
 		const S32 SLOP = 9;
 		S32 screen_x, screen_y;
 
 		localPointToScreen(x, y, &screen_x, &screen_y);
-		sticky_rect_screen->setCenterAndSize(screen_x, screen_y, SLOP, SLOP);
+		sticky_rect_screen.setCenterAndSize(screen_x, screen_y, SLOP, SLOP);
+
+		LLToolTipMgr::instance().show(LLToolTipParams()
+			.message(tooltip_msg)
+			.sticky_rect(sticky_rect_screen));
 	}
 	return TRUE;
 }
@@ -1744,7 +1752,7 @@ BOOL LLWorldMapView::handleMouseUp( S32 x, S32 y, MASK mask )
 			LLRect clip_rect = getRect();
 			clip_rect.stretch(-8);
 			clip_rect.clipPointToRect(mMouseDownX, mMouseDownY, local_x, local_y);
-			LLUI::setCursorPositionLocal(this, local_x, local_y);
+			LLUI::setMousePositionLocal(this, local_x, local_y);
 
 			// finish the pan
 			mPanning = FALSE;

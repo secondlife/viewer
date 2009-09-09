@@ -44,6 +44,7 @@
 #include "llrect.h"
 #include "lldir.h"
 #include "llfontgl.h"
+#include "llgl.h"
 
 // Project includes
 #include "llcontrol.h"
@@ -80,10 +81,9 @@ std::list<std::string> gUntranslated;
 /*static*/ LLWindow*		LLUI::sWindow = NULL;
 /*static*/ LLHtmlHelp*		LLUI::sHtmlHelp = NULL;
 /*static*/ LLView*			LLUI::sRootView = NULL;
-/*static*/ BOOL            LLUI::sShowXUINames = FALSE;
-/*static*/ std::stack<LLRect> LLScreenClipRect::sClipRectStack;
 
 /*static*/ std::vector<std::string> LLUI::sXUIPaths;
+/*static*/ LLFrameTimer		LLUI::sMouseIdleTimer;
 
 // register filtereditor here
 static LLDefaultChildRegistry::Register<LLFilterEditor> register_filter_editor("filter_editor");
@@ -1561,12 +1561,6 @@ void gl_segmented_rect_3d_tex_top(const LLVector2& border_scale, const LLVector3
 	gl_segmented_rect_3d_tex(border_scale, border_width, border_height, width_vec, height_vec, ROUNDED_RECT_TOP);
 }
 
-bool handleShowXUINamesChanged(const LLSD& newvalue)
-{
-	LLUI::sShowXUINames = newvalue.asBoolean();
-	return true;
-}
-
 void LLUI::initClass(const settings_map_t& settings,
 					 LLImageProviderInterface* image_provider,
 					 LLUIAudioCallback audio_callback,
@@ -1588,10 +1582,6 @@ void LLUI::initClass(const settings_map_t& settings,
 	sWindow = NULL; // set later in startup
 	LLFontGL::sShadowColor = LLUIColorTable::instance().getColor("ColorDropShadow");
 
-	static LLUICachedControl<bool> show_xui_names ("ShowXUINames", false);
-	LLUI::sShowXUINames = show_xui_names;
-	LLUI::sSettingGroups["config"]->getControl("ShowXUINames")->getSignal()->connect(boost::bind(&handleShowXUINamesChanged, _2));
-	
 	// Callbacks for associating controls with floater visibilty:
 	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Floater.Toggle", boost::bind(&LLFloaterReg::toggleFloaterInstance, _2));
 	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Floater.Show", boost::bind(&LLFloaterReg::showFloaterInstance, _2));
@@ -1661,7 +1651,7 @@ void LLUI::setLineWidth(F32 width)
 }
 
 //static 
-void LLUI::setCursorPositionScreen(S32 x, S32 y)
+void LLUI::setMousePositionScreen(S32 x, S32 y)
 {
 	S32 screen_x, screen_y;
 	screen_x = llround((F32)x * sGLScaleFactor.mV[VX]);
@@ -1674,16 +1664,16 @@ void LLUI::setCursorPositionScreen(S32 x, S32 y)
 }
 
 //static 
-void LLUI::setCursorPositionLocal(const LLView* viewp, S32 x, S32 y)
+void LLUI::setMousePositionLocal(const LLView* viewp, S32 x, S32 y)
 {
 	S32 screen_x, screen_y;
 	viewp->localPointToScreen(x, y, &screen_x, &screen_y);
 
-	setCursorPositionScreen(screen_x, screen_y);
+	setMousePositionScreen(screen_x, screen_y);
 }
 
 //static 
-void LLUI::getCursorPositionLocal(const LLView* viewp, S32 *x, S32 *y)
+void LLUI::getMousePositionLocal(const LLView* viewp, S32 *x, S32 *y)
 {
 	LLCoordWindow cursor_pos_window;
 	LLView::getWindow()->getCursorPosition(&cursor_pos_window);
@@ -1867,74 +1857,46 @@ LLControlGroup& LLUI::getControlControlGroup (const std::string& controlname)
 	return *sSettingGroups["config"]; // default group
 }
 
-LLScreenClipRect::LLScreenClipRect(const LLRect& rect, BOOL enabled) : mScissorState(GL_SCISSOR_TEST), mEnabled(enabled)
-{
-	if (mEnabled)
-	{
-		pushClipRect(rect);
-	}
-	mScissorState.setEnabled(!sClipRectStack.empty());
-	updateScissorRegion();
-}
-
-LLScreenClipRect::~LLScreenClipRect()
-{
-	if (mEnabled)
-	{
-		popClipRect();
-	}
-	updateScissorRegion();
-}
-
-//static 
-void LLScreenClipRect::pushClipRect(const LLRect& rect)
-{
-	LLRect combined_clip_rect = rect;
-	if (!sClipRectStack.empty())
-	{
-		LLRect top = sClipRectStack.top();
-		combined_clip_rect.intersectWith(top);
-
-		if(combined_clip_rect.isEmpty())
-		{
-			// avoid artifacts where zero area rects show up as lines
-			combined_clip_rect = LLRect::null;
-		}
-	}
-	sClipRectStack.push(combined_clip_rect);
-}
-
-//static 
-void LLScreenClipRect::popClipRect()
-{
-	sClipRectStack.pop();
-}
-
 //static
-void LLScreenClipRect::updateScissorRegion()
+// spawn_x and spawn_y are top left corner of view in screen GL coordinates
+void LLUI::positionViewNearMouse(LLView* view, S32 spawn_x, S32 spawn_y)
 {
-	if (sClipRectStack.empty()) return;
+	const S32 CURSOR_HEIGHT = 22;		// Approximate "normal" cursor size
+	const S32 CURSOR_WIDTH = 12;
 
-	LLRect rect = sClipRectStack.top();
-	stop_glerror();
-	S32 x,y,w,h;
-	x = llfloor(rect.mLeft * LLUI::sGLScaleFactor.mV[VX]);
-	y = llfloor(rect.mBottom * LLUI::sGLScaleFactor.mV[VY]);
-	w = llmax(0, llceil(rect.getWidth() * LLUI::sGLScaleFactor.mV[VX])) + 1;
-	h = llmax(0, llceil(rect.getHeight() * LLUI::sGLScaleFactor.mV[VY])) + 1;
-	glScissor( x,y,w,h );
-	stop_glerror();
+	LLView* parent = view->getParent();
+
+	S32 mouse_x;
+	S32 mouse_y;
+	LLUI::getMousePositionLocal(parent, &mouse_x, &mouse_y);
+
+	// If no spawn location provided, use mouse position
+	if (spawn_x == S32_MAX || spawn_y == S32_MAX)
+	{
+		spawn_x = mouse_x + CURSOR_WIDTH;
+		spawn_y = mouse_y - CURSOR_HEIGHT;
+	}
+
+	LLRect virtual_window_rect = parent->getLocalRect();
+
+	LLRect mouse_rect;
+	const S32 MOUSE_CURSOR_PADDING = 5;
+	mouse_rect.setLeftTopAndSize(mouse_x - MOUSE_CURSOR_PADDING, 
+		mouse_y + MOUSE_CURSOR_PADDING, 
+		CURSOR_WIDTH + MOUSE_CURSOR_PADDING * 2, 
+		CURSOR_HEIGHT + MOUSE_CURSOR_PADDING * 2);
+
+	S32 local_x, local_y;
+	view->getParent()->screenPointToLocal(spawn_x, spawn_y, &local_x, &local_y);
+
+	// Start at spawn position (using left/top)
+	view->setOrigin( local_x, local_y - view->getRect().getHeight());
+	// Make sure we're onscreen and not overlapping the mouse
+	view->translateIntoRectWithExclusion( virtual_window_rect, mouse_rect, FALSE );
 }
 
 
-LLLocalClipRect::LLLocalClipRect(const LLRect &rect, BOOL enabled) 
-: LLScreenClipRect(LLRect(rect.mLeft + LLFontGL::sCurOrigin.mX, 
-						rect.mTop + LLFontGL::sCurOrigin.mY, 
-						rect.mRight + LLFontGL::sCurOrigin.mX, 
-						rect.mBottom + LLFontGL::sCurOrigin.mY),
-					enabled)
-{
-}
+// LLLocalClipRect and LLScreenClipRect moved to lllocalcliprect.h/cpp
 
 namespace LLInitParam
 {
@@ -2083,6 +2045,19 @@ namespace LLInitParam
 		}
 		return rect;
 	}
+
+	TypedParam<LLCoordGL>::TypedParam(BlockDescriptor& descriptor, const char* name, LLCoordGL value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
+	:	super_t(descriptor, name, value, func, min_count, max_count),
+		x("x"),
+		y("y")
+	{
+	}
+
+	LLCoordGL TypedParam<LLCoordGL>::getValueFromBlock() const
+	{
+		return LLCoordGL(x, y);
+	}
+
 
 	void TypeValues<LLFontGL::HAlign>::declareValues()
 	{

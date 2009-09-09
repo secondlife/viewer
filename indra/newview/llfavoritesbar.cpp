@@ -42,6 +42,7 @@
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llmenugl.h"
+#include "lltooltip.h"
 
 #include "llagent.h"
 #include "llclipboard.h"
@@ -122,14 +123,9 @@ class LLFavoriteLandmarkButton : public LLButton
 {
 public:
 
-	BOOL handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect)
+	BOOL handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect)
 	{
-		if(LLUI::sShowXUINames)
-		{
-			return LLButton::handleToolTip(x, y, msg, sticky_rect);
-		}
-
-		msg = mUrlGetter.getSLURL();
+		LLToolTipMgr::instance().show(mUrlGetter.getSLURL());
 		return TRUE;
 	}
 
@@ -193,14 +189,9 @@ private:
 class LLFavoriteLandmarkMenuItem : public LLMenuItemCallGL
 {
 public:
-	BOOL handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect)
+	BOOL handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect)
 	{
-		if(LLUI::sShowXUINames)
-		{
-			return LLMenuItemCallGL::handleToolTip(x, y, msg, sticky_rect);
-		}
-
-		msg = mUrlGetter.getSLURL();
+		LLToolTipMgr::instance().show(mUrlGetter.getSLURL());
 		return TRUE;
 	}
 	

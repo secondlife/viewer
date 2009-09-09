@@ -37,8 +37,7 @@
 #include "lluictrlfactory.h"
 
 // viewer includes
-#include "llviewerwindow.h"
-#include "lllineeditor.h"
+#include "llnotifications.h"
 #include "llstring.h"
 
 LLConfirmationManager::ListenerBase::~ListenerBase()

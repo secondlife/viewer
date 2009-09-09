@@ -242,8 +242,8 @@ public:
 	virtual void removeChild(LLViewerObject *childp);
 	const_child_list_t& getChildren() const { 	return mChildList; }
 	S32 numChildren() const { return mChildList.size(); }
-	void addThisAndAllChildren(LLDynamicArray<LLViewerObject*>& objects);
-	void addThisAndNonJointChildren(LLDynamicArray<LLViewerObject*>& objects);
+	void addThisAndAllChildren(std::vector<LLViewerObject*>& objects);
+	void addThisAndNonJointChildren(std::vector<LLViewerObject*>& objects);
 	BOOL isChild(LLViewerObject *childp) const;
 	BOOL isSeat() const;
 	

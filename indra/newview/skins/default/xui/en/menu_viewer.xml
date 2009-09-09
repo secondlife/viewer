@@ -2751,14 +2751,13 @@
             <menu_item_call.on_click
              function="Advanced.SendTestIMs" />
           </menu_item_call>
-          <!-- *HACK: Hard code James Tester's UUID -->
           <menu_item_call
-           label="Avatar Inspector"
-           name="Avatar Inspector"
+           label="Test Inspectors"
+           name="Test Inspectors"
            shortcut="control|shift|I">
             <menu_item_call.on_click
-             function="Advanced.AvatarInspector"
-             parameter="22df1dcb-810a-4975-aab9-0159958fe155" />
+             function="Floater.Show"
+             parameter="test_inspectors" />
           </menu_item_call>
         </menu>
         <menu

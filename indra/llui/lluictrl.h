@@ -213,7 +213,6 @@ public:
 	virtual void	onTabInto();
 	virtual void	clear();
 	virtual void	setColor(const LLColor4& color);
-	virtual void	setAlpha(F32 alpha);
 
 	BOOL	focusNextItem(BOOL text_entry_only);
 	BOOL	focusPrevItem(BOOL text_entry_only);

@@ -49,6 +49,7 @@
 #include "llwindow.h"
 #include "v3color.h"
 #include "lluictrlfactory.h"
+#include "lltooltip.h"
 
 // for ui edit hack
 #include "llbutton.h"
@@ -70,6 +71,8 @@ LLView* LLView::sPreviewClickedElement = NULL;
 BOOL	LLView::sDrawPreviewHighlights = FALSE;
 S32		LLView::sLastLeftXML = S32_MIN;
 S32		LLView::sLastBottomXML = S32_MIN;
+std::vector<LLViewDrawContext*> LLViewDrawContext::sDrawContextStack;
+
 
 #if LL_DEBUG
 BOOL LLView::sIsDrawing = FALSE;
@@ -662,86 +665,52 @@ void LLView::onMouseLeave(S32 x, S32 y, MASK mask)
 }
 
 
-std::string LLView::getShowNamesToolTip()
+LLView* LLView::childrenHandleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
 {
-	LLView* view = getParent();
-	std::string name;
-	std::string tool_tip = mName;
-
-	while (view)
-	{
-		name = view->getName();
-
-		if (name == "root") break;
-
-		if (view->getToolTip().find(".xml") != std::string::npos)
-		{
-			tool_tip = view->getToolTip() + "/" +  tool_tip;
-			break;
-		}
-		else
-		{
-			tool_tip = view->getName() + "/" +  tool_tip;
-		}
-
-		view = view->getParent();
-	}
-
-	return "/" + tool_tip;
-}
-
-
-BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
-{
-	BOOL handled = FALSE;
-
-	std::string tool_tip;
-
+	LLView* handled_view = NULL;
 	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 	{
 		LLView* viewp = *child_it;
-		S32 local_x = x - viewp->mRect.mLeft;
-		S32 local_y = y - viewp->mRect.mBottom;
-		// Allow tooltips for disabled views so we can explain to the user why
-		// the view is disabled. JC
-		if( viewp->pointInView(local_x, local_y) 
-			&& viewp->getVisible() 
-			// && viewp->getEnabled()
-			&& viewp->handleToolTip(local_x, local_y, msg, sticky_rect_screen ))
+		S32 local_x = x - viewp->getRect().mLeft;
+		S32 local_y = y - viewp->getRect().mBottom;
+		if(viewp->pointInView(local_x, local_y) &&
+			viewp->getVisible() &&
+			viewp->handleToolTip(local_x, local_y, msg, sticky_rect_screen) )
 		{
-			// child provided a tooltip, just return
-			if (!msg.empty()) return TRUE;
+			if (sDebugMouseHandling)
+			{
+				sMouseHandlerMessage = std::string("->") + viewp->mName + sMouseHandlerMessage;
+			}
 
-			// otherwise, one of our children ate the event so don't traverse
-			// siblings however, our child did not actually provide a tooltip
-            // so we might want to
-			handled = TRUE;
+			handled_view = viewp;
 			break;
 		}
 	}
+	return handled_view;
+}
 
-	// get our own tooltip
-	tool_tip = mToolTipMsg.getString();
-	
-	if (LLUI::sShowXUINames 
-		&& (tool_tip.find(".xml", 0) == std::string::npos) 
-		&& (mName.find("Drag", 0) == std::string::npos))
+BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
+{
+	LLView* child_handler = childrenHandleToolTip(x, y, msg, sticky_rect_screen);
+	BOOL handled = child_handler != NULL;
+
+	// child widgets get priority on tooltips
+	if (!handled && !mToolTipMsg.empty())
 	{
-		tool_tip = getShowNamesToolTip();
+		// allow "scrubbing" over ui by showing next tooltip immediately
+		// if previous one was still visible
+		F32 timeout = LLToolTipMgr::instance().toolTipVisible() 
+			? 0.f
+			: LLUI::sSettingGroups["config"]->getF32( "ToolTipDelay" );
+		LLToolTipMgr::instance().show(LLToolTipParams()
+			.message(mToolTipMsg)
+			.sticky_rect(calcScreenRect())
+			.delay_time(timeout));
+
+		handled = TRUE;
 	}
 
-	if(!tool_tip.empty())
-	{
-		msg = tool_tip;
-
-		// Convert rect local to screen coordinates
-		*sticky_rect_screen = calcScreenRect();
-	}
-	// don't allow any siblings to handle this event
-	// even if we don't have a tooltip
-	if (getMouseOpaque() || 
-		(!tool_tip.empty() && 
-		 (!LLUI::sShowXUINames || dynamic_cast<LLTextBox*>(this))))
+	if( blockMouseEvent(x, y) )
 	{
 		handled = TRUE;
 	}
@@ -1518,45 +1487,51 @@ void LLView::reshape(S32 width, S32 height, BOOL called_from_parent)
 	updateBoundingRect();
 }
 
+LLRect LLView::calcBoundingRect()
+{
+	LLRect local_bounding_rect = LLRect::null;
+
+	child_list_const_iter_t child_it;
+	for ( child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
+	{
+		LLView* childp = *child_it;
+		// ignore invisible and "top" children when calculating bounding rect
+		// such as combobox popups
+		if (!childp->getVisible() || childp == gFocusMgr.getTopCtrl()) 
+		{
+			continue;
+		}
+
+		LLRect child_bounding_rect = childp->getBoundingRect();
+
+		if (local_bounding_rect.isEmpty())
+		{
+			// start out with bounding rect equal to first visible child's bounding rect
+			local_bounding_rect = child_bounding_rect;
+		}
+		else
+		{
+			// accumulate non-null children rectangles
+			if (!child_bounding_rect.isEmpty())
+			{
+				local_bounding_rect.unionWith(child_bounding_rect);
+			}
+		}
+	}
+
+	// convert to parent-relative coordinates
+	local_bounding_rect.translate(mRect.mLeft, mRect.mBottom);
+	return local_bounding_rect;
+}
+
+
 void LLView::updateBoundingRect()
 {
 	if (isDead()) return;
 
 	if (mUseBoundingRect)
 	{
-		LLRect local_bounding_rect = LLRect::null;
-
-		child_list_const_iter_t child_it;
-		for ( child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
-		{
-			LLView* childp = *child_it;
-			// ignore invisible and "top" children when calculating bounding rect
-			// such as combobox popups
-			if (!childp->getVisible() || childp == gFocusMgr.getTopCtrl()) 
-			{
-				continue;
-			}
-
-			LLRect child_bounding_rect = childp->getBoundingRect();
-
-			if (local_bounding_rect.isEmpty())
-			{
-				// start out with bounding rect equal to first visible child's bounding rect
-				local_bounding_rect = child_bounding_rect;
-			}
-			else
-			{
-				// accumulate non-null children rectangles
-				if (!child_bounding_rect.isEmpty())
-				{
-					local_bounding_rect.unionWith(child_bounding_rect);
-				}
-			}
-		}
-
-		mBoundingRect = local_bounding_rect;
-		// translate into parent-relative coordinates
-		mBoundingRect.translate(mRect.mLeft, mRect.mBottom);
+		mBoundingRect = calcBoundingRect();
 	}
 	else
 	{
@@ -1817,72 +1792,122 @@ void LLView::deleteViewByHandle(LLHandle<LLView> handle)
 }
 
 
-// Moves the view so that it is entirely inside of constraint.
-// If the view will not fit because it's too big, aligns with the top and left.
-// (Why top and left?  That's where the drag bars are for floaters.)
-BOOL LLView::translateIntoRect(const LLRect& constraint, BOOL allow_partial_outside )
+LLCoordGL getNeededTranslation(const LLRect& input, const LLRect& constraint, BOOL allow_partial_outside)
 {
-	S32 delta_x = 0;
-	S32 delta_y = 0;
+	LLCoordGL delta;
 
 	if (allow_partial_outside)
 	{
 		const S32 KEEP_ONSCREEN_PIXELS = 16;
 
-		if( getRect().mRight - KEEP_ONSCREEN_PIXELS < constraint.mLeft )
+		if( input.mRight - KEEP_ONSCREEN_PIXELS < constraint.mLeft )
 		{
-			delta_x = constraint.mLeft - (getRect().mRight - KEEP_ONSCREEN_PIXELS);
+			delta.mX = constraint.mLeft - (input.mRight - KEEP_ONSCREEN_PIXELS);
 		}
 		else
-		if( getRect().mLeft + KEEP_ONSCREEN_PIXELS > constraint.mRight )
+		if( input.mLeft + KEEP_ONSCREEN_PIXELS > constraint.mRight )
 		{
-			delta_x = constraint.mRight - (getRect().mLeft + KEEP_ONSCREEN_PIXELS);
+			delta.mX = constraint.mRight - (input.mLeft + KEEP_ONSCREEN_PIXELS);
 		}
 
-		if( getRect().mTop > constraint.mTop )
+		if( input.mTop > constraint.mTop )
 		{
-			delta_y = constraint.mTop - getRect().mTop;
+			delta.mY = constraint.mTop - input.mTop;
 		}
 		else
-		if( getRect().mTop - KEEP_ONSCREEN_PIXELS < constraint.mBottom )
+		if( input.mTop - KEEP_ONSCREEN_PIXELS < constraint.mBottom )
 		{
-			delta_y = constraint.mBottom - (getRect().mTop - KEEP_ONSCREEN_PIXELS);
+			delta.mY = constraint.mBottom - (input.mTop - KEEP_ONSCREEN_PIXELS);
 		}
 	}
 	else
 	{
-		if( getRect().mLeft < constraint.mLeft )
+		if( input.mLeft < constraint.mLeft )
 		{
-			delta_x = constraint.mLeft - getRect().mLeft;
+			delta.mX = constraint.mLeft - input.mLeft;
 		}
 		else
-		if( getRect().mRight > constraint.mRight )
+		if( input.mRight > constraint.mRight )
 		{
-			delta_x = constraint.mRight - getRect().mRight;
+			delta.mX = constraint.mRight - input.mRight;
 			// compensate for left edge possible going off screen
-			delta_x += llmax( 0, getRect().getWidth() - constraint.getWidth() );
+			delta.mX += llmax( 0, input.getWidth() - constraint.getWidth() );
 		}
 
-		if( getRect().mTop > constraint.mTop )
+		if( input.mTop > constraint.mTop )
 		{
-			delta_y = constraint.mTop - getRect().mTop;
+			delta.mY = constraint.mTop - input.mTop;
 		}
 		else
-		if( getRect().mBottom < constraint.mBottom )
+		if( input.mBottom < constraint.mBottom )
 		{
-			delta_y = constraint.mBottom - getRect().mBottom;
+			delta.mY = constraint.mBottom - input.mBottom;
 			// compensate for top edge possible going off screen
-			delta_y -= llmax( 0, getRect().getHeight() - constraint.getHeight() );
+			delta.mY -= llmax( 0, input.getHeight() - constraint.getHeight() );
 		}
 	}
 
-	if (delta_x != 0 || delta_y != 0)
+	return delta;
+}
+
+// Moves the view so that it is entirely inside of constraint.
+// If the view will not fit because it's too big, aligns with the top and left.
+// (Why top and left?  That's where the drag bars are for floaters.)
+BOOL LLView::translateIntoRect(const LLRect& constraint, BOOL allow_partial_outside )
+{
+	LLCoordGL translation = getNeededTranslation(getRect(), constraint, allow_partial_outside);
+
+	if (translation.mX != 0 || translation.mY != 0)
 	{
-		translate(delta_x, delta_y);
+		translate(translation.mX, translation.mY);
 		return TRUE;
 	}
 	return FALSE;
 }
+
+// move this view into "inside" but not onto "exclude"
+// NOTE: if this view is already contained in "inside", we ignore the "exclude" rect
+BOOL LLView::translateIntoRectWithExclusion( const LLRect& inside, const LLRect& exclude, BOOL allow_partial_outside )
+{
+	LLCoordGL translation = getNeededTranslation(getRect(), inside, allow_partial_outside);
+	
+	if (translation.mX != 0 || translation.mY != 0)
+	{
+		// translate ourselves into constraint rect
+		translate(translation.mX, translation.mY);
+	
+		// do we overlap with exclusion area?
+		// keep moving in the same direction to the other side of the exclusion rect
+		if (exclude.overlaps(getRect()))
+		{
+			// moving right
+			if (translation.mX > 0)
+			{
+				translate(exclude.mRight - getRect().mLeft, 0);
+			}
+			// moving left
+			else if (translation.mX < 0)
+			{
+				translate(exclude.mLeft - getRect().mRight, 0);
+			}
+
+			// moving up
+			if (translation.mY > 0)
+			{
+				translate(0, exclude.mTop - getRect().mBottom);
+			}
+			// moving down
+			else if (translation.mY < 0)
+			{
+				translate(0, exclude.mBottom - getRect().mTop);
+			}
+		}
+
+		return TRUE;
+	}
+	return FALSE;
+}
+
 
 void LLView::centerWithin(const LLRect& bounds)
 {
@@ -2712,18 +2737,43 @@ void LLView::setupParamsForExport(Params& p, LLView* parent)
 	convert_coords_to_top_left(p, parent);
 }
 
-LLView::tree_iterator_t LLView::beginTree() 
+LLView::tree_iterator_t LLView::beginTreeDFS() 
 { 
 	return tree_iterator_t(this, 
 							boost::bind(boost::mem_fn(&LLView::beginChild), _1), 
 							boost::bind(boost::mem_fn(&LLView::endChild), _1)); 
 }
 
-LLView::tree_iterator_t LLView::endTree() 
+LLView::tree_iterator_t LLView::endTreeDFS() 
 { 
 	// an empty iterator is an "end" iterator
 	return tree_iterator_t();
 }
+
+LLView::tree_post_iterator_t LLView::beginTreeDFSPost() 
+{ 
+	return tree_post_iterator_t(this, 
+							boost::bind(boost::mem_fn(&LLView::beginChild), _1), 
+							boost::bind(boost::mem_fn(&LLView::endChild), _1)); 
+}
+
+LLView::tree_post_iterator_t LLView::endTreeDFSPost() 
+{ 
+	// an empty iterator is an "end" iterator
+	return tree_post_iterator_t();
+}
+
+
+LLView::root_to_view_iterator_t LLView::beginRootToView()
+{
+	return root_to_view_iterator_t(this, boost::bind(&LLView::getParent, _1));
+}
+
+LLView::root_to_view_iterator_t LLView::endRootToView()
+{
+	return root_to_view_iterator_t();
+}
+
 
 // only create maps on demand, as they incur heap allocation/deallocation cost
 // when a view is constructed/deconstructed
@@ -2735,6 +2785,7 @@ LLView::default_widget_map_t& LLView::getDefaultWidgetMap() const
 	}
 	return *mDefaultWidgets;
 }
+
 void	LLView::notifyParent(const LLSD& info)
 {
 	LLView* parent = getParent();
@@ -2749,3 +2800,18 @@ void	LLView::notifyChildren(const LLSD& info)
 	}
 }
 
+// convenient accessor for draw context
+const LLViewDrawContext& LLView::getDrawContext()
+{
+	return LLViewDrawContext::getCurrentContext();
+}
+
+const LLViewDrawContext& LLViewDrawContext::getCurrentContext()
+{
+	static LLViewDrawContext default_context;
+
+	if (sDrawContextStack.empty())
+		return default_context;
+		
+	return *sDrawContextStack.back();
+}

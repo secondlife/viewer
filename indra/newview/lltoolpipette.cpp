@@ -40,6 +40,7 @@
 #include "lltoolpipette.h" 
 
 // Library includes
+#include "lltooltip.h"
 
 // Viewer includes
 #include "llviewerobjectlist.h"
@@ -92,15 +93,19 @@ BOOL LLToolPipette::handleHover(S32 x, S32 y, MASK mask)
 	return FALSE;
 }
 
-BOOL LLToolPipette::handleToolTip(S32 x, S32 y, std::string& msg, LLRect *sticky_rect_screen)
+BOOL LLToolPipette::handleToolTip(S32 x, S32 y, std::string& msg, LLRect &sticky_rect_screen)
 {
 	if (mTooltipMsg.empty())
 	{
 		return FALSE;
 	}
-	// keep tooltip message up when mouse in this part of screen
-	sticky_rect_screen->setCenterAndSize(x, y, 20, 20);
-	msg = mTooltipMsg;
+
+	LLRect sticky_rect;
+	sticky_rect.setCenterAndSize(x, y, 20, 20);
+	LLToolTipMgr::instance().show(LLToolTipParams()
+		.message(mTooltipMsg)
+		.sticky_rect(sticky_rect));
+
 	return TRUE;
 }
 

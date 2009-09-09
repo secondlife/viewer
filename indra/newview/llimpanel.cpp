@@ -1917,19 +1917,8 @@ void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string
 void LLFloaterIMPanel::showSessionStartError(
 	const std::string& error_string)
 {
-	//the error strings etc. should be really be static and local
-	//to this file instead of in the LLFloaterIM
-	//but they were in llimview.cpp first and unfortunately
-	//some translations into non English languages already occurred
-	//thus making it a tad harder to change over to a
-	//"correct" solution.  The best solution
-	//would be to store all of the misc. strings into
-	//their own XML file which would be read in by any LLIMPanel
-	//post build function instead of repeating the same info
-	//in the group, adhoc and normal IM xml files.
 	LLSD args;
-	args["REASON"] =
-		LLFloaterIM::sErrorStringsMap[error_string];
+	args["REASON"] = LLTrans::getString(error_string);
 	args["RECIPIENT"] = getTitle();
 
 	LLSD payload;
@@ -1948,9 +1937,9 @@ void LLFloaterIMPanel::showSessionEventError(
 {
 	LLSD args;
 	args["REASON"] =
-		LLFloaterIM::sErrorStringsMap[error_string];
+		LLTrans::getString(error_string);
 	args["EVENT"] =
-		LLFloaterIM::sEventStringsMap[event_string];
+		LLTrans::getString(event_string);
 	args["RECIPIENT"] = getTitle();
 
 	LLNotifications::instance().add(
@@ -1964,7 +1953,7 @@ void LLFloaterIMPanel::showSessionForceClose(
 	LLSD args;
 
 	args["NAME"] = getTitle();
-	args["REASON"] = LLFloaterIM::sForceCloseSessionMap[reason_string];
+	args["REASON"] = LLTrans::getString(reason_string);
 
 	LLSD payload;
 	payload["session_id"] = mSessionUUID;

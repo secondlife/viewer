@@ -239,6 +239,8 @@ BOOL LLSlider::handleKeyHere(KEY key, MASK mask)
 
 void LLSlider::draw()
 {
+	F32 alpha = getDrawContext().mAlpha;
+
 	// since thumb image might still be decoding, need thumb to accomodate image size
 	updateThumbRect();
 
@@ -253,14 +255,14 @@ void LLSlider::draw()
 						getRect().getWidth() - mThumbImage->getWidth() / 2, 
 						getLocalRect().getCenterY() - (mTrackImage->getHeight() / 2) );
 	LLRect highlight_rect(track_rect.mLeft, track_rect.mTop, mThumbRect.getCenterX(), track_rect.mBottom);
-	mTrackImage->draw(track_rect);
-	mTrackHighlightImage->draw(highlight_rect);
+	mTrackImage->draw(track_rect, LLColor4::white % alpha);
+	mTrackHighlightImage->draw(highlight_rect, LLColor4::white % alpha);
 
 	// Thumb
 	if (hasFocus())
 	{
 		// Draw focus highlighting.
-		mThumbImage->drawBorder(mThumbRect, gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
+		mThumbImage->drawBorder(mThumbRect, gFocusMgr.getFocusColor() % alpha, gFocusMgr.getFocusFlashWidth());
 	}
 
 	if( hasMouseCapture() ) // currently clicking on slider
@@ -268,25 +270,25 @@ void LLSlider::draw()
 		// Show ghost where thumb was before dragging began.
 		if (mThumbImage.notNull())
 		{
-			mThumbImage->draw(mDragStartThumbRect, mThumbCenterColor.get() % 0.3f);
+			mThumbImage->draw(mDragStartThumbRect, mThumbCenterColor.get() % (0.3f * alpha));
 		}
 		if (mThumbImagePressed.notNull())
 		{
-			mThumbImagePressed->draw(mThumbRect, mThumbOutlineColor);
+			mThumbImagePressed->draw(mThumbRect, mThumbOutlineColor % alpha);
 		}
 	}
 	else if (!isInEnabledChain())
 	{
 		if (mThumbImageDisabled.notNull())
 		{
-			mThumbImageDisabled->draw(mThumbRect, mThumbCenterColor);
+			mThumbImageDisabled->draw(mThumbRect, mThumbCenterColor % alpha);
 		}
 	}
 	else
 	{
 		if (mThumbImage.notNull())
 		{
-			mThumbImage->draw(mThumbRect, mThumbCenterColor);
+			mThumbImage->draw(mThumbRect, mThumbCenterColor % alpha);
 		}
 	}
 	

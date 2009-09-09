@@ -59,8 +59,11 @@ public:
 	{}
 	LLCoordGL(S32 x, S32 y) : LLCoord(x, y)
 	{}
+	bool operator==(const LLCoordGL& other) const { return mX == other.mX && mY == other.mY; }
+	bool operator!=(const LLCoordGL& other) const { return !(*this == other); }
 };
 
+//bool operator ==(const LLCoordGL& a, const LLCoordGL& b);
 
 // Window coords include things like window borders,
 // menu regions, etc.
@@ -71,6 +74,8 @@ public:
 	{}
 	LLCoordWindow(S32 x, S32 y) : LLCoord(x, y)
 	{}
+	bool operator==(const LLCoordWindow& other) const { return mX == other.mX && mY == other.mY; }
+	bool operator!=(const LLCoordWindow& other) const { return !(*this == other); }
 };
 
 
@@ -82,6 +87,8 @@ public:
 	{}
 	LLCoordScreen(S32 x, S32 y) : LLCoord(x, y)
 	{}
+	bool operator==(const LLCoordScreen& other) const { return mX == other.mX && mY == other.mY; }
+	bool operator!=(const LLCoordScreen& other) const { return !(*this == other); }
 };
 
 class LLCoordFont : public LLCoord
@@ -96,6 +103,8 @@ public:
 	
 	void set(S32 x, S32 y) { LLCoord::set(x,y); mZ = 0.f; }
 	void set(S32 x, S32 y, F32 z) { mX = x; mY = y; mZ = z; }
+	bool operator==(const LLCoordFont& other) const { return mX == other.mX && mY == other.mY; }
+	bool operator!=(const LLCoordFont& other) const { return !(*this == other); }
 };
 	
 

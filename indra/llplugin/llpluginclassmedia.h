@@ -32,7 +32,7 @@
 #ifndef LL_LLPLUGINCLASSMEDIA_H
 #define LL_LLPLUGINCLASSMEDIA_H
 
-#include "llgl.h"
+#include "llgltypes.h"
 #include "llpluginprocessparent.h"
 #include "llrect.h"
 #include "llpluginclassmediaowner.h"

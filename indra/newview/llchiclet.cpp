@@ -40,6 +40,7 @@
 #include "llimpanel.h"				// LLFloaterIMPanel
 #include "llimview.h"
 #include "llfloaterreg.h"
+#include "lllocalcliprect.h"
 #include "llmenugl.h"
 #include "lloutputmonitorctrl.h"
 #include "lltextbox.h"

@@ -45,7 +45,7 @@
 #include "llfloaterland.h"
 #include "llfloaterreg.h"
 #include "llfloaterscriptdebug.h"
-#include "llhoverview.h"
+#include "lltooltip.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llmenugl.h"
@@ -55,6 +55,7 @@
 #include "lltoolgrab.h"
 #include "lltoolmgr.h"
 #include "lltoolselect.h"
+#include "lltrans.h"
 #include "llviewercamera.h"
 #include "llviewerparcelmedia.h"
 #include "llviewermenu.h"
@@ -68,6 +69,7 @@
 #include "llworld.h"
 #include "llui.h"
 #include "llweb.h"
+#include "llinspectavatar.h"
 
 extern void handle_buy(void*);
 
@@ -91,7 +93,7 @@ LLToolPie::LLToolPie()
 BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	//left mouse down always picks transparent
-	gViewerWindow->pickAsync(x, y, mask, leftMouseCallback, TRUE, TRUE);
+	gViewerWindow->pickAsync(x, y, mask, leftMouseCallback, TRUE);
 	mGrabMouseButtonDown = TRUE;
 	return TRUE;
 }
@@ -108,7 +110,7 @@ void LLToolPie::leftMouseCallback(const LLPickInfo& pick_info)
 BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	// don't pick transparent so users can't "pay" transparent objects
-	gViewerWindow->pickAsync(x, y, mask, rightMouseCallback, FALSE, TRUE);
+	gViewerWindow->pickAsync(x, y, mask, rightMouseCallback, FALSE);
 	// claim not handled so UI focus stays same
 	return FALSE;
 }
@@ -463,31 +465,13 @@ void LLToolPie::selectionPropertiesReceived()
 
 BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 {
-		/*
-	// If auto-rotate occurs, tag mouse-outside-slop to make sure the drag
-	// gets started.
-	const S32 ROTATE_H_MARGIN = (S32) (0.1f * gViewerWindow->getWindowWidth() );
-	const F32 ROTATE_ANGLE_PER_SECOND = 30.f * DEG_TO_RAD;
-	const F32 rotate_angle = ROTATE_ANGLE_PER_SECOND / gFPSClamped;
-	// ...normal modes can only yaw
-	if (x < ROTATE_H_MARGIN)
-	{
-		gAgent.yaw(rotate_angle);
-		mMouseOutsideSlop = TRUE;
-	}
-	else if (x > gViewerWindow->getWindowWidth() - ROTATE_H_MARGIN)
-	{
-		gAgent.yaw(-rotate_angle);
-		mMouseOutsideSlop = TRUE;
-	}
-	*/
+	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE);
 
 	// FIXME: This was in the pluginapi branch, but I don't think it's correct.
 //	gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
 
-	LLViewerObject *object = NULL;
 	LLViewerObject *parent = NULL;
-	object = gViewerWindow->getHoverPick().getObject();
+	LLViewerObject *object = mHoverPick.getObject();
 
 	if (object)
 	{
@@ -500,7 +484,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		gViewerWindow->setCursor(cursor);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
-	else if (handle_media_hover(gViewerWindow->getHoverPick()))
+	else if (handle_media_hover(mHoverPick))
 	{
 		// cursor set by media object
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
@@ -553,7 +537,7 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 			// same object anymore.
 			gViewerWindow->setCursor(UI_CURSOR_ARROW);
 			// Make sure the hover-picked object is ignored.
-			gHoverView->resetLastHoverObject();
+			//gToolTipView->resetLastHoverObject();
 			break;
 		default:
 			break;
@@ -584,41 +568,439 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 		else if (mPick.mObjectID.notNull()
 				 && !mPick.mPosGlobal.isExactlyZero())
 		{
-			// Hit an object
-			// HACK: Call the last hit position the point we hit on the object
-			//gLastHitPosGlobal += gLastHitObjectOffset;
 			handle_go_to();
 			return TRUE;
 		}
 	}
 
 	return FALSE;
+}
 
-	/* JC - don't do go-there, because then double-clicking on physical
-	objects gets you into trouble.
+//FIXME - RN: get this in LLToolSelectLand too or share some other way?
+const char* DEFAULT_DESC = "(No Description)";
 
-	// If double-click on object or land, go there.
-	LLViewerObject *object = gViewerWindow->getLastPick().getObject();
-	if (object)
+BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, std::string& msg, LLRect& sticky_rect_screen)
+{
+	if (!LLUI::sSettingGroups["config"]->getBOOL("ShowHoverTips")) return TRUE;
+	if (!mHoverPick.isValid()) return TRUE;
+
+	LLViewerObject* hover_object = mHoverPick.getObject();
+
+	// update hover object and hover parcel
+	LLSelectMgr::getInstance()->setHoverObject(hover_object, mHoverPick.mObjectFace);
+
+	if (mHoverPick.mPickType == LLPickInfo::PICK_LAND)
 	{
-		if (object->isAvatar())
+		LLViewerParcelMgr::getInstance()->setHoverParcel( mHoverPick.mPosGlobal );
+	}
+
+	std::string tooltip_msg;
+	std::string line;
+
+	if ( hover_object )
+	{
+		if ( hover_object->isHUDAttachment() )
 		{
-			LLFloaterAvatarInfo::showFromAvatar(object->getID());
+			// no hover tips for HUD elements, since they can obscure
+			// what the HUD is displaying
+			return TRUE;
+		}
+
+		if ( hover_object->isAttachment() )
+		{
+			// get root of attachment then parent, which is avatar
+			LLViewerObject* root_edit = hover_object->getRootEdit();
+			if (!root_edit)
+			{
+				// Strange parenting issue, don't show any text
+				return TRUE;
+			}
+			hover_object = (LLViewerObject*)root_edit->getParent();
+			if (!hover_object)
+			{
+				// another strange parenting issue, bail out
+				return TRUE;
+			}
+		}
+
+		line.clear();
+		if (hover_object->isAvatar())
+		{
+			// only show tooltip if inspector not already open
+			if (!LLFloaterReg::instanceVisible("inspect_avatar"))
+			{
+				std::string avatar_name;
+				LLNameValue* firstname = hover_object->getNVPair("FirstName");
+				LLNameValue* lastname =  hover_object->getNVPair("LastName");
+				if (firstname && lastname)
+				{
+					avatar_name = llformat("%s %s", firstname->getString(), lastname->getString());
+				}
+				else
+				{
+					avatar_name = LLTrans::getString("TooltipPerson");
+				}
+				LLToolTipParams params;
+				params.message(avatar_name);
+				params.image.name("Info");
+				params.sticky_rect(gViewerWindow->getVirtualWorldViewRect());
+				params.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
+				LLToolTipMgr::instance().show(params);
+			}
 		}
 		else
 		{
-			handle_go_to(NULL);
+			//
+			//  We have hit a regular object (not an avatar or attachment)
+			// 
+
+			//
+			//  Default prefs will suppress display unless the object is interactive
+			//
+			BOOL suppressObjectHoverDisplay = !gSavedSettings.getBOOL("ShowAllObjectHoverTip");			
+			
+			LLSelectNode *nodep = LLSelectMgr::getInstance()->getHoverNode();
+			if (nodep)
+			{
+				line.clear();
+				if (nodep->mName.empty())
+				{
+					line.append(LLTrans::getString("TooltipNoName"));
+				}
+				else
+				{
+					line.append( nodep->mName );
+				}
+				tooltip_msg.append(line);
+				tooltip_msg.push_back('\n');
+
+				if (!nodep->mDescription.empty()
+					&& nodep->mDescription != DEFAULT_DESC)
+				{
+					tooltip_msg.append( nodep->mDescription );
+					tooltip_msg.push_back('\n');
+				}
+
+				// Line: "Owner: James Linden"
+				line.clear();
+				line.append(LLTrans::getString("TooltipOwner") + " ");
+
+				if (nodep->mValid)
+				{
+					LLUUID owner;
+					std::string name;
+					if (!nodep->mPermissions->isGroupOwned())
+					{
+						owner = nodep->mPermissions->getOwner();
+						if (LLUUID::null == owner)
+						{
+							line.append(LLTrans::getString("TooltipPublic"));
+						}
+						else if(gCacheName->getFullName(owner, name))
+						{
+							line.append(name);
+						}
+						else
+						{
+							line.append(LLTrans::getString("RetrievingData"));
+						}
+					}
+					else
+					{
+						std::string name;
+						owner = nodep->mPermissions->getGroup();
+						if (gCacheName->getGroupName(owner, name))
+						{
+							line.append(name);
+							line.append(LLTrans::getString("TooltipIsGroup"));
+						}
+						else
+						{
+							line.append(LLTrans::getString("RetrievingData"));
+						}
+					}
+				}
+				else
+				{
+					line.append(LLTrans::getString("RetrievingData"));
+				}
+				tooltip_msg.append(line);
+				tooltip_msg.push_back('\n');
+
+				// Build a line describing any special properties of this object.
+				LLViewerObject *object = hover_object;
+				LLViewerObject *parent = (LLViewerObject *)object->getParent();
+
+				if (object &&
+					(object->usePhysics() ||
+					 object->flagScripted() || 
+					 object->flagHandleTouch() || (parent && parent->flagHandleTouch()) ||
+					 object->flagTakesMoney() || (parent && parent->flagTakesMoney()) ||
+					 object->flagAllowInventoryAdd() ||
+					 object->flagTemporary() ||
+					 object->flagPhantom()) )
+				{
+					line.clear();
+					if (object->flagScripted())
+					{
+						line.append(LLTrans::getString("TooltipFlagScript") + " ");
+					}
+
+					if (object->usePhysics())
+					{
+						line.append(LLTrans::getString("TooltipFlagPhysics") + " ");
+					}
+
+					if (object->flagHandleTouch() || (parent && parent->flagHandleTouch()) )
+					{
+						line.append(LLTrans::getString("TooltipFlagTouch") + " ");
+						suppressObjectHoverDisplay = FALSE;		//  Show tip
+					}
+
+					if (object->flagTakesMoney() || (parent && parent->flagTakesMoney()) )
+					{
+						line.append(LLTrans::getString("TooltipFlagL$") + " ");
+						suppressObjectHoverDisplay = FALSE;		//  Show tip
+					}
+
+					if (object->flagAllowInventoryAdd())
+					{
+						line.append(LLTrans::getString("TooltipFlagDropInventory") + " ");
+						suppressObjectHoverDisplay = FALSE;		//  Show tip
+					}
+
+					if (object->flagPhantom())
+					{
+						line.append(LLTrans::getString("TooltipFlagPhantom") + " ");
+					}
+
+					if (object->flagTemporary())
+					{
+						line.append(LLTrans::getString("TooltipFlagTemporary") + " ");
+					}
+
+					if (object->usePhysics() || 
+						object->flagHandleTouch() ||
+						(parent && parent->flagHandleTouch()) )
+					{
+						line.append(LLTrans::getString("TooltipFlagRightClickMenu") + " ");
+					}
+					tooltip_msg.append(line);
+					tooltip_msg.push_back('\n');
+				}
+
+				// Free to copy / For Sale: L$
+				line.clear();
+				if (nodep->mValid)
+				{
+					BOOL for_copy = nodep->mPermissions->getMaskEveryone() & PERM_COPY && object->permCopy();
+					BOOL for_sale = nodep->mSaleInfo.isForSale() &&
+									nodep->mPermissions->getMaskOwner() & PERM_TRANSFER &&
+									(nodep->mPermissions->getMaskOwner() & PERM_COPY ||
+									 nodep->mSaleInfo.getSaleType() != LLSaleInfo::FS_COPY);
+					if (for_copy)
+					{
+						line.append(LLTrans::getString("TooltipFreeToCopy"));
+						suppressObjectHoverDisplay = FALSE;		//  Show tip
+					}
+					else if (for_sale)
+					{
+						LLStringUtil::format_map_t args;
+						args["[AMOUNT]"] = llformat("%d", nodep->mSaleInfo.getSalePrice());
+						line.append(LLTrans::getString("TooltipForSaleL$", args));
+						suppressObjectHoverDisplay = FALSE;		//  Show tip
+					}
+					else
+					{
+						// Nothing if not for sale
+						// line.append("Not for sale");
+					}
+				}
+				else
+				{
+					LLStringUtil::format_map_t args;
+					args["[MESSAGE]"] = LLTrans::getString("RetrievingData");
+					line.append(LLTrans::getString("TooltipForSaleMsg", args));
+				}
+				tooltip_msg.append(line);
+				tooltip_msg.push_back('\n');
+
+				if (!suppressObjectHoverDisplay)
+				{
+					LLToolTipMgr::instance().show(tooltip_msg);
+				}
+			}
 		}
 	}
-	else if (!gLastHitPosGlobal.isExactlyZero())
+	else if ( mHoverPick.mPickType == LLPickInfo::PICK_LAND )
 	{
-		handle_go_to(NULL);
+		// 
+		//  Do not show hover for land unless prefs are set to allow it.
+		// 
+		
+		if (!gSavedSettings.getBOOL("ShowLandHoverTip")) return TRUE; 
+
+		// Didn't hit an object, but since we have a land point we
+		// must be hovering over land.
+
+		LLParcel* hover_parcel = LLViewerParcelMgr::getInstance()->getHoverParcel();
+		LLUUID owner;
+		S32 width = 0;
+		S32 height = 0;
+
+		if ( hover_parcel )
+		{
+			owner = hover_parcel->getOwnerID();
+			width = S32(LLViewerParcelMgr::getInstance()->getHoverParcelWidth());
+			height = S32(LLViewerParcelMgr::getInstance()->getHoverParcelHeight());
+		}
+
+		// Line: "Land"
+		line.clear();
+		line.append(LLTrans::getString("TooltipLand"));
+		if (hover_parcel)
+		{
+			line.append(hover_parcel->getName());
+		}
+		tooltip_msg.append(line);
+		tooltip_msg.push_back('\n');
+
+		// Line: "Owner: James Linden"
+		line.clear();
+		line.append(LLTrans::getString("TooltipOwner") + " ");
+
+		if ( hover_parcel )
+		{
+			std::string name;
+			if (LLUUID::null == owner)
+			{
+				line.append(LLTrans::getString("TooltipPublic"));
+			}
+			else if (hover_parcel->getIsGroupOwned())
+			{
+				if (gCacheName->getGroupName(owner, name))
+				{
+					line.append(name);
+					line.append(LLTrans::getString("TooltipIsGroup"));
+				}
+				else
+				{
+					line.append(LLTrans::getString("RetrievingData"));
+				}
+			}
+			else if(gCacheName->getFullName(owner, name))
+			{
+				line.append(name);
+			}
+			else
+			{
+				line.append(LLTrans::getString("RetrievingData"));
+			}
+		}
+		else
+		{
+			line.append(LLTrans::getString("RetrievingData"));
+		}
+		tooltip_msg.append(line);
+		tooltip_msg.push_back('\n');
+
+		// Line: "no fly, not safe, no build"
+
+		// Don't display properties for your land.  This is just
+		// confusing, because you can do anything on your own land.
+		if ( hover_parcel && owner != gAgent.getID() )
+		{
+			S32 words = 0;
+			
+			line.clear();
+			// JC - Keep this in the same order as the checkboxes
+			// on the land info panel
+			if ( !hover_parcel->getAllowModify() )
+			{
+				if ( hover_parcel->getAllowGroupModify() )
+				{
+					line.append(LLTrans::getString("TooltipFlagGroupBuild"));
+				}
+				else
+				{
+					line.append(LLTrans::getString("TooltipFlagNoBuild"));
+				}
+				words++;
+			}
+
+			if ( !hover_parcel->getAllowTerraform() )
+			{
+				if (words) line.append(", ");
+				line.append(LLTrans::getString("TooltipFlagNoEdit"));
+				words++;
+			}
+
+			if ( hover_parcel->getAllowDamage() )
+			{
+				if (words) line.append(", ");
+				line.append(LLTrans::getString("TooltipFlagNotSafe"));
+				words++;
+			}
+
+			// Maybe we should reflect the estate's block fly bit here as well?  DK 12/1/04
+			if ( !hover_parcel->getAllowFly() )
+			{
+				if (words) line.append(", ");
+				line.append(LLTrans::getString("TooltipFlagNoFly"));
+				words++;
+			}
+
+			if ( !hover_parcel->getAllowOtherScripts() )
+			{
+				if (words) line.append(", ");
+				if ( hover_parcel->getAllowGroupScripts() )
+				{
+					line.append(LLTrans::getString("TooltipFlagGroupScripts"));
+				}
+				else
+				{
+					line.append(LLTrans::getString("TooltipFlagNoScripts"));
+				}
+				
+				words++;
+			}
+
+			if (words) 
+			{
+				tooltip_msg.append(line);
+				tooltip_msg.push_back('\n');
+			}
+		}
+
+		if (hover_parcel && hover_parcel->getParcelFlag(PF_FOR_SALE))
+		{
+			LLStringUtil::format_map_t args;
+			args["[AMOUNT]"] = llformat("%d", hover_parcel->getSalePrice());
+			line = LLTrans::getString("TooltipForSaleL$", args);
+			tooltip_msg.append(line);
+			tooltip_msg.push_back('\n');
+		}
+		LLToolTipMgr::instance().show(tooltip_msg);
 	}
 
+
 	return TRUE;
-	*/
 }
 
+// static
+void LLToolPie::showAvatarInspector(const LLUUID& avatar_id)
+{
+	LLSD params;
+	params["avatar_id"] = avatar_id;
+	if (LLToolTipMgr::instance().toolTipVisible())
+	{
+		LLRect rect = LLToolTipMgr::instance().getToolTipRect();
+		params["pos"]["x"] = rect.mLeft;
+		params["pos"]["y"] = rect.mTop;
+	}
+
+	LLFloaterReg::showInstance("inspect_avatar", params);
+}
 
 void LLToolPie::handleDeselect()
 {
@@ -627,6 +1009,7 @@ void LLToolPie::handleDeselect()
 		setMouseCapture( FALSE );  // Calls onMouseCaptureLost() indirectly
 	}
 	// remove temporary selection for pie menu
+	LLSelectMgr::getInstance()->setHoverObject(NULL);
 	LLSelectMgr::getInstance()->validateSelection();
 }
 

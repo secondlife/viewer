@@ -1810,7 +1810,7 @@ void LLViewerLODTexture::processTextureStats()
 		// data than we need to.
 		/*if (mBoostLevel == LLViewerTexture::BOOST_UI ||
 			mBoostLevel == LLViewerTexture::BOOST_PREVIEW ||
-			mBoostLevel == LLViewerTexture::BOOST_AVATAR_SELF)	// JAMESDEBUG what about AVATAR_BAKED_SELF?
+			mBoostLevel == LLViewerTexture::BOOST_AVATAR_SELF)	// what about AVATAR_BAKED_SELF?
 		{
 			discard_level = 0; // full res
 		}

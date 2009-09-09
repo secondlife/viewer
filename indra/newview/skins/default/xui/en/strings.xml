@@ -46,7 +46,7 @@
 	<string name="AgentLostConnection">This region may be experiencing trouble.  Please check your connection to the Internet.</string>
 	
 	
-	<!-- Tooltip, llhoverview.cpp -->
+	<!-- Tooltip, lltooltipview.cpp -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->
 	<string name="TooltipOwner">Owner:</string> <!-- Owner name follows -->
@@ -1913,8 +1913,35 @@ this texture in your inventory
 	<string name="Stomach">Stomach</string>
 	<string name="Left Pec">Left Pec</string>
 	<string name="Right Pec">Right Pec</string>	
-	
-	<!-- HUD Position --> 
+
+  <!-- Avatar age computation, see LLAvatarPropertiesProcessor::ageFromDate -->
+  <string name="YearsMonthsOld">[AGEYEARS][AGEMONTHS]old</string>
+  <string name="WeeksOld">[AGEWEEKS]old</string>
+  <string name="DaysOld">[AGEDAYS]old</string>
+  <string name="TodayOld">Joined today</string>
+  
+  <!-- Use value="" because of trailing spaces -->
+  <string name="AgeYears"  value="[YEARS] years " />
+  <string name="Age1Year"  value="1 year "/>
+  <string name="AgeMonths" value="[MONTHS] months "/>
+  <string name="Age1Month" value="1 month "/>
+  <string name="AgeWeeks"  value="[WEEKS] weeks "/>
+  <string name="Age1Week"  value="1 week "/>
+  <string name="AgeDays"   value="[DAYS] days "/>
+  <string name="Age1Day"   value="1 day "/>
+
+  <!-- Account types, see LLAvatarPropertiesProcessor -->
+  <string name="AcctTypeResident">Resident</string>
+  <string name="AcctTypeTrial">Trial</string>
+  <string name="AcctTypeCharterMember">Charter Member</string>
+  <string name="AcctTypeEmployee">Linden Lab Employee</string>
+  <string name="PaymentInfoUsed">Payment Info Used</string>
+  <string name="PaymentInfoOnFile">Payment Info On File</string>
+  <string name="NoPaymentInfoOnFile">No Payment Info On File</string>
+  <string name="AgeVerified">Age-verified</string>
+  <string name="NotAgeVerified">Not Age-verified</string>
+  
+  <!-- HUD Position --> 
 	<string name="Center 2">Center 2</string>	
 	<string name="Top Right">Top Right</string>	
 	<string name="Top">Top</string>	
@@ -2425,4 +2452,48 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="UpdaterFailStartTitle">
 	  Failed to start viewer
 	</string>
+
+  <!-- IM system messages -->
+  <string name="only_user_message">
+    You are the only user in this session.
+  </string>
+  <string name="offline_message">
+    [FIRST] [LAST] is offline.
+  </string>
+  <string name="invite_message">
+    Click the [BUTTON NAME] button to accept/connect to this voice chat.
+  </string>
+  <string name="muted_message">
+    You have blocked this resident. Sending a message will automatically unblock them.
+  </string>
+  <string name="generic_request_error">
+    Error making request, please try again later.
+  </string>
+  <string name="insufficient_perms_error">
+    You do not have sufficient permissions.
+  </string>
+  <string name="session_does_not_exist_error">
+    The session no longer exists
+  </string>
+  <string name="no_ability_error">
+    You do not have that ability.
+  </string>
+  <string name="not_a_mod_error">
+    You are not a session moderator.
+  </string>
+  <string name="muted_error">
+    A group moderator disabled your text chat.
+  </string>
+  <string name="add_session_event">
+    Unable to add users to chat session with [RECIPIENT].
+  </string>
+  <string name="message_session_event">
+    Unable to send your message to the chat session with [RECIPIENT].
+  </string>
+  <string name="removed_from_group">
+    You have been removed from the group.
+  </string>
+  <string name="close_on_no_ability">
+    You no longer have the ability to be in the chat session.
+  </string>
 </strings>

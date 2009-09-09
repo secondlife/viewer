@@ -55,6 +55,7 @@
 #include "lllineeditor.h"
 #include "v2math.h"
 #include "lluictrlfactory.h"
+#include "lltooltip.h"
 
 // Globals
 S32 LLCOMBOBOX_HEIGHT = 0;
@@ -704,7 +705,7 @@ void LLComboBox::onItemSelected(const LLSD& data)
 	}
 }
 
-BOOL LLComboBox::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
+BOOL LLComboBox::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
 {
     std::string tool_tip;
 
@@ -713,25 +714,17 @@ BOOL LLComboBox::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_re
 		return TRUE;
 	}
 	
-	if (LLUI::sShowXUINames)
+	tool_tip = getToolTip();
+	if (tool_tip.empty())
 	{
-		tool_tip = getShowNamesToolTip();
-	}
-	else
-	{
-		tool_tip = getToolTip();
-		if (tool_tip.empty())
-		{
-			tool_tip = getSelectedItemLabel();
-		}
+		tool_tip = getSelectedItemLabel();
 	}
 	
 	if( !tool_tip.empty() )
 	{
-		msg = tool_tip;
-
-		// Convert rect local to screen coordinates
-		*sticky_rect_screen = calcScreenRect();
+		LLToolTipMgr::instance().show(LLToolTipParams()
+			.message(tool_tip)
+			.sticky_rect(calcScreenRect()));
 	}
 	return TRUE;
 }

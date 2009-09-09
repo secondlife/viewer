@@ -83,14 +83,7 @@ LLIMMgr* gIMMgr = NULL;
 // Statics
 //
 // *FIXME: make these all either UIStrings or Strings
-static std::string sOnlyUserMessage;
-static LLUIString sOfflineMessage;
-static std::string sMutedMessage;
-static LLUIString sInviteMessage;
 
-std::map<std::string,std::string> LLFloaterIM::sEventStringsMap;
-std::map<std::string,std::string> LLFloaterIM::sErrorStringsMap;
-std::map<std::string,std::string> LLFloaterIM::sForceCloseSessionMap;
 
 std::map<LLUUID, LLIMModel::LLIMSession*> LLIMModel::sSessionsMap;
 
@@ -750,101 +743,6 @@ LLUUID LLIMMgr::computeSessionID(
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// LLFloaterIM
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-LLFloaterIM::LLFloaterIM()
-	: LLMultiFloater(LLSD())
-{
-	// autoresize=false is necessary to avoid resizing of the IM window whenever 
-	// a session is opened or closed (it would otherwise resize the window to match
-	// the size of the im-sesssion when they were created.  This happens in 
-	// LLMultiFloater::resizeToContents() when called through LLMultiFloater::addFloater())
-	mAutoResize = FALSE;
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_im.xml", NULL);
-}
-
-BOOL LLFloaterIM::postBuild()
-{
-	// IM session initiation warnings
-	sOnlyUserMessage = getString("only_user_message");
-	sOfflineMessage = getString("offline_message");
-	sMutedMessage = getString("muted_message");
-
-	sInviteMessage = getString("invite_message");
-
-	if ( sErrorStringsMap.find("generic") == sErrorStringsMap.end() )
-	{
-		sErrorStringsMap["generic"] =
-			getString("generic_request_error");
-	}
-
-	if ( sErrorStringsMap.find("unverified") ==
-		 sErrorStringsMap.end() )
-	{
-		sErrorStringsMap["unverified"] =
-			getString("insufficient_perms_error");
-	}
-
-	if ( sErrorStringsMap.end() ==
-		 sErrorStringsMap.find("no_ability") )
-	{
-		sErrorStringsMap["no_ability"] =
-			getString("no_ability_error");
-	}
-
-	if ( sErrorStringsMap.end() ==
-		 sErrorStringsMap.find("muted") )
-	{
-		sErrorStringsMap["muted"] =
-			getString("muted_error");
-	}
-
-	if ( sErrorStringsMap.end() ==
-		 sErrorStringsMap.find("not_a_moderator") )
-	{
-		sErrorStringsMap["not_a_moderator"] =
-			getString("not_a_mod_error");
-	}
-
-	if ( sErrorStringsMap.end() ==
-		 sErrorStringsMap.find("does not exist") )
-	{
-		sErrorStringsMap["does not exist"] =
-			getString("session_does_not_exist_error");
-	}
-
-	if ( sEventStringsMap.end() == sEventStringsMap.find("add") )
-	{
-		sEventStringsMap["add"] =
-			getString("add_session_event");
-	}
-
-	if ( sEventStringsMap.end() == sEventStringsMap.find("message") )
-	{
-		sEventStringsMap["message"] =
-			getString("message_session_event");
-	}
-
-
-	if ( sForceCloseSessionMap.end() ==
-		 sForceCloseSessionMap.find("removed") )
-	{
-		sForceCloseSessionMap["removed"] =
-			getString("removed_from_group");
-	}
-
-	if ( sForceCloseSessionMap.end() ==
-		 sForceCloseSessionMap.find("no ability") )
-	{
-		sForceCloseSessionMap["no ability"] =
-			getString("close_on_no_ability");
-	}
-
-	return TRUE;
-}
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLIncomingCallDialog
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 LLIncomingCallDialog::LLIncomingCallDialog(const LLSD& payload) :
@@ -1150,11 +1048,6 @@ LLIMMgr::LLIMMgr() :
 		
 	mFriendObserver = new LLIMViewFriendObserver(this);
 	LLAvatarTracker::instance().addObserver(mFriendObserver);
-
-	// *HACK: use floater to initialize string constants from xml file
-	// then delete it right away
-	LLFloaterIM* dummy_floater = new LLFloaterIM();
-	delete dummy_floater;
 
 	mPendingInvitations = LLSD::emptyMap();
 	mPendingAgentListUpdates = LLSD::emptyMap();
@@ -1809,7 +1702,7 @@ void LLIMMgr::noteOfflineUsers(
 	S32 count = ids.count();
 	if(count == 0)
 	{
-		floater->addHistoryLine(sOnlyUserMessage, LLUIColorTable::instance().getColor("SystemChatColor"));
+		floater->addHistoryLine(LLTrans::getString("only_user_message"), LLUIColorTable::instance().getColor("SystemChatColor"));
 	}
 	else
 	{
@@ -1822,7 +1715,7 @@ void LLIMMgr::noteOfflineUsers(
 			if(info && !info->isOnline()
 			   && gCacheName->getName(ids.get(i), first, last))
 			{
-				LLUIString offline = sOfflineMessage;
+				LLUIString offline = LLTrans::getString("offline_message");
 				offline.setArg("[FIRST]", first);
 				offline.setArg("[LAST]", last);
 				floater->addHistoryLine(offline, LLUIColorTable::instance().getColor("SystemChatColor"));
@@ -1848,7 +1741,7 @@ void LLIMMgr::noteMutedUsers(LLFloaterIMPanel* floater,
 		{
 			if( ml->isMuted(ids.get(i)) )
 			{
-				LLUIString muted = sMutedMessage;
+				LLUIString muted = LLTrans::getString("muted_message");
 				floater->addHistoryLine(muted);
 				break;
 			}
