@@ -214,6 +214,37 @@ void LLIMChiclet::draw()
 	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.0f,0.0f,0.0f,1.f), FALSE);
 }
 
+// static
+LLIMChiclet::EType LLIMChiclet::getIMSessionType(const LLUUID& session_id)
+{
+	EType				type	= TYPE_UNKNOWN;
+	LLFloaterIMPanel*	im		= NULL;
+
+	if(session_id.isNull())
+		return type;
+
+	if (!(im = LLIMMgr::getInstance()->findFloaterBySession(session_id)))
+	{
+		llassert_always(0 && "IM session not found"); // should never happen
+		return type;
+	}
+
+	switch(im->getDialogType())
+	{
+	case IM_NOTHING_SPECIAL:
+		type = TYPE_IM;
+		break;
+	case IM_SESSION_GROUP_START:
+	case IM_SESSION_INVITE:
+		type = TYPE_GROUP;
+		break;
+	default:
+		break;
+	}
+
+	return type;
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -224,6 +255,7 @@ LLIMP2PChiclet::Params::Params()
 , speaker("speaker")
 , show_speaker("show_speaker")
 {
+	// *TODO Vadim: Get rid of hardcoded values.
 	rect(LLRect(0, 25, 45, 0));
 
 	avatar_icon.name("avatar_icon");
@@ -1028,11 +1060,14 @@ BOOL LLChicletPanel::handleScrollWheel(S32 x, S32 y, S32 clicks)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+// *TODO Vadim: Move this out of llchiclet.cpp.
+
 LLTalkButton::Params::Params()
  : speak_button("speak_button")
  , show_button("show_button")
  , monitor("monitor")
 {
+	// *TODO Vadim: move hardcoded labels (!) and other params to XUI.
 	speak_button.name("left");
 	speak_button.label("Speak");
 	speak_button.label_selected("Speak");

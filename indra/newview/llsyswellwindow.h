@@ -69,6 +69,7 @@ public:
 	virtual void setVisible(BOOL visible);
 	void adjustWindowPosition();
 	void toggleWindow();
+	/*virtua*/BOOL	canClose() { return FALSE; }
 
 	// Handlers
 	void onItemClick(LLSysWellItem* item);

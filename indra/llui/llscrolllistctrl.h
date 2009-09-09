@@ -350,7 +350,7 @@ public:
 	void			sortOnce(S32 column, BOOL ascending);
 
 	// manually call this whenever editing list items in place to flag need for resorting
-	void			setNeedsSort() { mSorted = false; }
+	void			setNeedsSort(bool val = true) { mSorted = !val; }
 	void			dirtyColumns(); // some operation has potentially affected column layout or ordering
 
 protected:

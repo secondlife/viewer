@@ -78,6 +78,7 @@ LLComboBox::ItemParams::ItemParams()
 
 LLComboBox::Params::Params()
 :	allow_text_entry("allow_text_entry", false),
+	allow_new_values("allow_new_values", false),
 	show_text_as_tentative("show_text_as_tentative", true),
 	max_chars("max_chars", 20),
 	list_position("list_position", BELOW),
@@ -97,6 +98,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 	mTextEntryTentative(p.show_text_as_tentative),
 	mHasAutocompletedText(false),
 	mAllowTextEntry(p.allow_text_entry),
+	mAllowNewValues(p.allow_new_values),
 	mMaxChars(p.max_chars),
 	mPrearrangeCallback(p.prearrange_callback()),
 	mTextEntryCallback(p.text_entry_callback()),
@@ -621,7 +623,15 @@ void LLComboBox::hideList()
 	if (mList->getVisible())
 	{
 		// assert selection in list
-		mList->selectNthItem(mLastSelectedIndex);
+		if(mAllowNewValues)
+		{
+			// mLastSelectedIndex = -1 means that we entered a new value, don't select
+			// any of existing items in this case.
+			if(mLastSelectedIndex >= 0)
+				mList->selectNthItem(mLastSelectedIndex);
+		}
+		else
+			mList->selectNthItem(mLastSelectedIndex);
 
 		mButton->setToggleState(FALSE);
 		mList->setVisible(FALSE);

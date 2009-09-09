@@ -3371,6 +3371,34 @@ BOOL LLMenuHolderGL::handleRightMouseUp( S32 x, S32 y, MASK mask )
 	return handled;
 }
 
+BOOL LLMenuHolderGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
+{
+	BOOL handled =  false;
+	LLMenuGL* const  pMenu  = dynamic_cast<LLMenuGL*>(getVisibleMenu());
+			
+	if (pMenu)
+	{
+		//handle ESCAPE and RETURN key
+		handled = LLPanel::handleKey(key, mask, called_from_parent);
+		if (!handled)
+		{
+			if (pMenu->getHighlightedItem())
+			{
+				handled = pMenu->handleKey(key, mask, TRUE);
+			}
+			else
+			{
+				//highlight first enabled one
+				pMenu->highlightNextItem(NULL);
+				handled = true;
+			}
+		}
+	}
+	
+	return handled;
+	
+}
+
 void LLMenuHolderGL::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	if (width != getRect().getWidth() || height != getRect().getHeight())
@@ -3380,17 +3408,17 @@ void LLMenuHolderGL::reshape(S32 width, S32 height, BOOL called_from_parent)
 	LLView::reshape(width, height, called_from_parent);
 }
 
-BOOL LLMenuHolderGL::hasVisibleMenu() const
+LLView* const LLMenuHolderGL::getVisibleMenu() const
 {
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{
 		LLView* viewp = *child_it;
 		if (viewp->getVisible() && dynamic_cast<LLMenuBarGL*>(viewp) == NULL)
 		{
-			return TRUE;
+			return viewp;
 		}
 	}
-	return FALSE;
+	return NULL;
 }
 
 

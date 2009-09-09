@@ -152,18 +152,15 @@ void LLSearchComboBox::onSelectionCommit()
 {
 	std::string search_query = getSimple();
 	LLStringUtil::trim(search_query);
-	if(search_query.empty())
-	{
-		mTextEntry->setText(search_query);
-		setControlValue(search_query);
 
-		return;
-	}
-
-	remove(search_query);
-	add(search_query, ADD_TOP);
 	mTextEntry->setText(search_query);
 	setControlValue(search_query);
+
+	if(!search_query.empty())
+	{
+		remove(search_query);
+		add(search_query, ADD_TOP);
+	}
 
 	LLUICtrl::onCommit();
 }

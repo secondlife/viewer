@@ -78,7 +78,8 @@ public:
 	:	public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Optional<bool>						allow_text_entry,
-											show_text_as_tentative;
+											show_text_as_tentative,
+											allow_new_values;
 		Optional<S32>						max_chars;
 		Optional<commit_callback_t> 		prearrange_callback,
 											text_entry_callback,
@@ -224,6 +225,7 @@ protected:
 
 private:
 	BOOL				mAllowTextEntry;
+	BOOL				mAllowNewValues;
 	S32					mMaxChars;
 	BOOL				mTextEntryTentative;
 	commit_callback_t	mPrearrangeCallback;

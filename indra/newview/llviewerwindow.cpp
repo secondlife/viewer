@@ -2073,6 +2073,11 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	{
 		return TRUE;
 	}
+	//some of context menus use this container, let context menu handle navigation keys
+	if(gMenuHolder && gMenuHolder->handleKey(key, mask, TRUE))
+	{
+		return TRUE;
+	}
 
 	// Traverses up the hierarchy
 	LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();

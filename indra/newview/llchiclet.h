@@ -272,6 +272,11 @@ private:
 class LLIMChiclet : public LLChiclet
 {
 public:
+	enum EType {
+		TYPE_UNKNOWN,
+		TYPE_IM,
+		TYPE_GROUP
+	};
 	
 	/*virtual*/ ~LLIMChiclet() {};
 
@@ -305,6 +310,19 @@ public:
 	 * Draws border around chiclet.
 	*/
 	/*virtual*/ void draw();
+
+	/**
+	 * Determine whether given ID refers to a group or an IM chat session.
+	 * 
+	 * This is used when we need to chose what IM chiclet (P2P/group)
+	 * class to instantiate.
+	 * 
+	 * @param session_id session ID.
+	 * @return TYPE_GROUP in case of group chat session,
+	 *         TYPE_IM in case of P2P session,
+	 *         TYPE_UNKNOWN otherwise.
+	 */
+	static EType getIMSessionType(const LLUUID& session_id);
 
 	/**
 	 * The action taken on mouse down event.
@@ -368,7 +386,7 @@ public:
 		Params();
 	};
 
-	void setOtherParticipantId(const LLUUID& other_participant_id);
+	/* virtual */ void setOtherParticipantId(const LLUUID& other_participant_id);
 
 	/*virtual*/ void setShowSpeaker(bool show);
 

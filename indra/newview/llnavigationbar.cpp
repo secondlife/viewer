@@ -300,8 +300,8 @@ void LLNavigationBar::onSearchCommit()
 	if(!search_query.empty())
 	{
 		LLSearchHistory::getInstance()->addEntry(search_query);
-		invokeSearch(mSearchComboBox->getValue().asString());	
 	}
+	invokeSearch(search_query);	
 }
 
 void LLNavigationBar::onTeleportHistoryMenuItemClicked(const LLSD& userdata)

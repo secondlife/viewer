@@ -77,14 +77,20 @@ BOOL LLGroupList::update(const std::string& name_filter)
 		const LLGroupData& group_data = gAgent.mGroups.get(i);
 		if (name_filter != LLStringUtil::null && !findInsensitive(group_data.mName, name_filter))
 			continue;
-		addItem(id, group_data.mName, highlight_id == id, ADD_BOTTOM);
+		addItem(id, group_data.mName, highlight_id == id, ADD_BOTTOM); // ADD_SORTED can only sort by first column anyway
 	}
+
+	// Force sorting the list.
+	updateSort();
 
 	// add "none" to list at top
 	{
 		std::string loc_none = LLTrans::getString("GroupsNone");
 		if (name_filter == LLStringUtil::null || findInsensitive(loc_none, name_filter))
 			addItem(LLUUID::null, loc_none, highlight_id.isNull(), ADD_TOP);
+
+		// Prevent the "none" item from being sorted.
+		setNeedsSort(false);
 	}
 
 	group_list->selectByValue(highlight_id);
