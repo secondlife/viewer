@@ -103,6 +103,7 @@
 #include "llviewermedia.h"
 #include "llpluginclassmedia.h"
 
+#include <boost/regex.hpp>
 
 //RN temporary includes for resolution switching
 #include "llglheaders.h"
