@@ -241,23 +241,17 @@ def main():
         if update_server:
             server_version = new_version
     else:
-        # Assume we're updating just the build number
-        cl = '%s info "%s"' % (svn, src_root)
-        status, output = _getstatusoutput(cl)
-        if verbose:
-            print
-            print "svn info output:"
-            print "----------------"
-            print output
 
-        branch_match = svn_branch_re.search(output)
-        revision_match = svn_revision_re.search(output)
-        if not branch_match or not revision_match:
-            print "Failed to execute svn info, output follows:"
-            print output
+        if llversion.using_svn():
+            revision = llversion.get_svn_revision()
+            branch = llversion.get_svn_branch()
+        elif llversion.using_hg():
+            revision = llversion.get_hg_changeset()
+            branch = llversion.get_hg_repo()
+        else:
+            print >>sys.stderr, "ERROR: could not determine revision and branch"
             return -1
-        branch = branch_match.group(1)
-        revision = revision_match.group(1)
+        
         if skip_on_branch_re and skip_on_branch_re.match(branch):
             print "Release Candidate Build, leaving version files untouched."
             return 0
