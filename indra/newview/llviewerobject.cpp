@@ -637,8 +637,8 @@ BOOL LLViewerObject::setDrawableParent(LLDrawable* parentp)
 	
 	BOOL ret = mDrawable->mXform.setParent(parentp ? &parentp->mXform : NULL);
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
-	if(	old_parent != parentp &&
-		old_parent || (parentp && parentp->isActive()))
+	if(	(old_parent != parentp && old_parent)
+		|| (parentp && parentp->isActive()))
 	{
 		// *TODO we should not be relying on setDrawable parent to call markMoved
 		gPipeline.markMoved(mDrawable, FALSE);

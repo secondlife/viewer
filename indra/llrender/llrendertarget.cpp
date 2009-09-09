@@ -139,7 +139,7 @@ void LLRenderTarget::addColorAttachment(U32 color_fmt)
 
 	U32 offset = mTex.size();
 	if (offset >= 4 ||
-		offset > 0 && (mFBO == 0 || !gGLManager.mHasDrawBuffers))
+		(offset > 0 && (mFBO == 0 || !gGLManager.mHasDrawBuffers)))
 	{
 		llerrs << "Too many color attachments!" << llendl;
 	}
@@ -608,7 +608,7 @@ void LLMultisampleBuffer::addColorAttachment(U32 color_fmt)
 
 	U32 offset = mTex.size();
 	if (offset >= 4 ||
-		offset > 0 && (mFBO == 0 || !gGLManager.mHasDrawBuffers))
+		(offset > 0 && (mFBO == 0 || !gGLManager.mHasDrawBuffers)))
 	{
 		llerrs << "Too many color attachments!" << llendl;
 	}

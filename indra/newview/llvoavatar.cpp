@@ -1539,7 +1539,7 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 		)
 {
 
-	if (mIsSelf && !gAgent.needsRenderAvatar() || !LLPipeline::sPickAvatar)
+	if ((mIsSelf && !gAgent.needsRenderAvatar()) || !LLPipeline::sPickAvatar)
 	{
 		return FALSE;
 	}
@@ -9015,9 +9015,9 @@ BOOL LLVOAvatar::updateLOD()
 
 	LLFace* facep = mDrawable->getFace(0);
 	if (facep->mVertexBuffer.isNull() ||
-		LLVertexBuffer::sEnableVBOs &&
+		(LLVertexBuffer::sEnableVBOs &&
 		((facep->mVertexBuffer->getUsage() == GL_STATIC_DRAW ? TRUE : FALSE) !=
-		(facep->getPool()->getVertexShaderLevel() > 0 ? TRUE : FALSE)))
+		(facep->getPool()->getVertexShaderLevel() > 0 ? TRUE : FALSE))))
 	{
 		mDirtyMesh = TRUE;
 	}

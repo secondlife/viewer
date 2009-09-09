@@ -411,8 +411,8 @@ inline bool operator<(const LLVector3 &a, const LLVector3 &b)
 	return (a.mV[0] < b.mV[0]
 			|| (a.mV[0] == b.mV[0]
 				&& (a.mV[1] < b.mV[1]
-					|| (a.mV[1] == b.mV[1])
-						&& a.mV[2] < b.mV[2])));
+					|| ((a.mV[1] == b.mV[1])
+						&& a.mV[2] < b.mV[2]))));
 }
 
 inline const LLVector3& operator+=(LLVector3 &a, const LLVector3 &b)

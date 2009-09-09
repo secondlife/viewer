@@ -134,7 +134,7 @@ S32 wchar_to_utf8chars(llwchar in_char, char* outchars)
 		*outchars++ = 0xF0 | (cur_char >> 18);
 		*outchars++ = 0x80 | ((cur_char >> 12) & 0x3F);
 		*outchars++ = 0x80 | ((cur_char >> 6) & 0x3F);
-		*outchars++ = 0x80 | cur_char & 0x3F;
+		*outchars++ = 0x80 | (cur_char & 0x3F);
 	}
 	else if (cur_char < 0x4000000)
 	{
@@ -142,7 +142,7 @@ S32 wchar_to_utf8chars(llwchar in_char, char* outchars)
 		*outchars++ = 0x80 | ((cur_char >> 18) & 0x3F);
 		*outchars++ = 0x80 | ((cur_char >> 12) & 0x3F);
 		*outchars++ = 0x80 | ((cur_char >> 6) & 0x3F);
-		*outchars++ = 0x80 | cur_char & 0x3F;
+		*outchars++ = 0x80 | (cur_char & 0x3F);
 	}
 	else if (cur_char < 0x80000000)
 	{
@@ -151,7 +151,7 @@ S32 wchar_to_utf8chars(llwchar in_char, char* outchars)
 		*outchars++ = 0x80 | ((cur_char >> 18) & 0x3F);
 		*outchars++ = 0x80 | ((cur_char >> 12) & 0x3F);
 		*outchars++ = 0x80 | ((cur_char >> 6) & 0x3F);
-		*outchars++ = 0x80 | cur_char & 0x3F;
+		*outchars++ = 0x80 | (cur_char & 0x3F);
 	}
 	else
 	{

@@ -959,7 +959,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			0.75f
 		};
 
-		if (getPoolType() != LLDrawPool::POOL_ALPHA && (LLPipeline::sRenderDeferred || LLPipeline::sRenderBump && tep->getShiny()))
+		if (getPoolType() != LLDrawPool::POOL_ALPHA && (LLPipeline::sRenderDeferred || (LLPipeline::sRenderBump && tep->getShiny())))
 		{
 			color.mV[3] = U8 (alpha[tep->getShiny()] * 255);
 		}

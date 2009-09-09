@@ -470,8 +470,8 @@ void LLVOVolume::updateTextures()
 
 		if (face->mTextureMatrix != NULL)
 		{
-			if (vsize < MIN_TEX_ANIM_SIZE && old_size > MIN_TEX_ANIM_SIZE ||
-				vsize > MIN_TEX_ANIM_SIZE && old_size < MIN_TEX_ANIM_SIZE)
+			if ((vsize < MIN_TEX_ANIM_SIZE && old_size > MIN_TEX_ANIM_SIZE) ||
+				(vsize > MIN_TEX_ANIM_SIZE && old_size < MIN_TEX_ANIM_SIZE))
 			{
 				gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_TCOORD, FALSE);
 			}
@@ -2387,7 +2387,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						{ //needs normal + binormal
 							bump_faces.push_back(facep);
 						}
-						else if (te->getShiny() && LLPipeline::sRenderBump ||
+						else if ((te->getShiny() && LLPipeline::sRenderBump) ||
 							!te->getFullbright())
 						{ //needs normal
 							simple_faces.push_back(facep);
