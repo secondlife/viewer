@@ -44,7 +44,6 @@ class LLFloaterChatterBox;
 class LLUUID;
 class LLFloaterIMPanel;
 class LLFriendObserver;
-class LLFloaterIM;
 
 class LLIMModel :  public LLSingleton<LLIMModel>
 {
@@ -267,18 +266,6 @@ private:
 	// ID of a session that is being removed: observers are already told
 	// that this session is being removed, but it is still present in the sessions' map
 	LLUUID	mBeingRemovedSessionID;
-};
-
-
-class LLFloaterIM : public LLMultiFloater
-{
-public:
-	LLFloaterIM();
-	/*virtual*/ BOOL postBuild();
-
-	static std::map<std::string,std::string> sEventStringsMap;
-	static std::map<std::string,std::string> sErrorStringsMap;
-	static std::map<std::string,std::string> sForceCloseSessionMap;
 };
 
 class LLIncomingCallDialog : public LLModalDialog

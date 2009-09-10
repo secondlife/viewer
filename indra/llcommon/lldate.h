@@ -86,7 +86,6 @@ public:
 	void toStream(std::ostream&) const;
 	std::string toHTTPDateString (std::string fmt) const;
 	static std::string toHTTPDateString (tm * gmt, std::string fmt);
-	static void toHTTPDateStream(std::ostream&, tm *, std::string);
 	/** 
 	 * @brief Set the date from an ISO-8601 string.
 	 *

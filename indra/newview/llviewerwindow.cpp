@@ -74,6 +74,7 @@
 #include "lltimer.h"
 #include "timing.h"
 #include "llviewermenu.h"
+#include "lltooltip.h"
 
 // newview includes
 #include "llagent.h"
@@ -111,7 +112,7 @@
 #include "llfontfreetype.h"
 #include "llgesturemgr.h"
 #include "llglheaders.h"
-#include "llhoverview.h"
+#include "lltooltip.h"
 #include "llhudmanager.h"
 #include "llhudview.h"
 #include "llimagebmp.h"
@@ -208,22 +209,14 @@ extern BOOL gDebugClicks;
 extern BOOL gDisplaySwapBuffers;
 extern BOOL gDepthDirty;
 extern BOOL gResizeScreenTexture;
-extern S32 gJamesInt;
 
 LLViewerWindow	*gViewerWindow = NULL;
 
-
-BOOL			gDebugSelect = FALSE;
-
-LLFrameTimer	gMouseIdleTimer;
 LLFrameTimer	gAwayTimer;
 LLFrameTimer	gAwayTriggerTimer;
-LLFrameTimer	gAlphaFadeTimer;
 
 BOOL			gShowOverlayTitle = FALSE;
-BOOL			gPickTransparent = TRUE;
 
-BOOL			gDebugFastUIRender = FALSE;
 LLViewerObject*  gDebugRaycastObject = NULL;
 LLVector3       gDebugRaycastIntersection;
 LLVector2       gDebugRaycastTexCoord;
@@ -234,7 +227,6 @@ S32				gDebugRaycastFaceHit;
 // HUD display lines in lower right
 BOOL				gDisplayWindInfo = FALSE;
 BOOL				gDisplayCameraPos = FALSE;
-BOOL				gDisplayNearestWater = FALSE;
 BOOL				gDisplayFOV = FALSE;
 
 S32 CHAT_BAR_HEIGHT = 28; 
@@ -599,21 +591,6 @@ void LLViewerWindow::updateDebugText()
 // LLViewerWindow
 //
 
-bool LLViewerWindow::shouldShowToolTipFor(LLMouseHandler *mh)
-{
-	if (mToolTip && mh)
-	{
-		LLMouseHandler::EShowToolTip showlevel = mh->getShowToolTip();
-
-		bool tool_tip_allowed = (showlevel == LLMouseHandler::SHOW_ALWAYS 
-								|| (showlevel == LLMouseHandler::SHOW_IF_NOT_BLOCKED 
-									&& !mToolTipBlocked));
-
-		return tool_tip_allowed;
-	}
-	return false;
-}
-
 BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down)
 {
 	std::string buttonname;
@@ -673,16 +650,7 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 		mWindow->releaseMouse();
 
 	// Indicate mouse was active
-	gMouseIdleTimer.reset();
-
-	// Hide tooltips on mousedown
-	mToolTipBlocked = down;
-
-	// Also hide hover info on mousedown/mouseup
-	if (gHoverView)
-	{
-		gHoverView->cancelHover();
-	}
+	LLUI::resetMouseIdleTimer();
 
 	// Don't let the user move the mouse out of the window until mouse up.
 	if( LLToolMgr::getInstance()->getCurrentTool()->clipMouseWhenDown() )
@@ -749,10 +717,6 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 	
 		if(LLToolMgr::getInstance()->getCurrentTool()->handleAnyMouseClick( x, y, mask, clicktype, down ) )
 		{
-			// This is necessary to force clicks in the world to cause edit
-			// boxes that might have keyboard focus to relinquish it, and hence
-			// cause a commit to update their value.  JC
-			gFocusMgr.setKeyboardFocus(NULL);
 			return TRUE;
 		}
 	}
@@ -870,30 +834,16 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
 
 	// Save mouse point for access during idle() and display()
 
-	LLCoordGL prev_saved_mouse_point = mCurrentMousePoint;
 	LLCoordGL mouse_point(x, y);
 	saveLastMouse(mouse_point);
-	BOOL mouse_actually_moved = !gFocusMgr.getMouseCapture() &&  // mouse is not currenty captured
-			((prev_saved_mouse_point.mX != mCurrentMousePoint.mX) || (prev_saved_mouse_point.mY != mCurrentMousePoint.mY)); // mouse moved from last recorded position
 
-	gMouseIdleTimer.reset();
+	LLUI::resetMouseIdleTimer();
 
 	mWindow->showCursorFromMouseMove();
 
 	if (gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
 	{
 		gAgent.clearAFK();
-	}
-
-	if(mouse_actually_moved)
-	{
-		mToolTipBlocked = FALSE;
-	}
-
-	// Activate the hover picker on mouse move.
-	if (gHoverView)
-	{
-		gHoverView->setTyping(FALSE);
 	}
 }
 
@@ -902,10 +852,6 @@ void LLViewerWindow::handleMouseLeave(LLWindow *window)
 	// Note: we won't get this if we have captured the mouse.
 	llassert( gFocusMgr.getMouseCapture() == NULL );
 	mMouseInWindow = FALSE;
-	if (mToolTip)
-	{
-		mToolTip->setVisible( FALSE );
-	}
 }
 
 BOOL LLViewerWindow::handleCloseRequest(LLWindow *window)
@@ -1245,16 +1191,12 @@ LLViewerWindow::LLViewerWindow(
 	mLeftMouseDown(FALSE),
 	mMiddleMouseDown(FALSE),
 	mRightMouseDown(FALSE),
-	mToolTip(NULL),
-	mToolTipBlocked(FALSE),
 	mMouseInWindow( FALSE ),
 	mLastMask( MASK_NONE ),
 	mToolStored( NULL ),
-	mSuppressToolbox( FALSE ),
 	mHideCursorPermanent( FALSE ),
 	mCursorHidden(FALSE),
 	mIgnoreActivate( FALSE ),
-	mHoverPick(),
 	mResDirty(false),
 	mStatesDirty(false),
 	mIsFullscreenChecked(false),
@@ -1479,7 +1421,7 @@ void LLViewerWindow::initBase()
 	cp.font_size_index(gSavedSettings.getS32("ChatFontSize"));
 	cp.follows.flags(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM);
 	gConsole = LLUICtrlFactory::create<LLConsole>(cp);
-	mRootView->addChild(gConsole);
+	getRootView()->addChild(gConsole);
 
 	// optionally forward warnings to chat console/chat floater
 	// for qa runs and dev builds
@@ -1499,11 +1441,11 @@ void LLViewerWindow::initBase()
 	debug_p.follows.flags(FOLLOWS_ALL);
 	debug_p.visible(true);
 	gDebugView = LLUICtrlFactory::create<LLDebugView>(debug_p);
-	mRootView->addChild(gDebugView);
+	getRootView()->addChild(gDebugView);
 
 	// Add floater view at the end so it will be on top, and give it tab priority over others
-	mRootView->addChild(gFloaterView, -1);
-	mRootView->addChild(gSnapshotFloaterView);
+	getRootView()->addChild(gFloaterView, -1);
+	getRootView()->addChild(gSnapshotFloaterView);
 
 	// notify above floaters!
 	LLRect notify_rect = floater_view_rect;
@@ -1513,28 +1455,18 @@ void LLViewerWindow::initBase()
 	p.mouse_opaque(false);
 	p.follows.flags(FOLLOWS_ALL);
 	gNotifyBoxView = LLUICtrlFactory::create<LLNotifyBoxView> (p);
-	mRootView->addChild(gNotifyBoxView, -2);
+	getRootView()->addChild(gNotifyBoxView, -2);
 
-	// Tooltips go above floaters
-	LLTextBox::Params params;
-	params.text("tool tip");
-	params.name(params.text);
-	params.rect(LLRect (0, 1, 1, 0));
-	params.h_pad(4);
-	params.v_pad(2);
-	params.text_color(LLUIColorTable::instance().getColor( "ToolTipTextColor" ));
-	params.border_color(LLUIColorTable::instance().getColor( "ToolTipBorderColor" ));
-	params.border_visible(false);
-	params.background_color(LLUIColorTable::instance().getColor( "ToolTipBgColor" ));
-	params.bg_visible(true);
-	params.font.style("NORMAL");
-	params.border_drop_shadow_visible(true);
-	params.visible(false);
-	mToolTip = LLUICtrlFactory::create<LLTextBox> (params);
+	// View for tooltips
+	LLToolTipView::Params hvp;
+	hvp.name("tooltip view");
+	hvp.rect(full_window);
+	gToolTipView = LLUICtrlFactory::create<LLToolTipView>(hvp);
+	getRootView()->addChild(gToolTipView);
 
 	// Add the progress bar view (startup view), which overrides everything
 	mProgressView = new LLProgressView(full_window);
-	mRootView->addChild(mProgressView);
+	getRootView()->addChild(mProgressView);
 	setShowProgress(FALSE);
 	setProgressCancelButtonVisible(FALSE);
 }
@@ -1560,13 +1492,6 @@ void LLViewerWindow::initWorldUI()
 	LLBottomTray::getInstance()->reshape(rc.getWidth(),rc.getHeight(),FALSE);
 	LLBottomTray::getInstance()->setRect(rc);
 
-	// View for hover information
-	LLHoverView::Params hvp;
-	hvp.name("gHoverview");
-	hvp.rect(full_window);
-	gHoverView = LLUICtrlFactory::create<LLHoverView>(hvp);
-	mRootView->addChild(gHoverView);
-
 	// Pre initialize instance communicate instance;
 	//  currently needs to happen before initializing chat or IM
 	LLFloaterReg::getInstance("communicate");
@@ -1584,7 +1509,7 @@ void LLViewerWindow::initWorldUI()
 	mvp.rect(morph_view_rect);
 	mvp.visible(false);
 	gMorphView = LLUICtrlFactory::create<LLMorphView>(mvp);
-	mRootView->addChild(gMorphView);
+	getRootView()->addChild(gMorphView);
 
 	// Make space for nav bar.
 	LLRect floater_view_rect = gFloaterView->getRect();
@@ -1674,6 +1599,9 @@ void LLViewerWindow::initWorldUI()
 
 	// this allows not to see UI elements created while UI initializing after Alt+Tab was pressed during login. EXT-744.
 	moveProgressViewToFront();
+
+	// tooltips are always on top
+	getRootView()->sendChildToFront(gToolTipView);
 }
 
 // Destroy the UI
@@ -1691,10 +1619,6 @@ void LLViewerWindow::shutdownViews()
 		gMorphView->setVisible(FALSE);
 	}
 	
-	// Delete Tool Tip
-	delete mToolTip;
-	mToolTip = NULL;
-	
 	// Delete all child views.
 	delete mRootView;
 	mRootView = NULL;
@@ -1702,7 +1626,7 @@ void LLViewerWindow::shutdownViews()
 	// Automatically deleted as children of mRootView.  Fix the globals.
 	gStatusBar = NULL;
 	gIMMgr = NULL;
-	gHoverView = NULL;
+	gToolTipView = NULL;
 
 	gFloaterView = NULL;
 	gMorphView = NULL;
@@ -1775,12 +1699,6 @@ void LLViewerWindow::showCursor()
 
 void LLViewerWindow::hideCursor()
 {
-	// Hide tooltips
-	if(mToolTip ) mToolTip->setVisible( FALSE );
-
-	// Also hide hover info
-	if (gHoverView)	gHoverView->cancelHover();
-
 	// And hide the cursor
 	mWindow->hideCursor();
 
@@ -2035,9 +1953,9 @@ void LLViewerWindow::draw()
 		// No translation needed, this view is glued to 0,0
 		mRootView->draw();
 
-		if (mToolTip->getVisible() && LLView::sDebugRects)
+		if (LLView::sDebugRects)
 		{
-			gl_rect_2d(mToolTipStickyRect, LLColor4::white, false);
+			gToolTipView->drawStickyRect();
 		}
 
 		// Draw optional on-top-of-everyone view
@@ -2054,31 +1972,6 @@ void LLViewerWindow::draw()
 			LLUI::popMatrix();
 		}
 
-		// Draw tooltips
-		// Adjust their rectangle so they don't go off the top or bottom
-		// of the screen.
-		if( mToolTip && mToolTip->getVisible() )
-		{
-			glMatrixMode(GL_MODELVIEW);
-			LLUI::pushMatrix();
-			{
-				S32 tip_height = mToolTip->getRect().getHeight();
-
-				S32 screen_x, screen_y;
-				mToolTip->localPointToScreen(0, -24 - tip_height, 
-											 &screen_x, &screen_y);
-
-				// If tooltip would draw off the bottom of the screen,
-				// show it from the cursor tip position.
-				if (screen_y < tip_height) 
-				{
-					mToolTip->localPointToScreen(0, 0, &screen_x, &screen_y);
-				}
-				LLUI::translate( (F32) screen_x, (F32) screen_y, 0);
-				mToolTip->draw();
-			}
-			LLUI::popMatrix();
-		}
 
 		if( gShowOverlayTitle && !mOverlayTitle.empty() )
 		{
@@ -2120,26 +2013,9 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		}
 	}
 
-	//// HACK look for UI editing keys
-	//if (LLView::sEditingUI)
-	//{
-	//	if (LLFloaterEditUI::processKeystroke(key, mask))
-	//	{
-	//		return TRUE;
-	//	}
-	//}
-
-	// Hide tooltips on keypress
-	mToolTipBlocked = TRUE; // block until next time mouse is moved
-
-	// Also hide hover info on keypress
-	if (gHoverView)
-	{
-		gHoverView->cancelHover();
-
-		gHoverView->setTyping(TRUE);
-	}
-
+	// hide tooltips on keypress
+	LLToolTipMgr::instance().hideToolTips();
+	
 	// Explicit hack for debug menu.
 	if ((MASK_ALT & mask) &&
 		(MASK_CONTROL & mask) &&
@@ -2194,6 +2070,11 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	}
 	// let menus handle navigation keys
 	if (gLoginMenuBarView && gLoginMenuBarView->handleKey(key, mask, TRUE))
+	{
+		return TRUE;
+	}
+	//some of context menus use this container, let context menu handle navigation keys
+	if(gMenuHolder && gMenuHolder->handleKey(key, mask, TRUE))
 	{
 		return TRUE;
 	}
@@ -2360,14 +2241,8 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 {
 	LLView::sMouseHandlerMessage.clear();
 
-	gMouseIdleTimer.reset();
-
-	// Hide tooltips
-	if( mToolTip )
-	{
-		mToolTip->setVisible( FALSE );
-	}
-
+	LLUI::resetMouseIdleTimer();
+	
 	LLMouseHandler* mouse_captor = gFocusMgr.getMouseCapture();
 	if( mouse_captor )
 	{
@@ -2420,7 +2295,7 @@ void LLViewerWindow::moveCursorToCenter()
 	mLastMousePoint.set(x,y);
 	mCurrentMouseDelta.set(0,0);	
 
-	LLUI::setCursorPositionScreen(x, y);	
+	LLUI::setMousePositionScreen(x, y);	
 }
 
 void LLViewerWindow::updateBottomTrayRect()
@@ -2452,6 +2327,35 @@ void LLViewerWindow::updateBottomTrayRect()
 // Hover handlers
 //
 
+void append_xui_tooltip(LLView* viewp, std::string& tool_tip_msg)
+{
+	if (viewp) 
+	{
+		if (!tool_tip_msg.empty())
+		{
+			tool_tip_msg.append("\n---------\n");
+		}
+		LLView::root_to_view_iterator_t end_tooltip_it = viewp->endRootToView();
+		// NOTE: we skip "root" since it is assumed
+		for (LLView::root_to_view_iterator_t tooltip_it = ++viewp->beginRootToView();
+			tooltip_it != end_tooltip_it;
+			++tooltip_it)
+		{
+			LLView* viewp = *tooltip_it;
+		
+			tool_tip_msg.append(viewp->getName());
+			LLPanel* panelp = dynamic_cast<LLPanel*>(viewp);
+			if (panelp && !panelp->getXMLFilename().empty())
+			{
+				tool_tip_msg.append("(");
+				tool_tip_msg.append(panelp->getXMLFilename());
+				tool_tip_msg.append(")");
+			}
+			tool_tip_msg.append("/");
+		}
+	}
+}
+
 // Update UI based on stored mouse position from mouse-move
 // event processing.
 void LLViewerWindow::updateUI()
@@ -2471,6 +2375,17 @@ void LLViewerWindow::updateUI()
 	if (gNoRender)
 	{
 		return;
+	}
+
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
+	{
+		gDebugRaycastFaceHit = -1;
+		gDebugRaycastObject = cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE,
+											  &gDebugRaycastFaceHit,
+											  &gDebugRaycastIntersection,
+											  &gDebugRaycastTexCoord,
+											  &gDebugRaycastNormal,
+											  &gDebugRaycastBinormal);
 	}
 
 	updateMouseDelta();
@@ -2500,8 +2415,8 @@ void LLViewerWindow::updateUI()
 	if (top_ctrl && top_ctrl->calcScreenBoundingRect().pointInRect(x, y))
 	{
 		// iterator over contents of top_ctrl, and throw into mouse_hover_set
-		for (LLView::tree_iterator_t it = top_ctrl->beginTree();
-			it != top_ctrl->endTree();
+		for (LLView::tree_iterator_t it = top_ctrl->beginTreeDFS();
+			it != top_ctrl->endTreeDFS();
 			++it)
 		{
 			LLView* viewp = *it;
@@ -2521,9 +2436,8 @@ void LLViewerWindow::updateUI()
 	else
 	{
 		// walk UI tree in depth-first order
-		LLView::tree_iterator_t end_it;
-		for (LLView::tree_iterator_t it = root_view->beginTree();
-			it != end_it;
+		for (LLView::tree_iterator_t it = root_view->beginTreeDFS();
+			it != root_view->endTreeDFS();
 			++it)
 		{
 			LLView* viewp = *it;
@@ -2536,7 +2450,7 @@ void LLViewerWindow::updateUI()
 				if (viewp->getMouseOpaque())
 				{
 					// constrain further iteration to children of this widget
-					it = viewp->beginTree();
+					it = viewp->beginTreeDFS();
 				}
 	
 				// we have a view that contains the mouse, add it to the set
@@ -2639,130 +2553,87 @@ void LLViewerWindow::updateUI()
 			}
 		}
 
-		if( !handled )
+		if (!handled)
 		{
-			lldebugst(LLERR_USER_INPUT) << "hover not handled by top view or root" << llendl;		
-		}
-	}
+			LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
 
-	// *NOTE: sometimes tools handle the mouse as a captor, so this
-	// logic is a little confusing
-	LLTool *tool = NULL;
-	if (gHoverView)
-	{
-		tool = LLToolMgr::getInstance()->getCurrentTool();
-
-		if(!handled && tool)
-		{
-			handled = tool->handleHover(x, y, mask);
-
-			if (!mWindow->isCursorHidden())
+			if(mMouseInWindow && tool)
 			{
-				gHoverView->updateHover(tool);
+				handled = tool->handleHover(x, y, mask);
 			}
 		}
-		else
-		{
-			// Cancel hovering if any UI element handled the event.
-			gHoverView->cancelHover();
-		}
-
-		// Suppress the toolbox view if our source tool was the pie tool,
-		// and we've overridden to something else.
-		mSuppressToolbox = 
-			(LLToolMgr::getInstance()->getBaseTool() == LLToolPie::getInstance()) &&
-			(LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance());
-
 	}
 
-	// Show a new tool tip (or update one that is alrady shown)
+	// Show a new tool tip (or update one that is already shown)
 	BOOL tool_tip_handled = FALSE;
 	std::string tool_tip_msg;
 	if( handled 
-		&& !mWindow->isCursorHidden()
-		&& mToolTip)
+		&& !mWindow->isCursorHidden())
 	{
-		LLRect screen_sticky_rect;
-		LLMouseHandler *tooltip_source = NULL;
+		LLRect screen_sticky_rect = mRootView->getLocalRect();
 		S32 local_x, local_y;
-		if (mouse_captor)
-		{
-			mouse_captor->screenPointToLocal(x, y, &local_x, &local_y);
-			tooltip_source = mouse_captor;
-		}
-		else if (handled_by_top_ctrl)
-		{
-			top_ctrl->screenPointToLocal(x, y, &local_x, &local_y);
-			tooltip_source = top_ctrl;
-		}
-		else
-		{
-			local_x = x; local_y = y;
-			tooltip_source = mRootView;
-		}
 
-		F32 tooltip_delay = gSavedSettings.getF32( "ToolTipDelay" );
-		//HACK: hack for tool-based tooltips which need to pop up more quickly
-		//Also for show xui names as tooltips debug mode
-		if ((gFocusMgr.getMouseCapture() 
-				&& !gFocusMgr.getMouseCapture()->isView()) 
-			|| LLUI::sShowXUINames)
+		if (gSavedSettings.getBOOL("DebugShowXUINames"))
 		{
-			tooltip_delay = gSavedSettings.getF32( "DragAndDropToolTipDelay" );
-		}
-
-
-		BOOL tooltip_vis = FALSE;
-		if (shouldShowToolTipFor(tooltip_source))
-		{
-			tool_tip_handled = tooltip_source->handleToolTip(local_x, local_y, tool_tip_msg, &screen_sticky_rect );
-		
-			// if we actually got a tooltip back...
-			if( tool_tip_handled && !tool_tip_msg.empty() )
+			LLView* tooltip_view = mRootView;
+			LLView::tree_iterator_t end_it = mRootView->endTreeDFS();
+			for (LLView::tree_iterator_t it = mRootView->beginTreeDFS(); it != end_it; ++it)
 			{
-				if (mToolTip->getVisible()										// already showing a tooltip
-					|| gMouseIdleTimer.getElapsedTimeF32() > tooltip_delay)		// mouse has been still long enough to show the tooltip
+				LLView* viewp = *it;
+				LLRect screen_rect;
+				viewp->localRectToScreen(viewp->getLocalRect(), &screen_rect);
+				if (!(viewp->getVisible()
+					 && screen_rect.pointInRect(x, y)))
 				{
-					// if tooltip has changed or mouse has moved outside of "sticky" rectangle...
-					if (mLastToolTipMessage != tool_tip_msg
-						|| !mToolTipStickyRect.pointInRect(x, y))
+					it.skipDescendants();
+				}
+				else if (viewp->getMouseOpaque())
+				{
+					if (!viewp->hasAncestor(tooltip_view))
 					{
-						//...update "sticky" rect and tooltip position
-						mToolTipStickyRect = screen_sticky_rect;
-						mToolTip->setOrigin( x, y );
+						append_xui_tooltip(tooltip_view, tool_tip_msg);
+						screen_sticky_rect.intersectWith(tooltip_view->calcScreenRect());
 					}
-
-					// remember this tooltip so we know when it changes
-					mLastToolTipMessage = tool_tip_msg;
-					mToolTip->setWrappedText( tool_tip_msg, 200 );
-					mToolTip->reshapeToFitText();
-					LLRect virtual_window_rect(0, getWindowHeight(), getWindowWidth(), 0);
-					mToolTip->translateIntoRect( virtual_window_rect, FALSE );
-					tooltip_vis = TRUE;
+					tooltip_view = viewp;
 				}
 			}
-		}
 
-		// HACK: assuming tooltip background is in ToolTipBGColor, perform fade out
-		LLColor4 bg_color = LLUIColorTable::instance().getColor( "ToolTipBgColor" );
-		if (tooltip_vis)
+			append_xui_tooltip(tooltip_view, tool_tip_msg);
+			screen_sticky_rect.intersectWith(tooltip_view->calcScreenRect());
+			
+			LLToolTipMgr::instance().show(LLToolTipParams()
+				.message(tool_tip_msg)
+				.sticky_rect(screen_sticky_rect)
+				.width(400));
+		}
+		// if there is a mouse captor, nothing else gets a tooltip
+		else if (mouse_captor)
 		{
-			mToolTipFadeTimer.stop();
-			mToolTip->setBackgroundColor(bg_color);
+			mouse_captor->screenPointToLocal(x, y, &local_x, &local_y);
+			tool_tip_handled = mouse_captor->handleToolTip(local_x, local_y, tool_tip_msg, screen_sticky_rect );
 		}
 		else 
 		{
-			if (!mToolTipFadeTimer.getStarted())
+			// next is top_ctrl
+			if (!tool_tip_handled && top_ctrl)
 			{
-				mToolTipFadeTimer.start();
+				top_ctrl->screenPointToLocal(x, y, &local_x, &local_y);
+				tool_tip_handled = top_ctrl->handleToolTip(local_x, local_y, tool_tip_msg, screen_sticky_rect );
 			}
-			F32 tool_tip_fade_time = gSavedSettings.getF32("ToolTipFadeTime");
-			bg_color.mV[VALPHA] = clamp_rescale(mToolTipFadeTimer.getElapsedTimeF32(), 0.f, tool_tip_fade_time, bg_color.mV[VALPHA], 0.f);
-			mToolTip->setBackgroundColor(bg_color);
-		}
+			
+			if (!tool_tip_handled)
+			{
+				local_x = x; local_y = y;
+				tool_tip_handled = mRootView->handleToolTip(local_x, local_y, tool_tip_msg, screen_sticky_rect );
+			}
 
-		// above interpolation of bg_color alpha is guaranteed to reach 0.f exactly
-		mToolTip->setVisible( bg_color.mV[VALPHA] != 0.f );
+			LLTool* current_tool = LLToolMgr::getInstance()->getCurrentTool();
+			if (!tool_tip_handled && current_tool)
+			{
+				current_tool->screenPointToLocal(x, y, &local_x, &local_y);
+				tool_tip_handled = current_tool->handleToolTip(local_x, local_y, tool_tip_msg, screen_sticky_rect );
+			}
+		}
 	}		
 	
 	updateLayout();
@@ -2779,67 +2650,8 @@ void LLViewerWindow::updateUI()
 	{
 		LLSelectMgr::getInstance()->deselectUnused();
 	}
-
-	updatePicking(x, y, mask);
 }
 
-void LLViewerWindow::updatePicking(S32 x, S32 y, MASK mask)
-{
-	// per frame picking - for tooltips and changing cursor over interactive objects
-	static S32 previous_x = -1;
-	static S32 previous_y = -1;
-	static BOOL mouse_moved_since_pick = FALSE;
-
-	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
-	{
-		gDebugRaycastFaceHit = -1;
-		gDebugRaycastObject = cursorIntersect(-1, -1, 512.f, NULL, -1, FALSE,
-											  &gDebugRaycastFaceHit,
-											  &gDebugRaycastIntersection,
-											  &gDebugRaycastTexCoord,
-											  &gDebugRaycastNormal,
-											  &gDebugRaycastBinormal);
-	}
-
-
-	if ((previous_x != x) || (previous_y != y))
-		mouse_moved_since_pick = TRUE;
-
-	BOOL do_pick = FALSE;
-
-	F32 picks_moving = gSavedSettings.getF32("PicksPerSecondMouseMoving");
-	if ((mouse_moved_since_pick) && (picks_moving > 0.0) && (mPickTimer.getElapsedTimeF32() > 1.0f / picks_moving))
-	{
-		do_pick = TRUE;
-	}
-
-	F32 picks_stationary = gSavedSettings.getF32("PicksPerSecondMouseStationary");
-	if ((!mouse_moved_since_pick) && (picks_stationary > 0.0) && (mPickTimer.getElapsedTimeF32() > 1.0f / picks_stationary))
-	{
-		do_pick = TRUE;
-	}
-
-	if (getCursorHidden())
-	{
-		do_pick = FALSE;
-	}
-
-	if(LLViewerMediaFocus::getInstance()->getFocus())
-	{
-		// When in-world media is in focus, pick every frame so that browser mouse-overs, dragging scrollbars, etc. work properly.
-		do_pick = TRUE;
-	}
-
-	if (do_pick)
-	{
-		mouse_moved_since_pick = FALSE;
-		mPickTimer.reset();
-		pickAsync(getCurrentMouseX(), getCurrentMouseY(), mask, hoverPickCallback, TRUE);
-	}
-
-	previous_x = x;
-	previous_y = y;
-}
 
 void LLViewerWindow::updateLayout()
 {
@@ -2851,6 +2663,12 @@ void LLViewerWindow::updateLayout()
 		&& tool != LLToolDragAndDrop::getInstance() 
 		&& !gSavedSettings.getBOOL("FreezeTime"))
 	{ 
+		// Suppress the toolbox view if our source tool was the pie tool,
+		// and we've overridden to something else.
+		bool suppress_toolbox = 
+			(LLToolMgr::getInstance()->getBaseTool() == LLToolPie::getInstance()) &&
+			(LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance());
+
 		LLMouseHandler *captor = gFocusMgr.getMouseCapture();
 		// With the null, inspect, or drag and drop tool, don't muck
 		// with visibility.
@@ -2858,7 +2676,7 @@ void LLViewerWindow::updateLayout()
 		if (gFloaterTools->isMinimized()
 			||	(tool != LLToolPie::getInstance()						// not default tool
 				&& tool != LLToolCompGun::getInstance()					// not coming out of mouselook
-				&& !mSuppressToolbox									// not override in third person
+				&& !suppress_toolbox									// not override in third person
 				&& LLToolMgr::getInstance()->getCurrentToolset() != gFaceEditToolset	// not special mode
 				&& LLToolMgr::getInstance()->getCurrentToolset() != gMouselookToolset
 				&& (!captor || captor->isView())))						// not dragging
@@ -3042,13 +2860,6 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 		LLViewerCamera::getInstance()->setAspect( getWorldViewAspectRatio() );
 	}
 }
-
-/* static */
-void LLViewerWindow::hoverPickCallback(const LLPickInfo& pick_info)
-{
-	gViewerWindow->mHoverPick = pick_info;
-}
-	
 
 void LLViewerWindow::saveLastMouse(const LLCoordGL &point)
 {
@@ -3295,7 +3106,7 @@ BOOL LLViewerWindow::clickPointOnSurfaceGlobal(const S32 x, const S32 y, LLViewe
 	return intersect;
 }
 
-void LLViewerWindow::pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback)(const LLPickInfo& info), BOOL pick_transparent, BOOL get_surface_info)
+void LLViewerWindow::pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback)(const LLPickInfo& info), BOOL pick_transparent)
 {
 	if (gNoRender)
 	{
@@ -3329,7 +3140,7 @@ void LLViewerWindow::pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback
 	LLRect screen_region = mPickScreenRegion;
 	screen_region.translate(mPicks.size() * PICK_DIAMETER, 0);
 
-	LLPickInfo pick(LLCoordGL(x, y_from_bot), screen_region, mask, pick_transparent, get_surface_info, callback);
+	LLPickInfo pick(LLCoordGL(x, y_from_bot), screen_region, mask, pick_transparent, TRUE, callback);
 
 	schedulePick(pick);
 }
@@ -4900,11 +4711,6 @@ F32	LLViewerWindow::getWorldViewAspectRatio() const
 	}
 }
 
-void LLViewerWindow::drawPickBuffer() const
-{
-	mHoverPick.drawPickBuffer();
-}
-
 void LLViewerWindow::calcDisplayScale()
 {
 	F32 ui_scale_factor = gSavedSettings.getF32("UIScaleFactor");
@@ -5150,49 +4956,6 @@ void LLPickInfo::updateXYCoords()
 			mXYCoords.mX = llround(mUVCoords.mV[VX] * (F32)imagep->getWidth());
 			mXYCoords.mY = llround((1.f - mUVCoords.mV[VY]) * (F32)imagep->getHeight());
 		}
-	}
-}
-
-void LLPickInfo::drawPickBuffer() const
-{
-	if (mPickBuffer)
-	{
-		gGL.pushMatrix();
-		LLGLDisable no_blend(GL_BLEND);
-		LLGLDisable no_alpha_test(GL_ALPHA_TEST);
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		glPixelZoom(10.f, 10.f);
-		LLVector2 display_scale = gViewerWindow->getDisplayScale();
-		glRasterPos2f(((F32)mMousePt.mX * display_scale.mV[VX] + 10.f), 
-			((F32)mMousePt.mY * display_scale.mV[VY] + 10.f));
-		glDrawPixels(PICK_DIAMETER, PICK_DIAMETER, GL_RGBA, GL_UNSIGNED_BYTE, mPickBuffer);
-		glPixelZoom(1.f, 1.f);
-		gGL.color4fv(LLColor4::white.mV);
-		gl_rect_2d(llround((F32)mMousePt.mX * display_scale.mV[VX] - (F32)(PICK_HALF_WIDTH)), 
-			llround((F32)mMousePt.mY * display_scale.mV[VY] + (F32)(PICK_HALF_WIDTH)),
-			llround((F32)mMousePt.mX * display_scale.mV[VX] + (F32)(PICK_HALF_WIDTH)),
-			llround((F32)mMousePt.mY * display_scale.mV[VY] - (F32)(PICK_HALF_WIDTH)),
-			FALSE);
-		gl_line_2d(llround((F32)mMousePt.mX * display_scale.mV[VX] - (F32)(PICK_HALF_WIDTH)), 
-			llround((F32)mMousePt.mY * display_scale.mV[VY] + (F32)(PICK_HALF_WIDTH)),
-			llround((F32)mMousePt.mX * display_scale.mV[VX] + 10.f), 
-			llround((F32)mMousePt.mY * display_scale.mV[VY] + (F32)(PICK_DIAMETER) * 10.f + 10.f));
-		gl_line_2d(llround((F32)mMousePt.mX * display_scale.mV[VX] + (F32)(PICK_HALF_WIDTH)),
-			llround((F32)mMousePt.mY * display_scale.mV[VY] - (F32)(PICK_HALF_WIDTH)),
-			llround((F32)mMousePt.mX * display_scale.mV[VX] + (F32)(PICK_DIAMETER) * 10.f + 10.f), 
-			llround((F32)mMousePt.mY * display_scale.mV[VY] + 10.f));
-		gGL.translatef(10.f, 10.f, 0.f);
-		gl_rect_2d(llround((F32)mPickPt.mX * display_scale.mV[VX]), 
-			llround((F32)mPickPt.mY * display_scale.mV[VY] + (F32)(PICK_DIAMETER) * 10.f),
-			llround((F32)mPickPt.mX * display_scale.mV[VX] + (F32)(PICK_DIAMETER) * 10.f),
-			llround((F32)mPickPt.mY * display_scale.mV[VY]),
-			FALSE);
-		gl_rect_2d(llround((F32)mPickPt.mX * display_scale.mV[VX]), 
-			llround((F32)mPickPt.mY * display_scale.mV[VY] + 10.f),
-			llround((F32)mPickPt.mX * display_scale.mV[VX] + 10.f),
-			llround((F32)mPickPt.mY * display_scale.mV[VY]),
-			FALSE);
-		gGL.popMatrix();
 	}
 }
 

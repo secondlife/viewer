@@ -97,6 +97,7 @@ LLLineEditor::Params::Params()
 	background_image_focused("background_image_focused"),
 	select_on_focus("select_on_focus", false),
 	handle_edit_keys_directly("handle_edit_keys_directly", false),
+	revert_on_esc("revert_on_esc", true),
 	commit_on_focus_lost("commit_on_focus_lost", true),
 	ignore_tab("ignore_tab", true),
 	cursor_color("cursor_color"),
@@ -130,7 +131,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mMinHPixels(0),		// computed in updateTextPadding() below
 	mMaxHPixels(0),		// computed in updateTextPadding() below
 	mCommitOnFocusLost( p.commit_on_focus_lost ),
-	mRevertOnEsc( TRUE ),
+	mRevertOnEsc( p.revert_on_esc ),
 	mKeystrokeCallback( p.keystroke_callback() ),
 	mIsSelecting( FALSE ),
 	mSelectionStart( 0 ),

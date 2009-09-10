@@ -154,6 +154,8 @@ void LLSysWellWindow::toggleWindow()
 				getDockTongue(), LLDockControl::TOP, isDocked()));
 	}
 	setVisible(!getVisible());
+	//set window in foreground
+	setFocus(getVisible());
 }
 
 //---------------------------------------------------------------------------------
@@ -179,7 +181,7 @@ void LLSysWellWindow::setVisible(BOOL visible)
 	if(mChannel)
 		mChannel->setShowToasts(!visible);
 
-	LLFloater::setVisible(visible);
+	LLDockableFloater::setVisible(visible);
 }
 
 //---------------------------------------------------------------------------------
@@ -329,11 +331,28 @@ void LLSysWellWindow::sessionRemoved(const LLUUID& sessionId)
 //---------------------------------------------------------------------------------
 LLSysWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID& sessionId,
 		S32 chicletCounter, const std::string& name, const LLUUID& otherParticipantId) :
-		LLScrollingPanel(LLPanel::Params()), mParent(parent)
+		LLScrollingPanel(LLPanel::Params()), mChiclet(NULL), mParent(parent)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_activeim_row.xml", NULL);
 
-	mChiclet = getChild<LLIMChiclet>("chiclet");
+	// Choose which of the pre-created chiclets (IM/group) to use.
+	// The other one gets hidden.
+
+	LLIMChiclet::EType im_chiclet_type = LLIMChiclet::getIMSessionType(sessionId);
+	switch (im_chiclet_type)
+	{
+	case LLIMChiclet::TYPE_GROUP:
+		mChiclet = getChild<LLIMChiclet>("group_chiclet");
+		childSetVisible("p2p_chiclet", false);
+		break;
+	case LLIMChiclet::TYPE_UNKNOWN: // assign mChiclet a non-null value anyway
+	case LLIMChiclet::TYPE_IM:
+		mChiclet = getChild<LLIMChiclet>("p2p_chiclet");
+		childSetVisible("group_chiclet", false);
+		break;
+	}
+
+	// Initialize chiclet.
 	mChiclet->setCounter(chicletCounter);
 	mChiclet->setSessionId(sessionId);
 	mChiclet->setIMSessionName(name);

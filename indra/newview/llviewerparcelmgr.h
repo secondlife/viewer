@@ -217,7 +217,7 @@ public:
 	void	sendParcelDwellRequest();
 
 	// If the point is outside the current hover parcel, request more data
-	void	requestHoverParcelProperties(const LLVector3d& pos_global);
+	void	setHoverParcel(const LLVector3d& pos_global);
 
 	bool	canAgentBuyParcel(LLParcel*, bool forGroup) const;
 	

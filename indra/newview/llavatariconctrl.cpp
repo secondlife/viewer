@@ -147,7 +147,7 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 		if (mAvatarId != value.asUUID())
 		{
 			LLAvatarPropertiesProcessor::getInstance()->addObserver(value.asUUID(), this);
-			LLAvatarPropertiesProcessor::getInstance()->sendDataRequest(value.asUUID(),APT_PROPERTIES);
+			LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(value.asUUID());
 			mAvatarId = value.asUUID();
 
 			// Check if cache already contains image_id for that avatar

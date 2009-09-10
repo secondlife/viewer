@@ -200,10 +200,7 @@ void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 		
 		floaterp->initFloaterXML(root, floaterp->getParent(), output_node);
 
-		if (LLUI::sShowXUINames)
-		{
-			floaterp->setToolTip(filename);
-		}
+		floaterp->setXMLFilename(filename);
 		
 		floaterp->getCommitCallbackRegistrar().popScope();
 		floaterp->getEnableCallbackRegistrar().popScope();
@@ -276,10 +273,7 @@ BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const std::string& filename, L
 		panelp->getCommitCallbackRegistrar().popScope();
 		panelp->getEnableCallbackRegistrar().popScope();
 		
-		if (LLUI::sShowXUINames)
-		{
-			panelp->setToolTip(filename);
-		}
+		panelp->setXMLFilename(filename);
 
 		if (!panelp->getFactoryMap().empty())
 		{
@@ -317,10 +311,6 @@ LLView *LLUICtrlFactory::createFromXML(LLXMLNodePtr node, LLView* parent, const 
 		parent = mDummyPanel;
 	}
 	LLView *view = (*funcp)(node, parent, output_node);	
-	if (LLUI::sShowXUINames && view && !filename.empty())
-	{
-		view->setToolTip(filename);
-	}
 	
 	return view;
 }

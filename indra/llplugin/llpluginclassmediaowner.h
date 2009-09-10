@@ -32,7 +32,6 @@
 #ifndef LL_LLPLUGINCLASSMEDIAOWNER_H
 #define LL_LLPLUGINCLASSMEDIAOWNER_H
 
-#include "llgl.h"
 #include "llpluginprocessparent.h"
 #include "llrect.h"
 #include <queue>

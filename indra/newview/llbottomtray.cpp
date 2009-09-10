@@ -37,12 +37,12 @@
 #include "llchiclet.h"
 #include "llfloaterreg.h"
 #include "llflyoutbutton.h"
+#include "llimpanel.h" // for LLIMFloater
 #include "lllayoutstack.h"
 #include "llnearbychatbar.h"
 #include "llsplitbutton.h"
 #include "llsyswellwindow.h"
 #include "llfloatercamera.h"
-#include "llimpanel.h"
 
 LLBottomTray::LLBottomTray(const LLSD&)
 :	mChicletPanel(NULL),
@@ -119,6 +119,7 @@ void LLBottomTray::onChicletClick(LLUICtrl* ctrl)
 	}
 }
 
+// *TODO Vadim: why void* ?
 void* LLBottomTray::createNearbyChatBar(void* userdata)
 {
 	return new LLNearbyChatBar();
@@ -126,30 +127,19 @@ void* LLBottomTray::createNearbyChatBar(void* userdata)
 
 LLIMChiclet* LLBottomTray::createIMChiclet(const LLUUID& session_id)
 {
-	if(session_id.isNull())
-	{
-		return NULL;
-	}
+	LLIMChiclet::EType im_chiclet_type = LLIMChiclet::getIMSessionType(session_id);
 
-	LLFloaterIMPanel* im = LLIMMgr::getInstance()->findFloaterBySession(session_id);
-	if (!im) 
+	switch (im_chiclet_type)
 	{
-		return NULL; //should never happen
-	}
-
-	switch(im->getDialogType())
-	{
-	case IM_NOTHING_SPECIAL:
+	case LLIMChiclet::TYPE_IM:
 		return getChicletPanel()->createChiclet<LLIMP2PChiclet>(session_id);
-		break;
-	case IM_SESSION_GROUP_START:
-	case IM_SESSION_INVITE:
+	case LLIMChiclet::TYPE_GROUP:
 		return getChicletPanel()->createChiclet<LLIMGroupChiclet>(session_id);
-		break;
-	default:
-		return NULL;
+	case LLIMChiclet::TYPE_UNKNOWN:
 		break;
 	}
+
+	return NULL;
 }
 
 //virtual
@@ -182,6 +172,14 @@ void LLBottomTray::sessionRemoved(const LLUUID& session_id)
 {
 	if(getChicletPanel())
 	{
+		// IM floater should be closed when session removed and associated chiclet closed
+		LLIMFloater* iMfloater = LLFloaterReg::findTypedInstance<LLIMFloater>(
+				"impanel", session_id);
+		if (iMfloater != NULL)
+		{
+			iMfloater->closeFloater();
+		}
+
 		getChicletPanel()->removeChiclet(session_id);
 	}
 }
@@ -265,4 +263,10 @@ void LLBottomTray::showCameraAndMoveControls(BOOL visible)
 {
 	mCamPanel->setVisible(visible);
 	mMovementPanel->setVisible(visible);
+
+	if (!visible)
+	{
+		LLFloaterReg::hideFloaterInstance("moveview");
+		LLFloaterReg::hideFloaterInstance("camera");
+	}
 }

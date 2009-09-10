@@ -772,8 +772,10 @@ public:
 	// Close context menus on right mouse up not handled by menus.
 	/*virtual*/ BOOL handleRightMouseUp( S32 x, S32 y, MASK mask );
 
+	virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
 	virtual const LLRect getMenuRect() const { return getLocalRect(); }
-	virtual BOOL hasVisibleMenu() const;
+	LLView*const getVisibleMenu() const;
+	virtual BOOL hasVisibleMenu() const {return getVisibleMenu() != NULL;}
 
 	static void setActivatedItem(LLMenuItemGL* item);
 

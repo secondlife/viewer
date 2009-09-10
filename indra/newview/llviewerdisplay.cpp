@@ -1260,10 +1260,6 @@ void render_ui_2d()
 		stop_glerror();
 	}
 	gViewerWindow->draw();
-	if (gDebugSelect)
-	{
-		gViewerWindow->drawPickBuffer();
-	}
 
 	// reset current origin for font rendering, in case of tiling render
 	LLFontGL::sCurOrigin.set(0, 0);

@@ -894,7 +894,7 @@ void LLPanelPlaceInfo::createPick(const LLVector3d& global_pos)
 	pick_data.sort_order = 0;
 	pick_data.enabled = TRUE;
 
-	LLAvatarPropertiesProcessor::instance().sendDataUpdate(&pick_data, APT_PICK_INFO);
+	LLAvatarPropertiesProcessor::instance().sendPickInfoUpdate(&pick_data);
 }
 
 // virtual

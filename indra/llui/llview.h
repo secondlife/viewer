@@ -70,74 +70,35 @@ const BOOL	NOT_MOUSE_OPAQUE = FALSE;
 
 const U32 GL_NAME_UI_RESERVED = 2;
 
-/*
-// virtual functions defined in LLView:
 
-virtual BOOL isCtrl() const;
-		LLUICtrl
-virtual BOOL isPanel();
-		LLPanel
-virtual void setRect(const LLRect &rect);
-		LLLineEditor
-		LLPanel
-virtual BOOL canFocusChildren() const		{ return TRUE; }
-		LLFolderView
-virtual void deleteAllChildren();
-		LLFolderView, LLPanelInventory
-virtual void	setTentative(BOOL b)		{}
-		LLUICtrl, LLSliderCtrl, LLSpinCtrl
-virtual BOOL	getTentative() const		{ return FALSE; }
-		LLUICtrl, LLCheckBoxCtrl
-virtual void	setVisible(BOOL visible);
-		LLFloater, LLAlertDialog, LLMenuItemGL, LLModalDialog
-virtual void	setEnabled(BOOL enabled)	{ mEnabled = enabled; }
-		LLCheckBoxCtrl, LLComboBox, LLLineEditor, LLMenuGL, LLRadioGroup, etc
-virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text ) { return FALSE; }
-		LLUICtrl, LLButton, LLCheckBoxCtrl, LLLineEditor, LLMenuGL, LLSliderCtrl
-virtual void	handleVisibilityChange ( BOOL curVisibilityIn );
-		LLMenuGL
-virtual LLRect getSnapRect() const	{ return mRect; } *TODO: Make non virtual
-		LLFloater
-virtual LLRect getRequiredRect()			{ return mRect; }
-		LLScrolllistCtrl
-virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-		LLUICtrl, et. al.
-virtual void	translate( S32 x, S32 y );
-		LLMenuGL		
-virtual void	setShape(const LLRect& new_rect, bool by_user);
-		LLFloater, LLScrollLIstVtrl
-virtual LLView*	findSnapRect(LLRect& new_rect, const LLCoordGL& mouse_dir, LLView::ESnapType snap_type, S32 threshold, S32 padding = 0);
-virtual LLView*	findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESnapEdge snap_edge, ESnapType snap_type, S32 threshold, S32 padding = 0);
-		LLScrollListCtrl
-virtual BOOL	canSnapTo(const LLView* other_view) { return other_view != this && other_view->getVisible(); }
-		LLFloater
-virtual void	snappedTo(const LLView* snap_view) {}
-		LLFloater
-virtual BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
-		*
-virtual BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
-		*
-virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,EDragAndDropType cargo_type,void* cargo_data,EAcceptance* accept,std::string& tooltip_msg);
-		*
-virtual void	draw();
-		*
+// maintains render state during traversal of UI tree
+class LLViewDrawContext
+{
+public:
+	F32 mAlpha;
 
-		*
-virtual void onFocusLost() {}
-		LLUICtrl, LLScrollListCtrl, LLMenuGL, LLLineEditor, LLComboBox
-virtual void onFocusReceived() {}
-		LLUICtrl, LLTextEditor, LLScrollListVtrl, LLMenuGL, LLLineEditor
-virtual LLView* getChildView(const std::string& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
-		LLTabContainer, LLPanel, LLMenuGL
-virtual bool	handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
-		LLMenuItem
+	LLViewDrawContext(F32 alpha = 1.f)
+	:	mAlpha(alpha)
+	{
+		if (!sDrawContextStack.empty())
+		{
+			LLViewDrawContext* context_top = sDrawContextStack.back();
+			// merge with top of stack
+			mAlpha *= context_top->mAlpha;
+		}
+		sDrawContextStack.push_back(this);
+	}
 
-protected:
-virtual BOOL	handleKeyHere(KEY key, MASK mask);
-		*
-virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
-		*
-*/
+	~LLViewDrawContext()
+	{
+		sDrawContextStack.pop_back();
+	}
+
+	static const LLViewDrawContext& getCurrentContext();
+
+private:
+	static std::vector<LLViewDrawContext*> sDrawContextStack;
+};
 
 class LLViewWidgetRegistry : public LLChildRegistry<LLViewWidgetRegistry>
 {};
@@ -380,6 +341,7 @@ public:
 
 	// Override and return required size for this object. 0 for width/height means don't care.
 	virtual LLRect getRequiredRect();
+	LLRect calcBoundingRect();
 	void updateBoundingRect();
 
 	LLView*		getRootView();
@@ -393,9 +355,19 @@ public:
 	BOOL		hasChild(const std::string& childname, BOOL recurse = FALSE) const;
 	BOOL 		childHasKeyboardFocus( const std::string& childname ) const;
 	
+	// these iterators are used for collapsing various tree traversals into for loops
 	typedef LLTreeDFSIter<LLView, child_list_const_iter_t> tree_iterator_t;
-	tree_iterator_t beginTree();
-	tree_iterator_t endTree();
+	tree_iterator_t beginTreeDFS();
+	tree_iterator_t endTreeDFS();
+
+	typedef LLTreeDFSPostIter<LLView, child_list_const_iter_t> tree_post_iterator_t;
+	tree_post_iterator_t beginTreeDFSPost();
+	tree_post_iterator_t endTreeDFSPost();
+
+
+	typedef LLTreeDownIter<LLView> root_to_view_iterator_t;
+	root_to_view_iterator_t beginRootToView();
+	root_to_view_iterator_t endRootToView();
 
 	//
 	// UTILITIES
@@ -406,6 +378,7 @@ public:
 	virtual void	translate( S32 x, S32 y );
 	void			setOrigin( S32 x, S32 y )	{ mRect.translate( x - mRect.mLeft, y - mRect.mBottom ); }
 	BOOL			translateIntoRect( const LLRect& constraint, BOOL allow_partial_outside );
+	BOOL			translateIntoRectWithExclusion( const LLRect& inside, const LLRect& exclude, BOOL allow_partial_outside );
 	void			centerWithin(const LLRect& bounds);
 
 	void	setShape(const LLRect& new_rect, bool by_user = false);
@@ -424,10 +397,7 @@ public:
 									  EAcceptance* accept,
 									  std::string& tooltip_msg);
 
-	virtual std::string getShowNamesToolTip();
-
 	virtual void	draw();
-	void	drawChildren();
 
 	void parseFollowsFlags(const LLView::Params& params);
 
@@ -477,7 +447,8 @@ public:
 	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
 	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);	
-	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect); // Display mToolTipMsg if no child handles it.
+	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect); // Display mToolTipMsg if no child handles it.
+
 	/*virtual*/ const std::string&	getName() const;
 	/*virtual*/ void	onMouseCaptureLost();
 	/*virtual*/ BOOL	hasMouseCapture();
@@ -552,9 +523,12 @@ public:
 	virtual void	notifyParent(const LLSD& info);
 	virtual void	notifyChildren(const LLSD& info);
 
+	static const LLViewDrawContext& getDrawContext();
+
 protected:
 	void			drawDebugRect();
 	void			drawChild(LLView* childp, S32 x_offset = 0, S32 y_offset = 0, BOOL force_draw = FALSE);
+	void			drawChildren();
 
 	LLView*	childrenHandleKey(KEY key, MASK mask);
 	LLView* childrenHandleUnicodeChar(llwchar uni_char);
@@ -574,10 +548,12 @@ protected:
 	LLView*	childrenHandleScrollWheel(S32 x, S32 y, S32 clicks);
 	LLView* childrenHandleRightMouseDown(S32 x, S32 y, MASK mask);
 	LLView* childrenHandleRightMouseUp(S32 x, S32 y, MASK mask);
+	LLView* childrenHandleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect);
 
 	ECursorType mHoverCursor;
 	
 private:
+
 	LLView*		mParentView;
 	child_list_t mChildList;
 

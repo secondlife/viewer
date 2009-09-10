@@ -90,7 +90,7 @@ protected:
 	BOOL                handleHoverOverUrl(S32 x, S32 y);
 	BOOL                handleMouseUpOverUrl(S32 x, S32 y);
 	BOOL                handleRightMouseDownOverUrl(LLView *view, S32 x, S32 y);
-	BOOL                handleToolTipForUrl(LLView *view, S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen);
+	BOOL                handleToolTipForUrl(LLView *view, S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen);
 
 	// pure virtuals that have to be implemented by any subclasses
 	virtual S32         getLineCount() const = 0;

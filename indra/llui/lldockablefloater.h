@@ -43,6 +43,7 @@
  */
 class LLDockableFloater : public LLFloater
 {
+	static const U32 UNDOCK_LEAP_HEIGHT = 12;
 public:
 	LOG_CLASS(LLDockableFloater);
 	LLDockableFloater(LLDockControl* dockControl, const LLSD& key, const Params& params = getDefaultParams());
@@ -51,6 +52,14 @@ public:
 	/* virtula */BOOL postBuild();
 	/* virtual */void setDocked(bool docked, bool pop_on_undock = true);
 	/* virtual */void draw();
+	/*virtual*/ void setVisible(BOOL visible);
+
+private:
+	/**
+	 * Provides unique of dockable floater.
+	 * If dockable floater already exists it should  be closed.
+	 */
+	void resetInstance();
 
 protected:
 	void setDockControl(LLDockControl* dockControl);
@@ -60,6 +69,7 @@ protected:
 private:
 	std::auto_ptr<LLDockControl> mDockControl;
 	LLUIImagePtr mDockTongue;
+	static LLDockableFloater* instance;
 };
 
 #endif /* LL_DOCKABLEFLOATER_H */

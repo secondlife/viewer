@@ -114,8 +114,6 @@ public:
 
 	// From LLFocusableElement
 	/*virtual*/ void	setFocus( BOOL b );
-	virtual void setAlpha(F32 alpha);
-
 	
 	// New virtuals
 	virtual 	void	refresh();	// called in setFocus()
@@ -190,7 +188,6 @@ public:
 	void childSetValidate(const std::string& id, boost::function<bool (const LLSD& data)> cb );
 
 	void childSetColor(const std::string& id, const LLColor4& color);
-	void childSetAlpha(const std::string& id, F32 alpha);
 
 	LLCtrlSelectionInterface* childGetSelectionInterface(const std::string& id) const;
 	LLCtrlListInterface* childGetListInterface(const std::string& id) const;
@@ -236,6 +233,7 @@ public:
 	virtual void	onOpen(const LLSD& key) {}
 
 	void setXMLFilename(std::string filename) { mXMLFilename = filename; };
+	std::string getXMLFilename() { return mXMLFilename; };
 	
 protected:
 	// Override to set not found list
@@ -247,13 +245,8 @@ protected:
 	commit_signal_t mVisibleSignal;		// Called when visibility changes, passes new visibility as LLSD()
 	
 private:
-	// Unified error reporting for the child* functions
-	typedef std::set<std::string> expected_members_list_t;
-	mutable expected_members_list_t mExpectedMembers;
-	mutable expected_members_list_t mNewExpectedMembers;
-
-	LLColor4		mBgColorAlpha;
-	LLColor4		mBgColorOpaque;
+	LLUIColor		mBgColorAlpha;
+	LLUIColor		mBgColorOpaque;
 	BOOL			mBgVisible;
 	BOOL			mBgOpaque;
 	LLViewBorder*	mBorder;

@@ -44,6 +44,7 @@ LLFilterEditor::LLFilterEditor(const LLFilterEditor::Params& p)
 	line_editor_p.rect(getLocalRect());
 	line_editor_p.follows.flags(FOLLOWS_ALL);
 	line_editor_p.text_pad_right(getRect().getHeight());
+	line_editor_p.revert_on_esc(false);
 	line_editor_p.keystroke_callback(boost::bind(&LLUICtrl::onCommit, this));
 
 	mFilterEditor = LLUICtrlFactory::create<LLLineEditor>(line_editor_p);

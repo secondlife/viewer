@@ -134,7 +134,7 @@ void LLViewBorder::draw()
 		}
 	}
 
-	drawChildren();
+	LLView::draw();
 }
 
 void LLViewBorder::drawOnePixelLines()

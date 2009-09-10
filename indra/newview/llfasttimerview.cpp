@@ -32,16 +32,18 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "indra_constants.h"
 #include "llfasttimerview.h"
+
 #include "llviewerwindow.h"
 #include "llrect.h"
 #include "llerror.h"
 #include "llgl.h"
 #include "llrender.h"
+#include "lllocalcliprect.h"
 #include "llmath.h"
 #include "llfontgl.h"
 #include "llsdserialize.h"
+#include "lltooltip.h"
 
 #include "llappviewer.h"
 #include "llviewertexturelist.h"
@@ -242,15 +244,20 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
+BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
 {
 	if(LLFastTimer::sPauseHistory && mBarRect.pointInRect(x, y))
 	{
 		// tooltips for timer bars
 		if (mHoverTimer)
 		{
-			localRectToScreen(mToolTipRect, sticky_rect_screen);
-			msg = mHoverTimer->getToolTip(LLFastTimer::NamedTimer::HISTORY_NUM - mScrollIndex - mHoverBarIndex);
+			LLRect screen_rect;
+			localRectToScreen(mToolTipRect, &screen_rect);
+
+			LLToolTipMgr::instance().show(LLToolTipParams()
+				.message(mHoverTimer->getToolTip(LLFastTimer::NamedTimer::HISTORY_NUM - mScrollIndex - mHoverBarIndex))
+				.sticky_rect(screen_rect));
+
 			return TRUE;
 		}
 	}
@@ -262,11 +269,11 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* stic
 			LLFastTimer::NamedTimer* idp = getLegendID(y);
 			if (idp)
 			{
-				msg = idp->getToolTip(); 
+				LLToolTipMgr::instance().show(idp->getToolTip());
+
 				return TRUE;
 			}
 		}
-
 	}
 	
 	return FALSE;

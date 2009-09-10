@@ -38,7 +38,7 @@
 #include "apr_time.h"
 
 #include <time.h>
-#include <locale>
+#include <locale.h>
 #include <string>
 #include <iomanip>
 #include <sstream>
@@ -100,33 +100,28 @@ std::string LLDate::toHTTPDateString (std::string fmt) const
 {
 	LLFastTimer ft1(FT_DATE_FORMAT);
 	
-	std::ostringstream stream;
 	time_t locSeconds = (time_t) mSecondsSinceEpoch;
 	struct tm * gmt = gmtime (&locSeconds);
-
-	stream.imbue (std::locale(LLStringUtil::getLocale().c_str()));
-	toHTTPDateStream (stream, gmt, fmt);
-	return stream.str();
+	return toHTTPDateString(gmt, fmt);
 }
 
 std::string LLDate::toHTTPDateString (tm * gmt, std::string fmt)
 {
 	LLFastTimer ft1(FT_DATE_FORMAT);
-	
-	std::ostringstream stream;
-	stream.imbue (std::locale(LLStringUtil::getLocale().c_str()));
-	toHTTPDateStream (stream, gmt, fmt);
-	return stream.str();
-}
 
-void LLDate::toHTTPDateStream(std::ostream& s, tm * gmt, std::string fmt)
-{
-	LLFastTimer ft1(FT_DATE_FORMAT);
+	// avoid calling setlocale() unnecessarily - it's expensive.
+	static std::string prev_locale = "";
+	std::string this_locale = LLStringUtil::getLocale();
+	if (this_locale != prev_locale)
+	{
+		setlocale(LC_TIME, this_locale.c_str());
+		prev_locale = this_locale;
+	}
 
-	const char * pBeg = fmt.c_str();
-	const char * pEnd = pBeg + fmt.length();
-	const std::time_put<char>& tp = std::use_facet<std::time_put<char> >(s.getloc());
-	tp.put (s, s, s.fill(), gmt, pBeg, pEnd);
+	// use strftime() as it appears to be faster than std::time_put
+	char buffer[128];
+	strftime(buffer, 128, fmt.c_str(), gmt);
+	return std::string(buffer);
 }
 
 void LLDate::toStream(std::ostream& s) const

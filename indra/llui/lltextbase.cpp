@@ -38,6 +38,7 @@
 #include "llview.h"
 #include "llwindow.h"
 #include "llmenugl.h"
+#include "lltooltip.h"
 #include "lluictrl.h"
 #include "llurlaction.h"
 #include "llurlregistry.h"
@@ -402,18 +403,23 @@ BOOL LLTextBase::handleRightMouseDownOverUrl(LLView *view, S32 x, S32 y)
 	return FALSE;
 }
 
-BOOL LLTextBase::handleToolTipForUrl(LLView *view, S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
+BOOL LLTextBase::handleToolTipForUrl(LLView *view, S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
 {
+	std::string tooltip_msg;
 	const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
-	if (cur_segment && cur_segment->getToolTip( msg ) && view)
+	if (cur_segment && cur_segment->getToolTip( tooltip_msg ) && view)
 	{
 		// Use a slop area around the cursor
 		const S32 SLOP = 8;
 		// Convert rect local to screen coordinates
-		view->localPointToScreen(x - SLOP, y - SLOP, &(sticky_rect_screen->mLeft),
-								 &(sticky_rect_screen->mBottom));
-		sticky_rect_screen->mRight = sticky_rect_screen->mLeft + 2 * SLOP;
-		sticky_rect_screen->mTop = sticky_rect_screen->mBottom + 2 * SLOP;
+		view->localPointToScreen(x - SLOP, y - SLOP, &(sticky_rect_screen.mLeft),
+								 &(sticky_rect_screen.mBottom));
+		sticky_rect_screen.mRight = sticky_rect_screen.mLeft + 2 * SLOP;
+		sticky_rect_screen.mTop = sticky_rect_screen.mBottom + 2 * SLOP;
+
+		LLToolTipMgr::instance().show(LLToolTipParams()
+			.message(tooltip_msg)
+			.sticky_rect(sticky_rect_screen));
 	}
 	return TRUE;
 }

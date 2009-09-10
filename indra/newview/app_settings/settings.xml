@@ -1706,7 +1706,18 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DebugStatModeFPS</key>
+  <key>DebugShowXUINames</key>
+    <map>
+      <key>Comment</key>
+      <string>Show tooltips with XUI path to widget</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+  <key>DebugStatModeFPS</key>
     <map>
       <key>Comment</key>
       <string>Mode of stat in Statistics floater</string>
@@ -3642,6 +3653,17 @@
       <key>Value</key>
       <real>0.0</real>
     </map>
+     <key>InspectorFadeTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Fade out timing for inspectors</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <string>0.1</string>
+    </map> 
     <key>InstallLanguage</key>
     <map>
       <key>Comment</key>
@@ -6864,7 +6886,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>    
     <key>ShowCameraAndMoveControls</key>                
     <map>
@@ -7309,17 +7331,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowXUINames</key>
-    <map>
-      <key>Comment</key>
-      <string>Display XUI Names as Tooltips</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>SkinCurrent</key>
     <map>
       <key>Comment</key>
@@ -7713,7 +7724,18 @@
       <key>Value</key>
       <real>0.2</real>
     </map>
-    <key>ToolboxAutoMove</key>
+  <key>ToolTipVisibleTime</key>
+  <map>
+    <key>Comment</key>
+    <string>Fade tooltip after mouse is idle for this long</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>10.0</real>
+  </map>
+  <key>ToolboxAutoMove</key>
     <map>
       <key>Comment</key>
       <string>[NOT USED]</string>

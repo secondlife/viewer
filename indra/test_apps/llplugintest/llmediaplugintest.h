@@ -35,6 +35,7 @@
 #include <vector>
 #include <string>
 #include "llpluginclassmedia.h"
+#include "llgl.h"
 
 // Forward declarations
 class GLUI_Rotation;

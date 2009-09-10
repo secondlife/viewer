@@ -90,6 +90,7 @@ public:
 
 		Optional<bool>					select_on_focus,
 										handle_edit_keys_directly,
+										revert_on_esc,
 										commit_on_focus_lost,
 										ignore_tab;
 

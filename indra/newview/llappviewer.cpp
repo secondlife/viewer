@@ -128,7 +128,7 @@
 #include "lldebugview.h"
 #include "llconsole.h"
 #include "llcontainerview.h"
-#include "llhoverview.h"
+#include "lltooltip.h"
 
 #include "llsdserialize.h"
 
@@ -409,7 +409,6 @@ static void settings_to_globals()
 	gAllowTapTapHoldRun = gSavedSettings.getBOOL("AllowTapTapHoldRun");
 	gShowObjectUpdates = gSavedSettings.getBOOL("ShowObjectUpdates");
 	gMapScale = gSavedSettings.getF32("MapScale");
-	LLHoverView::sShowHoverTips = gSavedSettings.getBOOL("ShowHoverTips");
 
 	LLCubeMap::sUseCubeMaps = LLFeatureManager::getInstance()->isFeatureAvailable("RenderCubeMap");
 }
@@ -2353,7 +2352,7 @@ void LLAppViewer::cleanupSavedSettings()
 	}
 
 	gSavedSettings.setF32("MapScale", gMapScale );
-	gSavedSettings.setBOOL("ShowHoverTips", LLHoverView::sShowHoverTips);
+	gSavedSettings.setBOOL("ShowHoverTips", gToolTipView->getVisible());
 
 	// Some things are cached in LLAgent.
 	if (gAgent.mInitialized)

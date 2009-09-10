@@ -17,6 +17,7 @@
       	        show_text_as_tentative="false"
                 max_chars="20"
                 follows="left|top"
+                allow_new_values="true"
                 >
   <info_button name="Place Information"
                           label=""

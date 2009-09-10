@@ -87,7 +87,8 @@
 #include "lldefs.h"
 #include "llerror.h"
 #include "llextendedstatus.h"
-#include "llfasttimer.h"
+// Don't do this, adds 15K lines of header code to every library file.
+//#include "llfasttimer.h"
 #include "llfile.h"
 #include "llformat.h"
 

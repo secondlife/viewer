@@ -47,7 +47,6 @@
 #include "llwindowcallbacks.h"
 #include "lltimer.h"
 #include "llstat.h"
-#include "llnotifications.h"
 #include "llmousehandler.h"
 #include "llcursortypes.h"
 #include "llhandle.h"
@@ -58,7 +57,7 @@ class LLUUID;
 class LLProgressView;
 class LLTool;
 class LLVelocityBar;
-class LLTextBox;
+class LLPanel;
 class LLImageRaw;
 class LLHUDIcon;
 class LLWindow;
@@ -69,6 +68,17 @@ class LLRootView;
 
 class LLPickInfo
 {
+public:
+	typedef enum
+	{
+		PICK_OBJECT,
+		PICK_FLORA,
+		PICK_LAND,
+		PICK_ICON,
+		PICK_PARCEL_WALL,
+		PICK_INVALID
+	} EPickType;
+
 public:
 	LLPickInfo();
 	LLPickInfo(const LLCoordGL& mouse_pos, 
@@ -81,19 +91,9 @@ public:
 	void fetchResults();
 	LLPointer<LLViewerObject> getObject() const;
 	LLUUID getObjectID() const { return mObjectID; }
-	void drawPickBuffer() const;
+	bool isValid() const { return mPickType != PICK_INVALID; }
 
 	static bool isFlora(LLViewerObject* object);
-
-	typedef enum
-	{
-		PICK_OBJECT,
-		PICK_FLORA,
-		PICK_LAND,
-		PICK_ICON,
-		PICK_PARCEL_WALL,
-		PICK_INVALID
-	} EPickType;
 
 public:
 	LLCoordGL		mMousePt;
@@ -147,6 +147,8 @@ public:
 	void            adjustControlRectanglesForFirstUse(const LLRect& window);
 	void			initWorldUI();
 
+	BOOL handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down);
+
 	//
 	// LLWindowCallback interface implementation
 	//
@@ -154,7 +156,6 @@ public:
 	/*virtual*/ BOOL handleTranslatedKeyUp(KEY key,  MASK mask);
 	/*virtual*/ void handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level);
 	/*virtual*/ BOOL handleUnicodeChar(llwchar uni_char, MASK mask);	// NOT going to handle extended 
-	/*virtual*/ BOOL handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down);
 	/*virtual*/ BOOL handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
 	/*virtual*/ BOOL handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
 	/*virtual*/ BOOL handleCloseRequest(LLWindow *window);
@@ -234,7 +235,6 @@ public:
 	BOOL			getRightMouseDown()	const	{ return mRightMouseDown; }
 
 	const LLPickInfo&	getLastPick() const { return mLastPick; }
-	const LLPickInfo&	getHoverPick() const { return mHoverPick; }
 
 	void			setup2DViewport(S32 x_offset = 0, S32 y_offset = 0);
 	void			setup3DViewport(S32 x_offset = 0, S32 y_offset = 0);
@@ -281,7 +281,6 @@ public:
 	void				updateLayout();						
 	void				updateMouseDelta();		
 	void				updateKeyboardFocus();		
-	void				updatePicking(S32 x, S32 y, MASK mask);
 
 	void			updateWorldViewRect(bool use_full_window=false);
 	void			updateBottomTrayRect();
@@ -332,11 +331,8 @@ public:
 	void			returnEmptyPicks();
 
 
-	void			pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback)(const LLPickInfo& pick_info),
-							  BOOL pick_transparent = FALSE, BOOL get_surface_info = FALSE);
+	void			pickAsync(S32 x, S32 y_from_bot, MASK mask, void (*callback)(const LLPickInfo& pick_info), BOOL pick_transparent = FALSE);
 	LLPickInfo		pickImmediate(S32 x, S32 y, BOOL pick_transparent);
-	static void     hoverPickCallback(const LLPickInfo& pick_info);
-	
 	LLHUDIcon* cursorIntersectIcon(S32 mouse_x, S32 mouse_y, F32 depth,
 										   LLVector3* intersection);
 
@@ -382,8 +378,6 @@ public:
 	const LLVector2& getDisplayScale() const { return mDisplayScale; }
 	void			calcDisplayScale();
 
-	void			drawPickBuffer() const;
-
 private:
 	bool                    shouldShowToolTipFor(LLMouseHandler *mh);
 	static bool onAlert(const LLSD& notify);
@@ -422,9 +416,8 @@ protected:
 	LLProgressView	*mProgressView;
 
 	LLFrameTimer	mToolTipFadeTimer;
-	LLTextBox*		mToolTip;
+	LLPanel*		mToolTip;
 	std::string		mLastToolTipMessage;
-	BOOL			mToolTipBlocked;			// True after a key press or a mouse button event.  False once the mouse moves again.
 	LLRect			mToolTipStickyRect;			// Once a tool tip is shown, it will stay visible until the mouse leaves this rect.
 
 	BOOL			mMouseInWindow;				// True if the mouse is over our window or if we have captured the mouse.
@@ -435,12 +428,9 @@ protected:
 	// Variables used for tool override switching based on modifier keys.  JC
 	MASK			mLastMask;			// used to detect changes in modifier mask
 	LLTool*			mToolStored;		// the tool we're overriding
-	BOOL			mSuppressToolbox;	// sometimes hide the toolbox, despite
-										// having a camera tool selected
 	BOOL			mHideCursorPermanent;	// true during drags, mouselook
 	BOOL            mCursorHidden;
 	LLPickInfo		mLastPick;
-	LLPickInfo		mHoverPick;
 	std::vector<LLPickInfo> mPicks;
 	LLRect			mPickScreenRegion; // area of frame buffer for rendering pick frames (generally follows mouse to avoid going offscreen)
 	LLTimer         mPickTimer;        // timer for scheduling n picks per second
@@ -477,13 +467,9 @@ void update_saved_window_size(const std::string& control,S32 delta_width, S32 de
 
 extern LLViewerWindow*	gViewerWindow;
 
-extern LLFrameTimer		gMouseIdleTimer;		// how long has it been since the mouse last moved?
 extern LLFrameTimer		gAwayTimer;				// tracks time before setting the avatar away state to true
 extern LLFrameTimer		gAwayTriggerTimer;		// how long the avatar has been away
 
-extern BOOL				gDebugSelect;
-
-extern BOOL				gDebugFastUIRender;
 extern LLViewerObject*  gDebugRaycastObject;
 extern LLVector3        gDebugRaycastIntersection;
 extern LLVector2        gDebugRaycastTexCoord;
@@ -495,7 +481,6 @@ extern S32 CHAT_BAR_HEIGHT;
 
 extern BOOL			gDisplayCameraPos;
 extern BOOL			gDisplayWindInfo;
-extern BOOL			gDisplayNearestWater;
 extern BOOL			gDisplayFOV;
 
 #endif

@@ -35,7 +35,7 @@
 
 #include "llagent.h"
 #include "llavataractions.h"
-#include "llavatarconstants.h"
+#include "llavatarconstants.h"	// AVATAR_ONLINE
 #include "llcallingcard.h"
 #include "llcombobox.h"
 #include "llimview.h"
@@ -131,7 +131,8 @@ LLPanelAvatarNotes::LLPanelAvatarNotes()
 
 void LLPanelAvatarNotes::updateData()
 {
-	LLAvatarPropertiesProcessor::getInstance()->sendDataRequest(getAvatarId(),APT_NOTES);
+	LLAvatarPropertiesProcessor::getInstance()->
+		sendAvatarNotesRequest(getAvatarId());
 }
 
 BOOL LLPanelAvatarNotes::postBuild()
@@ -356,8 +357,10 @@ void LLPanelAvatarProfile::updateData()
 {
 	if (getAvatarId().notNull())
 	{
-		LLAvatarPropertiesProcessor::getInstance()->sendDataRequest(getAvatarId(),APT_PROPERTIES);
-		LLAvatarPropertiesProcessor::getInstance()->sendDataRequest(getAvatarId(),APT_GROUPS);
+		LLAvatarPropertiesProcessor::getInstance()->
+			sendAvatarPropertiesRequest(getAvatarId());
+		LLAvatarPropertiesProcessor::getInstance()->
+			sendAvatarGroupsRequest(getAvatarId());
 	}
 }
 
@@ -486,55 +489,13 @@ void LLPanelAvatarProfile::fillOnlineStatus(const LLAvatarData* avatar_data)
 
 void LLPanelAvatarProfile::fillAccountStatus(const LLAvatarData* avatar_data)
 {
-	std::string caption_text = avatar_data->caption_text;
-	if(caption_text.empty())
-	{
-		LLStringUtil::format_map_t args;
-		caption_text = getString("CaptionTextAcctInfo");
-		BOOL transacted = (avatar_data->flags & AVATAR_TRANSACTED);
-		BOOL identified = (avatar_data->flags & AVATAR_IDENTIFIED);
-		BOOL age_verified = (avatar_data->flags & AVATAR_AGEVERIFIED); // Not currently getting set in dataserver/lldataavatar.cpp for privacy considerations
-
-		const char* ACCT_TYPE[] = {
-			"AcctTypeResident",
-			"AcctTypeTrial",
-			"AcctTypeCharterMember",
-			"AcctTypeEmployee"
-		};
-		U8 caption_index = llclamp(avatar_data->caption_index, (U8)0, (U8)(LL_ARRAY_SIZE(ACCT_TYPE)-1));
-		args["[ACCTTYPE]"] = getString(ACCT_TYPE[caption_index]);
-
-		std::string payment_text = " ";
-		const S32 DEFAULT_CAPTION_LINDEN_INDEX = 3;
-		if(caption_index != DEFAULT_CAPTION_LINDEN_INDEX)
-		{			
-			if(transacted)
-			{
-				payment_text = "PaymentInfoUsed";
-			}
-			else if (identified)
-			{
-				payment_text = "PaymentInfoOnFile";
-			}
-			else
-			{
-				payment_text = "NoPaymentInfoOnFile";
-			}
-			args["[PAYMENTINFO]"] = getString(payment_text);
-
-			std::string age_text = age_verified ? "AgeVerified" : "NotAgeVerified";
-			// Do not display age verification status at this time
-			//args["[[AGEVERIFICATION]]"] = mPanelSecondLife->getString(age_text);
-			args["[AGEVERIFICATION]"] = " ";
-		}
-		else
-		{
-			args["[PAYMENTINFO]"] = " ";
-			args["[AGEVERIFICATION]"] = " ";
-		}
-		LLStringUtil::format(caption_text, args);
-	}
-
+	LLStringUtil::format_map_t args;
+	args["[ACCTTYPE]"] = LLAvatarPropertiesProcessor::accountType(avatar_data);
+	args["[PAYMENTINFO]"] = LLAvatarPropertiesProcessor::paymentInfo(avatar_data);
+	// *NOTE: AVATAR_AGEVERIFIED not currently getting set in 
+	// dataserver/lldataavatar.cpp for privacy considerations
+	args["[AGEVERIFICATION]"] = "";
+	std::string caption_text = getString("CaptionTextAcctInfo", args);
 	childSetValue("acc_status_text", caption_text);
 }
 

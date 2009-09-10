@@ -43,7 +43,7 @@
 #include "message.h"
 #include "llviewermediafocus.h"
 #include "llviewerparcelmediaautoplay.h"
-#include "llviewerwindow.h"
+#include "llnotifications.h"
 #include "llfirstuse.h"
 #include "llpluginclassmedia.h"
 

@@ -75,6 +75,7 @@
 #include "llimagepng.h"
 #include "llimagebmp.h"
 #include "llimagej2c.h"
+#include "lllocalcliprect.h"
 #include "llresmgr.h"		// LLLocale
 #include "llvfile.h"
 #include "llvfs.h"

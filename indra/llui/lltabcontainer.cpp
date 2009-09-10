@@ -31,9 +31,12 @@
  */
 
 #include "linden_common.h"
+
 #include "lltabcontainer.h"
+
 #include "llfocusmgr.h"
 #include "llbutton.h"
+#include "lllocalcliprect.h"
 #include "llrect.h"
 #include "llresizehandle.h"
 #include "lltextbox.h"
@@ -590,7 +593,7 @@ BOOL LLTabContainer::handleMouseUp( S32 x, S32 y, MASK mask )
 }
 
 // virtual
-BOOL LLTabContainer::handleToolTip( S32 x, S32 y, std::string& msg, LLRect* sticky_rect )
+BOOL LLTabContainer::handleToolTip( S32 x, S32 y, std::string& msg, LLRect& sticky_rect )
 {
 	static LLUICachedControl<S32> tabcntrv_pad ("UITabCntrvPad", 0);
 	BOOL handled = LLPanel::handleToolTip( x, y, msg, sticky_rect );
@@ -731,7 +734,7 @@ BOOL LLTabContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,	BOOL drop,	EDrag
 {
 	BOOL has_scroll_arrows = (getMaxScrollPos() > 0);
 
-	if( mDragAndDropDelayTimer.getElapsedTimeF32() > SCROLL_DELAY_TIME )
+	if( mDragAndDropDelayTimer.getStarted() && mDragAndDropDelayTimer.getElapsedTimeF32() > SCROLL_DELAY_TIME )
 	{
 		if (has_scroll_arrows)
 		{

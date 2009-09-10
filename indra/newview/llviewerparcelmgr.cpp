@@ -1283,9 +1283,11 @@ void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_ag
 }
 
 
-void LLViewerParcelMgr::requestHoverParcelProperties(const LLVector3d& pos)
+void LLViewerParcelMgr::setHoverParcel(const LLVector3d& pos)
 {
-	LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosGlobal( pos );
+	//FIXME: only request parcel info when tooltip is shown
+	return;
+	/*LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosGlobal( pos );
 	if (!region)
 	{
 		return;
@@ -1317,7 +1319,7 @@ void LLViewerParcelMgr::requestHoverParcelProperties(const LLVector3d& pos)
 	msg->addBOOL("SnapSelection",			FALSE );
 	msg->sendReliable( region->getHost() );
 
-	mHoverRequestResult = PARCEL_RESULT_NO_DATA;
+	mHoverRequestResult = PARCEL_RESULT_NO_DATA;*/
 }
 
 

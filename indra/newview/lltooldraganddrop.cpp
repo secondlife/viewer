@@ -56,6 +56,7 @@
 #include "llpreviewnotecard.h"
 #include "llselectmgr.h"
 #include "lltoolmgr.h"
+#include "lltooltip.h"
 #include "lltrans.h"
 #include "llui.h"
 #include "llviewertexturelist.h"
@@ -758,12 +759,13 @@ BOOL LLToolDragAndDrop::handleKey(KEY key, MASK mask)
 	return FALSE;
 }
 
-BOOL LLToolDragAndDrop::handleToolTip(S32 x, S32 y, std::string& msg, LLRect *sticky_rect_screen)
+BOOL LLToolDragAndDrop::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
 {
 	if (!mToolTipMsg.empty())
 	{
-		msg = mToolTipMsg;
-		//*sticky_rect_screen = gViewerWindow->getWindowRect();
+		LLToolTipMgr::instance().show(LLToolTipParams()
+			.message(mToolTipMsg)
+			.delay_time(gSavedSettings.getF32( "DragAndDropToolTipDelay" )));
 		return TRUE;
 	}
 	return FALSE;

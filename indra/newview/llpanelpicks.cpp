@@ -88,7 +88,7 @@ void* LLPanelPicks::create(void* data /* = NULL */)
 
 void LLPanelPicks::updateData()
 {
-	LLAvatarPropertiesProcessor::getInstance()->sendDataRequest(getAvatarId(),APT_PICKS);
+	LLAvatarPropertiesProcessor::getInstance()->sendAvatarPicksRequest(getAvatarId());
 }
 
 void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
@@ -447,7 +447,7 @@ const std::string LLPickItem::getDescription()
 void LLPickItem::update()
 {
 	mNeedData = true;
-	LLAvatarPropertiesProcessor::instance().sendDataRequest(mCreatorID, APT_PICK_INFO, &mPickID);
+	LLAvatarPropertiesProcessor::instance().sendPickInfoRequest(mCreatorID, mPickID);
 	mNeedData = false;
 }
 

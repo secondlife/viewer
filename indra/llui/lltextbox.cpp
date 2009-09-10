@@ -52,7 +52,6 @@ LLTextBox::Params::Params()
 	drop_shadow_visible("drop_shadow_visible"),
 	disabled_color("disabled_color"),
 	background_color("background_color"),
-	border_color("border_color"),
 	v_pad("v_pad", 0),
 	h_pad("h_pad", 0),
 	line_spacing("line_spacing", 0),
@@ -75,7 +74,6 @@ LLTextBox::LLTextBox(const LLTextBox::Params& p)
 	mTextColor(p.text_color()),
 	mDisabledColor(p.disabled_color()),
 	mBackgroundColor(p.background_color()),
-	mBorderColor(p.border_color()),
 	mHAlign(p.font_halign),
 	mLineSpacing(p.line_spacing),
 	mDidWordWrap(FALSE)
@@ -161,7 +159,7 @@ BOOL LLTextBox::handleHover(S32 x, S32 y, MASK mask)
 	return LLView::handleHover(x,y,mask);
 }
 
-BOOL LLTextBox::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
+BOOL LLTextBox::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
 {
 	return handleToolTipForUrl(this, x, y, msg, sticky_rect_screen);
 }
@@ -387,6 +385,8 @@ BOOL LLTextBox::setTextArg( const std::string& key, const LLStringExplicit& text
 
 void LLTextBox::draw()
 {
+	F32 alpha = getDrawContext().mAlpha;
+
 	if (mBorderVisible)
 	{
 		gl_rect_2d_offset_local(getLocalRect(), 2, FALSE);
@@ -397,13 +397,13 @@ void LLTextBox::draw()
 		static LLUIColor color_drop_shadow = LLUIColorTable::instance().getColor("ColorDropShadow");
 		static LLUICachedControl<S32> drop_shadow_tooltip ("DropShadowTooltip", 0);
 		gl_drop_shadow(0, getRect().getHeight(), getRect().getWidth(), 0,
-			color_drop_shadow, drop_shadow_tooltip);
+			color_drop_shadow % alpha, drop_shadow_tooltip);
 	}
 
 	if (mBackgroundVisible)
 	{
 		LLRect r( 0, getRect().getHeight(), getRect().getWidth(), 0 );
-		gl_rect_2d( r, mBackgroundColor.get() );
+		gl_rect_2d( r, mBackgroundColor.get() % alpha );
 	}
 
 	S32 text_x = 0;
@@ -453,6 +453,7 @@ void LLTextBox::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 void LLTextBox::drawText( S32 x, S32 y, const LLWString &text, const LLColor4& color )
 {
+	F32 alpha = getDrawContext().mAlpha;
 	if (mSegments.size() > 1)
 	{
 		// we have Urls (or other multi-styled segments)
@@ -461,7 +462,7 @@ void LLTextBox::drawText( S32 x, S32 y, const LLWString &text, const LLColor4& c
 	else if( mLineLengthList.empty() )
 	{
 		// simple case of 1 line of text in one style
-		mDefaultFont->render(text, 0, (F32)x, (F32)y, color,
+		mDefaultFont->render(text, 0, (F32)x, (F32)y, color % alpha,
 							 mHAlign, mVAlign, 
 							 0,
 							 mShadowType,
@@ -475,7 +476,7 @@ void LLTextBox::drawText( S32 x, S32 y, const LLWString &text, const LLColor4& c
 			iter != mLineLengthList.end(); ++iter)
 		{
 			S32 line_length = *iter;
-			mDefaultFont->render(text, cur_pos, (F32)x, (F32)y, color,
+			mDefaultFont->render(text, cur_pos, (F32)x, (F32)y, color % alpha,
 								 mHAlign, mVAlign,
 								 0,
 								 mShadowType,
@@ -491,6 +492,9 @@ void LLTextBox::drawText( S32 x, S32 y, const LLWString &text, const LLColor4& c
 
 void LLTextBox::reshapeToFitText()
 {
+	// wrap remaining lines that did not fit on call to setWrappedText()
+	setLineLengths();
+
 	S32 width = getTextPixelWidth();
 	S32 height = getTextPixelHeight();
 	reshape( width + 2 * mHPad, height + 2 * mVPad );
@@ -665,6 +669,8 @@ bool LLTextBox::isClickable() const
 
 void LLTextBox::drawTextSegments(S32 init_x, S32 init_y, const LLWString &text)
 {
+	F32 alpha = getDrawContext().mAlpha;
+
 	const S32 text_len = text.length();
 	if (text_len <= 0)
 	{
@@ -729,6 +735,7 @@ void LLTextBox::drawTextSegments(S32 init_x, S32 init_y, const LLWString &text)
 					{
 						color = mDisabledColor.get();
 					}
+					color = color % alpha;
 
 					// render a single line worth for this segment
 					mDefaultFont->render(text, seg_start, text_x, text_y, color,

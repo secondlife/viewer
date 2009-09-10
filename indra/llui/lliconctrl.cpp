@@ -74,18 +74,10 @@ void LLIconCtrl::draw()
 {
 	if( mImagep.notNull() )
 	{
-		mImagep->draw(getLocalRect(), mColor.get() );
+		mImagep->draw(getLocalRect(), mColor.get() % getDrawContext().mAlpha );
 	}
 
 	LLUICtrl::draw();
-}
-
-// virtual 
-void LLIconCtrl::setAlpha(F32 alpha)
-{
-	LLColor4 temp = mColor.get();
-	temp.setAlpha(alpha);
-	mColor.set(temp);
 }
 
 // virtual

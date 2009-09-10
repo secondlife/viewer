@@ -36,7 +36,6 @@
 #include <string>
 #include <locale>
 #include <iomanip>
-#include <boost/regex.hpp>
 #include "llsd.h"
 #include "llfasttimer.h"
 
@@ -232,7 +231,6 @@ public:
 	
 	typedef std::map<LLFormatMapString, LLFormatMapString> format_map_t;
 	static void getTokens(const std::basic_string<T>& instr, std::vector<std::basic_string<T> >& tokens, const std::basic_string<T>& delims);
-	static size_type getSubstitution(const std::basic_string<T>& instr, size_type& start, std::vector<std::basic_string<T> >& tokens);
 	static void formatNumber(std::basic_string<T>& numStr, std::basic_string<T> decimals);
 	static bool formatDatetime(std::basic_string<T>& replacement, std::basic_string<T> token, std::basic_string<T> param, S32 secFromEpoch);
 	static S32 format(std::basic_string<T>& s, const format_map_t& substitutions);
@@ -347,6 +345,8 @@ public:
 	static void		testHarness();
 #endif
 
+private:
+	static size_type getSubstitution(const std::basic_string<T>& instr, size_type& start, std::vector<std::basic_string<T> >& tokens);
 };
 
 template<class T> std::basic_string<T> LLStringUtilBase<T>::null;

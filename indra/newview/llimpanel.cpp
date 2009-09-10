@@ -1917,19 +1917,8 @@ void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string
 void LLFloaterIMPanel::showSessionStartError(
 	const std::string& error_string)
 {
-	//the error strings etc. should be really be static and local
-	//to this file instead of in the LLFloaterIM
-	//but they were in llimview.cpp first and unfortunately
-	//some translations into non English languages already occurred
-	//thus making it a tad harder to change over to a
-	//"correct" solution.  The best solution
-	//would be to store all of the misc. strings into
-	//their own XML file which would be read in by any LLIMPanel
-	//post build function instead of repeating the same info
-	//in the group, adhoc and normal IM xml files.
 	LLSD args;
-	args["REASON"] =
-		LLFloaterIM::sErrorStringsMap[error_string];
+	args["REASON"] = LLTrans::getString(error_string);
 	args["RECIPIENT"] = getTitle();
 
 	LLSD payload;
@@ -1948,9 +1937,9 @@ void LLFloaterIMPanel::showSessionEventError(
 {
 	LLSD args;
 	args["REASON"] =
-		LLFloaterIM::sErrorStringsMap[error_string];
+		LLTrans::getString(error_string);
 	args["EVENT"] =
-		LLFloaterIM::sEventStringsMap[event_string];
+		LLTrans::getString(event_string);
 	args["RECIPIENT"] = getTitle();
 
 	LLNotifications::instance().add(
@@ -1964,7 +1953,7 @@ void LLFloaterIMPanel::showSessionForceClose(
 	LLSD args;
 
 	args["NAME"] = getTitle();
-	args["REASON"] = LLFloaterIM::sForceCloseSessionMap[reason_string];
+	args["REASON"] = LLTrans::getString(reason_string);
 
 	LLSD payload;
 	payload["session_id"] = mSessionUUID;
@@ -2000,7 +1989,7 @@ bool LLFloaterIMPanel::onConfirmForceCloseError(const LLSD& notification, const 
 	
 
 LLIMFloater::LLIMFloater(const LLUUID& session_id)
-  : LLFloater(session_id),
+  : LLDockableFloater(NULL, session_id),
 	mControlPanel(NULL),
 	mSessionID(session_id),
 	mLastMessageIndex(-1),
@@ -2130,9 +2119,7 @@ BOOL LLIMFloater::postBuild()
 	setTitle(LLIMModel::instance().getName(mSessionID));
 	setDocked(true);
 	
-	mDockTongue = LLUI::getUIImage("windows/Flyout_Pointer.png");
-	
-	return TRUE;
+	return LLDockableFloater::postBuild();
 }
 
 
@@ -2156,8 +2143,6 @@ void* LLIMFloater::createPanelGroupControl(void* userdata)
 	return self->mControlPanel;
 }
 
-
-const U32 UNDOCK_LEAP_HEIGHT = 12;
 const U32 DOCK_ICON_HEIGHT = 6;
 
 //virtual
@@ -2172,20 +2157,6 @@ void LLIMFloater::onFocusLost()
 		{
 			floater->setVisible(false);
 		}	
-	}
-}
-
-
-
-//virtual
-void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
-{
-	LLFloater::setDocked(docked);
-	
-	if (!docked && pop_on_undock)
-	{
-		// visually pop up a little bit to emphasize the undocking
-		translate(0, UNDOCK_LEAP_HEIGHT);
 	}
 }
 
@@ -2217,6 +2188,20 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 
 	floater->updateMessages();
 	floater->mInputEditor->setFocus(TRUE);
+
+	if (floater->getDockControl() == NULL)
+	{
+		LLView* chiclet =
+				LLBottomTray::getInstance()->getChicletPanel()->findChiclet<LLView>(
+						session_id);
+		if (chiclet == NULL)
+		{
+			llerror("Dock chiclet for LLIMFloater doesn't exists", 0);
+		}
+		floater->setDockControl(new LLDockControl(chiclet, floater, floater->getDockTongue(),
+				LLDockControl::TOP, floater->isDocked()));
+	}
+
 	return floater;
 }
 
@@ -2314,20 +2299,5 @@ void LLIMFloater::onInputEditorKeystroke(LLLineEditor* caller, void* userdata)
 //just a stub for now
 void LLIMFloater::setTyping(BOOL typing)
 {
-}
-
-
-void LLIMFloater::draw()
-{
-	//if we are docked, make sure we've been positioned by the chiclet
-	if (!isDocked() || mPositioned)
-	{
-		LLFloater::draw();
-
-		if (isDocked())
-		{
-			mDockTongue->draw( (getRect().getWidth()/2) - mDockTongue->getWidth()/2, -mDockTongue->getHeight());
-		}
-	}
 }
 

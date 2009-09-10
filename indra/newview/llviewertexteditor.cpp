@@ -658,45 +658,6 @@ void LLViewerTextEditor::makePristine()
 	LLTextEditor::makePristine();
 }
 
-///////////////////////////////////////////////////////////////////
-
-BOOL LLViewerTextEditor::handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen)
-{
-	for (child_list_const_iter_t child_iter = getChildList()->begin();
-			child_iter != getChildList()->end(); ++child_iter)
-	{
-		LLView *viewp = *child_iter;
-		S32 local_x = x - viewp->getRect().mLeft;
-		S32 local_y = y - viewp->getRect().mBottom;
-		if( viewp->pointInView(local_x, local_y) 
-			&& viewp->getVisible() 
-			&& viewp->getEnabled()
-			&& viewp->handleToolTip(local_x, local_y, msg, sticky_rect_screen ) )
-		{
-			return TRUE;
-		}
-	}
-
-	if( mSegments.empty() )
-	{
-		return TRUE;
-	}
-
-	const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
-	if( cur_segment && cur_segment->getToolTip( msg ) )
-	{
-		// Just use a slop area around the cursor
-		// Convert rect local to screen coordinates
-		S32 SLOP = 8;
-		localPointToScreen( 
-			x - SLOP, y - SLOP, 
-			&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
-		sticky_rect_screen->mRight = sticky_rect_screen->mLeft + 2 * SLOP;
-		sticky_rect_screen->mTop = sticky_rect_screen->mBottom + 2 * SLOP;
-	}
-	return TRUE;
-}
-
 BOOL LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL	handled = FALSE;

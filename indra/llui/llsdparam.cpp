@@ -90,15 +90,7 @@ void LLParamSDParser::readSD(const LLSD& sd, LLInitParam::BaseBlock& block, bool
 	mNameStack.clear();
 	setParseSilently(silent);
 
-	// must have named elements at top level to submit for parsing
-	if (sd.isMap())
-	{
-		readSDValues(sd, block);
-	}
-	else
-	{
-		parserWarning("Top level map required for LLSD->Block conversion");
-	}
+	readSDValues(sd, block);
 }
 
 void LLParamSDParser::writeSD(LLSD& sd, const LLInitParam::BaseBlock& block)

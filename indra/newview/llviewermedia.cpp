@@ -34,18 +34,17 @@
 
 #include "llviewermedia.h"
 #include "llviewermediafocus.h"
-#include "llhoverview.h"
 #include "llmimetypes.h"
 #include "llviewercontrol.h"
 #include "llviewertexture.h"
 #include "llviewerparcelmedia.h"
 #include "llviewerparcelmgr.h"
-#include "llviewerwindow.h"
 #include "llversionviewer.h"
 #include "llviewertexturelist.h"
 #include "llpluginclassmedia.h"
 
 #include "llevent.h"		// LLSimpleListener
+#include "llnotifications.h"
 #include "lluuid.h"
 
 #include <boost/bind.hpp>	// for SkinFolder listener

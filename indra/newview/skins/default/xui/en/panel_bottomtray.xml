@@ -33,12 +33,13 @@
          top="0"
          width="5"/>
         <layout_panel
+         auto_resize="false"
          follows="left|right"
          height="28"
          layout="topleft"
          left="5"
          min_height="28"
-         width="500"
+         width="600"
          top="0"
          min_width="305"
          name="chat_bar"

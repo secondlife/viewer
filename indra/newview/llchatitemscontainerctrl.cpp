@@ -38,6 +38,7 @@
 #include "llchatmsgbox.h"
 #include "llavatariconctrl.h"
 #include "llfloaterreg.h"
+#include "lllocalcliprect.h"
 #include "lltrans.h"
 
 #include "llviewercontrol.h"

@@ -134,7 +134,7 @@
 #include "llmemoryview.h"
 #include "llgivemoney.h"
 #include "llgroupmgr.h"
-#include "llhoverview.h"
+#include "lltooltip.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llimage.h"
@@ -582,6 +582,8 @@ void init_menus()
 	gLoginMenuBarView->setBackgroundColor( color );
 	gMenuHolder->addChild(gLoginMenuBarView);
 	
+	// tooltips are on top of EVERYTHING, including menus
+	gViewerWindow->getRootView()->sendChildToFront(gToolTipView);
 }
 
 ///////////////////
@@ -1517,14 +1519,6 @@ class LLAdvancedSendTestIms : public view_listener_t
 }
 };
 
-class LLAdvancedAvatarInspector : public view_listener_t
-{
-	bool handleEvent(const LLSD& avatar_id)
-	{
-		LLFloaterReg::showInstance("inspect_avatar", avatar_id);
-		return true;
-	}
-};
 
 ///////////////
 // XUI NAMES //
@@ -2905,7 +2899,7 @@ class LLObjectMute : public view_listener_t
 
 bool handle_go_to()
 {
-	// JAMESDEBUG try simulator autopilot
+	// try simulator autopilot
 	std::vector<std::string> strings;
 	std::string val;
 	LLVector3d pos = LLToolPie::getInstance()->getPick().mPosGlobal;
@@ -6729,15 +6723,12 @@ BOOL enable_god_basic(void*)
 
 void toggle_show_xui_names(void *)
 {
-	BOOL showXUINames = gSavedSettings.getBOOL("ShowXUINames");
-	
-	showXUINames = !showXUINames;
-	gSavedSettings.setBOOL("ShowXUINames", showXUINames);
+	gSavedSettings.setBOOL("DebugShowXUINames", !gSavedSettings.getBOOL("DebugShowXUINames"));
 }
 
 BOOL check_show_xui_names(void *)
 {
-	return gSavedSettings.getBOOL("ShowXUINames");
+	return gSavedSettings.getBOOL("DebugShowXUINames");
 }
 
 class LLToolsSelectOnlyMyObjects : public view_listener_t
@@ -7157,7 +7148,7 @@ class LLViewShowHoverTips : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLHoverView::sShowHoverTips = !LLHoverView::sShowHoverTips;
+		gSavedSettings.setBOOL("ShowHoverTips", !gSavedSettings.getBOOL("ShowHoverTips"));
 		return true;
 	}
 };
@@ -7166,7 +7157,7 @@ class LLViewCheckShowHoverTips : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = LLHoverView::sShowHoverTips;
+		bool new_value = gSavedSettings.getBOOL("ShowHoverTips");
 		return new_value;
 	}
 };
@@ -7852,7 +7843,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleXUINames(), "Advanced.ToggleXUINames");
 	view_listener_t::addMenu(new LLAdvancedCheckXUINames(), "Advanced.CheckXUINames");
 	view_listener_t::addMenu(new LLAdvancedSendTestIms(), "Advanced.SendTestIMs");
-	view_listener_t::addMenu(new LLAdvancedAvatarInspector(), "Advanced.AvatarInspector");
 
 	// Advanced > Character > Grab Baked Texture
 	view_listener_t::addMenu(new LLAdvancedGrabBakedTexture(), "Advanced.GrabBakedTexture");

@@ -40,6 +40,7 @@
 #include "llimpanel.h"				// LLFloaterIMPanel
 #include "llimview.h"
 #include "llfloaterreg.h"
+#include "lllocalcliprect.h"
 #include "llmenugl.h"
 #include "lloutputmonitorctrl.h"
 #include "lltextbox.h"
@@ -210,19 +211,38 @@ void LLIMChiclet::draw()
 {
 	LLUICtrl::draw();
 
-	//if we have a docked floater, we want to position it relative to us
-	LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", getSessionId());
+	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.0f,0.0f,0.0f,1.f), FALSE);
+}
 
-	if (im_floater && im_floater->isDocked()) 
+// static
+LLIMChiclet::EType LLIMChiclet::getIMSessionType(const LLUUID& session_id)
+{
+	EType				type	= TYPE_UNKNOWN;
+	LLFloaterIMPanel*	im		= NULL;
+
+	if(session_id.isNull())
+		return type;
+
+	if (!(im = LLIMMgr::getInstance()->findFloaterBySession(session_id)))
 	{
-		S32 x, y;
-		getParent()->localPointToScreen(getRect().getCenterX(), 0, &x, &y);
-		im_floater->translate(x - im_floater->getRect().getCenterX(), 10 - im_floater->getRect().mBottom);	
-		//set this so the docked floater knows it's been positioned and can now draw
-		im_floater->setPositioned(true);
+		llassert_always(0 && "IM session not found"); // should never happen
+		return type;
 	}
 
-	gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.0f,0.0f,0.0f,1.f), FALSE);
+	switch(im->getDialogType())
+	{
+	case IM_NOTHING_SPECIAL:
+		type = TYPE_IM;
+		break;
+	case IM_SESSION_GROUP_START:
+	case IM_SESSION_INVITE:
+		type = TYPE_GROUP;
+		break;
+	default:
+		break;
+	}
+
+	return type;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -235,6 +255,7 @@ LLIMP2PChiclet::Params::Params()
 , speaker("speaker")
 , show_speaker("show_speaker")
 {
+	// *TODO Vadim: Get rid of hardcoded values.
 	rect(LLRect(0, 25, 45, 0));
 
 	avatar_icon.name("avatar_icon");
@@ -1039,11 +1060,14 @@ BOOL LLChicletPanel::handleScrollWheel(S32 x, S32 y, S32 clicks)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+// *TODO Vadim: Move this out of llchiclet.cpp.
+
 LLTalkButton::Params::Params()
  : speak_button("speak_button")
  , show_button("show_button")
  , monitor("monitor")
 {
+	// *TODO Vadim: move hardcoded labels (!) and other params to XUI.
 	speak_button.name("left");
 	speak_button.label("Speak");
 	speak_button.label_selected("Speak");

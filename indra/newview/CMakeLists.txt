@@ -196,6 +196,7 @@ set(viewer_SOURCE_FILES
     llfloatersettingsdebug.cpp
     llfloatersnapshot.cpp
     llfloatertelehub.cpp
+    llfloatertestinspectors.cpp
     llfloatertestlistview.cpp
     llfloatertools.cpp
     llfloatertopobjects.cpp
@@ -220,7 +221,6 @@ set(viewer_SOURCE_FILES
     llgroupmgr.cpp
     llgroupnotify.cpp
     llhomelocationresponder.cpp
-    llhoverview.cpp
     llhudeffectbeam.cpp
     llhudeffect.cpp
     llhudeffectlookat.cpp
@@ -652,6 +652,7 @@ set(viewer_HEADER_FILES
     llfloatersettingsdebug.h
     llfloatersnapshot.h
     llfloatertelehub.h
+    llfloatertestinspectors.h
     llfloatertestlistview.h
     llfloatertools.h
     llfloatertopobjects.h
@@ -676,7 +677,6 @@ set(viewer_HEADER_FILES
     llgroupmgr.h
     llgroupnotify.h
     llhomelocationresponder.h
-    llhoverview.h
     llhudeffect.h
     llhudeffectbeam.h
     llhudeffectlookat.h

@@ -42,6 +42,7 @@
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llmenugl.h"
+#include "lltooltip.h"
 
 #include "llagent.h"
 #include "llclipboard.h"
@@ -122,14 +123,9 @@ class LLFavoriteLandmarkButton : public LLButton
 {
 public:
 
-	BOOL handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect)
+	BOOL handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect)
 	{
-		if(LLUI::sShowXUINames)
-		{
-			return LLButton::handleToolTip(x, y, msg, sticky_rect);
-		}
-
-		msg = mUrlGetter.getSLURL();
+		LLToolTipMgr::instance().show(mUrlGetter.getSLURL());
 		return TRUE;
 	}
 
@@ -193,14 +189,9 @@ private:
 class LLFavoriteLandmarkMenuItem : public LLMenuItemCallGL
 {
 public:
-	BOOL handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect)
+	BOOL handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect)
 	{
-		if(LLUI::sShowXUINames)
-		{
-			return LLMenuItemCallGL::handleToolTip(x, y, msg, sticky_rect);
-		}
-
-		msg = mUrlGetter.getSLURL();
+		LLToolTipMgr::instance().show(mUrlGetter.getSLURL());
 		return TRUE;
 	}
 	
@@ -227,6 +218,36 @@ private:
 	LLSLURLGetter mUrlGetter;
 };
 
+/**
+ * This class is needed to update an item being copied to the favorites folder
+ * with a sort field value (required to save favorites bar's tabs order).
+ * See method handleNewFavoriteDragAndDrop for more details on how this class is used.
+ */
+class LLItemCopiedCallback : public LLInventoryCallback
+{
+public:
+	LLItemCopiedCallback(S32 sortField): mSortField(sortField) {}
+
+	virtual void fire(const LLUUID& inv_item)
+	{
+		LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+
+		if (item)
+		{
+			item->setSortField(mSortField);
+			item->setComplete(TRUE);
+			item->updateServer(FALSE);
+
+			gInventory.updateItem(item);
+			gInventory.notifyObservers();
+		}
+
+		LLView::getWindow()->setCursor(UI_CURSOR_ARROW);
+	}
+
+private:
+	S32 mSortField;
+};
 
 // updateButtons's helper
 struct LLFavoritesSort
@@ -378,7 +399,27 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 		mItems.push_back(gInventory.getItem(item->getUUID()));
 	}
 
-	saveItemsOrder(mItems);
+	int sortField = 0;
+	LLPointer<LLItemCopiedCallback> cb;
+
+	// current order is saved by setting incremental values (1, 2, 3, ...) for the sort field
+	for (LLInventoryModel::item_array_t::iterator i = mItems.begin(); i != mItems.end(); ++i)
+	{
+		LLViewerInventoryItem* currItem = *i;
+
+		if (currItem->getUUID() == item->getUUID())
+		{
+			cb = new LLItemCopiedCallback(++sortField);
+		}
+		else
+		{
+			currItem->setSortField(++sortField);
+			currItem->setComplete(TRUE);
+			currItem->updateServer(FALSE);
+
+			gInventory.updateItem(currItem);
+		}
+	}
 
 	copy_inventory_item(
 			gAgent.getID(),
@@ -386,9 +427,7 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 			item->getUUID(),
 			favorites_id,
 			std::string(),
-			LLPointer<LLInventoryCallback>(NULL));
-
-	getWindow()->setCursor(UI_CURSOR_ARROW);
+			cb);
 
 	llinfos << "Copied inventory item #" << item->getUUID() << " to favorites." << llendl;
 }

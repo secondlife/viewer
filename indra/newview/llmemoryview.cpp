@@ -32,11 +32,11 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "indra_constants.h"
 #include "llmemoryview.h"
 
 #include "llappviewer.h"
 #include "llallocator_heap_profile.h"
+#include "llgl.h"						// LLGLSUIDefault
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
 

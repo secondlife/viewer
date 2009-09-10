@@ -4,6 +4,8 @@
  list_position="BELOW"
  show_text_as_tentative="false"
  dropdown_button_visible="false"
+ max_chars="256"
+ allow_new_values="true"
  background_image="TextField_Search_Off"
  background_image_disabled="TextField_Search_Disabled"
  background_image_focused="TextField_Search_Active">

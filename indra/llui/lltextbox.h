@@ -66,8 +66,7 @@ public:
 
 		Optional<LLUIColor>	text_color,
 							disabled_color,
-							background_color,
-							border_color;
+							background_color;
 
 		Optional<S32>		v_pad,
 							h_pad,
@@ -90,12 +89,11 @@ public:
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect* sticky_rect_screen);
+	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen);
 
 	void			setColor( const LLColor4& c )			{ mTextColor = c; }
 	void			setDisabledColor( const LLColor4& c)	{ mDisabledColor = c; }
 	void			setBackgroundColor( const LLColor4& c)	{ mBackgroundColor = c; }	
-	void			setBorderColor( const LLColor4& c)		{ mBorderColor = c; }	
 
 	void			setText( const LLStringExplicit& text );
 	void			setWrappedText(const LLStringExplicit& text, F32 max_width = -1.f); // -1 means use existing control width

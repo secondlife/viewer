@@ -49,7 +49,7 @@
 #include "llagent.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
-#include "llhoverview.h"
+#include "lltooltip.h"
 #include "llworld.h"
 #include "llstring.h"
 #include "llhudtext.h"
@@ -574,10 +574,14 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 		// Slam priorities for textures that we care about (hovered, selected, and focused)
 		// Hovered
 		// Assumes only one level deep of parenting
-		objectp = gHoverView->getLastHoverObject();
-		if (objectp)
+		LLSelectNode* nodep = LLSelectMgr::instance().getHoverNode();
+		if (nodep)
 		{
-			objectp->boostTexturePriority();
+			objectp = nodep->getObject();
+			if (objectp)
+			{
+				objectp->boostTexturePriority();
+			}
 		}
 	}
 

@@ -11,7 +11,7 @@
 	bevel_style="in"
 	bg_alpha_color="0 0 0 0">
   <chiclet_im_p2p
-		name="chiclet"
+		name="p2p_chiclet"
 		layout="topleft"
 		follows="left"
 		top="5"
@@ -19,6 +19,15 @@
 		height="25"
 		width="45">
   </chiclet_im_p2p>
+  <chiclet_im_group
+		name="group_chiclet"
+		layout="topleft"
+		follows="left"
+		top="5"
+		left="5"
+		height="25"
+		width="45">
+  </chiclet_im_group>
 	<text
 		type="string"
 		name="contact_name"

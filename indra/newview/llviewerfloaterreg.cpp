@@ -95,6 +95,7 @@
 #include "llfloatersettingsdebug.h"
 #include "llfloatersnapshot.h"
 #include "llfloatertelehub.h"
+#include "llfloatertestinspectors.h"
 #include "llfloatertestlistview.h"
 #include "llfloatertools.h"
 #include "llfloatertos.h"
@@ -207,6 +208,8 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("properties", "floater_inventory_item_properties.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterProperties>);
 
 	LLFloaterReg::add("telehubs", "floater_telehub.xml",&LLFloaterReg::build<LLFloaterTelehub>);
+	LLFloaterReg::add("test_inspectors", "floater_test_inspectors.xml",
+		&LLFloaterReg::build<LLFloaterTestInspectors>);
 	LLFloaterReg::add("test_list_view", "floater_test_list_view.xml",&LLFloaterReg::build<LLFloaterTestListView>);
 	LLFloaterReg::add("test_widgets", "floater_test_widgets.xml", &LLFloaterReg::build<LLFloater>);
 	LLFloaterReg::add("top_objects", "floater_top_objects.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTopObjects>);

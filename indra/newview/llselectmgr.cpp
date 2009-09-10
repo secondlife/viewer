@@ -393,7 +393,7 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(LLViewerObject* obj, 
 	}
 
 	// Collect all of the objects
-	LLDynamicArray<LLViewerObject*> objects;
+	std::vector<LLViewerObject*> objects;
 
 	root->addThisAndNonJointChildren(objects);
 	addAsFamily(objects, add_to_end);
@@ -439,7 +439,7 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(const std::vector<LLV
 														   BOOL send_to_sim)
 {
 	// Collect all of the objects, children included
-	LLDynamicArray<LLViewerObject*> objects;
+	std::vector<LLViewerObject*> objects;
 
 	//clear primary object (no primary object)
 	mSelectedObjects->mPrimaryObject = NULL;
@@ -563,7 +563,7 @@ void LLSelectMgr::deselectObjectAndFamily(LLViewerObject* object, BOOL send_to_s
 	if(!object->isSelected()) return;
 
 	// Collect all of the objects, and remove them
-	LLDynamicArray<LLViewerObject*> objects;
+	std::vector<LLViewerObject*> objects;
 
 	if (include_entire_object)
 	{
@@ -779,47 +779,55 @@ void LLSelectMgr::addAsIndividual(LLViewerObject *objectp, S32 face, BOOL undoab
 
 LLObjectSelectionHandle LLSelectMgr::setHoverObject(LLViewerObject *objectp, S32 face)
 {
-	// Always blitz hover list when setting
-	mHoverObjects->deleteAllNodes();
-
 	if (!objectp)
 	{
+		mHoverObjects->deleteAllNodes();
 		return NULL;
 	}
 
 	// Can't select yourself
 	if (objectp->mID == gAgentID)
 	{
+		mHoverObjects->deleteAllNodes();
 		return NULL;
 	}
 
 	// Can't select land
 	if (objectp->getPCode() == LLViewerObject::LL_VO_SURFACE_PATCH)
 	{
+		mHoverObjects->deleteAllNodes();
 		return NULL;
 	}
 
-	// Collect all of the objects
-	LLDynamicArray<LLViewerObject*> objects;
 	objectp = objectp->getRootEdit();
-	objectp->addThisAndNonJointChildren(objects);
 
-	for (std::vector<LLViewerObject*>::iterator iter = objects.begin();
-		 iter != objects.end(); ++iter)
+	// is the requested object the same as the existing hover object root?
+	// NOTE: there is only ever one linked set in mHoverObjects
+	if (mHoverObjects->getFirstRootObject() != objectp) 
 	{
-		LLViewerObject* cur_objectp = *iter;
-		LLSelectNode* nodep = new LLSelectNode(cur_objectp, FALSE);
-		nodep->selectTE(face, TRUE);
-		mHoverObjects->addNodeAtEnd(nodep);
+		// Collect all of the objects
+		std::vector<LLViewerObject*> objects;
+		objectp = objectp->getRootEdit();
+		objectp->addThisAndNonJointChildren(objects);
+
+		for (std::vector<LLViewerObject*>::iterator iter = objects.begin();
+			 iter != objects.end(); ++iter)
+		{
+			LLViewerObject* cur_objectp = *iter;
+			LLSelectNode* nodep = new LLSelectNode(cur_objectp, FALSE);
+			nodep->selectTE(face, TRUE);
+			mHoverObjects->addNodeAtEnd(nodep);
+		}
+		
+		requestObjectPropertiesFamily(objectp);
 	}
 
-	requestObjectPropertiesFamily(objectp);
 	return mHoverObjects;
 }
 
 LLSelectNode *LLSelectMgr::getHoverNode()
 {
-	return getHoverObjects()->getFirstRootNode();
+	return mHoverObjects->getFirstRootNode();
 }
 
 void LLSelectMgr::highlightObjectOnly(LLViewerObject* objectp)
@@ -1286,7 +1294,7 @@ void LLSelectMgr::promoteSelectionToRoot()
 //-----------------------------------------------------------------------------
 void LLSelectMgr::demoteSelectionToIndividuals()
 {
-	LLDynamicArray<LLViewerObject*> objects;
+	std::vector<LLViewerObject*> objects;
 
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
 		 iter != getSelection()->root_end(); iter++)
@@ -1295,7 +1303,7 @@ void LLSelectMgr::demoteSelectionToIndividuals()
 		object->addThisAndNonJointChildren(objects);
 	}
 
-	if (objects.getLength())
+	if (!objects.empty())
 	{
 		deselectAll();
 		for (std::vector<LLViewerObject*>::iterator iter = objects.begin();
@@ -4480,7 +4488,7 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
 			return (node->getObject() && node->getObject()->mID == mID);
 		}
 	} func(id);
-	LLSelectNode* node = LLSelectMgr::getInstance()->getHoverObjects()->getFirstNode(&func);
+	LLSelectNode* node = LLSelectMgr::getInstance()->mHoverObjects->getFirstNode(&func);
 
 	if (node)
 	{
