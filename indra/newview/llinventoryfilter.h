@@ -94,6 +94,7 @@ public:
 	BOOL isModified();
 	BOOL isModifiedAndClear();
 	BOOL isSinceLogoff();
+	bool hasFilterString() { return mFilterSubString.size() > 0; }
 	void clearModified() { mModified = FALSE; mFilterBehavior = FILTER_NONE; }
 	const std::string getName() const { return mName; }
 	std::string getFilterText();

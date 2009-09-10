@@ -200,9 +200,8 @@ protected:
 	BOOL isInTrash() const;
 	BOOL isLinkedObjectInTrash() const; // Is this obj or its baseobj in the trash?
 
-	// return true if the item is in agent inventory. if false, it
-	// must be lost or in the inventory library.
-	BOOL isAgentInventory() const;
+	BOOL isAgentInventory() const; // false if lost or in the inventory library
+	BOOL isCOFFolder() const; // true if COF or descendent of.
 	virtual BOOL isItemPermissive() const;
 	static void changeItemParent(LLInventoryModel* model,
 								 LLViewerInventoryItem* item,
@@ -295,6 +294,7 @@ public:
 	virtual BOOL isItemMovable();
 	virtual BOOL isUpToDate() const;
 	virtual BOOL isItemCopyable() const;
+	virtual BOOL isClipboardPasteableAsLink() const;
 	virtual BOOL copyToClipboard() const;
 	
 	static void createWearable(LLFolderBridge* bridge, EWearableType type);
@@ -769,8 +769,6 @@ protected:
 };
 
 void wear_inventory_item_on_avatar(LLInventoryItem* item);
-void wear_outfit_by_name(const std::string& name);
-void wear_inventory_category(LLInventoryCategory* category, bool copy, bool append);
 
 class LLViewerJointAttachment;
 void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attachment);
@@ -786,5 +784,6 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 
 
 void teleport_via_landmark(const LLUUID& asset_id);
+
 
 #endif // LL_LLINVENTORYBRIDGE_H

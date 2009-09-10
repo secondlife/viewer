@@ -53,6 +53,7 @@
 #include "llpreviewgesture.h"
 #include "llviewerwindow.h"
 #include "lltrans.h"
+#include "llappearancemgr.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -760,6 +761,11 @@ void WearOnAvatarCallback::fire(const LLUUID& inv_item)
 	}
 }
 
+void ModifiedCOFCallback::fire(const LLUUID& inv_item)
+{
+	LLAppearanceManager::instance().updateAppearanceFromCOF();
+}
+
 RezAttachmentCallback::RezAttachmentCallback(LLViewerJointAttachment *attachmentp)
 {
 	mAttach = attachmentp;
@@ -874,6 +880,27 @@ void link_inventory_item(
 	const LLAssetType::EType asset_type,
 	LLPointer<LLInventoryCallback> cb)
 {
+	const LLInventoryObject *baseobj = gInventory.getObject(item_id);
+	if (!baseobj)
+	{
+		llwarns << "attempt to link to unknown item, linked-to-item's itemID " << item_id << llendl;
+		return;
+	}
+	if (baseobj && baseobj->getIsLinkType())
+	{
+		llwarns << "attempt to create a link to a link, linked-to-item's itemID " << item_id << llendl;
+		return;
+	}
+
+	if (baseobj && !LLAssetType::lookupCanLink(baseobj->getType()))
+	{
+		// Fail if item can be found but is of a type that can't be linked.
+		// Arguably should fail if the item can't be found too, but that could
+		// be a larger behavioral change.
+		llwarns << "attempt to link an unlinkable item, type = " << baseobj->getActualType() << llendl;
+		return;
+	}
+	
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_LinkInventoryItem);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -1291,21 +1318,26 @@ bool LLViewerInventoryItem::getIsBrokenLink() const
 	return LLAssetType::lookupIsLinkType(getType());
 }
 
-const LLViewerInventoryItem *LLViewerInventoryItem::getLinkedItem() const
+LLViewerInventoryItem *LLViewerInventoryItem::getLinkedItem() const
 {
 	if (mType == LLAssetType::AT_LINK)
 	{
-		const LLViewerInventoryItem *linked_item = gInventory.getItem(mAssetUUID);
+		LLViewerInventoryItem *linked_item = gInventory.getItem(mAssetUUID);
+		if (linked_item && linked_item->getIsLinkType())
+		{
+			llwarns << "Warning: Accessing link to link" << llendl;
+			return NULL;
+		}
 		return linked_item;
 	}
 	return NULL;
 }
 
-const LLViewerInventoryCategory *LLViewerInventoryItem::getLinkedCategory() const
+LLViewerInventoryCategory *LLViewerInventoryItem::getLinkedCategory() const
 {
 	if (mType == LLAssetType::AT_LINK_FOLDER)
 	{
-		const LLViewerInventoryCategory *linked_category = gInventory.getCategory(mAssetUUID);
+		LLViewerInventoryCategory *linked_category = gInventory.getCategory(mAssetUUID);
 		return linked_category;
 	}
 	return NULL;

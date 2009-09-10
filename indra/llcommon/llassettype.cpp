@@ -80,27 +80,27 @@ LLAssetDictionary::LLAssetDictionary()
 {
 	//       												   DESCRIPTION			TYPE NAME	HUMAN NAME			CATEGORY NAME 		DRAG&DROP		CAN LINK?	PROTECTED?
 	//      												  |--------------------|-----------|-------------------|-------------------|---------------|-----------|-----------|
-	addEntry(LLAssetType::AT_TEXTURE, 			new AssetEntry("TEXTURE",			"texture",	"texture",			"Textures", 		DAD_TEXTURE,	FALSE,		TRUE));
-	addEntry(LLAssetType::AT_SOUND, 			new AssetEntry("SOUND",				"sound",	"sound",			"Sounds", 			DAD_SOUND,		FALSE,		TRUE));
-	addEntry(LLAssetType::AT_CALLINGCARD, 		new AssetEntry("CALLINGCARD",		"callcard",	"calling card",		"Calling Cards", 	DAD_CALLINGCARD, FALSE,		TRUE));
-	addEntry(LLAssetType::AT_LANDMARK, 			new AssetEntry("LANDMARK",			"landmark",	"landmark",			"Landmarks", 		DAD_LANDMARK,	FALSE,		TRUE));
-	addEntry(LLAssetType::AT_SCRIPT, 			new AssetEntry("SCRIPT",			"script",	"legacy script",	"Scripts", 			DAD_NONE,		FALSE,		TRUE));
+	addEntry(LLAssetType::AT_TEXTURE, 			new AssetEntry("TEXTURE",			"texture",	"texture",			"Textures", 		DAD_TEXTURE,	TRUE,		TRUE));
+	addEntry(LLAssetType::AT_SOUND, 			new AssetEntry("SOUND",				"sound",	"sound",			"Sounds", 			DAD_SOUND,		TRUE,		TRUE));
+	addEntry(LLAssetType::AT_CALLINGCARD, 		new AssetEntry("CALLINGCARD",		"callcard",	"calling card",		"Calling Cards", 	DAD_CALLINGCARD, TRUE,		TRUE));
+	addEntry(LLAssetType::AT_LANDMARK, 			new AssetEntry("LANDMARK",			"landmark",	"landmark",			"Landmarks", 		DAD_LANDMARK,	TRUE,		TRUE));
+	addEntry(LLAssetType::AT_SCRIPT, 			new AssetEntry("SCRIPT",			"script",	"legacy script",	"Scripts", 			DAD_NONE,		TRUE,		TRUE));
 	addEntry(LLAssetType::AT_CLOTHING, 			new AssetEntry("CLOTHING",			"clothing",	"clothing",			"Clothing", 		DAD_CLOTHING,	TRUE,		TRUE));
 	addEntry(LLAssetType::AT_OBJECT, 			new AssetEntry("OBJECT",			"object",	"object",			"Objects", 			DAD_OBJECT,		TRUE,		TRUE));
-	addEntry(LLAssetType::AT_NOTECARD, 			new AssetEntry("NOTECARD",			"notecard",	"note card",		"Notecards", 		DAD_NOTECARD,	FALSE,		TRUE));
+	addEntry(LLAssetType::AT_NOTECARD, 			new AssetEntry("NOTECARD",			"notecard",	"note card",		"Notecards", 		DAD_NOTECARD,	TRUE,		TRUE));
 	addEntry(LLAssetType::AT_CATEGORY, 			new AssetEntry("CATEGORY",			"category",	"folder",			"New Folder", 		DAD_CATEGORY,	TRUE,		TRUE));
 	addEntry(LLAssetType::AT_ROOT_CATEGORY, 	new AssetEntry("ROOT_CATEGORY",		"root",		"root",				"Inventory", 		DAD_ROOT_CATEGORY, TRUE,	TRUE));
-	addEntry(LLAssetType::AT_LSL_TEXT, 			new AssetEntry("LSL_TEXT",			"lsltext",	"lsl2 script",		"Scripts", 			DAD_SCRIPT,		FALSE,		TRUE));
-	addEntry(LLAssetType::AT_LSL_BYTECODE, 		new AssetEntry("LSL_BYTECODE",		"lslbyte",	"lsl bytecode",		"Scripts", 			DAD_NONE,		FALSE,		TRUE));
-	addEntry(LLAssetType::AT_TEXTURE_TGA, 		new AssetEntry("TEXTURE_TGA",		"txtr_tga",	"tga texture",		"Uncompressed Images", DAD_NONE,	FALSE,		TRUE));
+	addEntry(LLAssetType::AT_LSL_TEXT, 			new AssetEntry("LSL_TEXT",			"lsltext",	"lsl2 script",		"Scripts", 			DAD_SCRIPT,		TRUE,		TRUE));
+	addEntry(LLAssetType::AT_LSL_BYTECODE, 		new AssetEntry("LSL_BYTECODE",		"lslbyte",	"lsl bytecode",		"Scripts", 			DAD_NONE,		TRUE,		TRUE));
+	addEntry(LLAssetType::AT_TEXTURE_TGA, 		new AssetEntry("TEXTURE_TGA",		"txtr_tga",	"tga texture",		"Uncompressed Images", DAD_NONE,	TRUE,		TRUE));
 	addEntry(LLAssetType::AT_BODYPART, 			new AssetEntry("BODYPART",			"bodypart",	"body part",		"Body Parts", 		DAD_BODYPART,	TRUE,		TRUE));
 	addEntry(LLAssetType::AT_TRASH, 			new AssetEntry("TRASH",				"trash",	"trash",			"Trash", 			DAD_NONE,		FALSE,		TRUE));
 	addEntry(LLAssetType::AT_SNAPSHOT_CATEGORY, new AssetEntry("SNAPSHOT_CATEGORY", "snapshot",	"snapshot",			"Photo Album", 		DAD_NONE,		FALSE,		TRUE));
 	addEntry(LLAssetType::AT_LOST_AND_FOUND, 	new AssetEntry("LOST_AND_FOUND", 	"lstndfnd",	"lost and found",	"Lost And Found", 	DAD_NONE,		FALSE,		TRUE));
-	addEntry(LLAssetType::AT_SOUND_WAV, 		new AssetEntry("SOUND_WAV",			"snd_wav",	"sound",			"Uncompressed SoundS", DAD_NONE,	FALSE,		TRUE));
-	addEntry(LLAssetType::AT_IMAGE_TGA, 		new AssetEntry("IMAGE_TGA",			"img_tga",	"targa image",		"Uncompressed Images", DAD_NONE,	FALSE,		TRUE));
-	addEntry(LLAssetType::AT_IMAGE_JPEG, 		new AssetEntry("IMAGE_JPEG",		"jpeg",		"jpeg image",		"Uncompressed Images", DAD_NONE,	FALSE,		TRUE));
-	addEntry(LLAssetType::AT_ANIMATION, 		new AssetEntry("ANIMATION",			"animatn",	"animation",		"Animations", 		DAD_ANIMATION,	FALSE,		TRUE));
+	addEntry(LLAssetType::AT_SOUND_WAV, 		new AssetEntry("SOUND_WAV",			"snd_wav",	"sound",			"Uncompressed SoundS", DAD_NONE,	TRUE,		TRUE));
+	addEntry(LLAssetType::AT_IMAGE_TGA, 		new AssetEntry("IMAGE_TGA",			"img_tga",	"targa image",		"Uncompressed Images", DAD_NONE,	TRUE,		TRUE));
+	addEntry(LLAssetType::AT_IMAGE_JPEG, 		new AssetEntry("IMAGE_JPEG",		"jpeg",		"jpeg image",		"Uncompressed Images", DAD_NONE,	TRUE,		TRUE));
+	addEntry(LLAssetType::AT_ANIMATION, 		new AssetEntry("ANIMATION",			"animatn",	"animation",		"Animations", 		DAD_ANIMATION,	TRUE,		TRUE));
 	addEntry(LLAssetType::AT_GESTURE, 			new AssetEntry("GESTURE",			"gesture",	"gesture",			"Gestures", 		DAD_GESTURE,	TRUE,		TRUE));
 	addEntry(LLAssetType::AT_SIMSTATE, 			new AssetEntry("SIMSTATE",			"simstate",	"simstate",			"New Folder", 		DAD_NONE,		FALSE,		TRUE));
 	addEntry(LLAssetType::AT_FAVORITE, 			new AssetEntry("FAVORITE",			"favorite",	"favorite",			"favorite", 		DAD_NONE,		FALSE,		TRUE));

@@ -149,8 +149,8 @@ public:
 	LLTransactionID getTransactionID() const { return mTransactionID; }
 	
 	bool getIsBrokenLink() const; // true if the baseitem this points to doesn't exist in memory.
-	const LLViewerInventoryItem *getLinkedItem() const;
-	const LLViewerInventoryCategory *getLinkedCategory() const;
+	LLViewerInventoryItem *getLinkedItem() const;
+	LLViewerInventoryCategory *getLinkedCategory() const;
 
 	// callback
 	void onCallingCardNameLookup(const LLUUID& id, const std::string& first_name, const std::string& last_name);
@@ -230,6 +230,11 @@ public:
 };
 
 class WearOnAvatarCallback : public LLInventoryCallback
+{
+	void fire(const LLUUID& inv_item);
+};
+
+class ModifiedCOFCallback : public LLInventoryCallback
 {
 	void fire(const LLUUID& inv_item);
 };

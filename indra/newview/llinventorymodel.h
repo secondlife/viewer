@@ -99,12 +99,12 @@ class LLInventoryCollectFunctor;
 class LLInventoryModel
 {
 public:
-	typedef enum e_has_children
+	enum EHasChildren
 	{
 		CHILDREN_NO,
 		CHILDREN_YES,
 		CHILDREN_MAYBE
-	}EHasChildren;
+	};
 
 	// These are used a lot...
 	typedef LLDynamicArray<LLPointer<LLViewerInventoryCategory> > cat_array_t;
@@ -133,7 +133,7 @@ public:
 
 	// This is a convenience function to check if one object has a
 	// parent chain up to the category specified by UUID.
-	BOOL isObjectDescendentOf(const LLUUID& obj_id, const LLUUID& cat_id);
+	BOOL isObjectDescendentOf(const LLUUID& obj_id, const LLUUID& cat_id) const;
 
 	// Get the object by id. Returns NULL if not found.
 	// * WARNING: use the pointer returned for read operations - do
@@ -197,7 +197,7 @@ public:
 
 	// The inventory model usage is sensitive to the initial construction of the 
 	// model. 
-	bool isInventoryUsable();
+	bool isInventoryUsable() const;
 
 	//
 	// Mutators
@@ -261,7 +261,7 @@ public:
 	// to remove it.
 	void addObserver(LLInventoryObserver* observer);
 	void removeObserver(LLInventoryObserver* observer);
-	BOOL containsObserver(LLInventoryObserver* observer);
+	BOOL containsObserver(LLInventoryObserver* observer) const;
 
 	//
 	// Misc Methods 
@@ -312,7 +312,7 @@ public:
 
 	// Generates a string containing the path to the item specified by
 	// item_id.
-	void appendPath(const LLUUID& id, std::string& path);
+	void appendPath(const LLUUID& id, std::string& path) const;
 
 	// message handling functionality
 	static void registerCallbacks(LLMessageSystem* msg);
@@ -370,7 +370,7 @@ public:
 	// Call these methods when there are category updates, but call
 	// them *before* the actual update so the method can do descendent
 	// accounting correctly.
-	void accountForUpdate(const LLCategoryUpdate& update);
+	void accountForUpdate(const LLCategoryUpdate& update) const;
 	void accountForUpdate(const update_list_t& updates);
 	void accountForUpdate(const update_map_t& updates);
 
@@ -404,9 +404,9 @@ public:
 	// gInventory is a singleton and represents the agent's inventory.
 	// The "library" is actually the inventory of a special agent,
 	// usually Alexandria Linden.
-	LLUUID getRootFolderID() const;
-	LLUUID getLibraryOwnerID() const;
-	LLUUID getLibraryRootFolderID() const;
+	const LLUUID &getRootFolderID() const;
+	const LLUUID &getLibraryOwnerID() const;
+	const LLUUID &getLibraryRootFolderID() const;
 
 	// These are set during login with data from the server
 	void setRootFolderID(const LLUUID& id);
@@ -422,9 +422,13 @@ protected:
 	void addCategory(LLViewerInventoryCategory* category);
 	void addItem(LLViewerInventoryItem* item);
 
+	// ! DEPRECRATE ! Remove this and add it into findCategoryUUIDForType,
+	// since that's the only function that uses this.  It's too confusing 
+	// having both methods.
+	// 
 	// Internal method which looks for a category with the specified
 	// preferred type. Returns LLUUID::null if not found
- 	LLUUID findCatUUID(LLAssetType::EType preferred_type);
+ 	const LLUUID &findCatUUID(LLAssetType::EType preferred_type) const;
 
 	// Empty the entire contents
 	void empty();
@@ -515,7 +519,7 @@ protected:
 
 public:
 	// *NOTE: DEBUG functionality
-	void dumpInventory();
+	void dumpInventory() const;
 	static bool isBulkFetchProcessingComplete();
 	static void stopBackgroundFetch(); // stop fetch process
 

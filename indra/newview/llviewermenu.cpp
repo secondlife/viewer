@@ -212,6 +212,7 @@
 #include "llfloaternotificationsconsole.h"
 
 #include "lltexlayer.h"
+#include "llappearancemgr.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -6375,13 +6376,13 @@ void handle_selected_texture_info(void*)
 
 void handle_test_male(void*)
 {
-	wear_outfit_by_name("Male Shape & Outfit");
+	LLAppearanceManager::wearOutfitByName("Male Shape & Outfit");
 	//gGestureList.requestResetFromServer( TRUE );
 }
 
 void handle_test_female(void*)
 {
-	wear_outfit_by_name("Female Shape & Outfit");
+	LLAppearanceManager::wearOutfitByName("Female Shape & Outfit");
 	//gGestureList.requestResetFromServer( FALSE );
 }
 
