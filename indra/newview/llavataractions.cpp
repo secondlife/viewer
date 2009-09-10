@@ -41,6 +41,7 @@
 
 #include "llagent.h"
 #include "llappviewer.h"		// for gLastVersionChannel
+#include "llcachename.h"
 #include "llcallingcard.h"		// for LLAvatarTracker
 #include "llinventorymodel.h"	// for gInventory.findCategoryUUIDForType
 #include "llimview.h"			// for gIMMgr

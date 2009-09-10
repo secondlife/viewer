@@ -35,6 +35,7 @@
 
 #include "llfloaternamedesc.h"
 #include "lldynamictexture.h"
+#include "llpointer.h"
 #include "llquaternion.h"
 
 class LLComboBox;
@@ -43,6 +44,7 @@ class LLViewerJointMesh;
 class LLVOAvatar;
 class LLTextBox;
 class LLVertexBuffer;
+class LLVolume;
 
 class LLImagePreviewSculpted : public LLViewerDynamicTexture
 {

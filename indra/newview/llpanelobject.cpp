@@ -39,9 +39,11 @@
 #include "lleconomy.h"
 #include "llerror.h"
 #include "llfontgl.h"
+#include "llmaterialtable.h"
 #include "llpermissionsflags.h"
 #include "llstring.h"
 #include "llvolume.h"
+#include "material_codes.h"
 #include "m3math.h"
 
 // project includes

@@ -207,6 +207,8 @@
 #include "patch_dct.h"
 #include "sound_ids.h"
 
+// Builds work with all headers below commented out as of 2009-09-10 JC
+
 // Library includes from llprimitive
 #include "imageids.h"
 #include "legacy_object_types.h"

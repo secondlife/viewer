@@ -65,6 +65,7 @@
 // linden library headers
 #include "llprimitive.h"
 #include "llwindow.h"			// incBusyCount()
+#include "material_codes.h"
 
 const LLVector3 DEFAULT_OBJECT_SCALE(0.5f, 0.5f, 0.5f);
 

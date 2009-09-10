@@ -33,6 +33,7 @@
 #define LLFOLDERVIEWITEM_H
 
 #include "llview.h"
+#include "lldarray.h"  // *TODO: Eliminate, forward declare
 
 class LLFontGL;
 class LLFolderView;

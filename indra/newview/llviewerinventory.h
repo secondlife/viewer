@@ -37,6 +37,8 @@
 #include "llframetimer.h"
 #include "llwearable.h"
 
+#include <boost/signals2.hpp>	// boost::signals2::trackable
+
 class LLFolderView;
 class LLFolderBridge;
 class LLViewerInventoryCategory;
