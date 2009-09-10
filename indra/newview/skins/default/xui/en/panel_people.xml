@@ -219,6 +219,7 @@
          name="groups_panel"
          width="285">
             <group_list
+             draw_heading="false"
              follows="left|top|right|bottom"
              height="357"
              layout="topleft"

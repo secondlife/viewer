@@ -556,8 +556,6 @@ BOOL LLPanelAvatarMeProfile::postBuild()
 	childSetCommitCallback("status_combo", boost::bind(&LLPanelAvatarMeProfile::onStatusChanged, this), NULL);
 	childSetCommitCallback("status_me_message_text", boost::bind(&LLPanelAvatarMeProfile::onStatusMessageChanged, this), NULL);
 
-	childSetTextArg("partner_edit_link", "[URL]", getString("partner_edit_link_url"));
-
 	resetControls();
 	resetData();
 

@@ -21,10 +21,6 @@
      name="my_account_link_url"
      value="http://secondlife.com/account" />
     <string
-     name="partner_edit_link_url">
-        http://www.secondlife.com/account/partners.php?lang=en
-    </string>
-    <string
      name="no_partner_text"
      value="None" />
     <scroll_container
@@ -216,15 +212,6 @@
          text_color="white"
          top_pad="15"
          value="Partner:"
-         width="100" />
-        <text
-         follows="left|top"
-         height="15"
-         layout="topleft"
-         left_pad="10"
-         name="partner_edit_link"
-         top_delta="0"
-         value="[[URL] Edit]"
          width="100" />
         <panel
          follows="left|top|right"
