@@ -72,6 +72,7 @@ private:
 	DocAt mDockAt;
 	LLView* mDockWidget;
 	LLRect mPrevDockRect;
+	LLRect mRootRect;
 	LLFloater* mDockableFloater;
 	LLUIImagePtr mDockTongue;
 	S32 mDockTongueX;

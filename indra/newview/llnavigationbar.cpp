@@ -298,7 +298,7 @@ void LLNavigationBar::onHomeButtonClicked()
 
 void LLNavigationBar::onSearchCommit()
 {
-	std::string search_query = mSearchComboBox->getValue().asString();
+	std::string search_query = mSearchComboBox->getSimple();
 	if(!search_query.empty())
 	{
 		LLSearchHistory::getInstance()->addEntry(search_query);

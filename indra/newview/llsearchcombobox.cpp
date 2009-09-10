@@ -153,16 +153,16 @@ void LLSearchComboBox::onSelectionCommit()
 	std::string search_query = getSimple();
 	LLStringUtil::trim(search_query);
 
-	mTextEntry->setText(search_query);
-	setControlValue(search_query);
-
+	// Order of add() and mTextEntry->setText does matter because add() will select first item 
+	// in drop down list and its label will be copied to text box rewriting mTextEntry->setText() call
 	if(!search_query.empty())
 	{
 		remove(search_query);
 		add(search_query, ADD_TOP);
 	}
 
-	LLUICtrl::onCommit();
+	mTextEntry->setText(search_query);
+	setControlValue(search_query);
 }
 
 BOOL LLSearchComboBox::remove(const std::string& name)

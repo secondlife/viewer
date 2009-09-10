@@ -670,6 +670,10 @@ LLChicletPanel::LLChicletPanel(const Params&p)
 
 	LLPanel::Params panel_params;
 	mScrollArea = LLUICtrlFactory::create<LLPanel>(panel_params,this);
+
+	// important for Show/Hide Camera and Move controls menu in bottom tray to work properly
+	mScrollArea->setMouseOpaque(false);
+
 	addChild(mScrollArea);
 }
 

@@ -65,11 +65,14 @@ void LLDockControl::repositionDockable()
 void LLDockControl::calculateDockablePosition()
 {
 	LLRect dockRect = mDockWidget->calcScreenRect();
-	if (mPrevDockRect != dockRect || mRecalculateDocablePosition)
+	LLRect rootRect = mDockableFloater->getRootView()->getRect();
+
+	// recalculate dockable position if dock position changed
+	// or root view rect changed or recalculation is forced
+	if (mPrevDockRect != dockRect || mRootRect != rootRect
+			|| mRecalculateDocablePosition)
 	{
 		LLRect dockableRect = mDockableFloater->calcScreenRect();
-		LLRect rootRect = mDockableFloater->getRootView()->getRect();
-
 		S32 x = 0;
 		S32 y = 0;
 		switch (mDockAt)
@@ -100,6 +103,7 @@ void LLDockControl::calculateDockablePosition()
 		mDockableFloater->screenPointToLocal(mDockTongueX, mDockTongueY,
 				&mDockTongueX, &mDockTongueY);
 		mPrevDockRect = dockRect;
+		mRootRect = rootRect;
 		mRecalculateDocablePosition = false;
 	}
 }
