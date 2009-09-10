@@ -24,6 +24,7 @@ indra/newview/res-sdl
 indra/newview/skins
 indra/newview/vivox-runtime
 indra/server-linux-*
+indra/test/linden_file.dat
 indra/test_apps/llmediatest/dependencies/i686-win32
 indra/test_apps/terrain_mule/*.dll
 indra/viewer-linux-*

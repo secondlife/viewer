@@ -3,6 +3,7 @@
 project(llmessage)
 
 include(00-Common)
+include(GoogleMock)
 include(LLAddBuildTest)
 include(LLCommon)
 include(LLMath)
@@ -230,6 +231,7 @@ IF (NOT LINUX AND VIEWER)
       ${LLVFS_LIBRARIES}
       ${LLMATH_LIBRARIES}
       ${LLCOMMON_LIBRARIES}
+      ${GOOGLEMOCK_LIBRARIES}
       )
 
     LL_ADD_INTEGRATION_TEST(
