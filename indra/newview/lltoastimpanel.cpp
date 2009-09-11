@@ -57,7 +57,19 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	mSessionID = p.session_id;
 	mNotification = p.notification;
 
-	mReplyBtn->setClickedCallback(boost::bind(&LLToastIMPanel::onClickReplyBtn, this));
+	// if message comes from the system - there shouldn't be a reply btn
+	if(p.from == "Second Life")
+	{
+		mReplyBtn->setVisible(FALSE);
+		S32 btn_height = mReplyBtn->getRect().getHeight();
+		LLRect msg_rect = mMessage->getRect();
+		msg_rect.setLeftTopAndSize(msg_rect.mLeft, msg_rect.mTop, msg_rect.getWidth(), msg_rect.getHeight() + btn_height);
+		mMessage->setRect(msg_rect);
+	}
+	else
+	{
+		mReplyBtn->setClickedCallback(boost::bind(&LLToastIMPanel::onClickReplyBtn, this));
+	}
 
 	S32 maxLinesCount;
 	std::istringstream ss( getString("message_max_lines_count") );

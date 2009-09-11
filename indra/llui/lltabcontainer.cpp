@@ -306,7 +306,7 @@ void LLTabContainer::draw()
 
 	setScrollPosPixels((S32)lerp((F32)getScrollPosPixels(), (F32)target_pixel_scroll, LLCriticalDamp::getInterpolant(0.08f)));
 
-	BOOL has_scroll_arrows = (mMaxScrollPos > 0) || (mScrollPosPixels > 0);
+	BOOL has_scroll_arrows = !getTabsHidden() && ((mMaxScrollPos > 0) || (mScrollPosPixels > 0));
 	if (!mIsVertical)
 	{
 		mJumpPrevArrowBtn->setVisible( has_scroll_arrows );
