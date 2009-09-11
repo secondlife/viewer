@@ -100,7 +100,6 @@
 #include "llfloaterdirectory.h"
 #include "llfloaterchatterbox.h"
 #include "llfloaterfonttest.h"
-#include "llfloatergesture.h"
 #include "llfloatergodtools.h"
 #include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
@@ -183,7 +182,6 @@
 #include "lluuid.h"
 #include "llviewercamera.h"
 #include "llviewergenericmessage.h"
-#include "llviewergesture.h"
 #include "llviewertexturelist.h"	// gTextureList
 #include "llviewerinventory.h"
 #include "llviewermenufile.h"	// init_menu_file()
@@ -210,6 +208,7 @@
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llfloaternotificationsconsole.h"
+#include "llfloatercamera.h"
 
 #include "lltexlayer.h"
 #include "llappearancemgr.h"
@@ -3768,6 +3767,7 @@ void handle_reset_view()
 	else
 	{
 		reset_view_final( TRUE );
+		LLFloaterCamera::resetCameraMode();
 	}
 }
 

@@ -429,7 +429,7 @@ BOOL LLTabContainer::handleMouseDown( S32 x, S32 y, MASK mask )
 {
 	static LLUICachedControl<S32> tabcntrv_pad ("UITabCntrvPad", 0);
 	BOOL handled = FALSE;
-	BOOL has_scroll_arrows = (getMaxScrollPos() > 0);
+	BOOL has_scroll_arrows = (getMaxScrollPos() > 0) && !getTabsHidden();
 
 	if (has_scroll_arrows)
 	{
@@ -498,7 +498,7 @@ BOOL LLTabContainer::handleMouseDown( S32 x, S32 y, MASK mask )
 BOOL LLTabContainer::handleHover( S32 x, S32 y, MASK mask )
 {
 	BOOL handled = FALSE;
-	BOOL has_scroll_arrows = (getMaxScrollPos() > 0);
+	BOOL has_scroll_arrows = (getMaxScrollPos() > 0) && !getTabsHidden();
 
 	if (has_scroll_arrows)
 	{
@@ -540,7 +540,7 @@ BOOL LLTabContainer::handleHover( S32 x, S32 y, MASK mask )
 BOOL LLTabContainer::handleMouseUp( S32 x, S32 y, MASK mask )
 {
 	BOOL handled = FALSE;
-	BOOL has_scroll_arrows = (getMaxScrollPos() > 0);
+	BOOL has_scroll_arrows = (getMaxScrollPos() > 0)  && !getTabsHidden();
 
 	if (has_scroll_arrows)
 	{
@@ -1840,12 +1840,11 @@ void LLTabContainer::updateMaxScrollPos()
 
 void LLTabContainer::commitHoveredButton(S32 x, S32 y)
 {
-	if (hasMouseCapture())
+	if (!getTabsHidden() && hasMouseCapture())
 	{
 		for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
 		{
 			LLTabTuple* tuple = *iter;
-			tuple->mButton->setVisible( TRUE );
 			S32 local_x = x - tuple->mButton->getRect().mLeft;
 			S32 local_y = y - tuple->mButton->getRect().mBottom;
 			if (tuple->mButton->pointInView(local_x, local_y) && tuple->mButton->getEnabled() && !tuple->mTabPanel->getVisible())

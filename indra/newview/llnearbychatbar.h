@@ -63,6 +63,7 @@ protected:
 	LLFrameTimer mGestureLabelTimer;
 	std::vector<LLMultiGesture*> mGestures;
 	std::string mLabel;
+	LLSD::Integer mViewAllItemIndex;
 };
 
 class LLNearbyChatBar

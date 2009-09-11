@@ -60,8 +60,7 @@ public:
 public:
 	void on();
 	void off();
-	void setDock(LLView* dockWidget)
-	{	mDockWidget = dockWidget;};
+	void setDock(LLView* dockWidget);
 	void repositionDockable();
 	void drawToungue();
 protected:

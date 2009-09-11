@@ -31,7 +31,6 @@
      name="groups_filter_label"
      value="Filter Groups" />
     <filter_editor
-     background_image="TextField_Search_Off"
      follows="left|top|right"
      font="SansSerif"
      height="23"
@@ -40,21 +39,8 @@
      max_length="270"
      name="filter_input"
      text_color="black"
-     text_pad_left="26"
      top="3"
      width="256" />
-    <button
-     follows="left|top|right"
-     height="13"
-     image_selected="Search"
-     image_unselected="Search"
-     layout="topleft"
-     left="20"
-     name="people_search"
-     picture_style="true"
-     scale_image="false"
-     top="8"
-     width="13" />
     <tab_container
      follows="left|top|right|bottom"
      height="326"
@@ -303,7 +289,8 @@
          layout="topleft"
          name="recent_panel"
          width="285">
-            <avatar_list
+            <avatar_list_tmp
+             color="DkGray2" 
              follows="left|top|right|bottom"
              height="357"
              layout="topleft"

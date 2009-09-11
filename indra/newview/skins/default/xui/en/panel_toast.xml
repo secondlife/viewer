@@ -11,8 +11,6 @@
   left="100"
   top="500"
   follows="right|bottom" 
-  background_opaque="true"
-  background_visible="true"
   bevel_style="in"
   can_minimize="false"
   can_tear_off="false"
@@ -20,7 +18,7 @@
   can_drag_on_left="false"
   can_close="false"
   can_dock="false"  
-  bg_alpha_color="0.3 0.3 0.3 1.0">
+  >
 
   <text
    visible="false"

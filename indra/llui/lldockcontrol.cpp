@@ -48,10 +48,23 @@ LLDockControl::LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
 	{
 		off();
 	}
+
+	if (dockWidget != NULL) {
+		repositionDockable();
+	}
 }
 
 LLDockControl::~LLDockControl()
 {
+}
+
+void LLDockControl::setDock(LLView* dockWidget)
+{
+	mDockWidget = dockWidget;
+	if (mDockWidget != NULL)
+	{
+		repositionDockable();
+	}
 }
 
 void LLDockControl::repositionDockable()

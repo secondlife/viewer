@@ -446,7 +446,7 @@ void LLPanelAvatarProfile::processGroupProperties(const LLAvatarGroups* avatar_g
 
 void LLPanelAvatarProfile::fillCommonData(const LLAvatarData* avatar_data)
 {
-	childSetValue("register_date", avatar_data->born_on);
+	childSetValue("register_date", LLAvatarPropertiesProcessor::ageFromDate(avatar_data->born_on));
 	childSetValue("sl_description_edit", avatar_data->about_text);
 	childSetValue("fl_description_edit",avatar_data->fl_about_text);
 	childSetValue("2nd_life_pic", avatar_data->image_id);

@@ -50,10 +50,15 @@ class LLSearchEditor : public LLUICtrl
 public:
 	struct Params : public LLInitParam::Block<Params, LLLineEditor::Params>
 	{
-		Optional<LLButton::Params> search_button;
+		Optional<LLButton::Params> search_button, clear_button;
+		Optional<bool> search_button_visible, clear_button_visible;
+		Optional<commit_callback_t> keystroke_callback;
 
 		Params()
 		: search_button("search_button")
+		, search_button_visible("search_button_visible")
+		, clear_button("clear_button")
+		, clear_button_visible("clear_button_visible")
 		{
 			name = "search_editor";
 		}
@@ -66,26 +71,29 @@ protected:
 public:
 	virtual ~LLSearchEditor() {}
 
+	/*virtual*/ void	draw();
+
 	void setText(const LLStringExplicit &new_text) { mSearchEditor->setText(new_text); }
 	const std::string& getText() const		{ return mSearchEditor->getText(); }
-
 
 	// LLUICtrl interface
 	virtual void	setValue(const LLSD& value );
 	virtual LLSD	getValue() const;
 	virtual BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
 	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
+	virtual void	setLabel( const LLStringExplicit &new_label );
 	virtual void	clear();
 
-	void	setKeystrokeCallback(LLLineEditor::callback_t callback, void* user_data)
-	{
-		if(mSearchEditor)
-			mSearchEditor->setKeystrokeCallback(callback,user_data);
-	}
+	void			setKeystrokeCallback( commit_callback_t cb ) { mKeystrokeCallback = cb; }
 
-private:
+protected:
+	void onClearButtonClick(const LLSD& data);
+	virtual void handleKeystroke();
+
+	commit_callback_t mKeystrokeCallback;
 	LLLineEditor* mSearchEditor;
 	LLButton* mSearchButton;
+	LLButton* mClearButton;
 };
 
 #endif  // LL_SEARCHEDITOR_H

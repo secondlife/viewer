@@ -2,9 +2,9 @@
  * @file llavatarlistitem.h
  * @avatar list item header file
  *
- * $LicenseInfo:firstyear=2004&license=viewergpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2004-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,75 +30,45 @@
  * $/LicenseInfo$
  */
 
-#include "llavatariconctrl.h"
-#include <llview.h>
-#include <llpanel.h>
-#include <llfloater.h>
-#include <lltextbox.h>
-#include <llbutton.h>
-#include <lluuid.h>
+#ifndef LL_LLAVATARLISTITEM_H
+#define LL_LLAVATARLISTITEM_H
 
-//#include "llfloaterminiinspector.h"
+#include "llpanel.h"
+#include "lloutputmonitorctrl.h"
+#include "llbutton.h"
+#include "lltextbox.h"
 
-class LLAvatarListItem : public LLPanel 
+class LLAvatarIconCtrl;
+
+class LLAvatarListItem : public LLPanel
 {
 public:
-	struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
-	{
-		Optional<LLUUID>        	avatar_icon;
-		Optional<std::string>		user_name;
-		struct avatar_list_item_buttons
-		{
-			bool    status;
-			bool    info;
-			bool    profile;
-			bool    locator;
-			avatar_list_item_buttons() : status(true), info(true), profile(true), locator(true)
-			{};
-		} buttons;
+	LLAvatarListItem();
+	virtual ~LLAvatarListItem() {};
 
-        Params() 
-		:	avatar_icon("avatar_icon"), 
-			user_name("user_name")
-        {};
-	};
-
-
-	LLAvatarListItem(const Params& p);
-	virtual	~LLAvatarListItem();
-
-    void reshape(S32 width, S32 height, BOOL called_from_parent);
-
-	//interface
-	void setStatus(int status);
-	void setName(std::string name);
-	void setAvatar(LLSD& data);
-    void needsArrange( void ) {mNeedsArrange = true;} 
-
-
-	//event handlers
-	//mouse
-	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
+	virtual BOOL postBuild();
 	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
-	//buttons
+	virtual void setValue(const LLSD& value);
+
+	void setStatus(const std::string& status);
+	void setName(const std::string& name);
+	void setAvatarId(const LLUUID& id);
+
 	void onInfoBtnClick();
-	void onProfileBtnClick();
+
+	void showSpeakingIndicator(bool show) { mSpeakingIndicator->setVisible(show); }
+	void showInfoBtn(bool show_info_btn) {mInfoBtn->setVisible(show_info_btn); }
+	void showStatus(bool show_status) {mStatus->setVisible(show_status); }
+
 
 private:
-    LLAvatarIconCtrl* mAvatar;
-    LLIconCtrl* mLocator;
-	LLTextBox*	mName;
-	LLTextBox*	mStatus;
-	LLButton*	mInfo;
-	LLButton*	mProfile;
-
-	S32 mYPos;
-	S32 mXPos;
-
-	LLFloater*	mInspector;
-    bool        mNeedsArrange;
-
-    //
-    void init(const Params& p);
+	LLAvatarIconCtrl*mAvatarIcon;
+	LLTextBox* mAvatarName;
+	LLTextBox* mStatus;
+	
+	LLOutputMonitorCtrl* mSpeakingIndicator;
+	LLButton* mInfoBtn;
 };
+
+#endif //LL_LLAVATARLISTITEM_H

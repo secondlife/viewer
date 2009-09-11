@@ -41,6 +41,8 @@
 #include <set>
 #include <boost/signals2.hpp>
 
+class LLDate;
+
 /**
  * List of people the agent recently interacted with.
  * 
@@ -62,7 +64,7 @@ public:
 	 * Add specified avatar to the list if it's not there already.
 	 *
 	 * @param id avatar to add.
-	 * @return false if the avatar is in the list already, true otherwisr
+	 * @return false if the avatar is in the list already, true otherwise
 	 */
 	bool add(const LLUUID& id);
 
@@ -94,7 +96,8 @@ public:
 	/*virtual*/ bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata);
 
 private:
-	std::set<LLUUID>	mList;
+	typedef std::map<LLUUID, LLDate> recent_people_t;
+	recent_people_t		mList;
 	signal_t			mChangedSignal;
 };
 

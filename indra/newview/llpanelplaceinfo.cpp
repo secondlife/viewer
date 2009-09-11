@@ -68,7 +68,6 @@ LLPanelPlaceInfo::LLPanelPlaceInfo()
 :	LLPanel(),
 	mParcelID(),
 	mRequestedID(),
-	mPosRegion(),
 	mLandmarkID(),
 	mMinHeight(0),
 	mScrollingPanel(NULL),
@@ -82,8 +81,6 @@ LLPanelPlaceInfo::~LLPanelPlaceInfo()
 	{
 		LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelID, this);
 	}
-
-	LLViewerParcelMgr::getInstance()->removeObserver(this);
 }
 
 BOOL LLPanelPlaceInfo::postBuild()
@@ -254,7 +251,6 @@ void LLPanelPlaceInfo::resetLocation()
 	mParcelID.setNull();
 	mRequestedID.setNull();
 	mLandmarkID.setNull();
-	mPosRegion.clearVec();
 	std::string not_available = getString("not_available");
 	mMaturityRatingText->setValue(not_available);
 	mParcelOwner->setValue(not_available);
@@ -330,8 +326,6 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 
 	getChild<LLAccordionCtrl>("advanced_info_accordion")->setVisible(is_info_type_agent);
 
-	LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
-
 	switch(type)
 	{
 		case CREATE_LANDMARK:
@@ -339,15 +333,6 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 		break;
 
 		case AGENT:
-			if (parcel_mgr)
-			{
-				// If information is requested for current agent location
-				// start using LLViewerParcelMgr for land selection.
-				parcel_mgr->addObserver(this);
-				parcel_mgr->selectParcelAt(gAgent.getPositionGlobal());
-			}
-
-		// Fall through to PLACE case
 		case PLACE:
 			mCurrentTitle = getString("title_place");
 
@@ -366,16 +351,7 @@ void LLPanelPlaceInfo::setInfoType(INFO_TYPE type)
 		break;
 	}
 
-	if (type != AGENT && parcel_mgr != NULL)
-	{
-		if (!parcel_mgr->selectionEmpty())
-		{
-			parcel_mgr->deselectUnused();
-		}
-		parcel_mgr->removeObserver(this);
-	}
-
-	if (type != PLACE)
+	if (type != AGENT)
 		toggleMediaPanel(FALSE);
 
 	mInfoType = type;
@@ -442,12 +418,16 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 		mSnapshotCtrl->setImageAssetID(parcel_data.snapshot_id);
 	}
 
-	if( !parcel_data.name.empty())
+	if(!parcel_data.name.empty())
 	{
 		mParcelName->setText(parcel_data.name);
 	}
+	else
+	{
+		mParcelName->setText(LLStringUtil::null);
+	}
 
-	if( !parcel_data.desc.empty())
+	if(!parcel_data.desc.empty())
 	{
 		mDescEditor->setText(parcel_data.desc);
 	}
@@ -471,21 +451,12 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 	//because we deal with remote parcel response format
 	bool isForSale = (parcel_data.flags & DFQ_FOR_SALE)? TRUE : FALSE;
 	getChild<LLIconCtrl>("icon_for_sale")->setVisible(isForSale);
-	
-	// Just use given region position for display
-	S32 region_x = llround(mPosRegion.mV[0]);
-	S32 region_y = llround(mPosRegion.mV[1]);
-	S32 region_z = llround(mPosRegion.mV[2]);
 
-	// If the region position is zero, grab position from the global
-	if(mPosRegion.isExactlyZero())
-	{
-		region_x = llround(parcel_data.global_x) % REGION_WIDTH_UNITS;
-		region_y = llround(parcel_data.global_y) % REGION_WIDTH_UNITS;
-		region_z = llround(parcel_data.global_z);
-	}
+	S32 region_x = llround(parcel_data.global_x) % REGION_WIDTH_UNITS;
+	S32 region_y = llround(parcel_data.global_y) % REGION_WIDTH_UNITS;
+	S32 region_z = llround(parcel_data.global_z);
 
-	std::string name;
+	std::string name = getString("not_available");
 	if (!parcel_data.sim_name.empty())
 	{
 		name = llformat("%s (%d, %d, %d)",
@@ -495,17 +466,23 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 	
 	if (mInfoType == CREATE_LANDMARK)
 	{
-		mTitleEditor->setText(parcel_data.name);
+
+		if (parcel_data.name.empty())
+		{
+			mTitleEditor->setText(name);
+		}
+		else
+		{
+			mTitleEditor->setText(parcel_data.name);
+		}
+
 		mNotesEditor->setText(LLStringUtil::null);
 	}
 }
 
-void LLPanelPlaceInfo::displayParcelInfo(const LLVector3& pos_region,
-									 const LLUUID& region_id,
-									 const LLVector3d& pos_global)
+void LLPanelPlaceInfo::displayParcelInfo(const LLUUID& region_id,
+										 const LLVector3d& pos_global)
 {
-	mPosRegion = pos_region;
-
 	LLViewerRegion* region = gAgent.getRegion();
 	if (!region)
 		return;
@@ -514,6 +491,10 @@ void LLPanelPlaceInfo::displayParcelInfo(const LLVector3& pos_region,
 	std::string url = region->getCapability("RemoteParcelRequest");
 	if (!url.empty())
 	{
+		F32 region_x = (F32)fmod(pos_global.mdV[VX], (F64)REGION_WIDTH_METERS);
+		F32 region_y = (F32)fmod(pos_global.mdV[VY], (F64)REGION_WIDTH_METERS);
+		LLVector3 pos_region(region_x, region_y, (F32)pos_global.mdV[VZ]);
+
 		body["location"] = ll_sd_from_vector3(pos_region);
 		if (!region_id.isNull())
 		{
@@ -532,12 +513,10 @@ void LLPanelPlaceInfo::displayParcelInfo(const LLVector3& pos_region,
 	}
 }
 
-void LLPanelPlaceInfo::displayAgentParcelInfo()
+void LLPanelPlaceInfo::displaySelectedParcelInfo(LLParcel* parcel,
+											  LLViewerRegion* region,
+											  const LLVector3d& pos_global)
 {
-	mParcel = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection();
-
-	LLParcel* parcel = mParcel->getParcel();
-	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 	if (!region || !parcel)
 		return;
 
@@ -568,14 +547,9 @@ void LLPanelPlaceInfo::displayAgentParcelInfo()
 	parcel_data.name = parcel->getName();
 	parcel_data.sim_name = gAgent.getRegion()->getName();
 	parcel_data.snapshot_id = parcel->getSnapshotID();
-	LLVector3d global_pos = gAgent.getPositionGlobal();
-	parcel_data.global_x = global_pos.mdV[0];
-	parcel_data.global_y = global_pos.mdV[1];
-	parcel_data.global_z = global_pos.mdV[2];
-
-	mPosRegion = gAgent.getPositionAgent();
-
-	processParcelInfo(parcel_data);
+	parcel_data.global_x = pos_global.mdV[0];
+	parcel_data.global_y = pos_global.mdV[1];
+	parcel_data.global_z = pos_global.mdV[2];
 
 	std::string on = getString("on");
 	std::string off = getString("off");
@@ -589,7 +563,7 @@ void LLPanelPlaceInfo::displayAgentParcelInfo()
 	{
 		mVoiceText->setText(off);
 	}
-	
+
 	if (!region->getBlockFly() && parcel->getAllowFly())
 	{
 		mFlyText->setText(on);
@@ -769,14 +743,9 @@ void LLPanelPlaceInfo::displayAgentParcelInfo()
 		}
 	}
 
-	getChild<LLAccordionCtrlTab>("sales_tab")->setVisible(for_sale);
-}
+	processParcelInfo(parcel_data);
 
-// virtual
-void LLPanelPlaceInfo::changed()
-{
-	resetLocation();
-	displayAgentParcelInfo();
+	getChild<LLAccordionCtrlTab>("sales_tab")->setVisible(for_sale);
 }
 
 void LLPanelPlaceInfo::updateEstateName(const std::string& name)
@@ -835,7 +804,10 @@ void LLPanelPlaceInfo::onCommitTitleOrNote(LANDMARK_INFO_TYPE type)
 		}
 	}
 
-	if (item_value != current_value &&
+	LLStringUtil::trim(current_value);
+
+	if (!current_value.empty() &&
+		item_value != current_value &&
 	    gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))
 	{
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
@@ -867,11 +839,17 @@ void LLPanelPlaceInfo::createLandmark(const LLUUID& folder_id)
 	if (name.empty())
 	{
 		name = mParcelName->getText();
+
+		// If no parcel exists use the region name instead.
+		if (name.empty())
+		{
+			name = mRegionName->getText();
+		}
 	}
 
 	LLStringUtil::replaceChar(desc, '\n', ' ');
 	// If no folder chosen use the "Landmarks" folder.
-	LLLandmarkActions::createLandmarkHere(name, desc, 
+	LLLandmarkActions::createLandmarkHere(name, desc,
 		folder_id.notNull() ? folder_id : gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK));
 }
 
@@ -884,10 +862,14 @@ void LLPanelPlaceInfo::createPick(const LLVector3d& global_pos)
 	pick_data.pick_id = LLUUID::generateNewID();
 	pick_data.creator_id = gAgentID;
 
-	//legacy var  need to be deleted
+	//legacy var needs to be deleted
 	pick_data.top_pick = FALSE;
 	pick_data.parcel_id = mParcelID;
 	pick_data.name = mParcelName->getText();
+	if (pick_data.name.empty())
+	{
+		pick_data.name = mRegionName->getText();
+	}
 	pick_data.desc = mDescEditor->getText();
 	pick_data.snapshot_id = mSnapshotCtrl->getImageAssetID();
 	pick_data.pos_global = global_pos;

@@ -55,6 +55,7 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	mUserName->setValue(p.from);
 	mTime->setValue(p.time);
 	mSessionID = p.session_id;
+	mNotification = p.notification;
 
 	mReplyBtn->setClickedCallback(boost::bind(&LLToastIMPanel::onClickReplyBtn, this));
 
@@ -75,7 +76,9 @@ LLToastIMPanel::~LLToastIMPanel()
 //--------------------------------------------------------------------------
 void LLToastIMPanel::onClickReplyBtn()
 {
-	LLIMFloater::toggle(mSessionID);
+	LLSD response = mNotification->getResponseTemplate();
+	response["respondbutton"] = true;
+	mNotification->respond(response);
 }
 
 //--------------------------------------------------------------------------

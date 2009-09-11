@@ -1,65 +1,89 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<!-- All our XML is utf-8 encoded. -->
-
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
-	name="avatar_list_item"
-	title="avatar_list_item"
-  visible="true"
-	width="314"
-	height="30"
-  left="0"
-  top="100"
-  follows="bottom|right|left"
-  min_width="150" 
-  max_height="30" 
-  
-  background_opaque="false"
-  background_visible="true"
-  bevel_style="in"
-  bg_alpha_color="0.3 0.3 0.3 1.0">
-  
-  <avatar_icon
-    bottom="5" left="5" width="20" height="20" follows="top|left"
-    color="1 1 1 1" enabled="true" image_name="smile.png"
-    mouse_opaque="true" name="avatar_icon"
-  />
-  
-  <text
-    bottom="4" left="35" width="160" height="20" follows="right|left"
-    font="SansSerifBigBold" text_color="white"
-    mouse_opaque="true" name="user_name" >
-    Boris Linden
-  </text>  
-  
-  <text
-    bottom="3" left="190" width="40" height="20" follows="right"
-    font="SansSerif" text_color="0.5 0.5 0.5 1.0"
-    mouse_opaque="true" name="user_status" >
-    Away
-  </text>
-
-  <icon
-    bottom="5" left="230" width="20" height="20" follows="right"
-    color="1 1 1 1" enabled="true" image_name="speaking_indicator.tga"
-    mouse_opaque="true" name="locator"
-  />
-  
-  <button
-    bottom="5" left="260" width="20" height="20" follows="right"
-    name="info_btn" label=""
-    image_unselected="avatar_info_btn.tga" image_disabled="avatar_info_btn.tga"
-    image_selected="avatar_info_btn_active.tga" image_hover_selected="avatar_info_btn_active.tga"
-    image_disabled_selected="avatar_info_btn.tga" font="SansSerifBigBold"
-  />
-  
-  <button
-    bottom="5" left="290" width="20" height="20" follows="right"
-    name="profile_btn" label=""
-    image_unselected="profile_chevron_btn.tga" image_disabled="profile_chevron_btn.tga"
-    image_selected="profile_chevron_btn_active.tga" image_hover_selected="profile_chevron_btn_active.tga"
-    image_disabled_selected="profile_chevron_btn.tga" font="SansSerifBigBold"
-  />
-
-
-
-</panel> 
+ follows="top|right|left"
+ height="24"
+ layout="topleft"
+ left="0"
+ name="avatar_list_item"
+ top="0"
+ width="320">
+    <icon
+     follows="top|right|left" 
+     height="24"
+     image_name="ListItem_Over"
+     layout="topleft"
+     left="0"
+     name="hovered_icon"
+     top="0"
+     visible="false"
+     width="320" />
+    <icon
+     height="24"
+     follows="top|right|left"
+     image_name="ListItem_Select"
+     layout="topleft"
+     left="0"
+     name="selected_icon"
+     top="0"
+     visible="false"
+     width="320" />
+    <avatar_icon
+     follows="top|left"
+     height="20"
+     image_name="smile.png"
+     layout="topleft"
+     left="5"
+     mouse_opaque="true"
+     top="2"
+     width="20" />
+    <text
+     follows="left|right"
+     font="SansSerifBigBold"
+     height="20"
+     layout="topleft"
+     left_pad="5"
+     name="avatar_name"
+     text_color="white"
+     top="4"
+     use_ellipses="true" 
+     value="Unknown"
+     width="180" />
+    <text
+     follows="right"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left_pad="10"
+     name="avatar_status"
+     text_color="0.5 0.5 0.5 1"
+     value="Away"
+     width="50" />
+    <output_monitor
+     auto_update="true"
+     follows="right"
+     draw_border="false"
+     halign="left"
+     height="16"
+     layout="topleft"
+     left_pad="3"
+     mouse_opaque="true"
+     name="speaking_indicator"
+     top="4"
+     visible="true"
+     width="20" />
+    <button
+     follows="right"
+     font="SansSerifBigBold"
+     height="18"
+     image_disabled="Info"
+     image_disabled_selected="Info"
+     image_hover_selected="Info"
+     image_selected="Info"
+     image_unselected="Info"
+     layout="topleft"
+     left_pad="2"
+     name="info_btn"
+     picture_style="true"
+     top="2"
+     width="18" />
+</panel>

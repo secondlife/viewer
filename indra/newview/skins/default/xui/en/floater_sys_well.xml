@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater 
- background_opaque="false"
- background_visible="true" 
  bevel_style="in"
- bg_alpha_color="0.0 0.0 0.0 0.0"
  left="0"
  top="0" 
  follows="right|bottom"

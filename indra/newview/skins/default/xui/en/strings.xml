@@ -1818,6 +1818,7 @@ this texture in your inventory
 	<string name="AnimFlagStart" value=" Start Animation :   " />
 	<string name="Wave"          value=" Wave " />
 	<string name="HelloAvatar"   value=" Hello, avatar! " />
+	<string name="ViewAllGestures"  value="  View All >>" />
 				
 	<!-- inventory filter -->
     <!-- use value="" because they have preceding spaces -->

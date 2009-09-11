@@ -41,6 +41,9 @@
 #include "llvoiceclient.h"
 
 static LLDefaultChildRegistry::Register<LLAvatarList> r("avatar_list");
+static LLDefaultChildRegistry::Register<LLAvatarListTmp> r_tmp("avatar_list_tmp");
+
+static const std::string COMMENT_TEXTBOX = "comment_text";
 
 LLAvatarList::Params::Params()
 :
@@ -302,3 +305,213 @@ void LLAvatarList::updateVolume()
 			icon_cell->setValue(getVolumeIcon(speaker_id));
 	}
 }
+
+
+
+
+#include "llavatarlistitem.h"
+
+LLAvatarListTmp::Params::Params()
+:
+volume_column_width("volume_column_width", 0)
+, online_go_first("online_go_first", true)
+{
+}
+
+
+
+LLAvatarListTmp::LLAvatarListTmp(const Params& p)
+:	LLFlatListView(p)
+, mHaveVolumeColumn(p.volume_column_width > 0)
+, mOnlineGoFirst(p.online_go_first)
+{
+	LLRect item_list_rect = getLocalRect();
+	item_list_rect.stretch( -getBorderWidth());
+
+	LLTextBox::Params text_p;
+	text_p.name(COMMENT_TEXTBOX);
+	text_p.border_visible(false);
+	text_p.rect(item_list_rect);
+	text_p.follows.flags(FOLLOWS_ALL);
+	addChild(LLUICtrlFactory::create<LLTextBox>(text_p));
+}
+
+// virtual
+void LLAvatarListTmp::draw()
+{
+	LLFlatListView::draw();
+	if (mHaveVolumeColumn)
+	{
+		updateVolume();
+	}
+}
+
+std::vector<LLUUID> LLAvatarListTmp::getSelectedIDs()
+{
+	LLUUID selected_id;
+	std::vector<LLUUID> avatar_ids;
+
+	getSelectedUUIDs(avatar_ids);
+
+	return avatar_ids;
+}
+
+void LLAvatarListTmp::addNewItem(const LLUUID& id, const std::string& name, BOOL is_bold, EAddPosition pos)
+{
+	LLAvatarListItem* item = new LLAvatarListItem();
+	item->showStatus(true);
+	item->showInfoBtn(true);
+	item->showSpeakingIndicator(true);
+	item->setName(name);
+	item->setAvatarId(id);
+
+	item->childSetVisible("info_btn", false);
+
+	addItem(item, id, pos);
+
+	setCommentVisible(false);
+}
+
+BOOL LLAvatarListTmp::update(const std::vector<LLUUID>& all_buddies, const std::string& name_filter)
+{
+	BOOL have_names = TRUE;
+
+	// Save selection.	
+	std::vector<LLUUID> selected_ids = getSelectedIDs();
+	LLUUID current_id = getSelectedUUID();
+	LLRect pos = getScrolledViewRect();
+
+	std::vector<LLUUID>::const_iterator buddy_it = all_buddies.begin();
+	clear();
+	for(; buddy_it != all_buddies.end(); ++buddy_it)
+	{
+		std::string name;
+		const LLUUID& buddy_id = *buddy_it;
+		have_names &= gCacheName->getFullName(buddy_id, name);
+		if (name_filter != LLStringUtil::null && !findInsensitive(name, name_filter))
+			continue;
+		addNewItem(buddy_id, name, LLAvatarTracker::instance().isBuddyOnline(buddy_id));
+	}
+
+	// Changed item in place, need to request sort and update columns
+	// because we might have changed data in a column on which the user
+	// has already sorted. JC
+	//	updateSort(); // TODO: implement sorting
+
+	// re-select items
+	//	selectMultiple(selected_ids); // TODO: implement in LLFlatListView if need
+	selectItemByUUID(current_id);
+
+	scrollToShowRect(pos);
+
+
+	setCommentVisible(false);
+
+	return have_names;
+}
+
+
+const LLUUID LLAvatarListTmp::getCurrentID() const
+{
+	return getSelectedUUID();
+}
+
+void LLAvatarListTmp::setCommentText(const std::string& comment_text)
+{
+	getChild<LLTextBox>(COMMENT_TEXTBOX)->setValue(comment_text);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// PROTECTED SECTION
+//////////////////////////////////////////////////////////////////////////
+
+// virtual overridden
+bool LLAvatarListTmp::removeItemPair(item_pair_t* item_pair)
+{
+	bool removed = LLFlatListView::removeItemPair(item_pair);
+	setCommentVisible(size() == 0);
+	return removed;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// PRIVATE SECTION
+//////////////////////////////////////////////////////////////////////////
+
+// static
+std::string LLAvatarListTmp::getVolumeIcon(const LLUUID& id)
+{
+	//
+	// Determine icon appropriate for the current avatar volume.
+	//
+	// *TODO: remove this in favor of LLOutputMonitorCtrl
+	// when ListView widget is implemented
+	// which is capable of containing arbitrary widgets.
+	//
+	static LLOutputMonitorCtrl::Params default_monitor_params(LLUICtrlFactory::getDefaultParams<LLOutputMonitorCtrl>());
+	bool		muted = gVoiceClient->getIsModeratorMuted(id) || gVoiceClient->getOnMuteList(id);
+	F32			power = gVoiceClient->getCurrentPower(id);
+	std::string	icon;
+
+	if (muted)
+	{
+		icon = default_monitor_params.image_mute.name;
+	}
+	else if (power == 0.f)
+	{
+		icon = default_monitor_params.image_off.name;
+	}
+	else if (power < LLVoiceClient::OVERDRIVEN_POWER_LEVEL)
+	{
+		S32 icon_image_idx = llmin(2, llfloor((power / LLVoiceClient::OVERDRIVEN_POWER_LEVEL) * 3.f));
+		switch(icon_image_idx)
+		{
+		default:
+		case 0:
+			icon = default_monitor_params.image_on.name;
+			break;
+		case 1:
+			icon = default_monitor_params.image_level_1.name;
+			break;
+		case 2:
+			icon = default_monitor_params.image_level_2.name;
+			break;
+		}
+	}
+	else
+	{
+		// overdriven
+		icon = default_monitor_params.image_level_3.name;
+	}
+
+	return icon;
+}
+
+// Update volume column for all list rows.
+void LLAvatarListTmp::updateVolume()
+{
+	// TODO: implement via Listener
+	/*
+	item_list& items = getItemList();
+
+	for (item_list::iterator item_it = items.begin();
+	item_it != items.end();
+	++item_it)
+	{
+	LLScrollListItem* itemp = (*item_it);
+	LLUUID speaker_id = itemp->getUUID();
+
+	LLScrollListCell* icon_cell = itemp->getColumn(COL_VOLUME);
+	if (icon_cell)
+	icon_cell->setValue(getVolumeIcon(speaker_id));
+	}
+	*/
+}
+
+void LLAvatarListTmp::setCommentVisible(bool visible) const
+{
+	getChildView(COMMENT_TEXTBOX)->setVisible(visible);
+}
+
+// EOF

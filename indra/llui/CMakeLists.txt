@@ -40,6 +40,7 @@ set(llui_SOURCE_FILES
     lleditmenuhandler.cpp
     llf32uictrl.cpp
     llfiltereditor.cpp
+    llflatlistview.cpp
     llfloater.cpp
     llfloaterreg.cpp
     llflyoutbutton.cpp 
@@ -122,6 +123,7 @@ set(llui_HEADER_FILES
     lleditmenuhandler.h
     llf32uictrl.h
     llfiltereditor.h 
+    llflatlistview.h
     llfloater.h
     llfloaterreg.h
     llflyoutbutton.h 

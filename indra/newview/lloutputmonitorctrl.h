@@ -35,6 +35,7 @@
 
 #include "v4color.h"
 #include "llview.h"
+#include "llmutelist.h"
 
 class LLTextBox;
 class LLUICtrlFactory;
@@ -44,7 +45,7 @@ class LLUICtrlFactory;
 //
 
 class LLOutputMonitorCtrl
-: public LLView
+: public LLView, LLMuteListObserver
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
@@ -56,6 +57,8 @@ public:
 								image_level_1,
 								image_level_2,
 								image_level_3;
+		Optional<bool>		auto_update;
+		Optional<LLUUID>	speaker_id;
 
 		Params();
 	};
@@ -80,6 +83,11 @@ public:
 	// correct button image.
 	void			setIsTalking(bool val) { mIsTalking = val; }
 
+	void			setSpeakerId(const LLUUID& speaker_id);
+
+	//called by mute list
+	virtual void onChange();
+
 private:
 	//static LLColor4	sColorMuted;
 	//static LLColor4	sColorNormal;
@@ -89,6 +97,8 @@ private:
 	//static F32		sRectWidthRatio;
 	//static F32		sRectHeightRatio;
 	
+	
+
 	F32				mPower;
 	bool			mIsMuted;
 	bool			mIsTalking;
@@ -98,6 +108,12 @@ private:
 	LLPointer<LLUIImage> mImageLevel1;
 	LLPointer<LLUIImage> mImageLevel2;
 	LLPointer<LLUIImage> mImageLevel3;
+
+	/** whether to deal with gVoiceClient directly */
+	bool			mAutoUpdate;
+
+	/** uuid of a speaker being monitored */
+	LLUUID			mSpeakerId;
 };
 
 #endif

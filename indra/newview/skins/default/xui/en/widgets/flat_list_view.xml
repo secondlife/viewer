@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<flat_list_view
+ allow_select="true"
+ item_pad="5"
+ keep_one_selected="true"
+ multi_select="false"
+ opaque="true" />

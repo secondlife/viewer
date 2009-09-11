@@ -32,32 +32,34 @@
 #ifndef LL_LLPANELPLACES_H
 #define LL_LLPANELPLACES_H
 
-#include "lltimer.h"
-
 #include "llpanel.h"
 
-#include "llinventory.h"
-
-#include "llinventorymodel.h"
-#include "llpanelplaceinfo.h"
-
 class LLInventoryItem;
-class LLLandmark;
-class LLPanelPlacesTab;
 class LLFilterEditor;
+class LLLandmark;
+class LLPanelPlaceInfo;
+class LLPanelPlacesTab;
+class LLParcelSelection;
+class LLPlacesInventoryObserver;
+class LLPlacesParcelObserver;
 class LLTabContainer;
+class LLToggleableMenu;
 
 typedef std::pair<LLUUID, std::string>	folder_pair_t;
 
-class LLPanelPlaces : public LLPanel, LLInventoryObserver
+class LLPanelPlaces : public LLPanel
 {
 public:
 	LLPanelPlaces();
 	virtual ~LLPanelPlaces();
 
 	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void changed(U32 mask);
 	/*virtual*/ void onOpen(const LLSD& key);
+
+	// Called on parcel selection change to update place information.
+	void changedParcelSelection();
+	// Called on agent inventory change to find out when inventory gets usable.
+	void changedInventory(U32 mask);
 
 	void setItem(LLInventoryItem* item);
 
@@ -96,9 +98,12 @@ private:
 	LLButton*					mShareBtn;
 	LLButton*					mOverflowBtn;
 
+	LLPlacesInventoryObserver*	mInventoryObserver;
+	LLPlacesParcelObserver*		mParcelObserver;
+
 	// Pointer to a landmark item or to a linked landmark
 	LLPointer<LLInventoryItem>	mItem;
-	
+
 	// Absolute position of the location for teleport, may not
 	// be available (hence zero)
 	LLVector3d					mPosGlobal;
@@ -118,11 +123,13 @@ private:
 
 	// List of folders to choose from when creating a landmark
 	folder_vec_t				mLandmarkFoldersCache;
-	
+
 	// If root view width or height is changed
 	// the pop-up menu must be updated
 	S32							mRootViewWidth;
 	S32							mRootViewHeight;
+
+	LLSafeHandle<LLParcelSelection>	mParcel;
 };
 
 #endif //LL_LLPANELPLACES_H

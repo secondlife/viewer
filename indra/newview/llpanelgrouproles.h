@@ -35,6 +35,7 @@
 
 #include "llpanelgroup.h"
 
+class LLFilterEditor;
 class LLNameListCtrl;
 class LLPanelGroupSubTab;
 class LLPanelGroupMembersSubTab;
@@ -43,7 +44,6 @@ class LLPanelGroupActionsSubTab;
 class LLScrollListCtrl;
 class LLScrollListItem;
 class LLTextEditor;
-class LLSearchEditor;
 
 // Forward declare for friend usage.
 //virtual BOOL LLPanelGroupSubTab::postBuildSubTab(LLView*);
@@ -111,11 +111,6 @@ public:
 	// This allows sub-tabs to collect child widgets from a higher level in the view hierarchy.
 	virtual BOOL postBuildSubTab(LLView* root) { return TRUE; }
 
-	static void onSearchKeystroke(LLLineEditor* caller, void* user_data);
-	void handleSearchKeystroke(LLLineEditor* caller);
-
-	void onClickSearch();
-
 	virtual void setSearchFilter( const std::string& filter );
 
 	virtual void activate();
@@ -148,7 +143,7 @@ protected:
 	LLPanel* mHeader;
 	LLPanel* mFooter;
 
-	LLSearchEditor*	mSearchEditor;
+	LLFilterEditor*	mSearchEditor;
 
 	std::string mSearchFilter;
 

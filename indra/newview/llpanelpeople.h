@@ -40,6 +40,7 @@
 class LLFilterEditor;
 class LLTabContainer;
 class LLAvatarList;
+class LLAvatarListTmp;
 class LLGroupList;
 
 class LLPanelPeople : public LLPanel
@@ -118,7 +119,7 @@ private:
 	LLAvatarList*			mOnlineFriendList;
 	LLAvatarList*			mAllFriendList;
 	LLAvatarList*			mNearbyList;
-	LLAvatarList*			mRecentList;
+	LLAvatarListTmp*		mRecentList;
 	LLGroupList*			mGroupList;
 
 	LLHandle<LLView>		mGroupPlusMenuHandle;

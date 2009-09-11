@@ -83,6 +83,7 @@ LLSearchComboBox::LLSearchComboBox(const Params&p)
 	mTextEntry->setKeystrokeCallback(boost::bind(&LLComboBox::onTextEntry, this, _1), NULL);
 	setSelectionCallback(boost::bind(&LLSearchComboBox::onSelectionCommit, this));
 	setPrearrangeCallback(boost::bind(&LLSearchComboBox::onSearchPrearrange, this, _2));
+	mSearchButton->setCommitCallback(boost::bind(&LLSearchComboBox::onTextCommit, this, _2));
 }
 
 void LLSearchComboBox::rebuildSearchHistory(const std::string& filter)

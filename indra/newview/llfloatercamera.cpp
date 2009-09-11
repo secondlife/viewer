@@ -77,21 +77,11 @@ bool LLFloaterCamera::inAvatarViewMode()
 	return mCurrMode == CAMERA_CTRL_MODE_AVATAR_VIEW;
 }
 
-void LLFloaterCamera::resetFreeCameraMode()
+void LLFloaterCamera::resetCameraMode()
 {
-	if (mCurrMode == CAMERA_CTRL_MODE_FREE_CAMERA)
-	{
-		/* Camera Tool can be deselected when we are mouse wheel scrolling into Mouse Look 
-		In such case we are unable to determine that we will be into Mouse Look view */
-		if (mPrevMode == CAMERA_CTRL_MODE_AVATAR_VIEW)
-		{
-			setMode(CAMERA_CTRL_MODE_ORBIT);
-		}
-		else
-		{
-			setMode(mPrevMode);
-		}
-	}
+	LLFloaterCamera* floater_camera = LLFloaterCamera::findInstance();
+	if (!floater_camera) return;
+	floater_camera->switchMode(CAMERA_CTRL_MODE_ORBIT);
 }
 
 void LLFloaterCamera::update()

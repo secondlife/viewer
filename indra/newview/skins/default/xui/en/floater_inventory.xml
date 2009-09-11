@@ -25,6 +25,8 @@
         Fetched
     </floater.string>
     <filter_editor
+     search_button_visible="false"
+     text_pad_left="12"
      follows="left|top|right"
      height="16"
      label="Type here to search"

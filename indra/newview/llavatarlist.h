@@ -75,4 +75,46 @@ private:
 	bool mOnlineGoFirst;
 };
 
+
+#include "llflatlistview.h"
+
+class LLAvatarListTmp : public LLFlatListView
+{
+	LOG_CLASS(LLAvatarListTmp);
+public:
+	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> 
+	{
+		Optional<S32> volume_column_width;
+		Optional<bool> online_go_first;
+		Params();
+	};
+
+	LLAvatarListTmp(const Params&);
+	virtual	~LLAvatarListTmp() {}
+
+	/*virtual*/ void	draw();
+
+	BOOL update(const std::vector<LLUUID>& all_buddies,
+		const std::string& name_filter = LLStringUtil::null);
+
+	const LLUUID getCurrentID() const;
+	void setCommentText( const std::string& comment_text);
+
+protected:
+	std::vector<LLUUID> getSelectedIDs();
+	void addNewItem(const LLUUID& id, const std::string& name, BOOL is_bold, EAddPosition pos = ADD_BOTTOM);
+	/*virtual*/ bool removeItemPair(item_pair_t* item_pair);
+
+private:
+	static std::string getVolumeIcon(const LLUUID& id); /// determine volume icon from current avatar volume
+	void updateVolume(); // update volume for all avatars
+	void setCommentVisible(bool visible) const;
+
+	bool mHaveVolumeColumn;
+	bool mOnlineGoFirst;
+
+};
+
+
+
 #endif // LL_LLAVATARLIST_H

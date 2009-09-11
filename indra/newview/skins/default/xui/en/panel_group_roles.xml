@@ -185,7 +185,7 @@
 Select multiple Members by holding the Ctrl key and
 clicking on their names.
             </panel.string>
-         <search_editor
+         <filter_editor
          layout="topleft"
          top="10"
          left="4"
@@ -193,17 +193,9 @@ clicking on their names.
          height="20"
          follows="left|top|right"
          max_length="250"
-         label="Filter People"
+         label="Filter Members"
          name="filter_input"
-         font="SansSerif"
-         background_image="TextField_Search_Off"
-         text_pad_left="10"
-         text_color="black">
-           <search_button label=""
-           top_pad="4"
-           left_pad="6" 
-               />
-         </search_editor>
+         font="SansSerif" />
             <!--<line_editor
              border_style="line"
              border_thickness="1"
@@ -318,7 +310,7 @@ including the Everyone and Owner Roles.
              name="power_partial_icon">
                 checkbox_enabled_false.tga
             </panel.string>
-            <search_editor
+            <filter_editor
             layout="topleft"
             top="10"
             left="4"
@@ -328,15 +320,7 @@ including the Everyone and Owner Roles.
             max_length="250"
             label="Filter Roles"
             name="filter_input"
-            font="SansSerif"
-            background_image="TextField_Search_Off"
-            text_pad_left="10"
-            text_color="black">
-                 <search_button label=""
-                 top_pad="4"
-                 left_pad="6" 
-                    />
-            </search_editor>
+            font="SansSerif" />
             <!--<line_editor
              border_style="line"
              border_thickness="1"
@@ -426,7 +410,7 @@ including the Everyone and Owner Roles.
                 Abilities allow Members in Roles to do specific
 things in this group. There&apos;s a broad variety of Abilities.
             </panel.string>
-            <search_editor
+            <filter_editor
             layout="topleft"
             top="10"
             left="4"
@@ -436,15 +420,7 @@ things in this group. There&apos;s a broad variety of Abilities.
             max_length="250"
             label="Filter Abilities"
             name="filter_input"
-            font="SansSerif"
-            background_image="TextField_Search_Off"
-            text_pad_left="10"
-            text_color="black">
-                 <search_button label=""
-                 top_pad="4"
-                 left_pad="6" 
-                  />
-            </search_editor>
+            font="SansSerif" />
             <!--<line_editor
              border_style="line"
              border_thickness="1"

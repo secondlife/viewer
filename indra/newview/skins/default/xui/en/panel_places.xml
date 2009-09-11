@@ -16,7 +16,6 @@
      name="teleport_history_tab_title"
      value="Teleport History" />
     <filter_editor
-     background_image="TextField_Search_Off"
      follows="left|top|right"
      font="SansSerif"
      height="23"
@@ -24,22 +23,8 @@
      layout="topleft"
      left="15"
      name="Filter"
-     text_color="black"
-     text_pad_left="26"
      top="3"
      width="256" />
-    <button
-     follows="left|top|right"
-     height="13"
-     image_selected="Search"
-     image_unselected="Search"
-     layout="topleft"
-     left="20"
-     name="landmark_search"
-     picture_style="true"
-     scale_image="false"
-     top="8"
-     width="13" />
     <tab_container
      follows="all"
      height="326"
