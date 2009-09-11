@@ -311,7 +311,15 @@ void LLAgentWearables::sendAgentWearablesUpdate()
 		if (wearable)
 		{
 			//llinfos << "Sending wearable " << wearable->getName() << llendl;
-			gMessageSystem->addUUIDFast(_PREHASH_ItemID, wearable->getItemID());
+			LLUUID item_id = wearable->getItemID();
+			const LLViewerInventoryItem *item = gInventory.getItem(item_id);
+			if (item && item->getIsLinkType())
+			{
+				// Get the itemID that this item points to.  i.e. make sure
+				// we are storing baseitems, not their links, in the database.
+				item_id = item->getLinkedUUID();
+			}
+			gMessageSystem->addUUIDFast(_PREHASH_ItemID, item_id);			
 		}
 		else
 		{
