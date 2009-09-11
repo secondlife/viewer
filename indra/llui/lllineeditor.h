@@ -189,6 +189,7 @@ public:
 
 	// Selects characters 'start' to 'end'.
 	void			setSelection(S32 start, S32 end);
+	virtual void	getSelectionRange(S32 *position, S32 *length) const;
 	
 	void			setCommitOnFocusLost( BOOL b )	{ mCommitOnFocusLost = b; }
 	void			setRevertOnEsc( BOOL b )		{ mRevertOnEsc = b; }
@@ -277,7 +278,6 @@ private:
 						const segment_lengths_t &preedit_segment_lengths, const standouts_t &preedit_standouts, S32 caret_position);
 	virtual void	markAsPreedit(S32 position, S32 length);
 	virtual void	getPreeditRange(S32 *position, S32 *length) const;
-	virtual void	getSelectionRange(S32 *position, S32 *length) const;
 	virtual BOOL	getPreeditLocation(S32 query_position, LLCoordGL *coord, LLRect *bounds, LLRect *control) const;
 	virtual S32		getPreeditFontSize() const;
 

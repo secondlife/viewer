@@ -187,6 +187,23 @@ void LLSearchComboBox::clearHistory()
 	setTextEntry(LLStringUtil::null);
 }
 
+BOOL LLSearchComboBox::handleKeyHere(KEY key,MASK mask )
+{
+	if(mTextEntry->hasFocus() && MASK_NONE == mask && KEY_DOWN == key)
+	{
+		S32 first = 0;
+		S32 size = 0;
+
+		// get entered text (without auto-complete part)
+		mTextEntry->getSelectionRange(&first, &size);
+		std::string search_query = mTextEntry->getText();
+		search_query.erase(first, size);
+
+		onSearchPrearrange(search_query);
+	}
+	return LLComboBox::handleKeyHere(key, mask);
+}
+
 LLSearchHistoryBuilder::LLSearchHistoryBuilder(LLSearchComboBox* combo_box, const std::string& filter)
 : mComboBox(combo_box)
 , mFilter(filter)

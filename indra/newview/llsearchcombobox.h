@@ -63,6 +63,8 @@ public:
 	 */
 	void clearHistory();
 
+	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
+
 	~LLSearchComboBox();
 
 protected:
