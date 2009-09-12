@@ -146,6 +146,16 @@ LLFloater::handle_map_t	LLFloater::sFloaterMap;
 
 LLFloaterView* gFloaterView = NULL;
 
+/*==========================================================================*|
+// DEV-38598: The fundamental problem with this operation is that it can only
+// support a subset of LLSD values. While it's plausible to compare two arrays
+// lexicographically, what strict ordering can you impose on maps?
+// (LLFloaterTOS's current key is an LLSD map.)
+
+// Of course something like this is necessary if you want to build a std::set
+// or std::map with LLSD keys. Fortunately we're getting by with other
+// container types for now.
+
 //static
 bool LLFloater::KeyCompare::compare(const LLSD& a, const LLSD& b)
 {
@@ -173,6 +183,7 @@ bool LLFloater::KeyCompare::compare(const LLSD& a, const LLSD& b)
 	else
 		return false; // no valid operation for Binary
 }
+|*==========================================================================*/
 
 bool LLFloater::KeyCompare::equate(const LLSD& a, const LLSD& b)
 {
