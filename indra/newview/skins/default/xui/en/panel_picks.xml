@@ -1,40 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="left|top|right|bottom"
- height="420"
+ height="515"
  label="Picks"
  layout="topleft"
  left="0"
  name="panel_picks"
  top="0"
- width="285">
-    <layout_stack
-     name="layout"
-     orientation="vertical"
-     follows="all"
-     layout="topleft"
-     left="0"
-     top="0"
-     height="420"
-     width="284"
-     border_size="0">
+ width="313">
         <scroll_container
          color="DkGray2"
          follows="left|top|right|bottom"
-         height="350"
+         height="495"
          layout="topleft"
-         left="2"
+         left="0"
          name="profile_scroll"
          opaque="true"
          top="0"
-         width="284">
+         width="313">
             <list
-             height="115"
+             height="120"
              layout="topleft"
              left="0"
              name="picks_list"
              top="0"
-             width="284" />
+             width="305" />
         </scroll_container>
         <panel
          background_visible="true"
@@ -42,12 +32,13 @@
          enabled="false"
          auto_resize="false"
          follows="bottom"
-         height="30"
+         left="0"
+         height="23"
          label="bottom_panel"
          layout="topleft"
          name="edit_panel"
-         top_pad="5"
-         width="284">
+         top_pad="0"
+         width="313">
             <button
              enabled="false"
              follows="bottom|left"
@@ -93,11 +84,11 @@
         </panel>
         <panel
          follows="bottom"
-         height="30"
          auto_resize="false"
          layout="topleft"
+         height="30"
          name="buttons_cucks"
-         width="284">
+         width="313">
             <button
              enabled="false"
              follows="bottom|left"
@@ -108,5 +99,4 @@
              name="show_on_map_btn"
              width="85" />
         </panel>
-    </layout_stack>
 </panel>

@@ -7,27 +7,27 @@
  left="0"
  name="picture_item"
  top="0"
- width="275">
+ width="305">
     <icon
-     height="120" 
+     height="120"
      image_name="ListItem_Over"
-     left="0" 
+     left="0"
      mouse_opaque="false"
-     name="hovered_icon" 
+     name="hovered_icon"
      top="0"
-     scale_image="true" 
+     scale_image="true"
      visible="false"
-     width="270"/>
+     width="305"/>
     <icon
-     height="120" 
+     height="120"
      image_name="ListItem_Select"
-     left="0" 
+     left="0"
      mouse_opaque="false"
      name="selected_icon"
      top="0"
      scale_image="true"
      visible="false"
-     width="270"/>
+     width="305"/>
     <texture_picker
      allow_no_texture="true"
      default_image_name="None"
@@ -40,6 +40,7 @@
      name="picture"
      tab_stop="false"
      top="5"
+     top_pad="5"
      width="120" />
     <text
      follows="top|left|right"
@@ -50,7 +51,7 @@
      text_color="white"
      top="5"
      use_ellipses="true"
-     width="120"
+     width="130"
      word_wrap="true" />
     <text
      follows="top|left|right"
@@ -70,8 +71,8 @@
      layout="topleft"
      name="info_chevron"
      picture_style="true"
-     right="262"
+     right="290"
      tab_stop="false"
-     top="3"
+     top="5"
      width="16" />
 </panel>

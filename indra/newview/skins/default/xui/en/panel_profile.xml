@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- bevel_style="out"
  follows="left|top|right|bottom"
- height="420"
+ height="515"
  label="Profile"
  layout="topleft"
  left="0"
  name="panel_profile"
  top="0"
- width="255">
+ width="313">
     <string
      name="CaptionTextAcctInfo">
         [ACCTTYPE] [PAYMENTINFO] [AGEVERIFICATION]
@@ -26,21 +25,22 @@
     <scroll_container
      color="DkGray2"
      follows="left|top|right|bottom"
-     height="300"
+     height="515"
+     min_height="300"
      layout="topleft"
-     left="0"
      name="profile_scroll"
      reserve_scroll_corner="true"
      opaque="true"
-     width="255">
+     top="0"
+     width="313">
 	 <panel
             name="scroll_content_panel"
 	    follows="left|top|right"
 	    layout="topleft"
 	    top="0"
 	    left="0"
-	    width="240"
-	    height="780">
+	    width="284"
+	    height="700">
 	 <panel
 	    follows="left|top"
 	    height="117"
@@ -48,7 +48,7 @@
 	    left="10"
 	    name="second_life_image_panel"
 	    top="10"
-	    width="260">
+	    width="280">
             <texture_picker
              allow_no_texture="true"
              default_image_name="None"
@@ -71,13 +71,13 @@
              text_color="white"
              top_delta="0"
              value="[SECOND_LIFE]:"
-             width="130" />
+             width="170" />
             <text
              follows="left|top|right"
-             height="70"
+             height="90"
              layout="topleft"
              name="sl_description_edit"
-             width="130"
+             width="170"
              word_wrap="true">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
             </text>
@@ -89,7 +89,7 @@
 	 top_pad="10"
          left="10"
          name="first_life_image_panel"
-         width="260">
+         width="280">
             <texture_picker
              allow_no_texture="true"
              default_image_name="None"
@@ -111,13 +111,13 @@
              text_color="white"
              top_delta="0"
              value="Real World:"
-             width="130" />
+             width="175" />
             <text
              follows="left|top|right"
-             height="70"
+             height="90"
              layout="topleft"
              name="fl_description_edit"
-             width="130"
+             width="180"
              word_wrap="true">
                 Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
             </text>
@@ -133,18 +133,17 @@
          name="me_homepage_text"
          text_color="white"
          top_pad="10"
-         width="255">
+         width="280">
              Homepage:
         </text>
         <text
-         follows="left|top|right"
+         follows="left|top"
          height="15"
          layout="topleft"
          left="10"
          name="homepage_edit"
-         top_pad="5"
          value="http://librarianavengers.org"
-         width="225"
+         width="280"
          word_wrap="false" />
         <text
          follows="left|top"
@@ -157,16 +156,16 @@
          text_color="white"
          top_pad="20"
          value="Member Since:"
-         width="255" />
+         width="280" />
         <text
-         follows="left|top|right"
+         follows="left|top"
          height="15"
          layout="topleft"
          left="10"
          name="register_date"
          top_pad="5"
          value="05/31/1976"
-         width="160"
+         width="280"
          word_wrap="true" />
         <text
          follows="left|top"
@@ -179,7 +178,7 @@
          text_color="white"
          top_pad="15"
          value="Account Status:"
-         width="100" />
+         width="280" />
        <!-- <text
          type="string"
          follows="left|top"
@@ -192,14 +191,14 @@
 	 value="Go to Dashboard"
          width="100"/> -->
         <text
-         follows="left|top|right"
+         follows="left|top"
          height="15"
          layout="topleft"
          left="10"
          name="acc_status_text"
          top_pad="5"
          value="Resident. No payment info on file."
-         width="255"
+         width="280"
          word_wrap="true" />
         <text
          follows="left|top"
@@ -212,24 +211,24 @@
          text_color="white"
          top_pad="15"
          value="Partner:"
-         width="100" />
+         width="280" />
         <panel
-         follows="left|top|right"
+         follows="left|top"
          height="15"
          layout="topleft"
          left="10"
          name="partner_data_panel"
          top_pad="5"
-         width="255">
+         width="280">
             <text
-             follows="left|top|right"
+             follows="left|top"
              height="15"
              layout="topleft"
              left="0"
              name="partner_text"
              top="0"
              value="[FIRST] [LAST]"
-             width="240"
+         width="280"
              word_wrap="true" />
          </panel>
         <text
@@ -243,28 +242,28 @@
          text_color="white"
          top_pad="15"
          value="Groups:"
-         width="255" />
+         width="280" />
         <text
-         follows="left|top|right|bottom"
+         follows="left|top|bottom"
          height="160"
          layout="topleft"
          left="10"
          name="sl_groups"
          top_pad="5"
-         width="130"
+         width="280"
          word_wrap="true">
             Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
         </text>
       </panel>
       </scroll_container>
+
    <panel
      follows="bottom|left"
-     height="30"
      layout="topleft"
-     left="10"
+     left="0"
      name="profile_buttons_panel"
-     top_pad="5"
-     width="280">
+     top_pad="0"
+     width="313">
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
@@ -309,13 +308,13 @@
          width="75" />
     </panel>
     <panel
-     height="30"
+     follows="bottom|left"
      layout="topleft"
-     left="10"
+     left="0"
      name="profile_me_buttons_panel"
-     top_pad="5"
+     top_pad="0"
      visible="false"
-     width="280">
+     width="313">
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
