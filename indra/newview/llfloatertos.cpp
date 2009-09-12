@@ -48,6 +48,7 @@
 #include "lluictrlfactory.h"
 #include "llvfile.h"
 #include "message.h"
+#include "llstartup.h"              // login_alert_done
 
 
 LLFloaterTOS::LLFloaterTOS(const LLSD& data)
@@ -206,6 +207,7 @@ void LLFloaterTOS::onCancel( void* userdata )
 {
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
 	llinfos << "User disagrees with TOS." << llendl;
+	LLNotifications::instance().add("MustAgreeToLogIn", LLSD(), LLSD(), login_alert_done);
 
 	if(self->mReplyPumpName != "")
 	{
