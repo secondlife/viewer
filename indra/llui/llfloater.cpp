@@ -60,6 +60,7 @@
 #include "v2math.h"
 #include "lltrans.h"
 #include "llmultifloater.h"
+#include "llsdutil.h"
 
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
@@ -175,29 +176,7 @@ bool LLFloater::KeyCompare::compare(const LLSD& a, const LLSD& b)
 
 bool LLFloater::KeyCompare::equate(const LLSD& a, const LLSD& b)
 {
-	if (a.type() != b.type())
-	{
-		//llerrs << "Mismatched LLSD types: (" << a << ") mismatches (" << b << ")" << llendl;
-		return false;
-	}
-	else if (a.isUndefined())
-		return true;
-	else if (a.isInteger())
-		return a.asInteger() == b.asInteger();
-	else if (a.isReal())
-		return a.asReal() == b.asReal();
-	else if (a.isString())
-		return a.asString() == b.asString();
-	else if (a.isUUID())
-		return a.asUUID() == b.asUUID();
-	else if (a.isDate())
-		return a.asDate() == b.asDate();
-	else if (a.isURI())
-		return a.asString() == b.asString(); // compare URIs as strings
-	else if (a.isBoolean())
-		return a.asBoolean() == b.asBoolean();
-	else
-		return false; // no valid operation for Binary
+	return llsd_equals(a, b);
 }
 
 //************************************
