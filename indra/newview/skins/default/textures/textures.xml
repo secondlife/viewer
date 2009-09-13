@@ -120,7 +120,7 @@
   <texture name="NearbyVoice_Lvl3" file_name="bottomtray/NearbyVoice_Lvl3.png" preload="false" />
   <texture name="NearbyVoice_On" file_name="bottomtray/NearbyVoice_On.png" preload="false" />
 
-  <texture name="OptionsMenu_Disabled" file_name="icons/OptionsMenu_Diabled.png" preload="false" />
+  <texture name="OptionsMenu_Disabled" file_name="icons/OptionsMenu_Disabled.png" preload="false" />
   <texture name="OptionsMenu_Off" file_name="icons/OptionsMenu_Off.png" preload="false" />
   <texture name="OptionsMenu_Press" file_name="icons/OptionsMenu_Press.png" preload="false" />
 
