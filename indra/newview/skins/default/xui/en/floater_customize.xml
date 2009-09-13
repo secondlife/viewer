@@ -35,14 +35,14 @@
          width="389">
             <icon
              follows="top|right"
-             height="16"
-             image_name="icon_lock.tga"
+             height="18"
+             image_name="Lock"
              layout="topleft"
              left="333"
              mouse_opaque="true"
              name="square"
              top="5"
-             width="16" />
+             width="18" />
             <icon
              height="16"
              layout="topleft"
@@ -331,14 +331,14 @@ scratch and wear it.
          width="389">
             <icon
              follows="top|right"
-             height="16"
-             image_name="icon_lock.tga"
+             height="18"
+             image_name="Lock"
              layout="topleft"
              left="333"
              mouse_opaque="true"
              name="square"
              top="5"
-             width="16" />
+             width="18" />
             <icon
              height="16"
              layout="topleft"
@@ -586,14 +586,14 @@ scratch and wear it.
          width="389">
             <icon
              follows="top|right"
-             height="16"
-             image_name="icon_lock.tga"
+             height="18"
+             image_name="Lock"
              layout="topleft"
              left="333"
              mouse_opaque="true"
              name="square"
              top="5"
-             width="16" />
+             width="18" />
             <icon
              height="16"
              layout="topleft"
@@ -814,14 +814,14 @@ scratch and wear it.
          width="389">
             <icon
              follows="top|right"
-             height="16"
-             image_name="icon_lock.tga"
+             height="18"
+             image_name="Lock"
              layout="topleft"
              left="333"
              mouse_opaque="true"
              name="square"
              top="5"
-             width="16" />
+             width="18" />
             <icon
              height="16"
              layout="topleft"
@@ -1002,14 +1002,14 @@ scratch and wear it.
          width="389">
             <icon
              follows="top|right"
-             height="16"
-             image_name="icon_lock.tga"
+             height="18"
+             image_name="Lock"
              layout="topleft"
              left="333"
              mouse_opaque="true"
              name="square"
              top="5"
-             width="16" />
+             width="18" />
             <icon
              height="16"
              layout="topleft"
@@ -1223,14 +1223,14 @@ scratch and wear it.
          width="389">
             <icon
              follows="top|right"
-             height="16"
-             image_name="icon_lock.tga"
+             height="18"
+             image_name="Lock"
              layout="topleft"
              left="333"
              mouse_opaque="true"
              name="square"
              top="5"
-             width="16" />
+             width="18" />
             <icon
              height="16"
              layout="topleft"
@@ -1444,14 +1444,14 @@ scratch and wear it.
          width="389">
             <icon
              follows="top|right"
-             height="16"
-             image_name="icon_lock.tga"
+             height="18"
+             image_name="Lock"
              layout="topleft"
              left="333"
              mouse_opaque="true"
              name="square"
              top="5"
-             width="16" />
+             width="18" />
             <icon
              height="16"
              layout="topleft"
@@ -1665,14 +1665,14 @@ scratch and wear it.
          width="389">
             <icon
              follows="top|right"
-             height="16"
-             image_name="icon_lock.tga"
+             height="18"
+             image_name="Lock"
              layout="topleft"
              left="333"
              mouse_opaque="true"
              name="square"
              top="5"
-             width="16" />
+             width="18" />
             <icon
              height="16"
              layout="topleft"
@@ -1886,14 +1886,14 @@ scratch and wear it.
          width="389">
             <icon
              follows="top|right"
-             height="16"
-             image_name="icon_lock.tga"
+             height="18"
+             image_name="Lock"
              layout="topleft"
              left="333"
              mouse_opaque="true"
              name="square"
              top="5"
-             width="16" />
+             width="18" />
             <icon
              height="16"
              layout="topleft"
@@ -2119,14 +2119,14 @@ scratch and wear it.
          width="389">
             <icon
              follows="top|right"
-             height="16"
-             image_name="icon_lock.tga"
+             height="18"
+             image_name="Lock"
              layout="topleft"
              left="333"
              mouse_opaque="true"
              name="square"
              top="5"
-             width="16" />
+             width="18" />
             <icon
              height="16"
              layout="topleft"
@@ -2340,14 +2340,14 @@ scratch and wear it.
          width="389">
             <icon
              follows="top|right"
-             height="16"
-             image_name="icon_lock.tga"
+             height="18"
+             image_name="Lock"
              layout="topleft"
              left="333"
              mouse_opaque="true"
              name="square"
              top="5"
-             width="16" />
+             width="18" />
             <icon
              height="16"
              layout="topleft"
@@ -2561,14 +2561,14 @@ scratch and wear it.
          width="389">
             <icon
              follows="top|right"
-             height="16"
-             image_name="icon_lock.tga"
+             height="18"
+             image_name="Lock"
              layout="topleft"
              left="333"
              mouse_opaque="true"
              name="square"
              top="5"
-             width="16" />
+             width="18" />
             <icon
              height="16"
              layout="topleft"
@@ -2782,14 +2782,14 @@ scratch and wear it.
          width="389">
             <icon
              follows="top|right"
-             height="16"
-             image_name="icon_lock.tga"
+             height="18"
+             image_name="Lock"
              layout="topleft"
              left="333"
              mouse_opaque="true"
              name="square"
              top="5"
-             width="16" />
+             width="18" />
             <icon
              height="16"
              layout="topleft"
@@ -3003,14 +3003,14 @@ scratch and wear it.
          width="389">
             <icon
              follows="top|right"
-             height="16"
-             image_name="icon_lock.tga"
+             height="18"
+             image_name="Lock"
              layout="topleft"
              left="333"
              mouse_opaque="true"
              name="square"
              top="5"
-             width="16" />
+             width="18" />
             <icon
              height="16"
              layout="topleft"
@@ -3305,14 +3305,14 @@ scratch and wear it.
          width="389">
             <icon
              follows="top|right"
-             height="16"
-             image_name="icon_lock.tga"
+             height="18"
+             image_name="Lock"
              layout="topleft"
              left="333"
              mouse_opaque="true"
              name="square"
              top="5"
-             width="16" />
+             width="18" />
             <icon
              height="16"
              layout="topleft"

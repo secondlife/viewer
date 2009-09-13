@@ -26,14 +26,14 @@
      width="497" />
     <icon
      follows="top|right"
-     height="16"
-     image_name="icon_lock.tga"
+     height="18"
+     image_name="Lock"
      layout="topleft"
      left="444"
      mouse_opaque="true"
      name="lock"
      top="3"
-     width="16" />
+     width="18" />
     <text
      type="string"
      length="1"
