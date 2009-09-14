@@ -1639,7 +1639,7 @@ if (WINDOWS)
         -E
         copy_if_different
         ${BUILT_SLPLUGIN}
-        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llplugin
+        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
       COMMENT "Copying SLPlugin executable to the runtime folder."
       )
 
