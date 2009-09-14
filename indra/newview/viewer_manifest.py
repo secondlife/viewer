@@ -169,6 +169,11 @@ class WindowsManifest(ViewerManifest):
         # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
         self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
+        # Plugin host application
+        self.path(os.path.join(os.pardir,
+                               'llplugin', 'slplugin', self.args['configuration'], "slplugin.exe"),
+                  "slplugin.exe")
+
         # need to get the llcommon.dll from the build directory as well
         if self.prefix(src=self.args['configuration'], dst=""):
             try:
@@ -204,11 +209,6 @@ class WindowsManifest(ViewerManifest):
                 self.path("openjpegd.dll")
             else:
                 self.path("openjpeg.dll")
-            self.end_prefix()
-
-        # Plugin host application
-        if self.prefix(src='../llplugin/slplugin/%s' % self.args['configuration'], dst="llplugin"):
-            self.path("slplugin.exe")
             self.end_prefix()
 
         # Media plugins - QuickTime
