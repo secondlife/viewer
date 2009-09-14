@@ -65,6 +65,30 @@
     <text
      type="string"
      length="1"
+     bottom_delta="36"
+     follows="left|top|right"
+     font="SansSerifHuge"
+     font.style.="BOLD"
+     height="32"
+     layout="topleft"
+     left="16">
+        SansSerifHuge style=BOLD
+    </text>
+    <text
+     type="string"
+     length="1"
+     bottom_delta="36"
+     follows="left|top|right"
+     font="SansSerifBold"
+     font.size="Huge"
+     height="32"
+     layout="topleft"
+     left="16">
+        SansSerifBold size=Huge
+    </text>
+    <text
+     type="string"
+     length="1"
      bottom_delta="40"
      follows="left|top|right"
      font="Monospace"
@@ -311,6 +335,7 @@
      left="16">
         Helvetica size=Large style=BOLD|ITALIC
     </text>
+<!--
     <text
      type="string"
      length="1"
@@ -333,4 +358,5 @@
      left="16">
         BogusFontName
     </text>
+-->
 </floater>
