@@ -256,6 +256,7 @@ void release_start_screen();
 void reset_login();
 void apply_udp_blacklist(const std::string& csv);
 bool process_login_success_response();
+void transition_back_to_login_panel(const std::string& emsg);
 
 void callback_cache_name(const LLUUID& id, const std::string& firstname, const std::string& lastname, BOOL is_group)
 {
@@ -884,6 +885,18 @@ bool idle_startup()
 
 	if (STATE_LOGIN_CLEANUP == LLStartUp::getStartupState())
 	{
+		// Move the progress view in front of the UI immediately when login is performed
+		// this allows not to see main menu after Alt+Tab was pressed while login. EXT-744.
+		gViewerWindow->moveProgressViewToFront();
+
+		//reset the values that could have come in from a slurl
+		if (!gLoginHandler.getWebLoginKey().isNull())
+		{
+			gFirstname = gLoginHandler.getFirstName();
+			gLastname = gLoginHandler.getLastName();
+//			gWebLoginKey = gLoginHandler.getWebLoginKey();
+		}
+				
 		if (show_connect_box)
 		{
 			// TODO if not use viewer auth
@@ -1065,13 +1078,14 @@ bool idle_startup()
 
 	if(STATE_LOGIN_PROCESS_RESPONSE == LLStartUp::getStartupState()) 
 	{
-		bool transitionBackToLoginPanel = false;
 		std::ostringstream emsg;
+		emsg << "Login failed.\n";
 		if(LLLoginInstance::getInstance()->authFailure())
 		{
+			LL_INFOS("LLStartup") << "Login failed, LLLoginInstance::getResponse(): "
+			                      << LLLoginInstance::getInstance()->getResponse() << LL_ENDL;
 			// Still have error conditions that may need some 
 			// sort of handling.
-			emsg << "Login failed.\n";
 			std::string reason_response = LLLoginInstance::getInstance()->getResponse("reason");
 			std::string message_response = LLLoginInstance::getInstance()->getResponse("message");
 	
@@ -1109,10 +1123,20 @@ bool idle_startup()
 			}
 			else
 			{
-				transitionBackToLoginPanel = true;
+				// Don't pop up a notification in the TOS case because
+				// LLFloaterTOS::onCancel() already scolded the user.
+				if (reason_response != "tos")
+				{
+					LLSD args;
+					args["ERROR_MESSAGE"] = emsg.str();
+					LL_INFOS("LLStartup") << "Notification: " << args << LL_ENDL;
+					LLNotifications::instance().add("ErrorMessage", args, LLSD(), login_alert_done);
+				}
 
 				//setup map of datetime strings to codes and slt & local time offset from utc
 				LLStringOps::setupDatetimeInfo (gPacificDaylightTime);
+				transition_back_to_login_panel(emsg.str());
+				show_connect_box = true;
 			}
 		}
 		else if(LLLoginInstance::getInstance()->authSuccess())
@@ -1125,7 +1149,12 @@ bool idle_startup()
 			}
 			else
 			{
-				transitionBackToLoginPanel = false;
+				LLSD args;
+				args["ERROR_MESSAGE"] = emsg.str();
+				LL_INFOS("LLStartup") << "Notification: " << args << LL_ENDL;
+				LLNotifications::instance().add("ErrorMessage", args, LLSD(), login_alert_done);
+				transition_back_to_login_panel(emsg.str());
+				show_connect_box = true;
 			}
 		}
 		else
@@ -1138,23 +1167,6 @@ bool idle_startup()
 			set_startup_status(progress, auth_desc, auth_message);
 		}
 
-		if(transitionBackToLoginPanel)
-		{
-			if (gNoRender)
-			{
-				LL_WARNS("AppInit") << "Failed to login!" << LL_ENDL;
-				LL_WARNS("AppInit") << emsg << LL_ENDL;
-				exit(0);
-			}
-
-			// Bounce back to the login screen.
-			LLSD args;
-			args["ERROR_MESSAGE"] = emsg.str();
-			LLNotifications::instance().add("ErrorMessage", args, LLSD(), login_alert_done);
-			reset_login(); // calls LLStartUp::setStartupState( STATE_LOGIN_SHOW );
-			gSavedSettings.setBOOL("AutoLogin", FALSE);
-			show_connect_box = true;
-		}
 		return FALSE;
 	}
 
@@ -3079,4 +3091,18 @@ bool process_login_success_response()
 	}
 
 	return success;
+}
+
+void transition_back_to_login_panel(const std::string& emsg)
+{
+	if (gNoRender)
+	{
+		LL_WARNS("AppInit") << "Failed to login!" << LL_ENDL;
+		LL_WARNS("AppInit") << emsg << LL_ENDL;
+		exit(0);
+	}
+
+	// Bounce back to the login screen.
+	reset_login(); // calls LLStartUp::setStartupState( STATE_LOGIN_SHOW );
+	gSavedSettings.setBOOL("AutoLogin", FALSE);
 }
