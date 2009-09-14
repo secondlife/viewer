@@ -51,7 +51,7 @@ class LLGroupHandler : public LLCommandHandler
 {
 public:
 	// requires trusted browser to trigger
-	LLGroupHandler() : LLCommandHandler("group", true) { }
+	LLGroupHandler() : LLCommandHandler("group", UNTRUSTED_THROTTLE) { }
 	bool handle(const LLSD& tokens, const LLSD& query_map,
 				LLMediaCtrl* web)
 	{

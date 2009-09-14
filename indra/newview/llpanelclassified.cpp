@@ -119,7 +119,7 @@ class LLClassifiedTeleportHandler : public LLCommandHandler
 {
 public:
 	// don't allow from external browsers because it moves you immediately
-	LLClassifiedTeleportHandler() : LLCommandHandler("classifiedteleport", true) { }
+	LLClassifiedTeleportHandler() : LLCommandHandler("classifiedteleport", UNTRUSTED_BLOCK) { }
 
 	bool handle(const LLSD& tokens, const LLSD& queryMap)
 	{

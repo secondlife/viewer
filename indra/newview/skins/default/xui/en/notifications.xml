@@ -6495,14 +6495,6 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
 
   <notification
    icon="notifytip.tga"
-   name="UnableToOpenCommandURL"
-   priority="high"
-   type="notifytip">
-    The link you clicked cannot be opened from this web browser.
-  </notification>
-
-  <notification
-   icon="notifytip.tga"
    name="UnsupportedCommandSLURL"
    priority="high"
    type="notifytip">

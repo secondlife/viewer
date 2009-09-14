@@ -331,7 +331,7 @@ public:
 	// Teleport requests *must* come from a trusted browser
 	// inside the app, otherwise a malicious web page could
 	// cause a constant teleport loop.  JC
-	LLTeleportHandler() : LLCommandHandler("teleport", true) { }
+	LLTeleportHandler() : LLCommandHandler("teleport", UNTRUSTED_BLOCK) { }
 
 	bool handle(const LLSD& tokens, const LLSD& query_map,
 				LLMediaCtrl* web)

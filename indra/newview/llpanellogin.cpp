@@ -87,7 +87,7 @@ class LLLoginRefreshHandler : public LLCommandHandler
 {
 public:
 	// don't allow from external browsers
-	LLLoginRefreshHandler() : LLCommandHandler("login_refresh", true) { }
+	LLLoginRefreshHandler() : LLCommandHandler("login_refresh", UNTRUSTED_BLOCK) { }
 	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
 	{	
 		if (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)

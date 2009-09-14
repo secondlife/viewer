@@ -38,12 +38,14 @@
 // system includes
 #include <boost/tokenizer.hpp>
 
+#define THROTTLE_PERIOD    15    // required secs between throttled commands
+
 //---------------------------------------------------------------------------
 // Underlying registry for command handlers, not directly accessible.
 //---------------------------------------------------------------------------
 struct LLCommandHandlerInfo
 {
-	bool mRequireTrustedBrowser;
+	LLCommandHandler::EUntrustedAccess mUntrustedBrowserAccess;
 	LLCommandHandler* mHandler;	// safe, all of these are static objects
 };
 
@@ -51,7 +53,9 @@ class LLCommandHandlerRegistry
 {
 public:
 	static LLCommandHandlerRegistry& instance();
-	void add(const char* cmd, bool require_trusted_browser, LLCommandHandler* handler);
+	void add(const char* cmd,
+			 LLCommandHandler::EUntrustedAccess untrusted_access,
+			 LLCommandHandler* handler);
 	bool dispatch(const std::string& cmd,
 				  const LLSD& params,
 				  const LLSD& query_map,
@@ -72,10 +76,12 @@ LLCommandHandlerRegistry& LLCommandHandlerRegistry::instance()
 	return instance;
 }
 
-void LLCommandHandlerRegistry::add(const char* cmd, bool require_trusted_browser, LLCommandHandler* handler)
+void LLCommandHandlerRegistry::add(const char* cmd,
+								   LLCommandHandler::EUntrustedAccess untrusted_access,
+								   LLCommandHandler* handler)
 {
 	LLCommandHandlerInfo info;
-	info.mRequireTrustedBrowser = require_trusted_browser;
+	info.mUntrustedBrowserAccess = untrusted_access;
 	info.mHandler = handler;
 
 	mMap[cmd] = info;
@@ -87,15 +93,37 @@ bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 										LLMediaCtrl* web,
 										bool trusted_browser)
 {
+	static F64 last_throttle_time = 0.0;
+	F64 cur_time = 0.0;
 	std::map<std::string, LLCommandHandlerInfo>::iterator it = mMap.find(cmd);
 	if (it == mMap.end()) return false;
 	const LLCommandHandlerInfo& info = it->second;
-	if (!trusted_browser && info.mRequireTrustedBrowser)
+	if (!trusted_browser)
 	{
-		// block request from external browser, but report as
-		// "handled" because it was well formatted.
-		LL_WARNS_ONCE("SLURL") << "Blocked SLURL command from untrusted browser" << LL_ENDL;
-		return true;
+		switch (info.mUntrustedBrowserAccess)
+		{
+		case LLCommandHandler::UNTRUSTED_ALLOW:
+			// fall through and let the command be handled
+			break;
+
+		case LLCommandHandler::UNTRUSTED_BLOCK:
+			// block request from external browser, but report as
+			// "handled" because it was well formatted.
+			LL_WARNS_ONCE("SLURL") << "Blocked SLURL command from untrusted browser" << LL_ENDL;
+			return true;
+
+		case LLCommandHandler::UNTRUSTED_THROTTLE:
+			cur_time = LLTimer::getElapsedSeconds();
+			if (cur_time < last_throttle_time + THROTTLE_PERIOD)
+			{
+				// block request from external browser if it happened
+				// within THROTTLE_PERIOD secs of the last command
+				LL_WARNS_ONCE("SLURL") << "Throttled SLURL command from untrusted browser" << LL_ENDL;
+				return true;
+			}
+			last_throttle_time = cur_time;
+			break;
+		}
 	}
 	if (!info.mHandler) return false;
 	return info.mHandler->handle(params, query_map, web);
@@ -106,10 +134,9 @@ bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
 //---------------------------------------------------------------------------
 
 LLCommandHandler::LLCommandHandler(const char* cmd,
-								   bool require_trusted_browser)
+								   EUntrustedAccess untrusted_access)
 {
-	LLCommandHandlerRegistry::instance().add(
-			cmd, require_trusted_browser, this);
+	LLCommandHandlerRegistry::instance().add(cmd, untrusted_access, this);
 }
 
 LLCommandHandler::~LLCommandHandler()
