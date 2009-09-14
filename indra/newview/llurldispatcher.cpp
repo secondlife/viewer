@@ -158,7 +158,8 @@ bool LLURLDispatcherImpl::dispatchApp(const std::string& url,
 									  LLMediaCtrl* web,
 									  bool trusted_browser)
 {
-	if (!LLSLURL::isSLURL(url))
+	// ensure the URL is in the secondlife:///app/ format
+	if (!LLSLURL::isSLURLCommand(url))
 	{
 		return false;
 	}
@@ -170,7 +171,14 @@ bool LLURLDispatcherImpl::dispatchApp(const std::string& url,
 	pathArray.erase(0); // erase "cmd"
 	bool handled = LLCommandDispatcher::dispatch(
 			cmd, pathArray, uri.queryMap(), web, trusted_browser);
-	return handled;
+
+	// alert if we didn't handle this secondlife:///app/ SLURL
+	// (but still return true because it is a valid app SLURL)
+	if (! handled)
+	{
+		LLNotifications::instance().add("UnsupportedCommandSLURL");
+	}
+	return true;
 }
 
 // static
