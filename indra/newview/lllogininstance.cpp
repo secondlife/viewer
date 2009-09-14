@@ -50,7 +50,7 @@
 #include "llviewercontrol.h"
 #include "llurlsimstring.h"
 #include "llfloaterreg.h"
-#include "llfloatertos.h"
+#include "llnotifications.h"
 #include "llwindow.h"
 #if LL_LINUX || LL_SOLARIS
 #include "lltrans.h"
