@@ -170,28 +170,6 @@ private:
 };
 
 ///
-/// LLUrlEntryEvent Describes a Second Life event Url, e.g.,
-/// secondlife:///app/event/700727/about
-///
-class LLUrlEntryEvent : public LLUrlEntryBase
-{
-public:
-	LLUrlEntryEvent();
-	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-};
-
-///
-/// LLUrlEntryClassified Describes a Second Life classified Url, e.g.,
-/// secondlife:///app/classified/00128854-c36a-5649-7ca6-5dfaa7514ab2/about
-///
-class LLUrlEntryClassified : public LLUrlEntryBase
-{
-public:
-	LLUrlEntryClassified();
-	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-};
-
-///
 /// LLUrlEntryParcel Describes a Second Life parcel Url, e.g.,
 /// secondlife:///app/parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/about
 ///
@@ -200,6 +178,18 @@ class LLUrlEntryParcel : public LLUrlEntryBase
 public:
 	LLUrlEntryParcel();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+};
+
+///
+/// LLUrlEntryPlace Describes a Second Life location Url, e.g.,
+/// secondlife:///Ahern/50/50/50
+///
+class LLUrlEntryPlace : public LLUrlEntryBase
+{
+public:
+	LLUrlEntryPlace();
+	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getLocation(const std::string &url) const;
 };
 
 ///

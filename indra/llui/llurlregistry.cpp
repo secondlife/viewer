@@ -49,11 +49,10 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntryHTTPLabel());
 	registerUrl(new LLUrlEntryAgent());
 	registerUrl(new LLUrlEntryGroup());
-	registerUrl(new LLUrlEntryEvent());
-	registerUrl(new LLUrlEntryClassified());
 	registerUrl(new LLUrlEntryParcel());
 	registerUrl(new LLUrlEntryTeleport());
 	registerUrl(new LLUrlEntryObjectIM());
+	registerUrl(new LLUrlEntryPlace());
 	registerUrl(new LLUrlEntrySL());
 	registerUrl(new LLUrlEntrySLLabel());
 }
@@ -118,8 +117,8 @@ static bool matchRegex(const char *text, boost::regex regex, U32 &start, U32 &en
 
 bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LLUrlLabelCallback &cb)
 {
-	// test for the trivial case of no text and get out fast
-	if (text.empty())
+	// avoid costly regexes if there is clearly no URL in the text
+	if (text.find("://") == std::string::npos)
 	{
 		return false;
 	}

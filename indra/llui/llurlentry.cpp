@@ -339,40 +339,6 @@ std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCa
 }
 
 ///
-/// LLUrlEntryEvent Describes a Second Life event Url, e.g.,
-/// secondlife:///app/event/700727/about
-///
-LLUrlEntryEvent::LLUrlEntryEvent()
-{
-	mPattern = boost::regex("secondlife:///app/event/[\\da-f-]+/about",
-							boost::regex::perl|boost::regex::icase);
-	mMenuName = "menu_url_event.xml";
-	mTooltip = LLTrans::getString("TooltipEventUrl");
-}
-
-std::string LLUrlEntryEvent::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
-{
-	return unescapeUrl(url);
-}
-
-///
-/// LLUrlEntryClassified Describes a Second Life classified Url, e.g.,
-/// secondlife:///app/classified/00128854-c36a-5649-7ca6-5dfaa7514ab2/about
-///
-LLUrlEntryClassified::LLUrlEntryClassified()
-{
-	mPattern = boost::regex("secondlife:///app/classified/[\\da-f-]+/about",
-							boost::regex::perl|boost::regex::icase);
-	mMenuName = "menu_url_classified.xml";
-	mTooltip = LLTrans::getString("TooltipClassifiedUrl");
-}
-
-std::string LLUrlEntryClassified::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
-{
-	return unescapeUrl(url);
-}
-
-///
 /// LLUrlEntryParcel Describes a Second Life parcel Url, e.g.,
 /// secondlife:///app/parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/about
 ///
@@ -387,6 +353,61 @@ LLUrlEntryParcel::LLUrlEntryParcel()
 std::string LLUrlEntryParcel::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
 	return unescapeUrl(url);
+}
+
+//
+// LLUrlEntryPlace Describes secondlife:///<location> URLs
+//
+LLUrlEntryPlace::LLUrlEntryPlace()
+{
+	mPattern = boost::regex("secondlife://\\S+/?(\\d+/\\d+/\\d+|\\d+/\\d+)/?",
+							boost::regex::perl|boost::regex::icase);
+	mMenuName = "menu_url_slurl.xml";
+	mTooltip = LLTrans::getString("TooltipSLURL");
+}
+
+std::string LLUrlEntryPlace::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	//
+	// we handle SLURLs in the following formats:
+	//   - secondlife://Place/X/Y/Z
+	//   - secondlife://Place/X/Y
+	//
+	LLURI uri(url);
+	std::string location = unescapeUrl(uri.hostName());
+	LLSD path_array = uri.pathArray();
+	S32 path_parts = path_array.size();
+	if (path_parts == 3)
+	{
+		// handle slurl with (X,Y,Z) coordinates
+		std::string x = path_array[0];
+		std::string y = path_array[1];
+		std::string z = path_array[2];
+		return location + " (" + x + "," + y + "," + z + ")";
+	}
+	else if (path_parts == 2)
+	{
+		// handle slurl with (X,Y) coordinates
+		std::string x = path_array[0];
+		std::string y = path_array[1];
+		return location + " (" + x + "," + y + ")";
+	}
+
+	return url;
+}
+
+std::string LLUrlEntryPlace::getLocation(const std::string &url) const
+{
+	// return the part of the Url after secondlife:// part
+	const std::string search_string = "://";
+	size_t pos = url.find(search_string);
+	if (pos == std::string::npos)
+	{
+		return "";
+	}
+
+	pos += search_string.size();
+	return url.substr(pos, url.size() - pos);
 }
 
 //
