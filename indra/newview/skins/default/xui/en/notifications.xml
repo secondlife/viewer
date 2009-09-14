@@ -6498,7 +6498,7 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
    name="UnsupportedCommandSLURL"
    priority="high"
    type="notifytip">
-    The SLURL you clicked on is not supported.
+    The SLurl you clicked on is not supported.
   </notification>
 
   <notification name="IMToast" type="notifytoast">
