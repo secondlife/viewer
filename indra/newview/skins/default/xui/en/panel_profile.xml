@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- follows="left|top|right|bottom"
+ follows="all"
  height="515"
  label="Profile"
  layout="topleft"
