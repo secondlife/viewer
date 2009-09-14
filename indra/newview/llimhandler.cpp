@@ -35,6 +35,7 @@
 
 #include "llnotificationhandler.h"
 
+#include "llagentdata.h"
 #include "llbottomtray.h"
 #include "llviewercontrol.h"
 #include "lltoastimpanel.h"
@@ -77,9 +78,15 @@ void LLIMHandler::processNotification(const LLSD& notify)
 	{
 		LLSD substitutions = notification->getSubstitutions();
 
+		// According to comments in LLIMMgr::addMessage(), if we get message
+		// from ourselves, the sender id is set to null. This fixes EXT-875.
+		LLUUID avatar_id = substitutions["FROM_ID"].asUUID();
+		if (avatar_id.isNull())
+			avatar_id = gAgentID;
+
 		LLToastIMPanel::Params im_p;
 		im_p.notification = notification;
-		im_p.avatar_id = substitutions["FROM_ID"].asUUID();
+		im_p.avatar_id = avatar_id;
 		im_p.from = substitutions["FROM"].asString();
 		im_p.time = substitutions["TIME"].asString();
 		im_p.message = substitutions["MESSAGE"].asString();

@@ -38,6 +38,8 @@
 
 // viewer includes
 #include "llvoiceclient.h"
+#include "llmutelist.h"
+#include "llagent.h"
 
 // default options set in output_monitor.xml
 static LLDefaultChildRegistry::Register<LLOutputMonitorCtrl> r("output_monitor");
@@ -58,7 +60,9 @@ LLOutputMonitorCtrl::Params::Params()
 	image_on("image_on"),
 	image_level_1("image_level_1"),
 	image_level_2("image_level_2"),
-	image_level_3("image_level_3")
+	image_level_3("image_level_3"),
+	auto_update("auto_update"),
+	speaker_id("speaker_id")
 {
 	draw_border = true;
 	name = "output_monitor";
@@ -69,14 +73,14 @@ LLOutputMonitorCtrl::Params::Params()
 LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 :	LLView(p),
 	mPower(0),
-	mIsMuted(true),
-	mIsTalking(false),
 	mImageMute(p.image_mute),
 	mImageOff(p.image_off),
 	mImageOn(p.image_on),
 	mImageLevel1(p.image_level_1),
 	mImageLevel2(p.image_level_2),
-	mImageLevel3(p.image_level_3)
+	mImageLevel3(p.image_level_3),
+	mAutoUpdate(p.auto_update),
+	mSpeakerId(p.speaker_id)
 {
 	//static LLUIColor output_monitor_muted_color = LLUIColorTable::instance().getColor("OutputMonitorMutedColor", LLColor4::orange);
 	//static LLUIColor output_monitor_overdriven_color = LLUIColorTable::instance().getColor("OutputMonitorOverdrivenColor", LLColor4::red);
@@ -99,10 +103,14 @@ LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 	//sRectHeightRatio	= output_monitor_rect_height_ratio;
 
 	mBorder = p.draw_border;
+
+	//with checking mute state
+	setSpeakerId(mSpeakerId);
 }
 
 LLOutputMonitorCtrl::~LLOutputMonitorCtrl()
 {
+	LLMuteList::getInstance()->removeObserver(this);
 }
 
 void LLOutputMonitorCtrl::setPower(F32 val)
@@ -120,6 +128,12 @@ void LLOutputMonitorCtrl::draw()
 	const F32 LEVEL_0 = LLVoiceClient::OVERDRIVEN_POWER_LEVEL / 3.f;
 	const F32 LEVEL_1 = LLVoiceClient::OVERDRIVEN_POWER_LEVEL * 2.f / 3.f;
 	const F32 LEVEL_2 = LLVoiceClient::OVERDRIVEN_POWER_LEVEL;
+
+	if (getVisible() && mAutoUpdate && !mIsMuted && mSpeakerId.notNull())
+	{
+		setPower(gVoiceClient->getCurrentPower(mSpeakerId));
+		setIsTalking(gVoiceClient->getUserPTTState());
+	}
 
 	LLPointer<LLUIImage> icon;
 	if (mIsMuted)
@@ -204,4 +218,30 @@ void LLOutputMonitorCtrl::draw()
 	//
 	if(mBorder)
 		gl_rect_2d(0, monh, monw, 0, sColorBound, FALSE);
+}
+
+void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id)
+{
+	if (speaker_id.isNull()) return;
+
+	mSpeakerId = speaker_id;
+
+	//mute management
+	if (mAutoUpdate)
+	{
+		if (speaker_id == gAgentID)
+		{
+			setIsMuted(false);
+		}
+		else
+		{
+			setIsMuted(LLMuteList::getInstance()->isMuted(mSpeakerId));
+			LLMuteList::getInstance()->addObserver(this);
+		}
+	}
+}
+
+void LLOutputMonitorCtrl::onChange()
+{
+	setIsMuted(LLMuteList::getInstance()->isMuted(mSpeakerId));
 }

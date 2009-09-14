@@ -32,6 +32,9 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llfloaterreg.h"
+#include "lltrans.h"
+
 #include "llnearbychatbar.h"
 #include "llbottomtray.h"
 #include "llagent.h"
@@ -45,7 +48,7 @@
 
 S32 LLNearbyChatBar::sLastSpecialChatChannel = 0;
 
-// legacy calllback glue
+// legacy callback glue
 void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
 
 static LLDefaultChildRegistry::Register<LLGestureComboBox> r("gesture_combo_box");
@@ -64,6 +67,7 @@ LLGestureComboBox::LLGestureComboBox(const LLGestureComboBox::Params& p)
 	: LLComboBox(p)
 	, mGestureLabelTimer()
 	, mLabel(p.label)
+	, mViewAllItemIndex(0)
 {
 	setCommitCallback(boost::bind(&LLGestureComboBox::onCommitGesture, this));
 
@@ -102,6 +106,11 @@ void LLGestureComboBox::refreshGestures()
 	}
 
 	sortByName();
+
+	// store index followed by the last added Gesture and add View All item at bottom
+	mViewAllItemIndex = idx;
+	addSimpleElement(LLTrans::getString("ViewAllGestures"), ADD_BOTTOM, LLSD(mViewAllItemIndex));
+
 	// Insert label after sorting, at top, with separator below it
 	addSeparator(ADD_TOP);		
 	addSimpleElement(mLabel, ADD_TOP);
@@ -128,6 +137,15 @@ void LLGestureComboBox::onCommitGesture()
 		}
 
 		index = gestures->getSelectedValue().asInteger();
+
+		if (mViewAllItemIndex == index)
+		{
+			// The same behavior as Ctrl+G. EXT-823
+			LLFloaterReg::toggleInstance("gestures");
+			gestures->selectFirstItem();
+			return;
+		}
+
 		LLMultiGesture* gesture = mGestures.at(index);
 		if(gesture)
 		{
@@ -598,7 +616,7 @@ class LLChatHandler : public LLCommandHandler
 {
 public:
 	// not allowed from outside the app
-	LLChatHandler() : LLCommandHandler("chat", true) { }
+	LLChatHandler() : LLCommandHandler("chat", UNTRUSTED_BLOCK) { }
 
     // Your code here
 	bool handle(const LLSD& tokens, const LLSD& query_map,

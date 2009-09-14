@@ -670,6 +670,10 @@ LLChicletPanel::LLChicletPanel(const Params&p)
 
 	LLPanel::Params panel_params;
 	mScrollArea = LLUICtrlFactory::create<LLPanel>(panel_params,this);
+
+	// important for Show/Hide Camera and Move controls menu in bottom tray to work properly
+	mScrollArea->setMouseOpaque(false);
+
 	addChild(mScrollArea);
 }
 
@@ -1136,6 +1140,8 @@ LLTalkButton::LLTalkButton(const Params& p)
 	LLOutputMonitorCtrl::Params monitor_params = p.monitor;
 	monitor_params.draw_border(false);
 	monitor_params.rect(monitor_rect);
+	monitor_params.auto_update(true);
+	monitor_params.speaker_id(gAgentID);
 	mOutputMonitor = LLUICtrlFactory::create<LLOutputMonitorCtrl>(monitor_params);
 	mSpeakBtn->addChild(mOutputMonitor);
 
@@ -1145,17 +1151,6 @@ LLTalkButton::LLTalkButton(const Params& p)
 
 LLTalkButton::~LLTalkButton()
 {
-}
-
-void LLTalkButton::draw()
-{
-	// Always provide speaking feedback.  User can trigger speaking
-	// with keyboard or middle-mouse shortcut.
-	mOutputMonitor->setPower(gVoiceClient->getCurrentPower(gAgent.getID()));
-	mOutputMonitor->setIsTalking( gVoiceClient->getUserPTTState() );
-	mSpeakBtn->setToggleState( gVoiceClient->getUserPTTState() );
-
-	LLUICtrl::draw();
 }
 
 void LLTalkButton::setSpeakBtnToggleState(bool state)
@@ -1194,13 +1189,14 @@ void LLTalkButton::onClick_ShowBtn()
 	rect.setLeftTopAndSize(x, y, mPrivateCallPanel->getRect().getWidth(), mPrivateCallPanel->getRect().getHeight());
 	mPrivateCallPanel->setRect(rect);
 
-	LLAvatarListItem::Params p;
-	p.buttons.status = true;
-	p.buttons.info = true;
-	p.buttons.profile = false;
-	p.buttons.locator = true;
 
-	mPrivateCallPanel->addItem(new LLAvatarListItem(p));
+	LLAvatarListItem* item = new LLAvatarListItem();
+	item->showStatus(true);
+	item->showInfoBtn(true);
+	item->showSpeakingIndicator(true);
+	item->reshape(mPrivateCallPanel->getRect().getWidth(), item->getRect().getHeight(), FALSE);
+
+	mPrivateCallPanel->addItem(item);
 	mPrivateCallPanel->setVisible(TRUE);
 	mPrivateCallPanel->setFrontmost(TRUE);
 

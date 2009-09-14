@@ -43,7 +43,8 @@ bool LLRecentPeople::add(const LLUUID& id)
 	if (contains(id) || id == gAgent.getID())
 		return false;
 
-	mList.insert(id);
+	LLDate date_added = LLDate::now();
+	mList.insert(std::make_pair(id, date_added));
 	mChangedSignal();
 	return true;
 }
@@ -56,8 +57,8 @@ bool LLRecentPeople::contains(const LLUUID& id) const
 void LLRecentPeople::get(std::vector<LLUUID>& result) const
 {
 	result.clear();
-	for (std::set<LLUUID>::const_iterator pos = mList.begin(); pos != mList.end(); ++pos)
-		result.push_back(*pos);
+	for (recent_people_t::const_iterator pos = mList.begin(); pos != mList.end(); ++pos)
+		result.push_back((*pos).first);
 }
 
 // virtual

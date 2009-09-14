@@ -31,10 +31,14 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llpanelplaces.h"
+
 #include "llassettype.h"
 #include "llwindow.h"
 
+#include "llinventory.h"
 #include "lllandmark.h"
+#include "llparcel.h"
 
 #include "llfloaterreg.h"
 #include "llnotifications.h"
@@ -44,10 +48,11 @@
 #include "lluictrlfactory.h"
 
 #include "llagent.h"
+#include "llfloaterworldmap.h"
+#include "llinventorymodel.h"
 #include "lllandmarkactions.h"
 #include "lllandmarklist.h"
-#include "llfloaterworldmap.h"
-#include "llpanelplaces.h"
+#include "llpanelplaceinfo.h"
 #include "llpanellandmarks.h"
 #include "llpanelteleporthistory.h"
 #include "llsidetray.h"
@@ -57,6 +62,7 @@
 #include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
+#include "llviewerwindow.h"
 
 static const S32 LANDMARK_FOLDERS_MENU_WIDTH = 250;
 static const std::string AGENT_INFO_TYPE			= "agent";
@@ -69,8 +75,40 @@ static const std::string TELEPORT_HISTORY_INFO_TYPE	= "teleport_history";
 static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right);
 static std::string getFullFolderName(const LLViewerInventoryCategory* cat);
 static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats);
-static const LLVector3 get_pos_local_from_global(const LLVector3d &pos_global);
 static void onSLURLBuilt(std::string& slurl);
+
+//Observer classes
+class LLPlacesParcelObserver : public LLParcelObserver
+{
+public:
+	LLPlacesParcelObserver(LLPanelPlaces* places_panel)
+	: mPlaces(places_panel) {}
+
+	/*virtual*/ void changed()
+	{
+		if (mPlaces)
+			mPlaces->changedParcelSelection();
+	}
+
+private:
+	LLPanelPlaces*		mPlaces;
+};
+
+class LLPlacesInventoryObserver : public LLInventoryObserver
+{
+public:
+	LLPlacesInventoryObserver(LLPanelPlaces* places_panel)
+	: mPlaces(places_panel) {}
+
+	/*virtual*/ void changed(U32 mask)
+	{
+		if (mPlaces)
+			mPlaces->changedInventory(mask);
+	}
+
+private:
+	LLPanelPlaces*		mPlaces;
+};
 
 static LLRegisterPanelClassWrapper<LLPanelPlaces> t_places("panel_places");
 
@@ -82,11 +120,14 @@ LLPanelPlaces::LLPanelPlaces()
 		mPlaceInfo(NULL),
 		mItem(NULL),
 		mPlaceMenu(NULL),
-		mLandmarkMenu(NULL),		
+		mLandmarkMenu(NULL),
 		mLandmarkFoldersMenuHandle(),
 		mPosGlobal()
 {
-	gInventory.addObserver(this);
+	mParcelObserver = new LLPlacesParcelObserver(this);
+	mInventoryObserver = new LLPlacesInventoryObserver(this);
+
+	gInventory.addObserver(mInventoryObserver);
 
 	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(
 			boost::bind(&LLPanelPlaces::onAgentParcelChange, this));
@@ -96,10 +137,15 @@ LLPanelPlaces::LLPanelPlaces()
 
 LLPanelPlaces::~LLPanelPlaces()
 {
-	if (gInventory.containsObserver(this))
-		gInventory.removeObserver(this);
-	
+	if (gInventory.containsObserver(mInventoryObserver))
+		gInventory.removeObserver(mInventoryObserver);
+
+	LLViewerParcelMgr::getInstance()->removeObserver(mParcelObserver);
+
 	LLView::deleteViewByHandle(mLandmarkFoldersMenuHandle);
+
+	delete mInventoryObserver;
+	delete mParcelObserver;
 }
 
 BOOL LLPanelPlaces::postBuild()
@@ -173,15 +219,10 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	if (mPlaceInfoType == AGENT_INFO_TYPE)
 	{
 		mPlaceInfo->setInfoType(LLPanelPlaceInfo::AGENT);
-
-		mPosGlobal = gAgent.getPositionGlobal();
 	}
 	else if (mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE)
 	{
 		mPlaceInfo->setInfoType(LLPanelPlaceInfo::CREATE_LANDMARK);
-		mPlaceInfo->displayAgentParcelInfo();
-		
-		mPosGlobal = gAgent.getPositionGlobal();
 	}
 	else if (mPlaceInfoType == LANDMARK_INFO_TYPE)
 	{
@@ -189,7 +230,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 		LLInventoryItem* item = gInventory.getItem(item_uuid);
 		if (!item)
 			return;
-		
+
 		setItem(item);
 	}
 	else if (mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
@@ -204,9 +245,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 								key["z"].asReal());
 
 		mPlaceInfo->setInfoType(LLPanelPlaceInfo::PLACE);
-		mPlaceInfo->displayParcelInfo(get_pos_local_from_global(mPosGlobal),
-									  LLUUID(),
-									  mPosGlobal);
+		mPlaceInfo->displayParcelInfo(LLUUID(), mPosGlobal);
 	}
 	else if (mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE)
 	{
@@ -219,9 +258,30 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 		mPlaceInfo->setInfoType(LLPanelPlaceInfo::TELEPORT_HISTORY);
 		mPlaceInfo->updateLastVisitedText(hist_items[index].mDate);
-		mPlaceInfo->displayParcelInfo(get_pos_local_from_global(mPosGlobal),
-									  LLUUID(),
-									  mPosGlobal);
+		mPlaceInfo->displayParcelInfo(LLUUID(), mPosGlobal);
+	}
+
+	LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
+	if (!parcel_mgr)
+		return;
+
+	// Start using LLViewerParcelMgr for land selection if
+	// information about nearby land is requested.
+	// Otherwise stop using land selection and deselect land.
+	if (mPlaceInfoType == AGENT_INFO_TYPE ||
+		mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE)
+	{
+		parcel_mgr->addObserver(mParcelObserver);
+		parcel_mgr->selectParcelAt(gAgent.getPositionGlobal());
+	}
+	else
+	{
+		parcel_mgr->removeObserver(mParcelObserver);
+
+		if (!parcel_mgr->selectionEmpty())
+		{
+			parcel_mgr->deselectLand();
+		}
 	}
 }
 
@@ -259,9 +319,7 @@ void LLPanelPlaces::onLandmarkLoaded(LLLandmark* landmark)
 	LLUUID region_id;
 	landmark->getRegionID(region_id);
 	landmark->getGlobalPos(mPosGlobal);
-	mPlaceInfo->displayParcelInfo(landmark->getRegionPos(),
-								  region_id,
-								  mPosGlobal);
+	mPlaceInfo->displayParcelInfo(region_id, mPosGlobal);
 }
 
 void LLPanelPlaces::onFilterEdit(const std::string& search_string)
@@ -382,7 +440,7 @@ void LLPanelPlaces::onOverflowButtonClicked()
 		 mPlaceInfoType == "teleport_history") && mPlaceMenu != NULL)
 	{
 		menu = mPlaceMenu;
-		
+
 		// Enable adding a landmark only for agent current parcel and if
 		// there is no landmark already pointing to that parcel in agent's inventory.
 		menu->getChild<LLMenuItemCallGL>("landmark")->setEnabled(is_agent_place_info_visible &&
@@ -505,8 +563,40 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 	}
 }
 
-//virtual
-void LLPanelPlaces::changed(U32 mask)
+void LLPanelPlaces::changedParcelSelection()
+{
+	if (!mPlaceInfo)
+		return;
+
+	mParcel = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection();
+	LLParcel* parcel = mParcel->getParcel();
+	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
+	if (!region || !parcel)
+		return;
+
+	// If agent is inside the selected parcel show agent's region<X, Y, Z>,
+	// otherwise show region<X, Y, Z> of agent's selection point.
+	if (region == gAgent.getRegion() &&
+		parcel->getLocalID() == LLViewerParcelMgr::getInstance()->getAgentParcel()->getLocalID())
+	{
+		mPosGlobal = gAgent.getPositionGlobal();
+	}
+	else
+	{
+		LLVector3d pos_global = gViewerWindow->getLastPick().mPosGlobal;
+		if (!pos_global.isExactlyZero())
+		{
+			mPosGlobal = pos_global;
+		}
+	}
+
+	mPlaceInfo->resetLocation();
+	mPlaceInfo->displaySelectedParcelInfo(parcel, region, mPosGlobal);
+
+	updateVerbs();
+}
+
+void LLPanelPlaces::changedInventory(U32 mask)
 {
 	if (!(gInventory.isInventoryUsable() && LLTeleportHistory::getInstance()))
 		return;
@@ -541,7 +631,7 @@ void LLPanelPlaces::changed(U32 mask)
 
 	// we don't need to monitor inventory changes anymore,
 	// so remove the observer
-	gInventory.removeObserver(this);
+	gInventory.removeObserver(mInventoryObserver);
 }
 
 void LLPanelPlaces::onAgentParcelChange()
@@ -549,11 +639,7 @@ void LLPanelPlaces::onAgentParcelChange()
 	if (!mPlaceInfo)
 		return;
 
-	if (mPlaceInfo->getVisible() && mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE)
-	{
-		onOpen(LLSD().insert("type", mPlaceInfoType));
-	}
-	else if (mPlaceInfo->isMediaPanelVisible())
+	if (mPlaceInfo->isMediaPanelVisible())
 	{
 		onOpen(LLSD().insert("type", AGENT_INFO_TYPE));
 	}
@@ -798,15 +884,6 @@ static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats)
 	{
 		cats.put(favorites_cat);
 	}
-}
-
-static const LLVector3 get_pos_local_from_global(const LLVector3d &pos_global)
-{
-	F32 region_x = (F32)fmod( pos_global.mdV[VX], (F64)REGION_WIDTH_METERS );
-	F32 region_y = (F32)fmod( pos_global.mdV[VY], (F64)REGION_WIDTH_METERS );
-
-	LLVector3 pos_local(region_x, region_y, (F32)pos_global.mdV[VZ]);
-	return pos_local;
 }
 
 static void onSLURLBuilt(std::string& slurl)

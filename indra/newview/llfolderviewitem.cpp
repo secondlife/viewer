@@ -1183,6 +1183,8 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 	// you will automatically fail this time, so we only
 	// check against items that have passed the filter
 	S32 must_pass_generation = filter.getMustPassGeneration();
+	
+	bool autoopen_folders = (filter.hasFilterString());
 
 	// if we have already been filtered against this generation, skip out
 	if (getCompletedFilterGeneration() >= filter_generation)
@@ -1255,7 +1257,7 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 			if ((*fit)->getFiltered() || (*fit)->hasFilteredDescendants(filter.getMinRequiredGeneration()))
 			{
 				mMostFilteredDescendantGeneration = filter_generation;
-				if (getRoot()->needsAutoSelect())
+				if (getRoot()->needsAutoSelect() && autoopen_folders)
 				{
 					(*fit)->setOpenArrangeRecursively(TRUE);
 				}
@@ -1271,7 +1273,7 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 		if ((*fit)->getFiltered() || (*fit)->hasFilteredDescendants(filter_generation))
 		{
 			mMostFilteredDescendantGeneration = filter_generation;
-			if (getRoot()->needsAutoSelect())
+			if (getRoot()->needsAutoSelect() && autoopen_folders)
 			{
 				(*fit)->setOpenArrangeRecursively(TRUE);
 			}

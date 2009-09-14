@@ -633,7 +633,7 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) co
 		// did we find *something* with that name?
 		if (child)
 		{
-			llwarns << "Found child named " << name << " but of wrong type " << typeid(child).name() << ", expecting " << typeid(T*).name() << llendl;
+			llwarns << "Found child named " << name << " but of wrong type " << typeid(*child).name() << ", expecting " << typeid(T*).name() << llendl;
 		}
 		result = getDefaultWidget<T>(name);
 		if (!result)

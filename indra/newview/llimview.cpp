@@ -101,7 +101,8 @@ void toast_callback(const LLSD& msg){
 		args["FROM_ID"] = msg["from_id"];
 		args["SESSION_ID"] = msg["session_id"];
 
-		LLNotifications::instance().add("IMToast", args, LLSD(), boost::bind(&LLFloaterChatterBox::onOpen, LLFloaterChatterBox::getInstance(), msg["session_id"].asUUID()));
+		//LLNotifications::instance().add("IMToast", args, LLSD(), boost::bind(&LLFloaterChatterBox::onOpen, LLFloaterChatterBox::getInstance(), msg["session_id"].asUUID()));
+		LLNotifications::instance().add("IMToast", args, LLSD(), boost::bind(&LLIMFloater::toggle, msg["session_id"].asUUID()));
 	}
 }
 

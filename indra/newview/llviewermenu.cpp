@@ -100,7 +100,6 @@
 #include "llfloaterdirectory.h"
 #include "llfloaterchatterbox.h"
 #include "llfloaterfonttest.h"
-#include "llfloatergesture.h"
 #include "llfloatergodtools.h"
 #include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
@@ -183,7 +182,6 @@
 #include "lluuid.h"
 #include "llviewercamera.h"
 #include "llviewergenericmessage.h"
-#include "llviewergesture.h"
 #include "llviewertexturelist.h"	// gTextureList
 #include "llviewerinventory.h"
 #include "llviewermenufile.h"	// init_menu_file()
@@ -210,8 +208,10 @@
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llfloaternotificationsconsole.h"
+#include "llfloatercamera.h"
 
 #include "lltexlayer.h"
+#include "llappearancemgr.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -3767,6 +3767,7 @@ void handle_reset_view()
 	else
 	{
 		reset_view_final( TRUE );
+		LLFloaterCamera::resetCameraMode();
 	}
 }
 
@@ -6375,13 +6376,13 @@ void handle_selected_texture_info(void*)
 
 void handle_test_male(void*)
 {
-	wear_outfit_by_name("Male Shape & Outfit");
+	LLAppearanceManager::wearOutfitByName("Male Shape & Outfit");
 	//gGestureList.requestResetFromServer( TRUE );
 }
 
 void handle_test_female(void*)
 {
-	wear_outfit_by_name("Female Shape & Outfit");
+	LLAppearanceManager::wearOutfitByName("Female Shape & Outfit");
 	//gGestureList.requestResetFromServer( FALSE );
 }
 

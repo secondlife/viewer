@@ -2364,7 +2364,7 @@ void LLViewerWindow::updateUI()
 
 	updateWorldViewRect();
 
-	//updateBottomTrayRect();
+	updateBottomTrayRect();
 
 	LLView::sMouseHandlerMessage.clear();
 

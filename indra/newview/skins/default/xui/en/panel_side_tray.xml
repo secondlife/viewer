@@ -3,14 +3,14 @@
   name="sidebar"
   background_visible="false"
   mouse_opaque="true"
-  width="305"
+  width="333"
   collapsed="true"
 >
   <sidetray_tab
     name="sidebar_home"
     tab_title="Home"
     description="Home."
-    image="icn_voice-groupfocus.tga"
+    image="BackArrow_Off"
     mouse_opaque="false"
     background_opaque="false"
     background_visible="true"
@@ -50,17 +50,17 @@
         border="true"
         font="SansSerifBold"
       />
-      <panel 
-        class="panel_group_info_sidetray" 
-        name="panel_group_info_sidetray" 
-        filename="panel_group_info_sidetray.xml" 
-        label="Group Info" 
+      <panel
+        class="panel_group_info_sidetray"
+        name="panel_group_info_sidetray"
+        filename="panel_group_info_sidetray.xml"
+        label="Group Info"
         border="true"
       />
-      <panel 
+      <panel
         class="panel_block_list_sidetray"
-        name="panel_block_list_sidetray" 
-        filename="panel_block_list_sidetray.xml" 
+        name="panel_block_list_sidetray"
+        filename="panel_block_list_sidetray.xml"
         label="Blocked Residents &amp; Objects"
         border="true"
       />
@@ -87,7 +87,7 @@
 
   <sidetray_tab
     name="sidebar_me"
-    tab_title="My Profile"
+    tab_title="Me"
     description="Change your profile, your look and quick links to your outfits."
     image="TabIcon_Me_Off"
     mouse_opaque="false"
@@ -97,7 +97,7 @@
         class="panel_me_profile_view"
         name="panel_me_profile"
         filename="panel_me_profile.xml"
-        label="My Profile"
+        label="Me"
         border="true"
         font="SansSerifBold"
       />
@@ -108,16 +108,15 @@
     tab_title="Appearance"
     description="Change your looks and appearance."
     image="TabIcon_Appearance_Off"
-    mouse_opaque="false" 
-    background_opaque="false" 
-    background_visible="true" 
-    bg_opaque_color="0.5 0.5 0.5 1.0"
+    mouse_opaque="false"
+    background_opaque="false"
+    background_visible="true"
   >
-      <panel 
+      <panel
         class="panel_appearance"
-        name="panel_appearance" 
-        filename="panel_appearance.xml" 
-        border="true" 
+        name="panel_appearance"
+        filename="panel_appearance.xml"
+        border="true"
       />
   </sidetray_tab>
 

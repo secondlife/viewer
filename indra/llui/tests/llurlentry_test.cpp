@@ -308,56 +308,52 @@ namespace tut
 	void object::test<6>()
 	{
 		//
-		// test LLUrlEntryEvent - secondlife://app/event Urls
+		// test LLUrlEntryPlace - secondlife://<location> URLs
 		//
-		LLUrlEntryEvent url;
+		LLUrlEntryPlace url;
 		boost::regex r = url.getPattern();
 
-		testRegex("Invalid Event Url", r,
-				  "secondlife:///app/event/FOO/about",
+		testRegex("no valid slurl [1]", r,
+				  "secondlife://Ahern/FOO/50/",
 				  "");
 
-		testRegex("Event Url ", r,
-				  "secondlife:///app/event/700727/about",
-				  "secondlife:///app/event/700727/about");
+		testRegex("Ahern (50,50,50) [1]", r,
+				  "secondlife://Ahern/50/50/50/",
+				  "secondlife://Ahern/50/50/50/");
 
-		testRegex("Event Url in text", r,
-				  "XXX secondlife:///app/event/700727/about XXX",
-				  "secondlife:///app/event/700727/about");
+		testRegex("Ahern (50,50,50) [2]", r,
+				  "XXX secondlife://Ahern/50/50/50/ XXX",
+				  "secondlife://Ahern/50/50/50/");
 
-		testRegex("Event Url multicase", r,
-				  "XXX secondlife:///APP/Event/700727/about XXX",
-				  "secondlife:///APP/Event/700727/about");
+		testRegex("Ahern (50,50,50) [3]", r,
+				  "XXX secondlife://Ahern/50/50/50 XXX",
+				  "secondlife://Ahern/50/50/50");
+
+		testRegex("Ahern (50,50,50) multicase", r,
+				  "XXX SecondLife://Ahern/50/50/50/ XXX",
+				  "SecondLife://Ahern/50/50/50/");
+
+		testRegex("Ahern (50,50) [1]", r,
+				  "XXX secondlife://Ahern/50/50/ XXX",
+				  "secondlife://Ahern/50/50/");
+
+		testRegex("Ahern (50,50) [2]", r,
+				  "XXX secondlife://Ahern/50/50 XXX",
+				  "secondlife://Ahern/50/50");
+
+		// DEV-21577: In-world SLURLs containing "(" or ")" are not treated as a hyperlink in chat
+		testRegex("SLURL with brackets", r,
+				  "XXX secondlife://Burning%20Life%20(Hyper)/27/210/30 XXX",
+				  "secondlife://Burning%20Life%20(Hyper)/27/210/30");
+
+		// DEV-35459: SLURLs and teleport Links not parsed properly
+		testRegex("SLURL with quote", r,
+				  "XXX secondlife://A'ksha%20Oasis/41/166/701 XXX",
+				  "secondlife://A'ksha%20Oasis/41/166/701");
 	}
 
 	template<> template<>
 	void object::test<7>()
-	{
-		//
-		// test LLUrlEntryClassified - secondlife://app/classified Urls
-		//
-		LLUrlEntryClassified url;
-		boost::regex r = url.getPattern();
-
-		testRegex("Invalid Classified Url", r,
-				  "secondlife:///app/classified/00128854-XXXX-5649-7ca6-5dfaa7514ab2/about",
-				  "");
-
-		testRegex("Classified Url ", r,
-				  "secondlife:///app/classified/00128854-c36a-5649-7ca6-5dfaa7514ab2/about",
-				  "secondlife:///app/classified/00128854-c36a-5649-7ca6-5dfaa7514ab2/about");
-
-		testRegex("Classified Url in text", r,
-				  "XXX secondlife:///app/classified/00128854-c36a-5649-7ca6-5dfaa7514ab2/about XXX",
-				  "secondlife:///app/classified/00128854-c36a-5649-7ca6-5dfaa7514ab2/about");
-
-		testRegex("Classified Url multicase", r,
-				  "XXX secondlife:///APP/Classified/00128854-c36a-5649-7ca6-5dfaa7514ab2/About XXX",
-				  "secondlife:///APP/Classified/00128854-c36a-5649-7ca6-5dfaa7514ab2/About");
-	}
-
-	template<> template<>
-	void object::test<8>()
 	{
 		//
 		// test LLUrlEntryParcel - secondlife://app/parcel Urls
@@ -382,7 +378,7 @@ namespace tut
 				  "secondlife:///APP/Parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/About");
 	}
 	template<> template<>
-	void object::test<9>()
+	void object::test<8>()
 	{
 		//
 		// test LLUrlEntryTeleport - secondlife://app/teleport URLs
@@ -458,7 +454,7 @@ namespace tut
 	}
 
 	template<> template<>
-	void object::test<10>()
+	void object::test<9>()
 	{
 		//
 		// test LLUrlEntrySL - general secondlife:// URLs
@@ -496,7 +492,7 @@ namespace tut
 	}
 
 	template<> template<>
-	void object::test<11>()
+	void object::test<10>()
 	{
 		//
 		// test LLUrlEntrySLLabel - general secondlife:// URLs with labels

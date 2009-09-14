@@ -155,6 +155,37 @@ void LLDate::toStream(std::ostream& s) const
 	s << 'Z';
 }
 
+bool LLDate::split(S32 *year, S32 *month, S32 *day, S32 *hour, S32 *min, S32 *sec) const
+{
+	apr_time_t time = (apr_time_t)(mSecondsSinceEpoch * LL_APR_USEC_PER_SEC);
+	
+	apr_time_exp_t exp_time;
+	if (apr_time_exp_gmt(&exp_time, time) != APR_SUCCESS)
+	{
+		return false;
+	}
+
+	if (year)
+		*year = exp_time.tm_year + 1900;
+
+	if (month)
+		*month = exp_time.tm_mon + 1;
+
+	if (day)
+		*day = exp_time.tm_mday;
+
+	if (hour)
+		*hour = exp_time.tm_hour;
+
+	if (min)
+		*min = exp_time.tm_min;
+
+	if (sec)
+		*sec = exp_time.tm_sec;
+
+	return true;
+}
+
 bool LLDate::fromString(const std::string& iso8601_date)
 {
 	std::istringstream stream(iso8601_date);

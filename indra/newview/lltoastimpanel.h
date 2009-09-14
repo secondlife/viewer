@@ -63,6 +63,7 @@ private:
 
 	void onClickReplyBtn();
 
+	LLNotificationPtr	mNotification;
 	LLUUID				mSessionID;
 	LLAvatarIconCtrl*	mAvatar;
 	LLTextBox*			mUserName;

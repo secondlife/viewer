@@ -968,8 +968,13 @@ bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
 
 	// special case to handle timezone
 	if (code == "%Z") {
-		if (param == "utc") replacement = "GMT";
-		else if (param != "local") replacement = LLStringOps::getDaylightSavings()? "PDT" : "PST";
+		if (param == "utc")
+			replacement = "GMT";
+		else if (param == "slt")
+			replacement = "SLT";
+		else if (param != "local") // *TODO Vadim: not local? then what?
+			replacement = LLStringOps::getDaylightSavings() ? "PDT" : "PST";
+
 		return true;
 	}
 	replacement = datetime->toHTTPDateString(code);

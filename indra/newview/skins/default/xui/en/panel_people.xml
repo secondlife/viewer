@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- background_visible="true"
+background_visible="true"
+color="DkGray"
  follows="all"
- height="400"
+ height="570"
  label="People"
  layout="topleft"
  min_height="350"
- min_width="240"
  name="people_panel"
- width="305">
+ top="0"
+ left="0"
+ bevel_style="none"
+ width="333">
     <string
      name="no_people"
      value="No people" />
@@ -31,103 +34,95 @@
      name="groups_filter_label"
      value="Filter Groups" />
     <filter_editor
-     background_image="TextField_Search_Off"
      follows="left|top|right"
      font="SansSerif"
      height="23"
      layout="topleft"
      left="15"
-     max_length="270"
+     max_length="300"
      name="filter_input"
      text_color="black"
-     text_pad_left="26"
      top="3"
-     width="256" />
-    <button
-     follows="left|top|right"
-     height="13"
-     image_selected="Search"
-     image_unselected="Search"
-     layout="topleft"
-     left="20"
-     name="people_search"
-     picture_style="true"
-     scale_image="false"
-     top="8"
-     width="13" />
+     width="300" />
     <tab_container
-     follows="left|top|right|bottom"
-     height="326"
+     follows="all"
+     height="488"
      layout="topleft"
-     left="9"
+     left="10"
      name="tabs"
+     bevel_style="in"
      tab_position="top"
      top_pad="15"
-     width="285">
+     width="313">
         <panel
-         bevel_style="none"
-         follows="left|top|right|bottom"
-         height="390"
+          follows="all"
+         height="488"
          label="Nearby"
          layout="topleft"
+         left="0"
          name="nearby_panel"
-         width="285">
+         top="0"
+         width="313">
             <avatar_list
-             follows="left|top|right|bottom"
-             height="357"
+             follows="all"
+             height="430"
              layout="topleft"
              left="0"
              name="avatar_list"
-             top="2"
+             top="0"
              volume_column_width="20"
-             width="285" />
+             width="313" />
             <panel
              background_visible="true"
              bevel_style="none"
-             bottom="390"
+            top_pad="0"
              follows="left|right|bottom"
              height="30"
              label="bottom_panel"
              layout="topleft"
              left="0"
              name="bottom_panel"
-             width="285">
-                <button
-                 follows="bottom|left"
-                 font="SansSerifBigBold"
-                 height="18"
-                 image_selected="OptionsMenu_Press"
-                 image_unselected="OptionsMenu_Off"
-                 layout="topleft"
-                 left="20"
-                 name="nearby_view_sort_btn"
-                 picture_style="true"
-                 tool_tip="Change sort and view of Residents list"
-                 top="7"
-                 width="18" />
+             width="313">
+             <button
+             follows="bottom|left"
+             font="SansSerifBigBold"
+             tool_tip="Change sort and view of Residents list"
+             height="18"
+             image_disabled="OptionsMenu_Disabled"
+             image_selected="OptionsMenu_Press"
+             image_unselected="OptionsMenu_Off"
+             layout="topleft"
+             left="10"
+             name="nearby_view_sort_btn"
+             picture_style="true"
+             top="5"
+             width="18" />
             </panel>
         </panel>
         <panel
          background_visible="true"
          bevel_style="none"
-         follows="left|top|right|bottom"
-         height="390"
+         follows="all"
+             color="DkGray2"
+         height="460"
+         left="0"
+         top="0"
          label="Friends"
          layout="topleft"
          name="friends_panel"
-         width="285">
+         width="313">
             <accordion
-             follows="left|top|right|bottom"
-             height="357"
+             follows="all"
+             height="430"
              layout="topleft"
              left="0"
              name="friends_accordion"
              top="2"
-             width="285">
+             width="313">
                 <accordion_tab
                  can_resize="false"
                  layout="topleft"
-                 min_height="100"
+                 min_height="150"
                  name="tab_online"
                  title="Online">
                         <avatar_list
@@ -138,29 +133,29 @@
                          left="0"
                          name="avatars_online"
                          top="0"
-                         width="285" />
+                         width="313" />
                 </accordion_tab>
                 <accordion_tab
                  can_resize="false"
                  layout="topleft"
-                 min_height="100"
+                 height="230"
                  name="tab_all"
                  title="All">
                         <avatar_list
                          draw_heading="false"
                          follows="all"
-                         height="255"
+                         height="230"
                          layout="topleft"
                          left="0"
                          name="avatars_all"
                          top="0"
-                         width="285" />
+                         width="313" />
                 </accordion_tab>
             </accordion>
             <panel
              background_visible="true"
              bevel_style="none"
-             bottom="390"
+             top_pad="0"
              follows="left|right|bottom"
              height="30"
              label="bottom_panel"
@@ -168,25 +163,27 @@
              left="0"
              name="bottom_panel"
              width="285">
-                <button
-                 follows="bottom|left"
-                 font="SansSerifBigBold"
-                 height="18"
-                 image_selected="OptionsMenu_Press"
-                 image_unselected="OptionsMenu_Off"
-                 layout="topleft"
-                 left="20"
-                 name="friends_viewsort_btn"
-                 picture_style="true"
-                 tool_tip="Change sort and view of Friends list"
-                 top="7"
-                 width="18" />
+               <button
+               follows="bottom|left"
+               font="SansSerifBigBold"
+               tool_tip="Change sort and view of Friends list"
+               height="18"
+               image_disabled="OptionsMenu_Disabled"
+               image_selected="OptionsMenu_Press"
+               image_unselected="OptionsMenu_Off"
+               layout="topleft"
+               left="10"
+               name="friends_viewsort_btn"
+               picture_style="true"
+               top="5"
+               width="18" />
                 <button
                  follows="bottom|left"
                  font="SansSerifBigBold"
                  height="18"
                  image_selected="AddItem_Press"
                  image_unselected="AddItem_Off"
+                 image_disabled="AddItem_Disabled"
                  layout="topleft"
                  left_pad="5"
                  name="add_btn"
@@ -200,6 +197,7 @@
                  height="18"
                  image_selected="TrashItem_Press"
                  image_unselected="TrashItem_Off"
+                 image_disabled="TrashItem_Disabled"
                  layout="topleft"
                  left_pad="180"
                  name="del_btn"
@@ -215,13 +213,16 @@
          follows="left|top|right|bottom"
          height="390"
          label="Groups"
+         top="0"
          layout="topleft"
          name="groups_panel"
          width="285">
             <group_list
+             draw_heading="false"
              follows="left|top|right|bottom"
              height="357"
              layout="topleft"
+             color="DkGray2"
              left="0"
              name="group_list"
              top="2"
@@ -229,7 +230,7 @@
             <panel
              background_visible="true"
              bevel_style="none"
-             bottom="390"
+             top_pad="0"
              follows="left|right|bottom"
              height="30"
              label="bottom_panel"
@@ -237,26 +238,28 @@
              left="0"
              name="bottom_panel"
              width="285">
-                <button
-                 enabled="false"
-                 follows="bottom|left"
-                 font="SansSerifBigBold"
-                 height="18"
-                 image_selected="OptionsMenu_Press"
-                 image_unselected="OptionsMenu_Off"
-                 layout="topleft"
-                 left="20"
-                 name="gear_btn"
-                 picture_style="true"
-                 tool_tip="Change sort and view of Groups list"
-                 top="7"
-                 width="18" />
+               <button
+               enabled="false"
+               follows="bottom|left"
+               font="SansSerifBigBold"
+               tool_tip="Change sort and view of Groups list"
+               height="18"
+               image_disabled="OptionsMenu_Disabled"
+               image_selected="OptionsMenu_Press"
+               image_unselected="OptionsMenu_Off"
+               layout="topleft"
+               left="10"
+               name="gear_btn"
+               picture_style="true"
+               top="5"
+               width="18" />
                 <button
                  follows="bottom|left"
                  font="SansSerifBigBold"
                  height="18"
                  image_selected="AddItem_Press"
                  image_unselected="AddItem_Off"
+                 image_disabled="AddItem_Disabled"
                  layout="topleft"
                  left_pad="5"
                  name="plus_btn"
@@ -296,13 +299,15 @@
         <panel
          background_visible="true"
          bevel_style="none"
+         top="0"
          follows="left|top|right|bottom"
          height="390"
          label="Recent"
          layout="topleft"
          name="recent_panel"
          width="285">
-            <avatar_list
+            <avatar_list_tmp
+             color="DkGray2"
              follows="left|top|right|bottom"
              height="357"
              layout="topleft"
@@ -313,7 +318,7 @@
             <panel
              background_visible="true"
              bevel_style="none"
-             bottom="390"
+             top_pad="0"
              follows="left|right|bottom"
              height="30"
              label="bottom_panel"
@@ -321,19 +326,20 @@
              left="0"
              name="bottom_panel"
              width="285">
-                <button
-                 follows="bottom|left"
-                 font="SansSerifBigBold"
-                 height="18"
-                 image_selected="OptionsMenu_Press"
-                 image_unselected="OptionsMenu_Off"
-                 layout="topleft"
-                 left="20"
-                 name="recent_viewsort_btn"
-                 picture_style="true"
-                 tool_tip="Change sort and view of Residents list"
-                 top="7"
-                 width="18" />
+               <button
+               follows="bottom|left"
+               font="SansSerifBigBold"
+               tool_tip="Change sort and view of Recent Residents list"
+               height="18"
+               image_disabled="OptionsMenu_Disabled"
+               image_selected="OptionsMenu_Press"
+               image_unselected="OptionsMenu_Off"
+               layout="topleft"
+               left="10"
+               name="recent_viewsort_btn"
+               picture_style="true"
+               top="5"
+               width="18" />
             </panel>
         </panel>
     </tab_container>
@@ -346,7 +352,7 @@
      left="10"
      name="button_bar"
      orientation="horizontal"
-     width="295">
+     width="313">
         <layout_panel
          default_tab_group="1"
          follows="left|top|right"

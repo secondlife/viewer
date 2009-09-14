@@ -45,6 +45,7 @@
 #include "llwearable.h"
 #include "llwearablelist.h"
 #include "llgesturemgr.h"
+#include "llappearancemgr.h"
 
 #include <boost/scoped_ptr.hpp>
 
@@ -76,10 +77,8 @@ public:
 	initial_wearable_data_vec_t mAgentInitialWearables; // Wearables from the old agent wearables msg
 
 protected:
-	void processInitialWearables();
+	void processWearablesMessage();
 };
-
-
 
 LLAgentWearables gAgentWearables;
 
@@ -312,7 +311,15 @@ void LLAgentWearables::sendAgentWearablesUpdate()
 		if (wearable)
 		{
 			//llinfos << "Sending wearable " << wearable->getName() << llendl;
-			gMessageSystem->addUUIDFast(_PREHASH_ItemID, wearable->getItemID());
+			LLUUID item_id = wearable->getItemID();
+			const LLViewerInventoryItem *item = gInventory.getItem(item_id);
+			if (item && item->getIsLinkType())
+			{
+				// Get the itemID that this item points to.  i.e. make sure
+				// we are storing baseitems, not their links, in the database.
+				item_id = item->getLinkedUUID();
+			}
+			gMessageSystem->addUUIDFast(_PREHASH_ItemID, item_id);			
 		}
 		else
 		{
@@ -737,7 +744,7 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 		gAgentWearables.mItemsAwaitingWearableUpdate.clear();
 		for (S32 i=0; i < num_wearables; i++)
 		{
-			// Parse initial werables data from message system
+			// Parse initial wearables data from message system
 			U8 type_u8 = 0;
 			gMessageSystem->getU8Fast(_PREHASH_WearableData, _PREHASH_WearableType, type_u8, i);
 			if (type_u8 >= WT_COUNT)
@@ -1195,7 +1202,7 @@ LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name,
 					if (!item) continue;
 					LLPointer<LLInventoryCallback> cb = NULL;
 					link_inventory_item(gAgent.getID(),
-										item->getUUID(),
+										item->getLinkedUUID(),
 										folder_id,
 										item->getName(),
 										LLAssetType::AT_LINK,
@@ -1226,7 +1233,7 @@ LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name,
 
 			LLPointer<LLInventoryCallback> cb = NULL;
 			link_inventory_item(gAgent.getID(),
-								item->getUUID(),
+								item->getLinkedUUID(),
 								folder_id,
 								item->getName(),
 								LLAssetType::AT_LINK,
@@ -1781,6 +1788,57 @@ void LLAgentWearables::userRemoveAllAttachments(void* userdata)
 	gMessageSystem->sendReliable(gAgent.getRegionHost());
 }
 
+void LLAgentWearables::userAttachMultipleAttachments(LLInventoryModel::item_array_t& obj_item_array)
+{
+	// Build a compound message to send all the objects that need to be rezzed.
+	S32 obj_count = obj_item_array.count();
+
+	// Limit number of packets to send
+	const S32 MAX_PACKETS_TO_SEND = 10;
+	const S32 OBJECTS_PER_PACKET = 4;
+	const S32 MAX_OBJECTS_TO_SEND = MAX_PACKETS_TO_SEND * OBJECTS_PER_PACKET;
+	if( obj_count > MAX_OBJECTS_TO_SEND )
+	{
+		obj_count = MAX_OBJECTS_TO_SEND;
+	}
+				
+	// Create an id to keep the parts of the compound message together
+	LLUUID compound_msg_id;
+	compound_msg_id.generate();
+	LLMessageSystem* msg = gMessageSystem;
+
+	for(S32 i = 0; i < obj_count; ++i)
+	{
+		if( 0 == (i % OBJECTS_PER_PACKET) )
+		{
+			// Start a new message chunk
+			msg->newMessageFast(_PREHASH_RezMultipleAttachmentsFromInv);
+			msg->nextBlockFast(_PREHASH_AgentData);
+			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			msg->nextBlockFast(_PREHASH_HeaderData);
+			msg->addUUIDFast(_PREHASH_CompoundMsgID, compound_msg_id );
+			msg->addU8Fast(_PREHASH_TotalObjects, obj_count );
+			msg->addBOOLFast(_PREHASH_FirstDetachAll, true );
+		}
+
+		const LLInventoryItem* item = obj_item_array.get(i).get();
+		msg->nextBlockFast(_PREHASH_ObjectData );
+		msg->addUUIDFast(_PREHASH_ItemID, item->getLinkedUUID());
+		msg->addUUIDFast(_PREHASH_OwnerID, item->getPermissions().getOwner());
+		msg->addU8Fast(_PREHASH_AttachmentPt, 0 );	// Wear at the previous or default attachment point
+		pack_permissions_slam(msg, item->getFlags(), item->getPermissions());
+		msg->addStringFast(_PREHASH_Name, item->getName());
+		msg->addStringFast(_PREHASH_Description, item->getDescription());
+
+		if( (i+1 == obj_count) || ((OBJECTS_PER_PACKET-1) == (i % OBJECTS_PER_PACKET)) )
+		{
+			// End of message chunk
+			msg->sendReliable( gAgent.getRegion()->getHost() );
+		}
+	}
+}
+
 void LLAgentWearables::checkWearablesLoaded() const
 {
 #ifdef SHOW_ASSERT
@@ -1812,69 +1870,29 @@ void LLAgentWearables::updateServer()
 
 void LLInitialWearablesFetch::done()
 {
-	// Get the complete information on the items in the library, 
-	// and set up an observer that will wait for that to happen.
-	LLInventoryModel::cat_array_t cat_array;
-	LLInventoryModel::item_array_t item_array;
-
-	LLFindWearables is_wearable;
-	gInventory.collectDescendentsIf(mCompleteFolders.front(),
-									cat_array,
-									item_array,
-									LLInventoryModel::EXCLUDE_TRASH,
-									is_wearable);
-	S32 count = item_array.count();
-	mCOFInitialWearables.reserve(count);
-	
-	for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
-		 iter != item_array.end();
-		 iter++)
-	{
-		const LLViewerInventoryItem *item = (*iter).get();
-		// We're only concerned with linked items in the COF.  Ignore
-		// any non-link items or links to folders.
-		if (item->getActualType() != LLAssetType::AT_LINK)
-		{
-			continue;
-		}
-		EWearableType type = (EWearableType) (item->getFlags() & LLInventoryItem::II_FLAGS_WEARABLES_MASK);
-		// MULTI-WEARABLE: update
-		InitialWearableData wearable_data(type, 0, item->getUUID(), item->getAssetUUID());
-		mCOFInitialWearables.push_back(wearable_data);
-	}
-	
+	// No longer need this observer hanging around.
 	gInventory.removeObserver(this);
-	processInitialWearables();
+
+	// Fetch the wearable items from the Current Outfit Folder
+	LLInventoryModel::cat_array_t cat_array;
+	LLInventoryModel::item_array_t wearable_array;
+	LLFindWearables is_wearable;
+	gInventory.collectDescendentsIf(mCompleteFolders.front(), cat_array, wearable_array, 
+									LLInventoryModel::EXCLUDE_TRASH, is_wearable);
+	
+	if (wearable_array.count() > 0)
+	{
+		LLAppearanceManager::instance().updateAppearanceFromCOF();
+	}
+	else
+	{
+		processWearablesMessage();
+	}
 	delete this;
 }
 
-// This will either grab the contents of the Current Outfit Folder if they exist,
-// or use the old-style initial agent wearables message.  
-void LLInitialWearablesFetch::processInitialWearables()
+void LLInitialWearablesFetch::processWearablesMessage()
 {
-#ifdef USE_CURRENT_OUTFIT_FOLDER
-	if (!mCOFInitialWearables.empty())
-	{
-		for (U8 i = 0; i < mCOFInitialWearables.size(); ++i)
-		{
-			// Fetch the wearables in the current outfit folder
-			InitialWearableData *wearable_data = new InitialWearableData(mCOFInitialWearables[i]); // This will be deleted in the callback.
-			if (wearable_data->mAssetID.notNull())
-			{
-				LLWearableList::instance().getAsset(wearable_data->mAssetID,
-													LLStringUtil::null,
-													LLWearableDictionary::getAssetType(wearable_data->mType),
-													LLAgentWearables::onInitialWearableAssetArrived, (void*)(wearable_data));			
-			}
-			else
-			{
-				llinfos << "Invalid wearable, type " << wearable_data->mType << " itemID "
-						<< wearable_data->mItemID << " assetID " << wearable_data->mAssetID << llendl;
-			}
-		}
-	}
-	else 
-#endif
 	if (!mAgentInitialWearables.empty()) // We have an empty current outfit folder, use the message data instead.
 	{
 		LLUUID current_outfit_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CURRENT_OUTFIT);
@@ -1882,7 +1900,7 @@ void LLInitialWearablesFetch::processInitialWearables()
 		{
 			// Populate the current outfit folder with links to the wearables passed in the message
 			InitialWearableData *wearable_data = new InitialWearableData(mAgentInitialWearables[i]); // This will be deleted in the callback.
-
+			
 			if (wearable_data->mAssetID.notNull())
 			{
 #ifdef USE_CURRENT_OUTFIT_FOLDER
@@ -1899,7 +1917,7 @@ void LLInitialWearablesFetch::processInitialWearables()
 			else
 			{
 				llinfos << "Invalid wearable, type " << wearable_data->mType << " itemID "
-						<< wearable_data->mItemID << " assetID " << wearable_data->mAssetID << llendl;
+				<< wearable_data->mItemID << " assetID " << wearable_data->mAssetID << llendl;
 			}
 		}
 	}
@@ -1908,3 +1926,5 @@ void LLInitialWearablesFetch::processInitialWearables()
 		LL_WARNS("Wearables") << "No current outfit folder items found and no initial wearables fallback message received." << LL_ENDL;
 	}
 }
+
+

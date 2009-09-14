@@ -60,8 +60,7 @@ public:
 public:
 	void on();
 	void off();
-	void setDock(LLView* dockWidget)
-	{	mDockWidget = dockWidget;};
+	void setDock(LLView* dockWidget);
 	void repositionDockable();
 	void drawToungue();
 protected:
@@ -72,6 +71,7 @@ private:
 	DocAt mDockAt;
 	LLView* mDockWidget;
 	LLRect mPrevDockRect;
+	LLRect mRootRect;
 	LLFloater* mDockableFloater;
 	LLUIImagePtr mDockTongue;
 	S32 mDockTongueX;

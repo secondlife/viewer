@@ -83,6 +83,7 @@ LLSearchComboBox::LLSearchComboBox(const Params&p)
 	mTextEntry->setKeystrokeCallback(boost::bind(&LLComboBox::onTextEntry, this, _1), NULL);
 	setSelectionCallback(boost::bind(&LLSearchComboBox::onSelectionCommit, this));
 	setPrearrangeCallback(boost::bind(&LLSearchComboBox::onSearchPrearrange, this, _2));
+	mSearchButton->setCommitCallback(boost::bind(&LLSearchComboBox::onTextCommit, this, _2));
 }
 
 void LLSearchComboBox::rebuildSearchHistory(const std::string& filter)
@@ -153,16 +154,16 @@ void LLSearchComboBox::onSelectionCommit()
 	std::string search_query = getSimple();
 	LLStringUtil::trim(search_query);
 
-	mTextEntry->setText(search_query);
-	setControlValue(search_query);
-
+	// Order of add() and mTextEntry->setText does matter because add() will select first item 
+	// in drop down list and its label will be copied to text box rewriting mTextEntry->setText() call
 	if(!search_query.empty())
 	{
 		remove(search_query);
 		add(search_query, ADD_TOP);
 	}
 
-	LLUICtrl::onCommit();
+	mTextEntry->setText(search_query);
+	setControlValue(search_query);
 }
 
 BOOL LLSearchComboBox::remove(const std::string& name)
@@ -185,6 +186,23 @@ void LLSearchComboBox::clearHistory()
 {
 	removeall();
 	setTextEntry(LLStringUtil::null);
+}
+
+BOOL LLSearchComboBox::handleKeyHere(KEY key,MASK mask )
+{
+	if(mTextEntry->hasFocus() && MASK_NONE == mask && KEY_DOWN == key)
+	{
+		S32 first = 0;
+		S32 size = 0;
+
+		// get entered text (without auto-complete part)
+		mTextEntry->getSelectionRange(&first, &size);
+		std::string search_query = mTextEntry->getText();
+		search_query.erase(first, size);
+
+		onSearchPrearrange(search_query);
+	}
+	return LLComboBox::handleKeyHere(key, mask);
 }
 
 LLSearchHistoryBuilder::LLSearchHistoryBuilder(LLSearchComboBox* combo_box, const std::string& filter)

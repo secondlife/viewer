@@ -38,7 +38,7 @@ class LLFloaterHandler
 :	public LLCommandHandler
 {
 public:
-	LLFloaterHandler() : LLCommandHandler("floater", true) { }
+	LLFloaterHandler() : LLCommandHandler("floater", UNTRUSTED_BLOCK) { }
 	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web);
 };
 

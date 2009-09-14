@@ -42,17 +42,17 @@
 
 #include "llpanelmedia.h"
 #include "llremoteparcelrequest.h"
-#include "llviewerparcelmgr.h"
 
 class LLButton;
 class LLInventoryItem;
 class LLLineEditor;
-class LLParcelSelection;
+class LLParcel;
 class LLTextBox;
 class LLTextEditor;
 class LLTextureCtrl;
+class LLViewerRegion;
 
-class LLPanelPlaceInfo : public LLPanel, LLRemoteParcelInfoObserver, LLParcelObserver
+class LLPanelPlaceInfo : public LLPanel, LLRemoteParcelInfoObserver
 {
 public:
 	enum INFO_TYPE
@@ -99,16 +99,14 @@ public:
 
 	// Displays information about a remote parcel.
 	// Sends a request to the server.
-	void displayParcelInfo(const LLVector3& pos_region,
-						   const LLUUID& region_id,
+	void displayParcelInfo(const LLUUID& region_id,
 						   const LLVector3d& pos_global);
 
-	// Displays information about the parcel the agent is currently on
+	// Displays information about the currently selected parcel
 	// without sending a request to the server.
-	void displayAgentParcelInfo();
-
-	// Called on parcel selection change by LLViewerParcelMgr.
-	/*virtual*/ void changed();
+	void displaySelectedParcelInfo(LLParcel* parcel,
+								LLViewerRegion* region,
+								const LLVector3d& pos_global);
 
 	void updateEstateName(const std::string& name);
 	void updateEstateOwnerName(const std::string& name);
@@ -135,7 +133,6 @@ private:
 	LLUUID			mParcelID;
 	LLUUID			mRequestedID;
 	LLUUID			mLandmarkID;
-	LLVector3		mPosRegion;
 	std::string		mCurrentTitle;
 	S32				mMinHeight;
 	INFO_TYPE 		mInfoType;
@@ -186,8 +183,6 @@ private:
 	LLPanel*            mScrollingPanel;
 	LLPanel*			mInfoPanel;
 	LLMediaPanel*		mMediaPanel;
-
-	LLSafeHandle<LLParcelSelection>	mParcel;
 };
 
 #endif // LL_LLPANELPLACEINFO_H

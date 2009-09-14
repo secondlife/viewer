@@ -71,7 +71,6 @@ private:
 	S32 mMaxCharHeight;
 	S32 mCurrentOffsetX;
 	S32 mCurrentOffsetY;
-	S32 mCurrentBitmapNum;
 	std::vector<LLPointer<LLImageRaw> >	mImageRawVec;
 	std::vector<LLPointer<LLImageGL> > mImageGLVec;
 };

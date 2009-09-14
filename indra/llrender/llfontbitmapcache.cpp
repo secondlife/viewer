@@ -37,13 +37,13 @@
 
 LLFontBitmapCache::LLFontBitmapCache():
 	mNumComponents(0),
-	mMaxCharWidth(0),
-	mMaxCharHeight(0),
 	mBitmapWidth(0),
 	mBitmapHeight(0),
+	mBitmapNum(-1),
+	mMaxCharWidth(0),
+	mMaxCharHeight(0),
 	mCurrentOffsetX(1),
-	mCurrentOffsetY(1),
-	mCurrentBitmapNum(-1)
+	mCurrentOffsetY(1)
 {
 }
 
@@ -160,10 +160,10 @@ void LLFontBitmapCache::reset()
 	mImageRawVec.clear();
 	mImageGLVec.clear();
 	
-	mBitmapWidth = 0,
-	mBitmapHeight = 0,
-	mCurrentOffsetX = 0,
-	mCurrentOffsetY = 0,
-	mCurrentBitmapNum = -1;
+	mBitmapWidth = 0;
+	mBitmapHeight = 0;
+	mBitmapNum = -1;
+	mCurrentOffsetX = 1;
+	mCurrentOffsetY = 1;
 }
 

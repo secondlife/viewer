@@ -224,11 +224,14 @@ void LLBottomTray::setVisible(BOOL visible)
 
 BOOL LLBottomTray::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (mShowCamMoveCtrlsContextMenu)
+	if (!LLPanel::handleRightMouseDown(x, y, mask))
 	{
-		mShowCamMoveCtrlsContextMenu->buildDrawLabels();
-		mShowCamMoveCtrlsContextMenu->updateParent(LLMenuGL::sMenuContainer);
-		LLMenuGL::showPopup(this, mShowCamMoveCtrlsContextMenu, x, y);
+		if (mShowCamMoveCtrlsContextMenu)
+		{
+			mShowCamMoveCtrlsContextMenu->buildDrawLabels();
+			mShowCamMoveCtrlsContextMenu->updateParent(LLMenuGL::sMenuContainer);
+			LLMenuGL::showPopup(this, mShowCamMoveCtrlsContextMenu, x, y);
+		}
 	}
 
 	return TRUE;

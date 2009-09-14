@@ -780,7 +780,6 @@ public:
 
 	/*virtual*/ ~LLTalkButton();
 
-	/*virtual*/ void draw();
 	void setSpeakBtnToggleState(bool state);
 
 protected:

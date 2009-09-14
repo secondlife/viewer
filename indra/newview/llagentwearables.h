@@ -182,6 +182,7 @@ public:
 	static void		userRemoveWearable(void* userdata);	// userdata is EWearableType
 	static void		userRemoveAllClothes(void* userdata);	// userdata is NULL
 	static void		userRemoveAllAttachments(void* userdata);	// userdata is NULL 
+	static void		userAttachMultipleAttachments(LLInventoryModel::item_array_t& obj_item_array);
 
 	BOOL			itemUpdatePending(const LLUUID& item_id) const;
 	U32				itemUpdatePendingCount() const;

@@ -53,7 +53,7 @@ class LLParcelHandler : public LLCommandHandler
 {
 public:
 	// requires trusted browser to trigger
-	LLParcelHandler() : LLCommandHandler("parcel", true) { }
+	LLParcelHandler() : LLCommandHandler("parcel", UNTRUSTED_THROTTLE) { }
 	bool handle(const LLSD& params, const LLSD& query_map,
 				LLMediaCtrl* web)
 	{

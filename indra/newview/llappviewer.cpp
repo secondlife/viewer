@@ -34,8 +34,7 @@
 
 #include "llappviewer.h"
 
-#include "llprimitive.h"
-
+// Viewer includes
 #include "llversionviewer.h"
 #include "llfeaturemanager.h"
 #include "lluictrlfactory.h"
@@ -80,7 +79,10 @@
 
 // Linden library includes
 #include "llmemory.h"
+#include "llprimitive.h"
 #include "llurlaction.h"
+#include "llvfsthread.h"
+#include "llvolumemgr.h"
 
 // Third party library includes
 #include <boost/bind.hpp>

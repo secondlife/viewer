@@ -43,7 +43,7 @@ public:
     // Inform the system you handle commands starting
 	// with "foo" and they are only allowed from
 	// "trusted" (pointed at Linden content) browsers
-	LLFooHandler() : LLCommandHandler("foo", true) { }
+	LLFooHandler() : LLCommandHandler("foo", UNTRUSTED_BLOCK) { }
 
     // Your code here
 	bool handle(const LLSD& tokens, const LLSD& query_map,
@@ -65,7 +65,14 @@ class LLMediaCtrl;
 class LLCommandHandler
 {
 public:
-	LLCommandHandler(const char* command, bool allow_from_untrusted_browser);
+	enum EUntrustedAccess
+	{
+		UNTRUSTED_ALLOW,       // allow commands from untrusted browsers
+		UNTRUSTED_BLOCK,       // ignore commands from untrusted browsers
+		UNTRUSTED_THROTTLE     // allow untrusted, but only a few per min.
+	};
+
+	LLCommandHandler(const char* command, EUntrustedAccess untrusted_access);
 		// Automatically registers object to get called when 
 		// command is executed.  All commands can be processed
 		// in links from LLMediaCtrl, but some (like teleport)

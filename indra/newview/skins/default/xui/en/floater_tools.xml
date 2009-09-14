@@ -283,6 +283,7 @@
      label_selected="Options"
      layout="topleft"
      name="Options..."
+     tool_tip="Set the Grid Options"
      width="26"
      height="22" />
     <button
@@ -959,15 +960,15 @@
             mouse_opaque="true"
             name="sale type"
             intial_value="2">
-        <combo_item
+        <combo_box.item
            name="Copy"
            label="Copy"
            value="2" />
-        <combo_item
+        <combo_box.item
            name="Contents"
            label="Contents"
            value="3" />
-        <combo_item
+        <combo_box.item
            name="Original"
            label="Original"
            value="1" />
@@ -2685,16 +2686,17 @@
          layout="topleft"
          left_delta="0"
          name="checkbox show owners"
-         tool_tip="Color parcels by owner"
+         tool_tip="Colorize the parcels according to the type of owner"
          top_pad="8"
          width="205" />
-            <button
-     image_overlay="Arrow_Right_Off"
-     picture_style="true"
+        <button
+         image_overlay="Arrow_Right_Off"
+         picture_style="true"
          left_pad="5"
          name="button show owners help"
-     width="26"
-     height="22" />
+         tool_tip="See an explanation of colors"
+         width="26"
+         height="22" />
         <text
          type="string"
          length="1"

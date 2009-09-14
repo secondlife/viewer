@@ -35,7 +35,7 @@
 #include "lldockablefloater.h"
 
 //static
-LLDockableFloater* LLDockableFloater::instance = NULL;
+LLHandle<LLFloater> LLDockableFloater::instanceHandle;
 
 LLDockableFloater::LLDockableFloater(LLDockControl* dockControl,
 		const LLSD& key, const Params& params) :
@@ -57,21 +57,21 @@ BOOL LLDockableFloater::postBuild()
 
 void LLDockableFloater::resetInstance()
 {
-	if (instance != this)
+	if (instanceHandle.get() != this)
 	{
-		if (instance != NULL && instance->isDocked())
+		if (instanceHandle.get() != NULL && instanceHandle.get()->isDocked())
 		{
 			//closeFloater() is not virtual
-			if (instance->canClose())
+			if (instanceHandle.get()->canClose())
 			{
-				instance->closeFloater();
+				instanceHandle.get()->closeFloater();
 			}
 			else
 			{
-				instance->setVisible(FALSE);
+				instanceHandle.get()->setVisible(FALSE);
 			}
 		}
-		instance = this;
+		instanceHandle = getHandle();
 	}
 }
 

@@ -2,9 +2,9 @@
  * @file llavatarlistitem.cpp
  * @avatar list item source file
  *
- * $LicenseInfo:firstyear=2004&license=viewergpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2004-2009, Linden Research, Inc.
+ * Copyright (c) 2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -33,70 +33,39 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloaterreg.h"
 #include "llavatarlistitem.h"
+
+#include "llfloaterreg.h"
 #include "llagent.h"
+#include "lloutputmonitorctrl.h"
+#include "llavatariconctrl.h"
+#include "llbutton.h"
 
 
-
-//---------------------------------------------------------------------------------
-LLAvatarListItem::LLAvatarListItem(const Params& p) : LLPanel()
+LLAvatarListItem::LLAvatarListItem()
+:	LLPanel(),
+	mAvatarIcon(NULL),
+	mAvatarName(NULL),
+	mStatus(NULL),
+	mSpeakingIndicator(NULL),
+	mInfoBtn(NULL)
 {
-	mNeedsArrange = false;
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
-
-	mStatus = NULL;
-	mInfo = NULL;
-	mProfile = NULL;
-	mInspector = NULL;
-
-	mAvatar = getChild<LLAvatarIconCtrl>("avatar_icon");
-	//mAvatar->setValue(p.avatar_icon);
-	mName = getChild<LLTextBox>("name"); 
-	//mName->setText(p.user_name);
-	
-	init(p);
-
-	
 }
 
-//---------------------------------------------------------------------------------
-void LLAvatarListItem::init(const Params& p)
+BOOL  LLAvatarListItem::postBuild()
 {
-	mLocator = getChild<LLIconCtrl>("locator");
+	mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");
+	mAvatarName = getChild<LLTextBox>("avatar_name");
+	mStatus = getChild<LLTextBox>("avatar_status");
 
-	mStatus = getChild<LLTextBox>("user_status");
+	mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
+	mInfoBtn = getChild<LLButton>("info_btn");
 
-	mInfo = getChild<LLButton>("info_btn");
-	mInfo->setVisible(false);
-	
-	mProfile = getChild<LLButton>("profile_btn");
-	mProfile->setVisible(false);
+	mInfoBtn->setVisible(false);
+	mInfoBtn->setClickedCallback(boost::bind(&LLAvatarListItem::onInfoBtnClick, this));
 
-	if(!p.buttons.locator)
-	{
-		mLocator->setVisible(false);
-		delete mLocator;
-		mLocator = NULL;
-	}
-
-	if(!p.buttons.status)
-	{
-		mStatus->setVisible(false);
-		delete mStatus;
-		mStatus = NULL;
-	}
-
-	if(!p.buttons.info)
-	{
-		delete mInfo;
-		mInfo = NULL;        
-	}
-	else
-	{
-		mInfo->setClickedCallback(boost::bind(&LLAvatarListItem::onInfoBtnClick, this));
-	}
-
+/*
 	if(!p.buttons.profile)
 	{
 		delete mProfile;
@@ -125,150 +94,72 @@ void LLAvatarListItem::init(const Params& p)
 			mInfo->setRect(rect);
 		}
 	}
-	
+*/
+	return TRUE;
 }
 
-//---------------------------------------------------------------------------------
-void LLAvatarListItem::reshape(S32 width, S32 height, BOOL called_from_parent)
-{
-	if(!mNeedsArrange)
-	{
-		LLView::reshape(width, height, called_from_parent);
-		return;
-	}
-
-	LLRect  rect;
-	S32     profile_delta = 0;
-	S32     width_delta = getRect().getWidth() - width; 
-
-	if(!mProfile)
-	{
-		profile_delta = 30;
-	}
-	else
-	{
-		rect.setLeftTopAndSize(mProfile->getRect().mLeft - width_delta, mProfile->getRect().mTop, mProfile->getRect().getWidth(), mProfile->getRect().getHeight());
-		mProfile->setRect(rect);
-	}
-
-	width_delta += profile_delta;
-
-	if(mInfo)
-	{
-		rect.setLeftTopAndSize(mInfo->getRect().mLeft - width_delta, mInfo->getRect().mTop, mInfo->getRect().getWidth(), mInfo->getRect().getHeight());
-		mInfo->setRect(rect);
-	}
-
-	if(mLocator)
-	{
-		rect.setLeftTopAndSize(mLocator->getRect().mLeft - width_delta, mLocator->getRect().mTop, mLocator->getRect().getWidth(), mLocator->getRect().getHeight());
-		mLocator->setRect(rect);
-	}
-
-	if(mStatus)
-	{
-		rect.setLeftTopAndSize(mStatus->getRect().mLeft - width_delta, mStatus->getRect().mTop, mStatus->getRect().getWidth(), mStatus->getRect().getHeight());
-		mStatus->setRect(rect);
-	}
-
-	mNeedsArrange = false;
-	LLView::reshape(width, height, called_from_parent);
-}
-
-//---------------------------------------------------------------------------------
-LLAvatarListItem::~LLAvatarListItem()
-{
-}
-//---------------------------------------------------------------------------------
-
-//---------------------------------------------------------------------------------
-BOOL LLAvatarListItem::handleHover(S32 x, S32 y, MASK mask)
-{
-	mYPos = y;
-	mXPos = x;
-
-	return true;
-}
-
-//---------------------------------------------------------------------------------
 void LLAvatarListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	setTransparentColor( *(new LLColor4((F32)0.4, (F32)0.4, (F32)0.4)) );
+	childSetVisible("hovered_icon", true);
+	mInfoBtn->setVisible(true);
 
-	if(mInfo)
-		mInfo->setVisible(true);
-
-	if(mProfile)
-		mProfile->setVisible(true);
+	LLPanel::onMouseEnter(x, y, mask);
 }
 
-//---------------------------------------------------------------------------------
 void LLAvatarListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	if(mInfo)
-	{
-		if( mInfo->getRect().pointInRect(x, y) )
-			return;
+	childSetVisible("hovered_icon", false);
+	mInfoBtn->setVisible(false);
 
-		mInfo->setVisible(false);
-	}
-
-	if(mProfile)
-	{
-		if( mProfile->getRect().pointInRect(x, y) )
-			return;
-		
-		mProfile->setVisible(false);
-	}
-
-	setTransparentColor( *(new LLColor4((F32)0.3, (F32)0.3, (F32)0.3)) );
+	LLPanel::onMouseLeave(x, y, mask);
 }
 
-//---------------------------------------------------------------------------------
-void LLAvatarListItem::setStatus(int status)
+void LLAvatarListItem::setStatus(const std::string& status)
 {
+	mStatus->setValue(status);
 }
 
-//---------------------------------------------------------------------------------
-void LLAvatarListItem::setName(std::string name)
+void LLAvatarListItem::setName(const std::string& name)
 {
+	mAvatarName->setValue(name);
+	mAvatarName->setToolTip(name);
 }
 
-//---------------------------------------------------------------------------------
-void LLAvatarListItem::setAvatar(LLSD& data)
+void LLAvatarListItem::setAvatarId(const LLUUID& id)
 {
+	mAvatarIcon->setValue(id);
+	mSpeakingIndicator->setSpeakerId(id);
 }
 
-//---------------------------------------------------------------------------------
 void LLAvatarListItem::onInfoBtnClick()
 {
-	mInspector = LLFloaterReg::showInstance("inspect_avatar", gAgent.getID());
+	LLFloaterReg::showInstance("inspect_avatar", mAvatarIcon->getValue());
 
-	if (!mInspector)
-		return;
-
-	LLRect rect;
+	/* TODO fix positioning of inspector
 	localPointToScreen(mXPos, mYPos, &mXPos, &mYPos);
 	
+	
+	LLRect rect;
 
 	// *TODO Vadim: rewrite this. "+= -" looks weird.
-	S32 delta = mYPos - mInspector->getRect().getHeight();
+	S32 delta = mYPos - inspector->getRect().getHeight();
 	if(delta < 0)
 	{
 		mYPos += -delta;
 	}
-
+	
 	rect.setLeftTopAndSize(mXPos, mYPos,
-		mInspector->getRect().getWidth(), mInspector->getRect().getHeight()); 
-	mInspector->setRect(rect);
-	mInspector->setFrontmost(true);
-	mInspector->setVisible(true);
-
+	inspector->getRect().getWidth(), inspector->getRect().getHeight()); 
+	inspector->setRect(rect);
+	inspector->setFrontmost(true);
+	inspector->setVisible(true);
+	*/
 }
 
-//---------------------------------------------------------------------------------
-void LLAvatarListItem::onProfileBtnClick()
+void LLAvatarListItem::setValue( const LLSD& value )
 {
+	if (!value.isMap()) return;;
+	if (!value.has("selected")) return;
+	childSetVisible("selected_icon", value["selected"]);
 }
 
-//---------------------------------------------------------------------------------

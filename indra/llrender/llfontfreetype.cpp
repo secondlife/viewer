@@ -533,6 +533,7 @@ void LLFontFreetype::renderGlyph(U32 glyph_index) const
 
 void LLFontFreetype::reset(F32 vert_dpi, F32 horz_dpi)
 {
+	resetBitmapCache(); 
 	if (!mIsFallback)
 	{
 		// This is the head of the list - need to rebuild ourself and all fallbacks.
@@ -552,7 +553,6 @@ void LLFontFreetype::reset(F32 vert_dpi, F32 horz_dpi)
 			}
 		}
 	}
-	resetBitmapCache(); 
 }
 
 void LLFontFreetype::resetBitmapCache()
@@ -568,7 +568,7 @@ void LLFontFreetype::resetBitmapCache()
 	}
 	mFontBitmapCachep->reset();
 
-	// Add the empty glyph`5
+	// Add the empty glyph
 	addGlyph(0, 0);
 }
 

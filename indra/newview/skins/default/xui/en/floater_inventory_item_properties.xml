@@ -29,14 +29,14 @@
     </floater.string>
     <icon
      follows="top|right"
-     height="16"
-     image_name="icon_lock.tga"
+     height="18"
+     image_name="Lock"
      layout="topleft"
      left="294"
      mouse_opaque="true"
      name="IconLocked"
      top="5"
-     width="16" />
+     width="18" />
     <text
      type="string"
      length="1"
@@ -410,7 +410,7 @@
      width="330">
         Mark Item:
     </text-->
-    
+
 
     <!--radio_group
      draw_border="false"
@@ -438,7 +438,7 @@
          top_delta="0"
          width="70" />
     </radio_group-->
-    
+
     <!--text
      type="string"
      length="1"

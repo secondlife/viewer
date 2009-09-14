@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <search_editor
+  clear_button_visible="false"
+  search_button_visible="true"
   text_pad_left="4" 
   select_on_focus="true"
   background_image="TextField_Search_Off"
@@ -12,4 +14,7 @@
     height="13" 
 	  image_unselected="Search"
 	  image_selected="Search" />
+  <clear_button label=""
+   image_unselected="Icon_Close_Foreground"
+   image_selected="Icon_Close_Press" />
 </search_editor>

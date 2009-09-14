@@ -522,6 +522,34 @@ void LLFloaterPreference::cancel()
 void LLFloaterPreference::onOpen(const LLSD& key)
 {
 	gAgent.sendAgentUserInfoRequest();
+	/////////////////////////// From LLPanelGeneral //////////////////////////
+	// if we have no agent, we can't let them choose anything
+	// if we have an agent, then we only let them choose if they have a choice
+	bool canChoose = gAgent.getID().notNull() &&
+	(gAgent.isMature() || gAgent.isGodlike());
+	
+	if (canChoose)
+	{
+		
+		// if they're not adult or a god, they shouldn't see the adult selection, so delete it
+		if (!gAgent.isAdult() && !gAgent.isGodlike())
+		{
+			LLComboBox* pMaturityCombo = getChild<LLComboBox>("maturity_desired_combobox");
+			// we're going to remove the adult entry from the combo. This obviously depends
+			// on the order of items in the XML file, but there doesn't seem to be a reasonable
+			// way to depend on the field in XML called 'name'.
+			pMaturityCombo->remove(0);
+		}
+		childSetVisible("maturity_desired_combobox", true);
+		childSetVisible("maturity_desired_prompt", true);
+		
+	}
+	else
+	{
+		childSetVisible("maturity_desired_prompt", false);
+		childSetVisible("maturity_desired_combobox", false);
+	}
+	
 	LLPanelLogin::setAlwaysRefresh(true);
 	refresh();
 }
@@ -1351,37 +1379,7 @@ static void applyUIColor(const std::string& color_name, LLUICtrl* ctrl, const LL
 //virtual
 BOOL LLPanelPreference::postBuild()
 {
-	if (hasChild("maturity_desired_combobox"))
-	{
-		/////////////////////////// From LLPanelGeneral //////////////////////////
-		// if we have no agent, we can't let them choose anything
-		// if we have an agent, then we only let them choose if they have a choice
-		bool canChoose = gAgent.getID().notNull() &&
-			(gAgent.isMature() || gAgent.isGodlike());
 
-		if (canChoose)
-		{
-
-			// if they're not adult or a god, they shouldn't see the adult selection, so delete it
-			if (!gAgent.isAdult() && !gAgent.isGodlike())
-			{
-				LLComboBox* pMaturityCombo = getChild<LLComboBox>("maturity_desired_combobox");
-				// we're going to remove the adult entry from the combo. This obviously depends
-				// on the order of items in the XML file, but there doesn't seem to be a reasonable
-				// way to depend on the field in XML called 'name'.
-				pMaturityCombo->remove(0);
-			}
-			childSetVisible("maturity_desired_combobox", true);
-			childSetVisible("maturity_desired_textbox",	false);
-		}
-		else
-		{
-			childSetVisible("maturity_desired_combobox", false);
-			std::string selectedItemLabel = getChild<LLComboBox>("maturity_desired_combobox")->getSelectedItemLabel();
-			childSetValue("maturity_desired_textbox", selectedItemLabel);
-			childSetVisible("maturity_desired_textbox",	true);
-		}
-	}
 	////////////////////// PanelVoice ///////////////////
 	if(hasChild("voice_unavailable"))
 	{

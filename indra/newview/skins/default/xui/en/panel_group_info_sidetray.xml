@@ -16,28 +16,28 @@
      name="want_apply_text">
         Do you want to apply these changes?
     </panel.string>
-    
-    <button 
-     layout="topleft" 
-     name="back" 
-     right="-9" 
-     top="0" 
-     width="25" 
-     height="25" 
+
+    <button
+     layout="topleft"
+     name="back"
+     right="-9"
+     top="0"
+     width="25"
+     height="25"
      label=""
      follows="top|left"
      image_overlay="BackArrow_Off"
      tab_stop="false" />
-    <text 
-     layout="topleft" 
-     top="0" 
-     left="10" 
-     width="250" 
-     height="20" 
-     font="SansSerifHugeBold" 
-     text_color="white" 
+    <text
+     layout="topleft"
+     top="0"
+     left="10"
+     width="250"
+     height="20"
+     font="SansSerifHugeBold"
+     text_color="white"
      follows="top|left|right"
-     mouse_opaque="true" 
+     mouse_opaque="true"
      name="group_name">(Loading...)</text>
     <texture_picker
      follows="left|top"
@@ -81,15 +81,15 @@
      left="5"
      width="65" />
     <button
-	 top="632"
-	 left="75"	 
-	 height="20"
-     font="SansSerifSmall"
-     label="Refresh"
-     label_selected="Refresh"
+     follows="top|left"
+     height="20"
+     image_overlay="Refresh_Off"
+     layout="topleft"
      name="btn_refresh"
-	 follows="top|left"
-     width="65" />
+     picture_style="true"
+     top="632"
+     left="75"
+     width="20" />
     <button
      top="632"
      height="20"

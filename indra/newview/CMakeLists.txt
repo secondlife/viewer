@@ -74,6 +74,7 @@ set(viewer_SOURCE_FILES
     llagentui.cpp
     llagentwearables.cpp
     llanimstatelabels.cpp
+    llappearancemgr.cpp
     llappviewer.cpp
     llassetuploadresponders.cpp
     llassetuploadqueue.cpp
@@ -532,6 +533,7 @@ set(viewer_HEADER_FILES
     llassetuploadresponders.h
     llassetuploadqueue.h
     llaudiosourcevo.h
+    llappearancemgr.h
     llavataractions.h
     llavatariconctrl.h
     llavatarlist.h

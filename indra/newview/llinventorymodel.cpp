@@ -187,9 +187,9 @@ LLInventoryModel::~LLInventoryModel()
 // This is a convenience function to check if one object has a parent
 // chain up to the category specified by UUID.
 BOOL LLInventoryModel::isObjectDescendentOf(const LLUUID& obj_id,
-											const LLUUID& cat_id)
+											const LLUUID& cat_id) const
 {
-	LLInventoryObject* obj = getObject(obj_id);
+	const LLInventoryObject* obj = getObject(obj_id);
 	while(obj)
 	{
 		const LLUUID& parent_id = obj->getParentUUID();
@@ -307,13 +307,13 @@ void LLInventoryModel::unlockDirectDescendentArrays(const LLUUID& cat_id)
 // inventory category on the fly if one does not exist.
 LLUUID LLInventoryModel::findCategoryUUIDForType(LLAssetType::EType t, bool create_folder)
 {
-	LLUUID rv = findCatUUID(t);
+	const LLUUID &rv = findCatUUID(t);
 	if(rv.isNull() && isInventoryUsable() && create_folder)
 	{
-		LLUUID root_id = gInventory.getRootFolderID();
+		const LLUUID &root_id = gInventory.getRootFolderID();
 		if(root_id.notNull())
 		{
-			rv = createNewCategory(root_id, t, LLStringUtil::null);
+			return createNewCategory(root_id, t, LLStringUtil::null);
 		}
 	}
 	return rv;
@@ -321,9 +321,9 @@ LLUUID LLInventoryModel::findCategoryUUIDForType(LLAssetType::EType t, bool crea
 
 // Internal method which looks for a category with the specified
 // preferred type. Returns LLUUID::null if not found.
-LLUUID LLInventoryModel::findCatUUID(LLAssetType::EType preferred_type)
+const LLUUID &LLInventoryModel::findCatUUID(LLAssetType::EType preferred_type) const
 {
-	LLUUID root_id = gInventory.getRootFolderID();
+	const LLUUID &root_id = gInventory.getRootFolderID();
 	if(LLAssetType::AT_CATEGORY == preferred_type)
 	{
 		return root_id;
@@ -440,7 +440,7 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 	// Start with categories
 	if(!include_trash)
 	{
-		LLUUID trash_id(findCatUUID(LLAssetType::AT_TRASH));
+		const LLUUID trash_id = findCategoryUUIDForType(LLAssetType::AT_TRASH);
 		if(trash_id.notNull() && (trash_id == id))
 			return;
 	}
@@ -473,8 +473,7 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 			item = item_array->get(i);
 			if (item->getActualType() == LLAssetType::AT_LINK_FOLDER)
 			{
-				// BAP either getLinkedCategory() should return non-const, or the functor should take const.
-				LLViewerInventoryCategory *linked_cat = const_cast<LLViewerInventoryCategory*>(item->getLinkedCategory());
+				LLViewerInventoryCategory *linked_cat = item->getLinkedCategory();
 				if (linked_cat)
 				{
 					if(add(linked_cat,NULL))
@@ -548,10 +547,10 @@ void LLInventoryModel::collectLinkedItems(const LLUUID& id,
 
 // Generates a string containing the path to the item specified by
 // item_id.
-void LLInventoryModel::appendPath(const LLUUID& id, std::string& path)
+void LLInventoryModel::appendPath(const LLUUID& id, std::string& path) const
 {
 	std::string temp;
-	LLInventoryObject* obj = getObject(id);
+	const LLInventoryObject* obj = getObject(id);
 	LLUUID parent_id;
 	if(obj) parent_id = obj->getParentUUID();
 	std::string forward_slash("/");
@@ -567,7 +566,7 @@ void LLInventoryModel::appendPath(const LLUUID& id, std::string& path)
 	path.append(temp);
 }
 
-bool LLInventoryModel::isInventoryUsable()
+bool LLInventoryModel::isInventoryUsable() const
 {
 	bool result = false;
 	if(gInventory.getRootFolderID().notNull() && mIsAgentInvUsable)
@@ -1086,7 +1085,7 @@ void LLInventoryModel::removeObserver(LLInventoryObserver* observer)
 	mObservers.erase(observer);
 }
 
-BOOL LLInventoryModel::containsObserver(LLInventoryObserver* observer)
+BOOL LLInventoryModel::containsObserver(LLInventoryObserver* observer) const
 {
 	return mObservers.find(observer) != mObservers.end();
 }
@@ -1791,6 +1790,7 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 		if (item->getIsBrokenLink())
 		{
 			llwarns << "Add link item without baseobj present ( name: " << item->getName() << " itemID: " << item->getUUID() << " assetID: " << item->getAssetUUID() << " )  parent: " << item->getParentUUID() << llendl;
+//			llassert_always(FALSE); // DO NOT MERGE THIS IN.  This is an AVP debugging line.  If this line triggers, it means that you just loaded in a broken link.  Unless that happens because you actually deleted a baseobj without deleting the link, it's indicative of a serious problem (likely with your inventory) and should be diagnosed.
 		}
 		mItemMap[item->getUUID()] = item;
 		//mInventory[item->getUUID()] = item;
@@ -1817,7 +1817,7 @@ void LLInventoryModel::empty()
 	//mInventory.clear();
 }
 
-void LLInventoryModel::accountForUpdate(const LLCategoryUpdate& update)
+void LLInventoryModel::accountForUpdate(const LLCategoryUpdate& update) const
 {
 	LLViewerInventoryCategory* cat = getCategory(update.mCategoryID);
 	if(cat)
@@ -2177,7 +2177,8 @@ bool LLInventoryModel::loadSkeleton(
 				update_map_t::const_iterator the_count = child_counts.find(cat->getUUID());
 				if(the_count != no_child_counts)
 				{
-					cat->setDescendentCount((*the_count).second.mValue);
+					const S32 num_descendents = (*the_count).second.mValue;
+					cat->setDescendentCount(num_descendents);
 				}
 				else
 				{
@@ -2481,7 +2482,7 @@ void LLInventoryModel::buildParentChildMap()
 		}
 	}
 
-	LLUUID agent_inv_root_id = gInventory.getRootFolderID();
+	const LLUUID &agent_inv_root_id = gInventory.getRootFolderID();
 	if (agent_inv_root_id.notNull())
 	{
 		cat_array_t* catsp = get_ptr_in_map(mParentChildCategoryTree, agent_inv_root_id);
@@ -3324,7 +3325,7 @@ void LLInventoryModel::emptyFolderType(const std::string notification, LLAssetTy
 void LLInventoryModel::removeItem(const LLUUID& item_id)
 {
 	LLViewerInventoryItem* item = getItem(item_id);
-	const LLUUID& new_parent = findCategoryUUIDForType(LLAssetType::AT_TRASH);
+	const LLUUID new_parent = findCategoryUUIDForType(LLAssetType::AT_TRASH);
 	if (item && item->getParentUUID() != new_parent)
 	{
 		LLInventoryModel::update_list_t update;
@@ -3342,7 +3343,7 @@ void LLInventoryModel::removeItem(const LLUUID& item_id)
 	}
 }
 
-LLUUID LLInventoryModel::getRootFolderID() const
+const LLUUID &LLInventoryModel::getRootFolderID() const
 {
 	return mRootFolderID;
 }
@@ -3352,7 +3353,7 @@ void LLInventoryModel::setRootFolderID(const LLUUID& val)
 	mRootFolderID = val;
 }
 
-LLUUID LLInventoryModel::getLibraryRootFolderID() const
+const LLUUID &LLInventoryModel::getLibraryRootFolderID() const
 {
 	return mLibraryRootFolderID;
 }
@@ -3362,7 +3363,7 @@ void LLInventoryModel::setLibraryRootFolderID(const LLUUID& val)
 	mLibraryRootFolderID = val;
 }
 
-LLUUID LLInventoryModel::getLibraryOwnerID() const
+const LLUUID &LLInventoryModel::getLibraryOwnerID() const
 {
 	return mLibraryOwnerID;
 }
@@ -3375,13 +3376,13 @@ void LLInventoryModel::setLibraryOwnerID(const LLUUID& val)
 //----------------------------------------------------------------------------
 
 // *NOTE: DEBUG functionality
-void LLInventoryModel::dumpInventory()
+void LLInventoryModel::dumpInventory() const
 {
 	llinfos << "\nBegin Inventory Dump\n**********************:" << llendl;
-	llinfos << "mCategroy[] contains " << mCategoryMap.size() << " items." << llendl;
-	for(cat_map_t::iterator cit = mCategoryMap.begin(); cit != mCategoryMap.end(); ++cit)
+	llinfos << "mCategory[] contains " << mCategoryMap.size() << " items." << llendl;
+	for(cat_map_t::const_iterator cit = mCategoryMap.begin(); cit != mCategoryMap.end(); ++cit)
 	{
-		LLViewerInventoryCategory* cat = cit->second;
+		const LLViewerInventoryCategory* cat = cit->second;
 		if(cat)
 		{
 			llinfos << "  " <<  cat->getUUID() << " '" << cat->getName() << "' "
@@ -3394,9 +3395,9 @@ void LLInventoryModel::dumpInventory()
 		}
 	}	
 	llinfos << "mItemMap[] contains " << mItemMap.size() << " items." << llendl;
-	for(item_map_t::iterator iit = mItemMap.begin(); iit != mItemMap.end(); ++iit)
+	for(item_map_t::const_iterator iit = mItemMap.begin(); iit != mItemMap.end(); ++iit)
 	{
-		LLViewerInventoryItem* item = iit->second;
+		const LLViewerInventoryItem* item = iit->second;
 		if(item)
 		{
 			llinfos << "  " << item->getUUID() << " "

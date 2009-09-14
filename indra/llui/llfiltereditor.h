@@ -42,18 +42,14 @@
 #ifndef LL_FILTEREDITOR_H
 #define LL_FILTEREDITOR_H
 
-#include "lllineeditor.h"
-#include "llbutton.h"
+#include "llsearcheditor.h"
 
-class LLFilterEditor : public LLUICtrl
+class LLFilterEditor : public LLSearchEditor
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLLineEditor::Params>
+	struct Params : public LLInitParam::Block<Params, LLSearchEditor::Params>
 	{
-		Optional<LLButton::Params> clear_filter_button;
-
 		Params()
-		: clear_filter_button("clear_filter_button")
 		{
 			name = "filter_editor";
 		}
@@ -62,26 +58,8 @@ public:
 protected:
 	LLFilterEditor(const Params&);
 	friend class LLUICtrlFactory;
-public:
-	virtual ~LLFilterEditor() {}
 
-	/*virtual*/ void	draw();
-
-	void setText(const LLStringExplicit &new_text) { mFilterEditor->setText(new_text); }
-
-	// LLUICtrl interface
-	virtual void	setValue(const LLSD& value );
-	virtual LLSD	getValue() const;
-	virtual BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
-	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
-	virtual void	setLabel( const LLStringExplicit &new_label );
-	virtual void	clear();
-
-private:
-	void onClearFilter(const LLSD& data);
-
-	LLLineEditor* mFilterEditor;
-	LLButton* mClearFilterButton;
+	/*virtual*/ void handleKeystroke();
 };
 
 #endif  // LL_FILTEREDITOR_H

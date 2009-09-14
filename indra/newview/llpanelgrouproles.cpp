@@ -36,6 +36,7 @@
 
 #include "llagent.h"
 #include "llbutton.h"
+#include "llfiltereditor.h"
 #include "llfloatergroupinvite.h"
 #include "llavataractions.h"
 #include "lliconctrl.h"
@@ -49,7 +50,6 @@
 #include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"
-#include "llsearcheditor.h"
 #include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llfocusmgr.h"
@@ -477,14 +477,12 @@ BOOL LLPanelGroupSubTab::postBuild()
 {
 	// Hook up the search widgets.
 	bool recurse = true;
-	mSearchEditor = getChild<LLSearchEditor>("filter_input", recurse);
+	mSearchEditor = getChild<LLFilterEditor>("filter_input", recurse);
 
 	if (!mSearchEditor) 
 		return FALSE;
 
-	mSearchEditor->setCommitCallback(boost::bind(&LLPanelGroupSubTab::onClickSearch, this));
-	mSearchEditor->setKeystrokeCallback(onSearchKeystroke, this);
-
+	mSearchEditor->setCommitCallback(boost::bind(&LLPanelGroupSubTab::setSearchFilter, this, _2));
 	
 	// Get icons for later use.
 	mActionIcons.clear();
@@ -516,26 +514,6 @@ void LLPanelGroupSubTab::setGroupID(const LLUUID& id)
 		setSearchFilter("");
 	}
 }
-
-// static
-void LLPanelGroupSubTab::onSearchKeystroke(LLLineEditor* caller, void* user_data)
-{
-	LLPanelGroupSubTab* self = static_cast<LLPanelGroupSubTab*>(user_data);
-	self->handleSearchKeystroke(caller);
-
-}
-
-void LLPanelGroupSubTab::handleSearchKeystroke(LLLineEditor* caller)
-{
-	setSearchFilter( caller->getText() );
-}
-
-// static 
-void LLPanelGroupSubTab::onClickSearch()
-{
-	setSearchFilter( mSearchEditor->getText() );
-}
- 
 
 void LLPanelGroupSubTab::setSearchFilter(const std::string& filter)
 {

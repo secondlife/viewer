@@ -401,6 +401,19 @@ LLPanelPeople::~LLPanelPeople()
 	LLView::deleteViewByHandle(mRecentViewSortMenuHandle);
 
 }
+void onAvatarListTmpDoubleClicked(LLAvatarListTmp* list)
+{
+	LLUUID clicked_id = list->getCurrentID();
+
+	if (clicked_id.isNull())
+		return;
+
+#if 0 // SJB: Useful for testing, but not currently functional or to spec
+	LLAvatarActions::showProfile(clicked_id);
+#else // spec says open IM window
+	LLAvatarActions::startIM(clicked_id);
+#endif
+}
 
 BOOL LLPanelPeople::postBuild()
 {
@@ -417,7 +430,7 @@ BOOL LLPanelPeople::postBuild()
 
 	mNearbyList = getChild<LLPanel>(NEARBY_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
 
-	mRecentList = getChild<LLPanel>(RECENT_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
+	mRecentList = getChild<LLPanel>(RECENT_TAB_NAME)->getChild<LLAvatarListTmp>("avatar_list");
 	mGroupList = getChild<LLGroupList>("group_list");
 
 	LLPanel* groups_panel = getChild<LLPanel>(GROUP_TAB_NAME);
@@ -432,11 +445,11 @@ BOOL LLPanelPeople::postBuild()
 	mOnlineFriendList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mOnlineFriendList));
 	mAllFriendList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mAllFriendList));
 	mNearbyList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mNearbyList));
-	mRecentList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onAvatarListDoubleClicked, this, mRecentList));
+	mRecentList->setDoubleClickCallback(boost::bind(onAvatarListTmpDoubleClicked, mRecentList));
 	mOnlineFriendList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mOnlineFriendList));
 	mAllFriendList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mAllFriendList));
 	mNearbyList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mNearbyList));
-	mRecentList->setCommitCallback(boost::bind(&LLPanelPeople::onAvatarListCommitted, this, mRecentList));
+	mRecentList->setCommitCallback(boost::bind(&LLPanelPeople::updateButtons, this));
 
 	mGroupList->setDoubleClickCallback(boost::bind(&LLPanelPeople::onGroupInfoButtonClicked, this));
 	mGroupList->setCommitCallback(boost::bind(&LLPanelPeople::updateButtons, this));

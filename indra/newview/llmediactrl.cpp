@@ -916,15 +916,8 @@ void LLMediaCtrl::onClickLinkHref( LLPluginClassMedia* self )
 // 
 void LLMediaCtrl::onClickLinkNoFollow( LLPluginClassMedia* self )
 {
+	// let the dispatcher handle blocking/throttling of SLURLs
 	std::string url = self->getClickURL();
-	if (LLSLURL::isSLURLCommand(url)
-		&& !mTrusted)
-	{
-		// block handling of this secondlife:///app/ URL
-		LLNotifications::instance().add("UnableToOpenCommandURL");
-		return;
-	}
-
 	LLURLDispatcher::dispatch(url, this, mTrusted);
 }
 

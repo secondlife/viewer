@@ -62,9 +62,8 @@ public:
 
 	static void toPrevModeIfInAvatarViewMode();
 
-	/* resets free camera mode to the previous mode */
-	//*TODO remove, if it won't be used by LLToolCamera::handleDeselect()
-	void resetFreeCameraMode();
+	/** resets current camera mode to orbit mode */
+	static void resetCameraMode();
 
 	/* determines actual mode and updates ui */
 	void update();

@@ -69,7 +69,7 @@ protected:
 private:
 	std::auto_ptr<LLDockControl> mDockControl;
 	LLUIImagePtr mDockTongue;
-	static LLDockableFloater* instance;
+	static LLHandle<LLFloater> instanceHandle;
 };
 
 #endif /* LL_DOCKABLEFLOATER_H */

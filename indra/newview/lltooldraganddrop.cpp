@@ -73,6 +73,7 @@
 #include "llimview.h"
 #include "llrootview.h"
 #include "llagentui.h"
+#include "llappearancemgr.h"
 
 // MAX ITEMS is based on (sizeof(uuid)+2) * count must be < MTUBYTES
 // or 18 * count < 1200 => count < 1200/18 => 66. I've cut it down a
@@ -2508,7 +2509,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 		if(drop)
 		{
 		    BOOL append = ( (mask & MASK_SHIFT) ? TRUE : FALSE );
-			wear_inventory_category(category, false, append);
+			LLAppearanceManager::wearInventoryCategory(category, false, append);
 		}
 		return ACCEPT_YES_MULTI;
 	}
@@ -2516,7 +2517,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 	{
 		if(drop)
 		{
-			wear_inventory_category(category, true, false);
+			LLAppearanceManager::wearInventoryCategory(category, true, false);
 		}
 		return ACCEPT_YES_MULTI;
 	}

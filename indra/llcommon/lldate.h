@@ -84,6 +84,7 @@ public:
 	std::string asString() const;
 	std::string asRFC1123() const;
 	void toStream(std::ostream&) const;
+	bool split(S32 *year, S32 *month = NULL, S32 *day = NULL, S32 *hour = NULL, S32 *min = NULL, S32 *sec = NULL) const;
 	std::string toHTTPDateString (std::string fmt) const;
 	static std::string toHTTPDateString (tm * gmt, std::string fmt);
 	/** 

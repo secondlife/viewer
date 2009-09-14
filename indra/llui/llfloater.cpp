@@ -1491,7 +1491,8 @@ LLFloater* LLFloater::getClosableFloaterFromFocus()
 
 	// The focused floater may not be closable,
 	// Find and close a parental floater that is closeable, if any.
-	for(LLFloater* floater_to_close = focused_floater; 
+	LLFloater* prev_floater = NULL;
+	for(LLFloater* floater_to_close = focused_floater;
 		NULL != floater_to_close; 
 		floater_to_close = gFloaterView->getParentFloater(floater_to_close))
 	{
@@ -1499,6 +1500,14 @@ LLFloater* LLFloater::getClosableFloaterFromFocus()
 		{
 			return floater_to_close;
 		}
+
+		// If floater has as parent root view
+		// gFloaterView->getParentFloater(floater_to_close) returns
+		// the same floater_to_close, so we need to check this.
+		if (prev_floater == floater_to_close) {
+			break;
+		}
+		prev_floater = floater_to_close;
 	}
 
 	return NULL;

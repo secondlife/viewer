@@ -64,6 +64,7 @@ LLScreenChannel::LLScreenChannel(LLUUID& id):	mOverflowToastPanel(NULL), mStartU
 	setMouseOpaque( false );
 }
 
+//--------------------------------------------------------------------------
 void LLScreenChannel::init(S32 channel_left, S32 channel_right)
 {
 	S32 channel_top = getRootView()->getRect().getHeight() - gSavedSettings.getS32("NavBarMargin");
@@ -326,6 +327,7 @@ void LLScreenChannel::showToastsBottom()
 		mHiddenToastsNum = 0;
 		for(; it != mToastList.rend(); it++)
 		{
+			(*it).toast->stopTimer();
 			mHiddenToastsNum++;
 		}
 		createOverflowToast(bottom, gSavedSettings.getS32("NotificationToastTime"));

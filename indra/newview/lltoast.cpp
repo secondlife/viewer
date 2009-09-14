@@ -84,11 +84,7 @@ LLToast::LLToast(LLToast::Params p) :	LLFloater(LLSD()),
 //--------------------------------------------------------------------------
 BOOL LLToast::postBuild()
 {
-	if(mCanFade)
-	{
-		mTimer.start();
-	}
-	else
+	if(!mCanFade)
 	{
 		mTimer.stop();
 	}
@@ -209,6 +205,10 @@ void LLToast::setVisible(BOOL show)
 	if(show)
 	{
 		setBackgroundOpaque(TRUE);
+		if(!mTimer.getStarted())
+		{
+			mTimer.start();
+		}
 	}
 	LLPanel::setVisible(show);
 	if(mPanel)
