@@ -528,25 +528,26 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	bool canChoose = gAgent.getID().notNull() &&
 	(gAgent.isMature() || gAgent.isGodlike());
 	
+	LLComboBox* maturity_combo = getChild<LLComboBox>("maturity_desired_combobox");
+	
 	if (canChoose)
 	{
 		
 		// if they're not adult or a god, they shouldn't see the adult selection, so delete it
 		if (!gAgent.isAdult() && !gAgent.isGodlike())
 		{
-			LLComboBox* pMaturityCombo = getChild<LLComboBox>("maturity_desired_combobox");
 			// we're going to remove the adult entry from the combo. This obviously depends
 			// on the order of items in the XML file, but there doesn't seem to be a reasonable
 			// way to depend on the field in XML called 'name'.
-			pMaturityCombo->remove(0);
+			maturity_combo->remove(0);
 		}
 		childSetVisible("maturity_desired_combobox", true);
-		childSetVisible("maturity_desired_prompt", true);
+		childSetVisible("maturity_desired_textbox", false);
 		
 	}
 	else
 	{
-		childSetVisible("maturity_desired_prompt", false);
+		childSetText("maturity_desired_textbox",  maturity_combo->getSelectedItemLabel());
 		childSetVisible("maturity_desired_combobox", false);
 	}
 	
