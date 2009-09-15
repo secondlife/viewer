@@ -2,7 +2,7 @@
 <floater
  can_minimize="false"
  follows="left|top"
- height="80"
+ height="90"
  layout="topleft"
  name="Gesture"
  save_rect="true"
@@ -47,7 +47,7 @@
      height="20"
      label="None"
      layout="topleft"
-     left_pad="5"
+     left_pad="13"
      name="modifier_combo"
      top_delta="-4"
      width="50" />
