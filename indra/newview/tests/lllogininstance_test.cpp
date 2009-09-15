@@ -91,7 +91,7 @@ LLURLSimString LLURLSimString::sInstance;
 bool LLURLSimString::parse() { return true; }
 
 //-----------------------------------------------------------------------------
-#include "../llfloatertos.h"
+#include "llnotifications.h"
 #include "llfloaterreg.h"
 static std::string gTOSType;
 static LLEventPump * gTOSReplyPump = NULL;
