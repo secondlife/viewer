@@ -182,7 +182,8 @@ void LLProgressView::draw()
 		LLPanel::draw();
 		if (mFadeTimer.getElapsedTimeF32() > FADE_IN_TIME)
 		{
-			gFocusMgr.removeTopCtrlWithoutCallback(this);
+			// Fade is complete, release focus
+			gFocusMgr.releaseFocusIfNeeded( this );
 			LLPanel::setVisible(FALSE);
 			gStartTexture = NULL;
 		}
