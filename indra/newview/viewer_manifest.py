@@ -195,6 +195,7 @@ class WindowsManifest(ViewerManifest):
         self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
         self.enable_crt_check()
+
         # Plugin host application
         self.path(os.path.join(os.pardir,
                                'llplugin', 'slplugin', self.args['configuration'], "slplugin.exe"),
@@ -207,14 +208,14 @@ class WindowsManifest(ViewerManifest):
                 self.path('libapr-1.dll')
                 self.path('libaprutil-1.dll')
                 self.path('libapriconv-1.dll')
-            except:
+            except RuntimeError:
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
         self.end_prefix()
 
         # need to get the kdu dll from the build directory as well
         try:
             self.path('%s/llkdu.dll' % self.args['configuration'], dst='llkdu.dll')
-        except:
+        except RuntimeError:
             print "Skipping llkdu.dll"
 
         self.disable_crt_check()
