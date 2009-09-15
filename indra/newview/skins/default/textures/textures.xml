@@ -31,6 +31,7 @@
 
   <texture name="Cam_Avatar_Disabled" file_name="bottomtray/Cam_Avatar_Disabled.png" preload="false" />
   <texture name="Cam_Avatar_Over" file_name="bottomtray/Cam_Avatar_Over.png" preload="false" />
+  <texture name="Cam_Avatar_Off" file_name="bottomtray/Cam_Avatar_Off.png" preload="false" />
   <texture name="Cam_Avatar_Press" file_name="bottomtray/Cam_Avatar_Press.png" preload="false" />
   <texture name="Cam_FreeCam_Disabled" file_name="bottomtray/Cam_FreeCam_Disabled.png" preload="false" />
   <texture name="Cam_FreeCam_Off" file_name="bottomtray/Cam_FreeCam_Off.png" preload="false" />

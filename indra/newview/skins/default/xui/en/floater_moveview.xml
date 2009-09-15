@@ -46,10 +46,10 @@
         <button
          follows="left|bottom"
          height="25"
-         image_selected="move_turn_left_in.tga"
-         image_unselected="move_turn_left_out.tga"
+         image_selected="Movement_TurnLeft_On"
+         image_unselected="Movement_TurnLeft_Off"
          layout="topleft"
-         left="10"
+         left="17"
          name="turn left btn"
          picture_style="true"
          scale_image="false"
@@ -59,10 +59,10 @@
         <button
          follows="left|bottom"
          height="25"
-         image_selected="move_turn_right_in.tga"
-         image_unselected="move_turn_right_out.tga"
+         image_selected="Movement_TurnRight_On"
+         image_unselected="Movement_TurnRight_Off"
          layout="topleft"
-         left_pad="45"
+         left_pad="34"
          name="turn right btn"
          picture_style="true"
          scale_image="false"
@@ -72,8 +72,8 @@
         <button
          follows="left|bottom"
          height="25"
-         image_selected="move_up_in.tga"
-         image_unselected="move_up_out.tga"
+         image_selected="Movement_Up_On"
+         image_unselected="Movement_Up_Off"
          layout="topleft"
          left="10"
          name="move up btn"
@@ -85,8 +85,8 @@
         <button
          follows="left|bottom"
          height="25"
-         image_selected="move_down_in.tga"
-         image_unselected="move_down_out.tga"
+         image_selected="Movement_Down_On"
+         image_unselected="Movement_Down_Off"
          layout="topleft"
          left_pad="45"
          name="move down btn"
@@ -98,10 +98,10 @@
         <joystick_turn
          follows="left|bottom"
          height="25"
-         image_selected="move_forward_in.tga"
-         image_unselected="move_forward_out.tga"
+         image_selected="Movement_Forward_On"
+         image_unselected="Movement_Forward_Off"
          layout="topleft"
-         left="47"
+         left="46"
          name="forward btn"
          picture_style="true"
          quadrant="up"
@@ -112,8 +112,8 @@
         <joystick_turn
          follows="left|bottom"
          height="25"
-         image_selected="move_backward_in.tga"
-         image_unselected="move_backward_out.tga"
+         image_selected="Movement_Backward_On"
+         image_unselected="Movement_Backward_Off"
          layout="topleft"
          left_delta="0"
          name="backward btn"
@@ -131,24 +131,26 @@
      layout="topleft"
      left="0"
      name="panel_modes"
-     top_pad="1"
+     top_pad="0"
      width="115">
         <button
          follows="left|bottom"
-         height="20"
-         label="Walk"
+         height="23"
+         image_overlay="Move_Walk_Off"
+	 label=""
          layout="topleft"
          name="mode_walk_btn"
-         pad_left="0"
+         left="10"
          pad_right="0"
          tool_tip="Walking Mode"
          top="2"
-         width="43" />
+         width="31" />
         <button
          follows="left|bottom"
          font="SansSerifSmall" 
-         height="20"
-         label="Run"
+         height="23"
+         image_overlay="Move_Run_Off"
+	 label=""
          layout="topleft"
          left_pad="0"
          name="mode_run_btn"
@@ -156,11 +158,12 @@
          pad_right="0"
          tool_tip="Running Mode"
          top="2"
-         width="37" />
+         width="31" />
         <button
          follows="left|bottom"
-         height="20"
-         label="Fly"
+         height="23"
+         image_overlay="Move_Fly_Off"
+	 label=""
          layout="topleft"
          left_pad="0"
          name="mode_fly_btn"
@@ -168,7 +171,7 @@
          pad_right="0"
          tool_tip="Flying Mode"
          top="2"
-         width="35" />
+         width="31" />
         <button
          visible="false" 
          follows="left|bottom"
