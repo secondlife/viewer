@@ -79,6 +79,8 @@
   <texture name="DropDown_Press" file_name="widgets/DropDown_Press.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Selected" file_name="widgets/DropDown_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Off" file_name="widgets/DropDown_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
+  
+  <texture name="DropTarget" file_name="widgets/DropTarget.png" preload="false" />
 
   <texture name="Favorite_Star_Active" file_name="navbar/Favorite_Star_Active.png" preload="false" />
   <texture name="Favorite_Star_Off" file_name="navbar/Favorite_Star_Off.png" preload="false" />
@@ -233,7 +235,11 @@
   <texture name="RadioButton_Off" file_name="widgets/RadioButton_Off.png" preload="true" />
   <texture name="RadioButton_On" file_name="widgets/RadioButton_On.png" preload="true" />
   <texture name="RadioButton_Disabled" file_name="widgets/RadioButton_Disabled.png" preload="true" />
-  <texture name="RadioButton_On_Disabled" file_name="widgets/RadioButton_On_Disabled.png"	preload="true" />
+  <texture name="RadioButton_On_Disabled" file_name="widgets/RadioButton_On_Disabled.png" preload="true" />
+
+  <texture name="Refresh_Disabled" file_name="icons/Refresh_Disabled.png" preload="false" />
+  <texture name="Refresh_Off" file_name="icons/Refresh_Off.png" preload="false" />
+  <texture name="Refresh_Press" file_name="icons/Refresh_Press.png" preload="false" />
 
   <texture name="Resize_Corner" file_name="windows/Resize_Corner.png" preload="true" />
 
