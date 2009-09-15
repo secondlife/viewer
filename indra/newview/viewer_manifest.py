@@ -164,11 +164,38 @@ class WindowsManifest(ViewerManifest):
             return ''.join(self.channel().split()) + '.exe'
 
 
+    def test_msvcrt_and_copy_action(self, src, dst):
+        # This can is used to test a dll manifest.
+        # It is used as a temporary override during the construct method
+        from test_win32_manifest import test_assembly_binding
+        if src and (os.path.exists(src) or os.path.islink(src)):
+            # ensure that destination path exists
+            self.cmakedirs(os.path.dirname(dst))
+            self.created_paths.append(dst)
+            if not os.path.isdir(src):
+                if(self.args['configuration'].lower() == 'debug'):
+                    test_assembly_binding(src, "Microsoft.VC80.DebugCRT", "8.0.50727.4053")
+                else:
+                    test_assembly_binding(src, "Microsoft.VC80.CRT", "8.0.50727.4053")
+                self.ccopy(src,dst)
+            else:
+                raise Exception("Directories are not supported by test_CRT_and_copy_action()")
+        else:
+            print "Doesn't exist:", src
+
+    def enable_crt_check(self):
+        WindowsManifest.copy_action = WindowsManifest.test_msvcrt_and_copy_action
+
+    def disable_crt_check(self):
+        del WindowsManifest.copy_action
+
     def construct(self):
         super(WindowsManifest, self).construct()
         # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
         self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
+        self.enable_crt_check()
+        
         # need to get the llcommon.dll from the build directory as well
         if self.prefix(src=self.args['configuration'], dst=""):
             try:
@@ -178,18 +205,17 @@ class WindowsManifest(ViewerManifest):
                 self.path('libapriconv-1.dll')
             except:
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
-                pass
         self.end_prefix()
 
         # need to get the kdu dll from the build directory as well
         try:
             self.path('%s/llkdu.dll' % self.args['configuration'], dst='llkdu.dll')
-            pass
         except:
             print "Skipping llkdu.dll"
-            pass
-        self.path(src="licenses-win32.txt", dst="licenses.txt")
 
+        self.disable_crt_check()
+
+        self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
 
         # For use in crash reporting (generates minidumps)
@@ -197,6 +223,8 @@ class WindowsManifest(ViewerManifest):
 
         # For using FMOD for sound... DJS
         self.path("fmod.dll")
+
+        self.enable_crt_check()
 
         # For textures
         if self.prefix(src=self.args['configuration'], dst=""):
@@ -221,7 +249,6 @@ class WindowsManifest(ViewerManifest):
             self.path("media_plugin_webkit.dll")
             self.end_prefix()
             
-        # For WebKit/Qt plugin runtimes
         if self.prefix(src="../../libraries/i686-win32/lib/release", dst="llplugin"):
             self.path("libeay32.dll")
             self.path("qtcore4.dll")
@@ -241,6 +268,8 @@ class WindowsManifest(ViewerManifest):
             self.path("qsvg4.dll")
             self.path("qtiff4.dll")
             self.end_prefix()
+
+        self.disable_crt_check()
 
         # These need to be installed as a SxS assembly, currently a 'private' assembly.
         # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
