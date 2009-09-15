@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Generelt" name="general_panel">
-	<radio_group name="default_start_location">
-		<radio_item name="MyHome" tool_tip="Log ind til min hjemme lokation som standard." label="Mit hjem" />
-		<radio_item name="MyLastLocation" tool_tip="Log ind til min sidste lokation som standard." label="Min sidste lokation" />
-	</radio_group>
+	<combo_box name="start_location_combo">
+		<combo_box.item name="MyHome" tool_tip="Log ind til min hjemme lokation som standard." label="Mit hjem" />
+		<combo_box.item name="MyLastLocation" tool_tip="Log ind til min sidste lokation som standard." label="Min sidste lokation" />
+	</combo_box>
 	<check_box label="Vis start lokation på login billedet" name="show_location_checkbox"/>
 	<combo_box name="fade_out_combobox">
 		<combo_box.item name="Never" label="Aldrig"/>
@@ -12,13 +12,13 @@
 	</combo_box>
 	<check_box label="Små avatar navne" name="small_avatar_names_checkbox"/>
 	<check_box label="Skjul mit navn på min skærm" name="show_my_name_checkbox"/>
-	<text length="1" name="group_titles_textbox" type="string">
+	<text name="group_titles_textbox">
 		Gruppe titler:
 	</text>
 	<check_box label="Skjul alle gruppe titler" name="show_all_title_checkbox"/>
 	<check_box label="Gem min gruppe titel" name="show_my_title_checkbox"/>
 	<color_swatch label="" name="effect_color_swatch" tool_tip="Klik for at åbne farvevælger"/>
-	<text length="1" name="UI Size:" type="string">
+	<text name="UI Size:">
 		UI Størrelse:
 	</text>
 	<check_box label="Brug opløsnings uafhængig skalering" name="ui_auto_scale"/>
@@ -30,62 +30,56 @@
 	<text name="maturity_desired_prompt">
 		Jeg ønsker adgang til inhold med rating:
 	</text>
-	<combo_box name="maturity_desired_combobox" left="360" width="135">
-		<combo_item name="Desired_Adult">
-			PG, Mature og Adult
-		</combo_item>
-		<combo_item name="Desired_Mature">
-			PG and Mature
-		</combo_item>
-		<combo_item name="Desired_PG">
-			PG only
-		</combo_item>
+	<combo_box name="maturity_desired_combobox">
+		<combo_box.item name="Desired_Adult" label="PG, Mature og Adult"/>
+		<combo_box.item name="Desired_Mature" label="PG and Mature"/>
+		<combo_box.item name="Desired_PG" label="PG only"/>
 	</combo_box>
-	<text name="maturity_desired_textbox" left="360">
+	<text name="maturity_desired_textbox">
 		PG only
 	</text>
-	<text length="1" name="start_location_textbox" type="string">
+	<text name="start_location_textbox">
 		Start lokation:
 	</text>
-	<text length="1" name="show_names_textbox" type="string">
+	<text name="show_names_textbox">
 		Vis navne:
 	</text>
-	<text length="1" name="effects_color_textbox" type="string">
+	<text name="effects_color_textbox">
 		Farve til mine effekter:
 	</text>
-	<text length="1" name="seconds_textbox" type="string">
+	<text name="seconds_textbox">
 		sekunder
 	</text>
-	<text length="1" name="crash_report_textbox" type="string">
+	<text name="crash_report_textbox">
 		Nedbrudsrapporter:
 	</text>
-	<text length="1" name="language_textbox" type="string">
+	<text name="language_textbox">
 		Sprog:
 	</text>
-	<text length="1" name="language_textbox2" type="string">
+	<text name="language_textbox2">
 		(Kræver genstart for at virke optimalt)
 	</text>
 	<string name="region_name_prompt">
 		&lt;Skriv regions navn&gt;
 	</string>
 	<combo_box name="crash_behavior_combobox">
-		<combo_box.item type="string" length="1" name="Askbeforesending" label="Bed om bekræftigelse"/>
-		<combo_box.item type="string" length="1" name="Alwayssend" label="Send altid"/>
-		<combo_box.item type="string" length="1" name="Neversend" label="Send aldrig"/>
+		<combo_box.item name="Askbeforesending" label="Bed om bekræftigelse"/>
+		<combo_box.item name="Alwayssend" label="Send altid"/>
+		<combo_box.item name="Neversend" label="Send aldrig"/>
 	</combo_box>
 	<combo_box name="language_combobox">
-		<combo_box.item type="string" length="1" name="System Default Language" label="System standard"/>
-		<combo_box.item type="string" length="1" name="English" label="English (Engelsk)"/>
-		<combo_box.item type="string" length="1" name="Danish" label="Dansk - Beta"/>
-		<combo_box.item type="string" length="1" name="Deutsch(German)" label="Deutsch (Tysk) - Beta"/>
-		<combo_box.item type="string" length="1" name="Spanish" label="Español (Spansk) - Beta"/>
-		<combo_box.item type="string" length="1" name="French" label="Français (Fransk) - Beta"/>
-		<combo_box.item type="string" length="1" name="Hungarian" label="Magyar (Ungarsk) - Beta"/>
-		<combo_box.item type="string" length="1" name="Polish" label="Polski (Polsk) - Beta"/>
-		<combo_box.item type="string" length="1" name="Portugese" label="Portugués (Portugisisk) - Beta"/>
-		<combo_box.item type="string" length="1" name="Chinese" label="中文 (简体) (Kinesisk) - Beta"/>
-		<combo_box.item type="string" length="1" name="(Japanese)" label="日本語 (Japansk) - Beta"/>
-		<combo_box.item type="string" length="1" name="(Korean)" label="한국어 (Koreansk) - Beta"/>
+		<combo_box.item name="System Default Language" label="System standard"/>
+		<combo_box.item name="English" label="English (Engelsk)"/>
+		<combo_box.item name="Danish" label="Dansk - Beta"/>
+		<combo_box.item name="Deutsch(German)" label="Deutsch (Tysk) - Beta"/>
+		<combo_box.item name="Spanish" label="Español (Spansk) - Beta"/>
+		<combo_box.item name="French" label="Français (Fransk) - Beta"/>
+		<combo_box.item name="Hungarian" label="Magyar (Ungarsk) - Beta"/>
+		<combo_box.item name="Polish" label="Polski (Polsk) - Beta"/>
+		<combo_box.item name="Portugese" label="Portugués (Portugisisk) - Beta"/>
+		<combo_box.item name="Chinese" label="中文 (简体) (Kinesisk) - Beta"/>
+		<combo_box.item name="(Japanese)" label="日本語 (Japansk) - Beta"/>
+		<combo_box.item name="(Korean)" label="한국어 (Koreansk) - Beta"/>
 	</combo_box>
 	<check_box label="Del sprog med objekter" name="language_is_public" tool_tip="Dette lader objekter i verden vide hvad dit foretrukne sprog er."/>
 </panel>

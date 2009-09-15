@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="Wygląd">
 	<tab_container name="customize tab container">
-		<panel label="Części Ciała" name="body_parts_placeholder"/>
+		<placeholder label="Części Ciała" name="body_parts_placeholder"/>
 		<panel label="Kształt" name="Shape">
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 			<button label="Ciało" label_selected="Ciało" name="Body"/>
@@ -14,34 +14,30 @@
 			<button label="Tułów" label_selected="Tułów" name="Torso"/>
 			<button label="Nogi" label_selected="Nogi" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item length="1" name="radio" type="string">
-					Kobieta
-				</radio_item>
-				<radio_item length="1" name="radio2" type="string">
-					Mężczyzna
-				</radio_item>
+				<radio_item name="radio" label="Kobieta"/>
+				<radio_item name="radio2" label="Mężczyzna"/>
 			</radio_group>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: zabroniona modyfikacja
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: ładowanie...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: niezałożone
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Zapisane w [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Załóż nowy kształt poprzez przeciągnięcie go ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własny kształt 
 z plików roboczych. 
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tego kształtu.
 			</text>
 			<text name="Item Action Label">
@@ -56,27 +52,27 @@ z plików roboczych.
 			<button label="Detale Twarzy" label_selected="Detale Twarzy" name="Face Detail"/>
 			<button label="Makijaż" label_selected="Makijaż" name="Makeup"/>
 			<button label="Detale Ciała" label_selected="Detale Ciała" name="Body Detail"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: modyfikacja zabroniona
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: ładowanie...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: niezałożone
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Zapisane w [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Załóż nową skórkę poprzez przeciągnięcie jej ze swojej szafy
 na awatara. Alternatywnie, możesz także stworzyć własną skórkę 
 z plików roboczych.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tej skórki.
 			</text>
 			<text name="Item Action Label">
@@ -95,27 +91,27 @@ z plików roboczych.
 			<button label="Styl" label_selected="Styl" name="Style"/>
 			<button label="Brwi" label_selected="Brwi" name="Eyebrows"/>
 			<button label="Twarzy" label_selected="Twarzy" name="Facial"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: modyfikacja zabroniona
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: ładowanie...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: niezałożone
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Zapisane w [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Załóż nowe włosy poprzez przeciągnięcie ich ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własne włosy 
 z plików roboczych.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tych włosów.
 			</text>
 			<text name="Item Action Label">
@@ -128,27 +124,27 @@ z plików roboczych.
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Oczy" name="Eyes">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: modyfikacja zabroniona
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: ładowanie...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: niezałożone
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Zapisane w [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Załóż nowe oczy poprzez przeciągnięcie ich ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własne oczy 
 z plików roboczych.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tych oczów.
 			</text>
 			<text name="Item Action Label">
@@ -169,27 +165,27 @@ z plików roboczych.
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
 			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: modyfikowanie zabronione
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: ładowanie...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: niezałożone
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Zapisane w [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Załóż nową koszulę poprzez przeciągnięcie jej ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własną koszulę 
 z plików roboczych.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tej koszuli.
 			</text>
 			<text name="Item Action Label">
@@ -204,27 +200,27 @@ z plików roboczych.
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
 			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: modyfikcja zabroniona
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: ładowanie...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: niezałożone
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Zapisane w [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Załóż nowe spodnie poprzez przeciągnięcie ich ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własne spodnie 
 z plików roboczych.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tych spodni.
 			</text>
 			<text name="Item Action Label">
@@ -232,27 +228,27 @@ z plików roboczych.
 			</text>
 		</panel>
 		<panel label="Buty" name="Shoes">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: modyfikacja zabroniona
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: ładwanie...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: niezałożone
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Zapisane w [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Załóż nowe buty poprzez przeciągnięcie ich ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własne buty 
 z plików roboczych.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tych butów.
 			</text>
 			<text name="Item Action Label">
@@ -267,27 +263,27 @@ z plików roboczych.
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Skarpety" name="Socks">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: modyfikacja zabroniona
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: ładowanie...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: niezałożone
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Zapisane w [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Załóż nowe skarpety poprzez przeciągnięcie ich ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własne skarpety 
 z plików roboczych.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tych skarpet.
 			</text>
 			<text name="Item Action Label">
@@ -302,27 +298,27 @@ z plików roboczych.
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Kurtka" name="Jacket">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: modyfikacja zabroniona
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: ładowanie...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: niezałożone
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Zapisane w [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Załóż nową kurtkę poprzez przeciągnięcie jej ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własną kurtkę 
 z plików roboczych. 
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tej kurtki.
 			</text>
 			<text name="Item Action Label">
@@ -338,27 +334,27 @@ z plików roboczych.
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Rękawiczki" name="Gloves">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: modyfikacja zabroniona
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: ładowanie...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: niezałożone
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Zapisane w [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Załóż nowe rękawiczki poprzez przeciągnięcie ich ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własne rękawiczki 
 z plików roboczych.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tych rękawiczek
 			</text>
 			<text name="Item Action Label">
@@ -373,27 +369,27 @@ z plików roboczych.
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Podkoszulek" name="Undershirt">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: modyfikacja zabroniona
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: ładowanie...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: niezałożone
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Zapisane w [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Załóż nowy podkoszulek poprzez przeciągnięcie ich ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własny podkoszulek 
 z plików roboczych.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tego podkoszulka.
 			</text>
 			<text name="Item Action Label">
@@ -408,27 +404,27 @@ z plików roboczych.
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Bielizna" name="Underpants">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: modyfikacja zabroniona
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: ładowanie...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: niezałożone
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Zapisane w [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Załóż nową bieliznę poprzez przeciągnięcie jej ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własną bieliznę 
 z plików roboczych. 
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tej bielizny.
 			</text>
 			<text name="Item Action Label">
@@ -443,27 +439,27 @@ z plików roboczych.
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Spódnica" name="Skirt">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: modyfikacja zabroniona
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: ładowanie...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: niezałożone
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Zapisane w [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Załóż nową spódnicę poprzez przeciągnięcie jej ze swojej szafy 
 na awatara. Alternatywnie, możesz także stworzyć własną spódnicę 
 z plików roboczych. 
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Nie posiadasz prawa do modyfikowania tej spódnicy.
 			</text>
 			<text name="Item Action Label">

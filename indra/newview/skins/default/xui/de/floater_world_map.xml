@@ -14,7 +14,7 @@
 		Auktion
 	</text>
 	<text font="SansSerifSmall" name="land_for_sale_label">
-		Land erhaeltlich
+		Land zum Verkauf
 	</text>
 	<button label="Nach Hause" label_selected="Nach Hause" name="Go Home" tool_tip="Nach Hause teleportieren"/>
 	<check_box label="Einwohner" name="people_chk"/>
@@ -28,10 +28,10 @@
 	<check_box label="Mature" name="event_mature_chk"/>
 	<check_box label="Adult" name="event_adult_chk"/>
 	<combo_box label="Online-Freunde" name="friend combo" tool_tip="Freund, der auf Karte angezeigt werden soll">
-		<combo_box.item name="none_selected" label="Online-Freunde" />
+		<combo_box.item name="item1" label="Online-Freunde" />
 	</combo_box>
 	<combo_box label="Landmarken" name="landmark combo" tool_tip="Landmarke, die auf Karte angezeigt werden soll">
-		<combo_box.item name="none_selected" label="Landmarken" />
+		<combo_box.item name="item1" label="Landmarken" />
 	</combo_box>
 	<line_editor label="Nach Regionsname suchen" name="location" tool_tip="Geben Sie den Namen einer Region ein"/>
 	<button label="Suchen" name="DoSearch" tool_tip="Nach einer Region suchen"/>

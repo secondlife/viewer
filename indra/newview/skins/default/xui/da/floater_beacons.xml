@@ -8,7 +8,7 @@
 		<check_box label="Partikel kilder" name="particles" />
 		<check_box label="Rendér highlights" name="highlights" />
 		<check_box label="Rendér pejlelys" name="beacons" />
-		<text type="string" length="1" name="beacon_width_label">
+		<text name="beacon_width_label">
 			Pejlelys bredde:
 		</text>
 	</panel>

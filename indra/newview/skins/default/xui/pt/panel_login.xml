@@ -15,7 +15,7 @@
 	<combo_box name="start_location_combo">
 		<combo_box.item name="MyHome" label="Minha casa" />
 		<combo_box.item name="MyLastLocation" label="Minha última localização" />
-		<combo_box.item name="Typeregionname" label="lt; Digite o nome da região;" />
+		<combo_box.item name="Typeregionname" label="&lt; Digite o nome da região &gt;" />
 	</combo_box>
 	<check_box label="Lembrar senha" name="remember_check"/>
 	<button label="Entrar" label_selected="Entrar" name="connect_btn"/>

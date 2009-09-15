@@ -2,11 +2,11 @@
 <floater name="floaterland" title="土地情報">
 	<tab_container name="landtab">
 		<panel label="一般" name="land_general_panel">
-			<text length="1" name="Name:" type="string">
+			<text name="Name:">
 				名前：
 			</text>
 			<line_editor name="Name"/>
-			<text length="1" name="Description:" type="string">
+			<text name="Description:">
 				説明：
 			</text>
 			<text name="LandType">
@@ -21,56 +21,56 @@
 			<text name="ContentRatingText">
 				Adult
 			</text>
-			<text length="1" name="Owner:" type="string">
+			<text name="Owner:">
 				オーナー：
 			</text>
-			<text length="1" name="OwnerText" type="string">
+			<text name="OwnerText">
 				Leyla Linden
 			</text>
 			<button label="プロフィール..." label_selected="プロフィール..." name="Profile..."/>
-			<text length="1" name="Group:" type="string">
+			<text name="Group:">
 				グループ：
 			</text>
 			<button label="設定..." label_selected="設定..." name="Set..."/>
 			<check_box label="グループへの譲渡を許可" name="check deed" tool_tip="グループ・オフィサーは、この土地をグループに譲渡し、グループの土地配分に委ねることができます。"/>
 			<button label="譲渡..." label_selected="譲渡..." name="Deed..." tool_tip="選択されたグループのオフィサーであるときのみ、土地を譲渡できます。"/>
 			<check_box label="オーナーが譲渡と共に寄付" name="check contrib" tool_tip="土地がグループに譲渡されるとき、前の所有者は譲渡が成立するよう、十分な土地を寄付します。"/>
-			<text length="1" name="For Sale:" type="string">
+			<text name="For Sale:">
 				販売の有無：
 			</text>
-			<text length="1" name="Not for sale." type="string">
+			<text name="Not for sale.">
 				販売対象外
 			</text>
-			<text length="1" name="For Sale: Price L$[PRICE]." type="string">
+			<text name="For Sale: Price L$[PRICE].">
 				価格： L$[PRICE] （L$[PRICE_PER_SQM]/平方メートル）
 			</text>
 			<button label="土地を販売..." label_selected="土地を販売..." name="Sell Land..."/>
-			<text length="1" name="For sale to" type="string">
+			<text name="For sale to">
 				販売先：[BUYER]
 			</text>
-			<text length="1" name="Sell with landowners objects in parcel." type="string">
+			<text name="Sell with landowners objects in parcel.">
 				オブジェクトも販売価格に含まれます
 			</text>
-			<text length="1" name="Selling with no objects in parcel." type="string">
+			<text name="Selling with no objects in parcel.">
 				オブジェクトは販売対象外です
 			</text>
 			<button label="土地販売の取り消し" label_selected="土地販売の取り消し" name="Cancel Land Sale"/>
-			<text length="1" name="Claimed:" type="string">
+			<text name="Claimed:">
 				取得日時：
 			</text>
-			<text length="1" name="DateClaimText" type="string">
+			<text name="DateClaimText">
 				2006年8月15日火曜日13:47:25
 			</text>
-			<text length="1" name="PriceLabel" type="string">
+			<text name="PriceLabel">
 				面積：
 			</text>
-			<text length="1" name="PriceText" type="string">
+			<text name="PriceText">
 				4048平方メートル
 			</text>
-			<text length="1" name="Traffic:" type="string">
+			<text name="Traffic:">
 				交通量:
 			</text>
-			<text length="1" name="DwellText" type="string">
+			<text name="DwellText">
 				誤
 			</text>
 			<button label="土地を購入..." label_selected="土地を購入..." left="130" name="Buy Land..." width="125"/>
@@ -79,76 +79,76 @@
 			<button label="土地を放棄..." label_selected="土地を放棄..." name="Abandon Land..."/>
 			<button label="土地の返還を要求..." label_selected="土地の返還を要求..." name="Reclaim Land..."/>
 			<button label="Lindenセール..." label_selected="Lindenセール..." name="Linden Sale..." tool_tip="土地が所有されており、コンテンツが設定されている必要があります。オークションの対象になっていないことも必要条件です。"/>
-			<string name="new users only">
+			<panel.string name="new users only">
 				新規ユーザーのみ
-			</string>
-			<string name="anyone">
+			</panel.string>
+			<panel.string name="anyone">
 				誰でも
-			</string>
-			<string name="area_text">
+			</panel.string>
+			<panel.string name="area_text">
 				面積：
-			</string>
-			<string name="area_size_text">
+			</panel.string>
+			<panel.string name="area_size_text">
 				[AREA]平方メートル
-			</string>
-			<string name="auction_id_text">
+			</panel.string>
+			<panel.string name="auction_id_text">
 				オークションID： [ID]
-			</string>
-			<string name="need_tier_to_modify">
+			</panel.string>
+			<panel.string name="need_tier_to_modify">
 				この土地を修正変更するには、購入を承認する必要があります。
-			</string>
-			<string name="group_owned_text">
+			</panel.string>
+			<panel.string name="group_owned_text">
 				(グループ所有)
-			</string>
-			<string name="profile_text">
+			</panel.string>
+			<panel.string name="profile_text">
 				プロフィール...
-			</string>
-			<string name="info_text">
+			</panel.string>
+			<panel.string name="info_text">
 				情報...
-			</string>
-			<string name="public_text">
+			</panel.string>
+			<panel.string name="public_text">
 				(公共)
-			</string>
-			<string name="none_text">
+			</panel.string>
+			<panel.string name="none_text">
 				（なし）
-			</string>
-			<string name="sale_pending_text">
+			</panel.string>
+			<panel.string name="sale_pending_text">
 				(購入審査中)
-			</string>
-			<string name="no_selection_text">
+			</panel.string>
+			<panel.string name="no_selection_text">
 				区画が選定されていません。
 「世界」メニュー＞「土地情報」に進むか、別の区画を選択して、詳細を表示します。
-			</string>
+			</panel.string>
 		</panel>
 		<panel label="約款" name="land_covenant_panel">
 			<text font="SansSerifLarge" name="estate_section_lbl">
 				不動産：
 			</text>
-			<text length="1" name="estate_name_lbl" type="string">
+			<text name="estate_name_lbl">
 				名前：
 			</text>
-			<text length="1" name="estate_name_text" type="string">
+			<text name="estate_name_text">
 				メインランド
 			</text>
-			<text length="1" name="estate_owner_lbl" type="string">
+			<text name="estate_owner_lbl">
 				オーナー：
 			</text>
-			<text length="1" name="estate_owner_text" type="string">
+			<text name="estate_owner_text">
 				（なし）
 			</text>
-			<text_editor length="1" name="covenant_editor" type="string">
+			<text_editor name="covenant_editor">
 				この不動産には約款がありません。
 			</text_editor>
-			<text length="1" name="covenant_timestamp_text" type="string">
+			<text name="covenant_timestamp_text">
 				最後の更新1969年12月31日水曜日16：00：00
 			</text>
 			<text font="SansSerifLarge" name="region_section_lbl">
 				地域：
 			</text>
-			<text length="1" name="region_name_lbl" type="string">
+			<text name="region_name_lbl">
 				名前：
 			</text>
-			<text length="1" name="region_name_text" type="string">
+			<text name="region_name_text">
 				Leyla
 			</text>
 			<text name="region_landtype_lbl">
@@ -166,93 +166,93 @@
 			<text name="resellable_lbl">
 				再販：
 			</text>
-			<text length="1" name="resellable_clause" type="string">
+			<text name="resellable_clause">
 				この地域（リージョン）にある土地は再販できません。
 			</text>
 			<text name="changeable_lbl">
 				再分割：
 			</text>
-			<text length="1" name="changeable_clause" type="string">
+			<text name="changeable_clause">
 				この地域（リージョン）にある土地は統合または分割ができ
 ません。
 			</text>
-			<string name="can_resell">
+			<panel.string name="can_resell">
 				この地域で購入した土地は、再販できます。
-			</string>
-			<string name="can_not_resell">
+			</panel.string>
+			<panel.string name="can_not_resell">
 				この地域で購入した土地は、再販できないことがあります。
-			</string>
-			<string name="can_change">
+			</panel.string>
+			<panel.string name="can_change">
 				この地域で購入した土地は、統合または再分割できます。
-			</string>
-			<string name="can_not_change">
+			</panel.string>
+			<panel.string name="can_not_change">
 				この地域で購入した土地は、統合／再分割できないことが
 あります。
-			</string>
+			</panel.string>
 		</panel>
 		<panel label="オブジェクト" name="land_objects_panel">
 			<text name="parcel_object_bonus">
 				地域オブジェクトボーナス要因: [BONUS]
 			</text>
-			<text length="1" name="Simulator primitive usage:" type="string" width="500">
+			<text name="Simulator primitive usage:" width="500">
 				地域全体のプリム使用状況：
 			</text>
 			<text left="200" name="objects_available">
 				[MAX]の内[COUNT]（[AVAILABLE]利用可能）
 			</text>
-			<string left="200" name="objects_available_text">
+			<panel.string left="200" name="objects_available_text">
 				[MAX]の内[COUNT]（[AVAILABLE]利用可能）
-			</string>
-			<string left="200" name="objects_deleted_text">
+			</panel.string>
+			<panel.string left="200" name="objects_deleted_text">
 				[MAX]の内[COUNT]（[DELETED]を削除）
-			</string>
-			<text length="1" name="Primitives parcel supports:" type="string" width="200">
+			</panel.string>
+			<text name="Primitives parcel supports:" width="200">
 				区画でサポートされるプリム数：
 			</text>
-			<text left="200" length="1" name="object_contrib_text" type="string">
+			<text left="200" name="object_contrib_text">
 				[COUNT]
 			</text>
-			<text length="1" name="Primitives on parcel:" type="string">
+			<text name="Primitives on parcel:">
 				区画上のプリム数：
 			</text>
-			<text left="200" length="1" name="total_objects_text" type="string">
+			<text left="200" name="total_objects_text">
 				[COUNT]
 			</text>
-			<text length="1" name="Owned by parcel owner:" type="string" width="300">
+			<text name="Owned by parcel owner:" width="300">
 				区画オーナーによる所有：
 			</text>
-			<text left="200" length="1" name="owner_objects_text" type="string">
+			<text left="200" name="owner_objects_text">
 				[COUNT]
 			</text>
 			<button label="表示" label_selected="表示" name="ShowOwner" right="-145"/>
 			<button label="返却..." label_selected="返却..." name="ReturnOwner..." right="-15" tool_tip="オブジェクトをオーナーに返却します"/>
-			<text length="1" name="Set to group:" type="string">
+			<text name="Set to group:">
 				グループに設定：
 			</text>
-			<text left="200" length="1" name="group_objects_text" type="string">
+			<text left="200" name="group_objects_text">
 				[COUNT]
 			</text>
 			<button label="表示" label_selected="表示" name="ShowGroup" right="-145"/>
 			<button label="返却..." label_selected="返却..." name="ReturnGroup..." right="-15" tool_tip="オブジェクトをオーナーに返却します"/>
-			<text length="1" name="Owned by others:" type="string">
+			<text name="Owned by others:">
 				他人による所有：
 			</text>
-			<text left="200" length="1" name="other_objects_text" type="string">
+			<text left="200" name="other_objects_text">
 				[COUNT]
 			</text>
 			<button label="表示" label_selected="表示" name="ShowOther" right="-145"/>
 			<button label="返却..." label_selected="返却..." name="ReturnOther..." right="-15" tool_tip="オブジェクトをオーナーに返却します"/>
-			<text length="1" name="Selected / sat upon:" type="string">
+			<text name="Selected / sat upon:">
 				選択済み／決定済み：
 			</text>
-			<text left="200" length="1" name="selected_objects_text" type="string">
+			<text left="200" name="selected_objects_text">
 				[COUNT]
 			</text>
-			<text length="1" name="Autoreturn" type="string" width="500">
+			<text name="Autoreturn" width="500">
 				他の住人のオブジェクトの自動返却(分、0で自動返却なし)
 			</text>
 			<line_editor left_delta="5" name="clean other time" right="-80"/>
-			<text length="1" name="Object Owners:" type="string" width="150">
+			<text name="Object Owners:" width="150">
 				オブジェクトのオーナー：
 			</text>
 			<button label="リスト更新" label_selected="リスト更新" left="146" name="Refresh List"/>
@@ -266,168 +266,140 @@
 			</name_list>
 		</panel>
 		<panel label="オプション" name="land_options_panel">
-			<text length="1" name="allow_label" type="string">
+			<text name="allow_label">
 				他の住人に以下を許可：
 			</text>
 			<check_box label="地形を編集" name="edit land check" tool_tip="チェックを入れると、他人があなたの土地の地形編集を行うことが可能となります。このオプションのチェックを外しておくことをおすすめします。外した状態であなたの土地の地形編集が可能です。"/>
 			<check_box label="ランドマーク作成" name="check landmark"/>
 			<check_box label="飛行" name="check fly" tool_tip="チェックを入れるとこの土地での飛行が可能となります。チェックを外すと土地に入る際と通り過ぎるときのみ飛行可能となります。"/>
-			<text left="138" length="1" name="allow_label2" type="string" width="144">
+			<text left="138" name="allow_label2" width="144">
 				オブジェクトの作成：
 			</text>
 			<check_box label="すべての住人" left="280" name="edit objects check"/>
 			<check_box label="グループ" left="380" name="edit group objects check"/>
-			<text left="138" length="1" name="allow_label3" type="string" width="144">
+			<text left="138" name="allow_label3" width="144">
 				オブジェクトの進入：
 			</text>
 			<check_box label="すべての住人" left="280" name="all object entry check"/>
 			<check_box label="グループ" left="380" name="group object entry check"/>
-			<text left="138" length="1" name="allow_label4" type="string" width="144">
+			<text left="138" name="allow_label4" width="144">
 				スクリプトの実行：
 			</text>
 			<check_box label="すべての住人" left="280" name="check other scripts"/>
 			<check_box label="グループ" left="380" name="check group scripts"/>
-			<text length="1" name="land_options_label" type="string">
+			<text name="land_options_label">
 				土地オプション：
 			</text>
 			<check_box label="安全（ダメージなし）" name="check safe" tool_tip="チェックを入れるとこの土地でのダメージコンバットが無効になり、「安全」に設定されます。 チェックを外すとダメージコンバットが有効になります。"/>
 			<check_box label="プッシングを制限" name="PushRestrictCheck" tool_tip="スクリプトによるプッシングを制限します。 このオプションを選択することにより、あなたの土地での破壊的行動を妨げることができます。"/>
 			<check_box label="検索に表示＞（週L$30）以下の場所" name="ShowDirectoryCheck" tool_tip="検索結果でこの区画を表示させる"/>
-			<string name="search_enabled_tooltip">
+			<panel.string name="search_enabled_tooltip">
 				この区画を検索結果に表示する
-			</string>
-			<string name="search_disabled_small_tooltip">
+			</panel.string>
+			<panel.string name="search_disabled_small_tooltip">
 				区画面積が128平方メートルかそれ以下のため、このオプションは無効です。
 大きな区画のみ検索に表示させることが可能です。
-			</string>
-			<string name="search_disabled_permissions_tooltip">
+			</panel.string>
+			<panel.string name="search_disabled_permissions_tooltip">
 				あなたはこの区画の設定編集ができないため、このオプションは無効です。
-			</string>
+			</panel.string>
 			<combo_box name="land category with adult">
-				<combo_item name="AnyCategory">
-					全カテゴリ
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Linden所在地
-				</combo_item>
-				<combo_item name="Adult">
-					Adult
-				</combo_item>
-				<combo_item name="Arts&amp;Culture">
-					アートとカルチャー
-				</combo_item>
-				<combo_item name="Business">
-					ビジネス
-				</combo_item>
-				<combo_item name="Educational">
-					教育的
-				</combo_item>
-				<combo_item name="Gaming">
-					ゲーム
-				</combo_item>
-				<combo_item name="Hangout">
-					たまり場
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					新住人に好意的
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					公園と自然
-				</combo_item>
-				<combo_item name="Residential">
-					住宅用
-				</combo_item>
-				<combo_item name="Shopping">
-					ショッピング
-				</combo_item>
-				<combo_item name="Other">
-					その他
-				</combo_item>
+				<combo_box.item name="item0" label="全カテゴリ"
+				/>
+				<combo_box.item name="item1" label="Linden所在地"
+				/>
+				<combo_box.item name="item2" label="Adult"
+				/>
+				<combo_box.item name="item3" label="アートとカルチャー"
+				/>
+				<combo_box.item name="item4" label="ビジネス"
+				/>
+				<combo_box.item name="item5" label="教育的"
+				/>
+				<combo_box.item name="item6" label="ゲーム"
+				/>
+				<combo_box.item name="item7" label="たまり場"
+				/>
+				<combo_box.item name="item8" label="新住人に好意的"
+				/>
+				<combo_box.item name="item9" label="公園と自然"
+				/>
+				<combo_box.item name="item10" label="住宅用"
+				/>
+				<combo_box.item name="item11" label="ショッピング"
+				/>
+				<combo_box.item name="item12" label="その他"
+				/>
 			</combo_box>
 			<combo_box name="land category">
-				<combo_item name="AnyCategory">
-					全カテゴリー
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Linden所在地
-				</combo_item>
-				<combo_item name="Arts&amp;Culture">
-					アート&amp;カルチャー
-				</combo_item>
-				<combo_item name="Business">
-					ビジネス
-				</combo_item>
-				<combo_item name="Educational">
-					教育的
-				</combo_item>
-				<combo_item name="Gaming">
-					ゲーム
-				</combo_item>
-				<combo_item name="Hangout">
-					たまり場
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					新住人に好意的
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					公園と自然
-				</combo_item>
-				<combo_item name="Residential">
-					住宅用
-				</combo_item>
-				<combo_item name="Shopping">
-					ショッピング
-				</combo_item>
-				<combo_item name="Other">
-					その他
-				</combo_item>
+				<combo_box.item name="item0" label="全カテゴリー"
+				/>
+				<combo_box.item name="item1" label="Linden所在地"
+				/>
+				<combo_box.item name="item3" label="アート&amp;カルチャー"
+				/>
+				<combo_box.item name="item4" label="ビジネス"
+				/>
+				<combo_box.item name="item5" label="教育的"
+				/>
+				<combo_box.item name="item6" label="ゲーム"
+				/>
+				<combo_box.item name="item7" label="たまり場"
+				/>
+				<combo_box.item name="item8" label="新住人に好意的"
+				/>
+				<combo_box.item name="item9" label="公園と自然"
+				/>
+				<combo_box.item name="item10" label="住宅用"
+				/>
+				<combo_box.item name="item11" label="ショッピング"
+				/>
+				<combo_box.item name="item12" label="その他"
+				/>
 			</combo_box>
 			<button label="?" label_selected="?" name="?"/>
 			<check_box label="Matureコンテンツ" name="MatureCheck" tool_tip=""/>
-			<string name="mature_check_mature">
+			<panel.string name="mature_check_mature">
 				Matureコンテンツ
-			</string>
-			<string name="mature_check_adult">
+			</panel.string>
+			<panel.string name="mature_check_adult">
 				Adultコンテンツ
-			</string>
-			<string name="mature_check_mature_tooltip">
+			</panel.string>
+			<panel.string name="mature_check_mature_tooltip">
 				あなたの区画情報及びコンテンツはMatureとされています。
-			</string>
-			<string name="mature_check_adult_tooltip">
+			</panel.string>
+			<panel.string name="mature_check_adult_tooltip">
 				あなたの区画情報及びコンテンツはAdultとされています。
-			</string>
-			<text length="1" name="Snapshot:" type="string">
+			</panel.string>
+			<text name="Snapshot:">
 				スナップショット：
 			</text>
 			<texture_picker label="" left="116" name="snapshot_ctrl" tool_tip="写真をクリックして選択"/>
 			<text name="landing_point">
 				着地点: [LANDING]
 			</text>
-			<string name="landing_point_none">
+			<panel.string name="landing_point_none">
 				（なし）
-			</string>
+			</panel.string>
 			<button label="設定" label_selected="設定" name="Set" tool_tip="訪問者の着地点の設定を行います。この区画内に立って行ってください。"/>
 			<button label="クリア" label_selected="クリア" name="Clear" tool_tip="着地点をクリアしてください。"/>
-			<text length="1" name="Teleport Routing: " type="string">
+			<text name="Teleport Routing: ">
 				テレポート制限：
 			</text>
 			<combo_box name="landing type" tool_tip="Teleport Routing -- select how to handle teleports onto your land.">
-				<combo_item length="1" name="Blocked" type="string">
-					不可
-				</combo_item>
-				<combo_item length="1" name="LandingPoint" type="string">
-					着地点
-				</combo_item>
-				<combo_item length="1" name="Anywhere" type="string">
-					どこでも
-				</combo_item>
+				<combo_box.item name="Blocked" label="不可"
+				/>
+				<combo_box.item name="LandingPoint" label="着地点"
+				/>
+				<combo_box.item name="Anywhere" label="どこでも"
+				/>
 			</combo_box>
-			<string name="push_restrict_text">
+			<panel.string name="push_restrict_text">
 				プッシングを制限
-			</string>
-			<string name="push_restrict_region_text">
+			</panel.string>
+			<panel.string name="push_restrict_region_text">
 				プッシングを制限 (地域優先)
-			</string>
+			</panel.string>
 		</panel>
 		<panel label="メディア" name="land_media_panel">
 			<text name="with media:">
@@ -442,7 +414,7 @@
 				説明：
 			</text>
 			<line_editor name="url_description" tool_tip="［再生］/［ロード］ボタンの隣に表示されるテキスト"/>
-			<text length="1" name="Media texture:" type="string">
+			<text name="Media texture:">
 				テクスチ
 ャ取替：
 			</text>
@@ -484,7 +456,7 @@
 			<check_box label="この区画でのボイス使用を制限する" name="parcel_enable_voice_channel_parcel"/>
 		</panel>
 		<panel label="アクセス" name="land_access_panel">
-			<text length="1" name="Limit access to this parcel to:" type="string">
+			<text name="Limit access to this parcel to:">
 				この区画にアクセス
 			</text>
 			<check_box label="パブリック・アクセスを許可" name="public_access"/>
@@ -493,18 +465,16 @@
 			</text>
 			<check_box label="Linden Labに支払い情報を登録していない住人" name="limit_payment" tool_tip="支払い情報未確認の住人を排除する"/>
 			<check_box label="年齢確認を済ませていない成人の住人" name="limit_age_verified" tool_tip="年齢確認を済ませていない住人を排除する詳細については、support.secondlife.comを参照してください。"/>
-			<string name="estate_override">
+			<panel.string name="estate_override">
 				1つ以上のオプションが、不動産レベルで設定されています。
-			</string>
+			</panel.string>
 			<check_box label="グループ・アクセスを許可：[GROUP]" name="GroupCheck" tool_tip="[一般]タブで、グループを選択してください。"/>
 			<check_box label="入場許可を販売：" name="PassCheck" tool_tip="この区画への一時的なアクセスを許可"/>
 			<combo_box name="pass_combo">
-				<combo_item name="Anyone">
-					誰でも
-				</combo_item>
-				<combo_item name="Group">
-					グループ
-				</combo_item>
+				<combo_box.item name="Anyone" label="誰でも"
+				/>
+				<combo_box.item name="Group" label="グループ"
+				/>
 			</combo_box>
 			<spinner label="価格（L$）：" name="PriceSpin"/>
 			<spinner label="アクセス時間：" name="HoursSpin"/>

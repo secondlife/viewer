@@ -33,9 +33,9 @@
 		(Les propriétaires apparaissent en gras)
 	</text>
 	<name_list name="visible_members">
-		<column label="Nom du membre" name="name" relwidth="0.40"/>
-		<column label="Titre" name="title" relwidth="0.25"/>
-		<column label="Dernière connexion" name="online" relwidth="0.35"/>
+		<name_list.columns label="Nom du membre" name="name" relwidth="0.40"/>
+		<name_list.columns label="Titre" name="title" relwidth="0.25"/>
+		<name_list.columns label="Dernière connexion" name="online" relwidth="0.35"/>
 	</name_list>
 	<text name="text_group_preferences">
 		Préférences
@@ -46,15 +46,9 @@
 		<check_box label="Frais d&apos;inscription : L$" name="check_enrollment_fee" tool_tip="Indique s&apos;il y a des frais d&apos;inscription pour devenir membre."/>
 		<spinner name="spin_enrollment_fee" tool_tip="Si la case Frais d&apos;inscription est cochée, cela signifie qu&apos;il faut payer des frais pour devenir membre."/>
 		<combo_box name="group_mature_check" tool_tip="Indique si les informations sur votre groupe sont classées Mature." width="195">
-			<combo_item name="select_mature">
-				- Type de public -
-			</combo_item>
-			<combo_item name="mature">
-				Contenu Mature
-			</combo_item>
-			<combo_item name="pg">
-				Contenu PG
-			</combo_item>
+			<combo_box.item name="select_mature" label="- Type de public -"/>
+			<combo_box.item name="mature" label="Contenu Mature"/>
+			<combo_box.item name="pg" label="Contenu PG"/>
 		</combo_box>
 		<panel name="title_container">
 			<text name="active_title_label">

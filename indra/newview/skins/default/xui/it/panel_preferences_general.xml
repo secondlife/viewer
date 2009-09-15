@@ -1,24 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Generale" name="general_panel">
-	<radio_group name="default_start_location">
-		<radio_item name="MyHome" tool_tip="Vai a casa di default quando fai login">
-			Casa mia
-		</radio_item>
-		<radio_item name="MyLastLocation" tool_tip="Vai nell&apos;ultimo posto visitato di default quando fai login.">
-			Ultimo posto visitato
-		</radio_item>
-	</radio_group>
+	<combo_box name="start_location_combo">
+		<combo_box.item name="MyHome" tool_tip="Vai a casa di default quando fai login" label="Casa mia"/>
+		<combo_box.item name="MyLastLocation" tool_tip="Vai nell&apos;ultimo posto visitato di default quando fai login." label="Ultimo posto visitato"/>
+	</combo_box>
 	<check_box label="Mostra il punto di partenza nella schermata d&apos;inizio" name="show_location_checkbox"/>
-	<combo_box name="fade_out_combobox" width="166">
-		<combo_item name="Never">
-			Mai
-		</combo_item>
-		<combo_item name="Show Temporarily">
-			Mostra temporanemente
-		</combo_item>
-		<combo_item name="Always">
-			Sempre
-		</combo_item>
+	<combo_box name="fade_out_combobox">
+		<combo_box.item name="Never" label="Mai"/>
+		<combo_box.item name="Show Temporarily" label="Mostra temporanemente"/>
+		<combo_box.item name="Always" label="Sempre"/>
 	</combo_box>
 	<check_box label="Nomi avatar in piccolo" name="small_avatar_names_checkbox"/>
 	<check_box label="Nascondi il mio nome sul mio schermo" name="show_my_name_checkbox"/>
@@ -34,25 +24,18 @@
 	<check_box label="Usa ridimensionamento indipendente dalla risoluzione" name="ui_auto_scale"/>
 	<spinner label="Assente dopo:" name="afk_timeout_spinner"/>
 	<check_box label="Avvisami quando spendo o ricevo Linden Dollars (L$)" name="notify_money_change_checkbox"/>
-	<text name="maturity_desired_label" bottom="-312">
+	<text name="maturity_desired_label">
 		Categoria di accesso:
 	</text>
-	<text name="maturity_desired_prompt" bottom="-312">
-		Voglio accedere al
-contenuto di tipo:
+	<text name="maturity_desired_prompt">
+		Voglio accedere al contenuto di tipo:
 	</text>
-	<combo_box name="maturity_desired_combobox" bottom="-330" left="274">
-		<combo_item name="Desired_Adult">
-			PG, Mature e Adult
-		</combo_item>
-		<combo_item name="Desired_Mature">
-			PG e Mature
-		</combo_item>
-		<combo_item name="Desired_PG">
-			solo PG
-		</combo_item>
+	<combo_box name="maturity_desired_combobox">
+		<combo_box.item name="Desired_Adult" label="PG, Mature e Adult"/>
+		<combo_box.item name="Desired_Mature" label="PG e Mature"/>
+		<combo_box.item name="Desired_PG" label="solo PG"/>
 	</combo_box>
-	<text name="maturity_desired_textbox" bottom="-324" left="274">
+	<text name="maturity_desired_textbox">
 		solo PG
 	</text>
 	<text name="start_location_textbox">
@@ -73,75 +56,35 @@ contenuto di tipo:
 	<text name="language_textbox">
 		Lingua:
 	</text>
-	<text left_delta="313" name="language_textbox2">
+	<text name="language_textbox2">
 		(Richiede il riavvio)
 	</text>
 	<string name="region_name_prompt">
 		&lt;Scrivi il nome della regione&gt;
 	</string>
-	<combo_box name="crash_behavior_combobox" width="166">
-		<combo_item name="Askbeforesending">
-			Chiedi prima di inviare
-		</combo_item>
-		<combo_item name="Alwayssend">
-			Invia sempre
-		</combo_item>
-		<combo_item name="Neversend">
-			Non inviare mai
-		</combo_item>
+	<combo_box name="crash_behavior_combobox">
+		<combo_box.item name="Askbeforesending" label="Chiedi prima di inviare"/>
+		<combo_box.item name="Alwayssend" label="Invia sempre"/>
+		<combo_box.item name="Neversend" label="Non inviare mai"/>
 	</combo_box>
-	<combo_box name="language_combobox" width="166">
-		<combo_item name="System Default Language">
-			Default di sistema
-		</combo_item>
-		<combo_item name="English">
-			English
-		</combo_item>
-		<combo_item name="Danish">
-			Dansk (Danese) - Beta
-		</combo_item>
-		<combo_item name="Deutsch(German)">
-			Deutsch (Tedesco) - Beta
-		</combo_item>
-		<combo_item name="Spanish">
-			Español (Spagnolo) - Beta
-		</combo_item>
-		<combo_item name="French">
-			Français (Francese) - Beta
-		</combo_item>
-		<combo_item name="Italian">
-			Italiano - Beta
-		</combo_item>
-		<combo_item name="Hungarian">
-			Magyar (Ungherese) - Beta
-		</combo_item>
-		<combo_item name="Dutch">
-			Nederlands (Olandese) - Beta
-		</combo_item>
-		<combo_item name="Polish">
-			Polski (Polacco) - Beta
-		</combo_item>
-		<combo_item name="Portugese">
-			Portugués (Portoghese) - Beta
-		</combo_item>
-		<combo_item name="Russian">
-			Русский (Russo) - Beta
-		</combo_item>
-		<combo_item name="Turkish">
-			Türkçe (Turco) - Beta
-		</combo_item>
-		<combo_item name="Ukrainian">
-			Українська (Ukraino) - Beta
-		</combo_item>
-		<combo_item name="Chinese">
-			中文 (简体) (Cinese) - Beta
-		</combo_item>
-		<combo_item name="(Japanese)">
-			日本語 (Giapponese) - Beta
-		</combo_item>
-		<combo_item name="(Korean)">
-			한국어 (Coreano) - Beta
-		</combo_item>
+	<combo_box name="language_combobox">
+		<combo_box.item name="System Default Language" label="Default di sistema"/>
+		<combo_box.item name="English" label="English"/>
+		<combo_box.item name="Danish" label="Dansk (Danese) - Beta"/>
+		<combo_box.item name="Deutsch(German)" label="Deutsch (Tedesco) - Beta"/>
+		<combo_box.item name="Spanish" label="Español (Spagnolo) - Beta"/>
+		<combo_box.item name="French" label="Français (Francese) - Beta"/>
+		<combo_box.item name="Italian" label="Italiano - Beta"/>
+		<combo_box.item name="Hungarian" label="Magyar (Ungherese) - Beta"/>
+		<combo_box.item name="Dutch" label="Nederlands (Olandese) - Beta"/>
+		<combo_box.item name="Polish" label="Polski (Polacco) - Beta"/>
+		<combo_box.item name="Portugese" label="Portugués (Portoghese) - Beta"/>
+		<combo_box.item name="Russian" label="Русский (Russo) - Beta"/>
+		<combo_box.item name="Turkish" label="Türkçe (Turco) - Beta"/>
+		<combo_box.item name="Ukrainian" label="Українська (Ukraino) - Beta"/>
+		<combo_box.item name="Chinese" label="中文 (简体) (Cinese) - Beta"/>
+		<combo_box.item name="(Japanese)" label="日本語 (Giapponese) - Beta"/>
+		<combo_box.item name="(Korean)" label="한국어 (Coreano) - Beta"/>
 	</combo_box>
 	<check_box label="Condividi la tua lingua con gli oggetti" name="language_is_public" tool_tip="Questo fa in modo che gli oggetti inworld riconoscano la tua lingua."/>
 </panel>

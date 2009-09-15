@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="Uiterlijk" width="551">
 	<tab_container name="customize tab container" tab_min_width="120" width="549">
-		<panel label="Lichaamsdelen" name="body_parts_placeholder"/>
+		<placeholder label="Lichaamsdelen" name="body_parts_placeholder"/>
 		<panel label="Postuur" name="Shape" left="124" width="389">
 			<button label="Herstel" label_selected="Herstel" name="Revert"/>
 			<button label="Lichaam" label_selected="Lichaam" name="Body"/>

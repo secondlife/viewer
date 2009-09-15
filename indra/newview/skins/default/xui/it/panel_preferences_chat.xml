@@ -9,44 +9,50 @@ chat:
 		<radio_item name="radio2" label="Medio" />
 		<radio_item name="radio3" label="Grande" />
 	</radio_group>
-	<text name="text_box2">
-		Colore carattere chat:
-	</text>
 	<color_swatch label="Tuo" name="user"/>
-	<color_swatch label="Altri" name="agent" width="60" left_delta="48"/>
-	<color_swatch label="IM" name="im" left_delta="64" />
+	<text name="text_box1">
+		Tuo
+	</text>
+	<color_swatch label="Altri" name="agent"/>
+	<text name="text_box2">
+		Altri
+	</text>
+	<color_swatch label="IM" name="im"/>
+	<text name="text_box3">
+		IM
+	</text>
 	<color_swatch label="Sistema" name="system"/>
-	<color_swatch label="Errori" name="script_error"/>
+	<text name="text_box4">
+		Sistema
+	</text>
+	<color_swatch label="Errori script" name="script_error"/>
+	<text name="text_box5">
+		Errori script
+	</text>
 	<color_swatch label="Oggetti" name="objects"/>
-	<color_swatch label="Proprietario" name="owner" width="60" left_delta="48"/>
-	<color_swatch label="Vignetta" name="background" left_delta="64" />
-	<color_swatch label="URLs" name="links"/>
+	<text name="text_box6">
+		Oggetti
+	</text>
+	<color_swatch label="Proprietario" name="owner"/>
+	<text name="text_box7">
+		Proprietario
+	</text>
+	<color_swatch label="Vignetta" name="background"/>
 	<text name="text_box8">
-		Errori script:
+		Vignetta
+	</text>
+	<color_swatch label="URLs" name="links"/>
+	<text name="text_box9">
+		URLs
 	</text>
 	<check_box label="Mostra errori script ed avvertimenti nella chat principale" name="script_errors_as_chat"/>
-	<text name="text_box3">
-		Console della chat:
-	</text>
 	<spinner label="Dissolvi la chat dopo" name="fade_chat_time" label_width="112" width="162"/>
-	<text name="text_box4" left="313" >
-		(s)
-	</text>
-	<text name="text_box5">
-		(# linee)
-	</text>
 	<slider label="Opacità" name="console_opacity"/>
 	<check_box label="Utilzza la larghezza intera dello schermo  (Richiede riavvio)" name="chat_full_width_check"/>
-	<text name="text_box6">
-		Opzioni chat:
-	</text>
 	<check_box label="Chiudi la barra chat dopo aver premuto invio" name="close_chat_on_return_check"/>
 	<check_box label="Le frecce muovono comunque l&apos;avatar quando si sta scrivendo" name="arrow_keys_move_avatar_check"/>
 	<check_box label="Mostra orario nella chat principale" name="show_timestamps_check"/>
 	<check_box label="Simula la battitura tasti quando scrivi" name="play_typing_animation"/>
-	<text name="text_box7">
-		Chat con vignette:
-	</text>
 	<check_box label="Mostra vignette chat" name="bubble_text_chat"/>
 	<slider label="Opacità" name="bubble_chat_opacity"/>
 </panel>

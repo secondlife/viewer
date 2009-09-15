@@ -487,4 +487,34 @@
 	<string name="choose_the_directory">
 		参照
 	</string>
+	<string name="accel-mac-control">
+		Ctrl-
+	</string>
+	<string name="accel-mac-command">
+		Cmd-
+	</string>
+	<string name="accel-mac-option">
+		Opt-
+	</string>
+	<string name="accel-mac-shift">
+		Shift-
+	</string>
+	<string name="accel-win-control">
+		Ctrl+
+	</string>
+	<string name="accel-win-alt">
+		Alt+
+	</string>
+	<string name="accel-win-shift">
+		Shift+
+	</string>
+	<string name="GraphicsQualityLow">
+		低
+	</string>
+	<string name="GraphicsQualityMid">
+		中
+	</string>
+	<string name="GraphicsQualityHigh">
+		高
+	</string>
 </strings>

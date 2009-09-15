@@ -964,7 +964,7 @@ Proposer à [NAME] de devenir votre ami(e) ?
 
 Proposer à [NAME] de devenir votre ami(e) ?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Voulez-vous être mon ami(e) ?
 			</input>
 			<button name="Offer" text="OK"/>
@@ -1359,7 +1359,7 @@ Pour quitter un groupe, sélectionnez l&apos;option Groupe dans le menu Éditer.
 	<notification name="KickUser">
 		Éjecter cet utilisateur avec quel message ?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Un administrateur vous a déconnecté.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1369,7 +1369,7 @@ Pour quitter un groupe, sélectionnez l&apos;option Groupe dans le menu Éditer.
 	<notification name="KickAllUsers">
 		Éjecter tous les résidents actuellement en ligne avec quel message ?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Un administrateur vous a déconnecté.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1379,7 +1379,7 @@ Pour quitter un groupe, sélectionnez l&apos;option Groupe dans le menu Éditer.
 	<notification name="FreezeUser">
 		Geler cet utilisateur avec quel message ?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Vous avez été gelé. Vous ne pouvez ni bouger ni chatter. Un administrateur va vous envoyer un message instantané (IM).
 			</input>
 			<button name="OK" text="OK"/>
@@ -1389,7 +1389,7 @@ Pour quitter un groupe, sélectionnez l&apos;option Groupe dans le menu Éditer.
 	<notification name="UnFreezeUser">
 		Dégeler cet utilisateur avec quel message ?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Vous n&apos;êtes plus gelé.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1399,7 +1399,7 @@ Pour quitter un groupe, sélectionnez l&apos;option Groupe dans le menu Éditer.
 	<notification name="OfferTeleport">
 		Proposez une téléportation avec le message suivant ?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				On se rejoint à [REGION] ?
 			</input>
 			<button name="OK" text="OK"/>
@@ -1409,7 +1409,7 @@ Pour quitter un groupe, sélectionnez l&apos;option Groupe dans le menu Éditer.
 	<notification name="OfferTeleportFromGod">
 		Demander au résident de venir vous rejoindre ?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				On se rejoint à [REGION] ?
 			</input>
 			<button name="OK" text="OK"/>
@@ -1423,7 +1423,7 @@ Pour quitter un groupe, sélectionnez l&apos;option Groupe dans le menu Éditer.
 	<notification label="Envoyer un message à tout le monde dans votre domaine" name="MessageEstate">
 		Saisissez un message court qui sera envoyé à tous les résidents se trouvant actuellement sur votre domaine.
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Annuler"/>
 		</form>
@@ -1609,7 +1609,7 @@ Publier cette petite annonce maintenant pour [AMOUNT] L$ ?
 	<notification label="Envoyer un message à la région" name="MessageRegion">
 		Saisissez une message qui sera envoyé à tous les résidents présents dans cette région.
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Annuler"/>
 		</form>
@@ -1895,7 +1895,7 @@ Ils seront copiés dans votre inventaire.
 Êtes-vous certain de vouloir effectuer cette transaction ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
-	<notification name="ConfirmPurchasePassword" type="password">
+	<notification name="ConfirmPurchasePassword">
 		Suite à cette transaction, vous allez :
 [ACTION]
 
@@ -2268,7 +2268,7 @@ Même chose que l&apos;azimut.
 	<notification name="NewSkyPreset">
 		Nommez le nouveau ciel.
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Nouveau préréglage
 			</input>
 			<button name="OK" text="OK"/>
@@ -2281,7 +2281,7 @@ Même chose que l&apos;azimut.
 	<notification name="NewWaterPreset">
 		Nommez ce nouveau préréglage d&apos;eau.
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Nouveau préréglage
 			</input>
 			<button name="OK" text="OK"/>

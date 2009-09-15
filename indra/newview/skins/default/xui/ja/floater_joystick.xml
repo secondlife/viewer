@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Joystick" title="ジョイスティックの設定">
-	<check_box name="enable_joystick" width="120">
-		ジョイスティックを使う：
-	</check_box>
+	<check_box name="enable_joystick" width="120" label="ジョイスティックを使う："/>
 	<text left="180" name="joystick_type" width="320"/>
 	<spinner label="X軸マッピング" name="JoystickAxis1"/>
 	<spinner label="Y軸マッピング" name="JoystickAxis2"/>
@@ -17,15 +15,9 @@
 	<text name="Control Modes:">
 		制御モード：
 	</text>
-	<check_box left="131" name="JoystickAvatarEnabled">
-		アバター
-	</check_box>
-	<check_box left="201" name="JoystickBuildEnabled">
-		造る
-	</check_box>
-	<check_box left="271" name="JoystickFlycamEnabled">
-		フライ・カメラ
-	</check_box>
+	<check_box left="131" name="JoystickAvatarEnabled" label="アバター"/>
+	<check_box left="201" name="JoystickBuildEnabled" label="造る"/>
+	<check_box left="271" name="JoystickFlycamEnabled" label="フライ・カメラ"/>
 	<text left="5" name="XScale" width="120">
 		Xスケール
 	</text>
@@ -113,12 +105,14 @@
 	<button label="SpaceNavigatorのデフォルト設定" left="330" name="SpaceNavigatorDefaults" width="210"/>
 	<button label="OK" label_selected="OK" name="ok_btn"/>
 	<button label="取り消し" label_selected="取り消し" name="cancel_btn"/>
-	<string name="JoystickMonitor">
-		ジョイスティック・モニター
-	</string>
-	<string name="Axis">
-		軸 [NUM]
-	</string>
+	<stat_view label="ジョイスティック・モニター" name="axis_view">
+		<stat_bar label="軸 0" name="axis0"/>
+		<stat_bar label="軸 1" name="axis1"/>
+		<stat_bar label="軸 2" name="axis2"/>
+		<stat_bar label="軸 3" name="axis3"/>
+		<stat_bar label="軸 4" name="axis4"/>
+		<stat_bar label="軸 5" name="axis5"/>
+	</stat_view>
 	<string name="NoDevice">
 		デバイスは検出されませんでした
 	</string>

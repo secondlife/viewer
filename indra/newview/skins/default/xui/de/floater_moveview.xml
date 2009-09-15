@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="move floater" title="">
+<floater name="move_floater">
+<panel name="panel_actions">
 	<button label="" label_selected="" name="turn left btn" tool_tip="Nach links" />
 	<button label="" label_selected="" name="turn right btn" tool_tip="Nach rechts" />
 	<button label="" label_selected="" name="move up btn"
@@ -11,4 +12,5 @@
 	<joystick_slide name="slide right btn" tool_tip="Nach rechts" />
 	<joystick_turn name="forward btn" tool_tip="Nach vorn" />
 	<joystick_turn name="backward btn" tool_tip="Nach hinten" />
+</panel>
 </floater>

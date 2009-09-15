@@ -4,10 +4,10 @@
 	<button label="Suchen" label_selected="Suchen" name="search_btn" />
 	<button label="Ersetzen" label_selected="Ersetzen" name="replace_btn" />
 	<button label="Alle ersetzen" label_selected="Alle ersetzen" name="replace_all_btn" />
-	<text type="string" length="1" name="txt">
+	<text name="txt">
 		Suchen
 	</text>
-	<text type="string" length="1" name="txt2">
+	<text name="txt2">
 		Ersetzen
 	</text>
 </floater>

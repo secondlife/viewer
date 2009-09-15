@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Proprietà immobiliari" name="Estate">
+<panel name="EstateWrapper">
+  <scroll_container name="container1">
+   <panel label="Proprietà immobiliari" name="Estate">
 	<text name="estate_help_text">
 		I cambiamenti alle impostazioni in questa finestra 
 avranno effetto su tutte le regioni della proprietà.
@@ -66,4 +68,6 @@ avranno effetto su tutte le regioni della proprietà.
 	<button label="?" name="ban_resident_help"/>
 	<button label="Rimuovi..." name="remove_banned_avatar_btn"/>
 	<button label="Aggiungi..." name="add_banned_avatar_btn"/>
+    </panel>
+  </scroll_container>
 </panel>

@@ -56,6 +56,7 @@
 		Qualità
 	</text>
 	<check_box label="Personalizzate" name="CustomSettings"/>
+	<panel name="CustomGraphics Panel">
 	<text name="ShadersText">
 		Effetti grafici:
 	</text>
@@ -131,12 +132,13 @@
 		<radio_item name="0" label="Bassi" />
 		<radio_item name="2" label="Alti" />
 	</radio_group>
+	</panel>
 	<button label="Configurazione raccomandata" name="Defaults" left="110" width="190" />
 	<button label="Opzioni hardware" label_selected="Opzioni hardware" name="GraphicsHardwareButton"/>
-	<string name="resolution_format">
+	<panel.string name="resolution_format">
 		[RES_X] x [RES_Y]
-	</string>
-	<string name="aspect_ratio_text">
+	</panel.string>
+	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
-	</string>
+	</panel.string>
 </panel>

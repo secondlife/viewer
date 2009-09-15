@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="preview notecard" title="メモ：">
 	<button label="保存" label_selected="保存" name="Save" />
-	<text type="string" length="1" name="desc txt">
+	<text name="desc txt">
 		説明：
 	</text>
-	<text_editor type="string" length="1" name="Notecard Editor">
+	<text_editor name="Notecard Editor">
 		ローディング．．．
 	</text_editor>
 	<text name="no_object">

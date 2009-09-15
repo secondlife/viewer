@@ -486,4 +486,45 @@
 	<string name="choose_the_directory">
 		Elegir directorio
 	</string>
+	<!-- OSMessageBox messages -->
+	<string name="MBAlreadyRunning">
+		[APP_NAME] ya se está ejecutando.
+Busque en la barra de su escritorio una copia minimizada del programa.
+Si aun así persiste este mensaje, reinicie su ordenador.
+	</string>
+	<string name="MBVideoDrvErr">
+		No se puede ejecutar [APP_NAME] porque los drivers de su tarjeta de vídeo no están instalados correctamente, o no están actualizados, o son de un hardware no admitido. Por favor, asegúrese de que tiene los últimos drivers para su tarjeta de vídeo, e incluso en ese caso intente reinstalarlos.
+
+Si sigue recibiendo este mensaje, contacte con el [SUPPORT_SITE].
+	</string>
+	<string name="accel-mac-control">
+		Ctrl-
+	</string>
+	<string name="accel-mac-command">
+		Cmd-
+	</string>
+	<string name="accel-mac-option">
+		Alt-
+	</string>
+	<string name="accel-mac-shift">
+		Mayús-
+	</string>
+	<string name="accel-win-control">
+		Ctrl+
+	</string>
+	<string name="accel-win-alt">
+		Alt+
+	</string>
+	<string name="accel-win-shift">
+		Mayús+
+	</string>
+	<string name="GraphicsQualityLow">
+		Bajo
+	</string>
+	<string name="GraphicsQualityMid">
+		Medio
+	</string>
+	<string name="GraphicsQualityHigh">
+		Alto
+	</string>
 </strings>

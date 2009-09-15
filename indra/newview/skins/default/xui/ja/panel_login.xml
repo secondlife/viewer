@@ -17,7 +17,7 @@
 	<combo_box name="start_location_combo" left_delta="92" width="172">
 		<combo_box.item name="MyHome" label="自宅（ホーム）" />
 		<combo_box.item name="MyLastLocation" label="最後にログアウトした場所" />
-		<combo_box.item name="Typeregionname" label="lt; 地域の名前入力 &gt;" />
+		<combo_box.item name="Typeregionname" label="&lt; 地域の名前入力 &gt;" />
 	</combo_box>
 	<check_box label="パスワードを記憶" name="remember_check" left_delta="180"/>
 	<text name="full_screen_text">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="Aussehen">
 	<tab_container name="customize tab container">
-		<panel label="Körperteile" name="body_parts_placeholder"/>
+		<placeholder label="Körperteile" name="body_parts_placeholder"/>
 		<panel label="Form" name="Shape">
 			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 			<button label="Körper" label_selected="Körper" name="Body"/>
@@ -14,34 +14,30 @@
 			<button label="Oberkörper" label_selected="Oberkörper" name="Torso"/>
 			<button label="Beine" label_selected="Beine" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item length="1" name="radio" type="string">
-					Weiblich
-				</radio_item>
-				<radio_item length="1" name="radio2" type="string">
-					Männlich
-				</radio_item>
+				<radio_item name="radio" label="Weiblich"/>
+				<radio_item name="radio2" label="Männlich"/>
 			</radio_group>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: wird geladen...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: nicht getragen
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				In [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Ziehen Sie eine Körperform aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch eine neue Körperform erstellen
 und diese anziehen.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
 			<text name="Item Action Label" right="100">
@@ -56,27 +52,27 @@ und diese anziehen.
 			<button label="Gesichtsdetails" label_selected="Gesichtsdetails" left="2" name="Face Detail" width="92"/>
 			<button label="Make-Uup" label_selected="Make-Uup" left="2" name="Makeup" width="92"/>
 			<button label="Körperdetails" label_selected="Körperdetails" left="2" name="Body Detail" width="92"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: wird geladen...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: nicht getragen
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				In [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Ziehen Sie eine Haut aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch eine neue Haut erstellen
 und diese anziehen.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
 			<text name="Item Action Label" right="100">
@@ -95,27 +91,27 @@ und diese anziehen.
 			<button label="Stil" label_selected="Stil" name="Style"/>
 			<button label="Augenbrauen" label_selected="Augenbrauen" name="Eyebrows"/>
 			<button label="Gesichtshaar" label_selected="Gesichtshaar" name="Facial"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: wird geladen...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: nicht getragen
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				In [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Ziehen Sie Haare aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch neue Haare erstellen
 und diese anziehen.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
 			<text name="Item Action Label" right="100">
@@ -128,27 +124,27 @@ und diese anziehen.
 			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 		<panel label="Augen" name="Eyes">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: wird geladen...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: nicht getragen
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				In [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Ziehen Sie Augen aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch neue Augen erstellen
 und diese anziehen.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
 			<text name="Item Action Label" right="100">
@@ -169,27 +165,27 @@ und diese anziehen.
 			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
 			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
 			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: wird geladen...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: nicht getragen
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				In [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Ziehen Sie ein Hemd aus dem Inventar auf Ihren Avatar,
 um es zu tragen. Sie können auch ein neues Hemd erstellen
 und dieses anziehen.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
 			<text name="Item Action Label" right="100">
@@ -204,27 +200,27 @@ und dieses anziehen.
 			<button font="SansSerifSmall" label="Speichern" label_selected="Speichern" left="107" name="Save"/>
 			<button font="SansSerifSmall" label="Speichern unter..." label_selected="Speichern unter..." left="194" name="Save As" width="105"/>
 			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: wird geladen...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: nicht getragen
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				In [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Ziehen Sie eine Hose aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch eine neue Hose erstellen
 und diese anziehen.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
 			<text name="Item Action Label" right="100">
@@ -232,27 +228,27 @@ und diese anziehen.
 			</text>
 		</panel>
 		<panel label="Schuhe" name="Shoes">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: wird geladen...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: nicht getragen
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				In [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Ziehen Sie Schuhe aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch neue Schuhe erstellen
 und diese anziehen.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
 			<text name="Item Action Label" right="100">
@@ -267,27 +263,27 @@ und diese anziehen.
 			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 		<panel label="Socken" name="Socks">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: wird geladen...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: nicht getragen
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				In [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Ziehen Sie Socken aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch neue Socken erstellen
 und diese anziehen.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
 			<text name="Item Action Label" right="100">
@@ -302,27 +298,27 @@ und diese anziehen.
 			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 		<panel label="Jacke" name="Jacket">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: wird geladen...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: nicht getragen
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				In [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Ziehen Sie eine Jacke aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch eine neue Jacke erstellen
 und diese anziehen.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
 			<text name="Item Action Label" right="100">
@@ -338,27 +334,27 @@ und diese anziehen.
 			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 		<panel label="Handschuhe" name="Gloves">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: wird geladen...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: nicht getragen
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				In [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Ziehen Sie Handschuhe aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch neue Handschuhe erstellen
 und diese anziehen.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
 			<text name="Item Action Label" right="100">
@@ -373,27 +369,27 @@ und diese anziehen.
 			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 		<panel label="Unterhemd" name="Undershirt">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: wird geladen...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: nicht getragen
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				In [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Ziehen Sie ein Unterhemd aus dem Inventar auf Ihren Avatar,
 um es zu tragen. Sie können auch ein neues Unterhemd erstellen
 und dieses anziehen.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
 			<text name="Item Action Label" right="100">
@@ -408,27 +404,27 @@ und dieses anziehen.
 			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 		<panel label="Unterhose" name="Underpants">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: wird geladen...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: nicht getragen
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				In [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Ziehen Sie eine Unterhose aus dem Inventar auf Ihren Avatar,
 um sie zu tragen. Sie können auch eine neue Unterhose erstellen
 und diese anziehen.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
 			<text name="Item Action Label" right="100">
@@ -443,27 +439,27 @@ und diese anziehen.
 			<button font="SansSerifSmall" label="Zurücksetzen" label_selected="Zurücksetzen" name="Revert"/>
 		</panel>
 		<panel label="Rock" name="Skirt">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: bearbeiten nicht möglich
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: wird geladen...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: nicht getragen
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				In [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Ziehen Sie einen Rock aus dem Inventar auf Ihren Avatar,
 um ihn zu tragen. Sie können auch einen neuen Rock erstellen
 und diesen anziehen.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Sie sind nicht berechtigt, diese Kleidung zu bearbeiten.
 			</text>
 			<text name="Item Action Label" right="100">

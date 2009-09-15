@@ -974,7 +974,7 @@ Oferecer amizade para [NAME]?
 
 Oferecer amizade para [NAME]?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Quer ser meu amigo?
 			</input>
 			<button name="Offer" text="Oferecer"/>
@@ -1368,7 +1368,7 @@ Bate-papo e mensagens instantâneas serão escondidas. Mensagens instantâneas i
 	<notification name="KickUser">
 		Expulsar este usuário com qual mensagem?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Um administrador desligou você.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1378,7 +1378,7 @@ Bate-papo e mensagens instantâneas serão escondidas. Mensagens instantâneas i
 	<notification name="KickAllUsers">
 		Expulsar todo mundo atualmente do grid com qual mensagem?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Um administrador deslogou você.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1388,7 +1388,7 @@ Bate-papo e mensagens instantâneas serão escondidas. Mensagens instantâneas i
 	<notification name="FreezeUser">
 		Paralise este usuário com qual mensagem?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Você foi congelado. Você não pode se mover ou conversar. Um administrador irá contatá-lo via mensagem instantânea (MI).
 			</input>
 			<button name="OK" text="OK"/>
@@ -1398,7 +1398,7 @@ Bate-papo e mensagens instantâneas serão escondidas. Mensagens instantâneas i
 	<notification name="UnFreezeUser">
 		Liberar este usuário com qual mensagem?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Você não está mais congelado.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1408,7 +1408,7 @@ Bate-papo e mensagens instantâneas serão escondidas. Mensagens instantâneas i
 	<notification name="OfferTeleport">
 		Oferecer um teletransporte para sua localização com qual mensagem?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Junte-se a mim em [REGION]
 			</input>
 			<button name="OK" text="OK"/>
@@ -1418,7 +1418,7 @@ Bate-papo e mensagens instantâneas serão escondidas. Mensagens instantâneas i
 	<notification name="OfferTeleportFromGod">
 		God user convocou para a sua localização?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Junte-se a mim em [REGION]
 			</input>
 			<button name="OK" text="OK"/>
@@ -1432,7 +1432,7 @@ Bate-papo e mensagens instantâneas serão escondidas. Mensagens instantâneas i
 	<notification label="Mensagem para todos na sua Propriedade" name="MessageEstate">
 		Digite um breve anúncio que será enviado para todos que estejam atualmente na sua propriedade.
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
@@ -1654,7 +1654,7 @@ Publicar este classificado agora por L$ [AMOUNT]?
 	<notification label="Mensagem para todos desta Região" name="MessageRegion">
 		Digite um breve aviso que será enviado para todos nesta região.
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
@@ -1936,14 +1936,14 @@ Eles serão copiados para o seu inventário.
 Você tem certeza de que deseja prosseguir com esta compra?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Confirmar"/>
 	</notification>
-	<notification name="ConfirmPurchasePassword" type="password">
+	<notification name="ConfirmPurchasePassword">
 		Esta transação fará:
 [ACTION]
 
 Você tem certeza de que deseja prosseguir com esta compra?
 Por favor, re-insira sua senha e clique &apos;Confirmar Compra&apos;.
 		<form name="form">
-			<input name="message" type="password"/>
+			<input name="message"/>
 			<button name="ConfirmPurchase" text="Confirmar Compra"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
@@ -2305,7 +2305,7 @@ Similar ao azimute.
 	<notification name="NewSkyPreset">
 		Me dê o nome para o novo céu.
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Novo padrão
 			</input>
 			<button name="OK" text="OK"/>
@@ -2318,7 +2318,7 @@ Similar ao azimute.
 	<notification name="NewWaterPreset">
 		Dê o nome para o novo padrão de água.
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Nova Apresentação
 			</input>
 			<button name="OK" text="OK"/>

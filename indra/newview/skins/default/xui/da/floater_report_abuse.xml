@@ -40,9 +40,7 @@
 		<combo_box.item name="Select_category" label="Vælg kategori"/>
 		<combo_box.item name="Age__Age_play" label="Alder &gt; Falsk alder"/>
 		<combo_box.item name="Age__Adult_resident_on_Teen_Second_Life" label="Alder &gt; Voksen beboer på Teen Second Life"/>
-		<combo_item name="Age__Underage_resident_outside_of_Teen_Second_Life">
-			Alder &gt; Mindreårig beboer udenfor Teen Second Life
-		</combo_item>
+		<combo_box.item name="Age__Underage_resident_outside_of_Teen_Second_Life" label="Alder &gt; Mindreårig beboer udenfor Teen Second Life"/>
 		<combo_box.item name="Assault__Combat_sandbox___unsafe_area" label="Overfald &gt; Kamp sandkasse / Usikkert område"/>
 		<combo_box.item name="Assault__Safe_area" label="Overfald &gt; Sikkert område"/>
 		<combo_box.item name="Assault__Weapons_testing_sandbox" label="Overfald &gt; Sandkasse til våbentest"/>
@@ -67,12 +65,8 @@
 		<combo_box.item name="Harassment__Verbal_abuse" label="Chikane &gt; Verbalt chikane"/>
 		<combo_box.item name="Indecency__Broadly_offensive_content_or_conduct" label="Uanstændighed &gt; Meget stødende indhold eller adfærd"/>
 		<combo_box.item name="Indecency__Inappropriate_avatar_name" label="Uanstændighed &gt; Upassende avatar navn"/>
-		<combo_item name="Indecency__Mature_content_in_PG_region">
-			Usømmelighed &gt; Upassende inhold eller opførsel i en &apos;PG&apos; region
-		</combo_item>
-		<combo_item name="Indecency__Inappropriate_content_in_Mature_region">
-			Usømmelighed &gt; Upassende inhold eller opførsel i en &apos;Mature&apos; region
-		</combo_item>
+		<combo_box.item name="Indecency__Mature_content_in_PG_region" label="Usømmelighed &gt; Upassende inhold eller opførsel i en &apos;PG&apos; region"/>
+		<combo_box.item name="Indecency__Inappropriate_content_in_Mature_region" label="Usømmelighed &gt; Upassende inhold eller opførsel i en &apos;Mature&apos; region"/>
 		<combo_box.item name="Intellectual_property_infringement_Content_Removal" label="Krænkelse af intellektuelle ejendomsrettigheder &gt; Indholds fjernelse"/>
 		<combo_box.item name="Intellectual_property_infringement_CopyBot_or_Permissions_Exploit" label="Krænkelse af intellektuelle ejendomsrettigheder &gt; CopyBot eller omgåelse af rettighedsbeskyttelse"/>
 		<combo_box.item name="Intolerance" label="Intolerance"/>

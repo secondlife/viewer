@@ -37,9 +37,9 @@ Bevæg din mus over mulighederne for mere hjælp.
 		(Ejere er vist med fed skrift)
 	</text>
 	<name_list name="visible_members">
-		<column label="Medlemsnavn" name="name"/>
-		<column label="Titel" name="title"/>
-		<column label="Senest på d." name="online"/>
+		<name_list.columns label="Medlemsnavn" name="name"/>
+		<name_list.columns label="Titel" name="title"/>
+		<name_list.columns label="Senest på d." name="online"/>
 	</name_list>
 	<text name="text_group_preferences">
 		Gruppeindstillinger
@@ -50,21 +50,15 @@ Bevæg din mus over mulighederne for mere hjælp.
 		<check_box label="Tilmeldingsgebyr: L$" name="check_enrollment_fee" tool_tip="Angiver om der kræves et gebyr, for at tilmelde sig gruppen."/>
 		<spinner name="spin_enrollment_fee" tool_tip="Nye medlemmer skal betale dette gebyr for at tilmelde sig gruppen, når Tilmeldingsgebyr er valgt." width="60" left_delta="130"/>
 		<combo_box name="group_mature_check" tool_tip="Angiver om din gruppes information anses som &apos;mature&apos;." width="150">
-			<combo_item name="select_mature">
-				- Vælg indholdsrating -
-			</combo_item>
-			<combo_item name="mature">
-				Mature indhold
-			</combo_item>
-			<combo_item name="pg">
-				PG indhold
-			</combo_item>
+			<combo_box.item name="select_mature" label="- Vælg indholdsrating -"/>
+			<combo_box.item name="mature" label="Mature indhold"/>
+			<combo_box.item name="pg" label="PG indhold"/>
 		</combo_box>
 		<panel name="title_container">
 			<text name="active_title_label">
 				Min aktive titel
 			</text>
-			<combo_box length="150" name="active_title" tool_tip="Angiver den titel der vises i din avatars navnefelt, når denne gruppe er aktiv."/>
+			<combo_box name="active_title" tool_tip="Angiver den titel der vises i din avatars navnefelt, når denne gruppe er aktiv."/>
 		</panel>
 		<check_box label="Modtag gruppeinformationer" name="receive_notices" tool_tip="Angiver om du vil modtage informationer fra denne gruppe.   Fjern markeringen i boksen hvis gruppen spammer dig."/>
 		<check_box label="Vis gruppen i min profil" name="list_groups_in_profile" tool_tip="Angiver om du vil vise denne gruppe i dine profilinformationer"/>

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Propriedade" name="Estate">
+<panel name="EstateWrapper">
+  <scroll_container name="container1">
+   <panel label="Propriedade" name="Estate">
 	<text name="estate_help_text">
 		Mudanças nas definições nesta guia irão afetar
 todas as regiões desta propriedade.
@@ -66,4 +68,6 @@ todas as regiões desta propriedade.
 	<button label="?" name="ban_resident_help"/>
 	<button label="Remover..." name="remove_banned_avatar_btn"/>
 	<button label="Adicionar..." name="add_banned_avatar_btn"/>
+    </panel>
+  </scroll_container>
 </panel>

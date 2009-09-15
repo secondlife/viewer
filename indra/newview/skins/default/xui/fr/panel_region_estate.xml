@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Domaine" name="Estate">
+<panel name="EstateWrapper">
+  <scroll_container name="container1">
+   <panel label="Domaine" name="Estate">
 	<text name="estate_help_text" bottom="-34">
 		Les changements apportés aux paramètres
 de cet onglet auront des répercussions sur
@@ -75,4 +77,6 @@ toutes les régions du domaine.
 	<button label="Supprimer..." name="remove_banned_avatar_btn"/>
 	<button label="Envoyer un message au domaine..." name="message_estate_btn"/>
 	<button label="Éjecter le résident du domaine..." name="kick_user_from_estate_btn"/>
+    </panel>
+  </scroll_container>
 </panel>

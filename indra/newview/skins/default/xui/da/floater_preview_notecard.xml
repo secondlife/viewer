@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview notecard" title="Note:">
 	<button label="Gem" label_selected="Gem" name="Save"/>
-	<text length="1" name="desc txt" type="string">
+	<text name="desc txt">
 		Beskrivelse:
 	</text>
-	<text_editor length="1" name="Notecard Editor" type="string">
+	<text_editor name="Notecard Editor">
 		Indlæser...
 	</text_editor>
 	<string name="no_object">

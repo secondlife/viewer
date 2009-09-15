@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel label="Tekstury Gruntu" name="Textures">
+<panel name="TextureWrapper">
+  <scroll_container name="container1">
+   <panel label="Tekstury Gruntu" name="Textures">
 	<text name="region_text_lbl">
 		Region:
 	</text>
@@ -54,4 +56,6 @@
 		a wartość GÓRA to MINIMALNY poziom dla tekstury #4.
 	</text>
 	<button label="Zastosuj" name="apply_btn" />
+    </panel>
+  </scroll_container>
 </panel>

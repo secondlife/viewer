@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Estado" name="Estate">
+<panel name="EstateWrapper">
+  <scroll_container name="container1">
+   <panel label="Estado" name="Estate">
 	<text name="estate_help_text">
 		Los cambios en las configuraciones de esta 
 pestaña afectarán a todas las regiones del estado.
@@ -66,4 +68,6 @@ pestaña afectarán a todas las regiones del estado.
 	<button label="?" name="ban_resident_help" right="476"/>
 	<button label="Quitar..." name="remove_banned_avatar_btn"/>
 	<button label="Añadir..." name="add_banned_avatar_btn"/>
+    </panel>
+  </scroll_container>
 </panel>

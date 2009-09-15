@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel label="Estate" name="Estate">
+<panel name="EstateWrapper">
+  <scroll_container name="container1">
+   <panel label="Estate" name="Estate">
 	<text name="estate_help_text">
 		Ændringer i dette afsnit vil påvirke alle
 regioner i dette estate.
@@ -23,7 +25,7 @@ regioner i dette estate.
 	<slider label="Fase" name="sun_hour_slider" />
 	<check_box label="Tillad offentlig adgang" name="externally_visible_check" />
 	<button label="?" name="externally_visible_help" />
-	<text type="string" length="1" name="Only Allow">
+	<text name="Only Allow">
 		Begræns adgang til:
 	</text>
 	<check_box label="Beboere med betalingsoplysninger" name="limit_payment"
@@ -68,4 +70,6 @@ regioner i dette estate.
 	<button label="?" name="ban_resident_help" />
 	<button label="Fjern..." name="remove_banned_avatar_btn" />
 	<button label="Tilføj..." name="add_banned_avatar_btn" />
+    </panel>
+  </scroll_container>
 </panel>

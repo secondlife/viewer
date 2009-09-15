@@ -12,9 +12,7 @@ Puoi disattivare la ricezione delle notice nella finestra principale.
 		Archivio delle notice del gruppo
 	</text>
 	<text name="lbl2">
-		Le notice sono conservate per 14 giorni. Clicca la notice qui sotto che desideri 
-leggere. Clicca il bottone &apos;Aggiorna&apos; per controllare se sono arrivate nuove 
-notice. Il numero delle notice è limitato a 200 notice per gruppo al giorno.
+		Le notice sono conservate per 14 giorni. Il numero delle notice è limitato a 200 notice per gruppo al giorno.
 	</text>
 	<scroll_list name="notice_list">
 		<column label="Oggetto" name="subject"/>
@@ -31,10 +29,7 @@ notice. Il numero delle notice è limitato a 200 notice per gruppo al giorno.
 			Crea una notice
 		</text>
 		<text name="lbl2">
-			Devi scrivere l&apos;oggetto della notice per poterla inviare.
-Puoi aggiungere un solo allegato alla notice trascinandolo dal 
-tuo inventario in questa finestra. L&apos;allegato deve essere 
-copiabile e cedibile, e non puoi allegare una cartella.
+			Puoi aggiungere un solo allegato alla notice trascinandolo dal tuo inventario in questa finestra. L&apos;allegato deve essere copiabile e cedibile, e non puoi allegare una cartella.
 		</text>
 		<text name="lbl3" left="20">
 			Oggetto:
@@ -49,7 +44,7 @@ copiabile e cedibile, e non puoi allegare una cartella.
 		</text>
 		<line_editor name="create_inventory_name" width="190" left_delta="74"/>
 		<button label="Rimuovi allegato" label_selected="Rimuovi allegato" name="remove_attachment"/>
-		<button label="Invia la notice" label_selected="Invia la notice" name="send_notice"/>
+		<button label="Invia" label_selected="Invia" name="send_notice"/>
 		<panel name="drop_target" tool_tip="Trascina un oggetto dall&apos;inventario sulla casella del messaggio per inviarlo con la notice. Devi avere il permesso di copia e trasferimento dell&apos;oggetto per poterlo inviare con la notice."/>
 	</panel>
 	<panel label="Vedi le notice precedenti" name="panel_view_past_notice">

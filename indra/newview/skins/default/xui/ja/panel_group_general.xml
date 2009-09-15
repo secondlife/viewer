@@ -37,9 +37,9 @@
 		（オーナーは太字で表示されています）
 	</text>
 	<name_list name="visible_members">
-		<column label="メンバー名" name="name"/>
-		<column label="タイトル" name="title"/>
-		<column label="最終ログイン" name="online"/>
+		<name_list.columns label="メンバー名" name="name"/>
+		<name_list.columns label="タイトル" name="title"/>
+		<name_list.columns label="最終ログイン" name="online"/>
 	</name_list>
 	<text name="text_group_preferences">
 		グループ環境設定
@@ -50,15 +50,9 @@
 		<check_box label="入会費：L$" name="check_enrollment_fee" tool_tip="このグループへの参加に入会費を必須とするかどうかを指定します"/>
 		<spinner name="spin_enrollment_fee" tool_tip="「入会費」がチェックされている場合、新規会員は入会時にここに指定された金額を支払う必要があります"/>
 		<combo_box name="group_mature_check" tool_tip="グループ情報がMature向けかどうかの設定をします。">
-			<combo_item name="select_mature">
-				- Matureの選択 -
-			</combo_item>
-			<combo_item name="mature">
-				Matureコンテンツ
-			</combo_item>
-			<combo_item name="pg">
-				PGコンテンツ
-			</combo_item>
+			<combo_box.item name="select_mature" label="- Matureの選択 -"/>
+			<combo_box.item name="mature" label="Matureコンテンツ"/>
+			<combo_box.item name="pg" label="PGコンテンツ"/>
 		</combo_box>
 		<panel name="title_container">
 			<text name="active_title_label">

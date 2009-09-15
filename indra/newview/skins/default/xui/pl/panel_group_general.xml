@@ -35,9 +35,9 @@ ustawienia grupy oraz opcje członkostwa.
 		(Właściciele wyświetlają się pogrubioną czcionką)
 	</text>
 	<name_list name="visible_members">
-		<column label="Imię" name="name"/>
-		<column label="Tytuł" name="title"/>
-		<column label="Ostatnio w SL" name="online"/>
+		<name_list.columns label="Imię" name="name"/>
+		<name_list.columns label="Tytuł" name="title"/>
+		<name_list.columns label="Ostatnio w SL" name="online"/>
 	</name_list>
 	<text name="text_group_preferences">
 		Ustawienia Grupy
@@ -48,21 +48,15 @@ ustawienia grupy oraz opcje członkostwa.
 		<check_box label="Opłata Wstępu: L$" name="check_enrollment_fee" tool_tip="Ustaw opłatę za przyłączenie się do grupy."/>
 		<spinner name="spin_enrollment_fee" tool_tip="Nowi członkowie grupy muszą zapłacić wymaganą opłatę by dołączyć do grupy."/>
 		<combo_box name="group_mature_check" tool_tip="Wybierz jeżeli uważasz, iż Twoja grupa klasyfikowana jest jako &apos;Mature&apos;.">
-			<combo_item name="select_mature">
-				- Wybierz Treść -
-			</combo_item>
-			<combo_item name="mature">
-				Treść &apos;Mature&apos;
-			</combo_item>
-			<combo_item name="pg">
-				Treść &apos;PG&apos;
-			</combo_item>
+			<combo_box.item name="select_mature" label="- Wybierz Treść -"/>
+			<combo_box.item name="mature" label="Treść &apos;Mature&apos;"/>
+			<combo_box.item name="pg" label="Treść &apos;PG&apos;"/>
 		</combo_box>
 		<panel name="title_container">
 			<text name="active_title_label">
 				Mój Aktywny Tytuł
 			</text>
-			<combo_box length="150" name="active_title" tool_tip="Ustaw tytuł który wyświetla się kiedy grupa jest aktywna."/>
+			<combo_box name="active_title" tool_tip="Ustaw tytuł który wyświetla się kiedy grupa jest aktywna."/>
 		</panel>
 		<check_box label="Otrzymuj grupowe ogłoszenia" name="receive_notices" tool_tip="Zaznacz jeżeli chcesz otrzymywać ogłoszenia z tej grupy.   Anuluj z zaznaczenia, jeżeli nie chcesz otrzymywać żadnych ogłoszeń z tej grupy."/>
 		<check_box label="Wyświetl grupę w profilu" name="list_groups_in_profile" tool_tip="Zaznacz jeżeli chcesz by grupa wyświetlała się w Twoim profilu"/>

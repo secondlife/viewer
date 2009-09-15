@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="status">
-	<text type="string" length="1" name="ParcelNameText"
+	<text name="ParcelNameText"
 	     tool_tip="Navn på det land/parcel som du står på. Klik på teksten for yderligere info.">
 		parcel name goes here
 	</text>
-	<text type="string" length="1" name="BalanceText" tool_tip="Konto balance">
+	<text name="BalanceText" tool_tip="Konto balance">
 		Henter...
 	</text>
 	<button label="" label_selected="" name="buycurrency" tool_tip="Køb valuta" />
-	<text type="string" length="12" name="TimeText" tool_tip="Nuværende [SECOND_LIFE] tid">
+	<text name="TimeText" tool_tip="Nuværende [SECOND_LIFE] tid">
 		12:00
 	</text>
 	<string name="StatBarDaysOfWeek">
@@ -19,7 +19,7 @@
 	</string>
 	<button label="" label_selected="" name="scriptout" tool_tip="Script advarsler og fejl" />
 	<button label="" label_selected="" name="health" tool_tip="Helbred" />
-	<text type="string" length="1" name="HealthText" tool_tip="Helbred">
+	<text name="HealthText" tool_tip="Helbred">
 		100%
 	</text>
 	<button label="" label_selected="" name="no_fly" tool_tip="Flyvning ikke tilladt" />

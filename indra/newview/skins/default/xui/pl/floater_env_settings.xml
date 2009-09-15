@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="Environment Editor Floater" title="Edytor Środowiska">
-	<text type="string" length="1" name="EnvTimeText">
+	<text name="EnvTimeText">
 		Czas
 	</text>
-	<text type="string" length="1" name="EnvTimeText2">
+	<text name="EnvTimeText2">
 		12:00 PM
 	</text>
 	<slider label="" name="EnvTimeSlider" />
-	<text type="string" length="1" name="EnvCloudText">
+	<text name="EnvCloudText">
 		Chmury:
 	</text>
 	<slider label="" name="EnvCloudSlider" />
-	<text type="string" length="1" name="EnvWaterColorText">
+	<text name="EnvWaterColorText">
 		Kolor Wody
 	</text>
 	<color_swatch label="" name="EnvWaterColor" tool_tip="Kliknij by wybrać kolor" />
-	<text type="string" length="1" name="EnvWaterFogText">
+	<text name="EnvWaterFogText">
 		Zamglenie:
 	</text>
 	<slider label="" name="EnvWaterFogSlider" />

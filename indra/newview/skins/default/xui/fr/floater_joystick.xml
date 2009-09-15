@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Joystick" title="Configuration du joystick">
-	<check_box name="enable_joystick">
-		Activer :
-	</check_box>
+	<check_box name="enable_joystick" label="Activer :"/>
 	<spinner label="Mapping axe des X " name="JoystickAxis1"/>
 	<spinner label="Mapping axe des Y" name="JoystickAxis2"/>
 	<spinner label="Mapping axe des Z" name="JoystickAxis0"/>
@@ -16,15 +14,9 @@
 	<text name="Control Modes:">
 		Modes de contrôle :
 	</text>
-	<check_box name="JoystickAvatarEnabled">
-		Avatar
-	</check_box>
-	<check_box name="JoystickBuildEnabled">
-		Build
-	</check_box>
-	<check_box name="JoystickFlycamEnabled">
-		Flycam
-	</check_box>
+	<check_box name="JoystickAvatarEnabled" label="Avatar"/>
+	<check_box name="JoystickBuildEnabled" label="Build"/>
+	<check_box name="JoystickFlycamEnabled" label="Flycam"/>
 	<text name="XScale">
 		Échelle des X
 	</text>
@@ -73,12 +65,14 @@
 	<button label="Options par défaut du joystick" name="SpaceNavigatorDefaults"/>
 	<button label="OK" label_selected="OK" name="ok_btn"/>
 	<button label="Annuler" label_selected="Annuler" name="cancel_btn"/>
-	<string name="JoystickMonitor">
-		Contrôle du joystick
-	</string>
-	<string name="Axis">
-		Axe [NUM]
-	</string>
+	<stat_view label="Contrôle du joystick" name="axis_view">
+		<stat_bar label="Axe 0" name="axis0"/>
+		<stat_bar label="Axe 1" name="axis1"/>
+		<stat_bar label="Axe 2" name="axis2"/>
+		<stat_bar label="Axe 3" name="axis3"/>
+		<stat_bar label="Axe 4" name="axis4"/>
+		<stat_bar label="Axe 5" name="axis5"/>
+	</stat_view>
 	<string name="NoDevice">
 		aucun joystick détecté
 	</string>
