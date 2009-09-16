@@ -3111,6 +3111,10 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 	{
 		flags |= AU_FLAGS_HIDETITLE;
 	}
+	if (gAgent.getAutoPilot())
+	{
+		flags |= AU_FLAGS_CLIENT_AUTOPILOT;
+	}
 
 	flag_change = last_flags ^ flags;
 

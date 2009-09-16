@@ -1137,7 +1137,7 @@ Checks to see whether the border hit by dir from pos is the edge of the world (h
 	<string name="LSLTipText_llGetAgentInfo">
 integer llGetAgentInfo(key id)
 Gets information about agent ID.
-Returns AGENT_FLYING, AGENT_ATTACHMENTS, AGENT_SCRIPTED, AGENT_SITTING, AGENT_ON_OBJECT, AGENT_MOUSELOOK, AGENT_AWAY, AGENT_BUSY, AGENT_TYPING, AGENT_CROUCHING, AGENT_ALWAYS_RUN, AGENT_WALKING and/or AGENT_IN_AIR.
+Returns AGENT_FLYING, AGENT_ATTACHMENTS, AGENT_SCRIPTED, AGENT_SITTING, AGENT_ON_OBJECT, AGENT_MOUSELOOK, AGENT_AWAY, AGENT_BUSY, AGENT_TYPING, AGENT_CROUCHING, AGENT_ALWAYS_RUN, AGENT_WALKING, AGENT_IN_AIR and/or AGENT_AUTOPILOT.
 	</string>
 	<string name="LSLTipText_llAdjustSoundVolume">
 llAdjustSoundVolume(float volume)
