@@ -1,26 +1,44 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_minimize="false"
- height="600"
+ height="450"
  layout="topleft"
  name="sell land"
  single_instance="true"
  title="Sell Land"
- width="280">
+ width="313">
+    <scroll_container
+     color="DkGray2"
+     follows="left|top|right|bottom"
+     height="435"
+     min_height="300"
+     layout="topleft"
+     name="profile_scroll"
+     reserve_scroll_corner="true"
+     opaque="true"
+     top="15"
+     width="313">
+    <panel
+            name="scroll_content_panel"
+	    follows="left|top|right"
+	    layout="topleft"
+	    top="0"
+	    left="0"
+	    width="293"
+	    height="615">
     <texture_picker
      enabled="false"
      follows="top|left"
      height="135"
      layout="topleft"
-     left="50"
+     left="60"
      name="info_image"
-     right="230"
      top="20"
      width="180" />
     <text
      type="string"
      length="1"
-     top="145"
+     top="150"
      follows="top|left"
      layout="topleft"
      left="16"
@@ -31,9 +49,8 @@
     <text
      type="string"
      length="1"
-     bottom_delta="5"
+     top_delta="0"
      follows="top|left"
-     font="SansSerif"
      height="16"
      layout="topleft"
      left="56"
@@ -54,9 +71,8 @@
     <text
      type="string"
      length="1"
-     bottom_delta="21"
      follows="top|left"
-     font="SansSerif"
+     top_delta="0"
      height="32"
      layout="topleft"
      left="56"
@@ -74,7 +90,7 @@
      left="16"
      name="info_action"
      text_color="white"
-     top="190"
+     top="195"
      width="200">
         To sell this parcel:
     </text>
@@ -85,7 +101,7 @@
      layout="topleft"
      left="0"
      name="step_price"
-     top="211"
+     top="206"
      width="64" />
     <text
      type="string"
@@ -125,7 +141,7 @@
      type="string"
      length="1"
      follows="top|left"
-     height="16"
+     height="18"
      layout="topleft"
      left_delta="20"
      name="price"
@@ -169,17 +185,17 @@
      type="string"
      length="1"
      follows="top|left"
-     height="16"
+     height="25"
      layout="topleft"
      left="72"
+     word_wrap="true"
      name="sell_to_text"
      right="-20">
-        Choose whether to sell to anyone
-or a particular buyer.
+        Choose whether to sell to anyone or a particular buyer.
     </text>
     <combo_box
      follows="top|right"
-     height="16"
+     height="18"
      layout="topleft"
      left_delta="0"
      name="sell_to"
@@ -202,14 +218,14 @@ or a particular buyer.
     <line_editor
      enabled="false"
      follows="top|right"
-     height="16"
+     height="18"
      layout="topleft"
      left_delta="0"
      name="sell_to_agent"
      top_pad="4"
      width="130" />
     <button
-     height="16"
+     height="20"
      font="SansSerifSmall"
      label="Select"
      layout="topleft"
@@ -242,17 +258,16 @@ or a particular buyer.
      type="string"
      length="1"
      font="SansSerifSmall"
-     bottom_delta="20"
      follows="top|left"
-     height="16"
+     height="25"
      layout="topleft"
+     word_wrap="true"
      left="72"
      name="sell_objects_text">
-        Land owner&apos;s transferable objects
-on parcel will change ownership.
+        Land owner&apos;s transferable objects on parcel will change ownership.
     </text>
     <radio_group
-     top_pad="15"
+     top_pad="5"
      follows="top|right"
      height="40"
      layout="topleft"
@@ -282,7 +297,7 @@ on parcel will change ownership.
          name="yes" />
     </radio_group>
     <button
-     height="16"
+     height="20"
      font="SansSerifSmall"
      label="Show Objects"
      layout="topleft"
@@ -323,4 +338,6 @@ on parcel will change ownership.
      name="cancel_btn"
      top_delta="0"
      width="90" />
+    </panel>
+    </scroll_container>
 </floater>
