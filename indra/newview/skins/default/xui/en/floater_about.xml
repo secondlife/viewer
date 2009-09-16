@@ -73,6 +73,7 @@
      height="168"
      layout="topleft"
      left="6"
+     text_color="LtGray"
      max_length="65536"
      name="credits_editor"
      top="266"
