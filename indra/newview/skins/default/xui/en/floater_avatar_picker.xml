@@ -25,24 +25,23 @@
         Searching...
     </floater.string>
     <tab_container
-     follows="left|right|top|bottom"
+     follows="all"
      height="300"
      layout="topleft"
-     left="4"
+     left="0"
      name="ResidentChooserTabs"
      tab_position="top"
-     tab_width="65"
      top="20"
-     width="255">
+     width="265">
         <panel
-         border="true"
+         border="none"
          height="150"
          label="Search"
          layout="topleft"
          left="6"
          name="SearchPanel"
          top="150"
-         width="134">
+         width="132">
             <text
              type="string"
              length="1"
@@ -53,36 +52,37 @@
              name="InstructSearchResidentName"
              top="8"
              width="220">
-                Type part of the resident&apos;s name:
+                Type part of a person&apos;s name:
             </text>
-            <line_editor
-             border_style="line"
-             border_thickness="1"
+            <text_editor
+	     bevel_style="none"
+	     border_style="line"
+	     border.border_thickness="0"
+	     commit_on_focus_lost="false"
              follows="left|top|right"
-             height="16"
+             height="23"
              layout="topleft"
              left_delta="0"
              name="Edit"
-             top_pad="4"
-             width="50" />
+             top_pad="0"
+             width="65" />
             <button
              follows="top|right"
-             height="20"
-             label="Find"
-             label_selected="Find"
+             height="23"
+             label="Go"
+             label_selected="Go"
              layout="topleft"
              left_pad="5"
              name="Find"
-             top_delta="-1"
-             width="62" />
+             width="45" />
             <scroll_list
-             follows="left|top|right|bottom"
-             height="90"
+             follows="all"
+             height="98"
              layout="topleft"
-             left="10"
+             left="0"
              name="SearchResults"
              top="52"
-             width="115" />
+             width="132" />
         </panel>
         <panel
          border="true"
@@ -117,14 +117,14 @@
              width="115" />
         </panel>
         <panel
-         border="true"
-         height="240"
+         border="none"
+         height="150"
          label="Near Me"
          layout="topleft"
          left="6"
          name="NearMePanel"
-         top="60"
-         width="135">
+         top="150"
+         width="132">
             <text
              type="string"
              length="1"
@@ -135,23 +135,13 @@
              name="InstructSelectResident"
              top="8"
              width="220">
-                Select nearby resident:
+                Select a person nearby:
             </text>
-            <button
-             follows="top|right"
-             height="20"
-             label="Refresh List"
-             label_selected="Refresh List"
-             layout="topleft"
-             left_delta="25"
-             name="Refresh"
-             top_delta="-1"
-             width="90" />
             <slider
              control_name="NearMeRange"
              decimal_digits="0"
              follows="left|top"
-             height="15"
+             height="18"
              increment="1"
              initial_value="20"
              label="Range"
@@ -160,49 +150,55 @@
              max_val="130"
              min_val="5"
              name="near_me_range"
-             top="32"
-             width="175" />
+             top_pad="0"
+             width="160" />
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="15"
+             height="18"
              layout="topleft"
-             left_delta="175"
+             left_pad="0"
              name="meters"
-             top_delta="0"
-             width="40">
+             width="60">
                 Meters
             </text>
-            <scroll_list
-             follows="left|top|right|bottom"
-             height="175"
+            <button
+             follows="top|left"
              layout="topleft"
-             left="10"
+             left_pad="0"
+             height="28"
+             width="28"
+             name="Refresh"
+             picture_style="true"
+             image_overlay="Refresh_Off" />
+            <scroll_list
+             follows="all"
+             height="100"
+             border="false"
+             layout="topleft"
+             left="0"
              name="NearMe"
              sort_column="0"
-             top="57"
-             width="115" />
+             top="50"
+             width="132" />
         </panel>
     </tab_container>
     <button
-     follows="left|bottom"
-     height="20"
-     label="Select"
-     label_selected="Select"
-     layout="topleft"
-     left="10"
+     follows="right|bottom"
+     height="23"
+     label="Ok"
+     label_selected="Ok"
      name="Select"
-     top="324"
-     width="95" />
+     top_pad="3"
+     left="46"
+     width="100" />
     <button
      follows="right|bottom"
-     height="20"
+     height="23"
      label="Cancel"
      label_selected="Cancel"
-     layout="topleft"
-     right="-10" 
      name="Cancel"
-     top_delta="0"
-     width="95" />
+     width="100"
+     left_pad="5" />
 </floater>
