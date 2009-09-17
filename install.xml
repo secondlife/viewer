@@ -464,9 +464,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>688944a961e16c2a89f81b60b2ff3acf</string>
+            <string>88980fd6d91ac541b62dea877ebe6ba6</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.1.5-windows-20080822.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-windows-20090917.tar.bz2</uri>
           </map>
         </map>
       </map>
