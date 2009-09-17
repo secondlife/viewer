@@ -10,8 +10,6 @@
  top="320"
  width="280">
     <text
-     type="string"
-     length="1"
      follows="left|top"
      font="SansSerif"
      height="20"
@@ -23,8 +21,6 @@
         Region:
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      font="SansSerif"
      height="20"
@@ -104,8 +100,6 @@
      top="100"
      width="80" />
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -116,8 +110,6 @@
         Object Return
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -128,8 +120,6 @@
         Resident:
     </text>
     <line_editor
-     type="string"
-     length="1"
      border_style="line"
      border_thickness="1"
      enabled="false"
@@ -154,8 +144,6 @@
      top_delta="0"
      width="70" />
    <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
