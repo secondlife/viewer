@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <colors>
-	
+
 	<!-- Named Colors -->
-	
+
 	<color
 	 name="EmphasisColor"
 	 value="0.38 0.694 0.573 1" />
@@ -69,11 +69,11 @@
 	<color
 	 name="Transparent"
 	 value="0 0 0 0" />
-	
-	
-	
+
+
+
 	<!-- UI Definitions -->
-	
+
 	<color
      name="AgentChatColor"
      reference="LtGray" />
@@ -115,13 +115,13 @@
      reference="LtGray" />
     <color
      name="ButtonLabelDisabledColor"
-     reference="LtGray_50" />
+     reference="White_25" />
     <color
      name="ButtonLabelSelectedColor"
      reference="White" />
     <color
      name="ButtonLabelSelectedDisabledColor"
-     reference="White_50" />
+     reference="White_25" />
     <color
      name="ButtonSelectedBgColor"
      reference="Unused?" />
@@ -307,7 +307,7 @@
 	 reference="White"/>
     <color
      name="GroupNotifyDimmedTextColor"
-	 reference="DkGray"/>	 
+	 reference="DkGray"/>
     <color
      name="GroupOverTierColor"
      value="0.43 0.06 0.06 1" />
@@ -355,7 +355,7 @@
      reference="Unused?" />
     <color
      name="IconDisabledColor"
-	 reference="White_50" />
+	 reference="White_25" />
     <color
      name="IconEnabledColor"
      reference="White" />
@@ -370,13 +370,13 @@
      reference="Black" />
     <color
      name="LabelDisabledColor"
-	 reference="White_50" />
+	 reference="White_25" />
     <color
      name="LabelSelectedColor"
      reference="White" />
     <color
      name="LabelSelectedDisabledColor"
-     reference="White_50" />
+     reference="White_25" />
     <color
      name="LabelTextColor"
      reference="LtGray" />
@@ -558,7 +558,7 @@
      name="ScrollBgReadOnlyColor"
       reference="Transparent" />
     <color
-     name="ScrollBgWriteableColor" 
+     name="ScrollBgWriteableColor"
      reference="White_05" />
     <color
      name="ScrollDisabledColor"
@@ -592,7 +592,7 @@
      reference="Unused?" />
     <color
      name="SliderDisabledThumbColor"
-     reference="White_50" />
+     reference="White_25" />
     <color
      name="SliderThumbCenterColor"
      reference="White" />
@@ -670,5 +670,5 @@
     <color
      name="SysWellItemSelected"
      value="0.3 0.3 0.3 1.0" />
-  
+
 </colors>
