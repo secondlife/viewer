@@ -719,9 +719,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>95258a666a35f507b9df9d720db56717</string>
+            <string>6a6bb0143a2561e3276dab4bcfa425ef</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-windows-20090917.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jpeglib-6b-windows-20090917a.tar.bz2</uri>
           </map>
         </map>
       </map>
