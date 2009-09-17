@@ -34,3 +34,5 @@ indra/web/doc/asset-upload/plugins/verify-texture
 installed.xml
 libraries
 tarfile_tmp
+^indra/lib/python/eventlet.*
+^indra/lib/python/mulib.*
