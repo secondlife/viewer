@@ -16,7 +16,7 @@
   <gesture_combo_box.drop_down_button name="Drop Down Button"
                               label=""
                               hover_glow_amount="0.15"
-                              font="SansSerifSmall"
+                              font="SansSerif"
                               scale_image="true"
                               pad_right="24"
                               image_unselected="DropDown_Off"
