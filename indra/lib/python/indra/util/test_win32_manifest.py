@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # @file test_win32_manifest.py
 # @brief Test an assembly binding version and uniqueness in a windows dll or exe.  
 #
@@ -37,21 +38,21 @@ def get_HKLM_registry_value(key_str, value_str):
     reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
     key = _winreg.OpenKey(reg, key_str)
     value = _winreg.QueryValueEx(key, value_str)[0]
-    print 'Found: %s' % value
+    #print 'Found: %s' % value
     return value
         
 def find_vc_dir():
     supported_versions = (r'8.0', r'9.0')
     value_str = (r'ProductDir')
     
-    for version in supported_versions:       
+    for version in supported_versions:
         key_str = (r'SOFTWARE\Microsoft\VisualStudio\%s\Setup\VC' %
                    version)
         try:
-            return get_HKLM_registry_value(key_str, value_str)           
+            return get_HKLM_registry_value(key_str, value_str)
         except WindowsError, err:
             x64_key_str = (r'SOFTWARE\Wow6432Node\Microsoft\VisualStudio\%s\Setup\VS' %
-                       version)       
+                       version)
             try:
                 return get_HKLM_registry_value(x64_key_str, value_str)
             except:
@@ -65,6 +66,8 @@ def find_mt_path():
     return mt_path
     
 def test_assembly_binding(src_filename, assembly_name, assembly_ver):
+    print "checking %s dependency %s..." % (src_filename, assembly_name)
+
     (tmp_file_fd, tmp_file_name) = tempfile.mkstemp(suffix='.xml')
     tmp_file = os.fdopen(tmp_file_fd)
     tmp_file.close()
@@ -101,12 +104,15 @@ def test_assembly_binding(src_filename, assembly_name, assembly_ver):
         raise Exception("Unexpected version")
             
     os.remove(tmp_file_name)
+    
+    print "SUCCESS: %s OK!" % src_filename
+    print
   
 
 if __name__ == '__main__':
 
-    print "Running test_win32_manifest.py..."
     print
+    print "Running test_win32_manifest.py..."
     
     usage = 'test_win32_manfest <srcFileName> <assemblyName> <assemblyVersion>'
 
@@ -121,6 +127,5 @@ if __name__ == '__main__':
         raise
     
     test_assembly_binding(src_filename, assembly_name, assembly_ver)
-    
 
     
