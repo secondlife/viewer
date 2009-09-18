@@ -117,11 +117,12 @@ color="DkGray"
              layout="topleft"
              left="0"
              name="friends_accordion"
-             top="2"
+             top="0"
              width="313">
                 <accordion_tab
                  can_resize="false"
                  layout="topleft"
+                 height="230"
                  min_height="150"
                  name="tab_online"
                  title="Online">

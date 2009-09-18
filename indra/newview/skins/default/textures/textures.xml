@@ -79,7 +79,7 @@
   <texture name="DropDown_Press" file_name="widgets/DropDown_Press.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Selected" file_name="widgets/DropDown_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Off" file_name="widgets/DropDown_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
-  
+
   <texture name="DropTarget" file_name="widgets/DropTarget.png" preload="false" />
 
   <texture name="Favorite_Star_Active" file_name="navbar/Favorite_Star_Active.png" preload="false" />
@@ -114,6 +114,8 @@
   <texture name="Icon_Dock_Background" file_name="windows/Icon_Dock_Background.png" preload="true" />
   <texture name="Icon_Dock_Foreground" file_name="windows/Icon_Dock_Foreground.png" preload="true" />
   <texture name="Icon_Dock_Press" file_name="windows/Icon_Dock_Press.png" preload="true" />
+
+  <texture name="Icon_For_Sale" file_name="windows/Icon_For_sale.png" preload="false" />
 
   <texture name="Icon_Gear_Background" file_name="windows/Icon_Gear_Background.png" preload="false" />
   <texture name="Icon_Gear_Foreground" file_name="windows/Icon_Gear_Foreground.png" preload="false" />
