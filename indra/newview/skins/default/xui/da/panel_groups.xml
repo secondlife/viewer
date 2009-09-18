@@ -3,10 +3,10 @@
 	<scroll_list name="group list">
 		<column label="" name="name" />
 	</scroll_list>
-	<text type="string" length="1" name="groupdesc" width="300">
+	<text type="string" length="1" name="groupdesc">
 		Din nuværende aktive gruppe er fremhævet i listen.
 	</text>
-	<text type="string" length="1" name="groupcount" width="300">
+	<text type="string" length="1" name="groupcount">
 		Du er medlem i [COUNT] grupper (ud af maksimalt [MAX]).
 	</text>
 	<button label="IM/Opkald" name="IM" tool_tip="Åbner IM session" />

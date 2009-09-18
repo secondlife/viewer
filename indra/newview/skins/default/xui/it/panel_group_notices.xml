@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Notice" name="notices_tab">
 	<string name="help_text">
-		Le notice sono un modo veloce per comunicare in un gruppo diffondendo un messaggio e recapitando un eventuale oggetto allegato. Le notice arrivano solo ai membri del gruppo il cui ruolo è abilitato a riceverli.
-Puoi disattivare la ricezione delle notice nella finestra principale.
+		Le notice sono un modo veloce per comunicare in un 
+gruppo diffondendo un messaggio e recapitando un 
+eventuale oggetto allegato. Le notice arrivano solo ai
+membri del gruppo il cui ruolo è abilitato a riceverli.
+Puoi disattivare la ricezione delle notice
+nella finestra principale.
 	</string>
 	<string name="no_notices_text">
 		Non ci sono vecchie notice.
@@ -12,9 +16,9 @@ Puoi disattivare la ricezione delle notice nella finestra principale.
 		Archivio delle notice del gruppo
 	</text>
 	<text name="lbl2">
-		Le notice sono conservate per 14 giorni. Clicca la notice qui sotto che desideri 
-leggere. Clicca il bottone &apos;Aggiorna&apos; per controllare se sono arrivate nuove 
-notice. Il numero delle notice è limitato a 200 notice per gruppo al giorno.
+		Le notice sono conservate per 14 giorni. Clicca la notice qui sotto che desideri leggere.
+Clicca il bottone &apos;Aggiorna&apos; per controllare se sono arrivate nuove notice.
+Il numero delle notice è limitato a 200 notice per gruppo al giorno.
 	</text>
 	<scroll_list name="notice_list">
 		<column label="Oggetto" name="subject"/>
@@ -32,22 +36,19 @@ notice. Il numero delle notice è limitato a 200 notice per gruppo al giorno.
 		</text>
 		<text name="lbl2">
 			Devi scrivere l&apos;oggetto della notice per poterla inviare.
-Puoi aggiungere un solo allegato alla notice trascinandolo dal 
-tuo inventario in questa finestra. L&apos;allegato deve essere 
-copiabile e cedibile, e non puoi allegare una cartella.
+Puoi aggiungere un solo allegato alla notice trascinandolo
+dal tuo inventario in questa finestra. L&apos;allegato deve essere copiabile e cedibile,
+e non puoi allegare una cartella.
 		</text>
-		<text name="lbl3" left="20">
+		<text name="lbl3">
 			Oggetto:
 		</text>
-		<line_editor name="create_subject" width="251" left_delta="61"/>
-		<text name="lbl4" left="15" width="60">
+		<text name="lbl4">
 			Messaggio:
 		</text>
-		<text_editor name="create_message" left_delta="66" width="330"/>
-		<text name="lbl5" width="68">
+		<text name="lbl5">
 			Allega:
 		</text>
-		<line_editor name="create_inventory_name" width="190" left_delta="74"/>
 		<button label="Rimuovi allegato" label_selected="Rimuovi allegato" name="remove_attachment"/>
 		<button label="Invia la notice" label_selected="Invia la notice" name="send_notice"/>
 		<panel name="drop_target" tool_tip="Trascina un oggetto dall&apos;inventario sulla casella del messaggio per inviarlo con la notice. Devi avere il permesso di copia e trasferimento dell&apos;oggetto per poterlo inviare con la notice."/>
@@ -57,7 +58,7 @@ copiabile e cedibile, e non puoi allegare una cartella.
 			Notice archiviate
 		</text>
 		<text name="lbl2">
-			Per mandare una nuova notice, clicca &apos;Crea una nuova notice&apos; qui sopra.
+			Per mandare una nuova notice, clicca il bottone &apos;Crea una nuova notice&apos; qui sopra.
 		</text>
 		<text name="lbl3">
 			Oggetto:

@@ -11,7 +11,7 @@
 		<text name="static">
 			Medlemmer &amp; roller
 		</text>
-		<text name="static2" width="400">
+		<text name="static2">
 			Gruppemedlemmer får tildelt roller med rettigheder. Disse indstillinger kan 
 let tilpasses efter ønske, så gruppen kan vokse og blive mere fleksibel.
 		</text>
@@ -20,10 +20,10 @@ let tilpasses efter ønske, så gruppen kan vokse og blive mere fleksibel.
 		<text name="static">
 			Roller
 		</text>
-		<text name="role_properties_modifiable" width="400">
-			Vælg en rolle nedenfor. Du kan ændre dens navn, beskrivelse og medlemstitel.
+		<text name="role_properties_modifiable">
+			Vælg en rolle nedenfor.  Du kan ændre dens navn, beskrivelse og medlemstitel.
 		</text>
-		<text name="role_properties_not_modifiable" width="400">
+		<text name="role_properties_not_modifiable">
 			Vælg rolle forneden for at se dens egenskaber, medlemmer og rettigheder.
 		</text>
 		<text name="role_actions_modifiable">
@@ -51,7 +51,7 @@ der har denne rettighed.
 				<column label="Doneret leje" name="donated" />
 				<column label="Sidst på den" name="online" />
 			</name_list>
-			<button label="Invitér nyt medlem..." name="member_invite"/>
+			<button label="Inviter ny person ..." name="member_invite" />
 			<button label="Udmeld" name="member_eject" />
 			<string name="help_text">
 				Du kan tilføje eller fjerne roller, der er tildelt medlemmerne.
@@ -67,7 +67,7 @@ klik på deres navne.
 				<column label="Titel" name="title" />
 				<column label="Medlemmer" name="members" />
 			</scroll_list>
-			<button label="Opret ny rolle..." name="role_create" />
+			<button label="Opret ny rolle ..." name="role_create" />
 			<button label="Slet rolle" name="role_delete" />
 			<string name="help_text">
 				Roller har en titel og en tilladelsesliste med rettigheder,

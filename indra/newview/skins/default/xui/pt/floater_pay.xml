@@ -9,7 +9,7 @@
 	<text type="string" length="1" name="payee_label" width="110" left="5">
 		Pagar residente:
 	</text>
-	<text type="string" length="1" name="payee_name" left="115">
+	<text type="string" length="1" name="payee_name" left="110">
 		[FIRST] [LAST]
 	</text>
 	<text type="string" length="1" name="fastpay text" width="120" halign="left">

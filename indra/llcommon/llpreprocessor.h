@@ -93,19 +93,8 @@
 #endif
 
 
-// Deal with the differeneces on Windows
-#if LL_MSVC
-namespace snprintf_hack
-{
-	int snprintf(char *str, size_t size, const char *format, ...);
-}
-
-// #define snprintf safe_snprintf		/* Flawfinder: ignore */
-using snprintf_hack::snprintf;
-#endif	// LL_MSVC
-
 // Static linking with apr on windows needs to be declared.
-#ifdef LL_WINDOWS
+#if LL_WINDOWS && !LL_COMMON_LINK_SHARED
 #ifndef APR_DECLARE_STATIC
 #define APR_DECLARE_STATIC // For APR on Windows
 #endif
@@ -135,6 +124,43 @@ using snprintf_hack::snprintf;
 #pragma warning( disable : 4503 )	// 'decorated name length exceeded, name was truncated'. Does not seem to affect compilation.
 #pragma warning( disable : 4800 )	// 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
 #pragma warning( disable : 4996 )	// warning: deprecated
+
+// level 4 warnings that we need to disable:
+#pragma warning (disable : 4100) // unreferenced formal parameter
+#pragma warning (disable : 4127) // conditional expression is constant (e.g. while(1) )
+#pragma warning (disable : 4244) // possible loss of data on conversions
+#pragma warning (disable : 4396) // the inline specifier cannot be used when a friend declaration refers to a specialization of a function template
+#pragma warning (disable : 4512) // assignment operator could not be generated
+#pragma warning (disable : 4706) // assignment within conditional (even if((x = y)) )
+
+#pragma warning (disable : 4251) // member needs to have dll-interface to be used by clients of class
+#pragma warning (disable : 4275) // non dll-interface class used as base for dll-interface class
 #endif	//	LL_MSVC
+
+#if LL_WINDOWS
+#define LL_DLLEXPORT __declspec(dllexport)
+#define LL_DLLIMPORT __declspec(dllimport)
+#elif LL_LINUX
+#define LL_DLLEXPORT __attribute__ ((visibility("default")))
+#define LL_DLLIMPORT
+#else
+#define LL_DLLEXPORT
+#define LL_DLLIMPORT
+#endif // LL_WINDOWS
+
+#if LL_COMMON_LINK_SHARED
+// CMake automagically defines llcommon_EXPORTS only when building llcommon
+// sources, and only when llcommon is a shared library (i.e. when
+// LL_COMMON_LINK_SHARED). We must still test LL_COMMON_LINK_SHARED because
+// otherwise we can't distinguish between (non-llcommon source) and (llcommon
+// not shared).
+# if defined(llcommon_EXPORTS)
+#   define LL_COMMON_API LL_DLLEXPORT
+# else //llcommon_EXPORTS
+#   define LL_COMMON_API LL_DLLIMPORT
+# endif //llcommon_EXPORTS
+#else // LL_COMMON_LINK_SHARED
+# define LL_COMMON_API
+#endif // LL_COMMON_LINK_SHARED
 
 #endif	//	not LL_LINDEN_PREPROCESSOR_H

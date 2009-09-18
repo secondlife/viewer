@@ -13,7 +13,7 @@
 	<string name="loading_txt">
 		Carregando...
 	</string>
-	<text name="group_land_heading" width="250">
+	<text name="group_land_heading">
 		Terra percentente ao grupo
 	</text>
 	<scroll_list name="group_parcel_list">
@@ -22,7 +22,7 @@
 		<column label="Tipo" name="type"/>
 		<column label="Área" name="area"/>
 	</scroll_list>
-	<button label="Mostrar no Mapa" label_selected="Mostrar no Mapa" name="map_button" left="282" width="130"/>
+	<button label="Mostrar no Mapa" label_selected="Mostrar no Mapa" name="map_button"/>
 	<text name="total_contributed_land_label">
 		Contribuição Total:
 	</text>
@@ -51,8 +51,7 @@
 		m² ([AMOUNT] máxima)
 	</text>
 	<text name="group_over_limit_text">
-		Membros do grupo precisam contribuir com mais créditos de Terra para
-garantir a terra em uso.
+		Membros do grupo precisam contribuir com mais créditos de Terra para garantir a terra em uso.
 	</text>
 	<text name="group_money_heading">
 		Grupo L$
@@ -67,8 +66,8 @@ garantir a terra em uso.
 			<text_editor name="group_money_details_text">
 				Computando...
 			</text_editor>
-			<button label="&lt; Mais Cedo" label_selected="&lt; Cedo" name="earlier_details_button" tool_tip="Voltar no Tempo"/>
-			<button label="Mais Tarde &gt;" label_selected="Tarde &gt;" name="later_details_button" tool_tip="Adiantar o Tempo"/>
+			<button label="&lt; Cedo" label_selected="&lt; Cedo" name="earlier_details_button" tool_tip="Voltar no Tempo"/>
+			<button label="Tarde &gt;" label_selected="Tarde &gt;" name="later_details_button" tool_tip="Adiantar o Tempo"/>
 		</panel>
 		<panel label="Vendas" name="group_money_sales_tab">
 			<text_editor name="group_money_sales_text">

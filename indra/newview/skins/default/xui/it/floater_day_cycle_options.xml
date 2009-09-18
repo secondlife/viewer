@@ -4,31 +4,31 @@
 		<panel label="Ciclo giorno/notte" name="Day Cycle">
 			<button label="?" name="WLDayCycleHelp"/>
 			<text name="WL12am">
-				0:00
+				12
 			</text>
 			<text name="WL3am">
-				3:00
+				3
 			</text>
 			<text name="WL6am">
-				6:00
+				6
 			</text>
 			<text name="WL9amHash">
-				9:00
+				9
 			</text>
 			<text name="WL12pmHash">
-				12:00
+				24
 			</text>
 			<text name="WL3pm">
-				15:00
+				15
 			</text>
 			<text name="WL6pm">
-				18:00
+				18
 			</text>
 			<text name="WL9pm">
-				21:00
+				21
 			</text>
 			<text name="WL12am2">
-				24:00
+				12
 			</text>
 			<text name="WL12amHash">
 				|
@@ -57,9 +57,9 @@
 			<text name="WL12amHash2">
 				|
 			</text>
-			<button font="SansSerifSmall" width="96" left="546" label="Aggiungi voce" label_selected="Aggiungi voce" name="WLAddKey"/>
-			<button font="SansSerifSmall" width="96" left="546" label="Cancella voce" label_selected="Cancella voce" name="WLDeleteKey"/>
-			<text name="WLCurKeyFrameText" width="210" left="17">
+			<button label="Aggiungi voce" label_selected="Aggiungi voce" name="WLAddKey"/>
+			<button label="Cancella voce" label_selected="Cancella voce" name="WLDeleteKey"/>
+			<text name="WLCurKeyFrameText">
 				Impostazioni del fotogramma chiave:
 			</text>
 			<text name="WLCurKeyTimeText">
@@ -84,9 +84,9 @@
 			<text name="DayCycleText3">
 				Anteprima:
 			</text>
-			<button width="55" font="SansSerifSmall" label="Avvia" label_selected="Avvia" name="WLAnimSky"/>
-			<button width="55" left_delta="60" font="SansSerifSmall" label="Arresta!" label_selected="Arresta" name="WLStopAnimSky"/>
-			<button left_delta="60" width="150" font="SansSerifSmall" label="Usa l&apos;ora della proprietà" label_selected="Vai all&apos;ora della proprietà" name="WLUseLindenTime"/>
+			<button label="Avvia" label_selected="Avvia" name="WLAnimSky"/>
+			<button label="Arresta!" label_selected="Arresta" name="WLStopAnimSky"/>
+			<button label="Usa l&apos;ora della proprietà" label_selected="Vai all&apos;ora della proprietà" name="WLUseLindenTime"/>
 			<button label="Salva il test del giorno" label_selected="Salva il test del giorno" name="WLSaveDayCycle"/>
 			<button label="Carica il test del giorno" label_selected="Carica il test del giorno" name="WLLoadDayCycle"/>
 		</panel>

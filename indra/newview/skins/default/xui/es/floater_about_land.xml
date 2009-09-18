@@ -47,13 +47,13 @@
 			<text length="1" name="For sale to" type="string">
 				En venta a: [BUYER]
 			</text>
-			<text width="216" length="1" name="Sell with landowners objects in parcel." type="string">
+			<text length="1" name="Sell with landowners objects in parcel." type="string">
 				Los objetos se incluyen en la venta.
 			</text>
-			<text width="216" length="1" name="Selling with no objects in parcel." type="string">
+			<text length="1" name="Selling with no objects in parcel." type="string">
 				Los objetos no se incluyen en la venta.
 			</text>
-			<button font="SansSerifSmall" bottom="-245" left="275" width="165" label="Cancelar la venta del terreno" label_selected="Cancelar la venta del terreno" name="Cancel Land Sale"/>
+			<button font="SansSerifSmall" left="275" width="165" label="Cancelar la venta del terreno" label_selected="Cancelar la venta del terreno" name="Cancel Land Sale"/>
 			<text length="1" name="Claimed:" type="string">
 				Reclamada:
 			</text>
@@ -194,7 +194,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text length="1" name="Simulator primitive usage:" type="string">
 				Simulador de uso de prims:
 			</text>
-			<text name="objects_available"  left="204" width="250" >
+			<text name="objects_available"  left="214" width="230" >
 				[COUNT] de un máximo de [MAX] ([AVAILABLE] disponibles)
 			</text>
 			<string name="objects_available_text">
@@ -206,19 +206,19 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text length="1" name="Primitives parcel supports:" type="string" width="200">
 				Prims que admite la parcela:
 			</text>
-			<text name="object_contrib_text" left="204" width="152">
+			<text name="object_contrib_text" left="214" width="152">
 				[COUNT]
 			</text>
 			<text length="1" name="Primitives on parcel:" type="string">
 				Prims en la parcela:
 			</text>
-			<text name="total_objects_text" left="204"  width="48">
+			<text name="total_objects_text" left="214"  width="48">
 				[COUNT]
 			</text>
 			<text length="1" name="Owned by parcel owner:" type="string" left="14" width="180" >
 				Del propietario de la parcela:
 			</text>
-			<text name="owner_objects_text" left="204"  width="48">
+			<text name="owner_objects_text" left="214"  width="48">
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOwner" right="-135" width="60"/>
@@ -226,7 +226,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text length="1" name="Set to group:" type="string" left="14"  width="180">
 				Del grupo:
 			</text>
-			<text name="group_objects_text" left="204"  width="48">
+			<text name="group_objects_text" left="214"  width="48">
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowGroup" right="-135" width="60"/>
@@ -234,7 +234,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text length="1" name="Owned by others:" type="string" left="14" width="128">
 				Propiedad de otros:
 			</text>
-			<text name="other_objects_text" left="204"  width="48">
+			<text name="other_objects_text" left="214"  width="48">
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOther" right="-135" width="60"/>
@@ -242,7 +242,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text length="1" name="Selected / sat upon:" type="string" left="14" width="193" >
 				Seleccionados / con gente sentada:
 			</text>
-			<text name="selected_objects_text" left="204"  width="48">
+			<text name="selected_objects_text" left="214"  width="48">
 				[COUNT]
 			</text>
 			<text name="Autoreturn" left="4" width="412" >
@@ -299,7 +299,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			<string name="search_disabled_permissions_tooltip">
 				Esta opción no esta activada porque usted no puede modificar las opciones de la parcela.
 			</string>
-			<combo_box name="land category with adult" left="282" width="140">
+			<combo_box name="land category with adult">
 				<combo_item name="AnyCategory">
 					Cualquier categoría
 				</combo_item>
@@ -340,45 +340,21 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 					Otra
 				</combo_item>
 			</combo_box>
-			<combo_box name="land category" left="282" width="140">
-				<combo_item name="AnyCategory">
-					Cualquier categoría
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Localización Linden
-				</combo_item>
-				<combo_item name="Arts&amp;Culture">
-					Arte y Cultura
-				</combo_item>
-				<combo_item name="Business">
-					Negocios
-				</combo_item>
-				<combo_item name="Educational">
-					Educativo
-				</combo_item>
-				<combo_item name="Gaming">
-					Juegos de azar
-				</combo_item>
-				<combo_item name="Hangout">
-					Entretenimiento
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					Para recién llegados
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					Parques y Naturaleza
-				</combo_item>
-				<combo_item name="Residential">
-					Residencial
-				</combo_item>
-				<combo_item name="Shopping">
-					Compras
-				</combo_item>
-				<combo_item name="Other">
-					Otra
-				</combo_item>
+			<combo_box name="land category">
+				<combo_box.item name="AnyCategory" label="Cualquier categoría"/>
+				<combo_box.item name="LindenLocation" label="Localización Linden"/>
+				<combo_box.item name="Arts&amp;Culture" label="Arte y Cultura"/>
+				<combo_box.item name="Business" label="Negocios"/>
+				<combo_box.item name="Educational" label="Educativo"/>
+				<combo_box.item name="Gaming" label="Juegos de azar"/>
+				<combo_box.item name="Hangout" label="Entretenimiento"/>
+				<combo_box.item name="NewcomerFriendly" label="Para recién llegados"/>
+				<combo_box.item name="Parks&amp;Nature" label="Parques y Naturaleza"/>
+				<combo_box.item name="Residential" label="Residencial"/>
+				<combo_box.item name="Shopping" label="Compras"/>
+				<combo_box.item name="Other" label="Otra"/>
 			</combo_box>
-			<button label="?" label_selected="?" name="?" left="427"/>
+			<button label="?" label_selected="?" name="?"/>
 			<check_box label="Contenido &apos;Mature&apos;" name="MatureCheck" tool_tip=""/>
 			<string name="mature_check_mature">
 				Contenido &apos;Mature&apos;
@@ -408,15 +384,9 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				Punto de teleporte:
 			</text>
 			<combo_box name="landing type" tool_tip="Punto de teleporte: defina cómo manejar en su terreno los teleportes.">
-				<combo_item length="1" name="Blocked" type="string">
-					Bloqueado
-				</combo_item>
-				<combo_item length="1" name="LandingPoint" type="string">
-					Punto de llegada
-				</combo_item>
-				<combo_item length="1" name="Anywhere" type="string">
-					Cualquiera
-				</combo_item>
+				<combo_box.item length="1" name="Blocked" type="string" label="Bloqueado"/>
+				<combo_box.item length="1" name="LandingPoint" type="string" label="Punto de llegada"/>
+				<combo_box.item length="1" name="Anywhere" type="string" label="Cualquiera"/>
 			</combo_box>
 			<string name="push_restrict_text">
 				Sin &apos;empujones&apos;
@@ -497,12 +467,8 @@ música:
 			<check_box label="Acceso permitido al grupo: [GROUP]" name="GroupCheck" tool_tip="Elija el grupo en la pestaña General."/>
 			<check_box label="Vender pases a:" name="PassCheck" tool_tip="Permitir acceso temporal a esta parcela"/>
 			<combo_box name="pass_combo">
-				<combo_item name="Anyone">
-					Cualquiera
-				</combo_item>
-				<combo_item name="Group">
-					Grupo
-				</combo_item>
+				<combo_box.item name="Anyone" label="Cualquiera"/>
+				<combo_box.item name="Group" label="Grupo"/>
 			</combo_box>
 			<spinner label="Precio en L$:" name="PriceSpin"/>
 			<spinner label="Horas de acceso:" name="HoursSpin"/>

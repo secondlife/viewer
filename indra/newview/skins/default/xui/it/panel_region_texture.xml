@@ -6,7 +6,7 @@
 	<text name="region_text">
 		sconosciuto
 	</text>
-	<text name="detail_texture_text" width="380">
+	<text name="detail_texture_text">
 		Texture del terreno (è necessario siano 512x512, 24 bit .tga files)
 	</text>
 	<text name="height_text_lbl">
@@ -48,10 +48,10 @@
 		Questi valori rappresentano l&apos;intervallo di miscelazione delle texture qui sopra.
 	</text>
 	<text name="height_text_lbl11">
-		Misurato in metri, il valore più BASSO corrisponde all&apos;altezza MASSIMA della
+		Misurato in metri, il valore più BASSO corrisponde all&apos;altezza MASSIMA della Texture #1,
 	</text>
 	<text name="height_text_lbl12">
-		  Texture #1, e il valore più ALTO all&apos;altezza MINIMA della Texture #4.
+		e il valore più ALTO all&apos;altezza MINIMA della Texture #4.
 	</text>
 	<button label="Applica" name="apply_btn"/>
 </panel>

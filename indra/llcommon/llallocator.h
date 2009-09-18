@@ -38,7 +38,7 @@
 #include "llmemtype.h"
 #include "llallocator_heap_profile.h"
 
-class LLAllocator {
+class LL_COMMON_API LLAllocator {
     friend class LLMemoryView;
     friend class LLMemType;
 

@@ -38,7 +38,7 @@
 
 #include "llframetimer.h"
 
-class LLCriticalDamp 
+class LL_COMMON_API LLCriticalDamp 
 {
 public:
 	LLCriticalDamp();

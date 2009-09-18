@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Invitér et medlem" name="invite_panel">
 	<text name="help_text">
-		Du kan invitere flere beboere ad 
-gangen til at blive medlem af din 
-gruppe. Klik &apos;Åben personvælger&apos; for 
-at begynde.
+		Du kan invitere flere beboere til at 
+blive medlem af din gruppe. Klik &apos;Åben  
+personvælger&apos; for at begynde.
 	</text>
-	<button label="Åben personvælger" name="add_button" bottom_delta="-30"/>
+	<button label="Åben personvælger" name="add_button" />
 	<name_list name="invitee_list"
 	     tool_tip="Hold Ctrl-tasten nede og klik på beboere for at vælge flere." />
 	<button label="Fjern valgte fra listen" name="remove_button"

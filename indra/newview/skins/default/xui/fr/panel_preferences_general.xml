@@ -10,15 +10,9 @@
 	</radio_group>
 	<check_box label="Afficher le lieu de départ sur l&apos;écran de connexion" name="show_location_checkbox"/>
 	<combo_box name="fade_out_combobox" width="166">
-		<combo_item name="Never">
-			Jamais
-		</combo_item>
-		<combo_item name="Show Temporarily">
-			Afficher temporairement
-		</combo_item>
-		<combo_item name="Always">
-			Toujours
-		</combo_item>
+		<combo_box.item name="Never" label="Jamais"/>
+		<combo_box.item name="Show Temporarily" label="Afficher temporairement"/>
+		<combo_box.item name="Always" label="Toujours"/>
 	</combo_box>
 	<check_box label="Nom des avatars en petit" name="small_avatar_names_checkbox"/>
 	<check_box label="Masquer mon nom sur mon écran" name="show_my_name_checkbox"/>
@@ -81,68 +75,34 @@ de sélection :
 		&lt;Saisissez le nom de la région&gt;
 	</string>
 	<combo_box name="crash_behavior_combobox" width="166">
-		<combo_item length="1" name="Askbeforesending" type="string">
-			Demander avant d&apos;envoyer
-		</combo_item>
-		<combo_item length="1" name="Alwayssend" type="string">
-			Toujours envoyer
-		</combo_item>
-		<combo_item length="1" name="Neversend" type="string">
-			Ne jamais envoyer
-		</combo_item>
+		<combo_box.item length="1" name="Askbeforesending" type="string" label="Demander avant d&apos;envoyer"/>
+		<combo_box.item length="1" name="Alwayssend" type="string" label="Toujours envoyer"/>
+		<combo_box.item length="1" name="Neversend" type="string" label="Ne jamais envoyer"/>
 	</combo_box>
 	<combo_box name="language_combobox" width="166">
-		<combo_item name="System Default Language">
-			Choix par défaut
-		</combo_item>
-		<combo_item length="1" name="English" type="string">
-			English (Anglais)
-		</combo_item>
-		<combo_item length="1" name="Danish" type="string">
-			Dansk (Danois) - Bêta
-		</combo_item>
-		<combo_item length="1" name="Deutsch(German)" type="string">
-			Deutsch (Allemand) - Bêta
-		</combo_item>
-		<combo_item name="Spanish">
-			Español (Espagnol) - Bêta
-		</combo_item>
-		<combo_item name="French">
-			Français - Bêta
-		</combo_item>
+		<combo_box.item name="System Default Language" label="Choix par défaut"/>
+		<combo_box.item length="1" name="English" type="string" label="English (Anglais)"/>
+		<combo_box.item length="1" name="Danish" type="string" label="Dansk (Danois) - Bêta"/>
+		<combo_box.item length="1" name="Deutsch(German)" type="string" label="Deutsch (Allemand) - Bêta"/>
+		<combo_box.item name="Spanish" label="Español (Espagnol) - Bêta"/>
+		<combo_box.item name="French" label="Français - Bêta"/>
+		<combo_box.item name="Hungarian" label="Magyar (Hongrois) - Bêta"/>
+		<combo_box.item name="Polish" label="Polski (Polonais) - Bêta"/>
+		<combo_box.item name="Portugese" label="Portugués (Portugais) - Bêta"/>
+		<combo_box.item name="Russian" label="Русский (Russe) - Bêta"/>
+		<combo_box.item name="Ukrainian" label="Українська (Ukrainien) - Bêta"/>
+		<combo_box.item length="1" name="Chinese" type="string" label="中文 (简体) (Chinois) - Bêta"/>
+		<combo_box.item length="1" name="(Japanese)" type="string" label="日本語 (Japonais) - Bêta"/>
+		<combo_box.item length="1" name="(Korean)" type="string" label="한국어 (Coréen) - Bêta"/>
 		<combo_item name="Italian">
 			Italiano (Italien) - Bêta
-		</combo_item>
-		<combo_item name="Hungarian">
-			Magyar (Hongrois) - Bêta
 		</combo_item>
 		<combo_item name="Dutch">
 			Nederlands (Néerlandais) - Bêta
 		</combo_item>
-		<combo_item name="Polish">
-			Polski (Polonais) - Bêta
-		</combo_item>
-		<combo_item name="Portugese">
-			Portugués (Portugais) - Bêta
-		</combo_item>
-		<combo_item name="Russian">
-			Русский (Russe) - Bêta
 		</combo_item>
 		<combo_item name="Turkish">
 			Türkçe (Turc) - Bêta
-		</combo_item>
-		<combo_item name="Ukrainian">
-			Українська (Ukrainien) - Bêta
-		</combo_item>
-		<combo_item length="1" name="Chinese" type="string">
-			中文 (简体) (Chinois) - Bêta
-		</combo_item>
-		<combo_item length="1" name="(Japanese)" type="string">
-			日本語 (Japonais) - Bêta
-		</combo_item>
-		<combo_item length="1" name="(Korean)" type="string">
-			한국어 (Coréen) - Bêta
-		</combo_item>
 	</combo_box>
 	<check_box label="Partager la langue avec les objets" name="language_is_public" tool_tip="Cette option permet de faire connaître aux objets du Monde votre langue favorite."/>
 </panel>

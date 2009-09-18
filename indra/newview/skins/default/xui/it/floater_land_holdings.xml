@@ -7,7 +7,7 @@
 		<column label="Area" name="area"/>
 	</scroll_list>
 	<button label="Teletrasportati" label_selected="Teletrasportati" name="Teleport" tool_tip="Teletrasportati al centro di questo terreno."/>
-	<button width="130" label="Mostra sulla mappa" label_selected="Mostra sulla mappa" name="Show on Map" tool_tip="Mostra questo terreno sulla mappa."/>
+	<button label="Mostra sulla mappa" label_selected="Mostra sulla mappa" name="Show on Map" tool_tip="Mostra questo terreno sulla mappa."/>
 	<text name="contrib_label">
 		Contributi ai tuoi gruppi:
 	</text>
@@ -19,21 +19,21 @@
 		Proprietà di terreni consentite per l&apos;attuale piano di pagamento:
 	</text>
 	<text name="allowed_text">
-		[AREA] m²
+		[AREA] metri quadrati
 	</text>
 	<text name="current_label">
 		Attuale proprietà di terreni:
 	</text>
 	<text name="current_text">
-		[AREA] m²
+		[AREA] metri quadrati
 	</text>
 	<text name="available_label">
 		Quantità disponibile per ulteriori acquisti di terreno:
 	</text>
 	<text name="available_text">
-		[AREA] m²
+		[AREA] metri quadrati
 	</text>
 	<string name="area_string">
-		[AREA] m²
+		[AREA] metri quadrati
 	</string>
 </floater>

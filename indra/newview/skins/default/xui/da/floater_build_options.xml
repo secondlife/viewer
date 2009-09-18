@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="build options floater" title="Gitter indstillinger">
-	<spinner label="Gitter enhed (meter)" name="GridResolution" width="200" label_width="136"/>
-	<spinner label="Gitter rækkevidde (meter)" name="GridDrawSize" width="200" label_width="136"/>
+	<spinner label="Gitter enhed (meter)" name="GridResolution" />
+	<spinner label="Gitter rækkevidde (meter)" name="GridDrawSize" />
 	<check_box label="Aktiver låsning til under-enheder" name="GridSubUnit" />
 	<check_box label="Vis &apos;cross sections&apos;" name="GridCrossSection" />
 	<slider label="Gitter synlighed" name="GridOpacity" />

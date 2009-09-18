@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="groups">
-	<scroll_list bottom="50" name="group list"/>
-	<text bottom="16" height="32" name="groupdesc" width="268">
-		El grupo que tiene activado actualmente se
-muestra en negrilla.
+	<text name="groupdesc">
+		El grupo que tiene activado actualmente se muestra en negrilla
 	</text>
-	<text bottom="3" name="groupcount" width="268">
+	<text name="groupcount">
 		Pertenece a [COUNT] grupo/s (de un máximo de [MAX]).
 	</text>
 	<button label="MI/Llamar" name="IM" tool_tip="Abrir una sesión de mensajes instantáneos"/>

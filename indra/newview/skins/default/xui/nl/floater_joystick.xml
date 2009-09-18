@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Joystick" title="Joystick configuratie">
-	<check_box name="enable_joystick" width="80">
-		Joystick inschakelen:
+	<check_box name="enable_joystick">
+		Joystick inschakelen
 	</check_box>
-	<text left="146" name="joystick_type" width="360"/>
 	<spinner label="X-as mapping" name="JoystickAxis1"/>
 	<spinner label="Y-as mapping" name="JoystickAxis2"/>
 	<spinner label="Z-as mapping" name="JoystickAxis0"/>
@@ -53,7 +52,7 @@
 	<text name="ZDeadZone">
 		Z dode zone
 	</text>
-	<text name="PitchDeadZone" left="4" width="110">
+	<text name="PitchDeadZone">
 		Stampen dode zone
 	</text>
 	<text name="YawDeadZone">
@@ -71,9 +70,9 @@
 	<text name="ZoomDeadZone">
 		Zoom dode zone
 	</text>
-	<button label="SpaceNavigator standaardwaarden" name="SpaceNavigatorDefaults" width="200" font="SansSerifSmall"/>
+	<button label="SpaceNavigator standaardwaarden" name="SpaceNavigatorDefaults"/>
 	<button label="OK" label_selected="OK" name="ok_btn"/>
-	<button label="Annuleren" label_selected="Annuleren" name="cancel_btn" left_delta="110"/>
+	<button label="Annuleren" label_selected="Annuleren" name="cancel_btn"/>
 	<string name="JoystickMonitor">
 		Joystick monitor
 	</string>

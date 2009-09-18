@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Estado" name="Estate">
 	<text name="estate_help_text">
-		Los cambios en las configuraciones de esta 
-pestaña afectarán a todas las regiones del estado.
+		Los cambios en las configuraciones de esta pestaña afectarán a todas
+las regiones de este estado.
 	</text>
 	<text name="estate_text">
 		Estado:
@@ -24,16 +24,16 @@ pestaña afectarán a todas las regiones del estado.
 	<check_box label="Permitir el acceso público" name="externally_visible_check"/>
 	<button label="?" name="externally_visible_help"/>
 	<text name="Only Allow">
-		Impedir el acceso a Residentes...
+		Impedir el acceso a:
 	</text>
-	<check_box label="sin información de pago archivada" name="limit_payment" tool_tip="Impedir el acceso a los residentes no identificados."/>
-	<check_box label="que no han verificado si son adultos" name="limit_age_verified" tool_tip="Impedir el acceso a residentes que no hayan verificado su edad. Para más información, vea  support.secondlife.com"/>
+	<check_box label="Residentes sin información de pago archivada" name="limit_payment" tool_tip="Impedir el acceso a los residentes no identificados."/>
+	<check_box label="Residentes de los que no se ha verificado si son adultos" name="limit_age_verified" tool_tip="Impedir el acceso a residentes que no hayan verificado su edad. Para más información, vea  support.secondlife.com"/>
 	<check_box label="Permitir el chat de voz" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<check_box label="Permitir el teleporte a cualquier punto" name="allow_direct_teleport"/>
 	<button label="?" name="allow_direct_teleport_help"/>
-	<text name="abuse_email_text" width="260">
-		Dirección de correo-e para infracciones:
+	<text name="abuse_email_text">
+		Dirección de correo electrónico para infracciones:
 	</text>
 	<string name="email_unsupported">
 		Característica no disponible
@@ -63,7 +63,7 @@ pestaña afectarán a todas las regiones del estado.
 	<text name="ban_resident_label">
 		Residentes con el acceso prohibido:
 	</text>
-	<button label="?" name="ban_resident_help" right="476"/>
+	<button label="?" name="ban_resident_help"/>
 	<button label="Quitar..." name="remove_banned_avatar_btn"/>
 	<button label="Añadir..." name="add_banned_avatar_btn"/>
 </panel>

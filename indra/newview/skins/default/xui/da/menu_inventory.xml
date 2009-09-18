@@ -55,7 +55,6 @@
 	<menu_item_call label="Aktivér" name="Activate" />
 	<menu_item_call label="Deaktivér" name="Deactivate" />
 	<menu_item_call label="Tag af dig selv" name="Detach From Yourself" />
-	<menu_item_call label="Tilbage til sidste position" name="Restore to Last Position"/>
 	<menu_item_call label="Tag på" name="Object Wear" />
 	<menu label="Vedhæft" name="Attach To" />
 	<menu label="Vedhæft til HUD" name="Attach To HUD" />

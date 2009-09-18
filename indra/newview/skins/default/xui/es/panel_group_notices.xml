@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Avisos" name="notices_tab">
 	<text name="help_text">
-		Los avisos son una forma rápida de comunicación dentro de un grupo, difundiendo un mensaje y, si se quiere, añadiéndole un ítem. Los avisos sólo los reciben los miembros del grupo cuyo rol tiene adjudicada tal habilidad. Puede desactivar los avisos en la pestaña General.
+		Los avisos son una forma rápida de comunicación dentro
+de un grupo, difundiendo un mensaje y,
+si se quiere, añadiéndole un ítem. Los avisos sólo
+los reciben los miembros del grupo cuyo rol
+tiene adjudicada tal habilidad. Puede desactivar
+los avisos en la pestaña General
 	</text>
 	<text name="no_notices_text">
 		No hay avisos pasados.
@@ -11,9 +16,9 @@
 		Archivo de avisos del grupo
 	</text>
 	<text name="lbl2">
-		Los avisos se mantienen durante 14 días. Pulse en la lista de abajo el que 
-quiere ver. Pulse el botón &apos;Actualizar&apos; para comprobar si se han recibido avisos 
-nuevos. Las listas de avisos tienen un límite de 200 avisos por día.
+		Los avisos se mantienen durante 14 días. Pulse en la lista de abajo el que quiere ver.
+Pulse el botón &apos;Actualizar&apos; para comprobar si se han recibido avisos nuevos.
+Las listas de avisos tienen un límite de 200 avisos por día.
 	</text>
 	<scroll_list name="notice_list">
 		<column label="Asunto" name="subject"/>
@@ -30,8 +35,8 @@ nuevos. Las listas de avisos tienen un límite de 200 avisos por día.
 			Crear un aviso
 		</text>
 		<text name="lbl2">
-			Para enviar un aviso, debe escribir un asunto. Puede añadir un
-ítem al aviso arrastrándolo desde su inventario a este panel. 
+			Para enviar un aviso, debe escribir un asunto. Puede añadir un ítem
+al aviso arrastrándolo desde su inventario a este panel. 
 Los ítems anexados deben ser copiables y transferibles,
 y no se puede enviar una carpeta.
 		</text>

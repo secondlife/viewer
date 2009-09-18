@@ -22,17 +22,15 @@
 		Ultima modifica Merc 31 Dic 1969 16:00:00
 	</text>
 	<button label="?" name="covenant_help"/>
-	<text_editor name="covenant_editor"  bottom="-247" height="162" >
+	<text_editor name="covenant_editor">
 		Per questa proprietà non è stato emesso alcun regolamento.
 	</text_editor>
 	<button label="Ripristina" name="reset_covenant"/>
-	<text  bottom="-25" name="covenant_help_text">
-		Le modifiche nel regolamento saranno visibili su tutti i terreni
-      della proprietà.
+	<text name="covenant_help_text">
+		Le modifiche nel regolamento saranno visibili su tutti i terreni della proprietà.
 	</text>
-	<text  bottom_delta="-36" name="covenant_instructions">
-		Trascina e rilascia una notecard per cambiare il regolamento di
-      questa proprietà.
+	<text name="covenant_instructions">
+		Trascina e rilascia una notecard per cambiare il regolamento di questa proprietà.
 	</text>
 	<text name="region_section_lbl">
 		Regione:
@@ -40,31 +38,31 @@
 	<text name="region_name_lbl">
 		Nome:
 	</text>
-	<text name="region_name_text" left="126">
+	<text name="region_name_text">
 		leyla
 	</text>
 	<text name="region_landtype_lbl">
 		Tipo:
 	</text>
-	<text name="region_landtype_text" left="126">
+	<text name="region_landtype_text">
 		Mainland / Homestead
 	</text>
-	<text name="region_maturity_lbl" width="115">
+	<text name="region_maturity_lbl">
 		Categoria di accesso:
 	</text>
-	<text name="region_maturity_text" left="126">
+	<text name="region_maturity_text">
 		Adult
 	</text>
 	<text name="resellable_lbl">
 		Rivendita:
 	</text>
-	<text name="resellable_clause" left="126">
+	<text name="resellable_clause">
 		La terra in questa regione non può essere rivenduta.
 	</text>
 	<text name="changeable_lbl">
 		Suddividi:
 	</text>
-	<text name="changeable_clause" left="126">
+	<text name="changeable_clause">
 		La terra in questa regione non può essere unita/suddivisa.
 	</text>
 	<string name="can_resell">
@@ -74,11 +72,9 @@
 		Un terreno acquistato in questa regione non può essere rivenduto.
 	</string>
 	<string name="can_change">
-		Un terreno acquistato in questa regione può essere unito o
-suddiviso.
+		Un terreno acquistato in questa regione può essere unito o suddiviso.
 	</string>
 	<string name="can_not_change">
-		Un terreno acquistato in questa regione non può essere unito o
-suddiviso.
+		Un terreno acquistato in questa regione non può essere unito o suddiviso.
 	</string>
 </panel>

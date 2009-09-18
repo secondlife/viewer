@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="telehub" title="Telehub" width="292">
+<floater name="telehub" title="Telehub">
 	<text name="status_text_connected">
 		Telehub verbonden met object [OBJECT]
 	</text>
@@ -13,21 +13,13 @@
 		Selecteer objecten klik Verbind telehub
 	</text>
 	<button label="Verbind telehub" name="connect_btn"/>
-	<button label="Verbinding verbreken" name="disconnect_btn" width="128"/>
+	<button label="Verbinding verbreken" name="disconnect_btn"/>
 	<text name="spawn_points_text">
 		Spawnpunten (posities, niet objecten):
 	</text>
-	<scroll_list bottom_delta="-44" draw_border="true" follows="left|top" font="SansSerifSmall"
-	     height="40" left="10" multi_select="false" name="spawn_points_list"
-	     width="230" />
-
 	<button label="Spawn toevoegen" name="add_spawn_point_btn"/>
 	<button label="Verwijder Spawn" name="remove_spawn_point_btn"/>
-	<text name="spawn_point_help" width="290">
-		Selecteer object en klik Toevoegen om positie 
-te specificeren. U kunt het object daarna verplaatsen 
-of verwijderen. Posities zijn relatief ten opzichte 
-van het middelpunt van de telehub. Selecteer een 
-item in de lijst om de positie in de wereld te tonen.
+	<text name="spawn_point_help">
+		Selecteer object en klik Toevoegen om positie te specificeren. U kunt het object daarna verplaatsen of verwijderen. Posities zijn relatief ten opzichte van het middelpunt van de telehub. Selecteer een item in de lijst om de positie in de wereld te tonen.
 	</text>
 </floater>

@@ -147,31 +147,31 @@
 			<text name="region_name_lbl">
 				Naam:
 			</text>
-			<text name="region_name_text" left="114">
+			<text name="region_name_text">
 				leyla
 			</text>
 			<text name="region_landtype_lbl">
 				Type:
 			</text>
-			<text name="region_landtype_text" left="114">
+			<text name="region_landtype_text">
 				Mainland / Homestead
 			</text>
 			<text name="region_maturity_lbl">
 				Inhoudscategorie:
 			</text>
-			<text name="region_maturity_text" left="114">
+			<text name="region_maturity_text">
 				Adult
 			</text>
 			<text name="resellable_lbl">
 				Doorverkopen:
 			</text>
-			<text name="resellable_clause" left="114">
+			<text name="resellable_clause">
 				Land in deze regio mag niet worden doorverkocht.
 			</text>
 			<text name="changeable_lbl">
 				Opsplitsen:
 			</text>
-			<text name="changeable_clause" left="114" width="340">
+			<text name="changeable_clause">
 				Land in deze regio mag niet worden samengevoegd/opgesplitst.
 			</text>
 			<string name="can_resell">
@@ -343,42 +343,18 @@ of opgedeeld.
 				</combo_item>
 			</combo_box>
 			<combo_box name="land category">
-				<combo_item name="AnyCategory">
-					Alle categorieën
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Linden Locatie
-				</combo_item>
-				<combo_item name="Arts&amp;Culture">
-					Kunst &amp; Cultuur
-				</combo_item>
-				<combo_item name="Business">
-					Zakelijk
-				</combo_item>
-				<combo_item name="Educational">
-					Educatief
-				</combo_item>
-				<combo_item name="Gaming">
-					Spelen
-				</combo_item>
-				<combo_item name="Hangout">
-					Ontmoetingsplaats
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					Nieuwkomervriendelijk
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					Parken &amp; Natuur
-				</combo_item>
-				<combo_item name="Residential">
-					Woongebied
-				</combo_item>
-				<combo_item name="Shopping">
-					Winkelen
-				</combo_item>
-				<combo_item name="Other">
-					Anders
-				</combo_item>
+				<combo_box.item name="AnyCategory" label="Alle categorieën"/>
+				<combo_box.item name="LindenLocation" label="Linden Locatie"/>
+				<combo_box.item name="Arts&amp;Culture" label="Kunst &amp; Cultuur"/>
+				<combo_box.item name="Business" label="Zakelijk"/>
+				<combo_box.item name="Educational" label="Educatief"/>
+				<combo_box.item name="Gaming" label="Spelen"/>
+				<combo_box.item name="Hangout" label="Ontmoetingsplaats"/>
+				<combo_box.item name="NewcomerFriendly" label="Nieuwkomervriendelijk"/>
+				<combo_box.item name="Parks&amp;Nature" label="Parken &amp; Natuur"/>
+				<combo_box.item name="Residential" label="Woongebied"/>
+				<combo_box.item name="Shopping" label="Winkelen"/>
+				<combo_box.item name="Other" label="Anders"/>
 			</combo_box>
 			<button label="?" label_selected="?" name="?"/>
 			<check_box label="Mature inhoud" name="MatureCheck" tool_tip=" "/>
@@ -405,20 +381,14 @@ of opgedeeld.
 				(none)
 			</string>
 			<button width="70" label="Instellen" label_selected="Instellen" name="Set" tool_tip="Stelt het landingspunt in waar bezoekers arriveren. Wordt ingesteld op uw avatar&apos;s positie binnen dit perceel."/>
-			<button width="80" left="311" label="Opschonen" label_selected="Opschonen" name="Clear" tool_tip="Landingspunt leegmaken"/>
+			<button width="70" left="311" label="Opschonen" label_selected="Opschonen" name="Clear" tool_tip="Landingspunt leegmaken"/>
 			<text name="Teleport Routing: ">
 				Teleport routering:
 			</text>
 			<combo_box name="landing type" tool_tip="Teleport routering -- selecteer hoe teleports naar uw land moeten worden afgehandeld.">
-				<combo_item name="Blocked">
-					Geblokkeerd
-				</combo_item>
-				<combo_item name="LandingPoint">
-					Landingsplaats
-				</combo_item>
-				<combo_item name="Anywhere">
-					Overal
-				</combo_item>
+				<combo_box.item name="Blocked" label="Geblokkeerd"/>
+				<combo_box.item name="LandingPoint" label="Landingsplaats"/>
+				<combo_box.item name="Anywhere" label="Overal"/>
 			</combo_box>
 			<string name="push_restrict_text">
 				Niet duwen
@@ -496,12 +466,8 @@ hebt geklikt.)
 			<check_box label="Groepstoegang toestaan: [GROUP]" name="GroupCheck" tool_tip="Stel de groep in op het tabblad Algemeen"/>
 			<check_box label="Verkoop toegangspassen aan:" name="PassCheck" tool_tip="Tijdelijke toegang tot dit perceel toestaan"/>
 			<combo_box name="pass_combo" left_delta="190">
-				<combo_item name="Anyone">
-					Iedereen
-				</combo_item>
-				<combo_item name="Group">
-					Groep
-				</combo_item>
+				<combo_box.item name="Anyone" label="Iedereen"/>
+				<combo_box.item name="Group" label="Groep"/>
 			</combo_box>
 			<spinner label="Prijs in L$:" name="PriceSpin" label_width="168" width="228" />
 			<spinner label="Toegangsuren" name="HoursSpin" label_width="168" width="228" />

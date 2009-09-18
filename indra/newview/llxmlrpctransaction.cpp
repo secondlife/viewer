@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llxmlrpctransaction.h"
+#include "llxmlrpclistener.h"
 
 #include "llcurl.h"
 #include "llviewercontrol.h"
@@ -41,6 +42,13 @@
 #include <xmlrpc-epi/xmlrpc.h>
 
 #include "llappviewer.h"
+
+// Static instance of LLXMLRPCListener declared here so that every time we
+// bring in this code, we instantiate a listener. If we put the static
+// instance of LLXMLRPCListener into llxmlrpclistener.cpp, the linker would
+// simply omit llxmlrpclistener.o, and shouting on the LLEventPump would do
+// nothing.
+static LLXMLRPCListener listener("LLXMLRPCTransaction");
 
 LLXMLRPCValue LLXMLRPCValue::operator[](const char* id) const
 {
@@ -213,6 +221,11 @@ LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
 	XMLRPC_RequestSetData(request, params.getValue());
 	
 	init(request, useGzip);
+    // DEV-28398: without this XMLRPC_RequestFree() call, it looks as though
+    // the 'request' object is simply leaked. It's less clear to me whether we
+    // should also ask to free request value data (second param 1), since the
+    // data come from 'params'.
+    XMLRPC_RequestFree(request, 1);
 }
 
 

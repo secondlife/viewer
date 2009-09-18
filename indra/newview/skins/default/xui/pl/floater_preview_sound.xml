@@ -8,5 +8,5 @@
 	     tool_tip="Dźwięk będzie słyszalny tylko dla Ciebie." />
 	<button label="Odtwarzaj w Świecie" label_selected="Odtwarzaj w Świecie"
 	     name="Sound play btn"
-	     tool_tip="Dźwięk będzie słyszalny przez wszystkich." width="130" left_delta="-136"/>
+	     tool_tip="Dźwięk będzie słyszalny przez wszystkich." />
 </floater>

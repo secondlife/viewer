@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="mute by name" title="Ignora l&apos;oggetto dal nome">
 	<text name="message">
-		Ignora per nome ha effetti sull&apos;oggetto in chat e IM, non
-nei suoni. Devi scrivere esattamente il nome dell&apos;oggetto.
+		Ignora per nome ha effetti sull&apos;oggetto in chat e IM, non nei suoni.
+Devi scrivere esattamente il nome dell&apos;oggetto.
 	</text>
 	<line_editor name="object_name">
 		Nome dell&apos;oggetto
 	</line_editor>
-	<button label="OK" name="OK"/>
+	<button label="Ok" name="OK"/>
 	<button label="Annulla" name="Cancel"/>
 </floater>

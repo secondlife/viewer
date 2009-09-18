@@ -23,6 +23,7 @@ include_directories(
 
 set(llmessage_SOURCE_FILES
     llares.cpp
+    llareslistener.cpp
     llassetstorage.cpp
     llblowfishcipher.cpp
     llbuffer.cpp
@@ -105,6 +106,7 @@ set(llmessage_HEADER_FILES
     CMakeLists.txt
 
     llares.h
+    llareslistener.h
     llassetstorage.h
     llblowfishcipher.h
     llbuffer.h
@@ -224,6 +226,7 @@ IF (NOT LINUX AND VIEWER)
       lltemplatemessagedispatcher.cpp
       llregionpresenceverifier.cpp
       )
+
 #    set(TEST_DEBUG on)
     set(test_libs
       ${LLMESSAGE_LIBRARIES}

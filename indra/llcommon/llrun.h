@@ -48,7 +48,7 @@ class LLRunnable;
  * which are scheduled to run on a repeating or one time basis.
  * @see LLRunnable
  */
-class LLRunner
+class LL_COMMON_API LLRunner
 {
 public:
 	/**
@@ -149,7 +149,7 @@ protected:
  * something useful.
  * @see LLRunner
  */
-class LLRunnable
+class LL_COMMON_API LLRunnable
 {
 public:
 	LLRunnable();

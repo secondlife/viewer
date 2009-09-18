@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Convidar um membro" name="invite_panel" width="224">
-	<text name="help_text" width="214">
+<panel label="Convidar um membro" name="invite_panel">
+	<text name="help_text">
 		Voce pode selecionar vários residentes
-para convidar ao seu grupo. Clique
-&apos;Abrir Seletor de Residente&apos; para iniciar.
+para convidar ao seu grupo. Clique &apos;Abrir
+Seletor de Residente&apos; para iniciar.
 	</text>
 	<button label="Abrir Seletor de Residente" name="add_button" tool_tip=""/>
 	<name_list name="invitee_list" tool_tip="Mantenha apertada a tecla Control e clique nos nomes dos residentes para uma seleção múltipla."/>
-	<button left_delta="-7" width="214" label="Remove os selecionados acima da lista" name="remove_button" tool_tip="Remove os residentes selecionados acima da lista de convite."/>
+	<button label="Remove Selected from List" name="remove_button" tool_tip="Remove os residentes selecionados acima  da lista de convite."/>
 	<text name="role_text">
 		Escolha que Função atribuir a eles:
 	</text>

@@ -11,10 +11,10 @@
 		<column name="icon_edit_mine" tool_tip="Vriend kan objecten wijzigen, verwijderen of oppakken"/>
 		<column name="icon_edit_theirs" tool_tip="U kunt de objecten van deze vriend bewerken"/>
 	</scroll_list>
-	<button label="IM/Oproepen" name="im_btn" tool_tip="Open Instant Message sessie" width="86"/>
-	<button label="Profiel" name="profile_btn" tool_tip="Toon afbeelding, groepen en andere informatie" width="86"/>
-	<button label="Teleport..." name="offer_teleport_btn" tool_tip="Bied deze vriend een teleport naar uw huidige locatie aan" width="86"/>
-	<button label="Betaal..." name="pay_btn" tool_tip="Geef Linden dollars (L$) aan deze vriend" width="86"/>
-	<button label="Verwijderen..." name="remove_btn" tool_tip="Verwijder deze persoon van uw vriendenlijst" width="86"/>
-	<button label="Toevoegen..." name="add_btn" tool_tip="Bied vriendschap aan een inwoner aan" width="86"/>
+	<button label="IM/Oproepen" name="im_btn" tool_tip="Open Instant Message sessie"/>
+	<button label="Profiel" name="profile_btn" tool_tip="Toon afbeelding, groepen en andere informatie"/>
+	<button label="Teleport..." name="offer_teleport_btn" tool_tip="Bied deze vriend een teleport naar uw huidige locatie aan"/>
+	<button label="Betaal..." name="pay_btn" tool_tip="Geef Linden dollars (L$) aan deze vriend"/>
+	<button label="Verwijderen..." name="remove_btn" tool_tip="Verwijder deze persoon van uw vriendenlijst"/>
+	<button label="Toevoegen..." name="add_btn" tool_tip="Bied vriendschap aan een inwoner aan"/>
 </panel>

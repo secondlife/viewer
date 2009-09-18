@@ -147,7 +147,7 @@ struct char_traits<U16>
 };
 #endif
 
-class LLStringOps
+class LL_COMMON_API LLStringOps
 {
 private:
 	static long sltOffset;
@@ -194,8 +194,8 @@ public:
  * @brief Return a string constructed from in without crashing if the
  * pointer is NULL.
  */
-std::string ll_safe_string(const char* in);
-std::string ll_safe_string(const char* in, S32 maxlen);
+LL_COMMON_API std::string ll_safe_string(const char* in);
+LL_COMMON_API std::string ll_safe_string(const char* in, S32 maxlen);
 
 
 // Allowing assignments from non-strings into format_map_t is apparently
@@ -400,7 +400,7 @@ inline std::string chop_tail_copy(
  * @brief This translates a nybble stored as a hex value from 0-f back
  * to a nybble in the low order bits of the return byte.
  */
-U8 hex_as_nybble(char hex);
+LL_COMMON_API U8 hex_as_nybble(char hex);
 
 /**
  * @brief read the contents of a file into a string.
@@ -411,8 +411,8 @@ U8 hex_as_nybble(char hex);
  * @param filename The full name of the file to read.
  * @return Returns true on success. If false, str is unmodified.
  */
-bool _read_file_into_string(std::string& str, const std::string& filename);
-bool iswindividual(llwchar elem);
+LL_COMMON_API bool _read_file_into_string(std::string& str, const std::string& filename);
+LL_COMMON_API bool iswindividual(llwchar elem);
 
 /**
  * Unicode support
@@ -421,52 +421,52 @@ bool iswindividual(llwchar elem);
 // Make the incoming string a utf8 string. Replaces any unknown glyph
 // with the UNKOWN_CHARACTER. Once any unknown glph is found, the rest
 // of the data may not be recovered.
-std::string rawstr_to_utf8(const std::string& raw);
+LL_COMMON_API std::string rawstr_to_utf8(const std::string& raw);
 
 //
 // We should never use UTF16 except when communicating with Win32!
 //
 typedef std::basic_string<U16> llutf16string;
 
-LLWString utf16str_to_wstring(const llutf16string &utf16str, S32 len);
-LLWString utf16str_to_wstring(const llutf16string &utf16str);
+LL_COMMON_API LLWString utf16str_to_wstring(const llutf16string &utf16str, S32 len);
+LL_COMMON_API LLWString utf16str_to_wstring(const llutf16string &utf16str);
 
-llutf16string wstring_to_utf16str(const LLWString &utf32str, S32 len);
-llutf16string wstring_to_utf16str(const LLWString &utf32str);
+LL_COMMON_API llutf16string wstring_to_utf16str(const LLWString &utf32str, S32 len);
+LL_COMMON_API llutf16string wstring_to_utf16str(const LLWString &utf32str);
 
-llutf16string utf8str_to_utf16str ( const std::string& utf8str, S32 len);
-llutf16string utf8str_to_utf16str ( const std::string& utf8str );
+LL_COMMON_API llutf16string utf8str_to_utf16str ( const std::string& utf8str, S32 len);
+LL_COMMON_API llutf16string utf8str_to_utf16str ( const std::string& utf8str );
 
-LLWString utf8str_to_wstring(const std::string &utf8str, S32 len);
-LLWString utf8str_to_wstring(const std::string &utf8str);
+LL_COMMON_API LLWString utf8str_to_wstring(const std::string &utf8str, S32 len);
+LL_COMMON_API LLWString utf8str_to_wstring(const std::string &utf8str);
 // Same function, better name. JC
 inline LLWString utf8string_to_wstring(const std::string& utf8_string) { return utf8str_to_wstring(utf8_string); }
 
 //
-S32 wchar_to_utf8chars(llwchar inchar, char* outchars);
+LL_COMMON_API S32 wchar_to_utf8chars(llwchar inchar, char* outchars);
 
-std::string wstring_to_utf8str(const LLWString &utf32str, S32 len);
-std::string wstring_to_utf8str(const LLWString &utf32str);
+LL_COMMON_API std::string wstring_to_utf8str(const LLWString &utf32str, S32 len);
+LL_COMMON_API std::string wstring_to_utf8str(const LLWString &utf32str);
 
-std::string utf16str_to_utf8str(const llutf16string &utf16str, S32 len);
-std::string utf16str_to_utf8str(const llutf16string &utf16str);
+LL_COMMON_API std::string utf16str_to_utf8str(const llutf16string &utf16str, S32 len);
+LL_COMMON_API std::string utf16str_to_utf8str(const llutf16string &utf16str);
 
 // Length of this UTF32 string in bytes when transformed to UTF8
-S32 wstring_utf8_length(const LLWString& wstr); 
+LL_COMMON_API S32 wstring_utf8_length(const LLWString& wstr); 
 
 // Length in bytes of this wide char in a UTF8 string
-S32 wchar_utf8_length(const llwchar wc); 
+LL_COMMON_API S32 wchar_utf8_length(const llwchar wc); 
 
-std::string utf8str_tolower(const std::string& utf8str);
+LL_COMMON_API std::string utf8str_tolower(const std::string& utf8str);
 
 // Length in llwchar (UTF-32) of the first len units (16 bits) of the given UTF-16 string.
-S32 utf16str_wstring_length(const llutf16string &utf16str, S32 len);
+LL_COMMON_API S32 utf16str_wstring_length(const llutf16string &utf16str, S32 len);
 
 // Length in utf16string (UTF-16) of wlen wchars beginning at woffset.
-S32 wstring_utf16_length(const LLWString & wstr, S32 woffset, S32 wlen);
+LL_COMMON_API S32 wstring_utf16_length(const LLWString & wstr, S32 woffset, S32 wlen);
 
 // Length in wstring (i.e., llwchar count) of a part of a wstring specified by utf16 length (i.e., utf16 units.)
-S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, S32 woffset, S32 utf16_length, BOOL *unaligned = NULL);
+LL_COMMON_API S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, S32 woffset, S32 utf16_length, BOOL *unaligned = NULL);
 
 /**
  * @brief Properly truncate a utf8 string to a maximum byte count.
@@ -478,11 +478,11 @@ S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, S32 woffset
  * @param max_len The maximum number of bytes in the return value.
  * @return Returns a valid utf8 string with byte count <= max_len.
  */
-std::string utf8str_truncate(const std::string& utf8str, const S32 max_len);
+LL_COMMON_API std::string utf8str_truncate(const std::string& utf8str, const S32 max_len);
 
-std::string utf8str_trim(const std::string& utf8str);
+LL_COMMON_API std::string utf8str_trim(const std::string& utf8str);
 
-S32 utf8str_compare_insensitive(
+LL_COMMON_API S32 utf8str_compare_insensitive(
 	const std::string& lhs,
 	const std::string& rhs);
 
@@ -493,17 +493,17 @@ S32 utf8str_compare_insensitive(
  * @param target_char The wchar to be replaced
  * @param replace_char The wchar which is written on replace
  */
-std::string utf8str_substChar(
+LL_COMMON_API std::string utf8str_substChar(
 	const std::string& utf8str,
 	const llwchar target_char,
 	const llwchar replace_char);
 
-std::string utf8str_makeASCII(const std::string& utf8str);
+LL_COMMON_API std::string utf8str_makeASCII(const std::string& utf8str);
 
 // Hack - used for evil notecards.
-std::string mbcsstring_makeASCII(const std::string& str); 
+LL_COMMON_API std::string mbcsstring_makeASCII(const std::string& str); 
 
-std::string utf8str_removeCRLF(const std::string& utf8str);
+LL_COMMON_API std::string utf8str_removeCRLF(const std::string& utf8str);
 
 
 #if LL_WINDOWS
@@ -528,14 +528,21 @@ std::string utf8str_removeCRLF(const std::string& utf8str);
  * formatted string.
  *
  */
-int safe_snprintf(char* str, size_t size, const char* format, ...);
+
+// Deal with the differeneces on Windows
+namespace snprintf_hack
+{
+	LL_COMMON_API int snprintf(char *str, size_t size, const char *format, ...);
+}
+
+using snprintf_hack::snprintf;
 
 /**
  * @brief Convert a wide string to std::string
  *
  * This replaces the unsafe W2A macro from ATL.
  */
-std::string ll_convert_wide_to_string(const wchar_t* in);
+LL_COMMON_API std::string ll_convert_wide_to_string(const wchar_t* in);
 
 //@}
 #endif // LL_WINDOWS
@@ -558,7 +565,7 @@ namespace LLStringFn
 	 * with zero non-printable characters.
 	 * @param The replacement character. use LL_UNKNOWN_CHAR if unsure.
 	 */
-	void replace_nonprintable_in_ascii(
+	LL_COMMON_API void replace_nonprintable_in_ascii(
 		std::basic_string<char>& string,
 		char replacement);
 
@@ -572,7 +579,7 @@ namespace LLStringFn
 	 * with zero non-printable characters and zero pipe characters.
 	 * @param The replacement character. use LL_UNKNOWN_CHAR if unsure.
 	 */
-	void replace_nonprintable_and_pipe_in_ascii(std::basic_string<char>& str,
+	LL_COMMON_API void replace_nonprintable_and_pipe_in_ascii(std::basic_string<char>& str,
 									   char replacement);
 
 
@@ -581,7 +588,7 @@ namespace LLStringFn
 	 * Returns a copy of the string with those characters removed.
 	 * Works with US ASCII and UTF-8 encoded strings.  JC
 	 */
-	std::string strip_invalid_xml(const std::string& input);
+	LL_COMMON_API std::string strip_invalid_xml(const std::string& input);
 
 
 	/**
@@ -592,7 +599,7 @@ namespace LLStringFn
 	 * with zero non-printable characters.
 	 * @param The replacement character. use LL_UNKNOWN_CHAR if unsure.
 	 */
-	void replace_ascii_controlchars(
+	LL_COMMON_API void replace_ascii_controlchars(
 		std::basic_string<char>& string,
 		char replacement);
 }

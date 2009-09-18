@@ -1,27 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_lagmeter" title="Misuratore del lag">
 	<button label="" label_selected="" name="client_lagmeter" tool_tip="Stato del lag del programma in locale"/>
-	<text left="30" name="client_lag_cause" right="-10" />
-	<text left="30" name="network_lag_cause" right="-10" />
-	<text left="30" name="server_lag_cause" right="-32" />
 	<text name="client">
 		Programma in locale:
 	</text>
-	<text name="client_text" left="145" font="SansSerifSmall">
+	<text name="client_text">
 		Normale
 	</text>
 	<button label="" label_selected="" name="network_lagmeter" tool_tip="Stato del lag del network"/>
 	<text name="network">
 		Network:
 	</text>
-	<text name="network_text" font="SansSerifSmall">
+	<text name="network_text">
 		Normale
 	</text>
 	<button label="" label_selected="" name="server_lagmeter" tool_tip="Stato del lag del server"/>
 	<text name="server">
 		Server:
 	</text>
-	<text name="server_text" font="SansSerifSmall">
+	<text name="server_text">
 		Normale
 	</text>
 	<button label="?" name="server_help"/>
@@ -51,10 +48,10 @@
 		Normale, finestra sullo sfondo
 	</string>
 	<string name="client_frame_time_critical_msg">
-		Velocità dei frame al di sotto di [CLIENT_FRAME_RATE_CRITICAL]
+		Velocità dei frame del programma in locale al di sotto di [CLIENT_FRAME_RATE_CRITICAL]
 	</string>
 	<string name="client_frame_time_warning_msg">
-		Velocità dei frame tra [CLIENT_FRAME_RATE_CRITICAL] e [CLIENT_FRAME_RATE_WARNING]
+		Velocità dei frame del programma in locale tra [CLIENT_FRAME_RATE_CRITICAL] e [CLIENT_FRAME_RATE_WARNING]
 	</string>
 	<string name="client_frame_time_normal_msg">
 		Normale
@@ -120,10 +117,10 @@
 		20
 	</string>
 	<string name="server_frame_time_critical_msg">
-		Velocità dei frame al di sotto di [SERVER_FRAME_RATE_CRITICAL]
+		Velocità del simulatore al di sotto di [SERVER_FRAME_RATE_CRITICAL]
 	</string>
 	<string name="server_frame_time_warning_msg">
-		Velocità dei frame tra [SERVER_FRAME_RATE_CRITICAL] e [SERVER_FRAME_RATE_WARNING]
+		Velocità del simulatore tra [SERVER_FRAME_RATE_CRITICAL] e [SERVER_FRAME_RATE_WARNING]
 	</string>
 	<string name="server_frame_time_normal_msg">
 		Normale

@@ -12,8 +12,8 @@
 	<text name="help_text_not_connected">
 		Wybierz obiekt i kliknij Połącz z teleporterem
 	</text>
-	<button label="Połącz z teleporterem" name="connect_btn" width="132" />
-	<button label="Rozłącz" name="disconnect_btn" left="152" width="88"/>
+	<button label="Połącz z teleporterem" name="connect_btn" width="122" />
+	<button label="Rozłącz" name="disconnect_btn" left="142" width="98"/>
 	<text name="spawn_points_text" width="250">
 		Punkty Składowe (pozycje - nie obiekty!):
 	</text>

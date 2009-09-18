@@ -4,26 +4,23 @@
 	<text name="client">
 		Cliente:
 	</text>
-	<text name="client_text" font="SansSerifSmall">
+	<text name="client_text">
 		Normal
 	</text>
-	<text left="30" name="client_lag_cause" right="-10" />
 	<button label="" label_selected="" name="network_lagmeter" tool_tip="Estado del lag de la red"/>
 	<text name="network">
 		Red:
 	</text>
-	<text name="network_text" font="SansSerifSmall">
+	<text name="network_text">
 		Normal
 	</text>
-	<text left="30" name="network_lag_cause" right="-10" />
 	<button label="" label_selected="" name="server_lagmeter" tool_tip="Estado del lag del servidor"/>
 	<text name="server">
 		Servidor:
 	</text>
-	<text name="server_text" font="SansSerifSmall">
+	<text name="server_text">
 		Normal
 	</text>
-	<text left="30" name="server_lag_cause" right="-32" />
 	<button label="?" name="server_help"/>
 	<button label="&gt;&gt;" name="minimize"/>
 	<string name="max_title_msg">
@@ -120,10 +117,10 @@
 		20
 	</string>
 	<string name="server_frame_time_critical_msg">
-		Frecuencia (framerate) por debajo de [SERVER_FRAME_RATE_CRITICAL]
+		Frecuencia del simulador -framerate- por debajo de [SERVER_FRAME_RATE_CRITICAL]
 	</string>
 	<string name="server_frame_time_warning_msg">
-		Frecuencia (framerate) entre [SERVER_FRAME_RATE_CRITICAL] y [SERVER_FRAME_RATE_WARNING]
+		Frecuencia del simulador -framerate- entre [SERVER_FRAME_RATE_CRITICAL] y [SERVER_FRAME_RATE_WARNING]
 	</string>
 	<string name="server_frame_time_normal_msg">
 		Normal

@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="script search" title="Cerca Script" width="320">
-	<check_box label="Senza distinzione tra maiuscole e minuscole" name="case_text" left="65"/>
-	<button label="Cerca" label_selected="Cerca" name="search_btn" width="85"/>
-	<button label="Sostituisci" label_selected="Sostituisci" name="replace_btn" left="100" width="85"/>
-	<button label="Sostituisci tutto" label_selected="Sostituisci tutto" name="replace_all_btn" left="190" width="122"/>
-	<text name="txt" width="60">
+<floater name="script search" title="Cerca Script">
+	<check_box label="Senza distinzione tra maiuscole e minuscole" name="case_text"/>
+	<button label="Cerca" label_selected="Cerca" name="search_btn"/>
+	<button label="Sostituisci" label_selected="Sostituisci" name="replace_btn"/>
+	<button label="Sostituisci tutto" label_selected="Sostituisci tutto" name="replace_all_btn"/>
+	<text name="txt">
 		Cerca
 	</text>
-	<text name="txt2" width="60">
+	<text name="txt2">
 		Sostituisci
 	</text>
-	<line_editor left="65" name="search_text" width="240" />
-	<line_editor left="65" name="replace_text" width="240" />
 </floater>

@@ -3,6 +3,6 @@
 	<text name="object_name">
 		[DESC]:
 	</text>
-	<button label="Kopiëren naar inventaris" label_selected="Kopiëren naar inventaris" name="copy_to_inventory_button" width="140"/>
-	<button label="Kopiëren en dragen" label_selected="Kopiëren en dragen" name="copy_and_wear_button" left="164"/>
+	<button label="Kopiëren naar inventaris" label_selected="Kopiëren naar inventaris" name="copy_to_inventory_button"/>
+	<button label="Kopiëren en dragen" label_selected="Kopiëren en dragen" name="copy_and_wear_button"/>
 </floater>

@@ -19,17 +19,14 @@
 		Nome do Objeto:
 	</text>
 	<button label="Filtro" name="filter_object_btn"/>
-	<text name="owner_name_text" width="130">
+	<text name="owner_name_text">
 		Nome do Proprietário:
 	</text>
-	<line_editor font="SansSerifSmall" left="140" name="id_editor" width="280"/>
-	<line_editor font="SansSerifSmall" left="140" name="object_name_editor" width="280"/>
-	<line_editor font="SansSerifSmall" left="140" name="owner_name_editor" width="280"/>
 	<button label="Filtro" name="filter_owner_btn"/>
-	<button label="Retornar Selecionado" name="return_selected_btn" width="170"/>
-	<button label="Retornar Tudo" name="return_all_btn" left="190"/>
-	<button label="Desabilitar Selecionado" name="disable_selected_btn" width="170"/>
-	<button label="Desabilitar Tudo" name="disable_all_btn" left="190"/>
+	<button label="Retornar Selecionado" name="return_selected_btn"/>
+	<button label="Retornar Tudo" name="return_all_btn"/>
+	<button label="Desabilitar Selecionado" name="disable_selected_btn"/>
+	<button label="Desabilitar Tudo" name="disable_all_btn"/>
 	<button label="Atualizar" name="refresh_btn"/>
 	<string name="top_scripts_title">
 		Principais Scripts

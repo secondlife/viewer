@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Invitar a un miembro" name="invite_panel" width="224">
-	<text name="help_text" height="72" bottom_delta="-96" width="214">
-		Puede seleccionar a varios residentes
-para invitarles a su grupo. Para
-empezar, pulse &apos;Abrir el selector de
-residentes&apos;.
+<panel label="Invitar a un miembro" name="invite_panel">
+	<text name="help_text">
+		Puede seleccionar a varios residentes para 
+invitarles a su grupo. Para empezar, pulse
+&apos;Abrir el selector de residentes&apos;.
 	</text>
-	<button bottom_delta="-10" label="Abrir el selector de residentes" name="add_button" tool_tip=""/>
-	<name_list height="156" bottom_delta="-160" name="invitee_list" tool_tip="Para seleccionar a varios residentes, mantenga pulsada la tecla Ctrl y vaya pulsando sus nombres."/>
-	<button left_delta="-7" width="214" label="Eliminar de la lista a los seleccionados" name="remove_button" tool_tip="Elimina los residentes seleccionados de la lista de invitaciones."/>
+	<button label="Abrir el selector de residentes" name="add_button" tool_tip=""/>
+	<name_list name="invitee_list" tool_tip="Para seleccionar a varios residentes, mantenga pulsada la tecla Ctrl y vaya pulsando sus nombres."/>
+	<button label="Eliminar de la lista a los seleccionados" name="remove_button" tool_tip="Elimina los residentes seleccionados de la lista de invitaciones."/>
 	<text name="role_text">
 		Elegir qué rol asignarles:
 	</text>

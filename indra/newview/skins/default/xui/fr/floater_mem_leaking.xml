@@ -11,8 +11,8 @@
 	<text name="note_label_2">
 		[NOTE2]
 	</text>
-	<button label="Commencer" name="start_btn" width="85"/>
-	<button label="Stop" name="stop_btn" left="100"/>
-	<button label="Libérer" name="release_btn"  left="177"/>
+	<button label="Commencer" name="start_btn" />
+	<button label="Stop" name="stop_btn" />
+	<button label="Libérer" name="release_btn" />
 	<button label="Fermer" name="close_btn" />
 </floater>

@@ -87,12 +87,14 @@ friend class LLMultiFloater;
 public:
 	struct KeyCompare
 	{
-		static bool compare(const LLSD& a, const LLSD& b);
+//		static bool compare(const LLSD& a, const LLSD& b);
 		static bool equate(const LLSD& a, const LLSD& b);
+/*==========================================================================*|
 		bool operator()(const LLSD& a, const LLSD& b) const
 		{
 			return compare(a, b);
 		}
+|*==========================================================================*/
 	};
 	
 	enum EFloaterButtons

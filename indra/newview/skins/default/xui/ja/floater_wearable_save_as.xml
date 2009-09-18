@@ -6,6 +6,6 @@
 		アイテムを別名で保存：
 	</text>
 	<line_editor name="name ed">
-		New [DESC]
+		新規[DESC]
 	</line_editor>
 </floater>
