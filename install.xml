@@ -268,9 +268,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>3a938b17b23f7511c84da99f2fc426ef</string>
+            <string>8dc4e818c2d6fbde76e9a5e34f4ffa72</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.19.6-windows-20090917.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.19.6-windows-20090917b.tar.bz2</uri>
           </map>
         </map>
       </map>
