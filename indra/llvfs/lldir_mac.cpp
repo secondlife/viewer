@@ -424,7 +424,7 @@ BOOL LLDir_Mac::fileExists(const std::string &filename) const
 
 /*virtual*/ std::string LLDir_Mac::getLLPluginLauncher()
 {
-	return gDirUtilp->getExecutableDir() + gDirUtilp->getDirDelimiter() +
+	return gDirUtilp->getAppRODataDir() + gDirUtilp->getDirDelimiter() +
 		"SLPlugin";
 }
 

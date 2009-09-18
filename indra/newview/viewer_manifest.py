@@ -463,9 +463,6 @@ class DarwinManifest(ViewerManifest):
 
             # copy additional libs in <bundle>/Contents/MacOS/
             self.path("../../libraries/universal-darwin/lib_release/libndofdev.dylib", dst="MacOS/libndofdev.dylib")
-            self.path(os.path.join(os.pardir, "llplugin", "slplugin", self.args['configuration'],
-                                   "SLPlugin"),
-                      os.path.join("MacOS", "SLPlugin"))
 
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
@@ -543,6 +540,9 @@ class DarwinManifest(ViewerManifest):
                 # our apps
                 self.path("../mac_crash_logger/" + self.args['configuration'] + "/mac-crash-logger.app", "mac-crash-logger.app")
                 self.path("../mac_updater/" + self.args['configuration'] + "/mac-updater.app", "mac-updater.app")
+
+                # plugin launcher
+                self.path("../llplugin/slplugin/" + self.args['configuration'] + "/SLPlugin", "SLPlugin")
 
                 # plugins
                 if self.prefix(src="", dst="llplugin"):
