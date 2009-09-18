@@ -244,7 +244,7 @@ void LLViewerTextureManager::init()
 	LLViewerTexture::sNullImagep = LLViewerTextureManager::getLocalTexture(raw.get(), TRUE) ;
 
 #if 1
-	LLPointer<LLViewerFetchedTexture> imagep = new LLViewerFetchedTexture(IMG_DEFAULT, TRUE);	
+	LLPointer<LLViewerFetchedTexture> imagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT);
 	LLViewerFetchedTexture::sDefaultImagep = imagep;
 
 	const S32 dim = 128;
@@ -273,7 +273,6 @@ void LLViewerTextureManager::init()
 	}
 	imagep->createGLTexture(0, image_raw);
 	image_raw = NULL;
-	gTextureList.addImage(imagep);
 	LLViewerFetchedTexture::sDefaultImagep->dontDiscard();
 #else
  	LLViewerFetchedTexture::sDefaultImagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, TRUE, TRUE);
