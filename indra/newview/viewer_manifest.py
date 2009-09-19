@@ -208,9 +208,11 @@ class WindowsManifest(ViewerManifest):
                 self.path('libapr-1.dll')
                 self.path('libaprutil-1.dll')
                 self.path('libapriconv-1.dll')
-            except RuntimeError:
+            except RuntimeError, err:
+                print err.message
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
-        self.end_prefix()
+
+            self.end_prefix()
 
         # need to get the kdu dll from the build directory as well
         try:

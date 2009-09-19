@@ -37,6 +37,7 @@ include(UnixInstall)
 include(LLKDU)
 include(ViewerMiscLibs)
 include(LLLogin)
+include(CMakeCopyIfDifferent)
 
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
@@ -1362,6 +1363,8 @@ if (WINDOWS)
         DEPENDS
           ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${VIEWER_BINARY_NAME}.exe.config
           stage_third_party_libs
+	  llcommon
+	  llkdu
         )
 
       # Copy Win Libs...
@@ -1379,7 +1382,6 @@ if (WINDOWS)
         )
 
       add_dependencies(${VIEWER_BINARY_NAME} create_app_config_file)
-      
     endif(WINDOWS)    
 
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
@@ -1671,5 +1673,72 @@ if (WINDOWS)
           ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llplugin
         COMMENT "Copying Quicktime Plugin to the runtime folder."
         )
+
+  #*******************************
+  # Copy media plugin support dlls
+  # Debug config runtime files required for the plugins
+  set(plugins_debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug")
+  set(plugins_debug_files
+    libeay32.dll
+    qtcored4.dll
+    qtguid4.dll
+    qtnetworkd4.dll
+    qtopengld4.dll
+    qtwebkitd4.dll
+    ssleay32.dll
+    )
+  copy_if_different(
+    ${plugins_debug_src_dir}
+    "${CMAKE_CURRENT_BINARY_DIR}/Debug/llplugin"
+    out_targets
+    ${plugins_debug_files}
+    )
+  set(media_plugin_targets ${media_plugin_targets} ${out_targets})
+  
+  # Release & ReleaseDebInfo config runtime files required for the plugins
+  set(plugins_release_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/release")
+  set(plugins_release_files
+    libeay32.dll
+    qtcore4.dll
+    qtgui4.dll
+    qtnetwork4.dll
+    qtopengl4.dll
+    qtwebkit4.dll
+    ssleay32.dll
+    )
+  copy_if_different(
+    ${plugins_release_src_dir}
+    "${CMAKE_CURRENT_BINARY_DIR}/Release/llplugin"
+    out_targets
+    ${plugins_release_files}
+    )
+  set(media_plugin_targets ${media_plugin_targets} ${out_targets})
+
+  copy_if_different(
+    ${plugins_release_src_dir}
+    "${CMAKE_CURRENT_BINARY_DIR}/RelWithDebInfo/llplugin"
+    out_targets
+    ${plugins_release_files}
+    )
+  set(media_plugin_targets ${media_plugin_targets} ${out_targets})
+  
+  add_custom_target(copy_media_plugin_libs ALL
+    DEPENDS 
+    ${media_plugin_targets}
+    )
+
+  add_custom_command(
+    TARGET ${VIEWER_BINARY_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS
+      -E
+      copy_directory
+      ${CMAKE_BINARY_DIR}/test_apps/llplugintest/${CMAKE_CFG_INTDIR}/imageformats
+      ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llplugin/imageformats
+    COMMENT "Copying llpluging imageformat libs."
+    )
+
+  add_dependencies(${VIEWER_BINARY_NAME} llmediaplugintest copy_media_plugin_libs)
+
 endif (WINDOWS)
 
