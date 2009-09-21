@@ -124,7 +124,8 @@
 void LLViewerFloaterReg::registerFloaters()
 {
 	// *NOTE: Please keep these alphabetized for easier merges
-	
+
+	LLFloaterAboutUtil::registerFloater();
 	LLFloaterReg::add("about_land", "floater_about_land.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLand>);
 	LLFloaterReg::add("active_speakers", "floater_active_speakers.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterActiveSpeakers>);
 	LLFloaterReg::add("auction", "floater_auction.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAuction>);
@@ -225,7 +226,6 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("stats", "floater_stats.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloater>);
 	LLFloaterReg::add("start_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRunQueue>);
 	LLFloaterReg::add("stop_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterNotRunQueue>);
-	LLFloaterReg::add("sl_about", "floater_about.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAbout>);
 	LLFloaterReg::add("snapshot", "floater_snapshot.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSnapshot>);
 	LLFloaterReg::add("search", "floater_directory.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterDirectory>);
 	
