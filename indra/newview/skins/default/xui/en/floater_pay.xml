@@ -4,6 +4,7 @@
  height="140"
  layout="topleft"
  name="Give Money"
+ help_topic="give_money"
  save_rect="true"
  width="300">
     <button

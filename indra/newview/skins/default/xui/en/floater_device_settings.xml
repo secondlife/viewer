@@ -3,6 +3,7 @@
  height="260"
  layout="topleft"
  name="floater_device_settings"
+ help_topic="floater_device_settings"
  title="Voice Chat Device Settings"
  width="405">
     <panel

@@ -7,6 +7,7 @@
  min_height="160"
  min_width="270"
  name="objectcontents"
+ help_topic="objectcontents"
  save_rect="true"
  title="Object Contents"
  width="300">

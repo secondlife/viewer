@@ -5,11 +5,11 @@
  layout="topleft"
  min_height="140"
  min_width="467"
- name="floater_about"
- help_topic="floater_about"
+ name="floater_help_browser"
+ help_topic="floater_help_browser"
  save_rect="true"
  single_instance="true"
- title="Media Browser"
+ title="Holy Bananas, it's the Help Browser"
  width="820">
     <floater.string
      name="home_page_url">
@@ -44,10 +44,7 @@
              left="0"
              name="back"
              top="0"
-             width="55">
-				<button.commit_callback
-				function="MediaBrowser.Back" />
-			</button>
+             width="55" />
             <button
              follows="left|top"
              height="20"
@@ -56,10 +53,7 @@
              left_pad="3"
              name="forward"
              top_delta="0"
-             width="68">
-				<button.commit_callback
-				function="MediaBrowser.Forward" />
-			</button>
+             width="68" />
             <button
              enabled="false"
              follows="left|top"
@@ -69,10 +63,7 @@
              left_pad="2"
              name="reload"
              top_delta="0"
-             width="70">
-				<button.commit_callback
-				function="MediaBrowser.Refresh" />
-			</button>
+             width="70"/>
             <combo_box
              allow_text_entry="true"
              follows="left|top|right"
@@ -82,10 +73,7 @@
              max_chars="255"
              name="address"
              top_delta="0"
-             width="540">
-				<combo_box.commit_callback
-				function="MediaBrowser.EnterAddress" />
-			</combo_box>
+             width="540" />
             <button
              enabled="false"
              follows="right|top"
@@ -95,10 +83,7 @@
              left_pad="5"
              name="go"
              top_delta="0"
-             width="55">
-				<button.commit_callback
-				function="MediaBrowser.Go" />
-			</button>
+             width="55" />
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -177,10 +162,7 @@
              left="0"
              name="assign"
              top="0"
-             width="200">
-				<button.commit_callback
-				function="MediaBrowser.Assign" />
-			</button>
+             width="200" />
         </layout_panel>
         <layout_panel
          height="20"
@@ -206,10 +188,7 @@
              left_delta="0"
              name="open_browser"
              top_pad="5"
-             width="185">
-				<button.commit_callback
-				function="MediaBrowser.OpenWebBrowser" />
-			</button>
+             width="185" />
             <check_box
              control_name="UseExternalBrowser"
              follows="bottom|left"
@@ -228,10 +207,7 @@
              left_pad="80"
              name="close"
              top_delta="0"
-             width="70">
-				<button.commit_callback
-				function="MediaBrowser.Close" />
-			</button>
+             width="70" />
         </layout_panel>
     </layout_stack>
 </floater>

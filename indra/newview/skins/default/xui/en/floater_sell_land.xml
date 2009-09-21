@@ -4,6 +4,7 @@
  height="450"
  layout="topleft"
  name="sell land"
+ help_topic="sell_land"
  single_instance="true"
  title="Sell Land"
  width="313">

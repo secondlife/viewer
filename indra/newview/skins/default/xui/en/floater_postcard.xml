@@ -8,6 +8,7 @@
  min_height="380"
  min_width="450"
  name="Postcard"
+ help_topic="postcard"
  title="Email Snapshot"
  width="450">
     <floater.string

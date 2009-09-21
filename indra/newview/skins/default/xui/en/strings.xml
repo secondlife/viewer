@@ -94,8 +94,9 @@
 	<string name="BUTTON_MINIMIZE">Minimize</string>
 	<string name="BUTTON_TEAR_OFF">Tear Off</string>
 	<string name="BUTTON_EDIT">Edit</string>
-  <string name="BUTTON_DOCK">Dock</string>
-  <string name="BUTTON_UNDOCK">Undock</string>
+	<string name="BUTTON_DOCK">Dock</string>
+	<string name="BUTTON_UNDOCK">Undock</string>
+	<string name="BUTTON_HELP">Show Help</string>
 
 	<!-- searching - generic -->
 	<string name="Searching">Searching...</string>

@@ -2555,14 +2555,6 @@
                  function="Advanced.WebBrowserTest" />
             </menu_item_call>
             <menu_item_call
-             label="Simple Web Browser Test"
-             layout="topleft"
-             name="Simple Web Browser Test">
-                <menu_item_call.on_click
-                 function="Floater.Show"
-                 parameter="html_simple.http://www.secondlife.com" />
-            </menu_item_call>
-            <menu_item_call
              label="UI/Color Settings"
              layout="topleft"
              name="UI/Color Settings">

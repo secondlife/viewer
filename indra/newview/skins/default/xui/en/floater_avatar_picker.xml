@@ -6,6 +6,7 @@
  min_height="200"
  min_width="265"
  name="avatarpicker"
+ help_topic="avatarpicker"
  title="Choose Resident"
  width="265">
     <floater.string

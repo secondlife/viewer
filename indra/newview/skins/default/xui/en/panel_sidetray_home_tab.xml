@@ -7,7 +7,7 @@
  label="home_tab"
  layout="topleft"
  name="home_tab"
- width="300">
+ width="333">
     <panel
      background_visible="true"
      bg_alpha_color="DkGray2"
@@ -17,7 +17,7 @@
      layout="topleft"
      left="10"
      name="sidebar_people"
-     width="280">
+     width="313">
         <text
          follows="left|right|top"
          font="SansSerifBigBold"
@@ -65,7 +65,7 @@
      layout="topleft"
      left="10"
      name="sidebar_places"
-     width="280">
+     width="313">
         <text
          follows="left|right|top"
          font="SansSerifBigBold"
@@ -113,7 +113,7 @@
      layout="topleft"
      left="10"
      name="sidebar_me"
-     width="280">
+     width="313">
         <text
          follows="left|right|top"
          font="SansSerifBigBold"
@@ -161,7 +161,7 @@
      layout="topleft"
      left="10"
      name="sidebar_appearance"
-     width="280">
+     width="313">
         <text
          follows="left|right|top"
          font="SansSerifBigBold"

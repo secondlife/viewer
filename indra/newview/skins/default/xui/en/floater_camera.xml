@@ -7,6 +7,7 @@
  height="95"
  layout="topleft"
  name="camera_floater"
+ help_topic="camera_floater"
  save_rect="true"
  save_visibility="true"
  width="105">

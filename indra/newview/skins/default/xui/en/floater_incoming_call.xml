@@ -6,6 +6,7 @@
  height="200"
  layout="topleft"
  name="incoming call"
+ help_topic="incoming_call"
  title="Unknown Person is calling"
  width="240">
      <floater.string

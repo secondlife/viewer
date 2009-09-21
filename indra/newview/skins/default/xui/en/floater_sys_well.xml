@@ -6,6 +6,7 @@
  follows="right|bottom"
  layout="topleft"
  name="notification_chiclet"
+ help_topic="notification_chiclet"
  save_rect="true"
  title="NOTIFICATIONS" 
  width="320"

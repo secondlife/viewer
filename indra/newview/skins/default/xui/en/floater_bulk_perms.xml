@@ -4,6 +4,7 @@
  height="310"
  layout="topleft"
  name="floaterbulkperms"
+ help_topic="floaterbulkperms"
  title="Edit Content Permissions"
  width="270">
     <floater.string

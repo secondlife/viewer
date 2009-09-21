@@ -6,6 +6,7 @@
  height="100"
  layout="topleft"
  name="modal container"
+ help_topic="modal_container"
  width="240">
     <button
      height="20"

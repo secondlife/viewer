@@ -6,6 +6,7 @@
  layout="topleft"
  left="0"
  name="panel_im"
+ help_topic="panel_im"
  top="0"
  can_dock="true"
  can_minimize="false"

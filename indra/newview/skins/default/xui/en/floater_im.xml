@@ -7,6 +7,7 @@
  min_height="130"
  min_width="350"
  name="im_floater"
+ help_topic="im_floater"
  save_rect="true"
  title="Instant Message"
  width="419">

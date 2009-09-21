@@ -4,6 +4,7 @@
  height="400"
  layout="topleft"
  name="floater_test_inspectors"
+ help_topic="floater_test_inspectors"
  title="Test Inspectors" 
  width="400">
   <text

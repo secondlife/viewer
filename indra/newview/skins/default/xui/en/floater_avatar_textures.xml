@@ -3,6 +3,7 @@
  height="950"
  layout="topleft"
  name="avatar_texture_debug"
+ help_topic="avatar_texture_debug"
  title="Avatar Textures"
  width="960">
     <floater.string

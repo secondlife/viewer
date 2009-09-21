@@ -9,6 +9,7 @@
  min_height="271"
  min_width="290"
  name="script ed float"
+ help_topic="script_ed_float"
  save_rect="true"
  title="Script: New Script"
  width="500">

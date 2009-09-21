@@ -6,6 +6,7 @@
  min_height="175"
  min_width="154"
  name="contents"
+ help_topic="contents"
  title="Font Test"
  width="500">
     <text

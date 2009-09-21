@@ -5,6 +5,7 @@
  height="155"
  layout="topleft"
  name="Gesture"
+ help_topic="gesture"
  save_rect="true"
  title="Gesture Shortcut"
  width="260">

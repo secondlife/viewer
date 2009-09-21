@@ -7,6 +7,7 @@
  min_height="60"
  min_width="174"
  name="Map"
+ help_topic="map"
  save_rect="true"
  save_visibility="true"
  single_instance="true"

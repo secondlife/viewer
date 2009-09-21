@@ -4,6 +4,7 @@
  height="400"
  layout="topleft"
  name="floater_test_spinner"
+ help_topic="floater_test_spinner"
  width="450">
     <spinner
      height="32"

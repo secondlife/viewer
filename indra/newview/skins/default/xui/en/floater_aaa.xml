@@ -3,6 +3,7 @@
  height="440"
  layout="topleft"
  name="floater_aaa"
+ help_topic="floater_aaa"
  save_rect="true"
  can_resize="true" 
  title="About [APP_NAME]"

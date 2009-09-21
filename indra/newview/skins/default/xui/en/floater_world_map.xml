@@ -8,6 +8,7 @@
  min_height="520"
  min_width="520"
  name="worldmap"
+ help_topic="worldmap"
  save_rect="true"
  save_visibility="true"
  single_instance="true"

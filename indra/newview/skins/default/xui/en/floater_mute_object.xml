@@ -4,6 +4,7 @@
  height="140"
  layout="topleft"
  name="mute by name"
+ help_topic="mute_by_name"
  title="Block object by name"
  width="375">
     <text

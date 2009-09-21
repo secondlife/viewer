@@ -4,6 +4,7 @@
  height="400"
  layout="topleft"
  name="floater_test_combobox"
+ help_topic="floater_test_combobox"
  width="400">
     <text
      type="string"

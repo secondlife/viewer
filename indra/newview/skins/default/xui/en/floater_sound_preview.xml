@@ -3,6 +3,7 @@
  height="190"
  layout="topleft"
  name="Sound Preview"
+ help_topic="sound_preview"
  title="sound.wav"
  width="300">
     <text

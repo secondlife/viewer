@@ -4,6 +4,7 @@
  height="408"
  layout="topleft"
  name="Inventory Finder"
+ help_topic="inventory_finder"
  title="inventory_recent_items"
  width="280">
     <icon

@@ -4,6 +4,7 @@
  height="87"
  layout="topleft"
  name="url_entry"
+ help_topic="url_entry"
  width="280">
     <text
      type="string"

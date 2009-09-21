@@ -8,6 +8,7 @@
  min_height="271"
  min_width="290"
  name="preview lsl text"
+ help_topic="preview_lsl_text"
  save_rect="true"
  title="Script: Rotation Script"
  top_delta="0"

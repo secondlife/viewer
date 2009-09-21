@@ -6529,6 +6529,13 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
 		Attachment has been saved.
   </notification>
 
+  <notification
+    icon="alertmodal.tga"
+    name="UnableToFindHelpTopic"
+    type="alertmodal">
+Unable to find the help topic for this element.
+  </notification>
+
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.
   </global>

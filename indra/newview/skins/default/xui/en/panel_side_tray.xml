@@ -8,6 +8,7 @@
 >
   <sidetray_tab
     name="sidebar_home"
+    help_topic="sidebar_home"
     tab_title="Home"
     description="Home."
     image="BackArrow_Off"
@@ -26,6 +27,7 @@
 
   <sidetray_tab
     name="sidebar_people"
+    help_topic="sidebar_people"
     tab_title="People"
     description="Find your friends, contacts and people nearby."
     image="TabIcon_People_Off"
@@ -35,6 +37,7 @@
   >
     <panel_container
       name="panel_container"
+      width="333"
     >
       <panel
         class="panel_people"
@@ -69,6 +72,7 @@
   </sidetray_tab>
   <sidetray_tab
     name="sidebar_places"
+    help_topic="sidebar_places"
     tab_title="Places"
     label="Places"
     description="Find places to go and places you've been."
@@ -87,6 +91,7 @@
 
   <sidetray_tab
     name="sidebar_me"
+    help_topic="sidebar_me"
     tab_title="Me"
     description="Change your profile, your look and quick links to your outfits."
     image="TabIcon_Me_Off"
@@ -105,6 +110,7 @@
 
   <sidetray_tab
     name="sidebar_appearance"
+    help_topic="sidebar_appearance"
     tab_title="Appearance"
     description="Change your looks and appearance."
     image="TabIcon_Appearance_Off"

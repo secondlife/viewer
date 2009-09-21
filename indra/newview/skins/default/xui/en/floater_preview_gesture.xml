@@ -4,6 +4,7 @@
  height="800"
  layout="topleft"
  name="gesture_preview"
+ help_topic="gesture_preview"
  width="280">
     <floater.string
      name="step_anim">

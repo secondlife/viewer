@@ -4,6 +4,7 @@
  height="570"
  layout="topleft"
  name="toolbox floater"
+ help_topic="toolbox_floater"
  save_rect="true"
  short_title="Build Tools"
  single_instance="true"

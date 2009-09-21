@@ -6,5 +6,6 @@
  layout="topleft"
  mouse_opaque="false"
  name="stats floater"
+ help_topic="stats_floater"
  title="Statistics"
  width="250" />

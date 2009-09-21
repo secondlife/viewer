@@ -4,6 +4,7 @@
  height="340"
  layout="topleft"
  name="item properties"
+ help_topic="item_properties"
  save_rect="true"
  title="Inventory Item Properties"
  width="350">

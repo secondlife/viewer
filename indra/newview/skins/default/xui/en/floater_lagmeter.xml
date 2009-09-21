@@ -3,6 +3,7 @@
  height="150"
  layout="topleft"
  name="floater_lagmeter"
+ help_topic="floater_lagmeter"
  save_rect="true"
  title="Lag Meter"
  width="350">
@@ -325,7 +326,6 @@
      bottom="145"
      follows="left|top"
      height="18"
-     help_url="https://support.secondlife.com/ics/support/default.asp?deptID=4417&amp;task=knowledge&amp;questionID=4851"
      label="?"
      layout="topleft"
      name="server_help"
