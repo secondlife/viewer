@@ -1475,9 +1475,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>aa9e87b626ccb557bd94270a3598a74c</string>
+            <string>73baf52a740d151fddbc2a008369c462</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-windows-20090917.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/zlib-1.2.3-windows-20090921.tar.bz2</uri>
           </map>
         </map>
       </map>
