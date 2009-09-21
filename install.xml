@@ -605,9 +605,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>be37695d9f26552aec81c8e97ded0212</string>
+            <string>f601a82ea91030974072da8924cae41e</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-windows-20090529.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-windows-20090921.tar.bz2</uri>
           </map>
         </map>
       </map>
