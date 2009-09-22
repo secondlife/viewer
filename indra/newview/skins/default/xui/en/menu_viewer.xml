@@ -1848,28 +1848,7 @@
             <menu_item_call.on_click
              function="Advanced.ClearGroupCache"
              parameter="ClearGroupCache" />
-        </menu_item_call>
-        <menu_item_check
-         label="Enable Lip Sync(Beta)"
-         layout="topleft"
-         name="Enable Lip Sync(Beta)">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="LipSyncEnabled" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="LipSyncEnabled" />
-        </menu_item_check>
-        <menu_item_check
-         label="Tap-Tap-Hold to Run"
-         layout="topleft"
-         name="Tap-Tap-Hold to Run">
-            <menu_item_check.on_check
-             function="Advanced.CheckAllowTapTapHoldRun"
-             parameter="TapTapHoldRun" />
-            <menu_item_check.on_click
-             function="Advanced.ToggleAllowTapTapHoldRun" />
-        </menu_item_check>
+        </menu_item_call>      
         <menu_item_check
          label="Mouse Smoothing"
          layout="topleft"
