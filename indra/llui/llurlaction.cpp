@@ -112,7 +112,7 @@ void LLUrlAction::clickAction(std::string url)
 void LLUrlAction::teleportToLocation(std::string url)
 {
 	LLUrlMatch match;
-	if (LLUrlRegistry::instance().findUrl(url, match))
+	if (LLUrlRegistry::instance().findUrl(utf8str_to_wstring(url), match))
 	{
 		if (! match.getLocation().empty())
 		{
@@ -129,7 +129,7 @@ void LLUrlAction::copyURLToClipboard(std::string url)
 void LLUrlAction::copyLabelToClipboard(std::string url)
 {
 	LLUrlMatch match;
-	if (LLUrlRegistry::instance().findUrl(url, match))
+	if (LLUrlRegistry::instance().findUrl(utf8str_to_wstring(url), match))
 	{
 		LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(match.getLabel()));
 	}	

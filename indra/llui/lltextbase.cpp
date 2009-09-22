@@ -429,7 +429,7 @@ LLContextMenu *LLTextBase::createUrlContextMenu(const std::string &in_url)
 	// work out the XUI menu file to use for this url
 	LLUrlMatch match;
 	std::string url = in_url;
-	if (! LLUrlRegistry::instance().findUrl(url, match))
+	if (! LLUrlRegistry::instance().findUrl(utf8str_to_wstring(url), match))
 	{
 		return NULL;
 	}

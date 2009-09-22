@@ -297,7 +297,7 @@ LLWString LLTextBox::getWrappedText(const LLStringExplicit& in_text, F32 max_wid
 
 	// find the next Url in the text string
 	LLUrlMatch match;
-	while ( LLUrlRegistry::instance().findUrl(wstring_to_utf8str(wtext), match))
+	while ( LLUrlRegistry::instance().findUrl(wtext, match))
 	{
 		S32 start = match.getStart();
 		S32 end = match.getEnd() + 1;
@@ -573,7 +573,7 @@ void LLTextBox::updateDisplayTextAndSegments()
 	LLWString text = mText.getWString();
 		
 	// find the next Url in the text string
-	while ( LLUrlRegistry::instance().findUrl(wstring_to_utf8str(text), match,
+	while ( LLUrlRegistry::instance().findUrl(text, match,
 											  boost::bind(&LLTextBox::onUrlLabelUpdated, this, _1, _2)) )
 	{
 		// work out the char offset for the start/end of the url

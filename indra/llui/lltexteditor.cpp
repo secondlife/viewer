@@ -3525,7 +3525,7 @@ void LLTextEditor::appendStyledText(const std::string &new_text,
 
 		S32 start=0,end=0;
 		LLUrlMatch match;
-		std::string text = new_text;
+		LLWString text = utf8str_to_wstring(new_text);
 		while ( LLUrlRegistry::instance().findUrl(text, match,
 		        boost::bind(&LLTextEditor::onUrlLabelUpdated, this, _1, _2)) )
 		{
@@ -3549,8 +3549,8 @@ void LLTextEditor::appendStyledText(const std::string &new_text,
 				{
 					part = (S32)LLTextParser::MIDDLE;
 				}
-				std::string subtext=text.substr(0,start);
-				appendHighlightedText(subtext,allow_undo, prepend_newline, part, style_params); 
+				std::string subtext = wstring_to_utf8str(text.substr(0,start));
+				appendHighlightedText(subtext, allow_undo, prepend_newline, part, style_params); 
 				prepend_newline = false;
 			}
 
@@ -3595,7 +3595,8 @@ void LLTextEditor::appendStyledText(const std::string &new_text,
 			}
 		}
 		if (part != (S32)LLTextParser::WHOLE) part=(S32)LLTextParser::END;
-		if (end < (S32)text.length()) appendHighlightedText(text,allow_undo, prepend_newline, part, style_params);		
+		if (end < (S32)text.length()) appendHighlightedText(wstring_to_utf8str(text), allow_undo,
+															prepend_newline, part, style_params);		
 	}
 	else
 	{
@@ -4137,7 +4138,7 @@ void LLTextEditor::updateLinkSegments()
 			LLUrlMatch match;
 			LLStyleSP style = static_cast<LLStyleSP>(segment->getStyle());
 			std::string url_label = getText().substr(segment->getStart(), segment->getEnd()-segment->getStart());
-			if (LLUrlRegistry::instance().findUrl(url_label, match))
+			if (LLUrlRegistry::instance().findUrl(utf8str_to_wstring(url_label), match))
 			{
 				LLStringUtil::trim(url_label);
 				style->setLinkHREF(url_label);

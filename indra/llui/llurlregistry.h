@@ -37,6 +37,7 @@
 #include "llurlentry.h"
 #include "llurlmatch.h"
 #include "llsingleton.h"
+#include "llstring.h"
 
 #include <string>
 #include <vector>
@@ -74,7 +75,7 @@ public:
 
 	/// get the next Url in an input string, starting at a given character offset
 	/// your callback is invoked if the matched Url's label changes in the future
-	bool findUrl(const std::string &text, LLUrlMatch &match,
+	bool findUrl(const LLWString &text, LLUrlMatch &match,
 				 const LLUrlLabelCallback &cb = &LLUrlRegistryNullCallback);
 
 private:

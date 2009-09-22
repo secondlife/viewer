@@ -68,7 +68,7 @@ public:
 	virtual ~LLUrlEntryBase();
 	
 	/// Return the regex pattern that matches this Url 
-	boost::regex getPattern() const { return mPattern; }
+	boost::wregex getPattern() const { return mPattern; }
 
 	/// Return the url from a string that matched the regex
 	virtual std::string getUrl(const std::string &string);
@@ -102,7 +102,7 @@ protected:
 		LLUrlLabelSignal *signal;
 	} LLUrlEntryObserver;
 
-	boost::regex                                   mPattern;
+	boost::wregex                                  mPattern;
 	std::string                                    mIcon;
 	std::string                                    mMenuName;
 	std::string                                    mTooltip;
