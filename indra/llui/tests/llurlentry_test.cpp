@@ -50,7 +50,7 @@ namespace tut
 		std::string url = "";
 		boost::wcmatch result;
 		LLWString wtext = utf8str_to_wstring(text);
-		const wchar_t *wctext = (const wchar_t *)(wtext.c_str());
+		const wchar_t *wctext = wtext.c_str();
 		bool found = boost::regex_search(wctext, result, regex);
 		if (found)
 		{
