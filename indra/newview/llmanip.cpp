@@ -85,6 +85,7 @@ void LLManip::rebuild(LLViewerObject* vobj)
 		if (group)
 		{
 			group->dirtyGeom();
+			gPipeline.markRebuild(group, TRUE);
 		}
 	}
 }

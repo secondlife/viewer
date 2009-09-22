@@ -136,6 +136,19 @@ void LLDrawPoolWater::endPostDeferredPass(S32 pass)
 	deferred_render = FALSE;
 }
 
+//===============================
+//DEFERRED IMPLEMENTATION
+//===============================
+void LLDrawPoolWater::renderDeferred(S32 pass)
+{
+	LLFastTimer t(FTM_RENDER_WATER);
+	deferred_render = TRUE;
+	shade();
+	deferred_render = FALSE;
+}
+
+//=========================================
+
 void LLDrawPoolWater::render(S32 pass)
 {
 	LLFastTimer ftm(FTM_RENDER_WATER);
@@ -337,7 +350,10 @@ void LLDrawPoolWater::renderReflection(LLFace* face)
 
 void LLDrawPoolWater::shade()
 {
-	gGL.setColorMask(true, true);
+	if (!deferred_render)
+	{
+		gGL.setColorMask(true, true);
+	}
 
 	LLVOSky *voskyp = gSky.mVOSkyp;
 
@@ -400,6 +416,15 @@ void LLDrawPoolWater::shade()
 		shader = &gWaterProgram;
 	}
 
+	if (deferred_render)
+	{
+		gPipeline.bindDeferredShader(*shader);
+	}
+	else
+	{
+		shader->bind();
+	}
+
 	sTime = (F32)LLFrameTimer::getElapsedSeconds()*0.5f;
 	
 	S32 reftex = shader->enableTexture(LLViewerShaderMgr::WATER_REFTEX);
@@ -435,15 +460,6 @@ void LLDrawPoolWater::shade()
 	
 	S32 screentex = shader->enableTexture(LLViewerShaderMgr::WATER_SCREENTEX);	
 		
-	if (deferred_render)
-	{
-		gPipeline.bindDeferredShader(*shader);
-	}
-	else
-	{
-		shader->bind();
-	}
-	
 	if (screentex > -1)
 	{
 		shader->uniform4fv(LLViewerShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
@@ -547,8 +563,15 @@ void LLDrawPoolWater::shade()
 			{ //smash background faces to far clip plane
 				if (water->getIsEdgePatch())
 				{
-					LLGLClampToFarClip far_clip(glh_get_current_projection());
-					face->renderIndexed();
+					if (deferred_render)
+					{
+						face->renderIndexed();
+					}
+					else
+					{
+						LLGLClampToFarClip far_clip(glh_get_current_projection());
+						face->renderIndexed();
+					}
 				}
 				else
 				{
@@ -577,7 +600,10 @@ void LLDrawPoolWater::shade()
 
 	gGL.getTexUnit(0)->activate();
 	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.setColorMask(true, false);
+	if (!deferred_render)
+	{
+		gGL.setColorMask(true, false);
+	}
 
 }
 

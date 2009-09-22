@@ -107,7 +107,8 @@ public:
 	{
 		PARAMS_FLEXIBLE = 0x10,
 		PARAMS_LIGHT    = 0x20,
-		PARAMS_SCULPT   = 0x30
+		PARAMS_SCULPT   = 0x30,
+		PARAMS_LIGHT_IMAGE = 0x40,
 	};
 	
 public:
@@ -267,6 +268,28 @@ public:
 	U8 getSculptType()                      { return mSculptType; }
 };
 
+class LLLightImageParams : public LLNetworkData
+{
+protected:
+	LLUUID mLightTexture;
+	LLVector3 mParams;
+	
+public:
+	LLLightImageParams();
+	/*virtual*/ BOOL pack(LLDataPacker &dp) const;
+	/*virtual*/ BOOL unpack(LLDataPacker &dp);
+	/*virtual*/ bool operator==(const LLNetworkData& data) const;
+	/*virtual*/ void copy(const LLNetworkData& data);
+	LLSD asLLSD() const;
+	operator LLSD() const { return asLLSD(); }
+	bool fromLLSD(LLSD& sd);
+
+	void setLightTexture(const LLUUID& id) { mLightTexture = id; }
+	LLUUID getLightTexture() const         { return mLightTexture; }
+	void setParams(const LLVector3& params) { mParams = params; }
+	LLVector3 getParams() const			   { return mParams; }
+	
+};
 
 
 class LLPrimitive : public LLXform

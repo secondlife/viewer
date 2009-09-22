@@ -635,7 +635,6 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 
 #ifdef IMMEDIATE_IMAGE_LOAD
 			siminfo->mCurrentImage = LLViewerTextureManager::getFetchedTexture(siminfo->mMapImageID[LLWorldMap::getInstance()->mCurrentMap], MIPMAP_TRUE, FALSE, LLViewerTexture::LOD_TEXTURE);
-			gGL.getTexUnit(0)->bind(siminfo->mCurrentImage);
 			siminfo->mCurrentImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 #endif
 			

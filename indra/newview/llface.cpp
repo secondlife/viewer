@@ -174,6 +174,9 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mLastGeomIndex = mGeomIndex;
 	mLastIndicesCount = mIndicesCount;
 	mLastIndicesIndex = mIndicesIndex;
+
+	mAtlasInfop = NULL ;
+	mUsingAtlas  = FALSE ;
 }
 
 
@@ -200,12 +203,14 @@ void LLFace::destroy()
 			if (group)
 			{
 				group->dirtyGeom();
+				gPipeline.markRebuild(group, TRUE);
 			}
 		}
 	}
 
 	setDrawInfo(NULL);
 	
+	removeAtlas();
 	mDrawablep = NULL;
 	mVObjp = NULL;
 }
@@ -264,6 +269,7 @@ void LLFace::setTexture(LLViewerTexture* tex)
 	if(mTexture.notNull())
 	{
 		mTexture->removeFace(this) ;
+		removeAtlas() ;
 	}
 	
 	mTexture = tex ;
@@ -447,8 +453,15 @@ void LLFace::renderForSelect(U32 data_mask)
 
 void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 {
-	if(mDrawablep.isNull() || mVertexBuffer.isNull() || mDrawablep->getSpatialGroup() == NULL ||
-		mDrawablep->getSpatialGroup()->isState(LLSpatialGroup::GEOM_DIRTY))
+	if (mDrawablep->getSpatialGroup() == NULL)
+	{
+		return;
+	}
+
+	mDrawablep->getSpatialGroup()->rebuildGeom();
+	mDrawablep->getSpatialGroup()->rebuildMesh();
+		
+	if(mDrawablep.isNull() || mVertexBuffer.isNull())
 	{
 		return;
 	}
@@ -467,17 +480,10 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 			glMultMatrixf((GLfloat*)mDrawablep->getRegion()->mRenderMatrix.mMatrix);
 		}
 
-		setFaceColor(color);
-		renderSetColor();
-
+		glColor4fv(color.mV);
 		mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
-#if !LL_RELEASE_FOR_DOWNLOAD
-		LLGLState::checkClientArrays("", LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
-#endif
 		mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
 
-		unsetFaceColor();
-		unsetFaceColor();
 		gGL.popMatrix();
 	}
 }
@@ -888,12 +894,31 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	{
 		mVertexBuffer->getBinormalStrider(binormals, mGeomIndex);
 	}
+
+	F32 tcoord_xoffset = 0.f ;
+	F32 tcoord_yoffset = 0.f ;
+	F32 tcoord_xscale = 1.f ;
+	F32 tcoord_yscale = 1.f ;
+	BOOL in_atlas = FALSE ;
+
 	if (rebuild_tcoord)
 	{
 		mVertexBuffer->getTexCoord0Strider(tex_coords, mGeomIndex);
 		if (bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1))
 		{
 			mVertexBuffer->getTexCoord1Strider(tex_coords2, mGeomIndex);
+		}
+
+		in_atlas = isAtlasInUse() ;
+		if(in_atlas)
+		{
+			const LLVector2* tmp = getTexCoordOffset() ;
+			tcoord_xoffset = tmp->mV[0] ; 
+			tcoord_yoffset = tmp->mV[1] ;
+
+			tmp = getTexCoordScale() ;
+			tcoord_xscale = tmp->mV[0] ; 
+			tcoord_yscale = tmp->mV[1] ;	
 		}
 	}
 	if (rebuild_color)
@@ -1021,7 +1046,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			break;
 			case BE_BRIGHTNESS:
 			case BE_DARKNESS:
-			if( mTexture.notNull() && mTexture->hasValidGLTexture())
+			if( mTexture.notNull() && mTexture->hasGLTexture())
 			{
 				// Offset by approximately one texel
 				S32 cur_discard = mTexture->getDiscardLevel();
@@ -1103,6 +1128,93 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			{
 				xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
 			}
+
+			if(in_atlas)
+			{
+				//
+				//manually calculate tex-coord per vertex for varying address modes.
+				//should be removed if shader can handle this.
+				//
+
+				S32 int_part = 0 ;
+				switch(mTexture->getAddressMode())
+				{
+				case LLTexUnit::TAM_CLAMP:
+					if(tc.mV[0] < 0.f)
+					{
+						tc.mV[0] = 0.f ;
+					}
+					else if(tc.mV[0] > 1.f)
+					{
+						tc.mV[0] = 1.f;
+					}
+
+					if(tc.mV[1] < 0.f)
+					{
+						tc.mV[1] = 0.f ;
+					}
+					else if(tc.mV[1] > 1.f)
+					{
+						tc.mV[1] = 1.f;
+					}
+					break;
+				case LLTexUnit::TAM_MIRROR:
+					if(tc.mV[0] < 0.f)
+					{
+						tc.mV[0] = -tc.mV[0] ;
+					}
+					int_part = (S32)tc.mV[0] ;
+					if(int_part & 1) //odd number
+					{
+						tc.mV[0] = int_part + 1 - tc.mV[0] ;
+					}
+					else //even number
+					{
+						tc.mV[0] -= int_part ;
+					}
+
+					if(tc.mV[1] < 0.f)
+					{
+						tc.mV[1] = -tc.mV[1] ;
+					}
+					int_part = (S32)tc.mV[1] ;
+					if(int_part & 1) //odd number
+					{
+						tc.mV[1] = int_part + 1 - tc.mV[1] ;
+					}
+					else //even number
+					{
+						tc.mV[1] -= int_part ;
+					}
+					break;
+				case LLTexUnit::TAM_WRAP:
+					if(tc.mV[0] > 1.f)
+						tc.mV[0] -= (S32)(tc.mV[0] - 0.00001f) ;
+					else if(tc.mV[0] < -1.f)
+						tc.mV[0] -= (S32)(tc.mV[0] + 0.00001f) ;
+
+					if(tc.mV[1] > 1.f)
+						tc.mV[1] -= (S32)(tc.mV[1] - 0.00001f) ;
+					else if(tc.mV[1] < -1.f)
+						tc.mV[1] -= (S32)(tc.mV[1] + 0.00001f) ;
+
+					if(tc.mV[0] < 0.f)
+					{
+						tc.mV[0] = 1.0f + tc.mV[0] ;
+					}
+					if(tc.mV[1] < 0.f)
+					{
+						tc.mV[1] = 1.0f + tc.mV[1] ;
+					}
+					break;
+				default:
+					break;
+				}
+			
+				tc.mV[0] = tcoord_xoffset + tcoord_xscale * tc.mV[0] ;
+				tc.mV[1] = tcoord_yoffset + tcoord_yscale * tc.mV[1] ;
+			}
+			
 
 			*tex_coords++ = tc;
 		
@@ -1358,3 +1470,156 @@ LLVector3 LLFace::getPositionAgent() const
 		return mCenterLocal * getRenderMatrix();
 	}
 }
+
+//
+//atlas
+//
+void LLFace::removeAtlas()
+{
+	setAtlasInUse(FALSE) ;
+	mAtlasInfop = NULL ;	
+}
+
+const LLTextureAtlas* LLFace::getAtlas()const 
+{
+	if(mAtlasInfop)
+	{
+		return mAtlasInfop->getAtlas() ;
+	}
+	return NULL ;
+}
+
+const LLVector2* LLFace::getTexCoordOffset()const 
+{
+	if(isAtlasInUse())
+	{
+		return mAtlasInfop->getTexCoordOffset() ;
+	}
+	return NULL ;
+}
+const LLVector2* LLFace::getTexCoordScale() const 
+{
+	if(isAtlasInUse())
+	{
+		return mAtlasInfop->getTexCoordScale() ;
+	}
+	return NULL ;
+}
+
+BOOL LLFace::isAtlasInUse()const
+{
+	return mUsingAtlas ;
+}
+
+BOOL LLFace::canUseAtlas()const
+{
+	//no drawable or no spatial group, do not use atlas
+	if(!mDrawablep || !mDrawablep->getSpatialGroup())
+	{
+		return FALSE ;
+	}
+
+	//if bump face, do not use atlas
+	if(getTextureEntry() && getTextureEntry()->getBumpmap())
+	{
+		return FALSE ;
+	}
+
+	//if animated texture, do not use atlas
+	if(isState(TEXTURE_ANIM))
+	{
+		return FALSE ;
+	}
+
+	return TRUE ;
+}
+
+void LLFace::setAtlasInUse(BOOL flag)
+{
+	//no valid atlas to use.
+	if(flag && (!mAtlasInfop || !mAtlasInfop->isValid()))
+	{
+		flag = FALSE ;
+	}
+
+	if(!flag && !mUsingAtlas)
+	{
+		return ;
+	}
+
+	//
+	//at this stage (flag || mUsingAtlas) is always true.
+	//
+
+	//rebuild the tex coords
+	if(mDrawablep)
+	{
+		gPipeline.markRebuild(mDrawablep, LLDrawable::REBUILD_TCOORD);
+		mUsingAtlas = flag ;
+	}
+	else
+	{
+		mUsingAtlas = FALSE ;
+	}
+}
+
+LLTextureAtlasSlot* LLFace::getAtlasInfo()
+{
+	return mAtlasInfop ;
+}
+
+void LLFace::setAtlasInfo(LLTextureAtlasSlot* atlasp)
+{	
+	if(mAtlasInfop != atlasp)
+	{
+		if(mAtlasInfop)
+		{
+			//llerrs << "Atlas slot changed!" << llendl ;
+		}
+		mAtlasInfop = atlasp ;
+	}
+}
+
+LLViewerTexture* LLFace::getTexture() const
+{
+	if(isAtlasInUse())
+	{
+		return (LLViewerTexture*)mAtlasInfop->getAtlas() ;
+	}
+
+	return mTexture ;
+}
+
+//switch to atlas or switch back to gl texture 
+//return TRUE if using atlas.
+BOOL LLFace::switchTexture()
+{
+	//no valid atlas or texture
+	if(!mAtlasInfop || !mAtlasInfop->isValid() || !mTexture)
+	{
+		return FALSE ;
+	}
+	
+	if(mTexture->getTexelsInAtlas() >= (U32)mVSize || 
+		mTexture->getTexelsInAtlas() >= mTexture->getTexelsInGLTexture())
+	{
+		//switch to use atlas
+		//atlas resolution is qualified, use it.		
+		if(!mUsingAtlas)
+		{
+			setAtlasInUse(TRUE) ;
+		}
+	}
+	else //if atlas not qualified.
+	{
+		//switch back to GL texture
+		if(mUsingAtlas && mTexture->isGLTextureCreated() && 
+			mTexture->getDiscardLevel() < mTexture->getDiscardLevelInAtlas())
+		{
+			setAtlasInUse(FALSE) ;
+		}
+	}
+
+	return mUsingAtlas ;
+}
+

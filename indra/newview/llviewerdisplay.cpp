@@ -125,6 +125,11 @@ void display_startup()
 		return; 
 	}
 
+	gPipeline.updateGL();
+
+	// Update images?
+	//gImageList.updateImages(0.01f);
+	
 	LLGLSDefault gls_default;
 
 	// Required for HTML update in login screen
@@ -558,6 +563,9 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			stop_glerror();
 		}
 
+		gPipeline.updateGL();
+		stop_glerror();
+
 		S32 water_clip = 0;
 		if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT) > 1) &&
 			 gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER))
@@ -606,6 +614,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLGLState::checkClientArrays();
 
 		static LLCullResult result;
+		LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 		gPipeline.updateCull(*LLViewerCamera::getInstance(), result, water_clip);
 		stop_glerror();
 
@@ -647,6 +656,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 					gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
 				}
 
+				LLVertexBuffer::unbind();
+
 				LLGLState::checkStates();
 				LLGLState::checkTextureChannels();
 				LLGLState::checkClientArrays();
@@ -678,6 +689,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			LLMemType mt_gw(LLMemType::MTYPE_DISPLAY_GEN_REFLECTION);
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Imagery");
 			gPipeline.generateWaterReflection(*LLViewerCamera::getInstance());
+			gPipeline.generateHighlight(*LLViewerCamera::getInstance());
 		}
 
 		//////////////////////////////////////
@@ -702,6 +714,9 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 			const F32 max_image_decode_time = llmin(0.005f, 0.005f*10.f*gFrameIntervalSeconds); // 50 ms/second decode time (no more than 5ms/frame)
 			gTextureList.updateImages(max_image_decode_time);
+
+			//remove dead textures from GL
+			LLImageGL::deleteDeadTextures();
 			stop_glerror();
 		}
 		llpushcallstacks ;
@@ -715,6 +730,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//
 		LLAppViewer::instance()->pingMainloopTimeout("Display:StateSort");
 		{
+			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 			LLMemType mt_ss(LLMemType::MTYPE_DISPLAY_STATE_SORT);
 			gPipeline.stateSort(*LLViewerCamera::getInstance(), result);
 			stop_glerror();
@@ -797,6 +813,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
 			{
 				gPipeline.mDeferredScreen.bindTarget();
+				glClearColor(0,0,0,0);
 				gPipeline.mDeferredScreen.clear();
 			}
 			else
@@ -813,6 +830,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot())
 				&& !gRestoreGL)
 		{
+			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 			LLMemType mt_rg(LLMemType::MTYPE_DISPLAY_RENDER_GEOM);
 			gGL.setColorMask(true, false);
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
@@ -831,6 +849,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			for (U32 i = 0; i < 16; i++)
 			{
 				gGLLastModelView[i] = gGLModelView[i];
+				gGLLastProjection[i] = gGLProjection[i];
 			}
 			stop_glerror();
 		}
@@ -869,6 +888,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			LLFastTimer t(FTM_RENDER_UI);
 			render_ui();
 		}
+
+		gPipeline.rebuildGroups();
 
 		LLSpatialGroup::sNoDelete = FALSE;
 	}
@@ -944,6 +965,7 @@ void render_hud_attachments()
 		static LLCullResult result;
 		LLSpatialGroup::sNoDelete = TRUE;
 
+		LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 		gPipeline.updateCull(hud_cam, result);
 
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_BUMP);
@@ -951,6 +973,15 @@ void render_hud_attachments()
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_VOLUME);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_ALPHA);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_FULLBRIGHT);
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_ALPHA);
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_ALPHA_MASK);
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_BUMP);
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT);
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_ALPHA_MASK);
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_SHINY);
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_SHINY);
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_INVISIBLE);
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_INVISI_SHINY);
 		
 		gPipeline.stateSort(hud_cam, result);
 
@@ -1259,7 +1290,73 @@ void render_ui_2d()
 		glPopMatrix();
 		stop_glerror();
 	}
-	gViewerWindow->draw();
+	
+
+	if (gSavedSettings.getBOOL("RenderUIBuffer"))
+	{
+		if (LLUI::sDirty)
+		{
+			LLUI::sDirty = FALSE;
+			LLRect t_rect;
+
+			gPipeline.mUIScreen.bindTarget();
+			gGL.setColorMask(true, true);
+			{
+				static const S32 pad = 8;
+
+				LLUI::sDirtyRect.mLeft -= pad;
+				LLUI::sDirtyRect.mRight += pad;
+				LLUI::sDirtyRect.mBottom -= pad;
+				LLUI::sDirtyRect.mTop += pad;
+
+				LLGLEnable scissor(GL_SCISSOR_TEST);
+				static LLRect last_rect = LLUI::sDirtyRect;
+
+				//union with last rect to avoid mouse poop
+				last_rect.unionWith(LLUI::sDirtyRect);
+								
+				t_rect = LLUI::sDirtyRect;
+				LLUI::sDirtyRect = last_rect;
+				last_rect = t_rect;
+			
+				last_rect.mLeft = LLRect::tCoordType(last_rect.mLeft / LLUI::sGLScaleFactor.mV[0]);
+				last_rect.mRight = LLRect::tCoordType(last_rect.mRight / LLUI::sGLScaleFactor.mV[0]);
+				last_rect.mTop = LLRect::tCoordType(last_rect.mTop / LLUI::sGLScaleFactor.mV[1]);
+				last_rect.mBottom = LLRect::tCoordType(last_rect.mBottom / LLUI::sGLScaleFactor.mV[1]);
+
+				LLRect clip_rect(last_rect);
+				
+				glClear(GL_COLOR_BUFFER_BIT);
+
+				gViewerWindow->draw();
+			}
+
+			gPipeline.mUIScreen.flush();
+			gGL.setColorMask(true, false);
+
+			LLUI::sDirtyRect = t_rect;
+			
+	}
+
+		LLGLDisable cull(GL_CULL_FACE);
+		LLGLDisable blend(GL_BLEND);
+		S32 width = gViewerWindow->getWindowWidth();
+		S32 height = gViewerWindow->getWindowHeight();
+		gGL.getTexUnit(0)->bind(&gPipeline.mUIScreen);
+		gGL.begin(LLRender::TRIANGLE_STRIP);
+		gGL.color4f(1,1,1,1);
+		gGL.texCoord2f(0, 0);			gGL.vertex2i(0, 0);
+		gGL.texCoord2f(width, 0);		gGL.vertex2i(width, 0);
+		gGL.texCoord2f(0, height);		gGL.vertex2i(0, height);
+		gGL.texCoord2f(width, height);	gGL.vertex2i(width, height);
+		gGL.end();
+	}
+	else
+	{
+		gViewerWindow->draw();
+	}
+
+
 
 	// reset current origin for font rendering, in case of tiling render
 	LLFontGL::sCurOrigin.set(0, 0);

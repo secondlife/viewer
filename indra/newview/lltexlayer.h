@@ -193,7 +193,7 @@ public:
 	void					applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components);
 	void					renderAlphaMaskTextures(S32 width, S32 height, bool forceClear = false);
 	LLTexLayer*				findLayerByName(std::string name);
-
+	
 	LLVOAvatarSelf*		    getAvatar()	const { return mAvatar; }
 	const std::string		getBodyRegion() const;
 	BOOL					hasComposite() const { return (mComposite.notNull()); }

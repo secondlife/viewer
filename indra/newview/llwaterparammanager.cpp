@@ -154,7 +154,7 @@ void LLWaterParamManager::loadPreset(const std::string & name,bool propagate)
 	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight/water", escaped_filename));
 	llinfos << "Loading water settings from " << pathName << llendl;
 	
-	std::ifstream presetsXML;
+	llifstream presetsXML;
 	presetsXML.open(pathName.c_str());
 	
 	// That failed, try loading from the users area instead.
@@ -162,7 +162,8 @@ void LLWaterParamManager::loadPreset(const std::string & name,bool propagate)
 	{
 		pathName=gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/water", escaped_filename);
 		llinfos << "Loading User water setting from " << pathName << llendl;
-		presetsXML.open(pathName.c_str());
+		presetsXML.clear();
+        presetsXML.open(pathName.c_str());
 	}
 
 	if (presetsXML)
@@ -278,8 +279,6 @@ void LLWaterParamManager::update(LLViewerCamera * cam)
 	{
 		waterfloater->syncMenu();
 	}
-
-	stop_glerror();
 
 	// only do this if we're dealing with shaders
 	if(gPipeline.canUseVertexShaders()) 

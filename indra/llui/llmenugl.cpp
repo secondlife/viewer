@@ -408,6 +408,12 @@ void LLMenuItemGL::onCommit( void )
 	{
 		getMenu()->clearHoverItem();
 	}
+
+	if (mHighlight != highlight)
+	{
+		dirtyRect();
+	}
+
 	mHighlight = highlight;
 }
 
@@ -1233,6 +1239,8 @@ void LLMenuItemBranchGL::openMenu()
 		branch->translate( delta_x, delta_y );
 		branch->setVisible( TRUE );
 		branch->getParent()->sendChildToFront(branch);
+
+		dirtyRect();
 	}
 }
 

@@ -214,7 +214,7 @@ void LLSurface::create(const S32 grids_per_edge,
 
 LLViewerTexture* LLSurface::getSTexture()
 {
-	if (mSTexturep.notNull() && !mSTexturep->hasValidGLTexture())
+	if (mSTexturep.notNull() && !mSTexturep->hasGLTexture())
 	{
 		createSTexture();
 	}
@@ -223,7 +223,7 @@ LLViewerTexture* LLSurface::getSTexture()
 
 LLViewerTexture* LLSurface::getWaterTexture()
 {
-	if (mWaterTexturep.notNull() && !mWaterTexturep->hasValidGLTexture())
+	if (mWaterTexturep.notNull() && !mWaterTexturep->hasGLTexture())
 	{
 		createWaterTexture();
 	}
@@ -235,8 +235,13 @@ void LLSurface::createSTexture()
 	if (!mSTexturep)
 	{
 		// Fill with dummy gray data.
-		LLPointer<LLImageRaw> raw = new LLImageRaw(sTextureSize, sTextureSize, 3);
-		U8 *default_texture = raw->getData();
+	
+		mSTexturep =  LLViewerTextureManager::getLocalTexture(sTextureSize, sTextureSize, 3, FALSE);
+		mSTexturep->dontDiscard();
+		mSTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
+		
+		// GL NOT ACTIVE HERE
+		/*U8 *default_texture = raw->getData();
 		for (S32 i = 0; i < sTextureSize; i++)
 		{
 			for (S32 j = 0; j < sTextureSize; j++)
@@ -250,7 +255,8 @@ void LLSurface::createSTexture()
 		mSTexturep = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
 		mSTexturep->dontDiscard();
 		gGL.getTexUnit(0)->bind(mSTexturep);
-		mSTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);		
+		mSTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);*/
+		
 	}
 }
 
@@ -259,7 +265,7 @@ void LLSurface::createWaterTexture()
 	if (!mWaterTexturep)
 	{
 		// Create the water texture
-		LLPointer<LLImageRaw> raw = new LLImageRaw(sTextureSize/2, sTextureSize/2, 4);
+		/*LLPointer<LLImageRaw> raw = new LLImageRaw(sTextureSize/2, sTextureSize/2, 4);
 		U8 *default_texture = raw->getData();
 		for (S32 i = 0; i < sTextureSize/2; i++)
 		{
@@ -270,10 +276,11 @@ void LLSurface::createWaterTexture()
 				*(default_texture + (i*sTextureSize/2 + j)*4 + 2) = MAX_WATER_COLOR.mV[2];
 				*(default_texture + (i*sTextureSize/2 + j)*4 + 3) = MAX_WATER_COLOR.mV[3];
 			}
-		}
-		mWaterTexturep = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
+		}*/
+		
+		
+		mWaterTexturep = LLViewerTextureManager::getLocalTexture(sTextureSize/2, sTextureSize/2, 4, FALSE);
 		mWaterTexturep->dontDiscard();
-		gGL.getTexUnit(0)->bind(mWaterTexturep);
 		mWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 }
@@ -1189,7 +1196,7 @@ F32 LLSurface::getWaterHeight() const
 BOOL LLSurface::generateWaterTexture(const F32 x, const F32 y,
 									 const F32 width, const F32 height)
 {
-	if (!getWaterTexture() || !mWaterTexturep->hasGLTexture())
+	if (!getWaterTexture())
 	{
 		return FALSE;
 	}
@@ -1271,6 +1278,11 @@ BOOL LLSurface::generateWaterTexture(const F32 x, const F32 y,
 				*(rawp + offset++) = coloru.mV[3];
 			}
 		}
+	}
+
+	if (!mWaterTexturep->hasGLTexture())
+	{
+		mWaterTexturep->createGLTexture(0, raw);
 	}
 
 	mWaterTexturep->setSubImage(raw, x_begin, y_begin, x_end - x_begin, y_end - y_begin);

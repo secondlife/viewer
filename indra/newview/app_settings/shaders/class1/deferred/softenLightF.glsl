@@ -12,9 +12,9 @@ uniform sampler2DRect specularRect;
 uniform sampler2DRect positionMap;
 uniform sampler2DRect normalMap;
 uniform sampler2DRect depthMap;
-uniform sampler2DRect lightMap;
 uniform sampler2D	  noiseMap;
 uniform samplerCube environmentMap;
+uniform sampler2D	  lightFunc;
 
 uniform float blur_size;
 uniform float blur_fidelity;
@@ -38,9 +38,9 @@ uniform vec4 max_y;
 uniform vec4 glow;
 uniform float scene_light_strength;
 uniform vec3 env_mat[3];
-uniform mat4 shadow_matrix[3];
-uniform vec4 shadow_clip;
-uniform mat3 ssao_effect_mat;
+//uniform mat4 shadow_matrix[3];
+//uniform vec4 shadow_clip;
+//uniform mat3 ssao_effect_mat;
 
 varying vec4 vary_light;
 varying vec2 vary_fragcoord;
@@ -51,6 +51,22 @@ vec3 vary_SunlitColor;
 vec3 vary_AmblitColor;
 vec3 vary_AdditiveColor;
 vec3 vary_AtmosAttenuation;
+
+uniform mat4 inv_proj;
+uniform vec2 screen_res;
+
+vec4 getPosition(vec2 pos_screen)
+{ //get position in screen space (world units) given window coordinate and depth map
+	float depth = texture2DRect(depthMap, pos_screen.xy).a;
+	vec2 sc = pos_screen.xy*2.0;
+	sc /= screen_res;
+	sc -= vec2(1.0,1.0);
+	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
+	vec4 pos = inv_proj * ndc;
+	pos /= pos.w;
+	pos.w = 1.0;
+	return pos;
+}
 
 vec3 getPositionEye()
 {
@@ -162,17 +178,7 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 	temp2.x += .25;
 	
 	//increase ambient when there are more clouds
-	vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow.x * 0.5;
-	
-	/*  decrease value and saturation (that in HSV, not HSL) for occluded areas
-	 * // for HSV color/geometry used here, see http://gimp-savvy.com/BOOK/index.html?node52.html
-	 * // The following line of code performs the equivalent of:
-	 * float ambAlpha = tmpAmbient.a;
-	 * float ambValue = dot(vec3(tmpAmbient), vec3(0.577)); // projection onto <1/rt(3), 1/rt(3), 1/rt(3)>, the neutral white-black axis
-	 * vec3 ambHueSat = vec3(tmpAmbient) - vec3(ambValue);
-	 * tmpAmbient = vec4(RenderSSAOEffect.valueFactor * vec3(ambValue) + RenderSSAOEffect.saturationFactor *(1.0 - ambFactor) * ambHueSat, ambAlpha);
-	 */
-	tmpAmbient = vec4(mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
+	vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow.x * 0.5;	
 
 	//haze color
 	setAdditiveColor(
@@ -235,36 +241,27 @@ vec3 scaleSoftClip(vec3 light)
 void main() 
 {
 	vec2 tc = vary_fragcoord.xy;
-	vec3 pos = texture2DRect(positionMap, tc).xyz;
-	vec3 norm = texture2DRect(normalMap, tc).xyz;
-	vec3 nz = texture2D(noiseMap, vary_fragcoord.xy/128.0).xyz;
+	vec3 pos = getPosition(tc).xyz;
+	vec3 norm = texture2DRect(normalMap, tc).xyz*2.0-1.0;
+	//vec3 nz = texture2D(noiseMap, vary_fragcoord.xy/128.0).xyz;
 	
 	float da = max(dot(norm.xyz, vary_light.xyz), 0.0);
 	
-	vec4 diffuse = vec4(texture2DRect(diffuseRect, tc).rgb, 1.0);
+	vec4 diffuse = texture2DRect(diffuseRect, tc);
 	vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
 	
-	vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
-	float scol = scol_ambocc.r; 
-	float ambocc = scol_ambocc.g;
-	
-	calcAtmospherics(pos.xyz, ambocc);
+	calcAtmospherics(pos.xyz, 0.0);
 	
 	vec3 col = atmosAmbient(vec3(0));
-	col += atmosAffectDirectionalLight(min(da, scol));
+	col += atmosAffectDirectionalLight(clamp(da, diffuse.a, 1.0));
 	
 	col *= diffuse.rgb;
 	
-	if (spec.a > 0.2)
+	if (spec.a > 0.0)
 	{
-		vec3 ref = reflect(pos.xyz, norm.xyz);
-		vec3 rc;
-		rc.x = dot(ref, env_mat[0]);
-		rc.y = dot(ref, env_mat[1]);
-		rc.z = dot(ref, env_mat[2]);
-		
-		vec3 refcol = textureCube(environmentMap, rc).rgb;
-		col.rgb += refcol * spec.rgb; 
+		vec3 ref = normalize(reflect(pos.xyz, norm.xyz));
+		float sa = dot(ref, vary_light.xyz);
+		col.rgb += vary_SunlitColor*spec.rgb*texture2D(lightFunc, vec2(sa, spec.a)).a;
 	}
 	
 	col = atmosLighting(col);
@@ -272,8 +269,4 @@ void main()
 	
 	gl_FragColor.rgb = col;
 	gl_FragColor.a = 0.0;
-	//gl_FragColor.rg = scol_ambocc.rg;
-	//gl_FragColor.rgb = norm.rgb*0.5+0.5;
-	//gl_FragColor.rgb = vec3(ambocc);
-	//gl_FragColor.rgb = vec3(scol);
 }

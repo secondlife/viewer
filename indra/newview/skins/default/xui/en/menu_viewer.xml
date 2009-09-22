@@ -2143,6 +2143,147 @@
         </menu>
         <menu_item_separator
          layout="topleft" />
+      <menu
+        create_jump_keys="true"
+        label="Render Metadata"
+        layout="topleft"
+        name="Render Metadata"
+        tear_off="true">
+        <menu_item_check
+         label="Bounding Boxes"
+         layout="topleft"
+         name="Bounding Boxes">
+        <menu_item_check.on_check
+         function="Advanced.CheckInfoDisplay"
+         parameter="bboxes" />
+        <menu_item_check.on_click
+         function="Advanced.ToggleInfoDisplay"
+         parameter="bboxes" />
+        </menu_item_check>
+        <menu_item_check
+         label="Octree"
+         layout="topleft"
+         name="Octree">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="octree" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="octree" />
+        </menu_item_check>
+        <menu_item_check
+         label="Shadow Frusta"
+         layout="topleft"
+         name="Shadow Frusta">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="shadow frusta" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="shadow frusta" />
+        </menu_item_check>
+        <menu_item_check
+         label="Occlusion"
+         layout="topleft"
+         name="Occlusion">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="occlusion" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="occlusion" />
+        </menu_item_check>
+        <menu_item_check
+         label="Render Batches"
+         layout="topleft"
+         name="Render Batches">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="render batches" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="render batches" />
+        </menu_item_check>
+        <menu_item_check
+         label="Texture Anim"
+         layout="topleft"
+         name="Texture Anim">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="texture anim" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="texture anim" />
+        </menu_item_check>
+        <menu_item_check
+         label="Texture Priority"
+         layout="topleft"
+         name="Texture Priority">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="texture priority" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="texture priority" />
+        </menu_item_check>
+        <menu_item_check
+         label="Texture Area"
+         layout="topleft"
+         name="Texture Area">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="texture area" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="texture area" />
+        </menu_item_check>
+        <menu_item_check
+         label="Face Area"
+         layout="topleft"
+         name="Face Area">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="face area" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="face area" />
+        </menu_item_check>
+        <menu_item_check
+         label="Lights"
+         layout="topleft"
+         name="Lights">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="lights" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="lights" />
+        </menu_item_check>
+        <menu_item_check
+         label="Collision Skeleton"
+         layout="topleft"
+         name="Collision Skeleton">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="collision skeleton" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="collision skeleton" />
+        </menu_item_check>
+        <menu_item_check
+         label="Raycast"
+         layout="topleft"
+         name="Raycast">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="raycast" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="raycast" />
+        </menu_item_check>
+      </menu>
+      <menu_item_separator
+         layout="topleft" />
         <menu
          create_jump_keys="true"
          label="Display Info"
@@ -2406,7 +2547,47 @@
                 <menu_item_check.on_enable
                  function="Advanced.EnableObjectObjectOcclusion" />
             </menu_item_check>
-            <menu_item_check
+          <menu_item_check
+             label="Framebuffer Objects"
+             layout="topleft"
+             name="Framebuffer Objects">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="RenderUseFBO" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="RenderUseFBO" />
+            <menu_item_check.on_enable
+                 function="Advanced.EnableRenderFBO" />
+           </menu_item_check>
+          <menu_item_check
+                       label="Deferred Rendering"
+                       layout="topleft"
+                       name="Deferred Rendering">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="RenderDeferred" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="RenderDeferred" />
+            <menu_item_check.on_enable
+                 function="Advanced.EnableRenderDeferred" />
+          </menu_item_check>
+          <menu_item_check
+                   label="Global Illumintation"
+                   layout="topleft"
+                   name="Global Illumination">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="RenderDeferredGI" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="RenderDeferredGI" />
+            <menu_item_check.on_enable
+                 function="Advanced.EnableRenderDeferredGI" />
+          </menu_item_check>
+
+          <menu_item_check
              label="Debug GL"
              layout="topleft"
              name="Debug GL">
@@ -2461,6 +2642,16 @@
                  function="Advanced.ToggleDisableTextures" />
             </menu_item_check>
             <menu_item_check
+             label="Texture Atlas"
+             layout="topleft"
+             name="Texture Atlas">
+              <menu_item_check.on_check
+               function="Advanced.CheckTextureAtlas"
+               parameter="TextureAtlas" />
+              <menu_item_check.on_click
+               function="Advanced.ToggleTextureAtlas" />
+            </menu_item_check>
+              <menu_item_check
              label="Render Attached Lights"
              layout="topleft"
              name="Render Attached Lights">

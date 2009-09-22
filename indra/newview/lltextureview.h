@@ -78,5 +78,25 @@ public:
 	static std::set<LLViewerFetchedTexture*> sDebugImages;
 };
 
+class LLGLTexSizeBar;
+
+class LLTextureSizeView : public LLView
+{
+public:
+	LLTextureSizeView(const Params&);
+	~LLTextureSizeView();
+
+	/*virtual*/ void draw();
+	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask) ;
+	
+private:
+	F32 drawTextureSizeDistributionGraph() ;
+	
+private:
+	std::vector<LLGLTexSizeBar*> mTextureSizeBar ;
+	LLRect mTextureSizeBarRect ;
+	S32    mTextureSizeBarWidth ;
+};
 extern LLTextureView *gTextureView;
+extern LLTextureSizeView *gTextureSizeView;
 #endif // LL_TEXTURE_VIEW_H

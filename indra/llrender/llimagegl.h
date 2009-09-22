@@ -42,7 +42,7 @@
 #include "v2math.h"
 
 #include "llrender.h"
-
+class LLTextureAtlas ;
 #define BYTES_TO_MEGA_BYTES(x) ((x) >> 20)
 #define MEGA_BYTES_TO_BYTES(x) ((x) << 20)
 
@@ -52,6 +52,10 @@ class LLImageGL : public LLRefCount
 {
 	friend class LLTexUnit;
 public:
+	static std::list<U32> sDeadTextureList;
+
+	static void deleteDeadTextures();
+
 	// Size calculation
 	static S32 dataFormatBits(S32 dataformat);
 	static S32 dataFormatBytes(S32 dataformat, S32 width, S32 height);
@@ -69,7 +73,6 @@ public:
 
 	// Sometimes called externally for textures not using LLImageGL (should go away...)
 	static S32 updateBoundTexMem(const S32 delta);
-
 	static bool checkSize(S32 width, S32 height);
 
 	//for server side use only.
@@ -115,6 +118,7 @@ public:
 	void destroyGLTexture();
 
 	void setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, BOOL swap_bytes = FALSE);
+	void setComponents(S8 ncomponents) { mComponents = ncomponents; }
 
 	S32	 getDiscardLevel() const		{ return mCurrentDiscardLevel; }
 	S32	 getMaxDiscardLevel() const		{ return mMaxDiscardLevel; }
@@ -128,6 +132,7 @@ public:
 	S32  getMipBytes(S32 discard_level = -1) const;
 	BOOL getBoundRecently() const;
 	LLGLenum getPrimaryFormat() const { return mFormatPrimary; }
+	LLGLenum getFormatType() const { return mFormatType; }
 
 	BOOL getHasGLTexture() const { return mTexName != 0; }
 	LLGLuint getTexName() const { return mTexName; }
@@ -164,10 +169,20 @@ public:
 	void setFilteringOption(LLTexUnit::eTextureFilterOptions option);
 	LLTexUnit::eTextureFilterOptions getFilteringOption(void) const { return mFilterOption; }
 
+	LLGLenum getTexTarget()const { return mTarget ;}
+	S8       getDiscardLevelInAtlas()const {return mDiscardLevelInAtlas;}
+	U32      getTexelsInAtlas()const { return mTexelsInAtlas ;}
+	U32      getTexelsInGLTexture()const {return mTexelsInGLTexture;}
+
+	
 	void init(BOOL usemipmaps);
 	virtual void cleanup(); // Clean up the LLImageGL so it can be reinitialized.  Be careful when using this in derived class destructors
 
 	void setNeedsAlphaAndPickMask(BOOL need_mask) {mNeedsAlphaAndPickMask = need_mask;}
+
+	BOOL preAddToAtlas(S32 discard_level, const LLImageRaw* raw_image);
+	void postAddToAtlas() ;	
+
 public:
 	// Various GL/Rendering options
 	S32 mTextureMemory;
@@ -188,6 +203,10 @@ private:
 	U16      mWidth;
 	U16      mHeight;	
 	S8       mCurrentDiscardLevel;
+
+	S8       mDiscardLevelInAtlas;
+	U32      mTexelsInAtlas ;
+	U32      mTexelsInGLTexture;
 
 protected:
 	LLGLenum mTarget;		// Normally GL_TEXTURE2D, sometimes something else (ex. cube maps)
@@ -224,7 +243,26 @@ public:
 	static U32 sBindCount;					// Tracks number of texture binds for current frame
 	static U32 sUniqueCount;				// Tracks number of unique texture binds for current frame
 	static BOOL sGlobalUseAnisotropic;
-	static LLImageGL* sDefaultGLTexture ;
+	static LLImageGL* sDefaultGLTexture ;	
+	static BOOL sAutomatedTest;
+
+#if !LL_RELEASE_FOR_DOWNLOAD
+	//for debug use: show texture size distribution 
+	//----------------------------------------
+	static LLPointer<LLImageGL> sDefaultTexturep; //default texture to replace normal textures
+	static std::vector<S32> sTextureLoadedCounter ;
+	static std::vector<S32> sTextureBoundCounter ;
+	static std::vector<S32> sTextureCurBoundCounter ;
+	static S32 sCurTexSizeBar ;
+	static S32 sCurTexPickSize ;
+	
+	static S32 getTextureCounterIndex(U32 val) ;
+	static void incTextureCounter(U32 val) ;
+	static void decTextureCounter(U32 val) ;
+	static void setCurTexSizebar(S32 index) ;
+	static void resetCurTexSizebar();
+	//----------------------------------------
+#endif
 
 #if DEBUG_MISS
 	BOOL mMissed; // Missed on last bind?

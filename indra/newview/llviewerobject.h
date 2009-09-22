@@ -75,6 +75,7 @@ class LLViewerPartSourceScript;
 class LLViewerRegion;
 class LLViewerObjectMedia;
 class LLVOInventoryListener;
+class LLVOAvatar;
 
 typedef enum e_object_update_type
 {
@@ -117,7 +118,7 @@ public:
 
 //============================================================================
 
-class LLViewerObject : public LLPrimitive, public LLRefCount
+class LLViewerObject : public LLPrimitive, public LLRefCount, public LLGLUpdate
 {
 protected:
 	~LLViewerObject(); // use unref()
@@ -143,6 +144,8 @@ public:
 	BOOL isDead() const									{return mDead;}
 	BOOL isOrphaned() const								{ return mOrphaned; }
 	BOOL isParticleSource() const;
+
+	virtual LLVOAvatar* asAvatar();
 
 	static void initVOClasses();
 	static void cleanupVOClasses();
@@ -195,6 +198,7 @@ public:
 	
 	virtual LLDrawable* createDrawable(LLPipeline *pipeline);
 	virtual BOOL		updateGeometry(LLDrawable *drawable);
+	virtual void		updateGL();
 	virtual void		updateFaceSize(S32 idx);
 	virtual BOOL		updateLOD();
 	virtual BOOL		setDrawableParent(LLDrawable* parentp);
@@ -219,6 +223,7 @@ public:
 
 	virtual BOOL isFlexible() const					{ return FALSE; }
 	virtual BOOL isSculpted() const 				{ return FALSE; }
+	virtual BOOL hasLightTexture() const			{ return FALSE; }
 
 	// This method returns true if the object is over land owned by
 	// the agent.
@@ -470,7 +475,7 @@ public:
 
 	virtual S32 getLOD() const { return 3; } 
 	virtual U32 getPartitionType() const;
-	virtual void dirtySpatialGroup() const;
+	virtual void dirtySpatialGroup(BOOL priority = FALSE) const;
 	virtual void dirtyMesh();
 
 	virtual LLNetworkData* getParameterEntry(U16 param_type) const;

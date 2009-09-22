@@ -77,7 +77,7 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 													GL_ALPHA8, GL_ALPHA,
 													LLUUID("e97cf410-8e61-7005-ec06-629eba4cd1fb"));
 
-	gGL.getTexUnit(0)->bind(mAlphaRampImagep);
+	//gGL.getTexUnit(0)->bind(mAlphaRampImagep.get());
 	mAlphaRampImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 	m2DAlphaRampImagep = LLViewerTextureManager::getFetchedTextureFromFile("alpha_gradient_2d.j2c", 
@@ -86,12 +86,12 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 													GL_ALPHA8, GL_ALPHA,
 													LLUUID("38b86f85-2575-52a9-a531-23108d8da837"));
 
-	gGL.getTexUnit(0)->bind(m2DAlphaRampImagep);
+	//gGL.getTexUnit(0)->bind(m2DAlphaRampImagep.get());
 	m2DAlphaRampImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 	
 	mTexturep->setBoostLevel(LLViewerTexture::BOOST_TERRAIN);
 	
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	//gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 }
 
 LLDrawPoolTerrain::~LLDrawPoolTerrain()

@@ -372,6 +372,8 @@ set(viewer_SOURCE_FILES
     lltexglobalcolor.cpp
     lltexlayer.cpp
     lltexlayerparams.cpp
+    lltextureatlas.cpp
+    lltextureatlasmanager.cpp
     lltexturecache.cpp
     lltexturectrl.cpp
     lltexturefetch.cpp
@@ -830,6 +832,8 @@ set(viewer_HEADER_FILES
     lltexglobalcolor.h
     lltexlayer.h
     lltexlayerparams.h
+    lltextureatlas.h
+    lltextureatlasmanager.h
     lltexturecache.h
     lltexturectrl.h
     lltexturefetch.h

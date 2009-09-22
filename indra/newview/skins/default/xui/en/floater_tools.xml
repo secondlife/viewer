@@ -2124,29 +2124,50 @@
              name="colorswatch"
              tool_tip="Click to open Color Picker"
              width="40" />
-            <spinner
+         <texture_picker 
+            allow_no_texture="true" 
+            top_delta="0" 
+            can_apply_immediately="true"
+            default_image_name="Default" 
+            follows="left|top" 
+            height="48" 
+            label=""
+            left_delta="57" 
+            mouse_opaque="true" 
+            name="light texture control"
+            tool_tip="Click to choose a projection image (only has effect with deferred rendering enabled)" 
+            width="32" />
+          <spinner
              follows="left|top"
              height="19"
              initial_value="0.5"
              label="Intensity"
              label_width="70"
              layout="topleft"
-             left_pad="15"
+             left="10"
              name="Light Intensity"
-             top_pad="-50"
+             top_pad="3"
              width="128" />
-            <spinner
+          <spinner bottom_delta="0" decimal_digits="3" follows="left|top" height="16"
+ increment="0.1" initial_val="0.5" label="FOV" label_width="55"
+ left="144" max_val="3" min_val="0" mouse_opaque="true"
+ name="Light FOV" width="120" />
+          <spinner
              follows="left|top"
              height="19"
              initial_value="5"
              label="Radius"
              label_width="70"
              layout="topleft"
-             left_delta="0"
+             left="10"
              max_val="20"
              name="Light Radius"
              top_pad="3"
              width="128" />
+          <spinner bottom_delta="0" decimal_digits="3" follows="left|top" height="16"
+        increment="0.5" initial_val="0.5" label="Focus" label_width="55"
+        left="144" max_val="20" min_val="-20" mouse_opaque="true"
+        name="Light Focus" width="120" />
             <spinner
              follows="left|top"
              height="19"
@@ -2155,13 +2176,17 @@
              label="Falloff"
              label_width="70"
              layout="topleft"
-             left_delta="0"
+             left="10"
              max_val="2"
              name="Light Falloff"
              top_pad="3"
              width="128" />
+          <spinner bottom_delta="0" decimal_digits="3" follows="left|top" height="16"
+           increment="0.05" initial_val="1" label="Ambiance" label_width="55"
+           left="144" max_val="1" min_val="0" mouse_opaque="true"
+           name="Light Ambiance" width="120" />
         </panel>
-        <panel
+         <panel
          border="false"
          follows="left|top|right|bottom"
          height="367"

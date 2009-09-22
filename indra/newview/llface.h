@@ -47,6 +47,7 @@
 #include "llvertexbuffer.h"
 #include "llviewertexture.h"
 #include "lldrawable.h"
+#include "lltextureatlasmanager.h"
 
 class LLFacePool;
 class LLVolume;
@@ -55,6 +56,7 @@ class LLTextureEntry;
 class LLVertexProgram;
 class LLViewerTexture;
 class LLGeometryManager;
+class LLTextureAtlasSlot;
 
 const F32 MIN_ALPHA_SIZE = 1024.f;
 const F32 MIN_TEX_ANIM_SIZE = 512.f;
@@ -86,7 +88,6 @@ public:
 	U16				getGeomCount()		const	{ return mGeomCount; }		// vertex count for this face
 	U16				getGeomIndex()		const	{ return mGeomIndex; }		// index into draw pool
 	U16				getGeomStart()		const	{ return mGeomIndex; }		// index into draw pool
-	LLViewerTexture*	getTexture()		const	{ return mTexture; }
 	void			setTexture(LLViewerTexture* tex) ;
 	LLXformMatrix*	getXform()			const	{ return mXform; }
 	BOOL			hasGeometry()		const	{ return mGeomCount > 0; }
@@ -119,7 +120,7 @@ public:
 	LLVertexBuffer* getVertexBuffer()	const	{ return mVertexBuffer; }
 	void			setPoolType(U32 type)		{ mPoolType = type; }
 	S32				getTEOffset()				{ return mTEOffset; }
-	LLViewerTexture*	getTexture()				{ return mTexture; }
+	LLViewerTexture*	getTexture() const;
 
 	void			setViewerObject(LLViewerObject* object);
 	void			setPool(LLFacePool *pool, LLViewerTexture *texturep);
@@ -185,7 +186,17 @@ public:
 	void		setIndicesIndex(S32 idx) { mIndicesIndex = idx; }
 	void		setDrawInfo(LLDrawInfo* draw_info);
 
-protected:
+	//for atlas
+	LLTextureAtlasSlot*   getAtlasInfo() ;
+	void                  setAtlasInUse(BOOL flag);
+	void                  setAtlasInfo(LLTextureAtlasSlot* atlasp);
+	BOOL                  isAtlasInUse()const;
+	BOOL                  canUseAtlas() const;
+	const LLVector2*      getTexCoordScale() const ;
+	const LLVector2*      getTexCoordOffset()const;
+	const LLTextureAtlas* getAtlas()const ;
+	void                  removeAtlas() ;
+	BOOL                  switchTexture() ;
 
 public:
 	
@@ -230,6 +241,10 @@ protected:
 	S32			mReferenceIndex;
 	F32			mVSize;
 	F32			mPixelArea;
+
+	//atlas
+	LLPointer<LLTextureAtlasSlot> mAtlasInfop ;
+	BOOL                              mUsingAtlas ;
 	
 protected:
 	static BOOL	sSafeRenderSelect;
@@ -258,7 +273,7 @@ public:
 			const LLTextureEntry* lte = lhs->getTextureEntry();
 			const LLTextureEntry* rte = rhs->getTextureEntry();
 
-			if (lhs->getTexture() != rhs->getTexture())
+			if(lhs->getTexture() != rhs->getTexture())
 			{
 				return lhs->getTexture() < rhs->getTexture();
 			}

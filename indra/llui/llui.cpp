@@ -81,7 +81,8 @@ std::list<std::string> gUntranslated;
 /*static*/ LLWindow*		LLUI::sWindow = NULL;
 /*static*/ LLHtmlHelp*		LLUI::sHtmlHelp = NULL;
 /*static*/ LLView*			LLUI::sRootView = NULL;
-
+/*static*/ BOOL				LLUI::sDirty = FALSE;
+/*static*/ LLRect			LLUI::sDirtyRect;
 /*static*/ std::vector<std::string> LLUI::sXUIPaths;
 /*static*/ LLFrameTimer		LLUI::sMouseIdleTimer;
 
@@ -1603,6 +1604,20 @@ void LLUI::cleanupClass()
 	sImageProvider->cleanUp();
 }
 
+//static
+void LLUI::dirtyRect(LLRect rect)
+{
+	if (!sDirty)
+	{
+		sDirtyRect = rect;
+		sDirty = TRUE;
+	}
+	else
+	{
+		sDirtyRect.unionWith(rect);
+	}		
+}
+ 
 
 //static
 void LLUI::translate(F32 x, F32 y, F32 z)

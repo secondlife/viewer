@@ -372,7 +372,7 @@ void LLWorldMapView::draw()
 		current_image->setBoostLevel(LLViewerTexture::BOOST_MAP_LAYER);
 		current_image->setKnownDrawSize(llround(pix_width * LLUI::sGLScaleFactor.mV[VX]), llround(pix_height * LLUI::sGLScaleFactor.mV[VY]));
 		
-		if (!current_image->hasValidGLTexture())
+		if (!current_image->hasGLTexture())
 		{
 			continue; // better to draw nothing than the default image
 		}
@@ -474,7 +474,7 @@ void LLWorldMapView::draw()
 		bool sim_visible =
 			(gMapScale >= map_scale_cutoff) &&
 			(simimage != NULL) &&
-			(simimage->hasValidGLTexture());
+			(simimage->hasGLTexture());
 
 		if (sim_visible)
 		{
@@ -583,7 +583,7 @@ void LLWorldMapView::draw()
 				gGL.vertex3f(right, top, 0.f);
 			gGL.end();
 
-			if (gSavedSettings.getBOOL("MapShowLandForSale") && overlayimage && overlayimage->hasValidGLTexture())
+			if (gSavedSettings.getBOOL("MapShowLandForSale") && overlayimage && overlayimage->hasGLTexture())
 			{
 				gGL.getTexUnit(0)->bind(overlayimage);
 				gGL.color4f(1.f, 1.f, 1.f, alpha);

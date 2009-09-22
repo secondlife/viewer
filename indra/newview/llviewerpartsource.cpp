@@ -101,7 +101,7 @@ LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) 
 	mSourceObjectp = source_objp;
 	mPosAgent = mSourceObjectp->getPositionAgent();
 	mImagep = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
-	gGL.getTexUnit(0)->bind(mImagep);
+	
 	mImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 }
 

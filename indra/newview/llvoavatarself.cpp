@@ -1331,7 +1331,7 @@ void LLVOAvatarSelf::getLocalTextureByteCount(S32* gl_bytes) const
 				{
 					S32 bytes = (S32)image_gl->getWidth() * image_gl->getHeight() * image_gl->getComponents();
 					
-					if (image_gl->hasValidGLTexture())
+					if (image_gl->hasGLTexture())
 					{
 						*gl_bytes += bytes;
 					}
@@ -1539,7 +1539,7 @@ BOOL LLVOAvatarSelf::updateIsFullyLoaded()
 
 			// Check for the case that texture is defined but not sufficiently loaded to display anything.
 			LLViewerTexture* baked_img = getImage( texture_data.mTextureIndex );
-			if (!baked_img || !baked_img->hasValidGLTexture())
+			if (!baked_img || !baked_img->hasGLTexture())
 			{
 				loading = TRUE;
 			}

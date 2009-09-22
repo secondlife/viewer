@@ -680,6 +680,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	}
 
 	mDirtyMesh = TRUE;	// Dirty geometry, need to regenerate.
+	mMeshTexturesDirty = FALSE;
 	mShadow0Facep = NULL;
 	mShadow1Facep = NULL;
 	mHeadp = NULL;
@@ -718,8 +719,10 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mRippleTimeLast = 0.f;
 
 	mShadowImagep = LLViewerTextureManager::getFetchedTextureFromFile("foot_shadow.j2c");
-	gGL.getTexUnit(0)->bind(mShadowImagep);
-	mShadowImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
+	
+	// GL NOT ACTIVE HERE
+	//gGL.getTexUnit(0)->bind(mShadowImagep.get());
+	//mShadowImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 	
 	mInAir = FALSE;
 
@@ -1612,6 +1615,11 @@ BOOL LLVOAvatar::buildSkeleton(const LLVOAvatarSkeletonInfo *info)
 	return TRUE;
 }
 
+LLVOAvatar* LLVOAvatar::asAvatar()
+{
+	return this;
+}
+
 //-----------------------------------------------------------------------------
 // LLVOAvatar::startDefaultMotions()
 //-----------------------------------------------------------------------------
@@ -2176,10 +2184,14 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	idleUpdateVoiceVisualizer( voice_enabled );
 	idleUpdateMisc( detailed_update );
 	idleUpdateAppearanceAnimation();
-	idleUpdateLipSync( voice_enabled );
-	idleUpdateLoadingEffect();
-	idleUpdateBelowWater();	// wind effect uses this
-	idleUpdateWindEffect();
+	if (detailed_update)
+	{
+		idleUpdateLipSync( voice_enabled );
+		idleUpdateLoadingEffect();
+		idleUpdateBelowWater();	// wind effect uses this
+		idleUpdateWindEffect();
+	}
+	
 	idleUpdateNameTag( root_pos_last );
 	idleUpdateRenderCost();
 	idleUpdateTractorBeam();
@@ -3032,7 +3044,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	if (!visible)
 	{
-		updateMotions(LLCharacter::HIDDEN_UPDATE);
+		//updateMotions(LLCharacter::HIDDEN_UPDATE);
 		return FALSE;
 	}
 
@@ -3702,7 +3714,8 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 
 	if (pass == AVATAR_RENDER_PASS_SINGLE)
 	{
-		const bool should_alpha_mask = mSupportsAlphaLayers && !LLDrawPoolAlpha::sShowDebugAlpha; // Don't alpha mask if "Highlight Transparent" checked
+		const bool should_alpha_mask = mSupportsAlphaLayers && !LLDrawPoolAlpha::sShowDebugAlpha // Don't alpha mask if "Highlight Transparent" checked
+								&& !LLDrawPoolAvatar::sSkipTransparent;
 
 		LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
 		
@@ -3817,20 +3830,8 @@ U32 LLVOAvatar::renderRigid()
 
 	if (isTextureVisible(TEX_EYES_BAKED) || mIsDummy)
 	{
-		// If the meshes need to be drawn, enable alpha masking but not blending
-		bool should_alpha_mask = mSupportsAlphaLayers && !LLDrawPoolAlpha::sShowDebugAlpha;
-
-		LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
-		
-		if (should_alpha_mask)
-		{
-			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
-		}
-
 		num_indices += mMeshLOD[MESH_ID_EYEBALL_LEFT]->render(mAdjustedPixelArea, TRUE, mIsDummy);
 		num_indices += mMeshLOD[MESH_ID_EYEBALL_RIGHT]->render(mAdjustedPixelArea, TRUE, mIsDummy);
-
-		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	}
 	
 	return num_indices;
@@ -3875,7 +3876,7 @@ U32 LLVOAvatar::renderFootShadows()
 	LLGLDepthTest test(GL_TRUE, GL_FALSE);
 	//render foot shadows
 	LLGLEnable blend(GL_BLEND);
-	gGL.getTexUnit(0)->bind(mShadowImagep);
+	gGL.getTexUnit(0)->bind(mShadowImagep.get());
 	glColor4fv(mShadow0Facep->getRenderColor().mV);
 	mShadow0Facep->renderIndexed(foot_mask);
 	glColor4fv(mShadow1Facep->getRenderColor().mV);
@@ -3884,7 +3885,7 @@ U32 LLVOAvatar::renderFootShadows()
 	return num_indices;
 }
 
-U32 LLVOAvatar::renderImpostor(LLColor4U color)
+U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
 {
 	if (!mImpostor.isComplete())
 	{
@@ -3904,7 +3905,7 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color)
 	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.f);
 
 	gGL.color4ubv(color.mV);
-	gGL.getTexUnit(0)->bind(&mImpostor);
+	gGL.getTexUnit(diffuse_channel)->bind(&mImpostor);
 	gGL.begin(LLRender::QUADS);
 	gGL.texCoord2f(0,0);
 	gGL.vertex3fv((pos+left-up).mV);
@@ -3942,6 +3943,7 @@ void LLVOAvatar::updateTextures(LLAgent &agent)
 	}
 
 	std::vector<BOOL> layer_baked;
+	// GL NOT ACTIVE HERE - *TODO
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
 		layer_baked.push_back(isTextureDefined(mBakedTextureDatas[i].mTextureIndex));
@@ -5171,6 +5173,15 @@ LLDrawable *LLVOAvatar::createDrawable(LLPipeline *pipeline)
 }
 
 
+void LLVOAvatar::updateGL()
+{
+	if (mMeshTexturesDirty)
+	{
+		updateMeshTextures();
+		mMeshTexturesDirty = FALSE;
+	}
+}
+
 //-----------------------------------------------------------------------------
 // updateGeometry()
 //-----------------------------------------------------------------------------
@@ -5222,7 +5233,7 @@ void LLVOAvatar::updateShadowFaces()
 	sprite.setSize(0.4f + cos_elev * 0.8f, 0.3f);
 	LLVector3 sun_vec = gSky.mVOSkyp ? gSky.mVOSkyp->getToSun() : LLVector3(0.f, 0.f, 0.f);
 
-	if (mShadowImagep->hasValidGLTexture())
+	if (mShadowImagep->hasGLTexture())
 	{
 		LLVector3 normal;
 		LLVector3d shadow_pos;
@@ -6354,7 +6365,8 @@ void LLVOAvatar::onFirstTEMessageReceived()
 			}
 		}
 
-		updateMeshTextures();
+		mMeshTexturesDirty = TRUE;
+		gPipeline.markGLRebuild(this);
 	}
 }
 
@@ -6417,6 +6429,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	}
 
 	setCompositeUpdatesEnabled( FALSE );
+	mMeshTexturesDirty = TRUE;
+	gPipeline.markGLRebuild(this);
 
 	// ! BACKWARDS COMPATIBILITY !
 	// Non-self avatars will no longer have component textures
@@ -6425,8 +6439,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		releaseComponentTextures();
 	}
 	
-	updateMeshTextures(); // enables updates for laysets without baked textures.
-
+	
 	// parse visual params
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
 	if( num_blocks > 1 )
@@ -7436,6 +7449,11 @@ void LLVOAvatar::updateFreezeCounter(S32 counter)
 
 BOOL LLVOAvatar::updateLOD()
 {
+	if (isImpostor())
+	{
+		return TRUE;
+	}
+
 	BOOL res = updateJointLODs();
 
 	LLFace* facep = mDrawable->getFace(0);

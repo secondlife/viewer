@@ -572,6 +572,8 @@ BOOL LLDrawPoolBump::bindBumpMap(LLDrawInfo& params, S32 channel)
 	LLViewerTexture* bump = NULL;
 
 	U8 bump_code = params.mBump;
+
+	//Note: texture atlas does not support bump texture now.
 	LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(params.mTexture) ;
 	if(!tex)
 	{
@@ -831,7 +833,7 @@ void LLBumpImageList::updateImages()
 		if( image )
 		{
 			BOOL destroy = TRUE;
-			if( image->hasValidGLTexture())
+			if( image->hasGLTexture())
 			{
 				if( image->getBoundRecently() )
 				{
@@ -858,7 +860,7 @@ void LLBumpImageList::updateImages()
 		if( image )
 		{
 			BOOL destroy = TRUE;
-			if( image->hasValidGLTexture())
+			if( image->hasGLTexture())
 			{
 				if( image->getBoundRecently() )
 				{
@@ -963,7 +965,7 @@ void LLBumpImageList::onSourceStandardLoaded( BOOL success, LLViewerFetchedTextu
 		LLPointer<LLImageRaw> nrm_image = new LLImageRaw(src->getWidth(), src->getHeight(), 4);
 		generateNormalMapFromAlpha(src, nrm_image);
 		src_vi->setExplicitFormat(GL_RGBA, GL_RGBA);
-		src_vi->createGLTexture(0, nrm_image);
+		src_vi->createGLTexture(src_vi->getDiscardLevel(), nrm_image);
 	}
 }
 
@@ -1147,14 +1149,14 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 			if (!LLPipeline::sRenderDeferred)
 			{
 				bump->setExplicitFormat(GL_ALPHA8, GL_ALPHA);
-				bump->createGLTexture(0, dst_image);
+				bump->createGLTexture(bump->getDiscardLevel(), dst_image);
 			}
 			else
 			{
 				LLPointer<LLImageRaw> nrm_image = new LLImageRaw(src->getWidth(), src->getHeight(), 4);
 				generateNormalMapFromAlpha(src, nrm_image);
 				bump->setExplicitFormat(GL_RGBA, GL_RGBA);
-				bump->createGLTexture(0, nrm_image);
+				bump->createGLTexture(bump->getDiscardLevel(), nrm_image);
 			}
 
 			
@@ -1216,7 +1218,7 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 		if (params.mTexture.notNull())
 		{
 			gGL.getTexUnit(diffuse_channel)->bind(params.mTexture) ;
-			params.mTexture->addTextureStats(params.mVSize);
+			params.mTexture->addTextureStats(params.mVSize);		
 		}
 		else
 		{

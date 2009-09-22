@@ -60,6 +60,8 @@
 #include "llviewercontrol.h"
 #include "pipeline.h"
 #include "llappviewer.h"
+#include "lltextureatlas.h"
+#include "lltextureatlasmanager.h"
 ///////////////////////////////////////////////////////////////////////////////
 
 // statics
@@ -83,6 +85,7 @@ S32 LLViewerTexture::sMaxBoundTextureMemInMegaBytes = 0;
 S32 LLViewerTexture::sMaxTotalTextureMemInMegaBytes = 0;
 S32 LLViewerTexture::sMaxDesiredTextureMemInBytes = 0 ;
 BOOL LLViewerTexture::sDontLoadVolumeTextures = FALSE;
+BOOL LLViewerTexture::sUseTextureAtlas        = FALSE ;
 
 const F32 desired_discard_bias_min = -2.0f; // -max number of levels to improve image quality by
 const F32 desired_discard_bias_max = 1.5f; // max number of levels to reduce image quality by
@@ -368,6 +371,7 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 		}
 	}
 	sDesiredDiscardBias = llclamp(sDesiredDiscardBias, desired_discard_bias_min, desired_discard_bias_max);
+	LLViewerTexture::sUseTextureAtlas = gSavedSettings.getBOOL("EnableTextureAtlas") ;
 }
 
 //end of static functions
@@ -667,18 +671,13 @@ LLGLuint LLViewerTexture::getTexName() const
 	return mGLTexturep->getTexName() ; 
 }
 
-BOOL LLViewerTexture::hasValidGLTexture() const 
+BOOL LLViewerTexture::hasGLTexture() const 
 {
 	if(mGLTexturep.notNull())
 	{
 		return mGLTexturep->getHasGLTexture() ;
 	}
 	return FALSE ;
-}
-
-BOOL LLViewerTexture::hasGLTexture() const 
-{
-	return mGLTexturep.notNull() ;
 }
 
 BOOL LLViewerTexture::getBoundRecently() const
@@ -779,6 +778,34 @@ BOOL LLViewerTexture::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool 
 	return mGLTexturep->readBackRaw(discard_level, imageraw, compressed_ok) ;
 }
 
+U32 LLViewerTexture::getTexelsInAtlas() const
+{
+	llassert_always(mGLTexturep.notNull()) ;
+
+	return mGLTexturep->getTexelsInAtlas() ;
+}
+
+U32 LLViewerTexture::getTexelsInGLTexture() const
+{
+	llassert_always(mGLTexturep.notNull()) ;
+
+	return mGLTexturep->getTexelsInGLTexture() ;
+}
+
+BOOL LLViewerTexture::isGLTextureCreated() const
+{
+	llassert_always(mGLTexturep.notNull()) ;
+
+	return mGLTexturep->isGLTextureCreated() ;
+}
+
+S32  LLViewerTexture::getDiscardLevelInAtlas() const
+{
+	llassert_always(mGLTexturep.notNull()) ;
+
+	return mGLTexturep->getDiscardLevelInAtlas() ;
+}
+
 void LLViewerTexture::destroyGLTexture() 
 {
 	if(mGLTexturep.notNull() && mGLTexturep->getHasGLTexture())
@@ -796,6 +823,7 @@ void LLViewerTexture::updateBindStatsForTester()
 		LLViewerTextureManager::sTesterp->updateTextureBindingStats(this) ;
 	}
 }
+
 //----------------------------------------------------------------------------------------------
 //end of LLViewerTexture
 //----------------------------------------------------------------------------------------------
@@ -1044,7 +1072,11 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 			return FALSE;
 		}
 		
-		res = mGLTexturep->createGLTexture(mRawDiscardLevel, mRawImage, usename);
+		if(!(res = insertToAtlas()))
+		{
+			res = mGLTexturep->createGLTexture(mRawDiscardLevel, mRawImage, usename);
+			resetFaceAtlas() ;
+		}
 		setActive() ;
 	}
 
@@ -1741,6 +1773,197 @@ void LLViewerFetchedTexture::destroyRawImage()
 	mIsRawImageValid = FALSE;
 	mRawDiscardLevel = INVALID_DISCARD_LEVEL;
 }
+
+//----------------------------------------------------------------------------------------------
+//atlasing
+//----------------------------------------------------------------------------------------------
+void LLViewerFetchedTexture::resetFaceAtlas()
+{
+	//Nothing should be done here.
+}
+
+//invalidate all atlas slots for this image.
+void LLViewerFetchedTexture::invalidateAtlas(BOOL rebuild_geom)
+{
+	for(ll_face_list_t::iterator iter = mFaceList.begin(); iter != mFaceList.end(); ++iter)
+	{
+		if(*iter)
+		{
+			LLFace* facep = (LLFace*)*iter ;
+			facep->removeAtlas() ;
+			if(rebuild_geom && facep->getDrawable() && facep->getDrawable()->getSpatialGroup())
+			{
+				facep->getDrawable()->getSpatialGroup()->setState(LLSpatialGroup::GEOM_DIRTY);
+			}
+		}
+	}
+}
+
+BOOL LLViewerFetchedTexture::insertToAtlas()
+{
+	if(!LLViewerTexture::sUseTextureAtlas)
+	{
+		return FALSE ;
+	}
+	if(mFaceList.size() < 1)
+	{
+		return FALSE ;
+	}						
+	if(mGLTexturep->getDiscardLevelInAtlas() > 0 && mRawDiscardLevel >= mGLTexturep->getDiscardLevelInAtlas())
+	{
+		return FALSE ;
+	}
+	if(!LLTextureAtlasManager::getInstance()->canAddToAtlas(mRawImage->getWidth(), mRawImage->getHeight(), mRawImage->getComponents(), mGLTexturep->getTexTarget()))
+	{
+		return FALSE ;
+	}
+
+	BOOL ret = TRUE ;//if ret is set to false, will generate a gl texture for this image.
+	S32 raw_w = mRawImage->getWidth() ;
+	S32 raw_h = mRawImage->getHeight() ;
+	F32 xscale = 1.0f, yscale = 1.0f ;
+	LLPointer<LLTextureAtlasSlot> slot_infop;
+	LLTextureAtlasSlot* cur_slotp ;//no need to be smart pointer.
+	LLSpatialGroup* groupp ;
+	LLFace* facep;
+
+	//if the atlas slot pointers for some faces are null, process them later.
+	ll_face_list_t waiting_list ;
+
+	for(ll_face_list_t::iterator iter = mFaceList.begin(); iter != mFaceList.end(); ++iter)
+	{
+		if(*iter)
+		{
+			facep = (LLFace*)*iter ;
+			
+			//face can not use atlas.
+			if(!facep->canUseAtlas())
+			{
+				if(facep->getAtlasInfo())
+				{
+					facep->removeAtlas() ;	
+				}
+				ret = FALSE ;
+				continue ;
+			}
+
+			//the atlas slot is updated
+			slot_infop = facep->getAtlasInfo() ;
+			groupp = facep->getDrawable()->getSpatialGroup() ;	
+
+			if(slot_infop) 
+			{
+				if(slot_infop->getSpatialGroup() != groupp)
+				{
+					if((cur_slotp = groupp->getCurUpdatingSlot(this))) //switch slot
+					{
+						facep->setAtlasInfo(cur_slotp) ;
+						facep->setAtlasInUse(TRUE) ;
+						continue ;
+					}
+					else //do not forget to update slot_infop->getSpatialGroup().
+					{
+						LLSpatialGroup* gp = slot_infop->getSpatialGroup() ;
+						gp->setCurUpdatingTime(gFrameCount) ;
+						gp->setCurUpdatingTexture(this) ;
+						gp->setCurUpdatingSlot(slot_infop) ;
+					}
+				}
+				else //same group
+				{
+					if(gFrameCount && slot_infop->getUpdatedTime() == gFrameCount)//slot is just updated
+					{
+						facep->setAtlasInUse(TRUE) ;
+						continue ;
+					}
+				}
+			}				
+			else
+			{
+				//if the slot is null, wait to process them later.
+				waiting_list.push_back(facep) ;
+				continue ;
+			}
+						
+			//----------
+			//insert to atlas
+			if(!slot_infop->getAtlas()->insertSubTexture(mGLTexturep, mRawDiscardLevel, mRawImage, slot_infop->getSlotCol(), slot_infop->getSlotRow()))			
+			{
+				
+				//the texture does not qualify to add to atlas, do not bother to try for other faces.
+				//invalidateAtlas();
+				return FALSE ;
+			}
+			
+			//update texture scale		
+			slot_infop->getAtlas()->getTexCoordScale(raw_w, raw_h, xscale, yscale) ;
+			slot_infop->setTexCoordScale(xscale, yscale) ;
+			slot_infop->setValid() ;
+			slot_infop->setUpdatedTime(gFrameCount) ;
+			
+			//update spatial group atlas info
+			groupp->setCurUpdatingTime(gFrameCount) ;
+			groupp->setCurUpdatingTexture(this) ;
+			groupp->setCurUpdatingSlot(slot_infop) ;
+
+			//make the face to switch to the atlas.
+			facep->setAtlasInUse(TRUE) ;
+		}
+	}
+
+	//process the waiting_list
+	for(ll_face_list_t::iterator iter = waiting_list.begin(); iter != waiting_list.end(); ++iter)
+	{
+		facep = (LLFace*)*iter ;	
+		groupp = facep->getDrawable()->getSpatialGroup() ;
+
+		//check if this texture already inserted to atlas for this group
+		if((cur_slotp = groupp->getCurUpdatingSlot(this)))
+		{
+			facep->setAtlasInfo(cur_slotp) ;
+			facep->setAtlasInUse(TRUE) ;		
+			continue ;
+		}
+
+		//need to reserve a slot from atlas
+		slot_infop = LLTextureAtlasManager::getInstance()->reserveAtlasSlot(llmax(mFullWidth, mFullHeight), getComponents(), groupp, this) ;	
+
+		facep->setAtlasInfo(slot_infop) ;
+		
+		groupp->setCurUpdatingTime(gFrameCount) ;
+		groupp->setCurUpdatingTexture(this) ;
+		groupp->setCurUpdatingSlot(slot_infop) ;
+
+		//slot allocation failed.
+		if(!slot_infop || !slot_infop->getAtlas())
+		{			
+			ret = FALSE ;
+			facep->setAtlasInUse(FALSE) ;
+			continue ;
+		}
+				
+		//insert to atlas
+		if(!slot_infop->getAtlas()->insertSubTexture(mGLTexturep, mRawDiscardLevel, mRawImage, slot_infop->getSlotCol(), slot_infop->getSlotRow()))
+		{
+			//the texture does not qualify to add to atlas, do not bother to try for other faces.
+			ret = FALSE ;
+			//invalidateAtlas();
+			break ; 
+		}
+		
+		//update texture scale		
+		slot_infop->getAtlas()->getTexCoordScale(raw_w, raw_h, xscale, yscale) ;
+		slot_infop->setTexCoordScale(xscale, yscale) ;
+		slot_infop->setValid() ;
+		slot_infop->setUpdatedTime(gFrameCount) ;
+
+		//make the face to switch to the atlas.
+		facep->setAtlasInUse(TRUE) ;
+	}
+	
+	return ret ;
+}
+
 //----------------------------------------------------------------------------------------------
 //end of LLViewerFetchedTexture
 //----------------------------------------------------------------------------------------------

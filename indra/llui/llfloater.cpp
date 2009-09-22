@@ -602,6 +602,8 @@ void LLFloater::openFloater(const LLSD& key)
 
 	mOpenSignal(this, key);
 	onOpen(key);
+
+	dirtyRect();
 }
 
 void LLFloater::closeFloater(bool app_quitting)
@@ -667,7 +669,9 @@ void LLFloater::closeFloater(bool app_quitting)
 				}
 			}
 		}
-		
+
+		dirtyRect();
+
 		// Close callback
 		mCloseSignal(this, LLSD(app_quitting));
 		
@@ -1933,8 +1937,8 @@ void LLFloaterView::restoreAll()
 LLRect LLFloaterView::findNeighboringPosition( LLFloater* reference_floater, LLFloater* neighbor )
 {
 	LLRect base_rect = reference_floater->getRect();
-	S32 width = neighbor->getRect().getWidth();
-	S32 height = neighbor->getRect().getHeight();
+	LLRect::tCoordType width = neighbor->getRect().getWidth();
+	LLRect::tCoordType height = neighbor->getRect().getHeight();
 	LLRect new_rect = neighbor->getRect();
 
 	LLRect expanded_base_rect = base_rect;
@@ -1953,10 +1957,10 @@ LLRect LLFloaterView::findNeighboringPosition( LLFloater* reference_floater, LLF
 		}
 	}
 
-	S32 left_margin = llmax(0, base_rect.mLeft);
-	S32 right_margin = llmax(0, getRect().getWidth() - base_rect.mRight);
-	S32 top_margin = llmax(0, getRect().getHeight() - base_rect.mTop);
-	S32 bottom_margin = llmax(0, base_rect.mBottom);
+	LLRect::tCoordType left_margin = llmax(0, base_rect.mLeft);
+	LLRect::tCoordType right_margin = llmax(0, getRect().getWidth() - base_rect.mRight);
+	LLRect::tCoordType top_margin = llmax(0, getRect().getHeight() - base_rect.mTop);
+	LLRect::tCoordType bottom_margin = llmax(0, base_rect.mBottom);
 
 	// find position for floater in following order
 	// right->left->bottom->top
@@ -2262,8 +2266,8 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 		// floater is hosted elsewhere, so ignore
 		return;
 	}
-	S32 screen_width = getSnapRect().getWidth();
-	S32 screen_height = getSnapRect().getHeight();
+	LLRect::tCoordType screen_width = getSnapRect().getWidth();
+	LLRect::tCoordType screen_height = getSnapRect().getHeight();
 	// convert to local coordinate frame
 	LLRect snap_rect_local = getLocalSnapRect();
 

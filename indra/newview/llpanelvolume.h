@@ -74,6 +74,10 @@ public:
 	void		onLightCancelColor(const LLSD& data);
 	void		onLightSelectColor(const LLSD& data);
 
+	void		onLightCancelTexture(const LLSD& data); 
+	void		onLightSelectTexture(const LLSD& data);
+
+
 protected:
 	void			getState();
 
@@ -99,6 +103,7 @@ protected:
 */
 
 	LLColor4		mLightSavedColor;
+	LLUUID			mLightSavedTexture;
 	LLPointer<LLViewerObject> mObject;
 	LLPointer<LLViewerObject> mRootObject;
 };

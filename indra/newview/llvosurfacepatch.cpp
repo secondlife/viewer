@@ -178,11 +178,19 @@ LLDrawable *LLVOSurfacePatch::createDrawable(LLPipeline *pipeline)
 
 static LLFastTimer::DeclareTimer FTM_UPDATE_TERRAIN("Update Terrain");
 
+void LLVOSurfacePatch::updateGL()
+{
+	if (mPatchp)
+	{
+		mPatchp->updateGL();
+	}
+}
+
 BOOL LLVOSurfacePatch::updateGeometry(LLDrawable *drawable)
 {
 	LLFastTimer ftm(FTM_UPDATE_TERRAIN);
 
-	dirtySpatialGroup();
+	dirtySpatialGroup(TRUE);
 	
 	S32 min_comp, max_comp, range;
 	min_comp = lltrunc(mPatchp->getMinComposition());
@@ -1014,12 +1022,10 @@ U32 LLVOSurfacePatch::getPartitionType() const
 }
 
 LLTerrainPartition::LLTerrainPartition()
-: LLSpatialPartition(LLDrawPoolTerrain::VERTEX_DATA_MASK)
+: LLSpatialPartition(LLDrawPoolTerrain::VERTEX_DATA_MASK, FALSE, GL_DYNAMIC_DRAW_ARB)
 {
 	mOcclusionEnabled = FALSE;
-	mRenderByGroup = FALSE;
 	mInfiniteFarClip = TRUE;
-	mBufferUsage = GL_DYNAMIC_DRAW_ARB;
 	mDrawableType = LLPipeline::RENDER_TYPE_TERRAIN;
 	mPartitionType = LLViewerRegion::PARTITION_TERRAIN;
 }

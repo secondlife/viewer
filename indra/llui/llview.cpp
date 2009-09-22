@@ -143,6 +143,7 @@ LLView::LLView(const LLView::Params& p)
 
 LLView::~LLView()
 {
+	dirtyRect();
 	//llinfos << "Deleting view " << mName << ":" << (void*) this << llendl;
 // 	llassert(LLView::sIsDrawing == FALSE);
 	
@@ -602,6 +603,7 @@ void LLView::setVisible(BOOL visible)
 		if (!getParent() || getParent()->isInVisibleChain())
 		{
 			// tell all children of this view that the visibility may have changed
+			dirtyRect();
 			handleVisibilityChange( visible );
 		}
 		updateBoundingRect();
@@ -1297,7 +1299,7 @@ void LLView::drawChildren()
 			{
 				// Only draw views that are within the root view
 				localRectToScreen(viewp->getRect(),&screenRect);
-				if ( rootRect.overlaps(screenRect) )
+				if ( rootRect.overlaps(screenRect)  && LLUI::sDirtyRect.overlaps(screenRect))
 				{
 					glMatrixMode(GL_MODELVIEW);
 					LLUI::pushMatrix();
@@ -1314,6 +1316,21 @@ void LLView::drawChildren()
 	}
 
 	gGL.getTexUnit(0)->disable();
+}
+
+void LLView::dirtyRect()
+{
+	LLView* child = getParent();
+	LLView* parent = child ? child->getParent() : NULL;
+	LLView* cur = this;
+	while (child && parent && parent->getParent())
+	{ //find third to top-most view
+		cur = child;
+		child = parent;
+		parent = parent->getParent();
+	}
+
+	LLUI::dirtyRect(cur->calcScreenRect());
 }
 
 //Draw a box for debugging.
@@ -1529,6 +1546,8 @@ void LLView::updateBoundingRect()
 {
 	if (isDead()) return;
 
+	LLRect cur_rect = mBoundingRect;
+
 	if (mUseBoundingRect)
 	{
 		mBoundingRect = calcBoundingRect();
@@ -1543,6 +1562,12 @@ void LLView::updateBoundingRect()
 	{
 		getParent()->updateBoundingRect();
 	}
+
+	if (mBoundingRect != cur_rect)
+	{
+		dirtyRect();
+	}
+
 }
 
 LLRect LLView::calcScreenRect() const
