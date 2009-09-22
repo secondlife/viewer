@@ -233,10 +233,6 @@ void handleNameTagOptionChanged(const LLSD& newvalue)
 	{
 		gSavedSettings.setBOOL("SmallAvatarNames", TRUE);
 	}
-	else
-	{
-		gSavedSettings.setBOOL("SmallAvatarNames", FALSE);
-	}
 }
 
 bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)

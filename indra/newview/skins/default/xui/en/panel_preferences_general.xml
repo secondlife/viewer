@@ -275,6 +275,7 @@
      top_pad="5"
      width="300" />
     <check_box
+	 enabled_control="AvatarNameTagMode"
      control_name="SmallAvatarNames"
      height="16"
      initial_value="true"
