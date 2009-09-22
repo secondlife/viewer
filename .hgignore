@@ -34,3 +34,9 @@ indra/web/doc/asset-upload/plugins/verify-texture
 installed.xml
 libraries
 tarfile_tmp
+^web/locale.*
+^web/secondlife.com.*
+^web/config.*
+^indra/web/dataservice/locale.*
+^indra/web/dataservice/lib/shared/vault.*
+^indra/web/dataservice/vendor.*
