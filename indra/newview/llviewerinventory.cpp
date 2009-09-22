@@ -901,20 +901,27 @@ void link_inventory_item(
 		return;
 	}
 	
+	LLUUID transaction_id;
+	std::string desc = "Link";
+	LLInventoryType::EType inv_type = LLInventoryType::IT_NONE;
+
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_LinkInventoryItem);
-	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->nextBlock(_PREHASH_AgentData);
 	{
 		msg->addUUIDFast(_PREHASH_AgentID, agent_id);
 		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 	}
-	msg->nextBlockFast(_PREHASH_InventoryData);
+	msg->nextBlock(_PREHASH_InventoryBlock);
 	{
 		msg->addU32Fast(_PREHASH_CallbackID, gInventoryCallbacks.registerCB(cb));
 		msg->addUUIDFast(_PREHASH_FolderID, parent_id);
+		msg->addUUIDFast(_PREHASH_TransactionID, transaction_id);
 		msg->addUUIDFast(_PREHASH_OldItemID, item_id);
+		msg->addS8Fast(_PREHASH_Type, (S8)asset_type);
+		msg->addS8Fast(_PREHASH_InvType, (S8)inv_type);
 		msg->addStringFast(_PREHASH_Name, new_name);
-		msg->addU8Fast(_PREHASH_AssetType, asset_type);
+		msg->addStringFast(_PREHASH_Description, desc);
 	}
 	gAgent.sendReliableMessage();
 }
