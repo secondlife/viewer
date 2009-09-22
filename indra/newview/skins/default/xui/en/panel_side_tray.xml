@@ -11,7 +11,7 @@
     help_topic="sidebar_home"
     tab_title="Home"
     description="Home."
-    image="BackArrow_Off"
+    image="TabIcon_Open_Off"
     mouse_opaque="false"
     background_opaque="false"
     background_visible="true"
@@ -59,6 +59,7 @@
         filename="panel_group_info_sidetray.xml"
         label="Group Info"
         border="true"
+        font="SansSerifBold"
       />
       <panel
         class="panel_block_list_sidetray"
@@ -66,6 +67,7 @@
         filename="panel_block_list_sidetray.xml"
         label="Blocked Residents &amp; Objects"
         border="true"
+        font="SansSerifBold"
       />
 
     </panel_container>
@@ -86,6 +88,7 @@
         filename="panel_places.xml"
         label="Places"
         border="true"
+        font="SansSerifBold"
       />
   </sidetray_tab>
 
@@ -123,6 +126,8 @@
         name="panel_appearance"
         filename="panel_appearance.xml"
         border="true"
+        label="Edit Appearance"
+        font="SansSerifBold"
       />
   </sidetray_tab>
 

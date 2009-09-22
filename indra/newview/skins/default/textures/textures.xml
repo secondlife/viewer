@@ -7,6 +7,8 @@
   <texture name="Accordion_Off" file_name="containers/Accordion_Off.png" preload="false" />
   <texture name="Accordion_Press" file_name="containers/Accordion_Press.png" preload="false" />
 
+<texture name="Activate_Checkmark" file_name="taskpanel/Activate_Checkmark.png" preload="false" />
+
   <texture name="AddItem_Disabled" file_name="icons/AddItem_Disabled.png" preload="false" />
   <texture name="AddItem_Off" file_name="icons/AddItem_Off.png" preload="false" />
   <texture name="AddItem_Press" file_name="icons/AddItem_Press.png" preload="false" />
@@ -98,6 +100,8 @@
   <texture name="Generic_Person" file_name="icons/Generic_Person.png" preload="false" />
   <texture name="Generic_Person_Large" file_name="icons/Generic_Person_Large.png" preload="false" />
 
+  <texture name="Health" file_name="icons/Health.png" preload="false" />
+
   <texture name="Help_Off" file_name="navbar/Help_Off.png" preload="false" />
   <texture name="Help_Press" file_name="navbar/Help_Press.png" preload="false" />
 
@@ -115,7 +119,7 @@
   <texture name="Icon_Dock_Foreground" file_name="windows/Icon_Dock_Foreground.png" preload="true" />
   <texture name="Icon_Dock_Press" file_name="windows/Icon_Dock_Press.png" preload="true" />
 
-  <texture name="Icon_For_Sale" file_name="windows/Icon_For_sale.png" preload="false" />
+  <texture name="Icon_For_Sale" file_name="icons/Icon_For_sale.png" preload="false" />
 
   <texture name="Icon_Gear_Background" file_name="windows/Icon_Gear_Background.png" preload="false" />
   <texture name="Icon_Gear_Foreground" file_name="windows/Icon_Gear_Foreground.png" preload="false" />
@@ -176,6 +180,11 @@
 
   <texture name="Lock" file_name="icons/Lock.png" preload="false" />
 
+  <texture name="Login_Pod" file_name="windows/Login_Pod.png" preload="true" />
+
+  <texture name="Microphone_Mute" file_name="icons/Microphone_Mute.png" preload="false" />
+  <texture name="Microphone_On" file_name="icons/Microphone_On.png" preload="false" />
+
   <texture name="menu_separator" file_name="navbar/FileMenu_Divider.png" scale.left="4" scale.top="166" scale.right="0" scale.bottom="0" />
 
   <texture name="Move_Fly_Disabled" file_name="bottomtray/Move_Fly_Disabled.png" preload="false" />
@@ -211,6 +220,21 @@
   <texture name="NearbyVoice_Lvl3" file_name="bottomtray/NearbyVoice_Lvl3.png" preload="false" />
   <texture name="NearbyVoice_On" file_name="bottomtray/NearbyVoice_On.png" preload="false" />
 
+  <texture name="Object_Cone" file_name="build/Object_Cone.png" preload="false" />
+  <texture name="Object_Cube" file_name="build/Object_Cube.png" preload="false" />
+  <texture name="Object_Cylinder" file_name="build/Object_Cylinder.png" preload="false" />
+  <texture name="Object_Grass" file_name="build/Object_Grass.png" preload="false" />
+  <texture name="Object_Hemi_Cone" file_name="build/Object_Hemi_Cone.png" preload="false" />
+  <texture name="Object_Hemi_Sphere" file_name="build/Object_Hemi_Sphere.png" preload="false" />
+  <texture name="Object_Prism" file_name="build/Object_Prism.png" preload="false" />
+  <texture name="Object_Pyramid" file_name="build/Object_Pyramid.png" preload="false" />
+  <texture name="Object_Ring" file_name="build/Object_Ring.png" preload="false" />
+  <texture name="Object_Sphere" file_name="build/Object_Sphere.png" preload="false" />
+  <texture name="Object_Tetrahedron" file_name="build/Object_Tetrahedron.png" preload="false" />
+  <texture name="Object_Torus" file_name="build/Object_Torus.png" preload="false" />
+  <texture name="Object_Tree" file_name="build/Object_Tree.png" preload="false" />
+  <texture name="Object_Tube" file_name="build/Object_Tube.png" preload="false" />
+
   <texture name="OptionsMenu_Disabled" file_name="icons/OptionsMenu_Disabled.png" preload="false" />
   <texture name="OptionsMenu_Off" file_name="icons/OptionsMenu_Off.png" preload="false" />
   <texture name="OptionsMenu_Press" file_name="icons/OptionsMenu_Press.png" preload="false" />
@@ -221,6 +245,19 @@
   <texture name="Overhead_L" file_name="world/Overhead_L.png" preload="false" />
   <texture name="Overhead_M" file_name="world/Overhead_M.png" preload="false" />
   <texture name="Overhead_S" file_name="world/Overhead_S.png" preload="false" />
+
+  <texture name="Progress_1" file_name="icons/Progress_1.png" preload="false" />
+  <texture name="Progress_2" file_name="icons/Progress_2.png" preload="false" />
+  <texture name="Progress_3" file_name="icons/Progress_3.png" preload="false" />
+  <texture name="Progress_4" file_name="icons/Progress_4.png" preload="false" />
+  <texture name="Progress_5" file_name="icons/Progress_5.png" preload="false" />
+  <texture name="Progress_6" file_name="icons/Progress_6.png" preload="false" />
+  <texture name="Progress_7" file_name="icons/Progress_7.png" preload="false" />
+  <texture name="Progress_8" file_name="icons/Progress_8.png" preload="false" />
+  <texture name="Progress_9" file_name="icons/Progress_9.png" preload="false" />
+  <texture name="Progress_10" file_name="icons/Progress_10.png" preload="false" />
+  <texture name="Progress_11" file_name="icons/Progress_11.png" preload="false" />
+  <texture name="Progress_12" file_name="icons/Progress_12.png" preload="false" />
 
   <texture name="ProgressBar" file_name="widgets/ProgressBar.png" preload="true" scale.left="4" scale.top="10" scale.right="48" scale.bottom="2" />
   <texture name="ProgressTrack" file_name="widgets/ProgressTrack.png" preload="true" scale.left="4" scale.top="13" scale.right="148" scale.bottom="2" />
@@ -238,6 +275,9 @@
   <texture name="RadioButton_On" file_name="widgets/RadioButton_On.png" preload="true" />
   <texture name="RadioButton_Disabled" file_name="widgets/RadioButton_Disabled.png" preload="true" />
   <texture name="RadioButton_On_Disabled" file_name="widgets/RadioButton_On_Disabled.png" preload="true" />
+
+  <texture name="Rec_Off" file_name="icons/Rec_Off.png" preload="false" />
+  <texture name="Rec_On" file_name="icons/Rec_On.png" preload="false" />
 
   <texture name="Refresh_Disabled" file_name="icons/Refresh_Disabled.png" preload="false" />
   <texture name="Refresh_Off" file_name="icons/Refresh_Off.png" preload="false" />
@@ -297,6 +337,7 @@
   <texture name="Stepper_Up_Off" file_name="widgets/Stepper_Up_Off.png" preload="true" />
   <texture name="Stepper_Up_Press" file_name="widgets/Stepper_Up_Press.png" preload="true" />
 
+  <texture name="TabIcon_Appearance_Large" file_name="taskpanel/TabIcon_Appearance_Large.png" preload="false" />
   <texture name="TabIcon_Appearance_Off" file_name="taskpanel/TabIcon_Appearance_Off.png" preload="false" />
   <texture name="TabIcon_Appearance_Over" file_name="taskpanel/TabIcon_Appearance_Over.png" preload="false" />
   <texture name="TabIcon_Appearance_Selected" file_name="taskpanel/TabIcon_Appearance_Selected.png" preload="false" />
@@ -305,20 +346,24 @@
   <texture name="TabIcon_Home_Off" file_name="taskpanel/TabIcon_Home_Off.png" preload="false" />
   <texture name="TabIcon_Home_Over" file_name="taskpanel/TabIcon_Home_Over.png" preload="false" />
   <texture name="TabIcon_Home_Selected" file_name="taskpanel/TabIcon_Home_Selected.png" preload="false" />
+  <texture name="TabIcon_Me_Large" file_name="taskpanel/TabIcon_Me_Large.png" preload="false" />
   <texture name="TabIcon_Me_Off" file_name="taskpanel/TabIcon_Me_Off.png" preload="false" />
   <texture name="TabIcon_Me_Over" file_name="taskpanel/TabIcon_Me_Over.png" preload="false" />
   <texture name="TabIcon_Me_Selected" file_name="taskpanel/TabIcon_Me_Selected.png" preload="false" />
   <texture name="TabIcon_Open_Off" file_name="taskpanel/TabIcon_Open_Off.png" preload="false" />
   <texture name="TabIcon_Open_Over" file_name="taskpanel/TabIcon_Open_Over.png" preload="false" />
+  <texture name="TabIcon_People_Large" file_name="taskpanel/TabIcon_People_Large.png" preload="false" />
   <texture name="TabIcon_People_Off" file_name="taskpanel/TabIcon_People_Off.png" preload="false" />
   <texture name="TabIcon_People_Over" file_name="taskpanel/TabIcon_People_Over.png" preload="false" />
   <texture name="TabIcon_People_Selected" file_name="taskpanel/TabIcon_People_Selected.png" preload="false" />
-  <texture name="TabIcon_Places_Over" file_name="taskpanel/TabIcon_Places_Over.png" preload="false" />
+  <texture name="TabIcon_Places_Large" file_name="taskpanel/TabIcon_Places_Large.png" preload="false" />
   <texture name="TabIcon_Places_Off" file_name="taskpanel/TabIcon_Places_Off.png" preload="false" />
+  <texture name="TabIcon_Places_Over" file_name="taskpanel/TabIcon_Places_Over.png" preload="false" />
   <texture name="TabIcon_Places_Selected" file_name="taskpanel/TabIcon_Places_Selected.png" preload="false" />
+  <texture name="TabIcon_Things_Large" file_name="taskpanel/TabIcon_Things_Large.png" preload="false" />
   <texture name="TabIcon_Things_Off" file_name="taskpanel/TabIcon_Things_Off.png" preload="false" />
-  <texture name="TabIcon_Things_Selected" file_name="taskpanel/TabIcon_Things_Selected.png" preload="false" />
   <texture name="TabIcon_Things_Over" file_name="taskpanel/TabIcon_Things_Over.png" preload="false" />
+  <texture name="TabIcon_Things_Selected" file_name="taskpanel/TabIcon_Things_Selected.png" preload="false" />
 
   <texture name="TabTop_Divider" file_name="containers/TabTop_Divider.png" preload="false" />
   <texture name="TabTop_Left_Press" file_name="containers/TabTop_Left_Press.png" preload="false" />
@@ -345,6 +390,12 @@
 
   <texture name="Toast_CloseBtn" file_name="windows/Toast_CloseBtn.png" preload="true" />
   <texture name="Toast" file_name="windows/Toast.png" preload="true" />
+
+  <texture name="Tool_Create" file_name="build/Tool_Create.png" preload="false" />
+  <texture name="Tool_Dozer" file_name="build/Tool_Dozer.png" preload="false" />
+  <texture name="Tool_Face" file_name="build/Tool_Face.png" preload="false" />
+  <texture name="Tool_Grab" file_name="build/Tool_Grab.png" preload="false" />
+  <texture name="Tool_Zoom" file_name="build/Tool_Zoom.png" preload="false" />
 
   <texture name="Toolbar_Divider" file_name="containers/Toolbar_Divider.png" preload="false" />
   <texture name="Toolbar_Left_Off" file_name="containers/Toolbar_Left_Off.png" preload="false" />

@@ -43,6 +43,9 @@
 	 name="DkGray2"
 	 value="0.169 0.169 0.169 1" />
 	<color
+	 name="MouseGray"
+	 value="0.191 0.191 0.191 1" />
+	<color
 	 name="Black"
 	 value="0 0 0 1" />
 	<color
