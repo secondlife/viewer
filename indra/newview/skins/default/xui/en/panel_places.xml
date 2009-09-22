@@ -60,7 +60,7 @@
          left="5"
          name="teleport_btn"
          top="0"
-         width="80" />
+         width="90" />
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
@@ -104,7 +104,7 @@
          left="5"
          name="create_landmark_btn"
          top="0"
-         width="60" />
+         width="70" />
         <button
          follows="bottom|left"
          font="SansSerifSmallBold"
