@@ -881,10 +881,20 @@ void LLFloaterPreference::refreshEnabledState()
 	{
 		mRadioTerrainDetail->setValue(1);
 		mRadioTerrainDetail->setEnabled(FALSE);
+		for (S32 i = 0; i < mRadioTerrainDetail->getItemCount(); ++i)
+		{
+			mRadioTerrainDetail->setIndexEnabled(i, FALSE);
+		}
 	}
 	else
 	{
 		mRadioTerrainDetail->setEnabled(TRUE);
+		
+		for (S32 i = 0; i < mRadioTerrainDetail->getItemCount(); ++i)
+		{
+			mRadioTerrainDetail->setIndexEnabled(i, TRUE);
+		}
+		
 	}
 	
 	// WindLight
