@@ -225,6 +225,7 @@
   <texture name="Object_Cylinder" file_name="build/Object_Cylinder.png" preload="false" />
   <texture name="Object_Grass" file_name="build/Object_Grass.png" preload="false" />
   <texture name="Object_Hemi_Cone" file_name="build/Object_Hemi_Cone.png" preload="false" />
+  <texture name="Object_Hemi_Cylinder" file_name="build/Object_Hemi_Cylinder.png" preload="false" />
   <texture name="Object_Hemi_Sphere" file_name="build/Object_Hemi_Sphere.png" preload="false" />
   <texture name="Object_Prism" file_name="build/Object_Prism.png" preload="false" />
   <texture name="Object_Pyramid" file_name="build/Object_Pyramid.png" preload="false" />
