@@ -1022,7 +1022,7 @@ void assert_glerror()
 
 		if (gDebugSession)
 		{
-			ll_fail("GL used while not active");
+			//ll_fail("GL used while not active");
 		}
 	}
 
