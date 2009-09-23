@@ -236,12 +236,13 @@ void LLSurface::createSTexture()
 	{
 		// Fill with dummy gray data.
 	
-		mSTexturep =  LLViewerTextureManager::getLocalTexture(sTextureSize, sTextureSize, 3, FALSE);
-		mSTexturep->dontDiscard();
-		mSTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
+		//mSTexturep =  LLViewerTextureManager::getLocalTexture(sTextureSize, sTextureSize, 3, FALSE);
+		//mSTexturep->dontDiscard();
+		//mSTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 		
 		// GL NOT ACTIVE HERE
-		/*U8 *default_texture = raw->getData();
+		LLPointer<LLImageRaw> raw = new LLImageRaw(sTextureSize, sTextureSize, 3);
+		U8 *default_texture = raw->getData();
 		for (S32 i = 0; i < sTextureSize; i++)
 		{
 			for (S32 j = 0; j < sTextureSize; j++)
@@ -255,8 +256,7 @@ void LLSurface::createSTexture()
 		mSTexturep = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
 		mSTexturep->dontDiscard();
 		gGL.getTexUnit(0)->bind(mSTexturep);
-		mSTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);*/
-		
+		mSTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);		
 	}
 }
 
