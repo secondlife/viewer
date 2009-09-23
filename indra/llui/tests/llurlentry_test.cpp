@@ -44,19 +44,17 @@ namespace
 
 namespace tut
 {
-	void testRegex(const std::string &testname, boost::wregex regex,
+	void testRegex(const std::string &testname, boost::regex regex,
 				   const char *text, const std::string &expected)
 	{
 		std::string url = "";
-		boost::wcmatch result;
-		LLWString wtext = utf8str_to_wstring(text);
-		const wchar_t *wctext = wtext.c_str();
-		bool found = boost::regex_search(wctext, result, regex);
+		boost::cmatch result;
+		bool found = boost::regex_search(text, result, regex);
 		if (found)
 		{
-			S32 start = static_cast<U32>(result[0].first - wctext);
-			S32 end = static_cast<U32>(result[0].second - wctext);
-			url = wstring_to_utf8str(wtext.substr(start, end-start));
+			S32 start = static_cast<U32>(result[0].first - text);
+			S32 end = static_cast<U32>(result[0].second - text);
+			url = std::string(text+start, end-start);
 		}
 		ensure_equals(testname, url, expected);
 	}
@@ -68,7 +66,7 @@ namespace tut
 		// test LLUrlEntryHTTP - standard http Urls
 		//
 		LLUrlEntryHTTP url;
-		boost::wregex r = url.getPattern();
+		boost::regex r = url.getPattern();
 
 		testRegex("no valid url", r,
 				  "htp://slurl.com/",
@@ -147,7 +145,7 @@ namespace tut
 		// test LLUrlEntryHTTPLabel - wiki-style http Urls with labels
 		//
 		LLUrlEntryHTTPLabel url;
-		boost::wregex r = url.getPattern();
+		boost::regex r = url.getPattern();
 
 		testRegex("invalid wiki url [1]", r,
 				  "[http://www.example.org]",
@@ -189,7 +187,7 @@ namespace tut
 		// test LLUrlEntrySLURL - second life URLs
 		//
 		LLUrlEntrySLURL url;
-		boost::wregex r = url.getPattern();
+		boost::regex r = url.getPattern();
 
 		testRegex("no valid slurl [1]", r,
 				  "htp://slurl.com/secondlife/Ahern/50/50/50/",
@@ -261,7 +259,7 @@ namespace tut
 		// test LLUrlEntryAgent - secondlife://app/agent Urls
 		//
 		LLUrlEntryAgent url;
-		boost::wregex r = url.getPattern();
+		boost::regex r = url.getPattern();
 
 		testRegex("Invalid Agent Url", r,
 				  "secondlife:///app/agent/0e346d8b-4433-4d66-XXXX-fd37083abc4c/about",
@@ -287,7 +285,7 @@ namespace tut
 		// test LLUrlEntryGroup - secondlife://app/group Urls
 		//
 		LLUrlEntryGroup url;
-		boost::wregex r = url.getPattern();
+		boost::regex r = url.getPattern();
 
 		testRegex("Invalid Group Url", r,
 				  "secondlife:///app/group/00005ff3-4044-c79f-XXXX-fb28ae0df991/about",
@@ -313,7 +311,7 @@ namespace tut
 		// test LLUrlEntryPlace - secondlife://<location> URLs
 		//
 		LLUrlEntryPlace url;
-		boost::wregex r = url.getPattern();
+		boost::regex r = url.getPattern();
 
 		testRegex("no valid slurl [1]", r,
 				  "secondlife://Ahern/FOO/50/",
@@ -361,7 +359,7 @@ namespace tut
 		// test LLUrlEntryParcel - secondlife://app/parcel Urls
 		//
 		LLUrlEntryParcel url;
-		boost::wregex r = url.getPattern();
+		boost::regex r = url.getPattern();
 
 		testRegex("Invalid Classified Url", r,
 				  "secondlife:///app/parcel/0000060e-4b39-e00b-XXXX-d98b1934e3a8/about",
@@ -386,7 +384,7 @@ namespace tut
 		// test LLUrlEntryTeleport - secondlife://app/teleport URLs
 		//
 		LLUrlEntryTeleport url;
-		boost::wregex r = url.getPattern();
+		boost::regex r = url.getPattern();
 
 		testRegex("no valid teleport [1]", r,
 				  "http://slurl.com/secondlife/Ahern/50/50/50/",
@@ -462,7 +460,7 @@ namespace tut
 		// test LLUrlEntrySL - general secondlife:// URLs
 		//
 		LLUrlEntrySL url;
-		boost::wregex r = url.getPattern();
+		boost::regex r = url.getPattern();
 
 		testRegex("no valid slapp [1]", r,
 				  "http:///app/",
@@ -500,7 +498,7 @@ namespace tut
 		// test LLUrlEntrySLLabel - general secondlife:// URLs with labels
 		//
 		LLUrlEntrySLLabel url;
-		boost::wregex r = url.getPattern();
+		boost::regex r = url.getPattern();
 
 		testRegex("invalid wiki url [1]", r,
 				  "[secondlife:///app/]",

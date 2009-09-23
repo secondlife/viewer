@@ -75,9 +75,9 @@ void LLUrlRegistry::registerUrl(LLUrlEntryBase *url)
 	}
 }
 
-static bool matchRegex(const wchar_t *text, boost::wregex regex, U32 &start, U32 &end)
+static bool matchRegex(const char *text, boost::regex regex, U32 &start, U32 &end)
 {
-	boost::wcmatch result;
+	boost::cmatch result;
 	bool found;
 
 	// regex_search can potentially throw an exception, so check for it
@@ -107,7 +107,7 @@ static bool matchRegex(const wchar_t *text, boost::wregex regex, U32 &start, U32
 	}
 	// ignore a terminating ')' when Url contains no matching '('
 	// see DEV-19842 for details
-	else if (text[end] == ')' && LLWString(text+start, end-start).find('(') == std::string::npos)
+	else if (text[end] == ')' && std::string(text+start, end-start).find('(') == std::string::npos)
 	{
 		end--;
 	}
@@ -115,10 +115,10 @@ static bool matchRegex(const wchar_t *text, boost::wregex regex, U32 &start, U32
 	return true;
 }
 
-bool LLUrlRegistry::findUrl(const LLWString &text, LLUrlMatch &match, const LLUrlLabelCallback &cb)
+bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LLUrlLabelCallback &cb)
 {
 	// avoid costly regexes if there is clearly no URL in the text
-	if (text.find(L"://") == std::string::npos)
+	if (text.find("://") == std::string::npos)
 	{
 		return false;
 	}
@@ -149,7 +149,7 @@ bool LLUrlRegistry::findUrl(const LLWString &text, LLUrlMatch &match, const LLUr
 	if (match_entry)
 	{
 		// fill in the LLUrlMatch object and return it
-		std::string url = wstring_to_utf8str(text.substr(match_start, match_end - match_start + 1));
+		std::string url = text.substr(match_start, match_end - match_start + 1);
 		match.setValues(match_start, match_end,
 						match_entry->getUrl(url),
 						match_entry->getLabel(url, cb),
