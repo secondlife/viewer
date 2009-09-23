@@ -578,6 +578,25 @@
           </map>
         </map>
       </map>
+      <key>google-perftools</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2005, Google Inc.</string>
+        <key>description</key>
+        <string>Heap performance and validity checking tools from google. Includes TCMalloc, heap-checker, heap-profiler and cpu-profiler.</string>
+        <key>license</key>
+        <string>bsd</string>
+        <key>packages</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>32dba32ddd460a08e082898ebba6315c</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-perftools-1.0-windows-20090406.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
       <key>googlemock</key>
       <map>
         <key>copyright</key>
@@ -608,25 +627,6 @@
             <string>f601a82ea91030974072da8924cae41e</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/googlemock-1.1.0-windows-20090921.tar.bz2</uri>
-          </map>
-        </map>
-      </map>
-      <key>google-perftools</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2005, Google Inc.</string>
-        <key>description</key>
-        <string>Heap performance and validity checking tools from google. Includes TCMalloc, heap-checker, heap-profiler and cpu-profiler.</string>
-        <key>license</key>
-        <string>bsd</string>
-        <key>packages</key>
-        <map>
-          <key>windows</key>
-          <map>
-            <key>md5sum</key>
-            <string>32dba32ddd460a08e082898ebba6315c</string>
-            <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-perftools-1.0-windows-20090406.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1246,9 +1246,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>533f4c710a209a6c4f205f81ccc0cfce</string>
+            <string>216cb6217a06c64dfae30a55ab8b975c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-darwin-20090427.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/pth-2.0.7-darwin-20090923.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
