@@ -569,16 +569,7 @@ void LLFloaterInventory::draw()
 {
  	if (LLInventoryModel::isEverythingFetched())
 	{
-		LLLocale locale(LLLocale::USER_LOCALE);
-		std::ostringstream title;
-		//title << "Inventory";
-		title<<getString("Title");
-		std::string item_count_string;
-		LLResMgr::getInstance()->getIntegerString(item_count_string, gInventory.getItemCount());
-		title << " (" << item_count_string << getString("Items")<<")";
-		//TODO:: Translate mFilterText
-		title << mFilterText;
-		setTitle(title.str());
+		updateTitle();
 	}
 	LLFloater::draw();
 }
@@ -690,22 +681,30 @@ BOOL LLFloaterInventory::handleKeyHere(KEY key, MASK mask)
 
 }
 
-void LLFloaterInventory::changed(U32 mask)
+void LLFloaterInventory::updateTitle()
 {
-	std::ostringstream title;
-	//title << "Inventory";
- 	title<<getString("Title");
+	LLLocale locale(LLLocale::USER_LOCALE);
+	std::string item_count_string;
+	LLResMgr::getInstance()->getIntegerString(item_count_string, gInventory.getItemCount());
+
+	LLStringUtil::format_map_t string_args;
+	string_args["[ITEM_COUNT]"] = item_count_string;
+	string_args["[FILTER]"] = mFilterText;
+
 	if (LLInventoryModel::backgroundFetchActive())
 	{
-		LLLocale locale(LLLocale::USER_LOCALE);
-		std::string item_count_string;
-		LLResMgr::getInstance()->getIntegerString(item_count_string, gInventory.getItemCount());
-		title << " ( "<< getString("Fetched") << item_count_string << getString("Items")<<")";
+		setTitle(getString("TitleFetching", string_args));
 	}
-	//TODO:: Translate mFilterText
-	title << mFilterText;
-	setTitle(title.str());
+	else
+	{
+		setTitle(getString("TitleCompleted", string_args));
+	}	
+}
 
+
+void LLFloaterInventory::changed(U32 mask)
+{
+	updateTitle();
 }
 
 //----------------------------------------------------------------------------

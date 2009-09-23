@@ -4122,8 +4122,8 @@ void LLViewerWindow::drawMouselookInstructions()
 
 	font->renderUTF8( 
 		instructions, 0,
-		mWorldViewRect.getCenterX(),
-		mWorldViewRect.mBottom + INSTRUCTIONS_PAD,
+		getVirtualWorldViewRect().getCenterX(),
+		getVirtualWorldViewRect().mBottom + INSTRUCTIONS_PAD,
 		LLColor4( 0.0f, 0.0f, 0.0f, 0.6f ),
 		LLFontGL::HCENTER, LLFontGL::TOP);
 }

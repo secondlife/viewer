@@ -18,8 +18,12 @@
         Inventory
     </floater.string>
     <floater.string
-     name="Items">
-        Items...
+     name="TitleFetching">
+        Inventory (Fetching [ITEM_COUNT] Items...) [FILTER]
+    </floater.string>
+    <floater.string
+     name="TitleCompleted">
+        Inventory ([ITEM_COUNT] Items) [FILTER]
     </floater.string>
     <floater.string
      name="Fetched">

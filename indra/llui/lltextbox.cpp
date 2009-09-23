@@ -161,7 +161,12 @@ BOOL LLTextBox::handleHover(S32 x, S32 y, MASK mask)
 
 BOOL LLTextBox::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
 {
-	return handleToolTipForUrl(this, x, y, msg, sticky_rect_screen);
+	if (handleToolTipForUrl(this, x, y, msg, sticky_rect_screen))
+	{
+		return TRUE;
+	}
+
+	return LLUICtrl::handleToolTip(x, y, msg, sticky_rect_screen);
 }
 
 void LLTextBox::setText(const LLStringExplicit& text)

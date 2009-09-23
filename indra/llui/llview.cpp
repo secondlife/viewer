@@ -675,9 +675,13 @@ LLView* LLView::childrenHandleToolTip(S32 x, S32 y, std::string& msg, LLRect& st
 		LLView* viewp = *child_it;
 		S32 local_x = x - viewp->getRect().mLeft;
 		S32 local_y = y - viewp->getRect().mBottom;
-		if(viewp->pointInView(local_x, local_y) &&
-			viewp->getVisible() &&
-			viewp->handleToolTip(local_x, local_y, msg, sticky_rect_screen) )
+		if(!viewp->pointInView(local_x, local_y) ||
+			!viewp->getVisible())
+		{
+			continue;
+		}
+
+		if(viewp->handleToolTip(local_x, local_y, msg, sticky_rect_screen) )
 		{
 			if (sDebugMouseHandling)
 			{
@@ -687,17 +691,22 @@ LLView* LLView::childrenHandleToolTip(S32 x, S32 y, std::string& msg, LLRect& st
 			handled_view = viewp;
 			break;
 		}
+
+		if( viewp->blockMouseEvent(x, y) )
+		{
+			handled_view = viewp;
+		}
 	}
 	return handled_view;
 }
 
 BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
 {
-	LLView* child_handler = childrenHandleToolTip(x, y, msg, sticky_rect_screen);
-	BOOL handled = child_handler != NULL;
+	BOOL handled = FALSE;
 
-	// child widgets get priority on tooltips
-	if (!handled && !mToolTipMsg.empty())
+	// parents provide tooltips first, which are optionally
+	// overridden by children
+	if (!mToolTipMsg.empty())
 	{
 		// allow "scrubbing" over ui by showing next tooltip immediately
 		// if previous one was still visible
@@ -712,7 +721,9 @@ BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_s
 		handled = TRUE;
 	}
 
-	if( blockMouseEvent(x, y) )
+	// child tooltips will override our own
+	LLView* child_handler = childrenHandleToolTip(x, y, msg, sticky_rect_screen);
+	if (child_handler)
 	{
 		handled = TRUE;
 	}
