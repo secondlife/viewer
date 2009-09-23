@@ -115,11 +115,14 @@ void LLViewerMediaFocus::setFocusFace( BOOL b, LLPointer<LLViewerObject> objectp
 	else
 	{
 		gFocusMgr.setKeyboardFocus(NULL);
-		mFocus = NULL;
 		if(! parcel->getMediaPreventCameraZoom())
 		{
-			gAgent.setFocusOnAvatar(TRUE, ANIMATE);
+			if (!mFocus->isEmpty())
+			{
+				gAgent.setFocusOnAvatar(TRUE, ANIMATE);
+			}
 		}
+		mFocus = NULL;
 		// LLViewerMedia::remObserver(this, mObjectID);
 		
 		// Null out the media hud media pointer
