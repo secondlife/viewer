@@ -131,12 +131,12 @@ void LLLandmarkList::processGetAssetReply(
 		// SJB: No use case for a notification here. Use lldebugs instead
 		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status )
 		{
-			LL_DEBUGS("Landmarks") << "Missing Landmark" << LL_ENDL;
+			LL_WARNS("Landmarks") << "Missing Landmark" << LL_ENDL;
 			//LLNotifications::instance().add("LandmarkMissing");
 		}
 		else
 		{
-			LL_DEBUGS("Landmarks") << "Unable to load Landmark" << LL_ENDL;
+			LL_WARNS("Landmarks") << "Unable to load Landmark" << LL_ENDL;
 			//LLNotifications::instance().add("UnableToLoadLandmark");
 		}
 
