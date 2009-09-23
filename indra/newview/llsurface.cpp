@@ -265,7 +265,7 @@ void LLSurface::createWaterTexture()
 	if (!mWaterTexturep)
 	{
 		// Create the water texture
-		/*LLPointer<LLImageRaw> raw = new LLImageRaw(sTextureSize/2, sTextureSize/2, 4);
+		LLPointer<LLImageRaw> raw = new LLImageRaw(sTextureSize/2, sTextureSize/2, 4);
 		U8 *default_texture = raw->getData();
 		for (S32 i = 0; i < sTextureSize/2; i++)
 		{
@@ -276,11 +276,11 @@ void LLSurface::createWaterTexture()
 				*(default_texture + (i*sTextureSize/2 + j)*4 + 2) = MAX_WATER_COLOR.mV[2];
 				*(default_texture + (i*sTextureSize/2 + j)*4 + 3) = MAX_WATER_COLOR.mV[3];
 			}
-		}*/
+		}		
 		
-		
-		mWaterTexturep = LLViewerTextureManager::getLocalTexture(sTextureSize/2, sTextureSize/2, 4, FALSE);
+		mWaterTexturep = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
 		mWaterTexturep->dontDiscard();
+		gGL.getTexUnit(0)->bind(mWaterTexturep);
 		mWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 }
