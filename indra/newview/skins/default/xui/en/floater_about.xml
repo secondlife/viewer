@@ -76,12 +76,13 @@
     tab_position="top">
     <panel
       border="true" 
-      label="Support" 
+      label="Support"
       name="support_panel">
       <text_editor
        follows="top|left"
        font="SansSerif"
        height="350"
+       bg_readonly_color="Transparent"
        left="5"
        max_length="65536"
        name="support_editor"
@@ -92,7 +93,7 @@
         follows="left|top" 
         label="Copy to Clipboard"
         name="copy_btn"
-        left="5"
+        left="10"
         top_pad="5"
         height="25"
         width="160" />
@@ -105,6 +106,7 @@
        enabled="false" 
        follows="left|top"
        height="375"
+       bg_readonly_color="Transparent"
        left="5"
        text_color="LtGray"
        max_length="65536"
@@ -135,6 +137,7 @@ It is a rare mind indeed that can render the hitherto non-existent blindingly ob
        enabled="false"
        follows="left|top"
        height="375"
+       bg_readonly_color="Transparent"
        left="5"
        text_color="LtGray"
        max_length="65536"
