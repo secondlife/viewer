@@ -64,7 +64,8 @@
      create_jump_keys="true"
      label="Debug"
      layout="topleft"
-     name="Debug">
+     name="Debug"
+     tear_off="true">
       <!-- Need a copy of the edit menu here so keyboard shortcuts like
            control-C work to copy text at login screen and About dialog (for QA)
       -->

@@ -121,6 +121,8 @@ const F32 ACTIVATE_HIGHLIGHT_TIME = 0.3f;
 static MenuRegistry::Register<LLMenuItemSeparatorGL> register_separator("menu_item_separator");
 static MenuRegistry::Register<LLMenuItemCallGL> register_menu_item_call("menu_item_call");
 static MenuRegistry::Register<LLMenuItemCheckGL> register_menu_item_check("menu_item_check");
+// Created programmatically but we need to specify custom colors in xml
+static MenuRegistry::Register<LLMenuItemTearOffGL> register_menu_item_tear_off("menu_item_tear_off");
 static MenuRegistry::Register<LLMenuGL> register_menu("menu");
 
 static LLDefaultChildRegistry::Register<LLMenuGL> register_menu_default("menu");
@@ -390,8 +392,10 @@ void LLMenuItemGL::buildDrawLabel( void )
 
 void LLMenuItemGL::onCommit( void )
 {
-	// close all open menus by default
-	// if parent menu is actually visible (and we are not triggering menu item via accelerator)
+	// Check torn-off status to allow left-arrow keyboard navigation back
+	// to parent menu.
+	// Also, don't hide if item triggered by keyboard shortcut (and hence
+	// parent not visible).
 	if (!getMenu()->getTornOff() 
 		&& getMenu()->getVisible())
 	{
@@ -3484,16 +3488,19 @@ LLTearOffMenu::LLTearOffMenu(LLMenuGL* menup) :
 	LLRect rect;
 	menup->localRectToOtherView(LLRect(-1, menup->getRect().getHeight(), menup->getRect().getWidth() + 3, 0), &rect, gFloaterView);
 	// make sure this floater is big enough for menu
-	mTargetHeight = (F32)(rect.getHeight() + floater_header_size + 5);
+	mTargetHeight = (F32)(rect.getHeight() + floater_header_size);
 	reshape(rect.getWidth(), rect.getHeight());
 	setRect(rect);
 
 	// attach menu to floater
-	menup->setFollowsAll();
+	menup->setFollows( FOLLOWS_LEFT | FOLLOWS_BOTTOM );
 	mOldParent = menup->getParent();
 	addChild(menup);
 	menup->setVisible(TRUE);
-	menup->translate(-menup->getRect().mLeft + 1, -menup->getRect().mBottom + 1);
+	LLRect menu_rect = menup->getRect();
+	menu_rect.setOriginAndSize( 1, 1,
+		menu_rect.getWidth(), menu_rect.getHeight());
+	menup->setRect(menu_rect);
 	menup->setDropShadowed(FALSE);
 
 	mMenu = menup;
@@ -3520,12 +3527,6 @@ void LLTearOffMenu::draw()
 	{
 		// animate towards target height
 		reshape(getRect().getWidth(), llceil(lerp((F32)getRect().getHeight(), mTargetHeight, LLCriticalDamp::getInterpolant(0.05f))));
-	}
-	else
-	{
-		// when in stasis, remain big enough to hold menu contents
-		mTargetHeight = (F32)(mMenu->getRect().getHeight() + floater_header_size + 4);
-		reshape(mMenu->getRect().getWidth() + 3, mMenu->getRect().getHeight() + floater_header_size + 5);
 	}
 	LLFloater::draw();
 }
