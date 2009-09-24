@@ -731,6 +731,21 @@ protected:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLFindCOFValidItems
+//
+// Collects items that can be legitimately linked to in the COF.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLFindCOFValidItems : public LLInventoryCollectFunctor
+{
+public:
+	LLFindCOFValidItems() {}
+	virtual ~LLFindCOFValidItems() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item);
+	
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFindWearables
 //
 // Collects wearables based on item type.

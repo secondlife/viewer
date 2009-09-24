@@ -82,6 +82,7 @@
 #include "llgesturemgr.h" //needed to trigger the voice gesticulations
 #include "llvoiceclient.h"
 #include "llvoicevisualizer.h" // Ventrella
+#include "llappearancemgr.h"
 
 #include "boost/lexical_cast.hpp"
 
@@ -983,6 +984,11 @@ LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *viewer_obj
 	updateAttachmentVisibility(gAgent.getCameraMode());
 	
 	// Then make sure the inventory is in sync with the avatar.
+	LLViewerInventoryItem *item = gInventory.getItem(attachment->getItemID());
+	if (item)
+	{
+		LLAppearanceManager::wearItem(item,false);  // Add COF link for item.
+	}
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, attachment->getItemID());
 	gInventory.notifyObservers();
 

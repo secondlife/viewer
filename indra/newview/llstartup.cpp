@@ -2158,10 +2158,6 @@ bool idle_startup()
 		// lets create "Friends" and "Friends/All" in the Inventory "Calling Cards" and fill it with buddies
 		LLFriendCardsManager::instance().syncFriendsFolder();
 
-		llinfos << "Setting Inventory changed mask and notifying observers" << llendl;
-		gInventory.addChangedMask(LLInventoryObserver::ALL, LLUUID::null);
-		gInventory.notifyObservers();
-
 		// set up callbacks
 		llinfos << "Registering Callbacks" << llendl;
 		LLMessageSystem* msg = gMessageSystem;

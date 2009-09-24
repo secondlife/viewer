@@ -1229,7 +1229,11 @@ BOOL LLInventoryPanel::postBuild()
 	// build everything.
 	mInventoryObserver = new LLInventoryPanelObserver(this);
 	mInventory->addObserver(mInventoryObserver);
-	rebuildViewsFor(LLUUID::null, LLInventoryObserver::ADD);
+	// build view of inventory if inventory ready, otherwise wait for modelChanged() callback
+	if (mInventory->isInventoryUsable())
+	{
+		rebuildViewsFor(LLUUID::null, LLInventoryObserver::ADD);
+	}
 
 	// bit of a hack to make sure the inventory is open.
 	mFolders->openFolder(std::string("My Inventory"));
@@ -1326,6 +1330,14 @@ void LLInventoryPanel::modelChanged(U32 mask)
 	LLFastTimer t2(FTM_REFRESH);
 
 	bool handled = false;
+
+	// inventory just initialized, do complete build
+	if ((mask & LLInventoryObserver::ADD) && gInventory.getChangedIDs().empty())
+	{
+		rebuildViewsFor(LLUUID::null, LLInventoryObserver::ADD);
+		return;
+	}
+
 	if(mask & LLInventoryObserver::LABEL)
 	{
 		handled = true;

@@ -80,6 +80,7 @@
 #include "llsky.h"
 #include "llanimstatelabels.h"
 #include "lltrans.h"
+#include "llappearancemgr.h"
 
 #include "llgesturemgr.h" //needed to trigger the voice gesticulations
 #include "llvoiceclient.h"
@@ -5492,6 +5493,18 @@ BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 			if (isSelf())
 			{
 				// Then make sure the inventory is in sync with the avatar.
+
+				// Update COF contents, don't trigger appearance update.
+				if (gAgent.getAvatarObject() == NULL)
+				{
+					llinfos << "removeItemLinks skipped, avatar is under destruction" << llendl;
+				}
+				else
+				{
+					LLAppearanceManager::removeItemLinks(item_id, false);
+				}
+
+				// BAP - needs to change for label to track link.
 				gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 				gInventory.notifyObservers();
 			}

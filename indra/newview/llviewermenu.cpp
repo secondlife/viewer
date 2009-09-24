@@ -2836,7 +2836,7 @@ class LLSelfRemoveAllAttachments : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLAgentWearables::userRemoveAllAttachments(NULL);
+		LLAgentWearables::userRemoveAllAttachments();
 		return true;
 	}
 };

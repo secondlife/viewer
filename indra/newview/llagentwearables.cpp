@@ -1172,99 +1172,24 @@ LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name,
 		return LLUUID::null;
 	}
 
-	// First, make a folder in the Clothes directory.
+	// First, make a folder in the My Outfits directory.
+	LLUUID parent_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_MY_OUTFITS);
 	LLUUID folder_id = gInventory.createNewCategory(
-		gInventory.findCategoryUUIDForType(LLAssetType::AT_MY_OUTFITS),
+		parent_id,
 		LLAssetType::AT_OUTFIT,
 		new_folder_name);
 
-//	bool found_first_item = false;
+	LLAppearanceManager::shallowCopyCategory(LLAppearanceManager::getCOF(),folder_id, NULL);
 
-	///////////////////
-	// Wearables
-
-	if (wearables_to_include.count())
+#if 0
+	LLViewerInventoryCategory *parent_category = gInventory.getCategory(parent_id);
+	if (parent_category)
 	{
-		// Then, iterate though each of the wearables and save links to them in the folder.
-		S32 i;
-		S32 count = wearables_to_include.count();
-		LLDynamicArray<LLUUID> delete_items;
-		LLPointer<LLRefCount> cbdone = NULL;
-		for (i = 0; i < count; ++i)
-		{
-			const S32 type = wearables_to_include[i];
-			for (U32 j=0; j<getWearableCount((EWearableType)i); j++)
-			{
-				LLWearable* old_wearable = getWearable((EWearableType)type,j);
-				if (old_wearable)
-				{
-					LLViewerInventoryItem* item = gInventory.getItem(getWearableItemID((EWearableType) type, j));
-					if (!item) continue;
-					LLPointer<LLInventoryCallback> cb = NULL;
-					link_inventory_item(gAgent.getID(),
-										item->getLinkedUUID(),
-										folder_id,
-										item->getName(),
-										LLAssetType::AT_LINK,
-										cb);
-				}
-			}
-		}
-		gInventory.notifyObservers();
+		parent_category->setSelectionByID(folder_id,TRUE);
+		parent_category->setNeedsAutoRename(TRUE);
 	}
+#endif
 
-
-	///////////////////
-	// Attachments
-
-	if (attachments_to_include.count())
-	{
-		for (S32 i = 0; i < attachments_to_include.count(); i++)
-		{
-			S32 attachment_pt = attachments_to_include[i];
-			LLViewerJointAttachment* attachment = get_if_there(mAvatarObject->mAttachmentPoints, attachment_pt, (LLViewerJointAttachment*)NULL);
-			if (!attachment) continue;
-			LLViewerObject* attached_object = attachment->getObject();
-			if (!attached_object) continue;
-			const LLUUID& item_id = attachment->getItemID();
-			if (item_id.isNull()) continue;
-			LLInventoryItem* item = gInventory.getItem(item_id);
-			if (!item) continue;
-
-			LLPointer<LLInventoryCallback> cb = NULL;
-			link_inventory_item(gAgent.getID(),
-								item->getLinkedUUID(),
-								folder_id,
-								item->getName(),
-								LLAssetType::AT_LINK,
-								cb);
-		}
-	} 
-
-	///////////////////
-	// Gestures
-
-	/* Disabling this for now, otherwise this adds all your default gestures and all previous
-	   active gestures.  Need to rethink the intended behavior.
-	for (LLGestureManager::item_map_t::iterator iter = LLGestureManager::instance().mActive.begin();
-		 iter != LLGestureManager::instance().mActive.end();
-		 ++iter)
-	{
-		const LLUUID &gesture_id = (*iter).first;
-		LLViewerInventoryItem* item = gInventory.getItem(gesture_id);
-		if (item)
-		{
-			LLPointer<LLInventoryCallback> cb = NULL;
-			link_inventory_item(gAgent.getID(),
-								item->getUUID(),
-								folder_id,
-								item->getName(),
-								LLAssetType::AT_LINK,
-								cb);
-		}
-	}
-	*/
-	
 	return folder_id;
 }
 
@@ -1759,7 +1684,7 @@ void LLAgentWearables::userRemoveAllClothesStep2(BOOL proceed)
 	}
 }
 
-void LLAgentWearables::userRemoveAllAttachments(void* userdata)
+void LLAgentWearables::userRemoveAllAttachments()
 {
 	LLVOAvatar* avatarp = gAgent.getAvatarObject();
 	if (!avatarp)
@@ -1819,7 +1744,7 @@ void LLAgentWearables::userAttachMultipleAttachments(LLInventoryModel::item_arra
 			msg->nextBlockFast(_PREHASH_HeaderData);
 			msg->addUUIDFast(_PREHASH_CompoundMsgID, compound_msg_id );
 			msg->addU8Fast(_PREHASH_TotalObjects, obj_count );
-			msg->addBOOLFast(_PREHASH_FirstDetachAll, true );
+			msg->addBOOLFast(_PREHASH_FirstDetachAll, true ); // BAP changing this doesn't seem to matter?
 		}
 
 		const LLInventoryItem* item = obj_item_array.get(i).get();

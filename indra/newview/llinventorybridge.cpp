@@ -1481,8 +1481,8 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
 	if(!avatar) return FALSE;
 
-	// cannot drag categories into library or COF
-	if(!isAgentInventory() || isCOFFolder())
+	// cannot drag categories into library
+	if(!isAgentInventory())
 	{
 		return FALSE;
 	}
@@ -1729,6 +1729,34 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 	return accept;
 }
 
+bool LLFindCOFValidItems::operator()(LLInventoryCategory* cat,
+									 LLInventoryItem* item)
+{
+	// Valid COF items are:
+	// - links to wearables (body parts or clothing)
+	// - links to attachments
+	// - links to gestures
+	// - links to ensemble folders
+	LLViewerInventoryItem *linked_item = ((LLViewerInventoryItem*)item)->getLinkedItem(); // BAP - safe?
+	if (linked_item)
+	{
+		LLAssetType::EType type = linked_item->getType();
+		return (type == LLAssetType::AT_CLOTHING ||
+				type == LLAssetType::AT_BODYPART ||
+				type == LLAssetType::AT_GESTURE ||
+				type == LLAssetType::AT_OBJECT);
+	}
+	else
+	{
+		LLViewerInventoryCategory *linked_category = ((LLViewerInventoryItem*)item)->getLinkedCategory(); // BAP - safe?
+		// BAP remove AT_NONE support after ensembles are fully working?
+		return (linked_category && 
+				((linked_category->getPreferredType() == LLAssetType::AT_NONE) ||
+				 (LLAssetType::lookupIsEnsembleCategoryType(linked_category->getPreferredType()))));
+	}
+}
+
+
 bool LLFindWearables::operator()(LLInventoryCategory* cat,
 								 LLInventoryItem* item)
 {
@@ -1742,6 +1770,8 @@ bool LLFindWearables::operator()(LLInventoryCategory* cat,
 	}
 	return FALSE;
 }
+
+
 
 //Used by LLFolderBridge as callback for directory recursion.
 class LLRightClickInventoryFetchObserver : public LLInventoryFetchObserver
@@ -1946,6 +1976,15 @@ void LLFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 	else if ("replaceoutfit" == action)
 	{
 		modifyOutfit(FALSE);
+		return;
+	}
+	else if ("wearasensemble" == action)
+	{
+		LLInventoryModel* model = getInventoryModel();
+		if(!model) return;
+		LLViewerInventoryCategory* cat = getCategory();
+		if(!cat) return;
+		LLAppearanceManager::wearEnsemble(cat,true);
 		return;
 	}
 	else if ("addtooutfit" == action)
@@ -2277,8 +2316,11 @@ void LLFolderBridge::folderOptionsMenu()
 	if(!model) return;
 
 	const LLInventoryCategory* category = model->getCategory(mUUID);
-	const bool is_default_folder = category &&
-		(LLAssetType::lookupIsProtectedCategoryType(category->getPreferredType()));
+	LLAssetType::EType type = category->getPreferredType();
+	const bool is_default_folder = category && LLAssetType::lookupIsProtectedCategoryType(type);
+	// BAP change once we're no longer treating regular categories as ensembles.
+	const bool is_ensemble = category && (type == LLAssetType::AT_NONE ||
+										  LLAssetType::lookupIsEnsembleCategoryType(type));
 	
 	// calling card related functionality for folders.
 
@@ -2312,6 +2354,10 @@ void LLFolderBridge::folderOptionsMenu()
 		{
 			mItems.push_back(std::string("Add To Outfit"));
 			mItems.push_back(std::string("Replace Outfit"));
+		}
+		if (is_ensemble)
+		{
+			mItems.push_back(std::string("Wear As Ensemble"));
 		}
 		mItems.push_back(std::string("Take Off Items"));
 	}
@@ -2370,8 +2416,10 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		LLViewerInventoryCategory *cat =  getCategory();
 
-		if (!isCOFFolder() && cat &&
-			LLAssetType::lookupIsProtectedCategoryType(cat->getPreferredType()))
+		// BAP removed protected check to re-enable standard ops in untyped folders.
+		// Not sure what the right thing is to do here.
+		if (!isCOFFolder() && cat /*&&
+			LLAssetType::lookupIsProtectedCategoryType(cat->getPreferredType())*/)
 		{
 			// Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
 			if (!LLFriendCardsManager::instance().isCategoryInFriendFolder(cat))
@@ -3983,6 +4031,16 @@ void remove_inventory_category_from_avatar( LLInventoryCategory* category )
 	}
 }
 
+struct OnRemoveStruct
+{
+	LLUUID mUUID;
+	LLFolderView *mFolderToDeleteSelected;
+	OnRemoveStruct(const LLUUID& uuid, LLFolderView *fv = NULL):
+		mUUID(uuid),
+		mFolderToDeleteSelected(fv)
+	{
+	}
+};
 
 void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_id)
 {
@@ -4030,10 +4088,10 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 				if( gAgentWearables.isWearingItem (item_array.get(i)->getUUID()) )
 				{
 					LLWearableList::instance().getAsset(item_array.get(i)->getAssetUUID(),
-									item_array.get(i)->getName(),
-								   item_array.get(i)->getType(),
-								    LLWearableBridge::onRemoveFromAvatarArrived,
-								   new LLUUID(item_array.get(i)->getUUID()));
+														item_array.get(i)->getName(),
+														item_array.get(i)->getType(),
+														LLWearableBridge::onRemoveFromAvatarArrived,
+														new OnRemoveStruct(item_array.get(i)->getUUID()));
 
 				}
 			}
@@ -4134,12 +4192,25 @@ void LLWearableBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 		{
 			LLViewerInventoryItem* item = getItem();
 			if (item)
-			{
-				LLWearableList::instance().getAsset(item->getAssetUUID(),
-										item->getName(),
-									item->getType(),
-									LLWearableBridge::onRemoveFromAvatarArrived,
-									new LLUUID(mUUID));
+			{	
+				if (item->getIsLinkType() &&
+					model->isObjectDescendentOf(mUUID,LLAppearanceManager::getCOF()))
+				{
+					// Delete link after item has been taken off.
+					LLWearableList::instance().getAsset(item->getAssetUUID(),
+														item->getName(),
+														item->getType(),
+														LLWearableBridge::onRemoveFromAvatarArrived,
+														new OnRemoveStruct(mUUID, folder));
+				}
+				else
+				{
+					LLWearableList::instance().getAsset(item->getAssetUUID(),
+														item->getName(),
+														item->getType(),
+														LLWearableBridge::onRemoveFromAvatarArrived,
+														new OnRemoveStruct(mUUID));
+				}
 			}
 		}
 	}
@@ -4452,11 +4523,12 @@ void LLWearableBridge::onRemoveFromAvatar(void* user_data)
 		LLViewerInventoryItem* item = self->getItem();
 		if (item)
 		{
+			LLUUID parent_id = item->getParentUUID();
 			LLWearableList::instance().getAsset(item->getAssetUUID(),
-									item->getName(),
-								   item->getType(),
-								   onRemoveFromAvatarArrived,
-								   new LLUUID(self->mUUID));
+												item->getName(),
+												item->getType(),
+												onRemoveFromAvatarArrived,
+												new OnRemoveStruct(LLUUID(self->mUUID)));
 		}
 	}
 }
@@ -4465,10 +4537,11 @@ void LLWearableBridge::onRemoveFromAvatar(void* user_data)
 void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 												 void* userdata)
 {
-	LLUUID* item_id = (LLUUID*) userdata;
+	OnRemoveStruct *on_remove_struct = (OnRemoveStruct*) userdata;
+	LLUUID item_id = on_remove_struct->mUUID;
 	if(wearable)
 	{
-		if( gAgentWearables.isWearingItem( *item_id ) )
+		if( gAgentWearables.isWearingItem( item_id ) )
 		{
 			EWearableType type = wearable->getType();
 	
@@ -4481,7 +4554,11 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 			}
 		}
 	}
-	delete item_id;
+	if (on_remove_struct->mFolderToDeleteSelected)
+	{
+		on_remove_struct->mFolderToDeleteSelected->removeSelectedItems();
+	}
+	delete on_remove_struct;
 }
 
 LLInvFVBridgeAction* LLInvFVBridgeAction::createAction(LLAssetType::EType asset_type,
