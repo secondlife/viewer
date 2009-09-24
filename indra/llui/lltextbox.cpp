@@ -302,11 +302,10 @@ LLWString LLTextBox::getWrappedText(const LLStringExplicit& in_text, F32 max_wid
 
 	// find the next Url in the text string
 	LLUrlMatch match;
-	while ( LLUrlRegistry::instance().findUrl(wstring_to_utf8str(wtext), match))
+	while ( LLUrlRegistry::instance().findUrl(wtext, match))
 	{
-		LLWString wurl = utf8str_to_wstring(match.getUrl());
-		S32 start = wtext.find(wurl);
-		S32 end = start + wurl.size();
+		S32 start = match.getStart();
+		S32 end = match.getEnd() + 1;
 
 		// perform word wrap on the text before the Url
 		final_wtext += wrapText(wtext.substr(0, start), hoffset, line_num, max_width);
@@ -579,14 +578,14 @@ void LLTextBox::updateDisplayTextAndSegments()
 	LLWString text = mText.getWString();
 		
 	// find the next Url in the text string
-	while ( LLUrlRegistry::instance().findUrl(wstring_to_utf8str(text), match,
+	while ( LLUrlRegistry::instance().findUrl(text, match,
 											  boost::bind(&LLTextBox::onUrlLabelUpdated, this, _1, _2)) )
 	{
 		// work out the char offset for the start/end of the url
-		LLWString wurl = utf8str_to_wstring(match.getUrl());
-		S32 url_start = text.find(wurl);
-		S32 url_end = url_start + wurl.size() - 1;
+		S32 url_start = match.getStart();
+		S32 url_end = match.getEnd();
 
+		// and the char offset for the label in the display text
 		S32 seg_start = mDisplayText.size();
 		S32 start = seg_start + url_start;
 		S32 end = start + match.getLabel().size();
