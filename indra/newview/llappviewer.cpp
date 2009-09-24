@@ -90,9 +90,6 @@
 
 #if LL_WINDOWS
 	#include "llwindebug.h"
-#endif
-
-#if LL_WINDOWS
 #	include <share.h> // For _SH_DENYWR in initMarkerFile
 #else
 #   include <sys/file.h> // For initMarkerFile support
@@ -195,6 +192,11 @@
 #include "llviewernetwork.h"
 // define a self-registering event API object
 #include "llappviewerlistener.h"
+
+#if LL_MSVC
+// disable boost::lexical_cast warning
+#pragma warning (disable:4702)
+#endif
 
 static LLAppViewerListener sAppViewerListener("LLAppViewer", NULL);
 

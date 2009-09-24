@@ -41,6 +41,9 @@
 #include "stringize.h"
 #include "llerror.h"
 #include "llsdutil.h"
+#if LL_MSVC
+#pragma warning (disable : 4702)
+#endif
 
 /*****************************************************************************
 *   queue_names: specify LLEventPump names that should be instantiated as
