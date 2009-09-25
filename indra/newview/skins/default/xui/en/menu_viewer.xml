@@ -1863,7 +1863,7 @@
         <menu_item_separator
          layout="topleft" />
         <menu_item_call
-         label="Debug Settings"
+         label="Debug Settings editor"
          layout="topleft"
          name="Debug Settings">
             <menu_item_call.on_click
@@ -1871,7 +1871,7 @@
              parameter="all" />
         </menu_item_call>
      <menu_item_check
-         label="Debug (QA) Mode"
+         label="Activate Debug Mode (QA)"
          layout="topleft"
          name="Debug Mode"
          shortcut="control|alt|Q">
@@ -1985,7 +1985,73 @@
         </menu>
         <menu
          create_jump_keys="true"
-         label="Debugging"
+         label="Show Info"
+         layout="topleft"
+         name="Display Info"
+         tear_off="true">
+            <menu_item_check
+             label="Show Time"
+             layout="topleft"
+             name="Show Time">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="DebugShowTime" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="DebugShowTime" />
+            </menu_item_check>
+            <menu_item_check
+             label="Show Render Info"
+             layout="topleft"
+             name="Show Render Info">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="DebugShowRenderInfo" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="DebugShowRenderInfo" />
+            </menu_item_check>
+            <menu_item_check
+             label="Show Matrices"
+             layout="topleft"
+             name="Show Matrices">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="DebugShowRenderMatrices" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="DebugShowRenderMatrices" />
+            </menu_item_check>
+            <menu_item_check
+             label="Show Color Under Cursor"
+             layout="topleft"
+             name="Show Color Under Cursor">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="DebugShowColor" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="DebugShowColor" />
+            </menu_item_check>
+            <menu_item_separator
+             layout="topleft" />
+            <menu_item_check
+             label="Show Updates to objects"
+             layout="topleft"
+             name="Show Updates"
+             shortcut="control|alt|shift|U">
+                <menu_item_check.on_check
+                 function="Advanced.CheckShowObjectUpdates"
+                 parameter="ObjectUpdates" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleShowObjectUpdates" />
+            </menu_item_check>
+        </menu>
+        <menu_item_separator
+         layout="topleft" />
+        <menu
+         create_jump_keys="true"
+         label="Force an Error"
          layout="topleft"
          name="Force Errors"
          tear_off="true">
@@ -2039,38 +2105,15 @@
                 <menu_item_call.on_click
                  function="Advanced.ForceErrorDisconnectViewer" />
             </menu_item_call>
-        </menu>
-        <menu_item_separator
-         layout="topleft" />
-        <menu_item_check
-         label="Output Debug Minidump"
-         layout="topleft"
-         name="Output Debug Minidump">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="SaveMinidump" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="SaveMinidump" />
-        </menu_item_check>
-        <menu_item_call
-         label="Memory Leaking Simulation"
-         layout="topleft"
-         name="Memory Leaking Simulation">
-            <menu_item_call.on_click
-             function="Floater.Show"
-             parameter="mem_leaking" />
-        </menu_item_call>
-        <menu_item_call
-             label="Bumps, Pushes &amp; Hits..."
+            <menu_item_call
+             label="Simulate a Memory Leak..."
              layout="topleft"
-             name="Bumps, Pushes &amp;amp; Hits">
-                <menu_item_call.on_click
-                 function="Floater.Show"
-                 parameter="bumps" />
-            </menu_item_call>
-        <menu_item_separator
-         layout="topleft" />
+             name="Memory Leaking Simulation">
+               <menu_item_call.on_click
+                function="Floater.Show"
+                parameter="mem_leaking" />
+               </menu_item_call>
+        </menu>
         <menu
          create_jump_keys="true"
          label="Render Tests"
@@ -2120,8 +2163,6 @@
                  function="Advanced.ToggleFrameTest" />
             </menu_item_check>
         </menu>
-        <menu_item_separator
-         layout="topleft" />
       <menu
         create_jump_keys="true"
         label="Render Metadata"
@@ -2261,59 +2302,6 @@
            parameter="raycast" />
         </menu_item_check>
       </menu>
-      <menu_item_separator
-         layout="topleft" />
-        <menu
-         create_jump_keys="true"
-         label="Display Info"
-         layout="topleft"
-         name="Display Info"
-         tear_off="true">
-            <menu_item_check
-             label="Show Time"
-             layout="topleft"
-             name="Show Time">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="DebugShowTime" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="DebugShowTime" />
-            </menu_item_check>
-            <menu_item_check
-             label="Show Render Info"
-             layout="topleft"
-             name="Show Render Info">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="DebugShowRenderInfo" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="DebugShowRenderInfo" />
-            </menu_item_check>
-            <menu_item_check
-             label="Show Matrices"
-             layout="topleft"
-             name="Show Matrices">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="DebugShowRenderMatrices" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="DebugShowRenderMatrices" />
-            </menu_item_check>
-            <menu_item_check
-             label="Show Color Under Cursor"
-             layout="topleft"
-             name="Show Color Under Cursor">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="DebugShowColor" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="DebugShowColor" />
-            </menu_item_check>
-        </menu>
         <menu_item_separator
          layout="topleft" />
         <menu
@@ -2333,6 +2321,8 @@
                  function="ToggleControl"
                  parameter="AgentPause" />
             </menu_item_check>
+            <menu_item_separator
+             layout="topleft" />
             <menu_item_call
              label="Enable Message Log"
              layout="topleft"
@@ -2347,6 +2337,8 @@
                 <menu_item_call.on_click
                  function="Advanced.DisableMessageLog" />
             </menu_item_call>
+            <menu_item_separator
+             layout="topleft" />
             <menu_item_check
              label="Velocity Interpolate Objects"
              layout="topleft"
@@ -2369,6 +2361,8 @@
                  function="ToggleControl"
                  parameter="PingInterpolate" />
             </menu_item_check>
+            <menu_item_separator
+             layout="topleft" />
             <menu_item_call
              label="Drop a Packet"
              layout="topleft"
@@ -2377,18 +2371,39 @@
                 <menu_item_call.on_click
                  function="Advanced.DropPacket" />
             </menu_item_call>
-            <menu_item_check
-             label="Show Updates"
-             layout="topleft"
-             name="Show Updates"
-             shortcut="control|alt|shift|U">
-                <menu_item_check.on_check
-                 function="Advanced.CheckShowObjectUpdates"
-                 parameter="ObjectUpdates" />
-                <menu_item_check.on_click
-                 function="Advanced.ToggleShowObjectUpdates" />
-            </menu_item_check>
         </menu>
+        <menu_item_separator
+         layout="topleft" />
+        <menu_item_call
+             label="Bumps, Pushes &amp; Hits..."
+             layout="topleft"
+             name="Bumps, Pushes &amp;amp; Hits">
+                <menu_item_call.on_click
+                 function="Floater.Show"
+                 parameter="bumps" />
+            </menu_item_call>
+        <menu_item_check
+         label="Output Debug Minidump"
+         layout="topleft"
+         name="Output Debug Minidump">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="SaveMinidump" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="SaveMinidump" />
+        </menu_item_check>
+        <menu_item_check
+         label="Debug Permissions in Build Tool"
+         layout="topleft"
+         name="DebugPermissions">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="DebugPermissions" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="DebugPermissions" />
+        </menu_item_check>
         <menu_item_separator
          layout="topleft" />
         <menu_item_check
@@ -2410,7 +2425,7 @@
              function="Advanced.RequestAdminStatus" />
         </menu_item_call>
         <menu_item_call
-         label="Leave Admin Status"
+         label="Deactivate Admin Status"
          layout="topleft"
          name="Leave Admin Options"
          shortcut="control|alt|shift|G">
@@ -3201,17 +3216,6 @@
         </menu>
         <menu_item_separator
          layout="topleft" />
-        <menu_item_check
-         label="Debug Permissions"
-         layout="topleft"
-         name="DebugPermissions">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="DebugPermissions" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="DebugPermissions" />
-        </menu_item_check>
         <menu_item_call
          label="Compress Images"
          layout="topleft"

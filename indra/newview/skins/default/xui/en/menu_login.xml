@@ -9,26 +9,11 @@
  width="802">
     <menu
      create_jump_keys="true"
-     label="File"
+     label="Me"
      layout="topleft"
      name="File">
         <menu_item_call
-         label="Quit"
-         layout="topleft"
-         name="Quit"
-         shortcut="control|Q">
-            <menu_item_call.on_click
-             function="File.Quit" />
-        </menu_item_call>
-    </menu>
-    <menu
-     create_jump_keys="true"
-     label="Edit"
-     layout="topleft"
-     name="Edit"
-     width="153">
-        <menu_item_call
-         label="Preferences..."
+         label="Preferences"
          layout="topleft"
          name="Preferences..."
          shortcut="control|P">
@@ -36,7 +21,26 @@
              function="ShowFloater"
              parameter="preferences" />
         </menu_item_call>
+        <menu_item_separator
+         layout="topleft" />
+        <menu_item_call
+         label="Quit [APP_NAME]"
+         layout="topleft"
+         name="Quit"
+         shortcut="control|Q">
+            <menu_item_call.on_click
+             function="File.Quit" />
+        </menu_item_call>
     </menu>
+<!-- Edit menu merged into the Me menu above
+    <menu
+     create_jump_keys="true"
+     label="Edit"
+     layout="topleft"
+     name="Edit"
+     width="153">
+    </menu>
+-->
     <menu
      create_jump_keys="true"
      label="Help"
@@ -51,6 +55,8 @@
              function="ShowFloater"
              parameter="help f1" />
         </menu_item_call>
+        <menu_item_separator
+         layout="topleft" />
         <menu_item_call
          label="About [APP_NAME]"
          layout="topleft"
@@ -172,7 +178,7 @@
       </menu>
       <menu_item_separator />
       <menu_item_call
-         label="Debug Settings"
+         label="Debug Settings editor"
          layout="topleft"
          name="Debug Settings">
             <menu_item_call.on_click
@@ -189,7 +195,7 @@
         </menu_item_call>
         <menu_item_separator />
         <menu_item_call
-         label="UI Preview Tool"
+         label="XUI Preview Tool"
          layout="topleft"
          name="UI Preview Tool"
          shortcut="control|T">
