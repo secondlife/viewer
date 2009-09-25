@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_resize="true"
- height="250"
+ height="290"
  layout="topleft"
- min_height="175"
- min_width="154"
+ min_height="150"
+ min_width="200"
  name="contents"
  help_topic="contents"
  save_rect="true"
@@ -32,13 +32,15 @@
         (no transfer)
     </floater.string>
     <scroll_list
+     background_visible="true"
+     draw_border="false"
      follows="left|top|right"
-     height="36"
+     height="35"
      layout="topleft"
-     left="15"
      name="object_list"
-     top="24"
-     width="250">
+     top="20"
+     left="10"
+     width="260">
         <scroll_list.columns
          name="icon"
          width="16" />
@@ -49,24 +51,26 @@
     <text
      type="string"
      length="1"
-     follows="left|top|right"
+     follows="all"
      font="SansSerif"
      height="16"
      layout="topleft"
-     left_delta="0"
+     left="10"
      name="contents_text"
-     top_pad="4"
-     width="250">
-        and its contents:
+     top_pad="5"
+     width="260">
+     Contains:
     </text>
     <scroll_list
-     follows="left|top|right|bottom"
-     height="108"
+     background_visible="true"
+     draw_border="false"
+     follows="all"
+     height="145"
      layout="topleft"
      left_delta="0"
      name="item_list"
      top_pad="4"
-     width="250">
+     width="260">
         <scroll_list.columns
          name="icon"
          width="16" />
@@ -79,32 +83,33 @@
      length="1"
      follows="left|right|bottom"
      font="SansSerif"
-     height="24"
+     height="16"
      layout="topleft"
      left_delta="0"
      name="buy_text"
-     top_pad="4"
-     width="281">
+     text_color="white"
+     top_pad="5"
+     width="276">
         Buy for L$[AMOUNT] from [NAME]?
     </text>
     <button
      follows="right|bottom"
-     height="20"
+     height="23"
      label="Buy"
      label_selected="Buy"
      layout="topleft"
-     left="10"
+     left="65"
      name="buy_btn"
-     top_pad="5"
-     width="125" />
+     top_pad="10"
+     width="100" />
     <button
      follows="right|bottom"
-     height="20"
+     height="23"
      label="Cancel"
      label_selected="Cancel"
      layout="topleft"
      left_pad="5"
      name="cancel_btn"
      top_delta="0"
-     width="125" />
+     width="100" />
 </floater>

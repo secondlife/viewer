@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_minimize="false"
- height="140"
+ height="220"
  layout="topleft"
  name="Give Money"
  help_topic="give_money"
  save_rect="true"
- width="300">
-    <text
+ width="225">
+   <text
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerif"
-     halign="right"
+     font="SansSerifBold"
      height="18"
      layout="topleft"
-     left="5"
+     left="12"
      name="payee_group"
      top="7"
      width="75">
@@ -25,26 +24,34 @@
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerif"
-     halign="right"
+     font="SansSerifBold"
      height="18"
      layout="topleft"
-     left_delta="0"
+     left="12"
      name="payee_resident"
-     top_delta="0"
+     top="7"
      width="75">
         Pay resident:
     </text>
+   <icon
+     height="16"
+     width="16"
+     image_name="Generic_Person"
+     mouse_opaque="true"
+     name="icon_person"
+     tool_tip="Person"
+     top_pad="0"
+     left="10"
+     />
     <text
      type="string"
      length="1"
      follows="left|top"
      font="SansSerif"
-     height="18"
+     height="16"
      layout="topleft"
-     left_pad="5"
+     left_pad="7"
      name="payee_name"
-     top_delta="0"
      width="210">
         [FIRST] [LAST]
     </text>
@@ -52,16 +59,25 @@
      type="string"
      length="1"
      follows="left|top"
-     font="SansSerif"
-     halign="right"
-     height="18"
+     halign="left"
+     height="16"
      layout="topleft"
-     left="5"
+     left="30"
      name="object_name_label"
-     top="32"
-     width="75">
+     top_pad="0"
+     width="150">
         Via object:
     </text>
+   <icon
+     height="16"
+     width="16"
+     image_name="Inv_Object"
+     mouse_opaque="true"
+     name="icon_object"
+     tool_tip="Objects"
+     top_pad="0"
+     left="30"
+     />
     <text
      type="string"
      length="1"
@@ -75,101 +91,78 @@
      width="210">
         ...
     </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     font="SansSerif"
-     halign="right"
-     height="18"
-     layout="topleft"
-     left="5"
-     name="fastpay text"
-     top="54"
-     width="75">
-        Fast Pay:
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     font="SansSerif"
-     halign="right"
-     height="18"
-     layout="topleft"
-     left_delta="0"
-     name="amount text"
-     top_pad="40"
-     width="75">
-        Amount:
-    </text>
-    <button
-     height="20"
+   <button
+     height="23"
      label="L$1"
      label_selected="L$1"
      layout="topleft"
-     left="85"
+     left="25"
      name="fastpay 1"
-     top="54"
+     top_pad="8"
      width="80" />
     <button
-     height="20"
+     height="23"
      label="L$5"
      label_selected="L$5"
      layout="topleft"
-     left_pad="5"
+     left_pad="15"
      name="fastpay 5"
-     top_delta="0"
      width="80" />
     <button
-     height="20"
+     height="23"
      label="L$10"
      label_selected="L$10"
      layout="topleft"
-     left="85"
+     left="25"
      name="fastpay 10"
-     top="78"
+     top_pad="8"
      width="80" />
     <button
-     height="20"
+     height="23"
      label="L$20"
      label_selected="L$20"
      layout="topleft"
-     left_pad="5"
+     left_pad="15"
      name="fastpay 20"
-     top_delta="0"
+     width="80" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="18"
+     layout="topleft"
+     left="25"
+     name="amount text"
+     top_pad="8"
+     width="180">
+        Or, choose amount:
+    </text>
+    <line_editor
+     border_style="line"
+     follows="left|top|right"
+     height="19"
+     top_pad="0"
+     layout="topleft"
+     left="120"
+     max_length="9"
+     name="amount"
      width="80" />
     <button
      enabled="false"
-     follows="right|bottom"
-     height="20"
+     height="23"
      label="Pay"
      label_selected="Pay"
      layout="topleft"
-     left="140"
+     left="10"
      name="pay btn"
-     top="112"
-     width="70" />
+     top_pad="5"
+     width="100" />
     <button
-     follows="right|bottom"
-     height="20"
+     height="23"
      label="Cancel"
      label_selected="Cancel"
      layout="topleft"
      left_pad="5"
      name="cancel btn"
-     top_delta="0"
-     width="70" />
-    <line_editor
-     border_style="line"
-     border_thickness="1"
-     follows="left|top|right"
-     font="SansSerif"
-     height="18"
-     layout="topleft"
-     left_delta="-130"
-     max_length="9"
-     name="amount"
-     top_delta="0"
-     width="50" />
+     width="100" />
 </floater>
