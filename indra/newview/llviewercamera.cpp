@@ -781,8 +781,8 @@ BOOL LLViewerCamera::areVertsVisible(LLViewerObject* volumep, BOOL all_verts)
 
 			BOOL in_frustum = pointInFrustum(LLVector3(vec)) > 0;
 
-			if ( !in_frustum && all_verts ||
-				 in_frustum && !all_verts)
+			if (( !in_frustum && all_verts) ||
+				 (in_frustum && !all_verts))
 			{
 				return !all_verts;
 			}

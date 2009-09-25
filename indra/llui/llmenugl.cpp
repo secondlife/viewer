@@ -2346,8 +2346,8 @@ void LLMenuGL::createJumpKeys()
 				{
 					char jump_key = uppercase_word[i];
 					
-					if (LLStringOps::isDigit(jump_key) || LLStringOps::isUpper(jump_key) &&
-						mJumpKeys.find(jump_key) == mJumpKeys.end())
+					if (LLStringOps::isDigit(jump_key) || (LLStringOps::isUpper(jump_key) &&
+						mJumpKeys.find(jump_key) == mJumpKeys.end()))
 					{
 						mJumpKeys.insert(std::pair<KEY, LLMenuItemGL*>(jump_key, (*item_it)));
 						(*item_it)->setJumpKey(jump_key);
