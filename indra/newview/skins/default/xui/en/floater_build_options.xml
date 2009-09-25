@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  follows="right"
- height="140"
+ height="170"
  layout="topleft"
  name="build options floater"
  help_topic="build_options_floater"
  save_rect="true"
  title="Grid Options"
- width="245">
+ width="264">
     <spinner
      control_name="GridResolution"
      follows="left|top"
      height="23"
      initial_value="1"
-     label="Grid Unit (meters)"
-     label_width="120"
+     label="Grid Units (meters)"
+     label_width="130"
      layout="topleft"
      left="10"
      max_val="5"
@@ -30,7 +30,7 @@
      increment="0.5"
      initial_value="5"
      label="Grid Extents (meters)"
-     label_width="120"
+     label_width="130"
      layout="topleft"
      left_delta="0"
      max_val="50"
@@ -41,7 +41,7 @@
     <check_box
      control_name="GridSubUnit"
      height="16"
-     label="Snap to Sub-Units"
+     label="Snap to sub-units"
      layout="topleft"
      name="GridSubUnit"
      top_pad="0"
@@ -49,22 +49,33 @@
     <check_box
      control_name="GridCrossSections"
      height="16"
-     label="View Cross Sections"
+     label="View cross-sections"
      layout="topleft"
      name="GridCrossSection"
-     top_pad="0"
+     top_pad="5"
      width="200" />
+   <text
+         type="string"
+         length="1"
+         follows="left|top"
+         height="16"
+         layout="topleft"
+         left="10"
+         tool_tip="Grid Opacity"
+         name="grid_opacity_label"
+         top_pad="5"
+         width="128">
+            Opacity:
+   </text>
     <slider
      control_name="GridOpacity"
      follows="left"
      height="18"
      increment="0.05"
      initial_value="0.7"
-     label="Opacity"
-     label_width="70"
      layout="topleft"
      name="GridOpacity"
      show_text="false"
-     top_pad="5"
-     width="220" />
+     top_pad="0"
+     width="210" />
 </floater>
