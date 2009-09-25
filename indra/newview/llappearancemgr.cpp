@@ -863,14 +863,37 @@ void LLAppearanceManager::wearOutfitByName(const std::string& name)
 /* static */
 void LLAppearanceManager::wearItem( LLInventoryItem* item, bool do_update )
 {
-	// BAP add check for already in COF.
-	LLPointer<LLInventoryCallback> cb = do_update ? new ModifiedCOFCallback : 0;
-	link_inventory_item( gAgent.getID(),
-						 item->getLinkedUUID(),
-						 getCOF(),
-						 item->getName(),
-						 LLAssetType::AT_LINK,
-						 cb);
+	LLInventoryModel::cat_array_t cat_array;
+	LLInventoryModel::item_array_t item_array;
+	gInventory.collectDescendents(LLAppearanceManager::getCOF(),
+								  cat_array,
+								  item_array,
+								  LLInventoryModel::EXCLUDE_TRASH);
+	bool linked_already = false;
+	for (S32 i=0; i<item_array.count(); i++)
+	{
+		const LLInventoryItem* inv_item = item_array.get(i).get();
+		if (inv_item->getLinkedUUID() == item->getLinkedUUID())
+		{
+			linked_already = true;
+			break;
+		}
+	}
+	if (linked_already)
+	{
+		if (do_update)
+			LLAppearanceManager::updateAppearanceFromCOF();
+	}
+	else
+	{
+		LLPointer<LLInventoryCallback> cb = do_update ? new ModifiedCOFCallback : 0;
+		link_inventory_item( gAgent.getID(),
+							 item->getLinkedUUID(),
+							 getCOF(),
+							 item->getName(),
+							 LLAssetType::AT_LINK,
+							 cb);
+	}
 }
 
 /* static */
