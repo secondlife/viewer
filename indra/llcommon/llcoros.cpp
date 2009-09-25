@@ -54,15 +54,6 @@ bool LLCoros::cleanup(const LLSD&)
     return false;
 }
 
-std::string LLCoros::launchImpl(const std::string& prefix, coro* newCoro)
-{
-    std::string name(generateDistinctName(prefix));
-    mCoros.insert(name, newCoro);
-    /* Run the coroutine until its first wait, then return here */
-    (*newCoro)(std::nothrow);
-    return name;
-}
-
 std::string LLCoros::generateDistinctName(const std::string& prefix) const
 {
     // Allowing empty name would make getName()'s not-found return ambiguous.
@@ -116,3 +107,31 @@ std::string LLCoros::getNameByID(const void* self_id) const
     }
     return "";
 }
+
+/*****************************************************************************
+*   MUST BE LAST
+*****************************************************************************/
+// Turn off MSVC optimizations for just LLCoros::launchImpl() -- see
+// DEV-32777. But MSVC doesn't support push/pop for optimization flags as it
+// does for warning suppression, and we really don't want to force
+// optimization ON for other code even in Debug or RelWithDebInfo builds.
+
+#if LL_MSVC
+// work around broken optimizations
+#pragma warning(disable: 4748)
+#pragma optimize("", off)
+#endif // LL_MSVC
+
+std::string LLCoros::launchImpl(const std::string& prefix, coro* newCoro)
+{
+    std::string name(generateDistinctName(prefix));
+    mCoros.insert(name, newCoro);
+    /* Run the coroutine until its first wait, then return here */
+    (*newCoro)(std::nothrow);
+    return name;
+}
+
+#if LL_MSVC
+// reenable optimizations
+#pragma optimize("", on)
+#endif // LL_MSVC

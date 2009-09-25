@@ -56,7 +56,7 @@ public:
         return pump.listen(mName, boost::bind(&LoginListener::call, this, _1));
 	}
 
-	LLSD lastEvent() { return mLastEvent; }
+	LLSD lastEvent() const { return mLastEvent; }
 
     friend std::ostream& operator<<(std::ostream& out, const LoginListener& listener)
     {
