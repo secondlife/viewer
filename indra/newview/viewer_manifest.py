@@ -165,7 +165,7 @@ class WindowsManifest(ViewerManifest):
 
 
     def test_msvcrt_and_copy_action(self, src, dst):
-        # This can is used to test a dll manifest.
+        # This is used to test a dll manifest.
         # It is used as a temporary override during the construct method
         from test_win32_manifest import test_assembly_binding
         if src and (os.path.exists(src) or os.path.islink(src)):
@@ -183,10 +183,38 @@ class WindowsManifest(ViewerManifest):
         else:
             print "Doesn't exist:", src
 
-    def enable_crt_check(self):
+    def test_for_no_msvcrt_manifest_and_copy_action(self, src, dst):
+        # This is used to test that no manifest for the msvcrt exists.
+        # It is used as a temporary override during the construct method
+        from test_win32_manifest import test_assembly_binding
+        if src and (os.path.exists(src) or os.path.islink(src)):
+            # ensure that destination path exists
+            self.cmakedirs(os.path.dirname(dst))
+            self.created_paths.append(dst)
+            if not os.path.isdir(src):
+                try:
+                    if(self.args['configuration'].lower() == 'debug'):
+                        test_assembly_binding(src, "Microsoft.VC80.DebugCRT", "")
+                    else:
+                        test_assembly_binding(src, "Microsoft.VC80.CRT", "")
+                    raise Exception("Unknown condition")
+                except Exception, err:
+                    if err.message != "No matching assembly" or err.message != "No manifest found":
+                        raise Exception("Found unexpected MSVCRT manifest binding")
+                    
+                self.ccopy(src,dst)
+            else:
+                raise Exception("Directories are not supported by test_CRT_and_copy_action()")
+        else:
+            print "Doesn't exist:", src
+        
+    def enable_crt_manifest_check(self):
         WindowsManifest.copy_action = WindowsManifest.test_msvcrt_and_copy_action
 
-    def disable_crt_check(self):
+    def enable_no_crt_manifest_check(self):
+        WindowsManifest.copy_action = WindowsManifest.test_for_no_msvcrt_manifest_and_copy_action
+
+    def disable_manifest_check(self):
         del WindowsManifest.copy_action
 
     def construct(self):
@@ -194,7 +222,7 @@ class WindowsManifest(ViewerManifest):
         # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
         self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
-        self.enable_crt_check()
+        self.enable_crt_manifest_check()
 
         # Plugin host application
         self.path(os.path.join(os.pardir,
@@ -220,7 +248,15 @@ class WindowsManifest(ViewerManifest):
         except RuntimeError:
             print "Skipping llkdu.dll"
 
-        self.disable_crt_check()
+        self.disable_manifest_check()
+
+        # For textures
+        if self.prefix(src=self.args['configuration'], dst=""):
+            if(self.args['configuration'].lower() == 'debug'):
+                self.path("openjpegd.dll")
+            else:
+                self.path("openjpeg.dll")
+            self.end_prefix()
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
@@ -231,15 +267,7 @@ class WindowsManifest(ViewerManifest):
         # For using FMOD for sound... DJS
         self.path("fmod.dll")
 
-        self.enable_crt_check()
-
-        # For textures
-        if self.prefix(src=self.args['configuration'], dst=""):
-            if(self.args['configuration'].lower() == 'debug'):
-                self.path("openjpegd.dll")
-            else:
-                self.path("openjpeg.dll")
-            self.end_prefix()
+        self.enable_no_crt_manifest_check()
 
         # Media plugins - QuickTime
         if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
@@ -271,7 +299,7 @@ class WindowsManifest(ViewerManifest):
             self.path("qtiff4.dll")
             self.end_prefix()
 
-        self.disable_crt_check()
+        self.disable_manifest_check()
 
         # These need to be installed as a SxS assembly, currently a 'private' assembly.
         # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx

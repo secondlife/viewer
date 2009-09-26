@@ -78,7 +78,10 @@ def test_assembly_binding(src_filename, assembly_name, assembly_ver):
        resource_id = ";#2"
     system_call = '%s -nologo -inputresource:%s%s -out:%s' % (mt_path, src_filename, resource_id, tmp_file_name)
     print "Executing: %s" % system_call
-    os.system(system_call)
+    mt_result = os.system(system_call)
+    if mt_result == 31:
+        print "No manifest found in %s" % src_filename
+        raise Exception("No manifest found")
 
     manifest_dom = parse(tmp_file_name)
     nodes = manifest_dom.getElementsByTagName('assemblyIdentity')
@@ -89,7 +92,8 @@ def test_assembly_binding(src_filename, assembly_name, assembly_ver):
             versions.append(node.getAttribute('version'))
 
     if len(versions) == 0:
-        print "No manifest found for %s" % src_filename
+        print "No matching assemblies found in %s" % src_filename
+        raise Exception("No matching assembly")
         
     elif len(versions) > 1:
         print "Multiple bindings to %s found:" % assembly_name
@@ -108,7 +112,6 @@ def test_assembly_binding(src_filename, assembly_name, assembly_ver):
     print "SUCCESS: %s OK!" % src_filename
     print
   
-
 if __name__ == '__main__':
 
     print
