@@ -69,12 +69,8 @@
 	<button label="Enregistrer ([AMOUNT] L$)" name="upload_btn" width="118"/>
 	<button label="Envoyer" name="send_btn" width="118"/>
 	<flyout_button label="Enregistrer" name="save_btn" tool_tip="Enregistrer l&apos;image dans un fichier" width="118">
-    <flyout_button.item name="save_item">
-      Enregistrer
-    </flyout_button.item>
-    <flyout_button.item name="saveas_item">
-      Enregistrer sous...
-    </flyout_button.item>
+    <flyout_button.item name="save_item" label="Enregistrer"/>
+    <flyout_button.item name="saveas_item" label="Enregistrer sous..."/>
 	</flyout_button>
 	<button label="Annuler" name="discard_btn" left="133" width="72" />
 	<string name="unknown">

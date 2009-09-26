@@ -198,9 +198,18 @@ public:
 	void setLightRadius(F32 radius);
 	void setLightFalloff(F32 falloff);
 	void setLightCutoff(F32 cutoff);
+	void setLightTextureID(LLUUID id);
+	void setSpotLightParams(LLVector3 params);
+
 	BOOL getIsLight() const;
 	LLColor3 getLightBaseColor() const; // not scaled by intensity
 	LLColor3 getLightColor() const; // scaled by intensity
+	LLUUID	getLightTextureID() const;
+	LLVector3 getSpotLightParams() const;
+	void	updateSpotLightPriority();
+	F32		getSpotLightPriority() const;
+
+	LLViewerTexture* getLightTexture();
 	F32 getLightIntensity() const;
 	F32 getLightRadius() const;
 	F32 getLightFalloff() const;
@@ -210,6 +219,8 @@ public:
 	U32 getVolumeInterfaceID() const;
 	virtual BOOL isFlexible() const;
 	virtual BOOL isSculpted() const;
+	virtual BOOL hasLightTexture() const;
+
 	BOOL isVolumeGlobal() const;
 	BOOL canBeFlexible() const;
 	BOOL setIsFlexible(BOOL is_flexible);
@@ -232,12 +243,14 @@ private:
 	BOOL		mLODChanged;
 	S32         mSculptLevel;
 	BOOL		mSculptChanged;
+	F32			mSpotLightPriority;
 	LLMatrix4	mRelativeXform;
 	LLMatrix3	mRelativeXformInvTrans;
 	BOOL		mVolumeChanged;
 	F32			mVObjRadius;
 	LLVolumeInterface *mVolumeImpl;
 	LLPointer<LLViewerFetchedTexture> mSculptTexture;
+	LLPointer<LLViewerFetchedTexture> mLightTexture;
 	
 	// statics
 public:

@@ -210,8 +210,8 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			} // else nothing (fall through to touch)
 			
 		case CLICK_ACTION_PAY:
-			if (object && object->flagTakesMoney()
-				|| parent && parent->flagTakesMoney())
+			if ((object && object->flagTakesMoney())
+				|| (parent && parent->flagTakesMoney()))
 			{
 				// pay event goes to object actually clicked on
 				mClickActionObject = object;

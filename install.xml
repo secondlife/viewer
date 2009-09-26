@@ -443,9 +443,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>694173293a483c01472a30cc7d895c5a</string>
+            <string>f00144dfb597140f328774c3244f0c3e</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.1.5-darwin-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/freetype-2.3.9-darwin-20090922.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>

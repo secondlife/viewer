@@ -4244,6 +4244,7 @@ http://secondlife.com/corporate/cs.php
 All reported abuses of the Terms of Service and Community Standards are investigated and resolved. You can view the incident resolution on the Incident Report at:
 
 http://secondlife.com/support/incidentreport.php
+   <unique/>
   </notification>
 
   <notification
@@ -4258,6 +4259,7 @@ The region owner will resolve reports based on the local rules of this region as
 (View covenants by going to the World menu and selecting About Land.)
 
 The resolution of this report applies only to this Region. Residents&apos; access to other areas of [SECOND_LIFE] will not be affected by the outcome of this report. Only Linden Lab can restrict access to the entirety of [SECOND_LIFE].
+  <unique/>
   </notification>
 
   <notification
@@ -6525,6 +6527,13 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
   <notification icon="notifytip.tga"
 		name="AttachmentSaved" type="notifytip">
 		Attachment has been saved.
+  </notification>
+
+  <notification
+    icon="alertmodal.tga"
+    name="UnableToFindHelpTopic"
+    type="alertmodal">
+Unable to find the help topic for this element.
   </notification>
 
   <global name="UnsupportedCPU">

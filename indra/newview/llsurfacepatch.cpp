@@ -712,17 +712,7 @@ BOOL LLSurfacePatch::updateTexture()
 				if (mVObjp)
 				{
 					mVObjp->dirtyGeom();
-				}
-				updateCompositionStats();
-				F32 tex_patch_size = meters_per_grid*grids_per_patch_edge;
-				if (comp->generateTexture((F32)origin_region[VX], (F32)origin_region[VY],
-										  tex_patch_size, tex_patch_size))
-				{
-					mSTexUpdate = FALSE;
-
-					// Also generate the water texture
-					mSurfacep->generateWaterTexture((F32)origin_region.mdV[VX], (F32)origin_region.mdV[VY],
-													tex_patch_size, tex_patch_size);
+					gPipeline.markGLRebuild(mVObjp);
 					return TRUE;
 				}
 			}
@@ -735,6 +725,28 @@ BOOL LLSurfacePatch::updateTexture()
 	}
 }
 
+void LLSurfacePatch::updateGL()
+{
+	F32 meters_per_grid = getSurface()->getMetersPerGrid();
+	F32 grids_per_patch_edge = (F32)getSurface()->getGridsPerPatchEdge();
+
+	LLViewerRegion *regionp = getSurface()->getRegion();
+	LLVector3d origin_region = getOriginGlobal() - getSurface()->getOriginGlobal();
+
+	LLVLComposition* comp = regionp->getComposition();
+	
+	updateCompositionStats();
+	F32 tex_patch_size = meters_per_grid*grids_per_patch_edge;
+	if (comp->generateTexture((F32)origin_region[VX], (F32)origin_region[VY],
+							  tex_patch_size, tex_patch_size))
+	{
+		mSTexUpdate = FALSE;
+
+		// Also generate the water texture
+		mSurfacep->generateWaterTexture((F32)origin_region.mdV[VX], (F32)origin_region.mdV[VY],
+										tex_patch_size, tex_patch_size);
+	}
+}
 
 void LLSurfacePatch::dirtyZ()
 {

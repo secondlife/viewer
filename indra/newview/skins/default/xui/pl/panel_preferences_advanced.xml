@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="advanced">
+	<text name="AspectRatioLabel1" tool_tip="width / height">
+		Proporcje:
+	</text>
+	<combo_box name="aspect_ratio" tool_tip="width / height">
+		<combo_box.item label="4:3 (Standardowy CRT)" name="item1"/>
+		<combo_box.item label="5:4 (1280x1024 LCD)" name="item2"/>
+		<combo_box.item label="8:5 (Panoramiczny)" name="item3"/>
+		<combo_box.item label="16:9 (Panoramiczny)" name="item4"/>
+	</combo_box>
+</panel>

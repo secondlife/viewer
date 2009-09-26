@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="preview_sound">
-	<text type="string" length="1" name="desc txt">
+	<text name="desc txt">
 		Beskrivelse:
 	</text>
 	<button label="Afspil lokalt" label_selected="Afspil lokalt" name="Sound audition btn"

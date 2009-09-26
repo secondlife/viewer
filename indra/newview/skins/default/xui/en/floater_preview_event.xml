@@ -4,6 +4,7 @@
  height="510"
  layout="topleft"
  name="event_preview"
+ help_topic="event_preview"
  save_rect="true"
  title="Event Information"
  width="440">

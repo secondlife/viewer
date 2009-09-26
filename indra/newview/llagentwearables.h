@@ -181,7 +181,7 @@ public:
 	// MULTI-WEARABLE: assuming one wearable per type.  Need upstream changes.
 	static void		userRemoveWearable(void* userdata);	// userdata is EWearableType
 	static void		userRemoveAllClothes(void* userdata);	// userdata is NULL
-	static void		userRemoveAllAttachments(void* userdata);	// userdata is NULL 
+	static void		userRemoveAllAttachments();
 	static void		userAttachMultipleAttachments(LLInventoryModel::item_array_t& obj_item_array);
 
 	BOOL			itemUpdatePending(const LLUUID& item_id) const;

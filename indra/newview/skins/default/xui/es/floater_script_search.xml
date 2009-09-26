@@ -4,10 +4,10 @@
 	<button label="Buscar" label_selected="Buscar" name="search_btn" width="85"/>
 	<button label="Reemplazar" label_selected="Reemplazar" name="replace_btn" left="100" width="85"/>
 	<button label="Reemplazar todos" label_selected="Reemplazar todos" name="replace_all_btn" left="190" width="122"/>
-	<text length="1" name="txt" type="string" width="65">
+	<text name="txt" width="65">
 		Buscar
 	</text>
-	<text length="1" name="txt2" type="string" width="65">
+	<text name="txt2" width="65">
 		Reemplazar
 	</text>
 	<line_editor left="75" name="search_text" width="240" />

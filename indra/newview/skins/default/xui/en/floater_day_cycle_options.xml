@@ -3,6 +3,7 @@
  height="275"
  layout="topleft"
  name="Day Cycle Floater"
+ help_topic="day_cycle_floater"
  save_rect="true"
  title="Day Cycle Editor"
  width="646">

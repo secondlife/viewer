@@ -7,6 +7,7 @@
  min_height="271"
  min_width="350"
  name="script ed float"
+ help_topic="script_ed_float"
  save_rect="true"
  title="LSL Wiki"
  width="370">

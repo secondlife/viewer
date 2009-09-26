@@ -3,6 +3,7 @@
  height="512"
  layout="topleft"
  name="regioninfo"
+ help_topic="regioninfo"
  save_rect="true"
  title="Region/Estate"
  width="280">

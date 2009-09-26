@@ -3,10 +3,10 @@
 	<string name="choose_picture">
 		Klik for at vælge et billede
 	</string>
-	<text type="string" length="1" name="Multiple">
+	<text name="Multiple">
 		Flere
 	</text>
-	<text type="string" length="1" name="unknown">
+	<text name="unknown">
 		Størrelse: [DIMENSIONS]
 	</text>
 	<button label="Standard" label_selected="Standard" name="Default" />

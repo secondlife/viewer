@@ -4,6 +4,7 @@
  height="500"
  layout="topleft"
  name="floater_test_layout"
+ help_topic="floater_test_layout"
  width="500">
     <text
      type="string"

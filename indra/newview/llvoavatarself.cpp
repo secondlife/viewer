@@ -82,6 +82,7 @@
 #include "llgesturemgr.h" //needed to trigger the voice gesticulations
 #include "llvoiceclient.h"
 #include "llvoicevisualizer.h" // Ventrella
+#include "llappearancemgr.h"
 
 #include "boost/lexical_cast.hpp"
 
@@ -983,6 +984,11 @@ LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *viewer_obj
 	updateAttachmentVisibility(gAgent.getCameraMode());
 	
 	// Then make sure the inventory is in sync with the avatar.
+	LLViewerInventoryItem *item = gInventory.getItem(attachment->getItemID());
+	if (item)
+	{
+		LLAppearanceManager::wearItem(item,false);  // Add COF link for item.
+	}
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, attachment->getItemID());
 	gInventory.notifyObservers();
 
@@ -1331,7 +1337,7 @@ void LLVOAvatarSelf::getLocalTextureByteCount(S32* gl_bytes) const
 				{
 					S32 bytes = (S32)image_gl->getWidth() * image_gl->getHeight() * image_gl->getComponents();
 					
-					if (image_gl->hasValidGLTexture())
+					if (image_gl->hasGLTexture())
 					{
 						*gl_bytes += bytes;
 					}
@@ -1539,7 +1545,7 @@ BOOL LLVOAvatarSelf::updateIsFullyLoaded()
 
 			// Check for the case that texture is defined but not sufficiently loaded to display anything.
 			LLViewerTexture* baked_img = getImage( texture_data.mTextureIndex );
-			if (!baked_img || !baked_img->hasValidGLTexture())
+			if (!baked_img || !baked_img->hasGLTexture())
 			{
 				loading = TRUE;
 			}

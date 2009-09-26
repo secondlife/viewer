@@ -111,6 +111,11 @@ void LLFloaterSettingsDebug::onCommitSettings()
 	LLComboBox* settings_combo = getChild<LLComboBox>("settings_combo");
 	LLControlVariable* controlp = (LLControlVariable*)settings_combo->getCurrentUserdata();
 
+	if (!controlp)
+	{
+		return;
+	}
+
 	LLVector3 vector;
 	LLVector3d vectord;
 	LLRect rect;

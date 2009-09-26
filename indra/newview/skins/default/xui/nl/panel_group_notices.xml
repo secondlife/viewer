@@ -11,9 +11,7 @@
 		Groepsberichtenarchief
 	</text>
 	<text name="lbl2">
-		Berichten worden 14 dagen bewaard. Klik hieronder het bericht dat u wilt 
-bekijken. Klik de &apos;Verversen&apos; knop om te controleren of nieuwe berichten zijn 
-ontvangen. Berichtenlijsten zijn gelimiteerd tot 200 berichten groep per dag.
+		Berichten worden 14 dagen bewaard. Berichtenlijsten zijn gelimiteerd tot 200 berichten groep per dag.
 	</text>
 	<scroll_list name="notice_list">
 		<column label="Onderwerp" name="subject"/>
@@ -30,11 +28,7 @@ ontvangen. Berichtenlijsten zijn gelimiteerd tot 200 berichten groep per dag.
 			Maak een bericht
 		</text>
 		<text name="lbl2">
-			U dient een onderwerp in te voeren om een bericht te versturen. 
-U kunt een enkel item aan een bericht toevoegen door het van 
-uw inventaris naar dit paneel te slepen. Bevestigde items 
-moeten kopieerbaar en overdraagbaar zijn en u kunt geen 
-mappen versturen.
+			U kunt een enkel item aan een bericht toevoegen door het van uw inventaris naar dit paneel te slepen. Bevestigde items moeten kopieerbaar en overdraagbaar zijn en u kunt geen mappen versturen.
 		</text>
 		<text bottom_delta="-79" halign="right" left="10" name="lbl3" width="60">
 			Onderwerp:

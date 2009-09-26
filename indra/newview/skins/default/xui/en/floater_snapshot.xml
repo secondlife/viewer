@@ -5,6 +5,7 @@
  height="526"
  layout="topleft"
  name="Snapshot"
+ help_topic="snapshot"
  save_rect="true"
  title="Snapshot Preview"
  width="215">

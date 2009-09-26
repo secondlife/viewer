@@ -2,10 +2,10 @@
 <floater name="floaterland" title="Acerca del terreno">
 	<tab_container name="landtab">
 		<panel label="General" name="land_general_panel">
-			<text length="1" name="Name:" type="string">
+			<text name="Name:">
 				Nombre:
 			</text>
-			<text length="1" name="Description:" type="string">
+			<text name="Description:">
 				Descripción:
 			</text>
 			<text name="LandType">
@@ -20,56 +20,56 @@
 			<text name="ContentRatingText">
 				&apos;Adult&apos;
 			</text>
-			<text length="1" name="Owner:" type="string">
+			<text name="Owner:">
 				Propietario:
 			</text>
-			<text length="1" name="OwnerText" type="string">
+			<text name="OwnerText">
 				Leyla Linden
 			</text>
 			<button label="Perfil..." label_selected="Perfil..." name="Profile..."/>
-			<text length="1" name="Group:" type="string">
+			<text name="Group:">
 				Grupo:
 			</text>
 			<button label="Configurar..." label_selected="Configurar..." name="Set..."/>
 			<check_box label="Permitir transferir al grupo" name="check deed" tool_tip="Un oficial del grupo puede transferir este terreno al grupo. El terreno será apoyado por el grupo en sus asignaciones de terreno."/>
 			<button label="Transferir..." label_selected="Transferir..." name="Deed..." tool_tip="Sólo si es usted un oficial del grupo seleccionado puede transferir terreno."/>
 			<check_box label="El propietario hace una contribución transfiriendo" name="check contrib" tool_tip="Cuando el terreno se transfiere al grupo, el antiguo propietario contribuye con una asignación suficiente de terreno."/>
-			<text length="1" name="For Sale:" type="string">
+			<text name="For Sale:">
 				En venta:
 			</text>
-			<text length="1" name="Not for sale." type="string">
+			<text name="Not for sale.">
 				No está en venta.
 			</text>
-			<text length="1" name="For Sale: Price L$[PRICE]." type="string">
+			<text name="For Sale: Price L$[PRICE].">
 				Precio: [PRICE] L$ ([PRICE_PER_SQM] L$/m²).
 			</text>
 			<button label="Vender el terreno..." label_selected="Vender el terreno..." name="Sell Land..."/>
-			<text length="1" name="For sale to" type="string">
+			<text name="For sale to">
 				En venta a: [BUYER]
 			</text>
-			<text width="216" length="1" name="Sell with landowners objects in parcel." type="string">
+			<text width="216" name="Sell with landowners objects in parcel.">
 				Los objetos se incluyen en la venta.
 			</text>
-			<text width="216" length="1" name="Selling with no objects in parcel." type="string">
+			<text width="216" name="Selling with no objects in parcel.">
 				Los objetos no se incluyen en la venta.
 			</text>
 			<button font="SansSerifSmall" bottom="-245" left="275" width="165" label="Cancelar la venta del terreno" label_selected="Cancelar la venta del terreno" name="Cancel Land Sale"/>
-			<text length="1" name="Claimed:" type="string">
+			<text name="Claimed:">
 				Reclamada:
 			</text>
-			<text length="1" name="DateClaimText" type="string">
+			<text name="DateClaimText">
 				Mar 15 Ago 15 13:47:25 2006
 			</text>
-			<text length="1" name="PriceLabel" type="string">
+			<text name="PriceLabel">
 				Superficie:
 			</text>
-			<text length="1" name="PriceText" type="string">
+			<text name="PriceText">
 				4048 m²
 			</text>
-			<text length="1" name="Traffic:" type="string">
+			<text name="Traffic:">
 				Tráfico:
 			</text>
-			<text length="1" name="DwellText" type="string">
+			<text name="DwellText">
 				0
 			</text>
 			<button label="Comprar terreno..." label_selected="Comprar terreno..." left="130" name="Buy Land..." width="125"/>
@@ -78,76 +78,76 @@
 			<button label="Abandonar el terreno..." label_selected="Abandonar el terreno..." name="Abandon Land..."/>
 			<button label="Reclamar el terreno..." label_selected="Reclamar el terreno..." name="Reclaim Land..."/>
 			<button label="Venta Linden..." label_selected="Venta Linden..." name="Linden Sale..." tool_tip="El terreno debe estar en propiedad, con contenido, y no estar en subasta."/>
-			<string name="new users only">
+			<panel.string name="new users only">
 				Sólo usuarios nuevos
-			</string>
-			<string name="anyone">
+			</panel.string>
+			<panel.string name="anyone">
 				Cualquiera
-			</string>
-			<string name="area_text">
+			</panel.string>
+			<panel.string name="area_text">
 				Superficie
-			</string>
-			<string name="area_size_text">
+			</panel.string>
+			<panel.string name="area_size_text">
 				[AREA] m²
-			</string>
-			<string name="auction_id_text">
+			</panel.string>
+			<panel.string name="auction_id_text">
 				ID de la subasta: [ID]
-			</string>
-			<string name="need_tier_to_modify">
+			</panel.string>
+			<panel.string name="need_tier_to_modify">
 				Debe aprobar su compra para modificar este terreno.
-			</string>
-			<string name="group_owned_text">
+			</panel.string>
+			<panel.string name="group_owned_text">
 				(Propiedad del grupo)
-			</string>
-			<string name="profile_text">
+			</panel.string>
+			<panel.string name="profile_text">
 				Perfil...
-			</string>
-			<string name="info_text">
+			</panel.string>
+			<panel.string name="info_text">
 				Información...
-			</string>
-			<string name="public_text">
+			</panel.string>
+			<panel.string name="public_text">
 				(público)
-			</string>
-			<string name="none_text">
+			</panel.string>
+			<panel.string name="none_text">
 				(ninguno)
-			</string>
-			<string name="sale_pending_text">
+			</panel.string>
+			<panel.string name="sale_pending_text">
 				(Venta pendiente)
-			</string>
-			<string name="no_selection_text">
+			</panel.string>
+			<panel.string name="no_selection_text">
 				No se ha seleccionado una parcela.
 Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver sus características.
-			</string>
+			</panel.string>
 		</panel>
 		<panel label="Contrato" name="land_covenant_panel">
 			<text name="estate_section_lbl">
 				Estado:
 			</text>
-			<text length="1" name="estate_name_lbl" type="string">
+			<text name="estate_name_lbl">
 				Nombre:
 			</text>
-			<text length="1" name="estate_name_text" type="string">
+			<text name="estate_name_text">
 				mainland
 			</text>
-			<text length="1" name="estate_owner_lbl" type="string">
+			<text name="estate_owner_lbl">
 				Propietario:
 			</text>
-			<text length="1" name="estate_owner_text" type="string">
+			<text name="estate_owner_text">
 				(nadie)
 			</text>
-			<text_editor length="1" name="covenant_editor" type="string">
+			<text_editor name="covenant_editor">
 				No se ha aportado un contrato para este estado.
 			</text_editor>
-			<text length="1" name="covenant_timestamp_text" type="string">
+			<text name="covenant_timestamp_text">
 				Última modificación, Dic Miér 31 16:00:00 1969
 			</text>
 			<text name="region_section_lbl">
 				Región:
 			</text>
-			<text length="1" name="region_name_lbl" type="string">
+			<text name="region_name_lbl">
 				Nombre:
 			</text>
-			<text length="1" name="region_name_text" type="string">
+			<text name="region_name_text">
 				leyla
 			</text>
 			<text name="region_landtype_lbl">
@@ -165,57 +165,57 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text name="resellable_lbl">
 				Revender:
 			</text>
-			<text length="1" name="resellable_clause" type="string">
+			<text name="resellable_clause">
 				El terreno de esta región no se podrá revender.
 			</text>
 			<text name="changeable_lbl">
 				Dividir:
 			</text>
-			<text length="1" name="changeable_clause" type="string">
+			<text name="changeable_clause">
 				El terreno de esta región no se podrá unir/dividir.
 			</text>
-			<string name="can_resell">
+			<panel.string name="can_resell">
 				El terreno comprado en esta región se podrá revender.
-			</string>
-			<string name="can_not_resell">
+			</panel.string>
+			<panel.string name="can_not_resell">
 				El terreno comprado en esta región no se podrá revender.
-			</string>
-			<string name="can_change">
+			</panel.string>
+			<panel.string name="can_change">
 				El terreno comprado en esta región se podrá unir o dividir.
-			</string>
-			<string name="can_not_change">
+			</panel.string>
+			<panel.string name="can_not_change">
 				El terreno comprado en esta región no se podrá unir o dividir.
-			</string>
+			</panel.string>
 		</panel>
 		<panel label="Objetos" name="land_objects_panel">
 			<text name="parcel_object_bonus">
 				Plus de objetos en la región: [BONUS]
 			</text>
-			<text length="1" name="Simulator primitive usage:" type="string">
+			<text name="Simulator primitive usage:">
 				Simulador de uso de prims:
 			</text>
 			<text name="objects_available"  left="204" width="250" >
 				[COUNT] de un máximo de [MAX] ([AVAILABLE] disponibles)
 			</text>
-			<string name="objects_available_text">
+			<panel.string name="objects_available_text">
 				[COUNT] de un máximo de [MAX] ([AVAILABLE] disponibles)
-			</string>
-			<string name="objects_deleted_text">
+			</panel.string>
+			<panel.string name="objects_deleted_text">
 				[COUNT] de un máximo de [MAX] ([DELETED] se borrarán)
-			</string>
-			<text length="1" name="Primitives parcel supports:" type="string" width="200">
+			</panel.string>
+			<text name="Primitives parcel supports:" width="200">
 				Prims que admite la parcela:
 			</text>
 			<text name="object_contrib_text" left="204" width="152">
 				[COUNT]
 			</text>
-			<text length="1" name="Primitives on parcel:" type="string">
+			<text name="Primitives on parcel:">
 				Prims en la parcela:
 			</text>
 			<text name="total_objects_text" left="204"  width="48">
 				[COUNT]
 			</text>
-			<text length="1" name="Owned by parcel owner:" type="string" left="14" width="180" >
+			<text name="Owned by parcel owner:" left="14" width="180" >
 				Del propietario de la parcela:
 			</text>
 			<text name="owner_objects_text" left="204"  width="48">
@@ -223,7 +223,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOwner" right="-135" width="60"/>
 			<button label="Devolver..." label_selected="Devolver..." name="ReturnOwner..." tool_tip="Devolver los objetos a sus propietarios." right="-10" width="119"/>
-			<text length="1" name="Set to group:" type="string" left="14"  width="180">
+			<text name="Set to group:" left="14"  width="180">
 				Del grupo:
 			</text>
 			<text name="group_objects_text" left="204"  width="48">
@@ -231,7 +231,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowGroup" right="-135" width="60"/>
 			<button label="Devolver..." label_selected="Devolver..." name="ReturnGroup..." tool_tip="Devolver los objetos a sus propietarios." right="-10" width="119"/>
-			<text length="1" name="Owned by others:" type="string" left="14" width="128">
+			<text name="Owned by others:" left="14" width="128">
 				Propiedad de otros:
 			</text>
 			<text name="other_objects_text" left="204"  width="48">
@@ -239,7 +239,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOther" right="-135" width="60"/>
 			<button label="Devolver..." label_selected="Devolver..." name="ReturnOther..." tool_tip="Devolver los objetos a sus propietarios." right="-10" width="119"/>
-			<text length="1" name="Selected / sat upon:" type="string" left="14" width="193" >
+			<text name="Selected / sat upon:" left="14" width="193" >
 				Seleccionados / con gente sentada:
 			</text>
 			<text name="selected_objects_text" left="204"  width="48">
@@ -249,7 +249,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				Autodevolución de objetos a otros residentes (minutos; 0 la desactiva):
 			</text>
 			<line_editor name="clean other time" right="-20" />
-			<text length="1" name="Object Owners:" type="string" width="150">
+			<text name="Object Owners:" width="150">
 				Propietarios de los objetos:
 			</text>
 			<button label="Actualizar la lista" label_selected="Actualizar la lista" name="Refresh List" left="158"/>
@@ -262,168 +262,140 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			</name_list>
 		</panel>
 		<panel label="Opciones" name="land_options_panel">
-			<text length="1" name="allow_label" type="string">
+			<text name="allow_label">
 				Permitir a otros residentes:
 			</text>
 			<check_box label="Editar el terreno" name="edit land check" tool_tip="Si se marca, cualquiera podrá modificar su terreno. Mejor dejarlo desmarcado, pues usted siempre puede modificar su terreno."/>
 			<check_box label="Crear hitos" name="check landmark"/>
 			<check_box label="Volar" name="check fly" tool_tip="Si se marca, los residentes podrán volar en su terreno. Si no, sólo podrán volar al cruzarlo o hasta que aterricen en él."/>
-			<text length="1" name="allow_label2" type="string" left="162" >
+			<text name="allow_label2" left="162" >
 				Crear objetos:
 			</text>
 			<check_box label="Todos los residentes" name="edit objects check" left="255" />
 			<check_box label="El grupo" name="edit group objects check" left="385" />
-			<text length="1" name="allow_label3" type="string" left="162">
+			<text name="allow_label3" left="162">
 				Dejar objetos:
 			</text>
 			<check_box label="Todos los residentes" name="all object entry check" left="255"/>
 			<check_box label="El grupo" name="group object entry check" left="385"/>
-			<text length="1" name="allow_label4" type="string" left="162">
+			<text name="allow_label4" left="162">
 				Ejecutar scripts:
 			</text>
 			<check_box label="Todos los residentes" name="check other scripts" left="255"/>
 			<check_box label="El grupo" name="check group scripts" left="385"/>
-			<text length="1" name="land_options_label" type="string">
+			<text name="land_options_label">
 				Opciones del terreno:
 			</text>
 			<check_box label="Seguro (sin daño)" name="check safe" tool_tip="Si se marca, convierte el terreno en &apos;seguro&apos;, desactivando el daño en combate. Si no, se activa el daño en combate."/>
 			<check_box label="Sin &apos;empujones&apos;" name="PushRestrictCheck" tool_tip="Previene scripts que empujen. Marcando esta opción prevendrá que en su terreno haya comportamientos destructivos."/>
 			<check_box label="Mostrar la parcela en Buscar (30 L$/semana) en" name="ShowDirectoryCheck" tool_tip="Let people see this parcel in search results"/>
-			<string name="search_enabled_tooltip">
+			<panel.string name="search_enabled_tooltip">
 				Permitir que aparezca esta parcela en los resultados de la búsqueda
-			</string>
-			<string name="search_disabled_small_tooltip">
+			</panel.string>
+			<panel.string name="search_disabled_small_tooltip">
 				Esta opción está desactivada porque la parcela tiene 128 m² o menos.
 Sólo las parcelas más grandes pueden listarse en la búsqueda.
-			</string>
-			<string name="search_disabled_permissions_tooltip">
+			</panel.string>
+			<panel.string name="search_disabled_permissions_tooltip">
 				Esta opción no esta activada porque usted no puede modificar las opciones de la parcela.
-			</string>
+			</panel.string>
 			<combo_box name="land category with adult" left="282" width="140">
-				<combo_item name="AnyCategory">
-					Cualquier categoría
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Localización Linden
-				</combo_item>
-				<combo_item name="Adult">
-					&apos;Adult&apos;
-				</combo_item>
-				<combo_item name="Arts&amp;Culture">
-					Arte y Cultura
-				</combo_item>
-				<combo_item name="Business">
-					Negocios
-				</combo_item>
-				<combo_item name="Educational">
-					Educativo
-				</combo_item>
-				<combo_item name="Gaming">
-					Juegos de azar
-				</combo_item>
-				<combo_item name="Hangout">
-					Entretenimiento
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					Para recién llegados
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					Parques y Naturaleza
-				</combo_item>
-				<combo_item name="Residential">
-					Residencial
-				</combo_item>
-				<combo_item name="Shopping">
-					Compras
-				</combo_item>
-				<combo_item name="Other">
-					Otra
-				</combo_item>
+				<combo_box.item name="item0" label="Cualquier categoría"
+				/>
+				<combo_box.item name="item1" label="Localización Linden"
+				/>
+				<combo_box.item name="item2" label="&apos;Adult&apos;"
+				/>
+				<combo_box.item name="item3" label="Arte y Cultura"
+				/>
+				<combo_box.item name="item4" label="Negocios"
+				/>
+				<combo_box.item name="item5" label="Educativo"
+				/>
+				<combo_box.item name="item6" label="Juegos de azar"
+				/>
+				<combo_box.item name="item7" label="Entretenimiento"
+				/>
+				<combo_box.item name="item8" label="Para recién llegados"
+				/>
+				<combo_box.item name="item9" label="Parques y Naturaleza"
+				/>
+				<combo_box.item name="item10" label="Residencial"
+				/>
+				<combo_box.item name="item11" label="Compras"
+				/>
+				<combo_box.item name="item12" label="Otra"
+				/>
 			</combo_box>
 			<combo_box name="land category" left="282" width="140">
-				<combo_item name="AnyCategory">
-					Cualquier categoría
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Localización Linden
-				</combo_item>
-				<combo_item name="Arts&amp;Culture">
-					Arte y Cultura
-				</combo_item>
-				<combo_item name="Business">
-					Negocios
-				</combo_item>
-				<combo_item name="Educational">
-					Educativo
-				</combo_item>
-				<combo_item name="Gaming">
-					Juegos de azar
-				</combo_item>
-				<combo_item name="Hangout">
-					Entretenimiento
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					Para recién llegados
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					Parques y Naturaleza
-				</combo_item>
-				<combo_item name="Residential">
-					Residencial
-				</combo_item>
-				<combo_item name="Shopping">
-					Compras
-				</combo_item>
-				<combo_item name="Other">
-					Otra
-				</combo_item>
+				<combo_box.item name="item0" label="Cualquier categoría"
+				/>
+				<combo_box.item name="item1" label="Localización Linden"
+				/>
+				<combo_box.item name="item3" label="Arte y Cultura"
+				/>
+				<combo_box.item name="item4" label="Negocios"
+				/>
+				<combo_box.item name="item5" label="Educativo"
+				/>
+				<combo_box.item name="item6" label="Juegos de azar"
+				/>
+				<combo_box.item name="item7" label="Entretenimiento"
+				/>
+				<combo_box.item name="item8" label="Para recién llegados"
+				/>
+				<combo_box.item name="item9" label="Parques y Naturaleza"
+				/>
+				<combo_box.item name="item10" label="Residencial"
+				/>
+				<combo_box.item name="item11" label="Compras"
+				/>
+				<combo_box.item name="item12" label="Otra"
+				/>
 			</combo_box>
 			<button label="?" label_selected="?" name="?" left="427"/>
 			<check_box label="Contenido &apos;Mature&apos;" name="MatureCheck" tool_tip=""/>
-			<string name="mature_check_mature">
+			<panel.string name="mature_check_mature">
 				Contenido &apos;Mature&apos;
-			</string>
-			<string name="mature_check_adult">
+			</panel.string>
+			<panel.string name="mature_check_adult">
 				Contenido &apos;Adult&apos;
-			</string>
-			<string name="mature_check_mature_tooltip">
+			</panel.string>
+			<panel.string name="mature_check_mature_tooltip">
 				La información o el contenido de su parcela se considera &apos;Mature&apos;.
-			</string>
-			<string name="mature_check_adult_tooltip">
+			</panel.string>
+			<panel.string name="mature_check_adult_tooltip">
 				La información o el contenido de su parcela se considera &apos;Adult&apos;.
-			</string>
-			<text length="1" name="Snapshot:" type="string">
+			</panel.string>
+			<text name="Snapshot:">
 				Foto:
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Pulse para elegir una imagen"/>
 			<text name="landing_point">
 				Punto de llegada: [LANDING]
 			</text>
-			<string name="landing_point_none">
+			<panel.string name="landing_point_none">
 				(ninguno)
-			</string>
+			</panel.string>
 			<button label="Definir" label_selected="Definir" name="Set" tool_tip="Configura el punto de llegada donde aparecerán los visitantes. Configúrelo a la posición de su avatar dentro de esta parcela."/>
 			<button label="Borrar" label_selected="Borrar" name="Clear" tool_tip="Borrar el punto de llegada."/>
-			<text length="1" name="Teleport Routing: " type="string">
+			<text name="Teleport Routing: ">
 				Punto de teleporte:
 			</text>
 			<combo_box name="landing type" tool_tip="Punto de teleporte: defina cómo manejar en su terreno los teleportes.">
-				<combo_item length="1" name="Blocked" type="string">
-					Bloqueado
-				</combo_item>
-				<combo_item length="1" name="LandingPoint" type="string">
-					Punto de llegada
-				</combo_item>
-				<combo_item length="1" name="Anywhere" type="string">
-					Cualquiera
-				</combo_item>
+				<combo_box.item name="Blocked" label="Bloqueado"
+				/>
+				<combo_box.item name="LandingPoint" label="Punto de llegada"
+				/>
+				<combo_box.item name="Anywhere" label="Cualquiera"
+				/>
 			</combo_box>
-			<string name="push_restrict_text">
+			<panel.string name="push_restrict_text">
 				Sin &apos;empujones&apos;
-			</string>
-			<string name="push_restrict_region_text">
+			</panel.string>
+			<panel.string name="push_restrict_region_text">
 				Sin &apos;empujones&apos; (prevalece lo marcado en la región)
-			</string>
+			</panel.string>
 		</panel>
 		<panel label="Media" name="land_media_panel">
 			<text name="with media:" width="85">
@@ -439,7 +411,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				Descripción:
 			</text>
 			<line_editor name="url_description" tool_tip="Texto a mostrar cerca del botón play/cargar" left="97" />
-			<text length="1" name="Media texture:" type="string">
+			<text name="Media texture:">
 				Cambiar
 la textura:
 			</text>
@@ -482,7 +454,7 @@ música:
 			<check_box left="117" label="Limitar la voz a esta parcela" name="parcel_enable_voice_channel_parcel"/>
 		</panel>
 		<panel label="Acceso" name="land_access_panel">
-			<text length="1" name="Limit access to this parcel to:" type="string">
+			<text name="Limit access to this parcel to:">
 				Acceso a esta parcela
 			</text>
 			<check_box label="Permitir el acceso público" name="public_access"/>
@@ -491,18 +463,16 @@ música:
 			</text>
 			<check_box label="Residentes que no hayan dado a Linden Lab información de su forma de pago" name="limit_payment" tool_tip="Impedir el acceso a los residentes no identificados."/>
 			<check_box label="Residentes de los que no se ha verificado si son adultos" name="limit_age_verified" tool_tip="Residentes que no hayan verificado su edad. Para más información, vea  support.secondlife.com"/>
-			<string name="estate_override">
+			<panel.string name="estate_override">
 				Una o más de esta opciones está configurada a nivel del estado
-			</string>
+			</panel.string>
 			<check_box label="Acceso permitido al grupo: [GROUP]" name="GroupCheck" tool_tip="Elija el grupo en la pestaña General."/>
 			<check_box label="Vender pases a:" name="PassCheck" tool_tip="Permitir acceso temporal a esta parcela"/>
 			<combo_box name="pass_combo">
-				<combo_item name="Anyone">
-					Cualquiera
-				</combo_item>
-				<combo_item name="Group">
-					Grupo
-				</combo_item>
+				<combo_box.item name="Anyone" label="Cualquiera"
+				/>
+				<combo_box.item name="Group" label="Grupo"
+				/>
 			</combo_box>
 			<spinner label="Precio en L$:" name="PriceSpin"/>
 			<spinner label="Horas de acceso:" name="HoursSpin"/>

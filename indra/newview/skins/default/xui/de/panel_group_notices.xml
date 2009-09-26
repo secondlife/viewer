@@ -16,7 +16,7 @@ gesendet. Mitteilungen können unter
 		Gruppenmitteilungsarchiv
 	</text>
 	<text name="lbl2">
-		Mitteilungen werden 14 Tage lang aufbewahrt. Klicken Sie auf eine Mitteilung, um sie anzuzeigen. Klicken Sie „Aktualisieren“, um neue Mitteilungen zu suchen. Eine Mitteilungsliste speichert maximal 200 Mitteilungen pro Gruppe täglich.
+		Mitteilungen werden 14 Tage lang aufbewahrt. Eine Mitteilungsliste speichert maximal 200 Mitteilungen pro Gruppe täglich.
 	</text>
 	<scroll_list name="notice_list">
 		<column label="" name="icon" />
@@ -36,7 +36,7 @@ gesendet. Mitteilungen können unter
 			Mitteilung schreiben
 		</text>
 		<text name="lbl2">
-			Geben Sie einen Betreff für die Mitteilung ein. Sie können der Mitteilung ein Objekt anfügen, indem Sie es aus dem Inventar in dieses Feld ziehen. Angehängte Objekte müssen kopier-und transferierbar sein. Ordner können nicht gesendet werden.
+			Sie können der Mitteilung ein Objekt anfügen, indem Sie es aus dem Inventar in dieses Feld ziehen. Angehängte Objekte müssen kopier-und transferierbar sein. Ordner können nicht gesendet werden.
 		</text>
 		<text name="lbl3">
 			Betreff:
@@ -49,7 +49,7 @@ gesendet. Mitteilungen können unter
 		</text>
 		<button label="Anhang entfernen" label_selected="Anhang entfernen"
 		     name="remove_attachment" />
-		<button label="Mitteilung senden" label_selected="Mitteilung senden" name="send_notice" />
+		<button label="Senden" label_selected="Senden" name="send_notice" />
 		<panel name="drop_target"
 		     tool_tip="Drag an inventory item onto the message box to send it with the notice. You must have permission to copy and transfer the object to send it with the notice." />
 	</panel>

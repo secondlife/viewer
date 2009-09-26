@@ -1030,7 +1030,7 @@ L$は返金されません。
 
 [NAME] にフレンドシップのオファーをしますか？
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				フレンドとして登録してくれますか？
 			</input>
 			<button name="Offer" text="OK"/>
@@ -1459,7 +1459,7 @@ F1キーを押してください。
 	<notification name="KickUser">
 		どんなメッセージを表示して、このユーザーを追い出しますか？
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				あなたは管理者によりログオフされました。
 			</input>
 			<button name="OK" text="OK"/>
@@ -1469,7 +1469,7 @@ F1キーを押してください。
 	<notification name="KickAllUsers">
 		どんなメッセージを表示して、グリッドにいる全員を追い出しますか？
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				あなたは管理者によりログオフされました。
 			</input>
 			<button name="OK" text="OK"/>
@@ -1479,7 +1479,7 @@ F1キーを押してください。
 	<notification name="FreezeUser">
 		どんなメッセージを表示して、このユーザーをフリーズしますか？
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				あなたはフリーズされています。 動くこともチャットすることもできません。 管理者がIMを通じてあなたに連絡します。
 			</input>
 			<button name="OK" text="OK"/>
@@ -1489,7 +1489,7 @@ F1キーを押してください。
 	<notification name="UnFreezeUser">
 		どんなメッセージを表示して、このユーザーのフリーズを解除しますか？
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				もうフリーズされていません。
 			</input>
 			<button name="OK" text="OK"/>
@@ -1499,7 +1499,7 @@ F1キーを押してください。
 	<notification name="OfferTeleport">
 		次のメッセージを添えてあなたが今いる場所へのテレポートを送りますか？
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				[REGION]に来ませんか？
 			</input>
 			<button name="OK" text="OK"/>
@@ -1509,7 +1509,7 @@ F1キーを押してください。
 	<notification name="OfferTeleportFromGod">
 		ユーザーをゴッド・コールで呼び寄せますか？
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				[REGION]に来ませんか？
 			</input>
 			<button name="OK" text="OK"/>
@@ -1524,7 +1524,7 @@ F1キーを押してください。
 		今あなたの不動産にいる人全員に送る
 短いメッセージを入力してください。
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="取り消し"/>
 		</form>
@@ -1719,7 +1719,7 @@ L$[AMOUNT]で、このクラシファイド広告を今すぐ公開しますか�
 		この地域にいる人全員に送る
 短いメッセージを入力してください。
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="取り消し"/>
 		</form>
@@ -2094,14 +2094,14 @@ RGB、256x256で、チャンネル数が13
 この購入を続行しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
-	<notification name="ConfirmPurchasePassword" type="password">
+	<notification name="ConfirmPurchasePassword">
 		この取引は以下のとおり行われます：
 [ACTION]
 
 この購入を続行しますか？
 パスワードを再入力し、「OK」をクリックしてください。
 		<form name="form">
-			<input name="message" type="password"/>
+			<input name="message"/>
 			<button name="ConfirmPurchase" text="OK"/>
 			<button name="Cancel" text="取り消し"/>
 		</form>
@@ -2527,7 +2527,7 @@ Linden Lab
 	<notification name="NewSkyPreset">
 		新しい空の名前を指定してください。
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				新しい事前設定
 			</input>
 			<button name="OK" text="OK"/>
@@ -2540,7 +2540,7 @@ Linden Lab
 	<notification name="NewWaterPreset">
 		新しい水の事前設定の名前を指定してください。
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				新しい事前設定
 			</input>
 			<button name="OK" text="OK"/>

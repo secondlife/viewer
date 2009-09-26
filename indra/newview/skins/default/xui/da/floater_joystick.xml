@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Joystick" title="Joystick opsætning">
-	<check_box name="enable_joystick">
-		Aktiver Joystick:
-	</check_box>
+	<check_box name="enable_joystick" label="Aktiver Joystick:"/>
 	<spinner label="X akse mapping" name="JoystickAxis1"/>
 	<spinner label="Y akse mapping" name="JoystickAxis2"/>
 	<spinner label="Z akse mapping" name="JoystickAxis0"/>
@@ -13,18 +11,12 @@
 	<check_box label="Direkte zoom" name="ZoomDirect"/>
 	<check_box label="3D Cursor" name="Cursor3D"/>
 	<check_box label="Auto opret" name="AutoLeveling"/>
-	<text length="1" name="Control Modes:" type="string">
+	<text name="Control Modes:">
 		Kontrollér:
 	</text>
-	<check_box name="JoystickAvatarEnabled">
-		Avatar
-	</check_box>
-	<check_box name="JoystickBuildEnabled">
-		Build
-	</check_box>
-	<check_box name="JoystickFlycamEnabled">
-		Flycam
-	</check_box>
+	<check_box name="JoystickAvatarEnabled" label="Avatar"/>
+	<check_box name="JoystickBuildEnabled" label="Build"/>
+	<check_box name="JoystickFlycamEnabled" label="Flycam"/>
 	<text name="XScale">
 		X følsomhed
 	</text>
@@ -78,12 +70,14 @@
 	<button label="SpaceNavigator Defaults" name="SpaceNavigatorDefaults"/>
 	<button label="OK" label_selected="OK" name="ok_btn"/>
 	<button label="Annullér" label_selected="Annullér" name="cancel_btn"/>
-	<string name="JoystickMonitor">
-		Joystick Overvågning
-	</string>
-	<string name="Axis">
-		Akse [NUM]
-	</string>
+	<stat_view label="Joystick Overvågning" name="axis_view">
+		<stat_bar label="Akse 0" name="axis0"/>
+		<stat_bar label="Akse 1" name="axis1"/>
+		<stat_bar label="Akse 2" name="axis2"/>
+		<stat_bar label="Akse 3" name="axis3"/>
+		<stat_bar label="Akse 4" name="axis4"/>
+		<stat_bar label="Akse 5" name="axis5"/>
+	</stat_view>
 	<string name="NoDevice">
 		intet joystick fundet
 	</string>

@@ -161,7 +161,12 @@ BOOL LLTextBox::handleHover(S32 x, S32 y, MASK mask)
 
 BOOL LLTextBox::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
 {
-	return handleToolTipForUrl(this, x, y, msg, sticky_rect_screen);
+	if (handleToolTipForUrl(this, x, y, msg, sticky_rect_screen))
+	{
+		return TRUE;
+	}
+
+	return LLUICtrl::handleToolTip(x, y, msg, sticky_rect_screen);
 }
 
 void LLTextBox::setText(const LLStringExplicit& text)
@@ -297,7 +302,7 @@ LLWString LLTextBox::getWrappedText(const LLStringExplicit& in_text, F32 max_wid
 
 	// find the next Url in the text string
 	LLUrlMatch match;
-	while ( LLUrlRegistry::instance().findUrl(wstring_to_utf8str(wtext), match))
+	while ( LLUrlRegistry::instance().findUrl(wtext, match))
 	{
 		S32 start = match.getStart();
 		S32 end = match.getEnd() + 1;
@@ -573,17 +578,21 @@ void LLTextBox::updateDisplayTextAndSegments()
 	LLWString text = mText.getWString();
 		
 	// find the next Url in the text string
-	while ( LLUrlRegistry::instance().findUrl(wstring_to_utf8str(text), match,
+	while ( LLUrlRegistry::instance().findUrl(text, match,
 											  boost::bind(&LLTextBox::onUrlLabelUpdated, this, _1, _2)) )
 	{
 		// work out the char offset for the start/end of the url
+		S32 url_start = match.getStart();
+		S32 url_end = match.getEnd();
+
+		// and the char offset for the label in the display text
 		S32 seg_start = mDisplayText.size();
-		S32 start = seg_start + match.getStart();
-		end = start + match.getLabel().size();
+		S32 start = seg_start + url_start;
+		S32 end = start + match.getLabel().size();
 
 		// create a segment for the text before the Url
 		mSegments.insert(new LLNormalTextSegment(new LLStyle(), seg_start, start, *this));
-		mDisplayText += text.substr(0, match.getStart());
+		mDisplayText += text.substr(0, url_start);
 
 		// create a segment for the Url text
 		LLStyleSP html(new LLStyle);
@@ -599,7 +608,7 @@ void LLTextBox::updateDisplayTextAndSegments()
 		mDisplayText += utf8str_to_wstring(match.getLabel());
 
 		// move on to the rest of the text after the Url
-		text = text.substr(match.getEnd()+1, text.size() - match.getEnd());
+		text = text.substr(url_end+1, text.size() - url_end);
 	}
 
 	// output a segment for the remaining text

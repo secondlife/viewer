@@ -37,9 +37,9 @@ Bewegen Sie die Maus über die Optionen, um weitere Informationen anzuzeigen.
 		(Eigentümer werden fettgedruckt angezeigt)
 	</text>
 	<name_list name="visible_members">
-		<column label="Mitgliedsname" name="name" relwidth="0.40"/>
-		<column label="Titel" name="title" relwidth="0.25"/>
-		<column label="Letzte Anmeldung" name="online" relwidth="0.35"/>
+		<name_list.columns label="Mitgliedsname" name="name" relwidth="0.40"/>
+		<name_list.columns label="Titel" name="title" relwidth="0.25"/>
+		<name_list.columns label="Letzte Anmeldung" name="online" relwidth="0.35"/>
 	</name_list>
 	<text name="text_group_preferences">
 		Gruppeneinstellungen
@@ -50,15 +50,9 @@ Bewegen Sie die Maus über die Optionen, um weitere Informationen anzuzeigen.
 		<check_box label="Beitrittsgebühr: L$" name="check_enrollment_fee" tool_tip="Festlegen, ob Neumitglieder eine Beitrittsgebühr zahlen müssen."/>
 		<spinner name="spin_enrollment_fee" tool_tip="Wenn „Beitrittsgebühr“ aktiviert ist, müssen neue Mitglieder diesen Betrag zahlen."/>
 		<combo_box name="group_mature_check" tool_tip="Festlegen, ob die Informationen Ihrer Gruppe „Mature“ sind.">
-			<combo_item name="select_mature">
-				- Mature wählen -
-			</combo_item>
-			<combo_item name="mature">
-				Mature-Inhalt
-			</combo_item>
-			<combo_item name="pg">
-				PG-Inhalt
-			</combo_item>
+			<combo_box.item name="select_mature" label="- Mature wählen -"/>
+			<combo_box.item name="mature" label="Mature-Inhalt"/>
+			<combo_box.item name="pg" label="PG-Inhalt"/>
 		</combo_box>
 		<panel name="title_container">
 			<text name="active_title_label">
@@ -120,9 +114,9 @@ Bewegen Sie die Maus über die Optionen, um weitere Informationen anzuzeigen.
 		(Eigentümer werden fettgedruckt angezeigt)
 	</text>
 	<name_list name="visible_members">
-		<column label="Mitgliedsname" name="name" relwidth="0.40"/>
-		<column label="Titel" name="title" relwidth="0.25"/>
-		<column label="Letzte Anmeldung" name="online" relwidth="0.35"/>
+		<name_list.columns label="Mitgliedsname" name="name" relwidth="0.40"/>
+		<name_list.columns label="Titel" name="title" relwidth="0.25"/>
+		<name_list.columns label="Letzte Anmeldung" name="online" relwidth="0.35"/>
 	</name_list>
 	<text name="text_group_preferences">
 		Gruppeneinstellungen
@@ -133,13 +127,13 @@ Bewegen Sie die Maus über die Optionen, um weitere Informationen anzuzeigen.
 		<check_box label="Beitrittsgebühr: L$" name="check_enrollment_fee" tool_tip="Festlegen, ob Neumitglieder eine Beitrittsgebühr zahlen müssen." width="125"/>
 		<spinner name="spin_enrollment_fee" tool_tip="Wenn „Beitrittsgebühr“ aktiviert ist, müssen neue Mitglieder diesen Betrag zahlen."/>
 		<combo_box name="group_mature_check" tool_tip="Festlegen, ob die Informationen Ihrer Gruppe „Mature“ sind.">
-			<combo_item name="select_mature">
+			<combo_box.item name="select_mature">
 				- Mature wählen -
 			</combo_item>
-			<combo_item name="mature">
+			<combo_box.item name="mature">
 				Mature-Inhalt
 			</combo_item>
-			<combo_item name="pg">
+			<combo_box.item name="pg">
 				PG-Inhalt
 			</combo_item>
 		</combo_box>

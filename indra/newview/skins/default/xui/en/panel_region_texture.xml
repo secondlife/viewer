@@ -21,8 +21,6 @@
      name="Textures"
      width="258">
       <text
-       type="string"
-       length="1"
        follows="left|top"
        font="SansSerif"
        height="20"
@@ -34,8 +32,6 @@
         Region:
       </text>
       <text
-       type="string"
-       length="1"
        follows="left|top"
        font="SansSerif"
        height="20"
@@ -47,8 +43,6 @@
         unknown
       </text>
       <text
-       type="string"
-       length="1"
        follows="left|top"
        height="20"
        layout="topleft"
@@ -92,8 +86,6 @@
        top_delta="0"
        width="100" />
       <text
-       type="string"
-       length="1"
        follows="left|top"
        height="20"
        layout="topleft"
@@ -104,8 +96,6 @@
         1 (Low)
       </text>
       <text
-       type="string"
-       length="1"
        follows="left|top"
        height="20"
        layout="topleft"
@@ -116,8 +106,6 @@
         2
       </text>
       <text
-       type="string"
-       length="1"
        follows="left|top"
        height="20"
        layout="topleft"
@@ -128,8 +116,6 @@
         3
       </text>
       <text
-       type="string"
-       length="1"
        follows="left|top"
        height="20"
        layout="topleft"
@@ -140,8 +126,6 @@
         4 (High)
       </text>
       <text
-       type="string"
-       length="1"
        follows="left|top"
        height="20"
        layout="topleft"
@@ -152,8 +136,6 @@
         Texture Elevation Ranges
       </text>
       <text
-       type="string"
-       length="1"
        follows="left|top"
        height="20"
        layout="topleft"
@@ -164,8 +146,6 @@
         Southwest
       </text>
       <text
-       type="string"
-       length="1"
        follows="left|top"
        height="20"
        layout="topleft"
@@ -228,8 +208,6 @@
        top_delta="0"
        width="100" />
       <text
-       type="string"
-       length="1"
        follows="left|top"
        height="20"
        layout="topleft"
@@ -240,8 +218,6 @@
         Southeast
       </text>
       <text
-       type="string"
-       length="1"
        follows="left|top"
        height="20"
        layout="topleft"
@@ -304,8 +280,6 @@
        top_delta="0"
        width="100" />
       <text
-       type="string"
-       length="1"
        follows="left|top"
        height="20"
        layout="topleft"
@@ -317,8 +291,6 @@
         for the textures above.
       </text>
       <text
-       type="string"
-       length="1"
        follows="left|top"
        height="20"
        layout="topleft"

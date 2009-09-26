@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="preview notecard" title="Remarque :">
 	<button label="Enregistrer" label_selected="Enregistrer" name="Save" />
-	<text type="string" length="1" name="desc txt">
+	<text name="desc txt">
 		Description :
 	</text>
-	<text_editor type="string" length="1" name="Notecard Editor">
+	<text_editor name="Notecard Editor">
 		Chargement...
 	</text_editor>
 	<string name="no_object">

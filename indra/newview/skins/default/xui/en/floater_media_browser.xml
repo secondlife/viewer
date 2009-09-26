@@ -6,6 +6,7 @@
  min_height="140"
  min_width="467"
  name="floater_about"
+ help_topic="floater_about"
  save_rect="true"
  single_instance="true"
  title="Media Browser"

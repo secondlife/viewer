@@ -64,6 +64,8 @@ BOOL gDebugSession = FALSE;
 BOOL gDebugGL = FALSE;
 BOOL gClothRipple = FALSE;
 BOOL gNoRender = FALSE;
+BOOL gGLActive = FALSE;
+
 
 std::ofstream gFailLog;
 
@@ -107,6 +109,7 @@ LLMatrix4 gGLObliqueProjectionInverse;
 #define LL_GL_NAME_POOLING 0
 
 LLGLNamePool::pool_list_t LLGLNamePool::sInstances;
+std::list<LLGLUpdate*> LLGLUpdate::sGLQ;
 
 #if (LL_WINDOWS || LL_LINUX || LL_SOLARIS)  && !LL_MESA_HEADLESS
 // ATI prototypes
@@ -1013,6 +1016,16 @@ void flush_glerror()
 
 void assert_glerror()
 {
+	if (!gGLActive)
+	{
+		//llwarns << "GL used while not active!" << llendl;
+
+		if (gDebugSession)
+		{
+			//ll_fail("GL used while not active");
+		}
+	}
+
 	if (gNoRender || !gDebugGL) 
 	{
 		return;
@@ -1258,8 +1271,10 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 	};
 
 	GLint stackDepth = 0;
-	LLMatrix4 identity;
-	LLMatrix4 matrix;
+
+	glh::matrix4f mat;
+	glh::matrix4f identity;
+	identity.identity();
 
 	for (GLint i = 1; i < maxTextureUnits; i++)
 	{
@@ -1280,10 +1295,10 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 			}
 		}
 
-		glGetFloatv(GL_TEXTURE_MATRIX, (GLfloat*) matrix.mMatrix);
+		glGetFloatv(GL_TEXTURE_MATRIX, (GLfloat*) mat.m);
 		stop_glerror();
 
-		if (matrix != identity)
+		if (mat != identity)
 		{
 			error = TRUE;
 			LL_WARNS("RenderState") << "Texture matrix in channel " << i << " corrupt." << LL_ENDL;
@@ -1308,10 +1323,6 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 			}
 			stop_glerror();
 		}
-
-		glh::matrix4f mat;
-		glh::matrix4f identity;
-		identity.identity();
 
 		glGetFloatv(GL_TEXTURE_MATRIX, mat.m);
 		stop_glerror();

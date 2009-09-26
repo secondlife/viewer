@@ -15,7 +15,7 @@
 	<button label="Żadne" label_selected="Żadne" name="None" />
 	<check_box label="Zawsze pokazuj foldery" name="check_show_empty" />
 	<check_box label="Od czasu wylogowania" name="check_since_logoff" />
-	<text type="string" length="1" name="- OR -">
+	<text name="- OR -">
 		- LUB -
 	</text>
 	<spinner label="Od godzin" name="spin_hours_ago" />

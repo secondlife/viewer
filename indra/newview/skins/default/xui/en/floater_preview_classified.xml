@@ -4,6 +4,7 @@
  height="510"
  layout="topleft"
  name="classified_preview"
+ help_topic="classified_preview"
  save_rect="true"
  title="Classified Information"
  width="440">

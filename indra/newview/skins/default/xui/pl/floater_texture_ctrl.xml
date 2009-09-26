@@ -3,10 +3,10 @@
 	<string name="choose_picture">
 		Kliknij by wybrać obraz
 	</string>
-	<text length="1" name="Multiple" type="string">
+	<text name="Multiple">
 		Wiele
 	</text>
-	<text length="1" name="unknown" type="string">
+	<text name="unknown">
 		Wymiary: [DIMENSIONS]
 	</text>
 	<button label="Domyślna" label_selected="Domyślna" name="Default"/>

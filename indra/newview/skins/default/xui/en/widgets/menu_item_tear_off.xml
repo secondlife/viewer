@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- Use "disabled color" to make it look like menu separators -->
+<menu_item_tear_off enabled_color="MenuItemDisabledColor"
+	disabled_color="MenuItemDisabledColor"
+	highlight_bg_color="MenuItemHighlightBgColor"
+  highlight_fg_color="MenuItemHighlightFgColor">
+</menu_item_tear_off>

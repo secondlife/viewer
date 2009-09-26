@@ -980,7 +980,7 @@ Offri l&apos;amicizia a [NAME]?
 
 Offri l&apos;amicizia a [NAME]?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Vorresti essere mio amico?
 			</input>
 			<button name="Offer" text="OK"/>
@@ -1386,7 +1386,7 @@ Per abbandonare un gruppo seleziona l&apos;opzione &apos;Gruppi..&apos; dal menu
 	<notification name="KickUser">
 		Espelli questo utente con quale messaggio?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Un amministratore ti ha disconnesso.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1396,7 +1396,7 @@ Per abbandonare un gruppo seleziona l&apos;opzione &apos;Gruppi..&apos; dal menu
 	<notification name="KickAllUsers">
 		Espelli tutti quelli che sono sulla griglia con quale messaggio?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Un amministratore ti ha disconnesso.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1406,7 +1406,7 @@ Per abbandonare un gruppo seleziona l&apos;opzione &apos;Gruppi..&apos; dal menu
 	<notification name="FreezeUser">
 		Immobilizza questo utente con quale messaggio?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Sei stato immobilizzato. Non puoi muoverti o usare la chat. Un amministratore ti contatterà con un messaggio (IM).
 			</input>
 			<button name="OK" text="OK"/>
@@ -1416,7 +1416,7 @@ Per abbandonare un gruppo seleziona l&apos;opzione &apos;Gruppi..&apos; dal menu
 	<notification name="UnFreezeUser">
 		Smobilizza questo utente con quale messaggio?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Non sei più immobilizzato.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1426,7 +1426,7 @@ Per abbandonare un gruppo seleziona l&apos;opzione &apos;Gruppi..&apos; dal menu
 	<notification name="OfferTeleport">
 		Offri un teleport nel posto dove sei con il seguente messaggio?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Raggiungimi a [REGION]
 			</input>
 			<button name="OK" text="OK"/>
@@ -1436,7 +1436,7 @@ Per abbandonare un gruppo seleziona l&apos;opzione &apos;Gruppi..&apos; dal menu
 	<notification name="OfferTeleportFromGod">
 		Vuoi trasportare divinamente l&apos;utente nel posto dove sei?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Raggiungimi in [REGION]
 			</input>
 			<button name="OK" text="OK"/>
@@ -1450,7 +1450,7 @@ Per abbandonare un gruppo seleziona l&apos;opzione &apos;Gruppi..&apos; dal menu
 	<notification label="Manda un messaggio a tutti nella tua proprietà" name="MessageEstate">
 		Scrivi un annuncio breve che verrà mandato a tutti quelli che sono in questo momento nella tua proprietà.
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Annulla"/>
 		</form>
@@ -1672,7 +1672,7 @@ Pubblica questo annuncio adesso per [AMOUNT]L$?
 	<notification label="Manda un messaggio a tutti in questa regione" name="MessageRegion">
 		Scrivi un breve annuncio che verrà mandato a tutti in questa regione.
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Annulla"/>
 		</form>
@@ -1968,14 +1968,14 @@ Il contenuto verrà copiato nel tuo inventario.
 Confermi di voler procedere all&apos;acquisto?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
-	<notification name="ConfirmPurchasePassword" type="password">
+	<notification name="ConfirmPurchasePassword">
 		Questa transazione farà:
 [ACTION]
 
 Confermi di voler procedere all&apos;acquisto?
 Ridigita la tua password e premi OK.
 		<form name="form">
-			<input name="message" type="password"/>
+			<input name="message"/>
 			<button name="ConfirmPurchase" text="OK"/>
 			<button name="Cancel" text="Annulla"/>
 		</form>
@@ -2345,7 +2345,7 @@ D (Densità) controlla quanto gonfie o spezzettate appaiono le nuvole.
 	<notification name="NewSkyPreset">
 		Fornisci il nome per il nuovo cielo.
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Nuova preimpostazione
 			</input>
 			<button name="OK" text="OK"/>
@@ -2358,7 +2358,7 @@ D (Densità) controlla quanto gonfie o spezzettate appaiono le nuvole.
 	<notification name="NewWaterPreset">
 		Fornisci il nome per la nuova preregolazione del livello dell&apos;acqua.
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Nuova preimpostazione
 			</input>
 			<button name="OK" text="OK"/>

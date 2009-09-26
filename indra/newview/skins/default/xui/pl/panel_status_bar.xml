@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="status">
-	<text type="string" length="1" name="ParcelNameText" tool_tip="Nazwa posiadłości w której się znajdujesz. Po więcej informacji kliknij O Posiadłości.">
+	<text name="ParcelNameText" tool_tip="Nazwa posiadłości w której się znajdujesz. Po więcej informacji kliknij O Posiadłości.">
 		Nazwa Posiadłości
 	</text>
-	<text type="string" length="1" name="BalanceText" tool_tip="Stan Konta">
+	<text name="BalanceText" tool_tip="Stan Konta">
 		Ładowanie...
 	</text>
 	<button label="" label_selected="" name="buycurrency" tool_tip="Kup $L" />
-	<text type="string" length="12" name="TimeText" tool_tip="Obecny Czas (Pacyficzny)">
+	<text name="TimeText" tool_tip="Obecny Czas (Pacyficzny)">
 		12:00 AM
 	</text>
 	<string name="StatBarDaysOfWeek">
@@ -18,7 +18,7 @@
 	</string>
 	<button label="" label_selected="" name="scriptout" tool_tip="Błędy i Ostrzeżenia Skryptów" />
 	<button label="" label_selected="" name="health" tool_tip="Stan" />
-	<text type="string" length="1" name="HealthText" tool_tip="Stan">
+	<text name="HealthText" tool_tip="Stan">
 		100%
 	</text>
 	<button label="" label_selected="" name="no_fly" tool_tip="Latanie jest niedozwolone" />

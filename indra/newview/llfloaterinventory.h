@@ -291,6 +291,9 @@ protected:
 	LLSaveFolderState*			mSavedFolderState;
 
 	std::string					mFilterText;
+
+private:
+	void updateTitle();
 };
 
 class LLSelectFirstFilteredItem : public LLFolderViewFunctor

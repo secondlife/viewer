@@ -519,6 +519,7 @@ public:
 	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
 
 	virtual void	handleReshape(const LLRect& rect, bool by_user);
+	virtual void	dirtyRect();
 
 	virtual void	notifyParent(const LLSD& info);
 	virtual void	notifyChildren(const LLSD& info);

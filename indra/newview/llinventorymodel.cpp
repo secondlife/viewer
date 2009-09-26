@@ -474,7 +474,10 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
 			if (item->getActualType() == LLAssetType::AT_LINK_FOLDER)
 			{
 				LLViewerInventoryCategory *linked_cat = item->getLinkedCategory();
-				if (linked_cat)
+				if (linked_cat && linked_cat->getPreferredType() != LLAssetType::AT_OUTFIT)
+					// BAP - was 
+					// LLAssetType::lookupIsEnsembleCategoryType(linked_cat->getPreferredType()))
+					// Change back once ensemble typing is in place.
 				{
 					if(add(linked_cat,NULL))
 					{
@@ -2492,6 +2495,10 @@ void LLInventoryModel::buildParentChildMap()
 			// root of the agent's inv found.
 			// The inv tree is built.
 			mIsAgentInvUsable = true;
+
+			llinfos << "Inventory initialized, notifying observers" << llendl;
+			addChangedMask(LLInventoryObserver::ALL, LLUUID::null);
+			notifyObservers();
 		}
 	}
 }

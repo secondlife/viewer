@@ -1,24 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Geral" name="general_panel">
-	<radio_group name="default_start_location">
-		<radio_item name="MyHome" tool_tip="Como padrão, registrar na minha casa.">
-			Minha Casa
-		</radio_item>
-		<radio_item name="MyLastLocation" tool_tip="Por padrão, registrar na minha última localidade.">
-			Minha Última Localidade
-		</radio_item>
-	</radio_group>
+	<combo_box name="start_location_combo">
+		<combo_box.item name="MyHome" tool_tip="Como padrão, registrar na minha casa." label="Minha Casa"/>
+		<combo_box.item name="MyLastLocation" tool_tip="Por padrão, registrar na minha última localidade." label="Minha Última Localidade"/>
+	</combo_box>
 	<check_box label="Mostrar Posição Inicial na Tela de Login" name="show_location_checkbox"/>
-	<combo_box name="fade_out_combobox" width="166">
-		<combo_item name="Never">
-			Nunca
-		</combo_item>
-		<combo_item name="Show Temporarily">
-			Mostrar Temporariamente
-		</combo_item>
-		<combo_item name="Always">
-			Sempre
-		</combo_item>
+	<combo_box name="fade_out_combobox">
+		<combo_box.item name="Never" label="Nunca"/>
+		<combo_box.item name="Show Temporarily" label="Mostrar Temporariamente"/>
+		<combo_box.item name="Always" label="Sempre"/>
 	</combo_box>
 	<check_box label="Avatar com Nomes Pequenos" name="small_avatar_names_checkbox"/>
 	<check_box label="Ocultar meu Nome na minha Tela" name="show_my_name_checkbox"/>
@@ -34,114 +24,67 @@
 	<check_box label="Usar escala independente da resolução" name="ui_auto_scale"/>
 	<spinner label="Tempo para ficar Ausente:" name="afk_timeout_spinner"/>
 	<check_box label="Avisar quando receber ou gastar Linden dollars (L$)" name="notify_money_change_checkbox"/>
-	<text name="maturity_desired_label" bottom="-312">
+	<text name="maturity_desired_label">
 		Classificação:
 	</text>
-	<text name="maturity_desired_prompt" bottom="-312">
-		Eu quero acessar
-conteúdo classificado:
+	<text name="maturity_desired_prompt">
+		Eu quero acessar conteúdo classificado:
 	</text>
-	<combo_box name="maturity_desired_combobox" bottom="-330" left="278">
-		<combo_item name="Desired_Adult">
-			PG, Mature e Adult
-		</combo_item>
-		<combo_item name="Desired_Mature">
-			PG e Mature
-		</combo_item>
-		<combo_item name="Desired_PG">
-			apenas PG
-		</combo_item>
+	<combo_box name="maturity_desired_combobox">
+		<combo_box.item name="Desired_Adult" label="PG, Mature e Adult"/>
+		<combo_box.item name="Desired_Mature" label="PG e Mature"/>
+		<combo_box.item name="Desired_PG" label="apenas PG"/>
 	</combo_box>
-	<text name="maturity_desired_textbox" bottom="-324" left="278">
+	<text name="maturity_desired_textbox">
 		apenas PG
 	</text>
-	<text length="1" name="start_location_textbox" type="string">
+	<text name="start_location_textbox">
 		Posição Inicial:
 	</text>
-	<text length="1" name="show_names_textbox" type="string">
+	<text name="show_names_textbox">
 		Mostrar Nomes:
 	</text>
-	<text length="1" name="effects_color_textbox" type="string">
+	<text name="effects_color_textbox">
 		Cores para Meus Efeitos:
 	</text>
-	<text length="1" name="seconds_textbox" type="string">
+	<text name="seconds_textbox">
 		segundos
 	</text>
-	<text length="1" name="crash_report_textbox" type="string">
+	<text name="crash_report_textbox">
 		Relatórios de Falhas:
 	</text>
 	<text name="language_textbox">
 		Linguagem:
 	</text>
-	<text left_delta="313" length="1" name="language_textbox2" type="string">
+	<text name="language_textbox2">
 		(Precisa de reinício para efetivar)
 	</text>
 	<string name="region_name_prompt">
 		Digite o nome da Região
 	</string>
-	<combo_box name="crash_behavior_combobox" width="166">
-		<combo_item length="1" name="Askbeforesending" type="string">
-			Perguntar antes de enviar
-		</combo_item>
-		<combo_item length="1" name="Alwayssend" type="string">
-			Sempre enviar
-		</combo_item>
-		<combo_item length="1" name="Neversend" type="string">
-			Nunca Enviar
-		</combo_item>
+	<combo_box name="crash_behavior_combobox">
+		<combo_box.item name="Askbeforesending" label="Perguntar antes de enviar"/>
+		<combo_box.item name="Alwayssend" label="Sempre enviar"/>
+		<combo_box.item name="Neversend" label="Nunca Enviar"/>
 	</combo_box>
-	<combo_box name="language_combobox" width="166">
-		<combo_item name="System Default Language">
-			Padrão do Sistema
-		</combo_item>
-		<combo_item name="English">
-			English (Inglês)
-		</combo_item>
-		<combo_item name="Danish">
-			Dansk (Dinamarquês) - Beta
-		</combo_item>
-		<combo_item name="Deutsch(German)">
-			Deutsch (Alemão) - Beta
-		</combo_item>
-		<combo_item name="Spanish">
-			Español (Espanhol) - Beta
-		</combo_item>
-		<combo_item name="French">
-			Français (Francês) - Beta
-		</combo_item>
-		<combo_item name="Italian">
-			Italiano - Beta
-		</combo_item>
-		<combo_item name="Hungarian">
-			Magyar (Húngaro) - Beta
-		</combo_item>
-		<combo_item name="Dutch">
-			Nederlands (Holandês) - Beta
-		</combo_item>
-		<combo_item name="Polish">
-			Polski (Polonês) - Beta
-		</combo_item>
-		<combo_item name="Portugese">
-			Português - Beta
-		</combo_item>
-		<combo_item name="Russian">
-			Русский (Russo) - Beta
-		</combo_item>
-		<combo_item name="Turkish">
-			Türkçe (Turco) - Beta
-		</combo_item>
-		<combo_item name="Ukrainian">
-			Українська (Ucraniano) - Beta
-		</combo_item>
-		<combo_item name="Chinese">
-			中文 (简体) (Chinês) - Beta
-		</combo_item>
-		<combo_item name="(Japanese)">
-			日本語 (Japonês) - Beta
-		</combo_item>
-		<combo_item name="(Korean)">
-			한국어 (Coreano) - Beta
-		</combo_item>
+	<combo_box name="language_combobox">
+		<combo_box.item name="System Default Language" label="Padrão do Sistema"/>
+		<combo_box.item name="English" label="English (Inglês)"/>
+		<combo_box.item name="Danish" label="Dansk (Dinamarquês) - Beta"/>
+		<combo_box.item name="Deutsch(German)" label="Deutsch (Alemão) - Beta"/>
+		<combo_box.item name="Spanish" label="Español (Espanhol) - Beta"/>
+		<combo_box.item name="French" label="Français (Francês) - Beta"/>
+		<combo_box.item name="Italian" label="Italiano - Beta"/>
+		<combo_box.item name="Hungarian" label="Magyar (Húngaro) - Beta"/>
+		<combo_box.item name="Dutch" label="Nederlands (Holandês) - Beta"/>
+		<combo_box.item name="Polish" label="Polski (Polonês) - Beta"/>
+		<combo_box.item name="Portugese" label="Português - Beta"/>
+		<combo_box.item name="Russian" label="Русский (Russo) - Beta"/>
+		<combo_box.item name="Turkish" label="Türkçe (Turco) - Beta"/>
+		<combo_box.item name="Ukrainian" label="Українська (Ucraniano) - Beta"/>
+		<combo_box.item name="Chinese" label="中文 (简体) (Chinês) - Beta"/>
+		<combo_box.item name="(Japanese)" label="日本語 (Japonês) - Beta"/>
+		<combo_box.item name="(Korean)" label="한국어 (Coreano) - Beta"/>
 	</combo_box>
 	<check_box label="Compartilhar a linguagem com objetos" name="language_is_public" tool_tip="Isto permite que os objetos no mundo conheçam sua linguagem preferida."/>
 </panel>

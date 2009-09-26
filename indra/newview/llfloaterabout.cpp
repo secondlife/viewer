@@ -35,32 +35,32 @@
 
 #include "llfloaterabout.h"
 
-#include "llsys.h"
-#include "llgl.h"
-#include "llui.h"	// for tr()
-#include "v3dmath.h"
-
-#include "llcurl.h"
-#include "llimagej2c.h"
-#include "llaudioengine.h"
-
+// Viewer includes
+#include "llagent.h"
+#include "llappviewer.h" 
+#include "llsecondlifeurls.h"
+#include "lluictrlfactory.h"
 #include "llviewertexteditor.h"
 #include "llviewercontrol.h"
-#include "llagent.h"
 #include "llviewerstats.h"
 #include "llviewerregion.h"
 #include "llversionviewer.h"
 #include "llviewerbuild.h"
-#include "lluictrlfactory.h"
-#include "lluri.h"
 #include "llweb.h"
-#include "llsecondlifeurls.h"
-#include "lltrans.h"
-#include "llappviewer.h" 
-#include "llglheaders.h"
-#include "llwindow.h"
 
+// Linden library includes
+#include "llaudioengine.h"
 #include "llbutton.h"
+#include "llcurl.h"
+#include "llglheaders.h"
+#include "llfloater.h"
+#include "llfloaterreg.h"
+#include "llimagej2c.h"
+#include "llsys.h"
+#include "lltrans.h"
+#include "lluri.h"
+#include "v3dmath.h"
+#include "llwindow.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -76,6 +76,19 @@ static std::string get_viewer_release_notes_url();
 ///----------------------------------------------------------------------------
 /// Class LLFloaterAbout
 ///----------------------------------------------------------------------------
+class LLFloaterAbout 
+	: public LLFloater
+{
+	friend class LLFloaterReg;
+private:
+	LLFloaterAbout(const LLSD& key);
+	virtual ~LLFloaterAbout();
+
+public:
+	/*virtual*/ BOOL postBuild();
+	void onClickCopyToClipboard();
+};
+
 
 // Default constructor
 LLFloaterAbout::LLFloaterAbout(const LLSD& key) 
@@ -98,6 +111,9 @@ BOOL LLFloaterAbout::postBuild()
 
 	LLViewerTextEditor *credits_widget = 
 		getChild<LLViewerTextEditor>("credits_editor", true);
+
+	getChild<LLUICtrl>("copy_btn")->setCommitCallback(
+		boost::bind(&LLFloaterAbout::onClickCopyToClipboard, this));
 
 	// make sure that we handle hyperlinks in the About text
 	support_widget->setParseHTML(TRUE);
@@ -254,4 +270,23 @@ static std::string get_viewer_release_notes_url()
 	url << LLTrans::getString("RELEASE_NOTES_BASE_URL") << LLURI::mapToQueryString(query);
 
 	return LLWeb::escapeURL(url.str());
+}
+
+void LLFloaterAbout::onClickCopyToClipboard()
+{
+	LLViewerTextEditor *support_widget = 
+		getChild<LLViewerTextEditor>("support_editor", true);
+	support_widget->selectAll();
+	support_widget->copy();
+	support_widget->deselect();
+}
+
+///----------------------------------------------------------------------------
+/// LLFloaterAboutUtil
+///----------------------------------------------------------------------------
+void LLFloaterAboutUtil::registerFloater()
+{
+	LLFloaterReg::add("sl_about", "floater_about.xml",
+		&LLFloaterReg::build<LLFloaterAbout>);
+
 }

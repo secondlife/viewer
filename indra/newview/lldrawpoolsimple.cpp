@@ -47,6 +47,9 @@
 static LLGLSLShader* simple_shader = NULL;
 static LLGLSLShader* fullbright_shader = NULL;
 
+static LLFastTimer::DeclareTimer FTM_RENDER_SIMPLE_DEFERRED("Deferred Simple");
+static LLFastTimer::DeclareTimer FTM_RENDER_GRASS_DEFERRED("Deferred Grass");
+
 void LLDrawPoolGlow::render(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_GLOW);
@@ -156,13 +159,13 @@ void LLDrawPoolSimple::render(S32 pass)
 
 void LLDrawPoolSimple::beginDeferredPass(S32 pass)
 {
-	LLFastTimer t(FTM_RENDER_SIMPLE);
+	LLFastTimer t(FTM_RENDER_SIMPLE_DEFERRED);
 	gDeferredDiffuseProgram.bind();
 }
 
 void LLDrawPoolSimple::endDeferredPass(S32 pass)
 {
-	LLFastTimer t(FTM_RENDER_SIMPLE);
+	LLFastTimer t(FTM_RENDER_SIMPLE_DEFERRED);
 	LLRenderPass::endRenderPass(pass);
 
 	gDeferredDiffuseProgram.unbind();
@@ -174,7 +177,7 @@ void LLDrawPoolSimple::renderDeferred(S32 pass)
 	LLGLDisable alpha_test(GL_ALPHA_TEST);
 
 	{ //render simple
-		LLFastTimer t(FTM_RENDER_SIMPLE);
+		LLFastTimer t(FTM_RENDER_SIMPLE_DEFERRED);
 		renderTexture(LLRenderPass::PASS_SIMPLE, getVertexDataMask());
 	}
 }
@@ -258,10 +261,10 @@ void LLDrawPoolGrass::endDeferredPass(S32 pass)
 
 void LLDrawPoolGrass::renderDeferred(S32 pass)
 {
-	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
+	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.f);
 
 	{
-		LLFastTimer t(FTM_RENDER_GRASS);
+		LLFastTimer t(FTM_RENDER_GRASS_DEFERRED);
 		gDeferredTreeProgram.bind();
 		LLGLEnable test(GL_ALPHA_TEST);
 		//render grass

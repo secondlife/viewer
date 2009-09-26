@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="preview lsl text" title="Script: Rotation Script">
-	<text type="string" length="1" name="desc txt">
+	<text name="desc txt">
 		Descrição:
 	</text>
 </floater>

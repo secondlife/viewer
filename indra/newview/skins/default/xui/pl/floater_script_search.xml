@@ -5,10 +5,10 @@
 	<button label="Zamień" label_selected="Zamień" name="replace_btn" />
 	<button label="Zamień Wszystko" label_selected="Zamień Wszystko"
 	     name="replace_all_btn" />
-	<text type="string" length="1" name="txt">
+	<text name="txt">
 		Szukaj
 	</text>
-	<text type="string" length="1" name="txt2">
+	<text name="txt2">
 		Zamień
 	</text>
 </floater>

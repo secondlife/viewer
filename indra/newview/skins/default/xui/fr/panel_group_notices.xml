@@ -11,8 +11,7 @@
 		Anciennes notices du groupe
 	</text>
 	<text name="lbl2">
-		Double-cliquez sur une notice pour l'afficher. Les notices sont conservées
-pendant 14 jours et chaque groupe a une limite quotidienne de 200 notices.
+		Les notices sont conservées pendant 14 jours et chaque groupe a une limite quotidienne de 200 notices.
 	</text>
 	<scroll_list name="notice_list">
 		<column label="" name="icon"/>
@@ -30,11 +29,7 @@ pendant 14 jours et chaque groupe a une limite quotidienne de 200 notices.
 			Créer une notice
 		</text>
 		<text name="lbl2">
-			Pour envoyer une notice, saisissez un sujet. Pour joindre
-une pièce-jointe à cette notice, faites-la glisser depuis votre 
-inventaire vers cette fenêtre. Les pièces-jointes doivent être
-copiables et transférables. Il n&apos;est pas possible d&apos;envoyer de
-dossiers.
+			Pour joindre une pièce-jointe à cette notice, faites-la glisser depuis votre inventaire vers cette fenêtre. Les pièces-jointes doivent être copiables et transférables. Il n&apos;est pas possible d&apos;envoyer de dossiers.
 		</text>
 		<text bottom_delta="-79" name="lbl3" left="20">
 			Sujet :
@@ -49,7 +44,7 @@ dossiers.
 		</text>
 		<line_editor name="create_inventory_name" width="190" left_delta="74"/>
 		<button label="Supprimer pièce-jointe" label_selected="Supprimer pièce-jointe" left="274" name="remove_attachment" width="140"/>
-		<button label="Envoyer la notice" label_selected="Envoyer la notice" left="274" name="send_notice" width="140"/>
+		<button label="Envoyer" label_selected="Envoyer" left="274" name="send_notice" width="140"/>
 		<panel name="drop_target2" tool_tip="Pour joindre un objet de l&apos;inventaire à la notice, faites-le glisser dans la boîte de message. Pour envoyer l&apos;objet avec la notice, vous devez avoir la permission de le copier et de le transférer."/>
 		<panel name="drop_target" tool_tip="Pour joindre un objet de l&apos;inventaire à la notice, faites-le glisser dans la boîte de message. Pour envoyer l&apos;objet avec la notice, vous devez avoir la permission de le copier et de le transférer."/>
 	</panel>

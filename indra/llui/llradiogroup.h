@@ -54,7 +54,10 @@ public:
 		Params() 
 		:	length("length"),
 			type("type")
-		{}
+		{
+			// radio items are not tabbable until they are selected
+			tab_stop = false;
+		}
 	};
 
 	/*virtual*/ ~LLRadioCtrl();
@@ -103,6 +106,7 @@ public:
 	virtual BOOL postBuild();
 	
 	virtual bool addChild(LLView* view, S32 tab_group = 0);
+	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
@@ -116,9 +120,6 @@ public:
 	// Accept and retrieve strings of the radio group control names
 	virtual void	setValue(const LLSD& value );
 	virtual LLSD	getValue() const;
-
-	// Draw the group, but also fix the highlighting based on the control.
-	void draw();
 
 	// Update the control as needed.  Userdata must be a pointer to the button.
 	void onClickButton(LLUICtrl* clicked_radio);

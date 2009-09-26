@@ -116,12 +116,33 @@ public:
 		DEFERRED_SHADOW1,
 		DEFERRED_SHADOW2,
 		DEFERRED_SHADOW3,
+		DEFERRED_SHADOW4,
+		DEFERRED_SHADOW5,
 		DEFERRED_NORMAL,
 		DEFERRED_POSITION,
 		DEFERRED_DIFFUSE,
 		DEFERRED_SPECULAR,
 		DEFERRED_NOISE,
+		DEFERRED_LIGHTFUNC,
 		DEFERRED_LIGHT,
+		DEFERRED_LUMINANCE,
+		DEFERRED_GI_LIGHT,
+		DEFERRED_GI_MIP,
+		DEFERRED_EDGE,
+		DEFERRED_BLOOM,
+		DEFERRED_SUN_LIGHT,
+		DEFERRED_LOCAL_LIGHT,
+		DEFERRED_PROJECTION,
+		DEFERRED_GI_DIFFUSE,
+		DEFERRED_GI_SPECULAR,
+		DEFERRED_GI_NORMAL,
+		DEFERRED_GI_MIN_POS,
+		DEFERRED_GI_MAX_POS,
+		DEFERRED_GI_DEPTH,
+		DEFERRED_GI_LAST_DIFFUSE,
+		DEFERRED_GI_LAST_NORMAL,
+		DEFERRED_GI_LAST_MIN_POS,
+		DEFERRED_GI_LAST_MAX_POS,
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 
@@ -319,6 +340,7 @@ extern LLGLSLShader			gPostNightVisionProgram;
 
 // Deferred rendering shaders
 extern LLGLSLShader			gDeferredImpostorProgram;
+extern LLGLSLShader			gDeferredEdgeProgram;
 extern LLGLSLShader			gDeferredWaterProgram;
 extern LLGLSLShader			gDeferredDiffuseProgram;
 extern LLGLSLShader			gDeferredBumpProgram;
@@ -326,15 +348,23 @@ extern LLGLSLShader			gDeferredTerrainProgram;
 extern LLGLSLShader			gDeferredTreeProgram;
 extern LLGLSLShader			gDeferredLightProgram;
 extern LLGLSLShader			gDeferredMultiLightProgram;
+extern LLGLSLShader			gDeferredSpotLightProgram;
+extern LLGLSLShader			gDeferredMultiSpotLightProgram;
 extern LLGLSLShader			gDeferredSunProgram;
+extern LLGLSLShader			gDeferredGIProgram;
+extern LLGLSLShader			gDeferredGIFinalProgram;
 extern LLGLSLShader			gDeferredBlurLightProgram;
 extern LLGLSLShader			gDeferredAvatarProgram;
 extern LLGLSLShader			gDeferredSoftenProgram;
 extern LLGLSLShader			gDeferredShadowProgram;
+extern LLGLSLShader			gDeferredPostGIProgram;
+extern LLGLSLShader			gDeferredPostProgram;
 extern LLGLSLShader			gDeferredAvatarShadowProgram;
 extern LLGLSLShader			gDeferredAlphaProgram;
 extern LLGLSLShader			gDeferredFullbrightProgram;
 extern LLGLSLShader			gDeferredAvatarAlphaProgram;
+
+extern LLGLSLShader			gLuminanceGatherProgram;
 
 //current avatar shader parameter pointer
 extern GLint				gAvatarMatrixParam;

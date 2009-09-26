@@ -153,9 +153,6 @@ protected:
 public:
 	// LLView interface
 	/*virtual*/ BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
-	/*virtual*/ void	onFocusReceived();
-	/*virtual*/ void	onFocusLost();
-	/*virtual*/ void	onTopLost();
 	/*virtual*/ BOOL	isCtrl() const;
 	/*virtual*/ void	setTentative(BOOL b);
 	/*virtual*/ BOOL	getTentative() const;

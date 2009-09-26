@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Estate" name="Estate">
+<panel name="EstateWrapper">
+  <scroll_container name="container1">
+   <panel label="Estate" name="Estate">
 	<text name="estate_help_text">
 		Wijzigingen van instellingen op dit tabblad
 zullen alle regio&apos;s in de estate beïnvloeden.
@@ -67,4 +69,6 @@ zullen alle regio&apos;s in de estate beïnvloeden.
 	<button label="?" name="ban_resident_help"/>
 	<button label="Verwijderen..." name="remove_banned_avatar_btn"/>
 	<button label="Toevoegen..." name="add_banned_avatar_btn"/>
+    </panel>
+  </scroll_container>
 </panel>

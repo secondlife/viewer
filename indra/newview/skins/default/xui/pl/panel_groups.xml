@@ -3,10 +3,10 @@
 	<scroll_list name="group list">
 		<column label="" name="name" />
 	</scroll_list>
-	<text type="string" length="1" name="groupdesc">
+	<text name="groupdesc">
 		Twoja aktywna grupa jest pogrubiona.
 	</text>
-	<text type="string" length="1" name="groupcount">
+	<text name="groupcount">
 		Należysz do [COUNT] grup (maksimum to [MAX]).
 	</text>
 	<button label="Czat/IM" name="IM" tool_tip="Rozpocznij sesję czatu (IM)" />

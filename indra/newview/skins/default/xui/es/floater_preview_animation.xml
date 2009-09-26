@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview_anim">
-	<text length="1" name="desc txt" type="string">
+	<text name="desc txt">
 		Descripción:
 	</text>
 	<button left="12" width="142" label="Ejecutarla en el mundo" label_selected="Parar" name="Anim play btn" tool_tip="Ejecutar esta animación de modo que puedan verla los demás."/>

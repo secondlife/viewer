@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="preview_anim">
-	<text type="string" length="1" name="desc txt">
+	<text name="desc txt">
 		Description :
 	</text>
 	<button label="Jouer dans le Monde" label_selected="Stop" name="Anim play btn"

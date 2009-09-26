@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="advanced">
+	<text name="AspectRatioLabel1" tool_tip="largura / altura">
+		Relação de Aspecto:
+	</text>
+	<combo_box name="aspect_ratio" tool_tip="largura / altura">
+		<combo_box.item label="4:3 (CRT Padrão)" name="item1"/>
+		<combo_box.item label="5:4 (1280x1024 LCD)" name="item2"/>
+		<combo_box.item label="8:5 (tela ampla)" name="item3"/>
+		<combo_box.item label="16:9 (tela ampla)" name="item4"/>
+	</combo_box>
+</panel>

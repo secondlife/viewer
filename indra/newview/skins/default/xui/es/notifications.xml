@@ -984,7 +984,7 @@ usted no tiene el permiso de comprar terreno para el grupo que tiene activado ac
 
 ¿Ofrecer a [NAME] que sea su amigo?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				¿Quieres formar parte de mis amigos?
 			</input>
 			<button name="Offer" text="OK"/>
@@ -1128,6 +1128,14 @@ Si se vende una parcela transferida, el precio de venta se dividirá a partes ig
 	</notification>
 	<notification name="AvatarMoved">
 		Su localización [TYPE] no está disponible en estos momentos. [HELP]
+Ha sido llevado a una región cercana.
+	</notification>
+	<notification name="AvatarMovedDesired">
+		La localización que ha elegido no está disponible en estos momentos.
+Ha sido llevado a una región cercana.
+	</notification>
+	<notification name="AvatarMovedLast">
+		Su última posición no está disponible en estos momentos.
 Ha sido llevado a una región cercana.
 	</notification>
 	<notification name="ClothingLoading">
@@ -1388,7 +1396,7 @@ Se ocultará el chat y los mensajes instantáneos. Los mensajes instantáneos re
 	<notification name="KickUser">
 		¿Con qué mensaje se expulsará a este usuario?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Un administrador le ha desconectado.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1398,7 +1406,7 @@ Se ocultará el chat y los mensajes instantáneos. Los mensajes instantáneos re
 	<notification name="KickAllUsers">
 		¿Con qué mensaje se expulsará a cualquiera que esté actualmente en el grid?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Un administrador le ha desconectado.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1408,7 +1416,7 @@ Se ocultará el chat y los mensajes instantáneos. Los mensajes instantáneos re
 	<notification name="FreezeUser">
 		¿Con qué mensaje se congelará a este usuario?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Ha sido usted congelado. No puede moverse o escribir en el chat. Un administrador contactará con usted a través de un mensaje instantáneo (MI).
 			</input>
 			<button name="OK" text="OK"/>
@@ -1418,7 +1426,7 @@ Se ocultará el chat y los mensajes instantáneos. Los mensajes instantáneos re
 	<notification name="UnFreezeUser">
 		¿Con qué mensaje se descongelará a este usuario?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Ya no está usted congelado.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1428,7 +1436,7 @@ Se ocultará el chat y los mensajes instantáneos. Los mensajes instantáneos re
 	<notification name="OfferTeleport">
 		¿Ofrecer teleporte a su posición con este mensaje?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Ven conmigo a [REGION]
 			</input>
 			<button name="OK" text="OK"/>
@@ -1438,7 +1446,7 @@ Se ocultará el chat y los mensajes instantáneos. Los mensajes instantáneos re
 	<notification name="OfferTeleportFromGod">
 		¿Convocar a este usuario a su posición?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Ven conmigo a [REGION]
 			</input>
 			<button name="OK" text="OK"/>
@@ -1452,7 +1460,7 @@ Se ocultará el chat y los mensajes instantáneos. Los mensajes instantáneos re
 	<notification label="Mensaje a todo el estado" name="MessageEstate">
 		Escriba un anuncio breve que se enviará a todo el que esté en su estado.
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
@@ -1676,7 +1684,7 @@ Puede pulsar &apos;Cambiar preferencia&apos; para aumentar su nivel de calificac
 	<notification label="Mensaje a toda la región" name="MessageRegion">
 		Escriba un anuncio breve que se enviará a todo el que esté en esta región.
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
@@ -1967,14 +1975,14 @@ Serán copiados a su inventario.
 ¿Está seguro de querer hacer esta compra?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
-	<notification name="ConfirmPurchasePassword" type="password">
+	<notification name="ConfirmPurchasePassword">
 		Esta transacción hará que:
 [ACTION]
 
 ¿Está seguro de querer hacer esta compra?
 Por favor, vuelva a escribir su contraseña y pulse OK.
 		<form name="form">
-			<input name="message" type="password"/>
+			<input name="message"/>
 			<button name="ConfirmPurchase" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
@@ -2335,7 +2343,7 @@ Pero, vaya, diviértase si quiere.
 	<notification name="NewSkyPreset">
 		Dame un nombre para el cielo nuevo.
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Preselección nueva
 			</input>
 			<button name="OK" text="OK"/>
@@ -2348,7 +2356,7 @@ Pero, vaya, diviértase si quiere.
 	<notification name="NewWaterPreset">
 		Dame un nombre para la nueva preselección de agua.
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Preselección nueva
 			</input>
 			<button name="OK" text="OK"/>

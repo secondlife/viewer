@@ -4,6 +4,7 @@
  height="440"
  layout="topleft"
  name="Image Preview"
+ help_topic="image_preview"
  width="300">
     <text
      type="string"

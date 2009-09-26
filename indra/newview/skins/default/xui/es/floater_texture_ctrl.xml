@@ -3,10 +3,10 @@
 	<string name="choose_picture">
 		Pulse para elegir una imagen
 	</string>
-	<text length="1" name="Multiple" type="string">
+	<text name="Multiple">
 		Múltiple
 	</text>
-	<text length="1" name="unknown" type="string">
+	<text name="unknown">
 		Dimensiones: [DIMENSIONS]
 	</text>
 	<button label="Por defecto" label_selected="Por defecto" name="Default" width="84"/>

@@ -74,6 +74,7 @@
 #include "llrender.h"
 #include "lllocationhistory.h"
 #include "llfasttimerview.h"
+
 #include "llweb.h"
 #include "llsecondlifeurls.h"
 
@@ -765,6 +766,7 @@ bool LLAppViewer::init()
 	//
 	// Initialize the window
 	//
+	gGLActive = TRUE;
 	initWindow();
 
 	// call all self-registered classes
@@ -869,12 +871,16 @@ bool LLAppViewer::init()
 	gSimFrames = (F32)gFrameCount;
 
 	LLViewerJoystick::getInstance()->init(false);
-
+	gGLActive = FALSE;
 	return true;
 }
 
 static LLFastTimer::DeclareTimer FTM_MESSAGES("System Messages");
 static LLFastTimer::DeclareTimer FTM_SLEEP("Sleep");
+static LLFastTimer::DeclareTimer FTM_TEXTURE_CACHE("Texture Cache");
+static LLFastTimer::DeclareTimer FTM_DECODE("Image Decode");
+static LLFastTimer::DeclareTimer FTM_VFS("VFS Thread");
+static LLFastTimer::DeclareTimer FTM_PAUSE_THREADS("Pause Threads");
 static LLFastTimer::DeclareTimer FTM_IDLE("Idle");
 static LLFastTimer::DeclareTimer FTM_PUMP("Pump");
 
@@ -914,6 +920,7 @@ bool LLAppViewer::mainLoop()
 	while (!LLApp::isExiting())
 	{
 		LLFastTimer::nextFrame(); // Should be outside of any timer instances
+
 		try
 		{
 			pingMainloopTimeout("Main:MiscNativeWindowEvents");
@@ -923,7 +930,7 @@ bool LLAppViewer::mainLoop()
 				LLFastTimer t2(FTM_MESSAGES);
 				gViewerWindow->mWindow->processMiscNativeEvents();
 			}
-			
+		
 			pingMainloopTimeout("Main:GatherInput");
 			
 			if (gViewerWindow)
@@ -1007,10 +1014,11 @@ bool LLAppViewer::mainLoop()
 				if (!LLApp::isExiting())
 				{
 					pingMainloopTimeout("Main:Display");
+					gGLActive = TRUE;
 					display();
-
 					pingMainloopTimeout("Main:Snapshot");
 					LLFloaterSnapshot::update(); // take snapshots
+					gGLActive = FALSE;
 				}
 
 			}
@@ -1070,11 +1078,24 @@ bool LLAppViewer::mainLoop()
 				{
 					S32 work_pending = 0;
 					S32 io_pending = 0;
- 					work_pending += LLAppViewer::getTextureCache()->update(1); // unpauses the texture cache thread
- 					work_pending += LLAppViewer::getImageDecodeThread()->update(1); // unpauses the image thread
- 					work_pending += LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
-					io_pending += LLVFSThread::updateClass(1);
-					io_pending += LLLFSThread::updateClass(1);
+					{
+						LLFastTimer ftm(FTM_TEXTURE_CACHE);
+ 						work_pending += LLAppViewer::getTextureCache()->update(1); // unpauses the texture cache thread
+					}
+					{
+						LLFastTimer ftm(FTM_DECODE);
+	 					work_pending += LLAppViewer::getImageDecodeThread()->update(1); // unpauses the image thread
+					}
+					{
+						LLFastTimer ftm(FTM_DECODE);
+	 					work_pending += LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
+					}
+
+					{
+						LLFastTimer ftm(FTM_VFS);
+	 					io_pending += LLVFSThread::updateClass(1);
+					}
+
 					if (io_pending > 1000)
 					{
 						ms_sleep(llmin(io_pending/100,100)); // give the vfs some time to catch up
@@ -1100,6 +1121,8 @@ bool LLAppViewer::mainLoop()
 				// if (LLThread::processorCount()==1) //pause() should only be required when on a single processor client...
 				if (run_multiple_threads == FALSE)
 				{
+					LLFastTimer ftm(FTM_PAUSE_THREADS);
+	 					
 					LLAppViewer::getTextureCache()->pause();
 					LLAppViewer::getImageDecodeThread()->pause();
 					// LLAppViewer::getTextureFetch()->pause(); // Don't pause the fetch (IO) thread
@@ -3317,10 +3340,13 @@ void LLAppViewer::idle()
 	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{
 		// Skip rest if idle startup returns false (essentially, no world yet)
+		gGLActive = TRUE;
 		if (!idle_startup())
 		{
+			gGLActive = FALSE;
 			return;
 		}
+		gGLActive = FALSE;
 	}
 
 	
@@ -3419,10 +3445,8 @@ void LLAppViewer::idle()
 	    // floating throughout the various object lists.
 	    //
     
-		stop_glerror();
 		idleNetwork();
-	    stop_glerror();
-	        
+	    	        
 
 		// Check for away from keyboard, kick idle agents.
 		idle_afk_check();
@@ -3512,8 +3536,6 @@ void LLAppViewer::idle()
 		LLHUDManager::getInstance()->sendEffects();
 	}
 
-	stop_glerror();
-
 	////////////////////////////////////////
 	//
 	// Unpack layer data that we've received
@@ -3569,7 +3591,6 @@ void LLAppViewer::idle()
 			gWindVec.setVec(0.0f, 0.0f, 0.0f);
 		}
 	}
-	stop_glerror();
 	
 	//////////////////////////////////////
 	//
@@ -3584,7 +3605,6 @@ void LLAppViewer::idle()
 
 		LLWorld::getInstance()->updateParticles();
 	}
-	stop_glerror();
 
 	if (LLViewerJoystick::getInstance()->getOverrideCamera())
 	{
@@ -3629,10 +3649,9 @@ void LLAppViewer::idle()
 	// forcibly quit if it has taken too long
 	if (mQuitRequested)
 	{
+		gGLActive = TRUE;
 		idleShutdown();
 	}
-
-	stop_glerror();
 }
 
 void LLAppViewer::idleShutdown()
@@ -3771,7 +3790,6 @@ void LLAppViewer::idleNetwork()
 		llpushcallstacks ;
 		LLTimer check_message_timer;
 		//  Read all available packets from network 
-		stop_glerror();
 		const S64 frame_count = gFrameCount;  // U32->S64
 		F32 total_time = 0.0f;
 
@@ -3784,8 +3802,7 @@ void LLAppViewer::idleNetwork()
 				// server going down, so this is OK.
 				break;
 			}
-			stop_glerror();
-
+			
 			total_decoded++;
 			gPacketsIn++;
 
@@ -3825,9 +3842,7 @@ void LLAppViewer::idleNetwork()
 
 		// we want to clear the control after sending out all necessary agent updates
 		gAgent.resetControlFlags();
-		stop_glerror();
-
-		
+				
 		// Decode enqueued messages...
 		S32 remaining_possible_decodes = MESSAGE_MAX_PER_FRAME - total_decoded;
 

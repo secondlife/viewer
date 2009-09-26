@@ -1898,6 +1898,11 @@ void LLViewerWindow::draw()
 
 	//S32 screen_x, screen_y;
 
+	if (!gSavedSettings.getBOOL("RenderUIBuffer"))
+	{
+		LLUI::sDirtyRect = this->getWindowRect();
+	}
+
 	// HACK for timecode debugging
 	if (gSavedSettings.getBOOL("DisplayTimecode"))
 	{
@@ -3874,7 +3879,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	{
 		if(image_width > window_width || image_height > window_height) //need to enlarge the scene
 		{
-			if (gGLManager.mHasFramebufferObject && !show_ui)
+			if (!LLPipeline::sRenderDeferred && gGLManager.mHasFramebufferObject && !show_ui)
 			{
 				GLint max_size = 0;
 				glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &max_size);
@@ -3962,9 +3967,17 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 			else
 			{
 				const U32 subfield = subimage_x+(subimage_y*llceil(scale_factor));
-				display(do_rebuild, scale_factor, subfield, TRUE);
-				// Required for showing the GUI in snapshots?  See DEV-16350 for details. JC
-				render_ui(scale_factor, subfield);
+
+				if (LLPipeline::sRenderDeferred)
+				{
+					display(do_rebuild, scale_factor, subfield, FALSE);
+				}
+				else
+				{
+					display(do_rebuild, scale_factor, subfield, TRUE);
+					// Required for showing the GUI in snapshots?  See DEV-16350 for details. JC
+					render_ui(scale_factor, subfield);
+				}
 			}
 
 			S32 subimage_x_offset = llclamp(buffer_x_offset - (subimage_x * window_width), 0, window_width);
@@ -4109,8 +4122,8 @@ void LLViewerWindow::drawMouselookInstructions()
 
 	font->renderUTF8( 
 		instructions, 0,
-		mWorldViewRect.getCenterX(),
-		mWorldViewRect.mBottom + INSTRUCTIONS_PAD,
+		getVirtualWorldViewRect().getCenterX(),
+		getVirtualWorldViewRect().mBottom + INSTRUCTIONS_PAD,
 		LLColor4( 0.0f, 0.0f, 0.0f, 0.6f ),
 		LLFontGL::HCENTER, LLFontGL::TOP);
 }

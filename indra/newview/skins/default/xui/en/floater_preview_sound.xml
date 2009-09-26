@@ -4,6 +4,7 @@
  height="85"
  layout="topleft"
  name="preview_sound"
+ help_topic="preview_sound"
  width="280">
     <floater.string
      name="Title">

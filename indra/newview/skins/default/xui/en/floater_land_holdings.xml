@@ -3,6 +3,7 @@
  height="400"
  layout="topleft"
  name="land holdings floater"
+ help_topic="land_holdings_floater"
  title="My Land"
  width="280">
     <floater.string

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  auto_tile="true"
- height="700"
+ height="800"
  layout="topleft"
  name="gesture_preview"
+ help_topic="gesture_preview"
  width="280">
     <floater.string
      name="step_anim">
@@ -89,14 +90,14 @@
      follows="all"
      name="group_accordion">
     <accordion_tab
-     min_height="75"
+     min_height="90"
      title="Shortcuts"
      name="snapshot_destination_tab" 
      an_resize="false">
     <panel
-     class="floater_snapshot_destination"
+     class="floater_preview_shortcut"
      filename="floater_preview_gesture_shortcut.xml"
-     name="snapshot_destination_tab"/>
+     name="floater_preview_shortcut"/>
     </accordion_tab>
     <accordion_tab
      min_height="400"
@@ -104,21 +105,21 @@
      name="snapshot_file_settings_tab"
      can_resize="false">
     <panel
-     class="floater_snapshot_file_settings"
+     class="floater_preview_steps"
      filename="floater_preview_gesture_steps.xml"
-     name="snapshot_file_settings_tab"/> 
+     name="floater_preview_steps"/> 
     </accordion_tab>
     <accordion_tab
-     min_height="100"
+     min_height="155"
      title="Info"
      name="snapshot_capture_tab"
      can_resize="false">
     <panel
-     class="floater_snapshot_capture"
-     filename="floater_snapshot_Info.xml"
-     name="snapshot_capture_panel"/> 
+     class="floater_preview_info"
+     filename="floater_preview_gesture_info.xml"
+     name="floater_preview_info"/> 
     </accordion_tab>
-    <accordion_tab
+    <!--accordion_tab
      min_height="100"
      title="Permissions"
      name="snapshot_capture_tab2"
@@ -127,7 +128,7 @@
      class="floater_snapshot_capture"
      filename="floater_snapshot_Permissions.xml"
      name="snapshot_capture_panel2"/> 
-    </accordion_tab>
+    </accordion_tab-->
     </accordion>
     <!--check_box
      follows="top|left"
@@ -147,7 +148,7 @@
      layout="topleft"
      left="20"
      name="preview_btn"
-     top_pad="-80"
+     top_pad="30"
      width="80" />
     <button
      follows="top|left"

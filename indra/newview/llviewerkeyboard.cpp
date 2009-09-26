@@ -716,7 +716,7 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 			if (idx >=2 && idx <= 12)
 			{
 				U32 keyidx = ((mask<<16)|key);
-				(mRemapKeys[mode])[keyidx] = ((0<<16)|KEY_F1+(idx-1));
+				(mRemapKeys[mode])[keyidx] = ((0<<16)|(KEY_F1+(idx-1)));
 				return TRUE;
 			}
 		}

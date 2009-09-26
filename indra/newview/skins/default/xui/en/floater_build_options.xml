@@ -1,71 +1,81 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  follows="right"
- height="151"
+ height="170"
  layout="topleft"
  name="build options floater"
+ help_topic="build_options_floater"
  save_rect="true"
  title="Grid Options"
- width="272">
+ width="264">
     <spinner
      control_name="GridResolution"
      follows="left|top"
-     height="16"
+     height="23"
      initial_value="1"
-     label="Grid Unit (meters)"
-     label_width="110"
+     label="Grid Units (meters)"
+     label_width="130"
      layout="topleft"
-     left="14"
+     left="10"
      max_val="5"
      min_val="0.01"
      name="GridResolution"
-     top="37"
-     width="170" />
+     top="25"
+     width="200" />
     <spinner
      control_name="GridDrawSize"
      decimal_digits="1"
      follows="left|top"
-     height="16"
+     height="23"
      increment="0.5"
      initial_value="5"
      label="Grid Extents (meters)"
-     label_width="110"
+     label_width="130"
      layout="topleft"
      left_delta="0"
      max_val="50"
      min_val="1"
      name="GridDrawSize"
-     top_pad="5"
-     width="170" />
+     top_pad="0"
+     width="200" />
     <check_box
      control_name="GridSubUnit"
      height="16"
-     label="Enable Sub-Unit Snapping"
+     label="Snap to sub-units"
      layout="topleft"
-     left_delta="0"
      name="GridSubUnit"
-     top_pad="5"
+     top_pad="0"
      width="200" />
     <check_box
      control_name="GridCrossSections"
      height="16"
-     label="Show Cross Sections"
+     label="View cross-sections"
      layout="topleft"
-     left_delta="0"
      name="GridCrossSection"
      top_pad="5"
      width="200" />
+   <text
+         type="string"
+         length="1"
+         follows="left|top"
+         height="16"
+         layout="topleft"
+         left="10"
+         tool_tip="Grid Opacity"
+         name="grid_opacity_label"
+         top_pad="5"
+         width="128">
+            Opacity:
+   </text>
     <slider
      control_name="GridOpacity"
      follows="left"
-     height="16"
+     height="18"
      increment="0.05"
      initial_value="0.7"
-     label="Grid Opacity"
      layout="topleft"
-     left_delta="0"
      name="GridOpacity"
      show_text="false"
-     top_pad="5"
-     width="200" />
+     top_pad="0"
+     width="210" />
 </floater>

@@ -15,12 +15,8 @@
 	<button label="Enviar" name="send_btn"/>
 	<button label="Salvar (L$[AMOUNT])" name="upload_btn"/>
 	<flyout_button label="Salvar" name="save_btn" tool_tip="Salvar imagem em um arquivo">
-    <flyout_button.item name="save_item">
-      Salvar
-    </flyout_button.item>
-    <flyout_button.item name="saveas_item">
-      Salvar como...
-    </flyout_button.item>
+    <flyout_button.item name="save_item" label="Salvar"/>
+    <flyout_button.item name="saveas_item" label="Salvar como..."/>
 	</flyout_button>
 	<button label="Cancelar" name="discard_btn"/>
 	<button label="Mais &gt;" name="more_btn" tool_tip="Opções Avançadas"/>

@@ -21,7 +21,7 @@
 	<combo_box name="start_location_combo">
 		<combo_box.item name="MyHome" label="Mi Base"/>
 		<combo_box.item name="MyLastLocation" label="Mi última posición"/>
-		<combo_box.item name="Typeregionname" label="lt;Escriba el nombre de la Región&gt;"/>
+		<combo_box.item name="Typeregionname" label="&lt;Escriba el nombre de la Región&gt;"/>
 	</combo_box>
 	<check_box label="Recordar la contraseña" name="remember_check"/>
 	<button label="Iniciar sesión" label_selected="Iniciar sesión" name="connect_btn"/>

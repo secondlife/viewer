@@ -15,7 +15,7 @@
 	<button label="Aucun" label_selected="Aucun" name="None" width="70" bottom_delta="0" left="83"/>
 	<check_box label="Toujours montrer &#10;les dossiers" name="check_show_empty" bottom_delta="-20"/>
 	<check_box label="Depuis la déconnexion" name="check_since_logoff" bottom_delta="-36"/>
-	<text length="1" name="- OR -" type="string">
+	<text name="- OR -">
 		Ou il y a...
 	</text>
 	<spinner label="Heures" name="spin_hours_ago"/>

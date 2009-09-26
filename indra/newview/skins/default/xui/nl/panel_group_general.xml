@@ -35,9 +35,9 @@ Laat uw muis boven de opties zweven voor meer help.
 		(Eigenaren worden vet getoond)
 	</text>
 	<name_list name="visible_members">
-		<column label="Lidnaam" name="name"/>
-		<column label="Titel" name="title"/>
-		<column label="Laatste login" name="online"/>
+		<name_list.columns label="Lidnaam" name="name"/>
+		<name_list.columns label="Titel" name="title"/>
+		<name_list.columns label="Laatste login" name="online"/>
 	</name_list>
 	<text name="text_group_preferences">
 		Groepvoorkeuren
@@ -48,15 +48,9 @@ Laat uw muis boven de opties zweven voor meer help.
 		<check_box label="Contributiebijdrage: L$" name="check_enrollment_fee" tool_tip="Stelt in of er een contributiebijdrage vereist is om lid te worden van de groep."/>
 		<spinner name="spin_enrollment_fee" tool_tip="Nieuwe leden moeten deze bijdrage betalen om deel te nemen aan de groep wanneer &quot;Contributie bijdrage&quot; is aangevinkt." width="58" left_delta="142"/>
 		<combo_box name="group_mature_check" tool_tip="Stelt in of uw groepsinformatie als mature beschouwd wordt.">
-			<combo_item name="select_mature">
-				- Selecteer -
-			</combo_item>
-			<combo_item name="mature">
-				Mature inhoud
-			</combo_item>
-			<combo_item name="pg">
-				PG inhoud
-			</combo_item>
+			<combo_box.item name="select_mature" label="- Selecteer -"/>
+			<combo_box.item name="mature" label="Mature inhoud"/>
+			<combo_box.item name="pg" label="PG inhoud"/>
 		</combo_box>
 		<panel name="title_container">
 			<text name="active_title_label">

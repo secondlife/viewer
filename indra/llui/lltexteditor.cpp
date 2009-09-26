@@ -1120,21 +1120,12 @@ void LLTextEditor::updateCursorXPos()
 }
 
 // constraint cursor to editable segments of document
+// NOTE: index must be within document range
 S32 LLTextEditor::getEditableIndex(S32 index, bool increasing_direction)
 {
-	//// always allow editable position at end of doc
-	//if (index == getLength())
-	//{
-	//	return index;
-	//}
-
 	segment_set_t::iterator segment_iter;
 	S32 offset;
 	getSegmentAndOffset(index, &segment_iter, &offset);
-	if (segment_iter == mSegments.end())
-	{
-		return 0;
-	}
 
 	LLTextSegmentPtr segmentp = *segment_iter;
 
@@ -3194,7 +3185,11 @@ void LLTextEditor::draw()
 	drawLineNumbers();
 
 	{
-		LLLocalClipRect clip(mTextRect);
+		// pad clipping rectangle so that cursor can draw at full width
+		// when at left edge of mTextRect
+		LLRect clip_rect(mTextRect);
+		clip_rect.stretch(1);
+		LLLocalClipRect clip(clip_rect);
 		drawSelectionBackground();
 		drawPreeditMarker();
 		drawText();

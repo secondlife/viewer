@@ -4,10 +4,10 @@
 	<button label="検索" label_selected="検索" name="search_btn" />
 	<button label="置換" label_selected="置換" name="replace_btn" />
 	<button label="すべて置換" label_selected="すべて置換" name="replace_all_btn" />
-	<text type="string" length="1" name="txt">
+	<text name="txt">
 		検索
 	</text>
-	<text type="string" length="1" name="txt2">
+	<text name="txt2">
 		置換
 	</text>
 </floater>

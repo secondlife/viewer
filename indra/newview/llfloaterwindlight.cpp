@@ -59,6 +59,8 @@
 #include "llwlparamset.h"
 #include "llwlparammanager.h"
 #include "llpostprocess.h"
+#include "lltabcontainer.h"
+
 
 #undef max
 
@@ -434,6 +436,11 @@ void LLFloaterWindLight::syncMenu()
 	childSetValue("WLGamma", param_mgr->mWLGamma.x);
 
 	childSetValue("WLStarAlpha", param_mgr->mCurParams.getStarBrightness());
+
+	LLTabContainer* tab = getChild<LLTabContainer>("WindLight Tabs");
+	LLPanel* panel = getChild<LLPanel>("Scattering");
+
+	tab->enableTabButton(tab->getIndexForPanel(panel), gSavedSettings.getBOOL("RenderDeferredGI"));
 }
 
 

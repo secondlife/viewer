@@ -40,13 +40,14 @@
 #include "llframetimer.h"
 #include "lluuid.h"
 #include "llviewertexture.h"
+#include "llgl.h"
 
 class LLViewerRegion;
 class LLVector3;
 class LLColor4U;
 class LLVector2;
 
-class LLViewerParcelOverlay
+class LLViewerParcelOverlay : public LLGLUpdate
 {
 public:
 	LLViewerParcelOverlay(LLViewerRegion* region, F32 region_width_meters);
@@ -76,6 +77,7 @@ public:
 	void	setDirty();
 
 	void	idleUpdate(bool update_now = false);
+	void	updateGL();
 
 private:
 	// This is in parcel rows and columns, not grid rows and columns

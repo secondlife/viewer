@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="Hardware Settings Floater" title="Ustawienia Sprzętowe">
-	<text type="string" length="1" name="Filtering:">
+	<text name="Filtering:">
 		Filtrowanie:
 	</text>
 	<check_box label="Filtrowanie Anizotropowe" name="ani" />
-	<text type="string" length="1" name="Antialiasing:">
+	<text name="Antialiasing:">
 		Antialiasing:
 	</text>
 	<combo_box label="Antialiasing" name="fsaa" width="84">
@@ -15,10 +15,10 @@
 		<combo_box.item name="16x" label="16x" />
 	</combo_box>
 	<spinner label="Gamma:" name="gamma" />
-	<text type="string" length="1" name="(brightness, lower is brighter)">
+	<text name="(brightness, lower is brighter)">
 		(jaskrawość, mniej jest jaśniej, 0=domyślny)
 	</text>
-	<text type="string" length="1" name="Enable VBO:">
+	<text name="Enable VBO:">
 		Włącz VBO:
 	</text>
 	<check_box label="Włącz Bufor Vertexów OpenGL" name="vbo" tool_tip="" />

@@ -1106,15 +1106,18 @@ LLSnapshotLivePreview::ESnapshotType LLFloaterSnapshot::Impl::getTypeIndex(LLFlo
 LLFloaterSnapshot::ESnapshotFormat LLFloaterSnapshot::Impl::getFormatIndex(LLFloaterSnapshot* floater)
 {
 	ESnapshotFormat index = SNAPSHOT_FORMAT_PNG;
-	LLSD value = floater->childGetValue("local_format_combo");
-	const std::string id = value.asString();
-	if (id == "PNG")
-		index = SNAPSHOT_FORMAT_PNG;
-	else if (id == "JPEG")
-		index = SNAPSHOT_FORMAT_JPEG;
-	else if (id == "BMP")
-		index = SNAPSHOT_FORMAT_BMP;
-	return index;
+	if(floater->hasChild("local_format_combo"))
+	{
+		LLComboBox* local_format_combo = floater->findChild<LLComboBox>("local_format_combo");
+		const std::string id  = local_format_combo->getSelectedItemLabel();
+		if (id == "PNG")
+			index = SNAPSHOT_FORMAT_PNG;
+		else if (id == "JPEG")
+			index = SNAPSHOT_FORMAT_JPEG;
+		else if (id == "BMP")
+			index = SNAPSHOT_FORMAT_BMP;
+	}
+		return index;
 }
 
 

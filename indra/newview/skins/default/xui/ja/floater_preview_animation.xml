@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="preview_anim">
-	<text type="string" length="1" name="desc txt">
+	<text name="desc txt">
 		説明：
 	</text>
 	<button label="世界で再生" label_selected="停止" name="Anim play btn"

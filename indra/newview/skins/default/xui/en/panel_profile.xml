@@ -317,8 +317,7 @@
      width="313">
         <button
          follows="bottom|left"
-         font="SansSerifSmallBold"
-         height="25"
+         height="23"
          label="Edit Profile"
          layout="topleft"
          left="0"
@@ -327,8 +326,7 @@
          width="130" />
         <button
          follows="bottom|left"
-         font="SansSerifSmallBold"
-         height="25"
+         height="23"
          label="Edit Appearance"
          layout="topleft"
          left_pad="5"

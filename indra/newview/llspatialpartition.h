@@ -44,6 +44,7 @@
 #include "llcubemap.h"
 #include "lldrawpool.h"
 #include "llface.h"
+#include "llviewercamera.h"
 
 #include <queue>
 
@@ -53,6 +54,8 @@
 class LLSpatialPartition;
 class LLSpatialBridge;
 class LLSpatialGroup;
+class LLTextureAtlas;
+class LLTextureAtlasSlot;
 
 S32 AABBSphereIntersect(const LLVector3& min, const LLVector3& max, const LLVector3 &origin, const F32 &rad);
 S32 AABBSphereIntersectR2(const LLVector3& min, const LLVector3& max, const LLVector3 &origin, const F32 &radius_squared);
@@ -72,7 +75,7 @@ public:
 	
 
 	LLPointer<LLVertexBuffer> mVertexBuffer;
-	LLPointer<LLViewerTexture> mTexture;
+	LLPointer<LLViewerTexture>     mTexture;
 	LLColor4U mGlowColor;
 	S32 mDebugColor;
 	const LLMatrix4* mTextureMatrix;
@@ -154,12 +157,14 @@ public:
 class LLSpatialGroup : public LLOctreeListener<LLDrawable>
 {
 	friend class LLSpatialPartition;
+	friend class LLOctreeStateCheck;
 public:
 	static U32 sNodeCount;
 	static BOOL sNoDelete; //deletion of spatial groups and draw info not allowed if TRUE
 
 	typedef std::vector<LLPointer<LLSpatialGroup> > sg_vector_t;
 	typedef std::set<LLPointer<LLSpatialGroup> > sg_set_t;
+	typedef std::list<LLPointer<LLSpatialGroup> > sg_list_t;
 	typedef std::vector<LLPointer<LLSpatialBridge> > bridge_list_t;
 	typedef std::vector<LLPointer<LLDrawInfo> > drawmap_elem_t; 
 	typedef std::map<U32, drawmap_elem_t > draw_map_t;	
@@ -184,6 +189,14 @@ public:
 		}
 	};
 
+	struct CompareUpdateUrgency
+	{
+		bool operator()(const LLPointer<LLSpatialGroup> lhs, const LLPointer<LLSpatialGroup> rhs)
+		{
+			return lhs->getUpdateUrgency() > rhs->getUpdateUrgency();
+		}
+	};
+
 	struct CompareDepthGreater
 	{
 		bool operator()(const LLSpatialGroup* const& lhs, const LLSpatialGroup* const& rhs)
@@ -194,35 +207,44 @@ public:
 
 	typedef enum
 	{
-		OCCLUDED				= 0x00000001,
-		IN_QUEUE				= 0x00000002,
-		QUERY_PENDING			= 0x00000004,
-		ACTIVE_OCCLUSION		= 0x00000008,
-		DISCARD_QUERY			= 0x00000010,
-		DEAD					= 0x00000020,
-		EARLY_FAIL				= 0x00000040,
-		DIRTY					= 0x00000080,
-		OBJECT_DIRTY			= 0x00000100,
-		GEOM_DIRTY				= 0x00000200,
-		ALPHA_DIRTY				= 0x00000800,
-		SKIP_FRUSTUM_CHECK		= 0x00001000,
-		IN_IMAGE_QUEUE			= 0x00002000,
-		IMAGE_DIRTY				= 0x00004000,
-		OCCLUSION_DIRTY			= 0x00008000,
-		MESH_DIRTY				= 0x00010000,
+		OCCLUDED				= 0x00010000,
+		QUERY_PENDING			= 0x00020000,
+		ACTIVE_OCCLUSION		= 0x00040000,
+		DISCARD_QUERY			= 0x00080000,
+		EARLY_FAIL				= 0x00100000,
+	} eOcclusionState;
+
+	typedef enum
+	{
+		DEAD					= 0x00000001,
+		DIRTY					= 0x00000002,
+		OBJECT_DIRTY			= 0x00000004,
+		GEOM_DIRTY				= 0x00000008,
+		ALPHA_DIRTY				= 0x00000010,
+		SKIP_FRUSTUM_CHECK		= 0x00000020,
+		IN_IMAGE_QUEUE			= 0x00000040,
+		IMAGE_DIRTY				= 0x00000080,
+		OCCLUSION_DIRTY			= 0x00000100,
+		MESH_DIRTY				= 0x00000200,
+		NEW_DRAWINFO			= 0x00000400,
+		IN_BUILD_Q1				= 0x00000800,
+		IN_BUILD_Q2				= 0x00001000,
+		STATE_MASK				= 0x0000FFFF,
 	} eSpatialState;
 
 	typedef enum
 	{
 		STATE_MODE_SINGLE = 0,		//set one node
 		STATE_MODE_BRANCH,			//set entire branch
-		STATE_MODE_DIFF				//set entire branch as long as current state is different
+		STATE_MODE_DIFF,			//set entire branch as long as current state is different
+		STATE_MODE_ALL_CAMERAS,		//used for occlusion state, set state for all cameras
 	} eSetStateMode;
 
 	LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part);
 
 	BOOL isDead()							{ return isState(DEAD); }
-	BOOL isState(U32 state) const			{ return mState & state ? TRUE : FALSE; }
+	BOOL isState(U32 state) const;	
+	BOOL isOcclusionState(U32 state) const	{ return mOcclusionState[LLViewerCamera::sCurCameraID] & state ? TRUE : FALSE; }
 	U32 getState()							{ return mState; }
 	void setState(U32 state);	
 	void clearState(U32 state);	
@@ -233,10 +255,14 @@ public:
 	void validateDrawMap();
 	
 	void setState(U32 state, S32 mode);
+	void clearState(U32 state, S32 mode);
+
+	void setOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
+	void clearOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
 
 	LLSpatialGroup* getParent();
 
-	void clearState(U32 state, S32 mode);
+	
 	BOOL addObject(LLDrawable *drawablep, BOOL add_all = FALSE, BOOL from_octree = FALSE);
 	BOOL removeObject(LLDrawable *drawablep, BOOL from_octree = FALSE);
 	BOOL updateInGroup(LLDrawable *drawablep, BOOL immediate = FALSE); // Update position if it's in the group
@@ -253,6 +279,7 @@ public:
 	
 	void updateDistance(LLCamera& camera);
 	BOOL needsUpdate();
+	F32 getUpdateUrgency() const;
 	BOOL changeLOD();
 	void rebuildGeom();
 	void rebuildMesh();
@@ -262,6 +289,8 @@ public:
 	element_list& getData() { return mOctreeNode->getData(); }
 	U32 getElementCount() const { return mOctreeNode->getElementCount(); }
 
+	void drawObjectBox(LLColor4 col);
+
 	 //LISTENER FUNCTIONS
 	virtual void handleInsertion(const TreeNode* node, LLDrawable* face);
 	virtual void handleRemoval(const TreeNode* node, LLDrawable* face);
@@ -270,10 +299,41 @@ public:
 	virtual void handleChildAddition(const OctreeNode* parent, OctreeNode* child);
 	virtual void handleChildRemoval(const OctreeNode* parent, const OctreeNode* child);
 
+//-------------------
+//for atlas use
+//-------------------
+	//atlas	
+	void setCurUpdatingTime(U32 t) {mCurUpdatingTime = t ;}
+	U32  getCurUpdatingTime() const { return mCurUpdatingTime ;}
+	
+	void setCurUpdatingSlot(LLTextureAtlasSlot* slotp) ;
+	LLTextureAtlasSlot* getCurUpdatingSlot(LLViewerTexture* imagep, S8 recursive_level = 3) ;
+
+	void setCurUpdatingTexture(LLViewerTexture* tex){ mCurUpdatingTexture = tex ;}
+	LLViewerTexture* getCurUpdatingTexture() const { return mCurUpdatingTexture ;}
+	
+	BOOL hasAtlas(LLTextureAtlas* atlasp) ;
+	LLTextureAtlas* getAtlas(S8 ncomponents, S8 to_be_reserved, S8 recursive_level = 3) ;
+	void addAtlas(LLTextureAtlas* atlasp, S8 recursive_level = 3) ;
+	void removeAtlas(LLTextureAtlas* atlasp, BOOL remove_group = TRUE, S8 recursive_level = 3) ;
+	void clearAtlasList() ;
+private:
+	U32                     mCurUpdatingTime ;
+	//do not make the below two to use LLPointer
+	//because mCurUpdatingTime invalidates them automatically.
+	LLTextureAtlasSlot* mCurUpdatingSlotp ;
+	LLViewerTexture*          mCurUpdatingTexture ;
+
+	std::vector< std::list<LLTextureAtlas*> > mAtlasList ; 
+//-------------------
+//end for atlas use
+//-------------------
+
 protected:
 	virtual ~LLSpatialGroup();
 
 	U32 mState;
+	U32 mOcclusionState[LLViewerCamera::NUM_CAMERAS];
 	S32 mLODHash;
 	static S32 sLODSeed;
 
@@ -292,12 +352,12 @@ public:
 
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	F32*					mOcclusionVerts;
-	GLuint					mOcclusionQuery;
+	GLuint					mOcclusionQuery[LLViewerCamera::NUM_CAMERAS];
 
 	U32 mBufferUsage;
 	draw_map_t mDrawMap;
 	
-	S32 mVisible;
+	S32 mVisible[LLViewerCamera::NUM_CAMERAS];
 	F32 mDistance;
 	F32 mDepth;
 	F32 mLastUpdateDistance;
@@ -326,9 +386,7 @@ public:
 class LLSpatialPartition: public LLGeometryManager
 {
 public:
-	static BOOL sFreezeState; //if true, no spatialgroup state updates will be made
-
-	LLSpatialPartition(U32 data_mask, U32 mBufferUsage = GL_STATIC_DRAW_ARB);
+	LLSpatialPartition(U32 data_mask,  BOOL render_by_group, U32 mBufferUsage);
 	virtual ~LLSpatialPartition();
 
 	LLSpatialGroup *put(LLDrawable *drawablep, BOOL was_visible = FALSE);
@@ -374,7 +432,7 @@ public:
 	BOOL mOcclusionEnabled; // if TRUE, occlusion culling is performed
 	BOOL mInfiniteFarClip; // if TRUE, frustum culling ignores far clip plane
 	U32 mBufferUsage;
-	BOOL mRenderByGroup;
+	const BOOL mRenderByGroup;
 	U32 mLODSeed;
 	U32 mLODPeriod;	//number of frames between LOD updates for a given spatial group (staggered by mLODSeed)
 	U32 mVertexDataMask;
@@ -393,7 +451,7 @@ protected:
 public:
 	typedef std::vector<LLPointer<LLSpatialBridge> > bridge_vector_t;
 	
-	LLSpatialBridge(LLDrawable* root, U32 data_mask);
+	LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 data_mask);
 	
 	virtual BOOL isSpatialBridge() const		{ return TRUE; }
 

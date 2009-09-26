@@ -13,6 +13,7 @@
   can_close="false" 
   can_minimize="false" 
 	name="inspect_avatar"
+	help_topic="inspect_avatar"
   single_instance="true" 
   sound_flags="0" 
 	title=""
@@ -94,7 +95,7 @@ Profile: [SL_PROFILE]
 		bottom="10" left="230" width="60" height="20" follows="top|left" 
     name="gear_btn"
     label=""
-    image_overlay="gear.tga"
+    image_overlay="Icon_Gear_Foreground"
     image_overlay_alignment="center"
     scale_image="true"
 	/>

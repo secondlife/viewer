@@ -42,6 +42,7 @@
 template <class Type> class LLRectBase
 {
 public:
+	typedef	Type tCoordType;
 	Type		mLeft;
 	Type		mTop;
 	Type		mRight;

@@ -102,6 +102,17 @@ LLDebugView::LLDebugView(const LLDebugView::Params& p)
 	gTextureView = LLUICtrlFactory::create<LLTextureView>(tvp);
 	addChild(gTextureView);
 	//gTextureView->reshape(r.getWidth(), r.getHeight(), TRUE);
+#if !LL_RELEASE_FOR_DOWNLOAD
+	r.set(150, rect.getHeight() - 50, 900 + LLImageGL::sTextureLoadedCounter.size() * 30, 100);
+	LLTextureSizeView::Params tsvp;
+	tsvp.name("gTextureSizeView");
+	tsvp.rect(r);
+	tsvp.follows.flags(FOLLOWS_BOTTOM|FOLLOWS_LEFT);
+	tsvp.visible(false);
+	gTextureSizeView = LLUICtrlFactory::create<LLTextureSizeView>(tsvp);
+	addChild(gTextureSizeView);
+#endif
+
 }
 
 
@@ -110,5 +121,6 @@ LLDebugView::~LLDebugView()
 	// These have already been deleted.  Fix the globals appropriately.
 	gDebugView = NULL;
 	gTextureView = NULL;
+	gTextureSizeView = NULL;
 }
 

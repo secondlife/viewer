@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="preview_anim">
-	<text type="string" length="1" name="desc txt">
+	<text name="desc txt">
 		Beschreibung:
 	</text>
 <line_editor left="98" name="desc" width="189" />

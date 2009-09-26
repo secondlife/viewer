@@ -7,6 +7,8 @@
   <texture name="Accordion_Off" file_name="containers/Accordion_Off.png" preload="false" />
   <texture name="Accordion_Press" file_name="containers/Accordion_Press.png" preload="false" />
 
+<texture name="Activate_Checkmark" file_name="taskpanel/Activate_Checkmark.png" preload="false" />
+
   <texture name="AddItem_Disabled" file_name="icons/AddItem_Disabled.png" preload="false" />
   <texture name="AddItem_Off" file_name="icons/AddItem_Off.png" preload="false" />
   <texture name="AddItem_Press" file_name="icons/AddItem_Press.png" preload="false" />
@@ -24,6 +26,33 @@
   <texture name="BackArrow_Press" file_name="icons/BackArrow_Press.png" preload="false" />
 
   <texture name="BottomTray_BG" file_name="bottomtray/BottomTray_BG.png" preload="false" />
+
+  <texture name="BuyArrow_Off" file_name="navbar/BuyArrow_Off.png" preload="false" />
+  <texture name="BuyArrow_Over" file_name="navbar/BuyArrow_Over.png" preload="false" />
+  <texture name="BuyArrow_Press" file_name="navbar/BuyArrow_Press.png" preload="false" />
+
+  <texture name="Cam_Avatar_Disabled" file_name="bottomtray/Cam_Avatar_Disabled.png" preload="false" />
+  <texture name="Cam_Avatar_Over" file_name="bottomtray/Cam_Avatar_Over.png" preload="false" />
+  <texture name="Cam_Avatar_Off" file_name="bottomtray/Cam_Avatar_Off.png" preload="false" />
+  <texture name="Cam_Avatar_Press" file_name="bottomtray/Cam_Avatar_Press.png" preload="false" />
+  <texture name="Cam_FreeCam_Disabled" file_name="bottomtray/Cam_FreeCam_Disabled.png" preload="false" />
+  <texture name="Cam_FreeCam_Off" file_name="bottomtray/Cam_FreeCam_Off.png" preload="false" />
+  <texture name="Cam_FreeCam_Over" file_name="bottomtray/Cam_FreeCam_Over.png" preload="false" />
+  <texture name="Cam_FreeCam_Press" file_name="bottomtray/Cam_FreeCam_Press.png" preload="false" />
+  <texture name="Cam_Orbit_Disabled" file_name="bottomtray/Cam_Orbit_Disabled.png" preload="false" />
+  <texture name="Cam_Orbit_Off" file_name="bottomtray/Cam_Orbit_Off.png" preload="false" />
+  <texture name="Cam_Orbit_Over" file_name="bottomtray/Cam_Orbit_Over.png" preload="false" />
+  <texture name="Cam_Orbit_Press" file_name="bottomtray/Cam_Orbit_Press.png" preload="false" />
+  <texture name="Cam_Pan_Disabled" file_name="bottomtray/Cam_Pan_Disabled.png" preload="false" />
+  <texture name="Cam_Pan_Off" file_name="bottomtray/Cam_Pan_Off.png" preload="false" />
+  <texture name="Cam_Pan_Over" file_name="bottomtray/CCam_Pan_Over.png" preload="false" />
+  <texture name="Cam_Pan_Press" file_name="bottomtray/Cam_Pan_Press.png" preload="false" />
+  <texture name="Cam_Rotate_In" file_name="bottomtray/Cam_Rotate_In.png" preload="false" />
+  <texture name="Cam_Rotate_Out" file_name="bottomtray/Cam_Rotate_Out.png" preload="false" />
+  <texture name="Cam_Tracking_In" file_name="bottomtray/Cam_Tracking_In.png" preload="false" />
+  <texture name="Cam_Tracking_Out" file_name="bottomtray/Cam_Tracking_Out.png" preload="false" />
+  <texture name="CameraView_Off" file_name="bottomtray/CameraView_Off.png" preload="false" />
+  <texture name="CameraView_Over" file_name="bottomtray/CameraView_Over.png" preload="false" />
 
   <texture name="Checkbox_Off_Disabled" file_name="widgets/Checkbox_Disabled.png" preload="true" />
   <texture name="Checkbox_On_Disabled" file_name="widgets/Checkbox_On_Disabled.png" preload="true" />
@@ -53,6 +82,8 @@
   <texture name="DropDown_Selected" file_name="widgets/DropDown_Selected.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
   <texture name="DropDown_Off" file_name="widgets/DropDown_Off.png" preload="true" scale.left="2" scale.top="19" scale.right="18" scale.bottom="2" />
 
+  <texture name="DropTarget" file_name="widgets/DropTarget.png" preload="false" />
+
   <texture name="Favorite_Star_Active" file_name="navbar/Favorite_Star_Active.png" preload="false" />
   <texture name="Favorite_Star_Off" file_name="navbar/Favorite_Star_Off.png" preload="false" />
   <texture name="Favorite_Star_Press" file_name="navbar/Favorite_Star_Press.png" preload="false" />
@@ -63,6 +94,13 @@
 
   <texture name="ForwardArrow_Off" file_name="icons/ForwardArrow_Off.png" preload="false" />
   <texture name="ForwardArrow_Press" file_name="icons/ForwardArrow_Press.png" preload="false" />
+
+  <texture name="Generic_Group" file_name="icons/Generic_Group.png" preload="false" />
+  <texture name="Generic_Group_Large" file_name="icons/Generic_Group_Large.png" preload="false" />
+  <texture name="Generic_Person" file_name="icons/Generic_Person.png" preload="false" />
+  <texture name="Generic_Person_Large" file_name="icons/Generic_Person_Large.png" preload="false" />
+
+  <texture name="Health" file_name="icons/Health.png" preload="false" />
 
   <texture name="Help_Off" file_name="navbar/Help_Off.png" preload="false" />
   <texture name="Help_Press" file_name="navbar/Help_Press.png" preload="false" />
@@ -80,6 +118,8 @@
   <texture name="Icon_Dock_Background" file_name="windows/Icon_Dock_Background.png" preload="true" />
   <texture name="Icon_Dock_Foreground" file_name="windows/Icon_Dock_Foreground.png" preload="true" />
   <texture name="Icon_Dock_Press" file_name="windows/Icon_Dock_Press.png" preload="true" />
+
+  <texture name="Icon_For_Sale" file_name="icons/Icon_For_sale.png" preload="false" />
 
   <texture name="Icon_Gear_Background" file_name="windows/Icon_Gear_Background.png" preload="false" />
   <texture name="Icon_Gear_Foreground" file_name="windows/Icon_Gear_Foreground.png" preload="false" />
@@ -103,14 +143,74 @@
   <texture name="Info_Press" file_name="navbar/Info_Press.png" preload="false" />
 
   <texture name="Inspector_Background" file_name="windows/Inspector_Background.png" preload="false" />
-   <texture name="Inspector_Hover" file_name="windows/Inspector_Hover.png" preload="false" />
+  <texture name="Inspector_Hover" file_name="windows/Inspector_Hover.png" preload="false" />
+
+  <texture name="Inv_Acessories" file_name="icons/Inv_Acessories.png" preload="false" />
+  <texture name="Inv_Animation" file_name="icons/Inv_Animation.png" preload="false" />
+  <texture name="Inv_BodyShape" file_name="icons/Inv_BodyShape.png" preload="false" />
+  <texture name="Inv_CallingCard" file_name="icons/Inv_CallingCard.png" preload="false" />
+  <texture name="Inv_Clothing" file_name="icons/Inv_Clothing.png" preload="false" />
+  <texture name="Inv_DangerousScript" file_name="icons/Inv_DangerousScript.png" preload="false" />
+  <texture name="Inv_Eye" file_name="icons/Inv_Eye.png" preload="false" />
+  <texture name="Inv_FolderClosed" file_name="icons/Inv_FolderClosed.png" preload="false" />
+  <texture name="Inv_FolderOpen" file_name="icons/Inv_FolderOpen.png" preload="false" />
+  <texture name="Inv_Gesture" file_name="icons/Inv_Gesture.png" preload="false" />
+  <texture name="Inv_Gloves" file_name="icons/Inv_Gloves.png" preload="false" />
+  <texture name="Inv_Hair" file_name="icons/Inv_Hair.png" preload="false" />
+  <texture name="Inv_Jacket" file_name="icons/Inv_Jacket.png" preload="false" />
+  <texture name="Inv_Landmark" file_name="icons/Inv_Landmark.png" preload="false" />
+  <texture name="Inv_Notecard" file_name="icons/Inv_Notecard.png" preload="false" />
+  <texture name="Inv_Object" file_name="icons/Inv_Object.png" preload="false" />
+  <texture name="Inv_Pants" file_name="icons/Inv_Pants.png" preload="false" />
+  <texture name="Inv_Script" file_name="icons/Inv_Script.png" preload="false" />
+  <texture name="Inv_Shirt" file_name="icons/Inv_Shirt.png" preload="false" />
+  <texture name="Inv_Shoe" file_name="icons/Inv_Shoe.png" preload="false" />
+  <texture name="Inv_Skin" file_name="icons/Inv_Skin.png" preload="false" />
+  <texture name="Inv_Skirt" file_name="icons/Inv_Skirt.png" preload="false" />
+  <texture name="Inv_Snapshot" file_name="icons/Inv_Snapshot.png" preload="false" />
+  <texture name="Inv_Socks" file_name="icons/Inv_Socks.png" preload="false" />
+  <texture name="Inv_Sound" file_name="icons/Inv_Sound.png" preload="false" />
+  <texture name="Inv_Texture" file_name="icons/Inv_Texture.png" preload="false" />
+  <texture name="Inv_Trash" file_name="icons/Inv_Trash.png" preload="false" />
+  <texture name="Inv_Underpants" file_name="icons/Inv_Underpants.png" preload="false" />
+  <texture name="Inv_Undershirt" file_name="icons/Inv_Undershirt.png" preload="false" />
 
   <texture name="ListItem_Select" file_name="widgets/ListItem_Select.png" preload="true" />
   <texture name="ListItem_Over" file_name="widgets/ListItem_Over.png" preload="true" />
 
   <texture name="Lock" file_name="icons/Lock.png" preload="false" />
 
+  <texture name="Login_Pod" file_name="windows/Login_Pod.png" preload="true" />
+
+  <texture name="Microphone_Mute" file_name="icons/Microphone_Mute.png" preload="false" />
+  <texture name="Microphone_On" file_name="icons/Microphone_On.png" preload="false" />
+
   <texture name="menu_separator" file_name="navbar/FileMenu_Divider.png" scale.left="4" scale.top="166" scale.right="0" scale.bottom="0" />
+
+  <texture name="Move_Fly_Disabled" file_name="bottomtray/Move_Fly_Disabled.png" preload="false" />
+  <texture name="Move_Fly_Off" file_name="bottomtray/Move_Fly_Off.png" preload="false" />
+  <texture name="Move_Fly_Over" file_name="bottomtray/Move_Fly_Over.png" preload="false" />
+  <texture name="Move_Fly_Press" file_name="bottomtray/Move_Fly_Press.png" preload="false" />
+  <texture name="Move_Run_Disabled" file_name="bottomtray/Move_Run_Disabled.png" preload="false" />
+  <texture name="Move_Run_Off" file_name="bottomtray/Move_Run_Off.png" preload="false" />
+  <texture name="Move_Run_Over" file_name="bottomtray/Move_Run_Over.png" preload="false" />
+  <texture name="Move_Run_Press" file_name="bottomtray/Move_Run_Press.png" preload="false" />
+  <texture name="Move_Walk_Disabled" file_name="bottomtray/Move_Walk_Disabled.png" preload="false" />
+  <texture name="Move_Walk_Off" file_name="bottomtray/Move_Walk_Off.png" preload="false" />
+  <texture name="Move_Walk_Over" file_name="bottomtray/Move_Walk_Over.png" preload="false" />
+  <texture name="Move_Walk_Press" file_name="bottomtray/Move_Walk_Press.png" preload="false" />
+  <texture name="Movement_Backward_Off" file_name="bottomtray/Movement_Backward_Off.png" preload="false" />
+  <texture name="Movement_Backward_On" file_name="bottomtray/Movement_Backward_On.png" preload="false" />
+  <texture name="Movement_Down_Off" file_name="bottomtray/Movement_Down_Off.png" preload="false" />
+  <texture name="Movement_Down_On" file_name="bottomtray/Movement_Down_On.png" preload="false" />
+  <texture name="Movement_Forward_Off" file_name="bottomtray/Movement_Forward_Off.png" preload="false" />
+  <texture name="Movement_Forward_On" file_name="bottomtray/Movement_Forward_On.png" preload="false" />
+  <texture name="Movement_TurnLeft_Off" file_name="bottomtray/Movement_TurnLeft_Off.png" preload="false" />
+  <texture name="Movement_TurnLeft_On" file_name="bottomtray/Movement_TurnLeft_On.png" preload="false" />
+  <texture name="Movement_TurnRight_Off" file_name="bottomtray/Movement_TurnRight_Off.png" preload="false" />
+  <texture name="Movement_TurnRight_On" file_name="bottomtray/Movement_TurnRight_On.png" preload="false" />
+  <texture name="Movement_Up_Off" file_name="bottomtray/Movement_Up_Off.png" preload="false" />
+  <texture name="Movement_Up_On" file_name="bottomtray/Movement_Up_On.png" preload="false" />
 
   <texture name="NavBar_BG_NoFav" file_name="navbar/NavBar_BG_NoFav.png" preload="false" />
   <texture name="NavBar_BG" file_name="navbar/NavBar_BG.png" preload="false" />
@@ -120,9 +220,45 @@
   <texture name="NearbyVoice_Lvl3" file_name="bottomtray/NearbyVoice_Lvl3.png" preload="false" />
   <texture name="NearbyVoice_On" file_name="bottomtray/NearbyVoice_On.png" preload="false" />
 
+  <texture name="Object_Cone" file_name="build/Object_Cone.png" preload="false" />
+  <texture name="Object_Cube" file_name="build/Object_Cube.png" preload="false" />
+  <texture name="Object_Cylinder" file_name="build/Object_Cylinder.png" preload="false" />
+  <texture name="Object_Grass" file_name="build/Object_Grass.png" preload="false" />
+  <texture name="Object_Hemi_Cone" file_name="build/Object_Hemi_Cone.png" preload="false" />
+  <texture name="Object_Hemi_Cylinder" file_name="build/Object_Hemi_Cylinder.png" preload="false" />
+  <texture name="Object_Hemi_Sphere" file_name="build/Object_Hemi_Sphere.png" preload="false" />
+  <texture name="Object_Prism" file_name="build/Object_Prism.png" preload="false" />
+  <texture name="Object_Pyramid" file_name="build/Object_Pyramid.png" preload="false" />
+  <texture name="Object_Ring" file_name="build/Object_Ring.png" preload="false" />
+  <texture name="Object_Sphere" file_name="build/Object_Sphere.png" preload="false" />
+  <texture name="Object_Tetrahedron" file_name="build/Object_Tetrahedron.png" preload="false" />
+  <texture name="Object_Torus" file_name="build/Object_Torus.png" preload="false" />
+  <texture name="Object_Tree" file_name="build/Object_Tree.png" preload="false" />
+  <texture name="Object_Tube" file_name="build/Object_Tube.png" preload="false" />
+
   <texture name="OptionsMenu_Disabled" file_name="icons/OptionsMenu_Disabled.png" preload="false" />
   <texture name="OptionsMenu_Off" file_name="icons/OptionsMenu_Off.png" preload="false" />
   <texture name="OptionsMenu_Press" file_name="icons/OptionsMenu_Press.png" preload="false" />
+
+  <texture name="Overhead_Arrow_L" file_name="world/Overhead_Arrow_L.png" preload="false" />
+  <texture name="Overhead_Arrow_M" file_name="world/Overhead_Arrow_M.png" preload="false" />
+  <texture name="Overhead_Arrow_S" file_name="world/Overhead_Arrow_S.png" preload="false" />
+  <texture name="Overhead_L" file_name="world/Overhead_L.png" preload="false" />
+  <texture name="Overhead_M" file_name="world/Overhead_M.png" preload="false" />
+  <texture name="Overhead_S" file_name="world/Overhead_S.png" preload="false" />
+
+  <texture name="Progress_1" file_name="icons/Progress_1.png" preload="false" />
+  <texture name="Progress_2" file_name="icons/Progress_2.png" preload="false" />
+  <texture name="Progress_3" file_name="icons/Progress_3.png" preload="false" />
+  <texture name="Progress_4" file_name="icons/Progress_4.png" preload="false" />
+  <texture name="Progress_5" file_name="icons/Progress_5.png" preload="false" />
+  <texture name="Progress_6" file_name="icons/Progress_6.png" preload="false" />
+  <texture name="Progress_7" file_name="icons/Progress_7.png" preload="false" />
+  <texture name="Progress_8" file_name="icons/Progress_8.png" preload="false" />
+  <texture name="Progress_9" file_name="icons/Progress_9.png" preload="false" />
+  <texture name="Progress_10" file_name="icons/Progress_10.png" preload="false" />
+  <texture name="Progress_11" file_name="icons/Progress_11.png" preload="false" />
+  <texture name="Progress_12" file_name="icons/Progress_12.png" preload="false" />
 
   <texture name="ProgressBar" file_name="widgets/ProgressBar.png" preload="true" scale.left="4" scale.top="10" scale.right="48" scale.bottom="2" />
   <texture name="ProgressTrack" file_name="widgets/ProgressTrack.png" preload="true" scale.left="4" scale.top="13" scale.right="148" scale.bottom="2" />
@@ -139,7 +275,14 @@
   <texture name="RadioButton_Off" file_name="widgets/RadioButton_Off.png" preload="true" />
   <texture name="RadioButton_On" file_name="widgets/RadioButton_On.png" preload="true" />
   <texture name="RadioButton_Disabled" file_name="widgets/RadioButton_Disabled.png" preload="true" />
-  <texture name="RadioButton_On_Disabled" file_name="widgets/RadioButton_On_Disabled.png"	preload="true" />
+  <texture name="RadioButton_On_Disabled" file_name="widgets/RadioButton_On_Disabled.png" preload="true" />
+
+  <texture name="Rec_Off" file_name="icons/Rec_Off.png" preload="false" />
+  <texture name="Rec_On" file_name="icons/Rec_On.png" preload="false" />
+
+  <texture name="Refresh_Disabled" file_name="icons/Refresh_Disabled.png" preload="false" />
+  <texture name="Refresh_Off" file_name="icons/Refresh_Off.png" preload="false" />
+  <texture name="Refresh_Press" file_name="icons/Refresh_Press.png" preload="false" />
 
   <texture name="Resize_Corner" file_name="windows/Resize_Corner.png" preload="true" />
 
@@ -184,6 +327,10 @@
   <texture name="SliderThumb_Disabled" file_name="widgets/SliderThumb_Disabled.png" />
   <texture name="SliderThumb_Press" file_name="widgets/SliderThumb_Press.png" />
 
+  <texture name="Snapshot_Off" file_name="bottomtray/Snapshot_Off.png" preload="false" />
+  <texture name="Snapshot_Over" file_name="bottomtray/Snapshot_Over.png" preload="false" />
+  <texture name="Snapshot_Press" file_name="bottomtray/Snapshot_Press.png" preload="false" />
+
   <texture name="Stepper_Down_Disabled" file_name="widgets/Stepper_Down_Disabled.png" preload="true" />
   <texture name="Stepper_Down_Off" file_name="widgets/Stepper_Down_Off.png" preload="true" />
   <texture name="Stepper_Down_Press" file_name="widgets/Stepper_Down_Press.png" preload="true" />
@@ -191,6 +338,7 @@
   <texture name="Stepper_Up_Off" file_name="widgets/Stepper_Up_Off.png" preload="true" />
   <texture name="Stepper_Up_Press" file_name="widgets/Stepper_Up_Press.png" preload="true" />
 
+  <texture name="TabIcon_Appearance_Large" file_name="taskpanel/TabIcon_Appearance_Large.png" preload="false" />
   <texture name="TabIcon_Appearance_Off" file_name="taskpanel/TabIcon_Appearance_Off.png" preload="false" />
   <texture name="TabIcon_Appearance_Over" file_name="taskpanel/TabIcon_Appearance_Over.png" preload="false" />
   <texture name="TabIcon_Appearance_Selected" file_name="taskpanel/TabIcon_Appearance_Selected.png" preload="false" />
@@ -199,20 +347,24 @@
   <texture name="TabIcon_Home_Off" file_name="taskpanel/TabIcon_Home_Off.png" preload="false" />
   <texture name="TabIcon_Home_Over" file_name="taskpanel/TabIcon_Home_Over.png" preload="false" />
   <texture name="TabIcon_Home_Selected" file_name="taskpanel/TabIcon_Home_Selected.png" preload="false" />
+  <texture name="TabIcon_Me_Large" file_name="taskpanel/TabIcon_Me_Large.png" preload="false" />
   <texture name="TabIcon_Me_Off" file_name="taskpanel/TabIcon_Me_Off.png" preload="false" />
   <texture name="TabIcon_Me_Over" file_name="taskpanel/TabIcon_Me_Over.png" preload="false" />
   <texture name="TabIcon_Me_Selected" file_name="taskpanel/TabIcon_Me_Selected.png" preload="false" />
   <texture name="TabIcon_Open_Off" file_name="taskpanel/TabIcon_Open_Off.png" preload="false" />
   <texture name="TabIcon_Open_Over" file_name="taskpanel/TabIcon_Open_Over.png" preload="false" />
+  <texture name="TabIcon_People_Large" file_name="taskpanel/TabIcon_People_Large.png" preload="false" />
   <texture name="TabIcon_People_Off" file_name="taskpanel/TabIcon_People_Off.png" preload="false" />
   <texture name="TabIcon_People_Over" file_name="taskpanel/TabIcon_People_Over.png" preload="false" />
   <texture name="TabIcon_People_Selected" file_name="taskpanel/TabIcon_People_Selected.png" preload="false" />
-  <texture name="TabIcon_Places_Over" file_name="taskpanel/TabIcon_Places_Over.png" preload="false" />
+  <texture name="TabIcon_Places_Large" file_name="taskpanel/TabIcon_Places_Large.png" preload="false" />
   <texture name="TabIcon_Places_Off" file_name="taskpanel/TabIcon_Places_Off.png" preload="false" />
+  <texture name="TabIcon_Places_Over" file_name="taskpanel/TabIcon_Places_Over.png" preload="false" />
   <texture name="TabIcon_Places_Selected" file_name="taskpanel/TabIcon_Places_Selected.png" preload="false" />
+  <texture name="TabIcon_Things_Large" file_name="taskpanel/TabIcon_Things_Large.png" preload="false" />
   <texture name="TabIcon_Things_Off" file_name="taskpanel/TabIcon_Things_Off.png" preload="false" />
-  <texture name="TabIcon_Things_Selected" file_name="taskpanel/TabIcon_Things_Selected.png" preload="false" />
   <texture name="TabIcon_Things_Over" file_name="taskpanel/TabIcon_Things_Over.png" preload="false" />
+  <texture name="TabIcon_Things_Selected" file_name="taskpanel/TabIcon_Things_Selected.png" preload="false" />
 
   <texture name="TabTop_Divider" file_name="containers/TabTop_Divider.png" preload="false" />
   <texture name="TabTop_Left_Press" file_name="containers/TabTop_Left_Press.png" preload="false" />
@@ -239,6 +391,12 @@
 
   <texture name="Toast_CloseBtn" file_name="windows/Toast_CloseBtn.png" preload="true" />
   <texture name="Toast" file_name="windows/Toast.png" preload="true" />
+
+  <texture name="Tool_Create" file_name="build/Tool_Create.png" preload="false" />
+  <texture name="Tool_Dozer" file_name="build/Tool_Dozer.png" preload="false" />
+  <texture name="Tool_Face" file_name="build/Tool_Face.png" preload="false" />
+  <texture name="Tool_Grab" file_name="build/Tool_Grab.png" preload="false" />
+  <texture name="Tool_Zoom" file_name="build/Tool_Zoom.png" preload="false" />
 
   <texture name="Toolbar_Divider" file_name="containers/Toolbar_Divider.png" preload="false" />
   <texture name="Toolbar_Left_Off" file_name="containers/Toolbar_Left_Off.png" preload="false" />

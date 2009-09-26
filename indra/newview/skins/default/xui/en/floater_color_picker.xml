@@ -5,6 +5,7 @@
  height="380"
  layout="topleft"
  name="ColorPicker"
+ help_topic="colorpicker"
  title="Color Picker"
  width="440">
     <text

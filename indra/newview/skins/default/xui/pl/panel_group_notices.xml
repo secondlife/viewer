@@ -12,8 +12,6 @@
 	</text>
 	<text name="lbl2">
 		Ogłoszenia przechowywane są przez 14 dni. 
-Kliknij tutaj by zobaczyć ogłoszenie. 
-Użyj Odswież by zobaczyć czy nowe ogloszenia zostały wysłane. 
 Limit dzienny ogłoszeń dla grupy wynosi 200.
 	</text>
 	<scroll_list name="notice_list">
@@ -33,10 +31,7 @@ Limit dzienny ogłoszeń dla grupy wynosi 200.
 			Stwórz Ogłoszenie
 		</text>
 		<text name="lbl2">
-			By wysłać ogłoszenie musisz nadać mu tytuł. 
-Możesz także dołączyć pojedynczy załącznik ze swojej 
-szafy. Załącznik musi mieć prawo modyfikacyjne 
-do kopiowania oraz transferu.
+			Możesz także dołączyć pojedynczy załącznik ze swojej szafy. Załącznik musi mieć prawo modyfikacyjne do kopiowania oraz transferu.
 		</text>
 		<text name="lbl3">
 			Temat:

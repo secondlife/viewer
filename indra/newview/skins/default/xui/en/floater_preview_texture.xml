@@ -8,6 +8,7 @@
  min_height="120"
  min_width="300"
  name="preview_texture"
+ help_topic="preview_texture"
  width="300">
     <floater.string
      name="Title">

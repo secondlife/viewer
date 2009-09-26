@@ -289,8 +289,37 @@ LLScriptEdCore::LLScriptEdCore(
 	setFollowsAll();
 	setBorderVisible(FALSE);
 
-	
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_script_ed.xml");
+	setXMLFilename("panel_script_ed.xml");
+}
+
+LLScriptEdCore::~LLScriptEdCore()
+{
+	deleteBridges();
+
+	// If the search window is up for this editor, close it.
+	LLFloaterScriptSearch* script_search = LLFloaterScriptSearch::getInstance();
+	if (script_search && script_search->getEditorCore() == this)
+	{
+		script_search->closeFloater();
+		delete script_search;
+	}
+}
+
+BOOL LLScriptEdCore::postBuild()
+{
+	mErrorList = getChild<LLScrollListCtrl>("lsl errors");
+
+	mFunctions = getChild<LLComboBox>( "Insert...");
+
+	childSetCommitCallback("Insert...", &LLScriptEdCore::onBtnInsertFunction, this);
+
+	mEditor = getChild<LLViewerTextEditor>("Script Editor");
+
+	childSetCommitCallback("lsl errors", &LLScriptEdCore::onErrorList, this);
+	childSetAction("Save_btn", boost::bind(&LLScriptEdCore::doSave,this,FALSE));
+
+	initMenu();
+
 
 	std::vector<std::string> funcs;
 	std::vector<std::string> tooltips;
@@ -360,36 +389,7 @@ LLScriptEdCore::LLScriptEdCore(
 	{
 		mFunctions->add(*iter);
 	}
-}
 
-LLScriptEdCore::~LLScriptEdCore()
-{
-	deleteBridges();
-
-	// If the search window is up for this editor, close it.
-	LLFloaterScriptSearch* script_search = LLFloaterScriptSearch::getInstance();
-	if (script_search && script_search->getEditorCore() == this)
-	{
-		script_search->closeFloater();
-		delete script_search;
-	}
-}
-
-BOOL LLScriptEdCore::postBuild()
-{
-
-	mErrorList = getChild<LLScrollListCtrl>("lsl errors");
-
-	mFunctions = getChild<LLComboBox>( "Insert...");
-
-	childSetCommitCallback("Insert...", &LLScriptEdCore::onBtnInsertFunction, this);
-
-	mEditor = getChild<LLViewerTextEditor>("Script Editor");
-
-	childSetCommitCallback("lsl errors", &LLScriptEdCore::onErrorList, this);
-	childSetAction("Save_btn", boost::bind(&LLScriptEdCore::doSave,this,FALSE));
-
-	initMenu();
 	return TRUE;
 }
 

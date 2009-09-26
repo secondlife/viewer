@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<text length="1" name="ParcelNameText" tool_tip="あなたが立っている土地区画の名 前。クリックすると「土地情報」が開きます。" type="string">
+	<text name="ParcelNameText" tool_tip="あなたが立っている土地区画の名 前。クリックすると「土地情報」が開きます。">
 		区画名はここです
 	</text>
-	<text length="1" name="BalanceText" tool_tip="口座残高" type="string">
+	<text name="BalanceText" tool_tip="口座残高">
 		ローディング．．．
 	</text>
 	<button label="" label_selected="" name="buycurrency" tool_tip="貨幣の購入"/>
-	<text length="12" name="TimeText" tool_tip="現在時刻（太平洋時）" type="string">
+	<text name="TimeText" tool_tip="現在時刻（太平洋時）">
 		12：00 AM
 	</text>
 	<text name="StatBarDaysOfWeek">
@@ -18,7 +18,7 @@
 	</text>
 	<button label="" label_selected="" name="scriptout" tool_tip="スクリプト警告およびエラー"/>
 	<button label="" label_selected="" name="health" tool_tip="健康状態"/>
-	<text length="1" name="HealthText" tool_tip="健康状態" type="string">
+	<text name="HealthText" tool_tip="健康状態">
 		100%
 	</text>
 	<button label="" label_selected="" name="fly" tool_tip="飛行禁止"/>

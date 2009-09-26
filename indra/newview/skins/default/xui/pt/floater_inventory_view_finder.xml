@@ -15,7 +15,7 @@
 	<button label="Nenhum" label_selected="Nenhum" name="None"/>
 	<check_box label="Sempre mostrar as pastas" name="check_show_empty" left="3"/>
 	<check_box label="Desde o Logoff" name="check_since_logoff" left="3"/>
-	<text length="1" name="- OR -" type="string">
+	<text name="- OR -">
 		- OU -
 	</text>
 	<spinner label="Horas Atrás" name="spin_hours_ago"/>

@@ -38,6 +38,7 @@ Aimee Trescothick
 	VWR-11100
 	VWR-11111
  	VWR-11844
+	VWR-14087
 Alejandro Rosenthal
 	VWR-1184
 Aleric Inglewood
@@ -551,6 +552,8 @@ Strife Onizuka
 	VWR-183
 	VWR-2265
 	VWR-4111
+Tayra Dagostino
+	VWR-13947
 TBBle Kurosawa
 	VWR-938
 	VWR-941
@@ -567,6 +570,7 @@ Tharax Ferraris
 	VWR-605
 Thickbrick Sleaford
 	VWR-7109
+	VWR-13947
 Thraxis Epsilon
 	SVC-371
 	VWR-383

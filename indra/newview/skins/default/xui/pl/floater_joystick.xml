@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Joystick" width="590" title="Konfiguracja Joysticka">
-  <check_box name="enable_joystick">
-		Aktywuj Joystick:
-	</check_box>
+  <check_box name="enable_joystick" label="Aktywuj Joystick:"/>
 	<text left="130" name="joystick_type" width="360"/>
   <spinner label="Kalibracja Osi X" left="20" width="170" label_width="130"  name="JoystickAxis1"/>
   <spinner label="Kalibracja Osi Y" left="210" width="170" label_width="130" name="JoystickAxis2" />
@@ -14,18 +12,12 @@
   <check_box label="Bezpośrednie" left="205" name="ZoomDirect" />
   <check_box label="Kursor 3D" left="340" name="Cursor3D" />
   <check_box label="Automatyczne" left="450" name="AutoLeveling" />
-  <text length="1" left="22" name="Control Modes:" type="string">
+  <text left="22" name="Control Modes:">
 		Kontroluj:
 	</text>
-  <check_box left="130" width="90" name="JoystickAvatarEnabled">
-		Awatara
-	</check_box>
-  <check_box left="205" width="90" name="JoystickBuildEnabled">
-		Budowanie
-	</check_box>
-  <check_box left="282" width="90" name="JoystickFlycamEnabled">
-		Kamerę podczas latania
-	</check_box>
+  <check_box left="130" width="90" name="JoystickAvatarEnabled" label="Awatara"/>
+  <check_box left="205" width="90" name="JoystickBuildEnabled" label="Budowanie"/>
+  <check_box left="282" width="90" name="JoystickFlycamEnabled" label="Kamerę podczas latania"/>
   <text width="104" name="XScale">
 		Skala X
 	</text>
@@ -113,12 +105,14 @@
   <button left="366" label="Ustawienia Domyślne" name="SpaceNavigatorDefaults" />
   <button left="366" label="OK" label_selected="OK" name="ok_btn" />
   <button label="Anuluj" label_selected="Anuluj" name="cancel_btn" />
-  <string name="JoystickMonitor">
-		Monitor Joysticka
-	</string>
-  <string name="Axis">
-		Oś [NUM]
-	</string>
+	<stat_view label="Monitor Joysticka" name="axis_view">
+		<stat_bar label="Oś 0" name="axis0"/>
+		<stat_bar label="Oś 1" name="axis1"/>
+		<stat_bar label="Oś 2" name="axis2"/>
+		<stat_bar label="Oś 3" name="axis3"/>
+		<stat_bar label="Oś 4" name="axis4"/>
+		<stat_bar label="Oś 5" name="axis5"/>
+	</stat_view>
   <string name="NoDevice">
 		brak podłącznego urządzenia
 	</string>

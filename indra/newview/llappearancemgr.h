@@ -35,6 +35,7 @@
 
 #include "llsingleton.h"
 #include "llinventorymodel.h"
+#include "llviewerinventory.h"
 
 class LLWearable;
 struct LLWearableHoldingPattern;
@@ -44,20 +45,29 @@ class LLAppearanceManager: public LLSingleton<LLAppearanceManager>
 public:
 	static void updateAppearanceFromCOF();
 	static bool needToSaveCOF();
-	static void changeOutfit(bool proceed, const LLUUID& category, bool append, bool follow_folder_links);
-	static void updateCOFFromOutfit(const LLUUID& category, bool append, bool follow_folder_links);
+	static void changeOutfit(bool proceed, const LLUUID& category, bool append);
+	static void updateCOFFromCategory(const LLUUID& category, bool append);
+	static void rebuildCOFFromOutfit(const LLUUID& category);
 	static void wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append);
 	static void wearInventoryCategoryOnAvatar(LLInventoryCategory* category, bool append);
 	static void wearOutfitByName(const std::string& name);
+	static void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
+									LLPointer<LLInventoryCallback> cb);
 
 	// Add COF link to individual item.
 	static void wearItem(LLInventoryItem* item, bool do_update = true);
 
 	// Add COF link to ensemble folder.
 	static void wearEnsemble(LLInventoryCategory* item, bool do_update = true);
+	static LLUUID getCOF();
+
+	// Remove COF entries
+	static void removeItemLinks(LLUUID& item_id, bool do_update = true);
 
 private:
-	static LLUUID getCOF();
+	static void getCOFValidDescendents(const LLUUID& category, 
+									   LLInventoryModel::item_array_t& items);
+									   
 	static void getUserDescendents(const LLUUID& category, 
 								   LLInventoryModel::item_array_t& wear_items,
 								   LLInventoryModel::item_array_t& obj_items,

@@ -45,8 +45,6 @@
 #include "lluictrlfactory.h"
 
 static LLDefaultChildRegistry::Register<LLRadioGroup> r1("radio_group");
-
-
 static RadioGroupRegistry::Register<LLRadioCtrl> register_radio_ctrl("radio_item");
 
 
@@ -83,6 +81,10 @@ LLRadioGroup::~LLRadioGroup()
 // virtual
 BOOL LLRadioGroup::postBuild()
 {
+	if (!mRadioButtons.empty())
+	{
+		mRadioButtons[0]->setTabStop(true);
+	}
 	if (mControlVariable)
 	{
 		setSelectedIndex(mControlVariable->getValue().asInteger());
@@ -102,7 +104,7 @@ void LLRadioGroup::setIndexEnabled(S32 index, BOOL enabled)
 			child->setEnabled(enabled);
 			if (index == mSelectedIndex && enabled == FALSE)
 			{
-				setSelectedIndex(-1);
+				mSelectedIndex = -1;
 			}
 			break;
 		}
@@ -142,7 +144,27 @@ BOOL LLRadioGroup::setSelectedIndex(S32 index, BOOL from_event)
 		return FALSE;
 	}
 
+	if (mSelectedIndex >= 0)
+	{
+		LLRadioCtrl* old_radio_item = mRadioButtons[mSelectedIndex];
+		old_radio_item->setTabStop(false);
+		old_radio_item->setValue( FALSE );
+	}
+	else
+	{
+		mRadioButtons[0]->setTabStop(false);
+	}
+
 	mSelectedIndex = index;
+
+	LLRadioCtrl* radio_item = mRadioButtons[mSelectedIndex];
+	radio_item->setTabStop(true);
+	radio_item->setValue( TRUE );
+
+	if (hasFocus())
+	{
+		mRadioButtons[mSelectedIndex]->focusFirstItem(FALSE, FALSE);
+	}
 
 	if (!from_event)
 	{
@@ -211,33 +233,6 @@ BOOL LLRadioGroup::handleKeyHere(KEY key, MASK mask)
 	return handled;
 }
 
-void LLRadioGroup::draw()
-{
-	S32 current_button = 0;
-
-	BOOL take_focus = FALSE;
-	if (gFocusMgr.childHasKeyboardFocus(this))
-	{
-		take_focus = TRUE;
-	}
-
-	for (button_list_t::iterator iter = mRadioButtons.begin();
-		 iter != mRadioButtons.end(); ++iter)
-	{
-		LLRadioCtrl* radio = *iter;
-		BOOL selected = (current_button == mSelectedIndex);
-		radio->setValue( selected );
-		if (take_focus && selected && !gFocusMgr.childHasKeyboardFocus(radio))
-		{
-			// don't flash keyboard focus when navigating via keyboard
-			BOOL DONT_FLASH = FALSE;
-			radio->focusFirstItem(FALSE, DONT_FLASH);
-		}
-		current_button++;
-	}
-
-	LLView::draw();
-}
 
 // When adding a child button, we need to ensure that the radio
 // group gets a message when the button is clicked.
@@ -258,6 +253,19 @@ bool LLRadioGroup::addChild(LLView* view, S32 tab_group)
 	}
 	return res;
 }
+
+BOOL LLRadioGroup::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	// grab focus preemptively, before child button takes mousecapture
+	// 
+	if (hasTabStop())
+	{
+		focusFirstItem(FALSE, FALSE);
+	}
+
+	return LLUICtrl::handleMouseDown(x, y, mask);
+}
+
 
 // Handle one button being clicked.  All child buttons must have this
 // function as their callback function.

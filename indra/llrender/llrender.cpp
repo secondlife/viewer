@@ -45,10 +45,11 @@ LLRender gGL;
 // Handy copies of last good GL matrices
 F64	gGLModelView[16];
 F64	gGLLastModelView[16];
+F64 gGLLastProjection[16];
 F64 gGLProjection[16];
 S32	gGLViewport[4];
 
-static const U32 LL_NUM_TEXTURE_LAYERS = 8; 
+static const U32 LL_NUM_TEXTURE_LAYERS = 16; 
 
 static GLenum sGLTextureType[] =
 {
@@ -311,6 +312,11 @@ bool LLTexUnit::bind(LLRenderTarget* renderTarget, bool bindDepth)
 
 	if (bindDepth)
 	{
+		if (renderTarget->hasStencil())
+		{
+			llerrs << "Cannot bind a render buffer for sampling.  Allocate render target without a stencil buffer if sampling of depth buffer is required." << llendl;
+		}
+
 		bindManual(renderTarget->getUsage(), renderTarget->getDepth());
 	}
 	else
@@ -328,7 +334,7 @@ bool LLTexUnit::bindManual(eTextureType type, U32 texture, bool hasMips)
 	{
 		return false;
 	}
-
+	
 	if(mCurrTexture != texture)
 	{
 		gGL.flush();

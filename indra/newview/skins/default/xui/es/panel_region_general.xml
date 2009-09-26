@@ -40,15 +40,9 @@
 		Calificación:
 	</text>
 	<combo_box label="&apos;Mature&apos;" name="access_combo">
-		<combo_item name="Adult">
-			&apos;Adult&apos;
-		</combo_item>
-		<combo_item name="Mature">
-			&apos;Mature&apos;
-		</combo_item>
-		<combo_item name="PG">
-			&apos;PG&apos;
-		</combo_item>
+		<combo_box.item label="&apos;Adult&apos;" name="Adult"/>
+		<combo_box.item label="&apos;Mature&apos;" name="Mature"/>
+		<combo_box.item label="&apos;PG&apos;" name="PG"/>
 	</combo_box>
 	<button label="?" name="access_help"/>
 	<button label="Aplicar" name="apply_btn"/>

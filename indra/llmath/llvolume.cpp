@@ -84,6 +84,7 @@ const F32 SKEW_MIN	= -0.95f;
 const F32 SKEW_MAX	=  0.95f;
 
 const F32 SCULPT_MIN_AREA = 0.002f;
+const S32 SCULPT_MIN_AREA_DETAIL = 1;
 
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
 {    
@@ -2230,10 +2231,14 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 	if (!data_is_empty)
 	{
 		sculptGenerateMapVertices(sculpt_width, sculpt_height, sculpt_components, sculpt_data, sculpt_type);
-		
-		if (sculptGetSurfaceArea() < SCULPT_MIN_AREA)
+
+		// don't test lowest LOD to support legacy content DEV-33670
+		if (mDetail > SCULPT_MIN_AREA_DETAIL)
 		{
-			data_is_empty = TRUE;
+			if (sculptGetSurfaceArea() < SCULPT_MIN_AREA)
+			{
+				data_is_empty = TRUE;
+			}
 		}
 	}
 

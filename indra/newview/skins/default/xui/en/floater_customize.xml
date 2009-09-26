@@ -6,6 +6,7 @@
  layout="topleft"
  left_delta="-3"
  name="floater customize"
+ help_topic="floater_customize"
  save_rect="true"
  title="Appearance"
  top_delta="-185"

@@ -971,7 +971,7 @@ Zaproponować znajomość [NAME]?
 
 Zaproponować znajomość [NAME]?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Chcesz zawrzeć znajomość?
 			</input>
 			<button name="Offer" text="OK"/>
@@ -1368,7 +1368,7 @@ Musisz opuścić przynajmniej jedną grupę żeby przyjąć członkostwo w tej g
 	<notification name="KickUser">
 		Z jakim komunikatem wyrzucić tego użytkownia?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Administrator wylogował Cię.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1378,7 +1378,7 @@ Musisz opuścić przynajmniej jedną grupę żeby przyjąć członkostwo w tej g
 	<notification name="KickAllUsers">
 		Z jakim komunikatem wyrzucić wszystkich użytkowników z regionu?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Administrator wylogował Cię.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1388,7 +1388,7 @@ Musisz opuścić przynajmniej jedną grupę żeby przyjąć członkostwo w tej g
 	<notification name="FreezeUser">
 		Z jakim komunikatem unieruchomić tego użytkownia?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Unieruchomiono Cię. Nie możesz się ruszać ani rozmawiać. Administrator skontaktuje się z Tobą poprzez IM.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1398,7 +1398,7 @@ Musisz opuścić przynajmniej jedną grupę żeby przyjąć członkostwo w tej g
 	<notification name="UnFreezeUser">
 		Z jakim komunikatem odblokować tego użytkownia?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Odblokowano Cię.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1408,7 +1408,7 @@ Musisz opuścić przynajmniej jedną grupę żeby przyjąć członkostwo w tej g
 	<notification name="OfferTeleport">
 		Zaproponować teleportację do miejsca Twojego pobytu z tą wiadomością?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Zapraszam do siebie. Region: [REGION]
 			</input>
 			<button name="OK" text="OK"/>
@@ -1418,7 +1418,7 @@ Musisz opuścić przynajmniej jedną grupę żeby przyjąć członkostwo w tej g
 	<notification name="OfferTeleportFromGod">
 		Wymusić przeniesienie użytkownika do miejsca Twojego pobytu?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Zapraszam do siebie. Region: [REGION]
 			</input>
 			<button name="OK" text="OK"/>
@@ -1432,7 +1432,7 @@ Musisz opuścić przynajmniej jedną grupę żeby przyjąć członkostwo w tej g
 	<notification label="Wiadomość do Wszystkich w Twoim Majątku" name="MessageEstate">
 		Wpisz krótką wiadomość która zostanie wysłana do wszystkich osób w Twoim majątku.
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Anuluj"/>
 		</form>
@@ -1654,7 +1654,7 @@ Zamieścić tą reklamę za [AMOUNT]L$?
 	<notification label="Wiadomość do Wszystkich w tym Regionie" name="MessageRegion">
 		Wpisz krótką wiadomość która zostanie wysłana do wszystkich osób w tym regionie.
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Anuluj"/>
 		</form>
@@ -1916,14 +1916,14 @@ Zawartość zostanie skopiowana do Twojej szafy.
 Na pewno chcesz dokonać tego zakupu?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
-	<notification name="ConfirmPurchasePassword" type="password">
+	<notification name="ConfirmPurchasePassword">
 		Ta transakcja spowoduje:
 [ACTION]
 
 Na pewno chcesz dokonać tego zakupu?
 Wpisz hasło ponownie i kliknij OK.
 		<form name="form">
-			<input name="message" type="password"/>
+			<input name="message"/>
 			<button name="ConfirmPurchase" text="OK"/>
 			<button name="Cancel" text="Anuluj"/>
 		</form>
@@ -2287,7 +2287,7 @@ Suwak G (Gęstość) kontroluje gęstość chmur.
 	<notification name="NewSkyPreset">
 		Nazwij nowe niebo.
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Nowe Ustawienie
 			</input>
 			<button name="OK" text="OK"/>
@@ -2300,7 +2300,7 @@ Suwak G (Gęstość) kontroluje gęstość chmur.
 	<notification name="NewWaterPreset">
 		Nazwij nowe ustawienie wody.
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Nowe Ustawienie
 			</input>
 			<button name="OK" text="OK"/>

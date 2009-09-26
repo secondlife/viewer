@@ -23,10 +23,10 @@
 		Proporción:
 	</text>
 	<combo_box  left="124" name="aspect_ratio" tool_tip="ancho / alto">
-		<combo_box.item length="1" name="4:3(StandardCRT)" type="string" label="4:3 (Standard CRT)"/>
-		<combo_box.item length="1" name="5:4(1280x1024LCD)" type="string" label="5:4 (1280x1024 LCD)"/>
+		<combo_box.item name="4:3(StandardCRT)" label="4:3 (Standard CRT)"/>
+		<combo_box.item name="5:4(1280x1024LCD)" label="5:4 (1280x1024 LCD)"/>
 		<combo_box.item name="8:5(Widescreen)" label="8:5 (Widescreen)"/>
-		<combo_box.item length="1" name="16:9(Widescreen)" type="string" label="16:9 (Widescreen)"/>
+		<combo_box.item name="16:9(Widescreen)" label="16:9 (Widescreen)"/>
 	</combo_box>
 	<check_box label="Detectar automáticamente &#10;la proporción" name="aspect_auto_detect" left="295" />
 	<text name="HigherText">
@@ -57,6 +57,7 @@
 		calidad
 	</text>
 	<check_box label="Personalizar" name="CustomSettings"/>
+	<panel name="CustomGraphics Panel">
 	<text name="ShadersText">
 		Shaders:
 	</text>
@@ -133,12 +134,13 @@
 		<radio_item name="0" label="Bajo" />
 		<radio_item name="2" label="Alto" />
 	</radio_group>
+	</panel>
 	<button label="Configuraciones recomendadas" name="Defaults" width="195" left="110"/>
 	<button label="Opciones del hardware" label_selected="Opciones del hardware" name="GraphicsHardwareButton" left="315"/>
-	<string name="resolution_format">
+	<panel.string name="resolution_format">
 		[RES_X] x [RES_Y]
-	</string>
-	<string name="aspect_ratio_text">
+	</panel.string>
+	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
-	</string>
+	</panel.string>
 </panel>

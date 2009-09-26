@@ -52,7 +52,6 @@ LLDrawPoolTree::LLDrawPoolTree(LLViewerTexture *texturep) :
 	LLFacePool(POOL_TREE),
 	mTexturep(texturep)
 {
-	gGL.getTexUnit(0)->bind(mTexturep);
 	mTexturep->setAddressMode(LLTexUnit::TAM_WRAP);
 }
 
@@ -138,7 +137,7 @@ void LLDrawPoolTree::endRenderPass(S32 pass)
 void LLDrawPoolTree::beginDeferredPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_TREES);
-	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
+	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.f);
 		
 	shader = &gDeferredTreeProgram;
 	shader->bind();
@@ -164,6 +163,9 @@ void LLDrawPoolTree::beginShadowPass(S32 pass)
 {
 	LLFastTimer t(FTM_SHADOW_TREE);
 	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
+	glPolygonOffset(gSavedSettings.getF32("RenderDeferredTreeShadowOffset"),
+					gSavedSettings.getF32("RenderDeferredTreeShadowBias"));
+
 	gDeferredShadowProgram.bind();
 }
 
@@ -176,7 +178,11 @@ void LLDrawPoolTree::endShadowPass(S32 pass)
 {
 	LLFastTimer t(FTM_SHADOW_TREE);
 	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
-	gDeferredShadowProgram.unbind();
+
+	glPolygonOffset(gSavedSettings.getF32("RenderDeferredSpotShadowOffset"),
+						gSavedSettings.getF32("RenderDeferredSpotShadowBias"));
+
+	//gDeferredShadowProgram.unbind();
 }
 
 
@@ -247,7 +253,7 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 	LLGLState normalize(GL_NORMALIZE, TRUE);
 	
 	// Bind the texture for this tree.
-	gGL.getTexUnit(sDiffTex)->bind(mTexturep);
+	gGL.getTexUnit(sDiffTex)->bind(mTexturep.get());
 		
 	U32 indices_drawn = 0;
 

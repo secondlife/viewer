@@ -979,6 +979,10 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_AVATAR_VOLUME;
 	}
+	else if ("raycast" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_RAYCAST;
+	}
 	else if ("agent target" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_AGENT_TARGET;
@@ -1168,6 +1172,29 @@ class LLAdvancedCheckDisableTextures : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		bool new_value = LLViewerTexture::sDontLoadVolumeTextures; // <-- make this using LLCacheControl
+		return new_value;
+	}
+};
+
+//////////////////////
+// TEXTURE ATLAS //
+//////////////////////
+
+class LLAdvancedToggleTextureAtlas : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLViewerTexture::sUseTextureAtlas = !LLViewerTexture::sUseTextureAtlas;
+		gSavedSettings.setBOOL("EnableTextureAtlas", LLViewerTexture::sUseTextureAtlas) ;
+		return true;
+	}
+};
+
+class LLAdvancedCheckTextureAtlas : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool new_value = LLViewerTexture::sUseTextureAtlas; // <-- make this using LLCacheControl
 		return new_value;
 	}
 };
@@ -2145,9 +2172,46 @@ class LLAdvancedEnableObjectObjectOcclusion: public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 	
-		bool new_value = gGLManager.mHasOcclusionQuery && LLFeatureManager::getInstance()->isFeatureAvailable(userdata.asString());
+		bool new_value = gGLManager.mHasOcclusionQuery; // && LLFeatureManager::getInstance()->isFeatureAvailable(userdata.asString());
 		return new_value;
 }
+};
+
+/////////////////////////////////////
+// Enable Framebuffer Objects	  ///
+/////////////////////////////////////
+class LLAdvancedEnableRenderFBO: public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool new_value = gGLManager.mHasFramebufferObject;
+		return new_value;
+	}
+};
+
+/////////////////////////////////////
+// Enable Deferred Rendering	  ///
+/////////////////////////////////////
+class LLAdvancedEnableRenderDeferred: public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool new_value = gSavedSettings.getBOOL("RenderUseFBO") && LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT > 0) &&
+			LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) > 0;
+		return new_value;
+	}
+};
+
+/////////////////////////////////////
+// Enable Global Illumination 	  ///
+/////////////////////////////////////
+class LLAdvancedEnableRenderDeferredGI: public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool new_value = gSavedSettings.getBOOL("RenderUseFBO") && gSavedSettings.getBOOL("RenderDeferred");
+		return new_value;
+	}
 };
 
 
@@ -2772,7 +2836,7 @@ class LLSelfRemoveAllAttachments : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLAgentWearables::userRemoveAllAttachments(NULL);
+		LLAgentWearables::userRemoveAllAttachments();
 		return true;
 	}
 };
@@ -7792,7 +7856,12 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckWireframe(), "Advanced.CheckWireframe");
 	view_listener_t::addMenu(new LLAdvancedToggleDisableTextures(), "Advanced.ToggleDisableTextures");
 	view_listener_t::addMenu(new LLAdvancedCheckDisableTextures(), "Advanced.CheckDisableTextures");
+	view_listener_t::addMenu(new LLAdvancedToggleTextureAtlas(), "Advanced.ToggleTextureAtlas");
+	view_listener_t::addMenu(new LLAdvancedCheckTextureAtlas(), "Advanced.CheckTextureAtlas");
 	view_listener_t::addMenu(new LLAdvancedEnableObjectObjectOcclusion(), "Advanced.EnableObjectObjectOcclusion");
+	view_listener_t::addMenu(new LLAdvancedEnableRenderFBO(), "Advanced.EnableRenderFBO");
+	view_listener_t::addMenu(new LLAdvancedEnableRenderDeferred(), "Advanced.EnableRenderDeferred");
+	view_listener_t::addMenu(new LLAdvancedEnableRenderDeferredGI(), "Advanced.EnableRenderDeferredGI");
 	view_listener_t::addMenu(new LLAdvancedToggleRandomizeFramerate(), "Advanced.ToggleRandomizeFramerate");
 	view_listener_t::addMenu(new LLAdvancedCheckRandomizeFramerate(), "Advanced.CheckRandomizeFramerate");
 	view_listener_t::addMenu(new LLAdvancedTogglePeriodicSlowFrame(), "Advanced.TogglePeriodicSlowFrame");
@@ -7897,7 +7966,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedForceErrorInfiniteLoop(), "Advanced.ForceErrorInfiniteLoop");
 	view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareException(), "Advanced.ForceErrorSoftwareException");
 	view_listener_t::addMenu(new LLAdvancedForceErrorDriverCrash(), "Advanced.ForceErrorDriverCrash");
-	view_listener_t::addMenu(new LLAdvancedForceErrorDriverCrash(), "Advanced.ForceErrorDisconnectViewer");
+	view_listener_t::addMenu(new LLAdvancedForceErrorDisconnectViewer(), "Advanced.ForceErrorDisconnectViewer");
 
 	// Advanced (toplevel)
 	view_listener_t::addMenu(new LLAdvancedToggleShowObjectUpdates(), "Advanced.ToggleShowObjectUpdates");

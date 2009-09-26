@@ -487,4 +487,34 @@
 	<string name="choose_the_directory">
 		Choisir le répertoire
 	</string>
+	<string name="accel-mac-control">
+		Ctrl-
+	</string>
+	<string name="accel-mac-command">
+		Cmd-
+	</string>
+	<string name="accel-mac-option">
+		Opt-
+	</string>
+	<string name="accel-mac-shift">
+		Maj-
+	</string>
+	<string name="accel-win-control">
+		Ctrl+
+	</string>
+	<string name="accel-win-alt">
+		Alt+
+	</string>
+	<string name="accel-win-shift">
+		Maj+
+	</string>
+	<string name="GraphicsQualityLow">
+		Faible
+	</string>
+	<string name="GraphicsQualityMid">
+		Moyen
+	</string>
+	<string name="GraphicsQualityHigh">
+		Élevé
+	</string>
 </strings>

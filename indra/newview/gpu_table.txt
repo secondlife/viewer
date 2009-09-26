@@ -162,8 +162,9 @@ Intel Montara					.*Intel.*Montara.*					0		0
 Intel Springdale				.*Intel.*Springdale.*				0		0
 Matrox							.*Matrox.*							0		0
 Mesa							.*Mesa.*							0		0
-NVIDIA GT 120                   .*NVIDIA.*GeForce.*GT.*12.*		    3		1
-NVIDIA GT 130                   .*NVIDIA.*GeForce.*GT.*13.*		    3		1
+NVIDIA GT 120					.*NVIDIA.*GeForce.*GT.*12.*			2		1
+NVIDIA GT 130					.*NVIDIA.*GeForce.*GT.*13.*			3		1
+NVIDIA GTS 250					.*NVIDIA.*GeForce.*GTS.*25.*		3		1
 NVIDIA GTX 260					.*NVIDIA.*GeForce.*GTX.*26.*		3		1
 NVIDIA GTX 270					.*NVIDIA.*GeForce.*GTX.*27.*		3		1
 NVIDIA GTX 280					.*NVIDIA.*GeForce.*GTX.*28.*		3		1

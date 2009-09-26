@@ -58,6 +58,7 @@ class LLFloaterSellLandUI
 public:
 	LLFloaterSellLandUI(const LLSD& key);
 	virtual ~LLFloaterSellLandUI();
+	void onClose();
 	
 private:
 	class SelectionObserver : public LLParcelObserver
@@ -131,11 +132,19 @@ LLFloaterSellLandUI::LLFloaterSellLandUI(const LLSD& key)
 {
 	LLViewerParcelMgr::getInstance()->addObserver(&mParcelSelectionObserver);
 // 	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_sell_land.xml");
+	mCloseSignal.connect(boost::bind(&LLFloaterSellLandUI::onClose, this));
 }
 
 LLFloaterSellLandUI::~LLFloaterSellLandUI()
 {
 	LLViewerParcelMgr::getInstance()->removeObserver(&mParcelSelectionObserver);
+}
+
+// Because we are single_instance, we are not destroyed on close.
+void LLFloaterSellLandUI::onClose()
+{
+	// Must release parcel selection to allow land to deselect, see EXT-803
+	mParcelSelection = NULL;
 }
 
 void LLFloaterSellLandUI::SelectionObserver::changed()
@@ -253,10 +262,7 @@ void LLFloaterSellLandUI::refreshUI()
 	if (!parcelp) return;
 
 	LLTextureCtrl* snapshot = getChild<LLTextureCtrl>("info_image");
-	if (snapshot)
-	{
-		snapshot->setImageAssetID(mParcelSnapshot);
-	}
+	snapshot->setImageAssetID(mParcelSnapshot);
 
 	childSetText("info_parcel", parcelp->getName());
 	childSetTextArg("info_size", "[AREA]", llformat("%d", mParcelActualArea));

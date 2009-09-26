@@ -3,6 +3,7 @@
  height="250"
  layout="topleft"
  name="telehub"
+ help_topic="telehub"
  title="Telehub"
  width="280">
     <text

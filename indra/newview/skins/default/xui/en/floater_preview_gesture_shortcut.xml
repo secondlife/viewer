@@ -2,9 +2,10 @@
 <floater
  can_minimize="false"
  follows="left|top"
- height="80"
+ height="90"
  layout="topleft"
  name="Gesture"
+ help_topic="gesture"
  save_rect="true"
  title="Gesture Shortcut"
  width="260">
@@ -47,7 +48,7 @@
      height="20"
      label="None"
      layout="topleft"
-     left_pad="5"
+     left_pad="13"
      name="modifier_combo"
      top_delta="-4"
      width="50" />

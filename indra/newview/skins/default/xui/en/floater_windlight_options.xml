@@ -3,6 +3,7 @@
  height="220"
  layout="topleft"
  name="WindLight floater"
+ help_topic="windlight_floater"
  save_rect="true"
  title="Advanced Sky Editor"
  width="700">

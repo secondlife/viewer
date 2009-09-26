@@ -74,13 +74,12 @@ public:
 	static void			selectionPropertiesReceived();
 
 	static void			showAvatarInspector(const LLUUID& id);
-
 private:
 	BOOL outsideSlop		(S32 x, S32 y, S32 start_x, S32 start_y);
 	BOOL pickLeftMouseDownCallback();
 	BOOL pickRightMouseDownCallback();
 	BOOL useClickAction		(MASK mask, LLViewerObject* object,LLViewerObject* parent);
-
+	
 	void showVisualContextMenuEffect();
 private:
 	BOOL				mGrabMouseButtonDown;
@@ -90,6 +89,7 @@ private:
 	LLPointer<LLViewerObject> mClickActionObject;
 	U8					mClickAction;
 	LLSafeHandle<LLObjectSelection> mLeftClickSelection;
+
 };
 
 

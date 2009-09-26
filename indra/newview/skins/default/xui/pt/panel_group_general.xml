@@ -33,9 +33,9 @@
 		(Proprietários são mostrados em negrito )
 	</text>
 	<name_list name="visible_members">
-		<column label="Nome do membro" name="name"/>
-		<column label="Título" name="title"/>
-		<column label="Último login" name="online"/>
+		<name_list.columns label="Nome do membro" name="name"/>
+		<name_list.columns label="Título" name="title"/>
+		<name_list.columns label="Último login" name="online"/>
 	</name_list>
 	<text name="text_group_preferences">
 		Preferências do Grupo
@@ -46,15 +46,9 @@
 		<check_box label="Taxa de adesão: L$" name="check_enrollment_fee" tool_tip="Define se é necessária uma taxa de adesão para se unir ao grupo."/>
 		<spinner width="60" left_delta="120"  name="spin_enrollment_fee" tool_tip="Os novos membros devem pagar esta taxa para se unir ao grupo quando a Taxa de Adesão está marcada."/>
 		<combo_box width="170" name="group_mature_check" tool_tip="Define se a informação do seu grupo é considerada mature.">
-			<combo_item name="select_mature">
-				- Selecionar Maturidade -
-			</combo_item>
-			<combo_item name="mature">
-				Conteúdo Mature
-			</combo_item>
-			<combo_item name="pg">
-				Conteúdo PG
-			</combo_item>
+			<combo_box.item name="select_mature" label="- Selecionar Maturidade -"/>
+			<combo_box.item name="mature" label="Conteúdo Mature"/>
+			<combo_box.item name="pg" label="Conteúdo PG"/>
 		</combo_box>
 		<panel name="title_container">
 			<text name="active_title_label">

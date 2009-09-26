@@ -128,14 +128,16 @@ void LLLandmarkList::processGetAssetReply(
 	else
 	{
 		LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-
+		// SJB: No use case for a notification here. Use lldebugs instead
 		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status )
 		{
-			LLNotifications::instance().add("LandmarkMissing");
+			LL_WARNS("Landmarks") << "Missing Landmark" << LL_ENDL;
+			//LLNotifications::instance().add("LandmarkMissing");
 		}
 		else
 		{
-			LLNotifications::instance().add("UnableToLoadLandmark");
+			LL_WARNS("Landmarks") << "Unable to load Landmark" << LL_ENDL;
+			//LLNotifications::instance().add("UnableToLoadLandmark");
 		}
 
 		gLandmarkList.mBadList.insert(uuid);

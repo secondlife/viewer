@@ -16,8 +16,7 @@ Generel-fanebladet.
 		Arkiv med gruppebeskeder
 	</text>
 	<text name="lbl2">
-		Beskeder er gemt i 14 dage. Klik på den besked herunder, du ønsker at se.
-Klik på &apos;Genopfrisk&apos;-knappen for at se, om nye beskeder er modtaget.
+		Beskeder er gemt i 14 dage. 
 Listen er begrænset til 200 beskeder pr. gruppe hver dag.
 	</text>
 	<scroll_list name="notice_list">
@@ -36,10 +35,7 @@ Listen er begrænset til 200 beskeder pr. gruppe hver dag.
 			Lav en besked
 		</text>
 		<text name="lbl2">
-			Du skal skrive et emne for at sende beskeden. Du kan tilføje et 
-bilag til beskeden ved at trække den fra beholdningen til 
-dette felt. Vedhæftede objekter skal være sat til at kunne 
-kopieres og overføres, og du kan ikke sende en mappe.
+			Du kan tilføje et bilag til beskeden ved at trække den fra beholdningen til dette felt. Vedhæftede objekter skal være sat til at kunne kopieres og overføres, og du kan ikke sende en mappe.
 		</text>
 		<text name="lbl3">
 			Emne:

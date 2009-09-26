@@ -347,7 +347,7 @@ på Verdenskortet eller modtage status opdateringer.
 
 Tilbyd venskab til [NAME]?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Vil du være min ven?
 			</input>
 			<button name="Offer" text="OK"/>
@@ -365,7 +365,7 @@ Tilbyd venskab til [NAME]?
 	</notification>
 	<notification name="OfferTeleport">
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Mød mig i [REGION]
 			</input>
 			<button name="OK" text="OK"/>
@@ -533,7 +533,7 @@ Linden Lab
 	</notification>
 	<notification name="NewSkyPreset">
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Ny forudindstilling
 			</input>
 			<button name="OK" text="OK"/>
@@ -542,7 +542,7 @@ Linden Lab
 	</notification>
 	<notification name="NewWaterPreset">
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Ny forudindstilling
 			</input>
 			<button name="OK" text="OK"/>

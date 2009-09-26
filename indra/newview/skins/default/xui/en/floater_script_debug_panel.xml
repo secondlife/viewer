@@ -5,6 +5,7 @@
  height="200"
  layout="topleft"
  name="script"
+ help_topic="script"
  short_title="[All scripts]"
  title="[All scripts]"
  width="440">

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<text length="1" name="ParcelNameText" tool_tip="Der Name der Parzelle, auf der Sie sich befinden. Klicken Sie für Land-Informationen." type="string">
+	<text name="ParcelNameText" tool_tip="Der Name der Parzelle, auf der Sie sich befinden. Klicken Sie für Land-Informationen.">
 		Parzellenname hier
 	</text>
-	<text length="1" name="BalanceText" tool_tip="Kontostand" type="string">
+	<text name="BalanceText" tool_tip="Kontostand">
 		Wird geladen...
 	</text>
 	<button label="" label_selected="" name="buycurrency" tool_tip="Geld kaufen"/>
-	<text length="12" name="TimeText" tool_tip="Aktuelle Zeit (Pazifik)" type="string">
+	<text name="TimeText" tool_tip="Aktuelle Zeit (Pazifik)">
 		12:00
 	</text>
 	<text name="StatBarDaysOfWeek">
@@ -18,7 +18,7 @@
 	</text>
 	<button label="" label_selected="" name="scriptout" tool_tip="Skriptwarnungen und -fehler"/>
 	<button label="" label_selected="" name="health" tool_tip="Gesundheit"/>
-	<text length="1" name="HealthText" tool_tip="Gesundheit" type="string">
+	<text name="HealthText" tool_tip="Gesundheit">
 		100%
 	</text>
 	<button label="" label_selected="" name="fly" tool_tip="Fliegen aus"/>

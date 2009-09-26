@@ -8,7 +8,7 @@
  left="0"
  name="panel_notes"
  top="0"
- width="285">
+ width="313">
     <layout_stack
      name="layout"
      orientation="vertical"
@@ -17,7 +17,7 @@
      left="0"
      top="0"
      height="420"
-     width="285"
+     width="313"
      border_size="0">
         <panel
          name="notes_stack"
@@ -26,7 +26,7 @@
          top="0"
          left="0"
          height="390"
-         width="285">
+         width="313">
             <scroll_container
              color="DkGray2"
              follows="left|top|right|bottom"
@@ -36,14 +36,14 @@
              name="profile_scroll"
              opaque="true"
              top="0"
-             width="285">
+             width="313">
               <panel
                  height="350"
                  layout="topleft"
                  name="profile_scroll_panel"
                  top="0"
                  left="0"
-                 width="240">
+                 width="293">
                 <text
                  follows="left|top"
                  font="SansSerifBold"
@@ -52,9 +52,9 @@
                  left="10"
                  name="status_message"
                  text_color="white"
-                 top="0"
+                 top="5"
                  value="My private notes:"
-                 width="230" />
+                 width="293" />
                 <text_editor
                  follows="left|top"
                  height="200"
@@ -65,7 +65,7 @@
                  name="notes_edit"
                  text_color="black"
                  top_pad="10"
-                 width="235"
+                 width="280"
                  word_wrap="true" />
                 <text
                  follows="left|top"
@@ -77,7 +77,7 @@
                  text_color="white"
                  top_pad="10"
                  value="Let this person:"
-                 width="225" />
+                 width="293" />
                 <check_box
                  enabled="false"
                  height="20"
@@ -86,7 +86,7 @@
                  left="20"
                  name="status_check"
                  top_pad="0"
-                 width="230" />
+                 width="293" />
                 <check_box
                  enabled="false"
                  height="20"
@@ -95,7 +95,7 @@
                  left="20"
                  name="map_check"
                  top_pad="0"
-                 width="230" />
+                 width="293" />
                 <check_box
                  enabled="false"
                  height="20"
@@ -104,7 +104,7 @@
                  left="20"
                  name="objects_check"
                  top_pad="0"
-                 width="230" />
+                 width="293" />
               </panel>
             </scroll_container>
         </panel>
