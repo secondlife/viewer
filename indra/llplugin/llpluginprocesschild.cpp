@@ -319,8 +319,8 @@ void LLPluginProcessChild::receiveMessageRaw(const std::string &message)
 						message.setValueS32("size", (S32)size);
 						// shm address is split into 2x32bit values because LLSD doesn't serialize 64bit values and we need to support 64-bit addressing.
 						void * address = region->getMappedAddress();
-						U32 address_lo = (U32)address;
-						U32 address_hi = (U32)(U64(address) / (U64(1)<<31));
+						U32 address_lo = (U32)(U64(address) & 0xFFFFFFFF);			// Extract the lower 32 bits
+						U32 address_hi = (U32)((U64(address)>>32) & 0xFFFFFFFF);	// Extract the higher 32 bits 
 						message.setValueU32("address", address_lo);
 						message.setValueU32("address_1", address_hi);
 						sendMessageToPlugin(message);
