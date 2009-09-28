@@ -996,6 +996,17 @@ There was a problem saving a compiled script due to the following reason: [REASO
 
   <notification
    icon="alertmodal.tga"
+   name="StartRegionEmpty"
+   type="alertmodal">
+Oops, Your Start Region is not defined. 
+Please type the Region name in Start Location box or choose My Last Location or My Home as your Start Location.  
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="CouldNotStartStopScript"
    type="alertmodal">
 Could not start or stop the script because the object it is on could not be found.

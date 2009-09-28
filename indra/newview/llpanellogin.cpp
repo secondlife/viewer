@@ -837,14 +837,22 @@ void LLPanelLogin::onClickConnect(void *)
 
 		std::string first = sInstance->childGetText("first_name_edit");
 		std::string last  = sInstance->childGetText("last_name_edit");
-		if (!first.empty() && !last.empty())
+		LLComboBox* combo = sInstance->getChild<LLComboBox>("start_location_combo");
+		std::string combo_text = combo->getSimple();
+		
+		if (first.empty() || last.empty())
 		{
-			// has both first and last name typed
-			sInstance->mCallback(0, sInstance->mCallbackData);
+			LLNotifications::instance().add("MustHaveAccountToLogIn");
+		}
+		else if( (combo_text=="<Type region name>" || combo_text =="")
+				&& LLURLSimString::sInstance.mSimString =="")
+		{
+			LLNotifications::instance().add("StartRegionEmpty");
 		}
 		else
 		{
-			LLNotifications::instance().add("MustHaveAccountToLogIn");
+			// has both first and last name typed
+			sInstance->mCallback(0, sInstance->mCallbackData);
 		}
 	}
 }
