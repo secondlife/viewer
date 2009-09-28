@@ -1678,7 +1678,7 @@ Only large parcels can be listed in search.
              height="16"
              layout="topleft"
              left="10"
-             name="at URL:"
+             name="CurrentURL:"
              top="49"
              width="65">
                 Current URL:
