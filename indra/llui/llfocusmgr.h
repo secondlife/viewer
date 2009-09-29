@@ -124,6 +124,11 @@ public:
 	void			unlockFocus();
 	BOOL			focusLocked() const { return mLockedView != NULL; }
 
+	void			addFocusChangeCallback(const boost::signals2::signal<void ()>::slot_type& cb)
+	{
+		mFocusChangeSignal.connect(cb);
+	}
+
 private:
 	LLUICtrl*			mLockedView;
 
@@ -149,6 +154,8 @@ private:
 
 	typedef std::map<LLHandle<LLView>, LLHandle<LLView> > focus_history_map_t;
 	focus_history_map_t mFocusHistory;
+
+	boost::signals2::signal<void()>	mFocusChangeSignal;
 
 	#ifdef _DEBUG
 		std::string		mMouseCaptorName;

@@ -48,6 +48,12 @@ typedef enum e_notification_toast_alignment
 	NA_BOTTOM,
 } EToastAlignment;
 
+typedef enum e_channel_alignment
+{
+	CA_LEFT, 
+	CA_CENTRE,
+	CA_RIGHT,
+} EChannelAlignment;
 
 /**
  * Screen channel manages toasts visibility and positioning on the screen.
@@ -60,12 +66,14 @@ public:
 	virtual ~LLScreenChannel();
 
 	// Channel's outfit-functions
-	// classic reshape
-	void		reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	// update channel's size and position in the World View
+	void		updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect);
 	// initialization of channel's shape and position
 	void		init(S32 channel_left, S32 channel_right);
 	// set allignment of toasts inside a channel
-	void		setToastAlignment(e_notification_toast_alignment align) {mToastAlignment = align;}
+	void		setToastAlignment(EToastAlignment align) {mToastAlignment = align;}
+	// set allignment of channel inside a world view
+	void		setChannelAlignment(EChannelAlignment align) {mChannelAlignment = align;}
 	// set a template for a string in the OverflowToast
 	void		setOverflowFormatString ( std::string str)  { mOverflowFormatString = str; }
 	
@@ -80,15 +88,17 @@ public:
 	// removes all toasts from a channel
 	void		removeToastsFromChannel();
 	// show all toasts in a channel
-	void		showToasts();
+	void		redrawToasts();
 	//
 	void		loadStoredToastsToChannel();
-	// finds a toast among stored by its ID and throws it on a screen to a channel
-	void		loadStoredToastByIDToChannel(LLUUID id);
-	// removes a toast from stored finding it by its ID 
-	void		removeStoredToastByID(LLUUID id);
-	// remove all toasts from screen and store them
-	void		removeAndStoreAllVisibleToasts();
+	// finds a toast among stored by its Notification ID and throws it on a screen to a channel
+	void		loadStoredToastByNotificationIDToChannel(LLUUID id);
+	// removes a toast from stored finding it by its Notification ID 
+	void		removeStoredToastByNotificationID(LLUUID id);
+	// removes from channel all toasts that belongs to the certain IM session 
+	void		removeToastsBySessionID(LLUUID id);
+	// remove all storable toasts from screen and store them
+	void		removeAndStoreAllStorableToasts();
 	// close the Overflow Toast
 	void 		closeOverflowToastPanel();
 	// close the StartUp Toast
@@ -113,6 +123,8 @@ public:
 	void setShowToasts(bool show) { mShowToasts = show; }
 	// determine whether channel shows toasts or not
 	bool getShowToasts() { return mShowToasts; }
+	// let a channel update its ShowToast flag
+	void updateShowToastsState();
 
 	// Channel's other interface functions functions
 	// get number of hidden notifications from a channel
@@ -124,17 +136,17 @@ public:
 	// get ID of a channel
 	LLUUID	getChannelID() { return mID; }
 
-	// Channel's callbacks
-	// callback for storing of faded toasts
+	// Channel's signals
+	// signal on storing of faded toasts event
 	typedef boost::function<void (LLPanel* info_panel, const LLUUID id)> store_tost_callback_t;
 	typedef boost::signals2::signal<void (LLPanel* info_panel, const LLUUID id)> store_tost_signal_t;
 	store_tost_signal_t mOnStoreToast;	
 	boost::signals2::connection setOnStoreToastCallback(store_tost_callback_t cb) { return mOnStoreToast.connect(cb); }
-	// callback for discarding of a rejected toast
-	typedef boost::function<void (LLToast::Params p)> reject_tost_callback_t;
-	typedef boost::signals2::signal<void (LLToast::Params p)> reject_tost_signal_t;
-	reject_tost_signal_t mOnRejectToast;	
-	boost::signals2::connection setOnRejectToastCallback(reject_tost_callback_t cb) { return mOnRejectToast.connect(cb); }
+	// signal on rejecting of a toast event
+	typedef boost::function<void (LLUUID id)> reject_tost_callback_t;
+	typedef boost::signals2::signal<void (LLUUID id)> reject_tost_signal_t;
+	reject_tost_signal_t mRejectToastSignal;	
+	boost::signals2::connection setOnRejectToastCallback(reject_tost_callback_t cb) { return mRejectToastSignal.connect(cb); }
 
 private:
 	struct ToastElem
@@ -142,7 +154,7 @@ private:
 		LLUUID		id;
 		LLToast*	toast;
 
-		ToastElem(LLToast::Params p) : id(p.id)
+		ToastElem(LLToast::Params p) : id(p.notif_id)
 		{
 			toast = new LLToast(p);
 		}
@@ -167,11 +179,14 @@ private:
 	// Channel's handlers
 	void	onToastHover(LLToast* toast, bool mouse_enter);
 	void	onToastFade(LLToast* toast);
+	void	onToastDestroyed(LLToast* toast);
 	void	onOverflowToastHide();
 	void	onStartUpToastHide();
 
 	//
 	void	storeToast(ToastElem& toast_elem);
+	// send signal to observers about destroying of a toast, update channel's Hovering state, close the toast
+	void	deleteToast(LLToast* toast);
 	
 	// show-functions depending on allignment of toasts
 	void	showToastsBottom();
@@ -194,7 +209,8 @@ private:
 	// controls whether a channel shows toasts or not
 	bool		mShowToasts;
 	// 
-	e_notification_toast_alignment	mToastAlignment;
+	EToastAlignment		mToastAlignment;
+	EChannelAlignment	mChannelAlignment;
 
 	// attributes for the Overflow Toast
 	S32			mHiddenToastsNum;
@@ -206,6 +222,9 @@ private:
 
 	// channel's ID
 	LLUUID	mID;
+
+	// store a connection to prevent futher crash that is caused by sending a signal to a destroyed channel
+	boost::signals2::connection mWorldViewRectConnection;
 
 	std::vector<ToastElem>		mToastList;
 	std::vector<ToastElem>		mStoredToastList;

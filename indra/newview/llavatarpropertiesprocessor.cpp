@@ -428,27 +428,10 @@ void LLAvatarPropertiesProcessor::processPickInfoReply(LLMessageSystem* msg, voi
 	msg->getString(_PREHASH_Data, _PREHASH_Desc, pick_data.desc);
 	msg->getUUID(_PREHASH_Data, _PREHASH_SnapshotID, pick_data.snapshot_id);
 
-	// "Location text" is actually the owner name, the original
-	// name that owner gave the parcel, and the location.
-	msg->getString(_PREHASH_Data, _PREHASH_User, pick_data.location_text);
-	pick_data.location_text.append(", ");
-
+	msg->getString(_PREHASH_Data, _PREHASH_User, pick_data.user_name);
 	msg->getString(_PREHASH_Data, _PREHASH_OriginalName, pick_data.original_name);
-	if (!pick_data.original_name.empty())
-	{
-		pick_data.location_text.append(pick_data.original_name);
-		pick_data.location_text.append(", ");
-	}
-
 	msg->getString(_PREHASH_Data, _PREHASH_SimName, pick_data.sim_name);
-	pick_data.location_text.append(pick_data.sim_name);
-	pick_data.location_text.append(" ");
-
 	msg->getVector3d(_PREHASH_Data, _PREHASH_PosGlobal, pick_data.pos_global);
-	S32 region_x = llround((F32)pick_data.pos_global.mdV[VX]) % REGION_WIDTH_UNITS;
-	S32 region_y = llround((F32)pick_data.pos_global.mdV[VY]) % REGION_WIDTH_UNITS;
-	S32 region_z = llround((F32)pick_data.pos_global.mdV[VZ]);
-	pick_data.location_text.append(llformat("(%d, %d, %d)", region_x, region_y, region_z));
 
 	msg->getS32(_PREHASH_Data, _PREHASH_SortOrder, pick_data.sort_order);
 	msg->getBOOL(_PREHASH_Data, _PREHASH_Enabled, pick_data.enabled);

@@ -104,10 +104,6 @@ void LLPanelProfile::onOpen(const LLSD& key)
 	{
 		getTabCtrl()->getCurrentPanel()->onOpen(getAvatarId());
 	}
-
-	// Update the avatar name.
-	gCacheName->get(getAvatarId(), FALSE,
-		boost::bind(&LLPanelProfile::onAvatarNameCached, this, _1, _2, _3, _4));
 }
 
 //*TODO redo panel toggling
@@ -171,8 +167,3 @@ void LLPanelProfile::setAllChildrenVisible(BOOL visible)
 	}
 }
 
-void LLPanelProfile::onAvatarNameCached(const LLUUID& id, const std::string& first_name, const std::string& last_name, BOOL is_group)
-{
-	llassert(getAvatarId() == id);
-	getChild<LLTextBox>("user_name", FALSE)->setValue(first_name + " " + last_name);
-}

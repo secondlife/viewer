@@ -98,6 +98,7 @@
 #include "llnotifications.h"
 #include "llnotify.h"
 #include "llpanelgrouplandmoney.h"
+#include "llrecentpeople.h"
 #include "llselectmgr.h"
 #include "llsidetray.h"
 #include "llstartup.h"

@@ -40,25 +40,36 @@ using namespace LLOldEvents;
 
 bool LLRecentPeople::add(const LLUUID& id)
 {
-	if (contains(id) || id == gAgent.getID())
+	if (id == gAgent.getID())
 		return false;
 
 	LLDate date_added = LLDate::now();
-	mList.insert(std::make_pair(id, date_added));
+
+	//[] instead of insert to replace existing id->date with new date value
+	mPeople[id] = date_added;
 	mChangedSignal();
 	return true;
 }
 
 bool LLRecentPeople::contains(const LLUUID& id) const
 {
-	return mList.find(id) != mList.end();
+	return mPeople.find(id) != mPeople.end();
 }
 
 void LLRecentPeople::get(std::vector<LLUUID>& result) const
 {
 	result.clear();
-	for (recent_people_t::const_iterator pos = mList.begin(); pos != mList.end(); ++pos)
+	for (recent_people_t::const_iterator pos = mPeople.begin(); pos != mPeople.end(); ++pos)
 		result.push_back((*pos).first);
+}
+
+const LLDate& LLRecentPeople::getDate(const LLUUID& id) const
+{
+	recent_people_t::const_iterator it = mPeople.find(id);
+	if (it!= mPeople.end()) return (*it).second;
+
+	static LLDate no_date = LLDate();
+	return no_date;
 }
 
 // virtual

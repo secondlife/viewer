@@ -201,6 +201,35 @@ BOOL LLNearbyChatBar::postBuild()
 	mChatBox->setMaxTextLength(1023);
 	mChatBox->setEnableLineHistory(TRUE);
 
+	// TODO: Initialization of the output monitor's params should be done via xml
+	const S32 MONITOR_RIGHT_PAD = 2;
+
+	LLRect monitor_rect = LLRect(0, 18, 18, 0);
+	LLRect chatbox_rect = mChatBox->getRect();
+
+	S32 monitor_height = monitor_rect.getHeight();
+	monitor_rect.mLeft = chatbox_rect.getWidth() - monitor_rect.getWidth() - MONITOR_RIGHT_PAD;
+	monitor_rect.mRight = chatbox_rect.getWidth() - MONITOR_RIGHT_PAD;
+	monitor_rect.mBottom = (chatbox_rect.getHeight() / 2) - (monitor_height / 2);
+	monitor_rect.mTop = monitor_rect.mBottom + monitor_height;
+
+	LLOutputMonitorCtrl::Params monitor_params = LLOutputMonitorCtrl::Params();
+	monitor_params.name = "output_monitor";
+	monitor_params.draw_border(false);
+	monitor_params.rect(monitor_rect);
+	monitor_params.auto_update(true);
+	monitor_params.speaker_id(gAgentID);
+
+	LLView::Follows follows = LLView::Follows();
+	follows.flags = FOLLOWS_RIGHT;
+	monitor_params.follows = follows;
+	mOutputMonitor = LLUICtrlFactory::create<LLOutputMonitorCtrl>(monitor_params);
+	mChatBox->addChild(mOutputMonitor);
+
+	// never show "muted" because you can't mute yourself
+	mOutputMonitor->setIsMuted(false);
+	mOutputMonitor->setVisible(FALSE);
+
 	mTalkBtn = getChild<LLTalkButton>("talk");
 
 	// Speak button should be initially disabled because
@@ -593,6 +622,7 @@ LLWString LLNearbyChatBar::stripChannelNumber(const LLWString &mesg, S32* channe
 void LLNearbyChatBar::setPTTState(bool state)
 {
 	mTalkBtn->setSpeakBtnToggleState(state);
+	mOutputMonitor->setVisible(state);
 }
 
 void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel)

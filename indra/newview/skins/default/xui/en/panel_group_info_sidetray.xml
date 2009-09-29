@@ -16,7 +16,10 @@
      name="want_apply_text">
         Do you want to apply these changes?
     </panel.string>
-
+    <panel.string
+     name="group_join_btn">
+        Join (L$[AMOUNT])
+    </panel.string>
     <button
      layout="topleft"
      name="back"
@@ -39,6 +42,18 @@
      follows="top|left|right"
      mouse_opaque="true"
      name="group_name">(Loading...)</text>
+    <line_editor
+     follows="left|top"
+     font="SansSerif"
+     label="Type your new group name here"
+     layout="topleft"
+     left_delta="0"
+     max_length="35"
+     name="group_name_editor"
+     top_delta="5"
+     width="250"
+     height="20"
+     visible="true" />
     <texture_picker
      follows="left|top"
      height="113"
@@ -47,7 +62,7 @@
 	 left="10"
      name="insignia"
      tool_tip="Click to choose a picture"
-     top_pad="15"
+     top_pad="5"
      width="100" />
     <text
      type="string"
@@ -72,11 +87,21 @@
      use_ellipses="true"
      width="140" />
     <button
+     follows="left|top"
+     left_delta="0"
+     top_pad="10"
+     height="20"
+     label="Join"
+     label_selected="Join"
+     name="btn_join"
+     visible="true"
+     width="65" />
+    <button
      top="632"
      height="20"
      font="SansSerifSmall"
-     label="Apply"
-     label_selected="Apply"
+     label="Save"
+     label_selected="Save"
      name="btn_apply"
      left="5"
      width="65" />
@@ -93,11 +118,19 @@
     <button
      top="632"
      height="20"
-     font="SansSerifSmall"
      label="Create"
      label_selected="Create"
      name="btn_create"
      left="5"
+     visible="false"
+     width="65" />
+    <button
+	 top="632"
+	 left="75"	 
+     height="20"
+     label="Cancel"
+     label_selected="Cancel"
+     name="btn_cancel"
      visible="false"
      width="65" />
       <accordion layout="topleft" left="2" width="296" top="135" height="500" follows="all" name="group_accordion">

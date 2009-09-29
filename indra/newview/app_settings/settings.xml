@@ -4884,18 +4884,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>10</integer>
-    </map>
-    <key>NavBarMargin</key>
-    <map>
-      <key>Comment</key>
-      <string>Width of notification messages</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>60</integer>
+      <integer>35</integer>
     </map>
     <key>OverflowToastHeight</key>
     <map>
@@ -7520,10 +7509,10 @@
       <key>Value</key>
       <integer>1</integer>
     </map>    
-    <key>ShowCameraAndMoveControls</key>                
+    <key>ShowCameraButton</key>                
     <map>
       <key>Comment</key>
-      <string>Show/Hide Camera and Move controls in the bottom tray</string>
+      <string>Show/Hide Camera button in the bottom tray</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -7531,6 +7520,28 @@
       <key>Value</key>
       <integer>1</integer>   
     </map>
+    <key>ShowMoveButton</key>                
+    <map>
+      <key>Comment</key>
+      <string>Show/Hide Move button in the bottom tray</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>   
+    </map>    
+    <key>ShowGestureButton</key>                
+    <map>
+      <key>Comment</key>
+      <string>Show/Hide Gesture button in the bottom tray</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>   
+    </map>    
     <key>ShowNavbarFavoritesPanel</key>    
     <map>
       <key>Comment</key>
@@ -7552,6 +7563,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>   
+    </map>
+    <key>GroupListShowIcons</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/hide group icons in the group list</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>ShowPGSearchAll</key>    
     <map>

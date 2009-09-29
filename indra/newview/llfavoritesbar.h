@@ -43,6 +43,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Optional<std::string> chevron_button_tool_tip;
+		Optional<LLUIImage*> image_drag_indication;
 		Params();
 	};
 
@@ -65,6 +66,10 @@ public:
 	// LLInventoryObserver observer trigger
 	virtual void changed(U32 mask);
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	virtual void draw();
+
+	void showDragMarker(BOOL show) { mShowDragMarker = show; }
+	void setLandingTab(LLUICtrl* tab) { mLandingTab = tab; }
 
 protected:
 	void updateButtons(U32 bar_width);
@@ -77,6 +82,8 @@ protected:
 	
 	void onButtonMouseDown(LLUUID id, LLUICtrl* button, S32 x, S32 y, MASK mask);
 	void onButtonMouseUp(LLUUID id, LLUICtrl* button, S32 x, S32 y, MASK mask);
+
+	void onEndDrag();
 
 	void doToSelected(const LLSD& userdata);
 	BOOL isClipboardPasteable() const;
@@ -98,6 +105,7 @@ protected:
 	LLRect mChevronRect;
 
 	std::string mChevronButtonToolTip;
+	LLUIImage* mImageDragIndication;
 
 private:
 	/*
@@ -136,10 +144,16 @@ private:
 	// finds an item by it's UUID in the items array
 	LLInventoryModel::item_array_t::iterator findItemByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id);
 
-	BOOL mSkipUpdate;
-	BOOL mStartDrag;
+	BOOL mShowDragMarker;
+	LLUICtrl* mLandingTab;
+	LLUICtrl* mLastTab;
+
 	LLUUID mDragItemId;
 	LLInventoryModel::item_array_t mItems;
+
+	BOOL mTabsHighlightEnabled;
+
+	boost::signals2::connection mEndDragConnection;
 };
 
 

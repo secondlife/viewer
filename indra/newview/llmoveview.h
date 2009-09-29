@@ -34,7 +34,7 @@
 #define LL_LLMOVEVIEW_H
 
 // Library includes
-#include "llfloater.h"
+#include "lldockablefloater.h"
 
 class LLButton;
 class LLJoystickAgentTurn;
@@ -44,7 +44,7 @@ class LLJoystickAgentSlide;
 // Classes
 //
 class LLFloaterMove
-:	public LLFloater
+:	public LLDockableFloater
 {
 	friend class LLFloaterReg;
 
@@ -54,6 +54,7 @@ private:
 public:
 
 	/*virtual*/	BOOL	postBuild();
+	/*virtual*/ void	setEnabled(BOOL enabled);
 	static F32	getYawRate(F32 time);
 	static void setFlyingMode(BOOL fly);
 	void setFlyingModeImpl(BOOL fly);
@@ -62,10 +63,7 @@ public:
 	static void setSittingMode(BOOL bSitting);
 	static void enableInstance(BOOL bEnable);
 	/*virtual*/ void onOpen(const LLSD& key);
-
-	// *HACK: due to hard enough to have this control aligned with "Move" button while resizing
-	// let update its position in each frame
-	/*virtual*/ void draw(){updatePosition(); LLFloater::draw();}
+	/*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
 
 	static void sUpdateFlyingStatus();
 
@@ -98,6 +96,7 @@ private:
 	void updateButtonsWithMovementMode(const EMovementMode newMode);
 	void updatePosition();
 	void showModeButtons(BOOL bShow);
+	void updateHeight(bool show_mode_buttons);
 
 public:
 
@@ -117,6 +116,7 @@ private:
 
 	typedef std::map<EMovementMode, LLButton*> mode_control_button_map_t;
 	mode_control_button_map_t mModeControlButtonMap;
+	EMovementMode mCurrentMode;
 
 };
 

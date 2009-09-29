@@ -39,6 +39,7 @@
 #include "llchat.h"
 #include "llchiclet.h"
 #include "llvoiceclient.h"
+#include "lloutputmonitorctrl.h"
 
 class LLGestureComboBox
 	: public LLComboBox
@@ -114,6 +115,7 @@ protected:
 
 	LLLineEditor*		mChatBox;
 	LLTalkButton*		mTalkBtn;
+	LLOutputMonitorCtrl* mOutputMonitor;
 };
 
 #endif

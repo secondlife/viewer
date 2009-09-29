@@ -72,6 +72,8 @@
 #include "llvosurfacepatch.h"
 #include "llvowlsky.h"
 #include "llrender.h"
+#include "llbottomtray.h"
+#include "llnavigationbar.h"
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
@@ -483,6 +485,36 @@ bool toggle_agent_pause(const LLSD& newvalue)
 	return true;
 }
 
+bool toggle_show_gesture_button(const LLSD& newvalue)
+{
+	LLBottomTray::getInstance()->showGestureButton(newvalue.asBoolean());
+	return true;
+}
+
+bool toggle_show_move_button(const LLSD& newvalue)
+{
+	LLBottomTray::getInstance()->showMoveButton(newvalue.asBoolean());
+	return true;
+}
+
+bool toggle_show_camera_button(const LLSD& newvalue)
+{
+	LLBottomTray::getInstance()->showCameraButton(newvalue.asBoolean());
+	return true;
+}
+
+bool toggle_show_navigation_panel(const LLSD& newvalue)
+{
+	LLNavigationBar::getInstance()->showNavigationPanel(newvalue.asBoolean());
+	return true;
+}
+
+bool toggle_show_favorites_panel(const LLSD& newvalue)
+{
+	LLNavigationBar::getInstance()->showFavoritesPanel(newvalue.asBoolean());
+	return true;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void settings_setup_listeners()
@@ -619,6 +651,11 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("QAMode")->getSignal()->connect(boost::bind(&show_debug_menus));
 	gSavedSettings.getControl("UseDebugMenus")->getSignal()->connect(boost::bind(&show_debug_menus));
 	gSavedSettings.getControl("AgentPause")->getSignal()->connect(boost::bind(&toggle_agent_pause, _2));
+	gSavedSettings.getControl("ShowGestureButton")->getSignal()->connect(boost::bind(&toggle_show_gesture_button, _2));
+	gSavedSettings.getControl("ShowMoveButton")->getSignal()->connect(boost::bind(&toggle_show_move_button, _2));
+	gSavedSettings.getControl("ShowCameraButton")->getSignal()->connect(boost::bind(&toggle_show_camera_button, _2));
+	gSavedSettings.getControl("ShowNavbarNavigationPanel")->getSignal()->connect(boost::bind(&toggle_show_navigation_panel, _2));
+	gSavedSettings.getControl("ShowNavbarFavoritesPanel")->getSignal()->connect(boost::bind(&toggle_show_favorites_panel, _2));
 }
 
 #if TEST_CACHED_CONTROL

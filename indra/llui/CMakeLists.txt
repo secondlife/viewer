@@ -50,7 +50,6 @@ set(llui_SOURCE_FILES
     llkeywords.cpp
     lllayoutstack.cpp
     lllineeditor.cpp
-    lllistctrl.cpp
     lllocalcliprect.cpp
     llmenugl.cpp
     llmodaldialog.cpp
@@ -136,7 +135,6 @@ set(llui_HEADER_FILES
     lllayoutstack.h
     lllazyvalue.h
     lllineeditor.h
-    lllistctrl.h
     lllocalcliprect.h
     llmenugl.h
     llmodaldialog.h

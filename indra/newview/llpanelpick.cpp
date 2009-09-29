@@ -64,6 +64,7 @@
 #define LABEL_PICK = "Pick"
 #define LABEL_CHANGES = "Changes"
 
+std::string SET_LOCATION_NOTICE("(will update after save)");
 
 LLPanelPick::LLPanelPick(BOOL edit_mode/* = FALSE */)
 :	LLPanel(), LLAvatarPropertiesObserver(), LLRemoteParcelInfoObserver(),
@@ -71,7 +72,8 @@ LLPanelPick::LLPanelPick(BOOL edit_mode/* = FALSE */)
 	mSnapshotCtrl(NULL),
 	mPickId(LLUUID::null),
 	mCreatorId(LLUUID::null),
-	mDataReceived(FALSE)
+	mDataReceived(FALSE),
+	mIsPickNew(false)
 {
 	if (edit_mode)
 	{
@@ -171,7 +173,7 @@ void LLPanelPick::init(LLPickData *pick_data)
 
 	setPickName(pick_data->name);
 	setPickDesc(pick_data->desc);
-	setPickLocation(pick_data->location_text);
+	
 	mSnapshotCtrl->setImageAssetID(pick_data->snapshot_id);
 
 	//*HACK see reset() where the texture control was set to FALSE
@@ -180,27 +182,45 @@ void LLPanelPick::init(LLPickData *pick_data)
 	mPosGlobal = pick_data->pos_global;
 	mSimName = pick_data->sim_name;
 	mParcelId = pick_data->parcel_id;
+
+	setPickLocation(createLocationText(pick_data->user_name, pick_data->original_name,
+		pick_data->sim_name, pick_data->pos_global));
 }
 
-// Fill in some reasonable defaults for a new pick.
-void LLPanelPick::createNewPick()
+void LLPanelPick::prepareNewPick(const LLVector3d pos_global,
+								const std::string& name,
+								const std::string& desc,
+								const LLUUID& snapshot_id,
+								const LLUUID& parcel_id)
 {
 	mPickId.generate();
 	mCreatorId = gAgent.getID();
-	mPosGlobal = gAgent.getPositionGlobal();
+	mPosGlobal = pos_global;
+	setPickName(name);
+	setPickDesc(desc);
+	mSnapshotCtrl->setImageAssetID(snapshot_id);
+	mParcelId = parcel_id;
 
+	setPickLocation(createLocationText(std::string(""), SET_LOCATION_NOTICE, name, pos_global));
+
+	childSetLabelArg(XML_BTN_SAVE, SAVE_BTN_LABEL, std::string("Pick"));
+
+	mIsPickNew = true;
+}
+
+// Fill in some reasonable defaults for a new pick.
+void LLPanelPick::prepareNewPick()
+{
 	// Try to fill in the current parcel
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (parcel)
 	{
-		setPickName(parcel->getName());
-		setPickDesc(parcel->getDesc());
-		mSnapshotCtrl->setImageAssetID(parcel->getSnapshotID());
+		prepareNewPick(gAgent.getPositionGlobal(),
+					  parcel->getName(),
+					  parcel->getDesc(),
+					  parcel->getSnapshotID(),
+					  parcel->getID());
 	}
-
-	sendUpdate();
-
-	childSetLabelArg(XML_BTN_SAVE, SAVE_BTN_LABEL, std::string("Pick"));
 }
 
 /*virtual*/ void LLPanelPick::processProperties(void* data, EAvatarProcessorType type)
@@ -235,6 +255,15 @@ void LLPanelPick::setEditMode( BOOL edit_mode )
 
 	deleteAllChildren();
 
+	// *WORKAROUND: for EXT-931. Children are created for both XML_PANEL_EDIT_PICK & XML_PANEL_PICK_INFO files
+	// The reason is in LLPanel::initPanelXML called from the LLUICtrlFactory::buildPanel().
+	// It creates children from the xml file stored while previous initializing in the "mXMLFilename" member
+	// and then in creates children from the parameters passed from the LLUICtrlFactory::buildPanel().
+	// Xml filename is stored after LLPanel::initPanelXML is called (added with export-from-ll/viewer-2-0, r1594 into LLUICtrlFactory::buildPanel & LLUICtrlFactory::buildFloater)
+	// In case panel creates children from the different xml files they appear from both files.
+	// So, let clear xml filename related to this instance.
+	setXMLFilename("");
+
 	if (edit_mode)
 	{
 		LLUICtrlFactory::getInstance()->buildPanel(this, XML_PANEL_EDIT_PICK);
@@ -256,6 +285,40 @@ void LLPanelPick::setEditMode( BOOL edit_mode )
 	mSnapshotCtrl->setImageAssetID(snapshot_id);
 
 	updateButtons();
+}
+
+//////////////////////////////////////////////////////////////////////////
+// PROTECTED AREA
+//////////////////////////////////////////////////////////////////////////
+
+//static
+std::string LLPanelPick::createLocationText(const std::string& owner_name, const std::string& original_name,
+												 const std::string& sim_name, const LLVector3d& pos_global)
+{
+	std::string location_text;
+	location_text.append(owner_name);
+	if (!original_name.empty())
+	{
+		if (!location_text.empty()) location_text.append(", ");
+		location_text.append(original_name);
+
+	}
+	if (!sim_name.empty())
+	{
+		if (!location_text.empty()) location_text.append(", ");
+		location_text.append(sim_name);
+	}
+
+	if (!location_text.empty()) location_text.append(" ");
+
+	if (!pos_global.isNull())
+	{
+		S32 region_x = llround((F32)pos_global.mdV[VX]) % REGION_WIDTH_UNITS;
+		S32 region_y = llround((F32)pos_global.mdV[VY]) % REGION_WIDTH_UNITS;
+		S32 region_z = llround((F32)pos_global.mdV[VZ]);
+		location_text.append(llformat(" (%d, %d, %d)", region_x, region_y, region_z));
+	}
+	return location_text;
 }
 
 void LLPanelPick::setPickName(std::string name)
@@ -288,7 +351,7 @@ void LLPanelPick::setPickDesc(std::string desc)
 	mDesc = desc;
 }
 
-void LLPanelPick::setPickLocation(std::string location)
+void LLPanelPick::setPickLocation(const std::string& location)
 {
 	childSetWrappedText(XML_LOCATION, location);
 
@@ -375,6 +438,12 @@ void LLPanelPick::onClickCancel()
 {
 	if (!mEditMode) return;
 	
+	if (mIsPickNew)
+	{
+		mBackCb(this, LLSD());
+		return;
+	}
+
 	LLUUID pick_id = mPickId;
 	LLUUID creator_id = mCreatorId;
 	reset();
@@ -385,29 +454,34 @@ void LLPanelPick::onClickCancel()
 void LLPanelPick::onClickSet()
 {
 	if (!mEditMode) return;
-	if (!mDataReceived) return;
+	if (!mIsPickNew && !mDataReceived) return;
 
 	// Save location for later.
 	mPosGlobal = gAgent.getPositionGlobal();
 
-	S32 region_x = llround((F32)mPosGlobal.mdV[VX]) % REGION_WIDTH_UNITS;
-	S32 region_y = llround((F32)mPosGlobal.mdV[VY]) % REGION_WIDTH_UNITS;
-	S32 region_z = llround((F32)mPosGlobal.mdV[VZ]);
-
-	std::string location_text = "(will update after save), ";
-	location_text.append(mSimName);
-	location_text.append(llformat(" (%d, %d, %d)", region_x, region_y, region_z));
-
-	setPickLocation(location_text);
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	if (parcel)
+	{
+		mParcelId = parcel->getID();
+		mSimName = parcel->getName();
+	}
+	setPickLocation(createLocationText(std::string(""), SET_LOCATION_NOTICE, mSimName, mPosGlobal));
 }
 
 // static
 void LLPanelPick::onClickSave()
 {
 	if (!mEditMode) return;
-	if (!mDataReceived) return;
+	if (!mIsPickNew && !mDataReceived) return;
 
 	sendUpdate();
+	
+	if (mIsPickNew)
+	{
+		mBackCb(this, LLSD());
+		return;
+	}
+
 	setEditMode(FALSE);
 }
 

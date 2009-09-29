@@ -129,10 +129,10 @@ void LLOutputMonitorCtrl::draw()
 	const F32 LEVEL_1 = LLVoiceClient::OVERDRIVEN_POWER_LEVEL * 2.f / 3.f;
 	const F32 LEVEL_2 = LLVoiceClient::OVERDRIVEN_POWER_LEVEL;
 
-	if (getVisible() && mAutoUpdate && !mIsMuted && mSpeakerId.notNull())
+	if (mIsParentVisible && getVisible() && mAutoUpdate && !mIsMuted && mSpeakerId.notNull())
 	{
 		setPower(gVoiceClient->getCurrentPower(mSpeakerId));
-		setIsTalking(gVoiceClient->getUserPTTState());
+		setIsTalking(gVoiceClient->getIsSpeaking(mSpeakerId));
 	}
 
 	LLPointer<LLUIImage> icon;
@@ -218,6 +218,12 @@ void LLOutputMonitorCtrl::draw()
 	//
 	if(mBorder)
 		gl_rect_2d(0, monh, monw, 0, sColorBound, FALSE);
+}
+
+void LLOutputMonitorCtrl::handleVisibilityChange(BOOL new_visibility)
+{
+	mIsParentVisible = new_visibility;
+	LLView::handleVisibilityChange(new_visibility);
 }
 
 void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id)

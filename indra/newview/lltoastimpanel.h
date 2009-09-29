@@ -43,7 +43,7 @@
 class LLToastIMPanel: public LLToastPanel 
 {
 public:
-	struct Params :	public LLInitParam::Block<Params>
+	struct Params
 	{
 		LLNotificationPtr	notification;
 		LLUUID				avatar_id;

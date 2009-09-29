@@ -66,8 +66,11 @@ public:
 										track_image_horizontal,
 										track_image_vertical;
 
+		Optional<bool>					bg_visible;
+
 		Optional<LLUIColor>				track_color,
-										thumb_color;
+										thumb_color,
+										bg_color;
 
 		Optional<LLButton::Params>		up_button;
 		Optional<LLButton::Params>		down_button;
@@ -127,6 +130,12 @@ public:
 	void				onLineUpBtnPressed(const LLSD& data);
 	void				onLineDownBtnPressed(const LLSD& data);
 
+	void				setBGColor(const LLUIColor& color) { mBGColor = color; }
+	const LLUIColor&	getBGColor() const { return mBGColor; }
+
+	void				setBGVisible() { mBGVisible = true; }
+	bool				getBGVisible() const { return mBGVisible; }
+
 private:
 	void				updateThumbRect();
 	void				changeLine(S32 delta, BOOL update_thumb );
@@ -151,6 +160,9 @@ private:
 
 	LLUIColor			mTrackColor;
 	LLUIColor			mThumbColor;
+	LLUIColor			mBGColor;
+
+	bool				mBGVisible;
 
 	LLUIImagePtr		mThumbImageV;
 	LLUIImagePtr		mThumbImageH;

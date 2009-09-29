@@ -44,7 +44,8 @@
                           label=""
                           pad_right="0"
                           tool_tip="My Location History"/>
-  <combo_list bg_writeable_color="MenuDefaultBgColor" page_lines="10"/>
+  <combo_list bg_writeable_color="MenuDefaultBgColor" page_lines="10"
+              scroll_bar_bg_visible="true" />
   <combo_editor name="Combo Text Entry"
                 text_pad_left="20"
                 select_on_focus="false"

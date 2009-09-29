@@ -77,14 +77,30 @@ public:
 	static void showProfile(const LLUUID& id);
 
 	/**
+	 * Give money to the avatar.
+	 */
+	static void pay(const LLUUID& id);
+
+	/**
+	 * Block/unblock the avatar.
+	 */
+	static void toggleBlock(const LLUUID& id);
+
+	/**
 	 * Return true if avatar with "id" is a friend
 	 */
 	static bool isFriend(const LLUUID& id);
+
+	/**
+	 * @return true if the avatar is blocked
+	 */
+	static bool isBlocked(const LLUUID& id);
 
 private:
 	static bool callbackAddFriend(const LLSD& notification, const LLSD& response);
 	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);
 	static bool handleRemove(const LLSD& notification, const LLSD& response);
+	static bool handlePay(const LLSD& notification, const LLSD& response, LLUUID avatar_id);
 
 	// Just request friendship, no dialog.
 	static void requestFriendship(const LLUUID& target_id, const std::string& target_name, const std::string& message);

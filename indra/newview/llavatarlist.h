@@ -33,54 +33,13 @@
 #ifndef LL_LLAVATARLIST_H
 #define LL_LLAVATARLIST_H
 
-#include <llscrolllistctrl.h>
-
-// *TODO: derive from ListView when it's ready.
-class LLAvatarList : public LLScrollListCtrl 
-{
-	LOG_CLASS(LLAvatarList);
-public:
-	struct Params : public LLInitParam::Block<Params, LLScrollListCtrl::Params>
-	{
-		Optional<S32> volume_column_width;
-		Optional<bool> online_go_first;
-		Params();
-	};
-
-	enum EColumnOrder
-	{
-		COL_VOLUME,
-		COL_NAME,
-		COL_ONLINE,
-		COL_ID,
-	};
-
-	LLAvatarList(const Params&);
-	virtual	~LLAvatarList() {}
-
-	/*virtual*/ void	draw();
-
-	BOOL update(const std::vector<LLUUID>& all_buddies,
-		const std::string& name_filter = LLStringUtil::null);
-
-protected:
-	std::vector<LLUUID> getSelectedIDs();
-	void addItem(const LLUUID& id, const std::string& name, BOOL is_bold, EAddPosition pos = ADD_BOTTOM);
-
-private:
-	static std::string getVolumeIcon(const LLUUID& id); /// determine volume icon from current avatar volume
-	void updateVolume(); // update volume for all avatars
-
-	bool mHaveVolumeColumn;
-	bool mOnlineGoFirst;
-};
-
-
 #include "llflatlistview.h"
 
-class LLAvatarListTmp : public LLFlatListView
+#include "llavatarlistitem.h"
+
+class LLAvatarList : public LLFlatListView
 {
-	LOG_CLASS(LLAvatarListTmp);
+	LOG_CLASS(LLAvatarList);
 public:
 	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> 
 	{
@@ -89,32 +48,62 @@ public:
 		Params();
 	};
 
-	LLAvatarListTmp(const Params&);
-	virtual	~LLAvatarListTmp() {}
-
-	/*virtual*/ void	draw();
+	LLAvatarList(const Params&);
+	virtual	~LLAvatarList() {}
 
 	BOOL update(const std::vector<LLUUID>& all_buddies,
 		const std::string& name_filter = LLStringUtil::null);
 
-	const LLUUID getCurrentID() const;
-	void setCommentText( const std::string& comment_text);
+	void setContextMenu(LLAvatarListItem::ContextMenu* menu) { mContextMenu = menu; }
+
+	void sortByName();
 
 protected:
-	std::vector<LLUUID> getSelectedIDs();
 	void addNewItem(const LLUUID& id, const std::string& name, BOOL is_bold, EAddPosition pos = ADD_BOTTOM);
-	/*virtual*/ bool removeItemPair(item_pair_t* item_pair);
+	void computeDifference(
+		const std::vector<LLUUID>& vnew,
+		std::vector<LLUUID>& vadded,
+		std::vector<LLUUID>& vremoved);
 
 private:
-	static std::string getVolumeIcon(const LLUUID& id); /// determine volume icon from current avatar volume
-	void updateVolume(); // update volume for all avatars
-	void setCommentVisible(bool visible) const;
 
-	bool mHaveVolumeColumn;
 	bool mOnlineGoFirst;
 
+	LLAvatarListItem::ContextMenu* mContextMenu;
+};
+
+/** Abstract comparator for avatar items */
+class LLAvatarItemComparator : public LLFlatListView::ItemComparator
+{
+	LOG_CLASS(LLAvatarItemComparator);
+
+public:
+	LLAvatarItemComparator() {};
+	virtual ~LLAvatarItemComparator() {};
+
+	virtual bool compare(const LLPanel* item1, const LLPanel* item2) const;
+
+protected:
+
+	/** 
+	 * Returns true if avatar_item1 < avatar_item2, false otherwise 
+	 * Implement this method in your particular comparator.
+	 * In Linux a compiler failed to build it using the name "compare", so it was renamed to doCompare
+	 */
+	virtual bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const = 0;
 };
 
 
+class LLAvatarItemNameComparator : public LLAvatarItemComparator
+{
+	LOG_CLASS(LLAvatarItemNameComparator);
+
+public:
+	LLAvatarItemNameComparator() {};
+	virtual ~LLAvatarItemNameComparator() {};
+
+protected:
+	virtual bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const;
+};
 
 #endif // LL_LLAVATARLIST_H

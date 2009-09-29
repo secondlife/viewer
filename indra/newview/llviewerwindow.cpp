@@ -1559,9 +1559,19 @@ void LLViewerWindow::initWorldUI()
 		navbar->showFavoritesPanel(FALSE);
 	}
 
-	if (!gSavedSettings.getBOOL("ShowCameraAndMoveControls"))
+	if (!gSavedSettings.getBOOL("ShowCameraButton"))
 	{
-		LLBottomTray::getInstance()->showCameraAndMoveControls(FALSE);
+		LLBottomTray::getInstance()->showCameraButton(FALSE);
+	}
+
+	if (!gSavedSettings.getBOOL("ShowMoveButton"))
+	{
+		LLBottomTray::getInstance()->showMoveButton(FALSE);
+	}
+
+	if (!gSavedSettings.getBOOL("ShowGestureButton"))
+	{
+		LLBottomTray::getInstance()->showGestureButton(FALSE);
 	}
 
 	getRootView()->addChild(gStatusBar);
@@ -1576,13 +1586,6 @@ void LLViewerWindow::initWorldUI()
 	getRootView()->sendChildToFront(gNotifyBoxView);
 	// menu holder appears on top to get first pass at all mouse events
 	getRootView()->sendChildToFront(gMenuHolder);
-
-	//Channel Manager
-	LLNotificationsUI::LLChannelManager* channel_manager = LLNotificationsUI::LLChannelManager::getInstance();
-	getRootView()->addChild(channel_manager);
-	//Notification Manager
-	LLNotificationsUI::LLNotificationManager* notify_manager = LLNotificationsUI::LLNotificationManager::getInstance();
-	getRootView()->addChild(notify_manager);
 
 	if ( gHUDView == NULL )
 	{
@@ -2859,6 +2862,9 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 
 	if (mWorldViewRect != new_world_rect)
 	{
+		// sending a signal with a new WorldView rect
+		mOnWorldViewRectUpdated(mWorldViewRect, new_world_rect);
+
 		mWorldViewRect = new_world_rect;
 		gResizeScreenTexture = TRUE;
 		LLViewerCamera::getInstance()->setViewHeightInPixels( mWorldViewRect.getHeight() );
@@ -3215,9 +3221,18 @@ LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot,  BOOL pick_trans
 
 	pickAsync(x, y_from_bot, gKeyboard->currentMask(TRUE), NULL, pick_transparent);
 	// assume that pickAsync put the results in the back of the mPicks list
+	if(mPicks.size() != 0)
+	{
 	mLastPick = mPicks.back();
 	mLastPick.fetchResults();
 	mPicks.pop_back();
+	}
+	else
+	{
+		llwarns << "List of last picks is empty" << llendl;
+		llwarns << "Using stub pick" << llendl;
+		mLastPick = LLPickInfo();
+	}
 
 	return mLastPick;
 }

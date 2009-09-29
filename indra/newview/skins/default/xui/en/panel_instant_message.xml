@@ -33,7 +33,17 @@
          layout="topleft"
          left="5"
          mouse_opaque="true"
-         name="avatar"
+         name="avatar_icon"
+         top="5"
+         width="20" />
+        <icon
+         follows="right"
+         height="20"
+         image_name="icon_top_pick.tga"
+         layout="topleft"
+         left="5"
+         mouse_opaque="true"
+         name="sys_msg_icon"
          top="5"
          width="20" />
         <text

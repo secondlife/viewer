@@ -48,7 +48,7 @@ class LLPanelPick;
 class LLAgent;
 class LLMenuGL;
 class LLPickItem;
-class LLListCtrl;
+class LLFlatListView;
 
 class LLPanelPicks 
 	: public LLPanelProfileTab
@@ -107,7 +107,7 @@ private:
 	LLMenuGL* mPopupMenu;
 	LLPanelProfile* mProfilePanel;
 	LLPanelPick* mPickPanel;
-	LLListCtrl* mPicksList;
+	LLFlatListView* mPicksList;
 };
 
 class LLPickItem : public LLPanel, public LLAvatarPropertiesObserver
@@ -142,8 +142,6 @@ public:
 
 	const LLVector3d& getPosGlobal();
 
-	const std::string& getLocation();
-
 	const std::string getDescription();
 
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
@@ -167,7 +165,6 @@ protected:
 	bool mNeedData;
 
 	std::string mPickName;
-	std::string mLocation;
 };
 
 #endif // LL_LLPANELPICKS_H

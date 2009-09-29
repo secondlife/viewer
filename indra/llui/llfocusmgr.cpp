@@ -216,6 +216,10 @@ void LLFocusMgr::setKeyboardFocus(LLFocusableElement* new_focus, BOOL lock, BOOL
 			{
 				mCachedKeyboardFocusList.pop_front();
 				old_focus_view->onFocusLost();
+
+				// part of fix of EXT-996
+				// this need to handle event when user click inside in-world area
+				mFocusChangeSignal();
 			}
 		}
 

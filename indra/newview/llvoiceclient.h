@@ -42,9 +42,9 @@ class LLVivoxProtocolParser;
 #include "v3math.h"
 #include "llframetimer.h"
 #include "llviewerregion.h"
-#include "llcallingcard.h"   // for LLFriendObserver
 #include "m3math.h"			// LLMatrix3
 
+class LLFriendObserver;
 class LLVoiceClientParticipantObserver
 {
 public:

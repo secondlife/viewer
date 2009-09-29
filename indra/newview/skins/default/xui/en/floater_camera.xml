@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ can_dock="true"
  can_minimize="false"
  can_close="false" 
  center_horiz="true"
@@ -29,6 +30,7 @@
      layout="topleft"
      left="0"
      top="0"
+     mouse_opaque="false" 
      name="controls"
      width="105">
         <joystick_rotate
@@ -67,7 +69,7 @@
          height="64"
          image_unselected="cam_zoom_out.tga"
          layout="topleft"
-         left_delta="74"
+         left_delta="70"
          minus_image="cam_zoom_minus_in.tga"
          name="zoom"
          picture_style="true"

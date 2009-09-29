@@ -35,12 +35,21 @@
 #include "lldockablefloater.h"
 
 //static
-LLHandle<LLFloater> LLDockableFloater::instanceHandle;
+LLHandle<LLFloater> LLDockableFloater::sInstanceHandle;
 
 LLDockableFloater::LLDockableFloater(LLDockControl* dockControl,
 		const LLSD& key, const Params& params) :
-	LLFloater(key, params), mDockControl(dockControl)
+	LLFloater(key, params), mDockControl(dockControl), mUniqueDocking(true)
 {
+	setDocked(mDockControl.get() != NULL && mDockControl.get()->isDockVisible());
+	resetInstance();
+}
+
+LLDockableFloater::LLDockableFloater(LLDockControl* dockControl, bool uniqueDocking,
+		const LLSD& key, const Params& params) :
+	LLFloater(key, params), mDockControl(dockControl), mUniqueDocking(uniqueDocking)
+{
+	setDocked(mDockControl.get() != NULL && mDockControl.get()->isDockVisible());
 	resetInstance();
 }
 
@@ -57,22 +66,14 @@ BOOL LLDockableFloater::postBuild()
 
 void LLDockableFloater::resetInstance()
 {
-	if (instanceHandle.get() != this)
+	if (mUniqueDocking && sInstanceHandle.get() != this)
 	{
-		if (instanceHandle.get() != NULL && instanceHandle.get()->isDocked())
+		if (sInstanceHandle.get() != NULL && sInstanceHandle.get()->isDocked())
 		{
-			//closeFloater() is not virtual
-			if (instanceHandle.get()->canClose())
-			{
-				instanceHandle.get()->closeFloater();
+			sInstanceHandle.get()->setVisible(FALSE);
 			}
-			else
-			{
-				instanceHandle.get()->setVisible(FALSE);
+		sInstanceHandle = getHandle();
 			}
-		}
-		instanceHandle = getHandle();
-	}
 }
 
 void LLDockableFloater::setVisible(BOOL visible)
@@ -81,12 +82,18 @@ void LLDockableFloater::setVisible(BOOL visible)
 	{
 		resetInstance();
 	}
+
+	if (visible && mDockControl.get() != NULL)
+	{
+		mDockControl.get()->repositionDockable();
+	}
+
 	LLFloater::setVisible(visible);
 }
 
 void LLDockableFloater::setDocked(bool docked, bool pop_on_undock)
 {
-	if (mDockControl.get() != NULL)
+	if (mDockControl.get() != NULL && mDockControl.get()->isDockVisible())
 	{
 		if (docked)
 		{
@@ -97,12 +104,16 @@ void LLDockableFloater::setDocked(bool docked, bool pop_on_undock)
 		{
 			mDockControl.get()->off();
 		}
-	}
 
 	if (!docked && pop_on_undock)
 	{
 		// visually pop up a little bit to emphasize the undocking
 		translate(0, UNDOCK_LEAP_HEIGHT);
+	}
+	}
+	else
+	{
+		docked = false;
 	}
 
 	LLFloater::setDocked(docked, pop_on_undock);
@@ -113,7 +124,10 @@ void LLDockableFloater::draw()
 	if (mDockControl.get() != NULL)
 	{
 		mDockControl.get()->repositionDockable();
+		if (isDocked())
+		{
 		mDockControl.get()->drawToungue();
+	}
 	}
 	LLFloater::draw();
 }
@@ -121,7 +135,9 @@ void LLDockableFloater::draw()
 void LLDockableFloater::setDockControl(LLDockControl* dockControl)
 {
 	mDockControl.reset(dockControl);
+	setDocked(mDockControl.get() != NULL && mDockControl.get()->isDockVisible());
 }
+
 const LLUIImagePtr& LLDockableFloater::getDockTongue()
 {
 	return mDockTongue;

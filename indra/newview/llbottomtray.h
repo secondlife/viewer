@@ -37,6 +37,7 @@
 
 #include "llpanel.h"
 #include "llimview.h"
+#include "llcombobox.h"
 
 class LLChicletPanel;
 class LLLineEditor;
@@ -70,9 +71,11 @@ public:
 	virtual void onFocusLost();
 	virtual void setVisible(BOOL visible);
 
-	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+	void showBottomTrayContextMenu(S32 x, S32 y, MASK mask);
 
-	void showCameraAndMoveControls(BOOL visible);
+	void showGestureButton(BOOL visible);
+	void showMoveButton(BOOL visible);
+	void showCameraButton(BOOL visible);
 
 private:
 
@@ -81,9 +84,6 @@ protected:
 	LLBottomTray(const LLSD& key = LLSD());
 
 	void onChicletClick(LLUICtrl* ctrl);
-
-	bool onShowCamMoveCtrlsContextMenuItemEnabled(const LLSD& userdata);
-	void onShowCamMoveCtrlsContextMenuItemClicked(const LLSD& userdata);
 
 	static void* createNearbyChatBar(void* userdata);
 
@@ -97,9 +97,10 @@ protected:
 	LLTalkButton* 		mTalkBtn;
 	LLNearbyChatBar*	mNearbyChatBar;
 	LLLayoutStack*		mToolbarStack;
-	LLMenuGL*			mShowCamMoveCtrlsContextMenu;
+	LLMenuGL*			mBottomTrayContextMenu;
 	LLPanel*			mMovementPanel;
 	LLPanel*			mCamPanel;
+	LLComboBox*			mGestureCombo;
 };
 
 #endif // LL_LLBOTTOMPANEL_H

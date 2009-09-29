@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ follows="top|right|left"
+ height="24"
+ layout="topleft"
+ left="0"
+ name="group_list_item"
+ top="0"
+ width="320">
+    <icon
+     follows="top|right|left" 
+     height="24"
+     image_name="ListItem_Over"
+     layout="topleft"
+     left="0"
+     name="hovered_icon"
+     top="0"
+     visible="false"
+     width="320" />
+    <icon
+     height="24"
+     follows="top|right|left"
+     image_name="ListItem_Select"
+     layout="topleft"
+     left="0"
+     name="selected_icon"
+     top="0"
+     visible="false"
+     width="320" />
+    <icon
+     follows="top|left"
+     height="18"
+     image_name="icon_group.tga"
+     layout="topleft"
+     left="5"
+     mouse_opaque="true"
+     name="group_icon" 
+     top="4"
+     width="18" />
+    <text
+     follows="left|right"
+     font="SansSerifSmall"
+     height="17"
+     layout="topleft"
+     left_pad="5"
+     name="group_name"
+     text_color="white"
+     top="7"
+     use_ellipses="true" 
+     value="Unknown"
+     width="263" />
+    <button
+     follows="right"
+     height="18"
+     image_disabled="Info"
+     image_disabled_selected="Info"
+     image_hover_selected="Info"
+     image_selected="Info"
+     image_unselected="Info"
+     layout="topleft"
+     name="info_btn"
+     picture_style="true"
+     right="-5"
+     top="4" 
+     width="18" />
+</panel>

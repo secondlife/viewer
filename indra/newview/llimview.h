@@ -38,7 +38,6 @@
 #include "llinstantmessage.h"
 #include "lluuid.h"
 #include "llmultifloater.h"
-#include "llrecentpeople.h"
 
 class LLFloaterChatterBox;
 class LLUUID;
@@ -159,7 +158,7 @@ public:
 	// This removes the panel referenced by the uuid, and then
 	// restores internal consistency. The internal pointer is not
 	// deleted.
-	void removeSession(const LLUUID& session_id);
+	void removeSession(LLUUID session_id);
 
 	void inviteToSession(
 		const LLUUID& session_id, 

@@ -38,6 +38,7 @@
 #include "llgroupactions.h"
 #include "lliconctrl.h"
 #include "llimpanel.h"				// LLFloaterIMPanel
+#include "llimfloater.h"
 #include "llimview.h"
 #include "llfloaterreg.h"
 #include "lllocalcliprect.h"
@@ -47,6 +48,7 @@
 #include "llvoiceclient.h"
 #include "llvoicecontrolpanel.h"
 #include "llgroupmgr.h"
+#include "llnotificationmanager.h"
 
 static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
 static LLDefaultChildRegistry::Register<LLTalkButton> t2("chiclet_talk");
@@ -84,7 +86,6 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 : LLChiclet(p)
 , mButton(NULL)
 , mCounterCtrl(NULL)
-, mNotificationChicletWindow(NULL)
 {
 	LLButton::Params button_params = p.button;
 	button_params.rect(p.rect());
@@ -94,11 +95,35 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
  	LLChicletNotificationCounterCtrl::Params unread_params = p.unread_notifications;
 	mCounterCtrl = LLUICtrlFactory::create<LLChicletNotificationCounterCtrl>(unread_params);
 	addChild(mCounterCtrl);
+
+	// connect counter handlers to the signals
+	connectCounterUpdatersToSignal("notify");
+	connectCounterUpdatersToSignal("groupnotify");
+	connectCounterUpdatersToSignal("notifytoast");
 }
 
 LLNotificationChiclet::~LLNotificationChiclet()
 {
 
+}
+
+void LLNotificationChiclet::connectCounterUpdatersToSignal(std::string notification_type)
+{
+	LLNotificationsUI::LLNotificationManager* manager = LLNotificationsUI::LLNotificationManager::getInstance();
+	LLNotificationsUI::LLEventHandler* n_handler = manager->getHandlerForNotification(notification_type);
+	if(n_handler)
+	{
+		if(notification_type == "notifytoast")
+		{
+			n_handler->setNewNotificationCallback(boost::bind(&LLNotificationChiclet::updateUreadIMNotifications, this));
+			n_handler->setDelNotification(boost::bind(&LLNotificationChiclet::updateUreadIMNotifications, this));
+		}
+		else
+		{
+			n_handler->setNewNotificationCallback(boost::bind(&LLNotificationChiclet::incUreadSystemNotifications, this));
+			n_handler->setDelNotification(boost::bind(&LLNotificationChiclet::decUreadSystemNotifications, this));
+		}
+	}
 }
 
 void LLNotificationChiclet::setCounter(S32 counter)
@@ -259,7 +284,8 @@ LLIMP2PChiclet::Params::Params()
 	rect(LLRect(0, 25, 45, 0));
 
 	avatar_icon.name("avatar_icon");
-	avatar_icon.rect(LLRect(0, 25, 25, 0));
+	avatar_icon.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
+	avatar_icon.rect(LLRect(0, 24, 25, 0));
 	avatar_icon.mouse_opaque(false);
 
 	unread_notifications.name("unread");
@@ -432,7 +458,7 @@ LLIMGroupChiclet::Params::Params()
 	rect(LLRect(0, 25, 45, 0));
 
 	group_icon.name("group_icon");
-	group_icon.rect(LLRect(0, 25, 25, 0));
+	group_icon.rect(LLRect(0, 24, 25, 0));
 
 	unread_notifications.name("unread");
 	unread_notifications.rect(LLRect(25, 25, 45, 0));
@@ -846,6 +872,27 @@ void LLChicletPanel::removeAll()
 	showScrollButtonsIfNeeded();
 }
 
+void LLChicletPanel::scrollToChiclet(const LLChiclet* chiclet)
+{
+	const LLRect& rect = chiclet->getRect();
+
+	if (rect.mLeft < 0)
+	{
+		scroll(llabs(rect.mLeft));
+		showScrollButtonsIfNeeded();
+	}
+	else
+	{
+		S32 scrollWidth = mScrollArea->getRect().getWidth();
+
+		if (rect.mRight > scrollWidth)
+		{
+			scroll(-llabs(rect.mRight - scrollWidth));
+			showScrollButtonsIfNeeded();
+		}
+	}
+}
+
 void LLChicletPanel::reshape(S32 width, S32 height, BOOL called_from_parent )
 {
 	LLPanel::reshape(width,height,called_from_parent);
@@ -861,7 +908,7 @@ void LLChicletPanel::reshape(S32 width, S32 height, BOOL called_from_parent )
 		width, height - scroll_button_rect.getHeight()));
 
 	mScrollArea->setRect(LLRect(scroll_button_rect.getWidth() + SCROLL_BUTTON_PAD,
-		height + 7, width - scroll_button_rect.getWidth() - SCROLL_BUTTON_PAD, 0));
+		height, width - scroll_button_rect.getWidth() - SCROLL_BUTTON_PAD, 0));
 
 	mShowControls = width > mMinWidth;
 	mScrollArea->setVisible(mShowControls);

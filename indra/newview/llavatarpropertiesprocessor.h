@@ -96,7 +96,7 @@ struct LLPickData
 	BOOL enabled;
 
 	//used only in read requests
-	std::string location_text;
+	std::string user_name;
 	std::string original_name;
 	std::string sim_name;
 

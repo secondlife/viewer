@@ -40,7 +40,6 @@
 class LLFilterEditor;
 class LLTabContainer;
 class LLAvatarList;
-class LLAvatarListTmp;
 class LLGroupList;
 
 class LLPanelPeople : public LLPanel
@@ -67,6 +66,7 @@ private:
 	bool					filterFriendList();
 	bool					filterNearbyList();
 	bool					filterRecentList();
+	void					applyFilterToTab(const std::string& tab_name);
 	void					updateButtons();
 	const std::string&		getActiveTabName() const;
 	LLUUID					getCurrentItemID() const;
@@ -97,6 +97,7 @@ private:
 	void					onRecentViewSortButtonClicked();
 	void					onNearbyViewSortButtonClicked();
 	void					onFriendsViewSortButtonClicked();
+	void					onGroupsViewSortButtonClicked();
 	void					onAvatarListDoubleClicked(LLAvatarList* list);
 	void					onAvatarListCommitted(LLAvatarList* list);
 	void					onGroupPlusButtonClicked();
@@ -105,6 +106,7 @@ private:
 
 	void					onFriendsViewSortMenuItemClicked(const LLSD& userdata);
 	void					onNearbyViewSortMenuItemClicked(const LLSD& userdata);
+	void					onGroupsViewSortMenuItemClicked(const LLSD& userdata);
 	void					onRecentViewSortMenuItemClicked(const LLSD& userdata);
 
 	// misc callbacks
@@ -114,17 +116,20 @@ private:
 								const std::vector<LLUUID>& ids,
 								void*);
 
+	void					onFriendsAccordionExpandedCollapsed(const LLSD& param, LLAvatarList* avatar_list);
+
 	LLFilterEditor*			mFilterEditor;
 	LLTabContainer*			mTabContainer;
 	LLAvatarList*			mOnlineFriendList;
 	LLAvatarList*			mAllFriendList;
 	LLAvatarList*			mNearbyList;
-	LLAvatarListTmp*		mRecentList;
+	LLAvatarList*			mRecentList;
 	LLGroupList*			mGroupList;
 
 	LLHandle<LLView>		mGroupPlusMenuHandle;
 	LLHandle<LLView>		mNearbyViewSortMenuHandle;
 	LLHandle<LLView>		mFriendsViewSortMenuHandle;
+	LLHandle<LLView>		mGroupsViewSortMenuHandle;
 	LLHandle<LLView>		mRecentViewSortMenuHandle;
 
 	Updater*				mFriendListUpdater;

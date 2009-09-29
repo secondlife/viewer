@@ -139,7 +139,9 @@ LLScrollListCtrl::Params::Params()
 	bg_stripe_color("bg_stripe_color"),
 	hovered_color("hovered_color"),
 	highlighted_color("highlighted_color"),
-	contents("")
+	contents(""),
+	scroll_bar_bg_visible("scroll_bar_bg_visible"),
+	scroll_bar_bg_color("scroll_bar_bg_color")
 {
 	name = "scroll_list";
 	mouse_opaque = true;
@@ -220,6 +222,8 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	sbparams.change_callback(boost::bind(&LLScrollListCtrl::onScrollChange, this, _1, _2));
 	sbparams.follows.flags(FOLLOWS_RIGHT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
 	sbparams.visible(false);
+	sbparams.bg_visible(p.scroll_bar_bg_visible);
+	sbparams.bg_color(p.scroll_bar_bg_color);
 	mScrollbar = LLUICtrlFactory::create<LLScrollbar> (sbparams);
 	addChild(mScrollbar);
 

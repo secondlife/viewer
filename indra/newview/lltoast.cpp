@@ -44,7 +44,8 @@ using namespace LLNotificationsUI;
 LLToast::LLToast(LLToast::Params p) :	LLFloater(LLSD()), 
 										mPanel(p.panel), 
 										mTimerValue(p.timer_period),  
-										mID(p.id),  
+										mNotificationID(p.notif_id),  
+										mSessionID(p.session_id),
 										mCanFade(p.can_fade),
 										mCanBeStored(p.can_be_stored),
 										mHideBtnEnabled(p.enable_hide_btn),
@@ -73,12 +74,12 @@ LLToast::LLToast(LLToast::Params p) :	LLFloater(LLSD()),
 		setFocus(TRUE);
 	}
 
-
-	if(!p.on_toast_destroy.empty())
-		mOnToastDestroy.connect(p.on_toast_destroy);
+	// init callbacks if present
+	if(!p.on_delete_toast.empty())
+		mOnDeleteToastSignal.connect(p.on_delete_toast);
 
 	if(!p.on_mouse_enter.empty())
-		mOnMousEnter.connect(p.on_mouse_enter);
+		mOnMouseEnterSignal.connect(p.on_mouse_enter);
 }
 
 //--------------------------------------------------------------------------
@@ -102,6 +103,7 @@ void LLToast::setHideButtonEnabled(bool enabled)
 //--------------------------------------------------------------------------
 LLToast::~LLToast()
 {	
+	mOnToastDestroyedSignal(this);
 	if(mIsModal)
 	{
 		gFocusMgr.unlockFocus();
@@ -142,7 +144,7 @@ void LLToast::hide()
 {
 	setVisible(FALSE);
 	mTimer.stop();
-	mOnFade(this);
+	mOnFadeSignal(this);
 }
 
 //--------------------------------------------------------------------------
@@ -160,7 +162,7 @@ void LLToast::tick()
 	{
 		setVisible(FALSE);
 		mTimer.stop();
-		mOnFade(this); 
+		mOnFadeSignal(this); 
 	}
 }
 
@@ -223,7 +225,7 @@ void LLToast::setVisible(BOOL show)
 //--------------------------------------------------------------------------
 void LLToast::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	mOnToastHover(this, MOUSE_ENTER);
+	mOnToastHoverSignal(this, MOUSE_ENTER);
 
 	setBackgroundOpaque(TRUE);
 	if(mCanFade)
@@ -234,13 +236,13 @@ void LLToast::onMouseEnter(S32 x, S32 y, MASK mask)
 	sendChildToFront(mHideBtn);
 	if(mHideBtn && mHideBtn->getEnabled())
 		mHideBtn->setVisible(TRUE);
-	mOnMousEnter(this);
+	mOnMouseEnterSignal(this);
 }
 
 //--------------------------------------------------------------------------
 void LLToast::onMouseLeave(S32 x, S32 y, MASK mask)
 {	
-	mOnToastHover(this, MOUSE_LEAVE);
+	mOnToastHoverSignal(this, MOUSE_LEAVE);
 
 	if(mCanFade)
 	{
@@ -270,21 +272,11 @@ BOOL LLToast::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 
 //--------------------------------------------------------------------------
-void LLToast::discardNotification()
+bool LLToast::isNotificationValid()
 {
 	if(mNotification)
 	{
-		mNotification->setIgnored(TRUE);
-		mNotification->respond(mNotification->getResponseTemplate());
-	}
-}
-
-//--------------------------------------------------------------------------
-bool LLToast::getIsNotificationUnResponded()
-{
-	if(mNotification)
-	{
-		return !mNotification->isRespondedTo();
+		return !mNotification->isCancelled();
 	}
 	return false;
 }

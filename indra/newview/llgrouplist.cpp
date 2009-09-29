@@ -35,24 +35,53 @@
 #include "llgrouplist.h"
 
 // libs
+#include "llbutton.h"
+#include "lliconctrl.h"
+#include "lltextbox.h"
 #include "lltrans.h"
 
 // newview
 #include "llagent.h"
+#include "llgroupactions.h"
+#include "llviewercontrol.h"	// for gSavedSettings
 
 static LLDefaultChildRegistry::Register<LLGroupList> r("group_list");
+S32 LLGroupListItem::sIconWidth = 0;
+
+class LLGroupComparator : public LLFlatListView::ItemComparator
+{
+public:
+	/** Returns true if item1 < item2, false otherwise */
+	/*virtual*/ bool compare(const LLPanel* item1, const LLPanel* item2) const
+	{
+		std::string name1 = static_cast<const LLGroupListItem*>(item1)->getGroupName();
+		std::string name2 = static_cast<const LLGroupListItem*>(item2)->getGroupName();
+
+		LLStringUtil::toUpper(name1);
+		LLStringUtil::toUpper(name2);
+
+		return name1 < name2;
+	}
+};
+
+static const LLGroupComparator GROUP_COMPARATOR;
 
 LLGroupList::Params::Params()
 {
-	// Prevent the active group from being always first in the list.
-	online_go_first = false;
+	
 }
 
 LLGroupList::LLGroupList(const Params& p)
-:	LLAvatarList(p)
+:	LLFlatListView(p)
 {
+	mShowIcons = gSavedSettings.getBOOL("GroupListShowIcons");
+	setCommitOnSelectionChange(true);
+	// TODO: implement context menu
 	// display a context menu appropriate for a list of group names
-	setContextMenu(LLScrollListCtrl::MENU_GROUP);
+//	setContextMenu(LLScrollListCtrl::MENU_GROUP);
+
+	// Set default sort order.
+	setComparator(&GROUP_COMPARATOR);
 }
 
 static bool findInsensitive(std::string haystack, const std::string& needle_upper)
@@ -63,36 +92,185 @@ static bool findInsensitive(std::string haystack, const std::string& needle_uppe
 
 BOOL LLGroupList::update(const std::string& name_filter)
 {
-	LLCtrlListInterface *group_list		= getListInterface();
 	const LLUUID& 		highlight_id	= gAgent.getGroupID();
 	S32					count			= gAgent.mGroups.count();
 	LLUUID				id;
 
-	group_list->operateOnAll(LLCtrlListInterface::OP_DELETE);
+	clear();
 
 	for(S32 i = 0; i < count; ++i)
 	{
-		// *TODO: check powers mask?
 		id = gAgent.mGroups.get(i).mID;
 		const LLGroupData& group_data = gAgent.mGroups.get(i);
 		if (name_filter != LLStringUtil::null && !findInsensitive(group_data.mName, name_filter))
 			continue;
-		addItem(id, group_data.mName, highlight_id == id, ADD_BOTTOM); // ADD_SORTED can only sort by first column anyway
+		addNewItem(id, group_data.mName, group_data.mInsigniaID, highlight_id == id, ADD_BOTTOM);
 	}
 
-	// Force sorting the list.
-	updateSort();
+	// Sort the list.
+	sort();
 
 	// add "none" to list at top
 	{
 		std::string loc_none = LLTrans::getString("GroupsNone");
 		if (name_filter == LLStringUtil::null || findInsensitive(loc_none, name_filter))
-			addItem(LLUUID::null, loc_none, highlight_id.isNull(), ADD_TOP);
-
-		// Prevent the "none" item from being sorted.
-		setNeedsSort(false);
+			addNewItem(LLUUID::null, loc_none, LLUUID::null, highlight_id.isNull(), ADD_TOP);
 	}
 
-	group_list->selectByValue(highlight_id);
+	selectItemByUUID(highlight_id);
+
 	return TRUE;
 }
+
+void LLGroupList::toggleIcons()
+{
+	// Save the new value for new items to use.
+	mShowIcons = !mShowIcons;
+	gSavedSettings.setBOOL("GroupListShowIcons", mShowIcons);
+
+	// Show/hide icons for all existing items.
+	std::vector<LLPanel*> items;
+	getItems(items);
+	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
+	{
+		static_cast<LLGroupListItem*>(*it)->setGroupIconVisible(mShowIcons);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// PRIVATE Section
+//////////////////////////////////////////////////////////////////////////
+
+void LLGroupList::addNewItem(const LLUUID& id, const std::string& name, const LLUUID& icon_id, BOOL is_bold, EAddPosition pos)
+{
+	LLGroupListItem* item = new LLGroupListItem();
+
+	item->setName(name);
+	item->setGroupID(id);
+	item->setGroupIconID(icon_id);
+//	item->setContextMenu(mContextMenu);
+
+	item->childSetVisible("info_btn", false);
+	item->setGroupIconVisible(mShowIcons);
+
+	addItem(item, id, pos);
+
+//	setCommentVisible(false);
+}
+
+
+/************************************************************************/
+/*          LLGroupListItem implementation                              */
+/************************************************************************/
+
+LLGroupListItem::LLGroupListItem()
+:	LLPanel(),
+mGroupIcon(NULL),
+mGroupNameBox(NULL),
+mInfoBtn(NULL),
+//mContextMenu(NULL), //TODO:
+mGroupID(LLUUID::null)
+{
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_group_list_item.xml");
+
+	// Remember group icon width including its padding from the name text box,
+	// so that we can hide and show the icon again later.
+	if (!sIconWidth)
+	{
+		sIconWidth = mGroupNameBox->getRect().mLeft - mGroupIcon->getRect().mLeft;
+	}
+}
+
+//virtual
+BOOL  LLGroupListItem::postBuild()
+{
+	mGroupIcon = getChild<LLIconCtrl>("group_icon");
+	mGroupNameBox = getChild<LLTextBox>("group_name");
+
+	mInfoBtn = getChild<LLButton>("info_btn");
+	mInfoBtn->setClickedCallback(boost::bind(&LLGroupListItem::onInfoBtnClick, this));
+
+	return TRUE;
+}
+
+//virtual
+void LLGroupListItem::setValue( const LLSD& value )
+{
+	if (!value.isMap()) return;
+	if (!value.has("selected")) return;
+	childSetVisible("selected_icon", value["selected"]);
+}
+
+void LLGroupListItem::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+	childSetVisible("hovered_icon", true);
+	if (mGroupID.notNull()) // don't show the info button for the "none" group
+		mInfoBtn->setVisible(true);
+
+	LLPanel::onMouseEnter(x, y, mask);
+}
+
+void LLGroupListItem::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	childSetVisible("hovered_icon", false);
+	mInfoBtn->setVisible(false);
+
+	LLPanel::onMouseLeave(x, y, mask);
+}
+
+void LLGroupListItem::setName(const std::string& name)
+{
+	mGroupName = name;
+	mGroupNameBox->setValue(name);
+	mGroupNameBox->setToolTip(name);
+}
+
+void LLGroupListItem::setGroupID(const LLUUID& group_id)
+{
+	mGroupID = group_id;
+	setActive(group_id == gAgent.getGroupID());
+}
+
+void LLGroupListItem::setGroupIconID(const LLUUID& group_icon_id)
+{
+	if (group_icon_id.notNull())
+	{
+		mGroupIcon->setValue(group_icon_id);
+	}
+}
+
+void LLGroupListItem::setGroupIconVisible(bool visible)
+{
+	// Already done? Then do nothing.
+	if (mGroupIcon->getVisible() == (BOOL)visible)
+		return;
+
+	// Show/hide the group icon.
+	mGroupIcon->setVisible(visible);
+
+	// Move the group name horizontally by icon size + its distance from the group name.
+	LLRect name_rect = mGroupNameBox->getRect();
+	name_rect.mLeft += visible ? sIconWidth : -sIconWidth;
+	mGroupNameBox->setRect(name_rect);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Private Section
+//////////////////////////////////////////////////////////////////////////
+void LLGroupListItem::setActive(bool active)
+{
+	// Active group should be bold.
+	LLFontDescriptor new_desc(mGroupNameBox->getFont()->getFontDesc());
+
+	// *NOTE dzaporozhan
+	// On Windows LLFontGL::NORMAL will not remove LLFontGL::BOLD if font 
+	// is predefined as bold (SansSerifSmallBold, for example)
+	new_desc.setStyle(active ? LLFontGL::BOLD : LLFontGL::NORMAL);
+	mGroupNameBox->setFont(LLFontGL::getFont(new_desc));
+}
+
+void LLGroupListItem::onInfoBtnClick()
+{
+	LLGroupActions::show(mGroupID);
+}
+//EOF

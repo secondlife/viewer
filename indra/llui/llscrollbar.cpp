@@ -66,7 +66,9 @@ LLScrollbar::Params::Params()
 	up_button("up_button"),
 	down_button("down_button"),
 	left_button("left_button"),
-	right_button("right_button")
+	right_button("right_button"),
+	bg_visible("bg_visible", false),
+	bg_color("bg_color", LLColor4::black)
 {
 	tab_stop = false;
 }
@@ -92,7 +94,9 @@ LLScrollbar::LLScrollbar(const Params & p)
 		mThumbImageH(p.thumb_image_horizontal),
 		mTrackImageV(p.track_image_vertical),
 		mTrackImageH(p.track_image_horizontal),
-		mThickness(p.thickness.isProvided() ? p.thickness : LLUI::sSettingGroups["config"]->getS32("UIScrollbarSize"))
+		mThickness(p.thickness.isProvided() ? p.thickness : LLUI::sSettingGroups["config"]->getS32("UIScrollbarSize")),
+		mBGVisible(p.bg_visible),
+		mBGColor(p.bg_color)
 {
 	updateThumbRect();
 	
@@ -481,6 +485,11 @@ void LLScrollbar::reshape(S32 width, S32 height, BOOL called_from_parent)
 void LLScrollbar::draw()
 {
 	if (!getRect().isValid()) return;
+
+	if(mBGVisible)
+	{
+		gl_rect_2d(getLocalRect(), mBGColor.get(), TRUE);
+	}
 
 	S32 local_mouse_x;
 	S32 local_mouse_y;

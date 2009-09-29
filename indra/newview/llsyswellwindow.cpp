@@ -32,6 +32,8 @@
 
 #include "llviewerprecompiledheaders.h" // must be first include
 
+#include "llflatlistview.h"
+
 #include "llsyswellwindow.h"
 
 #include "llbottomtray.h"
@@ -39,27 +41,99 @@
 #include "llviewerwindow.h"
 
 #include "llchiclet.h"
+#include "lltoastpanel.h"
+#include "llnotificationmanager.h"
+
+
+// IM session ID can be the same as Avatar UUID. (See LLIMMgr::computeSessionID)
+// Probably notification ID also can be the same as Avatar UUID.
+// In case when session ID & notification ID are the same it will be impossible to add both 
+// appropriate Items into Flat List.
+// Functions below are intended to wrap passed LLUUID into LLSD value with different "type".
+// Use them anywhere you need to add, get, remove items via the list
+inline
+LLSD get_notification_value(const LLUUID& notification_id)
+{
+	return LLSD()
+		.insert("type", "notification")
+		.insert("uuid", notification_id);
+}
+
+inline
+LLSD get_session_value(const LLUUID& session_id)
+{
+	return LLSD()
+		.insert("type", "im_chiclet")
+		.insert("uuid", session_id);
+}
+
+
 //---------------------------------------------------------------------------------
 LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLDockableFloater(NULL, key),
 													mChannel(NULL),
-													mScrollContainer(NULL),
-													mNotificationList(NULL)
+													mMessageList(NULL),
+													mSeparator(NULL)
 {
 	LLIMMgr::getInstance()->addSessionObserver(this);
 	LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLSysWellWindow::findIMChiclet, this, _1));
+
+	mTypedItemsCount[IT_NOTIFICATION] = 0;
+	mTypedItemsCount[IT_INSTANT_MESSAGE] = 0;
 }
 
 //---------------------------------------------------------------------------------
 BOOL LLSysWellWindow::postBuild()
 {
-	mScrollContainer = getChild<LLScrollContainer>("notification_list_container");
-	mTwinListPanel = getChild<LLPanel>("twin_list_panel");
-	mNotificationList = getChild<LLScrollingPanelList>("notification_list");
-	mIMRowList = getChild<LLScrollingPanelList>("im_row_panel_list");
+	mMessageList = getChild<LLFlatListView>("notification_list");
 
-	mScrollContainer->setBorderVisible(FALSE);
+	// init connections to the list's update events
+	connectListUpdaterToSignal("notify");
+	connectListUpdaterToSignal("groupnotify");
+
+	// get a corresponding channel
+	initChannel();
+
+	LLPanel::Params params;
+	mSeparator = LLUICtrlFactory::create<LLPanel>(params);
+	LLUICtrlFactory::instance().buildPanel(mSeparator, "panel_separator.xml");
+
+	LLRect rc = mSeparator->getRect();
+	rc.setOriginAndSize(0, 0, mMessageList->getItemsRect().getWidth(), rc.getHeight());
+	mSeparator->setRect(rc);
+	mSeparator->setFollows(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_TOP);
+	mSeparator->setVisible(FALSE);
+
+	mMessageList->addItem(mSeparator);
 
 	return LLDockableFloater::postBuild();
+}
+
+//---------------------------------------------------------------------------------
+void LLSysWellWindow::connectListUpdaterToSignal(std::string notification_type)
+{
+	LLNotificationsUI::LLNotificationManager* manager = LLNotificationsUI::LLNotificationManager::getInstance();
+	LLNotificationsUI::LLEventHandler* n_handler = manager->getHandlerForNotification(notification_type);
+	if(n_handler)
+	{
+		n_handler->setNotificationIDCallback(boost::bind(&LLSysWellWindow::removeItemByID, this, _1));
+	}
+	else
+	{
+		llwarns << "LLSysWellWindow::connectListUpdaterToSignal() - could not get a handler for '" << notification_type <<"' type of notifications" << llendl;
+	}
+}
+
+//---------------------------------------------------------------------------------
+void LLSysWellWindow::onChicletClick()
+{
+	// 1 - remove StartUp toast and channel if present
+	if(!LLNotificationsUI::LLScreenChannel::getStartUpToastShown())
+	{
+		LLNotificationsUI::LLChannelManager::getInstance()->onStartUpToastClose();
+	}
+
+	// 2 - toggle instance of SysWell's chiclet-window
+	toggleWindow();
 }
 
 //---------------------------------------------------------------------------------
@@ -71,57 +145,56 @@ LLSysWellWindow::~LLSysWellWindow()
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::addItem(LLSysWellItem::Params p)
 {
+	LLSD value = get_notification_value(p.notification_id);
 	// do not add clones
-	if( findItemByID(p.notification_id) >= 0 )
+	if( mMessageList->getItemByValue(value))
 		return;
 
 	LLSysWellItem* new_item = new LLSysWellItem(p);
-	mNotificationList->addPanel(dynamic_cast<LLScrollingPanel*>(new_item));
+	if (mMessageList->addItem(new_item, value, ADD_TOP))
+	{
+		handleItemAdded(IT_NOTIFICATION);
+
 	reshapeWindow();
 
 	new_item->setOnItemCloseCallback(boost::bind(&LLSysWellWindow::onItemClose, this, _1));
 	new_item->setOnItemClickCallback(boost::bind(&LLSysWellWindow::onItemClick, this, _1));
+	}
+	else
+	{
+		llwarns << "Unable to add Notification into the list, notification ID: " << p.notification_id
+			<< ", title: " << p.title
+			<< llendl;
+
+		new_item->die();
+	}
 }
 
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::clear()
 {
- // *TODO: fill later
-}
-
-//---------------------------------------------------------------------------------
-S32 LLSysWellWindow::findItemByID(const LLUUID& id)
-{
-	const LLScrollingPanelList::panel_list_t list = mNotificationList->getPanelList();
-	if(list.size() == 0)
-		return -1;
-
-	LLScrollingPanelList::panel_list_t::const_iterator it; 
-	S32 index = 0;
-	for(it = list.begin(); it != list.end(); ++it, ++index)
-	{
-		if( dynamic_cast<LLSysWellItem*>(*it)->getID() == id )
-			break;
-	}
-
-	if(it == list.end())
-		return -1;
-	else
-		return index;
-
+	mMessageList->clear();
 }
 
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::removeItemByID(const LLUUID& id)
 {
-	S32 index = findItemByID(id);
-
-	if(index >= 0)
-		mNotificationList->removePanel(index);
+	if(mMessageList->removeItemByValue(get_notification_value(id)))
+	{
+		handleItemRemoved(IT_NOTIFICATION);
+		reshapeWindow();
+	}
 	else
-		return;
+	{
+		llwarns << "Unable to remove notification from the list, ID: " << id
+			<< llendl;
+	}
 
-	reshapeWindow();
+	// hide chiclet window if there are no items left
+	if(isWindowEmpty())
+	{
+		setVisible(FALSE);
+	}
 }
 
 //---------------------------------------------------------------------------------
@@ -129,7 +202,7 @@ void LLSysWellWindow::onItemClick(LLSysWellItem* item)
 {
 	LLUUID id = item->getID();
 	if(mChannel)
-		mChannel->loadStoredToastByIDToChannel(id);
+		mChannel->loadStoredToastByNotificationIDToChannel(id);
 }
 
 //---------------------------------------------------------------------------------
@@ -139,9 +212,37 @@ void LLSysWellWindow::onItemClose(LLSysWellItem* item)
 	removeItemByID(id);
 	if(mChannel)
 		mChannel->killToastByNotificationID(id);
+}
 
-	// hide chiclet window if there are no items left
-	setVisible(!isWindowEmpty());
+//--------------------------------------------------------------------------
+void LLSysWellWindow::onStoreToast(LLPanel* info_panel, LLUUID id)
+{
+	LLSysWellItem::Params p;	
+	p.notification_id = id;
+	p.title = static_cast<LLToastPanel*>(info_panel)->getTitle();
+	addItem(p);
+}
+
+//---------------------------------------------------------------------------------
+void LLSysWellWindow::initChannel() 
+{
+	LLNotificationsUI::LLScreenChannel* channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(
+																LLUUID(gSavedSettings.getString("NotificationChannelUUID")));
+	if(channel)
+	{
+		mChannel = channel;
+		mChannel->setOnStoreToastCallback(boost::bind(&LLSysWellWindow::onStoreToast, this, _1, _2));
+	}
+	else
+	{
+		llwarns << "LLSysWellWindow::initChannel() - could not get a requested screen channel" << llendl;
+	}
+}
+
+//---------------------------------------------------------------------------------
+void LLSysWellWindow::getEnabledRect(LLRect& rect)
+{
+	rect = gViewerWindow->getWorldViewRect();
 }
 
 //---------------------------------------------------------------------------------
@@ -151,9 +252,26 @@ void LLSysWellWindow::toggleWindow()
 	{
 		setDockControl(new LLDockControl(
 				LLBottomTray::getInstance()->getSysWell(), this,
-				getDockTongue(), LLDockControl::TOP, isDocked()));
+				getDockTongue(), LLDockControl::TOP, boost::bind(&LLSysWellWindow::getEnabledRect, this, _1)));
 	}
-	setVisible(!getVisible());
+
+	if(!getVisible())
+	{
+		if(mChannel)
+		{
+			mChannel->removeAndStoreAllStorableToasts();
+		}
+		if(isWindowEmpty())
+		{
+			return;
+		}
+
+		setVisible(TRUE);
+	}
+	else
+	{
+		setVisible(FALSE);
+	}
 	//set window in foreground
 	setFocus(getVisible());
 }
@@ -161,15 +279,12 @@ void LLSysWellWindow::toggleWindow()
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::setVisible(BOOL visible)
 {
-	// on Show adjust position of SysWell chiclet's window
 	if(visible)
 	{
 		if (LLBottomTray::instanceExists())
 		{
 			LLBottomTray::getInstance()->getSysWell()->setToggleState(TRUE);
 		}
-		if(mChannel)
-			mChannel->removeAndStoreAllVisibleToasts();
 	}
 	else
 	{
@@ -178,86 +293,56 @@ void LLSysWellWindow::setVisible(BOOL visible)
 			LLBottomTray::getInstance()->getSysWell()->setToggleState(FALSE);
 		}
 	}
-	if(mChannel)
-		mChannel->setShowToasts(!visible);
 
 	LLDockableFloater::setVisible(visible);
+
+	// update notification channel state	
+	if(mChannel)
+	{
+		mChannel->updateShowToastsState();
+	}
+}
+
+//---------------------------------------------------------------------------------
+void LLSysWellWindow::setDocked(bool docked, bool pop_on_undock)
+{
+	LLDockableFloater::setDocked(docked, pop_on_undock);
+
+	// update notification channel state
+	if(mChannel)
+	{
+		mChannel->updateShowToastsState();
+	}
 }
 
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::reshapeWindow()
 {
-	// Get size for scrollbar and floater's header
-	const LLUICachedControl<S32> SCROLLBAR_SIZE("UIScrollbarSize", 0);
-	const LLUICachedControl<S32> HEADER_SIZE("UIFloaterHeaderSize", 0);
+	// save difference between floater height and the list height to take it into account while calculating new window height
+	// it includes height from floater top to list top and from floater bottom and list bottom
+	static S32 parent_list_delta_height = getRect().getHeight() - mMessageList->getRect().getHeight();
 
-	LLRect notif_list_rect = mNotificationList->getRect();
-	LLRect im_list_rect = mIMRowList->getRect();
-	LLRect panel_rect = mTwinListPanel->getRect();
+	S32 notif_list_height = mMessageList->getItemsRect().getHeight() + 2 * mMessageList->getBorderWidth();
 
-	S32 notif_list_height = notif_list_rect.getHeight();
-	S32 im_list_height = im_list_rect.getHeight();
+	LLRect curRect = getRect();
 
-	S32 new_panel_height = notif_list_height + LLScrollingPanelList::GAP_BETWEEN_PANELS + im_list_height;
-	S32 new_window_height = new_panel_height + LLScrollingPanelList::GAP_BETWEEN_PANELS + HEADER_SIZE;
-
-	U32 twinListWidth = 0;
+	S32 new_window_height = notif_list_height + parent_list_delta_height;
 
 	if (new_window_height > MAX_WINDOW_HEIGHT)
 	{
-		twinListWidth = MIN_PANELLIST_WIDTH - SCROLLBAR_SIZE;
 		new_window_height = MAX_WINDOW_HEIGHT;
 	}
-	else
-	{
-		twinListWidth = MIN_PANELLIST_WIDTH;
-	}
-
-	reshape(MIN_WINDOW_WIDTH, new_window_height, FALSE);
-	mTwinListPanel->reshape(twinListWidth, new_panel_height, TRUE);
-	mNotificationList->reshape(twinListWidth, notif_list_height, TRUE);
-	mIMRowList->reshape(twinListWidth, im_list_height, TRUE);
-
-	// arrange panel and lists
-	// move panel
-	panel_rect.setLeftTopAndSize(1, new_panel_height, twinListWidth, new_panel_height);
-	mTwinListPanel->setRect(panel_rect);
-	// move notif list panel
-	notif_list_rect.setLeftTopAndSize(notif_list_rect.mLeft, new_panel_height, twinListWidth, notif_list_height);
-	mNotificationList->setRect(notif_list_rect);
-	// move IM list panel
-	im_list_rect.setLeftTopAndSize(im_list_rect.mLeft, notif_list_rect.mBottom - LLScrollingPanelList::GAP_BETWEEN_PANELS, twinListWidth, im_list_height);
-	mIMRowList->setRect(im_list_rect);
-
-	mNotificationList->updatePanels(TRUE);
-	mIMRowList->updatePanels(TRUE);
-}
-
-//---------------------------------------------------------------------------------
-LLSysWellWindow::RowPanel * LLSysWellWindow::findIMRow(const LLUUID& sessionId)
-{
-	RowPanel * res = NULL;
-	const LLScrollingPanelList::panel_list_t &list = mIMRowList->getPanelList();
-	if (!list.empty())
-	{
-		for (LLScrollingPanelList::panel_list_t::const_iterator iter = list.begin(); iter != list.end(); ++iter)
-		{
-			RowPanel *panel = static_cast<RowPanel*> (*iter);
-			if (panel->mChiclet->getSessionId() == sessionId)
-			{
-				res = panel;
-				break;
-			}
-		}
-	}
-	return res;
+	S32 newY = curRect.mTop + new_window_height - curRect.getHeight();
+	curRect.setLeftTopAndSize(curRect.mLeft, newY, MIN_WINDOW_WIDTH, new_window_height);
+	reshape(curRect.getWidth(), curRect.getHeight(), TRUE);
+	setRect(curRect);
 }
 
 //---------------------------------------------------------------------------------
 LLChiclet* LLSysWellWindow::findIMChiclet(const LLUUID& sessionId)
 {
 	LLChiclet* res = NULL;
-	RowPanel* panel = findIMRow(sessionId);
+	RowPanel* panel = mMessageList->getTypedItemByValue<RowPanel>(get_session_value(sessionId));
 	if (panel != NULL)
 	{
 		res = panel->mChiclet;
@@ -270,34 +355,51 @@ LLChiclet* LLSysWellWindow::findIMChiclet(const LLUUID& sessionId)
 void LLSysWellWindow::addIMRow(const LLUUID& sessionId, S32 chicletCounter,
 		const std::string& name, const LLUUID& otherParticipantId)
 {
+	RowPanel* item = new RowPanel(this, sessionId, chicletCounter, name, otherParticipantId);
+	if (mMessageList->insertItemAfter(mSeparator, item, get_session_value(sessionId)))
+	{
+		handleItemAdded(IT_INSTANT_MESSAGE);
+	}
+	else
+	{
+		llwarns << "Unable to add IM Row into the list, sessionID: " << sessionId
+			<< ", name: " << name
+			<< ", other participant ID: " << otherParticipantId
+			<< llendl;
 
-	mIMRowList->addPanel(new RowPanel(this, sessionId, chicletCounter, name, otherParticipantId));
+		item->die();
+	}
 }
 
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::delIMRow(const LLUUID& sessionId)
 {
-	RowPanel *panel = findIMRow(sessionId);
-	if (panel != NULL)
+	if (mMessageList->removeItemByValue(get_session_value(sessionId)))
 	{
-		mIMRowList->removePanel(panel);
+		handleItemRemoved(IT_INSTANT_MESSAGE);
+	}
+	else
+	{
+		llwarns << "Unable to remove IM Row from the list, sessionID: " << sessionId
+			<< llendl;
 	}
 
+	// remove all toasts that belong to this session from a screen
+	if(mChannel)
+		mChannel->removeToastsBySessionID(sessionId);
+
 	// hide chiclet window if there are no items left
-	setVisible(!isWindowEmpty());
+	if(isWindowEmpty())
+	{
+		setVisible(FALSE);
+	}
 }
 
 //---------------------------------------------------------------------------------
 bool LLSysWellWindow::isWindowEmpty()
 {
-	if(mIMRowList->getPanelList().size() == 0 && LLBottomTray::getInstance()->getSysWell()->getCounter() == 0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	// keep in mind, mSeparator is always in the list
+	return mMessageList->size() == 1;
 }
 
 //---------------------------------------------------------------------------------
@@ -305,7 +407,7 @@ bool LLSysWellWindow::isWindowEmpty()
 void LLSysWellWindow::sessionAdded(const LLUUID& sessionId,
 		const std::string& name, const LLUUID& otherParticipantId)
 {
-	if (findIMRow(sessionId) == NULL)
+	if (mMessageList->getItemByValue(get_session_value(sessionId)) == NULL)
 	{
 		S32 chicletCounter = 0;
 		LLIMModel::LLIMSession* session = get_if_there(LLIMModel::sSessionsMap,
@@ -328,10 +430,57 @@ void LLSysWellWindow::sessionRemoved(const LLUUID& sessionId)
 	LLBottomTray::getInstance()->getSysWell()->updateUreadIMNotifications();
 }
 
+void LLSysWellWindow::handleItemAdded(EItemType added_item_type)
+{
+	bool should_be_shown = ++mTypedItemsCount[added_item_type] == 1 && anotherTypeExists(added_item_type);
+
+	if (should_be_shown && !mSeparator->getVisible())
+	{
+		mSeparator->setVisible(TRUE);
+
+		// refresh list to recalculate mSeparator position
+		mMessageList->reshape(mMessageList->getRect().getWidth(), mMessageList->getRect().getHeight());
+	}
+}
+
+void LLSysWellWindow::handleItemRemoved(EItemType removed_item_type)
+{
+	bool should_be_hidden = --mTypedItemsCount[removed_item_type] == 0;
+
+	if (should_be_hidden && mSeparator->getVisible())
+	{
+		mSeparator->setVisible(FALSE);
+
+		// refresh list to recalculate mSeparator position
+		mMessageList->reshape(mMessageList->getRect().getWidth(), mMessageList->getRect().getHeight());
+	}
+}
+
+bool LLSysWellWindow::anotherTypeExists(EItemType item_type)
+{
+	bool exists = false;
+	switch(item_type)
+	{
+	case IT_INSTANT_MESSAGE:
+		if (mTypedItemsCount[IT_NOTIFICATION] > 0)
+		{
+			exists = true;
+		}
+		break;
+	case IT_NOTIFICATION:
+		if (mTypedItemsCount[IT_INSTANT_MESSAGE] > 0)
+		{
+			exists = true;
+		}
+		break;
+	}
+	return exists;
+}
+
 //---------------------------------------------------------------------------------
 LLSysWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID& sessionId,
 		S32 chicletCounter, const std::string& name, const LLUUID& otherParticipantId) :
-		LLScrollingPanel(LLPanel::Params()), mChiclet(NULL), mParent(parent)
+		LLPanel(LLPanel::Params()), mChiclet(NULL), mParent(parent)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_activeim_row.xml", NULL);
 
@@ -373,8 +522,8 @@ LLSysWellWindow::RowPanel::~RowPanel()
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::RowPanel::onClose()
 {
-	mParent->mIMRowList->removePanel(this);
 	gIMMgr->removeSession(mChiclet->getSessionId());
+	// This row panel will be removed from the list in LLSysWellWindow::sessionRemoved().
 }
 
 //---------------------------------------------------------------------------------
@@ -400,13 +549,4 @@ BOOL LLSysWellWindow::RowPanel::handleMouseDown(S32 x, S32 y, MASK mask)
 	return LLPanel::handleMouseDown(x, y, mask);
 }
 
-//---------------------------------------------------------------------------------
-void LLSysWellWindow::RowPanel::updatePanel(BOOL allow_modify)
-{
-	S32 parent_width = getParent()->getRect().getWidth();
-	S32 panel_height = getRect().getHeight();
-
-	reshape(parent_width, panel_height, TRUE);
-}
-
-//---------------------------------------------------------------------------------
+// EOF

@@ -135,6 +135,7 @@
      layout="topleft"
      left="5"
      name="favorite"
+     image_drag_indication="Arrow_Down"
      chevron_button_tool_tip="Show more of My Favorites"
      top="32"
      width="590" />

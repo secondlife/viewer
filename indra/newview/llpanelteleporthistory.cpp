@@ -40,6 +40,83 @@
 #include "llteleporthistorystorage.h"
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
+#include "llflatlistview.h"
+#include "lltextbox.h"
+
+class LLTeleportHistoryFlatItem : public LLPanel
+{
+public:
+	LLTeleportHistoryFlatItem(S32 index, const std::string &region_name);
+	virtual ~LLTeleportHistoryFlatItem() {};
+
+	virtual BOOL postBuild();
+
+	S32 getIndex() { return mIndex; }
+
+	/*virtual*/ void setValue(const LLSD& value);
+
+	void onMouseEnter(S32 x, S32 y, MASK mask);
+	void onMouseLeave(S32 x, S32 y, MASK mask);
+private:
+	void onInfoBtnClick();
+
+	LLButton* mInfoBtn;
+
+	S32 mIndex;
+	std::string mRegionName;
+};
+
+LLTeleportHistoryFlatItem::LLTeleportHistoryFlatItem(S32 index, const std::string &region_name)
+:	LLPanel(),
+	mIndex(index),
+	mRegionName(region_name)
+{
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_teleport_history_item.xml");
+}
+
+//virtual
+BOOL LLTeleportHistoryFlatItem::postBuild()
+{
+	LLTextBox *region = getChild<LLTextBox>("region");
+	region->setValue(mRegionName);
+
+	mInfoBtn = getChild<LLButton>("info_btn");
+	mInfoBtn->setClickedCallback(boost::bind(&LLTeleportHistoryFlatItem::onInfoBtnClick, this));
+
+	return true;
+}
+
+void LLTeleportHistoryFlatItem::setValue(const LLSD& value)
+{
+	if (!value.isMap()) return;;
+	if (!value.has("selected")) return;
+	childSetVisible("selected_icon", value["selected"]);
+}
+
+void LLTeleportHistoryFlatItem::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+	childSetVisible("hovered_icon", true);
+	mInfoBtn->setVisible(true);
+
+	LLPanel::onMouseEnter(x, y, mask);
+}
+
+void LLTeleportHistoryFlatItem::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	childSetVisible("hovered_icon", false);
+	mInfoBtn->setVisible(false);
+
+	LLPanel::onMouseLeave(x, y, mask);
+}
+
+void LLTeleportHistoryFlatItem::onInfoBtnClick()
+{
+	LLSD params;
+	params["id"] = mIndex;
+	params["type"] = "teleport_history";
+
+	LLSideTray::getInstance()->showPanel("panel_places", params);
+}
 
 // Not yet implemented; need to remove buildPanel() from constructor when we switch
 //static LLRegisterPanelClassWrapper<LLTeleportHistoryPanel> t_teleport_history("panel_teleport_history");
@@ -48,7 +125,7 @@ LLTeleportHistoryPanel::LLTeleportHistoryPanel()
 	:	LLPanelPlacesTab(),
 		mFilterSubString(LLStringUtil::null),
 		mTeleportHistory(NULL),
-		mHistoryAccordeon(NULL),
+		mHistoryAccordion(NULL),
 		mLastSelectedScrollList(NULL)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_teleport_history.xml");
@@ -66,26 +143,25 @@ BOOL LLTeleportHistoryPanel::postBuild()
 		mTeleportHistory->setHistoryChangedCallback(boost::bind(&LLTeleportHistoryPanel::showTeleportHistory, this));
 	}
 
-	mHistoryAccordeon = getChild<LLAccordionCtrl>("history_accordion");
+	mHistoryAccordion = getChild<LLAccordionCtrl>("history_accordion");
 
-	if (mHistoryAccordeon)
+	if (mHistoryAccordion)
 	{
 		
-		for (child_list_const_iter_t iter = mHistoryAccordeon->beginChild(); iter != mHistoryAccordeon->endChild(); iter++)
+		for (child_list_const_iter_t iter = mHistoryAccordion->beginChild(); iter != mHistoryAccordion->endChild(); iter++)
 		{
 			if (dynamic_cast<LLAccordionCtrlTab*>(*iter))
 			{
 				LLAccordionCtrlTab* tab = (LLAccordionCtrlTab*)*iter;
 				mItemContainers.put(tab);
 
-				LLScrollListCtrl* sl = getScrollListFromTab(tab);
-				if (sl)
+				LLFlatListView* fl = getFlatListViewFromTab(tab);
+				if (fl)
 				{
-					sl->setDoubleClickCallback(onDoubleClickItem, this);
-					sl->setCommitOnSelectionChange(FALSE);
-					sl->setCommitCallback(boost::bind(&LLTeleportHistoryPanel::handleItemSelect, this, sl));
+					fl->setCommitOnSelectionChange(true);
+					//fl->setDoubleClickCallback(onDoubleClickItem, this);
+					fl->setCommitCallback(boost::bind(&LLTeleportHistoryPanel::handleItemSelect, this, fl));
 				}
-
 			}
 		}
 	}
@@ -109,13 +185,12 @@ void LLTeleportHistoryPanel::onShowOnMap()
 	if (!mLastSelectedScrollList)
 		return;
 
-	LLScrollListItem* itemp = mLastSelectedScrollList->getFirstSelected();
+	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedScrollList->getSelectedItem());
+
 	if(!itemp)
 		return;
 
-	S32 index = itemp->getColumn(LIST_INDEX)->getValue().asInteger();
-
-	LLVector3d global_pos = mTeleportHistory->getItems()[mTeleportHistory->getItems().size() - 1 - index].mGlobalPos;
+	LLVector3d global_pos = mTeleportHistory->getItems()[itemp->getIndex()].mGlobalPos;
 	
 	if (!global_pos.isExactlyZero())
 	{
@@ -130,14 +205,12 @@ void LLTeleportHistoryPanel::onTeleport()
 	if (!mLastSelectedScrollList)
 		return;
 
-	LLScrollListItem* itemp = mLastSelectedScrollList->getFirstSelected();
+	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedScrollList->getSelectedItem());
 	if(!itemp)
 		return;
 
-	S32 index = itemp->getColumn(LIST_INDEX)->getValue().asInteger();
-
 	// teleport to existing item in history, so we don't add it again
-	mTeleportHistory->goToItem(mTeleportHistory->getItems().size() - 1 - index);
+	mTeleportHistory->goToItem(itemp->getIndex());
 }
 
 /*
@@ -177,15 +250,15 @@ void LLTeleportHistoryPanel::updateVerbs()
 		return;
 	}
 
-	LLScrollListItem* itemp = mLastSelectedScrollList->getFirstSelected();
+	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedScrollList->getSelectedItem());
 
-	mTeleportBtn->setEnabled(NULL != itemp && 0 < itemp->getColumn(LIST_INDEX)->getValue().asInteger());
+	mTeleportBtn->setEnabled(NULL != itemp && 0 < itemp->getIndex());
 	mShowOnMapBtn->setEnabled(NULL != itemp);
 }
 
 void LLTeleportHistoryPanel::showTeleportHistory()
 {
-	if (!mHistoryAccordeon)
+	if (!mHistoryAccordion)
 		return;
 
 	const LLTeleportHistoryStorage::slurl_list_t& hist_items = mTeleportHistory->getItems();
@@ -193,15 +266,17 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 	const U32 seconds_in_day = 24 * 60 * 60;
 	LLDate curr_date =  LLDate::now();
 
-	curr_date.secondsSinceEpoch(curr_date.secondsSinceEpoch() + seconds_in_day);
-
 	S32 curr_tab = -1;
 	S32 tabs_cnt = mItemContainers.size();
 	S32 curr_year = 0, curr_month = 0, curr_day = 0;
-	
-	LLScrollListCtrl *curr_scroll_list = NULL;
 
-	S32 index = 0;
+	curr_date.split(&curr_year, &curr_month, &curr_day);
+	curr_date.fromYMDHMS(curr_year, curr_month, curr_day); // Set hour, min, and sec to 0
+	curr_date.secondsSinceEpoch(curr_date.secondsSinceEpoch() + seconds_in_day);
+	
+	LLFlatListView* curr_flat_view = NULL;
+
+	S32 index = hist_items.size() - 1;
 
 	for (LLTeleportHistoryStorage::slurl_list_t::const_reverse_iterator iter = hist_items.rbegin();
 	      iter != hist_items.rend(); ++iter)
@@ -219,71 +294,104 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 		{
 			const LLDate &date = (*iter).mDate;
 
-			S32 year, month, day;
-			if (!date.split(&year, &month, &day))
-			{
-				llwarns << "Failed to split date: " << date << llendl;
-				continue;
-			}
-
-			if (day != curr_day || month != curr_month || year != curr_year)
+			if (date < curr_date)
 			{
 				LLAccordionCtrlTab* tab = NULL;
-				while (curr_tab < tabs_cnt - 1 && (day != curr_day || month != curr_month || year != curr_year))
+				while (curr_tab < tabs_cnt - 1 && date < curr_date)
 				{
 					curr_tab++;
 
 					tab = mItemContainers.get(mItemContainers.size() - 1 - curr_tab);
 					tab->setVisible(false);
-
+					
+					if (curr_tab <= tabs_cnt - 4)
+					{
 					curr_date.secondsSinceEpoch(curr_date.secondsSinceEpoch() - seconds_in_day);
+					}
+					else if (curr_tab == tabs_cnt - 3) // 6 day and older, low boundary is 1 month
+					{
+						curr_date =  LLDate::now();
 					curr_date.split(&curr_year, &curr_month, &curr_day);
-				}				
+						curr_month--;
+						if (0 == curr_month)
+						{
+							curr_month = 12;
+							curr_year--;
+						}
+						curr_date.fromYMDHMS(curr_year, curr_month, curr_day);
+					}
+					else if (curr_tab == tabs_cnt - 2) // 1 month and older, low boundary is 6 months
+					{
+						curr_date =  LLDate::now();
+						curr_date.split(&curr_year, &curr_month, &curr_day);
+						if (curr_month > 6)
+						{
+							curr_month -= 6;
+						}
+						else
+						{
+							curr_month += 6;
+							curr_year--;
+						}
+						curr_date.fromYMDHMS(curr_year, curr_month, curr_day);
+						
+					}
+					else // 6 months and older
+					{
+						curr_date.secondsSinceEpoch(0);
+					}
+				}
 
 				tab->setVisible(true);
 
-				curr_scroll_list = getScrollListFromTab(tab);
-				if (curr_scroll_list)
+				curr_flat_view = getFlatListViewFromTab(tab);
+				if (curr_flat_view)
 				{
-					curr_scroll_list->deleteAllItems();
+					curr_flat_view->clear();
 				}
 			}
 		}
 
-		LLSD row;
-		row["id"] = index;
-
-		if (curr_scroll_list)
-		{
-			LLSD& icon_column = row["columns"][LIST_ICON];
-			icon_column["column"] = "landmark_icon";
-			icon_column["type"] = "icon";
-			icon_column["value"] = "inv_item_landmark.tga";
-
-			LLSD& region_column = row["columns"][LIST_ITEM_TITLE];
-			region_column["column"] = "region";
-			region_column["type"] = "text";
-			region_column["value"] = (*iter).mTitle;
-
-			LLSD& index_column = row["columns"][LIST_INDEX];
-			index_column["column"] = "index";
-			index_column["type"] = "text";
-			index_column["value"] = index;
-
-			index++;
-
-			curr_scroll_list->addElement(row);
+		if (curr_flat_view)
+		{			
+			curr_flat_view->addItem(new LLTeleportHistoryFlatItem(index, (*iter).mTitle));
 		}
+
+		index--;
 	}
 
-	mHistoryAccordeon->arrange();
+	// Hide empty tabs from current to bottom
+	for (curr_tab++; curr_tab < tabs_cnt; curr_tab++)
+		mItemContainers.get(mItemContainers.size() - 1 - curr_tab)->setVisible(false);
+
+	mHistoryAccordion->arrange();
 
 	updateVerbs();
 }
 
-void LLTeleportHistoryPanel::handleItemSelect(LLScrollListCtrl* sl)
+void LLTeleportHistoryPanel::handleItemSelect(LLFlatListView* selected)
 {
-	mLastSelectedScrollList = sl;
+	mLastSelectedScrollList = selected;
+
+	S32 tabs_cnt = mItemContainers.size();
+
+	for (S32 n = 0; n < tabs_cnt; n++)
+		{
+		LLAccordionCtrlTab* tab = mItemContainers.get(n);
+
+		if (!tab->getVisible())
+			continue;
+
+		LLFlatListView *flv = getFlatListViewFromTab(tab);
+		if (!flv)
+			continue;
+
+		if (flv == selected)
+			continue;
+
+		flv->resetSelection(true);
+		}
+
 	updateVerbs();
 }
 
@@ -303,15 +411,16 @@ void LLTeleportHistoryPanel::onDoubleClickItem(void* user_data)
 	LLSideTray::getInstance()->showPanel("panel_places", key);*/
 }
 
-LLScrollListCtrl* LLTeleportHistoryPanel::getScrollListFromTab(LLAccordionCtrlTab *tab)
+LLFlatListView* LLTeleportHistoryPanel::getFlatListViewFromTab(LLAccordionCtrlTab *tab)
 {
 	for (child_list_const_iter_t iter = tab->beginChild(); iter != tab->endChild(); iter++)
 	{
-		if (dynamic_cast<LLScrollListCtrl*>(*iter))
+		if (dynamic_cast<LLFlatListView*>(*iter))
 		{
-			return (LLScrollListCtrl*)*iter; // There should be one scroll list per tab.
+			return (LLFlatListView*)*iter; // There should be one scroll list per tab.
 		}
 	}
 
 	return NULL;
 }
+

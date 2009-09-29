@@ -101,6 +101,7 @@ public:
 	 */
 	bool fromString(const std::string& iso8601_date);
 	bool fromStream(std::istream&);
+	bool fromYMDHMS(S32 year, S32 month = 1, S32 day = 0, S32 hour = 0, S32 min = 0, S32 sec = 0);
 
 	/** 
 	 * @brief Return the date in seconds since epoch.

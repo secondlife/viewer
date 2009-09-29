@@ -109,6 +109,7 @@ public:
 	void			setClickedCallback( boost::function<void (void*)> cb, void* userdata = NULL ){ mClickedCallback = boost::bind(cb, userdata); }		// mouse down and up within button
 
 	const LLFontGL* getFont() const							{ return mDefaultFont; }
+	void			setFont(const LLFontGL* font)			{ mDefaultFont = font; }
 
 	void			reshapeToFitText();
 

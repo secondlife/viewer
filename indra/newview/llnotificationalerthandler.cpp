@@ -35,8 +35,8 @@
 
 #include "llnotificationhandler.h"
 #include "lltoastnotifypanel.h"
-#include "llbottomtray.h"
 #include "llviewercontrol.h"
+#include "llviewerwindow.h"
 
 #include "lltoastalertpanel.h"
 
@@ -47,17 +47,14 @@ LLAlertHandler::LLAlertHandler(e_notification_type type, const LLSD& id) : mIsMo
 {
 	mType = type;
 
-	LLBottomTray* tray = LLBottomTray::getInstance();
 	LLChannelManager::Params p;
 	p.id = LLUUID(gSavedSettings.getString("AlertChannelUUID"));
-	p.channel_right_bound = tray->getRect().getWidth() / 2;
-	p.channel_width = 0;
 	p.display_toasts_always = true;
-	p.align = NA_CENTRE;
+	p.toast_align = NA_CENTRE;
+	p.channel_align = CA_CENTRE;
 
 	// Getting a Channel for our notifications
-	mChannel = LLChannelManager::getInstance()->createChannel(p);
-	mChannel->setFollows(FOLLOWS_BOTTOM | FOLLOWS_TOP); 
+	mChannel = LLChannelManager::getInstance()->getChannel(p);
 	mChannel->setShowToasts(true);
 }
 
@@ -67,21 +64,42 @@ LLAlertHandler::~LLAlertHandler()
 }
 
 //--------------------------------------------------------------------------
-void LLAlertHandler::processNotification(const LLSD& notify)
+void LLAlertHandler::initChannel()
 {
+	S32 channel_right_bound = gViewerWindow->getWorldViewRect().getWidth() / 2;
+	mChannel->init(channel_right_bound, channel_right_bound);
+}
+
+//--------------------------------------------------------------------------
+bool LLAlertHandler::processNotification(const LLSD& notify)
+{
+	if(!mChannel)
+	{
+		return false;
+	}
+
 	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
+
+	if(!notification)
+		return false;
+
+	// arrange a channel on a screen
+	if(!mChannel->getVisible())
+	{
+		initChannel();
+	}
 
 	if (notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "load")
 	{
 		LLToastAlertPanel* alert_dialog = new LLToastAlertPanel(notification, mIsModal);
 		LLToast::Params p;
-		p.id = notification->getID();
+		p.notif_id = notification->getID();
 		p.notification = notification;
 		p.panel = dynamic_cast<LLToastPanel*>(alert_dialog);
 		p.enable_hide_btn = false;
 		p.can_fade = false;
 		p.is_modal = mIsModal;
-		p.on_toast_destroy = boost::bind(&LLAlertHandler::onToastDestroy, this, _1);
+		p.on_delete_toast = boost::bind(&LLAlertHandler::onDeleteToast, this, _1);
 		mChannel->addToast(p);
 	}
 	else if (notify["sigtype"].asString() == "change")
@@ -93,25 +111,14 @@ void LLAlertHandler::processNotification(const LLSD& notify)
 	{
 		mChannel->killToastByNotificationID(notification->getID());
 	}
+	return true;
 }
 
 //--------------------------------------------------------------------------
 
-void LLAlertHandler::onToastDestroy(LLToast* toast)
-{
-	toast->closeFloater();
-}
-
-//--------------------------------------------------------------------------
-void LLAlertHandler::onChicletClick(void)
+void LLAlertHandler::onDeleteToast(LLToast* toast)
 {
 }
 
 //--------------------------------------------------------------------------
-void LLAlertHandler::onChicletClose(void)
-{
-}
-
-//--------------------------------------------------------------------------
-
 

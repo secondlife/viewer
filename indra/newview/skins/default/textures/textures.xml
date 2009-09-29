@@ -514,6 +514,9 @@
   <texture name="toolbar_btn_disabled.tga" scale.left="7" scale.top="32" scale.right="121" scale.bottom="0" />
   <texture name="toolbar_btn_selected.tga" scale.left="7" scale.top="32" scale.right="121" scale.bottom="0" />
 
+  <texture name="toggle_button_off" file_name="toggle_button_off.png" preload="true" />
+  <texture name="toggle_button_selected" file_name="toggle_button_selected.png" preload="true" />
+
 <!--TODO: REPLACE CODE REFERENCE TO THIS ART WITH Icon_Minimize_Background above -->
   <texture name="minimize_inactive.tga" preload="true" />
   <texture name="minimize.tga" preload="true" />

@@ -49,23 +49,25 @@ namespace LLNotificationsUI{
 LLNearbyChatHandler::LLNearbyChatHandler(e_notification_type type, const LLSD& id)
 {
 	mType = type;
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
-	/////////////////////////////////////////////////////
-	LLChannelManager::Params p;														  //TODO: check and correct
+	LLChannelManager::Params p;
 	p.id = LLUUID(gSavedSettings.getString("NearByChatChannelUUID"));
-	p.channel_right_bound = nearby_chat->getRect().mRight;
-	p.channel_width = nearby_chat->getRect().mRight - 16;   //HACK: 16 - ?
-	/////////////////////////////////////////////////////
-
 
 	// Getting a Channel for our notifications
-	mChannel = LLChannelManager::getInstance()->createChannel(p);
-	mChannel->setFollows(FOLLOWS_LEFT | FOLLOWS_BOTTOM | FOLLOWS_TOP); 
+	mChannel = LLChannelManager::getInstance()->getChannel(p);
 	mChannel->setOverflowFormatString("You have %d unread nearby chat messages");
 }
 LLNearbyChatHandler::~LLNearbyChatHandler()
 {
 }
+
+void LLNearbyChatHandler::initChannel()
+{
+	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	S32 channel_right_bound = nearby_chat->getRect().mRight;
+	S32 channel_width = nearby_chat->getRect().mRight - 16;   //HACK: 16 - ?
+	mChannel->init(channel_right_bound - channel_width, channel_right_bound);
+}
+
 void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 {
 	if(chat_msg.mMuted == TRUE)
@@ -80,6 +82,12 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 	nearby_chat->addMessage(chat_msg);
 	if(nearby_chat->getVisible())
 		return;//no need in toast if chat is visible
+
+	// arrange a channel on a screen
+	if(!mChannel->getVisible())
+	{
+		initChannel();
+	}
 	
 	LLUUID id;
 	id.generate();
@@ -95,34 +103,14 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg)
 	item->setVisible(true);
 
 	LLToast::Params p;
-	p.id = id;
+	p.notif_id = id;
 	p.panel = item;
-	p.on_toast_destroy = boost::bind(&LLNearbyChatHandler::onToastDestroy, this, _1);
-	p.on_mouse_enter = boost::bind(&LLNearbyChatHandler::removeNearbyToastsAndShowChat, this);
+	p.on_delete_toast = boost::bind(&LLNearbyChatHandler::onDeleteToast, this, _1);
 	mChannel->addToast(p);	
 }
 
-void LLNearbyChatHandler::onToastDestroy(LLToast* toast)
+void LLNearbyChatHandler::onDeleteToast(LLToast* toast)
 {
-	if(toast)
-		toast->closeFloater();
-}
-
-void LLNearbyChatHandler::onChicletClick(void)
-{
-}
-void LLNearbyChatHandler::onChicletClose(void)
-{
-}
-
-void LLNearbyChatHandler::removeNearbyToastsAndShowChat()
-{
-	/*
-	if(mChannel)
-		mChannel->removeToastsFromChannel();
-	
-	LLFloaterReg::showTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
-	*/
 }
 
 }

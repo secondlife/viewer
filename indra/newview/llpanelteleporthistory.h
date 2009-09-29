@@ -34,7 +34,6 @@
 #define LL_LLPANELTELEPORTHISTORY_H
 
 #include "lluictrlfactory.h"
-#include "llscrolllistctrl.h"
 
 #include "llpanelplacestab.h"
 #include "llteleporthistory.h"
@@ -42,6 +41,7 @@
 class LLTeleportHistoryStorage;
 class LLAccordionCtrl;
 class LLAccordionCtrlTab;
+class LLFlatListView;
 
 class LLTeleportHistoryPanel : public LLPanelPlacesTab
 {
@@ -60,19 +60,12 @@ private:
 
 	static void onDoubleClickItem(void* user_data);
 	void showTeleportHistory();
-	void handleItemSelect(LLScrollListCtrl* );
-	LLScrollListCtrl* getScrollListFromTab(LLAccordionCtrlTab *);
-
-	enum TELEPORT_HISTORY_COLUMN_ORDER
-	{
-		LIST_ICON,
-		LIST_ITEM_TITLE,
-		LIST_INDEX
-	};
+	void handleItemSelect(LLFlatListView* );
+	LLFlatListView* getFlatListViewFromTab(LLAccordionCtrlTab *);
 
 	LLTeleportHistoryStorage*	mTeleportHistory;
-	LLAccordionCtrl*		mHistoryAccordeon;
-	LLScrollListCtrl*		mLastSelectedScrollList;
+	LLAccordionCtrl*		mHistoryAccordion;
+	LLFlatListView*			mLastSelectedScrollList;
 	std::string				mFilterSubString;
 
 	typedef LLDynamicArray<LLAccordionCtrlTab*> item_containers_t;

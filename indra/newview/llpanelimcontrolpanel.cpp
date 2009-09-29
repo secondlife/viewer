@@ -82,6 +82,9 @@ void LLPanelIMControlPanel::onShareButtonClicked()
 
 void LLPanelIMControlPanel::setID(const LLUUID& avatar_id)
 {
+	// Disable "Add friend" button for friends.
+	childSetEnabled("add_friend_btn", !LLAvatarActions::isFriend(avatar_id));
+
 	getChild<LLAvatarIconCtrl>("avatar_icon")->setValue(avatar_id);
 }
 

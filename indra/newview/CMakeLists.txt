@@ -128,6 +128,7 @@ set(viewer_SOURCE_FILES
     lleventinfo.cpp
     lleventnotifier.cpp
     lleventpoll.cpp
+    llexpandabletextbox.cpp
     llface.cpp
     llfasttimerview.cpp
     llfavoritesbar.cpp
@@ -233,6 +234,7 @@ set(viewer_SOURCE_FILES
     llhudrender.cpp
     llhudtext.cpp
     llhudview.cpp
+    llimfloater.cpp
     llimhandler.cpp
     llimpanel.cpp
     llimview.cpp
@@ -276,8 +278,9 @@ set(viewer_SOURCE_FILES
     llnetmap.cpp
     llnotificationalerthandler.cpp
     llnotificationgrouphandler.cpp
-    llnotificationinfohandler.cpp
     llnotificationmanager.cpp
+    llnotificationscripthandler.cpp
+    llnotificationtiphandler.cpp
     llnotify.cpp
     lloutputmonitorctrl.cpp
     lloverlaybar.cpp
@@ -320,6 +323,7 @@ set(viewer_SOURCE_FILES
     llpanelmovetip.cpp
     llpanelobject.cpp
     llpanelpeople.cpp
+    llpanelpeoplemenus.cpp
     llpanelpermissions.cpp
     llpanelpick.cpp
     llpanelpicks.cpp
@@ -587,6 +591,7 @@ set(viewer_HEADER_FILES
     lleventinfo.h
     lleventnotifier.h
     lleventpoll.h
+    llexpandabletextbox.h
     llface.h
     llfasttimerview.h
     llfavoritesbar.h
@@ -692,6 +697,7 @@ set(viewer_HEADER_FILES
     llhudrender.h
     llhudtext.h
     llhudview.h
+    llimfloater.h
     llimpanel.h
     llimview.h
     llimcontrolpanel.h
@@ -777,6 +783,7 @@ set(viewer_HEADER_FILES
     llpanelmovetip.h
     llpanelobject.h
     llpanelpeople.h
+    llpanelpeoplemenus.h
     llpanelpermissions.h
     llpanelpick.h
     llpanelpicks.h

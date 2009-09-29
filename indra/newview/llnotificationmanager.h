@@ -50,7 +50,7 @@ class LLToast;
 /**
  * Responsible for registering notification handlers.
  */
-class LLNotificationManager : public LLUICtrl, public LLSingleton<LLNotificationManager>
+class LLNotificationManager : public LLSingleton<LLNotificationManager>
 {
 	typedef std::pair<std::string, LLEventHandler*> eventhandlers;
 public:	
@@ -67,6 +67,10 @@ public:
 
 	// this method reacts on chat notifications and calls an appropriate handler
 	void onChat(const LLChat& msg,ENotificationType type);
+
+	// get a handler for a certain type of notification
+	LLEventHandler* getHandlerForNotification(std::string notification_type);
+
 
 private:
 	//TODO (*)

@@ -71,7 +71,7 @@ const std::string BOTTOM_TRAY_BUTTON_NAME = "movement_btn";
 
 // protected
 LLFloaterMove::LLFloaterMove(const LLSD& key)
-:	LLFloater(key),
+:	LLDockableFloater(NULL, false, key),
 	mForwardButton(NULL),
 	mBackwardButton(NULL),
 	mTurnLeftButton(NULL), 
@@ -79,7 +79,8 @@ LLFloaterMove::LLFloaterMove(const LLSD& key)
 	mMoveUpButton(NULL),
 	mMoveDownButton(NULL),
 	mStopFlyingButton(NULL),
-	mModeActionsPanel(NULL)
+	mModeActionsPanel(NULL),
+	mCurrentMode(MM_WALK)
 {
 }
 
@@ -88,6 +89,7 @@ BOOL LLFloaterMove::postBuild()
 {
 	setIsChrome(TRUE);
 	
+	LLDockableFloater::postBuild();
 	
 	mForwardButton = getChild<LLJoystickAgentTurn>("forward btn"); 
 	mForwardButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
@@ -134,8 +136,6 @@ BOOL LLFloaterMove::postBuild()
 
 	initModeTooltips();
 
-	updatePosition();
-
 	initModeButtonMap();
 
 	initMovementMode();
@@ -143,6 +143,18 @@ BOOL LLFloaterMove::postBuild()
 	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(LLFloaterMove::sUpdateFlyingStatus);
 
 	return TRUE;
+}
+
+// virtual
+void LLFloaterMove::setEnabled(BOOL enabled)
+{
+	//we need to enable/disable only buttons, EXT-1061.
+
+	// is called before postBuild() - use findChild here.
+	LLPanel *panel_actions = findChild<LLPanel>("panel_actions");
+	if (panel_actions) panel_actions->setEnabled(enabled);
+
+	showModeButtons(enabled);
 }
 
 // static 
@@ -266,6 +278,7 @@ void LLFloaterMove::onStopFlyingButtonClick()
 
 void LLFloaterMove::setMovementMode(const EMovementMode mode)
 {
+	mCurrentMode = mode;
 	gAgent.setFlying(MM_FLY == mode);
 
 	switch (mode)
@@ -401,26 +414,49 @@ void LLFloaterMove::sUpdateFlyingStatus()
 
 void LLFloaterMove::showModeButtons(BOOL bShow)
 {
-	if (mModeActionsPanel->getVisible() == bShow)
+	// is called from setEnabled so can be called before postBuild(), check mModeActionsPanel agains to NULL
+	if (NULL == mModeActionsPanel || mModeActionsPanel->getVisible() == bShow)
 		return;
 	mModeActionsPanel->setVisible(bShow);
 
+	if (isDocked())
+	{
+		return;
+	}
+
+	updateHeight(bShow);
+}
+
+void LLFloaterMove::updateHeight(bool show_mode_buttons)
+{
+	static bool size_changed = false;
+	static S32 origin_height = getRect().getHeight();
 	LLRect rect = getRect();
 
-	static S32 height = mModeActionsPanel->getRect().getHeight();
+	static S32 mode_panel_height = mModeActionsPanel->getRect().getHeight();
+
 	S32 newHeight = getRect().getHeight();
-	if (!bShow)
+
+	if (!show_mode_buttons && origin_height == newHeight)
 	{
-		newHeight -= height;
+		newHeight -= mode_panel_height;
+		size_changed = true;
 	}
-	else
+	else if (show_mode_buttons && origin_height > newHeight)
 	{
-		newHeight += height;
+		newHeight += mode_panel_height;
+		size_changed = true;
 	}
+
+	if (!size_changed)
+		return;
+
 	rect.setLeftTopAndSize(rect.mLeft, rect.mTop, rect.getWidth(), newHeight);
 	reshape(rect.getWidth(), rect.getHeight());
 	setRect(rect);
+	size_changed = false;
 }
+
 //static
 void LLFloaterMove::enableInstance(BOOL bEnable)
 {
@@ -428,15 +464,40 @@ void LLFloaterMove::enableInstance(BOOL bEnable)
 	if (instance)
 	{
 		instance->setEnabled(bEnable);
-		instance->showModeButtons(bEnable);
 	}
 }
 
 void LLFloaterMove::onOpen(const LLSD& key)
 {
-	updatePosition();
+	LLButton *anchor_panel = LLBottomTray::getInstance()->getChild<LLButton>("movement_btn");
+
+	if (gAgent.getFlying())
+	{
+		setFlyingMode(TRUE);
+		showModeButtons(FALSE);
+	}
+
+	if (gAgent.getAvatarObject() && gAgent.getAvatarObject()->isSitting())
+	{
+		setSittingMode(TRUE);
+		showModeButtons(FALSE);
+	}
+
+	setDockControl(new LLDockControl(
+		anchor_panel, this,
+		getDockTongue(), LLDockControl::TOP));
+
+	showQuickTips(mCurrentMode);
 
 	sUpdateFlyingStatus();
+}
+
+//virtual
+void LLFloaterMove::setDocked(bool docked, bool pop_on_undock/* = true*/)
+{
+	LLDockableFloater::setDocked(docked, pop_on_undock);
+	bool show_mode_buttons = isDocked() || !gAgent.getFlying();
+	updateHeight(show_mode_buttons);
 }
 
 void LLFloaterMove::showQuickTips(const EMovementMode mode)
@@ -543,6 +604,7 @@ void LLPanelStandStopFlying::setVisible(BOOL visible)
 	if (visible)
 	{
 		updatePosition();
+		getParent()->sendChildToFront(this);
 	}
 
 	LLPanel::setVisible(visible);
@@ -599,6 +661,15 @@ void LLPanelStandStopFlying::updatePosition()
 	S32 x = movement_btn->calcScreenRect().getCenterX() - getRect().getWidth()/2;
 
 	S32 y = tray->getRect().getHeight();
+
+	LLFloater *move_floater = LLFloaterReg::findInstance("moveview");
+	if (move_floater)
+	{
+		if (move_floater->isDocked())
+		{
+			y = move_floater->getRect().mBottom + getRect().getHeight();
+		}
+	}
 
 	setOrigin(x, y);
 }

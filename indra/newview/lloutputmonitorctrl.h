@@ -72,6 +72,8 @@ public:
 
 	// llview overrides
 	virtual void	draw();
+	void handleVisibilityChange(BOOL new_visibility);
+
 
 	void			setPower(F32 val);
 	F32				getPower(F32 val) const { return mPower; }
@@ -102,6 +104,8 @@ private:
 	F32				mPower;
 	bool			mIsMuted;
 	bool			mIsTalking;
+	/** Stores flag whether parent is visible. If not it will not update indicator*/
+	bool			mIsParentVisible;
 	LLPointer<LLUIImage> mImageMute;
 	LLPointer<LLUIImage> mImageOff;
 	LLPointer<LLUIImage> mImageOn;

@@ -53,6 +53,7 @@
 #include "llfloaterchatterbox.h"
 #include "llavataractions.h"
 #include "llhttpnode.h"
+#include "llimfloater.h"
 #include "llimpanel.h"
 #include "llresizebar.h"
 #include "lltabcontainer.h"
@@ -70,6 +71,7 @@
 #include "llnotify.h"
 #include "llviewerregion.h"
 #include "lltrans.h"
+#include "llrecentpeople.h"
 
 #include "llfirstuse.h"
 #include "llagentui.h"
@@ -90,6 +92,11 @@ std::map<LLUUID, LLIMModel::LLIMSession*> LLIMModel::sSessionsMap;
 
 
 void toast_callback(const LLSD& msg){
+	// do not show toast in busy mode
+	if (gAgent.getBusy())
+	{
+		return;
+	}
 	
 	//we send notifications to reset counter also
 	if (msg["num_unread"].asInteger())
@@ -101,8 +108,7 @@ void toast_callback(const LLSD& msg){
 		args["FROM_ID"] = msg["from_id"];
 		args["SESSION_ID"] = msg["session_id"];
 
-		//LLNotifications::instance().add("IMToast", args, LLSD(), boost::bind(&LLFloaterChatterBox::onOpen, LLFloaterChatterBox::getInstance(), msg["session_id"].asUUID()));
-		LLNotifications::instance().add("IMToast", args, LLSD(), boost::bind(&LLIMFloater::toggle, msg["session_id"].asUUID()));
+		LLNotifications::instance().add("IMToast", args, LLSD(), boost::bind(&LLIMFloater::show, msg["session_id"].asUUID()));
 	}
 }
 
@@ -1345,8 +1351,15 @@ LLUUID LLIMMgr::addSession(
 // This removes the panel referenced by the uuid, and then restores
 // internal consistency. The internal pointer is not deleted? Did you mean
 // a pointer to the corresponding LLIMSession? Session data is cleared now.
-void LLIMMgr::removeSession(const LLUUID& session_id)
+// Put a copy of UUID to avoid problem when passed reference becames invalid
+// if it has been come from the object removed in observer.
+void LLIMMgr::removeSession(LLUUID session_id)
 {
+	if (mBeingRemovedSessionID == session_id)
+	{
+		return;
+	}
+	
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
 	if(floater)
 	{

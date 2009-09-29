@@ -65,33 +65,54 @@ typedef enum e_notification_type
 // LLEventHandler is a base class that specifies a common interface for all
 // notification handlers. It states, that every handler must react on the follofing
 // events:
-//			- destroying of a toast;
-//			- clicking on a correspondet chiclet;
-//			- closing of a correspondent chiclet.
+//			- deleting of a toast;
+//			- initialization of a corresponding channel;
 // Also every handler must have the following attributes:
 //			- type of the notification that this handler is responsible to;
-//			- pointer to a correspondent chiclet;
 //			- pointer to a correspondent screen channel, in which all toasts of the handled notification's
 //			  type should be displayed
+// This class also provides the following signald:
+//			- increment counter signal
+//			- decrement counter signal
+//			- update counter signal
+//			- signal, that emits ID of the notification that is being processed
 //
 class LLEventHandler
 {
 public:
 	virtual ~LLEventHandler() {};
 
-	virtual void onToastDestroy(LLToast* toast)=0;
-	virtual void onChicletClick(void)=0;
-	virtual void onChicletClose(void)=0;
+	// callbacks for counters
+	typedef boost::function<void (void)> notification_callback_t;
+	typedef boost::signals2::signal<void (void)> notification_signal_t;
+	notification_signal_t mNewNotificationSignal;
+	notification_signal_t mDelNotificationSignal;
+	boost::signals2::connection setNewNotificationCallback(notification_callback_t cb) { return mNewNotificationSignal.connect(cb); }
+	boost::signals2::connection setDelNotification(notification_callback_t cb) { return mDelNotificationSignal.connect(cb); }
+	// callback for notification/toast
+	typedef boost::function<void (const LLUUID id)> notification_id_callback_t;
+	typedef boost::signals2::signal<void (const LLUUID id)> notification_id_signal_t;
+	notification_id_signal_t mNotificationIDSignal;
+	boost::signals2::connection setNotificationIDCallback(notification_id_callback_t cb) { return mNotificationIDSignal.connect(cb); }
+
+protected:
+	virtual void onDeleteToast(LLToast* toast)=0;
+
+	// arrange handler's channel on a screen
+	// is necessary to unbind a moment of creation of a channel and a moment of positioning of it
+	// it is useful when positioning depends on positions of other controls, that could not be created
+	// at the moment, when a handlers creates a channel.
+	virtual void initChannel()=0;
 
 	LLScreenChannel*	mChannel;
-	LLChiclet*			mChiclet;
 	e_notification_type	mType;
+
 };
 
 // LLSysHandler and LLChatHandler are more specific base classes
 // that divide all notification handlers on to groups:
-//			- handlers for different system notifications (script dialogs, tips, group notices and alerts);
-//			- handlers for different messaging notifications (nearby chat, IM chat, group chat etc.)
+//			- handlers for different system notifications (script dialogs, tips, group notices, alerts and IMs);
+//			- handlers for different messaging notifications (nearby chat)
 /**
  * Handler for system notifications.
  */
@@ -100,7 +121,7 @@ class LLSysHandler : public LLEventHandler
 public:
 	virtual ~LLSysHandler() {};
 
-	virtual void processNotification(const LLSD& notify)=0;
+	virtual bool processNotification(const LLSD& notify)=0;
 };
 
 /**
@@ -116,43 +137,59 @@ public:
 
 /**
  * Handler for IM notifications.
- * It manages life time of tip and script notices.
+ * It manages life time of IMs, group messages.
  */
 class LLIMHandler : public LLSysHandler
 {
 public:
-	LLIMHandler();
+	LLIMHandler(e_notification_type type, const LLSD& id);
 	virtual ~LLIMHandler();
 
 	// base interface functions
-	virtual void processNotification(const LLSD& notify);
-	virtual void onToastDestroy(LLToast* toast);
-	virtual void onChicletClick(void);
-	virtual void onChicletClose(void);
+	virtual bool processNotification(const LLSD& notify);
 
 protected:
+	virtual void onDeleteToast(LLToast* toast);
+	virtual void initChannel();
 };
 
 /**
  * Handler for system informational notices.
- * It manages life time of tip and script notices.
+ * It manages life time of tip notices.
  */
-class LLInfoHandler : public LLSysHandler
+class LLTipHandler : public LLSysHandler
 {
 public:
-	LLInfoHandler(e_notification_type type, const LLSD& id);
-	virtual ~LLInfoHandler();
+	LLTipHandler(e_notification_type type, const LLSD& id);
+	virtual ~LLTipHandler();
 
 	// base interface functions
-	virtual void processNotification(const LLSD& notify);
-	virtual void onToastDestroy(LLToast* toast);
-	virtual void onChicletClick(void);
-	virtual void onChicletClose(void);
+	virtual bool processNotification(const LLSD& notify);
+
+protected:
+	virtual void onDeleteToast(LLToast* toast);
+	virtual void initChannel();
+};
+
+/**
+ * Handler for system informational notices.
+ * It manages life time of script notices.
+ */
+class LLScriptHandler : public LLSysHandler
+{
+public:
+	LLScriptHandler(e_notification_type type, const LLSD& id);
+	virtual ~LLScriptHandler();
+
+	// base interface functions
+	virtual bool processNotification(const LLSD& notify);
+
+protected:
+	virtual void onDeleteToast(LLToast* toast);
+	virtual void initChannel();
 
 	// own handlers
-	void onStoreToast(LLPanel* info_panel, LLUUID id);
-	void onRejectToast(LLToast::Params p);
-protected:
+	void onRejectToast(LLUUID& id);
 };
 
 
@@ -164,14 +201,13 @@ class LLGroupHandler : public LLSysHandler
 public:
 	LLGroupHandler(e_notification_type type, const LLSD& id);
 	virtual ~LLGroupHandler();
-
-
-	virtual void processNotification(const LLSD& notify);
-	virtual void onToastDestroy(LLToast* toast);
-	virtual void onChicletClick(void);
-	virtual void onChicletClose(void);
+	
+	// base interface functions
+	virtual bool processNotification(const LLSD& notify);
 
 protected:
+	virtual void onDeleteToast(LLToast* toast);
+	virtual void initChannel();
 };
 
 /**
@@ -185,12 +221,13 @@ public:
 
 	void setAlertMode(bool is_modal) { mIsModal = is_modal; }
 
-	virtual void processNotification(const LLSD& notify);
-	virtual void onToastDestroy(LLToast* toast);
-	virtual void onChicletClick(void);
-	virtual void onChicletClose(void);
+	// base interface functions
+	virtual bool processNotification(const LLSD& notify);
 
 protected:
+	virtual void onDeleteToast(LLToast* toast);
+	virtual void initChannel();
+
 	bool	mIsModal;
 };
 

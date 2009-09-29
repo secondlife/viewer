@@ -50,7 +50,6 @@
 #include "llnamelistctrl.h"
 #include "llscrolllistitem.h"
 #include "llspinctrl.h"
-#include "llstatusbar.h"	// can_afford_transaction()
 #include "lltextbox.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
@@ -96,9 +95,6 @@ BOOL LLPanelGroupGeneral::postBuild()
 {
 	bool recurse = true;
 
-	// General info
-	mGroupNameEditor = getChild<LLLineEditor>("group_name_editor", recurse);
-	
 	mEditCharter = getChild<LLTextEditor>("charter", recurse);
 	if(mEditCharter)
 	{
@@ -194,7 +190,6 @@ BOOL LLPanelGroupGeneral::postBuild()
 	// If the group_id is null, then we are creating a new group
 	if (mGroupID.isNull())
 	{
-		mGroupNameEditor->setEnabled(TRUE);
 		mEditCharter->setEnabled(TRUE);
 
 		mCtrlShowInGroupList->setEnabled(TRUE);
@@ -217,6 +212,7 @@ void LLPanelGroupGeneral::setupCtrls(LLPanel* panel_group)
 		mDefaultIconID = mInsignia->getImageAssetID();
 	}
 	mFounderName = panel_group->getChild<LLNameBox>("founder_name");
+	mGroupNameEditor = panel_group->getChild<LLLineEditor>("group_name_editor");
 }
 
 // static
@@ -295,56 +291,6 @@ void LLPanelGroupGeneral::onClickInfo(void *userdata)
 
 	LLGroupActions::show(self->mGroupID);
 
-}
-
-// static
-void LLPanelGroupGeneral::onClickJoin(void *userdata)
-{
-	LLPanelGroupGeneral *self = (LLPanelGroupGeneral *)userdata;
-
-	if ( !self ) return;
-
-	lldebugs << "joining group: " << self->mGroupID << llendl;
-
-	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(self->mGroupID);
-
-	if (gdatap)
-	{
-		S32 cost = gdatap->mMembershipFee;
-		LLSD args;
-		args["COST"] = llformat("%d", cost);
-		LLSD payload;
-		payload["group_id"] = self->mGroupID;
-
-		if (can_afford_transaction(cost))
-		{
-			LLNotifications::instance().add("JoinGroupCanAfford", args, payload, LLPanelGroupGeneral::joinDlgCB);
-		}
-		else
-		{
-			LLNotifications::instance().add("JoinGroupCannotAfford", args, payload);
-		}
-	}
-	else
-	{
-		llwarns << "LLGroupMgr::getInstance()->getGroupData(" << self->mGroupID
-			<< ") was NULL" << llendl;
-	}
-}
-
-// static
-bool LLPanelGroupGeneral::joinDlgCB(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-
-	if (option == 1)
-	{
-		// user clicked cancel
-		return false;
-	}
-
-	LLGroupMgr::getInstance()->sendGroupMemberJoin(notification["payload"]["group_id"].asUUID());
-	return false;
 }
 
 // static
@@ -883,6 +829,8 @@ void LLPanelGroupGeneral::reset()
 	mComboActiveTitle->setVisible(false);
 
 	mInsignia->setImageAssetID(LLUUID::null);
+	
+	mInsignia->setEnabled(true);
 
 	{
 		std::string empty_str = "";

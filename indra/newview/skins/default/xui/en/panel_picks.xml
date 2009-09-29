@@ -8,24 +8,16 @@
  name="panel_picks"
  top="0"
  width="313">
-        <scroll_container
+        <flat_list_view
          color="DkGray2"
          follows="left|top|right|bottom"
          height="495"
          layout="topleft"
          left="0"
-         name="profile_scroll"
+         name="picks_list"
          opaque="true"
          top="0"
-         width="313">
-            <list
-             height="120"
-             layout="topleft"
-             left="0"
-             name="picks_list"
-             top="0"
-             width="305" />
-        </scroll_container>
+         width="313" />
         <panel
          background_visible="true"
          bevel_style="none"

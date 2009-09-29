@@ -102,6 +102,7 @@
 #include "llboost.h"
 #include "llviewermedia.h"
 #include "llpluginclassmedia.h"
+#include "llteleporthistorystorage.h"
 
 #include <boost/regex.hpp>
 
@@ -221,6 +222,9 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 		LLSearchHistory::getInstance()->save();
 		LLSearchComboBox* search_ctrl = LLNavigationBar::getInstance()->getChild<LLSearchComboBox>("search_combo_box");
 		search_ctrl->clearHistory();
+
+		LLTeleportHistoryStorage::getInstance()->purgeItems();
+		LLTeleportHistoryStorage::getInstance()->save();
 	}
 	
 	return false;

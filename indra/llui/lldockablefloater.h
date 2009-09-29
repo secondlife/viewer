@@ -46,12 +46,26 @@ class LLDockableFloater : public LLFloater
 	static const U32 UNDOCK_LEAP_HEIGHT = 12;
 public:
 	LOG_CLASS(LLDockableFloater);
-	LLDockableFloater(LLDockControl* dockControl, const LLSD& key, const Params& params = getDefaultParams());
+	LLDockableFloater(LLDockControl* dockControl, const LLSD& key,
+			const Params& params = getDefaultParams());
+	LLDockableFloater(LLDockControl* dockControl, bool uniqueDocking,
+			const LLSD& key, const Params& params = getDefaultParams());
 	virtual ~LLDockableFloater();
 
+	static LLHandle<LLFloater> getInstanceHandle() { return sInstanceHandle; }
+
+	/**
+	 *  If descendant class overrides postBuild() in order to perform specific
+	 *  construction then it must still invoke its superclass' implementation.
+	 */
 	/* virtula */BOOL postBuild();
 	/* virtual */void setDocked(bool docked, bool pop_on_undock = true);
 	/* virtual */void draw();
+
+	/**
+	 *  If descendant class overrides setVisible() then it must still invoke its
+	 *  superclass' implementation.
+	 */
 	/*virtual*/ void setVisible(BOOL visible);
 
 private:
@@ -69,7 +83,12 @@ protected:
 private:
 	std::auto_ptr<LLDockControl> mDockControl;
 	LLUIImagePtr mDockTongue;
-	static LLHandle<LLFloater> instanceHandle;
+	static LLHandle<LLFloater> sInstanceHandle;
+	/**
+	 * Provides possibility to define that dockable floaters can be docked
+	 *  non exclusively.
+	 */
+	bool mUniqueDocking;
 };
 
 #endif /* LL_DOCKABLEFLOATER_H */

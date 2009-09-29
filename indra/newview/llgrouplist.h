@@ -33,22 +33,61 @@
 #ifndef LL_LLGROUPLIST_H
 #define LL_LLGROUPLIST_H
 
-#include <llscrolllistctrl.h>
+#include "llflatlistview.h"
+#include "llpanel.h"
 
-#include "llavatarlist.h"
-
-// *TODO: derive from ListView when it's ready.
-class LLGroupList: public LLAvatarList 
+class LLGroupList: public LLFlatListView
 {
 	LOG_CLASS(LLGroupList);
 public:
-	struct Params : public LLInitParam::Block<Params, LLAvatarList::Params>
+	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> 
 	{
 		Params();
 	};
 
-	LLGroupList(const Params&);
+	LLGroupList(const Params& p);
 	BOOL update(const std::string& name_filter = LLStringUtil::null);
+	void toggleIcons();
+	bool getIconsVisible() const { return mShowIcons; }
+
+private:
+	void addNewItem(const LLUUID& id, const std::string& name, const LLUUID& icon_id, BOOL is_bold, EAddPosition pos = ADD_BOTTOM);
+
+	bool mShowIcons;
 };
 
+class LLButton;
+class LLIconCtrl;
+class LLTextBox;
+
+class LLGroupListItem : public LLPanel
+{
+public:
+	LLGroupListItem();
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void setValue(const LLSD& value);
+	void onMouseEnter(S32 x, S32 y, MASK mask);
+	void onMouseLeave(S32 x, S32 y, MASK mask);
+
+	const LLUUID& getGroupID() const			{ return mGroupID; }
+	const std::string& getGroupName() const		{ return mGroupName; }
+
+	void setName(const std::string& name);
+	void setGroupID(const LLUUID& group_id);
+	void setGroupIconID(const LLUUID& group_icon_id);
+	void setGroupIconVisible(bool visible);
+
+private:
+	void setActive(bool active);
+	void onInfoBtnClick();
+
+	LLTextBox*	mGroupNameBox;
+	LLUUID		mGroupID;
+	LLIconCtrl* mGroupIcon;
+	LLButton*	mInfoBtn;
+
+	std::string	mGroupName;
+
+	static S32	sIconWidth; // icon width + padding
+};
 #endif // LL_LLGROUPLIST_H
