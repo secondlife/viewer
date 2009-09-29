@@ -416,11 +416,11 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 
 	if (!append && total_links > 0)
 	{
-		// Remove all current outfit folder links since we're now replacing the contents.
 		for (S32 i = 0; i < cof_items.count(); ++i)
 		{
 			gInventory.purgeObject(cof_items.get(i)->getUUID());
 		}
+		gInventory.notifyObservers();
 	}
 
 	LLPointer<LLUpdateAppearanceOnDestroy> link_waiter = new LLUpdateAppearanceOnDestroy;
@@ -532,19 +532,19 @@ void removeDuplicateItems(LLInventoryModel::item_array_t& dst, const LLInventory
 	const LLUUID &current_outfit_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CURRENT_OUTFIT);
 	// Processes that take time should show the busy cursor
 	//inc_busy_count();
-		
+
 	LLInventoryModel::cat_array_t cof_cats;
 	LLInventoryModel::item_array_t cof_items;
 	gInventory.collectDescendents(current_outfit_id, cof_cats, cof_items,
 								  LLInventoryModel::EXCLUDE_TRASH);
-
+	
 	if (items.count() > 0)
 	{
-		// Remove all current outfit folder links since we're now replacing the contents.
 		for (S32 i = 0; i < cof_items.count(); ++i)
 		{
 			gInventory.purgeObject(cof_items.get(i)->getUUID());
 		}
+		gInventory.notifyObservers();
 	}
 
 	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
@@ -696,21 +696,11 @@ void LLAppearanceManager::updateAgentWearables(LLWearableHoldingPattern* holder,
 		}
 	}
 
-
-	//If the folder doesn't contain only gestures, take off all attachments.
-	if (!(wear_items.count() == 0 && obj_items.count() == 0 && gest_items.count() > 0) )
+	// Update attachments to match those requested.
+	LLVOAvatar* avatar = gAgent.getAvatarObject();
+	if( avatar )
 	{
-		LLAgentWearables::userRemoveAllAttachments();
-	}
-
-	if( obj_items.count() > 0 )
-	{
-		// We've found some attachments.  Add these.
-		LLVOAvatar* avatar = gAgent.getAvatarObject();
-		if( avatar )
-		{
-			LLAgentWearables::userAttachMultipleAttachments(obj_items);
-		}
+		LLAgentWearables::userUpdateAttachments(obj_items);
 	}
 }
 
