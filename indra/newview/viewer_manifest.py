@@ -314,9 +314,6 @@ class WindowsManifest(ViewerManifest):
                 self.path("Microsoft.VC80.CRT.manifest")
             self.end_prefix()
 
-        # The config file name needs to match the exe's name.
-        self.path(src="%s/secondlife-bin.exe.config" % self.args['configuration'], dst=self.final_exe() + ".config")
-
         # Vivox runtimes
         if self.prefix(src=self.args['configuration'], dst=""):
             self.path("SLVoice.exe")
