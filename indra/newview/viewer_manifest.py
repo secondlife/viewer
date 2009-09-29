@@ -334,11 +334,15 @@ class WindowsManifest(ViewerManifest):
                   dst="updater.exe")
 
         # For google-perftools tcmalloc allocator.
-        try:
-            self.path('%s/libtcmalloc_minimal.dll' % self.args['configuration'])
-        except:
-            print "Skipping libtcmalloc_minimal.dll"
-            pass           
+        if self.prefix(src=self.args['configuration'], dst=""):
+            try:
+                if self.args['configuration'] == 'Debug':
+                    self.path('libtcmalloc_minimal-debug.dll')
+                else:
+                    self.path('libtcmalloc_minimal.dll')
+            except:
+                print "Skipping libtcmalloc_minimal.dll"
+            self.end_prefix()
 
     def nsi_file_commands(self, install=True):
         def wpath(path):
