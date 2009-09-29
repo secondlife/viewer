@@ -341,7 +341,7 @@ endif (DARWIN)
 
 if(WINDOWS)
   #********************
-  # Plugin test support
+  # Plugin test library deploy
   #
   # Debug config runtime files required for the plugin test mule
   set(plugintest_debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-win32/lib/debug")
@@ -441,11 +441,21 @@ if(WINDOWS)
     )
   set(plugin_test_targets ${plugin_test_targets} ${out_targets})
 
+  copy_if_different(
+    "${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}"
+    "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}"
+    out_targets
+    llcommon.dll libapr-1.dll libaprutil-1.dll libapriconv-1.dll
+    )
+  set(plugin_test_targets ${plugin_test_targets} ${out_targets})
+
   add_custom_target(copy_plugintest_libs ALL
     DEPENDS 
       ${plugin_test_targets}
+      llcommon
     )
 
   add_dependencies(llmediaplugintest copy_plugintest_libs)
+
 endif(WINDOWS)
 
