@@ -199,10 +199,10 @@
      name="client"
      top_delta="0"
      width="128">
-        Client:
+        Client
     </text>
     <text
-	 visiblity_control="LagMeterShrunk"
+     visiblity_control="LagMeterShrunk"
      type="string"
      length="1"
      bottom="40"
@@ -216,7 +216,7 @@
         Normal
     </text>
     <text
-	 visiblity_control="LagMeterShrunk"	
+     visiblity_control="LagMeterShrunk"
      bottom="56"
      follows="left|top"
      height="16"
@@ -248,10 +248,10 @@
      name="network"
      top_delta="0"
      width="128">
-        Network:
+        Network
     </text>
     <text
-	 visiblity_control="LagMeterShrunk"
+     visiblity_control="LagMeterShrunk"
      type="string"
      length="1"
      bottom="80"
@@ -265,7 +265,7 @@
         Normal
     </text>
     <text
-	 visiblity_control="LagMeterShrunk"	
+     visiblity_control="LagMeterShrunk"
      bottom="96"
      follows="left|top"
      height="16"
@@ -297,10 +297,10 @@
      name="server"
      top_delta="0"
      width="60">
-        Server:
+        Server
     </text>
     <text
-	 make_visible_control="LagMeterShrunk"
+     visiblity_control="LagMeterShrunk"
      type="string"
      length="1"
      bottom="120"
@@ -308,13 +308,13 @@
      font="SansSerif"
      height="16"
      layout="topleft"
-     left="85"
+     left="110"
      name="server_text"
      right="-10">
         Normal
     </text>
     <text
-	 make_visible_control="LagMeterShrunk"
+     visiblity_control="LagMeterShrunk"
      bottom="136"
      follows="left|top"
      height="16"
@@ -322,7 +322,7 @@
      left="40"
      name="server_lag_cause"
      right="-32" />
-    <button
+    <!--button
      bottom="145"
      follows="left|top"
      height="18"
@@ -330,15 +330,15 @@
      layout="topleft"
      name="server_help"
      right="-10"
-     width="18" />
+     width="18" /-->
     <button
      follows="left|top"
      height="20"
      label="&gt;&gt;"
      layout="topleft"
-     left_delta="-317"
+     left="10"
      name="minimize"
-     top_delta="-2"
+     top_delta="4"
      width="25">
         <button.commit_callback
          function="LagMeter.ClickShrink" />
