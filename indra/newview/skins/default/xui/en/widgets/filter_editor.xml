@@ -2,16 +2,16 @@
 <filter_editor
   clear_button_visible="true"
   search_button_visible="true"
-  text_pad_left="4" 
+  text_pad_left="5"
   select_on_focus="true"
   background_image="TextField_Search_Off"
   background_image_disabled="TextField_Search_Disabled"
-  background_image_focused="TextField_Search_Active" >
+  background_image_focused="TextField_Search_Active">
   <search_button label=""
     top_pad="4"
-    left_pad="4" 
+    left_pad="4"
     width="13"
-    height="13" 
+    height="13"
 	  image_unselected="Search"
 	  image_selected="Search" />
   <clear_button label=""
