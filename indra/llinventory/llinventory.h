@@ -93,7 +93,6 @@ public:
 	virtual const LLUUID& getUUID() const;
 	const LLUUID& getParentUUID() const;
 	virtual const LLUUID& getLinkedUUID() const; // get the inventoryID that this item points to, else this item's inventoryID
-
 	virtual const std::string& getName() const;
 	virtual LLAssetType::EType getType() const;
 	LLAssetType::EType getActualType() const; // bypasses indirection for linked items
@@ -263,6 +262,10 @@ public:
 	void setInventoryType(LLInventoryType::EType inv_type);
 	void setFlags(U32 flags);
 	void setCreationDate(time_t creation_date_utc);
+
+	// Check for changes in permissions masks and sale info
+	// and set the corresponding bits in mFlags
+	void accumulatePermissionSlamBits(const LLInventoryItem& old_item);
 	
 	// This is currently only used in the Viewer to handle calling cards
 	// where the creator is actually used to store the target.

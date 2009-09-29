@@ -5607,7 +5607,8 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLPanelLandCovenant::updateLastModified(last_modified);
 	LLFloaterBuyLand::updateLastModified(last_modified);
 
-	gCacheName->get(estate_owner_id, false, &callbackCacheEstateOwnerName);
+	BOOL is_group = FALSE;
+	gCacheName->get(estate_owner_id, is_group, &callbackCacheEstateOwnerName);
 	
 	// load the actual covenant asset data
 	const BOOL high_priority = TRUE;

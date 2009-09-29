@@ -69,6 +69,12 @@ const S32 TRANS_PARCEL_DIR_FEE		= 2003;
 const S32 TRANS_GROUP_TAX		    = 2004; // Taxes incurred as part of group membership
 const S32 TRANS_CLASSIFIED_RENEW	= 2005;
 
+// Codes 2100-2999 reserved for recurring billing services
+// New codes can be created through an admin interface so may not
+// automatically end up in the list below :-(
+// So make sure you check the transaction_description table
+const S32 TRANS_RECURRING_GENERIC  = 2100;
+
 // Codes 3000-3999 reserved for inventory transactions
 const S32 TRANS_GIVE_INVENTORY		= 3000;
 
@@ -83,6 +89,12 @@ const S32 TRANS_LAND_PASS_SALE		= 5006;
 const S32 TRANS_DWELL_BONUS			= 5007;
 const S32 TRANS_PAY_OBJECT			= 5008;
 const S32 TRANS_OBJECT_PAYS			= 5009;
+
+// Codes 5100-5999 reserved for recurring billing transfers between users
+// New codes can be created through an admin interface so may not
+// automatically end up in the list below :-(
+// So make sure you check the transaction_description table
+const S32 TRANS_RECURRING_GENERIC_USER  = 5100;
 
 // Codes 6000-6999 reserved for group transactions
 //const S32 TRANS_GROUP_JOIN		    = 6000;  //reserved for future use

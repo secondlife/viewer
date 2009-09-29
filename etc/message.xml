@@ -668,6 +668,9 @@
 		
 			<key>FetchLib</key>
 			<boolean>true</boolean>
+
+			<key>UploadBakedTexture</key>
+			<boolean>true</boolean>
 		</map>
 
 		<key>messageBans</key>
