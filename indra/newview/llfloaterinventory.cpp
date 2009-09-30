@@ -1169,7 +1169,8 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p)
 	mScroller(NULL),
 	mSortOrderSetting(p.sort_order_setting),
 	mInventory(p.inventory),
-	mAllowMultiSelect(p.allow_multi_select)
+	mAllowMultiSelect(p.allow_multi_select),
+	mHasInventoryConnection(false)
 {
 	// contex menu callbacks
 	mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLInventoryPanel::doToSelected, this, _2));
@@ -1230,9 +1231,10 @@ BOOL LLInventoryPanel::postBuild()
 	mInventoryObserver = new LLInventoryPanelObserver(this);
 	mInventory->addObserver(mInventoryObserver);
 	// build view of inventory if inventory ready, otherwise wait for modelChanged() callback
-	if (mInventory->isInventoryUsable())
+	if (mInventory->isInventoryUsable() && !mHasInventoryConnection)
 	{
 		rebuildViewsFor(LLUUID::null, LLInventoryObserver::ADD);
+		mHasInventoryConnection = true;
 	}
 
 	// bit of a hack to make sure the inventory is open.
@@ -1332,9 +1334,10 @@ void LLInventoryPanel::modelChanged(U32 mask)
 	bool handled = false;
 
 	// inventory just initialized, do complete build
-	if ((mask & LLInventoryObserver::ADD) && gInventory.getChangedIDs().empty())
+	if ((mask & LLInventoryObserver::ADD) && gInventory.getChangedIDs().empty() && !mHasInventoryConnection)
 	{
 		rebuildViewsFor(LLUUID::null, LLInventoryObserver::ADD);
+		mHasInventoryConnection = true;
 		return;
 	}
 

@@ -179,6 +179,7 @@ protected:
 	LLScrollContainer*			mScroller;
 	BOOL 						mAllowMultiSelect;
 	std::string					mSortOrderSetting;
+	bool						mHasInventoryConnection;
 };
 
 class LLFloaterInventory;
