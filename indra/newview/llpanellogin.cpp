@@ -57,6 +57,7 @@
 #include "lluiconstants.h"
 #include "llurlsimstring.h"
 #include "llviewerbuild.h"
+#include "llviewerhelp.h"
 #include "llviewertexturelist.h"
 #include "llviewermenu.h"			// for handle_preferences()
 #include "llviewernetwork.h"
@@ -69,7 +70,6 @@
 #include "llmediactrl.h"
 #include "llrootview.h"
 
-#include "llfloatermediabrowser.h"
 #include "llfloatertos.h"
 #include "lltrans.h"
 #include "llglheaders.h"
@@ -412,8 +412,8 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask)
 
 	if ( KEY_F1 == key )
 	{
-		llinfos << "Spawning HTML help window" << llendl;
-		gViewerHtmlHelp.show();
+		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
+		vhelp->showTopic(vhelp->getTopicFromFocus());
 		return TRUE;
 	}
 

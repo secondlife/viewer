@@ -1,6 +1,6 @@
 /** 
- * @file llfloaterhtmlhelp.cpp
- * @brief HTML Help floater - uses embedded web browser control
+ * @file llfloatermediabrowser.cpp
+ * @brief media browser floater - uses embedded media browser control
  *
  * $LicenseInfo:firstyear=2006&license=viewergpl$
  * 
@@ -33,7 +33,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloatermediabrowser.h"
-#include "llfloaterhtml.h"
 
 #include "llfloaterreg.h"
 #include "llparcel.h"
@@ -330,69 +329,3 @@ void LLFloaterMediaBrowser::openMedia(const std::string& media_url)
 	mBrowser->navigateTo(media_url);
 	setCurrentURL(media_url);
 }
-////////////////////////////////////////////////////////////////////////////////
-//
-
-LLViewerHtmlHelp gViewerHtmlHelp;
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-LLViewerHtmlHelp::LLViewerHtmlHelp()
-{
-
-	LLUI::setHtmlHelp(this);
-}
-
-LLViewerHtmlHelp::~LLViewerHtmlHelp()
-{
-
-	LLUI::setHtmlHelp(NULL);
-}
-
-void LLViewerHtmlHelp::show()
-{
-	show("");
-}
-
-void LLViewerHtmlHelp::show(std::string url)
-{
-	LLFloaterMediaBrowser* floater_html = dynamic_cast<LLFloaterMediaBrowser*>(LLFloaterReg::getInstance("media_browser"));
-	floater_html->setVisible(FALSE);
-
-	if (url.empty())
-	{
-		url = floater_html->getSupportURL();
-	}
-
-	if (gSavedSettings.getBOOL("UseExternalBrowser"))
-	{
-		LLSD notificationData;
-		notificationData["url"] = url;
-
-		LLNotifications::instance().add("ClickOpenF1Help", notificationData, LLSD(), onClickF1HelpLoadURL);	    
-		floater_html->closeFloater();
-	}
-	else
-	{
-		// don't wait, just do it
-		floater_html->setVisible(TRUE);
-		floater_html->openMedia(url);
-	}
-}
-
-// static 
-bool LLViewerHtmlHelp::onClickF1HelpLoadURL(const LLSD& notification, const LLSD& response)
-{
-	LLFloaterMediaBrowser* floater_html = dynamic_cast<LLFloaterMediaBrowser*>(LLFloaterReg::getInstance("media_browser"));
-	floater_html->setVisible(FALSE);
-	std::string url = floater_html->getSupportURL();
-	S32 option = LLNotification::getSelectedOption(notification, response);
-	if (option == 0)
-	{
-		LLWeb::loadURL(url);
-	}
-	floater_html->closeFloater();
-	return false;
-}
-

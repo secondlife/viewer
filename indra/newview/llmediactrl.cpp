@@ -36,7 +36,6 @@
 #include "llmediactrl.h"
 
 // viewer includes
-#include "llfloaterhtml.h"
 #include "llfloaterworldmap.h"
 #include "lluictrlfactory.h"
 #include "llurldispatcher.h"
@@ -898,15 +897,7 @@ void LLMediaCtrl::onClickLinkHref( LLPluginClassMedia* self )
 			if ( LLStringUtil::compareInsensitive( url.substr( 0, protocol1.length() ), protocol1 ) == 0 ||
 				 LLStringUtil::compareInsensitive( url.substr( 0, protocol2.length() ), protocol2 ) == 0 )
 			{
-				// If we spawn a new LLFloaterHTML, assume we want it to
-				// follow this LLMediaCtrl's trust for whether or
-				// not to open secondlife:///app/ links. JC.
-//				const bool open_links_externally = false;
-//				LLFloaterHtml::getInstance()->show( 
-//					event_in.mStringPayload, 
-//						"Second Life Browser",
-//							open_links_externally,
-//								mTrusted);
+				llwarns << "Dead, unimplemented path that we used to send to the built-in browser long ago." << llendl;
 			}
 		}
 	}

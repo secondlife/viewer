@@ -762,6 +762,27 @@ LLUICtrl* LLUICtrl::getParentUICtrl() const
 	return NULL;
 }
 
+bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
+{
+	LLUICtrl* ctrl = this;
+
+	// search back through the control's parents for a panel
+	// with a help_topic string defined
+	while (ctrl)
+	{
+		LLPanel *panel = dynamic_cast<LLPanel *>(ctrl);
+		if (panel && !panel->getHelpTopic().empty())
+		{
+			help_topic_out = panel->getHelpTopic();
+			return true; // success
+		}
+		
+		ctrl = ctrl->getParentUICtrl();
+	}
+
+	return false; // no help topic found
+}
+
 // *TODO: Deprecate; for backwards compatability only:
 boost::signals2::connection LLUICtrl::setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data)
 {

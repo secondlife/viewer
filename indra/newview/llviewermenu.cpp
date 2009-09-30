@@ -103,9 +103,6 @@
 #include "llfloatergodtools.h"
 #include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
-#include "llfloaterhtmlcurrency.h"
-#include "llfloatermediabrowser.h"			// gViewerHtmlHelp
-#include "llfloaterhtmlsimple.h"
 #include "llfloaterhud.h"
 #include "llfloaterinspect.h"
 #include "llfloaterlagmeter.h"
@@ -182,6 +179,7 @@
 #include "lluuid.h"
 #include "llviewercamera.h"
 #include "llviewergenericmessage.h"
+#include "llviewerhelp.h"
 #include "llviewertexturelist.h"	// gTextureList
 #include "llviewerinventory.h"
 #include "llviewermenufile.h"	// init_menu_file()
@@ -375,7 +373,6 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 void dump_select_mgr(void*);
 
 void dump_inventory(void*);
-void edit_ui(void*);
 void toggle_visibility(void*);
 BOOL get_visibility(void*);
 
@@ -1247,21 +1244,6 @@ class LLAdvancedBuyCurrencyTest : public view_listener_t
 };
 
 
-////////////////////////
-// TOGGLE EDITABLE UI //
-////////////////////////
-
-
-class LLAdvancedToggleEditableUI : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		edit_ui(NULL);
-		return true;
-	}
-};
-
-	
 /////////////////////
 // DUMP SELECT MGR //
 /////////////////////
@@ -5587,11 +5569,6 @@ class LLObjectEnableSitOrStand : public view_listener_t
 	}
 };
 
-void edit_ui(void*)
-{
-	LLFloater::setEditModeEnabled(!LLFloater::getEditModeEnabled());
-}
-
 void dump_select_mgr(void*)
 {
 	LLSelectMgr::getInstance()->dump();
@@ -5649,8 +5626,8 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "help f1")
 		{
-			llinfos << "Spawning HTML help window" << llendl;
-			gViewerHtmlHelp.show();
+			LLViewerHelp* vhelp = LLViewerHelp::getInstance();
+			vhelp->showTopic(vhelp->getTopicFromFocus());
 		}
 		else if (floater_name == "complaint reporter")
 		{
@@ -7886,7 +7863,6 @@ void initialize_menus()
 	// Advanced > UI
 	view_listener_t::addMenu(new LLAdvancedWebBrowserTest(), "Advanced.WebBrowserTest");
 	view_listener_t::addMenu(new LLAdvancedBuyCurrencyTest(), "Advanced.BuyCurrencyTest");
-	view_listener_t::addMenu(new LLAdvancedToggleEditableUI(), "Advanced.ToggleEditableUI");
 	view_listener_t::addMenu(new LLAdvancedDumpSelectMgr(), "Advanced.DumpSelectMgr");
 	view_listener_t::addMenu(new LLAdvancedDumpInventory(), "Advanced.DumpInventory");
 	view_listener_t::addMenu(new LLAdvancedDumpFocusHolder(), "Advanced.DumpFocusHolder");

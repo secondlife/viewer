@@ -79,10 +79,10 @@ std::list<std::string> gUntranslated;
 /*static*/ LLUIAudioCallback LLUI::sAudioCallback = NULL;
 /*static*/ LLVector2		LLUI::sGLScaleFactor(1.f, 1.f);
 /*static*/ LLWindow*		LLUI::sWindow = NULL;
-/*static*/ LLHtmlHelp*		LLUI::sHtmlHelp = NULL;
 /*static*/ LLView*			LLUI::sRootView = NULL;
-/*static*/ BOOL				LLUI::sDirty = FALSE;
-/*static*/ LLRect			LLUI::sDirtyRect;
+/*static*/ BOOL                         LLUI::sDirty = FALSE;
+/*static*/ LLRect                       LLUI::sDirtyRect;
+/*static*/ LLHelp*			LLUI::sHelpImpl = NULL;
 /*static*/ std::vector<std::string> LLUI::sXUIPaths;
 /*static*/ LLFrameTimer		LLUI::sMouseIdleTimer;
 
@@ -687,44 +687,6 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 			gGL.vertex2i(0, 0);
 
 			gGL.texCoord2f(uv_rect.mRight, uv_rect.mBottom);
-			gGL.vertex2i(width, 0);
-		}
-		gGL.end();
-	}
-	gGL.popMatrix();
-}
-
-
-void gl_draw_scaled_image_inverted(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4& color, const LLRectf& uv_rect)
-{
-	if (NULL == image)
-	{
-		llwarns << "image == NULL; aborting function" << llendl;
-		return;
-	}
-
-	LLGLSUIDefault gls_ui;
-
-	gGL.pushMatrix();
-	{
-		gGL.translatef((F32)x, (F32)y, 0.f);
-
-		gGL.getTexUnit(0)->bind(image);
-
-		gGL.color4fv(color.mV);
-		
-		gGL.begin(LLRender::QUADS);
-		{
-			gGL.texCoord2f(uv_rect.mRight, uv_rect.mBottom);
-			gGL.vertex2i(width, height );
-
-			gGL.texCoord2f(uv_rect.mLeft, uv_rect.mBottom);
-			gGL.vertex2i(0, height );
-
-			gGL.texCoord2f(uv_rect.mLeft, uv_rect.mTop);
-			gGL.vertex2i(0, 0);
-
-			gGL.texCoord2f(uv_rect.mRight, uv_rect.mTop);
 			gGL.vertex2i(width, 0);
 		}
 		gGL.end();
@@ -1592,6 +1554,9 @@ void LLUI::initClass(const settings_map_t& settings,
 	// Button initialization callback for toggle buttons
 	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Button.SetFloaterToggle", boost::bind(&LLButton::setFloaterToggle, _1, _2));
 	
+	// Display the help topic for the current context
+	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Button.ShowHelp", boost::bind(&LLButton::showHelp, _1, _2));
+
 	// Currently unused, but kept for reference:
 	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("Button.ToggleFloater", boost::bind(&LLButton::toggleFloaterAndSetToggleState, _1, _2));
 	
@@ -1848,12 +1813,6 @@ LLPointer<LLUIImage> LLUI::getUIImage(const std::string& name)
 		return sImageProvider->getUIImage(name);
 	else
 		return NULL;
-}
-
-// static 
-void LLUI::setHtmlHelp(LLHtmlHelp* html_help)
-{
-	LLUI::sHtmlHelp = html_help;
 }
 
 LLControlGroup& LLUI::getControlControlGroup (const std::string& controlname)

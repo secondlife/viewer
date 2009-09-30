@@ -39,7 +39,6 @@
 #include "llstring.h"
 
 // Project includes
-#include "llhtmlhelp.h"
 #include "llkeyboard.h"
 #include "llui.h"
 #include "lluiconstants.h"
@@ -49,8 +48,10 @@
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llwindow.h"
+#include "llnotifications.h"
 #include "llrender.h"
 #include "lluictrlfactory.h"
+#include "llhelp.h"
 
 static LLDefaultChildRegistry::Register<LLButton> r("button");
 
@@ -92,7 +93,6 @@ LLButton::Params::Params()
 	mouse_held_callback("mouse_held_callback"),
 	is_toggle("is_toggle", false),
 	scale_image("scale_image", true),
-	help_url("help_url"),
 	hover_glow_amount("hover_glow_amount"),
 	commit_on_return("commit_on_return", true),
 	picture_style("picture_style", false)
@@ -172,11 +172,6 @@ LLButton::LLButton(const LLButton::Params& p)
 	}
 	
 	mMouseDownTimer.stop();
-
-	if (p.help_url.isProvided())
-	{
-		setHelpURLCallback(p.help_url);
-	}
 
 	// if custom unselected button image provided...
 	if (p.image_unselected != default_params.image_unselected)
@@ -1034,24 +1029,6 @@ void LLButton::addImageAttributeToXML(LLXMLNodePtr node,
 	}
 }
 
-void clicked_help(void* data)
-{
-	LLButton* self = (LLButton*)data;
-	if (!self) return;
-	
-	if (!LLUI::sHtmlHelp)
-	{
-		return;
-	}
-	
-	LLUI::sHtmlHelp->show(self->getHelpURL());
-}
-
-void LLButton::setHelpURLCallback(const std::string &help_url)
-{
-	mHelpURL = help_url;
-	setClickedCallback(clicked_help,this);
-}
 
 // static
 void LLButton::toggleFloaterAndSetToggleState(LLUICtrl* ctrl, const LLSD& sdname)
@@ -1075,6 +1052,24 @@ void LLButton::setFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname)
 	button->setControlVariable(LLUI::sSettingGroups["floater"]->getControl(vis_control_name));
 	// Set the clicked callback to toggle the floater
 	button->setClickedCallback(boost::bind(&LLFloaterReg::toggleFloaterInstance, sdname));
+}
+
+// static
+void LLButton::showHelp(LLUICtrl* ctrl, const LLSD& sdname)
+{
+	// search back through the button's parents for a panel
+	// with a help_topic string defined
+	std::string help_topic;
+	if (LLUI::sHelpImpl &&
+	    ctrl->findHelpTopic(help_topic))
+	{
+		LLUI::sHelpImpl->showTopic(help_topic);
+		return; // success
+	}
+
+	// display an error if we can't find a help_topic string.
+	// fix this by adding a help_topic attribute to the xui file
+	LLNotifications::instance().add("UnableToFindHelpTopic");
 }
 
 void LLButton::resetMouseDownTimer()

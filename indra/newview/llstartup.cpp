@@ -1429,6 +1429,17 @@ bool idle_startup()
 				LLStartUp::deletePasswordFromDisk();
 			}
 
+			// this is the base used to construct help URLs
+			text = LLUserAuth::getInstance()->getResponse("help_url_format");
+			if (!text.empty())
+			{
+				// replace the default help URL format
+				gSavedSettings.setString("HelpURLFormat",text);
+				
+				// don't fall back to Nebraska's pre-connection static help
+				gSavedSettings.setBOOL("HelpUseLocal", false);
+			}
+			
 			// this is their actual ability to access content
 			text = LLUserAuth::getInstance()->getResponse("agent_access_max");
 			if (!text.empty())

@@ -110,12 +110,10 @@
   <texture name="Home_Off" file_name="navbar/Home_Off.png" preload="false" />
   <texture name="Home_Press" file_name="navbar/Home_Press.png" preload="false" />
 
-  <texture name="Icon_Close_Background" file_name="windows/Icon_Close_Background.png" preload="true" />
   <texture name="Icon_Close_Foreground" file_name="windows/Icon_Close_Foreground.png" preload="true" />
   <texture name="Icon_Close_Press" file_name="windows/Icon_Close_Press.png" preload="true" />
   <texture name="Icon_Close_Toast" file_name="windows/Icon_Close_Toast.png" preload="true" />
 
-  <texture name="Icon_Dock_Background" file_name="windows/Icon_Dock_Background.png" preload="true" />
   <texture name="Icon_Dock_Foreground" file_name="windows/Icon_Dock_Foreground.png" preload="true" />
   <texture name="Icon_Dock_Press" file_name="windows/Icon_Dock_Press.png" preload="true" />
 
@@ -125,16 +123,16 @@
   <texture name="Icon_Gear_Foreground" file_name="windows/Icon_Gear_Foreground.png" preload="false" />
   <texture name="Icon_Gear_Press" file_name="windows/Icon_Gear_Press.png" preload="false" />
 
-  <texture name="Icon_Help_Background" file_name="windows/Icon_Help_Background.png" preload="false" />
   <texture name="Icon_Help_Foreground" file_name="windows/Icon_Help_Foreground.png" preload="false" />
   <texture name="Icon_Help_Press" file_name="windows/Icon_Help_Press.png" preload="false" />
   <texture name="Icon_Info" file_name="windows/Icon_Info.png" preload="false" />
 
-  <texture name="Icon_Minimize_Background" file_name="windows/Icon_Minimize_Background.png" preload="true" />
   <texture name="Icon_Minimize_Foreground" file_name="windows/Icon_Minimize_Foreground.png" preload="true" />
   <texture name="Icon_Minimize_Press" file_name="windows/Icon_Minimize_Press.png" preload="true" />
 
-  <texture name="Icon_Undock_Background" file_name="windows/Icon_Undock_Background.png" preload="false" />
+  <texture name="Icon_Restore_Foreground" file_name="windows/Icon_Restore_Foreground.png" preload="false" />
+  <texture name="Icon_Restore_Press" file_name="windows/Icon_Restore_Press.png" preload="false" />
+
   <texture name="Icon_Undock_Foreground" file_name="windows/Icon_Undock_Foreground.png" preload="false" />
   <texture name="Icon_Undock_Press" file_name="windows/Icon_Undock_Press.png" preload="false" />
 
@@ -442,8 +440,6 @@
   <texture name="cam_zoom_plus_in.tga" preload="false" />
   <texture name="cam_zoom_minus_in.tga" preload="false" />
 
-  <texture name="close_inactive_blue.tga" />
-  <texture name="closebox.tga" />
   <texture name="icn_clear_lineeditor.tga" />
 
   <texture name="icn_chatbar.tga" />
@@ -492,10 +488,6 @@
 
   <texture name="up_arrow.tga" file_name="up_arrow.png" />
   <texture name="down_arrow.tga" file_name="down_arrow.png" />
-
-  <texture name="restore_inactive.tga" />
-  <texture name="restore.tga" />
-  <texture name="restore_pressed.tga" />
 
   <texture name="tearoffbox.tga" />
   <texture name="tearoff_pressed.tga" />

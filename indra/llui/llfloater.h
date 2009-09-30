@@ -101,9 +101,9 @@ public:
 		BUTTON_RESTORE,
 		BUTTON_MINIMIZE,
 		BUTTON_TEAR_OFF,
-		BUTTON_EDIT,
 		BUTTON_DOCK,
 		BUTTON_UNDOCK,
+		BUTTON_HELP,
 		BUTTON_COUNT
 	};
 	
@@ -173,9 +173,9 @@ public:
 	void			applyTitle();
 	const std::string&	getCurrentTitle() const;
 	void			setTitle( const std::string& title);
-	std::string		getTitle();
+	std::string		getTitle() const;
 	void			setShortTitle( const std::string& short_title );
-	std::string		getShortTitle();
+	std::string		getShortTitle() const;
 	void			setTitleVisible(bool visible);
 	virtual void	setMinimized(BOOL b);
 	void			moveResizeHandlesToFront();
@@ -256,12 +256,10 @@ public:
 	static void		onClickClose(LLFloater* floater);
 	static void		onClickMinimize(LLFloater* floater);
 	static void		onClickTearOff(LLFloater* floater);
-	static void		onClickEdit(LLFloater* floater);
 	static void     onClickDock(LLFloater* floater);
+	static void		onClickHelp(LLFloater* floater);
 
 	static void		setFloaterHost(LLMultiFloater* hostp) {sHostp = hostp; }
-	static void		setEditModeEnabled(BOOL enable);
-	static BOOL		getEditModeEnabled() { return sEditModeEnabled; }
 	static LLMultiFloater* getFloaterHost() {return sHostp; }
 		
 protected:
@@ -331,7 +329,6 @@ private:
 	
 
 	BOOL			mFirstLook;			// TRUE if the _next_ time this floater is visible will be the first time in the session that it is visible.
-	BOOL			mEditing;
 	
 	typedef std::set<LLHandle<LLFloater> > handle_set_t;
 	typedef std::set<LLHandle<LLFloater> >::iterator handle_set_iter_t;
@@ -350,11 +347,8 @@ private:
 	bool            mDocked;
 
 	static LLMultiFloater* sHostp;
-	static BOOL		sEditModeEnabled;
 	static BOOL		sQuitting;
 	static std::string	sButtonActiveImageNames[BUTTON_COUNT];
-	// Images to use when cursor hovered over an enabled button
-	static std::string	sButtonHoveredImageNames[BUTTON_COUNT];
 	static std::string	sButtonPressedImageNames[BUTTON_COUNT];
 	static std::string	sButtonNames[BUTTON_COUNT];
 	static std::string	sButtonToolTips[BUTTON_COUNT];

@@ -66,7 +66,6 @@
 #include "lllogchat.h"
 #include "lltexteditor.h"
 #include "lltextparser.h"
-#include "llfloaterhtml.h"
 #include "llweb.h"
 #include "llstylemap.h"
 

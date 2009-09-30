@@ -65,7 +65,7 @@
 #include "llfloatergodtools.h"
 #include "llfloatergroups.h"
 #include "llfloaterhardwaresettings.h"
-#include "llfloaterhtmlcurrency.h"
+#include "llfloaterhelpbrowser.h"
 #include "llfloatermediabrowser.h"
 #include "llfloaterhud.h"
 #include "llfloaterimagepreview.h"
@@ -164,8 +164,8 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("god_tools", "floater_god_tools.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGodTools>);
 	LLFloaterReg::add("group_picker", "floater_choose_group.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGroupPicker>);
 
+	LLFloaterReg::add("help_browser", "floater_help_browser.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterHelpBrowser>);	
 	LLFloaterReg::add("hud", "floater_hud.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterHUD>);
-	LLFloaterReg::add("html_simple", "floater_html_simple.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterHtmlSimple>);
 
 	LLFloaterReg::add("impanel", "floater_im_session.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIMFloater>);
 	LLFloaterReg::add("inventory", "floater_inventory.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterInventory>);
@@ -244,11 +244,6 @@ void LLViewerFloaterReg::registerFloaters()
 	
 	// debug use only
 	LLFloaterReg::add("media_remote_ctrl", "floater_media_remote.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMediaRemoteCtrl>);
-	
-	// Untested / dangerous - not for release
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LLFloaterReg::add("buy_currency_html", "floater_html_simple.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterHtmlCurrency>);
-#endif
 
 	LLFloaterReg::registerControlVariables(); // Make sure visibility and rect controls get preserved when saving
 }

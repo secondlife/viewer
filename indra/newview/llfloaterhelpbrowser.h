@@ -1,6 +1,6 @@
 /** 
  * @file llfloatermediabrowser.h
- * @brief media browser floater - uses embedded media browser control
+ * @brief HTML Help floater - uses embedded web browser control
  *
  * $LicenseInfo:firstyear=2006&license=viewergpl$
  * 
@@ -30,54 +30,43 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERMEDIABROWSER_H
-#define LL_LLFLOATERMEDIABROWSER_H
+#ifndef LL_LLFLOATERHELPBROWSER_H
+#define LL_LLFLOATERHELPBROWSER_H
 
 #include "llfloater.h"
 #include "llmediactrl.h"
 
 
-class LLComboBox;
 class LLMediaCtrl;
 
-class LLFloaterMediaBrowser : 
+class LLFloaterHelpBrowser : 
 	public LLFloater, 
 	public LLViewerMediaObserver
 {
-public:
-	LLFloaterMediaBrowser(const LLSD& key);
+ public:
+	LLFloaterHelpBrowser(const LLSD& key);
 
 	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onClose(bool app_quitting);
-	/*virtual*/ void draw();
-	/*virtual*/ void onOpen(const LLSD& key);
+	void onClose();
 
 	// inherited from LLViewerMediaObserver
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
 	void openMedia(const std::string& media_url);
+
+	void navigateToLocalPage( const std::string& subdir, const std::string& filename_in );
+	
+ private:
 	void buildURLHistory();
-	std::string getSupportURL();
 	void setCurrentURL(const std::string& url);
 
-	static void onEnterAddress(LLUICtrl* ctrl, void* user_data);
-	static void onClickRefresh(void* user_data);
-	static void onClickBack(void* user_data);
-	static void onClickForward(void* user_data);
-	static void onClickGo(void* user_data);
 	static void onClickClose(void* user_data);
 	static void onClickOpenWebBrowser(void* user_data);
-	static void onClickAssign(void* user_data);
-	static void onClickRewind(void* user_data);
-	static void onClickPlay(void* user_data);
-	static void onClickStop(void* user_data);
-	static void onClickSeek(void* user_data);
 
-private:
+ private:
 	LLMediaCtrl* mBrowser;
-	LLComboBox* mAddressCombo;
 	std::string mCurrentURL;
 };
 
-#endif  // LL_LLFLOATERMEDIABROWSER_H
+#endif  // LL_LLFLOATERHELPBROWSER_H
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_resize="true"
- height="440"
+ height="400"
  layout="topleft"
  min_height="140"
  min_width="467"
@@ -9,8 +9,8 @@
  help_topic="floater_help_browser"
  save_rect="true"
  single_instance="true"
- title="Holy Bananas, it's the Help Browser"
- width="820">
+ title="Help Browser"
+ width="620">
     <floater.string
      name="home_page_url">
         http://www.secondlife.com
@@ -20,150 +20,13 @@
         http://support.secondlife.com
     </floater.string>
     <layout_stack
-     bottom="440"
+     bottom="400"
      follows="left|right|top|bottom"
      layout="topleft"
      left="10"
      name="stack1"
      top="20"
-     width="800">
-        <layout_panel
-         auto_resize="false"
-         height="20"
-         layout="topleft"
-         left="0"
-         name="nav_controls"
-         top="400"
-         user_resize="false"
-         width="800">
-            <button
-             follows="left|top"
-             height="20"
-             label="Back"
-             layout="topleft"
-             left="0"
-             name="back"
-             top="0"
-             width="55" />
-            <button
-             follows="left|top"
-             height="20"
-             label="Forward"
-             layout="topleft"
-             left_pad="3"
-             name="forward"
-             top_delta="0"
-             width="68" />
-            <button
-             enabled="false"
-             follows="left|top"
-             height="20"
-             label="Reload"
-             layout="topleft"
-             left_pad="2"
-             name="reload"
-             top_delta="0"
-             width="70"/>
-            <combo_box
-             allow_text_entry="true"
-             follows="left|top|right"
-             height="20"
-             layout="topleft"
-             left_pad="5"
-             max_chars="255"
-             name="address"
-             top_delta="0"
-             width="540" />
-            <button
-             enabled="false"
-             follows="right|top"
-             height="20"
-             label="Go"
-             layout="topleft"
-             left_pad="5"
-             name="go"
-             top_delta="0"
-             width="55" />
-        </layout_panel>
-        <layout_panel
-         auto_resize="false"
-         height="20"
-         layout="topleft"
-         left_delta="0"
-         name="time_controls"
-         top_delta="0"
-         user_resize="false"
-         width="800">
-            <button
-             follows="left|top"
-             height="20"
-             label="rewind"
-             layout="topleft"
-             left="0"
-             name="rewind"
-             top="0"
-             width="55" />
-            <button
-             follows="left|top"
-             height="20"
-             image_selected="button_anim_play_selected.tga"
-             image_unselected="button_anim_play.tga"
-             layout="topleft"
-             left_delta="55"
-             name="play"
-             picture_style="true"
-             top_delta="0"
-             width="55" />
-            <button
-             follows="left|top"
-             height="20"
-             image_selected="button_anim_pause_selected.tga"
-             image_unselected="button_anim_pause.tga"
-             layout="topleft"
-             left_delta="0"
-             name="pause"
-             picture_style="true"
-             top_delta="0"
-             width="55" />
-            <button
-             follows="left|top"
-             height="20"
-             label="stop"
-             layout="topleft"
-             left_pad="10"
-             name="stop"
-             top_delta="0"
-             width="55" />
-            <button
-             follows="left|top"
-             height="20"
-             label="forward"
-             layout="topleft"
-             left_pad="20"
-             name="seek"
-             top_delta="0"
-             width="55" />
-        </layout_panel>
-        <layout_panel
-         auto_resize="false"
-         height="20"
-         layout="topleft"
-         left_delta="0"
-         name="parcel_owner_controls"
-         top_delta="0"
-         user_resize="false"
-         width="540">
-            <button
-             enabled="false"
-             follows="left|top"
-             height="20"
-             label="Send Current URL to Parcel"
-             layout="topleft"
-             left="0"
-             name="assign"
-             top="0"
-             width="200" />
-        </layout_panel>
+     width="600">
         <layout_panel
          height="20"
          layout="topleft"
@@ -171,7 +34,7 @@
          name="external_controls"
          top_delta="0"
          user_resize="false"
-         width="540">
+         width="570">
             <web_browser
              bottom="-10"
              follows="left|right|top|bottom"
@@ -179,7 +42,7 @@
              left="0"
              name="browser"
              top="0"
-             width="540" />
+             width="570" />
             <button
              follows="bottom|left"
              height="20"
@@ -189,25 +52,17 @@
              name="open_browser"
              top_pad="5"
              width="185" />
-            <check_box
-             control_name="UseExternalBrowser"
-             follows="bottom|left"
-             height="20"
-             label="Always open in my web browser"
-             layout="topleft"
-             left_pad="5"
-             name="open_always"
-             top_delta="0"
-             width="200" />
+<!--
             <button
              follows="bottom|right"
              height="20"
              label="Close"
              layout="topleft"
-             left_pad="80"
+             left_pad="290"
              name="close"
              top_delta="0"
              width="70" />
+-->
         </layout_panel>
     </layout_stack>
 </floater>

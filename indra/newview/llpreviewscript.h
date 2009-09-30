@@ -64,7 +64,6 @@ class LLScriptEdCore : public LLPanel
 public:
 	LLScriptEdCore(
 		const std::string& sample,
-		const std::string& help_url,
 		const LLHandle<LLFloater>& floater_handle,
 		void (*load_callback)(void* userdata),
 		void (*save_callback)(void* userdata, BOOL close_after_save),
@@ -86,7 +85,6 @@ public:
 	bool			handleSaveChangesDialog(const LLSD& notification, const LLSD& response);
 	bool			handleReloadFromServerDialog(const LLSD& notification, const LLSD& response);
 
-	static bool		onHelpWebDialog(const LLSD& notification, const LLSD& response);
 	static void		onCheckLock(LLUICtrl*, void*);
 	static void		onHelpComboCommit(LLUICtrl* ctrl, void* userdata);
 	static void		onClickBack(void* userdata);
@@ -116,7 +114,6 @@ protected:
 
 private:
 	std::string		mSampleText;
-	std::string		mHelpURL;
 	LLTextEditor*	mEditor;
 	void			(*mLoadCallback)(void* userdata);
 	void			(*mSaveCallback)(void* userdata, BOOL close_after_save);
@@ -124,7 +121,6 @@ private:
 	void*			mUserdata;
 	LLComboBox		*mFunctions;
 	BOOL			mForceClose;
-	//LLPanel*		mGuiPanel;
 	LLPanel*		mCodePanel;
 	LLScrollListCtrl* mErrorList;
 	LLDynamicArray<LLEntryAndEdCore*> mBridges;

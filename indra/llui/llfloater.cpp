@@ -59,6 +59,7 @@
 #include "lltabcontainer.h"
 #include "v2math.h"
 #include "lltrans.h"
+#include "llhelp.h"
 #include "llmultifloater.h"
 
 // use this to control "jumping" behavior when Ctrl-Tabbing
@@ -66,48 +67,35 @@ const S32 TABBED_FLOATER_OFFSET = 0;
 
 std::string	LLFloater::sButtonActiveImageNames[BUTTON_COUNT] = 
 {
-	"Icon_Close_Foreground",		//BUTTON_CLOSE
-	"restore.tga",	//BUTTON_RESTORE
-	"minimize.tga",	//BUTTON_MINIMIZE
-	"tearoffbox.tga",	//BUTTON_TEAR_OFF
-	"closebox.tga",		//BUTTON_EDIT
-	"Icon_Dock_Foreground",
-	"Icon_Undock_Foreground"
-};
-
-// Empty string means programmatic glow effect, achieved by
-// not setting explicit image.
-std::string	LLFloater::sButtonHoveredImageNames[BUTTON_COUNT] = 
-{
-	"",						//BUTTON_CLOSE
-	"restore_pressed.tga",	//BUTTON_RESTORE
-	"minimize_pressed.tga",	//BUTTON_MINIMIZE
-	"tearoff_pressed.tga",	//BUTTON_TEAR_OFF
-	"close_in_blue.tga",	//BUTTON_EDIT
-	"",						//BUTTON_DOCK
-	"",						//BUTTON_UNDOCK
+	"Icon_Close_Foreground",	//BUTTON_CLOSE
+	"Icon_Restore_Foreground",	//BUTTON_RESTORE
+	"Icon_Minimize_Foreground",	//BUTTON_MINIMIZE
+	"tearoffbox.tga",			//BUTTON_TEAR_OFF
+	"Icon_Dock_Foreground",		//BUTTON_DOCK
+	"Icon_Undock_Foreground",	//BUTTON_UNDOCK
+	"Icon_Help_Foreground"		//BUTTON_HELP
 };
 
 std::string	LLFloater::sButtonPressedImageNames[BUTTON_COUNT] = 
 {
-	"Icon_Close_Press",		//BUTTON_CLOSE
-	"restore_pressed.tga",	//BUTTON_RESTORE
-	"minimize_pressed.tga",	//BUTTON_MINIMIZE
-	"tearoff_pressed.tga",	//BUTTON_TEAR_OFF
-	"close_in_blue.tga",		//BUTTON_EDIT
-	"Icon_Dock_Press",
-	"Icon_Undock_Press"
+	"Icon_Close_Press",			//BUTTON_CLOSE
+	"Icon_Restore_Press",		//BUTTON_RESTORE
+	"Icon_Minimize_Press",		//BUTTON_MINIMIZE
+	"tearoff_pressed.tga",		//BUTTON_TEAR_OFF
+	"Icon_Dock_Press",			//BUTTON_DOCK
+	"Icon_Undock_Press",		//BUTTON_UNDOCK
+	"Icon_Help_Press"			//BUTTON_HELP
 };
 
 std::string	LLFloater::sButtonNames[BUTTON_COUNT] = 
 {
-	"llfloater_close_btn",	//BUTTON_CLOSE
+	"llfloater_close_btn",		//BUTTON_CLOSE
 	"llfloater_restore_btn",	//BUTTON_RESTORE
 	"llfloater_minimize_btn",	//BUTTON_MINIMIZE
 	"llfloater_tear_off_btn",	//BUTTON_TEAR_OFF
-	"llfloater_edit_btn",		//BUTTON_EDIT
-	"llfloater_dock_btn",
-	"llfloater_undock_btn"
+	"llfloater_dock_btn",		//BUTTON_DOCK
+	"llfloater_undock_btn",		//BUTTON_UNDOCK
+	"llfloater_help_btn"		//BUTTON_HELP
 };
 
 std::string LLFloater::sButtonToolTips[BUTTON_COUNT];
@@ -122,9 +110,9 @@ std::string LLFloater::sButtonToolTipsIndex[BUTTON_COUNT]=
 	"BUTTON_RESTORE",		//"Restore",	//BUTTON_RESTORE
 	"BUTTON_MINIMIZE",		//"Minimize",	//BUTTON_MINIMIZE
 	"BUTTON_TEAR_OFF",		//"Tear Off",	//BUTTON_TEAR_OFF
-	"BUTTON_EDIT",			//"Edit",		//BUTTON_EDIT
 	"BUTTON_DOCK",
-	"BUTTON_UNDOCK"
+	"BUTTON_UNDOCK",
+	"BUTTON_HELP"
 };
 
 LLFloater::click_callback LLFloater::sButtonCallbacks[BUTTON_COUNT] =
@@ -133,13 +121,12 @@ LLFloater::click_callback LLFloater::sButtonCallbacks[BUTTON_COUNT] =
 	LLFloater::onClickMinimize, //BUTTON_RESTORE
 	LLFloater::onClickMinimize, //BUTTON_MINIMIZE
 	LLFloater::onClickTearOff,	//BUTTON_TEAR_OFF
-	LLFloater::onClickEdit,	//BUTTON_EDIT
-	LLFloater::onClickDock,
-	LLFloater::onClickDock
+	LLFloater::onClickDock,		//BUTTON_DOCK
+	LLFloater::onClickDock,		//BUTTON_UNDOCK
+	LLFloater::onClickHelp		//BUTTON_HELP
 };
 
 LLMultiFloater* LLFloater::sHostp = NULL;
-BOOL			LLFloater::sEditModeEnabled = FALSE;
 BOOL			LLFloater::sQuitting = FALSE; // Flag to prevent storing visibility controls while quitting
 LLFloater::handle_map_t	LLFloater::sFloaterMap;
 
@@ -259,7 +246,6 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mMinimized(FALSE),
 	mForeground(FALSE),
 	mFirstLook(TRUE),
-	mEditing(FALSE),
 	mButtonScale(1.0f),
 	mAutoFocus(TRUE), // automatically take focus when opened
 	mCanDock(false),
@@ -312,6 +298,12 @@ void LLFloater::initFloater()
 	if (mCanClose)
 	{
 		mButtonsEnabled[BUTTON_CLOSE] = TRUE;
+	}
+
+	// Help button: '?'
+	if ( !mHelpTopic.empty() )
+	{
+		mButtonsEnabled[BUTTON_HELP] = TRUE;
 	}
 
 	// Minimize button only for top draggers
@@ -804,7 +796,7 @@ void LLFloater::setTitle( const std::string& title )
 	applyTitle();
 }
 
-std::string LLFloater::getTitle()
+std::string LLFloater::getTitle() const
 {
 	if (mTitle.empty())
 	{
@@ -822,7 +814,7 @@ void LLFloater::setShortTitle( const std::string& short_title )
 	applyTitle();
 }
 
-std::string LLFloater::getShortTitle()
+std::string LLFloater::getShortTitle() const
 {
 	if (mShortTitle.empty())
 	{
@@ -833,8 +825,6 @@ std::string LLFloater::getShortTitle()
 		return mShortTitle;
 	}
 }
-
-
 
 BOOL LLFloater::canSnapTo(const LLView* other_view)
 {
@@ -1051,6 +1041,10 @@ void LLFloater::setMinimized(BOOL minimize)
 		reshape( mExpandedRect.getWidth(), mExpandedRect.getHeight(), TRUE );
 	}
 	
+	// don't show the help button while minimized - it's
+	// not very useful when minimized and uses up space
+	mButtonsEnabled[BUTTON_HELP] = !minimize;
+
 	applyTitle ();
 
 	make_ui_sound("UISndWindowClose");
@@ -1387,28 +1381,6 @@ void LLFloater::setDocked(bool docked, bool pop_on_undock)
 	}
 }
 
-//static
-void LLFloater::setEditModeEnabled(BOOL enable)
-{
-	if (enable != sEditModeEnabled)
-	{
-		S32 count = 0;
-		for(handle_map_iter_t iter = sFloaterMap.begin(); iter != sFloaterMap.end(); ++iter)
-		{
-			LLFloater* floater = iter->second;
-			if (!floater->isDead())
-			{
-				iter->second->mButtonsEnabled[BUTTON_EDIT] = enable;
-				iter->second->updateButtons();
-			}
-			count++;
-		}
-	}
-
-	sEditModeEnabled = enable;
-}
-
-
 // static
 void LLFloater::onClickMinimize(LLFloater* self)
 {
@@ -1456,19 +1428,20 @@ void LLFloater::onClickTearOff(LLFloater* self)
 }
 
 // static
-void LLFloater::onClickEdit(LLFloater* self)
-{
-	if (!self)
-		return;
-	self->mEditing = self->mEditing ? FALSE : TRUE;
-}
-
-// static
 void LLFloater::onClickDock(LLFloater* self)
 {
 	if(self && self->mCanDock)
 	{
 		self->setDocked(!self->mDocked, true);
+	}
+}
+
+// static
+void LLFloater::onClickHelp( LLFloater* self )
+{
+	if (self && LLUI::sHelpImpl)
+	{
+		LLUI::sHelpImpl->showTopic(self->getHelpTopic());
 	}
 }
 
@@ -1807,17 +1780,9 @@ void LLFloater::buildButtons()
 		// Selected, no matter if hovered or not, is "pressed"
 		p.image_selected.name(sButtonPressedImageNames[i]);
 		p.image_hover_selected.name(sButtonPressedImageNames[i]);
-		// Empty string means programmatic glow effect, achieved by
-		// not setting explicit image.
-		if (sButtonHoveredImageNames[i].empty())
-		{
-			// These icons are really small, need glow amount increased
-			p.hover_glow_amount( 0.22f );
-		}
-		else
-		{
-			p.image_hover_unselected.name(sButtonHoveredImageNames[i]);
-		}
+		// Use a glow effect when the user hovers over the button
+		// These icons are really small, need glow amount increased
+		p.hover_glow_amount( 0.33f );
 		p.click_callback.function(boost::bind(sButtonCallbacks[i], this));
 		p.tab_stop(false);
 		p.follows.flags(FOLLOWS_TOP|FOLLOWS_RIGHT);

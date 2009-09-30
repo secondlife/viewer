@@ -223,6 +223,10 @@ public:
 
 	LLUICtrl*		getParentUICtrl() const;
 
+	// return true if help topic found by crawling through parents -
+	// topic then put in help_topic_out
+	bool                    findHelpTopic(std::string& help_topic_out);
+
 	boost::signals2::connection setCommitCallback( const commit_signal_t::slot_type& cb ) { return mCommitSignal.connect(cb); }
 	boost::signals2::connection setValidateCallback( const enable_signal_t::slot_type& cb ) { return mValidateSignal.connect(cb); }
 

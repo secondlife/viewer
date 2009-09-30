@@ -169,9 +169,8 @@ set(viewer_SOURCE_FILES
     llfloatergroups.cpp
     llfloaterhandler.cpp
     llfloaterhardwaresettings.cpp
-    llfloaterhtmlcurrency.cpp
+    llfloaterhelpbrowser.cpp
     llfloatermediabrowser.cpp
-    llfloaterhtmlsimple.cpp
     llfloaterhud.cpp
     llfloaterimagepreview.cpp
     llfloaterinspect.cpp
@@ -426,6 +425,8 @@ set(viewer_SOURCE_FILES
     llviewerfloaterreg.cpp
     llviewergenericmessage.cpp
     llviewergesture.cpp    
+    llviewerhelp.cpp
+    llviewerhelputil.cpp
     llviewerinventory.cpp
     llviewerjointattachment.cpp
     llviewerjoint.cpp
@@ -632,9 +633,8 @@ set(viewer_HEADER_FILES
     llfloatergroups.h
     llfloaterhandler.h
     llfloaterhardwaresettings.h
-    llfloaterhtmlcurrency.h
+    llfloaterhelpbrowser.h
     llfloatermediabrowser.h
-    llfloaterhtmlsimple.h
     llfloaterhud.h
     llfloaterimagepreview.h
     llfloaterinspect.h
@@ -891,6 +891,7 @@ set(viewer_HEADER_FILES
     llviewerfloaterreg.h
     llviewergenericmessage.h
     llviewergesture.h    
+    llviewerhelp.h
     llviewerinventory.h
     llviewerjoint.h
     llviewerjointattachment.h
@@ -1526,6 +1527,7 @@ endif (INSTALL)
 include(LLAddBuildTest)
 SET(viewer_TEST_SOURCE_FILES
   llagentaccess.cpp
+  llviewerhelputil.cpp
   )
 set_source_files_properties(
   ${viewer_TEST_SOURCE_FILES}

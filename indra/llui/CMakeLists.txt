@@ -129,7 +129,7 @@ set(llui_HEADER_FILES
     llfocusmgr.h
     llfunctorregistry.h
     llhandle.h
-    llhtmlhelp.h
+    llhelp.h
     lliconctrl.h
     llkeywords.h
     lllayoutstack.h
