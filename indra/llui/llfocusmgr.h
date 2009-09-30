@@ -54,11 +54,12 @@ public:
 	virtual void	setFocus( BOOL b );
 	virtual BOOL	hasFocus() const;
 
-	typedef boost::function<void(LLFocusableElement*, void*)> focus_callback_t;
-	void	setFocusLostCallback(focus_callback_t cb, void* user_data = NULL)	{ mFocusLostCallback = cb; mFocusCallbackUserData = user_data; }
-	void	setFocusReceivedCallback(focus_callback_t cb, void* user_data = NULL)	{ mFocusReceivedCallback = cb; mFocusCallbackUserData = user_data; }
-	void	setFocusChangedCallback(focus_callback_t cb, void* user_data = NULL )	{ mFocusChangedCallback = cb; mFocusCallbackUserData = user_data; }
-	void	setTopLostCallback(focus_callback_t cb, void* user_data = NULL )	{ mTopLostCallback = cb; mFocusCallbackUserData = user_data; }
+	typedef boost::signals2::signal<void(LLFocusableElement*)> focus_signal_t;
+	
+	boost::signals2::connection setFocusLostCallback( const focus_signal_t::slot_type& cb)	{ return mFocusLostCallback.connect(cb);}
+	boost::signals2::connection	setFocusReceivedCallback(const focus_signal_t::slot_type& cb)	{ return mFocusReceivedCallback.connect(cb);}
+	boost::signals2::connection	setFocusChangedCallback(const focus_signal_t::slot_type& cb)	{ return mFocusChangedCallback.connect(cb);}
+	void	setTopLostCallback(const focus_signal_t::slot_type& cb)	{ mTopLostCallback.connect(cb);}
 
 	// These were brought up the hierarchy from LLView so that we don't have to use dynamic_cast when dealing with keyboard focus.
 	virtual BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
@@ -68,11 +69,10 @@ protected:
 	virtual void	onFocusReceived();
 	virtual void	onFocusLost();
 	virtual void	onTopLost();	// called when registered as top ctrl and user clicks elsewhere
-	focus_callback_t mFocusLostCallback;
-	focus_callback_t mFocusReceivedCallback;
-	focus_callback_t mFocusChangedCallback;
-	focus_callback_t mTopLostCallback;
-	void*			mFocusCallbackUserData;
+	focus_signal_t  mFocusLostCallback;
+	focus_signal_t  mFocusReceivedCallback;
+	focus_signal_t  mFocusChangedCallback;
+	focus_signal_t  mTopLostCallback;
 };
 
 
@@ -124,11 +124,6 @@ public:
 	void			unlockFocus();
 	BOOL			focusLocked() const { return mLockedView != NULL; }
 
-	void			addFocusChangeCallback(const boost::signals2::signal<void ()>::slot_type& cb)
-	{
-		mFocusChangeSignal.connect(cb);
-	}
-
 private:
 	LLUICtrl*			mLockedView;
 
@@ -154,8 +149,6 @@ private:
 
 	typedef std::map<LLHandle<LLView>, LLHandle<LLView> > focus_history_map_t;
 	focus_history_map_t mFocusHistory;
-
-	boost::signals2::signal<void()>	mFocusChangeSignal;
 
 	#ifdef _DEBUG
 		std::string		mMouseCaptorName;

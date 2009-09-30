@@ -114,7 +114,6 @@ void LLUICtrl::initFromParams(const Params& p)
 	}
 
 	setTabStop(p.tab_stop);
-	setFocusLostCallback(p.focus_lost_callback());
 
 	if (p.initial_value.isProvided() 
 		&& !p.control_name.isProvided())
@@ -800,14 +799,7 @@ namespace LLInitParam
     	return false;
     }
     
-    template<> 
-	bool ParamCompare<LLUICtrl::focus_callback_t>::equals(
-		const LLUICtrl::focus_callback_t &a, 
-		const LLUICtrl::focus_callback_t &b)
-    {
-    	return false;
-    }
-    
+   
     template<> 
 	bool ParamCompare<LLUICtrl::enable_callback_t>::equals(
 		const LLUICtrl::enable_callback_t &a, 

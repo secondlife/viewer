@@ -124,8 +124,6 @@ public:
 		Optional<CommitCallbackParam>	mouseenter_callback;
 		Optional<CommitCallbackParam>	mouseleave_callback;
 		
-		Optional<focus_callback_t>		focus_lost_callback;
-		
 		Optional<std::string>			control_name;
 		Optional<EnableControls>		enabled_controls;
 		Optional<ControlVisibility>		controls_visibility;
@@ -309,11 +307,6 @@ namespace LLInitParam
 		const LLUICtrl::enable_callback_t &a, 
 		const LLUICtrl::enable_callback_t &b); 
     
-	template<> 
-	bool ParamCompare<LLUICtrl::focus_callback_t>::equals(
-		const LLUICtrl::focus_callback_t &a, 
-		const LLUICtrl::focus_callback_t &b); 
-	
     template<>
 	bool ParamCompare<LLLazyValue<LLColor4> >::equals(
 		const LLLazyValue<LLColor4> &a, const LLLazyValue<LLColor4> &b); 

@@ -229,7 +229,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	LLComboBox* server_choice_combo = sInstance->getChild<LLComboBox>("server_combo");
 	server_choice_combo->setCommitCallback(onSelectServer, NULL);
-	server_choice_combo->setFocusLostCallback(onServerComboLostFocus);
+	server_choice_combo->setFocusLostCallback(boost::bind(onServerComboLostFocus, _1));
 
 	childSetAction("connect_btn", onClickConnect, this);
 
@@ -973,7 +973,7 @@ void LLPanelLogin::onSelectServer(LLUICtrl*, void*)
 	loadLoginPage();
 }
 
-void LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe, void*)
+void LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe)
 {
 	if (!sInstance) return;
 

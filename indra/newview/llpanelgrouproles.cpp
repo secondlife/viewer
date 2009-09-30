@@ -1730,7 +1730,7 @@ BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 
 	mRoleDescription->setCommitOnFocusLost(TRUE);
 	mRoleDescription->setCommitCallback(onDescriptionCommit, this);
-	mRoleDescription->setFocusReceivedCallback(onDescriptionFocus, this);
+	mRoleDescription->setFocusReceivedCallback(boost::bind(onDescriptionFocus, _1, this));
 
 	setFooterEnabled(FALSE);
 

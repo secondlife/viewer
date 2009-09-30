@@ -357,6 +357,8 @@ private:
 	// Timer to detect when user has stopped typing.
 	LLFrameTimer mLastKeystrokeTimer;
 
+	boost::signals2::connection mFocusCallbackConnection;
+
 	void disableWhileSessionStarting();
 };
 

@@ -41,11 +41,6 @@ const F32 FOCUS_FADE_TIME = 0.3f;
 // NOTE: the LLFocusableElement implementation has been moved here from lluictrl.cpp.
 
 LLFocusableElement::LLFocusableElement()
-:	mFocusLostCallback(NULL),
-	mFocusReceivedCallback(NULL),
-	mFocusChangedCallback(NULL),
-	mTopLostCallback(NULL),
-	mFocusCallbackUserData(NULL)
 {
 }
 
@@ -68,35 +63,19 @@ LLFocusableElement::~LLFocusableElement()
 
 void LLFocusableElement::onFocusReceived()
 {
-	if( mFocusReceivedCallback )
-	{
-		mFocusReceivedCallback( this, mFocusCallbackUserData );
-	}
-	if( mFocusChangedCallback )
-	{
-		mFocusChangedCallback( this, mFocusCallbackUserData );
-	}
+	mFocusReceivedCallback(this);
+	mFocusChangedCallback(this);
 }
 
 void LLFocusableElement::onFocusLost()
 {
-	if( mFocusLostCallback )
-	{
-		mFocusLostCallback( this, mFocusCallbackUserData );
-	}
-
-	if( mFocusChangedCallback )
-	{
-		mFocusChangedCallback( this, mFocusCallbackUserData );
-	}
+	mFocusLostCallback(this);
+	mFocusChangedCallback(this);
 }
 
 void LLFocusableElement::onTopLost()
 {
-	if (mTopLostCallback)
-	{
-		mTopLostCallback(this, mFocusCallbackUserData);
-	}
+	mTopLostCallback(this);
 }
 
 BOOL LLFocusableElement::hasFocus() const
@@ -188,12 +167,9 @@ void LLFocusMgr::setKeyboardFocus(LLFocusableElement* new_focus, BOOL lock, BOOL
 		view_handle_list_t new_focus_list;
 
 		// walk up the tree to root and add all views to the new_focus_list
-		for (LLView* ctrl = dynamic_cast<LLView*>(mKeyboardFocus); ctrl && ctrl != LLUI::getRootView(); ctrl = ctrl->getParent())
+		for (LLView* ctrl = dynamic_cast<LLView*>(mKeyboardFocus); ctrl; ctrl = ctrl->getParent())
 		{
-			if (ctrl) 
-			{
-				new_focus_list.push_back(ctrl->getHandle());
-			}
+			new_focus_list.push_back(ctrl->getHandle());
 		}
 
 		// remove all common ancestors since their focus is unchanged
@@ -216,10 +192,6 @@ void LLFocusMgr::setKeyboardFocus(LLFocusableElement* new_focus, BOOL lock, BOOL
 			{
 				mCachedKeyboardFocusList.pop_front();
 				old_focus_view->onFocusLost();
-
-				// part of fix of EXT-996
-				// this need to handle event when user click inside in-world area
-				mFocusChangeSignal();
 			}
 		}
 

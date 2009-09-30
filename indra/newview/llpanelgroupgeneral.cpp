@@ -99,8 +99,8 @@ BOOL LLPanelGroupGeneral::postBuild()
 	if(mEditCharter)
 	{
 		mEditCharter->setCommitCallback(onCommitAny, this);
-		mEditCharter->setFocusReceivedCallback(onFocusEdit, this);
-		mEditCharter->setFocusChangedCallback(onFocusEdit, this);
+		mEditCharter->setFocusReceivedCallback(boost::bind(onFocusEdit, _1, this));
+		mEditCharter->setFocusChangedCallback(boost::bind(onFocusEdit, _1, this));
 	}
 
 

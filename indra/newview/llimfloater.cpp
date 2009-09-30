@@ -78,7 +78,7 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	}
 // 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_im_session.xml");
 
-	gFocusMgr.addFocusChangeCallback(boost::bind(&LLIMFloater::focusChangeCallback, this));
+	LLUI::getRootView()->setFocusLostCallback(boost::bind(&LLIMFloater::focusChangeCallback, this));
 
 	mCloseSignal.connect(boost::bind(&LLIMFloater::onClose, this));
 }
@@ -177,8 +177,8 @@ BOOL LLIMFloater::postBuild()
 	// enable line history support for instant message bar
 	mInputEditor->setEnableLineHistory(TRUE);
 	
-	mInputEditor->setFocusReceivedCallback( onInputEditorFocusReceived, this );
-	mInputEditor->setFocusLostCallback( onInputEditorFocusLost, this );
+	mInputEditor->setFocusReceivedCallback( boost::bind(onInputEditorFocusReceived, _1, this) );
+	mInputEditor->setFocusLostCallback( boost::bind(onInputEditorFocusLost, _1, this) );
 	mInputEditor->setKeystrokeCallback( onInputEditorKeystroke, this );
 	mInputEditor->setCommitOnFocusLost( FALSE );
 	mInputEditor->setRevertOnEsc( FALSE );
@@ -221,7 +221,7 @@ void* LLIMFloater::createPanelGroupControl(void* userdata)
 void LLIMFloater::focusChangeCallback()
 {
 	// hide docked floater if user clicked inside in-world area
-	if (isDocked() && gFocusMgr.getKeyboardFocus() == NULL)
+	if (isDocked())
 	{
 		setVisible(false);
 	}
