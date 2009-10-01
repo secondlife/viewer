@@ -52,7 +52,7 @@
      max_length="31"
      name="first_name_edit"
      select_on_focus="true"
-     tool_tip="Second Life First Name"
+     tool_tip="[SECOND_LIFE] First Name"
      top_pad="2"
      width="120" />
     <text
@@ -78,6 +78,7 @@
      max_length="31"
      name="last_name_edit"
      select_on_focus="true"
+     tool_tip="[SECOND_LIFE] Last Name"
      top_pad="2"
      width="120" />
     <text
