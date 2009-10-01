@@ -248,10 +248,12 @@ class WindowsManifest(ViewerManifest):
         # Vivox runtimes
         if self.prefix(src="vivox-runtime/i686-win32", dst=""):
             self.path("SLVoice.exe")
-            self.path("alut.dll")
+            self.path("libsndfile-1.dll")
+            self.path("zlib1.dll")
             self.path("vivoxsdk.dll")
+            self.path("vivoxplatform.dll")
             self.path("ortp.dll")
-            self.path("wrap_oal.dll")
+            self.path("vivoxoal.dll")
             self.end_prefix()
 
         # pull in the crash logger and updater from other projects
@@ -461,10 +463,11 @@ class DarwinManifest(ViewerManifest):
                 self.path("zh-Hans.lproj")
 
                 # SLVoice and vivox lols
-                self.path("vivox-runtime/universal-darwin/libalut.dylib", "libalut.dylib")
-                self.path("vivox-runtime/universal-darwin/libopenal.dylib", "libopenal.dylib")
+                self.path("vivox-runtime/universal-darwin/libsndfile.dylib", "libsndfile.dylib")
+                self.path("vivox-runtime/universal-darwin/libvivoxoal.dylib", "libvivoxoal.dylib")
                 self.path("vivox-runtime/universal-darwin/libortp.dylib", "libortp.dylib")
                 self.path("vivox-runtime/universal-darwin/libvivoxsdk.dylib", "libvivoxsdk.dylib")
+                self.path("vivox-runtime/universal-darwin/libvivoxplatform.dylib", "libvivoxplatform.dylib")
                 self.path("vivox-runtime/universal-darwin/SLVoice", "SLVoice")
 
                 # need to get the kdu dll from any of the build directories as well
@@ -715,7 +718,10 @@ class Linux_i686Manifest(LinuxManifest):
                     self.end_prefix()
             if self.prefix(src="vivox-runtime/i686-linux", dst="lib"):
                     self.path("libortp.so")
+                    self.path("libsndfile.so.1")
+                    self.path("libvivoxoal.so.1")
                     self.path("libvivoxsdk.so")
+                    self.path("libvivoxplatform.so")
                     self.end_prefix("lib")
 
 class Linux_x86_64Manifest(LinuxManifest):
