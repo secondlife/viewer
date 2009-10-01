@@ -1735,11 +1735,14 @@ Returns the value for header for request_id
 	</string>
   <string name="LSLTipText_llSetPrimMediaParams">
 llSetPrimMediaParams(integer face, list params)
-Set the media params for a particular face on an object.  List is a set of name/value pairs (in no particular order). The possible names are below, along with the types of values and what they mean.  If media is not already on this object, add it. Params not specified are unchanged, or if new media is added set to the default specified.
+Sets the media params for a particular face on an object. If media is not already on this object, add it. 
+List is a set of name/value pairs in no particular order.  Params not specified are unchanged, or if new media is added then set to the default specified.
+The possible names are below, along with the types of values and what they mean.
   </string>
   <string name="LSLTipText_llGetPrimMediaParams">
 list llGetPrimMediaParams(integer face, list params)
-Get the media params for a particular face on an object, given the desired list of names. Returns a list of values in the order requested.  Returns an empty list if no media exists on the face.
+Returns the media params for a particular face on an object, given the desired list of names, in the order requested.
+(Returns an empty list if no media exists on the face.)
   </string>
   <string name="LSLTipText_llClearPrimMedia">
 llClearPrimMedia(integer face)
