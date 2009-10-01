@@ -52,7 +52,7 @@
  * be careful to always pass in a valid memory location that exists
  * for at least as long as this streambuf.
  */
-class LLMemoryStreamBuf : public std::streambuf
+class LL_COMMON_API LLMemoryStreamBuf : public std::streambuf
 {
 public:
 	LLMemoryStreamBuf(const U8* start, S32 length);
@@ -74,7 +74,7 @@ protected:
  * be careful to always pass in a valid memory location that exists
  * for at least as long as this streambuf.
  */
-class LLMemoryStream : public std::istream
+class LL_COMMON_API LLMemoryStream : public std::istream
 {
 public:
 	LLMemoryStream(const U8* start, S32 length);

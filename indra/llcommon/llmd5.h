@@ -80,7 +80,7 @@ const int MD5RAW_BYTES = 16;
 const int MD5HEX_STR_SIZE = 33;  // char hex[MD5HEX_STR_SIZE]; with null
 const int MD5HEX_STR_BYTES = 32; // message system fixed size
 
-class LLMD5 {
+class LL_COMMON_API LLMD5 {
 // first, some types:
   typedef unsigned       int uint4; // assumes integer is 4 words long
   typedef unsigned short int uint2; // assumes short integer is 2 words long

@@ -74,6 +74,9 @@ public:
 
 	virtual BOOL postBuild();
 
+	// *HACK Made public to remove friends from LLAvatarIconCtrl context menu
+	static bool handleRemove(const LLSD& notification, const LLSD& response);
+
 private:
 
 	enum FRIENDS_COLUMN_ORDER
