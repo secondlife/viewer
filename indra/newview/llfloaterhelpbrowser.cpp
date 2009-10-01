@@ -72,7 +72,11 @@ void LLFloaterHelpBrowser::buildURLHistory()
 	LLSD browser_history = LLURLHistory::getURLHistory("browser");
 
 	// initialize URL history in the plugin
-	mBrowser->getMediaPlugin()->initializeUrlHistory(browser_history);
+	LLPluginClassMedia *plugin = mBrowser->getMediaPlugin();
+	if (plugin)
+	{
+		plugin->initializeUrlHistory(browser_history);
+	}
 }
 
 void LLFloaterHelpBrowser::onClose()
