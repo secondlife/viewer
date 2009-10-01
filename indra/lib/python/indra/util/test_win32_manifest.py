@@ -33,6 +33,21 @@ import sys, os
 import tempfile
 from xml.dom.minidom import parse
 
+class AssemblyTestException(Exception):
+    pass
+
+class NoManifestException(AssemblyTestException):
+    pass
+
+class MultipleBindingsException(AssemblyTestException):
+    pass
+
+class UnexpectedVersionException(AssemblyTestException):
+    pass
+
+class NoMatchingAssemblyException(AssemblyTestException):
+    pass
+
 def get_HKLM_registry_value(key_str, value_str):
     import _winreg
     reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
@@ -81,7 +96,7 @@ def test_assembly_binding(src_filename, assembly_name, assembly_ver):
     mt_result = os.system(system_call)
     if mt_result == 31:
         print "No manifest found in %s" % src_filename
-        raise Exception("No manifest found")
+        raise NoManifestException()
 
     manifest_dom = parse(tmp_file_name)
     nodes = manifest_dom.getElementsByTagName('assemblyIdentity')
@@ -93,19 +108,19 @@ def test_assembly_binding(src_filename, assembly_name, assembly_ver):
 
     if len(versions) == 0:
         print "No matching assemblies found in %s" % src_filename
-        raise Exception("No matching assembly")
+        raise NoMatchingAssemblyException()
         
     elif len(versions) > 1:
         print "Multiple bindings to %s found:" % assembly_name
         print versions
         print 
-        raise Exception("Multiple bindings")
+        raise MultipleBindingsException(versions)
 
     elif versions[0] != assembly_ver:
         print "Unexpected version found for %s:" % assembly_name
         print "Wanted %s, found %s" % (assembly_ver, versions[0])
         print
-        raise Exception("Unexpected version")
+        raise UnexpectedVersionException(assembly_ver, versions[0])
             
     os.remove(tmp_file_name)
     

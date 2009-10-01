@@ -187,6 +187,7 @@ class WindowsManifest(ViewerManifest):
         # This is used to test that no manifest for the msvcrt exists.
         # It is used as a temporary override during the construct method
         from test_win32_manifest import test_assembly_binding
+        from test_win32_manifest import NoManifestException, NoMatchingAssemblyException
         if src and (os.path.exists(src) or os.path.islink(src)):
             # ensure that destination path exists
             self.cmakedirs(os.path.dirname(dst))
@@ -198,9 +199,10 @@ class WindowsManifest(ViewerManifest):
                     else:
                         test_assembly_binding(src, "Microsoft.VC80.CRT", "")
                     raise Exception("Unknown condition")
-                except Exception, err:
-                    if err.message != "No matching assembly" or err.message != "No manifest found":
-                        raise Exception("Found unexpected MSVCRT manifest binding")
+                except NoManifestException, err:
+                    pass
+                except NoMatchingAssemblyException, err:
+                    pass
                     
                 self.ccopy(src,dst)
             else:
