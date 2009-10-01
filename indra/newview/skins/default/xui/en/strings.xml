@@ -1728,13 +1728,25 @@ Releases the specified URL, it will no longer be usable
 	<string name="LSLTipText_llHTTPResponse">
 llHTTPResponse(key request_id, integer status, string body)
 Responds to request_id with status and body
-	</string>
+  </string>
 	<string name="LSLTipText_llGetHTTPHeader">
 string llGetHTTPHeader(key request_id, string header)
 Returns the value for header for request_id
 	</string>
-	
-	<!-- Avatar busy/away mode -->
+  <string name="LSLTipText_llSetPrimMediaParams">
+llSetPrimMediaParams(integer face, list params)
+Set the media params for a particular face on an object.  List is a set of name/value pairs (in no particular order). The possible names are below, along with the types of values and what they mean.  If media is not already on this object, add it. Params not specified are unchanged, or if new media is added set to the default specified.
+  </string>
+  <string name="LSLTipText_llGetPrimMediaParams">
+list llGetPrimMediaParams(integer face, list params)
+Get the media params for a particular face on an object, given the desired list of names. Returns a list of values in the order requested.  Returns an empty list if no media exists on the face.
+  </string>
+  <string name="LSLTipText_llClearPrimMedia">
+llClearPrimMedia(integer face)
+Clears (deletes) the media and all params from the given face.
+  </string>
+
+  <!-- Avatar busy/away mode -->
 	<string name="AvatarSetNotAway">Set Not Away</string>
 	<string name="AvatarSetAway">Set Away</string>
 	<string name="AvatarSetNotBusy">Set Not Busy</string>

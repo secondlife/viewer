@@ -67,17 +67,19 @@ LLTool::~LLTool()
 
 BOOL LLTool::handleAnyMouseClick(S32 x, S32 y, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down)
 {
-	// This is necessary to force clicks in the world to cause edit
-	// boxes that might have keyboard focus to relinquish it, and hence
-	// cause a commit to update their value.  JC
-	if (down)
+	BOOL result = LLMouseHandler::handleAnyMouseClick(x, y, mask, clicktype, down);
+	
+	// This behavior was moved here from LLViewerWindow::handleAnyMouseClick, so it can be selectively overridden by LLTool subclasses.
+	if(down && result)
 	{
+		// This is necessary to force clicks in the world to cause edit
+		// boxes that might have keyboard focus to relinquish it, and hence
+		// cause a commit to update their value.  JC
 		gFocusMgr.setKeyboardFocus(NULL);
 	}
-
-	return LLMouseHandler::handleAnyMouseClick(x, y, mask, clicktype, down);
+	
+	return result;
 }
-
 
 BOOL LLTool::handleMouseDown(S32 x, S32 y, MASK mask)
 {

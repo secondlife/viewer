@@ -74,7 +74,11 @@
      name="button focus"
      picture_style="true"
      tool_tip="Focus"
-     width="20" />
+     width="20">
+	  <button.commit_callback
+	     function="BuildTool.setTool"
+	     parameter="Focus" />
+	</button>
     <button
      follows="left|top"
      height="20"
@@ -87,7 +91,11 @@
      name="button move"
      picture_style="true"
      tool_tip="Move"
-     width="20" />
+     width="20">
+	  <button.commit_callback
+	     function="BuildTool.setTool"
+	     parameter="Move" />
+	</button>
     <button
      follows="left|top"
      height="20"
@@ -100,7 +108,11 @@
      name="button edit"
      picture_style="true"
      tool_tip="Edit"
-     width="20" />
+     width="20">
+	  <button.commit_callback
+	     function="BuildTool.setTool"
+	     parameter="Edit" />
+	</button>
     <button
      follows="left|top"
      height="20"
@@ -113,7 +125,11 @@
      name="button create"
      picture_style="true"
      tool_tip="Create"
-     width="20" />
+     width="20">
+	  <button.commit_callback
+	     function="BuildTool.setTool"
+	     parameter="Create" />
+	</button>
     <button
      follows="left|top"
      height="20"
@@ -126,7 +142,11 @@
      name="button land"
      picture_style="true"
      tool_tip="Land"
-     width="20" />
+     width="20">
+	  <button.commit_callback
+	     function="BuildTool.setTool"
+	     parameter="Land" />
+	</button>
     <text
      type="string"
      text_color="LabelSelectedDisabledColor"
@@ -160,6 +180,8 @@
          label="Pan (Ctrl-Shift)"
          layout="topleft"
          name="radio pan" />
+		 <radio_group.commit_callback
+	     function="BuildTool.commitRadioFocus"/>
     </radio_group>
    <slider_bar
      follows="left|top"
@@ -171,7 +193,10 @@
      top_delta="-2"
      left_delta="100"
      name="slider zoom"
-     width="134" />
+     width="134">
+	 <slider_bar.commit_callback
+	     function="BuildTool.commitZoom"/>
+	</slider_bar>
    <radio_group
       left="10"
       height="70"
@@ -193,6 +218,8 @@
          label="Spin (Ctrl-Shift)"
          layout="topleft"
          name="radio spin" />
+		 <radio_group.commit_callback
+	     function="BuildTool.commitRadioMove"/>
    </radio_group>
     <radio_group
      follows="left|top"
@@ -220,6 +247,8 @@
          label="Select Texture"
          layout="topleft"
          name="radio select face" />
+		  <radio_group.commit_callback
+	     function="BuildTool.commitRadioEdit"/>
     </radio_group>
     <check_box
       left="10"
@@ -227,7 +256,10 @@
       control_name="EditLinkedParts"
      label="Edit linked"
      layout="topleft"
-     name="checkbox edit linked parts" />
+     name="checkbox edit linked parts" >
+		  <check_box.commit_callback
+	     function="BuildTool.selectComponent"/>
+	</check_box>	 
     <combo_box
      height="19"
      left="10"
@@ -248,6 +280,8 @@
          label="Reference ruler"
          name="Reference"
          value="Reference" />
+		 <combo_box.commit_callback
+	     function="BuildTool.gridMode"/>
     </combo_box>
     <check_box
      control_name="ScaleUniform"
@@ -286,7 +320,10 @@
      name="Options..."
      tool_tip="Set the Grid Options"
      width="26"
-     height="22" />
+     height="22" >
+	 <button.commit_callback
+	     function="BuildTool.gridOptions"/>
+	</button>
     <button
      follows="left|top"
      height="20"
@@ -597,8 +634,9 @@
          name="radio revert"
          top_delta="15"
          width="114" />
+		 <radio_group.commit_callback
+	     function="BuildTool.commitRadioLand"/>
     </radio_group>
-
     <text
      type="string"
      length="1"
@@ -624,6 +662,7 @@
         Size
     </text>
     <slider_bar
+	 control_name ="LandBrushSize"
      follows="left|top"
      height="19"
      initial_value="2.0"
@@ -656,7 +695,10 @@
      min_val="-1"
      name="slider force"
      top_delta="-3"
-     width="80" />
+     width="80" >
+	  <slider_bar.commit_callback
+	     function="BuildTool.LandBrushForce"/>
+    </slider_bar>
     <button
      follows="left|top"
      font="SansSerifSmall"
@@ -668,7 +710,10 @@
      left="135"
      name="button apply to selection"
      tool_tip="Modify Selected Land"
-     width="78" />
+     width="78">
+	  <button.commit_callback
+	     function="BuildTool.applyToSelection"/>
+    </button>
     <text
      type="string"
      text_color="LabelSelectedDisabledColor"
@@ -2215,7 +2260,7 @@
              left="10"
              name="texture control"
              tool_tip="Click to choose a picture"
-             top="10"
+             top="8"
              width="64" />
             <color_swatch
              border_color="0.45098 0.517647 0.607843 1"
@@ -2237,7 +2282,7 @@
              layout="topleft"
              left_pad="20"
              name="color trans"
-             top="10"
+             top="6"
              width="100">
                 Transparency %
             </text>
@@ -2261,7 +2306,7 @@
              layout="topleft"
              left_delta="0"
              name="glow label"
-             top_pad="4"
+             top_pad="2"
              width="80">
                 Glow
             </text>
@@ -2281,7 +2326,7 @@
              layout="topleft"
              left_delta="0"
              name="checkbox fullbright"
-             top_pad="7"
+             top_pad="4"
              width="81" />
             <text
              type="string"
@@ -2291,7 +2336,7 @@
              layout="topleft"
              left="10"
              name="tex gen"
-             top_pad="10"
+             top_pad="5"
              width="87">
                 Mapping
             </text>
@@ -2439,6 +2484,40 @@
                  name="weave"
                  value="weave" />
             </combo_box>
+          <!--          
+            <line_editor
+             bevel_style="in"
+             border_style="line"
+             border_thickness="1"
+             follows="left|top"
+             height="16"
+             layout="topleft"
+             left="10"
+             max_length="63"
+             name="Home Url"
+             select_on_focus="true"
+             top="134"
+             width="250" />
+            <check_box
+             height="16"
+             label="Media Face"
+             layout="topleft"
+             left_delta="0"
+             name="has media"
+             top_pad="6"
+             width="70" />
+            <button
+             follows="left|top"
+             font="SansSerifSmall"
+             height="20"
+             label="Set Media Info"
+             label_selected="Set Media Info"
+             layout="topleft"
+             left_pad="60"
+             name="media info set"
+             top_delta="-4"
+             width="120" />
+-->             
             <text
              type="string"
              length="1"
@@ -2447,7 +2526,7 @@
              layout="topleft"
              left="10"
              name="tex scale"
-             top_pad="15"
+             top_pad="5"
              width="200">
                 Repeats per Face
             </text>
@@ -2461,7 +2540,7 @@
              left="20"
              max_val="100"
              name="TexScaleU"
-             top_pad="10"
+             top_pad="6"
              width="160" />
             <check_box
              height="19"
@@ -2469,7 +2548,7 @@
              layout="topleft"
              left_pad="10"
              name="checkbox flip s"
-             top_delta="1"
+             top_delta="0"
              width="70" />
             <spinner
              follows="left|top"
@@ -2489,61 +2568,43 @@
              layout="topleft"
              left_pad="10"
              name="checkbox flip t"
-             top_delta="1"
+             top_delta="0"
              width="70" />
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             height="10"
-             layout="topleft"
-             left="10"
-             name="tex rotate"
-             top_pad="20"
-             width="102">
-                Rotation (degrees)
-            </text>
+  
             <spinner
              decimal_digits="2"
              follows="left|top"
              height="19"
              increment="1"
              initial_value="0"
+			 label="Rotation (degrees)"
              layout="topleft"
-             left_delta="102"
+			 label_width="100"
+             left="10"
              max_val="9999"
              min_val="-9999"
              name="TexRot"
-             top_delta="0"
-             width="68" />
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             height="10"
-             layout="topleft"
-             left="10"
-             name="rpt"
-             top_pad="0"
-             width="160">
-                Repeats Per Meter
-            </text>
+             top_delta="25"
+             width="170" />
+
             <spinner
              decimal_digits="1"
              follows="left|top"
              height="19"
              initial_value="1"
+			 label="Repeats Per Meter"
              layout="topleft"
-             left_delta="102"
+			 label_width="100"
+             left="10"
              max_val="10"
              min_val="0.1"
              name="rptctrl"
-             top_delta="0"
-             width="68" />
+             top_delta="20"
+             width="170" />
             <button
              follows="left|top"
              font="SansSerifSmall"
-             height="22"
+             height="18"
              label="Apply"
              label_selected="Apply"
              layout="topleft"
@@ -2558,7 +2619,7 @@
              layout="topleft"
              left="10"
              name="tex offset"
-             top_pad="20"
+             top_delta="20"
              width="200">
                 Texture Offset
             </text>
@@ -2572,7 +2633,7 @@
              left="20"
              min_val="-1"
              name="TexOffsetU"
-             top_pad="10"
+             top_pad="5"
              width="160" />
             <spinner
              follows="left|top"
@@ -2584,10 +2645,9 @@
              left_delta="0"
              min_val="-1"
              name="TexOffsetV"
-             top_pad="2"
+             top_pad="1"
              width="160" />
-<!--TODO: KILL THIS-->
- <!--           <text
+            <text
              type="string"
              length="1"
              follows="left|top"
@@ -2595,7 +2655,7 @@
              layout="topleft"
              left="10"
              name="textbox autofix"
-             top="332"
+             top_pad="4"
              width="160">
                 Align media texture
 (must load first)
@@ -2607,10 +2667,75 @@
              label="Align"
              label_selected="Align"
              layout="topleft"
-             left="112"
+             left="122"
              name="button align"
-             top="340"
-             width="68" />-->
+             top_pad="-19"
+             width="68" />
+    		<text
+			 type="string"
+			 length="1"
+			 follows="left|top"
+			 height="12"
+			 layout="topleft"
+			 left="10"
+			 top_pad="0"
+			 name="media_tex"
+			 width="100">
+				Media:
+			</text> 
+			<line_editor
+             follows="left|top|right"
+             height="18"
+             layout="topleft"
+             left="20"
+             max_length="63"
+             name="media_info"
+             select_on_focus="true"
+             top_delta="12"
+             width="230" />
+            <button
+             follows="left|top"
+             font="SansSerifSmall"
+             height="13"
+			 width="13"
+			 image_unselected="add_btn.tga"
+			 label=""
+             layout="topleft"
+             left="20"
+             name="add_media"
+             top_pad="3">
+				<button.commit_callback
+				function="BuildTool.AddMedia"/>
+			</button>
+			<button
+             follows="left|top"
+             font="SansSerifSmall"
+             height="13"
+			 width="13"
+			 image_unselected="del_btn.tga"
+			 label=""
+             layout="topleft"
+             left_pad="10"
+             name="delete_media"
+             top_delta="0"
+             left_delta="10" >
+				<button.commit_callback
+				function="BuildTool.DeleteMedia"/>
+			</button>
+            <button
+             follows="left|top"
+             font="SansSerifSmall"
+             height="15"
+			 width="15"
+			 image_unselected="gear.tga"
+			 label=""
+             layout="topleft"
+			 name="edit_media"
+             top_delta="0"
+             left_delta="190">
+				<button.commit_callback
+				function="BuildTool.EditMedia"/>
+			</button> 
         </panel>
        <panel
          border="false"
@@ -2642,13 +2767,13 @@
              width="130" />
             <panel_inventory
              follows="left|top"
-             height="310"
+             height="210"
              layout="topleft"
              left="10"
              name="contents_inventory"
              top="50"
              width="260" />
-        </panel>
+			</panel>
         </tab_container>
  <panel
       follows="left|top"

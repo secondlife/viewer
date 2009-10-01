@@ -147,8 +147,11 @@ private:
 
 #if LL_WINDOWS
 			// Enable plugins
-			LLQtWebKit::getInstance()->enablePlugins(true);
-#else
+			LLQtWebKit::getInstance()->enablePlugins(false);
+#elif LL_DARWIN
+			// Disable plugins
+			LLQtWebKit::getInstance()->enablePlugins(false);
+#elif LL_LINUX
 			// Disable plugins
 			LLQtWebKit::getInstance()->enablePlugins(false);
 #endif
@@ -164,6 +167,11 @@ private:
 
 			// don't flip bitmap
 			LLQtWebKit::getInstance()->flipWindow( mBrowserWindowId, true );
+			
+			// Set the background color to black
+			LLQtWebKit::getInstance()->
+			// set background color to be black - mostly for initial login page
+			LLQtWebKit::getInstance()->setBackgroundColor( mBrowserWindowId, 0x00, 0x00, 0x00 );
 
 			// go to the "home page"
 			// Don't do this here -- it causes the dreaded "white flash" when loading a browser instance.
@@ -483,8 +491,8 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				mDepth = 4;
 
 				message.setMessage(LLPLUGIN_MESSAGE_CLASS_MEDIA, "texture_params");
-				message.setValueS32("default_width", 800);
-				message.setValueS32("default_height", 600);
+				message.setValueS32("default_width", 1024);
+				message.setValueS32("default_height", 1024);
 				message.setValueS32("depth", mDepth);
 				message.setValueU32("internalformat", GL_RGBA);
 				message.setValueU32("format", GL_RGBA);
@@ -507,10 +515,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			else if(message_name == "shm_added")
 			{
 				SharedSegmentInfo info;
-				U64 address_lo = message_in.getValueU32("address");
-				U64 address_hi = message_in.hasValue("address_1") ? message_in.getValueU32("address_1") : 0;
-				info.mAddress = (void*)((address_lo) |
-							(address_hi * (U64(1)<<31)));
+				info.mAddress = message_in.getValuePointer("address");
 				info.mSize = (size_t)message_in.getValueS32("size");
 				std::string name = message_in.getValue("name");
 				

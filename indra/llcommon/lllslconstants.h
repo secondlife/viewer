@@ -202,5 +202,18 @@ const U32	CHANGED_OWNER = 0x80;
 const U32	CHANGED_REGION = 0x100;
 const U32	CHANGED_TELEPORT = 0x200;
 const U32	CHANGED_REGION_START = 0x400;
+const U32   CHANGED_MEDIA = 0x800;
+
+// Possible error results
+const U32 LSL_STATUS_OK                 = 0;
+const U32 LSL_STATUS_MALFORMED_PARAMS   = 1000;
+const U32 LSL_STATUS_TYPE_MISMATCH      = 1001;
+const U32 LSL_STATUS_BOUNDS_ERROR       = 1002;
+const U32 LSL_STATUS_NOT_FOUND          = 1003;
+const U32 LSL_STATUS_NOT_SUPPORTED      = 1004;
+const U32 LSL_STATUS_INTERNAL_ERROR     = 1999;
+
+// Start per-function errors below, starting at 2000:
+const U32 LSL_STATUS_WHITELIST_FAILED   = 2001;
 
 #endif

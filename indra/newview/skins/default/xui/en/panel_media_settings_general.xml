@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel 
+ border="true" 
+ enabled="true" 
+ follows="left|top|right|bottom"
+ height="500" 
+ label="General" 
+ left="102" 
+ mouse_opaque="true"
+ name="Media Settings General" 
+ width="365">
+	
+  <text 
+   bottom_delta="-17" 
+   follows="top|left" 
+   height="15" 
+   left="10" 
+   name="">
+    Home URL:
+  </text>
+  <line_editor 
+   bottom_delta="-21" 
+   enabled="true" 
+   follows="left|top" 
+   font="SansSerif"
+   height="20" 
+   left="10" 
+   name="home_url"
+   tool_tip="The home URL for this media source"
+   width="340"> 
+    <!--  <line_editor.commit_callback
+	     function="Media.CommitHomeURL"/> -->
+  </line_editor>
+  <text 
+   bottom_delta="-20" 
+   follows="top|left" 
+   height="15" 
+   left="10" 
+   name="current_url_label">
+    Current URL:
+  </text>
+  <line_editor 
+   bottom_delta="-20" 
+   enabled="false" 
+   follows="left|top" 
+   font="SansSerif"
+   height="20" 
+   left="10" 
+   name="current_url"
+   tool_tip="The current URL for this media source"
+   value="" 
+   width="340" />
+  <button 
+   bottom_delta="-20" 
+   follows="top|left" 
+   height="20" 
+   label="Reset"
+   left_delta="233" 
+   name="current_url_reset_btn" 
+   width="110" > 
+   <button.commit_callback
+	     function="Media.ResetCurrentUrl"/>
+  </button>
+
+  <web_browser 
+   border_visible="false" 
+   bottom_delta="-120" 
+   follows="top|left"
+   left="120" 
+   name="preview_media" 
+   width="128" 
+   height="128" 
+   start_url="about:blank" 
+   decouple_texture_size="true" />
+
+  <text 
+   bottom_delta="-15" 
+   follows="top|left" 
+   height="15" 
+   left="164" 
+   name="">
+    Preview
+  </text>
+
+  <text 
+   bottom_delta="-20" 
+   follows="top|left" 
+   height="15"
+   left="10" 
+   name="">
+    Controls:
+  </text>
+  <combo_box 
+   allow_text_entry="false" 
+   bottom_delta="-20" 
+   enabled="true" 
+   follows="left|top"
+   height="18" 
+   left="10" 
+   max_chars="20" 
+   mouse_opaque="true"
+   name="controls" 
+   width="120">
+    <combo_item 
+	 type="string" 
+	 length="1" 
+	 enabled="true" 
+	 name="Standard" 
+	 value="Standard">
+      Standard
+    </combo_item>
+    <combo_item 
+	 type="string" 
+	 length="1" 
+	 enabled="true" 
+	 name="Mini" 
+	 value="Mini">
+      Mini
+    </combo_item>
+  </combo_box>
+
+  <check_box 
+   bottom_delta="-25" 
+   enabled="true" 
+   follows="left|top" 
+   font="SansSerifSmall"
+   height="16"
+   initial_value="false"
+   label="Auto Loop" 
+   left="10" 
+   mouse_opaque="true"
+   name="auto_loop" 
+   radio_style="false" 
+   width="150" />
+
+  <check_box 
+   bottom_delta="-25" 
+   enabled="true" 
+   follows="left|top" 
+   font="SansSerifSmall"
+   height="16" 
+   initial_value="false"
+   label="First Click Interacts" 
+   left_delta="0" 
+   mouse_opaque="true"
+   name="first_click_interact" 
+   radio_style="false" 
+   width="150" />
+
+  <check_box 
+   bottom_delta="-25" 
+   enabled="true" 
+   follows="left|top"
+   font="SansSerifSmall"
+   height="16" 
+   initial_value="false"
+   label="Auto Zoom" 
+   left_delta="0" 
+   mouse_opaque="true"
+   name="auto_zoom" 
+   radio_style="false" 
+   width="150" />
+
+  <check_box bottom_delta="-25" enabled="true" follows="left|top" font="SansSerifSmall"
+	     height="16" initial_value="false"
+	     label="Use Default Alternative Image" left="10" mouse_opaque="true"
+	     name="alt_image_enable" radio_style="false" width="150" />
+
+  <check_box bottom_delta="-25" enabled="true" follows="left|top" font="SansSerifSmall"
+	     height="16" initial_value="false"
+	     label="Auto Play Media" left="10" mouse_opaque="true"
+	     name="auto_play" radio_style="false" width="150" />
+  <text bottom_delta="-14" follows="top|left" height="15" left="30" width="340" 
+        enabled="false" name="">
+    Note: Parcel Owners &amp; Residents can override this setting
+  </text>
+
+  <check_box bottom_delta="-25" enabled="true" follows="left|top" font="SansSerifSmall"
+	     height="16" initial_value="false"
+	     label="Auto Scale Media on Face of Object" left="10" mouse_opaque="true"
+	     name="auto_scale" radio_style="false" width="150" />
+  <text bottom_delta="-20" follows="top|left" height="15" left="30" name="">
+    Size:
+  </text>
+  <spinner bottom_delta="0"
+	     decimal_digits="0" enabled="true" follows="left|top" height="16"
+	     increment="1" initial_val="256" label="" label_width="0"
+	     left_delta="40" max_val="2000" min_val="0" mouse_opaque="true"
+	     name="width_pixels" width="50" />
+  <text bottom_delta="0" follows="top|left" height="15" left_delta="60" name="">
+    X
+  </text>
+  <spinner bottom_delta="0"
+	     decimal_digits="0" enabled="true" follows="left|top" height="16"
+	     increment="1" initial_val="256" label="" label_width="0"
+	     left_delta="20" max_val="2000" min_val="0" mouse_opaque="true"
+	     name="height_pixels" width="50" />
+ 
+</panel>

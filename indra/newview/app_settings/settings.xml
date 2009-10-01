@@ -3994,6 +3994,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>LastMediaSettingsTab</key>
+    <map>
+      <key>Comment</key>
+      <string>Last selected tab in media settings window</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>LastRunVersion</key>
     <map>
       <key>Comment</key>
@@ -4455,7 +4466,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>0</integer>
+    <integer>1</integer>
   </map>
   <key>MemoryLogFrequency</key>
         <map>
@@ -5216,6 +5227,51 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+
+    <key>PluginInstancesCPULimit</key>
+    <map>
+      <key>Comment</key>
+      <string>Amount of total plugin CPU usage before inworld plugins start getting turned down to "slideshow" priority.  Set to 0 to disable this check.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>PluginInstancesLow</key>
+    <map>
+      <key>Comment</key>
+      <string>Limit on the number of inworld media plugins that will run at "low" priority</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>4</integer>
+    </map>
+    <key>PluginInstancesNormal</key>
+    <map>
+      <key>Comment</key>
+      <string>Limit on the number of inworld media plugins that will run at "normal" priority</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>4</integer>
+    </map>
+    <key>PluginInstancesTotal</key>
+    <map>
+      <key>Comment</key>
+      <string>Hard limit on the number of plugins that will be instantiated at once</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>16</integer>
+    </map>
     <key>PrecachingDelay</key>
     <map>
       <key>Comment</key>
@@ -5237,6 +5293,28 @@
       <string>U32</string>
       <key>Value</key>
 	  <integer>13</integer>
+    </map>
+    <key>PrimMediaFetchQueueDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Timer delay for fetching media from the queue (in seconds).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>PrimMediaRetryTimerDelay</key>
+    <map>
+      <key>Comment</key>
+      <string>Timer delay for retrying on media queries (in seconds).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>5.0</real>
     </map>
     <key>ProbeHardwareOnStartup</key>
     <map>

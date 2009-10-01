@@ -46,6 +46,7 @@
 #include "llnotifications.h"
 #include "llfirstuse.h"
 #include "llpluginclassmedia.h"
+#include "llviewertexture.h"
 
 // Static Variables
 
@@ -219,17 +220,25 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 			// Delete the old one first so they don't fight over the texture.
 			sMediaImpl->stop();
 
-			sMediaImpl = LLViewerMedia::newMediaImpl(media_url, placeholder_texture_id,
-				media_width, media_height, media_auto_scale,
+			sMediaImpl = LLViewerMedia::newMediaImpl(
+				placeholder_texture_id,
+				media_width, 
+				media_height, 
+				media_auto_scale,
 				media_loop);
+			sMediaImpl->navigateTo(media_url);
 		}
 	}
 	else
 	{
 		// There is no media impl, make a new one
-		sMediaImpl = LLViewerMedia::newMediaImpl(media_url, placeholder_texture_id,
-			media_width, media_height, media_auto_scale,
+		sMediaImpl = LLViewerMedia::newMediaImpl(
+			placeholder_texture_id,
+			media_width, 
+			media_height, 
+			media_auto_scale,
 			media_loop);
+		sMediaImpl->navigateTo(media_url);
 	}
 
 	LLFirstUse::useMedia();

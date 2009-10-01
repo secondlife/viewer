@@ -72,6 +72,9 @@ public:
 	void setPickInfo(LLPickInfo pick_info) { mPickInfo = pick_info; }
 	F32 getBBoxAspectRatio(const LLBBox& bbox, const LLVector3& normal, F32* height, F32* width, F32* depth);
 
+	// TODO: figure out why selection mgr hates me
+	bool isFocusedOnFace(LLPointer<LLViewerObject> objectp, S32 face);
+
 protected:
 	/*virtual*/ void	onFocusReceived();
 	/*virtual*/ void	onFocusLost();
@@ -83,6 +86,7 @@ private:
 	LLPickInfo mPickInfo;
 	LLHandle<LLPanelMediaHUD> mMediaHUD;
 	LLUUID mObjectID;
+	S32 mObjectFace;
 	viewer_media_t mMediaImpl;
 };
 

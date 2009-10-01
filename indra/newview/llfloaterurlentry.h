@@ -44,10 +44,8 @@ class LLFloaterURLEntry : public LLFloater
 public:
 	// Can only be shown by LLPanelLandMedia, and pushes data back into
 	// that panel via the handle.
-	static LLHandle<LLFloater> show(LLHandle<LLPanel> panel_land_media_handle);
+	static LLHandle<LLFloater> show(LLHandle<LLPanel> panel_land_media_handle, const std::string media_url);
 	/*virtual*/	BOOL	postBuild();
-	void updateFromLandMediaPanel();
-
 	void headerFetchComplete(U32 status, const std::string& mime_type);
 
 	bool addURLToCombobox(const std::string& media_url);

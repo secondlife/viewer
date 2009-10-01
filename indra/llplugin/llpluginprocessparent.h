@@ -96,6 +96,8 @@ public:
 	bool getDisableTimeout() { return mDisableTimeout; };
 	void setDisableTimeout(bool disable) { mDisableTimeout = disable; };
 
+	F64 getCPUUsage() { return mCPUUsage; };
+
 private:
 
 	enum EState
@@ -140,6 +142,7 @@ private:
 	
 	LLTimer mHeartbeat;
 	F64		mSleepTime;
+	F64		mCPUUsage;
 	
 	bool mDisableTimeout;
 };

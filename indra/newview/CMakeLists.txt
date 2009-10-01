@@ -171,6 +171,7 @@ set(viewer_SOURCE_FILES
     llfloaterhardwaresettings.cpp
     llfloaterhelpbrowser.cpp
     llfloatermediabrowser.cpp
+    llfloatermediasettings.cpp
     llfloaterhud.cpp
     llfloaterimagepreview.cpp
     llfloaterinspect.cpp
@@ -207,6 +208,7 @@ set(viewer_SOURCE_FILES
     llfloaterurlentry.cpp
     llfloatervoicedevicesettings.cpp
     llfloaterwater.cpp
+    llfloaterwhitelistentry.cpp
     llfloaterwindlight.cpp
     llfloaterworldmap.cpp
     llfoldertype.cpp
@@ -259,6 +261,9 @@ set(viewer_SOURCE_FILES
     llmanipscale.cpp
     llmaniptranslate.cpp
     llmapresponders.cpp
+    llmediactrl.cpp
+    llmediadataresponder.cpp
+    llmediadatafetcher.cpp
     llmediaremotectrl.cpp
     llmemoryview.cpp
     llmenucommands.cpp
@@ -320,6 +325,9 @@ set(viewer_SOURCE_FILES
     llpanelmediahud.cpp
     llpanelmeprofile.cpp
     llpanelmovetip.cpp
+    llpanelmediasettingsgeneral.cpp
+    llpanelmediasettingssecurity.cpp
+    llpanelmediasettingspermissions.cpp
     llpanelobject.cpp
     llpanelpeople.cpp
     llpanelpeoplemenus.cpp
@@ -491,7 +499,6 @@ set(viewer_SOURCE_FILES
     llwearabledictionary.cpp
     llwearablelist.cpp
     llweb.cpp
-    llmediactrl.cpp
     llwind.cpp
     llwlanimator.cpp
     llwldaycycle.cpp
@@ -635,6 +642,7 @@ set(viewer_HEADER_FILES
     llfloaterhardwaresettings.h
     llfloaterhelpbrowser.h
     llfloatermediabrowser.h
+    llfloatermediasettings.h
     llfloaterhud.h
     llfloaterimagepreview.h
     llfloaterinspect.h
@@ -671,6 +679,7 @@ set(viewer_HEADER_FILES
     llfloaterurlentry.h
     llfloatervoicedevicesettings.h
     llfloaterwater.h
+    llfloaterwhitelistentry.h
     llfloaterwindlight.h
     llfloaterworldmap.h
     llfoldertype.h
@@ -723,6 +732,8 @@ set(viewer_HEADER_FILES
     llmanipscale.h
     llmaniptranslate.h
     llmapresponders.h
+    llmediadataresponder.h
+    llmediadatafetcher.h
     llmediaremotectrl.h
     llmemoryview.h
     llmenucommands.h
@@ -781,6 +792,9 @@ set(viewer_HEADER_FILES
     llpanelmediahud.h
     llpanelmeprofile.h
     llpanelmovetip.h
+    llpanelmediasettingsgeneral.h
+    llpanelmediasettingssecurity.h
+    llpanelmediasettingspermissions.h
     llpanelobject.h
     llpanelpeople.h
     llpanelpeoplemenus.h
@@ -1566,7 +1580,7 @@ if (WINDOWS)
         -E
         copy_if_different
         ${BUILT_SLPLUGIN}
-        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llplugin
+        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
       COMMENT "Copying SLPlugin executable to the runtime folder."
       )
 

@@ -146,7 +146,10 @@ void LLFloaterMediaBrowser::buildURLHistory()
 	}
 
 	// initialize URL history in the plugin
-	mBrowser->getMediaPlugin()->initializeUrlHistory(browser_history);
+	if(mBrowser && mBrowser->getMediaPlugin())
+	{
+		mBrowser->getMediaPlugin()->initializeUrlHistory(browser_history);
+	}
 }
 
 std::string LLFloaterMediaBrowser::getSupportURL()

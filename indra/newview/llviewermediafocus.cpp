@@ -47,6 +47,7 @@
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
 #include "llweb.h"
+#include "llmediaentry.h"
 //
 // LLViewerMediaFocus
 //
@@ -91,14 +92,38 @@ void LLViewerMediaFocus::cleanupClass()
 void LLViewerMediaFocus::setFocusFace( BOOL b, LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl )
 {
 	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+
+	if(mMediaImpl.notNull())
+	{
+		mMediaImpl->focus(false);
+	}
+
 	if (b && media_impl.notNull())
 	{
+		bool face_auto_zoom = false;
 		mMediaImpl = media_impl;
+		mMediaImpl->focus(true);
+
 		LLSelectMgr::getInstance()->deselectAll();
 		LLSelectMgr::getInstance()->selectObjectOnly(objectp, face);
 
+		if(objectp.notNull())
+		{
+			LLTextureEntry* tep = objectp->getTE(face);
+			if(! tep->hasMedia())
+			{
+				// Error condition
+			}
+			LLMediaEntry* mep = tep->getMediaData();
+			face_auto_zoom = mep->getAutoZoom();
+			if(! mep->getAutoPlay())
+			{
+				std::string url = mep->getCurrentURL().empty() ? mep->getHomeURL() : mep->getCurrentURL();
+				media_impl->navigateTo(url, "", true);
+			}
+		}
 		mFocus = LLSelectMgr::getInstance()->getSelection();
-		if(mMediaHUD.get() && ! parcel->getMediaPreventCameraZoom())
+		if(mMediaHUD.get() && face_auto_zoom && ! parcel->getMediaPreventCameraZoom())
 		{
 			mMediaHUD.get()->resetZoomLevel();
 			mMediaHUD.get()->nextZoomLevel();
@@ -108,6 +133,7 @@ void LLViewerMediaFocus::setFocusFace( BOOL b, LLPointer<LLViewerObject> objectp
 			gFocusMgr.setKeyboardFocus(this);
 		}
 		mObjectID = objectp->getID();
+		mObjectFace = face;
 		// LLViewerMedia::addObserver(this, mObjectID);
 
 
@@ -133,6 +159,8 @@ void LLViewerMediaFocus::setFocusFace( BOOL b, LLPointer<LLViewerObject> objectp
 
 		// and null out the media impl
 		mMediaImpl = NULL;
+		mObjectID = LLUUID::null;
+		mObjectFace = 0;
 	}
 	if(mMediaHUD.get())
 	{
@@ -230,6 +258,12 @@ void LLViewerMediaFocus::setMouseOverFlag(bool b, viewer_media_t media_impl)
 			gHUDView->addChild(media_hud);	
 		}
 		mMediaHUD.get()->setMediaImpl(media_impl);
+
+		if(mMediaImpl.notNull() && (mMediaImpl != media_impl))
+		{
+			mMediaImpl->focus(false);
+		}
+
 		mMediaImpl = media_impl;
 	}
 	mMouseOverFlag = b;
@@ -355,4 +389,9 @@ F32 LLViewerMediaFocus::getBBoxAspectRatio(const LLBBox& bbox, const LLVector3& 
 
 	// Return the aspect ratio.
 	return *width / *height;
+}
+
+bool LLViewerMediaFocus::isFocusedOnFace(LLPointer<LLViewerObject> objectp, S32 face)
+{
+	return objectp->getID() == mObjectID && face == mObjectFace;
 }

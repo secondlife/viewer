@@ -122,9 +122,6 @@ BOOL LLPanelLandMedia::postBuild()
 	mSetURLButton = getChild<LLButton>("set_media_url");
 	childSetAction("set_media_url", onSetBtn, this);
 
-	mResetURLButton = getChild<LLButton>("reset_media_url");
-	childSetAction("reset_media_url", onResetBtn, this);
-
 	return TRUE;
 }
 
@@ -215,13 +212,7 @@ void LLPanelLandMedia::refresh()
 		mMediaTextureCtrl->setEnabled( can_change_media );
 
 		mSetURLButton->setEnabled( can_change_media );
-		mResetURLButton->setEnabled( can_change_media );
 
-		LLFloaterURLEntry* floater_url_entry = (LLFloaterURLEntry*)mURLEntryFloater.get();
-		if (floater_url_entry)
-		{
-			floater_url_entry->updateFromLandMediaPanel();
-		}
 	}
 }
 
@@ -341,7 +332,7 @@ void LLPanelLandMedia::onCommitAny(LLUICtrl*, void *userdata)
 void LLPanelLandMedia::onSetBtn(void *userdata)
 {
 	LLPanelLandMedia *self = (LLPanelLandMedia *)userdata;
-	self->mURLEntryFloater = LLFloaterURLEntry::show( self->getHandle() );
+	self->mURLEntryFloater = LLFloaterURLEntry::show( self->getHandle(), self->getMediaURL() );
 	LLFloater* parent_floater = gFloaterView->getParentFloater(self);
 	if (parent_floater)
 	{

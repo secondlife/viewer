@@ -47,6 +47,7 @@
 #include "llframetimer.h"
 #include "llinventory.h"
 #include "llmaterialtable.h"
+#include "llmediadataresponder.h"
 #include "llmutelist.h"
 #include "llnamevalue.h"
 #include "llprimitive.h"
@@ -100,6 +101,8 @@
 #include "llvowlsky.h"
 #include "llmanip.h"
 #include "lltrans.h"
+#include "llsdutil.h"
+#include "llmediaentry.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -470,6 +473,7 @@ void LLViewerObject::cleanupVOClasses()
 	LLVOWater::cleanupClass();
 	LLVOTree::cleanupClass();
 	LLVOAvatar::cleanupClass();
+	LLVOVolume::cleanupClass();
 }
 
 // Replaces all name value pairs with data from \n delimited list
@@ -700,6 +704,42 @@ void LLViewerObject::hideExtraDisplayItems( BOOL hidden )
 	}
 }
 
+U32 LLViewerObject::checkMediaURL(const std::string &media_url)
+{
+    U32 retval = (U32)0x0;
+    if (!mMedia && !media_url.empty())
+    {
+        retval |= MEDIA_URL_ADDED;
+        mMedia = new LLViewerObjectMedia;
+        mMedia->mMediaURL = media_url;
+        mMedia->mMediaType = LLViewerObject::MEDIA_SET;
+        mMedia->mPassedWhitelist = FALSE;
+    }
+    else if (mMedia)
+    {
+        if (media_url.empty())
+        {
+            retval |= MEDIA_URL_REMOVED;
+            delete mMedia;
+            mMedia = NULL;
+        }
+        else if (mMedia->mMediaURL != media_url) // <-- This is an optimization.  If they are equal don't bother with below's test.
+        {
+            /*if (! (LLTextureEntry::getAgentIDFromMediaVersionString(media_url) == gAgent.getID() &&
+                   LLTextureEntry::getVersionFromMediaVersionString(media_url) == 
+                        LLTextureEntry::getVersionFromMediaVersionString(mMedia->mMediaURL) + 1))
+			*/
+            {
+                // If the media URL is different and WE were not the one who
+                // changed it, mark dirty.
+                retval |= MEDIA_URL_UPDATED;
+            }
+            mMedia->mMediaURL = media_url;
+            mMedia->mPassedWhitelist = FALSE;
+        }
+    }
+    return retval;
+}
 
 U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					 void **user_data,
@@ -1045,35 +1085,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 				std::string media_url;
 				mesgsys->getStringFast(_PREHASH_ObjectData, _PREHASH_MediaURL, media_url, block_num);
-				//if (!media_url.empty())
-				//{
-				//	llinfos << "WEBONPRIM media_url " << media_url << llendl;
-				//}
-				if (!mMedia && !media_url.empty())
-				{
-					retval |= MEDIA_URL_ADDED;
-					mMedia = new LLViewerObjectMedia;
-					mMedia->mMediaURL = media_url;
-					mMedia->mMediaType = LLViewerObject::MEDIA_TYPE_WEB_PAGE;
-					mMedia->mPassedWhitelist = FALSE;
-				}
-				else if (mMedia)
-				{
-					if (media_url.empty())
-					{
-						retval |= MEDIA_URL_REMOVED;
-						delete mMedia;
-						mMedia = NULL;
-					}
-					else if (mMedia->mMediaURL != media_url)
-					{
-						// We just added or changed a web page.
-						retval |= MEDIA_URL_UPDATED;
-						mMedia->mMediaURL = media_url;
-						mMedia->mPassedWhitelist = FALSE;
-					}
-				}
-
+                retval |= checkMediaURL(media_url);
+                
 				//
 				// Unpack particle system data
 				//
@@ -1456,31 +1469,12 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					mText = NULL;
 				}
 
+                std::string media_url;
 				if (value & 0x200)
 				{
-					std::string media_url;
 					dp->unpackString(media_url, "MediaURL");
-					if (!mMedia)
-					{
-						retval |= MEDIA_URL_ADDED;
-						mMedia = new LLViewerObjectMedia;
-						mMedia->mMediaURL = media_url;
-						mMedia->mMediaType = LLViewerObject::MEDIA_TYPE_WEB_PAGE;
-						mMedia->mPassedWhitelist = FALSE;
-					}
-					else if (mMedia->mMediaURL != media_url)
-					{
-						retval |= MEDIA_URL_UPDATED;
-						mMedia->mMediaURL = media_url;
-						mMedia->mPassedWhitelist = FALSE;
-					}
 				}
-				else if (mMedia)
-				{
-					retval |= MEDIA_URL_REMOVED;
-					delete mMedia;
-					mMedia = NULL;
-				}
+                retval |= checkMediaURL(media_url);
 
 				//
 				// Unpack particle system data
@@ -3472,7 +3466,7 @@ U8 LLViewerObject::getMediaType() const
 	}
 	else
 	{
-		return LLViewerObject::MEDIA_TYPE_NONE;
+		return LLViewerObject::MEDIA_NONE;
 	}
 }
 
@@ -3734,16 +3728,13 @@ S32 LLViewerObject::setTETextureCore(const U8 te, const LLUUID& uuid, LLHost hos
 }
 
 
-void LLViewerObject::changeTEImage(const LLViewerTexture* old_image, LLViewerTexture* new_image) 
+void LLViewerObject::changeTEImage(S32 index, LLViewerTexture* new_image) 
 {
-	U32 end = getNumTEs() ;
-	for (U32 face = 0 ; face < end ; face++)
+	if(index < 0 || index >= getNumTEs())
 	{
-		if(old_image == mTEImages[face])
-		{
-			mTEImages[face] = new_image ;
-		}
+		return ;
 	}
+	mTEImages[index] = new_image ;
 }
 
 S32 LLViewerObject::setTETexture(const U8 te, const LLUUID& uuid)

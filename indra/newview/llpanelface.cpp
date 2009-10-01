@@ -49,6 +49,7 @@
 #include "llcombobox.h"
 #include "lldrawpoolbump.h"
 #include "lllineeditor.h"
+#include "llmediaentry.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
 #include "llspinctrl.h"
@@ -61,6 +62,7 @@
 #include "llviewermedia.h"
 #include "llviewerobject.h"
 #include "llviewerstats.h"
+#include "llvovolume.h"
 #include "lluictrlfactory.h"
 #include "llpluginclassmedia.h"
 
@@ -70,6 +72,18 @@
 
 BOOL	LLPanelFace::postBuild()
 {
+	childSetCommitCallback("combobox shininess",&LLPanelFace::onCommitShiny,this);
+	childSetCommitCallback("combobox bumpiness",&LLPanelFace::onCommitBump,this);
+	childSetCommitCallback("TexScaleU",&LLPanelFace::onCommitTextureInfo, this);
+	childSetCommitCallback("checkbox flip s",&LLPanelFace::onCommitTextureInfo, this);
+	childSetCommitCallback("TexScaleV",&LLPanelFace::onCommitTextureInfo, this);
+	childSetCommitCallback("checkbox flip t",&LLPanelFace::onCommitTextureInfo, this);
+	childSetCommitCallback("TexRot",&LLPanelFace::onCommitTextureInfo, this);
+	childSetAction("button apply",&LLPanelFace::onClickApply,this);
+	childSetCommitCallback("TexOffsetU",LLPanelFace::onCommitTextureInfo, this);
+	childSetCommitCallback("TexOffsetV",LLPanelFace::onCommitTextureInfo, this);
+	childSetAction("button align",&LLPanelFace::onClickAutoFix,this);
+
 	LLRect	rect = this->getRect();
 	LLTextureCtrl*	mTextureCtrl;
 	LLColorSwatchCtrl*	mColorSwatch;
@@ -91,7 +105,7 @@ BOOL	LLPanelFace::postBuild()
 		mTextureCtrl->setCommitCallback( boost::bind(&LLPanelFace::onCommitTexture, this, _2) );
 		mTextureCtrl->setOnCancelCallback( boost::bind(&LLPanelFace::onCancelTexture, this, _2) );
 		mTextureCtrl->setOnSelectCallback( boost::bind(&LLPanelFace::onSelectTexture, this, _2) );
-		mTextureCtrl->setDragCallback(boost::bind(&LLPanelFace::onDragTexture, _2));
+		mTextureCtrl->setDragCallback(boost::bind(&LLPanelFace::onDragTexture, this, _2));
 		mTextureCtrl->setFollowsTop();
 		mTextureCtrl->setFollowsLeft();
 		// Don't allow (no copy) or (no transfer) textures to be selected during immediate mode
@@ -161,17 +175,6 @@ BOOL	LLPanelFace::postBuild()
 		mCtrlGlow->setCommitCallback(LLPanelFace::onCommitGlow, this);
 	}
 	
-	childSetCommitCallback("combobox shininess",&LLPanelFace::onCommitShiny,this);
-	childSetCommitCallback("combobox bumpiness",&LLPanelFace::onCommitBump,this);
-	childSetCommitCallback("TexScaleU",&LLPanelFace::onCommitTextureInfo, this);
-	childSetCommitCallback("checkbox flip s",&LLPanelFace::onCommitTextureInfo, this);
-	childSetCommitCallback("TexScaleV",&LLPanelFace::onCommitTextureInfo, this);
-	childSetCommitCallback("checkbox flip t",&LLPanelFace::onCommitTextureInfo, this);
-	childSetCommitCallback("TexRot",&LLPanelFace::onCommitTextureInfo, this);
-	childSetAction("button apply",&onClickApply,this);
-	childSetCommitCallback("TexOffsetU",LLPanelFace::onCommitTextureInfo, this);
-	childSetCommitCallback("TexOffsetV",LLPanelFace::onCommitTextureInfo, this);
-	childSetAction("button align",onClickAutoFix,this);
 
 	clearCtrls();
 
@@ -382,10 +385,8 @@ void LLPanelFace::getState()
 		BOOL editable = objectp->permModify();
 
 		// only turn on auto-adjust button if there is a media renderer and the media is loaded
-		childSetEnabled("textbox autofix",FALSE);
-		//mLabelTexAutoFix->setEnabled ( FALSE );
-		childSetEnabled("button align",FALSE);
-		//mBtnAutoFix->setEnabled ( FALSE );
+		childSetEnabled("textbox autofix", editable);
+		childSetEnabled("button align", editable);
 		
 		//if ( LLMediaEngine::getInstance()->getMediaRenderer () )
 		//	if ( LLMediaEngine::getInstance()->getMediaRenderer ()->isLoaded () )
@@ -785,6 +786,9 @@ void LLPanelFace::getState()
 
 		childSetEnabled("button align",FALSE);
 		childSetEnabled("button apply",FALSE);
+		childSetEnabled("has media", FALSE);
+		childSetEnabled("media info set", FALSE);
+		
 	}
 }
 
@@ -862,7 +866,7 @@ void LLPanelFace::onCommitGlow(LLUICtrl* ctrl, void* userdata)
 }
 
 // static
-BOOL LLPanelFace::onDragTexture(LLInventoryItem* item)
+BOOL LLPanelFace::onDragTexture(LLUICtrl*, LLInventoryItem* item)
 {
 	BOOL accept = TRUE;
 	for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
@@ -917,15 +921,25 @@ void LLPanelFace::onClickApply(void* userdata)
 	LLSelectMgr::getInstance()->selectionTexScaleAutofit( repeats_per_meter );
 }
 
-// commit the fit media texture to prim button
-
 struct LLPanelFaceSetMediaFunctor : public LLSelectedTEFunctor
 {
 	virtual bool apply(LLViewerObject* object, S32 te)
 	{
-		// TODO: the media impl pointer should actually be stored by the texture
-		viewer_media_t pMediaImpl = LLViewerMedia::getMediaImplFromTextureID(object->getTE ( te )->getID());
-		// only do this if it's a media texture
+		viewer_media_t pMediaImpl;
+				
+		const LLTextureEntry* tep = object->getTE(te);
+		const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
+		if ( mep )
+		{
+			pMediaImpl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
+		}
+		
+		if ( pMediaImpl.isNull())
+		{
+			// If we didn't find face media for this face, check whether this face is showing parcel media.
+			pMediaImpl = LLViewerMedia::getMediaImplFromTextureID(tep->getID());
+		}
+		
 		if ( pMediaImpl.notNull())
 		{
 			LLPluginClassMedia *media = pMediaImpl->getMediaPlugin();
@@ -957,3 +971,14 @@ void LLPanelFace::onClickAutoFix(void* userdata)
 	LLPanelFaceSendFunctor sendfunc;
 	LLSelectMgr::getInstance()->getSelection()->applyToObjects(&sendfunc);
 }
+
+
+
+// TODO: I don't know who put these in or what these are for???
+void LLPanelFace::setMediaURL(const std::string& url)
+{
+}
+void LLPanelFace::setMediaType(const std::string& mime_type)
+{
+}
+
