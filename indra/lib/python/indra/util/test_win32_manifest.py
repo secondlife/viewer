@@ -91,7 +91,7 @@ def test_assembly_binding(src_filename, assembly_name, assembly_ver):
     resource_id = ""
     if os.path.splitext(src_filename)[1].lower() == ".dll":
        resource_id = ";#2"
-    system_call = '%s -nologo -inputresource:%s%s -out:%s' % (mt_path, src_filename, resource_id, tmp_file_name)
+    system_call = '%s -nologo -inputresource:%s%s -out:%s > NUL' % (mt_path, src_filename, resource_id, tmp_file_name)
     print "Executing: %s" % system_call
     mt_result = os.system(system_call)
     if mt_result == 31:
