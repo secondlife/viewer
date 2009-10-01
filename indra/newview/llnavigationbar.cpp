@@ -317,6 +317,7 @@ void LLNavigationBar::onTeleportHistoryMenuItemClicked(const LLSD& userdata)
 void LLNavigationBar::onLocationSelection()
 {
 	std::string typed_location = mCmbLocation->getSimple();
+	LLStringUtil::trim(typed_location);
 
 	// Will not teleport to empty location.
 	if (typed_location.empty())

@@ -656,8 +656,9 @@ void LLLocationInputCtrl::changeLocationPresentation()
 {
 	//change location presentation only if user does not  select anything and 
 	//human-readable region name  is being displayed
-	if(mTextEntry && !mTextEntry->hasSelection() && 
-		!LLSLURL::isSLURL(mTextEntry->getText()))
+	std::string text = mTextEntry->getText();
+	LLStringUtil::trim(text);
+	if(mTextEntry && !mTextEntry->hasSelection() && !LLSLURL::isSLURL(text))
 	{
 		//needs unescaped one
 		mTextEntry->setText(LLAgentUI::buildSLURL(false));
