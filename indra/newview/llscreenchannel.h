@@ -55,10 +55,95 @@ typedef enum e_channel_alignment
 	CA_RIGHT,
 } EChannelAlignment;
 
+class LLScreenChannelBase : public LLUICtrl
+{
+	friend class LLChannelManager;
+public:
+	LLScreenChannelBase(const LLUUID& id);
+	~LLScreenChannelBase();
+
+	// Channel's outfit-functions
+	// update channel's size and position in the World View
+	virtual void		updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect);
+	// initialization of channel's shape and position
+	virtual void		init(S32 channel_left, S32 channel_right);
+
+
+	virtual void		setToastAlignment(EToastAlignment align) {mToastAlignment = align;}
+	
+	virtual void		setChannelAlignment(EChannelAlignment align) {mChannelAlignment = align;}
+	virtual void		setOverflowFormatString ( const std::string& str)  { mOverflowFormatString = str; }
+	
+	// kill or modify a toast by its ID
+	virtual void		killToastByNotificationID(LLUUID id) {};
+	virtual void		modifyToastNotificationByID(LLUUID id, LLSD data) {};
+	
+	// hide all toasts from screen, but not remove them from a channel
+	virtual void		hideToastsFromScreen() {};
+	// removes all toasts from a channel
+	virtual void		removeToastsFromChannel() {};
+	
+	// show all toasts in a channel
+	virtual void		redrawToasts() {};
+
+	virtual void 		closeOverflowToastPanel() {};
+	virtual void 		hideOverflowToastPanel() {};
+
+	
+	// Channel's behavior-functions
+	// set whether a channel will control hovering inside itself or not
+	virtual void setControlHovering(bool control) { mControlHovering = control; }
+	// set Hovering flag for a channel
+	virtual void setHovering(bool hovering) { mIsHovering = hovering; }
+	
+	void setCanStoreToasts(bool store) { mCanStoreToasts = store; }
+
+	void setDisplayToastsAlways(bool display_toasts) { mDisplayToastsAlways = display_toasts; }
+	bool getDisplayToastsAlways() { return mDisplayToastsAlways; }
+
+	// get number of hidden notifications from a channel
+	S32	 getNumberOfHiddenToasts() { return mHiddenToastsNum;}
+
+	
+	void setShowToasts(bool show) { mShowToasts = show; }
+	bool getShowToasts() { return mShowToasts; }
+
+	// get toast allignment preset for a channel
+	e_notification_toast_alignment getToastAlignment() {return mToastAlignment;}
+	
+	// get ID of a channel
+	LLUUID	getChannelID() { return mID; }
+
+protected:
+	// Channel's flags
+	bool		mControlHovering;
+	bool		mIsHovering;
+	bool		mCanStoreToasts;
+	bool		mDisplayToastsAlways;
+	bool		mOverflowToastHidden;
+	// controls whether a channel shows toasts or not
+	bool		mShowToasts;
+	// 
+	EToastAlignment		mToastAlignment;
+	EChannelAlignment	mChannelAlignment;
+
+	// attributes for the Overflow Toast
+	S32			mHiddenToastsNum;
+	LLToast*	mOverflowToastPanel;	
+	std::string mOverflowFormatString;
+
+	// channel's ID
+	LLUUID	mID;
+
+	// store a connection to prevent futher crash that is caused by sending a signal to a destroyed channel
+	boost::signals2::connection mWorldViewRectConnection;
+};
+
+
 /**
  * Screen channel manages toasts visibility and positioning on the screen.
  */
-class LLScreenChannel : public LLUICtrl
+class LLScreenChannel : public LLScreenChannelBase
 {
 	friend class LLChannelManager;
 public:
@@ -70,12 +155,6 @@ public:
 	void		updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect);
 	// initialization of channel's shape and position
 	void		init(S32 channel_left, S32 channel_right);
-	// set allignment of toasts inside a channel
-	void		setToastAlignment(EToastAlignment align) {mToastAlignment = align;}
-	// set allignment of channel inside a world view
-	void		setChannelAlignment(EChannelAlignment align) {mChannelAlignment = align;}
-	// set a template for a string in the OverflowToast
-	void		setOverflowFormatString ( std::string str)  { mOverflowFormatString = str; }
 	
 	// Operating with toasts
 	// add a toast to a channel
@@ -104,37 +183,17 @@ public:
 	// close the StartUp Toast
 	void		closeStartUpToast();
 
-	// Channel's behavior-functions
-	// set whether a channel will control hovering inside itself or not
-	void setControlHovering(bool control) { mControlHovering = control; }
-	// set Hovering flag for a channel
-	void setHovering(bool hovering) { mIsHovering = hovering; }
-	// set whether a channel will store faded toasts or not
-	void setCanStoreToasts(bool store) { mCanStoreToasts = store; }
-	// tell all channels that the StartUp toast was shown and allow them showing of toasts
-	static void	setStartUpToastShown() { mWasStartUpToastShown = true; }
 	// get StartUp Toast's state
 	static bool	getStartUpToastShown() { return mWasStartUpToastShown; }
-	// set mode for dislaying of toasts
-	void setDisplayToastsAlways(bool display_toasts) { mDisplayToastsAlways = display_toasts; }
-	// get mode for dislaying of toasts
-	bool getDisplayToastsAlways() { return mDisplayToastsAlways; }
-	// tell a channel to show toasts or not
-	void setShowToasts(bool show) { mShowToasts = show; }
-	// determine whether channel shows toasts or not
-	bool getShowToasts() { return mShowToasts; }
+	// tell all channels that the StartUp toast was shown and allow them showing of toasts
+	static void	setStartUpToastShown() { mWasStartUpToastShown = true; }
 	// let a channel update its ShowToast flag
 	void updateShowToastsState();
 
+
 	// Channel's other interface functions functions
-	// get number of hidden notifications from a channel
-	S32		getNumberOfHiddenToasts() { return mHiddenToastsNum;}
 	// update number of notifications in the StartUp Toast
 	void	updateStartUpString(S32 num);
-	// get toast allignment preset for a channel
-	e_notification_toast_alignment getToastAlignment() {return mToastAlignment;}
-	// get ID of a channel
-	LLUUID	getChannelID() { return mID; }
 
 	// Channel's signals
 	// signal on storing of faded toasts event
@@ -201,30 +260,10 @@ private:
 
 	// Channel's flags
 	static bool	mWasStartUpToastShown;
-	bool		mControlHovering;
-	bool		mIsHovering;
-	bool		mCanStoreToasts;
-	bool		mDisplayToastsAlways;
-	bool		mOverflowToastHidden;
-	// controls whether a channel shows toasts or not
-	bool		mShowToasts;
-	// 
-	EToastAlignment		mToastAlignment;
-	EChannelAlignment	mChannelAlignment;
-
-	// attributes for the Overflow Toast
-	S32			mHiddenToastsNum;
-	LLToast*	mOverflowToastPanel;	
-	std::string mOverflowFormatString;
 
 	// attributes for the StartUp Toast	
 	LLToast* mStartUpToastPanel;
 
-	// channel's ID
-	LLUUID	mID;
-
-	// store a connection to prevent futher crash that is caused by sending a signal to a destroyed channel
-	boost::signals2::connection mWorldViewRectConnection;
 
 	std::vector<ToastElem>		mToastList;
 	std::vector<ToastElem>		mStoredToastList;

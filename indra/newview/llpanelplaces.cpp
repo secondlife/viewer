@@ -337,7 +337,7 @@ void LLPanelPlaces::onFilterEdit(const std::string& search_string)
 		LLStringUtil::trimHead(mFilterSubString);
 
 		if (mActivePanel)
-		mActivePanel->onSearchEdit(mFilterSubString);
+			mActivePanel->onSearchEdit(mFilterSubString);
 	}
 }
 
@@ -386,7 +386,7 @@ void LLPanelPlaces::onTeleportButtonClicked()
 	else
 	{
 		if (mActivePanel)
-		mActivePanel->onTeleport();
+			mActivePanel->onTeleport();
 	}
 }
 
@@ -432,7 +432,7 @@ void LLPanelPlaces::onShowOnMapButtonClicked()
 	else
 	{
 		if (mActivePanel)
-		mActivePanel->onShowOnMap();
+			mActivePanel->onShowOnMap();
 	}
 }
 
@@ -510,7 +510,7 @@ void LLPanelPlaces::onOverflowMenuItemClicked(const LLSD& param)
 			addChild(mPickPanel);
 
 			mPickPanel->setExitCallback(boost::bind(&LLPanelPlaces::togglePickPanel, this, FALSE));
-	}
+		}
 
 		togglePickPanel(TRUE);
 
@@ -733,7 +733,7 @@ void LLPanelPlaces::updateVerbs()
 	else
 	{
 		if (mActivePanel)
-		mActivePanel->updateVerbs();
+			mActivePanel->updateVerbs();
 	}
 }
 

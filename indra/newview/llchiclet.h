@@ -275,7 +275,8 @@ public:
 	enum EType {
 		TYPE_UNKNOWN,
 		TYPE_IM,
-		TYPE_GROUP
+		TYPE_GROUP,
+		TYPE_AD_HOC
 	};
 	
 	/*virtual*/ ~LLIMChiclet() {};

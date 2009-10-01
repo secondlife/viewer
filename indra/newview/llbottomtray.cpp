@@ -133,6 +133,7 @@ LLIMChiclet* LLBottomTray::createIMChiclet(const LLUUID& session_id)
 	case LLIMChiclet::TYPE_IM:
 		return getChicletPanel()->createChiclet<LLIMP2PChiclet>(session_id);
 	case LLIMChiclet::TYPE_GROUP:
+	case LLIMChiclet::TYPE_AD_HOC:
 		return getChicletPanel()->createChiclet<LLIMGroupChiclet>(session_id);
 	case LLIMChiclet::TYPE_UNKNOWN:
 		break;
@@ -231,7 +232,7 @@ void LLBottomTray::showBottomTrayContextMenu(S32 x, S32 y, MASK mask)
 			mBottomTrayContextMenu->updateParent(LLMenuGL::sMenuContainer);
 			LLMenuGL::showPopup(this, mBottomTrayContextMenu, x, y);
 		
-		}
+	}
 }
 
 void LLBottomTray::showGestureButton(BOOL visible)
@@ -243,7 +244,7 @@ void LLBottomTray::showGestureButton(BOOL visible)
 		mGestureCombo->setVisible(visible);
 
 		if (!visible)
-	{
+		{
 			LLFloaterReg::hideFloaterInstance("gestures");
 			r.mRight -= mGestureCombo->getRect().getWidth();
 		}

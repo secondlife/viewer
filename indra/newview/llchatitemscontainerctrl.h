@@ -37,6 +37,7 @@
 #include "llscrollbar.h"
 #include "string"
 #include "llchat.h"
+#include "lltoastpanel.h"
 
 typedef enum e_show_item_header
 {
@@ -45,20 +46,18 @@ typedef enum e_show_item_header
 	CHATITEMHEADER_SHOW_BOTH
 } EShowItemHeader;
 
-class LLChatItemCtrl: public LLPanel
+class LLNearbyChatToastPanel: public LLToastPanelBase
 {
 protected:
-	LLChatItemCtrl(){};
+	LLNearbyChatToastPanel():mIsDirty(false){};
 public:
 	
 
-	~LLChatItemCtrl(){}
+	~LLNearbyChatToastPanel(){}
 	
-	static LLChatItemCtrl* createInstance();
+	static LLNearbyChatToastPanel* createInstance();
 
-	void	draw();
-
-	const LLChat& getMessage() const { return mOriginalMessage;}
+	const LLUUID& getFromID() const { return mFromID;}
 	
 	void	addText		(const std::string& message);
 	void	setMessage	(const LLChat& msg);
@@ -77,77 +76,26 @@ public:
 
 	void	setHeaderVisibility(EShowItemHeader e);
 	BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
+
+	virtual void init(LLSD& data);
+
+	virtual void draw();
 private:
 	
 	std::string appendTime	();
 
 private:
-	LLChat mOriginalMessage;
+	std::string		mText;		// UTF-8 line of text
+	std::string		mFromName;	// agent or object name
+	LLUUID			mFromID;	// agent id or object id
+	EChatSourceType	mSourceType;
+
 
 	std::vector<std::string> mMessages;
+
+	bool mIsDirty;
 };
 
-class LLChatItemsContainerCtrl: public LLPanel
-{
-public:
-	struct Params 
-	:	public LLInitParam::Block<Params, LLPanel::Params>
-	{
-		Params(){};
-	};
-
-	LLChatItemsContainerCtrl(const Params& params);
-
-
-	~LLChatItemsContainerCtrl(){}
-
-	void	addMessage	(const LLChat& msg);
-
-	void	draw();
-
-	void	reshape					(S32 width, S32 height, BOOL called_from_parent = TRUE);
-
-	void	onScrollPosChangeCallback(S32, LLScrollbar*);
-
-	virtual BOOL postBuild();
-
-	BOOL	handleMouseDown	(S32 x, S32 y, MASK mask);
-	BOOL	handleKeyHere	(KEY key, MASK mask);
-	BOOL	handleScrollWheel( S32 x, S32 y, S32 clicks );
-
-	void	scrollToBottom	();
-
-	void	setHeaderVisibility(EShowItemHeader e);
-	EShowItemHeader	getHeaderVisibility() const { return mEShowItemHeader;};
-
-
-private:
-	void	reformatHistoryScrollItems(S32 width);
-	void	arrange					(S32 width, S32 height);
-
-	S32		calcRecuiredHeight		();
-	S32		getRecuiredHeight		() const { return mInnerRect.getHeight(); }
-
-	void	updateLayout			(S32 width, S32 height);
-
-	void	show_hide_scrollbar		(S32 width, S32 height);
-
-	void	showScrollbar			(S32 width, S32 height);
-	void	hideScrollbar			(S32 width, S32 height);
-
-	void	panelSetLeftTopAndSize	(LLView* panel, S32 left, S32 top, S32 width, S32 height);
-	void	panelShiftVertical		(LLView* panel,S32 delta);
-	void	shiftPanels				(S32 delta);
-
-private:
-	std::vector<LLChatItemCtrl*> mItems;
-
-	EShowItemHeader mEShowItemHeader;
-
-	LLRect			mInnerRect;
-	LLScrollbar*	mScrollbar;
-
-};
 
 #endif
 

@@ -28,7 +28,7 @@
      width="25"
      height="25"
      label=""
-     follows="top|left"
+     follows="top|right"
      image_overlay="BackArrow_Off"
      tab_stop="false" />
     <text
@@ -41,6 +41,7 @@
      text_color="white"
      follows="top|left|right"
      mouse_opaque="true"
+     use_ellipses="true"
      name="group_name">(Loading...)</text>
     <line_editor
      follows="left|top"

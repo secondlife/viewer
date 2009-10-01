@@ -73,7 +73,11 @@ LLGroupList::Params::Params()
 
 LLGroupList::LLGroupList(const Params& p)
 :	LLFlatListView(p)
+	, mDirty(true) // to force initial update
 {
+	// Listen for agent group changes.
+	gAgent.addListener(this, "new group");
+
 	mShowIcons = gSavedSettings.getBOOL("GroupListShowIcons");
 	setCommitOnSelectionChange(true);
 	// TODO: implement context menu
@@ -84,17 +88,41 @@ LLGroupList::LLGroupList(const Params& p)
 	setComparator(&GROUP_COMPARATOR);
 }
 
+LLGroupList::~LLGroupList()
+{
+	gAgent.removeListener(this);
+}
+
+// virtual
+void LLGroupList::draw()
+{
+	if (mDirty)
+		refresh();
+
+	LLFlatListView::draw();
+}
+
+void LLGroupList::setNameFilter(const std::string& filter)
+{
+	if (mNameFilter != filter)
+	{
+		mNameFilter = filter;
+		setDirty();
+	}
+}
+
 static bool findInsensitive(std::string haystack, const std::string& needle_upper)
 {
     LLStringUtil::toUpper(haystack);
     return haystack.find(needle_upper) != std::string::npos;
 }
 
-BOOL LLGroupList::update(const std::string& name_filter)
+void LLGroupList::refresh()
 {
 	const LLUUID& 		highlight_id	= gAgent.getGroupID();
 	S32					count			= gAgent.mGroups.count();
 	LLUUID				id;
+	bool				have_filter		= !mNameFilter.empty();
 
 	clear();
 
@@ -102,7 +130,7 @@ BOOL LLGroupList::update(const std::string& name_filter)
 	{
 		id = gAgent.mGroups.get(i).mID;
 		const LLGroupData& group_data = gAgent.mGroups.get(i);
-		if (name_filter != LLStringUtil::null && !findInsensitive(group_data.mName, name_filter))
+		if (have_filter && !findInsensitive(group_data.mName, mNameFilter))
 			continue;
 		addNewItem(id, group_data.mName, group_data.mInsigniaID, highlight_id == id, ADD_BOTTOM);
 	}
@@ -113,13 +141,14 @@ BOOL LLGroupList::update(const std::string& name_filter)
 	// add "none" to list at top
 	{
 		std::string loc_none = LLTrans::getString("GroupsNone");
-		if (name_filter == LLStringUtil::null || findInsensitive(loc_none, name_filter))
+		if (have_filter || findInsensitive(loc_none, mNameFilter))
 			addNewItem(LLUUID::null, loc_none, LLUUID::null, highlight_id.isNull(), ADD_TOP);
 	}
 
 	selectItemByUUID(highlight_id);
 
-	return TRUE;
+	setDirty(false);
+	onCommit();
 }
 
 void LLGroupList::toggleIcons()
@@ -158,6 +187,18 @@ void LLGroupList::addNewItem(const LLUUID& id, const std::string& name, const LL
 //	setCommentVisible(false);
 }
 
+// virtual
+bool LLGroupList::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
+{
+	// Why is "new group" sufficient?
+	if (event->desc() == "new group")
+	{
+		setDirty();
+		return true;
+	}
+
+	return false;
+}
 
 /************************************************************************/
 /*          LLGroupListItem implementation                              */

@@ -48,7 +48,11 @@ LLScriptHandler::LLScriptHandler(e_notification_type type, const LLSD& id)
 	// Getting a Channel for our notifications
 	mChannel = LLChannelManager::getInstance()->createNotificationChannel();
 	mChannel->setControlHovering(true);
-	mChannel->setOnRejectToastCallback(boost::bind(&LLScriptHandler::onRejectToast, this, _1));
+	
+	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+	if(channel)
+		channel->setOnRejectToastCallback(boost::bind(&LLScriptHandler::onRejectToast, this, _1));
+
 }
 
 //--------------------------------------------------------------------------
@@ -92,7 +96,10 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 		p.notification = notification;
 		p.panel = notify_box;	
 		p.on_delete_toast = boost::bind(&LLScriptHandler::onDeleteToast, this, _1);
-		mChannel->addToast(p);
+
+		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+		if(channel)
+			channel->addToast(p);
 
 		// send a signal to the counter manager
 		mNewNotificationSignal();

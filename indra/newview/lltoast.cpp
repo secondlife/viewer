@@ -167,15 +167,30 @@ void LLToast::tick()
 }
 
 //--------------------------------------------------------------------------
-void LLToast::insertPanel(LLPanel* panel)
+
+void LLToast::reshapeToPanel()
 {
-	LLRect panel_rect, toast_rect;
+	LLPanel* panel = getPanel();
+	if(!panel)
+		return;
+
+	LLRect panel_rect;
 
 	panel_rect = panel->getRect();
 	reshape(panel_rect.getWidth(), panel_rect.getHeight());
 	panel_rect.setLeftTopAndSize(0, panel_rect.getHeight(), panel_rect.getWidth(), panel_rect.getHeight());
 	panel->setRect(panel_rect);
+	
+	LLRect toast_rect = getRect();
+	toast_rect.setLeftTopAndSize(toast_rect.mLeft,toast_rect.mTop,panel_rect.getWidth(), panel_rect.getHeight());
+	setRect(toast_rect);
+
+}
+
+void LLToast::insertPanel(LLPanel* panel)
+{
 	addChild(panel);	
+	reshapeToPanel();
 }
 
 //--------------------------------------------------------------------------

@@ -39,6 +39,12 @@
 
 #include <string>
 
+class LLToastPanelBase: public LLPanel 
+{
+public:
+	virtual void init(LLSD& data){};
+};
+
 /**
  * Base class for all panels that can be added to the toast.
  * All toast panels should contain necessary logic for representing certain notification

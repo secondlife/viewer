@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="left|top|right|bottom"
- height="515"
+ height="555"
  label="Picks"
  layout="topleft"
  left="0"
@@ -11,7 +11,7 @@
         <flat_list_view
          color="DkGray2"
          follows="left|top|right|bottom"
-         height="495"
+         height="465"
          layout="topleft"
          left="0"
          name="picks_list"

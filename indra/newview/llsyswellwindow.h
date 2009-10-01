@@ -68,6 +68,8 @@ public:
 	void toggleWindow();
 	/*virtual*/ BOOL	canClose() { return FALSE; }
 	/*virtual*/ void	setDocked(bool docked, bool pop_on_undock = true);
+	// override LLFloater's minimization according to EXT-1216
+	/*virtual*/ void	setMinimized(BOOL minimize);
 
 	// Handlers
 	void onItemClick(LLSysWellItem* item);
@@ -86,8 +88,8 @@ private:
 		IT_INSTANT_MESSAGE
 	}EItemType; 
 
-	// gets a rect valid for SysWellWindow's position on a screen (EXT-1111)
-	void getEnabledRect(LLRect& rect);
+	// gets a rect that bounds possible positions for the SysWellWindow on a screen (EXT-1111)
+	void getAllowedRect(LLRect& rect);
 	// connect counter and list updaters to the corresponding signals
 	void connectListUpdaterToSignal(std::string notification_type);
 	// init Window's channel

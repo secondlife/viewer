@@ -33,6 +33,7 @@
 #ifndef LL_IMPANEL_H
 #define LL_IMPANEL_H
 
+#include "llimview.h" //for LLIMModel
 #include "lldockablefloater.h"
 #include "lllogchat.h"
 #include "lluuid.h"
@@ -245,11 +246,7 @@ public:
 
 	const LLUUID& getSessionID() const { return mSessionUUID; }
 	const LLUUID& getOtherParticipantID() const { return mOtherParticipantUUID; }
-	LLIMSpeakerMgr* getSpeakerManager() const { return mSpeakers; }
-	void updateSpeakersList(const LLSD& speaker_updates);
 	void processSessionUpdate(const LLSD& update);
-	void setSpeakers(const LLSD& speaker_list);
-	LLVoiceChannel* getVoiceChannel() { return mVoiceChannel; }
 	EInstantMessage getDialogType() const { return mDialog; }
 	void setDialogType(EInstantMessage dialog) { mDialog = dialog; }
 
@@ -305,7 +302,6 @@ private:
 	LLUUID mSessionUUID;
 
 	std::string mSessionLabel;
-	LLVoiceChannel*	mVoiceChannel;
 
 	BOOL mSessionInitialized;
 	LLSD mQueuedMsgsForInit;
@@ -346,7 +342,6 @@ private:
 	BOOL mProfileButtonEnabled;
 	BOOL mCallBackEnabled;
 
-	LLIMSpeakerMgr* mSpeakers;
 	LLPanelActiveSpeakers* mSpeakerPanel;
 	
 	// Optimization:  Don't send "User is typing..." until the

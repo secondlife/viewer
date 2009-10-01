@@ -58,15 +58,10 @@ public:
 
 private:
 	// methods indirectly called by the updaters
-	bool					updateFriendList(U32 changed_mask);
-	bool					updateNearbyList();
-	bool					updateRecentList();
-	bool					updateGroupList();
+	void					updateFriendList();
+	void					updateNearbyList();
+	void					updateRecentList();
 
-	bool					filterFriendList();
-	bool					filterNearbyList();
-	bool					filterRecentList();
-	void					applyFilterToTab(const std::string& tab_name);
 	void					updateButtons();
 	const std::string&		getActiveTabName() const;
 	LLUUID					getCurrentItemID() const;
@@ -110,7 +105,6 @@ private:
 	void					onRecentViewSortMenuItemClicked(const LLSD& userdata);
 
 	// misc callbacks
-	bool					onFriendListUpdate(U32 changed_mask);
 	static void				onAvatarPicked(
 								const std::vector<std::string>& names,
 								const std::vector<LLUUID>& ids,
@@ -135,21 +129,8 @@ private:
 	Updater*				mFriendListUpdater;
 	Updater*				mNearbyListUpdater;
 	Updater*				mRecentListUpdater;
-	Updater*				mGroupListUpdater;
 
 	std::string				mFilterSubString;
-
-	// The vectors below contain up-to date avatar lists
-	// for the corresponding tabs.
-	// When the user enters a filter, it gets applied
-	// to all the vectors and the result is shown in the tabs.
-	// We don't need to have such a vector for the groups tab
-	// since re-fetching the groups list is always fast.
-	typedef std::vector<LLUUID> uuid_vector_t;
-	uuid_vector_t			mNearbyVec;
-	uuid_vector_t			mOnlineFriendVec;
-	uuid_vector_t			mAllFriendVec;
-	uuid_vector_t			mRecentVec;
 };
 
 #endif //LL_LLPANELPEOPLE_H

@@ -99,6 +99,9 @@ public:
 	// Operating with toasts
 	// insert a panel to a toast
 	void insertPanel(LLPanel* panel);
+
+	void reshapeToPanel();
+
 	// get toast's panel
 	LLPanel* getPanel() { return mPanel; }
 	// enable/disable Toast's Hide button

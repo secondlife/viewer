@@ -7666,6 +7666,19 @@ class LLHelpShowFirstTimeTip : public view_listener_t
 	}
 };
 
+void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
+{
+	static LLMenuGL*	show_navbar_context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_hide_navbar.xml",
+			gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	if(gMenuHolder->hasVisibleMenu())
+	{
+		gMenuHolder->hideMenus();
+	}
+	show_navbar_context_menu->buildDrawLabels();
+	show_navbar_context_menu->updateParent(LLMenuGL::sMenuContainer);
+	LLMenuGL::showPopup(ctrl, show_navbar_context_menu, x, y);
+}
+
 void initialize_menus()
 {
 	// A parameterized event handler used as ctrl-8/9/0 zoom controls below.

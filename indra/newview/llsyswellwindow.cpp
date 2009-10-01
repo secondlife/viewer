@@ -109,6 +109,14 @@ BOOL LLSysWellWindow::postBuild()
 }
 
 //---------------------------------------------------------------------------------
+void LLSysWellWindow::setMinimized(BOOL minimize)
+{
+	setVisible(!minimize);
+
+	LLFloater::setMinimized(minimize);
+}
+
+//---------------------------------------------------------------------------------
 void LLSysWellWindow::connectListUpdaterToSignal(std::string notification_type)
 {
 	LLNotificationsUI::LLNotificationManager* manager = LLNotificationsUI::LLNotificationManager::getInstance();
@@ -155,10 +163,10 @@ void LLSysWellWindow::addItem(LLSysWellItem::Params p)
 	{
 		handleItemAdded(IT_NOTIFICATION);
 
-	reshapeWindow();
+		reshapeWindow();
 
-	new_item->setOnItemCloseCallback(boost::bind(&LLSysWellWindow::onItemClose, this, _1));
-	new_item->setOnItemClickCallback(boost::bind(&LLSysWellWindow::onItemClick, this, _1));
+		new_item->setOnItemCloseCallback(boost::bind(&LLSysWellWindow::onItemClose, this, _1));
+		new_item->setOnItemClickCallback(boost::bind(&LLSysWellWindow::onItemClick, this, _1));
 	}
 	else
 	{
@@ -226,11 +234,11 @@ void LLSysWellWindow::onStoreToast(LLPanel* info_panel, LLUUID id)
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::initChannel() 
 {
-	LLNotificationsUI::LLScreenChannel* channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(
+	LLNotificationsUI::LLScreenChannelBase* channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(
 																LLUUID(gSavedSettings.getString("NotificationChannelUUID")));
-	if(channel)
+	mChannel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>(channel);
+	if(mChannel)
 	{
-		mChannel = channel;
 		mChannel->setOnStoreToastCallback(boost::bind(&LLSysWellWindow::onStoreToast, this, _1, _2));
 	}
 	else
@@ -240,7 +248,7 @@ void LLSysWellWindow::initChannel()
 }
 
 //---------------------------------------------------------------------------------
-void LLSysWellWindow::getEnabledRect(LLRect& rect)
+void LLSysWellWindow::getAllowedRect(LLRect& rect)
 {
 	rect = gViewerWindow->getWorldViewRect();
 }
@@ -252,7 +260,7 @@ void LLSysWellWindow::toggleWindow()
 	{
 		setDockControl(new LLDockControl(
 				LLBottomTray::getInstance()->getSysWell(), this,
-				getDockTongue(), LLDockControl::TOP, boost::bind(&LLSysWellWindow::getEnabledRect, this, _1)));
+				getDockTongue(), LLDockControl::TOP, boost::bind(&LLSysWellWindow::getAllowedRect, this, _1)));
 	}
 
 	if(!getVisible())
@@ -404,20 +412,18 @@ bool LLSysWellWindow::isWindowEmpty()
 
 //---------------------------------------------------------------------------------
 //virtual
-void LLSysWellWindow::sessionAdded(const LLUUID& sessionId,
-		const std::string& name, const LLUUID& otherParticipantId)
+void LLSysWellWindow::sessionAdded(const LLUUID& session_id,
+		const std::string& name, const LLUUID& other_participant_id)
 {
-	if (mMessageList->getItemByValue(get_session_value(sessionId)) == NULL)
+	//*TODO get rid of get_session_value, session_id's are unique, cause performance degradation with lots chiclets (IB)
+	if (mMessageList->getItemByValue(get_session_value(session_id)) == NULL)
 	{
-		S32 chicletCounter = 0;
-		LLIMModel::LLIMSession* session = get_if_there(LLIMModel::sSessionsMap,
-				sessionId, (LLIMModel::LLIMSession*) NULL);
-		if (session != NULL)
+		S32 chicletCounter = LLIMModel::getInstance()->getNumUnread(session_id);
+		if (chicletCounter > -1)
 		{
-			chicletCounter = session->mNumUnread;
+			addIMRow(session_id, chicletCounter, name, other_participant_id);	
+			reshapeWindow();
 		}
-		addIMRow(sessionId, chicletCounter, name, otherParticipantId);
-		reshapeWindow();
 	}
 }
 
@@ -491,6 +497,7 @@ LLSysWellWindow::RowPanel::RowPanel(const LLSysWellWindow* parent, const LLUUID&
 	switch (im_chiclet_type)
 	{
 	case LLIMChiclet::TYPE_GROUP:
+	case LLIMChiclet::TYPE_AD_HOC:
 		mChiclet = getChild<LLIMChiclet>("group_chiclet");
 		childSetVisible("p2p_chiclet", false);
 		break;

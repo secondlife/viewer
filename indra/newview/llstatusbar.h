@@ -91,7 +91,6 @@ private:
 	// simple method to setup the part that holds the date
 	void setupDate();
 
-	void onMainMenuRightClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask);
 	static void onCommitSearch(LLUICtrl*, void* data);
 	static void onClickSearch(void* data);
 	static void onClickStatGraph(void* data);
@@ -111,8 +110,7 @@ private:
 	S32				mSquareMetersCommitted;
 	LLFrameTimer*	mBalanceTimer;
 	LLFrameTimer*	mHealthTimer;
-	LLMenuGL*		mHideNavbarContextMenu;
-	
+		
 	static std::vector<std::string> sDays;
 	static std::vector<std::string> sMonths;
 	static const U32 MAX_DATE_STRING_LENGTH;

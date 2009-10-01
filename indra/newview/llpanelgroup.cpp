@@ -195,7 +195,7 @@ BOOL LLPanelGroup::postBuild()
 	if(panel_land)		mTabs.push_back(panel_land);
 
 	if(panel_general)
-	panel_general->setupCtrls(this);
+		panel_general->setupCtrls(this);
 	
 	return TRUE;
 }
@@ -206,8 +206,8 @@ void LLPanelGroup::reposButton(const std::string& name)
 	if(!button)
 		return;
 	LLRect btn_rect = button->getRect();
-		btn_rect.setLeftTopAndSize( btn_rect.mLeft, btn_rect.getHeight() + 2, btn_rect.getWidth(), btn_rect.getHeight());
-		button->setRect(btn_rect);
+	btn_rect.setLeftTopAndSize( btn_rect.mLeft, btn_rect.getHeight() + 2, btn_rect.getWidth(), btn_rect.getHeight());
+	button->setRect(btn_rect);
 }
 
 void LLPanelGroup::reshape(S32 width, S32 height, BOOL called_from_parent )
@@ -235,7 +235,14 @@ void LLPanelGroup::onBtnCreate()
 	if(!panel_general)
 		return;
 	std::string apply_mesg;
-	panel_general->apply(apply_mesg);//yes yes you need to call apply to create...
+	if(panel_general->apply(apply_mesg))//yes yes you need to call apply to create...
+		return;
+	if ( !apply_mesg.empty() )
+	{
+		LLSD args;
+		args["MESSAGE"] = apply_mesg;
+		LLNotifications::instance().add("GenericAlert", args);
+	}
 }
 
 void LLPanelGroup::onBtnRefresh(void* user_data)

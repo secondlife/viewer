@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
- height="515"
+ height="560"
  label="Profile"
  layout="topleft"
  left="0"
@@ -25,7 +25,7 @@
     <scroll_container
      color="DkGray2"
      follows="left|top|right|bottom"
-     height="515"
+     height="500"
      min_height="300"
      layout="topleft"
      name="profile_scroll"
@@ -265,6 +265,7 @@
      left="0"
      name="profile_buttons_panel"
      top_pad="0"
+     height="25"
      width="313">
         <button
          follows="bottom|left"
@@ -316,6 +317,7 @@
      name="profile_me_buttons_panel"
      top_pad="0"
      visible="false"
+     height="25"
      width="313">
         <button
          follows="bottom|left"

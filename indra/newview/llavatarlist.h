@@ -37,10 +37,22 @@
 
 #include "llavatarlistitem.h"
 
+/**
+ * Generic list of avatars.
+ * 
+ * Updates itself when it's dirty, using optional name filter.
+ * To initiate update, modify the UUID list and call setDirty().
+ * 
+ * @see getIDs()
+ * @see setDirty()
+ * @see setNameFilter()
+ */
 class LLAvatarList : public LLFlatListView
 {
 	LOG_CLASS(LLAvatarList);
 public:
+	typedef std::vector<LLUUID> uuid_vector_t;
+
 	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> 
 	{
 		Optional<S32> volume_column_width;
@@ -51,14 +63,19 @@ public:
 	LLAvatarList(const Params&);
 	virtual	~LLAvatarList() {}
 
-	BOOL update(const std::vector<LLUUID>& all_buddies,
-		const std::string& name_filter = LLStringUtil::null);
+	virtual void draw(); // from LLView
+
+	void setNameFilter(const std::string& filter);
+	void setDirty(bool val = true)						{ mDirty = val; }
+	uuid_vector_t& getIDs() 							{ return mIDs; }
 
 	void setContextMenu(LLAvatarListItem::ContextMenu* menu) { mContextMenu = menu; }
 
 	void sortByName();
 
 protected:
+	void refresh();
+
 	void addNewItem(const LLUUID& id, const std::string& name, BOOL is_bold, EAddPosition pos = ADD_BOTTOM);
 	void computeDifference(
 		const std::vector<LLUUID>& vnew,
@@ -68,6 +85,10 @@ protected:
 private:
 
 	bool mOnlineGoFirst;
+	bool mDirty;
+
+	std::string				mNameFilter;
+	uuid_vector_t			mIDs;
 
 	LLAvatarListItem::ContextMenu* mContextMenu;
 };

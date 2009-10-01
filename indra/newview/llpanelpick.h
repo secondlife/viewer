@@ -74,6 +74,8 @@ public:
 	// switches the panel to either View or Edit mode
 	void setEditMode(BOOL edit_mode);
 
+	void onPickChanged(LLUICtrl* ctrl);
+
 	// because this panel works in two modes (edit/view) we are  
 	// free from managing two panel for editing and viewing picks and so
 	// are free from controlling switching between them in the parent panel (e.g. Me Profile)
@@ -128,6 +130,8 @@ protected:
 	void onClickSave();
 	void onClickCancel();
 
+	void enableSaveButton(bool enable);
+
 protected:
 	BOOL mEditMode;
 	LLTextureCtrl*	mSnapshotCtrl;
@@ -146,6 +150,7 @@ protected:
 	std::string mLocation;
 
 	commit_callback_t mBackCb;
+	bool mLocationChanged;
 };
 
 #endif // LL_LLPANELPICK_H

@@ -128,13 +128,13 @@
                  function="World.SetAway" />
             </menu_item_call>
             <menu_item_separator
-				layout="topleft"/>
+             layout="topleft"/>
             <menu_item_call
              label="Set Busy"
              layout="topleft"
              name="Set Busy">
                 <menu_item_call.on_click
-					function="World.SetBusy"/>
+                 function="World.SetBusy"/>
             </menu_item_call>
         </menu>
         <menu_item_separator

@@ -3223,9 +3223,9 @@ LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot,  BOOL pick_trans
 	// assume that pickAsync put the results in the back of the mPicks list
 	if(mPicks.size() != 0)
 	{
-	mLastPick = mPicks.back();
-	mLastPick.fetchResults();
-	mPicks.pop_back();
+		mLastPick = mPicks.back();
+		mLastPick.fetchResults();
+		mPicks.pop_back();
 	}
 	else
 	{

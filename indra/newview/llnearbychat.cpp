@@ -65,6 +65,7 @@ LLNearbyChat::LLNearbyChat(const LLSD& key) :
 	mChatCaptionPanel(NULL),
 	mChatHistoryEditor(NULL)
 {
+	m_isDirty = false;
 }
 
 LLNearbyChat::~LLNearbyChat()
@@ -181,7 +182,7 @@ LLColor4 nearbychat_get_text_color(const LLChat& chat)
 	return text_color;
 }
 
-void nearbychat_add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4& color)
+void LLNearbyChat::add_timestamped_line(const LLChat& chat, const LLColor4& color)
 {
 	std::string line = chat.mText;
 
@@ -194,25 +195,28 @@ void nearbychat_add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, cons
 	bool prepend_newline = true;
 	if (gSavedSettings.getBOOL("ChatShowTimestamps"))
 	{
-		edit->appendTime(prepend_newline);
+		mChatHistoryEditor->appendTime(prepend_newline);
 		prepend_newline = false;
 	}
 
 	// If the msg is from an agent (not yourself though),
 	// extract out the sender name and replace it with the hotlinked name.
+	
+	std::string		str_URL = chat.mURL;
+
 	if (chat.mSourceType == CHAT_SOURCE_AGENT &&
 		chat.mFromID != LLUUID::null)
 	{
-		chat.mURL = llformat("secondlife:///app/agent/%s/about",chat.mFromID.asString().c_str());
+		str_URL = llformat("secondlife:///app/agent/%s/about",chat.mFromID.asString().c_str());
 	}
 
 	// If the chat line has an associated url, link it up to the name.
-	if (!chat.mURL.empty()
+	if (!str_URL.empty()
 		&& (line.length() > chat.mFromName.length() && line.find(chat.mFromName,0) == 0))
 	{
 		std::string start_line = line.substr(0, chat.mFromName.length() + 1);
 		line = line.substr(chat.mFromName.length() + 1);
-		edit->appendStyledText(start_line, false, prepend_newline, LLStyleMap::instance().lookup(chat.mFromID,chat.mURL));
+		mChatHistoryEditor->appendStyledText(start_line, false, prepend_newline, LLStyleMap::instance().lookup(chat.mFromID,str_URL));
 		prepend_newline = false;
 	}
 
@@ -225,10 +229,8 @@ void nearbychat_add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, cons
 	else if (2 == font_size)
 		font_name = "sansserifbig";
 
-	edit->appendColoredText(line, false, prepend_newline, color, font_name);
+	mChatHistoryEditor->appendColoredText(line, false, prepend_newline, color, font_name);
 }
-
-
 
 void	LLNearbyChat::addMessage(const LLChat& chat)
 {
@@ -254,7 +256,7 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 	mChatHistoryEditor->setParseHighlights(TRUE);
 	
 	if (!chat.mMuted)
-		nearbychat_add_timestamped_line(mChatHistoryEditor, chat, color);
+		add_timestamped_line(chat, color);
 }
 
 void LLNearbyChat::onNearbySpeakers()
@@ -482,9 +484,16 @@ BOOL LLNearbyChat::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 void	LLNearbyChat::onOpen(const LLSD& key )
 {
-	LLNotificationsUI::LLScreenChannel* chat_channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
+	LLNotificationsUI::LLScreenChannelBase* chat_channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
 	if(chat_channel)
 	{
 		chat_channel->removeToastsFromChannel();
 	}
 }
+
+void	LLNearbyChat::draw		()
+{
+	LLFloater::draw();
+}
+
+

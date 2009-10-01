@@ -306,12 +306,12 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 					
 					if (curr_tab <= tabs_cnt - 4)
 					{
-					curr_date.secondsSinceEpoch(curr_date.secondsSinceEpoch() - seconds_in_day);
+						curr_date.secondsSinceEpoch(curr_date.secondsSinceEpoch() - seconds_in_day);
 					}
 					else if (curr_tab == tabs_cnt - 3) // 6 day and older, low boundary is 1 month
 					{
 						curr_date =  LLDate::now();
-					curr_date.split(&curr_year, &curr_month, &curr_day);
+						curr_date.split(&curr_year, &curr_month, &curr_day);
 						curr_month--;
 						if (0 == curr_month)
 						{
@@ -376,7 +376,7 @@ void LLTeleportHistoryPanel::handleItemSelect(LLFlatListView* selected)
 	S32 tabs_cnt = mItemContainers.size();
 
 	for (S32 n = 0; n < tabs_cnt; n++)
-		{
+	{
 		LLAccordionCtrlTab* tab = mItemContainers.get(n);
 
 		if (!tab->getVisible())
@@ -390,7 +390,7 @@ void LLTeleportHistoryPanel::handleItemSelect(LLFlatListView* selected)
 			continue;
 
 		flv->resetSelection(true);
-		}
+	}
 
 	updateVerbs();
 }

@@ -12,17 +12,20 @@
  <combo_editor
   select_on_focus="true"
   text_pad_left="20" 
+  tool_tip="Search"
   background_image="TextField_Search_Off"
   background_image_disabled="TextField_Search_Disabled"
   background_image_focused="TextField_Search_Active"/>
  <combo_list
   multi_select="false"
-  page_lines="10" />
+  page_lines="10"
+  scroll_bar_bg_visible="true" />
  <search_button label=""
   top_pad="4"
   left_pad="4" 
   width="13"
   height="13" 
+  tool_tip="Search"
   image_unselected="Search"
   image_selected="Search" />
 </search_combo_box>

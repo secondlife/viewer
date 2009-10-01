@@ -835,6 +835,7 @@ void LLPanelGroupGeneral::reset()
 	{
 		std::string empty_str = "";
 		mEditCharter->setText(empty_str);
+		mGroupNameEditor->setText(empty_str);
 	}
 	
 	{
@@ -850,6 +851,7 @@ void LLPanelGroupGeneral::reset()
 	{
 		mComboMature->setEnabled(true);
 		mComboMature->setVisible( !gAgent.isTeen() );
+		mComboMature->selectFirstItem();
 	}
 
 
