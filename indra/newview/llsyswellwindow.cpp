@@ -111,7 +111,8 @@ BOOL LLSysWellWindow::postBuild()
 //---------------------------------------------------------------------------------
 void LLSysWellWindow::setMinimized(BOOL minimize)
 {
-	setVisible(!minimize);
+	// we don't show empty Message Well window
+	setVisible(!minimize && !isWindowEmpty());
 
 	LLFloater::setMinimized(minimize);
 }

@@ -55,7 +55,7 @@ LLAlertHandler::LLAlertHandler(e_notification_type type, const LLSD& id) : mIsMo
 
 	// Getting a Channel for our notifications
 	mChannel = LLChannelManager::getInstance()->getChannel(p);
-	mChannel->setShowToasts(true);
+	mChannel->setCanStoreToasts(false);
 }
 
 //--------------------------------------------------------------------------

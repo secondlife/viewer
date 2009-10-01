@@ -66,7 +66,7 @@ LLScreenChannelBase::LLScreenChannelBase(const LLUUID& id) :
 												,mOverflowToastHidden(false)
 												,mIsHovering(false)
 												,mControlHovering(false)
-												,mShowToasts(false)
+												,mShowToasts(true)
 {	
 	mID = id;
 	mOverflowFormatString = LLTrans::getString("OverflowInfoChannelString");
@@ -142,7 +142,7 @@ void LLScreenChannel::addToast(LLToast::Params p)
 {
 	bool store_toast = false, show_toast = false;
 
-	show_toast = mWasStartUpToastShown && (mShowToasts || p.force_show);
+	mDisplayToastsAlways ? show_toast = true : show_toast = mWasStartUpToastShown && (mShowToasts || p.force_show);
 	store_toast = !show_toast && p.can_be_stored && mCanStoreToasts;
 
 	if(!show_toast && !store_toast)

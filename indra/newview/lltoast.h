@@ -35,7 +35,7 @@
 
 
 #include "llpanel.h"
-#include "llfloater.h"
+#include "llmodaldialog.h"
 #include "lltimer.h"
 #include "llnotifications.h"
 
@@ -51,7 +51,7 @@ namespace LLNotificationsUI
  * Represents toast pop-up.
  * This is a parent view for all toast panels.
  */
-class LLToast : public LLFloater
+class LLToast : public LLModalDialog
 {
 public:
 	typedef boost::function<void (LLToast* toast)> toast_callback_t;
@@ -134,8 +134,6 @@ public:
 	void setCanBeStored(bool can_be_stored) { mCanBeStored = can_be_stored; }
 	//
 	bool getCanBeStored() { return mCanBeStored; }
-	//
-	void setModal(bool modal);
 
 
 	// Registers signals/callbacks for events
@@ -171,7 +169,6 @@ private:
 
 	LLColor4	mBgColor;
 	bool		mCanFade;
-	bool		mIsModal;
 	bool		mCanBeStored;
 	bool		mHideBtnEnabled;
 	bool		mHideBtnPressed;

@@ -77,7 +77,7 @@ LLScreenChannel* LLChannelManager::createNotificationChannel()
 	p.channel_align = CA_RIGHT;
 
 	// Getting a Channel for our notifications
-	return dynamic_cast<LLScreenChannel*> (LLChannelManager::getInstance()->createChannel(p));
+	return dynamic_cast<LLScreenChannel*> (LLChannelManager::getInstance()->getChannel(p));
 }
 
 //--------------------------------------------------------------------------
