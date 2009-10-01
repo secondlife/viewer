@@ -1245,7 +1245,7 @@ Please move all objects to be acquired onto the same region.
    type="alertmodal">
 [EXTRA]
 
-Go to [_URL] for information on purchasing currency?
+Go to [_URL] for information on purchasing L$?
     <url option="0" name="url">
 
 			http://secondlife.com/app/currency/
