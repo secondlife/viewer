@@ -17,6 +17,7 @@ indra/newview/app_settings/mozilla
 indra/newview/app_settings/mozilla-runtime-*
 indra/newview/app_settings/mozilla_debug
 indra/newview/app_settings/static_*.db2
+indra/newview/browser_profile
 indra/newview/character
 indra/newview/fmod.dll
 indra/newview/mozilla-theme
