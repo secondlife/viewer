@@ -78,8 +78,6 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 		}
 	}
 
-	//LLUI::getRootView()->setFocusLostCallback(boost::bind(&LLIMFloater::focusChangeCallback, this));
-
 	mCloseSignal.connect(boost::bind(&LLIMFloater::onClose, this));
 
 	LLTransientFloaterMgr::getInstance()->registerTransientFloater(this);
