@@ -506,56 +506,6 @@ void LLUICtrl::setFocus(BOOL b)
 	}
 }
 
-void LLUICtrl::onFocusReceived()
-{
-	// trigger callbacks
-	LLFocusableElement::onFocusReceived();
-
-	// find first view in hierarchy above new focus that is a LLUICtrl
-	LLView* viewp = getParent();
-	LLUICtrl* last_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getLastKeyboardFocus());
-
-	while (viewp && !viewp->isCtrl()) 
-	{
-		viewp = viewp->getParent();
-	}
-
-	// and if it has newly gained focus, call onFocusReceived()
-	LLUICtrl* ctrlp = static_cast<LLUICtrl*>(viewp);
-	if (ctrlp && (!last_focus || !last_focus->hasAncestor(ctrlp)))
-	{
-		ctrlp->onFocusReceived();
-	}
-}
-
-void LLUICtrl::onFocusLost()
-{
-	// trigger callbacks
-	LLFocusableElement::onFocusLost();
-
-	// find first view in hierarchy above old focus that is a LLUICtrl
-	LLView* viewp = getParent();
-	while (viewp && !viewp->isCtrl()) 
-	{
-		viewp = viewp->getParent();
-	}
-
-	// and if it has just lost focus, call onFocusReceived()
-	LLUICtrl* ctrlp = static_cast<LLUICtrl*>(viewp);
-	// hasFocus() includes any descendants
-	if (ctrlp && !ctrlp->hasFocus())
-	{
-		ctrlp->onFocusLost();
-	}
-}
-
-void LLUICtrl::onTopLost()
-{
-	// trigger callbacks
-	LLFocusableElement::onTopLost();
-}
-
-
 // virtual
 void LLUICtrl::setTabStop( BOOL b )	
 { 

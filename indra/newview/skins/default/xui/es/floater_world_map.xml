@@ -28,10 +28,10 @@
 	<check_box label="&apos;Mature&apos;" name="event_mature_chk"/>
 	<check_box label="&apos;Adult&apos;" name="event_adult_chk"/>
 	<combo_box label="Amigos conectados" name="friend combo" tool_tip="Amigo a mostrar en el mapa">
-		<combo_box.item name="none_selected" label="Amigos conectados" />
+		<combo_box.item name="item1" label="Amigos conectados" />
 	</combo_box>
 	<combo_box label="Hitos" name="landmark combo" tool_tip="Hito a mostrar en el mapa">
-		<combo_box.item name="none_selected" label="Hitos" />
+		<combo_box.item name="item1" label="Hitos" />
 	</combo_box>
 	<line_editor label="Buscar por el nombre de la región" name="location" tool_tip="Escriba el nombre de una región"/>
 	<button label="Buscar" name="DoSearch" tool_tip="Buscar una región"/>

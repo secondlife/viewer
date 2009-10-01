@@ -146,14 +146,25 @@
      width="400">
         I want to access content rated:
     </text>
+	<text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="90"
+     name="maturity_desired_textbox"
+     top_pad="10"
+     width="400">
+    </text>
     <combo_box
      control_name="PreferredMaturity"
      follows="left|bottom"
      height="18"
      layout="topleft"
-     left_delta="50"
+     left_delta="-10"
      name="maturity_desired_combobox"
-     top_pad="10"
+     top_pad="-10"
      width="170">
         <combo_box.item
          label="PG, Mature and Adult"
@@ -264,6 +275,7 @@
      top_pad="5"
      width="300" />
     <check_box
+	 enabled_control="AvatarNameTagMode"
      control_name="SmallAvatarNames"
      height="16"
      initial_value="true"

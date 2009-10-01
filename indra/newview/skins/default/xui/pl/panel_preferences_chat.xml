@@ -1,51 +1,57 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Czat/IM" name="chat">
-  <text type="string" length="1" name="text_box">
+  <text name="text_box">
 		Rozmiar Czcionki Czatu:
 	</text>
   <radio_group name="chat_font_size">
-    <radio_item type="string" length="1" name="radio" label="Mała" />
-    <radio_item type="string" length="1" name="radio2" label="Średnia" />
-    <radio_item type="string" length="1" name="radio3" label="Duża" />
+    <radio_item name="radio" label="Mała" />
+    <radio_item name="radio2" label="Średnia" />
+    <radio_item name="radio3" label="Duża" />
   </radio_group>
-  <text type="string" length="1" name="text_box2">
-		Kolor Czatu:
+	<color_swatch label="Ty" name="user"/>
+	<text name="text_box1">
+		Ty
 	</text>
-  <color_swatch label="Ty" name="user" />
-  <color_swatch label="Inni" name="agent" />
-  <color_swatch label="IM" name="im" />
-  <color_swatch label="System" name="system" />
-  <color_swatch label="Błędy" name="script_error" />
-  <color_swatch label="Obiekty" name="objects" />
-  <color_swatch label="Właściciel" name="owner" />
-  <color_swatch label="Chmurka" name="background" />
-  <color_swatch label="Linki" name="links" />
-  <text type="string" length="1" name="text_box8">
-		Błędy Skryptu:
+	<color_swatch label="Inni" name="agent"/>
+	<text name="text_box2">
+		Inni
+	</text>
+	<color_swatch label="IM" name="im"/>
+	<text name="text_box3">
+		IM
+	</text>
+	<color_swatch label="System" name="system"/>
+	<text name="text_box4">
+		System
+	</text>
+	<color_swatch label="Błędy" name="script_error"/>
+	<text name="text_box5">
+		Błędy
+	</text>
+	<color_swatch label="Obiekty" name="objects"/>
+	<text name="text_box6">
+		Obiekty
+	</text>
+	<color_swatch label="Właściciel" name="owner"/>
+	<text name="text_box7">
+		Właściciel
+	</text>
+	<color_swatch label="Chmurka" name="background"/>
+	<text name="text_box8">
+		Chmurka
+	</text>
+	<color_swatch label="Linki" name="links"/>
+	<text name="text_box9">
+		Linki
 	</text>
   <check_box label="Pokazuj ostrzeżenia i błędy skryptu w czacie" name="script_errors_as_chat" />
-  <text type="string" length="1" name="text_box3">
-		Konsola Czatu:
-	</text>
   <spinner label="Zamykaj czat w" name="fade_chat_time" />
-  <text type="string" length="1" name="text_box4">
-		(sekund)
-	</text>
-  <text type="string" length="1" name="text_box5">
-		(linii)
-	</text>
   <slider label="Przeźroczystość" name="console_opacity" />
   <check_box label="Używaj pełnej szerokość ekranu (restart wymagany)" name="chat_full_width_check" />
-  <text type="string" length="1" name="text_box6">
-		Ustawienia Czatu:
-	</text>
   <check_box label="Zamknij panel czatu po naciśnięciu Wróć" name="close_chat_on_return_check" />
   <check_box label="Strzałki sterują awatarem podczas czatu" name="arrow_keys_move_avatar_check" />
   <check_box label="Pokazuj czas w czacie" name="show_timestamps_check" />
   <check_box label="Używaj animacji podczas pisania" name="play_typing_animation" />
-  <text type="string" length="1" name="text_box7">
-		Czat z Chmurkami:
-	</text>
   <check_box label="Pokazuj chmurki w czacie" name="bubble_text_chat" />
   <slider label="Przeźroczystość" name="bubble_chat_opacity" />
 </panel>

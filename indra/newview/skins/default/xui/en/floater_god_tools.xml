@@ -3,6 +3,7 @@
  height="384"
  layout="topleft"
  name="godtools floater"
+ help_topic="godtools_floater"
  title="God Tools"
  width="400">
     <tab_container

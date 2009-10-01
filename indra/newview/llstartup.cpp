@@ -423,8 +423,8 @@ bool idle_startup()
 
 	if (!gNoRender)
 	{
-		// Update images?
-		gTextureList.updateImages(0.01f);
+		//note: Removing this line will cause incorrect button size in the login screen. -- bao.
+		gTextureList.updateImages(0.01f) ;
 	}
 
 	if ( STATE_FIRST == LLStartUp::getStartupState() )
@@ -1666,10 +1666,6 @@ bool idle_startup()
 
 		// lets create "Friends" and "Friends/All" in the Inventory "Calling Cards" and fill it with buddies
 		LLFriendCardsManager::instance().syncFriendsFolder();
-
-		llinfos << "Setting Inventory changed mask and notifying observers" << llendl;
-		gInventory.addChangedMask(LLInventoryObserver::ALL, LLUUID::null);
-		gInventory.notifyObservers();
 
 		// set up callbacks
 		llinfos << "Registering Callbacks" << llendl;

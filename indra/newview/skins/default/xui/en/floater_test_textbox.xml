@@ -4,6 +4,7 @@
  height="400"
  layout="topleft"
  name="floater_test_textbox"
+ help_topic="floater_test_textbox"
  width="400">
     <text
      type="string"

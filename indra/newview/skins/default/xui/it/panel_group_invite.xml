@@ -2,8 +2,8 @@
 <panel label="Invita una persona" name="invite_panel">
 	<text name="help_text">
 		Puoi selezionare più di un residente 
-da invitare nel tuo gruppo. Clicca su &apos;Scelta
-residenti&apos; per iniziare.
+da invitare nel tuo gruppo. Clicca su
+&apos;Scelta residenti&apos; per iniziare.
 	</text>
 	<button label="Scelta residenti" name="add_button" tool_tip=""/>
 	<name_list name="invitee_list" tool_tip="Tieni premuto il tasto ctrl e clicca i nomi dei residenti per avere una selezione multipla."/>

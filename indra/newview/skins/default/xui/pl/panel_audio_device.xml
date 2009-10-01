@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel name="device_settings">
-	<text type="string" length="1" name="Audio Devices">
+	<text name="Audio Devices">
 		Urządzenia Audio
 	</text>
-	<text type="string" length="1" name="Input device (microphone):">
+	<text name="Input device (microphone):">
 		Urządzenia Wejściowe (mikrofon):
 	</text>
-	<text type="string" length="1" name="Output device (speakers):">
+	<text name="Output device (speakers):">
 		Urządzenia Wyjściowe (głośniki):
 	</text>
-	<text type="string" length="1" name="Input level:">
+	<text name="Input level:">
 		Poziom Wejścia
 	</text>
-	<text_editor type="string" length="1" name="voice_intro_text1">
+	<text_editor name="voice_intro_text1">
 		Użyj suwaka by dostosować jak głośno Cię słychać dla innych Rezydentów. By przetestować poziom wejścia, zacznij mówić do mikrofonu.
 	</text_editor>
 	<volume_slider name="mic_volume_slider"

@@ -1,35 +1,37 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" title="">
+<floater name="toolbox floater" title="" short_title="Buduj">
 	<button label="" label_selected="" name="button focus" tool_tip="Zbliżenie"/>
 	<button label="" label_selected="" name="button move" tool_tip="Przesunięcie"/>
 	<button label="" label_selected="" name="button edit" tool_tip="Edycja"/>
 	<button label="" label_selected="" name="button create" tool_tip="Stwórz"/>
 	<button label="" label_selected="" name="button land" tool_tip="Teren"/>
-	<check_box label="Zbliżenie" name="radio zoom"/>
-	<volume_slider name="slider zoom"/>
-	<check_box label="Obracanie (Ctrl)" name="radio orbit"/>
-	<check_box label="Przesunięcie (Ctrl-Shift)" name="radio pan"/>
-	<check_box label="Przesuń" name="radio move"/>
-	<check_box label="Podnieś (Ctrl)" name="radio lift"/>
-	<check_box label="Obróć (Ctrl-Shift)" name="radio spin"/>
-	<check_box label="Pozycja" name="radio position"/>
-	<check_box label="Obróć (Ctrl)" name="radio rotate"/>
-	<check_box label="Rozciągnij (Ctrl-Shift)" name="radio stretch"/>
-	<check_box label="Wybierz Teksturę" name="radio select face"/>
+	<radio_group name="focus_radio_group">
+		<radio_item label="Zbliżenie" name="radio zoom"/>
+		<radio_item label="Obracanie (Ctrl)" name="radio orbit"/>
+		<radio_item label="Przesunięcie (Ctrl-Shift)" name="radio pan"/>
+	</radio_group>
+	<radio_group name="move_radio_group">
+		<radio_item label="Przesuń" name="radio move"/>
+		<radio_item label="Podnieś (Ctrl)" name="radio lift"/>
+		<radio_item label="Obróć (Ctrl-Shift)" name="radio spin"/>
+	</radio_group>
+	<radio_group name="edit_radio_group">
+		<radio_item label="Pozycja" name="radio position"/>
+		<radio_item label="Obróć (Ctrl)" name="radio rotate"/>
+		<radio_item label="Rozciągnij (Ctrl-Shift)" name="radio stretch"/>
+		<radio_item label="Wybierz Teksturę" name="radio select face"/>
+	</radio_group>
 	<check_box label="Edytuj Połączone Części" name="checkbox edit linked parts"/>
 	<text name="text ruler mode">
 		Linijka:
 	</text>
 	<combo_box name="combobox grid mode">
-		<combo_item name="World">
-			Świat
-		</combo_item>
-		<combo_item name="Local">
-			Lokalna
-		</combo_item>
-		<combo_item name="Reference">
-			Względna
-		</combo_item>
+		<combo_box.item name="World" label="Świat"
+		/>
+		<combo_box.item name="Local" label="Lokalna"
+		/>
+		<combo_box.item name="Reference" label="Względna"
+		/>
 	</combo_box>
 	<check_box label="Rozciągnij 2 Strony" name="checkbox uniform"/>
 	<check_box label="Rozciągnij Teksturę" name="checkbox stretch textures"/>
@@ -57,13 +59,15 @@
 	<check_box label="Kopiuj zaznaczone" name="checkbox copy selection"/>
 	<check_box label="Środek" name="checkbox copy centers"/>
 	<check_box label="Obróć" name="checkbox copy rotates"/>
-	<check_box label="Zaznaczanie" name="radio select land"/>
-	<check_box label="Prostowanie" name="radio flatten"/>
-	<check_box label="Podnoszenie" name="radio raise"/>
-	<check_box label="Obniżanie" name="radio lower"/>
-	<check_box label="Wygładzanie" name="radio smooth"/>
-	<check_box label="Fałdowanie" name="radio noise"/>
-	<check_box label="Cofnij modyfikację" name="radio revert"/>
+	<radio_group name="land_radio_group">
+		<radio_item label="Zaznaczanie" name="radio select land"/>
+		<radio_item label="Prostowanie" name="radio flatten"/>
+		<radio_item label="Podnoszenie" name="radio raise"/>
+		<radio_item label="Obniżanie" name="radio lower"/>
+		<radio_item label="Wygładzanie" name="radio smooth"/>
+		<radio_item label="Fałdowanie" name="radio noise"/>
+		<radio_item label="Cofnij modyfikację" name="radio revert"/>
+	</radio_group>
 	<button label="Zastosuj" label_selected="Zastosuj" name="button apply to selection" tool_tip="Modyfikuj zaznaczony teren"/>
 	<text name="Bulldozer:">
 		Burzenie:
@@ -71,7 +75,7 @@
 	<text name="Dozer Size:">
 		Rozmiar
 	</text>
-	<text length="1" name="Strength:" type="string">
+	<text name="Strength:">
 		Siła
 	</text>
 	<volume_slider name="slider force"/>
@@ -115,9 +119,7 @@
 			<text name="Permissions:">
 				Prawa:
 			</text>
-			<text name="perm_modify">
-				Nie masz prawda do modyfikacji tego obiektu
-			</text>
+
 			<check_box label="Udostępnij grupie" name="checkbox share with group" tool_tip="Pozwól członkom grupy przesuwać, modyfikować, kopiować i usuwać."/>
 			<string name="text deed continued">
 				Przypisz...
@@ -134,49 +136,35 @@
 				Cena:  L$
 			</text>
 			<line_editor name="Edit Cost"/>
-			<radio_group name="sale type">
-				<radio_item name="Original">
-					Orginał
-				</radio_item>
-				<radio_item name="Copy">
-					Kopia
-				</radio_item>
-				<radio_item name="Contents">
-					Zawartość
-				</radio_item>
-			</radio_group>
-			<text name="Next owner can:">
-				Następny właściciel:
-			</text>
-			<check_box label="Zmienia" name="checkbox next owner can modify"/>
-			<check_box label="Kopiuje" name="checkbox next owner can copy"/>
-			<check_box label="Oddaje/Sprzedaje" name="checkbox next owner can transfer"/>
+			<combo_box name="sale type">
+				<combo_box.item label="Kopia" name="Copy"/>
+				<combo_box.item label="Zawartość" name="Contents"/>
+				<combo_box.item label="Orginał" name="Original"/>
+			</combo_box>
+
 			<text name="label click action">
 				Lewe Kliknięcie:
 			</text>
 			<combo_box name="clickaction">
-				<combo_item name="Touch/grab(default)">
-					Dotknij (domyślne)
-				</combo_item>
-				<combo_item name="Sitonobject">
-					Usiądź na Obiekcie
-				</combo_item>
-				<combo_item name="Buyobject">
-					Kup Obiekt
-				</combo_item>
-				<combo_item name="Payobject">
-					Zapłać Obiektowi
-				</combo_item>
-				<combo_item name="Open">
-					Otwórz
-				</combo_item>
-				<combo_item name="Play">
-					Odtwarzaj Media
-				</combo_item>
-				<combo_item name="Opemmedia">
-					Otwrórz Media
-				</combo_item>
+				<combo_box.item name="Touch/grab(default)" label="Dotknij (domyślne)"
+				/>
+				<combo_box.item name="Sitonobject" label="Usiądź na Obiekcie"
+				/>
+				<combo_box.item name="Buyobject" label="Kup Obiekt"
+				/>
+				<combo_box.item name="Payobject" label="Zapłać Obiektowi"
+				/>
+				<combo_box.item name="Open" label="Otwórz"
+				/>
+				<combo_box.item name="Play" label="Odtwarzaj Media"
+				/>
+				<combo_box.item name="Opemmedia" label="Otwrórz Media"
+				/>
 			</combo_box>
+		<panel name="perms_build">
+			<text name="perm_modify">
+				Nie masz prawda do modyfikacji tego obiektu
+			</text>
 			<text name="B:">
 				B:
 			</text>
@@ -195,6 +183,13 @@
 			<text name="F:">
 				F:
 			</text>
+			<text name="Next owner can:">
+				Następny właściciel:
+			</text>
+			<check_box label="Zmienia" name="checkbox next owner can modify"/>
+			<check_box label="Kopiuje" name="checkbox next owner can copy"/>
+			<check_box name="checkbox next owner can transfer"/>
+		</panel>
 			<string name="text modify info 1">
 				Możesz modyfikować ten obiekt.
 			</string>
@@ -259,62 +254,47 @@
 				Materiał
 			</text>
 			<combo_box name="material">
-				<combo_item name="Stone">
-					Kamień
-				</combo_item>
-				<combo_item name="Metal">
-					Metal
-				</combo_item>
-				<combo_item name="Glass">
-					Szkło
-				</combo_item>
-				<combo_item name="Wood">
-					Drewno
-				</combo_item>
-				<combo_item name="Flesh">
-					Ciało
-				</combo_item>
-				<combo_item name="Plastic">
-					Plastik
-				</combo_item>
-				<combo_item name="Rubber">
-					Guma
-				</combo_item>
+				<combo_box.item name="Stone" label="Kamień"
+				/>
+				<combo_box.item name="Metal" label="Metal"
+				/>
+				<combo_box.item name="Glass" label="Szkło"
+				/>
+				<combo_box.item name="Wood" label="Drewno"
+				/>
+				<combo_box.item name="Flesh" label="Ciało"
+				/>
+				<combo_box.item name="Plastic" label="Plastik"
+				/>
+				<combo_box.item name="Rubber" label="Guma"
+				/>
 			</combo_box>
 			<text name="label basetype">
 				Rodzaj Bloku Budowalnego
 			</text>
 			<combo_box name="comboBaseType">
-				<combo_item name="Box">
-					Klocek
-				</combo_item>
-				<combo_item name="Cylinder">
-					Walec
-				</combo_item>
-				<combo_item name="Prism">
-					Graniastosłup
-				</combo_item>
-				<combo_item name="Sphere">
-					Kula
-				</combo_item>
-				<combo_item name="Torus">
-					Torus
-				</combo_item>
-				<combo_item name="Tube">
-					Rura
-				</combo_item>
-				<combo_item name="Ring">
-					Pierścień
-				</combo_item>
-				<combo_item name="Sculpted">
-					Skulpty
-				</combo_item>
+				<combo_box.item name="Box" label="Klocek"
+				/>
+				<combo_box.item name="Cylinder" label="Walec"
+				/>
+				<combo_box.item name="Prism" label="Graniastosłup"
+				/>
+				<combo_box.item name="Sphere" label="Kula"
+				/>
+				<combo_box.item name="Torus" label="Torus"
+				/>
+				<combo_box.item name="Tube" label="Rura"
+				/>
+				<combo_box.item name="Ring" label="Pierścień"
+				/>
+				<combo_box.item name="Sculpted" label="Skulpty"
+				/>
 			</combo_box>
 			<text name="text cut">
-				Wykrój
+				Wykrój początek i koniec
 			</text>
-			<spinner label="B" name="cut begin"/>
-			<spinner label="E" name="cut end"/>
+			<spinner label="P" name="cut begin"/>
+			<spinner label="K" name="cut end"/>
 			<text name="text hollow">
 				Wydrążenie
 			</text>
@@ -327,24 +307,20 @@
 				Kształt Wydrążenia
 			</text>
 			<combo_box name="hole">
-				<combo_item name="Default">
-					Domyślny
-				</combo_item>
-				<combo_item name="Circle">
-					Koło
-				</combo_item>
-				<combo_item name="Square">
-					Kwadrat
-				</combo_item>
-				<combo_item name="Triangle">
-					Trójkąt
-				</combo_item>
+				<combo_box.item name="Default" label="Domyślny"
+				/>
+				<combo_box.item name="Circle" label="Koło"
+				/>
+				<combo_box.item name="Square" label="Kwadrat"
+				/>
+				<combo_box.item name="Triangle" label="Trójkąt"
+				/>
 			</combo_box>
 			<text name="text twist">
 				Skręcenie
 			</text>
-			<spinner label="B" name="Twist Begin"/>
-			<spinner label="E" name="Twist End"/>
+			<spinner label="P" name="Twist Begin"/>
+			<spinner label="K" name="Twist End"/>
 			<text name="scale_taper">
 				Zwężenie
 			</text>
@@ -367,8 +343,8 @@
 			<text name="advanced_slice">
 				Przetnij początek i koniec
 			</text>
-			<spinner label="B" name="Path Limit Begin"/>
-			<spinner label="E" name="Path Limit End"/>
+			<spinner label="P" name="Path Limit Begin"/>
+			<spinner label="K" name="Path Limit End"/>
 			<text name="text taper2">
 				Zwężenie
 			</text>
@@ -389,21 +365,16 @@
 				Typ Ścięgna
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_item name="None">
-					(żadne)
-				</combo_item>
-				<combo_item name="Sphere">
-					Kula
-				</combo_item>
-				<combo_item name="Torus">
-					Torus
-				</combo_item>
-				<combo_item name="Plane">
-					Płaczyzna
-				</combo_item>
-				<combo_item name="Cylinder">
-					Walec
-				</combo_item>
+				<combo_box.item name="None" label="(żadne)"
+				/>
+				<combo_box.item name="Sphere" label="Kula"
+				/>
+				<combo_box.item name="Torus" label="Torus"
+				/>
+				<combo_box.item name="Plane" label="Płaczyzna"
+				/>
+				<combo_box.item name="Cylinder" label="Walec"
+				/>
 			</combo_box>
 		</panel>
 		<panel label="Atrybuty" name="Features">
@@ -434,101 +405,77 @@
 		<panel label="Tekstura" name="Texture">
 			<texture_picker label="Tekstura" name="texture control" tool_tip="Kliknij by wybrać obraz"/>
 			<color_swatch label="Kolor" name="colorswatch" tool_tip="Kliknij by wybrać kolor"/>
-			<text name="color trans">
-				Przezroczystość %
+			<text name="color trans" left="170" width="99">
+				Przezroczystość%
 			</text>
-			<spinner name="ColorTrans"/>
-			<text name="glow label">
+			<spinner left="170" name="ColorTrans"/>
+			<text name="glow label" left="170">
 				Blask
 			</text>
-			<spinner name="glow"/>
-			<check_box label="Jaskrawość" name="checkbox fullbright"/>
+			<spinner left="170" name="glow"/>
+			<check_box label="Jaskrawość" name="checkbox fullbright" left="170"/>
 			<text name="tex gen">
 				Mapowanie
 			</text>
 			<combo_box name="combobox texgen">
-				<combo_item name="Default">
-					Domyślne
-				</combo_item>
-				<combo_item name="Planar">
-					Planarne
-				</combo_item>
+				<combo_box.item name="Default" label="Domyślne"
+				/>
+				<combo_box.item name="Planar" label="Planarne"
+				/>
 			</combo_box>
 			<text name="label shininess">
 				Połysk
 			</text>
 			<combo_box name="combobox shininess">
-				<combo_item name="None">
-					Żadny
-				</combo_item>
-				<combo_item name="Low">
-					Niski
-				</combo_item>
-				<combo_item name="Medium">
-					Średni
-				</combo_item>
-				<combo_item name="High">
-					Wysoki
-				</combo_item>
+				<combo_box.item name="None" label="Żadny"
+				/>
+				<combo_box.item name="Low" label="Niski"
+				/>
+				<combo_box.item name="Medium" label="Średni"
+				/>
+				<combo_box.item name="High" label="Wysoki"
+				/>
 			</combo_box>
 			<text name="label bumpiness">
 				Powierzchnia
 			</text>
 			<combo_box name="combobox bumpiness">
-				<combo_item name="None">
-					Żadna
-				</combo_item>
-				<combo_item name="Brightness">
-					Najjaśniejsza
-				</combo_item>
-				<combo_item name="Darkness">
-					Najciemniejsza
-				</combo_item>
-				<combo_item name="woodgrain">
-					Drewniano-ziarnista
-				</combo_item>
-				<combo_item name="bark">
-					Kory Drzewa
-				</combo_item>
-				<combo_item name="bricks">
-					Cegieł
-				</combo_item>
-				<combo_item name="checker">
-					Planszy Szachowej
-				</combo_item>
-				<combo_item name="concrete">
-					Betonu
-				</combo_item>
-				<combo_item name="crustytile">
-					Płytki/Kafelki
-				</combo_item>
-				<combo_item name="cutstone">
-					Kamienia
-				</combo_item>
-				<combo_item name="discs">
-					Dysku CD
-				</combo_item>
-				<combo_item name="gravel">
-					Żwiru
-				</combo_item>
-				<combo_item name="petridish">
-					Skamieliny
-				</combo_item>
-				<combo_item name="siding">
-					Brzegu
-				</combo_item>
-				<combo_item name="stonetile">
-					Płytki Kamiennej
-				</combo_item>
-				<combo_item name="stucco">
-					Stucco
-				</combo_item>
-				<combo_item name="suction">
-					Suction
-				</combo_item>
-				<combo_item name="weave">
-					Fali
-				</combo_item>
+				<combo_box.item name="None" label="Żadna"
+				/>
+				<combo_box.item name="Brightness" label="Najjaśniejsza"
+				/>
+				<combo_box.item name="Darkness" label="Najciemniejsza"
+				/>
+				<combo_box.item name="woodgrain" label="Drewniano-ziarnista"
+				/>
+				<combo_box.item name="bark" label="Kory Drzewa"
+				/>
+				<combo_box.item name="bricks" label="Cegieł"
+				/>
+				<combo_box.item name="checker" label="Planszy Szachowej"
+				/>
+				<combo_box.item name="concrete" label="Betonu"
+				/>
+				<combo_box.item name="crustytile" label="Płytki/Kafelki"
+				/>
+				<combo_box.item name="cutstone" label="Kamienia"
+				/>
+				<combo_box.item name="discs" label="Dysku CD"
+				/>
+				<combo_box.item name="gravel" label="Żwiru"
+				/>
+				<combo_box.item name="petridish" label="Skamieliny"
+				/>
+				<combo_box.item name="siding" label="Brzegu"
+				/>
+				<combo_box.item name="stonetile" label="Płytki Kamiennej"
+				/>
+				<combo_box.item name="stucco" label="Stucco"
+				/>
+				<combo_box.item name="suction" label="Suction"
+				/>
+				<combo_box.item name="weave" label="Fali"
+				/>
 			</combo_box>
 			<text name="tex scale">
 				Ilość powtórzeń
@@ -561,7 +508,7 @@
 				Dopasuj Teksturę Mediów
 (najpierw załaduj)
 			</text>
-			<button label="Dopasuj" label_selected="Dopasuj" name="button align"/>
+			<button label="Dopasuj" label_selected="Dopasuj" name="button align" left="160"/>
 		</panel>
 		<panel label="Treść" name="Contents">
 			<button label="Nowy Skrypt" label_selected="Nowy Skrypt..." name="button new script"/>
@@ -592,43 +539,43 @@
 		<button label="Kup..." label_selected="Kup..." name="button buy land"/>
 		<button label="Anuluj..." label_selected="Anuluj..." name="button abandon land"/>
 	</panel>
-	<string name="status_rotate">
+	<floater.string name="status_rotate">
 		Przeciągaj kolorowe pierścienie żeby obracać obiekt
-	</string>
-	<string name="status_scale">
+	</floater.string>
+	<floater.string name="status_scale">
 		Kliknij i przeciągaj żeby rozciągnąć wybraną stronę
-	</string>
-	<string name="status_move">
+	</floater.string>
+	<floater.string name="status_move">
 		Wybierz opcję:
-	</string>
-	<string name="status_modifyland">
+	</floater.string>
+	<floater.string name="status_modifyland">
 		Kliknij i przytrzymaj żeby modyfikować teren
-	</string>
-	<string name="status_camera">
+	</floater.string>
+	<floater.string name="status_camera">
 		Kliknij i przeciągnij żeby zmienić widok
-	</string>
-	<string name="status_grab">
+	</floater.string>
+	<floater.string name="status_grab">
 		Przeciągnij by przesunąć, wybierz Ctrl by podnieść, wybierz Ctrl-Shift by obrócić
-	</string>
-	<string name="status_place">
+	</floater.string>
+	<floater.string name="status_place">
 		Kliknij in-world by zacząć budować
-	</string>
-	<string name="status_selectland">
+	</floater.string>
+	<floater.string name="status_selectland">
 		Edytowanie Terenu:
-	</string>
-	<string name="grid_screen_text">
+	</floater.string>
+	<floater.string name="grid_screen_text">
 		Widok
-	</string>
-	<string name="grid_local_text">
+	</floater.string>
+	<floater.string name="grid_local_text">
 		Lokalna
-	</string>
-	<string name="grid_world_text">
+	</floater.string>
+	<floater.string name="grid_world_text">
 		Świat
-	</string>
-	<string name="grid_reference_text">
+	</floater.string>
+	<floater.string name="grid_reference_text">
 		Względa
-	</string>
-	<string name="grid_attachment_text">
+	</floater.string>
+	<floater.string name="grid_attachment_text">
 		Załączniki
-	</string>
+	</floater.string>
 </floater>

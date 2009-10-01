@@ -286,6 +286,7 @@ const U8 UPD_UNIFORM 		= 0x10;	// used with UPD_SCALE
 // Agent Update Flags (U8)
 const U8 AU_FLAGS_NONE      		= 0x00;
 const U8 AU_FLAGS_HIDETITLE      	= 0x01;
+const U8 AU_FLAGS_CLIENT_AUTOPILOT	= 0x02;
 
 // start location constants
 const U32 START_LOCATION_ID_LAST 		= 0;

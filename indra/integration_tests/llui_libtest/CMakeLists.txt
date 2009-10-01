@@ -57,6 +57,8 @@ if (DARWIN)
   find_library(COCOA_LIBRARY Cocoa)
   set(OS_LIBRARIES ${COCOA_LIBRARY})
 elseif (WINDOWS)
+  #ll_stack_trace needs this now...
+  list(APPEND WINDOWS_LIBRARIES dbghelp)
   set(OS_LIBRARIES ${WINDOWS_LIBRARIES})
 elseif (LINUX)
   set(OS_LIBRARIES)
@@ -95,6 +97,7 @@ if (WINDOWS)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different 
             ${OPENJPEG_DEBUG} ${CMAKE_CURRENT_BINARY_DIR}
         )
+  
 endif (WINDOWS)
 
 # Ensure people working on the viewer don't break this library

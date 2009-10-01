@@ -4,11 +4,12 @@
  height="408"
  layout="topleft"
  name="Inventory Finder"
+ help_topic="inventory_finder"
  title="inventory_recent_items"
  width="280">
     <icon
      height="16"
-     image_name="inv_item_animation.tga"
+     image_name="Inv_Animation"
      layout="topleft"
      left="8"
      mouse_opaque="true"
@@ -25,7 +26,7 @@
      width="126" />
     <icon
      height="16"
-     image_name="inv_item_callingcard_online.tga"
+     image_name="Inv_CallingCard"
      layout="topleft"
      left="8"
      mouse_opaque="true"
@@ -42,7 +43,7 @@
      width="126" />
     <icon
      height="16"
-     image_name="inv_item_shirt.tga"
+     image_name="Inv_Shirt"
      layout="topleft"
      left="8"
      mouse_opaque="true"
@@ -59,7 +60,7 @@
      width="126" />
     <icon
      height="16"
-     image_name="inv_item_gesture.tga"
+     image_name="Inv_Gesture"
      layout="topleft"
      left="8"
      mouse_opaque="true"
@@ -76,7 +77,7 @@
      width="126" />
     <icon
      height="16"
-     image_name="inv_item_landmark_visited.tga"
+     image_name="Inv_Landmark"
      layout="topleft"
      left="8"
      mouse_opaque="true"
@@ -93,7 +94,7 @@
      width="126" />
     <icon
      height="16"
-     image_name="inv_item_notecard.tga"
+     image_name="Inv_Notecard"
      layout="topleft"
      left="8"
      mouse_opaque="true"
@@ -110,7 +111,7 @@
      width="126" />
     <icon
      height="16"
-     image_name="inv_item_object.tga"
+     image_name="Inv_Object"
      layout="topleft"
      left="8"
      mouse_opaque="true"
@@ -127,7 +128,7 @@
      width="126" />
     <icon
      height="16"
-     image_name="inv_item_script.tga"
+     image_name="Inv_Script"
      layout="topleft"
      left="8"
      mouse_opaque="true"
@@ -144,7 +145,7 @@
      width="126" />
     <icon
      height="16"
-     image_name="inv_item_sound.tga"
+     image_name="Inv_Sound"
      layout="topleft"
      left="8"
      mouse_opaque="true"
@@ -161,7 +162,7 @@
      width="126" />
     <icon
      height="16"
-     image_name="inv_item_texture.tga"
+     image_name="Inv_Texture"
      layout="topleft"
      left="8"
      mouse_opaque="true"
@@ -178,7 +179,7 @@
      width="126" />
     <icon
      height="16"
-     image_name="inv_item_snapshot.tga"
+     image_name="Inv_Snapshot"
      layout="topleft"
      left="8"
      mouse_opaque="true"

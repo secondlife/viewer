@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="Apariencia" width="527">
 	<tab_container name="customize tab container" width="525">
-		<panel label="Partes del cuerpo" name="body_parts_placeholder"/>
+		<placeholder label="Partes del cuerpo" name="body_parts_placeholder"/>
 		<panel label="Forma" name="Shape" width="389">
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 			<button label="Cuerpo" label_selected="Cuerpo" name="Body"/>
@@ -14,29 +14,29 @@
 			<button label="Torso" label_selected="Torso" name="Torso"/>
 			<button label="Piernas" label_selected="Piernas" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item length="1" name="radio" type="string" label="Mujer" />
-				<radio_item length="1" name="radio2" type="string" label="Varón" />
+				<radio_item name="radio" label="Mujer" />
+				<radio_item name="radio2" label="Varón" />
 			</radio_group>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: no modificable
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: cargando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: no lleva
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Situada en [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Póngase una forma nueva arrastrando una desde su inventario hasta su
 avatar. O parta de cero creando una nueva y vistiéndola.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
 			<text name="Item Action Label" right="107">
@@ -51,26 +51,26 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 			<button label="Detalles faciales" label_selected="Detalles faciales" name="Face Detail" width="115"/>
 			<button label="Maquillaje" label_selected="Maquillaje" name="Makeup" width="115"/>
 			<button label="Detalles del cuerpo" label_selected="Detalles del cuerpo" name="Body Detail" width="115"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: no modificable
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: cargando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: no lleva
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Situada en [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Póngase otra piel arrastrando una desde su inventario hasta su
 avatar. O parta de cero creando una nueva y vistiéndola.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
 			<text name="Item Action Label" right="107">
@@ -89,26 +89,26 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 			<button label="Peinado" label_selected="Peinado" name="Style"/>
 			<button label="Cejas" label_selected="Cejas" name="Eyebrows"/>
 			<button label="Facial" label_selected="Facial" name="Facial"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: no modificable
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: cargando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: no lleva
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Situado en [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Póngase otro pelo arrastrando uno desde su inventario hasta su
 avatar. O parta de cero creando uno nueva y vistiéndolo.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
 			<text name="Item Action Label" right="107">
@@ -121,26 +121,26 @@ avatar. O parta de cero creando uno nueva y vistiéndolo.
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Ojos" name="Eyes">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: no modificables
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: cargando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: no lleva
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Situados en [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Póngase otros ojos arrastrando unos desde su inventario hasta su
 avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
 			<text name="Item Action Label" right="107">
@@ -161,26 +161,26 @@ avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 			<button left="113" label="Guardar" label_selected="Guardar" name="Save"/>
 			<button left="199" width="102" label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: no modificable
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: cargando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: no lleva
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Situada en [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Póngase otra camisa arrastrando una desde su inventario hasta su
 avatar. O parta de cero creando una nueva y vistiéndola.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
 			<text name="Item Action Label" right="107">
@@ -195,26 +195,26 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 			<button left="113" label="Guardar" label_selected="Guardar" name="Save"/>
 			<button left="199" width="102" label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: no modificables
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: cargando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: no lleva
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Situados en [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Póngase otros pantalones arrastrando unos desde su inventario hasta su
 avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
 			<text name="Item Action Label" right="107">
@@ -222,26 +222,26 @@ avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 			</text>
 		</panel>
 		<panel label="Zapatos" name="Shoes">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: no modificables
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: cargando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: no lleva
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Situados en [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Póngase otros zapatos arrastrando unos desde su inventario hasta su
 avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
 			<text name="Item Action Label" right="107">
@@ -256,26 +256,26 @@ avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Calcetines" name="Socks">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: no modificables
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: cargando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: no lleva
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Situados en [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Póngase otros calcetines arrastrando unos desde su inventario hasta su
 avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
 			<text name="Item Action Label" right="107">
@@ -290,26 +290,26 @@ avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Chaqueta" name="Jacket">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: no modificable
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: cargando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: no lleva
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Situada en [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Póngase otra chaqueta arrastrando una desde su inventario hasta su
 avatar. O parta de cero creando una nueva y vistiéndola.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
 			<text name="Item Action Label" right="107">
@@ -325,26 +325,26 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Guantes" name="Gloves">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: no modificables
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: cargando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: no lleva
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Situados en [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Póngase otros guantes arrastrando unos desde su inventario hasta su
 avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
 			<text name="Item Action Label" right="107">
@@ -359,26 +359,26 @@ avatar. O parta de cero creando unos nuevos y vistiéndoselos.
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Camiseta" name="Undershirt">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: no modificable
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: cargando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: no lleva
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Situada en [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Póngase otra camiseta arrastrando una desde su inventario hasta su
 avatar. O parta de cero creando una nueva y vistiéndola.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
 			<text name="Item Action Label" right="107">
@@ -393,26 +393,26 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Ropa interior" name="Underpants">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: no modificable
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: cargando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: no lleva
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Situada en [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Póngase otra ropa interior arrastrando una desde su inventario hasta su
 avatar. O parta de cero creando una nueva y vistiéndola.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
 			<text name="Item Action Label" right="107">
@@ -427,26 +427,26 @@ avatar. O parta de cero creando una nueva y vistiéndola.
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Falda" name="Skirt">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: no modificable
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: cargando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: no lleva
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Situada en [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Póngase otra falda arrastrando una desde su inventario hasta su
 avatar. O parta de cero creando una nueva y vistiéndola.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				No tiene permiso para modificar este ítem.
 			</text>
 			<text name="Item Action Label" right="107">

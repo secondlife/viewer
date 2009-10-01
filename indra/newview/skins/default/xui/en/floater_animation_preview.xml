@@ -4,6 +4,7 @@
  height="556"
  layout="topleft"
  name="Animation Preview"
+ help_topic="animation_preview"
  width="280">
     <floater.string
      name="failed_to_initialize">
@@ -150,16 +151,16 @@ Maximum animation length is [MAX_LENGTH] seconds.
      length="1"
      bottom="42"
      follows="top|left"
-     height="15"
+     height="23"
      layout="topleft"
      left="10"
      name="name_label">
         Name:
     </text>
     <line_editor
-     bottom_delta="2"
+     bottom_delta="0"
      follows="top|left|right"
-     height="19"
+     height="23"
      layout="topleft"
      left="85"
      name="name_form"
@@ -167,18 +168,18 @@ Maximum animation length is [MAX_LENGTH] seconds.
     <text
      type="string"
      length="1"
-     bottom_delta="22"
+     top_pad="5"
      follows="top|left"
-     height="15"
+     height="23"
      layout="topleft"
      left="10"
      name="description_label">
         Description:
     </text>
     <line_editor
-     bottom_delta="2"
+     bottom_delta="0"
      follows="top|left|right"
-     height="19"
+     height="23"
      layout="topleft"
      left="85"
      name="description_form"
@@ -186,70 +187,73 @@ Maximum animation length is [MAX_LENGTH] seconds.
     <spinner
      decimal_digits="0"
      follows="left|top"
-     height="18"
+     height="23"
      increment="1"
      initial_value="0"
      label="Priority"
-     label_width="50"
+     label_width="90"
      layout="topleft"
      left="10"
      max_val="4"
      name="priority"
      tool_tip="Controls which other animations can be overridden by this animation."
-     width="90" />
+     width="160" />
     <check_box
-     bottom_delta="23"
-     height="18"
+     top_pad="0"
+     height="14"
      label="Loop"
      layout="topleft"
      left="10"
+     width="100"
      name="loop_check"
      tool_tip="Makes this animation loop." />
     <spinner
      follows="left|top"
-     height="18"
+     height="23"
      increment="1"
      initial_value="0"
      label="In(%)"
-     label_width="30"
+     label_width="35"
      layout="topleft"
-     left_delta="70"
+     top_pad="5"
+     left="30"
      max_val="100"
      name="loop_in_point"
      tool_tip="Sets point in animation that looping returns to."
-     top_delta="2"
-     width="90" />
+     width="110" />
     <spinner
      bottom_delta="0"
      follows="left|top"
-     height="18"
+     height="23"
      increment="1"
      initial_value="0"
      label="Out(%)"
      layout="topleft"
-     left="185"
+     left_pad="10"
      max_val="100"
      name="loop_out_point"
-     tool_tip="Sets point in animation that ends a loop." />
+     tool_tip="Sets point in animation that ends a loop."
+     label_width="45"
+     width="120" />
     <text
      type="string"
      length="1"
-     bottom_delta="20"
+     top_pad="0"
      follows="top|left"
-     height="15"
+     height="23"
+     width="110"
      layout="topleft"
      left="10"
      name="hand_label">
         Hand Pose
     </text>
     <combo_box
-     height="18"
+     height="23"
      layout="topleft"
-     left_delta="76"
+     left_pad="0"
      name="hand_pose_combo"
      tool_tip="Controls what hands do during animation."
-     top_delta="-1"
-     width="104">
+     width="150">
         <combo_box.item
          label="Spread"
          name="Spread"
@@ -306,22 +310,22 @@ Maximum animation length is [MAX_LENGTH] seconds.
     <text
      type="string"
      length="1"
-     bottom_delta="22"
+     top_pad="5"
      follows="top|left"
-     height="15"
+     height="23"
+     width="110"
      layout="topleft"
      left="10"
      name="emote_label">
         Expression
     </text>
     <combo_box
-     height="18"
+     height="23"
+     width="150"
      layout="topleft"
-     left_delta="76"
+     left_pad="0"
      name="emote_combo"
-     tool_tip="Controls what face does during animation."
-     top_delta="-1"
-     width="104">
+     tool_tip="Controls what face does during animation.">
         <combo_box.item
          label="(None)"
          name="[None]" />
@@ -386,23 +390,22 @@ Maximum animation length is [MAX_LENGTH] seconds.
     <text
      type="string"
      length="1"
+     top_pad="5"
      follows="top|left"
-     height="15"
+     height="23"
+     width="110"
      layout="topleft"
      left="10"
-     name="preview_label"
-     top="167"
-     width="70">
+     name="preview_label">
         Preview while
     </text>
     <combo_box
-     height="18"
+     height="23"
+     width="150"
      layout="topleft"
-     left_pad="6"
+     left_pad="0"
      name="preview_base_anim"
-     tool_tip="Use this to test your animation behavior while your avatar performs common actions."
-     top_delta="-1"
-     width="104">
+     tool_tip="Use this to test your animation behavior while your avatar performs common actions.">
         <combo_box.item
          label="Standing"
          name="Standing" />
@@ -418,32 +421,31 @@ Maximum animation length is [MAX_LENGTH] seconds.
     </combo_box>
     <spinner
      follows="left|top"
-     height="18"
+     height="23"
      increment="0.01"
      initial_value="0"
      label="Ease In (sec)"
-     label_width="75"
+     label_width="110"
      layout="topleft"
      left="10"
      max_val="10"
      name="ease_in_time"
      tool_tip="Amount of time (in seconds) over which animations blends in."
-     top="191"
-     width="125" />
+     top_pad="10"
+     width="200" />
     <spinner
      follows="left|top"
-     height="18"
+     height="23"
      increment="0.01"
      initial_value="0"
      label="Ease Out (sec)"
-     label_width="80"
+     label_width="110"
      layout="topleft"
-     left_pad="10"
+     top_pad="0"
      max_val="10"
      name="ease_out_time"
      tool_tip="Amount of time (in seconds) over which animations blends out."
-     top_delta="0"
-     width="130" />
+     width="200" />
     <button
      follows="top|right"
      height="28"
@@ -454,7 +456,7 @@ Maximum animation length is [MAX_LENGTH] seconds.
      name="play_btn"
      picture_style="true"
      tool_tip="Play/pause your animation."
-     top="223"
+     top_pad="0"
      width="28" />
     <button
      follows="top|right"
@@ -469,23 +471,23 @@ Maximum animation length is [MAX_LENGTH] seconds.
      top_delta="0"
      width="28" />
     <slider
-     bottom_delta="0"
+     left_pad="0"
      follows="top|right"
-     height="20"
+     height="23"
+     width="200"
      increment="0.0001"
      initial_value="0"
      layout="topleft"
-     left="80"
      name="playback_slider"
-     right="275"
      show_text="false" />
     <text
      type="string"
      length="1"
-     bottom="306"
+     top_pad="5"
+     text_color="EmphasisColor"
      follows="top|left"
      layout="topleft"
-     left="10"
+     left="70"
      name="bad_animation_text">
         Unable to read animation file.
 
@@ -494,7 +496,7 @@ We recommend BVH files exported from Poser 4.
     <button
      bottom="546"
      follows="bottom|right"
-     height="20"
+     height="23"
      label="Cancel"
      layout="topleft"
      name="cancel_btn"
@@ -502,7 +504,7 @@ We recommend BVH files exported from Poser 4.
      width="123" />
     <button
      follows="bottom|left"
-     height="20"
+     height="23"
      label="Upload (L$[AMOUNT])"
      layout="topleft"
      left_delta="-129"

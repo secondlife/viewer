@@ -6,6 +6,7 @@
  min_height="200"
  min_width="280"
  name="gestures"
+ help_topic="gestures"
  title="Active Gestures"
  width="280">
     <floater.string

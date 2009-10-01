@@ -40,11 +40,11 @@
 	<check_box label="Adult" name="event_adult_chk"/>
 	<icon left="973" name="avatar_icon"/>
 	<combo_box label="Amis connectés" name="friend combo" tool_tip="Ami à afficher sur la carte" width="232">
-		<combo_box.item name="none_selected" label="Amis connectés" />
+		<combo_box.item name="item1" label="Amis connectés" />
 	</combo_box>
 	<icon left="973" name="landmark_icon"/>
 	<combo_box label="Repères" name="landmark combo" tool_tip="Repère à afficher sur la carte" width="232">
-		<combo_box.item name="none_selected" label="Repères" />
+		<combo_box.item name="item1" label="Repères" />
 	</combo_box>
 	<icon left="973" name="location_icon"/>
 	<line_editor label="Rechercher par nom de région" name="location" tool_tip="Saisissez le nom d&apos;une région" width="155"/>

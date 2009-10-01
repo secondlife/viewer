@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="表示" name="Display panel">
-	<text type="string" length="1" name="text">
+	<text name="text">
 		表示解像度：
 	</text>
 	<button label="?" name="GraphicsPreferencesHelpButton" />
@@ -8,10 +8,10 @@
 	<text_editor name="voice_chat_description">
 		チェック無しの場合は、ログイン時にフルスクリーン表示
 	</text_editor>
-	<text type="string" length="1" name="Fullscreen Aspect Ratio:">
+	<text name="Fullscreen Aspect Ratio:">
 		全画面の縦横比：
 	</text>
-	<text type="string" length="1" name="(width / height)">
+	<text name="(width / height)">
 		（幅／高さ）
 	</text>
 	<text_editor bottom="-56" height="40" name="FullScreenInfo" width="480">
@@ -34,19 +34,19 @@
 		縦横比：
 	</text>
 	<combo_box name="aspect_ratio" tool_tip="（幅/高さ）">
-		<combo_box.item type="string" length="1" name="4:3(StandardCRT)" label="4：3（標準CRT）" />
-		<combo_box.item type="string" length="1" name="5:4(1280x1024LCD)" label="5：4（1280x1024 LCD）" />
+		<combo_box.item name="4:3(StandardCRT)" label="4：3（標準CRT）" />
+		<combo_box.item name="5:4(1280x1024LCD)" label="5：4（1280x1024 LCD）" />
 		<combo_box.item name="8:5(Widescreen)" label="8：5（ワイドスクリ－ン）" />
-		<combo_box.item type="string" length="1" name="16:9(Widescreen)" label="16：9（ワイドスクリ－ン）" />
+		<combo_box.item name="16:9(Widescreen)" label="16：9（ワイドスクリ－ン）" />
 	</combo_box>
 	<check_box label="自動検出率" name="aspect_auto_detect" />
-	<text type="string" length="1" name="UI Size:">
+	<text name="UI Size:">
 		UIサイズ：
 	</text>
-	<text type="string" length="1" name="(meters, lower is faster)">
+	<text name="(meters, lower is faster)">
 		（メートル、低いほど速い）
 	</text>
-	<text type="string" length="1" name="text2">
+	<text name="text2">
 		表示オプション：
 	</text>
 	<check_box label="解像度単独スケールを使用" name="ui_auto_scale" />
@@ -80,6 +80,7 @@
 		品質
 	</text>
 	<check_box label="カスタム" name="CustomSettings" />
+	<panel name="CustomGraphics Panel">
 	<text name="ShadersText">
 		シェーダー：
 	</text>
@@ -156,14 +157,15 @@
 		<radio_item name="0" label="低" />
 		<radio_item name="2" label="高" />
 	</radio_group>
+	</panel>
 	<button label="推奨された設定" name="Defaults" />
 	<button label="ハードウェア・オプション"
 	     label_selected="ハードウェア・オプション"
 	     name="GraphicsHardwareButton" />
-	<text name="resolution_format">
+	<panel.string name="resolution_format">
 		[RES_X] x [RES_Y]
-	</text>
-	<text name="aspect_ratio_text">
+	</panel.string>
+	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
-	</text>
+	</panel.string>
 </panel>

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Majątek" name="Estate">
+<panel name="EstateWrapper">
+  <scroll_container name="container1">
+   <panel label="Majątek" name="Estate">
 	<text name="estate_help_text">
 		Zmiany ustawień na tej zakładce odnoszą się
 do wszystkich Regionów w tym Majątku.
@@ -23,7 +25,7 @@ do wszystkich Regionów w tym Majątku.
 	<slider label="Pora Doby" name="sun_hour_slider"/>
 	<check_box label="Dostęp Publiczny" name="externally_visible_check"/>
 	<button label="?" name="externally_visible_help"/>
-	<text length="1" name="Only Allow" type="string">
+	<text name="Only Allow">
 		Dostęp Ograniczony do:
 	</text>
 	<check_box label="Rezydenci z danymi o koncie" name="limit_payment" tool_tip="Zablokuj niepożądanych Rezydentów."/>
@@ -71,4 +73,6 @@ do wszystkich Regionów w tym Majątku.
 	<name_list name="banned_avatar_name_list"/>
 	<button label="Usuń..." name="remove_banned_avatar_btn"/>
 	<button label="Dodaj..." name="add_banned_avatar_btn"/>
+    </panel>
+  </scroll_container>
 </panel>

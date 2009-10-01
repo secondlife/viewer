@@ -79,45 +79,45 @@
 			<button label="Land Afstaan..." label_selected="Land Afstaan..." name="Abandon Land..."/>
 			<button label="Land terugvorderen..." label_selected="Land terugvorderen..." name="Reclaim Land..."/>
 			<button label="Lindenverkoop..." label_selected="Lindenverkoop..." name="Linden Sale..." tool_tip="Land moet in bezit zijn, de inhoud moet ingesteld zijn en niet al ter veiling zijn aangeboden."/>
-			<string name="new users only">
+			<panel.string name="new users only">
 				Alleen nieuwe gebruikers
-			</string>
-			<string name="anyone">
+			</panel.string>
+			<panel.string name="anyone">
 				Iedereen
-			</string>
-			<string name="area_text">
+			</panel.string>
+			<panel.string name="area_text">
 				Gebied
-			</string>
-			<string name="area_size_text">
+			</panel.string>
+			<panel.string name="area_size_text">
 				[AREA] m²
-			</string>
-			<string name="auction_id_text">
+			</panel.string>
+			<panel.string name="auction_id_text">
 				Veiling ID: [ID]
-			</string>
-			<string name="need_tier_to_modify">
+			</panel.string>
+			<panel.string name="need_tier_to_modify">
 				U dient uw aankoop te goedkeuren voor u dit land kunt wijzigen.
-			</string>
-			<string name="group_owned_text">
+			</panel.string>
+			<panel.string name="group_owned_text">
 				(Groepseigendom)
-			</string>
-			<string name="profile_text">
+			</panel.string>
+			<panel.string name="profile_text">
 				Profiel...
-			</string>
-			<string name="info_text">
+			</panel.string>
+			<panel.string name="info_text">
 				Informatie...
-			</string>
-			<string name="public_text">
+			</panel.string>
+			<panel.string name="public_text">
 				(public)
-			</string>
-			<string name="none_text">
+			</panel.string>
+			<panel.string name="none_text">
 				(none)
-			</string>
-			<string name="sale_pending_text">
+			</panel.string>
+			<panel.string name="sale_pending_text">
 				(Verkoop bezig)
-			</string>
-			<string name="no_selection_text">
+			</panel.string>
+			<panel.string name="no_selection_text">
 				Geen perceel geselecteerd. Ga naar Wereld menu &gt; Over land of selecteer een ander perceel om zijn details te tonen.
-			</string>
+			</panel.string>
 		</panel>
 		<panel label="Convenant" name="land_covenant_panel">
 			<text name="estate_section_lbl">
@@ -147,47 +147,47 @@
 			<text name="region_name_lbl">
 				Naam:
 			</text>
-			<text name="region_name_text">
+			<text name="region_name_text" left="114">
 				leyla
 			</text>
 			<text name="region_landtype_lbl">
 				Type:
 			</text>
-			<text name="region_landtype_text">
+			<text name="region_landtype_text" left="114">
 				Mainland / Homestead
 			</text>
 			<text name="region_maturity_lbl">
 				Inhoudscategorie:
 			</text>
-			<text name="region_maturity_text">
+			<text name="region_maturity_text" left="114">
 				Adult
 			</text>
 			<text name="resellable_lbl">
 				Doorverkopen:
 			</text>
-			<text name="resellable_clause">
+			<text name="resellable_clause" left="114">
 				Land in deze regio mag niet worden doorverkocht.
 			</text>
 			<text name="changeable_lbl">
 				Opsplitsen:
 			</text>
-			<text name="changeable_clause">
+			<text name="changeable_clause" left="114" width="340">
 				Land in deze regio mag niet worden samengevoegd/opgesplitst.
 			</text>
-			<string name="can_resell">
+			<panel.string name="can_resell">
 				Aangekocht land in deze regio mag worden doorverkocht.
-			</string>
-			<string name="can_not_resell">
+			</panel.string>
+			<panel.string name="can_not_resell">
 				Aangekocht land in deze regio mag niet worden doorverkocht.
-			</string>
-			<string name="can_change">
+			</panel.string>
+			<panel.string name="can_change">
 				Aangekocht land in deze regio mag worden samengevoegd of
 opgedeeld.
-			</string>
-			<string name="can_not_change">
+			</panel.string>
+			<panel.string name="can_not_change">
 				Aangekocht land in deze regio mag niet worden samengevoegd
 of opgedeeld.
-			</string>
+			</panel.string>
 		</panel>
 		<panel label="Objecten" name="land_objects_panel">
 			<text name="parcel_object_bonus">
@@ -199,12 +199,12 @@ of opgedeeld.
 			<text name="objects_available" left="214" width="230">
 				[COUNT] van [MAX] ([AVAILABLE] beschikbaar)
 			</text>
-			<string name="objects_available_text">
+			<panel.string name="objects_available_text">
 				[COUNT] van [MAX] ([AVAILABLE] beschikbaar)
-			</string>
-			<string name="objects_deleted_text">
+			</panel.string>
+			<panel.string name="objects_deleted_text">
 				[COUNT] van [MAX] ([DELETED] zullen worden verwijderd)
-			</string>
+			</panel.string>
 			<text name="Primitives parcel supports:" width="200">
 				Primitieven ondersteund door perceel:
 			</text>
@@ -292,84 +292,83 @@ of opgedeeld.
 			<check_box label="Veilig (geen letsel)" name="check safe" tool_tip="Indien aangevinkt, wordt het land op Veilig ingesteld, waarmee letselgevechten worden uitgeschakeld. Indien niet aangevinkt, is letsel ingeschakeld."/>
 			<check_box label="Niet duwen" name="PushRestrictCheck" tool_tip="Weerhoudt scripts van duwen. Het aanvinken van deze optie kan handig zijn om storend gedrag op uw land te voorkomen."/>
 			<check_box label="Toon plaats in Zoeken (L$30/week) onder" name="ShowDirectoryCheck" tool_tip="Laat mensen dit perceel zien in zoekresultaten."/>
-			<string name="search_enabled_tooltip">
+			<panel.string name="search_enabled_tooltip">
 				Laat mensen dit perceel zien in zoekresultaten
-			</string>
-			<string name="search_disabled_small_tooltip">
+			</panel.string>
+			<panel.string name="search_disabled_small_tooltip">
 				Deze optie is uitgeschakeld, omdat dit gebied 128 m² of kleiner is. Alleen grote percelen kunnen worden opgenomen in Zoeken.
-			</string>
-			<string name="search_disabled_permissions_tooltip">
+			</panel.string>
+			<panel.string name="search_disabled_permissions_tooltip">
 				Deze optie is uitgeschakeld omdat u de opties van dit perceel niet kunt wijzigen.
-			</string>
+			</panel.string>
 			<combo_box name="land category with adult">
-				<combo_item name="AnyCategory">
-					Alle Categorieën
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Linden locatie
-				</combo_item>
-				<combo_item name="Adult">
-					Adult
-				</combo_item>
-				<combo_item name="Arts&amp;Culture">
-					Kunst &amp; Cultuur
-				</combo_item>
-				<combo_item name="Business">
-					Zakelijk
-				</combo_item>
-				<combo_item name="Educational">
-					Educatief
-				</combo_item>
-				<combo_item name="Gaming">
-					Spellen
-				</combo_item>
-				<combo_item name="Hangout">
-					Ontmoetingsplaats
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					Nieuwkomervriendelijk
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					Parken &amp; natuur
-				</combo_item>
-				<combo_item name="Residential">
-					Woongebied
-				</combo_item>
-				<combo_item name="Shopping">
-					Winkelen
-				</combo_item>
-				<combo_item name="Other">
-					Anders
-				</combo_item>
+				<combo_box.item name="item0" label="Alle Categorieën"
+				/>
+				<combo_box.item name="item1" label="Linden locatie"
+				/>
+				<combo_box.item name="item2" label="Adult"
+				/>
+				<combo_box.item name="item3" label="Kunst &amp; Cultuur"
+				/>
+				<combo_box.item name="item4" label="Zakelijk"
+				/>
+				<combo_box.item name="item5" label="Educatief"
+				/>
+				<combo_box.item name="item6" label="Spelen"
+				/>
+				<combo_box.item name="item7" label="Ontmoetingsplaats"
+				/>
+				<combo_box.item name="item8" label="Nieuwkomervriendelijk"
+				/>
+				<combo_box.item name="item9" label="Parken &amp; natuur"
+				/>
+				<combo_box.item name="item10" label="Woongebied"
+				/>
+				<combo_box.item name="item11" label="Winkelen"
+				/>
+				<combo_box.item name="item12" label="Anders"
+				/>
 			</combo_box>
 			<combo_box name="land category">
-				<combo_box.item name="AnyCategory" label="Alle categorieën"/>
-				<combo_box.item name="LindenLocation" label="Linden Locatie"/>
-				<combo_box.item name="Arts&amp;Culture" label="Kunst &amp; Cultuur"/>
-				<combo_box.item name="Business" label="Zakelijk"/>
-				<combo_box.item name="Educational" label="Educatief"/>
-				<combo_box.item name="Gaming" label="Spelen"/>
-				<combo_box.item name="Hangout" label="Ontmoetingsplaats"/>
-				<combo_box.item name="NewcomerFriendly" label="Nieuwkomervriendelijk"/>
-				<combo_box.item name="Parks&amp;Nature" label="Parken &amp; Natuur"/>
-				<combo_box.item name="Residential" label="Woongebied"/>
-				<combo_box.item name="Shopping" label="Winkelen"/>
-				<combo_box.item name="Other" label="Anders"/>
+				<combo_box.item name="item0" label="Alle categorieën"
+				/>
+				<combo_box.item name="item1" label="Linden Locatie"
+				/>
+				<combo_box.item name="item3" label="Kunst &amp; Cultuur"
+				/>
+				<combo_box.item name="item4" label="Zakelijk"
+				/>
+				<combo_box.item name="item5" label="Educatief"
+				/>
+				<combo_box.item name="item6" label="Spelen"
+				/>
+				<combo_box.item name="item7" label="Ontmoetingsplaats"
+				/>
+				<combo_box.item name="item8" label="Nieuwkomervriendelijk"
+				/>
+				<combo_box.item name="item9" label="Parken &amp; Natuur"
+				/>
+				<combo_box.item name="item10" label="Woongebied"
+				/>
+				<combo_box.item name="item11" label="Winkelen"
+				/>
+				<combo_box.item name="item12" label="Anders"
+				/>
 			</combo_box>
 			<button label="?" label_selected="?" name="?"/>
 			<check_box label="Mature inhoud" name="MatureCheck" tool_tip=" "/>
-			<string name="mature_check_mature">
+			<panel.string name="mature_check_mature">
 				Mature inhoud
-			</string>
-			<string name="mature_check_adult">
+			</panel.string>
+			<panel.string name="mature_check_adult">
 				Adult inhoud
-			</string>
-			<string name="mature_check_mature_tooltip">
+			</panel.string>
+			<panel.string name="mature_check_mature_tooltip">
 				Uw perceelinformatie of -inhoud wordt beschouwd als mature.
-			</string>
-			<string name="mature_check_adult_tooltip">
+			</panel.string>
+			<panel.string name="mature_check_adult_tooltip">
 				Uw perceelinformatie of -inhoud wordt beschouwd als adult.
-			</string>
+			</panel.string>
 			<text name="Snapshot:">
 				Foto:
 			</text>
@@ -377,25 +376,28 @@ of opgedeeld.
 			<text name="landing_point">
 				Landingsplaats: [LANDING]
 			</text>
-			<string name="landing_point_none">
+			<panel.string name="landing_point_none">
 				(none)
-			</string>
+			</panel.string>
 			<button width="70" label="Instellen" label_selected="Instellen" name="Set" tool_tip="Stelt het landingspunt in waar bezoekers arriveren. Wordt ingesteld op uw avatar&apos;s positie binnen dit perceel."/>
-			<button width="70" left="311" label="Opschonen" label_selected="Opschonen" name="Clear" tool_tip="Landingspunt leegmaken"/>
+			<button width="80" left="311" label="Opschonen" label_selected="Opschonen" name="Clear" tool_tip="Landingspunt leegmaken"/>
 			<text name="Teleport Routing: ">
 				Teleport routering:
 			</text>
 			<combo_box name="landing type" tool_tip="Teleport routering -- selecteer hoe teleports naar uw land moeten worden afgehandeld.">
-				<combo_box.item name="Blocked" label="Geblokkeerd"/>
-				<combo_box.item name="LandingPoint" label="Landingsplaats"/>
-				<combo_box.item name="Anywhere" label="Overal"/>
+				<combo_box.item name="Blocked" label="Geblokkeerd"
+				/>
+				<combo_box.item name="LandingPoint" label="Landingsplaats"
+				/>
+				<combo_box.item name="Anywhere" label="Overal"
+				/>
 			</combo_box>
-			<string name="push_restrict_text">
+			<panel.string name="push_restrict_text">
 				Niet duwen
-			</string>
-			<string name="push_restrict_region_text">
+			</panel.string>
+			<panel.string name="push_restrict_region_text">
 				Niet duwen (ingesteld op regio)
-			</string>
+			</panel.string>
 		</panel>
 		<panel label="Media" name="land_media_panel">
 			<text name="with media:">
@@ -460,14 +462,16 @@ hebt geklikt.)
 			</text>
 			<check_box label="Inwoners die geen betalingsinformatie hebben gegeven aan Linden Lab" name="limit_payment" tool_tip="Verban ongeïdentificeerde inwoners."/>
 			<check_box label="Inwoners die geen leeftijdgeverifieerde volwassenen zijn" name="limit_age_verified" tool_tip="Verban inwoners die hun leeftijd niet geverifieerd hebben. Zie support.secondlife.com voor meer informatie."/>
-			<string name="estate_override">
+			<panel.string name="estate_override">
 				Een of meer van deze opties is op estate-niveau ingesteld
-			</string>
+			</panel.string>
 			<check_box label="Groepstoegang toestaan: [GROUP]" name="GroupCheck" tool_tip="Stel de groep in op het tabblad Algemeen"/>
 			<check_box label="Verkoop toegangspassen aan:" name="PassCheck" tool_tip="Tijdelijke toegang tot dit perceel toestaan"/>
 			<combo_box name="pass_combo" left_delta="190">
-				<combo_box.item name="Anyone" label="Iedereen"/>
-				<combo_box.item name="Group" label="Groep"/>
+				<combo_box.item name="Anyone" label="Iedereen"
+				/>
+				<combo_box.item name="Group" label="Groep"
+				/>
 			</combo_box>
 			<spinner label="Prijs in L$:" name="PriceSpin" label_width="168" width="228" />
 			<spinner label="Toegangsuren" name="HoursSpin" label_width="168" width="228" />

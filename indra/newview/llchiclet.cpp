@@ -1079,8 +1079,9 @@ LLTalkButton::Params::Params()
 	speak_button.tab_stop(false);
 	speak_button.is_toggle(true);
 	speak_button.picture_style(true);
-	speak_button.image_selected(LLUI::getUIImage("SegmentedBtn_Left_Selected"));
-	speak_button.image_unselected(LLUI::getUIImage("SegmentedBtn_Left_Off"));
+	// Use default button art. JC
+	//speak_button.image_selected(LLUI::getUIImage("SegmentedBtn_Left_Selected"));
+	//speak_button.image_unselected(LLUI::getUIImage("SegmentedBtn_Left_Off"));
 
 	show_button.name("right");
 	show_button.label(LLStringUtil::null);

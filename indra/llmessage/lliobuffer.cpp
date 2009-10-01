@@ -87,7 +87,7 @@ LLIOPipe::EStatus LLIOBuffer::seek(LLIOBuffer::EHead head, S64 delta)
 	{
 	case READ:
 		if(((delta >= 0) && ((mReadHead + delta) <= mWriteHead))
-		   || (delta < 0) && ((mReadHead + delta) >= mBuffer))
+		   || ((delta < 0) && ((mReadHead + delta) >= mBuffer)))
 		{
 			mReadHead += delta;
 			status = STATUS_OK;
@@ -95,7 +95,7 @@ LLIOPipe::EStatus LLIOBuffer::seek(LLIOBuffer::EHead head, S64 delta)
 		break;
 	case WRITE:
 		if(((delta >= 0) && ((mWriteHead + delta) < (mBuffer + mBufferSize)))
-		   || (delta < 0) && ((mWriteHead + delta) > mReadHead))
+		   || ((delta < 0) && ((mWriteHead + delta) > mReadHead)))
 		{
 			mWriteHead += delta;
 			status = STATUS_OK;

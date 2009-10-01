@@ -55,6 +55,24 @@ const BOOL NOT_FOR_SELECTION = FALSE;
 class LLViewerCamera : public LLCamera, public LLSingleton<LLViewerCamera>
 {
 public:
+
+	typedef enum
+	{
+		CAMERA_WORLD = 0,
+		CAMERA_SHADOW0,
+		CAMERA_SHADOW1,
+		CAMERA_SHADOW2,
+		CAMERA_SHADOW3,
+		CAMERA_SHADOW4,
+		CAMERA_SHADOW5,
+		CAMERA_WATER0,
+		CAMERA_WATER1,
+		CAMERA_GI_SOURCE,
+		NUM_CAMERAS
+	} eCameraID;
+
+	static U32 sCurCameraID;
+
 	LLViewerCamera();
 
 	void updateCameraLocation(const LLVector3 &center,

@@ -8,14 +8,9 @@
 #extension GL_ARB_texture_rectangle : enable
 
 uniform sampler2D diffuseMap;
-uniform sampler2DShadow shadowMap0;
-uniform sampler2DShadow shadowMap1;
-uniform sampler2DShadow shadowMap2;
-uniform sampler2DShadow shadowMap3;
+uniform sampler2DRect depthMap;
 uniform sampler2D noiseMap;
-uniform sampler2DRect positionMap;
 
-uniform mat4 shadow_matrix[4];
 uniform vec4 shadow_clip;
 uniform vec2 screen_res;
 
@@ -30,12 +25,27 @@ varying vec3 vary_fragcoord;
 
 uniform float alpha_soften;
 
+uniform mat4 inv_proj;
+
+vec4 getPosition(vec2 pos_screen)
+{
+	float depth = texture2DRect(depthMap, pos_screen.xy).a;
+	vec2 sc = pos_screen.xy*2.0;
+	sc /= screen_res;
+	sc -= vec2(1.0,1.0);
+	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
+	vec4 pos = inv_proj * ndc;
+	pos /= pos.w;
+	pos.w = 1.0;
+	return pos;
+}
+
 void main() 
 {
 	vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
 	frag *= screen_res;
 	
-	vec3 samp_pos = texture2DRect(positionMap, frag).xyz;
+	vec3 samp_pos = getPosition(frag).xyz; 
 	
 	float shadow = 1.0;
 	vec4 pos = vary_position;
@@ -46,10 +56,10 @@ void main()
 
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
 
-	if (samp_pos.z != 0.0)
+	if (samp_pos.z != 0.0 && color.a < 1.0)
 	{
 		float dist_factor = alpha_soften;
-		float a = gl_Color.a;
+		float a = color.a;
 		a *= a;
 		dist_factor *= 1.0/(1.0-a);
 		color.a *= min((pos.z-samp_pos.z)*dist_factor, 1.0);

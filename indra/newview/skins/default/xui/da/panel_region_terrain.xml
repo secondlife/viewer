@@ -13,9 +13,9 @@
 	<spinner label="Max sænkning af land" name="terrain_lower_spin" />
 	<button label="?" name="terrain_lower_help" />
 	<check_box label="Benyt solopsætning fra estate" name="use_estate_sun_check" />
-	<button label="?" name="use_estate_sun_help" />
+	<button label="?" name="use_estate_sun_help" left="430"/>
 	<check_box label="Fast sol-position" name="fixed_sun_check" />
-	<button label="?" name="fixed_sun_help" />
+	<button label="?" name="fixed_sun_help" left="430"/>
 	<slider label="Fase" name="sun_hour_slider" />
 	<button label="Gem" name="apply_btn" />
 	<button label="Download RAW terræn fil..." name="download_raw_btn"

@@ -150,6 +150,7 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "AGENT_CROUCHING"		{ count(); yylval.ival = AGENT_CROUCHING; return(INTEGER_CONSTANT); }
 "AGENT_BUSY"			{ count(); yylval.ival = AGENT_BUSY; return(INTEGER_CONSTANT); }
 "AGENT_ALWAYS_RUN"		{ count(); yylval.ival = AGENT_ALWAYS_RUN; return(INTEGER_CONSTANT); }
+"AGENT_AUTOPILOT"		{ count(); yylval.ival = AGENT_AUTOPILOT; return(INTEGER_CONSTANT); }
 
 "CAMERA_PITCH"				{ count(); yylval.ival = FOLLOWCAM_PITCH; return(INTEGER_CONSTANT); }
 "CAMERA_FOCUS_OFFSET"		{ count(); yylval.ival = FOLLOWCAM_FOCUS_OFFSET; return (INTEGER_CONSTANT); }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="Apparence" width="548">
 	<tab_container name="customize tab container" tab_min_width="150" width="546">
-		<panel label="Parties du corps" name="body_parts_placeholder"/>
+		<placeholder label="Parties du corps" name="body_parts_placeholder"/>
 		<panel label="Silhouette" left="154" name="Shape" width="389">
 			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 			<button label="Corps" label_selected="Corps" name="Body"/>
@@ -14,34 +14,30 @@
 			<button label="Torse" label_selected="Torse" name="Torso"/>
 			<button label="Jambes" label_selected="Jambes" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item length="1" name="radio" type="string">
-					Femme
-				</radio_item>
-				<radio_item length="1" name="radio2" type="string">
-					Homme
-				</radio_item>
+				<radio_item name="radio" label="Femme"/>
+				<radio_item name="radio2" label="Homme"/>
 			</radio_group>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: impossible de modifier
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: en cours de chargement...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: non portée
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Emplacement : [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Pour changer de silhouette, faites-en glisser une à partir de votre
 inventaire jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle 
 et de la porter.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
 			<text name="Item Action Label" right="92">
@@ -56,26 +52,26 @@ et de la porter.
 			<button label="Détails visage" label_selected="Détails visage" name="Face Detail" width="84"/>
 			<button label="Maquillage" label_selected="Maquillage" name="Makeup" width="84"/>
 			<button label="Détails corps" label_selected="Détails corps" name="Body Detail" width="84"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: impossible de modifier
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: en cours de chargement...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: non portée
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Emplacement : [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Pour changer de peau, faites-en glisser une à partir de votre inventaire.
 Vous pouvez aussi en créer une nouvelle et la porter.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
 			<text name="Item Action Label" right="92">
@@ -94,27 +90,27 @@ Vous pouvez aussi en créer une nouvelle et la porter.
 			<button label="Style" label_selected="Style" name="Style"/>
 			<button label="Sourcils" label_selected="Sourcils" name="Eyebrows"/>
 			<button label="Pilosité" label_selected="Pilosité" name="Facial"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: impossible de modifier
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: en cours de chargement...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: non portés
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Emplacement : [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Pour changer de chevelure, faites-en glisser une de votre inventaire
 jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle
 et la porter.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
 			<text name="Item Action Label" right="92">
@@ -127,26 +123,26 @@ et la porter.
 			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 		</panel>
 		<panel label="Yeux" name="Eyes">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: impossible de modifier
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: en cours de chargement...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: non portés
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Emplacement : [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Pour changer vos yeux, faites-les glisser de votre inventaire jusqu&apos;à
 votre avatar. Vous pouvez aussi en créer de nouveaux et les porter.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
 			<text name="Item Action Label" right="92">
@@ -167,26 +163,26 @@ votre avatar. Vous pouvez aussi en créer de nouveaux et les porter.
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
 			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
 			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: impossible de modifier
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: en cours de chargement...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: non portée
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Emplacement : [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
-				Pour changer de chemise, faites-en glisser une de votre inventaire
+			<text name="not worn instructions">
+				Pour porter une nouvelle chemise, faites-en glisser une de votre inventaire
 jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle et la porter.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
 			<text name="Item Action Label" right="92">
@@ -201,26 +197,26 @@ jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle et la porte
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
 			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
 			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: impossible de modifier
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: en cours de chargement...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: non porté
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Emplacement : [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
-				Pour changer de pantalon, faites-en glisser un de votre inventaire
+			<text name="not worn instructions">
+				Pour porter un nouveau pantalon, faites-en glisser un de votre inventaire
 jusqu&apos;à votre avatar. Vous pouvez aussi en créer un nouveau et le porter.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
 			<text name="Item Action Label" right="92">
@@ -228,27 +224,27 @@ jusqu&apos;à votre avatar. Vous pouvez aussi en créer un nouveau et le porter.
 			</text>
 		</panel>
 		<panel label="Chaussures" name="Shoes">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: impossible de modifier
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: en cours de chargement...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: non portées
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Emplacement : [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
-				Pour changer de chaussures, faites-en glisser une paire de votre
+			<text name="not worn instructions">
+				Pour porter de nouvelles chaussures, faites-en glisser une paire de votre
 inventaire jusqu&apos;à votre avatar. Vous pouvez aussi en créer une
 nouvelle paire et la porter.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
 			<text name="Item Action Label" right="92">
@@ -263,27 +259,27 @@ nouvelle paire et la porter.
 			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 		</panel>
 		<panel label="Chaussettes" name="Socks">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: impossible de modifier
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: en cours de chargement...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: non portées
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Emplacement : [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
-				Pour changer de chaussettes, faites-en glisser une paire de votre
+			<text name="not worn instructions">
+				Pour porter de nouvelles chaussettes, faites-en glisser une paire de votre
 inventaire jusqu&apos;à votre avatar. Vous pouvez aussi en créer une
 nouvelle paire et la porter.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
 			<text name="Item Action Label" right="92">
@@ -298,26 +294,26 @@ nouvelle paire et la porter.
 			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 		</panel>
 		<panel label="Veste" name="Jacket">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: impossible de modifier
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: en cours de chargement...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: non portée
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Emplacement : [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
-				Pour changer de veste, faites-en glisser une de votre inventaire jusqu&apos;à
-votre avatar. Vous pouvez aussi en créer une nouvelle et la porter.
+			<text name="not worn instructions">
+				Pour porter une nouvelle veste, faites-en glisser une de votre inventaire 
+jusqu&apos;à votre avatar. Vous pouvez aussi en créer une nouvelle et la porter.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
 			<text name="Item Action Label" right="92">
@@ -333,26 +329,26 @@ votre avatar. Vous pouvez aussi en créer une nouvelle et la porter.
 			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 		</panel>
 		<panel label="Gants" name="Gloves">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: impossible de modifier
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: en cours de chargement...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: non portés
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Emplacement : [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
-				Pour changer de gants, faites-en glisser une paire à partir de votre
+			<text name="not worn instructions">
+				Pour porter de nouveaux gants, faites-les glisser à partir de votre
 inventaire. Vous pouvez aussi en créer une nouvelle paire et la porter.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
 			<text name="Item Action Label" right="92">
@@ -367,26 +363,26 @@ inventaire. Vous pouvez aussi en créer une nouvelle paire et la porter.
 			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 		</panel>
 		<panel label="Sous-vêtements (haut)" name="Undershirt">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: impossible de modifier
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: en cours de chargement...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: non portés
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Emplacement : [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
-				Pour changer de sous-vêtement, faites-en glisser une paire à partir de
+			<text name="not worn instructions">
+				Pour porter de nouveaux sous-vêtements, faites-les glisser à partir de
 votre inventaire. Vous pouvez aussi en créer des nouveaux et les porter.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
 			<text name="Item Action Label" right="92" bottom="-470">
@@ -402,26 +398,26 @@ votre inventaire. Vous pouvez aussi en créer des nouveaux et les porter.
 			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 		</panel>
 		<panel label="Sous-vêtements (bas)" name="Underpants">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: impossible de modifier
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: en cours de chargement...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: non portés
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Emplacement : [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
-				Pour changer de sous-vêtement, faites-en glisser une paire à partir de
+			<text name="not worn instructions">
+				Pour porter de nouveaux sous-vêtements, faites-les glisser à partir de
 votre inventaire. Vous pouvez aussi en créer des nouveaux et les porter.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
 			<text name="Item Action Label" right="92" bottom="-470">
@@ -437,26 +433,26 @@ votre inventaire. Vous pouvez aussi en créer des nouveaux et les porter.
 			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
 		</panel>
 		<panel label="Jupe" name="Skirt">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: impossible de modifier
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: en cours de chargement...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: non portée
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Emplacement : [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
-				Pour changer de jupe, faites-en glisser une à partir de votre inventaire.
-Vous pouvez aussi en créer une nouvelle et la porter.
+			<text name="not worn instructions">
+				Pour porter une nouvelle jupe, faites-en glisser une à partir de votre 
+inventaire. Vous pouvez aussi en créer une nouvelle et la porter.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
 			<text name="Item Action Label" right="92">

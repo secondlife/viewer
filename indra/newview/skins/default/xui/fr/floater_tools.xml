@@ -5,16 +5,22 @@
 	<button label="" label_selected="" name="button edit" tool_tip="Modifier"/>
 	<button label="" label_selected="" name="button create" tool_tip="Créer"/>
 	<button label="" label_selected="" name="button land" tool_tip="Terrain"/>
-	<check_box label="Zoom" name="radio zoom"/>
-	<check_box label="Orbite (Ctrl)" name="radio orbit"/>
-	<check_box label="Panoramique (Ctrl-Maj)" name="radio pan"/>
-	<check_box label="Déplacer" name="radio move"/>
-	<check_box label="Orbite (Ctrl)" name="radio lift"/>
-	<check_box label="Faire tourner (Ctrl-Maj)" name="radio spin"/>
-	<check_box label="Positionner" name="radio position"/>
-	<check_box label="Pivoter (Ctrl)" name="radio rotate"/>
-	<check_box label="Étirer (Ctrl-Maj)" name="radio stretch"/>
-	<check_box label="Sélectionner une face" name="radio select face"/>
+	<radio_group name="focus_radio_group">
+		<radio_item label="Zoom" name="radio zoom"/>
+		<radio_item label="Orbite (Ctrl)" name="radio orbit"/>
+		<radio_item label="Panoramique (Ctrl-Maj)" name="radio pan"/>
+	</radio_group>
+	<radio_group name="move_radio_group">
+		<radio_item label="Déplacer" name="radio move"/>
+		<radio_item label="Orbite (Ctrl)" name="radio lift"/>
+		<radio_item label="Faire tourner (Ctrl-Maj)" name="radio spin"/>
+	</radio_group>
+	<radio_group name="edit_radio_group">
+		<radio_item label="Positionner" name="radio position"/>
+		<radio_item label="Pivoter (Ctrl)" name="radio rotate"/>
+		<radio_item label="Étirer (Ctrl-Maj)" name="radio stretch"/>
+		<radio_item label="Sélectionner une face" name="radio select face"/>
+	</radio_group>
 	<check_box label="Modifier les parties liées" name="checkbox edit linked parts"/>
 	<text name="text ruler mode">
 		Axe :
@@ -50,13 +56,15 @@
 	<check_box label="Copier la sélection" name="checkbox copy selection"/>
 	<check_box label="Centrer" name="checkbox copy centers"/>
 	<check_box label="Pivoter" name="checkbox copy rotates"/>
-	<check_box label="Sélectionner le terrain" name="radio select land"/>
-	<check_box label="Aplatir" name="radio flatten"/>
-	<check_box label="Élever" name="radio raise"/>
-	<check_box label="Abaisser" name="radio lower"/>
-	<check_box label="Lisser" name="radio smooth"/>
-	<check_box label="Bosseler" name="radio noise"/>
-	<check_box label="Annuler modification" name="radio revert"/>
+	<radio_group name="land_radio_group">
+		<radio_item label="Sélectionner le terrain" name="radio select land"/>
+		<radio_item label="Aplatir" name="radio flatten"/>
+		<radio_item label="Élever" name="radio raise"/>
+		<radio_item label="Abaisser" name="radio lower"/>
+		<radio_item label="Lisser" name="radio smooth"/>
+		<radio_item label="Bosseler" name="radio noise"/>
+		<radio_item label="Annuler modification" name="radio revert"/>
+	</radio_group>
 	<button label="Appliquer" label_selected="Appliquer" name="button apply to selection" tool_tip="Modifier le terrain sélectionné" left="176"/>
 	<text name="Bulldozer:">
 		Bulldozer :
@@ -105,9 +113,7 @@
 			<text name="Permissions:">
 				Droits :
 			</text>
-			<text name="perm_modify">
-				Vous pouvez modifier cet objet.
-			</text>
+
 			<check_box label="Partager avec le groupe" name="checkbox share with group" tool_tip="Autorisez tous les membres du groupe choisi à utiliser et à partager vos droits pour cet objet. Pour activer les restrictions de rôles, vous devez d&apos;abord cliquer sur Transférer."/>
 			<string name="text deed continued">
 				Transférer...
@@ -123,17 +129,12 @@
 			<text name="Cost">
 				Prix : L$
 			</text>
-			<radio_group name="sale type">
-				<radio_item name="Original" label="Original" />
-				<radio_item name="Copy" label="Copie" />
-				<radio_item name="Contents" label="Contenus" />
-			</radio_group>
-			<text name="Next owner can:">
-				Le prochain propriétaire pourra :
-			</text>
-			<check_box label="Modifier" name="checkbox next owner can modify"/>
-			<check_box label="Copier" left_delta="66" name="checkbox next owner can copy"/>
-			<check_box label="Revendre/Donner" name="checkbox next owner can transfer"/>
+			<combo_box name="sale type">
+				<combo_box.item label="Copie" name="Copy"/>
+				<combo_box.item label="Contenus" name="Contents"/>
+				<combo_box.item label="Original" name="Original"/>
+			</combo_box>
+
 			<text name="label click action">
 				Action du clic-gauche :
 			</text>
@@ -146,6 +147,10 @@
 				<combo_box.item name="Play" label="Jouer le média de la parcelle"/>
 				<combo_box.item name="Opemmedia" label="Ouvrir le média de la parcelle"/>
 			</combo_box>
+		<panel name="perms_build">
+			<text name="perm_modify">
+				Vous pouvez modifier cet objet.
+			</text>
 			<text name="B:">
 				B :
 			</text>
@@ -164,6 +169,13 @@
 			<text name="F:">
 				F :
 			</text>
+			<text name="Next owner can:">
+				Le prochain propriétaire pourra :
+			</text>
+			<check_box label="Modifier" name="checkbox next owner can modify"/>
+			<check_box label="Copier" left_delta="66" name="checkbox next owner can copy"/>
+			<check_box name="checkbox next owner can transfer"/>
+		</panel>
 			<string name="text modify info 1">
 				Vous pouvez modifier cet objet.
 			</string>
@@ -316,7 +328,7 @@
 				Type de raccord
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_box.item name="None" label="aucun)"/>
+				<combo_box.item name="None" label="(aucun)"/>
 				<combo_box.item name="Sphere" label="Sphère"/>
 				<combo_box.item name="Torus" label="Tore"/>
 				<combo_box.item name="Plane" label="Plan"/>
@@ -459,43 +471,43 @@
 		<button label="Acheter le terrain..." label_selected="Acheter le terrain..." name="button buy land" width="142"/>
 		<button label="Abandonner le terrain..." label_selected="Abandonner le terrain..." name="button abandon land" width="142"/>
 	</panel>
-	<string name="status_rotate">
+	<floater.string name="status_rotate">
 		Pour faire tourner l&apos;objet, faîtes glisser les bandes de couleur.
-	</string>
-	<string name="status_scale">
+	</floater.string>
+	<floater.string name="status_scale">
 		Pour étirer le côté sélectionné, cliquez et faites glisser.
-	</string>
-	<string name="status_move">
+	</floater.string>
+	<floater.string name="status_move">
 		Glissez pour déplacer, Maj-glissez pour copier.
-	</string>
-	<string name="status_modifyland">
+	</floater.string>
+	<floater.string name="status_modifyland">
 		Cliquez et maintenez pour modifier le terrain.
-	</string>
-	<string name="status_camera">
+	</floater.string>
+	<floater.string name="status_camera">
 		Cliquez et faites glisser pour changer l&apos;affichage.
-	</string>
-	<string name="status_grab">
+	</floater.string>
+	<floater.string name="status_grab">
 		Glisser pour déplacer, Ctrl pour soulever, Crtl-Maj pour pivoter.
-	</string>
-	<string name="status_place">
+	</floater.string>
+	<floater.string name="status_place">
 		Cliquez dans le monde pour construire.
-	</string>
-	<string name="status_selectland">
+	</floater.string>
+	<floater.string name="status_selectland">
 		Cliquez et faites glisser pour sélectionner le terrain.
-	</string>
-	<string name="grid_screen_text">
+	</floater.string>
+	<floater.string name="grid_screen_text">
 		Écran
-	</string>
-	<string name="grid_local_text">
+	</floater.string>
+	<floater.string name="grid_local_text">
 		Local
-	</string>
-	<string name="grid_world_text">
+	</floater.string>
+	<floater.string name="grid_world_text">
 		Monde
-	</string>
-	<string name="grid_reference_text">
+	</floater.string>
+	<floater.string name="grid_reference_text">
 		Référence
-	</string>
-	<string name="grid_attachment_text">
+	</floater.string>
+	<floater.string name="grid_attachment_text">
 		Pièce-jointe
-	</string>
+	</floater.string>
 </floater>

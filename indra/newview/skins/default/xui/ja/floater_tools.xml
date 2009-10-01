@@ -5,16 +5,22 @@
 	<button label="" label_selected="" name="button edit" tool_tip="編集"/>
 	<button label="" label_selected="" name="button create" tool_tip="作成"/>
 	<button label="" label_selected="" name="button land" tool_tip="土地"/>
-	<check_box label="ズーム" name="radio zoom"/>
-	<check_box label="軌跡（Ctrl）" name="radio orbit"/>
-	<check_box label="パン（Ctrl+Shift）" name="radio pan"/>
-	<check_box label="移動" name="radio move"/>
-	<check_box label="持ち上げる（Ctrl）" name="radio lift"/>
-	<check_box label="スピン（Ctrl+Shift）" name="radio spin"/>
-	<check_box label="位置" name="radio position"/>
-	<check_box label="回転（Ctrl）" name="radio rotate"/>
-	<check_box label="引伸ばす（Ctrl+Shift）" name="radio stretch"/>
-	<check_box label="テクスチャーを選択" name="radio select face"/>
+	<radio_group name="focus_radio_group">
+		<radio_item label="ズーム" name="radio zoom"/>
+		<radio_item label="軌跡（Ctrl）" name="radio orbit"/>
+		<radio_item label="パン（Ctrl+Shift）" name="radio pan"/>
+	</radio_group>
+	<radio_group name="move_radio_group">
+		<radio_item label="移動" name="radio move"/>
+		<radio_item label="持ち上げる（Ctrl）" name="radio lift"/>
+		<radio_item label="スピン（Ctrl+Shift）" name="radio spin"/>
+	</radio_group>
+	<radio_group name="edit_radio_group">
+		<radio_item label="位置" name="radio position"/>
+		<radio_item label="回転（Ctrl）" name="radio rotate"/>
+		<radio_item label="引伸ばす（Ctrl+Shift）" name="radio stretch"/>
+		<radio_item label="テクスチャーを選択" name="radio select face"/>
+	</radio_group>
 	<check_box label="リンク部位を編集" name="checkbox edit linked parts"/>
 	<text name="text ruler mode" width="88">
 		ルーラー：
@@ -50,13 +56,15 @@
 	<check_box label="選択したものをコピー" name="checkbox copy selection"/>
 	<check_box label="中央に位置" name="checkbox copy centers"/>
 	<check_box label="回転" name="checkbox copy rotates"/>
-	<check_box label="土地を選択" name="radio select land"/>
-	<check_box label="ならす" name="radio flatten"/>
-	<check_box label="隆起" name="radio raise"/>
-	<check_box label="低くする" name="radio lower"/>
-	<check_box label="滑らかにする" name="radio smooth"/>
-	<check_box label="凸凹にする" name="radio noise"/>
-	<check_box label="元に戻す" name="radio revert"/>
+	<radio_group name="land_radio_group">
+		<radio_item label="土地を選択" name="radio select land"/>
+		<radio_item label="ならす" name="radio flatten"/>
+		<radio_item label="隆起" name="radio raise"/>
+		<radio_item label="低くする" name="radio lower"/>
+		<radio_item label="滑らかにする" name="radio smooth"/>
+		<radio_item label="凸凹にする" name="radio noise"/>
+		<radio_item label="元に戻す" name="radio revert"/>
+	</radio_group>
 	<button label="適用" label_selected="適用" name="button apply to selection" tool_tip="選択した土地を修正"/>
 	<text name="Bulldozer:">
 		ブルドーザー：
@@ -68,7 +76,7 @@
 		強度
 	</text>
 	<text name="obj_count">
-		選択オブジェクト:[COUNT]
+		選択済オブジェクト:[COUNT]
 	</text>
 	<text name="prim_count">
 		プリム:[COUNT]
@@ -105,9 +113,7 @@
 			<text name="Permissions:">
 				権限
 			</text>
-			<text name="perm_modify">
-				このオブジェクトは修正できます。
-			</text>
+
 			<check_box label="グループで共同管理" name="checkbox share with group" tool_tip="設定したグループに属するすべてのメンバーとこのオブジェクトの権限を共有します。 役割制限を有効にするには、譲渡する必要があります。"/>
 			<string name="text deed continued">
 				譲渡...
@@ -123,22 +129,17 @@
 			<text name="Cost">
 				価格：  L$
 			</text>
-			<radio_group left="30" name="sale type">
-				<radio_item name="Original" label="オリジナル" />
-				<radio_item left="82" name="Copy" label="コピー" />
-				<radio_item left="148" name="Contents" label="コンテンツ" />
-			</radio_group>
-			<text name="Next owner can:">
-				次のオーナーが実行できる操作：
-			</text>
-			<check_box label="修正" name="checkbox next owner can modify"/>
-			<check_box label="コピー" name="checkbox next owner can copy"/>
-			<check_box label="再販／プレゼント" name="checkbox next owner can transfer"/>
+			<combo_box name="sale type">
+				<combo_box.item label="コピー"  name="Copy"/>
+				<combo_box.item label="コンテンツ" name="Contents"/>
+				<combo_box.item label="オリジナル" name="Original"/>
+			</combo_box>
+
 			<text name="label click action">
 				左クリックすると：
 			</text>
 			<combo_box name="clickaction">
-				<combo_box.item name="Touch/grab(default)" label="触る／つかむ (デフォルト)"/>
+				<combo_box.item name="Touch/grab(default)" label="触る／つかむ （デフォルト）"/>
 				<combo_box.item name="Sitonobject" label="オブジェクトに座る"/>
 				<combo_box.item name="Buyobject" label="オブジェクトを購入"/>
 				<combo_box.item name="Payobject" label="オブジェクトへの支払い"/>
@@ -146,11 +147,15 @@
 				<combo_box.item name="Play" label="区画メディアを再生"/>
 				<combo_box.item name="Opemmedia" label="区画メディアを開く"/>
 			</combo_box>
+		<panel name="perms_build">
+			<text name="perm_modify">
+				このオブジェクトは修正できます。
+			</text>
 			<text name="B:">
 				B:
 			</text>
 			<text name="O:">
-				O;
+				O:
 			</text>
 			<text name="G:">
 				G:
@@ -164,6 +169,13 @@
 			<text name="F:">
 				F：
 			</text>
+			<text name="Next owner can:">
+				次のオーナーが実行できる操作：
+			</text>
+			<check_box label="修正" name="checkbox next owner can modify"/>
+			<check_box label="コピー" name="checkbox next owner can copy"/>
+			<check_box name="checkbox next owner can transfer"/>
+		</panel>
 			<string name="text modify info 1">
 				このオブジェクトは修正できます。
 			</string>
@@ -255,7 +267,7 @@
 			<spinner label="B" name="cut begin"/>
 			<spinner label="E" name="cut end"/>
 			<text name="text hollow">
-				中空(空洞)
+				中空（空洞）
 			</text>
 			<text name="text skew">
 				傾斜
@@ -316,7 +328,7 @@
 				縫い目のタイプ
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_box.item name="None" label="なし）"/>
+				<combo_box.item name="None" label="（なし）"/>
 				<combo_box.item name="Sphere" label="球形"/>
 				<combo_box.item name="Torus" label="トーラス"/>
 				<combo_box.item name="Plane" label="平面"/>
@@ -402,7 +414,7 @@
 			</text>
 			<spinner label="水平（U）" name="TexScaleU"/>
 			<check_box label="反転" name="checkbox flip s"/>
-			<spinner label="垂直 (V)" name="TexScaleV"/>
+			<spinner label="垂直（V）" name="TexScaleV"/>
 			<check_box label="反転" name="checkbox flip t"/>
 			<text name="tex rotate">
 				回転（度）
@@ -421,7 +433,7 @@
 				ずれ
 			</text>
 			<spinner label="水平（U）" name="TexOffsetU"/>
-			<spinner label="垂直 (V)" name="TexOffsetV"/>
+			<spinner label="垂直（V）" name="TexOffsetV"/>
 			<text name="textbox autofix" width="190">
 				メディア・テクスチャーを揃える
 （最初にロードすること）
@@ -457,43 +469,43 @@
 		<button label="土地を購入..." label_selected="土地を購入..." name="button buy land"/>
 		<button label="土地を放棄..." label_selected="土地を放棄..." name="button abandon land"/>
 	</panel>
-	<string name="status_rotate">
+	<floater.string name="status_rotate">
 		色の付いたバンドをドラッグしてオブジェクトを回転
-	</string>
-	<string name="status_scale">
+	</floater.string>
+	<floater.string name="status_scale">
 		選択した側をクリックし、ドラッグして引き伸ばす
-	</string>
-	<string name="status_move">
+	</floater.string>
+	<floater.string name="status_move">
 		移動：ﾄﾞﾗｯｸﾞ、コピー：Shiftを押しながらﾄﾞﾗｯｸﾞ
-	</string>
-	<string name="status_modifyland">
+	</floater.string>
+	<floater.string name="status_modifyland">
 		土地をクリックし、ボタンを押したまま入力して修正変更
-	</string>
-	<string name="status_camera">
+	</floater.string>
+	<floater.string name="status_camera">
 		クリックしドラッグして視界を調整
-	</string>
-	<string name="status_grab">
+	</floater.string>
+	<floater.string name="status_grab">
 		移動：ﾄﾞﾗｯｸﾞ、持ち上げ：Ctrl、回転：Ctrl+Shift
-	</string>
-	<string name="status_place">
+	</floater.string>
+	<floater.string name="status_place">
 		インワールドでクリックして作成
-	</string>
-	<string name="status_selectland">
+	</floater.string>
+	<floater.string name="status_selectland">
 		土地をクリックし、ドラッグして選択
-	</string>
-	<string name="grid_screen_text">
+	</floater.string>
+	<floater.string name="grid_screen_text">
 		画面
-	</string>
-	<string name="grid_local_text">
+	</floater.string>
+	<floater.string name="grid_local_text">
 		ローカル
-	</string>
-	<string name="grid_world_text">
+	</floater.string>
+	<floater.string name="grid_world_text">
 		世界
-	</string>
-	<string name="grid_reference_text">
+	</floater.string>
+	<floater.string name="grid_reference_text">
 		参照
-	</string>
-	<string name="grid_attachment_text">
+	</floater.string>
+	<floater.string name="grid_attachment_text">
 		アタッチメント
-	</string>
+	</floater.string>
 </floater>

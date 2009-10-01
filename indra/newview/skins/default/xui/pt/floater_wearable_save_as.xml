@@ -2,7 +2,7 @@
 <floater name="modal container" title=" ">
 	<button label="Salvar" label_selected="Salvar" name="Save"/>
 	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
-	<text length="1" name="Save item as:" type="string">
+	<text name="Save item as:">
 		Salvar item como:
 	</text>
 	<line_editor name="name ed">

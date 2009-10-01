@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Water Floater" title="Geavanceerde water editor">
+	<combo_box bottom="-50" height="18" left_delta="116" name="WaterPresetsCombo" width="150" />
 	<text name="KeyFramePresetsText">
 		Watervoorinstellingen
 	</text>
-	<button label="Nieuw" label_selected="Nieuw" name="WaterNewPreset"/>
+	<button label="Nieuw" label_selected="Nieuw" name="WaterNewPreset" left_delta="190"/>
 	<button label="Opslaan" label_selected="Opslaan" name="WaterSavePreset"/>
-	<button label="Verwijderen" label_selected="Verwijderen" name="WaterDeletePreset"/>
+	<button label="Verwijderen" label_selected="Verwijderen" name="WaterDeletePreset" width="80"/>
 	<tab_container name="Water Tabs">
 		<panel label="Instellingen" name="Settings">
 			<text name="BHText">

@@ -33,19 +33,9 @@
 #ifndef LL_LLFLOATERABOUT_H
 #define LL_LLFLOATERABOUT_H
 
-#include "llfloater.h"
-
-class LLFloaterAbout 
-	: public LLFloater
+namespace LLFloaterAboutUtil
 {
-	friend class LLFloaterReg;
-private:
-	LLFloaterAbout(const LLSD& key);
-	virtual ~LLFloaterAbout();
-
-public:
-	/*virtual*/ BOOL postBuild();
-};
-
+	void registerFloater();
+}
 
 #endif // LL_LLFLOATERABOUT_H

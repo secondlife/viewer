@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
-	<text length="1" name="payee_group" type="string" width="95">
+	<text name="payee_group" width="95">
 		Payer le groupe :
 	</text>
-	<text length="1" name="payee_resident" type="string" width="100" halign="left" >
+	<text name="payee_resident" width="100" halign="left" >
 		Payer le résident :
 	</text>
-	<text length="1" name="payee_name" type="string" left="105">
+	<text name="payee_name" left="105">
 		[FIRST] [LAST]
 	</text>
-	<text length="1" name="object_name_label" type="string" left="25">
+	<text name="object_name_label" left="25">
 		Via un objet :
 	</text>
-	<text length="1" name="object_name_text" type="string" left="105">
+	<text name="object_name_text" left="105">
 		...
 	</text>
-	<text length="1" name="fastpay text" type="string" width="95">
+	<text name="fastpay text" width="95">
 		Paiement rapide :
 	</text>
-	<text length="1" name="amount text" type="string" left="5" halign="left">
+	<text name="amount text" left="5" halign="left">
 		Montant :
 	</text>
 	<button label="1 L$" label_selected="1 L$" name="fastpay 1" left="105" />

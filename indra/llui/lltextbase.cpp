@@ -420,8 +420,9 @@ BOOL LLTextBase::handleToolTipForUrl(LLView *view, S32 x, S32 y, std::string& ms
 		LLToolTipMgr::instance().show(LLToolTipParams()
 			.message(tooltip_msg)
 			.sticky_rect(sticky_rect_screen));
+		return TRUE;
 	}
-	return TRUE;
+	return FALSE;
 }
 
 LLContextMenu *LLTextBase::createUrlContextMenu(const std::string &in_url)

@@ -1908,4 +1908,3 @@ bool LLLightImageParams::fromLLSD(LLSD& sd)
 	
 	return false;
 }
-

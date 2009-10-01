@@ -148,11 +148,11 @@ void LLFloaterPostcard::draw()
 		F32 ratio = (F32)mJPEGImage->getWidth() / (F32)mJPEGImage->getHeight();
 		if ((F32)rect.getWidth() / (F32)rect.getHeight() >= ratio)
 		{
-			rect.mRight = (S32)((F32)rect.mLeft + ((F32)rect.getHeight() * ratio));
+			rect.mRight = LLRect::tCoordType((F32)rect.mLeft + ((F32)rect.getHeight() * ratio));
 		}
 		else
 		{
-			rect.mBottom = (S32)((F32)rect.mTop - ((F32)rect.getWidth() / ratio));
+			rect.mBottom = LLRect::tCoordType((F32)rect.mTop - ((F32)rect.getWidth() / ratio));
 		}
 		{
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);

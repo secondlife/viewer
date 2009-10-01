@@ -5,6 +5,7 @@
  height="500"
  layout="topleft"
  name="modal container"
+ help_topic="modal_container"
  width="600">
     <floater.string
      name="real_url">

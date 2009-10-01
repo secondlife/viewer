@@ -174,6 +174,10 @@ public:
 	static void loadIdentity();
 	static void translate(F32 x, F32 y, F32 z = 0.0f);
 
+	static LLRect	sDirtyRect;
+	static BOOL		sDirty;
+	static void		dirtyRect(LLRect rect);
+
 	// Return the ISO639 language name ("en", "ko", etc.) for the viewer UI.
 	// http://www.loc.gov/standards/iso639-2/php/code_list.php
 	static std::string getLanguage();

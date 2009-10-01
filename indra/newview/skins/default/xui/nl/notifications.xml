@@ -983,7 +983,7 @@ Vriendschap aanbieden aan [NAME]?
 
 Vriendschap aanbieden aan [NAME]?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Wilt U mijn vriend zijn?
 			</input>
 			<button name="Offer" text="OK"/>
@@ -1391,7 +1391,7 @@ Om een groep te verlaten, selecteer de &apos;Groep..&apos; optie via het &apos;B
 	<notification name="KickUser">
 		Verwijder deze gebruiker met welk bericht?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Een administrator heeft u uitgelogd.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1401,7 +1401,7 @@ Om een groep te verlaten, selecteer de &apos;Groep..&apos; optie via het &apos;B
 	<notification name="KickAllUsers">
 		Verwijder iedereen momenteel op het grid met welk bericht?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Een administrator heeft u uitgelogd.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1411,7 +1411,7 @@ Om een groep te verlaten, selecteer de &apos;Groep..&apos; optie via het &apos;B
 	<notification name="FreezeUser">
 		Bevries deze gebruiker met welk bericht?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				U bent bevroren. U kunt zich niet verplaatsen of praten. Een administrator zal contact met u opnemen via instant message (IM).
 			</input>
 			<button name="OK" text="OK"/>
@@ -1421,7 +1421,7 @@ Om een groep te verlaten, selecteer de &apos;Groep..&apos; optie via het &apos;B
 	<notification name="UnFreezeUser">
 		Ontdooi deze gebruiker met welk bericht?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				U bent niet langer bevroren.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1431,7 +1431,7 @@ Om een groep te verlaten, selecteer de &apos;Groep..&apos; optie via het &apos;B
 	<notification name="OfferTeleport">
 		Een Teleport aanbieden naar uw locatie met welk bericht?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Voeg u bij mij in [REGION]
 			</input>
 			<button name="OK" text="OK"/>
@@ -1441,7 +1441,7 @@ Om een groep te verlaten, selecteer de &apos;Groep..&apos; optie via het &apos;B
 	<notification name="OfferTeleportFromGod">
 		God beveel gebruiker naar uw locatie?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Voeg u bij mij in [REGION]
 			</input>
 			<button name="OK" text="OK"/>
@@ -1455,7 +1455,7 @@ Om een groep te verlaten, selecteer de &apos;Groep..&apos; optie via het &apos;B
 	<notification label="Bericht iedereen in uw Estate" name="MessageEstate">
 		Type een kort bericht om naar iedereen sturen die momenteel in uw Estate aanwezig is.
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Annuleren"/>
 		</form>
@@ -1678,7 +1678,7 @@ Advertentie nu Publiceren voor L$[AMOUNT]?
 	<notification label="Bericht iedereen in deze regio" name="MessageRegion">
 		Type een kort bericht om naar iedereen sturen die momenteel in regio aanwezig is.
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Annuleren"/>
 		</form>
@@ -1971,14 +1971,14 @@ De inhoud zal naar uw inventaris gekopieerd worden.
 Weet u zeker dat u verder wilt gaan met deze aankoop?
 		<usetemplate name="okcancelbuttons" notext="Annuleren" yestext="OK"/>
 	</notification>
-	<notification name="ConfirmPurchasePassword" type="password">
+	<notification name="ConfirmPurchasePassword">
 		Deze transactie zal:
 [ACTION]
 
 Weet u zeker dat u verder wilt gaan met deze aankoop?
 Voer alstublieft opnieuw uw wachtwoord in en klik op OK.
 		<form name="form">
-			<input name="message" type="password"/>
+			<input name="message"/>
 			<button name="ConfirmPurchase" text="OK"/>
 			<button name="Cancel" text="Annuleren"/>
 		</form>
@@ -2351,7 +2351,7 @@ Gelijkwaardig aan azimut.
 	<notification name="NewSkyPreset">
 		Geef een naam op voor de nieuwe lucht.
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Nieuwe Voorinstelling
 			</input>
 			<button name="OK" text="OK"/>
@@ -2364,7 +2364,7 @@ Gelijkwaardig aan azimut.
 	<notification name="NewWaterPreset">
 		Geef een naam voor de nieuwe voorinstelling van water.
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Nieuwe Voorinstelling
 			</input>
 			<button name="OK" text="OK"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel label="Grafik" name="Display panel">
-	<text type="string" length="1" name="text">
+	<text name="text">
 		Anzeigeauflösung:
 	</text>
 	<button label=" ?" name="GraphicsPreferencesHelpButton" />
@@ -8,10 +8,10 @@
 	<text_editor name="voice_chat_description">
 		Wenn deaktiviert Anzeige bei Anmeldung in Vollbild.
 	</text_editor>
-	<text type="string" length="1" name="Fullscreen Aspect Ratio:">
+	<text name="Fullscreen Aspect Ratio:">
 		Vollbild-Aspektverhältnis:
 	</text>
-	<text type="string" length="1" name="(width / height)">
+	<text name="(width / height)">
 		(Breite/Höhe)
 	</text>
 	<text_editor name="FullScreenInfo" width="480">
@@ -35,19 +35,19 @@
 		Aspektverhältnis:
 	</text>
 	<combo_box left="115" name="aspect_ratio" tool_tip="Breite/Höhe">
-		<combo_box.item type="string" length="1" name="4:3(StandardCRT)" label="4:3 (Standard-CRT)" />
-		<combo_box.item type="string" length="1" name="5:4(1280x1024LCD)" label="5:4 (1280x1024 LCD)" />
+		<combo_box.item name="4:3(StandardCRT)" label="4:3 (Standard-CRT)" />
+		<combo_box.item name="5:4(1280x1024LCD)" label="5:4 (1280x1024 LCD)" />
 		<combo_box.item name="8:5(Widescreen)" label="8:5 (Widescreen)" />
-		<combo_box.item type="string" length="1" name="16:9(Widescreen)" label="16:9 (Widescreen)" />
+		<combo_box.item name="16:9(Widescreen)" label="16:9 (Widescreen)" />
 	</combo_box>
 	<check_box label="Verhältnis automatisch erkennen" left="275" name="aspect_auto_detect" />
-	<text type="string" length="1" name="UI Size:">
+	<text name="UI Size:">
 		UI-Größe:
 	</text>
-	<text type="string" length="1" name="(meters, lower is faster)">
+	<text name="(meters, lower is faster)">
 		(Meter, niedriger ist schneller)
 	</text>
-	<text type="string" length="1" name="text2">
+	<text name="text2">
 		Anzeigeoptionen:
 	</text>
 	<check_box label="Auflösungsunabhängigen Maßstab verwenden" name="ui_auto_scale" />
@@ -81,6 +81,7 @@
 		Qualität
 	</text>
 	<check_box label="Benutzerdefiniert" name="CustomSettings" />
+	<panel name="CustomGraphics Panel">
 	<text name="ShadersText">
 		Shader:
 	</text>
@@ -157,13 +158,14 @@
 		<radio_item name="0" label="Niedrig" />
 		<radio_item name="2" label="Hoch" />
 	</radio_group>
+	</panel>
 	<button label="Empfohlene Einstellungen" name="Defaults" />
 	<button label="Hardware-Optionen" label_selected="Hardware-Optionen"
 	     name="GraphicsHardwareButton" />
-	<text name="resolution_format">
+	<panel.string name="resolution_format">
 		[RES_X] x [RES_Y]
-	</text>
-	<text name="aspect_ratio_text">
+	</panel.string>
+	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
-	</text>
+	</panel.string>
 </panel>

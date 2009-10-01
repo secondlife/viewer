@@ -3,6 +3,7 @@
  height="180"
  layout="topleft"
  name="perm prefs"
+ help_topic="perm_prefs"
  save_rect="true"
  title="Default Upload Permissions"
  width="315">

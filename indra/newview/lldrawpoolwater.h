@@ -71,10 +71,12 @@ public:
 	/*virtual*/ LLDrawPool *instancePool();
 	static void restoreGL();
 	
-	/*virtual*/ S32 getNumPostDeferredPasses() { return getNumPasses(); }
+	/*virtual*/ S32 getNumPostDeferredPasses() { return 0; } //getNumPasses(); }
 	/*virtual*/ void beginPostDeferredPass(S32 pass);
 	/*virtual*/ void endPostDeferredPass(S32 pass);
 	/*virtual*/ void renderPostDeferred(S32 pass) { render(pass); }
+	/*virtual*/ S32 getNumDeferredPasses() { return 1; }
+	/*virtual*/ void renderDeferred(S32 pass = 0);
 
 	/*virtual*/ S32 getNumPasses();
 	/*virtual*/ void render(S32 pass = 0);

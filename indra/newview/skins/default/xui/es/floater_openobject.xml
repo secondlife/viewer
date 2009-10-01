@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="objectcontents" title="Contenido del objeto">
-	<text length="1" name="object_name" type="string">
+	<text name="object_name">
 		[DESC]:
 	</text>
 	<button label="Copiar al inventario" label_selected="Copiar al inventario" name="copy_to_inventory_button"/>

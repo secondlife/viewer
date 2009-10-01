@@ -3,6 +3,7 @@
  height="400"
  layout="topleft"
  name="Post-Process Floater"
+ help_topic="post_process_floater"
  title="Post-Process Settings"
  width="400">
     <tab_container

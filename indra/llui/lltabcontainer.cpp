@@ -329,10 +329,13 @@ void LLTabContainer::draw()
 	}
 	
 	// Hide all the buttons
-	for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
+	if (getTabsHidden())
 	{
-		LLTabTuple* tuple = *iter;
-		tuple->mButton->setVisible( FALSE );
+		for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
+		{
+			LLTabTuple* tuple = *iter;
+			tuple->mButton->setVisible( FALSE );
+		}
 	}
 
 	LLPanel::draw();

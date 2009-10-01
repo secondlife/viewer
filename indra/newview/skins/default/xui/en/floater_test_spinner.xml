@@ -4,19 +4,21 @@
  height="400"
  layout="topleft"
  name="floater_test_spinner"
+ help_topic="floater_test_spinner"
  width="450">
     <spinner
-     height="20"
+     height="32"
      label="Generic Spinner"
      layout="topleft"
      left="10"
+     label_width="100"
      name="generic_spinner"
      top="40"
      width="350" />
     <spinner
      height="20"
      label="Callback Spinner"
-     label_width="80"
+     label_width="100"
      layout="topleft"
      left_delta="0"
      name="callback_spinner"

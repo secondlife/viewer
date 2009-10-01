@@ -15,12 +15,8 @@
 	<button label="Send" name="send_btn"/>
 	<button label="Gem (L$[AMOUNT])" name="upload_btn"/>
 	<flyout_button label="Gem" name="save_btn" tool_tip="Gem billede i på din computer">
-		<flyout_button_item name="save_item">
-			Gem
-		</flyout_button_item>
-		<flyout_button_item name="saveas_item">
-			Gem som...
-		</flyout_button_item>
+		<flyout_button_item name="save_item" label="Gem"/>
+		<flyout_button_item name="saveas_item" label="Gem som..."/>
 	</flyout_button>
 	<button label="Annullér" name="discard_btn"/>
 	<button label="Mere &gt;&gt;" name="more_btn" tool_tip="Avancerede valg"/>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Map">
+	<floater.string name="mini_map_north">
+		N
+	</floater.string>
+	<floater.string name="mini_map_east">
+		Ø
+	</floater.string>
+	<floater.string name="mini_map_west">
+		V
+	</floater.string>
+	<floater.string name="mini_map_south">
+		S
+	</floater.string>
+	<floater.string name="mini_map_southeast">
+		SØ
+	</floater.string>
+	<floater.string name="mini_map_northeast">
+		NØ
+	</floater.string>
+	<floater.string name="mini_map_southwest">
+		SV
+	</floater.string>
+	<floater.string name="mini_map_northwest">
+		NV
+	</floater.string>
+	<text label="N" name="floater_map_north" text="N">
+		N
+	</text>
+	<text label="Ø" name="floater_map_east" text="Ø">
+		Ø
+	</text>
+	<text label="V" name="floater_map_west" text="V">
+		V
+	</text>
+	<text label="S" name="floater_map_south" text="S">
+		S
+	</text>
+	<text label="SØ" name="floater_map_southeast" text="SØ">
+		SØ
+	</text>
+	<text label="NØ" name="floater_map_northeast" text="NØ">
+		NØ
+	</text>
+	<text label="SV" name="floater_map_southwest" text="SV">
+		SV
+	</text>
+	<text label="NV" name="floater_map_northwest" text="NV">
+		NV
+	</text>
+</floater>

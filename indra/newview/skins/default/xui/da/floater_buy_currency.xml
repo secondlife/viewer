@@ -63,6 +63,6 @@ og prøv igen.
 	<button label="Annullér" name="cancel_btn" />
 	<button label="Køb" name="buy_btn" />
 	<string name="buy_currency">
-		Buy L$ [LINDENS] for approx. US$ [USD]
+		Køb L$ [LINDENS] for ca. US$ [USD]
 	</string>
 </floater>

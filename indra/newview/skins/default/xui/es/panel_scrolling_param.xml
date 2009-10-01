@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="LLScrollingPanelParam">
-	<text length="1" name="Loading..." type="string">
+	<text name="Loading...">
 		Cargando...
 	</text>
-	<text length="1" name="Loading...2" type="string">
+	<text name="Loading...2">
 		Cargando...
 	</text>
 	<slider label="[DESC]" name="param slider"/>

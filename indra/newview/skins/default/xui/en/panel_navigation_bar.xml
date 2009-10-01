@@ -2,7 +2,7 @@
 <panel
  background_opaque="true"
  background_visible="true"
- bg_opaque_color="0.25 0.25 0.25 1"
+ bg_opaque_color="MouseGray"
  follows="left|top|right"
  height="60"
  layout="topleft"
@@ -14,7 +14,7 @@
 	 height="60"
 	 layout="topleft"
 	 name="navigation_panel"
-	 width="600">	 
+	 width="600">
 	     <button
 	     follows="left|top"
 	     font="SansSerifSmall"
@@ -32,7 +32,7 @@
 	     tool_tip="Go back to previous location"
 	     top="3"
 	     width="31" />
-	
+
 	    <button
 	     follows="left|top"
 	     font="SansSerifSmall"
@@ -90,7 +90,7 @@
 	         width="20" />
 	      -->
 	    </location_input>
-	
+
 	<!--     <button -->
 	<!--      follows="right|top" -->
 	<!--      height="20" -->
@@ -128,7 +128,7 @@
           label="Search" />
         </search_combo_box>
 	</panel>
-	
+
     <favorites_bar
      follows="left|right|top"
      height="25"

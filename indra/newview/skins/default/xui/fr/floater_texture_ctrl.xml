@@ -3,10 +3,10 @@
 	<string name="choose_picture">
 		Cliquez pour sélectionner une image
 	</string>
-	<text length="1" name="Multiple" type="string">
+	<text name="Multiple">
 		Multiple
 	</text>
-	<text length="1" name="unknown" type="string">
+	<text name="unknown">
 		Dimensions : [DIMENSIONS]
 	</text>
 	<button label="Défaut" label_selected="Défaut" name="Default" width="60" />

@@ -13,17 +13,17 @@
 	<string name="loading_txt">
 		Cargando...
 	</string>
-	<text name="group_land_heading">
+	<text name="group_land_heading" width="250">
 		Terreno propiedad del grupo
 	</text>
 	<scroll_list name="group_parcel_list">
-		<column label="Parcela" name="name"/>
-		<column label="Región" name="location"/>
-		<column label="Tipo" name="type"/>
-		<column label="Superficie" name="area"/>
+		<column label="Parcela" name="name" width="100"/>
+		<column label="Región" name="location" width="100"/>
+		<column label="Tipo" name="type" width="100"/>
+		<column label="Superficie" name="area" width="81"/>
 		<column label="" name="hidden"/>
 	</scroll_list>
-	<button label="Mostrar en el mapa" label_selected="Mostrar en el mapa" name="map_button"/>
+	<button label="Mostrar en el mapa" label_selected="Mostrar en el mapa" name="map_button" left="282" width="130"/>
 	<text name="total_contributed_land_label">
 		Contribución total:
 	</text>
@@ -52,7 +52,8 @@
 		m² ([AMOUNT] máx.)
 	</text>
 	<text name="group_over_limit_text">
-		Los miembros del grupo deben contribuir con más créditos de terreno para mantener el terreno en uso.
+		Los miembros del grupo deben contribuir con más créditos de terreno
+para mantener el terreno en uso.
 	</text>
 	<text name="group_money_heading">
 		L$ del grupo

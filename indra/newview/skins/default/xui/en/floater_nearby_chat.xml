@@ -7,6 +7,7 @@
  height="300"
  layout="topleft"
  name="nearby_chat"
+ help_topic="nearby_chat"
  save_rect="true"
  title="Nearby Chat"
  single_instance="true"

@@ -7,6 +7,7 @@
  min_height="240"
  min_width="365"
  name="floater_my_friends"
+ help_topic="floater_my_friends"
  save_rect="true"
  single_instance="true"
  title="Contacts"

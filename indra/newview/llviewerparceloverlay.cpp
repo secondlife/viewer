@@ -53,6 +53,8 @@
 #include "llselectmgr.h"
 #include "llfloatertools.h"
 #include "llglheaders.h"
+#include "pipeline.h"
+
 
 const U8  OVERLAY_IMG_COMPONENTS = 4;
 
@@ -72,8 +74,6 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
 	// Use mipmaps = FALSE, clamped, NEAREST filter, for sharp edges	
 	mImageRaw = new LLImageRaw(mParcelGridsPerEdge, mParcelGridsPerEdge, OVERLAY_IMG_COMPONENTS);
 	mTexture = LLViewerTextureManager::getLocalTexture(mImageRaw.get(), FALSE);
-	gGL.getTexUnit(0)->activate();
-	gGL.getTexUnit(0)->bind(mTexture);
 	mTexture->setAddressMode(LLTexUnit::TAM_CLAMP);
 	mTexture->setFilteringOption(LLTexUnit::TFO_POINT);
 
@@ -87,7 +87,7 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
 	{
 		raw[i] = 0;
 	}
-	mTexture->setSubImage(mImageRaw, 0, 0, mParcelGridsPerEdge, mParcelGridsPerEdge);
+	//mTexture->setSubImage(mImageRaw, 0, 0, mParcelGridsPerEdge, mParcelGridsPerEdge);
 
 	// Create storage for ownership information from simulator
 	// and initialize it.
@@ -97,8 +97,7 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
 		mOwnership[i] = PARCEL_PUBLIC;
 	}
 
-	// Make sure the texture matches the ownership information.
-	updateOverlayTexture();
+	gPipeline.markGLRebuild(this);
 }
 
 
@@ -283,6 +282,10 @@ void LLViewerParcelOverlay::updateOverlayTexture()
 	// Copy data into GL texture from raw data
 	if (i >= COUNT)
 	{
+		if (!mTexture->hasGLTexture())
+		{
+			mTexture->createGLTexture(0, mImageRaw);
+		}
 		mTexture->setSubImage(mImageRaw, 0, 0, mParcelGridsPerEdge, mParcelGridsPerEdge);
 		mOverlayTextureIdx = -1;
 	}
@@ -709,6 +712,11 @@ void LLViewerParcelOverlay::setDirty()
 	mDirty = TRUE;
 }
 
+void LLViewerParcelOverlay::updateGL()
+{
+	updateOverlayTexture();
+}
+
 void LLViewerParcelOverlay::idleUpdate(bool force_update)
 {
 	LLMemType mt_iup(LLMemType::MTYPE_IDLE_UPDATE_PARCEL_OVERLAY);
@@ -719,7 +727,7 @@ void LLViewerParcelOverlay::idleUpdate(bool force_update)
 	if (mOverlayTextureIdx >= 0 && (!(mDirty && force_update)))
 	{
 		// We are in the middle of updating the overlay texture
-		updateOverlayTexture();
+		gPipeline.markGLRebuild(this);
 		return;
 	}
 	// Only if we're dirty and it's been a while since the last update.

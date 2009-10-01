@@ -93,6 +93,17 @@ public:
 		PLANE_TOP_MASK = (1<<PLANE_TOP),
 		PLANE_ALL_MASK = 0xf
 	};
+
+	enum
+	{
+		AGENT_PLANE_LEFT = 0,
+		AGENT_PLANE_RIGHT,
+		AGENT_PLANE_NEAR,
+		AGENT_PLANE_BOTTOM,
+		AGENT_PLANE_TOP,
+		AGENT_PLANE_FAR,
+	};
+
 	enum {
 		HORIZ_PLANE_LEFT = 0,
 		HORIZ_PLANE_RIGHT = 1,
@@ -132,7 +143,8 @@ private:
 public:
 	LLVector3 mAgentFrustum[8];  //8 corners of 6-plane frustum
 	F32	mFrustumCornerDist;		//distance to corner of frustum against far clip plane
-	
+	LLPlane getAgentPlane(U32 idx) { return mAgentPlanes[idx].p; }
+
 public:
 	LLCamera();
 	LLCamera(F32 vertical_fov_rads, F32 aspect_ratio, S32 view_height_in_pixels, F32 near_plane, F32 far_plane);
@@ -179,6 +191,8 @@ public:
 	// Return number of bytes copied.
 	size_t readFrustumFromBuffer(const char *buffer);
 	void calcAgentFrustumPlanes(LLVector3* frust);
+	void ignoreAgentFrustumPlane(S32 idx);
+
 	// Returns 1 if partly in, 2 if fully in.
 	// NOTE: 'center' is in absolute frame.
 	S32 sphereInFrustumOld(const LLVector3 &center, const F32 radius) const;

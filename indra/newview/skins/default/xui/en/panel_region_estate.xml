@@ -1,25 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- border="true"
+ border="false"
  follows="top|left"
  height="512"
+ top="0"
+ left="0"
  name="EstateWrapper"
  label="Estate"
  layout="topleft"
- width="280">
-  <scroll_container
-   follows="top|left|right|bottom"
-   height="508"
-   name="container1"
-   layout="topleft"
-   width="280">
+ width="313">
     <panel
      follows="top|left"
      height="950"
      label="Estate"
      layout="topleft"
      name="Estate"
-     width="258">
+     width="313">
       <panel.string
        name="email_unsupported">
         Feature unsupported
@@ -30,10 +26,10 @@
        follows="left|top"
        height="32"
        layout="topleft"
-       left="10"
+       left="0"
        name="estate_help_text"
-       top="14"
-       width="300">
+       top="5"
+       width="313">
         Changes to settings on this tab will affect all
         regions in the estate.
       </text>
@@ -41,69 +37,51 @@
        type="string"
        length="1"
        follows="left|top"
-       font="SansSerif"
-       height="20"
+
        layout="topleft"
-       left_delta="0"
        name="estate_text"
-       top_pad="2"
-       width="80">
+       top_pad="5"
+       width="313">
         Estate:
       </text>
       <text
        type="string"
        length="1"
        follows="left|top"
-       font="SansSerif"
-       height="20"
        layout="topleft"
-       left_delta="0"
        name="estate_name"
-       top_delta="16"
-       width="150">
+       top_pad="5"
+       width="313">
         (unknown)
       </text>
       <text
        type="string"
        length="1"
        follows="left|top"
-       font="SansSerif"
-       height="20"
        layout="topleft"
        left_delta="0"
        name="owner_text"
-       top_pad="2"
-       width="80">
-        Owner:
+       top_pad="5"
+       width="313">
+        Estate Owner:
       </text>
       <text
        type="string"
        length="1"
        follows="left|top"
-       font="SansSerif"
-       height="20"
        layout="topleft"
-       left_delta="0"
        name="estate_owner"
-       top_delta="16"
-       width="150">
+       top_pad="5"
+       width="313">
         (unknown)
       </text>
-      <view_border
-       bevel_style="in"
-       follows="top|left"
-       height="290"
-       layout="topleft"
-       left_delta="-4"
-       top_pad="5"
-       width="250" />
       <check_box
-       height="20"
+       height="23"
        label="Use Global Time"
        layout="topleft"
        left="12"
        name="use_global_time_check"
-       top="132"
+       top="102"
        width="200" />
       <button
        follows="left|top"
@@ -116,12 +94,12 @@
        top_delta="2"
        width="18" />
       <check_box
-       height="20"
+       height="23"
        label="Fixed Sun"
        layout="topleft"
        left="12"
        name="fixed_sun_check"
-       top="152"
+       top_pad="10"
        width="100" />
       <button
        follows="left|top"
@@ -134,16 +112,16 @@
        top_delta="2"
        width="18" />
       <icon
-       height="20"
+       height="23"
        image_name="icon_day_cycle.tga"
        layout="topleft"
        left="47"
        name="daycycle"
-       top="177"
+       top_pad="10"
        width="165" />
       <slider
        follows="left|top"
-       height="20"
+       height="23"
        increment="0.001"
        label="Phase"
        layout="topleft"
@@ -152,16 +130,15 @@
        min_val="6"
        name="sun_hour_slider"
        show_text="false"
-       top="202"
+       top_pad="10"
        width="200" />
       <check_box
-       height="20"
+       height="23"
        label="Allow Public Access"
        layout="topleft"
        left_delta="0"
        name="externally_visible_check"
-       top_pad="6"
-       width="200" />
+       top_pad="10" />
       <button
        follows="left|top"
        font="SansSerifSmall"
@@ -180,7 +157,7 @@
        layout="topleft"
        left="32"
        name="Only Allow"
-       top="250"
+       top_pad="5"
        width="278">
         Restrict Access To:
       </text>
@@ -205,12 +182,12 @@
        top_pad="2"
        width="278" />
       <check_box
-       height="20"
+       height="23"
        label="Allow Voice Chat"
        layout="topleft"
        left="12"
        name="voice_chat_check"
-       top="304"
+       top_pad="5"
        width="200" />
       <button
        follows="left|top"
@@ -223,12 +200,12 @@
        top_delta="2"
        width="18" />
       <check_box
-       height="20"
+       height="23"
        label="Allow Direct Teleport"
        layout="topleft"
        left="12"
        name="allow_direct_teleport"
-       top_pad="4"
+       top_pad="0"
        width="80" />
       <button
        follows="left|top"
@@ -244,12 +221,12 @@
        type="string"
        length="1"
        follows="left|top"
-       height="20"
+       height="23"
        layout="topleft"
        left="10"
        name="abuse_email_text"
        top_pad="5"
-       width="180">
+       width="313">
         Abuse email address:
       </text>
       <line_editor
@@ -258,8 +235,8 @@
        layout="topleft"
        left="15"
        name="abuse_email_address"
-       top_pad="5"
-       width="205" />
+       top_pad="0"
+       width="250" />
       <button
        follows="left|top"
        font="SansSerifSmall"
@@ -273,7 +250,7 @@
       <button
        enabled="false"
        follows="left|top"
-       height="20"
+       height="23"
        label="Apply"
        layout="topleft"
        name="apply_btn"
@@ -282,7 +259,7 @@
        width="90" />
       <button
        follows="left|top"
-       height="20"
+       height="23"
        label="Send Message To Estate..."
        layout="topleft"
        left="8"
@@ -291,7 +268,7 @@
        width="250" />
       <button
        follows="left|top"
-       height="20"
+       height="23"
        label="Kick User from Estate..."
        layout="topleft"
        left="8"
@@ -303,7 +280,7 @@
        length="1"
        top="490"
        follows="left|top"
-       height="20"
+       height="23"
        layout="topleft"
        name="estate_manager_label"
        left="8"
@@ -320,26 +297,18 @@
        name="estate_manager_help"
        top_delta="-1"
        width="18" />
-      <view_border
-       bevel_style="none"
-       follows="top|left"
-       height="60"
-       layout="topleft"
-       left="8"
-       top_pad="5"
-       width="250" />
       <name_list
        follows="left|top"
        height="60"
        layout="topleft"
-       left_delta="0"
+       left="8"
        multi_select="true"
        name="estate_manager_name_list"
-       top_delta="0"
-       width="250" />
+       top_pad="0"
+       width="300" />
       <button
        follows="left|top"
-       height="20"
+       height="23"
        label="Add..."
        layout="topleft"
        left="8"
@@ -348,7 +317,7 @@
        width="90" />
       <button
        follows="left|top"
-       height="20"
+       height="23"
        label="Remove..."
        layout="topleft"
        name="remove_estate_manager_btn"
@@ -359,7 +328,7 @@
        type="string"
        length="1"
        follows="left|top"
-       height="20"
+       height="23"
        layout="topleft"
        left="8"
        name="allow_resident_label"
@@ -377,26 +346,18 @@
        name="allow_resident_help"
        top_delta="-1"
        width="18" />
-      <view_border
-       bevel_style="none"
-       follows="top|left"
-       height="60"
-       layout="topleft"
-       left="8"
-       top_pad="5"
-       width="250" />
       <name_list
        follows="left|top"
        height="60"
        layout="topleft"
-       left_delta="0"
+       left="8"
        multi_select="true"
        name="allowed_avatar_name_list"
-       top_delta="0"
-       width="250" />
+       top_pad="0"
+       width="300" />
       <button
        follows="left|top"
-       height="20"
+       height="23"
        label="Add..."
        layout="topleft"
        left="8"
@@ -405,7 +366,7 @@
        width="90" />
       <button
        follows="left|top"
-       height="20"
+       height="23"
        label="Remove..."
        layout="topleft"
        name="remove_allowed_avatar_btn"
@@ -416,7 +377,7 @@
        type="string"
        length="1"
        follows="left|top"
-       height="20"
+       height="23"
        layout="topleft"
        left="8"
        name="allow_group_label"
@@ -434,26 +395,18 @@
        name="allow_group_help"
        top_delta="-1"
        width="18" />
-      <view_border
-       bevel_style="none"
-       follows="top|left"
-       height="60"
-       layout="topleft"
-       left="8"
-       top_pad="5"
-       width="250" />
       <name_list
        follows="left|top"
        height="60"
        layout="topleft"
-       left_delta="0"
+       left="8"
        multi_select="true"
        name="allowed_group_name_list"
-       top_delta="0"
-       width="250" />
+       top_pad="0"
+       width="300" />
       <button
        follows="left|top"
-       height="20"
+       height="23"
        label="Add..."
        layout="topleft"
        left="8"
@@ -462,7 +415,7 @@
        width="90" />
       <button
        follows="left|top"
-       height="20"
+       height="23"
        label="Remove..."
        layout="topleft"
        name="remove_allowed_group_btn"
@@ -473,7 +426,7 @@
        type="string"
        length="1"
        follows="left|top"
-       height="20"
+       height="23"
        layout="topleft"
        left="8"
        name="ban_resident_label"
@@ -491,26 +444,18 @@
        name="ban_resident_help"
        top_delta="-1"
        width="18" />
-      <view_border
-       bevel_style="none"
-       follows="top|left"
-       height="60"
-       layout="topleft"
-       left="8"
-       top_pad="5"
-       width="250" />
       <name_list
        follows="left|top"
        height="60"
        layout="topleft"
-       left_delta="0"
+       left="8"
        multi_select="true"
        name="banned_avatar_name_list"
-       top_delta="0"
-       width="250" />
+       top_pad="0"
+       width="300" />
       <button
        follows="left|top"
-       height="20"
+       height="23"
        label="Add..."
        layout="topleft"
        left="8"
@@ -519,7 +464,7 @@
        width="90" />
       <button
        follows="left|top"
-       height="20"
+       height="23"
        label="Remove..."
        layout="topleft"
        name="remove_banned_avatar_btn"
@@ -527,5 +472,4 @@
        top_delta="0"
        width="90" />
     </panel>
-  </scroll_container>
 </panel>

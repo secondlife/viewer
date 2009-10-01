@@ -6,7 +6,7 @@
 	<button label="Nuevo" label_selected="Nuevo" name="WLNewPreset"/>
 	<button label="Guardar" label_selected="Guardar" name="WLSavePreset"/>
 	<button label="Borrar" label_selected="Borrar" name="WLDeletePreset"/>
-	<button label="Editor del ciclo de un día" label_selected="Editor del ciclo de un día" name="WLDayCycleMenuButton"/>
+	<button font="SansSerifSmall" width="150" left_delta="90" label="Editor del ciclo de un día" label_selected="Editor del ciclo de un día" name="WLDayCycleMenuButton"/>
 	<tab_container name="WindLight Tabs">
 		<panel label="Atmósfera" name="Atmosphere">
 			<text name="BHText">
@@ -122,7 +122,7 @@
 			<text name="WLCloudColorText">
 				Color de las nubes
 			</text>
-			<button label="?" name="WLCloudColorHelp"/>
+			<button label="?" name="WLCloudColorHelp" left="190" />
 			<text name="BHText">
 				R
 			</text>
@@ -138,7 +138,7 @@
 			<text name="WLCloudColorText2">
 				Posición/Densidad de las nubes
 			</text>
-			<button label="?" name="WLCloudDensityHelp"/>
+			<button label="?" name="WLCloudDensityHelp" left="190"/>
 			<text name="BHText5">
 				X
 			</text>
@@ -156,11 +156,12 @@
 				Altitud de las nubes
 			</text>
 			<button label="?" name="WLCloudScaleHelp"/>
-			<text name="WLCloudDetailText">
-				Detalle de las nubes (Posición/Densidad)
+			<text name="WLCloudDetailText" font="SansSerifSmall">
+				Detalle de las nubes
+(Posición/Densidad)
 			</text>
 			<button label="?" name="WLCloudDetailHelp"/>
-			<text name="BHText8">
+			<text name="BHText8" bottom="-113">
 				X
 			</text>
 			<text name="BHText9">
@@ -169,18 +170,19 @@
 			<text name="BHText10">
 				D
 			</text>
+			<slider bottom="-127" name="WLCloudDetailX"/>
 			<text name="WLCloudScrollXText">
-				Velocidad de las nubes: X
+				Velocidad de X
 			</text>
 			<button label="?" name="WLCloudScrollXHelp"/>
 			<check_box label="Bloquear" name="WLCloudLockX"/>
 			<text name="WLCloudScrollYText">
-				Velocidad de las nubes: Y
+				Velocidad de Y
 			</text>
 			<button label="?" name="WLCloudScrollYHelp"/>
 			<check_box label="Bloquear" name="WLCloudLockY"/>
 			<check_box label="Incluir nubes clásicas" name="DrawClassicClouds"/>
-			<button label="?" name="WLClassicCloudsHelp"/>
+			<button label="?" name="WLClassicCloudsHelp" left="618"/>
 		</panel>
 	</tab_container>
 	<string name="WLDefaultSkyNames">

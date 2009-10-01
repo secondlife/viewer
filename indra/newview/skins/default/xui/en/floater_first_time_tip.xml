@@ -5,6 +5,7 @@
  height="250"
  layout="topleft"
  name="set_name_in_the_cladd"
+ help_topic="set_name_in_the_cladd"
  save_rect="true"
  width="300">
     <check_box

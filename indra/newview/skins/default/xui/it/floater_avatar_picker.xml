@@ -14,13 +14,15 @@
 		</panel>
 		<panel label="Vicino a me" name="NearMePanel">
 			<text name="InstructSelectResident">
-				Seleziona un residente nelle vicinanze:
+				Seleziona un residente
+nelle vicinanze:
 			</text>
-			<button label="Aggiorna la lista" label_selected="Aggiorna l&apos;elenco" name="Refresh"/>
-			<slider label="Range" name="near_me_range"/>
+			<button font="SansSerifSmall" left_delta="6" width="110" label="Aggiorna la lista" label_selected="Aggiorna l&apos;elenco" name="Refresh"/>
+			<slider label="Range" name="near_me_range" bottom_delta="-36"/>
 			<text name="meters">
 				Metri
 			</text>
+		<scroll_list bottom_delta="-169" height="159" name="NearMe"  />
 		</panel>
 	</tab_container>
 	<button label="Seleziona" label_selected="Seleziona" name="Select"/>

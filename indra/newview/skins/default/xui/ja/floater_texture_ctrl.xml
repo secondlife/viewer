@@ -3,10 +3,10 @@
 	<string name="choose_picture">
 		クリックして写真を選択
 	</string>
-	<text type="string" length="1" name="Multiple">
+	<text name="Multiple">
 		複数
 	</text>
-	<text type="string" length="1" name="unknown">
+	<text name="unknown">
 		寸法: [DIMENSIONS]
 	</text>
 	<button label="ﾃﾞﾌｫﾙﾄ" label_selected="ﾃﾞﾌｫﾙﾄ" name="Default" />

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
 	name="floater_activeim"
+	help_topic="floater_activeim"
 	title="ACTIVE IM"
 	top="26"
 	left="0"

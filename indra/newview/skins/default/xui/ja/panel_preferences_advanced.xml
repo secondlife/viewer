@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel name="advanced">
+	<text name="AspectRatioLabel1" tool_tip="（幅/高さ）">
+		縦横比：
+	</text>
+	<combo_box name="aspect_ratio" tool_tip="（幅/高さ）">
+		<combo_box.item label="4：3（標準CRT）" name="item1"/>
+		<combo_box.item label="5：4（1280x1024 LCD）" name="item2"/>
+		<combo_box.item label="8：5（ワイドスクリ－ン）" name="item3"/>
+		<combo_box.item label="16：9（ワイドスクリ－ン）" name="item4"/>
+	</combo_box>
+</panel>

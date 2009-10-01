@@ -80,46 +80,46 @@
 			<button label="Abbandona la terra..." label_selected="Abbandona la terra..." name="Abandon Land..."/>
 			<button label="Reclama la terra..." label_selected="Reclama la terra..." name="Reclaim Land..."/>
 			<button label="Vendita Linden..." label_selected="Vendita Linden..." name="Linden Sale..." tool_tip="La terra deve essere posseduta, con contenuto impostato, e non già messa in asta."/>
-			<string name="new users only">
+			<panel.string name="new users only">
 				Solo ai nuovi residenti
-			</string>
-			<string name="anyone">
+			</panel.string>
+			<panel.string name="anyone">
 				A chiunque
-			</string>
-			<string name="area_text">
+			</panel.string>
+			<panel.string name="area_text">
 				Area
-			</string>
-			<string name="area_size_text">
+			</panel.string>
+			<panel.string name="area_size_text">
 				[AREA] m²
-			</string>
-			<string name="auction_id_text">
+			</panel.string>
+			<panel.string name="auction_id_text">
 				Asta n.: [ID]
-			</string>
-			<string name="need_tier_to_modify">
+			</panel.string>
+			<panel.string name="need_tier_to_modify">
 				Devi confermare l&apos;acquisto prima di poter modificare il terreno.
-			</string>
-			<string name="group_owned_text">
+			</panel.string>
+			<panel.string name="group_owned_text">
 				(Posseduta dal gruppo)
-			</string>
-			<string name="profile_text">
+			</panel.string>
+			<panel.string name="profile_text">
 				Profilo...
-			</string>
-			<string name="info_text">
+			</panel.string>
+			<panel.string name="info_text">
 				Info...
-			</string>
-			<string name="public_text">
+			</panel.string>
+			<panel.string name="public_text">
 				(pubblica)
-			</string>
-			<string name="none_text">
+			</panel.string>
+			<panel.string name="none_text">
 				(nessuno)
-			</string>
-			<string name="sale_pending_text">
+			</panel.string>
+			<panel.string name="sale_pending_text">
 				(vendita in corso)
-			</string>
-			<string name="no_selection_text">
+			</panel.string>
+			<panel.string name="no_selection_text">
 				Nessun appezzamento selezionato.
 Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezzamento per vederne i dettagli.
-			</string>
+			</panel.string>
 		</panel>
 		<panel label="Regolamento" name="land_covenant_panel">
 			<text name="estate_section_lbl">
@@ -176,20 +176,20 @@ Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezz
 			<text name="changeable_clause" left="125">
 				La terra in questa regione non può essere unita/suddivisa.
 			</text>
-			<string name="can_resell">
+			<panel.string name="can_resell">
 				La terra acquistata in questa regione può essere rivenduta.
-			</string>
-			<string name="can_not_resell">
+			</panel.string>
+			<panel.string name="can_not_resell">
 				La terra acquistata in questa regione non può essere rivenduta.
-			</string>
-			<string name="can_change">
+			</panel.string>
+			<panel.string name="can_change">
 				La terra acquistata in questa regione può essere unita
 o suddivisa.
-			</string>
-			<string name="can_not_change">
+			</panel.string>
+			<panel.string name="can_not_change">
 				La terra acquistata in questa regione non può essere unita
 o suddivisa.
-			</string>
+			</panel.string>
 		</panel>
 		<panel label="Oggetti" name="land_objects_panel">
 			<text name="parcel_object_bonus">
@@ -201,12 +201,12 @@ o suddivisa.
 			<text name="objects_available" left="214" width="230" >
 				[COUNT] dei [MAX] ([AVAILABLE] dsponibili)
 			</text>
-			<string name="objects_available_text">
+			<panel.string name="objects_available_text">
 				[COUNT] dei [MAX] ([AVAILABLE] disponibili)
-			</string>
-			<string name="objects_deleted_text">
+			</panel.string>
+			<panel.string name="objects_deleted_text">
 				[COUNT] dei [MAX] ([DELETED] saranno cancellati)
-			</string>
+			</panel.string>
 			<text name="Primitives parcel supports:" width="200">
 				Oggetti che il terreno supporta:
 			</text>
@@ -293,85 +293,84 @@ o suddivisa.
 			<check_box label="Sicuro (senza danno)" name="check safe" tool_tip="Se spuntato, imposta il terreno su &apos;sicuro&apos;, disabilitando i danni da combattimento. Se non spuntato, viene abilitato il combattimento a morte."/>
 			<check_box label="Nessuna spinta" name="PushRestrictCheck" tool_tip="Previeni i colpi. Selezionare questa opzione può essere utile per prevenire comportamenti dannosi sul tuo terreno."/>
 			<check_box label="Mostra il luogo nella ricerca (30 L$/week) sotto" name="ShowDirectoryCheck" tool_tip="Lascia che questa terra sia vista dagli altri nei risultati di ricerca"/>
-			<string name="search_enabled_tooltip">
+			<panel.string name="search_enabled_tooltip">
 				Fai in modo che la gente trovi questo terreno nei risultati della ricerca.
-			</string>
-			<string name="search_disabled_small_tooltip">
+			</panel.string>
+			<panel.string name="search_disabled_small_tooltip">
 				Questa opzione è disabilitata perchè questo terreno ha un&apos;area di 128 m² o inferiore.
 Solamente terreni più grandi possono essere abilitati nella ricerca.
-			</string>
-			<string name="search_disabled_permissions_tooltip">
+			</panel.string>
+			<panel.string name="search_disabled_permissions_tooltip">
 				Questa opzione è disabilitata perchè tu non puoi modificare le opzioni di questo terreno.
-			</string>
-			<combo_box name="land category with adult">
-				<combo_item name="AnyCategory">
-					Tutte le categorie
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Luoghi Linden
-				</combo_item>
-				<combo_item name="Adult">
-					Adult
-				</combo_item>
-				<combo_item name="Arts&amp;Culture">
-					Arte &amp; Cultura
-				</combo_item>
-				<combo_item name="Business">
-					Affari
-				</combo_item>
-				<combo_item name="Educational">
-					Educazione
-				</combo_item>
-				<combo_item name="Gaming">
-					Giochi
-				</combo_item>
-				<combo_item name="Hangout">
-					Divertimento
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					Ospitalità per i nuovi entrati
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					Parchi &amp; Natura
-				</combo_item>
-				<combo_item name="Residential">
-					Residenziale
-				</combo_item>
-				<combo_item name="Shopping">
-					Shopping
-				</combo_item>
-				<combo_item name="Other">
-					Altro
-				</combo_item>
+			</panel.string>
+			<combo_box name="land category with adult" left="282" width="140">
+				<combo_box.item name="item0" label="Tutte le categorie"
+				/>
+				<combo_box.item name="item1" label="Luogo dei Linden"
+				/>
+				<combo_box.item name="item2" label="Adult"
+				/>
+				<combo_box.item name="item3" label="Arte &amp; Cultura"
+				/>
+				<combo_box.item name="item4" label="Affari"
+				/>
+				<combo_box.item name="item5" label="Educazione"
+				/>
+				<combo_box.item name="item6" label="Gioco"
+				/>
+				<combo_box.item name="item7" label="Divertimento"
+				/>
+				<combo_box.item name="item8" label="Accoglienza nuovi residenti"
+				/>
+				<combo_box.item name="item9" label="Parchi &amp; Natura"
+				/>
+				<combo_box.item name="item10" label="Residenziale"
+				/>
+				<combo_box.item name="item11" label="Shopping"
+				/>
+				<combo_box.item name="item12" label="Altro"
+				/>
 			</combo_box>
-			<combo_box name="land category">
-				<combo_box.item name="AnyCategory" label="Tutte le categorie"/>
-				<combo_box.item name="LindenLocation" label="Luogo dei Linden"/>
-				<combo_box.item name="Arts&amp;Culture" label="Arte &amp; Cultura"/>
-				<combo_box.item name="Business" label="Affari"/>
-				<combo_box.item name="Educational" label="Educazione"/>
-				<combo_box.item name="Gaming" label="Gioco"/>
-				<combo_box.item name="Hangout" label="Divertimento"/>
-				<combo_box.item name="NewcomerFriendly" label="Accoglienza nuovi residenti"/>
-				<combo_box.item name="Parks&amp;Nature" label="Parchi &amp; Natura"/>
-				<combo_box.item name="Residential" label="Residenziale"/>
-				<combo_box.item name="Shopping" label="Shopping"/>
-				<combo_box.item name="Other" label="Altro"/>
+			<combo_box name="land category" left="282" width="140">
+				<combo_box.item name="item0" label="Tutte le categorie"
+				/>
+				<combo_box.item name="item1" label="Luogo dei Linden"
+				/>
+				<combo_box.item name="item3" label="Arte &amp; Cultura"
+				/>
+				<combo_box.item name="item4" label="Affari"
+				/>
+				<combo_box.item name="item5" label="Educazione"
+				/>
+				<combo_box.item name="item6" label="Gioco"
+				/>
+				<combo_box.item name="item7" label="Divertimento"
+				/>
+				<combo_box.item name="item8" label="Accoglienza nuovi residenti"
+				/>
+				<combo_box.item name="item9" label="Parchi &amp; Natura"
+				/>
+				<combo_box.item name="item10" label="Residenziale"
+				/>
+				<combo_box.item name="item11" label="Shopping"
+				/>
+				<combo_box.item name="item12" label="Altro"
+				/>
 			</combo_box>
-			<button label="?" label_selected="?" name="?"/>
+			<button label="?" label_selected="?" name="?" left="427"/>
 			<check_box label="Contenuto Mature" name="MatureCheck" tool_tip=" "/>
-			<string name="mature_check_mature">
+			<panel.string name="mature_check_mature">
 				Contenuto Mature
-			</string>
-			<string name="mature_check_adult">
+			</panel.string>
+			<panel.string name="mature_check_adult">
 				Contenuto Adult
-			</string>
-			<string name="mature_check_mature_tooltip">
+			</panel.string>
+			<panel.string name="mature_check_mature_tooltip">
 				Il contenuto o le informazioni del tuo terreno sono considerate Mature.
-			</string>
-			<string name="mature_check_adult_tooltip">
+			</panel.string>
+			<panel.string name="mature_check_adult_tooltip">
 				Il contenuto o le informazioni del tuo terreno sono considerate Adult.
-			</string>
+			</panel.string>
 			<text name="Snapshot:">
 				Fotografia:
 			</text>
@@ -379,25 +378,28 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			<text name="landing_point">
 				Punto di atterraggio: [LANDING]
 			</text>
-			<string name="landing_point_none">
+			<panel.string name="landing_point_none">
 				(nessuno)
-			</string>
+			</panel.string>
 			<button width="60" label="Imposta" label_selected="Imposta" name="Set" tool_tip="Imposta il punto di atterraggio dove arrivano i visitatori. Impostalo nel punto dove si trova il tuo avatar in questo terreno."/>
 			<button width="60" left="301" label="Elimina" label_selected="Elimina" name="Clear" tool_tip="Elimina punto di atterraggio."/>
 			<text name="Teleport Routing: ">
 				Rotte dei teleport:
 			</text>
 			<combo_box width="140" name="landing type" tool_tip="Rotte dei teleport -- seleziona come vuoi organizzare i teleport nella tua terra.">
-				<combo_box.item name="Blocked" label="Bloccati"/>
-				<combo_box.item name="LandingPoint" label="Punto di atterraggio"/>
-				<combo_box.item name="Anywhere" label="Ovunque"/>
+				<combo_box.item name="Blocked" label="Bloccati"
+				/>
+				<combo_box.item name="LandingPoint" label="Punto di atterraggio"
+				/>
+				<combo_box.item name="Anywhere" label="Ovunque"
+				/>
 			</combo_box>
-			<string name="push_restrict_text">
+			<panel.string name="push_restrict_text">
 				Nessuna spinta
-			</string>
-			<string name="push_restrict_region_text">
+			</panel.string>
+			<panel.string name="push_restrict_region_text">
 				Nessuna spinta (Impostazione regionale)
-			</string>
+			</panel.string>
 		</panel>
 		<panel label="Media" name="land_media_panel">
 			<text name="with media:" width="85">
@@ -465,14 +467,16 @@ Media:
 			</text>
 			<check_box label="Che non hanno dato le proprie informazioni di pagamento alla Linden Lab" name="limit_payment" tool_tip="Manda via residenti non identificati."/>
 			<check_box label="Che non sono adulti con età verificata" name="limit_age_verified" tool_tip="Manda via residenti che non hanno verificato la loro età. Guarda il sito support.secondlife.com per ulteriori informazioni."/>
-			<string name="estate_override">
+			<panel.string name="estate_override">
 				Una o più di queste impostazioni sono già impostate a livello regionale
-			</string>
+			</panel.string>
 			<check_box label="Permetti accesso al gruppo: [GROUP]" name="GroupCheck" tool_tip="Imposta il gruppo nel pannello generale."/>
 			<check_box label="Vendi pass a:" name="PassCheck" tool_tip="Permetti in questo terreno l&apos;accesso temporaneo"/>
 			<combo_box name="pass_combo">
-				<combo_box.item name="Anyone" label="Chiunque"/>
-				<combo_box.item name="Group" label="Gruppo"/>
+				<combo_box.item name="Anyone" label="Chiunque"
+				/>
+				<combo_box.item name="Group" label="Gruppo"
+				/>
 			</combo_box>
 			<spinner label="Prezzo in L$:" name="PriceSpin"/>
 			<spinner label="Ore di accesso:" name="HoursSpin"/>

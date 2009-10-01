@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="gestures" title="Gestos disponibles">
 	<text name="help_label">
-		Pulse dos veces en un gesto para reproducir las animaciones y sonidos.
+		Pulse dos veces en un gesto para reproducir las animaciones
+y sonidos.
 	</text>
-	<scroll_list name="gesture_list">
+	<scroll_list bottom_delta="-385" height="360"  name="gesture_list">
 		<column label="Botón" name="trigger"/>
 		<column label="Tecla" name="shortcut"/>
 		<column label="Nombre" name="name"/>

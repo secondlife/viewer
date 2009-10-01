@@ -20,8 +20,11 @@ varying vec3 vary_ambient;
 varying vec3 vary_directional;
 varying vec3 vary_fragcoord;
 varying vec3 vary_position;
+varying vec3 vary_light;
 
 uniform float near_clip;
+uniform float shadow_offset;
+uniform float shadow_bias;
 
 void main()
 {
@@ -32,8 +35,9 @@ void main()
 	
 	vec4 pos = (gl_ModelViewMatrix * gl_Vertex);
 	vec3 norm = normalize(gl_NormalMatrix * gl_Normal);
-	vary_position = pos.xyz;
 	
+	vary_position = pos.xyz + norm.xyz * (-pos.z/64.0*shadow_offset+shadow_bias);
+		
 	calcAtmospherics(pos.xyz);
 
 	//vec4 color = calcLighting(pos.xyz, norm, gl_Color, vec4(0.));
@@ -53,6 +57,8 @@ void main()
  	col.rgb += gl_LightSource[7].diffuse.rgb*calcPointLight(pos.xyz, norm, gl_LightSource[7].position, gl_LightSource[7].linearAttenuation);
 	col.rgb += gl_LightSource[1].diffuse.rgb*calcDirectionalLight(norm, gl_LightSource[1].position.xyz);
 	col.rgb = scaleDownLight(col.rgb);
+	
+	vary_light = gl_LightSource[0].position.xyz;
 	
 	vary_ambient = col.rgb*gl_Color.rgb;
 	vary_directional.rgb = gl_Color.rgb*atmosAffectDirectionalLight(max(calcDirectionalLight(norm, gl_LightSource[0].position.xyz), (1.0-gl_Color.a)*(1.0-gl_Color.a)));

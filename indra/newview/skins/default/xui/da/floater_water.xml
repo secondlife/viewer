@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="Water Floater" title="Avanceret opsætning af vand">
-	<text type="string" length="1" name="KeyFramePresetsText">
+	<text name="KeyFramePresetsText">
 		Vand opsætninger:
 	</text>
 	<button label="Ny" label_selected="Ny" name="WaterNewPreset" />
@@ -8,89 +8,89 @@
 	<button label="Slet" label_selected="Slet" name="WaterDeletePreset" />
 	<tab_container name="Water Tabs">
 		<panel label="Opsætning" name="Settings">
-			<text type="string" length="1" name="BHText">
+			<text name="BHText">
 				Vandtåge farve
 			</text>
 			<button label="?" name="WaterFogColorHelp" />
 			<color_swatch label="" name="WaterFogColor" tool_tip="Click to open Color Picker" />
-			<text type="string" length="1" name="WaterFogDensText">
+			<text name="WaterFogDensText">
 				Tåge tæthedskarakteristik
 			</text>
 			<button label="?" name="WaterFogDensityHelp" />
 			<slider label="" name="WaterFogDensity" />
-			<text type="string" length="1" name="WaterUnderWaterFogModText">
+			<text name="WaterUnderWaterFogModText">
 				Tilretning undervandståge
 			</text>
 			<button label="?" name="WaterUnderWaterFogModHelp" />
 			<slider label="" name="WaterUnderWaterFogMod" />
-			<text type="string" length="1" name="BDensText">
+			<text name="BDensText">
 				Lille bølge reflektionsskala
 			</text>
 			<button label="?" name="WaterNormalScaleHelp" />
-			<text type="string" length="1" name="BHText2">
+			<text name="BHText2">
 				1
 			</text>
-			<text type="string" length="1" name="BHText3">
+			<text name="BHText3">
 				2
 			</text>
-			<text type="string" length="1" name="BHText4">
+			<text name="BHText4">
 				3
 			</text>
 			<slider label="" name="WaterNormalScaleX" />
 			<slider label="" name="WaterNormalScaleY" />
 			<slider label="" name="WaterNormalScaleZ" />
-			<text type="string" length="1" name="HDText">
+			<text name="HDText">
 				Spredningsskala
 			</text>
 			<button label="?" name="WaterFresnelScaleHelp" />
 			<slider label="" name="WaterFresnelScale" />
-			<text type="string" length="1" name="FresnelOffsetText">
+			<text name="FresnelOffsetText">
 				Spredning offset
 			</text>
 			<button label="?" name="WaterFresnelOffsetHelp" />
 			<slider label="" name="WaterFresnelOffset" />
-			<text type="string" length="1" name="DensMultText">
+			<text name="DensMultText">
 				Lysbrydning fra oven
 			</text>
 			<button label="?" name="WaterScaleAboveHelp" />
 			<slider label="" name="WaterScaleAbove" />
-			<text type="string" length="1" name="WaterScaleBelowText">
+			<text name="WaterScaleBelowText">
 				Lysbrydning fra neden
 			</text>
 			<button label="?" name="WaterScaleBelowHelp" />
 			<slider label="" name="WaterScaleBelow" />
-			<text type="string" length="1" name="MaxAltText">
+			<text name="MaxAltText">
 				Udviskning
 			</text>
 			<button label="?" name="WaterBlurMultiplierHelp" />
 			<slider label="" name="WaterBlurMult" />
 		</panel>
 		<panel label="Billede" name="Waves">
-			<text type="string" length="1" name="BHText">
+			<text name="BHText">
 				Retning for store bølger
 			</text>
 			<button label="?" name="WaterWave1Help" />
-			<text type="string" length="1" name="WaterWave1DirXText">
+			<text name="WaterWave1DirXText">
 				X
 			</text>
-			<text type="string" length="1" name="WaterWave1DirYText">
+			<text name="WaterWave1DirYText">
 				Y
 			</text>
 			<slider label="" name="WaterWave1DirX" />
 			<slider label="" name="WaterWave1DirY" />
-			<text type="string" length="1" name="BHText2">
+			<text name="BHText2">
 				Retning for små bølger
 			</text>
 			<button label="?" name="WaterWave2Help" />
-			<text type="string" length="1" name="WaterWave2DirXText">
+			<text name="WaterWave2DirXText">
 				X
 			</text>
-			<text type="string" length="1" name="WaterWave2DirYText">
+			<text name="WaterWave2DirYText">
 				Y
 			</text>
 			<slider label="" name="WaterWave2DirX" />
 			<slider label="" name="WaterWave2DirY" />
-			<text type="string" length="1" name="BHText3">
+			<text name="BHText3">
 				Tekstur map
 			</text>
 			<button label="?" name="WaterNormalMapHelp" />

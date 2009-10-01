@@ -10,8 +10,6 @@
  top="320"
  width="280">
     <text
-     type="string"
-     length="1"
      follows="left|top"
      font="SansSerif"
      height="20"
@@ -23,8 +21,6 @@
         Region:
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      font="SansSerif"
      height="20"

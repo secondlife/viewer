@@ -7,6 +7,7 @@
  min_height="150"
  min_width="240"
  name="Inventory"
+ help_topic="inventory"
  save_rect="true"
  save_visibility="true"
  single_instance="true"
@@ -17,8 +18,12 @@
         Inventory
     </floater.string>
     <floater.string
-     name="Items">
-        Items...
+     name="TitleFetching">
+        Inventory (Fetching [ITEM_COUNT] Items...) [FILTER]
+    </floater.string>
+    <floater.string
+     name="TitleCompleted">
+        Inventory ([ITEM_COUNT] Items) [FILTER]
     </floater.string>
     <floater.string
      name="Fetched">

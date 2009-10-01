@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Notícias" name="notices_tab">
 	<text name="help_text">
-		As notícias são uma maneira rápida de
-comunicar-se através de um grupo transmitindo uma mensagem e
-entregando um item anexo, opcionalmente. As notícias vão apenas a membros
-do grupo que têm a função habilitada para receber notícias. Você pode desligar
-Notícias na aba Geral.
+		As notícias são uma maneira rápida de comunicar-se através de um grupo transmitindo uma mensagem e entregando um item anexo, opcionalmente. As notícias vão apenas a membros do grupo que têm a função habilitada para receber notícias. Você pode desligar Notícias na aba Geral.
 	</text>
 	<text name="no_notices_text">
 		Não existem notícias anteriores.
@@ -15,8 +11,7 @@ Notícias na aba Geral.
 		Arquivo de notícias do grupo
 	</text>
 	<text name="lbl2">
-		As notícias são mantidas por 14 dias. Clique na notícia abaixo que você deseja ver.
-Clique no botão “Atualizar” para verificar se novas notícias foram recebidas.
+		As notícias são mantidas por 14 dias. 
 Listas de aviso estão limitadas a 200 por grupo, diariamente.
 	</text>
 	<scroll_list name="notice_list">
@@ -34,22 +29,22 @@ Listas de aviso estão limitadas a 200 por grupo, diariamente.
 			Criar uma notícia
 		</text>
 		<text name="lbl2">
-			Você deve colocar um assunto para enviar uma notícia. Você pode
-adicionar um item simples à notícia, arrastando-o do seu
-Inventário para o painel. Itens anexados devem ser copiáveis
-e transferíveis e você não pode mandar uma pasta.
+			Você pode adicionar um item simples à notícia, arrastando-o do seu Inventário para o painel. Itens anexados devem ser copiáveis e transferíveis e você não pode mandar uma pasta.
 		</text>
-		<text name="lbl3">
+		<text name="lbl3" left="20">
 			Assunto:
 		</text>
-		<text name="lbl4">
+		<line_editor name="create_subject" width="251" left_delta="61"/>
+		<text name="lbl4" left="15" width="60">
 			Mensagem:
 		</text>
-		<text name="lbl5">
+		<text_editor name="create_message" left_delta="66" width="330"/>
+		<text name="lbl5" width="68">
 			Anexo:
 		</text>
+		<line_editor name="create_inventory_name" width="190" left_delta="74"/>
 		<button label="Remover o anexo" label_selected="Remover o anexo" name="remove_attachment"/>
-		<button label="Enviar notícia" label_selected="Enviar notícia" name="send_notice"/>
+		<button label="Enviar" label_selected="Enviar" name="send_notice"/>
 		<panel name="drop_target" tool_tip="Arraste um item do inventário para dentro da caixa de mensagem para enviá-lo com a notícia. Você deve ter permissão para copiar e transferir o objeto, para enviá-lo com a notícia."/>
 	</panel>
 	<panel label="Visualizar Notícia Anterior" name="panel_view_past_notice">

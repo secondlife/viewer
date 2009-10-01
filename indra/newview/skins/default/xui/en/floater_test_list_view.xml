@@ -4,6 +4,7 @@
  height="400"
  layout="topleft"
  name="floater_test_list_view"
+ help_topic="floater_test_list_view"
  width="400">
     <list_view
      height="300"

@@ -2,62 +2,63 @@
 <panel label="Grafika" name="Display panel">
 	<button label="?" name="GraphicsPreferencesHelpButton" />
 	<check_box label="Uruchom Second Life w oknie" name="windowed mode" />
-	<text_editor type="string" length="1" name="FullScreenInfo">
+	<text_editor name="FullScreenInfo">
 		Wyłączone = klient uruchamiany w trybie pełnoekranowym.
 	</text_editor>
-	<text type="string" length="1" name="WindowSizeLabel">
+	<text name="WindowSizeLabel">
 		Wymiary Okna:
 	</text>
 	<combo_box name="windowsize combo">
-		<combo_box.item type="string" length="1" name="640x480" label="640x480" />
-		<combo_box.item type="string" length="1" name="800x600" label="800x600" />
-		<combo_box.item type="string" length="1" name="720x480" label="720x480 (NTSC)" />
-		<combo_box.item type="string" length="1" name="768x576" label="768x576 (PAL)" />
-		<combo_box.item type="string" length="1" name="1024x768" label="1024x768" />
+		<combo_box.item name="640x480" label="640x480" />
+		<combo_box.item name="800x600" label="800x600" />
+		<combo_box.item name="720x480" label="720x480 (NTSC)" />
+		<combo_box.item name="768x576" label="768x576 (PAL)" />
+		<combo_box.item name="1024x768" label="1024x768" />
 	</combo_box>
-	<text type="string" length="1" name="DisplayResLabel">
+	<text name="DisplayResLabel">
 		Rozdzielczość:
 	</text>
-	<text type="string" length="1" name="AspectRatioLabel1" tool_tip="width / height">
+	<text name="AspectRatioLabel1" tool_tip="width / height">
 		Proporcje:
 	</text>
 	<combo_box name="aspect_ratio" tool_tip="width / height">
-		<combo_box.item type="string" length="1" name="4:3(StandardCRT)" label="4:3 (Standardowy CRT)" />
-		<combo_box.item type="string" length="1" name="5:4(1280x1024LCD)" label="5:4 (1280x1024 LCD)" />
-		<combo_box.item type="string" length="1" name="8:5(Widescreen)" label="8:5 (Panoramiczny)" />
-		<combo_box.item type="string" length="1" name="16:9(Widescreen)" label="16:9 (Panoramiczny)" />
+		<combo_box.item name="4:3(StandardCRT)" label="4:3 (Standardowy CRT)" />
+		<combo_box.item name="5:4(1280x1024LCD)" label="5:4 (1280x1024 LCD)" />
+		<combo_box.item name="8:5(Widescreen)" label="8:5 (Panoramiczny)" />
+		<combo_box.item name="16:9(Widescreen)" label="16:9 (Panoramiczny)" />
 	</combo_box>
 	<check_box label="Detekcja proporcji" name="aspect_auto_detect" />
-	<text type="string" length="1" name="HigherText">
+	<text name="HigherText">
 		Jakość i
 	</text>
-	<text type="string" length="1" name="QualityText">
+	<text name="QualityText">
 		Prędkość:
 	</text>
-	<text type="string" length="1" name="FasterText">
+	<text name="FasterText">
 		Prędkość
 	</text>
-	<text type="string" length="1" name="ShadersPrefText">
+	<text name="ShadersPrefText">
 		Niska
 	</text>
-	<text type="string" length="1" name="ShadersPrefText2">
+	<text name="ShadersPrefText2">
 		Średnia
 	</text>
-	<text type="string" length="1" name="ShadersPrefText3">
+	<text name="ShadersPrefText3">
 		Wysoka
 	</text>
-	<text type="string" length="1" name="ShadersPrefText4">
+	<text name="ShadersPrefText4">
 		Super
 	</text>
-	<text type="string" length="1" name="HigherText2">
+	<text name="HigherText2">
 		Wyższa
 	</text>
-	<text type="string" length="1" name="QualityText2">
+	<text name="QualityText2">
 		Jakość
 	</text>
 	<slider label="" name="QualityPerformanceSelection" />
 	<check_box label="Zaawansowane" name="CustomSettings" />
-	<text type="string" length="1" name="ShadersText">
+	<panel name="CustomGraphics Panel">
+	<text name="ShadersText">
 		Shadery:
 	</text>
 	<check_box label="Mapowanie Wypukłości i Połysk" name="BumpShiny" />
@@ -65,31 +66,31 @@
 	     tool_tip="Wyłączenie tej opcji może naprawić błędy niektórych sterowników graficznych." />
 	<check_box label="Shadery Atmosfery" name="WindLightUseAtmosShaders" />
 	<check_box label="Odbicia w Wodzie" name="Reflections" />
-	<text type="string" length="1" name="ReflectionDetailText">
+	<text name="ReflectionDetailText">
 		Ustawienia Odbić:
 	</text>
 	<radio_group name="ReflectionDetailRadio">
-		<radio_item type="string" length="1" name="0" label="Teren i Drzewa" />
-		<radio_item type="string" length="1" name="1" label="Obiekty Statyczne" />
-		<radio_item type="string" length="1" name="2" label="Awatary i Obiekty" />
-		<radio_item type="string" length="1" name="3" label="Wszystko" />
+		<radio_item name="0" label="Teren i Drzewa" />
+		<radio_item name="1" label="Obiekty Statyczne" />
+		<radio_item name="2" label="Awatary i Obiekty" />
+		<radio_item name="3" label="Wszystko" />
 	</radio_group>
-	<text type="string" length="1" name="AvatarRenderingText">
+	<text name="AvatarRenderingText">
 		Prezentacja Awatarów:
 	</text>
         <check_box label="Impostoryzacja Awatarowa" name="AvatarImpostors" />
 	<check_box label="Skinning" name="AvatarVertexProgram" />
 	<check_box label="Ubranie Awatarów" name="AvatarCloth" />
-	<text type="string" length="1" name="DrawDistanceMeterText1">
+	<text name="DrawDistanceMeterText1">
 		m
 	</text>
-	<text type="string" length="1" name="DrawDistanceMeterText2">
+	<text name="DrawDistanceMeterText2">
 		m
 	</text>
 	<slider label="Głębia Rysowania:" name="DrawDistance" />
 	<slider label="Liczba Cząsteczek:" name="MaxParticleCount" />
 	<slider label="Jakość Post-Procesu:" name="RenderPostProcess" />
-	<text type="string" length="1" name="MeshDetailText">
+	<text name="MeshDetailText">
 		Szczegóły Meszu:
 	</text>
 	<slider label="  Obiekty:" name="ObjectMeshDetail" />
@@ -98,48 +99,49 @@
 	<slider label="  Awatary:" name="AvatarMeshDetail" />
 	<slider label="  Teren:" name="TerrainMeshDetail" />
 	<slider label="  Niebo:" name="SkyMeshDetail" />
-	<text type="string" length="1" name="PostProcessText">
+	<text name="PostProcessText">
 		Mało
 	</text>
-	<text type="string" length="1" name="ObjectMeshDetailText">
+	<text name="ObjectMeshDetailText">
 		Mało
 	</text>
-	<text type="string" length="1" name="FlexibleMeshDetailText">
+	<text name="FlexibleMeshDetailText">
 		Mało
 	</text>
-	<text type="string" length="1" name="TreeMeshDetailText">
+	<text name="TreeMeshDetailText">
 		Mało
 	</text>
-	<text type="string" length="1" name="AvatarMeshDetailText">
+	<text name="AvatarMeshDetailText">
 		Mało
 	</text>
-	<text type="string" length="1" name="TerrainMeshDetailText">
+	<text name="TerrainMeshDetailText">
 		Mało
 	</text>
-	<text type="string" length="1" name="SkyMeshDetailText">
+	<text name="SkyMeshDetailText">
 		Mało
 	</text>
-	<text type="string" length="1" name="LightingDetailText">
+	<text name="LightingDetailText">
 		Ustawienia Światła:
 	</text>
 	<radio_group name="LightingDetailRadio">
-		<radio_item type="string" length="1" name="SunMoon" label="Tylko Słońce i Księżyc" />
-		<radio_item type="string" length="1" name="LocalLights" label="Tylko Bliskie Światła" />
+		<radio_item name="SunMoon" label="Tylko Słońce i Księżyc" />
+		<radio_item name="LocalLights" label="Tylko Bliskie Światła" />
 	</radio_group>
-	<text type="string" length="1" name="TerrainDetailText">
+	<text name="TerrainDetailText">
 		Szczgóły Terenu:
 	</text>
 	<radio_group name="TerrainDetailRadio">
-		<radio_item type="string" length="1" name="0" label="Mało" />
-		<radio_item type="string" length="1" name="2" label="Dużo" />
+		<radio_item name="0" label="Mało" />
+		<radio_item name="2" label="Dużo" />
 	</radio_group>
+	</panel>
 	<button label="Ustawienia Domyślne" name="Defaults" />
 	<button label="Ustawnia Sprzętowe" label_selected="Ustawienia Sprzętowe"
 	     name="GraphicsHardwareButton" />
-	<string name="resolution_format">
+	<panel.string name="resolution_format">
 		[RES_X] x [RES_Y]
-	</string>
-	<string name="aspect_ratio_text">
+	</panel.string>
+	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
-	</string>
+	</panel.string>
 </panel>

@@ -4,11 +4,12 @@
  border_style="line"
  can_resize="true"
  follows="left|top"
- height="550"
+ height="570"
  layout="topleft"
  min_height="271"
  min_width="290"
  name="script ed float"
+ help_topic="script_ed_float"
  save_rect="true"
  title="Script: New Script"
  width="500">
@@ -30,9 +31,9 @@
      label="Reset"
      label_selected="Reset"
      layout="topleft"
-     left="362"
+     left="358"
      name="Reset"
-     top="525"
+     top="545"
      width="128" />
     <check_box
      enabled="false"

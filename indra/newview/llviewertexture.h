@@ -98,6 +98,7 @@ public:
 		DYNAMIC_TEXTURE,
 		FETCHED_TEXTURE,
 		LOD_TEXTURE,
+		ATLAS_TEXTURE,
 		INVALID_TEXTURE_TYPE
 	};
 
@@ -171,7 +172,6 @@ public:
 	/*virtual*/S32	       getHeight(S32 discard_level = -1) const;
 	
 	BOOL       hasGLTexture() const ;
-	BOOL       hasValidGLTexture() const ;
 	LLGLuint   getTexName() const ;		
 	BOOL       createGLTexture() ;
 	BOOL       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0);
@@ -197,6 +197,11 @@ public:
 	BOOL       getMissed() const ;
 	BOOL       isValidForSculpt(S32 discard_level, S32 image_width, S32 image_height, S32 ncomponents) ;
 	BOOL       readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok) const;
+
+	U32        getTexelsInAtlas() const ;
+	U32        getTexelsInGLTexture() const ;
+	BOOL       isGLTextureCreated() const ;
+	S32        getDiscardLevelInAtlas() const ;
 	//---------------------------------------------------------------------------------------------
 	//end of functions to access LLImageGL
 	//---------------------------------------------------------------------------------------------
@@ -263,6 +268,7 @@ public:
 	static S32 sMaxTotalTextureMemInMegaBytes;
 	static S32 sMaxDesiredTextureMemInBytes ;
 	static BOOL sDontLoadVolumeTextures;
+	static BOOL sUseTextureAtlas ;
 
 	static LLPointer<LLViewerTexture> sNullImagep; // Null texture for non-textured objects.
 };
@@ -387,6 +393,11 @@ private:
 	void cleanup() ;
 
 	F32 calcDecodePriorityForUnknownTexture(F32 pixel_priority) ;
+
+	//for atlas
+	void resetFaceAtlas() ;
+	void invalidateAtlas(BOOL rebuild_geom) ;
+	BOOL insertToAtlas() ;
 
 private:
 	BOOL  mFullyLoaded;

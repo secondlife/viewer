@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="WindLight floater" title="Avanceret opsætning for himmel">
-	<text type="string" length="1" name="KeyFramePresetsText">
+	<text name="KeyFramePresetsText">
 		Faste indstillinger:
 	</text>
 	<button label="Ny" label_selected="Ny" name="WLNewPreset" />
@@ -9,210 +9,210 @@
 	<button label="Dags cyklus" label_selected="Dags cyklus" name="WLDayCycleMenuButton" />
 	<tab_container name="WindLight Tabs">
 		<panel label="Atmosfære" name="Atmosphere">
-			<text type="string" length="1" name="BHText">
+			<text name="BHText">
 				Blå - horisont
 			</text>
 			<button label="?" name="WLBlueHorizonHelp" />
-			<text type="string" length="1" name="BHText2">
+			<text name="BHText2">
 				R
 			</text>
-			<text type="string" length="1" name="BHText3">
+			<text name="BHText3">
 				G
 			</text>
-			<text type="string" length="1" name="BHText4">
+			<text name="BHText4">
 				B
 			</text>
-			<text type="string" length="1" name="BHText5">
+			<text name="BHText5">
 				I
 			</text>
 			<slider label="" name="WLBlueHorizonR" />
 			<slider label="" name="WLBlueHorizonG" />
 			<slider label="" name="WLBlueHorizonB" />
 			<slider label="" name="WLBlueHorizonI" />
-			<text type="string" length="1" name="BDensText">
+			<text name="BDensText">
 				Dis - horisont
 			</text>
 			<button label="?" name="WLHazeHorizonHelp" />
 			<slider label="" name="WLHazeHorizon" />
-			<text type="string" length="1" name="BDensText2">
+			<text name="BDensText2">
 				Blå - tæthed
 			</text>
 			<button label="?" name="WLBlueDensityHelp" />
-			<text type="string" length="1" name="BHText6">
+			<text name="BHText6">
 				R
 			</text>
-			<text type="string" length="1" name="BHText7">
+			<text name="BHText7">
 				G
 			</text>
-			<text type="string" length="1" name="BHText8">
+			<text name="BHText8">
 				B
 			</text>
-			<text type="string" length="1" name="BHText9">
+			<text name="BHText9">
 				I
 			</text>
 			<slider label="" name="WLBlueDensityR" />
 			<slider label="" name="WLBlueDensityG" />
 			<slider label="" name="WLBlueDensityB" />
 			<slider label="" name="WLBlueDensityI" />
-			<text type="string" length="1" name="HDText">
+			<text name="HDText">
 				Dis - intensitet
 			</text>
 			<button label="?" name="WLHazeDensityHelp" />
 			<slider label="" name="WLHazeDensity" />
-			<text type="string" length="1" name="DensMultText">
+			<text name="DensMultText">
 				Densitet faktor
 			</text>
 			<button label="?" name="WLDensityMultHelp" />
 			<slider label="" name="WLDensityMult" />
-			<text type="string" length="1" name="WLDistanceMultText">
+			<text name="WLDistanceMultText">
 				Distance faktor
 			</text>
 			<button label="?" name="WLDistanceMultHelp" />
 			<slider label="" name="WLDistanceMult" />
-			<text type="string" length="1" name="MaxAltText">
+			<text name="MaxAltText">
 				Maximum højde
 			</text>
 			<button label="?" name="WLMaxAltitudeHelp" />
 			<slider label="" name="WLMaxAltitude" />
 		</panel>
 		<panel label="Lys" name="Lighting">
-			<text type="string" length="1" name="SLCText">
+			<text name="SLCText">
 				Sol/Måne farve
 			</text>
 			<button label="?" name="WLSunlightColorHelp" />
-			<text type="string" length="1" name="BHText">
+			<text name="BHText">
 				R
 			</text>
-			<text type="string" length="1" name="BHText2">
+			<text name="BHText2">
 				G
 			</text>
-			<text type="string" length="1" name="BHText3">
+			<text name="BHText3">
 				B
 			</text>
-			<text type="string" length="1" name="BHText4">
+			<text name="BHText4">
 				I
 			</text>
 			<slider label="" name="WLSunlightR" />
 			<slider label="" name="WLSunlightG" />
 			<slider label="" name="WLSunlightB" />
 			<slider label="" name="WLSunlightI" />
-			<text type="string" length="1" name="TODText">
+			<text name="TODText">
 				Sol/Måne position
 			</text>
 			<button label="?" name="WLTimeOfDayHelp" />
 			<slider label="" name="WLSunAngle" />
-			<text type="string" length="1" name="WLAmbientText">
+			<text name="WLAmbientText">
 				Omgivende
 			</text>
 			<button label="?" name="WLAmbientHelp" />
-			<text type="string" length="1" name="BHText5">
+			<text name="BHText5">
 				R
 			</text>
-			<text type="string" length="1" name="BHText6">
+			<text name="BHText6">
 				G
 			</text>
-			<text type="string" length="1" name="BHText7">
+			<text name="BHText7">
 				B
 			</text>
-			<text type="string" length="1" name="BHText8">
+			<text name="BHText8">
 				I
 			</text>
 			<slider label="" name="WLAmbientR" />
 			<slider label="" name="WLAmbientG" />
 			<slider label="" name="WLAmbientB" />
 			<slider label="" name="WLAmbientI" />
-			<text type="string" length="1" name="WLEastAngleText">
+			<text name="WLEastAngleText">
 				Øst vinkel
 			</text>
 			<button label="?" name="WLEastAngleHelp" />
 			<slider label="" name="WLEastAngle" />
-			<text type="string" length="1" name="SunGlowText">
+			<text name="SunGlowText">
 				Sol glød
 			</text>
 			<button label="?" name="WLSunGlowHelp" />
 			<slider label="Fokus " name="WLGlowB" />
 			<slider label="Størr. " name="WLGlowR" />
-			<text type="string" length="1" name="SceneGammaText">
+			<text name="SceneGammaText">
 				Lysintensitet (gamma)
 			</text>
 			<button label="?" name="WLSceneGammaHelp" />
 			<slider label="" name="WLGamma" />
-			<text type="string" length="1" name="WLStarText">
+			<text name="WLStarText">
 				Stjerne intensitet
 			</text>
 			<button label="?" name="WLStarBrightnessHelp" />
 			<slider label="" name="WLStarAlpha" />
 		</panel>
 		<panel label="Skyer" name="Clouds">
-			<text type="string" length="1" name="WLCloudColorText">
+			<text name="WLCloudColorText">
 				Farve på skyer
 			</text>
 			<button label="?" name="WLCloudColorHelp" />
-			<text type="string" length="1" name="BHText">
+			<text name="BHText">
 				R
 			</text>
-			<text type="string" length="1" name="BHText2">
+			<text name="BHText2">
 				G
 			</text>
-			<text type="string" length="1" name="BHText3">
+			<text name="BHText3">
 				B
 			</text>
-			<text type="string" length="1" name="BHText4">
+			<text name="BHText4">
 				I
 			</text>
 			<slider label="" name="WLCloudColorR" />
 			<slider label="" name="WLCloudColorG" />
 			<slider label="" name="WLCloudColorB" />
 			<slider label="" name="WLCloudColorI" />
-			<text type="string" length="1" name="WLCloudColorText2">
+			<text name="WLCloudColorText2">
 				Skyer XY/Tæthed
 			</text>
 			<button label="?" name="WLCloudDensityHelp" />
-			<text type="string" length="1" name="BHText5">
+			<text name="BHText5">
 				X
 			</text>
-			<text type="string" length="1" name="BHText6">
+			<text name="BHText6">
 				Y
 			</text>
-			<text type="string" length="1" name="BHText7">
+			<text name="BHText7">
 				T
 			</text>
 			<slider label="" name="WLCloudX" />
 			<slider label="" name="WLCloudY" />
 			<slider label="" name="WLCloudDensity" />
-			<text type="string" length="1" name="WLCloudCoverageText">
+			<text name="WLCloudCoverageText">
 				Skydække
 			</text>
 			<button label="?" name="WLCloudCoverageHelp" />
 			<slider label="" name="WLCloudCoverage" />
-			<text type="string" length="1" name="WLCloudScaleText">
+			<text name="WLCloudScaleText">
 				Skystørrelse
 			</text>
 			<button label="?" name="WLCloudScaleHelp" />
 			<slider label="" name="WLCloudScale" />
-			<text type="string" length="1" name="WLCloudDetailText">
+			<text name="WLCloudDetailText">
 				Sky detaljer(XY/tæthed)
 			</text>
 			<button label="?" name="WLCloudDetailHelp" />
-			<text type="string" length="1" name="BHText8">
+			<text name="BHText8">
 				X
 			</text>
-			<text type="string" length="1" name="BHText9">
+			<text name="BHText9">
 				Y
 			</text>
-			<text type="string" length="1" name="BHText10">
+			<text name="BHText10">
 				T
 			</text>
 			<slider label="" name="WLCloudDetailX" />
 			<slider label="" name="WLCloudDetailY" />
 			<slider label="" name="WLCloudDetailDensity" />
-			<text type="string" length="1" name="WLCloudScrollXText">
+			<text name="WLCloudScrollXText">
 				Sky drift X
 			</text>
 			<button label="?" name="WLCloudScrollXHelp" />
 			<check_box label="Lås" name="WLCloudLockX" />
 			<slider label="" name="WLCloudScrollX" />
-			<text type="string" length="1" name="WLCloudScrollYText">
+			<text name="WLCloudScrollYText">
 				Sky drift Y
 			</text>
 			<button label="?" name="WLCloudScrollYHelp" />

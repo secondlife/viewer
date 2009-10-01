@@ -3,6 +3,7 @@
  height="180"
  layout="topleft"
  name="floater_bumps"
+ help_topic="floater_bumps"
  save_rect="true"
  title="Bumps, Pushes &amp; Hits"
  width="400">

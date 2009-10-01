@@ -3,6 +3,7 @@
  height="258"
  layout="topleft"
  name="groups"
+ help_topic="groups"
  title="Groups"
  width="280">
     <text

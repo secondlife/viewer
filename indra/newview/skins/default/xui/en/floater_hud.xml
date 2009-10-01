@@ -4,6 +4,7 @@
  height="292"
  layout="topleft"
  name="floater_hud"
+ help_topic="floater_hud"
  save_rect="true"
  save_visibility="true"
  title="Tutorial"

@@ -483,4 +483,34 @@
 	<string name="choose_the_directory">
 		Vælg bibliotek
 	</string>
+	<string name="accel-mac-control">
+		Ctrl-
+	</string>
+	<string name="accel-mac-command">
+		Cmd-
+	</string>
+	<string name="accel-mac-option">
+		Opt-
+	</string>
+	<string name="accel-mac-shift">
+		Shift-
+	</string>
+	<string name="accel-win-control">
+		Ctrl+
+	</string>
+	<string name="accel-win-alt">
+		Alt+
+	</string>
+	<string name="accel-win-shift">
+		Shift+
+	</string>
+	<string name="GraphicsQualityLow">
+		Lav
+	</string>
+	<string name="GraphicsQualityMid">
+		Middel
+	</string>
+	<string name="GraphicsQualityHigh">
+		Høj
+	</string>
 </strings>

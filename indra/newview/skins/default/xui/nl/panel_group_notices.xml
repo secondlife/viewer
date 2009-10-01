@@ -11,7 +11,7 @@
 		Groepsberichtenarchief
 	</text>
 	<text name="lbl2">
-		Berichten worden 14 dagen bewaard. Klik hieronder het bericht dat u wilt bekijken. Klik de &apos;Verversen&apos; knop om te controleren of nieuwe berichten zijn ontvangen. Berichtenlijsten zijn gelimiteerd tot 200 berichten groep per dag.
+		Berichten worden 14 dagen bewaard. Berichtenlijsten zijn gelimiteerd tot 200 berichten groep per dag.
 	</text>
 	<scroll_list name="notice_list">
 		<column label="Onderwerp" name="subject"/>
@@ -28,18 +28,21 @@
 			Maak een bericht
 		</text>
 		<text name="lbl2">
-			U dient een onderwerp in te voeren om een bericht te versturen. U kunt een enkel item aan een bericht toevoegen door het van uw inventaris naar dit paneel te slepen. Bevestigde items moeten kopieerbaar en overdraagbaar zijn en u kunt geen mappen versturen.
+			U kunt een enkel item aan een bericht toevoegen door het van uw inventaris naar dit paneel te slepen. Bevestigde items moeten kopieerbaar en overdraagbaar zijn en u kunt geen mappen versturen.
 		</text>
-		<text name="lbl3">
+		<text bottom_delta="-79" halign="right" left="10" name="lbl3" width="60">
 			Onderwerp:
 		</text>
-		<text name="lbl4">
+		<line_editor name="create_subject" width="331" left_delta="71"/>
+		<text bottom_delta="-18" halign="right" left="10" name="lbl4" width="60">
 			Bericht:
 		</text>
-		<text name="lbl5">
+		<text_editor name="create_message" bottom_delta="-90" height="104" left_delta="71" width="330"/>
+		<line_editor name="create_inventory_name" width="190" left_delta="71"/>
+		<text name="lbl5" left="10">
 			Bevestig:
 		</text>
-		<button label="Verwijder bevestiging:" label_selected="Verwijder bevestiging:" name="remove_attachment"/>
+		<button label="Verwijder bevestiging" label_selected="Verwijder bevestiging" name="remove_attachment"/>
 		<button label="Verzend bericht" label_selected="Verzend bericht" name="send_notice"/>
 		<panel name="drop_target" tool_tip="Sleep een inventarisitem op het berichtvenster om het met het bericht mee te sturen. U dient permissie te hebben om het object te kopiëren en over te dragen wilt u het met het bericht mee kunnen sturen."/>
 	</panel>
@@ -56,6 +59,7 @@
 		<text name="lbl4">
 			Bericht:
 		</text>
-		<button label="Open bevestiging" label_selected="Open bevestiging" name="open_attachment"/>
+		<button label="Open bevestiging" label_selected="Open bevestiging" name="open_attachment" width="118"/>
+		<line_editor left="128" name="view_inventory_name" width="256"/>
 	</panel>
 </panel>

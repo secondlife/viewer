@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview_sound">
-	<text length="1" name="desc txt" type="string">
+	<text name="desc txt">
 		Descripción:
 	</text>
 	<button label="Tocar en el mundo" label_selected="Tocar en el mundo" name="Sound play btn" tool_tip="Tocar este sonido para que puedan oírlo los demás."/>

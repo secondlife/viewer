@@ -3,14 +3,14 @@
 	<string name="choose_picture">
 		Pulse para elegir una imagen
 	</string>
-	<text length="1" name="Multiple" type="string">
+	<text name="Multiple">
 		Múltiple
 	</text>
-	<text length="1" name="unknown" type="string">
+	<text name="unknown">
 		Dimensiones: [DIMENSIONS]
 	</text>
-	<button label="Por defecto" label_selected="Por defecto" name="Default"/>
-	<button label="Ninguna" label_selected="Ninguna" name="None"/>
+	<button label="Por defecto" label_selected="Por defecto" name="Default" width="84"/>
+	<button label="Ninguna" label_selected="Ninguna" name="None" left="90"/>
 	<button label="Blanca" label_selected="Blanca" name="Blank"/>
 	<check_box label="Ver las carpetas" name="show_folders_check"/>
 	<search_editor label="Escriba aquí para buscar una" name="inventory search editor"/>

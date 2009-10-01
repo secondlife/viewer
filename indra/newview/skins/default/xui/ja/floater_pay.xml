@@ -6,16 +6,16 @@
 	<button label="L$20" label_selected="L$20" name="fastpay 20" />
 	<button label="支払い" label_selected="支払い" name="pay btn" />
 	<button label="取り消し" label_selected="取り消し" name="cancel btn" />
-	<text type="string" length="1" name="payee_label">
+	<text name="payee_label">
 		支払い先：
 	</text>
-	<text type="string" length="1" name="payee_name">
+	<text name="payee_name">
 		[FIRST] [LAST]
 	</text>
-	<text type="string" length="1" name="fastpay text">
+	<text name="fastpay text">
 		一括払い：
 	</text>
-	<text type="string" length="1" name="amount text">
+	<text name="amount text">
 		金額：
 	</text>
 </floater>

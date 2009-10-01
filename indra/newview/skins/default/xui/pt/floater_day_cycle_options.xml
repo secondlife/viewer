@@ -4,35 +4,35 @@
 		<panel label="Ciclo do dia" name="Day Cycle">
 			<button label="?" name="WLDayCycleHelp"/>
 			<text name="WL12am">
-				12:00 meia-noite
+				0:00
 			</text>
 			<text name="WL3am">
-				3:00 da manhã
+				3:00
 			</text>
 			<text name="WL6am">
-				6:00 da manhã
+				6:00
 			</text>
 			<text name="WL9amHash">
-				9:00 da manhã
+				9:00
 			</text>
 			<text name="WL12pmHash">
-				12:00 meio dia
+				12:00
 			</text>
 			<text name="WL3pm">
-				3:00 da tarde
+				15:00
 			</text>
 			<text name="WL6pm">
-				6:00 da tarde
+				18:00
 			</text>
 			<text name="WL9pm">
-				9:00 da noite
+				21:00
 			</text>
 			<text name="WL12am2">
-				12:00 meia noite
+				24:00
 			</text>
-			<button label="Add Key" label_selected="Adicionar chave" name="WLAddKey"/>
-			<button label="Apagar chave" label_selected="Apagar chave" name="WLDeleteKey"/>
-			<text name="WLCurKeyFrameText">
+			<button font="SansSerifSmall" width="96" left="546" label="Adicionar chave" label_selected="Adicionar chave" name="WLAddKey"/>
+			<button font="SansSerifSmall" width="96" left="546" label="Apagar chave" label_selected="Apagar chave" name="WLDeleteKey"/>
+			<text name="WLCurKeyFrameText" width="190" left="17">
 				Configurações de Quadro-chave:
 			</text>
 			<text name="WLCurKeyTimeText">
@@ -47,7 +47,7 @@
 			<text name="DayCycleText">
 				Grudar:
 			</text>
-			<combo_box label="5 minutos" name="WLSnapOptions"/>
+			<combo_box label="5 minutos" name="WLSnapOptions" width="85"/>
 			<text name="DayCycleText2">
 				Duração do Ciclo:
 			</text>
@@ -59,7 +59,7 @@
 			</text>
 			<button label="Tocar" label_selected="Tocar" name="WLAnimSky"/>
 			<button label="Pare!" label_selected="Pare" name="WLStopAnimSky"/>
-			<button label="Usar o horário da Propriedade" label_selected="Ir para o horário da Propriedade" name="WLUseLindenTime"/>
+			<button width="175" font="SansSerifSmall" label="Usar o horário da Propriedade" label_selected="Ir para o horário da Propriedade" name="WLUseLindenTime"/>
 			<button label="Salvar o Dia teste" label_selected="Salvar o Dia teste" name="WLSaveDayCycle"/>
 			<button label="Carregar o Dia teste" label_selected="Carregar o Dia teste" name="WLLoadDayCycle"/>
 		</panel>

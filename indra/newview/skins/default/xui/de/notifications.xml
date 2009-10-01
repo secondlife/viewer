@@ -973,7 +973,7 @@ Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
 
 [NAME] Freundschaft anbieten?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Wollen wir Freunde sein?
 			</input>
 			<button name="Offer" text="OK"/>
@@ -1375,7 +1375,7 @@ Die Option zum Austritt aus einer Gruppe finden Sie unter „Bearbeiten“ &gt; 
 	<notification name="KickUser">
 		Beim Hinauswerfen dieses Benutzers welche Meldung anzeigen?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Sie wurden von einem Administrator abgemeldet.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1385,7 +1385,7 @@ Die Option zum Austritt aus einer Gruppe finden Sie unter „Bearbeiten“ &gt; 
 	<notification name="KickAllUsers">
 		Beim Hinauswerfen aller Personen vom Grid welche Meldung anzeigen?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Sie wurden von einem Administrator abgemeldet.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1395,7 +1395,7 @@ Die Option zum Austritt aus einer Gruppe finden Sie unter „Bearbeiten“ &gt; 
 	<notification name="FreezeUser">
 		Beim Einfrieren dieses Benutzers welche Meldung anzeigen?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Sie wurden eingefroren. Bewegen oder Chatten ist nicht mehr möglich. Ein Administrator wird sich über IM an Sie wenden
 			</input>
 			<button name="OK" text="OK"/>
@@ -1405,7 +1405,7 @@ Die Option zum Austritt aus einer Gruppe finden Sie unter „Bearbeiten“ &gt; 
 	<notification name="UnFreezeUser">
 		Beim Auftauen dieses Benutzers welche Meldung anzeigen?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Sie sind nicht mehr eingefroren.
 			</input>
 			<button name="OK" text="OK"/>
@@ -1415,7 +1415,7 @@ Die Option zum Austritt aus einer Gruppe finden Sie unter „Bearbeiten“ &gt; 
 	<notification name="OfferTeleport">
 		Teleport an Ihre Position mit der folgenden Meldung anbieten?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Triff mich in [REGION]
 			</input>
 			<button name="OK" text="OK"/>
@@ -1425,7 +1425,7 @@ Die Option zum Austritt aus einer Gruppe finden Sie unter „Bearbeiten“ &gt; 
 	<notification name="OfferTeleportFromGod">
 		Benutzer an Ihrem Standort herbeirufen?
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Triff mich in [REGION]
 			</input>
 			<button name="OK" text="OK"/>
@@ -1439,7 +1439,7 @@ Die Option zum Austritt aus einer Gruppe finden Sie unter „Bearbeiten“ &gt; 
 	<notification label="Nachricht an alle auf diesem Grundstück" name="MessageEstate">
 		Geben Sie eine kurze Nachricht ein, die an jede Person auf Ihrem Grundstück gesendet wird.
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Abbrechen"/>
 		</form>
@@ -1625,7 +1625,7 @@ Anzeige für [AMOUNT] L$ veröffentlichen?
 	<notification label="Nachricht an alle in dieser Region" name="MessageRegion">
 		Geben Sie eine kurze Nachricht ein, die an jede Person in dieser Region gesendet wird.
 		<form name="form">
-			<input name="message" type="text"/>
+			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Abbrechen"/>
 		</form>
@@ -1904,14 +1904,14 @@ Die Inhalte werden in Ihr Inventar kopiert.
 Möchten Sie diesen Kauf fortsetzen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
-	<notification name="ConfirmPurchasePassword" type="password">
+	<notification name="ConfirmPurchasePassword">
 		Transaktion:
 [ACTION]
 
 Möchten Sie diesen Kauf fortsetzen?
 Geben Sie Ihr Kennwort erneut ein und klicken Sie auf OK.
 		<form name="form">
-			<input name="message" type="password"/>
+			<input name="message"/>
 			<button name="ConfirmPurchase" text="OK"/>
 			<button name="Cancel" text="Abbrechen"/>
 		</form>
@@ -2268,7 +2268,7 @@ Entspricht dem Azimut.
 	<notification name="NewSkyPreset">
 		Wählen Sie einen Namen für den neuen Himmel.
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Neue Voreinstellung
 			</input>
 			<button name="OK" text="OK"/>
@@ -2281,7 +2281,7 @@ Entspricht dem Azimut.
 	<notification name="NewWaterPreset">
 		Wählen Sie einen Namen für die neue Wasservoreinstellung.
 		<form name="form">
-			<input name="message" type="text">
+			<input name="message">
 				Neue Voreinstellung
 			</input>
 			<button name="OK" text="OK"/>

@@ -5,16 +5,22 @@
 	<button label="" label_selected="" name="button edit" tool_tip="Redigér"/>
 	<button label="" label_selected="" name="button create" tool_tip="Opret"/>
 	<button label="" label_selected="" name="button land" tool_tip="Land"/>
-	<check_box label="Zoom" name="radio zoom"/>
-	<check_box label="Kredsløb (Ctrl)" name="radio orbit"/>
-	<check_box label="Panorér (Ctrl-Shift)" name="radio pan"/>
-	<check_box label="Flyt" name="radio move"/>
-	<check_box label="Løft (Ctrl)" name="radio lift"/>
-	<check_box label="Spin (Ctrl-Shift)" name="radio spin"/>
-	<check_box label="Position" name="radio position"/>
-	<check_box label="Rotér (Ctrl)" name="radio rotate"/>
-	<check_box label="Stræk (Ctrl-Shift)" name="radio stretch"/>
-	<check_box label="Vælg tekstur" name="radio select face"/>
+	<radio_group name="focus_radio_group">
+		<radio_item label="Zoom" name="radio zoom"/>
+		<radio_item label="Kredsløb (Ctrl)" name="radio orbit"/>
+		<radio_item label="Panorér (Ctrl-Shift)" name="radio pan"/>
+	</radio_group>
+	<radio_group name="move_radio_group">
+		<radio_item label="Flyt" name="radio move"/>
+		<radio_item label="Løft (Ctrl)" name="radio lift"/>
+		<radio_item label="Spin (Ctrl-Shift)" name="radio spin"/>
+	</radio_group>
+	<radio_group name="edit_radio_group">
+		<radio_item label="Position" name="radio position"/>
+		<radio_item label="Rotér (Ctrl)" name="radio rotate"/>
+		<radio_item label="Stræk (Ctrl-Shift)" name="radio stretch"/>
+		<radio_item label="Vælg tekstur" name="radio select face"/>
+	</radio_group>
 	<check_box label="Redigér sammenlænkede dele" name="checkbox edit linked parts"/>
 	<text name="text ruler mode">
 		Lineal:
@@ -50,25 +56,27 @@
 	<check_box label="Kopiér valgte" name="checkbox copy selection" />
 	<check_box label="Centreret kopi" name="checkbox copy centers" />
 	<check_box label="Rotér" name="checkbox copy rotates" />
-	<check_box label="Vælg" name="radio select land" />
-	<check_box label="Udflad" name="radio flatten" />
-	<check_box label="Hæv" name="radio raise" />
-	<check_box label="Sænk" name="radio lower" />
-	<check_box label="Udjævn" name="radio smooth" />
-	<check_box label="Gør ujævnt" name="radio noise" />
-	<check_box label="Tilbagefør" name="radio revert" />
+	<radio_group name="land_radio_group">
+		<radio_item label="Vælg" name="radio select land" />
+		<radio_item label="Udflad" name="radio flatten" />
+		<radio_item label="Hæv" name="radio raise" />
+		<radio_item label="Sænk" name="radio lower" />
+		<radio_item label="Udjævn" name="radio smooth" />
+		<radio_item label="Gør ujævnt" name="radio noise" />
+		<radio_item label="Tilbagefør" name="radio revert" />
+	</radio_group>
 	<combo_box name="combobox brush size">
 		<combo_box.item name="Small" label="Lille"/>
-		<combo_box.item name	="Medium" label="Mellem"/>
+		<combo_box.item name="Medium" label="Mellem"/>
 		<combo_box.item name="Large" label="Stor"/>
 	</combo_box>
-	<text type="string" length="1" name="Strength:">
+	<text name="Strength:">
 		Styrke:
 	</text>
 	<text name="Dozer Size:">
 		Størrelse
 	</text>
-	<text length="1" name="Strength:" type="string">
+	<text name="Strength:">
 		Styrke
 	</text>
 	<text name="obj_count">
@@ -109,9 +117,7 @@
 			<text name="Permissions:">
 				Tilladelser:
 			</text>
-			<text name="perm_modify">
-				Du kan redigére dette objekt.
-			</text>
+
 			<check_box label="Del med gruppe" name="checkbox share with group" tool_tip="Tillad gruppemedlemmer at flytte, ændre, kopiere og slette."/>
 			<string name="text deed continued">
 				Deed...
@@ -127,17 +133,12 @@
 			<text name="Cost">
 				Pris:  L$
 			</text>
-			<radio_group name="sale type">
-				<radio_item name="Original" label="Original" />
-				<radio_item name="Copy" label="Kopi" />
-				<radio_item name="Contents" label="Indhold" />
-			</radio_group>
-			<text name="Next owner can:">
-				Næste ejer kan:
-			</text>
-			<check_box label="Redigére" name="checkbox next owner can modify"/>
-			<check_box label="Kopiére" name="checkbox next owner can copy" left_delta="80"/>
-			<check_box label="Sælge/Give væk" name="checkbox next owner can transfer" left_delta="67"/>
+			<combo_box name="sale type">
+				<combo_box.item label="Kopi" name="Copy"/>
+				<combo_box.item label="Indhold" name="Contents"/>
+				<combo_box.item label="Original" name="Original"/>
+			</combo_box>
+
 			<text name="label click action">
 				Når der venstreklikkes:
 			</text>
@@ -150,6 +151,10 @@
 				<combo_box.item name="Play" label="Afspil medie på parcel"/>
 				<combo_box.item name="Opemmedia" label="Åben media på parcel"/>
 			</combo_box>
+		<panel name="perms_build">
+			<text name="perm_modify">
+				Du kan redigére dette objekt.
+			</text>
 			<text name="B:">
 				B:
 			</text>
@@ -168,6 +173,13 @@
 			<text name="F:">
 				F:
 			</text>
+			<text name="Next owner can:">
+				Næste ejer kan:
+			</text>
+			<check_box label="Redigére" name="checkbox next owner can modify"/>
+			<check_box label="Kopiére" name="checkbox next owner can copy" left_delta="80"/>
+			<check_box name="checkbox next owner can transfer" left_delta="67"/>
+		</panel>
 			<string name="text modify info 1">
 				Du kan redigere dette objekt
 			</string>
@@ -320,7 +332,7 @@
 				Sting type
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_box.item name="None" label="ingen)"/>
+				<combo_box.item name="None" label="(ingen)"/>
 				<combo_box.item name="Sphere" label="Sfære"/>
 				<combo_box.item name="Torus" label="Kuglering"/>
 				<combo_box.item name="Plane" label="Plan"/>
@@ -465,43 +477,43 @@
 		<button label="Køb land..." label_selected="Køb land..." name="button buy land"/>
 		<button label="Flyt fra land..." label_selected="Flyt fra land..." name="button abandon land"/>
 	</panel>
-	<string name="status_rotate">
+	<floater.string name="status_rotate">
 		Træk i de farvede bånd for at rotere objekt
-	</string>
-	<string name="status_scale">
+	</floater.string>
+	<floater.string name="status_scale">
 		Klik og træk for at strække valgte side
-	</string>
-	<string name="status_move">
+	</floater.string>
+	<floater.string name="status_move">
 		Træk for at flytte, hold shift nede for at kopiere
-	</string>
-	<string name="status_modifyland">
+	</floater.string>
+	<floater.string name="status_modifyland">
 		Klik og hold for at redigere land
-	</string>
-	<string name="status_camera">
+	</floater.string>
+	<floater.string name="status_camera">
 		Klik og træk for at ændre synsvinkel
-	</string>
-	<string name="status_grab">
+	</floater.string>
+	<floater.string name="status_grab">
 		Træk for at flytte objekter, Ctrl for at løfte, Ctrl-Shift for at rotere
-	</string>
-	<string name="status_place">
+	</floater.string>
+	<floater.string name="status_place">
 		Klik et sted i verden for at bygge
-	</string>
-	<string name="status_selectland">
+	</floater.string>
+	<floater.string name="status_selectland">
 		Klik og træk for at vælge land
-	</string>
-	<string name="grid_screen_text">
+	</floater.string>
+	<floater.string name="grid_screen_text">
 		Skærm
-	</string>
-	<string name="grid_local_text">
+	</floater.string>
+	<floater.string name="grid_local_text">
 		Lokalt
-	</string>
-	<string name="grid_world_text">
+	</floater.string>
+	<floater.string name="grid_world_text">
 		Verden
-	</string>
-	<string name="grid_reference_text">
+	</floater.string>
+	<floater.string name="grid_reference_text">
 		Reference
-	</string>
-	<string name="grid_attachment_text">
+	</floater.string>
+	<floater.string name="grid_attachment_text">
 		Vedhæng
-	</string>
+	</floater.string>
 </floater>

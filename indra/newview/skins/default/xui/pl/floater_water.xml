@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="Water Floater" title="Zaawansowany Edytor Wody">
-	<text type="string" length="1" name="KeyFramePresetsText">
+	<text name="KeyFramePresetsText">
 		Ustawienia Wody:
 	</text>
 	<button label="Nowe" label_selected="Nowe" name="WaterNewPreset" />
@@ -8,89 +8,89 @@
 	<button label="Usuń" label_selected="Usuń" name="WaterDeletePreset" />
 	<tab_container name="Water Tabs">
 		<panel label="Ustawienia" name="Settings">
-			<text type="string" length="1" name="BHText">
+			<text name="BHText">
 				Kolor Podwodnej Mgły
 			</text>
 			<button label="?" name="WaterFogColorHelp" />
 			<color_swatch label="" name="WaterFogColor" tool_tip="Kliknij by wybrać kolor" />
-			<text type="string" length="1" name="WaterFogDensText">
+			<text name="WaterFogDensText">
 				Wykładnik Gęstości Mgły
 			</text>
 			<button label="?" name="WaterFogDensityHelp" />
 			<slider label="" name="WaterFogDensity" />
-			<text type="string" length="1" name="WaterUnderWaterFogModText">
+			<text name="WaterUnderWaterFogModText">
 				Modyfikator Mgły
 			</text>
 			<button label="?" name="WaterUnderWaterFogModHelp" />
 			<slider label="" name="WaterUnderWaterFogMod" />
-			<text type="string" length="1" name="BDensText">
+			<text name="BDensText">
 				Skala Zmarszczeń
 			</text>
 			<button label="?" name="WaterNormalScaleHelp" />
-			<text type="string" length="1" name="BHText2">
+			<text name="BHText2">
 				1
 			</text>
-			<text type="string" length="1" name="BHText3">
+			<text name="BHText3">
 				2
 			</text>
-			<text type="string" length="1" name="BHText4">
+			<text name="BHText4">
 				3
 			</text>
 			<slider label="" name="WaterNormalScaleX" />
 			<slider label="" name="WaterNormalScaleY" />
 			<slider label="" name="WaterNormalScaleZ" />
-			<text type="string" length="1" name="HDText">
+			<text name="HDText">
 				Skala Fresnela
 			</text>
 			<button label="?" name="WaterFresnelScaleHelp" />
 			<slider label="" name="WaterFresnelScale" />
-			<text type="string" length="1" name="FresnelOffsetText">
+			<text name="FresnelOffsetText">
 				Przesunięcie Fresnela
 			</text>
 			<button label="?" name="WaterFresnelOffsetHelp" />
 			<slider label="" name="WaterFresnelOffset" />
-			<text type="string" length="1" name="DensMultText">
+			<text name="DensMultText">
 				Górna Refrakcja
 			</text>
 			<button label="?" name="WaterScaleAboveHelp" />
 			<slider label="" name="WaterScaleAbove" />
-			<text type="string" length="1" name="WaterScaleBelowText">
+			<text name="WaterScaleBelowText">
 				Dolna Refrakcja
 			</text>
 			<button label="?" name="WaterScaleBelowHelp" />
 			<slider label="" name="WaterScaleBelow" />
-			<text type="string" length="1" name="MaxAltText">
+			<text name="MaxAltText">
 				Mnożnik Rozmycia
 			</text>
 			<button label="?" name="WaterBlurMultiplierHelp" />
 			<slider label="" name="WaterBlurMult" />
 		</panel>
 		<panel label="Rysowanie" name="Waves">
-			<text type="string" length="1" name="BHText">
+			<text name="BHText">
 				Kierunek Dużych Fal
 			</text>
 			<button label="?" name="WaterWave1Help" />
-			<text type="string" length="1" name="WaterWave1DirXText">
+			<text name="WaterWave1DirXText">
 				X
 			</text>
-			<text type="string" length="1" name="WaterWave1DirYText">
+			<text name="WaterWave1DirYText">
 				Y
 			</text>
 			<slider label="" name="WaterWave1DirX" />
 			<slider label="" name="WaterWave1DirY" />
-			<text type="string" length="1" name="BHText2">
+			<text name="BHText2">
 				Kierunek Małych Fal
 			</text>
 			<button label="?" name="WaterWave2Help" />
-			<text type="string" length="1" name="WaterWave2DirXText">
+			<text name="WaterWave2DirXText">
 				X
 			</text>
-			<text type="string" length="1" name="WaterWave2DirYText">
+			<text name="WaterWave2DirYText">
 				Y
 			</text>
 			<slider label="" name="WaterWave2DirX" />
 			<slider label="" name="WaterWave2DirY" />
-			<text type="string" length="1" name="BHText3">
+			<text name="BHText3">
 				Mapa Normalnych
 			</text>
 			<button label="?" name="WaterNormalMapHelp" />

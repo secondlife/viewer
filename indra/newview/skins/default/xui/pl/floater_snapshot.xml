@@ -15,12 +15,8 @@
 	<button label="Wyślij" name="send_btn"/>
 	<button label="Załaduj (L$[AMOUNT])" name="upload_btn"/>
 	<flyout_button label="Zapisz" name="save_btn" tool_tip="Zapisz zdjęcie na dysk">
-    <flyout_button.item name="save_item">
-      Zapisz
-    </flyout_button.item>
-    <flyout_button.item name="saveas_item">
-      Zapisz Jako...
-    </flyout_button.item>
+    <flyout_button.item name="save_item" label="Zapisz"/>
+    <flyout_button.item name="saveas_item" label="Zapisz Jako..."/>
 	</flyout_button>
 	<button label="Anuluj" name="discard_btn"/>
 	<button label="Więcej &gt;&gt;" name="more_btn" tool_tip="Ustawienia Zaawansowane"/>

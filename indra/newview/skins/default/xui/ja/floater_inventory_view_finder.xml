@@ -15,7 +15,7 @@
 	<button label="なし" label_selected="なし" name="None" />
 	<check_box label="常にフォルダを表示" name="check_show_empty" />
 	<check_box label="ログオフ以降" name="check_since_logoff" />
-	<text type="string" length="1" name="- OR -">
+	<text name="- OR -">
 		－または－
 	</text>
 	<spinner label="経過時間" name="spin_hours_ago" />

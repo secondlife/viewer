@@ -6,16 +6,17 @@
 	<button label="20 L$" label_selected="20 L$" name="fastpay 20"/>
 	<button label="Pagar" label_selected="Pagar" name="pay btn"/>
 	<button label="Cancelar" label_selected="Cancelar" name="cancel btn"/>
-	<text length="1" name="payee_label" type="string">
+	<text name="payee_label" left="5" width="105">
 		Pagar al residente:
 	</text>
-	<text length="1" name="payee_name" type="string">
+	<text name="payee_name" left="115">
 		[FIRST] [LAST]
 	</text>
-	<text length="1" name="fastpay text" type="string">
+	<text name="fastpay text" width="100" halign="left">
 		Pago rápido:
 	</text>
-	<text length="1" name="amount text" type="string">
+	<text name="amount text" left="4" >
 		Cantidad:
 	</text>
+	<line_editor left="60" name="amount" width="55"/>
 </floater>

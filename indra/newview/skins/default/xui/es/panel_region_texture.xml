@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Texturas del terreno" name="Textures">
+<panel name="TextureWrapper">
+  <scroll_container name="container1">
+   <panel label="Texturas del terreno" name="Textures">
 	<text name="region_text_lbl">
 		Región:
 	</text>
 	<text name="region_text">
 		desconocida
 	</text>
-	<text name="detail_texture_text">
+	<text name="detail_texture_text" width="380">
 		Texturas del terreno (se requieren archivos .tga de 512x512 y 24 bites)
 	</text>
 	<text name="height_text_lbl">
@@ -54,4 +56,6 @@
 		y el valor ALTA es la altura MÍNIMA de la textura #4.
 	</text>
 	<button label="Aplicar" name="apply_btn"/>
+    </panel>
+  </scroll_container>
 </panel>

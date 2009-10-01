@@ -7,6 +7,7 @@
  height="95"
  layout="topleft"
  name="camera_floater"
+ help_topic="camera_floater"
  save_rect="true"
  save_visibility="true"
  width="105">
@@ -80,20 +81,20 @@
     </panel>
     <panel
      border="true"
-     height="30"
+     height="25"
      layout="topleft"
      left="0"
      top_pad="1"
      name="buttons"
      width="105">
         <button
-         height="25"
+         height="23"
          label=""
          layout="topleft"
-         left="0"
+         left="2"
          is_toggle="true"
-         image_selected="btn_orbit_selected.png"
-         image_unselected="btn_orbit_unselected.png"
+         image_overlay="Cam_Orbit_Off"
+         image_selected="PushButton_Selected_Press" 
          name="orbit_btn"
          tab_stop="false"
          tool_tip="Orbit Camera"
@@ -101,42 +102,43 @@
          width="25">
         </button>
         <button
-         height="25"
+         height="23"
          label=""
          layout="topleft"
-         left_pad="1"
+         left_pad="0"
          is_toggle="true"
-         image_selected="btn_pan_selected.png"
-         image_unselected="btn_pan_unselected.png"
+         image_overlay="Cam_Pan_Off"
+         image_selected="PushButton_Selected_Press" 
          name="pan_btn"
          tab_stop="false"
          tool_tip="Pan Camera"
          width="25">
         </button>
         <button
-         height="25"
+         height="23"
          label=""
          layout="topleft"
-         left_pad="1"
-         is_toggle="true"
-         image_selected="btn_freecamera_selected.png"
-         image_unselected="btn_freecamera_unselected.png"
-         name="freecamera_btn"
-         tab_stop="false"
-         tool_tip="View Object"
-         width="25">
-        </button>
-        <button
-         height="25"
-         label=""
-         layout="topleft"
-         left_pad="2"
-         image_selected="btn_firstperson_selected.png"
-         image_unselected="btn_firstperson_unselected.png"
+         left_pad="0"
+         image_overlay="Cam_Avatar_Off"
+         image_selected="PushButton_Selected_Press" 
          name="avatarview_btn"
          tab_stop="false"
          tool_tip="See as Avatar"
          width="25">
         </button>
+        <button
+         height="23"
+         label=""
+         layout="topleft"
+         left_pad="0"
+         is_toggle="true"
+         image_overlay="Cam_FreeCam_Off"
+         image_selected="PushButton_Selected_Press" 
+         name="freecamera_btn"
+         tab_stop="false"
+         tool_tip="View Object"
+         width="25">
+        </button>
+        
     </panel>
 </floater>

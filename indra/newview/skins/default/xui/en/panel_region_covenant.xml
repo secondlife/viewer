@@ -26,8 +26,6 @@
         Purchased land in this region may not be joined or subdivided.
     </panel.string>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      font="SansSerif"
      height="20"
@@ -40,8 +38,6 @@
         Estate
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -53,8 +49,6 @@
         Name:
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -66,8 +60,6 @@
         mainland
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -79,8 +71,6 @@
         Owner:
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -93,8 +83,6 @@
     </text>
 
     <text 
-     type="string" 
-     length="1" 
      follows="left|top"
      height="20" 
      layout="topleft"
@@ -106,8 +94,6 @@
         Covenant:
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -130,8 +116,6 @@
      width="18" />
 
     <text_editor
-     type="string"
-     length="1"
      enabled="false"
      follows="left|top"
      height="100"
@@ -157,8 +141,6 @@
      width="90" />
 
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -170,8 +152,6 @@
 on all parcels in the estate.
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="16"
      layout="topleft"
@@ -184,8 +164,6 @@ the Covenant for this Estate.
     </text>
 
     <text
-     type="string"
-     length="1"
      follows="left|top"
      font="SansSerif"
      height="20"
@@ -198,8 +176,6 @@ the Covenant for this Estate.
         Region
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -211,8 +187,6 @@ the Covenant for this Estate.
         Name:
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -224,8 +198,6 @@ the Covenant for this Estate.
         leyla
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -237,8 +209,6 @@ the Covenant for this Estate.
         Type:
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -250,8 +220,6 @@ the Covenant for this Estate.
         Mainland / Homestead
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -263,8 +231,6 @@ the Covenant for this Estate.
         Rating:
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -276,8 +242,6 @@ the Covenant for this Estate.
         Adult
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -289,8 +253,6 @@ the Covenant for this Estate.
         Resale:
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -303,8 +265,6 @@ the Covenant for this Estate.
 resold.
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="20"
      layout="topleft"
@@ -316,8 +276,6 @@ resold.
         Subdivide:
     </text>
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="30"
      layout="topleft"

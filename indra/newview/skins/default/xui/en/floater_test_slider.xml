@@ -4,6 +4,7 @@
  height="400"
  layout="topleft"
  name="floater_test_slider"
+ help_topic="floater_test_slider"
  width="450">
     <slider
      height="20"

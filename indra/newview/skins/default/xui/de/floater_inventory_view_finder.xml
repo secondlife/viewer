@@ -15,7 +15,7 @@
 	<button label="Keine" label_selected="Keine" name="None" />
 	<check_box label="Ordner immer anzeigen" name="check_show_empty" />
 	<check_box label="Seit Abmeldung" name="check_since_logoff" />
-	<text type="string" length="1" name="- OR -">
+	<text name="- OR -">
 		- ODER -
 	</text>
 	<spinner label="Stunden zuvor" label_width="80" name="spin_hours_ago" />

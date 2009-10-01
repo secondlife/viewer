@@ -79,46 +79,46 @@
 			<button label="Land aufgeben..." label_selected="Land aufgeben..." name="Abandon Land..."/>
 			<button label="Land in Besitz nehmen..." label_selected="Land in Besitz nehmen..." name="Reclaim Land..."/>
 			<button label="Linden-Verkauf..." label_selected="Linden-Verkauf..." name="Linden Sale..." tool_tip="Land muss Eigentum und auf Inhalt gesetzt sein und nicht zur Auktion stehen."/>
-			<string name="new users only">
+			<panel.string name="new users only">
 				Nur neue Benutzer
-			</string>
-			<string name="anyone">
+			</panel.string>
+			<panel.string name="anyone">
 				Jeder
-			</string>
-			<string name="area_text">
+			</panel.string>
+			<panel.string name="area_text">
 				Gebiet:
-			</string>
-			<string name="area_size_text">
+			</panel.string>
+			<panel.string name="area_size_text">
 				[AREA] qm.
-			</string>
-			<string name="auction_id_text">
+			</panel.string>
+			<panel.string name="auction_id_text">
 				Auktions-ID: [ID]
-			</string>
-			<string name="need_tier_to_modify">
+			</panel.string>
+			<panel.string name="need_tier_to_modify">
 				Bestätigen Sie den Kauf, um dieses Land zu bearbeiten.
-			</string>
-			<string name="group_owned_text">
+			</panel.string>
+			<panel.string name="group_owned_text">
 				(In Gruppenbesitz)
-			</string>
-			<string name="profile_text">
+			</panel.string>
+			<panel.string name="profile_text">
 				Profil...
-			</string>
-			<string name="info_text">
+			</panel.string>
+			<panel.string name="info_text">
 				Info...
-			</string>
-			<string name="public_text">
+			</panel.string>
+			<panel.string name="public_text">
 				(öffentlich)
-			</string>
-			<string name="none_text">
+			</panel.string>
+			<panel.string name="none_text">
 				(keiner)
-			</string>
-			<string name="sale_pending_text">
+			</panel.string>
+			<panel.string name="sale_pending_text">
 				(Wird verkauft)
-			</string>
-			<string name="no_selection_text">
+			</panel.string>
+			<panel.string name="no_selection_text">
 				Keine Parzelle ausgewählt.
 Öffnen Sie „Welt“ &gt; „Land-Info“ oder wählen Sie eine andere Parzelle aus, um Informationen darüber anzuzeigen.
-			</string>
+			</panel.string>
 		</panel>
 		<panel label="Vertrag" name="land_covenant_panel">
 			<text name="estate_section_lbl">
@@ -176,20 +176,20 @@
 				Land in dieser Region kann nicht zusammengelegt/geteilt
 werden.
 			</text>
-			<string name="can_resell">
+			<panel.string name="can_resell">
 				Gekauftes Land in dieser Region kann wiederverkauft werden.
-			</string>
-			<string name="can_not_resell">
+			</panel.string>
+			<panel.string name="can_not_resell">
 				Gekauftes Land in dieser Region kann nicht wiederverkauft werden.
-			</string>
-			<string name="can_change">
+			</panel.string>
+			<panel.string name="can_change">
 				Gekauftes Land in dieser Region kann zusammengelegt und
 geteilt werden.
-			</string>
-			<string name="can_not_change">
+			</panel.string>
+			<panel.string name="can_not_change">
 				Gekauftes Land in dieser Region kann nicht zusammengelegt
 und geteilt werden.
-			</string>
+			</panel.string>
 		</panel>
 		<panel label="Objekte" name="land_objects_panel">
 			<text name="parcel_object_bonus">
@@ -201,12 +201,12 @@ und geteilt werden.
 			<text name="objects_available">
 				[COUNT] von [MAX] ([AVAILABLE] verfügbar)
 			</text>
-			<string name="objects_available_text">
+			<panel.string name="objects_available_text">
 				[COUNT] von [MAX] ([AVAILABLE] verfügbar)
-			</string>
-			<string name="objects_deleted_text">
+			</panel.string>
+			<panel.string name="objects_deleted_text">
 				[COUNT] von [MAX] ([DELETED] werden gelöscht)
-			</string>
+			</panel.string>
 			<text name="Primitives parcel supports:" width="200">
 				Von Parzelle unterstützte Primitiva:
 			</text>
@@ -293,109 +293,84 @@ und geteilt werden.
 			<check_box label="Sicher (kein Schaden)" name="check safe" tool_tip="Falls aktiviert, wird Land auf Option „Sicher“ eingestellt, Kampfschäden sind deaktiviert. Falls nicht aktiviert, sind Kampfschäden aktiviert."/>
 			<check_box label="Kein Stoßen" name="PushRestrictCheck" tool_tip="Verhindert Skripte am Stoßen. Durch Aktivieren dieser Option verhindern Sie störendes Verhalten auf Ihrem Land."/>
 			<check_box label="Ort in Suche anzeigen (30 L$/Woche) unter" name="ShowDirectoryCheck" tool_tip="Diese Parzelle in Suchergebnissen anzeigen."/>
-			<string name="search_enabled_tooltip">
+			<panel.string name="search_enabled_tooltip">
 				Diese Parzelle in Suchergebnissen anzeigen.
-			</string>
-			<string name="search_disabled_small_tooltip">
+			</panel.string>
+			<panel.string name="search_disabled_small_tooltip">
 				Diese Option ist nicht aktiviert, da diese Parzelle nicht größer als 128 qm ist.
 Nur große Parzellen können in der Suche aufgeführt werden.
-			</string>
-			<string name="search_disabled_permissions_tooltip">
+			</panel.string>
+			<panel.string name="search_disabled_permissions_tooltip">
 				Diese Option ist nicht aktiviert, da Sie die Parzellenoptionen nicht verändern können.
-			</string>
+			</panel.string>
 			<combo_box name="land category with adult">
-				<combo_item name="AnyCategory">
-					Alle Kategorien
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Lindenort
-				</combo_item>
-				<combo_item name="Adult">
-					Adult
-				</combo_item>
-				<combo_item name="Arts&amp;Culture">
-					Kunst &amp; Kultur
-				</combo_item>
-				<combo_item name="Business">
-					Business
-				</combo_item>
-				<combo_item name="Educational">
-					Bildung
-				</combo_item>
-				<combo_item name="Gaming">
-					Spielen
-				</combo_item>
-				<combo_item name="Hangout">
-					Treffpunkt
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					Anfängergerecht
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					Parks und Natur
-				</combo_item>
-				<combo_item name="Residential">
-					Wohngebiet
-				</combo_item>
-				<combo_item name="Shopping">
-					Shopping
-				</combo_item>
-				<combo_item name="Other">
-					Sonstige
-				</combo_item>
+				<combo_box.item name="item0" label="Alle Kategorien"
+				/>
+				<combo_box.item name="item1" label="Lindenort"
+				/>
+				<combo_box.item name="item2" label="Adult"
+				/>
+				<combo_box.item name="item3" label="Kunst &amp; Kultur"
+				/>
+				<combo_box.item name="item4" label="Business"
+				/>
+				<combo_box.item name="item5" label="Bildung"
+				/>
+				<combo_box.item name="item6" label="Spielen"
+				/>
+				<combo_box.item name="item7" label="Treffpunkt"
+				/>
+				<combo_box.item name="item8" label="Anfängergerecht"
+				/>
+				<combo_box.item name="item9" label="Parks und Natur"
+				/>
+				<combo_box.item name="item10" label="Wohngebiet"
+				/>
+				<combo_box.item name="item11" label="Shopping"
+				/>
+				<combo_box.item name="item12" label="Sonstige"
+				/>
 			</combo_box>
 			<combo_box left="266" name="land category" width="130">
-				<combo_item name="AnyCategory">
-					Alle Kategorien
-				</combo_item>
-				<combo_item name="LindenLocation">
-					Lindenort
-				</combo_item>
-				<combo_item name="Arts&amp;Culture">
-					Kunst und Kultur
-				</combo_item>
-				<combo_item name="Business">
-					Business
-				</combo_item>
-				<combo_item name="Educational">
-					Bildung
-				</combo_item>
-				<combo_item name="Gaming">
-					Spielen
-				</combo_item>
-				<combo_item name="Hangout">
-					Treffpunkt
-				</combo_item>
-				<combo_item name="NewcomerFriendly">
-					Anfängergerecht
-				</combo_item>
-				<combo_item name="Parks&amp;Nature">
-					Parks und Natur
-				</combo_item>
-				<combo_item name="Residential">
-					Wohngebiet
-				</combo_item>
-				<combo_item name="Shopping">
-					Shopping
-				</combo_item>
-				<combo_item name="Other">
-					Sonstige
-				</combo_item>
+				<combo_box.item name="item0" label="Alle Kategorien"
+				/>
+				<combo_box.item name="item1" label="Lindenort"
+				/>
+				<combo_box.item name="item3" label="Kunst und Kultur"
+				/>
+				<combo_box.item name="item4" label="Business"
+				/>
+				<combo_box.item name="item5" label="Bildung"
+				/>
+				<combo_box.item name="item6" label="Spielen"
+				/>
+				<combo_box.item name="item7" label="Treffpunkt"
+				/>
+				<combo_box.item name="item8" label="Anfängergerecht"
+				/>
+				<combo_box.item name="item9" label="Parks und Natur"
+				/>
+				<combo_box.item name="item10" label="Wohngebiet"
+				/>
+				<combo_box.item name="item11" label="Shopping"
+				/>
+				<combo_box.item name="item12" label="Sonstige"
+				/>
 			</combo_box>
 			<button label="?" label_selected="?" name="?"/>
 			<check_box label="Mature-Inhalt" name="MatureCheck" tool_tip=""/>
-			<string name="mature_check_mature">
+			<panel.string name="mature_check_mature">
 				Mature-Inhalt
-			</string>
-			<string name="mature_check_adult">
+			</panel.string>
+			<panel.string name="mature_check_adult">
 				Adult-Inhalt
-			</string>
-			<string name="mature_check_mature_tooltip">
+			</panel.string>
+			<panel.string name="mature_check_mature_tooltip">
 				Die Informationen oder Inhalte Ihrer Parzelle sind „Mature“.
-			</string>
-			<string name="mature_check_adult_tooltip">
+			</panel.string>
+			<panel.string name="mature_check_adult_tooltip">
 				Die Informationen oder Inhalte Ihrer Parzelle sind „Adult“.
-			</string>
+			</panel.string>
 			<text name="Snapshot:">
 				Foto:
 			</text>
@@ -403,31 +378,28 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<text name="landing_point">
 				Landepunkt: [LANDING]
 			</text>
-			<string name="landing_point_none">
+			<panel.string name="landing_point_none">
 				(keiner)
-			</string>
+			</panel.string>
 			<button label="Festlegen" label_selected="Festlegen" left="234" name="Set" tool_tip="Legt den Landepunkt fest, an dem Besucher ankommen. Legt die Position Ihres Avatars innerhalb dieser Parzelle fest." width="70"/>
 			<button label="Löschen" label_selected="Löschen" left="312" name="Clear" tool_tip="Landepunkt löschen." width="70"/>
 			<text name="Teleport Routing: ">
 				Teleport-Route:
 			</text>
 			<combo_box name="landing type" tool_tip="Teleport-Route -- festlegen, wie Teleports auf Ihrem Land gehandhabt werden sollen.">
-				<combo_item name="Blocked">
-					Blockiert
-				</combo_item>
-				<combo_item name="LandingPoint">
-					Landepunkt
-				</combo_item>
-				<combo_item name="Anywhere">
-					Überall
-				</combo_item>
+				<combo_box.item name="Blocked" label="Blockiert"
+				/>
+				<combo_box.item name="LandingPoint" label="Landepunkt"
+				/>
+				<combo_box.item name="Anywhere" label="Überall"
+				/>
 			</combo_box>
-			<string name="push_restrict_text">
+			<panel.string name="push_restrict_text">
 				Kein Stoßen
-			</string>
-			<string name="push_restrict_region_text">
+			</panel.string>
+			<panel.string name="push_restrict_region_text">
 				Kein Stoßen (regional)
-			</string>
+			</panel.string>
 		</panel>
 		<panel label="Medien" name="land_media_panel">
 			<text name="with media:">
@@ -492,18 +464,16 @@ Optionen:
 			</text>
 			<check_box label="Einwohner, die keine Zahlungsinformationen bei Linden Lab hinterlegt haben" name="limit_payment" tool_tip="Nicht identifizierte Einwohner verbannen."/>
 			<check_box label="Einwohner, die keine altersgeprüften Erwachsenen sind" name="limit_age_verified" tool_tip="Einwohner ohne Altersprüfung verbannen. Weitere Informationen finden Sie auf support.secondlife.com."/>
-			<string name="estate_override">
+			<panel.string name="estate_override">
 				Eine oder mehrere dieser Optionen gelten auf Grundstücksebene
-			</string>
+			</panel.string>
 			<check_box label="Gruppenzugang erlauben: [GROUP]" name="GroupCheck" tool_tip="Gruppe im Register „Allgemein“ festlegen."/>
 			<check_box label="Pässe verkaufen an:" name="PassCheck" tool_tip="Ermöglicht befristeten Zugang zu dieser Parzelle"/>
 			<combo_box name="pass_combo">
-				<combo_item name="Anyone">
-					Jeden
-				</combo_item>
-				<combo_item name="Group">
-					Gruppe
-				</combo_item>
+				<combo_box.item name="Anyone" label="Jeden"
+				/>
+				<combo_box.item name="Group" label="Gruppe"
+				/>
 			</combo_box>
 			<spinner label="Preis in L$:" name="PriceSpin"/>
 			<spinner label="Online-Zeit:" name="HoursSpin"/>

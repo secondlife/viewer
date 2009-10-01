@@ -3,6 +3,7 @@
  height="150"
  layout="topleft"
  name="Environment Editor Floater"
+ help_topic="environment_editor_floater"
  save_rect="true"
  title="Environment Editor"
  width="600">

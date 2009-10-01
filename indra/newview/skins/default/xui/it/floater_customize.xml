@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="Aspetto fisico" width="551">
 	<tab_container name="customize tab container" tab_min_width="120" width="549">
-		<panel label="Parti del corpo" name="body_parts_placeholder"/>
+		<placeholder label="Parti del corpo" name="body_parts_placeholder"/>
 		<panel label="Forma del corpo" name="Shape" left="124" width="389">
 			<button font="SansSerifSmall" width="120" left="267" label="Annulla le modifiche" label_selected="Annulla le modifiche" name="Revert"/>
 			<button label="Corpo" label_selected="Corpo" name="Body"/>

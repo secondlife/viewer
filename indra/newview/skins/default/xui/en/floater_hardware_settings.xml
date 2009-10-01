@@ -3,6 +3,7 @@
  height="224"
  layout="topleft"
  name="Hardware Settings Floater"
+ help_topic="hardware_settings_floater"
  title="Hardware Settings"
  width="500">
     <text

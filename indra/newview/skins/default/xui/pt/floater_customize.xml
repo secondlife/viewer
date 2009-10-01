@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="Aparência" width="546">
 	<tab_container name="customize tab container" tab_min_width="115" width="544">
-		<panel label="Partes de corpo" name="body_parts_placeholder"/>
+		<placeholder label="Partes de corpo" name="body_parts_placeholder"/>
 		<panel label="Forma" name="Shape">
 			<button label="Reverter" label_selected="Reverter" name="Revert"/>
 			<button label="Corpo" label_selected="Corpo" name="Body"/>
@@ -14,29 +14,29 @@
 			<button label="Tórax" label_selected="Tórax" name="Torso"/>
 			<button label="Pernas" label_selected="Pernas" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item length="1" name="radio" type="string" label="Feminino" />
-				<radio_item length="1" name="radio2" type="string" label="Masculino" />
+				<radio_item name="radio" label="Feminino" />
+				<radio_item name="radio2" label="Masculino" />
 			</radio_group>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: não foi possível modificar
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: carregando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: não vestido
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Localizado em [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Coloque uma nova forma arrastando uma do seu inventário para seu avatar.
 Alternativamente, você pode criar uma nova de um esboço e usá-la.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Você não tem permissão para modificar esta vestimenta.
 			</text>
 			<text name="Item Action Label">
@@ -51,27 +51,27 @@ Alternativamente, você pode criar uma nova de um esboço e usá-la.
 			<button width="115" label="Detalhes Faciais" label_selected="Detalhes Faciais" name="Face Detail"/>
 			<button width="115" label="Maquiagem" label_selected="Maquiagem" name="Makeup"/>
 			<button width="115" label="Detalhes do Corpo" label_selected="Detalhes do Corpo" name="Body Detail"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: não foi possível modificar
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: carregando..
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: não vestido
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Localizada em [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Coloque uma nova pele arrastando uma de seu inventário para seu avatar.
 Alternativamente, você pode criar uma nova forma a partir de um esboço
 e usá-la.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Você não tem permissão para modificar esta vestimenta.
 			</text>
 			<text name="Item Action Label">
@@ -90,27 +90,27 @@ e usá-la.
 			<button width="115" label="Estilo" label_selected="Estilo" name="Style"/>
 			<button width="115" label="Sombrancelhas" label_selected="Sombrancelhas" name="Eyebrows"/>
 			<button width="115" label="Rosto" label_selected="Rosto" name="Facial"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: não foi possível modificar
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: carregando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: não vestido
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Localizado em [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Ponha um novo cabelo em seu avatar arrastando um do seu inventário.
 Alternativamente, você pode criar um novo modelo a partir de um esboço
 e usá-lo.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Você não ter permissão para modificar essa vestimenta.
 			</text>
 			<text name="Item Action Label">
@@ -123,26 +123,26 @@ e usá-lo.
 			<button label="Reverter" label_selected="Reverter" name="Revert"/>
 		</panel>
 		<panel label="Olhos" name="Eyes">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: não foi possível modificar
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: carregando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: não vestido
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Localizado em [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Para colocar novos olhos, arraste um do seu inventário para seu avatar.
 Alternativamente, você pode criar um novo modelo de um esboço e usá-lo.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Você não tem permissão para alterar esta vestimenta.
 			</text>
 			<text name="Item Action Label">
@@ -163,27 +163,27 @@ Alternativamente, você pode criar um novo modelo de um esboço e usá-lo.
 			<button label="Salvar" label_selected="Salvar" name="Save"/>
 			<button label="Salvar como..." label_selected="Salvar como..." name="Save As"/>
 			<button label="Reverter" label_selected="Reverter" name="Revert"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: não foi possível modificar
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: carregando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: não vestido
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Localizado em [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Para por uma nova camisa em seu avatar, arraste uma do seu inventário para
 seu avatar. Alternativamente, você pode criar um novo modelo a partir de
 um esboço e usá-lo.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Você não ter permissão para modificar esta vestimenta.
 			</text>
 			<text name="Item Action Label">
@@ -198,27 +198,27 @@ um esboço e usá-lo.
 			<button label="Salvar" label_selected="Salvar" name="Save"/>
 			<button label="Salvar como..." label_selected="Salvar como..." name="Save As"/>
 			<button label="Reverter" label_selected="Reverter" name="Revert"/>
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: não foi possível modificar
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: carregando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: não vestindo
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Localizado em [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Para por uma nova calça em seu avatar, basta arrastar uma outra do seu
 inventário. Alternativamente, você pode criar um novo modelo a partir
 de um esboço e usá-lo.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Você não tem permissão para modificar esta vestimenta.
 			</text>
 			<text name="Item Action Label">
@@ -226,27 +226,27 @@ de um esboço e usá-lo.
 			</text>
 		</panel>
 		<panel label="Sapatos" name="Shoes">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: não foi possível modificar
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: carregando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: não vestido
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Localizado em [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Para por novos sapatos em seu avatar, basta arrastar um novo do seu
 inventário. Alternativamente, você pode criar um novo modelo a partir
 de um esboço e usá-lo.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Você não tem permissão para modificar esta vestimenta.
 			</text>
 			<text name="Item Action Label">
@@ -261,27 +261,27 @@ de um esboço e usá-lo.
 			<button label="Reverter" label_selected="Reverter" name="Revert"/>
 		</panel>
 		<panel label="Meias" name="Socks">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: não foi possível modificar
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: carregando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: não vestido.
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Localizado em [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Para por novas meias em seu avatar, basta arrastar uma nova do seu
 inventário. Alternativamente, você pode criar novas meias a partir de
 um esboço e usá-las.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Você não tem permissão para modificar essa vestimenta.
 			</text>
 			<text name="Item Action Label">
@@ -296,27 +296,27 @@ um esboço e usá-las.
 			<button label="Reverter" label_selected="Reverter" name="Revert"/>
 		</panel>
 		<panel label="Jaqueta" name="Jacket">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: Não foi possível modificar
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: carregando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: não vestido
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Localizado em [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Para por uma nova jaqueta em seu avatar, basta arrastar um novo modelo
 do seu inventário. Alternativamente, você pode criar um novo modelo a
 partir de um esboço e usá-lo.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Você não tem permissão para modificar esta vestimenta.
 			</text>
 			<text name="Item Action Label">
@@ -332,27 +332,27 @@ partir de um esboço e usá-lo.
 			<button label="Reverter" label_selected="Reverter" name="Revert"/>
 		</panel>
 		<panel label="Luvas" name="Gloves">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: não foi possível modificar
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: carregando....
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: não vestido
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Localizado em [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Para colocar uma nova jaqueta em seu avatar, basta arrastar um novo modelo
 do seu inventário. Alternativamente, você pode criar uma novo modelo a
 partir de um esboço e usá-lo.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Você não tem permissão para modificar essa vestimenta.
 			</text>
 			<text name="Item Action Label">
@@ -367,27 +367,27 @@ partir de um esboço e usá-lo.
 			<button label="Reverter" label_selected="Reverter" name="Revert"/>
 		</panel>
 		<panel label="Camiseta" name="Undershirt">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: não foi possível modificar
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: carregando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: não vestido
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Localizado em [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Para por uma nova Camiseta em seu avatar, basta arrastar um novo modelo
 de seu inventário. Alternativamente, você pode criar um novo modelo a
 partir de um esboço e usá-lo.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Você não ter permissão para modificar essa vestimenta.
 			</text>
 			<text name="Item Action Label">
@@ -402,27 +402,27 @@ partir de um esboço e usá-lo.
 			<button label="Reverter" label_selected="Reverter" name="Revert"/>
 		</panel>
 		<panel label="Roupas de Baixo" name="Underpants">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: não foi possível modificar
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: carregando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: não vestido
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Localizado em [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Para por novas roupas de baixo em seu avatar, basta arrastar um novo
 modelo do seu inventário. Alternativamente, você pode criar um novo
 modelo a partir de um esboço e usá-lo.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Você não tem permissão para modificar essa vestimenta.
 			</text>
 			<text name="Item Action Label">
@@ -437,27 +437,27 @@ modelo a partir de um esboço e usá-lo.
 			<button label="Reverter" label_selected="Reverter" name="Revert"/>
 		</panel>
 		<panel label="Saia" name="Skirt">
-			<text length="1" name="title" type="string">
+			<text name="title">
 				[DESC]
 			</text>
-			<text length="1" name="title_no_modify" type="string">
+			<text name="title_no_modify">
 				[DESC]: não foi possível modificar
 			</text>
-			<text length="1" name="title_loading" type="string">
+			<text name="title_loading">
 				[DESC]: carregando...
 			</text>
-			<text length="1" name="title_not_worn" type="string">
+			<text name="title_not_worn">
 				[DESC]: não vestido
 			</text>
-			<text length="1" name="path" type="string">
+			<text name="path">
 				Localizado em [PATH]
 			</text>
-			<text length="1" name="not worn instructions" type="string">
+			<text name="not worn instructions">
 				Para por uma nova saia em seu avatar, basta arrastar um novo modelo
 do seu inventário. Alternativamente, você pode criar um novo modelo a
 partir de um esboço e usá-lo.
 			</text>
-			<text length="1" name="no modify instructions" type="string">
+			<text name="no modify instructions">
 				Você não tem permissão para modificar esta vestimenta.
 			</text>
 			<text name="Item Action Label">

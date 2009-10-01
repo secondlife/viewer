@@ -15,7 +15,7 @@
 	<button label="Ingen" label_selected="Ingen" name="None" />
 	<check_box label="Vis altid mapper" name="check_show_empty" />
 	<check_box label="Siden sidste logoff" name="check_since_logoff" />
-	<text type="string" length="1" name="- OR -">
+	<text name="- OR -">
 		- ELLER -
 	</text>
 	<spinner label="Timer siden" name="spin_hours_ago" />

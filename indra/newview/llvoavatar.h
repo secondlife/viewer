@@ -114,6 +114,8 @@ protected:
 	// LLViewerObject interface and related
 	//--------------------------------------------------------------------
 public:
+	virtual void			updateGL();
+	virtual	LLVOAvatar*		asAvatar();
 	virtual U32    	 	 	processUpdateMessage(LLMessageSystem *mesgsys,
 													 void **user_data,
 													 U32 block_num,
@@ -329,7 +331,7 @@ private:
 
 public:
 	U32 		renderFootShadows();
-	U32 		renderImpostor(LLColor4U color = LLColor4U(255,255,255,255));
+	U32 		renderImpostor(LLColor4U color = LLColor4U(255,255,255,255), S32 diffuse_channel = 0);
 	U32 		renderRigid();
 	U32 		renderSkinned(EAvatarRenderPass pass);
 	U32 		renderTransparent(BOOL first_pass);
@@ -560,6 +562,7 @@ protected:
 	/*virtual*/ void restoreMeshData();
 private:
 	BOOL 			mDirtyMesh;
+	BOOL			mMeshTexturesDirty;
 
 	typedef std::multimap<std::string, LLPolyMesh*> polymesh_map_t;
 	polymesh_map_t 									mMeshes;

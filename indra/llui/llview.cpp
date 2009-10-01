@@ -143,6 +143,7 @@ LLView::LLView(const LLView::Params& p)
 
 LLView::~LLView()
 {
+	dirtyRect();
 	//llinfos << "Deleting view " << mName << ":" << (void*) this << llendl;
 // 	llassert(LLView::sIsDrawing == FALSE);
 	
@@ -602,6 +603,7 @@ void LLView::setVisible(BOOL visible)
 		if (!getParent() || getParent()->isInVisibleChain())
 		{
 			// tell all children of this view that the visibility may have changed
+			dirtyRect();
 			handleVisibilityChange( visible );
 		}
 		updateBoundingRect();
@@ -673,9 +675,13 @@ LLView* LLView::childrenHandleToolTip(S32 x, S32 y, std::string& msg, LLRect& st
 		LLView* viewp = *child_it;
 		S32 local_x = x - viewp->getRect().mLeft;
 		S32 local_y = y - viewp->getRect().mBottom;
-		if(viewp->pointInView(local_x, local_y) &&
-			viewp->getVisible() &&
-			viewp->handleToolTip(local_x, local_y, msg, sticky_rect_screen) )
+		if(!viewp->pointInView(local_x, local_y) ||
+			!viewp->getVisible())
+		{
+			continue;
+		}
+
+		if(viewp->handleToolTip(local_x, local_y, msg, sticky_rect_screen) )
 		{
 			if (sDebugMouseHandling)
 			{
@@ -685,17 +691,22 @@ LLView* LLView::childrenHandleToolTip(S32 x, S32 y, std::string& msg, LLRect& st
 			handled_view = viewp;
 			break;
 		}
+
+		if( viewp->blockMouseEvent(x, y) )
+		{
+			handled_view = viewp;
+		}
 	}
 	return handled_view;
 }
 
 BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
 {
-	LLView* child_handler = childrenHandleToolTip(x, y, msg, sticky_rect_screen);
-	BOOL handled = child_handler != NULL;
+	BOOL handled = FALSE;
 
-	// child widgets get priority on tooltips
-	if (!handled && !mToolTipMsg.empty())
+	// parents provide tooltips first, which are optionally
+	// overridden by children
+	if (!mToolTipMsg.empty())
 	{
 		// allow "scrubbing" over ui by showing next tooltip immediately
 		// if previous one was still visible
@@ -710,7 +721,9 @@ BOOL LLView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_s
 		handled = TRUE;
 	}
 
-	if( blockMouseEvent(x, y) )
+	// child tooltips will override our own
+	LLView* child_handler = childrenHandleToolTip(x, y, msg, sticky_rect_screen);
+	if (child_handler)
 	{
 		handled = TRUE;
 	}
@@ -1297,7 +1310,7 @@ void LLView::drawChildren()
 			{
 				// Only draw views that are within the root view
 				localRectToScreen(viewp->getRect(),&screenRect);
-				if ( rootRect.overlaps(screenRect) )
+				if ( rootRect.overlaps(screenRect)  && LLUI::sDirtyRect.overlaps(screenRect))
 				{
 					glMatrixMode(GL_MODELVIEW);
 					LLUI::pushMatrix();
@@ -1314,6 +1327,21 @@ void LLView::drawChildren()
 	}
 
 	gGL.getTexUnit(0)->disable();
+}
+
+void LLView::dirtyRect()
+{
+	LLView* child = getParent();
+	LLView* parent = child ? child->getParent() : NULL;
+	LLView* cur = this;
+	while (child && parent && parent->getParent())
+	{ //find third to top-most view
+		cur = child;
+		child = parent;
+		parent = parent->getParent();
+	}
+
+	LLUI::dirtyRect(cur->calcScreenRect());
 }
 
 //Draw a box for debugging.
@@ -1529,6 +1557,8 @@ void LLView::updateBoundingRect()
 {
 	if (isDead()) return;
 
+	LLRect cur_rect = mBoundingRect;
+
 	if (mUseBoundingRect)
 	{
 		mBoundingRect = calcBoundingRect();
@@ -1543,6 +1573,12 @@ void LLView::updateBoundingRect()
 	{
 		getParent()->updateBoundingRect();
 	}
+
+	if (mBoundingRect != cur_rect)
+	{
+		dirtyRect();
+	}
+
 }
 
 LLRect LLView::calcScreenRect() const

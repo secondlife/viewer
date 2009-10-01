@@ -21,15 +21,9 @@
 		Punto di partenza:
 	</text>
 	<combo_box name="start_location_combo" left_delta="105" width="160">
-		<combo_item name="MyHome">
-			Casa Mia
-		</combo_item>
-		<combo_item name="MyLastLocation">
-			Ultimo luogo visitato
-		</combo_item>
-		<combo_item name="Typeregionname">
-			&lt;Scrivi la regione&gt;
-		</combo_item>
+		<combo_box.item name="MyHome" label="Casa Mia" />
+		<combo_box.item name="MyLastLocation" label="Ultimo luogo visitato" />
+		<combo_box.item name="Typeregionname" label="&lt;Scrivi la regione&gt;" />
 	</combo_box>
 	<check_box label="Ricorda password" name="remember_check" left_delta="168"/>
 	<button label="Log In" label_selected="Log In" name="connect_btn"/>
