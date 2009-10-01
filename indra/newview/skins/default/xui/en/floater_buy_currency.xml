@@ -219,7 +219,7 @@
      width="300"
      name="purchase_warning_repurchase">
         Confirming this purchase only buys the L$.
-        You&apos;ll need to try again.
+You&apos;ll need to try again.
     </text>
     <text
      type="string"
@@ -229,7 +229,7 @@
      left="20"
      name="purchase_warning_notenough">
         You aren&apos;t buying enough L$.
-        Increase the amount to buy.
+Increase the amount to buy.
     </text>
 
     <button
@@ -266,7 +266,7 @@
      top="30"
      name="info_cannot_buy">
         Take your
-Second Life to
+[SECOND_LIFE] to
 the next level...
     </text>
      <button
@@ -286,6 +286,6 @@ the next level...
       left_pad="-300"
       follows="bottom|right"
       name="cannot_buy_message">
-        Continue to the web and enter payment information
+        Continue to the web site and enter payment information
      </text>
 </floater>

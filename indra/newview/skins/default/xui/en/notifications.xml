@@ -651,10 +651,8 @@ Scripts must be allowed to run for weapons to work.
    name="MultipleFacesSelected"
    type="alertmodal">
          Multiple faces are currently selected. 
-If you continue this action, separate instances of media will be 
-		 set on multiple faces of the object.
-To place the media on only one face, use Select Texture and click 
-		 on the face of that object and click Add.
+If you continue this action, separate instances of media will be set on multiple faces of the object.
+To place the media on only one face, choose Select Texture and click on the desired face of that object then click Add.
     <usetemplate
 	 name="okcancelignore"
      notext="Cancel"
@@ -803,11 +801,10 @@ There is no reimbursement for fees paid.
    icon="alertmodal.tga"
    name="DeleteMedia"
    type="alertmodal">
-You have selected to delete the media associated
-with this face.
+You have selected to delete the media associated with this face.
 Are you sure you want to continue?
     <usetemplate
-     ignoretext="Confirm before I delete media"
+     ignoretext="Confirm before I delete media from an object"
      name="okcancelignore"
      notext="No"
      yestext="Yes"/>
@@ -6519,11 +6516,11 @@ Unable to find the help topic for this element.
  icon="alertmodal.tga"
  name="ObjectMediaFailure"
  type="alertmodal">
-        Server Error: Media update or get failed.
-        &apos;[ERROR]&apos;
+Server Error: Media update or get failed.
+&apos;[ERROR]&apos;
         <usetemplate
          name="okbutton"
-         yestext="Ok"/>
+         yestext="OK"/>
     </notification>
 
   <global name="UnsupportedCPU">
