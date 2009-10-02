@@ -33,14 +33,14 @@
 #ifndef LL_LLSYSWELLITEM_H
 #define LL_LLSYSWELLITEM_H
 
-#include "llscrollingpanellist.h"
+#include "llpanel.h"
 #include "lltextbox.h"
 #include "llbutton.h"
 #include "lliconctrl.h"
 
 #include <string>
 
-class LLSysWellItem : public LLScrollingPanel 
+class LLSysWellItem : public LLPanel
 {
 public:
 	struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
@@ -53,8 +53,6 @@ public:
 
 	LLSysWellItem(const Params& p);
 	virtual	~LLSysWellItem();
-
-	void updatePanel(BOOL allow_modify);
 
 	// title
 	void setTitle( std::string title );

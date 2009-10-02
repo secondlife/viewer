@@ -66,8 +66,11 @@ public:
 										track_image_horizontal,
 										track_image_vertical;
 
+		Optional<bool>					bg_visible;
+
 		Optional<LLUIColor>				track_color,
-										thumb_color;
+										thumb_color,
+										bg_color;
 
 		Optional<LLButton::Params>		up_button;
 		Optional<LLButton::Params>		down_button;
@@ -151,6 +154,9 @@ private:
 
 	LLUIColor			mTrackColor;
 	LLUIColor			mThumbColor;
+	LLUIColor			mBGColor;
+
+	bool				mBGVisible;
 
 	LLUIImagePtr		mThumbImageV;
 	LLUIImagePtr		mThumbImageH;

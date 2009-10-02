@@ -34,18 +34,38 @@
 #define LL_LLPANELTELEPORTHISTORY_H
 
 #include "lluictrlfactory.h"
-#include "llscrolllistctrl.h"
 
 #include "llpanelplacestab.h"
 #include "llteleporthistory.h"
+#include "llmenugl.h"
 
 class LLTeleportHistoryStorage;
 class LLAccordionCtrl;
 class LLAccordionCtrlTab;
+class LLFlatListView;
 
 class LLTeleportHistoryPanel : public LLPanelPlacesTab
 {
 public:
+	class ContextMenu
+	{
+	public:
+		ContextMenu();
+		void show(LLView* spawning_view, S32 index, S32 x, S32 y);
+		
+	private:
+		LLContextMenu* createMenu();
+		void onTeleport();
+		void onInfo();
+		void onCopy();
+		void onMakeLandmark();
+
+		static void gotSLURLCallback(const std::string& slurl);
+		
+		LLContextMenu* mMenu;
+		S32 mIndex;
+	};
+
 	LLTeleportHistoryPanel();
 	virtual ~LLTeleportHistoryPanel();
 
@@ -59,24 +79,23 @@ public:
 private:
 
 	static void onDoubleClickItem(void* user_data);
+	void onAccordionTabRightClick(LLView *view, S32 x, S32 y, MASK mask);
+	void onAccordionTabOpen(LLAccordionCtrlTab *tab);
+	void onAccordionTabClose(LLAccordionCtrlTab *tab);
 	void showTeleportHistory();
-	void handleItemSelect(LLScrollListCtrl* );
-	LLScrollListCtrl* getScrollListFromTab(LLAccordionCtrlTab *);
-
-	enum TELEPORT_HISTORY_COLUMN_ORDER
-	{
-		LIST_ICON,
-		LIST_ITEM_TITLE,
-		LIST_INDEX
-	};
+	void handleItemSelect(LLFlatListView* );
+	LLFlatListView* getFlatListViewFromTab(LLAccordionCtrlTab *);
 
 	LLTeleportHistoryStorage*	mTeleportHistory;
-	LLAccordionCtrl*		mHistoryAccordeon;
-	LLScrollListCtrl*		mLastSelectedScrollList;
+	LLAccordionCtrl*		mHistoryAccordion;
+	LLFlatListView*			mLastSelectedScrollList;
 	std::string				mFilterSubString;
 
 	typedef LLDynamicArray<LLAccordionCtrlTab*> item_containers_t;
 	item_containers_t mItemContainers;
+
+	ContextMenu mContextMenu;
+	LLContextMenu*			mAccordionTabMenu;
 };
 
 #endif //LL_LLPANELTELEPORTHISTORY_H

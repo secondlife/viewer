@@ -238,13 +238,13 @@ BOOL LLPanelClassified::postBuild()
     mNameEditor = getChild<LLLineEditor>("given_name_editor");
 	mNameEditor->setMaxTextLength(DB_PARCEL_NAME_LEN);
 	mNameEditor->setCommitOnFocusLost(TRUE);
-	mNameEditor->setFocusReceivedCallback(focusReceived, this);
+	mNameEditor->setFocusReceivedCallback(boost::bind(focusReceived, _1, this));
 	mNameEditor->setCommitCallback(onCommitAny, this);
 	mNameEditor->setPrevalidate( LLLineEditor::prevalidateASCII );
 
     mDescEditor = getChild<LLTextEditor>("desc_editor");
 	mDescEditor->setCommitOnFocusLost(TRUE);
-	mDescEditor->setFocusReceivedCallback(focusReceived, this);
+	mDescEditor->setFocusReceivedCallback(boost::bind(focusReceived, _1, this));
 	mDescEditor->setCommitCallback(onCommitAny, this);
 	
     mLocationEditor = getChild<LLLineEditor>("location_editor");

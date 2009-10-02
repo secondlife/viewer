@@ -48,7 +48,9 @@ LLAvatarListItem::LLAvatarListItem()
 	mAvatarName(NULL),
 	mStatus(NULL),
 	mSpeakingIndicator(NULL),
-	mInfoBtn(NULL)
+	mInfoBtn(NULL),
+	mContextMenu(NULL),
+	mAvatarId(LLUUID::null)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
 }
@@ -114,6 +116,15 @@ void LLAvatarListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 	LLPanel::onMouseLeave(x, y, mask);
 }
 
+// virtual
+BOOL LLAvatarListItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	if (mContextMenu)
+		mContextMenu->show(this, const_cast<const LLUUID&>(mAvatarId), x, y);
+
+	return LLPanel::handleRightMouseDown(x, y, mask);
+}
+
 void LLAvatarListItem::setStatus(const std::string& status)
 {
 	mStatus->setValue(status);
@@ -127,13 +138,17 @@ void LLAvatarListItem::setName(const std::string& name)
 
 void LLAvatarListItem::setAvatarId(const LLUUID& id)
 {
+	mAvatarId = id;
 	mAvatarIcon->setValue(id);
 	mSpeakingIndicator->setSpeakerId(id);
+
+	// Set avatar name.
+	gCacheName->get(id, FALSE, boost::bind(&LLAvatarListItem::onNameCache, this, _2, _3));
 }
 
 void LLAvatarListItem::onInfoBtnClick()
 {
-	LLFloaterReg::showInstance("inspect_avatar", mAvatarIcon->getValue());
+	LLFloaterReg::showInstance("inspect_avatar", mAvatarId);
 
 	/* TODO fix positioning of inspector
 	localPointToScreen(mXPos, mYPos, &mXPos, &mYPos);
@@ -156,6 +171,21 @@ void LLAvatarListItem::onInfoBtnClick()
 	*/
 }
 
+void LLAvatarListItem::showStatus(bool show_status)
+{
+	// *HACK: dirty hack until we can determine correct avatar status (EXT-1076).
+
+	if (show_status)
+		return;
+
+	LLRect	name_rect	= mAvatarName->getRect();
+	LLRect	status_rect	= mStatus->getRect();
+
+	mStatus->setVisible(show_status);
+	name_rect.mRight += (status_rect.mRight - name_rect.mRight);
+	mAvatarName->setRect(name_rect);
+}
+
 void LLAvatarListItem::setValue( const LLSD& value )
 {
 	if (!value.isMap()) return;;
@@ -163,3 +193,19 @@ void LLAvatarListItem::setValue( const LLSD& value )
 	childSetVisible("selected_icon", value["selected"]);
 }
 
+const LLUUID& LLAvatarListItem::getAvatarId() const
+{
+	return mAvatarId;
+}
+
+const std::string LLAvatarListItem::getAvatarName() const
+{
+	return mAvatarName->getValue();
+}
+
+void LLAvatarListItem::onNameCache(const std::string& first_name, const std::string& last_name)
+{
+	std::string name = first_name + " " + last_name;
+	mAvatarName->setValue(name);
+	mAvatarName->setToolTip(name);
+}

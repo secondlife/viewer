@@ -34,11 +34,9 @@
 
 #include "llnotificationhandler.h"
 #include "lltoastgroupnotifypanel.h"
-#include "llbottomtray.h"
 #include "llgroupactions.h"
 #include "llviewercontrol.h"
-#include "llfloaterreg.h"
-#include "llsyswellwindow.h"
+#include "llviewerwindow.h"
 
 using namespace LLNotificationsUI;
 
@@ -47,16 +45,8 @@ LLGroupHandler::LLGroupHandler(e_notification_type type, const LLSD& id)
 {
 	mType = type;
 
-	// getting a Chiclet and creating params for a channel
-	LLBottomTray* tray = LLBottomTray::getInstance();
-	mChiclet = tray->getSysWell();
-	LLChannelManager::Params p;
-	p.id = LLUUID(gSavedSettings.getString("NotificationChannelUUID"));
-	p.channel_right_bound = tray->getRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin");
-	p.channel_width = gSavedSettings.getS32("NotifyBoxWidth");
-
 	// Getting a Channel for our notifications
-	mChannel = LLChannelManager::getInstance()->createChannel(p);
+	mChannel = LLChannelManager::getInstance()->createNotificationChannel();
 }
 
 //--------------------------------------------------------------------------
@@ -65,52 +55,66 @@ LLGroupHandler::~LLGroupHandler()
 }
 
 //--------------------------------------------------------------------------
-void LLGroupHandler::processNotification(const LLSD& notify)
+void LLGroupHandler::initChannel()
 {
+	S32 channel_right_bound = gViewerWindow->getWorldViewRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
+	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
+	mChannel->init(channel_right_bound - channel_width, channel_right_bound);
+}
+
+//--------------------------------------------------------------------------
+bool LLGroupHandler::processNotification(const LLSD& notify)
+{
+	if(!mChannel)
+	{
+		return false;
+	}
+
 	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
+
+	if(!notification)
+		return false;
+
+	// arrange a channel on a screen
+	if(!mChannel->getVisible())
+	{
+		initChannel();
+	}
+	
 	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
 	{
 		LLPanel* notify_box = new LLToastGroupNotifyPanel(notification);
 		LLToast::Params p;
-		p.id = notification->getID();
+		p.notif_id = notification->getID();
 		p.notification = notification;
 		p.panel = notify_box;
-		p.on_toast_destroy = boost::bind(&LLGroupHandler::onToastDestroy, this, _1);
-		mChannel->addToast(p);
-		static_cast<LLNotificationChiclet*>(mChiclet)->incUreadSystemNotifications();
-		
-		LLGroupActions::refresh_notices();
+		p.on_delete_toast = boost::bind(&LLGroupHandler::onDeleteToast, this, _1);
 
+		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+		if(channel)
+			channel->addToast(p);
+
+		// send a signal to the counter manager
+		mNewNotificationSignal();
+
+		LLGroupActions::refresh_notices();
 	}
 	else if (notify["sigtype"].asString() == "delete")
 	{
 		mChannel->killToastByNotificationID(notification->getID());
 	}
+	return true;
 }
 
 //--------------------------------------------------------------------------
-void LLGroupHandler::onToastDestroy(LLToast* toast)
+void LLGroupHandler::onDeleteToast(LLToast* toast)
 {
-	static_cast<LLNotificationChiclet*>(mChiclet)->decUreadSystemNotifications();
+	// send a signal to the counter manager
+	mDelNotificationSignal();
 
-	LLToastPanel* panel = dynamic_cast<LLToastPanel*>(toast->getPanel());
-	LLFloaterReg::getTypedInstance<LLSysWellWindow>("syswell_window")->removeItemByID(panel->getID());
-
-	// turning hovering off mannualy because onMouseLeave won't happen if a toast was closed using a keyboard
-	if(toast->hasFocus())
-		mChannel->setHovering(false);
-
-	toast->closeFloater();
-}
-
-//--------------------------------------------------------------------------
-void LLGroupHandler::onChicletClick(void)
-{
-}
-
-//--------------------------------------------------------------------------
-void LLGroupHandler::onChicletClose(void)
-{
+	// send a signal to a listener to let him perform some action
+	// in this case listener is a SysWellWindow and it will remove a corresponding item from its list
+	mNotificationIDSignal(toast->getNotificationID());
 }
 
 //--------------------------------------------------------------------------

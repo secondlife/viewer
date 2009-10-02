@@ -1684,6 +1684,107 @@ void LLAgentWearables::userRemoveAllClothesStep2(BOOL proceed)
 	}
 }
 
+// Combines userRemoveAllAttachments() and userAttachMultipleAttachments() logic to
+// get attachments into desired state with minimal number of adds/removes.
+void LLAgentWearables::userUpdateAttachments(LLInventoryModel::item_array_t& obj_item_array)
+{
+	// Possible cases:
+	// already wearing but not in request set -> take off.
+	// already wearing and in request set -> leave alone.
+	// not wearing and in request set -> put on.
+
+	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+	if (!avatarp)
+	{
+		llwarns << "No avatar found." << llendl;
+		return;
+	}
+
+	std::set<LLUUID> requested_item_ids;
+	std::set<LLUUID> current_item_ids;
+	for (S32 i=0; i<obj_item_array.count(); i++)
+		requested_item_ids.insert(obj_item_array[i].get()->getLinkedUUID());
+
+	// Build up list of objects to be removed and items currently attached.
+	llvo_vec_t objects_to_remove;
+	for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
+		 iter != avatarp->mAttachmentPoints.end();)
+	{
+		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
+		LLViewerObject* objectp = attachment->getObject();
+		if (objectp)
+		{
+			LLUUID object_item_id = attachment->getItemID();
+			if (requested_item_ids.find(object_item_id) != requested_item_ids.end())
+			{
+				// Object currently worn, was requested.
+				// Flag as currently worn so we won't have to add it again.
+				current_item_ids.insert(object_item_id);
+			}
+			else
+			{
+				// object currently worn, not requested.
+				objects_to_remove.push_back(objectp);
+			}
+		}
+	}
+
+	LLInventoryModel::item_array_t items_to_add;
+	for (LLInventoryModel::item_array_t::iterator it = obj_item_array.begin();
+		 it != obj_item_array.end();
+		 ++it)
+	{
+		LLUUID linked_id = (*it).get()->getLinkedUUID();
+		if (current_item_ids.find(linked_id) != current_item_ids.end())
+		{
+			// Requested attachment is already worn.
+		}
+		else
+		{
+			// Requested attachment is not worn yet.
+			items_to_add.push_back(*it);
+		}
+	}
+	// S32 remove_count = objects_to_remove.size();
+	// S32 add_count = items_to_add.size();
+	// llinfos << "remove " << remove_count << " add " << add_count << llendl;
+
+	// Remove everything in objects_to_remove
+	userRemoveMultipleAttachments(objects_to_remove);
+
+	// Add everything in items_to_add
+	userAttachMultipleAttachments(items_to_add);
+}
+
+void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remove)
+{
+	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+	if (!avatarp)
+	{
+		llwarns << "No avatar found." << llendl;
+		return;
+	}
+
+	if (objects_to_remove.empty())
+		return;
+
+	gMessageSystem->newMessage("ObjectDetach");
+	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	
+	for (llvo_vec_t::iterator it = objects_to_remove.begin();
+		 it != objects_to_remove.end();
+		 ++it)
+	{
+		LLViewerObject *objectp = *it;
+		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
+		gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, objectp->getLocalID());
+	}
+	gMessageSystem->sendReliable(gAgent.getRegionHost());
+}
+
 void LLAgentWearables::userRemoveAllAttachments()
 {
 	LLVOAvatar* avatarp = gAgent.getAvatarObject();
@@ -1693,11 +1794,8 @@ void LLAgentWearables::userRemoveAllAttachments()
 		return;
 	}
 
-	gMessageSystem->newMessage("ObjectDetach");
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-
+	llvo_vec_t objects_to_remove;
+	
 	for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
 		 iter != avatarp->mAttachmentPoints.end();)
 	{
@@ -1705,12 +1803,9 @@ void LLAgentWearables::userRemoveAllAttachments()
 		LLViewerJointAttachment* attachment = curiter->second;
 		LLViewerObject* objectp = attachment->getObject();
 		if (objectp)
-		{
-			gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-			gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, objectp->getLocalID());
-		}
+			objects_to_remove.push_back(objectp);
 	}
-	gMessageSystem->sendReliable(gAgent.getRegionHost());
+	userRemoveMultipleAttachments(objects_to_remove);
 }
 
 void LLAgentWearables::userAttachMultipleAttachments(LLInventoryModel::item_array_t& obj_item_array)

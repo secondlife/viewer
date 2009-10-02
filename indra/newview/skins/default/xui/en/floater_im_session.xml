@@ -9,7 +9,7 @@
  help_topic="panel_im"
  top="0"
  can_dock="true"
- can_minimize="false"
+ can_minimize="true"
  visible="true" 
  width="315">
   <layout_stack follows="left|top|right|bottom"

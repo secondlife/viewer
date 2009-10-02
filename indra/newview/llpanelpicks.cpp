@@ -34,6 +34,7 @@
 
 #include "llagent.h"
 #include "llavatarconstants.h"
+#include "llflatlistview.h"
 #include "lltexturectrl.h"
 #include "llviewergenericmessage.h"	// send_generic_message
 #include "llmenugl.h"
@@ -45,8 +46,6 @@
 #include "llpanelavatar.h"
 #include "llpanelprofile.h"
 #include "llpanelpick.h"
-#include "llscrollcontainer.h"
-#include "lllistctrl.h"
 
 static const std::string XML_BTN_NEW = "new_btn";
 static const std::string XML_BTN_DELETE = "trash_btn";
@@ -127,8 +126,7 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 				mPicksList->addItem(picture, pick_value);
 
 				picture->setDoubleClickCallback(boost::bind(&LLPanelPicks::onDoubleClickItem, this, _1));
-				picture->setRightMouseDownCallback(boost::bind(&LLPanelPicks::onRightMouseDownItem, this, _1, _2, _3, _4));
-				picture->setRightMouseUpCallback(boost::bind(&LLPanelPicks::updateButtons, this));
+				picture->setRightMouseUpCallback(boost::bind(&LLPanelPicks::onRightMouseUpItem, this, _1, _2, _3, _4));
 				picture->setMouseUpCallback(boost::bind(&LLPanelPicks::updateButtons, this));
 			}
 
@@ -148,7 +146,7 @@ LLPickItem* LLPanelPicks::getSelectedPickItem()
 
 BOOL LLPanelPicks::postBuild()
 {
-	mPicksList = getChild<LLListCtrl>("picks_list");
+	mPicksList = getChild<LLFlatListView>("picks_list");
 
 	childSetAction(XML_BTN_DELETE, boost::bind(&LLPanelPicks::onClickDelete, this));
 
@@ -197,6 +195,11 @@ void LLPanelPicks::onOpen(const LLSD& key)
 		mPopupMenu->setItemVisible("pick_delete", TRUE);
 		mPopupMenu->setItemVisible("pick_edit", TRUE);
 		mPopupMenu->setItemVisible("pick_separator", TRUE);
+	}
+
+	if(getAvatarId() != key.asUUID())
+	{
+		mPicksList->goToTop();
 	}
 
 	LLPanelProfileTab::onOpen(key);
@@ -256,8 +259,10 @@ void LLPanelPicks::onClickMap()
 }
 
 
-void LLPanelPicks::onRightMouseDownItem(LLUICtrl* item, S32 x, S32 y, MASK mask)
+void LLPanelPicks::onRightMouseUpItem(LLUICtrl* item, S32 x, S32 y, MASK mask)
 {
+	updateButtons();
+
 	if (mPopupMenu)
 	{
 		mPopupMenu->buildDrawLabels();
@@ -314,7 +319,7 @@ void LLPanelPicks::onClickNew()
 {
 	buildPickPanel();
 	mPickPanel->setEditMode(TRUE);
-	mPickPanel->createNewPick();
+	mPickPanel->prepareNewPick();
 	getProfilePanel()->togglePanel(mPickPanel);
 }
 
@@ -386,7 +391,6 @@ void LLPickItem::init(LLPickData* pick_data)
 	setPickDesc(pick_data->desc);
 	setSnapshotId(pick_data->snapshot_id);
 	mPosGlobal = pick_data->pos_global;
-	mLocation = pick_data->location_text;
 
 	LLTextureCtrl* picture = getChild<LLTextureCtrl>("picture");
 	picture->setImageAssetID(pick_data->snapshot_id);
@@ -432,11 +436,6 @@ const LLUUID& LLPickItem::getPickId()
 const LLVector3d& LLPickItem::getPosGlobal()
 {
 	return mPosGlobal;
-}
-
-const std::string& LLPickItem::getLocation()
-{
-	return mLocation;
 }
 
 const std::string LLPickItem::getDescription()

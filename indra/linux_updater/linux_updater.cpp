@@ -78,9 +78,9 @@ static std::set<std::string> default_trans_args;
 void init_default_trans_args()
 {
         default_trans_args.insert("SECOND_LIFE"); // World
-        default_trans_args.insert("SECOND_LIFE_VIEWER");
+        default_trans_args.insert("APP_NAME");
         default_trans_args.insert("SECOND_LIFE_GRID");
-        default_trans_args.insert("SECOND_LIFE_SUPPORT");
+        default_trans_args.insert("SUPPORT_SITE");
 }
 
 bool translate_init(std::string comma_delim_path_list,

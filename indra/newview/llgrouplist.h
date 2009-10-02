@@ -33,22 +33,79 @@
 #ifndef LL_LLGROUPLIST_H
 #define LL_LLGROUPLIST_H
 
-#include <llscrolllistctrl.h>
+#include "llevent.h"
+#include "llflatlistview.h"
+#include "llpanel.h"
+#include "llpointer.h"
 
-#include "llavatarlist.h"
-
-// *TODO: derive from ListView when it's ready.
-class LLGroupList: public LLAvatarList 
+/**
+ * Auto-updating list of agent groups.
+ * 
+ * Can use optional group name filter.
+ * 
+ * @see setNameFilter()
+ */
+class LLGroupList: public LLFlatListView, public LLOldEvents::LLSimpleListener
 {
 	LOG_CLASS(LLGroupList);
 public:
-	struct Params : public LLInitParam::Block<Params, LLAvatarList::Params>
+	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> 
 	{
 		Params();
 	};
 
-	LLGroupList(const Params&);
-	BOOL update(const std::string& name_filter = LLStringUtil::null);
+	LLGroupList(const Params& p);
+	virtual ~LLGroupList();
+
+	virtual void draw(); // from LLView
+
+	void setNameFilter(const std::string& filter);
+	void toggleIcons();
+	bool getIconsVisible() const { return mShowIcons; }
+	
+private:
+	void setDirty(bool val = true)		{ mDirty = val; }
+	void refresh();
+	void addNewItem(const LLUUID& id, const std::string& name, const LLUUID& icon_id, BOOL is_bold, EAddPosition pos = ADD_BOTTOM);
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata); // called on agent group list changes
+
+	bool mShowIcons;
+	bool mDirty;
+	std::string mNameFilter;
 };
 
+class LLButton;
+class LLIconCtrl;
+class LLTextBox;
+
+class LLGroupListItem : public LLPanel
+{
+public:
+	LLGroupListItem();
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void setValue(const LLSD& value);
+	void onMouseEnter(S32 x, S32 y, MASK mask);
+	void onMouseLeave(S32 x, S32 y, MASK mask);
+
+	const LLUUID& getGroupID() const			{ return mGroupID; }
+	const std::string& getGroupName() const		{ return mGroupName; }
+
+	void setName(const std::string& name);
+	void setGroupID(const LLUUID& group_id);
+	void setGroupIconID(const LLUUID& group_icon_id);
+	void setGroupIconVisible(bool visible);
+
+private:
+	void setActive(bool active);
+	void onInfoBtnClick();
+
+	LLTextBox*	mGroupNameBox;
+	LLUUID		mGroupID;
+	LLIconCtrl* mGroupIcon;
+	LLButton*	mInfoBtn;
+
+	std::string	mGroupName;
+
+	static S32	sIconWidth; // icon width + padding
+};
 #endif // LL_LLGROUPLIST_H

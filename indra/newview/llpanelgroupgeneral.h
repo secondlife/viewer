@@ -79,7 +79,6 @@ private:
 	static void onCommitUserOnly(LLUICtrl* ctrl, void* data);
 	static void onCommitTitle(LLUICtrl* ctrl, void* data);
 	static void onCommitEnrollment(LLUICtrl* ctrl, void* data);
-	static void onClickJoin(void* userdata);
 	static void onClickInfo(void* userdata);
 	static void onReceiveNotices(LLUICtrl* ctrl, void* data);
 	static void openProfile(void* data);

@@ -1446,8 +1446,8 @@ void LLNotifications::cancel(LLNotificationPtr pNotif)
 	{
 		llerrs << "Attempted to delete nonexistent notification " << pNotif->getName() << llendl;
 	}
-	updateItem(LLSD().insert("sigtype", "delete").insert("id", pNotif->id()), pNotif);
 	pNotif->cancel();
+	updateItem(LLSD().insert("sigtype", "delete").insert("id", pNotif->id()), pNotif);
 }
 
 void LLNotifications::update(const LLNotificationPtr pNotif)

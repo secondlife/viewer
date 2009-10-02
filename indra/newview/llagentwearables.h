@@ -44,6 +44,7 @@ class LLInventoryItem;
 class LLVOAvatarSelf;
 class LLWearable;
 class LLInitialWearablesFetch;
+class LLViewerObject;
 
 class LLAgentWearables
 {
@@ -181,6 +182,11 @@ public:
 	// MULTI-WEARABLE: assuming one wearable per type.  Need upstream changes.
 	static void		userRemoveWearable(void* userdata);	// userdata is EWearableType
 	static void		userRemoveAllClothes(void* userdata);	// userdata is NULL
+
+	typedef std::vector<LLViewerObject*> llvo_vec_t;
+
+	static void 	userUpdateAttachments(LLInventoryModel::item_array_t& obj_item_array);
+	static void		userRemoveMultipleAttachments(llvo_vec_t& llvo_array);
 	static void		userRemoveAllAttachments();
 	static void		userAttachMultipleAttachments(LLInventoryModel::item_array_t& obj_item_array);
 

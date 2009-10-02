@@ -33,10 +33,10 @@
 #ifndef LL_LLFLATLISTVIEW_H
 #define LL_LLFLATLISTVIEW_H
 
+#include "llpanel.h"
 #include "llscrollcontainer.h"
 
-
-class LLPanel;
+class LLTextBox;
 
 /**
  * LLFlatListView represents a flat list ui control that operates on items in a form of LLPanel's.
@@ -62,6 +62,38 @@ class LLFlatListView : public LLScrollContainer
 {
 public:
 
+	/**
+	 * Abstract comparator for comparing flat list items in a form of LLPanel
+	 */
+	class ItemComparator
+	{
+	public:
+		ItemComparator() {};
+		virtual ~ItemComparator() {};
+
+		/** Returns true if item1 < item2, false otherwise */
+		virtual bool compare(const LLPanel* item1, const LLPanel* item2) const = 0;
+	};
+
+	/**
+	 * Represents reverse comparator which acts as a decorator for a comparator that need to be reversed
+	 */
+	class ItemReverseComparator : public ItemComparator
+	{
+	public:
+		ItemReverseComparator(const ItemComparator& comparator) : mComparator(comparator) {};
+		virtual ~ItemReverseComparator() {};
+
+		virtual bool compare(const LLPanel* item1, const LLPanel* item2) const
+		{
+			return mComparator.compare(item2, item1);
+		}
+
+	private:
+		const ItemComparator& mComparator;
+	};
+
+
 	struct Params : public LLInitParam::Block<Params, LLScrollContainer::Params>
 	{
 		/** turning on/off selection support */
@@ -85,18 +117,23 @@ public:
 	/** Overridden LLPanel's reshape, height is ignored, the list sets its height to accommodate all items */
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent  = TRUE);
 
+	/** Returns full rect of child panel */
+	const LLRect& getItemsRect() const;
+
+	/** Returns distance between items */
+	const S32 getItemsPad() { return mItemPad; }
 
 	/**
 	 * Adds and item and LLSD value associated with it to the list at specified position
 	 * @return true if the item was added, false otherwise 
 	 */
-	virtual bool addItem(LLPanel* item, LLSD value = LLUUID::null, EAddPosition pos = ADD_BOTTOM);
+	virtual bool addItem(LLPanel * item, const LLSD& value = LLUUID::null, EAddPosition pos = ADD_BOTTOM);
 
 	/**
 	 * Insert item_to_add along with associated value to the list right after the after_item.
 	 * @return true if the item was successfully added, false otherwise
 	 */
-	virtual bool insertItemAfter(LLPanel* after_item, LLPanel* item_to_add, LLSD value = LLUUID::null);
+	virtual bool insertItemAfter(LLPanel* after_item, LLPanel* item_to_add, const LLSD& value = LLUUID::null);
 
 	/** 
 	 * Remove specified item
@@ -114,13 +151,19 @@ public:
 	 * Remove an item specified by uuid
 	 * @return true if the item was removed, false otherwise 
 	 */
-	virtual bool removeItemByUUID(LLUUID& uuid);
+	virtual bool removeItemByUUID(const LLUUID& uuid);
 
 	/** 
 	 * Get an item by value 
 	 * @return the item as LLPanel if associated with value, NULL otherwise
 	 */
-	virtual LLPanel* getItemByValue(LLSD& value) const;
+	virtual LLPanel* getItemByValue(const LLSD& value) const;
+
+	template<class T>
+	T* getTypedItemByValue(const LLSD& value) const
+	{
+		return dynamic_cast<T*>(getItemByValue(value));
+	}
 
 	/** 
 	 * Select or deselect specified item based on select
@@ -138,9 +181,17 @@ public:
 	 * Select or deselect an item by associated uuid based on select
 	 * @return true if succeed, false otherwise
 	 */
-	virtual bool selectItemByUUID(LLUUID& uuid, bool select = true);
+	virtual bool selectItemByUUID(const LLUUID& uuid, bool select = true);
 
+	/**
+	 * Get all panels stored in the list.
+	 */
+	virtual void getItems(std::vector<LLPanel*>& items) const;
 
+	/**
+	 * Get all items values.
+	 */
+	virtual void getValues(std::vector<LLSD>& values) const;
 	
 	/**
 	 * Get LLSD associated with the first selected item
@@ -176,9 +227,23 @@ public:
 	virtual void getSelectedItems(std::vector<LLPanel*>& selected_items) const;
 
 
-	/** Resets selection of items */
-	virtual void resetSelection();
+	/**
+	 * Resets selection of items.
+	 * 
+	 * It calls onCommit callback if setCommitOnSelectionChange(bool b) was called with "true"
+	 * argument for current Flat List.
+	 * @param no_commit_on_deselection - if true onCommit callback will not be called
+	 */
+	virtual void resetSelection(bool no_commit_on_deselection = false);
 
+	/**
+	 * Sets comment text which will be shown in the list is it is empty.
+	 *
+	 * Textbox to hold passed text is created while this method is called at the first time.
+	 *
+	 * @param comment_text - string to be shown as a comment.
+	 */
+	void setNoItemsCommentText( const std::string& comment_text);
 
 	/** Turn on/off multiple selection support */
 	void setAllowMultipleSelection(bool allow) { mMultipleSelection = allow; }
@@ -186,6 +251,8 @@ public:
 	/** Turn on/off selection support */
 	void setAllowSelection(bool can_select) { mAllowSelection = can_select; }
 
+	/** Sets flag whether onCommit should be fired if selection was changed */
+	void setCommitOnSelectionChange(bool b)		{ mCommitOnSelectionChange = b; }
 
 	/** Get number of selected items in the list */
 	U32 numSelected() const {return mSelectedItemPairs.size(); }
@@ -197,6 +264,14 @@ public:
 	/** Removes all items from the list */
 	virtual void clear();
 
+	/**
+	 * Set comparator to use for future sorts.
+	 * 
+	 * This class does NOT manage lifetime of the comparator
+	 * but assumes that the comparator is always alive.
+	 */
+	void setComparator(const ItemComparator* comp) { mItemComparator = comp; }
+	void sort();
 
 protected:
 
@@ -207,6 +282,19 @@ protected:
 	typedef pairs_list_t::iterator pairs_iterator_t;
 	typedef pairs_list_t::const_iterator pairs_const_iterator_t;
 
+	/** An adapter for a ItemComparator */
+	struct ComparatorAdaptor
+	{
+		ComparatorAdaptor(const ItemComparator& comparator) : mComparator(comparator) {};
+
+		bool operator()(const item_pair_t* item_pair1, const item_pair_t* item_pair2)
+		{
+			return mComparator.compare(item_pair1->first, item_pair2->first);
+		}
+
+		const ItemComparator& mComparator;
+	};
+
 
 	friend class LLUICtrlFactory;
 	LLFlatListView(const LLFlatListView::Params& p);
@@ -214,7 +302,10 @@ protected:
 	/** Manage selection on mouse events */
 	void onItemMouseClick(item_pair_t* item_pair, MASK mask);
 
-	/** Updates position of items */
+	/**
+	 *	Updates position of items.
+	 *	It does not take into account invisible items.
+	 */
 	virtual void rearrangeItems();
 
 	virtual item_pair_t* getItemPair(LLPanel* item) const;
@@ -227,13 +318,26 @@ protected:
 
 	virtual bool removeItemPair(item_pair_t* item_pair);
 
+	/**
+	 * Notify parent about changed size of internal controls with "size_changes" action
+	 * 
+	 * Size includes Items Rect width and either Items Rect height or comment text height.
+	 * Comment text height is included if comment text is set and visible.
+	 * List border size is also included into notified size.
+	 */
+	void notifyParentItemsRectChanged();
+
 
 private:
 
 	void setItemsNoScrollWidth(S32 new_width) {mItemsNoScrollWidth = new_width - 2 * mBorderThickness;}
 
+	void setNoItemsCommentVisible(bool visible) const;
 
 private:
+
+	/** Comparator to use when sorting the list. */
+	const ItemComparator* mItemComparator;
 
 	LLPanel* mItemsPanel;
 
@@ -242,13 +346,21 @@ private:
 	S32 mBorderThickness;
 
 	/** Items padding */
-	U32 mItemPad;
+	S32 mItemPad;
 
 	/** Selection support flag */
 	bool mAllowSelection;
 
 	/** Multiselection support flag, ignored if selection is not supported */
 	bool mMultipleSelection;
+
+	/**
+	 * Flag specified whether onCommit be called if selection is changed in the list.
+	 * 
+	 * Can be ignored in the resetSelection() method.
+	 * @see resetSelection()
+	 */
+	bool mCommitOnSelectionChange;
 
 	bool mKeepOneItemSelected;
 
@@ -257,6 +369,14 @@ private:
 
 	/** Selected pairs for faster access */
 	pairs_list_t mSelectedItemPairs;
+
+	/**
+	 * Rectangle contained previous size of items parent notified last time.
+	 * Is used to reduce amount of parentNotify() calls if size was not changed.
+	 */
+	LLRect mPrevNotifyParentRect;
+
+	LLTextBox* mNoItemsCommentTextbox;
 };
 
 #endif

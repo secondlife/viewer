@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="all"
- height="515"
+ height="560"
  label="Profile"
  layout="topleft"
  left="0"
@@ -25,7 +25,7 @@
     <scroll_container
      color="DkGray2"
      follows="left|top|right|bottom"
-     height="515"
+     height="500"
      min_height="300"
      layout="topleft"
      name="profile_scroll"
@@ -72,15 +72,16 @@
              top_delta="0"
              value="[SECOND_LIFE]:"
              width="170" />
-            <text
+            <expandable_text
              follows="left|top|right"
              height="90"
              layout="topleft"
              name="sl_description_edit"
              width="170"
-             word_wrap="true">
+             expanded_bg_visible="true"
+             expanded_bg_color="black">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-            </text>
+            </expandable_text>
         </panel>
         <panel
          follows="left|top"
@@ -112,15 +113,16 @@
              top_delta="0"
              value="Real World:"
              width="175" />
-            <text
+            <expandable_text
              follows="left|top|right"
              height="90"
              layout="topleft"
              name="fl_description_edit"
              width="180"
-             word_wrap="true">
+             expanded_bg_visible="true"
+             expanded_bg_color="black">
                 Lorem ipsum dolor sit amet, consectetur adlkjpiscing elit moose moose. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet. adipiscing elit. Aenean rigviverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet sorbet ipsum. adipiscing elit. Aenean viverra orci et justo sagittis aliquet. Nullam malesuada mauris sit amet ipsum.
-            </text>
+            </expandable_text>
         </panel>
         <text
          type="string"
@@ -263,6 +265,7 @@
      left="0"
      name="profile_buttons_panel"
      top_pad="0"
+     height="25"
      width="313">
         <button
          follows="bottom|left"
@@ -314,6 +317,7 @@
      name="profile_me_buttons_panel"
      top_pad="0"
      visible="false"
+     height="25"
      width="313">
         <button
          follows="bottom|left"

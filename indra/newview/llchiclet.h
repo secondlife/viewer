@@ -275,7 +275,8 @@ public:
 	enum EType {
 		TYPE_UNKNOWN,
 		TYPE_IM,
-		TYPE_GROUP
+		TYPE_GROUP,
+		TYPE_AD_HOC
 	};
 	
 	/*virtual*/ ~LLIMChiclet() {};
@@ -548,9 +549,6 @@ public:
 
 	/*virtual*/ ~ LLNotificationChiclet();
 
-	// Notification Chiclet Window
-	void	setNotificationChicletWindow(LLFloater* wnd) { mNotificationChicletWindow = wnd; }
-
 	// methods for updating a number of unread System or IM notifications
 	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications + mUreadIMNotifications); }
 	void decUreadSystemNotifications() { setCounter(--mUreadSystemNotifications + mUreadIMNotifications); }
@@ -558,10 +556,11 @@ public:
 	void setToggleState(BOOL toggled);
 
 protected:
+	// connect counter updaters to the corresponding signals
+	void connectCounterUpdatersToSignal(std::string notification_type);
+
 	LLNotificationChiclet(const Params& p);
 	friend class LLUICtrlFactory;
-
-	LLFloater*	mNotificationChicletWindow;
 
 	static S32 mUreadSystemNotifications;
 	static S32 mUreadIMNotifications;
@@ -643,6 +642,11 @@ public:
 	 * Removes all chiclets.
 	*/
 	void removeAll();
+
+	/*
+	 * Scrolls the panel to the specified chiclet
+	 */
+	void scrollToChiclet(const LLChiclet* chiclet);
 
 	boost::signals2::connection setChicletClickedCallback(
 		const commit_callback_t& cb);
@@ -813,6 +817,8 @@ T* LLChicletPanel::createChiclet(const LLUUID& session_id /*= LLUUID::null*/, S3
 		llwarns << "Could not add chiclet to chiclet panel" << llendl;
 		return NULL;
 	}
+
+	scrollToChiclet(chiclet);
 
 	chiclet->setSessionId(session_id);
 

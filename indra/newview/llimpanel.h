@@ -33,6 +33,7 @@
 #ifndef LL_IMPANEL_H
 #define LL_IMPANEL_H
 
+#include "llimview.h" //for LLIMModel
 #include "lldockablefloater.h"
 #include "lllogchat.h"
 #include "lluuid.h"
@@ -245,11 +246,7 @@ public:
 
 	const LLUUID& getSessionID() const { return mSessionUUID; }
 	const LLUUID& getOtherParticipantID() const { return mOtherParticipantUUID; }
-	LLIMSpeakerMgr* getSpeakerManager() const { return mSpeakers; }
-	void updateSpeakersList(const LLSD& speaker_updates);
 	void processSessionUpdate(const LLSD& update);
-	void setSpeakers(const LLSD& speaker_list);
-	LLVoiceChannel* getVoiceChannel() { return mVoiceChannel; }
 	EInstantMessage getDialogType() const { return mDialog; }
 	void setDialogType(EInstantMessage dialog) { mDialog = dialog; }
 
@@ -305,7 +302,6 @@ private:
 	LLUUID mSessionUUID;
 
 	std::string mSessionLabel;
-	LLVoiceChannel*	mVoiceChannel;
 
 	BOOL mSessionInitialized;
 	LLSD mQueuedMsgsForInit;
@@ -346,7 +342,6 @@ private:
 	BOOL mProfileButtonEnabled;
 	BOOL mCallBackEnabled;
 
-	LLIMSpeakerMgr* mSpeakers;
 	LLPanelActiveSpeakers* mSpeakerPanel;
 	
 	// Optimization:  Don't send "User is typing..." until the
@@ -357,71 +352,9 @@ private:
 	// Timer to detect when user has stopped typing.
 	LLFrameTimer mLastKeystrokeTimer;
 
+	boost::signals2::connection mFocusCallbackConnection;
+
 	void disableWhileSessionStarting();
 };
-
-
-// Individual IM window that appears at the bottom of the screen,
-// optionally "docked" to the bottom tray.
-class LLIMFloater : public LLDockableFloater
-{
-public:
-	LLIMFloater(const LLUUID& session_id);
-
-	virtual ~LLIMFloater();
-	
-	// LLView overrides
-	/*virtual*/ BOOL postBuild();
-
-	// Floater should close when user clicks away to other UI area,
-	// hence causing focus loss.
-	/*virtual*/ void onFocusLost();
-
-	// Make IM conversion visible and update the message history
-	static LLIMFloater* show(const LLUUID& session_id);
-
-	// Toggle panel specified by session_id
-	// Returns true iff panel became visible
-	static bool toggle(const LLUUID& session_id);
-
-	// get new messages from LLIMModel
-	void updateMessages();
-	static void onSendMsg( LLUICtrl*, void*);
-	void sendMsg();
-
-	// callback for LLIMModel on new messages
-	// route to specific floater if it is visible
-	static void newIMCallback(const LLSD& data);
-
-    // called when docked floater's position has been set by chiclet
-	void setPositioned(bool b) { mPositioned = b; };
-
-	
-
-private:
-	
-	static void		onInputEditorFocusReceived( LLFocusableElement* caller, void* userdata );
-	static void		onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
-	static void		onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
-	void			setTyping(BOOL typing);
-	void			onSlide();
-	static void*	createPanelIMControl(void* userdata);
-	static void*	createPanelGroupControl(void* userdata);
-	
-	LLPanelChatControlPanel* mControlPanel;
-	LLUUID mSessionID;
-	S32 mLastMessageIndex;
-	// username of last user who added text to this conversation, used to
-	// suppress duplicate username divider bars
-	std::string mLastFromName;
-	EInstantMessage mDialog;
-	LLUUID mOtherParticipantUUID;
-	LLViewerTextEditor* mHistoryEditor;
-	LLLineEditor* mInputEditor;
-	bool mPositioned;
-};
-
-
-
 
 #endif  // LL_IMPANEL_H

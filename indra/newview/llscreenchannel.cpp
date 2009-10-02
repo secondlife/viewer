@@ -39,8 +39,14 @@
 
 #include "lltoastpanel.h"
 #include "llviewercontrol.h"
+#include "llviewerwindow.h"
 #include "llfloaterreg.h"
 #include "lltrans.h"
+
+#include "lldockablefloater.h"
+#include "llimpanel.h"
+#include "llsyswellwindow.h"
+#include "llimfloater.h"
 
 #include <algorithm>
 
@@ -49,41 +55,86 @@ using namespace LLNotificationsUI;
 bool LLScreenChannel::mWasStartUpToastShown = false;
 
 //--------------------------------------------------------------------------
-LLScreenChannel::LLScreenChannel(LLUUID& id):	mOverflowToastPanel(NULL), mStartUpToastPanel(NULL),
-												mToastAlignment(NA_BOTTOM), mCanStoreToasts(true),
-												mHiddenToastsNum(0), mOverflowToastHidden(false),
-												mIsHovering(false), mControlHovering(false),
-												mShowToasts(false)
+//////////////////////
+// LLScreenChannelBase
+//////////////////////
+LLScreenChannelBase::LLScreenChannelBase(const LLUUID& id) :
+												mOverflowToastPanel(NULL) 
+												,mToastAlignment(NA_BOTTOM)
+												,mCanStoreToasts(true)
+												,mHiddenToastsNum(0)
+												,mOverflowToastHidden(false)
+												,mIsHovering(false)
+												,mControlHovering(false)
+												,mShowToasts(true)
 {	
 	mID = id;
-
-	setFollows(FOLLOWS_RIGHT | FOLLOWS_BOTTOM | FOLLOWS_TOP);  
-
 	mOverflowFormatString = LLTrans::getString("OverflowInfoChannelString");
-
+	mWorldViewRectConnection = gViewerWindow->setOnWorldViewRectUpdated(boost::bind(&LLScreenChannelBase::updatePositionAndSize, this, _1, _2));
 	setMouseOpaque( false );
+	setVisible(FALSE);
+}
+LLScreenChannelBase::~LLScreenChannelBase()
+{
+	mWorldViewRectConnection.disconnect();
+}
+void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect)
+{
+	S32 top_delta = old_world_rect.mTop - new_world_rect.mTop;
+	S32 right_delta = old_world_rect.mRight - new_world_rect.mRight;
+
+	LLRect this_rect = getRect();
+
+	this_rect.mTop -= top_delta;
+	switch(mChannelAlignment)
+	{
+	case CA_LEFT :
+		break;
+	case CA_CENTRE :
+		this_rect.setCenterAndSize(new_world_rect.getWidth() / 2, new_world_rect.getHeight() / 2, this_rect.getWidth(), this_rect.getHeight());
+		break;
+	case CA_RIGHT :
+		this_rect.mLeft -= right_delta;
+		this_rect.mRight -= right_delta;
+	}
+	setRect(this_rect);
+	redrawToasts();
+	
+}
+
+void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
+{
+	S32 channel_top = gViewerWindow->getWorldViewRect().getHeight();
+	S32 channel_bottom = gViewerWindow->getWorldViewRect().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
+	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
+	setVisible(TRUE);
+}
+
+//--------------------------------------------------------------------------
+//////////////////////
+// LLScreenChannel
+//////////////////////
+//--------------------------------------------------------------------------
+LLScreenChannel::LLScreenChannel(LLUUID& id):	LLScreenChannelBase(id)
+{	
 }
 
 //--------------------------------------------------------------------------
 void LLScreenChannel::init(S32 channel_left, S32 channel_right)
 {
-	S32 channel_top = getRootView()->getRect().getHeight() - gSavedSettings.getS32("NavBarMargin");
-	S32 channel_bottom = getRootView()->getRect().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
-	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
-
+	LLScreenChannelBase::init(channel_left, channel_right);
 }
 
 //--------------------------------------------------------------------------
 LLScreenChannel::~LLScreenChannel() 
 {
+	
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect)
 {
-	LLUICtrl::reshape(width, height, called_from_parent);
-	if(mToastAlignment != NA_CENTRE)
-		showToasts();
+	LLScreenChannelBase::updatePositionAndSize(old_world_rect, new_world_rect);
 }
 
 //--------------------------------------------------------------------------
@@ -91,12 +142,12 @@ void LLScreenChannel::addToast(LLToast::Params p)
 {
 	bool store_toast = false, show_toast = false;
 
-	show_toast = mShowToasts || p.force_show;
+	mDisplayToastsAlways ? show_toast = true : show_toast = mWasStartUpToastShown && (mShowToasts || p.force_show);
 	store_toast = !show_toast && p.can_be_stored && mCanStoreToasts;
 
 	if(!show_toast && !store_toast)
 	{
-		mOnRejectToast(p);
+		mRejectToastSignal(p.notif_id);
 		return;
 	}
 
@@ -104,7 +155,8 @@ void LLScreenChannel::addToast(LLToast::Params p)
 
 	mOverflowToastHidden = false;
 	
-	new_toast_elem.toast->setOnFadeCallback(boost::bind(&LLScreenChannel::onToastFade, this, new_toast_elem.toast));
+	new_toast_elem.toast->setOnFadeCallback(boost::bind(&LLScreenChannel::onToastFade, this, _1));
+	new_toast_elem.toast->setOnToastDestroyedCallback(boost::bind(&LLScreenChannel::onToastDestroyed, this, _1));
 	if(mControlHovering)
 	{
 		new_toast_elem.toast->setOnToastHoverCallback(boost::bind(&LLScreenChannel::onToastHover, this, _1, _2));
@@ -113,7 +165,7 @@ void LLScreenChannel::addToast(LLToast::Params p)
 	if(show_toast)
 	{
 		mToastList.push_back(new_toast_elem);
-		showToasts();
+		redrawToasts();
 	}	
 	else // store_toast
 	{
@@ -123,15 +175,27 @@ void LLScreenChannel::addToast(LLToast::Params p)
 }
 
 //--------------------------------------------------------------------------
+void LLScreenChannel::onToastDestroyed(LLToast* toast)
+{	
+	std::vector<ToastElem>::iterator it = find(mToastList.begin(), mToastList.end(), static_cast<LLPanel*>(toast));
+		
+	if(it != mToastList.end())
+	{
+		mToastList.erase(it);
+	}
+}
+
+
+//--------------------------------------------------------------------------
 void LLScreenChannel::onToastFade(LLToast* toast)
 {	
 	std::vector<ToastElem>::iterator it = find(mToastList.begin(), mToastList.end(), static_cast<LLPanel*>(toast));
 		
-	bool destroy_toast = !mCanStoreToasts || !toast->getCanBeStored();
-	if(destroy_toast)
+	bool delete_toast = !mCanStoreToasts || !toast->getCanBeStored();
+	if(delete_toast)
 	{
 		mToastList.erase(it);
-		toast->mOnToastDestroy(toast);
+		deleteToast(toast);
 	}
 	else
 	{
@@ -139,7 +203,22 @@ void LLScreenChannel::onToastFade(LLToast* toast)
 		mToastList.erase(it);
 	}	
 
-	showToasts();
+	redrawToasts();
+}
+
+//--------------------------------------------------------------------------
+void LLScreenChannel::deleteToast(LLToast* toast)
+{
+	// send signal to observers about destroying of a toast
+	toast->mOnDeleteToastSignal(toast);
+	
+	// update channel's Hovering state
+	// turning hovering off mannualy because onMouseLeave won't happen if a toast was closed using a keyboard
+	if(toast->hasFocus())
+		setHovering(false);
+
+	// close the toast
+	toast->closeFloater();
 }
 
 //--------------------------------------------------------------------------
@@ -173,11 +252,11 @@ void LLScreenChannel::loadStoredToastsToChannel()
 	}
 
 	mStoredToastList.clear();
-	showToasts();
+	redrawToasts();
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::loadStoredToastByIDToChannel(LLUUID id)
+void LLScreenChannel::loadStoredToastByNotificationIDToChannel(LLUUID id)
 {
 	std::vector<ToastElem>::iterator it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
 
@@ -191,11 +270,11 @@ void LLScreenChannel::loadStoredToastByIDToChannel(LLUUID id)
 	mToastList.push_back((*it));
 	mStoredToastList.erase(it);
 
-	showToasts();
+	redrawToasts();
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::removeStoredToastByID(LLUUID id)
+void LLScreenChannel::removeStoredToastByNotificationID(LLUUID id)
 {
 	// *TODO: may be remove this function
 	std::vector<ToastElem>::iterator it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
@@ -205,7 +284,7 @@ void LLScreenChannel::removeStoredToastByID(LLUUID id)
 
 	LLToast* toast = (*it).toast;
 	mStoredToastList.erase(it);
-	toast->discardNotification();
+	mRejectToastSignal(toast->getNotificationID());
 }
 
 //--------------------------------------------------------------------------
@@ -223,15 +302,15 @@ void LLScreenChannel::killToastByNotificationID(LLUUID id)
 		// NOTE:	if a notification is unresponded this function will be called twice for the same toast.
 		//			At first, the notification will be discarded, at second (it will be caused by discarding),
 		//			the toast will be destroyed.
-		if(toast->getIsNotificationUnResponded())
+		if(toast->isNotificationValid())
 		{
-			toast->discardNotification();
+			mRejectToastSignal(toast->getNotificationID());
 		}
 		else
 		{
 			mToastList.erase(it);
-			toast->mOnToastDestroy(toast);
-			showToasts();
+			deleteToast(toast);
+			redrawToasts();
 		}
 		return;
 	}
@@ -243,8 +322,9 @@ void LLScreenChannel::killToastByNotificationID(LLUUID id)
 	{
 		LLToast* toast = (*it).toast;
 		mStoredToastList.erase(it);
-		toast->discardNotification();
-		toast->mOnToastDestroy(toast);
+		// send signal to a listener to let him perform some action on toast rejecting
+		mRejectToastSignal(toast->getNotificationID());
+		deleteToast(toast);
 	}
 }
 
@@ -261,12 +341,12 @@ void LLScreenChannel::modifyToastByNotificationID(LLUUID id, LLPanel* panel)
 		delete old_panel;
 		toast->insertPanel(panel);
 		toast->resetTimer();
-		showToasts();
+		redrawToasts();
 	}
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::showToasts()
+void LLScreenChannel::redrawToasts()
 {
 	if(mToastList.size() == 0 || mIsHovering)
 		return;
@@ -487,31 +567,55 @@ void LLScreenChannel::removeToastsFromChannel()
 	hideToastsFromScreen();
 	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end(); it++)
 	{
-		// *TODO: ivestigate mOnToastDestroy callback - change name or/and place
-		(*it).toast->mOnToastDestroy((*it).toast);
+		deleteToast((*it).toast);
 	}
 	mToastList.clear();
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::removeAndStoreAllVisibleToasts()
+void LLScreenChannel::removeAndStoreAllStorableToasts()
 {
 	if(mToastList.size() == 0)
 		return;
 
 	hideToastsFromScreen();
-	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end(); it++)
+	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end();)
 	{
 		if((*it).toast->getCanBeStored())
 		{
 			mStoredToastList.push_back(*it);
 			mOnStoreToast((*it).toast->getPanel(), (*it).id);
 			(*it).toast->stopTimer();
+			it = mToastList.erase(it);
 		}
-		(*it).toast->setVisible(FALSE);
+		else
+		{
+			++it;
+		}
 	}
+	redrawToasts();
+}
 
-	mToastList.clear();
+//--------------------------------------------------------------------------
+void LLScreenChannel::removeToastsBySessionID(LLUUID id)
+{
+	if(mToastList.size() == 0)
+		return;
+
+	hideToastsFromScreen();
+	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end();)
+	{
+		if((*it).toast->getSessionID() == id)
+		{
+			deleteToast((*it).toast);
+			it = mToastList.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+	redrawToasts();
 }
 
 //--------------------------------------------------------------------------
@@ -546,11 +650,30 @@ void LLScreenChannel::onToastHover(LLToast* toast, bool mouse_enter)
 	}
 
 	if(!mIsHovering)
-		showToasts();
+		redrawToasts();
 }
 
 //--------------------------------------------------------------------------
+void LLScreenChannel::updateShowToastsState()
+{
+	LLFloater* floater = LLDockableFloater::getInstanceHandle().get();
 
+	if(!floater)
+	{
+		setShowToasts(true);
+		return;
+	}
 
+	if(dynamic_cast<LLIMFloater*>(floater) || dynamic_cast<LLSysWellWindow*>(floater))
+	{
+		setShowToasts(!(floater->getVisible() && floater->isDocked()));
+		if (!getShowToasts())
+		{
+			removeAndStoreAllStorableToasts();
+		}
+		
+	}
+}
 
+//--------------------------------------------------------------------------
 

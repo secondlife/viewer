@@ -37,6 +37,8 @@
 #include "llappviewer.h"
 #include "llviewercontrol.h"
 #include "llimview.h"
+#include "llbottomtray.h"
+#include "llviewerwindow.h"
 
 #include <algorithm>
 
@@ -48,12 +50,34 @@ LLChannelManager::LLChannelManager()
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLChannelManager::onLoginCompleted, this));
 	mChannelList.clear();
 	mStartUpChannel = NULL;
+	
+	if(!gViewerWindow)
+	{
+		llerrs << "LLChannelManager::LLChannelManager() - viwer window is not initialized yet" << llendl;
+	}
 }
 
 //--------------------------------------------------------------------------
 LLChannelManager::~LLChannelManager()
 {
-	//All channels are being deleted by Parent View
+	for(std::vector<ChannelElem>::iterator it = mChannelList.begin(); it !=  mChannelList.end(); ++it)
+	{
+		delete (*it).channel;
+	}
+
+	mChannelList.clear();
+}
+
+//--------------------------------------------------------------------------
+LLScreenChannel* LLChannelManager::createNotificationChannel()
+{
+	//  creating params for a channel
+	LLChannelManager::Params p;
+	p.id = LLUUID(gSavedSettings.getString("NotificationChannelUUID"));
+	p.channel_align = CA_RIGHT;
+
+	// Getting a Channel for our notifications
+	return dynamic_cast<LLScreenChannel*> (LLChannelManager::getInstance()->getChannel(p));
 }
 
 //--------------------------------------------------------------------------
@@ -61,20 +85,22 @@ void LLChannelManager::onLoginCompleted()
 {
 	S32 away_notifications = 0;
 
+	// calc a number of all offline notifications
 	for(std::vector<ChannelElem>::iterator it = mChannelList.begin(); it !=  mChannelList.end(); ++it)
 	{
+		// don't calc notifications for Nearby Chat
 		if((*it).channel->getChannelID() == LLUUID(gSavedSettings.getString("NearByChatChannelUUID")))
 		{
 			continue;
 		}
 
+		// don't calc notifications for channels that always show their notifications
 		if(!(*it).channel->getDisplayToastsAlways())
 		{
 			away_notifications +=(*it).channel->getNumberOfHiddenToasts();
 		}
 	}
 
-	// *TODO: calculate IM notifications
 	away_notifications += gIMMgr->getNumberOfUnreadIM();
 
 	if(!away_notifications)
@@ -83,10 +109,10 @@ void LLChannelManager::onLoginCompleted()
 		return;
 	}
 	
+	// create a channel for the StartUp Toast
 	LLChannelManager::Params p;
 	p.id = LLUUID(gSavedSettings.getString("StartUpChannelUUID"));
-	p.channel_right_bound = getRootView()->getRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
-	p.channel_width = gSavedSettings.getS32("NotifyBoxWidth");
+	p.channel_align = CA_RIGHT;
 	mStartUpChannel = createChannel(p);
 
 	if(!mStartUpChannel)
@@ -95,8 +121,13 @@ void LLChannelManager::onLoginCompleted()
 		return;
 	}
 
+	// init channel's position and size
+	S32 channel_right_bound = gViewerWindow->getWorldViewRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
+	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
+	mStartUpChannel->init(channel_right_bound - channel_width, channel_right_bound);
 	mStartUpChannel->setShowToasts(true);
-	static_cast<LLUICtrl*>(mStartUpChannel)->setCommitCallback(boost::bind(&LLChannelManager::onStartUpToastClose, this));
+
+	mStartUpChannel->setCommitCallback(boost::bind(&LLChannelManager::onStartUpToastClose, this));
 	mStartUpChannel->createStartUpToast(away_notifications, gSavedSettings.getS32("ChannelBottomPanelMargin"), gSavedSettings.getS32("StartUpToastTime"));
 }
 
@@ -107,62 +138,70 @@ void LLChannelManager::onStartUpToastClose()
 	{
 		mStartUpChannel->setVisible(FALSE);
 		mStartUpChannel->closeStartUpToast();
-		getRootView()->removeChild(mStartUpChannel);
 		removeChannelByID(LLUUID(gSavedSettings.getString("StartUpChannelUUID")));
 		delete mStartUpChannel;
 		mStartUpChannel = NULL;
 	}
 
-	// set StartUp Toast Flag
+	// set StartUp Toast Flag to allow all other channels to show incoming toasts
 	LLScreenChannel::setStartUpToastShown();
 
-	// allow all other channels to show incoming toasts
-	for(std::vector<ChannelElem>::iterator it = mChannelList.begin(); it !=  mChannelList.end(); ++it)
-	{
-		(*it).channel->setShowToasts(true);
-	}
-
 	// force NEARBY CHAT CHANNEL to repost all toasts if present
-	LLScreenChannel* nearby_channel = getChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
-	nearby_channel->loadStoredToastsToChannel();
-	nearby_channel->setCanStoreToasts(false);
+	//LLScreenChannelBase* nearby_channel = findChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
+	//!!!!!!!!!!!!!!
+	//FIXME
+	//nearby_channel->loadStoredToastsToChannel();
+	//nearby_channel->setCanStoreToasts(false);
 }
 
 //--------------------------------------------------------------------------
+
+LLScreenChannelBase*	LLChannelManager::addChannel(LLScreenChannelBase* channel)
+{
+	if(!channel)
+		return 0;
+
+	ChannelElem new_elem;
+	new_elem.id = channel->getChannelID();
+	new_elem.channel = channel;
+
+	mChannelList.push_back(new_elem); 
+
+	return channel;
+}
+
 LLScreenChannel* LLChannelManager::createChannel(LLChannelManager::Params& p)
 {
-	LLScreenChannel* new_channel = NULL;
+	LLScreenChannel* new_channel = new LLScreenChannel(p.id); 
 
-	if(!p.chiclet)
+	if(!new_channel)
 	{
-		new_channel = getChannelByID(p.id);
+		llerrs << "LLChannelManager::getChannel(LLChannelManager::Params& p) - can't create a channel!" << llendl;		
 	}
 	else
 	{
-		new_channel = getChannelByChiclet(p.chiclet);
+		new_channel->setToastAlignment(p.toast_align);
+		new_channel->setChannelAlignment(p.channel_align);
+		new_channel->setDisplayToastsAlways(p.display_toasts_always);
+
+		addChannel(new_channel);
 	}
+	return new_channel;
+}
+
+LLScreenChannelBase* LLChannelManager::getChannel(LLChannelManager::Params& p)
+{
+	LLScreenChannelBase* new_channel = findChannelByID(p.id);
 
 	if(new_channel)
 		return new_channel;
 
-	new_channel = new LLScreenChannel(p.id); 
-	getRootView()->addChild(new_channel);
-	new_channel->init(p.channel_right_bound - p.channel_width, p.channel_right_bound);
-	new_channel->setToastAlignment(p.align);
-	new_channel->setDisplayToastsAlways(p.display_toasts_always);
+	return createChannel(p);
 
-	ChannelElem new_elem;
-	new_elem.id = p.id;
-	new_elem.chiclet = p.chiclet;
-	new_elem.channel = new_channel;
-	
-	mChannelList.push_back(new_elem); //TODO: remove chiclet from ScreenChannel?
-
-	return new_channel;
 }
 
 //--------------------------------------------------------------------------
-LLScreenChannel* LLChannelManager::getChannelByID(const LLUUID id)
+LLScreenChannelBase* LLChannelManager::findChannelByID(const LLUUID id)
 {
 	std::vector<ChannelElem>::iterator it = find(mChannelList.begin(), mChannelList.end(), id); 
 	if(it != mChannelList.end())
@@ -171,34 +210,6 @@ LLScreenChannel* LLChannelManager::getChannelByID(const LLUUID id)
 	}
 
 	return NULL;
-}
-
-//--------------------------------------------------------------------------
-LLScreenChannel* LLChannelManager::getChannelByChiclet(const LLChiclet* chiclet)
-{
-	std::vector<ChannelElem>::iterator it = find(mChannelList.begin(), mChannelList.end(), chiclet); 
-	if(it != mChannelList.end())
-	{
-		return (*it).channel;
-	}
-
-	return NULL;
-}
-
-//--------------------------------------------------------------------------
-void LLChannelManager::reshape(S32 width, S32 height, BOOL called_from_parent)
-{
-	for(std::vector<ChannelElem>::iterator it = mChannelList.begin(); it !=  mChannelList.end(); ++it)
-	{
-		if((*it).channel->getToastAlignment() == NA_CENTRE)
-		{
-			LLRect channel_rect = (*it).channel->getRect();
-			S32 screen_width = getRootView()->getRect().getWidth();
-			channel_rect.setLeftTopAndSize(screen_width/2, channel_rect.mTop, channel_rect.getWidth(), channel_rect.getHeight());
-			(*it).channel->setRect(channel_rect);
-			(*it).channel->showToasts();
-		}
-	}
 }
 
 //--------------------------------------------------------------------------
@@ -212,18 +223,5 @@ void LLChannelManager::removeChannelByID(const LLUUID id)
 }
 
 //--------------------------------------------------------------------------
-void LLChannelManager::removeChannelByChiclet(const LLChiclet* chiclet)
-{
-	std::vector<ChannelElem>::iterator it = find(mChannelList.begin(), mChannelList.end(), chiclet); 
-	if(it != mChannelList.end())
-	{
-		mChannelList.erase(it);
-	}
-}
-
-//--------------------------------------------------------------------------
-
-
-
 
 

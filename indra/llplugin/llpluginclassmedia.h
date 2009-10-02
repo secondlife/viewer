@@ -66,6 +66,8 @@ public:
 	int getBitsHeight() const { return (mTextureHeight > 0) ? mTextureHeight : 0; };
 	int getTextureWidth() const;
 	int getTextureHeight() const;
+	int getFullWidth() const { return mFullMediaWidth; };
+	int getFullHeight() const { return mFullMediaHeight; };
 	
 	// This may return NULL.  Callers need to check for and handle this case.
 	unsigned char* getBitsData();
@@ -138,9 +140,11 @@ public:
 	
 	typedef enum 
 	{
+		PRIORITY_UNLOADED,	// media plugin isn't even loaded.
 		PRIORITY_STOPPED,	// media is not playing, shouldn't need to update at all.
 		PRIORITY_HIDDEN,	// media is not being displayed or is out of view, don't need to do graphic updates, but may still update audio, playhead, etc.
-		PRIORITY_LOW,		// media is in the far distance, may be rendered at reduced size
+		PRIORITY_SLIDESHOW,	// media is in the far distance, updates very infrequently
+		PRIORITY_LOW,		// media is in the distance, may be rendered at reduced size
 		PRIORITY_NORMAL,	// normal (default) priority
 		PRIORITY_HIGH		// media has user focus and/or is taking up most of the screen
 	}EPriority;
@@ -148,6 +152,8 @@ public:
 	void setPriority(EPriority priority);
 	void setLowPrioritySizeLimit(int size);
 	
+	F64 getCPUUsage();
+
 	// Valid after a MEDIA_EVENT_CURSOR_CHANGED event
 	std::string getCursorName() const { return mCursorName; };
 
@@ -230,6 +236,7 @@ public:
 	void initializeUrlHistory(const LLSD& url_history);
 
 protected:
+
 	LLPluginClassMediaOwner *mOwner;
 
 	// Notify this object's owner that an event has occurred.
@@ -266,7 +273,11 @@ protected:
 	int			mSetMediaWidth;
 	int			mSetMediaHeight;
 	
-	// Actual media size being set (may be affected by auto-scale)
+	// Full calculated media size (before auto-scale and downsample calculations)
+	int			mFullMediaWidth;
+	int			mFullMediaHeight;
+
+	// Actual media size being set (after auto-scale)
 	int			mRequestedMediaWidth;
 	int			mRequestedMediaHeight;
 	

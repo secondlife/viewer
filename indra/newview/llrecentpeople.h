@@ -81,6 +81,8 @@ public:
 	 */
 	void get(std::vector<LLUUID>& result) const;
 
+	const LLDate& getDate(const LLUUID& id) const;
+
 	/**
 	 * Set callback to be called when the list changed.
 	 * 
@@ -97,7 +99,7 @@ public:
 
 private:
 	typedef std::map<LLUUID, LLDate> recent_people_t;
-	recent_people_t		mList;
+	recent_people_t		mPeople;
 	signal_t			mChangedSignal;
 };
 

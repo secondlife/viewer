@@ -83,7 +83,8 @@ public:
 		Optional<bool>	has_border,
 						draw_heading,
 						draw_stripes,
-						background_visible;
+						background_visible,
+						scroll_bar_bg_visible;
 
 		// layout
 		Optional<S32>	column_padding,
@@ -104,7 +105,8 @@ public:
 							bg_readonly_color,
 							bg_stripe_color,
 							hovered_color,
-							highlighted_color;
+							highlighted_color,
+							scroll_bar_bg_color;
 
 		Optional<Contents> contents;
 		

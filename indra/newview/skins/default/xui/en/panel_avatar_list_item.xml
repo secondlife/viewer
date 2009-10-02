@@ -38,7 +38,7 @@
      width="20" />
     <text
      follows="left|right"
-     font="SansSerifBigBold"
+     font="SansSerifSmallBold"
      height="20"
      layout="topleft"
      left_pad="5"

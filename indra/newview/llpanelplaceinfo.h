@@ -38,15 +38,15 @@
 #include "v3dmath.h"
 #include "lluuid.h"
 
-#include "lliconctrl.h"
-
 #include "llpanelmedia.h"
 #include "llremoteparcelrequest.h"
 
 class LLButton;
 class LLInventoryItem;
 class LLLineEditor;
+class LLPanelPick;
 class LLParcel;
+class LLIconCtrl;
 class LLTextBox;
 class LLTextEditor;
 class LLTextureCtrl;
@@ -88,7 +88,7 @@ public:
 	
 	// Create a pick for the location specified
 	// by global_pos.
-	void createPick(const LLVector3d& global_pos);
+	void createPick(const LLVector3d& pos_global, LLPanelPick* pick_panel);
 
 	BOOL isMediaPanelVisible();
 	void toggleMediaPanel(BOOL visible);
@@ -133,11 +133,13 @@ private:
 	LLUUID			mParcelID;
 	LLUUID			mRequestedID;
 	LLUUID			mLandmarkID;
+	LLVector3		mPosRegion;
 	std::string		mCurrentTitle;
 	S32				mMinHeight;
 	INFO_TYPE 		mInfoType;
 
 	LLTextBox*			mTitle;
+	LLIconCtrl*			mForSaleIcon;
 	LLTextureCtrl*		mSnapshotCtrl;
 	LLTextBox*			mRegionName;
 	LLTextBox*			mParcelName;

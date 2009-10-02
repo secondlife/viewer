@@ -144,6 +144,18 @@ public:
 	void setLandmarkID(const LLUUID& id){ mUrlGetter.setLandmarkID(id); }
 	const LLUUID& getLandmarkId() const { return mUrlGetter.getLandmarkId(); }
 
+	void onMouseEnter(S32 x, S32 y, MASK mask)
+	{
+		if (LLToolDragAndDrop::getInstance()->hasMouseCapture())
+		{
+			LLUICtrl::onMouseEnter(x, y, mask);
+		}
+		else
+		{
+			LLButton::onMouseEnter(x, y, mask);
+		}
+	}
+
 protected:
 	LLFavoriteLandmarkButton(const LLButton::Params& p) : LLButton(p) {}
 	friend class LLUICtrlFactory;
@@ -278,7 +290,8 @@ struct LLFavoritesSort
 };
 
 LLFavoritesBarCtrl::Params::Params()
-: chevron_button_tool_tip("chevron_button_tool_tip")
+: chevron_button_tool_tip("chevron_button_tool_tip"),
+  image_drag_indication("image_drag_indication")
 {
 }
 
@@ -287,7 +300,12 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	mFont(p.font.isProvided() ? p.font() : LLFontGL::getFontSansSerifSmall()),
 	mPopupMenuHandle(),
 	mInventoryItemsPopupMenuHandle(),
-	mChevronButtonToolTip(p.chevron_button_tool_tip)
+	mChevronButtonToolTip(p.chevron_button_tool_tip),
+	mImageDragIndication(p.image_drag_indication),
+	mShowDragMarker(FALSE),
+	mLandingTab(NULL),
+	mLastTab(NULL),
+	mTabsHighlightEnabled(TRUE)
 {
 	// Register callback for menus with current registrar (will be parent panel's registrar)
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Favorites.DoToSelected",
@@ -321,17 +339,49 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 	case DAD_LANDMARK:
 		{
+			/*
+			 * add a callback to the end drag event.
+			 * the callback will disconnet itself immediately after execution
+			 * this is done because LLToolDragAndDrop is a common tool so it shouldn't
+			 * be overloaded with redundant callbacks.
+			 */
+			if (!mEndDragConnection.connected())
+			{
+				mEndDragConnection = LLToolDragAndDrop::getInstance()->setEndDragCallback(boost::bind(&LLFavoritesBarCtrl::onEndDrag, this));
+			}
+
 			// Copy the item into the favorites folder (if it's not already there).
 			LLInventoryItem *item = (LLInventoryItem *)cargo_data;
+
+			if (LLFavoriteLandmarkButton* dest = dynamic_cast<LLFavoriteLandmarkButton*>(findChildByLocalCoords(x, y)))
+			{
+				setLandingTab(dest);
+			}
+			/*
+			 * the condition dest == NULL can be satisfied not only in the case
+			 * of dragging to the right from the last tab of the favbar. there is a
+			 * small gap between each tab. if the user drags something exactly there
+			 * then mLandingTab will be set to NULL and the dragged item will be pushed
+			 * to the end of the favorites bar. this is incorrect behavior. that's why
+			 * we need an additional check which excludes the case described previously
+			 * making sure that the mouse pointer is beyond the last tab.
+			 */
+			else if (mLastTab && x >= mLastTab->getRect().mRight)
+			{
+				setLandingTab(NULL);
+			}
 
 			// check if we are dragging an existing item from the favorites bar
 			if (item && mDragItemId == item->getUUID())
 			{
 				*accept = ACCEPT_YES_SINGLE;
 
+				showDragMarker(TRUE);
+
 				if (drop)
 				{
 					handleExistingFavoriteDragAndDrop(x, y);
+					showDragMarker(FALSE);
 				}
 			}
 			else
@@ -343,11 +393,14 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 					break;
 				}
 
-				*accept = ACCEPT_YES_COPY_SINGLE;
+				*accept = ACCEPT_YES_COPY_MULTI;
+
+				showDragMarker(TRUE);
 
 				if (drop)
 				{
 					handleNewFavoriteDragAndDrop(item, favorites_id, x, y);
+					showDragMarker(FALSE);
 				}
 			}
 		}
@@ -361,7 +414,13 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 void LLFavoritesBarCtrl::handleExistingFavoriteDragAndDrop(S32 x, S32 y)
 {
-	LLFavoriteLandmarkButton* dest = dynamic_cast<LLFavoriteLandmarkButton*>(findChildByLocalCoords(x, y));
+	LLFavoriteLandmarkButton* dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLandingTab);
+
+	// there is no need to handle if an item was dragged onto itself
+	if (dest && dest->getLandmarkId() == mDragItemId)
+	{
+		return;
+	}
 
 	if (dest)
 	{
@@ -381,14 +440,17 @@ void LLFavoritesBarCtrl::handleExistingFavoriteDragAndDrop(S32 x, S32 y)
 		menu->setVisible(FALSE);
 		showDropDownMenu();
 	}
-
-	mDragItemId = LLUUID::null;
-	getWindow()->setCursor(UI_CURSOR_ARROW);
 }
 
 void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, const LLUUID& favorites_id, S32 x, S32 y)
 {
-	LLFavoriteLandmarkButton* dest = dynamic_cast<LLFavoriteLandmarkButton*>(findChildByLocalCoords(x, y));
+	LLFavoriteLandmarkButton* dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLandingTab);
+
+	// there is no need to handle if an item was dragged onto itself
+	if (dest && dest->getLandmarkId() == mDragItemId)
+	{
+		return;
+	}
 
 	if (dest)
 	{
@@ -456,6 +518,30 @@ void LLFavoritesBarCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 	updateButtons(width);
 
 	LLUICtrl::reshape(width, height, called_from_parent);
+}
+
+void LLFavoritesBarCtrl::draw()
+{
+	LLUICtrl::draw();
+
+	if (mShowDragMarker)
+	{
+		S32 w = mImageDragIndication->getWidth() / 2;
+		S32 h = mImageDragIndication->getHeight() / 2;
+
+		if (mLandingTab)
+		{
+			// mouse pointer hovers over an existing tab
+			LLRect rect = mLandingTab->getRect();
+			mImageDragIndication->draw(rect.mLeft - w/2, rect.getHeight(), w, h);
+		}
+		else if (mLastTab)
+		{
+			// mouse pointer hovers over the favbar empty space (right to the last tab)
+			LLRect rect = mLastTab->getRect();
+			mImageDragIndication->draw(rect.mRight, rect.getHeight(), w, h);
+		}
+	}
 }
 
 LLXMLNodePtr LLFavoritesBarCtrl::getButtonXMLNode()
@@ -628,11 +714,15 @@ void LLFavoritesBarCtrl::createButtons(const LLInventoryModel::item_array_t &ite
 {
 	S32 curr_x = buttonHGap;
 	// Adding buttons
+
+	LLFavoriteLandmarkButton* fav_btn = NULL;
+	mLandingTab = mLastTab = NULL;
+
 	for(S32 i = mFirstDropDownItem -1, j = 0; i >= 0; i--)
 	{
 		LLViewerInventoryItem* item = items.get(j++);
 
-		LLFavoriteLandmarkButton* fav_btn = LLUICtrlFactory::defaultBuilder<LLFavoriteLandmarkButton>(buttonXMLNode, this, NULL);
+		fav_btn = LLUICtrlFactory::defaultBuilder<LLFavoriteLandmarkButton>(buttonXMLNode, this, NULL);
 		if (NULL == fav_btn)
 		{
 			llwarns << "Unable to create button for landmark: " << item->getName() << llendl;
@@ -657,6 +747,8 @@ void LLFavoritesBarCtrl::createButtons(const LLInventoryModel::item_array_t &ite
 
 		curr_x += buttonWidth + buttonHGap;
 	}
+
+	mLastTab = fav_btn;
 }
 
 
@@ -784,6 +876,7 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 			menu_item->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this,item->getUUID(),_1,_2,_3,_4));
 			menu_item->LLUICtrl::setMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseDown, this, item->getUUID(), _1, _2, _3, _4));
 			menu_item->LLUICtrl::setMouseUpCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseUp, this, item->getUUID(), _1, _2, _3, _4));
+			menu_item->setLandmarkID(item->getUUID());
 
 			// Check whether item name wider than menu
 			if (menu_item->getNominalWidth() > max_width)
@@ -841,6 +934,17 @@ void LLFavoritesBarCtrl::onButtonRightClick( LLUUID item_id,LLView* fav_button,S
 	LLMenuGL::showPopup(fav_button, menu, x, y);
 }
 
+BOOL LLFavoritesBarCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = childrenHandleRightMouseDown( x, y, mask) != NULL;
+	if(!handled && !gMenuHolder->hasVisibleMenu())
+	{
+		show_navbar_context_menu(this,x,y);
+		handled = true;
+	}
+	
+	return handled;
+}
 void copy_slurl_to_clipboard_cb(std::string& slurl)
 {
 	gClipboard.copyFromString(utf8str_to_wstring(slurl));
@@ -968,7 +1072,6 @@ void LLFavoritesBarCtrl::pastFromClipboard() const
 void LLFavoritesBarCtrl::onButtonMouseDown(LLUUID id, LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
 {
 	mDragItemId = id;
-	mStartDrag = TRUE;
 
 	S32 screenX, screenY;
 	localPointToScreen(x, y, &screenX, &screenY);
@@ -981,9 +1084,18 @@ void LLFavoritesBarCtrl::onButtonMouseUp(LLUUID id, LLUICtrl* ctrl, S32 x, S32 y
 	mDragItemId = LLUUID::null;
 }
 
+void LLFavoritesBarCtrl::onEndDrag()
+{
+	mEndDragConnection.disconnect();
+
+	showDragMarker(FALSE);
+	mDragItemId = LLUUID::null;
+	LLView::getWindow()->setCursor(UI_CURSOR_ARROW);
+}
+
 BOOL LLFavoritesBarCtrl::handleHover(S32 x, S32 y, MASK mask)
 {
-	if (mDragItemId != LLUUID::null && mStartDrag)
+	if (mDragItemId != LLUUID::null)
 	{
 		S32 screenX, screenY;
 		localPointToScreen(x, y, &screenX, &screenY);
@@ -993,8 +1105,6 @@ BOOL LLFavoritesBarCtrl::handleHover(S32 x, S32 y, MASK mask)
 			LLToolDragAndDrop::getInstance()->beginDrag(
 				DAD_LANDMARK, mDragItemId,
 				LLToolDragAndDrop::SOURCE_LIBRARY);
-
-			mStartDrag = FALSE;
 
 			return LLToolDragAndDrop::getInstance()->handleHover(x, y, mask);
 		}

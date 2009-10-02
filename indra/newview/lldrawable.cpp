@@ -960,6 +960,30 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 	return retval;
 }
 
+const S32 MIN_VIS_FRAME_RANGE = 2 ; //two frames:the current one and the last one.
+//static 
+S32 LLDrawable::getMinVisFrameRange()
+{
+	return MIN_VIS_FRAME_RANGE ;
+}
+
+BOOL LLDrawable::isRecentlyVisible() const
+{
+	//currently visible or visible in the previous frame.
+	BOOL vis = isVisible() || (sCurVisible - mVisible < MIN_VIS_FRAME_RANGE)  ;
+
+	if(!vis)
+	{
+		LLSpatialGroup* group = getSpatialGroup();
+		if (group && group->isRecentlyVisible())
+		{
+			mVisible = sCurVisible;
+			vis = TRUE ;
+		}
+	}
+
+	return vis ;
+}
 
 BOOL LLDrawable::isVisible() const
 {

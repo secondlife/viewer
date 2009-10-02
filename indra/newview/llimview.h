@@ -34,11 +34,12 @@
 #define LL_LLIMVIEW_H
 
 #include "lldarray.h"
+#include "llfloateractivespeakers.h" //for LLIMSpeakerMgr
+#include "llimpanel.h" //for voice channels
 #include "llmodaldialog.h"
 #include "llinstantmessage.h"
 #include "lluuid.h"
 #include "llmultifloater.h"
-#include "llrecentpeople.h"
 
 class LLFloaterChatterBox;
 class LLUUID;
@@ -51,21 +52,40 @@ public:
 
 	struct LLIMSession
 	{
-		LLIMSession(std::string name, EInstantMessage type, LLUUID other_participant_id) 
-			:mName(name), mType(type), mNumUnread(0), mOtherParticipantID(other_participant_id) {}
-		
+		LLIMSession(const LLUUID& session_id, const std::string& name, 
+			const EInstantMessage& type, const LLUUID& other_participant_id);
+		virtual ~LLIMSession();
+
+		LLUUID mSessionID;
 		std::string mName;
 		EInstantMessage mType;
 		LLUUID mOtherParticipantID;
 		S32 mNumUnread;
 		std::list<LLSD> mMsgs;
+
+		LLVoiceChannel* mVoiceChannel;
+		LLIMSpeakerMgr* mSpeakers;
 	};
 	
 
 	LLIMModel();
 
+	//*TODO make it non-static as LLIMMOdel is a singleton (IB)
 	static std::map<LLUUID, LLIMSession*> sSessionsMap;  //mapping session_id to session
+
 	boost::signals2::signal<void(const LLSD&)> mChangedSignal;
+	
+	/** 
+	 * Find an IM Session corresponding to session_id
+	 * Returns NULL if the session does not exist
+	 */
+	LLIMSession* findIMSession(const LLUUID& session_id) const;
+
+	/**
+	 * Rebind session data to a new session id.
+	 */
+	void updateSessionID(const LLUUID& old_session_id, const LLUUID& new_session_id);
+
 	boost::signals2::connection addChangedCallback( boost::function<void (const LLSD& data)> cb );
 
 	bool newSession(LLUUID session_id, std::string name, EInstantMessage type, LLUUID other_participant_id);
@@ -73,10 +93,42 @@ public:
 	std::list<LLSD> getMessages(LLUUID session_id, int start_index = 0);
 	bool addMessage(LLUUID session_id, std::string from, LLUUID other_participant_id, std::string utf8_text);
 	bool addToHistory(LLUUID session_id, std::string from, std::string utf8_text); 
-    //used to get the name of the session, for use as the title
-    //currently just the other avatar name
-	const std::string& getName(LLUUID session_id);
-	
+	//used to get the name of the session, for use as the title
+	//currently just the other avatar name
+	const std::string& getName(const LLUUID& session_id) const;
+
+	/** 
+	 * Get number of unread messages in a session with session_id
+	 * Returns -1 if the session with session_id doesn't exist
+	 */
+	const S32 getNumUnread(const LLUUID& session_id) const;
+
+	/**
+	 * Get uuid of other participant in a session with session_id
+	 * Returns LLUUID::null if the session doesn't exist
+	 *
+ 	 * *TODO what to do with other participants in ad-hoc and group chats?
+	 */
+	const LLUUID& getOtherParticipantID(const LLUUID& session_id) const;
+
+	/**
+	 * Get type of a session specified by session_id
+	 * Returns EInstantMessage::IM_COUNT if the session does not exist
+	 */
+	EInstantMessage getType(const LLUUID& session_id) const;
+
+	/**
+	 * Get voice channel for the session specified by session_id
+	 * Returns NULL if the session does not exist
+	 */
+	LLVoiceChannel* getVoiceChannel(const LLUUID& session_id) const;
+
+	/**
+	* Get im speaker manager for the session specified by session_id
+	* Returns NULL if the session does not exist
+	*/
+	LLIMSpeakerMgr* getSpeakerManager(const LLUUID& session_id) const;
+
 	static void sendLeaveSession(LLUUID session_id, LLUUID other_participant_id);
 	static bool sendStartSession(const LLUUID& temp_session_id, const LLUUID& other_participant_id,
 						  const std::vector<LLUUID>& ids, EInstantMessage dialog);
@@ -159,7 +211,7 @@ public:
 	// This removes the panel referenced by the uuid, and then
 	// restores internal consistency. The internal pointer is not
 	// deleted.
-	void removeSession(const LLUUID& session_id);
+	void removeSession(LLUUID session_id);
 
 	void inviteToSession(
 		const LLUUID& session_id, 

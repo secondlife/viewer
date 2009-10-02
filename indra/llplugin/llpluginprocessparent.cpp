@@ -38,7 +38,7 @@
 #include "llapr.h"
 
 // If we don't receive a heartbeat in this many seconds, we declare the plugin locked up.
-static const F32 PLUGIN_LOCKED_UP_SECONDS = 10.0f;
+static const F32 PLUGIN_LOCKED_UP_SECONDS = 15.0f;
 
 // Somewhat longer timeout for initial launch.
 static const F32 PLUGIN_LAUNCH_SECONDS = 20.0f;
@@ -87,6 +87,7 @@ void LLPluginProcessParent::init(const std::string &launcher_filename, const std
 {	
 	mProcess.setExecutable(launcher_filename);
 	mPluginFile = plugin_filename;
+	mCPUUsage = 0.0f;
 	
 	setState(STATE_INITIALIZED);
 }
@@ -503,6 +504,11 @@ void LLPluginProcessParent::receiveMessage(const LLPluginMessage &message)
 		{
 			// this resets our timer.
 			mHeartbeat.setTimerExpirySec(PLUGIN_LOCKED_UP_SECONDS);
+
+			mCPUUsage = message.getValueReal("cpu_usage");
+
+			LL_DEBUGS("Plugin") << "cpu usage reported as " << mCPUUsage << LL_ENDL;
+			
 		}
 		else if(message_name == "shm_add_response")
 		{

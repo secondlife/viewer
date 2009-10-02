@@ -134,4 +134,3 @@ void LLUrlAction::copyLabelToClipboard(std::string url)
 		LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(match.getLabel()));
 	}	
 }
-

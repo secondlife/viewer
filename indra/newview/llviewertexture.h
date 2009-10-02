@@ -49,6 +49,7 @@
 
 class LLFace;
 class LLImageGL ;
+class LLViewerObject;
 class LLViewerTexture;
 class LLViewerFetchedTexture ;
 class LLViewerMediaTexture ;
@@ -58,7 +59,9 @@ typedef	void	(*loaded_callback_func)( BOOL success, LLViewerFetchedTexture *src_
 
 class LLVFile;
 class LLMessageSystem;
- 
+class LLViewerMediaImpl ;
+class LLVOVolume ;
+
 class LLLoadedCallbackEntry
 {
 public:
@@ -123,6 +126,8 @@ public:
 		BOOST_MAX_LEVEL
 	};
 	
+	typedef std::list<LLFace*> ll_face_list_t ;
+
 protected:
 	virtual ~LLViewerTexture();
 	LOG_CLASS(LLViewerTexture);
@@ -152,16 +157,17 @@ public:
 	//maxVirtualSize of the texture
 	void addTextureStats(F32 virtual_size) const ;
 	void resetTextureStats(BOOL zero = FALSE);
-	F32  getMaxVirtualSize()const {return mMaxVirtualSize ;} 
+	virtual F32  getMaxVirtualSize() ;
 
 	LLFrameTimer* getLastReferencedTimer() {return &mLastReferencedTimer ;}
 	
 	S32 getFullWidth() const { return mFullWidth; }
 	S32 getFullHeight() const { return mFullHeight; }	
 
-	void addFace(LLFace* facep) ;
-	void removeFace(LLFace* facep) ; 
-	
+	virtual void addFace(LLFace* facep) ;
+	virtual void removeFace(LLFace* facep) ; 
+	const ll_face_list_t* getFaceList() const {return &mFaceList ;}
+
 	void generateGLTexture() ;
 	void destroyGLTexture() ;
 	
@@ -206,8 +212,6 @@ public:
 	//end of functions to access LLImageGL
 	//---------------------------------------------------------------------------------------------
 
-	void switchToTexture(LLViewerTexture* new_texture) ; //make all faces pointing to this texture to point to new_texture.
-
 	//-----------------
 	/*virtual*/ void setActive() ;
 	void forceActive() ;
@@ -233,10 +237,9 @@ protected:
 	BOOL  mUseMipMaps ;
 	S8  mComponents;
 	mutable F32 mMaxVirtualSize;	// The largest virtual size of the image, in pixels - how much data to we need?
-
+	mutable BOOL mNeedsResetMaxVirtualSize ;
 	LLFrameTimer mLastReferencedTimer;
 
-	typedef std::list<LLFace*> ll_face_list_t ;
 	ll_face_list_t mFaceList ; //reverse pointer pointing to the faces using this image as texture
 
 	//GL texture
@@ -498,34 +501,61 @@ private:
 class LLViewerMediaTexture : public LLViewerTexture
 {
 protected:
-	/*virtual*/ ~LLViewerMediaTexture() {}
+	/*virtual*/ ~LLViewerMediaTexture() ;
 
 public:
 	LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps = TRUE, LLImageGL* gl_image = NULL) ;
 
 	/*virtual*/ S8 getType() const;
-
 	void reinit(BOOL usemipmaps = TRUE);	
 
 	BOOL  getUseMipMaps() {return mUseMipMaps ; }
-	void  setUseMipMaps(BOOL mipmap) ;
-
-	void  setOldTexture(LLViewerTexture* tex) ;
-	LLViewerTexture* getOldTexture() const ;
-
-	void setPlaying(BOOL playing) {mIsPlaying = playing ;}
+	void  setUseMipMaps(BOOL mipmap) ;	
+	
+	void setPlaying(BOOL playing) ;
 	BOOL isPlaying() const {return mIsPlaying;}
+	void setMediaImpl() ;
+
+	void initVirtualSize() ;	
+	void invalidateMediaImpl() ;
+
+	void addMediaToFace(LLFace* facep) ;
+	void removeMediaFromFace(LLFace* facep) ;
+
+	/*virtual*/ void addFace(LLFace* facep) ;
+	/*virtual*/ void removeFace(LLFace* facep) ; 
+
+	/*virtual*/ F32  getMaxVirtualSize() ;
+private:
+	void switchTexture(LLFace* facep) ;
+	BOOL findFaces() ;
+	void stopPlaying() ;
 
 private:
-	LLPointer<LLViewerTexture> mOldTexturep ; //the texture this media texture replaces.
+	//
+	//an instant list, recording all faces referencing or can reference to this media texture.
+	//NOTE: it is NOT thread safe. 
+	//
+	std::list< LLFace* > mMediaFaceList ; 
+
+	//an instant list keeping all textures which are replaced by the current media texture,
+	//is only used to avoid the removal of those textures from memory.
+	std::list< LLPointer<LLViewerTexture> > mTextureList ;
+
+	LLViewerMediaImpl* mMediaImplp ;	
 	BOOL mIsPlaying ;
+	U32  mUpdateVirtualSizeTime ;
 
 public:
 	static void updateClass() ;
+	static void cleanup() ;	
 
-public:
+	static LLViewerMediaTexture* findMediaTexture(const LLUUID& media_id) ;
+	static void removeMediaImplFromTexture(const LLUUID& media_id) ;
+
+private:
 	typedef std::map< LLUUID, LLPointer<LLViewerMediaTexture> > media_map_t ;
-	static media_map_t sMediaMap ;
+	static media_map_t sMediaMap ;	
 };
 
 //just an interface class, do not create instance from this class.

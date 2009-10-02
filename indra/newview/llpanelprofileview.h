@@ -60,6 +60,8 @@ public:
 	
 	/*virtual*/ BOOL postBuild();
 
+	/*virtual*/ void togglePanel(LLPanel* panel);
+
 protected:
 
 	void onBackBtnClick();
@@ -67,6 +69,14 @@ protected:
 	void updateOnlineStatus();
 
 private:
+	// LLCacheName will call this function when avatar name is loaded from server.
+	// This is required to display names that have not been cached yet.
+	void onAvatarNameCached(
+		const LLUUID& id, 
+		const std::string& first_name,
+		const std::string& last_name,
+		BOOL is_group);
+
 	LLTextBox* mStatusText;
 };
 

@@ -311,8 +311,9 @@ void LLPanelProfileTab::onOpen(const LLSD& key)
 
 void LLPanelProfileTab::scrollToTop()
 {
-	LLScrollContainer* scrollContainer = getChild<LLScrollContainer>("profile_scroll");
-	scrollContainer->goToTop();
+	LLScrollContainer* scrollContainer = findChild<LLScrollContainer>("profile_scroll");
+	if (scrollContainer)
+		scrollContainer->goToTop();
 }
 
 //////////////////////////////////////////////////////////////////////////

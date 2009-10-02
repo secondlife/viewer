@@ -199,6 +199,11 @@ public:
 	typedef boost::signals2::signal<void (void)> bottom_tray_signal_t;
 	bottom_tray_signal_t mOnBottomTrayWidthChanged;
 	boost::signals2::connection setOnBottomTrayWidthChanged(bottom_tray_callback_t cb) { return mOnBottomTrayWidthChanged.connect(cb); }
+	// signal on update of WorldView rect
+	typedef boost::function<void (LLRect old_world_rect, LLRect new_world_rect)> world_rect_callback_t;
+	typedef boost::signals2::signal<void (LLRect old_world_rect, LLRect new_world_rect)> world_rect_signal_t;
+	world_rect_signal_t mOnWorldViewRectUpdated;
+	boost::signals2::connection setOnWorldViewRectUpdated(world_rect_callback_t cb) { return mOnWorldViewRectUpdated.connect(cb); }
 
 	//
 	// ACCESSORS

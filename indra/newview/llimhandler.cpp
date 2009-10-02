@@ -36,29 +36,18 @@
 #include "llnotificationhandler.h"
 
 #include "llagentdata.h"
-#include "llbottomtray.h"
-#include "llviewercontrol.h"
 #include "lltoastimpanel.h"
+#include "llviewerwindow.h"
 
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
-LLIMHandler::LLIMHandler()
+LLIMHandler::LLIMHandler(e_notification_type type, const LLSD& id)
 {
-	
-	// getting a Chiclet and creating params for a channel
-	LLBottomTray* tray = LLBottomTray::getInstance();
-	mChiclet = tray->getSysWell();
-
-	LLChannelManager::Params p;
-	// *TODO: createNotificationChannel method
-	p.id = LLUUID(gSavedSettings.getString("NotificationChannelUUID"));
-	p.channel_right_bound = tray->getRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
-	p.channel_width = gSavedSettings.getS32("NotifyBoxWidth");
+	mType = type;
 
 	// Getting a Channel for our notifications
-	mChannel = LLChannelManager::getInstance()->createChannel(p);
-
+	mChannel = LLChannelManager::getInstance()->createNotificationChannel();
 }
 
 //--------------------------------------------------------------------------
@@ -67,12 +56,31 @@ LLIMHandler::~LLIMHandler()
 }
 
 //--------------------------------------------------------------------------
-void LLIMHandler::processNotification(const LLSD& notify)
+void LLIMHandler::initChannel()
 {
+	S32 channel_right_bound = gViewerWindow->getWorldViewRect().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
+	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
+	mChannel->init(channel_right_bound - channel_width, channel_right_bound);
+}
+
+//--------------------------------------------------------------------------
+bool LLIMHandler::processNotification(const LLSD& notify)
+{
+	if(!mChannel)
+	{
+		return false;
+	}
+
 	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
 
 	if(!notification)
-		return;
+		return false;
+
+	// arrange a channel on a screen
+	if(!mChannel->getVisible())
+	{
+		initChannel();
+	}
 
 	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
 	{
@@ -95,40 +103,33 @@ void LLIMHandler::processNotification(const LLSD& notify)
 		LLToastIMPanel* im_box = new LLToastIMPanel(im_p);
 
 		LLToast::Params p;
-		p.id = notification->getID();
+		p.notif_id = notification->getID();
+		p.session_id = im_p.session_id;
 		p.notification = notification;
 		p.panel = im_box;
 		p.can_be_stored = false;
-		p.on_toast_destroy = boost::bind(&LLIMHandler::onToastDestroy, this, _1);
-		mChannel->addToast(p);
+		p.on_delete_toast = boost::bind(&LLIMHandler::onDeleteToast, this, _1);
+		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+		if(channel)
+			channel->addToast(p);
 
-
-		static_cast<LLNotificationChiclet*>(mChiclet)->updateUreadIMNotifications();
+		// send a signal to the counter manager;
+		mNewNotificationSignal();
 	}
 	else if (notify["sigtype"].asString() == "delete")
 	{
 		mChannel->killToastByNotificationID(notification->getID());
 	}
+	return true;
 }
 
 //--------------------------------------------------------------------------
-void LLIMHandler::onToastDestroy(LLToast* toast)
+void LLIMHandler::onDeleteToast(LLToast* toast)
 {
-	toast->closeFloater();
-	static_cast<LLNotificationChiclet*>(mChiclet)->updateUreadIMNotifications();
+	// send a signal to the counter manager
+	mDelNotificationSignal();
 }
 
 //--------------------------------------------------------------------------
-void LLIMHandler::onChicletClick(void)
-{
-}
-
-//--------------------------------------------------------------------------
-void LLIMHandler::onChicletClose(void)
-{
-}
-
-//--------------------------------------------------------------------------
-
 
 

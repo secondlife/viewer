@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ can_dock="true"
  can_close="false"
  can_minimize="false"
  center_horiz="true"
@@ -41,6 +42,7 @@
      follows="left|top" 
      layout="topleft"
      left="0"
+     mouse_opaque="false" 
      name="panel_actions"
      top="0"
      width="115">
@@ -95,7 +97,7 @@
          scale_image="false"
          tool_tip="Fly Down, Press &quot;C&quot;"
          top_delta="0"
-         width="25" />
+         width="20" />
         <joystick_turn
          follows="left|bottom"
          height="25"

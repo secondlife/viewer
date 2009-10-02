@@ -36,7 +36,6 @@
 #include "llmediactrl.h"
 
 // viewer includes
-#include "llfloaterhtml.h"
 #include "llfloaterworldmap.h"
 #include "lluictrlfactory.h"
 #include "llurldispatcher.h"
@@ -44,6 +43,7 @@
 #include "llviewborder.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
+#include "llviewertexture.h"
 #include "llviewerwindow.h"
 #include "llnotifications.h"
 #include "llweb.h"
@@ -64,6 +64,9 @@ LLMediaCtrl::Params::Params()
 	border_visible("border_visible", true),
 	ignore_ui_scale("ignore_ui_scale", true),
 	hide_loading("hide_loading", false),
+	decouple_texture_size("decouple_texture_size", false),
+	texture_width("texture_width", 1024),
+	texture_height("texture_height", 1024),
 	caret_color("caret_color")
 {}
 
@@ -83,10 +86,12 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mMediaSource( 0 ),
 	mTakeFocusOnClick( true ),
 	mCurrentNavUrl( "" ),
-	mLastSetCursor( UI_CURSOR_ARROW ),
 	mStretchToFill( true ),
 	mMaintainAspectRatio ( true ),
-	mHideLoading (false)
+	mHideLoading (false),
+	mDecoupleTextureSize ( false ),
+	mTextureWidth ( 1024 ),
+	mTextureHeight ( 1024 )
 {
 	{
 		LLColor4 color = p.caret_color().get();
@@ -100,24 +105,29 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	setBorderVisible(p.border_visible());
 	
 	mHideLoading = p.hide_loading();
+	
+	setDecoupleTextureSize(p.decouple_texture_size());
+	
+	setTextureSize(p.texture_width(), p.texture_height());
 
-	S32 screen_width = mIgnoreUIScale ? 
-		llround((F32)getRect().getWidth() * LLUI::sGLScaleFactor.mV[VX]) : getRect().getWidth();
-	S32 screen_height = mIgnoreUIScale ? 
-		llround((F32)getRect().getHeight() * LLUI::sGLScaleFactor.mV[VY]) : getRect().getHeight();
+	if(!getDecoupleTextureSize())
+	{
+		S32 screen_width = mIgnoreUIScale ? 
+			llround((F32)getRect().getWidth() * LLUI::sGLScaleFactor.mV[VX]) : getRect().getWidth();
+		S32 screen_height = mIgnoreUIScale ? 
+			llround((F32)getRect().getHeight() * LLUI::sGLScaleFactor.mV[VY]) : getRect().getHeight();
+			
+		setTextureSize(screen_width, screen_height);
+	}
 	
 	mMediaTextureID.generate();
-	mMediaSource = LLViewerMedia::newMediaImpl(mHomePageUrl, mMediaTextureID, screen_width, screen_height, false, false, "text/html");
-	if ( !mMediaSource )
-	{
-		llwarns << "media source create failed " << llendl;
-		// return;
-	}
-
-	mMediaSource->setVisible( getVisible() );
-
-	mMediaSource->addObserver( this );
 	
+	// We don't need to create the media source up front anymore unless we have a non-empty home URL to navigate to.
+	if(!mHomePageUrl.empty())
+	{
+		navigateHome();
+	}
+		
 	// FIXME: How do we create a bevel now?
 //	LLRect border_rect( 0, getRect().getHeight() + 2, getRect().getWidth() + 2, 0 );
 //	mBorder = new LLViewBorder( std::string("web control border"), border_rect, LLViewBorder::BEVEL_IN );
@@ -180,9 +190,10 @@ BOOL LLMediaCtrl::handleHover( S32 x, S32 y, MASK mask )
 	convertInputCoords(x, y);
 
 	if (mMediaSource)
+	{
 		mMediaSource->mouseMove(x, y);
-
-	gViewerWindow->setCursor(mLastSetCursor);
+		gViewerWindow->setCursor(mMediaSource->getLastSetCursor());
+	}
 
 	return TRUE;
 }
@@ -390,19 +401,19 @@ void LLMediaCtrl::onVisibilityChange ( const LLSD& new_visibility )
 //
 void LLMediaCtrl::reshape( S32 width, S32 height, BOOL called_from_parent )
 {
-	S32 screen_width = mIgnoreUIScale ? llround((F32)width * LLUI::sGLScaleFactor.mV[VX]) : width;
-	S32 screen_height = mIgnoreUIScale ? llround((F32)height * LLUI::sGLScaleFactor.mV[VY]) : height;
-	
-//	llinfos << "reshape called with width = " << width << ", height = " << height << llendl;
-	
-	// when floater is minimized, these sizes are negative
-	if ( screen_height > 0 && screen_width > 0 )
+	if(!getDecoupleTextureSize())
 	{
-		mMediaSource->setSize(screen_width, screen_height);
-		mForceUpdate = true;
-	}
+		S32 screen_width = mIgnoreUIScale ? llround((F32)width * LLUI::sGLScaleFactor.mV[VX]) : width;
+		S32 screen_height = mIgnoreUIScale ? llround((F32)height * LLUI::sGLScaleFactor.mV[VY]) : height;
 
-	LLPanel::reshape( width, height, called_from_parent );
+		// when floater is minimized, these sizes are negative
+		if ( screen_height > 0 && screen_width > 0 )
+		{
+			setTextureSize(screen_width, screen_height);
+		}
+	}
+	
+	LLUICtrl::reshape( width, height, called_from_parent );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -476,9 +487,10 @@ void LLMediaCtrl::navigateTo( std::string url_in, std::string mime_type)
 		return;
 	}
 	
-	if (mMediaSource)
+	if (ensureMediaSourceExists())
 	{
 		mCurrentNavUrl = url_in;
+		mMediaSource->setSize(mTextureWidth, mTextureHeight);
 		mMediaSource->navigateTo(url_in, mime_type, mime_type.empty());
 	}
 }
@@ -514,9 +526,10 @@ void LLMediaCtrl::navigateToLocalPage( const std::string& subdir, const std::str
 			return;
 		}
 	}
-	if (mMediaSource)
+	if (ensureMediaSourceExists())
 	{
 		mCurrentNavUrl = expanded_filename;
+		mMediaSource->setSize(mTextureWidth, mTextureHeight);
 		mMediaSource->navigateTo(expanded_filename, "text/html", false);
 	}
 
@@ -526,11 +539,11 @@ void LLMediaCtrl::navigateToLocalPage( const std::string& subdir, const std::str
 //
 void LLMediaCtrl::navigateHome()
 {
-	if( mHomePageUrl.length() )
+	if (ensureMediaSourceExists())
 	{
-		if (mMediaSource)
-			mMediaSource->navigateTo(mHomePageUrl);
-	};
+		mMediaSource->setSize(mTextureWidth, mTextureHeight);
+		mMediaSource->navigateHome();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -538,6 +551,10 @@ void LLMediaCtrl::navigateHome()
 void LLMediaCtrl::setHomePageUrl( const std::string urlIn )
 {
 	mHomePageUrl = urlIn;
+	if (mMediaSource)
+	{
+		mMediaSource->setHomeURL(mHomePageUrl);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -547,11 +564,58 @@ bool LLMediaCtrl::setCaretColor(unsigned int red, unsigned int green, unsigned i
 	//NOOP
 	return false;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void LLMediaCtrl::setTextureSize(S32 width, S32 height)
+{
+	mTextureWidth = width;
+	mTextureHeight = height;
+	
+	if(mMediaSource)
+	{
+		mMediaSource->setSize(mTextureWidth, mTextureHeight);
+		mForceUpdate = true;
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 std::string LLMediaCtrl::getHomePageUrl()
 {
 	return 	mHomePageUrl;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+bool LLMediaCtrl::ensureMediaSourceExists()
+{	
+	if(mMediaSource.isNull())
+	{
+		// If we don't already have a media source, try to create one.
+		mMediaSource = LLViewerMedia::newMediaImpl(mMediaTextureID, mTextureWidth, mTextureHeight);
+		if ( mMediaSource )
+		{
+			mMediaSource->setUsedInUI(true);
+			mMediaSource->setHomeURL(mHomePageUrl);
+			mMediaSource->setVisible( getVisible() );
+			mMediaSource->addObserver( this );
+		}
+		else
+		{
+			llwarns << "media source create failed " << llendl;
+			// return;
+		}
+	}
+	
+	return !mMediaSource.isNull();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void LLMediaCtrl::unloadMediaSource()
+{
+	mMediaSource = NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -575,13 +639,17 @@ void LLMediaCtrl::draw()
 	{
 		return;
 	}
+	
+	if(!media_plugin || (!media_plugin->textureValid()))
+	{
+		// Don't try to draw without a valid texture
+		return;
+	}
 
 	LLViewerMediaTexture* media_texture = LLViewerTextureManager::findMediaTexture(mMediaTextureID);
 	
 	if (!media_texture )
-	{
 		return;
-	}
 	
 	if ( gRestoreGL == 1 )
 	{
@@ -659,7 +727,7 @@ void LLMediaCtrl::draw()
 			width = llmin(media_plugin->getWidth(), r.getWidth());
 			height = llmin(media_plugin->getHeight(), r.getHeight());
 		}
-
+		
 		x_offset = (r.getWidth() - width) / 2;
 		y_offset = (r.getHeight() - height) / 2;		
 
@@ -775,24 +843,9 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 		case MEDIA_EVENT_CURSOR_CHANGED:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CURSOR_CHANGED, new cursor is " << self->getCursorName() << LL_ENDL;
-
-			std::string cursor = self->getCursorName();
-			
-			if(cursor == "arrow")
-				mLastSetCursor = UI_CURSOR_ARROW;
-			else if(cursor == "ibeam")
-				mLastSetCursor = UI_CURSOR_IBEAM;
-			else if(cursor == "splith")
-				mLastSetCursor = UI_CURSOR_SIZEWE;
-			else if(cursor == "splitv")
-				mLastSetCursor = UI_CURSOR_SIZENS;
-			else if(cursor == "hand")
-				mLastSetCursor = UI_CURSOR_HAND;
-			else // for anything else, default to the arrow
-				mLastSetCursor = UI_CURSOR_ARROW;
-		};
+		}
 		break;
-		
+			
 		case MEDIA_EVENT_NAVIGATE_BEGIN:
 		{
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_BEGIN, url is " << self->getNavigateURI() << LL_ENDL;
@@ -898,15 +951,7 @@ void LLMediaCtrl::onClickLinkHref( LLPluginClassMedia* self )
 			if ( LLStringUtil::compareInsensitive( url.substr( 0, protocol1.length() ), protocol1 ) == 0 ||
 				 LLStringUtil::compareInsensitive( url.substr( 0, protocol2.length() ), protocol2 ) == 0 )
 			{
-				// If we spawn a new LLFloaterHTML, assume we want it to
-				// follow this LLMediaCtrl's trust for whether or
-				// not to open secondlife:///app/ links. JC.
-//				const bool open_links_externally = false;
-//				LLFloaterHtml::getInstance()->show( 
-//					event_in.mStringPayload, 
-//						"Second Life Browser",
-//							open_links_externally,
-//								mTrusted);
+				llwarns << "Dead, unimplemented path that we used to send to the built-in browser long ago." << llendl;
 			}
 		}
 	}

@@ -88,7 +88,6 @@ void LLFloaterCamera::update()
 {
 	ECameraControlMode mode = determineMode();
 	if (mode != mCurrMode) setMode(mode);
-	updatePosition();
 	show_tip(mMode2TipType[mode], this);
 }
 
@@ -122,48 +121,20 @@ LLFloaterCamera* LLFloaterCamera::findInstance()
 	return LLFloaterReg::findTypedInstance<LLFloaterCamera>("camera");
 }
 
-/*static*/
-void LLFloaterCamera::onClickCameraPresets(LLUICtrl* ctrl, const LLSD& param)
-{
-	std::string name = param.asString();
-
-	if ("rear_view" == name)
-	{
-		LLFirstTimeTipsManager::showTipsFor(LLFirstTimeTipsManager::FTT_CAMERA_PRESET_REAR, ctrl);
-		gAgent.switchCameraPreset(CAMERA_PRESET_REAR_VIEW);
-	}
-	else if ("group_view" == name)
-	{
-		LLFirstTimeTipsManager::showTipsFor(LLFirstTimeTipsManager::FTT_CAMERA_PRESET_GROUP);
-		gAgent.switchCameraPreset(CAMERA_PRESET_GROUP_VIEW);
-	}
-	else if ("front_view" == name)
-	{
-		LLFirstTimeTipsManager::showTipsFor(LLFirstTimeTipsManager::FTT_CAMERA_PRESET_FRONT);
-		gAgent.switchCameraPreset(CAMERA_PRESET_FRONT_VIEW);
-	}
-
-}
-
 void LLFloaterCamera::onOpen(const LLSD& key)
 {
-	updatePosition();
+	LLButton *anchor_panel = LLBottomTray::getInstance()->getChild<LLButton>("camera_btn");
+
+	setDockControl(new LLDockControl(
+		anchor_panel, this,
+		getDockTongue(), LLDockControl::TOP));
+
+	show_tip(mMode2TipType[mCurrMode], this);
 }
 
-void LLFloaterCamera::updatePosition()
-{
-	LLBottomTray* tray = LLBottomTray::getInstance();
-	if (!tray) return;
-
-	LLButton* camera_button = tray->getChild<LLButton>("camera_btn");
-
-	//align centers of a button and a floater
-	S32 x = camera_button->calcScreenRect().getCenterX() - getRect().getWidth()/2;
-	setOrigin(x, 0);
-}
 
 LLFloaterCamera::LLFloaterCamera(const LLSD& val)
-:	LLFloater(val),
+:	LLDockableFloater(NULL, false, val),
 	mCurrMode(CAMERA_CTRL_MODE_ORBIT),
 	mPrevMode(CAMERA_CTRL_MODE_ORBIT)
 {
@@ -187,7 +158,7 @@ BOOL LLFloaterCamera::postBuild()
 
 	update();
 
-	return TRUE;
+	return LLDockableFloater::postBuild();
 }
 
 ECameraControlMode LLFloaterCamera::determineMode()
@@ -311,7 +282,8 @@ void LLFloaterCamera::updateState()
 	LLRect controls_rect;
 	if (childGetRect(CONTROLS, controls_rect))
 	{
-		static S32 height = controls_rect.getHeight();
+		static LLUICachedControl<S32> floater_header_size ("UIFloaterHeaderSize", 0);
+		static S32 height = controls_rect.getHeight() - floater_header_size;
 		S32 newHeight = rect.getHeight();
 		
 		if (showControls)
@@ -330,3 +302,46 @@ void LLFloaterCamera::updateState()
 	}
 }
 
+//-------------LLFloaterCameraPresets------------------------
+
+LLFloaterCameraPresets::LLFloaterCameraPresets(const LLSD& key):
+LLDockableFloater(NULL, false, key)
+{}
+
+BOOL LLFloaterCameraPresets::postBuild()
+{
+	setIsChrome(TRUE);
+
+	//build dockTongue 
+	LLDockableFloater::postBuild();
+	 
+	LLButton *anchor_btn = LLBottomTray::getInstance()->getChild<LLButton>("camera_presets_btn");
+
+		setDockControl(new LLDockControl(
+			anchor_btn, this,
+			getDockTongue(), LLDockControl::TOP));
+		return TRUE;
+}
+
+/*static*/
+void LLFloaterCameraPresets::onClickCameraPresets(LLUICtrl* ctrl, const LLSD& param)
+{
+	std::string name = param.asString();
+
+	if ("rear_view" == name)
+	{
+		LLFirstTimeTipsManager::showTipsFor(LLFirstTimeTipsManager::FTT_CAMERA_PRESET_REAR, ctrl);
+		gAgent.switchCameraPreset(CAMERA_PRESET_REAR_VIEW);
+	}
+	else if ("group_view" == name)
+	{
+		LLFirstTimeTipsManager::showTipsFor(LLFirstTimeTipsManager::FTT_CAMERA_PRESET_GROUP);
+		gAgent.switchCameraPreset(CAMERA_PRESET_GROUP_VIEW);
+	}
+	else if ("front_view" == name)
+	{
+		LLFirstTimeTipsManager::showTipsFor(LLFirstTimeTipsManager::FTT_CAMERA_PRESET_FRONT);
+		gAgent.switchCameraPreset(CAMERA_PRESET_FRONT_VIEW);
+	}
+
+}

@@ -51,10 +51,12 @@ public:
 	};
 
 public:
+	// callback for a function getting a rect valid for control's position
+	typedef boost::function<void (LLRect& )> get_allowed_rect_callback_t;
+
 	LOG_CLASS(LLDockControl);
 	LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
-			const LLUIImagePtr& dockTongue, DocAt dockAt,
-			bool enabled);
+			const LLUIImagePtr& dockTongue, DocAt dockAt, get_allowed_rect_callback_t get_rect_callback = NULL);
 	virtual ~LLDockControl();
 
 public:
@@ -63,9 +65,15 @@ public:
 	void setDock(LLView* dockWidget);
 	void repositionDockable();
 	void drawToungue();
-protected:
-	virtual void calculateDockablePosition();
+	bool isDockVisible();
+
+	// gets a rect that bounds possible positions for a dockable control (EXT-1111)
+	void getAllowedRect(LLRect& rect);
+
 private:
+	virtual void moveDockable();
+private:
+	get_allowed_rect_callback_t mGetAllowedRectCallback;
 	bool mEnabled;
 	bool mRecalculateDocablePosition;
 	DocAt mDockAt;

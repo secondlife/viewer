@@ -35,6 +35,7 @@
 #include "llfloaterurlentry.h"
 
 #include "llpanellandmedia.h"
+#include "llpanelface.h"
 
 // project includes
 #include "llcombobox.h"
@@ -145,12 +146,22 @@ void LLFloaterURLEntry::buildURLHistory()
 
 void LLFloaterURLEntry::headerFetchComplete(U32 status, const std::string& mime_type)
 {
-	LLPanelLandMedia* panel_media = (LLPanelLandMedia*)mPanelLandMediaHandle.get();
+	LLPanelLandMedia* panel_media = dynamic_cast<LLPanelLandMedia*>(mPanelLandMediaHandle.get());
 	if (panel_media)
 	{
 		// status is ignored for now -- error = "none/none"
 		panel_media->setMediaType(mime_type);
 		panel_media->setMediaURL(mMediaURLEdit->getValue().asString());
+	}
+	else
+	{
+		LLPanelFace* panel_face = dynamic_cast<LLPanelFace*>(mPanelLandMediaHandle.get());
+		if(panel_face)
+		{
+			panel_face->setMediaType(mime_type);
+			panel_face->setMediaURL(mMediaURLEdit->getValue().asString());
+		}
+
 	}
 	// Decrement the cursor
 	getWindow()->decBusyCount();
@@ -159,29 +170,18 @@ void LLFloaterURLEntry::headerFetchComplete(U32 status, const std::string& mime_
 }
 
 // static
-LLHandle<LLFloater> LLFloaterURLEntry::show(LLHandle<LLPanel> parent)
+LLHandle<LLFloater> LLFloaterURLEntry::show(LLHandle<LLPanel> parent, const std::string media_url)
 {
-	if (sInstance)
-	{
-		sInstance->openFloater();
-	}
-	else
+	if (!sInstance)
 	{
 		sInstance = new LLFloaterURLEntry(parent);
 	}
-	sInstance->updateFromLandMediaPanel();
+	sInstance->openFloater();
+	sInstance->addURLToCombobox(media_url);
 	return sInstance->getHandle();
 }
 
-void LLFloaterURLEntry::updateFromLandMediaPanel()
-{
-	LLPanelLandMedia* panel_media = (LLPanelLandMedia*)mPanelLandMediaHandle.get();
-	if (panel_media)
-	{
-		std::string media_url = panel_media->getMediaURL();
-		addURLToCombobox(media_url);
-	}
-}
+
 
 bool LLFloaterURLEntry::addURLToCombobox(const std::string& media_url)
 {

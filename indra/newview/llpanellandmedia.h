@@ -63,8 +63,6 @@ private:
 	LLLineEditor*	mMediaDescEdit;
 	LLComboBox*		mMediaTypeCombo;
 	LLButton*		mSetURLButton;
-	LLButton*		mResetURLButton;
-	LLSpinCtrl*		mMediaResetCtrl;
 	LLSpinCtrl*		mMediaHeightCtrl;
 	LLSpinCtrl*		mMediaWidthCtrl;
 	LLTextBox*		mMediaResetCtrlLabel;
@@ -74,13 +72,6 @@ private:
 	LLCheckBoxCtrl*	mMediaLoopCheck;
 	LLCheckBoxCtrl* mMediaUrlCheck;
 	LLHandle<LLFloater>	mURLEntryFloater;
-	LLCheckBoxCtrl* mMediaNavigateAllowCheck;
-	LLCheckBoxCtrl* mMediaURLFilterCheck;
-	LLLineEditor*	mMediaURLFilterDomainEdit;
-	LLButton*		mMediaURLFilterAddButton;
-	LLButton*		mMediaURLFilterRemoveButton;
-	LLScrollListCtrl*   mURLFilterList;
-	LLRadioGroup*	mRadioNavigateControl;
 
 
 	

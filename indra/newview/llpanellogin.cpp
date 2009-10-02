@@ -57,6 +57,7 @@
 #include "lluiconstants.h"
 #include "llurlsimstring.h"
 #include "llviewerbuild.h"
+#include "llviewerhelp.h"
 #include "llviewertexturelist.h"
 #include "llviewermenu.h"			// for handle_preferences()
 #include "llviewernetwork.h"
@@ -69,7 +70,7 @@
 #include "llmediactrl.h"
 #include "llrootview.h"
 
-#include "llfloatermediabrowser.h"
+
 #include "llfloatertos.h"
 #include "lltrans.h"
 #include "llglheaders.h"
@@ -229,7 +230,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	LLComboBox* server_choice_combo = sInstance->getChild<LLComboBox>("server_combo");
 	server_choice_combo->setCommitCallback(onSelectServer, NULL);
-	server_choice_combo->setFocusLostCallback(onServerComboLostFocus);
+	server_choice_combo->setFocusLostCallback(boost::bind(onServerComboLostFocus, _1));
 
 	childSetAction("connect_btn", onClickConnect, this);
 
@@ -412,8 +413,8 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask)
 
 	if ( KEY_F1 == key )
 	{
-		llinfos << "Spawning HTML help window" << llendl;
-		gViewerHtmlHelp.show();
+		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
+		vhelp->showTopic(vhelp->getTopicFromFocus());
 		return TRUE;
 	}
 
@@ -837,14 +838,22 @@ void LLPanelLogin::onClickConnect(void *)
 
 		std::string first = sInstance->childGetText("first_name_edit");
 		std::string last  = sInstance->childGetText("last_name_edit");
-		if (!first.empty() && !last.empty())
+		LLComboBox* combo = sInstance->getChild<LLComboBox>("start_location_combo");
+		std::string combo_text = combo->getSimple();
+		
+		if (first.empty() || last.empty())
 		{
-			// has both first and last name typed
-			sInstance->mCallback(0, sInstance->mCallbackData);
+			LLNotifications::instance().add("MustHaveAccountToLogIn");
+		}
+		else if( (combo_text=="<Type region name>" || combo_text =="")
+				&& LLURLSimString::sInstance.mSimString =="")
+		{
+			LLNotifications::instance().add("StartRegionEmpty");
 		}
 		else
 		{
-			LLNotifications::instance().add("MustHaveAccountToLogIn");
+			// has both first and last name typed
+			sInstance->mCallback(0, sInstance->mCallbackData);
 		}
 	}
 }
@@ -965,7 +974,7 @@ void LLPanelLogin::onSelectServer(LLUICtrl*, void*)
 	loadLoginPage();
 }
 
-void LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe, void*)
+void LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe)
 {
 	if (!sInstance) return;
 

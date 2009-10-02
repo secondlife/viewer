@@ -84,7 +84,7 @@ void LLRemoteParcelRequestResponder::error(U32 status, const std::string& reason
 
 void LLRemoteParcelInfoProcessor::addObserver(const LLUUID& parcel_id, LLRemoteParcelInfoObserver* observer)
 {
-	// Check if the observer is alredy in observsrs list for this UUID
+	// Check if the observer is already in observers list for this UUID
 	observer_multimap_t::iterator it;
 
 	it = mObservers.find(parcel_id);
@@ -155,7 +155,6 @@ void LLRemoteParcelInfoProcessor::processParcelInfoReply(LLMessageSystem* msg, v
 	for (; oi != end; ++oi)
 	{
 		oi->second->processParcelInfo(parcel_data);
-		LLRemoteParcelInfoProcessor::getInstance()->removeObserver(parcel_data.parcel_id, oi->second);
 	}
 }
 

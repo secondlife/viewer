@@ -37,6 +37,7 @@
 class LLInventoryItem;
 class LLFilterEditor;
 class LLLandmark;
+class LLPanelPick;
 class LLPanelPlaceInfo;
 class LLPanelPlacesTab;
 class LLParcelSelection;
@@ -77,6 +78,7 @@ private:
 	void onBackButtonClicked();
 
 	void toggleMediaPanel();
+	void togglePickPanel(BOOL visible);
 	void togglePlaceInfoPanel(BOOL visible);
 
 	void onAgentParcelChange();
@@ -88,6 +90,7 @@ private:
 	LLPanelPlacesTab*			mActivePanel;
 	LLTabContainer*				mTabContainer;
 	LLPanelPlaceInfo*			mPlaceInfo;
+	LLPanelPick*				mPickPanel;
 	LLToggleableMenu*			mPlaceMenu;
 	LLToggleableMenu*			mLandmarkMenu;
 

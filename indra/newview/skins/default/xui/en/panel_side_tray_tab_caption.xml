@@ -4,6 +4,7 @@
  bottom="0"
  follows="left|top|right"
  height="30"
+ width="305"
  layout="topleft"
  left="0"
  name="sidetray_tab_panel">
@@ -18,4 +19,17 @@
      top="4"
      value="Side Panel"
      width="255" />
+    <button
+     follows="left|right|top"
+     font="SansSerif"
+     height="23"
+     label="?"
+     layout="topleft"
+     name="show_help"
+     top="5"
+     right="-8"
+     width="28">
+        <button.commit_callback
+         function="Button.ShowHelp" />
+    </button>
 </panel>

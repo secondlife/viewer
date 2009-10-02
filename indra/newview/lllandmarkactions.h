@@ -53,12 +53,21 @@ public:
 	static bool landmarkAlreadyExists();
 
 	/**
-	 * @brief Searches landmark for parcel agent is currently in.
-	 * @return Returns landmark for agent parcel or NULL.
+	 * @brief Searches landmark for global position.
+	 * @return Returns landmark or NULL.
 	 * 
 	 * *TODO: dzaporozhan: There can be many landmarks for single parcel.
 	 */
-	static LLViewerInventoryItem* findLandmarkForAgentParcel();
+	static LLViewerInventoryItem* findLandmarkForGlobalPos(const LLVector3d &pos);
+
+	/**
+	 * @brief Searches landmark for agent global position.
+	 * @return Returns landmark or NULL.
+	 * 
+	 * *TODO: dzaporozhan: There can be many landmarks for single parcel.
+	 */
+	static LLViewerInventoryItem* findLandmarkForAgentPos();
+
 
 	/**
 	 * @brief Checks whether agent has rights to create landmark for current parcel.
@@ -77,14 +86,6 @@ public:
 		const std::string& name, 
 		const std::string& desc, 
 		const LLUUID& folder_id);
-
-	/**
-	 * @brief Trying to find in inventory a landmark of the  current parcel.
-	 * Normally items should contain only one item, 
-	 * because we can create the only landmark per parcel according to Navigation spec.
-	 */	
-	static void collectParcelLandmark(LLInventoryModel::item_array_t& items);
-	
 	/**
 	 * @brief Creates SLURL for given global position.
 	 */

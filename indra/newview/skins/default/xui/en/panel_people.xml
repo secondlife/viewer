@@ -127,7 +127,6 @@ color="DkGray"
                  name="tab_online"
                  title="Online">
                         <avatar_list
-                         draw_heading="false"
                          follows="all"
                          height="150"
                          layout="topleft"
@@ -143,7 +142,6 @@ color="DkGray"
                  name="tab_all"
                  title="All">
                         <avatar_list
-                         draw_heading="false"
                          follows="all"
                          height="230"
                          layout="topleft"
@@ -219,7 +217,6 @@ color="DkGray"
          name="groups_panel"
          width="313">
             <group_list
-             draw_heading="false"
              follows="left|top|right|bottom"
              height="357"
              layout="topleft"
@@ -240,7 +237,6 @@ color="DkGray"
              name="bottom_panel"
              width="313">
                <button
-               enabled="false"
                follows="bottom|left"
                font="SansSerifBigBold"
                tool_tip="Change sort and view of Groups list"
@@ -250,7 +246,7 @@ color="DkGray"
                image_unselected="OptionsMenu_Off"
                layout="topleft"
                left="10"
-               name="gear_btn"
+               name="groups_viewsort_btn"
                picture_style="true"
                top="5"
                width="18" />
@@ -307,7 +303,7 @@ color="DkGray"
          layout="topleft"
          name="recent_panel"
          width="313">
-            <avatar_list_tmp
+            <avatar_list
              color="DkGray2"
              follows="left|top|right|bottom"
              height="357"

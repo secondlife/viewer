@@ -33,13 +33,16 @@
 #include "linden_common.h"
 
 #include "llpanel.h"
+#include "lltextbox.h"
 
 #include "llflatlistview.h"
 
 static const LLDefaultChildRegistry::Register<LLFlatListView> flat_list_view("flat_list_view");
 
-const LLSD SELECTED_EVENT = LLSD().insert("selected", true);
-const LLSD UNSELECTED_EVENT = LLSD().insert("selected", false);
+const LLSD SELECTED_EVENT	= LLSD().insert("selected", true);
+const LLSD UNSELECTED_EVENT	= LLSD().insert("selected", false);
+
+static const std::string COMMENT_TEXTBOX = "comment_text";
 
 LLFlatListView::Params::Params()
 :	item_pad("item_pad"),
@@ -55,7 +58,12 @@ void LLFlatListView::reshape(S32 width, S32 height, BOOL called_from_parent /* =
 	rearrangeItems();
 }
 
-bool LLFlatListView::addItem(LLPanel* item, LLSD value /* = LLUUID::null*/, EAddPosition pos /*= ADD_BOTTOM*/)
+const LLRect& LLFlatListView::getItemsRect() const
+{
+	return mItemsPanel->getRect(); 
+}
+
+bool LLFlatListView::addItem(LLPanel * item, const LLSD& value /*= LLUUID::null*/, EAddPosition pos /*= ADD_BOTTOM*/)
 {
 	if (!item) return false;
 	if (value.isUndefined()) return false;
@@ -84,11 +92,12 @@ bool LLFlatListView::addItem(LLPanel* item, LLSD value /* = LLUUID::null*/, EAdd
 	item->setRightMouseDownCallback(boost::bind(&LLFlatListView::onItemMouseClick, this, new_pair, _4));
 
 	rearrangeItems();
+	notifyParentItemsRectChanged();
 	return true;
 }
 
 
-bool LLFlatListView::insertItemAfter(LLPanel* after_item, LLPanel* item_to_add, LLSD value /*= LLUUID::null*/)
+bool LLFlatListView::insertItemAfter(LLPanel* after_item, LLPanel* item_to_add, const LLSD& value /*= LLUUID::null*/)
 {
 	if (!after_item) return false;
 	if (!item_to_add) return false;
@@ -111,11 +120,11 @@ bool LLFlatListView::insertItemAfter(LLPanel* after_item, LLPanel* item_to_add, 
 	else
 	{
 		pairs_iterator_t it = mItemPairs.begin();
-		++it;
-		while (it != mItemPairs.end())
+		for (; it != mItemPairs.end(); ++it)
 		{
 			if (*it == after_pair)
 			{
+				// insert new elements before the element at position of passed iterator.
 				mItemPairs.insert(++it, new_pair);
 				mItemsPanel->addChild(item_to_add);
 				break;
@@ -128,6 +137,7 @@ bool LLFlatListView::insertItemAfter(LLPanel* after_item, LLPanel* item_to_add, 
 	item_to_add->setRightMouseDownCallback(boost::bind(&LLFlatListView::onItemMouseClick, this, new_pair, _4));
 
 	rearrangeItems();
+	notifyParentItemsRectChanged();
 	return true;
 }
 
@@ -153,14 +163,14 @@ bool LLFlatListView::removeItemByValue(const LLSD& value)
 	return removeItemPair(item_pair);
 }
 
-bool LLFlatListView::removeItemByUUID(LLUUID& uuid)
+bool LLFlatListView::removeItemByUUID(const LLUUID& uuid)
 {
 	return removeItemByValue(LLSD(uuid));
 }
 
-LLPanel* LLFlatListView::getItemByValue(LLSD& value) const
+LLPanel* LLFlatListView::getItemByValue(const LLSD& value) const
 {
-	if (value.isDefined()) return NULL;
+	if (value.isUndefined()) return NULL;
 
 	item_pair_t* pair = getItemPair(value);
 	if (pair) return pair->first;
@@ -188,7 +198,7 @@ bool LLFlatListView::selectItemByValue(const LLSD& value, bool select /*= true*/
 	return selectItemPair(item_pair, select);
 }
 
-bool LLFlatListView::selectItemByUUID(LLUUID& uuid, bool select /* = true*/)
+bool LLFlatListView::selectItemByUUID(const LLUUID& uuid, bool select /* = true*/)
 {
 	return selectItemByValue(LLSD(uuid), select);
 }
@@ -252,7 +262,7 @@ void LLFlatListView::getSelectedItems(std::vector<LLPanel*>& selected_items) con
 	}
 }
 
-void LLFlatListView::resetSelection()
+void LLFlatListView::resetSelection(bool no_commit_on_deselection /*= false*/)
 {
 	if (mSelectedItemPairs.empty()) return;
 
@@ -264,6 +274,29 @@ void LLFlatListView::resetSelection()
 	}
 
 	mSelectedItemPairs.clear();
+
+	if (mCommitOnSelectionChange && !no_commit_on_deselection)
+	{
+		onCommit();
+	}
+}
+
+void LLFlatListView::setNoItemsCommentText(const std::string& comment_text)
+{
+	if (NULL == mNoItemsCommentTextbox)
+	{
+		LLRect comment_rect = getRect();
+		comment_rect.setOriginAndSize(0, 0, comment_rect.getWidth(), comment_rect.getHeight());
+		comment_rect.stretch(-getBorderWidth());
+		LLTextBox::Params text_p;
+		text_p.name(COMMENT_TEXTBOX);
+		text_p.border_visible(false);
+		text_p.rect(comment_rect);
+		text_p.follows.flags(FOLLOWS_ALL);
+		mNoItemsCommentTextbox = LLUICtrlFactory::create<LLTextBox>(text_p, this);
+	}
+
+	mNoItemsCommentTextbox->setValue(comment_text);
 }
 
 void LLFlatListView::clear()
@@ -272,11 +305,32 @@ void LLFlatListView::clear()
 	for (pairs_iterator_t it = mItemPairs.begin(); it != mItemPairs.end(); ++it)
 	{
 		mItemsPanel->removeChild((*it)->first);
-		delete (*it)->first;
+		(*it)->first->die();
 		delete *it;
 	}
 	mItemPairs.clear();
 	mSelectedItemPairs.clear();
+
+	// also set items panel height to zero. Reshape it to allow reshaping of non-item children
+	LLRect rc = mItemsPanel->getRect();
+	rc.mBottom = rc.mTop;
+	mItemsPanel->reshape(rc.getWidth(), rc.getHeight());
+	mItemsPanel->setRect(rc);
+
+	setNoItemsCommentVisible(true);
+	notifyParentItemsRectChanged();
+}
+
+void LLFlatListView::sort()
+{
+	if (!mItemComparator)
+	{
+		llwarns << "No comparator specified for sorting FlatListView items." << llendl;
+		return;
+	}
+
+	mItemPairs.sort(ComparatorAdaptor(*mItemComparator));
+	rearrangeItems();
 }
 
 
@@ -286,12 +340,16 @@ void LLFlatListView::clear()
 
 
 LLFlatListView::LLFlatListView(const LLFlatListView::Params& p)
-:	LLScrollContainer(p),
-	mItemsPanel(NULL),
-	mItemPad(p.item_pad),
-	mAllowSelection(p.allow_select),
-	mMultipleSelection(p.multi_select),
-	mKeepOneItemSelected(p.keep_one_selected)
+:	LLScrollContainer(p)
+  , mItemComparator(NULL)
+  , mItemsPanel(NULL)
+  , mItemPad(p.item_pad)
+  , mAllowSelection(p.allow_select)
+  , mMultipleSelection(p.multi_select)
+  , mKeepOneItemSelected(p.keep_one_selected)
+  , mCommitOnSelectionChange(false)
+  , mPrevNotifyParentRect(LLRect())
+  , mNoItemsCommentTextbox(NULL)
 {
 	mBorderThickness = getBorderWidth();
 
@@ -315,19 +373,32 @@ void LLFlatListView::rearrangeItems()
 {
 	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
 
+	setNoItemsCommentVisible(mItemPairs.empty());
+
 	if (mItemPairs.empty()) return;
 
 	//calculating required height - assuming items can be of different height
 	//list should accommodate all its items
 	S32 height = 0;
 
+	S32 invisible_children_count = 0;
 	pairs_iterator_t it = mItemPairs.begin();
 	for (; it != mItemPairs.end(); ++it)
 	{
 		LLPanel* item = (*it)->first;
+
+		// skip invisible child
+		if (!item->getVisible())
+		{
+			++invisible_children_count;
+			continue;
+		}
+
 		height += item->getRect().getHeight();
 	}
-	height += mItemPad * (mItemPairs.size() - 1);
+
+	// add paddings between items, excluding invisible ones
+	height += mItemPad * (mItemPairs.size() - invisible_children_count - 1);
 
 	LLRect rc = mItemsPanel->getRect();
 	S32 width = mItemsNoScrollWidth;
@@ -346,14 +417,18 @@ void LLFlatListView::rearrangeItems()
 	for (it2 = first_it; it2 != mItemPairs.end(); ++it2)
 	{
 		LLPanel* item = (*it2)->first;
+
+		// skip invisible child
+		if (!item->getVisible())
+			continue;
+
 		LLRect rc = item->getRect();
-		if(it2 != first_it)
-		{
-			item_new_top -= (rc.getHeight() + mItemPad);
-		}
 		rc.setLeftTopAndSize(rc.mLeft, item_new_top, width, rc.getHeight());
 		item->reshape(rc.getWidth(), rc.getHeight());
 		item->setRect(rc);
+
+		// move top for next item in list
+		item_new_top -= (rc.getHeight() + mItemPad);
 	}
 }
 
@@ -443,6 +518,12 @@ bool LLFlatListView::selectItemPair(item_pair_t* item_pair, bool select)
 	//a way of notifying panel of selection state changes
 	LLPanel* item = item_pair->first;
 	item->setValue(select ? SELECTED_EVENT : UNSELECTED_EVENT);
+
+	if (mCommitOnSelectionChange)
+	{
+		onCommit();
+	}
+
 	return true;
 }
 
@@ -483,12 +564,82 @@ bool LLFlatListView::removeItemPair(item_pair_t* item_pair)
 	}
 
 	mItemsPanel->removeChild(item_pair->first);
-	delete item_pair->first;
+	item_pair->first->die();
 	delete item_pair;
 
 	rearrangeItems();
+	notifyParentItemsRectChanged();
 
 	return true;
 }
 
+void LLFlatListView::notifyParentItemsRectChanged()
+{
+	S32 comment_height = 0;
 
+	// take into account comment text height if exists
+	if (mNoItemsCommentTextbox && mNoItemsCommentTextbox->getVisible())
+	{
+		comment_height = mNoItemsCommentTextbox->getTextPixelHeight();
+	}
+
+	LLRect req_rect =  getItemsRect();
+
+	// get maximum of items total height and comment text height
+	req_rect.setOriginAndSize(req_rect.mLeft, req_rect.mBottom, req_rect.getWidth(), llmax(req_rect.getHeight(), comment_height));
+
+	// take into account border size.
+	req_rect.stretch(getBorderWidth());
+
+	if (req_rect == mPrevNotifyParentRect)
+		return;
+
+	mPrevNotifyParentRect = req_rect;
+
+	LLSD params;
+	params["action"] = "size_changes";
+	params["width"] = req_rect.getWidth();
+	params["height"] = req_rect.getHeight();
+
+	getParent()->notifyParent(params);
+}
+
+void LLFlatListView::setNoItemsCommentVisible(bool visible) const
+{
+	if (mNoItemsCommentTextbox)
+	{
+		if (visible)
+		{
+			// We have to update child rect here because of issues with rect after reshaping while creating LLTextbox
+			// It is possible to have invalid LLRect if Flat List is in LLAccordionTab
+			LLRect comment_rect = getLocalRect();
+			comment_rect.stretch(-getBorderWidth());
+			mNoItemsCommentTextbox->setRect(comment_rect);
+		}
+		mNoItemsCommentTextbox->setVisible(visible);
+	}
+}
+
+void LLFlatListView::getItems(std::vector<LLPanel*>& items) const
+{
+	if (mItemPairs.empty()) return;
+
+	items.clear();
+	for (pairs_const_iterator_t it = mItemPairs.begin(); it != mItemPairs.end(); ++it)
+	{
+		items.push_back((*it)->first);
+	}
+}
+
+void LLFlatListView::getValues(std::vector<LLSD>& values) const
+{
+	if (mItemPairs.empty()) return;
+
+	values.clear();
+	for (pairs_const_iterator_t it = mItemPairs.begin(); it != mItemPairs.end(); ++it)
+	{
+		values.push_back((*it)->second);
+	}
+}
+
+//EOF

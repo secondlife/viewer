@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- mouse_opaque="false"
+ mouse_opaque="true"
  background_visible="true"
  bg_alpha_color="0.25 0.25 0.25 1"
  bg_opaque_color="0.25 0.25 0.25 1"
@@ -36,13 +36,13 @@
          width="5"/>
         <layout_panel
  		 mouse_opaque="false"        
-         auto_resize="false"
+         auto_resize="true"
          follows="left|right"
          height="28"
          layout="topleft"
          left="5"
          min_height="28"
-         width="600"
+         width="450"
          top="0"
          min_width="305"
          name="chat_bar"
@@ -79,7 +79,6 @@
              label="Move"
              layout="topleft"
              name="movement_btn"
-             tab_stop="false"
              tool_tip="Shows/Hide Movement controls" 
              top="6"
              width="70">
@@ -110,47 +109,13 @@
          name="cam_panel"
          top_delta="-10"
          width="150">
-            <split_button
-             follows="right"
-             height="18"
-             name="presets"
-             top="6"
-             width="35">
-                <split_button.arrow_button 
-                 image_selected="camera_presets/camera_presets_arrow.png"
-                 image_unselected="camera_presets/camera_presets_arrow.png"
-                 image_disabled_selected="camera_presets/camera_presets_arrow.png" 
-                 image_disabled="camera_presets/camera_presets_arrow.png"
-                 name="camera_presets"
-                 tool_tip="Camera Presets" 
-                 />
-                <split_button.item
-                 image_selected="camera_presets/camera_presets_rear_view.png"
-                 image_unselected="camera_presets/camera_presets_rear_view.png"
-                 name="rear_view"
-                 tool_tip="Rear View"
-                 />
-                <split_button.item
-                 image_selected="camera_presets/camera_presets_34_view.png"
-                 image_unselected="camera_presets/camera_presets_34_view.png"
-                 name="group_view"
-                 tool_tip="Group View" 
-                />
-                <split_button.item
-                 image_selected="camera_presets/camera_presets_fron_view.png"
-                 image_unselected="camera_presets/camera_presets_fron_view.png"
-                 name="front_view"
-                 tool_tip="Front View" 
-                />
-            </split_button>
             <button
              follows="right"
              height="20"
              is_toggle="true"
-             label="Camera"
+             label="View"
              layout="topleft"
-             left_pad="0"
-             tab_stop="false"
+             left="0"
              tool_tip="Shows/Hide Camera controls" 
              top="6"
              name="camera_btn"
@@ -159,11 +124,27 @@
                  function="Button.SetFloaterToggle"
                  parameter="camera" />
             </button>
+ 			<button
+             follows="right"
+             name="camera_presets_btn"
+             top="6"
+             height="20"
+             width="20"
+             left_pad="0"
+             is_toggle="true"
+             picture_style="true"
+         	 image_selected="toggle_button_selected"
+             image_unselected="toggle_button_off">
+             <button.init_callback
+             	function="Button.SetFloaterToggle"
+             	parameter="camera_presets"
+             	/>
+            </button>
             <split_button
              arrow_position="right"
              follows="right"
              height="18"
-             left_pad="0"
+             left_pad="4"
              name="snapshots"
              top="6"
              width="35">

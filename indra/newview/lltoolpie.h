@@ -42,9 +42,12 @@ class LLObjectSelection;
 
 class LLToolPie : public LLTool, public LLSingleton<LLToolPie>
 {
+	LOG_CLASS(LLToolPie);
 public:
 	LLToolPie( );
 
+	// Virtual functions inherited from LLMouseHandler
+	virtual BOOL		handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down);
 	virtual BOOL		handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL		handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL		handleMouseUp(S32 x, S32 y, MASK mask);
@@ -81,9 +84,15 @@ private:
 	BOOL useClickAction		(MASK mask, LLViewerObject* object,LLViewerObject* parent);
 	
 	void showVisualContextMenuEffect();
+
+	bool handleMediaClick(const LLPickInfo& info);
+	bool handleMediaHover(const LLPickInfo& info);
+	bool handleMediaMouseUp();
+
 private:
 	BOOL				mGrabMouseButtonDown;
 	BOOL				mMouseOutsideSlop;				// for this drag, has mouse moved outside slop region
+	LLUUID				mMediaMouseCaptureID;
 	LLPickInfo			mPick;
 	LLPickInfo			mHoverPick;
 	LLPointer<LLViewerObject> mClickActionObject;

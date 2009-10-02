@@ -48,6 +48,7 @@
 #include "lliconctrl.h"//for Home tab icon
 #include "llsidetraypanelcontainer.h"
 #include "llwindow.h"//for SetCursor
+#include "lltransientfloatermgr.h"
 
 //#include "llscrollcontainer.h"
 
@@ -248,6 +249,7 @@ LLSideTray::LLSideTray(Params& params)
 	// register handler function to process data from the xml. 
 	// panel_name should be specified via "parameter" attribute.
 	commit.add("SideTray.ShowPanel", boost::bind(&LLSideTray::showPanel, this, _2, LLUUID::null));
+	LLTransientFloaterMgr::getInstance()->addControlView(this);
 }
 
 
@@ -448,13 +450,17 @@ void LLSideTray::reflectCollapseChange()
 	setPanelRect();
 
 	if(mCollapsed)
+	{
 		gFloaterView->setSnapOffsetRight(0);
+		setFocus(FALSE);
+	}
 	else
+	{
 		gFloaterView->setSnapOffsetRight(mMaxBarWidth);
+		setFocus(TRUE);
+	}
 
 	gFloaterView->refresh();
-
-	setFocus( FALSE );
 }
 
 void LLSideTray::arrange			()

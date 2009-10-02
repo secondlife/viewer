@@ -1127,6 +1127,17 @@ bool idle_startup()
 				// Don't pop up a notification in the TOS case because
 				// LLFloaterTOS::onCancel() already scolded the user.
 				if (reason_response != "tos")
+			// this is the base used to construct help URLs
+			text = LLUserAuth::getInstance()->getResponse("help_url_format");
+			if (!text.empty())
+			{
+				// replace the default help URL format
+				gSavedSettings.setString("HelpURLFormat",text);
+				
+				// don't fall back to Nebraska's pre-connection static help
+				gSavedSettings.setBOOL("HelpUseLocal", false);
+			}
+			
 				{
 					LLSD args;
 					args["ERROR_MESSAGE"] = emsg.str();

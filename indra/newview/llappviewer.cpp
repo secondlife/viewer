@@ -67,6 +67,7 @@
 #include "llviewerobjectlist.h"
 #include "llworldmap.h"
 #include "llmutelist.h"
+#include "llviewerhelp.h"
 #include "lluicolortable.h"
 #include "llurldispatcher.h"
 #include "llurlhistory.h"
@@ -669,8 +670,6 @@ bool LLAppViewer::init()
 	mNumSessions++;
 	gSavedSettings.setS32("NumSessions", mNumSessions);
 
-	gSavedSettings.setString("HelpLastVisitedURL",gSavedSettings.getString("HelpHomeURL"));
-
 	if (gSavedSettings.getBOOL("VerboseLogs"))
 	{
 		LLError::setPrintLocation(true);
@@ -699,6 +698,9 @@ bool LLAppViewer::init()
 	LLUrlAction::setOpenURLInternalCallback(&LLWeb::loadURLInternal);
 	LLUrlAction::setOpenURLExternalCallback(&LLWeb::loadURLExternal);
 	LLUrlAction::setExecuteSLURLCallback(&LLURLDispatcher::dispatchFromTextEditor);
+
+	// Let code in llui access the viewer help floater
+	LLUI::sHelpImpl = LLViewerHelp::getInstance();
 
 	// Set the link color for any Urls in text fields
 	LLTextBase::setLinkColor( LLUIColorTable::instance().getColor("HTMLLinkColor") );

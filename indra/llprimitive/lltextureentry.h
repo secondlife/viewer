@@ -37,10 +37,13 @@
 #include "v4color.h"
 #include "llsd.h"
 
+// These bits are used while unpacking TEM messages to tell which aspects of
+// the texture entry changed.
 const S32 TEM_CHANGE_NONE = 0x0;
 const S32 TEM_CHANGE_COLOR = 0x1;
 const S32 TEM_CHANGE_TEXTURE = 0x2;
-const S32 TEM_INVALID = 0x4;
+const S32 TEM_CHANGE_MEDIA = 0x4;
+const S32 TEM_INVALID = 0x8;
 
 const S32 TEM_BUMPMAP_COUNT = 32;
 
@@ -65,6 +68,8 @@ const S32 TEM_MEDIA_MASK		= 0x01;
 const S32 TEM_TEX_GEN_MASK		= 0x06;
 const S32 TEM_TEX_GEN_SHIFT		= 1;
 
+// forward declarations
+class LLMediaEntry;
 
 class LLTextureEntry
 {
@@ -92,7 +97,7 @@ public:
 	LLSD asLLSD() const;
 	void asLLSD(LLSD& sd) const;
 	operator LLSD() const { return asLLSD(); }
-	bool fromLLSD(LLSD& sd);
+	bool fromLLSD(const LLSD& sd);
 
 	virtual LLTextureEntry* newBlank() const;
 	virtual LLTextureEntry* newCopy() const;
@@ -140,9 +145,35 @@ public:
 	U8	 getTexGen() const	{ return mMediaFlags & TEM_TEX_GEN_MASK; }
 	U8	 getMediaTexGen() const { return mMediaFlags; }
     F32  getGlow() const { return mGlow; }
-	
+
+    // *NOTE: it is possible for hasMedia() to return true, but getMediaData() to return NULL.
+    // CONVERSELY, it is also possible for hasMedia() to return false, but getMediaData()
+    // to NOT return NULL.  
+	bool hasMedia() const { return (bool)(mMediaFlags & MF_HAS_MEDIA); } 
+	LLMediaEntry* getMediaData() const { return mMediaEntry; }
+
+    // Completely change the media data on this texture entry.
+    void setMediaData(const LLMediaEntry &media_entry);
+	// Returns true if media data was updated, false if it was cleared
+	bool updateMediaData(const LLSD& media_data);
+    // Clears media data, and sets the media flags bit to 0
+    void clearMediaData();
+    // Merges the given LLSD of media fields with this media entry.
+    // Only those fields that are set that match the keys in
+    // LLMediaEntry will be affected.  If no fields are set or if
+    // the LLSD is undefined, this is a no-op.
+    void mergeIntoMediaData(const LLSD& media_fields);
+
+    // Takes a media version string (an empty string or a previously-returned string)
+    // and returns a "touched" string, touched by agent_id
+    static std::string touchMediaVersionString(const std::string &in_version, const LLUUID &agent_id);
+    // Given a media version string, return the version
+    static U32 getVersionFromMediaVersionString(const std::string &version_string);
+    // Given a media version string, return the UUID of the agent
+    static LLUUID getAgentIDFromMediaVersionString(const std::string &version_string);
+
 	// Media flags
-	enum { MF_NONE = 0x0, MF_WEB_PAGE = 0x1 };
+	enum { MF_NONE = 0x0, MF_HAS_MEDIA = 0x1 };
 
 public:
 	F32                 mScaleS;                // S, T offset
@@ -152,12 +183,23 @@ public:
 	F32                 mRotation;              // anti-clockwise rotation in rad about the bottom left corner
 
 	static const LLTextureEntry null;
+
+	// LLSD key defines
+	static const char* OBJECT_ID_KEY;
+	static const char* OBJECT_MEDIA_DATA_KEY;
+    static const char* MEDIA_VERSION_KEY;
+	static const char* TEXTURE_INDEX_KEY;
+	static const char* TEXTURE_MEDIA_DATA_KEY;
+
 protected:
 	LLUUID				mID;					// Texture GUID
 	LLColor4			mColor;
 	U8					mBump;					// Bump map, shiny, and fullbright
 	U8					mMediaFlags;			// replace with web page, movie, etc.
 	F32                 mGlow;
+
+	// Note the media data is not sent via the same message structure as the rest of the TE
+	LLMediaEntry*		mMediaEntry;			// The media data for the face
 
 	// NOTE: when adding new data to this class, in addition to adding it to the serializers asLLSD/fromLLSD and the
 	// message packers (e.g. LLPrimitive::packTEMessage) you must also implement its copy in LLPrimitive::copyTEs()

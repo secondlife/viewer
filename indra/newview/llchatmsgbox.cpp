@@ -102,7 +102,7 @@ void LLChatMsgBox::drawText(S32 x, S32 y, const LLWString &text, const LLColor4 
 
 	// iterate through each block of text that has been added
 	y -= mLineSpacing;
-	for (std::vector<S32>::iterator it = mSeparatorOffset.begin(); true ;)
+	for (std::vector<S32>::iterator it = mSeparatorOffset.begin(); it != mSeparatorOffset.end() ;)
 	{
 		// display the text for this block
 		S32 num_chars = *it - start;

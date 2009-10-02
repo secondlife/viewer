@@ -89,6 +89,7 @@ public:
 	U16				getGeomIndex()		const	{ return mGeomIndex; }		// index into draw pool
 	U16				getGeomStart()		const	{ return mGeomIndex; }		// index into draw pool
 	void			setTexture(LLViewerTexture* tex) ;
+	void            switchTexture(LLViewerTexture* new_texture);
 	LLXformMatrix*	getXform()			const	{ return mXform; }
 	BOOL			hasGeometry()		const	{ return mGeomCount > 0; }
 	LLVector3		getPositionAgent()	const;

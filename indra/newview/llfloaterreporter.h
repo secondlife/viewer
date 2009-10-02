@@ -1,7 +1,7 @@
 /** 
  * @file llfloaterreporter.h
  * @author Andrew Meadows
- * @brief Bug and abuse reports.
+ * @brief Abuse reports.
  *
  * $LicenseInfo:firstyear=2006&license=viewergpl$
  * 
@@ -48,7 +48,7 @@ class LLMeanCollisionData;
 struct LLResourceData;
 
 // these flags are used to label info requests to the server
-const U32 BUG_REPORT_REQUEST 		= 0x01 << 0;
+//const U32 BUG_REPORT_REQUEST 		= 0x01 << 0; // DEPRECATED
 const U32 COMPLAINT_REPORT_REQUEST 	= 0x01 << 1;
 const U32 OBJECT_PAY_REQUEST		= 0x01 << 2;
 
@@ -73,7 +73,7 @@ enum EReportType
 {
 	NULL_REPORT = 0,		// don't use this value anywhere
 	UNKNOWN_REPORT = 1,
-	BUG_REPORT = 2,
+	//BUG_REPORT = 2, // DEPRECATED
 	COMPLAINT_REPORT = 3,
 	CS_REQUEST_REPORT = 4
 };

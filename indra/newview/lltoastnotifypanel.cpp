@@ -171,6 +171,7 @@ LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification) : LLToas
 		params.name("box");
 		params.rect(LLRect(x, y, getRect().getWidth()-2, mIsTip ? BOTTOM : BTN_TOP+16));
 		params.max_text_length(MAX_LENGTH);
+		params.read_only(true);
 		params.default_text(mMessage);
 		params.font(sFont);
 		params.embedded_items(false);

@@ -46,6 +46,7 @@
 # include "expat/expat.h"
 #endif
 #include "llcallbacklist.h"
+#include "llcallingcard.h"   // for LLFriendObserver
 #include "llviewerregion.h"
 #include "llviewernetwork.h"		// for gGridChoice
 #include "llbase64.h"

@@ -40,7 +40,7 @@
 #include "lluicolortable.h"
 
 //---------------------------------------------------------------------------------
-LLSysWellItem::LLSysWellItem(const Params& p) : LLScrollingPanel(p),
+LLSysWellItem::LLSysWellItem(const Params& p) : LLPanel(p),
 												mTitle(NULL),
 												mCloseBtn(NULL),
 												mIcon(NULL)
@@ -72,15 +72,6 @@ void LLSysWellItem::setTitle( std::string title )
 void LLSysWellItem::onClickCloseBtn()
 {
 	mOnItemClose(this);
-}
-
-//---------------------------------------------------------------------------------
-void LLSysWellItem::updatePanel(BOOL allow_modify)
-{
-	S32 parent_width = getParent()->getRect().getWidth();
-	S32 panel_height = getRect().getHeight();
-
-	reshape(parent_width, panel_height, TRUE);
 }
 
 //---------------------------------------------------------------------------------

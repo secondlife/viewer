@@ -200,7 +200,7 @@
       layout="topleft"
        height="16"
      left="10"
-      name="Group:"
+      name="GroupLabel"
        width="88">
        Group:
     </text>
@@ -218,7 +218,7 @@
      follows="left|top"
      height="16"
      layout="topleft"
-     name="NextOwnerLabel"
+     name="AnyoneLabel"
      left="100"
      top="110"
      width="88">

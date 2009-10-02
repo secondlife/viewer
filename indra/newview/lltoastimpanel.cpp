@@ -44,14 +44,14 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_instant_message.xml");
 
-	mAvatar = getChild<LLAvatarIconCtrl>("avatar");
+	LLIconCtrl* sys_msg_icon = getChild<LLIconCtrl>("sys_msg_icon");
+	mAvatar = getChild<LLAvatarIconCtrl>("avatar_icon");
 	mUserName = getChild<LLTextBox>("user_name");
 	mTime = getChild<LLTextBox>("time_box");
 	mMessage = getChild<LLTextBox>("message");
 	mReplyBtn = getChild<LLButton>("reply");	
 
 	mMessage->setValue(p.message);
-	mAvatar->setValue(p.avatar_id);
 	mUserName->setValue(p.from);
 	mTime->setValue(p.time);
 	mSessionID = p.session_id;
@@ -60,6 +60,9 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	// if message comes from the system - there shouldn't be a reply btn
 	if(p.from == "Second Life")
 	{
+		mAvatar->setVisible(FALSE);
+		sys_msg_icon->setVisible(TRUE);
+
 		mReplyBtn->setVisible(FALSE);
 		S32 btn_height = mReplyBtn->getRect().getHeight();
 		LLRect msg_rect = mMessage->getRect();
@@ -68,6 +71,10 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	}
 	else
 	{
+		mAvatar->setVisible(TRUE);
+		sys_msg_icon->setVisible(FALSE);
+
+		mAvatar->setValue(p.avatar_id);
 		mReplyBtn->setClickedCallback(boost::bind(&LLToastIMPanel::onClickReplyBtn, this));
 	}
 
@@ -88,9 +95,7 @@ LLToastIMPanel::~LLToastIMPanel()
 //--------------------------------------------------------------------------
 void LLToastIMPanel::onClickReplyBtn()
 {
-	LLSD response = mNotification->getResponseTemplate();
-	response["respondbutton"] = true;
-	mNotification->respond(response);
+	mNotification->respond(mNotification->getResponseTemplate());
 }
 
 //--------------------------------------------------------------------------

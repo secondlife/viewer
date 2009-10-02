@@ -34,7 +34,6 @@
 #define LL_LLCHANNELMANAGER_H
 
 
-#include "llchiclet.h"
 #include "llscreenchannel.h"
 
 #include "lluuid.h"
@@ -48,36 +47,30 @@ namespace LLNotificationsUI
  * Manager for screen channels.
  * Responsible for instantiating and retrieving screen channels.
  */
-class LLChannelManager : public LLUICtrl, public LLSingleton<LLChannelManager>
+class LLChannelManager : public LLSingleton<LLChannelManager>
 {
 public:	
-	struct Params  : public LLInitParam::Block<Params, LLUICtrl::Params>
+	struct Params
 	{
-		LLUUID			id;
-		LLChiclet*		chiclet;
-		S32				channel_right_bound;
-		S32				channel_width;
-		bool			display_toasts_always;
-		EToastAlignment	align;
+		LLUUID				id;
+		bool				display_toasts_always;
+		EToastAlignment		toast_align;
+		EChannelAlignment	channel_align;
 
-		Params():	id(LLUUID("")), chiclet(NULL), 
-					channel_right_bound(0), channel_width(0), 
-					display_toasts_always(false), align(NA_BOTTOM)
+		Params():	id(LLUUID("")), display_toasts_always(false), toast_align(NA_BOTTOM), channel_align(CA_LEFT)
 		{}
 	};
 
 	struct ChannelElem
 	{
 		LLUUID				id;
-		LLChiclet*			chiclet;
-		LLScreenChannel*	channel;
+		LLScreenChannelBase*	channel;
 
-		ChannelElem() : id(LLUUID("")), chiclet(NULL), channel(NULL) { }
+		ChannelElem() : id(LLUUID("")), channel(NULL) { }
 
 		ChannelElem(const ChannelElem &elem)
 		{
 			id = elem.id;
-			chiclet = elem.chiclet;
 			channel = elem.channel;
 		}
 
@@ -85,12 +78,6 @@ public:
 		{
 			return (id == id_op);
 		}
-
-		bool operator == (const LLChiclet* chiclet_op) const
-		{
-			return (chiclet == chiclet_op);
-		}
-
 	};
 
 	LLChannelManager();	
@@ -101,19 +88,23 @@ public:
 	// removes a channel intended for the startup toast and allows other channels to show their toasts
 	void onStartUpToastClose();
 
-	//TODO: make protected? in order to be shure that channels are created only by notification handlers
-	LLScreenChannel*	createChannel(LLChannelManager::Params& p);
+	// creates a new ScreenChannel according to the given parameters or returns existing if present
+	LLScreenChannelBase*	getChannel(LLChannelManager::Params& p);
 
-	LLScreenChannel*	getChannelByID(const LLUUID id);
-	LLScreenChannel*	getChannelByChiclet(const LLChiclet* chiclet);
+	LLScreenChannelBase*	addChannel(LLScreenChannelBase* channel);
+
+	// returns a channel by its ID
+	LLScreenChannelBase*	findChannelByID(const LLUUID id);
+
+	// creator of the Notification channel, that is used in more than one handler
+	LLScreenChannel*		createNotificationChannel();
 
 	// remove channel methods
 	void	removeChannelByID(const LLUUID id);
-	void	removeChannelByChiclet(const LLChiclet* chiclet);
-
-	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 private:
+
+	LLScreenChannel* createChannel(LLChannelManager::Params& p);
 
 	LLScreenChannel*			mStartUpChannel;
 	std::vector<ChannelElem>	mChannelList;

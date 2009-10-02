@@ -132,7 +132,7 @@ void LLOutputMonitorCtrl::draw()
 	if (getVisible() && mAutoUpdate && !mIsMuted && mSpeakerId.notNull())
 	{
 		setPower(gVoiceClient->getCurrentPower(mSpeakerId));
-		setIsTalking(gVoiceClient->getUserPTTState());
+		setIsTalking(gVoiceClient->getIsSpeaking(mSpeakerId));
 	}
 
 	LLPointer<LLUIImage> icon;

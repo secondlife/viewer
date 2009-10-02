@@ -405,10 +405,6 @@ public:
 	BOOL getSaveToXML() const { return mSaveToXML; }
 	void setSaveToXML(BOOL b) { mSaveToXML = b; }
 
-	// inherited from LLFocusableElement
-	/* virtual */ void onFocusLost();
-	/* virtual */ void onFocusReceived();
-
 	typedef enum e_hit_test_type
 	{
 		HIT_TEST_USE_BOUNDING_RECT,

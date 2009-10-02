@@ -71,12 +71,13 @@ void LLNotificationManager::init()
 	LLNotifications::instance().getChannel("AlertModal")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
 	LLNotifications::instance().getChannel("IM Notifications")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
 
-	mNotifyHandlers["notify"] = boost::shared_ptr<LLEventHandler>(new LLInfoHandler(NT_NOTIFY, LLSD()));
-	mNotifyHandlers["notifytip"] =  mNotifyHandlers["notify"];
+	mNotifyHandlers["notify"] = boost::shared_ptr<LLEventHandler>(new LLScriptHandler(NT_NOTIFY, LLSD()));
+	mNotifyHandlers["notifytip"] =  boost::shared_ptr<LLEventHandler>(new LLTipHandler(NT_NOTIFY, LLSD()));
 	mNotifyHandlers["groupnotify"] = boost::shared_ptr<LLEventHandler>(new LLGroupHandler(NT_GROUPNOTIFY, LLSD()));
 	mNotifyHandlers["alert"] = boost::shared_ptr<LLEventHandler>(new LLAlertHandler(NT_ALERT, LLSD()));
-	mNotifyHandlers["alertmodal"] = mNotifyHandlers["alert"];
-	mNotifyHandlers["notifytoast"] = boost::shared_ptr<LLEventHandler>(new LLIMHandler());
+	mNotifyHandlers["alertmodal"] = boost::shared_ptr<LLEventHandler>(new LLAlertHandler(NT_ALERT, LLSD()));
+	static_cast<LLAlertHandler*>(mNotifyHandlers["alertmodal"].get())->setAlertMode(true);
+	mNotifyHandlers["notifytoast"] = boost::shared_ptr<LLEventHandler>(new LLIMHandler(NT_IMCHAT, LLSD()));
 	
 	mNotifyHandlers["nearbychat"] = boost::shared_ptr<LLEventHandler>(new LLNearbyChatHandler(NT_NEARBYCHAT, LLSD()));
 }
@@ -92,17 +93,12 @@ bool LLNotificationManager::onNotification(const LLSD& notify)
 		return false;
 
 	std::string notification_type = notification->getType();
-	handle = dynamic_cast<LLSysHandler*>(mNotifyHandlers[notification_type].get());
+	handle = static_cast<LLSysHandler*>(mNotifyHandlers[notification_type].get());
 
 	if(!handle)
 		return false;
 	
-	if( notification_type == "alertmodal" )
-		dynamic_cast<LLAlertHandler*>(handle)->setAlertMode(true);	
-
-	handle->processNotification(notify);
-
-	return true;
+	return handle->processNotification(notify);
 }
 
 //--------------------------------------------------------------------------
@@ -124,7 +120,15 @@ void LLNotificationManager::onChat(const LLChat& msg,ENotificationType type)
 }
 
 //--------------------------------------------------------------------------
+LLEventHandler* LLNotificationManager::getHandlerForNotification(std::string notification_type) 
+{ 
+	std::map<std::string, boost::shared_ptr<LLEventHandler> >::iterator it = mNotifyHandlers.find(notification_type);
 
+	if(it != mNotifyHandlers.end())
+		return (*it).second.get();
 
+	return NULL;
+}
 
+//--------------------------------------------------------------------------
 

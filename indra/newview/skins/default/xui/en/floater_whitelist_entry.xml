@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_minimize="false"
+ height="108"
+ layout="topleft"
+ name="whitelist_entry"
+ width="390">
+
+  <text type="string" length="1" bottom="20" follows="top|left" height="15" layout="topleft"
+     left="10" name="media_label" top="20">
+        Enter a URL or URL pattern to add to the list of allowed domains
+    </text>
+
+  <line_editor bottom_delta="40" enabled="true" follows="left|top" font="SansSerif"
+	     height="20" left="10" name="whitelist_entry"
+	     tool_tip="Enter a URL or URL pattern to White List"
+	     width="350" />
+
+  <button follows="top|left" height="20" font="SansSerifSmall" label="OK"
+     layout="topleft" left="10" name="ok_btn" bottom_delta="28" width="64" />
+  
+  <button follows="top|left" height="20" font="SansSerifSmall" label="Cancel"
+     layout="topleft" left_pad="5" name="cancel_btn" bottom_delta="0" width="64" />
+</floater>

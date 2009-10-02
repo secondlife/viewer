@@ -51,6 +51,8 @@ class LLPickInfo;
 class LLToolDragAndDrop : public LLTool, public LLSingleton<LLToolDragAndDrop>
 {
 public:
+	typedef boost::signals2::signal<void ()> enddrag_signal_t;
+
 	LLToolDragAndDrop();
 
 	// overridden from LLTool
@@ -86,6 +88,8 @@ public:
 	const LLUUID& getSourceID() const { return mSourceID; }
 	const LLUUID& getObjectID() const { return mObjectID; }
 	EAcceptance getLastAccept() { return mLastAccept; }
+
+	boost::signals2::connection setEndDragCallback( const enddrag_signal_t::slot_type& cb ) { return mEndDragSignal.connect(cb); }
 
 protected:
 	enum EDropTarget
@@ -130,6 +134,8 @@ protected:
 	BOOL			mDrop;
 	S32				mCurItemIndex;
 	std::string		mToolTipMsg;
+
+	enddrag_signal_t	mEndDragSignal;
 
 	// array of pointers to functions that implement the logic to
 	// dragging and dropping into the simulator.

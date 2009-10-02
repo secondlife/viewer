@@ -11,23 +11,23 @@
     <menu_item_check
          label="Show Navigation Bar"
          layout="topleft"
-         name="Show Navigation Bar">
+         name="ShowNavbarNavigationPanel">
            <menu_item_check.on_click
-             function="HideNavbarMenu.Action"
-             parameter="show_navbar_navigation_panel" />
+             function="ToggleControl"
+             parameter="ShowNavbarNavigationPanel" /> 
              <menu_item_check.on_check
-             function="HideNavbarMenu.EnableMenuItem"
-             parameter="show_navbar_navigation_panel" />
+             function="CheckControl"
+             parameter="ShowNavbarNavigationPanel" />
     </menu_item_check>
     <menu_item_check
          label="Show Favorites Bar"
          layout="topleft"
-         name="Show Favorites Bar">
+         name="ShowNavbarFavoritesPanel">
            <menu_item_check.on_click
-             function="HideNavbarMenu.Action"
-             parameter="show_navbar_favorites_panel" />
+             function="ToggleControl"
+             parameter="ShowNavbarFavoritesPanel" /> 
              <menu_item_check.on_check
-             function="HideNavbarMenu.EnableMenuItem"
-             parameter="show_navbar_favorites_panel" />
+             function="CheckControl"
+             parameter="ShowNavbarFavoritesPanel" />
     </menu_item_check>
 </menu>

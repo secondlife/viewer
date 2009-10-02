@@ -32,9 +32,10 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llavatariconctrl.h"
+
 #include "llagent.h"
 #include "llavatarconstants.h"
-#include "llavatariconctrl.h"
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llavataractions.h"
 #include "llimview.h"
@@ -139,24 +140,36 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 {
 	if (value.isUUID())
 	{
+		LLAvatarPropertiesProcessor* app =
+			LLAvatarPropertiesProcessor::getInstance();
 		if (mAvatarId.notNull())
 		{
-			LLAvatarPropertiesProcessor::getInstance()->removeObserver(mAvatarId, this);
+			app->removeObserver(mAvatarId, this);
 		}
 
 		if (mAvatarId != value.asUUID())
 		{
-			LLAvatarPropertiesProcessor::getInstance()->addObserver(value.asUUID(), this);
-			LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(value.asUUID());
 			mAvatarId = value.asUUID();
 
-			// Check if cache already contains image_id for that avatar
-			avatar_image_map_t::iterator it;
+			// *BUG: This will return stale icons if a user changes their
+			// profile picture.  Also, the online/offline tooltips will be
+			// out of date.  However, otherwise we send too many upstream
+			// AvatarPropertiesRequest messages.
+			//
+			// *TODO: Implement a timeout on the icon cache, perhaps a day?,
+			// and make the cache update if a user views the full-profile for
+			// an avatar.
 
-			it = sImagesCache.find(mAvatarId);
+			// Check if cache already contains image_id for that avatar
+			avatar_image_map_t::iterator it = sImagesCache.find(mAvatarId);
 			if (it != sImagesCache.end())
 			{
 				updateFromCache(it->second);
+			}
+			else
+			{
+				app->addObserver(value.asUUID(), this);
+				app->sendAvatarPropertiesRequest(value.asUUID());
 			}
 		}
 
@@ -181,21 +194,34 @@ void LLAvatarIconCtrl::updateFromCache(LLAvatarIconCtrl::LLImagesCacheItem data)
 		LLIconCtrl::setValue("default_profile_picture.j2c");
 	}
 
-	// Update color of status symbol and tool tip
-	if (data.flags & AVATAR_ONLINE)
+	// Can only see online status of friends
+	if (LLAvatarTracker::instance().isBuddy(mAvatarId))
 	{
-		mStatusSymbol->setColor(LLColor4::green);
-		if (mDrawTooltip)
+		if (LLAvatarTracker::instance().isBuddyOnline(mAvatarId))
 		{
-			setToolTip((LLStringExplicit)"Online");
+			// Update color of status symbol and tool tip
+			mStatusSymbol->setColor(LLColor4::green);
+			if (mDrawTooltip)
+			{
+				setToolTip((LLStringExplicit)"Online");
+			}
+		}
+		else
+		{
+			mStatusSymbol->setColor(LLColor4::grey);
+			if (mDrawTooltip)
+			{
+				setToolTip((LLStringExplicit)"Offline");
+			}
 		}
 	}
 	else
 	{
+		// Not a buddy, no information
 		mStatusSymbol->setColor(LLColor4::grey);
 		if (mDrawTooltip)
 		{
-			setToolTip((LLStringExplicit)"Offline");
+			setToolTip((LLStringExplicit)"");
 		}
 	}
 }

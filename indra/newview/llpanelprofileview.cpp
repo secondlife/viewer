@@ -70,6 +70,10 @@ void LLPanelProfileView::onOpen(const LLSD& key)
 		setAvatarId(id);
 	}
 
+	// Update the avatar name.
+	gCacheName->get(getAvatarId(), FALSE,
+		boost::bind(&LLPanelProfileView::onAvatarNameCached, this, _1, _2, _3, _4));
+
 	// status should only show if viewer has permission to view online/offline. EXT-453 
 	mStatusText->setVisible(isGrantedToSeeOnlineStatus());
 	updateOnlineStatus();
@@ -131,6 +135,23 @@ void LLPanelProfileView::updateOnlineStatus()
 	std::string status = getString(online ? "status_online" : "status_offline");
 
 	mStatusText->setValue(status);
+}
+
+void LLPanelProfileView::onAvatarNameCached(const LLUUID& id, const std::string& first_name, const std::string& last_name, BOOL is_group)
+{
+	llassert(getAvatarId() == id);
+	getChild<LLTextBox>("user_name", FALSE)->setValue(first_name + " " + last_name);
+}
+
+void LLPanelProfileView::togglePanel(LLPanel* panel)
+{
+	LLPanelProfile::togglePanel(panel);
+	if(FALSE == panel->getVisible())
+	{
+		// LLPanelProfile::togglePanel shows/hides all children,
+		// we don't want to display online status for non friends, so re-hide it here
+		mStatusText->setVisible(isGrantedToSeeOnlineStatus());
+	}
 }
 
 // EOF

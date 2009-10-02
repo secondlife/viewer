@@ -184,9 +184,9 @@
              layout="topleft"
              name="Help..." />
             <menu_item_call
-             label="LSL Wiki Help..."
+             label="Keyword Help..."
              layout="topleft"
-             name="LSL Wiki Help..." />
+             name="Keyword Help..." />
         </menu>
     </menu_bar>
 </panel>

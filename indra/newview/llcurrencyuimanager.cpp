@@ -125,7 +125,7 @@ LLCurrencyUIManager::Impl::Impl(LLPanel& dialog)
 	mUserCurrencyBuy(2000), // note, this is a default, real value set in llfloaterbuycurrency.cpp
 	mUserEnteredCurrencyBuy(false),
 	mSiteCurrencyEstimated(false),
-	  mSiteCurrencyEstimatedCost(0),
+	mSiteCurrencyEstimatedCost(0),
 	mBought(false),
 	mTransactionType(TransactionNone), mTransaction(0),
 	mCurrencyChanged(false)
@@ -394,7 +394,7 @@ void LLCurrencyUIManager::Impl::updateUI()
 		}
 	}
 
-	mPanel.childSetTextArg("currency_est", "[USD]", llformat("%#.2f", mSiteCurrencyEstimatedCost / 100.0));
+	mPanel.childSetTextArg("currency_est", "[LOCALAMOUNT]", "US$ " + llformat("%#.2f", mSiteCurrencyEstimatedCost / 100.0));
 	mPanel.childSetVisible("currency_est", mSiteCurrencyEstimated && mUserCurrencyBuy > 0);
 
 	if (mPanel.childIsEnabled("buy_btn")
@@ -478,7 +478,7 @@ void LLCurrencyUIManager::buy(const std::string& buy_msg)
 
 	LLUIString msg = buy_msg;
 	msg.setArg("[LINDENS]", llformat("%d", impl.mUserCurrencyBuy));
-	msg.setArg("[USD]", llformat("%#.2f", impl.mSiteCurrencyEstimatedCost / 100.0));
+	msg.setArg("[LOCALAMOUNT]", "US$ " + llformat("%#.2f", impl.mSiteCurrencyEstimatedCost / 100.0));
 	LLConfirmationManager::confirm(impl.mSiteConfirm,
 								   msg,
 								   impl,

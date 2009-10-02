@@ -37,7 +37,6 @@
 
 #include "lluictrl.h"
 #include "llframetimer.h"
-#include "lldynamictexture.h"
 
 class LLViewBorder;
 class LLUICtrlFactory;
@@ -50,7 +49,6 @@ class LLMediaCtrl :
 	public LLViewerMediaEventEmitter
 {
 	LOG_CLASS(LLMediaCtrl);
-
 public:
 	struct Params : public LLInitParam::Block<Params, LLPanel::Params> 
 	{
@@ -58,7 +56,11 @@ public:
 		
 		Optional<bool>			border_visible,
 								ignore_ui_scale,
-								hide_loading;
+								hide_loading,
+								decouple_texture_size;
+								
+		Optional<S32>			texture_width,
+								texture_height;
 		
 		Optional<LLUIColor>		caret_color;
 		
@@ -127,9 +129,17 @@ public:
 		void setForceUpdate(bool force_update) { mForceUpdate = force_update; }
 		bool getForceUpdate() { return mForceUpdate; }
 
+		bool ensureMediaSourceExists();
+		void unloadMediaSource();
+		
 		LLPluginClassMedia* getMediaPlugin();
 
 		bool setCaretColor( unsigned int red, unsigned int green, unsigned int blue );
+		
+		void setDecoupleTextureSize(bool decouple) { mDecoupleTextureSize = decouple; }
+		bool getDecoupleTextureSize() { return mDecoupleTextureSize; }
+
+		void setTextureSize(S32 width, S32 height);
 
 
 		// over-rides
@@ -173,10 +183,12 @@ public:
 		bool mAlwaysRefresh;
 		viewer_media_t mMediaSource;
 		bool mTakeFocusOnClick;
-		ECursorType mLastSetCursor;
 		bool mStretchToFill;
 		bool mMaintainAspectRatio;
 		bool mHideLoading;
+		bool mDecoupleTextureSize;
+		S32 mTextureWidth;
+		S32 mTextureHeight;
 };
 
 #endif // LL_LLMediaCtrl_H

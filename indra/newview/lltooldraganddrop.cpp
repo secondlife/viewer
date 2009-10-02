@@ -54,6 +54,7 @@
 #include "llmutelist.h"
 #include "llnotify.h"
 #include "llpreviewnotecard.h"
+#include "llrecentpeople.h"
 #include "llselectmgr.h"
 #include "lltoolmgr.h"
 #include "lltooltip.h"
@@ -646,6 +647,7 @@ void LLToolDragAndDrop::beginMultiDrag(
 
 void LLToolDragAndDrop::endDrag()
 {
+	mEndDragSignal();
 	LLSelectMgr::getInstance()->unhighlightAll();
 	setMouseCapture(FALSE);
 }

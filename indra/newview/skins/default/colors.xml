@@ -94,7 +94,7 @@
      value="0.58 0.66 0.84 1" />
     <color
      name="AvatarNameColor"
-     value="0.98 0.69 0.36 1" />
+     reference="White" />
     <color
      name="BackgroundChatColor"
      reference="DkGray_66" />
@@ -253,7 +253,7 @@
      reference="White_10" />
     <color
      name="DefaultHighlightLight"
-	 reference="White_25" />
+     reference="White_25" />
     <color
      name="DefaultShadowDark"
      reference="Black_50" />
@@ -493,7 +493,7 @@
      value="0 0.78 0.78 1" />
     <color
      name="NotifyBoxColor"
-     value="0.27 0.67 1 1" />
+     value="LtGray" />
     <color
      name="NotifyCautionBoxColor"
      value="1 0.82 0.46 1" />
@@ -625,7 +625,7 @@
      reference="Black" />
     <color
      name="TextDefaultColor"
-     value="0 0 0 .33" />
+     value="Black" />
     <color
      name="TextEmbeddedItemColor"
      value="0 0 0.5 1" />
@@ -643,16 +643,16 @@
 	 value="0 0 0 .33" />
     <color
      name="TimeTextColor"
-     reference="LtGray" />
+     reference="LtGray_50" />
     <color
      name="TitleBarFocusColor"
      reference="White_10" />
     <color
      name="ToolTipBgColor"
-     value="0 0 0 .75" />
+     value="DkGray" />
     <color
      name="ToolTipBorderColor"
-     value="0 0 0 .75" />
+     value="White_50" />
     <color
      name="ToolTipTextColor"
      reference="LtGray" />

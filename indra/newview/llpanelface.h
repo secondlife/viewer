@@ -47,6 +47,7 @@ class LLTextBox;
 class LLTextureCtrl;
 class LLUICtrl;
 class LLViewerObject;
+class LLFloater;
 
 class LLPanelFace : public LLPanel
 {
@@ -56,6 +57,8 @@ public:
 	virtual ~LLPanelFace();
 
 	void			refresh();
+	void			setMediaURL(const std::string& url);
+	void			setMediaType(const std::string& mime_type);
 
 protected:
 	void			getState();
@@ -69,9 +72,10 @@ protected:
 	void			sendShiny();			// applies and sends shininess
 	void			sendFullbright();		// applies and sends full bright
 	void            sendGlow();
+	void			sendMedia();
 
 	// this function is to return TRUE if the drag should succeed.
-	static BOOL onDragTexture(LLInventoryItem* item);
+	static BOOL onDragTexture(LLUICtrl* ctrl, LLInventoryItem* item);
 
 	void 	onCommitTexture(const LLSD& data);
 	void 	onCancelTexture(const LLSD& data);
@@ -87,10 +91,11 @@ protected:
 	static void		onCommitShiny(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitFullbright(		LLUICtrl* ctrl, void* userdata);
 	static void     onCommitGlow(           LLUICtrl* ctrl, void *userdata);
-
+	
 	static void		onClickApply(void*);
 	static void		onClickAutoFix(void*);
 	static F32      valueGlow(LLViewerObject* object, S32 face);
+
 };
 
 #endif

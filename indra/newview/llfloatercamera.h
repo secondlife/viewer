@@ -33,7 +33,7 @@
 #ifndef LLFLOATERCAMERA_H
 #define LLFLOATERCAMERA_H
 
-#include "llfloater.h"
+#include "lldockablefloater.h"
 
 #include "llfirsttimetipmanager.h"
 
@@ -51,7 +51,7 @@ enum ECameraControlMode
 };
 
 class LLFloaterCamera
-	:	public LLFloater
+	:	public LLDockableFloater
 {
 	friend class LLFloaterReg;
 	
@@ -70,13 +70,7 @@ public:
 	
 	static void updateIfNotInAvatarViewMode();
 
-	static void onClickCameraPresets(LLUICtrl* ctrl, const LLSD& param);
-
 	virtual void onOpen(const LLSD& key);
-
-	// *HACK: due to hard enough to have this control aligned with "Camera" button while resizing
-	// let update its position in each frame
-	/*virtual*/ void draw(){updatePosition(); LLFloater::draw();}
 
 	LLJoystickCameraRotate* mRotate;
 	LLJoystickCameraZoom*	mZoom;
@@ -113,9 +107,6 @@ private:
 	void assignButton2Mode(ECameraControlMode mode, const std::string& button_name);
 	void initMode2TipTypeMap();
 
-	/*Updates position of the floater to be center aligned with "Camera" button.*/
-	void updatePosition();
-
 
 	ECameraControlMode mPrevMode;
 	ECameraControlMode mCurrMode;
@@ -124,4 +115,15 @@ private:
 
 };
 
+class LLFloaterCameraPresets : public LLDockableFloater 
+{
+	friend class LLFloaterReg;
+public:
+	static void onClickCameraPresets(LLUICtrl* ctrl, const LLSD& param);
+private:
+	LLFloaterCameraPresets(const LLSD&);
+	~LLFloaterCameraPresets(){}
+	/*virtual*/ BOOL postBuild();
+	
+};
 #endif

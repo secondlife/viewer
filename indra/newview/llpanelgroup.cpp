@@ -44,6 +44,9 @@
 #include "llfloaterreg.h"
 #include "llfloater.h"
 
+#include "llagent.h" 
+#include "llstatusbar.h"	// can_afford_transaction()
+
 #include "llsidetraypanelcontainer.h"
 
 #include "llpanelgroupnotices.h"
@@ -162,14 +165,24 @@ BOOL LLPanelGroup::postBuild()
 	button->setEnabled(false);
 
 
+	button = getChild<LLButton>("btn_join");
+	button->setVisible(false);
+	button->setEnabled(true);
+
+	button = getChild<LLButton>("btn_cancel");
+	button->setVisible(false);	button->setEnabled(true);
+
 	button = getChild<LLButton>("btn_refresh");
 	button->setClickedCallback(onBtnRefresh, this);
 	button->setVisible(mAllowEdit);
 
 	getChild<LLButton>("btn_create")->setVisible(false);
 
-	childSetCommitCallback("btn_create",boost::bind(&LLPanelGroup::onBtnCreate,this),NULL);
 	childSetCommitCallback("back",boost::bind(&LLPanelGroup::onBackBtnClick,this),NULL);
+
+	childSetCommitCallback("btn_create",boost::bind(&LLPanelGroup::onBtnCreate,this),NULL);
+	childSetCommitCallback("btn_join",boost::bind(&LLPanelGroup::onBtnJoin,this),NULL);
+	childSetCommitCallback("btn_cancel",boost::bind(&LLPanelGroup::onBtnCancel,this),NULL);
 
 	LLPanelGroupTab* panel_general = findChild<LLPanelGroupTab>("group_general_tab_panel");
 	LLPanelGroupTab* panel_roles = findChild<LLPanelGroupTab>("group_roles_tab_panel");
@@ -181,41 +194,30 @@ BOOL LLPanelGroup::postBuild()
 	if(panel_notices)	mTabs.push_back(panel_notices);
 	if(panel_land)		mTabs.push_back(panel_land);
 
-	panel_general->setupCtrls(this);
+	if(panel_general)
+		panel_general->setupCtrls(this);
 	
 	return TRUE;
+}
+
+void LLPanelGroup::reposButton(const std::string& name)
+{
+	LLButton* button = findChild<LLButton>(name);
+	if(!button)
+		return;
+	LLRect btn_rect = button->getRect();
+	btn_rect.setLeftTopAndSize( btn_rect.mLeft, btn_rect.getHeight() + 2, btn_rect.getWidth(), btn_rect.getHeight());
+	button->setRect(btn_rect);
 }
 
 void LLPanelGroup::reshape(S32 width, S32 height, BOOL called_from_parent )
 {
 	LLPanel::reshape(width, height, called_from_parent );
 
-	LLRect btn_rect;
-
-	LLButton* button = findChild<LLButton>("btn_apply");
-	if(button)
-	{
-		btn_rect = button->getRect();
-		btn_rect.setLeftTopAndSize( btn_rect.mLeft, btn_rect.getHeight() + 2, btn_rect.getWidth(), btn_rect.getHeight());
-		button->setRect(btn_rect);
-	}
-
-	button = findChild<LLButton>("btn_create");
-	if(button)
-	{
-		btn_rect = button->getRect();
-		btn_rect.setLeftTopAndSize( btn_rect.mLeft, btn_rect.getHeight() + 2, btn_rect.getWidth(), btn_rect.getHeight());
-		button->setRect(btn_rect);
-	}
-
-
-	button = findChild<LLButton>("btn_refresh");
-	if(button)
-	{
-		btn_rect = button->getRect();
-		btn_rect.setLeftTopAndSize( btn_rect.mLeft, btn_rect.getHeight() + 2, btn_rect.getWidth(), btn_rect.getHeight());
-		button->setRect(btn_rect);
-	}
+	reposButton("btn_apply");
+	reposButton("btn_create");
+	reposButton("btn_refresh");
+	reposButton("btn_cancel");
 }
 
 void LLPanelGroup::onBackBtnClick()
@@ -233,7 +235,14 @@ void LLPanelGroup::onBtnCreate()
 	if(!panel_general)
 		return;
 	std::string apply_mesg;
-	panel_general->apply(apply_mesg);//yes yes you need to call apply to create...
+	if(panel_general->apply(apply_mesg))//yes yes you need to call apply to create...
+		return;
+	if ( !apply_mesg.empty() )
+	{
+		LLSD args;
+		args["MESSAGE"] = apply_mesg;
+		LLNotifications::instance().add("GenericAlert", args);
+	}
 }
 
 void LLPanelGroup::onBtnRefresh(void* user_data)
@@ -247,33 +256,94 @@ void LLPanelGroup::onBtnApply(void* user_data)
 	LLPanelGroup* self = static_cast<LLPanelGroup*>(user_data);
 	self->apply();
 }
+void LLPanelGroup::onBtnJoin()
+{
+	lldebugs << "joining group: " << mID << llendl;
+
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mID);
+
+	if (gdatap)
+	{
+		S32 cost = gdatap->mMembershipFee;
+		LLSD args;
+		args["COST"] = llformat("%d", cost);
+		LLSD payload;
+		payload["group_id"] = mID;
+
+		if (can_afford_transaction(cost))
+		{
+			LLNotifications::instance().add("JoinGroupCanAfford", args, payload, LLPanelGroup::joinDlgCB);
+		}
+		else
+		{
+			LLNotifications::instance().add("JoinGroupCannotAfford", args, payload);
+		}
+	}
+	else
+	{
+		llwarns << "LLGroupMgr::getInstance()->getGroupData(" << mID	<< ") was NULL" << llendl;
+	}
+}
+bool LLPanelGroup::joinDlgCB(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+
+	if (option == 1)
+	{
+		// user clicked cancel
+		return false;
+	}
+
+	LLGroupMgr::getInstance()->sendGroupMemberJoin(notification["payload"]["group_id"].asUUID());
+	return false;
+}
+
+void LLPanelGroup::onBtnCancel()
+{
+	onBackBtnClick();
+}
 
 
 void LLPanelGroup::changed(LLGroupChange gc)
 {
 	for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
 		(*it)->update(gc);
-
-	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mID);
-	if(gdatap)
-		childSetValue("group_name", gdatap->mName);
+	update(gc);
 }
 
 void LLPanelGroup::notifyObservers()
 {
-	for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
-		(*it)->update(GC_ALL);
-
-	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mID);
-	if(gdatap)
-		childSetValue("group_name", gdatap->mName);
-	
+	changed(GC_ALL);
 }
 
+void LLPanelGroup::update(LLGroupChange gc)
+{
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mID);
+	if(gdatap)
+	{
+		childSetValue("group_name", gdatap->mName);
 
+		LLGroupData agent_gdatap;
+		bool is_member = gAgent.getGroupData(mID,agent_gdatap);
+		LLButton* btn_join = getChild<LLButton>("btn_join");
+		bool join_btn_visible = !is_member && gdatap->mOpenEnrollment;
+		btn_join->setVisible(join_btn_visible);
+		if(join_btn_visible)
+		{
+			LLStringUtil::format_map_t string_args;
+			string_args["[AMOUNT]"] = llformat("%d", gdatap->mMembershipFee);
+			std::string fee_buff = getString("group_join_btn", string_args);
+			btn_join->setLabelSelected(fee_buff);
+			btn_join->setLabelUnselected(fee_buff);
+		}
+	}
+}
 
 void LLPanelGroup::setGroupID(const LLUUID& group_id)
 {
+	std::string str_group_id;
+	group_id.toString(str_group_id);
+	
 	LLGroupMgr::getInstance()->removeObserver(this);
 	mID = group_id;
 	LLGroupMgr::getInstance()->addObserver(this);
@@ -288,6 +358,8 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	LLButton* button_apply = findChild<LLButton>("btn_apply");
 	LLButton* button_refresh = findChild<LLButton>("btn_refresh");
 	LLButton* button_create = findChild<LLButton>("btn_create");
+	LLButton* button_join = findChild<LLButton>("btn_join");
+	LLButton* button_cancel = findChild<LLButton>("btn_cancel");
 
 
 	bool is_null_group_id = group_id == LLUUID::null;
@@ -295,8 +367,11 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 		button_apply->setVisible(!is_null_group_id);
 	if(button_refresh)
 		button_refresh->setVisible(!is_null_group_id);
+
 	if(button_create)
 		button_create->setVisible(is_null_group_id);
+	if(button_cancel)
+		button_cancel->setVisible(!is_null_group_id);
 
 	getChild<LLUICtrl>("prepend_founded_by")->setVisible(!is_null_group_id);
 
@@ -307,6 +382,9 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 
 	if(!tab_general || !tab_roles || !tab_notices || !tab_land)
 		return;
+	
+	if(button_join)
+		button_join->setVisible(false);
 
 	if(is_null_group_id)//creating new group
 	{
@@ -323,6 +401,10 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 		tab_roles->canOpenClose(false);
 		tab_notices->canOpenClose(false);
 		tab_land->canOpenClose(false);
+
+		getChild<LLUICtrl>("group_name")->setVisible(false);
+		getChild<LLUICtrl>("group_name_editor")->setVisible(true);
+
 	}
 	else
 	{
@@ -338,6 +420,9 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 		tab_roles->canOpenClose(true);
 		tab_notices->canOpenClose(true);
 		tab_land->canOpenClose(true);
+
+		getChild<LLUICtrl>("group_name")->setVisible(true);
+		getChild<LLUICtrl>("group_name_editor")->setVisible(false);
 	}
 }
 
@@ -395,11 +480,9 @@ void LLPanelGroup::draw()
 void LLPanelGroup::refreshData()
 {
 	LLGroupMgr::getInstance()->clearGroupData(getID());
-	
-	for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
-		(*it)->activate();
-	
 
+	setGroupID(getID());
+	
 	// 5 second timeout
 	childDisable("btn_refresh");
 	mRefreshTimer.start();

@@ -43,32 +43,48 @@ class LLAvatarIconCtrl;
 class LLAvatarListItem : public LLPanel
 {
 public:
+	class ContextMenu
+	{
+	public:
+		virtual void show(LLView* spawning_view, const LLUUID& id, S32 x, S32 y) = 0;
+	};
+
 	LLAvatarListItem();
 	virtual ~LLAvatarListItem() {};
 
 	virtual BOOL postBuild();
 	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
+	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual void setValue(const LLSD& value);
 
 	void setStatus(const std::string& status);
 	void setName(const std::string& name);
 	void setAvatarId(const LLUUID& id);
+	
+	const LLUUID& getAvatarId() const;
+	const std::string getAvatarName() const;
 
 	void onInfoBtnClick();
 
 	void showSpeakingIndicator(bool show) { mSpeakingIndicator->setVisible(show); }
 	void showInfoBtn(bool show_info_btn) {mInfoBtn->setVisible(show_info_btn); }
-	void showStatus(bool show_status) {mStatus->setVisible(show_status); }
+	void showStatus(bool show_status);
 
+	void setContextMenu(ContextMenu* menu) { mContextMenu = menu; }
 
 private:
+	void onNameCache(const std::string& first_name, const std::string& last_name);
+
 	LLAvatarIconCtrl*mAvatarIcon;
 	LLTextBox* mAvatarName;
 	LLTextBox* mStatus;
 	
 	LLOutputMonitorCtrl* mSpeakingIndicator;
 	LLButton* mInfoBtn;
+	ContextMenu* mContextMenu;
+
+	LLUUID mAvatarId;
 };
 
 #endif //LL_LLAVATARLISTITEM_H

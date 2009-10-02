@@ -53,6 +53,7 @@
 #include "llfloaterchatterbox.h"
 #include "llavataractions.h"
 #include "llhttpnode.h"
+#include "llimfloater.h"
 #include "llimpanel.h"
 #include "llresizebar.h"
 #include "lltabcontainer.h"
@@ -70,6 +71,7 @@
 #include "llnotify.h"
 #include "llviewerregion.h"
 #include "lltrans.h"
+#include "llrecentpeople.h"
 
 #include "llfirstuse.h"
 #include "llagentui.h"
@@ -90,6 +92,11 @@ std::map<LLUUID, LLIMModel::LLIMSession*> LLIMModel::sSessionsMap;
 
 
 void toast_callback(const LLSD& msg){
+	// do not show toast in busy mode
+	if (gAgent.getBusy())
+	{
+		return;
+	}
 	
 	//we send notifications to reset counter also
 	if (msg["num_unread"].asInteger())
@@ -101,17 +108,90 @@ void toast_callback(const LLSD& msg){
 		args["FROM_ID"] = msg["from_id"];
 		args["SESSION_ID"] = msg["session_id"];
 
-		//LLNotifications::instance().add("IMToast", args, LLSD(), boost::bind(&LLFloaterChatterBox::onOpen, LLFloaterChatterBox::getInstance(), msg["session_id"].asUUID()));
-		LLNotifications::instance().add("IMToast", args, LLSD(), boost::bind(&LLIMFloater::toggle, msg["session_id"].asUUID()));
+		LLNotifications::instance().add("IMToast", args, LLSD(), boost::bind(&LLIMFloater::show, msg["session_id"].asUUID()));
 	}
 }
 
 LLIMModel::LLIMModel() 
 {
-	addChangedCallback(toast_callback);
 	addChangedCallback(LLIMFloater::newIMCallback);
+	addChangedCallback(toast_callback);
 }
 
+
+LLIMModel::LLIMSession::LLIMSession( const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id )
+:	mSessionID(session_id),
+	mName(name),
+	mType(type),
+	mNumUnread(0),
+	mOtherParticipantID(other_participant_id),
+	mVoiceChannel(NULL),
+	mSpeakers(NULL)
+{
+	if (IM_NOTHING_SPECIAL == type || IM_SESSION_P2P_INVITE == type)
+	{
+		mVoiceChannel  = new LLVoiceChannelP2P(session_id, name, other_participant_id);
+	}
+	else
+	{
+		mVoiceChannel = new LLVoiceChannelGroup(session_id, name);
+	}
+	mSpeakers = new LLIMSpeakerMgr(mVoiceChannel);
+
+	// All participants will be added to the list of people we've recently interacted with.
+	mSpeakers->addListener(&LLRecentPeople::instance(), "add");
+}
+
+LLIMModel::LLIMSession::~LLIMSession()
+{
+	delete mSpeakers;
+	mSpeakers = NULL;
+
+	// End the text IM session if necessary
+	if(gVoiceClient && mOtherParticipantID.notNull())
+	{
+		switch(mType)
+		{
+		case IM_NOTHING_SPECIAL:
+		case IM_SESSION_P2P_INVITE:
+			gVoiceClient->endUserIMSession(mOtherParticipantID);
+			break;
+
+		default:
+			// Appease the linux compiler
+			break;
+		}
+	}
+
+	// HAVE to do this here -- if it happens in the LLVoiceChannel destructor it will call the wrong version (since the object's partially deconstructed at that point).
+	mVoiceChannel->deactivate();
+	
+	delete mVoiceChannel;
+	mVoiceChannel = NULL;
+}
+
+LLIMModel::LLIMSession* LLIMModel::findIMSession(const LLUUID& session_id) const
+{
+	return get_if_there(LLIMModel::instance().sSessionsMap, session_id,
+		(LLIMModel::LLIMSession*) NULL);
+}
+
+void LLIMModel::updateSessionID(const LLUUID& old_session_id, const LLUUID& new_session_id)
+{
+	if (new_session_id == old_session_id) return;
+
+	LLIMSession* session = findIMSession(old_session_id);
+	if (session)
+	{
+		session->mSessionID = new_session_id;
+		session->mVoiceChannel->updateSessionID(new_session_id);
+
+		//*TODO set session initialized flag here? (IB)
+
+		sSessionsMap.erase(old_session_id);
+		sSessionsMap[new_session_id] = session;
+	}
+}
 
 void LLIMModel::testMessages()
 {
@@ -147,7 +227,7 @@ bool LLIMModel::newSession(LLUUID session_id, std::string name, EInstantMessage 
 		return false;
 	}
 
-	LLIMSession* session = new LLIMSession(name, type, other_participant_id);
+	LLIMSession* session = new LLIMSession(session_id, name, type, other_participant_id);
 	sSessionsMap[session_id] = session;
 
 	LLIMMgr::getInstance()->notifyObserverSessionAdded(session_id, name, other_participant_id);
@@ -164,12 +244,12 @@ bool LLIMModel::clearSession(LLUUID session_id)
 	return true;
 }
 
+//*TODO remake it, instead of returing the list pass it as as parameter (IB)
 std::list<LLSD> LLIMModel::getMessages(LLUUID session_id, int start_index)
 {
 	std::list<LLSD> return_list;
 
-	LLIMSession* session = get_if_there(sSessionsMap, session_id, (LLIMSession*)NULL);
-
+	LLIMSession* session = findIMSession(session_id);
 	if (!session) 
 	{
 		llwarns << "session " << session_id << "does not exist " << llendl;
@@ -196,13 +276,14 @@ std::list<LLSD> LLIMModel::getMessages(LLUUID session_id, int start_index)
 	mChangedSignal(arg);
 
     // TODO: in the future is there a more efficient way to return these
+	//of course there is - return as parameter (IB)
 	return return_list;
 
 }
 
 bool LLIMModel::addToHistory(LLUUID session_id, std::string from, std::string utf8_text) { 
 	
-	LLIMSession* session = get_if_there(sSessionsMap, session_id, (LLIMSession*)NULL);
+	LLIMSession* session = findIMSession(session_id);
 
 	if (!session) 
 	{
@@ -225,7 +306,7 @@ bool LLIMModel::addToHistory(LLUUID session_id, std::string from, std::string ut
 		
 bool LLIMModel::addMessage(LLUUID session_id, std::string from, LLUUID from_id, std::string utf8_text) { 
 
-	LLIMSession* session = get_if_there(sSessionsMap, session_id, (LLIMSession*)NULL);
+	LLIMSession* session = findIMSession(session_id);
 
 	if (!session) 
 	{
@@ -254,9 +335,9 @@ bool LLIMModel::addMessage(LLUUID session_id, std::string from, LLUUID from_id, 
 }
 
 
-const std::string& LLIMModel::getName(LLUUID session_id)
+const std::string& LLIMModel::getName(const LLUUID& session_id) const
 {
-	LLIMSession* session = get_if_there(sSessionsMap, session_id, (LLIMSession*)NULL);
+	LLIMSession* session = findIMSession(session_id);
 
 	if (!session) 
 	{
@@ -265,6 +346,66 @@ const std::string& LLIMModel::getName(LLUUID session_id)
 	}
 
 	return session->mName;
+}
+
+const S32 LLIMModel::getNumUnread(const LLUUID& session_id) const
+{
+	LLIMSession* session = findIMSession(session_id);
+	if (!session)
+	{
+		llwarns << "session " << session_id << "does not exist " << llendl;
+		return -1;
+	}
+
+	return session->mNumUnread;
+}
+
+const LLUUID& LLIMModel::getOtherParticipantID(const LLUUID& session_id) const
+{
+	LLIMSession* session = findIMSession(session_id);
+	if (!session)
+	{
+		llwarns << "session " << session_id << "does not exist " << llendl;
+		return LLUUID::null;
+	}
+
+	return session->mOtherParticipantID;
+}
+
+EInstantMessage LLIMModel::getType(const LLUUID& session_id) const
+{
+	LLIMSession* session = findIMSession(session_id);
+	if (!session)
+	{
+		llwarns << "session " << session_id << "does not exist " << llendl;
+		return IM_COUNT;
+	}
+
+	return session->mType;
+}
+
+LLVoiceChannel* LLIMModel::getVoiceChannel( const LLUUID& session_id ) const
+{
+	LLIMSession* session = findIMSession(session_id);
+	if (!session)
+	{
+		llwarns << "session " << session_id << "does not exist " << llendl;
+		return NULL;
+	}
+
+	return session->mVoiceChannel;
+}
+
+LLIMSpeakerMgr* LLIMModel::getSpeakerManager( const LLUUID& session_id ) const
+{
+	LLIMSession* session = findIMSession(session_id);
+	if (!session)
+	{
+		llwarns << "session " << session_id << "does not exist " << llendl;
+		return NULL;
+	}
+
+	return session->mSpeakers;
 }
 
 
@@ -310,7 +451,7 @@ void LLIMModel::sendLeaveSession(LLUUID session_id, LLUUID other_participant_id)
 }
 
 
-
+//*TODO update list of messages in a LLIMSession (IB)
 void LLIMModel::sendMessage(const std::string& utf8_text,
 					 const LLUUID& im_session_id,
 					 const LLUUID& other_participant_id,
@@ -409,9 +550,16 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 		LLFloaterIMPanel* floater = gIMMgr->findFloaterBySession(im_session_id);
 		if (floater) floater->addHistoryLine(history_echo, LLUIColorTable::instance().getColor("IMChatColor"), true, gAgent.getID());
 
+		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(im_session_id);
+		if (speaker_mgr)
+		{
+			speaker_mgr->speakerChatted(gAgentID);
+			speaker_mgr->setSpeakerTyping(gAgentID, FALSE);
+		}
 	}
 
 	// Add the recipient to the recent people list.
+	//*TODO should be deleted, because speaker manager updates through callback the recent list
 	LLRecentPeople::instance().add(other_participant_id);
 }
 										  
@@ -627,10 +775,8 @@ public:
 	{
 		if ( gIMMgr)
 		{
-			LLFloaterIMPanel* floaterp =
-				gIMMgr->findFloaterBySession(mSessionID);
-
-			if (floaterp)
+			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
+			if (speaker_mgr)
 			{
 				//we've accepted our invitation
 				//and received a list of agents that were
@@ -644,15 +790,20 @@ public:
 				//but unfortunately, our base that we are receiving here
 				//may not be the most up to date.  It was accurate at
 				//some point in time though.
-				floaterp->setSpeakers(content);
+				speaker_mgr->setSpeakers(content);
 
 				//we now have our base of users in the session
 				//that was accurate at some point, but maybe not now
 				//so now we apply all of the udpates we've received
 				//in case of race conditions
-				floaterp->updateSpeakersList(
-					gIMMgr->getPendingAgentListUpdates(mSessionID));
+				speaker_mgr->updateSpeakers(gIMMgr->getPendingAgentListUpdates(mSessionID));
+			}
+			
+			LLFloaterIMPanel* floaterp =
+				gIMMgr->findFloaterBySession(mSessionID);
 
+			if (floaterp)
+			{
 				if ( mInvitiationType == LLIMMgr::INVITATION_TYPE_VOICE )
 				{
 					floaterp->requestAutoConnect();
@@ -1098,6 +1249,12 @@ void LLIMMgr::addMessage(
 		//no session ID...compute new one
 		new_session_id = computeSessionID(dialog, other_participant_id);
 	}
+
+	if (!LLIMModel::getInstance()->findIMSession(new_session_id))
+	{
+		LLIMModel::instance().newSession(session_id, session_name, dialog, other_participant_id);
+	}
+
 	floater = findFloaterBySession(new_session_id);
 	if (!floater)
 	{
@@ -1163,6 +1320,14 @@ void LLIMMgr::addMessage(
 	else
 	{
 		floater->addHistoryLine(msg, color, true, other_participant_id, from); // Insert linked name to front of message
+
+		//*TODO consider moving that speaker management stuff into model (IB)
+		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(new_session_id);
+		if (speaker_mgr)
+		{
+			speaker_mgr->speakerChatted(gAgentID);
+			speaker_mgr->setSpeakerTyping(gAgentID, FALSE);
+		}
 	}
 
 	LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg);
@@ -1267,11 +1432,10 @@ LLUUID LLIMMgr::addP2PSession(const std::string& name,
 {
 	LLUUID session_id = addSession(name, IM_NOTHING_SPECIAL, other_participant_id);
 
-	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
-	if(floater)
+	LLVoiceChannelP2P* voice_channel = (LLVoiceChannelP2P*) LLIMModel::getInstance()->getSpeakerManager(session_id);
+	if (voice_channel)
 	{
-		LLVoiceChannelP2P* voice_channelp = (LLVoiceChannelP2P*)floater->getVoiceChannel();
-		voice_channelp->setSessionHandle(voice_session_handle, caller_uri);		
+		voice_channel->setSessionHandle(voice_session_handle, caller_uri);
 	}
 
 	return session_id;
@@ -1306,6 +1470,11 @@ LLUUID LLIMMgr::addSession(
 
 	LLUUID session_id = computeSessionID(dialog,other_participant_id);
 
+	if (!LLIMModel::getInstance()->findIMSession(session_id))
+	{
+		LLIMModel::instance().newSession(session_id, name, dialog, other_participant_id);
+	}
+
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
 	if(!floater)
 	{
@@ -1329,24 +1498,24 @@ LLUUID LLIMMgr::addSession(
 			noteMutedUsers(floater, ids);
 		}
 	}
-	else
-	{
-		// *TODO: Remove this?  Otherwise old communicate window opens on
-		// second initiation of IM session from People panel?
-		// floater->openFloater();
-	}
-	//mTabContainer->selectTabPanel(panel);
 	floater->setInputFocus(TRUE);
 	LLIMFloater::show(session_id);
-	notifyObserverSessionAdded(floater->getSessionID(), name, other_participant_id);
-	return floater->getSessionID();
+
+	return session_id;
 }
 
 // This removes the panel referenced by the uuid, and then restores
 // internal consistency. The internal pointer is not deleted? Did you mean
 // a pointer to the corresponding LLIMSession? Session data is cleared now.
-void LLIMMgr::removeSession(const LLUUID& session_id)
+// Put a copy of UUID to avoid problem when passed reference becames invalid
+// if it has been come from the object removed in observer.
+void LLIMMgr::removeSession(LLUUID session_id)
 {
+	if (mBeingRemovedSessionID == session_id)
+	{
+		return;
+	}
+	
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
 	if(floater)
 	{
@@ -1692,7 +1861,6 @@ LLFloaterIMPanel* LLIMMgr::createFloater(
 	LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::RIGHT_OF_CURRENT : LLTabContainer::END;
 	LLFloaterChatterBox::getInstance()->addFloater(floater, FALSE, i_pt);
 	mFloaters.insert(floater->getHandle());
-	LLIMModel::instance().newSession(session_id, session_label, dialog, other_participant_id);
 	return floater;
 }
 
@@ -1812,24 +1980,25 @@ public:
 			gIMMgr->updateFloaterSessionID(
 				temp_session_id,
 				session_id);
+
+			LLIMModel::getInstance()->updateSessionID(temp_session_id, session_id);
+
+			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
+			if (speaker_mgr)
+			{
+				speaker_mgr->setSpeakers(body);
+				speaker_mgr->updateSpeakers(gIMMgr->getPendingAgentListUpdates(session_id));
+			}
+
 			LLFloaterIMPanel* floaterp = gIMMgr->findFloaterBySession(session_id);
 			if (floaterp)
 			{
-				floaterp->setSpeakers(body);
-
-				//apply updates we've possibly received previously
-				floaterp->updateSpeakersList(
-					gIMMgr->getPendingAgentListUpdates(session_id));
-
 				if ( body.has("session_info") )
 				{
 					floaterp->processSessionUpdate(body["session_info"]);
 				}
-
-				//aply updates we've possibly received previously
-				floaterp->updateSpeakersList(
-					gIMMgr->getPendingAgentListUpdates(session_id));
 			}
+
 			gIMMgr->clearPendingAgentListUpdates(session_id);
 		}
 		else
@@ -1919,15 +2088,15 @@ public:
 		const LLSD& context,
 		const LLSD& input) const
 	{
-		LLFloaterIMPanel* floaterp = gIMMgr->findFloaterBySession(input["body"]["session_id"].asUUID());
-		if (floaterp)
+		const LLUUID& session_id = input["body"]["session_id"].asUUID();
+		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(session_id);
+		if (speaker_mgr)
 		{
-			floaterp->updateSpeakersList(
-				input["body"]);
+			speaker_mgr->updateSpeakers(input["body"]);
 		}
 		else
 		{
-			//we don't have a floater yet..something went wrong
+			//we don't have a speaker manager yet..something went wrong
 			//we are probably receiving an update here before
 			//a start or an acceptance of an invitation.  Race condition.
 			gIMMgr->addPendingAgentListUpdates(

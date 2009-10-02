@@ -43,8 +43,11 @@
 #include "llappviewer.h"		// for gLastVersionChannel
 #include "llcachename.h"
 #include "llcallingcard.h"		// for LLAvatarTracker
+#include "llgivemoney.h"		// foe LLFloaterPay
 #include "llinventorymodel.h"	// for gInventory.findCategoryUUIDForType
 #include "llimview.h"			// for gIMMgr
+#include "llmutelist.h"
+#include "llrecentpeople.h"
 #include "llsidetray.h"
 #include "llviewermessage.h"	// for handle_lure
 #include "llviewerregion.h"
@@ -206,6 +209,41 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 	}
 }
 
+// static
+void LLAvatarActions::pay(const LLUUID& id)
+{
+	LLNotification::Params params("BusyModePay");
+	params.functor.function(boost::bind(&LLAvatarActions::handlePay, _1, _2, id));
+
+	if (gAgent.getBusy())
+	{
+		// warn users of being in busy mode during a transaction
+		LLNotifications::instance().add(params);
+	}
+	else
+	{
+		LLNotifications::instance().forceResponse(params, 1);
+	}
+}
+
+// static
+void LLAvatarActions::toggleBlock(const LLUUID& id)
+{
+	std::string name;
+
+	gCacheName->getFullName(id, name);
+	LLMute mute(id, name, LLMute::AGENT);
+
+	if (LLMuteList::getInstance()->isMuted(mute.mID, mute.mName))
+	{
+		LLMuteList::getInstance()->remove(mute);
+	}
+	else
+	{
+		LLMuteList::getInstance()->add(mute);
+	}
+}
+
 //== private methods ========================================================================================
 
 // static
@@ -239,6 +277,19 @@ bool LLAvatarActions::handleRemove(const LLSD& notification, const LLSD& respons
 			}
 		}
 	}
+	return false;
+}
+
+// static
+bool LLAvatarActions::handlePay(const LLSD& notification, const LLSD& response, LLUUID avatar_id)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	if (option == 0)
+	{
+		gAgent.clearBusy();
+	}
+
+	LLFloaterPay::payDirectly(&give_money, avatar_id, /*is_group=*/FALSE);
 	return false;
 }
 
@@ -289,4 +340,12 @@ void LLAvatarActions::requestFriendship(const LLUUID& target_id, const std::stri
 bool LLAvatarActions::isFriend(const LLUUID& id)
 {
 	return ( NULL != LLAvatarTracker::instance().getBuddyInfo(id) );
+}
+
+// static
+bool LLAvatarActions::isBlocked(const LLUUID& id)
+{
+	std::string name;
+	gCacheName->getFullName(id, name);
+	return LLMuteList::getInstance()->isMuted(id, name);
 }

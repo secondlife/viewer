@@ -106,7 +106,7 @@ BOOL LLFloaterPostcard::postBuild()
 	childSetValue("name_form", LLSD(name_string));
 
 	// For the first time a user focusess to .the msg box, all text will be selected.
-	getChild<LLUICtrl>("msg_form")->setFocusChangedCallback(onMsgFormFocusRecieved, this);
+	getChild<LLUICtrl>("msg_form")->setFocusChangedCallback(boost::bind(onMsgFormFocusRecieved, _1, this));
 	
 	childSetFocus("to_form", TRUE);
 

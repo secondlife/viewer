@@ -190,7 +190,6 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	params.max_length_bytes(p.max_chars);
 	params.commit_callback.function(boost::bind(&LLComboBox::onTextCommit, this, _2));
 	params.keystroke_callback(boost::bind(&LLComboBox::onTextEntry, this, _1));
-	params.focus_lost_callback(NULL);
 	params.handle_edit_keys_directly(true);
 	params.commit_on_focus_lost(false);
 	params.follows.flags(FOLLOWS_ALL);
@@ -419,8 +418,7 @@ void LLLocationInputCtrl::onInfoButtonClicked()
 
 void LLLocationInputCtrl::onAddLandmarkButtonClicked()
 {
-	LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentParcel();
-	
+	LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
 	// Landmark exists, open it for preview and edit
 	if(landmark && landmark->getUUID().notNull())
 	{
@@ -658,8 +656,9 @@ void LLLocationInputCtrl::changeLocationPresentation()
 {
 	//change location presentation only if user does not  select anything and 
 	//human-readable region name  is being displayed
-	if(mTextEntry && !mTextEntry->hasSelection() && 
-		!LLSLURL::isSLURL(mTextEntry->getText()))
+	std::string text = mTextEntry->getText();
+	LLStringUtil::trim(text);
+	if(mTextEntry && !mTextEntry->hasSelection() && !LLSLURL::isSLURL(text))
 	{
 		//needs unescaped one
 		mTextEntry->setText(LLAgentUI::buildSLURL(false));
@@ -677,15 +676,16 @@ void LLLocationInputCtrl::onLocationContextMenuItemClicked(const LLSD& userdata)
 	}
 	else if (item == std::string("landmark"))
 	{
-		LLInventoryModel::item_array_t items;
-		LLLandmarkActions::collectParcelLandmark(items);
+		LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
 		
-		if(items.empty())
+		if(!landmark)
 		{
 			LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
-		}else{
+		}
+		else
+		{
 			LLSideTray::getInstance()->showPanel("panel_places", 
-					LLSD().insert("type", "landmark").insert("id",items.get(0)->getUUID()));
+					LLSD().insert("type", "landmark").insert("id",landmark->getUUID()));
 		}
 	}
 	else if (item == std::string("cut"))

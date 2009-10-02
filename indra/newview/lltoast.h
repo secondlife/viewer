@@ -35,7 +35,7 @@
 
 
 #include "llpanel.h"
-#include "llfloater.h"
+#include "llmodaldialog.h"
 #include "lltimer.h"
 #include "llnotifications.h"
 
@@ -51,19 +51,20 @@ namespace LLNotificationsUI
  * Represents toast pop-up.
  * This is a parent view for all toast panels.
  */
-class LLToast : public LLFloater
+class LLToast : public LLModalDialog
 {
 public:
 	typedef boost::function<void (LLToast* toast)> toast_callback_t;
 	typedef boost::signals2::signal<void (LLToast* toast)> toast_signal_t;
 
-	struct Params :	public LLInitParam::Block<Params, LLFloater::Params>
+	struct Params
 	{
 		LLPanel*			panel;
-		LLUUID				id;	 //notification or message ID
+		LLUUID				notif_id;	 //notification ID
+		LLUUID				session_id;	 //im session ID
 		LLNotificationPtr	notification;
 		F32					timer_period;
-		toast_callback_t	on_toast_destroy;
+		toast_callback_t	on_delete_toast;
 		toast_callback_t	on_mouse_enter;
 		bool				can_fade;
 		bool				can_be_stored;
@@ -98,10 +99,11 @@ public:
 	// Operating with toasts
 	// insert a panel to a toast
 	void insertPanel(LLPanel* panel);
+
+	void reshapeToPanel();
+
 	// get toast's panel
 	LLPanel* getPanel() { return mPanel; }
-	// discard notification
-	void discardNotification();
 	// enable/disable Toast's Hide button
 	void setHideButtonEnabled(bool enabled);
 	// initialize and start Toast's timer
@@ -120,30 +122,32 @@ public:
 
 
 	// get/set Toast's flags or states
-	// get information whether the notification corresponding to the toast is responded or not
-	bool getIsNotificationUnResponded();
+	// get information whether the notification corresponding to the toast is valid or not
+	bool isNotificationValid();
+	// get toast's Notification ID
+	const LLUUID getNotificationID() { return mNotificationID;}
+	// get toast's Session ID
+	const LLUUID getSessionID() { return mSessionID;}
 	//
 	void setCanFade(bool can_fade);
 	//
 	void setCanBeStored(bool can_be_stored) { mCanBeStored = can_be_stored; }
 	//
 	bool getCanBeStored() { return mCanBeStored; }
-	//
-	void setModal(bool modal);
 
 
-	// Registers callbacks for events
-	toast_signal_t mOnFade;
-	toast_signal_t mOnMousEnter;
-	toast_signal_t mOnToastDestroy;
-	boost::signals2::connection setOnFadeCallback(toast_callback_t cb) { return mOnFade.connect(cb); }
-	boost::signals2::connection setOnMouseEnterCallback(toast_callback_t cb) { return mOnMousEnter.connect(cb); }
-	boost::signals2::connection setOnToastDestroyCallback(toast_callback_t cb) { return mOnToastDestroy.connect(cb); }
+	// Registers signals/callbacks for events
+	toast_signal_t mOnFadeSignal;
+	toast_signal_t mOnMouseEnterSignal;
+	toast_signal_t mOnDeleteToastSignal;
+	toast_signal_t mOnToastDestroyedSignal;
+	boost::signals2::connection setOnFadeCallback(toast_callback_t cb) { return mOnFadeSignal.connect(cb); }
+	boost::signals2::connection setOnToastDestroyedCallback(toast_callback_t cb) { return mOnToastDestroyedSignal.connect(cb); }
 
 	typedef boost::function<void (LLToast* toast, bool mouse_enter)> toast_hover_check_callback_t;
 	typedef boost::signals2::signal<void (LLToast* toast, bool mouse_enter)> toast_hover_check_signal_t;
-	toast_hover_check_signal_t mOnToastHover;	
-	boost::signals2::connection setOnToastHoverCallback(toast_hover_check_callback_t cb) { return mOnToastHover.connect(cb); }
+	toast_hover_check_signal_t mOnToastHoverSignal;	
+	boost::signals2::connection setOnToastHoverCallback(toast_hover_check_callback_t cb) { return mOnToastHoverSignal.connect(cb); }
 
 
 private:
@@ -153,7 +157,8 @@ private:
 	// on timer finished function
 	void	tick();
 
-	LLUUID				mID;
+	LLUUID				mNotificationID;
+	LLUUID				mSessionID;
 	LLNotificationPtr	mNotification;
 
 	LLTimer		mTimer;
@@ -164,7 +169,6 @@ private:
 
 	LLColor4	mBgColor;
 	bool		mCanFade;
-	bool		mIsModal;
 	bool		mCanBeStored;
 	bool		mHideBtnEnabled;
 	bool		mHideBtnPressed;

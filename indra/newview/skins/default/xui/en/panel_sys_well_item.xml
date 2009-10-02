@@ -4,7 +4,7 @@
 <panel
 	name="sys_well_item"
 	title="sys_well_item"
-  visible="false"
+  visible="true"
   top="0" 
   left="0" 
 	width="318"

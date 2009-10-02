@@ -56,9 +56,14 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
-	// Create a new pick, including creating an id, giving a sane
-	// initial position, etc.
-	void createNewPick();
+	// Prepares a new pick, including creating an id, giving a sane
+	// initial position, etc (saved on clicking Save Pick button - onClickSave callback).
+	void prepareNewPick();
+	void prepareNewPick(const LLVector3d pos_global,
+					   const std::string& name,
+					   const std::string& desc,
+					   const LLUUID& snapshot_id,
+					   const LLUUID& parcel_id);
 
 	//initializes the panel with data of the pick with id = pick_id 
 	//owned by the avatar with id = creator_id
@@ -68,6 +73,8 @@ public:
 
 	// switches the panel to either View or Edit mode
 	void setEditMode(BOOL edit_mode);
+
+	void onPickChanged(LLUICtrl* ctrl);
 
 	// because this panel works in two modes (edit/view) we are  
 	// free from managing two panel for editing and viewing picks and so
@@ -87,9 +94,16 @@ public:
 
 protected:
 
+	/** 
+	* "Location text" is actually the owner name, the original
+	* name that owner gave the parcel, and the location.
+	*/
+	static std::string createLocationText(const std::string& owner_name, const std::string& original_name,
+		const std::string& sim_name, const LLVector3d& pos_global);
+
 	void setPickName(std::string name);
 	void setPickDesc(std::string desc);
-	void setPickLocation(std::string location);
+	void setPickLocation(const std::string& location);
 
 	std::string getPickName();
 	std::string getPickDesc();
@@ -116,10 +130,13 @@ protected:
 	void onClickSave();
 	void onClickCancel();
 
+	void enableSaveButton(bool enable);
+
 protected:
 	BOOL mEditMode;
 	LLTextureCtrl*	mSnapshotCtrl;
 	BOOL mDataReceived;
+	bool mIsPickNew;
 
 	LLUUID mPickId;
 	LLUUID mCreatorId;
@@ -133,6 +150,7 @@ protected:
 	std::string mLocation;
 
 	commit_callback_t mBackCb;
+	bool mLocationChanged;
 };
 
 #endif // LL_LLPANELPICK_H

@@ -2,7 +2,7 @@
 <panel
  bevel_style="in"
  follows="left|top|right|bottom"
- height="420"
+ height="460"
  label="Notes &amp; Privacy"
  layout="topleft"
  left="0"
@@ -16,7 +16,7 @@
      layout="topleft"
      left="0"
      top="0"
-     height="420"
+     height="430"
      width="313"
      border_size="0">
         <panel

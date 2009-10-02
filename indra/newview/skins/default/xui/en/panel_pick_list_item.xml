@@ -9,6 +9,7 @@
  top="0"
  width="305">
     <icon
+     follows="top|bottom|left|right"
      height="120"
      image_name="ListItem_Over"
      left="0"
@@ -19,6 +20,7 @@
      visible="false"
      width="305"/>
     <icon
+     follows="top|bottom|left|right"
      height="120"
      image_name="ListItem_Select"
      left="0"

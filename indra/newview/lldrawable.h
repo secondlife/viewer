@@ -78,7 +78,8 @@ public:
 
 	BOOL isLight() const;
 
-	BOOL isVisible() const;		
+	BOOL isVisible() const;	
+	BOOL isRecentlyVisible() const;	
 	virtual void setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* results = NULL, BOOL for_select = FALSE);
 
 
@@ -278,7 +279,8 @@ public:
 	S32				mQuietCount;
 
 	static S32 getCurrentFrame() { return sCurVisible; }
-	
+	static S32 getMinVisFrameRange();
+
 	void setSpatialBridge(LLSpatialBridge* bridge) { mSpatialBridge = (LLDrawable*) bridge; }
 	LLSpatialBridge* getSpatialBridge() { return (LLSpatialBridge*) (LLDrawable*) mSpatialBridge; }
 	

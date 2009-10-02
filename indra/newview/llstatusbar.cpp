@@ -225,25 +225,14 @@ void LLStatusBar::draw()
 
 BOOL LLStatusBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (mHideNavbarContextMenu)
-	{
-		mHideNavbarContextMenu->buildDrawLabels();
-		mHideNavbarContextMenu->updateParent(LLMenuGL::sMenuContainer);
-		LLMenuGL::showPopup(this, mHideNavbarContextMenu, x, y);
-	}
-
+	show_navbar_context_menu(this,x,y);
 	return TRUE;
 }
 
 BOOL LLStatusBar::postBuild()
 {
-	mCommitCallbackRegistrar.add("HideNavbarMenu.Action", boost::bind(&LLStatusBar::onHideNavbarContextMenuItemClicked, this, _2));
-	mEnableCallbackRegistrar.add("HideNavbarMenu.EnableMenuItem", boost::bind(&LLStatusBar::onHideNavbarContextMenuItemEnabled, this, _2));
 
-	mHideNavbarContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_hide_navbar.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	gMenuHolder->addChild(mHideNavbarContextMenu);
-
-	gMenuBarView->setRightMouseDownCallback(boost::bind(&LLStatusBar::onMainMenuRightClicked, this, _1, _2, _3, _4));
+	gMenuBarView->setRightMouseDownCallback(boost::bind(&show_navbar_context_menu, _1, _2, _3));
 
 	return TRUE;
 }
@@ -561,48 +550,6 @@ void LLStatusBar::setupDate()
 	{
 		sMonths.resize(12);
 	}
-}
-
-bool LLStatusBar::onHideNavbarContextMenuItemEnabled(const LLSD& userdata)
-{
-	std::string item = userdata.asString();
-
-	if (item == "show_navbar_navigation_panel")
-	{
-		return gSavedSettings.getBOOL("ShowNavbarNavigationPanel");
-	}
-	else if (item == "show_navbar_favorites_panel")
-	{
-		return gSavedSettings.getBOOL("ShowNavbarFavoritesPanel");
-	}
-
-	return FALSE;
-}
-
-void LLStatusBar::onHideNavbarContextMenuItemClicked(const LLSD& userdata)
-{
-	std::string item = userdata.asString();
-
-	if (item == "show_navbar_navigation_panel")
-	{
-		BOOL state = !gSavedSettings.getBOOL("ShowNavbarNavigationPanel");
-
-		LLNavigationBar::getInstance()->showNavigationPanel(state);
-		gSavedSettings.setBOOL("ShowNavbarNavigationPanel", state);
-	}
-	else if (item == "show_navbar_favorites_panel")
-	{
-		BOOL state = !gSavedSettings.getBOOL("ShowNavbarFavoritesPanel");
-
-		LLNavigationBar::getInstance()->showFavoritesPanel(state);
-		gSavedSettings.setBOOL("ShowNavbarFavoritesPanel", state);
-	}
-}
-
-
-void LLStatusBar::onMainMenuRightClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
-{
-	handleRightMouseDown(x, y, mask);
 }
 
 // static

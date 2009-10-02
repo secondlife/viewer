@@ -91,12 +91,20 @@ public:
 
 	
 protected:
+	virtual void update(LLGroupChange gc);
+
 	void onBtnCreate();
 	void onBackBtnClick();
+	void onBtnJoin();
+	void onBtnCancel();
 
 	static void onBtnApply(void*);
 	static void onBtnRefresh(void*);
 
+	static bool joinDlgCB(const LLSD& notification, const LLSD& response);
+
+	void reposButton(const std::string& name);
+	
 
 protected:
 	bool	apply(LLPanelGroupTab* tab);

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ follows="top|right|left"
+ height="20"
+ layout="topleft"
+ left="0"
+ name="teleport_history_item"
+ top="0"
+ width="380">
+    <icon
+     follows="top|right|left"
+     height="20"
+     image_name="ListItem_Over"
+     layout="topleft"
+     left="0"
+     name="hovered_icon"
+     top="0"
+     visible="false"
+     width="380" />
+    <icon
+     height="20"
+     follows="top|right|left"
+     image_name="ListItem_Select"
+     layout="topleft"
+     left="0"
+     name="selected_icon"
+     top="0"
+     visible="false"
+     width="380" />
+    <icon
+     height="20"
+     follows="top|right|left"
+     image_name="ListItem_Select"
+     layout="topleft"
+     left="0"
+     name="landmark_icon"
+     top="0"
+     visible="false"
+     width="20" />
+    <text
+     follows="left|right"
+     height="20"
+     layout="topleft"
+     left_pad="5"
+     name="region"
+     text_color="white"
+     top="4"
+     value="Unknown"
+     width="380" />
+    <button
+     follows="right"
+     height="18"
+     image_disabled="Info"
+     image_disabled_selected="Info"
+     image_hover_selected="Info"
+     image_selected="Info"
+     image_unselected="Info"
+     layout="topleft"
+     name="info_btn"
+     picture_style="true"
+     visible="false"
+     right="-5"
+     top="2" 
+     width="18" />
+</panel>

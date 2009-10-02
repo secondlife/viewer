@@ -3084,8 +3084,15 @@ void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	items.push_back(std::string("Landmark Separator"));
 	items.push_back(std::string("Teleport To Landmark"));
 
-	hideContextEntries(menu, items, disabled_items);
+	// Disable "About Landmark" menu item for
+	// multiple landmarks selected. Only one landmark
+	// info panel can be shown at a time.
+	if ((flags & FIRST_SELECTED_ITEM) == 0)
+	{
+		disabled_items.push_back(std::string("Teleport To Landmark"));
+	}
 
+	hideContextEntries(menu, items, disabled_items);
 }
 
 // Convenience function for the two functions below.

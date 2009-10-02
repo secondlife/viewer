@@ -46,12 +46,10 @@ public:
 
 
 	virtual void processChat(const LLChat& chat_msg);
-	virtual void onToastDestroy(LLToast* toast);
-	virtual void onChicletClick(void);
-	virtual void onChicletClose(void);
 
 protected:
-	void removeNearbyToastsAndShowChat();
+	virtual void onDeleteToast(LLToast* toast);
+	virtual void initChannel();
 };
 
 }

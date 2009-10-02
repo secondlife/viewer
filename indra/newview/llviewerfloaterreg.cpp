@@ -65,10 +65,12 @@
 #include "llfloatergodtools.h"
 #include "llfloatergroups.h"
 #include "llfloaterhardwaresettings.h"
-#include "llfloaterhtmlcurrency.h"
+#include "llfloaterhelpbrowser.h"
 #include "llfloatermediabrowser.h"
+#include "llfloatermediasettings.h"
 #include "llfloaterhud.h"
 #include "llfloaterimagepreview.h"
+#include "llimfloater.h"
 #include "llimpanel.h"
 #include "llfloaterinspect.h"
 #include "llfloaterinventory.h"
@@ -104,6 +106,7 @@
 #include "llfloaterurldisplay.h"
 #include "llfloatervoicedevicesettings.h"
 #include "llfloaterwater.h"
+#include "llfloaterwhitelistentry.h"
 #include "llfloaterwindlight.h"
 #include "llfloaterworldmap.h"
 #include "llinspectavatar.h"
@@ -143,6 +146,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("bumps", "floater_bumps.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBump>);
 
 	LLFloaterReg::add("camera", "floater_camera.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCamera>);
+	LLFloaterReg::add("camera_presets", "floater_camera_presets.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCameraPresets>);
 	LLFloaterReg::add("chat", "floater_chat_history.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterChat>);
 	LLFloaterReg::add("nearby_chat", "floater_nearby_chat.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLNearbyChat>);
 	LLFloaterReg::add("communicate", "floater_chatterbox.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterChatterBox>);
@@ -162,8 +166,8 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("god_tools", "floater_god_tools.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGodTools>);
 	LLFloaterReg::add("group_picker", "floater_choose_group.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGroupPicker>);
 
+	LLFloaterReg::add("help_browser", "floater_help_browser.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterHelpBrowser>);	
 	LLFloaterReg::add("hud", "floater_hud.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterHUD>);
-	LLFloaterReg::add("html_simple", "floater_html_simple.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterHtmlSimple>);
 
 	LLFloaterReg::add("impanel", "floater_im_session.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLIMFloater>);
 	LLFloaterReg::add("inventory", "floater_inventory.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterInventory>);
@@ -176,6 +180,7 @@ void LLViewerFloaterReg::registerFloaters()
 	
 	LLFloaterReg::add("mem_leaking", "floater_mem_leaking.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMemLeak>);
 	LLFloaterReg::add("media_browser", "floater_media_browser.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMediaBrowser>);	
+	LLFloaterReg::add("media_settings", "floater_media_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMediaSettings>);	
 	LLFloaterReg::add("message_critical", "floater_critical.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTOS>);
 	LLFloaterReg::add("message_tos", "floater_tos.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTOS>);
 	LLFloaterReg::add("moveview", "floater_moveview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMove>);
@@ -236,17 +241,13 @@ void LLViewerFloaterReg::registerFloaters()
 	
 	LLFloaterReg::add("voice_call", "floater_call.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCall>);
 	
+	LLFloaterReg::add("whitelist_entry", "floater_whitelist_entry.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWhiteListEntry>);	
 	LLFloaterReg::add("world_map", "floater_world_map.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWorldMap>);	
 
 	// *NOTE: Please keep these alphabetized for easier merges
 	
 	// debug use only
 	LLFloaterReg::add("media_remote_ctrl", "floater_media_remote.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMediaRemoteCtrl>);
-	
-	// Untested / dangerous - not for release
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LLFloaterReg::add("buy_currency_html", "floater_html_simple.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterHtmlCurrency>);
-#endif
 
 	LLFloaterReg::registerControlVariables(); // Make sure visibility and rect controls get preserved when saving
 }

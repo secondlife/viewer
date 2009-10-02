@@ -1428,6 +1428,8 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("EventQueueGet");
 	capabilityNames.append("FetchInventory");
 	capabilityNames.append("WebFetchInventoryDescendents");
+	capabilityNames.append("ObjectMedia");
+	capabilityNames.append("ObjectMediaNavigate");
 	capabilityNames.append("FetchLib");
 	capabilityNames.append("FetchLibDescendents");
 	capabilityNames.append("GroupProposalBallot");

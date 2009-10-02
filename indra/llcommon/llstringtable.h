@@ -48,10 +48,12 @@
 //# define STRING_TABLE_HASH_MAP 1
 #endif
 
-#if LL_WINDOWS
-#include <hash_map>
-#else
-#include <ext/hash_map>
+#if STRING_TABLE_HASH_MAP
+# if LL_WINDOWS
+#  include <hash_map>
+# else
+#  include <ext/hash_map>
+# endif
 #endif
 
 const U32 MAX_STRINGS_LENGTH = 256;

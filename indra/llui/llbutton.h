@@ -118,7 +118,6 @@ public:
 								commit_on_return,
 								picture_style;      //if true, don't display label
 		
-		Optional<std::string>		help_url;
 		Optional<F32>				hover_glow_amount;
 		Optional<TimeIntervalParam>	held_down_delay;
 
@@ -230,12 +229,10 @@ public:
 	void			setCommitOnReturn(BOOL commit) { mCommitOnReturn = commit; }
 	BOOL			getCommitOnReturn() const { return mCommitOnReturn; }
 
-	void			setHelpURLCallback(const std::string &help_url);
-	const std::string&	getHelpURL() const { return mHelpURL; }
-
 	static void		onHeldDown(void *userdata);  // to be called by gIdleCallbacks
 	static void		toggleFloaterAndSetToggleState(LLUICtrl* ctrl, const LLSD& sdname);
 	static void		setFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname);
+	static void		showHelp(LLUICtrl* ctrl, const LLSD& sdname);
 	
 protected:
 	const LLPointer<LLUIImage>&	getImageUnselected() const	{ return mImageUnselected; }
@@ -313,8 +310,6 @@ private:
 	BOOL						mNeedsHighlight;
 	BOOL						mCommitOnReturn;
 	BOOL						mFadeWhenDisabled;
-
-	std::string					mHelpURL;
 
 	LLFrameTimer				mFlashingTimer;
 };

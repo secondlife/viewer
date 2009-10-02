@@ -363,7 +363,8 @@ LLFloater* LLFloaterChatterBox::getCurrentVoiceFloater()
 			{
 				// only LLFloaterIMPanels are called "im_floater"
 				LLFloaterIMPanel* im_floaterp = (LLFloaterIMPanel*)panelp;
-				if (im_floaterp->getVoiceChannel()  == LLVoiceChannel::getCurrentVoiceChannel())
+				LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(im_floaterp->getSessionID());
+				if (voice_channel  == LLVoiceChannel::getCurrentVoiceChannel())
 				{
 					return im_floaterp;
 				}

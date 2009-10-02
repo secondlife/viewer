@@ -48,14 +48,15 @@
 #include "lluictrlfactory.h"
 
 #include "llagent.h"
+#include "llavatarpropertiesprocessor.h"
 #include "llfloaterworldmap.h"
 #include "llinventorymodel.h"
 #include "lllandmarkactions.h"
 #include "lllandmarklist.h"
 #include "llpanelplaceinfo.h"
 #include "llpanellandmarks.h"
+#include "llpanelpick.h"
 #include "llpanelteleporthistory.h"
-#include "llsidetray.h"
 #include "llteleporthistorystorage.h"
 #include "lltoggleablemenu.h"
 #include "llviewerinventory.h"
@@ -72,10 +73,12 @@ static const std::string REMOTE_PLACE_INFO_TYPE		= "remote_place";
 static const std::string TELEPORT_HISTORY_INFO_TYPE	= "teleport_history";
 
 // Helper functions
+static bool is_agent_in_selected_parcel(LLParcel* parcel);
 static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right);
 static std::string getFullFolderName(const LLViewerInventoryCategory* cat);
 static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats);
 static void onSLURLBuilt(std::string& slurl);
+static void setAllChildrenVisible(LLView* view, BOOL visible);
 
 //Observer classes
 class LLPlacesParcelObserver : public LLParcelObserver
@@ -118,6 +121,7 @@ LLPanelPlaces::LLPanelPlaces()
 		mActivePanel(NULL),
 		mFilterEditor(NULL),
 		mPlaceInfo(NULL),
+		mPickPanel(NULL),
 		mItem(NULL),
 		mPlaceMenu(NULL),
 		mLandmarkMenu(NULL),
@@ -332,7 +336,8 @@ void LLPanelPlaces::onFilterEdit(const std::string& search_string)
 		LLStringUtil::toUpper(mFilterSubString);
 		LLStringUtil::trimHead(mFilterSubString);
 
-		mActivePanel->onSearchEdit(mFilterSubString);
+		if (mActivePanel)
+			mActivePanel->onSearchEdit(mFilterSubString);
 	}
 }
 
@@ -380,7 +385,8 @@ void LLPanelPlaces::onTeleportButtonClicked()
 	}
 	else
 	{
-		mActivePanel->onTeleport();
+		if (mActivePanel)
+			mActivePanel->onTeleport();
 	}
 }
 
@@ -425,7 +431,8 @@ void LLPanelPlaces::onShowOnMapButtonClicked()
 	}
 	else
 	{
-		mActivePanel->onShowOnMap();
+		if (mActivePanel)
+			mActivePanel->onShowOnMap();
 	}
 }
 
@@ -496,10 +503,23 @@ void LLPanelPlaces::onOverflowMenuItemClicked(const LLSD& param)
 	{
 		if (!mPlaceInfo)
 			return;
-		
-		mPlaceInfo->createPick(mPosGlobal);
 
-		onBackButtonClicked();
+		if (mPickPanel == NULL)
+		{
+			mPickPanel = new LLPanelPick();
+			addChild(mPickPanel);
+
+			mPickPanel->setExitCallback(boost::bind(&LLPanelPlaces::togglePickPanel, this, FALSE));
+		}
+
+		togglePickPanel(TRUE);
+
+		LLRect rect = getRect();
+		mPickPanel->reshape(rect.getWidth(), rect.getHeight());
+		mPickPanel->setRect(rect);
+		mPickPanel->setEditMode(TRUE);
+
+		mPlaceInfo->createPick(mPosGlobal, mPickPanel);
 	}
 }
 
@@ -507,6 +527,12 @@ void LLPanelPlaces::onCreateLandmarkButtonClicked(const LLUUID& folder_id)
 {
 	if (!mPlaceInfo)
 		return;
+
+	// To prevent creating duplicate landmarks
+	// disable landmark creating buttons until
+	// the information on existing landmarks is reloaded.
+	mCreateLandmarkBtn->setEnabled(FALSE);
+	mFolderMenuBtn->setEnabled(FALSE);
 
 	mPlaceInfo->createLandmark(folder_id);
 }
@@ -544,6 +570,14 @@ void LLPanelPlaces::toggleMediaPanel()
 	onOpen(LLSD().insert("type", AGENT_INFO_TYPE));
 }
 
+void LLPanelPlaces::togglePickPanel(BOOL visible)
+{
+	setAllChildrenVisible(this, !visible);
+
+	if (mPickPanel)
+		mPickPanel->setVisible(visible);
+}
+
 void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 {
 	if (!mPlaceInfo)
@@ -568,16 +602,16 @@ void LLPanelPlaces::changedParcelSelection()
 	if (!mPlaceInfo)
 		return;
 
-	mParcel = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection();
+	LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
+	mParcel = parcel_mgr->getFloatingParcelSelection();
 	LLParcel* parcel = mParcel->getParcel();
-	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
+	LLViewerRegion* region = parcel_mgr->getSelectionRegion();
 	if (!region || !parcel)
 		return;
 
 	// If agent is inside the selected parcel show agent's region<X, Y, Z>,
 	// otherwise show region<X, Y, Z> of agent's selection point.
-	if (region == gAgent.getRegion() &&
-		parcel->getLocalID() == LLViewerParcelMgr::getInstance()->getAgentParcel()->getLocalID())
+	if (is_agent_in_selected_parcel(parcel))
 	{
 		mPosGlobal = gAgent.getPositionGlobal();
 	}
@@ -629,6 +663,10 @@ void LLPanelPlaces::changedInventory(U32 mask)
 
 	mActivePanel = dynamic_cast<LLPanelPlacesTab*>(mTabContainer->getCurrentPanel());
 
+	// Filter applied to show all items.
+	if (mActivePanel)
+		mActivePanel->onSearchEdit(mFilterSubString);
+
 	// we don't need to monitor inventory changes anymore,
 	// so remove the observer
 	gInventory.removeObserver(mInventoryObserver);
@@ -658,7 +696,7 @@ void LLPanelPlaces::updateVerbs()
 	bool is_agent_place_info_visible = mPlaceInfoType == AGENT_INFO_TYPE;
 	bool is_create_landmark_visible = mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE;
 	bool is_media_panel_visible = mPlaceInfo->isMediaPanelVisible();
-	
+
 	mTeleportBtn->setVisible(!is_create_landmark_visible);
 	mShareBtn->setVisible(!is_create_landmark_visible);
 	mCreateLandmarkBtn->setVisible(is_create_landmark_visible);
@@ -679,10 +717,11 @@ void LLPanelPlaces::updateVerbs()
 		else if (is_create_landmark_visible)
 		{
 			// Enable "Create Landmark" only if there is no landmark
-			// for the current parcel.
-			bool no_landmark = !LLLandmarkActions::landmarkAlreadyExists();
-			mCreateLandmarkBtn->setEnabled(no_landmark);
-			mFolderMenuBtn->setEnabled(no_landmark);
+			// for the current parcel and agent is inside it.
+			bool enable = !LLLandmarkActions::landmarkAlreadyExists() &&
+						  is_agent_in_selected_parcel(mParcel->getParcel());
+			mCreateLandmarkBtn->setEnabled(enable);
+			mFolderMenuBtn->setEnabled(enable);
 		}
 		else if (mPlaceInfoType == LANDMARK_INFO_TYPE || mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
 		{
@@ -693,7 +732,8 @@ void LLPanelPlaces::updateVerbs()
 	}
 	else
 	{
-		mActivePanel->updateVerbs();
+		if (mActivePanel)
+			mActivePanel->updateVerbs();
 	}
 }
 
@@ -822,6 +862,18 @@ void LLPanelPlaces::showLandmarkFoldersMenu()
 	LLMenuGL::showPopup(this, menu, btn_rect.mRight, btn_rect.mTop);
 }
 
+static bool is_agent_in_selected_parcel(LLParcel* parcel)
+{
+	LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
+
+	LLViewerRegion* region = parcel_mgr->getSelectionRegion();
+	if (!region || !parcel)
+		return false;
+
+	return	region == gAgent.getRegion() &&
+			parcel->getLocalID() == parcel_mgr->getAgentParcel()->getLocalID();
+}
+
 static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right)
 {
 	return left.second < right.second;
@@ -894,4 +946,17 @@ static void onSLURLBuilt(std::string& slurl)
 	args["SLURL"] = slurl;
 
 	LLNotifications::instance().add("CopySLURL", args);
+}
+
+static void setAllChildrenVisible(LLView* view, BOOL visible)
+{
+	const LLView::child_list_t* children = view->getChildList();
+	for (LLView::child_list_const_iter_t child_it = children->begin(); child_it != children->end(); ++child_it)
+	{
+		LLView* child = *child_it;
+		if (child->getParent() == view)
+		{
+			child->setVisible(visible);
+		}
+	}
 }

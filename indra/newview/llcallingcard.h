@@ -125,6 +125,9 @@ public:
 	// get full info
 	const LLRelationship* getBuddyInfo(const LLUUID& id) const;
 
+	// Is this person a friend/buddy/calling card holder?
+	bool isBuddy(const LLUUID& id) const;
+
 	// online status
 	void setBuddyOnline(const LLUUID& id, bool is_online);
 	bool isBuddyOnline(const LLUUID& id) const;

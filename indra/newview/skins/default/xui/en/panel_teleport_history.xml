@@ -13,10 +13,9 @@
 	<accordion_tab
          can_resize="false"
          layout="topleft"
-         min_height="100"
          name="today"
          title="Today">
-            <scroll_list
+            <flat_list_view
              draw_heading="false"
              follows="all"
              height="150"
@@ -24,20 +23,16 @@
              left="0"
              name="today_items"
              top="0"
-             width="285">
-		<column name="landmark_icon" width="20" />
-		<column dynamic_width="true" label="Region" name="region" />
-		<column name="index" width="0" />
-	    </scroll_list>
+             width="380">
+	    </flat_list_view>
 	</accordion_tab>     
 
         <accordion_tab
          can_resize="false"
          layout="topleft"
-         min_height="100"
          name="yesterday"
          title="Yesterday">
-            <scroll_list
+            <flat_list_view
              draw_heading="false"
              follows="all"
              height="150"
@@ -45,20 +40,33 @@
              left="0"
              name="yesterday_items"
              top="0"
-             width="285">
-		<column name="landmark_icon" width="20" />
-		<column dynamic_width="true" label="Region" name="region" />
-		<column name="index" width="0" />
-	    </scroll_list>
+             width="380">
+	    </flat_list_view>
 	</accordion_tab>     
 
         <accordion_tab
          can_resize="false"
          layout="topleft"
-         min_height="100"
+         name="2_days_ago"
+         title="2 days ago">
+            <flat_list_view
+             draw_heading="false"
+             follows="all"
+             height="150"
+             layout="topleft"
+             left="0"
+             name="2_days_ago"
+             top="0"
+             width="380">
+	    </flat_list_view>
+	</accordion_tab>     
+
+        <accordion_tab
+         can_resize="false"
+         layout="topleft"
          name="3_days_ago"
          title="3 days ago">
-            <scroll_list
+            <flat_list_view
              draw_heading="false"
              follows="all"
              height="150"
@@ -66,20 +74,16 @@
              left="0"
              name="3_days_ago"
              top="0"
-             width="285">
-		<column name="landmark_icon" width="20" />
-		<column dynamic_width="true" label="Region" name="region" />
-		<column name="index" width="0" />
-	    </scroll_list>
+             width="380">
+	    </flat_list_view>
 	</accordion_tab>     
      
         <accordion_tab
          can_resize="false"
          layout="topleft"
-         min_height="100"
          name="4_days_ago"
          title="4 days ago">
-            <scroll_list
+            <flat_list_view
              draw_heading="false"
              follows="all"
              height="150"
@@ -87,20 +91,16 @@
              left="0"
              name="4_days_ago"
              top="0"
-             width="285">
-		<column name="landmark_icon" width="20" />
-		<column dynamic_width="true" label="Region" name="region" />
-		<column name="index" width="0" />
-	    </scroll_list>
+             width="380">
+	    </flat_list_view>
 	</accordion_tab>     
      
         <accordion_tab
          can_resize="false"
          layout="topleft"
-         min_height="100"
          name="5_days_ago"
          title="5 days ago">
-            <scroll_list
+            <flat_list_view
              draw_heading="false"
              follows="all"
              height="150"
@@ -108,55 +108,59 @@
              left="0"
              name="5_days_ago_items"
              top="0"
-             width="285">
-		<column name="landmark_icon" width="20" />
-		<column dynamic_width="true" label="Region" name="region" />
-		<column name="index" width="0" />
-	    </scroll_list>
+             width="380">
+	    </flat_list_view>
 	</accordion_tab>     
-     
-        <accordion_tab
-         can_resize="false"
-         layout="topleft"
-         min_height="100"
-         name="6_days_ago"
-         title="6 days ago">
-            <scroll_list
-             draw_heading="false"
-             follows="all"
-             height="150"
-             layout="topleft"
-             left="0"
-             name="6_days_ago"
-             top="0"
-             width="285">
-		<column name="landmark_icon" width="20" />
-		<column dynamic_width="true" label="Region" name="region" />
-		<column name="index" width="0" />
-	    </scroll_list>
-	</accordion_tab>     
-     
-        <accordion_tab
-         can_resize="false"
-         layout="topleft"
-         min_height="100"
-         name="older_than_6_days"
-         title="Older than 6 days">
-            <scroll_list
-             draw_heading="false"
-             follows="all"
-             height="150"
-             layout="topleft"
-             left="0"
-             name="older_than_6_days_items"
-             top="0"
-             width="285">
-		<column name="landmark_icon" width="20" />
-		<column dynamic_width="true" label="Region" name="region" />
-		<column name="index" width="0" />
-	    </scroll_list>
-	</accordion_tab>     
-     
-    </accordion>
           
+        <accordion_tab
+         can_resize="false"
+         layout="topleft"
+         name="6_days_and_older"
+         title="6 days and older">
+            <flat_list_view
+             draw_heading="false"
+             follows="all"
+             height="150"
+             layout="topleft"
+             left="0"
+             name="6_days_and_older_items"
+             top="0"
+             width="380">
+	    </flat_list_view>
+	</accordion_tab>     
+
+        <accordion_tab
+         can_resize="false"
+         layout="topleft"
+         name="1_month_and_older"
+         title="1 month and older">
+            <flat_list_view
+             draw_heading="false"
+             follows="all"
+             height="150"
+             layout="topleft"
+             left="0"
+             name="1_month_and_older_items"
+             top="0"
+             width="380">
+	    </flat_list_view>
+	</accordion_tab>     
+
+        <accordion_tab
+         can_resize="false"
+         layout="topleft"
+         name="6_months_and_older"
+         title="6 months and older">
+            <flat_list_view
+             draw_heading="false"
+             follows="all"
+             height="150"
+             layout="topleft"
+             left="0"
+             name="6_months_and_older_items"
+             top="0"
+             width="380">
+	    </flat_list_view>
+	</accordion_tab>
+    </accordion>
 </panel>

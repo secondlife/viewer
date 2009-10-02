@@ -18,13 +18,13 @@
      name="aspect_ratio_text">
         [NUM]:[DEN]
     </panel.string>
-           <check_box
+    <check_box
      control_name="UseChatBubbles"
      height="16"
      label="Bubble Chat"
      layout="topleft"
      left="30"
-     top="20"
+     top="10"
      name="bubble_text_chat"
      width="150" />
 
@@ -35,7 +35,7 @@
      initial_value="1"
      label="Opacity"
      layout="topleft"
-     left="50"
+     left_delta="50"
      top_pad="5"
      label_width="50"
      name="bubble_chat_opacity"
@@ -73,7 +73,7 @@
     </text>
     <combo_box
      allow_text_entry="true"
-     height="25"
+     height="20"
      layout="topleft"
      left_pad="0"
      max_chars="100"
@@ -119,9 +119,8 @@
      length="1"
      height="10"
      left="30"
-     text_color="EmphasisColor"
      name="heading1"
-     top_pad="30"
+     top_pad="10"
      width="270">
 Camera:
 	</text>
@@ -137,13 +136,12 @@ Camera:
      layout="topleft"
      label_width="100"
      label="View Angle"
-     left="30"
+     left_delta="50"
      max_val="2.97"
      min_val="0.17"
      name="camera_fov"
      show_text="false"
      width="240" />
-
     <slider
      can_edit_text="true"
      control_name="CameraOffsetScale"
@@ -154,13 +152,14 @@ Camera:
      initial_value="1"
      layout="topleft"
      label="Distance"
-     left="30"
+     left_delta="0"
      label_width="100"
      max_val="3"
      min_val="0.5"
      name="camera_offset_scale"
      show_text="false"
-     width="240" />
+     width="240"
+     top_pad="10"/>
      <text
      type="string"
      length="1"
@@ -175,10 +174,11 @@ Automatic positioning for:
      height="20"
      label="Build/Edit"
      layout="topleft"
-     left="50"
+     left_delta="50"
      name="edit_camera_movement"
      tool_tip="Use automatic camera positioning when entering and exiting edit mode"
-     width="280" />
+     width="280"
+     top_pad="10" />
     <check_box
      control_name="AppearanceCameraMovement"
      height="16"
@@ -193,9 +193,8 @@ Automatic positioning for:
      length="1"
      height="10"
      left="30"
-     text_color="EmphasisColor"
      name="heading3"
-     top_pad="30"
+     top_pad="10"
      width="270">
 My Avatar:
 	</text>
@@ -204,24 +203,28 @@ My Avatar:
      height="20"
      label="Show me in Mouselook"
      layout="topleft"
+     left_delta="50"
      name="first_person_avatar_visible"
-     width="256" />
+     width="256"
+     top_pad="10"/>
     <check_box
      control_name="ArrowKeysMoveAvatar"
      height="20"
      label="Arrow keys always move me"
      layout="topleft"
-     left="30"
+     left_delta="0"
      name="arrow_keys_move_avatar_check"
-     width="237" />
+     width="237"
+     top_pad="0"/>
     <check_box
      control_name="TapTapHoldtoRun"
      height="20"
      label="Tap-tap-hold to run"
      layout="topleft"
-     left="30"
+     left_delta="0"
      name="tap_tap_hold_to_run"
-     width="237" />
+     width="237"
+     top_pad="0"/>
     <!--menu_item_check
          label="Tap-Tap-Hold to Run"
          layout="topleft"
@@ -237,9 +240,10 @@ My Avatar:
      height="20"
      label="Move my avatar's lips when speaking"
      layout="topleft"
-     left="30"
+     left_delta="0"
      name="enable_lip_sync"
-     width="237" />
+     width="237"
+     top_pad="0" />
             <!--menu_item_check
          label="Enable Lip Sync(Beta)"
          layout="topleft"
@@ -251,6 +255,42 @@ My Avatar:
              function="ToggleControl"
              parameter="LipSyncEnabled" />
         </menu_item_check-->
+    <check_box
+     control_name="test"
+     height="20"
+     label="Show script errors"
+     layout="topleft"
+     left="30"
+     name="show_script_errors"
+     width="256"
+     top_pad="10"/>
+    <radio_group
+	 enabled_control="EnableShowScriptErrors"
+	 control_name="ShowScriptErrorsLocation"
+     draw_border="false"
+     height="40"
+     layout="topleft"
+     left_delta="50"
+     name="show_location"
+     top_pad="5"
+     width="364">
+        <radio_item
+         height="16"
+         label="In chat"
+         layout="topleft"
+         left="3"
+         name="0"
+         top="3"
+         width="315" />
+        <radio_item
+         height="16"
+         label="In window"
+         layout="topleft"
+         left_delta="0"
+         name="1"
+         top_delta="16"
+         width="315" />
+    </radio_group>
 
 
 </panel>

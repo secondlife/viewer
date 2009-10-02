@@ -80,6 +80,7 @@ LLPanel::Params::Params()
 	strings("string"),
 	filename("filename"),
 	class_name("class"),
+	help_topic("help_topic"),
 	visible_callback("visible_callback")
 {
 	name = "panel";
@@ -98,6 +99,7 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 	mDefaultBtn(NULL),
 	mBorder(NULL),
 	mLabel(p.label),
+	mHelpTopic(p.help_topic),
 	mCommitCallbackRegistrar(false),
 	mEnableCallbackRegistrar(false),
 	mXMLFilename(p.filename)
@@ -416,6 +418,7 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 	}
 
 	setLabel(p.label());
+	setHelpTopic(p.help_topic);
 	setShape(p.rect);
 	parseFollowsFlags(p);
 

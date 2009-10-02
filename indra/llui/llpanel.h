@@ -83,6 +83,7 @@ public:
 
 		Optional<std::string>	filename;
 		Optional<std::string>	class_name;
+		Optional<std::string>   help_topic;
 
 		Multiple<LocalizedString>	strings;
 		
@@ -139,9 +140,10 @@ public:
 	void			updateDefaultBtn();
 	void			setLabel(const LLStringExplicit& label) { mLabel = label; }
 	std::string		getLabel() const { return mLabel; }
+	void			setHelpTopic(const std::string& help_topic) { mHelpTopic = help_topic; }
+	std::string		getHelpTopic() const { return mHelpTopic; }
 	
 	void			setCtrlsEnabled(BOOL b);
-
 
 	LLHandle<LLPanel>	getHandle() const { return mPanelHandle; }
 
@@ -243,6 +245,8 @@ protected:
 	EnableCallbackRegistry::ScopedRegistrar mEnableCallbackRegistrar;
 	
 	commit_signal_t mVisibleSignal;		// Called when visibility changes, passes new visibility as LLSD()
+
+	std::string		mHelpTopic;         // the name of this panel's help topic to display in the Help Viewer
 	
 private:
 	LLUIColor		mBgColorAlpha;
@@ -259,7 +263,7 @@ private:
 
 	// for setting the xml filename when building panel in context dependent cases
 	std::string		mXMLFilename;
-	
+
 }; // end class LLPanel
 
 #endif
