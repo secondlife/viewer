@@ -172,7 +172,7 @@
 	     name="auto_play" radio_style="false" width="150" />
   <text bottom_delta="-14" follows="top|left" height="15" left="30" width="340" 
         enabled="false" name="">
-    Note: Parcel Owners &amp; Residents can override this setting
+    Note: Residents can override this setting
   </text>
 
   <check_box bottom_delta="-25" enabled="true" follows="left|top" font="SansSerifSmall"
