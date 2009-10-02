@@ -31,7 +31,7 @@
  * $/LicenseInfo$
  */
 // Precompiled header
-#include "../Llviewerprecompiledheaders.h"
+#include "../llviewerprecompiledheaders.h"
 
 #include "../test/lltut.h"
 
