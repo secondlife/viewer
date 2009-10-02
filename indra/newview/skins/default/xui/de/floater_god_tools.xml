@@ -115,17 +115,17 @@
 				Ziel:
 			</text>
 			<combo_box name="destination">
-				<combo_box.item name="Selection" label="Auswahl" />
-				<combo_box.item name="AgentRegion" label="Avatar-Region" />
+				<combo_box.item name="item1" label="Auswahl" />
+				<combo_box.item name="item2" label="Avatar-Region" />
 			</combo_box>
 			<text name="Request:">
 				Anfrage:
 			</text>
 			<combo_box name="request">
-				<combo_box.item name="colliders&lt;steps&gt;" label="Kollisionsobjekte &lt;Schritte&gt;" />
-				<combo_box.item name="scripts&lt;count&gt;,&lt;optionalpattern&gt;" label="Skripts &lt;Zähler&gt;,&lt;Optionales Muster&gt;" />
-				<combo_box.item name="objects&lt;pattern&gt;" label="Objekte &lt;Muster&gt;" />
-				<combo_box.item name="rez&lt;asset_id&gt;" label="lt;asset_id&gt; erstellen" />
+				<combo_box.item name="item1" label="Kollisionsobjekte &lt;Schritte&gt;" />
+				<combo_box.item name="item2" label="Skripts &lt;Zähler&gt;,&lt;Optionales Muster&gt;" />
+				<combo_box.item name="item3" label="Objekte &lt;Muster&gt;" />
+				<combo_box.item name="item4" label="lt;asset_id&gt; erstellen" />
 			</combo_box>
 			<text name="Parameter:">
 				Parameter:

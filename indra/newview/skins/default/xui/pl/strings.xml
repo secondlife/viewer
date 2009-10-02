@@ -516,4 +516,109 @@
 	<string name="GraphicsQualityHigh">
 		Wysoka
 	</string>
+	
+	<!-- PARCEL_CATEGORY_UI_STRING -->
+	<string name="Linden Location">Linden Lokacja</string>
+	<string name="Adult">&apos;Adult&apos;</string>
+	<string name="Arts&amp;Culture">Sztuka i Kultura</string>
+	<string name="Business">Biznes</string>
+	<string name="Educational">Edukacyjna</string>
+	<string name="Gaming">Gra</string>
+	<string name="Hangout">Poznawanie ludzi</string>
+	<string name="Newcomer Friendly">Przyjazne dla nowych</string>
+	<string name="Parks&amp;Nature">Park i Natura</string>
+	<string name="Residential">Mieszkalna</string>
+	<string name="Shopping">Zakupy</string>
+	<string name="Other">Inna</string>
+	
+	<string name="ringing">
+		Łączenie z rozmowami głosem w świecie...
+	</string>
+	<string name="connected">
+		Połączenie uzyskane.
+	</string>
+	<string name="unavailable">
+		Niestety, rozmowy głosem są niedozwolone w tym miejscu.
+	</string>
+	<string name="hang_up">
+		Połączenie rozmowy utracone.
+	</string>
+  <string name="ScriptQuestionCautionChatGranted">
+	&apos;[OBJECTNAME]&apos;, właściciel: &apos;[OWNERNAME]&apos;, położenie: [REGIONNAME] [REGIONPOS], pozwala Ci na: [PERMISSIONS].
+  </string>
+  <string name="ScriptQuestionCautionChatDenied">
+	&apos;[OBJECTNAME]&apos;, właściciel: &apos;[OWNERNAME]&apos;, położenie: [REGIONNAME] [REGIONPOS], nie pozwala Ci na: [PERMISSIONS].
+  </string>
+  <string name="ScriptTakeMoney">
+	Zabiera Lindeny (L$) od Ciebie
+  </string>
+  <string name="ActOnControlInputs">
+	Używaj klawiszy sterowania
+  </string>
+  <string name="RemapControlInputs">
+	Zmień klawisze sterowania
+  </string>
+  <string name="AnimateYourAvatar">
+	Animuj Awatara
+  </string>
+  <string name="AttachToYourAvatar">
+	Dołącz do Awatara
+  </string>
+  <string name="ReleaseOwnership">
+	Usuń prawo własności (zmień na publiczne)
+  </string>
+  <string name="LinkAndDelink">
+	Łącz / odłącz z innymi obiektów
+  </string>
+  <string name="AddAndRemoveJoints">
+	Dodaj / usuń połączenia z innymi obiektami
+  </string>
+  <string name="ChangePermissions">
+	Ustaw zezwolenia
+  </string>
+  <string name="TrackYourCamera">
+	Chodź za kamerą
+  </string>
+  <string name="ControlYourCamera">
+	Kontroluj kamerę
+  </string>
+	<string name="only_user_message">
+		Jesteś jedyną osobą w tej konferencji.
+	</string>
+	<string name="offline_message">
+		[FIRST] [LAST] - ta osoba jest obecnie niedostępna.
+	</string>
+	<string name="invite_message">
+		Kliknij na [BUTTON NAME] przycisk by zaakceptować/dołączyć do tej rozmowy.
+	</string>
+	<string name="generic_request_error">
+		Błąd. Spróbuj ponownie za kilka minut.
+	</string>
+	<string name="insufficient_perms_error">
+		Nie posiadasz praw do kontynuacji.
+	</string>
+	<string name="session_does_not_exist_error">
+		Ta konferencja jest już zakończona.
+	</string>
+	<string name="no_ability_error">
+		Nie posiadesz tego przywileju.
+	</string>
+	<string name="not_a_mod_error">
+		Nie jesteś moderatorem konferencji.
+	</string>
+	<string name="muted_error">
+		Moderator wyciszył Cię.
+	</string>
+	<string name="add_session_event">
+		Nie można dodać nikogo do czatu z [RECIPIENT].
+	</string>
+	<string name="message_session_event">
+		Nie można wysłać Twojej wiadomości do sesji czatu z [RECIPIENT].
+	</string>
+	<string name="removed_from_group">
+		Usunięto Cię z grupy.
+	</string>
+	<string name="close_on_no_ability">
+		Nie posiadasz praw by uczestniczyć w tej konferencji.
+	</string>
 </strings>

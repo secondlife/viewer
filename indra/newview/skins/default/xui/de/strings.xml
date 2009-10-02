@@ -517,4 +517,108 @@
 	<string name="GraphicsQualityHigh">
 		Hoch
 	</string>
+        
+	<!-- PARCEL_CATEGORY_UI_STRING -->
+	<string name="Linden Location">Lindenort</string>
+	<string name="Adult">Adult</string>
+	<string name="Arts&amp;Culture">Kunst &amp; Kultur</string>
+	<string name="Business">Business</string>
+	<string name="Educational">Bildung</string>
+	<string name="Gaming">Spielen</string>
+	<string name="Hangout">Treffpunkt</string>
+	<string name="Newcomer Friendly">Anfängergerecht</string>
+	<string name="Parks&amp;Nature">Parks und Natur</string>
+	<string name="Residential">Wohngebiet</string>
+	<string name="Shopping">Shopping</string>
+	<string name="Other">Sonstige</string>
+	<string name="ringing">
+		Verbindung mit In-Welt-Voice-Chat...
+	</string>
+	<string name="connected">
+		Verbunden
+	</string>
+	<string name="unavailable">
+		Der aktuelle Standort unterstützt keine Voice-Kommunikation
+	</string>
+	<string name="hang_up">
+		Verbindung mit In-Welt-Voice-Chat getrennt
+	</string>
+	<string name="ScriptQuestionCautionChatGranted">
+		Dem Objekt „[OBJECTNAME]“, ein Objekt von „[OWNERNAME]“, in [REGIONNAME] [REGIONPOS], wurde folgende Berechtigung erteilt: [PERMISSIONS].
+	</string>
+	<string name="ScriptQuestionCautionChatDenied">
+		Dem Objekt „[OBJECTNAME]“, ein Objekt von „[OWNERNAME]“, in [REGIONNAME] [REGIONPOS], wurde folgende Berechtigung verweigert: [PERMISSIONS].
+	</string>
+	<string name="ScriptTakeMoney">
+		Linden-Dollar (L$) von Ihnen nehmen
+	</string>
+	<string name="ActOnControlInputs">
+		Steuerung festlegen
+	</string>
+	<string name="RemapControlInputs">
+		Steuerung neu zuweisen
+	</string>
+	<string name="AnimateYourAvatar">
+		Avatar animieren
+	</string>
+	<string name="AttachToYourAvatar">
+		An Avatar anhängen
+	</string>
+	<string name="ReleaseOwnership">
+		Eigentum aufgeben und öffentlich machen
+	</string>
+	<string name="LinkAndDelink">
+		Mit Objekten verknüpfen und davon trennen
+	</string>
+	<string name="AddAndRemoveJoints">
+		Verbindungen zu anderen Objekten hinzufügen und entfernen
+	</string>
+	<string name="ChangePermissions">
+		Berechtigungen ändern
+	</string>
+	<string name="TrackYourCamera">
+		Kameraverfolgung
+	</string>
+	<string name="ControlYourCamera">
+		Kamerasteuerung
+	</string>
+	<string name="only_user_message">
+		Sie sind der einzige Benutzer in dieser Sitzung.
+	</string>
+	<string name="offline_message">
+		[FIRST] [LAST] ist offline.
+	</string>
+	<string name="invite_message">
+		Klicken Sie auf [BUTTON NAME], um eine Verbindung zu diesem Voice-Chat herzustellen.
+	</string>
+	<string name="generic_request_error">
+		Fehler bei Anfrage, bitte versuchen Sie es später.
+	</string>
+	<string name="insufficient_perms_error">
+		Sie sind dazu nicht berechtigt.
+	</string>
+	<string name="session_does_not_exist_error">
+		Die Sitzung ist abgelaufen
+	</string>
+	<string name="no_ability_error">
+		Sie besitzen diese Fähigkeit nicht.
+	</string>
+	<string name="not_a_mod_error">
+		Sie sind kein Sitzungsmoderator.
+	</string>
+	<string name="muted_error">
+		Ein Gruppenmoderator hat Ihren Text-Chat deaktiviert.
+	</string>
+	<string name="add_session_event">
+		Es konnten keine Benutzer zur Chat-Sitzung mit [RECIPIENT] hinzugefügt werden.
+	</string>
+	<string name="message_session_event">
+		Ihre Nachricht konnte nicht an die Chat-Sitzung mit [RECIPIENT] gesendet werden.
+	</string>
+	<string name="removed_from_group">
+		Sie wurden von der Gruppe ausgeschlossen.
+	</string>
+	<string name="close_on_no_ability">
+		Sie haben nicht mehr die Berechtigung an der Chat-Sitzung teilzunehmen.
+	</string>
 </strings>

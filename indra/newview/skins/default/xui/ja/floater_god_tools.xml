@@ -122,29 +122,17 @@
 				目的地：
 			</text>
 			<combo_box name="destination">
-				<combo_item name="Selection">
-					選択
-				</combo_item>
-				<combo_item name="AgentRegion">
-					エージェント地域
-				</combo_item>
+				<combo_box.item name="item1" label="選択"/>
+				<combo_box.item name="item2" label="エージェント地域"/>
 			</combo_box>
 			<text name="Request:">
 				要求：
 			</text>
 			<combo_box name="request">
-				<combo_item name="colliders&lt;steps&gt;">
-					コライダー＜ステップ＞
-				</combo_item>
-				<combo_item name="scripts&lt;count&gt;,&lt;optionalpattern&gt;">
-					スクリプト＜回数＞、＜オプション・パターン＞
-				</combo_item>
-				<combo_item name="objects&lt;pattern&gt;">
-					オブジェクト＜パターン＞
-				</combo_item>
-				<combo_item name="rez&lt;asset_id&gt;">
-					rez ＜asset_id＞
-				</combo_item>
+				<combo_box.item name="item1" label="コライダー＜ステップ＞"/>
+				<combo_box.item name="item2" label="スクリプト＜回数＞、＜オプション・パターン＞"/>
+				<combo_box.item name="item3" label="オブジェクト＜パターン＞"/>
+				<combo_box.item name="item4" label="rez ＜asset_id＞"/>
 			</combo_box>
 			<text name="Parameter:">
 				パラメーター：

@@ -562,7 +562,7 @@ Ta osoba tymczasowo nie będzie mógła się poruszać, nie będzie mógł używ
 	<notification name="PromptGoToCurrencyPage">
 		[EXTRA]
 
-Iść na stronę [URL] po informacje dotyczące zakupu gotówki?
+Iść na stronę [_URL] po informacje dotyczące zakupu L$?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="UnableToLinkObjects">
@@ -792,8 +792,6 @@ Grupa nie została wybrana.
 	<notification name="CannotDeedLandNoRegion">
 		Nie można przekazać posiadłości:
 Region nie znaleziony.
-
-Zgłoś ten problem pod Pomoc &gt; Zgłoś Błędy Klienta
 	</notification>
 	<notification name="CannotDeedLandMultipleSelected">
 		Nie można przekazać posiadłości:
@@ -840,8 +838,6 @@ Twoje posiadłości są podkreślone na zielono.
 	<notification name="CannotReleaseLandRegionNotFound">
 		Nie można porzucić posiadłości:
 Region nie znaleziony.
-
-Zgłoś ten problem pod Pomoc &gt; Zgłoś Błędy Klienta
 	</notification>
 	<notification name="CannotReleaseLandNoTransfer">
 		Nie możesz porzucić posiadłości:
@@ -881,14 +877,10 @@ Podzielić posiadłość?
 	<notification name="CannotDivideLandNoRegion">
 		Nie można podzielić posiadłości:
 Region nie znaleziony.
-
-Zgłoś ten problem pod Pomoc &gt; Zgłoś Błędy Klienta
 	</notification>
 	<notification name="CannotJoinLandNoRegion">
 		Nie można połączyć posiadłości:
 Region nie znaleziony.
-
-Zgłoś ten problem pod Pomoc &gt; Zgłoś Błędy Klienta
 	</notification>
 	<notification name="CannotJoinLandNothingSelected">
 		Nie można połączyć posiadłości:
@@ -944,9 +936,8 @@ Szary = Publiczna
 		Nie można zapisać &apos;[NAME]&apos; do pliku stroju. Musisz zwolnić trochę miejsca na Twoim komputerze i zapisać strój jeszcze raz.
 	</notification>
 	<notification name="CannotSaveToAssetStore">
-		Nie można zapisać [NAME] w centralnym zbiorze danych. Zazwyczaj jest to tymczasowy problem. Możesz kontynuować modyfikacje i zapisać strój ponownie za kilka minut.
-
-Jeżeli wciąż masz ten problem, wybierz Pomoc &gt; Zgłoś Błędy Klienta i podaj szczegóły dotyczące konfiguracji sieci.
+		Nie można zapisać [NAME] w centralnym zbiorze danych.
+Zazwyczaj jest to tymczasowy problem. Możesz kontynuować modyfikacje i zapisać strój ponownie za kilka minut.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
 		Twoja sesja [SECOND_LIFE] została zakończona:
@@ -1281,10 +1272,6 @@ Załadować do foldera Aplikacji?
 	<notification name="WebLaunchJoinNow">
 		Otworzyć stronę www.secondlife.com żeby zarządzać Twoim kontem?
 		<usetemplate ignoretext="Otwierając systemową przeglądarkę żeby zarządzać Twoim kontem" name="okcancelignore" notext="Anuluj" yestext="OK"/>
-	</notification>
-	<notification name="WebLaunchBugReport101">
-		Odwiedź [SECOND_LIFE] Wiki i zobacz jak zgłaszać błędy.
-		<usetemplate ignoretext="Otwierając przeglądarkę żeby zobaczyć Wiki zgłaszania błędów" name="okcancelignore" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchSecurityIssues">
 		Odwiedź [SECOND_LIFE] Wiki i zobacz jak zgłaszać problemy z bezpieczeństwem danych.
@@ -1988,23 +1975,8 @@ Właściciel regionu będzie rozpatrywał raporty w oparciu o lokalne prawa tego
 
 Rozwiązanie tego raportu odnosi się wyłącznie do tego regionu; konkluzja tego raportu nie będzie miała wpływu na dostęp Rezydentów do innych regionów w [SECOND_LIFE]. Wyłącznie Linden Lab może całkowicie odebrać dostęp do [SECOND_LIFE].
 	</notification>
-	<notification name="HelpReportBug">
-		Używaj tej opcji *wyłącznie* w celu zgłaszania technicznych problemów, dołączając szczegółowy opis problemu. Możesz odpowiedzieć na automatyczną email z odpowiedzią żeby dodać więcej szczegółów do Twojego raportu.
-
-Wszystkie raporty błędów są analizowane i oceniane. Kontakt przez email nie będzie nawiązany.
-
-Jeżeli masz techniczne problemy, skontaktuj się z pomocą techniczną pod:
-
-http://secondlife.com/community/support.php
-
-Uwaga: Niekompletne raporty nie będą analizowane.
-	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Wybierz kategorię dla tego raportu o nadużyciu.
-Określenie kategorii pomoże nam w klasyfikacji i prztwarzaniu raportu.
-	</notification>
-	<notification name="HelpReportBugSelectCategory">
-		Wybierz kategorię dla tego błędu.
 Określenie kategorii pomoże nam w klasyfikacji i prztwarzaniu raportu.
 	</notification>
 	<notification name="HelpReportAbuseAbuserNameEmpty">
@@ -2019,17 +1991,9 @@ Dokładne dane pomogą nam w klasyfikacji i prztwarzaniu raportu.
 		Wprowadź opis popełnionego nadużycia.
 Dokładne dane pomogą nam w klasyfikacji i prztwarzaniu raportu.
 	</notification>
-	<notification name="HelpReportBugSummaryEmpty">
-		Wprowadź opis błędu.
-Dokładne dane pomogą nam w klasyfikacji i prztwarzaniu raportu.
-	</notification>
 	<notification name="HelpReportAbuseDetailsEmpty">
 		Wprowadź szczgółowy opis popełnionego nadużycia.
 Podaj maksymalną ilość szczgółów oraz imiona i nazwiska osób związanych z nadużyciem które zgłaszasz.
-Dokładne dane pomogą nam w klasyfikacji i prztwarzaniu raportu.
-	</notification>
-	<notification name="HelpReportBugDetailsEmpty">
-		Wprowadź szczgółowy opis błędu. Podaj maksymalną ilość szczgółów oraz, jeżeli to możliwe, kroki niezbędne do odtworzenia problemu.
 Dokładne dane pomogą nam w klasyfikacji i prztwarzaniu raportu.
 	</notification>
 	<notification name="HelpReportAbuseContainsCopyright">

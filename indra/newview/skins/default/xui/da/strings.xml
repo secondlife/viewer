@@ -513,4 +513,112 @@
 	<string name="GraphicsQualityHigh">
 		Høj
 	</string>
+	
+	<!-- PARCEL_CATEGORY_UI_STRING -->
+	<string name="Linden Location">Linden sted</string>
+	<string name="Adult">Adult</string>
+	<string name="Arts&amp;Culture">Kunst &amp; kultur</string>
+	<string name="Business">Business</string>
+	<string name="Educational">Uddannelse</string>
+	<string name="Gaming">Spil</string>
+	<string name="Hangout">Afslapning</string>
+	<string name="Newcomer Friendly">Nybegynder venligt</string>
+	<string name="Parks&amp;Nature">Parker &amp; natur</string>
+	<string name="Residential">Beboelse</string>
+	<string name="Shopping">Indkøb</string>
+	<string name="Other">Andet</string>
+	
+	<string name="ringing">
+		Forbinder til stemmechat...
+	</string>
+	<string name="connected">
+		Forbundet
+	</string>
+	<string name="unavailable">
+		Stemmechat er ikke tilladt hvor du befinder dig
+	</string>
+	<string name="hang_up">
+		Stemme chat er afbrudt
+	</string>
+  <string name="ScriptQuestionCautionChatGranted">
+	&apos;[OBJECTNAME]&apos;, en genstand, ejet af &apos;[OWNERNAME]&apos;, lokaliseret i [REGIONNAME] på [REGIONPOS], har fået tilladelse til: [PERMISSIONS].
+  </string>
+  <string name="ScriptQuestionCautionChatDenied">
+	&apos;[OBJECTNAME]&apos;, en genstand, ejet af &apos;[OWNERNAME]&apos;, lokaliseret i [REGIONNAME] på [REGIONPOS], er afvist tilladelse til: [PERMISSIONS].
+  </string>
+  <string name="ScriptTakeMoney">
+	Tag Linden dollars (L$) fra dig
+  </string>
+  <string name="ActOnControlInputs">
+	Reagér på dine kontrol-taster
+  </string>
+  <string name="RemapControlInputs">
+	Ændre dine kontrol-taster
+  </string>
+  <string name="AnimateYourAvatar">
+	Animér din avatar
+  </string>
+  <string name="AttachToYourAvatar">
+	Sæt på din avatar
+  </string>
+  <string name="ReleaseOwnership">
+	Fjern ejerskabet og sæt til offentlig
+  </string>
+  <string name="LinkAndDelink">
+	Sammenkæd og adskil andre genstande
+  </string>
+  <string name="AddAndRemoveJoints">
+	Tilføj og fjern sammenkødninger med andre genstande
+  </string>
+  <string name="ChangePermissions">
+	Ændre dens tilladelser
+  </string>
+  <string name="TrackYourCamera">
+	Spor dit kamera
+  </string>
+  <string name="ControlYourCamera">
+	Kontrollér dit kamera
+  </string>
+	<string name="only_user_message">
+		Du er den eneste deltager i denne samtale
+	</string>
+	<string name="offline_message">
+		[FIRST] [LAST] er ikke logget på.
+	</string>
+	<string name="invite_message">
+		Tryk på [BUTTON NAME] knappen for at acceptére/tilslutte til denne stemme chat.
+	</string>
+	<string name="muted_message">
+		Du har blokeret denne beboer. Hvis du starter en samtale vil denne blokering automatisk blive fjernet.
+	</string>
+	<string name="generic_request_error">
+		Kunne ikke etablere forbindelse, prøv igen senere
+	</string>
+	<string name="insufficient_perms_error">
+		Du har ikke de fornødne rettigheder.
+	</string>
+	<string name="session_does_not_exist_error">
+		Denne samtale er lukket ned
+	</string>
+	<string name="no_ability_error">
+		Du har ikke den mulighed.
+	</string>
+	<string name="not_a_mod_error">
+		Du er ikke moderator for denne samtale.
+	</string>
+	<string name="muted_error">
+		Du er blevet &quot;blokeret&quot;.
+	</string>
+	<string name="add_session_event">
+		Ikke muligt at tilføge brugere til samtale med [RECIPIENT].
+	</string>
+	<string name="message_session_event">
+		Ikke muligt at sende din besked til samtalen med [RECIPIENT].
+	</string>
+	<string name="removed_from_group">
+		Du er blevet fjernet fra gruppen.
+	</string>
+	<string name="close_on_no_ability">
+		Du har ikke længere mulighed for at deltage i samtalen
+	</string>
 </strings>

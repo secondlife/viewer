@@ -565,7 +565,7 @@ Verschieben Sie alle betreffenden Objekte in dieselbe Region.
 	<notification name="PromptGoToCurrencyPage">
 		[EXTRA]
 
-[URL] für Informationen zum Deviseneinkauf öffnen?
+[_URL] für Informationen zum Deviseneinkauf öffnen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="UnableToLinkObjects">
@@ -796,7 +796,6 @@ Keine Gruppe ausgewählt.
 	<notification name="CannotDeedLandNoRegion">
 		Land kann nicht übertragen werden:
 Kann die Region nicht finden, in der sich dieses Land befindet.
-Bitte melden Sie dies über „Hilfe“ &gt; „Fehler melden“.
 	</notification>
 	<notification name="CannotDeedLandMultipleSelected">
 		Land kann nicht übertragen werden:
@@ -842,8 +841,6 @@ Parzellen, die Ihnen gehören, werden grün dargestellt.
 	<notification name="CannotReleaseLandRegionNotFound">
 		Land kann nicht aufgegeben werden:
 Kann die Region nicht finden, in der sich dieses Land befindet.
-
-Bitte melden Sie dies über „Hilfe“ &gt; „Fehler melden“.
 	</notification>
 	<notification name="CannotReleaseLandNoTransfer">
 		Land kann nicht aufgegeben werden:
@@ -882,14 +879,10 @@ Land teilen?
 	<notification name="CannotDivideLandNoRegion">
 		Land kann nicht aufgeteilt werden:
 Kann die Region nicht finden, in der sich dieses Land befindet.
-
-Bitte melden Sie dies über „Hilfe“ &gt; „Fehler melden“.
 	</notification>
 	<notification name="CannotJoinLandNoRegion">
 		Land kann nicht zusammengelegt werden:
 Kann die Region nicht finden, in der sich dieses Land befindet.
-
-Bitte melden Sie dies über „Hilfe“ &gt; „Fehler melden“.
 	</notification>
 	<notification name="CannotJoinLandNothingSelected">
 		Land kann nicht zusammengelegt werden:
@@ -949,8 +942,6 @@ Grau = Öffentlich
 	<notification name="CannotSaveToAssetStore">
 		[NAME] kann nicht in Zentral-Asset-Speicher geladen werden.
 Dies ist ein temporärer Fehler. Bitte passen Sie das Kleidungsstück in einigen Minuten noch einmal an und speichern Sie es erneut.
-
-Tritt dieses Problem wiederholt auf, klicken Sie auf das Pulldown-Menü „Hilfe“ &gt; „Fehler melden“ und geben Sie Details zu Ihrem Netzwerk-Setup an.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
 		Sie wurden von [SECOND_LIFE] abgemeldet:
@@ -1289,10 +1280,6 @@ In Ihren Anwendungsordner herunterladen?
 	<notification name="WebLaunchJoinNow">
 		Zu www.secondlife.com, um Ihr Konto zu verwalten?
 		<usetemplate ignoretext="Beim Starten eines Browsers, um Ihr Konto zu verwalten" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
-	</notification>
-	<notification name="WebLaunchBugReport101">
-		Informieren Sie sich im [SECOND_LIFE] Wiki, wie man Fehler richtig meldet.
-		<usetemplate ignoretext="Beim Starten eines Browsers, um das Fehlermeldungs-Wiki anzuzeigen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchSecurityIssues">
 		Informieren Sie sich im [SECOND_LIFE] Wiki, wie man Sicherheitsprobleme richtig meldet.
@@ -1974,21 +1961,8 @@ Als besonderen Service für Einwohner und Besucher übernimmt der Eigentümer di
 -
 Das Resultat, das sich aus dieser Meldung ergibt, betrifft nur diese Region; der Einwohnerzugang zu anderen Bereichen von [SECOND_LIFE] ist davon nicht betroffen. Nur Linden Lab kann den Zugang zu [SECOND_LIFE] beschränken.
 	</notification>
-	<notification name="HelpReportBug">
-		Verwenden Sie dieses Tool *nur*, um technische Features zu melden, die nicht wie beschrieben oder erwartet funktionieren. Bitte machen Sie so viele Angaben wie möglich. Sie können auf die automatische Antwort-E-Mail antworten, um Ihre Meldung noch zu ergänzen.
-Alle gemeldeten Fehler werden geprüft und bewertet. Sie erhalten keine persönliche Antwort auf Ihre E-Mail.
--
-Bei technischen Problemen wenden Sie sich bitte an den Support unter:
-http://secondlife.com/community/support.php
--
-Hinweis: Unvollständige Meldungen werden nicht bearbeitet.
-	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Wählen Sie eine Missbrauchskategorie aus.
-Die Angabe einer Kategorie hilft uns bei der Bearbeitung des Berichts.
-	</notification>
-	<notification name="HelpReportBugSelectCategory">
-		Wählen Sie eine Fehler-Kategorie aus.
 Die Angabe einer Kategorie hilft uns bei der Bearbeitung des Berichts.
 	</notification>
 	<notification name="HelpReportAbuseAbuserNameEmpty">
@@ -2003,17 +1977,9 @@ Eine genaue Angabe hilft uns, Fälle von Missbrauch zu ahnden.
 		Bitte geben Sie eine Zusammenfassung des Vorfalls ein.
 Eine genaue Zusammenfassung hilft uns, Fälle von Missbrauch zu ahnden.
 	</notification>
-	<notification name="HelpReportBugSummaryEmpty">
-		Bitte geben Sie eine Zusammenfassung des Fehlers ein.
-Eine genaue Zusammenfassung hilft uns, Fehler schneller zu beseitigen.
-	</notification>
 	<notification name="HelpReportAbuseDetailsEmpty">
 		Bitte geben Sie eine ausführliche Beschreibung des Vorfalls ein.
 Eine möglichst genaue Beschreibung mit Namen und Einzelheiten hilft uns, Fälle von Missbrauch zu ahnden.
-	</notification>
-	<notification name="HelpReportBugDetailsEmpty">
-		Bitte geben Sie eine ausführliche Fehlerbeschreibung ein.
-Eine möglichst genaue Beschreibung mit Schritten zur Reproduktion des Fehlers hilft uns, Fehler schneller zu beseitigen.
 	</notification>
 	<notification name="HelpReportAbuseContainsCopyright">
 		Sehr geehrte(r) Einwohner(in),
