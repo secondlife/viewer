@@ -2974,7 +2974,7 @@ bool process_login_success_response()
 	}
 
 	// this is the base used to construct help URLs
-	text = response["help_url_format"];
+	text = response["help_url_format"].asString();
 	if (!text.empty())
 	{
 		// replace the default help URL format
