@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel 
+ border="true" 
+ enabled="true" 
+ follows="left|top|right|bottom"
+ height="500" 
+ label="Security" 
+ left="102" 
+ mouse_opaque="true"
+ name="Media Settings Security" 
+ width="365">
+  <check_box 
+   bottom_delta="-40" 
+   enabled="true" 
+   follows="left|top" 
+   font="SansSerifSmall"
+   height="16" 
+   initial_value="false"
+   label="Only Allow Access to Specified URLs (by prefix)" 
+   left="10" 
+   mouse_opaque="true"
+   name="whitelist_enable" 
+   radio_style="false" 
+   width="250" />
+  <scroll_list 
+   follows="top|left" 
+   height="200" 
+   left="30" 
+   name="whitelist" 
+   width="315" 
+   enabled="true" />
+  <button 
+   bottom_delta="-30" 
+   follows="top|left" 
+   height="20" 
+   label="Add"
+   left="30" 
+   name="whitelist_add" 
+   width="70" 
+   enabled="true"> 
+     <button.commit_callback
+	     function="Media.whitelistAdd"/>
+  </button>
+  <button 
+   bottom_delta="0" 
+   follows="top|left" 
+   height="20" 
+   label="Delete"
+   left="275" 
+   name="whitelist_del" 
+   width="70" 
+   enabled="true"> 
+     <button.commit_callback
+	     function="Media.whitelistDelete"/>
+  </button>
+</panel>

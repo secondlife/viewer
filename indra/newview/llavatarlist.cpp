@@ -41,6 +41,10 @@
 
 static LLDefaultChildRegistry::Register<LLAvatarList> r("avatar_list");
 
+// Maximum number of avatars that can be added to a list in one pass.
+// Used to limit time spent for avatar list update per frame.
+static const unsigned ADD_LIMIT = 50;
+
 static bool findInsensitive(std::string haystack, const std::string& needle_upper)
 {
     LLStringUtil::toUpper(haystack);
@@ -65,11 +69,144 @@ LLAvatarList::LLAvatarList(const Params& p)
 :	LLFlatListView(p)
 , mOnlineGoFirst(p.online_go_first)
 , mContextMenu(NULL)
+, mDirty(true) // to force initial update
 {
 	setCommitOnSelectionChange(true);
 
 	// Set default sort order.
 	setComparator(&NAME_COMPARATOR);
+}
+
+// virtual
+void LLAvatarList::draw()
+{
+	if (mDirty)
+		refresh();
+
+	LLFlatListView::draw();
+}
+
+void LLAvatarList::setNameFilter(const std::string& filter)
+{
+	if (mNameFilter != filter)
+	{
+		mNameFilter = filter;
+		setDirty();
+	}
+}
+
+void LLAvatarList::sortByName()
+{
+	setComparator(&NAME_COMPARATOR);
+	sort();
+}
+
+//////////////////////////////////////////////////////////////////////////
+// PROTECTED SECTION
+//////////////////////////////////////////////////////////////////////////
+
+void LLAvatarList::refresh()
+{
+	bool have_names			= TRUE;
+	bool add_limit_exceeded	= false;
+	bool modified			= false;
+	bool have_filter		= !mNameFilter.empty();
+
+	// Save selection.	
+	std::vector<LLUUID> selected_ids;
+	getSelectedUUIDs(selected_ids);
+	LLUUID current_id = getSelectedUUID();
+
+	// Determine what to add and what to remove.
+	std::vector<LLUUID> added, removed;
+	LLAvatarList::computeDifference(getIDs(), added, removed);
+
+	// Handle added items.
+	unsigned nadded = 0;
+	for (std::vector<LLUUID>::const_iterator it=added.begin(); it != added.end(); it++)
+	{
+		std::string name;
+		const LLUUID& buddy_id = *it;
+		have_names &= (bool)gCacheName->getFullName(buddy_id, name);
+		if (!have_filter || findInsensitive(name, mNameFilter))
+		{
+			if (nadded >= ADD_LIMIT)
+			{
+				add_limit_exceeded = true;
+				break;
+			}
+			else
+			{
+				addNewItem(buddy_id, name, LLAvatarTracker::instance().isBuddyOnline(buddy_id));
+				modified = true;
+				nadded++;
+			}
+		}
+	}
+
+	// Handle removed items.
+	for (std::vector<LLUUID>::const_iterator it=removed.begin(); it != removed.end(); it++)
+	{
+		removeItemByUUID(*it);
+		modified = true;
+	}
+
+	// Handle filter.
+	if (have_filter)
+	{
+		std::vector<LLSD> cur_values;
+		getValues(cur_values);
+
+		for (std::vector<LLSD>::const_iterator it=cur_values.begin(); it != cur_values.end(); it++)
+		{
+			std::string name;
+			const LLUUID& buddy_id = it->asUUID();
+			have_names &= (bool)gCacheName->getFullName(buddy_id, name);
+			if (!findInsensitive(name, mNameFilter))
+			{
+				removeItemByUUID(buddy_id);
+				modified = true;
+			}
+		}
+	}
+
+	// Changed item in place, need to request sort and update columns
+	// because we might have changed data in a column on which the user
+	// has already sorted. JC
+	sort();
+
+	// re-select items
+	//	selectMultiple(selected_ids); // TODO: implement in LLFlatListView if need
+	selectItemByUUID(current_id);
+
+	// If the name filter is specified and the names are incomplete,
+	// we need to re-update when the names are complete so that
+	// the filter can be applied correctly.
+	//
+	// Otherwise, if we have no filter then no need to update again
+	// because the items will update their names.
+	bool dirty = add_limit_exceeded || (have_filter && !have_names);
+	setDirty(dirty);
+
+	// Commit if we've added/removed items.
+	if (modified)
+		onCommit();
+}
+
+
+void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_bold, EAddPosition pos)
+{
+	LLAvatarListItem* item = new LLAvatarListItem();
+	item->showStatus(false);
+	item->showInfoBtn(true);
+	item->showSpeakingIndicator(true);
+	item->setName(name);
+	item->setAvatarId(id);
+	item->setContextMenu(mContextMenu);
+
+	item->childSetVisible("info_btn", false);
+
+	addItem(item, id, pos);
 }
 
 void LLAvatarList::computeDifference(
@@ -105,97 +242,6 @@ void LLAvatarList::computeDifference(
 	it = set_difference(vnew.begin(), vnew.end(), vcur.begin(), vcur.end(), vadded.begin());
 	vadded.erase(it, vadded.end());
 }
-
-BOOL LLAvatarList::update(const std::vector<LLUUID>& all_buddies, const std::string& name_filter)
-{
-	BOOL have_names = TRUE;
-	bool have_filter = name_filter != LLStringUtil::null;
-
-	// Save selection.	
-	std::vector<LLUUID> selected_ids;
-	getSelectedUUIDs(selected_ids);
-	LLUUID current_id = getSelectedUUID();
-
-	// Determine what to add and what to remove.
-	std::vector<LLUUID> added, removed;
-	LLAvatarList::computeDifference(all_buddies, added, removed);
-
-	// Handle added items.
-	for (std::vector<LLUUID>::const_iterator it=added.begin(); it != added.end(); it++)
-	{
-		std::string name;
-		const LLUUID& buddy_id = *it;
-		have_names &= gCacheName->getFullName(buddy_id, name);
-		if (!have_filter || findInsensitive(name, name_filter))
-		addNewItem(buddy_id, name, LLAvatarTracker::instance().isBuddyOnline(buddy_id));
-	}
-
-	// Handle removed items.
-	for (std::vector<LLUUID>::const_iterator it=removed.begin(); it != removed.end(); it++)
-	{
-		removeItemByUUID(*it);
-	}
-
-	// Handle filter.
-	if (have_filter)
-	{
-		std::vector<LLSD> cur_values;
-		getValues(cur_values);
-
-		for (std::vector<LLSD>::const_iterator it=cur_values.begin(); it != cur_values.end(); it++)
-		{
-			std::string name;
-			const LLUUID& buddy_id = it->asUUID();
-			have_names &= gCacheName->getFullName(buddy_id, name);
-			if (!findInsensitive(name, name_filter))
-				removeItemByUUID(buddy_id);
-		}
-	}
-
-	// Changed item in place, need to request sort and update columns
-	// because we might have changed data in a column on which the user
-	// has already sorted. JC
-	sort();
-
-	// re-select items
-	//	selectMultiple(selected_ids); // TODO: implement in LLFlatListView if need
-	selectItemByUUID(current_id);
-
-	// If the name filter is specified and the names are incomplete,
-	// we need to re-update when the names are complete so that
-	// the filter can be applied correctly.
-	//
-	// Otherwise, if we have no filter then no need to update again
-	// because the items will update their names.
-	return !have_filter || have_names;
-}
-
-void LLAvatarList::sortByName()
-{
-	setComparator(&NAME_COMPARATOR);
-	sort();
-}
-
-//////////////////////////////////////////////////////////////////////////
-// PROTECTED SECTION
-//////////////////////////////////////////////////////////////////////////
-void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_bold, EAddPosition pos)
-{
-	LLAvatarListItem* item = new LLAvatarListItem();
-	item->showStatus(false);
-	item->showInfoBtn(true);
-	item->showSpeakingIndicator(true);
-	item->setName(name);
-	item->setAvatarId(id);
-	item->setContextMenu(mContextMenu);
-
-	item->childSetVisible("info_btn", false);
-
-	addItem(item, id, pos);
-}
-
-
-
 
 bool LLAvatarItemComparator::compare(const LLPanel* item1, const LLPanel* item2) const
 {

@@ -270,14 +270,32 @@ void LLFace::setTexture(LLViewerTexture* tex)
 	{
 		mTexture->removeFace(this) ;
 		removeAtlas() ;
-	}
+	}	
 	
 	mTexture = tex ;
-	
+
 	if(mTexture.notNull())
 	{
 		mTexture->addFace(this) ;
 	} 
+}
+
+void LLFace::switchTexture(LLViewerTexture* new_texture)
+{
+	if(mTexture == new_texture)
+	{
+		return ;
+	}
+
+	if(!new_texture)
+	{
+		llerrs << "Can not switch to a null texture." << llendl ;
+	}
+	new_texture->addTextureStats(mTexture->getMaxVirtualSize()) ;
+
+	getViewerObject()->changeTEImage(mTEOffset, new_texture) ;
+	setTexture(new_texture) ;	
+	gPipeline.markTextured(getDrawable());
 }
 
 void LLFace::setTEOffset(const S32 te_offset)

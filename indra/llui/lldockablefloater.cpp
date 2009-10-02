@@ -71,9 +71,9 @@ void LLDockableFloater::resetInstance()
 		if (sInstanceHandle.get() != NULL && sInstanceHandle.get()->isDocked())
 		{
 			sInstanceHandle.get()->setVisible(FALSE);
-			}
+		}
 		sInstanceHandle = getHandle();
-			}
+	}
 }
 
 void LLDockableFloater::setVisible(BOOL visible)
@@ -105,11 +105,11 @@ void LLDockableFloater::setDocked(bool docked, bool pop_on_undock)
 			mDockControl.get()->off();
 		}
 
-	if (!docked && pop_on_undock)
-	{
-		// visually pop up a little bit to emphasize the undocking
-		translate(0, UNDOCK_LEAP_HEIGHT);
-	}
+		if (!docked && pop_on_undock)
+		{
+			// visually pop up a little bit to emphasize the undocking
+			translate(0, UNDOCK_LEAP_HEIGHT);
+		}
 	}
 	else
 	{
@@ -126,8 +126,8 @@ void LLDockableFloater::draw()
 		mDockControl.get()->repositionDockable();
 		if (isDocked())
 		{
-		mDockControl.get()->drawToungue();
-	}
+			mDockControl.get()->drawToungue();
+		}
 	}
 	LLFloater::draw();
 }

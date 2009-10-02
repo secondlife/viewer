@@ -261,17 +261,17 @@ My Avatar:
      label="Show script errors"
      layout="topleft"
      left="30"
-     name="first_person_avatar_visible"
+     name="show_script_errors"
      width="256"
      top_pad="10"/>
     <radio_group
-	 enabled_control="EnableVoiceChat"
-	 control_name="VoiceEarLocation"
+	 enabled_control="EnableShowScriptErrors"
+	 control_name="ShowScriptErrorsLocation"
      draw_border="false"
      height="40"
      layout="topleft"
      left_delta="50"
-     name="ear_location"
+     name="show_location"
      top_pad="5"
      width="364">
         <radio_item

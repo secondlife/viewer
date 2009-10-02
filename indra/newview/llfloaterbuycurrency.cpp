@@ -159,6 +159,9 @@ void LLFloaterBuyCurrencyUI::draw()
 		updateUI();
 	}
 
+	// disable the Buy button when we are not able to buy
+	childSetEnabled("buy_btn", mManager.canBuy());
+
 	LLFloater::draw();
 }
 
@@ -194,29 +197,19 @@ void LLFloaterBuyCurrencyUI::updateUI()
 	// error section
 	if (hasError)
 	{
-		mChildren.setBadge(std::string("step_error"), LLViewChildren::BADGE_ERROR);
-		
-		LLTextBox* message = getChild<LLTextBox>("error_message");
-		if (message)
-		{
-			message->setVisible(true);
-			message->setWrappedText(mManager.errorMessage());
-		}
-
-		childSetVisible("error_web", !mManager.errorURI().empty());
-		if (!mManager.errorURI().empty())
-		{
-			childHide("getting_data");
-		}
+		childHide("normal_background");
+		childShow("error_background");
+		childShow("cannot_buy_message");
+		childShow("error_web");
 	}
 	else
 	{
-		childHide("step_error");
-		childHide("error_message");
+		childShow("normal_background");
+		childHide("error_background");
+		childHide("cannot_buy_message");
 		childHide("error_web");
 	}
-	
-	
+
 	//  currency
 	childSetVisible("contacting", false);
 	childSetVisible("buy_action", false);
@@ -224,8 +217,6 @@ void LLFloaterBuyCurrencyUI::updateUI()
 	
 	if (!hasError)
 	{
-		mChildren.setBadge(std::string("step_1"), LLViewChildren::BADGE_NOTE);
-
 		if (mManager.buying())
 		{
 			childSetVisible("contacting", true);
@@ -286,9 +277,8 @@ void LLFloaterBuyCurrencyUI::updateUI()
 		childHide("purchase_warning_notenough");
 	}
 	
-	childSetEnabled("buy_btn", mManager.canBuy());
-
-	if (!mManager.canBuy() && !childIsVisible("error_web"))
+	childHide("getting_data");
+	if (!mManager.canBuy() && !hasError)
 	{
 		childShow("getting_data");
 	}
@@ -298,10 +288,6 @@ void LLFloaterBuyCurrencyUI::onClickBuy()
 {
 	mManager.buy(getString("buy_currency"));
 	updateUI();
-	// JC: updateUI() doesn't get called again until progress is made
-	// with transaction processing, so the "Purchase" button would be
-	// left enabled for some time.  Pre-emptively disable.
-	childSetEnabled("buy_btn", false);
 }
 
 void LLFloaterBuyCurrencyUI::onClickCancel()
@@ -311,7 +297,7 @@ void LLFloaterBuyCurrencyUI::onClickCancel()
 
 void LLFloaterBuyCurrencyUI::onClickErrorWeb()
 {
-	LLWeb::loadURLExternal(mManager.errorURI());
+	LLWeb::loadURLExternal(getString("account_website"));
 	closeFloater();
 }
 

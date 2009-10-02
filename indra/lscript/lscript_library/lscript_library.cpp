@@ -450,7 +450,12 @@ void LLScriptLibrary::init()
 	addFunction(10.f, 0.f, dummy_func, "llHTTPResponse", NULL, "kis");
 	addFunction(10.f, 0.f, dummy_func, "llGetHTTPHeader", "s", "ks");
 
-	// energy, sleep, dummy_func, name, return type, parameters, gods-only
+	// Prim media (see lscript_prim_media.h)
+	addFunction(10.f, 1.0f, dummy_func, "llSetPrimMediaParams", "i", "il");
+	addFunction(10.f, 1.0f, dummy_func, "llGetPrimMediaParams", "l", "il");
+	addFunction(10.f, 1.0f, dummy_func, "llClearPrimMedia", "i", "i");
+
+	// energy, sleep, dummy_func, name, return type, parameters, help text, gods-only
 
 	// IF YOU ADD NEW SCRIPT CALLS, YOU MUST PUT THEM AT THE END OF THIS LIST.
 	// Otherwise the bytecode numbers for each call will be wrong, and all
@@ -495,7 +500,7 @@ void LLScriptLibData::print(std::ostream &s, BOOL b_prepend_comma)
 	        s << ", ";
 	}
 	switch (mType)
-	{
+    {
 	case LST_INTEGER:
 	     s << mInteger;
 	     break;

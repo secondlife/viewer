@@ -100,7 +100,7 @@ private:
 	void updateButtons();
 
 	virtual void onDoubleClickItem(LLUICtrl* item);
-	virtual void onRightMouseDownItem(LLUICtrl* item, S32 x, S32 y, MASK mask);
+	virtual void onRightMouseUpItem(LLUICtrl* item, S32 x, S32 y, MASK mask);
 
 	LLPanelProfile* getProfilePanel();
 

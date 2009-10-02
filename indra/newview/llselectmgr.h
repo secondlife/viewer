@@ -307,6 +307,7 @@ public:
 	S32 getTECount();
 	S32 getRootObjectCount();
 
+	BOOL isMultipleTESelected();
 	BOOL contains(LLViewerObject* object);
 	BOOL contains(LLViewerObject* object, S32 te);
 
@@ -504,7 +505,8 @@ public:
 	void selectionSetTexGen( U8 texgen );
 	void selectionSetShiny( U8 shiny );
 	void selectionSetFullbright( U8 fullbright );
-	void selectionSetMediaTypeAndURL( U8 media_type, const std::string& media_url );
+	void selectionSetMedia( U8 media_type );
+	void selectionSetMediaData(const LLSD &media_data); // NOTE: modifies media_data!!!
 	void selectionSetClickAction(U8 action);
 	void selectionSetIncludeInSearch(bool include_in_search);
 	void selectionSetGlow(const F32 glow);

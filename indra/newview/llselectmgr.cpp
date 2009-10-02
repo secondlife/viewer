@@ -1721,13 +1721,8 @@ void LLSelectMgr::selectionSetFullbright(U8 fullbright)
 	getSelection()->applyToObjects(&sendfunc);
 }
 
-void LLSelectMgr::selectionSetMediaTypeAndURL(U8 media_type, const std::string& media_url)
+void LLSelectMgr::selectionSetMedia(U8 media_type)
 {
-	U8 media_flags = LLTextureEntry::MF_NONE;
-	if (media_type == LLViewerObject::MEDIA_TYPE_WEB_PAGE)
-	{
-		media_flags = LLTextureEntry::MF_WEB_PAGE;
-	}
 	
 	struct f : public LLSelectedTEFunctor
 	{
@@ -1737,32 +1732,71 @@ void LLSelectMgr::selectionSetMediaTypeAndURL(U8 media_type, const std::string& 
 		{
 			if (object->permModify())
 			{
-				// update viewer side color in anticipation of update from simulator
+				// update viewer has media
 				object->setTEMediaFlags(te, mMediaFlags);
 			}
 			return true;
 		}
-	} setfunc(media_flags);
+	} setfunc(media_type);
 	getSelection()->applyToTEs(&setfunc);
-
-	struct g : public LLSelectedObjectFunctor
+	struct f2 : public LLSelectedObjectFunctor
 	{
-		U8 media_type;
-		const std::string& media_url ;
-		g(U8 a, const std::string& b) : media_type(a), media_url(b) {}
 		virtual bool apply(LLViewerObject* object)
 		{
 			if (object->permModify())
 			{
 				object->sendTEUpdate();
-				object->setMediaType(media_type);
-				object->setMediaURL(media_url);
 			}
 			return true;
 		}
-	} sendfunc(media_type, media_url);
-	getSelection()->applyToObjects(&sendfunc);
+	} func2;
+	mSelectedObjects->applyToObjects( &func2 );
 }
+
+// This function expects media_data to be a map containing relevant
+// media data name/value pairs (e.g. home_url, etc.)
+void LLSelectMgr::selectionSetMediaData(const LLSD &media_data)
+{
+
+	struct f : public LLSelectedTEFunctor
+	{
+		const LLSD &mMediaData;
+		f(const LLSD& t) : mMediaData(t) {}
+		bool apply(LLViewerObject* object, S32 te)
+		{
+			if (object->permModify())
+			{
+                LLVOVolume *vo = dynamic_cast<LLVOVolume*>(object);
+                if (NULL != vo) 
+                {
+                    vo->syncMediaData(te, mMediaData, true/*merge*/, true/*ignore_agent*/);
+                }                
+			}
+			return true;
+		}
+	} setfunc(media_data);
+	getSelection()->applyToTEs(&setfunc);
+
+	struct f2 : public LLSelectedObjectFunctor
+	{
+		virtual bool apply(LLViewerObject* object)
+		{
+			if (object->permModify())
+			{
+                LLVOVolume *vo = dynamic_cast<LLVOVolume*>(object);
+                if (NULL != vo) 
+                {
+                    // Send updated media data FOR THE ENTIRE OBJECT
+                    vo->sendMediaDataUpdate();
+                }
+			}
+			return true;
+		}
+	} func2;
+	getSelection()->applyToObjects(&func2);
+}
+
+
 
 void LLSelectMgr::selectionSetGlow(F32 glow)
 {
@@ -5057,7 +5091,15 @@ void LLSelectNode::selectTE(S32 te_index, BOOL selected)
 	{
 		return;
 	}
-	mTESelectMask |= 0x1 << te_index;
+	S32 mask = 0x1 << te_index;
+	if(selected)
+	{	
+		mTESelectMask |= mask;
+	}
+	else
+	{
+		mTESelectMask &= ~mask;
+	}
 	mLastTESelected = te_index;
 }
 
@@ -6040,6 +6082,29 @@ bool LLObjectSelection::applyToRootNodes(LLSelectedNodeFunctor *func, bool first
 			result = result && r;
 	}
 	return result;
+}
+
+BOOL LLObjectSelection::isMultipleTESelected()
+{
+	BOOL te_selected = FALSE;
+	// ...all faces
+	for (LLObjectSelection::iterator iter = begin();
+		 iter != end(); iter++)
+	{
+		LLSelectNode* nodep = *iter;
+		for (S32 i = 0; i < SELECT_MAX_TES; i++)
+		{
+			if(nodep->isTESelected(i))
+			{
+				if(te_selected)
+				{
+					return TRUE;
+				}
+				te_selected = TRUE;
+			}
+		}
+	}
+	return FALSE;
 }
 
 //-----------------------------------------------------------------------------

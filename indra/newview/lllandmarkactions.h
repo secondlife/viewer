@@ -53,12 +53,21 @@ public:
 	static bool landmarkAlreadyExists();
 
 	/**
+	 * @brief Searches landmark for global position.
+	 * @return Returns landmark or NULL.
+	 * 
+	 * *TODO: dzaporozhan: There can be many landmarks for single parcel.
+	 */
+	static LLViewerInventoryItem* findLandmarkForGlobalPos(const LLVector3d &pos);
+
+	/**
 	 * @brief Searches landmark for agent global position.
 	 * @return Returns landmark or NULL.
 	 * 
 	 * *TODO: dzaporozhan: There can be many landmarks for single parcel.
 	 */
 	static LLViewerInventoryItem* findLandmarkForAgentPos();
+
 
 	/**
 	 * @brief Checks whether agent has rights to create landmark for current parcel.

@@ -139,6 +139,10 @@ public:
 
 	virtual ~LLTextEditor();
 
+	typedef boost::signals2::signal<void (LLTextEditor* caller)> keystroke_signal_t;
+
+	void	setKeystrokeCallback(const keystroke_signal_t::slot_type& callback);
+
 	void	setParseHighlights(BOOL parsing) {mParseHighlights=parsing;}
 
 	// mousehandler overrides
@@ -169,7 +173,7 @@ public:
 	virtual void	clear();
 	virtual void	setFocus( BOOL b );
 	virtual BOOL	acceptsTextInput() const;
-	virtual BOOL	isDirty() const { return isPristine(); }
+	virtual BOOL	isDirty() const;
 	virtual void 	setValue(const LLSD& value);
 
 	// LLEditMenuHandler interface
@@ -503,6 +507,8 @@ private:
 
 	S32				getFirstVisibleLine() const;
 
+	void			onKeyStroke();
+
 	//
 	// Data
 	//
@@ -568,6 +574,8 @@ private:
 	BOOL			mHandleEditKeysDirectly;  
 
 	LLCoordGL		mLastIMEPosition;		// Last position of the IME editor
+
+	keystroke_signal_t mKeystrokeSignal;
 }; // end class LLTextEditor
 
 

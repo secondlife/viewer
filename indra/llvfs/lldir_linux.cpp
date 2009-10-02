@@ -383,7 +383,7 @@ BOOL LLDir_Linux::fileExists(const std::string &filename) const
 
 /*virtual*/ std::string LLDir_Linux::getLLPluginLauncher()
 {
-	return gDirUtilp->getLLPluginDir() + gDirUtilp->getDirDelimiter() +
+	return gDirUtilp->getExecutableDir() + gDirUtilp->getDirDelimiter() +
 		"SLPlugin";
 }
 

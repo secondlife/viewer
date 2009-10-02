@@ -142,7 +142,7 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 	params.prevalidate_callback(&LLLineEditor::prevalidateFloat);
 	params.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
 	mEditor = LLUICtrlFactory::create<LLLineEditor> (params);
-	mEditor->setFocusReceivedCallback( &LLSpinCtrl::onEditorGainFocus, this );
+	mEditor->setFocusReceivedCallback( boost::bind(&LLSpinCtrl::onEditorGainFocus, _1, this ));
 	//RN: this seems to be a BAD IDEA, as it makes the editor behavior different when it has focus
 	// than when it doesn't.  Instead, if you always have to double click to select all the text, 
 	// it's easier to understand

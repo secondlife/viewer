@@ -109,7 +109,9 @@ bool LLIMHandler::processNotification(const LLSD& notify)
 		p.panel = im_box;
 		p.can_be_stored = false;
 		p.on_delete_toast = boost::bind(&LLIMHandler::onDeleteToast, this, _1);
-		mChannel->addToast(p);
+		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+		if(channel)
+			channel->addToast(p);
 
 		// send a signal to the counter manager;
 		mNewNotificationSignal();

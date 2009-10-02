@@ -53,10 +53,15 @@
 #include "llagentui.h"
 
 
-class LLFetchlLandmarkByAgentPos : public LLInventoryCollectFunctor
+class LLFetchlLandmarkByPos : public LLInventoryCollectFunctor
 {
-	
+private:
+	LLVector3d mPos;
 public:
+	LLFetchlLandmarkByPos(const LLVector3d& pos) :
+		mPos(pos)
+	{}
+
 	/*virtual*/ bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 	{
 		if (!item || item->getType() != LLAssetType::AT_LANDMARK)
@@ -69,11 +74,10 @@ public:
 		LLVector3d landmark_global_pos;
 		if (!landmark->getGlobalPos(landmark_global_pos))
 			return false;
-		LLVector3d a_pos = gAgent.getPositionGlobal();
 		//we have to round off each coordinates to compare positions properly
-		return llround(a_pos.mdV[VX]) ==  llround(landmark_global_pos.mdV[VX])
-				&& llround(a_pos.mdV[VY]) ==  llround(landmark_global_pos.mdV[VY])
-				&& llround(a_pos.mdV[VZ]) ==  llround(landmark_global_pos.mdV[VZ]);
+		return llround(mPos.mdV[VX]) ==  llround(landmark_global_pos.mdV[VX])
+				&& llround(mPos.mdV[VY]) ==  llround(landmark_global_pos.mdV[VY])
+				&& llround(mPos.mdV[VZ]) ==  llround(landmark_global_pos.mdV[VZ]);
 	}
 };
 
@@ -147,12 +151,12 @@ bool LLLandmarkActions::landmarkAlreadyExists()
 }
 
 
-LLViewerInventoryItem* LLLandmarkActions::findLandmarkForAgentPos()
+LLViewerInventoryItem* LLLandmarkActions::findLandmarkForGlobalPos(const LLVector3d &pos)
 {
 	// Determine whether there are landmarks pointing to the current parcel.
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
-	LLFetchlLandmarkByAgentPos is_current_pos_landmark;
+	LLFetchlLandmarkByPos is_current_pos_landmark(pos);
 	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
 		cats,
 		items,
@@ -165,6 +169,11 @@ LLViewerInventoryItem* LLLandmarkActions::findLandmarkForAgentPos()
 	}
 
 	return items[0];
+}
+
+LLViewerInventoryItem* LLLandmarkActions::findLandmarkForAgentPos()
+{
+	return findLandmarkForGlobalPos(gAgent.getPositionGlobal());
 }
 
 bool LLLandmarkActions::canCreateLandmarkHere()

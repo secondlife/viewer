@@ -37,7 +37,7 @@
 #include "llagent.h"			// teleportViaLocation()
 #include "llcommandhandler.h"
 #include "llfloaterdirectory.h"
-#include "llfloatermediabrowser.h"
+#include "llfloaterhelpbrowser.h"
 #include "llfloaterreg.h"
 #include "llfloaterurldisplay.h"
 #include "llfloaterworldmap.h"
@@ -105,7 +105,7 @@ bool LLURLDispatcherImpl::dispatchCore(const std::string& url,
 									   bool trusted_browser)
 {
 	if (url.empty()) return false;
-	if (dispatchHelp(url, right_mouse)) return true;
+	//if (dispatchHelp(url, right_mouse)) return true;
 	if (dispatchApp(url, right_mouse, web, trusted_browser)) return true;
 	if (dispatchRegion(url, right_mouse)) return true;
 
@@ -137,19 +137,6 @@ bool LLURLDispatcherImpl::dispatchRightClick(const std::string& url)
 	LLMediaCtrl* web = NULL;
 	const bool trusted_browser = false;
 	return dispatchCore(url, right_click, web, trusted_browser);
-}
-
-// static
-bool LLURLDispatcherImpl::dispatchHelp(const std::string& url, bool right_mouse)
-{
-#if LL_LIBXUL_ENABLED
-	if (LLSLURL::isURLHelp(url))
-	{
-		gViewerHtmlHelp.show();
-		return true;
-	}
-#endif
-	return false;
 }
 
 // static

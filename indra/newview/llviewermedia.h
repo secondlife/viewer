@@ -41,9 +41,13 @@
 
 #include "llviewermediaobserver.h"
 
+#include "llpluginclassmedia.h"
+
 class LLViewerMediaImpl;
 class LLUUID;
 class LLViewerMediaTexture;
+class LLMediaEntry;
+class LLVOVolume ;
 
 typedef LLPointer<LLViewerMediaImpl> viewer_media_t;
 ///////////////////////////////////////////////////////////////////////////////
@@ -55,7 +59,7 @@ public:
 
 	bool addObserver( LLViewerMediaObserver* subject );
 	bool remObserver( LLViewerMediaObserver* subject );
-	void emitEvent(LLPluginClassMedia* self, LLPluginClassMediaOwner::EMediaEvent event);
+	virtual void emitEvent(LLPluginClassMedia* self, LLViewerMediaObserver::EMediaEvent event);
 
 private:
 	typedef std::list< LLViewerMediaObserver* > observerListType;
@@ -69,15 +73,13 @@ class LLViewerMedia
 		// Special case early init for just web browser component
 		// so we can show login screen.  See .cpp file for details. JC
 
-		static viewer_media_t newMediaImpl(const std::string& media_url,
-												const LLUUID& texture_id,
-												S32 media_width, 
-												S32 media_height, 
-												U8 media_auto_scale,
-												U8 media_loop,
-												std::string mime_type = "none/none");
+		static viewer_media_t newMediaImpl(const LLUUID& texture_id,
+												S32 media_width = 0, 
+												S32 media_height = 0, 
+												U8 media_auto_scale = false,
+												U8 media_loop = false);
 
-		static void removeMedia(LLViewerMediaImpl* media);
+		static viewer_media_t updateMediaImpl(LLMediaEntry* media_entry, const std::string& previous_url, bool update_from_self);
 		static LLViewerMediaImpl* getMediaImplFromTextureID(const LLUUID& texture_id);
 		static std::string getCurrentUserAgent();
 		static void updateBrowserUserAgent();
@@ -102,15 +104,18 @@ class LLViewerMediaImpl
 	LOG_CLASS(LLViewerMediaImpl);
 public:
 
-	LLViewerMediaImpl(const std::string& media_url,
+	LLViewerMediaImpl(
 		const LLUUID& texture_id,
 		S32 media_width, 
 		S32 media_height, 
 		U8 media_auto_scale,
-		U8 media_loop,
-		const std::string& mime_type);
+		U8 media_loop);
 
 	~LLViewerMediaImpl();
+	
+	// Override inherited version from LLViewerMediaEventEmitter 
+	virtual void emitEvent(LLPluginClassMedia* self, LLViewerMediaObserver::EMediaEvent event);
+
 	void createMediaSource();
 	void destroyMediaSource();
 	void setMediaType(const std::string& media_type);
@@ -126,36 +131,44 @@ public:
 	void seek(F32 time);
 	void setVolume(F32 volume);
 	void focus(bool focus);
+	// True if the impl has user focus.
+	bool hasFocus() const;
 	void mouseDown(S32 x, S32 y);
 	void mouseUp(S32 x, S32 y);
 	void mouseMove(S32 x, S32 y);
+	void mouseDown(const LLVector2& texture_coords);
+	void mouseUp(const LLVector2& texture_coords);
+	void mouseMove(const LLVector2& texture_coords);
 	void mouseLeftDoubleClick(S32 x,S32 y );
 	void mouseCapture();
 
 	void navigateHome();
-	void navigateTo(const std::string& url, const std::string& mime_type = "", bool rediscover_type = false);
+	void navigateTo(const std::string& url, const std::string& mime_type = "", bool rediscover_type = false, bool server_request = false);
 	void navigateStop();
 	bool handleKeyHere(KEY key, MASK mask);
 	bool handleUnicodeCharHere(llwchar uni_char);
 	bool canNavigateForward();
 	bool canNavigateBack();
 	std::string getMediaURL() { return mMediaURL; }
-	std::string getMediaHomeURL() { return mHomeURL; }
+	std::string getHomeURL() { return mHomeURL; }
+    void setHomeURL(const std::string& home_url) { mHomeURL = home_url; };
 	std::string getMimeType() { return mMimeType; }
 	void scaleMouse(S32 *mouse_x, S32 *mouse_y);
 
 	void update();
-	void updateMovieImage(const LLUUID& image_id, BOOL active);
 	void updateImagesMediaStreams();
 	LLUUID getMediaTextureID();
 	
 	void suspendUpdates(bool suspend) { mSuspendUpdates = suspend; };
 	void setVisible(bool visible);
+	bool getVisible() const { return mVisible; };
 
 	bool isMediaPlaying();
 	bool isMediaPaused();
 	bool hasMedia();
 
+	ECursorType getLastSetCursor() { return mLastSetCursor; };
+	
 	// utility function to create a ready-to-use media instance from a desired media type.
 	static LLPluginClassMedia* newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height);
 
@@ -191,7 +204,7 @@ public:
 	/*virtual*/ BOOL hasMouseCapture() { return gFocusMgr.getMouseCapture() == this; };
 
 	// Inherited from LLPluginClassMediaOwner
-	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, LLPluginClassMediaOwner::EMediaEvent);
+	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* plugin, LLPluginClassMediaOwner::EMediaEvent);
 
 	// LLEditMenuHandler overrides
 	/*virtual*/ void	cut();
@@ -202,6 +215,45 @@ public:
 
 	/*virtual*/ void	paste();
 	/*virtual*/ BOOL	canPaste() const;
+	
+	void addObject(LLVOVolume* obj) ;
+	void removeObject(LLVOVolume* obj) ;
+	const std::list< LLVOVolume* >* getObjectList() const ;
+	void setUpdated(BOOL updated) ;
+	BOOL isUpdated() ;
+	
+	// Updates the "interest" value in this object
+	void calculateInterest();
+	F64 getInterest() const { return mInterest; };
+	F64 getApproximateTextureInterest();
+	
+	// Mark this object as being used in a UI panel instead of on a prim
+	// This will be used as part of the interest sorting algorithm.
+	void setUsedInUI(bool used_in_ui);
+	bool getUsedInUI() const { return mUsedInUI; };
+	
+	F64 getCPUUsage() const;
+	
+	void setPriority(LLPluginClassMedia::EPriority priority);
+	LLPluginClassMedia::EPriority getPriority() { return mPriority; };
+
+	void setLowPrioritySizeLimit(int size);
+	
+	typedef enum 
+	{
+		MEDIANAVSTATE_NONE,								// State is outside what we need to track for navigation.
+		MEDIANAVSTATE_BEGUN,							// a MEDIA_EVENT_NAVIGATE_BEGIN has been received which was not server-directed
+		MEDIANAVSTATE_FIRST_LOCATION_CHANGED,			// first LOCATION_CHANGED event after a non-server-directed BEGIN
+		MEDIANAVSTATE_SERVER_SENT,						// server-directed nav has been requested, but MEDIA_EVENT_NAVIGATE_BEGIN hasn't been received yet
+		MEDIANAVSTATE_SERVER_BEGUN,						// MEDIA_EVENT_NAVIGATE_BEGIN has been received which was server-directed
+		MEDIANAVSTATE_SERVER_FIRST_LOCATION_CHANGED		// first LOCATION_CHANGED event after a server-directed BEGIN
+		
+	}EMediaNavState;
+    
+	// Returns the current nav state of the media.
+	// note that this will be updated BEFORE listeners and objects receive media messages 
+	EMediaNavState getNavState() { return mMediaNavState; }
+	void setNavState(EMediaNavState state);
 	
 public:
 	// a single media url with some data and an impl.
@@ -220,7 +272,19 @@ public:
 	bool mNeedsNewTexture;
 	bool mSuspendUpdates;
 	bool mVisible;
+	ECursorType mLastSetCursor;
+	EMediaNavState mMediaNavState;
+	F64 mInterest;
+	bool mUsedInUI;
+	bool mHasFocus;
+	LLPluginClassMedia::EPriority mPriority;
+	bool mDoNavigateOnLoad;
+	bool mDoNavigateOnLoadServerRequest;
 
+
+private:
+	BOOL mIsUpdated ;
+	std::list< LLVOVolume* > mObjectList ;
 
 private:
 	LLViewerMediaTexture *updatePlaceholderImage();

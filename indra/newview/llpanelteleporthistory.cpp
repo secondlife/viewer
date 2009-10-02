@@ -42,11 +42,15 @@
 #include "llaccordionctrltab.h"
 #include "llflatlistview.h"
 #include "lltextbox.h"
+#include "llviewermenu.h"
+#include "llviewerinventory.h"
+#include "lllandmarkactions.h"
+#include "llclipboard.h"
 
 class LLTeleportHistoryFlatItem : public LLPanel
 {
 public:
-	LLTeleportHistoryFlatItem(S32 index, const std::string &region_name);
+	LLTeleportHistoryFlatItem(S32 index, LLTeleportHistoryPanel::ContextMenu *context_menu, const std::string &region_name);
 	virtual ~LLTeleportHistoryFlatItem() {};
 
 	virtual BOOL postBuild();
@@ -57,18 +61,23 @@ public:
 
 	void onMouseEnter(S32 x, S32 y, MASK mask);
 	void onMouseLeave(S32 x, S32 y, MASK mask);
+	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
+	static void showPlaceInfoPanel(S32 index);
 private:
 	void onInfoBtnClick();
 
 	LLButton* mInfoBtn;
+	LLTeleportHistoryPanel::ContextMenu *mContextMenu;
 
 	S32 mIndex;
 	std::string mRegionName;
 };
 
-LLTeleportHistoryFlatItem::LLTeleportHistoryFlatItem(S32 index, const std::string &region_name)
+LLTeleportHistoryFlatItem::LLTeleportHistoryFlatItem(S32 index, LLTeleportHistoryPanel::ContextMenu *context_menu, const std::string &region_name)
 :	LLPanel(),
 	mIndex(index),
+	mContextMenu(context_menu),
 	mRegionName(region_name)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_teleport_history_item.xml");
@@ -109,13 +118,103 @@ void LLTeleportHistoryFlatItem::onMouseLeave(S32 x, S32 y, MASK mask)
 	LLPanel::onMouseLeave(x, y, mask);
 }
 
-void LLTeleportHistoryFlatItem::onInfoBtnClick()
+// virtual
+BOOL LLTeleportHistoryFlatItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	if (mContextMenu)
+		mContextMenu->show(this, mIndex, x, y);
+
+	return LLPanel::handleRightMouseDown(x, y, mask);
+}
+
+void LLTeleportHistoryFlatItem::showPlaceInfoPanel(S32 index)
 {
 	LLSD params;
-	params["id"] = mIndex;
+	params["id"] = index;
 	params["type"] = "teleport_history";
 
 	LLSideTray::getInstance()->showPanel("panel_places", params);
+}
+
+void LLTeleportHistoryFlatItem::onInfoBtnClick()
+{
+	LLTeleportHistoryFlatItem::showPlaceInfoPanel(mIndex);
+}
+
+LLTeleportHistoryPanel::ContextMenu::ContextMenu() :
+	mMenu(NULL)
+{
+}
+
+void LLTeleportHistoryPanel::ContextMenu::show(LLView* spawning_view, S32 index, S32 x, S32 y)
+{
+	if (mMenu)
+	{
+		//preventing parent (menu holder) from deleting already "dead" context menus on exit
+		LLView* parent = mMenu->getParent();
+		if (parent)
+		{
+			parent->removeChild(mMenu);
+			mMenu->setParent(NULL);
+		}
+		delete mMenu;
+	}
+
+	mIndex = index;
+	mMenu = createMenu();
+
+	LLViewerInventoryItem *landmark = LLLandmarkActions::findLandmarkForGlobalPos(
+		LLTeleportHistoryStorage::getInstance()->getItems()[index].mGlobalPos);
+
+	mMenu->setItemEnabled("Make Landmark", !landmark || landmark->getUUID().isNull());
+
+	mMenu->show(x, y);
+	LLMenuGL::showPopup(spawning_view, mMenu, x, y);
+}
+
+LLContextMenu* LLTeleportHistoryPanel::ContextMenu::createMenu()
+{
+	// set up the callbacks for all of the avatar menu items
+	// (N.B. callbacks don't take const refs as mID is local scope)
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+
+	registrar.add("TeleportHistory.Teleport",	boost::bind(&LLTeleportHistoryPanel::ContextMenu::onTeleport, this));
+	registrar.add("TeleportHistory.MoreInformation",boost::bind(&LLTeleportHistoryPanel::ContextMenu::onInfo, this));
+	registrar.add("TeleportHistory.Copy",		boost::bind(&LLTeleportHistoryPanel::ContextMenu::onCopy, this));
+	registrar.add("TeleportHistory.MakeLandmark",	boost::bind(&LLTeleportHistoryPanel::ContextMenu::onMakeLandmark, this));
+
+	// create the context menu from the XUI
+	return LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
+		"menu_teleport_history_item.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
+}
+
+void LLTeleportHistoryPanel::ContextMenu::onTeleport()
+{
+	LLTeleportHistoryStorage::getInstance()->goToItem(mIndex);
+}
+
+void LLTeleportHistoryPanel::ContextMenu::onInfo()
+{
+	LLTeleportHistoryFlatItem::showPlaceInfoPanel(mIndex);
+}
+
+//static
+void LLTeleportHistoryPanel::ContextMenu::gotSLURLCallback(const std::string& slurl)
+{
+	gClipboard.copyFromString(utf8str_to_wstring(slurl));
+}
+
+void LLTeleportHistoryPanel::ContextMenu::onCopy()
+{
+	LLVector3d globalPos = LLTeleportHistoryStorage::getInstance()->getItems()[mIndex].mGlobalPos;
+	LLLandmarkActions::getSLURLfromPosGlobal(globalPos,
+		boost::bind(&LLTeleportHistoryPanel::ContextMenu::gotSLURLCallback, _1), false);
+}
+
+void LLTeleportHistoryPanel::ContextMenu::onMakeLandmark()
+{
+	//FIXME: it creates landmark for current agent positon, not for the global position of item of teleport history
+	LLSideTray::getInstance()->showPanel("panel_places", LLSD().insert("type", "create_landmark"));
 }
 
 // Not yet implemented; need to remove buildPanel() from constructor when we switch
@@ -126,6 +225,7 @@ LLTeleportHistoryPanel::LLTeleportHistoryPanel()
 		mFilterSubString(LLStringUtil::null),
 		mTeleportHistory(NULL),
 		mHistoryAccordion(NULL),
+		mAccordionTabMenu(NULL),
 		mLastSelectedScrollList(NULL)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_teleport_history.xml");
@@ -153,6 +253,8 @@ BOOL LLTeleportHistoryPanel::postBuild()
 			if (dynamic_cast<LLAccordionCtrlTab*>(*iter))
 			{
 				LLAccordionCtrlTab* tab = (LLAccordionCtrlTab*)*iter;
+				tab->setRightMouseDownCallback(boost::bind(&LLTeleportHistoryPanel::onAccordionTabRightClick, this, _1, _2, _3, _4));
+
 				mItemContainers.put(tab);
 
 				LLFlatListView* fl = getFlatListViewFromTab(tab);
@@ -306,12 +408,12 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 					
 					if (curr_tab <= tabs_cnt - 4)
 					{
-					curr_date.secondsSinceEpoch(curr_date.secondsSinceEpoch() - seconds_in_day);
+						curr_date.secondsSinceEpoch(curr_date.secondsSinceEpoch() - seconds_in_day);
 					}
 					else if (curr_tab == tabs_cnt - 3) // 6 day and older, low boundary is 1 month
 					{
 						curr_date =  LLDate::now();
-					curr_date.split(&curr_year, &curr_month, &curr_day);
+						curr_date.split(&curr_year, &curr_month, &curr_day);
 						curr_month--;
 						if (0 == curr_month)
 						{
@@ -354,7 +456,7 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 
 		if (curr_flat_view)
 		{			
-			curr_flat_view->addItem(new LLTeleportHistoryFlatItem(index, (*iter).mTitle));
+			curr_flat_view->addItem(new LLTeleportHistoryFlatItem(index, &mContextMenu, (*iter).mTitle));
 		}
 
 		index--;
@@ -376,7 +478,7 @@ void LLTeleportHistoryPanel::handleItemSelect(LLFlatListView* selected)
 	S32 tabs_cnt = mItemContainers.size();
 
 	for (S32 n = 0; n < tabs_cnt; n++)
-		{
+	{
 		LLAccordionCtrlTab* tab = mItemContainers.get(n);
 
 		if (!tab->getVisible())
@@ -390,7 +492,7 @@ void LLTeleportHistoryPanel::handleItemSelect(LLFlatListView* selected)
 			continue;
 
 		flv->resetSelection(true);
-		}
+	}
 
 	updateVerbs();
 }
@@ -409,6 +511,56 @@ void LLTeleportHistoryPanel::onDoubleClickItem(void* user_data)
 	key["id"] = itemp->getColumn(LIST_INDEX)->getValue().asInteger();
 
 	LLSideTray::getInstance()->showPanel("panel_places", key);*/
+}
+
+void LLTeleportHistoryPanel::onAccordionTabRightClick(LLView *view, S32 x, S32 y, MASK mask)
+{
+	LLAccordionCtrlTab *tab = (LLAccordionCtrlTab *) view;
+
+	// If click occurred below the header, don't show this menu
+	if (y < tab->getRect().getHeight() - tab->getHeaderHeight() - tab->getPaddingBottom())
+		return;
+
+	if (mAccordionTabMenu)
+	{
+		//preventing parent (menu holder) from deleting already "dead" context menus on exit
+		LLView* parent = mAccordionTabMenu->getParent();
+		if (parent)
+		{
+			parent->removeChild(mAccordionTabMenu);
+			mAccordionTabMenu->setParent(NULL);
+		}
+		delete mAccordionTabMenu;
+	}
+
+	// set up the callbacks for all of the avatar menu items
+	// (N.B. callbacks don't take const refs as mID is local scope)
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+
+	registrar.add("TeleportHistory.TabOpen",	boost::bind(&LLTeleportHistoryPanel::onAccordionTabOpen, this, tab));
+	registrar.add("TeleportHistory.TabClose",	boost::bind(&LLTeleportHistoryPanel::onAccordionTabClose, this, tab));
+
+	// create the context menu from the XUI
+	mAccordionTabMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
+		"menu_teleport_history_tab.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
+
+	mAccordionTabMenu->setItemVisible("TabOpen", !tab->isExpanded() ? true : false);
+	mAccordionTabMenu->setItemVisible("TabClose", tab->isExpanded() ? true : false);
+
+	mAccordionTabMenu->show(x, y);
+	LLMenuGL::showPopup(tab, mAccordionTabMenu, x, y);
+}
+
+void LLTeleportHistoryPanel::onAccordionTabOpen(LLAccordionCtrlTab *tab)
+{
+	tab->setDisplayChildren(true);
+	mHistoryAccordion->arrange();
+}
+
+void LLTeleportHistoryPanel::onAccordionTabClose(LLAccordionCtrlTab *tab)
+{
+	tab->setDisplayChildren(false);
+	mHistoryAccordion->arrange();
 }
 
 LLFlatListView* LLTeleportHistoryPanel::getFlatListViewFromTab(LLAccordionCtrlTab *tab)

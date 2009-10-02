@@ -466,16 +466,6 @@ LLRect LLView::getRequiredRect()
 	return mRect;
 }
 
-//virtual
-void LLView::onFocusLost()
-{
-}
-
-//virtual
-void LLView::onFocusReceived()
-{
-}
-
 BOOL LLView::focusNextRoot()
 {
 	LLView::child_list_t result = LLView::getFocusRootsQuery().run(this);

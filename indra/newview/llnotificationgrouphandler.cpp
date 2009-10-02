@@ -89,7 +89,10 @@ bool LLGroupHandler::processNotification(const LLSD& notify)
 		p.notification = notification;
 		p.panel = notify_box;
 		p.on_delete_toast = boost::bind(&LLGroupHandler::onDeleteToast, this, _1);
-		mChannel->addToast(p);
+
+		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+		if(channel)
+			channel->addToast(p);
 
 		// send a signal to the counter manager
 		mNewNotificationSignal();

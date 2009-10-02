@@ -62,7 +62,7 @@ public:
 								   std::string& tooltip_msg);
 
 	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-
+	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	// LLInventoryObserver observer trigger
 	virtual void changed(U32 mask);
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);

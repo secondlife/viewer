@@ -49,6 +49,7 @@
 #include "llvoicecontrolpanel.h"
 #include "llgroupmgr.h"
 #include "llnotificationmanager.h"
+#include "lltransientfloatermgr.h"
 
 static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
 static LLDefaultChildRegistry::Register<LLTalkButton> t2("chiclet_talk");
@@ -243,26 +244,36 @@ void LLIMChiclet::draw()
 LLIMChiclet::EType LLIMChiclet::getIMSessionType(const LLUUID& session_id)
 {
 	EType				type	= TYPE_UNKNOWN;
-	LLFloaterIMPanel*	im		= NULL;
 
 	if(session_id.isNull())
 		return type;
 
-	if (!(im = LLIMMgr::getInstance()->findFloaterBySession(session_id)))
+	EInstantMessage im_type = LLIMModel::getInstance()->getType(session_id);
+	if (IM_COUNT == im_type)
 	{
 		llassert_always(0 && "IM session not found"); // should never happen
 		return type;
 	}
 
-	switch(im->getDialogType())
+	switch(im_type)
 	{
 	case IM_NOTHING_SPECIAL:
+	case IM_SESSION_P2P_INVITE:
 		type = TYPE_IM;
 		break;
 	case IM_SESSION_GROUP_START:
 	case IM_SESSION_INVITE:
-		type = TYPE_GROUP;
+		if (gAgent.isInGroup(session_id))
+		{
+			type = TYPE_GROUP;
+		}
+		else
+		{
+			type = TYPE_AD_HOC;
+		}
 		break;
+	case IM_SESSION_CONFERENCE_START:
+		type = TYPE_AD_HOC;
 	default:
 		break;
 	}
@@ -285,6 +296,11 @@ LLIMP2PChiclet::Params::Params()
 
 	avatar_icon.name("avatar_icon");
 	avatar_icon.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
+
+	// *NOTE dzaporozhan
+	// Changed icon height from 25 to 24 to fix ticket EXT-794.
+	// In some cases(after changing UI scale) 25 pixel height icon was 
+	// drawn incorrectly, i'm not sure why.
 	avatar_icon.rect(LLRect(0, 24, 25, 0));
 	avatar_icon.mouse_opaque(false);
 
@@ -458,6 +474,11 @@ LLIMGroupChiclet::Params::Params()
 	rect(LLRect(0, 25, 45, 0));
 
 	group_icon.name("group_icon");
+	
+	// *NOTE dzaporozhan
+	// Changed icon height from 25 to 24 to fix ticket EXT-794.
+	// In some cases(after changing UI scale) 25 pixel height icon was 
+	// drawn incorrectly, i'm not sure why.
 	group_icon.rect(LLRect(0, 24, 25, 0));
 
 	unread_notifications.name("unread");
@@ -1164,6 +1185,7 @@ LLTalkButton::LLTalkButton(const Params& p)
 	speak_params.rect(speak_rect);
 	mSpeakBtn = LLUICtrlFactory::create<LLButton>(speak_params);
 	addChild(mSpeakBtn);
+	LLTransientFloaterMgr::getInstance()->addControlView(mSpeakBtn);
 
 	mSpeakBtn->setClickedCallback(boost::bind(&LLTalkButton::onClick_SpeakBtn, this));
 	mSpeakBtn->setToggleState(FALSE);
@@ -1172,6 +1194,7 @@ LLTalkButton::LLTalkButton(const Params& p)
 	show_params.rect(show_rect);
 	mShowBtn = LLUICtrlFactory::create<LLButton>(show_params);
 	addChild(mShowBtn);
+	LLTransientFloaterMgr::getInstance()->addControlView(mShowBtn);
 
 	mShowBtn->setClickedCallback(boost::bind(&LLTalkButton::onClick_ShowBtn, this));
 	mShowBtn->setToggleState(FALSE);

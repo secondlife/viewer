@@ -10,9 +10,9 @@
              highlighted_color="ScrollHighlightedColor"
              column_padding="5"
              draw_stripes="true"
+             scroll_bar_bg_visible="false"
+             scroll_bar_bg_color="black"
              background_visible="false"
              heading_height="23"
              draw_border="false"
-             draw_heading="false"
-             scroll_bar_bg_visible="false"
-             scroll_bar_bg_color="black" />
+             draw_heading="false" />

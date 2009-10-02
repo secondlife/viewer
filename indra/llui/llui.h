@@ -57,13 +57,13 @@
 #include "llfontgl.h"
 
 class LLColor4; 
-class LLHtmlHelp;
 class LLVector3;
 class LLVector2;
 class LLUIImage;
 class LLUUID;
 class LLWindow;
 class LLView;
+class LLHelp;
 
 // UI colors
 extern const LLColor4 UI_VERTEX_COLOR;
@@ -104,8 +104,6 @@ void gl_draw_rotated_image(S32 x, S32 y, F32 degrees, LLTexture* image, const LL
 void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degrees,LLTexture* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
 void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border_height, S32 width, S32 height, LLTexture* image, const LLColor4 &color, BOOL solid_color = FALSE, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
 void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4 &color, BOOL solid_color = FALSE, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f), const LLRectf& scale_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
-// Flip vertical, used for LLFloaterHTML
-void gl_draw_scaled_image_inverted(S32 x, S32 y, S32 width, S32 height, LLTexture* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
 
 void gl_rect_2d_xor(S32 left, S32 top, S32 right, S32 bottom);
 void gl_stippled_line_3d( const LLVector3& start, const LLVector3& end, const LLColor4& color, F32 phase = 0.f ); 
@@ -203,7 +201,6 @@ public:
 	static void glPointToScreen(S32 gl_x, S32 gl_y, S32 *screen_x, S32 *screen_y);
 	static void screenRectToGL(const LLRect& screen, LLRect *gl);
 	static void glRectToScreen(const LLRect& gl, LLRect *screen);
-	static void setHtmlHelp(LLHtmlHelp* html_help);
 	// Returns the control group containing the control name, or the default group
 	static LLControlGroup& getControlControlGroup (const std::string& controlname);
 	static F32 getMouseIdleTime() { return sMouseIdleTimer.getElapsedTimeF32(); }
@@ -223,8 +220,8 @@ public:
 	static LLUIAudioCallback sAudioCallback;
 	static LLVector2		sGLScaleFactor;
 	static LLWindow*		sWindow;
-	static LLHtmlHelp*		sHtmlHelp;
 	static LLView*			sRootView;
+	static LLHelp*			sHelpImpl;
 private:
 	static LLImageProviderInterface* sImageProvider;
 	static std::vector<std::string> sXUIPaths;

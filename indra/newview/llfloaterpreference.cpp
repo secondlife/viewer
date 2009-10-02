@@ -195,8 +195,8 @@ void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
 
 viewer_media_t get_web_media()
 {
-	viewer_media_t media_source = LLViewerMedia::newMediaImpl("", LLUUID::null, 0, 0, 0, 0, "text/html");
-	
+	viewer_media_t media_source = LLViewerMedia::newMediaImpl(LLUUID::null);
+	media_source->initializeMedia("text/html");
 	return media_source;
 }
 

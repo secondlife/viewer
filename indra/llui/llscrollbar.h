@@ -130,12 +130,6 @@ public:
 	void				onLineUpBtnPressed(const LLSD& data);
 	void				onLineDownBtnPressed(const LLSD& data);
 
-	void				setBGColor(const LLUIColor& color) { mBGColor = color; }
-	const LLUIColor&	getBGColor() const { return mBGColor; }
-
-	void				setBGVisible() { mBGVisible = true; }
-	bool				getBGVisible() const { return mBGVisible; }
-
 private:
 	void				updateThumbRect();
 	void				changeLine(S32 delta, BOOL update_thumb );

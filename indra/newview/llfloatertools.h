@@ -100,13 +100,24 @@ public:
 
 	void setStatusText(const std::string& text);
 	static void setEditTool(void* data);
+	void setTool(const LLSD& user_data);
 	void saveLastTool();
+	void onClickBtnDeleteMedia();
+	void onClickBtnAddMedia();
+	void onClickBtnEditMedia();
+	
+
 private:
 	void onClose();
 	void refresh();
-
+	void refreshMedia();
+	void getMediaState();
+	void updateMediaSettings();
+	void getMeidaState();
+	static bool deleteMediaConfirm(const LLSD& notification, const LLSD& response);
+	static bool multipleFacesSelectedConfirm(const LLSD& notification, const LLSD& response);
 	static void setObjectType( LLPCode pcode );
-	static void onClickGridOptions(void* data);
+	void onClickGridOptions();
 
 public:
 	LLButton		*mBtnFocus;
@@ -175,6 +186,10 @@ private:
 	BOOL					mDirty;
 
 	std::map<std::string, std::string> mStatusText;
+
+protected:
+	LLSD				mMediaSettings;
+	
 };
 
 extern LLFloaterTools *gFloaterTools;

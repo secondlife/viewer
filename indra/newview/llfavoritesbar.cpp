@@ -934,6 +934,17 @@ void LLFavoritesBarCtrl::onButtonRightClick( LLUUID item_id,LLView* fav_button,S
 	LLMenuGL::showPopup(fav_button, menu, x, y);
 }
 
+BOOL LLFavoritesBarCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = childrenHandleRightMouseDown( x, y, mask) != NULL;
+	if(!handled && !gMenuHolder->hasVisibleMenu())
+	{
+		show_navbar_context_menu(this,x,y);
+		handled = true;
+	}
+	
+	return handled;
+}
 void copy_slurl_to_clipboard_cb(std::string& slurl)
 {
 	gClipboard.copyFromString(utf8str_to_wstring(slurl));

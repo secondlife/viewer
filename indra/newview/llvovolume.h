@@ -35,6 +35,7 @@
 
 #include "llviewerobject.h"
 #include "llviewertexture.h"
+#include "llviewermedia.h"
 #include "llframetimer.h"
 #include "llapr.h"
 #include "m3math.h"		// LLMatrix3
@@ -44,6 +45,8 @@
 class LLViewerTextureAnim;
 class LLDrawPool;
 class LLSelectNode;
+
+typedef std::vector<viewer_media_t> media_list_t;
 
 enum LLVolumeInterfaceType
 {
@@ -75,12 +78,14 @@ public:
 // Class which embodies all Volume objects (with pcode LL_PCODE_VOLUME)
 class LLVOVolume : public LLViewerObject
 {
+	LOG_CLASS(LLVOVolume);
 protected:
 	virtual				~LLVOVolume();
 
 public:
 	static		void	initClass();
-	static 		void 	preUpdateGeom();
+	static		void	cleanupClass();
+	static		void	preUpdateGeom();
 	
 	enum 
 	{
@@ -153,6 +158,7 @@ public:
 
 	/*virtual*/ void	setScale(const LLVector3 &scale, BOOL damped);
 
+	/*virtual*/ void	setNumTEs(const U8 num_tes);
 	/*virtual*/ void	setTEImage(const U8 te, LLViewerTexture *imagep);
 	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor3 &color);
@@ -224,13 +230,31 @@ public:
 	BOOL isVolumeGlobal() const;
 	BOOL canBeFlexible() const;
 	BOOL setIsFlexible(BOOL is_flexible);
-			
+
+	void updateObjectMediaData(const LLSD &media_data_duples);
+	void mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, LLViewerMediaObserver::EMediaEvent event);
+
+	// Sync the given media data with the impl and the given te
+	void syncMediaData(S32 te, const LLSD &media_data, bool merge, bool ignore_agent);
+	
+	// Send media data update to the simulator.
+	void sendMediaDataUpdate() const;
+
+	viewer_media_t getMediaImpl(U8 face_id) const;
+	S32 getFaceIndexWithMediaImpl(const LLViewerMediaImpl* media_impl, S32 start_face_id);
+   
+	bool hasMedia() const;
+
 protected:
 	S32	computeLODDetail(F32	distance, F32 radius);
 	BOOL calcLOD();
 	LLFace* addFace(S32 face_index);
 	void updateTEData();
 
+	void requestMediaDataUpdate();
+	void cleanUpMediaImpls();
+	void addMediaImpl(LLViewerMediaImpl* media_impl, S32 texture_index) ;
+	void removeMediaImpl(S32 texture_index) ;
 public:
 	LLViewerTextureAnim *mTextureAnimp;
 	U8 mTexAnimMode;
@@ -251,6 +275,7 @@ private:
 	LLVolumeInterface *mVolumeImpl;
 	LLPointer<LLViewerFetchedTexture> mSculptTexture;
 	LLPointer<LLViewerFetchedTexture> mLightTexture;
+	media_list_t mMediaImplList;
 	
 	// statics
 public:

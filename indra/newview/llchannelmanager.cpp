@@ -77,7 +77,7 @@ LLScreenChannel* LLChannelManager::createNotificationChannel()
 	p.channel_align = CA_RIGHT;
 
 	// Getting a Channel for our notifications
-	return LLChannelManager::getInstance()->getChannel(p);
+	return dynamic_cast<LLScreenChannel*> (LLChannelManager::getInstance()->getChannel(p));
 }
 
 //--------------------------------------------------------------------------
@@ -113,7 +113,7 @@ void LLChannelManager::onLoginCompleted()
 	LLChannelManager::Params p;
 	p.id = LLUUID(gSavedSettings.getString("StartUpChannelUUID"));
 	p.channel_align = CA_RIGHT;
-	mStartUpChannel = getChannel(p);
+	mStartUpChannel = createChannel(p);
 
 	if(!mStartUpChannel)
 	{
@@ -147,22 +147,32 @@ void LLChannelManager::onStartUpToastClose()
 	LLScreenChannel::setStartUpToastShown();
 
 	// force NEARBY CHAT CHANNEL to repost all toasts if present
-	LLScreenChannel* nearby_channel = findChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
-	nearby_channel->loadStoredToastsToChannel();
-	nearby_channel->setCanStoreToasts(false);
+	//LLScreenChannelBase* nearby_channel = findChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
+	//!!!!!!!!!!!!!!
+	//FIXME
+	//nearby_channel->loadStoredToastsToChannel();
+	//nearby_channel->setCanStoreToasts(false);
 }
 
 //--------------------------------------------------------------------------
-LLScreenChannel* LLChannelManager::getChannel(LLChannelManager::Params& p)
+
+LLScreenChannelBase*	LLChannelManager::addChannel(LLScreenChannelBase* channel)
 {
-	LLScreenChannel* new_channel = NULL;
+	if(!channel)
+		return 0;
 
-	new_channel = findChannelByID(p.id);
+	ChannelElem new_elem;
+	new_elem.id = channel->getChannelID();
+	new_elem.channel = channel;
 
-	if(new_channel)
-		return new_channel;
+	mChannelList.push_back(new_elem); 
 
-	new_channel = new LLScreenChannel(p.id); 
+	return channel;
+}
+
+LLScreenChannel* LLChannelManager::createChannel(LLChannelManager::Params& p)
+{
+	LLScreenChannel* new_channel = new LLScreenChannel(p.id); 
 
 	if(!new_channel)
 	{
@@ -172,20 +182,26 @@ LLScreenChannel* LLChannelManager::getChannel(LLChannelManager::Params& p)
 	{
 		new_channel->setToastAlignment(p.toast_align);
 		new_channel->setChannelAlignment(p.channel_align);
-	new_channel->setDisplayToastsAlways(p.display_toasts_always);
+		new_channel->setDisplayToastsAlways(p.display_toasts_always);
 
-	ChannelElem new_elem;
-	new_elem.id = p.id;
-	new_elem.channel = new_channel;
-
-		mChannelList.push_back(new_elem); 
+		addChannel(new_channel);
 	}
-
 	return new_channel;
 }
 
+LLScreenChannelBase* LLChannelManager::getChannel(LLChannelManager::Params& p)
+{
+	LLScreenChannelBase* new_channel = findChannelByID(p.id);
+
+	if(new_channel)
+		return new_channel;
+
+	return createChannel(p);
+
+}
+
 //--------------------------------------------------------------------------
-LLScreenChannel* LLChannelManager::findChannelByID(const LLUUID id)
+LLScreenChannelBase* LLChannelManager::findChannelByID(const LLUUID id)
 {
 	std::vector<ChannelElem>::iterator it = find(mChannelList.begin(), mChannelList.end(), id); 
 	if(it != mChannelList.end())

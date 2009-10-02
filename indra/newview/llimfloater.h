@@ -57,6 +57,8 @@ public:
 
 	// LLFloater overrides
 	/*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
+	// override LLFloater's minimization according to EXT-1216
+	/*virtual*/ void setMinimized(BOOL minimize);
 
 	// Make IM conversion visible and update the message history
 	static LLIMFloater* show(const LLUUID& session_id);
@@ -90,8 +92,8 @@ private:
 	void			onSlide();
 	static void*	createPanelIMControl(void* userdata);
 	static void*	createPanelGroupControl(void* userdata);
-	void focusChangeCallback();
-	void getEnabledRect(LLRect& rect);
+	// gets a rect that bounds possible positions for the LLIMFloater on a screen (EXT-1111)
+	void getAllowedRect(LLRect& rect);
 	
 	LLPanelChatControlPanel* mControlPanel;
 	LLUUID mSessionID;

@@ -76,7 +76,10 @@ public:
 
 	virtual void	onOpen		(const LLSD& key);
 
+	virtual void	draw		();
+
 private:
+	void	add_timestamped_line(const LLChat& chat, const LLColor4& color);
 	
 	void	pinn_panel();
 	void	float_panel();
@@ -86,10 +89,11 @@ private:
 	S32		mStart_X;
 	S32		mStart_Y;
 
-	//LLResizeBar*		mResizeBar[RESIZE_BAR_COUNT];
 	LLHandle<LLView>	mPopupMenuHandle;
 	LLPanel*			mChatCaptionPanel;
 	LLViewerTextEditor*	mChatHistoryEditor;
+
+	bool				m_isDirty;
 };
 
 #endif

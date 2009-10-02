@@ -2001,6 +2001,8 @@ void LLTextEditor::cut()
 	deleteSelection( FALSE );
 
 	needsReflow();
+
+	onKeyStroke();
 }
 
 BOOL LLTextEditor::canCopy() const
@@ -2105,6 +2107,8 @@ void LLTextEditor::pasteHelper(bool is_primary)
 	deselect();
 
 	needsReflow();
+
+	onKeyStroke();
 }
 
 
@@ -2492,6 +2496,8 @@ BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 		if(text_may_have_changed)
 		{
 			needsReflow();
+
+			onKeyStroke();
 		}
 		needsScroll();
 	}
@@ -2534,6 +2540,8 @@ BOOL LLTextEditor::handleUnicodeCharHere(llwchar uni_char)
 		deselect();
 
 		needsReflow();
+
+		onKeyStroke();
 	}
 
 	return handled;
@@ -2588,6 +2596,8 @@ void LLTextEditor::doDelete()
 			setCursorPos(mCursorPos + 1);
 			removeChar();
 		}
+
+		onKeyStroke();
 	}
 
 	needsReflow();
@@ -2634,6 +2644,8 @@ void LLTextEditor::undo()
 		setCursorPos(pos);
 
 	needsReflow();
+
+	onKeyStroke();
 }
 
 BOOL LLTextEditor::canRedo() const
@@ -2676,6 +2688,8 @@ void LLTextEditor::redo()
 		setCursorPos(pos);
 
 	needsReflow();
+
+	onKeyStroke();
 }
 
 void LLTextEditor::onFocusReceived()
@@ -4402,6 +4416,8 @@ void LLTextEditor::updatePreedit(const LLWString &preedit_string,
 
 	// Update of the preedit should be caused by some key strokes.
 	mKeystrokeTimer.reset();
+
+	onKeyStroke();
 }
 
 BOOL LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect *bounds, LLRect *control) const
@@ -4647,4 +4663,31 @@ void LLInlineViewSegment::linkToDocument(LLTextBase* editor)
 	{
 		ed->addDocumentChild(mView);
 	}
+}
+
+BOOL LLTextEditor::isDirty() const
+{
+	if(mReadOnly)
+	{
+		return FALSE;
+	}
+
+	if( mPristineCmd )
+	{
+		return ( mPristineCmd == mLastCmd );
+	}
+	else
+	{
+		return ( NULL != mLastCmd );
+	}
+}
+
+void LLTextEditor::setKeystrokeCallback(const keystroke_signal_t::slot_type& callback)
+{
+	mKeystrokeSignal.connect(callback);
+}
+
+void LLTextEditor::onKeyStroke()
+{
+	mKeystrokeSignal(this);
 }

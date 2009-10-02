@@ -39,8 +39,8 @@
 
 static const LLDefaultChildRegistry::Register<LLFlatListView> flat_list_view("flat_list_view");
 
-const LLSD SELECTED_EVENT = LLSD().insert("selected", true);
-const LLSD UNSELECTED_EVENT = LLSD().insert("selected", false);
+const LLSD SELECTED_EVENT	= LLSD().insert("selected", true);
+const LLSD UNSELECTED_EVENT	= LLSD().insert("selected", false);
 
 static const std::string COMMENT_TEXTBOX = "comment_text";
 

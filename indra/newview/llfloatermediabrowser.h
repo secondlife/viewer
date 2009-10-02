@@ -1,6 +1,6 @@
 /** 
  * @file llfloatermediabrowser.h
- * @brief HTML Help floater - uses embedded web browser control
+ * @brief media browser floater - uses embedded media browser control
  *
  * $LicenseInfo:firstyear=2006&license=viewergpl$
  * 
@@ -33,23 +33,9 @@
 #ifndef LL_LLFLOATERMEDIABROWSER_H
 #define LL_LLFLOATERMEDIABROWSER_H
 
-#include "llhtmlhelp.h"
 #include "llfloater.h"
 #include "llmediactrl.h"
 
-class LLViewerHtmlHelp : public LLHtmlHelp
-{
-public:
-	LLViewerHtmlHelp();
-	virtual ~LLViewerHtmlHelp();
-
-	/*virtual*/ void show();
-	/*virtual*/ void show(std::string start_url);
-	void show(std::string start_url, std::string title);
-
-	static bool onClickF1HelpLoadURL(const LLSD& notification, const LLSD& response);
-
-};
 
 class LLComboBox;
 class LLMediaCtrl;
@@ -92,8 +78,6 @@ private:
 	LLComboBox* mAddressCombo;
 	std::string mCurrentURL;
 };
-
-extern LLViewerHtmlHelp gViewerHtmlHelp;
 
 #endif  // LL_LLFLOATERMEDIABROWSER_H
 

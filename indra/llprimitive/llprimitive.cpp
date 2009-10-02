@@ -1319,6 +1319,7 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem *mesgsys, char *block_name, con
 		color.mV[VALPHA]	= F32(255 - coloru.mV[VALPHA]) / 255.f;
 
 		retval |= setTEColor(i, color);
+
 	}
 
 	return retval;

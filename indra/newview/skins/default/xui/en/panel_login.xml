@@ -26,9 +26,8 @@
      layout="topleft"
      left="0"
      name="login_html"
-     hide_loading="true"
      right="-1"
-     start_url="data:text/html,%3Chtml%3E%3Chead%3E%3C/head%3E%3Cbody bgcolor=%22#000000%22 text=%22ffffff%22%3E%3Ch1%3E%3Ctt%3Eloading...%3C/tt%3E%3C/h1%3E %3C/body%3E %3C/html%3E"
+     start_url=""
      top="1" />
     <text
      type="string"
@@ -52,7 +51,7 @@
      max_length="31"
      name="first_name_edit"
      select_on_focus="true"
-     tool_tip="Second Life First Name"
+     tool_tip="[SECOND_LIFE] First Name"
      top_pad="2"
      width="120" />
     <text
@@ -78,6 +77,7 @@
      max_length="31"
      name="last_name_edit"
      select_on_focus="true"
+     tool_tip="[SECOND_LIFE] Last Name"
      top_pad="2"
      width="120" />
     <text

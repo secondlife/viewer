@@ -1,6 +1,6 @@
 /** 
  * @file llfloaterreporter.cpp
- * @brief Bug and abuse reports.
+ * @brief Abuse reports.
  *
  * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 
@@ -220,8 +220,7 @@ LLFloaterReporter::~LLFloaterReporter()
 void LLFloaterReporter::draw()
 {
 	// this is set by a static callback sometime after the dialog is created.
-	// Only disable screenshot for abuse reports to estate owners - bug reports always
-	// allow screenshots to be taken.
+	// Only disable screenshot for abuse reports to estate owners
 	if ( mEmailToEstateOwner )
 	{
 		childSetValue("screen_check", FALSE );
@@ -479,15 +478,6 @@ void LLFloaterReporter::showFromMenu(EReportType report_type)
 	if (f)
 	{
 		f->setReportType(report_type);
-
-		if (report_type == BUG_REPORT)
-		{
- 			LLNotifications::instance().add("HelpReportBug");
-		}
-		else
-		{
-			// popup for abuse reports is triggered elsewhere
-		}
 	}
 }
 
@@ -528,14 +518,7 @@ bool LLFloaterReporter::validateReport()
 	U8 category = (U8)category_sd.asInteger();
 	if (category == 0)
 	{
-		if ( mReportType != BUG_REPORT )
-		{
-			LLNotifications::instance().add("HelpReportAbuseSelectCategory");
-		}
-		else
-		{
-			LLNotifications::instance().add("HelpReportBugSelectCategory");
-		}
+		LLNotifications::instance().add("HelpReportAbuseSelectCategory");
 		return false;
 	}
 
@@ -561,27 +544,13 @@ bool LLFloaterReporter::validateReport()
 
 	if ( childGetText("summary_edit").empty() )
 	{
-		if ( mReportType != BUG_REPORT )
-		{
-			LLNotifications::instance().add("HelpReportAbuseSummaryEmpty");
-		}
-		else
-		{
-			LLNotifications::instance().add("HelpReportBugSummaryEmpty");
-		}
+		LLNotifications::instance().add("HelpReportAbuseSummaryEmpty");
 		return false;
 	};
 
 	if ( childGetText("details_edit") == mDefaultSummary )
 	{
-		if ( mReportType != BUG_REPORT )
-		{
-			LLNotifications::instance().add("HelpReportAbuseDetailsEmpty");
-		}
-		else
-		{
-			LLNotifications::instance().add("HelpReportBugDetailsEmpty");
-		}
+		LLNotifications::instance().add("HelpReportAbuseDetailsEmpty");
 		return false;
 	};
 	return true;

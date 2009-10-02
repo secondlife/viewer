@@ -225,22 +225,14 @@ void LLStatusBar::draw()
 
 BOOL LLStatusBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (mHideNavbarContextMenu)
-	{
-		mHideNavbarContextMenu->buildDrawLabels();
-		mHideNavbarContextMenu->updateParent(LLMenuGL::sMenuContainer);
-		LLMenuGL::showPopup(this, mHideNavbarContextMenu, x, y);
-	}
-
+	show_navbar_context_menu(this,x,y);
 	return TRUE;
 }
 
 BOOL LLStatusBar::postBuild()
 {
-	mHideNavbarContextMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_hide_navbar.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	gMenuHolder->addChild(mHideNavbarContextMenu);
 
-	gMenuBarView->setRightMouseDownCallback(boost::bind(&LLStatusBar::onMainMenuRightClicked, this, _1, _2, _3, _4));
+	gMenuBarView->setRightMouseDownCallback(boost::bind(&show_navbar_context_menu, _1, _2, _3));
 
 	return TRUE;
 }
@@ -558,11 +550,6 @@ void LLStatusBar::setupDate()
 	{
 		sMonths.resize(12);
 	}
-}
-
-void LLStatusBar::onMainMenuRightClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
-{
-	handleRightMouseDown(x, y, mask);
 }
 
 // static

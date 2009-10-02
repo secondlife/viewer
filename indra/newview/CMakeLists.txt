@@ -169,9 +169,9 @@ set(viewer_SOURCE_FILES
     llfloatergroups.cpp
     llfloaterhandler.cpp
     llfloaterhardwaresettings.cpp
-    llfloaterhtmlcurrency.cpp
+    llfloaterhelpbrowser.cpp
     llfloatermediabrowser.cpp
-    llfloaterhtmlsimple.cpp
+    llfloatermediasettings.cpp
     llfloaterhud.cpp
     llfloaterimagepreview.cpp
     llfloaterinspect.cpp
@@ -208,6 +208,7 @@ set(viewer_SOURCE_FILES
     llfloaterurlentry.cpp
     llfloatervoicedevicesettings.cpp
     llfloaterwater.cpp
+    llfloaterwhitelistentry.cpp
     llfloaterwindlight.cpp
     llfloaterworldmap.cpp
     llfoldertype.cpp
@@ -260,6 +261,9 @@ set(viewer_SOURCE_FILES
     llmanipscale.cpp
     llmaniptranslate.cpp
     llmapresponders.cpp
+    llmediactrl.cpp
+    llmediadataresponder.cpp
+    llmediadatafetcher.cpp
     llmediaremotectrl.cpp
     llmemoryview.cpp
     llmenucommands.cpp
@@ -321,6 +325,9 @@ set(viewer_SOURCE_FILES
     llpanelmediahud.cpp
     llpanelmeprofile.cpp
     llpanelmovetip.cpp
+    llpanelmediasettingsgeneral.cpp
+    llpanelmediasettingssecurity.cpp
+    llpanelmediasettingspermissions.cpp
     llpanelobject.cpp
     llpanelpeople.cpp
     llpanelpeoplemenus.cpp
@@ -426,6 +433,8 @@ set(viewer_SOURCE_FILES
     llviewerfloaterreg.cpp
     llviewergenericmessage.cpp
     llviewergesture.cpp    
+    llviewerhelp.cpp
+    llviewerhelputil.cpp
     llviewerinventory.cpp
     llviewerjointattachment.cpp
     llviewerjoint.cpp
@@ -490,7 +499,6 @@ set(viewer_SOURCE_FILES
     llwearabledictionary.cpp
     llwearablelist.cpp
     llweb.cpp
-    llmediactrl.cpp
     llwind.cpp
     llwlanimator.cpp
     llwldaycycle.cpp
@@ -632,9 +640,9 @@ set(viewer_HEADER_FILES
     llfloatergroups.h
     llfloaterhandler.h
     llfloaterhardwaresettings.h
-    llfloaterhtmlcurrency.h
+    llfloaterhelpbrowser.h
     llfloatermediabrowser.h
-    llfloaterhtmlsimple.h
+    llfloatermediasettings.h
     llfloaterhud.h
     llfloaterimagepreview.h
     llfloaterinspect.h
@@ -671,6 +679,7 @@ set(viewer_HEADER_FILES
     llfloaterurlentry.h
     llfloatervoicedevicesettings.h
     llfloaterwater.h
+    llfloaterwhitelistentry.h
     llfloaterwindlight.h
     llfloaterworldmap.h
     llfoldertype.h
@@ -723,6 +732,8 @@ set(viewer_HEADER_FILES
     llmanipscale.h
     llmaniptranslate.h
     llmapresponders.h
+    llmediadataresponder.h
+    llmediadatafetcher.h
     llmediaremotectrl.h
     llmemoryview.h
     llmenucommands.h
@@ -781,6 +792,9 @@ set(viewer_HEADER_FILES
     llpanelmediahud.h
     llpanelmeprofile.h
     llpanelmovetip.h
+    llpanelmediasettingsgeneral.h
+    llpanelmediasettingssecurity.h
+    llpanelmediasettingspermissions.h
     llpanelobject.h
     llpanelpeople.h
     llpanelpeoplemenus.h
@@ -891,6 +905,7 @@ set(viewer_HEADER_FILES
     llviewerfloaterreg.h
     llviewergenericmessage.h
     llviewergesture.h    
+    llviewerhelp.h
     llviewerinventory.h
     llviewerjoint.h
     llviewerjointattachment.h
@@ -1526,6 +1541,7 @@ endif (INSTALL)
 include(LLAddBuildTest)
 SET(viewer_TEST_SOURCE_FILES
   llagentaccess.cpp
+  llviewerhelputil.cpp
   )
 set_source_files_properties(
   ${viewer_TEST_SOURCE_FILES}
@@ -1565,7 +1581,7 @@ if (WINDOWS)
         -E
         copy_if_different
         ${BUILT_SLPLUGIN}
-        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llplugin
+        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
       COMMENT "Copying SLPlugin executable to the runtime folder."
       )
 

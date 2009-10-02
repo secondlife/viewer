@@ -93,8 +93,9 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 		p.is_tip = true;
 		p.can_be_stored = false;
 		
-		mChannel->addToast(p);
-
+		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+		if(channel)
+			channel->addToast(p);
 	}
 	else if (notify["sigtype"].asString() == "delete")
 	{

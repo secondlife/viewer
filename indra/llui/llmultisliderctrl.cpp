@@ -140,7 +140,7 @@ LLMultiSliderCtrl::LLMultiSliderCtrl(const LLMultiSliderCtrl::Params& p)
 			params.prevalidate_callback(&LLLineEditor::prevalidateFloat);
 			params.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
 			mEditor = LLUICtrlFactory::create<LLLineEditor> (params);
-			mEditor->setFocusReceivedCallback( &LLMultiSliderCtrl::onEditorGainFocus );
+			mEditor->setFocusReceivedCallback( boost::bind(LLMultiSliderCtrl::onEditorGainFocus, _1, this) );
 			// don't do this, as selecting the entire text is single clicking in some cases
 			// and double clicking in others
 			//mEditor->setSelectAllonFocusReceived(TRUE);

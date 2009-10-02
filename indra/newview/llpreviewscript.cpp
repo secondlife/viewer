@@ -44,6 +44,7 @@
 #include "llinventorymodel.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
+#include "llhelp.h"
 
 #include "llresmgr.h"
 #include "llscrollbar.h"
@@ -103,7 +104,7 @@ const std::string HELLO_LSL =
 	"        llSay(0, \"Touched.\");\n"
 	"    }\n"
 	"}\n";
-const std::string HELP_LSL_URL = "http://wiki.secondlife.com/wiki/LSL_Portal";
+const std::string HELP_LSL_PORTAL_TOPIC = "LSL_Portal";
 
 const std::string DEFAULT_SCRIPT_NAME = "New Script"; // *TODO:Translate?
 const std::string DEFAULT_SCRIPT_DESC = "(No Description)"; // *TODO:Translate?
@@ -264,7 +265,6 @@ struct LLSECKeywordCompare
 
 LLScriptEdCore::LLScriptEdCore(
 	const std::string& sample,
-	const std::string& help_url,
 	const LLHandle<LLFloater>& floater_handle,
 	void (*load_callback)(void*),
 	void (*save_callback)(void*, BOOL),
@@ -274,7 +274,6 @@ LLScriptEdCore::LLScriptEdCore(
 	:
 	LLPanel(),
 	mSampleText(sample),
-	mHelpURL(help_url),
 	mEditor( NULL ),
 	mLoadCallback( load_callback ),
 	mSaveCallback( save_callback ),
@@ -436,7 +435,7 @@ void LLScriptEdCore::initMenu()
 	menuItem = getChild<LLMenuItemCallGL>("Help...");
 	menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnHelp, this));
 
-	menuItem = getChild<LLMenuItemCallGL>("LSL Wiki Help...");
+	menuItem = getChild<LLMenuItemCallGL>("Keyword Help...");
 	menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnDynamicHelp, this));
 }
 
@@ -539,9 +538,12 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 			mLiveHelpTimer.stop();
 		}
 	}
-	else if (immediate)
+	else
 	{
-		setHelpPage(LLStringUtil::null);
+		if (immediate)
+		{
+			setHelpPage(LLStringUtil::null);
+		}
 	}
 }
 
@@ -557,6 +559,7 @@ void LLScriptEdCore::setHelpPage(const std::string& help_string)
 	if (!history_combo) return;
 
 	LLUIString url_string = gSavedSettings.getString("LSLHelpURL");
+
 	url_string.setArg("[LSL_STRING]", help_string);
 
 	addHelpItemToHistory(help_string);
@@ -647,69 +650,52 @@ bool LLScriptEdCore::handleSaveChangesDialog(const LLSD& notification, const LLS
 	return false;
 }
 
-// static 
-bool LLScriptEdCore::onHelpWebDialog(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-
-	switch(option)
-	{
-	case 0:
-		LLWeb::loadURL(notification["payload"]["help_url"]);
-		break;
-	default:
-		break;
-	}
-	return false;
-}
-
 void LLScriptEdCore::onBtnHelp()
 {
-	LLSD payload;
-	payload["help_url"] = mHelpURL;
-	LLNotifications::instance().add("WebLaunchLSLGuide", LLSD(), payload, onHelpWebDialog);
+	LLUI::sHelpImpl->showTopic(HELP_LSL_PORTAL_TOPIC);
 }
 
 void LLScriptEdCore::onBtnDynamicHelp()
 {
 	LLFloater* live_help_floater = mLiveHelpHandle.get();
-	if (live_help_floater)
+	if (!live_help_floater)
 	{
-		live_help_floater->setFocus(TRUE);
-		updateDynamicHelp(TRUE);
+		live_help_floater = new LLFloater(LLSD());
+		LLUICtrlFactory::getInstance()->buildFloater(live_help_floater, "floater_lsl_guide.xml", NULL);
+		LLFloater* parent = dynamic_cast<LLFloater*>(getParent());
+		parent->addDependentFloater(live_help_floater, TRUE);
+		live_help_floater->childSetCommitCallback("lock_check", onCheckLock, this);
+		live_help_floater->childSetValue("lock_check", gSavedSettings.getBOOL("ScriptHelpFollowsCursor"));
+		live_help_floater->childSetCommitCallback("history_combo", onHelpComboCommit, this);
+		live_help_floater->childSetAction("back_btn", onClickBack, this);
+		live_help_floater->childSetAction("fwd_btn", onClickForward, this);
 
-		return;
+		LLMediaCtrl* browser = live_help_floater->getChild<LLMediaCtrl>("lsl_guide_html");
+		browser->setAlwaysRefresh(TRUE);
+
+		LLComboBox* help_combo = live_help_floater->getChild<LLComboBox>("history_combo");
+		LLKeywordToken *token;
+		LLKeywords::keyword_iterator_t token_it;
+		for (token_it = mEditor->keywordsBegin(); 
+		     token_it != mEditor->keywordsEnd(); 
+		     ++token_it)
+		{
+			token = token_it->second;
+			help_combo->add(wstring_to_utf8str(token->getToken()));
+		}
+		help_combo->sortByName();
+
+		// re-initialize help variables
+		mLastHelpToken = NULL;
+		mLiveHelpHandle = live_help_floater->getHandle();
+		mLiveHelpHistorySize = 0;
 	}
 
-	live_help_floater = new LLFloater(LLSD());
-	LLUICtrlFactory::getInstance()->buildFloater(live_help_floater, "floater_lsl_guide.xml", NULL);
-	LLFloater* parent = dynamic_cast<LLFloater*>(getParent());
-	parent->addDependentFloater(live_help_floater, TRUE);
-	live_help_floater->childSetCommitCallback("lock_check", onCheckLock, this);
-	live_help_floater->childSetValue("lock_check", gSavedSettings.getBOOL("ScriptHelpFollowsCursor"));
-	live_help_floater->childSetCommitCallback("history_combo", onHelpComboCommit, this);
-	live_help_floater->childSetAction("back_btn", onClickBack, this);
-	live_help_floater->childSetAction("fwd_btn", onClickForward, this);
+	BOOL visible = TRUE;
+	BOOL take_focus = TRUE;
+	live_help_floater->setVisible(visible);
+	live_help_floater->setFrontmost(take_focus);
 
-	LLMediaCtrl* browser = live_help_floater->getChild<LLMediaCtrl>("lsl_guide_html");
-	browser->setAlwaysRefresh(TRUE);
-
-	LLComboBox* help_combo = live_help_floater->getChild<LLComboBox>("history_combo");
-	LLKeywordToken *token;
-	LLKeywords::keyword_iterator_t token_it;
-	for (token_it = mEditor->keywordsBegin(); 
-		token_it != mEditor->keywordsEnd(); 
-		++token_it)
-	{
-		token = token_it->second;
-		help_combo->add(wstring_to_utf8str(token->getToken()));
-	}
-	help_combo->sortByName();
-
-	// re-initialize help variables
-	mLastHelpToken = NULL;
-	mLiveHelpHandle = live_help_floater->getHandle();
-	mLiveHelpHistorySize = 0;
 	updateDynamicHelp(TRUE);
 }
 
@@ -945,7 +931,6 @@ void* LLPreviewLSL::createScriptEdPanel(void* userdata)
 
 	self->mScriptEd =  new LLScriptEdCore(
 								   HELLO_LSL,
-								   HELP_LSL_URL,
 								   self->getHandle(),
 								   LLPreviewLSL::onLoad,
 								   LLPreviewLSL::onSave,
@@ -1411,7 +1396,6 @@ void* LLLiveLSLEditor::createScriptEdPanel(void* userdata)
 
 	self->mScriptEd =  new LLScriptEdCore(
 								   HELLO_LSL,
-								   HELP_LSL_URL,
 								   self->getHandle(),
 								   &LLLiveLSLEditor::onLoad,
 								   &LLLiveLSLEditor::onSave,

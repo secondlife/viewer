@@ -33,10 +33,19 @@
 #ifndef LL_LLGROUPLIST_H
 #define LL_LLGROUPLIST_H
 
+#include "llevent.h"
 #include "llflatlistview.h"
 #include "llpanel.h"
+#include "llpointer.h"
 
-class LLGroupList: public LLFlatListView
+/**
+ * Auto-updating list of agent groups.
+ * 
+ * Can use optional group name filter.
+ * 
+ * @see setNameFilter()
+ */
+class LLGroupList: public LLFlatListView, public LLOldEvents::LLSimpleListener
 {
 	LOG_CLASS(LLGroupList);
 public:
@@ -46,14 +55,23 @@ public:
 	};
 
 	LLGroupList(const Params& p);
-	BOOL update(const std::string& name_filter = LLStringUtil::null);
+	virtual ~LLGroupList();
+
+	virtual void draw(); // from LLView
+
+	void setNameFilter(const std::string& filter);
 	void toggleIcons();
 	bool getIconsVisible() const { return mShowIcons; }
-
+	
 private:
+	void setDirty(bool val = true)		{ mDirty = val; }
+	void refresh();
 	void addNewItem(const LLUUID& id, const std::string& name, const LLUUID& icon_id, BOOL is_bold, EAddPosition pos = ADD_BOTTOM);
+	bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata); // called on agent group list changes
 
 	bool mShowIcons;
+	bool mDirty;
+	std::string mNameFilter;
 };
 
 class LLButton;

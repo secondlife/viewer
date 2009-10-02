@@ -111,7 +111,7 @@
              width="380">
 	    </flat_list_view>
 	</accordion_tab>     
-     
+          
         <accordion_tab
          can_resize="false"
          layout="topleft"

@@ -41,7 +41,7 @@
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
-LLToast::LLToast(LLToast::Params p) :	LLFloater(LLSD()), 
+LLToast::LLToast(LLToast::Params p) :	LLModalDialog(LLSD(), p.is_modal),
 										mPanel(p.panel), 
 										mTimerValue(p.timer_period),  
 										mNotificationID(p.notif_id),  
@@ -49,7 +49,6 @@ LLToast::LLToast(LLToast::Params p) :	LLFloater(LLSD()),
 										mCanFade(p.can_fade),
 										mCanBeStored(p.can_be_stored),
 										mHideBtnEnabled(p.enable_hide_btn),
-										mIsModal(p.is_modal),
 										mHideBtn(NULL),
 										mNotification(p.notification),
 										mHideBtnPressed(false)
@@ -65,13 +64,6 @@ LLToast::LLToast(LLToast::Params p) :	LLFloater(LLSD()),
 	{
 		mHideBtn = getChild<LLButton>("hide_btn");
 		mHideBtn->setClickedCallback(boost::bind(&LLToast::hide,this));
-	}
-
-	if(mIsModal)
-	{
-		gFocusMgr.setMouseCapture( this );
-		gFocusMgr.setTopCtrl( this );
-		setFocus(TRUE);
 	}
 
 	// init callbacks if present
@@ -104,11 +96,6 @@ void LLToast::setHideButtonEnabled(bool enabled)
 LLToast::~LLToast()
 {	
 	mOnToastDestroyedSignal(this);
-	if(mIsModal)
-	{
-		gFocusMgr.unlockFocus();
-		gFocusMgr.releaseFocusIfNeeded( this );
-	}
 }
 
 //--------------------------------------------------------------------------
@@ -167,15 +154,30 @@ void LLToast::tick()
 }
 
 //--------------------------------------------------------------------------
-void LLToast::insertPanel(LLPanel* panel)
+
+void LLToast::reshapeToPanel()
 {
-	LLRect panel_rect, toast_rect;
+	LLPanel* panel = getPanel();
+	if(!panel)
+		return;
+
+	LLRect panel_rect;
 
 	panel_rect = panel->getRect();
 	reshape(panel_rect.getWidth(), panel_rect.getHeight());
 	panel_rect.setLeftTopAndSize(0, panel_rect.getHeight(), panel_rect.getWidth(), panel_rect.getHeight());
 	panel->setRect(panel_rect);
+	
+	LLRect toast_rect = getRect();
+	toast_rect.setLeftTopAndSize(toast_rect.mLeft,toast_rect.mTop,panel_rect.getWidth(), panel_rect.getHeight());
+	setRect(toast_rect);
+
+}
+
+void LLToast::insertPanel(LLPanel* panel)
+{
 	addChild(panel);	
+	reshapeToPanel();
 }
 
 //--------------------------------------------------------------------------
@@ -187,18 +189,6 @@ void LLToast::draw()
 	}
 
 	LLFloater::draw();
-}
-
-//--------------------------------------------------------------------------
-void LLToast::setModal(bool modal)
-{
-	mIsModal = modal;
-	if(mIsModal)
-	{
-		gFocusMgr.setMouseCapture( this );
-		gFocusMgr.setTopCtrl( this );
-		setFocus(TRUE);
-	}
 }
 
 //--------------------------------------------------------------------------

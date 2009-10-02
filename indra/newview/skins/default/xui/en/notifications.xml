@@ -646,6 +646,19 @@ This entire region is damage enabled.
 Scripts must be allowed to run for weapons to work.
   </notification>
 
+<notification
+   icon="alertmodal.tga"
+   name="MultipleFacesSelected"
+   type="alertmodal">
+         Multiple faces are currently selected. 
+If you continue this action, separate instances of media will be set on multiple faces of the object.
+To place the media on only one face, choose Select Texture and click on the desired face of that object then click Add.
+    <usetemplate
+	 name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
   <notification
    icon="alertmodal.tga"
    name="MustBeInParcel"
@@ -781,6 +794,20 @@ There is no reimbursement for fees paid.
      name="okcancelbuttons"
      notext="Cancel"
      yestext="OK"/>
+  </notification>
+
+
+<notification
+   icon="alertmodal.tga"
+   name="DeleteMedia"
+   type="alertmodal">
+You have selected to delete the media associated with this face.
+Are you sure you want to continue?
+    <usetemplate
+     ignoretext="Confirm before I delete media from an object"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
   </notification>
 
   <notification
@@ -1215,7 +1242,7 @@ Please move all objects to be acquired onto the same region.
    type="alertmodal">
 [EXTRA]
 
-Go to [_URL] for information on purchasing currency?
+Go to [_URL] for information on purchasing L$?
     <url option="0" name="url">
 
 			http://secondlife.com/app/currency/
@@ -1691,7 +1718,6 @@ No Group selected.
    type="alertmodal">
 Unable to deed land:
 Cannot find the region this land is in.
-Please use Help &gt; Report Bug to report this.
   </notification>
 
   <notification
@@ -1772,8 +1798,6 @@ Parcels you own appear in green.
    type="alertmodal">
 Unable to abandon land:
 Cannot find the region this land is in.
-
-Please use Help &gt; Report Bug to report this.
   </notification>
 
   <notification
@@ -1846,8 +1870,6 @@ Divide land?
    type="alertmodal">
 Unable to divide land:
 Cannot find the region this land is in.
-
-Please use Help &gt; Report Bug to report this.
   </notification>
 
   <notification
@@ -1856,8 +1878,6 @@ Please use Help &gt; Report Bug to report this.
    type="alertmodal">
 Unable to join land:
 Cannot find the region this land is in.
-
-Please use Help &gt; Report Bug to report this.
   </notification>
 
   <notification
@@ -1973,8 +1993,6 @@ Unable to save &apos;[NAME]&apos; to wearable file.  You will need to free up so
    type="alertmodal">
 Unable to save [NAME] to central asset store.
 This is usually a temporary failure. Please customize and save the wearable again in a few minutes.
-
-If this problem persists, please click on Help &gt; Report Bug and provide details about your network setup.
   </notification>
 
   <notification
@@ -2751,18 +2769,6 @@ Do you want to open your Web browser to view this content?
 Go to secondlife.com to manage your account?
     <usetemplate
      ignoretext="Launch my browser to manage my account"
-     name="okcancelignore"
-     notext="Cancel"
-     yestext="OK"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="WebLaunchBugReport101"
-   type="alertmodal">
-Visit the [SECOND_LIFE] Wiki and learn how to report bugs correctly.
-    <usetemplate
-     ignoretext="Launch my browser to learn how to report a Bug"
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
@@ -4275,34 +4281,10 @@ The resolution of this report applies only to this Region. Residents&apos; acces
 
   <notification
    icon="alertmodal.tga"
-   name="HelpReportBug"
-   type="alertmodal">
-Use this tool to *only* report technical features that do not perform as described or expected, please provide as much detail as possible.
-You may reply to the auto-response email to add more details to your report.
-
-All bug reports are investigated and assessed. No email response will be sent.
-
-If you are having a technical difficulty, please contact Support at:
-
-http://secondlife.com/community/support.php
-
-Note: Incomplete reports will not be investigated
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="HelpReportAbuseSelectCategory"
    type="alertmodal">
 Please select a category for this abuse report.
 Selecting a category helps us file and process abuse reports.
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="HelpReportBugSelectCategory"
-   type="alertmodal">
-Please select a category for this bug.
-Selecting a category helps us file and process bug reports.
   </notification>
 
   <notification
@@ -4331,28 +4313,11 @@ Entering an accurate summary helps us file and process abuse reports.
 
   <notification
    icon="alertmodal.tga"
-   name="HelpReportBugSummaryEmpty"
-   type="alertmodal">
-Please enter a summary of the bug.
-Entering an accurate summary helps us file and process bug reports.
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="HelpReportAbuseDetailsEmpty"
    type="alertmodal">
 Please enter a detailed description of the abuse that took place.
 Be as specific as you can, including names and the details of the incident you are reporting.
 Entering an accurate description helps us file and process abuse reports.
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="HelpReportBugDetailsEmpty"
-   type="alertmodal">
-Please enter a detailed description of the bug.
-Be as specific as you can, including steps to reproduce the bug if possible.
-Entering an accurate description helps us file and process bug reports.
   </notification>
 
   <notification
@@ -6546,6 +6511,17 @@ Click Accept to join the chat or Decline to decline the invitation. Click Block 
     type="alertmodal">
 Unable to find the help topic for this element.
   </notification>
+
+    <notification
+ icon="alertmodal.tga"
+ name="ObjectMediaFailure"
+ type="alertmodal">
+Server Error: Media update or get failed.
+&apos;[ERROR]&apos;
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
 
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.

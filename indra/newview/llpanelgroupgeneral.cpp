@@ -99,8 +99,8 @@ BOOL LLPanelGroupGeneral::postBuild()
 	if(mEditCharter)
 	{
 		mEditCharter->setCommitCallback(onCommitAny, this);
-		mEditCharter->setFocusReceivedCallback(onFocusEdit, this);
-		mEditCharter->setFocusChangedCallback(onFocusEdit, this);
+		mEditCharter->setFocusReceivedCallback(boost::bind(onFocusEdit, _1, this));
+		mEditCharter->setFocusChangedCallback(boost::bind(onFocusEdit, _1, this));
 	}
 
 
@@ -835,6 +835,7 @@ void LLPanelGroupGeneral::reset()
 	{
 		std::string empty_str = "";
 		mEditCharter->setText(empty_str);
+		mGroupNameEditor->setText(empty_str);
 	}
 	
 	{
@@ -850,6 +851,7 @@ void LLPanelGroupGeneral::reset()
 	{
 		mComboMature->setEnabled(true);
 		mComboMature->setVisible( !gAgent.isTeen() );
+		mComboMature->selectFirstItem();
 	}
 
 

@@ -37,6 +37,7 @@
 
 #include "llpanelplacestab.h"
 #include "llteleporthistory.h"
+#include "llmenugl.h"
 
 class LLTeleportHistoryStorage;
 class LLAccordionCtrl;
@@ -46,6 +47,25 @@ class LLFlatListView;
 class LLTeleportHistoryPanel : public LLPanelPlacesTab
 {
 public:
+	class ContextMenu
+	{
+	public:
+		ContextMenu();
+		void show(LLView* spawning_view, S32 index, S32 x, S32 y);
+		
+	private:
+		LLContextMenu* createMenu();
+		void onTeleport();
+		void onInfo();
+		void onCopy();
+		void onMakeLandmark();
+
+		static void gotSLURLCallback(const std::string& slurl);
+		
+		LLContextMenu* mMenu;
+		S32 mIndex;
+	};
+
 	LLTeleportHistoryPanel();
 	virtual ~LLTeleportHistoryPanel();
 
@@ -59,6 +79,9 @@ public:
 private:
 
 	static void onDoubleClickItem(void* user_data);
+	void onAccordionTabRightClick(LLView *view, S32 x, S32 y, MASK mask);
+	void onAccordionTabOpen(LLAccordionCtrlTab *tab);
+	void onAccordionTabClose(LLAccordionCtrlTab *tab);
 	void showTeleportHistory();
 	void handleItemSelect(LLFlatListView* );
 	LLFlatListView* getFlatListViewFromTab(LLAccordionCtrlTab *);
@@ -70,6 +93,9 @@ private:
 
 	typedef LLDynamicArray<LLAccordionCtrlTab*> item_containers_t;
 	item_containers_t mItemContainers;
+
+	ContextMenu mContextMenu;
+	LLContextMenu*			mAccordionTabMenu;
 };
 
 #endif //LL_LLPANELTELEPORTHISTORY_H

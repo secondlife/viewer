@@ -35,6 +35,8 @@
      follows="right"
      height="20"
      speak_button.font="SansSerifMedium"
+     speak_button.tab_stop="true"
+     show_button.tab_stop="true"
      layout="topleft"
      left_pad="5"
      name="talk"

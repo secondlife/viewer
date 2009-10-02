@@ -12,7 +12,7 @@
  width="320"
  min_width="320"
  height="23"
- can_minimize="false"
+ can_minimize="true"
  can_tear_off="false"
  can_resize="false"
  can_drag_on_left="false"
@@ -22,10 +22,10 @@
     <flat_list_view
 	    color="FloaterDefaultBackgroundColor"
 	    follows="all"
-	layout="topleft"
-			name="notification_list"
-			left="1"
+	    layout="topleft"
+	    name="notification_list"
+	    left="1"
 	    top="20"
-			height="0"
-			width="318"/>
+	    height="0"
+	    width="318"/>
 </floater>

@@ -44,9 +44,11 @@
 #include "llcombobox.h"
 #include "lldraghandle.h"
 #include "llfloaterbuildoptions.h"
+#include "llfloatermediasettings.h"
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
+#include "llmediaentry.h"
 #include "llmenugl.h"
 #include "llpanelcontents.h"
 #include "llpanelface.h"
@@ -97,7 +99,7 @@ const std::string PANEL_NAMES[LLFloaterTools::PANEL_COUNT] =
 };
 
 // Local prototypes
-void commit_select_component(LLUICtrl *ctrl, void *data);
+void commit_select_component(void *data);
 void click_show_more(void*);
 void click_popup_info(void*);
 void click_popup_done(void*);
@@ -105,15 +107,14 @@ void click_popup_minimize(void*);
 void click_popup_rotate_left(void*);
 void click_popup_rotate_reset(void*);
 void click_popup_rotate_right(void*);
-void commit_slider_dozer_size(LLUICtrl *, void*);
-void commit_slider_dozer_force(LLUICtrl *, void*);
+void commit_slider_dozer_force(LLUICtrl *);
 void click_apply_to_selection(void*);
-void commit_radio_group_focus(LLUICtrl* ctrl, void* data);
-void commit_radio_group_move(LLUICtrl* ctrl, void* data);
-void commit_radio_group_edit(LLUICtrl* ctrl, void* data);
-void commit_radio_group_land(LLUICtrl* ctrl, void* data);
-void commit_grid_mode(LLUICtrl *, void*);
-void commit_slider_zoom(LLUICtrl *, void*);
+void commit_radio_group_focus(LLUICtrl* ctrl);
+void commit_radio_group_move(LLUICtrl* ctrl);
+void commit_radio_group_edit(LLUICtrl* ctrl);
+void commit_radio_group_land(LLUICtrl* ctrl);
+void commit_grid_mode(LLUICtrl *);
+void commit_slider_zoom(LLUICtrl *ctrl);
 
 
 //static
@@ -210,43 +211,28 @@ BOOL	LLFloaterTools::postBuild()
 	getDragHandle()->setEnabled( !gSavedSettings.getBOOL("ToolboxAutoMove") );
 
 	LLRect rect;
-	mBtnFocus = getChild<LLButton>("button focus");//btn;
-	childSetAction("button focus",LLFloaterTools::setEditTool, (void*)LLToolCamera::getInstance());
-	mBtnMove = getChild<LLButton>("button move");
-	childSetAction("button move",LLFloaterTools::setEditTool, (void*)LLToolGrab::getInstance());
-	mBtnEdit = getChild<LLButton>("button edit");
-	childSetAction("button edit",LLFloaterTools::setEditTool, (void*)LLToolCompTranslate::getInstance());
-	mBtnCreate = getChild<LLButton>("button create");
-	childSetAction("button create",LLFloaterTools::setEditTool, (void*)LLToolCompCreate::getInstance());
-	mBtnLand = getChild<LLButton>("button land" );
-	childSetAction("button land",LLFloaterTools::setEditTool, (void*)LLToolSelectLand::getInstance());
-	mTextStatus = getChild<LLTextBox>("text status");
-
-	childSetCommitCallback("slider zoom",commit_slider_zoom,this);
-
-	mRadioGroupFocus = getChild<LLRadioGroup>("focus_radio_group");
-	childSetCommitCallback("focus_radio_group", commit_radio_group_focus, this);
-
-	mRadioGroupMove = getChild<LLRadioGroup>("move_radio_group");
-	childSetCommitCallback("move_radio_group", commit_radio_group_move, this);
-
-	mRadioGroupEdit = getChild<LLRadioGroup>("edit_radio_group");
-	childSetCommitCallback("edit_radio_group", commit_radio_group_edit, this);
-
-	mCheckSelectIndividual = getChild<LLCheckBoxCtrl>("checkbox edit linked parts");
+	mBtnFocus			= getChild<LLButton>("button focus");//btn;
+	mBtnMove			= getChild<LLButton>("button move");
+	mBtnEdit			= getChild<LLButton>("button edit");
+	mBtnCreate			= getChild<LLButton>("button create");
+	mBtnLand			= getChild<LLButton>("button land" );
+	mTextStatus			= getChild<LLTextBox>("text status");
+	mRadioGroupFocus	= getChild<LLRadioGroup>("focus_radio_group");
+	mRadioGroupMove		= getChild<LLRadioGroup>("move_radio_group");
+	mRadioGroupEdit		= getChild<LLRadioGroup>("edit_radio_group");
+	mBtnGridOptions		= getChild<LLButton>("Options...");
+	
+	mCheckSelectIndividual	= getChild<LLCheckBoxCtrl>("checkbox edit linked parts");	
 	childSetValue("checkbox edit linked parts",(BOOL)gSavedSettings.getBOOL("EditLinkedParts"));
-	childSetCommitCallback("checkbox edit linked parts",commit_select_component,this);
-	mCheckSnapToGrid = getChild<LLCheckBoxCtrl>("checkbox snap to grid");
+	mCheckSnapToGrid		= getChild<LLCheckBoxCtrl>("checkbox snap to grid");
 	childSetValue("checkbox snap to grid",(BOOL)gSavedSettings.getBOOL("SnapEnabled"));
-	mBtnGridOptions = getChild<LLButton>("Options...");
-	childSetAction("Options...",onClickGridOptions, this);
-	mCheckStretchUniform = getChild<LLCheckBoxCtrl>("checkbox uniform");
+	mCheckStretchUniform	= getChild<LLCheckBoxCtrl>("checkbox uniform");
 	childSetValue("checkbox uniform",(BOOL)gSavedSettings.getBOOL("ScaleUniform"));
-	mCheckStretchTexture = getChild<LLCheckBoxCtrl>("checkbox stretch textures");
+	mCheckStretchTexture	= getChild<LLCheckBoxCtrl>("checkbox stretch textures");
 	childSetValue("checkbox stretch textures",(BOOL)gSavedSettings.getBOOL("ScaleStretchTextures"));
-	mTextGridMode = getChild<LLTextBox>("text ruler mode");
-	mComboGridMode = getChild<LLComboBox>("combobox grid mode");
-	childSetCommitCallback("combobox grid mode",commit_grid_mode, this);
+	mTextGridMode			= getChild<LLTextBox>("text ruler mode");
+	mComboGridMode			= getChild<LLComboBox>("combobox grid mode");
+
 	//
 	// Create Buttons
 	//
@@ -271,18 +257,11 @@ BOOL	LLFloaterTools::postBuild()
 	mCheckCopyRotates = getChild<LLCheckBoxCtrl>("checkbox copy rotates");
 	childSetValue("checkbox copy rotates",(BOOL)gSavedSettings.getBOOL("CreateToolCopyRotates"));
 
-	mRadioGroupLand = getChild<LLRadioGroup>("land_radio_group");
-	childSetCommitCallback("land_radio_group", commit_radio_group_land, this);
-
-	mBtnApplyToSelection = getChild<LLButton>("button apply to selection");
-	childSetAction("button apply to selection",click_apply_to_selection,  (void*)0);
-
-	mSliderDozerSize = getChild<LLSlider>("slider brush size");
-	childSetCommitCallback("slider brush size", commit_slider_dozer_size,  (void*)0);
+	mRadioGroupLand			= getChild<LLRadioGroup>("land_radio_group");
+	mBtnApplyToSelection	= getChild<LLButton>("button apply to selection");
+	mSliderDozerSize		= getChild<LLSlider>("slider brush size");
 	childSetValue( "slider brush size", gSavedSettings.getF32("LandBrushSize"));
-	
-	mSliderDozerForce = getChild<LLSlider>("slider force");
-	childSetCommitCallback("slider force",commit_slider_dozer_force,  (void*)0);
+	mSliderDozerForce		= getChild<LLSlider>("slider force");
 	// the setting stores the actual force multiplier, but the slider is logarithmic, so we convert here
 	childSetValue( "slider force", log10(gSavedSettings.getF32("LandBrushForce")));
 
@@ -369,6 +348,22 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 	mFactoryMap["land info panel"] = LLCallbackMap(createPanelLandInfo, this);//LLPanelLandInfo
 	
 	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this,"floater_tools.xml",FALSE);
+	mCommitCallbackRegistrar.add("BuildTool.setTool",			boost::bind(&LLFloaterTools::setTool,this, _2));
+	mCommitCallbackRegistrar.add("BuildTool.commitZoom",		boost::bind(&commit_slider_zoom, _1));
+	mCommitCallbackRegistrar.add("BuildTool.commitRadioFocus",	boost::bind(&commit_radio_group_focus, _1));
+	mCommitCallbackRegistrar.add("BuildTool.commitRadioMove",	boost::bind(&commit_radio_group_move,_1));
+	mCommitCallbackRegistrar.add("BuildTool.commitRadioEdit",	boost::bind(&commit_radio_group_edit,_1));
+
+	mCommitCallbackRegistrar.add("BuildTool.selectComponent",	boost::bind(&commit_select_component, this));
+	mCommitCallbackRegistrar.add("BuildTool.gridOptions",		boost::bind(&LLFloaterTools::onClickGridOptions,this));
+	mCommitCallbackRegistrar.add("BuildTool.applyToSelection",	boost::bind(&click_apply_to_selection, this));
+	mCommitCallbackRegistrar.add("BuildTool.gridMode",			boost::bind(&commit_grid_mode,_1));
+	mCommitCallbackRegistrar.add("BuildTool.commitRadioLand",	boost::bind(&commit_radio_group_land,_1));
+	mCommitCallbackRegistrar.add("BuildTool.LandBrushForce",	boost::bind(&commit_slider_dozer_force,_1));
+	mCommitCallbackRegistrar.add("BuildTool.AddMedia",			boost::bind(&LLFloaterTools::onClickBtnAddMedia,this));
+	mCommitCallbackRegistrar.add("BuildTool.DeleteMedia",		boost::bind(&LLFloaterTools::onClickBtnDeleteMedia,this));
+	mCommitCallbackRegistrar.add("BuildTool.EditMedia",			boost::bind(&LLFloaterTools::onClickBtnEditMedia,this));
+
 }
 
 LLFloaterTools::~LLFloaterTools()
@@ -427,6 +422,7 @@ void LLFloaterTools::refresh()
 	mPanelObject->refresh();
 	mPanelVolume->refresh();
 	mPanelFace->refresh();
+	refreshMedia();
 	mPanelContents->refresh();
 	mPanelLandInfo->refresh();
 }
@@ -756,6 +752,7 @@ void LLFloaterTools::onClose()
 	LLToolMgr::getInstance()->getCurrentToolset()->selectFirstTool();
 
 	//gMenuBarView->setItemVisible("BuildTools", FALSE);
+	LLFloaterReg::hideInstance("media_settings");
 }
 
 void click_popup_info(void*)
@@ -767,7 +764,7 @@ void click_popup_done(void*)
 	handle_reset_view();
 }
 
-void commit_radio_group_move(LLUICtrl* ctrl, void* data)
+void commit_radio_group_move(LLUICtrl* ctrl)
 {
 	LLRadioGroup* group = (LLRadioGroup*)ctrl;
 	std::string selected = group->getValue().asString();
@@ -788,7 +785,7 @@ void commit_radio_group_move(LLUICtrl* ctrl, void* data)
 	}
 }
 
-void commit_radio_group_focus(LLUICtrl* ctrl, void* data)
+void commit_radio_group_focus(LLUICtrl* ctrl)
 {
 	LLRadioGroup* group = (LLRadioGroup*)ctrl;
 	std::string selected = group->getValue().asString();
@@ -812,7 +809,7 @@ void commit_radio_group_focus(LLUICtrl* ctrl, void* data)
 	}
 }
 
-void commit_slider_zoom(LLUICtrl *ctrl, void*)
+void commit_slider_zoom(LLUICtrl *ctrl)
 {
 	// renormalize value, since max "volume" level is 0.5 for some reason
 	F32 zoom_level = (F32)ctrl->getValue().asReal() * 2.f; // / 0.5f;
@@ -837,26 +834,19 @@ void click_popup_rotate_right(void*)
 	dialog_refresh_all();
 }
 
-
-void commit_slider_dozer_size(LLUICtrl *ctrl, void*)
-{
-	F32 size = (F32)ctrl->getValue().asReal();
-	gSavedSettings.setF32("LandBrushSize", size);
-}
-
-void commit_slider_dozer_force(LLUICtrl *ctrl, void*)
+void commit_slider_dozer_force(LLUICtrl *ctrl)
 {
 	// the slider is logarithmic, so we exponentiate to get the actual force multiplier
 	F32 dozer_force = pow(10.f, (F32)ctrl->getValue().asReal());
 	gSavedSettings.setF32("LandBrushForce", dozer_force);
 }
 
-void click_apply_to_selection(void* user)
+void click_apply_to_selection(void*)
 {
 	LLToolBrushLand::getInstance()->modifyLandInSelectionGlobal();
 }
 
-void commit_radio_group_edit(LLUICtrl *ctrl, void *data)
+void commit_radio_group_edit(LLUICtrl *ctrl)
 {
 	S32 show_owners = gSavedSettings.getBOOL("ShowParcelOwners");
 
@@ -881,7 +871,7 @@ void commit_radio_group_edit(LLUICtrl *ctrl, void *data)
 	gSavedSettings.setBOOL("ShowParcelOwners", show_owners);
 }
 
-void commit_radio_group_land(LLUICtrl* ctrl, void* data)
+void commit_radio_group_land(LLUICtrl* ctrl)
 {
 	LLRadioGroup* group = (LLRadioGroup*)ctrl;
 	std::string selected = group->getValue().asString();
@@ -909,7 +899,7 @@ void commit_radio_group_land(LLUICtrl* ctrl, void* data)
 	}
 }
 
-void commit_select_component(LLUICtrl *ctrl, void *data)
+void commit_select_component(void *data)
 {
 	LLFloaterTools* floaterp = (LLFloaterTools*)data;
 
@@ -933,7 +923,7 @@ void commit_select_component(LLUICtrl *ctrl, void *data)
 	}
 }
 
-void commit_grid_mode(LLUICtrl *ctrl, void *data)   
+void commit_grid_mode(LLUICtrl *ctrl)   
 {   
 	LLComboBox* combo = (LLComboBox*)ctrl;   
     
@@ -948,10 +938,9 @@ void LLFloaterTools::setObjectType( LLPCode pcode )
 	gFocusMgr.setMouseCapture(NULL);
 }
 
-// static
-void LLFloaterTools::onClickGridOptions(void* data)
+
+void LLFloaterTools::onClickGridOptions()
 {
-	//LLFloaterTools* floaterp = (LLFloaterTools*)data;
 	LLFloaterReg::showInstance("build_options");
 	// RN: this makes grid options dependent on build tools window
 	//floaterp->addDependentFloater(LLFloaterBuildOptions::getInstance(), FALSE);
@@ -964,8 +953,558 @@ void LLFloaterTools::setEditTool(void* tool_pointer)
 	LLToolMgr::getInstance()->getCurrentToolset()->selectTool( tool );
 }
 
+void LLFloaterTools::setTool(const LLSD& user_data)
+{
+	std::string control_name = user_data.asString();
+	if(control_name == "Focus")
+		LLToolMgr::getInstance()->getCurrentToolset()->selectTool((LLTool *) LLToolCamera::getInstance() );
+	else if (control_name == "Move" )
+		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( (LLTool *)LLToolGrab::getInstance() );
+	else if (control_name == "Edit" )
+		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( (LLTool *) LLToolCompTranslate::getInstance());
+	else if (control_name == "Create" )
+		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( (LLTool *) LLToolCompCreate::getInstance());
+	else if (control_name == "Land" )
+		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( (LLTool *) LLToolSelectLand::getInstance());
+	else
+		llwarns<<" no parameter name "<<control_name<<" found!! No Tool selected!!"<< llendl;
+}
+
 void LLFloaterTools::onFocusReceived()
 {
 	LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 	LLFloater::onFocusReceived();
 }
+
+// Media stuff
+void LLFloaterTools::refreshMedia()
+{
+	getMediaState();	
+	LLFloaterMediaSettings::getInstance();
+	LLFloaterMediaSettings::initValues(mMediaSettings );
+}
+
+
+
+void LLFloaterTools::getMediaState()
+{
+	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+	
+	if( !objectp )
+	{
+		childSetEnabled("media_tex", FALSE);
+		childSetEnabled("add_media", FALSE);
+		childSetEnabled("delete_media", FALSE);
+		childSetEnabled("edit_media", FALSE);
+		updateMediaSettings();
+		return;
+	}
+	
+	bool editable = gAgent.isGodlike() || (objectp->permModify() && objectp->getPCode() == LL_PCODE_VOLUME);
+	
+	// Media settings
+	U8 has_media = (U8)0;
+	struct media_functor : public LLSelectedTEGetFunctor<U8>
+	{
+		U8 get(LLViewerObject* object, S32 face)
+		{
+			return (object->getTE(face)->getMediaTexGen());
+		}
+	} func;
+	bool identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, has_media );
+	
+	// update UI depending on whether "object" (prim or face) has media
+	// and whether or not you are allowed to edit it.
+	bool bool_has_media = (has_media & LLTextureEntry::MF_HAS_MEDIA);
+	childSetEnabled("media_tex",  bool_has_media & editable);
+	childSetEnabled( "edit_media", bool_has_media & editable );
+	childSetEnabled( "delete_media", bool_has_media & editable );
+	childSetEnabled( "add_media", ( ! bool_has_media ) & editable );
+	
+	// load values for media settings
+	updateMediaSettings();
+	
+	// if identical is set, all faces are same
+	if ( identical )
+	{
+		// TODO: display a list of all media on the face - use 'identical' flag
+	};
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+// called when a user wants to add media to a prim or prim face
+void LLFloaterTools::onClickBtnAddMedia()
+{
+	// check for the edit tool and now many faces are selected
+	LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
+	if((tool != LLToolFace::getInstance()) || LLSelectMgr::getInstance()->getSelection()->isMultipleTESelected())
+	{
+		LLNotifications::instance().add("MultipleFacesSelected",LLSD(), LLSD(), multipleFacesSelectedConfirm);
+		
+	}
+	else
+	{
+		onClickBtnEditMedia();
+	}
+
+}
+
+// static
+bool LLFloaterTools::multipleFacesSelectedConfirm(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	switch( option )
+	{
+		case 0:  // "Yes"
+			gFloaterTools->onClickBtnEditMedia();
+			break;
+		case 1:  // "No"
+		default:
+			break;
+	}
+	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// called when a user wants to edit existing media settings on a prim or prim face
+// TODO: test if there is media on the item and only allow editing if present
+void LLFloaterTools::onClickBtnEditMedia()
+{
+	refreshMedia();
+	LLFloaterReg::showInstance("media_settings");	
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// called when a user wants to delete media from a prim or prim face
+void LLFloaterTools::onClickBtnDeleteMedia()
+{
+	LLNotifications::instance().add("DeleteMedia", LLSD(), LLSD(), deleteMediaConfirm);
+}
+
+
+// static
+bool LLFloaterTools::deleteMediaConfirm(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	switch( option )
+	{
+		case 0:  // "Yes"
+			LLSelectMgr::getInstance()->selectionSetMedia( 0 );
+			if(LLFloaterReg::instanceVisible("media_settings"))
+			{
+				LLFloaterReg::hideInstance("media_settings");
+			}
+			break;
+			
+		case 1:  // "No"
+		default:
+			break;
+	}
+	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+void LLFloaterTools::updateMediaSettings()
+{
+    bool identical( false );
+    std::string base_key( "" );
+    std::string value_str( "" );
+    int value_int = 0;
+    bool value_bool = false;
+	LLObjectSelectionHandle selected_objects =LLSelectMgr::getInstance()->getSelection();
+    // TODO: (CP) refactor this using something clever or boost or both !!
+
+    LLMediaEntry default_media_data;
+
+    // controls 
+    U8 value_u8 = default_media_data.getControls();
+    struct functor_getter_controls : public LLSelectedTEGetFunctor< U8 >
+    {
+        U8 get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return object->getTE(face)->getMediaData()->getControls();
+            LLMediaEntry default_media_data;
+            return default_media_data.getControls();
+        };
+		
+    } func_controls;
+    identical = selected_objects->getSelectedTEValue( &func_controls, value_u8 );
+    base_key = std::string( LLMediaEntry::CONTROLS_KEY );
+    mMediaSettings[ base_key ] = value_u8;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // First click (formerly left click)
+    value_bool = default_media_data.getFirstClickInteract();
+    struct functor_getter_first_click : public LLSelectedTEGetFunctor< bool >
+    {
+        bool get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return object->getTE(face)->getMediaData()->getFirstClickInteract();
+            LLMediaEntry default_media_data;
+            return default_media_data.getFirstClickInteract();
+        };
+		
+    } func_first_click;
+    identical = selected_objects->getSelectedTEValue( &func_first_click, value_bool );
+    base_key = std::string( LLMediaEntry::FIRST_CLICK_INTERACT_KEY );
+    mMediaSettings[ base_key ] = value_bool;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // Home URL
+    value_str = default_media_data.getHomeURL();
+    struct functor_getter_home_url : public LLSelectedTEGetFunctor< std::string >
+    {
+        std::string get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return object->getTE(face)->getMediaData()->getHomeURL();
+            LLMediaEntry default_media_data;
+            return default_media_data.getHomeURL();
+        };
+		
+    } func_home_url;
+    identical = selected_objects->getSelectedTEValue( &func_home_url, value_str );
+    base_key = std::string( LLMediaEntry::HOME_URL_KEY );
+    mMediaSettings[ base_key ] = value_str;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	llwarns<<"Angela debug : home url string == "<<value_str<<llendl;
+	
+    // Current URL
+    value_str = default_media_data.getCurrentURL();
+    struct functor_getter_current_url : public LLSelectedTEGetFunctor< std::string >
+    {
+        std::string get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return object->getTE(face)->getMediaData()->getCurrentURL();
+            LLMediaEntry default_media_data;
+            return default_media_data.getCurrentURL();
+        };
+		
+    } func_current_url;
+    identical = selected_objects->getSelectedTEValue( &func_current_url, value_str );
+    base_key = std::string( LLMediaEntry::CURRENT_URL_KEY );
+    mMediaSettings[ base_key ] = value_str;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // Auto zoom
+    value_bool = default_media_data.getAutoZoom();
+    struct functor_getter_auto_zoom : public LLSelectedTEGetFunctor< bool >
+    {
+        bool get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return object->getTE(face)->getMediaData()->getAutoZoom();
+            LLMediaEntry default_media_data;
+            return default_media_data.getAutoZoom();
+        };
+		
+    } func_auto_zoom;
+    identical = selected_objects->getSelectedTEValue( &func_auto_zoom, value_bool );
+    base_key = std::string( LLMediaEntry::AUTO_ZOOM_KEY );
+    mMediaSettings[ base_key ] = value_bool;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // Auto play
+    value_bool = default_media_data.getAutoPlay();
+    struct functor_getter_auto_play : public LLSelectedTEGetFunctor< bool >
+    {
+        bool get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return object->getTE(face)->getMediaData()->getAutoPlay();
+			LLMediaEntry default_media_data;
+            return default_media_data.getAutoPlay();
+        };
+		
+    } func_auto_play;
+    identical = selected_objects->getSelectedTEValue( &func_auto_play, value_bool );
+    base_key = std::string( LLMediaEntry::AUTO_PLAY_KEY );
+    mMediaSettings[ base_key ] = value_bool;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // Auto scale
+    value_bool = default_media_data.getAutoScale();
+    struct functor_getter_auto_scale : public LLSelectedTEGetFunctor< bool >
+    {
+        bool get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return object->getTE(face)->getMediaData()->getAutoScale();
+			LLMediaEntry default_media_data;
+            return default_media_data.getAutoScale();;
+        };
+		
+    } func_auto_scale;
+    identical = selected_objects->getSelectedTEValue( &func_auto_scale, value_bool );
+    base_key = std::string( LLMediaEntry::AUTO_SCALE_KEY );
+    mMediaSettings[ base_key ] = value_bool;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // Auto loop
+    value_bool = default_media_data.getAutoLoop();
+    struct functor_getter_auto_loop : public LLSelectedTEGetFunctor< bool >
+    {
+        bool get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return object->getTE(face)->getMediaData()->getAutoLoop();
+			LLMediaEntry default_media_data;
+            return default_media_data.getAutoLoop();
+        };
+		
+    } func_auto_loop;
+    identical = selected_objects->getSelectedTEValue( &func_auto_loop, value_bool );
+    base_key = std::string( LLMediaEntry::AUTO_LOOP_KEY );
+    mMediaSettings[ base_key ] = value_bool;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // width pixels (if not auto scaled)
+    value_int = default_media_data.getWidthPixels();
+    struct functor_getter_width_pixels : public LLSelectedTEGetFunctor< int >
+    {
+        int get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return object->getTE(face)->getMediaData()->getWidthPixels();
+			LLMediaEntry default_media_data;
+            return default_media_data.getWidthPixels();
+        };
+		
+    } func_width_pixels;
+    identical = selected_objects->getSelectedTEValue( &func_width_pixels, value_int );
+    base_key = std::string( LLMediaEntry::WIDTH_PIXELS_KEY );
+    mMediaSettings[ base_key ] = value_int;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // height pixels (if not auto scaled)
+    value_int = default_media_data.getHeightPixels();
+    struct functor_getter_height_pixels : public LLSelectedTEGetFunctor< int >
+    {
+        int get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return object->getTE(face)->getMediaData()->getHeightPixels();
+			LLMediaEntry default_media_data;
+            return default_media_data.getHeightPixels();
+        };
+		
+    } func_height_pixels;
+    identical = selected_objects->getSelectedTEValue( &func_height_pixels, value_int );
+    base_key = std::string( LLMediaEntry::HEIGHT_PIXELS_KEY );
+    mMediaSettings[ base_key ] = value_int;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // Enable Alt image
+    value_bool = default_media_data.getAltImageEnable();
+    struct functor_getter_enable_alt_image : public LLSelectedTEGetFunctor< bool >
+    {
+        bool get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return object->getTE(face)->getMediaData()->getAltImageEnable();
+			LLMediaEntry default_media_data;
+            return default_media_data.getAltImageEnable();
+        };
+		
+    } func_enable_alt_image;
+    identical = selected_objects->getSelectedTEValue( &func_enable_alt_image, value_bool );
+    base_key = std::string( LLMediaEntry::ALT_IMAGE_ENABLE_KEY );
+    mMediaSettings[ base_key ] = value_bool;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // Perms - owner interact
+    value_bool = 0 != ( default_media_data.getPermsInteract() & LLMediaEntry::PERM_OWNER );
+    struct functor_getter_perms_owner_interact : public LLSelectedTEGetFunctor< bool >
+    {
+        bool get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return (0 != (object->getTE(face)->getMediaData()->getPermsInteract() & LLMediaEntry::PERM_OWNER));
+			LLMediaEntry default_media_data;
+            return 0 != ( default_media_data.getPermsInteract() & LLMediaEntry::PERM_OWNER );
+        };
+		
+    } func_perms_owner_interact;
+    identical = selected_objects->getSelectedTEValue( &func_perms_owner_interact, value_bool );
+    base_key = std::string( LLPanelContents::PERMS_OWNER_INTERACT_KEY );
+    mMediaSettings[ base_key ] = value_bool;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // Perms - owner control
+    value_bool = 0 != ( default_media_data.getPermsControl() & LLMediaEntry::PERM_OWNER );
+    struct functor_getter_perms_owner_control : public LLSelectedTEGetFunctor< bool >
+    {
+        bool get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return (0 != (object->getTE(face)->getMediaData()->getPermsControl() & LLMediaEntry::PERM_OWNER));
+			LLMediaEntry default_media_data;
+            return 0 != ( default_media_data.getPermsControl() & LLMediaEntry::PERM_OWNER );
+        };
+		
+    } func_perms_owner_control;
+    identical = selected_objects ->getSelectedTEValue( &func_perms_owner_control, value_bool );
+    base_key = std::string( LLPanelContents::PERMS_OWNER_CONTROL_KEY );
+    mMediaSettings[ base_key ] = value_bool;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // Perms - group interact
+    value_bool = 0 != ( default_media_data.getPermsInteract() & LLMediaEntry::PERM_GROUP );
+    struct functor_getter_perms_group_interact : public LLSelectedTEGetFunctor< bool >
+    {
+        bool get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return (0 != (object->getTE(face)->getMediaData()->getPermsInteract() & LLMediaEntry::PERM_GROUP));
+			LLMediaEntry default_media_data;
+            return 0 != ( default_media_data.getPermsInteract() & LLMediaEntry::PERM_GROUP );
+        };
+		
+    } func_perms_group_interact;
+    identical = selected_objects->getSelectedTEValue( &func_perms_group_interact, value_bool );
+    base_key = std::string( LLPanelContents::PERMS_GROUP_INTERACT_KEY );
+    mMediaSettings[ base_key ] = value_bool;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // Perms - group control
+    value_bool = 0 != ( default_media_data.getPermsControl() & LLMediaEntry::PERM_GROUP );
+    struct functor_getter_perms_group_control : public LLSelectedTEGetFunctor< bool >
+    {
+        bool get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return (0 != (object->getTE(face)->getMediaData()->getPermsControl() & LLMediaEntry::PERM_GROUP));
+			LLMediaEntry default_media_data;
+            return 0 != ( default_media_data.getPermsControl() & LLMediaEntry::PERM_GROUP );
+        };
+		
+    } func_perms_group_control;
+    identical = selected_objects->getSelectedTEValue( &func_perms_group_control, value_bool );
+    base_key = std::string( LLPanelContents::PERMS_GROUP_CONTROL_KEY );
+    mMediaSettings[ base_key ] = value_bool;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // Perms - anyone interact
+    value_bool = 0 != ( default_media_data.getPermsInteract() & LLMediaEntry::PERM_ANYONE );
+    struct functor_getter_perms_anyone_interact : public LLSelectedTEGetFunctor< bool >
+    {
+        bool get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return (0 != (object->getTE(face)->getMediaData()->getPermsInteract() & LLMediaEntry::PERM_ANYONE));
+			LLMediaEntry default_media_data;
+            return 0 != ( default_media_data.getPermsInteract() & LLMediaEntry::PERM_ANYONE );
+        };
+		
+    } func_perms_anyone_interact;
+    identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func_perms_anyone_interact, value_bool );
+    base_key = std::string( LLPanelContents::PERMS_ANYONE_INTERACT_KEY );
+    mMediaSettings[ base_key ] = value_bool;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // Perms - anyone control
+    value_bool = 0 != ( default_media_data.getPermsControl() & LLMediaEntry::PERM_ANYONE );
+    struct functor_getter_perms_anyone_control : public LLSelectedTEGetFunctor< bool >
+    {
+        bool get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return (0 != (object->getTE(face)->getMediaData()->getPermsControl() & LLMediaEntry::PERM_ANYONE));
+			LLMediaEntry default_media_data;
+            return 0 != ( default_media_data.getPermsControl() & LLMediaEntry::PERM_ANYONE );
+        };
+		
+    } func_perms_anyone_control;
+    identical = selected_objects->getSelectedTEValue( &func_perms_anyone_control, value_bool );
+    base_key = std::string( LLPanelContents::PERMS_ANYONE_CONTROL_KEY );
+    mMediaSettings[ base_key ] = value_bool;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // security - whitelist enable
+    value_bool = default_media_data.getWhiteListEnable();
+    struct functor_getter_whitelist_enable : public LLSelectedTEGetFunctor< bool >
+    {
+        bool get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return object->getTE(face)->getMediaData()->getWhiteListEnable();
+			LLMediaEntry default_media_data;
+            return default_media_data.getWhiteListEnable();
+        };
+		
+    } func_whitelist_enable;
+    identical = selected_objects->getSelectedTEValue( &func_whitelist_enable, value_bool );
+    base_key = std::string( LLMediaEntry::WHITELIST_ENABLE_KEY );
+    mMediaSettings[ base_key ] = value_bool;
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+	
+    // security - whitelist URLs
+    std::vector<std::string> value_vector_str = default_media_data.getWhiteList();
+    struct functor_getter_whitelist_urls : public LLSelectedTEGetFunctor< std::vector<std::string> >
+    {
+        std::vector<std::string> get( LLViewerObject* object, S32 face )
+        {
+            if ( object )
+                if ( object->getTE(face) )
+                    if ( object->getTE(face)->getMediaData() )
+                        return object->getTE(face)->getMediaData()->getWhiteList();
+            LLMediaEntry default_media_data;
+            return default_media_data.getWhiteList();
+        };
+		
+    } func_whitelist_urls;
+    identical = selected_objects->getSelectedTEValue( &func_whitelist_urls, value_vector_str );
+    base_key = std::string( LLMediaEntry::WHITELIST_KEY );
+	mMediaSettings[ base_key ].clear();
+    std::vector< std::string >::iterator iter = value_vector_str.begin();
+    while( iter != value_vector_str.end() )
+    {
+        std::string white_list_url = *iter;
+        mMediaSettings[ base_key ].append( white_list_url );
+        ++iter;
+    };
+	
+    mMediaSettings[ base_key + std::string( LLPanelContents::TENTATIVE_SUFFIX ) ] = ! identical;
+}
+

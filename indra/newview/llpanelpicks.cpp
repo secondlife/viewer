@@ -126,8 +126,7 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 				mPicksList->addItem(picture, pick_value);
 
 				picture->setDoubleClickCallback(boost::bind(&LLPanelPicks::onDoubleClickItem, this, _1));
-				picture->setRightMouseDownCallback(boost::bind(&LLPanelPicks::onRightMouseDownItem, this, _1, _2, _3, _4));
-				picture->setRightMouseUpCallback(boost::bind(&LLPanelPicks::updateButtons, this));
+				picture->setRightMouseUpCallback(boost::bind(&LLPanelPicks::onRightMouseUpItem, this, _1, _2, _3, _4));
 				picture->setMouseUpCallback(boost::bind(&LLPanelPicks::updateButtons, this));
 			}
 
@@ -260,8 +259,10 @@ void LLPanelPicks::onClickMap()
 }
 
 
-void LLPanelPicks::onRightMouseDownItem(LLUICtrl* item, S32 x, S32 y, MASK mask)
+void LLPanelPicks::onRightMouseUpItem(LLUICtrl* item, S32 x, S32 y, MASK mask)
 {
+	updateButtons();
+
 	if (mPopupMenu)
 	{
 		mPopupMenu->buildDrawLabels();

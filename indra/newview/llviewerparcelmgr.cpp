@@ -50,7 +50,6 @@
 #include "llfirstuse.h"
 #include "llfloaterbuyland.h"
 #include "llfloatergroups.h"
-//#include "llfloaterhtml.h"
 #include "llfloatersellland.h"
 #include "llfloatertools.h"
 #include "llnotify.h"

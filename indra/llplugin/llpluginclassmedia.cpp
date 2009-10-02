@@ -99,6 +99,8 @@ void LLPluginClassMedia::reset()
 	mSetMediaHeight = -1;
 	mRequestedMediaWidth = 0;
 	mRequestedMediaHeight = 0;
+	mFullMediaWidth = 0;
+	mFullMediaHeight = 0;
 	mTextureWidth = 0;
 	mTextureHeight = 0;
 	mMediaWidth = 0;
@@ -266,8 +268,16 @@ unsigned char* LLPluginClassMedia::getBitsData()
 
 void LLPluginClassMedia::setSize(int width, int height)
 {
-	mSetMediaWidth = width;
-	mSetMediaHeight = height;
+	if((width > 0) && (height > 0))
+	{
+		mSetMediaWidth = width;
+		mSetMediaHeight = height;
+	}
+	else
+	{
+		mSetMediaWidth = -1;
+		mSetMediaHeight = -1;
+	}
 
 	setSizeInternal();
 }
@@ -279,16 +289,26 @@ void LLPluginClassMedia::setSizeInternal(void)
 		mRequestedMediaWidth = mSetMediaWidth;
 		mRequestedMediaHeight = mSetMediaHeight;
 	}
+	else if((mNaturalMediaWidth > 0) && (mNaturalMediaHeight > 0))
+	{
+		mRequestedMediaWidth = mNaturalMediaWidth;
+		mRequestedMediaHeight = mNaturalMediaHeight;
+	}
 	else
 	{
 		mRequestedMediaWidth = mDefaultMediaWidth;
 		mRequestedMediaHeight = mDefaultMediaHeight;
 	}
 	
+	// Save these for size/interest calculations
+	mFullMediaWidth = mRequestedMediaWidth;
+	mFullMediaHeight = mRequestedMediaHeight;
+	
 	if(mAllowDownsample)
 	{
 		switch(mPriority)
 		{
+			case PRIORITY_SLIDESHOW:
 			case PRIORITY_LOW:
 				// Reduce maximum texture dimension to (or below) mLowPrioritySizeLimit
 				while((mRequestedMediaWidth > mLowPrioritySizeLimit) || (mRequestedMediaHeight > mLowPrioritySizeLimit))
@@ -309,6 +329,12 @@ void LLPluginClassMedia::setSizeInternal(void)
 		mRequestedMediaWidth = nextPowerOf2(mRequestedMediaWidth);
 		mRequestedMediaHeight = nextPowerOf2(mRequestedMediaHeight);
 	}
+	
+	if(mRequestedMediaWidth > 2048)
+		mRequestedMediaWidth = 2048;
+
+	if(mRequestedMediaHeight > 2048)
+		mRequestedMediaHeight = 2048;
 }
 
 void LLPluginClassMedia::setAutoScale(bool auto_scale)
@@ -519,12 +545,20 @@ void LLPluginClassMedia::setPriority(EPriority priority)
 		std::string priority_string;
 		switch(priority)
 		{
+			case PRIORITY_UNLOADED:	
+				priority_string = "unloaded";	
+				mSleepTime = 1.0f;
+			break;
 			case PRIORITY_STOPPED:	
 				priority_string = "stopped";	
 				mSleepTime = 1.0f;
 			break;
 			case PRIORITY_HIDDEN:	
 				priority_string = "hidden";	
+				mSleepTime = 1.0f;
+			break;
+			case PRIORITY_SLIDESHOW:
+				priority_string = "slideshow";		
 				mSleepTime = 1.0f;
 			break;
 			case PRIORITY_LOW:		
@@ -550,6 +584,8 @@ void LLPluginClassMedia::setPriority(EPriority priority)
 			mPlugin->setSleepTime(mSleepTime);
 		}
 		
+		LL_DEBUGS("PluginPriority") << this << ": setting priority to " << priority_string << LL_ENDL;
+		
 		// This may affect the calculated size, so recalculate it here.
 		setSizeInternal();
 	}
@@ -557,15 +593,27 @@ void LLPluginClassMedia::setPriority(EPriority priority)
 
 void LLPluginClassMedia::setLowPrioritySizeLimit(int size)
 {
-	if(mLowPrioritySizeLimit != size)
+	int power = nextPowerOf2(size);
+	if(mLowPrioritySizeLimit != power)
 	{
-		mLowPrioritySizeLimit = size;
+		mLowPrioritySizeLimit = power;
 
 		// This may affect the calculated size, so recalculate it here.
 		setSizeInternal();
 	}
 }
 
+F64 LLPluginClassMedia::getCPUUsage()
+{
+	F64 result = 0.0f;
+	
+	if(mPlugin)
+	{
+		result = mPlugin->getCPUUsage();
+	}
+	
+	return result;
+}
 
 void LLPluginClassMedia::cut()
 {
@@ -722,7 +770,7 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 			mNaturalMediaWidth = width;
 			mNaturalMediaHeight = height;
 			
-			setSize(width, height);
+			setSizeInternal();
 		}
 		else if(message_name == "size_change_response")
 		{

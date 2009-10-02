@@ -55,7 +55,7 @@ LLAlertHandler::LLAlertHandler(e_notification_type type, const LLSD& id) : mIsMo
 
 	// Getting a Channel for our notifications
 	mChannel = LLChannelManager::getInstance()->getChannel(p);
-	mChannel->setShowToasts(true);
+	mChannel->setCanStoreToasts(false);
 }
 
 //--------------------------------------------------------------------------
@@ -100,16 +100,23 @@ bool LLAlertHandler::processNotification(const LLSD& notify)
 		p.can_fade = false;
 		p.is_modal = mIsModal;
 		p.on_delete_toast = boost::bind(&LLAlertHandler::onDeleteToast, this, _1);
-		mChannel->addToast(p);
+
+		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+		if(channel)
+			channel->addToast(p);
 	}
 	else if (notify["sigtype"].asString() == "change")
 	{
 		LLToastAlertPanel* alert_dialog = new LLToastAlertPanel(notification, mIsModal);
-		mChannel->modifyToastByNotificationID(notification->getID(), (LLToastPanel*)alert_dialog);
+		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+		if(channel)
+			channel->modifyToastByNotificationID(notification->getID(), (LLToastPanel*)alert_dialog);
 	}
 	else
 	{
-		mChannel->killToastByNotificationID(notification->getID());
+		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+		if(channel)
+			channel->killToastByNotificationID(notification->getID());
 	}
 	return true;
 }

@@ -124,8 +124,6 @@ public:
 		Optional<CommitCallbackParam>	mouseenter_callback;
 		Optional<CommitCallbackParam>	mouseleave_callback;
 		
-		Optional<focus_callback_t>		focus_lost_callback;
-		
 		Optional<std::string>			control_name;
 		Optional<EnableControls>		enabled_controls;
 		Optional<ControlVisibility>		controls_visibility;
@@ -225,6 +223,10 @@ public:
 
 	LLUICtrl*		getParentUICtrl() const;
 
+	// return true if help topic found by crawling through parents -
+	// topic then put in help_topic_out
+	bool                    findHelpTopic(std::string& help_topic_out);
+
 	boost::signals2::connection setCommitCallback( const commit_signal_t::slot_type& cb ) { return mCommitSignal.connect(cb); }
 	boost::signals2::connection setValidateCallback( const enable_signal_t::slot_type& cb ) { return mValidateSignal.connect(cb); }
 
@@ -309,11 +311,6 @@ namespace LLInitParam
 		const LLUICtrl::enable_callback_t &a, 
 		const LLUICtrl::enable_callback_t &b); 
     
-	template<> 
-	bool ParamCompare<LLUICtrl::focus_callback_t>::equals(
-		const LLUICtrl::focus_callback_t &a, 
-		const LLUICtrl::focus_callback_t &b); 
-	
     template<>
 	bool ParamCompare<LLLazyValue<LLColor4> >::equals(
 		const LLLazyValue<LLColor4> &a, const LLLazyValue<LLColor4> &b); 

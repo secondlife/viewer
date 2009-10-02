@@ -39,8 +39,10 @@
 #include "message.h"
 #include "llagent.h"
 #include "llbutton.h"
+#include "lllineeditor.h"
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
+#include "lltexteditor.h"
 #include "lltexturectrl.h"
 #include "lluiconstants.h"
 #include "llworldmap.h"
@@ -73,7 +75,8 @@ LLPanelPick::LLPanelPick(BOOL edit_mode/* = FALSE */)
 	mPickId(LLUUID::null),
 	mCreatorId(LLUUID::null),
 	mDataReceived(FALSE),
-	mIsPickNew(false)
+	mIsPickNew(false),
+	mLocationChanged(false)
 {
 	if (edit_mode)
 	{
@@ -123,6 +126,16 @@ BOOL LLPanelPick::postBuild()
 
 	if (mEditMode)
 	{
+		enableSaveButton(FALSE);
+
+		mSnapshotCtrl->setOnSelectCallback(boost::bind(&LLPanelPick::onPickChanged, this, _1));
+
+		LLLineEditor* line_edit = getChild<LLLineEditor>("pick_name");
+		line_edit->setKeystrokeCallback(boost::bind(&LLPanelPick::onPickChanged, this, _1), NULL);
+		
+		LLTextEditor* text_edit = getChild<LLTextEditor>("pick_desc");
+		text_edit->setKeystrokeCallback(boost::bind(&LLPanelPick::onPickChanged, this, _1));
+
 		childSetAction("cancel_btn", boost::bind(&LLPanelPick::onClickCancel, this));
 		childSetAction("set_to_curr_location_btn", boost::bind(&LLPanelPick::onClickSet, this));
 		childSetAction(XML_BTN_SAVE, boost::bind(&LLPanelPick::onClickSave, this));
@@ -285,6 +298,26 @@ void LLPanelPick::setEditMode( BOOL edit_mode )
 	mSnapshotCtrl->setImageAssetID(snapshot_id);
 
 	updateButtons();
+}
+
+void LLPanelPick::onPickChanged(LLUICtrl* ctrl)
+{
+	if(mLocationChanged)
+	{
+		// Pick was enabled in onClickSet
+		return;
+	}
+
+	if( mSnapshotCtrl->isDirty()
+		|| getChild<LLLineEditor>("pick_name")->isDirty()
+		|| getChild<LLTextEditor>("pick_desc")->isDirty() )
+	{
+		enableSaveButton(TRUE);
+	}
+	else
+	{
+		enableSaveButton(FALSE);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -466,6 +499,9 @@ void LLPanelPick::onClickSet()
 		mSimName = parcel->getName();
 	}
 	setPickLocation(createLocationText(std::string(""), SET_LOCATION_NOTICE, mSimName, mPosGlobal));
+
+	mLocationChanged = true;
+	enableSaveButton(TRUE);
 }
 
 // static
@@ -551,4 +587,13 @@ void LLPanelPick::processParcelInfo(const LLParcelData& parcel_data)
 	childSetValue("maturity", rating_icon);
 
 	//*NOTE we don't removeObserver(...) ourselves cause LLRemoveParcelProcessor does it for us
+}
+
+void LLPanelPick::enableSaveButton(bool enable)
+{
+	if(!mEditMode)
+	{
+		return;
+	}
+	childSetEnabled(XML_BTN_SAVE, enable);
 }

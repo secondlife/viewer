@@ -48,6 +48,7 @@
 #include "lltrans.h"
 #include "llviewertexteditor.h"
 #include "llviewerwindow.h"
+#include "lltransientfloatermgr.h"
 
 
 
@@ -62,31 +63,42 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	mInputEditor(NULL), 
 	mPositioned(false)
 {
-	LLIMModel::LLIMSession* session = get_if_there(LLIMModel::instance().sSessionsMap, mSessionID, (LLIMModel::LLIMSession*)NULL);
-	if(session)
+	EInstantMessage type = LLIMModel::getInstance()->getType(session_id);
+	if(IM_COUNT != type)
 	{
-		mDialog = session->mType;
-	}
+		mDialog = type;
 
-	if (mDialog == IM_NOTHING_SPECIAL)
-	{
-		mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelIMControl, this);
+		if (IM_NOTHING_SPECIAL == mDialog || IM_SESSION_P2P_INVITE == mDialog)
+		{
+			mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelIMControl, this);
+		}
+		else
+		{
+			mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelGroupControl, this);
+		}
 	}
-	else
-	{
-		mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelGroupControl, this);
-	}
-// 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_im_session.xml");
-
-	gFocusMgr.addFocusChangeCallback(boost::bind(&LLIMFloater::focusChangeCallback, this));
 
 	mCloseSignal.connect(boost::bind(&LLIMFloater::onClose, this));
+
+	LLTransientFloaterMgr::getInstance()->registerTransientFloater(this);
 }
 
 void LLIMFloater::onClose()
 {
 	LLIMModel::instance().sendLeaveSession(mSessionID, mOtherParticipantUUID);
+
+	//*TODO - move to the IMModel::sendLeaveSession() for the integrity (IB)
 	gIMMgr->removeSession(mSessionID);
+}
+
+void LLIMFloater::setMinimized(BOOL minimize)
+{
+	if(!isDocked())
+	{
+		setVisible(!minimize);
+	}	
+
+	LLFloater::setMinimized(minimize);
 }
 
 /* static */
@@ -152,16 +164,17 @@ void LLIMFloater::sendMsg()
 
 LLIMFloater::~LLIMFloater()
 {
+	LLTransientFloaterMgr::getInstance()->unregisterTransientFloater(this);
 }
 
 //virtual
 BOOL LLIMFloater::postBuild()
 {
-	LLIMModel::LLIMSession* session = get_if_there(LLIMModel::instance().sSessionsMap, mSessionID, (LLIMModel::LLIMSession*)NULL);
-	if(session)
+	const LLUUID& other_party_id = LLIMModel::getInstance()->getOtherParticipantID(mSessionID);
+	if (other_party_id.notNull())
 	{
-		mOtherParticipantUUID = session->mOtherParticipantID;
-		mControlPanel->setID(session->mOtherParticipantID);
+		mOtherParticipantUUID = other_party_id;
+		mControlPanel->setID(mOtherParticipantUUID);
 	}
 
 	LLButton* slide_left = getChild<LLButton>("slide_left_btn");
@@ -177,8 +190,8 @@ BOOL LLIMFloater::postBuild()
 	// enable line history support for instant message bar
 	mInputEditor->setEnableLineHistory(TRUE);
 	
-	mInputEditor->setFocusReceivedCallback( onInputEditorFocusReceived, this );
-	mInputEditor->setFocusLostCallback( onInputEditorFocusLost, this );
+	mInputEditor->setFocusReceivedCallback( boost::bind(onInputEditorFocusReceived, _1, this) );
+	mInputEditor->setFocusLostCallback( boost::bind(onInputEditorFocusLost, _1, this) );
 	mInputEditor->setKeystrokeCallback( onInputEditorKeystroke, this );
 	mInputEditor->setCommitOnFocusLost( FALSE );
 	mInputEditor->setRevertOnEsc( FALSE );
@@ -214,17 +227,6 @@ void* LLIMFloater::createPanelGroupControl(void* userdata)
 	self->mControlPanel = new LLPanelGroupControlPanel();
 	self->mControlPanel->setXMLFilename("panel_group_control_panel.xml");
 	return self->mControlPanel;
-}
-
-
-
-void LLIMFloater::focusChangeCallback()
-{
-	// hide docked floater if user clicked inside in-world area
-	if (isDocked() && gFocusMgr.getKeyboardFocus() == NULL)
-	{
-		setVisible(false);
-	}
 }
 
 void LLIMFloater::onSlide()
@@ -271,13 +273,13 @@ LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 		}
 
 		floater->setDockControl(new LLDockControl(chiclet, floater, floater->getDockTongue(),
-				LLDockControl::TOP,  boost::bind(&LLIMFloater::getEnabledRect, floater, _1)));
+				LLDockControl::TOP,  boost::bind(&LLIMFloater::getAllowedRect, floater, _1)));
 	}
 
 	return floater;
 }
 
-void LLIMFloater::getEnabledRect(LLRect& rect)
+void LLIMFloater::getAllowedRect(LLRect& rect)
 {
 	rect = gViewerWindow->getWorldViewRect();
 }
@@ -285,8 +287,10 @@ void LLIMFloater::getEnabledRect(LLRect& rect)
 void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 {
 	// update notification channel state
-	LLNotificationsUI::LLScreenChannel* channel = LLNotificationsUI::LLChannelManager::getInstance()->
-											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID")));
+	LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
+		(LLNotificationsUI::LLChannelManager::getInstance()->
+											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
+	
 	LLDockableFloater::setDocked(docked, pop_on_undock);
 
 	// update notification channel state
@@ -298,8 +302,9 @@ void LLIMFloater::setDocked(bool docked, bool pop_on_undock)
 
 void LLIMFloater::setVisible(BOOL visible)
 {
-	LLNotificationsUI::LLScreenChannel* channel = LLNotificationsUI::LLChannelManager::getInstance()->
-											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID")));
+	LLNotificationsUI::LLScreenChannel* channel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>
+		(LLNotificationsUI::LLChannelManager::getInstance()->
+											findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
 	LLDockableFloater::setVisible(visible);
 
 	// update notification channel state

@@ -267,6 +267,7 @@ public:
 	BOOL removeObject(LLDrawable *drawablep, BOOL from_octree = FALSE);
 	BOOL updateInGroup(LLDrawable *drawablep, BOOL immediate = FALSE); // Update position if it's in the group
 	BOOL isVisible() const;
+	BOOL isRecentlyVisible() const;
 	void setVisible();
 	void shift(const LLVector3 &offset);
 	BOOL boundObjects(BOOL empty, LLVector3& newMin, LLVector3& newMax);

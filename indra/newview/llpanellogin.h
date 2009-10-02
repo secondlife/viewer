@@ -94,7 +94,7 @@ private:
 	static void onClickForgotPassword(void*);
 	static void onPassKey(LLLineEditor* caller, void* user_data);
 	static void onSelectServer(LLUICtrl*, void*);
-	static void onServerComboLostFocus(LLFocusableElement*, void*);
+	static void onServerComboLostFocus(LLFocusableElement*);
 	
 private:
 	LLPointer<LLUIImage> mLogoImage;
