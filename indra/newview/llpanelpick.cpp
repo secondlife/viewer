@@ -356,14 +356,7 @@ std::string LLPanelPick::createLocationText(const std::string& owner_name, const
 
 void LLPanelPick::setPickName(std::string name)
 {
-	if (mEditMode)
-	{
-		childSetValue(XML_NAME, name);
-	}
-	else
-	{
-		childSetWrappedText(XML_NAME, name);
-	}
+	childSetValue(XML_NAME, name);
 	
 	//preserving non-wrapped text for info/edit modes switching
 	mName = name;
@@ -371,14 +364,7 @@ void LLPanelPick::setPickName(std::string name)
 
 void LLPanelPick::setPickDesc(std::string desc)
 {
-	if (mEditMode)
-	{
-		childSetValue(XML_DESC, desc);
-	}
-	else
-	{
-		childSetWrappedText(XML_DESC, desc);
-	}
+	childSetValue(XML_DESC, desc);
 
 	//preserving non-wrapped text for info/edit modes switching
 	mDesc = desc;
@@ -386,7 +372,7 @@ void LLPanelPick::setPickDesc(std::string desc)
 
 void LLPanelPick::setPickLocation(const std::string& location)
 {
-	childSetWrappedText(XML_LOCATION, location);
+	childSetValue(XML_LOCATION, location);
 
 	//preserving non-wrapped text for info/edit modes switching
 	mLocation = location;

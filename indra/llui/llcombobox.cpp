@@ -714,11 +714,11 @@ void LLComboBox::onItemSelected(const LLSD& data)
 	}
 }
 
-BOOL LLComboBox::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
+BOOL LLComboBox::handleToolTip(S32 x, S32 y, MASK mask)
 {
     std::string tool_tip;
 
-	if(LLUICtrl::handleToolTip(x, y, msg, sticky_rect_screen))
+	if(LLUICtrl::handleToolTip(x, y, mask))
 	{
 		return TRUE;
 	}
@@ -731,7 +731,7 @@ BOOL LLComboBox::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_re
 	
 	if( !tool_tip.empty() )
 	{
-		LLToolTipMgr::instance().show(LLToolTipParams()
+		LLToolTipMgr::instance().show(LLToolTip::Params()
 			.message(tool_tip)
 			.sticky_rect(calcScreenRect()));
 	}

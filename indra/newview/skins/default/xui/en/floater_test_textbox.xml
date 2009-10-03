@@ -122,7 +122,6 @@
      left="10"
      name="floater_map_north"
      right="30"
-     text="N"
      text_color="1 1 1 0.7"
      top="370">
         N

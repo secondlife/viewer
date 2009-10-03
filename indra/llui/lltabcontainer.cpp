@@ -596,10 +596,10 @@ BOOL LLTabContainer::handleMouseUp( S32 x, S32 y, MASK mask )
 }
 
 // virtual
-BOOL LLTabContainer::handleToolTip( S32 x, S32 y, std::string& msg, LLRect& sticky_rect )
+BOOL LLTabContainer::handleToolTip( S32 x, S32 y, MASK mask)
 {
 	static LLUICachedControl<S32> tabcntrv_pad ("UITabCntrvPad", 0);
-	BOOL handled = LLPanel::handleToolTip( x, y, msg, sticky_rect );
+	BOOL handled = LLPanel::handleToolTip( x, y, mask);
 	if (!handled && getTabCount() > 0) 
 	{
 		LLTabTuple* firsttuple = getTab(0);
@@ -629,7 +629,7 @@ BOOL LLTabContainer::handleToolTip( S32 x, S32 y, std::string& msg, LLRect& stic
 				tuple->mButton->setVisible( TRUE );
 				S32 local_x = x - tuple->mButton->getRect().mLeft;
 				S32 local_y = y - tuple->mButton->getRect().mBottom;
-				handled = tuple->mButton->handleToolTip( local_x, local_y, msg, sticky_rect );
+				handled = tuple->mButton->handleToolTip( local_x, local_y, mask);
 				if( handled )
 				{
 					break;
@@ -906,7 +906,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 		LLTextBox::Params params;
 		params.name(trimmed_label);
 		params.rect(btn_rect);
-		params.text(trimmed_label);
+		params.initial_value(trimmed_label);
 		params.font(font);
 		textbox = LLUICtrlFactory::create<LLTextBox> (params);
 		

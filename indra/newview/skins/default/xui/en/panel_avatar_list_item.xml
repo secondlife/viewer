@@ -62,7 +62,6 @@
      auto_update="true"
      follows="right"
      draw_border="false"
-     halign="left"
      height="16"
      layout="topleft"
      left_pad="3"

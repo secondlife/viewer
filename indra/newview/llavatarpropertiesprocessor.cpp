@@ -42,10 +42,16 @@
 #include "llavatarconstants.h"	// AVATAR_TRANSACTED, etc.
 #include "lldate.h"
 #include "lltrans.h"
+#include "llui.h"				// LLUI::getLanguage()
 #include "message.h"
 
 LLAvatarPropertiesProcessor::LLAvatarPropertiesProcessor()
 {
+}
+
+LLAvatarPropertiesProcessor::~LLAvatarPropertiesProcessor()
+{
+	llinfos << "JAMESDEBUG cleanup avatar properties processor" << llendl;
 }
 
 void LLAvatarPropertiesProcessor::addObserver(const LLUUID& avatar_id, LLAvatarPropertiesObserver* observer)
@@ -172,103 +178,6 @@ void LLAvatarPropertiesProcessor::sendAvatarPropertiesUpdate(const LLAvatarData*
 	gAgent.sendReliableMessage();
 }
 
-//static
-std::string LLAvatarPropertiesProcessor::ageFromDate(const std::string& date_string)
-{
-	// Convert string date to malleable representation
-	S32 month, day, year;
-	S32 matched = sscanf(date_string.c_str(), "%d/%d/%d", &month, &day, &year);
-	if (matched != 3) return "???";
-
-	// Create ISO-8601 date string
-	std::string iso8601_date_string =
-		llformat("%04d-%02d-%02dT00:00:00Z", year, month, day);
-	LLDate date(iso8601_date_string);
-
-	// Correct for the fact that account creation dates are in Pacific time,
-	// == UTC - 8
-	F64 date_secs_since_epoch = date.secondsSinceEpoch();
-	date_secs_since_epoch += 8.0 * 60.0 * 60.0;
-
-	// Convert seconds from epoch to seconds from now
-	F64 now_secs_since_epoch = LLDate::now().secondsSinceEpoch();
-	F64 age_secs = now_secs_since_epoch - date_secs_since_epoch;
-
-	// We don't care about sub-day times
-	const F64 SEC_PER_DAY = 24.0 * 60.0 * 60.0;
-	S32 age_days = lltrunc(age_secs / SEC_PER_DAY);
-
-	// Assume most values won't be used to fill in the format string:
-	// "[AGEYEARS][AGEMONTHS][AGEWEEKS][AGEDAYS]old"
-	LLStringUtil::format_map_t final_args;
-	final_args["[AGEYEARS]"] = "";
-	final_args["[AGEMONTHS]"] = "";
-	final_args["[AGEWEEKS]"] = "";
-	final_args["[AGEDAYS]"] = "";
-
-	// Try for age in round number of years
-	LLStringUtil::format_map_t args;
-	S32 age_years = age_days / 365;
-	age_days = age_days % 365;
-	if (age_years > 1)
-	{
-		args["[YEARS]"] = llformat("%d", age_years);
-		final_args["[AGEYEARS]"] = LLTrans::getString("AgeYears", args);
-	}
-	else if (age_years == 1)
-	{
-		final_args["[AGEYEARS]"] = LLTrans::getString("Age1Year");
-	}
-	// fall through because we show years + months for ages > 1 year
-
-	S32 age_months = age_days / 30;
-	age_days = age_days % 30;
-	if (age_months > 1)
-	{
-		args["[MONTHS]"] = llformat("%d", age_months);
-		final_args["[AGEMONTHS]"] = LLTrans::getString("AgeMonths", args);
-		// Either N years M months, or just M months,
-		// so we can exit.
-		return LLTrans::getString("YearsMonthsOld", final_args);
-	}
-	else if (age_months == 1)
-	{
-		final_args["[AGEMONTHS]"] = LLTrans::getString("Age1Month");
-		return LLTrans::getString("YearsMonthsOld", final_args);
-	}
-
-	// Now for age in weeks
-	S32 age_weeks = age_days / 7;
-	age_days = age_days % 7;
-	if (age_weeks > 1)
-	{
-		args["[WEEKS]"] = llformat("%d", age_weeks);
-		final_args["[AGEWEEKS]"] = LLTrans::getString("AgeWeeks", args);
-		return LLTrans::getString("WeeksOld", final_args);
-	}
-	else if (age_weeks == 1)
-	{
-		final_args["[AGEWEEKS]"] = LLTrans::getString("Age1Week");
-		return LLTrans::getString("WeeksOld", final_args);
-	}
-
-	// Down to days now
-	if (age_days > 1)
-	{
-		args["[DAYS]"] = llformat("%d", age_days);
-		final_args["[AGEDAYS]"] = LLTrans::getString("AgeDays", args);
-		return LLTrans::getString("DaysOld", final_args);
-	}
-	else if (age_days == 1)
-	{
-		final_args["[AGEDAYS]"] = LLTrans::getString("Age1Day");
-		return LLTrans::getString("DaysOld", final_args);
-	}
-	else
-	{
-		return LLTrans::getString("TodayOld");
-	}
-}
 
 
 //static

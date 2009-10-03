@@ -17,7 +17,7 @@
 	<text name="spawn_points_text">
 		Spawnpunten (posities, niet objecten):
 	</text>
-	<scroll_list bottom_delta="-44" draw_border="true" follows="left|top" font="SansSerifSmall"
+	<scroll_list bottom_delta="-44" draw_border="true" follows="left|top"
 	     height="40" left="10" multi_select="false" name="spawn_points_list"
 	     width="230" />
 

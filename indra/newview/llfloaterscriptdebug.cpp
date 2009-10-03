@@ -167,6 +167,7 @@ void LLFloaterScriptDebugOutput::addLine(const std::string &utf8mesg, const std:
 		setShortTitle(user_name);
 	}
 
-	mHistoryEditor->appendColoredText(utf8mesg, false, true, color);
+	mHistoryEditor->appendText(utf8mesg, true, LLStyle::Params().color(color));
+	mHistoryEditor->blockUndo();
 }
 

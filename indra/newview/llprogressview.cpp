@@ -196,7 +196,7 @@ void LLProgressView::draw()
 
 void LLProgressView::setText(const std::string& text)
 {
-	getChild<LLTextBox>("progress_text")->setWrappedText(LLStringExplicit(text));
+	getChild<LLUICtrl>("progress_text")->setValue(text);
 }
 
 void LLProgressView::setPercent(const F32 percent)
@@ -207,7 +207,7 @@ void LLProgressView::setPercent(const F32 percent)
 void LLProgressView::setMessage(const std::string& msg)
 {
 	mMessage = msg;
-	getChild<LLTextBox>("message_text")->setWrappedText(LLStringExplicit(mMessage));
+	getChild<LLUICtrl>("message_text")->setValue(mMessage);
 }
 
 void LLProgressView::setCancelButtonVisible(BOOL b, const std::string& label)

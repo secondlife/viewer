@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater
+ bevel_style="in"
+ bg_opaque_color="MouseGray"
+ can_close="false"
+ can_minimize="false"
+ height="145"
+ layout="topleft"
+ name="inspect_object"
+ single_instance="true"
+ sound_flags="0"
+ visible="true"
+ width="300">
+  <string name="Creator">By [CREATOR]</string>
+  <string name="CreatorAndOwner">
+By [CREATOR]
+Owned by [OWNER]
+  </string>
+  <!-- *TODO: Might need to change to [AMOUNT] if icon contains "L$" -->
+  <string name="Price">L$[AMOUNT]</string>
+  <string name="PriceFree">Free!</string>
+  <string name="Touch">Touch</string>
+  <string name="Sit">Sit</string>
+  <text
+     follows="all"
+     font="SansSerifLargeBold"
+     height="20"
+     left="8"
+     name="object_name"
+     text_color="white"
+     top="8"
+     use_ellipses="true"
+     value="Test Object Name That Is Really Long"
+     width="268" />
+  <text
+   follows="all"
+   font="SansSerif"
+   height="30"
+   left="10"
+   name="object_creator"
+   top_pad="0"
+   width="280">
+By Longavatarname Johnsonlongstonnammer
+Owned by James Linden
+  </text>
+  <text
+   follows="all"
+   height="45"
+   left="100"
+   name="object_description"
+   top_pad="4"
+   width="200"
+   word_wrap="true">
+This is a really long description for an object being as how it is at least 80 characters in length and maybe more like 120 at this point. Who knows, really?
+  </text>
+  <!-- *TODO: Replace this icon -->
+  <icon
+  name="price_icon"
+  image_name="Favorite_Star_Active"
+  left="5"
+  width="16"
+  height="16"
+  top="79"
+  follows="left|top"
+  />
+  <text
+   follows="all"
+   font="SansSerifSmallBold"
+   height="45"
+   left="22"
+   name="price_text"
+   text_color="white"
+   top="80"
+   font_shadow="none"
+   width="80">
+L$300,000
+  </text>
+  <!-- Overlapping buttons for all default actions.  Show "Buy" if
+  for sale, "Sit" if can sit, etc. -->
+  <button
+     follows="top|left"
+     font="SansSerif"
+     height="23"
+     label="Buy"
+     left="10"
+     name="buy_btn"
+     top="116"
+     width="100" />
+  <button
+   follows="top|left"
+   font="SansSerif"
+   height="23"
+   label="Pay"
+   left_delta="0"
+   name="pay_btn"
+   top_delta="0"
+   width="100" />
+  <button
+   follows="top|left"
+   font="SansSerif"
+   height="23"
+   label="Take Copy"
+   left_delta="0"
+   name="take_free_copy_btn"
+   top_delta="0"
+   width="100" />
+  <button
+   follows="top|left"
+   font="SansSerifSmall"
+   height="23"
+   label="Touch"
+   left_delta="0"
+   name="touch_btn"
+   top_delta="0"
+   width="100" />
+  <button
+   follows="top|left"
+   font="SansSerif"
+   height="23"
+   label="Sit"
+   left_delta="0"
+   name="sit_btn"
+   top_delta="0"
+   width="100" />
+  <button
+   follows="top|left"
+   font="SansSerifSmall"
+   height="23"
+   label="Open"
+   left_delta="0"
+   name="open_btn"
+   top_delta="0"
+   width="100" />
+  <!-- non-overlapping buttons here -->
+  <menu_button
+     follows="top|left"
+     height="23"
+     image_overlay="Icon_Gear_Foreground"
+     image_overlay_alignment="center"
+   right="-8"
+     menu_filename="menu_inspect_object_gear.xml" 
+     name="gear_btn"
+     picture_style="true"
+   top_delta="0"
+     width="30" />
+    <button
+     follows="top|left"
+     height="22"
+     image_overlay="TabIcon_Close_Off"
+     layout="topleft"
+     name="more_info_btn"
+     picture_style="true"
+     right="-8"
+     top="7"
+     left_delta="110"
+     tab_stop="false"
+     width="20" />
+</floater>

@@ -32,14 +32,13 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include <sstream>
-
 // self include
 #include "llfloaterreporter.h"
 
+#include <sstream>
+
 // linden library includes
 #include "llassetstorage.h"
-#include "llcachename.h"
 #include "llfontgl.h"
 #include "llgl.h"			// for renderer
 #include "llinventory.h"
@@ -48,18 +47,14 @@
 #include "llversionviewer.h"
 #include "message.h"
 #include "v3math.h"
-#include "lltexteditor.h"
 
 // viewer project includes
 #include "llagent.h"
 #include "llbutton.h"
-#include "llcheckboxctrl.h"
 #include "llfloaterreg.h"
-#include "lllineeditor.h"
 #include "lltexturectrl.h"
 #include "llscrolllistctrl.h"
 #include "llimview.h"
-#include "lltextbox.h"
 #include "lldispatcher.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"
@@ -72,6 +67,7 @@
 #include "lltoolobjpicker.h"
 #include "lltoolmgr.h"
 #include "llresourcedata.h"		// for LLResourceData
+#include "llslurl.h"
 #include "llviewerwindow.h"
 #include "llviewertexturelist.h"
 #include "llworldmap.h"
@@ -103,6 +99,7 @@ LLFloaterReporter::LLFloaterReporter(const LLSD& key)
 	mObjectID(),
 	mScreenID(),
 	mAbuserID(),
+	mOwnerName(),
 	mDeselectOnClose( FALSE ),
 	mPicking( FALSE), 
 	mPosition(),
@@ -158,6 +155,7 @@ BOOL LLFloaterReporter::postBuild()
 	// Default text to be blank
 	childSetText("object_name", LLStringUtil::null);
 	childSetText("owner_name", LLStringUtil::null);
+	mOwnerName = LLStringUtil::null;
 
 	childSetFocus("summary_edit");
 
@@ -174,8 +172,8 @@ BOOL LLFloaterReporter::postBuild()
 	
 	
 	// abuser name is selected from a list
-	LLLineEditor* le = getChild<LLLineEditor>("abuser_name_edit");
-	le->setEnabled( FALSE );
+	LLUICtrl* le = getChild<LLUICtrl>("abuser_name_edit");
+	le->setEnabled( false );
 
 	setPosBox((LLVector3d)mPosition.getValue());
 	LLButton* pick_btn = getChild<LLButton>("pick_btn");
@@ -299,9 +297,12 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 					object_owner.append("Unknown");
 				}
 				childSetText("object_name", object_owner);
-				childSetText("owner_name", object_owner);
+				std::string owner_link =
+					LLSLURL::buildCommand("agent", mObjectID, "inspect");
+				childSetText("owner_name", owner_link);
 				childSetText("abuser_name_edit", object_owner);
 				mAbuserID = object_id;
+				mOwnerName = object_owner;
 			}
 			else
 			{
@@ -445,6 +446,7 @@ void LLFloaterReporter::onClickObjPicker(void *userdata)
 	self->mPicking = TRUE;
 	self->childSetText("object_name", LLStringUtil::null);
 	self->childSetText("owner_name", LLStringUtil::null);
+	self->mOwnerName = LLStringUtil::null;
 	LLButton* pick_btn = self->getChild<LLButton>("pick_btn");
 	if (pick_btn) pick_btn->setToggleState(TRUE);
 }
@@ -505,9 +507,12 @@ void LLFloaterReporter::showFromObject(const LLUUID& object_id)
 void LLFloaterReporter::setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID owner_id)
 {
 	childSetText("object_name", object_name);
-	childSetText("owner_name", owner_name);
+	std::string owner_link =
+		LLSLURL::buildCommand("agent", owner_id, "inspect");
+	childSetText("owner_name", owner_link);
 	childSetText("abuser_name_edit", owner_name);
 	mAbuserID = owner_id;
+	mOwnerName = owner_name;
 }
 
 
@@ -608,11 +613,10 @@ LLSD LLFloaterReporter::gatherReport()
 		<< LL_VIEWER_BUILD << std::endl << std::endl;
 
 	std::string object_name = childGetText("object_name");
-	std::string owner_name = childGetText("owner_name");
-	if (!object_name.empty() && !owner_name.empty())
+	if (!object_name.empty() && !mOwnerName.empty())
 	{
 		details << "Object: " << object_name << "\n";
-		details << "Owner: " << owner_name << "\n";
+		details << "Owner: " << mOwnerName << "\n";
 	}
 
 

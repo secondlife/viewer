@@ -785,7 +785,7 @@ void LLFloater::applyTitle()
 	}
 }
 
-const std::string& LLFloater::getCurrentTitle() const
+std::string LLFloater::getCurrentTitle() const
 {
 	return mDragHandle ? mDragHandle->getTitle() : LLStringUtil::null;
 }

@@ -34,7 +34,7 @@
 #include "llsecondlifeurls.h"
 /*
 const std::string CREATE_ACCOUNT_URL ( 
-	"http://secondlife.com/registration/");
+	"http://join.secondlife.com/");
 
 const std::string MANAGE_ACCOUNT ( 
 	"http://secondlife.com/account/");  // *TODO: NOT USED

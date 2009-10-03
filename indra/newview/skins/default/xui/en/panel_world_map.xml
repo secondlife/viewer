@@ -51,7 +51,6 @@
      label="N"
      layout="topleft"
      name="floater_map_north"
-     text="N"
      text_color="1 1 1 0.7">
         N
     </text>
@@ -61,7 +60,6 @@
      label="E"
      layout="topleft"
      name="floater_map_east"
-     text="E"
      text_color="1 1 1 0.7">
         E
     </text>
@@ -71,7 +69,6 @@
      label="W"
      layout="topleft"
      name="floater_map_west"
-     text="W"
      text_color="1 1 1 0.7">
         W
     </text>
@@ -81,7 +78,6 @@
      label="S"
      layout="topleft"
      name="floater_map_south"
-     text="S"
      text_color="1 1 1 0.7">
         S
     </text>
@@ -91,7 +87,6 @@
      label="SE"
      layout="topleft"
      name="floater_map_southeast"
-     text="SE"
      text_color="1 1 1 0.7">
         SE
     </text>
@@ -101,7 +96,6 @@
      label="NE"
      layout="topleft"
      name="floater_map_northeast"
-     text="NE"
      text_color="1 1 1 0.7">
         NE
     </text>
@@ -111,7 +105,6 @@
      label="SW"
      layout="topleft"
      name="floater_map_southwest"
-     text="SW"
      text_color="1 1 1 0.7">
         SW
     </text>
@@ -121,7 +114,6 @@
      label="NW"
      layout="topleft"
      name="floater_map_northwest"
-     text="NW"
      text_color="1 1 1 0.7">
         NW
     </text>

@@ -36,7 +36,7 @@
 
 #include "llfontgl.h"
 #include "llcoord.h"
-#include "llgl.h"
+//#include "llgl.h"
 
 #include "llagent.h"
 #include "llbutton.h"

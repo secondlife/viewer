@@ -51,6 +51,7 @@ set(llui_SOURCE_FILES
     lllayoutstack.cpp
     lllineeditor.cpp
     lllocalcliprect.cpp
+    llmenubutton.cpp
     llmenugl.cpp
     llmodaldialog.cpp
     llmultifloater.cpp 
@@ -87,6 +88,7 @@ set(llui_SOURCE_FILES
     lltextparser.cpp
     lltransientfloatermgr.cpp
     lltransutil.cpp
+    lltoggleablemenu.cpp
     lltooltip.cpp
     llui.cpp
     lluicolortable.cpp
@@ -137,6 +139,7 @@ set(llui_HEADER_FILES
     lllazyvalue.h
     lllineeditor.h
     lllocalcliprect.h
+    llmenubutton.h
     llmenugl.h
     llmodaldialog.h
     llmultifloater.h 
@@ -171,6 +174,7 @@ set(llui_HEADER_FILES
     lltextbox.h
     lltexteditor.h
     lltextparser.h
+    lltoggleablemenu.h
     lltooltip.h
     lltransientfloatermgr.h
     lltransutil.h

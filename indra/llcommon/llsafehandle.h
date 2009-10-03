@@ -77,6 +77,7 @@ public:
 	Type*	operator->()						{ return nonNull(mPointer); }
 
 	Type*	get() const							{ return mPointer; }
+	void	clear()								{ assign(NULL); }
 	// we disallow these operations as they expose our null objects to direct manipulation
 	// and bypass the reference counting semantics
 	//const Type&	operator*() const			{ return *nonNull(mPointer); }

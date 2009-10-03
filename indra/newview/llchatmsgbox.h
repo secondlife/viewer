@@ -61,18 +61,10 @@ protected:
 	friend class LLUICtrlFactory;
 
 public:
-	void				setText(const LLStringExplicit &text);
 	void				addText(const LLStringExplicit &text);
 	
-	S32					getTextPixelHeight();
-	S32					getTextLinesNum();
-
-	/*virtual*/ void	setValue(const LLSD &value);
-	/*virtual*/ void	drawText(S32 x, S32 y, const LLWString &text, const LLColor4 &color);
-
 private:
 	S32					mBlockSpacing;
-	std::vector<S32>	mSeparatorOffset;
 };
 
 #endif

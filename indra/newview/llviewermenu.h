@@ -36,14 +36,12 @@
 #include "llmenugl.h"
 #include "llsafehandle.h"
 
-//newview includes
-#include "llfilepicker.h"
-
+class LLSD;
 class LLUICtrl;
 class LLView;
 class LLParcelSelection;
 class LLObjectSelection;
-
+class LLSelectNode;
 
 void init_menus();
 void cleanup_menus();
@@ -83,7 +81,6 @@ void confirm_replace_attachment(S32 option, void* user_data);
 void handle_detach_from_avatar(const LLSD& user_data);
 void attach_label(std::string& label, const LLSD&);
 void detach_label(std::string& label, const LLSD&);
-BOOL object_selected_and_point_valid(const LLSD&);
 void handle_detach(void*);
 BOOL enable_god_full(void* user_data);
 BOOL enable_god_liaison(void* user_data);
@@ -96,20 +93,33 @@ void exchange_callingcard(const LLUUID& dest_id);
 void handle_gestures(void*);
 void handle_sit_down(void*);
 void handle_object_build(void*);
+void handle_object_touch();
+bool enable_object_open();
+
+// Buy either contents or object itself
+void handle_buy();
+
+void handle_take_copy();
+
+// Can anyone take a free copy of the object?
+// *TODO: Move to separate file
+bool anyone_copy_selection(LLSelectNode* nodep);
+
+// Is this selected object for sale?
+// *TODO: Move to separate file
+bool for_sale_selection(LLSelectNode* nodep);
+
 void handle_save_snapshot(void *);
 void handle_toggle_flycam();
 
-bool handle_sit_or_stand();
-bool handle_give_money_dialog();
+void handle_object_sit_or_stand();
+void handle_give_money_dialog();
+bool enable_pay_object();
+bool enable_buy_object();
 bool handle_go_to();
 
 // Export to XML or Collada
 void handle_export_selected( void * );
-
-// Pass in an empty string and this function will build a string that
-// describes buyer permissions.
-class LLSaleInfo;
-class LLPermissions;
 
 class LLViewerMenuHolderGL : public LLMenuHolderGL
 {

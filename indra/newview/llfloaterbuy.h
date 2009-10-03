@@ -70,6 +70,7 @@ protected:
 
 	void onClickBuy();
 	void onClickCancel();
+	void onClose();
 
 private:
 	LLSafeHandle<LLObjectSelection>	mObjectSelection;

@@ -128,6 +128,8 @@ private:
 	LLUUID 			mObjectID;
 	LLUUID			mScreenID;
 	LLUUID			mAbuserID;
+	// Store the real name, not the link, for upstream reporting
+	std::string		mOwnerName;
 	BOOL			mDeselectOnClose;
 	BOOL 			mPicking;
 	LLVector3		mPosition;

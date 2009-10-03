@@ -237,7 +237,7 @@ BOOL LLPanelFriends::addFriend(const LLUUID& agent_id)
 	LLSD& friend_column = element["columns"][LIST_FRIEND_NAME];
 	friend_column["column"] = "friend_name";
 	friend_column["value"] = fullname;
-	friend_column["font"] = "SANSSERIF";
+	friend_column["font"]["name"] = "SANSSERIF";
 	friend_column["font"]["style"] = "NORMAL";	
 
 	LLSD& online_status_column = element["columns"][LIST_ONLINE_STATUS];
@@ -614,7 +614,7 @@ void LLPanelFriends::onClickPay(void* user_data)
 	std::vector<LLUUID> ids = panelp->getSelectedIDs();
 	if(ids.size() == 1)
 	{	
-		handle_pay_by_id(ids[0]);
+		LLAvatarActions::pay(ids[0]);
 	}
 }
 

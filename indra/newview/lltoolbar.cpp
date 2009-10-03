@@ -271,6 +271,7 @@ void LLToolBar::updateCommunicateList()
 	contact_sd["columns"][0]["value"] = LLFloaterMyFriends::getInstance()->getShortTitle(); 
 	if (LLFloaterMyFriends::getInstance() == frontmost_floater)
 	{
+		contact_sd["columns"][0]["font"]["name"] = "SANSSERIF_SMALL"; 
 		contact_sd["columns"][0]["font"]["style"] = "BOLD"; 
 		// make sure current tab is selected in list
 		if (selected.isUndefined())
@@ -286,6 +287,7 @@ void LLToolBar::updateCommunicateList()
 
 	if (LLFloaterChat::getInstance() == frontmost_floater)
 	{
+		communicate_sd["columns"][0]["font"]["name"] = "SANSSERIF_SMALL";
 		communicate_sd["columns"][0]["font"]["style"] = "BOLD";
 		if (selected.isUndefined())
 		{
@@ -318,6 +320,7 @@ void LLToolBar::updateCommunicateList()
 			im_sd["columns"][0]["value"] = floater_title;
 			if (im_floaterp  == frontmost_floater)
 			{
+				im_sd["columns"][0]["font"]["name"] = "SANSSERIF_SMALL";
 				im_sd["columns"][0]["font"]["style"] = "BOLD";
 				if (selected.isUndefined())
 				{

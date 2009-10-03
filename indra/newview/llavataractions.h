@@ -96,11 +96,17 @@ public:
 	 */
 	static bool isBlocked(const LLUUID& id);
 
+	/**
+	 * Invite avatar to a group.
+	 */	
+	static void inviteToGroup(const LLUUID& id);
+	
 private:
 	static bool callbackAddFriend(const LLSD& notification, const LLSD& response);
 	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);
 	static bool handleRemove(const LLSD& notification, const LLSD& response);
 	static bool handlePay(const LLSD& notification, const LLSD& response, LLUUID avatar_id);
+	static void callback_invite_to_group(LLUUID group_id, LLUUID id);
 
 	// Just request friendship, no dialog.
 	static void requestFriendship(const LLUUID& target_id, const std::string& target_name, const std::string& message);

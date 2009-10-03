@@ -87,7 +87,7 @@ LLColorSwatchCtrl::LLColorSwatchCtrl(const Params& p)
 		tp.rect(LLRect( 0, BTN_HEIGHT_SMALL, getRect().getWidth(), 0 ));
 	}
 	
-	tp.text(p.label);
+	tp.initial_value(p.label());
 	mCaption = LLUICtrlFactory::create<LLTextBox>(tp);
 	addChild( mCaption );
 

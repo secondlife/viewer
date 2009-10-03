@@ -78,6 +78,9 @@ void LLExpandableTextBox::LLTextBoxEx::draw()
 	LLUICtrl::draw();
 }
 
+/* LLTextBox has been rewritten, the variables referenced in this code
+no longer exist.
+
 void LLExpandableTextBox::LLTextBoxEx::drawText( S32 x, S32 y, const LLWString &text, const LLColor4& color )
 {
 	// *NOTE:dzaporozhan:
@@ -141,6 +144,7 @@ void LLExpandableTextBox::LLTextBoxEx::drawText( S32 x, S32 y, const LLWString &
 		}
 	}
 }
+*/
 
 void LLExpandableTextBox::LLTextBoxEx::showExpandText(S32 y)
 {
@@ -161,8 +165,14 @@ S32 LLExpandableTextBox::LLTextBoxEx::getCropTextWidth()
 	return mExpandTextBox->getRect().mLeft - getHPad() * 2; 
 }
 
+/*
+// *NOTE:James:
+// LLTextBox::drawText() has been completely rewritten, as it now handles
+// arbitrarily styled segments of text.  This needs to be rebuilt.
+
 void LLExpandableTextBox::LLTextBoxEx::drawTextSegments(S32 init_x, S32 init_y, const LLWString &text)
 {
+
 	// *NOTE:dzaporozhan:
 	// Copy/paste from LLTextBox::drawTextSegments in order to modify last 
 	// line width if needed and who "More" link
@@ -270,6 +280,7 @@ void LLExpandableTextBox::LLTextBoxEx::drawTextSegments(S32 init_x, S32 init_y, 
 		}
 	}
 }
+*/
 
 S32 LLExpandableTextBox::LLTextBoxEx::getVerticalTextDelta()
 {
@@ -422,8 +433,11 @@ void LLExpandableTextBox::expandTextBox()
 
 		// disable horizontal scrollbar
 		text_box_rect.mRight -= scrollbar_size;
+
 		// text box size has changed - redo text wrap
-		mTextBox->setWrappedText(mText, text_box_rect.getWidth());
+		// Should be handled automatically in reshape() below. JC
+		//mTextBox->setWrappedText(mText, text_box_rect.getWidth());
+
 		// recalculate text delta since text wrap changed text height
 		text_delta = mTextBox->getVerticalTextDelta() + mTextBox->getVPad() * 2;
 	}
@@ -460,7 +474,8 @@ void LLExpandableTextBox::collapseTextBox()
 
 	updateTextBoxRect();
 
-	mTextBox->setWrappedText(mText);
+	// Should be handled automatically in reshape above. JC
+	//mTextBox->setWrappedText(mText);
 	if(gFocusMgr.getTopCtrl() == this)
 	{
 		gFocusMgr.setTopCtrl(NULL);

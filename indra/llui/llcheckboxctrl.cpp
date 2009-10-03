@@ -97,7 +97,7 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const LLCheckBoxCtrl::Params& p)
 
 	LLTextBox::Params tbparams = p.label_text;
 	tbparams.rect(label_rect);
-	tbparams.text(local_label);
+	tbparams.initial_value(local_label);
 	if (p.font.isProvided())
 	{
 		tbparams.font(p.font);

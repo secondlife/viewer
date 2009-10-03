@@ -103,6 +103,7 @@
 #include "llsidetray.h"
 #include "llstartup.h"
 #include "llsky.h"
+#include "llslurl.h"
 #include "llstatenums.h"
 #include "llstatusbar.h"
 #include "llimview.h"
@@ -168,9 +169,6 @@ extern BOOL gDebugClicks;
 // function prototypes
 void open_offer(const std::vector<LLUUID>& items, const std::string& from_name);
 bool check_offer_throttle(const std::string& from_name, bool check_only);
-void callbackCacheEstateOwnerName(const LLUUID& id,
-								  const std::string& first, const std::string& last,
-								  BOOL is_group);
 
 //inventory offer throttle globals
 LLFrameTimer gThrottleTimer;
@@ -5576,10 +5574,17 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLPanelLandCovenant::updateEstateName(estate_name);
 	LLFloaterBuyLand::updateEstateName(estate_name);
 
+	std::string owner_name =
+		LLSLURL::buildCommand("agent", estate_owner_id, "inspect");
+	LLPanelEstateCovenant::updateEstateOwnerName(owner_name);
+	LLPanelLandCovenant::updateEstateOwnerName(owner_name);
+	LLFloaterBuyLand::updateEstateOwnerName(owner_name);
+
 	LLPanelPlaceInfo* panel = LLSideTray::getInstance()->findChild<LLPanelPlaceInfo>("panel_place_info");
 	if (panel)
 	{
 		panel->updateEstateName(estate_name);
+		panel->updateEstateOwnerName(owner_name);
 	}
 
 	// standard message, not from system
@@ -5607,8 +5612,6 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLPanelLandCovenant::updateLastModified(last_modified);
 	LLFloaterBuyLand::updateLastModified(last_modified);
 
-	gCacheName->get(estate_owner_id, false, &callbackCacheEstateOwnerName);
-	
 	// load the actual covenant asset data
 	const BOOL high_priority = TRUE;
 	if (covenant_id.notNull())
@@ -5638,32 +5641,10 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 		LLPanelEstateCovenant::updateCovenantText(covenant_text, covenant_id);
 		LLPanelLandCovenant::updateCovenantText(covenant_text);
 		LLFloaterBuyLand::updateCovenantText(covenant_text, covenant_id);
-		panel->updateCovenantText(covenant_text);
-	}
-}
-
-void callbackCacheEstateOwnerName(const LLUUID& id,
-								  const std::string& first, const std::string& last,
-								  BOOL is_group)
-{
-	std::string name;
-	
-	if (id.isNull())
-	{
-		name = LLTrans::getString("none_text");
-	}
-	else
-	{
-		name = first + " " + last;
-	}
-	LLPanelEstateCovenant::updateEstateOwnerName(name);
-	LLPanelLandCovenant::updateEstateOwnerName(name);
-	LLFloaterBuyLand::updateEstateOwnerName(name);
-
-	LLPanelPlaceInfo* panel = LLSideTray::getInstance()->findChild<LLPanelPlaceInfo>("panel_place_info");
-	if (panel)
-	{
-		panel->updateEstateOwnerName(name);
+		if (panel)
+		{
+			panel->updateCovenantText(covenant_text);
+		}
 	}
 }
 

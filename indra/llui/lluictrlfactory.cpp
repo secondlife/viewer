@@ -113,8 +113,20 @@ void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const wid
 
 		if (!instance().createFromXML(child_node, viewp, LLStringUtil::null, registry, outputChild))
 		{
+			// child_node is not a valid child for the current parent
 			std::string child_name = std::string(child_node->getName()->mString);
-			llwarns << "Could not create widget named " << child_node->getName()->mString << llendl;
+			if (LLDefaultChildRegistry::instance().getValue(child_name))
+			{
+				// This means that the registry assocaited with the parent widget does not have an entry
+				// for the child widget
+				// You might need to add something like:
+				// static ParentWidgetRegistry::Register<ChildWidgetType> register("child_widget_name");
+				llwarns << child_name << " is not a valid child of " << node->getName()->mString << llendl;
+			}
+			else
+			{
+				llwarns << "Could not create widget named " << child_node->getName()->mString << llendl;
+			}
 		}
 
 		if (outputChild && !outputChild->mChildren && outputChild->mAttributes.empty() && outputChild->getValue().empty())

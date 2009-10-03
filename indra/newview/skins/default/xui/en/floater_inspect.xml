@@ -55,7 +55,7 @@
      top_pad="5"
      width="150">
 		<button.commit_callback
-		function="Inspect.OwnerProfilet" />
+		function="Inspect.OwnerProfile" />
 	</button>
     <button
      follows="left|bottom"

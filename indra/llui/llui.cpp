@@ -55,6 +55,7 @@
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llmenugl.h"
+#include "llmenubutton.h"
 #include "llwindow.h"
 
 // for registration
@@ -90,6 +91,7 @@ std::list<std::string> gUntranslated;
 static LLDefaultChildRegistry::Register<LLFilterEditor> register_filter_editor("filter_editor");
 static LLDefaultChildRegistry::Register<LLFlyoutButton> register_flyout_button("flyout_button");
 static LLDefaultChildRegistry::Register<LLSearchEditor> register_search_editor("search_editor");
+static LLDefaultChildRegistry::Register<LLMenuButton> register_menu_button("menu_button");
 
 
 //
@@ -1644,6 +1646,17 @@ void LLUI::setMousePositionScreen(S32 x, S32 y)
 }
 
 //static 
+void LLUI::getMousePositionScreen(S32 *x, S32 *y)
+{
+	LLCoordWindow cursor_pos_window;
+	getWindow()->getCursorPosition(&cursor_pos_window);
+	LLCoordGL cursor_pos_gl;
+	getWindow()->convertCoords(cursor_pos_window, &cursor_pos_gl);
+	*x = llround((F32)cursor_pos_gl.mX / sGLScaleFactor.mV[VX]);
+	*y = llround((F32)cursor_pos_gl.mY / sGLScaleFactor.mV[VX]);
+}
+
+//static 
 void LLUI::setMousePositionLocal(const LLView* viewp, S32 x, S32 y)
 {
 	S32 screen_x, screen_y;
@@ -1655,14 +1668,11 @@ void LLUI::setMousePositionLocal(const LLView* viewp, S32 x, S32 y)
 //static 
 void LLUI::getMousePositionLocal(const LLView* viewp, S32 *x, S32 *y)
 {
-	LLCoordWindow cursor_pos_window;
-	LLView::getWindow()->getCursorPosition(&cursor_pos_window);
-	LLCoordGL cursor_pos_gl;
-	LLView::getWindow()->convertCoords(cursor_pos_window, &cursor_pos_gl);
-	cursor_pos_gl.mX = llround((F32)cursor_pos_gl.mX / LLUI::sGLScaleFactor.mV[VX]);
-	cursor_pos_gl.mY = llround((F32)cursor_pos_gl.mY / LLUI::sGLScaleFactor.mV[VY]);
-	viewp->screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, x, y);
+	S32 screen_x, screen_y;
+	getMousePositionScreen(&screen_x, &screen_y);
+	viewp->screenPointToLocal(screen_x, screen_y, x, y);
 }
+
 
 // On Windows, the user typically sets the language when they install the
 // app (by running it with a shortcut that sets InstallLanguage).  On Mac,
@@ -1835,14 +1845,14 @@ LLControlGroup& LLUI::getControlControlGroup (const std::string& controlname)
 // spawn_x and spawn_y are top left corner of view in screen GL coordinates
 void LLUI::positionViewNearMouse(LLView* view, S32 spawn_x, S32 spawn_y)
 {
-	const S32 CURSOR_HEIGHT = 22;		// Approximate "normal" cursor size
-	const S32 CURSOR_WIDTH = 12;
+	const S32 CURSOR_HEIGHT = 18;		// Approximate "normal" cursor size
+	const S32 CURSOR_WIDTH = 9;
 
 	LLView* parent = view->getParent();
 
 	S32 mouse_x;
 	S32 mouse_y;
-	LLUI::getMousePositionLocal(parent, &mouse_x, &mouse_y);
+	LLUI::getMousePositionScreen(&mouse_x, &mouse_y);
 
 	// If no spawn location provided, use mouse position
 	if (spawn_x == S32_MAX || spawn_y == S32_MAX)
@@ -1856,12 +1866,13 @@ void LLUI::positionViewNearMouse(LLView* view, S32 spawn_x, S32 spawn_y)
 	LLRect mouse_rect;
 	const S32 MOUSE_CURSOR_PADDING = 5;
 	mouse_rect.setLeftTopAndSize(mouse_x - MOUSE_CURSOR_PADDING, 
-		mouse_y + MOUSE_CURSOR_PADDING, 
-		CURSOR_WIDTH + MOUSE_CURSOR_PADDING * 2, 
-		CURSOR_HEIGHT + MOUSE_CURSOR_PADDING * 2);
+								mouse_y + MOUSE_CURSOR_PADDING, 
+								CURSOR_WIDTH + MOUSE_CURSOR_PADDING * 2, 
+								CURSOR_HEIGHT + MOUSE_CURSOR_PADDING * 2);
 
 	S32 local_x, local_y;
-	view->getParent()->screenPointToLocal(spawn_x, spawn_y, &local_x, &local_y);
+	// convert screen coordinates to tooltipview-local coordinates
+	parent->screenPointToLocal(spawn_x, spawn_y, &local_x, &local_y);
 
 	// Start at spawn position (using left/top)
 	view->setOrigin( local_x, local_y - view->getRect().getHeight());
@@ -1915,12 +1926,14 @@ namespace LLInitParam
 		}
 	};
 
-	TypedParam<const LLFontGL*>::TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL*const value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
-	:	super_t(descriptor, name, value, func, min_count, max_count),
-		name(""),
+	TypedParam<const LLFontGL*>::TypedParam(BlockDescriptor& descriptor, const char* _name, const LLFontGL*const value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count)
+	:	super_t(descriptor, _name, value, func, min_count, max_count),
+		name("name"),
 		size("size"),
 		style("style")
-	{}
+	{
+		addSynonym(name, "");
+	}
 
 	const LLFontGL* TypedParam<const LLFontGL*>::getValueFromBlock() const
 	{

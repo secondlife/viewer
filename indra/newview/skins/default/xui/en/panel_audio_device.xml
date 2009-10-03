@@ -80,7 +80,7 @@
      bg_readonly_color="0 0 0 0"
      enabled="false"
      height="60"
-     hide_border="true"
+     border_visible="false"
      hide_scrollbar="true"
      layout="topleft"
      left_delta="10"

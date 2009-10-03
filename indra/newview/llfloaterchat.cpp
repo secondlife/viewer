@@ -56,6 +56,7 @@
 #include "llchatbar.h"
 #include "llrecentpeople.h"
 #include "llpanelblockedlist.h"
+#include "llslurl.h"
 #include "llstatusbar.h"
 #include "llviewertexteditor.h"
 #include "llviewergesture.h"			// for triggering gestures
@@ -162,7 +163,7 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 	if (chat.mSourceType == CHAT_SOURCE_AGENT &&
 		chat.mFromID != LLUUID::null)
 	{
-		chat.mURL = llformat("secondlife:///app/agent/%s/about",chat.mFromID.asString().c_str());
+		chat.mURL = LLSLURL::buildCommand("agent", chat.mFromID, "inspect");
 	}
 
 	// If the chat line has an associated url, link it up to the name.
@@ -171,10 +172,12 @@ void add_timestamped_line(LLViewerTextEditor* edit, LLChat chat, const LLColor4&
 	{
 		std::string start_line = line.substr(0, chat.mFromName.length() + 1);
 		line = line.substr(chat.mFromName.length() + 1);
-		edit->appendStyledText(start_line, false, prepend_newline, LLStyleMap::instance().lookup(chat.mFromID,chat.mURL));
+		edit->appendText(start_line, prepend_newline, LLStyleMap::instance().lookup(chat.mFromID,chat.mURL));
+		edit->blockUndo();
 		prepend_newline = false;
 	}
-	edit->appendColoredText(line, false, prepend_newline, color);
+	edit->appendText(line, prepend_newline, LLStyle::Params().color(color));
+	edit->blockUndo();
 }
 
 void log_chat_text(const LLChat& chat)
@@ -216,12 +219,6 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 	LLViewerTextEditor*	history_editor = chat_floater->getChild<LLViewerTextEditor>("Chat History Editor");
 	LLViewerTextEditor*	history_editor_with_mute = chat_floater->getChild<LLViewerTextEditor>("Chat History Editor with mute");
 
-	history_editor->setParseHTML(TRUE);
-	history_editor_with_mute->setParseHTML(TRUE);
-	
-	history_editor->setParseHighlights(TRUE);
-	history_editor_with_mute->setParseHighlights(TRUE);
-	
 	if (!chat.mMuted)
 	{
 		add_timestamped_line(history_editor, chat, color);

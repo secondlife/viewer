@@ -108,7 +108,7 @@ void LLDragHandleTop::setTitle(const std::string& title)
 		LLTextBox::Params params;
 		params.name("Drag Handle Title");
 		params.rect(getRect());
-		params.text(trimmed_title);
+		params.initial_value(trimmed_title);
 		params.font(font);
 		params.follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
 		params.font_shadow(LLFontGL::DROP_SHADOW_SOFT);
@@ -120,7 +120,7 @@ void LLDragHandleTop::setTitle(const std::string& title)
 }
 
 
-const std::string& LLDragHandleTop::getTitle() const
+std::string LLDragHandleTop::getTitle() const
 {
 	return mTitleBox == NULL ? LLStringUtil::null : mTitleBox->getText();
 }
@@ -138,7 +138,7 @@ void LLDragHandleLeft::setTitle(const std::string& )
 }
 
 
-const std::string& LLDragHandleLeft::getTitle() const
+std::string LLDragHandleLeft::getTitle() const
 {
 	return LLStringUtil::null;
 }
@@ -256,7 +256,8 @@ void LLDragHandleTop::reshapeTitleBox()
 		getRect().getWidth() - LEFT_PAD - RIGHT_PAD,
 		title_height);
 
-	mTitleBox->setRect( title_rect );
+	// calls reshape on mTitleBox
+	mTitleBox->setShape( title_rect );
 }
 
 void LLDragHandleTop::reshape(S32 width, S32 height, BOOL called_from_parent)

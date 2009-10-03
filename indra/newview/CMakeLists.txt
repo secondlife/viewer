@@ -106,6 +106,7 @@ set(viewer_SOURCE_FILES
     llconfirmationmanager.cpp
     llcurrencyuimanager.cpp
     llcylinder.cpp
+    lldateutil.cpp
     lldebugmessagebox.cpp
     lldebugview.cpp
     lldelayedgestureerror.cpp
@@ -241,6 +242,7 @@ set(viewer_SOURCE_FILES
     llimview.cpp
     llimcontrolpanel.cpp
     llinspectavatar.cpp
+    llinspectobject.cpp
     llinventorybridge.cpp
     llinventoryclipboard.cpp
     llinventoryfilter.cpp
@@ -395,7 +397,6 @@ set(viewer_SOURCE_FILES
     lltoastimpanel.cpp
     lltoastnotifypanel.cpp
     lltoastpanel.cpp
-    lltoggleablemenu.cpp
     lltoolbar.cpp
     lltoolbrush.cpp
     lltoolcomp.cpp
@@ -576,6 +577,7 @@ set(viewer_HEADER_FILES
     llconfirmationmanager.h
     llcurrencyuimanager.h
     llcylinder.h
+    lldateutil.h
     lldebugmessagebox.h
     lldebugview.h
     lldelayedgestureerror.h
@@ -711,6 +713,7 @@ set(viewer_HEADER_FILES
     llimview.h
     llimcontrolpanel.h
     llinspectavatar.h
+    llinspectobject.h
     llinventorybridge.h
     llinventoryclipboard.h
     llinventoryfilter.h
@@ -865,7 +868,6 @@ set(viewer_HEADER_FILES
     lltoastimpanel.h
     lltoastnotifypanel.h
     lltoastpanel.h
-    lltoggleablemenu.h
     lltool.h
     lltoolbar.h
     lltoolbrush.h
@@ -1538,9 +1540,12 @@ if (INSTALL)
   include(${CMAKE_CURRENT_SOURCE_DIR}/ViewerInstall.cmake)
 endif (INSTALL)
 
+# To add a viewer unit test, just add the test .cpp file below
+# This creates a separate test project per file listed.
 include(LLAddBuildTest)
 SET(viewer_TEST_SOURCE_FILES
   llagentaccess.cpp
+  lldateutil.cpp
   llviewerhelputil.cpp
   )
 set_source_files_properties(

@@ -209,9 +209,6 @@ public:
 	void childShowTab(const std::string& id, const std::string& tabname, bool visible = true);
 	LLPanel *childGetVisibleTab(const std::string& id) const;
 
-	// LLTextBox
-	void childSetWrappedText(const std::string& id, const std::string& text, bool visible = true);
-
 	// LLTextBox/LLTextEditor/LLLineEditor
 	void childSetText(const std::string& id, const LLStringExplicit& text) { childSetValue(id, LLSD(text)); }
 
@@ -243,7 +240,8 @@ protected:
 	LLCallbackMap::map_t mFactoryMap;
 	CommitCallbackRegistry::ScopedRegistrar mCommitCallbackRegistrar;
 	EnableCallbackRegistry::ScopedRegistrar mEnableCallbackRegistrar;
-	
+	VisibleCallbackRegistry::ScopedRegistrar mVisibleCallbackRegistrar;
+
 	commit_signal_t mVisibleSignal;		// Called when visibility changes, passes new visibility as LLSD()
 
 	std::string		mHelpTopic;         // the name of this panel's help topic to display in the Help Viewer

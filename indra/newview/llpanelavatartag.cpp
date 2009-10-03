@@ -64,29 +64,7 @@ BOOL LLPanelAvatarTag::postBuild()
 
 void LLPanelAvatarTag::draw()
 {
-	
-	///TODO: ANGELA do something similar to fade the panel out
-/*	// HACK: assuming tooltip background is in ToolTipBGColor, perform fade out
-	LLColor4 bg_color = LLUIColorTable::instance().getColor( "ToolTipBgColor" );
-	if (tooltip_vis)
-	{
-		mToolTipFadeTimer.stop();
-		mToolTip->setBackgroundColor(bg_color);
-	}
-	else 
-	{
-		if (!mToolTipFadeTimer.getStarted())
-		{
-			mToolTipFadeTimer.start();
-		}
-		F32 tool_tip_fade_time = gSavedSettings.getF32("ToolTipFadeTime");
-		bg_color.mV[VALPHA] = clamp_rescale(mToolTipFadeTimer.getElapsedTimeF32(), 0.f, tool_tip_fade_time, bg_color.mV[VALPHA], 0.f);
-		mToolTip->setBackgroundColor(bg_color);
-	}
-	
-	// above interpolation of bg_color alpha is guaranteed to reach 0.f exactly
-	mToolTip->setVisible( bg_color.mV[VALPHA] != 0.f );
- */
+
 }
 void LLPanelAvatarTag::setName(const std::string& name)
 {

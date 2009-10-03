@@ -15,9 +15,6 @@
 	<string name="StartupDetectingHardware">Detecting hardware...</string>
 	<string name="StartupLoading">Loading</string>
 	<string name="Fullbright">Fullbright (Legacy)</string>	
-	<string name="CacheWaiting">(Loading...)</string>
-	<string name="CacheNobody">(nobody)</string>
-	<string name="CacheNone">(none)</string>	
 	<!-- Login -->
 	<string name="LoginInProgress">Logging in. [APP_NAME] may appear frozen.  Please wait.</string>
 	<string name="LoginInProgressNoFrozen">Logging in...</string>
@@ -40,13 +37,14 @@
 	<string name="LoginDownloadingClothing">Downloading clothing...</string>
 	<string name="LoginFailedNoNetwork">Network Error: Could not establish connection, please check your network connection.</string>
 	<string name="Quit">Quit</string>
-	<string name="create_account_url">http://secondlife.com/registration/</string>
+	<string name="create_account_url">http://join.secondlife.com/</string>
 
 	<!-- Disconnection -->
 	<string name="AgentLostConnection">This region may be experiencing trouble.  Please check your connection to the Internet.</string>
 	
 	
 	<!-- Tooltip, lltooltipview.cpp -->
+	<!-- *TODO: Most of these are now unused, eliminate them -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->
 	<string name="TooltipOwner">Owner:</string> <!-- Owner name follows -->
@@ -118,7 +116,10 @@
 	<!-- Avatar name: text shown while fetching name -->
 	<string name="AvatarNameWaiting">(waiting)</string>
 
-	<!-- Avatar name: text shown as an alternative to AvatarNameFetching, easter egg. -->
+  <!-- Avatar name: More than one avatar is selected/used here -->
+  <string name="AvatarNameMultiple">(multiple)</string>
+  
+  <!-- Avatar name: text shown as an alternative to AvatarNameFetching, easter egg. -->
 	<string name="AvatarNameHippos">(hippos)</string>
 	
 	<!-- Group name: text shown for LLUUID::null -->
@@ -1931,21 +1932,24 @@ this texture in your inventory
 	<string name="Left Pec">Left Pec</string>
 	<string name="Right Pec">Right Pec</string>	
 
-  <!-- Avatar age computation, see LLAvatarPropertiesProcessor::ageFromDate -->
-  <string name="YearsMonthsOld">[AGEYEARS][AGEMONTHS]old</string>
-  <string name="WeeksOld">[AGEWEEKS]old</string>
-  <string name="DaysOld">[AGEDAYS]old</string>
+  <!-- Avatar age computation, see LLDateUtil::ageFromDate -->
+  <string name="YearsMonthsOld">[AGEYEARS] [AGEMONTHS] old</string>
+  <string name="YearsOld">[AGEYEARS] old</string>
+  <string name="MonthsOld">[AGEMONTHS] old</string>
+  <string name="WeeksOld">[AGEWEEKS] old</string>
+  <string name="DaysOld">[AGEDAYS] old</string>
   <string name="TodayOld">Joined today</string>
   
-  <!-- Use value="" because of trailing spaces -->
-  <string name="AgeYears"  value="[YEARS] years " />
-  <string name="Age1Year"  value="1 year "/>
-  <string name="AgeMonths" value="[MONTHS] months "/>
-  <string name="Age1Month" value="1 month "/>
-  <string name="AgeWeeks"  value="[WEEKS] weeks "/>
-  <string name="Age1Week"  value="1 week "/>
-  <string name="AgeDays"   value="[DAYS] days "/>
-  <string name="Age1Day"   value="1 day "/>
+  <!-- AgeYearsA = singular, AgeYearsB = plural, see logic in
+      LLTrans::getCountString() -->
+  <string name="AgeYearsA">[COUNT] year</string>
+  <string name="AgeYearsB">[COUNT] years</string>
+  <string name="AgeMonthsA">[COUNT] month</string>
+  <string name="AgeMonthsB">[COUNT] months</string>
+  <string name="AgeWeeksA">[COUNT] week</string>
+  <string name="AgeWeeksB">[COUNT] weeks</string>
+  <string name="AgeDaysA">[COUNT] day</string>
+  <string name="AgeDaysB">[COUNT] days</string>
 
   <!-- Account types, see LLAvatarPropertiesProcessor -->
   <string name="AcctTypeResident">Resident</string>
@@ -1995,8 +1999,8 @@ this texture in your inventory
 	
 	<!-- groups -->
 	<string name="GroupsNone">none</string>
-	<string name="Group" value=" (group)" />
-	<string name="Unknown">(Unknown)</string>
+  <string name="Group" value=" (group)" />
+  <string name="Unknown">(Unknown)</string>
 	<string name="SummaryForTheWeek"    value="Summary for this week, beginning on " />
 	<string name="NextStipendDay"       value="The next stipend day is " />
 	<string name="GroupIndividualShare" value="                      Group       Individual Share" />

@@ -55,7 +55,6 @@
     <scroll_list
      draw_heading="true"
      follows="top"
-     font="SansSerifSmall"
      heading_height="14"
      height="100"
      layout="topleft"

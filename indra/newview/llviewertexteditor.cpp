@@ -32,37 +32,37 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloaterreg.h"
-#include "llfocusmgr.h"
-#include "llaudioengine.h"
+#include "llviewertexteditor.h"
+
 #include "llagent.h"
+#include "llaudioengine.h"
+#include "llavataractions.h"
+#include "llfloaterchat.h"
+#include "llfloaterreg.h"
+#include "llfloaterworldmap.h"
+#include "llfocusmgr.h"
 #include "llinventory.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
-
-#include "llviewertexteditor.h"
-
-#include "llfloaterchat.h"
-#include "llfloaterworldmap.h"
+#include "llmemorystream.h"
+#include "llmenugl.h"
+#include "llnotecard.h"
 #include "llnotify.h"
 #include "llpanelplaces.h"
 #include "llpreview.h"
-#include "llpreviewtexture.h"
 #include "llpreviewnotecard.h"
+#include "llpreviewtexture.h"
 #include "llscrollbar.h"
+#include "llscrollcontainer.h"
 #include "llsidetray.h"
 #include "lltooldraganddrop.h"
+#include "lltooltip.h"
 #include "lltrans.h"
+#include "lluictrlfactory.h"
 #include "llviewercontrol.h"
+#include "llviewerinventory.h"
 #include "llviewertexturelist.h"
 #include "llviewerwindow.h"
-#include "llviewerinventory.h"
-#include "lluictrlfactory.h"
-#include "llnotecard.h"
-#include "llmemorystream.h"
-#include "llmenugl.h"
-#include "llscrollcontainer.h"
-#include "llavataractions.h"
 
 #include "llappviewer.h" // for gPacificDaylightTime
 
@@ -142,8 +142,6 @@ public:
 		}
 
 	}
-	//virtual S32					getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
-	//virtual void				updateLayout(const class LLTextEditor& editor);
 
 	/*virtual*/ S32				getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const 
 	{
@@ -167,7 +165,7 @@ public:
 		}
 
 		F32 right_x;
-		mStyle->getFont()->render(mLabel, 0, image_rect.mRight + EMBEDDED_ITEM_LABEL_PADDING, draw_rect.mBottom, color, LLFontGL::LEFT, LLFontGL::BOTTOM, mHasMouseHover ? LLFontGL::UNDERLINE : 0, LLFontGL::NO_SHADOW, mLabel.length(), S32_MAX, &right_x);
+		mStyle->getFont()->render(mLabel, 0, image_rect.mRight + EMBEDDED_ITEM_LABEL_PADDING, draw_rect.mBottom, color, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::UNDERLINE, LLFontGL::NO_SHADOW, mLabel.length(), S32_MAX, &right_x);
 		return right_x;
 	}
 	
@@ -176,20 +174,21 @@ public:
 		return llmax(mImage->getHeight(), llceil(mStyle->getFont()->getLineHeight()));
 	}
 	/*virtual*/ bool			canEdit() const { return false; }
-	//virtual void				unlinkFromDocument(class LLTextEditor* editor);
-	//virtual void				linkToDocument(class LLTextEditor* editor);
 
-	virtual void				setHasMouseHover(bool hover) 
+
+	/*virtual*/ BOOL			handleHover(S32 x, S32 y, MASK mask)
 	{
-		mHasMouseHover = hover; 
+		LLUI::getWindow()->setCursor(UI_CURSOR_HAND);
+		return TRUE;
 	}
-	//virtual const LLColor4&	getColor() const;
-	//virtual void 				setColor(const LLColor4 &color);
-	//virtual void 				setStyle(const LLStyleSP &style);
-	virtual BOOL				getToolTip( std::string& msg ) const 
+	virtual BOOL				handleToolTip(S32 x, S32 y, MASK mask )
 	{ 
-		msg = mToolTip; 
-		return TRUE; 
+		if (!mToolTip.empty())
+		{
+			LLToolTipMgr::instance().show(mToolTip);
+			return TRUE;
+		}
+		return FALSE; 
 	}
 
 	/*virtual*/ const LLStyleSP		getStyle() const { return mStyle; }
@@ -562,17 +561,17 @@ void LLEmbeddedItems::markSaved()
 
 ///////////////////////////////////////////////////////////////////
 
-class LLViewerTextEditor::LLTextCmdInsertEmbeddedItem : public LLTextEditor::LLTextCmd
+class LLViewerTextEditor::TextCmdInsertEmbeddedItem : public LLTextBase::TextCmd
 {
 public:
-	LLTextCmdInsertEmbeddedItem( S32 pos, LLInventoryItem* item )
-		: LLTextCmd(pos, FALSE), 
+	TextCmdInsertEmbeddedItem( S32 pos, LLInventoryItem* item )
+		: TextCmd(pos, FALSE), 
 		  mExtCharValue(0)
 	{
 		mItem = item;
 	}
 
-	virtual BOOL execute( LLTextEditor* editor, S32* delta )
+	virtual BOOL execute( LLTextBase* editor, S32* delta )
 	{
 		LLViewerTextEditor* viewer_editor = (LLViewerTextEditor*)editor;
 		// Take this opportunity to remove any unused embedded items from this editor
@@ -587,13 +586,13 @@ public:
 		return FALSE;
 	}
 	
-	virtual S32 undo( LLTextEditor* editor )
+	virtual S32 undo( LLTextBase* editor )
 	{
 		remove(editor, getPosition(), 1);
 		return getPosition(); 
 	}
 	
-	virtual S32 redo( LLTextEditor* editor )
+	virtual S32 redo( LLTextBase* editor )
 	{ 
 		LLWString ws;
 		ws += mExtCharValue;
@@ -635,7 +634,6 @@ LLViewerTextEditor::LLViewerTextEditor(const LLViewerTextEditor::Params& p)
 	mDragItemSaved(FALSE),
 	mInventoryCallback(new LLEmbeddedNotecardOpener)
 {
-	mParseHTML = p.allow_html;
 	mEmbeddedItemList = new LLEmbeddedItems(this);
 	mInventoryCallback->setEditor(this);
 }
@@ -673,7 +671,7 @@ BOOL LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 			llwchar wc = 0;
 			if (mCursorPos < getLength())
 			{
-				wc = getWChar(mCursorPos);
+				wc = getWText()[mCursorPos];
 			}
 			LLInventoryItem* item_at_pos = LLEmbeddedItems::getEmbeddedItem(wc);
 			if (item_at_pos)
@@ -771,22 +769,6 @@ BOOL LLViewerTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 	handled = LLTextEditor::handleMouseUp(x,y,mask);
 
 	return handled;
-}
-
-BOOL LLViewerTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
-{
-	// pop up a context menu for any Url under the cursor
-	if (handleRightMouseDownOverUrl(this, x, y))
-	{
-		return TRUE;
-	}
-
-	if (childrenHandleRightMouseDown(x, y, mask) != NULL)
-	{
-		return TRUE;
-	}
-
-	return FALSE;
 }
 
 BOOL LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
@@ -955,7 +937,7 @@ std::string LLViewerTextEditor::getEmbeddedText()
 	LLWString outtextw;
 	for (S32 i=0; i<(S32)getWText().size(); i++)
 	{
-		llwchar wch = getWChar(i);
+		llwchar wch = getWText()[i];
 		if( wch >= FIRST_EMBEDDED_CHAR && wch <= LAST_EMBEDDED_CHAR )
 		{
 			S32 index = mEmbeddedItemList->getIndexFromEmbeddedChar(wch);
@@ -998,7 +980,8 @@ std::string LLViewerTextEditor::appendTime(bool prepend_newline)
 
 	substitution["datetime"] = (S32) utc_time;
 	LLStringUtil::format (timeStr, substitution);
-	appendColoredText(timeStr, false, prepend_newline, LLColor4::grey);
+	appendText(timeStr, prepend_newline, LLStyle::Params().color(LLColor4::grey));
+	blockUndo();
 
 	return timeStr;
 }
@@ -1057,7 +1040,7 @@ BOOL LLViewerTextEditor::openEmbeddedItemAtPos(S32 pos)
 {
 	if( pos < getLength())
 	{
-		llwchar wc = getWChar(pos);
+		llwchar wc = getWText()[pos];
 		LLInventoryItem* item = LLEmbeddedItems::getEmbeddedItem( wc );
 		if( item )
 		{
@@ -1227,7 +1210,7 @@ bool LLViewerTextEditor::onCopyToInvDialog(const LLSD& notification, const LLSD&
 // Returns change in number of characters in mWText
 S32 LLViewerTextEditor::insertEmbeddedItem( S32 pos, LLInventoryItem* item )
 {
-	return execute( new LLTextCmdInsertEmbeddedItem( pos, item ) );
+	return execute( new TextCmdInsertEmbeddedItem( pos, item ) );
 }
 
 bool LLViewerTextEditor::importStream(std::istream& str)

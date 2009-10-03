@@ -59,21 +59,9 @@ const U32 MAX_STRINGS_LENGTH = 256;
 class LLStringTableEntry
 {
 public:
-	LLStringTableEntry(const char *str)
-		: mString(NULL), mCount(1)
-	{
-		// Copy string
-		U32 length = (U32)strlen(str) + 1;	 /*Flawfinder: ignore*/
-		length = llmin(length, MAX_STRINGS_LENGTH);
-		mString = new char[length];
-		strncpy(mString, str, length);	 /*Flawfinder: ignore*/
-		mString[length - 1] = 0;
-	}
-	~LLStringTableEntry()
-	{
-		delete [] mString;
-		mCount = 0;
-	}
+	LLStringTableEntry(const char *str);
+	~LLStringTableEntry();
+
 	void incCount()		{ mCount++; }
 	BOOL decCount()		{ return --mCount; }
 

@@ -145,7 +145,8 @@ LLButton::LLButton(const LLButton::Params& p)
 	mRightHPad(p.pad_right),
 	mHoverGlowStrength(p.hover_glow_amount),
 	mCommitOnReturn(p.commit_on_return),
-	mFadeWhenDisabled(FALSE)
+	mFadeWhenDisabled(FALSE),
+	mForcePressedState(FALSE)
 {
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
 	static Params default_params(LLUICtrlFactory::getDefaultParams<LLButton>());
@@ -536,7 +537,8 @@ void LLButton::draw()
 	bool enabled = isInEnabledChain();
 
 	bool pressed = pressed_by_keyboard 
-					|| (hasMouseCapture() && pointInView(local_mouse_x, local_mouse_y));
+					|| (hasMouseCapture() && pointInView(local_mouse_x, local_mouse_y))
+					|| mForcePressedState;
 	bool selected = getToggleState();
 	
 	bool use_glow_effect = FALSE;

@@ -563,7 +563,7 @@ const std::string& LLFolderViewItem::getSearchableLabel() const
 	return mSearchableLabel;
 }
 
-const std::string& LLFolderViewItem::getName( void ) const
+std::string LLFolderViewItem::getName( void ) const
 {
 	if(mListener)
 	{
@@ -947,18 +947,6 @@ void LLFolderViewItem::draw()
 			}
 		}
 	}
-
-	if( sDebugRects )
-	{
-		drawDebugRect();
-	}
-
-	//// *HACK: also draw debug rectangles around currently-being-edited LLView, and any elements that are being highlighted by GUI preview code (see LLFloaterUIPreview)
-	//std::set<LLView*>::iterator iter = std::find(sPreviewHighlightedElements.begin(), sPreviewHighlightedElements.end(), this);
-	//if ((sEditingUI && this == sEditingUIView) || (iter != sPreviewHighlightedElements.end() && sDrawPreviewHighlights))
-	//{
-	//	drawDebugRect();
-	//}
 }
 
 

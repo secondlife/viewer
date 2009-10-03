@@ -882,7 +882,7 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	LLTextBox::Params params(p.caption_text);
 	params.name(p.label);
 	params.rect(LLRect( 0, BTN_HEIGHT_SMALL, getRect().getWidth(), 0 ));
-	params.text(p.label);
+	params.initial_value(p.label());
 	params.follows.flags(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM);
 	mCaption = LLUICtrlFactory::create<LLTextBox> (params);
 	addChild( mCaption );

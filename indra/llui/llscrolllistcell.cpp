@@ -204,6 +204,13 @@ BOOL LLScrollListText::isText() const
 	return TRUE;
 }
 
+BOOL LLScrollListText::needsToolTip() const
+{
+	// show tooltips for truncated text
+	return mFont->getWidth(mText.getString()) > getWidth();
+}
+
+
 //virtual 
 BOOL LLScrollListText::getVisible() const
 {

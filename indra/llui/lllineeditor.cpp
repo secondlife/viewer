@@ -107,9 +107,6 @@ LLLineEditor::Params::Params()
 	highlight_color("highlight_color"),
 	preedit_bg_color("preedit_bg_color"),
 	border(""),
-	is_unicode("is_unicode"),
-	drop_shadow_visible("drop_shadow_visible"),
-	border_drop_shadow_visible("border_drop_shadow_visible"),
 	bg_visible("bg_visible"),
 	text_pad_left("text_pad_left"),
 	text_pad_right("text_pad_right"),
@@ -544,17 +541,12 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 	{
 		return TRUE;
 	}
-	if (mSelectAllonFocusReceived
-		&& gFocusMgr.getKeyboardFocus() != this)
-	{
-		setFocus( TRUE );
-	}
-	else
+	
+	if (!mSelectAllonFocusReceived
+		|| gFocusMgr.getKeyboardFocus() == this)
 	{
 		mLastSelectionStart = -1;
 		mLastSelectionStart = -1;
-
-		setFocus( TRUE );
 
 		if (mask & MASK_SHIFT)
 		{
@@ -620,6 +612,8 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 
 		gFocusMgr.setMouseCapture( this );
 	}
+
+	setFocus(TRUE);
 
 	// delay cursor flashing
 	mKeystrokeTimer.reset();

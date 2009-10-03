@@ -80,6 +80,7 @@
       label="Support"
       name="support_panel">
       <text_editor
+        allow_html="true" 
        follows="top|left"
        font="SansSerif"
        height="350"
@@ -127,7 +128,7 @@ Thank you to the following residents for helping to ensure that this is the best
 
 
 It is a rare mind indeed that can render the hitherto non-existent blindingly obvious. The cry 'I could have thought of that' is a very popular and misleading one, for the fact is that they didn't, and a very significant and revealing fact it is too.
--- Douglas Adams
+ -- Douglas Adams
       </text_editor>
     </panel>
     <panel

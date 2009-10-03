@@ -500,7 +500,7 @@ BOOL LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return TRUE;
 }
 
-BOOL LLNetMap::handleToolTip( S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen )
+BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 {
 	if (gDisconnected)
 	{
@@ -530,7 +530,7 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, std::string& msg, LLRect& sticky_rec
 		args["[REGION]"] = "";
 	}
 	
-	msg = mToolTipMsg;
+	std::string msg = mToolTipMsg;
 	LLStringUtil::format(msg, args);
 	
 	LLRect sticky_rect;
@@ -545,7 +545,7 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, std::string& msg, LLRect& sticky_rec
 		sticky_rect.mTop = sticky_rect.mBottom + 2 * SLOP;
 	}
 
-	LLToolTipMgr::instance().show(LLToolTipParams()
+	LLToolTipMgr::instance().show(LLToolTip::Params()
 		.message(msg)
 		.sticky_rect(sticky_rect));
 		

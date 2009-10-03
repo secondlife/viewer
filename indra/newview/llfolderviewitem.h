@@ -255,7 +255,7 @@ public:
 
 	// This method returns the actual name of the thing being
 	// viewed. This method will ask the viewed object itself.
-	const std::string& getName( void ) const;
+	std::string getName( void ) const;
 
 	const std::string& getSearchableLabel( void ) const;
 

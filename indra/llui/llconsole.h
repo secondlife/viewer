@@ -34,14 +34,13 @@
 #define LL_LLCONSOLE_H
 
 #include "llfixedbuffer.h"
-#include "llview.h"
+#include "lluictrl.h"
 #include "v4color.h"
 #include <deque>
 
-class LLFontGL;
 class LLSD;
 
-class LLConsole : public LLFixedBuffer, public LLView
+class LLConsole : public LLFixedBuffer, public LLUICtrl
 {
 public:
 	typedef enum e_font_size
@@ -51,7 +50,7 @@ public:
 		BIG = 1
 	} EFontSize;
 
-	struct Params : public LLInitParam::Block<Params, LLView::Params>
+	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Optional<U32>	max_lines;
 		Optional<F32>	persist_time;

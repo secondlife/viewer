@@ -144,10 +144,11 @@ LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification) : LLToas
 		params.mouse_opaque(false);
 		params.font.style("BOLD");
 		params.text_color(LLUIColorTable::instance().getColor("NotifyCautionWarnColor"));
-		params.background_color(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
+		params.bg_readonly_color(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
 		params.border_visible(false);
+		params.wrap(true);
 		caution_box = LLUICtrlFactory::create<LLTextBox> (params);
-		caution_box->setWrappedText(notification->getMessage());
+		caution_box->setValue(notification->getMessage());
 
 		addChild(caution_box);
 
@@ -175,13 +176,13 @@ LLToastNotifyPanel::LLToastNotifyPanel(LLNotificationPtr& notification) : LLToas
 		params.default_text(mMessage);
 		params.font(sFont);
 		params.embedded_items(false);
-		params.word_wrap(true);
+		params.wrap(true);
 		params.tab_stop(false);
 		params.mouse_opaque(false);
 		params.bg_readonly_color(LLColor4::transparent);
 		params.text_readonly_color(LLUIColorTable::instance().getColor("NotifyTextColor"));
 		params.enabled(false);
-		params.hide_border(true);
+		params.border_visible(false);
 		text = LLUICtrlFactory::create<LLTextEditor> (params);
 		addChild(text);
 	}

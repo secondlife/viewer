@@ -49,7 +49,12 @@ LLUICtrl::Params::Params()
 	validate_callback("validate_callback"),
 	mouseenter_callback("mouseenter_callback"),
 	mouseleave_callback("mouseleave_callback"),
-	control_name("control_name")
+	control_name("control_name"),
+	font("font", LLFontGL::getFontSansSerif()),
+	font_halign("halign"),
+	font_valign("valign"),
+	length("length"), 	// ignore LLXMLNode cruft
+	type("type")   		// ignore LLXMLNode cruft
 {
 	addSynonym(initial_value, "initial_value");
 }
@@ -202,6 +207,29 @@ void LLUICtrl::initEnableCallback(const EnableCallbackParam& cb, enable_signal_t
 	else
 	{
 		enable_callback_t* func = (EnableCallbackRegistry::getValue(cb.function_name));
+		if (func)
+		{
+			if (cb.parameter.isProvided())
+				sig.connect(boost::bind((*func), this, cb.parameter));
+			else
+				sig.connect(*func);
+		}
+	}
+}
+
+void LLUICtrl::initVisibleCallback(const VisibleCallbackParam& cb, visible_signal_t& sig)
+{
+	// Set the callback function
+	if (cb.function.isProvided())
+	{
+		if (cb.parameter.isProvided())
+			sig.connect(boost::bind(cb.function(), this, cb.parameter));
+		else
+			sig.connect(cb.function());
+	}
+	else
+	{
+		visible_callback_t* func = (VisibleCallbackRegistry::getValue(cb.function_name));
 		if (func)
 		{
 			if (cb.parameter.isProvided())

@@ -93,7 +93,7 @@ BOOL LLToolPipette::handleHover(S32 x, S32 y, MASK mask)
 	return FALSE;
 }
 
-BOOL LLToolPipette::handleToolTip(S32 x, S32 y, std::string& msg, LLRect &sticky_rect_screen)
+BOOL LLToolPipette::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	if (mTooltipMsg.empty())
 	{
@@ -102,7 +102,7 @@ BOOL LLToolPipette::handleToolTip(S32 x, S32 y, std::string& msg, LLRect &sticky
 
 	LLRect sticky_rect;
 	sticky_rect.setCenterAndSize(x, y, 20, 20);
-	LLToolTipMgr::instance().show(LLToolTipParams()
+	LLToolTipMgr::instance().show(LLToolTip::Params()
 		.message(mTooltipMsg)
 		.sticky_rect(sticky_rect));
 

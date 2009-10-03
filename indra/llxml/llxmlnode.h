@@ -34,7 +34,7 @@
 #define LL_LLXMLNODE_H
 
 #ifndef XML_STATIC
-#define XML_STATIC 1
+#define XML_STATIC
 #endif
 #ifdef LL_STANDALONE
 #include <expat.h>

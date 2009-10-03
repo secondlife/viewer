@@ -148,7 +148,7 @@ void LLAvatarListItem::setAvatarId(const LLUUID& id)
 
 void LLAvatarListItem::onInfoBtnClick()
 {
-	LLFloaterReg::showInstance("inspect_avatar", mAvatarId);
+	LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", mAvatarId));
 
 	/* TODO fix positioning of inspector
 	localPointToScreen(mXPos, mYPos, &mXPos, &mYPos);

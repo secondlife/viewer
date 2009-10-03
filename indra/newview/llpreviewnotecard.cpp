@@ -85,12 +85,8 @@ LLPreviewNotecard::~LLPreviewNotecard()
 BOOL LLPreviewNotecard::postBuild()
 {
 	LLViewerTextEditor *ed = getChild<LLViewerTextEditor>("Notecard Editor");
-	if (ed)
-	{
-		ed->setParseHTML(TRUE);
-		ed->setNotecardInfo(mItemUUID, mObjectID, getKey());
-		ed->makePristine();
-	}
+	ed->setNotecardInfo(mItemUUID, mObjectID, getKey());
+	ed->makePristine();
 
 	childSetAction("Save", onClickSave, this);
 	childSetVisible("lock", FALSE);	

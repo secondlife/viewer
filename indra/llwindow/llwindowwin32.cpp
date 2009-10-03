@@ -3544,7 +3544,7 @@ BOOL LLWindowWin32::handleImeRequests(U32 request, U32 param, LRESULT *result)
 				// WCHARs, i.e., UTF-16 encoding units, so we can't simply pass the
 				// number to getPreeditLocation.  
 
-				const LLWString & wtext = mPreeditor->getWText();
+				const LLWString & wtext = mPreeditor->getPreeditString();
 				S32 preedit, preedit_length;
 				mPreeditor->getPreeditRange(&preedit, &preedit_length);
 				LLCoordGL caret_coord;
@@ -3571,7 +3571,7 @@ BOOL LLWindowWin32::handleImeRequests(U32 request, U32 param, LRESULT *result)
 			case IMR_RECONVERTSTRING:
 			{
 				mPreeditor->resetPreedit();
-				const LLWString & wtext = mPreeditor->getWText();
+				const LLWString & wtext = mPreeditor->getPreeditString();
 				S32 select, select_length;
 				mPreeditor->getSelectionRange(&select, &select_length);
 
@@ -3613,7 +3613,7 @@ BOOL LLWindowWin32::handleImeRequests(U32 request, U32 param, LRESULT *result)
 			}
 			case IMR_DOCUMENTFEED:
 			{
-				const LLWString & wtext = mPreeditor->getWText();
+				const LLWString & wtext = mPreeditor->getPreeditString();
 				S32 preedit, preedit_length;
 				mPreeditor->getPreeditRange(&preedit, &preedit_length);
 				

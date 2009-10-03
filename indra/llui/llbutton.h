@@ -233,6 +233,8 @@ public:
 	static void		toggleFloaterAndSetToggleState(LLUICtrl* ctrl, const LLSD& sdname);
 	static void		setFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname);
 	static void		showHelp(LLUICtrl* ctrl, const LLSD& sdname);
+
+	void		setForcePressedState(BOOL b) { mForcePressedState = b; }
 	
 protected:
 	const LLPointer<LLUIImage>&	getImageUnselected() const	{ return mImageUnselected; }
@@ -310,6 +312,7 @@ private:
 	BOOL						mNeedsHighlight;
 	BOOL						mCommitOnReturn;
 	BOOL						mFadeWhenDisabled;
+	BOOL						mForcePressedState;
 
 	LLFrameTimer				mFlashingTimer;
 };

@@ -781,6 +781,10 @@ LLMenuItemCallGL::LLMenuItemCallGL(const LLMenuItemCallGL::Params& p)
 
 void LLMenuItemCallGL::initFromParams(const Params& p)
 {
+	if (p.on_visible.isProvided())
+	{
+		initVisibleCallback(p.on_visible, mVisibleSignal);
+	}
 	if (p.on_enable.isProvided())
 	{
 		initEnableCallback(p.on_enable, mEnableSignal);
@@ -823,9 +827,19 @@ void LLMenuItemCallGL::updateEnabled( void )
 	}
 }
 
+void LLMenuItemCallGL::updateVisible( void )
+{
+	if (mVisibleSignal.num_slots() > 0)
+	{
+		bool visible = mVisibleSignal(this, LLSD());
+		setVisible(visible);
+	}
+}
+
 void LLMenuItemCallGL::buildDrawLabel( void )
 {
 	updateEnabled();
+	updateVisible();
 	LLMenuItemGL::buildDrawLabel();
 }
 
@@ -1224,23 +1238,7 @@ void LLMenuItemBranchGL::openMenu()
 			rect.translate(0, TEAROFF_SEPARATOR_HEIGHT_PIXELS);
 		}
 		branch->setRect( rect );
-		S32 x = 0;
-		S32 y = 0;
-		branch->localPointToOtherView( 0, 0, &x, &y, branch->getParent() ); 
-		S32 delta_x = 0;
-		S32 delta_y = 0;
-		if( y < menu_region_rect.mBottom )
-		{
-			delta_y = menu_region_rect.mBottom - y;
-		}
-
-		S32 menu_region_width = menu_region_rect.getWidth();
-		if( x - menu_region_rect.mLeft > menu_region_width - rect.getWidth() )
-		{
-			// move sub-menu over to left side
-			delta_x = llmax(-x, (-1 * (rect.getWidth() + getRect().getWidth())));
-		}
-		branch->translate( delta_x, delta_y );
+		branch->translateIntoRectWithExclusion( menu_region_rect, getMenu()->getRect(), FALSE );
 		branch->setVisible( TRUE );
 		branch->getParent()->sendChildToFront(branch);
 
@@ -1935,6 +1933,9 @@ void LLMenuGL::arrange( void )
 			item_list_t::iterator item_iter;
 			for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
 			{
+				// do first so LLMenuGLItemCall can call on_visible to determine if visible
+				(*item_iter)->buildDrawLabel();
+
 				if ((*item_iter)->getVisible())
 				{
 					if (!getTornOff() 
@@ -1976,6 +1977,9 @@ void LLMenuGL::arrange( void )
 
 			for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
 			{
+				// do first so LLMenuGLItemCall can call on_visible to determine if visible
+				(*item_iter)->buildDrawLabel();
+		
 				if ((*item_iter)->getVisible())
 				{
 					if (!getTornOff() 
@@ -2162,7 +2166,7 @@ void LLMenuGL::arrange( void )
 
 		item_list_t::iterator item_iter;
 		for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
-		{
+		{		
 			if ((*item_iter)->getVisible())
 			{
 				if (mScrollable)
@@ -2193,7 +2197,6 @@ void LLMenuGL::arrange( void )
 					}
 				}
 				(*item_iter)->setRect( rect );
-				(*item_iter)->buildDrawLabel();
 			}
 		}
 	}
@@ -2936,11 +2939,27 @@ void hide_top_view( LLView* view )
 // static
 void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 {
+	const S32 CURSOR_HEIGHT = 22;		// Approximate "normal" cursor size
+	const S32 CURSOR_WIDTH = 12;
+
 	// Save click point for detecting cursor moves before mouse-up.
 	// Must be in local coords to compare with mouseUp events.
 	// If the mouse doesn't move, the menu will stay open ala the Mac.
 	// See also LLContextMenu::show()
 	S32 mouse_x, mouse_y;
+
+	// Resetting scrolling position
+	if (menu->isScrollable())
+	{
+		menu->mFirstVisibleItem = NULL;
+	}
+
+	menu->setVisible( TRUE );
+
+	// Fix menu rect if needed.
+	menu->needsArrange();
+	menu->arrangeAndClear();
+
 	LLUI::getMousePositionLocal(menu->getParent(), &mouse_x, &mouse_y);
 	LLMenuHolderGL::sContextMenuSpawnPos.set(mouse_x,mouse_y);
 
@@ -2948,7 +2967,6 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 
 	const S32 HPAD = 2;
 	LLRect rect = menu->getRect();
-	//LLView* cur_view = spawning_view;
 	S32 left = x + HPAD;
 	S32 top = y;
 	spawning_view->localPointToOtherView(left, top, &left, &top, menu->getParent());
@@ -2956,37 +2974,19 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 							rect.getWidth(), rect.getHeight() );
 	menu->setRect( rect );
 
-	// Resetting scrolling position
-	if (menu->isScrollable())
-	{
-		menu->mFirstVisibleItem = NULL;
-		menu->needsArrange();
-	}
-	menu->arrangeAndClear(); // Fix menu rect if needed.
-	rect = menu->getRect();
 
 	// Adjust context menu to fit onscreen
-	S32 bottom;
-	left = rect.mLeft;
-	bottom = rect.mBottom;
-	S32 delta_x = 0;
-	S32 delta_y = 0;
-	if( bottom < menu_region_rect.mBottom )
-	{
-		// At this point, we need to move the context menu to the
-		// other side of the mouse.
-		delta_y = (rect.getHeight() + 2 * HPAD);
-	}
-
-	if( left > menu_region_rect.mRight - rect.getWidth() )
-	{
-		// At this point, we need to move the context menu to the
-		// other side of the mouse.
-		delta_x = -(rect.getWidth() + 2 * HPAD);
-	}
-	menu->translate( delta_x, delta_y );
-	menu->setVisible( TRUE );
+	LLRect mouse_rect;
+	const S32 MOUSE_CURSOR_PADDING = 5;
+	mouse_rect.setLeftTopAndSize(mouse_x - MOUSE_CURSOR_PADDING, 
+		mouse_y + MOUSE_CURSOR_PADDING, 
+		CURSOR_WIDTH + MOUSE_CURSOR_PADDING * 2, 
+		CURSOR_HEIGHT + MOUSE_CURSOR_PADDING * 2);
+	menu->translateIntoRectWithExclusion( menu_region_rect, mouse_rect, FALSE );
 	menu->getParent()->sendChildToFront(menu);
+
+
+
 }
 
 ///============================================================================

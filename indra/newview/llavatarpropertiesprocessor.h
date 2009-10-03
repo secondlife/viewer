@@ -36,6 +36,7 @@
 #include "lluuid.h"
 #include "llsingleton.h"
 #include "v3dmath.h"	// LLVector3d
+#include <list>
 #include <map>
 
 /*
@@ -147,8 +148,7 @@ class LLAvatarPropertiesProcessor
 public:
 	
 	LLAvatarPropertiesProcessor();
-	virtual ~LLAvatarPropertiesProcessor()
-	{}
+	virtual ~LLAvatarPropertiesProcessor();
 
 	void addObserver(const LLUUID& avatar_id, LLAvatarPropertiesObserver* observer);
 	
@@ -173,11 +173,6 @@ public:
 	void sendNotes(const LLUUID& avatar_id, const std::string notes);
 
 	void sendPickDelete(const LLUUID& pick_id);
-
-	// Convert a date provided by the server (MM/DD/YYYY) into a localized,
-	// human-readable age (1 year, 2 months) using translation strings from 
-	// the XML file.
-	static std::string ageFromDate(const std::string& date_string);
 
 	// Returns translated, human readable string for account type, such
 	// as "Resident" or "Linden Employee".  Used for profiles, inspectors.

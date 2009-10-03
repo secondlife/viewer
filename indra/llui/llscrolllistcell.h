@@ -94,16 +94,18 @@ public:
 
 	LLScrollListCell(const LLScrollListCell::Params&);
 	virtual ~LLScrollListCell() {};
-	virtual void			draw(const LLColor4& color, const LLColor4& highlight_color) const = 0;		// truncate to given width, if possible
+
+	virtual void			draw(const LLColor4& color, const LLColor4& highlight_color) const {};		// truncate to given width, if possible
 	virtual S32				getWidth() const {return mWidth;}
 	virtual S32				getContentWidth() const { return 0; }
-	virtual S32				getHeight() const = 0;
+	virtual S32				getHeight() const { return 0; }
 	virtual const LLSD		getValue() const;
 	virtual void			setValue(const LLSD& value) { }
 	virtual BOOL			getVisible() const { return TRUE; }
 	virtual void			setWidth(S32 width) { mWidth = width; }
 	virtual void			highlightText(S32 offset, S32 num_chars) {}
-	virtual BOOL			isText() const = 0;
+	virtual BOOL			isText() const { return FALSE; }
+	virtual BOOL			needsToolTip() const { return FALSE; }
 	virtual void			setColor(const LLColor4&) {}
 	virtual void			onCommit() {};
 
@@ -120,8 +122,6 @@ public:
 	LLScrollListSpacer(const LLScrollListCell::Params& p) : LLScrollListCell(p) {}
 	/*virtual*/ ~LLScrollListSpacer() {};
 	/*virtual*/ void			draw(const LLColor4& color, const LLColor4& highlight_color) const {}
-	/*virtual*/ S32				getHeight() const { return 0; }
-	/*virtual*/ BOOL			isText() const { return FALSE; }
 };
 
 /*
@@ -143,6 +143,7 @@ public:
 
 	/*virtual*/ void	setColor(const LLColor4&);
 	/*virtual*/ BOOL	isText() const;
+	/*virtual*/ BOOL	needsToolTip() const;
 
 	void			setText(const LLStringExplicit& text);
 	void			setFontStyle(const U8 font_style);
@@ -175,7 +176,6 @@ public:
 	/*virtual*/ S32		getHeight() const;
 	/*virtual*/ const LLSD		getValue() const;
 	/*virtual*/ void	setColor(const LLColor4&);
-	/*virtual*/ BOOL	isText()const { return FALSE; }
 	/*virtual*/ void	setValue(const LLSD& value);
 
 private:
@@ -202,7 +202,6 @@ public:
 	/*virtual*/ void	setEnabled(BOOL enable);
 
 	LLCheckBoxCtrl*	getCheckBox()				{ return mCheckBox; }
-	/*virtual*/ BOOL	isText() const				{ return FALSE; }
 
 private:
 	LLCheckBoxCtrl* mCheckBox;

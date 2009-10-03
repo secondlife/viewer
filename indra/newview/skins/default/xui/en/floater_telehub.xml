@@ -88,7 +88,6 @@
     </text>
     <scroll_list
      follows="left|top"
-     font="SansSerifSmall"
      height="60"
      layout="topleft"
      left_delta="0"

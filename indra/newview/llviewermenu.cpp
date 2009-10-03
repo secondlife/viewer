@@ -80,6 +80,7 @@
 #include "lldrawpoolalpha.h"
 #include "lldrawpooltree.h"
 #include "llface.h"
+#include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llfirsttimetipmanager.h"
 #include "llfloater.h"
@@ -295,8 +296,7 @@ S32 selection_price();
 BOOL enable_take();
 void handle_take();
 bool confirm_take(const LLSD& notification, const LLSD& response);
-BOOL enable_buy(void*); 
-void handle_buy(void *);
+
 void handle_buy_object(LLSaleInfo sale_info);
 void handle_buy_contents(LLSaleInfo sale_info);
 
@@ -2490,12 +2490,10 @@ class LLObjectEnableReportAbuse : public view_listener_t
 	}
 };
 
-class LLObjectTouch : public view_listener_t
+void handle_object_touch()
 {
-	bool handleEvent(const LLSD& userdata)
-	{
 		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-		if (!object) return true;
+		if (!object) return;
 
 		LLPickInfo pick = LLToolPie::getInstance()->getPick();
 
@@ -2534,19 +2532,20 @@ class LLObjectTouch : public view_listener_t
 		msg->addVector3("Normal", pick.mNormal);
 		msg->addVector3("Binormal", pick.mBinormal);
 		msg->sendMessage(object->getRegion()->getHost());
+}
 
-		return true;
-	}
-};
-
+bool enable_object_touch()
+{
+	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+	return obj && obj->flagHandleTouch();
+}
 
 // One object must have touch sensor
 class LLObjectEnableTouch : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-		bool new_value = obj && obj->flagHandleTouch();
+		bool new_value = enable_object_touch();
 
 		// Update label based on the node touch name if available.
 		std::string touch_text;
@@ -2596,23 +2595,18 @@ class LLObjectOpen : public view_listener_t
 	}
 };
 */
-class LLObjectEnableOpen : public view_listener_t
+bool enable_object_open()
 {
-	bool handleEvent(const LLSD& userdata)
-	{
-		// Look for contents in root object, which is all the LLFloaterOpenObject
-		// understands.
-		LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-		bool new_value = (obj != NULL);
-		if (new_value)
-		{
-			LLViewerObject* root = obj->getRootEdit();
-			if (!root) new_value = false;
-			else new_value = root->allowOpen();
-		}
-		return new_value;
-	}
-};
+	// Look for contents in root object, which is all the LLFloaterOpenObject
+	// understands.
+	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+	if (!obj) return false;
+
+	LLViewerObject* root = obj->getRootEdit();
+	if (!root) return false;
+
+	return root->allowOpen();
+}
 
 
 class LLViewJoystickFlycam : public view_listener_t
@@ -2666,52 +2660,50 @@ class LLObjectBuild : public view_listener_t
 	}
 };
 
-class LLObjectEdit : public view_listener_t
+
+void handle_object_edit()
 {
-	bool handleEvent(const LLSD& userdata)
+	LLViewerParcelMgr::getInstance()->deselectLand();
+
+	if (gAgent.getFocusOnAvatar() && !LLToolMgr::getInstance()->inEdit())
 	{
-		LLViewerParcelMgr::getInstance()->deselectLand();
+		LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 
-		if (gAgent.getFocusOnAvatar() && !LLToolMgr::getInstance()->inEdit())
+		if (selection->getSelectType() == SELECT_TYPE_HUD || !gSavedSettings.getBOOL("EditCameraMovement"))
 		{
-			LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
-
-			if (selection->getSelectType() == SELECT_TYPE_HUD || !gSavedSettings.getBOOL("EditCameraMovement"))
+			// always freeze camera in space, even if camera doesn't move
+			// so, for example, follow cam scripts can't affect you when in build mode
+			gAgent.setFocusGlobal(gAgent.calcFocusPositionTargetGlobal(), LLUUID::null);
+			gAgent.setFocusOnAvatar(FALSE, ANIMATE);
+		}
+		else
+		{
+			gAgent.setFocusOnAvatar(FALSE, ANIMATE);
+			LLViewerObject* selected_objectp = selection->getFirstRootObject();
+			if (selected_objectp)
 			{
-				// always freeze camera in space, even if camera doesn't move
-				// so, for example, follow cam scripts can't affect you when in build mode
-				gAgent.setFocusGlobal(gAgent.calcFocusPositionTargetGlobal(), LLUUID::null);
-				gAgent.setFocusOnAvatar(FALSE, ANIMATE);
-			}
-			else
-			{
-				gAgent.setFocusOnAvatar(FALSE, ANIMATE);
-				LLViewerObject* selected_objectp = selection->getFirstRootObject();
-				if (selected_objectp)
-				{
-				// zoom in on object center instead of where we clicked, as we need to see the manipulator handles
-					gAgent.setFocusGlobal(selected_objectp->getPositionGlobal(), selected_objectp->getID());
-				gAgent.cameraZoomIn(0.666f);
-				gAgent.cameraOrbitOver( 30.f * DEG_TO_RAD );
-				gViewerWindow->moveCursorToCenter();
+			  // zoom in on object center instead of where we clicked, as we need to see the manipulator handles
+			  gAgent.setFocusGlobal(selected_objectp->getPositionGlobal(), selected_objectp->getID());
+			  gAgent.cameraZoomIn(0.666f);
+			  gAgent.cameraOrbitOver( 30.f * DEG_TO_RAD );
+			  gViewerWindow->moveCursorToCenter();
 			}
 		}
-		}
-
-		LLFloaterReg::showInstance("build");
-	
-		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
-		gFloaterTools->setEditTool( LLToolCompTranslate::getInstance() );
-
-		LLViewerJoystick::getInstance()->moveObjects(true);
-		LLViewerJoystick::getInstance()->setNeedsReset(true);
-
-		// Could be first use
-		LLFirstUse::useBuild();
-		return true;
 	}
-};
-
+	
+	LLFloaterReg::showInstance("build");
+	
+	LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
+	gFloaterTools->setEditTool( LLToolCompTranslate::getInstance() );
+	
+	LLViewerJoystick::getInstance()->moveObjects(true);
+	LLViewerJoystick::getInstance()->setNeedsReset(true);
+	
+	// Could be first use
+	LLFirstUse::useBuild();
+	return;
+	
+}
 //---------------------------------------------------------------------------
 // Land pie menu
 //---------------------------------------------------------------------------
@@ -2795,24 +2787,21 @@ BOOL enable_object_build(void*)
 	return can_build;
 }
 
-class LLEnableEdit : public view_listener_t
+bool enable_object_edit()
 {
-	bool handleEvent(const LLSD& userdata)
+	// *HACK:  The new "prelude" Help Islands have a build sandbox area,
+	// so users need the Edit and Create pie menu options when they are
+	// there.  Eventually this needs to be replaced with code that only 
+	// lets you edit objects if you have permission to do so (edit perms,
+	// group edit, god).  See also lltoolbar.cpp.  JC
+	bool enable = true;
+	if (gAgent.inPrelude())
 	{
-		// *HACK:  The new "prelude" Help Islands have a build sandbox area,
-		// so users need the Edit and Create pie menu options when they are
-		// there.  Eventually this needs to be replaced with code that only 
-		// lets you edit objects if you have permission to do so (edit perms,
-		// group edit, god).  See also lltoolbar.cpp.  JC
-		bool enable = true;
-		if (gAgent.inPrelude())
-		{
-			enable = LLViewerParcelMgr::getInstance()->agentCanBuild()
-				|| LLSelectMgr::getInstance()->getSelection()->isAttachment();
-		}
-		return enable;
+		enable = LLViewerParcelMgr::getInstance()->agentCanBuild()
+			|| LLSelectMgr::getInstance()->getSelection()->isAttachment();
 	}
-};
+	return enable;
+}
 
 class LLSelfRemoveAllAttachments : public view_listener_t
 {
@@ -2866,27 +2855,24 @@ BOOL enable_has_attachments(void*)
 //	}
 //}
 
-class LLObjectEnableMute : public view_listener_t
+bool enable_object_mute()
 {
-	bool handleEvent(const LLSD& userdata)
+	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+	bool new_value = (object != NULL);
+	if (new_value)
 	{
-		LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-		bool new_value = (object != NULL);
-		if (new_value)
+		LLVOAvatar* avatar = find_avatar_from_object(object); 
+		if (avatar)
 		{
-			LLVOAvatar* avatar = find_avatar_from_object(object); 
-			if (avatar)
-			{
-				// It's an avatar
-				LLNameValue *lastname = avatar->getNVPair("LastName");
-				BOOL is_linden = lastname && !LLStringUtil::compareStrings(lastname->getString(), "Linden");
-				BOOL is_self = avatar->isSelf();
-				new_value = !is_linden && !is_self;
-			}
+			// It's an avatar
+			LLNameValue *lastname = avatar->getNVPair("LastName");
+			BOOL is_linden = lastname && !LLStringUtil::compareStrings(lastname->getString(), "Linden");
+			BOOL is_self = avatar->isSelf();
+			new_value = !is_linden && !is_self;
 		}
-		return new_value;
 	}
-};
+	return new_value;
+}
 
 class LLObjectMute : public view_listener_t
 {
@@ -3345,35 +3331,28 @@ void append_aggregate(std::string& string, const LLAggregatePermissions& ag_perm
 	string.append(buffer);
 }
 
-BOOL enable_buy(void*)
+bool enable_buy_object()
 {
     // In order to buy, there must only be 1 purchaseable object in
     // the selection manger.
-	if(LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() != 1) return FALSE;
+	if(LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() != 1) return false;
     LLViewerObject* obj = NULL;
     LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
 	if(node)
     {
         obj = node->getObject();
-        if(!obj) return FALSE;
+        if(!obj) return false;
 
-		if(node->mSaleInfo.isForSale() && node->mPermissions->getMaskOwner() & PERM_TRANSFER &&
-			(node->mPermissions->getMaskOwner() & PERM_COPY || node->mSaleInfo.getSaleType() != LLSaleInfo::FS_COPY))
+		if( for_sale_selection(node) )
 		{
-			if(obj->permAnyOwner()) return TRUE;
+			// *NOTE: Is this needed?  This checks to see if anyone owns the
+			// object, dating back to when we had "public" objects owned by
+			// no one.  JC
+			if(obj->permAnyOwner()) return true;
 		}
     }
-	return FALSE;
+	return false;
 }
-
-class LLObjectEnableBuy : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = enable_buy(NULL);
-		return new_value;
-	}
-};
 
 // Note: This will only work if the selected object's data has been
 // received by the viewer and cached in the selection manager.
@@ -3717,20 +3696,35 @@ class LLEditEnableCustomizeAvatar : public view_listener_t
 	}
 };
 
+bool enable_sit_object()
+{
+	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+
+	if (object && object->getPCode() == LL_PCODE_VOLUME)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+
 // only works on pie menu
-bool handle_sit_or_stand()
+void handle_object_sit_or_stand()
 {
 	LLPickInfo pick = LLToolPie::getInstance()->getPick();
 	LLViewerObject *object = pick.getObject();;
 	if (!object || pick.mPickType == LLPickInfo::PICK_FLORA)
 	{
-		return true;
+		return;
 	}
 
 	if (sitting_on_selection())
 	{
 		gAgent.standUp();
-		return true;
+		return;
 	}
 
 	// get object selection offset 
@@ -3748,16 +3742,7 @@ bool handle_sit_or_stand()
 
 		object->getRegion()->sendReliableMessage();
 	}
-	return true;
 }
-
-class LLObjectSitOrStand : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		return handle_sit_or_stand();
-	}
-};
 
 void near_sit_down_point(BOOL success, void *)
 {
@@ -4228,18 +4213,14 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 	}
 }
 
-class LLToolsTakeCopy : public view_listener_t
+void handle_take_copy()
 {
-	bool handleEvent(const LLSD& userdata)
-	{
-		if (LLSelectMgr::getInstance()->getSelection()->isEmpty()) return true;
+	if (LLSelectMgr::getInstance()->getSelection()->isEmpty()) return;
 
-		const LLUUID& category_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_OBJECT);
-		derez_objects(DRD_ACQUIRE_TO_AGENT_INVENTORY, category_id);
-
-		return true;
-	}
-};
+	LLUUID category_id =
+		gInventory.findCategoryUUIDForType(LLAssetType::AT_OBJECT);
+	derez_objects(DRD_ACQUIRE_TO_AGENT_INVENTORY, category_id);
+}
 
 
 // You can return an object to its owner if it is on your land.
@@ -4485,43 +4466,50 @@ BOOL enable_take()
 	return FALSE;
 }
 
-class LLToolsBuyOrTake : public view_listener_t
+
+void handle_buy_or_take()
 {
-	bool handleEvent(const LLSD& userdata)
+	if (LLSelectMgr::getInstance()->getSelection()->isEmpty())
 	{
-		if (LLSelectMgr::getInstance()->getSelection()->isEmpty())
-		{
-			return true;
-		}
+		return;
+	}
 
-		if (is_selection_buy_not_take())
-		{
-			S32 total_price = selection_price();
+	if (is_selection_buy_not_take())
+	{
+		S32 total_price = selection_price();
 
-			if (total_price <= gStatusBar->getBalance() || total_price == 0)
-			{
-				handle_buy(NULL);
-			}
-			else
-			{
-				LLFloaterBuyCurrency::buyCurrency(
-					"Buying this costs", total_price);
-			}
+		if (total_price <= gStatusBar->getBalance() || total_price == 0)
+		{
+			handle_buy();
 		}
 		else
 		{
-			handle_take();
+			LLFloaterBuyCurrency::buyCurrency(
+				"Buying this costs", total_price);
 		}
-		return true;
 	}
-};
+	else
+	{
+		handle_take();
+	}
+}
+
+bool visible_buy_object()
+{
+	return is_selection_buy_not_take() && enable_buy_object();
+}
+
+bool visible_take_object()
+{
+	return !is_selection_buy_not_take() && enable_take();
+}
 
 class LLToolsEnableBuyOrTake : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
 		bool is_buy = is_selection_buy_not_take();
-		bool new_value = is_buy ? enable_buy(NULL) : enable_take();
+		bool new_value = is_buy ? enable_buy_object() : enable_take();
 
 		// Update label
 		std::string label;
@@ -4632,7 +4620,7 @@ void show_buy_currency(const char* extra)
 	LLNotifications::instance().add("PromptGoToCurrencyPage", args);//, LLSD(), callback_show_buy_currency);
 }
 
-void handle_buy(void*)
+void handle_buy()
 {
 	if (LLSelectMgr::getInstance()->getSelection()->isEmpty()) return;
 
@@ -4650,14 +4638,20 @@ void handle_buy(void*)
 	}
 }
 
-class LLObjectBuy : public view_listener_t
+bool anyone_copy_selection(LLSelectNode* nodep)
 {
-	bool handleEvent(const LLSD& userdata)
-	{
-		handle_buy(NULL);
-		return true;
-	}
-};
+	bool perm_copy = (bool)(nodep->getObject()->permCopy());
+	bool all_copy = (bool)(nodep->mPermissions->getMaskEveryone() & PERM_COPY);
+	return perm_copy && all_copy;
+}
+
+bool for_sale_selection(LLSelectNode* nodep)
+{
+	return nodep->mSaleInfo.isForSale()
+		&& nodep->mPermissions->getMaskOwner() & PERM_TRANSFER
+		&& (nodep->mPermissions->getMaskOwner() & PERM_COPY
+			|| nodep->mSaleInfo.getSaleType() != LLSaleInfo::FS_COPY);
+}
 
 BOOL sitting_on_selection()
 {
@@ -4985,28 +4979,24 @@ class LLEditDelete : public view_listener_t
 	}
 };
 
-class LLObjectEnableDelete : public view_listener_t
+bool enable_object_delete()
 {
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = 
+	bool new_value = 
 #ifdef HACKED_GODLIKE_VIEWER
-			TRUE;
+	TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-			(!LLViewerLogin::getInstance()->isInProductionGrid()
-             && gAgent.isGodlike()) ||
+	(!LLViewerLogin::getInstance()->isInProductionGrid()
+     && gAgent.isGodlike()) ||
 # endif
-			LLSelectMgr::getInstance()->canDoDelete();
+	LLSelectMgr::getInstance()->canDoDelete();
 #endif
-		return new_value;
-	}
-};
+	return new_value;
+}
 
-class LLObjectDelete : public view_listener_t
+void handle_object_delete()
 {
-	bool handleEvent(const LLSD& userdata)
-	{
+
 		if (LLSelectMgr::getInstance())
 		{
 			LLSelectMgr::getInstance()->doDelete();
@@ -5018,9 +5008,8 @@ class LLObjectDelete : public view_listener_t
 		// When deleting an object we may not actually be done
 		// Keep selection so we know what to delete when confirmation is needed about the delete
 		gPieObject->hide();
-		return true;
-	}
-};
+		return;
+}
 
 void handle_force_delete(void*)
 {
@@ -5377,29 +5366,6 @@ class LLToolsLookAtSelection : public view_listener_t
 	}
 };
 
-void callback_invite_to_group(LLUUID group_id, LLUUID dest_id)
-{
-	std::vector<LLUUID> agent_ids;
-	agent_ids.push_back(dest_id);
-	
-	LLFloaterGroupInvite::showForGroup(group_id, &agent_ids);
-}
-
-void invite_to_group(const LLUUID& dest_id)
-{
-	LLViewerObject* dest = gObjectList.findObject(dest_id);
-	if(dest && dest->isAvatar())
-	{
-		LLFloaterGroupPicker* widget = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
-		if (widget)
-		{
-			widget->center();
-			widget->setPowersMask(GP_MEMBER_INVITE);
-			widget->setSelectGroupCallback(boost::bind(callback_invite_to_group, _1, dest_id));
-		}
-	}
-}
-
 class LLAvatarInviteToGroup : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -5407,7 +5373,7 @@ class LLAvatarInviteToGroup : public view_listener_t
 		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
 		if(avatar)
 		{
-			invite_to_group(avatar->getID());
+			LLAvatarActions::inviteToGroup(avatar->getID());
 		}
 		return true;
 	}
@@ -5475,7 +5441,7 @@ bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjec
 	return false;
 }
 
-bool handle_give_money_dialog()
+void handle_give_money_dialog()
 {
 	LLNotification::Params params("BusyModePay");
 	params.functor.function(boost::bind(complete_give_money, _1, _2, LLSelectMgr::getInstance()->getSelection()));
@@ -5489,38 +5455,28 @@ bool handle_give_money_dialog()
 	{
 		LLNotifications::instance().forceResponse(params, 1);
 	}
-	return true;
 }
 
-class LLPayObject : public view_listener_t
+bool enable_pay_avatar()
 {
-	bool handleEvent(const LLSD& userdata)
-	{
-		return handle_give_money_dialog();
-	}
-};
+	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+	LLVOAvatar* avatar = find_avatar_from_object(obj);
+	return (avatar != NULL);
+}
 
-class LLEnablePayObject : public view_listener_t
+bool enable_pay_object()
 {
-	bool handleEvent(const LLSD& userdata)
+	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+	if( object )
 	{
-		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
-		bool new_value = (avatar != NULL);
-		if (!new_value)
+		LLViewerObject *parent = (LLViewerObject *)object->getParent();
+		if((object->flagTakesMoney()) || (parent && parent->flagTakesMoney()))
 		{
-			LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-			if( object )
-			{
-				LLViewerObject *parent = (LLViewerObject *)object->getParent();
-				if((object->flagTakesMoney()) || (parent && parent->flagTakesMoney()))
-				{
-					new_value = true;
-				}
-			}
+			return true;
 		}
-		return new_value;
 	}
-};
+	return false;
+}
 
 class LLObjectEnableSitOrStand : public view_listener_t
 {
@@ -6157,7 +6113,7 @@ class LLAttachmentEnableDetach : public view_listener_t
 };
 
 // Used to tell if the selected object can be attached to your avatar.
-BOOL object_selected_and_point_valid(const LLSD&)
+BOOL object_selected_and_point_valid()
 {
 	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 	for (LLObjectSelection::root_iterator iter = selection->root_begin();
@@ -6187,7 +6143,7 @@ BOOL object_selected_and_point_valid(const LLSD&)
 
 BOOL object_is_wearable()
 {
-	if (!object_selected_and_point_valid(LLSD()))
+	if (!object_selected_and_point_valid())
 	{
 		return FALSE;
 	}
@@ -6208,15 +6164,6 @@ BOOL object_is_wearable()
 	return FALSE;
 }
 
-
-// Also for seeing if object can be attached.  See above.
-class LLObjectEnableWear : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		return object_selected_and_point_valid(LLSD());
-	}
-};
 
 class LLAttachmentPointFilled : public view_listener_t
 {
@@ -6564,40 +6511,37 @@ class LLEditableSelectedMono : public view_listener_t
 	}
 };
 
-class LLToolsEnableTakeCopy : public view_listener_t
+bool enable_object_take_copy()
 {
-	bool handleEvent(const LLSD& userdata)
+	bool all_valid = false;
+	if (LLSelectMgr::getInstance())
 	{
-		bool all_valid = false;
-		if (LLSelectMgr::getInstance())
+		if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
 		{
-			if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
-			{
-			all_valid = true;
+		all_valid = true;
 #ifndef HACKED_GODLIKE_VIEWER
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-			if (LLViewerLogin::getInstance()->isInProductionGrid()
-                || !gAgent.isGodlike())
+		if (LLViewerLogin::getInstance()->isInProductionGrid()
+            || !gAgent.isGodlike())
 # endif
+		{
+			struct f : public LLSelectedObjectFunctor
 			{
-				struct f : public LLSelectedObjectFunctor
+				virtual bool apply(LLViewerObject* obj)
 				{
-					virtual bool apply(LLViewerObject* obj)
-					{
-						return (!obj->permCopy() || obj->isAttachment());
-					}
-				} func;
-				const bool firstonly = true;
-				bool any_invalid = LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, firstonly);
-				all_valid = !any_invalid;
-			}
+					return (!obj->permCopy() || obj->isAttachment());
+				}
+			} func;
+			const bool firstonly = true;
+			bool any_invalid = LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, firstonly);
+			all_valid = !any_invalid;
+		}
 #endif // HACKED_GODLIKE_VIEWER
 		}
-		}
-
-		return all_valid;
 	}
-};
+
+	return all_valid;
+}
 
 
 class LLHasAsset : public LLInventoryCollectFunctor
@@ -7701,13 +7645,14 @@ void initialize_menus()
 	
 	LLUICtrl::EnableCallbackRegistry::Registrar& enable = LLUICtrl::EnableCallbackRegistry::currentRegistrar();
 	LLUICtrl::CommitCallbackRegistry::Registrar& commit = LLUICtrl::CommitCallbackRegistry::currentRegistrar();
+	LLUICtrl::VisibleCallbackRegistry::Registrar& visible = LLUICtrl::VisibleCallbackRegistry::currentRegistrar();
 	
 	// Enable God Mode
 	view_listener_t::addMenu(new LLEnableGodCustomerService(), "EnableGodCustomerService");
 
 	// Agent
 	commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
-	enable.add("Agent.emableFlying", boost::bind(&LLAgent::enableFlying));
+	enable.add("Agent.enableFlying", boost::bind(&LLAgent::enableFlying));
 
 	// File menu
 	init_menu_file();
@@ -7801,8 +7746,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToolsReleaseKeys(), "Tools.ReleaseKeys");
 	view_listener_t::addMenu(new LLToolsEnableReleaseKeys(), "Tools.EnableReleaseKeys");
 	view_listener_t::addMenu(new LLToolsLookAtSelection(), "Tools.LookAtSelection");
-	view_listener_t::addMenu(new LLToolsBuyOrTake(), "Tools.BuyOrTake");
-	view_listener_t::addMenu(new LLToolsTakeCopy(), "Tools.TakeCopy");
+	commit.add("Tools.BuyOrTake", boost::bind(&handle_buy_or_take));
+	commit.add("Tools.TakeCopy", boost::bind(&handle_take_copy));
 	view_listener_t::addMenu(new LLToolsSaveToInventory(), "Tools.SaveToInventory");
 	view_listener_t::addMenu(new LLToolsSaveToObjectInventory(), "Tools.SaveToObjectInventory");
 	view_listener_t::addMenu(new LLToolsSelectedScriptAction(), "Tools.SelectedScriptAction");
@@ -7811,7 +7756,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToolsEnableLink(), "Tools.EnableLink");
 	view_listener_t::addMenu(new LLToolsEnableUnlink(), "Tools.EnableUnlink");
 	view_listener_t::addMenu(new LLToolsEnableBuyOrTake(), "Tools.EnableBuyOrTake");
-	view_listener_t::addMenu(new LLToolsEnableTakeCopy(), "Tools.EnableTakeCopy");
+	visible.add("Tools.VisibleTakeCopy", boost::bind(&enable_object_take_copy));
+	enable.add("Tools.EnableTakeCopy", boost::bind(&enable_object_take_copy));
 	view_listener_t::addMenu(new LLToolsEnableSaveToInventory(), "Tools.EnableSaveToInventory");
 	view_listener_t::addMenu(new LLToolsEnableSaveToObjectInventory(), "Tools.EnableSaveToObjectInventory");
 
@@ -8012,31 +7958,51 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
 	view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	
-	view_listener_t::addMenu(new LLObjectEnableMute(), "Avatar.EnableMute");
 	view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
 	view_listener_t::addMenu(new LLAvatarEnableFreezeEject(), "Avatar.EnableFreezeEject");
 
 	// Object pie menu
 	view_listener_t::addMenu(new LLObjectBuild(), "Object.Build");
-	view_listener_t::addMenu(new LLObjectTouch(), "Object.Touch");
-	view_listener_t::addMenu(new LLObjectSitOrStand(), "Object.SitOrStand");
-	view_listener_t::addMenu(new LLObjectDelete(), "Object.Delete");
+	commit.add("Object.Touch", boost::bind(&handle_object_touch));
+	commit.add("Object.SitOrStand", boost::bind(&handle_object_sit_or_stand));
+	visible.add("Object.EnableSit", boost::bind(&enable_sit_object));
+	commit.add("Object.Delete", boost::bind(&handle_object_delete));
 	view_listener_t::addMenu(new LLObjectAttachToAvatar(), "Object.AttachToAvatar");
 	view_listener_t::addMenu(new LLObjectReturn(), "Object.Return");
 	view_listener_t::addMenu(new LLObjectReportAbuse(), "Object.ReportAbuse");
 	view_listener_t::addMenu(new LLObjectMute(), "Object.Mute");
-	view_listener_t::addMenu(new LLObjectBuy(), "Object.Buy");
-	view_listener_t::addMenu(new LLObjectEdit(), "Object.Edit");
 
-	view_listener_t::addMenu(new LLObjectEnableOpen(), "Object.EnableOpen");
+	visible.add("Object.VisibleTake", boost::bind(&visible_take_object));
+	visible.add("Object.VisibleBuy", boost::bind(&visible_buy_object));
+
+	commit.add("Object.Buy", boost::bind(&handle_buy));
+	commit.add("Object.Edit", boost::bind(&handle_object_edit));
+	
+	commit.add("Object.Take", boost::bind(&handle_take));
+
+	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
+	visible.add("Object.VisibleOpen", boost::bind(&enable_object_open));
+
+	enable.add("Object.EnableTouch", boost::bind(&enable_object_touch));
+	visible.add("Object.VisibleTouch", boost::bind(&enable_object_touch));
+
 	view_listener_t::addMenu(new LLObjectEnableTouch(), "Object.EnableTouch");
 	view_listener_t::addMenu(new LLObjectEnableSitOrStand(), "Object.EnableSitOrStand");
-	view_listener_t::addMenu(new LLObjectEnableDelete(), "Object.EnableDelete");
-	view_listener_t::addMenu(new LLObjectEnableWear(), "Object.EnableWear");
+	
+	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));
+	visible.add("Object.VisibleDelete", boost::bind(&enable_object_delete));
+
+	enable.add("Object.EnableWear", boost::bind(&object_selected_and_point_valid));
+	visible.add("Object.VisibleWear", boost::bind(&object_selected_and_point_valid));
+
 	view_listener_t::addMenu(new LLObjectEnableReturn(), "Object.EnableReturn");
 	view_listener_t::addMenu(new LLObjectEnableReportAbuse(), "Object.EnableReportAbuse");
-	view_listener_t::addMenu(new LLObjectEnableMute(), "Object.EnableMute");
-	view_listener_t::addMenu(new LLObjectEnableBuy(), "Object.EnableBuy");
+
+	enable.add("Avatar.EnableMute", boost::bind(&enable_object_mute));
+	enable.add("Object.EnableMute", boost::bind(&enable_object_mute));
+	visible.add("Object.VisibleMute", boost::bind(&enable_object_mute));
+
+	enable.add("Object.EnableBuy", boost::bind(&enable_buy_object));
 
 	/*view_listener_t::addMenu(new LLObjectVisibleTouch(), "Object.VisibleTouch");
 	view_listener_t::addMenu(new LLObjectVisibleCustomTouch(), "Object.VisibleCustomTouch");
@@ -8068,10 +8034,13 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToggleControl(), "ToggleControl");
 	view_listener_t::addMenu(new LLCheckControl(), "CheckControl");
 	view_listener_t::addMenu(new LLGoToObject(), "GoToObject");
-	view_listener_t::addMenu(new LLPayObject(), "PayObject");
+	commit.add("PayObject", boost::bind(&handle_give_money_dialog));
 
-	view_listener_t::addMenu(new LLEnablePayObject(), "EnablePayObject");
-	view_listener_t::addMenu(new LLEnableEdit(), "EnableEdit");
+	enable.add("EnablePayObject", boost::bind(&enable_pay_object));
+	visible.add("VisiblePayObject", boost::bind(&enable_pay_object));
+	enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));
+	enable.add("EnableEdit", boost::bind(&enable_object_edit));
+	visible.add("Object.VisibleEdit", boost::bind(&enable_object_edit));
 
 	view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
 	view_listener_t::addMenu(new LLSomethingSelected(), "SomethingSelected");

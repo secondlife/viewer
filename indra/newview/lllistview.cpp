@@ -57,7 +57,7 @@ LLListView::LLListView(const Params& p)
 	LLRect label_rect(0, 20, 300, 0);
 	LLTextBox::Params text_box_params;
 	text_box_params.rect(label_rect);
-	text_box_params.text("This is a list-view");
+	text_box_params.initial_value("This is a list-view");
 	mLabel = LLUICtrlFactory::create<LLTextBox>(text_box_params);
 	addChild(mLabel);
 }

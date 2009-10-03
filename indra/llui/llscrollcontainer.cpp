@@ -76,6 +76,7 @@ LLScrollContainer::Params::Params()
 :	is_opaque("opaque"),
 	bg_color("color"),
 	border_visible("border_visible"),
+	hide_scrollbar("hide_scrollbar"),
 	min_auto_scroll_rate("min_auto_scroll_rate", 100),
 	max_auto_scroll_rate("max_auto_scroll_rate", 1000),
 	reserve_scroll_corner("reserve_scroll_corner", false)
@@ -93,6 +94,7 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	mAutoScrollRate( 0.f ),
 	mBackgroundColor(p.bg_color()),
 	mIsOpaque(p.is_opaque),
+	mHideScrollbar(p.hide_scrollbar),
 	mReserveScrollCorner(p.reserve_scroll_corner),
 	mMinAutoScrollRate(p.min_auto_scroll_rate),
 	mMaxAutoScrollRate(p.max_auto_scroll_rate),
@@ -349,27 +351,32 @@ void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height
 	S32 doc_width = doc_rect.getWidth();
 	S32 doc_height = doc_rect.getHeight();
 
-	*visible_width = getRect().getWidth() - 2 * mBorder->getBorderWidth();
-	*visible_height = getRect().getHeight() - 2 * mBorder->getBorderWidth();
+	S32 border_width = (mBorder->getVisible() ? 2 * mBorder->getBorderWidth() : 0);
+	*visible_width = getRect().getWidth() - border_width;
+	*visible_height = getRect().getHeight() - border_width;
 	
 	*show_v_scrollbar = FALSE;
-	if( *visible_height < doc_height )
-	{
-		*show_v_scrollbar = TRUE;
-		*visible_width -= scrollbar_size;
-	}
-
 	*show_h_scrollbar = FALSE;
-	if( *visible_width < doc_width )
-	{
-		*show_h_scrollbar = TRUE;
-		*visible_height -= scrollbar_size;
 
-		// Must retest now that visible_height has changed
-		if( !*show_v_scrollbar && (*visible_height < doc_height) )
+	if (!mHideScrollbar)
+	{
+		if( *visible_height < doc_height )
 		{
 			*show_v_scrollbar = TRUE;
 			*visible_width -= scrollbar_size;
+		}
+
+		if( *visible_width < doc_width )
+		{
+			*show_h_scrollbar = TRUE;
+			*visible_height -= scrollbar_size;
+
+			// Must retest now that visible_height has changed
+			if( !*show_v_scrollbar && (*visible_height < doc_height) )
+			{
+				*show_v_scrollbar = TRUE;
+				*visible_width -= scrollbar_size;
+			}
 		}
 	}
 }
@@ -457,19 +464,6 @@ void LLScrollContainer::draw()
 			sDepth--;
 		}
 	}
-
-	if (sDebugRects)
-	{
-		drawDebugRect();
-	}
-
-	//// *HACK: also draw debug rectangles around currently-being-edited LLView, and any elements that are being highlighted by GUI preview code (see LLFloaterUIPreview)
-	//std::set<LLView*>::iterator iter = std::find(sPreviewHighlightedElements.begin(), sPreviewHighlightedElements.end(), this);
-	//if ((sEditingUI && this == sEditingUIView) || (iter != sPreviewHighlightedElements.end() && sDrawPreviewHighlights))
-	//{
-	//	drawDebugRect();
-	//}
-
 } // end draw
 
 bool LLScrollContainer::addChild(LLView* view, S32 tab_group)
@@ -598,7 +592,7 @@ LLRect LLScrollContainer::getContentWindowRect() const
 	BOOL show_h_scrollbar = FALSE;
 	BOOL show_v_scrollbar = FALSE;
 	calcVisibleSize( &visible_width, &visible_height, &show_h_scrollbar, &show_v_scrollbar );
-	S32 border_width = mBorder->getBorderWidth();
+	S32 border_width = mBorder->getVisible() ? mBorder->getBorderWidth() : 0;
 	scroller_view_rect.setOriginAndSize(border_width, 
 										show_h_scrollbar ? mScrollbar[HORIZONTAL]->getRect().mTop : border_width, 
 										visible_width, 

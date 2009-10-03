@@ -39,16 +39,22 @@
 #include "lldarray.h"
 #include "llnotifications.h"
 
+#include "roles_constants.h"    // for GP_MEMBER_INVITE
+
 #include "llagent.h"
 #include "llappviewer.h"		// for gLastVersionChannel
 #include "llcachename.h"
 #include "llcallingcard.h"		// for LLAvatarTracker
-#include "llgivemoney.h"		// foe LLFloaterPay
+#include "llfloatergroupinvite.h"
+#include "llfloatergroups.h"
+#include "llfloaterreg.h"
+#include "llgivemoney.h"
 #include "llinventorymodel.h"	// for gInventory.findCategoryUUIDForType
 #include "llimview.h"			// for gIMMgr
 #include "llmutelist.h"
 #include "llrecentpeople.h"
 #include "llsidetray.h"
+#include "llviewerobjectlist.h"
 #include "llviewermessage.h"	// for handle_lure
 #include "llviewerregion.h"
 
@@ -244,6 +250,17 @@ void LLAvatarActions::toggleBlock(const LLUUID& id)
 	}
 }
 
+void LLAvatarActions::inviteToGroup(const LLUUID& id)
+{
+	LLFloaterGroupPicker* widget = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(id));
+	if (widget)
+	{
+		widget->center();
+		widget->setPowersMask(GP_MEMBER_INVITE);
+		widget->setSelectGroupCallback(boost::bind(callback_invite_to_group, _1, id));
+	}
+}
+
 //== private methods ========================================================================================
 
 // static
@@ -292,6 +309,16 @@ bool LLAvatarActions::handlePay(const LLSD& notification, const LLSD& response, 
 	LLFloaterPay::payDirectly(&give_money, avatar_id, /*is_group=*/FALSE);
 	return false;
 }
+
+// static
+void LLAvatarActions::callback_invite_to_group(LLUUID group_id, LLUUID id)
+{
+	std::vector<LLUUID> agent_ids;
+	agent_ids.push_back(id);
+	
+	LLFloaterGroupInvite::showForGroup(group_id, &agent_ids);
+}
+
 
 // static
 bool LLAvatarActions::callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response)

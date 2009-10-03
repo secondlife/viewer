@@ -67,5 +67,7 @@ LLStatView::~LLStatView()
 
 static StatViewRegistry::Register<LLStatBar> r1("stat_bar");
 static StatViewRegistry::Register<LLStatView> r2("stat_view");
+// stat_view can be a child of panels/etc.
+static LLDefaultChildRegistry::Register<LLStatView> r3("stat_view");
 
 

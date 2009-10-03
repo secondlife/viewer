@@ -44,12 +44,12 @@ class LLStyle : public LLRefCount
 public:
 	struct Params : public LLInitParam::Block<Params>
 	{
-		Optional<bool>				visible,
-									drop_shadow;
-		Optional<LLUIColor>			color;
-		Optional<const LLFontGL*>	font;
-		Optional<LLUIImage*>		image;
-		Optional<std::string>		link_href;
+		Optional<bool>					visible;
+		Optional<LLFontGL::ShadowType>	drop_shadow;
+		Optional<LLUIColor>				color;
+		Optional<const LLFontGL*>		font;
+		Optional<LLUIImage*>			image;
+		Optional<std::string>			link_href;
 		Params();
 	};
 	LLStyle(const Params& p = Params());
@@ -59,6 +59,8 @@ public:
 
 	BOOL isVisible() const;
 	void setVisible(BOOL is_visible);
+
+	LLFontGL::ShadowType getShadowType() { return mDropShadow; }
 
 	void setFont(const LLFontGL* font);
 	const LLFontGL* getFont() const;
@@ -94,7 +96,7 @@ public:
 	BOOL        mItalic;
 	BOOL        mBold;
 	BOOL        mUnderline;
-	BOOL		mDropShadow;
+	LLFontGL::ShadowType		mDropShadow;
 
 protected:
 	~LLStyle() { }
