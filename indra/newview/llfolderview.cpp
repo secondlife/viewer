@@ -213,7 +213,7 @@ LLFolderView::LLFolderView(const Params& p)
 	LLLineEditor::Params params;
 	params.name("ren");
 	params.rect(getRect());
-	params.font(sFont);
+	params.font(getLabelFontForStyle(LLFontGL::NORMAL));
 	params.max_length_bytes(DB_INV_ITEM_NAME_STR_LEN);
 	params.commit_callback.function(boost::bind(&LLFolderView::commitRename, this, _2));
 	params.prevalidate_callback(&LLLineEditor::prevalidatePrintableNotPipe);
@@ -832,6 +832,8 @@ void LLFolderView::draw()
 			LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 	}
 
+	LLFontGL* font = getLabelFontForStyle(mLabelStyle);
+
 	// if cursor has moved off of me during drag and drop
 	// close all auto opened folders
 	if (!mDragAndDropThisFrame)
@@ -873,12 +875,12 @@ void LLFolderView::draw()
 		if (gInventory.backgroundFetchActive() || mCompletedFilterGeneration < mFilter->getMinRequiredGeneration())
 		{
 			mStatusText = LLTrans::getString("Searching");
-			sFont->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
+			font->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 		else
 		{
 			mStatusText = LLTrans::getString("InventoryNoMatchingItems");
-			sFont->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
+			font->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 	}
 
@@ -1814,7 +1816,7 @@ void LLFolderView::scrollToShowItem(LLFolderViewItem* item, const LLRect& constr
 		LLRect visible_doc_rect = mScrollContainer->getVisibleContentRect();
 		
 		S32 icon_height = mIcon.isNull() ? 0 : mIcon->getHeight(); 
-		S32 label_height = llround(sFont->getLineHeight()); 
+		S32 label_height = llround(getLabelFontForStyle(mLabelStyle)->getLineHeight()); 
 		// when navigating with keyboard, only move top of folders on screen, otherwise show whole folder
 		S32 max_height_to_show = mScrollContainer->hasFocus() ? (llmax( icon_height, label_height ) + ICON_PAD) : local_rect.getHeight(); 
 		
@@ -2123,8 +2125,10 @@ void LLFolderView::updateRenamerPosition()
 {
 	if(mRenameItem)
 	{
+		LLFontGL* font = getLabelFontForStyle(mLabelStyle);
+
 		S32 x = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD - 1 + mRenameItem->getIndentation();
-		S32 y = llfloor(mRenameItem->getRect().getHeight()-sFont->getLineHeight()-2);
+		S32 y = llfloor(mRenameItem->getRect().getHeight() - font->getLineHeight()-2);
 		mRenameItem->localPointToScreen( x, y, &x, &y );
 		screenPointToLocal( x, y, &x, &y );
 		mRenamer->setOrigin( x, y );
@@ -2136,7 +2140,7 @@ void LLFolderView::updateRenamerPosition()
 		}
 
 		S32 width = llmax(llmin(mRenameItem->getRect().getWidth() - x, scroller_rect.getWidth() - x - getRect().mLeft), MINIMUM_RENAMER_WIDTH);
-		S32 height = llfloor(sFont->getLineHeight() + RENAME_HEIGHT_PAD);
+		S32 height = llfloor(font->getLineHeight() + RENAME_HEIGHT_PAD);
 		mRenamer->reshape( width, height, TRUE );
 	}
 }

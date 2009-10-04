@@ -125,7 +125,6 @@ protected:
 
 	LLFolderViewItem(Params p = LLFolderViewItem::Params());
 
-	static const LLFontGL*		sFont;
 	static const LLFontGL*		sSmallFont;
 	static LLUIImagePtr			sArrowImage;
 	static LLUIImagePtr			sBoxImage;
@@ -168,6 +167,8 @@ protected:
 	// no-op at this leve, but reimplemented in derived classes.
 	virtual BOOL addItem(LLFolderViewItem*) { return FALSE; }
 	virtual BOOL addFolder(LLFolderViewFolder*) { return FALSE; }
+
+	static LLFontGL* getLabelFontForStyle(U8 style);
 
 public:
 	// This function clears the currently selected item, and records
@@ -322,6 +323,9 @@ public:
 		void* cargo_data,
 		EAcceptance* accept,
 		std::string& tooltip_msg);
+
+ private:
+	static std::map<U8, LLFontGL*> sFonts; // map of styles to fonts
 };
 
 
