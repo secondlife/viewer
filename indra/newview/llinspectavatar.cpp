@@ -205,7 +205,6 @@ LLInspectAvatar::~LLInspectAvatar()
 {
 	// clean up any pending requests so they don't call back into a deleted
 	// view
-	llinfos << "JAMESDEBUG cleanup inspect avatar" << llendl;
 	delete mPropertiesRequest;
 	mPropertiesRequest = NULL;
 }

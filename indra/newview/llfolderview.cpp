@@ -2176,12 +2176,6 @@ PermissionMask LLFolderView::getFilterPermissions() const
 	return mFilter->getFilterPermissions();
 }
 
-// JAMESDEBUG
-//LLInventoryFilter::EFolderShow LLFolderView::getShowFolderState()
-//{
-//	return mFilter->getShowFolderState();
-//}
-
 BOOL LLFolderView::isFilterModified()
 {
 	return mFilter->isNotDefault();

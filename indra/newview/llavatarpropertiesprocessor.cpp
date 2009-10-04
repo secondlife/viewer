@@ -51,7 +51,6 @@ LLAvatarPropertiesProcessor::LLAvatarPropertiesProcessor()
 
 LLAvatarPropertiesProcessor::~LLAvatarPropertiesProcessor()
 {
-	llinfos << "JAMESDEBUG cleanup avatar properties processor" << llendl;
 }
 
 void LLAvatarPropertiesProcessor::addObserver(const LLUUID& avatar_id, LLAvatarPropertiesObserver* observer)
