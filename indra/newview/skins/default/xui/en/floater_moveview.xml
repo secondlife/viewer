@@ -5,7 +5,7 @@
  can_minimize="false"
  center_horiz="true"
  follows="bottom"
- height="95"
+ height="110"
  layout="topleft"
  name="move_floater"
  help_topic="move_floater"
@@ -38,7 +38,7 @@
     </string>
     <panel
      border="true" 
-     height="70"
+     height="83"
      follows="left|top" 
      layout="topleft"
      left="0"
@@ -57,7 +57,7 @@
          picture_style="true"
          scale_image="false"
          tool_tip="Turn Left (press Left Arrow or A)"
-         top="35"
+         top="45"
          width="25" />
         <button
          follows="left|bottom"
@@ -83,7 +83,7 @@
          picture_style="true"
          scale_image="false"
          tool_tip="Fly Up, Press &quot;E&quot;"
-         top="4"
+         top="14"
          width="25" />
         <button
          follows="left|bottom"
@@ -130,7 +130,7 @@
 <!-- Width and height of this panel should be synchronized with panel_stand_stop_flying.xml -->
     <panel
      border="true" 
-     height="25"
+     height="27"
      layout="topleft"
      left="0"
      name="panel_modes"

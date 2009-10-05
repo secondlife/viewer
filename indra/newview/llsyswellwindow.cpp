@@ -266,10 +266,6 @@ void LLSysWellWindow::toggleWindow()
 
 	if(!getVisible())
 	{
-		if(mChannel)
-		{
-			mChannel->removeAndStoreAllStorableToasts();
-		}
 		if(isWindowEmpty())
 		{
 			return;
@@ -345,6 +341,13 @@ void LLSysWellWindow::reshapeWindow()
 	curRect.setLeftTopAndSize(curRect.mLeft, newY, MIN_WINDOW_WIDTH, new_window_height);
 	reshape(curRect.getWidth(), curRect.getHeight(), TRUE);
 	setRect(curRect);
+
+	// update notification channel state
+	// update on a window reshape is important only when a window is visible and docked
+	if(mChannel && getVisible() && isDocked())
+	{
+		mChannel->updateShowToastsState();
+	}
 }
 
 //---------------------------------------------------------------------------------

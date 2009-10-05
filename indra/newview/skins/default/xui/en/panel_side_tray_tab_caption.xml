@@ -28,7 +28,8 @@
      name="show_help"
      top="5"
      right="-8"
-     width="28">
+     width="28"
+     tool_tip="Show Help">
         <button.commit_callback
          function="Button.ShowHelp" />
     </button>
