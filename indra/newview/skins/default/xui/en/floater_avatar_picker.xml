@@ -55,14 +55,13 @@
              width="220">
                 Type part of a person&apos;s name:
             </text>
-            <text_editor
+            <line_editor
 	     bevel_style="none"
 	     border_style="line"
 	     border.border_thickness="0"
 	     commit_on_focus_lost="false"
              follows="left|top|right"
              height="23"
-             layout="topleft"
              left_delta="0"
              name="Edit"
              top_pad="0"
@@ -188,8 +187,8 @@
     <button
      follows="right|bottom"
      height="23"
-     label="Ok"
-     label_selected="Ok"
+     label="OK"
+     label_selected="OK"
      name="Select"
      top_pad="3"
      left="46"
