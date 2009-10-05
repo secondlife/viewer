@@ -189,7 +189,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 		addChild(LLUICtrlFactory::create<LLIconCtrl>(icon_params));
 
 		// move text over to fit image in
-		mTextBox->translate(TOOLTIP_ICON_SIZE,0);
+		mTextBox->translate(TOOLTIP_ICON_SIZE + mPadding, 0);
 	}
 
 	if (p.click_callback.isProvided())
