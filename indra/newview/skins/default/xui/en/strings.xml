@@ -1940,16 +1940,23 @@ this texture in your inventory
   <string name="DaysOld">[AGEDAYS] old</string>
   <string name="TodayOld">Joined today</string>
   
-  <!-- AgeYearsA = singular, AgeYearsB = plural, see logic in
-      LLTrans::getCountString() -->
+  <!-- AgeYearsA = singular,
+       AgeYearsB = plural,
+       AgeYearsC = plural for non-English languages like Russian
+       For example, LLTrans::getCountString("AgeYears", 3) is plural form B
+       in English and form C in Russian -->
   <string name="AgeYearsA">[COUNT] year</string>
   <string name="AgeYearsB">[COUNT] years</string>
+  <string name="AgeYearsC">[COUNT] years</string>
   <string name="AgeMonthsA">[COUNT] month</string>
   <string name="AgeMonthsB">[COUNT] months</string>
+  <string name="AgeMonthsC">[COUNT] months</string>
   <string name="AgeWeeksA">[COUNT] week</string>
   <string name="AgeWeeksB">[COUNT] weeks</string>
+  <string name="AgeWeeksC">[COUNT] weeks</string>
   <string name="AgeDaysA">[COUNT] day</string>
   <string name="AgeDaysB">[COUNT] days</string>
+  <string name="AgeDaysC">[COUNT] days</string>
 
   <!-- Account types, see LLAvatarPropertiesProcessor -->
   <string name="AcctTypeResident">Resident</string>
