@@ -589,6 +589,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mPriority(LLPluginClassMedia::PRIORITY_UNLOADED),
 	mDoNavigateOnLoad(false),
 	mDoNavigateOnLoadServerRequest(false),
+	mMediaSourceFailedInit(false),
 	mIsUpdated(false)
 { 
 	
@@ -703,7 +704,7 @@ void LLViewerMediaImpl::setMediaType(const std::string& media_type)
 LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height)
 {
 	std::string plugin_basename = LLMIMETypes::implType(media_type);
-
+	
 	if(plugin_basename.empty())
 	{
 		LL_WARNS("Media") << "Couldn't find plugin for media type " << media_type << LL_ENDL;
@@ -774,6 +775,9 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		return false;
 	}
 
+	// If we got here, we want to ignore previous init failures.
+	mMediaSourceFailedInit = false;
+
 	LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight);
 	
 	if (media_source)
@@ -786,6 +790,9 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		mMediaSource = media_source;
 		return true;
 	}
+
+	// Make sure the timer doesn't try re-initing this plugin repeatedly until something else changes.
+	mMediaSourceFailedInit = true;
 
 	return false;
 }
@@ -1147,7 +1154,7 @@ bool LLViewerMediaImpl::canNavigateBack()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::update()
 {
-	if(mMediaSource == NULL)
+	if(mMediaSource == NULL && !mMediaSourceFailedInit)
 	{
 		if(mPriority != LLPluginClassMedia::PRIORITY_UNLOADED)
 		{
