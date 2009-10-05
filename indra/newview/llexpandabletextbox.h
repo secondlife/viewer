@@ -54,27 +54,11 @@ protected:
 	public:
 		struct Params :	public LLInitParam::Block<Params, LLTextBox::Params>
 		{
-			Optional<LLTextBox::Params> expand_textbox;
-
-			Params();
 		};
 
-		/**
-		 * Draw text box and "More" link
-		 */
-		/*virtual*/ void draw();
-
-//		/**
-//		 * Draws simple text(no urls) line by line, will show or hide "More" link
-//		 * if needed.
-//		 */
-//		/*virtual*/ void drawText( S32 x, S32 y, const LLWString &text, const LLColor4& color );
-//
-//		/**
-//		 * Draws segmented text(with urls) line by line. Will show or hide "More" link 
-//		 * if needed
-//		 */
-//		void drawTextSegments(S32 x, S32 y, const LLWString &text);
+		// adds or removes "More" link as needed
+		/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+		/*virtual*/ void setValue(const LLSD& value);
 
 		/**
 		 * Returns difference between text box height and text height.
@@ -92,11 +76,6 @@ protected:
 		 */
 		virtual S32 getHPad() { return mHPad; }
 
-		/**
-		 * Broadcasts "commit" signal if user clicked "More" link
-		 */
-		/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-
 	protected:
 
 		LLTextBoxEx(const Params& p);
@@ -105,21 +84,16 @@ protected:
 		/**
 		 * Shows "More" link
 		 */
-		void showExpandText(S32 y);
+		void showExpandText();
 
 		/**
 		 * Hides "More" link
 		 */
 		void hideExpandText();
 
-		/**
-		 * Returns cropped line width
-		 */
-		S32 getCropTextWidth();
-
 	private:
 
-		LLTextBox* mExpandTextBox;
+		bool mExpanded;
 	};
 
 public:

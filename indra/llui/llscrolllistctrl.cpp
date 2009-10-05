@@ -1566,7 +1566,7 @@ BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 			LLToolTipMgr::instance().show(LLToolTip::Params()
 										.message(hit_cell->getValue().asString())
 										.font(LLFontGL::getFontSansSerifSmall())
-										.pos(LLCoordGL(sticky_rect.mLeft - 5, sticky_rect.mTop + 4))
+										.pos(LLCoordGL(sticky_rect.mLeft - 5, sticky_rect.mTop + 6))
 										.delay_time(0.2f)
 										.sticky_rect(sticky_rect));		
 		}

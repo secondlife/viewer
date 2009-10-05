@@ -277,10 +277,11 @@ protected:
 	
 	//  manage lines
 	S32								getLineStart( S32 line ) const;
+	S32								getLineEnd( S32 line ) const;
 	S32								getLineNumFromDocIndex( S32 doc_index, bool include_wordwrap = true) const;
 	S32								getLineOffsetFromDocIndex( S32 doc_index, bool include_wordwrap = true) const;
 	S32								getFirstVisibleLine() const;
-	std::pair<S32, S32>				getVisibleLines() const;
+	std::pair<S32, S32>				getVisibleLines(bool fully_visible = false);
 	S32								getLeftOffset(S32 width);
 	void							reflow(S32 start_index = 0);
 
@@ -344,6 +345,7 @@ protected:
 	bool						mTrackEnd;			// if true, keeps scroll position at end of document during resize
 	bool						mReadOnly;
 	bool						mClip;
+	bool						mHideScrollbar;
 	S32							mMaxTextByteLength;	// Maximum length mText is allowed to be in bytes
 
 	// support widgets

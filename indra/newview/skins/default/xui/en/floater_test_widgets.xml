@@ -316,13 +316,16 @@
    height="40"
    follows="top|left|bottom"
    layout="topleft"
-   name="test_text_editor"
+   name="test_text_box"
    tool_tip="text box"
    top_pad="5"
    width="200">
       Text box
 with
 multiple lines
+and too
+many
+line to actually fit
   </text>
   <!-- And a third column -->
   
