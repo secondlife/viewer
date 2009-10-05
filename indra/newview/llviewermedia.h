@@ -280,6 +280,7 @@ public:
 	LLPluginClassMedia::EPriority mPriority;
 	bool mDoNavigateOnLoad;
 	bool mDoNavigateOnLoadServerRequest;
+	bool mMediaSourceFailedInit;
 
 
 private:
