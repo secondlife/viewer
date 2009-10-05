@@ -82,9 +82,6 @@ private:
 	void onAccordionTabRightClick(LLView *view, S32 x, S32 y, MASK mask);
 	void onAccordionTabOpen(LLAccordionCtrlTab *tab);
 	void onAccordionTabClose(LLAccordionCtrlTab *tab);
-	void onAccordionTabRightClick(LLView *view, S32 x, S32 y, MASK mask);
-	void onAccordionTabOpen(LLAccordionCtrlTab *tab);
-	void onAccordionTabClose(LLAccordionCtrlTab *tab);
 	void showTeleportHistory();
 	void handleItemSelect(LLFlatListView* );
 	LLFlatListView* getFlatListViewFromTab(LLAccordionCtrlTab *);
