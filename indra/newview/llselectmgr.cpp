@@ -43,6 +43,7 @@
 #include "llrender.h"
 #include "llpermissions.h"
 #include "llpermissionsflags.h"
+#include "lltrans.h"
 #include "llundo.h"
 #include "lluuid.h"
 #include "llvolume.h"
@@ -66,6 +67,7 @@
 #include "llinventorymodel.h"
 #include "llmenugl.h"
 #include "llmutelist.h"
+#include "llslurl.h"
 #include "llstatusbar.h"
 #include "llsurface.h"
 #include "lltool.h"
@@ -805,11 +807,13 @@ LLObjectSelectionHandle LLSelectMgr::setHoverObject(LLViewerObject *objectp, S32
 	// NOTE: there is only ever one linked set in mHoverObjects
 	if (mHoverObjects->getFirstRootObject() != objectp) 
 	{
+
 		// Collect all of the objects
 		std::vector<LLViewerObject*> objects;
 		objectp = objectp->getRootEdit();
 		objectp->addThisAndNonJointChildren(objects);
 
+		mHoverObjects->deleteAllNodes();
 		for (std::vector<LLViewerObject*>::iterator iter = objects.begin();
 			 iter != objects.end(); ++iter)
 		{
@@ -818,7 +822,7 @@ LLObjectSelectionHandle LLSelectMgr::setHoverObject(LLViewerObject *objectp, S32
 			nodep->selectTE(face, TRUE);
 			mHoverObjects->addNodeAtEnd(nodep);
 		}
-		
+
 		requestObjectPropertiesFamily(objectp);
 	}
 
@@ -2389,6 +2393,7 @@ BOOL LLSelectMgr::selectGetCreator(LLUUID& result_id, std::string& name)
 	}
 	if (first_id.isNull())
 	{
+		name = LLTrans::getString("AvatarNameNobody");
 		return FALSE;
 	}
 	
@@ -2396,11 +2401,11 @@ BOOL LLSelectMgr::selectGetCreator(LLUUID& result_id, std::string& name)
 	
 	if (identical)
 	{
-		gCacheName->getFullName(first_id, name);
+		name = LLSLURL::buildCommand("agent", first_id, "inspect");
 	}
 	else
 	{
-		name.assign( "(multiple)" );
+		name = LLTrans::getString("AvatarNameMultiple");
 	}
 
 	return identical;
@@ -2455,20 +2460,21 @@ BOOL LLSelectMgr::selectGetOwner(LLUUID& result_id, std::string& name)
 		BOOL public_owner = (first_id.isNull() && !first_group_owned);
 		if (first_group_owned)
 		{
-			name.assign( "(Group Owned)");
+			// *TODO: We don't have group inspectors yet
+			name = LLSLURL::buildCommand("group", first_id, "about");
 		}
 		else if(!public_owner)
 		{
-			gCacheName->getFullName(first_id, name);
+			name = LLSLURL::buildCommand("agent", first_id, "inspect");
 		}
 		else
 		{
-			name.assign("Public");
+			name = LLTrans::getString("AvatarNameNobody");
 		}
 	}
 	else
 	{
-		name.assign( "(multiple)" );
+		name = LLTrans::getString("AvatarNameMultiple");
 	}
 
 	return identical;
@@ -2519,7 +2525,7 @@ BOOL LLSelectMgr::selectGetLastOwner(LLUUID& result_id, std::string& name)
 		BOOL public_owner = (first_id.isNull());
 		if(!public_owner)
 		{
-			gCacheName->getFullName(first_id, name);
+			name = LLSLURL::buildCommand("agent", first_id, "inspect");
 		}
 		else
 		{
@@ -5449,15 +5455,17 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 // Utility Functions
 //
 
-// Update everyone who cares about the selection list
+// *DEPRECATED: See header comment.
 void dialog_refresh_all()
 {
-	if (gNoRender)
-	{
-		return;
-	}
+	// This is the easiest place to fire the update signal, as it will
+	// make cleaning up the functions below easier.  Also, sometimes entities
+	// outside the selection manager change properties of selected objects
+	// and call into this function.  Yuck.
+	LLSelectMgr::getInstance()->mUpdateSignal();
 
-	//could refresh selected object info in toolbar here
+	// *TODO: Eliminate all calls into outside classes below, make those
+	// objects register with the update signal.
 
 	gFloaterTools->dirty();
 
@@ -5851,6 +5859,27 @@ void LLSelectMgr::setAgentHUDZoom(F32 target_zoom, F32 current_zoom)
 {
 	gAgent.mHUDTargetZoom = target_zoom;
 	gAgent.mHUDCurZoom = current_zoom;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// Object selection iterator helpers
+/////////////////////////////////////////////////////////////////////////////
+bool LLObjectSelection::is_root::operator()(LLSelectNode *node)
+{
+	LLViewerObject* object = node->getObject();
+	return (object != NULL) && !node->mIndividualSelection && (object->isRootEdit() || object->isJointChild());
+}
+
+bool LLObjectSelection::is_valid_root::operator()(LLSelectNode *node)
+{
+	LLViewerObject* object = node->getObject();
+	return (object != NULL) && node->mValid && !node->mIndividualSelection && (object->isRootEdit() || object->isJointChild());
+}
+
+bool LLObjectSelection::is_root_object::operator()(LLSelectNode *node)
+{
+	LLViewerObject* object = node->getObject();
+	return (object != NULL) && (object->isRootEdit() || object->isJointChild());
 }
 
 LLObjectSelection::LLObjectSelection() : 

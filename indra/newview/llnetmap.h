@@ -67,7 +67,7 @@ public:
 
 	/*virtual*/ void	draw();
 	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL	handleToolTip( S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen );
+	/*virtual*/ BOOL	handleToolTip( S32 x, S32 y, MASK mask);
 	
 	void			setScale( F32 scale );
 	void			setRotateMap( BOOL b ) { mRotateMap = b; }

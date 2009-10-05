@@ -2016,7 +2016,7 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 							// Although the spec. is unclear, replace range should
 							// not present when there is an active preedit.  We just
 							// ignore the case.  markAsPreedit will detect the case and warn it.
-							const LLWString & text = mPreeditor->getWText();
+							const LLWString & text = mPreeditor->getPreeditString();
 							const S32 location = wstring_wstring_length_from_utf16_length(text, 0, range.location);
 							const S32 length = wstring_wstring_length_from_utf16_length(text, location, range.length);
 							mPreeditor->markAsPreedit(location, length);
@@ -2214,7 +2214,7 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 					{
 						S32 preedit, preedit_length;
 						mPreeditor->getPreeditRange(&preedit, &preedit_length);
-						const LLWString & text = mPreeditor->getWText();
+						const LLWString & text = mPreeditor->getPreeditString();
 						 
 						LLCoordGL caret_coord;
 						LLRect preedit_bounds;
@@ -2251,7 +2251,7 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 						mPreeditor->getSelectionRange(&selection, &selection_length);
 						if (selection_length)
 						{
-							const LLWString text = mPreeditor->getWText().substr(selection, selection_length);
+							const LLWString text = mPreeditor->getPreeditString().substr(selection, selection_length);
 							const llutf16string text_utf16 = wstring_to_utf16str(text);
 							result = SetEventParameter(event, kEventParamTextInputReplyText, typeUnicodeText,
 										text_utf16.length() * sizeof(U16), text_utf16.c_str());
@@ -2637,7 +2637,7 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 
 					S32 preedit, preedit_length;
 					mPreeditor->getPreeditRange(&preedit, &preedit_length);
-					const LLWString & text = mPreeditor->getWText();
+					const LLWString & text = mPreeditor->getPreeditString();
 					const CFIndex length = wstring_utf16_length(text, 0, preedit)
 						+ wstring_utf16_length(text, preedit + preedit_length, text.length());
 					result = SetEventParameter(event, kEventParamTSMDocAccessCharacterCount, typeCFIndex, sizeof(length), &length);
@@ -2654,7 +2654,7 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 
 					S32 preedit, preedit_length;
 					mPreeditor->getPreeditRange(&preedit, &preedit_length);
-					const LLWString & text = mPreeditor->getWText();
+					const LLWString & text = mPreeditor->getPreeditString();
 					
 					CFRange range;
 					if (preedit_length)
@@ -2688,7 +2688,7 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 					{
 						S32 preedit, preedit_length;
 						mPreeditor->getPreeditRange(&preedit, &preedit_length);
-						const LLWString & text = mPreeditor->getWText();
+						const LLWString & text = mPreeditor->getPreeditString();
 
 						// The GetCharacters event of TSMDA has a fundamental flaw;
 						// An input method need to decide the starting offset and length

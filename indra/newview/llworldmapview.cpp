@@ -1181,7 +1181,7 @@ LLVector3d LLWorldMapView::viewPosToGlobal( S32 x, S32 y )
 }
 
 
-BOOL LLWorldMapView::handleToolTip( S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen )
+BOOL LLWorldMapView::handleToolTip( S32 x, S32 y, MASK mask )
 {
 	LLVector3d pos_global = viewPosToGlobal(x, y);
 
@@ -1236,9 +1236,10 @@ BOOL LLWorldMapView::handleToolTip( S32 x, S32 y, std::string& msg, LLRect& stic
 		S32 screen_x, screen_y;
 
 		localPointToScreen(x, y, &screen_x, &screen_y);
+		LLRect sticky_rect_screen;
 		sticky_rect_screen.setCenterAndSize(screen_x, screen_y, SLOP, SLOP);
 
-		LLToolTipMgr::instance().show(LLToolTipParams()
+		LLToolTipMgr::instance().show(LLToolTip::Params()
 			.message(tooltip_msg)
 			.sticky_rect(sticky_rect_screen));
 	}

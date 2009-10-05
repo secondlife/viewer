@@ -74,7 +74,7 @@ public:
 	void			setTitleVisible(BOOL visible);
 
 	virtual void	setTitle( const std::string& title ) = 0;
-	virtual const std::string&	getTitle() const = 0;
+	virtual std::string	getTitle() const = 0;
 
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
@@ -112,7 +112,7 @@ protected:
 	friend class LLUICtrlFactory;
 public:
 	virtual void	setTitle( const std::string& title );
-	virtual const std::string& getTitle() const;
+	virtual std::string getTitle() const;
 	virtual void	draw();
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
@@ -130,7 +130,7 @@ protected:
 	friend class LLUICtrlFactory;
 public:
 	virtual void	setTitle( const std::string& title );
-	virtual const std::string& getTitle() const;
+	virtual std::string getTitle() const;
 	virtual void	draw();
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 

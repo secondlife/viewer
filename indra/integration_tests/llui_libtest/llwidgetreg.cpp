@@ -37,6 +37,7 @@
 #include "llcombobox.h"
 #include "llcontainerview.h"
 #include "lliconctrl.h"
+#include "llmenubutton.h"
 #include "llmenugl.h"
 #include "llmultislider.h"
 #include "llmultisliderctrl.h"
@@ -64,6 +65,7 @@ void LLWidgetReg::initClass(bool register_widgets)
 	if (register_widgets)
 	{
 		LLDefaultChildRegistry::Register<LLButton> button("button");
+		LLDefaultChildRegistry::Register<LLMenuButton> menu_button("menu_button");
 		LLDefaultChildRegistry::Register<LLCheckBoxCtrl> check_box("check_box");
 		LLDefaultChildRegistry::Register<LLComboBox> combo_box("combo_box");
 		LLDefaultChildRegistry::Register<LLFilterEditor> filter_editor("filter_editor");

@@ -213,7 +213,7 @@ void LLScreenChannel::deleteToast(LLToast* toast)
 	toast->mOnDeleteToastSignal(toast);
 	
 	// update channel's Hovering state
-	// turning hovering off mannualy because onMouseLeave won't happen if a toast was closed using a keyboard
+	// turning hovering off manually because onMouseLeave won't happen if a toast was closed using a keyboard
 	if(toast->hasFocus())
 		setHovering(false);
 
@@ -372,7 +372,8 @@ void LLScreenChannel::redrawToasts()
 void LLScreenChannel::showToastsBottom()
 {
 	LLRect	toast_rect;	
-	S32		bottom = getRect().mBottom;
+	S32		bottom = getRect().mBottom - gFloaterView->getRect().mBottom;
+	S32		toast_margin = 0;
 	std::vector<ToastElem>::reverse_iterator it;
 
 	for(it = mToastList.rbegin(); it != mToastList.rend(); ++it)
@@ -380,19 +381,20 @@ void LLScreenChannel::showToastsBottom()
 		if(it != mToastList.rbegin())
 		{
 			bottom = (*(it-1)).toast->getRect().mTop;
+			toast_margin = gSavedSettings.getS32("ToastMargin");
 		}
 
 		toast_rect = (*it).toast->getRect();
-		toast_rect.setLeftTopAndSize(getRect().mLeft, bottom + toast_rect.getHeight()+gSavedSettings.getS32("ToastMargin"), toast_rect.getWidth() ,toast_rect.getHeight());
+		toast_rect.setOriginAndSize(getRect().mLeft, bottom + toast_margin, toast_rect.getWidth() ,toast_rect.getHeight());
 		(*it).toast->setRect(toast_rect);
 
-		bool stop_showing_toasts = (*it).toast->getRect().mTop > getRect().getHeight();
+		bool stop_showing_toasts = (*it).toast->getRect().mTop > getRect().mTop;
 
 		if(!stop_showing_toasts)
 		{
 			if( it != mToastList.rend()-1)
 			{
-				stop_showing_toasts = ((*it).toast->getRect().mTop + gSavedSettings.getS32("OverflowToastHeight") + gSavedSettings.getS32("ToastMargin")) > getRect().getHeight();
+				stop_showing_toasts = ((*it).toast->getRect().mTop + gSavedSettings.getS32("OverflowToastHeight") + gSavedSettings.getS32("ToastMargin")) > getRect().mTop;
 			}
 		} 
 
@@ -477,6 +479,28 @@ void LLScreenChannel::createOverflowToast(S32 bottom, F32 timer)
 void LLScreenChannel::onOverflowToastHide()
 {
 	mOverflowToastHidden = true;
+
+	// remove all hidden toasts from channel and save interactive notifications
+	for(std::vector<ToastElem>::iterator it = mToastList.begin(); it != mToastList.end();)
+	{
+		if(!(*it).toast->getVisible())
+		{
+			if((*it).toast->getCanBeStored())
+			{
+				storeToast((*it));
+			}
+			else
+			{
+				deleteToast((*it).toast);
+			}
+
+			it = mToastList.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -583,9 +607,7 @@ void LLScreenChannel::removeAndStoreAllStorableToasts()
 	{
 		if((*it).toast->getCanBeStored())
 		{
-			mStoredToastList.push_back(*it);
-			mOnStoreToast((*it).toast->getPanel(), (*it).id);
-			(*it).toast->stopTimer();
+			storeToast(*(it));
 			it = mToastList.erase(it);
 		}
 		else
@@ -664,14 +686,30 @@ void LLScreenChannel::updateShowToastsState()
 		return;
 	}
 
-	if(dynamic_cast<LLIMFloater*>(floater) || dynamic_cast<LLSysWellWindow*>(floater))
+	// for IM floaters showed in a docked state - prohibit showing of ani toast
+	if(dynamic_cast<LLIMFloater*>(floater))
 	{
 		setShowToasts(!(floater->getVisible() && floater->isDocked()));
 		if (!getShowToasts())
 		{
 			removeAndStoreAllStorableToasts();
 		}
-		
+	}
+
+	// for Message Well floater showed in a docked state - adjust channel's height
+	if(dynamic_cast<LLSysWellWindow*>(floater))
+	{
+		S32 channel_bottom = gViewerWindow->getWorldViewRect().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");;
+		LLRect this_rect = getRect();
+		if(floater->getVisible() && floater->isDocked())
+		{
+			channel_bottom += (floater->getRect().getHeight() + gSavedSettings.getS32("ToastMargin"));
+		}
+
+		if(channel_bottom != this_rect.mBottom)
+		{
+			setRect(LLRect(this_rect.mLeft, this_rect.mTop, this_rect.mRight, channel_bottom));
+		}
 	}
 }
 

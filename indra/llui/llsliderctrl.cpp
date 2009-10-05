@@ -83,7 +83,7 @@ LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)
 		LLTextBox::Params params(p.slider_label);
 		params.rect.setIfNotProvided(label_rect);
 		params.font.setIfNotProvided(p.font);
-		params.text(p.label);
+		params.initial_value(p.label());
 		mLabelBox = LLUICtrlFactory::create<LLTextBox> (params);
 		addChild(mLabelBox);
 	}

@@ -34,7 +34,9 @@
 #ifndef LL_LLLAYOUTSTACK_H
 #define LL_LLLAYOUTSTACK_H
 
-#include "llpanel.h"
+#include "llview.h"
+
+class LLPanel;
 
 class LLLayoutStack : public LLView
 {

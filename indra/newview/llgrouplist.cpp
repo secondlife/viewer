@@ -301,13 +301,22 @@ void LLGroupListItem::setGroupIconVisible(bool visible)
 void LLGroupListItem::setActive(bool active)
 {
 	// Active group should be bold.
-	LLFontDescriptor new_desc(mGroupNameBox->getFont()->getFontDesc());
+	LLFontDescriptor new_desc(mGroupNameBox->getDefaultFont()->getFontDesc());
 
 	// *NOTE dzaporozhan
 	// On Windows LLFontGL::NORMAL will not remove LLFontGL::BOLD if font 
 	// is predefined as bold (SansSerifSmallBold, for example)
 	new_desc.setStyle(active ? LLFontGL::BOLD : LLFontGL::NORMAL);
-	mGroupNameBox->setFont(LLFontGL::getFont(new_desc));
+	LLFontGL* new_font = LLFontGL::getFont(new_desc);
+	LLStyle::Params style_params;
+	style_params.font = new_font;
+
+	// *NOTE: You cannot set the style on a text box anymore, you must
+	// rebuild the text.  This will cause problems if the text contains
+	// hyperlinks, as their styles will be wrong.
+	std::string text = mGroupNameBox->getText();
+	mGroupNameBox->clear();
+	mGroupNameBox->appendText(text, false, style_params);
 }
 
 void LLGroupListItem::onInfoBtnClick()

@@ -110,14 +110,19 @@ public:
 	static void refreshAll(const LLUUID& id, const std::string& firstname,
 						   const std::string& lastname, BOOL is_group);
 
-	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
+	// LLView interface
+	/*virtual*/ BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask,
 									  BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
 									  EAcceptance *accept,
 									  std::string& tooltip_msg);
+	/*virtual*/ BOOL handleToolTip(S32 x, S32 y, MASK mask);
 
 	void setAllowCallingCardDrop(BOOL b) { mAllowCallingCardDrop = b; }
 
 	/*virtual*/ void updateColumns();
+private:
+	void showAvatarInspector(const LLUUID& avatar_id);
+
 private:
 	S32    			mNameColumnIndex;
 	std::string		mNameColumn;

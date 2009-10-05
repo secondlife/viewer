@@ -517,4 +517,109 @@
 	<string name="GraphicsQualityHigh">
 		Élevé
 	</string>
+	
+	<!-- PARCEL_CATEGORY_UI_STRING -->
+	<string name="Linden Location">Appartenant aux Lindens</string>
+	<string name="Adult">Adult</string>
+	<string name="Arts&amp;Culture">Art et Culture</string>
+	<string name="Business">Affaires</string>
+	<string name="Educational">Éducation</string>
+	<string name="Gaming">Jeux</string>
+	<string name="Hangout">Favoris</string>
+	<string name="Newcomer Friendly">Accueil pour les nouveaux</string>
+	<string name="Parks&amp;Nature">Parcs et Nature</string>
+	<string name="Residential">Résidentiel</string>
+	<string name="Shopping">Shopping</string>
+	<string name="Other">Autre</string>
+	
+	<string name="ringing">
+		Connexion au chat vocal du Monde en cours…
+	</string>
+	<string name="connected">
+		Connecté(e)
+	</string>
+	<string name="unavailable">
+		Voix non disponible à l&apos;endroit où vous êtes
+	</string>
+	<string name="hang_up">
+		Déconnecté du chat vocal
+	</string>
+	<string name="ScriptQuestionCautionChatGranted">
+		&apos;[OBJECTNAME]&apos;, un objet appartenant à [OWNERNAME], situé dans [REGIONNAME] à [REGIONPOS], a reçu le droit de : [PERMISSIONS].
+	</string>
+	<string name="ScriptQuestionCautionChatDenied">
+		&apos;[OBJECTNAME]&apos;, un objet appartenant à [OWNERNAME], situé dans [REGIONNAME] à [REGIONPOS], n&apos;a pas reçu le droit de : [PERMISSIONS].
+	</string>
+	<string name="ScriptTakeMoney">
+		Débiter vos Linden dollars (L$)
+	</string>
+	<string name="ActOnControlInputs">
+		Utiliser vos touches de commandes
+	</string>
+	<string name="RemapControlInputs">
+		Reconfigurer vos touches de commandes
+	</string>
+	<string name="AnimateYourAvatar">
+		Animer votre avatar
+	</string>
+	<string name="AttachToYourAvatar">
+		Attacher à votre avatar
+	</string>
+	<string name="ReleaseOwnership">
+		Passer l&apos;objet dans le domaine public (sans propriétaire)
+	</string>
+	<string name="LinkAndDelink">
+		Lier et délier d&apos;autres objets
+	</string>
+	<string name="AddAndRemoveJoints">
+		Créer et supprimer des liens avec d&apos;autres objets
+	</string>
+	<string name="ChangePermissions">
+		Modifier ses droits
+	</string>
+	<string name="TrackYourCamera">
+		Suivre votre caméra
+	</string>
+	<string name="ControlYourCamera">
+		Contrôler votre caméra
+	</string>
+	<text name="only_user_message">
+		Vous êtes le seul participant à cette session.
+	</text>
+	<text name="offline_message">
+		[FIRST] [LAST] est déconnecté(e).
+	</text>
+	<string name="invite_message">
+		Pour accepter ce chat vocal/vous connecter, cliquez sur le bouton [BUTTON NAME].
+	</string>
+	<string name="generic_request_error">
+		Erreur lors de la requête, veuillez réessayer ultérieurement.
+	</string>
+	<string name="insufficient_perms_error">
+		Vous n&apos;avez pas les droits requis.
+	</string>
+	<string name="session_does_not_exist_error">
+		La session a expiré
+	</string>
+	<string name="no_ability_error">
+		Vous n&apos;avez pas ce pouvoir.
+	</string>
+	<string name="not_a_mod_error">
+		Vous n&apos;êtes pas modérateur de session.
+	</string>
+	<string name="muted_error">
+		Un modérateur de groupe a désactivé votre chat écrit.
+	</string>
+	<string name="add_session_event">
+		Impossible d&apos;ajouter des participants à la session de chat avec [RECIPIENT].
+	</string>
+	<string name="message_session_event">
+		Impossible d&apos;envoyer votre message à la session de chat avec [RECIPIENT].
+	</string>
+	<string name="removed_from_group">
+		Vous avez été supprimé du groupe.
+	</string>
+	<string name="close_on_no_ability">
+		Vous ne pouvez plus participer à la session de chat.
+	</string>
 </strings>

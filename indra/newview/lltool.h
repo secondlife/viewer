@@ -66,7 +66,7 @@ public:
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen);
+	virtual BOOL	handleToolTip(S32 x, S32 y, MASK mask);
 
 		// Return FALSE to allow context menu to be shown.
 	virtual void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const
@@ -74,7 +74,7 @@ public:
 	virtual void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const
 							{ *screen_x = local_x; *screen_y = local_y;	}
 
-	virtual const std::string& getName() const	{ return mName; }
+	virtual std::string getName() const	{ return mName; }
 
 	// New virtual functions
 	virtual LLViewerObject*	getEditingObject()		{ return NULL; }

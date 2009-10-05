@@ -106,6 +106,14 @@ std::string LLSLURL::buildSLURL(const std::string& regionname, S32 x, S32 y, S32
 }
 
 // static
+std::string LLSLURL::buildCommand(const char* noun, const LLUUID& id, const char* verb)
+{
+	std::string slurl = llformat("secondlife:///app/%s/%s/%s",
+		noun, id.asString().c_str(), verb);
+	return slurl;
+}
+
+// static
 std::string LLSLURL::buildUnescapedSLURL(const std::string& regionname, S32 x, S32 y, S32 z)
 {
 	std::string unescapedslurl = PREFIX_SLURL + regionname + llformat("/%d/%d/%d",x,y,z);

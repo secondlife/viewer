@@ -603,7 +603,7 @@ L$が不足しているのでこのグループに参加することができま
 	<notification name="PromptGoToCurrencyPage">
 		[EXTRA]
 
-[URL]に移動して貨幣購入に関する情報を確認しますか？
+[_URL]に移動して貨幣購入に関する情報を確認しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="UnableToLinkObjects">
@@ -845,7 +845,6 @@ L$が不足しているのでこのグループに参加することができま
 	<notification name="CannotDeedLandNoRegion">
 		土地を譲渡できません：
 この土地がある地域が見つかりません。
-「ツール」＞「バグを報告する」を使って報告してください。
 	</notification>
 	<notification name="CannotDeedLandMultipleSelected">
 		土地を譲渡できません：
@@ -891,8 +890,6 @@ L$が不足しているのでこのグループに参加することができま
 	<notification name="CannotReleaseLandRegionNotFound">
 		土地を破棄できません：
 この土地がある地域が見つかりません。
-
-「ツール」＞「バグを報告する」を使って報告してください。
 	</notification>
 	<notification name="CannotReleaseLandNoTransfer">
 		土地を破棄できません：
@@ -933,14 +930,10 @@ L$は返金されません。
 	<notification name="CannotDivideLandNoRegion">
 		土地を分割できません：
 この土地がある地域が見つかりません。
-
-「ツール」＞「バグを報告する」を使って報告してください。
 	</notification>
 	<notification name="CannotJoinLandNoRegion">
 		土地を統合できません：
 この土地がある地域が見つかりません。
-
-「ツール」＞「バグを報告する」を使って報告してください。
 	</notification>
 	<notification name="CannotJoinLandNothingSelected">
 		土地を統合できませんでした：
@@ -1003,8 +996,6 @@ L$は返金されません。
 		[NAME]を中央資産格納庫に保存できません。
 これは一時的な不具合です。
 服飾品などをカスタマイズし、数分後にもう一度保存してください。
-
-この問題が続くようなら、「ツール」＞「バグを報告する」をクリックし、お使いのネットワーク設定の詳細を報告してください。
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
 		あなたは[SECOND_LIFE]からログアウトされました。
@@ -1364,10 +1355,6 @@ F1キーを押してください。
 	<notification name="WebLaunchJoinNow">
 		www.secondlife.comに移動してアカウントを管理しますか？
 		<usetemplate ignoretext="アカウントを管理するため、ウェブ・ブラウザを起動するとき" name="okcancelignore" notext="取り消し" yestext="OK"/>
-	</notification>
-	<notification name="WebLaunchBugReport101">
-		[SECOND_LIFE]Wikiで、バグを報告する正しい方法をご覧ください。
-		<usetemplate ignoretext="バグレポート101 Wikiを閲覧するためのブラウザを開くにあたって" name="okcancelignore" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchSecurityIssues">
 		[SECOND_LIFE] Wikiで、
@@ -2180,25 +2167,9 @@ http://secondlife.com/support/incidentreport.php
 Linden Lab 社だけが[SECOND_LIFE] 全域における
 アクセス制限権を持っています。
 	</notification>
-	<notification name="HelpReportBug">
-		このツールは、説明どおりに動作しないなどのテクニカルなフィーチャーのレポートのみに使用してください。
-できるだけ詳しい情報を提供してください。
-自動返答メールに、より詳しい情報を付け加えて返信することもできます。
-バグレポートは全て調査され解決されます。これによってEメールで返答が送られてくることはありません。
--
-テクニカルな問題が生じた場合は、
-次のサポートに連絡してください：
-http://secondlife.com/community/support.php
--
-注意：未完成の報告は調査されません。
-	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		嫌がらせ報告のカテゴリを選択してください。
 カテゴリを選択することにより、嫌がらせ報告の処理や保管に大変役立ちます。
-	</notification>
-	<notification name="HelpReportBugSelectCategory">
-		バグのカテゴリを選択してください。
-カテゴリを選択することにより、バグ報告の処理や保管に大変役立ちます。
 	</notification>
 	<notification name="HelpReportAbuseAbuserNameEmpty">
 		嫌がらせ行為をした人の名前を入力してください。
@@ -2213,22 +2184,12 @@ http://secondlife.com/community/support.php
 正確な概要の入力により、
 嫌がらせ報告の処理や保管に大変役立ちます。
 	</notification>
-	<notification name="HelpReportBugSummaryEmpty">
-		バグの概要を入力してください。
-正確な概要の入力により、バグ報告の処理や保管に大変役立ちます。
-	</notification>
 	<notification name="HelpReportAbuseDetailsEmpty">
 		嫌がらせの詳細な説明を入力してください。
 名前や嫌がらせの詳細を、できるだけ具体的に入力してください。
 
 正確な説明の入力により、
 嫌がらせ報告の処理や保管に大変役立ちます。
-	</notification>
-	<notification name="HelpReportBugDetailsEmpty">
-		バグの詳細な説明を入力してください。
-バグがどのような条件で再現するかなどを、できるだけ具体的に入力してください。
-
-正確な説明の入力により、バグ報告の処理や保管に大変役立ちます。
 	</notification>
 	<notification name="HelpReportAbuseContainsCopyright">
 		住人の皆様へ、

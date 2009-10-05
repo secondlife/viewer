@@ -24,8 +24,16 @@
 #include "../llurlentry.h"
 #include "llurlentry_stub.cpp"
 #include "lltut.h"
+#include "../lluicolortable.h"
 
 #include <boost/regex.hpp>
+
+LLUIColor LLUIColorTable::getColor(const std::string& name, const LLColor4& default_color) const
+{
+	return LLUIColor();
+}
+
+LLUIColor::LLUIColor() {}
 
 namespace tut
 {
@@ -276,6 +284,11 @@ namespace tut
 		testRegex("Agent Url multicase", r,
 				  "XXX secondlife:///App/AGENT/0E346D8B-4433-4d66-a6b0-fd37083abc4c/About XXX",
 				  "secondlife:///App/AGENT/0E346D8B-4433-4d66-a6b0-fd37083abc4c/About");
+
+		testRegex("Agent Url alternate command", r,
+				  "XXX secondlife:///App/AGENT/0E346D8B-4433-4d66-a6b0-fd37083abc4c/foobar",
+				  "secondlife:///App/AGENT/0E346D8B-4433-4d66-a6b0-fd37083abc4c/foobar");
+
 	}
 
 	template<> template<>

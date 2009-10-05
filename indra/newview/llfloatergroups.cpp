@@ -372,7 +372,7 @@ void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 pow
 			element["id"] = id;
 			element["columns"][0]["column"] = "name";
 			element["columns"][0]["value"] = group_datap->mName;
-			element["columns"][0]["font"] = "SANSSERIF";
+			element["columns"][0]["font"]["name"] = "SANSSERIF";
 			element["columns"][0]["font"]["style"] = style;
 
 			group_list->addElement(element, ADD_SORTED);
@@ -390,7 +390,7 @@ void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 pow
 		element["id"] = LLUUID::null;
 		element["columns"][0]["column"] = "name";
 		element["columns"][0]["value"] = LLTrans::getString("GroupsNone");
-		element["columns"][0]["font"] = "SANSSERIF";
+		element["columns"][0]["font"]["name"] = "SANSSERIF";
 		element["columns"][0]["font"]["style"] = style;
 
 		group_list->addElement(element, ADD_TOP);

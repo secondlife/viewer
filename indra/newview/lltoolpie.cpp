@@ -70,9 +70,6 @@
 #include "llworld.h"
 #include "llui.h"
 #include "llweb.h"
-#include "llinspectavatar.h"
-
-extern void handle_buy(void*);
 
 extern BOOL gDebugClicks;
 
@@ -212,7 +209,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 		case CLICK_ACTION_SIT:
 			if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // agent not already sitting
 			{
-				handle_sit_or_stand();
+				handle_object_sit_or_stand();
 				// put focus in world when sitting on an object
 				gFocusMgr.setKeyboardFocus(NULL);
 				return TRUE;
@@ -456,7 +453,7 @@ void LLToolPie::selectionPropertiesReceived()
 			switch (click_action)
 			{
 			case CLICK_ACTION_BUY:
-				handle_buy(NULL);
+				handle_buy();
 				break;
 			case CLICK_ACTION_PAY:
 				handle_give_money_dialog();
@@ -586,10 +583,39 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 	return FALSE;
 }
 
-//FIXME - RN: get this in LLToolSelectLand too or share some other way?
-const char* DEFAULT_DESC = "(No Description)";
+static bool needs_tooltip(LLSelectNode* nodep)
+{
+	LLViewerObject* object = nodep->getObject();
+	LLViewerObject *parent = (LLViewerObject *)object->getParent();
+	if (object->flagHandleTouch()
+		|| (parent && parent->flagHandleTouch())
+		|| object->flagTakesMoney()
+		|| (parent && parent->flagTakesMoney())
+		|| object->flagAllowInventoryAdd()
+		)
+	{
+		return true;
+	}
 
-BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, std::string& msg, LLRect& sticky_rect_screen)
+	U8 click_action = final_click_action(object);
+	if (click_action != 0)
+	{
+		return true;
+	}
+
+	if (nodep->mValid)
+	{
+		bool anyone_copy = anyone_copy_selection(nodep);
+		bool for_sale = for_sale_selection(nodep);
+		if (anyone_copy || for_sale)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 {
 	if (!LLUI::sSettingGroups["config"]->getBOOL("ShowHoverTips")) return TRUE;
 	if (!mHoverPick.isValid()) return TRUE;
@@ -636,8 +662,11 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, std::string& msg, LLRect
 		line.clear();
 		if (hover_object->isAvatar())
 		{
-			// only show tooltip if inspector not already open
-			if (!LLFloaterReg::instanceVisible("inspect_avatar"))
+			// only show tooltip if same inspector not already open
+			LLFloater* existing_inspector = LLFloaterReg::findInstance("inspect_avatar");
+			if (!existing_inspector 
+				|| !existing_inspector->getVisible()
+				|| existing_inspector->getKey()["avatar_id"].asUUID() != hover_object->getID())
 			{
 				std::string avatar_name;
 				LLNameValue* firstname = hover_object->getNVPair("FirstName");
@@ -650,12 +679,15 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, std::string& msg, LLRect
 				{
 					avatar_name = LLTrans::getString("TooltipPerson");
 				}
-				LLToolTipParams params;
-				params.message(avatar_name);
-				params.image.name("Info");
-				params.sticky_rect(gViewerWindow->getVirtualWorldViewRect());
-				params.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
-				LLToolTipMgr::instance().show(params);
+
+				// *HACK: We may select this object, so pretend it was clicked
+				mPick = mHoverPick;
+				LLToolTipMgr::instance().show(LLToolTip::Params()
+					.message(avatar_name)
+					.image(LLUI::getUIImage("Info"))
+					.click_callback(boost::bind(showAvatarInspector, hover_object->getID()))
+					.visible_time_near(6.f)
+					.visible_time_far(3.f));
 			}
 		}
 		else
@@ -667,177 +699,38 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, std::string& msg, LLRect
 			//
 			//  Default prefs will suppress display unless the object is interactive
 			//
-			BOOL suppressObjectHoverDisplay = !gSavedSettings.getBOOL("ShowAllObjectHoverTip");			
-			
+			bool show_all_object_tips =
+				(bool)gSavedSettings.getBOOL("ShowAllObjectHoverTip");			
 			LLSelectNode *nodep = LLSelectMgr::getInstance()->getHoverNode();
-			if (nodep)
+			
+			// only show tooltip if same inspector not already open
+			LLFloater* existing_inspector = LLFloaterReg::findInstance("inspect_object");
+			if (nodep &&
+				(!existing_inspector 
+					|| !existing_inspector->getVisible()
+					|| existing_inspector->getKey()["object_id"].asUUID() != hover_object->getID()))
 			{
-				line.clear();
 				if (nodep->mName.empty())
 				{
-					line.append(LLTrans::getString("TooltipNoName"));
+					tooltip_msg.append(LLTrans::getString("TooltipNoName"));
 				}
 				else
 				{
-					line.append( nodep->mName );
-				}
-				tooltip_msg.append(line);
-				tooltip_msg.push_back('\n');
-
-				if (!nodep->mDescription.empty()
-					&& nodep->mDescription != DEFAULT_DESC)
-				{
-					tooltip_msg.append( nodep->mDescription );
-					tooltip_msg.push_back('\n');
+					tooltip_msg.append( nodep->mName );
 				}
 
-				// Line: "Owner: James Linden"
-				line.clear();
-				line.append(LLTrans::getString("TooltipOwner") + " ");
+				bool needs_tip = needs_tooltip(nodep);
 
-				if (nodep->mValid)
+				if (show_all_object_tips || needs_tip)
 				{
-					LLUUID owner;
-					std::string name;
-					if (!nodep->mPermissions->isGroupOwned())
-					{
-						owner = nodep->mPermissions->getOwner();
-						if (LLUUID::null == owner)
-						{
-							line.append(LLTrans::getString("TooltipPublic"));
-						}
-						else if(gCacheName->getFullName(owner, name))
-						{
-							line.append(name);
-						}
-						else
-						{
-							line.append(LLTrans::getString("RetrievingData"));
-						}
-					}
-					else
-					{
-						std::string name;
-						owner = nodep->mPermissions->getGroup();
-						if (gCacheName->getGroupName(owner, name))
-						{
-							line.append(name);
-							line.append(LLTrans::getString("TooltipIsGroup"));
-						}
-						else
-						{
-							line.append(LLTrans::getString("RetrievingData"));
-						}
-					}
-				}
-				else
-				{
-					line.append(LLTrans::getString("RetrievingData"));
-				}
-				tooltip_msg.append(line);
-				tooltip_msg.push_back('\n');
-
-				// Build a line describing any special properties of this object.
-				LLViewerObject *object = hover_object;
-				LLViewerObject *parent = (LLViewerObject *)object->getParent();
-
-				if (object &&
-					(object->usePhysics() ||
-					 object->flagScripted() || 
-					 object->flagHandleTouch() || (parent && parent->flagHandleTouch()) ||
-					 object->flagTakesMoney() || (parent && parent->flagTakesMoney()) ||
-					 object->flagAllowInventoryAdd() ||
-					 object->flagTemporary() ||
-					 object->flagPhantom()) )
-				{
-					line.clear();
-					if (object->flagScripted())
-					{
-						line.append(LLTrans::getString("TooltipFlagScript") + " ");
-					}
-
-					if (object->usePhysics())
-					{
-						line.append(LLTrans::getString("TooltipFlagPhysics") + " ");
-					}
-
-					if (object->flagHandleTouch() || (parent && parent->flagHandleTouch()) )
-					{
-						line.append(LLTrans::getString("TooltipFlagTouch") + " ");
-						suppressObjectHoverDisplay = FALSE;		//  Show tip
-					}
-
-					if (object->flagTakesMoney() || (parent && parent->flagTakesMoney()) )
-					{
-						line.append(LLTrans::getString("TooltipFlagL$") + " ");
-						suppressObjectHoverDisplay = FALSE;		//  Show tip
-					}
-
-					if (object->flagAllowInventoryAdd())
-					{
-						line.append(LLTrans::getString("TooltipFlagDropInventory") + " ");
-						suppressObjectHoverDisplay = FALSE;		//  Show tip
-					}
-
-					if (object->flagPhantom())
-					{
-						line.append(LLTrans::getString("TooltipFlagPhantom") + " ");
-					}
-
-					if (object->flagTemporary())
-					{
-						line.append(LLTrans::getString("TooltipFlagTemporary") + " ");
-					}
-
-					if (object->usePhysics() || 
-						object->flagHandleTouch() ||
-						(parent && parent->flagHandleTouch()) )
-					{
-						line.append(LLTrans::getString("TooltipFlagRightClickMenu") + " ");
-					}
-					tooltip_msg.append(line);
-					tooltip_msg.push_back('\n');
-				}
-
-				// Free to copy / For Sale: L$
-				line.clear();
-				if (nodep->mValid)
-				{
-					BOOL for_copy = nodep->mPermissions->getMaskEveryone() & PERM_COPY && object->permCopy();
-					BOOL for_sale = nodep->mSaleInfo.isForSale() &&
-									nodep->mPermissions->getMaskOwner() & PERM_TRANSFER &&
-									(nodep->mPermissions->getMaskOwner() & PERM_COPY ||
-									 nodep->mSaleInfo.getSaleType() != LLSaleInfo::FS_COPY);
-					if (for_copy)
-					{
-						line.append(LLTrans::getString("TooltipFreeToCopy"));
-						suppressObjectHoverDisplay = FALSE;		//  Show tip
-					}
-					else if (for_sale)
-					{
-						LLStringUtil::format_map_t args;
-						args["[AMOUNT]"] = llformat("%d", nodep->mSaleInfo.getSalePrice());
-						line.append(LLTrans::getString("TooltipForSaleL$", args));
-						suppressObjectHoverDisplay = FALSE;		//  Show tip
-					}
-					else
-					{
-						// Nothing if not for sale
-						// line.append("Not for sale");
-					}
-				}
-				else
-				{
-					LLStringUtil::format_map_t args;
-					args["[MESSAGE]"] = LLTrans::getString("RetrievingData");
-					line.append(LLTrans::getString("TooltipForSaleMsg", args));
-				}
-				tooltip_msg.append(line);
-				tooltip_msg.push_back('\n');
-
-				if (!suppressObjectHoverDisplay)
-				{
-					LLToolTipMgr::instance().show(tooltip_msg);
+					// We may select this object, so pretend it was clicked
+					mPick = mHoverPick;
+					LLToolTipMgr::instance().show(LLToolTip::Params()
+						.message(tooltip_msg)
+						.image(LLUI::getUIImage("Info"))
+						.click_callback(boost::bind(showObjectInspector, hover_object->getID()))
+						.visible_time_near(6.f)
+						.visible_time_far(3.f));
 				}
 			}
 		}
@@ -990,18 +883,23 @@ BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, std::string& msg, LLRect
 			tooltip_msg.append(line);
 			tooltip_msg.push_back('\n');
 		}
-		LLToolTipMgr::instance().show(tooltip_msg);
+
+		// trim last newlines
+		if (!tooltip_msg.empty())
+		{
+			tooltip_msg.erase(tooltip_msg.size() - 1);
+			LLToolTipMgr::instance().show(tooltip_msg);
+		}
 	}
 
 
 	return TRUE;
 }
 
-// static
-void LLToolPie::showAvatarInspector(const LLUUID& avatar_id)
+static void show_inspector(const char* inspector, const char* param, const LLUUID& source_id)
 {
 	LLSD params;
-	params["avatar_id"] = avatar_id;
+	params[param] = source_id;
 	if (LLToolTipMgr::instance().toolTipVisible())
 	{
 		LLRect rect = LLToolTipMgr::instance().getToolTipRect();
@@ -1009,7 +907,19 @@ void LLToolPie::showAvatarInspector(const LLUUID& avatar_id)
 		params["pos"]["y"] = rect.mTop;
 	}
 
-	LLFloaterReg::showInstance("inspect_avatar", params);
+	LLFloaterReg::showInstance(inspector, params);
+}
+
+// static
+void LLToolPie::showAvatarInspector(const LLUUID& avatar_id)
+{
+	show_inspector("inspect_avatar", "avatar_id", avatar_id);
+}
+
+// static
+void LLToolPie::showObjectInspector(const LLUUID& object_id)
+{
+	show_inspector("inspect_object", "object_id", object_id);
 }
 
 void LLToolPie::handleDeselect()

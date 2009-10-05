@@ -62,6 +62,7 @@
 #include "llscrolllistitem.h"
 #include "llscrolllistcell.h"
 #include "llselectmgr.h"
+#include "llslurl.h"
 #include "llspinctrl.h"
 #include "lltabcontainer.h"
 #include "lltextbox.h"
@@ -754,7 +755,7 @@ void LLPanelLandGeneral::refreshNames()
 	else
 	{
 		// Figure out the owner's name
-		gCacheName->getFullName(parcel->getOwnerID(), owner);
+		owner = LLSLURL::buildCommand("agent", parcel->getOwnerID(), "inspect");
 	}
 
 	if(LLParcel::OS_LEASE_PENDING == parcel->getOwnershipStatus())
@@ -763,18 +764,11 @@ void LLPanelLandGeneral::refreshNames()
 	}
 	mTextOwner->setText(owner);
 
-	std::string group;
-	if(!parcel->getGroupID().isNull())
-	{
-		gCacheName->getGroupName(parcel->getGroupID(), group);
-	}
-	mTextGroup->setText(group);
-
 	const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();
 	if(auth_buyer_id.notNull())
 	{
 		std::string name;
-		gCacheName->getFullName(auth_buyer_id, name);
+		name = LLSLURL::buildCommand("agent", auth_buyer_id, "inspect");
 		mSaleInfoForSale2->setTextArg("[BUYER]", name);
 	}
 	else
@@ -787,7 +781,20 @@ void LLPanelLandGeneral::refreshNames()
 // virtual
 void LLPanelLandGeneral::draw()
 {
-	refreshNames();
+	LLParcel *parcel = mParcel->getParcel();
+	if (parcel)
+	{
+		std::string group;
+		if (!parcel->getGroupID().isNull())
+		{
+			// *TODO: Change to "inspect" when we have group inspectors and
+			// move into refreshNames() above
+			// group = LLSLURL::buildCommand("group", parcel->getGroupID(), "inspect");
+			gCacheName->getGroupName(parcel->getGroupID(), group);
+		}
+		mTextGroup->setText(group);
+	}
+
 	LLPanel::draw();
 }
 

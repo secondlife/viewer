@@ -35,7 +35,9 @@
 #include "linden_common.h"
 
 #include "lllayoutstack.h"
+
 #include "lllocalcliprect.h"
+#include "llpanel.h"
 #include "llresizebar.h"
 #include "llcriticaldamp.h"
 

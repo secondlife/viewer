@@ -53,8 +53,6 @@ public:
 	// LLTextBox
 	void setText(const std::string& id,
 		const std::string& text, bool visible = true);
-	void setWrappedText(const std::string& id,
-		const std::string& text, bool visible = true);
 
 	// LLIconCtrl
 	enum Badge { BADGE_OK, BADGE_NOTE, BADGE_WARN, BADGE_ERROR };

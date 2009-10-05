@@ -1078,8 +1078,6 @@ BOOL LLFloaterIMPanel::postBuild()
 	//close_btn->setClickedCallback(&LLFloaterIMPanel::onClickClose, this);
 
 	mHistoryEditor = getChild<LLViewerTextEditor>("im_history");
-	mHistoryEditor->setParseHTML(TRUE);
-	mHistoryEditor->setParseHighlights(TRUE);
 
 	if ( IM_SESSION_GROUP_START == mDialog )
 	{
@@ -1334,16 +1332,18 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 		// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
 		if (name == SYSTEM_FROM)
 		{
-			mHistoryEditor->appendColoredText(name + separator_string, false, prepend_newline, color);
+			mHistoryEditor->appendText(name + separator_string, prepend_newline, LLStyle::Params().color(color));
 		}
 		else
 		{
 			// Convert the name to a hotlink and add to message.
-			mHistoryEditor->appendStyledText(name + separator_string, false, prepend_newline, LLStyleMap::instance().lookupAgent(source));
+			mHistoryEditor->appendText(name + separator_string, prepend_newline, LLStyleMap::instance().lookupAgent(source));
 		}
 		prepend_newline = false;
 	}
-	mHistoryEditor->appendColoredText(utf8msg, false, prepend_newline, color);
+	mHistoryEditor->appendText(utf8msg, prepend_newline, LLStyle::Params().color(color));
+	mHistoryEditor->blockUndo();
+
 	S32 im_log_option =  gSavedPerAccountSettings.getS32("IMLogOptions");
 	if (log_to_file && (im_log_option!=LOG_CHAT))
 	{
@@ -1859,7 +1859,8 @@ void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, std::string
 	}
 
 	//self->addHistoryLine(line, LLColor4::grey, FALSE);
-	self->mHistoryEditor->appendColoredText(message, false, true, LLUIColorTable::instance().getColor("ChatHistoryTextColor"));
+	self->mHistoryEditor->appendText(message, true, LLStyle::Params().color(LLUIColorTable::instance().getColor("ChatHistoryTextColor")));
+	self->mHistoryEditor->blockUndo();
 }
 
 void LLFloaterIMPanel::showSessionStartError(
@@ -1934,4 +1935,3 @@ bool LLFloaterIMPanel::onConfirmForceCloseError(const LLSD& notification, const 
 	}
 	return false;
 }
-

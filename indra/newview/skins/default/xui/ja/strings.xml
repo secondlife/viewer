@@ -517,4 +517,108 @@
 	<string name="GraphicsQualityHigh">
 		高
 	</string>
+	
+	<!-- PARCEL_CATEGORY_UI_STRING -->
+	<string name="Linden Location">Linden所在地</string>
+	<string name="Adult">Adult</string>
+	<string name="Arts&amp;Culture">アートとカルチャー</string>
+	<string name="Business">ビジネス</string>
+	<string name="Educational">教育的</string>
+	<string name="Gaming">ゲーム</string>
+	<string name="Hangout">たまり場</string>
+	<string name="Newcomer Friendly">新住人に好意的</string>
+	<string name="Parks&amp;Nature">公園と自然</string>
+	<string name="Residential">住宅用</string>
+	<string name="Shopping">ショッピング</string>
+	<string name="Other">その他</string>
+	<string name="ringing">
+		インワールドボイスチャットに接続中...
+	</string>
+	<string name="connected">
+		接続しました
+	</string>
+	<string name="unavailable">
+		あなたの現在のロケーションでは、ボイスを利用できません。
+	</string>
+	<string name="hang_up">
+		インワールドボイスチャットの通話が切断されました
+	</string>
+	<string name="ScriptQuestionCautionChatGranted">
+		[REGIONNAME]の[REGIONPOS]という場所にある「[OWNERNAME]」所有の「[OBJECTNAME]」というオブジェクトは、次の権限を許可しました： [PERMISSIONS]
+	</string>
+	<string name="ScriptQuestionCautionChatDenied">
+		[REGIONNAME]の[REGIONPOS]という場所にある「[OWNERNAME]」所有の「[OBJECTNAME]」というオブジェクトは、次の権限を拒否しました： [PERMISSIONS]
+	</string>
+	<string name="ScriptTakeMoney">
+		リンデンドル（L$）を支払う
+	</string>
+	<string name="ActOnControlInputs">
+		制御入力に基づいて行動
+	</string>
+	<string name="RemapControlInputs">
+		制御入力のリマップ
+	</string>
+	<string name="AnimateYourAvatar">
+		アバターへのアニメーション動作
+	</string>
+	<string name="AttachToYourAvatar">
+		アバターに装着
+	</string>
+	<string name="ReleaseOwnership">
+		所有権を解放し公のものとする
+	</string>
+	<string name="LinkAndDelink">
+		他のオブジェクトのリンクとリンク解除
+	</string>
+	<string name="AddAndRemoveJoints">
+		他のオブジェクトとのジョイントの追加と削除
+	</string>
+	<string name="ChangePermissions">
+		権限の変更
+	</string>
+	<string name="TrackYourCamera">
+		カメラ追従
+	</string>
+	<string name="ControlYourCamera">
+		カメラのコントロール
+	</string>
+	<string name="only_user_message">
+		このセッションにいるユーザーはあなただけです。
+	</string>
+	<string name="offline_message">
+		[FIRST] [LAST]はオフラインです。
+	</string>
+	<string name="invite_message">
+		このボイスチャットに応答/接続する場合は、[BUTTON NAME]をクリックしてください。
+	</string>
+	<string name="generic_request_error">
+		要求中にエラーが発生しました。後でもう一度試してください。
+	</string>
+	<string name="insufficient_perms_error">
+		あなたには充分な権限がありません。
+	</string>
+	<string name="session_does_not_exist_error">
+		このセッションは既に切断されています。
+	</string>
+	<string name="no_ability_error">
+		あなたにはその能力がありません。
+	</string>
+	<string name="not_a_mod_error">
+		あなたはセッション・モデレータではありません。
+	</string>
+	<string name="muted_error">
+		グループモデレータがあなたのテキストチャットを無効化しました
+	</string>
+	<string name="add_session_event">
+		[RECIPIENT] とのチャット・セッションにユーザーを追加することができません
+	</string>
+	<string name="message_session_event">
+		[RECIPIENT] とのチャット・セッションにメッセージを送ることができません
+	</string>
+	<string name="removed_from_group">
+		あなたはグループから削除されました。
+	</string>
+	<string name="close_on_no_ability">
+		このチャット・セッションを継続することはできません
+	</string>
 </strings>

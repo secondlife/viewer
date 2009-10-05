@@ -35,7 +35,6 @@
 
 class LLUUID;
 
-void handle_pay_by_id(const LLUUID& agent_id);
 void handle_mouselook(void*);
 void handle_chat(void*);
 void handle_return_key(void*);

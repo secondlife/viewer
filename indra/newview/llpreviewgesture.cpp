@@ -421,9 +421,7 @@ BOOL LLPreviewGesture::postBuild()
 	mStepList = list;
 
 	// Options
-	text = getChild<LLTextBox>("options_text");
-	text->setBorderVisible(TRUE);
-	mOptionsText = text;
+	mOptionsText = getChild<LLTextBox>("options_text");
 
 	combo = getChild<LLComboBox>( "animation_list");
 	combo->setVisible(FALSE);

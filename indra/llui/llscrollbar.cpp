@@ -88,8 +88,6 @@ LLScrollbar::LLScrollbar(const Params & p)
 		mCurGlowStrength(0.f),
 		mTrackColor( p.track_color() ),
 		mThumbColor ( p.thumb_color() ),
-		mOnScrollEndCallback( NULL ),
-		mOnScrollEndData( NULL ),
 		mThumbImageV(p.thumb_image_vertical),
 		mThumbImageH(p.thumb_image_horizontal),
 		mTrackImageV(p.track_image_vertical),
@@ -242,11 +240,6 @@ void LLScrollbar::updateThumbRect()
 		mThumbRect.mTop = mThickness;
 		mThumbRect.mRight = thumb_start + thumb_length;
 		mThumbRect.mBottom = 0;
-	}
-	
-	if (mOnScrollEndCallback && mOnScrollEndData && (mDocPos == getDocPosMax()))
-	{
-		mOnScrollEndCallback(mOnScrollEndData);
 	}
 }
 
@@ -566,12 +559,6 @@ void LLScrollbar::draw()
 				gGL.setSceneBlendType(LLRender::BT_ALPHA);
 			}
 		}
-	}
-
-	BOOL was_scrolled_to_bottom = (getDocPos() == getDocPosMax());
-	if (mOnScrollEndCallback && was_scrolled_to_bottom)
-	{
-		mOnScrollEndCallback(mOnScrollEndData);
 	}
 
 	// Draw children

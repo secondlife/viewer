@@ -63,7 +63,7 @@ private:
 	void					updateRecentList();
 
 	void					updateButtons();
-	const std::string&		getActiveTabName() const;
+	std::string				getActiveTabName() const;
 	LLUUID					getCurrentItemID() const;
 	void					buttonSetVisible(std::string btn_name, BOOL visible);
 	void					buttonSetEnabled(const std::string& btn_name, bool enabled);

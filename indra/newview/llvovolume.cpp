@@ -46,7 +46,6 @@
 #include "llvolumemessage.h"
 #include "material_codes.h"
 #include "message.h"
-#include "llmediadataresponder.h"
 #include "llpluginclassmedia.h" // for code in the mediaEvent handler
 #include "object_flags.h"
 #include "llagentconstants.h"
@@ -69,7 +68,7 @@
 #include "pipeline.h"
 #include "llsdutil.h"
 #include "llmediaentry.h"
-#include "llmediadatafetcher.h"
+#include "llmediadataclient.h"
 #include "llagent.h"
 
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
@@ -86,6 +85,8 @@ F32 LLVOVolume::sLODFactor = 1.f;
 F32	LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectively disables the LOD transition slop 
 F32 LLVOVolume::sDistanceFactor = 1.0f;
 S32 LLVOVolume::sNumLODChanges = 0;
+LLPointer<LLObjectMediaDataClient> LLVOVolume::sObjectMediaClient = NULL;
+LLPointer<LLObjectMediaNavigateClient> LLVOVolume::sObjectMediaNavigateClient = NULL;
 
 static LLFastTimer::DeclareTimer FTM_GEN_TRIANGLES("Generate Triangles");
 static LLFastTimer::DeclareTimer FTM_GEN_VOLUME("Generate Volumes");
@@ -133,13 +134,15 @@ LLVOVolume::~LLVOVolume()
 // static
 void LLVOVolume::initClass()
 {
-	LLMediaDataFetcher::initClass();
+    sObjectMediaClient = new LLObjectMediaDataClient();
+    sObjectMediaNavigateClient = new LLObjectMediaNavigateClient();
 }
 
 // static
 void LLVOVolume::cleanupClass()
 {
-	LLMediaDataFetcher::cleanupClass();
+    sObjectMediaClient = NULL;
+    sObjectMediaNavigateClient = NULL;
 }
 
 U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
@@ -1621,7 +1624,7 @@ bool LLVOVolume::hasMedia() const
 
 void LLVOVolume::requestMediaDataUpdate()
 {
-	LLMediaDataFetcher::fetchMedia(this);
+    sObjectMediaClient->fetchMedia(this);
 }
 
 void LLVOVolume::cleanUpMediaImpls()
@@ -1752,21 +1755,7 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 						
 						llinfos << "broadcasting navigate with URI " << new_location << llendl;
 
-						// Post the navigate to the cap
-						std::string cap = getRegion()->getCapability("ObjectMediaNavigate");
-						if(cap.empty())
-						{
-							// XXX *TODO: deal with no cap!	 It may happen! (retry?)
-							LL_WARNS("Media") << "Can't broadcast navigate event -- ObjectMediaNavigate cap is not available" << LL_ENDL;
-							return;
-						}
-						
-						// If we got here, the cap is available.  Index through all faces that have this media and send the navigate message.
-						LLSD sd;
-						sd["object_id"] = mID;
-						sd["current_url"] = new_location;
-						sd["texture_index"] = face_index;
-						LLHTTPClient::post(cap, sd, new LLMediaDataResponder("ObjectMediaNavigate", sd, this));
+						sObjectMediaNavigateClient->navigate(this, face_index, new_location);
 					}
 				}
 				break;
@@ -1790,29 +1779,9 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 
 }
 
-void LLVOVolume::sendMediaDataUpdate() const
+void LLVOVolume::sendMediaDataUpdate()
 {
-	std::string url = getRegion()->getCapability("ObjectMedia");
-	if (!url.empty())
-	{
-		LLSD sd_payload;
-		sd_payload["verb"] = "UPDATE";
-		sd_payload[LLTextureEntry::OBJECT_ID_KEY] = mID;
-		LLSD object_media_data;
-		for (int i=0; i < getNumTEs(); i++) {
-			LLTextureEntry *texture_entry = getTE(i);
-			llassert((texture_entry->getMediaData() != NULL) == texture_entry->hasMedia());
-			const LLSD &media_data =  
-				(texture_entry->getMediaData() == NULL) ? LLSD() : texture_entry->getMediaData()->asLLSD();
-			object_media_data.append(media_data);
-		}
-		sd_payload[LLTextureEntry::OBJECT_MEDIA_DATA_KEY] = object_media_data;
-
-		llinfos << "Sending media data: " << getID() << " " << ll_pretty_print_sd(sd_payload) << llendl;
-
-		LLHTTPClient::post(url, sd_payload, new LLMediaDataResponder("ObjectMedia", sd_payload, this));
-	}
-	// XXX *TODO: deal with no cap!	 It may happen! (retry?)
+    sObjectMediaClient->updateMedia(this);
 }
 
 void LLVOVolume::removeMediaImpl(S32 texture_index)

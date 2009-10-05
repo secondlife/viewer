@@ -338,14 +338,6 @@ public:
 	// are ignored, so must disable UI.
 	void setAccessAllowedEnabled(bool enable_agent, bool enable_group, bool enable_ban);
 
-	// this must have the same function signature as
-	// llmessage/llcachename.h:LLCacheNameCallback
-	static void callbackCacheName(
-		const LLUUID& id,
-		const std::string& first,
-		const std::string& last,
-		BOOL is_group);
-
 protected:
 	virtual BOOL sendUpdate();
 	// confirmation dialog callback
@@ -400,9 +392,9 @@ public:
 
 	const LLUUID& getCovenantID() const { return mCovenantID; }
 	void setCovenantID(const LLUUID& id) { mCovenantID = id; }
-	const std::string& getEstateName() const;
+	std::string getEstateName() const;
 	void setEstateName(const std::string& name);
-	const std::string& getOwnerName() const;
+	std::string getOwnerName() const;
 	void setOwnerName(const std::string& name);
 	void setCovenantTextEditor(const std::string& text);
 

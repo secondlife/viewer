@@ -56,6 +56,8 @@
        layout="topleft"
        max_length="2147483647"
        name="im_text"
+       parse_highlights="true"
+       allow_html="true" 
        track_bottom="true" 
        width="195"
        word_wrap="true">

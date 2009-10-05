@@ -35,6 +35,7 @@
 
 #include "llpanel.h"
 #include "llmutelist.h"
+#include "llfloater.h"
 // #include <vector>
 
 // class LLButton;

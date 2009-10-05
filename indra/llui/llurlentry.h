@@ -35,7 +35,7 @@
 #define LL_LLURLENTRY_H
 
 #include "lluuid.h"
-
+#include "lluicolor.h"
 #include <boost/signals2.hpp>
 #include <boost/regex.hpp>
 #include <string>
@@ -77,13 +77,16 @@ public:
 	virtual std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb) { return url; }
 
 	/// Return an icon that can be displayed next to Urls of this type
-	const std::string &getIcon() const { return mIcon; }
+	std::string getIcon() const { return mIcon; }
+
+	/// Return the color to render the displayed text
+	LLUIColor getColor() const { return mColor; }
 
 	/// Given a matched Url, return a tooltip string for the hyperlink
 	std::string getTooltip() const { return mTooltip; }
 
 	/// Return the name of a XUI file containing the context menu items
-	const std::string getMenuName() const { return mMenuName; }
+	std::string getMenuName() const { return mMenuName; }
 
 	/// Return the name of a SL location described by this Url, if any
 	virtual std::string getLocation(const std::string &url) const { return ""; }
@@ -102,11 +105,12 @@ protected:
 		LLUrlLabelSignal *signal;
 	} LLUrlEntryObserver;
 
-	boost::regex                                   mPattern;
-	std::string                                    mIcon;
-	std::string                                    mMenuName;
-	std::string                                    mTooltip;
-	std::multimap<std::string, LLUrlEntryObserver> mObservers;
+	boost::regex                                   	mPattern;
+	std::string                                    	mIcon;
+	std::string                                    	mMenuName;
+	std::string                                    	mTooltip;
+	LLUIColor										mColor;
+	std::multimap<std::string, LLUrlEntryObserver>	mObservers;
 };
 
 ///

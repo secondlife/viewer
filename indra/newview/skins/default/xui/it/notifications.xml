@@ -574,7 +574,7 @@ Sposta tutti gli oggetti che vuoi acquisire su una sola regione.
 	<notification name="PromptGoToCurrencyPage">
 		[EXTRA]
 
-Vuoi andare su [URL] per maggiori informazioni su come acquistare denaro?
+Vuoi andare su [_URL] per maggiori informazioni su come acquistare L$?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="UnableToLinkObjects">
@@ -804,7 +804,6 @@ Nessun gruppo selezionato.
 	<notification name="CannotDeedLandNoRegion">
 		Impossibile cedere il terreno:
 Non riesco a trovare la regione dove è situato il terreno.
-Usa Strumenti -&gt; Segnala Bug per segnalare il problema.
 	</notification>
 	<notification name="CannotDeedLandMultipleSelected">
 		Impossibile cedere il terreno:
@@ -850,8 +849,6 @@ I terreni di tua proprietà vengono visualizzati in verde.
 	<notification name="CannotReleaseLandRegionNotFound">
 		Impossibile abbandonare il terreno:
 Non riesco a trovare la regione dove è situato il terreno.
-
-Usa Strumenti &gt; Segnala Bug segnalare questo problema.
 	</notification>
 	<notification name="CannotReleaseLandNoTransfer">
 		Impossibile abbandonare il terreno:
@@ -890,14 +887,10 @@ Dividi il terreno?
 	<notification name="CannotDivideLandNoRegion">
 		Impossibile dividere il terreno:
 Non riesco a trovare la regione dove è situato.
-
-Usa Strumenti -&gt; Segnala Bug per segnalare il problema.
 	</notification>
 	<notification name="CannotJoinLandNoRegion">
 		Impossibile unire il terreno:
 Non riesco a trovare la regione dove è situato.
-
-Usa Strumenti -&gt; Segnala Bug per segnalare il problema.
 	</notification>
 	<notification name="CannotJoinLandNothingSelected">
 		Impossibile unire il terreno:
@@ -956,8 +949,6 @@ Grigia = pubblica
 	<notification name="CannotSaveToAssetStore">
 		Impossibile salvare [NAME] nel database centrale.
 Normalmente questo problema è temporaneo. Riprova a generare la parte indossabile e a salvarla fra qualche minuto.
-
-Se questo problema persiste, clicca sul menu a tendina &apos;Strumenti &gt; Segnala Bug&apos; e fornisci i dettagli sulla tua configurazione di rete.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
 		Sei stato sconnesso da [SECOND_LIFE]:
@@ -1297,10 +1288,6 @@ Vuoi avviarne lo scaricamento nella tua cartella applicazioni?
 	<notification name="WebLaunchJoinNow">
 		Vuoi andare su www.secondlife.com per gestire il tuo account?
 		<usetemplate ignoretext="Quando lanci il browser web per gestire il tuo account." name="okcancelignore" notext="Annulla" yestext="OK"/>
-	</notification>
-	<notification name="WebLaunchBugReport101">
-		Visita la Wiki di [SECOND_LIFE] per imparare a segnalare un bug correttamente.
-		<usetemplate ignoretext="Quando lanci il browser web per vedere come segnalare bug nella wiki." name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchSecurityIssues">
 		Visita la Wiki di [SECOND_LIFE] per i dettagli su come segnalare un problema di sicurezza.
@@ -2040,24 +2027,9 @@ Il proprietario della regione risolverà le segnalazione basandosi sulle regole 
 
 La risoluzione di questa segnalazione verrà applicata solo in questa regione; L&apos;accesso dei residenti ad altre aree di [SECOND_LIFE] non verrà influenzato dal risultato di questa segnalazione. Soltanto i Linden Lab possono restringere l&apos;accesso alla totalità di [SECOND_LIFE].
 	</notification>
-	<notification name="HelpReportBug">
-		Usa questo strumento per segnalare *soltanto* caratteristiche tecniche che non funzionano come descitto o atteso, fornisci quanti più dettagli è possibile, Puoi rispondere all&apos;email automatica aggiungendo ulteriori dettagli sulla tua segnalazione.
-
-Tutte le segnalazioni di bug sono investigate e valutate. Non vengono inviate risposte via email.
-
-Se hai difficoltà tecniche contatta il supporto:
-
-http://secondlife.com/community/support.php
-
-Nota: segnalazioni incomplete non verranno prese in considerazione
-	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Scegli una categoria per questa segnalazione di abuso.
 Scegliere una categoria, ci aiuta a gestire ed elaborare le segnalazioni di abuso.
-	</notification>
-	<notification name="HelpReportBugSelectCategory">
-		Scegli una categoria per questo bug.
-Scegliere una categoria, ci aiuta a gestire ed elaborare le segnalazioni di bug.
 	</notification>
 	<notification name="HelpReportAbuseAbuserNameEmpty">
 		Introduci il nome di chi abusa.
@@ -2071,19 +2043,10 @@ Introducendo un valore accurato, ci aiuti a gestire ed elaborare le segnalazioni
 		Inserisci un yiyolo descrittivo dell&apos;abuso che è avvenuto.
 Introducendo un titolo descrittivo accurato, ci aiuti a gestire ed elaborare le segnalazioni di abuso.
 	</notification>
-	<notification name="HelpReportBugSummaryEmpty">
-		Introduci una descrizione del bug.
-Introducendo una descrizione accurata ci aiuti a gestire ed elaborare le segnalazioni di bug.
-	</notification>
 	<notification name="HelpReportAbuseDetailsEmpty">
 		Inserisci una descrizione dettagliata dell&apos;abuso che è avvenuto.
 Devi essere il più specifico possibile, includendo i nomi e i dettagli dell&apos;incidente che stai segnalando.
 Inserendo una descrizione accurata ci aiuti a gestire ed elaborare le segnalazioni di abuso.
-	</notification>
-	<notification name="HelpReportBugDetailsEmpty">
-		Inserisci una descrizione dettagliata del bug.
-Devi essere il pià specifico possibile, includendo se possibil i passi per riprodurre il problema.
-Inserendo una descrizione accurata, ci aiuti a gestire ed elaborare le segnalazioni di bug.
 	</notification>
 	<notification name="HelpReportAbuseContainsCopyright">
 		Caro residente,

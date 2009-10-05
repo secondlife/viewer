@@ -32,8 +32,6 @@
     <text_editor
      type="string"
      length="1"
-     bevel_style="none"
-     border_style="line"
      bottom="393"
      follows="left|top|right|bottom"
      font="Monospace"

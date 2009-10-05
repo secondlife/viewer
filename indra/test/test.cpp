@@ -141,12 +141,9 @@ public:
 			run_completed_(*mStream);
 		}
 		run_completed_(std::cout);
-
-		if (mFailedTests > 0)
-		{
-			exit(1);
-		}
 	}
+
+	int getFailedTests() const { return mFailedTests; }
 	
 private:
 	void run_completed_(std::ostream &stream)
@@ -350,9 +347,11 @@ int main(int argc, char **argv)
 		tut::runner.get().run_tests(test_group);
 	}
 
+	bool success = (callback.getFailedTests() == 0);
+
 	if (wait_at_exit)
 	{
-		std::cerr << "Waiting for input before exiting..." << std::endl;
+		std::cerr << "Press return to exit..." << std::endl;
 		std::cin.get();
 	}
 	
@@ -362,7 +361,7 @@ int main(int argc, char **argv)
 		delete output;
 	}
 
-	if (touch)
+	if (touch && success)
 	{
 		std::ofstream s;
 		s.open(touch);
@@ -371,5 +370,7 @@ int main(int argc, char **argv)
 	}
 	
 	apr_terminate();
-	return 0;
+	
+	int retval = (success ? 0 : 1);
+	return retval;
 }

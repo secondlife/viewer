@@ -178,10 +178,10 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	if (LLPanelLogin::sInstance)
 	{
 		llwarns << "Duplicate instance of login view deleted" << llendl;
-		delete LLPanelLogin::sInstance;
-
 		// Don't leave bad pointer in gFocusMgr
 		gFocusMgr.setDefaultKeyboardFocus(NULL);
+
+		delete LLPanelLogin::sInstance;
 	}
 
 	LLPanelLogin::sInstance = this;

@@ -274,7 +274,7 @@ BOOL LLFocusMgr::childHasKeyboardFocus(const LLView* parent ) const
 // Returns TRUE is parent or any descedent of parent is the mouse captor.
 BOOL LLFocusMgr::childHasMouseCapture( const LLView* parent ) const
 {
-	if( mMouseCaptor && mMouseCaptor->isView() )
+	if( mMouseCaptor && dynamic_cast<LLView*>(mMouseCaptor) != NULL )
 	{
 		LLView* captor_view = (LLView*)mMouseCaptor;
 		while( captor_view )

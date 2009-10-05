@@ -190,6 +190,7 @@ public:
 	static void setRootView(LLView* view) { sRootView = view; }
 	static std::string locateSkin(const std::string& filename);
 	static void setMousePositionScreen(S32 x, S32 y);
+	static void getMousePositionScreen(S32 *x, S32 *y);
 	static void setMousePositionLocal(const LLView* viewp, S32 x, S32 y);
 	static void getMousePositionLocal(const LLView* viewp, S32 *x, S32 *y);
 	static void setScaleFactor(const LLVector2& scale_factor);
@@ -409,8 +410,8 @@ namespace LLInitParam
 	{
         typedef BlockValue<const LLFontGL*> super_t;
 	public:
-		Optional<std::string>	name,
-								size,
+		Mandatory<std::string>	name;
+		Optional<std::string>	size,
 								style;
 
 		TypedParam(BlockDescriptor& descriptor, const char* name, const LLFontGL* const value, ParamDescriptor::validation_func_t func, S32 min_count, S32 max_count);

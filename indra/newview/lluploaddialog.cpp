@@ -82,7 +82,7 @@ LLUploadDialog::LLUploadDialog( const std::string& msg)
 		LLTextBox::Params params;
 		params.name("Filename");
 		params.rect(msg_rect);
-		params.text("Filename");
+		params.initial_value("Filename");
 		params.font(font);
 		mLabelBox[line_num] = LLUICtrlFactory::create<LLTextBox> (params);
 		addChild(mLabelBox[line_num]);

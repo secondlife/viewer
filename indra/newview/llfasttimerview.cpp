@@ -244,7 +244,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
+BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	if(LLFastTimer::sPauseHistory && mBarRect.pointInRect(x, y))
 	{
@@ -254,7 +254,7 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& stic
 			LLRect screen_rect;
 			localRectToScreen(mToolTipRect, &screen_rect);
 
-			LLToolTipMgr::instance().show(LLToolTipParams()
+			LLToolTipMgr::instance().show(LLToolTip::Params()
 				.message(mHoverTimer->getToolTip(LLFastTimer::NamedTimer::HISTORY_NUM - mScrollIndex - mHoverBarIndex))
 				.sticky_rect(screen_rect));
 

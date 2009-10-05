@@ -320,7 +320,7 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 				/>
 				<combo_box.item name="item8" label="Przyjazne dla nowych"
 				/>
-				<combo_box.item name="item9" label="	Park i Natura"
+				<combo_box.item name="item9" label="Park i Natura"
 				/>
 				<combo_box.item name="item10" label="Mieszkalna"
 				/>

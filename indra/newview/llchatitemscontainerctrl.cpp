@@ -236,7 +236,7 @@ BOOL	LLNearbyChatToastPanel::handleMouseDown	(S32 x, S32 y, MASK mask)
 	S32 local_y = y - msg_inspector->getRect().mBottom - caption->getRect().mBottom;
 	if(msg_inspector->pointInView(local_x, local_y))
 	{
-		LLFloaterReg::showInstance("inspect_avatar", mFromID);
+		LLFloaterReg::showInstance("inspect_avatar", LLSD().insert("avatar_id", mFromID));
 	}
 	else
 	{
@@ -262,7 +262,7 @@ bool	LLNearbyChatToastPanel::canAddText	()
 	LLChatMsgBox* msg_text = findChild<LLChatMsgBox>("msg_text");
 	if(!msg_text)
 		return false;
-	return msg_text->getTextLinesNum()<10;
+	return msg_text->getLineCount()<10;
 }
 
 BOOL	LLNearbyChatToastPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)

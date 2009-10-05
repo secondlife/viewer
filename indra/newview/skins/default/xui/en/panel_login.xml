@@ -9,7 +9,7 @@
  width="800">
     <panel.string
      name="create_account_url">
-        http://secondlife.com/registration/
+        http://join.secondlife.com/
     </panel.string>
     <panel.string
      name="real_url">

@@ -42,8 +42,6 @@
 #include "llfontgl.h"
 #include "llmortician.h"
 #include "llmousehandler.h"
-#include "llnametable.h"
-#include "llsd.h"
 #include "llstring.h"
 #include "llrect.h"
 #include "llui.h"
@@ -57,6 +55,8 @@
 #include "llfocusmgr.h"
 
 #include <list>
+
+class LLSD;
 
 const U32	FOLLOWS_NONE	= 0x00;
 const U32	FOLLOWS_LEFT	= 0x01;
@@ -124,21 +124,16 @@ public:
 		Optional<bool>				enabled,
 									visible,
 									mouse_opaque,
-									use_bounding_rect;
+									use_bounding_rect,
+									from_xui;
 
 		Optional<S32>				tab_group,
 									default_tab_group;
 		Optional<std::string>		tool_tip;
 
 		Optional<S32>				sound_flags;
-		Optional<bool>				from_xui;
 		Optional<Follows>			follows;
 		Optional<std::string>		hover_cursor;
-		
-		// font params
-		Optional<const LLFontGL*>	font;
-		Optional<LLFontGL::HAlign>	font_halign;
-		Optional<LLFontGL::VAlign>	font_valign;
 
 		Optional<std::string>		layout;
 		Optional<LLRect>			rect;
@@ -223,9 +218,6 @@ public:
 
 	virtual ~LLView();
 
-	// Hack to support LLFocusMgr (from LLMouseHandler)
-	/*virtual*/ BOOL isView() const;
-
 	// Some UI widgets need to be added as controls.  Others need to
 	// be added as regular view children.  isCtrl should return TRUE
 	// if a widget needs to be added as a ctrl
@@ -257,6 +249,8 @@ public:
 	void		setName(std::string name)			{ mName = name; }
 	void		setUseBoundingRect( BOOL use_bounding_rect );
 	BOOL		getUseBoundingRect();
+
+	ECursorType	getHoverCursor() { return mHoverCursor; }
 
 	const std::string& getToolTip() const			{ return mToolTipMsg.getString(); }
 
@@ -443,12 +437,11 @@ public:
 	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
 	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);	
-	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect); // Display mToolTipMsg if no child handles it.
+	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
 
-	/*virtual*/ const std::string&	getName() const;
+	/*virtual*/ std::string	getName() const;
 	/*virtual*/ void	onMouseCaptureLost();
 	/*virtual*/ BOOL	hasMouseCapture();
-	/*virtual*/ BOOL isView(); // Hack to support LLFocusMgr
 	/*virtual*/ void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const;
 	/*virtual*/ void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const;
 
@@ -545,7 +538,7 @@ protected:
 	LLView*	childrenHandleScrollWheel(S32 x, S32 y, S32 clicks);
 	LLView* childrenHandleRightMouseDown(S32 x, S32 y, MASK mask);
 	LLView* childrenHandleRightMouseUp(S32 x, S32 y, MASK mask);
-	LLView* childrenHandleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect);
+	LLView* childrenHandleToolTip(S32 x, S32 y, MASK mask);
 
 	ECursorType mHoverCursor;
 	

@@ -288,7 +288,7 @@ public:
 	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ BOOL	handleUnicodeCharHere(llwchar uni_char);
 	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect);
+	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
 	/*virtual*/ void	setEnabled(BOOL enabled);
 	/*virtual*/ void	setFocus( BOOL b );
 	/*virtual*/ void	onFocusReceived();
@@ -306,6 +306,9 @@ public:
 	static  BOOL    rowPreceeds(LLScrollListItem *new_row, LLScrollListItem *test_row);
 
 	LLRect			getItemListRect() { return mItemListRect; }
+
+	/// Returns rect, in local coords, of a given row/column
+	LLRect			getCellRect(S32 row_index, S32 column_index);
 
 	// Used "internally" by the scroll bar.
 	void			onScrollChange( S32 new_pos, LLScrollbar* src );
@@ -390,6 +393,7 @@ private:
 	void			deselectItem(LLScrollListItem* itemp);
 	void			commitIfChanged();
 	BOOL			setSort(S32 column, BOOL ascending);
+	S32				getLinesPerPage();
 
 	static void		showNameDetails(std::string id, bool is_group);
 	static void		copyNameToClipboard(std::string id, bool is_group);

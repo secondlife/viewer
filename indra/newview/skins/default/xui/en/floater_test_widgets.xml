@@ -19,6 +19,8 @@
  can_resize="true"
  title="Test Floater"
  height="500"
+ min_width="850" 
+ min_height="500" 
  layout="topleft"
  name="floater_test_widgets"
  help_topic="floater_test_widgets"
@@ -39,6 +41,7 @@
   <menu_bar
    height="18"
    layout="topleft"
+   follows="top|left" 
    tool_tip="menu" 
    left="2"
    name="test_menu_bar"
@@ -74,7 +77,9 @@
   <text
    bottom="55"
    layout="topleft"
-   left="10">
+   follows="top|left"
+   left="10"
+   height="16">
     For widget list see https://wiki.lindenlab.com/wiki/Viewer:UI/Widgets
   </text>
 
@@ -82,6 +87,7 @@
   
   <button
    height="20"
+   follows="top|left" 
    label="Button"
    layout="topleft"
    left_delta="0"
@@ -91,7 +97,7 @@
    width="100" />  
   <!-- "flyout_button" is a button that can spawn a menu -->
   <flyout_button
-   follows="right|bottom"
+   follows="top|left" 
    height="20"
    label="Flyout"
    layout="topleft"
@@ -121,6 +127,7 @@
        provide input that is not a list item. -->
   <combo_box
    bottom_delta="35"
+   follows="top|left" 
    height="16"
    width="150"
    label="Combobox"
@@ -150,6 +157,7 @@
         the text. -->
   <line_editor
    height="20"
+   follows="top|left" 
    layout="topleft"
    left_delta="0"
    name="test_line_editor"
@@ -161,7 +169,7 @@
   <!-- "filter_editor" is a specialized line_editor that shows read-only
        help text until the user clicks in the widget. -->
   <filter_editor
-   follows="left|top|right"
+   follows="left|top"
    height="20"
    label="Type here to search"
    layout="topleft"
@@ -173,6 +181,7 @@
   <!-- "progress_bar" percent completed gets set in C++ code -->
   <progress_bar
    height="16"
+   follows="top|left" 
    layout="topleft"
    left_delta="0"
    name="test_progress_bar"
@@ -227,6 +236,7 @@
   <!-- "scroll_list" is a scrolling list of columnar data. -->
   <scroll_list
    bottom_delta="100"
+   follows="top|left" 
    height="80"
    draw_heading="true"
    tool_tip="scroll list" 
@@ -239,10 +249,19 @@
      dynamic_width="true"
      name="second_column"
      label="Column B"/>
+    <row>
+      <column column="first_column">short text</column>
+      <column column="second_column">more short text</column>
+    </row>
+    <row>
+      <column column="first_column">this is some longer text</column>
+      <column column="second_column">and here is some more long text</column>
+    </row>
   </scroll_list>
   <!-- "slider" is a horizontal input widget for numerical data. -->
   <slider
    bottom_delta="45"
+   follows="top|left" 
    layout="topleft"
    min_val="0"
    max_val="100"
@@ -255,22 +274,36 @@
        change the value. -->
   <spinner
    bottom_delta="35"
+   follows="top|left" 
    label="Spinner"
    layout="topleft"
    name="test_spinner" 
    tool_tip="spinner"/>
   <text
    bottom_delta="50"
+   follows="top|left" 
+   font.name="SansSerifSmall" 
    font.style = "UNDERLINE"
    layout="topleft"
    name="test_text"
    tool_tip="text">
     Text (underlined)
   </text>
+  <text
+   top_pad="10"
+   follows="top|left" 
+   layout="topleft"
+   width="60" 
+   use_ellipses="true" 
+   name="test_text"
+   tool_tip="text">
+    Truncated text here
+  </text>
   <!-- "text_editor" is a multi-line text input widget, similar to 
        textarea in HTML. -->
   <text_editor
-   height="80"
+   height="40"
+   follows="top|left|bottom" 
    layout="topleft"
    left_delta="0"
    name="test_text_editor"
@@ -279,7 +312,18 @@
    width="200">
     Text Editor
   </text_editor>
-  
+  <text
+   height="40"
+   follows="top|left|bottom"
+   layout="topleft"
+   name="test_text_editor"
+   tool_tip="text box"
+   top_pad="5"
+   width="200">
+      Text box
+with
+multiple lines
+  </text>
   <!-- And a third column -->
   
   <!-- "tab_container" is a holder for multiple panels of UI widgets.
@@ -309,7 +353,6 @@
        color="0.3 0.6 0.9 1"
        follows="left|top"
        height="90"
-       border="true"
        layout="topleft"
        left="10"
        label="Color Swatch 1"
@@ -333,7 +376,7 @@
     </panel>
     <!-- panels can also refer to other floaters or panels -->
     <panel
-	 border="true"
+	  border="true"
      filename="floater_test_checkbox.xml"
      height="225"
      label="Tab 2 - Checkbox"

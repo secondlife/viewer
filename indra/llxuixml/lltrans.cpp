@@ -194,3 +194,68 @@ bool LLTrans::findString(std::string &result, const std::string &xml_desc, const
 		return false;
 	}
 }
+
+//static
+std::string LLTrans::getCountString(const std::string& language, const std::string& xml_desc, S32 count)
+{
+	// Compute which string identifier to use
+	const char* form = "";
+	if (language == "ru") // Russian
+	{
+		// From GNU ngettext()
+		// Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;
+		if (count % 10 == 1
+			&& count % 100 != 11)
+		{
+			// singular, "1 item"
+			form = "A";
+		}
+		else if (count % 10 >= 2
+			&& count % 10 <= 4
+			&& (count % 100 < 10 || count % 100 >= 20) )
+		{
+			// special case "2 items", "23 items", but not "13 items"
+			form = "B";
+		}
+		else
+		{
+			// English-style plural, "5 items"
+			form = "C";
+		}
+	}
+	else if (language == "fr" || language == "pt") // French, Brazilian Portuguese
+	{
+		// French and Portuguese treat zero as a singular "0 item" not "0 items"
+		if (count == 0 || count == 1)
+		{
+			form = "A";
+		}
+		else
+		{
+			// English-style plural
+			form = "B";
+		}
+	}
+	else // default
+	{
+		// languages like English with 2 forms, singular and plural
+		if (count == 1)
+		{
+			// "1 item"
+			form = "A";
+		}
+		else
+		{
+			// "2 items", also use plural for "0 items"
+			form = "B";
+		}
+	}
+
+	// Translate that string
+	LLStringUtil::format_map_t args;
+	args["[COUNT]"] = llformat("%d", count);
+
+	// Look up "AgeYearsB" or "AgeWeeksC" including the "form"
+	std::string key = llformat("%s%s", xml_desc.c_str(), form);
+	return getString(key, args);
+}

@@ -155,7 +155,7 @@ BOOL LLTool::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 	return FALSE;
 }
 
-BOOL LLTool::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
+BOOL LLTool::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	// by default, didn't handle it
 	// llinfos << "LLTool::handleToolTip" << llendl;

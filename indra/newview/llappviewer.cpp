@@ -696,9 +696,6 @@ bool LLAppViewer::init()
 	// Let code in llui access the viewer help floater
 	LLUI::sHelpImpl = LLViewerHelp::getInstance();
 
-	// Set the link color for any Urls in text fields
-	LLTextBase::setLinkColor( LLUIColorTable::instance().getColor("HTMLLinkColor") );
-
 	// Load translations for tooltips
 	LLFloater::initClass();
 
@@ -1423,6 +1420,9 @@ bool LLAppViewer::cleanup()
 		std::string mask = gDirUtilp->getDirDelimiter() + "*.*";
 		gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""),mask);
 	}
+
+	// Turn off Space Navigator and similar devices
+	LLViewerJoystick::getInstance()->terminate();
 
 	removeMarkerFile(); // Any crashes from here on we'll just have to ignore
 	
@@ -2379,7 +2379,6 @@ void LLAppViewer::cleanupSavedSettings()
 	}
 
 	gSavedSettings.setF32("MapScale", gMapScale );
-	gSavedSettings.setBOOL("ShowHoverTips", gToolTipView->getVisible());
 
 	// Some things are cached in LLAgent.
 	if (gAgent.mInitialized)

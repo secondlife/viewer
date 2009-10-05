@@ -94,7 +94,7 @@ public:
 	// Get the contents of this preeditor as a LLWString.  If there is an active preedit,
 	// the returned LLWString contains it.
 
-	virtual LLWString getWText() const = 0;
+	virtual LLWString getPreeditString() const = 0;
 
 	// Handle a UTF-32 char on this preeditor, i.e., add the character
 	// to the contents.

@@ -3673,7 +3673,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <string>0.1</string>
+      <real>0.15</real>
     </map> 
     <key>InstallLanguage</key>
     <map>
@@ -5294,7 +5294,7 @@
       <key>Value</key>
 	  <integer>13</integer>
     </map>
-    <key>PrimMediaFetchQueueDelay</key>
+    <key>PrimMediaRequestQueueDelay</key>
     <map>
       <key>Comment</key>
       <string>Timer delay for fetching media from the queue (in seconds).</string>
@@ -7585,7 +7585,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>    
     <key>ShowCameraButton</key>                
     <map>
@@ -8456,18 +8456,40 @@
       <key>Value</key>
       <real>0.2</real>
     </map>
-  <key>ToolTipVisibleTime</key>
-  <map>
-    <key>Comment</key>
-    <string>Fade tooltip after mouse is idle for this long</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>10.0</real>
-  </map>
-  <key>ToolboxAutoMove</key>
+    <key>ToolTipVisibleTimeFar</key>
+    <map>
+      <key>Comment</key>
+      <string>Fade tooltip after after time passes (seconds) while mouse not near tooltip</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>ToolTipVisibleTimeNear</key>
+    <map>
+      <key>Comment</key>
+      <string>Fade tooltip after after time passes (seconds) while mouse near tooltip</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>5.0</real>
+    </map>
+    <key>ToolTipVisibleTimeOver</key>
+    <map>
+      <key>Comment</key>
+      <string>Fade tooltip after after time passes (seconds) while mouse over tooltip</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1000.0</real>
+    </map>
+    <key>ToolboxAutoMove</key>
     <map>
       <key>Comment</key>
       <string>[NOT USED]</string>
@@ -9654,39 +9676,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>15</integer>
-    </map>
-    <key>UITextEditorBorder</key>
-    <map>
-      <key>Comment</key>
-      <string>UI Text Editor Border</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>UITextEditorHPad</key>
-    <map>
-      <key>Comment</key>
-      <string>UI Text Horizontal Pad</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>4</integer>
-    </map>
-    <key>UITextEditorVPadTop</key>
-    <map>
-      <key>Comment</key>
-      <string>UI Text Vertical Pad Top</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>4</integer>
     </map>
 	<key>UploadBakedTexOld</key>
     <map>

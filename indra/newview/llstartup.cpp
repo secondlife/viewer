@@ -195,6 +195,10 @@
 #include "lldxhardware.h"
 #endif
 
+#if (LL_LINUX || LL_SOLARIS) && LL_GTK
+#include <glib/gspawn.h>
+#endif
+
 //
 // exported globals
 //
@@ -1824,9 +1828,9 @@ bool idle_startup()
 		{
 			gCacheName = new LLCacheName(gMessageSystem);
 			gCacheName->addObserver(&callback_cache_name);
-			gCacheName->LocalizeCacheName("waiting", LLTrans::getString("CacheWaiting"));
-			gCacheName->LocalizeCacheName("nobody", LLTrans::getString("CacheNobody"));
-			gCacheName->LocalizeCacheName("none", LLTrans::getString("CacheNone"));
+			gCacheName->LocalizeCacheName("waiting", LLTrans::getString("AvatarNameWaiting"));
+			gCacheName->LocalizeCacheName("nobody", LLTrans::getString("AvatarNameNobody"));
+			gCacheName->LocalizeCacheName("none", LLTrans::getString("GroupNameNone"));
 			// Load stored cache if possible
             LLAppViewer::instance()->loadNameCache();
 		}

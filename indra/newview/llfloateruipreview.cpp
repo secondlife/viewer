@@ -500,6 +500,14 @@ void LLFloaterUIPreview::refreshList()
 		}
 	}
 	found = TRUE;
+	while(found)				// for every inspector file that matches the pattern
+	{
+		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "inspect_*.xml", name, FALSE)))	// get next file matching pattern
+		{
+			addFloaterEntry(name.c_str());	// and add it to the list (file name only; localization code takes care of rest of path)
+		}
+	}
+	found = TRUE;
 	while(found)				// for every menu file that matches the pattern
 	{
 		if((found = gDirUtilp->getNextFileInDir(getLocalizedDirectory(), "menu_*.xml", name, FALSE)))	// get next file matching pattern
@@ -596,20 +604,12 @@ void LLFloaterUIPreview::addFloaterEntry(const std::string& path)
 void LLFloaterUIPreview::onClickDisplayFloater(S32 caller_id)
 {
 	displayFloater(TRUE, caller_id);
-	if(caller_id == PRIMARY_FLOATER)
-	{
-		mDisplayedFloater->center();	// move displayed floater to the center of the screen
-	}
 }
 
 // Saves the current floater/panel
 void LLFloaterUIPreview::onClickSaveFloater(S32 caller_id)
 {
 	displayFloater(TRUE, caller_id, true);
-	if(caller_id == PRIMARY_FLOATER)
-	{
-		mDisplayedFloater->center();	// move displayed floater to the center of the screen
-	}
 }
 
 // Saves all floater/panels
@@ -672,7 +672,8 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 
 	*floaterp = new LLPreviewedFloater(this);
 
-	if(!strncmp(path.c_str(),"floater_",8))								// if it's a floater
+	if(!strncmp(path.c_str(),"floater_",8)
+		|| !strncmp(path.c_str(), "inspect_", 8))		// if it's a floater
 	{
 		if (save)
 		{
@@ -774,13 +775,6 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		mCloseOtherButton_2->setEnabled(TRUE);
 	}
 
-	// *TODO: Make the secondary floater pop up next to the primary one.  Doesn't seem to always work if secondary was up first...
-	if((mDisplayedFloater && ID == 2) || (mDisplayedFloater_2 && ID == 1))
-	{
-		mDisplayedFloater_2->setSnapTarget(mDisplayedFloater->getHandle());
-		mDisplayedFloater->addDependentFloater(mDisplayedFloater_2);
-	}
-
 	// Add localization to title so user knows whether it's localized or defaulted to en
 	std::string full_path = getLocalizedDirectory() + path;
 	std::string floater_lang = "EN";
@@ -792,6 +786,9 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 	std::string new_title = (*floaterp)->getTitle() + std::string(" [") + floater_lang +
 						(ID == 1 ? " - Primary" : " - Secondary") + std::string("]");
 	(*floaterp)->setTitle(new_title);
+
+	(*floaterp)->center();
+	addDependentFloater(*floaterp);
 
 	if(click && ID == 1 && !save)
 	{

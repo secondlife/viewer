@@ -51,6 +51,7 @@
 //for LLViewerTextEditor support
 #include "llagent.h" 			// gAgent
 #include "llfloaterscriptdebug.h"
+#include "llslurl.h"
 #include "llviewertexteditor.h"
 #include "llstylemap.h"
 
@@ -207,7 +208,7 @@ void LLNearbyChat::add_timestamped_line(const LLChat& chat, const LLColor4& colo
 	if (chat.mSourceType == CHAT_SOURCE_AGENT &&
 		chat.mFromID != LLUUID::null)
 	{
-		str_URL = llformat("secondlife:///app/agent/%s/about",chat.mFromID.asString().c_str());
+		str_URL = LLSLURL::buildCommand("agent", chat.mFromID, "inspect");
 	}
 
 	// If the chat line has an associated url, link it up to the name.
@@ -216,20 +217,31 @@ void LLNearbyChat::add_timestamped_line(const LLChat& chat, const LLColor4& colo
 	{
 		std::string start_line = line.substr(0, chat.mFromName.length() + 1);
 		line = line.substr(chat.mFromName.length() + 1);
-		mChatHistoryEditor->appendStyledText(start_line, false, prepend_newline, LLStyleMap::instance().lookup(chat.mFromID,str_URL));
+		mChatHistoryEditor->appendText(start_line, prepend_newline, 
+			LLStyleMap::instance().lookup(chat.mFromID,str_URL));
+		mChatHistoryEditor->blockUndo();
 		prepend_newline = false;
 	}
 
 	S32 font_size = gSavedSettings.getS32("ChatFontSize");
 
-	std::string font_name = "";
+	const LLFontGL* fontp = NULL;
+	switch(font_size)
+	{
+	case 0:
+		fontp = LLFontGL::getFontSansSerifSmall();
+		break;
+	default:
+	case 1:
+		fontp = LLFontGL::getFontSansSerif();
+		break;
+	case 2:
+		fontp = LLFontGL::getFontSansSerifBig();
+		break;
+	}
 
-	if (0 == font_size)
-		font_name = "small";
-	else if (2 == font_size)
-		font_name = "sansserifbig";
-
-	mChatHistoryEditor->appendColoredText(line, false, prepend_newline, color, font_name);
+	mChatHistoryEditor->appendText(line, prepend_newline, LLStyle::Params().color(color).font(fontp));
+	mChatHistoryEditor->blockUndo();
 }
 
 void	LLNearbyChat::addMessage(const LLChat& chat)
@@ -250,11 +262,6 @@ void	LLNearbyChat::addMessage(const LLChat& chat)
 	}
 	
 	// could flash the chat button in the status bar here. JC
-
-
-	mChatHistoryEditor->setParseHTML(TRUE);
-	mChatHistoryEditor->setParseHighlights(TRUE);
-	
 	if (!chat.mMuted)
 		add_timestamped_line(chat, color);
 }

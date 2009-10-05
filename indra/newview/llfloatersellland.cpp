@@ -131,7 +131,6 @@ LLFloaterSellLandUI::LLFloaterSellLandUI(const LLSD& key)
 	mRegion(0)
 {
 	LLViewerParcelMgr::getInstance()->addObserver(&mParcelSelectionObserver);
-// 	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_sell_land.xml");
 	mCloseSignal.connect(boost::bind(&LLFloaterSellLandUI::onClose, this));
 }
 
@@ -153,7 +152,7 @@ void LLFloaterSellLandUI::SelectionObserver::changed()
 	{
 		mFloater->closeFloater();
 	}
-	else
+	else if (mFloater->getVisible()) // only update selection if sell land ui in use
 	{
 		mFloater->setParcel(LLViewerParcelMgr::getInstance()->getSelectionRegion(),
 							LLViewerParcelMgr::getInstance()->getParcelSelection());
@@ -176,7 +175,7 @@ BOOL LLFloaterSellLandUI::postBuild()
 
 bool LLFloaterSellLandUI::setParcel(LLViewerRegion* region, LLParcelSelectionHandle parcel)
 {
-	if (!parcel->getParcel()) // || !can_agent_modify_parcel(parcel)) // can_agent_modify_parcel was deprecated by GROUPS
+	if (!parcel->getParcel())
 	{
 		return false;
 	}

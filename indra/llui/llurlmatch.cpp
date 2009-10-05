@@ -47,8 +47,8 @@ LLUrlMatch::LLUrlMatch() :
 
 void LLUrlMatch::setValues(U32 start, U32 end, const std::string &url,
 						   const std::string &label, const std::string &tooltip,
-						   const std::string &icon, const std::string &menu,
-						   const std::string &location)
+						   const std::string &icon, const LLUIColor& color,
+						   const std::string &menu, const std::string &location)
 {
 	mStart = start;
 	mEnd = end;
@@ -56,6 +56,7 @@ void LLUrlMatch::setValues(U32 start, U32 end, const std::string &url,
 	mLabel = label;
 	mTooltip = tooltip;
 	mIcon = icon;
+	mColor = color;
 	mMenuName = menu;
 	mLocation = location;
 }

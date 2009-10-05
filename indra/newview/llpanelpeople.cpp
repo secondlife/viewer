@@ -621,7 +621,7 @@ void LLPanelPeople::updateButtons()
 	buttonSetEnabled("chat_btn",			item_selected);
 }
 
-const std::string& LLPanelPeople::getActiveTabName() const
+std::string LLPanelPeople::getActiveTabName() const
 {
 	return mTabContainer->getCurrentPanel()->getName();
 }

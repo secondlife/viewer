@@ -570,7 +570,7 @@ Por favor, mova todos os objetos a serem adquiridos para uma mesma região.
 	<notification name="PromptGoToCurrencyPage">
 		[EXTRA]
 
-Vá para [URL] para informação sobre compra de dinheiro.
+Vá para [_URL] para informação sobre compra de L$.
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Ir até a página"/>
 	</notification>
 	<notification name="UnableToLinkObjects">
@@ -798,7 +798,6 @@ Nenhum grupo selecionado.
 	<notification name="CannotDeedLandNoRegion">
 		Não é possível transferir posse do terreno:
 Não é possível se achar a região em que este terreno se encontra.
-Por favor, use Ferramentas &gt; Reporte de  Bug para reportar isto.
 	</notification>
 	<notification name="CannotDeedLandMultipleSelected">
 		Impossibilitado de passar a propriedade da terra:
@@ -844,8 +843,6 @@ Os lotes que você possui estão em verde.
 	<notification name="CannotReleaseLandRegionNotFound">
 		Impossibilitado de abandonar a terra:
 Não consegue achar a região em que esta terra se encontra.
-
-Por favor, usar Ferramentas &gt; Reportar Bug, para reportar este erro.
 	</notification>
 	<notification name="CannotReleaseLandNoTransfer">
 		Não é possível abandonar terreno:
@@ -884,14 +881,10 @@ Quer dividir o terreno?
 	<notification name="CannotDivideLandNoRegion">
 		Impossibilitado de dividir a terra:
 Não consegue achar a região em que esta terra se encontra.
-
-Por favor, usar Ferramentas &gt; Reportar Bug, para reportar este erro.
 	</notification>
 	<notification name="CannotJoinLandNoRegion">
 		Impossibilitado de unir a terra:
 Não consegue achar a região em que esta terra se encontra.
-
-Por favor, usar Ferramentas &gt; Reportar Bug, para reportar este erro.
 	</notification>
 	<notification name="CannotJoinLandNothingSelected">
 		Não é possível unir terreno:
@@ -950,8 +943,6 @@ Grey = Pública
 	<notification name="CannotSaveToAssetStore">
 		Impossibilitado de salvar [NAME] no armazenamento central de ativos.
 Isso é geralmente uma falha temporária. Por favor personalize e salve novamente a vestimenta em poucos minutos.
-
-Se o problema persistir, por favor clicar sobre &apos;Ferramentas &gt; Bug Report&apos; no menu superior e forneça detalhes sobre a configuração de sua rede.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
 		Você foi deslogado do [SECOND_LIFE]:
@@ -1283,10 +1274,6 @@ Baixar para sua pasta de Aplicativos?
 	<notification name="WebLaunchJoinNow">
 		Ir ao www.secondlife.com para gerenciar sua conta?
 		<usetemplate ignoretext="Ao abrir o navegador web para gerenciar sua conta" name="okcancelignore" notext="Cancelar" yestext="OK"/>
-	</notification>
-	<notification name="WebLaunchBugReport101">
-		Visite a Wiki [SECOND_LIFE] para aprender como reportar bugs corretamente.
-		<usetemplate ignoretext="Ao abrir o web browser para visualizar o report de Bug 101 na Wiki" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchSecurityIssues">
 		Visite a Wiki do [SECOND_LIFE] para detalhes de como Reportar um Problema de Segurança.
@@ -2008,26 +1995,9 @@ O dono da região resolverá as reportagens baseado nas regras locais desta regi
 A resolução desta reportagem se aplica apenas a esta região; o acesso de Residentes às outras áreas do [SECOND_LIFE] não será afetado pelas decisões desta reportagem.
 Apenas a Linden Lab pode restringir acesso a todo o [SECOND_LIFE].
 	</notification>
-	<notification name="HelpReportBug">
-		Use esta ferramenta para reportar *apenas* características técnicas que não atuem como descrito ou esperado.
-Por favor, forneça tantos detalhes quanto possível.
-Você pode responder ao e-mail de resposta automática para adicionar mais detalhes à sua reportagem.
-
-Todas as reportagens de bugs são investigadas e avaliadas.
-Nenhum e-mail de resposta será enviado.
-
-Se você estiver tendo uma dificuldade técnica, por favor contate o Suporte em:
-http://secondlife.com/community/support.php
-
-Nota: reportagens incompletas não serão investigadas
-	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Por favor, selecione uma categoria para a reportagem deste abuso.
 A seleção de uma categoria nos ajuda a arquivar e processar as reportagens de abuso.
-	</notification>
-	<notification name="HelpReportBugSelectCategory">
-		Por favor, selecione uma categoria para este bug.
-A seleção de uma categoria nos ajuda a arquivar e processar as reportagens de bugs.
 	</notification>
 	<notification name="HelpReportAbuseAbuserNameEmpty">
 		Por favor, entre com o nome do perturbador.
@@ -2041,18 +2011,10 @@ Entrando com um valor preciso, nos ajuda a arquivar e processar as reportagens d
 		Por favor, digite um resumo de como ocorreu o abuso.
 Fazer um resumo detalhado nos ajuda a arquivar e processar as reportagens de abuso.
 	</notification>
-	<notification name="HelpReportBugSummaryEmpty">
-		Por favor, digite um resumo do bug. Realizar um resumo detalhado nos ajuda a arquivar e processar as reportagens de abuso.
-	</notification>
 	<notification name="HelpReportAbuseDetailsEmpty">
 		Por favor, digite uma descrição detalhada do abuso que ocorreu.
 Seja tão específico quanto você puder, incluindo nomes e os detalhes do incidente que está denunciando.
 Fazer uma descrição precisa nos ajuda a arquivar e processar as reportagens de abuso.
-	</notification>
-	<notification name="HelpReportBugDetailsEmpty">
-		Por favor, digite uma descrição detalhada do bug.
-Seja tão específico quanto você puder, incluindo as etapas para reproduzir o bug, se possível.
-Fazer uma descrição precisa nos ajuda a arquivar e processar os relatórios de bugs.
 	</notification>
 	<notification name="HelpReportAbuseContainsCopyright">
 		Caro Residente,

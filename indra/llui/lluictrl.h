@@ -34,14 +34,15 @@
 #ifndef LL_LLUICTRL_H
 #define LL_LLUICTRL_H
 
-#include "llboost.h"
+//#include "llboost.h"
 #include "llrect.h"
 #include "llsd.h"
 #include <boost/function.hpp>
+#include <boost/signals2.hpp>
 
 #include "llinitparam.h"
 #include "llview.h"
-#include "llviewmodel.h"
+#include "llviewmodel.h"		// *TODO move dependency to .cpp file
 
 const BOOL TAKE_FOCUS_YES = TRUE;
 const BOOL TAKE_FOCUS_NO  = FALSE;
@@ -61,6 +62,9 @@ public:
 	
 	typedef boost::function<bool (LLUICtrl* ctrl, const LLSD& param)> enable_callback_t;
 	typedef boost::signals2::signal<bool (LLUICtrl* ctrl, const LLSD& param), boost_boolean_combiner> enable_signal_t;
+	
+	typedef boost::function<bool (LLUICtrl* ctrl, const LLSD& param)> visible_callback_t;
+	typedef boost::signals2::signal<bool (LLUICtrl* ctrl, const LLSD& param), boost_boolean_combiner> visible_signal_t;
 	
 	struct CallbackParam : public LLInitParam::Block<CallbackParam>
 	{
@@ -91,6 +95,11 @@ public:
 		Optional<enable_callback_t> function;
 	};
 	
+	struct VisibleCallbackParam : public LLInitParam::Block<VisibleCallbackParam, CallbackParam >
+	{
+		Optional<visible_callback_t> function;
+	};
+	
 	struct EnableControls : public LLInitParam::Choice<EnableControls>
 	{
 		Alternative<std::string> enabled;
@@ -107,9 +116,12 @@ public:
 		Alternative<std::string> invisible;
 
 		ControlVisibility()
-			: visible("visiblity_control"),
-			invisible("invisiblity_control")
-		{}
+		:	visible("visibility_control"),
+			invisible("invisibility_control")
+		{
+			addSynonym(visible, "visiblity_control");
+			addSynonym(invisible, "invisiblity_control");
+		}
 	};	
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
@@ -128,6 +140,15 @@ public:
 		Optional<EnableControls>		enabled_controls;
 		Optional<ControlVisibility>		controls_visibility;
 		
+		// font params
+		Optional<const LLFontGL*>		font;
+		Optional<LLFontGL::HAlign>		font_halign;
+		Optional<LLFontGL::VAlign>		font_valign;
+
+		// cruft from LLXMLNode implementation
+		Ignored							type,
+										length;
+
 		Params();
 	};
 
@@ -142,6 +163,7 @@ protected:
 	
 	void initCommitCallback(const CommitCallbackParam& cb, commit_signal_t& sig);
 	void initEnableCallback(const EnableCallbackParam& cb, enable_signal_t& sig);
+	void initVisibleCallback(const VisibleCallbackParam& cb, visible_signal_t& sig);
 
 	// We need this virtual so we can override it with derived versions
 	virtual LLViewModel* getViewModel() const;
@@ -259,6 +281,8 @@ public:
 
 	class CommitCallbackRegistry : public CallbackRegistry<commit_callback_t, CommitCallbackRegistry>{};
 	class EnableCallbackRegistry : public CallbackRegistry<enable_callback_t, EnableCallbackRegistry>{};
+	class VisibleCallbackRegistry : public CallbackRegistry<visible_callback_t, VisibleCallbackRegistry>{};
+
 	
 protected:
 

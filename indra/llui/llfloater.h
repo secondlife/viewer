@@ -171,7 +171,7 @@ public:
 	LLMultiFloater* getHost();
 
 	void			applyTitle();
-	const std::string&	getCurrentTitle() const;
+	std::string		getCurrentTitle() const;
 	void			setTitle( const std::string& title);
 	std::string		getTitle() const;
 	void			setShortTitle( const std::string& short_title );

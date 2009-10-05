@@ -50,6 +50,7 @@
 #include "lllineeditor.h"
 #include "llnotify.h"
 #include "llparcel.h"
+#include "llslurl.h"
 #include "llstatusbar.h"
 #include "lltextbox.h"
 #include "lltexturectrl.h"
@@ -71,7 +72,7 @@
 const F32 GROUP_LAND_BONUS_FACTOR = 1.1f;
 const F64 CURRENCY_ESTIMATE_FREQUENCY = 0.5;
 	// how long of a pause in typing a currency buy amount before an
-	// esimate is fetched from the server
+	// estimate is fetched from the server
 
 class LLFloaterBuyLandUI
 :	public LLFloater
@@ -177,6 +178,11 @@ public:
 	void sendBuyLand();
 
 	void updateNames();
+	// Name cache callback
+	void updateGroupName(const LLUUID& id,
+						 const std::string& first_name,
+						 const std::string& last_name,
+						 BOOL is_group);
 	
 	void refreshUI();
 	
@@ -200,16 +206,6 @@ public:
 	void onVisibilityChange ( const LLSD& new_visibility );
 	
 };
-
-static void cacheNameUpdateRefreshesBuyLand(const LLUUID&,
-	const std::string&, const std::string&, BOOL)
-{
-	LLFloaterBuyLandUI* ui = LLFloaterReg::findTypedInstance<LLFloaterBuyLandUI>("buy_land");
-	if (ui)
-	{
-		ui->updateNames();
-	}
-}
 
 // static
 void LLFloaterBuyLand::buyLand(
@@ -296,13 +292,6 @@ LLFloaterBuyLandUI::LLFloaterBuyLandUI(const LLSD& key)
 	mChildren(*this), mCurrency(*this), mTransaction(0),
 	mParcelBuyInfo(0)
 {
-	static bool observingCacheName = false;
-	if (!observingCacheName)
-	{
-		gCacheName->addObserver(&cacheNameUpdateRefreshesBuyLand);
-		observingCacheName = true;
-	}
-	
 	LLViewerParcelMgr::getInstance()->addObserver(&mParcelSelectionObserver);
 	
 // 	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_buy_land.xml");
@@ -788,14 +777,30 @@ void LLFloaterBuyLandUI::updateNames()
 	}
 	else if (parcelp->getIsGroupOwned())
 	{
-		gCacheName->getGroupName(parcelp->getGroupID(), mParcelSellerName);
+		gCacheName->get(parcelp->getGroupID(), TRUE,
+			boost::bind(&LLFloaterBuyLandUI::updateGroupName, this,
+				_1, _2, _3, _4));
 	}
 	else
 	{
-		gCacheName->getFullName(parcelp->getOwnerID(), mParcelSellerName);
+		mParcelSellerName =
+			LLSLURL::buildCommand("agent", parcelp->getOwnerID(), "inspect");
 	}
 }
 
+void LLFloaterBuyLandUI::updateGroupName(const LLUUID& id,
+						 const std::string& first_name,
+						 const std::string& last_name,
+						 BOOL is_group)
+{
+	LLParcel* parcelp = mParcel->getParcel();
+	if (parcelp
+		&& parcelp->getGroupID() == id)
+	{
+		// request is current
+		mParcelSellerName = first_name;
+	}
+}
 
 void LLFloaterBuyLandUI::startTransaction(TransactionType type, const LLXMLRPCValue& params)
 {
@@ -1036,9 +1041,7 @@ void LLFloaterBuyLandUI::refreshUI()
 		if (message)
 		{
 			message->setVisible(true);
-			message->setWrappedText(
-				!mCanBuy ? mCannotBuyReason : "(waiting for data)"
-				);
+			message->setValue(LLSD(!mCanBuy ? mCannotBuyReason : "(waiting for data)"));
 		}
 
 		childSetVisible("error_web", 
@@ -1148,7 +1151,7 @@ void LLFloaterBuyLandUI::refreshUI()
 			}
 		}
 
-		childSetWrappedText("land_use_reason", message);
+		childSetValue("land_use_reason", message);
 
 		childShow("step_2");
 		childShow("land_use_action");

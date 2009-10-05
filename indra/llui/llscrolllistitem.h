@@ -34,10 +34,8 @@
 #ifndef LLSCROLLLISTITEM_H
 #define LLSCROLLLISTITEM_H
 
-#include "llfontgl.h"		// LLFontGL::HAlign
 #include "llpointer.h"		// LLPointer<>
 #include "llsd.h"
-#include "lluistring.h"
 #include "v4color.h"
 #include "llinitparam.h"
 #include "llscrolllistcell.h"

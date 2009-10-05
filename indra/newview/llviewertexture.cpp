@@ -2348,6 +2348,14 @@ void LLViewerMediaTexture::addFace(LLFace* facep)
 			return ;
 		}
 	}
+
+	//check if it is a parcel media
+	if(facep->getTexture() && facep->getTexture() != this && facep->getTexture()->getID() == mID)
+	{
+		mTextureList.push_back(facep->getTexture()) ; //a parcel media.
+		return ;
+	}
+
 	llerrs << "The face does not have a valid texture before media texture." << llendl ;
 }
 
@@ -2406,6 +2414,18 @@ void LLViewerMediaTexture::removeFace(LLFace* facep)
 			}
 		}
 	}
+
+	//check if it is a parcel media
+	for(std::list< LLPointer<LLViewerTexture> >::iterator iter = mTextureList.begin();
+				iter != mTextureList.end(); ++iter)
+	{
+		if((*iter)->getID() == mID)
+		{
+			mTextureList.erase(iter) ; //decrease the reference number for tex by one.
+			return ;
+		}
+	}
+
 	llerrs << "mTextureList texture reference number is corrupted." << llendl ;
 }
 
@@ -2442,6 +2462,10 @@ void LLViewerMediaTexture::switchTexture(LLFace* facep)
 			if(te)
 			{
 				LLViewerTexture* tex = gTextureList.findImage(te->getID()) ;
+				if(!tex && te->getID() != mID)//try parcel media.
+				{
+					tex = gTextureList.findImage(mID) ;
+				}
 				facep->switchTexture(tex) ;
 			}
 		}

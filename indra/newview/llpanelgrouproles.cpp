@@ -634,6 +634,7 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
 
 		row["columns"][1]["column"] = "action";
 		row["columns"][1]["value"] = action_set->mActionSetData->mName;
+		row["columns"][1]["font"]["name"] = "SANSSERIF_SMALL";
 		row["columns"][1]["font"]["style"] = "BOLD";
 
 		LLScrollListItem* title_row = ctrl->addElement(row, ADD_BOTTOM, action_set->mActionSetData);

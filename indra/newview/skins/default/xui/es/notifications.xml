@@ -574,7 +574,7 @@ misma región.
 	<notification name="PromptGoToCurrencyPage">
 		[EXTRA]
 
-¿Ir a [URL] para informarse sobre la compra de moneda?
+¿Ir a [_URL] para informarse sobre la compra de L$?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="UnableToLinkObjects">
@@ -808,7 +808,6 @@ no ha seleccionado un grupo.
 	<notification name="CannotDeedLandNoRegion">
 		No se ha podido transferir el terreno:
 Ha sido imposible encontrar en qué región está.
-Por favor, para informar de esto use Herramientas -&gt; Informar de un fallo.
 	</notification>
 	<notification name="CannotDeedLandMultipleSelected">
 		No se ha podido transferir el terreno:
@@ -854,8 +853,6 @@ Las parcelas de su propiedad se muestran en verde.
 	<notification name="CannotReleaseLandRegionNotFound">
 		No se ha podido abandonar el terreno:
 Ha sido imposible encontrar en qué región está.
-
-Por favor, para informar de esto use Herramientas &gt; Informar de un fallo.
 	</notification>
 	<notification name="CannotReleaseLandNoTransfer">
 		No se ha podido abandonar el terreno:
@@ -894,14 +891,10 @@ Inténtelo seleccionando una parte.
 	<notification name="CannotDivideLandNoRegion">
 		No se ha podido dividir el terreno:
 Ha sido imposible encontrar en qué región está.
-
-Por favor, para informar de esto use Herramientas -&gt; Informar de un fallo.
 	</notification>
 	<notification name="CannotJoinLandNoRegion">
 		No se ha podido unir el terreno:
 Ha sido imposible encontrar en qué región está.
-
-Por favor, para informar de esto use Herramientas -&gt; Informar de un fallo.
 	</notification>
 	<notification name="CannotJoinLandNothingSelected">
 		No se ha podido unir el terreno:
@@ -960,8 +953,6 @@ Gris = Público
 	<notification name="CannotSaveToAssetStore">
 		No se ha podido guardar [NAME] en la base central de almacenamiento.
 Esto es, generalmente, un fallo temporal. Por favor, reinténtelo en unos pocos minutos.
-
-Si persiste el problema, por favor, pulse en en el menú &apos;Herramientas &gt; Informar de un fallo&apos; y aporte detalles sobre la configuración de su conexión.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
 		Se ha cerrado su sesión en [SECOND_LIFE]:
@@ -1310,10 +1301,6 @@ Esta actualización no es obligatoria, pero le sugerimos instalarla para mejorar
 	<notification name="WebLaunchJoinNow">
 		¿Ir a www.secondlife.com para administrar su cuenta?
 		<usetemplate ignoretext="Cuando se abra el navegador para administrar su cuenta" name="okcancelignore" notext="Cancelar" yestext="OK"/>
-	</notification>
-	<notification name="WebLaunchBugReport101">
-		Visite el wiki de [SECOND_LIFE] y aprenda cómo informar correctamente de fallos.
-		<usetemplate ignoretext="Cuando se abra el navegador para ver el wiki de Informes de fallos - instrucciones" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchSecurityIssues">
 		Visite el wiki de [SECOND_LIFE] para más detalles sobre cómo informar de una cuestión de seguridad.
@@ -2046,25 +2033,9 @@ El propietario de la región resolverá las denuncias basándose en las reglas l
 
 La resolución de esta denuncia se aplica exclusivamente a esta región; el acceso de los residentes a otras áreas de [SECOND_LIFE] no se verá afectado por el resultado de esta denuncia. Únicamente Linden Lab puede impedir el acceso a la totalidad de [SECOND_LIFE].
 	</notification>
-	<notification name="HelpReportBug">
-		Use esta herramienta *sólo* para informar de cuestiones técnicas que no se comportan como se describe o era esperable. Por favor, aporte todos los detalles que pueda.
-Deberá responder al correo electrónico de auto respuesta para añadir más detalles a su informe.
-
-Todos los informes de fallos serán investigados y evaluados. No se contestará por correo electrónico.
-
-Si tiene algún problema técnico, por favor, contacte con Soporte en:
-
-http://secondlife.com/community/support.php
-
-Nota: no se investigarán los informes incompletos.
-	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Por favor, elija una categoría para esta denuncia de infracción.
 Seleccionar una categoría nos ayuda a clasificar y procesar las denuncias de infracciones.
-	</notification>
-	<notification name="HelpReportBugSelectCategory">
-		Por favor, elija una categoría para este fallo.
-Seleccionar una categoría nos ayuda a clasificar y procesar los informes de fallos.
 	</notification>
 	<notification name="HelpReportAbuseAbuserNameEmpty">
 		Por favor, escriba el nombre del infractor.
@@ -2078,19 +2049,10 @@ Aportar el dato preciso nos ayuda a clasificar y procesar las denuncias de infra
 		Por favor, escriba un resumen de la infracción que ha habido.
 Aportar un resumen preciso nos ayuda a clasificar y procesar las denuncias de infracciones.
 	</notification>
-	<notification name="HelpReportBugSummaryEmpty">
-		Por favor, escriba un resumen del fallo.
-Aportar un resumen preciso nos ayuda a clasificar y procesar los informes de fallos.
-	</notification>
 	<notification name="HelpReportAbuseDetailsEmpty">
 		Por favor, escriba una descripción minuciosa de la infracción que ha habido.
 Sea tan específico como pueda, incluyendo los nombres y los detalles implicados en el incidente que denuncia.
 Aportar una descripción precisa nos ayuda a clasificar y procesar las denuncias de infracciones.
-	</notification>
-	<notification name="HelpReportBugDetailsEmpty">
-		Por favor, escriba una descripción minuciosa del fallo.
-Sea tan específico como pueda, incluyendo -si es posible- los pasos que permitan reproducir el fallo.
-Aportar una descripción precisa nos ayuda a clasificar y procesar los informes de fallos.
 	</notification>
 	<notification name="HelpReportAbuseContainsCopyright">
 		Estimado Residente:

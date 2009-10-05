@@ -168,6 +168,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	params.name("Alert message");
 	params.font(font);
 	params.tab_stop(false);
+	params.wrap(true);
 	params.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
 
 	LLTextBox * msg_box = LLUICtrlFactory::create<LLTextBox> (params);
@@ -178,7 +179,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			- LINE_HEIGHT			// title bar
 			- 3*VPAD - BTN_HEIGHT;
 	msg_box->reshape( MAX_ALLOWED_MSG_WIDTH, max_allowed_msg_height );
-	msg_box->setWrappedText(msg, (F32)MAX_ALLOWED_MSG_WIDTH);
+	msg_box->setValue(msg);
 	msg_box->reshapeToFitText();
 
 	const LLRect& text_rect = msg_box->getRect();

@@ -218,7 +218,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	sbparams.orientation(LLScrollbar::VERTICAL);
 	sbparams.doc_size(getItemCount());
 	sbparams.doc_pos(mScrollLines);
-	sbparams.page_size( mPageLines ? mPageLines : getItemCount() );
+	sbparams.page_size( getLinesPerPage() );
 	sbparams.change_callback(boost::bind(&LLScrollListCtrl::onScrollChange, this, _1, _2));
 	sbparams.follows.flags(FOLLOWS_RIGHT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
 	sbparams.visible(false);
@@ -475,10 +475,7 @@ void LLScrollListCtrl::updateLayout()
 	getChildView("comment_text")->setShape(mItemListRect);
 
 	// how many lines of content in a single "page"
-	S32 page_lines =  mLineHeight? mItemListRect.getHeight() / mLineHeight : getItemCount();
-	//if mPageLines is NOT provided display all item
-	if(mPageLines)
-		page_lines = mPageLines;
+	S32 page_lines =  getLinesPerPage();
 
 	BOOL scrollbar_visible = mLineHeight * getItemCount() > mItemListRect.getHeight();
 	if (scrollbar_visible)
@@ -1386,7 +1383,7 @@ void LLScrollListCtrl::drawItems()
 	S32 y = mItemListRect.mTop - mLineHeight;
 
 	// allow for partial line at bottom
-	S32 num_page_lines = (mPageLines)? mPageLines : getItemCount() + 1;
+	S32 num_page_lines = getLinesPerPage();
 
 	LLRect item_rect;
 
@@ -1529,7 +1526,19 @@ BOOL LLScrollListCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return handled;
 }
 
-BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sticky_rect_screen)
+// *NOTE: Requires a valid row_index and column_index
+LLRect LLScrollListCtrl::getCellRect(S32 row_index, S32 column_index)
+{
+	LLRect cell_rect;
+	S32 rect_left = getColumnOffsetFromIndex(column_index) + mItemListRect.mLeft;
+	S32 rect_bottom = getRowOffsetFromIndex(row_index);
+	LLScrollListColumn* columnp = getColumn(column_index);
+	cell_rect.setOriginAndSize(rect_left, rect_bottom,
+		rect_left + columnp->getWidth(), mLineHeight);
+	return cell_rect;
+}
+
+BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	S32 column_index = getColumnIndexFromOffset(x);
 	LLScrollListColumn* columnp = getColumn(column_index);
@@ -1543,20 +1552,23 @@ BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sti
 	{
 		LLScrollListCell* hit_cell = hit_item->getColumn(column_index);
 		if (!hit_cell) return FALSE;
-		//S32 cell_required_width = hit_cell->getContentWidth();
 		if (hit_cell 
-			&& hit_cell->isText())
+			&& hit_cell->isText()
+			&& hit_cell->needsToolTip())
 		{
-			S32 rect_left = getColumnOffsetFromIndex(column_index) + mItemListRect.mLeft;
-			S32 rect_bottom = getRowOffsetFromIndex(getItemIndex(hit_item));
-			LLRect cell_rect;
-			cell_rect.setOriginAndSize(rect_left, rect_bottom, rect_left + columnp->getWidth(), mLineHeight);
+			S32 row_index = getItemIndex(hit_item);
+			LLRect cell_rect = getCellRect(row_index, column_index);
 			// Convert rect local to screen coordinates
 			LLRect sticky_rect;
 			localRectToScreen(cell_rect, &sticky_rect);
-			LLToolTipMgr::instance().show(LLToolTipParams()
-				.message(hit_cell->getValue().asString())
-				.sticky_rect(sticky_rect));		
+
+			// display tooltip exactly over original cell, in same font
+			LLToolTipMgr::instance().show(LLToolTip::Params()
+										.message(hit_cell->getValue().asString())
+										.font(LLFontGL::getFontSansSerifSmall())
+										.pos(LLCoordGL(sticky_rect.mLeft - 5, sticky_rect.mTop + 4))
+										.delay_time(0.2f)
+										.sticky_rect(sticky_rect));		
 		}
 		handled = TRUE;
 	}
@@ -1565,7 +1577,7 @@ BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, std::string& msg, LLRect& sti
 	LLScrollColumnHeader* headerp = columnp->mHeader;
 	if (headerp && !handled)
 	{
-		handled = headerp->handleToolTip(x, y, msg, sticky_rect_screen);
+		handled = headerp->handleToolTip(x, y, mask);
 	}
 
 	return handled;
@@ -1877,7 +1889,7 @@ LLScrollListItem* LLScrollListCtrl::hitItem( S32 x, S32 y )
 		mLineHeight );
 
 	// allow for partial line at bottom
-	S32 num_page_lines = (mPageLines)? mPageLines : getItemCount() + 1;
+	S32 num_page_lines = getLinesPerPage();
 
 	S32 line = 0;
 	item_list::iterator iter;
@@ -2336,6 +2348,20 @@ BOOL LLScrollListCtrl::setSort(S32 column_idx, BOOL ascending)
 	}
 }
 
+S32	LLScrollListCtrl::getLinesPerPage()
+{
+	//if mPageLines is NOT provided display all item
+	if(mPageLines)
+	{
+		return mPageLines;
+	}
+	else
+	{
+		return mLineHeight ? mItemListRect.getHeight() / mLineHeight : getItemCount();
+	}
+}
+
+
 // Called by scrollbar
 void LLScrollListCtrl::onScrollChange( S32 new_pos, LLScrollbar* scrollbar )
 {
@@ -2442,7 +2468,7 @@ void LLScrollListCtrl::scrollToShowSelected()
 	}
 
 	S32 lowest = mScrollLines;
-	S32 page_lines = (mPageLines)? mPageLines : getItemCount();
+	S32 page_lines = getLinesPerPage();
 	S32 highest = mScrollLines + page_lines;
 
 	if (index < lowest)
