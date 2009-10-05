@@ -567,6 +567,15 @@ void init_menus()
 	gAttachSubMenu = gMenuBarView->findChildMenuByName("Attach Object", TRUE);
 	gDetachSubMenu = gMenuBarView->findChildMenuByName("Detach Object", TRUE);
 
+#if !MEM_TRACK_MEM
+	// Don't display the Memory console menu if the feature is turned off
+	LLMenuItemCheckGL *memoryMenu = gMenuBarView->getChild<LLMenuItemCheckGL>("Memory", TRUE);
+	if (memoryMenu)
+	{
+		memoryMenu->setVisible(FALSE);
+	}
+#endif
+
 	gMenuBarView->createJumpKeys();
 
 	// Let land based option enable when parcel changes
