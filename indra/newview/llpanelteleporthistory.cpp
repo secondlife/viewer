@@ -261,7 +261,7 @@ BOOL LLTeleportHistoryPanel::postBuild()
 				if (fl)
 				{
 					fl->setCommitOnSelectionChange(true);
-					//fl->setDoubleClickCallback(onDoubleClickItem, this);
+					fl->setDoubleClickCallback(boost::bind(&LLTeleportHistoryPanel::onDoubleClickItem, this));
 					fl->setCommitCallback(boost::bind(&LLTeleportHistoryPanel::handleItemSelect, this, fl));
 				}
 			}
@@ -497,20 +497,10 @@ void LLTeleportHistoryPanel::handleItemSelect(LLFlatListView* selected)
 	updateVerbs();
 }
 
-//static
-void LLTeleportHistoryPanel::onDoubleClickItem(void* user_data)
+void LLTeleportHistoryPanel::onDoubleClickItem()
 {
-	/*LLTeleportHistoryPanel* self = (LLTeleportHistoryPanel*)user_data;
-	
-	LLScrollListItem* itemp = self->mHistoryItems->getFirstSelected();
-	if(!itemp)
-		return;
-
-	LLSD key;
-	key["type"] = "teleport_history";
-	key["id"] = itemp->getColumn(LIST_INDEX)->getValue().asInteger();
-
-	LLSideTray::getInstance()->showPanel("panel_places", key);*/
+	// If item got doubleclick, then that item is already selected
+	onTeleport();
 }
 
 void LLTeleportHistoryPanel::onAccordionTabRightClick(LLView *view, S32 x, S32 y, MASK mask)

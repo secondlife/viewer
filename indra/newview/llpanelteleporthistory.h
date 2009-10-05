@@ -78,7 +78,10 @@ public:
 
 private:
 
-	static void onDoubleClickItem(void* user_data);
+	void onDoubleClickItem();
+	void onAccordionTabRightClick(LLView *view, S32 x, S32 y, MASK mask);
+	void onAccordionTabOpen(LLAccordionCtrlTab *tab);
+	void onAccordionTabClose(LLAccordionCtrlTab *tab);
 	void onAccordionTabRightClick(LLView *view, S32 x, S32 y, MASK mask);
 	void onAccordionTabOpen(LLAccordionCtrlTab *tab);
 	void onAccordionTabClose(LLAccordionCtrlTab *tab);
