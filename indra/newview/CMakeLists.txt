@@ -264,8 +264,7 @@ set(viewer_SOURCE_FILES
     llmaniptranslate.cpp
     llmapresponders.cpp
     llmediactrl.cpp
-    llmediadataresponder.cpp
-    llmediadatafetcher.cpp
+    llmediadataclient.cpp
     llmediaremotectrl.cpp
     llmemoryview.cpp
     llmenucommands.cpp
@@ -735,8 +734,7 @@ set(viewer_HEADER_FILES
     llmanipscale.h
     llmaniptranslate.h
     llmapresponders.h
-    llmediadataresponder.h
-    llmediadatafetcher.h
+    llmediadataclient.h
     llmediaremotectrl.h
     llmemoryview.h
     llmenucommands.h

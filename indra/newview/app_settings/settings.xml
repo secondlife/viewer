@@ -5294,7 +5294,7 @@
       <key>Value</key>
 	  <integer>13</integer>
     </map>
-    <key>PrimMediaFetchQueueDelay</key>
+    <key>PrimMediaRequestQueueDelay</key>
     <map>
       <key>Comment</key>
       <string>Timer delay for fetching media from the queue (in seconds).</string>
