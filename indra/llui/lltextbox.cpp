@@ -47,26 +47,19 @@ LLTextBox::LLTextBox(const LLTextBox::Params& p)
 
 BOOL LLTextBox::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL	handled = FALSE;
+	BOOL	handled = LLTextBase::handleMouseDown(x, y, mask);
 
-	// HACK: Only do this if there actually is something to click, so that
-	// overly large text boxes in the older UI won't start eating clicks.
-	if (isClickable())
+	if (getSoundFlags() & MOUSE_DOWN)
 	{
-		handled = TRUE;
-
-		// Route future Mouse messages here preemptively.  (Release on mouse up.)
-		gFocusMgr.setMouseCapture( this );
-		
-		if (getSoundFlags() & MOUSE_DOWN)
-		{
-			make_ui_sound("UISndClick");
-		}
+		make_ui_sound("UISndClick");
 	}
 
-	if (!handled)
+	if (!handled && mClickedCallback)
 	{
-		handled = LLTextBase::handleMouseDown(x, y, mask);
+		// Route future Mouse messages here preemptively.  (Release on mouse up.)
+		gFocusMgr.setMouseCapture( this );
+
+		handled = TRUE;
 	}
 
 	return handled;
@@ -76,32 +69,29 @@ BOOL LLTextBox::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	BOOL	handled = FALSE;
 
-	// We only handle the click if the click both started and ended within us
-
-	// HACK: Only do this if there actually is something to click, so that
-	// overly large text boxes in the older UI won't start eating clicks.
-	if (isClickable() && hasMouseCapture())
+	if (getSoundFlags() & MOUSE_UP)
 	{
-		handled = TRUE;
+		make_ui_sound("UISndClickRelease");
+	}
 
+	// We only handle the click if the click both started and ended within us
+	if (hasMouseCapture())
+	{
 		// Release the mouse
 		gFocusMgr.setMouseCapture( NULL );
 
-		if (getSoundFlags() & MOUSE_UP)
-		{
-			make_ui_sound("UISndClickRelease");
-		}
-
-		// handle clicks on Urls in the textbox first
-		handled = LLTextBase::handleMouseUp(x, y, mask);
-
-		// DO THIS AT THE VERY END to allow the button to be destroyed
+		// DO THIS AT THE VERY END to allow the button  to be destroyed
 		// as a result of being clicked.  If mouseup in the widget,
 		// it's been clicked
 		if (mClickedCallback && !handled)
 		{
 			mClickedCallback();
+			handled = TRUE;
 		}
+	}
+	else
+	{
+		handled = LLTextBase::handleMouseUp(x, y, mask);
 	}
 
 	return handled;
@@ -147,32 +137,5 @@ void LLTextBox::reshapeToFitText()
 void LLTextBox::onUrlLabelUpdated(const std::string &url, const std::string &label)
 {
 	needsReflow();
-}
-
-bool LLTextBox::isClickable() const
-{
-	// return true if we have been given a click callback
-	if (mClickedCallback)
-	{
-		return true;
-	}
-
-	// also return true if we have a clickable Url in the text
-	segment_set_t::const_iterator it;
-	for (it = mSegments.begin(); it != mSegments.end(); ++it)
-	{
-		LLTextSegmentPtr segmentp = *it;
-		if (segmentp)
-		{
-			const LLStyleSP style = segmentp->getStyle();
-			if (style && style->isLink())
-			{
-				return true;
-			}
-		}
-	}
-
-	// otherwise there is nothing clickable here
-	return false;
 }
 

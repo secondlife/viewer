@@ -209,7 +209,8 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mWordWrap(p.wrap),
 	mUseEllipses( p.use_ellipses ),
 	mParseHTML(p.allow_html),
-	mParseHighlights(p.parse_highlights)
+	mParseHighlights(p.parse_highlights),
+	mHideScrollbar(p.hide_scrollbar)
 {
 	LLScrollContainer::Params scroll_params;
 	scroll_params.name = "text scroller";
@@ -278,7 +279,9 @@ bool LLTextBase::truncate()
 			// Truncate safely in UTF-8
 			std::string temp_utf8_text = wstring_to_utf8str(text);
 			temp_utf8_text = utf8str_truncate( temp_utf8_text, mMaxTextByteLength );
-			getViewModel()->setDisplay(utf8str_to_wstring( temp_utf8_text ));
+			LLWString text = utf8str_to_wstring( temp_utf8_text );
+			// remove extra bit of current string, to preserve formatting, etc.
+			removeStringNoUndo(text.size(), getWText().size() - text.size());
 			did_truncate = TRUE;
 		}
 	}
@@ -755,47 +758,60 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 			// split old at start point for new segment
 			cur_segmentp->setEnd(segment_to_insert->getStart());
 			// advance to next segment
-			++cur_seg_iter;
 			// insert remainder of old segment
 			LLTextSegmentPtr remainder_segment = new LLNormalTextSegment( cur_segmentp->getStyle(), segment_to_insert->getStart(), old_segment_end, *this);
-			cur_seg_iter = mSegments.insert(cur_seg_iter, remainder_segment);
+			mSegments.insert(cur_seg_iter, remainder_segment);
 			remainder_segment->linkToDocument(this);
 			// insert new segment before remainder of old segment
-			cur_seg_iter = mSegments.insert(cur_seg_iter, segment_to_insert);
+			mSegments.insert(cur_seg_iter, segment_to_insert);
 
 			segment_to_insert->linkToDocument(this);
-			// move to "remanider" segment and start truncation there
-			++cur_seg_iter;
+			// at this point, there will be two overlapping segments owning the text
+			// associated with the incoming segment
 		}
 		else
 		{
-			cur_seg_iter = mSegments.insert(cur_seg_iter, segment_to_insert);
-			++cur_seg_iter;
+			mSegments.insert(cur_seg_iter, segment_to_insert);
 			segment_to_insert->linkToDocument(this);
 		}
 
 		// now delete/truncate remaining segments as necessary
+		// cur_seg_iter points to segment before incoming segment
 		while(cur_seg_iter != mSegments.end())
 		{
 			cur_segmentp = *cur_seg_iter;
-			if (cur_segmentp->getEnd() <= segment_to_insert->getEnd())
+			if (cur_segmentp == segment_to_insert) 
 			{
-				cur_segmentp->unlinkFromDocument(this);
-				segment_set_t::iterator seg_to_erase(cur_seg_iter++);
-				mSegments.erase(seg_to_erase);
+				++cur_seg_iter;
+				continue;
 			}
-			else
+
+			if (cur_segmentp->getStart() >= segment_to_insert->getStart())
 			{
-				cur_segmentp->setStart(segment_to_insert->getEnd());
-				break;
+				if(cur_segmentp->getEnd() <= segment_to_insert->getEnd())
+				{
+					cur_segmentp->unlinkFromDocument(this);
+					// grab copy of iterator to erase, and bump it
+					segment_set_t::iterator seg_to_erase(cur_seg_iter++);
+					mSegments.erase(seg_to_erase);
+					continue;
+				}
+				else
+				{
+					// last overlapping segment, clip to end of incoming segment
+					// and stop traversal
+					cur_segmentp->setStart(segment_to_insert->getEnd());
+					break;
+				}
 			}
+			++cur_seg_iter;
 		}
 	}
 }
 
 BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	LLTextSegment* cur_segment = getSegmentAtLocalPos(x, y);
+	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleMouseDown(x, y, mask))
 	{
 		return TRUE;
@@ -806,7 +822,7 @@ BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLTextBase::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	LLTextSegment* cur_segment = getSegmentAtLocalPos(x, y);
+	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleMouseUp(x, y, mask))
 	{
 		// Did we just click on a link?
@@ -824,7 +840,7 @@ BOOL LLTextBase::handleMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL LLTextBase::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
-	LLTextSegment* cur_segment = getSegmentAtLocalPos(x, y);
+	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleMiddleMouseDown(x, y, mask))
 	{
 		return TRUE;
@@ -835,7 +851,7 @@ BOOL LLTextBase::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLTextBase::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 {
-	LLTextSegment* cur_segment = getSegmentAtLocalPos(x, y);
+	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleMiddleMouseUp(x, y, mask))
 	{
 		return TRUE;
@@ -846,7 +862,7 @@ BOOL LLTextBase::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL LLTextBase::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	LLTextSegment* cur_segment = getSegmentAtLocalPos(x, y);
+	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleRightMouseDown(x, y, mask))
 	{
 		return TRUE;
@@ -857,7 +873,7 @@ BOOL LLTextBase::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLTextBase::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
-	LLTextSegment* cur_segment = getSegmentAtLocalPos(x, y);
+	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleRightMouseUp(x, y, mask))
 	{
 		return TRUE;
@@ -868,7 +884,7 @@ BOOL LLTextBase::handleRightMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL LLTextBase::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	LLTextSegment* cur_segment = getSegmentAtLocalPos(x, y);
+	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleDoubleClick(x, y, mask))
 	{
 		return TRUE;
@@ -879,7 +895,7 @@ BOOL LLTextBase::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 BOOL LLTextBase::handleHover(S32 x, S32 y, MASK mask)
 {
-	LLTextSegment* cur_segment = getSegmentAtLocalPos(x, y);
+	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleHover(x, y, mask))
 	{
 		return TRUE;
@@ -890,7 +906,7 @@ BOOL LLTextBase::handleHover(S32 x, S32 y, MASK mask)
 
 BOOL LLTextBase::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	LLTextSegment* cur_segment = getSegmentAtLocalPos(x, y);
+	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleScrollWheel(x, y, clicks))
 	{
 		return TRUE;
@@ -901,7 +917,7 @@ BOOL LLTextBase::handleScrollWheel(S32 x, S32 y, S32 clicks)
 
 BOOL LLTextBase::handleToolTip(S32 x, S32 y, MASK mask)
 {
-	LLTextSegment* cur_segment = getSegmentAtLocalPos(x, y);
+	LLTextSegmentPtr cur_segment = getSegmentAtLocalPos(x, y);
 	if (cur_segment && cur_segment->handleToolTip(x, y, mask))
 	{
 		return TRUE;
@@ -1040,109 +1056,106 @@ void LLTextBase::reflow(S32 start_index)
 
 		S32 cur_top = 0;
 
-		if (getLength())
-		{
-			segment_set_t::iterator seg_iter = mSegments.begin();
-			S32 seg_offset = 0;
-			S32 line_start_index = 0;
-			const S32 text_width = mTextRect.getWidth();  // optionally reserve room for margin
-			S32 remaining_pixels = text_width;
-			LLWString text(getWText());
-			S32 line_count = 0;
+		segment_set_t::iterator seg_iter = mSegments.begin();
+		S32 seg_offset = 0;
+		S32 line_start_index = 0;
+		const S32 text_width = mTextRect.getWidth();  // optionally reserve room for margin
+		S32 remaining_pixels = text_width;
+		LLWString text(getWText());
+		S32 line_count = 0;
 
-			// find and erase line info structs starting at start_index and going to end of document
-			if (!mLineInfoList.empty())
+		// find and erase line info structs starting at start_index and going to end of document
+		if (!mLineInfoList.empty())
+		{
+			// find first element whose end comes after start_index
+			line_list_t::iterator iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), start_index, line_end_compare());
+			line_start_index = iter->mDocIndexStart;
+			line_count = iter->mLineNum;
+			getSegmentAndOffset(iter->mDocIndexStart, &seg_iter, &seg_offset);
+			mLineInfoList.erase(iter, mLineInfoList.end());
+		}
+
+		S32 line_height = 0;
+
+		while(seg_iter != mSegments.end())
+		{
+			LLTextSegmentPtr segment = *seg_iter;
+
+			// track maximum height of any segment on this line
+			line_height = llmax(line_height, segment->getMaxHeight());
+			S32 cur_index = segment->getStart() + seg_offset;
+			// find run of text from this segment that we can display on one line
+			S32 end_index = cur_index;
+			while(end_index < segment->getEnd() && text[end_index] != '\n')
 			{
-				// find first element whose end comes after start_index
-				line_list_t::iterator iter = std::upper_bound(mLineInfoList.begin(), mLineInfoList.end(), start_index, line_end_compare());
-				line_start_index = iter->mDocIndexStart;
-				line_count = iter->mLineNum;
-				getSegmentAndOffset(iter->mDocIndexStart, &seg_iter, &seg_offset);
-				mLineInfoList.erase(iter, mLineInfoList.end());
+				++end_index;
 			}
 
-			S32 line_height = 0;
+			// ask segment how many character fit in remaining space
+			S32 max_characters = end_index - cur_index;
+			S32 character_count = segment->getNumChars(getWordWrap() ? llmax(0, remaining_pixels) : S32_MAX,
+														seg_offset, 
+														cur_index - line_start_index, 
+														max_characters);
+			
 
-			while(seg_iter != mSegments.end())
+			S32 segment_width = segment->getWidth(seg_offset, character_count);
+			remaining_pixels -= segment_width;
+			S32 text_left = getLeftOffset(text_width - remaining_pixels);
+
+			seg_offset += character_count;
+
+			S32 last_segment_char_on_line = segment->getStart() + seg_offset;
+
+			// if we didn't finish the current segment...
+			if (last_segment_char_on_line < segment->getEnd())
 			{
-				LLTextSegmentPtr segment = *seg_iter;
-
-				// track maximum height of any segment on this line
-				line_height = llmax(line_height, segment->getMaxHeight());
-				S32 cur_index = segment->getStart() + seg_offset;
-				// find run of text from this segment that we can display on one line
-				S32 end_index = cur_index;
-				while(end_index < segment->getEnd() && text[end_index] != '\n')
+				// set up index for next line
+				// ...skip newline, we don't want to draw
+				S32 next_line_count = line_count;
+				if (text[last_segment_char_on_line] == '\n')
 				{
-					++end_index;
+					seg_offset++;
+					last_segment_char_on_line++;
+					next_line_count++;
 				}
 
-				// ask segment how many character fit in remaining space
-				S32 max_characters = end_index - cur_index;
-				S32 character_count = segment->getNumChars(getWordWrap() ? llmax(0, remaining_pixels) : S32_MAX,
-															seg_offset, 
-															cur_index - line_start_index, 
-															max_characters);
-				
+				// add line info and keep going
+				mLineInfoList.push_back(line_info(
+											line_start_index, 
+											last_segment_char_on_line, 
+											LLRect(text_left, 
+													cur_top, 
+													text_left + (text_width - remaining_pixels),
+													cur_top - line_height), 
+											line_count));
 
-				S32 segment_width = segment->getWidth(seg_offset, character_count);
-				remaining_pixels -= segment_width;
-				S32 text_left = getLeftOffset(text_width - remaining_pixels);
-
-				seg_offset += character_count;
-
-				S32 last_segment_char_on_line = segment->getStart() + seg_offset;
-
-				// if we didn't finish the current segment...
-				if (last_segment_char_on_line < segment->getEnd())
-				{
-					// set up index for next line
-					// ...skip newline, we don't want to draw
-					S32 next_line_count = line_count;
-					if (text[last_segment_char_on_line] == '\n')
-					{
-						seg_offset++;
-						last_segment_char_on_line++;
-						next_line_count++;
-					}
-
-					// add line info and keep going
-					mLineInfoList.push_back(line_info(
-												line_start_index, 
-												last_segment_char_on_line, 
-												LLRect(text_left, 
-														cur_top, 
-														text_left + (text_width - remaining_pixels),
-														cur_top - line_height), 
-												line_count));
-
-					line_start_index = segment->getStart() + seg_offset;
-					cur_top -= llround((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
-					remaining_pixels = text_width;
-					line_height = 0;
-					line_count = next_line_count;
-				}
-				// ...just consumed last segment..
-				else if (++segment_set_t::iterator(seg_iter) == mSegments.end())
-				{
-					mLineInfoList.push_back(line_info(
-												line_start_index, 
-												last_segment_char_on_line, 
-												LLRect(text_left, 
-														cur_top, 
-														text_left + (text_width - remaining_pixels),
-														cur_top - line_height), 
-												line_count));
-					cur_top -= llround((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
-					break;
-				}
-				// finished a segment and there are segments remaining on this line
-				else
-				{
-					// subtract pixels used and increment segment
-					++seg_iter;
-					seg_offset = 0;
-				}
+				line_start_index = segment->getStart() + seg_offset;
+				cur_top -= llround((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
+				remaining_pixels = text_width;
+				line_height = 0;
+				line_count = next_line_count;
+			}
+			// ...just consumed last segment..
+			else if (++segment_set_t::iterator(seg_iter) == mSegments.end())
+			{
+				mLineInfoList.push_back(line_info(
+											line_start_index, 
+											last_segment_char_on_line, 
+											LLRect(text_left, 
+													cur_top, 
+													text_left + (text_width - remaining_pixels),
+													cur_top - line_height), 
+											line_count));
+				cur_top -= llround((F32)line_height * mLineSpacingMult) + mLineSpacingPixels;
+				break;
+			}
+			// finished a segment and there are segments remaining on this line
+			else
+			{
+				// subtract pixels used and increment segment
+				++seg_iter;
+				seg_offset = 0;
 			}
 		}
 
@@ -1256,6 +1269,19 @@ S32 LLTextBase::getLineStart( S32 line ) const
 	return mLineInfoList[line].mDocIndexStart;
 }
 
+S32 LLTextBase::getLineEnd( S32 line ) const
+{
+	S32 num_lines = getLineCount();
+	if (num_lines == 0)
+    {
+		return 0;
+    }
+
+	line = llclamp(line, 0, num_lines-1);
+	return mLineInfoList[line].mDocIndexEnd;
+}
+
+
 
 S32 LLTextBase::getLineNumFromDocIndex( S32 doc_index, bool include_wordwrap) const
 {
@@ -1308,14 +1334,27 @@ S32	LLTextBase::getFirstVisibleLine() const
 	return iter - mLineInfoList.begin();
 }
 
-std::pair<S32, S32>	LLTextBase::getVisibleLines() const
+std::pair<S32, S32>	LLTextBase::getVisibleLines(bool fully_visible) 
 {
 	LLRect visible_region = mScroller->getVisibleContentRect();
+	line_list_t::const_iterator first_iter;
+	line_list_t::const_iterator last_iter;
 
-	// binary search for line that starts before top of visible buffer and starts before end of visible buffer
-	line_list_t::const_iterator first_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mTop, compare_bottom());
-	line_list_t::const_iterator last_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mBottom, compare_top());
+	// make sure we have an up-to-date mLineInfoList
+	reflow();
 
+	if (fully_visible)
+	{
+		// binary search for line that starts before top of visible buffer and starts before end of visible buffer
+		first_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mTop, compare_top());
+		last_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mBottom, compare_bottom());
+	}
+	else
+	{
+		// binary search for line that starts before top of visible buffer and starts before end of visible buffer
+		first_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mTop, compare_bottom());
+		last_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), visible_region.mBottom, compare_top());
+	}
 	return std::pair<S32, S32>(first_iter - mLineInfoList.begin(), last_iter - mLineInfoList.begin());
 }
 
@@ -2147,7 +2186,15 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 start = seg_start;
 		S32 end = llmin( selection_start, seg_end );
 		S32 length =  end - start;
-		font->render(text, start, rect.mLeft, rect.mTop, color, LLFontGL::LEFT, LLFontGL::TOP, 0, mStyle->getShadowType(), length, rect.getWidth(), &right_x, mEditor.getUseEllipses());
+		font->render(text, start, 
+					rect.mLeft, rect.mTop, 
+					color, 
+					LLFontGL::LEFT, LLFontGL::TOP, 
+					0, 
+					mStyle->getShadowType(), 
+					length, rect.getWidth(), 
+					&right_x, 
+					mEditor.getUseEllipses());
 	}
 	rect.mLeft = (S32)ceil(right_x);
 	
@@ -2158,9 +2205,15 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 end = llmin( selection_end, seg_end );
 		S32 length = end - start;
 
-		font->render(text, start, rect.mLeft, rect.mTop,
-					 LLColor4( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], 1.f ),
-					 LLFontGL::LEFT, LLFontGL::TOP, 0, LLFontGL::NO_SHADOW, length, rect.mRight, &right_x, mEditor.getUseEllipses());
+		font->render(text, start, 
+					rect.mLeft, rect.mTop,
+					LLColor4( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], 1.f ),
+					LLFontGL::LEFT, LLFontGL::TOP, 
+					0, 
+					LLFontGL::NO_SHADOW, 
+					length, rect.mRight, 
+					&right_x, 
+					mEditor.getUseEllipses());
 	}
 	rect.mLeft = (S32)ceil(right_x);
 	if( selection_end < seg_end )
@@ -2169,7 +2222,15 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 start = llmax( selection_end, seg_start );
 		S32 end = seg_end;
 		S32 length = end - start;
-		font->render(text, start, rect.mLeft, rect.mTop, color, LLFontGL::LEFT, LLFontGL::TOP, 0, mStyle->getShadowType(), length, rect.mRight, &right_x, mEditor.getUseEllipses());
+		font->render(text, start, 
+					rect.mLeft, rect.mTop, 
+					color, 
+					LLFontGL::LEFT, LLFontGL::TOP, 
+					0, 
+					mStyle->getShadowType(), 
+					length, rect.mRight, 
+					&right_x, 
+					mEditor.getUseEllipses());
 	}
 	return right_x;
 }
@@ -2263,7 +2324,7 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	S32 num_chars = mStyle->getFont()->maxDrawableChars(text.c_str() + segment_offset + mStart, 
 												(F32)num_pixels,
 												max_chars, 
-												mEditor.getWordWrap());
+												TRUE);
 
 	if (num_chars == 0 
 		&& line_offset == 0 

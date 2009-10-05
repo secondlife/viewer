@@ -79,7 +79,6 @@ public:
 
 protected:
 	void            onUrlLabelUpdated(const std::string &url, const std::string &label);
-	bool            isClickable() const;
 
 	LLUIString			mText;
 	callback_t			mClickedCallback;

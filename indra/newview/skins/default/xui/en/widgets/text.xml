@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <text allow_html="true"
       clip_to_rect="false"
+      mouse_opaque="false" 
       name="text_box" 
       font="SansSerifSmall"
       font_shadow="soft" 

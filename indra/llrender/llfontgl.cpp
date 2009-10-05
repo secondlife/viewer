@@ -208,10 +208,10 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	case LEFT:
 		break;
 	case RIGHT:
-	  	cur_x -= llmin(scaled_max_pixels, llround(getWidthF32(wstr.c_str(), 0, length) * sScaleX));
+	  	cur_x -= llmin(scaled_max_pixels, llround(getWidthF32(wstr.c_str(), begin_offset, length) * sScaleX));
 		break;
 	case HCENTER:
-	    cur_x -= llmin(scaled_max_pixels, llround(getWidthF32(wstr.c_str(), 0, length) * sScaleX)) / 2;
+	    cur_x -= llmin(scaled_max_pixels, llround(getWidthF32(wstr.c_str(), begin_offset, length) * sScaleX)) / 2;
 		break;
 	default:
 		break;
@@ -234,7 +234,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	if (use_ellipses)
 	{
 		// check for too long of a string
-		if (getWidthF32(wstr.c_str(), 0, max_chars) * sScaleX > scaled_max_pixels)
+		if (getWidthF32(wstr.c_str(), begin_offset, max_chars) * sScaleX > scaled_max_pixels)
 		{
 			// use four dots for ellipsis width to generate padding
 			const LLWString dots(utf8str_to_wstring(std::string("....")));

@@ -34,253 +34,121 @@
 #include "llexpandabletextbox.h"
 
 #include "llscrollcontainer.h"
+#include "llwindow.h"
 
 static LLDefaultChildRegistry::Register<LLExpandableTextBox> t1("expandable_text");
 
-LLExpandableTextBox::LLTextBoxEx::Params::Params()
-: expand_textbox("expand_textbox")
+class LLExpanderSegment : public LLTextSegment
 {
-}
+public:
+	LLExpanderSegment(const LLStyleSP& style, S32 start, S32 end, const std::string& more_text, LLTextBase& editor )
+	:	LLTextSegment(start, end),
+		mEditor(editor),
+		mStyle(style),
+		mMoreText(more_text)
+	{}
+
+	/*virtual*/ S32		getWidth(S32 first_char, S32 num_chars) const 
+	{
+		// more label always spans width of text box
+		return mEditor.getTextRect().getWidth(); 
+	}
+	/*virtual*/ S32		getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const 
+	{ 
+		return start_offset;
+	}
+	/*virtual*/ S32		getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const { return getEnd() - getStart(); }
+	/*virtual*/ F32		draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
+	{
+		F32 right_x;
+		mStyle->getFont()->renderUTF8(mMoreText, start, draw_rect.mRight, draw_rect.mTop, mStyle->getColor(), LLFontGL::RIGHT, LLFontGL::TOP, 0, mStyle->getShadowType(), end - start, draw_rect.getWidth(), &right_x, mEditor.getUseEllipses());
+		return right_x;
+	}
+	/*virtual*/ S32		getMaxHeight() const { return llceil(mStyle->getFont()->getLineHeight()); }
+	/*virtual*/ bool	canEdit() const { return false; }
+	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask) { mEditor.onCommit(); return TRUE; }
+	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask) 
+	{
+		LLUI::getWindow()->setCursor(UI_CURSOR_HAND);
+		return TRUE; 
+	}
+private:
+	LLTextBase& mEditor;
+	LLStyleSP	mStyle;
+	std::string	mMoreText;
+};
+
+
 
 LLExpandableTextBox::LLTextBoxEx::LLTextBoxEx(const Params& p)
-: LLTextBox(p)
+:	LLTextBox(p),
+	mExpanded(false)
 {
 	setIsChrome(TRUE);
 
-	LLTextBox::Params params = p.expand_textbox;
-	mExpandTextBox = LLUICtrlFactory::create<LLTextBox>(params);
-	addChild(mExpandTextBox);
-
-	LLRect rc = getLocalRect();
-	rc.mRight -= getHPad();
-	rc.mLeft = rc.mRight - mExpandTextBox->getTextPixelWidth();
-	rc.mTop = mExpandTextBox->getTextPixelHeight();
-	mExpandTextBox->setRect(rc);
 }
 
-BOOL LLExpandableTextBox::LLTextBoxEx::handleMouseUp(S32 x, S32 y, MASK mask)
+void LLExpandableTextBox::LLTextBoxEx::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	BOOL ret = LLTextBox::handleMouseUp(x, y, mask);
+	LLTextBox::reshape(width, height, called_from_parent);
 
-	if(mExpandTextBox->getRect().pointInRect(x, y))
+	if (getTextPixelHeight() > getRect().getHeight())
 	{
-		onCommit();
-	}
-
-	return ret;
-}
-
-void LLExpandableTextBox::LLTextBoxEx::draw()
-{
-	// draw text box
-	LLTextBox::draw();
-	// force text box to draw children
-	LLUICtrl::draw();
-}
-
-/* LLTextBox has been rewritten, the variables referenced in this code
-no longer exist.
-
-void LLExpandableTextBox::LLTextBoxEx::drawText( S32 x, S32 y, const LLWString &text, const LLColor4& color )
-{
-	// *NOTE:dzaporozhan:
-	// Copy/paste from LLTextBox::drawText in order to modify last 
-	// line width if needed and who "More" link
-	F32 alpha = getDrawContext().mAlpha;
-	if (mSegments.size() > 1)
-	{
-		// we have Urls (or other multi-styled segments)
-		drawTextSegments(x, y, text);
-	}
-	else if( mLineLengthList.empty() )
-	{
-		// simple case of 1 line of text in one style
-		mDefaultFont->render(text, 0, (F32)x, (F32)y, color % alpha,
-			mHAlign, mVAlign, 
-			0,
-			mShadowType,
-			S32_MAX, getRect().getWidth(), NULL, mUseEllipses);
-
-		mExpandTextBox->setVisible(FALSE);
+		showExpandText();
 	}
 	else
 	{
-		// simple case of multiple lines of text, all in the same style
-		S32 cur_pos = 0;
-		for (std::vector<S32>::iterator iter = mLineLengthList.begin();
-			iter != mLineLengthList.end(); ++iter)
-		{
-			S32 line_length = *iter;
-			S32 line_height = llfloor(mDefaultFont->getLineHeight()) + mLineSpacing;
-			S32 max_pixels = getRect().getWidth();
-
-			if(iter + 1 != mLineLengthList.end() 
-				&& y - line_height < line_height)
-			{
-				max_pixels = getCropTextWidth();
-			}
-
-			mDefaultFont->render(text, cur_pos, (F32)x, (F32)y, color % alpha,
-				mHAlign, mVAlign,
-				0,
-				mShadowType,
-				line_length, max_pixels, NULL, mUseEllipses );
-
-			cur_pos += line_length + 1;
-
-			y -= line_height;
-			if(y < line_height)
-			{
-				if( mLineLengthList.end() != iter + 1 )
-				{
-					showExpandText(y);
-				}
-				else
-				{
-					hideExpandText();
-				}
-				break;
-			}
-		}
+		hideExpandText();
 	}
 }
-*/
 
-void LLExpandableTextBox::LLTextBoxEx::showExpandText(S32 y)
+void LLExpandableTextBox::LLTextBoxEx::setValue(const LLSD& value)
 {
-	LLRect rc = mExpandTextBox->getRect();
-	rc.mTop = y + mExpandTextBox->getTextPixelHeight();
-	rc.mBottom = y;
-	mExpandTextBox->setRect(rc);
-	mExpandTextBox->setVisible(TRUE);
+	LLTextBox::setValue(value);
+
+	if (getTextPixelHeight() > getRect().getHeight())
+	{
+		showExpandText();
+	}
+	else
+	{
+		hideExpandText();
+	}
 }
 
+
+void LLExpandableTextBox::LLTextBoxEx::showExpandText()
+{
+	if (!mExpanded)
+	{
+		// get fully visible lines
+		std::pair<S32, S32> visible_lines = getVisibleLines(true);
+		S32 last_line = visible_lines.second - 1;
+
+		LLStyle::Params expander_style = getDefaultStyle();
+		expander_style.font.name.setIfNotProvided(LLFontGL::nameFromFont(expander_style.font));
+		expander_style.font.style = "UNDERLINE";
+		expander_style.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+		LLExpanderSegment* expanderp = new LLExpanderSegment(new LLStyle(expander_style), getLineStart(last_line), getLength() + 1, "More", *this);
+		insertSegment(expanderp);
+		mExpanded = true;
+	}
+
+}
+
+//NOTE: obliterates existing styles (including hyperlinks)
 void LLExpandableTextBox::LLTextBoxEx::hideExpandText() 
 { 
-	mExpandTextBox->setVisible(FALSE); 
-}
-
-S32 LLExpandableTextBox::LLTextBoxEx::getCropTextWidth() 
-{ 
-	return mExpandTextBox->getRect().mLeft - getHPad() * 2; 
-}
-
-/*
-// *NOTE:James:
-// LLTextBox::drawText() has been completely rewritten, as it now handles
-// arbitrarily styled segments of text.  This needs to be rebuilt.
-
-void LLExpandableTextBox::LLTextBoxEx::drawTextSegments(S32 init_x, S32 init_y, const LLWString &text)
-{
-
-	// *NOTE:dzaporozhan:
-	// Copy/paste from LLTextBox::drawTextSegments in order to modify last 
-	// line width if needed and who "More" link
-	F32 alpha = getDrawContext().mAlpha;
-
-	const S32 text_len = text.length();
-	if (text_len <= 0)
+	if (mExpanded)
 	{
-		return;
-	}
-
-	S32 cur_line = 0;
-	S32 num_lines = getLineCount();
-	S32 line_start = getLineStart(cur_line);
-	S32 line_height = llround( mDefaultFont->getLineHeight() ) + mLineSpacing;
-	F32 text_y = (F32) init_y;
-	segment_set_t::iterator cur_seg = mSegments.begin();
-
-	// render a line of text at a time
-	const LLRect textRect = getLocalRect();
-	while((textRect.mBottom <= text_y) && (cur_line < num_lines))
-	{
-		S32 next_start = -1;
-		S32 line_end = text_len;
-
-		if ((cur_line + 1) < num_lines)
-		{
-			next_start = getLineStart(cur_line + 1);
-			line_end = next_start;
-		}
-		if ( text[line_end-1] == '\n' )
-		{
-			--line_end;
-		}
-
-		// render all segments on this line
-		F32 text_x = init_x;
-		S32 seg_start = line_start;
-		while (seg_start < line_end && cur_seg != mSegments.end())
-		{
-			// move to the next segment (or continue the previous one)
-			LLTextSegment *cur_segment = *cur_seg;
-			while (cur_segment->getEnd() <= seg_start)
-			{
-				if (++cur_seg == mSegments.end())
-				{
-					return;
-				}
-				cur_segment = *cur_seg;
-			}
-
-			// Draw a segment within the line
-			S32 clipped_end	= llmin( line_end, cur_segment->getEnd() );
-			S32 clipped_len = clipped_end - seg_start;
-			if( clipped_len > 0 )
-			{
-				LLStyleSP style = cur_segment->getStyle();
-				if (style && style->isVisible())
-				{
-					// work out the color for the segment
-					LLColor4 color ;
-					if (getEnabled())
-					{
-						color = style->isLink() ? mLinkColor.get() : mTextColor.get();
-					}
-					else
-					{
-						color = mDisabledColor.get();
-					}
-					color = color % alpha;
-
-					S32 max_pixels = textRect.getWidth();
-
-					if(cur_line + 1 < num_lines
-						&& text_y - line_height < line_height)
-					{
-						max_pixels = getCropTextWidth();
-					}
-
-					// render a single line worth for this segment
-					mDefaultFont->render(text, seg_start, text_x, text_y, color,
-						mHAlign, mVAlign, 0, mShadowType, clipped_len,
-						max_pixels, &text_x, mUseEllipses);
-				}
-
-				seg_start += clipped_len;
-			}
-		}
-
-		// move down one line
-		text_y -= (F32)line_height;
-		line_start = next_start;
-		cur_line++;
-		if(text_y < line_height)
-		{
-			if( cur_line < num_lines )
-			{
-				showExpandText((S32)text_y);
-			}
-			else
-			{
-				hideExpandText();
-			}
-			break;
-		}
+		// this will overwrite the expander segment and all text styling with a single style
+		LLNormalTextSegment* segmentp = new LLNormalTextSegment(
+											new LLStyle(getDefaultStyle()), 0, getLength() + 1, *this);
+		insertSegment(segmentp);
+		
+		mExpanded = false;
 	}
 }
-*/
 
 S32 LLExpandableTextBox::LLTextBoxEx::getVerticalTextDelta()
 {
@@ -295,24 +163,24 @@ S32 LLExpandableTextBox::LLTextBoxEx::getVerticalTextDelta()
 //////////////////////////////////////////////////////////////////////////
 
 LLExpandableTextBox::Params::Params()
-: textbox("textbox")
-, scroll("scroll")
-, max_height("max_height", 0)
-, bg_visible("bg_visible", false)
-, expanded_bg_visible("expanded_bg_visible", true)
-, bg_color("bg_color", LLColor4::black)
-, expanded_bg_color("expanded_bg_color", LLColor4::black)
+:	textbox("textbox"),
+	scroll("scroll"),
+	max_height("max_height", 0),
+	bg_visible("bg_visible", false),
+	expanded_bg_visible("expanded_bg_visible", true),
+	bg_color("bg_color", LLColor4::black),
+	expanded_bg_color("expanded_bg_color", LLColor4::black)
 {
 }
 
 LLExpandableTextBox::LLExpandableTextBox(const Params& p)
-: LLUICtrl(p)
-, mMaxHeight(p.max_height)
-, mBGVisible(p.bg_visible)
-, mExpandedBGVisible(p.expanded_bg_visible)
-, mBGColor(p.bg_color)
-, mExpandedBGColor(p.expanded_bg_color)
-, mExpanded(false)
+:	LLUICtrl(p),
+	mMaxHeight(p.max_height),
+	mBGVisible(p.bg_visible),
+	mExpandedBGVisible(p.expanded_bg_visible),
+	mBGColor(p.bg_color),
+	mExpandedBGColor(p.expanded_bg_color),
+	mExpanded(false)
 {
 	LLRect rc = getLocalRect();
 
@@ -474,8 +342,6 @@ void LLExpandableTextBox::collapseTextBox()
 
 	updateTextBoxRect();
 
-	// Should be handled automatically in reshape above. JC
-	//mTextBox->setWrappedText(mText);
 	if(gFocusMgr.getTopCtrl() == this)
 	{
 		gFocusMgr.setTopCtrl(NULL);
